@@ -127,6 +127,8 @@ void InitQueens()
         nEggFree[i] = i;
         QueenEgg[i].field_8 = -1;
     }
+
+    nEggsFree = kMaxEggs;
 }
 
 int GrabEgg()
@@ -151,16 +153,16 @@ void DestroyEgg(short nEgg)
 {
     short nSprite = QueenEgg[nEgg].nSprite;
 
-    if (QueenEgg[nEgg].nAction == 4)
+    if (QueenEgg[nEgg].nAction != 4)
+    {
+        BuildAnim(-1, 34, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, sprite[nSprite].xrepeat, 4);
+    }
+    else
     {
         for (int i = 0; i < 4; i++)
         {
             BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqQueenEgg, (i % 2) + 24, 0));
         }
-    }
-    else
-    {
-        BuildAnim(-1, 34, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, sprite[nSprite].xrepeat, 4);
     }
 
     runlist_DoSubRunRec(sprite[nSprite].owner);
@@ -190,15 +192,15 @@ void SetHeadVel(short nSprite)
 {
     short nAngle = sprite[nSprite].ang;
 
-    if (nVelShift < 0)
+    if (nVelShift >= 0)
     {
-        sprite[nSprite].xvel = Sin(nAngle + 512) << (int8_t)(-nVelShift);
-        sprite[nSprite].yvel = Sin(nAngle) << (int8_t)(-nVelShift);
+        sprite[nSprite].xvel = Cos(nAngle) >> (int8_t)(nVelShift);
+        sprite[nSprite].yvel = Sin(nAngle) >> (int8_t)(nVelShift);
     }
     else
     {
-        sprite[nSprite].xvel = Sin(nAngle + 512) >> (int8_t)(nVelShift);
-        sprite[nSprite].yvel = Sin(nAngle) >> (int8_t)(nVelShift);
+        sprite[nSprite].xvel = Cos(nAngle) << (int8_t)(-nVelShift);
+        sprite[nSprite].yvel = Sin(nAngle) << (int8_t)(-nVelShift);
     }
 }
 
@@ -206,86 +208,61 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
 {
     short nAngle;
 
+    spritetype *pSprite = &sprite[nSprite];
     if (nSprite2 < 0)
     {
-        sprite[nSprite].zvel = 0;
-        nAngle = sprite[nSprite].ang;
+        pSprite->zvel = 0;
+        nAngle = pSprite->ang;
     }
     else
     {
-        int nTileY = (tilesiz[sprite[nSprite2].picnum].y * sprite[nSprite2].yrepeat) * 2;
+        spritetype *pSprite2 = &sprite[nSprite2];
+        int nTileY = (tilesiz[pSprite2->picnum].y * pSprite2->yrepeat) * 2;
 
-        int nMyAngle = GetMyAngle(sprite[nSprite2].x - sprite[nSprite].x, sprite[nSprite2].y - sprite[nSprite].y);
+        int nMyAngle = GetMyAngle(pSprite2->x - pSprite->x, pSprite2->y - pSprite->y);
 
-        int edx = ((sprite[nSprite2].z - nTileY) - sprite[nSprite].z) >> 8;
+        int edx = ((pSprite2->z - nTileY) - pSprite->z) >> 8;
 
-        int x = sprite[nSprite2].x - sprite[nSprite].x;
-        int y = sprite[nSprite2].y - sprite[nSprite].y;
+        int x = pSprite2->x - pSprite->x;
+        int y = pSprite2->y - pSprite->y;
 
         int nSqrt = ksqrt(x * x + y * y);
 
         int var_14 = GetMyAngle(nSqrt, edx);
 
-        int nAngDelta = AngleDelta(sprite[nSprite].ang, nMyAngle, 1024);
-        int nAngDeltaB = nAngDelta; // edx
-        int nAngDeltaC = nAngDelta; // edi
+        int nAngDelta = AngleDelta(pSprite->ang, nMyAngle, 1024);
 
-        if (nAngDelta < 0) {
-            nAngDelta = -nAngDelta;
-        }
-
-        if (nAngDelta > 127)
+        if (klabs(nAngDelta) > 127)
         {
-            nAngDelta = nAngDeltaB >> 7;
-            if (nAngDelta < 0) {
-                nAngDelta = -nAngDelta;
-            }
-
-            val1 = val1 / nAngDelta;
-
-            if (val1 < 256) {
+            val1 /= klabs(nAngDelta>>7);
+            if (val1 < 256)
                 val1 = 256;
-            }
         }
 
-        // restore the value of nAngDelta
-        nAngDelta = nAngDeltaC;
-
-        if (nAngDelta < 0) {
-            nAngDelta = -nAngDelta;
-        }
-
-        if (nAngDelta > val2)
+        if (klabs(nAngDelta) > val2)
         {
-            if (nAngDeltaC >= 0)
-            {
-                nAngDeltaC = val2;
-            }
+            if (nAngDelta < 0)
+                nAngDelta = -val2;
             else
-            {
-                nAngDeltaC = -val2;
-            }
+                nAngDelta = val2;
         }
 
-        nAngle = (nAngDeltaC + sprite[nSprite].ang) & kAngleMask;
+        nAngle = (nAngDelta + sprite[nSprite].ang) & kAngleMask;
 
-        sprite[nSprite].zvel = (AngleDelta(sprite[nSprite].zvel, var_14, 24) + sprite[nSprite].zvel) & kAngleMask;
+        pSprite->zvel = (AngleDelta(pSprite->zvel, var_14, 24) + pSprite->zvel) & kAngleMask;
     }
 
-    sprite[nSprite].ang = nAngle;
+    pSprite->ang = nAngle;
 
-    int x = Sin(sprite[nSprite].zvel + 512);
+    int da = pSprite->zvel;
+    int x = klabs(Cos(da));
 
-    if (x < 0) {
-        x = -x;
-    }
-
-    int v26 = x * ((val1 * Sin(nAngle + 512)) >> 14);
+    int v26 = x * ((val1 * Cos(nAngle)) >> 14);
     int v27 = x * ((val1 * Sin(nAngle)) >> 14);
 
-    int nSqrt = ksqrt(((v26 >> 8) * (v26 >> 8)) + ((v27 >> 8) * (v27 >> 8)));
+    int nSqrt = ksqrt(((v26 >> 8) * (v26 >> 8)) + ((v27 >> 8) * (v27 >> 8))) * Sin(da);
 
-    return movesprite(nSprite, v26 >> 2, v27 >> 2, (Sin(bobangle) >> 5) + ((nSqrt * Sin(sprite[nSprite].zvel)) >> 13), 0, 0, CLIPMASK1);
+    return movesprite(nSprite, v26 >> 2, v27 >> 2, (Sin(bobangle) >> 5) + (nSqrt >> 13), 0, 0, CLIPMASK1);
 }
 
 int DestroyTailPart()
@@ -294,10 +271,7 @@ int DestroyTailPart()
         return 0;
     }
 
-    QueenHead.field_E--;
-    int edx = QueenHead.field_E;
-
-    short nSprite = tailspr[edx];
+    short nSprite = tailspr[--QueenHead.field_E];
 
     BlowChunks(nSprite);
     BuildExplosion(nSprite);
@@ -392,7 +366,16 @@ int BuildQueenEgg(short nQueen, int nVal)
     sprite[nSprite2].picnum = 1;
     sprite[nSprite2].ang = (RandomSize(9) + (nAngle - 256)) & kAngleMask;
 
-    if (nVal)
+    if (!nVal)
+    {
+        sprite[nSprite2].xrepeat = 30;
+        sprite[nSprite2].yrepeat = 30;
+        sprite[nSprite2].xvel = Cos(sprite[nSprite2].ang);
+        sprite[nSprite2].yvel = Sin(sprite[nSprite2].ang);
+        sprite[nSprite2].zvel = -6000;
+        sprite[nSprite2].cstat = 0;
+    }
+    else
     {
         sprite[nSprite2].xrepeat = 60;
         sprite[nSprite2].yrepeat = 60;
@@ -400,15 +383,6 @@ int BuildQueenEgg(short nQueen, int nVal)
         sprite[nSprite2].yvel = 0;
         sprite[nSprite2].zvel = -2000;
         sprite[nSprite2].cstat = 0x101;
-    }
-    else
-    {
-        sprite[nSprite2].xrepeat = 30;
-        sprite[nSprite2].yrepeat = 30;
-        sprite[nSprite2].xvel = Sin(sprite[nSprite2].ang + 512);
-        sprite[nSprite2].yvel = Sin(sprite[nSprite2].ang);
-        sprite[nSprite2].zvel = -6000;
-        sprite[nSprite2].cstat = 0;
     }
 
     sprite[nSprite2].lotag = runlist_HeadRun() + 1;
@@ -443,8 +417,9 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
 
     int var_14 = 0;
 
-    short nSprite = QueenEgg[nEgg].nSprite;
-    short nAction = QueenEgg[nEgg].nAction;
+    Egg *pEgg = &QueenEgg[nEgg];
+    short nSprite = pEgg->nSprite;
+    short nAction = pEgg->nAction;
 
     short nTarget;
 
@@ -452,154 +427,101 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
 
     switch (nMessage)
     {
-        default:
-        {
-            DebugOut("unknown msg %d for Queenhead\n", a & 0x7F0000);
-            return;
-        }
-
-        case 0x90000:
-        {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqQueenEgg] + EggSeq[nAction].a, QueenEgg[nEgg].field_2, EggSeq[nAction].b);
-            return;
-        }
-
-        case 0xA0000:
-        {
-            if (sprite[nRadialSpr].statnum == 121) {
-                return;
-            }
-
-            if (!(sprite[nSprite].cstat & 0x101)) {
-                return;
-            }
-
-            nDamage = runlist_CheckRadialDamage(nSprite);
-
-            QueenEgg[nEgg].nHealth -= nDamage;
-            return;
-        }
-
-        case 0x80000:
-        {
-            if (!nDamage) {
-                return;
-            }
-
-            if (QueenEgg[nEgg].nHealth <= 0) {
-                return;
-            }
-
-            QueenEgg[nEgg].nHealth -= nDamage;
-
-            if (QueenEgg[nEgg].nHealth > 0) {
-                return;
-            }
-
-            DestroyEgg(nEgg);
-            return;
-        }
-
         case 0x20000:
         {
-            if (QueenEgg[nEgg].nHealth <= 0)
+            if (pEgg->nHealth <= 0)
             {
                 DestroyEgg(nEgg);
                 return;
             }
 
-            if (!nAction || nAction == 4) {
+            if (nAction == 0 || nAction == 4) {
                 Gravity(nSprite);
             }
 
             short nSeq = SeqOffsets[kSeqQueenEgg] + EggSeq[nAction].a;
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, QueenEgg[nEgg].field_2);
+            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, pEgg->field_2);
 
             if (nAction != 4)
             {
-                seq_MoveSequence(nSprite, nSeq, QueenEgg[nEgg].field_2);
+                seq_MoveSequence(nSprite, nSeq, pEgg->field_2);
 
-                QueenEgg[nEgg].field_2++;
-                if (QueenEgg[nEgg].field_2 >= SeqSize[nSeq])
+                pEgg->field_2++;
+                if (pEgg->field_2 >= SeqSize[nSeq])
                 {
-                    QueenEgg[nEgg].field_2 = 0;
+                    pEgg->field_2 = 0;
                     var_14 = 1;
                 }
 
-                nTarget = UpdateEnemy(&QueenEgg[nEgg].nTarget);
-                QueenEgg[nEgg].nTarget = nTarget;
+                nTarget = UpdateEnemy(&pEgg->nTarget);
+                pEgg->nTarget = nTarget;
 
-                if (nTarget < 0 || (sprite[nTarget].cstat & 0x101))
+                if (nTarget >= 0 && (sprite[nTarget].cstat & 0x101) == 0)
                 {
-                    nTarget = FindPlayer(-nSprite, 1000);
-                    QueenEgg[nEgg].nTarget = nTarget;
+                    pEgg->nTarget = -1;
+                    pEgg->nAction = 0;
                 }
                 else
                 {
-                    QueenEgg[nEgg].nTarget = -1;
-                    QueenEgg[nEgg].nAction = 0;
+                    nTarget = FindPlayer(-nSprite, 1000);
+                    pEgg->nTarget = nTarget;
                 }
             }
 
             switch (nAction)
             {
-                default:
-                    return;
-
                 case 0:
                 {
                     int nMov = MoveCreature(nSprite);
                     if (!nMov) {
-                        return;
+                        break;
                     }
 
-                    if (nMov != 0x20000)
-                    {
-                        short nAngle;
-
-                        if ((nMov & 0xC000) == 0x8000)
-                        {
-                            nAngle = GetWallNormal(nMov & 0x3FFF);
-                        }
-                        else if ((nMov & 0xC000) == 0xC000)
-                        {
-                            nAngle = sprite[nMov & 0x3FFF].ang;
-                        }
-                        else {
-                            return;
-                        }
-
-                        sprite[nSprite].ang = nAngle;
-                        sprite[nSprite].xvel = Sin(nAngle + 512) >> 1;
-                        sprite[nSprite].yvel = Sin(nAngle) >> 1;
-                    }
-                    else
+                    if (nMov & 0x20000)
                     {
                         if (!RandomSize(1))
                         {
-                            QueenEgg[nEgg].nAction = 1;
-                            QueenEgg[nEgg].field_2 = 0;
+                            pEgg->nAction = 1;
+                            pEgg->field_2 = 0;
                         }
                         else
                         {
                             DestroyEgg(nEgg);
                         }
                     }
+                    else
+                    {
+                        short nAngle;
 
-                    return;
+                        switch (nMov & 0xC000)
+                        {
+                        default:
+                            return;
+                        case 0x8000:
+                            nAngle = GetWallNormal(nMov & 0x3FFF);
+                            break;
+                        case 0xC000:
+                            nAngle = sprite[nMov & 0x3FFF].ang;
+                            break;
+                        }
+
+                        sprite[nSprite].ang = nAngle;
+                        sprite[nSprite].xvel = Cos(nAngle) >> 1;
+                        sprite[nSprite].yvel = Sin(nAngle) >> 1;
+                    }
+
+                    break;
                 }
 
                 case 1:
                 {
-                    if (!var_14) {
-                        return;
+                    if (var_14)
+                    {
+                        pEgg->nAction = 3;
+                        sprite[nSprite].cstat = 0x101;
                     }
-
-                    QueenEgg[nEgg].nAction = 3;
-
-                    sprite[nSprite].cstat = 0x101;
-                    return;
+                    break;
                 }
 
                 case 2:
@@ -607,26 +529,21 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                 {
                     int nMov = QueenAngleChase(nSprite, nTarget, nHeadVel, 64);
 
-                    if ((nMov & 0xC000) == 0x8000)
+                    switch (nMov & 0xC000)
                     {
-                        sprite[nSprite].ang += (RandomSize(9) + 768);
-                        sprite[nSprite].ang &= kAngleMask;
-                        sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512) >> 3;
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 3;
-                        sprite[nSprite].zvel = -RandomSize(5);
-                    }
-                    else if ((nMov & 0xC000) == 0xC000)
-                    {
+                    case 0xC000:
                         if (sprite[nMov & 0x3FFF].statnum != 121)
                         {
                             runlist_DamageEnemy(nMov & 0x3FFF, nSprite, 5);
                         }
-
+                        fallthrough__;
+                    case 0x8000:
                         sprite[nSprite].ang += (RandomSize(9) + 768);
                         sprite[nSprite].ang &= kAngleMask;
-                        sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512) >> 3;
+                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 3;
                         sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 3;
                         sprite[nSprite].zvel = -RandomSize(5);
+                        break;
                     }
 
                     return;
@@ -636,7 +553,7 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                 {
                     int nMov = MoveCreature(nSprite);
 
-                    if (nMov == 0x20000)
+                    if (nMov & 0x20000)
                     {
                         sprite[nSprite].zvel = -(sprite[nSprite].zvel - 256);
                         if (sprite[nSprite].zvel < -512)
@@ -645,18 +562,53 @@ void FuncQueenEgg(int a, int nDamage, int nRun)
                         }
                     }
 
-                    QueenEgg[nEgg].field_C--;
-                    if (QueenEgg[nEgg].field_C > 0) {
-                        return;
+                    pEgg->field_C--;
+                    if (pEgg->field_C <= 0)
+                    {
+                        short nWaspSprite = BuildWasp(-2, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, sprite[nSprite].ang);
+                        sprite[nSprite].z = sprite[nWaspSprite].z;
+
+                        DestroyEgg(nEgg);
                     }
-
-                    short nWaspSprite = BuildWasp(-2, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, sprite[nSprite].ang);
-                    sprite[nSprite].z = sprite[nWaspSprite].z;
-
-                    DestroyEgg(nEgg);
-                    return;
+                    break;
                 }
             }
+            break;
+        }
+
+        case 0xA0000:
+        {
+            if (sprite[nRadialSpr].statnum != 121 && (sprite[nSprite].cstat & 0x101) != 0)
+            {
+                nDamage = runlist_CheckRadialDamage(nSprite);
+
+                pEgg->nHealth -= nDamage;
+            }
+            break;
+        }
+
+        case 0x80000:
+        {
+            if (nDamage != 0 && pEgg->nHealth > 0)
+            {
+                QueenEgg[nEgg].nHealth -= nDamage;
+
+                if (QueenEgg[nEgg].nHealth <= 0)
+                    DestroyEgg(nEgg);
+            }
+            break;
+        }
+
+        case 0x90000:
+        {
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqQueenEgg] + EggSeq[nAction].a, pEgg->field_2, EggSeq[nAction].b);
+            break;
+        }
+
+        default:
+        {
+            DebugOut("unknown msg %d for Queenhead\n", a & 0x7F0000);
+            break;
         }
     }
 }
@@ -726,7 +678,7 @@ void FuncQueenHead(int a, int nDamage, int nRun)
 
     short nAction = QueenHead.nAction;
 
-    short nTarget;
+    short nTarget, nHd;
 
     int var_14 = 0;
 
@@ -734,90 +686,6 @@ void FuncQueenHead(int a, int nDamage, int nRun)
 
     switch (nMessage)
     {
-        default:
-        {
-            DebugOut("unknown msg %d for Queenhead\n", a & 0x7F0000);
-            return;
-        }
-
-        case 0x90000:
-        {
-            short nSeq = SeqOffsets[kSeqQueen];
-
-            int edx;
-
-            if (nHead)
-            {
-                edx = 1;
-                nSeq += 73;
-            }
-            else
-            {
-                edx = HeadSeq[nAction].b;
-                nSeq += HeadSeq[nAction].a;
-            }
-
-            seq_PlotSequence(a & 0xFFFF, nSeq, QueenHead.field_2, edx);
-            return;
-        }
-
-        case 0xA0000:
-        {
-            if (sprite[nRadialSpr].statnum == 121) {
-                return;
-            }
-
-            if (!(sprite[nSprite].cstat & 0x101)) {
-                return;
-            }
-
-            nDamage = runlist_CheckRadialDamage(nSprite);
-            if (!nDamage) {
-                return;
-            }
-            // fall through to case 0x80000
-        }
-
-        case 0x80000:
-        {
-            if (QueenHead.nHealth <= 0) {
-                return;
-            }
-
-            if (!nDamage) {
-                return;
-            }
-
-            QueenHead.nHealth -= nDamage;
-
-            if (!RandomSize(4))
-            {
-                QueenHead.nTarget = a & 0xFFFF;
-                QueenHead.nAction = 7;
-                QueenHead.field_2 = 0;
-            }
-
-            if (QueenHead.nHealth > 0) {
-                return;
-            }
-
-            if (DestroyTailPart())
-            {
-                QueenHead.nHealth = 10; // 200;
-                nHeadVel += 100;
-                return;
-            }
-            else
-            {
-                QueenHead.nAction = 5;
-                QueenHead.field_2 = 0;
-                QueenHead.field_C = 0;
-                QueenHead.field_E = 80;
-                sprite[nSprite].cstat = 0;
-                return;
-            }
-        }
-
         case 0x20000:
         {
             if (nAction == 0) {
@@ -839,12 +707,7 @@ void FuncQueenHead(int a, int nDamage, int nRun)
 
             nTarget = QueenHead.nTarget;
 
-            if (nTarget <= -1)
-            {
-                nTarget = FindPlayer(nSprite, 1000);
-                QueenHead.nTarget = nTarget;
-            }
-            else
+            if (nTarget > -1)
             {
                 if (!(sprite[nTarget].cstat & 0x101))
                 {
@@ -852,14 +715,15 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                     QueenHead.nTarget = nTarget;
                 }
             }
+            else
+            {
+                nTarget = FindPlayer(nSprite, 1000);
+                QueenHead.nTarget = nTarget;
+            }
 
             switch (nAction)
             {
-                default:
-                    return;
-
                 case 0: 
-                {
                     if (QueenHead.field_C > 0)
                     {
                         QueenHead.field_C--;
@@ -870,14 +734,11 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                             QueenHead.nAction = 6;
                             nHeadVel = 800;
                             sprite[nSprite].cstat = 0x101;
-                            return;
                         }
-
-                        if (QueenHead.field_C < 60) {
+                        else if (QueenHead.field_C < 60)
+                        {
                             sprite[nSprite].shade--;
                         }
-
-                        return;
                     }
                     else
                     {
@@ -886,16 +747,17 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                         // original BUG - this line doesn't exist in original code?
                         short nNewAng = sprite[nSprite].ang;
 
-                        if ((nMov & 0xFC000) == 0xC000)
+                        switch (nMov & 0xFC000)
                         {
+                        default:
+                            return;
+                        case 0xC000:
                             nNewAng = sprite[nMov & 0x3FFF].ang;
-                        }
-                        else if ((nMov & 0xFC000) == 0x8000)
-                        {
+                            break;
+                        case 0x8000:
                             nNewAng = GetWallNormal(nMov & 0x3FFF);
-                        }
-                        else if ((nMov & 0xFC000) == 0x20000)
-                        {
+                            break;
+                        case 0x20000:
                             sprite[nSprite].zvel = -(sprite[nSprite].zvel >> 1);
 
                             if (sprite[nSprite].zvel > -256)
@@ -903,10 +765,7 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                                 nVelShift = 100;
                                 sprite[nSprite].zvel = 0;
                             }
-                        }
-                        else
-                        {
-                            return;
+                            break;
                         }
 
                         // original BUG - var_18 isn't being set if the check above == 0x20000 ?
@@ -916,7 +775,6 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                         if (nVelShift < 5)
                         {
                             SetHeadVel(nSprite);
-                            return;
                         }
                         else
                         {
@@ -927,40 +785,36 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                             {
                                 QueenHead.field_C = 120;
                             }
-
-                            return;
                         }
                     }
 
-                    return;
-                }
+                    break;
 
-                case 1:
-                {
-                    if ((sprite[nTarget].z - 51200) <= sprite[nSprite].z)
+                case 6:
+                    if (var_14)
                     {
-                        sprite[nSprite].z -= 2048;
+                        QueenHead.nAction = 1;
+                        QueenHead.field_2 = 0;
                         break;
                     }
-                    else
+                    fallthrough__;
+
+                case 1:
+                    if ((sprite[nTarget].z - 51200) > sprite[nSprite].z)
                     {
                         QueenHead.nAction = 4;
                         QueenHead.field_2 = 0;
                     }
-
-                    return;
-                }
-
-                case 2:
-                case 3:
-                {
-                    return;
-                }
+                    else
+                    {
+                        sprite[nSprite].z -= 2048;
+                        goto __MOVEQS;
+                    }
+                    break;
 
                 case 4:
                 case 7:
                 case 8:
-                {
                     if (var_14)
                     {
                         int nRnd = RandomSize(2);
@@ -969,14 +823,13 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                         {
                             QueenHead.nAction = 4;
                         }
+                        else if (nRnd == 1)
+                        {
+                            QueenHead.nAction = 7;
+                        }
                         else
                         {
-                            if (nRnd == 1) {
-                                QueenHead.nAction = 7;
-                            }
-                            else {
-                                QueenHead.nAction = 8;
-                            }
+                            QueenHead.nAction = 8;
                         }
                     }
 
@@ -984,16 +837,15 @@ void FuncQueenHead(int a, int nDamage, int nRun)
                     {
                         int nMov = QueenAngleChase(nSprite, nTarget, nHeadVel, 64);
 
-                        if ((nMov & 0xC000) == 0x8000) {
-                            break;
-                        }
-
-                        if ((nMov & 0xC000) == 0xC000)
+                        switch (nMov & 0xC000)
                         {
+                        case 0x8000:
+                            break;
+                        case 0xC000:
                             if ((nMov & 0x3FFF) == nTarget)
                             {
                                 runlist_DamageEnemy(nTarget, nSprite, 10);
-                                D3PlayFX((StaticSound[kSoundQTail] | 0x2000) & 0xFFFF, nSprite);
+                                D3PlayFX(StaticSound[kSoundQTail] | 0x2000, nSprite);
 
                                 sprite[nSprite].ang += RandomSize(9) + 768;
                                 sprite[nSprite].ang &= kAngleMask;
@@ -1002,160 +854,197 @@ void FuncQueenHead(int a, int nDamage, int nRun)
 
                                 SetHeadVel(nSprite);
                             }
+                            break;
                         }
+                    }
+
+                    // switch break. MoveQS stuff?
+__MOVEQS:
+                    MoveQX[nQHead] = sprite[nSprite].x;
+                    MoveQY[nQHead] = sprite[nSprite].y;
+                    MoveQZ[nQHead] = sprite[nSprite].z;
+                    assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
+                    MoveQS[nQHead] = sprite[nSprite].sectnum;
+                    MoveQA[nQHead] = sprite[nSprite].ang;
+
+                    nHd = nQHead;
+
+                    for (int i = 0; i < QueenHead.field_E; i++)
+                    {
+                        nHd -= 3;
+                        if (nHd < 0) {
+                            nHd += (24 + 1); // TODO - enum/define for these
+                            //assert(nHd < 24 && nHd >= 0);
+                        }
+
+                        int var_20 = MoveQS[nHd];
+                        short nTSprite = tailspr[i];
+
+                        if (var_20 != sprite[nTSprite].sectnum)
+                        {
+                            assert(var_20 >= 0 && var_20 < kMaxSectors);
+                            mychangespritesect(nTSprite, var_20);
+                        }
+
+                        sprite[nTSprite].x = MoveQX[nHd];
+                        sprite[nTSprite].y = MoveQY[nHd];
+                        sprite[nTSprite].z = MoveQZ[nHd];
+                        sprite[nTSprite].ang = MoveQA[nHd];
+                    }
+
+                    nQHead++;
+                    if (nQHead >= 25)
+                    {
+                        nQHead = 0;
                     }
 
                     break;
-                }
 
                 case 5:
-                {
                     QueenHead.field_C--;
-                    if (QueenHead.field_C > 0) {
-                        return;
-                    }
-
-                    short ax = QueenHead.field_E;
+                    if (QueenHead.field_C <= 0)
+                    {
+                        short ax = QueenHead.field_E;
                     
-                    QueenHead.field_C = 3;
-                    QueenHead.field_E--;
+                        QueenHead.field_C = 3;
+                        QueenHead.field_E--;
 
-                    if (ax == 0)
-                    {
-                        BuildExplosion(nSprite);
-
-                        int i;
-
-                        for (i = 0; i < 10; i++)
+                        if (ax == 0)
                         {
-                            BlowChunks(nSprite);
-                        }
-
-                        for (i = 0; i < 20; i++)
-                        {
-                            BuildLavaLimb(nSprite, i, GetSpriteHeight(nSprite));
-                        }
-
-                        runlist_SubRunRec(sprite[nSprite].owner);
-                        runlist_SubRunRec(QueenHead.field_8);
-                        mydeletesprite(nSprite);
-                        runlist_ChangeChannel(QueenChan[0], 1);
-                    }
-                    else
-                    {
-                        if (QueenHead.field_E >= 15 || QueenHead.field_E < 10)
-                        {
-                            int x = sprite[nSprite].x;
-                            int y = sprite[nSprite].y;
-                            int z = sprite[nSprite].z;
-                            short nSector = sprite[nSprite].sectnum;
-
-                            sprite[nSprite].xrepeat = 127 - QueenHead.field_E;
-                            sprite[nSprite].yrepeat = 127 - QueenHead.field_E;
-                            
-                            sprite[nSprite].cstat = 0x8000;
-
-                            // DEMO-TODO: in disassembly angle was used without masking and thus causing OOB issue.
-                            // This behavior probably would be needed emulated for demo compatibility
-                            // int dx = sintable[RandomSize(11) & kAngleMask) + 512] << 10;
-                            int dx = Sin((RandomSize(11) & kAngleMask) + 512) << 10;
-                            int dy = Sin(RandomSize(11) & kAngleMask) << 10;
-                            int dz = (RandomSize(5) - RandomSize(5)) << 7;
-
-                            int nMov = movesprite(nSprite, dx, dy, dz, 0, 0, CLIPMASK1);
-
-                            BlowChunks(nSprite);
-                            BuildExplosion(nSprite);
-
-                            mychangespritesect(nSprite, nSector);
-
-                            sprite[nSprite].x = x;
-                            sprite[nSprite].y = y;
-                            sprite[nSprite].z = z;
-
-                            if (QueenHead.field_E >= 10) {
-                                return;
-                            }
-
-                            int ecx = (10 - QueenHead.field_E) * 2;
-
-                            while (ecx > 0)
+                            if (QueenHead.field_E >= 15 || QueenHead.field_E < 10)
                             {
-                                BuildLavaLimb(nSprite, ecx, GetSpriteHeight(nSprite));
-                                ecx--;
+                                int x = sprite[nSprite].x;
+                                int y = sprite[nSprite].y;
+                                int z = sprite[nSprite].z;
+                                short nSector = sprite[nSprite].sectnum;
+                                int nAngle = RandomSize(11) & kAngleMask;
+
+                                sprite[nSprite].xrepeat = 127 - QueenHead.field_E;
+                                sprite[nSprite].yrepeat = 127 - QueenHead.field_E;
+                            
+                                sprite[nSprite].cstat = 0x8000;
+
+                                // DEMO-TODO: in disassembly angle was used without masking and thus causing OOB issue.
+                                // This behavior probably would be needed emulated for demo compatibility
+                                // int dx = sintable[nAngle + 512] << 10;
+                                int dx = Cos(nAngle) << 10;
+                                int dy = Sin(nAngle) << 10;
+                                int dz = (RandomSize(5) - RandomSize(5)) << 7;
+
+                                int nMov = movesprite(nSprite, dx, dy, dz, 0, 0, CLIPMASK1);
+
+                                BlowChunks(nSprite);
+                                BuildExplosion(nSprite);
+
+                                mychangespritesect(nSprite, nSector);
+
+                                sprite[nSprite].x = x;
+                                sprite[nSprite].y = y;
+                                sprite[nSprite].z = z;
+
+                                if (QueenHead.field_E < 10) {
+                                    for (int i = (10 - QueenHead.field_E) * 2; i > 0; i--)
+                                    {
+                                        BuildLavaLimb(nSprite, i, GetSpriteHeight(nSprite));
+                                    }
+                                }
                             }
-                        }
-                    }
-
-                    return;
-                }
-
-                case 6:
-                {
-                    if (var_14 != 0)
-                    {
-                        QueenHead.nAction = 1;
-                        QueenHead.field_2 = 0;
-                        return;
-                    }
-                    else
-                    {
-                        if ((sprite[nTarget].z - 51200) > sprite[nSprite].z)
-                        {
-                            QueenHead.nAction = 4;
-                            QueenHead.field_2 = 0;
-                            return;
                         }
                         else
                         {
-                            sprite[nSprite].z -= 2048;
+                            BuildExplosion(nSprite);
+
+                            int i;
+
+                            for (i = 0; i < 10; i++)
+                            {
+                                BlowChunks(nSprite);
+                            }
+
+                            for (i = 0; i < 20; i++)
+                            {
+                                BuildLavaLimb(nSprite, i, GetSpriteHeight(nSprite));
+                            }
+
+                            runlist_SubRunRec(sprite[nSprite].owner);
+                            runlist_SubRunRec(QueenHead.field_8);
+                            mydeletesprite(nSprite);
+                            runlist_ChangeChannel(QueenChan[0], 1);
                         }
                     }
-
                     break;
-                }
             }
+            break;
+        }
 
-            // switch break. MoveQS stuff?
-            MoveQX[nQHead] = sprite[nSprite].x;
-            MoveQY[nQHead] = sprite[nSprite].y;
-            MoveQZ[nQHead] = sprite[nSprite].z;
-            assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
-            MoveQS[nQHead] = sprite[nSprite].sectnum;
-            MoveQA[nQHead] = sprite[nSprite].ang;
-
-            short nHd = nQHead;
-
-            for (int i = 0; i < QueenHead.field_E; i++)
+        case 0xA0000:
+            if (sprite[nRadialSpr].statnum != 121 && (sprite[nSprite].cstat & 0x101) != 0)
             {
-                nHd -= 3;
-                if (nHd < 0) {
-                    nHd += (24 + 1); // TODO - enum/define for these
-                    //assert(nHd < 24 && nHd >= 0);
-                }
+                nDamage = runlist_CheckRadialDamage(nSprite);
+                if (!nDamage)
+                    break;
+            }
+            else
+                break;
+            // fall through to case 0x80000
+            fallthrough__;
 
-                int var_20 = MoveQS[nHd];
-                short nTSprite = tailspr[i];
+        case 0x80000:
+            if (QueenHead.nHealth > 0 && nDamage != 0)
+            {
+                QueenHead.nHealth -= nDamage;
 
-                if (var_20 != sprite[nTSprite].sectnum)
+                if (!RandomSize(4))
                 {
-                    assert(var_20 >= 0 && var_20 < kMaxSectors);
-                    mychangespritesect(nSprite, var_20);
+                    QueenHead.nTarget = a & 0xFFFF;
+                    QueenHead.nAction = 7;
+                    QueenHead.field_2 = 0;
                 }
 
-                sprite[nTSprite].x = MoveQX[nHd];
-                sprite[nTSprite].y = MoveQY[nHd];
-                sprite[nTSprite].z = MoveQZ[nHd];
-                sprite[nTSprite].ang = MoveQA[nHd];
+                if (QueenHead.nHealth <= 0)
+                {
+                    if (DestroyTailPart())
+                    {
+                        QueenHead.nHealth = 200;
+                        nHeadVel += 100;
+                    }
+                    else
+                    {
+                        QueenHead.nAction = 5;
+                        QueenHead.field_2 = 0;
+                        QueenHead.field_C = 0;
+                        QueenHead.field_E = 80;
+                        sprite[nSprite].cstat = 0;
+                    }
+                }
             }
+            break;
 
-            nQHead++;
-            if (nQHead >= 25)
+        case 0x90000:
+        {
+            short nSeq = SeqOffsets[kSeqQueen];
+
+            int edx;
+
+            if (nHead == 0)
             {
-                nQHead = 0;
+                edx = HeadSeq[nAction].b;
+                nSeq += HeadSeq[nAction].a;
+            }
+            else
+            {
+                edx = 1;
+                nSeq += 73;
             }
 
-            return;
+            seq_PlotSequence(a & 0xFFFF, nSeq, QueenHead.field_2, edx);
+            break;
+        }
+
+        default:
+        {
+            DebugOut("unknown msg %d for Queenhead\n", a & 0x7F0000);
+            break;
         }
     }
 }
@@ -1230,7 +1119,7 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
 
 void SetQueenSpeed(short nSprite, int nSpeed)
 {
-    sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512) >> (2 - nSpeed);
+    sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> (2 - nSpeed);
     sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> (2 - nSpeed);
 }
 
@@ -1250,94 +1139,6 @@ void FuncQueen(int a, int nDamage, int nRun)
 
     switch (nMessage)
     {
-        default:
-        {
-            DebugOut("unknown msg %d for Queen\n", a & 0x7F0000);
-            return;
-        }
-
-        case 0xA0000:
-        {
-            if (sprite[nRadialSpr].statnum == 121) {
-                return;
-            }
-
-            if (!(sprite[nSprite].cstat & 0x101)) {
-                return;
-            }
-
-            nDamage = runlist_CheckRadialDamage(nSprite);
-
-            if (!nDamage) {
-                return;
-            }
-        } // fall through to case 0x80000
-
-        case 0x80000:
-        {
-            if (QueenList[nQueen].nHealth <= 0) {
-                return;
-            }
-
-            QueenList[nQueen].nHealth -= nDamage;
-
-            if (QueenList[nQueen].nHealth > 0)
-            {
-                if (si <= 0) {
-                    return;
-                }
-
-                if (RandomSize(4)) {
-                    return;
-                }
-
-                QueenList[nQueen].nAction = 7;
-                QueenList[nQueen].field_2 = 0;
-                return;
-            }
-            else
-            {
-                sprite[nSprite].xvel = 0;
-                sprite[nSprite].yvel = 0;
-                sprite[nSprite].zvel = 0;
-
-                QueenList[nQueen].field_A++;
-
-                if (QueenList[nQueen].field_A == 1)
-                {
-                    QueenList[nQueen].nHealth = 4000;
-                    QueenList[nQueen].nAction = 7;
-
-                    BuildAnim(-1, 36, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - 7680, sprite[nSprite].sectnum, sprite[nSprite].xrepeat, 4);
-                }
-                else if (QueenList[nQueen].field_A == 2)
-                {
-                    QueenList[nQueen].nHealth = 4000;
-                    QueenList[nQueen].nAction = 7;
-
-                    DestroyAllEggs();
-                }
-                else if (QueenList[nQueen].field_A == 3)
-                {
-                    QueenList[nQueen].nAction = 8;
-                    QueenList[nQueen].nHealth = 0;
-                    QueenList[nQueen].field_C = 5;
-
-                    nCreaturesLeft--;
-                }
-
-                QueenList[nQueen].field_2 = 0;
-            }
-
-            return;
-        }
-
-        case 0x90000:
-        {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqQueen] + ActionSeq[nAction].a, QueenList[nQueen].field_2, ActionSeq[nAction].b);
-            return;
-        }
-
         case 0x20000:
         {
             if (si < 3) {
@@ -1371,11 +1172,6 @@ void FuncQueen(int a, int nDamage, int nRun)
                     }
                 }
             }
-
-            if (nAction > 10) {
-                return;
-            }
-
             switch (nAction)
             {
                 case 0:
@@ -1385,18 +1181,28 @@ void FuncQueen(int a, int nDamage, int nRun)
                         nTarget = FindPlayer(nSprite, 60);
                     }
 
-                    if (nTarget < 0) {
-                        return;
+                    if (nTarget >= 0)
+                    {
+                        QueenList[nQueen].nAction = QueenList[nQueen].field_A + 1;
+                        QueenList[nQueen].field_2 = 0;
+                        QueenList[nQueen].nTarget = nTarget;
+                        QueenList[nQueen].field_C = RandomSize(7);
+
+                        SetQueenSpeed(nSprite, si);
+                    }
+                    break;
+                }
+
+                case 6:
+                {
+                    if (var_18)
+                    {
+                        BuildQueenEgg(nQueen, 1);
+                        QueenList[nQueen].nAction = 3;
+                        QueenList[nQueen].field_C = RandomSize(6) + 60;
                     }
 
-                    QueenList[nQueen].nAction = QueenList[nQueen].field_A + 1;
-                    QueenList[nQueen].field_2 = 0;
-                    QueenList[nQueen].nTarget = nTarget;
-                    QueenList[nQueen].field_C = RandomSize(7);
-
-                    SetQueenSpeed(nSprite, si);
-
-                    return;
+                    break;
                 }
 
                 case 1:
@@ -1409,7 +1215,16 @@ void FuncQueen(int a, int nDamage, int nRun)
                     {
                         if (si < 2)
                         {
-                            if (QueenList[nQueen].field_C > 0)
+                            if (QueenList[nQueen].field_C <= 0)
+                            {
+                                QueenList[nQueen].field_2 = 0;
+                                sprite[nSprite].xvel = 0;
+                                sprite[nSprite].yvel = 0;
+                                QueenList[nQueen].nAction = si + 4;
+                                QueenList[nQueen].field_C = RandomSize(6) + 30;
+                                break;
+                            }
+                            else
                             {
                                 if (QueenList[nQueen].field_10 < 5)
                                 {
@@ -1417,15 +1232,6 @@ void FuncQueen(int a, int nDamage, int nRun)
                                 }
 
                                 // then to PLOTSPRITE
-                            }
-                            else
-                            {
-                                QueenList[nQueen].field_2 = 0;
-                                sprite[nSprite].xvel = 0;
-                                sprite[nSprite].yvel = 0;
-                                QueenList[nQueen].nAction = si + 4;
-                                QueenList[nQueen].field_C = RandomSize(6) + 30;
-                                return;
                             }
                         }
                         else
@@ -1436,7 +1242,7 @@ void FuncQueen(int a, int nDamage, int nRun)
                                 {
                                     QueenList[nQueen].nAction = 6;
                                     QueenList[nQueen].field_2 = 0;
-                                    return;
+                                    break;
                                 }
                                 else
                                 {
@@ -1453,26 +1259,21 @@ void FuncQueen(int a, int nDamage, int nRun)
 
                     int nMov = MoveCreatureWithCaution(nSprite);
 
-                    if ((nMov & 0xC000) == 0xC000)
+                    switch (nMov & 0xC000)
                     {
-                        if ((si == 2) && ((nMov & 0x3FFF) == nTarget))
-                        {
-                            runlist_DamageEnemy(nTarget, nSprite, 5);
-                        }
-                        else
-                        {
+                        case 0xC000:
+                            if ((si == 2) && ((nMov & 0x3FFF) == nTarget))
+                            {
+                                runlist_DamageEnemy(nTarget, nSprite, 5);
+                                break;
+                            }
+                            fallthrough__;
+                        case 0x8000:
                             sprite[nSprite].ang += 256;
                             sprite[nSprite].ang &= kAngleMask;
 
                             SetQueenSpeed(nSprite, si);
-                        }
-                    }
-                    else if ((nMov & 0xC000) == 0x8000)
-                    {
-                        sprite[nSprite].ang += 256;
-                        sprite[nSprite].ang &= kAngleMask;
-
-                        SetQueenSpeed(nSprite, si);
+                            break;
                     }
 
                     // loc_35BD2
@@ -1487,11 +1288,10 @@ void FuncQueen(int a, int nDamage, int nRun)
 
                             sprite[nSprite].xvel = 0;
                             sprite[nSprite].yvel = 0;
-                            return;
                         }
                     }
 
-                    return;
+                    break;
                 }
 
                 case 4:
@@ -1510,30 +1310,18 @@ void FuncQueen(int a, int nDamage, int nRun)
 
                             PlotCourseToSprite(nSprite, nTarget);
 
-                            if (si)
+                            if (!si)
                             {
-                                BuildQueenEgg(nQueen, 0);
+                                BuildBullet(nSprite, 12, 0, 0, -1, sprite[nSprite].ang, nTarget + 10000, 1);
                             }
                             else
                             {
-                                BuildBullet(nSprite, 12, 0, 0, -1, sprite[nSprite].ang, nTarget + 10000, 1);
+                                BuildQueenEgg(nQueen, 0);
                             }
                         }
                     }
 
-                    return;
-                }
-
-                case 6:
-                {
-                    if (var_18)
-                    {
-                        BuildQueenEgg(nQueen, 1);
-                        QueenList[nQueen].nAction = 3;
-                        QueenList[nQueen].field_C = RandomSize(6) + 60;
-                    }
-
-                    return;
+                    break;
                 }
 
                 case 7:
@@ -1544,7 +1332,7 @@ void FuncQueen(int a, int nDamage, int nRun)
                         QueenList[nQueen].field_2 = 0;
                     }
 
-                    return;
+                    break;
                 }
 
                 case 8:
@@ -1552,52 +1340,131 @@ void FuncQueen(int a, int nDamage, int nRun)
                 {
                     if (var_18)
                     {
-                        if (nAction != 9)
+                        if (nAction == 9)
                         {
-                            QueenList[nQueen].nAction++;
-                            return;
-                        }
-
-                        QueenList[nQueen].field_C--;
-                        if (QueenList[nQueen].field_C <= 0)
-                        {
-                            sprite[nSprite].cstat = 0;
-
-                            for (int i = 0; i < 20; i++)
+                            QueenList[nQueen].field_C--;
+                            if (QueenList[nQueen].field_C <= 0)
                             {
-                                short nChunkSprite = BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqQueen, 57, 0)) & 0xFFFF;
+                                sprite[nSprite].cstat = 0;
 
-                                sprite[nChunkSprite].picnum = kTile3117 + (i % 3);
+                                for (int i = 0; i < 20; i++)
+                                {
+                                    short nChunkSprite = BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqQueen, 57, 0)) & 0xFFFF;
+
+                                    sprite[nChunkSprite].picnum = kTile3117 + (i % 3);
+                                    sprite[nChunkSprite].yrepeat = 100;
+                                    sprite[nChunkSprite].xrepeat = 100;
+                                }
+
+                                short nChunkSprite = BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqQueen, 57, 0));
+
+                                sprite[nChunkSprite].picnum = kTile3126;
                                 sprite[nChunkSprite].yrepeat = 100;
                                 sprite[nChunkSprite].xrepeat = 100;
+                                PlayFXAtXYZ(
+                                    StaticSound[kSound40],
+                                    sprite[nSprite].x,
+                                    sprite[nSprite].y,
+                                    sprite[nSprite].z,
+                                    sprite[nSprite].sectnum);
+                                BuildQueenHead(nQueen);
+
+                                QueenList[nQueen].nAction++;
                             }
-
-                            short nChunkSprite = BuildCreatureChunk(nSprite, seq_GetSeqPicnum(kSeqQueen, 57, 0));
-
-                            sprite[nChunkSprite].picnum = kTile3126;
-                            sprite[nChunkSprite].yrepeat = 100;
-                            sprite[nChunkSprite].xrepeat = 100;
-                            PlayFXAtXYZ(
-                                StaticSound[40],
-                                sprite[nSprite].x,
-                                sprite[nSprite].y,
-                                sprite[nSprite].z,
-                                sprite[nSprite].sectnum);
-                            BuildQueenHead(nQueen);
-
-                            QueenList[nQueen].nAction++;
                         }
+                        else
+                            QueenList[nQueen].nAction++;
                     }
 
-                    return;
+                    break;
                 }
 
                 case 10:
                 {
                     sprite[nSprite].cstat &= 0xFEFE;
-                    return;
+                    break;
                 }
             }
+            break;
+        }
+
+        case 0xA0000:
+        {
+            if (sprite[nRadialSpr].statnum != 121 && (sprite[nSprite].cstat & 0x101) != 0)
+            {
+                nDamage = runlist_CheckRadialDamage(nSprite);
+
+                if (!nDamage) {
+                    break;
+                }
+            }
+            else
+                break;
+
+            fallthrough__;
+        } // fall through to case 0x80000
+
+        case 0x80000:
+        {
+            if (QueenList[nQueen].nHealth > 0)
+            {
+                QueenList[nQueen].nHealth -= nDamage;
+
+                if (QueenList[nQueen].nHealth <= 0)
+                {
+                    sprite[nSprite].xvel = 0;
+                    sprite[nSprite].yvel = 0;
+                    sprite[nSprite].zvel = 0;
+
+                    QueenList[nQueen].field_A++;
+
+                    switch (QueenList[nQueen].field_A)
+                    {
+                    case 1:
+                        QueenList[nQueen].nHealth = 4000;
+                        QueenList[nQueen].nAction = 7;
+
+                        BuildAnim(-1, 36, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - 7680, sprite[nSprite].sectnum, sprite[nSprite].xrepeat, 4);
+                        break;
+                    case 2:
+                        QueenList[nQueen].nHealth = 4000;
+                        QueenList[nQueen].nAction = 7;
+
+                        DestroyAllEggs();
+                        break;
+                    case 3:
+                        QueenList[nQueen].nAction = 8;
+                        QueenList[nQueen].nHealth = 0;
+                        QueenList[nQueen].field_C = 5;
+
+                        nCreaturesLeft--;
+                        break;
+                    }
+
+                    QueenList[nQueen].field_2 = 0;
+                }
+                else
+                {
+                    if (si > 0 && !RandomSize(4))
+                    {
+                        QueenList[nQueen].nAction = 7;
+                        QueenList[nQueen].field_2 = 0;
+                    }
+                }
+            }
+            break;
+        }
+
+        case 0x90000:
+        {
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqQueen] + ActionSeq[nAction].a, QueenList[nQueen].field_2, ActionSeq[nAction].b);
+            break;
+        }
+
+        default:
+        {
+            DebugOut("unknown msg %d for Queen\n", a & 0x7F0000);
+            break;
         }
     }
 }
