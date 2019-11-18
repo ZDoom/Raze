@@ -120,7 +120,7 @@ int BuildSnake(short nPlayer, short zVal)
 
     vec3_t pos = { x, y, z };
     hitdata_t hitData;
-    hitscan(&pos, sprite[nPlayerSprite].sectnum, Sin(nAngle + 512), Sin(nAngle), 0, &hitData, CLIPMASK1);
+    hitscan(&pos, sprite[nPlayerSprite].sectnum, Cos(nAngle), Sin(nAngle), 0, &hitData, CLIPMASK1);
 
     hitx = hitData.pos.x;
     hity = hitData.pos.y;
@@ -128,11 +128,10 @@ int BuildSnake(short nPlayer, short zVal)
     hitsect = hitData.sect;
     hitwall = hitData.wall;
     hitsprite = hitData.sprite;
-    hitsprite = hitData.sprite;
 
     int nSqrt = ksqrt(((hity - y) * (hity - y)) + ((hitx - x) * (hitx - x)));
 
-    if (nSqrt < sintable[512] >> 4)
+    if (nSqrt < (sintable[512] >> 4))
     {
         BackUpBullet(&hitx, &hity, nAngle);
         nSprite = insertsprite(hitsect, 202);
@@ -148,17 +147,14 @@ int BuildSnake(short nPlayer, short zVal)
     {
         short nTarget;
 
-        if (hitsprite < 0 || sprite[hitsprite].statnum < 90 || sprite[hitsprite].statnum > 199) {
-            nTarget = sPlayerInput[nPlayer].nTarget;
+        if (hitsprite >= 0 && sprite[hitsprite].statnum >= 90 && sprite[hitsprite].statnum <= 199) {
+            nTarget = hitsprite;
         }
         else {
-            nTarget = hitsprite;
+            nTarget = sPlayerInput[nPlayer].nTarget;
         }
 
         short nSnake = GrabSnake();
-//		int var_40 = 0;
-
-        uint8_t var_18 = 0; // var_40 + var_40; // CHECKME ??
 
 //		GrabTimeSlot(3);
 
@@ -172,15 +168,7 @@ int BuildSnake(short nPlayer, short zVal)
             sprite[nSprite].owner = nPlayerSprite;
             sprite[nSprite].picnum = nPic;
 
-            if (i != 0)
-            {
-                sprite[nSprite].x = sprite[var_24].x;
-                sprite[nSprite].y = sprite[var_24].y;
-                sprite[nSprite].z = sprite[var_24].z;
-                sprite[nSprite].xrepeat = 40 - (var_18 + i);
-                sprite[nSprite].yrepeat = 40 - (var_18 + i);
-            }
-            else
+            if (i == 0)
             {
                 sprite[nSprite].x = sprite[nPlayerSprite].x;
                 sprite[nSprite].y = sprite[nPlayerSprite].y;
@@ -189,6 +177,14 @@ int BuildSnake(short nPlayer, short zVal)
                 sprite[nSprite].yrepeat = 32;
                 nViewSect = sprite[nSprite].sectnum;
                 var_24 = nSprite;
+            }
+            else
+            {
+                sprite[nSprite].x = sprite[var_24].x;
+                sprite[nSprite].y = sprite[var_24].y;
+                sprite[nSprite].z = sprite[var_24].z;
+                sprite[nSprite].xrepeat = 40 - 3*i;
+                sprite[nSprite].yrepeat = 40 - 3*i;
             }
 
             sprite[nSprite].clipdist = 10;
@@ -208,9 +204,6 @@ int BuildSnake(short nPlayer, short zVal)
             SnakeList[nSnake].nSprites[i] = nSprite;
 
             sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, ((nSnake << 8) | i) | 0x110000);
-
-            var_18 += 2;
-//			var_40++;
         }
 
         SnakeList[nSnake].nRun = runlist_AddRunRec(NewRun, nSnake | 0x110000);
@@ -256,9 +249,9 @@ int FindSnakeEnemy(short nSnake)
 
     for (int i = headspritesect[nSector]; i >= 0; i = nextspritesect[i])
     {
-        if (sprite[i].statnum >= 90 && sprite[i].statnum < 150 && sprite[i].cstat & 0x101)
+        if (sprite[i].statnum >= 90 && sprite[i].statnum < 150 && (sprite[i].cstat & 0x101))
         {
-            if (i != nPlayerSprite && (!(sprite[i].cstat & 0x8000)))
+            if (i != nPlayerSprite && !(sprite[i].cstat & 0x8000))
             {
                 int nAngle2 = (nAngle - GetAngleToSprite(nSprite, i)) & kAngleMask;
                 if (nAngle2 < esi)
@@ -270,7 +263,11 @@ int FindSnakeEnemy(short nSnake)
         }
     }
 
-    if (nEnemy == -1)
+    if (nEnemy != -1)
+    {
+        SnakeList[nSnake].nEnemy = nEnemy;
+    }
+    else
     {
         SnakeList[nSnake].nEnemy--;
         if (SnakeList[nSnake].nEnemy < -25)
@@ -278,10 +275,6 @@ int FindSnakeEnemy(short nSnake)
             nEnemy = nPlayerSprite;
             SnakeList[nSnake].nEnemy = nPlayerSprite;
         }
-    }
-    else
-    {
-        SnakeList[nSnake].nEnemy = nEnemy;
     }
 
     return nEnemy;
@@ -293,33 +286,6 @@ void FuncSnake(int a, int nDamage, int nRun)
 
     switch (nMessage)
     {
-        default:
-        {
-            DebugOut("unknown msg %x for bullet\n", a & 0x7F0000);
-            return;
-        }
-
-        case 0x90000:
-        {
-            short nSnake = RunData[nRun].nVal;
-            short nSprite = a & 0xFFFF;
-
-            if (nSnake & 0xFF) {
-                seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakBody], 0, 0);
-            }
-            else {
-                seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakehed], 0, 0);
-            }
-
-            tsprite[nSprite].owner = -1;
-            return;
-        }
-
-        case 0xA0000:
-        {
-            return;
-        }
-
         case 0x20000:
         {
             short nSnake = RunData[nRun].nVal;
@@ -334,22 +300,11 @@ void FuncSnake(int a, int nDamage, int nRun)
             int nMov;
             int zVal;
 
-            if (nEnemySprite >= 0 && (sprite[nEnemySprite].cstat & 0x101))
+            if (nEnemySprite < 0)
             {
-                zVal = sprite[nSprite].z;
-
-                nMov = AngleChase(nSprite, nEnemySprite, 1200, SnakeList[nSnake].sE, 32);
-
-                zVal = sprite[nSprite].z - zVal;
-            }
-            else
-            {
-                if (!(sprite[nEnemySprite].cstat & 0x101)) {
-                    SnakeList[nSnake].nEnemy = -1;
-                }
-
+SEARCH_ENEMY:
                 nMov = movesprite(nSprite,
-                    600 * Sin(sprite[nSprite].ang + 512),
+                    600 * Cos(sprite[nSprite].ang),
                     600 * Sin(sprite[nSprite].ang),
                     Sin(SnakeList[nSnake].sE) >> 5,
                     0, 0, CLIPMASK1);
@@ -357,6 +312,20 @@ void FuncSnake(int a, int nDamage, int nRun)
                 FindSnakeEnemy(nSnake);
 
                 zVal = 0;
+            }
+            else
+            {
+                if (!(sprite[nEnemySprite].cstat&0x101))
+                {
+                    SnakeList[nSnake].nEnemy = -1;
+                    goto SEARCH_ENEMY;
+                }
+
+                zVal = sprite[nSprite].z;
+
+                nMov = AngleChase(nSprite, nEnemySprite, 1200, SnakeList[nSnake].sE, 32);
+
+                zVal = sprite[nSprite].z - zVal;
             }
 
             if (nMov)
@@ -368,16 +337,12 @@ void FuncSnake(int a, int nDamage, int nRun)
                 nSnakePlayer[nSnake] = -1;
 
                 DestroySnake(nSnake);
-                return;
             }
             else
             {
                 short nAngle = sprite[nSprite].ang;
-                int var_30 = -(64 * Sin(nAngle + 512));
+                int var_30 = -(64 * Cos(nAngle));
                 int var_34 = -(64 * Sin(nAngle));
-
-                int var_40 = var_30 + (var_30 * 8);
-                int var_4C = var_30 + (var_34 * 8);
 
                 int var_20 = SnakeList[nSnake].sE;
 
@@ -390,10 +355,6 @@ void FuncSnake(int a, int nDamage, int nRun)
                 int y = sprite[nSprite].y;
                 int z = sprite[nSprite].z;
 
-                int ebp = -(zVal * 7);
-
-                int var_18 = var_28;
-
                 for (int i = 7; i > 0; i--)
                 {
                     int nSprite2 = SnakeList[nSnake].nSprites[i];
@@ -405,23 +366,42 @@ void FuncSnake(int a, int nDamage, int nRun)
 
                     mychangespritesect(nSprite2, nSector);
 
-                    var_40 = var_40 - var_30;
-                    var_4C = var_4C - var_34;
+                    int eax = (Sin(var_20) * SnakeList[nSnake].c[i]) >> 9;
 
-                    ebp += zVal;
-
-                    int eax = Sin(var_20) * SnakeList[nSnake].c[i];
-                    eax >>= 9;
-
-                    int ecx = eax * Sin(var_28 + 512);
-
-                    eax = sintable[var_18] * eax;
-
-                    movesprite(nSprite2, var_40 + ecx, var_4C + eax, ebp, 0, 0, CLIPMASK1);
+                    movesprite(nSprite2, var_30 + var_30 * i + eax * Cos(var_28), var_30 + var_34 * i + eax * Sin(var_28),
+                        -zVal*(i-1), 0, 0, CLIPMASK1);
             
                     var_20 = (var_20 + 128) & kAngleMask;
                 }
             }
+            break;
+        }
+
+        case 0x90000:
+        {
+            short nSnake = RunData[nRun].nVal;
+            short nSprite = a & 0xFFFF;
+
+            if ((nSnake & 0xFF) == 0) {
+                seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakehed], 0, 0);
+            }
+            else {
+                seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakBody], 0, 0);
+            }
+
+            tsprite[nSprite].owner = -1;
+            break;
+        }
+
+        case 0xA0000:
+        {
+            break;
+        }
+
+        default:
+        {
+            DebugOut("unknown msg %x for bullet\n", a & 0x7F0000);
+            break;
         }
     }
 }
