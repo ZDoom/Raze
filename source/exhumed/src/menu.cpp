@@ -39,7 +39,7 @@ short nCinemaSeen[30];
 // this might be static within the DoPlasma function?
 uint8_t plasmaBuffer[25600];
 
-uint8_t energytile[4356] = {0};
+uint8_t energytile[66 * 66] = {0};
 
 uint8_t cinemapal[768];
 short nLeft[50] = {0};
@@ -154,7 +154,7 @@ void DoEnergyTile()
 
     if (nSmokeSparks)
     {
-        uint8_t *c = &energytile[67]; // TODO - checkme
+        uint8_t *c = &energytile[67]; // skip a line
         uint8_t *ptrW = (uint8_t*)waloff[kEnergy2];
 
         for (i = 0; i < 64; i++)
@@ -219,6 +219,8 @@ void DoEnergyTile()
                         al = cl;
                     }
 
+                    cl = al;
+
                     if (al <= 159) {
                         *ptrW = 96;
                         //continue;
@@ -241,7 +243,7 @@ void DoEnergyTile()
             c += 2;
         }
 
-        c = &energytile[67]; // TODO - checkme
+        c = &energytile[67];
         ptrW = (uint8_t*)waloff[kEnergy2];
 
         for (i = 0; i < 64; i++)
@@ -255,11 +257,11 @@ void DoEnergyTile()
         
         for (i = 0; i < 4096; i++)
         {
-            if (*ptrW == 96) {
+            if ((*ptrW) == 96) {
                 *ptrW = 255; // -1?
             }
             
-            ptrW ++;
+            ptrW++;
         }
 
         word_9AB5B--;
@@ -273,14 +275,13 @@ void DoEnergyTile()
             val *= 2;
             val += randSize2;
 
-            energytile[val] = 195;
+            energytile[val] = 175;
             word_9AB5B = 1;
         }
         tileInvalidate(kEnergy2, -1, -1);
     }
 }
 
-//int TILE_4092 = kTile4092;
 int nPlasmaTile = kTile4092;
 
 #define kPlasmaWidth	320

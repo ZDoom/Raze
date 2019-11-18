@@ -1329,7 +1329,6 @@ int BuildFireBall(int nSprite, int a, int b)
     return BuildTrap(nSprite, 1, a, b);
 }
 
-// Confirmed 100% correct with original .exe
 int BuildSpark(int nSprite, int nVal)
 {
     int var_14 = insertsprite(sprite[nSprite].sectnum, 0);
@@ -1345,9 +1344,9 @@ int BuildSpark(int nSprite, int nVal)
     sprite[var_14].cstat = 0;
     sprite[var_14].shade = -127;
     sprite[var_14].pal = 1;
-    sprite[var_14].xrepeat = 50;
     sprite[var_14].xoffset = 0;
     sprite[var_14].yoffset = 0;
+    sprite[var_14].xrepeat = 50;
     sprite[var_14].yrepeat = 50;
 
     if (nVal >= 2)
@@ -1357,13 +1356,13 @@ int BuildSpark(int nSprite, int nVal)
 
         if (nVal == 3)
         {
-            sprite[var_14].yrepeat = 120;
             sprite[var_14].xrepeat = 120;
+            sprite[var_14].yrepeat = 120;  
         }
         else
         {
-            sprite[var_14].yrepeat = sprite[var_14].xrepeat + 15;
-            sprite[var_14].xrepeat = sprite[var_14].xrepeat + 15;
+            sprite[var_14].xrepeat = sprite[nSprite].xrepeat + 15;
+            sprite[var_14].yrepeat = sprite[nSprite].xrepeat + 15;
         }
     }
     else
@@ -1399,9 +1398,9 @@ int BuildSpark(int nSprite, int nVal)
     return var_14;
 }
 
-void FuncSpark(int a, int b, int c)
+void FuncSpark(int a, int b, int nRun)
 {
-    int nSprite = RunData[c].nVal;
+    int nSprite = RunData[nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
 
     int nMessage = a & 0x7F0000;
@@ -1417,7 +1416,7 @@ void FuncSpark(int a, int b, int c)
     {
         sprite[nSprite].yrepeat -= 2;
 
-        if (sprite[nSprite].picnum == kTile986 && sprite[nSprite].xrepeat & 2)
+        if (sprite[nSprite].picnum == kTile986 && (sprite[nSprite].xrepeat & 2))
         {
             BuildSpark(nSprite, 2);
         }
@@ -1438,9 +1437,9 @@ void FuncSpark(int a, int b, int c)
         }
     }
 
-    sprite[nSprite].zvel = 0;
-    sprite[nSprite].yvel = 0;
     sprite[nSprite].xvel = 0;
+    sprite[nSprite].yvel = 0;
+    sprite[nSprite].zvel = 0;
 
     if (sprite[nSprite].picnum > kTile3000) {
         nSmokeSparks--;
@@ -1549,23 +1548,17 @@ int BuildEnergyBlock(short nSector)
 {
     short startwall = sector[nSector].wallptr;
 
-    int i = 0;
     int x = 0;
     int y = 0;
 
-    while (1)
+    for (int i = 0; i < sector[nSector].wallnum; i++)
     {
-        if (i >= sector[nSector].wallnum) {
-            break;
-        }
-
         x += wall[startwall + i].x;
         y += wall[startwall + i].y;
 
+ //       wall[startwall + i].picnum = kTile3621;
         wall[startwall + i].pal = 0;
         wall[startwall + i].shade = 50;
-
-        i++;
     }
 
     int xAvg = x / 2;
@@ -1735,11 +1728,10 @@ void ExplodeEnergyBlock(int nSprite)
     changespritestat(nSprite, 0);
 }
 
-void FuncEnergyBlock(int a, int b, int nRun)
+void FuncEnergyBlock(int a, int nDamage, int nRun)
 {
     short nSprite = RunData[nRun].nVal;
 
-    int nDamage = b;
     int nMessage = a & 0x7F0000;
 
     switch (nMessage)
@@ -1766,8 +1758,8 @@ void FuncEnergyBlock(int a, int b, int nRun)
 
             nDamage = runlist_CheckRadialDamage(nSprite);
 
+            // restore previous values
             sector[nSector].floorz = nFloorZ;
-
             sprite[nSprite].z += 256;
 
             if (nDamage <= 0) {
@@ -2135,7 +2127,6 @@ void BuildDrip(int nSprite)
     sprite[nSprite].cstat = 0x8000u;
 }
 
-// Confirmed 100% correct with original .exe
 void DoDrips()
 {
     int i;

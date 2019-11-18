@@ -1948,7 +1948,7 @@ void DrawClock()
 
     tileLoad(kTile3603);
 
-    nRedTicks = 0;
+//    nRedTicks = 0;
     memset((void*)waloff[kTile3603], -1, 4096);
 
     if (lCountDown / 30 != nClockVal)
@@ -2112,13 +2112,13 @@ static void GameMove(void)
             if (nRedTicks <= 0) {
                 DoRedAlert(0);
             }
+        }
 
-            nAlarmTicks--;
-            nButtonColor--;
+        nAlarmTicks--;
+        nButtonColor--;
 
-            if (nAlarmTicks <= 0) {
-                DoRedAlert(1);
-            }
+        if (nAlarmTicks <= 0) {
+            DoRedAlert(1);
         }
     }
 
