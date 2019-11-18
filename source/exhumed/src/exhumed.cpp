@@ -1092,7 +1092,7 @@ short lastfps;
 
 short nCDTracks = 0;
 
-short bMapMode = kFalse;
+short nMapMode = 0;
 short bNoCreatures = kFalse;
 
 short nTotalPlayers = 1;
@@ -1808,7 +1808,7 @@ void FinishLevel()
     StopAllSounds();
 
     bCamera = kFalse;
-    bMapMode = kFalse;
+    nMapMode = 0;
 
     if (levelnum != kMap20)
     {
@@ -2072,26 +2072,6 @@ static void GameDisplay(void)
     auto smoothRatio = calc_smoothratio(totalclock, tclocks);
 
     DrawView(smoothRatio);
-    UpdateMap();
-
-    if (bMapMode)
-    {
-#if 0
-        if (bHiRes && nViewBottom > nMaskY)
-        {
-            videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nMaskY);
-            DrawMap();
-            videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nViewBottom);
-        }
-        else
-        {
-            DrawMap();
-        }
-#else
-        // TODO: Map should not be drawn on top of status bar. Redraw status bar?
-        DrawMap();
-#endif
-    }
 
     if (bPause)
     {
@@ -2200,6 +2180,8 @@ int G_FPSLimit(void)
 
     return 0;
 }
+
+static int32_t nonsharedtimer;
 
 int app_main(int argc, char const* const* argv)
 {
@@ -3064,41 +3046,22 @@ LOOP3:
                 CONTROL_ClearButton(gamefunc_Map);
 
                 if (!nFreeze) {
-                    bMapMode = !bMapMode;
+                    nMapMode = (nMapMode+1)%3;
                 }
             }
-            else if (BUTTON(gamefunc_Zoom_Out))
+            
+            if (nMapMode != 0)
             {
-                lMapZoom -= ldMapZoom;
+                int const timerOffset = ((int) totalclock - nonsharedtimer);
+                nonsharedtimer += timerOffset;
 
-                if (lMapZoom <= 32)
-                {
-                    lMapZoom = 32;
-                }
-                else if (ldMapZoom <= 16)
-                {
-                    ldMapZoom = 16;
-                }
-                else
-                {
-                    ldMapZoom -= 2;
-                }
-            }
-            else if (BUTTON(gamefunc_Zoom_In))
-            {
-                lMapZoom += ldMapZoom;
-                if (lMapZoom >= 1280)
-                {
-                    lMapZoom = 1280;
-                }
-                else if (ldMapZoom >= 128)
-                {
-                    ldMapZoom = 128;
-                }
-                else
-                {
-                    ldMapZoom += 2;
-                }
+                if (BUTTON(gamefunc_Zoom_In))
+                    lMapZoom += mulscale6(timerOffset, max<int>(lMapZoom, 256));
+
+                if (BUTTON(gamefunc_Zoom_Out))
+                    lMapZoom -= mulscale6(timerOffset, max<int>(lMapZoom, 256));
+
+                lMapZoom = clamp(lMapZoom, 48, 2048);
             }
 
             if (PlayerList[nLocalPlayer].nHealth > 0)

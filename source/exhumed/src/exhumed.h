@@ -144,7 +144,7 @@ extern short levelnum;
 //extern short nScreenWidth;
 //extern short nScreenHeight;
 
-extern short bMapMode;
+extern short nMapMode;
 
 extern short nButtonColor;
 

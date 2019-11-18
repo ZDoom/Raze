@@ -582,7 +582,7 @@ void InitPlayerInventory(short nPlayer)
     PlayerList[nPlayer].nCurrentWeapon = 0;
 
     if (nPlayer == nLocalPlayer) {
-        bMapMode = 0;
+        nMapMode = 0;
     }
 
     nPlayerScore[nPlayer] = 0;

@@ -398,15 +398,6 @@ uint8_t LoadLevel(int nMap)
 
     levelnum = nMap;
 
-    // TEMP - show full 2D map// TEMP
-    for (i = 0; i < (kMaxWalls >> 3); i++)
-        show2dwall[i] = 0xFF;
-    for (i = 0; i < (kMaxSprites >> 3); i++)
-        show2dsprite[i] = 0xFF;
-    for (i = 0; i < numsectors; i++) {
-        show2dsector[i >> 3] |= (1 << (i & 7));
-    }
-
     return kTrue;
 }
 

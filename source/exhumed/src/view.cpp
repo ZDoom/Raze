@@ -17,6 +17,7 @@
 #include "cd.h"
 #include "cdaudio.h"
 #include "typedefs.h"
+#include "map.h"
 #include "move.h"
 #include "sound.h"
 #include "engine.h"
@@ -479,6 +480,8 @@ void DrawView(int smoothRatio)
         UnMaskStatus();
     }
 
+    UpdateMap();
+
     if (nFreeze != 3)
     {
         static uint8_t sectorFloorPal[MAXSECTORS];
@@ -580,6 +583,7 @@ void DrawView(int smoothRatio)
             if (nSnakeCam < 0)
             {
                 DrawWeapons(smoothRatio);
+                DrawMap();
                 DrawStatus();
             }
             else
@@ -588,6 +592,8 @@ void DrawView(int smoothRatio)
                 if (nEnemyPal > -1) {
                     sprite[enemy].pal = nEnemyPal;
                 }
+
+                DrawMap();
 
                 if (!bFullScreen) {
                     MaskStatus();
