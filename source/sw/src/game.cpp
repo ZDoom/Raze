@@ -849,6 +849,9 @@ void InitGame()
             }
         }
     }
+#else
+	numplayers = 1; myconnectindex = 0;
+	connecthead = 0; connectpoint2[0] = -1;
 #endif
     initsynccrc();
 

@@ -293,14 +293,15 @@ int CONFIG_Init()
 
 	// If the user has specified a file name, let's see if we know it.
 	//
-	if (userConfig.gamegrp)
+	if (userConfig.gamegrp.Len())
 	{
-		FString gamegrplower = userConfig.gamegrp.MakeLower();
+		FString gamegrplower = "/" + userConfig.gamegrp.MakeLower();
 
 		int g = 0;
 		for (auto& grp : groups)
 		{
 			auto grplower = grp.FileName.MakeLower();
+			grplower.Substitute("\\", "/");
 			if (grplower.LastIndexOf(gamegrplower) == grplower.Len() - gamegrplower.Len())
 			{
 				groupno = g;
