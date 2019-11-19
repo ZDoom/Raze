@@ -295,14 +295,13 @@ int CONFIG_Init()
 	//
 	if (userConfig.gamegrp)
 	{
-		std::filesystem::path gpath = std::filesystem::u8path(userConfig.gamegrp.GetChars());
+		FString gamegrplower = userConfig.gamegrp.MakeLower();
 
 		int g = 0;
 		for (auto& grp : groups)
 		{
-			std::filesystem::path fpath = std::filesystem::u8path(grp.FileName.GetChars());
-			std::error_code err;
-			if (std::filesystem::equivalent(gpath, fpath, err))
+			auto grplower = grp.FileName.MakeLower();
+			if (grplower.LastIndexOf(gamegrplower) == grplower.Len() - gamegrplower.Len())
 			{
 				groupno = g;
 				break;

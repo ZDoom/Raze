@@ -175,8 +175,6 @@ find_package( ZLIB )
 
 include( TargetArch )
 
-target_architecture(DEMOLITION_TARGET_ARCH)
-
 # Things for later. Currently we have no VM and no Vulkan
 #if( ${DEMOLITION_TARGET_ARCH} MATCHES "x86_64" )
 #	set( HAVE_VM_JIT ON )
@@ -193,7 +191,7 @@ target_architecture(DEMOLITION_TARGET_ARCH)
 if( MSVC )
 	# Eliminate unreferenced functions and data
 	# Perform identical COMDAT folding
-	set( REL_LINKER_FLAGS "/opt:ref /opt:icf /nodefaultlib:msvcrt /TSAWARE /LARGEADDRESSAWARE" )
+	set( REL_LINKER_FLAGS "/opt:ref /opt:icf /nodefaultlib:msvcrt /TSAWARE /LARGEADDRESSAWARE /SAFESEH:NO" )
 
 	# String pooling
 	# Function-level linking

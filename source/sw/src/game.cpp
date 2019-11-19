@@ -1164,23 +1164,19 @@ InitLevel(void)
 {
     static int DemoNumber = 0;
 
-    MONO_PRINT("InitLevel");
     Terminate3DSounds();
 
     // A few IMPORTANT GLOBAL RESETS
     InitLevelGlobals();
-    MONO_PRINT("InitLevelGlobals");
     if (!DemoMode)
         StopSong();
 
     if (LoadGameOutsideMoveLoop)
     {
-        MONO_PRINT("Returning from InitLevel");
         return;
     }
 
     InitLevelGlobals2();
-    MONO_PRINT("InitLevelGlobals2");
     if (DemoMode)
     {
         Level = 0;
@@ -1489,10 +1485,6 @@ TerminateLevel(void)
 
 void NewLevel(void)
 {
-
-    DSPRINTF(ds,"NewLevel");
-    MONO_PRINT(ds);
-
     if (DemoPlaying)
     {
         FX_SetVolume(0); // Shut the hell up while game is loading!
@@ -1518,16 +1510,8 @@ void NewLevel(void)
     }
     else
     {
-        DSPRINTF(ds,"Calling FX_SetVolume");
-        MONO_PRINT(ds);
         FX_SetVolume(0); // Shut the hell up while game is loading!
-
-        DSPRINTF(ds,"Calling InitLevel");
-        MONO_PRINT(ds);
         InitLevel();
-
-        DSPRINTF(ds,"Calling RunLevel");
-        MONO_PRINT(ds);
         RunLevel();
 
         if (!QuitFlag)

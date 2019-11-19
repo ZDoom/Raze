@@ -46,6 +46,7 @@ BEGIN_SW_NS
 
 extern int jump_grav;
 
+int SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z);
 extern STATE s_DebrisNinja[];
 extern STATE s_DebrisRat[];
 extern STATE s_DebrisCrab[];

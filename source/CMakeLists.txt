@@ -36,10 +36,13 @@ if( APPLE )
     option( OSX_COCOA_BACKEND "Use native Cocoa backend instead of SDL" ON )
 endif()
 
+target_architecture(DEMOLITION_TARGET_ARCH)
+message(STATUS "Architecture is ${DEMOLITION_TARGET_ARCH}")
+
 # Right now only 64 bit is supported.
-#if( ${DEMOLITION_TARGET_ARCH} MATCHES "x86_64" )
-	set( X64 64 )
-#endif()
+if( ${DEMOLITION_TARGET_ARCH} MATCHES "x86_64" )
+			set( X64 64 )
+endif()
 
 if( X64 OR ${DEMOLITION_TARGET_ARCH} MATCHES "i386" )
 	add_definitions( -DARCH_IA32 )
