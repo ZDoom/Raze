@@ -1967,7 +1967,7 @@ void DoCinemaText(short nVal)
         videoNextPage();
 
         // TEMP
-        int time = (int)totalclock + 4;
+        int time = (int)totalclock + 8;
         while ((int)totalclock < time) {
             HandleAsync();
         }
