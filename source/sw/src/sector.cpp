@@ -185,7 +185,8 @@ WallSetup(void)
 
             // set first wall
             SET(wp->extra, WALLFX_LOOP_DONT_SPIN);
-            SET(wall[wp->nextwall].extra, WALLFX_LOOP_DONT_SPIN);
+            if (wp->nextwall >= 0) 
+				SET(wall[wp->nextwall].extra, WALLFX_LOOP_DONT_SPIN);
 
             // move the the next wall
             start_wall = wp->point2;
@@ -196,7 +197,8 @@ WallSetup(void)
                  wall_num = wall[wall_num].point2)
             {
                 SET(wall[wall_num].extra, WALLFX_LOOP_DONT_SPIN);
-                SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_DONT_SPIN);
+                if (wall[wall_num].nextwall >= 0) 
+					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_DONT_SPIN);
             }
 
             break;
@@ -208,7 +210,8 @@ WallSetup(void)
 
             // set first wall
             SET(wp->extra, WALLFX_DONT_SCALE);
-            SET(wall[wp->nextwall].extra, WALLFX_DONT_SCALE);
+			if (wp->nextwall >= 0) 
+				SET(wall[wp->nextwall].extra, WALLFX_DONT_SCALE);
 
             // move the the next wall
             start_wall = wp->point2;
@@ -237,7 +240,8 @@ WallSetup(void)
 
             // set first wall
             SET(wp->extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
-            SET(wall[wp->nextwall].extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
+			if (wp->nextwall >= 0)
+				SET(wall[wp->nextwall].extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
 
             // move the the next wall
             start_wall = wp->point2;
@@ -248,7 +252,8 @@ WallSetup(void)
                  wall_num = wall[wall_num].point2)
             {
                 SET(wall[wall_num].extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
-                SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
+				if (wall[wall_num].nextwall >= 0)
+					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
             }
 
             break;
@@ -263,7 +268,8 @@ WallSetup(void)
 
             // set first wall
             SET(wp->extra, WALLFX_LOOP_OUTER);
-            SET(wall[wp->nextwall].extra, WALLFX_LOOP_OUTER);
+			if (wp->nextwall >= 0)
+				SET(wall[wp->nextwall].extra, WALLFX_LOOP_OUTER);
 
             // move the the next wall
             start_wall = wp->point2;
@@ -274,7 +280,8 @@ WallSetup(void)
                  wall_num = wall[wall_num].point2)
             {
                 SET(wall[wall_num].extra, WALLFX_LOOP_OUTER);
-                SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_OUTER);
+				if (wall[wall_num].nextwall >= 0)
+					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_OUTER);
             }
 
             wp->lotag = 0;
@@ -295,7 +302,8 @@ WallSetup(void)
 
             // set first wall
             SET(wp->extra, WALLFX_LOOP_SPIN_2X);
-            SET(wall[wp->nextwall].extra, WALLFX_LOOP_SPIN_2X);
+			if (wp->nextwall >= 0)
+				SET(wall[wp->nextwall].extra, WALLFX_LOOP_SPIN_2X);
 
             // move the the next wall
             start_wall = wp->point2;
@@ -306,7 +314,8 @@ WallSetup(void)
                  wall_num = wall[wall_num].point2)
             {
                 SET(wall[wall_num].extra, WALLFX_LOOP_SPIN_2X);
-                SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_SPIN_2X);
+				if (wall[wall_num].nextwall >= 0)
+					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_SPIN_2X);
             }
 
             break;
@@ -318,7 +327,8 @@ WallSetup(void)
 
             // set first wall
             SET(wp->extra, WALLFX_LOOP_SPIN_4X);
-            SET(wall[wp->nextwall].extra, WALLFX_LOOP_SPIN_4X);
+			if (wp->nextwall >= 0)
+				SET(wall[wp->nextwall].extra, WALLFX_LOOP_SPIN_4X);
 
             // move the the next wall
             start_wall = wp->point2;
@@ -329,7 +339,8 @@ WallSetup(void)
                  wall_num = wall[wall_num].point2)
             {
                 SET(wall[wall_num].extra, WALLFX_LOOP_SPIN_4X);
-                SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_SPIN_4X);
+				if (wall[wall_num].nextwall >= 0)
+					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_SPIN_4X);
             }
 
             break;
@@ -341,7 +352,8 @@ WallSetup(void)
 
             // set first wall
             SET(wp->extra, WALLFX_LOOP_REVERSE_SPIN);
-            SET(wall[wp->nextwall].extra, WALLFX_LOOP_REVERSE_SPIN);
+			if (wp->nextwall >= 0)
+				SET(wall[wp->nextwall].extra, WALLFX_LOOP_REVERSE_SPIN);
 
             // move the the next wall
             start_wall = wp->point2;
@@ -352,7 +364,8 @@ WallSetup(void)
                  wall_num = wall[wall_num].point2)
             {
                 SET(wall[wall_num].extra, WALLFX_LOOP_REVERSE_SPIN);
-                SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_REVERSE_SPIN);
+				if (wall[wall_num].nextwall >= 0)
+					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_REVERSE_SPIN);
             }
 
             break;
