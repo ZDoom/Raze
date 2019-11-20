@@ -3203,7 +3203,7 @@ void DoTitle()
     if (videoGetRenderMode() == REND_CLASSIC)
         BlackOut();
 
-    overwritesprite(0, 0, kPublisherLogo, 0, 2, kPalNormal);
+    overwritesprite(0, 0, EXHUMED ? kTileBMGLogo : kTilePIELogo, 0, 2, kPalNormal);
     videoNextPage();
 
     if (videoGetRenderMode() == REND_CLASSIC)
