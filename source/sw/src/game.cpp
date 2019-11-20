@@ -3981,8 +3981,30 @@ void getinput(SW_PACKET *loc)
 
     CONTROL_GetInput(&info);
 
-    info.dz = (info.dz * move_scale)>>8;
-    info.dyaw = (info.dyaw * turn_scale)>>8;
+	if (in_mousedeadzone)
+	{
+		if (info.mousey > 0)
+			info.mousey = max(info.mousey - in_mousedeadzone, 0);
+		else if (info.mousey < 0)
+			info.mousey = min(info.mousey + in_mousedeadzone, 0);
+
+		if (info.mousex > 0)
+			info.mousex = max(info.mousex - in_mousedeadzone, 0);
+		else if (info.mousex < 0)
+			info.mousex = min(info.mousex + in_mousedeadzone, 0);
+	}
+
+	if (in_mousebias)
+	{
+		if (klabs(info.mousex) > klabs(info.mousey))
+			info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
+		else
+			info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
+	}
+
+
+    //info.dz = (info.dz * move_scale)>>8;
+    //info.dyaw = (info.dyaw * turn_scale)>>8;
 
     PauseKey(pp);
 
@@ -4043,26 +4065,38 @@ void getinput(SW_PACKET *loc)
 
     SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
 
-    running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+	running = false;// G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
 
-    if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
-        svel = -info.dyaw;
+	int const keyMove = running ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
+	constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
+	constexpr int const analogTurnAmount = (NORMALTURN << 1);
+
+	if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
+	{
+		static int strafeyaw;
+
+		svel = -(info.mousex + strafeyaw) >> 3;
+		strafeyaw = (info.mousex + strafeyaw) % 8;
+
+		svel -= info.dyaw * keyMove / analogExtent;
+	}
     else
     {
-        if (info.dyaw > 0)
-            angvel = labs((-info.dyaw));
-        else
-            angvel = info.dyaw;
+		angvel = fix16_div(fix16_from_int(info.mousex), F16(32));
+		angvel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
+
+		angvel >>= 15;
     }
 
-    aimvel = info.dpitch;
-    aimvel = min(127, aimvel);
-    aimvel = max(-128, aimvel);
+	aimvel = fix16_div(fix16_from_int(info.mousey), F16(64));
+
     if (in_mouseflip)
         aimvel = -aimvel;
 
-    svel -= info.dx;
-    vel = -info.dz;
+	aimvel -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
+
+	svel -= info.dx * keyMove / analogExtent;
+	vel -= info.dz * keyMove / analogExtent;
 
     if (running)
     {
