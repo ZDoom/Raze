@@ -104,7 +104,9 @@ static struct
     grpfile_t const * grp;
     char *gamedir;
     ud_setup_t shared;
+#ifdef POLYMER
     int polymer;
+#endif
 } settings;
 
 static int32_t retval = -1, mode = TAB_MESSAGES;
@@ -126,6 +128,7 @@ static void on_vmode3dcombo_changed(GtkComboBox *combobox, gpointer user_data)
     gtk_tree_model_get(data, &iter, 1, &val, -1);
     settings.shared.xdim = validmode[val].xdim;
     settings.shared.ydim = validmode[val].ydim;
+    settings.shared.bpp = validmode[val].bpp;
 }
 
 static void on_fullscreencheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
@@ -862,9 +865,7 @@ int32_t startwin_run(void)
     settings.gamedir = g_modDir;
     settings.grp = g_selectedGrp;
 #ifdef POLYMER
-    settings.polymer = (glrendmode == REND_POLYMER);
-#else
-    settings.polymer = 0;
+    settings.polymer = (glrendmode == REND_POLYMER) & (settings.shared.bpp != 8);
 #endif
     PopulateForm(ALL);
 
@@ -874,7 +875,9 @@ int32_t startwin_run(void)
     if (retval) // launch the game with these parameters
     {
         gSetup = settings.shared;
+#ifdef POLYMER
         glrendmode = (settings.polymer) ? REND_POLYMER : REND_POLYMOST;
+#endif
         g_selectedGrp = settings.grp;
 
         Bstrcpy(g_modDir, (g_noSetup == 0 && settings.gamedir != NULL) ? settings.gamedir : "/");
