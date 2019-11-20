@@ -29,11 +29,11 @@ void handleevents();
 #endif
 
 #ifndef APPNAME
-#define APPNAME             "Exhumed"
+#define APPNAME             "PCExhumed"
 #endif
 
 #ifndef APPBASENAME
-#define APPBASENAME         "exhumed"
+#define APPBASENAME         "pcexhumed"
 #endif
 
 // TODO:
