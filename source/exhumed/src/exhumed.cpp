@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "compat.h"
 #include "baselayer.h"
@@ -81,7 +98,7 @@ void FinishLevel();
 int htimer = 0;
 
 /* these are XORed in the original game executable then XORed back to normal when the game first starts. Here they are normally */
-const char *gString[] = 
+const char *gString[] =
 {
     "CINEMAS",
     "THE ANCIENT EGYPTIAN CITY",
@@ -1428,7 +1445,7 @@ void CheckKeys()
     // {
     //     if (lMouseSens < 64)
     //         lMouseSens++;
-    // 
+    //
     //     CONTROL_ClearButton(gamefunc_Mouse_Sensitivity_Up);
     //     StatusMessage(500, "MOUSE SENSITIVITY SET TO %d", lMouseSens);
     // }
@@ -1438,7 +1455,7 @@ void CheckKeys()
     //     {
     //         if (lMouseSens >= 1)
     //             lMouseSens -= 1;
-    // 
+    //
     //         CONTROL_ClearButton(gamefunc_Mouse_Sensitivity_Down);
     //         StatusMessage(500, "MOUSE SENSITIVITY SET TO %d", lMouseSens);
     //     }
@@ -1541,7 +1558,7 @@ void CheckKeys()
                     {
                         bHolly = kFalse;
                         StatusMessage(1, " ");
-                    } 
+                    }
                     else if (!strcmp(pToken, "GOTO"))
                     {
                         // move player to X, Y coordinates
@@ -1758,7 +1775,7 @@ void DoCredits()
 
         for (int i = nStart; i < nCreditsIndex; i++)
         {
-            // var 24 == 
+            // var 24 ==
 
             int nWidth = MyGetStringWidth(gString[edi]);
             myprintext((320 - nWidth) / 2, y, gString[edi], 0);
@@ -2233,7 +2250,7 @@ int app_main(int argc, char const* const* argv)
 
     //int esi = 1;
     //int edi = esi;
-    int doTitle = kFalse; // REVERT kTrue;
+    int doTitle = kTrue; // REVERT kTrue;
     int stopTitle = kFalse;
     levelnew = 1;
 
@@ -2483,7 +2500,7 @@ int app_main(int argc, char const* const* argv)
                     break;
                 }
 
-                
+
             }
 
 //			strupr(gString[j]);
@@ -2930,7 +2947,7 @@ LOOP3:
                 // if (nNetTime > 0)
                 // {
                 //     nNetTime--;
-                // 
+                //
                 //     if (!nNetTime) {
                 //         nFreeze = 3;
                 //     }
@@ -3049,7 +3066,7 @@ LOOP3:
                     nMapMode = (nMapMode+1)%3;
                 }
             }
-            
+
             if (nMapMode != 0)
             {
                 int const timerOffset = ((int) totalclock - nonsharedtimer);
@@ -3345,9 +3362,9 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
 
     int destYSize = tilesiz[nDestTile].y;
     int srcYSize = tilesiz[nSrcTile].y;
-    
+
     uint8_t *pSrc = (uint8_t*)waloff[nSrcTile];
-    
+
     for (int x = 0; x < tilesiz[nSrcTile].x; x++)
     {
         pDest += destYSize;
@@ -3462,7 +3479,7 @@ int Query(short nLines, short nKeys, ...)
 
     // add some padding to left and right sides of text in the box
     nWidth += 30;
-    
+
     int x1 = (320 - nWidth) / 2;
     int x2 = x1 + nWidth;
 
@@ -3585,7 +3602,7 @@ void InitSpiritHead()
     sprite[nSpiritSprite].picnum = kTileRamsesWorkTile;
 
     nHeadStage = 0;
-    
+
     // work tile is twice as big as the normal head size
     tilesiz[kTileRamsesWorkTile].x = 97  * 2; // 194;
     tilesiz[kTileRamsesWorkTile].y = 106 * 2; // 212;
@@ -3615,7 +3632,7 @@ void InitSpiritHead()
     nCDTrackLength = playCDtrack(nTrack);
 
     bSubTitles = nCDTrackLength == 0;
-    
+
     StartSwirlies();
 
     sprintf(filename, "LEV%d.PUP", levelnum);
@@ -3635,18 +3652,18 @@ void DimSector(short nSector)
 {
     short startwall = sector[nSector].wallptr;
     short nWalls = sector[nSector].wallnum;
- 
+
     for (int i = 0; i < nWalls; i++)
     {
         if (wall[startwall+i].shade < 40) {
             wall[startwall+i].shade++;
         }
     }
- 
+
     if (sector[nSector].floorshade < 40) {
         sector[nSector].floorshade++;
     }
- 
+
     if (sector[nSector].ceilingshade < 40) {
         sector[nSector].ceilingshade++;
     }
@@ -4016,7 +4033,7 @@ int DoSpiritHead()
         for (int i = 0; i < 97; i++)
         {
             memcpy(pDest, pSrc, 106);
-            
+
             pDest += 212;
             pSrc += 106;
         }

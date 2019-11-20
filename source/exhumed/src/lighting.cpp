@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "typedefs.h"
 #include "lighting.h"
@@ -191,14 +208,14 @@ void AddFlash(short nSector, int x, int y, int z, int val)
                     sFlash[nFlash].field_1 = i;
 
                     wall[i].pal += 7;
-                    
+
                     ebx += wall[i].shade;
                     int eax = ebx;
 
                     if (ebx < -127) {
                         eax = -127;
                     }
-                    
+
                     wall[i].shade = eax;
 
                     if (!var_1C && !wall[i].overpicnum && pNextSector)
@@ -220,7 +237,7 @@ void AddFlash(short nSector, int x, int y, int z, int val)
         sFlash[nFlash].field_0 = var_20 | 1;
         sFlash[nFlash].field_1 = nSector;
         sFlash[nFlash].shade = sector[nSector].floorshade;
-        
+
         sector[nSector].floorpal += 7;
 
         int edx = sector[nSector].floorshade + var_28;
@@ -318,7 +335,7 @@ void UndoFlashes()
 
         uint8_t var_28 = sFlash[nFlash].field_0 & 0x3F;
         short nIndex = sFlash[nFlash].field_1;
-    
+
         if (sFlash[nFlash].field_0 & 0x80)
         {
             int var_20 = var_28 - 1;
@@ -479,7 +496,7 @@ void AddFlicker(short nSector, int nVal)
     }
 
     sFlicker[nFlickerCount].field_4 = flickermask[nVal];
-    
+
     nFlickerCount++;
 }
 
@@ -715,15 +732,15 @@ void SetTorch(int nPlayer, int bTorchOnOff)
     // char *pTempPal = origpalookup[kPalTorch];
     // palookup[kPalTorch] = palookup[kPalNoTorch];
     // palookup[kPalNoTorch] = pTempPal;
-    // 
+    //
     // pTempPal = origpalookup[kPalTorch];
     // origpalookup[kPalTorch] = origpalookup[kPalNoTorch];
     // origpalookup[kPalNoTorch] = pTempPal;
-    // 
+    //
     // pTempPal = origpalookup[kPalTorch2];
     // origpalookup[kPalTorch2] = origpalookup[kPalNoTorch2];
     // origpalookup[kPalNoTorch2] = pTempPal;
-    // 
+    //
     // pTempPal = palookup[kPalTorch2];
     // palookup[kPalNoTorch2] = palookup[kPalTorch2];
     // palookup[kPalTorch2] = pTempPal;

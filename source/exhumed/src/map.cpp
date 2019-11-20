@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "typedefs.h"
 #include <string.h>
@@ -40,7 +57,7 @@ void MarkSectorSeen(short nSector)
         short startwall = sector[nSector].wallptr;
         short nWalls = sector[nSector].wallnum;
         short endwall = startwall + nWalls;
-        
+
         while (startwall <= endwall)
         {
             show2dwall[startwall >> 3] = (1 << (startwall & 7)) | show2dwall[startwall >> 3];
@@ -99,7 +116,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
                 {
                     if (nextwall <= nWall || (show2dwall[nextwall >> 3] & (1 << (nextwall & 7))) <= 0)
                     {
-                        if (nCeilZ != sector[wall[nWall].nextsector].ceilingz || 
+                        if (nCeilZ != sector[wall[nWall].nextsector].ceilingz ||
                             nFloorZ != sector[wall[nWall].nextsector].floorz ||
                             ((wall[nextwall].cstat | wall[nWall].cstat) & 0x30))
                         {

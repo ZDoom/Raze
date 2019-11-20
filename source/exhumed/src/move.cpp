@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "engine.h"
 #include "exhumed.h"
@@ -481,7 +498,7 @@ int movesprite(short nSprite, int dx, int dy, int dz, int ceildist, int flordist
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
-    
+
     int nSpriteHeight = GetSpriteHeight(nSprite);
 
     int nClipDist = (int8_t)pSprite->clipdist << 2;
@@ -533,7 +550,7 @@ int movesprite(short nSprite, int dx, int dy, int dz, int ceildist, int flordist
         if (nRet & 0x20000) {
             dz = 0;
         }
-        
+
         if ((sector[nSector].floorz - z) < (dz + flordist))
         {
             pSprite->x = x;
@@ -681,7 +698,7 @@ int FindPlayer(int nSprite, int nVal)
     int z = sprite[nSprite].z - GetSpriteHeight(nSprite);
 
     nVal <<= 8;
-    
+
     short nPlayerSprite;
     int i = 0;
 
@@ -754,7 +771,7 @@ int GetUpAngle(short nSprite1, int nVal, short nSprite2, int ecx)
 
     int ebx = (sprite[nSprite2].z + ecx) - (sprite[nSprite1].z + nVal);
     int edx = (sprite[nSprite2].z + ecx) - (sprite[nSprite1].z + nVal);
-    
+
     ebx >>= 4;
     edx >>= 8;
 
@@ -1143,14 +1160,14 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
         {
             nAngDelta2 = nAngDelta;
             nAngDelta2 >>= 6;
-            
+
             edx = ebx;
 
             if (nAngDelta2 < 0)
                 nAngDelta2 = -nAngDelta2;
 
             ebx /= nAngDelta2;
-            
+
             if (ebx < 5)
                 ebx = 5;
         }
@@ -1159,7 +1176,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
         if (nAngDeltaC < 0)
             nAngDeltaC = -nAngDeltaC;
-        
+
         if (nAngDeltaC > push1)
         {
             if (nAngDelta >= 0)

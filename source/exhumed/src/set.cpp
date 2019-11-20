@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "set.h"
 #include "engine.h"
@@ -177,7 +194,7 @@ void FuncSoul(int pA, int, int nRun)
             sprite[nSoulSprite].extra &= 0x7FF;
 
             int ebx = (Sin(sprite[nSoulSprite].extra + 512) >> 7);// *Sin(sprite[nSoulSprite].ang);
-    
+
             if (movesprite(nSoulSprite, Sin(sprite[nSoulSprite].ang + 512) * ebx, Sin(sprite[nSoulSprite].ang) * ebx, sprite[nSoulSprite].zvel, 5120, 0, CLIPMASK0) & 0x10000)
             {
                 int nSet = sprite[nSoulSprite].hitag;
@@ -394,7 +411,7 @@ void FuncSet(int a, int nDamage, int nRun)
                         if ((nSet & 0x1F) == (totalmoves & 0x1F))
                         {
                             int nRand = RandomSize(3);
-                            
+
                             switch (nRand)
                             {
                                 case 0:

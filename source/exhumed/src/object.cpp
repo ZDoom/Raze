@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "engine.h"
 #include "object.h"
@@ -368,7 +385,7 @@ int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5,
     }
 
     Elevator[ElevCount].nSprite = nWallSprite;
-    
+
     va_list zlist;
     va_start(zlist, nCount);
 
@@ -1081,7 +1098,7 @@ void FuncSlide(int a, int b, int c)
                 int var_28 = nSeekB;
 
                 dragpoint(SlideData[nSlide].field_0, x, y, 0);
-                
+
                 if (edi == 0 && ecx == 0) {
                     ebp = clipmask;
                 }
@@ -1246,7 +1263,7 @@ void FuncTrap(int a, int b, int c)
                 if (sTrap[nTrap].field_0 > 10) {
                     return;
                 }
-                
+
                 short nType = sTrap[nTrap].nType;
 
                 if (sTrap[nTrap].field_0 == 0)
@@ -1357,7 +1374,7 @@ int BuildSpark(int nSprite, int nVal)
         if (nVal == 3)
         {
             sprite[var_14].xrepeat = 120;
-            sprite[var_14].yrepeat = 120;  
+            sprite[var_14].yrepeat = 120;
         }
         else
         {
@@ -1468,7 +1485,7 @@ void DimLights()
             sector[i].floorshade++;
 
         int nWall = sector[i].wallptr;
-        
+
         while (nWall < nWall + sector[i].wallnum)
         {
             if (wall[nWall].shade < 100)
@@ -1659,7 +1676,7 @@ void ExplodeEnergyBlock(int nSprite)
     sector[nSector].floorshade = 50;
     sector[nSector].extra = -1;
     sector[nSector].floorz = sprite[nSprite].z;
-        
+
     sprite[nSprite].z = (sprite[nSprite].z + sector[nSector].floorz) / 2;
 
     BuildSpark(nSprite, 3);
@@ -1962,7 +1979,7 @@ void FuncObject(int a, int b, int nRun)
                 {
                     sprite[nSprite].xvel = 0;
                     sprite[nSprite].yvel = 0;
-                    sprite[nSprite].zvel = 0;	
+                    sprite[nSprite].zvel = 0;
                 }
                 else if (sprite[nSprite].statnum != kStat98)
                 {
@@ -2166,7 +2183,7 @@ void DoDrips()
             int nFloorZ = sector[nSector].floorz;
 
             sector[nSector].floorz = edx + sBob[i].z;
-            
+
             MoveSectorSprites(nSector, sector[nSector].floorz - nFloorZ);
         }
     }
@@ -2222,7 +2239,7 @@ void AddSectorBob(int nSector, int nHitag, int bx)
     sBob[nBobs].field_3 = bx;
 
     int z;
-    
+
     if (bx == 0) {
         z = sector[nSector].floorz;
     }
@@ -2457,7 +2474,7 @@ void DoMovingSects()
                 }
             }
         }
-        else 
+        else
         {
             // repeat of code from loc_23908
             nYVel = ecx;
@@ -2465,7 +2482,7 @@ void DoMovingSects()
 
             if (sMoveDir[i] > 0)
             {
-                sMoveSect[i].nTrailPoint = nTrailPointNext[sMoveSect[i].nTrailPoint];  
+                sMoveSect[i].nTrailPoint = nTrailPointNext[sMoveSect[i].nTrailPoint];
             }
             else
             {

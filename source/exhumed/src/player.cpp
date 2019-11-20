@@ -1,3 +1,21 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
+
 #include "compat.h"
 #include "player.h"
 #include "runlist.h"
@@ -51,17 +69,17 @@ short obobangle = 0, bobangle  = 0;
 short bPlayerPan = 0;
 short bLockPan  = 0;
 
-static actionSeq ActionSeq[] = { 
+static actionSeq ActionSeq[] = {
     {18,  0}, {0,   0}, {9,   0}, {27,  0}, {63,  0},
-    {72,  0}, {54,  0}, {45,  0}, {54,  0}, {81,  0}, 
-    {90,  0}, {99,  0}, {108, 0}, {8,   0}, {0,   0}, 
-    {139, 0}, {117, 1}, {119, 1}, {120, 1}, {121, 1}, 
+    {72,  0}, {54,  0}, {45,  0}, {54,  0}, {81,  0},
+    {90,  0}, {99,  0}, {108, 0}, {8,   0}, {0,   0},
+    {139, 0}, {117, 1}, {119, 1}, {120, 1}, {121, 1},
     {122, 1}
 };
 
 static short nHeightTemplate[] = { 0, 0, 0, 0, 0, 0, 7, 7, 7, 9, 9, 9, 9, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-short nActionEyeLevel[] = { 
+short nActionEyeLevel[] = {
     -14080, -14080, -14080, -14080, -14080, -14080, -8320,
     -8320,  -8320,  -8320,  -8320,  -8320,  -8320,  -14080,
     -14080, -14080, -14080, -14080, -14080, -14080, -14080
@@ -337,7 +355,7 @@ void PlayerInterruptKeys()
         if (aimmode)
         {
             fix16_t nVPan = nVertPan[nLocalPlayer] - fix16_from_int((info.mousey >> 7));
-        
+
             if (nVPan < F16(0))
             {
                 nVPan = F16(0);
@@ -346,7 +364,7 @@ void PlayerInterruptKeys()
             {
                 nVPan = F16(184);
             }
-        
+
             nVertPan[nLocalPlayer] = nVPan;
         }
         else
@@ -363,7 +381,7 @@ void PlayerInterruptKeys()
             }
         }
     }
-    
+
     // loc_18FD4
     if (BUTTON(gamefunc_Strafe_Left))
     {
@@ -698,7 +716,7 @@ void RestartPlayer(short nPlayer)
     sprite[nSprite].zvel = 0;
 
     nStandHeight = nHeight;
-    
+
     sprite[nSprite].hitag = 0;
     sprite[nSprite].extra = -1;
     sprite[nSprite].lotag = runlist_HeadRun() + 1;
@@ -911,7 +929,7 @@ void StartDeathSeq(int nPlayer, int nVal)
     PlayerList[nPlayer].field_2 = 0;
 
     sprite[nSprite].cstat &= 0xFEFE;
-    
+
     if (nTotalPlayers == 1)
     {
         short nLives = nPlayerLives[nPlayer];
@@ -1069,7 +1087,7 @@ void FuncPlayer(int pA, int nDamage, int nRun)
             seq_PlotSequence(pA & 0xFFFF, SeqOffsets[PlayerList[nPlayer].nSeq] + ActionSeq[nAction].a, PlayerList[nPlayer].field_2, ActionSeq[nAction].b);
             return;
         }
-        
+
         case 0xA0000:
         {
             if (PlayerList[nPlayer].nHealth <= 0) {
@@ -1127,7 +1145,7 @@ void FuncPlayer(int pA, int nDamage, int nRun)
                             PlayerList[nPlayer].field_2 = 0;
                             PlayerList[nPlayer].nAction = 12;
                             return;
-                        }	
+                        }
                     }
                     else
                     {
@@ -1374,11 +1392,11 @@ void FuncPlayer(int pA, int nDamage, int nRun)
 
                     lPlayerXVel = 0;
                     lPlayerYVel = 0;
-                    
+
                     sprite[nPlayerSprite].xvel = 0;
                     sprite[nPlayerSprite].yvel = 0;
                     sprite[nPlayerSprite].zvel = 0;
-                    
+
                     nPlayerDAng = 0;
 
                     if (nFreeze < 1)
@@ -1484,7 +1502,7 @@ void FuncPlayer(int pA, int nDamage, int nRun)
                                 int var_F4 = sPlayerInput[nPlayer].xVel;
                                 int var_F8 = sPlayerInput[nPlayer].yVel;
                                 int nMyAngle = GetMyAngle(sPlayerInput[nPlayer].xVel, sPlayerInput[nPlayer].yVel);
-                                
+
                                 MoveSector(var_B4, nMyAngle, &var_F4, &var_F8);
 
                                 if (nPlayerPushSound[nPlayer] <= -1)
@@ -1817,7 +1835,7 @@ loc_1AB8E:
                 short nValB;
 
                 // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-                neartag(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z, sprite[nPlayerSprite].sectnum, sprite[nPlayerSprite].ang, 
+                neartag(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z, sprite[nPlayerSprite].sectnum, sprite[nPlayerSprite].ang,
                     &nearTagSector, &nearTagWall, &nearTagSprite, (int32_t*)&nearHitDist, 1024, 2, NULL);
 
                 feebtag(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z, sprite[nPlayerSprite].sectnum,
@@ -1885,7 +1903,7 @@ do_default_b:
                             }
                             case 1: // Fuel Canister
                             {
-                                if (AddAmmo(nPlayer, 3, sprite[nValB].hitag)) 
+                                if (AddAmmo(nPlayer, 3, sprite[nValB].hitag))
                                 {
                                     var_88 = StaticSound[kSound69];
                                     goto do_default;
@@ -1948,7 +1966,7 @@ do_default_b:
                             case 4: // Pickable item
                             case 9: // Pickable item
                             case 10: // Reserved
-                            case 18: 
+                            case 18:
                             case 25:
                             case 28:
                             case 29:
@@ -2272,7 +2290,7 @@ do_default_b:
                             case 19: // Extra Life
                             {
                                 var_88 = -1;
-                                
+
                                 if (nPlayerLives[nPlayer] >= kMaxPlayerLives) {
                                     break;
                                 }
@@ -2666,7 +2684,7 @@ do_default_b:
                                     var_88 = StaticSound[kSound69];
                                     goto do_default;
                                 }
-                                
+
                                 break;
                             }
 
@@ -2792,7 +2810,7 @@ do_default_b:
                                 if (PlayerList[nPlayer].nMagic >= 1000) {
                                     break;
                                 }
-                                
+
                                 var_88 = StaticSound[kSound67];
 
                                 PlayerList[nPlayer].nMagic += 100;
@@ -3122,7 +3140,7 @@ do_default_b:
 
                     // loc_1C05E
                     fix16_t ecx = nDestVertPan[nPlayer] - nVertPan[nPlayer];
-                    
+
                     if (aimmode)
                     {
                         ecx = 0;

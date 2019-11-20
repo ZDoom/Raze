@@ -1,3 +1,21 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
+
 #include "compat.h"
 #include "keyboard.h"
 #include "control.h"
@@ -152,7 +170,7 @@ static void analyzesprites()
     int nTSprite;
     tspritetype *pTSprite;
 
-//	int var_20 = var_24; 
+//	int var_20 = var_24;
 
     for (nTSprite = spritesortcnt-1, pTSprite = &tsprite[nTSprite]; nTSprite >= 0; nTSprite--, pTSprite--)
     {
@@ -447,7 +465,7 @@ void DrawView(int smoothRatio)
     else
     {
         clipmove_old((int32_t*)&playerX, (int32_t*)&playerY, (int32_t*)&playerZ, &nSector,
-            -2000 * Sin(inita + 512), 
+            -2000 * Sin(inita + 512),
             -2000 * Sin(inita),
             4, 0, 0, CLIPMASK1);
 
@@ -549,7 +567,7 @@ void DrawView(int smoothRatio)
                     int ang2 = fix16_to_int(nCameraa) - sprite[nPlayerSprite].ang;
                     if (ang2 < 0)
                         ang2 = -ang2;
-                    
+
                     if (ang2 > 10)
                     {
                         inita -= (ang2 >> 3);
@@ -560,7 +578,7 @@ void DrawView(int smoothRatio)
                     {
                         if (levelnum == 1)
                             ReadyCinemaText(1);
-                        else 
+                        else
                             ReadyCinemaText(5);
                     }
                 }

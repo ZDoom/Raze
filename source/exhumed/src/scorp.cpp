@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "engine.h"
 #include "scorp.h"
@@ -21,7 +38,7 @@ short ScorpCount = -1;
 Scorpion scorpion[kMaxScorpions];
 short ScorpChan[kMaxScorpions];
 
-static actionSeq ActionSeq[] = { 
+static actionSeq ActionSeq[] = {
     {0, 0},
     {8, 0},
     {29, 0},
@@ -174,7 +191,7 @@ void FuncScorp(int a, int nDamage, int nRun)
 
                 if (nTarget >= 0)
                 {
-                    if (sprite[nSprite].statnum == 100 || (sprite[nSprite].statnum < 199 && !RandomSize(5))) 
+                    if (sprite[nSprite].statnum == 100 || (sprite[nSprite].statnum < 199 && !RandomSize(5)))
                     {
                         scorpion[nScorp].nTarget = nTarget;
                     }
@@ -190,7 +207,7 @@ void FuncScorp(int a, int nDamage, int nRun)
                 if (RandomSize(2)) {
                     return;
                 }
-                
+
                 D3PlayFX(StaticSound[kSound41], nSprite);
 
                 goto FS_Pink_A;
@@ -207,7 +224,7 @@ void FuncScorp(int a, int nDamage, int nRun)
 
             sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, scorpion[nScorp].nFrame);
             seq_MoveSequence(nSprite, nSeq, scorpion[nScorp].nFrame);
-            
+
             scorpion[nScorp].nFrame++;
 
             if (scorpion[nScorp].nFrame >= SeqSize[nSeq])
@@ -456,7 +473,7 @@ FS_Pink_B:
             sprite[nSprite].yvel = 0;
             sprite[nSprite].xvel = 0;
             sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-            
+
             scorpion[nScorp].h = RandomSize(2) + RandomSize(3);
 
             if (!scorpion[nScorp].h) {

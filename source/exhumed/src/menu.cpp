@@ -1,3 +1,21 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
+
 #include "compat.h"
 #include "build.h"
 #include "exhumed.h"
@@ -144,7 +162,7 @@ void DoEnergyTile()
         ptr2 += 64;
 
         nColor++;
-        
+
         if (nColor >= 168) {
             nColor = 160;
         }
@@ -225,7 +243,7 @@ void DoEnergyTile()
                         *ptrW = 96;
                         //continue;
                     }
-                    else 
+                    else
                     {
                         if (!menu_RandomBit2())
                         {
@@ -254,13 +272,13 @@ void DoEnergyTile()
         }
 
         ptrW = (uint8_t*)waloff[kEnergy2];
-        
+
         for (i = 0; i < 4096; i++)
         {
             if ((*ptrW) == 96) {
                 *ptrW = 255; // -1?
             }
-            
+
             ptrW++;
         }
 
@@ -464,7 +482,7 @@ void menu_DoPlasma()
 
         if (badOffset)
             continue;
-        
+
         unsigned int nSmokeOffset = 0;
 
         if (plasma_A[j])
@@ -477,7 +495,7 @@ void menu_DoPlasma()
                 if (al != 255 && al != 96) {
                     break;
                 }
-                
+
                 nSmokeOffset++;
                 ptr3++;
             }
@@ -508,7 +526,7 @@ void menu_DoPlasma()
 
     overwritesprite(0,   0,  nPlasmaTile,  0, 2, kPalNormal);
     overwritesprite(160, 40, kExhumedLogo, 0, 3, kPalNormal);
-    
+
     // flip between tile 4092 and 4093
     if (nPlasmaTile == kTile4092) {
         nPlasmaTile = kTile4093;
@@ -870,8 +888,8 @@ void menu_AdjustVolume()
         overwritesprite(55, 135, kMenuBlankTitleTile, 0, 2, kPalNormal);
 
         seq_DrawGunSequence(
-            SeqOffsets[kSeqSlider], 
-            gFXVolume % 3, 
+            SeqOffsets[kSeqSlider],
+            gFXVolume % 3,
             (gFXVolume / 2) - 93,
             38,
             0,
@@ -1233,13 +1251,13 @@ check_keys:
                     KB_KeyDown[sc_Escape] = 0;
                     return -1;
                 }
-                else 
+                else
                 {
                     // check if a slot name is being typed
                     if ((ch >= '0' && ch <= '9')
                     ||  (ch >= 'A' && ch <= 'Z')
                     ||  (ch >= 'a' && ch <= 'z')
-                    ||  (ch == ' '))	
+                    ||  (ch == ' '))
                     {
                         ch = toupper(ch);
                         if (nNameOffset < 24) // n chars per slot name
@@ -1312,7 +1330,7 @@ int menu_LoadGameMenu()
 
         int spriteY = 90;
         int textY = 98;
-        
+
         for (int i = 0; i < kMaxSaveSlots; i++)
         {
             // TODO - shade flashing
@@ -1414,7 +1432,7 @@ void menu_GameLoad2(FILE *fp)
 short menu_GameLoad(int nSlot)
 {
     memset(&GameStats, 0, sizeof(GameStats));
-    
+
     FILE *fp = fopen(kSaveFileName, "rb");
     if (fp == NULL) {
         return 0;
@@ -1699,7 +1717,7 @@ LABEL_21:
                     return 0;
                 }
 
-                default: 
+                default:
                     menu_ResetZoom();
                     menu_ResetKeyTimer();
                     break;
@@ -1878,7 +1896,7 @@ void ComputeCinemaText(int nLine)
 
     nCrawlY = 199;
     nHeight = linecount * 10;
-    
+
     ClearAllKeys();
 }
 
@@ -2069,7 +2087,7 @@ void GoToTheCinema(int nVal)
         case 1:
             ebx = 0;
             break;
-        
+
         case 2:
             ebx = 2;
             edx = ebx;
@@ -2207,7 +2225,7 @@ uint8_t CheckForEscape()
     if (!KB_KeyWaiting() || (KB_GetCh() != 27)) {
         return kFalse;
     }
-    
+
     return kTrue;
 }
 
@@ -2235,7 +2253,7 @@ void DoStatic(int a, int b)
         while (v7 < v5)
         {
             *pStart = RandomBit() * 16;
-        
+
             v7++;
             pStart++;
         }
@@ -2326,7 +2344,7 @@ LABEL_11:
                 break;
 
             int xPos = 70;
-            
+
             const char *nChar = gString[nString];
 
             nString++;
@@ -2367,7 +2385,7 @@ LABEL_11:
             if (v11 <= (int)totalclock)
                 goto LABEL_11;
         } while (!KB_KeyWaiting());
-    } 
+    }
     while (KB_GetCh() != 27);
 
 LABEL_28:

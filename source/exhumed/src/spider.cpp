@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "exhumed.h"
 #include "spider.h"
@@ -100,9 +117,9 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int angle)
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nSpider | 0xC0000);
 
     SpiderList[nSpider].h = runlist_AddRunRec(NewRun, nSpider | 0xC0000);
-    
+
     nCreaturesLeft++;
-        
+
     return nSpider | 0xC0000;
 }
 
@@ -361,7 +378,7 @@ case_3:
             seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqSpider] + ActionSeq[nAction].a, SpiderList[nSpider].b, ActionSeq[nAction].b);
             break;
         }
-        
+
         case 0xA0000:
         {
             if (SpiderList[nSpider].nHealth <= 0)

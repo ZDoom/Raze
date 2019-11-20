@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "bubbles.h"
 #include "runlist.h"
@@ -115,7 +132,7 @@ int BuildBubble(int x, int y, int z, short nSector)
     BubbleList[nBubble].nSprite = nSprite;
     BubbleList[nBubble]._0 = 0;
     BubbleList[nBubble]._2 = SeqOffsets[kSeqBubble] + nSize;
-    
+
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nBubble | 0x140000);
 
     BubbleList[nBubble]._6 = runlist_AddRunRec(NewRun, nBubble | 0x140000);
@@ -156,7 +173,7 @@ void FuncBubble(int a, int b, int nRun)
                     BuildAnim(-1, 70, 0, sprite[nSprite].x, sprite[nSprite].y, sector[nSectAbove].floorz, nSectAbove, 64, 0);
                 }
 
-                DestroyBubble(nBubble);	
+                DestroyBubble(nBubble);
             }
 
             return;
@@ -175,7 +192,7 @@ void FuncBubble(int a, int b, int nRun)
 
         default:
             DebugOut("unknown msg %d for Bubble\n", nMessage);
-            return;		
+            return;
     }
 }
 

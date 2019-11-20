@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "exhumed.h"
 #include "engine.h"
@@ -336,7 +353,7 @@ void FuncRoach(int a, int nDamage, int nRun)
                         RoachList[nRoach].field_C = 100;
                         RoachList[nRoach].nTarget = -1;
                         sprite[nSprite].xvel = 0;
-                        sprite[nSprite].yvel = 0;   
+                        sprite[nSprite].yvel = 0;
                     }
 
                     return;

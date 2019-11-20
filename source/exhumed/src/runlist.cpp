@@ -1,3 +1,20 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2010-2019 EDuke32 developers and contributors
+Copyright (C) 2019 sirlemonhead, Nuke.YKT
+This file is part of PCExhumed.
+PCExhumed is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include "exhumed.h"
 #include "engine.h"
@@ -59,7 +76,7 @@ RunStruct RunData[kMaxRuns];
 
 short word_96760 = 0;
 
-/* variables 
+/* variables
   Name:  _sRunStack
   Name:  _RunFree
   Name:  _channel
@@ -285,7 +302,7 @@ void runlist_SendMessageToRunRec(int nRun, int edx, int nDamage)
     }
 
     assert(nFunc < kFuncMax); // REMOVE
-    
+
     // do function pointer call here.
     aiFunctions[nFunc](edx, nDamage, nRun);
 }
@@ -601,7 +618,7 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
     {
         case 0: // Ceiling Doom door
         {
-            /* 
+            /*
                 This function searches z-coordinates of neighboring sectors to find the
                 closest (next) ceiling starting at the given z-coordinate (thez).
             */
@@ -787,7 +804,7 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
 
         case 11: // Switch activated lift up
         {
-            /* 
+            /*
                 fix for original behaviour - nextSector could be -1 the and game would do an invalid memory read
                 when getting the floorz for nextSector. Here, we assume 0 and only set the correct value if nextSector
                 is valid.
@@ -1450,7 +1467,7 @@ void runlist_ProcessWallTag(int nWall, short lotag, short hitag)
     int var_24;
 
     int var_38 = 0; // TODO - FIXME CHECKME. This doesn't seem to be initialised in the ASM?
-    int var_2C; 
+    int var_2C;
 
     int ebp = 0; // TODO - FIXME CHECKME. This doesn't seem to be initialised in the ASM?
     int var_30;
@@ -1533,7 +1550,7 @@ void runlist_ProcessWallTag(int nWall, short lotag, short hitag)
                 if (nStart == nWall) {
                     break;
                 }
-                
+
                 var_28 = var_18;
                 var_18 = nWall;
             }
@@ -1603,7 +1620,7 @@ void runlist_ProcessWallTag(int nWall, short lotag, short hitag)
         case 19:
         {
             short nStart = nWall;
-            
+
             while (1)
             {
                 nWall = wall[nWall].point2;
