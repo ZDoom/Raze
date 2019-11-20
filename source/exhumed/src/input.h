@@ -33,7 +33,7 @@ enum {
 };
 
 // 32 bytes
-struct PlayerInput
+struct PlayerInput // TODO consider adjusting this for demo compatibility
 {
     int xVel;
     int yVel;
