@@ -3200,18 +3200,21 @@ void DoTitle()
 
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 
-    BlackOut();
+    if (videoGetRenderMode() == REND_CLASSIC)
+        BlackOut();
 
     overwritesprite(0, 0, kPublisherLogo, 0, 2, kPalNormal);
     videoNextPage();
 
-    FadeIn();
+    if (videoGetRenderMode() == REND_CLASSIC)
+        FadeIn();
 
     ClearAllKeys();
 
     WaitAnyKey(2);
 
-    FadeOut(0);
+    if (videoGetRenderMode() == REND_CLASSIC)
+        FadeOut(0);
 
     SetOverscan(BASEPAL);
 
@@ -3220,17 +3223,20 @@ void DoTitle()
     overwritesprite(0, 0, nScreenTile, 0, 2, kPalNormal);
     videoNextPage();
 
-    FadeIn();
+    if (videoGetRenderMode() == REND_CLASSIC)
+        FadeIn();
     PlayLogoSound();
 
     WaitAnyKey(2);
 
-    FadeOut(0);
+    if (videoGetRenderMode() == REND_CLASSIC)
+        FadeOut(0);
     ClearAllKeys();
 
     PlayMovie("book.mov");
 
-    FadeOut(0);
+    if (videoGetRenderMode() == REND_CLASSIC)
+        FadeOut(0);
 
     SetOverscan(BASEPAL);
     GrabPalette();
