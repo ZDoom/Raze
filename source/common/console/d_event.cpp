@@ -69,7 +69,8 @@ bool G_Responder (event_t *ev)
 			}
 			else
 			{
-				return C_DoKey (ev, &Bindings, &DoubleBindings);
+				return 
+					C_DoKey (ev, &Bindings, &DoubleBindings);
 			}
 		}
 		if (cmd && cmd[0] == '+')

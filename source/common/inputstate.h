@@ -304,37 +304,6 @@ public:
 
 };
 
-typedef enum
-{
-	dir_North,
-	dir_NorthEast,
-	dir_East,
-	dir_SouthEast,
-	dir_South,
-	dir_SouthWest,
-	dir_West,
-	dir_NorthWest,
-	dir_None
-} direction;
-
-struct UserInput
-{
-	int32_t   button0;
-	int32_t   button1;
-	direction dir;
-};
-
-// Shadow Warrior still uses these. :(
-inline void CONTROL_GetUserInput(UserInput* inp)
-{
-
-}
-
-inline void CONTROL_ClearUserInput(UserInput* inp)
-{
-
-}
-
 
 
 extern InputState inputState;

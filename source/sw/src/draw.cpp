@@ -2247,6 +2247,12 @@ drawscreen(PLAYERp pp)
     PreUpdatePanel();
 
 
+	if (r_usenewaspect)
+	{
+		newaspect_enable = 1;
+		videoSetCorrectedAspect();
+	}
+
     smoothratio = min(max(((int32_t) totalclock - ototalclock) * (65536 / synctics),0),65536);
 
     if (!ScreenSavePic)
@@ -2452,6 +2458,13 @@ drawscreen(PLAYERp pp)
         if (sprite[j].lotag == 257 && sprite[j].owner == -2)
             SET(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
     }
+
+	if (r_usenewaspect)
+	{
+		newaspect_enable = 0;
+		videoSetCorrectedAspect();
+	}
+
 
     // if doing a screen save don't need to process the rest
     if (ScreenSavePic)

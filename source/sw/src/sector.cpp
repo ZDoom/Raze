@@ -3306,7 +3306,6 @@ void movelava(char *dapic)
 
     for (x = LAVASIZ - 1; x >= 0; x--)
     {
-        FAKETIMERHANDLER();
         offs = (x + 1) * (LAVASIZ + 2) + 1;
         ptr = (char *)((x << LAVALOGSIZ) + (intptr_t) dapic);
 

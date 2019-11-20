@@ -44,6 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 #include "demo.h"
 #include "input.h"
+#include "keydef.h"
 
 #include "gamecontrol.h"
 #include "gamedefs.h"
@@ -558,7 +559,7 @@ int SENSITIVITY = SENSE_MIN + (SENSE_DEFAULT *SENSE_MUL);
 #define VOL_MUL                 16
 
 // User input data for all devices
-UserInput mnu_input, mnu_input_buffered, order_input_buffered;
+//UserInput order_input_buffered;
 
 // Menu function call back pointer for multiplay menus
 SWBOOL(*cust_callback)(UserCall call, MenuItem_p item);
@@ -717,14 +718,10 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         const char *morestr = "More...";
         const char *p;
 
-        UserInput inpt = {FALSE,FALSE,dir_None};
-        CONTROL_GetUserInput(&inpt);
-
-        if (inputState.GetKeyStatus(KEYSC_ESC) || inpt.button1)
+        if (inputState.GetKeyStatus(KEYSC_ESC))
         {
 			inputState.ClearKeyStatus(sc_Escape);
             cust_callback = NULL;
-            CONTROL_ClearUserInput(&inpt);
             return TRUE;
         }
         else if (inputState.GetKeyStatus(sc_Delete))
@@ -781,7 +778,6 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
 			currentcol = 0;
 		}
 
-        CONTROL_ClearUserInput(&inpt);
 
         if (NUMGAMEFUNCTIONS > PGSIZ)
         {
@@ -843,6 +839,7 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
 
 static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
 {
+	// Todo: Branch off to the generic keybind menu.
     const int PGSIZ = 9;
     const char *strs[] = { "Select the function to assign to", "%s", "or ESCAPE to cancel." };
     int topitem = 0, botitem = NUMGAMEFUNCTIONS-1;
@@ -850,10 +847,7 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
     short w, h=0;
     int returnval = 0;
 
-    UserInput inpt = {FALSE,FALSE,dir_None};
-    CONTROL_GetUserInput(&inpt);
-
-    if (inpt.button1)
+	if (inputState.GetKeyStatus(sc_Escape))
     {
         inputState.ClearKeyStatus(sc_Escape);
         returnval = -1;
@@ -890,13 +884,12 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
 		I_MenuUpClear();
 		*currentfunc = max(0, *currentfunc - 1);
 	}
-	else if (inpt.dir == dir_South)
+	else if (I_MenuDown())
 	{
 		I_MenuDownClear();
 		*currentfunc = min(NUMGAMEFUNCTIONS - 1, *currentfunc + 1);
 	}
 
-    CONTROL_ClearUserInput(&inpt);
 
     if (NUMGAMEFUNCTIONS-1 > PGSIZ)
     {
@@ -1262,9 +1255,7 @@ SWBOOL
 MNU_OrderCustom(UserCall call, MenuItem *item)
 {
     static signed char on_screen = 0,last_screen = 0;
-    UserInput order_input;
     static int limitmove=0;
-    UserInput tst_input;
     SWBOOL select_held = FALSE;
     int zero = 0;
     static SWBOOL DidOrderSound = FALSE;
@@ -1332,27 +1323,20 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
             wanghandle = PlaySound(DIGI_WANGORDER2, &zero, &zero, &zero, v3df_dontpan);
     }
 
-    order_input.button0 = order_input.button1 = FALSE;
-    order_input.dir = dir_None;
-
-    // Zero out the input structure
-    tst_input.button0 = tst_input.button1 = FALSE;
-    tst_input.dir = dir_None;
-
     if (!select_held)
     {
-        CONTROL_GetUserInput(&tst_input);
         //order_input_buffered.dir = tst_input.dir;
         // Support a few other keys too
         if (inputState.GetKeyStatus(KEYSC_SPACE)||inputState.GetKeyStatus(KEYSC_ENTER))
         {
 			inputState.ClearKeyStatus(KEYSC_SPACE);
 			inputState.ClearKeyStatus(KEYSC_ENTER);
-            tst_input.dir = dir_South;
+            //tst_input.dir = dir_South;
         }
     }
 
-    if (order_input_buffered.button0 || order_input_buffered.button1 || order_input_buffered.dir != dir_None)
+#if 0
+    if (inputState.GetKeyStatus(KEY_MOUSE1))
     {
         if (tst_input.button0 == order_input_buffered.button0 &&
             tst_input.button1 == order_input_buffered.button1 &&
@@ -1383,8 +1367,9 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         order_input_buffered.button1 = tst_input.button1;
         order_input_buffered.dir = tst_input.dir;
     }
+#endif
 
-    if (!inputState.GetKeyStatus(KEYSC_ESC) && !order_input_buffered.button1)
+    if (!inputState.GetKeyStatus(KEYSC_ESC))
     {
         cust_callback = MNU_OrderCustom;
         cust_callback_call = call;
@@ -1729,7 +1714,7 @@ MNU_QuitCustom(UserCall call, MenuItem_p item)
 
     if (!ret)
     {
-        if (!mnu_input.button1 && !inputState.GetKeyStatus(sc_N))
+        if (!inputState.GetKeyStatus(KEY_MOUSE1) && !inputState.GetKeyStatus(sc_N))
         {
             cust_callback = MNU_QuitCustom;
             cust_callback_call = call;
@@ -1747,7 +1732,7 @@ MNU_QuitCustom(UserCall call, MenuItem_p item)
         ExitMenus();
     }
 
-    if (inputState.GetKeyStatus(sc_Y) || inputState.GetKeyStatus(sc_Enter) || mnu_input.button0)
+    if (inputState.GetKeyStatus(sc_Y) || inputState.GetKeyStatus(sc_Enter) || inputState.GetKeyStatus(KEY_MOUSE1))
     {
         if (CommPlayers >= 2)
             MultiPlayQuitFlag = TRUE;
@@ -2197,7 +2182,6 @@ signed char MNU_InputSmallString(char *name, short pix_width)
 {
     char ch;
     short w, h;
-    UserInput con_input;
 
 #define ascii_backspace 8
 #define ascii_esc 27
@@ -2205,14 +2189,11 @@ signed char MNU_InputSmallString(char *name, short pix_width)
 
     if (!MoveSkip4 && !MessageInputMode)
     {
-        con_input.dir = dir_None;
-        CONTROL_GetUserInput(&con_input);
-
-        if (con_input.dir == dir_North)
+        if (I_MenuUp())
         {
             CON_CommandHistory(1);
         }
-        else if (con_input.dir == dir_South)
+        else if (I_MenuDown())
         {
             CON_CommandHistory(-1);
         }
@@ -2290,11 +2271,7 @@ static SWBOOL MNU_Dialog(void)
         y += (h + 3);
     }
 
-    mnu_input.button0 = mnu_input.button1 = FALSE;
-    CONTROL_ClearUserInput(&mnu_input);
-    CONTROL_GetUserInput(&mnu_input);
-
-    if (inputState.GetKeyStatus(sc_Y) || inputState.GetKeyStatus(sc_Enter) || mnu_input.button0)
+    if (inputState.GetKeyStatus(sc_Y) || inputState.GetKeyStatus(sc_Enter) || inputState.GetKeyStatus(KEY_MOUSE1))
         return TRUE;
     else
         return FALSE;
@@ -3655,10 +3632,8 @@ MNU_SetupMenu(void)
     menuarray[0] = currentmenu = rootmenu;
     if (ControlPanelType == ct_mainmenu)
 
-        mnu_input_buffered.button0 = mnu_input_buffered.button1 = FALSE;
-    mnu_input_buffered.dir = dir_None;
-    order_input_buffered.button0 = order_input_buffered.button1 = FALSE;
-    order_input_buffered.dir = dir_None;
+    //order_input_buffered.button0 = order_input_buffered.button1 = FALSE;
+    //order_input_buffered.dir = dir_None;
     ResetKeys();
 
     // custom cust_callback starts out as null
@@ -4158,10 +4133,6 @@ void MNU_DoMenu( CTLType type, PLAYERp pp )
     //ControlPanelType = type;
     SetupMenu();
 
-    // Zero out the input structure
-    mnu_input.button0 = mnu_input.button1 = FALSE;
-    mnu_input.dir = dir_None;
-
     // should not get input if you are editing a save game slot
     if (totalclock < limitmove) limitmove = (int32_t) totalclock;
 
@@ -4216,7 +4187,6 @@ void MNU_DoMenu( CTLType type, PLAYERp pp )
         if (!FX_SoundActive(handle4))
             handle4 = PlaySound(DIGI_STAR,&zero,&zero,&zero,v3df_dontpan);
         resetitem = TRUE;
-        mnu_input_buffered.button0 = mnu_input_buffered.button1 = FALSE;
     }
     else
         resetitem = FALSE;

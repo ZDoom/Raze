@@ -1612,8 +1612,6 @@ void LogoLevel(void)
 {
     char called;
     int fin;
-    UserInput uinfo = { FALSE, FALSE, dir_None };
-
 
     DSPRINTF(ds,"LogoLevel...");
     MONO_PRINT(ds);
@@ -1652,8 +1650,6 @@ void LogoLevel(void)
     while (TRUE)
     {
         handleevents();
-        CONTROL_GetUserInput(&uinfo);
-        CONTROL_ClearUserInput(&uinfo);
         if (quitevent) { QuitFlag = TRUE; break; }
 
         // taken from top of faketimerhandler
@@ -2259,7 +2255,6 @@ void BonusScreen(PLAYERp pp)
     int Tics = 0;
     int line = 0;
     SWBOOL BonusDone;
-    UserInput uinfo = { FALSE, FALSE, dir_None };
 
     if (Level < 0) Level = 0;
 
@@ -2298,8 +2293,6 @@ void BonusScreen(PLAYERp pp)
         }
         ototalclock += limit;
 
-        CONTROL_GetUserInput(&uinfo);
-        CONTROL_ClearUserInput(&uinfo);
         if (I_GeneralTrigger())
         {
 			I_GeneralTriggerClear();
@@ -2905,16 +2898,15 @@ void RunLevel(void)
     {
         handleevents();
         OSD_DispatchQueued();
+		D_ProcessEvents();
 		faketimerhandler();
 
         if (quitevent) QuitFlag = TRUE;
 
-        //MONO_PRINT("Before MoveLoop");
         MoveLoop();
-        //MONO_PRINT("After MoveLoop");
-        //MONO_PRINT("Before DrawScreen");
+
+
         drawscreen(Player + screenpeek);
-        //MONO_PRINT("After DrawScreen");
 
         if (QuitFlag)
             break;

@@ -268,8 +268,7 @@ playanm(short anim_num)
     unsigned char *animbuf;
     int i, j, k, length = 0, numframes = 0;
     int32_t handle = -1;
-    UserInput uinfo = { FALSE, FALSE, dir_None };
-
+    
     ANIMnum = anim_num;
 
     inputState.keyFlushChars();
@@ -318,8 +317,6 @@ playanm(short anim_num)
         while (totalclock < ototalclock)
         {
             handleevents();
-            CONTROL_GetUserInput(&uinfo);
-            CONTROL_ClearUserInput(&uinfo);
             switch (ANIMnum)
             {
             case ANIM_INTRO:
