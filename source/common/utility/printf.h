@@ -69,3 +69,5 @@ inline void buildputs(const char *s)
 {
 	PrintString(PRINT_HIGH, s);
 }
+
+void debugprintf(const char* f, ...);	// Prints to the debugger's log.

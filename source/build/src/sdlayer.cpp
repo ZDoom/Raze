@@ -2061,3 +2061,20 @@ int32_t handleevents(void)
 }
 
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
+
+//
+// debugprintf() -- sends a debug string to the debugger
+//
+void debugprintf(const char* f, ...)
+{
+	va_list va;
+	char buf[1024];
+
+	if (!IsDebuggerPresent()) return;
+
+	va_start(va, f);
+	Bvsnprintf(buf, 1024, f, va);
+	va_end(va);
+
+	OutputDebugStringA(buf);
+}
