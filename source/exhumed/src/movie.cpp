@@ -133,6 +133,8 @@ int ReadFrame(FILE *fp)
                     }
                 }
 
+                tileInvalidate(kMovieTile, -1, -1);
+
                 break;
             }
             case kFrameDone:
