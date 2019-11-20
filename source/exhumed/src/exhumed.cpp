@@ -2640,7 +2640,7 @@ int app_main(int argc, char const* const* argv)
     }
 MENU:
     SavePosition = -1;
-    nMenu = menu_Menu(0);
+    nMenu = menu_Menu(1); // TODO: Revert to 0 after fixing demo playback
     switch (nMenu)
     {
     case -1:
