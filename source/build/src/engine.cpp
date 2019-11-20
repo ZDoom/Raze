@@ -1874,11 +1874,6 @@ static WSHELPER_DECL void calc_vplcinc(uint32_t *vplc, int32_t *vinc, const int3
 }
 
 #undef NONPOW2_YSIZE_ASM
-#if !defined ENGINE_USING_A_C
-# if defined CLASSIC_NONPOW2_YSIZE_WALLS || defined CLASSIC_NONPOW2_YSIZE_SPRITES
-#  define NONPOW2_YSIZE_ASM
-# endif
-#endif
 
 
 //
@@ -3144,13 +3139,6 @@ static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
     while ((x <= x2) && (startumost[x+windowxy1.x] > startdmost[x+windowxy1.x]))
         ++x;
 
-#ifndef ENGINE_USING_A_C
-    if (globalshiftval==0)
-    {
-        while (x <= x2) transmaskvline(x++);
-    }
-    else
-#endif
     {
 #ifdef MULTI_COLUMN_VLINE
         if ((x <= x2) && (x&1)) transmaskvline(x++);
@@ -3326,12 +3314,8 @@ extern int32_t gpinc;
 
 static inline void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, int32_t pinc)
 {
-#ifdef ENGINE_USING_A_C
     sethlinesizes(logylogx&255, logylogx>>8, bufplc);
     gpinc = pinc;
-#else
-    setupslopevlin(logylogx, bufplc, pinc);
-#endif
     gglogx = (logylogx&255); gglogy = (logylogx>>8);
     ggbuf = (char *)bufplc; ggpinc = pinc;
     ggpal = palookup[globalpal] + getpalookupsh(0);
@@ -7043,11 +7027,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         by = (ysiz<<16)-1-by;
     }
 
-#if defined ENGINE_USING_A_C
     if ((dastat&RS_TRANS1)==0 && ((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
-#else
-    if ((dastat&RS_TRANS1) == 0)
-#endif
     {
         int32_t y1ve[4], y2ve[4], u4, d4;
 
@@ -7164,159 +7144,19 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                 faketimerhandler();
             }
         }
-#ifndef ENGINE_USING_A_C
-        else
-        {
-            int32_t ny1, ny2;
-            int32_t qlinemode = 0;
-
-            if (dastat & RS_NOMASK)
-            {
-                if ((xv2&0x0000ffff) == 0)
-                {
-                    qlinemode = 1;
-                    setupqrhlineasm4(0L,yv2<<16,(xv2>>16)*ysiz+(yv2>>16),palookupoffs,0L,0L);
-                }
-                else
-                {
-                    qlinemode = 0;
-                    setuprhlineasm4(xv2<<16,yv2<<16,(xv2>>16)*ysiz+(yv2>>16),palookupoffs,ysiz,0L);
-                }
-            }
-            else
-                setuprmhlineasm4(xv2<<16,yv2<<16,(xv2>>16)*ysiz+(yv2>>16),palookupoffs,ysiz,0L);
-
-            y1 = uplc[x1];
-            if (((dastat & RS_NOCLIP) == 0) && startumost[x1] > y1)
-                y1 = startumost[x1];
-            y2 = y1;
-            for (x=x1; x<x2; x++)
-            {
-                ny1 = uplc[x]-1; ny2 = dplc[x];
-                if ((dastat & RS_NOCLIP) == 0)
-                {
-                    if (startumost[x]-1 > ny1) ny1 = startumost[x]-1;
-                    if (startdmost[x] < ny2) ny2 = startdmost[x];
-                }
-
-                if (ny1 < ny2-1)
-                {
-                    if (ny1 >= y2)
-                    {
-                        while (y1 < y2-1)
-                        {
-                            y1++; if ((y1&31) == 0) faketimerhandler();
-
-                            //x,y1
-                            bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-                            if (dastat & RS_NOMASK)
-                            {
-                                if (qlinemode) qrhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,0L    ,by<<16,ylookup[y1]+x+frameplace);
-                                else rhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
-                            }
-                            else rmhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
-                        }
-                        y1 = ny1;
-                    }
-                    else
-                    {
-                        while (y1 < ny1)
-                        {
-                            y1++; if ((y1&31) == 0) faketimerhandler();
-
-                            //x,y1
-                            bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-                            if (dastat & RS_NOMASK)
-                            {
-                                if (qlinemode) qrhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,0L    ,by<<16,ylookup[y1]+x+frameplace);
-                                else rhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
-                            }
-                            else rmhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
-                        }
-
-                        while (y1 > ny1) lastx[y1--] = x;
-                    }
-
-                    while (y2 > ny2)
-                    {
-                        y2--; if ((y2&31) == 0) faketimerhandler();
-
-                        //x,y2
-                        bx += xv*(y2-oy); by += yv*(y2-oy); oy = y2;
-                        if (dastat & RS_NOMASK)
-                        {
-                            if (qlinemode) qrhlineasm4(x-lastx[y2],(bx>>16)*ysiz+(by>>16)+bufplc,0L,0L    ,by<<16,ylookup[y2]+x+frameplace);
-                            else rhlineasm4(x-lastx[y2],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y2]+x+frameplace);
-                        }
-                        else rmhlineasm4(x-lastx[y2],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y2]+x+frameplace);
-                    }
-
-                    while (y2 < ny2) lastx[y2++] = x;
-                }
-                else
-                {
-                    while (y1 < y2-1)
-                    {
-                        y1++; if ((y1&31) == 0) faketimerhandler();
-
-                        //x,y1
-                        bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-                        if (dastat & RS_NOMASK)
-                        {
-                            if (qlinemode) qrhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,0L    ,by<<16,ylookup[y1]+x+frameplace);
-                            else rhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
-                        }
-                        else rmhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
-                    }
-
-                    if (x == x2-1) { bx += xv2; by += yv2; break; }
-                    y1 = uplc[x+1];
-                    if (((dastat & RS_NOCLIP) == 0) && startumost[x+1] > y1)
-                        y1 = startumost[x+1];
-                    y2 = y1;
-                }
-                bx += xv2; by += yv2;
-            }
-
-            while (y1 < y2-1)
-            {
-                y1++; if ((y1&31) == 0) faketimerhandler();
-
-                //x2,y1
-                bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1;
-                if (dastat & RS_NOMASK)
-                {
-                    if (qlinemode) qrhlineasm4(x2-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,0L,by<<16,ylookup[y1]+x2+frameplace);
-                    else rhlineasm4(x2-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x2+frameplace);
-                }
-                else rmhlineasm4(x2-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x2+frameplace);
-            }
-        }
-#endif  // !defined ENGINE_USING_A_C
     }
     else
     {
         if ((dastat & RS_TRANS1) == 0)
         {
-#if !defined ENGINE_USING_A_C
-            if (dastat & RS_NOMASK)
-                setupspritevline(palookupoffs,(xv>>16)*ysiz,xv<<16,ysiz,yv,0L);
-            else
-                msetupspritevline(palookupoffs,(xv>>16)*ysiz,xv<<16,ysiz,yv,0L);
-#else
             if (dastat & RS_NOMASK)
                 setupspritevline(palookupoffs,xv,yv,ysiz);
             else
                 msetupspritevline(palookupoffs,xv,yv,ysiz);
-#endif
         }
         else
         {
-#if !defined ENGINE_USING_A_C
-            tsetupspritevline(palookupoffs,(xv>>16)*ysiz,xv<<16,ysiz,yv,0L);
-#else
             tsetupspritevline(palookupoffs,xv,yv,ysiz);
-#endif
             setup_blend(dablend, dastat & RS_TRANS2);
         }
 
@@ -7348,26 +7188,15 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
             if ((dastat & RS_TRANS1) == 0)
             {
-#if !defined ENGINE_USING_A_C
-                if (dastat & RS_NOMASK)
-                    spritevline(0L,by<<16,y2-y1+1,bx<<16,(bx>>16)*ysiz+(by>>16)+bufplc,p);
-                else
-                    mspritevline(0L,by<<16,y2-y1+1,bx<<16,(bx>>16)*ysiz+(by>>16)+bufplc,p);
-#else
                 if (dastat & RS_NOMASK)
                     spritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
                 else
                     mspritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
-#endif
             }
             else
             {
-#if !defined ENGINE_USING_A_C
-                tspritevline(0L,by<<16,y2-y1+1,bx<<16,(bx>>16)*ysiz+(by>>16)+bufplc,p);
-#else
                 tspritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
                 //transarea += (y2-y1);
-#endif
             }
 
             faketimerhandler();

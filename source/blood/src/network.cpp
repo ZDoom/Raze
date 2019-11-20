@@ -1380,13 +1380,6 @@ void faketimerhandler(void)
 #ifndef NETCODE_DISABLE
     if (gNetMode != NETWORK_NONE && gNetENetInit)
         netUpdate();
-#if 0
-    if (gGameClock >= gNetFifoClock && ready2send)
-    {
-        gNetFifoClock += 4;
-        netGetInput();
-    }
-#endif
 #endif
     //if (gNetMode != NETWORK_NONE && gNetENetInit)
     //    enet_host_service(gNetMode == NETWORK_SERVER ? gNetENetServer : gNetENetClient, NULL, 0);

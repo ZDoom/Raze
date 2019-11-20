@@ -2886,6 +2886,8 @@ void InitRunLevel(void)
         StartAmbientSound();
 }
 
+void faketimerhandler();
+
 void RunLevel(void)
 {
     int i;
@@ -2903,6 +2905,7 @@ void RunLevel(void)
     {
         handleevents();
         OSD_DispatchQueued();
+		faketimerhandler();
 
         if (quitevent) QuitFlag = TRUE;
 
