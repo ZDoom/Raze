@@ -278,7 +278,7 @@ static VoiceNode *MV_GetVoice(int handle)
 {
     if (handle < MV_MINVOICEHANDLE || handle > MV_MaxVoices)
     {
-        MV_Printf("MV_GetVoice(): bad handle (%d)!\n", handle);
+        //MV_Printf("MV_GetVoice(): bad handle (%d)!\n", handle);
         return nullptr;
     }
 

@@ -1877,7 +1877,8 @@ DoPlayerHorizon(PLAYERp pp)
 //    MONO_PRINT(ds);
 
 	// Fixme: This should probably be made optional.
-    PlayerAutoLook(pp);
+	if (cl_slopetilting)
+		PlayerAutoLook(pp);
 
     if (pp->input.aimvel)
     {

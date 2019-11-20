@@ -4090,10 +4090,11 @@ void getinput(SW_PACKET *loc)
 
 	aimvel = fix16_div(fix16_from_int(info.mousey), F16(64));
 
-    if (in_mouseflip)
+    if (!in_mouseflip)	// SW's mouse is inverted by default.
         aimvel = -aimvel;
 
 	aimvel -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
+	aimvel >>= 15;
 
 	svel -= info.dx * keyMove / analogExtent;
 	vel -= info.dz * keyMove / analogExtent;
