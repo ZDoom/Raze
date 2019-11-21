@@ -475,7 +475,7 @@ const char *g_gameNamePtr = NULL;
 // grp handling
 
 static const char *defaultgamegrp = "STUFF.DAT";
-static const char *defaultdeffilename = "powerslave.def";
+static const char *defaultdeffilename = "exhumed.def";
 
 // g_grpNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
 char *g_grpNamePtr = NULL;
@@ -2580,6 +2580,16 @@ int app_main(int argc, char const* const* argv)
 
     // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
     InstallEngine();
+
+    const char *defsfile = G_DefFile();
+    uint32_t stime = timerGetTicks();
+    if (!loaddefinitionsfile(defsfile))
+    {
+        uint32_t etime = timerGetTicks();
+        initprintf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
+    }
+    loaddefinitions_game(defsfile, FALSE);
+
 
     if (enginePostInit())
         ShutDown();
