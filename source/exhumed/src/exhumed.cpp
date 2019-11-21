@@ -2538,6 +2538,25 @@ int app_main(int argc, char const* const* argv)
     OSD_SetParameters(0, 0, 0, 0, 0, 0, OSD_ERROR, OSDTEXT_RED, gamefunctions[gamefunc_Show_Console][0] == '\0' ? OSD_PROTECTED : 0);
     registerosdcommands();
 
+    SetupInput();
+
+    char *const setupFileName = Xstrdup(setupfilename);
+    char *const p = strtok(setupFileName, ".");
+
+    if (!p || !Bstrcmp(setupfilename, kSetupFilename))
+        Bsprintf(tempbuf, "settings.cfg");
+    else
+        Bsprintf(tempbuf, "%s_settings.cfg", p);
+
+    Xfree(setupFileName);
+
+    OSD_Exec(tempbuf);
+    OSD_Exec("autoexec.cfg");
+
+    CONFIG_SetDefaultKeys(keydefaults, true);
+
+    system_getcvars();
+
     if (nNetPlayerCount == -1)
     {
         nNetPlayerCount = nCfgNetPlayers - 1;
@@ -2601,7 +2620,6 @@ int app_main(int argc, char const* const* argv)
     FadeOut(0);
 //	InstallEngine();
     KB_Startup();
-    SetupInput();
     InitView();
     myloadconfig();
     InitFX();
