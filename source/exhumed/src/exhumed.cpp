@@ -1180,6 +1180,7 @@ void DebugOut(const char *fmt, ...)
 
 void ShutDown(void)
 {
+    CONFIG_WriteSetup(0);
     StopCD();
     if (bSerialPlay)
     {
