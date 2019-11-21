@@ -294,9 +294,9 @@ void CalcASSPan(int nPan, int nVolume, int *pLeft, int *pRight)
 void ASSCallback(uint32_t num)
 {
     // TODO: add mutex?
-    if (num == -1)
+    if ((int32_t)num == -1)
         handle = -1;
-    else if (num >= 0 && num < kMaxActiveSounds)
+    else if ((int32_t)num >= 0 && (int32_t)num < kMaxActiveSounds)
         sActiveSound[num].f_e = -1;
 }
 
@@ -1004,7 +1004,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
     if (!dig)
         return -1;
 
-    if (nSound < 0 || nSound >= kMaxSounds || !SoundBuf[nSound])
+    if ((nSound&0x1ff) >= kMaxSounds || !SoundBuf[(nSound&0x1ff)])
     {
         initprintf("PlayFX2: Invalid sound nSound == %i, nSprite == %i\n", nSound, nSprite);
         return -1;
@@ -1043,7 +1043,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
     int nDist = GetDistFromDXDY(dx, dy);
     if (nDist >= 255)
     {
-        if (nSound > -1)
+        if ((int16_t)nSound > -1)
             StopSpriteSound(nSound);
         return -1;
     }
@@ -1055,7 +1055,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
         nVolume = gFXVolume+10-(Sin(nDist<<1)>>6)-10;
         if (nVolume <= 0)
         {
-            if (nSound > -1)
+            if ((int16_t)nSound > -1)
                 StopSpriteSound(nSound);
             return -1;
         }
