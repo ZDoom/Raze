@@ -25,6 +25,7 @@
 #include "c_console.h"
 #include "d_gui.h"
 #include "inputstate.h"
+#include "menu.h"
 
 int eventhead;
 int eventtail;
@@ -150,10 +151,8 @@ void D_ProcessEvents (void)
 			(void)0;//UpdateJoystickMenu(I_UpdateDeviceList());
 		if (C_Responder (ev))
 			continue;				// console ate the event
-#if 0
 		if (M_Responder (ev))
 			continue;				// menu ate the event
-#endif
 		G_Responder (ev);
 	}
 }

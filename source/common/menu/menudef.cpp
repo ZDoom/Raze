@@ -241,12 +241,7 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		else if (sc.Compare("Class"))
 		{
 			sc.MustGetString();
-			const PClass *cls = PClass::FindClass(sc.String);
-			if (cls == NULL || !cls->IsDescendantOf(RUNTIME_CLASS(DListMenu)))
-			{
-				sc.ScriptError("Unknown menu class '%s'", sc.String);
-			}
-			desc->mClass = cls;
+			desc->mClass = sc.String;
 		}
 		else if (sc.Compare("Selector"))
 		{
@@ -428,8 +423,8 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 
 static bool CheckCompatible(FMenuDescriptor *newd, FMenuDescriptor *oldd)
 {
-	if (oldd->mClass == NULL) return true;
-	return oldd->mClass == newd->mClass;
+	/*if (oldd->mClass == NULL)*/ return true;
+	//return oldd->mClass == newd->mClass;
 }
 
 static bool ReplaceMenu(FScanner &sc, FMenuDescriptor *desc)
@@ -629,12 +624,7 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 		else if (sc.Compare("Class"))
 		{
 			sc.MustGetString();
-			const PClass *cls = PClass::FindClass(sc.String);
-			if (cls == NULL || !cls->IsDescendantOf(RUNTIME_CLASS(DOptionMenu)))
-			{
-				sc.ScriptError("Unknown menu class '%s'", sc.String);
-			}
-			desc->mClass = cls;
+			desc->mClass = sc.String;
 		}
 		else if (sc.Compare("Title"))
 		{

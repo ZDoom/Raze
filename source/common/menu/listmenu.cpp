@@ -502,28 +502,29 @@ bool FListMenuItemSelectable::MouseEvent(int type, int x, int y)
 //
 //=============================================================================
 
-FListMenuItemText::FListMenuItemText(int x, int y, int height, int hotkey, const char *text, FFont *font, EColorRange color, EColorRange color2, FName child, int param)
+FListMenuItemText::FListMenuItemText(int x, int y, int height, int hotkey, const FString &text, FFont *font, EColorRange color, EColorRange color2, FName child, int param)
 : FListMenuItemSelectable(x, y, height, child, param)
 {
 	mText = text;
+	/*
 	mFont = font;
 	mColor = color;
 	mColorSelected = color2;
+	*/
+	mFont = NewSmallFont;
+	mColor = CR_RED;
+	mColorSelected = CR_GOLD;
 	mHotkey = hotkey;
 }
 
 FListMenuItemText::~FListMenuItemText()
 {
-	if (mText != NULL)
-	{
-		delete [] mText;
-	}
 }
 
 void FListMenuItemText::Drawer(bool selected)
 {
 	const char *text = mText;
-	if (text != NULL)
+	if (mText.Len())
 	{
 		if (*text == '$') text = GStrings(text+1);
 		DrawText(&twod, mFont, selected ? mColorSelected : mColor, mXpos, mYpos, text, DTA_Clean, true, TAG_DONE);
@@ -533,7 +534,7 @@ void FListMenuItemText::Drawer(bool selected)
 int FListMenuItemText::GetWidth() 
 { 
 	const char *text = mText;
-	if (text != NULL)
+	if (mText.Len())
 	{
 		if (*text == '$') text = GStrings(text+1);
 		return mFont->StringWidth(text); 

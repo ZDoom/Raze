@@ -296,6 +296,7 @@ void M_StartControlPanel (bool makeSound)
 	}
 
 	C_HideConsole ();				// [RH] Make sure console goes bye bye.
+	GUICapture |= 1;
 	menuactive = MENU_On;
 	// Pause sound effects before we play the menu switch sound.
 	// That way, it won't be paused.
@@ -416,9 +417,9 @@ void M_SetMenu(FName menu, int param)
 			}
 			else
 			{
-				const PClass *cls = ld->mClass == NULL? RUNTIME_CLASS(DListMenu) : ld->mClass;
+				//const PClass *cls = ld->mClass == NULL? RUNTIME_CLASS(DListMenu) : ld->mClass;
 
-				DListMenu *newmenu = (DListMenu *)cls->CreateNew();
+				DListMenu* newmenu = new DListMenu;
 				newmenu->Init(DMenu::CurrentMenu, ld);
 				M_ActivateMenu(newmenu);
 			}
@@ -426,9 +427,9 @@ void M_SetMenu(FName menu, int param)
 		else if ((*desc)->mType == MDESC_OptionsMenu)
 		{
 			FOptionMenuDescriptor *ld = static_cast<FOptionMenuDescriptor*>(*desc);
-			const PClass *cls = ld->mClass == NULL? RUNTIME_CLASS(DOptionMenu) : ld->mClass;
+			//const PClass *cls = ld->mClass == NULL? RUNTIME_CLASS(DOptionMenu) : ld->mClass;
 
-			DOptionMenu *newmenu = (DOptionMenu *)cls->CreateNew();
+			DOptionMenu *newmenu = new DOptionMenu;
 			newmenu->Init(DMenu::CurrentMenu, ld);
 			M_ActivateMenu(newmenu);
 		}
@@ -649,6 +650,7 @@ bool M_Responder (event_t *ev)
 void M_Ticker (void) 
 {
 	DMenu::MenuTime++;
+	if (DMenu::MenuTime & 3) return;
 	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
 		DMenu::CurrentMenu->Ticker();
@@ -685,7 +687,7 @@ void M_Ticker (void)
 
 void M_Drawer (void) 
 {
-	PalEntry fade = 0;// x70000000;
+	PalEntry fade = 0x70000000;
 #if 0
 	player_t *player = &players[consoleplayer];
 	AActor *camera = player->camera;
@@ -701,9 +703,9 @@ void M_Drawer (void)
 #endif
 
 
-	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off && fade) 
+	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off)
 	{
-		if (DMenu::CurrentMenu->DimAllowed()) twod.AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
+		if (DMenu::CurrentMenu->DimAllowed() && fade) twod.AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
 		DMenu::CurrentMenu->Drawer();
 	}
 }
@@ -723,6 +725,7 @@ void M_ClearMenus ()
 		DMenu::CurrentMenu = NULL;
 	}
 	menuactive = MENU_Off;
+	GUICapture &= ~1;
 }
 
 //=============================================================================
@@ -733,6 +736,7 @@ void M_ClearMenus ()
 
 void M_Init (void) 
 {
+	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();
 	M_CreateMenus();
 }

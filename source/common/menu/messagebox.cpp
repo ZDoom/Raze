@@ -203,7 +203,7 @@ void DMessageBoxMenu::Drawer ()
 
 		if (messageSelection >= 0)
 		{
-			if ((DMenu::MenuTime%8) < 6)
+			if (((DMenu::MenuTime>>2)%8) < 6)
 			{
 				DrawText(&twod, ConFont, OptionSettings.mFontColorSelection,
 					(150 - 160) * CleanXfac + screen->GetWidth() / 2,

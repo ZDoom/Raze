@@ -27,6 +27,7 @@
 #include "v_draw.h"
 #include "imgui.h"
 #include "stats.h"
+#include "menu.h"
 
 #ifdef USE_OPENGL
 # include "glsurface.h"
@@ -10067,6 +10068,7 @@ void videoNextPage(void)
 
 		// Draw the console plus debug output on top of everything else.
 		DrawFullscreenBlends();
+		M_Drawer();
 		FStat::PrintStat(); 
 		C_DrawConsole();
 		GLInterface.Draw2D(&twod);

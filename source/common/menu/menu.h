@@ -96,7 +96,7 @@ struct FMenuDescriptor
 	FName mMenuName;
 	FString mNetgameMessage;
 	int mType;
-	const PClass *mClass;
+	FName mClass;
 
 	virtual ~FMenuDescriptor() {}
 };
@@ -399,12 +399,12 @@ public:
 
 class FListMenuItemText : public FListMenuItemSelectable
 {
-	const char *mText;
+	FString mText;
 	FFont *mFont;
 	EColorRange mColor;
 	EColorRange mColorSelected;
 public:
-	FListMenuItemText(int x, int y, int height, int hotkey, const char *text, FFont *font, EColorRange color, EColorRange color2, FName child, int param = 0);
+	FListMenuItemText(int x, int y, int height, int hotkey, const FString &text, FFont *font, EColorRange color, EColorRange color2, FName child, int param = 0);
 	~FListMenuItemText();
 	void Drawer(bool selected);
 	int GetWidth();
@@ -430,8 +430,8 @@ class DListMenu : public DMenu
 	DECLARE_CLASS(DListMenu, DMenu)
 
 protected:
-	FListMenuDescriptor *mDesc;
-	FListMenuItem *mFocusControl;
+	FListMenuDescriptor *mDesc = nullptr;
+	FListMenuItem *mFocusControl = nullptr;
 
 public:
 	DListMenu(DMenu *parent = NULL, FListMenuDescriptor *desc = NULL);
@@ -467,7 +467,7 @@ class FOptionMenuItem : public FListMenuItem
 {
 protected:
 	FString mLabel;
-	bool mCentered;
+	bool mCentered = false;
 
 	void drawLabel(int indent, int y, EColorRange color, bool grayed = false);
 public:

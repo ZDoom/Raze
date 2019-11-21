@@ -1,0 +1,40 @@
+//-------------------------------------------------------------------------------------------
+//
+// Text only variant of the main menu for Doom, Strife and Chex Quest to be used with localized content.
+//
+//-------------------------------------------------------------------------------------------
+
+LISTMENU "MainMenu"
+{
+	linespacing 15
+	TextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+	TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+	TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+	TextItem "$MNU_HELP", "h", "HelpMenu"
+	TextItem "$MNU_CREDITS", "c", "CreditsMenu"
+	TextItem "$MNU_QUITGAME", "q", "QuitMenu"
+}
+
+LISTMENU "MainMenu_Blood"
+{
+	linespacing 15
+	TextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+	TextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
+	TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+	TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+	TextItem "$MNU_HELP", "h", "HelpMenu"
+	TextItem "$MNU_CREDITS", "c", "CreditsMenu"
+	TextItem "$MNU_QUITGAME", "q", "QuitMenu"
+}
+
+LISTMENU "MainMenu_SW"
+{
+	linespacing 15
+	TextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+	TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+	TextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+	TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+	TextItem "$MNU_COOLSTUFF", "h", "HelpMenu"
+	TextItem "$MNU_QUITGAME", "q", "QuitMenu"
+}
+

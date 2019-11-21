@@ -444,7 +444,7 @@ void DOptionMenu::Drawer ()
 		int cur_indent = mDesc->mItems[i]->Draw(mDesc, y, indent, isSelected);
 		if (cur_indent >= 0 && isSelected && mDesc->mItems[i]->Selectable())
 		{
-			if (((DMenu::MenuTime%8) < 6) || DMenu::CurrentMenu != this)
+			if ((((DMenu::MenuTime>>2)%8) < 6) || DMenu::CurrentMenu != this)
 			{
 				M_DrawConText(OptionSettings.mFontColorSelection, cur_indent + 3 * CleanXfac_1, y+fontheight-9*CleanYfac_1, "\xd");
 			}

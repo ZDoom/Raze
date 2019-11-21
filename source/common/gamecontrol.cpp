@@ -23,6 +23,7 @@
 #include "i_specialpaths.h"
 #include "z_music.h"
 #include "statistics.h"
+#include "menu.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -381,6 +382,7 @@ int CONFIG_Init()
 	buttonMap.SetGameAliases();
 	Mus_Init();
 	InitStatistics();
+	M_Init();
 
 
 
