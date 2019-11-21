@@ -74,7 +74,7 @@ const char gamefunctions[kMaxGameFunctions][kMaxGameFuncLen] =
   "Inventory_Left",
   "Inventory_Right",
   "Mouse_Sensitivity_Up",
-  "Mouse_Sensitivity_Down"
+  "Mouse_Sensitivity_Down",
   "Show_Console",
 };
 
