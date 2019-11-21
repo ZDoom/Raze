@@ -31,6 +31,7 @@
 #include "renderstyle.h"
 #include "drawparms.h"
 #include "vectors.h"
+#include "gamecvars.h"
 //#include "doomtype.h"
 #include "templates.h"
 //#include "r_utility.h"
@@ -554,3 +555,49 @@ void F2DDrawer::Clear()
 	mData.Clear();
 	mIsFirstPass = true;
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+
+#include "build.h"
+#include "../src/engine_priv.h"
+
+void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+	int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+	int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+{
+	if (r_rotatespritenowidescreen)
+	{
+		dastat |= RS_STRETCH;
+		dastat &= ~RS_ALIGN_MASK;
+	}
+
+	// This is mainly a hack because the rotatesprite code is far too messed up to integrate into the 2D drawer.
+	// This merely stores the parameters and later just calls polymost_rotatesprite do do the work.
+	// Cleanup can be done once everything is working - but for the menu's transition the original calls should be preserved.
+	RenderCommand dg;
+
+	dg.mType = DrawTypeRotateSprite;
+
+	// Just store the values in the otherwise useless fields of the draw command instead of allocating separate memory.
+	dg.mVertIndex = sx;
+	dg.mVertCount = sy;
+	dg.mIndexIndex = z;
+	dg.mIndexCount = a;
+	dg.mSpecialColormap[0].d = picnum;
+	dg.mRemapIndex = dashade;
+	dg.mFlags = dapalnum;
+	dg.mSpecialColormap[1].d = dastat;
+	dg.mDesaturate = daalpha;
+	dg.mColor1.d = dablend;
+	dg.mScissor[0] = cx1;
+	dg.mScissor[1] = cy1;
+	dg.mScissor[2] = cx2;
+	dg.mScissor[3] = cy2;
+	mData.Push(dg);	// don't even try to merge.
+}
+

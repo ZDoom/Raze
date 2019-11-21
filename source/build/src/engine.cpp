@@ -11398,6 +11398,9 @@ void renderFlushPerms(void)
 }
 
 
+bool rotatesprite_2doverride;	// gross hack alert. Thanks to the insufficient abstraction the only chance to redirect rotatesprite calls
+								// to the 2D drawer is to use a global flag and check in rotatesprite_.
+#include "v_2ddrawer.h"
 //
 // rotatesprite
 //
@@ -11414,6 +11417,12 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     if (z <= 16) return;
     tileUpdatePicnum(&picnum, (int16_t)0xc000);
     if ((tilesiz[picnum].x <= 0) || (tilesiz[picnum].y <= 0)) return;
+
+	if (rotatesprite_2doverride)
+	{
+		twod.rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2);
+		return;
+	}
 
     // Experimental / development bits. ONLY FOR INTERNAL USE!
     //  bit RS_CENTERORIGIN: see dorotspr_handle_bit2

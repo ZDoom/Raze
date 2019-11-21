@@ -82,6 +82,7 @@ public:
 // Draws the 2D stuff. This is the version for OpenGL 3 and later.
 //
 //===========================================================================
+void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid);
 
 void GLInstance::Draw2D(F2DDrawer *drawer)
 {
@@ -123,6 +124,24 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 
 	for(auto &cmd : commands)
 	{
+		if (cmd.mType == F2DDrawer::DrawTypeRotateSprite)
+		{
+			// This just gets forwarded to the original drawer. Long term this should not survive and all calls be refactored.
+			UseColorOnly(false);
+			SetFadeDisable(false);
+			polymost_dorotatesprite(cmd.mVertIndex, cmd.mVertCount, cmd.mIndexIndex, cmd.mIndexCount, cmd.mSpecialColormap[0].d, cmd.mRemapIndex, cmd.mFlags, cmd.mSpecialColormap[1].d,
+				cmd.mDesaturate, cmd.mColor1.d, cmd.mScissor[0], cmd.mScissor[1], cmd.mScissor[2], cmd.mScissor[3], 0);
+			// Reset everything to the default.
+			SetFadeDisable(true);
+			EnableDepthTest(false);
+			EnableMultisampling(false);
+			EnableBlend(true);
+			EnableAlphaTest(true);
+			SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
+
+			continue;
+		}
+
 
 		int gltrans = -1;
 		//state.SetRenderStyle(cmd.mRenderStyle);
