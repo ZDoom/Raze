@@ -3082,10 +3082,10 @@ LOOP3:
                 CONTROL_BindsEnabled = 1;
                 RefreshStatus();
             }
-            else if (KB_KeyDown[sc_PrintScreen])
+            else if (KB_UnBoundKeyPressed(sc_F12))
             {
+                KB_ClearKeyDown(sc_F12);
                 videoCaptureScreen("captxxxx.png", 0);
-                KB_KeyDown[sc_PrintScreen] = 0;
             }
             else if (BUTTON(gamefunc_Map)) // e.g. TAB (to show 2D map)
             {
