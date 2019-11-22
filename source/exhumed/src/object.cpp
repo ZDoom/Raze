@@ -1230,9 +1230,9 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     }
 }
 
-void FuncTrap(int a, int b, int c)
+void FuncTrap(int a, int b, int nRun)
 {
-    short nTrap = RunData[c].nVal;
+    short nTrap = RunData[nRun].nVal;
     short nSprite = sTrap[nTrap].nSprite;
 
     int nMessage = a & 0x7F0000;
@@ -1293,30 +1293,34 @@ void FuncTrap(int a, int b, int c)
                     }
 
                     int nBullet = BuildBullet(nSprite, nType, 0, 0, 0, sprite[nSprite].ang, 0, 1);
-                    short nBulletSprite = nBullet & 0xFFFF; // isolate the sprite index (disregard top 16 bits)
-
-                    if (nType == 15)
+                    if (nBullet > -1)
                     {
-                        sprite[nBulletSprite].ang = (sprite[nBulletSprite].ang - 512) & kAngleMask;
-                        D3PlayFX(StaticSound[kSound32], nSprite);
-                    }
-                    else
-                    {
-                        sprite[nBulletSprite].clipdist = 50;
+                        short nBulletSprite = nBullet & 0xFFFF; // isolate the sprite index (disregard top 16 bits)
+                        assert(nBulletSprite >= 0);
 
-                        short nWall = sTrap[nTrap].field_6;
-                        if (nWall > -1)
+                        if (nType == 15)
                         {
-                            wall[nWall].picnum = sTrap[nTrap].field_A + 1;
+                            sprite[nBulletSprite].ang = (sprite[nBulletSprite].ang - 512) & kAngleMask;
+                            D3PlayFX(StaticSound[kSound32], nSprite);
                         }
-
-                        nWall = sTrap[nTrap].field_8;
-                        if (nWall > -1)
+                        else
                         {
-                            wall[nWall].picnum = sTrap[nTrap].field_C + 1;
-                        }
+                            sprite[nBulletSprite].clipdist = 50;
 
-                        D3PlayFX(StaticSound[kSound36], nSprite);
+                            short nWall = sTrap[nTrap].field_6;
+                            if (nWall > -1)
+                            {
+                                wall[nWall].picnum = sTrap[nTrap].field_A + 1;
+                            }
+
+                            nWall = sTrap[nTrap].field_8;
+                            if (nWall > -1)
+                            {
+                                wall[nWall].picnum = sTrap[nTrap].field_C + 1;
+                            }
+
+                            D3PlayFX(StaticSound[kSound36], nSprite);
+                        }
                     }
                 }
             }
