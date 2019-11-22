@@ -40,8 +40,6 @@
 #include "menu.h"
 #include "v_draw.h"
 
-IMPLEMENT_CLASS(DListMenu)
-
 //=============================================================================
 //
 //
@@ -253,12 +251,14 @@ void DListMenu::Ticker ()
 
 void DListMenu::Drawer ()
 {
+	PreDraw();
 	for(unsigned i=0;i<mDesc->mItems.Size(); i++)
 	{
 		if (mDesc->mItems[i]->mEnabled) mDesc->mItems[i]->Drawer(mDesc->mSelectedItem == (int)i);
 	}
 	if (mDesc->mSelectedItem >= 0 && mDesc->mSelectedItem < (int)mDesc->mItems.Size())
 		mDesc->mItems[mDesc->mSelectedItem]->DrawSelector(mDesc->mSelectOfsX, mDesc->mSelectOfsY, mDesc->mSelector);
+	PostDraw();
 	Super::Drawer();
 }
 

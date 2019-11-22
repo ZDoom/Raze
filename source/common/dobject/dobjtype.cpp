@@ -38,6 +38,7 @@
 #include "templates.h"
 #include "autosegs.h"
 #include "tarray.h"
+#if 0
 
 static TArray<PClass *> Types;
 static TMap<FName, PClass *> Map;
@@ -102,3 +103,4 @@ DObject *PClass::CreateNew () const
 	((DObject *)mem)->SetClass (const_cast<PClass *>(this));
 	return (DObject *)mem;
 }
+#endif

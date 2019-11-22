@@ -34,6 +34,8 @@
 #ifndef __DOBJECT_H__
 #define __DOBJECT_H__
 
+#if 0
+
 #include <stdlib.h>
 
 struct PClass;
@@ -176,4 +178,5 @@ inline bool DObject::IsA (const PClass *type)
 	return (type == GetClass());
 }
 
+#endif
 #endif //__DOBJECT_H__

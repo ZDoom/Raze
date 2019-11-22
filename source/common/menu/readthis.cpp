@@ -41,7 +41,6 @@
 
 class DReadThisMenu : public DMenu
 {
-	DECLARE_CLASS(DReadThisMenu, DMenu)
 	int mScreen;
 	int mInfoTic;
 
@@ -54,7 +53,6 @@ public:
 	bool MouseEvent(int type, int x, int y);
 };
 
-IMPLEMENT_CLASS(DReadThisMenu)
 
 //=============================================================================
 //

@@ -37,6 +37,8 @@
 
 #include "dobject.h"
 
+#if 0
+
 PClass DObject::_StaticType;
 ClassReg DObject::RegistrationInfo =
 {
@@ -71,3 +73,4 @@ DObject::~DObject ()
 void DObject::Destroy ()
 {
 }
+#endif

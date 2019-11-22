@@ -48,7 +48,7 @@
 
 class DLoadSaveMenu : public DListMenu
 {
-	DECLARE_CLASS(DLoadSaveMenu, DListMenu)
+	using Super = DListMenu;
 	friend void ClearSaveGames();
 
 protected:
@@ -108,8 +108,6 @@ public:
 	static void NotifyNewSave (const char *file, const char *title, bool okForQuicksave);
 
 };
-
-IMPLEMENT_CLASS(DLoadSaveMenu)
 
 TArray<FSaveGameNode*> DLoadSaveMenu::SaveGames;
 int DLoadSaveMenu::LastSaved = -1;
@@ -723,8 +721,7 @@ bool DLoadSaveMenu::Responder (event_t *ev)
 
 class DSaveMenu : public DLoadSaveMenu
 {
-	DECLARE_CLASS(DSaveMenu, DLoadSaveMenu)
-
+	using Super = DLoadSaveMenu;
 	FSaveGameNode NewSaveNode;
 
 public:
@@ -736,9 +733,6 @@ public:
 	bool MenuEvent (int mkey, bool fromcontroller);
 
 };
-
-IMPLEMENT_CLASS(DSaveMenu)
-
 
 //=============================================================================
 //
@@ -895,7 +889,7 @@ bool DSaveMenu::Responder (event_t *ev)
 
 class DLoadMenu : public DLoadSaveMenu
 {
-	DECLARE_CLASS(DLoadMenu, DLoadSaveMenu)
+	using Super = DLoadSaveMenu;
 
 public:
 
@@ -903,9 +897,6 @@ public:
 
 	bool MenuEvent (int mkey, bool fromcontroller);
 };
-
-IMPLEMENT_CLASS(DLoadMenu)
-
 
 //=============================================================================
 //

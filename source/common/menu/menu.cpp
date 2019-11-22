@@ -49,6 +49,9 @@
 #include "v_draw.h"
 #include "gamecontrol.h"
 
+void RegisterDukeMenus();
+extern bool rotatesprite_2doverride;
+
 //
 // Todo: Move these elsewhere
 //
@@ -60,6 +63,8 @@ CVAR (Float, snd_menuvolume, 0.6f, CVAR_ARCHIVE)
 CVAR(Int, m_use_mouse, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Int, m_show_backbutton, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
+TArray<MenuClassDescriptor*> menuClasses(TArray<MenuClassDescriptor*>::ENoInit(0));
+
 DMenu *DMenu::CurrentMenu;
 int DMenu::MenuTime;
 
@@ -69,7 +74,7 @@ bool			M_DemoNoPlay;
 FButtonStatus	MenuButtons[NUM_MKEYS];
 int				MenuButtonTickers[NUM_MKEYS];
 bool			MenuButtonOrigin[NUM_MKEYS];
-int				BackbuttonTime;
+int				BackbuttonTime;         
 float			BackbuttonAlpha;
 static bool		MenuEnabled = true;
 
@@ -83,7 +88,6 @@ static bool		MenuEnabled = true;
 //
 //============================================================================
 
-IMPLEMENT_CLASS (DMenu)
 
 DMenu::DMenu(DMenu *parent) 
 {
@@ -164,6 +168,7 @@ void DMenu::Close ()
 	assert(DMenu::CurrentMenu == this);
 	DMenu::CurrentMenu = mParentMenu;
 	Destroy();
+	delete this;
 	if (DMenu::CurrentMenu == NULL)
 	{
 		M_ClearMenus ();
@@ -417,9 +422,23 @@ void M_SetMenu(FName menu, int param)
 			}
 			else
 			{
-				//const PClass *cls = ld->mClass == NULL? RUNTIME_CLASS(DListMenu) : ld->mClass;
-
-				DListMenu* newmenu = new DListMenu;
+				DListMenu* newmenu;
+				if (ld->mClass != NAME_None)
+				{
+					auto ndx = menuClasses.FindEx([=](const auto p) { return p->mName == ld->mClass; });
+					if (ndx == menuClasses.Size())
+					{
+						I_Error("Bad menu class %s\n", ld->mClass.GetChars());
+					}
+					else
+					{
+						newmenu = (DListMenu*)menuClasses[ndx]->CreateNew();
+					}
+				}
+				else
+				{
+					newmenu = new DListMenu;
+				}
 				newmenu->Init(DMenu::CurrentMenu, ld);
 				M_ActivateMenu(newmenu);
 			}
@@ -437,6 +456,7 @@ void M_SetMenu(FName menu, int param)
 	}
 	else
 	{
+		/*
 		const PClass *menuclass = PClass::FindClass(menu);
 		if (menuclass != NULL)
 		{
@@ -448,6 +468,7 @@ void M_SetMenu(FName menu, int param)
 				return;
 			}
 		}
+		*/
 	}
 	Printf("Attempting to open menu of unknown type '%s'\n", menu.GetChars());
 }
@@ -687,6 +708,7 @@ void M_Ticker (void)
 
 void M_Drawer (void) 
 {
+	rotatesprite_2doverride = true;
 	PalEntry fade = 0x70000000;
 #if 0
 	player_t *player = &players[consoleplayer];
@@ -705,9 +727,11 @@ void M_Drawer (void)
 
 	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off)
 	{
+		DMenu::CurrentMenu->origin = { 0,0 };
 		if (DMenu::CurrentMenu->DimAllowed() && fade) twod.AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
 		DMenu::CurrentMenu->Drawer();
 	}
+	rotatesprite_2doverride = false;
 }
 
 //=============================================================================
@@ -722,6 +746,7 @@ void M_ClearMenus ()
 	if (DMenu::CurrentMenu != NULL)
 	{
 		DMenu::CurrentMenu->Destroy();
+		delete DMenu::CurrentMenu;
 		DMenu::CurrentMenu = NULL;
 	}
 	menuactive = MENU_Off;
@@ -736,6 +761,7 @@ void M_ClearMenus ()
 
 void M_Init (void) 
 {
+	RegisterDukeMenus();
 	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();
 	M_CreateMenus();

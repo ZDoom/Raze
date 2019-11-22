@@ -41,8 +41,6 @@
 #include "v_text.h"
 #include "v_draw.h"
 
-IMPLEMENT_ABSTRACT_CLASS(DTextEnterMenu)
-
 #define INPUTGRID_WIDTH		13
 #define INPUTGRID_HEIGHT	5
 

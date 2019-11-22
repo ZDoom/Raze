@@ -133,7 +133,7 @@ struct gamefilter
 
 static const gamefilter games[] = {
 	{ "Duke", GAMEFLAG_DUKE},
-	{ "Nam", GAMEFLAG_NAM},
+	{ "Nam", GAMEFLAG_NAM|GAMEFLAG_NAPALM},
 	{ "WW2GI", GAMEFLAG_WW2GI},
 	{ "Fury", GAMEFLAG_FURY},
 	{ "Redneck", GAMEFLAG_RR},
@@ -293,6 +293,16 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 
 			FListMenuItem *it = new FListMenuItemStaticPatch(x, y, tex, centered);
 			desc->mItems.Push(it);
+		}
+		else if (sc.Compare("ScriptId"))
+		{
+			sc.MustGetNumber();
+			desc->mScriptId = sc.Number;
+		}
+		else if (sc.Compare("Caption"))
+		{
+			sc.MustGetString();
+			desc->mCaption = sc.String;
 		}
 		else if (sc.Compare("StaticText") || sc.Compare("StaticTextCentered"))
 		{

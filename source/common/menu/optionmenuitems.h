@@ -322,8 +322,6 @@ public:
 
 class DEnterKey : public DMenu
 {
-	DECLARE_CLASS(DEnterKey, DMenu)
-
 	int *pKey;
 
 public:
@@ -342,6 +340,7 @@ public:
 
 	void SetMenuMessage(int which)
 	{
+		/*
 		if (mParentMenu->IsKindOf(RUNTIME_CLASS(DOptionMenu)))
 		{
 			DOptionMenu *m = static_cast<DOptionMenu*>(mParentMenu);
@@ -351,6 +350,7 @@ public:
 				it->SetValue(0, which);
 			}
 		}
+		*/
 	}
 
 	bool Responder(event_t *ev)
@@ -372,10 +372,6 @@ public:
 		mParentMenu->Drawer();
 	}
 };
-
-#ifndef NO_IMP
-IMPLEMENT_ABSTRACT_CLASS(DEnterKey)
-#endif
 
 //=============================================================================
 //

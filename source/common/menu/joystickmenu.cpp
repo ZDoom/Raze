@@ -226,10 +226,8 @@ public:
 
 class DJoystickConfigMenu : public DOptionMenu
 {
-	DECLARE_CLASS(DJoystickConfigMenu, DOptionMenu)
 };
 
-IMPLEMENT_CLASS(DJoystickConfigMenu)
 
 //=============================================================================
 //

@@ -62,7 +62,6 @@ void M_DrawConText (int color, int x, int y, const char *str)
 }
 
 
-IMPLEMENT_CLASS(DOptionMenu)
 
 //=============================================================================
 //

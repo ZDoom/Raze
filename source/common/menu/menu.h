@@ -4,7 +4,6 @@
 
 
 
-#include "dobject.h"
 #include "c_cvars.h"
 #include "v_font.h"
 #include "version.h"
@@ -107,6 +106,7 @@ class FOptionMenuItem;
 struct FListMenuDescriptor : public FMenuDescriptor
 {
 	TDeletingArray<FListMenuItem *> mItems;
+	FString mCaption;
 	int mSelectedItem;
 	int mSelectOfsX;
 	int mSelectOfsY;
@@ -116,6 +116,8 @@ struct FListMenuDescriptor : public FMenuDescriptor
 	int mWLeft, mWRight;
 	int mLinespacing;	// needs to be stored for dynamically created menus
 	int mAutoselect;	// this can only be set by internal menu creation functions
+	int mScriptId;
+	int mSecondaryId;
 	FFont *mFont;
 	EColorRange mFontColor;
 	EColorRange mFontColor2;
@@ -136,6 +138,8 @@ struct FListMenuDescriptor : public FMenuDescriptor
 		mFont = NULL;
 		mFontColor = CR_UNTRANSLATED;
 		mFontColor2 = CR_UNTRANSLATED;
+		mScriptId = 0;
+		mSecondaryId = 0;
 	}
 };
 
@@ -211,10 +215,8 @@ struct FMenuRect
 };
 
 
-class DMenu : public DObject
+class DMenu
 {
-	DECLARE_CLASS (DMenu, DObject)
-
 protected:
 	bool mMouseCapture;
 	bool mBackbuttonSelected;
@@ -236,19 +238,24 @@ public:
 	static int MenuTime;
 
 	DMenu *mParentMenu;
+	vec2_t origin;
 
 	DMenu(DMenu *parent = NULL);
 	virtual bool Responder (event_t *ev);
 	virtual bool MenuEvent (int mkey, bool fromcontroller);
 	virtual void Ticker ();
+	virtual void PreDraw() {}
+	virtual void PostDraw() {}
 	virtual void Drawer ();
 	virtual bool DimAllowed ();
 	virtual bool TranslateKeyboardEvents();
 	virtual void Close();
 	virtual bool MouseEvent(int type, int x, int y);
+	virtual void Destroy() {}
 	bool MouseEventBack(int type, int x, int y);
 	void SetCapture();
 	void ReleaseCapture();
+	void SetOrigin();
 	bool HasCapture()
 	{
 		return mMouseCapture;
@@ -427,8 +434,7 @@ public:
 
 class DListMenu : public DMenu
 {
-	DECLARE_CLASS(DListMenu, DMenu)
-
+	typedef DMenu Super;
 protected:
 	FListMenuDescriptor *mDesc = nullptr;
 	FListMenuItem *mFocusControl = nullptr;
@@ -516,8 +522,7 @@ extern FOptionMap OptionValues;
 
 class DOptionMenu : public DMenu
 {
-	DECLARE_CLASS(DOptionMenu, DMenu)
-
+	using Super = DMenu;
 	bool CanScrollUp;
 	bool CanScrollDown;
 	int VisBottom;
@@ -560,8 +565,7 @@ public:
 
 class DTextEnterMenu : public DMenu
 {
-	DECLARE_ABSTRACT_CLASS(DTextEnterMenu, DMenu)
-
+	using Super = DMenu;
 	TArray<char> mEnterString;
 	FString* mOutString;
 	unsigned int mEnterSize;
@@ -611,5 +615,28 @@ void M_StartMessage(const char *message, int messagemode, FName action = NAME_No
 void I_SetMouseCapture();
 void I_ReleaseMouseCapture();
 
+struct MenuClassDescriptor;
+extern TArray<MenuClassDescriptor*> menuClasses;
+
+struct MenuClassDescriptor
+{
+	FName mName;
+	MenuClassDescriptor(const char* name) : mName(name)
+	{
+		//menuClasses.Push(this);
+	}
+
+	virtual DMenu* CreateNew() = 0;
+};
+
+template<class Menu> struct TMenuClassDescriptor : public MenuClassDescriptor
+{
+	TMenuClassDescriptor(const char* name) : MenuClassDescriptor(name)
+	{}
+	DMenu* CreateNew()
+	{
+		return new Menu;
+	}
+};
 
 #endif

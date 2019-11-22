@@ -46,8 +46,7 @@ extern FSaveGameNode *quickSaveSlot;
 
 class DMessageBoxMenu : public DMenu
 {
-	DECLARE_CLASS(DMessageBoxMenu, DMenu)
-
+	using Super = DMenu;
 	TArray<FBrokenLines> mMessage;
 	int mMessageMode;
 	int messageSelection;
@@ -67,7 +66,6 @@ public:
 	virtual void HandleResult(bool res);
 };
 
-IMPLEMENT_CLASS(DMessageBoxMenu)
 
 //=============================================================================
 //

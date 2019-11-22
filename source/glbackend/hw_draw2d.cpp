@@ -129,6 +129,8 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 			// This just gets forwarded to the original drawer. Long term this should not survive and all calls be refactored.
 			UseColorOnly(false);
 			SetFadeDisable(false);
+			SetVertexBuffer(nullptr, 0, 0);
+			SetIndexBuffer(nullptr);
 			polymost_dorotatesprite(cmd.mVertIndex, cmd.mVertCount, cmd.mIndexIndex, cmd.mIndexCount, cmd.mSpecialColormap[0].d, cmd.mRemapIndex, cmd.mFlags, cmd.mSpecialColormap[1].d,
 				cmd.mDesaturate, cmd.mColor1.d, cmd.mScissor[0], cmd.mScissor[1], cmd.mScissor[2], cmd.mScissor[3], 0);
 			// Reset everything to the default.
@@ -138,6 +140,8 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 			EnableBlend(true);
 			EnableAlphaTest(true);
 			SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
+			SetVertexBuffer(vb.GetBufferObjects().first, 0, 0);
+			SetIndexBuffer(vb.GetBufferObjects().second);
 
 			continue;
 		}
