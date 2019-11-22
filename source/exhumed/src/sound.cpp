@@ -511,7 +511,7 @@ int LoadSound(const char *sound)
         int nSize = kfilelength(hVoc);
         SoundLock[i] = 255; // TODO: implement cache lock properly
         SoundLen[i] = nSize;
-        cacheAllocateBlock((intptr_t*)&SoundBuf[i], nSize, &SoundLock[i]);
+        g_cache.allocateBlock((intptr_t*)&SoundBuf[i], nSize, &SoundLock[i]);
         if (!SoundBuf[i])
             bail2dos("Error allocating buf '%s' to %lld  (size=%ld)!\n", buffer, (intptr_t)&SoundBuf[i], nSize);
 
@@ -662,7 +662,7 @@ void SoundBigEntrance(void)
         CalcASSPan(63-(i&1)*127, 200, &nLeft, &nRight);
         if (pASound->f_e >= 0)
             FX_StopSound(pASound->f_e);
-        pASound->f_e = FX_Play(SoundBuf[kSoundTorchOn], SoundLen[kSoundTorchOn], -1, 0, 0, max(nLeft, nRight), nLeft, nRight, 0, 1.f, i);
+        pASound->f_e = FX_Play(SoundBuf[kSoundTorchOn], SoundLen[kSoundTorchOn], -1, 0, 0, max(nLeft, nRight), nLeft, nRight, 0, fix16_one, i);
         if (pASound->f_e > -1)
             FX_SetFrequency(pASound->f_e, 11000+nPitch);
     }
@@ -693,7 +693,7 @@ void StartSwirly(int nActiveSound)
     CalcASSPan(nPan, nVolume, &nLeft, &nRight);
     if (pASound->f_e >= 0)
         FX_StopSound(pASound->f_e);
-    pASound->f_e = FX_Play(SoundBuf[StaticSound[kSound67]], SoundLen[StaticSound[kSound67]], -1, 0, 0, max(nLeft, nRight), nLeft, nRight, 0, 1.f, nActiveSound);
+    pASound->f_e = FX_Play(SoundBuf[StaticSound[kSound67]], SoundLen[StaticSound[kSound67]], -1, 0, 0, max(nLeft, nRight), nLeft, nRight, 0, fix16_one, nActiveSound);
     if (pASound->f_e > -1)
         FX_SetFrequency(pASound->f_e, nPitch);
 
@@ -922,7 +922,7 @@ void PlaySound(int nSound)
     if (handle >= 0)
         FX_StopSound(handle);
 
-    handle = FX_Play(SoundBuf[nSound], SoundLen[nSound], bLoop ? 0 : -1, 0, 0, gFXVolume, gFXVolume, gFXVolume, 0, 1.f, -1);
+    handle = FX_Play(SoundBuf[nSound], SoundLen[nSound], bLoop ? 0 : -1, 0, 0, gFXVolume, gFXVolume, gFXVolume, 0, fix16_one, -1);
 
 #if 0
     AIL_init_sample(handle);
@@ -956,7 +956,7 @@ void PlayLocalSound(short nSound, short nRate)
     if (pASound->f_e >= 0)
         FX_StopSound(pASound->f_e);
 
-    pASound->f_e = FX_Play(SoundBuf[nSound], SoundLen[nSound], bLoop ? 0 : -1, 0, 0, gFXVolume, gFXVolume, gFXVolume, 0, 1.f, nLocalChan);
+    pASound->f_e = FX_Play(SoundBuf[nSound], SoundLen[nSound], bLoop ? 0 : -1, 0, 0, gFXVolume, gFXVolume, gFXVolume, 0, fix16_one, nLocalChan);
 
     if (nRate)
     {
@@ -1165,7 +1165,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
 
         CalcASSPan(nPan, nVolume>>1, &nLeft, &nRight);
 
-        vdi->f_e = FX_Play(SoundBuf[nSound], SoundLen[nSound], bLoop ? 0 : -1, 0, 0, max(nLeft, nRight), nLeft, nRight, 0, 1.f, vdi-sActiveSound);
+        vdi->f_e = FX_Play(SoundBuf[nSound], SoundLen[nSound], bLoop ? 0 : -1, 0, 0, max(nLeft, nRight), nLeft, nRight, 0, fix16_one, vdi-sActiveSound);
 
         if (nPitch)
         {

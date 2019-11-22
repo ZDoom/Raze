@@ -511,6 +511,8 @@ int32_t g_noAutoLoad = 0;
 int g_useCwd;
 int32_t g_groupFileHandle;
 
+static struct strllist *CommandPaths, *CommandGrps;
+
 void G_ExtPreInit(int32_t argc,char const * const * argv)
 {
     g_useCwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
@@ -738,8 +740,6 @@ void G_LoadGroups(int32_t autoload)
 
 //////////
 
-struct strllist *CommandPaths, *CommandGrps;
-
 void G_AddGroup(const char *buffer)
 {
     char buf[BMAX_PATH];
@@ -789,7 +789,7 @@ void G_LoadGroupsInDir(const char *dirname)
 
     for (auto & extension : extensions)
     {
-        CACHE1D_FIND_REC *rec;
+        BUILDVFS_FIND_REC *rec;
 
         fnlist_getnames(&fnlist, dirname, extension, -1, 0);
 
@@ -1253,13 +1253,13 @@ void timerhandler()
             nCDTrackLength--;
         }
     }
+    if (!bInMove)
+        OSD_DispatchQueued();
 }
 
 void HandleAsync()
 {
     handleevents();
-    if (!bInMove)
-        OSD_DispatchQueued();
 }
 
 int MyGetStringWidth(const char *str)
@@ -2206,7 +2206,7 @@ int app_main(int argc, char const* const* argv)
     char tempbuf[256];
 #ifdef _WIN32
 #ifndef DEBUGGINGAIDS
-    if (!G_CheckCmdSwitch(argc, argv, "-noinstancechecking") && win_checkinstance())
+    if (!G_CheckCmdSwitch(argc, argv, "-noinstancechecking") && !windowsCheckAlreadyRunning())
     {
 #ifdef EDUKE32_STANDALONE
         if (!wm_ynbox(APPNAME, "It looks like " APPNAME " is already running.\n\n"
@@ -2217,8 +2217,6 @@ int app_main(int argc, char const* const* argv)
             return 3;
     }
 #endif
-
-    backgroundidle = 0;
 
 #ifndef USE_PHYSFS
 #ifdef DEBUGGINGAIDS
@@ -3009,31 +3007,40 @@ LOOP3:
         }
         else
         {
+            static bool frameJustDrawn;
             bInMove = kTrue;
             if (!bPause && totalclock >= tclocks + 4)
             {
-                GetLocalInput();
-
-                sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
-                sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
-                sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
-                sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
-                sPlayerInput[nLocalPlayer].nTarget = besttarget;
-
-                Ra[nLocalPlayer].nTarget = besttarget;
-
-                lLocalCodes = 0;
-                nPlayerDAng = 0;
-
-                sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
-
                 do
                 {
-                    timerUpdate();
-                    tclocks += 4;
-                    GameMove();
-                    timerUpdate();
-                } while (levelnew < 0 && totalclock >= tclocks + 4);
+                    if (!frameJustDrawn)
+                        break;
+
+                    frameJustDrawn = false;
+
+                    GetLocalInput();
+
+                    sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
+                    sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
+                    sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
+                    sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
+                    sPlayerInput[nLocalPlayer].nTarget = besttarget;
+
+                    Ra[nLocalPlayer].nTarget = besttarget;
+
+                    lLocalCodes = 0;
+                    nPlayerDAng = 0;
+
+                    sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
+
+                    do
+                    {
+                        // timerUpdate();
+                        tclocks += 4;
+                        GameMove();
+                        // timerUpdate();
+                    } while (levelnew < 0 && totalclock >= tclocks + 4);
+                } while (0);
             }
             bInMove = kFalse;
 
@@ -3042,6 +3049,7 @@ LOOP3:
             if (G_FPSLimit())
             {
                 GameDisplay();
+                frameJustDrawn = true;
             }
         }
         if (!bInDemo)

@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "cache1d.h"
+#include "vfs.h"
 #include "grpscan.h"
 
 #define kTimerTicks		120

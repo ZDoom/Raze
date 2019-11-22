@@ -174,9 +174,9 @@ static void LoadGameList(void)
 #else
     static char const base[] = "/";
 #endif
-    CACHE1D_FIND_REC * const srch = klistpath(base, "*.grpinfo", CACHE1D_FIND_FILE);
+    BUILDVFS_FIND_REC * const srch = klistpath(base, "*.grpinfo", BUILDVFS_FIND_FILE);
 
-    for (CACHE1D_FIND_REC *sidx = srch; sidx; sidx = sidx->next)
+    for (BUILDVFS_FIND_REC *sidx = srch; sidx; sidx = sidx->next)
         LoadList(sidx->name);
 
     klistfree(srch);
@@ -298,9 +298,9 @@ static grpinfo_t const * FindGrpInfo(int32_t crcval, int32_t size)
     return NULL;
 }
 
-static void ProcessGroups(CACHE1D_FIND_REC *srch)
+static void ProcessGroups(BUILDVFS_FIND_REC *srch)
 {
-    CACHE1D_FIND_REC *sidx;
+    BUILDVFS_FIND_REC *sidx;
     struct grpcache *fg, *fgg;
     char *fn;
     struct Bstat st;
@@ -409,7 +409,7 @@ int32_t ScanGroups(void)
 
     for (char const *extension : extensions)
     {
-        CACHE1D_FIND_REC *srch = klistpath("/", extension, CACHE1D_FIND_FILE);
+        BUILDVFS_FIND_REC *srch = klistpath("/", extension, BUILDVFS_FIND_FILE);
         ProcessGroups(srch);
         klistfree(srch);
     }
