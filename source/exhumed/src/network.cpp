@@ -15,13 +15,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 // this is net.c in the original code
 
 #include "typedefs.h"
 #include "network.h"
 #include "serial.h"
 #include "input.h"
+
+BEGIN_PS_NS
 
 short nNetMoveFrames = 0;
 
@@ -56,3 +58,4 @@ void UnInitNet()
 {
 
 }
+END_PS_NS

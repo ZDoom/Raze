@@ -21,9 +21,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_PS_NS
+
 void InitAnubis();
 int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer);
 
 void FuncAnubis(int a, int b, int c);
+
+END_PS_NS
 
 #endif

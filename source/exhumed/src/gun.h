@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "sequence.h"
 
+BEGIN_PS_NS
+
 #define kMaxWeapons		7
 
 enum
@@ -63,5 +65,7 @@ void FireWeapon(short nPlayer);
 void CheckClip(short nPlayer);
 void MoveWeapons(short nPlayer);
 void DrawWeapons(int smooth);
+
+END_PS_NS
 
 #endif

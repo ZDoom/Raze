@@ -15,12 +15,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "compat.h"
 #include "baselayer.h"
 #include "cd.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+BEGIN_PS_NS
 
 extern short word_9AC30;
 
@@ -72,3 +74,4 @@ void StopCD()
 {
 
 }
+END_PS_NS

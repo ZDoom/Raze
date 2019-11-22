@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_PS_NS
+
 void PlayerInterruptKeys();
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle);
 void SetSavePoint(int nPlayer, int x, int y, int z, short nSector, short nAngle);
@@ -122,5 +124,7 @@ short GetPlayerFromSprite(short nSprite);
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);
+
+END_PS_NS
 
 #endif

@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "typedefs.h"
 #include <stdio.h>
 
+BEGIN_PS_NS
+
 #pragma pack(1)
 // should be 75 bytes
 struct GameStat
@@ -73,5 +75,7 @@ void DoLastLevelCinema();
 void DoAfterCinemaScene(int nLevel);
 
 void InitEnergyTile();
+
+END_PS_NS
 
 #endif

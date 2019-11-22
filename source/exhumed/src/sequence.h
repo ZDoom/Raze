@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_PS_NS
+
 enum {
     kSeqRothands = 0,
     kSeqSword,
@@ -139,5 +141,7 @@ short seq_GetFrameFlag(short val, short nFrame);
 int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx);
 int seq_PlotArrowSequence(short nSprite, short nSeq, int nVal);
 void seq_DrawPilotLightSeq(int xOffset, int yOffset);
+
+END_PS_NS
 
 #endif

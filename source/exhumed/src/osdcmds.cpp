@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "compat.h"
 #include "build.h"
 #include "common.h"
@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdcmds.h"
 
 #include "vfs.h"
+
+BEGIN_PS_NS
+
 
 static inline int osdcmd_quit(osdcmdptr_t UNUSED(parm))
 {
@@ -123,27 +126,6 @@ static int osdcmd_initgroupfile(osdcmdptr_t parm)
 void onvideomodechange(int32_t newmode)
 {
     uint8_t palid = BASEPAL;
-
-#if 0
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-    {
-        int32_t i = 0;
-
-        while (i < MAXSPRITES)
-        {
-            if (actor[i].lightptr)
-            {
-                polymer_deletelight(actor[i].lightId);
-                actor[i].lightptr = NULL;
-                actor[i].lightId = -1;
-            }
-            i++;
-        }
-    }
-#endif
-#endif
-
     videoSetPalette(0, palid, 0);
 }
 
@@ -158,207 +140,6 @@ static int osdcmd_button(osdcmdptr_t parm)
     CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
 
     return OSDCMD_OK;
-}
-
-const char *const ConsoleButtons[] =
-{
-    "mouse1", "mouse2", "mouse3", "mouse4", "mwheelup",
-    "mwheeldn", "mouse5", "mouse6", "mouse7", "mouse8"
-};
-
-static int osdcmd_bind(osdcmdptr_t parm)
-{
-    char tempbuf[256];
-    if (parm->numparms==1 && !Bstrcasecmp(parm->parms[0],"showkeys"))
-    {
-        for (auto & s : sctokeylut)
-            OSD_Printf("%s\n", s.key);
-        for (auto ConsoleButton : ConsoleButtons)
-            OSD_Printf("%s\n",ConsoleButton);
-        return OSDCMD_OK;
-    }
-
-    if (parm->numparms==0)
-    {
-        int j=0;
-
-        OSD_Printf("Current key bindings:\n");
-
-        for (int i=0; i<MAXBOUNDKEYS+MAXMOUSEBUTTONS; i++)
-            if (CONTROL_KeyIsBound(i))
-            {
-                j++;
-                OSD_Printf("%-9s %s\"%s\"\n", CONTROL_KeyBinds[i].key, CONTROL_KeyBinds[i].repeat?"":"norepeat ",
-                           CONTROL_KeyBinds[i].cmdstr);
-            }
-
-        if (j == 0)
-            OSD_Printf("No binds found.\n");
-
-        return OSDCMD_OK;
-    }
-
-    int i, j, repeat;
-
-    for (i=0; i < ARRAY_SSIZE(sctokeylut); i++)
-    {
-        if (!Bstrcasecmp(parm->parms[0], sctokeylut[i].key))
-            break;
-    }
-
-    // didn't find the key
-    if (i == ARRAY_SSIZE(sctokeylut))
-    {
-        for (i=0; i<MAXMOUSEBUTTONS; i++)
-            if (!Bstrcasecmp(parm->parms[0],ConsoleButtons[i]))
-                break;
-
-        if (i >= MAXMOUSEBUTTONS)
-            return OSDCMD_SHOWHELP;
-
-        if (parm->numparms < 2)
-        {
-            if (CONTROL_KeyBinds[MAXBOUNDKEYS + i].cmdstr && CONTROL_KeyBinds[MAXBOUNDKEYS + i ].key)
-                OSD_Printf("%-9s %s\"%s\"\n", ConsoleButtons[i], CONTROL_KeyBinds[MAXBOUNDKEYS + i].repeat?"":"norepeat ",
-                CONTROL_KeyBinds[MAXBOUNDKEYS + i].cmdstr);
-            else OSD_Printf("%s is unbound\n", ConsoleButtons[i]);
-            return OSDCMD_OK;
-        }
-
-        j = 1;
-
-        repeat = 1;
-        if (!Bstrcasecmp(parm->parms[j],"norepeat"))
-        {
-            repeat = 0;
-            j++;
-        }
-
-        Bstrcpy(tempbuf,parm->parms[j++]);
-        for (; j<parm->numparms; j++)
-        {
-            Bstrcat(tempbuf," ");
-            Bstrcat(tempbuf,parm->parms[j++]);
-        }
-
-        CONTROL_BindMouse(i, tempbuf, repeat, ConsoleButtons[i]);
-
-        if (!OSD_ParsingScript())
-            OSD_Printf("%s\n",parm->raw);
-        return OSDCMD_OK;
-    }
-
-    if (parm->numparms < 2)
-    {
-        if (CONTROL_KeyIsBound(sctokeylut[i].sc))
-            OSD_Printf("%-9s %s\"%s\"\n", sctokeylut[i].key, CONTROL_KeyBinds[sctokeylut[i].sc].repeat?"":"norepeat ",
-                       CONTROL_KeyBinds[sctokeylut[i].sc].cmdstr);
-        else OSD_Printf("%s is unbound\n", sctokeylut[i].key);
-
-        return OSDCMD_OK;
-    }
-
-    j = 1;
-
-    repeat = 1;
-    if (!Bstrcasecmp(parm->parms[j],"norepeat"))
-    {
-        repeat = 0;
-        j++;
-    }
-
-    Bstrcpy(tempbuf,parm->parms[j++]);
-    for (; j<parm->numparms; j++)
-    {
-        Bstrcat(tempbuf," ");
-        Bstrcat(tempbuf,parm->parms[j++]);
-    }
-
-    CONTROL_BindKey(sctokeylut[i].sc, tempbuf, repeat, sctokeylut[i].key);
-
-    char *cp = tempbuf;
-
-    // Populate the keyboard config menu based on the bind.
-    // Take care of processing one-to-many bindings properly, too.
-    static char const s_gamefunc_[] = "gamefunc_";
-    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
-
-    while ((cp = Bstrstr(cp, s_gamefunc_)))
-    {
-        cp += strlen_gamefunc_;
-
-        char *semi = Bstrchr(cp, ';');
-
-        if (semi)
-            *semi = 0;
-
-        j = CONFIG_FunctionNameToNum(cp);
-
-        if (semi)
-            cp = semi+1;
-
-        if (j != -1)
-        {
-            KeyboardKeys[j][1] = KeyboardKeys[j][0];
-            KeyboardKeys[j][0] = sctokeylut[i].sc;
-//            CONTROL_MapKey(j, sctokeylut[i].sc, ud.config.KeyboardKeys[j][0]);
-
-            if (j == gamefunc_Show_Console)
-                OSD_CaptureKey(sctokeylut[i].sc);
-        }
-    }
-
-    if (!OSD_ParsingScript())
-        OSD_Printf("%s\n",parm->raw);
-
-    return OSDCMD_OK;
-}
-
-static int osdcmd_unbindall(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-
-    for (int i = 0; i < MAXBOUNDKEYS; ++i)
-        CONTROL_FreeKeyBind(i);
-
-    for (int i = 0; i < MAXMOUSEBUTTONS; ++i)
-        CONTROL_FreeMouseBind(i);
-
-    for (auto &KeyboardKey : KeyboardKeys)
-        KeyboardKey[0] = KeyboardKey[1] = 0xff;
-
-    if (!OSD_ParsingScript())
-        OSD_Printf("unbound all controls\n");
-
-    return OSDCMD_OK;
-}
-
-static int osdcmd_unbind(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    for (auto & ConsoleKey : sctokeylut)
-    {
-        if (ConsoleKey.key && !Bstrcasecmp(parm->parms[0], ConsoleKey.key))
-        {
-            CONTROL_FreeKeyBind(ConsoleKey.sc);
-            OSD_Printf("unbound key %s\n", ConsoleKey.key);
-            return OSDCMD_OK;
-        }
-    }
-
-    for (int i = 0; i < MAXMOUSEBUTTONS; i++)
-    {
-        if (!Bstrcasecmp(parm->parms[0], ConsoleButtons[i]))
-        {
-            CONTROL_FreeMouseBind(i);
-            OSD_Printf("unbound %s\n", ConsoleButtons[i]);
-            return OSDCMD_OK;
-        }
-    }
-
-    return OSDCMD_SHOWHELP;
 }
 
 static int osdcmd_unbound(osdcmdptr_t parm)
@@ -392,31 +173,12 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
 
     if (r != OSDCMD_OK) return r;
 
-    // TODO:
-    /*if (!Bstrcasecmp(parm->name, "r_upscalefactor"))
-    {
-        if (in3dmode())
-        {
-            videoSetGameMode(fullscreen, xres, yres, bpp, ud.detail);
-        }
-    }
-    else if (!Bstrcasecmp(parm->name, "r_size"))
-    {
-        ud.statusbarmode = (ud.screen_size < 8);
-        G_UpdateScreenArea();
-    }*/
-    else if (!Bstrcasecmp(parm->name, "r_maxfps") || !Bstrcasecmp(parm->name, "r_maxfpsoffset"))
+    if (!Bstrcasecmp(parm->name, "r_maxfps") || !Bstrcasecmp(parm->name, "r_maxfpsoffset"))
     {
         if (r_maxfps != 0) r_maxfps = clamp(r_maxfps, 30, 1000);
         g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
-    }/*
-    else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
-    {
-        if (r_ambientlight == 0)
-            r_ambientlightrecip = 256.f;
-        else r_ambientlightrecip = 1.f/r_ambientlight;
     }
-    else */if (!Bstrcasecmp(parm->name, "in_mouse"))
+	if (!Bstrcasecmp(parm->name, "in_mouse"))
     {
         CONTROL_MouseEnabled = (gSetup.usemouse && CONTROL_MousePresent);
     }
@@ -424,91 +186,6 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
     {
         CONTROL_JoystickEnabled = (gSetup.usejoystick && CONTROL_JoyPresent);
     }
-    else if (!Bstrcasecmp(parm->name, "vid_gamma"))
-    {
-        // TODO
-        //ud.brightness = GAMMA_CALC;
-        //ud.brightness <<= 2;
-        //videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
-    }
-    else if (!Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
-    {
-        // TODO
-        //videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
-    }
-    //else if (!Bstrcasecmp(parm->name, "hud_scale")
-    //         || !Bstrcasecmp(parm->name, "hud_statusbarmode")
-    //         || !Bstrcasecmp(parm->name, "r_rotatespritenowidescreen"))
-    //{
-    //    G_UpdateScreenArea();
-    //}
-    //else if (!Bstrcasecmp(parm->name, "skill"))
-    //{
-    //    if (numplayers > 1)
-    //        return r;
-    //
-    //    ud.player_skill = ud.m_player_skill;
-    //}
-    //else if (!Bstrcasecmp(parm->name, "color"))
-    //{
-    //    ud.color = G_CheckPlayerColor(ud.color);
-    //    g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
-    //}
-    //else if (!Bstrcasecmp(parm->name, "osdscale"))
-    //{
-    //    osdrscale = 1.f/osdscale;
-    //
-    //    if (xdim && ydim)
-    //        OSD_ResizeDisplay(xdim, ydim);
-    //}
-    //else if (!Bstrcasecmp(parm->name, "wchoice"))
-    //{
-    //    if (parm->numparms == 1)
-    //    {
-    //        if (g_forceWeaponChoice) // rewrite ud.wchoice because osdcmd_cvar_set already changed it
-    //        {
-    //            int j = 0;
-    //
-    //            while (j < 10)
-    //            {
-    //                ud.wchoice[j] = g_player[myconnectindex].wchoice[j] + '0';
-    //                j++;
-    //            }
-    //
-    //            ud.wchoice[j] = 0;
-    //        }
-    //        else
-    //        {
-    //            char const *c = parm->parms[0];
-    //
-    //            if (*c)
-    //            {
-    //                int j = 0;
-    //
-    //                while (*c && j < 10)
-    //                {
-    //                    g_player[myconnectindex].wchoice[j] = *c - '0';
-    //                    c++;
-    //                    j++;
-    //                }
-    //
-    //                while (j < 10)
-    //                {
-    //                    if (j == 9)
-    //                        g_player[myconnectindex].wchoice[9] = 1;
-    //                    else
-    //                        g_player[myconnectindex].wchoice[j] = 2;
-    //
-    //                    j++;
-    //                }
-    //            }
-    //        }
-    //
-    //        g_forceWeaponChoice = 0;
-    //    }
-    //
-    //    /*    Net_SendClientInfo();*/
-    //}
 
     return r;
 }
@@ -699,22 +376,6 @@ int32_t registerosdcommands(void)
     //OSD_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
 
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
-//#ifdef DEBUGGINGAIDS
-//    OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
-//#endif
-    //OSD_RegisterFunction("music","music E<ep>L<lev>: change music", osdcmd_music);
-
-    //OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
-
-
-    //OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
-
-    //OSD_RegisterFunction("purgesaves", "purgesaves: deletes obsolete and unreadable save files", osdcmd_purgesaves);
-
-    //OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
-    //OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
-    OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
-    OSD_RegisterFunction("exit","exit: exits the game immediately", osdcmd_quit);
 
     //OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     //OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
@@ -723,8 +384,6 @@ int32_t registerosdcommands(void)
 
     //OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
-    OSD_RegisterFunction("unbind","unbind <key>: unbinds a key", osdcmd_unbind);
-    OSD_RegisterFunction("unbindall","unbindall: unbinds all keys", osdcmd_unbindall);
     OSD_RegisterFunction("unbound", NULL, osdcmd_unbound);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
@@ -753,3 +412,4 @@ void GAME_clearbackground(int numcols, int numrows)
     COMMON_clearbackground(numcols, numrows);
 }
 
+END_PS_NS

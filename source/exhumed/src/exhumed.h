@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "vfs.h"
 #include "grpscan.h"
 
+BEGIN_PS_NS
+
 #define kTimerTicks		120
 
 #ifdef __WATCOMC__
@@ -242,5 +244,7 @@ extern struct grpfile_t const* g_selectedGrp;
 extern int loaddefinitions_game(const char* fn, int32_t preload);
 void G_LoadGroupsInDir(const char* dirname);
 void G_DoAutoload(const char* dirname);
+
+END_PS_NS
 
 #endif

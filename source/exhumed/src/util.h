@@ -19,6 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __util_h__
 #define __util_h__
 
+BEGIN_PS_NS
+
+
 inline int Min(int a, int b)
 {
     if (a < b)
@@ -34,5 +37,7 @@ inline int Max(int a, int b)
     else
         return a;
 }
+
+END_PS_NS
 
 #endif

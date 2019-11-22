@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __bullet_h__
 #define __bullet_h__
 
+BEGIN_PS_NS
+
 // 32 bytes
 struct bulletInfo
 {
@@ -51,5 +53,7 @@ int BuildBullet(short nSprite, int nType, int ebx, int ecx, int val1, int nAngle
 void IgniteSprite(int nSprite);
 void FuncBullet(int, int, int);
 void BackUpBullet(int *x, int *y, short nAngle);
+
+END_PS_NS
 
 #endif

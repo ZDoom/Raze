@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "exhumed.h"
 #include "engine.h"
 #include "runlist.h"
@@ -48,6 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "init.h"
 #include "lighting.h"
 #include <assert.h>
+
+BEGIN_PS_NS
 
 //#define kFuncMax	0x260000 // the number 38 stored in the high word of an int
 #define kFuncMax		39
@@ -1844,3 +1846,4 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
         nTauntTimer[nPlayer] = RandomSize(3) + 3;
     }
 }
+END_PS_NS

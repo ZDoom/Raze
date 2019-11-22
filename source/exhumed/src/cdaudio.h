@@ -19,7 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __cdaudio_h__
 #define __cdaudio_h__
 
+BEGIN_PS_NS
+
 void CheckCD();
 int fadecdaudio();
+
+END_PS_NS
 
 #endif

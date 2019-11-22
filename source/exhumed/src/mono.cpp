@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 /*
 Name:  MonoClear_
 address      = 0001:0001CF5A
@@ -66,5 +66,9 @@ kind:          (data)
 */
 #include "mono.h"
 
+BEGIN_PS_NS
+
 int rowCur = 0;
 int colCur = 0;
+
+END_PS_NS

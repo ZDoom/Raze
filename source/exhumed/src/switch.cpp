@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "switch.h"
 #include "exhumed.h"
 #include "runlist.h"
@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include <string.h>
 #include <assert.h>
+
+BEGIN_PS_NS
 
 short LinkCount = -1;
 short SwitchCount = -1;
@@ -540,3 +542,4 @@ void FuncSwPressWall(int a, int, int nRun)
         }
     }
 }
+END_PS_NS

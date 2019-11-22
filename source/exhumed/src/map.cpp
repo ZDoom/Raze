@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "typedefs.h"
 #include <string.h>
 #include "player.h"
@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "view.h"
+
+BEGIN_PS_NS
+
 
 short bShowTowers = kTrue; //kFalse; REVERT to kFalse
 int ldMapZoom;
@@ -625,3 +628,4 @@ void DrawMap()
         G_DrawOverheadMap(initx, inity, lMapZoom, inita);
     }
 }
+END_PS_NS

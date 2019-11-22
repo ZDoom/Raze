@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __snake_h__
 #define __snake_h__
 
+BEGIN_PS_NS
+
 #define kSnakeSprites	8 // or rename to kSnakeParts?
 
 // 32bytes
@@ -52,5 +54,7 @@ void InitSnakes();
 short GrabSnake();
 int BuildSnake(short nPlayer, short zVal);
 void FuncSnake(int, int, int);
+
+END_PS_NS
 
 #endif

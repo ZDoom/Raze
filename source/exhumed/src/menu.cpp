@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "compat.h"
 #include "build.h"
 #include "exhumed.h"
@@ -45,6 +45,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef __WATCOMC__
 #include <stdlib.h>
 #endif
+
+BEGIN_PS_NS
+
 
 #define kSaveFileName       "savgamea.sav"
 #define kMaxSaveSlots		5
@@ -2420,3 +2423,4 @@ LABEL_28:
     MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
     MaskStatus();
 }
+END_PS_NS

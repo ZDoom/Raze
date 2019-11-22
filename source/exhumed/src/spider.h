@@ -19,8 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __spider_h__
 #define __spider_h__
 
+BEGIN_PS_NS
+
 void InitSpider();
 int BuildSpider(int nSprite, int x, int y, int z, short nSector, int angle);
 void FuncSpider(int a, int b, int nRun);
+
+END_PS_NS
 
 #endif

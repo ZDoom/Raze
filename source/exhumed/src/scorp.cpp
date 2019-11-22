@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "engine.h"
 #include "scorp.h"
 #include "runlist.h"
@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "bullet.h"
 #include "spider.h"
 #include <assert.h>
+
+BEGIN_PS_NS
 
 /*
     Selkis Boss AI code
@@ -503,3 +505,4 @@ FS_Red:
         sprite[nSprite].yvel = 0;
     }
 }
+END_PS_NS

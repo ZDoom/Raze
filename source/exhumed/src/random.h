@@ -19,11 +19,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __random_h__
 #define __random_h__
 
+BEGIN_PS_NS
+
 void InitRandom();
 int RandomBit();
 char RandomByte();
 short RandomWord();
 int RandomLong();
 int RandomSize(int nSize);
+
+END_PS_NS
 
 #endif

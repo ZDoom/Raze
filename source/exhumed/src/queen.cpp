@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "exhumed.h"
 #include "aistuff.h"
 #include "engine.h"
@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "names.h"
 #include <assert.h>
+
+BEGIN_PS_NS
 
 #define kMaxQueens	1
 #define kMaxEggs	10
@@ -1482,3 +1484,4 @@ void FuncQueen(int a, int nDamage, int nRun)
         }
     }
 }
+END_PS_NS

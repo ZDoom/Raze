@@ -15,8 +15,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "random.h"
+
+BEGIN_PS_NS
 
 int randA = 0;
 int randB = 0x11111111;
@@ -78,3 +80,4 @@ int RandomSize(int nSize)
 
     return randSize;
 }
+END_PS_NS

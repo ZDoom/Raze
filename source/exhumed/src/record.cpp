@@ -15,13 +15,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "compat.h"
 #include "record.h"
 #include "typedefs.h"
 #include "save.h"
 #include <stdio.h>
 #include <string.h>
+
+BEGIN_PS_NS
 
 short record_mode = 0;
 int record_limit = -1;
@@ -168,3 +170,4 @@ int CloseRecord()
     fclose(record_file);
     return 1;
 }
+END_PS_NS

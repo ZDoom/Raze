@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "engine.h"
 #include "object.h"
 #include "exhumed.h"
@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "bullet.h"
 #include <string.h>
 #include <assert.h>
+
+BEGIN_PS_NS
 
 #define kMaxBobs		200
 #define kMaxDrips		50
@@ -2672,3 +2674,4 @@ void PostProcess()
         }
     }
 }
+END_PS_NS

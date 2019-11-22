@@ -866,7 +866,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr sw zmusic )
+target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr sw exhumed zmusic )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}

@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "engine.h"
 #include "bullet.h"
 #include "runlist.h"
@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //#include <math.h>
 #include <stdlib.h>
 #endif
+
+BEGIN_PS_NS
 
 #define kMaxBullets		500
 
@@ -848,3 +850,4 @@ void FuncBullet(int a, int b, int nRun)
         }
     }
 }
+END_PS_NS

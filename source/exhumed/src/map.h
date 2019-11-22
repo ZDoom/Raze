@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_PS_NS
+
 extern short bShowTowers;
 extern int ldMapZoom;
 extern int lMapZoom;
@@ -29,5 +31,7 @@ void InitMap();
 void GrabMap();
 void UpdateMap();
 void DrawMap();
+
+END_PS_NS
 
 #endif

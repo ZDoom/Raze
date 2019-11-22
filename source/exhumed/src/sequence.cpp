@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "typedefs.h"
 #include "sequence.h"
 #include "engine.h"
@@ -37,6 +37,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // TEMP
 #include <assert.h>
+
+BEGIN_PS_NS
 
 #define kMaxSequences	4096
 #define kMaxSEQFiles	78
@@ -665,3 +667,4 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
 
     return nPict;
 }
+END_PS_NS

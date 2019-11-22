@@ -23,9 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef osdcmds_h_
 #define osdcmds_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+BEGIN_PS_NS
+
 
 int32_t registerosdcommands(void);
 void onvideomodechange(int32_t newmode);
@@ -38,9 +37,7 @@ extern const char *const ConsoleButtons[];
 
 //extern uint32_t cl_cheatmask;
 
-#ifdef __cplusplus
-}
-#endif
+END_PS_NS
 
 #endif	// osdcmds_h_
 

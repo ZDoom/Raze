@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __lighting_h__
 #define __lighting_h__
 
+BEGIN_PS_NS
+
 extern short nFlashDepth;
 
 void InitLights();
@@ -32,5 +34,7 @@ void AddGlow(short nSector, int nVal);
 void AddFlicker(short nSector, int nVal);
 
 extern short bTorch;
+
+END_PS_NS
 
 #endif

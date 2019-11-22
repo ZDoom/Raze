@@ -15,8 +15,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "cdrom.h"
+
+BEGIN_PS_NS
 
 int checkcdrom()
 {
@@ -27,3 +29,4 @@ char GetCDDriveLetter()
 {
     return 'D';
 }
+END_PS_NS

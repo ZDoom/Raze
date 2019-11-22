@@ -21,6 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_PS_NS
+
+
 #define kMaxRuns		25600
 #define kMaxChannels	4096
 
@@ -77,5 +80,7 @@ void runlist_SignalRun(int NxtPtr, int edx);
 
 void runlist_CleanRunRecs();
 void runlist_ExecObjects();
+
+END_PS_NS
 
 #endif

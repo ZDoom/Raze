@@ -19,11 +19,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __serial_h__
 #define __serial_h__
 
+BEGIN_PS_NS
+
 extern short bSendBye;
 
 void UpdateSerialInputs();
 void ClearSerialInbuf();
 void HangUp();
 void UnInitSerial();
+
+END_PS_NS
 
 #endif

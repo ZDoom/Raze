@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "engine.h"
 
 //#include <io.h>
@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <malloc.h>
 
 // static int globhiz, globloz, globhihit, globlohit;
+
+BEGIN_PS_NS
 
 
 void overwritesprite(int thex, int they, short tilenum, signed char shade, char stat, char dapalnum)
@@ -147,3 +149,4 @@ void precache()
         }
     }
 }
+END_PS_NS

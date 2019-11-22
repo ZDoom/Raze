@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "compat.h"
 #include "renderlayer.h"
 #include "_control.h"
@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //#include <io.h>
 #include <stdio.h>
 #include <time.h>
+
+BEGIN_PS_NS
 
 const char gamefunctions[kMaxGameFunctions][kMaxGameFuncLen] =
 {
@@ -1016,3 +1018,4 @@ void CONFIG_WriteSetup(uint32_t flags)
     CONFIG_WriteSettings();
     Bfflush(NULL);
 }
+END_PS_NS

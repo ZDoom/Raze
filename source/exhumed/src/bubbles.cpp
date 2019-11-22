@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "bubbles.h"
 #include "runlist.h"
 #include "exhumed.h"
@@ -28,6 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "init.h"
 #include "anims.h"
 #include <assert.h>
+
+BEGIN_PS_NS
+
 
 #define kMaxBubbles		200
 #define kMaxMachines	125
@@ -238,3 +241,4 @@ void DoBubbles(int nPlayer)
 
     sprite[nSprite].hitag = nPlayer;
 }
+END_PS_NS

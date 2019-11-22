@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "compat.h"
 #include "baselayer.h"
 #include "renderlayer.h" // for win_gethwnd()
@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "snake.h"
 #include "trigdat.h"
 #include "sequence.h"
+
+BEGIN_PS_NS
 
 #if 0
 extern "C" {
@@ -1259,3 +1261,4 @@ void Unlock(void)
 }
 
 #endif
+END_PS_NS

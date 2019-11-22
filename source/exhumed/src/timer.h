@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __timer_h__
 #define __timer_h__
 
+BEGIN_PS_NS
+
 #define kTimerTicks		120
 
 void InitTimer();
@@ -26,5 +28,7 @@ void InitTimer();
 #ifdef __WATCOMC__
 void uninittimer();
 #endif
+
+END_PS_NS
 
 #endif

@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "compat.h"
 #include "player.h"
 #include "runlist.h"
@@ -52,6 +52,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+
+BEGIN_PS_NS
 
 struct PlayerSave
 {
@@ -3350,3 +3352,4 @@ do_default_b:
         }
     }
 }
+END_PS_NS

@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_PS_NS
+
 struct Anim
 {
     short nSeq;
@@ -40,5 +42,7 @@ short GetAnimSprite(short nAnim);
 void FuncAnim(int, int, int);
 void BuildExplosion(short nSprite);
 int BuildSplash(int nSprite, int nSector);
+
+END_PS_NS
 
 #endif

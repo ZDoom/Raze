@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_PS_NS
+
 #define kMaxGameFunctions	40
 #define kMaxGameFuncLen     64
 
@@ -153,5 +155,7 @@ extern int32_t MAXCACHE1DSIZE;
 void CONFIG_SetDefaultKeys(const char(*keyptr)[kMaxGameFuncLen], bool lazy=false);
 void CONFIG_MapKey(int which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
 int32_t CONFIG_FunctionNameToNum(const char* func);
+
+END_PS_NS
 
 #endif

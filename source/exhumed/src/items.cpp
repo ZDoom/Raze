@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "items.h"
 #include "anims.h"
 #include "player.h"
@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "init.h"
 #include "input.h"
 #include "object.h"
+
+BEGIN_PS_NS
 
 struct AnimInfo
 {
@@ -495,3 +497,4 @@ void DoRegenerates()
         }
     }
 }
+END_PS_NS

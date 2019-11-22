@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "names.h"
@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "baselayer.h"
 #include "typedefs.h"
 #include "keyboard.h"
+
+BEGIN_PS_NS
 
 enum {
     kFramePalette = 0,
@@ -235,3 +237,4 @@ void PlayMovie(const char *fileName)
 
     fclose(fp);
 }
+END_PS_NS

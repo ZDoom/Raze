@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "rex.h"
 #include "exhumed.h"
 #include "engine.h"
@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "aistuff.h"
 #include <assert.h>
+
+BEGIN_PS_NS
 
 #define kMaxRex	50
 
@@ -475,3 +477,4 @@ void FuncRex(int a, int nDamage, int nRun)
         }
     }
 }
+END_PS_NS

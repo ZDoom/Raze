@@ -19,6 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __sound_h__
 #define __sound_h__
 
+BEGIN_PS_NS
+
+
 #define kMaxSoundFiles      80
 #define kMaxSounds          200
 #define kMaxSoundNameLen    8
@@ -142,5 +145,7 @@ void PlayTitleSound(void);
 void PlayGameOverSound(void);
 
 void SoundBigEntrance(void);
+
+END_PS_NS
 
 #endif

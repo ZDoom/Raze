@@ -19,7 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __save_h__
 #define __save_h__
 
+BEGIN_PS_NS
+
 int savegame(int nSlot);
 int loadgame(int nSlot);
+
+END_PS_NS
 
 #endif

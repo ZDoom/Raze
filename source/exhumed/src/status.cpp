@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "engine.h"
 #include "player.h"
 #include "anims.h"
@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include <stdlib.h>
 #include "typedefs.h"
+
+BEGIN_PS_NS
 
 short nMaskY;
 static short nAnimsFree = 0;
@@ -847,3 +849,5 @@ void DrawStatus()
         printext(0, 0, "S E R P E N T   C A M", kTile159, 255);
     }
 }
+
+END_PS_NS

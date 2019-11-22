@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __ra_h__
 #define __ra_h__
 
+BEGIN_PS_NS
+
 struct RA
 {
     short field_0;
@@ -38,5 +40,7 @@ int BuildRa(short nPlayer);
 void InitRa();
 void MoveRaToEnemy(short nPlayer);
 void FuncRa(int, int, int);
+
+END_PS_NS
 
 #endif

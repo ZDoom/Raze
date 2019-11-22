@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 // Our replacement for the MACT scripting library as the one Exhumed/Powerslave uses is from an older version. This code is based on that older version
 
 #include "typedefs.h"
@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+BEGIN_PS_NS
 
 #if 0
 
@@ -439,3 +441,4 @@ void LoadScript(char *filename, int nVal)
 }
 
 #endif
+END_PS_NS

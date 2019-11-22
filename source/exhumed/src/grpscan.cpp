@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "baselayer.h"
 #include "cache1d.h"
 #include "exhumed.h"
@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "scriptfile.h"
 
 #include "vfs.h"
+
+BEGIN_PS_NS
+
 
 #ifndef EDUKE32_STANDALONE
 static void process_vaca13(int32_t crcval);
@@ -470,3 +473,4 @@ void FreeGroups(void)
 
     FreeGameList();
 }
+END_PS_NS

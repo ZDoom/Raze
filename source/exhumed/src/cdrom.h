@@ -19,7 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __cdrom_h__
 #define __cdrom_h__
 
+BEGIN_PS_NS
+
 int checkcdrom();
 char GetCDDriveLetter();
+
+END_PS_NS
 
 #endif

@@ -23,9 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef grpscan_h_
 #define grpscan_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+BEGIN_PS_NS
 
 #define MAXLISTNAMELEN 32
 
@@ -77,8 +75,6 @@ extern grpfile_t * FindGroup(int32_t crcval);
 int32_t ScanGroups(void);
 void FreeGroups(void);
 
-#ifdef __cplusplus
-}
-#endif
+END_PS_NS
 
 #endif

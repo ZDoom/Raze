@@ -15,13 +15,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "save.h"
 #include <stdio.h>
 //#include <fcntl.h>
 //#include <sys/stat.h>
 //#include <io.h>
 #include "engine.h"
+
+BEGIN_PS_NS
 
 int savegame(int nSlot)
 {
@@ -119,3 +121,4 @@ int loadgame(int nSlot)
     return 1; // CHECKME
 }
 
+END_PS_NS

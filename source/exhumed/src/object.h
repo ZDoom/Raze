@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __object_h__
 #define __object_h__
 
+BEGIN_PS_NS
+
 #define kMaxPoints	1024
 #define kMaxSlides	128
 #define kMaxElevs	1024
@@ -82,5 +84,7 @@ int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5,
 int BuildWallFace(short nChannel, short nWall, short nCount, ...);
 
 int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int arg3);
+
+END_PS_NS
 
 #endif

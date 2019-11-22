@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "engine.h"
 #include "lavadude.h"
 #include "random.h"
@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "bullet.h"
 #include "sound.h"
 #include <assert.h>
+
+BEGIN_PS_NS
 
 #define kMaxLavas	20
 
@@ -514,3 +516,4 @@ void FuncLava(int a, int nDamage, int nRun)
         }
     }
 }
+END_PS_NS

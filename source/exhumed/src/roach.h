@@ -19,8 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __roach_h__
 #define __roach_h__
 
+BEGIN_PS_NS
+
 void InitRoachs();
 int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int angle);
 void FuncRoach(int a, int nDamage, int nRun);
+
+END_PS_NS
 
 #endif

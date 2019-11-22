@@ -19,10 +19,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __trigdat_h__
 #define __trigdat_h__
 
+BEGIN_PS_NS
+
 #define kAngleMask	0x7FF
 
 int GetMyAngle(int x, int y);
 int AngleDiff(short a, short b);
 int AngleDelta(int a, int b, int c);
+
+END_PS_NS
 
 #endif

@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "input.h"
 #include "engine.h"
 #include "exhumed.h"
@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "control.h"
 #include "config.h"
 #include <string.h>
+
+BEGIN_PS_NS
 
 int nNetMoves = 0;
 
@@ -229,3 +231,4 @@ int WaitAnyKey(int nSecs)
   Name:  _sInputStack
 
   */
+  END_PS_NS

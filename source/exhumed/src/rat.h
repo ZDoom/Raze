@@ -19,10 +19,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __rat_h__
 #define __rat_h__
 
+BEGIN_PS_NS
+
 void InitRats();
 void SetRatVel(short nSprite);
 int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle);
 int FindFood(short nSprite);
 void FuncRat(int a, int b, int nRun);
+
+END_PS_NS
 
 #endif

@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "light.h"
 #include "engine.h"
 #include "exhumed.h"
@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+BEGIN_PS_NS
 
 #define kMaxGrads	12
 
@@ -745,3 +747,4 @@ void SetOverscan(int id)
 
     DoOverscanSet(overscanindex);
 }
+END_PS_NS

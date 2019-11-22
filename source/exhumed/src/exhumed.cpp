@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "compat.h"
 #include "baselayer.h"
 #include "renderlayer.h"
@@ -80,6 +80,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef _WIN32
 # include "winbits.h"
 #endif /* _WIN32 */
+
+BEGIN_PS_NS
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -4468,3 +4471,4 @@ int DoSpiritHead()
     return 0;
 }
 #endif
+END_PS_NS

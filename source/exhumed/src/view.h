@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 
+BEGIN_PS_NS
+
 extern short bSubTitles;
 extern short nViewTop;
 extern short bClip;
@@ -62,5 +64,7 @@ static inline int angle_interpolate16(int a, int b, int smooth)
 {
     return a + mulscale16(((b+1024-a)&2047)-1024, smooth);
 }
+
+END_PS_NS
 
 #endif

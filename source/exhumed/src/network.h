@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __network_h__
 #define __network_h__
 
+BEGIN_PS_NS
+
 extern short nNetMoveFrames;
 
 void SendGoodbye();
@@ -27,5 +29,7 @@ int InitNet(short nSocket, int nPlayers);
 int InitSerial();
 void AbortNetworkPlay();
 void UnInitNet();
+
+END_PS_NS
 
 #endif

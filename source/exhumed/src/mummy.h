@@ -21,11 +21,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "runlist.h"
 
+BEGIN_PS_NS
+
 #define kMaxMummies	150
 
 void InitMummy();
 int BuildMummy(int val, int x, int y, int z, int nSector, int angle);
 
 void FuncMummy(int nSector, int edx, int nRun);
+
+END_PS_NS
 
 #endif

@@ -39,9 +39,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "lavadude.h"
 #include "bullet.h"
 
+BEGIN_PS_NS
+
 #define KMaxTimeSlots	16
 
 void InitTimeSlot();
 int GrabTimeSlot(int nVal);
+
+END_PS_NS
 
 #endif

@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __items_h__
 #define __items_h__
 
+BEGIN_PS_NS
+
 enum
 {
     kItemHeart = 0,
@@ -48,5 +50,7 @@ void DropMagic(short nSprite);
 void InitItems();
 void StartRegenerate(short nSprite);
 void DoRegenerates();
+
+END_PS_NS
 
 #endif

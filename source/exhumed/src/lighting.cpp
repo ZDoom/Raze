@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "typedefs.h"
 #include "lighting.h"
 #include "player.h"
@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "random.h"
 #include <string.h>
 #include <assert.h>
+
+BEGIN_PS_NS
 
 #define kMaxFlashes			2000
 #define kMaxFlickerMask		25
@@ -776,3 +778,5 @@ void BuildFlash(short nPlayer, short nSector, int nVal)
         flash = -nVal; // ???
     }
 }
+
+END_PS_NS

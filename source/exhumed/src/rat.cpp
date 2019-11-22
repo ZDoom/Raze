@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "engine.h"
 #include "rat.h"
 #include "sequence.h"
@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumed.h"
 #include "move.h"
 #include <assert.h>
+
+BEGIN_PS_NS
 
 #define kMaxRats	50
 
@@ -398,3 +400,4 @@ void FuncRat(int a, int nDamage, int nRun)
         }
     }
 }
+END_PS_NS

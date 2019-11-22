@@ -19,9 +19,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __set_h__
 #define __set_h__
 
+BEGIN_PS_NS
+
 void InitSets();
 int BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, int nVal);
 void FuncSoul(int, int, int);
 void FuncSet(int, int, int);
+
+END_PS_NS
 
 #endif

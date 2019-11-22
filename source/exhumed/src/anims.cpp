@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "engine.h"
 #include "anims.h"
 #include "sequence.h"
@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "random.h"
 #include "init.h"
 #include <assert.h>
+
+BEGIN_PS_NS
+
 
 #define kMaxAnims	400
 
@@ -329,3 +332,4 @@ int BuildSplash(int nSprite, int nSector)
 
     return AnimList[nAnim].nSprite;
 }
+END_PS_NS

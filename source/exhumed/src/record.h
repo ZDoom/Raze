@@ -19,6 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __record_h__
 #define __record_h__
 
+BEGIN_PS_NS
+
+
 extern short record_mode;
+
+
+END_PS_NS
 
 #endif

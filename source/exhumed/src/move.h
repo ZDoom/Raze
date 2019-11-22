@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __move_h__
 #define __move_h__
 
+BEGIN_PS_NS
+
 // 16 bytes
 struct BlockInfo
 {
@@ -73,5 +75,7 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel);
 int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1);
 
 void SetQuake(short nSprite, int nVal);
+
+END_PS_NS
 
 #endif

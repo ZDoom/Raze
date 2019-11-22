@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __switch_h__
 #define __switch_h__
 
+BEGIN_PS_NS
+
 #define kMaxLinks		1024
 #define kMaxSwitches	1024
 
@@ -40,5 +42,7 @@ int BuildSwStepOn(int nChannel, int nLink, int nSector);
 int BuildSwReady(int nChannel, short nLink);
 
 int BuildSwPressWall(short nChannel, short nLink, short nWall);
+
+END_PS_NS
 
 #endif

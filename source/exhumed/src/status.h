@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __status_h__
 #define __status_h__
 
+BEGIN_PS_NS
+
 
 extern short nMaskY;
 extern short nCounterBullet;
@@ -45,5 +47,7 @@ void SetPrevItem(int nPlayer);
 
 void SetCounter(short nVal);
 void SetCounterImmediate(short nVal);
+
+END_PS_NS
 
 #endif

@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "mummy.h"
 #include "sequence.h"
 #include "move.h"
@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "items.h"
 #include <assert.h>
 #include "engine.h"
+
+BEGIN_PS_NS
 
 short nMummies = -1;
 
@@ -526,3 +528,4 @@ void FuncMummy(int a, int nDamage, int nRun)
         }
     }
 }
+END_PS_NS

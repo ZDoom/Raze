@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "grenade.h"
 #include "engine.h"
 #include "player.h"
@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sequence.h"
 #include "random.h"
 #include <assert.h>
+
+BEGIN_PS_NS
 
 int nGrenadeCount = 0;
 int nGrenadesFree;
@@ -434,3 +436,4 @@ void FuncGrenade(int a, int nDamage, int nRun)
         }
     }
 }
+END_PS_NS

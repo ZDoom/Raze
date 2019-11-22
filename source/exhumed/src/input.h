@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
+BEGIN_PS_NS
+
 enum {
     kButtonJump = 0x1,
     kButtonOpen = 0x4,
@@ -62,5 +64,7 @@ void GetLocalInput();
 
 extern PlayerInput sPlayerInput[];
 extern int nNetMoves;
+
+END_PS_NS
 
 #endif

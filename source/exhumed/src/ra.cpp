@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "ra.h"
 #include "runlist.h"
 #include "engine.h"
@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gun.h"
 #include "bullet.h"
 #include <string.h>
+
+BEGIN_PS_NS
 
 /* bjd - the content of the ra.* files originally resided in gun.c I think... */
 
@@ -291,3 +293,4 @@ void FuncRa(int a, int nDamage, int nRun)
         }
     }
 }
+END_PS_NS

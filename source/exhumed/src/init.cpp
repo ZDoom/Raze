@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "compat.h"
 #include "keyboard.h"
 #include "control.h"
@@ -44,6 +44,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "util.h"
 #include <stdio.h>
 #include <string.h>
+
+BEGIN_PS_NS
 
 enum
 {
@@ -1272,3 +1274,4 @@ int mysaveconfig()
     fclose(fp);
     return 1;
 }
+END_PS_NS

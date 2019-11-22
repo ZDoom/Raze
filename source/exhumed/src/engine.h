@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "typedefs.h"
 #include "trigdat.h"
 
+BEGIN_PS_NS
+
 #define kMaxTiles	6144
 #define kMaxSprites 4096
 #define kMaxSectors 1024
@@ -59,5 +61,7 @@ void precache();
 void resettiming();
 void printext(int x, int y, const char* buffer, short tilenum, char invisiblecol);
 void kensetpalette(unsigned char *vgapal);
+
+END_PS_NS
 
 #endif

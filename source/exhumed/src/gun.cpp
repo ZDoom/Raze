@@ -15,7 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "gun.h"
 #include "engine.h"
 #include "init.h"
@@ -41,6 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "object.h"
 #include <string.h>
 #include <assert.h>
+
+BEGIN_PS_NS
 
 /*
 struct Weapon
@@ -1120,3 +1122,4 @@ void DrawWeapons(int smooth)
         }
     }
 }
+END_PS_NS
