@@ -1693,36 +1693,6 @@ void Menu_Init(void)
         }
     }
 
-#if 0
-    // prepare sound setup
-    if (WW2GI)
-        ME_SOUND_DUKETALK.name = "GI talk:";
-    else if (NAM)
-        ME_SOUND_DUKETALK.name = "Grunt talk:";
-
-    if (IONMAIDEN)
-    {
-        MF_Redfont.between.x = 2<<16;
-        MF_Redfont.cursorScale = 32768;
-        MF_Redfont.zoom = 16384;
-        MF_Bluefont.zoom = 16384;
-
-        // hack; should swap out pointers
-        MF_Minifont = MF_Bluefont;
-
-        MMF_Top_Main.pos.x = 40<<16;
-        MMF_Top_Main.pos.y = 130<<16;
-        MMF_Top_Main.bottomcutoff = 190<<16;
-        M_OPTIONS.format = &MMF_Top_Main;
-
-        MEF_MainMenu.width = MEF_OptionsMenu.width = -(160<<16);
-        MEF_MainMenu.marginBottom = 7<<16;
-
-        M_OPTIONS.title = NoTitle;
-
-        SELECTDIR_z = 16384;
-    }
-#endif
 
     if (RR)
     {

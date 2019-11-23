@@ -8,54 +8,62 @@ LISTMENU "MainMenu"
 {
 	ifgame(Duke, Nam, WW2GI, Fury)
 	{
-		linespacing 15
-		class "Duke.MainMenu"
-		TextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
-		//TextItem "$MNU_MULTIPLAYER", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
 		ifgame(fury)
 		{
-			TextItem "$MNU_CONTINUE", "l", "LoadGameMenu"
+			position 40, 130, -160
 		}
 		else
 		{
-			TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+			position 160, 55
 		}
-		TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		TextItem "$MNU_HELP", "h", "HelpMenu"
-		TextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		TextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		linespacing 15
+		class "Duke.MainMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		//NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
+		ifgame(fury)
+		{
+			NativeTextItem "$MNU_CONTINUE", "l", "LoadGameMenu"
+		}
+		else
+		{
+			NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		}
+		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
+		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Redneck, RedneckRides)
 	{
 		linespacing 15
-		TextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
-		//TextItem "$MNU_MULTIPLAYER", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
-		TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		TextItem "$MNU_HELP", "h", "HelpMenu"
-		TextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		TextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		//NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
+		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
+		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
 	{
 		linespacing 15
-		TextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
-		TextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
-		TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		TextItem "$MNU_HELP", "h", "HelpMenu"
-		TextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		TextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
+		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
+		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(ShadowWarrior)
 	{
 		linespacing 15
-		TextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
-		TextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		TextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
-		TextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		TextItem "$MNU_COOLSTUFF", "h", "HelpMenu"
-		TextItem "$MNU_QUITGAME", "q", "QuitMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_COOLSTUFF", "h", "HelpMenu"
+		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 }
 

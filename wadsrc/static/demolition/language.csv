@@ -1,0 +1,13 @@
+default,Identifier,Remarks,Filter,eng enc ena enz eni ens enj enb enl ent enw,cs,de,el,eo,es,esm esn esg esc esa esd esv eso esr ess esf esl esy esz esb ese esh esi esu,fi,fr,hu,it,jp,ko,nl,pl,pt,ptg,ro,ru,sr
+,,,,,,,,,,,,,,,,,,,,,,,
+New Game,MNU_NEWGAME,,,,Nová hra,Neues Spiel,,Nova Ludo,Nueva Partida,,Uusi peli,Nouvelle Partie,,Nuovo gioco,新規ゲーム,새로운 게임,Nieuw spel,Nowa Gra,Novo Jogo,,,Новая игра,Нова игра
+Options,MNU_OPTIONS,,,,Možnosti,Optionen,,Agordoj,Opciones,,Asetukset,Options,,Opzioni,オプション,설정,Opties,Opcje,Opções,,,Настройки,Подешавања
+Quit,MNU_QUITGAME,,,,Ukončit hru,Spiel verlassen,,Ĉesigi Ludon,Salir del juego,,Lopeta peli,Quitter le jeu,,Esci dal gioco,終了,게임 종료,Verlaat spel,Wyjdź z Gry,Sair,,,Выход,Заврши игру
+Load Game,MNU_LOADGAME,,,,Načíst hru,Spiel laden,,Ŝarĝi Ludon,Cargar Partida,,Lataa peli,Chargement,,Carica gioco,ロード,게임 불러오기,Laden spel,Wczytaj Grę,Carregar,,,Загрузка,Учитај игру
+Save Game,MNU_SAVEGAME,,,,Uložit hru,Spiel sichern,,Konservi Ludon,Guardar Partida,,Tallenna peli,Sauvegarde,,Salva gioco,セーブ,게임 저장하기,Opslaan spel,Zapisz Grę,Salvar,Gravar,,Сохранение,Сачувај игру
+Help,MNU_HELP,,,,,Hilfe,,,,,,Aide,,,,,,,,,,,
+Continue,MNU_CONTINUE,,,,,Fortfahren,,,,,,,,,,,,,,,,,
+Credits,MNU_CREDITS,,,,,,,,,,,,,,,,,,,,,,
+Cool Stuff,MNU_COOLSTUFF,,,,,Cooles Zeug,,,,,,,,,,,,,,,,,
+Multiplayer,MNU_MULTIPLAYER,,,,,Mehrspieler,,,,,,,,,,,,,,,,,
+End Game,MNU_ENDGAME,,,,,Spiel beenden,,,,,,,,,,,,,,,,,

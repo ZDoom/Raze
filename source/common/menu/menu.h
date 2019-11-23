@@ -53,6 +53,18 @@ enum EMenuKey
 	MKEY_MBNo,
 };
 
+enum ENativeFontValues
+{
+	NIT_BigFont,
+	NIT_SmallFont,
+	NIT_TinyFont,
+
+	NIT_ActiveColor = -1,
+	NIT_InactiveColor = -2,
+	NIT_SelectedColor = -3
+	// positive values for color are direct palswap indices.
+};
+
 
 struct FGameStartup
 {
@@ -118,11 +130,13 @@ struct FListMenuDescriptor : public FMenuDescriptor
 	int mAutoselect;	// this can only be set by internal menu creation functions
 	int mScriptId;
 	int mSecondaryId;
+	int mNativeFontNum, mNativePalNum;
+	float mNativeFontScale;
 	FFont *mFont;
 	EColorRange mFontColor;
 	EColorRange mFontColor2;
 	FMenuDescriptor *mRedirect;	// used to redirect overlong skill and episode menus to option menu based alternatives
-	bool mCenter;
+	int mCenter;
 
 	void Reset()
 	{
@@ -140,6 +154,9 @@ struct FListMenuDescriptor : public FMenuDescriptor
 		mFontColor2 = CR_UNTRANSLATED;
 		mScriptId = 0;
 		mSecondaryId = 0;
+		mNativeFontNum = NIT_BigFont;
+		mNativePalNum = NIT_ActiveColor;
+		mNativeFontScale = 1.f;
 	}
 };
 
@@ -289,7 +306,7 @@ public:
 
 	virtual bool CheckCoordinate(int x, int y);
 	virtual void Ticker();
-	virtual void Drawer(bool selected);
+	virtual void Drawer(const vec2_t &origin, bool selected);
 	virtual bool Selectable();
 	virtual bool Activate();
 	virtual FName GetAction(int *pparam);
@@ -317,7 +334,7 @@ protected:
 
 public:
 	FListMenuItemStaticPatch(int x, int y, FTexture *patch, bool centered);
-	void Drawer(bool selected);
+	void Drawer(const vec2_t& origin, bool selected);
 };
 
 class FListMenuItemStaticText : public FListMenuItem
@@ -331,55 +348,8 @@ protected:
 public:
 	FListMenuItemStaticText(int x, int y, const char *text, FFont *font, EColorRange color, bool centered);
 	~FListMenuItemStaticText();
-	void Drawer(bool selected);
+	void Drawer(const vec2_t& origin, bool selected) override;
 };
-
-//=============================================================================
-//
-// the player sprite window
-//
-//=============================================================================
-#if 0
-class FListMenuItemPlayerDisplay : public FListMenuItem
-{
-	FListMenuDescriptor *mOwner;
-	FTexture *mBackdrop;
-	FRemapTable mRemap;
-	FPlayerClass *mPlayerClass;
-	int mPlayerTics;
-	bool mNoportrait;
-	uint8_t mRotation;
-	uint8_t mMode;	// 0: automatic (used by class selection), 1: manual (used by player setup)
-	uint8_t mTranslate;
-	int mSkin;
-	int mRandomClass;
-	int mRandomTimer;
-	int mClassNum;
-
-	void SetPlayerClass(int classnum, bool force = false);
-	bool UpdatePlayerClass();
-	void UpdateRandomClass();
-	void UpdateTranslation();
-
-public:
-
-	enum
-	{
-		PDF_ROTATION = 0x10001,
-		PDF_SKIN = 0x10002,
-		PDF_CLASS = 0x10003,
-		PDF_MODE = 0x10004,
-		PDF_TRANSLATE = 0x10005,
-	};
-
-	FListMenuItemPlayerDisplay(FListMenuDescriptor *menu, int x, int y, PalEntry c1, PalEntry c2, bool np, FName action);
-	~FListMenuItemPlayerDisplay();
-	virtual void Ticker();
-	virtual void Drawer(bool selected);
-	bool SetValue(int i, int value);
-};
-#endif
-
 
 //=============================================================================
 //
@@ -396,12 +366,12 @@ protected:
 
 public:
 	FListMenuItemSelectable(int x, int y, int height, FName childmenu, int mParam = -1);
-	bool CheckCoordinate(int x, int y);
-	bool Selectable();
-	bool CheckHotkey(int c);
-	bool Activate();
-	bool MouseEvent(int type, int x, int y);
-	FName GetAction(int *pparam);
+	bool CheckCoordinate(int x, int y) override;
+	bool Selectable() override;
+	bool CheckHotkey(int c) override;
+	bool Activate() override;
+	bool MouseEvent(int type, int x, int y) override;
+	FName GetAction(int *pparam) override;
 };
 
 class FListMenuItemText : public FListMenuItemSelectable
@@ -413,17 +383,32 @@ class FListMenuItemText : public FListMenuItemSelectable
 public:
 	FListMenuItemText(int x, int y, int height, int hotkey, const FString &text, FFont *font, EColorRange color, EColorRange color2, FName child, int param = 0);
 	~FListMenuItemText();
-	void Drawer(bool selected);
-	int GetWidth();
+	void Drawer(const vec2_t& origin, bool selected) override;
+	int GetWidth() override;
 };
+
+class FListMenuItemNativeText : public FListMenuItemSelectable
+{
+	// This draws the item with the game frontend's native text drawer and uses a front end defined font, it takes only symbolic constants as parameters.
+	FString mText;
+	int mFontnum;
+	int mPalnum;
+	float mFontscale;
+public:
+	FListMenuItemNativeText(int x, int y, int height, int hotkey, const FString& text, int fontnum, int palnum, float fontscale, FName child, int param = 0);
+	~FListMenuItemNativeText();
+	void Drawer(const vec2_t& origin, bool selected) override;
+	int GetWidth() override;
+};
+
 
 class FListMenuItemPatch : public FListMenuItemSelectable
 {
 	FTexture* mTexture;
 public:
 	FListMenuItemPatch(int x, int y, int height, int hotkey, FTexture* patch, FName child, int param = 0);
-	void Drawer(bool selected);
-	int GetWidth();
+	void Drawer(const vec2_t& origin, bool selected) override;
+	int GetWidth() override;
 };
 
 //=============================================================================

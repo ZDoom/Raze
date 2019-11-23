@@ -403,7 +403,7 @@ void V_InitFontColors ()
 	TranslationLookup.Clear();
 	TranslationColors.Clear();
 
-	while ((lump = fileSystem.Iterate("textcolors.txt", &lastlump)) != -1)
+	while ((lump = fileSystem.Iterate("demolition/textcolors.txt", &lastlump)) != -1)
 	{
 		FScanner sc(lump);
 		while (sc.GetString())

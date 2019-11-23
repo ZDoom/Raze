@@ -39,6 +39,7 @@
 #include "d_event.h"
 #include "menu.h"
 #include "v_draw.h"
+#include "baselayer.h"
 
 //=============================================================================
 //
@@ -254,10 +255,14 @@ void DListMenu::Drawer ()
 	PreDraw();
 	for(unsigned i=0;i<mDesc->mItems.Size(); i++)
 	{
-		if (mDesc->mItems[i]->mEnabled) mDesc->mItems[i]->Drawer(mDesc->mSelectedItem == (int)i);
+		auto o = origin;
+		if (mDesc->mItems[i]->mEnabled) mDesc->mItems[i]->Drawer(o, mDesc->mSelectedItem == (int)i);
+		o.y += gi->GetMenuFontHeight(mDesc->mNativeFontNum);
 	}
+	/*
 	if (mDesc->mSelectedItem >= 0 && mDesc->mSelectedItem < (int)mDesc->mItems.Size())
 		mDesc->mItems[mDesc->mSelectedItem]->DrawSelector(mDesc->mSelectOfsX, mDesc->mSelectOfsY, mDesc->mSelector);
+		*/
 	PostDraw();
 	Super::Drawer();
 }
@@ -281,7 +286,7 @@ void FListMenuItem::Ticker()
 {
 }
 
-void FListMenuItem::Drawer(bool selected)
+void FListMenuItem::Drawer(const vec2_t& origin, bool selected)
 {
 }
 
@@ -380,7 +385,7 @@ FListMenuItemStaticPatch::FListMenuItemStaticPatch(int x, int y, FTexture *patch
 	mCentered = centered;
 }
 	
-void FListMenuItemStaticPatch::Drawer(bool selected)
+void FListMenuItemStaticPatch::Drawer(const vec2_t& origin, bool selected)
 {
 	if (!mTexture)
 	{
@@ -417,7 +422,7 @@ FListMenuItemStaticText::FListMenuItemStaticText(int x, int y, const char *text,
 	mCentered = centered;
 }
 	
-void FListMenuItemStaticText::Drawer(bool selected)
+void FListMenuItemStaticText::Drawer(const vec2_t& origin, bool selected)
 {
 	const char *text = mText;
 	if (text != NULL)
@@ -521,7 +526,7 @@ FListMenuItemText::~FListMenuItemText()
 {
 }
 
-void FListMenuItemText::Drawer(bool selected)
+void FListMenuItemText::Drawer(const vec2_t& origin, bool selected)
 {
 	const char *text = mText;
 	if (mText.Len())
@@ -545,6 +550,48 @@ int FListMenuItemText::GetWidth()
 
 //=============================================================================
 //
+// native text item
+//
+//=============================================================================
+
+FListMenuItemNativeText::FListMenuItemNativeText(int x, int y, int height, int hotkey, const FString& text, int fontnum, int palnum, float fontscale, FName child, int param)
+	: FListMenuItemSelectable(x, y, height, child, param)
+{
+	mText = text;
+	mFontnum = NIT_BigFont;
+	mPalnum = NIT_ActiveColor;
+	mFontscale = fontscale;
+	mHotkey = hotkey;
+}
+
+FListMenuItemNativeText::~FListMenuItemNativeText()
+{
+}
+
+void FListMenuItemNativeText::Drawer(const vec2_t& origin, bool selected)
+{
+	const char* text = mText;
+	if (mText.Len())
+	{
+		if (*text == '$') text = GStrings(text + 1);
+		gi->DrawNativeMenuText(mFontnum, selected ? NIT_SelectedColor : mPalnum, mXpos + origin.x, mYpos + origin.y, mFontscale, text);
+	}
+}
+
+int FListMenuItemText::GetWidth()
+{
+	const char* text = mText;
+	if (mText.Len())
+	{
+		if (*text == '$') text = GStrings(text + 1);
+		return mFont->StringWidth(text);
+	}
+	return 1;
+}
+
+
+//=============================================================================
+//
 // patch item
 //
 //=============================================================================
@@ -556,7 +603,7 @@ FListMenuItemPatch::FListMenuItemPatch(int x, int y, int height, int hotkey, FTe
 	mTexture = patch;
 }
 
-void FListMenuItemPatch::Drawer(bool selected)
+void FListMenuItemPatch::Drawer(const vec2_t& origin, bool selected)
 {
 	DrawTexture (&twod, mTexture, mXpos, mYpos, DTA_Clean, true, TAG_DONE);
 }

@@ -24,6 +24,7 @@
 #include "z_music.h"
 #include "statistics.h"
 #include "menu.h"
+#include "gstrings.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -378,6 +379,7 @@ int CONFIG_Init()
 	{
 		playername = userConfig.CommandName;
 	}
+	GStrings.LoadStrings();
 	V_InitFonts();
 	buttonMap.SetGameAliases();
 	Mus_Init();

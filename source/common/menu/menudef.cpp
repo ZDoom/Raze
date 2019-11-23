@@ -159,7 +159,7 @@ static bool CheckSkipGameBlock(FScanner &sc)
 	if (!(filter & 1))	// todo: apply correct filter.
 	{
 		SkipSubBlock(sc);
-		return true;
+		return !sc.CheckString("else");
 	}
 	return false;
 }
@@ -362,26 +362,90 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 			if (desc->mSelectedItem == -1) desc->mSelectedItem = desc->mItems.Size()-1;
 
 		}
-		else if (sc.Compare("Font"))
+		else if (sc.Compare("NativeTextItem"))
 		{
+		sc.MustGetString();
+		FString text = sc.String;
+		sc.MustGetStringName(",");
+		sc.MustGetString();
+		int hotkey = sc.String[0];
+		sc.MustGetStringName(",");
+		sc.MustGetString();
+		FName action = sc.String;
+		int param = 0;
+		if (sc.CheckString(","))
+		{
+			sc.MustGetNumber();
+			param = sc.Number;
+		}
+
+		auto it = new FListMenuItemNativeText(desc->mXpos, desc->mYpos, desc->mLinespacing, hotkey, text, desc->mNativeFontNum, desc->mNativePalNum, desc->mNativeFontScale, action, param);
+		desc->mItems.Push(it);
+		desc->mYpos += desc->mLinespacing;
+		if (desc->mSelectedItem == -1) desc->mSelectedItem = desc->mItems.Size() - 1;
+
+		}
+		else if (sc.Compare("NativeFont"))
+		{
+			desc->mNativePalNum = NIT_ActiveColor;
+			desc->mNativeFontScale = 1.f;
 			sc.MustGetString();
-			FFont *newfont = V_GetFont(sc.String);
-			if (newfont != NULL) desc->mFont = newfont;
+			if (sc.Compare("Big")) desc->mNativeFontNum = NIT_BigFont;
+			else if (sc.Compare("Small")) desc->mNativeFontNum = NIT_SmallFont;
+			else if (sc.Compare("Tiny")) desc->mNativeFontNum = NIT_TinyFont;
+			else sc.ScriptError("Unknown native font type");
 			if (sc.CheckString(","))
 			{
 				sc.MustGetString();
-				desc->mFontColor2 = desc->mFontColor = V_FindFontColor((FName)sc.String);
+				if (sc.Compare("Active")) desc->mNativePalNum = NIT_ActiveColor;
+				else if (sc.Compare("Inactive")) desc->mNativePalNum = NIT_InactiveColor;
+				else if (sc.Compare("Selected")) desc->mNativePalNum = NIT_SelectedColor;
+				else
+				{
+					char* ep;
+					int v = (int)strtoll(sc.String, &ep, 0);
+					if (*ep != 0) sc.ScriptError("Unknown native palette");
+					desc->mNativePalNum = v;
+				}
 				if (sc.CheckString(","))
 				{
-					sc.MustGetString();
-					desc->mFontColor2 = V_FindFontColor((FName)sc.String);
+					sc.MustGetFloat();
+					desc->mNativeFontScale = sc.Float;
+				}			
+			}
+		}
+		else if (sc.Compare("Position"))
+		{
+			sc.MustGetNumber();
+			sc.MustGetStringName(",");
+			desc->mXpos = sc.Number;
+			sc.MustGetNumber();
+			desc->mYpos = sc.Number;
+			if (sc.CheckString(","))
+			{
+				desc->mCenter = sc.Number;
+			}
+		}
+		else if (sc.Compare("Font"))
+		{
+		sc.MustGetString();
+		FFont* newfont = V_GetFont(sc.String);
+		if (newfont != NULL) desc->mFont = newfont;
+		if (sc.CheckString(","))
+		{
+			sc.MustGetString();
+			desc->mFontColor2 = desc->mFontColor = V_FindFontColor((FName)sc.String);
+			if (sc.CheckString(","))
+			{
+				sc.MustGetString();
+				desc->mFontColor2 = V_FindFontColor((FName)sc.String);
 				}
 			}
-			else
-			{
-				desc->mFontColor = OptionSettings.mFontColor;
-				desc->mFontColor2 = OptionSettings.mFontColorValue;
-			}
+		else
+		{
+			desc->mFontColor = OptionSettings.mFontColor;
+			desc->mFontColor2 = OptionSettings.mFontColorValue;
+		}
 		}
 		else if (sc.Compare("NetgameMessage"))
 		{
