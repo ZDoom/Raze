@@ -452,36 +452,6 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 			sc.MustGetString();
 			desc->mNetgameMessage = sc.String;
 		}
-#if 0
-		else if (sc.Compare("PlayerDisplay"))
-		{
-			bool noportrait = false;
-			FName action = NAME_None;
-			sc.MustGetNumber();
-			int x = sc.Number;
-			sc.MustGetStringName(",");
-			sc.MustGetNumber();
-			int y = sc.Number;
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			PalEntry c1 = V_GetColor(NULL, sc.String);
-			sc.MustGetStringName(",");
-			sc.MustGetString();
-			PalEntry c2 = V_GetColor(NULL, sc.String);
-			if (sc.CheckString(","))
-			{
-				sc.MustGetNumber();
-				noportrait = !!sc.Number;
-				if (sc.CheckString(","))
-				{
-					sc.MustGetString();
-					action = sc.String;
-				}
-			}
-			FListMenuItemPlayerDisplay *it = new FListMenuItemPlayerDisplay(desc, x, y, c1, c2, noportrait, action);
-			desc->mItems.Push(it);
-		}
-#endif
 		else
 		{
 			sc.ScriptError("Unknown keyword '%s'", sc.String);
