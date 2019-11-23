@@ -3335,13 +3335,13 @@ void DoTitle()
 
         int nStringWidth = MyGetStringWidth(a);
 
-        int y = ydim - 24;
-        myprintext((xdim / 2 - nStringWidth / 2), y, a, 0);
+        int y = 200 - 24;
+        myprintext((320 / 2 - nStringWidth / 2), y, a, 0);
 
         nStringWidth = MyGetStringWidth(b);
 
-        y = ydim - 16;
-        myprintext((xdim / 2 - nStringWidth / 2), y, b, 0);
+        y = 200 - 16;
+        myprintext((320 / 2 - nStringWidth / 2), y, b, 0);
 
         if ((int)totalclock > var_18)
         {
