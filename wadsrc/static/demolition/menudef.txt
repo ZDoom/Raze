@@ -10,11 +10,12 @@ LISTMENU "MainMenu"
 	{
 		ifgame(fury)
 		{
-			position 40, 130, -160
+			position 40, 130, 60, -160
 		}
 		else
 		{
-			position 160, 55
+			position 160, 55, 115, 0
+			centermenu
 		}
 		linespacing 15
 		class "Duke.MainMenu"

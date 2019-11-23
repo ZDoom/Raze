@@ -255,14 +255,10 @@ void DListMenu::Drawer ()
 	PreDraw();
 	for(unsigned i=0;i<mDesc->mItems.Size(); i++)
 	{
-		auto o = origin;
-		if (mDesc->mItems[i]->mEnabled) mDesc->mItems[i]->Drawer(o, mDesc->mSelectedItem == (int)i);
-		o.y += gi->GetMenuFontHeight(mDesc->mNativeFontNum);
+		if (mDesc->mItems[i]->mEnabled) mDesc->mItems[i]->Drawer(origin, mDesc->mSelectedItem == (int)i);
 	}
-	/*
 	if (mDesc->mSelectedItem >= 0 && mDesc->mSelectedItem < (int)mDesc->mItems.Size())
 		mDesc->mItems[mDesc->mSelectedItem]->DrawSelector(mDesc->mSelectOfsX, mDesc->mSelectOfsY, mDesc->mSelector);
-		*/
 	PostDraw();
 	Super::Drawer();
 }
@@ -574,18 +570,12 @@ void FListMenuItemNativeText::Drawer(const vec2_t& origin, bool selected)
 	if (mText.Len())
 	{
 		if (*text == '$') text = GStrings(text + 1);
-		gi->DrawNativeMenuText(mFontnum, selected ? NIT_SelectedColor : mPalnum, mXpos + origin.x, mYpos + origin.y, mFontscale, text);
+		gi->DrawNativeMenuText(mFontnum, selected ? NIT_SelectedState : mEnabled? NIT_ActiveState : NIT_InactiveState, mXpos + origin.x, mYpos + origin.y, 1.f, text, TOR_Center); // needs to be able to handle other orientations, too.
 	}
-}
+} 
 
-int FListMenuItemText::GetWidth()
+int FListMenuItemNativeText::GetWidth()
 {
-	const char* text = mText;
-	if (mText.Len())
-	{
-		if (*text == '$') text = GStrings(text + 1);
-		return mFont->StringWidth(text);
-	}
 	return 1;
 }
 

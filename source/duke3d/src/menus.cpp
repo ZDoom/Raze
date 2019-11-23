@@ -4342,17 +4342,6 @@ static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t *font, const char
     return G_ScreenText(font->tilenum, x, y, z, 0, 0, t, s, p, 2|8|16|ROTATESPRITE_FULL16, 0, font->emptychar.x, font->emptychar.y, font->between.x, ybetween, f, 0, ydim_upper, xdim-1, ydim_lower);
 }
 
-#if 0
-static vec2_t Menu_TextSize(int32_t x, int32_t y, const MenuFont_t *font, const char *t, uint8_t status)
-{
-    int32_t f = font->textflags;
-    if (status & MT_Literal)
-        f |= TEXT_LITERALESCAPE;
-
-    return G_ScreenTextSize(font->tilenum, x, y, font->zoom, 0, t, 2|8|16|ROTATESPRITE_FULL16, font->emptychar.x, font->emptychar.y, font->between.x, font->between.y, f, 0, 0, xdim-1, ydim-1);
-}
-#endif
-
 static int32_t Menu_FindOptionBinarySearch(MenuOption_t *object, const int32_t query, uint16_t searchstart, uint16_t searchend)
 {
     const uint16_t thissearch    = (searchstart + searchend) / 2;

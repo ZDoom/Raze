@@ -61,7 +61,11 @@ enum ENativeFontValues
 
 	NIT_ActiveColor = -1,
 	NIT_InactiveColor = -2,
-	NIT_SelectedColor = -3
+	NIT_SelectedColor = -3,
+
+	NIT_ActiveState = 1,
+	NIT_InactiveState = 2,
+	NIT_SelectedState = 3
 	// positive values for color are direct palswap indices.
 };
 
@@ -124,7 +128,7 @@ struct FListMenuDescriptor : public FMenuDescriptor
 	int mSelectOfsY;
 	FTexture *mSelector;
 	int mDisplayTop;
-	int mXpos, mYpos;
+	int mXpos, mYpos, mYbotton;
 	int mWLeft, mWRight;
 	int mLinespacing;	// needs to be stored for dynamically created menus
 	int mAutoselect;	// this can only be set by internal menu creation functions
@@ -137,6 +141,11 @@ struct FListMenuDescriptor : public FMenuDescriptor
 	EColorRange mFontColor2;
 	FMenuDescriptor *mRedirect;	// used to redirect overlong skill and episode menus to option menu based alternatives
 	int mCenter;
+
+	FListMenuDescriptor()
+	{
+		Reset();
+	}
 
 	void Reset()
 	{
@@ -319,12 +328,13 @@ public:
 	virtual bool MouseEvent(int type, int x, int y);
 	virtual bool CheckHotkey(int c);
 	virtual int GetWidth();
-	void DrawSelector(int xofs, int yofs, FTexture *tex);
+	virtual void DrawSelector(int xofs, int yofs, FTexture *tex);
 	void OffsetPositionY(int ydelta) { mYpos += ydelta; }
 	int GetY() { return mYpos; }
 	int GetX() { return mXpos; }
 	void SetX(int x) { mXpos = x; }
-};	
+	void SetY(int x) { mYpos = x; }
+};
 
 class FListMenuItemStaticPatch : public FListMenuItem
 {
@@ -399,6 +409,7 @@ public:
 	~FListMenuItemNativeText();
 	void Drawer(const vec2_t& origin, bool selected) override;
 	int GetWidth() override;
+	void DrawSelector(int xofs, int yofs, FTexture* tex) override { } // The text drawer handles this itself.
 };
 
 

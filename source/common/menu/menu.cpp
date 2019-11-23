@@ -313,6 +313,8 @@ void M_StartControlPanel (bool makeSound)
 	}
 	BackbuttonTime = 0;
 	BackbuttonAlpha = 0;
+	DMenu::MenuTime = -1;
+	M_Ticker();	// This needs to be called once here to make sure that the menu actually has ticked before it gets drawn for the first time.
 }
 
 //=============================================================================

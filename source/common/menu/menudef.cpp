@@ -266,6 +266,16 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 			sc.MustGetStringName(",");
 			sc.MustGetNumber();
 			desc->mYpos = sc.Number;
+			if (sc.CheckString(","))
+			{
+				sc.MustGetNumber();
+				desc->mYbotton = sc.Number;
+				if (sc.CheckString(","))
+				{
+					sc.MustGetNumber();
+					desc->mCenter = sc.Number;
+				}
+			}
 		}
 		else if (sc.Compare("Centermenu"))
 		{
@@ -381,7 +391,7 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 
 		auto it = new FListMenuItemNativeText(desc->mXpos, desc->mYpos, desc->mLinespacing, hotkey, text, desc->mNativeFontNum, desc->mNativePalNum, desc->mNativeFontScale, action, param);
 		desc->mItems.Push(it);
-		desc->mYpos += desc->mLinespacing;
+		//desc->mYpos += desc->mLinespacing;
 		if (desc->mSelectedItem == -1) desc->mSelectedItem = desc->mItems.Size() - 1;
 
 		}
@@ -412,18 +422,6 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 					sc.MustGetFloat();
 					desc->mNativeFontScale = sc.Float;
 				}			
-			}
-		}
-		else if (sc.Compare("Position"))
-		{
-			sc.MustGetNumber();
-			sc.MustGetStringName(",");
-			desc->mXpos = sc.Number;
-			sc.MustGetNumber();
-			desc->mYpos = sc.Number;
-			if (sc.CheckString(","))
-			{
-				desc->mCenter = sc.Number;
 			}
 		}
 		else if (sc.Compare("Font"))

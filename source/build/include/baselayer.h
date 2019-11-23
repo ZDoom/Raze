@@ -187,9 +187,7 @@ struct GameInterface
 	virtual bool mouseInactiveConditional(bool condition) { return condition; }
 	virtual FString statFPS() { return "FPS display not available"; }
 	virtual GameStats getStats() { return {}; }
-	virtual void DrawNativeMenuText(int fontnum, int palnum, int xpos, int ypos, float fontscale, const char* text, int orientation = TOR_Default) {}
-	virtual int GetMenuFontHeight(int fontnum) { return 16; /* something arbitrarily non-zero */ }
-	virtual int GetMenuTextWidth(int fontnum, const char* text) { return 10 * strlen(text); }
+	virtual void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int orientation = TOR_Default) {}
 };
 
 extern GameInterface* gi;
