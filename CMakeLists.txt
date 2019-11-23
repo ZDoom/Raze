@@ -427,6 +427,7 @@ add_subdirectory( source/duke3d )
 add_subdirectory( source/blood )
 add_subdirectory( source/rr )
 add_subdirectory( source/sw )
+add_subdirectory( source/exhumed )
 
 if( NOT CMAKE_CROSSCOMPILING )
 	export(TARGETS ${CROSS_EXPORTS} FILE "${CMAKE_BINARY_DIR}/ImportExecutables.cmake" )
