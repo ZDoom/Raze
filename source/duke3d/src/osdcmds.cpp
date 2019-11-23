@@ -428,11 +428,6 @@ static int osdcmd_vidmode(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-#ifdef LUNATIC
-// Returns: INT32_MIN if no such CON label, its value else.
-LUNATIC_CB int32_t (*El_GetLabelValue)(const char *label);
-#endif
-
 static int osdcmd_spawn(osdcmdptr_t parm)
 {
     int32_t picnum = 0;
@@ -476,12 +471,6 @@ static int osdcmd_spawn(osdcmdptr_t parm)
         else
         {
             int32_t i;
-#ifdef LUNATIC
-            i = g_labelCnt;
-            picnum = El_GetLabelValue(parm->parms[0]);
-            if (picnum != INT32_MIN)
-                i = !i;
-#else
             int32_t j;
 
             for (j=0; j<2; j++)
@@ -499,7 +488,6 @@ static int osdcmd_spawn(osdcmdptr_t parm)
                 if (i < g_labelCnt)
                     break;
             }
-#endif
             if (i==g_labelCnt)
             {
                 OSD_Printf("spawn: Invalid tile label given\n");
@@ -534,7 +522,6 @@ static int osdcmd_spawn(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-#if !defined LUNATIC
 static int osdcmd_setvar(osdcmdptr_t parm)
 {
     if (numplayers > 1)
@@ -624,59 +611,6 @@ static int osdcmd_setactorvar(osdcmdptr_t parm)
         OSD_Printf("setactorvar: %s is not a game variable!\n", parm->parms[1]);
         return OSDCMD_SHOWHELP;
     }
-
-    return OSDCMD_OK;
-}
-#else
-static int osdcmd_lua(osdcmdptr_t parm)
-{
-    // Should be used like
-    // lua "lua code..."
-    // (the quotes making the whole string passed as one argument)
-
-    int32_t ret;
-
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    if (!L_IsInitialized(&g_ElState))
-    {
-        OSD_Printf("Lua state is not initialized.\n");
-        return OSDCMD_OK;
-    }
-
-    // TODO: "=<expr>" as shorthand for "print(<expr>)", like in the
-    //  stand-alone Lua interpreter?
-    // TODO: reserve some table to explicitly store stuff on the top level, for
-    //  debugging convenience?
-
-    // For the 'lua' OSD command, don't make errors appear on-screen:
-    el_addNewErrors = 0;
-    ret = L_RunString(&g_ElState, parm->parms[0], -1, "console");
-    el_addNewErrors = 1;
-
-    if (ret != 0)
-        OSD_Printf("Error running the Lua code (error code %d)\n", ret);
-
-    return OSDCMD_OK;
-}
-#endif
-
-static int osdcmd_cmenu(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    if (numplayers > 1)
-    {
-        OSD_Printf("Command not allowed in multiplayer\n");
-        return OSDCMD_OK;
-    }
-
-    if ((g_player[myconnectindex].ps->gm & MODE_MENU) != MODE_MENU)
-        Menu_Open(myconnectindex);
-
-    Menu_Change(Batol(parm->parms[0]));
 
     return OSDCMD_OK;
 }
@@ -805,44 +739,6 @@ static int osdcmd_quickload(osdcmdptr_t UNUSED(parm))
     else g_doQuickSave = 2;
     return OSDCMD_OK;
 }
-
-static int osdcmd_screenshot(osdcmdptr_t parm)
-{
-    videoCaptureScreen();
-    return OSDCMD_OK;
-}
-
-#if 0
-static int osdcmd_savestate(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_PARAMETER(parm);
-    G_SaveMapState();
-    return OSDCMD_OK;
-}
-
-static int osdcmd_restorestate(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_PARAMETER(parm);
-    G_RestoreMapState();
-    return OSDCMD_OK;
-}
-#endif
-
-#ifdef DEBUGGINGAIDS
-static int osdcmd_inittimer(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("%dHz timer\n",g_timerTicsPerSecond);
-        return OSDCMD_SHOWHELP;
-    }
-
-    G_InitTimer(Batol(parm->parms[0]));
-
-    OSD_Printf("%s\n",parm->raw);
-    return OSDCMD_OK;
-}
-#endif
 
 
 static int osdcmd_dumpmapstate(osdfuncparm_t const * const)
@@ -1116,7 +1012,6 @@ int32_t registerosdcommands(void)
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
 
-    OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
 
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
@@ -1141,7 +1036,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
     OSD_RegisterFunction("setvarvar","setvarvar <gamevar1> <gamevar2>: sets the value of <gamevar1> to <gamevar2>", osdcmd_setvar);
     OSD_RegisterFunction("setactorvar","setactorvar <actor#> <gamevar> <value>: sets the value of <actor#>'s <gamevar> to <value>", osdcmd_setactorvar);
-    OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 

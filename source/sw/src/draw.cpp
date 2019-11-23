@@ -1665,22 +1665,6 @@ void ResChange(void)
 }
 #endif
 
-void ScreenCaptureKeys(void)
-{
-    if (ConPanel)
-        return;
-
-    // screen capture
-    if (inputState.GetKeyStatus(KEYSC_F12))
-    {
-		inputState.ClearKeyStatus(KEYSC_F12);
-        PauseAction();
-        videoCaptureScreen();
-        ResumeAction();
-        PutStringInfo(Player + myconnectindex, "Screen Captured");
-    }
-}
-
 void DrawCheckKeys(PLAYERp pp)
 {
     extern SWBOOL ResCheat;
@@ -1696,8 +1680,6 @@ void DrawCheckKeys(PLAYERp pp)
 
     if (!InputMode)
         ResizeView(pp);
-
-    ScreenCaptureKeys();
 }
 
 #if 0

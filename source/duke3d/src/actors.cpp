@@ -7988,13 +7988,13 @@ next_sprite:
 
 static void G_DoEffectorLights(void)  // STATNUM 14
 {
-    int32_t i;
+#ifdef POLYMER
+	int32_t i;
 
     for (SPRITES_OF(STAT_LIGHT, i))
     {
-        switch (sprite[i].lotag)
+		switch (sprite[i].lotag)
         {
-#ifdef POLYMER
         case SE_49_POINT_LIGHT:
         {
             if (!A_CheckSpriteFlags(i, SFLAG_NOLIGHT) && videoGetRenderMode() == REND_POLYMER &&
@@ -8156,9 +8156,9 @@ static void G_DoEffectorLights(void)  // STATNUM 14
 
             break;
         }
-#endif // POLYMER
         }
     }
+#endif // POLYMER
 }
 
 #ifdef POLYMER

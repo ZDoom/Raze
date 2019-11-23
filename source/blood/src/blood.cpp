@@ -939,9 +939,6 @@ void LocalKeys(void)
             break;
         case sc_F11:
             break;
-        case sc_F12:
-            videoCaptureScreen();
-            break;
         }
     }
 }

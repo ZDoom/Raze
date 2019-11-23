@@ -65,7 +65,7 @@ bool G_Responder (event_t *ev)
 				stricmp (cmd, "screenshot")))
 			{
 				M_StartControlPanel(true);
-				M_SetMenu(NAME_Mainmenu, -1);
+				M_SetMenu(NAME_MainMenu, -1);
 				return true;
 			}
 			else

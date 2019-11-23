@@ -2368,7 +2368,6 @@ void BonusScreen(PLAYERp pp)
         MNU_DrawString(TEXT_TEST_COL(w), 185, ds,1,19);
 
         videoNextPage();
-        ScreenCaptureKeys();
 
         if (State == State->NextState)
             BonusDone = TRUE;
@@ -2590,8 +2589,6 @@ void StatScreen(PLAYERp mpp)
     while (!inputState.GetKeyStatus(KEYSC_SPACE) && !inputState.GetKeyStatus(KEYSC_ENTER))
     {
         handleevents();
-
-        ScreenCaptureKeys();
     }
 
     StopSound();

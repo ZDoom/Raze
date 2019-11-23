@@ -48,9 +48,13 @@
 #include "printf.h"
 #include "v_draw.h"
 #include "gamecontrol.h"
+#include "fx_man.h"
 
 void RegisterDukeMenus();
 extern bool rotatesprite_2doverride;
+bool help_disabled, credits_disabled;
+int g_currentMenu;	// accessible by CON scripts - contains the current menu's script ID if defined or INT_MAX if none given.
+int DrawBackground;
 
 //
 // Todo: Move these elsewhere
@@ -149,9 +153,12 @@ bool DMenu::MenuEvent (int mkey, bool fromcontroller)
 	{
 	case MKEY_Back:
 	{
-		Close();
-		//S_Sound (CHAN_VOICE | CHAN_UI, 	DMenu::CurrentMenu != NULL? "menu/backup" : "menu/clear", snd_menuvolume, ATTN_NONE);
-		return true;
+		if (scriptID != 1)
+		{
+			Close();
+			//S_Sound (CHAN_VOICE | CHAN_UI, 	DMenu::CurrentMenu != NULL? "menu/backup" : "menu/clear", snd_menuvolume, ATTN_NONE);
+			return true;
+		}
 	}
 	}
 	return false;
@@ -171,7 +178,11 @@ void DMenu::Close ()
 	delete this;
 	if (DMenu::CurrentMenu == NULL)
 	{
-		M_ClearMenus ();
+		M_ClearMenus();
+	}
+	else
+	{
+		g_currentMenu = DMenu::CurrentMenu->scriptID;
 	}
 }
 
@@ -307,14 +318,16 @@ void M_StartControlPanel (bool makeSound)
 	// That way, it won't be paused.
 	//P_CheckTickerPaused ();
 
-	if (makeSound)
-	{
-		//S_Sound (CHAN_VOICE | CHAN_UI, "menu/activate", snd_menuvolume, ATTN_NONE);
-	}
 	BackbuttonTime = 0;
 	BackbuttonAlpha = 0;
-	DMenu::MenuTime = -1;
+	DrawBackground = -1;
+	DMenu::MenuTime = -1;	
 	M_Ticker();	// This needs to be called once here to make sure that the menu actually has ticked before it gets drawn for the first time.
+}
+
+void Menu_Open(int playerid)
+{
+	M_StartControlPanel(DMenu::CurrentMenu == nullptr);
 }
 
 //=============================================================================
@@ -325,6 +338,7 @@ void M_StartControlPanel (bool makeSound)
 
 void M_ActivateMenu(DMenu *menu)
 {
+	g_currentMenu = menu->scriptID;
 	if (menuactive == MENU_Off) menuactive = MENU_On;
 	if (DMenu::CurrentMenu != NULL) DMenu::CurrentMenu->ReleaseCapture();
 	DMenu::CurrentMenu = menu;
@@ -338,6 +352,11 @@ void M_ActivateMenu(DMenu *menu)
 
 void M_SetMenu(FName menu, int param)
 {
+	if (DrawBackground == -1)
+	{
+		if (menu == NAME_MainMenu) DrawBackground = 1;
+		else DrawBackground = 0;
+	}
 	// some menus need some special treatment (needs to be adjusted for the various frontends.
 #if 0
 	switch (menu)
@@ -648,7 +667,7 @@ bool M_Responder (event_t *ev)
 			if (ev->data1 == KEY_ESCAPE)
 			{
 				M_StartControlPanel(true);
-				M_SetMenu(NAME_Mainmenu, -1);
+				M_SetMenu(NAME_IngameMenu, -1);
 				return true;
 			}
 			return false;
@@ -657,7 +676,7 @@ bool M_Responder (event_t *ev)
 				 ConsoleState != c_down && m_use_mouse)
 		{
 			M_StartControlPanel(true);
-			M_SetMenu(NAME_Mainmenu, -1);
+			M_SetMenu(NAME_MainMenu, -1);
 			return true;
 		}
 	}
@@ -730,7 +749,8 @@ void M_Drawer (void)
 	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off)
 	{
 		DMenu::CurrentMenu->origin = { 0,0 };
-		if (DMenu::CurrentMenu->DimAllowed() && fade) twod.AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
+		if (DMenu::CurrentMenu->DimAllowed() && fade && !DrawBackground) twod.AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
+		// else if (DrawBackground) Menu_DrawBackground(origin);
 		DMenu::CurrentMenu->Drawer();
 	}
 	rotatesprite_2doverride = false;
@@ -755,6 +775,10 @@ void M_ClearMenus ()
 	GUICapture &= ~1;
 }
 
+void Menu_Close(int playerid)
+{
+	M_ClearMenus();
+}
 //=============================================================================
 //
 //
@@ -841,4 +865,40 @@ CCMD(reset2saved)
 {
 	GameConfig->DoGlobalSetup ();
 	GameConfig->DoGameSetup (currentGame);
+}
+
+CCMD(openmainmenu)
+{
+	FX_StopAllSounds();
+	//gi->ClearSoundLocks();
+	//gi->MenuSound();
+	M_StartControlPanel(false);
+	M_SetMenu(NAME_IngameMenu);
+}
+
+CCMD(openhelpmenu)
+{
+	if (!help_disabled)
+	{
+		gi->MenuOpened();
+		M_StartControlPanel(false);
+		M_SetMenu(NAME_HelpMenu);
+	}
+}
+
+CCMD(opensavemenu)
+{
+	if (gi->CanSave()) 
+	{
+		gi->MenuOpened();
+		M_StartControlPanel(false);
+		M_SetMenu(NAME_SaveMenu);
+	}
+}
+
+CCMD(openloadmenu)
+{
+	gi->MenuOpened();
+	M_StartControlPanel(false);
+	M_SetMenu(NAME_LoadMenu);
 }

@@ -8,6 +8,7 @@
 #include "cmdlib.h"
 #include "gamecontrol.h"
 #include "printf.h"
+#include "c_dispatch.h"
 
 #include "../../glbackend/glbackend.h"
 
@@ -154,6 +155,11 @@ int videoCaptureScreen()
 	capturecounter.count++;
 
     return 0;
+}
+
+CCMD(screenshot)
+{
+	videoCaptureScreen();
 }
 
 #undef HICOLOR

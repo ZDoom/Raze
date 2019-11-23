@@ -1003,19 +1003,12 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
+#if 0
     if (I_EscapeTrigger() && ud.overhead_on == 0
         && ud.show_help == 0
         && g_player[myconnectindex].ps->newowner == -1)
     {
-        if ((g_player[myconnectindex].ps->gm&MODE_MENU) == MODE_MENU && g_currentMenu <= MENU_MAIN_INGAME)
-        {
-            I_EscapeTriggerClear();
-            S_PlaySound(EXITMENUSOUND);
-            Menu_Change(MENU_CLOSE);
-            if (!ud.pause_on)
-                S_PauseSounds(false);
-        }
-        else if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU &&
+        if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU &&
             g_player[myconnectindex].ps->newowner == -1 &&
             (g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
         {
@@ -1033,6 +1026,7 @@ void G_DisplayRest(int32_t smoothratio)
             S_MenuSound();
         }
     }
+#endif
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
@@ -1157,8 +1151,8 @@ void G_DisplayRest(int32_t smoothratio)
     {
         if (g_player[myconnectindex].ps->gm&MODE_TYPE)
             Net_SendMessage();
-        else
-            M_DisplayMenus();
+        //else
+            //M_DisplayMenus();
     }
 
     {
@@ -1182,7 +1176,6 @@ void G_DisplayRest(int32_t smoothratio)
 
 GameStats GameInterface::getStats()
 {
-	GameStats stats;
 	DukePlayer_t* p = g_player[myconnectindex].ps;
 	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC };
 }

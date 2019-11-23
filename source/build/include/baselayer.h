@@ -188,6 +188,11 @@ struct GameInterface
 	virtual FString statFPS() { return "FPS display not available"; }
 	virtual GameStats getStats() { return {}; }
 	virtual void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int orientation = TOR_Default) {}
+	virtual void MainMenuOpened() {}
+	virtual void MenuOpened() {}
+	virtual void MenuSelectSound() {}
+	virtual void MenuChooseSound() {}
+	virtual bool CanSave() { return true; }
 };
 
 extern GameInterface* gi;

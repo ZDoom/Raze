@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "savegame.h"
 #include "statistics.h"
+#include "menu/menu.h"
 BEGIN_DUKE_NS
 
 static uint8_t precachehightile[2][(MAXTILES+7)>>3];
@@ -1358,7 +1359,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 #endif
     p0.gm = 0;
 
-    Menu_Close(0);
+	M_ClearMenus();
 
 #if !defined LUNATIC
     Gv_ResetVars();
@@ -1911,12 +1912,12 @@ int G_EnterLevel(int gameMode)
         }
     }
 
+	M_ClearMenus();
     if (gameMode & (MODE_GAME|MODE_EOL))
     {
         for (int TRAVERSE_CONNECT(i))
         {
             g_player[i].ps->gm = MODE_GAME;
-            Menu_Close(i);
         }
     }
     else if (gameMode & MODE_RESTART)

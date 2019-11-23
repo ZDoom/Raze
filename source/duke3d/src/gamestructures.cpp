@@ -915,11 +915,13 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
             break;
 
         case PLAYER_GM:
+			/* WTF?!?
             if (!(ps.gm & MODE_MENU) && (newValue & MODE_MENU))
                 Menu_Open(playerNum);
             else if ((ps.gm & MODE_MENU) && !(newValue & MODE_MENU))
                 Menu_Close(playerNum);
-            ps.gm = newValue;
+			*/
+            ps.gm = newValue & ~MODE_MENU;
             break;
 
         case PLAYER_GOTWEAPON:
@@ -1752,12 +1754,12 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_NEWGAMECUSTOMOPEN:
             for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
                 if (iSet & (1u<<b))
-                    ME_NEWGAMECUSTOMENTRIES[b].flags = 0;
+                    ME_NEWGAMECUSTOMENTRIES[b] = 0;
             break;
         case USERDEFS_NEWGAMECUSTOMSUBOPEN:
             for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
                 if (iSet & (1u<<b))
-                    ME_NEWGAMECUSTOMSUBENTRIES[lParm2][b].flags = 0;
+                    ME_NEWGAMECUSTOMSUBENTRIES[lParm2][b] = 0;
             break;
     }
 }

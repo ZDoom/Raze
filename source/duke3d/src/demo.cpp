@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screens.h"
 #include "i_specialpaths.h"
 #include "printf.h"
+#include "menu/menu.h"
 
 
 BEGIN_DUKE_NS
@@ -55,9 +56,9 @@ static int32_t demorec_seeds=1, demo_hasseeds;
 static void Demo_RestoreModes(int32_t menu)
 {
     if (menu)
-        Menu_Open(myconnectindex);
+        M_StartControlPanel(false);
     else
-        Menu_Close(myconnectindex);
+        M_ClearMenus();
 
     g_player[myconnectindex].ps->gm &= ~MODE_GAME;
     g_player[myconnectindex].ps->gm |= MODE_DEMO;
@@ -488,7 +489,7 @@ RECHECK:
         fadepal(0,0,0, 0,252,28);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         G_DrawBackground();
-        M_DisplayMenus();
+        //M_DisplayMenus();
         videoNextPage();
         fadepal(0,0,0, 252,0,-28);
         ud.reccnt = 0;
@@ -522,7 +523,7 @@ RECHECK:
     {
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        Menu_Open(myconnectindex);
+        M_StartControlPanel(false);
     }
 
     ready2send = 0;
@@ -663,7 +664,7 @@ RECHECK:
 corrupt:
                         OSD_Printf(OSD_ERROR "Demo %d is corrupt (code %d).\n", g_whichDemo-1, corruptcode);
 nextdemo:
-                        Menu_Open(myconnectindex);
+                        M_StartControlPanel(false);
 nextdemo_nomenu:
                         foundemo = 0;
                         ud.reccnt = 0;
@@ -856,16 +857,6 @@ nextdemo_nomenu:
                 goto RECHECK;
             }
 
-            if (I_EscapeTrigger() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && (g_player[myconnectindex].ps->gm&MODE_TYPE) == 0)
-            {
-                I_EscapeTriggerClear();
-                FX_StopAllSounds();
-                S_ClearSoundLocks();
-                Menu_Open(myconnectindex);
-                Menu_Change(MENU_MAIN);
-                S_MenuSound();
-            }
-
             if (Demo_IsProfiling())
             {
                 // Do nothing: sampletimer() is reached from M_DisplayMenus() ->
@@ -878,15 +869,15 @@ nextdemo_nomenu:
                 if ((g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
                 {
                     g_player[myconnectindex].ps->gm = 0;
-                    Menu_Open(myconnectindex);
+                    M_StartControlPanel(false);
                 }
             }
             else
             {
-                if (ud.recstat != 2)
-                    M_DisplayMenus();
+                //if (ud.recstat != 2)
+                   // M_DisplayMenus();
 
-                if ((g_netServer || ud.multimode > 1)  && !Menu_IsTextInput(m_currentMenu))
+                if ((g_netServer || ud.multimode > 1))//  && !Menu_IsTextInput(m_currentMenu))
                 {
                     ControlInfo noshareinfo;
                     CONTROL_GetInput(&noshareinfo);

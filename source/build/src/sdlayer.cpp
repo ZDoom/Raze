@@ -98,6 +98,7 @@ unsigned char syncstate;
 
 // fix for mousewheel
 int32_t inputchecked = 0;
+bool screenshot_requested;
 
 char quitevent=0, appactive=1, novideo=0;
 
@@ -2090,3 +2091,4 @@ void debugprintf(const char* f, ...)
 
 	OutputDebugStringA(buf);
 }
+

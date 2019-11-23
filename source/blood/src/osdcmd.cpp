@@ -429,12 +429,6 @@ static int osdcmd_quickload(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdcmd_screenshot(osdcmdptr_t parm)
-{
-    videoCaptureScreen();
-
-    return OSDCMD_OK;
-}
 
 #if 0
 static int osdcmd_savestate(osdcmdptr_t UNUSED(parm))
@@ -485,7 +479,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
     OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
 	OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
-    OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
 

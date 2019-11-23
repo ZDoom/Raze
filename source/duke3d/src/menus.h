@@ -27,6 +27,57 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
+// a subset of screentext parameters, restricted because menus require accessibility
+struct MenuFont_t
+{
+	//    int32_t xspace, yline;
+	vec2_t emptychar, between;
+	int32_t zoom;
+	int32_t cursorLeftPosition, cursorCenterPosition, cursorScale;
+	int32_t textflags;
+	int16_t tilenum;
+	// selected shade glows, deselected shade is used by Blood, disabled shade is used by SW
+	int8_t shade_deselected, shade_disabled;
+	uint8_t pal;
+	uint8_t pal_selected, pal_deselected, pal_disabled;
+	uint8_t pal_selected_right, pal_deselected_right, pal_disabled_right;
+
+	int32_t get_yline() const { return mulscale16(emptychar.y, zoom); }
+};
+
+extern MenuFont_t MF_Redfont, MF_Bluefont, MF_Minifont;
+
+#define MAXMENUGAMEPLAYENTRIES 7
+
+enum MenuGameplayEntryFlags
+{
+	MGE_Locked = 1u << 0u,
+	MGE_Hidden = 1u << 1u,
+	MGE_UserContent = 1u << 2u,
+};
+
+typedef struct MenuGameplayEntry
+{
+	char name[64];
+	uint8_t flags;
+
+	bool isValid() const { return name[0] != '\0'; }
+} MenuGameplayEntry;
+
+typedef struct MenuGameplayStemEntry
+{
+	MenuGameplayEntry entry;
+	MenuGameplayEntry subentries[MAXMENUGAMEPLAYENTRIES];
+} MenuGameplayStemEntry;
+
+extern MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
+extern int ME_NEWGAMECUSTOMENTRIES[MAXMENUGAMEPLAYENTRIES];
+extern int ME_NEWGAMECUSTOMSUBENTRIES[MAXMENUGAMEPLAYENTRIES][MAXMENUGAMEPLAYENTRIES];
+void Menu_Init(void);
+
+
+#if 0
+
 enum MenuIndex_t {
     MENU_NULL           = INT32_MIN, // sentinel for "do nothing"
     MENU_CLOSE          = -2, // sentinel for "close the menu"/"no menu"
@@ -119,23 +170,6 @@ typedef enum MenuAnimationType_t
     MA_Advance,
 } MenuAnimationType_t;
 
-// a subset of screentext parameters, restricted because menus require accessibility
-typedef struct MenuFont_t
-{
-//    int32_t xspace, yline;
-    vec2_t emptychar, between;
-    int32_t zoom;
-    int32_t cursorLeftPosition, cursorCenterPosition, cursorScale;
-    int32_t textflags;
-    int16_t tilenum;
-    // selected shade glows, deselected shade is used by Blood, disabled shade is used by SW
-    int8_t shade_deselected, shade_disabled;
-    uint8_t pal;
-    uint8_t pal_selected, pal_deselected, pal_disabled;
-    uint8_t pal_selected_right, pal_deselected_right, pal_disabled_right;
-
-    int32_t get_yline() const { return mulscale16(emptychar.y, zoom); }
-} MenuFont_t;
 
 
 
@@ -451,7 +485,6 @@ typedef struct MenuAnimation_t
 
 extern MenuAnimation_t m_animation;
 
-extern MenuID_t g_currentMenu;
 extern Menu_t *m_currentMenu;
 
 extern int32_t g_quitDeadline;
@@ -460,12 +493,7 @@ int Menu_Change(MenuID_t cm);
 void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype);
 int32_t Menu_IsTextInput(Menu_t *cm);
 int G_CheckPlayerColor(int color);
-void Menu_Init(void);
-void Menu_Open(uint8_t playerID);
-void Menu_Close(uint8_t playerID);
 void M_DisplayMenus(void);
-
-extern MenuFont_t MF_Redfont, MF_Bluefont, MF_Minifont;
 
 #define M_MOUSETIMEOUT 210
 extern int32_t m_mouselastactivity;
@@ -488,34 +516,10 @@ extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 # define MOUSEWATCHPOINTCONDITIONAL(condition) ((condition) || m_mousewake_watchpoint || m_menuchange_watchpoint == 3)
 #endif
 
-
-#define MAXMENUGAMEPLAYENTRIES 7
-
-enum MenuGameplayEntryFlags
-{
-    MGE_Locked = 1u<<0u,
-    MGE_Hidden = 1u<<1u,
-    MGE_UserContent = 1u<<2u,
-};
-
-typedef struct MenuGameplayEntry
-{
-    char name[64];
-    uint8_t flags;
-
-    bool isValid() const { return name[0] != '\0'; }
-} MenuGameplayEntry;
-
-typedef struct MenuGameplayStemEntry
-{
-    MenuGameplayEntry entry;
-    MenuGameplayEntry subentries[MAXMENUGAMEPLAYENTRIES];
-} MenuGameplayStemEntry;
-
-extern MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
-
 extern MenuEntry_t ME_NEWGAMECUSTOMENTRIES[MAXMENUGAMEPLAYENTRIES];
 extern MenuEntry_t ME_NEWGAMECUSTOMSUBENTRIES[MAXMENUGAMEPLAYENTRIES][MAXMENUGAMEPLAYENTRIES];
+
+#endif
 
 END_DUKE_NS
 

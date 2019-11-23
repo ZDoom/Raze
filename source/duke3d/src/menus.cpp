@@ -45,6 +45,7 @@ namespace ImGui
 
 BEGIN_DUKE_NS
 
+#if 0
 
 // common positions
 #define MENU_MARGIN_REGULAR 40
@@ -189,8 +190,6 @@ Note that I prefer to include a space on the inside of the macro parentheses, si
 they effectively stand in for curly braces as struct initializers.
 */
 
-
-MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
 
 static MenuMenuFormat_t MMF_Top_Main =             { {  MENU_MARGIN_CENTER<<16, 55<<16, }, -(170<<16) };
 static MenuMenuFormat_t MMF_Top_Episode =          { {  MENU_MARGIN_CENTER<<16, 48<<16, }, -(190<<16) };
@@ -6976,5 +6975,14 @@ bool GameInterface::mouseInactiveConditional(bool condition)
 {
 	return MOUSEINACTIVECONDITIONAL(condition);
 }
+
+#else
+
+bool GameInterface::mouseInactiveConditional(bool condition)
+{
+	return condition;
+}
+
+#endif
 
 END_DUKE_NS

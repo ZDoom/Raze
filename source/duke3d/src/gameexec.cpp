@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "files.h"
 #include "base64.h"
 #include "version.h"
+#include "menu/menu.h"
 
 #include "debugbreak.h"
 
@@ -1059,7 +1060,7 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
 
 static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t const resetFlags)
 {
-    //AddLog("resetplayer");
+    // Who thought that allowing a script to do this shit is a good idea???
     if (!g_netServer && ud.multimode < 2 && !(resetFlags & 2))
     {
         if (g_quickload && g_quickload->isValid() && ud.recstat != 2 && !(resetFlags & 8))
@@ -1078,10 +1079,10 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
             }
             else if (!(resetFlags & 1))
             {
-                Menu_Open(playerNum);
                 inputState.ClearKeyStatus(sc_Space);
                 I_AdvanceTriggerClear();
-                Menu_Change(MENU_RESETPLAYER);
+				M_StartControlPanel(false);
+				M_SetMenu(NAME_ConfirmPlayerReset);
             }
         }
         else
@@ -4130,7 +4131,8 @@ badindex:
 
             vInstruction(CON_CMENU):
                 insptr++;
-                Menu_Change(Gv_GetVar(*insptr++));
+				// Well, sorry, but - no.
+                //Menu_Change(Gv_GetVar(*insptr++));
                 dispatch();
 
             vInstruction(CON_SOUND):

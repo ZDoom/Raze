@@ -519,27 +519,6 @@ static int osdcmd_spawn(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_cmenu(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    if (numplayers > 1)
-    {
-        OSD_Printf("Command not allowed in multiplayer\n");
-        return OSDCMD_OK;
-    }
-
-    if ((g_player[myconnectindex].ps->gm & MODE_MENU) != MODE_MENU)
-        Menu_Open(myconnectindex);
-
-    Menu_Change(Batol(parm->parms[0]));
-
-    return OSDCMD_OK;
-}
-
-
-
 
 static int osdcmd_crosshaircolor(osdcmdptr_t parm)
 {
@@ -663,45 +642,6 @@ static int osdcmd_quickload(osdcmdptr_t UNUSED(parm))
     else g_doQuickSave = 2;
     return OSDCMD_OK;
 }
-
-static int osdcmd_screenshot(osdcmdptr_t parm)
-{
-    videoCaptureScreen();
-
-    return OSDCMD_OK;
-}
-
-#if 0
-static int osdcmd_savestate(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_PARAMETER(parm);
-    G_SaveMapState();
-    return OSDCMD_OK;
-}
-
-static int osdcmd_restorestate(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_PARAMETER(parm);
-    G_RestoreMapState();
-    return OSDCMD_OK;
-}
-#endif
-
-#ifdef DEBUGGINGAIDS
-static int osdcmd_inittimer(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("%dHz timer\n",g_timerTicsPerSecond);
-        return OSDCMD_SHOWHELP;
-    }
-
-    G_InitTimer(Batol(parm->parms[0]));
-
-    OSD_Printf("%s\n",parm->raw);
-    return OSDCMD_OK;
-}
-#endif
 
 #if !defined NETCODE_DISABLE
 static int osdcmd_disconnect(osdcmdptr_t UNUSED(parm))
@@ -911,7 +851,6 @@ int32_t registerosdcommands(void)
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
 
-    OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
 
 #if !defined NETCODE_DISABLE
@@ -949,8 +888,6 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
-
-    OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 

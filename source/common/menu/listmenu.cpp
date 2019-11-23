@@ -64,6 +64,7 @@ void DListMenu::Init(DMenu *parent, FListMenuDescriptor *desc)
 {
 	mParentMenu = parent;
 	mDesc = desc;
+	if (mDesc->mScriptId) scriptID = mDesc->mScriptId;
 	if (desc->mCenter)
 	{
 		int center = 160;
@@ -126,7 +127,7 @@ bool DListMenu::Responder (event_t *ev)
 				if (mDesc->mItems[i]->CheckHotkey(ch))
 				{
 					mDesc->mSelectedItem = i;
-					//S_Sound(CHAN_VOICE | CHAN_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
+					gi->MenuSelectSound();
 					return true;
 				}
 			}
@@ -135,7 +136,7 @@ bool DListMenu::Responder (event_t *ev)
 				if (mDesc->mItems[i]->CheckHotkey(ch))
 				{
 					mDesc->mSelectedItem = i;
-					//S_Sound(CHAN_VOICE | CHAN_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
+					gi->MenuSelectSound();
 					return true;
 				}
 			}
@@ -162,7 +163,7 @@ bool DListMenu::MenuEvent (int mkey, bool fromcontroller)
 			if (--mDesc->mSelectedItem < 0) mDesc->mSelectedItem = mDesc->mItems.Size()-1;
 		}
 		while (!mDesc->mItems[mDesc->mSelectedItem]->Selectable() && mDesc->mSelectedItem != startedAt);
-		//S_Sound (CHAN_VOICE | CHAN_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
+		gi->MenuSelectSound();
 		return true;
 
 	case MKEY_Down:
@@ -171,13 +172,13 @@ bool DListMenu::MenuEvent (int mkey, bool fromcontroller)
 			if (++mDesc->mSelectedItem >= (int)mDesc->mItems.Size()) mDesc->mSelectedItem = 0;
 		}
 		while (!mDesc->mItems[mDesc->mSelectedItem]->Selectable() && mDesc->mSelectedItem != startedAt);
-		//S_Sound (CHAN_VOICE | CHAN_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
+		gi->MenuSelectSound();
 		return true;
 
 	case MKEY_Enter:
 		if (mDesc->mSelectedItem >= 0 && mDesc->mItems[mDesc->mSelectedItem]->Activate())
 		{
-			//S_Sound (CHAN_VOICE | CHAN_UI, "menu/choose", snd_menuvolume, ATTN_NONE);
+			gi->MenuChooseSound();
 		}
 		return true;
 
@@ -192,13 +193,18 @@ bool DListMenu::MenuEvent (int mkey, bool fromcontroller)
 //
 //=============================================================================
 
-bool DListMenu::MouseEvent(int type, int x, int y)
+bool DListMenu::MouseEvent(int type, int xx, int yy)
 {
 	int sel = -1;
 
 	// convert x/y from screen to virtual coordinates, according to CleanX/Yfac use in DrawTexture
-	x = ((x - (screen->GetWidth() / 2)) / CleanXfac) + 160;
-	y = ((y - (screen->GetHeight() / 2)) / CleanYfac) + 100;
+	//x = ((x - (screen->GetWidth() / 2)) / CleanXfac) + 160;
+	//y = ((y - (screen->GetHeight() / 2)) / CleanYfac) + 100;
+
+
+	int width43 = (screen->GetHeight() * 4 / 3);
+	int x = (xx - (screen->GetWidth() - width43) / 2) * 320 / width43;
+	int y = yy * 200 / screen->GetHeight();
 
 	if (mFocusControl != NULL)
 	{
@@ -216,7 +222,7 @@ bool DListMenu::MouseEvent(int type, int x, int y)
 				{
 					if ((int)i != mDesc->mSelectedItem)
 					{
-						//S_Sound (CHAN_VOICE | CHAN_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
+						// no sound. This is too noisy.
 					}
 					mDesc->mSelectedItem = i;
 					mDesc->mItems[i]->MouseEvent(type, x, y);

@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statistics.h"
 #include "secrets.h"
 #include "savegamehelp.h"
+#include "menu/menu.h"
 
 BEGIN_DUKE_NS
 
@@ -502,7 +503,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 #endif
             p0.gm = 0;
 
-            Menu_Close(0);
+			M_ClearMenus();
 
 #if !defined LUNATIC
             Gv_ResetVars();

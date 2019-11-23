@@ -183,13 +183,6 @@ void G_HandleSpecialKeys(void)
         G_UpdateScreenArea();
     }
 
-    if (inputState.UnboundKeyPressed(sc_F12))
-    {
-        inputState.ClearKeyStatus(sc_F12);
-        videoCaptureScreen();
-        P_DoQuote(QUOTE_SCREEN_SAVED, g_player[myconnectindex].ps);
-    }
-
     // only dispatch commands here when not in a game
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
         OSD_DispatchQueued();
@@ -6336,21 +6329,6 @@ FAKE_F3:
             }
 
             Menu_Change(MENU_SOUND_INGAME);
-        }
-
-        if (inputState.UnboundKeyPressed(sc_F5) && MusicEnabled())
-        {
-            map_t *const pMapInfo    = &g_mapInfo[g_musicIndex];
-            char *const  musicString = apStrings[QUOTE_MUSIC];
-
-            inputState.ClearKeyStatus(sc_F5);
-
-            if (pMapInfo->musicfn != NULL)
-                Bsnprintf(musicString, MAXQUOTELEN, "%s.  Use SHIFT-F5 to change.", pMapInfo->musicfn);
-            else
-                musicString[0] = '\0';
-
-            P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
         }
 
         if ((buttonMap.ButtonDown(gamefunc_Quick_Save) || g_doQuickSave == 1) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))

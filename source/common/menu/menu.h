@@ -14,6 +14,8 @@ EXTERN_CVAR(Int, m_use_mouse);
 
 
 const int MENU_TICRATE = 30;
+extern bool help_disabled, credits_disabled;
+extern int g_currentMenu;
 
 
 enum EMenuState : int
@@ -265,6 +267,7 @@ public:
 
 	DMenu *mParentMenu;
 	vec2_t origin;
+	int scriptID = INT_MAX;
 
 	DMenu(DMenu *parent = NULL);
 	virtual bool Responder (event_t *ev);
@@ -301,7 +304,7 @@ protected:
 	FName mAction;
 
 public:
-	bool mEnabled;
+	bool mEnabled, mHidden;
 
 	FListMenuItem(int xpos = 0, int ypos = 0, FName action = NAME_None)
 	{
@@ -309,6 +312,7 @@ public:
 		mYpos = ypos;
 		mAction = action;
 		mEnabled = true;
+		mHidden = false;
 	}
 
 	virtual ~FListMenuItem();

@@ -6,6 +6,7 @@
 
 LISTMENU "MainMenu"
 {
+	ScriptId 1
 	ifgame(Duke, Nam, WW2GI, Fury)
 	{
 		ifgame(fury)
@@ -43,6 +44,64 @@ LISTMENU "MainMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+	}
+	ifgame(Blood)
+	{
+		linespacing 15
+		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
+		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
+		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+	}
+	ifgame(ShadowWarrior)
+	{
+		linespacing 15
+		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_COOLSTUFF", "h", "HelpMenu"
+		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+	}
+}
+
+
+LISTMENU "IngameMenu"
+{
+	ifgame(Duke, Nam, WW2GI, Fury)
+	{
+		ifgame(fury)
+		{
+			position 40, 130, 60, -160
+		}
+		else
+		{
+			position 160, 55, 115, 0
+			centermenu
+		}
+		linespacing 15
+		class "Duke.MainMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
+		NativeTextItem "$MNU_ENDGAME", "e", "QuitToMenu"
+		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+	}
+	ifgame(Redneck, RedneckRides)
+	{
+		linespacing 15
+		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
+		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
+		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
+		NativeTextItem "$MNU_ENDGAME", "e", "QuitToMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
