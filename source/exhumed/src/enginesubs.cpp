@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //#include <io.h>
 //#include <fcntl.h>
 #include <malloc.h>
+#include "gamecvars.h"
 
 // static int globhiz, globloz, globhihit, globlohit;
 
@@ -122,6 +123,16 @@ void printext(int x, int y, const char *buffer, short tilenum, char invisiblecol
 #endif
 }
 
+void doTileLoad(int i)
+{
+	tileLoad(i);
+
+#ifdef USE_OPENGL
+	if (r_precache) PrecacheHardwareTextures(i);
+#endif
+
+}
+
 void precache()
 {
     int i;
@@ -129,15 +140,15 @@ void precache()
     for (i = 0; i < numsectors; i++)
     {
         short j = sector[i].ceilingpicnum;
-        if (waloff[j] == 0) tileLoad(j);
+        doTileLoad(j);
         j = sector[i].floorpicnum;
-        if (waloff[j] == 0) tileLoad(j);
+		doTileLoad(j);
     }
 
     for (i = 0; i < numwalls; i++)
     {
         short j = wall[i].picnum;
-        if (waloff[j] == 0) tileLoad(j);
+		doTileLoad(j);
     }
 
     for (i = 0; i < kMaxSprites; i++)
@@ -145,7 +156,7 @@ void precache()
         if (sprite[i].statnum < kMaxStatus)
         {
             short j = sprite[i].picnum;
-            if (waloff[j] == 0) tileLoad(j);
+			doTileLoad(j);
         }
     }
 }

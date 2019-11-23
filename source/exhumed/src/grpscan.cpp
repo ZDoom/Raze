@@ -25,11 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumed.h"
 #include "common.h"
 #include "compat.h"
-#include "crc32.h"
+//#include "crc32.h"
 #include "grpscan.h"
 #include "scriptfile.h"
-
-#include "vfs.h"
 
 BEGIN_PS_NS
 

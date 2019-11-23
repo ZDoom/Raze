@@ -15,6 +15,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
+#if 0
+
 #include "ns.h"
 #include "compat.h"
 #include "renderlayer.h"
@@ -264,9 +266,7 @@ void SetupGameButtons()
     CONTROL_DefineFlag(gamefunc_Weapon_5,				kFalse);
     CONTROL_DefineFlag(gamefunc_Weapon_6,				kFalse);
     CONTROL_DefineFlag(gamefunc_Weapon_7,				kFalse);
-    CONTROL_DefineFlag(gamefunc_Pause,					kFalse);
     CONTROL_DefineFlag(gamefunc_Map,					kFalse);
-    CONTROL_DefineFlag(gamefunc_Gamma_Correction,		kFalse);
     CONTROL_DefineFlag(gamefunc_Escape,					kFalse);
     CONTROL_DefineFlag(gamefunc_Shrink_Screen,			kFalse);
     CONTROL_DefineFlag(gamefunc_Enlarge_Screen,			kFalse);
@@ -276,8 +276,6 @@ void SetupGameButtons()
     CONTROL_DefineFlag(gamefunc_Inventory_Right,		kFalse);
     CONTROL_DefineFlag(gamefunc_Mouseview,				kFalse);
     CONTROL_DefineFlag(gamefunc_Inventory,				kFalse);
-    CONTROL_DefineFlag(gamefunc_Mouse_Sensitivity_Up,	kFalse);
-    CONTROL_DefineFlag(gamefunc_Mouse_Sensitivity_Down,	kFalse);
 }
 
 hashtable_t h_gamefuncs    = { kMaxGameFunctions<<1, NULL };
@@ -1019,3 +1017,4 @@ void CONFIG_WriteSetup(uint32_t flags)
     Bfflush(NULL);
 }
 END_PS_NS
+#endif

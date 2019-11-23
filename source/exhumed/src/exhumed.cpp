@@ -77,10 +77,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <time.h>
 #include <assert.h>
 
-#ifdef _WIN32
-# include "winbits.h"
-#endif /* _WIN32 */
-
 BEGIN_PS_NS
 
 
@@ -1445,27 +1441,8 @@ void CheckKeys()
         CONTROL_ClearButton(gamefunc_Enlarge_Screen);
     }
 
-    // if (BUTTON(gamefunc_Mouse_Sensitivity_Up))
-    // {
-    //     if (lMouseSens < 64)
-    //         lMouseSens++;
-    //
-    //     CONTROL_ClearButton(gamefunc_Mouse_Sensitivity_Up);
-    //     StatusMessage(500, "MOUSE SENSITIVITY SET TO %d", lMouseSens);
-    // }
-    // else
-    // {
-    //     if (BUTTON(gamefunc_Mouse_Sensitivity_Down))
-    //     {
-    //         if (lMouseSens >= 1)
-    //             lMouseSens -= 1;
-    //
-    //         CONTROL_ClearButton(gamefunc_Mouse_Sensitivity_Down);
-    //         StatusMessage(500, "MOUSE SENSITIVITY SET TO %d", lMouseSens);
-    //     }
-    // }
-
     // F11?
+#if 0
     if (BUTTON(gamefunc_Gamma_Correction))
     {
         nGamma++;
@@ -1475,6 +1452,7 @@ void CheckKeys()
 
         mysetbrightness((uint8_t)nGamma);
         CONTROL_ClearButton(gamefunc_Gamma_Correction);
+#endif
     }
 
     if (BUTTON(gamefunc_Shrink_Screen))

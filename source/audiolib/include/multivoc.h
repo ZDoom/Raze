@@ -90,6 +90,7 @@ int  MV_VoicesPlaying(void);
 int  MV_VoiceAvailable(int priority);
 int  MV_SetPitch(int handle, int pitchoffset);
 int  MV_SetFrequency(int handle, int frequency);
+int32_t MV_GetFrequency(int32_t handle, int32_t* frequency);
 int  MV_PauseVoice(int handle, int pause);
 int  MV_EndLooping(int handle);
 int  MV_SetPan(int handle, int vol, int left, int right);

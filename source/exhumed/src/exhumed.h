@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "cache1d.h"
-#include "vfs.h"
 #include "grpscan.h"
 
 BEGIN_PS_NS
@@ -30,14 +29,6 @@ BEGIN_PS_NS
 
 #ifdef __WATCOMC__
 void handleevents();
-#endif
-
-#ifndef APPNAME
-#define APPNAME             "PCExhumed"
-#endif
-
-#ifndef APPBASENAME
-#define APPBASENAME         "pcexhumed"
 #endif
 
 // TODO:
@@ -115,7 +106,6 @@ void UpdateScreenSize();
 
 void HandleAsync();
 
-extern buildvfs_kfd kopen4loadfrommod(const char* filename, char searchfirst);
 extern int32_t g_commandSetup;
 extern int32_t g_noSetup;
 
