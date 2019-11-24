@@ -468,7 +468,7 @@ static int Menu_GetFontHeight(int fontnum)
 	return font.get_yline();
 }
 
-void GameInterface::DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int orientation)
+void GameInterface::DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int flags)
 {
 	int ydim_upper = 0;
 	int ydim_lower = ydim - 1;
@@ -480,7 +480,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, int xpos, int ypo
 		status |= MT_Selected;
 	if (state == NIT_InactiveState)
 		status |= MT_Disabled;
-	if (orientation == TOR_Center)
+	if (flags & LMF_Centered)
 		status |= MT_XCenter;
 
 	bool const dodraw = true;
@@ -493,9 +493,6 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, int xpos, int ypo
 	vec2_t textsize;
 	if (dodraw)
 		textsize = Menu_Text(x, y_internal, &font, text, status, ydim_upper, ydim_lower);
-
-	if (orientation == TOR_Right)
-		status |= MT_XRight;
 
 	if (dodraw && (status & MT_Selected) && state != 1)
 	{
@@ -564,8 +561,9 @@ protected:
 			}
 			totalheight += height;
 		}
+		if (mDesc->mSpacing <= 0) calculatedentryspacing = std::max(0, (y_lower - y_upper - totalheight) / (numvalidentries > 1 ? numvalidentries - 1 : 1));
+		if (calculatedentryspacing <= 0) calculatedentryspacing = mDesc->mSpacing;
 
-		calculatedentryspacing = std::max(0, (y_lower - y_upper - totalheight) / (numvalidentries > 1 ? numvalidentries - 1 : 1));
 
 		// totalHeight calculating pass
 		int totalHeight;

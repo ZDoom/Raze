@@ -121,6 +121,12 @@ struct FMenuDescriptor
 class FListMenuItem;
 class FOptionMenuItem;
 
+enum ListMenuFlags
+{
+	LMF_Centered = 1,
+	LMF_DontSpace = 2
+};
+
 struct FListMenuDescriptor : public FMenuDescriptor
 {
 	TDeletingArray<FListMenuItem *> mItems;
@@ -142,7 +148,8 @@ struct FListMenuDescriptor : public FMenuDescriptor
 	EColorRange mFontColor;
 	EColorRange mFontColor2;
 	FMenuDescriptor *mRedirect;	// used to redirect overlong skill and episode menus to option menu based alternatives
-	int mCenter;
+	int mFlags;
+	int mSpacing;
 
 	FListMenuDescriptor()
 	{
@@ -163,11 +170,13 @@ struct FListMenuDescriptor : public FMenuDescriptor
 		mFont = NULL;
 		mFontColor = CR_UNTRANSLATED;
 		mFontColor2 = CR_UNTRANSLATED;
-		mScriptId = 0;
+		mScriptId = -1;
 		mSecondaryId = 0;
 		mNativeFontNum = NIT_BigFont;
 		mNativePalNum = NIT_ActiveColor;
 		mNativeFontScale = 1.f;
+		mFlags = 0;
+		mSpacing = 0;
 	}
 };
 

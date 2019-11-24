@@ -1760,9 +1760,6 @@ void Menu_Init(void)
         // hack; should swap out pointers
         MF_Minifont = MF_Bluefont;
 
-        MMF_Top_Main.pos.x = 40<<16;
-        MMF_Top_Main.pos.y = 130<<16;
-        MMF_Top_Main.bottomcutoff = 190<<16;
         M_OPTIONS.format = &MMF_Top_Main;
 
         MEF_MainMenu.width = MEF_OptionsMenu.width = -(160<<16);

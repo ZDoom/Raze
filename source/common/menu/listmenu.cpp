@@ -64,7 +64,7 @@ void DListMenu::Init(DMenu *parent, FListMenuDescriptor *desc)
 {
 	mParentMenu = parent;
 	mDesc = desc;
-	if (mDesc->mScriptId) scriptID = mDesc->mScriptId;
+	if (mDesc->mScriptId >= 0) scriptID = mDesc->mScriptId;
 #if 0
 	if (desc->mCenter)
 	{
@@ -473,7 +473,7 @@ bool FListMenuItemSelectable::CheckCoordinate(int x, int y)
 
 bool FListMenuItemSelectable::Selectable()
 {
-	return mEnabled;
+	return mEnabled && !mHidden;
 }
 
 bool FListMenuItemSelectable::Activate()
@@ -578,8 +578,8 @@ void FListMenuItemNativeText::Drawer(DListMenu* menu, const vec2_t& origin, bool
 	if (mText.Len() && !mHidden)
 	{
 		if (*text == '$') text = GStrings(text + 1);
-		int direction = menu->Descriptor()->mCenter == 0 ? TOR_Center : menu->Descriptor()->mCenter < 0 ? TOR_Right : TOR_Left;
-		gi->DrawNativeMenuText(mFontnum, selected ? NIT_SelectedState : mEnabled? NIT_ActiveState : NIT_InactiveState, (mXpos << 16) + origin.x, (mYpos << 16) + origin.y, 1.f, text, direction);
+		auto state = selected ? NIT_SelectedState : mEnabled ? NIT_ActiveState : NIT_InactiveState;
+		gi->DrawNativeMenuText(mFontnum, state, (mXpos << 16) + origin.x, (mYpos << 16) + origin.y, 1.f, text, menu->Descriptor()->mFlags);
 	}
 } 
 

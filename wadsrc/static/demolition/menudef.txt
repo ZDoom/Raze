@@ -6,16 +6,17 @@
 
 LISTMENU "MainMenu"
 {
-	ScriptId 1
+	ScriptId 0
 	ifgame(Duke, Nam, WW2GI, Fury)
 	{
 		ifgame(fury)
 		{
-			position 40, 130, 60, -160
+			position 40, 130, 60
+			fixedspacing 2
 		}
 		else
 		{
-			position 160, 55, 115, 0
+			position 160, 55, 115
 			centermenu
 		}
 		linespacing 15
@@ -39,7 +40,7 @@ LISTMENU "MainMenu"
 	{
 		linespacing 15
 		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
-		//NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
+		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
@@ -76,11 +77,12 @@ LISTMENU "IngameMenu"
 	{
 		ifgame(fury)
 		{
-			position 40, 130, 60, -160
+			position 40, 130, 60
+			fixedspacing 2
 		}
 		else
 		{
-			position 160, 55, 115, 0
+			position 160, 55, 115
 			centermenu
 		}
 		linespacing 15

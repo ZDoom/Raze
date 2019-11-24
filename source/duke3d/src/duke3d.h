@@ -156,7 +156,7 @@ struct GameInterface : ::GameInterface
 	GameStats getStats() override;
 	// Access to the front end specific menu code. Use is restricted to the main menu, the ingame menu and the skill/episode selection.
 	// Everything else is either custom screens or will use the generic option menu style.
-	void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int orientation = TOR_Default) override;
+	void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int orientation) override;
 	void MenuOpened() override;
 	void MenuSelectSound() override;
 	void MenuChooseSound() override;

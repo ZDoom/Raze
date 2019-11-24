@@ -270,16 +270,16 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 			{
 				sc.MustGetNumber();
 				desc->mYbotton = sc.Number;
-				if (sc.CheckString(","))
-				{
-					sc.MustGetNumber();
-					desc->mCenter = sc.Number;
-				}
 			}
 		}
 		else if (sc.Compare("Centermenu"))
 		{
-			desc->mCenter = 0;
+			desc->mFlags |= LMF_Centered;
+		}
+		else if (sc.Compare("Fixedspacing"))
+		{
+			sc.MustGetNumber();
+			desc->mSpacing = sc.Number;
 		}
 		else if (sc.Compare("MouseWindow"))
 		{
@@ -518,7 +518,6 @@ static void ParseListMenu(FScanner &sc)
 	desc->mRedirect = NULL;
 	desc->mWLeft = 0;
 	desc->mWRight = 0;
-	desc->mCenter = 0;
 
 	ParseListMenuBody(sc, desc);
 	bool scratch = ReplaceMenu(sc, desc);
