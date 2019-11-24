@@ -251,7 +251,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
                         }
                         case 0x8000:
                         {
-                            sprite[nSprite].ang += 256;
+                            sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
                             sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512) >> 2;
                             sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
                             break;
