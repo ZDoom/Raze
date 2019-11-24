@@ -3082,7 +3082,7 @@ void InitSpiritHead()
     nHeadStage = 0;
 
     // work tile is twice as big as the normal head size
-	Worktile = TileFiles.tileCreate(kTileRamsesWorkTile, 97 * 2, 106 * 2);
+	Worktile = TileFiles.tileCreate(kTileRamsesWorkTile, kSpiritX * 2, kSpiritY * 2);
 
     sprite[nSpiritSprite].cstat &= 0x7FFF;
 
