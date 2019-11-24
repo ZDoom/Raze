@@ -111,6 +111,18 @@ private:
 	void DeleteForLabel(int lumpnum, FName label);
 
 	static size_t ProcessEscapes (char *str);
+public:
+	static FString MakeMacro(const char *str)
+	{
+		//return FStringf("${%s}", str);
+		return str;
+	}
+	
+	static FString MakeMacro(const char *str, size_t len)
+	{
+		//return FStringf("${%.*s}", len, str);
+		return FString(str, len);
+	}
 };
 
 #endif //__STRINGTABLE_H__

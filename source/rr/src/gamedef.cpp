@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_crc32.h"
 #include "printf.h"
 #include "menu/menu.h"
+#include "stringtable.h"
 
 BEGIN_RR_NS
 
@@ -1886,7 +1887,7 @@ static int32_t C_ParseCommand(int32_t loop)
             }
 
 			i = strcspn(textptr, "\r\n");
-			gVolumeNames[j] = FString(textptr, i);
+			gVolumeNames[j] = StringTable::MakeMacro(textptr, i);
 			textptr+=i;
             g_volumeCnt = j+1;
             continue;
@@ -1910,7 +1911,7 @@ static int32_t C_ParseCommand(int32_t loop)
             }
 
 			i = strcspn(textptr, "\r\n");
-			gSkillNames[j] = FString(textptr, i);
+			gSkillNames[j] = StringTable::MakeMacro(textptr, i);
 			textptr+=i;
 
             for (i=0; i<MAXSKILLS; i++)

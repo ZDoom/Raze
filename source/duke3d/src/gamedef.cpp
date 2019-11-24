@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "printf.h"
 #include "m_argv.h"
 #include "menu/menu.h"
+#include "stringtable.h"
 
 BEGIN_DUKE_NS
 
@@ -5017,7 +5018,7 @@ repeatcase:
             }
 
 			i = strcspn(textptr, "\r\n");
-			gVolumeNames[j] = FString(textptr, i);
+			gVolumeNames[j] = StringTable::MakeMacro(textptr, i);
 			textptr += i;
   
             g_volumeCnt = j+1;
@@ -5118,7 +5119,7 @@ repeatcase:
             }
 
 			i = strcspn(textptr, "\r\n");
-			gSkillNames[j] = FString(textptr, i);
+			gSkillNames[j] = StringTable::MakeMacro(textptr, i);
 			textptr+=i;
 
             for (i=0; i<MAXSKILLS; i++)
