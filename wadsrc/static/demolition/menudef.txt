@@ -21,7 +21,7 @@ LISTMENU "MainMenu"
 		linespacing 15
 		class "Duke.MainMenu"
 		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
-		//NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
+		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
 		ifgame(fury)
 		{
 			NativeTextItem "$MNU_CONTINUE", "l", "LoadGameMenu"

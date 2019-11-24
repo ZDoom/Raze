@@ -156,7 +156,7 @@ static bool CheckSkipGameBlock(FScanner &sc)
 	}
 	while (sc.CheckString(","));
 	sc.MustGetStringName(")");
-	if (!(filter & 1))	// todo: apply correct filter.
+	if (!(filter & g_gameType))
 	{
 		SkipSubBlock(sc);
 		return !sc.CheckString("else");
@@ -279,7 +279,7 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		}
 		else if (sc.Compare("Centermenu"))
 		{
-			desc->mCenter = true;
+			desc->mCenter = 0;
 		}
 		else if (sc.Compare("MouseWindow"))
 		{
@@ -518,7 +518,7 @@ static void ParseListMenu(FScanner &sc)
 	desc->mRedirect = NULL;
 	desc->mWLeft = 0;
 	desc->mWRight = 0;
-	desc->mCenter = false;
+	desc->mCenter = 0;
 
 	ParseListMenuBody(sc, desc);
 	bool scratch = ReplaceMenu(sc, desc);

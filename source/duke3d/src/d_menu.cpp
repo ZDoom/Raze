@@ -473,7 +473,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, int xpos, int ypo
 	int ydim_upper = 0;
 	int ydim_lower = ydim - 1;
 	int32_t const indent = 0;	// not set for any relevant menu
-	int32_t x = xpos << 16;
+	int32_t x = xpos;
 
 	uint8_t status = 0;
 	if (state == NIT_SelectedState)
@@ -488,7 +488,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, int xpos, int ypo
 
 	int32_t const height = font.get_yline();
 	status |= MT_YCenter;
-	int32_t const y_internal = (ypos + (height >> 17)) << 16;// -menu->scrollPos;
+	int32_t const y_internal = ypos + ((height >> 17) << 16);// -menu->scrollPos;
 
 	vec2_t textsize;
 	if (dodraw)
@@ -569,7 +569,7 @@ protected:
 
 		// totalHeight calculating pass
 		int totalHeight;
-		for (int e = 0; e < numvalidentries; ++e)
+		for (unsigned e = 0; e < mDesc->mItems.Size(); ++e)
 		{
 			auto entry = mDesc->mItems[e];
 			if (!entry->mHidden)
@@ -610,9 +610,9 @@ class MainMenu : public DukeListMenu
 		DukeListMenu::PreDraw();
         if ((G_GetLogoFlags() & LOGO_NOGAMETITLE) == 0)
         {
-            rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + ((28)<<16), 65536L,0,INGAMEDUKETHREEDEE,0,0,10);
+            rotatesprite_fs((origin.x << 16) + (MENU_MARGIN_CENTER<<16), (origin.y << 16) + ((28)<<16), 65536L,0,INGAMEDUKETHREEDEE,0,0,10);
             if (PLUTOPAK)   // JBF 20030804
-                rotatesprite_fs(origin.x + ((MENU_MARGIN_CENTER+100)<<16), origin.y + (36<<16), 65536L,0,PLUTOPAKSPRITE+2,(sintable[((int32_t) totalclock<<4)&2047]>>11),0,2+8);
+                rotatesprite_fs((origin.y << 16) + ((MENU_MARGIN_CENTER+100)<<16), (origin.y << 16) + (36<<16), 65536L,0,PLUTOPAKSPRITE+2,(sintable[((int32_t) totalclock<<4)&2047]>>11),0,2+8);
         }
 		else if (mDesc->mCaption.IsNotEmpty())
 		{
