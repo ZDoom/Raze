@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "keyboard.h"
 #include "control.h"
 #include "config.h"
+#include "input.h"
 #include <string.h>
 
 BEGIN_PS_NS
@@ -195,20 +196,7 @@ int WaitAnyKey(int nSecs)
         if (nTotalTime <= (int)totalclock || nSecs == -1) {
             return -1;
         }
-
-        int i = 0;
-
-        do
-        {
-            if (KB_KeyDown[i])
-            {
-                KB_KeyDown[i] = 0;
-                return i;
-            }
-
-            i++;
-
-        } while (i < 106);
+		if (I_AdvanceTrigger()) return 1;
     }
 }
 

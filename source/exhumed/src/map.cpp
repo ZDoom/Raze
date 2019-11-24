@@ -285,6 +285,10 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 #endif
 }
 
+#ifdef _MSC_VER
+#pragma warning(disable:4101) // this function produces a little bit too much noise
+#endif
+
 static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16_t cang)
 {
     int32_t i, j, k, l, x1, y1, x2=0, y2=0, x3, y3, x4, y4, ox, oy, xoff, yoff;
@@ -305,7 +309,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     xvect2 = mulscale16(xvect, yxaspect);
     yvect2 = mulscale16(yvect, yxaspect);
 
-    renderDisableFog();
+    //renderDisableFog();
 
     // draw player position arrow
     renderDrawLine(xdim << 11, (ydim << 11) - 20480, xdim << 11, (ydim << 11) + 20480, 24);

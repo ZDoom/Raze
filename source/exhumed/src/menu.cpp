@@ -59,7 +59,7 @@ GameStat GameStats;
 short nCinemaSeen[30];
 
 // this might be static within the DoPlasma function?
-uint8_t plasmaBuffer[25600];
+uint8_t * PlasmaBuffer;
 
 uint8_t energytile[66 * 66] = {0};
 
@@ -145,13 +145,12 @@ void InitEnergyTile()
 
 void DoEnergyTile()
 {
-    tileLoad(kEnergy1);
-    tileLoad(kEnergy2);
-
     nButtonColor += nButtonColor < 0 ? 8 : 0;
 
-    uint8_t *ptr1 = (uint8_t*)(waloff[kEnergy1] + 1984);
-    uint8_t *ptr2 = (uint8_t*)(waloff[kEnergy1] + 2048);
+	auto energy1 = TileFiles.tileMakeWritable(kEnergy1);
+	auto energy2 = TileFiles.tileMakeWritable(kEnergy2);
+	uint8_t *ptr1 = energy1 + 1984;
+    uint8_t *ptr2 = energy2 + 2048;
 
     short nColor = nButtonColor + 161;
 
@@ -177,7 +176,7 @@ void DoEnergyTile()
     if (nSmokeSparks)
     {
         uint8_t *c = &energytile[67]; // skip a line
-        uint8_t *ptrW = (uint8_t*)waloff[kEnergy2];
+        uint8_t *ptrW = energy2;
 
         for (i = 0; i < 64; i++)
         {
@@ -266,7 +265,7 @@ void DoEnergyTile()
         }
 
         c = &energytile[67];
-        ptrW = (uint8_t*)waloff[kEnergy2];
+        ptrW = energy2;
 
         for (i = 0; i < 64; i++)
         {
@@ -275,7 +274,7 @@ void DoEnergyTile()
             ptrW += 64;
         }
 
-        ptrW = (uint8_t*)waloff[kEnergy2];
+        ptrW = energy2;
 
         for (i = 0; i < 4096; i++)
         {
@@ -314,20 +313,17 @@ void menu_DoPlasma()
 {
     if (!nLogoTile)
         nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
-    if (waloff[kTile4092] == 0)
+
+    if (!PlasmaBuffer)
     {
-        tileCreate(kTile4092, kPlasmaWidth, kPlasmaHeight);
+        auto pixels = TileFiles.tileCreate(kTile4092, kPlasmaWidth, kPlasmaHeight);
+        memset(pixels, 96, kPlasmaWidth*kPlasmaHeight);
 
-        memset((void*)waloff[kTile4092], 96, kPlasmaWidth*kPlasmaHeight);
-
-        waloff[kTile4093] = (intptr_t)plasmaBuffer;
-        memset(plasmaBuffer, 96, sizeof(plasmaBuffer));
+		PlasmaBuffer = TileFiles.tileCreate(kTile4093, kPlasmaWidth, kPlasmaHeight);
+        memset(PlasmaBuffer, 96, kPlasmaWidth * kPlasmaHeight);
 
         nSmokeLeft = 160 - tilesiz[nLogoTile].x / 2;
         nSmokeRight = nSmokeLeft + tilesiz[nLogoTile].x;
-
-        tilesiz[kTile4093].x = kPlasmaWidth;
-        tilesiz[kTile4093].y = kPlasmaHeight;
 
         nSmokeTop    = 40 - tilesiz[nLogoTile].y / 2;
         nSmokeBottom = nSmokeTop + tilesiz[nLogoTile].y - 1;
@@ -339,33 +335,8 @@ void menu_DoPlasma()
         for (int i = 0; i < 5; i++)
         {
             int logoWidth = tilesiz[nLogoTile].x;
-#if 1
             plasma_C[i] = (nSmokeLeft + rand() % logoWidth) << 16;
             plasma_B[i] = (menu_RandomLong2() % 327680) + 0x10000;
-#else
-            int r = rand();
-            int rand2 = menu_RandomLong2();
-
-            __asm {
-                mov		ebx, i
-                mov		ecx, logoWidth
-                mov     eax, r
-                mov		edx, eax
-                sar     edx, 31
-                idiv    ecx
-
-                add     edx, nSmokeLeft
-                shl     edx, 16
-                mov     ecx, 327680
-                mov     plasma_C[ebx * 4], edx
-                xor     edx, edx
-                mov		eax, rand2
-//				call    menu_RandomLong2
-                div     ecx
-                add     edx, 10000h
-                mov     plasma_B[ebx * 4], edx
-            };
-#endif
 
             if (menu_RandomBit2()) {
                 plasma_B[i] = -plasma_B[i];
@@ -377,8 +348,10 @@ void menu_DoPlasma()
 
     videoClearScreen(overscanindex);
 
-    uint8_t *r_ebx = (uint8_t*)waloff[nPlasmaTile] + 81;
-    uint8_t *r_edx = (uint8_t*)waloff[nPlasmaTile ^ 1] + 81; // flip between value of 4092 and 4093 with xor
+
+	uint8_t* plasmapix = const_cast<uint8_t*>(tilePtr(nPlasmaTile));
+	uint8_t *r_ebx = plasmapix + 81;
+    const uint8_t *r_edx = tilePtr(nPlasmaTile ^ 1) + 81; // flip between value of 4092 and 4093 with xor
 
     for (int x = 0; x < kPlasmaWidth - 2; x++)
 //	for (int x = 1; x < 318; x++)
@@ -468,7 +441,7 @@ void menu_DoPlasma()
         r_ebx += 2;
     }
 
-    tileLoad(nLogoTile);
+    auto logopix = tilePtr(nLogoTile);
 
     for (int j = 0; j < 5; j++)
     {
@@ -476,7 +449,7 @@ void menu_DoPlasma()
         int pC = plasma_C[j];
         int badOffset =  (pC>>16) < nSmokeLeft || (pC>>16) >= nSmokeRight;
 
-        uint8_t *ptr3 = (uint8_t*)(waloff[nLogoTile] + ((pC >> 16) - nSmokeLeft) * tilesiz[nLogoTile].y);
+        const uint8_t *ptr3 = (logopix + ((pC >> 16) - nSmokeLeft) * tilesiz[nLogoTile].y);
 
         plasma_C[j] += plasma_B[j];
 
@@ -525,7 +498,7 @@ void menu_DoPlasma()
             }
         }
 
-        uint8_t *v28 = (uint8_t*)(80 * (plasma_C[j] >> 16) + waloff[nPlasmaTile]);
+        uint8_t *v28 = plasmapix + (80 * (plasma_C[j] >> 16));
         v28[nSmokeOffset] = 175;
     }
 

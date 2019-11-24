@@ -826,16 +826,16 @@ void DrawStatus()
 
         int x = (nViewLeft + nViewRight) / 2;
 
-        sprintf(coordBuf, "X %d", (int)sprite[nSprite].x);
+        snprintf(coordBuf, 50, "X %d", (int)sprite[nSprite].x.cast());
         printext(x, nViewTop + 1, coordBuf, kTile159, 255);
 
-        sprintf(coordBuf, "Y %d", sprite[nSprite].y);
+        snprintf(coordBuf, 50, "Y %d", sprite[nSprite].y.cast());
         printext(x, nViewTop + 10, coordBuf, kTile159, 255);
     }
 
     if (bHolly)
     {
-        sprintf(message_text, "HOLLY: %s", sHollyStr);
+        snprintf(message_text, 80, "HOLLY: %s", sHollyStr);
         printext(0, 0, message_text, kTile159, 255);
     }
     else if (nSnakeCam < 0)

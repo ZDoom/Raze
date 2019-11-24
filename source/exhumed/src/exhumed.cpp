@@ -624,12 +624,13 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
 
 ////////
 
-#define kSpiritX = 106;
-#define kSpiritY = 97;
+const uint32_t kSpiritX = 106;
+const uint32_t kSpiritY = 97;
 
 short cPupData[300];
 //int worktile[97 * 106] = { 0 };
-uint8_t worktile[(97*2) * (106*2)] = { 0 };
+uint8_t *Worktile;
+const uint32_t WorktileSize = kSpiritX * 2 * kSpiritY * 2;
 int lHeadStartClock;
 short *pPupData;
 int lNextStateChange;
@@ -1991,7 +1992,7 @@ int app_main(int argc, char const* const* argv)
     Bsprintf(tempbuf, "Exhumed %s", s_buildRev);
     registerosdcommands();
 
-    SetupInput();
+    //SetupInput();
 
     system_getcvars();
 
@@ -2057,7 +2058,7 @@ int app_main(int argc, char const* const* argv)
     // loc_11745:
     FadeOut(0);
 //	InstallEngine();
-    KB_Startup();
+    //KB_Startup();
     InitView();
     myloadconfig();
     InitFX();
@@ -3081,13 +3082,13 @@ void InitSpiritHead()
     nHeadStage = 0;
 
     // work tile is twice as big as the normal head size
-	TileFiles.tileSetExternal(kTileRamsesWorkTile, 97 * 2, 106 * 2, worktile);
+	Worktile = TileFiles.tileCreate(kTileRamsesWorkTile, 97 * 2, 106 * 2);
 
     sprite[nSpiritSprite].cstat &= 0x7FFF;
 
     nHeadTimeStart = (int)totalclock;
 
-    memset(worktile, -1, sizeof(worktile));
+    memset(Worktile, -1, WorktileSize);
     tileInvalidate(kTileRamsesWorkTile, -1, -1);
 
     nPixelsToShow = 0;
@@ -3153,7 +3154,7 @@ void DimSector(short nSector)
 void CopyHeadToWorkTile(short nTile)
 {
 	const uint8_t* pSrc = tilePtr(nTile);
-    uint8_t *pDest = (uint8_t*)&worktile[212 * 49 + 53];
+    uint8_t *pDest = &Worktile[212 * 49 + 53];
 
     for (int i = 0; i < 97; i++)
     {
@@ -3175,7 +3176,7 @@ int DoSpiritHead()
 
     if (nHeadStage < 2)
     {
-        memset(worktile, -1, sizeof(worktile));
+        memset(Worktile, -1, WorktileSize);
     }
 
     if (nHeadStage < 2 || nHeadStage != 5)
@@ -3296,11 +3297,7 @@ int DoSpiritHead()
 
                     esi += (ebx + 97) * 212;
 
-//					uint8_t *pVal = (uint8_t*)worktile;
-
-                    worktile[106 + esi] = pixelval[i];
-                    //pVal += (106 + esi);
-                    //*pVal = pixelval[i];
+                    Worktile[106 + esi] = pixelval[i];
                 }
 
                 return 1;
@@ -3405,12 +3402,7 @@ int DoSpiritHead()
 
 //					edx++;
 
-//					uint8_t *pVal = (uint8_t*)worktile;
-
-                    worktile[106 + ecx] = pixelval[i];
-
-                    //pVal += (106 + ecx);
-                    //*pVal = pixelval[i];
+                    Worktile[106 + ecx] = pixelval[i];
                 }
 
                 if (((int)totalclock - lHeadStartClock) > 600) {
@@ -3504,7 +3496,7 @@ int DoSpiritHead()
         ebx += word_964EA;
 
         // TODO - fixme. How big is worktile?
-        uint8_t *pDest = (uint8_t*)&worktile[10441];
+        uint8_t *pDest = &Worktile[10441];
 		const uint8_t* pSrc = tilePtr(ebx);
 
         for (int i = 0; i < 97; i++)
@@ -3535,7 +3527,7 @@ int DoSpiritHead()
 //			uint8_t *pDest = (uint8_t*)worktile;
 //			pDest += (212 * (97 - nTileSizeX / 2)) + (159 - nTileSizeY);
 
-            uint8_t *pDest = (uint8_t*)&worktile[212 * (97 - nTileSizeX / 2)] + (159 - nTileSizeY);
+            uint8_t *pDest = &Worktile[212 * (97 - nTileSizeX / 2)] + (159 - nTileSizeY);
             const uint8_t *pSrc = tilePtr(nMouthTile + 598);
 
             while (nTileSizeX > 0)
