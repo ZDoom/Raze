@@ -427,7 +427,7 @@ void GLInstance::SetBlendFunc(int src, int dst)
 	glBlendFunc(blendstyles[src], blendstyles[dst]);
 }
 
-static int renderops[] = { GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
+static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
 
 void GLInstance::SetBlendOp(int op)
 {

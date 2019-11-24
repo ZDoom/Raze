@@ -264,7 +264,7 @@ void fullscreen_tint_gl_blood(int tint_blood_r, int tint_blood_g, int tint_blood
 	vt[2].Set(.0f, -2.5f);
 	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
 	GLInterface.SetBlendOp(STYLEOP_Add);
-	GLInterface.SetColorub(0, 0, 0, 0);
+	GLInterface.SetColorub(255, 255, 255, 255);
 	GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
 	GLInterface.UseColorOnly(false);
 
