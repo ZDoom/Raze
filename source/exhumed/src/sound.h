@@ -29,6 +29,8 @@ BEGIN_PS_NS
 
 #define kCreepyCount 150
 
+#define MUSIC_ID    (-65536)
+
 enum {
     kSound0 = 0,
     kSound1,

@@ -874,9 +874,9 @@ void timerhandler()
         lastfps = fps;
         fps = 0;
 
-        if (nCDTrackLength > 0) {
-            nCDTrackLength--;
-        }
+//        if (nCDTrackLength > 0) {
+//            nCDTrackLength--;
+//        }
     }
     if (!bInMove)
         OSD_DispatchQueued();
@@ -2291,7 +2291,7 @@ LOOP3:
     lPlayerXVel = 0;
     lPlayerYVel = 0;
     movefifopos = movefifoend;
-    nCDTrackLength = 0;
+//    nCDTrackLength = 0;
     RefreshStatus();
 
     if (bSerialPlay) {

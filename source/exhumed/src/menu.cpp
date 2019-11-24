@@ -923,7 +923,7 @@ void menu_AdjustVolume()
                     }
 
 // TODO				SetMusicVolume();
-// TODO				setCDaudiovolume(gMusicVolume);
+    				setCDaudiovolume(gMusicVolume);
                     continue;
                 }
 
@@ -955,8 +955,8 @@ void menu_AdjustVolume()
                         gMusicVolume += 4;
                     }
 
-// TODO				SetMusicVolume();
-// TODO				setCDaudiovolume(gMusicVolume);
+//  				SetMusicVolume();
+    				setCDaudiovolume(gMusicVolume);
                     continue;
                 }
 

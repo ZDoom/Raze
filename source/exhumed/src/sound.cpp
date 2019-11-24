@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "snake.h"
 #include "trigdat.h"
 #include "sequence.h"
+#include "cd.h"
 
 BEGIN_PS_NS
 
@@ -295,6 +296,12 @@ void CalcASSPan(int nPan, int nVolume, int *pLeft, int *pRight)
 
 void ASSCallback(intptr_t num)
 {
+    if ((int32_t)num == MUSIC_ID) {
+        trackhandle = -1;
+        StopCD();
+        return;
+    }
+
     // TODO: add mutex?
     if ((int32_t)num == -1)
         handle = -1;
@@ -1174,7 +1181,7 @@ void StopAllSounds(void)
 
     for (int i = 0; i < kMaxActiveSounds; i++)
     {
-        if (sActiveSound[i].f_e >= 0)
+        if (sActiveSound[i].f_e >= 0 && sActiveSound[i].f_e != trackhandle)
             FX_StopSound(sActiveSound[i].f_e);
         // AIL_end_sample(sActiveSound[i].f_e);
     }
