@@ -191,7 +191,7 @@ void FuncRat(int a, int nDamage, int nRun)
     {
         default:
         {
-            DebugOut("unknown msg %d for Rathead\n", nMessage);
+            Printf("unknown msg %d for Rathead\n", nMessage);
             return;
         }
 

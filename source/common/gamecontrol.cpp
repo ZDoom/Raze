@@ -408,12 +408,19 @@ FStringCVar* const CombatMacros[] = { &combatmacro0, &combatmacro1, &combatmacro
 void CONFIG_ReadCombatMacros()
 {
 	FScanner sc;
-	sc.Open("demolition/combatmacros.txt");
-	for (auto s : CombatMacros)
+	try
 	{
-		sc.MustGetToken(TK_StringConst);
-		if (strlen(*s) == 0)
-			*s = sc.String;
+		sc.Open("demolition/combatmacros.txt");
+		for (auto s : CombatMacros)
+		{
+			sc.MustGetToken(TK_StringConst);
+			if (strlen(*s) == 0)
+				*s = sc.String;
+		}
+	}
+	catch (const std::runtime_error &)
+	{
+		// We do not want this to error out. Just ignore if it fails.
 	}
 }
 

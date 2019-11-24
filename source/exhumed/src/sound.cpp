@@ -350,9 +350,9 @@ void InitFX(void)
 
     if (FX_Init(NumVoices, NumChannels, MixRate, initdata) != FX_Ok)
     {
-        DebugOut("Error initializing sound card!\n");
+        Printf("Error initializing sound card!\n");
         initprintf("Error initializing sound card!\n");
-        DebugOut("ERROR: %s\n", FX_ErrorString(FX_Error));
+        Printf("ERROR: %s\n", FX_ErrorString(FX_Error));
         return;
     }
 
@@ -491,7 +491,7 @@ int LoadSound(const char *sound)
     }
 
     if (i >= kMaxSounds)
-        bail2dos("Too many sounds being loaded... increase array size\n");
+        I_Error("Too many sounds being loaded... increase array size\n");
 
     strncpy(szSoundName[i], sound, kMaxSoundNameLen);
 
@@ -515,14 +515,14 @@ int LoadSound(const char *sound)
         SoundLen[i] = nSize;
         g_cache.allocateBlock((intptr_t*)&SoundBuf[i], nSize, &SoundLock[i]);
         if (!SoundBuf[i])
-            bail2dos("Error allocating buf '%s' to %lld  (size=%ld)!\n", buffer, (intptr_t)&SoundBuf[i], nSize);
+            I_Error("Error allocating buf '%s' to %lld  (size=%ld)!\n", buffer, (intptr_t)&SoundBuf[i], nSize);
 
         if (kread(hVoc, SoundBuf[i], nSize) != nSize)
-            bail2dos("Error reading '%s'!\n", buffer);
+            I_Error("Error reading '%s'!\n", buffer);
     }
     else
     {
-        bail2dos("Unable to open sound '%s'!\n", buffer);
+        I_Error("Unable to open sound '%s'!\n", buffer);
         SoundBuf[i] = NULL;
         SoundLen[i] = 0;
         //return hVoc;
@@ -552,7 +552,7 @@ void LoadFX(void)
     {
         StaticSound[i] = LoadSound(SoundFiles[i]);
         if (StaticSound[i] < 0)
-            bail2dos("error loading static sound #%d ('%.8s')\n", i, SoundFiles[i]);
+            I_Error("error loading static sound #%d ('%.8s')\n", i, SoundFiles[i]);
     }
 }
 

@@ -16,7 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "input.h"
+#include "ps_input.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "player.h"
@@ -73,7 +73,7 @@ void InitInput()
 void ClearSpaceBar(short nPlayer)
 {
     sPlayerInput[nPlayer].buttons &= 0x0FB;
-    CONTROL_ClearButton(gamefunc_Open);
+    buttonMap.ClearButton(gamefunc_Open);
 }
 
 void GetLocalInput()
@@ -81,22 +81,22 @@ void GetLocalInput()
     int i;
     for (i = 6; i >= 0; i--)
     {
-        if (BUTTON(gamefunc_Weapon_1+i))
+        if (buttonMap.ButtonDown(gamefunc_Weapon_1+i))
             break;
     }
     i++;
 
     if (PlayerList[nLocalPlayer].nHealth)
     {
-        lLocalButtons = (BUTTON(gamefunc_Crouch) << 4) | (BUTTON(gamefunc_Fire) << 3)
-                      | (BUTTON(gamefunc_Jump)<<0) | (i<<13);
+        lLocalButtons = (buttonMap.ButtonDown(gamefunc_Crouch) << 4) | (buttonMap.ButtonDown(gamefunc_Fire) << 3)
+                      | (buttonMap.ButtonDown(gamefunc_Jump)<<0) | (i<<13);
     }
     else
     {
         lLocalButtons = 0;
     }
 
-    lLocalButtons |= BUTTON(gamefunc_Open) << 2;
+    lLocalButtons |= buttonMap.ButtonDown(gamefunc_Open) << 2;
 
 // TODO	ExecRecord(&sPlayerInput[nLocalPlayer], sizeof(PlayerInput));
 }

@@ -51,7 +51,6 @@ set( PCH_SOURCES
 	src/exscript.cpp
 	src/fish.cpp
 	src/grenade.cpp
-	src/grpscan.cpp
 	src/gun.cpp
 	src/init.cpp
 	src/input.cpp

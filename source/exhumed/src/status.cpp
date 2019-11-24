@@ -152,7 +152,7 @@ void RefreshStatus()
 {
     short nLives = nPlayerLives[nLocalPlayer];
     if (nLives < 0 || nLives > kMaxPlayerLives) {
-        bail2dos("illegal value for nPlayerLives #%d\n", nLocalPlayer);
+        I_Error("illegal value for nPlayerLives #%d\n", nLocalPlayer);
     }
 
     // draws the red dots that indicate the lives amount

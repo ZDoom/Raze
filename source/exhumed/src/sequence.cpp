@@ -198,7 +198,7 @@ int seq_ReadSequence(const char *seqName)
             return 0;
         }
         else {
-            bail2dos("Not enough sequences available!  Increase array!\n");
+            I_Error("Not enough sequences available!  Increase array!\n");
         }
     }
 
@@ -225,7 +225,7 @@ int seq_ReadSequence(const char *seqName)
             return 0;
         }
         else {
-            bail2dos("Not enough frames available!  Increase FRAMEMAX!\n");
+            I_Error("Not enough frames available!  Increase FRAMEMAX!\n");
         }
     }
 
@@ -251,7 +251,7 @@ int seq_ReadSequence(const char *seqName)
             return 0;
         }
         else {
-            bail2dos("Not enough chunks available!  Increase CHUNKMAX!\n");
+            I_Error("Not enough chunks available!  Increase CHUNKMAX!\n");
         }
     }
 

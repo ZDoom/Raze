@@ -97,7 +97,7 @@ void InitSwitch()
 int BuildSwReady(int nChannel, short nLink)
 {
     if (SwitchCount <= 0 || nLink < 0) {
-        bail2dos("Too many switch readys!\n");
+        I_Error("Too many switch readys!\n");
         return -1;
     }
 
@@ -149,7 +149,7 @@ int BuildSwPause(int nChannel, int nLink, int ebx)
     }
 
     if (SwitchCount <= 0 || nLink < 0) {
-        bail2dos("Too many switches!\n");
+        I_Error("Too many switches!\n");
         return -1;
     }
 
@@ -240,7 +240,7 @@ void FuncSwPause(int a, int, int nRun)
 int BuildSwStepOn(int nChannel, int nLink, int nSector)
 {
     if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
-        bail2dos("Too many switches!\n");
+        I_Error("Too many switches!\n");
 
     int nSwitch = --SwitchCount;
 
@@ -309,7 +309,7 @@ void FuncSwStepOn(int a, int, int nRun)
 int BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx)
 {
     if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
-        bail2dos("Too many switches!\n");
+        I_Error("Too many switches!\n");
 
     int nSwitch = --SwitchCount;
 
@@ -399,7 +399,7 @@ void FuncSwNotOnPause(int a, int, int nRun)
 int BuildSwPressSector(int nChannel, int nLink, int nSector, int ecx)
 {
     if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
-        bail2dos("Too many switches!\n");
+        I_Error("Too many switches!\n");
 
     int nSwitch = --SwitchCount;
 
@@ -471,7 +471,7 @@ void FuncSwPressSector(int a, int, int nRun)
 int BuildSwPressWall(short nChannel, short nLink, short nWall)
 {
     if (SwitchCount <= 0 || nLink < 0 || nWall < 0) {
-        bail2dos("Too many switches!\n");
+        I_Error("Too many switches!\n");
     }
 
     SwitchCount--;

@@ -845,7 +845,7 @@ void FuncBullet(int a, int b, int nRun)
 
         default:
         {
-            DebugOut("unknown msg %x for bullet\n", a & 0x7F0000);
+            Printf("unknown msg %x for bullet\n", a & 0x7F0000);
             return;
         }
     }

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "move.h"
 #include "sequence.h"
-#include "input.h"
+#include "ps_input.h"
 #include "gun.h"
 #include "bullet.h"
 #include <string.h>
@@ -162,7 +162,7 @@ void FuncRa(int a, int nDamage, int nRun)
     {
         default:
         {
-            DebugOut("unknown msg %d for Ra\n", a & 0x7F0000);
+            Printf("unknown msg %d for Ra\n", a & 0x7F0000);
             return;
         }
 

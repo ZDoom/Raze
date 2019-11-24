@@ -797,7 +797,7 @@ void InitWallFace()
 int BuildWallFace(short nChannel, short nWall, short nCount, ...)
 {
     if (WallFaceCount <= 0) {
-        bail2dos("Too many wall faces!\n");
+        I_Error("Too many wall faces!\n");
     }
 
     WallFaceCount--;
@@ -898,7 +898,7 @@ int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int 
     int nVal = ecx;
 
     if (SlideCount <= 0) {
-        bail2dos("Too many slides!\n");
+        I_Error("Too many slides!\n");
         return -1;
     }
 
@@ -1162,7 +1162,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     int var_10 = ecx;
 
     if (nTraps >= kMaxTraps) {
-        bail2dos("Too many traps!\n");
+        I_Error("Too many traps!\n");
     }
 
     short nTrap = nTraps;
@@ -1828,7 +1828,7 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
 int BuildObject(short nSprite, int nOjectType, int nHitag)
 {
     if (ObjectCount >= kMaxObjects) {
-        bail2dos("Too many objects!\n");
+        I_Error("Too many objects!\n");
     }
 
     short nObject = ObjectCount;
@@ -2139,7 +2139,7 @@ FUNCOBJECT_GOTO:
 void BuildDrip(int nSprite)
 {
     if (nDrips >= kMaxDrips) {
-        bail2dos("Too many drips!\n");
+        I_Error("Too many drips!\n");
     }
 
     sDrip[nDrips].nSprite = nSprite;
@@ -2239,7 +2239,7 @@ void SnapBobs(short nSectorA, short nSectorB)
 void AddSectorBob(int nSector, int nHitag, int bx)
 {
     if (nBobs >= kMaxBobs) {
-        bail2dos("Too many bobs!\n");
+        I_Error("Too many bobs!\n");
     }
 
     sBob[nBobs].field_3 = bx;
@@ -2283,7 +2283,7 @@ int FindTrail(int nVal)
 void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
 {
     if (nTrailPoints >= 100) {
-        bail2dos("Too many trail point sprites (900-949)... increase MAX_TRAILPOINTS\n");
+        I_Error("Too many trail point sprites (900-949)... increase MAX_TRAILPOINTS\n");
     }
 
     short nPoint = nTrailPoints;
@@ -2347,7 +2347,7 @@ void ProcessTrailSprite(int nSprite, int nLotag, int nHitag)
 void AddMovingSector(int nSector, int edx, int ebx, int ecx)
 {
     if (nMoveSects >= kMaxMoveSects) {
-        bail2dos("Too many moving sectors\n");
+        I_Error("Too many moving sectors\n");
     }
 
     CreatePushBlock(nSector);

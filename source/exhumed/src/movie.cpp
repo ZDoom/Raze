@@ -58,7 +58,7 @@ palette_t moviepal[256];
 int ReadFrame(FILE *fp)
 {
     static int nFrame = 0;
-    DebugOut("Reading frame %d...\n", nFrame);
+    Printf("Reading frame %d...\n", nFrame);
     nFrame++;
 
     uint8_t nType;
@@ -100,14 +100,14 @@ int ReadFrame(FILE *fp)
             }
             case kFrameSound:
             {
-                DebugOut("Reading sound block size %d...\n", nSize);
+                Printf("Reading sound block size %d...\n", nSize);
                 // TODO - just skip for now
                 fseek(fp, nSize, SEEK_CUR);
                 continue;
             }
             case kFrameImage:
             {
-                DebugOut("Reading image block size %d...\n", nSize);
+                Printf("Reading image block size %d...\n", nSize);
                 if (nSize == 0) {
                     continue;
                 }
@@ -173,11 +173,11 @@ void PlayMovie(const char *fileName)
     FILE *fp = fopen(buffer, "rb");
     if (fp == NULL)
     {
-        DebugOut("Can't open movie file '%s' on CD-ROM\n", buffer);
+        Printf("Can't open movie file '%s' on CD-ROM\n", buffer);
         fp = fopen(fileName, "rb");
         if (fp == NULL)
         {
-            DebugOut("Can't open movie file on hard drive\n");
+            Printf("Can't open movie file on hard drive\n");
             return;
         }
     }

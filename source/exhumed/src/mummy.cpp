@@ -523,7 +523,7 @@ void FuncMummy(int a, int nDamage, int nRun)
 
         default:
         {
-            DebugOut("unknown msg %d for Mummy\n", a & 0x7F0000);
+            Printf("unknown msg %d for Mummy\n", a & 0x7F0000);
             break;
         }
     }

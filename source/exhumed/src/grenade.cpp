@@ -295,7 +295,7 @@ void FuncGrenade(int a, int nDamage, int nRun)
 
         default:
         {
-            DebugOut("unknown msg %d for bullet\n", a & 0x7F0000); // TODO - change 'bullet' to 'grenade' ?
+            Printf("unknown msg %d for bullet\n", a & 0x7F0000); // TODO - change 'bullet' to 'grenade' ?
             return;
         }
 

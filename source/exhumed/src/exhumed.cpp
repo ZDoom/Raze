@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "player.h"
 #include "network.h"
-#include "input.h"
+#include "ps_input.h"
 #include "sound.h"
 #include "cd.h"
 #include "view.h"
@@ -68,7 +68,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trigdat.h"
 #include "record.h"
 #include "lighting.h"
-#include "grpscan.h"
 #include <string.h>
 #include <cstdio> // for printf
 #include <cstdlib>
@@ -446,63 +445,12 @@ const char *gString[] =
     "",
 };
 
-static char g_rootDir[BMAX_PATH];
-char g_modDir[BMAX_PATH] = "/";
-
-buildvfs_kfd kopen4loadfrommod(const char *fileName, char searchfirst)
-{
-    buildvfs_kfd kFile = buildvfs_kfd_invalid;
-
-    if (g_modDir[0] != '/' || g_modDir[1] != 0)
-    {
-        static char staticFileName[BMAX_PATH];
-        Bsnprintf(staticFileName, sizeof(staticFileName), "%s/%s", g_modDir, fileName);
-        kFile = kopen4load(staticFileName, searchfirst);
-    }
-
-    return (kFile == buildvfs_kfd_invalid) ? kopen4load(fileName, searchfirst) : kFile;
-}
 
 struct grpfile_t const *g_selectedGrp;
-
-int32_t g_gameType = GAMEFLAG_POWERSLAVE;
 
 // g_gameNamePtr can point to one of: grpfiles[].name (string literal), string
 // literal, malloc'd block (XXX: possible leak)
 const char *g_gameNamePtr = NULL;
-
-// grp handling
-
-static const char *defaultgamegrp = "STUFF.DAT";
-static const char *defaultdeffilename = "exhumed.def";
-
-// g_grpNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
-char *g_grpNamePtr = NULL;
-
-void clearGrpNamePtr(void)
-{
-    Xfree(g_grpNamePtr);
-    // g_grpNamePtr assumed to be assigned to right after
-}
-
-const char *G_DefaultGrpFile(void)
-{
-    return defaultgamegrp;
-}
-const char *G_DefaultDefFile(void)
-{
-    return defaultdeffilename;
-}
-
-const char *G_GrpFile(void)
-{
-    return (g_grpNamePtr == NULL) ? G_DefaultGrpFile() : g_grpNamePtr;
-}
-
-const char *G_DefFile(void)
-{
-    return (g_defNamePtr == NULL) ? G_DefaultDefFile() : g_defNamePtr;
-}
 
 int32_t g_commandSetup = 0;
 int32_t g_noSetup = 0;
@@ -514,301 +462,10 @@ static struct strllist *CommandPaths, *CommandGrps;
 
 void G_ExtPreInit(int32_t argc,char const * const * argv)
 {
-    g_useCwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
-
-#ifdef _WIN32
-    GetModuleFileName(NULL,g_rootDir,BMAX_PATH);
-    Bcorrectfilename(g_rootDir,1);
-    //buildvfs_chdir(g_rootDir);
-#else
-    buildvfs_getcwd(g_rootDir,BMAX_PATH);
-    strcat(g_rootDir,"/");
-#endif
 }
 
 void G_ExtInit(void)
 {
-    char cwd[BMAX_PATH];
-
-#ifdef EDUKE32_OSX
-    char *appdir = Bgetappdir();
-    addsearchpath(appdir);
-    Xfree(appdir);
-#endif
-
-#ifdef USE_PHYSFS
-    strncpy(cwd, PHYSFS_getBaseDir(), ARRAY_SIZE(cwd));
-    cwd[ARRAY_SIZE(cwd)-1] = '\0';
-#else
-    if (buildvfs_getcwd(cwd, ARRAY_SIZE(cwd)) && Bstrcmp(cwd, "/") != 0)
-#endif
-        addsearchpath(cwd);
-
-    if (CommandPaths)
-    {
-        int32_t i;
-        struct strllist *s;
-        while (CommandPaths)
-        {
-            s = CommandPaths->next;
-            i = addsearchpath(CommandPaths->str);
-            if (i < 0)
-            {
-                initprintf("Failed adding %s for game data: %s\n", CommandPaths->str,
-                           i==-1 ? "not a directory" : "no such directory");
-            }
-
-            Xfree(CommandPaths->str);
-            Xfree(CommandPaths);
-            CommandPaths = s;
-        }
-    }
-
-#if defined(_WIN32) && !defined(EDUKE32_STANDALONE)
-    if (buildvfs_exists("user_profiles_enabled"))
-#else
-    if (g_useCwd == 0 && !buildvfs_exists("user_profiles_disabled"))
-#endif
-    {
-        char *homedir;
-        int32_t asperr;
-
-        if ((homedir = Bgethomedir()))
-        {
-            Bsnprintf(cwd, ARRAY_SIZE(cwd), "%s/"
-#if defined(_WIN32)
-                      APPNAME
-#elif defined(GEKKO)
-                      "apps/" APPBASENAME
-#else
-                      ".config/" APPBASENAME
-#endif
-                      ,homedir);
-            asperr = addsearchpath(cwd);
-            if (asperr == -2)
-            {
-                if (buildvfs_mkdir(cwd,S_IRWXU) == 0) asperr = addsearchpath(cwd);
-                else asperr = -1;
-            }
-            if (asperr == 0)
-                buildvfs_chdir(cwd);
-            Xfree(homedir);
-        }
-    }
-}
-
-void G_ScanGroups(void)
-{
-    ScanGroups();
-
-    g_selectedGrp = NULL;
-
-    char const * const currentGrp = G_GrpFile();
-
-    for (grpfile_t const *fg = foundgrps; fg; fg=fg->next)
-    {
-        if (!Bstrcasecmp(fg->filename, currentGrp))
-        {
-            g_selectedGrp = fg;
-            break;
-        }
-    }
-
-    if (g_selectedGrp == NULL)
-        g_selectedGrp = foundgrps;
-}
-
-static int32_t G_TryLoadingGrp(char const * const grpfile)
-{
-    int32_t i;
-
-    if ((i = initgroupfile(grpfile)) == -1)
-        initprintf("Warning: could not find main data file \"%s\"!\n", grpfile);
-    else
-        initprintf("Using \"%s\" as main game data file.\n", grpfile);
-
-    return i;
-}
-
-static int32_t G_LoadGrpDependencyChain(grpfile_t const * const grp)
-{
-    if (!grp)
-        return -1;
-
-    if (grp->type->dependency && grp->type->dependency != grp->type->crcval)
-        G_LoadGrpDependencyChain(FindGroup(grp->type->dependency));
-
-    int32_t const i = G_TryLoadingGrp(grp->filename);
-
-    return i;
-}
-
-void G_LoadGroups(int32_t autoload)
-{
-    if (g_modDir[0] != '/')
-    {
-        char cwd[BMAX_PATH];
-
-        Bstrcat(g_rootDir, g_modDir);
-        addsearchpath(g_rootDir);
-        //        addsearchpath(mod_dir);
-
-        char path[BMAX_PATH];
-
-        if (buildvfs_getcwd(cwd, BMAX_PATH))
-        {
-            Bsnprintf(path, sizeof(path), "%s/%s", cwd, g_modDir);
-            if (!Bstrcmp(g_rootDir, path))
-            {
-                if (addsearchpath(path) == -2)
-                    if (buildvfs_mkdir(path, S_IRWXU) == 0)
-                        addsearchpath(path);
-            }
-        }
-
-#ifdef USE_OPENGL
-        Bsnprintf(path, sizeof(path), "%s/%s", g_modDir, TEXCACHEFILE);
-        Bstrcpy(TEXCACHEFILE, path);
-#endif
-    }
-
-    const char *grpfile;
-    int32_t i;
-
-    if ((i = G_LoadGrpDependencyChain(g_selectedGrp)) != -1)
-    {
-        grpfile = g_selectedGrp->filename;
-
-        clearGrpNamePtr();
-        g_grpNamePtr = dup_filename(grpfile);
-
-        grpinfo_t const * const type = g_selectedGrp->type;
-
-        g_gameType = type->game;
-        g_gameNamePtr = type->name;
-
-        if (type->defname && g_defNamePtr == NULL)
-            g_defNamePtr = dup_filename(type->defname);
-    }
-    else
-    {
-        grpfile = G_GrpFile();
-        i = G_TryLoadingGrp(grpfile);
-    }
-
-    if (autoload)
-    {
-        G_LoadGroupsInDir("autoload");
-
-        if (i != -1)
-            G_DoAutoload(grpfile);
-    }
-
-    if (g_modDir[0] != '/')
-        G_LoadGroupsInDir(g_modDir);
-
-    loaddefinitions_game(G_DefFile(), TRUE);
-
-    struct strllist *s;
-
-    int const bakpathsearchmode = pathsearchmode;
-    pathsearchmode = 1;
-
-    while (CommandGrps)
-    {
-        int32_t j;
-
-        s = CommandGrps->next;
-
-        if ((j = initgroupfile(CommandGrps->str)) == -1)
-            initprintf("Could not find file \"%s\".\n", CommandGrps->str);
-        else
-        {
-            g_groupFileHandle = j;
-            initprintf("Using file \"%s\" as game data.\n", CommandGrps->str);
-            if (autoload)
-                G_DoAutoload(CommandGrps->str);
-        }
-
-        Xfree(CommandGrps->str);
-        Xfree(CommandGrps);
-        CommandGrps = s;
-    }
-    pathsearchmode = bakpathsearchmode;
-}
-
-//////////
-
-void G_AddGroup(const char *buffer)
-{
-    char buf[BMAX_PATH];
-
-    struct strllist *s = (struct strllist *)Xcalloc(1,sizeof(struct strllist));
-
-    Bstrcpy(buf, buffer);
-
-    if (Bstrchr(buf,'.') == 0)
-        Bstrcat(buf,".grp");
-
-    s->str = Xstrdup(buf);
-
-    if (CommandGrps)
-    {
-        struct strllist *t;
-        for (t = CommandGrps; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandGrps = s;
-}
-
-void G_AddPath(const char *buffer)
-{
-    struct strllist *s = (struct strllist *)Xcalloc(1,sizeof(struct strllist));
-    s->str = Xstrdup(buffer);
-
-    if (CommandPaths)
-    {
-        struct strllist *t;
-        for (t = CommandPaths; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandPaths = s;
-}
-
-//////////
-
-// loads all group (grp, zip, pk3/4) files in the given directory
-void G_LoadGroupsInDir(const char *dirname)
-{
-    static const char *extensions[] = { "*.grp", "*.zip", "*.ssi", "*.pk3", "*.pk4" };
-    char buf[BMAX_PATH];
-    fnlist_t fnlist = FNLIST_INITIALIZER;
-
-    for (auto & extension : extensions)
-    {
-        BUILDVFS_FIND_REC *rec;
-
-        fnlist_getnames(&fnlist, dirname, extension, -1, 0);
-
-        for (rec=fnlist.findfiles; rec; rec=rec->next)
-        {
-            Bsnprintf(buf, sizeof(buf), "%s/%s", dirname, rec->name);
-            initprintf("Using group file \"%s\".\n", buf);
-            initgroupfile(buf);
-        }
-
-        fnlist_clearnames(&fnlist);
-    }
-}
-
-void G_DoAutoload(const char *dirname)
-{
-    char buf[BMAX_PATH];
-
-    Bsnprintf(buf, sizeof(buf), "autoload/%s", dirname);
-    G_LoadGroupsInDir(buf);
 }
 
 //////////
@@ -909,20 +566,10 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         {
             char *fileName;
 
-            pathsearchmode = 1;
             if (!scriptfile_getstring(pScript,&fileName) && firstPass)
             {
-                if (initgroupfile(fileName) == -1)
-                    initprintf("Could not find file \"%s\".\n", fileName);
-                else
-                {
-                    initprintf("Using file \"%s\" as game data.\n", fileName);
-                    if (!g_noAutoLoad && !gSetup.noautoload)
-                        G_DoAutoload(fileName);
-                }
+				fileSystem.AddAdditionalFile(fileName);
             }
-
-            pathsearchmode = 0;
         }
         break;
         case T_CACHESIZE:
@@ -931,9 +578,6 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
             if (scriptfile_getnumber(pScript, &cacheSize) || !firstPass)
                 break;
-
-            if (cacheSize > 0)
-                MAXCACHE1DSIZE = cacheSize << 10;
         }
         break;
         case T_INCLUDE:
@@ -971,7 +615,7 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     if (pScript)
         parsedefinitions_game(pScript, firstPass);
 
-    for (char const * m : g_defModules)
+    for (auto &m : *userConfig.AddDefs)
         parsedefinitions_game_include(m, NULL, "null", firstPass);
 
     if (pScript)
@@ -1165,21 +809,12 @@ void DebugOut(const char *fmt, ...)
 #ifdef _DEBUG
     va_list args;
     va_start(args, fmt);
-
-    debugBuffer[0] = '\0';
-
-    vsprintf(debugBuffer, fmt, args);
-
-    initprintf("%s", debugBuffer);
-    fflush(stdout);
-
-    va_end(args);
+	VPrintf(PRINT_HIGH, fmt, args);
 #endif
 }
 
 void ShutDown(void)
 {
-    CONFIG_WriteSetup(0);
     StopCD();
     if (bSerialPlay)
     {
@@ -1189,13 +824,12 @@ void ShutDown(void)
         UnInitSerial();
     }
 
-    KB_Shutdown();
     RemoveEngine();
     UnInitNet();
     UnInitFX();
 }
 
-void bail2dos(const char *fmt, ...)
+void I_Error(const char *fmt, ...)
 {
     char buf[256];
 
@@ -1417,9 +1051,7 @@ void mysetbrightness(char nBrightness)
 
 void CheckKeys()
 {
-    int eax;
-
-    if (BUTTON(gamefunc_Enlarge_Screen))
+    if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
     {
         if (screensize == 0)
         {
@@ -1438,12 +1070,12 @@ void CheckKeys()
 
             UpdateScreenSize();
         }
-        CONTROL_ClearButton(gamefunc_Enlarge_Screen);
+        buttonMap.ClearButton(gamefunc_Enlarge_Screen);
     }
 
     // F11?
 #if 0
-    if (BUTTON(gamefunc_Gamma_Correction))
+    if (buttonMap.ButtonDown(gamefunc_Gamma_Correction))
     {
         nGamma++;
 
@@ -1451,11 +1083,11 @@ void CheckKeys()
             nGamma = 0;
 
         mysetbrightness((uint8_t)nGamma);
-        CONTROL_ClearButton(gamefunc_Gamma_Correction);
-#endif
+        buttonMap.ClearButton(gamefunc_Gamma_Correction);
     }
+#endif
 
-    if (BUTTON(gamefunc_Shrink_Screen))
+    if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
     {
         if (bFullScreen)
         {
@@ -1468,19 +1100,11 @@ void CheckKeys()
         }
 
         UpdateScreenSize();
-        CONTROL_ClearButton(gamefunc_Shrink_Screen);
-    }
-
-    // print version string?
-    if (KB_KeyDown[sc_V] && KB_KeyDown[sc_LeftAlt])
-    {
-        KB_KeyDown[sc_V] = 0;
-        StatusMessage(300, versionstr);
-        return;
+        buttonMap.ClearButton(gamefunc_Shrink_Screen);
     }
 
     // go to 3rd person view?
-    if (KB_KeyDown[sc_C] && KB_KeyDown[sc_LeftAlt])
+	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
     {
         if (!nFreeze)
         {
@@ -1494,11 +1118,11 @@ void CheckKeys()
             if (bCamera)
                 GrabPalette();
         }
-        KB_KeyDown[sc_C] = 0;
-        return;
+		buttonMap.ClearButton(gamefunc_Third_Person_View);
+		return;
     }
 
-    if (KB_KeyDown[sc_Pause])
+    if (inputState.GetKeyStatus(sc_Pause))
     {
         if (!nNetPlayerCount)
         {
@@ -1516,15 +1140,15 @@ void CheckKeys()
                 // Clip();
                 // videoNextPage();
             }
-            KB_KeyDown[sc_Pause] = 0;
+			inputState.ClearKeyStatus(sc_Pause);
         }
         return;
     }
 
     // Handle cheat codes
-    if (!bInDemo && KB_KeyWaiting())
+    if (!bInDemo && inputState.keyBufferWaiting())
     {
-        char ch = KB_GetCh();
+        char ch = inputState.keyGetChar();
 
         if (bHolly)
         {
@@ -1667,7 +1291,7 @@ void CheckKeys()
             }
             else
             {
-                KB_GetCh();
+				inputState.keyGetChar(); //???
             }
         }
 
@@ -1771,11 +1395,11 @@ void DoCredits()
 
         while ((int)totalclock + 600 > (int)totalclock)
         {
-            if (KB_KeyDown[sc_F12])
+			if(inputState.GetKeyStatus(sc_F12))
             {
                 var_20++;
 
-                KB_KeyDown[sc_F12] = 0;
+				inputState.ClearKeyStatus(sc_F12);
 
                 if (var_20 > 5) {
                     return;
@@ -1788,9 +1412,7 @@ void DoCredits()
 
     while (CDplaying())
     {
-        if (KB_KeyWaiting()) {
-            KB_GetCh();
-        }
+		inputState.keyGetChar();
     }
 
     Clip();
@@ -2624,7 +2246,7 @@ int app_main(int argc, char const* const* argv)
     GrabPalette();
 
     if (bSerialPlay && !InitSerial()) {
-        bail2dos("Unable to connect");
+        I_Error("Unable to connect");
     }
 
     if (doTitle)
@@ -2689,7 +2311,7 @@ STARTGAME2:
     {
         int nPlayer = GrabPlayer();
         if (nPlayer < 0) {
-            bail2dos("Can't create local player\n");
+            I_Error("Can't create local player\n");
         }
 
         InitPlayerInventory(nPlayer);
@@ -2780,7 +2402,7 @@ LOOP3:
                 Query(2, 0, "Insert CD into drive", "(ESC to abort)");
                 KB_ClearKeysDown();
                 if (KB_GetCh() == asc_Escape) {
-                    bail2dos("Aborted\n");
+                    I_Error("Aborted\n");
                 }
             }
         }
@@ -2962,9 +2584,9 @@ LOOP3:
                 // }
                 // else if (nNetTime == 0)
                 // {
-                //     if (BUTTON(gamefunc_Open))
+                //     if (buttonMap.ButtonDown(gamefunc_Open))
                 //     {
-                //         CONTROL_ClearButton(gamefunc_Open);
+                //         buttonMap.ClearButton(gamefunc_Open);
                 //         goto MENU2;
                 //     }
                 // }
@@ -3035,9 +2657,9 @@ LOOP3:
         }
         if (!bInDemo)
         {
-            if (BUTTON(gamefunc_Escape))
+            if (buttonMap.ButtonDown(gamefunc_Escape))
             {
-                CONTROL_ClearButton(gamefunc_Escape);
+                buttonMap.ClearButton(gamefunc_Escape);
 // MENU2:
                 CONTROL_BindsEnabled = 0;
                 bInMove = kTrue;
@@ -3076,9 +2698,9 @@ LOOP3:
                 KB_ClearKeyDown(sc_F12);
                 videoCaptureScreen("captxxxx.png", 0);
             }
-            else if (BUTTON(gamefunc_Map)) // e.g. TAB (to show 2D map)
+            else if (buttonMap.ButtonDown(gamefunc_Map)) // e.g. TAB (to show 2D map)
             {
-                CONTROL_ClearButton(gamefunc_Map);
+                buttonMap.ClearButton(gamefunc_Map);
 
                 if (!nFreeze) {
                     nMapMode = (nMapMode+1)%3;
@@ -3090,10 +2712,10 @@ LOOP3:
                 int const timerOffset = ((int) totalclock - nonsharedtimer);
                 nonsharedtimer += timerOffset;
 
-                if (BUTTON(gamefunc_Zoom_In))
+                if (buttonMap.ButtonDown(gamefunc_Zoom_In))
                     lMapZoom += mulscale6(timerOffset, max<int>(lMapZoom, 256));
 
-                if (BUTTON(gamefunc_Zoom_Out))
+                if (buttonMap.ButtonDown(gamefunc_Zoom_Out))
                     lMapZoom -= mulscale6(timerOffset, max<int>(lMapZoom, 256));
 
                 lMapZoom = clamp(lMapZoom, 48, 2048);
@@ -3101,20 +2723,20 @@ LOOP3:
 
             if (PlayerList[nLocalPlayer].nHealth > 0)
             {
-                if (BUTTON(gamefunc_Inventory_Left))
+                if (buttonMap.ButtonDown(gamefunc_Inventory_Left))
                 {
                     SetPrevItem(nLocalPlayer);
-                    CONTROL_ClearButton(gamefunc_Inventory_Left);
+                    buttonMap.ClearButton(gamefunc_Inventory_Left);
                 }
-                if (BUTTON(gamefunc_Inventory_Right))
+                if (buttonMap.ButtonDown(gamefunc_Inventory_Right))
                 {
                     SetNextItem(nLocalPlayer);
-                    CONTROL_ClearButton(gamefunc_Inventory_Right);
+                    buttonMap.ClearButton(gamefunc_Inventory_Right);
                 }
-                if (BUTTON(gamefunc_Inventory))
+                if (buttonMap.ButtonDown(gamefunc_Inventory))
                 {
                     UseCurItem(nLocalPlayer);
-                    CONTROL_ClearButton(gamefunc_Inventory);
+                    buttonMap.ClearButton(gamefunc_Inventory);
                 }
             }
             else {
@@ -3168,7 +2790,7 @@ void mychangespritesect(int nSprite, int nSector)
 void mydeletesprite(int nSprite)
 {
     if (nSprite < 0 || nSprite > kMaxSprites) {
-        bail2dos("bad sprite value %d handed to mydeletesprite", nSprite);
+        I_Error("bad sprite value %d handed to mydeletesprite", nSprite);
     }
 
     deletesprite(nSprite);

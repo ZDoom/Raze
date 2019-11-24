@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "names.h"
 #include "init.h"
-#include "input.h"
+#include "ps_input.h"
 #include "gun.h"
 #include "view.h"
 #include "object.h"

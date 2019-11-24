@@ -194,7 +194,7 @@ void FuncBubble(int a, int b, int nRun)
             return;
 
         default:
-            DebugOut("unknown msg %d for Bubble\n", nMessage);
+            Printf("unknown msg %d for Bubble\n", nMessage);
             return;
     }
 }
@@ -218,7 +218,7 @@ void DoBubbleMachines()
 void BuildBubbleMachine(int nSprite)
 {
     if (nMachineCount >= kMaxMachines) {
-        bail2dos("too many bubble machines in level %d\n", levelnew);
+        I_Error("too many bubble machines in level %d\n", levelnew);
     }
 
     Machine[nMachineCount]._4 = 75;

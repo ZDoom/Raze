@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "lighting.h"
 #include "anims.h"
-#include "input.h"
+#include "ps_input.h"
 #include "util.h"
 #include <stdio.h>
 #include <string.h>
@@ -449,7 +449,7 @@ void InstallEngine()
         {
             buildvfs_chdir(cwd);
             if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
-                bail2dos("Failed loading art.");
+                I_Error("Failed loading art.");
         }
         buildvfs_chdir(cwd);
 #ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
@@ -457,7 +457,7 @@ void InstallEngine()
 #endif
     }
     else if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
-        bail2dos("Failed loading art.");
+        I_Error("Failed loading art.");
 
     // TEMP
 
@@ -502,7 +502,7 @@ void InstallEngine()
             if (++resIdx == validmodecnt)
             {
                 if (bpp == 8)
-                    bail2dos("Fatal error: unable to set any video mode!");
+                    I_Error("Fatal error: unable to set any video mode!");
 
                 resIdx = savedIdx;
                 bpp = 8;

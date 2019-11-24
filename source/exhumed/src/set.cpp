@@ -219,7 +219,7 @@ void FuncSoul(int pA, int, int nRun)
             return;
 
         default:
-            DebugOut("unknown msg %d for Soul\n", nMessage);
+            Printf("unknown msg %d for Soul\n", nMessage);
     }
 }
 
@@ -239,7 +239,7 @@ void FuncSet(int a, int nDamage, int nRun)
     {
         default:
         {
-            DebugOut("unknown msg %d for Set\n", nMessage);
+            Printf("unknown msg %d for Set\n", nMessage);
             return;
         }
 

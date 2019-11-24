@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "bubbles.h"
 #include "random.h"
 #include "ra.h"
-#include "input.h"
+#include "ps_input.h"
 #include "light.h"
 #include "status.h"
 #include "mouse.h"
@@ -194,7 +194,7 @@ void PlayerInterruptKeys()
     }
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = (runkey_mode) ? (BUTTON(gamefunc_Run) | auto_run) : (auto_run ^ BUTTON(gamefunc_Run));
+    int const playerRunning = (runkey_mode) ? (buttonMap.ButtonDown(gamefunc_Run) | auto_run) : (auto_run ^ buttonMap.ButtonDown(gamefunc_Run));
     int const turnAmount = playerRunning ? 12 : 8;
     int const keyMove    = playerRunning ? 12 : 6;
     constexpr int const analogTurnAmount = 12;
@@ -202,7 +202,7 @@ void PlayerInterruptKeys()
     int fvel = 0, svel = 0;
     fix16_t q16avel = 0, q16horz = 0;
 
-    if (BUTTON(gamefunc_Strafe))
+    if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
         static int strafeyaw;
 
@@ -228,12 +228,12 @@ void PlayerInterruptKeys()
     svel -= info.dx * keyMove / analogExtent;
     fvel -= info.dz * keyMove / analogExtent;
 
-    if (BUTTON(gamefunc_Strafe))
+    if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        if (BUTTON(gamefunc_Turn_Left))
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
             svel -= -keyMove;
 
-        if (BUTTON(gamefunc_Turn_Right))
+        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
             svel -= keyMove;
     }
     else
@@ -241,14 +241,14 @@ void PlayerInterruptKeys()
         static int turn = 0;
         static int counter = 0;
         // normal, non strafing movement
-        if (BUTTON(gamefunc_Turn_Left))
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
             turn -= 2;
 
             if (turn < -turnAmount)
                 turn = -turnAmount;
         }
-        else if (BUTTON(gamefunc_Turn_Right))
+        else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
             turn += 2;
 
@@ -274,16 +274,16 @@ void PlayerInterruptKeys()
             q16avel += fix16_from_int(turn<<2);
     }
 
-    if (BUTTON(gamefunc_Strafe_Left))
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
         svel += keyMove;
 
-    if (BUTTON(gamefunc_Strafe_Right))
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
         svel += -keyMove;
 
-    if (BUTTON(gamefunc_Move_Forward))
+    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
         fvel += keyMove;
 
-    if (BUTTON(gamefunc_Move_Backward))
+    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
         fvel += -keyMove;
 
     fvel = clamp(fvel, -12, 12);
@@ -312,7 +312,7 @@ void PlayerInterruptKeys()
 
     inita &= kAngleMask;
 
-    if (BUTTON(gamefunc_Run))
+    if (buttonMap.ButtonDown(gamefunc_Run))
     {
         nXVel = Cos(inita) * 12;
         nYVel = Sin(inita) * 12;
@@ -324,12 +324,12 @@ void PlayerInterruptKeys()
     }
 
     // loc_18E60
-    if (BUTTON(gamefunc_Move_Forward))
+    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
     {
         lPlayerXVel += nXVel;
         lPlayerYVel += nYVel;
     }
-    else if (BUTTON(gamefunc_Move_Backward))
+    else if (buttonMap.ButtonDown(gamefunc_Move_Backward))
     {
         lPlayerXVel -= nXVel;
         lPlayerYVel -= nYVel;
@@ -346,10 +346,10 @@ void PlayerInterruptKeys()
         }
 
         if (mouseaiming)
-            aimmode = BUTTON(gamefunc_Mouseview);
+            aimmode = buttonMap.ButtonDown(gamefunc_Mouseview);
         else
         {
-            CONTROL_ClearButton(gamefunc_Mouseview);
+            buttonMap.ClearButton(gamefunc_Mouseview);
             aimmode = !aimmode;
         }
 
@@ -371,7 +371,7 @@ void PlayerInterruptKeys()
         }
         else
         {
-            if (BUTTON(gamefunc_Run))
+            if (buttonMap.ButtonDown(gamefunc_Run))
             {
                 lPlayerXVel += Cos(inita) * ((-info.mousey) >> 7);
                 lPlayerYVel += Sin(inita) * ((-info.mousey) >> 7);
@@ -385,33 +385,33 @@ void PlayerInterruptKeys()
     }
 
     // loc_18FD4
-    if (BUTTON(gamefunc_Strafe_Left))
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
     {
         lPlayerXVel += nYVel / 4;
         lPlayerYVel -= nXVel / 4;
     }
-    else if (BUTTON(gamefunc_Strafe_Right))
+    else if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
     {
         lPlayerXVel -= nYVel / 4;
         lPlayerYVel += nXVel / 4;
     }
     else
     {
-        if (BUTTON(gamefunc_Strafe))
+        if (buttonMap.ButtonDown(gamefunc_Strafe))
         {
-            if (BUTTON(gamefunc_Turn_Left))
+            if (buttonMap.ButtonDown(gamefunc_Turn_Left))
             {
                 lPlayerXVel += nYVel;
                 lPlayerYVel -= nXVel;
             }
-            else if (BUTTON(gamefunc_Turn_Right))
+            else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
             {
                 lPlayerXVel -= nYVel;
                 lPlayerYVel += nXVel;
             }
             else
             {
-                if (BUTTON(gamefunc_Run))
+                if (buttonMap.ButtonDown(gamefunc_Run))
                 {
                     lPlayerXVel -= Sin(inita) * (info.dyaw >> 5);
                     lPlayerYVel += Sin(inita + 512) * (info.dyaw >> 5);
@@ -426,11 +426,11 @@ void PlayerInterruptKeys()
         else
         {
             // normal, non strafing movement
-            if (BUTTON(gamefunc_Turn_Left))
+            if (buttonMap.ButtonDown(gamefunc_Turn_Left))
             {
                 nPlayerDAng -= 2;
 
-                if (BUTTON(gamefunc_Run))
+                if (buttonMap.ButtonDown(gamefunc_Run))
                 {
                     if (nPlayerDAng < -12)
                         nPlayerDAng = -12;
@@ -440,11 +440,11 @@ void PlayerInterruptKeys()
                     nPlayerDAng = -8;
                 }
             }
-            else if (BUTTON(gamefunc_Turn_Right))
+            else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
             {
                 nPlayerDAng += 2;
 
-                if (BUTTON(gamefunc_Run))
+                if (buttonMap.ButtonDown(gamefunc_Run))
                 {
                     if (nPlayerDAng > 12)
                         nPlayerDAng = 12;
@@ -1050,7 +1050,7 @@ void DoKenTest()
         }
 
         if (nextspritesect[i] == i) {
-            bail2dos("ERROR in Ken's linked list!\n");
+            I_Error("ERROR in Ken's linked list!\n");
         }
     }
 }
@@ -3084,7 +3084,7 @@ do_default_b:
                 if (nPlayer == nLocalPlayer)
                 {
                     // TODO - tidy / consolidate repeating blocks of code here?
-                    if (BUTTON(gamefunc_Look_Up))
+                    if (buttonMap.ButtonDown(gamefunc_Look_Up))
                     {
                         bLockPan = kFalse;
                         if (nVertPan[nPlayer] < F16(180)) {
@@ -3094,7 +3094,7 @@ do_default_b:
                         bPlayerPan = kTrue;
                         nDestVertPan[nPlayer] = nVertPan[nPlayer];
                     }
-                    else if (BUTTON(gamefunc_Look_Down))
+                    else if (buttonMap.ButtonDown(gamefunc_Look_Down))
                     {
                         bLockPan = kFalse;
                         if (nVertPan[nPlayer] > F16(4)) {
@@ -3104,14 +3104,14 @@ do_default_b:
                         bPlayerPan = kTrue;
                         nDestVertPan[nPlayer] = nVertPan[nPlayer];
                     }
-                    else if (BUTTON(gamefunc_Look_Straight))
+                    else if (buttonMap.ButtonDown(gamefunc_Look_Straight))
                     {
                         bLockPan = kFalse;
                         bPlayerPan = kFalse;
                         nVertPan[nPlayer] = F16(92);
                         nDestVertPan[nPlayer] = F16(92);
                     }
-                    else if (BUTTON(gamefunc_Aim_Up))
+                    else if (buttonMap.ButtonDown(gamefunc_Aim_Up))
                     {
                         bLockPan = kTrue;
                         if (nVertPan[nPlayer] < F16(180)) {
@@ -3121,7 +3121,7 @@ do_default_b:
                         bPlayerPan = kTrue;
                         nDestVertPan[nPlayer] = nVertPan[nPlayer];
                     }
-                    else if (BUTTON(gamefunc_Aim_Down))
+                    else if (buttonMap.ButtonDown(gamefunc_Aim_Down))
                     {
                         bLockPan = kTrue;
                         if (nVertPan[nPlayer] > F16(4)) {

@@ -1061,6 +1061,9 @@ const char* G_DefaultDefFile(void)
 	if (g_gameType & GAMEFLAG_SW)
 		return "sw.def";
 
+	if (g_gameType & GAMEFLAG_PSEXHUMED)
+		return "exhumed.def";
+
 	if (g_gameType & GAMEFLAG_NAM)
 		return fileSystem.FindFile("nam.def") ? "nam.def" : "napalm.def";
 

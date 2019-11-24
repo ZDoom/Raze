@@ -21,7 +21,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "cache1d.h"
-#include "grpscan.h"
+#include "v_text.h"
+#include "printf.h"
+#include "gamecvars.h"
+#include "m_argv.h"
+#include "gamecontrol.h"
+#include "c_buttons.h"
+#include "filesystem/filesystem.h"
 
 BEGIN_PS_NS
 
@@ -31,17 +37,6 @@ BEGIN_PS_NS
 void handleevents();
 #endif
 
-// TODO:
-#define OSDTEXT_DEFAULT   "^00"
-#define OSDTEXT_DARKRED   "^00"
-#define OSDTEXT_GREEN     "^00"
-#define OSDTEXT_RED       "^00"
-#define OSDTEXT_YELLOW    "^00"
-
-#define OSDTEXT_BRIGHT    "^S0"
-
-#define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT
-
 enum basepal_t {
     BASEPAL = 0,
     ANIMPAL,
@@ -50,7 +45,6 @@ enum basepal_t {
 
 void ShutDown(void);
 void DebugOut(const char *fmt, ...);
-void bail2dos(const char *fmt, ...);
 int ExhumedMain(int argc, char *argv[]);
 
 void FinishLevel();

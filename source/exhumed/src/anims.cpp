@@ -269,7 +269,7 @@ loc_2D755:
 
         default:
         {
-            DebugOut("unknown msg %x for anim\n", a & 0x7F0000);
+            Printf("unknown msg %x for anim\n", a & 0x7F0000);
             return;
         }
     }

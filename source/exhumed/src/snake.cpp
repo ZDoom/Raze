@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "runlist.h"
 #include "sequence.h"
 #include "bullet.h"
-#include "input.h"
+#include "ps_input.h"
 #include "anims.h"
 #include "lighting.h"
 #include "sound.h"
@@ -419,7 +419,7 @@ SEARCH_ENEMY:
 
         default:
         {
-            DebugOut("unknown msg %x for bullet\n", a & 0x7F0000);
+            Printf("unknown msg %x for bullet\n", a & 0x7F0000);
             break;
         }
     }

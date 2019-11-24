@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "grenade.h"
 #include "lighting.h"
 #include "light.h"
-#include "input.h"
+#include "ps_input.h"
 #include "util.h"
 #include "anims.h"
 #include "runlist.h"

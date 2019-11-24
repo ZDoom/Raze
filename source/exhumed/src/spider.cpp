@@ -429,7 +429,7 @@ case_3:
 
         default:
         {
-            DebugOut("unknown msg %d for Spider\n", a & 0x7F0000);
+            Printf("unknown msg %d for Spider\n", a & 0x7F0000);
             break;
         }
     }

@@ -48,7 +48,7 @@ int osdcmd_restartvid(osdcmdptr_t UNUSED(parm))
     UNREFERENCED_CONST_PARAMETER(parm);
     videoResetMode();
     if (videoSetGameMode(gSetup.fullscreen,gSetup.xdim,gSetup.ydim,gSetup.bpp,0))
-        bail2dos("restartvid: Reset failed...\n");
+        I_Error("restartvid: Reset failed...\n");
     onvideomodechange(gSetup.bpp>8);
     UpdateScreenSize();
 
@@ -92,7 +92,7 @@ static int osdcmd_vidmode(osdcmdptr_t parm)
     {
         initprintf("vidmode: Mode change failed!\n");
         if (videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, upscalefactor))
-            bail2dos("vidmode: Reset failed!\n");
+            I_Error("vidmode: Reset failed!\n");
     }
     gSetup.bpp = newbpp;
     gSetup.xdim = newwidth;
@@ -138,31 +138,6 @@ static int osdcmd_button(osdcmdptr_t parm)
 
 //    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
     CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
-
-    return OSDCMD_OK;
-}
-
-static int osdcmd_unbound(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_OK;
-
-    int const gameFunc = CONFIG_FunctionNameToNum(parm->parms[0]);
-
-    if (gameFunc != -1)
-        KeyboardKeys[gameFunc][0] = 0;
-
-    return OSDCMD_OK;
-}
-
-static int osdcmd_screenshot(osdcmdptr_t parm)
-{
-//    KB_ClearKeysDown();
-    static const char *fn = "capt0000.png";
-
-    if (parm->numparms == 1 && !Bstrcasecmp(parm->parms[0], "tga"))
-        videoCaptureScreenTGA(fn, 0);
-    else videoCaptureScreen(fn, 0);
 
     return OSDCMD_OK;
 }
@@ -380,36 +355,13 @@ int32_t registerosdcommands(void)
     //OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     //OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
-    OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     //OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
-    OSD_RegisterFunction("unbound", NULL, osdcmd_unbound);
-
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
-#ifdef USE_OPENGL
-    baselayer_osdcmd_vidmode_func = osdcmd_vidmode;
-#endif
 
     return 0;
 }
 
-void GAME_onshowosd(int shown)
-{
-    // G_UpdateScreenArea();
-
-    mouseLockToWindow((!shown) + 2);
-
-    //osdshown = shown;
-
-    // XXX: it's weird to fake a keypress like this.
-//    if (numplayers == 1 && ((shown && !ud.pause_on) || (!shown && ud.pause_on)))
-//        KB_KeyDown[sc_Pause] = 1;
-}
-
-void GAME_clearbackground(int numcols, int numrows)
-{
-    COMMON_clearbackground(numcols, numrows);
-}
 
 END_PS_NS

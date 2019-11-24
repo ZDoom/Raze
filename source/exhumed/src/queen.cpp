@@ -322,7 +322,7 @@ void BuildTail()
         tailspr[i] = nTailSprite;
 
         if (nTailSprite < 0) {
-            bail2dos("Can't create queen's tail!\n");
+            I_Error("Can't create queen's tail!\n");
         }
 
         sprite[nTailSprite].lotag = runlist_HeadRun() + 1;

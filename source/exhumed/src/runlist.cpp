@@ -347,7 +347,7 @@ void runlist_PushMoveRun(int eax)
 int runlist_PopMoveRun()
 {
     if (nStackCount <= 0) {
-        bail2dos("PopMoveRun() called inappropriately\n");
+        I_Error("PopMoveRun() called inappropriately\n");
     }
 
     nStackCount--;

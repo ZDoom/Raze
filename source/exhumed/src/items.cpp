@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "random.h"
 #include "init.h"
-#include "input.h"
+#include "ps_input.h"
 #include "object.h"
 
 BEGIN_PS_NS

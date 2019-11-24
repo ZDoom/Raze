@@ -138,7 +138,7 @@ void FuncLion(int a, int nDamage, int nRun)
     {
         default:
         {
-            DebugOut("unknown msg %d for Lion\n", nMessage);
+            Printf("unknown msg %d for Lion\n", nMessage);
             return;
         }
 

@@ -28,6 +28,9 @@ CRC
 	RR_CRC 0x19D9BC79
 	RRRA_CRC 0x958018C6
 	BLOOD_CRC 0xA8FDDA84
+	POWERSLAVE_CRC 0x303CBD89
+	EXHUMED_CRC 0xE3B172F1
+
 }
 
 
@@ -371,4 +374,24 @@ grpinfo
 	size 47536148
 	defname "sw.def"
 	gamefilter "ShadowWarrior.ShadowWarrior"
+}
+
+grpinfo
+{
+	name "Powerslave"
+	flags GAMEFLAG_POWERSLAVE
+	crc POWERSLAVE_CRC
+	size 27020745
+	defname "exhumed.def"
+	gamefilter "Exhumed.Powerslave"
+}
+
+grpinfo
+{
+	name "Exhumed"
+	flags GAMEFLAG_EXHUMED
+	crc EXHUMED_CRC
+	size 27108170
+	defname "exhumed.def"
+	gamefilter "Exhumed.Exhumed"
 }
