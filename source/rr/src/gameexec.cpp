@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 
 #include "debugbreak.h"
+extern bool rotatesprite_2doverride;
 
 BEGIN_RR_NS
 
@@ -1120,7 +1121,9 @@ void Screen_Play(void)
 
     I_ClearAllInput();
 
-    do
+	auto r2dover = rotatesprite_2doverride;
+	rotatesprite_2doverride = false;
+	do
     {
         G_HandleAsync();
 
@@ -1136,6 +1139,7 @@ void Screen_Play(void)
         videoNextPage();
         I_ClearAllInput();
     } while (running);
+	rotatesprite_2doverride = r2dover;
 }
 
 GAMEEXEC_STATIC void VM_Execute(native_t loop)

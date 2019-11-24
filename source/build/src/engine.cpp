@@ -10040,7 +10040,21 @@ void DrawFullscreenBlends();
 //
 void videoNextPage(void)
 {
+	static bool recursion;
     permfifotype *per;
+
+	if (!recursion)
+	{
+		// This protection is needed because the menu can call scripts and the scripts can call the busy-looping Screen_Play script event
+		// which calls videoNextPage for page flipping again. In this loop the UI drawers may not get called again.
+		// Ideally this stuff should be moved out of videoNextPage so that all those busy loops won't call UI overlays at all.
+		recursion = true;
+		M_Drawer();
+		FStat::PrintStat();
+		C_DrawConsole();
+		recursion = false;
+	}
+
 
     if (in3dmode())
     {
@@ -10058,25 +10072,13 @@ void videoNextPage(void)
 
 		g_beforeSwapTime = timerGetHiTicks();
 
-		// Draw the ImGui menu on top of the game content, but below the console (if open.)
-		if (GUICapture & 6)
-		{
-			ImGui::Render();
-			GLInterface.DrawImGui(ImGui::GetDrawData());
-			GUICapture &= ~4;
-		}
-
 		// Draw the console plus debug output on top of everything else.
 		DrawFullscreenBlends();
-		M_Drawer();
-		FStat::PrintStat(); 
-		C_DrawConsole();
 		GLInterface.Draw2D(&twod);
 
 
 		videoShowFrame(0);
 
-		// software rendering only
 		videoBeginDrawing(); //{{{
         for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {

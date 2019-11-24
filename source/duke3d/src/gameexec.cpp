@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 
 #include "debugbreak.h"
+extern bool rotatesprite_2doverride;
 
 BEGIN_DUKE_NS
 
@@ -1219,13 +1220,17 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, i
     renderSetAspect(viewingRange, yxAspect);
 }
 
+
 void Screen_Play(void)
 {
     bool running = true;
 
     I_ClearAllInput();
 
-    do
+	// This needs to be disabled during the loop.
+	auto r2dover = rotatesprite_2doverride;
+	rotatesprite_2doverride = false;
+	do
     {
         gameHandleEvents();
 
@@ -1242,6 +1247,7 @@ void Screen_Play(void)
         videoNextPage();
         I_ClearAllInput();
     } while (running);
+	rotatesprite_2doverride = r2dover;
 }
 
 #if !defined LUNATIC
