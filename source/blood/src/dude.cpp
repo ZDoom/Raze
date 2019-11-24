@@ -1544,7 +1544,7 @@ DUDEINFO dudeInfo[kDudeMax-kDudeBase] =
         0,
         0
     },
-    //254 -  kGDXUniversalCultist
+    //254 -  kDudeModernCustom
     {
         11520,		// start sequence ID
         85,		// start health
@@ -1570,12 +1570,12 @@ DUDEINFO dudeInfo[kDudeMax-kDudeBase] =
         256,		// angSpeed
         //			    0,
         7,	-1, 18,		// nGibType
-        128, 128, 128, 128, 128, 128, 128,
+        128, 150, 128, 256, 128, 128, 128,
         0, 0, 0, 0, 0, 0, 0,
         0,
         0
     },
-    //255 -  kGDXGenDudeBurning
+    //255 -  kDudeModernCustomBurning
     {
         4096,		// start sequence ID
         25,			// start health

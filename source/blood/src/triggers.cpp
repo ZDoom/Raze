@@ -863,29 +863,30 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 }
                 return;
             case kModernPlayerControl: // WIP
-                PLAYER* pPlayer = NULL; int nPlayer = pXSprite->data1;
+                PLAYER* pPlayer = NULL; int nPlayer = pXSprite->data1; int oldCmd = -1;
                 if (pXSprite->data1 == 0 && spriRangeIsFine(event.causedBy)) 
                     nPlayer = sprite[event.causedBy].type;
-                
-                if ((pPlayer = getPlayerById(nPlayer)) == NULL || pPlayer->pXSprite->health <= 0) 
-                    return;
+
+                if ((pPlayer = getPlayerById(nPlayer)) == NULL || pPlayer->pXSprite->health <= 0)  return;
+                else if (pXSprite->command < kCmdNumberic + 3 && pXSprite->command > kCmdNumberic + 4
+                    && !modernTypeSetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1, event.causedBy)) return;
                 
                 TRPLAYERCTRL* pCtrl = pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
                 if (event.cmd >= kCmdNumberic) {
                     switch (event.cmd) {
                         case kCmdNumberic + 3:// start playing qav scene
-                            viewSetSystemMessage("START QAV %d, %d", pXSprite->rxID, pXSprite->txID);
                             if (pCtrl->qavScene.index != nSprite || pXSprite->Interrutable)
                                 trPlayerCtrlStartScene(pXSprite, pPlayer, event.causedBy);
-                            break;
+                            return;
                         case kCmdNumberic + 4: // stop playing qav scene
-                            viewSetSystemMessage("STOP QAV", gPlayerCtrl[pPlayer->nPlayer].qavScene.index);
-                            if (pCtrl->qavScene.index == nSprite)
+                            if (pCtrl->qavScene.index == nSprite || event.type != 3 || sprite[event.index].type != kModernPlayerControl)
                                 trPlayerCtrlStopScene(pXSprite, pPlayer);
+                            return;
+                        default:
+                            oldCmd = pXSprite->command;
+                            pXSprite->command = event.cmd; // convert event command to current sprite command
                             break;
                     }
-
-                    return;
                 }
 
                 /// !!! COMMANDS OF THE CURRENT SPRITE, NOT OF THE EVENT !!! ///
@@ -923,7 +924,8 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                                         gPosture[i][a].frontAccel = gPosture[i][a].sideAccel = gPosture[i][a].backAccel = ClipRange(mulscale8(defSpeed, speed), 0, 65535);
                                 }
                             }
-                            viewSetSystemMessage("MOVEMENT: %d %d %d", pXSprite->rxID,pSprite->index, gPosture[0][0].frontAccel);
+
+                            //viewSetSystemMessage("MOVEMENT: %d %d %d", pXSprite->rxID,pSprite->index, gPosture[0][0].frontAccel);
                         }
 
                         // player jump height (for all players ATM)
@@ -941,7 +943,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                                     }
                                 }
                             }
-                            viewSetSystemMessage("JUMPING: %d", gPosture[0][0].normalJumpZ);
+                            //viewSetSystemMessage("JUMPING: %d", gPosture[0][0].normalJumpZ);
                         }
                         break;
 
@@ -950,7 +952,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         if (pXSprite->data3 < 0) break;
                         switch (pXSprite->data2) {
                             case 1: // tilting
-                                pPlayer->tiltEffect = pXSprite->data3;
+                                pPlayer->tiltEffect = ClipRange(pXSprite->data3, 0, 220);
                                 break;
                             case 2: // pain
                                 pPlayer->painEffect = pXSprite->data3;
@@ -987,27 +989,25 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
 
                     case kCmdNumberic + 5: // 69
                         // set player sprite and look angles
-                        if (pXSprite->data2 == 0) {
+                        if (pXSprite->data4 == 0) {
                             
                             // look angle
-                            if (valueIsBetween(pXSprite->data3, -128, 128)) {
+                            if (valueIsBetween(pXSprite->data2, -128, 128)) {
                                 CONSTEXPR int upAngle = 289; CONSTEXPR int downAngle = -347;
                                 CONSTEXPR double lookStepUp = 4.0 * upAngle / 60.0;
                                 CONSTEXPR double lookStepDown = -4.0 * downAngle / 60.0;
 
-                                int look = pXSprite->data3 << 5;
+                                int look = pXSprite->data2 << 5;
                                 if (look > 0) pPlayer->q16look = fix16_min(mulscale8(F16(lookStepUp), look), F16(upAngle));
                                 else if (look < 0) pPlayer->q16look = -fix16_max(mulscale8(F16(lookStepDown), abs(look)), F16(downAngle));
                                 else pPlayer->q16look = 0;
                             }
 
                             // angle
-                            if ((pSprite->flags & kModernTypeFlag1) && valueIsBetween(pXSprite->data4, 0, kAng180)) 
-                                pPlayer->pSprite->ang = pXSprite->data4;
-                            else if (pXSprite->data4 == 1) 
-                                pPlayer->pSprite->ang = pSprite->ang;
-
-
+                            // TO-DO: if tx > 0, take a look on TX ID sprite
+                            if (pXSprite->data3 == 1) pPlayer->pSprite->ang = pXSprite->data3;
+                            else if (valueIsBetween(pXSprite->data3, 0, kAng180)) 
+                                pPlayer->pSprite->ang = pXSprite->data3;
                         }
                         //viewSetSystemMessage("ANGLE: %d, SLOPE: %d", pPlayer->pSprite->ang, pPlayer->q16look);
                         break;
@@ -1017,22 +1017,28 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         switch (pXSprite->data2) {
                             // erase all
                             case 0:
-                            // erase all weapons except pitchfork
+                            // erase weapons
                             case 1:
-                                WeaponLower(pPlayer);
-                                    
-                                for (int i = 0; i < 14; i++) {
-                                    pPlayer->hasWeapon[i] = false;
-                                    // also erase ammo
-                                    if (i < 12 && pXSprite->data3 == 1)
-                                        pPlayer->ammoCount[i] = 0;
-                                }
+                                // erase all
+                                if (pXSprite->data3 <= 0) {
+                                    WeaponLower(pPlayer);
 
-                                pPlayer->hasWeapon[1] = true; 
-                                pPlayer->curWeapon = 0;
-                                pPlayer->nextWeapon = 1;
-                                    
-                                WeaponRaise(pPlayer);
+                                    for (int i = 0; i < 14; i++) {
+                                        pPlayer->hasWeapon[i] = false;
+                                        // also erase ammo
+                                        if (i < 12) pPlayer->ammoCount[i] = 0;
+                                    }
+
+                                    pPlayer->hasWeapon[1] = true;
+                                    pPlayer->curWeapon = 0;
+                                    pPlayer->nextWeapon = 1;
+
+                                    WeaponRaise(pPlayer);
+                                
+                                // erase just specified
+                                } else {
+
+                                }
                                 if (pXSprite->data2) break;
                             // erase all armor
                             case 2:
@@ -1065,11 +1071,11 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                                     if (pXSprite->data2 == 1) {
                                         pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponData->count, gAmmoInfo[nAmmoType].max);
                                     } else {
-                                        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pXSprite->data3, gAmmoInfo[nAmmoType].max);
+                                        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pXSprite->data4, gAmmoInfo[nAmmoType].max);
                                         break;
                                     }
                                         
-                                    pPlayer->hasWeapon[pXSprite->data2] = true;
+                                    pPlayer->hasWeapon[pXSprite->data3] = true;
 
                                     if (pXSprite->data4 == 0) { // switch on it
                                         if (pPlayer->sceneQav >= 0) {
@@ -1085,7 +1091,19 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                                 break;
                         }
                         break;
+                    case kCmdNumberic + 8: // 72
+                        // use inventory item
+                        if (pXSprite->data2 > 0 && pXSprite->data2 <= 5) {
+                            packUseItem(pPlayer, pXSprite->data2 - 1);
+                            
+                            // force remove after use
+                            if (pXSprite->data4 == 1)
+                                pPlayer->packSlots[0].curAmount = pPlayer->packSlots[0].curAmount = 0;
+
+                        }
+                        break;
                 }
+                if (oldCmd > -1) pXSprite->command = oldCmd;
                 return;
         }
     } 
@@ -1548,11 +1566,7 @@ void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
             break;
         // for sprites
         case 3:
-
-            /*PLAYER* pPlayer = NULL;
-            if (playerRXRngIsFine(pXSource->txID) && (pPlayer = getPlayerById((kChannelPlayer0 - kChannelPlayer7) + kMaxPlayers)) != NULL)
-                objIndex = pPlayer->nSprite;*/
-
+            
             // resize by seq scaling
             if (sprite[pXSource->reference].flags & kModernTypeFlag1) {
                 if (valueIsBetween(pXSource->data1, -255, 32767)) {
@@ -1563,26 +1577,27 @@ void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
 
                     // request properties update for custom dude
                     switch (sprite[objIndex].type) {
-                        case kDudeModernCustom:
-                        case kDudeModernCustomBurning:
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyAttack] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyMass] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyDamage] = true;
-                            break;
+                    case kDudeModernCustom:
+                    case kDudeModernCustomBurning:
+                        gGenDudeExtra[objIndex].updReq[kGenDudePropertySpriteSize] = true;
+                        gGenDudeExtra[objIndex].updReq[kGenDudePropertyAttack] = true;
+                        gGenDudeExtra[objIndex].updReq[kGenDudePropertyMass] = true;
+                        gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
+                        evPost(objIndex, 3, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate, -1);
+                        break;
                     }
                 }
 
             // resize by repeats
             } else {
-                
+
                 if (valueIsBetween(pXSource->data1, -1, 32767))
                     sprite[objIndex].xrepeat = ClipRange(pXSource->data1, 0, 255);
-                
+
                 if (valueIsBetween(pXSource->data2, -1, 32767))
                     sprite[objIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
 
             }
-
 
             if (valueIsBetween(pXSource->data3, -1, 32767))
                 sprite[objIndex].xoffset = ClipRange(pXSource->data3, 0, 255);
@@ -1876,7 +1891,12 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
     if (pXSector != NULL && pXSector->Underwater) xsprite[pSprite->extra].medium = kMediumWater;
     else xsprite[pSprite->extra].medium = kMediumNormal;
 
-    if (pXSource->data2 == 1) pSprite->ang = pSource->ang;
+    if (pXSource->data2 == 1) {
+        pSprite->ang = pSource->ang;
+        if (IsDudeSprite(pSprite) && xspriRangeIsFine(pSprite->index))
+            xsprite[pSprite->extra].goalAng = pSprite->ang;
+    }
+
     if (pXSource->data3 == 1) 
         xvel[pSprite->xvel] = yvel[pSprite->xvel] = zvel[pSprite->xvel] = 0;
 
@@ -2006,11 +2026,21 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
     }
 }
 
+
+
 void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
-    if (pSprite != NULL) {
-        int dmgType = (pXSource->data2 == 7) ? Random(6) : ClipRange(pXSource->data2, 0, 6);
+    
+    spritetype* pSource = &sprite[pXSource->reference];
+    if (pSprite != NULL && xspriIsFine(pSprite->index)) {
         int dmg = (pXSource->data3 == 0) ? 65535 : ClipRange(pXSource->data3, 1, 65535);
-        actDamageSprite(pSprite->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
+        int dmgType = ClipRange(pXSource->data2, 0, 6);
+        
+        if (pXSource->data2 == -1 && IsDudeSprite(pSprite)) {
+            xsprite[pSprite->extra].health = ClipLow(xsprite[pSprite->extra].health - dmg, 0);
+            if (xsprite[pSprite->extra].health == 0)
+                actKillDude(pSource->index, pSprite, (DAMAGE_TYPE)0, 65535);
+        }
+        else actDamageSprite(pSource->index, pSprite, (DAMAGE_TYPE)dmgType, dmg);
     }
 }
 
@@ -4206,42 +4236,59 @@ int getDataFieldOfObject(int objType, int objIndex, int dataIndex) {
 
 bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value, int causedBy) {
     switch (objType) {
-        case 3:
+        case 3: {
+
+            XSPRITE* pXSprite = &xsprite[sprite[objIndex].extra];
+
+            // exceptions
+            if (IsDudeSprite(&sprite[objIndex]) && pXSprite->health <= 0) return true;
+            /*switch (sprite[objIndex].type) {
+                case kThingBloodBits:
+                case kThingBloodChunks:
+                case kThingZombieHead:
+                case kThingObjectGib:
+                case kThingObjectExplode:
+                    if (pXSprite->data1 > 0 || pXSprite->data2 > 0 || pXSprite->data3 > 0 || pXSprite->data4 > 0) return true;
+                    break;
+            }*/
+
             switch (dataIndex) {
             case 1:
                 xsprite[sprite[objIndex].extra].data1 = value;
                 switch (sprite[objIndex].type) {
-                    case kSwitchCombo:
-                        if (value == xsprite[sprite[objIndex].extra].data2) SetSpriteState(objIndex, &xsprite[sprite[objIndex].extra], 1, causedBy);
-                        else SetSpriteState(objIndex, &xsprite[sprite[objIndex].extra], 0, causedBy);
-                        break;
-                    case kDudeModernCustom:
-                    case kDudeModernCustomBurning:
-                        gGenDudeExtra[objIndex].updReq[kGenDudePropertyWeapon] = true;
-                        gGenDudeExtra[objIndex].updReq[kGenDudePropertyMelee] = true;
-                        gGenDudeExtra[objIndex].updReq[kGenDudePropertyDamage] = true;
-                        break;
+                case kSwitchCombo:
+                    if (value == xsprite[sprite[objIndex].extra].data2) SetSpriteState(objIndex, &xsprite[sprite[objIndex].extra], 1, causedBy);
+                    else SetSpriteState(objIndex, &xsprite[sprite[objIndex].extra], 0, causedBy);
+                    break;
+                case kDudeModernCustom:
+                case kDudeModernCustomBurning:
+                    gGenDudeExtra[objIndex].updReq[kGenDudePropertyWeapon] = true;
+                    gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
+                    evPost(objIndex, 3, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate, causedBy);
+                    break;
                 }
                 return true;
             case 2:
                 xsprite[sprite[objIndex].extra].data2 = value;
                 switch (sprite[objIndex].type) {
-                    case kDudeModernCustom:
-                    case kDudeModernCustomBurning:
-                        gGenDudeExtra[objIndex].updReq[kGenDudePropertyMass] = true;
-                        gGenDudeExtra[objIndex].updReq[kGenDudePropertyDamage] = true;
-                        gGenDudeExtra[objIndex].updReq[kGenDudePropertyStates] = true;
-                        gGenDudeExtra[objIndex].updReq[kGenDudePropertyAttack] = true;
-                        break;
+                case kDudeModernCustom:
+                case kDudeModernCustomBurning:
+                    gGenDudeExtra[objIndex].updReq[kGenDudePropertySpriteSize] = true;
+                    gGenDudeExtra[objIndex].updReq[kGenDudePropertyMass] = true;
+                    gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
+                    gGenDudeExtra[objIndex].updReq[kGenDudePropertyStates] = true;
+                    gGenDudeExtra[objIndex].updReq[kGenDudePropertyAttack] = true;
+                    evPost(objIndex, 3, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate, causedBy);
+                    break;
                 }
                 return true;
             case 3:
                 xsprite[sprite[objIndex].extra].data3 = value;
                 switch (sprite[objIndex].type) {
-                    case kDudeModernCustom:
-                    case kDudeModernCustomBurning:
-                        xsprite[sprite[objIndex].extra].sysData1 = value;
-                        break;
+                case kDudeModernCustom:
+                case kDudeModernCustomBurning:
+                    xsprite[sprite[objIndex].extra].sysData1 = value;
+                    break;
                 }
                 return true;
             case 4:
@@ -4250,6 +4297,7 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value, i
             default:
                 return false;
             }
+        }
         case 0:
             xsector[sector[objIndex].extra].data = value;
             return true;

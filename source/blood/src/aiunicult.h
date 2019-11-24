@@ -26,9 +26,40 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "eventq.h"
 
 BEGIN_BLD_NS
-
-#define kDefaultAnimationBase 11520
+#define kGenDudeDefaultSeq 11520
 #define kGenDudeMaxSlaves 7
+#define kGenDudeTransformStatus -222
+#define kGenDudeUpdTimeRate 10
+#define kGenDudeMaxMeleeDist 2048
+
+enum {
+kGenDudeSeqIdleL            = 0,
+kGenDudeSeqDeathDefault     = 1,
+kGenDudeSeqDeathExplode     = 2,
+kGenDudeSeqBurning          = 3,
+kGenDudeSeqElectocuted      = 4,
+kGenDudeSeqRecoil           = 5,
+kGenDudeSeqAttackNormalL    = 6,
+kGenDudeSeqAttackThrow      = 7,
+kGenDudeSeqAttackNormalDW   = 8,
+kGenDudeSeqMoveL            = 9,
+kGenDudeSeqAttackPunch      = 10,
+kGenDudeSeqReserved1        = 11,
+kGenDudeSeqReserved2        = 12,
+kGenDudeSeqMoveW            = 13,
+kGenDudeSeqMoveD            = 14,
+kGenDudeSeqDeathBurn1       = 15,
+kGenDudeSeqDeathBurn2       = 16,
+kGenDudeSeqIdleW            = 17,
+kGenDudeSeqTransform        = 18,
+kGenDudeSeqReserved3        = 19,
+kGenDudeSeqReserved4        = 20,
+kGenDudeSeqReserved5        = 21,
+kGenDudeSeqReserved6        = 22,
+kGenDudeSeqReserved7        = 23,
+kGenDudeSeqReserved8        = 24,
+kGenDudeSeqMax                  ,
+};
 
 enum {
 kGenDudeSndTargetSpot       = 0,
@@ -48,44 +79,47 @@ kGenDudeSndMax                  ,
 enum {
 kGenDudePropertyAll         = 0,
 kGenDudePropertyWeapon      = 1,
-kGenDudePropertyDamage      = 2,
+kGenDudePropertyDmgScale    = 2,
 kGenDudePropertyMass        = 3,
 kGenDudePropertyAttack      = 4,
 kGenDudePropertyStates      = 5,
 kGenDudePropertyLeech       = 6,
 kGenDudePropertySlaves      = 7,
-kGenDudePropertyMelee       = 8,
-kGenDudePropertyClipdist    = 9,
+kGenDudePropertySpriteSize  = 8,
+kGenDudePropertyInitVals    = 9,
 kGenDudePropertyMax            ,
 };
 
-
-extern AISTATE GDXGenDudeIdleL;
-extern AISTATE GDXGenDudeIdleW;
-extern AISTATE GDXGenDudeSearchL;
-extern AISTATE GDXGenDudeSearchW;
-extern AISTATE GDXGenDudeGotoL;
-extern AISTATE GDXGenDudeGotoW;
-extern AISTATE GDXGenDudeDodgeL;
-extern AISTATE GDXGenDudeDodgeD;
-extern AISTATE GDXGenDudeDodgeW;
-extern AISTATE GDXGenDudeDodgeDmgL;
-extern AISTATE GDXGenDudeDodgeDmgD;
-extern AISTATE GDXGenDudeDodgeDmgW;
-extern AISTATE GDXGenDudeChaseL;
-extern AISTATE GDXGenDudeChaseD;
-extern AISTATE GDXGenDudeChaseW;
-extern AISTATE GDXGenDudeFireL;
-extern AISTATE GDXGenDudeFireD;
-extern AISTATE GDXGenDudeFireW;
-extern AISTATE GDXGenDudeRecoilL;
-extern AISTATE GDXGenDudeRecoilD;
-extern AISTATE GDXGenDudeRecoilW;
-extern AISTATE GDXGenDudeThrow;
-extern AISTATE GDXGenDudeThrow2;
-extern AISTATE GDXGenDudePunch;
-extern AISTATE GDXGenDudeRTesla;
-extern AISTATE GDXGenDudeTransform;
+extern AISTATE genDudeIdleL;
+extern AISTATE genDudeIdleW;
+extern AISTATE genDudeSearchL;
+extern AISTATE genDudeSearchW;
+extern AISTATE genDudeGotoL;
+extern AISTATE genDudeGotoW;
+extern AISTATE genDudeDodgeL;
+extern AISTATE genDudeDodgeD;
+extern AISTATE genDudeDodgeW;
+extern AISTATE genDudeDodgeShortL;
+extern AISTATE genDudeDodgeShortD;
+extern AISTATE genDudeDodgeShortW;
+extern AISTATE genDudeChaseL;
+extern AISTATE genDudeChaseD;
+extern AISTATE genDudeChaseW;
+extern AISTATE genDudeFireL;
+extern AISTATE genDudeFireD;
+extern AISTATE genDudeFireW;
+extern AISTATE genDudeRecoilL;
+extern AISTATE genDudeRecoilD;
+extern AISTATE genDudeRecoilW;
+extern AISTATE genDudeThrow;
+extern AISTATE genDudeThrow2;
+extern AISTATE genDudePunch;
+extern AISTATE genDudeRecoilTesla;
+extern AISTATE genDudeSearchNoWalkL;
+extern AISTATE genDudeSearchNoWalkW;
+extern AISTATE genDudeChaseNoWalkL;
+extern AISTATE genDudeChaseNoWalkD;
+extern AISTATE genDudeChaseNoWalkW;
 
 struct GENDUDESND
 {
@@ -93,6 +127,7 @@ struct GENDUDESND
     int randomRange;
     int sndIdOffset;  // relative to data3
     bool aiPlaySound; // false = sfxStart3DSound();
+    bool interruptable;
 };
 
 extern GENDUDESND gCustomDudeSnd[];
@@ -105,29 +140,41 @@ struct GENDUDEEXTRA {
     unsigned short curWeapon;       // data1 duplicate to avoid potential problems when changing data dynamically
     unsigned short baseDispersion;
     signed short nLifeLeech;        // spritenum of dropped dude's leech
-    short dmgControl[kDamageMax];   // depends of current weapon, drop armor item and sprite yrepeat
-    short slave[kGenDudeMaxSlaves]; // index of the ones dude is summon
     short slaveCount;
+    short slave[kGenDudeMaxSlaves]; // index of the ones dude is summon
+    short dmgControl[kDamageMax];           // depends of current weapon, drop armor item, sprite yrepeat and surface type
+    short availDeaths[kDamageMax];          // list of seqs with deaths for each damage type
+    short initVals[3];                      // xrepeat, yrepeat, clipdist
+    bool forcePunch;                        // indicate if there is no fire trigger in punch state seq
     bool updReq[kGenDudePropertyMax]; // update requests
+    bool sndPlaying;                        // indicate if sound of AISTATE currently playing
     bool isMelee;
+    bool canBurn;                           // can turn in Burning dude or not
+    bool canElectrocute;
+    bool canAttack;
+    bool canRecoil;
     bool canWalk;
     bool canDuck;
     bool canSwim;
     bool canFly;
-
 };
 
 extern GENDUDEEXTRA gGenDudeExtra[];
+
+inline GENDUDEEXTRA* genDudeExtra(spritetype* pSprite) {
+    return &gGenDudeExtra[pSprite->index];
+}
 
 XSPRITE* getNextIncarnation(XSPRITE* pXSprite);
 void killDudeLeech(spritetype* pLeech);
 void removeLeech(spritetype* pLeech, bool delSprite = true);
 void removeDudeStuff(spritetype* pSprite);
 spritetype* leechIsDropped(spritetype* pSprite);
-bool spriteIsUnderwater(spritetype* pSprite, bool oldWay);
-bool sfxPlayGDXGenDudeSound(spritetype* pSprite, int mode);
+bool spriteIsUnderwater(spritetype* pSprite, bool oldWay = false);
+bool playGenDudeSound(spritetype* pSprite, int mode, bool forceInterrupt = false);
 void aiGenDudeMoveForward(spritetype* pSprite, XSPRITE* pXSprite);
 void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, int aXvel = -1, int aYvel = -1);
+void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState);
 int getGenDudeMoveSpeed(spritetype* pSprite, int which, bool mul, bool shift);
 bool TargetNearThing(spritetype* pSprite, int thingType);
 int checkAttackState(spritetype* pSprite, XSPRITE* pXSprite);
@@ -143,12 +190,16 @@ bool canDuck(spritetype* pSprite);
 bool canWalk(spritetype* pSprite);
 bool inDodge(AISTATE* aiState);
 bool inIdle(AISTATE* aiState);
-int getSeqStartId(XSPRITE* pXSprite);
-int getSeeDist(spritetype* pSprite, int startDist, int minDist, int maxDist);
+bool inAttack(AISTATE* aiState);
+short inRecoil(AISTATE* aiState);
+short inSearch(AISTATE* aiState);
+short inDuck(AISTATE* aiState);
+int genDudeSeqStartId(XSPRITE* pXSprite);
 int getRangeAttackDist(spritetype* pSprite, int minDist = 1200, int maxDist = 80000);
 int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp);
 void scaleDamage(XSPRITE* pXSprite);
-void genDudePrepare(spritetype* pSprite, int propId = kGenDudePropertyAll);
+bool genDudePrepare(spritetype* pSprite, int propId = kGenDudePropertyAll);
 void genDudeUpdate(spritetype* pSprite);
+void genDudeProcess(spritetype* pSprite, XSPRITE* pXSprite);
 
 END_BLD_NS

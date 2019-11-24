@@ -50,10 +50,10 @@ extern AISTATE tinycalebBurnChase;
 extern AISTATE tinycalebBurnGoto;
 extern AISTATE tinycalebBurnSearch;
 extern AISTATE tinycalebBurnAttack;
-extern AISTATE GDXGenDudeBurnIdle;
-extern AISTATE GDXGenDudeBurnChase;
-extern AISTATE GDXGenDudeBurnGoto;
-extern AISTATE GDXGenDudeBurnSearch;
-extern AISTATE GDXGenDudeBurnAttack;
+extern AISTATE genDudeBurnIdle;
+extern AISTATE genDudeBurnChase;
+extern AISTATE genDudeBurnGoto;
+extern AISTATE genDudeBurnSearch;
+extern AISTATE genDudeBurnAttack;
 
 END_BLD_NS

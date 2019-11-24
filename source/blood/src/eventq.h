@@ -40,9 +40,8 @@ kChannelLevelStartCoop,
 kChannelLevelStartTeamsOnly,
 kChannelPlayerDeathTeamA            = 15,
 kChannelPlayerDeathTeamB,
-
-// by NoOne: RX channels of players to send commands on
 /////////////////////////////
+// channels of players to send commands on
 kChannelPlayer0                     = 30,
 kChannelPlayer1,
 kChannelPlayer2,
@@ -52,10 +51,11 @@ kChannelPlayer5,
 kChannelPlayer6,
 kChannelPlayer7,
 kChannelAllPlayers                  = kChannelPlayer0 + kMaxPlayers,
+// channel of event causer
+kChannelEventCauser                 = 50,
+// map requires modern features to work properly
+kChannelMapModernize                = 60,
 /////////////////////////////
-
-kChannelMapModernize                = 60, // map requires modern features to work properly
-
 kChannelTeamAFlagCaptured           = 80,
 kChannelTeamBFlagCaptured,
 kChannelRemoteBomb0                 = 90,
@@ -79,44 +79,44 @@ extern RXBUCKET rxBucket[];
 extern unsigned short bucketHead[];
 
 enum COMMAND_ID {
-    kCmdOff = 0,
-    kCmdOn = 1,
-    kCmdState = 2,
-    kCmdToggle = 3,
-    kCmdNotState = 4,
-    kCmdLink = 5,
-    kCmdLock = 6,
-    kCmdUnlock = 7,
-    kCmdToggleLock = 8,
-    kCmdStopOff = 9,
-    kCmdStopOn = 10,
-    kCmdStopNext = 11,
-    kCmdCounterSector = 12,
-    kCmdCallback = 20,
-    kCmdRepeat = 21,
+kCmdOff                     = 0,
+kCmdOn                      = 1,
+kCmdState                   = 2,
+kCmdToggle                  = 3,
+kCmdNotState                = 4,
+kCmdLink                    = 5,
+kCmdLock                    = 6,
+kCmdUnlock                  = 7,
+kCmdToggleLock              = 8,
+kCmdStopOff                 = 9,
+kCmdStopOn                  = 10,
+kCmdStopNext                = 11,
+kCmdCounterSector           = 12,
+kCmdCallback                = 20,
+kCmdRepeat                  = 21,
 
-    kCmdSpritePush = 30,
-    kCmdSpriteImpact = 31,
-    kCmdSpritePickup = 32,
-    kCmdSpriteTouch = 33,
-    kCmdSpriteSight = 34,
-    kCmdSpriteProximity = 35,
-    kCmdSpriteExplode = 36,
+kCmdSpritePush              = 30,
+kCmdSpriteImpact            = 31,
+kCmdSpritePickup            = 32,
+kCmdSpriteTouch             = 33,
+kCmdSpriteSight             = 34,
+kCmdSpriteProximity         = 35,
+kCmdSpriteExplode           = 36,
 
-    kCmdSectorPush = 40,
-    kCmdSectorImpact = 41,
-    kCmdSectorEnter = 42,
-    kCmdSectorExit = 43,
+kCmdSectorPush              = 40,
+kCmdSectorImpact            = 41,
+kCmdSectorEnter             = 42,
+kCmdSectorExit              = 43,
 
-    kCmdWallPush = 50,
-    kCmdWallImpact = 51,
-    kCmdWallTouch = 52,
+kCmdWallPush                = 50,
+kCmdWallImpact              = 51,
+kCmdWallTouch               = 52,
 
-    kCmdModernUse = 53, // used by most of modern types
-    kCmdNumberic = 64, // 64: 0, 65: 1 and so on up to 255
-    kCmdModernFeaturesEnable = 100, // must be in object with kChannelMapModernize RX / TX
-    kCmdModernFeaturesDisable = 200, // must be in object with kChannelMapModernize RX / TX
-    kCmdNumbericMax = 255,
+kCmdModernUse               = 53, // used by most of modern types
+kCmdNumberic                = 64, // 64: 0, 65: 1 and so on up to 255
+kCmdModernFeaturesEnable    = 100, // must be in object with kChannelMapModernize RX / TX
+kCmdModernFeaturesDisable   = 200, // must be in object with kChannelMapModernize RX / TX
+kCmdNumbericMax             = 255,
 };
 
 inline bool playerRXRngIsFine(int rx) {

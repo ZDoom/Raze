@@ -56,7 +56,7 @@ struct Seq {
     short at8;
     short ata;
     int atc;
-    SEQFRAME frames[1]; // at10
+    SEQFRAME frames[1];
     void Preload(void);
     void Precache(void);
 };
