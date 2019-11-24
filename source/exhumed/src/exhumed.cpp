@@ -460,10 +460,6 @@ int32_t g_groupFileHandle;
 
 static struct strllist *CommandPaths, *CommandGrps;
 
-void G_ExtPreInit(int32_t argc,char const * const * argv)
-{
-}
-
 void G_ExtInit(void)
 {
 }
@@ -651,7 +647,6 @@ int8_t vely[97 * 106];
 short nMouthTile;
 
 short nPupData = 0;
-int headfd = -1;
 
 short word_964E8 = 0;
 short word_964EA = 0;
@@ -679,7 +674,6 @@ short nBackgroundPic;
 short nShadowPic;
 
 short nCreaturesLeft = 0;
-short bNoSound = kFalse;
 
 short nFreeze;
 short bFullScreen;
@@ -798,9 +792,6 @@ int bVanilla = 0;
 char debugBuffer[256];
 
 short wConsoleNode; // TODO - move me into network file
-
-int mouseaiming, aimmode, mouseflip;
-int runkey_mode, auto_run;
 
 ClockTicks tclocks, tclocks2;
 
@@ -1567,10 +1558,10 @@ void DrawClock()
 {
     int ebp = 49;
 
-    tileLoad(kTile3603);
+	auto pixels = TileFiles.tileMakeWritable(kTile3603);
 
 //    nRedTicks = 0;
-    memset((void*)waloff[kTile3603], -1, 4096);
+    memset(pixels, -1, 4096);
 
     if (lCountDown / 30 != nClockVal)
     {
@@ -1622,8 +1613,6 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
 #endif
     return clamp(tabledivide64(65536*elapsedFrames*30, rfreq), 0, 65536);
 }
-
-int r_showfps;
 
 #define COLOR_RED redcol
 #define COLOR_WHITE whitecol
@@ -1773,111 +1762,25 @@ static int32_t check_filename_casing(void)
 }
 #endif
 
-int32_t r_maxfps = 60;
 int32_t r_maxfpsoffset = 0;
 double g_frameDelay = 0.0;
 
-int G_FPSLimit(void)
-{
-    if (!r_maxfps)
-        return 1;
-
-    static double   nextPageDelay;
-    static uint64_t lastFrameTicks;
-
-    uint64_t const frameTicks   = timerGetTicksU64();
-    uint64_t const elapsedTime  = frameTicks - lastFrameTicks;
-    double const   dElapsedTime = elapsedTime;
-
-    if (dElapsedTime >= floor(nextPageDelay))
-    {
-        if (dElapsedTime <= nextPageDelay+g_frameDelay)
-            nextPageDelay += g_frameDelay-dElapsedTime;
-
-        lastFrameTicks = frameTicks;
-
-        return 1;
-    }
-
-    return 0;
-}
-
 static int32_t nonsharedtimer;
 
-int app_main(int argc, char const* const* argv)
+void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
 {
-    char tempbuf[256];
-#ifdef _WIN32
-#ifndef DEBUGGINGAIDS
-    if (!G_CheckCmdSwitch(argc, argv, "-noinstancechecking") && !windowsCheckAlreadyRunning())
-    {
-#ifdef EDUKE32_STANDALONE
-        if (!wm_ynbox(APPNAME, "It looks like " APPNAME " is already running.\n\n"
-#else
-        if (!wm_ynbox(APPNAME, "It looks like the game is already running.\n\n"
-#endif
-                      "Are you sure you want to start another copy?"))
-            return 3;
-    }
-#endif
+	// Check for any command line arguments
+	for (int i = 1; i < argc; i++)
+	{
+		const char* pChar = argv[i];
 
-#ifndef USE_PHYSFS
-#ifdef DEBUGGINGAIDS
-    extern int32_t (*check_filename_casing_fn)(void);
-    check_filename_casing_fn = check_filename_casing;
-#endif
-#endif
-#endif
+		if (*pChar == '/')
+		{
+			pChar++;
+			//strlwr(pChar);
 
-    G_ExtPreInit(argc, argv);
-
-    OSD_SetLogFile(APPBASENAME ".log");
-
-    OSD_SetFunctions(NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     GAME_clearbackground,
-                     BGetTime,
-                     GAME_onshowosd);
-
-    wm_setapptitle(APPNAME);
-
-    initprintf("Exhumed %s\n", s_buildRev);
-    PrintBuildInfo();
-
-    int i;
-
-
-    //int esi = 1;
-    //int edi = esi;
-    int doTitle = kTrue; // REVERT kTrue;
-    int stopTitle = kFalse;
-    levelnew = 1;
-
-    // REVERT - change back to kTrue
-//	short bDoTitle = kFalse;
-
-    wConsoleNode = 0;
-
-    int nMenu = 0; // TEMP
-
-    // Check for any command line arguments
-    for (i = 1; i < argc; i++)
-    {
-        const char *pChar = argv[i];
-
-        if (*pChar == '/')
-        {
-            pChar++;
-            //strlwr(pChar);
-
-            if (Bstrcasecmp(pChar, "nocreatures") == 0) {
-                bNoCreatures = kTrue;
-            }
-            else if (Bstrcasecmp(pChar, "nosound") == 0) {
-                bNoSound = kTrue;
+			if (Bstrcasecmp(pChar, "nocreatures") == 0) {
+				bNoCreatures = kTrue;
             }
             else if (Bstrcasecmp(pChar, "record") == 0)
             {
@@ -2014,6 +1917,30 @@ int app_main(int argc, char const* const* argv)
             }
         }
     }
+}
+
+int app_main(int argc, char const* const* argv)
+{
+    char tempbuf[256];
+
+    initprintf("Exhumed %s\n", s_buildRev);
+
+    int i;
+
+
+    //int esi = 1;
+    //int edi = esi;
+    int doTitle = kTrue; // REVERT kTrue;
+    int stopTitle = kFalse;
+    levelnew = 1;
+
+    // REVERT - change back to kTrue
+//	short bDoTitle = kFalse;
+
+    wConsoleNode = 0;
+
+    int nMenu = 0; // TEMP
+
 
     if (nNetPlayerCount && forcelevel == -1) {
         forcelevel = 1;
@@ -2028,15 +1955,6 @@ int app_main(int argc, char const* const* argv)
     if (forcegl) initprintf("GL driver blacklist disabled.\n");
 #endif
 
-    // used with binds for fast function lookup
-    hash_init(&h_gamefuncs);
-    for (bssize_t i=kMaxGameFunctions-1; i>=0; i--)
-    {
-        if (gamefunctions[i][0] == '\0')
-            continue;
-
-        hash_add(&h_gamefuncs,gamefunctions[i],i,0);
-    }
 
 #ifdef STARTUP_SETUP_WINDOW
     int const readSetup =
@@ -2051,68 +1969,7 @@ int app_main(int argc, char const* const* argv)
         Bexit(2);
     }
 
-    if (Bstrcmp(setupfilename, kSetupFilename))
-        initprintf("Using config file \"%s\".\n",setupfilename);
 
-    G_ScanGroups();
-
-#ifdef STARTUP_SETUP_WINDOW
-    if (readSetup < 0 || (!g_noSetup && gSetup.forcesetup) || g_commandSetup)
-    {
-        if (quitevent || !startwin_run())
-        {
-            engineUnInit();
-            Bexit(0);
-        }
-    }
-#endif
-
-    G_LoadGroups(!g_noAutoLoad && !gSetup.noautoload);
-
-    // Decrypt strings code would normally be here
-#if 0
-
-    for (int i = 0; ; i++)
-    {
-        int j = i - 1;
-
-        while (j >= 0)
-        {
-            if (gString_Enc[i] == gString_Enc[j]) {
-                break;
-            }
-
-            j--;
-        }
-
-        if (j < 0)
-        {
-            int k = 0;
-
-            while (1)
-            {
-                uint8_t v27 = gString_Enc[i + k];
-                if (v27)
-                {
-                    gString_Enc[i + k] = v27 ^ 0xFF;
-
-                    k++;
-                }
-                else {
-                    break;
-                }
-
-
-            }
-
-//			strupr(gString[j]);
-
-            int blah = 123;
-//			if (!strcmp(*(char **)((char *)gString + v29), "EOF", v27, v30))
-//				break;
-        }
-    }
-#endif
 
     // loc_115F5:
     nItemTextIndex = FindGString("ITEMS");
@@ -2129,32 +1986,12 @@ int app_main(int argc, char const* const* argv)
 
     // GetCurPal(NULL);
 
-    CONFIG_WriteSetup(1);
-    CONFIG_ReadSetup();
-
     initprintf("Initializing OSD...\n");
 
     Bsprintf(tempbuf, "Exhumed %s", s_buildRev);
-    OSD_SetVersion(tempbuf, 10,0);
-    OSD_SetParameters(0, 0, 0, 0, 0, 0, OSD_ERROR, OSDTEXT_RED, gamefunctions[gamefunc_Show_Console][0] == '\0' ? OSD_PROTECTED : 0);
     registerosdcommands();
 
     SetupInput();
-
-    char *const setupFileName = Xstrdup(setupfilename);
-    char *const p = strtok(setupFileName, ".");
-
-    if (!p || !Bstrcmp(setupfilename, kSetupFilename))
-        Bsprintf(tempbuf, "settings.cfg");
-    else
-        Bsprintf(tempbuf, "%s_settings.cfg", p);
-
-    Xfree(setupFileName);
-
-    OSD_Exec(tempbuf);
-    OSD_Exec("autoexec.cfg");
-
-    CONFIG_SetDefaultKeys(keydefaults, true);
 
     system_getcvars();
 
@@ -2290,8 +2127,8 @@ MENU:
         bInDemo = kTrue;
         bPlayback = kTrue;
 
-        KB_FlushKeyboardQueue();
-        KB_ClearKeysDown();
+        inputState.keyFlushChars();
+        inputState.ClearAllKeyStatus();
         break;
     }
 STARTGAME1:
@@ -2400,8 +2237,8 @@ LOOP3:
             {
                 EraseScreen(overscanindex);
                 Query(2, 0, "Insert CD into drive", "(ESC to abort)");
-                KB_ClearKeysDown();
-                if (KB_GetCh() == asc_Escape) {
+                inputState.ClearAllKeyStatus();
+                if (inputState.keyGetChar() == asc_Escape) {
                     I_Error("Aborted\n");
                 }
             }
@@ -2509,10 +2346,10 @@ LOOP3:
             if (bPlayback)
             {
                 // YELLOW
-                if ((bInDemo && KB_KeyWaiting() || !ReadPlaybackInputs()) && KB_GetCh())
+                if ((bInDemo && inputState.keyBufferWaiting() || !ReadPlaybackInputs()) && inputState.keyGetChar())
                 {
-                    KB_FlushKeyboardQueue();
-                    KB_ClearKeysDown();
+                    inputState.keyFlushChars();
+                    inputState.ClearAllKeyStatus();
 
                     bPlayback = kFalse;
                     bInDemo = kFalse;
@@ -2657,9 +2494,9 @@ LOOP3:
         }
         if (!bInDemo)
         {
-            if (buttonMap.ButtonDown(gamefunc_Escape))
+            if (inputState.GetKeyStatus(sc_Escape))
             {
-                buttonMap.ClearButton(gamefunc_Escape);
+				inputState.ClearKeyStatus(sc_Escape);
 // MENU2:
                 CONTROL_BindsEnabled = 0;
                 bInMove = kTrue;
@@ -2692,11 +2529,6 @@ LOOP3:
                 bInMove = kFalse;
                 CONTROL_BindsEnabled = 1;
                 RefreshStatus();
-            }
-            else if (KB_UnBoundKeyPressed(sc_F12))
-            {
-                KB_ClearKeyDown(sc_F12);
-                videoCaptureScreen("captxxxx.png", 0);
             }
             else if (buttonMap.ButtonDown(gamefunc_Map)) // e.g. TAB (to show 2D map)
             {
@@ -3001,7 +2833,8 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
 {
     int nOffs = tilesiz[nDestTile].y * xPos;
 
-    uint8_t *pDest = (uint8_t*)waloff[nDestTile] + nOffs + yPos;
+	auto pixels = TileFiles.tileMakeWritable(nDestTile);
+    uint8_t *pDest = pixels + nOffs + yPos;
     uint8_t *pDestB = pDest;
 
     tileLoad(nSrcTile);
@@ -3009,7 +2842,7 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
     int destYSize = tilesiz[nDestTile].y;
     int srcYSize = tilesiz[nSrcTile].y;
 
-    uint8_t *pSrc = (uint8_t*)waloff[nSrcTile];
+    const uint8_t *pSrc = tilePtr(nSrcTile);
 
     for (int x = 0; x < tilesiz[nSrcTile].x; x++)
     {
@@ -3164,13 +2997,13 @@ int Query(short nLines, short nKeys, ...)
 
     if (nKeys)
     {
-        KB_FlushKeyboardQueue();
+        inputState.keyFlushChars();
 
         while (1)
         {
             HandleAsync();
 
-            char key = toupper(KB_GetCh());
+            char key = toupper(inputState.keyGetChar());
 
             for (i = 0; i < nKeys; i++)
             {
@@ -3196,7 +3029,6 @@ void InitSpiritHead()
 
     nPixels = 0;
 
-    tileLoad(kTileRamsesNormal); // Ramses Normal Head
 
     for (int i = 0; i < kMaxSprites; i++)
     {
@@ -3206,15 +3038,15 @@ void InitSpiritHead()
         }
     }
 
-    uint8_t *pTile = (uint8_t*)waloff[kTileRamsesNormal];
-
+	auto pTile = tilePtr(kTileRamsesNormal); // Ramses Normal Head
+	auto pGold = tilePtr(kTileRamsesGold);
     for (int x = 0; x < 97; x++)
     {
         for (int y = 0; y < 106; y++)
         {
             if (*pTile != 255)
             {
-                pixelval[nPixels] = *(uint8_t*)(waloff[kTileRamsesGold] + x * 106 + y);
+				pixelval[nPixels] = *(pGold + x * 106 + y);
                 origx[nPixels] = x - 48;
                 origy[nPixels] = y - 53;
                 curx[nPixels] = 0;
@@ -3241,7 +3073,6 @@ void InitSpiritHead()
         }
     }
 
-    waloff[kTileRamsesWorkTile] = (intptr_t)worktile;
 
     sprite[nSpiritSprite].yrepeat = 140;
     sprite[nSpiritSprite].xrepeat = 140;
@@ -3250,8 +3081,7 @@ void InitSpiritHead()
     nHeadStage = 0;
 
     // work tile is twice as big as the normal head size
-    tilesiz[kTileRamsesWorkTile].x = 97  * 2; // 194;
-    tilesiz[kTileRamsesWorkTile].y = 106 * 2; // 212;
+	TileFiles.tileSetExternal(kTileRamsesWorkTile, 97 * 2, 106 * 2, worktile);
 
     sprite[nSpiritSprite].cstat &= 0x7FFF;
 
@@ -3285,11 +3115,16 @@ void InitSpiritHead()
     lNextStateChange = (int)totalclock;
     lHeadStartClock = (int)totalclock;
 
-    headfd = kopen4load(filename, 512); // 512??
-    nPupData = kread(headfd, cPupData, sizeof(cPupData));
-    pPupData = cPupData;
-    kclose(headfd);
-    headfd = -1;
+	auto headfd = kopenFileReader(filename, 512); // 512??
+	if (!headfd.isOpen())
+	{
+		memset(cPupData, 0, sizeof(cPupData));
+	}
+	else
+	{
+		nPupData = headfd.Read(cPupData, sizeof(cPupData));
+		pPupData = cPupData;
+	}
     nMouthTile = 0;
     nTalkTime = 1;
 }
@@ -3317,9 +3152,7 @@ void DimSector(short nSector)
 
 void CopyHeadToWorkTile(short nTile)
 {
-    tileLoad(nTile);
-
-    uint8_t *pSrc = (uint8_t*)waloff[nTile];
+	const uint8_t* pSrc = tilePtr(nTile);
     uint8_t *pDest = (uint8_t*)&worktile[212 * 49 + 53];
 
     for (int i = 0; i < 97; i++)
@@ -3670,11 +3503,9 @@ int DoSpiritHead()
 
         ebx += word_964EA;
 
-        tileLoad(ebx);
-
         // TODO - fixme. How big is worktile?
         uint8_t *pDest = (uint8_t*)&worktile[10441];
-        uint8_t *pSrc = (uint8_t*)waloff[ebx];
+		const uint8_t* pSrc = tilePtr(ebx);
 
         for (int i = 0; i < 97; i++)
         {
@@ -3697,8 +3528,6 @@ int DoSpiritHead()
 
         if (nMouthTile)
         {
-            tileLoad(nMouthTile + 598);
-
             short nTileSizeX = tilesiz[nMouthTile + 598].x;
             short nTileSizeY = tilesiz[nMouthTile + 598].y;
 
@@ -3707,7 +3536,7 @@ int DoSpiritHead()
 //			pDest += (212 * (97 - nTileSizeX / 2)) + (159 - nTileSizeY);
 
             uint8_t *pDest = (uint8_t*)&worktile[212 * (97 - nTileSizeX / 2)] + (159 - nTileSizeY);
-            uint8_t *pSrc = (uint8_t*)waloff[nMouthTile + 598];
+            const uint8_t *pSrc = tilePtr(nMouthTile + 598);
 
             while (nTileSizeX > 0)
             {

@@ -84,20 +84,19 @@ int LoadPaletteLookups()
 
     for (int i = 0; i < kMaxGrads; i++)
     {
-        int hFile = kopen4load(GradList[i], 1);
-        if (hFile == -1)
+        auto hFile = kopenFileReader(GradList[i], 1);
+        if (!hFile.isOpen())
         {
             initprintf("Error reading palette lookup '%s'\n", GradList[i]);
             return 0;
         }
 
-        kread(hFile, buffer, 256*64);
+        hFile.Read(buffer, 256*64);
         // TODO: dumb hack
         if (palookup[i])
             ALIGNED_FREE_AND_NULL(palookup[i]);
         paletteSetLookupTable(i, buffer);
-        kclose(hFile);
-
+        
         // origpalookup[i] = palookup[i];
         bGreenPal = 0;
 

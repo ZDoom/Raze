@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "trigdat.h"
 #include "runlist.h"
+#include "input.h"
 #include <string.h>
 
 BEGIN_PS_NS
@@ -586,8 +587,9 @@ void DrawView(int smoothRatio)
                 }
                 else
                 {
-                    if ((bSubTitles && !AdvanceCinemaText()) || KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Return] || KB_KeyDown[sc_Space])
+                    if ((bSubTitles && !AdvanceCinemaText()) || I_AdvanceTrigger())
                     {
+						I_AdvanceTriggerClear();
                         levelnew = levelnum + 1;
 
                         if (CDplaying())

@@ -559,7 +559,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         }
     }
 
-    renderEnableFog();
+    //renderEnableFog();
 
     videoSetCorrectedAspect();
 

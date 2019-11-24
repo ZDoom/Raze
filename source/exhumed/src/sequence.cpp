@@ -166,35 +166,32 @@ int seq_ReadSequence(const char *seqName)
     strcat(buffer, seqName);
     strcat(buffer, ".seq");
 
-    int hFile = kopen4load(buffer, 1);
-    if (hFile == -1)
+    auto hFile = kopenFileReader(buffer, 1);
+    if (!hFile.isOpen())
     {
         initprintf("Unable to open '%s'!\n", buffer);
-        kclose(hFile);
         return 0;
     }
 
     short tag;
-    kread(hFile, &tag, sizeof(tag));
+    hFile.Read(&tag, sizeof(tag));
     if (tag < 'HI' || tag > 'HI' && tag != 'SD')
     {
         initprintf("Unsupported sequence version!\n");
-        kclose(hFile);
         return 0;
     }
 
     short centerx, centery; // TODO - are global vars?
     short nSeqs;
-    kread(hFile, &centerx, sizeof(centerx));
-    kread(hFile, &centery, sizeof(centery));
-    kread(hFile, &nSeqs, sizeof(nSeqs));
+    hFile.Read(&centerx, sizeof(centerx));
+    hFile.Read(&centery, sizeof(centery));
+    hFile.Read(&nSeqs, sizeof(nSeqs));
 
     if (nSeqs <= 0 || sequences + nSeqs >= kMaxSequences)
     {
         if (nSeqs < 0)
         {
             initprintf("Invalid sequence count!\n");
-            kclose(hFile);
             return 0;
         }
         else {
@@ -202,9 +199,9 @@ int seq_ReadSequence(const char *seqName)
         }
     }
 
-    kread(hFile, &SeqBase[sequences], nSeqs * sizeof(SeqBase[0]));
-    kread(hFile, &SeqSize[sequences], nSeqs * sizeof(SeqSize[0]));
-    kread(hFile, &SeqFlag[sequences], nSeqs * sizeof(SeqFlag[0]));
+    hFile.Read(&SeqBase[sequences], nSeqs * sizeof(SeqBase[0]));
+    hFile.Read(&SeqSize[sequences], nSeqs * sizeof(SeqSize[0]));
+    hFile.Read(&SeqFlag[sequences], nSeqs * sizeof(SeqFlag[0]));
 
     for (i = 0; i < nSeqs; i++)
     {
@@ -214,14 +211,13 @@ int seq_ReadSequence(const char *seqName)
     short vdi = frames;
 
     int16_t nFrames;
-    kread(hFile, &nFrames, sizeof(nFrames));
+    hFile.Read(&nFrames, sizeof(nFrames));
 
     if (nFrames <= 0 || frames + nFrames >= kMaxSEQFrames)
     {
         if (nFrames < 0 )
         {
             initprintf("Invalid frame count!\n");
-            kclose(hFile);
             return 0;
         }
         else {
@@ -229,9 +225,9 @@ int seq_ReadSequence(const char *seqName)
         }
     }
 
-    kread(hFile, &FrameBase[frames], nFrames * sizeof(FrameBase[0]));
-    kread(hFile, &FrameSize[frames], nFrames * sizeof(FrameSize[0]));
-    kread(hFile, &FrameFlag[frames], nFrames * sizeof(FrameFlag[0]));
+    hFile.Read(&FrameBase[frames], nFrames * sizeof(FrameBase[0]));
+    hFile.Read(&FrameSize[frames], nFrames * sizeof(FrameSize[0]));
+    hFile.Read(&FrameFlag[frames], nFrames * sizeof(FrameFlag[0]));
     memset(&FrameSound[frames], -1,  nFrames * sizeof(FrameSound[0]));
 
     for (i = 0; i < nFrames; i++)
@@ -240,14 +236,13 @@ int seq_ReadSequence(const char *seqName)
     }
 
     int16_t nChunks;
-    kread(hFile, &nChunks, sizeof(nChunks));
+    hFile.Read(&nChunks, sizeof(nChunks));
 
     if (nChunks < 0 || chunks + nChunks >= kMaxSEQChunks)
     {
         if (nChunks < 0 )
         {
             initprintf("Invalid chunk count!\n");
-            kclose(hFile);
             return 0;
         }
         else {
@@ -255,10 +250,10 @@ int seq_ReadSequence(const char *seqName)
         }
     }
 
-    kread(hFile, &ChunkXpos[chunks], nChunks * sizeof(ChunkXpos[0]));
-    kread(hFile, &ChunkYpos[chunks], nChunks * sizeof(ChunkYpos[0]));
-    kread(hFile, &ChunkPict[chunks], nChunks * sizeof(ChunkPict[0]));
-    kread(hFile, &ChunkFlag[chunks], nChunks * sizeof(ChunkFlag[0]));
+    hFile.Read(&ChunkXpos[chunks], nChunks * sizeof(ChunkXpos[0]));
+    hFile.Read(&ChunkYpos[chunks], nChunks * sizeof(ChunkYpos[0]));
+    hFile.Read(&ChunkPict[chunks], nChunks * sizeof(ChunkPict[0]));
+    hFile.Read(&ChunkFlag[chunks], nChunks * sizeof(ChunkFlag[0]));
 
     for (i = 0; i < nChunks; i++)
     {
@@ -275,21 +270,21 @@ int seq_ReadSequence(const char *seqName)
     if (tag == 'SD')
     {
         short var_20;
-        kread(hFile, &var_20, sizeof(var_20));
+        hFile.Read(&var_20, sizeof(var_20));
 
         for (i = 0; i < var_20; i++)
         {
-            kread(hFile, &buffer[i * 10], 8);
+            hFile.Read(&buffer[i * 10], 8);
         }
 
         short var_24;
-        kread(hFile, &var_24, sizeof(var_24));
+        hFile.Read(&var_24, sizeof(var_24));
 
         for (i = 0; i < var_24; i++)
         {
             short var_28, var_2C;
-            kread(hFile, &var_28, sizeof(var_28));
-            kread(hFile, &var_2C, sizeof(var_2C));
+            hFile.Read(&var_28, sizeof(var_28));
+            hFile.Read(&var_2C, sizeof(var_2C));
 
             int hSound = LoadSound(&buffer[(var_2C&0x1FF)*10]);
 
@@ -297,7 +292,6 @@ int seq_ReadSequence(const char *seqName)
         }
     }
 
-    kclose(hFile);
     return nSeqs;
 }
 

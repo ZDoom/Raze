@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cdaudio.h"
 #include "map.h"
 #include "sound.h"
+#include "textures.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -160,29 +161,29 @@ fixed     droll;
 void PlayerInterruptKeys()
 {
     ControlInfo info;
-    CONTROL_ProcessBinds();
-    memset(&info, 0, sizeof(ControlInfo)); // this is done within CONTROL_GetInput() anyway
+	memset(&info, 0, sizeof(ControlInfo)); // this is done within CONTROL_GetInput() anyway
     CONTROL_GetInput(&info);
+	D_ProcessEvents();
 
-    if (MouseDeadZone)
+    if (in_mousedeadzone)
     {
         if (info.mousey > 0)
-            info.mousey = max(info.mousey - MouseDeadZone, 0);
+            info.mousey = max(info.mousey - in_mousedeadzone, 0);
         else if (info.mousey < 0)
-            info.mousey = min(info.mousey + MouseDeadZone, 0);
+            info.mousey = min(info.mousey + in_mousedeadzone, 0);
 
         if (info.mousex > 0)
-            info.mousex = max(info.mousex - MouseDeadZone, 0);
+            info.mousex = max(info.mousex - in_mousedeadzone, 0);
         else if (info.mousex < 0)
-            info.mousex = min(info.mousex + MouseDeadZone, 0);
+            info.mousex = min(info.mousex + in_mousedeadzone, 0);
     }
 
-    if (MouseBias)
+    if (in_mousebias)
     {
         if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, MouseBias);
+            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
         else
-            info.mousex = tabledivide32_noinline(info.mousex, MouseBias);
+            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
     }
 
     if (PlayerList[nLocalPlayer].nHealth == 0)
@@ -194,7 +195,7 @@ void PlayerInterruptKeys()
     }
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = (runkey_mode) ? (buttonMap.ButtonDown(gamefunc_Run) | auto_run) : (auto_run ^ buttonMap.ButtonDown(gamefunc_Run));
+    int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int const turnAmount = playerRunning ? 12 : 8;
     int const keyMove    = playerRunning ? 12 : 6;
     constexpr int const analogTurnAmount = 12;
@@ -217,12 +218,12 @@ void PlayerInterruptKeys()
         q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
     }
 
-    if (aimmode)
+    if (g_MyAimMode)
         q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
     else
         fvel = -(info.mousey >> 6);
 
-    if (mouseflip) q16horz = -q16horz;
+    if (!in_mouseflip) q16horz = -q16horz;
 
     q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
     svel -= info.dx * keyMove / analogExtent;
@@ -607,9 +608,9 @@ void InitPlayerInventory(short nPlayer)
 
     nPlayerScore[nPlayer] = 0;
 
-    tileLoad(kTile3571 + nPlayer);
+    auto pixels = tilePtr(kTile3571 + nPlayer);
 
-    nPlayerColor[nPlayer] = *(uint8_t*)(waloff[nPlayer + kTile3571] + tilesiz[nPlayer + kTile3571].x * tilesiz[nPlayer + kTile3571].y / 2);
+    nPlayerColor[nPlayer] = pixels[tilesiz[nPlayer + kTile3571].x * tilesiz[nPlayer + kTile3571].y / 2];
 }
 
 // done
@@ -2850,7 +2851,7 @@ do_default_b:
                                     FinishLevel();
                                 }
                                 else {
-                                    keySetState(32, 1);
+                                    inputState.keySetState(32, 1);
                                 }
 
                                 DestroyItemAnim(nValB);
@@ -3137,13 +3138,13 @@ do_default_b:
                         bPlayerPan = kFalse;
                     }
 
-                    if (aimmode)
+                    if (g_MyAimMode)
                         bLockPan = kTrue;
 
                     // loc_1C05E
                     fix16_t ecx = nDestVertPan[nPlayer] - nVertPan[nPlayer];
 
-                    if (aimmode)
+                    if (g_MyAimMode)
                     {
                         ecx = 0;
                     }

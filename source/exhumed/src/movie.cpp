@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "baselayer.h"
 #include "typedefs.h"
 #include "keyboard.h"
+#include "cache1d.h"
 
 BEGIN_PS_NS
 
@@ -55,7 +56,7 @@ int serve_sample()
 
 palette_t moviepal[256];
 
-int ReadFrame(FILE *fp)
+int ReadFrame(FileReader &fp)
 {
     static int nFrame = 0;
     Printf("Reading frame %d...\n", nFrame);
@@ -71,11 +72,11 @@ int ReadFrame(FILE *fp)
 
     while (1)
     {
-        if (fread(&nType, 1, sizeof(nType), fp) == 0) {
+        if (fp.Read(&nType, sizeof(nType)) == 0) {
             return 0;
         }
 
-        fread(&nSize, sizeof(nSize), 1, fp);
+		fp.Read(&nSize, sizeof(nSize));
 
         nType--;
         if (nType > 3) {
@@ -86,8 +87,8 @@ int ReadFrame(FILE *fp)
         {
             case kFramePalette:
             {
-                fread(palette, sizeof(palette[0]), sizeof(palette) / sizeof(palette[0]), fp);
-                fread(&var_1C, sizeof(var_1C), 1, fp);
+                fp.Read(palette, sizeof(palette));
+                fp.Read(&var_1C, sizeof(var_1C));
 
                 for (auto &c : palette)
                     c <<= 2;
@@ -102,7 +103,7 @@ int ReadFrame(FILE *fp)
             {
                 Printf("Reading sound block size %d...\n", nSize);
                 // TODO - just skip for now
-                fseek(fp, nSize, SEEK_CUR);
+                fp.Seek(nSize, FileReader::SeekCur);
                 continue;
             }
             case kFrameImage:
@@ -114,22 +115,22 @@ int ReadFrame(FILE *fp)
 
                 uint8_t *pFrame = CurFrame;
 
-                int nRead = fread(&yOffset, 1, sizeof(yOffset), fp);
+                int nRead = fp.Read(&yOffset, sizeof(yOffset));
                 nSize -= nRead;
 
                 pFrame += yOffset * 200; // row position
 
                 while (nSize > 0)
                 {
-                    fread(&xOffset, sizeof(xOffset), 1, fp);
-                    fread(&nPixels, sizeof(nPixels), 1, fp);
+                    fp.Read(&xOffset, sizeof(xOffset));
+                    fp.Read(&nPixels, sizeof(nPixels));
                     nSize -= 2;
 
                     pFrame += xOffset;
 
                     if (nPixels)
                     {
-                        int nRead = fread(pFrame, 1, nPixels, fp);
+                        int nRead = fp.Read(pFrame, nPixels);
                         pFrame += nRead;
                         nSize -= nRead;
                     }
@@ -150,11 +151,12 @@ int ReadFrame(FILE *fp)
 
 void PlayMovie(const char *fileName)
 {
-    char buffer[256];
-
     int bDoFade = 1;
 
-    if (bNoCDCheck)
+#if 0	// What's the point of preserving this? Let's just read the movie from the game directory and ignore the other locations!
+	char buffer[256];
+
+	if (bNoCDCheck)
     {
         sprintf(buffer, "C:\\PS\\%s", fileName);
     }
@@ -167,10 +169,7 @@ void PlayMovie(const char *fileName)
         sprintf(buffer, "%c:%s", driveLetter, fileName);
     }
 
-    tileLoad(kMovieTile);
-    CurFrame = (uint8_t*)waloff[kMovieTile];
-
-    FILE *fp = fopen(buffer, "rb");
+	FILE *fp = fopen(buffer, "rb");
     if (fp == NULL)
     {
         Printf("Can't open movie file '%s' on CD-ROM\n", buffer);
@@ -181,16 +180,28 @@ void PlayMovie(const char *fileName)
             return;
         }
     }
+#else
+	auto fp = kopenFileReader(fileName, 0);
+	if (!fp.isOpen())
+	{
+		Printf("Unable to open %s\n", fileName);
+		return;
+	}
+#endif
 
-    fread(lh, sizeof(lh), 1, fp);
+	tileLoad(kMovieTile);
+	CurFrame = TileFiles.tileMakeWritable(kMovieTile);
+
+
+    fp.Read(lh, sizeof(lh));
     memset(streambuf, 0, sizeof(streambuf));
     memset(byte_1C6DF5, 0, sizeof(byte_1C6DF5));
 
     // sound stuff
 
     // clear keys
-    KB_FlushKeyboardQueue();
-    KB_ClearKeysDown();
+    inputState.keyFlushChars();
+    inputState.ClearAllKeyStatus();
 
     if (bDoFade) {
         StartFadeIn();
@@ -203,7 +214,7 @@ void PlayMovie(const char *fileName)
 
     if (ReadFrame(fp))
     {
-        while (!KB_KeyWaiting())
+        while (!inputState.keyBufferWaiting())
         {
             handleevents();
 
@@ -231,10 +242,8 @@ void PlayMovie(const char *fileName)
         }
     }
 
-    if (KB_KeyWaiting()) {
-        KB_GetCh();
+    if (inputState.keyBufferWaiting()) {
+        inputState.keyGetChar();
     }
-
-    fclose(fp);
 }
 END_PS_NS

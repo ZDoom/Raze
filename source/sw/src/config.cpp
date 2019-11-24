@@ -56,22 +56,6 @@ BEGIN_SW_NS
 
 int32_t NumberPlayers,CommPort,PortSpeed,IrqNumber,UartAddress;
 
-//
-// Sound variables
-//
-
-
-int32_t UseMouse = 1, UseJoystick = 0;
-
-
-//
-// Screen variables
-//
-
-
-
-
-
 /*
 ===================
 =

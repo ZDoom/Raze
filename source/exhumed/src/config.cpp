@@ -45,10 +45,7 @@ unsigned int dword_1B82E0 = 0;
 
 int32_t FXVolume;
 int32_t MusicVolume;
-int32_t MixRate;
 int32_t MidiPort;
-int32_t NumVoices;
-int32_t NumChannels;
 int32_t NumBits;
 int32_t ReverseStereo;
 int32_t MusicDevice;
@@ -59,8 +56,6 @@ int32_t scripthandle;
 int32_t setupread;
 // TODO: implement precaching toggle
 int32_t useprecache;
-int32_t MouseDeadZone, MouseBias;
-int32_t SmoothInput;
 
 void CONFIG_SetDefaults()
 {
@@ -87,26 +82,13 @@ void CONFIG_SetDefaults()
 
     // currently settings.cfg is only read after the startup window launches the game,
     // and rereading binds might be fickle so just enable this
-    gSetup.usejoystick = 1;
-
     gSetup.forcesetup = 1;
     gSetup.noautoload = 1;
     gSetup.fullscreen = 1;
-    gSetup.usemouse = 1;
 
-    MixRate = 44100;
     FXVolume = 255;
     MusicVolume = 255;
-    NumChannels = 2;
     NumBits = 16;
-    NumVoices = 32;
-
-    mouseaiming = 0;
-    aimmode = 1;
-    mouseflip = 1;
-    runkey_mode = 0;
-    auto_run = 1;
-
 }
 
 int CONFIG_ReadSetup(void)

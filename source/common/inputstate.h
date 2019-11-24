@@ -239,7 +239,7 @@ public:
 
 	void ClearKeysDown(void)
 	{
-		KB_LastScan = 0;
+		ClearLastScanCode();
 		ClearAllKeyStatus();
 	}
 	

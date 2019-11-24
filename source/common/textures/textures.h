@@ -583,7 +583,7 @@ inline uint8_t* tileData(int num)
 	return tex->GetWritableBuffer();
 }
 
-// Some hacks to allow accessing the no lpnger existing arrays as if they still were arrays to avoid changing hundreds of lines of code.
+// Some hacks to allow accessing the no longer existing arrays as if they still were arrays to avoid changing hundreds of lines of code.
 struct TileSiz
 {
 	const vec2_16_t &operator[](size_t index)

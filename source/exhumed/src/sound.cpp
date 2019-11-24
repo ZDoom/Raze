@@ -293,7 +293,7 @@ void CalcASSPan(int nPan, int nVolume, int *pLeft, int *pRight)
     *pRight = mulscale6(nPanTable[127-nPan], nVolume);
 }
 
-void ASSCallback(uint32_t num)
+void ASSCallback(intptr_t num)
 {
     // TODO: add mutex?
     if ((int32_t)num == -1)
@@ -345,10 +345,10 @@ void InitFX(void)
 
     dig = 0;
 
-    if (bNoSound)
+    if (!SoundEnabled())
         return;
 
-    if (FX_Init(NumVoices, NumChannels, MixRate, initdata) != FX_Ok)
+    if (FX_Init(snd_numvoices, snd_numchannels, snd_mixrate, initdata) != FX_Ok)
     {
         Printf("Error initializing sound card!\n");
         initprintf("Error initializing sound card!\n");
@@ -395,70 +395,6 @@ void UnInitFX()
     FX_Shutdown();
 }
 
-#if 0
-void InitMusic()
-{
-    if (bNoSound)
-    {
-        mdi = 0;
-        return;
-    }
-
-    mdi = AIL_install_MDI_INI();
-    if (!mdi)
-    {
-        initprintf("AIL_install midi failed\n");
-        return;
-    }
-    S = AIL_allocate_sequence_handle(mdi);
-    if (!S)
-    {
-        initprintf("Midi handle failed");
-        return;
-    }
-}
-
-void UnInitMusic()
-{
-    if (mdi)
-        AIL_end_sequence(S);
-}
-
-void FadeSong()
-{
-    AIL_set_sequence_volume(S, 0, 1000);
-}
-
-int LoadSong(const char *song)
-{
-    FILE *f;
-    if (!mdi)
-        return 0;
-
-    AIL_end_sequence(S);
-    f = fopen(song, "rb");
-    if (!f)
-    {
-        sprintf(message_text, "Unable to midi open file '%s'!\n", song);
-        message_timer = 1000;
-        return 0;
-    }
-
-    if (fread(pMusicBuf, sizeof(pMusicBuf), 1, f) == sizeof(pMusicBuf))
-    {
-        sprintf(message_text, "Programmer error: not enough memory allocated for song file.\n");
-        message_timer = 1000;
-        fclose(f);
-        return 0;
-    }
-    fclose(f);
-
-    AIL_init_sequence(S, pMusicBuf, 0);
-    AIL_start_sequence(S);
-    AIL_set_sequence_loop_count(S, 0);
-    AIL_set_sequence_volume(S, gMusicVolume>>1, 0);
-}
-#else
 void InitMusic()
 {
 }
@@ -476,7 +412,6 @@ int LoadSong(const char *song)
     UNREFERENCED_PARAMETER(song);
     return 0;
 }
-#endif
 
 int LoadSound(const char *sound)
 {
@@ -506,29 +441,28 @@ int LoadSound(const char *sound)
 
     strcat(buffer, ".voc");
 
-    buildvfs_kfd hVoc = kopen4loadfrommod(buffer, 0);
+    auto hVoc = kopenFileReader(buffer, 0);
 
-    if (hVoc != buildvfs_kfd_invalid)
+    if (!hVoc.isOpen())
     {
-        int nSize = kfilelength(hVoc);
-        SoundLock[i] = 255; // TODO: implement cache lock properly
+        int nSize = hVoc.GetLength();
+        //SoundLock[i] = 255; // crap we don't need.
         SoundLen[i] = nSize;
-        g_cache.allocateBlock((intptr_t*)&SoundBuf[i], nSize, &SoundLock[i]);
+        cacheAllocateBlock((intptr_t*)&SoundBuf[i], nSize, nullptr);
         if (!SoundBuf[i])
             I_Error("Error allocating buf '%s' to %lld  (size=%ld)!\n", buffer, (intptr_t)&SoundBuf[i], nSize);
 
-        if (kread(hVoc, SoundBuf[i], nSize) != nSize)
-            I_Error("Error reading '%s'!\n", buffer);
+        if (hVoc.Read(SoundBuf[i], nSize) != nSize)
+            Printf("Error reading '%s'!\n", buffer);
     }
     else
     {
-        I_Error("Unable to open sound '%s'!\n", buffer);
+        Printf("Unable to open sound '%s'!\n", buffer);
         SoundBuf[i] = NULL;
         SoundLen[i] = 0;
         //return hVoc;
         return -1;
     }
-    kclose(hVoc);
     nSoundCount++;
     return i;
 }

@@ -213,173 +213,6 @@ uint8_t LoadLevel(int nMap)
         return kFalse;
     }
 
-#if 0
-    {
-        // going to load the map without loadboard() - to take care of version 6 to 7 map conversion
-        //int hFile = kopen4load(fileName_1, 1);
-        int hFile = kopen4load(fileName_1, 0);
-        //	int hFile = open(fileName_1, O_BINARY | O_RDONLY);
-        if (hFile == -1) {
-            return kFalse;
-        }
-
-        int version;
-
-        kread(hFile, &version, sizeof(version));
-        if (version != 6) {
-            bIsVersion6 = kFalse;
-        }
-
-        initspritelists();
-
-        memset(show2dsector, 0, sizeof(show2dsector));
-        memset(show2dsprite, 0, sizeof(show2dsprite));
-        memset(show2dwall,   0, sizeof(show2dwall));
-
-        // replacement for build's loadboard()
-        kread(hFile, &initx, 4);
-        kread(hFile, &inity, 4);
-        kread(hFile, &initz, 4);
-        kread(hFile, &inita, 2);
-        kread(hFile, &initsect, 2);
-
-        // sectors
-        short nSectors;
-        kread(hFile, &nSectors, sizeof(nSectors));
-
-        if (bIsVersion6) {
-            kread(hFile, sector_6, sizeof(Sector_6) * nSectors);
-        }
-        else {
-            kread(hFile, sector, sizeof(SECTOR) * nSectors);
-        }
-
-        // walls
-        short nWalls;
-        kread(hFile, &nWalls, sizeof(nWalls));
-
-        if (bIsVersion6) {
-            kread(hFile, wall_6, sizeof(Wall_6) * nWalls);
-        }
-        else {
-            kread(hFile, wall, sizeof(WALL) * nWalls);
-        }
-
-        // sprites
-        short nSprites;
-        kread(hFile, &nSprites, sizeof(nSprites));
-
-        if (bIsVersion6) {
-            kread(hFile, sprite_6, sizeof(Sprite_6) * nSprites);
-        }
-        else {
-            kread(hFile, sprite, sizeof(SPRITE) * nSprites);
-        }
-
-        // set engine variables
-        numsectors = nSectors;
-        numwalls = nWalls;
-
-        // load in our version 6 structs to the engines v7 structs if required
-        if (bIsVersion6)
-        {
-            for (int nSector = 0; nSector < nSectors; nSector++)
-            {
-                sector[nSector].ceilingz = sector_6[nSector].ceilingz;
-                sector[nSector].floorz = sector_6[nSector].floorz;
-                sector[nSector].wallptr = sector_6[nSector].wallptr;
-                sector[nSector].wallnum = sector_6[nSector].wallnum;
-                sector[nSector].ceilingpicnum = sector_6[nSector].ceilingpicnum;
-                sector[nSector].ceilingheinum = Max(Min(((int)sector_6[nSector].ceilingheinum) << 5, 32767), -32768);
-
-                if ((sector_6[nSector].ceilingstat & 2) == 0) {
-                    sector[nSector].ceilingheinum = 0;
-                }
-
-                sector[nSector].ceilingshade = sector_6[nSector].ceilingshade;
-                sector[nSector].ceilingpal = sector_6[nSector].ceilingpal;
-                sector[nSector].ceilingxpanning = sector_6[nSector].ceilingxpanning;
-                sector[nSector].ceilingypanning = sector_6[nSector].ceilingypanning;
-                sector[nSector].floorpicnum = sector_6[nSector].floorpicnum;
-                sector[nSector].floorheinum = Max(Min(((int)sector_6[nSector].floorheinum) << 5, 32767), -32768);
-
-                if ((sector_6[nSector].floorstat & 2) == 0) {
-                    sector[nSector].floorheinum = 0;
-                }
-
-                sector[nSector].floorshade = sector_6[nSector].floorshade;
-                sector[nSector].floorpal = sector_6[nSector].floorpal;
-                sector[nSector].floorxpanning = sector_6[nSector].floorxpanning;
-                sector[nSector].floorypanning = sector_6[nSector].floorypanning;
-                sector[nSector].ceilingstat = sector_6[nSector].ceilingstat;
-                sector[nSector].floorstat = sector_6[nSector].floorstat;
-                sector[nSector].visibility = sector_6[nSector].visibility;
-                sector[nSector].filler = 0;
-                sector[nSector].lotag = sector_6[nSector].lotag;
-                sector[nSector].hitag = sector_6[nSector].hitag;
-                sector[nSector].extra = sector_6[nSector].extra;
-            }
-
-            for (int nWall = 0; nWall < nWalls; nWall++)
-            {
-                wall[nWall].x = wall_6[nWall].x;
-                wall[nWall].y = wall_6[nWall].y;
-                wall[nWall].point2 = wall_6[nWall].point2;
-                wall[nWall].nextwall = wall_6[nWall].nextwall;
-                wall[nWall].nextsector = wall_6[nWall].nextsector;
-                wall[nWall].cstat = wall_6[nWall].cstat;
-                wall[nWall].picnum = wall_6[nWall].picnum;
-                wall[nWall].overpicnum = wall_6[nWall].overpicnum;
-                wall[nWall].shade = wall_6[nWall].shade;
-                wall[nWall].pal = wall_6[nWall].pal;
-                wall[nWall].xrepeat = wall_6[nWall].xrepeat;
-                wall[nWall].yrepeat = wall_6[nWall].yrepeat;
-                wall[nWall].xpanning = wall_6[nWall].xpanning;
-                wall[nWall].ypanning = wall_6[nWall].ypanning;
-                wall[nWall].lotag = wall_6[nWall].lotag;
-                wall[nWall].hitag = wall_6[nWall].hitag;
-                wall[nWall].extra = wall_6[nWall].extra;
-            }
-
-            for (int nSprite = 0; nSprite < nSprites; nSprite++)
-            {
-                sprite[nSprite].x = sprite_6[nSprite].x;
-                sprite[nSprite].y = sprite_6[nSprite].y;
-                sprite[nSprite].z = sprite_6[nSprite].z;
-                sprite[nSprite].cstat = sprite_6[nSprite].cstat;
-                sprite[nSprite].picnum = sprite_6[nSprite].picnum;
-                sprite[nSprite].shade = sprite_6[nSprite].shade;
-                sprite[nSprite].pal = sprite_6[nSprite].pal;
-                sprite[nSprite].clipdist = sprite_6[nSprite].clipdist;
-                sprite[nSprite].filler = 0;
-                sprite[nSprite].xrepeat = sprite_6[nSprite].xrepeat;
-                sprite[nSprite].yrepeat = sprite_6[nSprite].yrepeat;
-                sprite[nSprite].xoffset = sprite_6[nSprite].xoffset;
-                sprite[nSprite].yoffset = sprite_6[nSprite].yoffset;
-                sprite[nSprite].sectnum = sprite_6[nSprite].sectnum;
-                sprite[nSprite].statnum = sprite_6[nSprite].statnum;
-                sprite[nSprite].ang = sprite_6[nSprite].ang;
-                sprite[nSprite].owner = sprite_6[nSprite].owner;
-                sprite[nSprite].xvel = sprite_6[nSprite].xvel;
-                sprite[nSprite].yvel = sprite_6[nSprite].yvel;
-                sprite[nSprite].zvel = sprite_6[nSprite].zvel;
-                sprite[nSprite].lotag = sprite_6[nSprite].lotag;
-                sprite[nSprite].hitag = sprite_6[nSprite].hitag;
-                sprite[nSprite].extra = sprite_6[nSprite].extra;
-            }
-        }
-
-        for (int nSprite = 0; nSprite < nSprites; nSprite++) {
-            insertsprite(sprite[nSprite].sectnum, sprite[nSprite].statnum);
-        }
-
-        updatesector(initx, inity, &initsect);
-
-        kclose(hFile);
-        hFile = -1;
-    }
-    // loadboard has finished
-#endif
     vec3_t startPos;
     int status = engineLoadBoard(fileName_1, 0, &startPos, &inita, &initsect);
     if (status == -2)
@@ -439,27 +272,9 @@ void ResetEngine()
 void InstallEngine()
 {
     // initgroupfile("stuff.dat");
+	TileFiles.LoadArtSet("tiles%03d.art");
 
-    char *cwd;
-
-    if (g_modDir[0] != '/' && (cwd = buildvfs_getcwd(NULL, 0)))
-    {
-        buildvfs_chdir(g_modDir);
-        if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
-        {
-            buildvfs_chdir(cwd);
-            if (artLoadFiles("tiles000.art", MAXCACHE1DSIZE) < 0)
-                I_Error("Failed loading art.");
-        }
-        buildvfs_chdir(cwd);
-#ifndef __ANDROID__ //This crashes on *some* Android devices. Small onetime memory leak. TODO fix above function
-        Xfree(cwd);
-#endif
-    }
-    else if (artLoadFiles("tiles000.art",MAXCACHE1DSIZE) < 0)
-        I_Error("Failed loading art.");
-
-    // TEMP
+	// TEMP
 
     //nScreenWidth *= 2;
     //nScreenHeight *= 2;
@@ -522,7 +337,6 @@ void InstallEngine()
 void RemoveEngine()
 {
     engineUnInit();
-    uninitgroupfile();
 }
 
 void SetBelow(short nCurSector, short nBelowSector)

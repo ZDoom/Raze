@@ -168,8 +168,8 @@ ClearSpaceBar_
 
 void ClearAllKeys()
 {
-    KB_ClearKeysDown();
-    KB_FlushKeyboardQueue();
+    inputState.ClearAllKeyStatus();
+    inputState.keyFlushChars();
 }
 
 void WaitNoKey(int nSecs, void (*pFunc) (void))

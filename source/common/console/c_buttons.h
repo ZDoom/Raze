@@ -91,8 +91,7 @@ enum GameFunction_t
 
 	gamefunc_Zoom_In,	// Map controls should not pollute the global button namespace.
 	gamefunc_Zoom_Out,
-	gamefunc_Escape,	// this shouldn't be a button.
-
+	
 	NUMGAMEFUNCTIONS
 };
 

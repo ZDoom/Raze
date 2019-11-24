@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "light.h"
 #include "cd.h"
 #include "cdaudio.h"
+#include "input.h"
 #include <string>
 
 #include <assert.h>
@@ -779,9 +780,9 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
         if (curYPos == destYPos)
         {
-            if (KB_KeyDown[sc_UpArrow])
+            if (I_MenuUp())
             {
-                KB_KeyDown[sc_UpArrow] = 0;
+				I_MenuUpClear();
 
                 if (nLevelNew <= nLevelBest)
                 {
@@ -801,9 +802,9 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 }
             }
 
-            if (KB_KeyDown[sc_DownArrow])
-            {
-                KB_KeyDown[sc_DownArrow] = 0;
+			if (I_MenuDown())
+			{
+				I_MenuDownClear();
 
                 if (nLevelNew > 0)
                 {
@@ -823,11 +824,9 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 }
             }
 
-            if (KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Space] || KB_KeyDown[sc_Return])
+			if (I_AdvanceTrigger())
             {
-                KB_KeyDown[sc_Escape] = 0;
-                KB_KeyDown[sc_Return] = 0;
-                KB_KeyDown[sc_Space] = 0;
+				I_AdvanceTriggerClear();
                 return nLevelNew + 1;
             }
         }
@@ -841,15 +840,13 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
             //curYPos += var_2C * (((int)totalclock - moveTimer) / 2);
 
-            if (KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Space] || KB_KeyDown[sc_Return])
-            {
-                if (var_2C < 8) {
+			if (I_AdvanceTrigger())
+			{
+				I_AdvanceTriggerClear();
+				if (var_2C < 8) {
                     var_2C *= 2;
                 }
 
-                KB_KeyDown[sc_Escape] = 0;
-                KB_KeyDown[sc_Return] = 0;
-                KB_KeyDown[sc_Space] = 0;
             }
 
             if (curYPos > destYPos&& var_2C > 0) {
@@ -908,35 +905,31 @@ void menu_AdjustVolume()
 
         videoNextPage();
 
-        if (KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Return] || KB_KeyDown[sc_Space])
-        {
-            PlayLocalSound(StaticSound[kSound33], 0);
-            KB_KeyDown[sc_Escape] = 0;
-            KB_KeyDown[sc_Space]  = 0;
-            KB_KeyDown[sc_Return] = 0;
+		if (I_AdvanceTrigger())
+		{
+			I_AdvanceTriggerClear();
+			PlayLocalSound(StaticSound[kSound33], 0);
             return;
         }
 
-        if (KB_KeyDown[sc_UpArrow])
+        if (I_MenuUp())
         {
+			I_MenuUpClear();
             if (nOption > 0)
             {
                 nOption--;
                 PlayLocalSound(StaticSound[kSound35], 0);
             }
-
-            KB_KeyDown[sc_UpArrow] = 0;
         }
 
-        if (KB_KeyDown[sc_DownArrow])
-        {
-            if (nOption < 1)
+		if (I_MenuDown())
+		{
+			I_MenuDownClear();
+			if (nOption < 1)
             {
                 nOption++;
                 PlayLocalSound(StaticSound[kSound35], 0);
             }
-
-            KB_KeyDown[sc_DownArrow] = 0;
         }
 
         if ((int)totalclock <= var_8) {
@@ -945,9 +938,10 @@ void menu_AdjustVolume()
 
         var_8 = (int)totalclock + 5;
 
-        if (KB_KeyDown[sc_LeftArrow])
-        {
-            switch (nOption)
+		if (I_MenuLeft())
+		{
+			I_MenuLeftClear();
+			switch (nOption)
             {
                 case 0:
                 {
@@ -977,9 +971,10 @@ void menu_AdjustVolume()
             }
         }
 
-        if (KB_KeyDown[sc_RightArrow])
-        {
-            switch (nOption)
+		if (I_MenuRight())
+		{
+			I_MenuRightClear();
+			switch (nOption)
             {
                 case 0:
                 {
@@ -1103,16 +1098,17 @@ int menu_NewGameMenu()
             //    continue;
             //}
 
-            if (KB_KeyDown[sc_Escape])
+            if (I_EscapeTrigger())
             {
                 PlayLocalSound(StaticSound[kSound33], 0);
-                KB_KeyDown[sc_Escape] = 0;
+				I_EscapeTriggerClear();
                 return -1;
             }
 
-            if (KB_KeyDown[sc_UpArrow])
-            {
-                PlayLocalSound(StaticSound[kSound35], 0);
+			if (I_MenuUp())
+			{
+				I_MenuUpClear();
+				PlayLocalSound(StaticSound[kSound35], 0);
                 if (nSlot <= 0) {
                     nSlot = 4;
                 }
@@ -1120,14 +1116,14 @@ int menu_NewGameMenu()
                     nSlot--;
                 }
 
-                KB_KeyDown[sc_UpArrow] = 0;
                 ClearAllKeys();
                 continue;
             }
 
-            if (KB_KeyDown[sc_DownArrow])
-            {
-                PlayLocalSound(StaticSound[kSound35], 0);
+			if (I_MenuDown())
+			{
+				I_MenuDownClear();
+				PlayLocalSound(StaticSound[kSound35], 0);
                 if (nSlot >= 4) {
                     nSlot = 0;
                 }
@@ -1135,12 +1131,11 @@ int menu_NewGameMenu()
                     nSlot++;
                 }
 
-                KB_KeyDown[sc_DownArrow] = 0;
-                ClearAllKeys();
+                inputState.ClearAllKeyStatus();
                 continue;
             }
 
-            if (KB_KeyDown[sc_Return] || KB_KeyWaiting())
+            if (I_AdvanceTrigger() || inputState.keyBufferWaiting())
             {
                 break;
             }
@@ -1148,8 +1143,8 @@ int menu_NewGameMenu()
     }
 
     PlayLocalSound(StaticSound[kSound33], 0);
-    if (KB_KeyDown[sc_Return]) {
-        ClearAllKeys();
+    if (!inputState.keyBufferWaiting()) {
+        inputState.ClearAllKeyStatus();
     }
 
     char *pName = nameList[nSlot];
@@ -1186,14 +1181,14 @@ int menu_NewGameMenu()
         char ch = 0;
 
 check_keys:
-        if (KB_KeyWaiting())
+        if (inputState.keyBufferWaiting())
         {
             HandleAsync();
 
-            ch = KB_GetCh();
+            ch = inputState.keyGetChar();
             if (!ch)
             {
-                KB_GetCh();
+				inputState.keyGetChar();	//???
                 goto check_keys;
             }
 
@@ -1204,7 +1199,7 @@ check_keys:
                 nameList[nSlot][nNameOffset] = 0;
 
                 PlayLocalSound(StaticSound[kSound33], 0);
-                KB_KeyDown[sc_Return] = 0;
+				inputState.ClearKeyStatus(sc_Return);
 
                 if (nameList[nSlot][0] == 0) {
                     return -1;
@@ -1252,9 +1247,8 @@ check_keys:
                 else if (ch == asc_Escape)
                 {
                     PlayLocalSound(StaticSound[kSound33], 0);
-                    KB_ClearKeysDown();
-                    KB_FlushKeyboardQueue();
-                    KB_KeyDown[sc_Escape] = 0;
+                    inputState.ClearAllKeyStatus();
+                    inputState.keyFlushChars();
                     return -1;
                 }
                 else
@@ -1353,15 +1347,16 @@ int menu_LoadGameMenu()
         overwritesprite(233, y, kMenuCursorTile, 0, 10, kPalNormal);
         videoNextPage();
 
-        if (KB_KeyDown[sc_Escape])
+        if (I_EscapeTrigger())
         {
+			I_EscapeTriggerClear();
             PlayLocalSound(StaticSound[kSound33], 0);
-            KB_KeyDown[sc_Escape] = 0;
             return -1;
         }
 
-        if (KB_KeyDown[sc_UpArrow])
+        if (I_MenuUp())
         {
+			I_MenuUpClear();
             PlayLocalSound(StaticSound[kSound35], 0);
             if (nSlot > 0) {
                 nSlot--;
@@ -1369,31 +1364,28 @@ int menu_LoadGameMenu()
             else {
                 nSlot = kMaxSaveSlots - 1;
             }
-
-            KB_KeyDown[sc_UpArrow] = 0;
         }
 
-        if (KB_KeyDown[sc_DownArrow]) // checkme - is 0x5b in disassembly
-        {
-            PlayLocalSound(StaticSound[kSound35], 0);
+		if (I_MenuDown())
+		{
+			I_MenuDownClear();
+			PlayLocalSound(StaticSound[kSound35], 0);
             if (nSlot < kMaxSaveSlots - 1) {
                 nSlot++;
             }
             else {
                 nSlot = 0;
             }
-
-            KB_KeyDown[sc_DownArrow] = 0;
         }
 
-        if (!KB_KeyDown[sc_Return]) {
+		if (!I_AdvanceTrigger()) {
             continue;
         }
 
         PlayLocalSound(StaticSound[kSound33], 0);
-        KB_KeyDown[sc_Return] = 0;
-        KB_ClearKeysDown();
-        KB_FlushKeyboardQueue();
+		I_AdvanceTriggerClear();
+        inputState.ClearAllKeyStatus();
+        inputState.keyFlushChars();
 
         if (nameList[nSlot][0] != '\0')
         {
@@ -1499,15 +1491,13 @@ int menu_Menu(int nVal)
 
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 
-    KB_KeyDown[sc_Escape] = 0;
-
     StopAllSounds();
     StopLocalSound();
 
     menu_ResetKeyTimer();
 
-    KB_FlushKeyboardQueue();
-    KB_ClearKeysDown();
+    inputState.keyFlushChars();
+    inputState.ClearAllKeyStatus();
 
     menu_ResetZoom();
 
@@ -1598,19 +1588,19 @@ int menu_Menu(int nVal)
                 break;
             }
 
-            if (KB_KeyDown[nKey])
+            if (inputState.GetKeyStatus(nKey))
             {
                 goto LABEL_21; // TEMP
             }
         }
 
         // loc_3A0A7
-        while (KB_KeyDown[sc_Escape])
+        while (I_EscapeTrigger())
         {
             HandleAsync();
 
             PlayLocalSound(StaticSound[kSound33], 0);
-            KB_KeyDown[sc_Escape] = 0;
+			I_EscapeTriggerClear();
 
             if (nVal)
             {
@@ -1628,13 +1618,14 @@ LABEL_21:
             if (l != nMenu)
             {
                 PlayLocalSound(StaticSound[kSound35], 0);
-                KB_KeyDown[nMenuKeys[l]] = 0;
+				inputState.ClearKeyStatus(nMenuKeys[l]);
                 nMenu = l;
             }
         }
 
-        if (KB_KeyDown[sc_Space] || KB_KeyDown[sc_Return])
+        if (I_AdvanceTrigger())
         {
+			I_AdvanceTriggerClear();
             var_1C = 1;
         }
         else if (var_1C)
@@ -1731,8 +1722,9 @@ LABEL_21:
             }
         }
 
-        if (KB_KeyDown[sc_UpArrow])
+        if (I_MenuUp())
         {
+			I_MenuUpClear();
             PlayLocalSound(StaticSound[kSound35], 0);
             if (nMenu <= 0) {
                 nMenu = 4;
@@ -1741,13 +1733,13 @@ LABEL_21:
                 nMenu--;
             }
 
-            KB_KeyDown[sc_UpArrow] = 0;
             menu_ResetKeyTimer();
         }
 
-        if (KB_KeyDown[sc_DownArrow]) // FIXME - is this down arrow? value is '5B' in disassembly
-        {
-            PlayLocalSound(StaticSound[kSound35], 0);
+		if (I_MenuDown())
+		{
+			I_MenuDownClear();
+			PlayLocalSound(StaticSound[kSound35], 0);
             if (nMenu >= 4) {
                 nMenu = 0;
             }
@@ -1755,11 +1747,12 @@ LABEL_21:
                 nMenu++;
             }
 
-            KB_KeyDown[sc_DownArrow] = 0;
             menu_ResetKeyTimer();
         }
 
+		
         // TODO - change to #defines
+		/* why are these cleares although they are never used anywhere?
         if (KB_KeyDown[0x5c]) {
             KB_KeyDown[0x5c] = 0;
         }
@@ -1767,6 +1760,7 @@ LABEL_21:
         if (KB_KeyDown[0x5d]) {
             KB_KeyDown[0x5d] = 0;
         }
+		*/
     }
 
     return 0;// todo
@@ -1810,17 +1804,15 @@ int LoadCinemaPalette(int nPal)
 
     // original code strcpy'd into a buffer first...
 
-    int hFile = kopen4load(cinpalfname[nPal], 1);
-    if (hFile < 0) {
+    auto hFile = kopenFileReader(cinpalfname[nPal], 1);
+    if (!hFile.isOpen()) {
         return -2;
     }
 
-    kread(hFile, cinemapal, sizeof(cinemapal));
+    hFile.Read(cinemapal, sizeof(cinemapal));
 
     for (auto &c : cinemapal)
         c <<= 2;
-
-    kclose(hFile);
 
     return nPal;
 }
@@ -1958,7 +1950,9 @@ uint8_t AdvanceCinemaText()
         {
             HandleAsync();
 
-            if (KB_KeyDown[sc_Escape] || KB_KeyDown[sc_Return] || KB_KeyDown[sc_Space]) {
+			if (I_AdvanceTrigger())
+            {
+				I_AdvanceTriggerClear();
                 break;
             }
 
@@ -2229,7 +2223,7 @@ int FindGString(const char *str)
 
 uint8_t CheckForEscape()
 {
-    if (!KB_KeyWaiting() || (KB_GetCh() != 27)) {
+    if (!inputState.keyBufferWaiting() || (inputState.keyGetChar() != 27)) {
         return kFalse;
     }
 
@@ -2240,7 +2234,7 @@ void DoStatic(int a, int b)
 {
     RandomLong(); // nothing done with the result of this?
 
-    tileLoad(kTileLoboLaptop);
+    auto pixels = TileFiles.tileMakeWritable(kTileLoboLaptop);
 
     int v2 = 160 - a / 2;
     int v4 = 81  - b / 2;
@@ -2248,7 +2242,7 @@ void DoStatic(int a, int b)
     int var_18 = v2 + a;
     int v5 = v4 + b;
 
-    uint8_t *pTile = (uint8_t*)(waloff[kTileLoboLaptop] + (200 * v2)) + v4;
+    auto pTile = (pixels + (200 * v2)) + v4;
 
     while (v2 < var_18)
     {
@@ -2267,6 +2261,7 @@ void DoStatic(int a, int b)
         v2++;
     }
 
+	tileInvalidate(kTileLoboLaptop, 0, 0);
     overwritesprite(0, 0, kTileLoboLaptop, 0, 2, kPalNormal);
     videoNextPage();
 }
@@ -2285,17 +2280,17 @@ void DoLastLevelCinema()
 
     PlayLocalSound(StaticSound[kSound75], 0);
 
-    tileLoad(kTileLoboLaptop);
-
-    memcpy((void*)waloff[kTileLoboLaptop], (void*)waloff[kTileLoboLaptop], tilesiz[kTileLoboLaptop].x * tilesiz[kTileLoboLaptop].y);
+	auto pixels = TileFiles.tileMakeWritable(kTileLoboLaptop);
+	// uh, what?
+    //memcpy((void*)waloff[kTileLoboLaptop], (void*)waloff[kTileLoboLaptop], tilesiz[kTileLoboLaptop].x * tilesiz[kTileLoboLaptop].y);
 
     int var_24 = 16;
     int var_28 = 12;
 
     int nEndTime = (int)totalclock + 240;
 
-    while (KB_KeyWaiting()) {
-        KB_GetCh();
+    while (inputState.keyBufferWaiting()) {
+        inputState.keyGetChar();
     }
 
     while (nEndTime > (int)totalclock)
@@ -2315,10 +2310,6 @@ void DoLastLevelCinema()
         DoStatic(var_28, var_24);
     }
 
-//	loadtilelockmode = 1;
-    tileLoad(kTileLoboLaptop);
-//	loadtilelockmode = 0;
-
     // loc_3AD75
 
     do
@@ -2329,8 +2320,6 @@ LABEL_11:
             break;
 
         int esi = nString;
-
-        tileLoad(kTileLoboLaptop);
 
         while (strlen(gString[esi]) != 0)
             esi++;
@@ -2356,6 +2345,7 @@ LABEL_11:
 
             nString++;
 
+			TileFiles.tileMakeWritable(kTileLoboLaptop);
             while (*nChar)
             {
                 HandleAsync();
@@ -2380,8 +2370,8 @@ LABEL_11:
 
         nString++;
 
-        KB_FlushKeyboardQueue();
-        KB_ClearKeysDown();
+        inputState.keyFlushChars();
+        inputState.ClearAllKeyStatus();
 
         int v11 = kTimerTicks * (var_1C + 2) + (int)totalclock;
 
@@ -2391,9 +2381,9 @@ LABEL_11:
 
             if (v11 <= (int)totalclock)
                 goto LABEL_11;
-        } while (!KB_KeyWaiting());
+        } while (!inputState.keyBufferWaiting());
     }
-    while (KB_GetCh() != 27);
+    while (inputState.keyGetChar() != 27);
 
 LABEL_28:
     PlayLocalSound(StaticSound[kSound75], 0);

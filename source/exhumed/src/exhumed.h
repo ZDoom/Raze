@@ -188,8 +188,6 @@ extern short bSlipMode;
 extern short nItemTextIndex;
 extern const char *gString[];
 
-extern short bNoSound;
-
 extern int bVanilla;
 
 extern int32_t g_gameType;
@@ -197,8 +195,6 @@ extern int32_t g_gameType;
 #define POWERSLAVE  (g_gameType & GAMEFLAG_POWERSLAVE)
 #define EXHUMED     (g_gameType & GAMEFLAG_EXHUMED)
 
-extern int mouseaiming, aimmode, mouseflip;
-extern int runkey_mode, auto_run;
 extern int32_t r_maxfps;
 extern int32_t r_maxfpsoffset;
 extern double g_frameDelay;
@@ -221,7 +217,6 @@ enum {
 };
 
 extern char g_modDir[BMAX_PATH];
-extern int r_showfps;
 
 extern struct grpfile_t const* g_selectedGrp;
 
