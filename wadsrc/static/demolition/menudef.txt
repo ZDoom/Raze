@@ -73,6 +73,7 @@ LISTMENU "MainMenu"
 
 LISTMENU "IngameMenu"
 {
+	ScriptId 50
 	ifgame(Duke, Nam, WW2GI, Fury)
 	{
 		ifgame(fury)
@@ -87,7 +88,7 @@ LISTMENU "IngameMenu"
 		}
 		linespacing 15
 		class "Duke.MainMenu"
-		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "CustomGameMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
@@ -98,7 +99,7 @@ LISTMENU "IngameMenu"
 	ifgame(Redneck, RedneckRides)
 	{
 		linespacing 15
-		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
@@ -109,7 +110,7 @@ LISTMENU "IngameMenu"
 	ifgame(Blood)
 	{
 		linespacing 15
-		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
@@ -120,7 +121,7 @@ LISTMENU "IngameMenu"
 	ifgame(ShadowWarrior)
 	{
 		linespacing 15
-		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
@@ -129,3 +130,71 @@ LISTMENU "IngameMenu"
 	}
 }
 
+LISTMENU "EpisodeMenu"
+{
+	ScriptId 100
+	// Episode names filled in programmatically
+	NativeTextItem "1", "", "SkillMenu", 1
+	NativeTextItem "2", "", "SkillMenu", 2
+	NativeTextItem "3", "", "SkillMenu", 3
+	NativeTextItem "4", "", "SkillMenu", 4
+	NativeTextItem "5", "", "SkillMenu", 5
+	NativeTextItem "6", "", "SkillMenu", 6
+	NativeTextItem "7", "", "SkillMenu", 7
+	//Spacer
+	NativeTextItem "$MNU_USERMAP", "u", "UserMap"
+}
+
+LISTMENU "SkillMenu"
+{
+	NativeTextItem "1", "", "StartGame", 1
+}
+
+LISTMENU "CustomGameMenu"
+{
+	ScriptId 102
+	// Filled in programmatically
+	//NativeTextItem "1", "", "CustomSubMenu1"
+}
+
+LISTMENU "CustomSubMenu1"
+{
+	ScriptId 103
+	//NativeTextItem "1", "", "SkillMenu"
+}
+
+LISTMENU "CustomSubMenu2"
+{
+	ScriptId 103
+	//NativeTextItem "1", "", "SkillMenu"
+}
+
+LISTMENU "CustomSubMenu3"
+{
+	ScriptId 103
+	//NativeTextItem "1", "", "SkillMenu"
+}
+
+LISTMENU "CustomSubMenu4"
+{
+	ScriptId 103
+	//NativeTextItem "1", "", "SkillMenu"
+}
+
+LISTMENU "CustomSubMenu5"
+{
+	ScriptId 103
+	//NativeTextItem "1", "", "SkillMenu"
+}
+
+LISTMENU "CustomSubMenu6"
+{
+	ScriptId 103
+	//NativeTextItem "1", "", "SkillMenu"
+}
+
+LISTMENU "CustomSubMenu7"
+{
+	ScriptId 103
+	//NativeTextItem "1", "", "SkillMenu"
+}
