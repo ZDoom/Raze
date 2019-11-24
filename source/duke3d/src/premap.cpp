@@ -1339,7 +1339,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     ud.secretlevel   = 0;
     ud.skill_voice   = -1;
     ud.volume_number = volumeNum;
-	STAT_StartNewGame(g_volumeNames[volumeNum], skillNum);
+	STAT_StartNewGame(gVolumeNames[volumeNum], skillNum);
 
     g_lastAutoSaveArbitraryID = -1;
     g_lastautosave.reset();

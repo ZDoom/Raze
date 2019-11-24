@@ -163,8 +163,6 @@ extern double g_gameUpdateAvgTime;
 #ifndef global_c_
 extern char CheatKeys[2];
 extern char g_gametypeNames[MAXGAMETYPES][33];
-extern char g_skillNames[MAXSKILLS][33];
-extern char g_volumeNames[MAXVOLUMES][33];
 
 extern int32_t g_actorRespawnTime;
 extern int32_t g_bouncemineRadius;
@@ -186,7 +184,7 @@ extern int32_t g_volumeCnt;
 
 extern int16_t g_blimpSpawnItems[15];
 extern int32_t g_gametypeFlags[MAXGAMETYPES];
-extern int32_t g_volumeFlags[MAXVOLUMES];
+
 
 extern const char *s_buildDate;
 #endif
@@ -194,7 +192,6 @@ extern const char *s_buildDate;
 enum
 {
     EF_HIDEFROMSP = 1<<0,
-    // EF_HIDEFROMMP = 1<<1,
 };
 
 EXTERN_INLINE_HEADER void G_UpdateInterpolations(void);

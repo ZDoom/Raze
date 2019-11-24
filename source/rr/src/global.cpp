@@ -31,12 +31,8 @@ user_defs ud;
 
 const char *s_buildDate = "20120522";
 
-char    g_volumeNames[MAXVOLUMES][33] = { "L.A. Meltdown", "Lunar Apocalypse", "Shrapnel City" };
-char    g_skillNames[MAXSKILLS][33] = { "Piece Of Cake", "Let's Rock", "Come Get Some", "Damn I'm Good" };
 char    g_gametypeNames[MAXGAMETYPES][33]
 = { "DukeMatch (Spawn)", "Cooperative Play", "DukeMatch (No Spawn)", "Team DM (Spawn)", "Team DM (No Spawn)" };
-
-int32_t g_volumeFlags[MAXVOLUMES];
 
 int32_t g_gametypeFlags[MAXGAMETYPES] =
 {

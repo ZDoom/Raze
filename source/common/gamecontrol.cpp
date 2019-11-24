@@ -261,6 +261,49 @@ int GameMain()
 
 //==========================================================================
 //
+// Try to keep all initializations of global string variables in this one place
+//
+//==========================================================================
+
+#define LOCALIZED_STRING(s) s // change to "${" s "}" later, once all text output functions can replace text macros
+
+void SetDefaultStrings()
+{
+	// Hard coded texts for the episode and skill selection menus.
+	if (g_gameType & GAMEFLAG_DUKE)
+	{
+		gVolumeNames[0] = LOCALIZED_STRING("L.A. Meltdown");
+		gVolumeNames[1] = LOCALIZED_STRING("Lunar Apocalypse");
+		gVolumeNames[2] = LOCALIZED_STRING("Shrapnel City");
+		gSkillNames[0] = LOCALIZED_STRING("Piece Of Cake");
+		gSkillNames[1] = LOCALIZED_STRING("Let's Rock");
+		gSkillNames[2] = LOCALIZED_STRING("Come Get Some");
+		gSkillNames[3] = LOCALIZED_STRING("Damn I'm Good");
+	}
+	else if (g_gameType & GAMEFLAG_BLOOD)
+	{
+		gSkillNames[0] = LOCALIZED_STRING("STILL KICKING");
+		gSkillNames[1] = LOCALIZED_STRING("PINK ON THE INSIDE");
+		gSkillNames[2] = LOCALIZED_STRING("LIGHTLY BROILED");
+		gSkillNames[3] = LOCALIZED_STRING("WELL DONE");
+		gSkillNames[4] = LOCALIZED_STRING("EXTRA CRISPY");
+	}
+	else if (g_gameType & GAMEFLAG_SW)
+	{
+		gVolumeNames[0] = LOCALIZED_STRING("Enter the Wang");
+		gVolumeNames[1] = LOCALIZED_STRING("Code of Honor");
+
+		gVolumeSubtitles[0] = LOCALIZED_STRING("Four levels (Shareware Version)");
+		gVolumeSubtitles[1] = LOCALIZED_STRING("Eighteen levels (Full Version Only)");
+
+		gSkillNames[0] = LOCALIZED_STRING("Tiny grasshopper");
+		gSkillNames[1] = LOCALIZED_STRING("I Have No Fear");
+		gSkillNames[2] = LOCALIZED_STRING("Who Wants Wang");
+		gSkillNames[3] = LOCALIZED_STRING("No Pain, No Gain");
+	}
+}
+//==========================================================================
+//
 //
 //
 //==========================================================================
@@ -385,9 +428,7 @@ int CONFIG_Init()
 	Mus_Init();
 	InitStatistics();
 	M_Init();
-
-
-
+	SetDefaultStrings();
 	return gi->app_main();
 }
 

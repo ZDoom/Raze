@@ -3827,7 +3827,9 @@ badindex:
                                         CON_ERRPRINTF("invalid volume %d\n", ud.volume_number);
                                         abort_after_error();
                                     }
-                                    Bstrcpy(apStrings[q], g_volumeNames[ud.volume_number]);
+									// length is no longer limited so a check is needed.
+                                    Bstrncpy(apStrings[q], gVolumeNames[ud.volume_number], MAXQUOTELEN);
+									apStrings[q][MAXQUOTELEN-1] = 0;
                                     break;
                                 case STR_YOURTIME:        Bstrcpy(apStrings[q], G_PrintYourTime());     break;
                                 case STR_PARTIME:         Bstrcpy(apStrings[q], G_PrintParTime());      break;

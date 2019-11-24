@@ -128,35 +128,23 @@ void Menu_Init(void)
 
 	// prepare episodes
 	k = 0;
-	for (i = 0; i < g_volumeCnt; ++i)
+
+	if (gVolumeNames[i].IsNotEmpty())
 	{
-		if (g_volumeNames[i][0])
+		if (!(gVolumeFlags[i] & EF_HIDEFROMSP))
 		{
-			if (!(g_volumeFlags[i] & EF_HIDEFROMSP))
-			{
-				MEL_EPISODE[i] = &ME_EPISODE[i];
-				ME_EPISODE[i] = ME_EPISODE_TEMPLATE;
-				ME_EPISODE[i].name = g_volumeNames[i];
-			}
-
-			// if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
-			{
-				MEOSN_NetEpisodes[k] = g_volumeNames[i];
-				MEOSV_NetEpisodes[k] = i;
-
-				k++;
-			}
+			MEL_EPISODE[i] = &ME_EPISODE[i];
+			ME_EPISODE[i] = ME_EPISODE_TEMPLATE;
+			ME_EPISODE[i].name = gVolumeNames[i];
 		}
 
-		// prepare levels
-		MEOS_NETOPTIONS_LEVEL[i] = MEOS_NETOPTIONS_LEVEL_TEMPLATE;
-		for (j = 0; j < MAXLEVELS; ++j)
+		// if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
 		{
-			MEOSN_NetLevels[i][j] = g_mapInfo[MAXLEVELS * i + j].name;
-			if (g_mapInfo[i * MAXLEVELS + j].filename != NULL)
-				MEOS_NETOPTIONS_LEVEL[i].numOptions = j + 1;
+			MEOSN_NetEpisodes[k] = gVolumeNames[i];
+			MEOSV_NetEpisodes[k] = i;
+
+			k++;
 		}
-		MEOS_NETOPTIONS_LEVEL[i].optionNames = MEOSN_NetLevels[i];
 	}
 	M_EPISODE.numEntries = g_volumeCnt + 2;
 

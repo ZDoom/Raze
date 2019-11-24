@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "cheats.h"
 #include "gamecvars.h"
+#include "menu/menu.h"
 #include "../../glbackend/glbackend.h"
 
 BEGIN_RR_NS
@@ -1535,18 +1536,18 @@ void Menu_Init(void)
     k = 0;
     for (i = 0; i < g_volumeCnt; ++i)
     {
-        if (g_volumeNames[i][0])
+        if (gVolumeNames[i].IsNotEmpty())
         {
-            if (!(g_volumeFlags[i] & EF_HIDEFROMSP))
+            if (!(gVolumeFlags[i] & EF_HIDEFROMSP))
             {
                 MEL_EPISODE[i] = &ME_EPISODE[i];
                 ME_EPISODE[i] = ME_EPISODE_TEMPLATE;
-                ME_EPISODE[i].name = g_volumeNames[i];
+                ME_EPISODE[i].name = gVolumeNames[i];
             }
 
             // if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
             {
-                MEOSN_NetEpisodes[k] = g_volumeNames[i];
+                MEOSN_NetEpisodes[k] = gVolumeNames[i];
                 MEOSV_NetEpisodes[k] = i;
 
                 k++;
@@ -1582,13 +1583,13 @@ void Menu_Init(void)
 
     // prepare skills
     k = -1;
-    for (i = 0; i < g_skillCnt && g_skillNames[i][0]; ++i)
+    for (i = 0; i < g_skillCnt && gSkillNames[i].IsNotEmpty(); ++i)
     {
         MEL_SKILL[i] = &ME_SKILL[i];
         ME_SKILL[i] = ME_SKILL_TEMPLATE;
-        ME_SKILL[i].name = g_skillNames[i];
+        ME_SKILL[i].name = gSkillNames[i];
 
-        MEOSN_NetSkills[i] = g_skillNames[i];
+        MEOSN_NetSkills[i] = gSkillNames[i];
 
         k = i;
     }
@@ -2120,10 +2121,10 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
         mminitext(origin.x + ((90+60)<<16), origin.y + (90<<16), g_gametypeNames[m_coop], MF_Minifont.pal_deselected_right);
 
-        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8)<<16), g_volumeNames[ud.m_volume_number], MF_Minifont.pal_deselected_right);
+        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8)<<16), gVolumeNames[ud.m_volume_number], MF_Minifont.pal_deselected_right);
         mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8)<<16), g_mapInfo[MAXLEVELS*ud.m_volume_number+m_level_number].name, MF_Minifont.pal_deselected_right);
         if (ud.m_monsters_off == 0 || ud.m_player_skill > 0)
-            mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), g_skillNames[ud.m_player_skill], MF_Minifont.pal_deselected_right);
+            mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), gSkillNames[ud.m_player_skill], MF_Minifont.pal_deselected_right);
         else mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), "None", MF_Minifont.pal_deselected_right);
         if (m_coop == 0)
         {
@@ -2199,7 +2200,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
             {
                 const char *name = g_mapInfo[(savehead.volnum*MAXLEVELS) + savehead.levnum].name;
-                Bsprintf(tempbuf, "%s / %s", name ? name : "^10unnamed^0", g_skillNames[savehead.skill-1]);
+                Bsprintf(tempbuf, "%s / %s", name ? name : "^10unnamed^0", gSkillNames[savehead.skill-1].GetChars());
             }
 
             mgametextcenter(origin.x, origin.y + (168<<16), tempbuf);
@@ -2261,7 +2262,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             mgametextcenter(origin.x, origin.y + (156<<16), tempbuf);
         }
 
-        Bsprintf(tempbuf,"%s / %s",g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, g_skillNames[ud.player_skill-1]);
+        Bsprintf(tempbuf,"%s / %s",g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, gSkillNames[ud.player_skill-1].GetChars());
         mgametextcenter(origin.x, origin.y + (168<<16), tempbuf);
         if (ud.volume_number == 0 && ud.level_number == 7)
             mgametextcenter(origin.x, origin.y + (180<<16), currentboardfilename);
@@ -2305,7 +2306,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 #ifndef EDUKE32_ANDROID_MENU
                               "\n(Y/N)"
 #endif
-            , g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, g_skillNames[ud.player_skill-1]);
+            , g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, gSkillNames[ud.player_skill-1].GetChars());
             mgametextcenter(origin.x, origin.y + (90<<16), tempbuf);
         }
         else

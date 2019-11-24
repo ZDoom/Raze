@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "printf.h"
 #include "m_argv.h"
+#include "menu/menu.h"
 
 BEGIN_DUKE_NS
 
@@ -2033,7 +2034,7 @@ void C_DefineVolumeFlags(int32_t vol, int32_t flags)
 {
     Bassert((unsigned)vol < MAXVOLUMES);
 
-    g_volumeFlags[vol] = flags;
+    gVolumeFlags[vol] = flags;
 }
 
 void C_UndefineVolume(int32_t vol)
@@ -2043,12 +2044,12 @@ void C_UndefineVolume(int32_t vol)
     for (bssize_t i = 0; i < MAXLEVELS; i++)
         C_UndefineLevel(vol, i);
 
-    g_volumeNames[vol][0] = '\0';
+    gVolumeNames[vol] = "";
 
     g_volumeCnt = 0;
     for (bssize_t i = MAXVOLUMES-1; i >= 0; i--)
     {
-        if (g_volumeNames[i][0])
+        if (gVolumeNames[i].IsNotEmpty())
         {
             g_volumeCnt = i+1;
             break;
@@ -2060,12 +2061,12 @@ void C_UndefineSkill(int32_t skill)
 {
     Bassert((unsigned)skill < MAXSKILLS);
 
-    g_skillNames[skill][0] = '\0';
+    gSkillNames[skill] = "";
 
     g_skillCnt = 0;
     for (bssize_t i = MAXSKILLS-1; i >= 0; i--)
     {
-        if (g_skillNames[i][0])
+        if (gSkillNames[i][0])
         {
             g_skillCnt = i+1;
             break;
@@ -5015,23 +5016,11 @@ repeatcase:
                 continue;
             }
 
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                g_volumeNames[j][i] = *textptr;
-                textptr++,i++;
-                if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(g_volumeNames[j])-1))
-                {
-                    initprintf("%s:%d: warning: truncating volume name to %d characters.\n",
-                        g_scriptFileName,g_lineNumber,(int32_t)sizeof(g_volumeNames[j])-1);
-                    g_warningCnt++;
-                    scriptSkipLine();
-                    break;
-                }
-            }
+			i = strcspn(textptr, "\r\n");
+			gVolumeNames[j] = FString(textptr, i);
+			textptr += i;
+  
             g_volumeCnt = j+1;
-            g_volumeNames[j][i] = '\0';
             continue;
 
         case CON_DEFINEVOLUMEFLAGS:
@@ -5128,27 +5117,14 @@ repeatcase:
                 continue;
             }
 
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                g_skillNames[j][i] = *textptr;
-                textptr++,i++;
-                if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(g_skillNames[j])-1))
-                {
-                    initprintf("%s:%d: warning: truncating skill name to %d characters.\n",
-                        g_scriptFileName,g_lineNumber,(int32_t)sizeof(g_skillNames[j])-1);
-                    g_warningCnt++;
-                    scriptSkipLine();
-                    break;
-                }
-            }
-
-            g_skillNames[j][i] = '\0';
+			i = strcspn(textptr, "\r\n");
+			gSkillNames[j] = FString(textptr, i);
+			textptr+=i;
 
             for (i=0; i<MAXSKILLS; i++)
-                if (g_skillNames[i][0] == 0)
+                if (gSkillNames[i].IsEmpty())
                     break;
+
             g_skillCnt = i;
 
             continue;

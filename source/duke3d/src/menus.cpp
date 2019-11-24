@@ -1552,29 +1552,6 @@ void Menu_Init(void)
 		MEOSN_Keys[i] = KB_ScanCodeToString(i);
     MEOSN_Keys[NUMKEYS-1] = MenuKeyNone;
 
-
-    // prepare episodes
-    k = 0;
-    for (i = 0; i < g_volumeCnt; ++i)
-    {
-        if (g_volumeNames[i][0])
-        {
-            if (!(g_volumeFlags[i] & EF_HIDEFROMSP))
-            {
-                MEL_EPISODE[i] = &ME_EPISODE[i];
-                ME_EPISODE[i] = ME_EPISODE_TEMPLATE;
-                ME_EPISODE[i].name = g_volumeNames[i];
-            }
-
-            // if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
-            {
-                MEOSN_NetEpisodes[k] = g_volumeNames[i];
-                MEOSV_NetEpisodes[k] = i;
-
-                k++;
-            }
-        }
-
         // prepare levels
         MEOS_NETOPTIONS_LEVEL[i] = MEOS_NETOPTIONS_LEVEL_TEMPLATE;
         for (j = 0; j < MAXLEVELS; ++j)
@@ -2156,7 +2133,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
         mminitext(origin.x + ((90+60)<<16), origin.y + (90<<16), g_gametypeNames[m_coop], MF_Minifont.pal_deselected_right);
 
-        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8)<<16), g_volumeNames[ud.m_volume_number], MF_Minifont.pal_deselected_right);
+        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8)<<16), gVolumeNames[ud.m_volume_number], MF_Minifont.pal_deselected_right);
         mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8)<<16), g_mapInfo[MAXLEVELS*ud.m_volume_number+m_level_number].name, MF_Minifont.pal_deselected_right);
         if (ud.m_monsters_off == 0 || ud.m_player_skill > 0)
             mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), g_skillNames[ud.m_player_skill], MF_Minifont.pal_deselected_right);
@@ -2302,15 +2279,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
     }
 
-#ifdef EDUKE32_ANDROID_MENU
-    case MENU_SKILL:
-    {
-        static const char *s[] = { "EASY - Few enemies, and lots of stuff.", "MEDIUM - Normal difficulty.", "HARD - For experienced players.", "EXPERTS - Lots of enemies, plus they respawn!" };
-        if (M_SKILL.currentEntry < ARRAY_SSIZE(s))
-            mgametextcenter(origin.x, origin.y + (168<<16), s[M_SKILL.currentEntry]);
-    }
-        break;
-#endif
 
     case MENU_SAVECLEANVERIFY:
         videoFadeToBlack(1);
@@ -2333,16 +2301,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         {
             Bsprintf(tempbuf, "Resume game from sequence point:\n\"%s\"", msv.brief.name);
             Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
-        }
-        else if (msv.isOldVer)
-        {
-#if 1
-            mgametextcenter(origin.x, origin.y + (90<<16), "You're not supposed to be here.");
-#else
-            Bsprintf(tempbuf, "Start new game:\n%s / %s"
-            , g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, g_skillNames[ud.player_skill-1]);
-            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
-#endif
         }
         else
         {

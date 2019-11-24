@@ -12,6 +12,17 @@
 EXTERN_CVAR(Float, snd_menuvolume)
 EXTERN_CVAR(Int, m_use_mouse);
 
+enum
+{
+	MAXSKILLS = 7,
+	MAXVOLUMES = 7,
+};
+
+// These get filled in by the map definition parsers of the front ends.
+extern FString gSkillNames[MAXSKILLS];
+extern FString gVolumeNames[MAXVOLUMES];
+extern FString gVolumeSubtitles[MAXVOLUMES];
+extern int32_t gVolumeFlags[MAXVOLUMES];
 
 const int MENU_TICRATE = 30;
 extern bool help_disabled, credits_disabled;

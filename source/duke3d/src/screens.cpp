@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sbar.h"
 #include "screens.h"
 #include "gamecvars.h"
+#include "menu/menu.h"
 
 BEGIN_DUKE_NS
 
@@ -961,7 +962,7 @@ void G_DisplayRest(int32_t smoothratio)
                 if (G_HaveUserMap())
                     levelname = boardfilename;
                 else if (!(G_GetLogoFlags() & LOGO_HIDEEPISODE))
-                    minitext(5, a+6, g_volumeNames[ud.volume_number], 0, 2+8+16+256);
+                    minitext(5, a+6, gVolumeNames[ud.volume_number], 0, 2+8+16+256);
                 minitext(5, a+6+6, levelname, 0, 2+8+16+256);
             }
         }

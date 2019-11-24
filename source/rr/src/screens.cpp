@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "mdsprite.h"
 #include "gamecvars.h"
+#include "menu/menu.h"
 
 BEGIN_RR_NS
 
@@ -993,7 +994,7 @@ void G_DisplayRest(int32_t smoothratio)
                 else
                 {
                     if (!G_HaveUserMap())
-                        minitext(5, a+6, g_volumeNames[ud.volume_number], 0, 2+8+16+256);
+                        minitext(5, a+6, gVolumeNames[ud.volume_number], 0, 2+8+16+256);
                     minitext(5, a+6+6, g_mapInfo[ud.volume_number*MAXLEVELS + ud.level_number].name, 0, 2+8+16+256);
                 }
             }

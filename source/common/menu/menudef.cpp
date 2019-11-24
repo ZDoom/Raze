@@ -49,6 +49,11 @@
 
 void ClearSaveGames();
 
+FString gSkillNames[MAXSKILLS];
+FString gVolumeNames[MAXVOLUMES];
+FString gVolumeSubtitles[MAXVOLUMES];
+int32_t gVolumeFlags[MAXVOLUMES];
+
 MenuDescriptorList MenuDescriptors;
 static FListMenuDescriptor DefaultListMenuSettings;	// contains common settings for all list menus
 static FOptionMenuDescriptor DefaultOptionMenuSettings;	// contains common settings for all Option menus

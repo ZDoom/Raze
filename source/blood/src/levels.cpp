@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "view.h"
 #include "eventq.h"
+#include "menu/menu.h"
 
 BEGIN_BLD_NS
 
@@ -236,7 +237,9 @@ void levelLoadDefaults(void)
         if (!BloodINI->SectionExists(buffer))
             break;
         EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[i];
-        strncpy(pEpisodeInfo->at0, BloodINI->GetKeyString(buffer, "Title", buffer), 31);
+		auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
+        strncpy(pEpisodeInfo->at0, ep_str, 31);
+		gVolumeNames[i] = ep_str; // For the menu.
         strncpy(pEpisodeInfo->at8f08, BloodINI->GetKeyString(buffer, "CutSceneA", ""), BMAX_PATH);
         pEpisodeInfo->at9028 = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
         if (pEpisodeInfo->at9028 == 0)

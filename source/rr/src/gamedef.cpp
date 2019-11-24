@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osd.h"
 #include "m_crc32.h"
 #include "printf.h"
+#include "menu/menu.h"
 
 BEGIN_RR_NS
 
@@ -894,7 +895,7 @@ void C_DefineVolumeFlags(int32_t vol, int32_t flags)
 {
     Bassert((unsigned)vol < MAXVOLUMES);
 
-    g_volumeFlags[vol] = flags;
+    gVolumeFlags[vol] = flags;
 }
 
 int32_t C_AllocQuote(int32_t qnum)
@@ -1884,23 +1885,10 @@ static int32_t C_ParseCommand(int32_t loop)
                 continue;
             }
 
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                g_volumeNames[j][i] = *textptr;
-                textptr++,i++;
-                if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(g_volumeNames[j])-1))
-                {
-                    initprintf("%s:%d: warning: truncating volume name to %d characters.\n",
-                        g_scriptFileName,g_lineNumber,(int32_t)sizeof(g_volumeNames[j])-1);
-                    g_warningCnt++;
-                    C_NextLine();
-                    break;
-                }
-            }
+			i = strcspn(textptr, "\r\n");
+			gVolumeNames[j] = FString(textptr, i);
+			textptr+=i;
             g_volumeCnt = j+1;
-            g_volumeNames[j][i] = '\0';
             continue;
 
         case CON_DEFINESKILLNAME:
@@ -1921,26 +1909,12 @@ static int32_t C_ParseCommand(int32_t loop)
                 continue;
             }
 
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                g_skillNames[j][i] = *textptr;
-                textptr++,i++;
-                if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(g_skillNames[j])-1))
-                {
-                    initprintf("%s:%d: warning: truncating skill name to %d characters.\n",
-                        g_scriptFileName,g_lineNumber,(int32_t)sizeof(g_skillNames[j])-1);
-                    g_warningCnt++;
-                    C_NextLine();
-                    break;
-                }
-            }
-
-            g_skillNames[j][i] = '\0';
+			i = strcspn(textptr, "\r\n");
+			gSkillNames[j] = FString(textptr, i);
+			textptr+=i;
 
             for (i=0; i<MAXSKILLS; i++)
-                if (g_skillNames[i][0] == 0)
+                if (gSkillNames[i].IsEmpty())
                     break;
             g_skillCnt = i;
 

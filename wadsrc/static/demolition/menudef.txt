@@ -134,15 +134,25 @@ LISTMENU "EpisodeMenu"
 {
 	ScriptId 100
 	// Episode names filled in programmatically
-	NativeTextItem "1", "", "SkillMenu", 1
-	NativeTextItem "2", "", "SkillMenu", 2
-	NativeTextItem "3", "", "SkillMenu", 3
-	NativeTextItem "4", "", "SkillMenu", 4
-	NativeTextItem "5", "", "SkillMenu", 5
-	NativeTextItem "6", "", "SkillMenu", 6
-	NativeTextItem "7", "", "SkillMenu", 7
+	NativeTextItem "", "", "SkillMenu", 1
+	NativeStaticTextItem ""
+	NativeTextItem "", "", "SkillMenu", 2
+	NativeStaticTextItem ""
+	NativeTextItem "", "", "SkillMenu", 3
+	NativeStaticTextItem ""
+	NativeTextItem "", "", "SkillMenu", 4
+	NativeStaticTextItem ""
+	NativeTextItem "", "", "SkillMenu", 5
+	NativeStaticTextItem ""
+	NativeTextItem "", "", "SkillMenu", 6
+	NativeStaticTextItem ""
+	NativeTextItem "", "", "SkillMenu", 7
 	//Spacer
 	NativeTextItem "$MNU_USERMAP", "u", "UserMap"
+	ifgame(ShadowWarrior)
+	{
+		NativeStaticTextItem "$MNU_SELECTUSERMAP"
+	}
 }
 
 LISTMENU "SkillMenu"
