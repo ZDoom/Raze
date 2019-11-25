@@ -320,6 +320,7 @@ public:
 	DMenu *mParentMenu;
 	DVector2 origin;
 	int scriptID = INT_MAX;
+	bool canAnimate = false;
 
 	DMenu(DMenu *parent = NULL);
 	virtual ~DMenu() = default;

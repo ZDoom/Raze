@@ -49,6 +49,8 @@
 #include "v_draw.h"
 #include "gamecontrol.h"
 #include "fx_man.h"
+#include "pragmas.h"
+#include "build.h"
 
 void RegisterDukeMenus();
 extern bool rotatesprite_2doverride;
@@ -85,6 +87,56 @@ static bool		MenuEnabled = true;
 
 #define KEY_REPEAT_DELAY	(MENU_TICRATE*5/12)
 #define KEY_REPEAT_RATE		(3)
+
+enum MenuTransitionType
+{ // Note: This enum is for logical categories, not visual types.
+    MA_None,
+    MA_Return,
+    MA_Advance,
+} ;
+
+struct MenuTransition
+{
+    DMenu *previous;
+    DMenu *current;
+
+    int32_t start;
+    int32_t length;
+	int32_t dir;
+};
+
+bool M_StartTransition(DMenu *from, DMenu *to, MenuTransitionType animtype, MenuTransition &transition)
+{
+	if (!from->canAnimate || !to->canAnimate || animtype == MA_None)
+	{
+		return false;
+	}
+	else
+	{
+		transition.start  = (int32_t) totalclock;
+		transition.length = 30;
+		transition.dir = animtype == MA_Advance? 1 : -1;
+		transition.previous = from;
+		transition.current  = to;
+		return true;
+	}
+}
+
+bool M_DrawTransition(MenuTransition &transition)
+{
+	if (totalclock < transition.start + transition.length)
+	{
+		double factor = 120 * xdim / ydim;
+		double phase = ((int32_t) totalclock - transition.start) / double(transition.length) * M_PI + M_PI/2;
+		
+		transition.previous->origin.X = factor * transition.dir * (sin(phase) - 1.);
+		transition.current->origin.X = factor * transition.dir * (sin(phase) + 1.);
+		transition.previous->Drawer();
+		transition.current->Drawer();
+		return false;
+	}
+	return true;
+}
 
 //============================================================================
 //
