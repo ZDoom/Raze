@@ -1780,7 +1780,7 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             break;
 
         case SDL_QUIT:
-            quitevent = 1;
+			throw ExitEvent(0);	// completely bypass the hackery in the games to block Alt-F4.
             return -1;
     }
 

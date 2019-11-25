@@ -86,7 +86,6 @@ void CONFIG_SetDefaults(void)
     ud.show_level_text = 1;
     ud.screenfade = 1;
     ud.menubackground = 1;
-    ud.default_skill = 1;
     ud.slidebar_paldisabled = 1;
     ud.shadow_pal = 4;
     ud.menu_scrollbartilenum = -1;

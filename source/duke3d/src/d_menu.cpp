@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "c_bind.h"
 #include "menu/menu.h"
+#include "gstrings.h"
 #include "../../glbackend/glbackend.h"
 
 BEGIN_DUKE_NS
@@ -44,10 +45,6 @@ BEGIN_DUKE_NS
 #define MENU_MARGIN_CENTER  160
 #define MENU_HEIGHT_CENTER  100
 
-// This is for intermediate levels in the episode selection chain. Ion Fury uses this.
-MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
-int ME_NEWGAMECUSTOMENTRIES[MAXMENUGAMEPLAYENTRIES];
-int ME_NEWGAMECUSTOMSUBENTRIES[MAXMENUGAMEPLAYENTRIES][MAXMENUGAMEPLAYENTRIES];
 
 enum MenuTextFlags_t
 {
@@ -96,212 +93,6 @@ void Menu_Init(void)
 		MF_Minifont.textflags |= TEXT_UPPERCASE;
 
 #if 0
-	//int32_t i, j, k;
-	if (FURY)
-	{
-		MMF_Top_Skill.pos.x = (320 << 15);
-		ME_SKILL_TEMPLATE.format = &MEF_LeftMenu;
-	}
-
-	// prepare gamefuncs and keys
-	MEOSN_Gamefuncs[0] = MenuGameFuncNone;
-	MEOSV_Gamefuncs[0] = -1;
-	k = 1;
-	for (i = 0; i < NUMGAMEFUNCTIONS; ++i)
-	{
-		MenuGameFuncs[i] = buttonMap.GetButtonAlias(i);
-		MenuGameFuncs[i].Substitute('_', ' ');
-
-		if (MenuGameFuncs[i][0] != '\0')
-		{
-			MEOSN_Gamefuncs[k] = MenuGameFuncs[i];
-			MEOSV_Gamefuncs[k] = i;
-			++k;
-		}
-	}
-	MEOS_Gamefuncs.numOptions = k;
-
-	for (i = 0; i < NUMKEYS; ++i)
-		MEOSN_Keys[i] = KB_ScanCodeToString(i);
-	MEOSN_Keys[NUMKEYS - 1] = MenuKeyNone;
-
-
-	// prepare episodes
-	k = 0;
-
-	if (gVolumeNames[i].IsNotEmpty())
-	{
-		if (!(gVolumeFlags[i] & EF_HIDEFROMSP))
-		{
-			MEL_EPISODE[i] = &ME_EPISODE[i];
-			ME_EPISODE[i] = ME_EPISODE_TEMPLATE;
-			ME_EPISODE[i].name = gVolumeNames[i];
-		}
-
-		// if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
-		{
-			MEOSN_NetEpisodes[k] = gVolumeNames[i];
-			MEOSV_NetEpisodes[k] = i;
-
-			k++;
-		}
-	}
-	M_EPISODE.numEntries = g_volumeCnt + 2;
-
-	MEL_EPISODE[g_volumeCnt] = &ME_Space4_Redfont;
-	MEL_EPISODE[g_volumeCnt + 1] = &ME_EPISODE_USERMAP;
-	MEOSN_NetEpisodes[k] = MenuUserMap;
-	MEOSV_NetEpisodes[k] = MAXVOLUMES;
-
-	MEOS_NETOPTIONS_EPISODE.numOptions = k + 1;
-	NetEpisode = MEOSV_NetEpisodes[0];
-	MMF_Top_Episode.pos.y = (58 + (3 - k) * 6) << 16;
-	if (g_skillCnt == 0)
-		MEO_EPISODE.linkID = MENU_NULL;
-	M_EPISODE.currentEntry = ud.default_volume;
-
-	// prepare new game custom :O
-	if (g_MenuGameplayEntries[0].entry.isValid())
-	{
-		MEO_MAIN_NEWGAME.linkID = M_NEWVERIFY.linkID = MENU_NEWGAMECUSTOM;
-
-		int e = 0;
-		for (MenuGameplayStemEntry const& stem : g_MenuGameplayEntries)
-		{
-			MenuGameplayEntry const& entry = stem.entry;
-			if (!entry.isValid())
-				break;
-
-			MenuEntry_t& e_me = ME_NEWGAMECUSTOMENTRIES[e];
-			e_me = ME_EPISODE_TEMPLATE;
-			MenuLink_t& e_meo = MEO_NEWGAMECUSTOM[e];
-			e_meo = MEO_NEWGAMECUSTOM_TEMPLATE;
-			e_me.entry = &e_meo;
-
-			e_me.name = entry.name;
-			if (entry.flags & MGE_Locked)
-				e_me.flags |= MEF_Disabled;
-			if (entry.flags & MGE_Hidden)
-				e_me.flags |= MEF_Hidden;
-
-			int s = 0;
-			for (MenuGameplayEntry const& subentry : stem.subentries)
-			{
-				if (!subentry.isValid())
-					break;
-
-				MenuEntry_t& s_me = ME_NEWGAMECUSTOMSUBENTRIES[e][s];
-				s_me = ME_EPISODE_TEMPLATE;
-				MenuLink_t& s_meo = MEO_NEWGAMECUSTOMSUB[e][s];
-				s_meo = MEO_NEWGAMECUSTOMSUB_TEMPLATE;
-				s_me.entry = &s_meo;
-
-				s_me.name = subentry.name;
-				if (subentry.flags & MGE_Locked)
-					s_me.flags |= MEF_Disabled;
-				if (subentry.flags & MGE_Hidden)
-					s_me.flags |= MEF_Hidden;
-
-				++s;
-			}
-
-			if (entry.flags & MGE_UserContent)
-				e_meo.linkID = MENU_USERMAP;
-			else if (s == 0)
-				e_meo.linkID = MENU_SKILL;
-
-			++e;
-		}
-
-		Menu_PopulateNewGameCustom();
-	}
-
-	// prepare skills
-	k = -1;
-	for (i = 0; i < g_skillCnt && g_skillNames[i][0]; ++i)
-	{
-		MEL_SKILL[i] = &ME_SKILL[i];
-		ME_SKILL[i] = ME_SKILL_TEMPLATE;
-		ME_SKILL[i].name = g_skillNames[i];
-
-		MEOSN_NetSkills[i] = g_skillNames[i];
-
-		k = i;
-	}
-	++k;
-	M_SKILL.numEntries = g_skillCnt; // k;
-	MEOS_NETOPTIONS_MONSTERS.numOptions = g_skillCnt + 1; // k+1;
-	MEOSN_NetSkills[g_skillCnt] = MenuSkillNone;
-	MMF_Top_Skill.pos.y = (58 + (4 - g_skillCnt) * 6) << 16;
-	M_SKILL.currentEntry = ud.default_skill;
-	Menu_AdjustForCurrentEntryAssignmentBlind(&M_SKILL);
-
-	// prepare multiplayer gametypes
-	k = -1;
-	for (i = 0; i < MAXGAMETYPES; ++i)
-		if (g_gametypeNames[i][0])
-		{
-			MEOSN_NetGametypes[i] = g_gametypeNames[i];
-			k = i;
-		}
-	++k;
-	MEOS_NETOPTIONS_GAMETYPE.numOptions = k;
-	if (NAM_WW2GI)
-		ME_NETOPTIONS_MONSTERS.name = "Enemies";
-
-	// prepare cheats
-	for (i = 0; i < NUMCHEATFUNCS; ++i)
-		MEL_CHEATS[i + 1] = &ME_CheatCodes[i];
-
-	// prepare text chat macros
-	for (i = 0; i < MAXRIDECULE; ++i)
-	{
-		MEL_MACROS[i] = &ME_MACROS[i];
-		ME_MACROS[i] = ME_MACROS_TEMPLATE;
-		ME_MACROS[i].entry = &MEO_MACROS[i];
-		MEO_MACROS[i] = MEO_MACROS_TEMPLATE;
-
-		MEO_MACROS[i].variable = sink;// ud.ridecule[i];	temporarily disabled
-	}
-
-	// prepare input
-	for (i = 0; i < NUMGAMEFUNCTIONS; ++i)
-	{
-		if (MenuGameFuncs[i][0] == '\0')
-		{
-			MEL_KEYBOARDSETUPFUNCS[i] = NULL;
-			continue;
-		}
-
-		MEL_KEYBOARDSETUPFUNCS[i] = &ME_KEYBOARDSETUPFUNCS[i];
-		ME_KEYBOARDSETUPFUNCS[i] = ME_KEYBOARDSETUPFUNCS_TEMPLATE;
-		ME_KEYBOARDSETUPFUNCS[i].name = MenuGameFuncs[i];
-		ME_KEYBOARDSETUPFUNCS[i].entry = &MEO_KEYBOARDSETUPFUNCS[i];
-		MEO_KEYBOARDSETUPFUNCS[i] = MEO_KEYBOARDSETUPFUNCS_TEMPLATE;
-	}
-	M_KEYBOARDKEYS.numEntries = NUMGAMEFUNCTIONS;
-	for (i = 0; i < 2 * joystick.numButtons + 8 * joystick.numHats; ++i)
-	{
-		if (i < 2 * joystick.numButtons)
-		{
-			if (i & 1)
-				Bsnprintf(MenuJoystickNames[i], MAXJOYBUTTONSTRINGLENGTH, "Double %s", joyGetName(1, i >> 1));
-			else
-				Bstrncpy(MenuJoystickNames[i], joyGetName(1, i >> 1), MAXJOYBUTTONSTRINGLENGTH);
-		}
-		else
-		{
-			Bsnprintf(MenuJoystickNames[i], MAXJOYBUTTONSTRINGLENGTH, (i & 1) ? "Double Hat %d %s" : "Hat %d %s", ((i - 2 * joystick.numButtons) >> 3), MenuJoystickHatDirections[((i - 2 * joystick.numButtons) >> 1) % 4]);
-		}
-	}
-	for (i = 0; i < joystick.numAxes; ++i)
-	{
-		ME_JOYSTICKAXES[i] = ME_JOYSTICKAXES_TEMPLATE;
-		Bstrncpy(MenuJoystickAxes[i], joyGetName(0, i), MAXJOYBUTTONSTRINGLENGTH);
-		ME_JOYSTICKAXES[i].name = MenuJoystickAxes[i];
-		MEL_JOYSTICKAXES[i] = &ME_JOYSTICKAXES[i];
-	}
-	M_JOYSTICKAXES.numEntries = joystick.numAxes;
 
 	// prepare sound setup
 #ifndef EDUKE32_STANDALONE
@@ -311,28 +102,6 @@ void Menu_Init(void)
 		ME_SOUND_DUKETALK.name = "Grunt talk:";
 #endif
 
-	if (FURY)
-	{
-		MF_Redfont.between.x = 2 << 16;
-		MF_Redfont.cursorScale = 32768;
-		MF_Redfont.zoom = 16384;
-		MF_Bluefont.zoom = 16384;
-
-		// hack; should swap out pointers
-		MF_Minifont = MF_Bluefont;
-
-		MMF_Top_Main.pos.x = 40 << 16;
-		MMF_Top_Main.pos.y = 130 << 16;
-		MMF_Top_Main.bottomcutoff = 190 << 16;
-		M_OPTIONS.format = &MMF_Top_Main;
-
-		MEF_MainMenu.width = MEF_OptionsMenu.width = -(160 << 16);
-		MEF_MainMenu.marginBottom = 7 << 16;
-
-		M_OPTIONS.title = NoTitle;
-
-		SELECTDIR_z = 16384;
-	}
 
 	// prepare shareware
 	if (VOLUMEONE)
@@ -358,10 +127,7 @@ void Menu_Init(void)
 		M_CREDITS.title = M_CREDITS2.title = M_CREDITS3.title = s_Credits;
 	}
 
-	MenuEntry_HideOnCondition(&ME_MAIN_HELP, G_GetLogoFlags() & LOGO_NOHELP);
-#ifndef EDUKE32_SIMPLE_MENU
-	MenuEntry_HideOnCondition(&ME_MAIN_CREDITS, G_GetLogoFlags() & LOGO_NOCREDITS);
-#endif
+
 #endif
 }
 
@@ -374,6 +140,7 @@ static void Menu_DrawTopBar(const vec2_t origin)
 static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
 {
     static char t[64];
+	if (*caption == '$') caption = GStrings(caption + 1);
     size_t const srclen = strlen(caption);
     size_t const dstlen = min(srclen, ARRAY_SIZE(t)-1);
     memcpy(t, caption, dstlen);
@@ -572,6 +339,11 @@ protected:
 	void PreDraw() override
 	{
 		CallScript(CurrentMenu == this ? EVENT_DISPLAYMENU : EVENT_DISPLAYMENUREST, true);
+		if (mDesc->mCaption.IsNotEmpty())
+		{
+			Menu_DrawTopBar(origin);
+			Menu_DrawTopBarCaption(mDesc->mCaption, origin);
+		}
 	}
 
 	void PostDraw() override
@@ -601,11 +373,6 @@ class MainMenu : public DukeListMenu
             if (PLUTOPAK)   // JBF 20030804
                 rotatesprite_fs((origin.y << 16) + ((MENU_MARGIN_CENTER+100)<<16), (origin.y << 16) + (36<<16), 65536L,0,PLUTOPAKSPRITE+2,(sintable[((int32_t) totalclock<<4)&2047]>>11),0,2+8);
         }
-		else if (mDesc->mCaption.IsNotEmpty())
-		{
-			Menu_DrawTopBar(origin);
-			Menu_DrawTopBarCaption(mDesc->mCaption, origin);
-		}
 	}	
 };
 

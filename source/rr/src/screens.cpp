@@ -754,7 +754,6 @@ FString GameInterface::statFPS()
 
 GameStats GameInterface::getStats()
 {
-	GameStats stats;
 	DukePlayer_t* p = g_player[myconnectindex].ps;
 	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC };
 }

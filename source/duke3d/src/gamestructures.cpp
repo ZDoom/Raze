@@ -1508,8 +1508,8 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_GLOBAL_R:               labelNum = globalr;                         break;
         case USERDEFS_GLOBAL_G:               labelNum = globalg;                         break;
         case USERDEFS_GLOBAL_B:               labelNum = globalb;                         break;
-        case USERDEFS_DEFAULT_VOLUME:         labelNum = ud.default_volume;               break;
-        case USERDEFS_DEFAULT_SKILL:          labelNum = ud.default_skill;                break;
+        case USERDEFS_DEFAULT_VOLUME:         labelNum = gDefaultVolume;                  break;
+        case USERDEFS_DEFAULT_SKILL:          labelNum = gDefaultSkill;                   break;
         case USERDEFS_MENU_SHADEDESELECTED:   labelNum = MF_Redfont.shade_deselected;     break;
         case USERDEFS_MENU_SHADEDISABLED:     labelNum = MF_Redfont.shade_disabled;       break;
         case USERDEFS_MENUTEXT_ZOOM:          labelNum = MF_Redfont.zoom;                 break;
@@ -1701,8 +1701,8 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_GLOBAL_R:                     globalr                          = iSet; break;
         case USERDEFS_GLOBAL_G:                     globalg                          = iSet; break;
         case USERDEFS_GLOBAL_B:                     globalb                          = iSet; break;
-        case USERDEFS_DEFAULT_VOLUME:               ud.default_volume                = iSet; break;
-        case USERDEFS_DEFAULT_SKILL:                ud.default_skill                 = iSet; break;
+        case USERDEFS_DEFAULT_VOLUME:               gDefaultVolume                   = iSet; break;
+        case USERDEFS_DEFAULT_SKILL:                gDefaultSkill                    = iSet; break;
         case USERDEFS_MENU_SHADEDESELECTED:         MF_Redfont.shade_deselected      = MF_Bluefont.shade_deselected = MF_Minifont.shade_deselected = iSet; break;
         case USERDEFS_MENU_SHADEDISABLED:           MF_Redfont.shade_disabled        = MF_Bluefont.shade_disabled   = MF_Minifont.shade_disabled   = iSet; break;
         case USERDEFS_MENUTEXT_ZOOM:                MF_Redfont.zoom                  = iSet; break;
@@ -1751,16 +1751,8 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_DRAW_Y:                       rotatesprite_y_offset            = iSet; break;
         case USERDEFS_DRAW_YXASPECT:                rotatesprite_yxaspect            = iSet; break;
         case USERDEFS_FOV:                          r_fov.SetGenericRepDefault(iSet, CVAR_Int); break;
-        case USERDEFS_NEWGAMECUSTOMOPEN:
-            for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
-                if (iSet & (1u<<b))
-                    ME_NEWGAMECUSTOMENTRIES[b] = 0;
-            break;
-        case USERDEFS_NEWGAMECUSTOMSUBOPEN:
-            for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
-                if (iSet & (1u<<b))
-                    ME_NEWGAMECUSTOMSUBENTRIES[lParm2][b] = 0;
-            break;
+		case USERDEFS_NEWGAMECUSTOMOPEN:			M_UnhideCustomMenu(-1, iSet); break;
+		case USERDEFS_NEWGAMECUSTOMSUBOPEN:			M_UnhideCustomMenu(lParm2, iSet); break;
     }
 }
 

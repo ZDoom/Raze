@@ -1564,8 +1564,6 @@ void Menu_Init(void)
     }
     M_EPISODE.numEntries = g_volumeCnt+2;
     
-	MEL_EPISODE[g_volumeCnt] = &ME_Space4_Redfont;
-    MEL_EPISODE[g_volumeCnt+1] = &ME_EPISODE_USERMAP;
     MEOSN_NetEpisodes[k] = MenuUserMap;
     MEOSV_NetEpisodes[k] = MAXVOLUMES;
 
@@ -1576,74 +1574,6 @@ void Menu_Init(void)
         MEO_EPISODE.linkID = MENU_NULL;
     M_EPISODE.currentEntry = ud.default_volume;
 
-    // prepare new game custom :O
-    if (g_MenuGameplayEntries[0].entry.isValid())
-    {
-        MEO_MAIN_NEWGAME.linkID = M_NEWVERIFY.linkID = MENU_NEWGAMECUSTOM;
-
-        int e = 0;
-        for (MenuGameplayStemEntry const & stem : g_MenuGameplayEntries)
-        {
-            MenuGameplayEntry const & entry = stem.entry;
-            if (!entry.isValid())
-                break;
-
-            MenuEntry_t & e_me = ME_NEWGAMECUSTOMENTRIES[e];
-            e_me = ME_EPISODE_TEMPLATE;
-            MenuLink_t & e_meo = MEO_NEWGAMECUSTOM[e];
-            e_meo = MEO_NEWGAMECUSTOM_TEMPLATE;
-            e_me.entry = &e_meo;
-
-            e_me.name = entry.name;
-            if (entry.flags & MGE_Locked)
-                e_me.flags |= MEF_Disabled;
-            if (entry.flags & MGE_Hidden)
-                e_me.flags |= MEF_Hidden;
-
-            int s = 0;
-            for (MenuGameplayEntry const & subentry : stem.subentries)
-            {
-                if (!subentry.isValid())
-                    break;
-
-                MenuEntry_t & s_me = ME_NEWGAMECUSTOMSUBENTRIES[e][s];
-                s_me = ME_EPISODE_TEMPLATE;
-                MenuLink_t & s_meo = MEO_NEWGAMECUSTOMSUB[e][s];
-                s_meo = MEO_NEWGAMECUSTOMSUB_TEMPLATE;
-                s_me.entry = &s_meo;
-
-                s_me.name = subentry.name;
-                if (subentry.flags & MGE_Locked)
-                    s_me.flags |= MEF_Disabled;
-                if (subentry.flags & MGE_Hidden)
-                    s_me.flags |= MEF_Hidden;
-
-                ++s;
-            }
-
-            if (entry.flags & MGE_UserContent)
-                e_meo.linkID = MENU_USERMAP;
-            else if (s == 0)
-                e_meo.linkID = MENU_SKILL;
-
-            ++e;
-        }
-
-        Menu_PopulateNewGameCustom();
-    }
-
-    // prepare skills
-    k = -1;
-    for (i = 0; i < g_skillCnt && g_skillNames[i][0]; ++i)
-    {
-        MEL_SKILL[i] = &ME_SKILL[i];
-        ME_SKILL[i] = ME_SKILL_TEMPLATE;
-        ME_SKILL[i].name = g_skillNames[i];
-
-        MEOSN_NetSkills[i] = g_skillNames[i];
-
-        k = i;
-    }
     ++k;
     M_SKILL.numEntries = g_skillCnt; // k;
     MEOS_NETOPTIONS_MONSTERS.numOptions = g_skillCnt + 1; // k+1;

@@ -17,6 +17,7 @@ enum EMax
 {
 	MAXSKILLS = 7,
 	MAXVOLUMES = 7,
+	MAXMENUGAMEPLAYENTRIES = 7,
 };
 
 // These get filled in by the map definition parsers of the front ends.
@@ -24,10 +25,39 @@ extern FString gSkillNames[MAXSKILLS];
 extern FString gVolumeNames[MAXVOLUMES];
 extern FString gVolumeSubtitles[MAXVOLUMES];
 extern int32_t gVolumeFlags[MAXVOLUMES];
+extern int gDefaultVolume, gDefaultSkill;
 
 const int MENU_TICRATE = 30;
 extern bool help_disabled, credits_disabled;
 extern int g_currentMenu;
+
+enum
+{
+	EF_HIDEFROMSP = 1 << 0,
+};
+
+enum MenuGameplayEntryFlags
+{
+	MGE_Locked = 1u << 0u,
+	MGE_Hidden = 1u << 1u,
+	MGE_UserContent = 1u << 2u,
+};
+
+typedef struct MenuGameplayEntry
+{
+	char name[64];
+	uint8_t flags;
+
+	bool isValid() const { return name[0] != '\0'; }
+} MenuGameplayEntry;
+
+typedef struct MenuGameplayStemEntry
+{
+	MenuGameplayEntry entry;
+	MenuGameplayEntry subentries[MAXMENUGAMEPLAYENTRIES];
+} MenuGameplayStemEntry;
+
+extern MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
 
 
 enum EMenuState : int
@@ -86,9 +116,10 @@ enum ENativeFontValues
 
 struct FGameStartup
 {
-	const char *PlayerClass;
 	int Episode;
 	int Skill;
+	int CustomLevel1;
+	int CustomLevel2;
 };
 
 extern FGameStartup GameStartupInfo;
@@ -345,7 +376,7 @@ public:
 	virtual void Ticker();
 	virtual void Drawer(DListMenu *menu, const vec2_t& origin, bool selected);
 	virtual bool Selectable();
-	virtual bool Activate();
+	virtual bool Activate(FName caller);
 	virtual FName GetAction(int *pparam);
 	virtual bool SetString(int i, const char *s);
 	virtual bool GetString(int i, char *s, int len);
@@ -363,6 +394,7 @@ public:
 	void SetX(int x) { mXpos = x; }
 	void SetY(int x) { mYpos = x; }
 	void SetHeight(int x) { mHeight = x; }
+	void SetAction(FName action) { mAction = action; }
 };
 
 class FListMenuItemStaticPatch : public FListMenuItem
@@ -407,7 +439,7 @@ public:
 	bool CheckCoordinate(int x, int y) override;
 	bool Selectable() override;
 	bool CheckHotkey(int c) override;
-	bool Activate() override;
+	bool Activate(FName caller) override;
 	bool MouseEvent(int type, int x, int y) override;
 	FName GetAction(int *pparam) override;
 };
@@ -636,9 +668,11 @@ void M_ParseMenuDefs();
 void M_StartupSkillMenu(FGameStartup *gs);
 int M_GetDefaultSkill();
 void M_StartControlPanel (bool makeSound);
-void M_SetMenu(FName menu, int param = -1);
+bool M_SetMenu(FName menu, int param = -1, FName callingMenu = NAME_None);
 void M_NotifyNewSave (const char *file, const char *title, bool okForQuicksave);
 void M_StartMessage(const char *message, int messagemode, FName action = NAME_None);
+void M_UnhideCustomMenu(int menu, int itemmask);
+
 
 void I_SetMouseCapture();
 void I_ReleaseMouseCapture();

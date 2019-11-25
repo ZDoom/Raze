@@ -1579,7 +1579,7 @@ void Menu_Init(void)
     MMF_Top_Episode.pos.y = (58 + (3-k)*6)<<16;
     if (g_skillCnt == 0)
         MEO_EPISODE.linkID = MENU_NULL;
-    M_EPISODE.currentEntry = ud.default_volume;
+	M_EPISODE.currentEntry = gDefaultVolume;
 
     // prepare skills
     k = -1;
@@ -1598,7 +1598,7 @@ void Menu_Init(void)
     MEOS_NETOPTIONS_MONSTERS.numOptions = g_skillCnt + 1; // k+1;
     MEOSN_NetSkills[g_skillCnt] = MenuSkillNone;
     MMF_Top_Skill.pos.y = (58 + (4-g_skillCnt)*6)<<16;
-    M_SKILL.currentEntry = ud.default_skill;
+    M_SKILL.currentEntry = gDefaultSkill;
     Menu_AdjustForCurrentEntryAssignmentBlind(&M_SKILL);
 
     // prepare multiplayer gametypes

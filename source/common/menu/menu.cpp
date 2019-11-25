@@ -153,7 +153,7 @@ bool DMenu::MenuEvent (int mkey, bool fromcontroller)
 	{
 	case MKEY_Back:
 	{
-		if (scriptID != 1)
+		if (scriptID != 0)
 		{
 			Close();
 			//S_Sound (CHAN_VOICE | CHAN_UI, 	DMenu::CurrentMenu != NULL? "menu/backup" : "menu/clear", snd_menuvolume, ATTN_NONE);
@@ -301,9 +301,16 @@ bool DMenu::TranslateKeyboardEvents()
 
 void M_StartControlPanel (bool makeSound)
 {
+	static bool created = false;
 	// intro might call this repeatedly
 	if (DMenu::CurrentMenu != NULL)
 		return;
+
+	if (!created) // Cannot do this earlier.
+	{
+		created = true;
+		M_CreateMenus();
+	}
 
 	buttonMap.ResetButtonStates ();
 	for (int i = 0; i < NUM_MKEYS; ++i)
@@ -350,7 +357,7 @@ void M_ActivateMenu(DMenu *menu)
 //
 //=============================================================================
 
-void M_SetMenu(FName menu, int param)
+bool M_SetMenu(FName menu, int param, FName caller)
 {
 	if (DrawBackground == -1)
 	{
@@ -358,32 +365,40 @@ void M_SetMenu(FName menu, int param)
 		else DrawBackground = 0;
 	}
 	// some menus need some special treatment (needs to be adjusted for the various frontends.
-#if 0
+	switch (caller)
+	{
+	case NAME_EpisodeMenu:
+		// sent from the episode menu
+		GameStartupInfo.Episode = param;
+		GameStartupInfo.CustomLevel1 = GameStartupInfo.CustomLevel2 = -1;
+		GameStartupInfo.Skill = gDefaultSkill;
+		break;
+
+	case NAME_CustomGameMenu:
+		GameStartupInfo.CustomLevel1 = param;
+		GameStartupInfo.Episode = GameStartupInfo.CustomLevel2 = -1;
+		GameStartupInfo.Skill = gDefaultSkill;
+		// gi->CustomMenuSelection(-1, param);
+		break;
+
+	case NAME_CustomSubMenu1:
+		GameStartupInfo.CustomLevel2 = param;
+		// gi->CustomMenuSelection(GameStartupInfo.CustomLevel1, param);
+		menu = FName(ENamedName(menu + param));
+		break;
+
+	case NAME_SkillMenu:
+		GameStartupInfo.Skill = param;
+		break;
+	}
+
 	switch (menu)
 	{
-	case NAME_Episodemenu:
-		// sent from the player class menu
-		GameStartupInfo.Skill = -1;
-		GameStartupInfo.Episode = -1;
-		GameStartupInfo.PlayerClass = 
-			param == -1000? NULL :
-			param == -1? "Random" : GetPrintableDisplayName(PlayerClasses[param].Type);
-		break;
+	case NAME_StartGame:
+		// gi->StartGame(&GameStartupInfo);
+		return false;
 
-	case NAME_Skillmenu:
-		// sent from the episode menu
-
-		if ((gameinfo.flags & GI_SHAREWARE) && param > 0)
-		{
-			// Only Doom and Heretic have multi-episode shareware versions.
-			M_StartMessage(GStrings("SWSTRING"), 1);
-			return;
-		}
-
-		GameStartupInfo.Episode = param;
-		M_StartupSkillMenu(&GameStartupInfo);	// needs player class name from class menu (later)
-		break;
-
+#if 0
 	case NAME_StartgameConfirm:
 	{
 		// sent from the skill menu for a skill that needs to be confirmed
@@ -395,21 +410,6 @@ void M_SetMenu(FName menu, int param)
 		return;
 	}
 
-	case NAME_Startgame:
-		// sent either from skill menu or confirmation screen. Skill gets only set if sent from skill menu
-		// Now we can finally start the game. Ugh...
-		GameStartupInfo.Skill = param;
-	case NAME_StartgameConfirmed:
-
-		G_DeferedInitNew (&GameStartupInfo);
-		if (gamestate == GS_FULLCONSOLE)
-		{
-			gamestate = GS_HIDECONSOLE;
-			gameaction = ga_newgame;
-		}
-		M_ClearMenus ();
-		return;
-
 	case NAME_Savegamemenu:
 		if (!usergame || (players[consoleplayer].health <= 0 && !multiplayer) || gamestate != GS_LEVEL)
 		{
@@ -417,8 +417,8 @@ void M_SetMenu(FName menu, int param)
 			M_StartMessage (GStrings("SAVEDEAD"), 1);
 			return;
 		}
-	}
 #endif
+	}
 
 	// End of special checks
 
@@ -439,7 +439,7 @@ void M_SetMenu(FName menu, int param)
 			if (ld->mAutoselect >= 0 && ld->mAutoselect < (int)ld->mItems.Size())
 			{
 				// recursively activate the autoselected item without ever creating this menu.
-				ld->mItems[ld->mAutoselect]->Activate();
+				ld->mItems[ld->mAutoselect]->Activate(ld->mMenuName);
 			}
 			else
 			{
@@ -462,6 +462,7 @@ void M_SetMenu(FName menu, int param)
 				}
 				newmenu->Init(DMenu::CurrentMenu, ld);
 				M_ActivateMenu(newmenu);
+				return true;
 			}
 		}
 		else if ((*desc)->mType == MDESC_OptionsMenu)
@@ -473,7 +474,7 @@ void M_SetMenu(FName menu, int param)
 			newmenu->Init(DMenu::CurrentMenu, ld);
 			M_ActivateMenu(newmenu);
 		}
-		return;
+		return true;
 	}
 	else
 	{
@@ -486,12 +487,13 @@ void M_SetMenu(FName menu, int param)
 				DMenu *newmenu = (DMenu*)menuclass->CreateNew();
 				newmenu->mParentMenu = DMenu::CurrentMenu;
 				M_ActivateMenu(newmenu);
-				return;
+				return true;
 			}
 		}
 		*/
 	}
 	Printf("Attempting to open menu of unknown type '%s'\n", menu.GetChars());
+	return false;
 }
 
 //=============================================================================
@@ -790,7 +792,6 @@ void M_Init (void)
 	RegisterDukeMenus();
 	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();
-	M_CreateMenus();
 }
 
 

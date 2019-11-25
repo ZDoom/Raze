@@ -189,11 +189,6 @@ extern int32_t g_gametypeFlags[MAXGAMETYPES];
 extern const char *s_buildDate;
 #endif
 
-enum
-{
-    EF_HIDEFROMSP = 1<<0,
-};
-
 EXTERN_INLINE_HEADER void G_UpdateInterpolations(void);
 EXTERN_INLINE_HEADER void G_RestoreInterpolations(void);
 

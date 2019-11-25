@@ -178,7 +178,7 @@ bool DListMenu::MenuEvent (int mkey, bool fromcontroller)
 		return true;
 
 	case MKEY_Enter:
-		if (mDesc->mSelectedItem >= 0 && mDesc->mItems[mDesc->mSelectedItem]->Activate())
+		if (mDesc->mSelectedItem >= 0 && mDesc->mItems[mDesc->mSelectedItem]->Activate(mDesc->mMenuName))
 		{
 			gi->MenuChooseSound();
 		}
@@ -320,7 +320,7 @@ void FListMenuItem::DrawSelector(int xofs, int yofs, FTexture *tex)
 	}
 }
 
-bool FListMenuItem::Activate()
+bool FListMenuItem::Activate(FName)
 {
 	return false;	// cannot be activated
 }
@@ -476,10 +476,9 @@ bool FListMenuItemSelectable::Selectable()
 	return mEnabled && !mHidden;
 }
 
-bool FListMenuItemSelectable::Activate()
+bool FListMenuItemSelectable::Activate(FName caller)
 {
-	M_SetMenu(mAction, mParam);
-	return true;
+	return M_SetMenu(mAction, mParam, caller);
 }
 
 FName FListMenuItemSelectable::GetAction(int *pparam)

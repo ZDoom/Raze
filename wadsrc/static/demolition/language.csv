@@ -11,3 +11,9 @@ Credits,MNU_CREDITS,,,,,,,,,,,,,,,,,,,,,,
 Cool Stuff,MNU_COOLSTUFF,,,,,Cooles Zeug,,,,,,,,,,,,,,,,,
 Multiplayer,MNU_MULTIPLAYER,,,,,Mehrspieler,,,,,,,,,,,,,,,,,
 End Game,MNU_ENDGAME,,,,,Spiel beenden,,,,,,,,,,,,,,,,,
+User Map,MNU_USERMAP,,,,,Benutzerlevel,,,,,,,,,,,,,,,,,
+Select a user map to play,MNU_SELECTUSERMAP,,,,,"Wähle ein Level zum Spielen
+",,,,,,,,,,,,,,,,,
+Select an Episode,MNU_SELECTEPISODE,,,,,"Welche Episode?
+",,,,,,,,,,,,,,,,,
+Select Skill,MNU_SELECTSKILL,,,,,Schwierigkeitsgrad,,,,,,,,,,,,,,,,,

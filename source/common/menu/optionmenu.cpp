@@ -310,7 +310,7 @@ bool DOptionMenu::MenuEvent (int mkey, bool fromcontroller)
 		break;
 
 	case MKEY_Enter:
-		if (mDesc->mSelectedItem >= 0 && mDesc->mItems[mDesc->mSelectedItem]->Activate()) 
+		if (mDesc->mSelectedItem >= 0 && mDesc->mItems[mDesc->mSelectedItem]->Activate(mDesc->mMenuName)) 
 		{
 			return true;
 		}

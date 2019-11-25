@@ -47,32 +47,6 @@ struct MenuFont_t
 
 extern MenuFont_t MF_Redfont, MF_Bluefont, MF_Minifont;
 
-#define MAXMENUGAMEPLAYENTRIES 7
-
-enum MenuGameplayEntryFlags
-{
-	MGE_Locked = 1u << 0u,
-	MGE_Hidden = 1u << 1u,
-	MGE_UserContent = 1u << 2u,
-};
-
-typedef struct MenuGameplayEntry
-{
-	char name[64];
-	uint8_t flags;
-
-	bool isValid() const { return name[0] != '\0'; }
-} MenuGameplayEntry;
-
-typedef struct MenuGameplayStemEntry
-{
-	MenuGameplayEntry entry;
-	MenuGameplayEntry subentries[MAXMENUGAMEPLAYENTRIES];
-} MenuGameplayStemEntry;
-
-extern MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
-extern int ME_NEWGAMECUSTOMENTRIES[MAXMENUGAMEPLAYENTRIES];
-extern int ME_NEWGAMECUSTOMSUBENTRIES[MAXMENUGAMEPLAYENTRIES][MAXMENUGAMEPLAYENTRIES];
 void Menu_Init(void);
 
 

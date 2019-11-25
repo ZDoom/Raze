@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------------------------
 //
-// Text only variant of the main menu for Doom, Strife and Chex Quest to be used with localized content.
+// 
 //
 //-------------------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ LISTMENU "MainMenu"
 			centermenu
 		}
 		class "Duke.MainMenu"
-		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
 		ifgame(fury)
 		{
@@ -37,8 +37,7 @@ LISTMENU "MainMenu"
 	}
 	ifgame(Redneck, RedneckRides)
 	{
-		linespacing 15
-		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
@@ -48,8 +47,7 @@ LISTMENU "MainMenu"
 	}
 	ifgame(Blood)
 	{
-		linespacing 15
-		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
@@ -59,8 +57,7 @@ LISTMENU "MainMenu"
 	}
 	ifgame(ShadowWarrior)
 	{
-		linespacing 15
-		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
@@ -87,7 +84,7 @@ LISTMENU "IngameMenu"
 		}
 		linespacing 15
 		class "Duke.MainMenu"
-		NativeTextItem "$MNU_NEWGAME", "n", "CustomGameMenu"
+		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
@@ -131,68 +128,100 @@ LISTMENU "IngameMenu"
 
 LISTMENU "EpisodeMenu"
 {
-	ScriptId 100
-	// Episode names filled in programmatically
-	//Spacer
-	/*
-	NativeTextItem "$MNU_USERMAP", "u", "UserMap"
-	ifgame(ShadowWarrior)
+	ifgame(Duke, Nam, WW2GI, Fury) // Ion Fury does not use this menu.
 	{
-		NativeStaticTextItem "$MNU_SELECTUSERMAP"
+		caption "$MNU_SELECTEPISODE"
+		position 160, 48, 142
+		centermenu
+		fixedspacing 5
+		class "Duke.ListMenu"
 	}
-	*/
+
+	ScriptId 100
 }
 
 LISTMENU "SkillMenu"
 {
-	NativeTextItem "1", "", "StartGame", 1
+	ifgame(Duke, Nam, WW2GI, Fury) // Ion Fury does not use this menu.
+	{
+		caption "$MNU_SELECTSKILL"
+		position 160, 55, 135
+		centermenu
+		fixedspacing 5
+		class "Duke.ListMenu"
+	}
+
+	ScriptId 110
 }
 
 LISTMENU "CustomGameMenu"
 {
+	position 160, 48, 142
+	centermenu
+	fixedspacing 5
 	ScriptId 102
-	// Filled in programmatically
-	//NativeTextItem "1", "", "CustomSubMenu1"
 }
 
 LISTMENU "CustomSubMenu1"
 {
+	position 160, 48, 142
+	centermenu
+	fixedspacing 5
 	ScriptId 103
-	//NativeTextItem "1", "", "SkillMenu"
 }
 
 LISTMENU "CustomSubMenu2"
 {
+	position 160, 48, 142
+	centermenu
+	fixedspacing 5
 	ScriptId 103
-	//NativeTextItem "1", "", "SkillMenu"
 }
 
 LISTMENU "CustomSubMenu3"
 {
+	position 160, 48, 142
+	centermenu
+	fixedspacing 5
 	ScriptId 103
-	//NativeTextItem "1", "", "SkillMenu"
 }
 
 LISTMENU "CustomSubMenu4"
 {
+	position 160, 48, 142
+	centermenu
+	fixedspacing 5
 	ScriptId 103
-	//NativeTextItem "1", "", "SkillMenu"
 }
 
 LISTMENU "CustomSubMenu5"
 {
+	position 160, 48, 142
+	centermenu
+	fixedspacing 5
 	ScriptId 103
-	//NativeTextItem "1", "", "SkillMenu"
 }
 
 LISTMENU "CustomSubMenu6"
 {
+	position 160, 48, 142
+	centermenu
+	fixedspacing 5
 	ScriptId 103
-	//NativeTextItem "1", "", "SkillMenu"
 }
 
 LISTMENU "CustomSubMenu7"
 {
+	position 160, 48, 142
+	centermenu
+	fixedspacing 5
 	ScriptId 103
-	//NativeTextItem "1", "", "SkillMenu"
+}
+
+LISTMENU "MultiMenu"
+{
+	Caption "$MNU_NETWORKGAME"
+	NativeTextItem "$MNU_PLAYERSETUP", "p", "PlayerSetupMenu"
+	NativeTextItem "$MNU_JOINGAME", "j", "JoinGameMenu"
+	NativeTextItem "$MNU_HOSTGAME", "h", "HostGameMenu"
 }

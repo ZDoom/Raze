@@ -49,10 +49,13 @@
 
 void ClearSaveGames();
 
+// Menu-relevant content that gets filled in by scripts. This will get processed after the game has loaded.
 FString gSkillNames[MAXSKILLS];
 FString gVolumeNames[MAXVOLUMES];
 FString gVolumeSubtitles[MAXVOLUMES];
 int32_t gVolumeFlags[MAXVOLUMES];
+int gDefaultVolume = 0, gDefaultSkill = 1;
+MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
 
 MenuDescriptorList MenuDescriptors;
 static FListMenuDescriptor DefaultListMenuSettings;	// contains common settings for all list menus
@@ -984,8 +987,32 @@ void M_ParseMenuDefs()
 
 //=============================================================================
 //
+// Unlocks a custom menu from a script
+//
+//=============================================================================
+
+void M_UnhideCustomMenu(int menu, int iSet)
+{
+	FName menuname = FName(ENamedName(NAME_CustomSubMenu1 + menu));
+	auto desc = MenuDescriptors.CheckKey(menuname);
+	if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
+	{
+		FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+		for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
+		{
+			if (b >= ld->mItems.Size()) return;
+			if (iSet & (1u << b))
+			{
+				ld->mItems[b]->mHidden = false;
+				ld->mItems[b]->mEnabled = true;
+			}
+		}
+	}
+}
+
+//=============================================================================
+//
 // Creates the episode menu
-// Falls back on an option menu if there's not enough screen space to show all episodes
 //
 //=============================================================================
 
@@ -994,68 +1021,130 @@ static void BuildEpisodeMenu()
 	// Build episode menu
 	int addedVolumes = 0;
 	FMenuDescriptor **desc = MenuDescriptors.CheckKey(NAME_EpisodeMenu);
-	if (desc != NULL)
+	if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
 	{
-		if ((*desc)->mType == MDESC_ListMenu)
+		FListMenuDescriptor *ld = static_cast<FListMenuDescriptor*>(*desc);
+		ld->mSelectedItem = gDefaultVolume;
+
+		for (int i = 0; i < MAXVOLUMES; i++)
 		{
-			FListMenuDescriptor *ld = static_cast<FListMenuDescriptor*>(*desc);
-			ld->mSelectedItem = 1;
+			if (gVolumeNames[i].IsNotEmpty() && !(gVolumeFlags[i] & EF_HIDEFROMSP))
 
-			for (int i = 0; i < MAXVOLUMES; i++)
 			{
-				if (gVolumeNames[i].IsNotEmpty())
+				auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i + 1);
+				ld->mItems.Push(it);
+				addedVolumes++;
+				if (gVolumeSubtitles[i].IsNotEmpty())
 				{
-					auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i + 1);
-					ld->mItems.Push(it);
-					addedVolumes++;
-					if (gVolumeSubtitles[i].IsNotEmpty())
-					{
-						//auto it = new FListMenuItemNativeStaticText(ld->mXpos, gVolumeSubtitles[i], NIT_SmallFont);
-						//ld->mItems.Push(it);
-					}
-				}
-				if (1 /*CheckUserMaps()*/)
-				{
-					//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "", NIT_SmallFont);	// empty entry as spacer.
+					//auto it = new FListMenuItemNativeStaticText(ld->mXpos, gVolumeSubtitles[i], NIT_SmallFont);
 					//ld->mItems.Push(it);
+				}
+			}
+		}
+		if (1 /*CheckUserMaps()*/)
+		{
+			//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "", NIT_SmallFont);	// empty entry as spacer.
+			//ld->mItems.Push(it);
 
-					auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, 0, "$MNU_USERMAP", NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i + 1);
-					ld->mItems.Push(it);
-					addedVolumes++;
-					if (g_gameType & GAMEFLAG_SW)	// fixme: make this game independent.
+			auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, 0, "$MNU_USERMAP", NIT_BigFont, NIT_ActiveState, 1, NAME_UsermapMenu);
+			ld->mItems.Push(it);
+			addedVolumes++;
+			if (g_gameType & GAMEFLAG_SW)	// fixme: make this game independent.
+			{
+				//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "$MNU_SELECTUSERMAP", NIT_SmallFont);
+				//ld->mItems.Push(it);
+			}
+		}
+		if (addedVolumes == 1)
+		{
+			ld->mAutoselect = 0;
+		}
+	}
+
+	// Build skill menu
+	int addedSkills = 0;
+	desc = MenuDescriptors.CheckKey(NAME_SkillMenu);
+	if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
+	{
+		FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+		ld->mSelectedItem = gDefaultSkill;
+
+		for (int i = 0; i < MAXSKILLS; i++)
+		{
+			if (gSkillNames[i].IsNotEmpty())
+			{
+				auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, gSkillNames[i][0], gSkillNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_StartGame, i);
+				ld->mItems.Push(it);
+				addedSkills++;
+			}
+		}
+		if (addedSkills == 0)
+		{
+			// Need to add one item with the default skill so that the menu does not break.
+			auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, 0, "", NIT_BigFont, NIT_ActiveState, 1, NAME_StartGame, gDefaultSkill);
+			ld->mItems.Push(it);
+		}
+		if (addedSkills == 1)
+		{
+			ld->mAutoselect = 0;
+		}
+	}
+
+	if (g_MenuGameplayEntries[0].entry.isValid())
+	{
+		int e = 0;
+		FMenuDescriptor** desc = MenuDescriptors.CheckKey(NAME_CustomGameMenu);
+		if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
+		{
+			FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+
+			for (MenuGameplayStemEntry const& stem : g_MenuGameplayEntries)
+			{
+				MenuGameplayEntry const& entry = stem.entry;
+				if (!entry.isValid())
+					break;
+
+				int s = 0;
+				FMenuDescriptor** sdesc = MenuDescriptors.CheckKey(FName(ENamedName(NAME_CustomSubMenu1 + e)));
+				if (sdesc != NULL && (*sdesc)->mType == MDESC_ListMenu)
+				{
+					FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+
+					for (MenuGameplayEntry const& subentry : stem.subentries)
 					{
-						//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "$MNU_SELECTUSERMAP", NIT_SmallFont);
-						//ld->mItems.Push(it);
+						if (!subentry.isValid())
+							break;
+
+						auto li = new FListMenuItemNativeText(ld->mXpos, 0, 0, 0, subentry.name, NIT_BigFont, NIT_ActiveColor, 1.f, subentry.flags & MGE_UserContent ? NAME_UsermapMenu : NAME_SkillMenu);
+
+						if (subentry.flags & MGE_Locked) li->mEnabled = false;
+						if (subentry.flags & MGE_Hidden) li->mHidden = true;
+
+						++s;
 					}
 				}
-				if (addedVolumes == 1)
+				FName link = entry.flags & MGE_UserContent ? NAME_UsermapMenu : s == 0 ? NAME_SkillMenu : NAME_CustomSubMenu1;
+
+				auto li = new FListMenuItemNativeText(ld->mXpos, 0, 0, 0, entry.name, NIT_BigFont, NIT_ActiveColor, 1.f, link, link == NAME_CustomSubMenu1 ? e : -1);
+				if (entry.flags & MGE_Locked) li->mEnabled = false;
+				if (entry.flags & MGE_Hidden) li->mHidden = true;
+				e++;
+			}
+		}
+		if (e > 0)
+		{
+			FMenuDescriptor** desc = MenuDescriptors.CheckKey(NAME_MainMenu);
+			if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
+			{
+				FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+				auto li = ld->mItems[0];
+				if (li->GetAction(nullptr) == NAME_EpisodeMenu)
 				{
-					ld->mAutoselect = 0;
+					li->SetAction(NAME_CustomGameMenu);
 				}
 			}
 		}
 	}
-#if 0
-	if (gVolumeNames[i].IsNotEmpty())
-	{
-		if (!(gVolumeFlags[i] & EF_HIDEFROMSP))
-		{
-			MEL_EPISODE[i] = &ME_EPISODE[i];
-			ME_EPISODE[i] = ME_EPISODE_TEMPLATE;
-			ME_EPISODE[i].name = gVolumeNames[i];
-		}
-
-		// if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
-		{
-			MEOSN_NetEpisodes[k] = gVolumeNames[i];
-			MEOSV_NetEpisodes[k] = i;
-
-			k++;
-		}
-	}
-	M_EPISODE.numEntries = g_volumeCnt + 2;
-
-#endif
 }
 
 //=============================================================================
@@ -1143,195 +1232,11 @@ void M_CreateMenus()
 
 //=============================================================================
 //
-// The skill menu must be refeshed each time it starts up
-//
-//=============================================================================
-extern int restart;
-
-void M_StartupSkillMenu(FGameStartup *gs)
-{
-#if 0
-	static int done = -1;
-	bool success = false;
-	FMenuDescriptor **desc = MenuDescriptors.CheckKey(NAME_Skillmenu);
-	if (desc != NULL)
-	{
-		if ((*desc)->mType == MDESC_ListMenu)
-		{
-			FListMenuDescriptor *ld = static_cast<FListMenuDescriptor*>(*desc);
-			int x = ld->mXpos;
-			int y = ld->mYpos;
-
-			// Delete previous contents
-			for(unsigned i=0; i<ld->mItems.Size(); i++)
-			{
-				FName n = ld->mItems[i]->GetAction(NULL);
-				if (n == NAME_Startgame || n == NAME_StartgameConfirm) 
-				{
-					for(unsigned j=i; j<ld->mItems.Size(); j++)
-					{
-						delete ld->mItems[j];
-					}
-					ld->mItems.Resize(i);
-					break;
-				}
-			}
-
-			if (done != restart)
-			{
-				done = restart;
-				int defskill = DefaultSkill;
-				if ((unsigned int)defskill >= AllSkills.Size())
-				{
-					defskill = (AllSkills.Size() - 1) / 2;
-				}
-				ld->mSelectedItem = ld->mItems.Size() + defskill;
-
-				int posy = y;
-				int topy = posy;
-
-				// Get lowest y coordinate of any static item in the menu
-				for(unsigned i = 0; i < ld->mItems.Size(); i++)
-				{
-					int y = ld->mItems[i]->GetY();
-					if (y < topy) topy = y;
-				}
-
-				// center the menu on the screen if the top space is larger than the bottom space
-				int totalheight = posy + AllSkills.Size() * ld->mLinespacing - topy;
-
-				if (totalheight < 190 || AllSkills.Size() == 1)
-				{
-					int newtop = (200 - totalheight + topy) / 2;
-					int topdelta = newtop - topy;
-					if (topdelta < 0)
-					{
-						for(unsigned i = 0; i < ld->mItems.Size(); i++)
-						{
-							ld->mItems[i]->OffsetPositionY(topdelta);
-						}
-						y = ld->mYpos = posy - topdelta;
-					}
-				}
-				else
-				{
-					// too large
-					delete ld;
-					desc = NULL;
-					done = false;
-					goto fail;
-				}
-			}
-
-			unsigned firstitem = ld->mItems.Size();
-			for(unsigned int i = 0; i < AllSkills.Size(); i++)
-			{
-				FSkillInfo &skill = AllSkills[i];
-				FListMenuItem *li;
-				// Using a different name for skills that must be confirmed makes handling this easier.
-				FName action = (skill.MustConfirm && !AllEpisodes[gs->Episode].mNoSkill) ?
-					NAME_StartgameConfirm : NAME_Startgame;
-				FString *pItemText = NULL;
-				if (gs->PlayerClass != NULL)
-				{
-					pItemText = skill.MenuNamesForPlayerClass.CheckKey(gs->PlayerClass);
-				}
-
-				if (skill.PicName.Len() != 0 && pItemText == NULL)
-				{
-					FTextureID tex = GetMenuTexture(skill.PicName);
-					li = new FListMenuItemPatch(ld->mXpos, y, ld->mLinespacing, skill.Shortcut, tex, action, i);
-				}
-				else
-				{
-					EColorRange color = (EColorRange)skill.GetTextColor();
-					if (color == CR_UNTRANSLATED) color = ld->mFontColor;
-					li = new FListMenuItemText(x, y, ld->mLinespacing, skill.Shortcut, 
-									pItemText? *pItemText : skill.MenuName, ld->mFont, color,ld->mFontColor2, action, i);
-				}
-				ld->mItems.Push(li);
-				y += ld->mLinespacing;
-			}
-			if (AllEpisodes[gs->Episode].mNoSkill || AllSkills.Size() == 1)
-			{
-				ld->mAutoselect = firstitem + M_GetDefaultSkill();
-			}
-			else
-			{
-				ld->mAutoselect = -1;
-			}
-			success = true;
-		}
-	}
-	if (success) return;
-fail:
-	// Option menu fallback for overlong skill lists
-	FOptionMenuDescriptor *od;
-	if (desc == NULL)
-	{
-		od = new FOptionMenuDescriptor;
-		if (desc != NULL) delete *desc;
-		MenuDescriptors[NAME_Skillmenu] = od;
-		od->mType = MDESC_OptionsMenu;
-		od->mMenuName = NAME_Skillmenu;
-		od->mTitle = "$MNU_CHOOSESKILL";
-		od->mSelectedItem = 0;
-		od->mScrollPos = 0;
-		od->mClass = NULL;
-		od->mPosition = -15;
-		od->mScrollTop = 0;
-		od->mIndent = 160;
-		od->mDontDim = false;
-	}
-	else
-	{
-		od = static_cast<FOptionMenuDescriptor*>(*desc);
-		for(unsigned i=0;i<od->mItems.Size(); i++)
-		{
-			delete od->mItems[i];
-		}
-		od->mItems.Clear();
-	}
-	for(unsigned int i = 0; i < AllSkills.Size(); i++)
-	{
-		FSkillInfo &skill = AllSkills[i];
-		FOptionMenuItem *li;
-		// Using a different name for skills that must be confirmed makes handling this easier.
-		const char *action = (skill.MustConfirm && !AllEpisodes[gs->Episode].mNoSkill) ?
-			"StartgameConfirm" : "Startgame";
-
-		FString *pItemText = NULL;
-		if (gs->PlayerClass != NULL)
-		{
-			pItemText = skill.MenuNamesForPlayerClass.CheckKey(gs->PlayerClass);
-		}
-		li = new FOptionMenuItemSubmenu(pItemText? *pItemText : skill.MenuName, action, i);
-		od->mItems.Push(li);
-		if (!done)
-		{
-			done = true;
-			od->mSelectedItem = M_GetDefaultSkill();
-		}
-	}
-#endif
-}
-
-//=============================================================================
-//
 // Returns the default skill level.
 //
 //=============================================================================
 
 int M_GetDefaultSkill()
 {
-#if 0
-	int defskill = DefaultSkill;
-	if ((unsigned int)defskill >= AllSkills.Size())
-	{
-		defskill = (AllSkills.Size() - 1) / 2;
-	}
-	return defskill;
-#else
-	return 1;
-#endif
+	return gDefaultSkill;
 }
