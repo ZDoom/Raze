@@ -427,11 +427,12 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy)
         break;
     }
 
-    //by NoOne: allow to send commands on player sprites
+    
     if (gModernMap) {
         
+        // allow to send commands on player sprites
         PLAYER* pPlayer = NULL;
-        if (rxId >= kChannelPlayer0 && rxId <= kChannelPlayer7) {
+        if (playerRXRngIsFine(rxId)) {
             if ((pPlayer = getPlayerById((kChannelPlayer0 - kChannelPlayer7) + kMaxPlayers)) != NULL)
                 trMessageSprite(pPlayer->nSprite, event);
         } else if (rxId == kChannelAllPlayers) {
@@ -439,6 +440,9 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy)
                 if ((pPlayer = getPlayerById(i)) != NULL)
                     trMessageSprite(pPlayer->nSprite, event);
             }
+        // send command on sprite which create the event sequence
+        } else if (rxId == kChannelEventCauser && spriRangeIsFine(event.causedBy)) {
+            trMessageSprite(event.causedBy, event);
         }
 
     }

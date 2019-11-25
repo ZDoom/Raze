@@ -64,7 +64,7 @@ struct PLAYER {
     DUDEINFO *pDudeInfo;
     GINPUT input;
     //short input;                      // INPUT
-    //char at10; // forward
+    //char moveFunc;                        // forward
     //short at11; // turn
     //char hearDist; // strafe
     //int bobV;                         // buttonFlags
@@ -216,11 +216,15 @@ struct POWERUPINFO {
     int maxTime;
 };
 
+
+#define kQavSceneStackSize 16
 // by NoOne: this one stores qavs anims that can be played by trigger
 struct QAVSCENE {
     short index = -1; // index of sprite which triggered qav scene
     QAV* qavResrc = NULL;
     short causedBy = -1;
+
+    // TO-DO: Stack of animations which allows to pop and push (restoring previous animation instead of weapon once current animation is played)
 };
 
 // by NoOne: this one for controlling the player using triggers (movement speed, jumps and other stuff)
