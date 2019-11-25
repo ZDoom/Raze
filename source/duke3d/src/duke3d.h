@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "pragmas.h"
 #include "polymost.h"
 #include "gamecvars.h"
+#include "menu/menu.h"
 
 
 #define HEAD2                   APPNAME
@@ -58,7 +59,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MOVEFIFOSIZ         2
 
 // KEEPINSYNC lunatic/con_lang.lua
-#define MAXVOLUMES          7
 #define MAXLEVELS           64
 #define MAXGAMETYPES        16
 

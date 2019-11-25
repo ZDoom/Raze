@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "polymost.h"
 #include "gamecvars.h"
+#include "menu/menu.h"
 
 BEGIN_RR_NS
 
@@ -60,7 +61,6 @@ BEGIN_RR_NS
 #define MOVEFIFOSIZ         256
 
 // KEEPINSYNC lunatic/con_lang.lua
-#define MAXVOLUMES          7
 #define MAXLEVELS           64
 #define MAXGAMETYPES        16
 

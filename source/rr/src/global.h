@@ -47,7 +47,6 @@ BEGIN_RR_NS
 
 #define MAXINTERPOLATIONS MAXSPRITES
 // KEEPINSYNC lunatic/con_lang.lua
-#define MAXSKILLS 7
 
 // duke3d global soup :(
 

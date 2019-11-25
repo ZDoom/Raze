@@ -8,11 +8,12 @@
 #include "v_font.h"
 #include "version.h"
 #include "textures.h"
+#include "zstring.h"
 
 EXTERN_CVAR(Float, snd_menuvolume)
 EXTERN_CVAR(Int, m_use_mouse);
 
-enum
+enum EMax
 {
 	MAXSKILLS = 7,
 	MAXVOLUMES = 7,

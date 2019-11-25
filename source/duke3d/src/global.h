@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "quotes.h"
 #include "sector.h"
 #include "sounds.h"
+#include "menu/menu.h"
 
 BEGIN_DUKE_NS
 
@@ -41,7 +42,6 @@ BEGIN_DUKE_NS
 
 #define MAXINTERPOLATIONS MAXSPRITES
 // KEEPINSYNC lunatic/con_lang.lua
-#define MAXSKILLS 7
 
 // duke3d global soup :(
 

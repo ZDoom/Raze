@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamevars.h"
 #include "mmulti.h"
 #include "network.h"
+#include "menu/menu.h"
 
 BEGIN_DUKE_NS
 

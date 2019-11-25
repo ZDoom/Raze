@@ -5018,7 +5018,7 @@ repeatcase:
             }
 
 			i = strcspn(textptr, "\r\n");
-			gVolumeNames[j] = StringTable::MakeMacro(textptr, i);
+			gVolumeNames[j] = FStringTable::MakeMacro(textptr, i);
 			textptr += i;
   
             g_volumeCnt = j+1;
@@ -5119,7 +5119,7 @@ repeatcase:
             }
 
 			i = strcspn(textptr, "\r\n");
-			gSkillNames[j] = StringTable::MakeMacro(textptr, i);
+			gSkillNames[j] = FStringTable::MakeMacro(textptr, i);
 			textptr+=i;
 
             for (i=0; i<MAXSKILLS; i++)

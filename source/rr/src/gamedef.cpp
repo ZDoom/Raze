@@ -1887,7 +1887,7 @@ static int32_t C_ParseCommand(int32_t loop)
             }
 
 			i = strcspn(textptr, "\r\n");
-			gVolumeNames[j] = StringTable::MakeMacro(textptr, i);
+			gVolumeNames[j] = FStringTable::MakeMacro(textptr, i);
 			textptr+=i;
             g_volumeCnt = j+1;
             continue;
@@ -1911,7 +1911,7 @@ static int32_t C_ParseCommand(int32_t loop)
             }
 
 			i = strcspn(textptr, "\r\n");
-			gSkillNames[j] = StringTable::MakeMacro(textptr, i);
+			gSkillNames[j] = FStringTable::MakeMacro(textptr, i);
 			textptr+=i;
 
             for (i=0; i<MAXSKILLS; i++)
