@@ -105,6 +105,8 @@ struct MenuTransition
 	int32_t dir;
 };
 
+static MenuTransition transition;
+
 bool M_StartTransition(DMenu *from, DMenu *to, MenuTransitionType animtype, MenuTransition &transition)
 {
 	if (!from->canAnimate || !to->canAnimate || animtype == MA_None)
@@ -133,9 +135,9 @@ bool M_DrawTransition(MenuTransition &transition)
 		transition.current->origin.X = factor * transition.dir * (sin(phase) + 1.);
 		transition.previous->Drawer();
 		transition.current->Drawer();
-		return false;
+		return true;
 	}
-	return true;
+	return false;
 }
 
 //============================================================================
@@ -225,16 +227,24 @@ bool DMenu::MenuEvent (int mkey, bool fromcontroller)
 void DMenu::Close ()
 {
 	assert(DMenu::CurrentMenu == this);
+	
 	DMenu::CurrentMenu = mParentMenu;
-	Destroy();
-	delete this;
-	if (DMenu::CurrentMenu == NULL)
+	if (mParentMenu && M_StartTransition(this, mParentMenu, MA_Return, transition))
 	{
-		M_ClearMenus();
+		g_currentMenu = DMenu::CurrentMenu->scriptID;
 	}
 	else
 	{
-		g_currentMenu = DMenu::CurrentMenu->scriptID;
+		Destroy();
+		delete this;
+		if (DMenu::CurrentMenu == NULL)
+		{
+			M_ClearMenus();
+		}
+		else
+		{
+			g_currentMenu = DMenu::CurrentMenu->scriptID;
+		}
 	}
 }
 
@@ -399,7 +409,11 @@ void M_ActivateMenu(DMenu *menu)
 {
 	g_currentMenu = menu->scriptID;
 	if (menuactive == MENU_Off) menuactive = MENU_On;
-	if (DMenu::CurrentMenu != NULL) DMenu::CurrentMenu->ReleaseCapture();
+	if (DMenu::CurrentMenu != NULL)
+	{
+		DMenu::CurrentMenu->ReleaseCapture();
+		M_StartTransition(DMenu::CurrentMenu, menu, MA_Advance, transition);
+	}
 	DMenu::CurrentMenu = menu;
 }
 
@@ -785,27 +799,28 @@ void M_Drawer (void)
 {
 	rotatesprite_2doverride = true;
 	PalEntry fade = 0x70000000;
-#if 0
-	player_t *player = &players[consoleplayer];
-	AActor *camera = player->camera;
-
-	if (!screen->Accel2D && camera != NULL && (gamestate == GS_LEVEL || gamestate == GS_TITLELEVEL))
-	{
-		if (camera->player != NULL)
-		{
-			player = camera->player;
-		}
-		fade = PalEntry (BYTE(player->BlendA*255), BYTE(player->BlendR*255), BYTE(player->BlendG*255), BYTE(player->BlendB*255));
-	}
-#endif
-
 
 	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off)
 	{
-		DMenu::CurrentMenu->origin = { 0,0 };
 		if (DMenu::CurrentMenu->DimAllowed() && fade && !DrawBackground) twod.AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
-		// else if (DrawBackground) Menu_DrawBackground(origin);
-		DMenu::CurrentMenu->Drawer();
+
+		bool done = false;
+		if (transition.previous)
+		{
+			done = M_DrawTransition(transition);
+			if (!done)
+			{
+				delete transition.previous;
+				transition.previous = nullptr;
+				transition.current = nullptr;
+			}
+		}
+		if (!done)
+		{
+			DMenu::CurrentMenu->origin = { 0,0 };
+			// else if (DrawBackground) Menu_DrawBackground(origin);
+			DMenu::CurrentMenu->Drawer();
+		}
 	}
 	rotatesprite_2doverride = false;
 }
