@@ -131,13 +131,13 @@ void Menu_Init(void)
 #endif
 }
 
-static void Menu_DrawTopBar(const vec2_t origin)
+static void Menu_DrawTopBar(const DVector2 &origin)
 {
     if ((G_GetLogoFlags() & LOGO_NOTITLEBAR) == 0)
-        rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (19<<16), MF_Redfont.cursorScale, 0,MENUBAR,16,0,10);
+        rotatesprite_fs(int(origin.X*65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y*65536) + (19<<16), MF_Redfont.cursorScale, 0,MENUBAR,16,0,10);
 }
 
-static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
+static void Menu_DrawTopBarCaption(const char *caption, const DVector2 &origin)
 {
     static char t[64];
 	if (*caption == '$') caption = GStrings(caption + 1);
@@ -148,7 +148,7 @@ static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
     char *p = &t[dstlen-1];
     if (*p == ':')
         *p = '\0';
-    captionmenutext(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (24<<16) + ((15>>1)<<16), t);
+    captionmenutext(int(origin.X*65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y*65536) + (24<<16) + ((15>>1)<<16), t);
 }
 
 static void Menu_GetFmt(const MenuFont_t* font, uint8_t const status, int32_t* s, int32_t* z)
@@ -227,7 +227,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, int xpos, int ypo
 {
 	int ydim_upper = 0;
 	int ydim_lower = ydim - 1;
-	int32_t const indent = 0;	// not set for any relevant menu
+	//int32_t const indent = 0;	// not set for any relevant menu
 	int32_t x = xpos;
 
 	uint8_t status = 0;
@@ -271,14 +271,14 @@ protected:
 
 	virtual void CallScript(int event, bool getorigin = false)
 	{
-		ud.returnvar[0] = origin.x;
-		ud.returnvar[1] = origin.y;
+		ud.returnvar[0] = int(origin.X * 65536);
+		ud.returnvar[1] = int(origin.Y * 65536);
 		ud.returnvar[2] = mDesc->mSelectedItem;
 		VM_OnEventWithReturn(event, g_player[screenpeek].ps->i, screenpeek, mDesc->mScriptId);
 		if (getorigin)
 		{
-			origin.x = ud.returnvar[0];
-			origin.y = ud.returnvar[1];
+			origin.X = ud.returnvar[0] / 65536.;
+			origin.Y = ud.returnvar[1] / 65536.;
 		}
 	}
 
@@ -369,9 +369,9 @@ class MainMenu : public DukeListMenu
 		DukeListMenu::PreDraw();
         if ((G_GetLogoFlags() & LOGO_NOGAMETITLE) == 0)
         {
-            rotatesprite_fs((origin.x << 16) + (MENU_MARGIN_CENTER<<16), (origin.y << 16) + ((28)<<16), 65536L,0,INGAMEDUKETHREEDEE,0,0,10);
+            rotatesprite_fs(int(origin.X * 65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y * 65536) + ((28)<<16), 65536L,0,INGAMEDUKETHREEDEE,0,0,10);
             if (PLUTOPAK)   // JBF 20030804
-                rotatesprite_fs((origin.y << 16) + ((MENU_MARGIN_CENTER+100)<<16), (origin.y << 16) + (36<<16), 65536L,0,PLUTOPAKSPRITE+2,(sintable[((int32_t) totalclock<<4)&2047]>>11),0,2+8);
+                rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER+100)<<16), int(origin.Y * 65536) + (36<<16), 65536L,0,PLUTOPAKSPRITE+2,(sintable[((int32_t) totalclock<<4)&2047]>>11),0,2+8);
         }
 	}	
 };

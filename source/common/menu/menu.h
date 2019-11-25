@@ -318,10 +318,11 @@ public:
 	static int MenuTime;
 
 	DMenu *mParentMenu;
-	vec2_t origin;
+	DVector2 origin;
 	int scriptID = INT_MAX;
 
 	DMenu(DMenu *parent = NULL);
+	virtual ~DMenu() = default;
 	virtual bool Responder (event_t *ev);
 	virtual bool MenuEvent (int mkey, bool fromcontroller);
 	virtual void Ticker ();
@@ -374,7 +375,7 @@ public:
 
 	virtual bool CheckCoordinate(int x, int y);
 	virtual void Ticker();
-	virtual void Drawer(DListMenu *menu, const vec2_t& origin, bool selected);
+	virtual void Drawer(DListMenu *menu, const DVector2& origin, bool selected);
 	virtual bool Selectable();
 	virtual bool Activate(FName caller);
 	virtual FName GetAction(int *pparam);
@@ -405,7 +406,7 @@ protected:
 
 public:
 	FListMenuItemStaticPatch(int x, int y, FTexture *patch, bool centered);
-	void Drawer(DListMenu* menu, const vec2_t& origin, bool selected);
+	void Drawer(DListMenu* menu, const DVector2& origin, bool selected);
 };
 
 class FListMenuItemStaticText : public FListMenuItem
@@ -419,7 +420,7 @@ protected:
 public:
 	FListMenuItemStaticText(int x, int y, const char *text, FFont *font, EColorRange color, bool centered);
 	~FListMenuItemStaticText();
-	void Drawer(DListMenu* menu, const vec2_t& origin, bool selected) override;
+	void Drawer(DListMenu* menu, const DVector2& origin, bool selected) override;
 };
 
 //=============================================================================
@@ -453,7 +454,7 @@ class FListMenuItemText : public FListMenuItemSelectable
 public:
 	FListMenuItemText(int x, int y, int height, int hotkey, const FString &text, FFont *font, EColorRange color, EColorRange color2, FName child, int param = 0);
 	~FListMenuItemText();
-	void Drawer(DListMenu* menu, const vec2_t& origin, bool selected) override;
+	void Drawer(DListMenu* menu, const DVector2& origin, bool selected) override;
 	int GetWidth() override;
 };
 
@@ -467,7 +468,7 @@ class FListMenuItemNativeText : public FListMenuItemSelectable
 public:
 	FListMenuItemNativeText(int x, int y, int height, int hotkey, const FString& text, int fontnum, int palnum, float fontscale, FName child, int param = 0);
 	~FListMenuItemNativeText();
-	void Drawer(DListMenu* menu, const vec2_t& origin, bool selected) override;
+	void Drawer(DListMenu* menu, const DVector2& origin, bool selected) override;
 	int GetWidth() override;
 	void DrawSelector(int xofs, int yofs, FTexture* tex) override { } // The text drawer handles this itself.
 };
@@ -478,7 +479,7 @@ class FListMenuItemPatch : public FListMenuItemSelectable
 	FTexture* mTexture;
 public:
 	FListMenuItemPatch(int x, int y, int height, int hotkey, FTexture* patch, FName child, int param = 0);
-	void Drawer(DListMenu* menu, const vec2_t& origin, bool selected) override;
+	void Drawer(DListMenu* menu, const DVector2& origin, bool selected) override;
 	int GetWidth() override;
 };
 

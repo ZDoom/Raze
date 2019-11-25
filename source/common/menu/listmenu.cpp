@@ -290,7 +290,7 @@ void FListMenuItem::Ticker()
 {
 }
 
-void FListMenuItem::Drawer(DListMenu* menu, const vec2_t& origin, bool selected)
+void FListMenuItem::Drawer(DListMenu* menu, const DVector2& origin, bool selected)
 {
 }
 
@@ -389,7 +389,7 @@ FListMenuItemStaticPatch::FListMenuItemStaticPatch(int x, int y, FTexture *patch
 	mCentered = centered;
 }
 	
-void FListMenuItemStaticPatch::Drawer(DListMenu* menu, const vec2_t& origin, bool selected)
+void FListMenuItemStaticPatch::Drawer(DListMenu* menu, const DVector2& origin, bool selected)
 {
 	if (!mTexture)
 	{
@@ -426,7 +426,7 @@ FListMenuItemStaticText::FListMenuItemStaticText(int x, int y, const char *text,
 	mCentered = centered;
 }
 	
-void FListMenuItemStaticText::Drawer(DListMenu* menu, const vec2_t& origin, bool selected)
+void FListMenuItemStaticText::Drawer(DListMenu* menu, const DVector2& origin, bool selected)
 {
 	const char *text = mText;
 	if (text != NULL)
@@ -529,7 +529,7 @@ FListMenuItemText::~FListMenuItemText()
 {
 }
 
-void FListMenuItemText::Drawer(DListMenu* menu, const vec2_t& origin, bool selected)
+void FListMenuItemText::Drawer(DListMenu* menu, const DVector2& origin, bool selected)
 {
 	const char *text = mText;
 	if (mText.Len())
@@ -571,14 +571,14 @@ FListMenuItemNativeText::~FListMenuItemNativeText()
 {
 }
 
-void FListMenuItemNativeText::Drawer(DListMenu* menu, const vec2_t& origin, bool selected)
+void FListMenuItemNativeText::Drawer(DListMenu* menu, const DVector2& origin, bool selected)
 {
 	const char* text = mText;
 	if (mText.Len() && !mHidden)
 	{
 		if (*text == '$') text = GStrings(text + 1);
 		auto state = selected ? NIT_SelectedState : mEnabled ? NIT_ActiveState : NIT_InactiveState;
-		gi->DrawNativeMenuText(mFontnum, state, (mXpos << 16) + origin.x, (mYpos << 16) + origin.y, 1.f, text, menu->Descriptor()->mFlags);
+		gi->DrawNativeMenuText(mFontnum, state, int((origin.X + mXpos) / 65536) , int((origin.Y + mYpos) / 65536), 1.f, text, menu->Descriptor()->mFlags);
 	}
 } 
 
@@ -601,7 +601,7 @@ FListMenuItemPatch::FListMenuItemPatch(int x, int y, int height, int hotkey, FTe
 	mTexture = patch;
 }
 
-void FListMenuItemPatch::Drawer(DListMenu* menu, const vec2_t& origin, bool selected)
+void FListMenuItemPatch::Drawer(DListMenu* menu, const DVector2& origin, bool selected)
 {
 	DrawTexture (&twod, mTexture, mXpos, mYpos, DTA_Clean, true, TAG_DONE);
 }
