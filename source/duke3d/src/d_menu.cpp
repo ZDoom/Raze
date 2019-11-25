@@ -547,6 +547,7 @@ protected:
 				numvalidentries--;
 				continue;
 			}
+			entry->SetHeight(height);
 			totalheight += height;
 		}
 		if (mDesc->mSpacing <= 0) calculatedentryspacing = std::max(0, (y_lower - y_upper - totalheight) / (numvalidentries > 1 ? numvalidentries - 1 : 1));

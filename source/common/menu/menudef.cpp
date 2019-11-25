@@ -991,90 +991,70 @@ void M_ParseMenuDefs()
 
 static void BuildEpisodeMenu()
 {
-#if 0
 	// Build episode menu
-	bool success = false;
-	FMenuDescriptor **desc = MenuDescriptors.CheckKey(NAME_Episodemenu);
+	int addedVolumes = 0;
+	FMenuDescriptor **desc = MenuDescriptors.CheckKey(NAME_EpisodeMenu);
 	if (desc != NULL)
 	{
 		if ((*desc)->mType == MDESC_ListMenu)
 		{
 			FListMenuDescriptor *ld = static_cast<FListMenuDescriptor*>(*desc);
-			int posy = ld->mYpos;
-			int topy = posy;
+			ld->mSelectedItem = 1;
 
-			// Get lowest y coordinate of any static item in the menu
-			for(unsigned i = 0; i < ld->mItems.Size(); i++)
+			for (int i = 0; i < MAXVOLUMES; i++)
 			{
-				int y = ld->mItems[i]->GetY();
-				if (y < topy) topy = y;
-			}
-
-			// center the menu on the screen if the top space is larger than the bottom space
-			int totalheight = posy + AllEpisodes.Size() * ld->mLinespacing - topy;
-
-			if (totalheight < 190 || AllEpisodes.Size() == 1)
-			{
-				int newtop = (200 - totalheight + topy) / 2;
-				int topdelta = newtop - topy;
-				if (topdelta < 0)
+				if (gVolumeNames[i].IsNotEmpty())
 				{
-					for(unsigned i = 0; i < ld->mItems.Size(); i++)
-					{
-						ld->mItems[i]->OffsetPositionY(topdelta);
-					}
-					posy -= topdelta;
-				}
-
-				ld->mSelectedItem = ld->mItems.Size();
-				for(unsigned i = 0; i < AllEpisodes.Size(); i++)
-				{
-					FListMenuItem *it;
-					if (AllEpisodes[i].mPicName.IsNotEmpty())
-					{
-						FTextureID tex = GetMenuTexture(AllEpisodes[i].mPicName);
-						it = new FListMenuItemPatch(ld->mXpos, posy, ld->mLinespacing, AllEpisodes[i].mShortcut, 
-							tex, NAME_Skillmenu, i);
-					}
-					else
-					{
-						it = new FListMenuItemText(ld->mXpos, posy, ld->mLinespacing, AllEpisodes[i].mShortcut, 
-							AllEpisodes[i].mEpisodeName, ld->mFont, ld->mFontColor, ld->mFontColor2, NAME_Skillmenu, i);
-					}
+					auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i + 1);
 					ld->mItems.Push(it);
-					posy += ld->mLinespacing;
+					addedVolumes++;
+					if (gVolumeSubtitles[i].IsNotEmpty())
+					{
+						//auto it = new FListMenuItemNativeStaticText(ld->mXpos, gVolumeSubtitles[i], NIT_SmallFont);
+						//ld->mItems.Push(it);
+					}
 				}
-				if (AllEpisodes.Size() == 1)
+				if (1 /*CheckUserMaps()*/)
 				{
-					ld->mAutoselect = ld->mSelectedItem;
+					//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "", NIT_SmallFont);	// empty entry as spacer.
+					//ld->mItems.Push(it);
+
+					auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, 0, "$MNU_USERMAP", NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i + 1);
+					ld->mItems.Push(it);
+					addedVolumes++;
+					if (g_gameType & GAMEFLAG_SW)	// fixme: make this game independent.
+					{
+						//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "$MNU_SELECTUSERMAP", NIT_SmallFont);
+						//ld->mItems.Push(it);
+					}
 				}
-				success = true;
+				if (addedVolumes == 1)
+				{
+					ld->mAutoselect = 0;
+				}
 			}
 		}
 	}
-	if (!success)
+#if 0
+	if (gVolumeNames[i].IsNotEmpty())
 	{
-		// Couldn't create the episode menu, either because there's too many episodes or some error occured
-		// Create an option menu for episode selection instead.
-		FOptionMenuDescriptor *od = new FOptionMenuDescriptor;
-		if (desc != NULL) delete *desc;
-		MenuDescriptors[NAME_Episodemenu] = od;
-		od->mType = MDESC_OptionsMenu;
-		od->mMenuName = NAME_Episodemenu;
-		od->mTitle = "$MNU_EPISODE";
-		od->mSelectedItem = 0;
-		od->mScrollPos = 0;
-		od->mClass = NULL;
-		od->mPosition = -15;
-		od->mScrollTop = 0;
-		od->mIndent = 160;
-		od->mDontDim = false;
-		for(unsigned i = 0; i < AllEpisodes.Size(); i++)
+		if (!(gVolumeFlags[i] & EF_HIDEFROMSP))
 		{
-			FOptionMenuItemSubmenu *it = new FOptionMenuItemSubmenu(AllEpisodes[i].mEpisodeName, "Skillmenu", i);
-			od->mItems.Push(it);
+			MEL_EPISODE[i] = &ME_EPISODE[i];
+			ME_EPISODE[i] = ME_EPISODE_TEMPLATE;
+			ME_EPISODE[i].name = gVolumeNames[i];
+		}
+
+		// if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
+		{
+			MEOSN_NetEpisodes[k] = gVolumeNames[i];
+			MEOSV_NetEpisodes[k] = i;
+
+			k++;
 		}
 	}
+	M_EPISODE.numEntries = g_volumeCnt + 2;
+
 #endif
 }
 

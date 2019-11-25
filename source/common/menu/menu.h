@@ -324,6 +324,7 @@ class FListMenuItem
 {
 protected:
 	int mXpos, mYpos;
+	int mHeight;
 	FName mAction;
 
 public:
@@ -361,6 +362,7 @@ public:
 	int GetX() { return mXpos; }
 	void SetX(int x) { mXpos = x; }
 	void SetY(int x) { mYpos = x; }
+	void SetHeight(int x) { mHeight = x; }
 };
 
 class FListMenuItemStaticPatch : public FListMenuItem
@@ -398,7 +400,6 @@ class FListMenuItemSelectable : public FListMenuItem
 {
 protected:
 	int mHotkey;
-	int mHeight;
 	int mParam;
 
 public:

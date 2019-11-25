@@ -19,7 +19,6 @@ LISTMENU "MainMenu"
 			position 160, 55, 115
 			centermenu
 		}
-		linespacing 15
 		class "Duke.MainMenu"
 		NativeTextItem "$MNU_NEWGAME", "n", "PlayerclassMenu"
 		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
@@ -134,25 +133,14 @@ LISTMENU "EpisodeMenu"
 {
 	ScriptId 100
 	// Episode names filled in programmatically
-	NativeTextItem "", "", "SkillMenu", 1
-	NativeStaticTextItem ""
-	NativeTextItem "", "", "SkillMenu", 2
-	NativeStaticTextItem ""
-	NativeTextItem "", "", "SkillMenu", 3
-	NativeStaticTextItem ""
-	NativeTextItem "", "", "SkillMenu", 4
-	NativeStaticTextItem ""
-	NativeTextItem "", "", "SkillMenu", 5
-	NativeStaticTextItem ""
-	NativeTextItem "", "", "SkillMenu", 6
-	NativeStaticTextItem ""
-	NativeTextItem "", "", "SkillMenu", 7
 	//Spacer
+	/*
 	NativeTextItem "$MNU_USERMAP", "u", "UserMap"
 	ifgame(ShadowWarrior)
 	{
 		NativeStaticTextItem "$MNU_SELECTUSERMAP"
 	}
+	*/
 }
 
 LISTMENU "SkillMenu"
