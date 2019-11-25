@@ -1807,43 +1807,44 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
     }
 
     short nRun = sprite[nSprite].owner;
-
     if (nRun <= -1) {
         return;
     }
 
+    short nPreCreaturesLeft = nCreaturesLeft;
+
     runlist_SendMessageToRunRec(nRun, (nSprite2 & 0xFFFF) | 0x80000, nDamage * 4);
 
-    if (nCreaturesLeft <= 0) {
-        return;
-    }
-
-    if (sprite[nSprite2].statnum != 100) {
-        return;
-    }
-
-    short nPlayer = GetPlayerFromSprite(nSprite2);
-    nTauntTimer[nPlayer]--;
-
-    if (nTauntTimer[nPlayer] <= 0)
+    // is there now one less creature? (has one died)
+    if (nPreCreaturesLeft > nCreaturesLeft)
     {
-        // Do a taunt
-        int nPlayerSprite = PlayerList[nPlayer].nSprite;
-        int nSector = sprite[nPlayerSprite].sectnum;
-
-        if (!(SectFlag[nSector] & kSectUnderwater))
-        {
-            int ebx = 0x4000;
-
-            if (nPlayer == nLocalPlayer) {
-                ebx = 0x6000;
-            }
-
-            int nDopSprite = nDoppleSprite[nPlayer];
-            D3PlayFX(StaticSound[kSoundTauntStart + (RandomSize(3) % 5)], nDopSprite | ebx);
+        if (sprite[nSprite2].statnum != 100) {
+            return;
         }
 
-        nTauntTimer[nPlayer] = RandomSize(3) + 3;
+        short nPlayer = GetPlayerFromSprite(nSprite2);
+        nTauntTimer[nPlayer]--;
+
+        if (nTauntTimer[nPlayer] <= 0)
+        {
+            // Do a taunt
+            int nPlayerSprite = PlayerList[nPlayer].nSprite;
+            int nSector = sprite[nPlayerSprite].sectnum;
+
+            if (!(SectFlag[nSector] & kSectUnderwater))
+            {
+                int ebx = 0x4000;
+
+                if (nPlayer == nLocalPlayer) {
+                    ebx = 0x6000;
+                }
+
+                int nDopSprite = nDoppleSprite[nPlayer];
+                D3PlayFX(StaticSound[kSoundTauntStart + (RandomSize(3) % 5)], nDopSprite | ebx);
+            }
+
+            nTauntTimer[nPlayer] = RandomSize(3) + 3;
+        }
     }
 }
 END_PS_NS
