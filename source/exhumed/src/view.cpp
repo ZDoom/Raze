@@ -73,8 +73,6 @@ short besttarget;
 short nViewLeft;
 short bCamera = kFalse;
 
-int gFov;
-
 short nViewy;
 
 int viewz;
@@ -511,7 +509,7 @@ void DrawView(int smoothRatio)
         static uint8_t sectorCeilingPal[MAXSECTORS];
         static uint8_t wallPal[MAXWALLS];
         int const viewingRange = viewingrange;
-        int const vr = Blrintf(65536.f * tanf(gFov * (fPI / 360.f)));
+        int const vr = Blrintf(65536.f * tanf(r_fov * (fPI / 360.f)));
 
         if (r_usenewaspect)
         {
