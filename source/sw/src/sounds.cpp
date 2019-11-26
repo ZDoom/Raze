@@ -527,9 +527,10 @@ StopSong(void)
     if (DemoMode)
         return;
 
-    if (SongType == SongTypeWave && SongVoice >= 0)
+    if (SongType == SongTypeWave && SongVoice > 0)
     {
         FX_StopSound(SongVoice);
+        SongVoice = 0;
     }
     else if (SongType == SongTypeMIDI)
     {
@@ -553,7 +554,7 @@ PauseSong(SWBOOL pauseon)
 {
     if (!MusicEnabled()) return;
 
-    if (SongType == SongTypeWave && SongVoice >= 0)
+    if (SongType == SongTypeWave && SongVoice > 0)
     {
         FX_PauseVoice(SongVoice, pauseon);
     }
@@ -1313,9 +1314,10 @@ DeleteNoSoundOwner(short spritenum)
 
             // Make sure to stop active
             // sounds
-            if (FX_SoundActive(vp->handle))
+            if (FX_SoundValidAndActive(vp->handle))
             {
                 FX_StopSound(vp->handle);
+                vp->handle = 0;
             }
 
 #if 0
@@ -1372,9 +1374,10 @@ void DeleteNoFollowSoundOwner(short spritenum)
         // If the follow flag is set, compare the x and y addresses.
         if ((vp->flags & v3df_follow) && vp->x == &sp->x && vp->y == &sp->y)
         {
-            if (FX_SoundActive(vp->handle))
+            if (FX_SoundValidAndActive(vp->handle))
             {
                 FX_StopSound(vp->handle);
+                vp->handle = 0;
             }
 
 #if 0
@@ -1529,7 +1532,7 @@ DoTimedSound(VOC3D_INFOp p)
 
     if (p->tics >= p->maxtics)
     {
-        if (!FX_SoundActive(p->handle))
+        if (!FX_SoundValidAndActive(p->handle))
         {
             // Check for special case ambient sounds
             p->num = RandomizeAmbientSpecials(p->num);
@@ -1549,7 +1552,7 @@ DoTimedSound(VOC3D_INFOp p)
                     p->deleted = TRUE;  // Mark old sound for deletion
                 }
             }
-        }                           // !FX_SoundActive
+        }
 
         p->tics = 0;
         //while (p->tics >= p->maxtics)  // Really stupid thing to do!
@@ -1577,8 +1580,11 @@ StopAmbientSound(void)
 
         if (p->flags & v3df_kill)
         {
-            if (FX_SoundActive(p->handle))
+            if (FX_SoundValidAndActive(p->handle))
+            {
                 FX_StopSound(p->handle); // Make sure to stop active sounds
+                p->handle = 0;
+            }
 
             p->deleted = TRUE;
         }
@@ -1668,8 +1674,11 @@ DoUpdateSounds3D(void)
         // Is the sound slated for death? Kill it, otherwise play it.
         if (p->flags & v3df_kill)
         {
-            if (FX_SoundActive(p->handle))
+            if (FX_SoundValidAndActive(p->handle))
+            {
                 FX_StopSound(p->handle); // Make sure to stop active sounds
+                p->handle = 0;
+            }
 
             //DSPRINTF(ds,"%d had v3df_kill.\n",p->num);
             //MONO_PRINT(ds);
@@ -1677,7 +1686,7 @@ DoUpdateSounds3D(void)
         }
         else
         {
-            if (!FX_SoundActive(p->handle) && !looping)
+            if (!FX_SoundValidAndActive(p->handle) && !looping)
             {
                 if (p->flags & v3df_intermit)
                 {
@@ -1691,7 +1700,7 @@ DoUpdateSounds3D(void)
                     p->deleted = TRUE;
                 }
             }
-            else if (FX_SoundActive(p->handle))
+            else if (FX_SoundValidAndActive(p->handle))
             {
                 if (p->flags & v3df_follow)
                 {
@@ -1732,6 +1741,7 @@ DoUpdateSounds3D(void)
                 if (dist >= 255 && p->vp->voc_distance == DIST_NORMAL)
                 {
                     FX_StopSound(p->handle);    // Make sure to stop active
+                    p->handle = 0;
                     // sounds
                 }
                 else
@@ -1770,7 +1780,7 @@ DoUpdateSounds3D(void)
                     }
                 }
             }
-            else if (!FX_SoundActive(p->handle) && looping)
+            else if (!FX_SoundValidAndActive(p->handle) && looping)
             {
                 if (p->flags & v3df_follow)
                 {
@@ -1898,7 +1908,9 @@ Terminate3DSounds(void)
 
     while (vp)
     {
-        FX_StopSound(vp->handle);       // Make sure to stop active sounds
+        if (vp->handle > 0)
+            FX_StopSound(vp->handle);       // Make sure to stop active sounds
+        vp->handle = 0;
         vp->deleted = TRUE;
         vp = vp->next;
     }
