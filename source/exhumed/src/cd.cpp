@@ -67,16 +67,18 @@ int playCDtrack(int nTrack)
         return 0;
     }
 
-    char filebuf[128];
+    nCDTrackLength = 0;
+
+    char filename[128];
 
     // prefer flac if available
-    sprintf(filebuf, "exhumed%02d.flac", nTrack);
-    int32_t hFile = kopen4load(filebuf, 0);
+    sprintf(filename, "exhumed%02d.flac", nTrack);
+    int32_t hFile = kopen4load(filename, 0);
     if (hFile < 0)
     {
         // try ogg vorbis now
-        sprintf(filebuf, "exhumed%02d.ogg", nTrack);
-        hFile = kopen4load(filebuf, 0);
+        sprintf(filename, "exhumed%02d.ogg", nTrack);
+        hFile = kopen4load(filename, 0);
         if (hFile < 0) {
             return 0;
         }
@@ -85,13 +87,29 @@ int playCDtrack(int nTrack)
     int32_t nFileLen = kfilelength(hFile);
 
     pTrack = (char*)Xaligned_alloc(16, nFileLen);
+    if (pTrack == NULL)
+    {
+        OSD_Printf("Error allocating music track data memory for %s", filename);
+        kclose(hFile);
+        return 0;
+    }
+
     int nRead = kread(hFile, pTrack, nFileLen);
+    if (nRead != nFileLen)
+    {
+        OSD_Printf("Error reading music track data for %s", filename);
+        Xaligned_free(pTrack);
+        pTrack = NULL;
+        kclose(hFile);
+        return 0;
+    }
 
     kclose(hFile);
 
     trackhandle = FX_Play(pTrack, nRead, -1, 0, 0, 255, 255, 255, FX_MUSIC_PRIORITY, fix16_one, MUSIC_ID);
-    if (trackhandle < 0)
+    if (trackhandle <= FX_Ok)
     {
+        OSD_Printf("Error playing music track %s", filename);
         if (pTrack)
         {
             Xaligned_free(pTrack);
