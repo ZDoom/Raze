@@ -649,7 +649,7 @@ CCMD(rebind)
 //
 //=============================================================================
 
-void ReadBindings(int lump)
+void ReadBindings(int lump, bool override)
 {
 	FScanner sc(lump);
 
@@ -675,20 +675,26 @@ void ReadBindings(int lump)
 		}
 		key = GetConfigKeyFromName(sc.String);
 		sc.MustGetString();
-		dest->SetBind(key, sc.String);
+		dest->SetBind(key, sc.String, override);
 	}
 }
 
 
 void CONFIG_SetDefaultKeys(const char* baseconfig)
 {
-	auto lump = fileSystem.GetFile(baseconfig);
-	ReadBindings(lump);
+	auto lump = fileSystem.GetFile("demolition/commonbinds.txt", ELookupMode::FullName, 0);
+	if (lump >= 0) ReadBindings(lump, true);
 	int lastlump = 0;
+
+	while ((lump = fileSystem.Iterate(baseconfig, &lastlump)) != -1)
+	{
+		if (fileSystem.GetFileContainer(lump) > 0) break;
+		ReadBindings(lump, true);
+	}
 
 	while ((lump = fileSystem.Iterate("defbinds.txt", &lastlump)) != -1)
 	{
-		ReadBindings(lump);
+		ReadBindings(lump, false);
 	}
 }
 

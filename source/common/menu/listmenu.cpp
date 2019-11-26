@@ -578,7 +578,7 @@ void FListMenuItemNativeText::Drawer(DListMenu* menu, const DVector2& origin, bo
 	{
 		if (*text == '$') text = GStrings(text + 1);
 		auto state = selected ? NIT_SelectedState : mEnabled ? NIT_ActiveState : NIT_InactiveState;
-		gi->DrawNativeMenuText(mFontnum, state, int((origin.X + mXpos) / 65536) , int((origin.Y + mYpos) / 65536), 1.f, text, menu->Descriptor()->mFlags);
+		gi->DrawNativeMenuText(mFontnum, state, int((origin.X + mXpos) * 65536) , int((origin.Y + mYpos) * 65536), 1.f, text, menu->Descriptor()->mFlags);
 	}
 } 
 
