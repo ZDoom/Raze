@@ -830,9 +830,10 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
                 if (!found)
                     continue;
 
-                sectorlist[sln] = i;
                 if (sln < (int)SIZ(GlobStackSect))
                     GlobStackSect[sln] = i;
+                if (sln < (int)SIZ(sectorlist))
+                    sectorlist[sln] = i;
                 sln++;
             }
         }
