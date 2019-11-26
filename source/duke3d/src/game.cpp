@@ -5497,7 +5497,7 @@ static void G_FreeHashAnim(const char * /*string*/, intptr_t key)
 
 static void G_Cleanup(void)
 {
-    ReadSaveGameHeaders(); // for culling
+    //ReadSaveGameHeaders(); // for culling
 
     int32_t i;
 
@@ -6188,8 +6188,6 @@ int GameInterface::app_main()
     {
         Menu_Init();
     }
-
-    ReadSaveGameHeaders();
 
     FX_StopAllSounds();
     S_ClearSoundLocks();

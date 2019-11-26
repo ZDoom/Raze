@@ -245,6 +245,15 @@ int SaveGame(short save_num)
     OrgTileP otp, next_otp;
 
     Saveable_Init();
+	
+	
+#if 0 // A lot of work is needed here... (Thank God for all the macros around the load/save functions. :) )
+	FStringf base("save%04d", save_num);
+	auto game_name = G_BuildSaveName(base);
+	OpenSaveGameForWrite(game_name);
+	G_WriteSaveHeader(SaveGameDescr[save_num], LevelInfo[Level].LevelName, LevelInfo[Level].Description);
+	auto fil = WriteSavegameChunk("snapshot.sw");
+#endif
 
     snprintf(game_name, 256, "%sgame%d.sav", M_GetSavegamesPath().GetChars(), save_num);
     if ((fil = MOPEN_WRITE(game_name)) == MOPEN_WRITE_ERR)

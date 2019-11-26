@@ -2543,31 +2543,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 }
 
 
-static void Menu_ReadSaveGameHeaders();
-
-static void Menu_LoadReadHeaders()
-{
-    Menu_ReadSaveGameHeaders();
-
-    for (int i = 0; i < g_nummenusaves; ++i)
-    {
-        menusave_t const & msv = g_menusaves[i];
-        // MenuEntry_LookDisabledOnCondition(&ME_LOAD[i], msv.isOldVer && msv.brief.isExt);
-        MenuEntry_DisableOnCondition(&ME_LOAD[i], msv.isOldVer && !msv.brief.isExt);
-    }
-}
-
-static void Menu_SaveReadHeaders()
-{
-    Menu_ReadSaveGameHeaders();
-
-    for (int i = 0; i < g_nummenusaves; ++i)
-    {
-        menusave_t const & msv = g_menusaves[i];
-        MenuEntry_LookDisabledOnCondition(&ME_SAVE[i], msv.isOldVer && !msv.brief.isExt);
-    }
-}
-
 static void Menu_PreInput(MenuEntry_t *entry)
 {
     switch (g_currentMenu)
@@ -2862,7 +2837,6 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     }
     else if (entry == &ME_SAVESETUP_CLEANUP)
     {
-        g_oldSaveCnt = G_CountOldSaves();
         Menu_Change(MENU_SAVECLEANVERIFY);
     }
     else if (entry == &ME_NETHOST_LAUNCH)
@@ -3247,15 +3221,13 @@ static void Menu_Verify(int32_t input)
     case MENU_LOADDELVERIFY:
         if (input)
         {
-            G_DeleteSave(g_menusaves[M_LOAD.currentEntry].brief);
-            Menu_LoadReadHeaders();
+             Menu_LoadReadHeaders();
             M_LOAD.currentEntry = clamp(M_LOAD.currentEntry, 0, (int32_t)g_nummenusaves-1);
         }
         break;
     case MENU_SAVEDELVERIFY:
         if (input)
         {
-            G_DeleteSave(g_menusaves[M_SAVE.currentEntry-1].brief);
             Menu_SaveReadHeaders();
             M_SAVE.currentEntry = clamp(M_SAVE.currentEntry, 0, (int32_t)g_nummenusaves);
         }
@@ -3506,42 +3478,6 @@ static void Menu_FileSelect(int32_t input)
 }
 
 
-static void Menu_ReadSaveGameHeaders()
-{
-    ReadSaveGameHeaders();
-
-    int const numloaditems = max<int>(g_nummenusaves, 1), numsaveitems = g_nummenusaves+1;
-    ME_LOAD = (MenuEntry_t *)Xrealloc(ME_LOAD, g_nummenusaves * sizeof(MenuEntry_t));
-    MEL_LOAD = (MenuEntry_t **)Xrealloc(MEL_LOAD, numloaditems * sizeof(MenuEntry_t *));
-    MEO_SAVE = (MenuString_t *)Xrealloc(MEO_SAVE, g_nummenusaves * sizeof(MenuString_t));
-    ME_SAVE = (MenuEntry_t *)Xrealloc(ME_SAVE, g_nummenusaves * sizeof(MenuEntry_t));
-    MEL_SAVE = (MenuEntry_t **)Xrealloc(MEL_SAVE, numsaveitems * sizeof(MenuEntry_t *));
-
-    MEL_SAVE[0] = &ME_SAVE_NEW;
-    ME_SAVE_NEW.name = s_NewSaveGame;
-    for (int i = 0; i < g_nummenusaves; ++i)
-    {
-        MEL_LOAD[i] = &ME_LOAD[i];
-        MEL_SAVE[i+1] = &ME_SAVE[i];
-        ME_LOAD[i] = ME_LOAD_TEMPLATE;
-        ME_SAVE[i] = ME_SAVE_TEMPLATE;
-        ME_SAVE[i].entry = &MEO_SAVE[i];
-        MEO_SAVE[i] = MEO_SAVE_TEMPLATE;
-
-        ME_LOAD[i].name = g_menusaves[i].brief.name;
-        MEO_SAVE[i].variable = g_menusaves[i].brief.name;
-    }
-
-    if (g_nummenusaves == 0)
-        MEL_LOAD[0] = &ME_LOAD_EMPTY;
-
-    M_LOAD.entrylist = MEL_LOAD;
-    M_LOAD.numEntries = numloaditems;
-    M_SAVE.entrylist = MEL_SAVE;
-    M_SAVE.numEntries = numsaveitems;
-
-    // lexicographical sorting?
-}
 
 static void Menu_AboutToStartDisplaying(Menu_t * m)
 {

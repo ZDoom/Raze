@@ -163,6 +163,7 @@ struct GameInterface : ::GameInterface
 	bool CanSave() override;
 	void CustomMenuSelection(int menu, int item) override;
 	void StartGame(FGameStartup& gs) override;
+	FSavegameInfo GetSaveSig() override;
 
 };
 

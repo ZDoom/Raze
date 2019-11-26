@@ -42,6 +42,11 @@
 #include "gstrings.h"
 #include "d_gui.h"
 #include "v_draw.h"
+#include "files.h"
+#include "resourcefile.h"
+#include "sjson.h"
+#include "savegamehelp.h"
+#include "i_specialpaths.h"
 #include "../../platform/win32/i_findfile.h"	// This is a temporary direct path. Needs to be fixed when stuff gets cleaned up.
 
 
@@ -207,7 +212,7 @@ void DLoadSaveMenu::ReadSaveStrings ()
 
 		LastSaved = LastAccessed = -1;
 		quickSaveSlot = NULL;
-		filter = "";// G_BuildSaveName("*.zds", -1);
+		filter = G_BuildSaveName("*");
 		filefirst = I_FindFirst (filter.GetChars(), &c_file);
 		if (filefirst != ((void *)(-1)))
 		{
@@ -215,25 +220,30 @@ void DLoadSaveMenu::ReadSaveStrings ()
 			{
 				// I_FindName only returns the file's name and not its full path
 				FString filepath = "";// G_BuildSaveName(I_FindName(&c_file), -1);
-				FILE *file = fopen (filepath, "rb");
-
-				if (file != NULL)
+				
+				FResourceFile *savegame = FResourceFile::OpenResourceFile(filepath, true, true);
+				if (savegame != nullptr)
 				{
-					//PNGHandle *png;
-					//char sig[16];
+					FResourceLump *info = savegame->FindLump("info.json");
+					if (info == nullptr)
+					{
+						// savegame info not found. This is not a savegame so leave it alone.
+						delete savegame;
+						continue;
+					}
+					auto fr = info->NewReader();
 					FString title;
-					bool oldVer = true;
-					bool addIt = false;
-					bool missing = false;
-
-					// ZDoom 1.23 betas 21-33 have the savesig first.
-					// Earlier versions have the savesig second.
-					// Later versions have the savegame encapsulated inside a PNG.
-					//
-					// Old savegame versions are always added to the menu so
-					// the user can easily delete them if desired.
-
-					// Todo: Identify savegames here.
+					int check = G_ValidateSavegame(fr, &title);
+					delete savegame;
+					if (check != 0)
+					{
+						FSaveGameNode *node = new FSaveGameNode;
+						node->Filename = filepath;
+						node->bOldVersion = check == -1;
+						node->bMissingWads = check == -2;
+						node->Title = title;
+						InsertSaveNode(node);
+					}
 				}
 			} while (I_FindNext (filefirst, &c_file) == 0);
 			I_FindClose (filefirst);
@@ -691,7 +701,7 @@ bool DLoadSaveMenu::Responder (event_t *ev)
 					{
 						FString EndString;
 						EndString.Format("%s" TEXTCOLOR_WHITE "%s" TEXTCOLOR_NORMAL "?\n\n%s",
-							GStrings("MNU_DELETESG"), SaveGames[Selected]->Title, GStrings("PRESSYN"));
+							GStrings("MNU_DELETESG"), SaveGames[Selected]->Title.GetChars(), GStrings("PRESSYN"));
 						M_StartMessage (EndString, 0);
 					}
 					return true;

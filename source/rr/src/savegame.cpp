@@ -28,8 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "gamecontrol.h"
 #include "version.h"
-#include "statistics.h"
-#include "secrets.h"
+
 #include "savegamehelp.h"
 BEGIN_RR_NS
 
@@ -155,8 +154,13 @@ static FileReader *OpenSavegame(const char *fn)
 	{
 		return nullptr;
 	}
-	auto file = ReadSavegameChunk("DEMOLITION_RN");
+	auto file = ReadSavegameChunk("info.json");
 	if (!file.isOpen())
+	{
+		FinishSavegameRead();
+		return nullptr;
+	}
+	if (G_ValidateSavegame(file, nullptr) <= 0)
 	{
 		FinishSavegameRead();
 		return nullptr;
@@ -170,130 +174,9 @@ static FileReader *OpenSavegame(const char *fn)
 	return new FileReader(std::move(file));
 }
 
-static void ReadSaveGameHeaders_CACHE1D(TArray<FString>& saves)
-{
-    savehead_t h;
-
-	for (FString &save : saves)
-    {
-		auto fil = OpenSavegame(save);
-        if (!fil)
-            continue;
-
-        menusave_t & msv = g_internalsaves[g_numinternalsaves];
-
-        int32_t k = sv_loadheader(*fil, 0, &h);
-		delete fil;
-        if (k)
-        {
-            if (k < 0)
-                msv.isUnreadable = 1;
-            msv.isOldVer = 1;
-        }
-        else
-            msv.isOldVer = 0;
-
-        msv.isAutoSave = h.isAutoSave();
-
-        strncpy(msv.brief.path, save.GetChars(), ARRAY_SIZE(msv.brief.path));
-        ++g_numinternalsaves;
-
-        if (k >= 0 && h.savename[0] != '\0')
-        {
-            memcpy(msv.brief.name, h.savename, ARRAY_SIZE(msv.brief.name));
-        }
-        else
-            msv.isUnreadable = 1;
-    }
-	FinishSavegameRead();
-}
-
-static void ReadSaveGameHeaders_Internal(void)
-{
-	FString pattern = M_GetSavegamesPath() + "*.bsv";
-	TArray<FString> saves;
-	D_AddWildFile(saves, pattern);
-
-    // potentially overallocating but programmatically simple
-	int const numfiles = saves.Size();
-	size_t const internalsavesize = sizeof(menusave_t) * numfiles;
-
-    g_internalsaves = (menusave_t *)Xrealloc(g_internalsaves, internalsavesize);
-
-    for (int x = 0; x < numfiles; ++x)
-        g_internalsaves[x].clear();
-
-    g_numinternalsaves = 0;
-    ReadSaveGameHeaders_CACHE1D(saves);
-
-    g_nummenusaves = 0;
-    for (int x = g_numinternalsaves-1; x >= 0; --x)
-    {
-        menusave_t & msv = g_internalsaves[x];
-        if (!msv.isUnreadable)
-        {
-            ++g_nummenusaves;
-        }
-    }
-    size_t const menusavesize = sizeof(menusave_t) * g_nummenusaves;
-
-    g_menusaves = (menusave_t *)Xrealloc(g_menusaves, menusavesize);
-    
-    for (int x = 0; x < g_nummenusaves; ++x)
-        g_menusaves[x].clear();
-    
-    for (int x = g_numinternalsaves-1, y = 0; x >= 0; --x)
-    {
-        menusave_t & msv = g_internalsaves[x];
-        if (!msv.isUnreadable)
-        {
-            g_menusaves[y++] = msv;
-        }
-    }
-    
-    for (int x = g_numinternalsaves-1; x >= 0; --x)
-    {
-        char const * const path = g_internalsaves[x].brief.path;
-        int const pathlen = Bstrlen(path);
-        if (pathlen < 12)
-            continue;
-        char const * const fn = path + (pathlen-12);
-        if (fn[0] == 's' && fn[1] == 'a' && fn[2] == 'v' && fn[3] == 'e' &&
-            isdigit(fn[4]) && isdigit(fn[5]) && isdigit(fn[6]) && isdigit(fn[7]))
-        {
-            char number[5];
-            memcpy(number, fn+4, 4);
-            number[4] = '\0';
-            savecounter.count = Batoi(number)+1;
-            break;
-        }
-    }
-}
 
 void ReadSaveGameHeaders(void)
 {
-    ReadSaveGameHeaders_Internal();
-
-    if (!cl_autosavedeletion)
-        return;
-
-    bool didDelete = false;
-    int numautosaves = 0;
-    for (int x = 0; x < g_nummenusaves; ++x)
-    {
-        menusave_t & msv = g_menusaves[x];
-        if (!msv.isAutoSave)
-            continue;
-        if (numautosaves >= cl_maxautosaves)
-        {
-            G_DeleteSave(msv.brief);
-            didDelete = true;
-        }
-        ++numautosaves;
-    }
-
-    if (didDelete)
-        ReadSaveGameHeaders_Internal();
 }
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
@@ -415,7 +298,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     if (status == 2)
         G_NewGame_EnterLevel();
-    else if ((status = sv_loadsnapshot(*fil, 0, &h)) || !ReadStatistics() || !SECRET_Load())  // read the rest...
+    else if ((status = sv_loadsnapshot(*fil, 0, &h)))  // read the rest...
     {
         // in theory, we could load into an initial dump first and trivially
         // recover if things go wrong...
@@ -455,52 +338,6 @@ static void G_RestoreTimers(void)
     lockclock      = g_timers.lockclock;
 }
 
-//////////
-
-
-void G_DeleteSave(savebrief_t const & sv)
-{
-    if (!sv.isValid())
-        return;
-
-    char temp[BMAX_PATH];
-
-    if (snprintf(temp, sizeof(temp), "%s%s", M_GetSavegamesPath().GetChars(), sv.path))
-    {
-        OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", sv.path);
-        return;
-    }
-
-    remove(temp);
-}
-
-void G_DeleteOldSaves(void)
-{
-    ReadSaveGameHeaders();
-
-    for (int x = 0; x < g_numinternalsaves; ++x)
-    {
-        menusave_t const & msv = g_internalsaves[x];
-        if (msv.isOldVer || msv.isUnreadable)
-            G_DeleteSave(msv.brief);
-    }
-}
-
-uint16_t G_CountOldSaves(void)
-{
-    ReadSaveGameHeaders();
-
-    int bad = 0;
-    for (int x = 0; x < g_numinternalsaves; ++x)
-    {
-        menusave_t const & msv = g_internalsaves[x];
-        if (msv.isOldVer || msv.isUnreadable)
-            ++bad;
-    }
-
-    return bad;
-}
-
 int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 {
 #ifdef __ANDROID__
@@ -519,29 +356,28 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
 	if (sv.isValid())
 	{
-		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), sv.path);
+		fn = G_BuildSaveName(sv.path);
 		OpenSaveGameForWrite(fn);
 		fil = WriteSavegameChunk("snapshot.dat");
 	}
 	else
 	{
-		static char const SaveName[] = "save0000.bsv";
-		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), SaveName);
+		fn = G_BuildSaveName("save0000");
 
 		auto fnp = fn.LockBuffer();
-		char* zeros = fnp + (fn.Len() - 8);
-		fil = savecounter.opennextfile(fnp, zeros);
+		char* zeros = strstr(fnp, "0000");
+		fil = savecounter.opennextfile(fnp, zeros); // fixme: Rewrite this so that it won't create the file.
+		fn.UnlockBuffer();
 		if (fil)
 		{
 			delete fil;
-			remove(fnp);
-			OpenSaveGameForWrite(fnp);
+			remove(fn);
+			OpenSaveGameForWrite(fn);
 			fil = WriteSavegameChunk("snapshot.dat");
 		}
-		fn.UnlockBuffer();
 		savecounter.count++;
-		// don't copy the mod dir into sv.path
-		Bstrcpy(sv.path, fn + (fn.Len() - (ARRAY_SIZE(SaveName) - 1)));
+		// don't copy the mod dir into sv.path (G_BuildSaveName guarantees the presence of a slash.)
+		Bstrcpy(sv.path, strrchr(fn, '/') + 1);
 	}
 
 	if (!fil)
@@ -567,8 +403,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 
         // SAVE!
         sv_saveandmakesnapshot(fw, sv.name, 0, 0, 0, 0, isAutoSave);
-		SaveStatistics();
-		SECRET_Save();
+
 
 		fw.Close();
 		FinishSavegameWrite();
@@ -1385,6 +1220,8 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
         Bstrncpyz(h.savename, name, sizeof(h.savename));
 		auto fw = WriteSavegameChunk("header.dat");
 		fw->Write(&h, sizeof(savehead_t));
+	
+		G_WriteSaveHeader(name, currentboardfilename, g_mapInfo[(MAXLEVELS * ud.volume_number) + ud.level_number].name);
 	}
     else
     {

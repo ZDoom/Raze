@@ -177,6 +177,13 @@ struct FGameStartup
 	int CustomLevel2;
 };
 
+struct FSavegameInfo
+{
+	const char *savesig;
+	int minsavever;
+	int currentsavever;
+};
+
 struct GameInterface
 {
 	enum EMenuSounds
@@ -202,6 +209,7 @@ struct GameInterface
 	virtual bool CanSave() { return true; }
 	virtual void CustomMenuSelection(int menu, int item) {}
 	virtual void StartGame(FGameStartup& gs) {}
+	virtual FSavegameInfo GetSaveSig() { return { "", 0, 0}; }
 };
 
 extern GameInterface* gi;

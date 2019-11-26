@@ -49,8 +49,8 @@ public:
     virtual void Load(void);
     void Read(void *, int);
     void Write(void *, int);
-    static void LoadGame(char *);
-    static void SaveGame(char *);
+    static void LoadGame(const char *);
+    static void SaveGame(const char *);
 };
 
 extern unsigned int gSavedOffset;

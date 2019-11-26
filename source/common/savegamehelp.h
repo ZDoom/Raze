@@ -10,3 +10,13 @@ FileReader ReadSavegameChunk(const char *name);
 
 bool FinishSavegameWrite();
 void FinishSavegameRead();
+
+// Savegame utilities
+class FileReader;
+
+FString G_BuildSaveName (const char *prefix);
+bool G_CheckSaveGameWads (struct sjson_node* root, bool printwarn);
+int G_ValidateSavegame(FileReader &fr, FString *savetitle);
+void G_WriteSaveHeader(const char *name, const char*mapname, const char *title);
+
+#define SAVEGAME_EXT ".dsave"

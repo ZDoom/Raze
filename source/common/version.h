@@ -41,11 +41,11 @@ const char *GetVersionString();
 
 /** Lots of different version numbers **/
 
-#define VERSIONSTR "0.0.1"
+#define VERSIONSTR "0.1.0"
 
 // The version as seen in the Windows resource
-#define RC_FILEVERSION 0,0,1,0
-#define RC_PRODUCTVERSION 0,0,1,0
+#define RC_FILEVERSION 0,1,0,0
+#define RC_PRODUCTVERSION 0,1,0,0
 #define RC_PRODUCTVERSION2 VERSIONSTR
 // These are for content versioning.
 #define VER_MAJOR 0
@@ -58,6 +58,21 @@ const char *GetVersionString();
 #define GAMENAMELOWERCASE "demolition"
 #define FORUM_URL "http://forum.zdoom.org/"
 //#define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"
+
+#define SAVESIG_DN3D "Demolition.Duke"
+#define SAVESIG_BLD "Demolition.Blood"
+#define SAVESIG_RR "Demolition.Redneck"
+#define SAVESIG_SW "Demolition.SW"
+
+#define MINSAVEVER_DN3D 1
+#define MINSAVEVER_BLD 1
+#define MINSAVEVER_RR 1
+#define MINSAVEVER_SW 1
+
+#define SAVEVER_DN3D 1
+#define SAVEVER_BLD 1
+#define SAVEVER_RR 1
+#define SAVEVER_SW 1
 
 #if defined(__APPLE__) || defined(_WIN32)
 #define GAME_DIR GAMENAME

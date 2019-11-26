@@ -913,12 +913,6 @@ static int osdcmd_kickban(osdcmdptr_t parm)
 }
 #endif
 
-static int osdcmd_purgesaves(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    G_DeleteOldSaves();
-    return OSDCMD_OK;
-}
 
 static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 {
@@ -1024,8 +1018,6 @@ int32_t registerosdcommands(void)
 
 
     OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
-
-    OSD_RegisterFunction("purgesaves", "purgesaves: deletes obsolete and unreadable save files", osdcmd_purgesaves);
 
     OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
     OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);

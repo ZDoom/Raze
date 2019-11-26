@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "cmdlib.h"
 #include "i_specialpaths.h"
+#include "savegamehelp.h"
 
 EXTERN_CVAR(Bool, hud_powerupduration)
 
@@ -2069,7 +2070,6 @@ short gQuickSaveSlot = -1;
 
 void SaveGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
 {
-    char strSaveGameName[BMAX_PATH];
     int nSlot = pItem->at28;
     if (gGameOptions.nGameType > 0 || !gGameStarted)
         return;
@@ -2078,21 +2078,21 @@ void SaveGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
         gGameMenuMgr.Deactivate();
         return;
     }
-	snprintf(strSaveGameName, BMAX_PATH, "%sgame00%02d.sav", M_GetSavegamesPath().GetChars(), nSlot);
+	FStringf basename("save%04d", nSlot);
+	auto strSaveGameName = G_BuildSaveName(basename);
     strcpy(gGameOptions.szUserGameName, strRestoreGameStrings[nSlot]);
-    sprintf(gGameOptions.szSaveGameName, "%s", strSaveGameName);
+    sprintf(gGameOptions.szSaveGameName, "%s", strSaveGameName.GetChars());
     gGameOptions.nSaveGameSlot = nSlot;
     viewLoadingScreen(2518, "Saving", "Saving Your Game", strRestoreGameStrings[nSlot]);
     videoNextPage();
     gSaveGameNum = nSlot;
-    LoadSave::SaveGame(strSaveGameName);
+    LoadSave::SaveGame(strSaveGameName.GetChars());
     gQuickSaveSlot = nSlot;
     gGameMenuMgr.Deactivate();
 }
 
 void QuickSaveGame(void)
 {
-    char strSaveGameName[BMAX_PATH];
     if (gGameOptions.nGameType > 0 || !gGameStarted)
         return;
     /*if (strSaveGameName[0])
@@ -2100,9 +2100,11 @@ void QuickSaveGame(void)
         gGameMenuMgr.Deactivate();
         return;
     }*/
-    snprintf(strSaveGameName, BMAX_PATH, "%sgame00%02d.sav", M_GetSavegamesPath().GetChars(), gQuickSaveSlot);
+	FStringf basename("save%04d", gQuickSaveSlot);
+	auto strSaveGameName = G_BuildSaveName(basename);
+
     strcpy(gGameOptions.szUserGameName, strRestoreGameStrings[gQuickSaveSlot]);
-    sprintf(gGameOptions.szSaveGameName, "%s", strSaveGameName);
+    sprintf(gGameOptions.szSaveGameName, "%s", strSaveGameName.GetChars());
     gGameOptions.nSaveGameSlot = gQuickSaveSlot;
     viewLoadingScreen(2518, "Saving", "Saving Your Game", strRestoreGameStrings[gQuickSaveSlot]);
     videoNextPage();
@@ -2116,11 +2118,11 @@ void QuickSaveGame(void)
 void LoadGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
 {
     UNREFERENCED_PARAMETER(event);
-    char strLoadGameName[BMAX_PATH];
     int nSlot = pItem->at28;
     if (gGameOptions.nGameType > 0)
         return;
-    snprintf(strLoadGameName, BMAX_PATH, "%sgame00%02d.sav", M_GetSavegamesPath().GetChars(), nSlot);
+	FStringf basename("save%04d", nSlot);
+	auto strLoadGameName = G_BuildSaveName(basename);
     if (!FileExists(strLoadGameName))
         return;
     viewLoadingScreen(2518, "Loading", "Loading Saved Game", strRestoreGameStrings[nSlot]);
@@ -2132,10 +2134,11 @@ void LoadGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
 
 void QuickLoadGame(void)
 {
-    char strLoadGameName[BMAX_PATH];
+
     if (gGameOptions.nGameType > 0)
         return;
-    snprintf(strLoadGameName, BMAX_PATH, "%sgame00%02d.sav", M_GetSavegamesPath().GetChars(), gQuickLoadSlot);
+	FStringf basename("save%04d", gQuickSaveSlot);
+	auto strLoadGameName = G_BuildSaveName(basename);
     if (!FileExists(strLoadGameName))
         return;
     viewLoadingScreen(2518, "Loading", "Loading Saved Game", strRestoreGameStrings[gQuickLoadSlot]);
@@ -2268,6 +2271,11 @@ void drawLoadingScreen(void)
     else
         sprintf(buffer, "%s", zNetGameTypes[gGameOptions.nGameType-1]);
     viewLoadingScreen(2049, buffer, levelGetTitle(), NULL);
+}
+
+FSavegameInfo GameInterface::GetSaveSig()
+{
+	return { SAVESIG_BLD, MINSAVEVER_BLD, SAVEVER_BLD };
 }
 
 END_BLD_NS

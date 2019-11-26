@@ -46,8 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "i_specialpaths.h"
 #include "view.h"
-#include "statistics.h"
-#include "secrets.h"
 #include "savegamehelp.h"
 
 BEGIN_BLD_NS
@@ -102,7 +100,7 @@ void LoadSave::Write(void *pData, int nSize)
         ThrowError("File error #%d writing save file.", errno);
 }
 
-void LoadSave::LoadGame(char *pzFile)
+void LoadSave::LoadGame(const char *pzFile)
 {
     bool demoWasPlayed = gDemo.at1;
     if (gDemo.at1)
@@ -128,8 +126,6 @@ void LoadSave::LoadGame(char *pzFile)
         rover->Load();
         rover = rover->next;
     }
-	if (!ReadStatistics() || !SECRET_Load())  // read the rest...
-		ThrowError("Error loading save file.");
 
 	hLFile.Close();
 	FinishSavegameRead();
@@ -194,7 +190,7 @@ void LoadSave::LoadGame(char *pzFile)
     //sndPlaySong(gGameOptions.zLevelSong, 1);
 }
 
-void LoadSave::SaveGame(char *pzFile)
+void LoadSave::SaveGame(const char *pzFile)
 {
 	OpenSaveGameForWrite(pzFile);
 	hSFile = WriteSavegameChunk("snapshot.bld");
@@ -211,8 +207,9 @@ void LoadSave::SaveGame(char *pzFile)
         dword_27AA38 = 0;
         rover = rover->next;
     }
-	SaveStatistics();
-	SECRET_Save();
+	auto & li = gEpisodeInfo[gGameOptions.nEpisode].at28[gGameOptions.nLevel];
+	G_WriteSaveHeader(gGameOptions.szUserGameName, li.at0, li.at90);
+
 	FinishSavegameWrite();
     hSFile = NULL;
 }

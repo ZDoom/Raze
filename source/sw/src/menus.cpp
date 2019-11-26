@@ -53,6 +53,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "fx_man.h"
 #include "music.h"
 #include "text.h"
+#include "version.h"
 
 #include "colormap.h"
 #include "config.h"
@@ -4736,6 +4737,11 @@ void ResetPalette(PLAYERp pp)
 }
 
 // vim:ts=4:sw=4:enc=utf-8:
+
+FSavegameInfo GameInterface::GetSaveSig()
+{
+	return { SAVESIG_SW, MINSAVEVER_SW, SAVEVER_SW };
+}
 
 
 END_SW_NS

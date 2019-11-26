@@ -158,6 +158,7 @@ struct GameInterface : ::GameInterface
 	bool mouseInactiveConditional(bool condition) override;
 	FString statFPS() override;
 	GameStats getStats() override;
+	FSavegameInfo GetSaveSig() override;
 };
 
 END_RR_NS

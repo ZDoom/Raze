@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheats.h"
 #include "gamecvars.h"
 #include "menu/menu.h"
+#include "version.h"
 #include "../../glbackend/glbackend.h"
 
 BEGIN_RR_NS
@@ -3446,7 +3447,6 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     }
     else if (entry == &ME_SAVESETUP_CLEANUP)
     {
-        g_oldSaveCnt = G_CountOldSaves();
         Menu_Change(MENU_SAVECLEANVERIFY);
     }
     else if (entry == &ME_COLCORR_RESET)
@@ -3768,10 +3768,6 @@ static void Menu_Verify(int32_t input)
     switch (g_currentMenu)
     {
     case MENU_SAVECLEANVERIFY:
-        if (input)
-        {
-            G_DeleteOldSaves();
-        }
         break;
 
     case MENU_RESETPLAYER:
@@ -3839,7 +3835,7 @@ static void Menu_Verify(int32_t input)
     case MENU_LOADDELVERIFY:
         if (input)
         {
-            G_DeleteSave(g_menusaves[M_LOAD.currentEntry].brief);
+           //G_DeleteSave(g_menusaves[M_LOAD.currentEntry].brief);
             Menu_LoadReadHeaders();
             M_LOAD.currentEntry = clamp(M_LOAD.currentEntry, 0, (int32_t)g_nummenusaves-1);
         }
@@ -3847,7 +3843,7 @@ static void Menu_Verify(int32_t input)
     case MENU_SAVEDELVERIFY:
         if (input)
         {
-            G_DeleteSave(g_menusaves[M_SAVE.currentEntry-1].brief);
+            //G_DeleteSave(g_menusaves[M_SAVE.currentEntry-1].brief);
             Menu_SaveReadHeaders();
             M_SAVE.currentEntry = clamp(M_SAVE.currentEntry, 0, (int32_t)g_nummenusaves);
         }
@@ -7460,6 +7456,11 @@ void M_DisplayMenus(void)
 bool GameInterface::mouseInactiveConditional(bool condition)
 {
 	return MOUSEINACTIVECONDITIONAL(condition);
+}
+
+FSavegameInfo GameInterface::GetSaveSig()
+{
+	return { SAVESIG_RR, MINSAVEVER_RR, SAVEVER_RR };
 }
 
 END_RR_NS

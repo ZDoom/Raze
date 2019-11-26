@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_bind.h"
 #include "menu/menu.h"
 #include "gstrings.h"
+#include "version.h"
 #include "../../glbackend/glbackend.h"
 
 BEGIN_DUKE_NS
@@ -464,6 +465,12 @@ void GameInterface::StartGame(FGameStartup& gs)
 	G_NewGame_EnterLevel();
 
 }
+
+FSavegameInfo GameInterface::GetSaveSig()
+{
+	return { SAVESIG_DN3D, MINSAVEVER_DN3D, SAVEVER_DN3D };
+}
+
 
 END_DUKE_NS
 
