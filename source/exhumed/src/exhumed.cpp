@@ -1342,6 +1342,7 @@ void DoCredits()
 
     int var_20 = 0;
 
+    if (videoGetRenderMode() == REND_CLASSIC)
     FadeOut(0);
 
     int nCreditsIndex = FindGString("CREDITS");
@@ -1357,36 +1358,27 @@ void DoCredits()
             nCreditsIndex++;
         }
 
-        // vars
-        int eax = (10 * (nCreditsIndex - nStart - 1)) / 2;
-
-        if (eax < 0) {
-            eax++;
-        }
-
-        eax >>= 1;
-
-        int y = 100 - eax;
-
-        int edi = nStart;
-
+        int y = 100 - ((10 * (nCreditsIndex - nStart - 1)) / 2);
 
         for (int i = nStart; i < nCreditsIndex; i++)
         {
-            // var 24 ==
-
-            int nWidth = MyGetStringWidth(gString[edi]);
-            myprintext((320 - nWidth) / 2, y, gString[edi], 0);
-
-            edi++;
+            int nWidth = MyGetStringWidth(gString[i]);
+            myprintext((320 - nWidth) / 2, y, gString[i], 0);
             y += 10;
         }
 
         videoNextPage();
+
+        nCreditsIndex++;
+
+        if (videoGetRenderMode() == REND_CLASSIC)
         FadeIn();
 
-        while ((int)totalclock + 600 > (int)totalclock)
+        int nDuration = (int)totalclock + 600;
+
+        while ((int)totalclock <= nDuration)
         {
+            handleevents();
 			if(inputState.GetKeyStatus(sc_F12))
             {
                 var_20++;
@@ -1399,6 +1391,7 @@ void DoCredits()
             }
         }
 
+        if (videoGetRenderMode() == REND_CLASSIC)
         FadeOut(0);
     }
 
