@@ -683,12 +683,6 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         {
             inputState.ClearKeyStatus(inputState.GetLastScanCode());
 
-            //KeyboardKeys[currentkey][currentcol] = KB_GetLastScanCode();
-#if 0 // [JM] Re-do this shit !CHECKME!
-                CONTROL_MapKey(currentkey,
-                               KeyboardKeys[currentkey][0],
-                               KeyboardKeys[currentkey][1]);
-#endif
 
             currentmode = 0;
         }
@@ -811,12 +805,12 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             MNU_DrawSmallString(OPT_XS, j, ds, (i==currentkey) ? 0 : 12, 16);
 
             p = keyGetName(KeyboardKeys[i][0]);
-            if (!p || KeyboardKeys[i][0]==0xff) p = "  -";
+            if (!p || !KeyboardKeys[i][0] || KeyboardKeys[i][0]==0xff) p = "  -";
             MNU_DrawSmallString(OPT_XSIDE, j, p, (i==currentkey) ? -5 : 12,
                                 (i==currentkey && currentcol==0) ? 14 : 16);
 
             p = keyGetName(KeyboardKeys[i][1]);
-            if (!p || KeyboardKeys[i][1]==0xff) p = "  -";
+            if (!p || !KeyboardKeys[i][1] || KeyboardKeys[i][1]==0xff) p = "  -";
             MNU_DrawSmallString(OPT_XSIDE + 4*14, j, p, (i==currentkey) ? -5 : 12,
                                 (i==currentkey && currentcol==1) ? 14 : 16);
 #endif
