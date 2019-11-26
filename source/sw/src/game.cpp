@@ -105,6 +105,10 @@ signed char MNU_InputString(char*, short);
 SWBOOL IsCommand(const char* str);
 SWBOOL MNU_StartNetGame(void);
 
+#ifdef _WIN32
+# include "winbits.h"
+#endif
+
 const char* AppProperName = "VoidSW";
 const char* AppTechnicalName = "voidsw";
 
