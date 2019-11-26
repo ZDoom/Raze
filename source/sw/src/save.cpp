@@ -493,6 +493,7 @@ int SaveGame(short save_num)
             MWRITE(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
     }
 
+    int32_t svel = 0, vel = 0, angvel = 0;
     MWRITE(&vel,sizeof(vel),1,fil);
     MWRITE(&svel,sizeof(svel),1,fil);
     MWRITE(&angvel,sizeof(angvel),1,fil);
@@ -1013,6 +1014,7 @@ int LoadGame(short save_num)
         }
     }
 
+    int32_t svel, vel, angvel;
     MREAD(&vel,sizeof(vel),1,fil);
     MREAD(&svel,sizeof(svel),1,fil);
     MREAD(&angvel,sizeof(angvel),1,fil);

@@ -134,7 +134,6 @@ extern SWBOOL FinishedLevel;
 char PlayerGravity = PLAYER_JUMP_GRAV;
 #endif
 
-int vel, svel, angvel;
 extern SWBOOL DebugOperate;
 
 //unsigned char synctics, lastsynctics;
@@ -3116,7 +3115,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             if (sp->z < sop->crush_z)
                 continue;
 
-            vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
+            int32_t const vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
             if (vel < 9000)
             {
                 DoActorBeginSlide(i, getangle(pp->xvect, pp->yvect), vel/8, 5);
