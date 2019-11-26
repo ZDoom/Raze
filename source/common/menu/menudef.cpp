@@ -284,6 +284,10 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		{
 			desc->mFlags |= LMF_Centered;
 		}
+		else if (sc.Compare("animatedtransition"))
+		{
+			desc->mFlags |= LMF_Animate;
+		}
 		else if (sc.Compare("Fixedspacing"))
 		{
 			sc.MustGetNumber();

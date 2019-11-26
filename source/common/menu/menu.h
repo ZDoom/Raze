@@ -167,7 +167,8 @@ class FOptionMenuItem;
 enum ListMenuFlags
 {
 	LMF_Centered = 1,
-	LMF_DontSpace = 2
+	LMF_DontSpace = 2,
+	LMF_Animate = 4,
 };
 
 struct FListMenuDescriptor : public FMenuDescriptor
@@ -318,7 +319,7 @@ public:
 	static int MenuTime;
 
 	DMenu *mParentMenu;
-	DVector2 origin;
+	DVector2 origin = { 0,0 };
 	int scriptID = INT_MAX;
 	bool canAnimate = false;
 

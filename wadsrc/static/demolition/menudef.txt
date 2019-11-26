@@ -18,6 +18,7 @@ LISTMENU "MainMenu"
 		{
 			position 160, 55, 115
 			centermenu
+			animatedtransition
 		}
 		class "Duke.MainMenu"
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
@@ -81,6 +82,7 @@ LISTMENU "IngameMenu"
 		{
 			position 160, 55, 115
 			centermenu
+			animatedtransition
 		}
 		linespacing 15
 		class "Duke.MainMenu"
@@ -134,6 +136,7 @@ LISTMENU "EpisodeMenu"
 		position 160, 48, 142
 		centermenu
 		fixedspacing 5
+		animatedtransition
 		class "Duke.ListMenu"
 	}
 
@@ -149,17 +152,20 @@ LISTMENU "SkillMenu"
 		centermenu
 		fixedspacing 5
 		class "Duke.ListMenu"
+		animatedtransition
 	}
-
 	ScriptId 110
 }
 
+// The custom menus are only supported by the EDuke32 frontend.
 LISTMENU "CustomGameMenu"
 {
 	position 160, 48, 142
 	centermenu
 	fixedspacing 5
 	ScriptId 102
+	class "Duke.ListMenu"
+	animatedtransition
 }
 
 LISTMENU "CustomSubMenu1"
@@ -168,6 +174,8 @@ LISTMENU "CustomSubMenu1"
 	centermenu
 	fixedspacing 5
 	ScriptId 103
+	class "Duke.ListMenu"
+	animatedtransition
 }
 
 LISTMENU "CustomSubMenu2"
@@ -176,6 +184,8 @@ LISTMENU "CustomSubMenu2"
 	centermenu
 	fixedspacing 5
 	ScriptId 103
+	class "Duke.ListMenu"
+	animatedtransition
 }
 
 LISTMENU "CustomSubMenu3"
@@ -184,6 +194,8 @@ LISTMENU "CustomSubMenu3"
 	centermenu
 	fixedspacing 5
 	ScriptId 103
+	class "Duke.ListMenu"
+	animatedtransition
 }
 
 LISTMENU "CustomSubMenu4"
@@ -192,6 +204,8 @@ LISTMENU "CustomSubMenu4"
 	centermenu
 	fixedspacing 5
 	ScriptId 103
+	class "Duke.ListMenu"
+	animatedtransition
 }
 
 LISTMENU "CustomSubMenu5"
@@ -200,6 +214,8 @@ LISTMENU "CustomSubMenu5"
 	centermenu
 	fixedspacing 5
 	ScriptId 103
+	class "Duke.ListMenu"
+	animatedtransition
 }
 
 LISTMENU "CustomSubMenu6"
@@ -208,6 +224,8 @@ LISTMENU "CustomSubMenu6"
 	centermenu
 	fixedspacing 5
 	ScriptId 103
+	class "Duke.ListMenu"
+	animatedtransition
 }
 
 LISTMENU "CustomSubMenu7"
@@ -216,10 +234,21 @@ LISTMENU "CustomSubMenu7"
 	centermenu
 	fixedspacing 5
 	ScriptId 103
+	class "Duke.ListMenu"
+	animatedtransition
 }
 
 LISTMENU "MultiMenu"
 {
+	ifgame(Duke, Nam, WW2GI, Fury) // Ion Fury does not use this menu.
+	{
+		position 160, 55, 135
+		centermenu
+		fixedspacing 5
+		class "Duke.ListMenu"
+		animatedtransition
+	}
+
 	Caption "$MNU_NETWORKGAME"
 	NativeTextItem "$MNU_PLAYERSETUP", "p", "PlayerSetupMenu"
 	NativeTextItem "$MNU_JOINGAME", "j", "JoinGameMenu"

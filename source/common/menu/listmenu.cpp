@@ -64,6 +64,7 @@ void DListMenu::Init(DMenu *parent, FListMenuDescriptor *desc)
 {
 	mParentMenu = parent;
 	mDesc = desc;
+	canAnimate = !!(mDesc->mFlags & LMF_Animate);
 	if (mDesc->mScriptId >= 0) scriptID = mDesc->mScriptId;
 #if 0
 	if (desc->mCenter)

@@ -133,6 +133,7 @@ bool M_DrawTransition(MenuTransition &transition)
 		
 		transition.previous->origin.X = factor * transition.dir * (sin(phase) - 1.);
 		transition.current->origin.X = factor * transition.dir * (sin(phase) + 1.);
+		Printf("prev.X = %2.5f, next.X = %2.5f\n", transition.previous->origin.X, transition.current->origin.X);
 		transition.previous->Drawer();
 		transition.current->Drawer();
 		return true;
@@ -763,6 +764,7 @@ void M_Ticker (void)
 	if (DMenu::MenuTime & 3) return;
 	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
+		if (transition.previous) transition.previous->Ticker();
 		DMenu::CurrentMenu->Ticker();
 
 		for (int i = 0; i < NUM_MKEYS; ++i)
@@ -804,18 +806,18 @@ void M_Drawer (void)
 	{
 		if (DMenu::CurrentMenu->DimAllowed() && fade && !DrawBackground) twod.AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
 
-		bool done = false;
+		bool going = false;
 		if (transition.previous)
 		{
-			done = M_DrawTransition(transition);
-			if (!done)
+			going = M_DrawTransition(transition);
+			if (!going)
 			{
-				delete transition.previous;
+				if (transition.dir == -1) delete transition.previous;
 				transition.previous = nullptr;
 				transition.current = nullptr;
 			}
 		}
-		if (!done)
+		if (!going)
 		{
 			DMenu::CurrentMenu->origin = { 0,0 };
 			// else if (DrawBackground) Menu_DrawBackground(origin);
