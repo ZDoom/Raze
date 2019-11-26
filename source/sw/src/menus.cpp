@@ -2893,11 +2893,8 @@ MNU_JoystickCheck(MenuItem *item)
 static SWBOOL
 MNU_TryMusicInit(void)
 {
-    if (PlaySong(0, RedBookSong[Level], TRUE, FALSE))
-    {
         if (currentmenu->cursor == 0)
             MNU_MusicCheck(&currentmenu->items[currentmenu->cursor+1]);
-    }
 
     return TRUE;
 }
