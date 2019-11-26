@@ -136,24 +136,6 @@ static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
     captionmenutext(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (24<<16) + ((15>>1)<<16), t);
 }
 
-static FORCE_INLINE int32_t Menu_CursorShade(void)
-{
-    return VM_OnEventWithReturn(EVENT_MENUCURSORSHADE, -1, myconnectindex, 4-(sintable[((int32_t) totalclock<<4)&2047]>>11));
-}
-static void Menu_DrawCursorCommon(int32_t x, int32_t y, int32_t z, int32_t picnum, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
-{
-    rotatesprite_(x, y, z, 0, picnum, Menu_CursorShade(), 0, 2|8, 0, 0, 0, ydim_upper, xdim-1, ydim_lower);
-}
-static void Menu_DrawCursorLeft(int32_t x, int32_t y, int32_t z)
-{
-    if (FURY) return;
-    Menu_DrawCursorCommon(x, y, z, VM_OnEventWithReturn(EVENT_MENUCURSORLEFT, -1, myconnectindex, SPINNINGNUKEICON+(((int32_t) totalclock>>3)%7)));
-}
-static void Menu_DrawCursorRight(int32_t x, int32_t y, int32_t z)
-{
-    if (FURY) return;
-    Menu_DrawCursorCommon(x, y, z, VM_OnEventWithReturn(EVENT_MENUCURSORRIGHT, -1, myconnectindex, SPINNINGNUKEICON+6-((6+((int32_t) totalclock>>3))%7)));
-}
 static void Menu_DrawCursorTextTile(int32_t x, int32_t y, int32_t h, int32_t picnum, vec2_16_t const & siz, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
 {
     vec2_t const adjsiz = { (siz.x>>1)<<16, siz.y<<16 };
@@ -4181,50 +4163,6 @@ enum MenuTextFlags_t
     MT_Literal  = 1<<5,
     MT_RightSide = 1<<6,
 };
-
-static void Menu_GetFmt(const MenuFont_t *font, uint8_t const status, int32_t *s, int32_t *z)
-{
-    if (status & MT_Selected)
-        *s = VM_OnEventWithReturn(EVENT_MENUSHADESELECTED, -1, myconnectindex, sintable[((int32_t) totalclock<<5)&2047]>>12);
-    else
-        *s = font->shade_deselected;
-    // sum shade values
-    if (status & MT_Disabled)
-        *s += font->shade_disabled;
-
-    if (FURY && status & MT_Selected)
-        *z += (*z >> 4);
-}
-
-static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t *font, const char *t, uint8_t status, int32_t ydim_upper, int32_t ydim_lower)
-{
-    int32_t s, p, ybetween = font->between.y;
-    int32_t f = font->textflags;
-    if (status & MT_XCenter)
-        f |= TEXT_XCENTER;
-    if (status & MT_XRight)
-        f |= TEXT_XRIGHT;
-    if (status & MT_YCenter)
-    {
-        f |= TEXT_YCENTER | TEXT_YOFFSETZERO;
-        ybetween = font->emptychar.y; // <^ the battle against 'Q'
-    }
-    if (status & MT_Literal)
-        f |= TEXT_LITERALESCAPE;
-
-    int32_t z = font->zoom;
-
-    if (status & MT_Disabled)
-        p = (status & MT_RightSide) ? font->pal_disabled_right : font->pal_disabled;
-    else if (status & MT_Selected)
-        p = (status & MT_RightSide) ? font->pal_selected_right : font->pal_selected;
-    else
-        p = (status & MT_RightSide) ? font->pal_deselected_right : font->pal_deselected;
-
-    Menu_GetFmt(font, status, &s, &z);
-
-    return G_ScreenText(font->tilenum, x, y, z, 0, 0, t, s, p, 2|8|16|ROTATESPRITE_FULL16, 0, font->emptychar.x, font->emptychar.y, font->between.x, ybetween, f, 0, ydim_upper, xdim-1, ydim_lower);
-}
 
 static int32_t Menu_FindOptionBinarySearch(MenuOption_t *object, const int32_t query, uint16_t searchstart, uint16_t searchend)
 {

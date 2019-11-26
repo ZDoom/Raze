@@ -188,11 +188,11 @@ static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t* font, const char
 	else if (status & MT_Selected)
 		p = (status & MT_RightSide) ? font->pal_selected_right : font->pal_selected;
 	else
-p = (status & MT_RightSide) ? font->pal_deselected_right : font->pal_deselected;
+		p = (status & MT_RightSide) ? font->pal_deselected_right : font->pal_deselected;
 
-Menu_GetFmt(font, status, &s, &z);
+	Menu_GetFmt(font, status, &s, &z);
 
-return G_ScreenText(font->tilenum, x, y, z, 0, 0, t, s, p, 2 | 8 | 16 | ROTATESPRITE_FULL16, 0, font->emptychar.x, font->emptychar.y, font->between.x, ybetween, f, 0, ydim_upper, xdim - 1, ydim_lower);
+	return G_ScreenText(font->tilenum, x, y, z, 0, 0, t, s, p, 2 | 8 | 16 | ROTATESPRITE_FULL16, 0, font->emptychar.x, font->emptychar.y, font->between.x, ybetween, f, 0, ydim_upper, xdim - 1, ydim_lower);
 }
 
 static int32_t Menu_CursorShade(void)
