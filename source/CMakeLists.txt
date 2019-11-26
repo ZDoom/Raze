@@ -623,7 +623,6 @@ file( GLOB HEADER_FILES
 	common/console/*.h
 	common/filesystem/*.h
 	common/music/*.h
-	common/dobject/*.h
 	common/menu/*.h
 
 	build/src/*.h
@@ -666,8 +665,7 @@ set( FASTMATH_SOURCES
 
 
 set (PCH_SOURCES
-	common/dobject/__autostart.cpp # must be first
-	
+
 	audiolib/src/drivers.cpp
 	audiolib/src/driver_adlib.cpp
 	audiolib/src/driver_nosound.cpp
@@ -829,10 +827,6 @@ set (PCH_SOURCES
 	common/music/backend/oalsound.cpp
 	common/music/backend/i_sound.cpp
 
-
-	common/dobject/dobject.cpp
-	common/dobject/dobjtype.cpp
-	
 	common/menu/joystickmenu.cpp
 	common/menu/listmenu.cpp
 	common/menu/loadsavemenu.cpp
@@ -842,8 +836,6 @@ set (PCH_SOURCES
 	common/menu/messagebox.cpp
 	common/menu/optionmenu.cpp
 	common/menu/readthis.cpp
-	
-	common/dobject/zzautozend.cpp #must be last
 )
 
 if( MSVC )
