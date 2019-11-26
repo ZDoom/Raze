@@ -4064,7 +4064,7 @@ void getinput(SW_PACKET *loc)
 
     SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
 
-    int const running = BUTTON(gamefunc_Run) || TEST(pp->Flags, PF_LOCK_RUN); // G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+    int const running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int32_t turnamount;
     int32_t keymove;
     constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
