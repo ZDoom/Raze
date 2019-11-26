@@ -168,8 +168,23 @@ struct GameStats
 	int timesecnd;
 };
 
+struct FGameStartup
+{
+	int Episode;
+	int Level;
+	int Skill;
+	int CustomLevel1;
+	int CustomLevel2;
+};
+
 struct GameInterface
 {
+	enum EMenuSounds
+	{
+		SelectSound,
+		ChooseSound
+	};
+
 	virtual ~GameInterface() {}
 	virtual void faketimerhandler() {} // This is a remnant of older versions, but Blood backend has not updated yet.
 	virtual int app_main() = 0;
@@ -182,9 +197,11 @@ struct GameInterface
 	virtual void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int flags) {}
 	virtual void MainMenuOpened() {}
 	virtual void MenuOpened() {}
-	virtual void MenuSelectSound() {}
-	virtual void MenuChooseSound() {}
+	virtual void MenuClosed() {}
+	virtual void MenuSound(EMenuSounds snd) {}
 	virtual bool CanSave() { return true; }
+	virtual void CustomMenuSelection(int menu, int item) {}
+	virtual void StartGame(FGameStartup& gs) {}
 };
 
 extern GameInterface* gi;

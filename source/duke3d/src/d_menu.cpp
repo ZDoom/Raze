@@ -388,25 +388,30 @@ void GameInterface::MenuOpened()
 	}
 }
 
-void GameInterface::MenuSelectSound()
+void GameInterface::MenuSound(::GameInterface::EMenuSounds snd)
 {
-	S_PlaySound(KICK_HIT);
+	switch (snd)
+	{
+		case SelectSound:
+			S_PlaySound(KICK_HIT);
+			break;
+
+		case ChooseSound:
+			S_PlaySound(PISTOL_BODYHIT);
+			break;
+
+		default:
+			return;
+	}
 }
 
-void GameInterface::MenuChooseSound()
-{
-	S_PlaySound(PISTOL_BODYHIT);
-}
 
-
-/*
 void GameInterface::MenuClosed()
 {
 	S_PlaySound(EXITMENUSOUND);
 	if (!ud.pause_on)
 		S_PauseSounds(false);
 }
-*/
 
 bool GameInterface::CanSave()
 {
@@ -418,6 +423,46 @@ bool GameInterface::CanSave()
 		return false;
 	}
 	return true;
+}
+
+void GameInterface::CustomMenuSelection(int menu, int item)
+{
+	ud.returnvar[0] = item;
+	ud.returnvar[1] = -1;
+	VM_OnEventWithReturn(EVENT_NEWGAMECUSTOM, -1, myconnectindex, menu);
+}
+
+void GameInterface::StartGame(FGameStartup& gs)
+{
+	int32_t skillsound = PISTOL_BODYHIT;
+
+	switch (gs.Skill)
+	{
+	case 0:
+		skillsound = JIBBED_ACTOR6;
+		break;
+	case 1:
+		skillsound = BONUS_SPEECH1;
+		break;
+	case 2:
+		skillsound = DUKE_GETWEAPON2;
+		break;
+	case 3:
+		skillsound = JIBBED_ACTOR5;
+		break;
+	}
+
+	ud.m_player_skill = gs.Skill + 1;
+	ud.skill_voice = S_PlaySound(skillsound);
+	ud.m_respawn_monsters = (gs.Skill == 3);
+	ud.m_monsters_off = ud.monsters_off = 0;
+	ud.m_respawn_items = 0;
+	ud.m_respawn_inventory = 0;
+	ud.multimode = 1;
+	ud.m_volume_number = gs.Episode;
+	ud.m_level_number = gs.Level;
+	G_NewGame_EnterLevel();
+
 }
 
 END_DUKE_NS

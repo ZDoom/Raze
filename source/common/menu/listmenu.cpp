@@ -130,7 +130,7 @@ bool DListMenu::Responder (event_t *ev)
 				if (mDesc->mItems[i]->CheckHotkey(ch))
 				{
 					mDesc->mSelectedItem = i;
-					gi->MenuSelectSound();
+					gi->MenuSound(GameInterface::SelectSound);
 					return true;
 				}
 			}
@@ -139,7 +139,7 @@ bool DListMenu::Responder (event_t *ev)
 				if (mDesc->mItems[i]->CheckHotkey(ch))
 				{
 					mDesc->mSelectedItem = i;
-					gi->MenuSelectSound();
+					gi->MenuSound(GameInterface::SelectSound);
 					return true;
 				}
 			}
@@ -166,7 +166,7 @@ bool DListMenu::MenuEvent (int mkey, bool fromcontroller)
 			if (--mDesc->mSelectedItem < 0) mDesc->mSelectedItem = mDesc->mItems.Size()-1;
 		}
 		while (!mDesc->mItems[mDesc->mSelectedItem]->Selectable() && mDesc->mSelectedItem != startedAt);
-		gi->MenuSelectSound();
+		gi->MenuSound(GameInterface::SelectSound);
 		return true;
 
 	case MKEY_Down:
@@ -175,13 +175,13 @@ bool DListMenu::MenuEvent (int mkey, bool fromcontroller)
 			if (++mDesc->mSelectedItem >= (int)mDesc->mItems.Size()) mDesc->mSelectedItem = 0;
 		}
 		while (!mDesc->mItems[mDesc->mSelectedItem]->Selectable() && mDesc->mSelectedItem != startedAt);
-		gi->MenuSelectSound();
+		gi->MenuSound(GameInterface::SelectSound);
 		return true;
 
 	case MKEY_Enter:
 		if (mDesc->mSelectedItem >= 0 && mDesc->mItems[mDesc->mSelectedItem]->Activate(mDesc->mMenuName))
 		{
-			gi->MenuChooseSound();
+			gi->MenuSound(GameInterface::ChooseSound);
 		}
 		return true;
 

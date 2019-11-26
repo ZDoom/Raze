@@ -2763,63 +2763,6 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 {
     switch (g_currentMenu)
     {
-    case MENU_EPISODE:
-        if (entry != &ME_EPISODE_USERMAP)
-        {
-            ud.m_volume_number = M_EPISODE.currentEntry;
-            m_level_number = 0;
-
-            if (g_skillCnt == 0)
-                Menu_StartGameWithoutSkill();
-        }
-        break;
-
-    case MENU_NEWGAMECUSTOM:
-        ud.returnvar[0] = -1;
-        VM_OnEventWithReturn(EVENT_NEWGAMECUSTOM, -1, myconnectindex, M_NEWGAMECUSTOM.currentEntry);
-        break;
-
-    case MENU_NEWGAMECUSTOMSUB:
-        ud.returnvar[0] = M_NEWGAMECUSTOMSUB.currentEntry;
-        ud.returnvar[1] = -1;
-        VM_OnEventWithReturn(EVENT_NEWGAMECUSTOM, -1, myconnectindex, M_NEWGAMECUSTOM.currentEntry);
-        break;
-
-    case MENU_SKILL:
-    {
-        int32_t skillsound = PISTOL_BODYHIT;
-
-        switch (M_SKILL.currentEntry)
-        {
-        case 0:
-            skillsound = JIBBED_ACTOR6;
-            break;
-        case 1:
-            skillsound = BONUS_SPEECH1;
-            break;
-        case 2:
-            skillsound = DUKE_GETWEAPON2;
-            break;
-        case 3:
-            skillsound = JIBBED_ACTOR5;
-            break;
-        }
-
-        ud.m_player_skill = M_SKILL.currentEntry+1;
-
-        ud.skill_voice = S_PlaySound(skillsound);
-
-        if (M_SKILL.currentEntry == 3) ud.m_respawn_monsters = 1;
-        else ud.m_respawn_monsters = 0;
-
-        ud.m_monsters_off = ud.monsters_off = 0;
-
-        ud.m_respawn_items = 0;
-        ud.m_respawn_inventory = 0;
-
-        ud.multimode = 1;
-
-        G_NewGame_EnterLevel();
         break;
     }
 
@@ -3563,163 +3506,6 @@ static void Menu_FileSelect(int32_t input)
 }
 
 
-
-
-
-static Menu_t* Menu_BinarySearch(MenuID_t query, uint16_t searchstart, uint16_t searchend)
-{
-    const uint16_t thissearch = (searchstart + searchend) / 2;
-    const MenuID_t difference = query - Menus[thissearch].menuID;
-
-    if (difference == 0)
-        return &Menus[thissearch];
-    else if (searchstart == searchend)
-        return NULL;
-    else if (difference > 0)
-    {
-        if (thissearch == searchend)
-            return NULL;
-        searchstart = thissearch + 1;
-    }
-    else if (difference < 0)
-    {
-        if (thissearch == searchstart)
-            return NULL;
-        searchend = thissearch - 1;
-    }
-
-    return Menu_BinarySearch(query, searchstart, searchend);
-}
-
-static Menu_t* Menu_Find(MenuID_t query)
-{
-    if ((unsigned) query > (unsigned) Menus[numMenus-1].menuID)
-        return NULL;
-
-    return Menu_BinarySearch(query, 0, numMenus-1);
-}
-
-static Menu_t* Menu_FindFiltered(MenuID_t query)
-{
-    if ((g_player[myconnectindex].ps->gm&MODE_GAME) && query == MENU_MAIN)
-        query = MENU_MAIN_INGAME;
-
-    return Menu_Find(query);
-}
-
-MenuAnimation_t m_animation;
-
-int32_t Menu_Anim_SinOutRight(MenuAnimation_t *animdata)
-{
-    return sintable[divscale10((int32_t) totalclock - animdata->start, animdata->length) + 512] - 16384;
-}
-int32_t Menu_Anim_SinInRight(MenuAnimation_t *animdata)
-{
-    return sintable[divscale10((int32_t) totalclock - animdata->start, animdata->length) + 512] + 16384;
-}
-int32_t Menu_Anim_SinOutLeft(MenuAnimation_t *animdata)
-{
-    return -sintable[divscale10((int32_t) totalclock - animdata->start, animdata->length) + 512] + 16384;
-}
-int32_t Menu_Anim_SinInLeft(MenuAnimation_t *animdata)
-{
-    return -sintable[divscale10((int32_t) totalclock - animdata->start, animdata->length) + 512] - 16384;
-}
-
-void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype)
-{
-	if (cm == MENU_KEYBOARDKEYS)
-	{
-		GUICapture |= 2;
-		return;
-	}
-
-    if (FURY)
-    {
-        m_animation.start  = 0;
-        m_animation.length = 0;
-        Menu_Change(cm);
-        return;
-    }
-
-    switch (animtype)
-    {
-        case MA_Advance:
-        {
-            Menu_t * const previousMenu = m_currentMenu;
-
-            if (!Menu_Change(cm))
-            {
-                m_animation.out    = Menu_Anim_SinOutRight;
-                m_animation.in     = Menu_Anim_SinInRight;
-                m_animation.start  = (int32_t) totalclock;
-                m_animation.length = 30;
-
-                m_animation.previous = previousMenu;
-                m_animation.current  = m_currentMenu;
-            }
-
-            break;
-        }
-        case MA_Return:
-        {
-            Menu_t * const previousMenu = m_currentMenu;
-
-            if (!Menu_Change(cm))
-            {
-                m_animation.out    = Menu_Anim_SinOutLeft;
-                m_animation.in     = Menu_Anim_SinInLeft;
-                m_animation.start  = (int32_t) totalclock;
-                m_animation.length = 30;
-
-                m_animation.previous = previousMenu;
-                m_animation.current  = m_currentMenu;
-            }
-
-            break;
-        }
-        default:
-            m_animation.start  = 0;
-            m_animation.length = 0;
-            Menu_Change(cm);
-            break;
-    }
-}
-
-static void Menu_MaybeSetSelectionToChild(Menu_t * m, MenuID_t id)
-{
-    if (m->type == Menu)
-    {
-        auto  menu = (MenuMenu_t *)m->object;
-
-        if (menu->currentEntry < menu->numEntries)
-        {
-            MenuEntry_t const * currentEntry = menu->entrylist[menu->currentEntry];
-            if (currentEntry != NULL && currentEntry->type == Link)
-            {
-                auto const * link = (MenuLink_t const *)currentEntry->entry;
-                if (link->linkID == id)
-                     return; // already good to go
-            }
-        }
-
-        for (int i = 0, i_end = menu->numEntries; i < i_end; ++i)
-        {
-            MenuEntry_t const * entry = menu->entrylist[i];
-            if (entry != NULL && entry->type == Link && !(entry->flags & MEF_Hidden))
-            {
-                auto const * link = (MenuLink_t const *)entry->entry;
-                if (link->linkID == id)
-                {
-                    menu->currentEntry = i;
-                    Menu_AdjustForCurrentEntryAssignmentBlind(menu);
-                    break;
-                }
-            }
-        }
-    }
-}
-
 static void Menu_ReadSaveGameHeaders()
 {
     ReadSaveGameHeaders();
@@ -3761,16 +3547,6 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
 {
     switch (m->menuID)
     {
-    case MENU_MAIN:
-        if (FURY)
-            ME_MAIN_LOADGAME.name = s_Continue;
-        break;
-
-    case MENU_MAIN_INGAME:
-        if (FURY)
-            ME_MAIN_LOADGAME.name = s_LoadGame;
-        break;
-
     case MENU_NEWGAMECUSTOMSUB:
         Menu_PopulateNewGameCustomSub(M_NEWGAMECUSTOM.currentEntry);
         break;
@@ -3888,10 +3664,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
 
 static void Menu_ChangingTo(Menu_t * m)
 {
-#ifdef __ANDROID__
-    if (m->menuID == MENU_TOUCHBUTTONS)
-        AndroidToggleButtonEditor();
-#endif
+
 
     switch (m->type)
     {
@@ -3902,74 +3675,6 @@ static void Menu_ChangingTo(Menu_t * m)
         break;
     }
 }
-
-int Menu_Change(MenuID_t cm)
-{
-    Menu_t * beginMenu = m_currentMenu;
-
-    cm = VM_OnEventWithReturn(EVENT_CHANGEMENU, g_player[screenpeek].ps->i, screenpeek, cm);
-
-    if (cm == MENU_PREVIOUS)
-    {
-        m_currentMenu = m_previousMenu;
-        g_currentMenu = g_previousMenu;
-    }
-    else if (cm == MENU_CLOSE)
-        Menu_Close(myconnectindex);
-    else if (cm >= 0)
-    {
-        Menu_t * search = Menu_FindFiltered(cm);
-
-        if (search == NULL)
-            return 0; // intentional, so that users don't use any random value as "don't change"
-
-        // security
-        if (search->type == Verify &&
-            search->parentID != MENU_PREVIOUS &&
-            search->parentID != MENU_CLOSE &&
-            search->parentID != g_currentMenu)
-            return 1;
-
-        m_previousMenu = m_currentMenu;
-        g_previousMenu = g_currentMenu;
-        m_currentMenu = search;
-        g_currentMenu = search->menuID;
-    }
-    else
-        return 1;
-
-    if (FURY)
-    {
-        Menu_t * parent = m_currentMenu, * result = NULL;
-
-        while (parent != NULL && parent->menuID != MENU_OPTIONS && parent->menuID != MENU_MAIN && parent->menuID != MENU_MAIN_INGAME)
-        {
-            result = parent = Menu_FindFiltered(parent->parentID);
-        }
-
-        m_parentMenu = result;
-
-        if (result)
-        {
-            Menu_MaybeSetSelectionToChild(result, m_currentMenu->menuID);
-            Menu_AboutToStartDisplaying(result);
-        }
-    }
-
-    Menu_MaybeSetSelectionToChild(m_currentMenu, beginMenu->menuID);
-    Menu_AboutToStartDisplaying(m_currentMenu);
-    Menu_ChangingTo(m_currentMenu);
-
-#if !defined EDUKE32_TOUCH_DEVICES
-    m_menuchange_watchpoint = 1;
-#endif
-
-    return 0;
-}
-
-
-
-
 
 
 

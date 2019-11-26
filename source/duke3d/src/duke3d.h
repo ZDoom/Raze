@@ -158,9 +158,11 @@ struct GameInterface : ::GameInterface
 	// Everything else is either custom screens or will use the generic option menu style.
 	void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int orientation) override;
 	void MenuOpened() override;
-	void MenuSelectSound() override;
-	void MenuChooseSound() override;
+	void MenuClosed() override;
+	void MenuSound(EMenuSounds snd) override;
 	bool CanSave() override;
+	void CustomMenuSelection(int menu, int item) override;
+	void StartGame(FGameStartup& gs) override;
 
 };
 

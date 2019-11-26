@@ -1035,7 +1035,7 @@ static void BuildEpisodeMenu()
 			if (gVolumeNames[i].IsNotEmpty() && !(gVolumeFlags[i] & EF_HIDEFROMSP))
 
 			{
-				auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i + 1);
+				auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i);
 				ld->mItems.Push(it);
 				addedVolumes++;
 				if (gVolumeSubtitles[i].IsNotEmpty())

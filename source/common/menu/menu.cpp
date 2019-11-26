@@ -437,20 +437,23 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	case NAME_EpisodeMenu:
 		// sent from the episode menu
 		GameStartupInfo.Episode = param;
+		GameStartupInfo.Level = 0;
 		GameStartupInfo.CustomLevel1 = GameStartupInfo.CustomLevel2 = -1;
 		GameStartupInfo.Skill = gDefaultSkill;
 		break;
 
 	case NAME_CustomGameMenu:
 		GameStartupInfo.CustomLevel1 = param;
-		GameStartupInfo.Episode = GameStartupInfo.CustomLevel2 = -1;
+		GameStartupInfo.CustomLevel2 = -1;
+		GameStartupInfo.Episode = -1;
+		GameStartupInfo.Level = -1;
 		GameStartupInfo.Skill = gDefaultSkill;
-		// gi->CustomMenuSelection(-1, param);
+		gi->CustomMenuSelection(param, -1);
 		break;
 
 	case NAME_CustomSubMenu1:
 		GameStartupInfo.CustomLevel2 = param;
-		// gi->CustomMenuSelection(GameStartupInfo.CustomLevel1, param);
+		gi->CustomMenuSelection(GameStartupInfo.CustomLevel1, param);
 		menu = FName(ENamedName(menu + param));
 		break;
 
@@ -462,7 +465,8 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	switch (menu)
 	{
 	case NAME_StartGame:
-		// gi->StartGame(&GameStartupInfo);
+		M_ClearMenus();	// must be done before starting the level.
+		gi->StartGame(GameStartupInfo);
 		return false;
 
 #if 0
@@ -844,6 +848,7 @@ void M_ClearMenus ()
 	}
 	menuactive = MENU_Off;
 	GUICapture &= ~1;
+	gi->MenuClosed();
 }
 
 void Menu_Close(int playerid)

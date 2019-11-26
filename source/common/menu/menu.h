@@ -9,6 +9,7 @@
 #include "version.h"
 #include "textures.h"
 #include "zstring.h"
+#include "baselayer.h"
 
 EXTERN_CVAR(Float, snd_menuvolume)
 EXTERN_CVAR(Int, m_use_mouse);
@@ -111,15 +112,6 @@ enum ENativeFontValues
 	NIT_InactiveState = 2,
 	NIT_SelectedState = 3
 	// positive values for color are direct palswap indices.
-};
-
-
-struct FGameStartup
-{
-	int Episode;
-	int Skill;
-	int CustomLevel1;
-	int CustomLevel2;
 };
 
 extern FGameStartup GameStartupInfo;
