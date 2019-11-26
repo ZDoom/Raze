@@ -197,8 +197,9 @@ WallSetup(void)
                  wall_num = wall[wall_num].point2)
             {
                 SET(wall[wall_num].extra, WALLFX_LOOP_DONT_SPIN);
-                if (wall[wall_num].nextwall >= 0) 
-					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_DONT_SPIN);
+                auto const nextwall = wall[wall_num].nextwall;
+                if ((unsigned)nextwall < MAXSECTORS)
+                    SET(wall[nextwall].extra, WALLFX_LOOP_DONT_SPIN);
             }
 
             break;
