@@ -105,13 +105,6 @@ signed char MNU_InputString(char*, short);
 SWBOOL IsCommand(const char* str);
 SWBOOL MNU_StartNetGame(void);
 
-#ifdef _WIN32
-# include "winbits.h"
-#endif
-
-const char* AppProperName = "VoidSW";
-const char* AppTechnicalName = "voidsw";
-
 
 #if DEBUG
 #define BETA 0
@@ -4072,9 +4065,6 @@ void getinput(SW_PACKET *loc)
     int32_t keymove;
     constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
 
-	svel -= info.dx * keyMove / analogExtent;
-	vel -= info.dz * keyMove / analogExtent;
-
     if (running)
     {
         if (pp->sop_control)
@@ -4110,12 +4100,12 @@ void getinput(SW_PACKET *loc)
         angvel += info.dyaw * (turnamount << 1) / analogExtent;
     }
 
-    if (aimMode)
+    if (true)//aimMode)
         aimvel = -info.mousey / 64;
     else
         vel = -(info.mousey >> 6);
 
-    if (!in_mouseflip)
+    if (in_mouseflip)
         aimvel = -aimvel;
 
     aimvel -= info.dpitch * turnamount / analogExtent;
