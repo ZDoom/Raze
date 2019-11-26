@@ -1067,6 +1067,13 @@ FORCE_INLINE CONSTEXPR DivResult<T> divrhs(T lhs)
 {
     return divide(lhs, (T)base);
 }
+
+template <typename T, typename T2>
+static FORCE_INLINE CONSTEXPR_CXX14 enable_if_t<is_signed<T>::value, T> NEGATE_ON_CONDITION(T value, T2 condition)
+{
+    T const invert = !!condition;
+    return (value ^ -invert) + invert;
+}
 #endif
 
 template <size_t base, typename T>
@@ -1081,10 +1088,10 @@ CONSTEXPR size_t logbasenegative(T n)
     return n > static_cast<T>(-(native_t)base) ? 1 : 1 + logbase<base>(n / static_cast<T>(-(native_t)base));
 }
 
+#endif
+
 #define isPow2OrZero(v) (((v) & ((v) - 1)) == 0)
 #define isPow2(v) (isPow2OrZero(v) && (v))
-
-#endif
 
 ////////// Bitfield manipulation //////////
 

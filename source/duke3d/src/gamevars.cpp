@@ -760,7 +760,6 @@ static FORCE_INLINE int __fastcall getvar__(int const gameVar, int const spriteN
 
         int       returnValue  = 0;
         int const varFlags     = var.flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
-        int const invertResult = !!(gameVar & GV_FLAG_NEGATIVE);
 
         if (!varFlags) returnValue = var.global;
         else if (varFlags == GAMEVAR_PERACTOR)
@@ -775,7 +774,7 @@ static FORCE_INLINE int __fastcall getvar__(int const gameVar, int const spriteN
             case GAMEVAR_Q16PTR:   returnValue = fix16_to_int(*(fix16_t *)var.global); break;
         }
 
-        return (returnValue ^ -invertResult) + invertResult;
+        return NEGATE_ON_CONDITION(returnValue, gameVar & GV_FLAG_NEGATIVE);
     }
 }
 
