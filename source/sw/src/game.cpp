@@ -105,9 +105,6 @@ signed char MNU_InputString(char*, short);
 SWBOOL IsCommand(const char* str);
 SWBOOL MNU_StartNetGame(void);
 
-const char* AppProperName = "VoidSW";
-const char* AppTechnicalName = "voidsw";
-
 
 #if DEBUG
 #define BETA 0
@@ -2304,6 +2301,9 @@ void BonusScreen(PLAYERp pp)
         }
 
         gStateControl(&State, &Tics);
+
+        videoClearViewableArea(0L);
+
         rotatesprite(0, 0, RS_SCALE, 0, 5120, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 
         if (UserMapName[0])
@@ -3908,7 +3908,6 @@ void GetHelpInput(PLAYERp pp)
 }
 
 short MirrorDelay;
-int MouseYAxisMode = -1;
 
 void getinput(SW_PACKET *loc)
 {
@@ -3927,16 +3926,11 @@ void getinput(SW_PACKET *loc)
 #define MAXVEL       ((NORMALKEYMOVE*2)+10)
 #define MAXSVEL      ((NORMALKEYMOVE*2)+10)
 #define MAXANGVEL    100
+#define MAXAIMVEL    128
 #define SET_LOC_KEY(loc, sync_num, key_test) SET(loc, ((!!(key_test)) << (sync_num)))
 
-    ControlInfo info;
-    int32_t running;
-    int32_t turnamount;
     static int32_t turnheldtime;
-    int32_t keymove;
     int32_t momx, momy;
-    int aimvel;
-    int mouseaxis;
 
     extern SWBOOL MenuButtonAutoRun;
     extern SWBOOL MenuButtonAutoAim;
@@ -3948,7 +3942,6 @@ void getinput(SW_PACKET *loc)
 
     // reset all syncbits
     loc->bits = 0;
-    svel = vel = angvel = aimvel = 0;
 
     // MAKE SURE THIS WILL GET SET
     SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
@@ -3975,7 +3968,9 @@ void getinput(SW_PACKET *loc)
 		}
 	}
 
+    int const aimMode = TEST(pp->Flags, PF_MOUSE_AIMING_ON);
 
+    ControlInfo info;
     CONTROL_GetInput(&info);
 
 	if (in_mousedeadzone)
@@ -4062,39 +4057,10 @@ void getinput(SW_PACKET *loc)
 
     SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
 
-	running = false;// G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-
-	int const keyMove = running ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
-	constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
-	constexpr int const analogTurnAmount = (NORMALTURN << 1);
-
-	if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
-	{
-		static int strafeyaw;
-
-		svel = -(info.mousex + strafeyaw) >> 3;
-		strafeyaw = (info.mousex + strafeyaw) % 8;
-
-		svel -= info.dyaw * keyMove / analogExtent;
-	}
-    else
-    {
-		angvel = fix16_div(fix16_from_int(info.mousex), F16(32));
-		angvel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
-
-		angvel >>= 15;
-    }
-
-	aimvel = fix16_div(fix16_from_int(info.mousey), F16(64));
-
-    if (!in_mouseflip)	// SW's mouse is inverted by default.
-        aimvel = -aimvel;
-
-	aimvel -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
-	aimvel >>= 15;
-
-	svel -= info.dx * keyMove / analogExtent;
-	vel -= info.dz * keyMove / analogExtent;
+    int const running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+    int32_t turnamount;
+    int32_t keymove;
+    constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
 
     if (running)
     {
@@ -4114,6 +4080,34 @@ void getinput(SW_PACKET *loc)
 
         keymove = NORMALKEYMOVE;
     }
+
+    info.dz = (info.dz * move_scale)>>8;
+    info.dyaw = (info.dyaw * turn_scale)>>8;
+
+    int32_t svel = 0, vel = 0, angvel = 0, aimvel = 0;
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
+    {
+        svel = -info.mousex;
+        svel -= info.dyaw * keymove / analogExtent;
+    }
+    else
+    {
+        angvel = info.mousex / 32;
+        angvel += info.dyaw * (turnamount << 1) / analogExtent;
+    }
+
+    if (true)//aimMode)
+        aimvel = -info.mousey / 64;
+    else
+        vel = -(info.mousey >> 6);
+
+    if (in_mouseflip)
+        aimvel = -aimvel;
+
+    aimvel -= info.dpitch * turnamount / analogExtent;
+    svel -= info.dx * keymove / analogExtent;
+    vel -= info.dz * keymove / analogExtent;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
@@ -4167,19 +4161,11 @@ void getinput(SW_PACKET *loc)
     if (buttonMap.ButtonDown(gamefunc_Move_Backward))
         vel += -keymove;
 
+    vel = clamp(vel, -MAXVEL, MAXVEL);
+    svel = clamp(svel, -MAXSVEL, MAXSVEL);
 
-    if (vel < -MAXVEL)
-        vel = -MAXVEL;
-    if (vel > MAXVEL)
-        vel = MAXVEL;
-    if (svel < -MAXSVEL)
-        svel = -MAXSVEL;
-    if (svel > MAXSVEL)
-        svel = MAXSVEL;
-    if (angvel < -MAXANGVEL)
-        angvel = -MAXANGVEL;
-    if (angvel > MAXANGVEL)
-        angvel = MAXANGVEL;
+    angvel = clamp(angvel, -MAXANGVEL, MAXANGVEL);
+    aimvel = clamp(aimvel, -MAXAIMVEL, MAXAIMVEL);
 
     momx = mulscale9(vel, sintable[NORM_ANGLE(newpp->pang + 512)]);
     momy = mulscale9(vel, sintable[NORM_ANGLE(newpp->pang)]);

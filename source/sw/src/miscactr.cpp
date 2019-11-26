@@ -173,7 +173,7 @@ int DoToiletGirl(short SpriteNum)
 
             choose_snd = RANDOM_P2(1024<<4)>>4;
 
-            if (!FX_SoundActive(handle))
+            if (!FX_SoundValidAndActive(handle))
             {
                 if (choose_snd > 750)
                     handle = PlaySound(DIGI_TOILETGIRLFART1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
@@ -188,7 +188,7 @@ int DoToiletGirl(short SpriteNum)
     {
         static int madhandle;
 
-        if (!FX_SoundActive(madhandle))
+        if (!FX_SoundValidAndActive(madhandle))
         {
             if (RANDOM_RANGE(1000<<8)>>8 > 500)
                 madhandle = PlaySound(DIGI_ANIMEMAD1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
@@ -235,7 +235,7 @@ int NullToiletGirl(short SpriteNum)
     {
         static int madhandle;
 
-        if (!FX_SoundActive(madhandle))
+        if (!FX_SoundValidAndActive(madhandle))
         {
             if (RANDOM_RANGE(1000<<8)>>8 > 500)
                 madhandle = PlaySound(DIGI_ANIMEMAD1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
@@ -416,7 +416,7 @@ int DoWashGirl(short SpriteNum)
     {
         static int handle;
 
-        if (!FX_SoundActive(handle))
+        if (!FX_SoundValidAndActive(handle))
         {
             if (RANDOM_P2(1024<<4)>>4 > 500)
                 handle = PlaySound(DIGI_ANIMESING1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
@@ -446,7 +446,7 @@ int DoWashGirl(short SpriteNum)
     {
         static int madhandle;
 
-        if (!FX_SoundActive(madhandle))
+        if (!FX_SoundValidAndActive(madhandle))
         {
             if (RANDOM_RANGE(1000<<8)>>8 > 500)
                 madhandle = PlaySound(DIGI_ANIMEMAD1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
@@ -490,7 +490,7 @@ int NullWashGirl(short SpriteNum)
     {
         static int madhandle;
 
-        if (!FX_SoundActive(madhandle))
+        if (!FX_SoundValidAndActive(madhandle))
         {
             if (RANDOM_RANGE(1000<<8)>>8 > 500)
                 madhandle = PlaySound(DIGI_ANIMEMAD1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
@@ -1305,7 +1305,7 @@ int DoCarGirl(short SpriteNum)
         {
             static int madhandle;
 
-            if (!FX_SoundActive(madhandle))
+            if (!FX_SoundValidAndActive(madhandle))
             {
                 short choose;
                 choose = RANDOM_RANGE(1000);
@@ -1360,7 +1360,7 @@ int NullCarGirl(short SpriteNum)
     {
         static int madhandle;
 
-        if (!FX_SoundActive(madhandle))
+        if (!FX_SoundValidAndActive(madhandle))
         {
             short choose;
             choose = RANDOM_RANGE(1000);
@@ -1532,7 +1532,7 @@ int DoMechanicGirl(short SpriteNum)
         {
             static int madhandle;
 
-            if (!FX_SoundActive(madhandle))
+            if (!FX_SoundValidAndActive(madhandle))
             {
                 short choose;
                 choose = RANDOM_RANGE(1000);
@@ -1587,7 +1587,7 @@ int NullMechanicGirl(short SpriteNum)
     {
         static int madhandle;
 
-        if (!FX_SoundActive(madhandle))
+        if (!FX_SoundValidAndActive(madhandle))
         {
             short choose;
             choose = RANDOM_RANGE(1000);
@@ -1760,7 +1760,7 @@ int DoSailorGirl(short SpriteNum)
         {
             static int madhandle;
 
-            if (!FX_SoundActive(madhandle))
+            if (!FX_SoundValidAndActive(madhandle))
             {
                 short choose;
                 choose = RANDOM_RANGE(1000);
@@ -1820,7 +1820,7 @@ int NullSailorGirl(short SpriteNum)
     {
         static int madhandle;
 
-        if (!FX_SoundActive(madhandle))
+        if (!FX_SoundValidAndActive(madhandle))
         {
             short choose;
             choose = RANDOM_RANGE(1000);
@@ -1968,7 +1968,7 @@ int DoPruneGirl(short SpriteNum)
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short rnd_range = 0;
-    static int madhandle=0,coyhandle=0;
+    static int madhandle, coyhandle;
     SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
@@ -1978,7 +1978,7 @@ int DoPruneGirl(short SpriteNum)
     {
         if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
         {
-            if (!FX_SoundActive(madhandle))
+            if (!FX_SoundValidAndActive(madhandle))
             {
                 short choose;
                 choose = STD_RANDOM_RANGE(1000);
@@ -1998,7 +1998,7 @@ int DoPruneGirl(short SpriteNum)
     }
     else
     {
-        if (!FX_SoundActive(coyhandle))
+        if (!FX_SoundValidAndActive(coyhandle))
         {
             short choose;
             choose = STD_RANDOM_RANGE(1000);
@@ -2049,7 +2049,7 @@ int NullPruneGirl(short SpriteNum)
     {
         static int madhandle;
 
-        if (!FX_SoundActive(madhandle))
+        if (!FX_SoundValidAndActive(madhandle))
         {
             short choose;
             choose = RANDOM_RANGE(1000);

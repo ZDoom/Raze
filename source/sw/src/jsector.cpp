@@ -578,7 +578,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
     {
         for (cnt = MAXMIRRORS - 1; cnt >= 0; cnt--)
             //if (TEST_GOTPIC(cnt + MIRRORLABEL) || TEST_GOTPIC(cnt + CAMSPRITE))
-            if (TEST_GOTPIC(cnt + MIRRORLABEL) || TEST_GOTPIC(mirror[cnt].campic))
+            if (TEST_GOTPIC(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic)))
             {
                 bIsWallMirror = FALSE;
                 if (TEST_GOTPIC(cnt + MIRRORLABEL))
@@ -587,7 +587,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                     RESET_GOTPIC(cnt + MIRRORLABEL);
                 }
                 //else if (TEST_GOTPIC(cnt + CAMSPRITE))
-                else if (TEST_GOTPIC(mirror[cnt].campic))
+                else if ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic))
                 {
                     //RESET_GOTPIC(cnt + CAMSPRITE);
                     RESET_GOTPIC(mirror[cnt].campic);

@@ -997,7 +997,11 @@ int WeaponOperate(PLAYERp pp)
     if (pp->WpnRocketType != 2 || pp->CurWpn != pp->Wpn[WPN_MICRO])
     {
         pp->InitingNuke = FALSE;
-        FX_StopSound(pp->nukevochandle);
+        if (pp->nukevochandle > 0)
+        {
+            FX_StopSound(pp->nukevochandle);
+            pp->nukevochandle = 0;
+        }
     }
 
     return 0;
