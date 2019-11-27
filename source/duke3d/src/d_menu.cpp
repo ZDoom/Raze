@@ -132,6 +132,11 @@ void Menu_Init(void)
 #endif
 }
 
+static void Menu_DrawBackground(const DVector2 &origin)
+{
+	rotatesprite_fs(int(origin.X * 65536) + (MENU_MARGIN_CENTER << 16), int(origin.Y * 65536) + (100 << 16), 65536L, 0, MENUSCREEN, 16, 0, 10 + 64);
+}
+
 static void Menu_DrawTopBar(const DVector2 &origin)
 {
     if ((G_GetLogoFlags() & LOGO_NOTITLEBAR) == 0)
@@ -194,6 +199,15 @@ static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t* font, const char
 	Menu_GetFmt(font, status, &s, &z);
 
 	return G_ScreenText(font->tilenum, x, y, z, 0, 0, t, s, p, 2 | 8 | 16 | ROTATESPRITE_FULL16, 0, font->emptychar.x, font->emptychar.y, font->between.x, ybetween, f, 0, ydim_upper, xdim - 1, ydim_lower);
+}
+
+static vec2_t mgametextcenterat(int32_t x, int32_t y, char const* t, int32_t f = 0)
+{
+	return G_ScreenText(MF_Bluefont.tilenum, x, y, MF_Bluefont.zoom, 0, 0, t, 0, MF_Bluefont.pal, 2 | 8 | 16 | ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags | f | TEXT_XCENTER, 0, 0, xdim - 1, ydim - 1);
+}
+static vec2_t mgametextcenter(int32_t x, int32_t y, char const* t, int32_t f = 0)
+{
+	return mgametextcenterat((MENU_MARGIN_CENTER << 16) + x, y, t, f);
 }
 
 static int32_t Menu_CursorShade(void)
@@ -387,6 +401,149 @@ class MainMenu : public DukeListMenu
 	}	
 };
 
+class DukeCreditScreen : public DMenu
+{
+	int screen;
+
+	void shadowminitext(int32_t x, int32_t y, const char* t, int32_t p)
+	{
+		int32_t f = 0;
+
+		if (!minitext_lowercase)
+			f |= TEXT_UPPERCASE;
+
+		G_ScreenTextShadow(1, 1, MINIFONT, x, y, 65536, 0, 0, t, 0, p, 2 | 8 | 16 | ROTATESPRITE_FULL16, 0, 4 << 16, 8 << 16, 1 << 16, 0, f, 0, 0, xdim - 1, ydim - 1);
+	}
+
+
+	void Drawer()
+	{
+		if (VOLUMEALL && PLUTOPAK)
+		{
+			rotatesprite_fs(int(origin.X * 65536) + (MENU_MARGIN_CENTER << 16), int(origin.Y * 65536) + (100 << 16), 65536L, 0, 2504 + screen, 0, 0, 10 + 64);
+			return;
+		}
+		Menu_DrawBackground(origin);
+
+		// On the latest version there's real graphics for this.
+		int32_t m, l;
+		switch (screen)
+		{
+		case 0:
+			m = int(origin.X * 65536) + (20 << 16);
+			l = int(origin.Y * 65536) + (33 << 16);
+
+			shadowminitext(m, l, "Original Concept", 12); l += 7 << 16;
+			shadowminitext(m, l, "Todd Replogle and Allen H. Blum III", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Produced & Directed By", 12); l += 7 << 16;
+			shadowminitext(m, l, "Greg Malone", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Executive Producer", 12); l += 7 << 16;
+			shadowminitext(m, l, "George Broussard", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "BUILD Engine", 12); l += 7 << 16;
+			shadowminitext(m, l, "Ken Silverman", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Game Programming", 12); l += 7 << 16;
+			shadowminitext(m, l, "Todd Replogle", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "3D Engine/Tools/Net", 12); l += 7 << 16;
+			shadowminitext(m, l, "Ken Silverman", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Network Layer/Setup Program", 12); l += 7 << 16;
+			shadowminitext(m, l, "Mark Dochtermann", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Map Design", 12); l += 7 << 16;
+			shadowminitext(m, l, "Allen H. Blum III", 12); l += 7 << 16;
+			shadowminitext(m, l, "Richard Gray", 12); l += 7 << 16;
+
+			m = int(origin.X * 65536) + (180 << 16);
+			l = int(origin.Y * 65536) + (33 << 16);
+
+			shadowminitext(m, l, "3D Modeling", 12); l += 7 << 16;
+			shadowminitext(m, l, "Chuck Jones", 12); l += 7 << 16;
+			shadowminitext(m, l, "Sapphire Corporation", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Artwork", 12); l += 7 << 16;
+			shadowminitext(m, l, "Dirk Jones, Stephen Hornback", 12); l += 7 << 16;
+			shadowminitext(m, l, "James Storey, David Demaret", 12); l += 7 << 16;
+			shadowminitext(m, l, "Douglas R. Wood", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Sound Engine", 12); l += 7 << 16;
+			shadowminitext(m, l, "Jim Dose", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Sound & Music Development", 12); l += 7 << 16;
+			shadowminitext(m, l, "Robert Prince", 12); l += 7 << 16;
+			shadowminitext(m, l, "Lee Jackson", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Voice Talent", 12); l += 7 << 16;
+			shadowminitext(m, l, "Lani Minella - Voice Producer", 12); l += 7 << 16;
+			shadowminitext(m, l, "Jon St. John as \"Duke Nukem\"", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Graphic Design", 12); l += 7 << 16;
+			shadowminitext(m, l, "Packaging, Manual, Ads", 12); l += 7 << 16;
+			shadowminitext(m, l, "Robert M. Atkins", 12); l += 7 << 16;
+			shadowminitext(m, l, "Michael Hadwin", 12); l += 7 << 16;
+			break;
+
+		case 1:
+			m = int(origin.X * 65536) + (20 << 16);
+			l = int(origin.Y * 65536) + (33 << 16);
+
+			shadowminitext(m, l, "Special Thanks To", 12); l += 7 << 16;
+			shadowminitext(m, l, "Steven Blackburn, Tom Hall", 12); l += 7 << 16;
+			shadowminitext(m, l, "Scott Miller, Joe Siegler", 12); l += 7 << 16;
+			shadowminitext(m, l, "Terry Nagy, Colleen Compton", 12); l += 7 << 16;
+			shadowminitext(m, l, "HASH, Inc., FormGen, Inc.", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "The 3D Realms Beta Testers", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Nathan Anderson, Wayne Benner", 12); l += 7 << 16;
+			shadowminitext(m, l, "Glenn Brensinger, Rob Brown", 12); l += 7 << 16;
+			shadowminitext(m, l, "Erik Harris, Ken Heckbert", 12); l += 7 << 16;
+			shadowminitext(m, l, "Terry Herrin, Greg Hively", 12); l += 7 << 16;
+			shadowminitext(m, l, "Hank Leukart, Eric Baker", 12); l += 7 << 16;
+			shadowminitext(m, l, "Jeff Rausch, Kelly Rogers", 12); l += 7 << 16;
+			shadowminitext(m, l, "Mike Duncan, Doug Howell", 12); l += 7 << 16;
+			shadowminitext(m, l, "Bill Blair", 12); l += 7 << 16;
+
+			m = int(origin.X * 65536) + (160 << 16);
+			l = int(origin.Y * 65536) + (33 << 16);
+
+			shadowminitext(m, l, "Company Product Support", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "The following companies were cool", 12); l += 7 << 16;
+			shadowminitext(m, l, "enough to give us lots of stuff", 12); l += 7 << 16;
+			shadowminitext(m, l, "during the making of Duke Nukem 3D.", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Altec Lansing Multimedia", 12); l += 7 << 16;
+			shadowminitext(m, l, "for tons of speakers and the", 12); l += 7 << 16;
+			shadowminitext(m, l, "THX-licensed sound system.", 12); l += 7 << 16;
+			shadowminitext(m, l, "For info call 1-800-548-0620", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Creative Labs, Inc.", 12); l += 7 << 16;
+			l += 3 << 16;
+			shadowminitext(m, l, "Thanks for the hardware, guys.", 12); l += 7 << 16;
+			break;
+
+		case 2:
+			mgametextcenter(int(origin.X * 65536), int(origin.Y * 65536) + (50 << 16), "Duke Nukem 3D is a trademark of\n"
+				"3D Realms Entertainment"
+				"\n"
+				"Duke Nukem 3D\n"
+				"(C) 1996 3D Realms Entertainment");
+
+			if (VOLUMEONE)
+			{
+				mgametextcenter(int(origin.X * 65536), int(origin.Y * 65536) + (106 << 16), "Please read LICENSE.DOC for shareware\n"
+					"distribution grants and restrictions.");
+			}
+			mgametextcenter(int(origin.X * 65536), int(origin.Y * 65536) + ((VOLUMEONE ? 134 : 115) << 16), "Made in Dallas, Texas USA");
+			break;
+		}
+	}
+};
 
 void GameInterface::MenuOpened()
 {
