@@ -921,7 +921,7 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
             else if ((ps.gm & MODE_MENU) && !(newValue & MODE_MENU))
                 Menu_Close(playerNum);
 			*/
-            ps.gm = newValue & ~MODE_MENU;
+            ps.gm = (newValue & ~MODE_MENU) | (ps.gm & MODE_MENU);
             break;
 
         case PLAYER_GOTWEAPON:

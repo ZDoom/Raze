@@ -270,6 +270,16 @@ class DukeListMenu : public DListMenu
 	using Super = DListMenu;
 protected:
 
+	void SelectionChanged() override
+	{
+		if (mDesc->mScriptId == 110)
+		{
+			// Hack alert: Ion Fury depends on the skill getting set globally when the selection changes because the script cannot detect actual selection changes.
+			// Yuck!
+			ud.m_player_skill = mDesc->mSelectedItem+1;
+		}
+	}
+
 	virtual void CallScript(int event, bool getorigin = false)
 	{
 		ud.returnvar[0] = int(origin.X * 65536);

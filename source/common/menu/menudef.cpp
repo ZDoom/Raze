@@ -1139,14 +1139,17 @@ static void BuildEpisodeMenu()
 		}
 		if (e > 0)
 		{
-			FMenuDescriptor** desc = MenuDescriptors.CheckKey(NAME_MainMenu);
-			if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
+			for (auto name : { NAME_MainMenu, NAME_IngameMenu })
 			{
-				FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
-				auto li = ld->mItems[0];
-				if (li->GetAction(nullptr) == NAME_EpisodeMenu)
+				FMenuDescriptor** desc = MenuDescriptors.CheckKey(name);
+				if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
 				{
-					li->SetAction(NAME_CustomGameMenu);
+					FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+					auto li = ld->mItems[0];
+					if (li->GetAction(nullptr) == NAME_EpisodeMenu)
+					{
+						li->SetAction(NAME_CustomGameMenu);
+					}
 				}
 			}
 		}

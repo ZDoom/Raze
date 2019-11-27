@@ -445,13 +445,19 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	case NAME_CustomGameMenu:
 		GameStartupInfo.CustomLevel1 = param;
 		GameStartupInfo.CustomLevel2 = -1;
-		GameStartupInfo.Episode = -1;
-		GameStartupInfo.Level = -1;
+		GameStartupInfo.Episode = 0;	// Set start to E1L1 so that even if the script fails to set the starting level it is set to something valid.
+		GameStartupInfo.Level = 0;
 		GameStartupInfo.Skill = gDefaultSkill;
 		gi->CustomMenuSelection(param, -1);
 		break;
 
 	case NAME_CustomSubMenu1:
+	case NAME_CustomSubMenu2:
+	case NAME_CustomSubMenu3:
+	case NAME_CustomSubMenu4:
+	case NAME_CustomSubMenu5:
+	case NAME_CustomSubMenu6:
+	case NAME_CustomSubMenu7:
 		GameStartupInfo.CustomLevel2 = param;
 		gi->CustomMenuSelection(GameStartupInfo.CustomLevel1, param);
 		break;
