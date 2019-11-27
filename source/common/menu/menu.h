@@ -499,6 +499,7 @@ public:
 	bool MouseEvent(int type, int x, int y);
 	void Ticker ();
 	void Drawer ();
+	virtual void SelectionChanged() {}
 	void SetFocus(FListMenuItem *fc)
 	{
 		mFocusControl = fc;

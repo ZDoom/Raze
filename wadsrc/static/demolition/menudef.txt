@@ -147,9 +147,18 @@ LISTMENU "SkillMenu"
 {
 	ifgame(Duke, Nam, WW2GI, Fury) // Ion Fury does not use this menu.
 	{
+		ifgame(fury)
+		{
+			position 160, 55, 115
+			fixedspacing 2
+		}
+		else
+		{
+			position 160, 55, 115
+			centermenu
+			animatedtransition
+		}
 		caption "$MNU_SELECTSKILL"
-		position 160, 55, 135
-		centermenu
 		fixedspacing 5
 		class "Duke.ListMenu"
 		animatedtransition
@@ -160,82 +169,140 @@ LISTMENU "SkillMenu"
 // The custom menus are only supported by the EDuke32 frontend.
 LISTMENU "CustomGameMenu"
 {
+	caption "$MNU_NEWGAME"
 	position 160, 48, 142
-	centermenu
-	fixedspacing 5
+	ifgame(fury)
+	{
+		fixedspacing 2
+	}
+	else
+	{
+		fixedspacing 5
+		animatedtransition
+	}
 	ScriptId 102
 	class "Duke.ListMenu"
-	animatedtransition
+	centermenu
 }
 
 LISTMENU "CustomSubMenu1"
 {
 	position 160, 48, 142
 	centermenu
-	fixedspacing 5
+	ifgame(fury)
+	{
+		fixedspacing 2
+	}
+	else
+	{
+		fixedspacing 5
+		animatedtransition
+	}
+	centermenu
 	ScriptId 103
 	class "Duke.ListMenu"
-	animatedtransition
 }
 
 LISTMENU "CustomSubMenu2"
 {
 	position 160, 48, 142
+	ifgame(fury)
+	{
+		fixedspacing 2
+	}
+	else
+	{
+		fixedspacing 5
+		animatedtransition
+	}
 	centermenu
-	fixedspacing 5
 	ScriptId 103
 	class "Duke.ListMenu"
-	animatedtransition
 }
 
 LISTMENU "CustomSubMenu3"
 {
 	position 160, 48, 142
+	ifgame(fury)
+	{
+		fixedspacing 2
+	}
+	else
+	{
+		fixedspacing 5
+		animatedtransition
+	}
 	centermenu
-	fixedspacing 5
 	ScriptId 103
 	class "Duke.ListMenu"
-	animatedtransition
 }
 
 LISTMENU "CustomSubMenu4"
 {
 	position 160, 48, 142
+	ifgame(fury)
+	{
+		fixedspacing 2
+	}
+	else
+	{
+		fixedspacing 5
+		animatedtransition
+	}
 	centermenu
-	fixedspacing 5
 	ScriptId 103
 	class "Duke.ListMenu"
-	animatedtransition
 }
 
 LISTMENU "CustomSubMenu5"
 {
 	position 160, 48, 142
+	ifgame(fury)
+	{
+		fixedspacing 2
+	}
+	else
+	{
+		fixedspacing 5
+		animatedtransition
+	}
 	centermenu
-	fixedspacing 5
 	ScriptId 103
 	class "Duke.ListMenu"
-	animatedtransition
 }
 
 LISTMENU "CustomSubMenu6"
 {
 	position 160, 48, 142
+	ifgame(fury)
+	{
+		fixedspacing 2
+	}
+	else
+	{
+		fixedspacing 5
+		animatedtransition
+	}
 	centermenu
-	fixedspacing 5
 	ScriptId 103
 	class "Duke.ListMenu"
-	animatedtransition
 }
 
 LISTMENU "CustomSubMenu7"
 {
 	position 160, 48, 142
+	ifgame(fury)
+	{
+		fixedspacing 2
+	}
+	else
+	{
+		fixedspacing 5
+		animatedtransition
+	}
 	centermenu
-	fixedspacing 5
 	ScriptId 103
 	class "Duke.ListMenu"
-	animatedtransition
 }
 
 LISTMENU "MultiMenu"

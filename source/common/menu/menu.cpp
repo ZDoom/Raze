@@ -454,7 +454,6 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	case NAME_CustomSubMenu1:
 		GameStartupInfo.CustomLevel2 = param;
 		gi->CustomMenuSelection(GameStartupInfo.CustomLevel1, param);
-		menu = FName(ENamedName(menu + param));
 		break;
 
 	case NAME_SkillMenu:
@@ -468,6 +467,10 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		M_ClearMenus();	// must be done before starting the level.
 		gi->StartGame(GameStartupInfo);
 		return false;
+
+	case NAME_CustomSubMenu1:
+		menu = ENamedName(menu + param);
+		break;
 
 #if 0
 	case NAME_StartgameConfirm:

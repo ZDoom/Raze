@@ -130,6 +130,7 @@ bool DListMenu::Responder (event_t *ev)
 				if (mDesc->mItems[i]->CheckHotkey(ch))
 				{
 					mDesc->mSelectedItem = i;
+					SelectionChanged();
 					gi->MenuSound(GameInterface::SelectSound);
 					return true;
 				}
@@ -139,6 +140,7 @@ bool DListMenu::Responder (event_t *ev)
 				if (mDesc->mItems[i]->CheckHotkey(ch))
 				{
 					mDesc->mSelectedItem = i;
+					SelectionChanged();
 					gi->MenuSound(GameInterface::SelectSound);
 					return true;
 				}
@@ -166,6 +168,7 @@ bool DListMenu::MenuEvent (int mkey, bool fromcontroller)
 			if (--mDesc->mSelectedItem < 0) mDesc->mSelectedItem = mDesc->mItems.Size()-1;
 		}
 		while (!mDesc->mItems[mDesc->mSelectedItem]->Selectable() && mDesc->mSelectedItem != startedAt);
+		SelectionChanged();
 		gi->MenuSound(GameInterface::SelectSound);
 		return true;
 
@@ -175,6 +178,7 @@ bool DListMenu::MenuEvent (int mkey, bool fromcontroller)
 			if (++mDesc->mSelectedItem >= (int)mDesc->mItems.Size()) mDesc->mSelectedItem = 0;
 		}
 		while (!mDesc->mItems[mDesc->mSelectedItem]->Selectable() && mDesc->mSelectedItem != startedAt);
+		SelectionChanged();
 		gi->MenuSound(GameInterface::SelectSound);
 		return true;
 
@@ -228,6 +232,7 @@ bool DListMenu::MouseEvent(int type, int xx, int yy)
 						// no sound. This is too noisy.
 					}
 					mDesc->mSelectedItem = i;
+					SelectionChanged();
 					mDesc->mItems[i]->MouseEvent(type, x, y);
 					return true;
 				}
@@ -264,7 +269,7 @@ void DListMenu::Drawer ()
 	PreDraw();
 	for(unsigned i=0;i<mDesc->mItems.Size(); i++)
 	{
-		if (mDesc->mItems[i]->mEnabled) mDesc->mItems[i]->Drawer(this, origin, mDesc->mSelectedItem == (int)i);
+		mDesc->mItems[i]->Drawer(this, origin, mDesc->mSelectedItem == (int)i);
 	}
 	if (mDesc->mSelectedItem >= 0 && mDesc->mSelectedItem < (int)mDesc->mItems.Size())
 		mDesc->mItems[mDesc->mSelectedItem]->DrawSelector(mDesc->mSelectOfsX, mDesc->mSelectOfsY, mDesc->mSelector);

@@ -1100,7 +1100,7 @@ static void BuildEpisodeMenu()
 		FMenuDescriptor** desc = MenuDescriptors.CheckKey(NAME_CustomGameMenu);
 		if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
 		{
-			FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+			FListMenuDescriptor* ldo = static_cast<FListMenuDescriptor*>(*desc);
 
 			for (MenuGameplayStemEntry const& stem : g_MenuGameplayEntries)
 			{
@@ -1112,7 +1112,8 @@ static void BuildEpisodeMenu()
 				FMenuDescriptor** sdesc = MenuDescriptors.CheckKey(FName(ENamedName(NAME_CustomSubMenu1 + e)));
 				if (sdesc != NULL && (*sdesc)->mType == MDESC_ListMenu)
 				{
-					FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+					FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*sdesc);
+					ld->mCaption = entry.name;
 
 					for (MenuGameplayEntry const& subentry : stem.subentries)
 					{
@@ -1123,15 +1124,16 @@ static void BuildEpisodeMenu()
 
 						if (subentry.flags & MGE_Locked) li->mEnabled = false;
 						if (subentry.flags & MGE_Hidden) li->mHidden = true;
-
+						ld->mItems.Push(li);
 						++s;
 					}
 				}
 				FName link = entry.flags & MGE_UserContent ? NAME_UsermapMenu : s == 0 ? NAME_SkillMenu : NAME_CustomSubMenu1;
 
-				auto li = new FListMenuItemNativeText(ld->mXpos, 0, 0, 0, entry.name, NIT_BigFont, NIT_ActiveColor, 1.f, link, link == NAME_CustomSubMenu1 ? e : -1);
+				auto li = new FListMenuItemNativeText(ldo->mXpos, 0, 0, 0, entry.name, NIT_BigFont, NIT_ActiveColor, 1.f, link, e);
 				if (entry.flags & MGE_Locked) li->mEnabled = false;
 				if (entry.flags & MGE_Hidden) li->mHidden = true;
+				ldo->mItems.Push(li);
 				e++;
 			}
 		}
