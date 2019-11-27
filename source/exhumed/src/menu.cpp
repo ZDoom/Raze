@@ -2155,10 +2155,10 @@ int showmap(short nLevel, short nLevelNew, short nLevelBest)
 
 void DoAfterCinemaScene(int nLevel)
 {
-    short word_9ABD5[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 7, 0, 0, 0, 0, 6 };
+    short nAfterScene[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 7, 0, 0, 0, 0, 6 };
 
-    if (word_9ABD5[nLevel]) {
-        GoToTheCinema(word_9ABD5[nLevel]);
+    if (nAfterScene[nLevel]) {
+        GoToTheCinema(nAfterScene[nLevel]);
     }
 }
 
@@ -2173,7 +2173,7 @@ void DoFailedFinalScene()
     playCDtrack(9);
     FadeToWhite();
 
-// TODO	GoToTheCinema(word_9ABFF);
+    GoToTheCinema(4);
 }
 
 int FindGString(const char *str)
