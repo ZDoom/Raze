@@ -56,6 +56,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "colormap.h"
 #include "player.h"
 #include "i_specialpaths.h"
+#include "savegamehelp.h"
 
 //void TimerFunc(task * Task);
 BEGIN_SW_NS
@@ -240,24 +241,17 @@ int SaveGame(short save_num)
     PANEL_SPRITE tpanel_sprite;
     PANEL_SPRITEp psp,cur,next;
     SECTOR_OBJECTp sop;
-    char game_name[256];
     int cnt = 0, saveisshot=0;
     OrgTileP otp, next_otp;
 
     Saveable_Init();
 	
 	
-#if 0 // A lot of work is needed here... (Thank God for all the macros around the load/save functions. :) )
 	FStringf base("save%04d", save_num);
 	auto game_name = G_BuildSaveName(base);
 	OpenSaveGameForWrite(game_name);
 	G_WriteSaveHeader(SaveGameDescr[save_num], LevelInfo[Level].LevelName, LevelInfo[Level].Description);
-	auto fil = WriteSavegameChunk("snapshot.sw");
-#endif
-
-    snprintf(game_name, 256, "%sgame%d.sav", M_GetSavegamesPath().GetChars(), save_num);
-    if ((fil = MOPEN_WRITE(game_name)) == MOPEN_WRITE_ERR)
-        return -1;
+	fil = WriteSavegameChunk("snapshot.sw");
 
     MWRITE(&GameVersion,sizeof(GameVersion),1,fil);
 
@@ -711,6 +705,7 @@ int SaveGame(short save_num)
 
 int LoadGameFullHeader(short save_num, char *descr, short *level, short *skill)
 {
+#if 0 // only used by the menu. Will go away soon.
     MFILE_READ fil;
     char game_name[256];
     short tile;
@@ -738,10 +733,14 @@ int LoadGameFullHeader(short save_num, char *descr, short *level, short *skill)
     MCLOSE_READ(fil);
 
     return tile;
+#else
+	return 0;
+#endif
 }
 
 void LoadGameDescr(short save_num, char *descr)
 {
+#if 0
     MFILE_READ fil;
     char game_name[256];
     short tile;
@@ -761,6 +760,7 @@ void LoadGameDescr(short save_num, char *descr)
     MREAD(descr, sizeof(SaveGameDescr[0]),1,fil);
 
     MCLOSE_READ(fil);
+#endif
 }
 
 
@@ -780,7 +780,6 @@ int LoadGame(short save_num)
     int16_t data_ndx;
     PANEL_SPRITEp psp,next,cur;
     PANEL_SPRITE tpanel_sprite;
-    char game_name[256];
     OrgTileP otp, next_otp;
 
     int RotNdx;
@@ -791,9 +790,13 @@ int LoadGame(short save_num)
 
     Saveable_Init();
 
-	snprintf(game_name, 256, "%sgame%d.sav", M_GetSavegamesPath().GetChars(), save_num);
-	if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
-        return -1;
+	FStringf base("save%04d", save_num);
+	auto game_name = G_BuildSaveName(base);
+	OpenSaveGameForRead(game_name);
+
+	auto filr = ReadSavegameChunk("snapshot.sw");
+	if (!filr.isOpen()) return -1;
+	fil = &filr;
 
     MREAD(&i,sizeof(i),1,fil);
     if (i != GameVersion)
