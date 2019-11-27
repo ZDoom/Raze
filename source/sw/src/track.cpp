@@ -872,8 +872,9 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
             // each wall has this set - for collision detection
             SET(wall[k].extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
-            if (wall[k].nextwall >= 0)
-                SET(wall[wall[k].nextwall].extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
+            uint16_t const nextwall = wall[k].nextwall;
+            if (nextwall < MAXWALLS)
+                SET(wall[nextwall].extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
         }
     }
 
@@ -2117,7 +2118,8 @@ DetectSectorObjectByWall(WALLp wph)
                 // if outer wall check the NEXTWALL also
                 if (TEST(wp->extra, WALLFX_LOOP_OUTER))
                 {
-                    if (wph == &wall[wp->nextwall])
+                    uint16_t const nextwall = wp->nextwall;
+                    if (nextwall < MAXWALLS && wph == &wall[nextwall])
                         return sop;
                 }
 

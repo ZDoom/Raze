@@ -126,7 +126,7 @@ void SetWallWarpHitscan(short sectnum)
     // Travel all the way around loop setting wall bits
     do
     {
-        if (wall[wall_num].nextwall >= 0)
+        if ((uint16_t)wall[wall_num].nextwall < MAXWALLS)
             SET(wall[wall_num].cstat, CSTAT_WALL_WARP_HITSCAN);
         wall_num = wall[wall_num].point2;
     }

@@ -326,7 +326,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
             if (currentboardfilename[0])
             {
                 // only setup art if map differs from previous
-                if (!previousboardfilename[0] || previousboardfilename != currentboardfilename)
+                if (!previousboardfilename[0] || Bstrcmp(previousboardfilename, currentboardfilename))
                     artSetupMapArt(currentboardfilename);
                 Bstrcpy(previousboardfilename, currentboardfilename);
                 append_ext_UNSAFE(currentboardfilename, ".mhk");

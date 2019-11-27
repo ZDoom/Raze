@@ -92,7 +92,7 @@ int32_t getclosestcol_lim(int32_t const r, int32_t const g, int32_t const b, int
 
     int mindist = -1;
 
-    int const k = (numclosestcolresults > COLRESULTSIZ) ? (COLRESULTSIZ-4) : (numclosestcolresults-4);
+    int const k = (numclosestcolresults > COLRESULTSIZ) ? COLRESULTSIZ : numclosestcolresults;
 
     if (!numclosestcolresults) goto skip;
 
@@ -101,7 +101,7 @@ int32_t getclosestcol_lim(int32_t const r, int32_t const g, int32_t const b, int
 
     int i;
 
-    for (i = 0; i < k+4; i+=4)
+    for (i = 0; i <= k-4; i+=4)
     {
         if (col == (getclosestcol_results[i]   & 0x00ffffff)) { mindist = i; break; }
         if (col == (getclosestcol_results[i+1] & 0x00ffffff)) { mindist = i+1; break; }

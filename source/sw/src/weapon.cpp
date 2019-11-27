@@ -20654,7 +20654,7 @@ SWBOOL TestDontStick(short SpriteNum, short hit_sect, short hit_wall, int hit_z)
         return TRUE;
 
     // if blocking red wallo
-    if (TEST(wp->cstat, CSTAT_WALL_BLOCK) && wp->nextwall >= 0)
+    if (TEST(wp->cstat, CSTAT_WALL_BLOCK) && (uint16_t)wp->nextwall < MAXWALLS)
         return TRUE;
 
     return FALSE;
