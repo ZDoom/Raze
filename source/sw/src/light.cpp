@@ -93,13 +93,17 @@ void SectorLightShade(SPRITEp sp, short intensity)
                 wall[w].pal = sp->pal;
             wallcount++;
 
-            if (TEST(sp->extra, SPRX_BOOL5) && wall[w].nextwall >= 0)
+            if (TEST(sp->extra, SPRX_BOOL5))
             {
-                base_shade = wall_shade[wallcount];
-                wall[wall[w].nextwall].shade = base_shade + intensity;
-                if (!TEST_BOOL6(sp))
-                    wall[wall[w].nextwall].pal = sp->pal;
-                wallcount++;
+                uint16_t const nextwall = wall[w].nextwall;
+                if (nextwall < MAXWALLS)
+                {
+                    base_shade = wall_shade[wallcount];
+                    wall[nextwall].shade = base_shade + intensity;
+                    if (!TEST_BOOL6(sp))
+                        wall[nextwall].pal = sp->pal;
+                    wallcount++;
+                }
             }
         }
     }

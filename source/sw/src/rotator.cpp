@@ -280,8 +280,12 @@ void DoRotatorSetInterp(short SpriteNum)
         setinterpolation(&wall[w].x);
         setinterpolation(&wall[w].y);
 
-        setinterpolation(&wall[DRAG_WALL(w)].x);
-        setinterpolation(&wall[DRAG_WALL(w)].y);
+        uint16_t const nextwall = wall[w].nextwall;
+        if (nextwall < MAXWALLS)
+        {
+            setinterpolation(&wall[wall[nextwall].point2].x);
+            setinterpolation(&wall[wall[nextwall].point2].y);
+        }
     }
 }
 
@@ -299,8 +303,12 @@ void DoRotatorStopInterp(short SpriteNum)
         stopinterpolation(&wall[w].x);
         stopinterpolation(&wall[w].y);
 
-        stopinterpolation(&wall[DRAG_WALL(w)].x);
-        stopinterpolation(&wall[DRAG_WALL(w)].y);
+        uint16_t const nextwall = wall[w].nextwall;
+        if (nextwall < MAXWALLS)
+        {
+            stopinterpolation(&wall[wall[nextwall].point2].x);
+            stopinterpolation(&wall[wall[nextwall].point2].y);
+        }
     }
 }
 

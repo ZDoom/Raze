@@ -360,9 +360,6 @@ extern char MessageOutputString[256];
 #define SET_SPRITE_TAG13(sp,val) (*((short*)&sprite[sp].xoffset)) = B_LITTLE16(val)
 #define SET_SPRITE_TAG14(sp,val) (*((short*)&sprite[sp].xrepeat)) = B_LITTLE16(val)
 
-// this will get you the other wall moved by dragpoint
-#define DRAG_WALL(w) (wall[wall[(w)].nextwall].point2)
-
 // OVER and UNDER water macros
 #define SpriteInDiveArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? TRUE : FALSE)
 #define SpriteInUnderwaterArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? TRUE : FALSE)

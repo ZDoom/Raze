@@ -2413,7 +2413,8 @@ drawscreen(PLAYERp pp)
         i = wal->nextsector;
         if (i < 0) continue;
         if (wal->cstat&0x0071) continue;
-        if (wall[wal->nextwall].cstat&0x0071) continue;
+        uint16_t const nextwall = wal->nextwall;
+        if (nextwall < MAXWALLS && wall[nextwall].cstat&0x0071) continue;
         if (sector[i].lotag == 32767) continue;
         if (sector[i].ceilingz >= sector[i].floorz) continue;
         show2dsector[i>>3] |= (1<<(i&7));

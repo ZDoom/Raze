@@ -4442,7 +4442,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
         for (j = startwall, wal = &wall[startwall]; j <= endwall; j++, wal++)
         {
             k = wal->nextwall;
-            if (k < 0)
+            if ((unsigned)k >= MAXWALLS)
                 continue;
 
             if ((show2dwall[j >> 3] & (1 << (j & 7))) == 0)
@@ -4695,7 +4695,7 @@ SHOWSPRITE:
 
         for (j = startwall, wal = &wall[startwall]; j <= endwall; j++, wal++)
         {
-            if (wal->nextwall >= 0)
+            if ((uint16_t)wal->nextwall < MAXWALLS)
                 continue;
 
             if ((show2dwall[j >> 3] & (1 << (j & 7))) == 0)
