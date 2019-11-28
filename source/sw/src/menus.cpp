@@ -522,7 +522,7 @@ MenuGroup LoadGameGroup = {100, 5, "^Load Game", load_i, pic_loadgame, 0, m_defs
 #define MAIN_XSTART 55
 #define MAIN_LINE(line) (MAIN_YSTART + (MAIN_YOFF * line))
 
-#define MAIN_MENU_COOL_STUFF "^Cool Stuff"
+#define MAIN_MENU_COOL_STUFF "^Credits"
 #define MAIN_MENU_HOW_TO_ORDER "^How to Order"
 
 MenuItem main_i[] =
@@ -1259,29 +1259,24 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
 
     static short RegOrderScreen[] =
     {
-        5262,
-        5261,
-        4979,
+        // 5262,
+        // 5261,
         5111,
         5118,
+        4979,
         5113,
-        //5111,
-        //5118,
-        //4979,
-        //5261,
-        //5262
 
         5120 // 5114    // JBF: for my credits
     };
     static short SWOrderScreen[] =
     {
-        5262,
         5110,
         5112,
-        5113,
+        // 5262,
         5111,
         5118,
         4979,
+        5113,
 
         5120 // 5114    // JBF: for my credits
     };

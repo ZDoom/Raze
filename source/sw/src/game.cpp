@@ -4807,23 +4807,20 @@ void G_Polymer_UnInit(void) { }
 
 #include "saveable.h"
 
-static saveable_data saveable_build_data[] =
-{
-    SAVE_DATA(sector),
-    SAVE_DATA(sprite),
-    SAVE_DATA(wall)
-};
+saveable_module saveable_build{};
 
-saveable_module saveable_build =
+void Saveable_Init_Dynamic()
 {
-    // code
-    NULL,
-    0,
+    static saveable_data saveable_build_data[] =
+    {
+        {sector, MAXSECTORS*sizeof(sectortype)},
+        {sprite, MAXSPRITES*sizeof(spritetype)},
+        {wall, MAXWALLS*sizeof(walltype)},
+    };
 
-    // data
-    saveable_build_data,
-    NUM_SAVEABLE_ITEMS(saveable_build_data)
-};
+    saveable_build.data = saveable_build_data;
+    saveable_build.numdata = NUM_SAVEABLE_ITEMS(saveable_build_data);
+}
 
 /*extern*/ bool GameInterface::validate_hud(int requested_size) { return requested_size; }
 /*extern*/ void GameInterface::set_hud_layout(int requested_size) { /* the relevant setting is gs.BorderNum */}
