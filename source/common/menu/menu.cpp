@@ -53,7 +53,7 @@
 #include "build.h"
 
 void RegisterDukeMenus();
-void RegisterSpecialMenus();
+void RegisterRedneckMenus();
 extern bool rotatesprite_2doverride;
 bool help_disabled, credits_disabled;
 int g_currentMenu;	// accessible by CON scripts - contains the current menu's script ID if defined or INT_MAX if none given.
@@ -873,8 +873,8 @@ void Menu_Close(int playerid)
 
 void M_Init (void) 
 {
-	RegisterSpecialMenus();
 	RegisterDukeMenus();
+	RegisterRedneckMenus();
 	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();
 }
