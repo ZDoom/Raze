@@ -83,10 +83,6 @@ void S_SoundStartup(void)
             g_sounds[i].num = 0;
             S_SetProperties(&voice, -1, 0, UINT16_MAX, 0);
         }
-
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[i] = 199;
-#endif
     }
 
     cacheAllSounds();
@@ -189,7 +185,6 @@ void S_RestartMusic(void)
 
 void S_MenuSound(void)
 {
-#ifndef EDUKE32_STANDALONE
     static int SoundNum;
     int const menusnds[] = {
         LASERTRIP_EXPLODE, DUKE_GRUNT,       DUKE_LAND_HURT,   CHAINGUN_FIRE, SQUISHED,      KICK_HIT,
@@ -197,9 +192,6 @@ void S_MenuSound(void)
         PIPEBOMB_BOUNCE,   PIPEBOMB_EXPLODE, NITEVISION_ONOFF, RPG_SHOOT,     SELECT_WEAPON,
     };
     int s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, FURY ? -1 : menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
-#else
-    int s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, -1);
-#endif
     if (s != -1)
         S_PlaySound(s);
 }
@@ -423,9 +415,6 @@ void S_Cleanup(void)
         // for which there was no open slot to keep track of the voice
         if (num >= (MAXSOUNDS*MAXSOUNDINSTANCES))
         {
-#ifdef CACHING_DOESNT_SUCK
-            --g_soundlocks[num-(MAXSOUNDS*MAXSOUNDINSTANCES)];
-#endif
             continue;
         }
 
@@ -450,9 +439,6 @@ void S_Cleanup(void)
 
         S_SetProperties(&voice, -1, 0, UINT16_MAX, 0);
 
-#ifdef CACHING_DOESNT_SUCK
-        --g_soundlocks[num];
-#endif
     }
 }
 
@@ -473,9 +459,8 @@ int32_t S_LoadSound(int num)
     }
 
 	int32_t l = fp.GetLength();
-    g_soundlocks[num] = 255;
     snd.siz = l;
-    cacheAllocateBlock((intptr_t *)&snd.ptr, l, &g_soundlocks[num]);
+    cacheAllocateBlock((intptr_t *)&snd.ptr, l, nullptr);
     l = fp.Read(snd.ptr, l);
 
     return l;
@@ -611,19 +596,13 @@ sound_further_processing:
     if (sndist < 0)
         sndist = 0;
 
-#ifndef EDUKE32_STANDALONE
     if (!FURY && sectNum > -1 && sndist && PN(spriteNum) != MUSICANDSFX
         && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (24 << 8), SECT(spriteNum)))
         sndist += sndist>>5;
-#else
-    UNREFERENCED_PARAMETER(sectNum);
-#endif
 
     if ((g_sounds[soundNum].m & (SF_GLOBAL|SF_DTAG)) == (SF_GLOBAL|SF_DTAG))
     {
-#ifndef EDUKE32_STANDALONE
 boost:
-#endif
         int const sdist = g_sounds[soundNum].vo > 0 ? g_sounds[soundNum].vo : 6144;
 
         explosion = true;
@@ -631,8 +610,6 @@ boost:
         if (sndist > sdist)
             sndist = sdist;
     }
-
-#ifndef EDUKE32_STANDALONE
     else if (!FURY)
     {
         switch (DYNAMICSOUNDMAP(soundNum))
@@ -643,7 +620,6 @@ boost:
                 goto boost;
         }
     }
-#endif
 
     if ((g_sounds[soundNum].m & (SF_GLOBAL|SF_DTAG)) == SF_GLOBAL || sndist < ((255-LOUDESTVOLUME) << 6))
         sndist = ((255-LOUDESTVOLUME) << 6);
@@ -751,18 +727,10 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
     if (snd.num > 0 && PN(spriteNum) != MUSICANDSFX)
         S_StopEnvSound(sndNum, spriteNum);
 
-#ifdef CACHING_DOESNT_SUCK
-    if (++g_soundlocks[sndNum] < 200)
-        g_soundlocks[sndNum] = 200;
-#endif
-
     int const sndSlot = S_GetSlot(sndNum);
 
     if (sndSlot >= MAXSOUNDINSTANCES)
     {
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[sndNum]--;
-#endif
         return -1;
     }
 
@@ -770,9 +738,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 
     if (repeatp && (snd.m & SF_ONEINST_INTERNAL) && snd.num > 0)
     {
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[sndNum]--;
-#endif
         return -1;
     }
 
@@ -781,9 +746,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 
     if (voice <= FX_Ok)
     {
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[sndNum]--;
-#endif
         return -1;
     }
 
@@ -816,18 +778,10 @@ int S_PlaySound(int num)
 
     int const pitch = S_GetPitch(num);
 
-#ifdef CACHING_DOESNT_SUCK
-    if (++g_soundlocks[num] < 200)
-        g_soundlocks[num] = 200;
-#endif
-
     sndnum = S_GetSlot(num);
 
     if (sndnum >= MAXSOUNDINSTANCES)
     {
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[num]--;
-#endif
         return -1;
     }
 
@@ -838,9 +792,6 @@ int S_PlaySound(int num)
 
     if (voice <= FX_Ok)
     {
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[num]--;
-#endif
         return -1;
     }
 
@@ -876,11 +827,6 @@ void S_StopEnvSound(int sndNum, int sprNum)
 
             if ((sprNum == -1 && voice.id > FX_Ok) || (sprNum != -1 && voice.owner == sprNum))
             {
-#ifdef DEBUGGINGAIDS
-                if (EDUKE32_PREDICT_FALSE(sprNum >= 0 && voice.id <= FX_Ok))
-                    initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", voice.id, sndNum, j);
-                else
-#endif
                 if (voice.id > FX_Ok)
                 {
                     if (FX_SoundActive(voice.id))
@@ -994,18 +940,6 @@ void S_Callback(intptr_t num)
     dq[ldnum & (DQSIZE - 1)] = (uint32_t)num;
     dnum++;
     mutex_unlock(&m_callback);
-}
-
-void S_ClearSoundLocks(void)
-{
-#ifdef CACHING_DOESNT_SUCK
-    int32_t i;
-    int32_t const msp = g_highestSoundIdx;
-
-    for (native_t i = 0; i <= msp; ++i)
-        if (g_soundlocks[i] >= 200)
-            g_soundlocks[i] = 199;
-#endif
 }
 
 int A_CheckSoundPlaying(int spriteNum, int soundNum)

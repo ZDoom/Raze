@@ -394,7 +394,6 @@ void S_Cleanup(void)
         // for which there was no open slot to keep track of the voice
         if (num >= (MAXSOUNDS*MAXSOUNDINSTANCES))
         {
-            --g_soundlocks[num-(MAXSOUNDS*MAXSOUNDINSTANCES)];
             continue;
         }
 
@@ -422,8 +421,6 @@ void S_Cleanup(void)
         voice.id    = 0;
         voice.dist  = UINT16_MAX;
         voice.clock = 0;
-
-        --g_soundlocks[num];
     }
 }
 
@@ -444,9 +441,8 @@ int32_t S_LoadSound(int num)
     }
 
 	int32_t l = fp.GetLength();
-    g_soundlocks[num] = 200;
     snd.siz = l;
-    cacheAllocateBlock((intptr_t *)&snd.ptr, l, &g_soundlocks[num]);
+    cacheAllocateBlock((intptr_t *)&snd.ptr, l, nullptr);
     l = fp.Read(snd.ptr, l);
 
     return l;
@@ -698,14 +694,11 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
     if (snd.num > 0 && PN(spriteNum) != MUSICANDSFX)
         S_StopEnvSound(sndNum, spriteNum);
 
-    if (++g_soundlocks[sndNum] < 200)
-        g_soundlocks[sndNum] = 200;
 
     int const sndSlot = S_GetSlot(sndNum);
 
     if (sndSlot >= MAXSOUNDINSTANCES)
     {
-        g_soundlocks[sndNum]--;
         return -1;
     }
 
@@ -713,7 +706,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 
     if (repeatp && (snd.m & SF_ONEINST_INTERNAL) && snd.num > 0)
     {
-        g_soundlocks[sndNum]--;
         return -1;
     }
 
@@ -727,7 +719,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 
     if (voice <= FX_Ok)
     {
-        g_soundlocks[sndNum]--;
         return -1;
     }
 
@@ -760,14 +751,10 @@ int S_PlaySound(int num)
 
     int const pitch = S_GetPitch(num);
 
-    if (++g_soundlocks[num] < 200)
-        g_soundlocks[num] = 200;
-
     sndnum = S_GetSlot(num);
 
     if (sndnum >= MAXSOUNDINSTANCES)
     {
-        g_soundlocks[num]--;
         return -1;
     }
 
@@ -778,7 +765,6 @@ int S_PlaySound(int num)
 
     if (voice <= FX_Ok)
     {
-        g_soundlocks[num]--;
         return -1;
     }
 
@@ -922,14 +908,6 @@ void S_Callback(intptr_t num)
 
 void S_ClearSoundLocks(void)
 {
-#ifdef CACHING_DOESNT_SUCK
-    int32_t i;
-    int32_t const msp = g_highestSoundIdx;
-
-    for (native_t i = 0; i <= msp; ++i)
-        if (g_soundlocks[i] >= 200)
-            g_soundlocks[i] = 199;
-#endif
 }
 
 bool A_CheckSoundPlaying(int spriteNum, int soundNum)
@@ -963,8 +941,8 @@ bool A_CheckAnySoundPlaying(int spriteNum)
 
 bool S_CheckSoundPlaying(int spriteNum, int soundNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)soundNum > (unsigned)g_highestSoundIdx)) return 0;
-    return (spriteNum == -1) ? (g_soundlocks[soundNum] > 200) : (g_sounds[soundNum].num != 0);
+    if (EDUKE32_PREDICT_FALSE((unsigned)soundNum > (unsigned)g_highestSoundIdx)) return false;
+    return (g_sounds[soundNum].num != 0);
 }
 
 END_RR_NS

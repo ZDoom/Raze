@@ -57,7 +57,6 @@ typedef struct
     char      pr, m;                         // 2b
 } sound_t;
 
-extern uint8_t g_soundlocks[MAXSOUNDS];
 extern sound_t g_sounds[MAXSOUNDS];
 extern int32_t g_numEnvSoundsPlaying,g_highestSoundIdx;
 
@@ -67,7 +66,7 @@ void S_Callback(intptr_t num);
 int A_CheckAnySoundPlaying(int spriteNum);
 int S_CheckSoundPlaying(int soundNum);
 void S_Cleanup(void);
-void S_ClearSoundLocks(void);
+inline void S_ClearSoundLocks(void) {}
 int32_t S_LoadSound(uint32_t num);
 void cacheAllSounds(void);
 void S_MenuSound(void);
