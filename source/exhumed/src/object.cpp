@@ -518,7 +518,7 @@ int CheckSectorSprites(short nSector, int nVal)
                         sprite[nSprite].x,
                         sprite[nSprite].y,
                         sprite[nSprite].z,
-                        sprite[nSprite].sectnum | 0x40FF); // TODO - check last param??
+                        sprite[nSprite].sectnum | 0x4000);
                 }
             }
             nSprite = nextspritesect[nSprite];
