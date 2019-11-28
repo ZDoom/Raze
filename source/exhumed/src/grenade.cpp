@@ -105,16 +105,16 @@ int ThrowGrenade(short nPlayer, int edx, int ebx, int ecx, int push1)
     short nGrenadeSprite = GrenadeList[nGrenade].nSprite;
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
 
-    mychangespritesect(nGrenadeSprite, nPlayerViewSect[nPlayer]);
-
     short nAngle = sprite[nPlayerSprite].ang;
+
+    mychangespritesect(nGrenadeSprite, nPlayerViewSect[nPlayer]);
 
     sprite[nGrenadeSprite].x = sprite[nPlayerSprite].x;
     sprite[nGrenadeSprite].y = sprite[nPlayerSprite].y;
     sprite[nGrenadeSprite].z = sprite[nPlayerSprite].z;
 
     if (nAngle < 0) {
-        nAngle = sprite[nPlayerSprite].ang; // TODO - checkme
+        nAngle = sprite[nPlayerSprite].ang;
     }
 
     sprite[nGrenadeSprite].cstat &= 0x7FFF;
