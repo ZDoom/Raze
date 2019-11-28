@@ -5435,13 +5435,6 @@ bool GameInterface::mouseInactiveConditional(bool condition)
 	return MOUSEINACTIVECONDITIONAL(condition);
 }
 
-#else
-
-bool GameInterface::mouseInactiveConditional(bool condition)
-{
-	return condition;
-}
-
 #endif
 
 END_DUKE_NS
