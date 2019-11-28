@@ -323,9 +323,7 @@ static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     S_SoundShutdown();
-    S_MusicShutdown();
 
-    S_MusicStartup();
     S_SoundStartup();
 
     FX_StopAllSounds();
@@ -335,36 +333,6 @@ static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
         S_RestartMusic();
 
     return OSDCMD_OK;
-}
-
-static int osdcmd_music(osdcmdptr_t parm)
-{
-    if (parm->numparms == 1)
-    {
-        int32_t sel = G_GetMusicIdx(parm->parms[0]);
-
-        if (sel == -1)
-            return OSDCMD_SHOWHELP;
-
-        if (sel == -2)
-        {
-            OSD_Printf("%s is not a valid episode/level number pair\n", parm->parms[0]);
-            return OSDCMD_OK;
-        }
-
-        if (!S_TryPlayLevelMusic(sel))
-        {
-            G_PrintCurrentMusic();
-        }
-        else
-        {
-            OSD_Printf("No music defined for %s\n", parm->parms[0]);
-        }
-
-        return OSDCMD_OK;
-    }
-
-    return OSDCMD_SHOWHELP;
 }
 
 int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
@@ -864,8 +832,6 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
 #endif
-    OSD_RegisterFunction("music","music E<ep>L<lev>: change music", osdcmd_music);
-
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
 #if !defined NETCODE_DISABLE

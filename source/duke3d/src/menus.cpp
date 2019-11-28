@@ -1760,10 +1760,8 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         mus_device = musicdevice;
 
         S_SoundShutdown();
-        S_MusicShutdown();
 
         S_SoundStartup();
-        S_MusicStartup();
 
         FX_StopAllSounds();
         S_ClearSoundLocks();

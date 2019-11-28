@@ -7046,7 +7046,6 @@ static void G_Cleanup(void)
 void G_Shutdown(void)
 {
 	S_SoundShutdown();
-    S_MusicShutdown();
     CONTROL_Shutdown();
     G_SetFog(0);
     engineUnInit();
@@ -7708,7 +7707,6 @@ int GameInterface::app_main()
         }
 
         videoSetPalette(0, g_player[myconnectindex].ps->palette, 0);
-        S_MusicStartup();
         S_SoundStartup();
     }
 

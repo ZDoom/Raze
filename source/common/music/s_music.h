@@ -97,5 +97,7 @@ extern MusPlayingInfo mus_playing;
 
 extern float relative_volume, saved_relative_volume;
 
+// Note for later when the OPL player is ported.
+// DN3D and related games use "d3dtimbr.tmb"
 
 #endif

@@ -77,7 +77,6 @@ void S_SoundStartup(void)
     S_PrecacheSounds();
 
 	snd_fxvolume.Callback();
-    S_MusicVolume(mus_volume);
 
 	snd_reversestereo.Callback();
     FX_SetCallBack(S_Callback);
@@ -86,9 +85,6 @@ void S_SoundStartup(void)
 
 void S_SoundShutdown(void)
 {
-    if (MusicVoice >= 0)
-        S_MusicShutdown();
-
     if (FX_Shutdown() != FX_Ok)
     {
         Bsprintf(tempbuf, "S_SoundShutdown(): error: %s", FX_ErrorString(FX_Error));
@@ -96,26 +92,7 @@ void S_SoundShutdown(void)
     }
 }
 
-void S_MusicStartup(void)
-{
-    initprintf("Initializing music...\n");
 
-    if (MUSIC_Init(MusicDevice) == MUSIC_Ok)
-    {
-        MUSIC_SetVolume(mus_volume);
-        return;
-    }
-
-    initprintf("S_MusicStartup(): failed initializing\n");
-}
-
-void S_MusicShutdown(void)
-{
-    S_StopMusic();
-
-    if (MUSIC_Shutdown() != MUSIC_Ok)
-        initprintf("%s\n", MUSIC_ErrorString(MUSIC_ErrorCode));
-}
 void S_PauseSounds(bool paused)
 {
     if (SoundPaused == paused)
@@ -131,18 +108,9 @@ void S_PauseSounds(bool paused)
     }
 }
 
-
-
-void S_MusicVolume(int32_t volume)
-{
-    if (MusicIsWaveform && MusicVoice >= 0)
-        FX_SetPan(MusicVoice, volume, volume, volume);
-
-    MUSIC_SetVolume(volume);
-}
-
 void S_RestartMusic(void)
 {
+	// Fixme: This should be completely decided by the backend, not here.
     if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
     {
         S_PlayLevelMusicOrNothing(g_musicIndex);
@@ -166,128 +134,7 @@ void S_MenuSound(void)
         S_PlaySound(s);
 }
 
-#if 0 // In case you desperately want the old system back... ;)
-static int S_PlayMusic(const char *, const char *fn, int loop)
-{
-    if (!MusicEnabled())
-        return 0;
 
-    if (fn == NULL)
-        return 1;
-
-    auto fp = S_OpenAudio(fn, 0, 1);
-    if (!fp.isOpen())
-    {
-        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open \"%s\" for playback!\n",fn);
-        return 2;
-    }
-
-	int32_t MusicLen = fp.GetLength();
-
-    if (EDUKE32_PREDICT_FALSE(MusicLen < 4))
-    {
-        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: empty music file \"%s\"\n", fn);
-        return 3;
-    }
-
-    char * MyMusicPtr = (char *)Xaligned_alloc(16, MusicLen);
-    int MyMusicSize = fp.Read(MyMusicPtr, MusicLen);
-
-    if (EDUKE32_PREDICT_FALSE(MyMusicSize != MusicLen))
-    {
-        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from \"%s\", expected %d\n",
-                   MyMusicSize, fn, MusicLen);
-        ALIGNED_FREE_AND_NULL(MyMusicPtr);
-        return 4;
-    }
-
-    if (!Bmemcmp(MyMusicPtr, "MThd", 4))
-    {
-        int32_t retval = MUSIC_PlaySong(MyMusicPtr, MyMusicSize, loop);
-
-        if (retval != MUSIC_Ok)
-        {
-            ALIGNED_FREE_AND_NULL(MyMusicPtr);
-            return 5;
-        }
-
-        if (MusicIsWaveform && MusicVoice >= 0)
-        {
-            FX_StopSound(MusicVoice);
-            MusicVoice = -1;
-        }
-
-        MusicIsWaveform = 0;
-        ALIGNED_FREE_AND_NULL(MusicPtr);
-        MusicPtr    = MyMusicPtr;
-        g_musicSize = MyMusicSize;
-    }
-    else
-    {
-        int MyMusicVoice = FX_Play(MyMusicPtr, MusicLen, 0, 0, 0, mus_volume, mus_volume, mus_volume,
-                                   FX_MUSIC_PRIORITY, 1.f, MUSIC_ID);
-
-        if (MyMusicVoice <= FX_Ok)
-        {
-            ALIGNED_FREE_AND_NULL(MyMusicPtr);
-            return 5;
-        }
-
-        if (MusicIsWaveform && MusicVoice >= 0)
-            FX_StopSound(MusicVoice);
-
-        MUSIC_StopSong();
-
-        MusicVoice      = MyMusicVoice;
-        MusicIsWaveform = 1;
-        ALIGNED_FREE_AND_NULL(MusicPtr);
-        MusicPtr    = MyMusicPtr;
-        g_musicSize = MyMusicSize;
-    }
-
-    return 0;
-}
-
-
-void S_StopMusic(void)
-{
-	MusicPaused = 0;
-
-	if (MusicIsWaveform && MusicVoice >= 0)
-	{
-		FX_StopSound(MusicVoice);
-		MusicVoice = -1;
-		MusicIsWaveform = 0;
-	}
-
-	MUSIC_StopSong();
-
-	ALIGNED_FREE_AND_NULL(MusicPtr);
-	g_musicSize = 0;
-}
-
-void S_PauseMusic(bool paused)
-{
-	if (MusicPaused == paused || (MusicIsWaveform && MusicVoice < 0))
-		return;
-
-	MusicPaused = paused;
-
-	if (MusicIsWaveform)
-	{
-		FX_PauseVoice(MusicVoice, paused);
-		return;
-	}
-
-	if (paused)
-		MUSIC_Pause();
-	else
-		MUSIC_Continue();
-}
-
-
-
-#else
 static int S_PlayMusic(const char *mapname, const char* fn, bool looping = true)
 {
 	return Mus_Play(mapname, fn, looping);
@@ -303,8 +150,6 @@ void S_PauseMusic(bool paused)
 {
 	Mus_SetPaused(paused);
 }
-
-#endif
 
 
 static void S_SetMusicIndex(unsigned int m)

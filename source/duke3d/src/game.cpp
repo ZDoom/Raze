@@ -5556,7 +5556,6 @@ static void G_Cleanup(void)
 void G_Shutdown(void)
 {
 	S_SoundShutdown();
-    S_MusicShutdown();
     CONTROL_Shutdown();
     engineUnInit();
     G_Cleanup();
@@ -6174,7 +6173,6 @@ int GameInterface::app_main()
 
         videoSetPalette(0, myplayer.palette, 0);
         S_SoundStartup();
-        S_MusicStartup();
     }
 
     // check if the minifont will support lowercase letters (3136-3161)

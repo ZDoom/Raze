@@ -3434,9 +3434,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         snd_numvoices = soundvoices;
 
         S_SoundShutdown();
-        S_MusicShutdown();
 
-        S_MusicStartup();
         S_SoundStartup();
 
         FX_StopAllSounds();
@@ -3623,8 +3621,6 @@ static int32_t Menu_EntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
         G_SetStatusBarScale(newValue);
     else if (entry == &ME_SOUND_VOLUME_FX)
         FX_SetVolume(newValue);
-    else if (entry == &ME_SOUND_VOLUME_MUSIC)
-        S_MusicVolume(newValue);
     else if (entry == &ME_JOYSTICKAXIS_SCALE)
         CONTROL_SetAnalogAxisScale(M_JOYSTICKAXES.currentEntry, newValue, controldevice_joystick);
     else if (entry == &ME_JOYSTICKAXIS_DEAD)
