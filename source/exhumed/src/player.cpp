@@ -1031,10 +1031,9 @@ void PlayAlert(const char *str)
 
 void DoKenTest()
 {
-    int nPlayerSprite = PlayerList[0].nSprite; // CHECKME
+    int nPlayerSprite = PlayerList[0].nSprite;
     if ((unsigned int)nPlayerSprite >= kMaxSprites)
     {
-        initprintf("DoKenTest: (unsigned int)nPlayerSprite >= kMaxSprites)\n");
         return;
     }
     int nSector = sprite[nPlayerSprite].sectnum;
