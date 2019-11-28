@@ -127,8 +127,8 @@ void printext(int x, int y, const char *buffer, short tilenum, char invisiblecol
     unsigned char ch;
     const int32_t screenwidth = scale(240<<16, xdim, ydim);
 
-    x = xdim_to_320_16(x<<16);
-    y = ydim_to_200_16(y<<16);
+    x = xdim_to_320_16(x);
+    y = ydim_to_200_16(y);
 
     for (i = 0; buffer[i] != 0; i++)
     {
