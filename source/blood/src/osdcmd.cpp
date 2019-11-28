@@ -153,43 +153,6 @@ static int osdcmd_demo(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_music(osdcmdptr_t parm)
-{
-    char buffer[128];
-    if (parm->numparms == 1)
-    {
-        int32_t sel = levelGetMusicIdx(parm->parms[0]);
-
-        if (sel == -1)
-            return OSDCMD_SHOWHELP;
-
-        if (sel == -2)
-        {
-            OSD_Printf("%s is not a valid episode/level number pair\n", parm->parms[0]);
-            return OSDCMD_OK;
-        }
-
-        int nEpisode = sel/kMaxLevels;
-        int nLevel = sel%kMaxLevels;
-
-        if (!levelTryPlayMusic(nEpisode, nLevel))
-        {
-            if (mus_redbook)
-                snprintf(buffer, sizeof(buffer), "Playing %i track", gEpisodeInfo[nEpisode].at28[nLevel].ate0);
-            else
-                snprintf(buffer, sizeof(buffer), "Playing %s", gEpisodeInfo[nEpisode].at28[nLevel].atd0);
-            viewSetMessage(buffer);
-        }
-        else
-        {
-            OSD_Printf("No music defined for %s\n", parm->parms[0]);
-        }
-
-        return OSDCMD_OK;
-    }
-
-    return OSDCMD_SHOWHELP;
-}
 
 static int osdcmd_vidmode(osdcmdptr_t parm)
 {
@@ -367,9 +330,6 @@ static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
     sndInit();
     sfxInit();
 
-    if (MusicEnabled() && (gGameStarted || gDemo.at1))
-        sndPlaySong(nullptr, "*", true);
-
     return OSDCMD_OK;
 }
 
@@ -474,7 +434,6 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
-    OSD_RegisterFunction("music","music E<ep>L<lev>: change music", osdcmd_music);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
     OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
     OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);

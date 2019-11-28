@@ -97,8 +97,6 @@ char bAddUserMap = false;
 bool bNoDemo = false;
 bool bQuickStart = true;
 
-int gMusicPrevLoadedEpisode = -1;
-int gMusicPrevLoadedLevel = -1;
 
 char gUserMapFilename[BMAX_PATH];
 
@@ -387,8 +385,6 @@ void PreloadCache(void)
     if (gDemo.at1)
         return;
     PrecacheSounds();
-    if (mus_restartonload)
-        sndTryPlaySpecialMusic(MUS_LOADING);
     PreloadTiles();
     ClockTicks clock = totalclock;
     int cnt = 0;
@@ -485,8 +481,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     EndLevel();
     gStartNewGame = 0;
     ready2send = 0;
-    gMusicPrevLoadedEpisode = gGameOptions.nEpisode;
-    gMusicPrevLoadedLevel = gGameOptions.nLevel;
     if (gDemo.at0 && gGameStarted)
         gDemo.Close();
     netWaitForEveryone(0);

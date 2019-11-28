@@ -60,8 +60,6 @@ extern bool gRestartGame;
 extern double g_gameUpdateTime, g_gameUpdateAndDrawTime;
 extern double g_gameUpdateAvgTime;
 extern int blood_globalflags;
-extern int gMusicPrevLoadedEpisode;
-extern int gMusicPrevLoadedLevel;
 
 extern int gSaveGameNum;
 extern bool gPaused;

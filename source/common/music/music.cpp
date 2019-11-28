@@ -71,6 +71,8 @@
 #include "savegamehelp.h"
 #include "sjson.h"
 
+CVARD(Bool, mus_restartonload, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "restart the music when loading a saved game with the same map or not") // only implemented for Blood - todo: generalize
+
 MusPlayingInfo mus_playing;
 MusicAliasMap MusicAliases;
 MidiDeviceMap MidiDevices;

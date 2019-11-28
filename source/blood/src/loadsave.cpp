@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "view.h"
 #include "savegamehelp.h"
+#include "z_music.h"
 
 BEGIN_BLD_NS
 
@@ -177,14 +178,7 @@ void LoadSave::LoadGame(const char *pzFile)
     gGameStarted = 1;
     bVanilla = false;
 
-    if (mus_restartonload
-        || demoWasPlayed
-        || (gMusicPrevLoadedEpisode != gGameOptions.nEpisode || gMusicPrevLoadedLevel != gGameOptions.nLevel))
-    {
-        levelTryPlayMusic(gGameOptions.nEpisode, gGameOptions.nLevel);
-    }
-    gMusicPrevLoadedEpisode = gGameOptions.nEpisode;
-    gMusicPrevLoadedLevel = gGameOptions.nLevel;
+	MUS_ResumeSaved();
 
     netBroadcastPlayerInfo(myconnectindex);
     //sndPlaySong(gGameOptions.zLevelSong, 1);
