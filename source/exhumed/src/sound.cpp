@@ -297,8 +297,6 @@ void CalcASSPan(int nPan, int nVolume, int *pLeft, int *pRight)
 void ASSCallback(intptr_t num)
 {
     if ((int32_t)num == MUSIC_ID) {
-        trackhandle = -1;
-        StopCD();
         return;
     }
 
@@ -1181,7 +1179,7 @@ void StopAllSounds(void)
 
     for (int i = 0; i < kMaxActiveSounds; i++)
     {
-        if (sActiveSound[i].f_e >= 0 && sActiveSound[i].f_e != trackhandle)
+        if (sActiveSound[i].f_e >= 0)
             FX_StopSound(sActiveSound[i].f_e);
         // AIL_end_sample(sActiveSound[i].f_e);
     }

@@ -596,8 +596,9 @@ void DrawView(int smoothRatio)
 						I_AdvanceTriggerClear();
                         levelnew = levelnum + 1;
 
-                        if (CDplaying())
+                        if (CDplaying()) {
                             fadecdaudio();
+                        }
                     }
 
                     videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nViewBottom);
