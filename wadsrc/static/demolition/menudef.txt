@@ -364,7 +364,7 @@ LISTMENU "MultiMenu"
 
 ImageScroller "HelpMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		ImageItem "TEXTSTORY", 400
 		ImageItem "F1HELP", 401
@@ -373,6 +373,11 @@ ImageScroller "HelpMenu"
 			ImageItem "RRTILE1636"
 		}
 		animatedtransition
+	}
+	ifgame(fury)
+	{
+		ImageItem "TEXTSTORY", 400
+		ImageItem "F1HELP", 401
 	}
 }
 
@@ -458,5 +463,31 @@ ImageScroller "CreditsMenu"
 		TextItem "REDNECK RAMPAGE RIDES AGAIN\n(c) 1998 XATRIX ENTERTAINMENT, INC.\n\nREDNECK RAMPAGE RIDES AGAIN\nIS A TRADEMARK OF\nINTERPLAY PRODUCTIONS", 70
 		animatedtransition
 	}
+}
+	
+//-------------------------------------------------------------------------------------------
+//
+// Base definition for load game menu. Only the configurable part is done here
+//
+//-------------------------------------------------------------------------------------------
+
+ListMenu "LoadGameMenu"
+{
+	Caption "$MNU_LOADGAME"
+	Position 0, 40
+	Class "LoadMenu"	// uses its own implementation
+}
+
+//-------------------------------------------------------------------------------------------
+//
+// Base definition for save game menu. Only the configurable part is done here
+//
+//-------------------------------------------------------------------------------------------
+
+ListMenu "SaveGameMenu"
+{
+	Caption "$MNU_SAVEGAME"
+	Position 0, 40
+	Class "SaveMenu"	// uses its own implementation
 }
 	

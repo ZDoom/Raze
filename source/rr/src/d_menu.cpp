@@ -320,15 +320,6 @@ protected:
 			}
 		}
 	}
-
-	void PreDraw() override
-	{
-		if (mDesc->mCaption.IsNotEmpty())
-		{
-			Menu_DrawTopBar(origin);
-			Menu_DrawTopBarCaption(mDesc->mCaption, origin);
-		}
-	}
 };
 
 class MainMenu : public RedneckListMenu
@@ -442,6 +433,12 @@ void GameInterface::StartGame(FGameStartup& gs)
 FSavegameInfo GameInterface::GetSaveSig()
 {
 	return { SAVESIG_RR, MINSAVEVER_RR, SAVEVER_RR };
+}
+
+void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
+{
+	Menu_DrawTopBar(origin);
+	Menu_DrawTopBarCaption(text, origin);
 }
 
 void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position)

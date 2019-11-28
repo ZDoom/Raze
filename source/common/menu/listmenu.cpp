@@ -266,6 +266,14 @@ void DListMenu::Ticker ()
 //
 //=============================================================================
 
+void DListMenu::PreDraw()
+{
+	if (mDesc->mCaption.IsNotEmpty())
+	{
+		gi->DrawMenuCaption(origin, mDesc->mCaption);
+	}
+}
+
 void DListMenu::Drawer ()
 {
 	PreDraw();

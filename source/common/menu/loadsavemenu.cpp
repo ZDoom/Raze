@@ -92,12 +92,13 @@ protected:
 	static void ReadSaveStrings ();
 
 
-	FTexture *SavePic;
+	FTexture *SavePic = nullptr;
 	TArray<FBrokenLines> SaveComment;
 	bool mEntering;
 	FString savegamestring;
 
 	DLoadSaveMenu(DMenu *parent = NULL, FListMenuDescriptor *desc = NULL);
+	void Init(DMenu* parent, FListMenuDescriptor* desc) override;
 	void Destroy();
 
 	int RemoveSaveSlot (int index);
@@ -314,20 +315,27 @@ void M_NotifyNewSave (const char *file, const char *title, bool okForQuicksave)
 //
 //=============================================================================
 
-DLoadSaveMenu::DLoadSaveMenu(DMenu *parent, FListMenuDescriptor *desc)
-: DListMenu(parent, desc)
+DLoadSaveMenu::DLoadSaveMenu(DMenu* parent, FListMenuDescriptor* desc)
+	: DListMenu(parent, desc)
 {
 	ReadSaveStrings();
+}
 
-	savepicLeft = 10;
-	savepicTop = 54*CleanYfac;
-	savepicWidth = 216*screen->GetWidth()/640;
-	savepicHeight = 135*screen->GetHeight()/400;
+void DLoadSaveMenu::Init(DMenu* parent, FListMenuDescriptor* desc)
+{
+	Super::Init(parent, desc);
+	int Width43 = screen->GetHeight() * 4 / 3;
+	int Left43 = (screen->GetWidth() - Width43) / 2;
+	float wScale = Width43 / 640.;
+	savepicLeft = Left43 + int(20 * wScale);
+	savepicTop = mDesc->mYpos * screen->GetHeight() / 200 ;
+	savepicWidth = int(240 * wScale);
+	savepicHeight = int(180 * wScale);
 
-	rowHeight = (SmallFont->GetHeight() + 1) * CleanYfac;
-	listboxLeft = savepicLeft + savepicWidth + 14;
+	rowHeight = (NewConsoleFont->GetHeight() + 1) * CleanYfac;
+	listboxLeft = savepicLeft + savepicWidth + int(20 * wScale);
 	listboxTop = savepicTop;
-	listboxWidth = screen->GetWidth() - listboxLeft - 10;
+	listboxWidth = Width43 + Left43 - listboxLeft - int(30 * wScale);
 	int listboxHeight1 = screen->GetHeight() - listboxTop - 10;
 	listboxRows = (listboxHeight1 - 1) / rowHeight;
 	listboxHeight = listboxRows * rowHeight + 1;
@@ -335,7 +343,7 @@ DLoadSaveMenu::DLoadSaveMenu(DMenu *parent, FListMenuDescriptor *desc)
 	listboxBottom = listboxTop + listboxHeight;
 
 	commentLeft = savepicLeft;
-	commentTop = savepicTop + savepicHeight + 16;
+	commentTop = savepicTop + savepicHeight + int(16 * wScale);
 	commentWidth = savepicWidth;
 	commentHeight = (51+(screen->GetHeight()>200?10:0))*CleanYfac;
 	commentRight = commentLeft + commentWidth;
@@ -437,16 +445,16 @@ void DLoadSaveMenu::Drawer ()
 	}
 	else
 	{
-		twod.AddColorOnlyQuad(savepicLeft, savepicTop, savepicLeft+savepicWidth, savepicTop+savepicHeight, 0xff000000);
+		twod.AddColorOnlyQuad(savepicLeft, savepicTop, savepicWidth, savepicHeight, 0x80000000);
 
 		if (SaveGames.Size() > 0)
 		{
 			const char *text =
 				(Selected == -1 || !SaveGames[Selected]->bOldVersion)
 				? GStrings("MNU_NOPICTURE") : GStrings("MNU_DIFFVERSION");
-			const int textlen = SmallFont->StringWidth (text)*CleanXfac;
+			const int textlen = NewConsoleFont->StringWidth (text)*CleanXfac;
 
-			DrawText (&twod, SmallFont, CR_GOLD, savepicLeft+(savepicWidth-textlen)/2,
+			DrawText (&twod, NewConsoleFont, CR_GOLD, savepicLeft+(savepicWidth-textlen)/2,
 				savepicTop+(savepicHeight-rowHeight)/2, text,
 				DTA_CleanNoMove, true, TAG_DONE);
 		}
@@ -454,7 +462,7 @@ void DLoadSaveMenu::Drawer ()
 
 	// Draw comment area
 	//V_DrawFrame (commentLeft, commentTop, commentWidth, commentHeight);
-	twod.AddColorOnlyQuad(commentLeft, commentTop, commentRight, commentBottom, 0xff000000);
+	twod.AddColorOnlyQuad(commentLeft, commentTop, commentWidth, commentHeight, 0x80000000);
 	if (SaveComment.Size())
 	{
 		// I'm not sure why SaveComment would go NULL in this loop, but I got
@@ -462,22 +470,22 @@ void DLoadSaveMenu::Drawer ()
 		// for that.
 		for (i = 0; i < SaveComment.Size() && SaveComment[i].Width >= 0 && i < 6; ++i)
 		{
-			DrawText (&twod, SmallFont, CR_GOLD, commentLeft, commentTop
-				+ SmallFont->GetHeight()*i*CleanYfac, SaveComment[i].Text,
+			DrawText (&twod, NewConsoleFont, CR_GOLD, commentLeft, commentTop
+				+ NewConsoleFont->GetHeight()*i*CleanYfac, SaveComment[i].Text,
 				DTA_CleanNoMove, true, TAG_DONE);
 		}
 	}
 
 	// Draw file area
 	//V_DrawFrame (listboxLeft, listboxTop, listboxWidth, listboxHeight);
-	twod.AddColorOnlyQuad(listboxLeft, listboxTop, listboxRight, listboxBottom, 0xff000000);
+	twod.AddColorOnlyQuad(listboxLeft, listboxTop, listboxWidth, listboxHeight, 0x80000000);
 
 	if (SaveGames.Size() == 0)
 	{
 		const char * text = GStrings("MNU_NOFILES");
-		const int textlen = SmallFont->StringWidth (text)*CleanXfac;
+		const int textlen = NewConsoleFont->StringWidth (text)*CleanXfac;
 
-		DrawText (&twod, SmallFont, CR_GOLD, listboxLeft+(listboxWidth-textlen)/2,
+		DrawText (&twod, NewConsoleFont, CR_GOLD, listboxLeft+(listboxWidth-textlen)/2,
 			listboxTop+(listboxHeight-rowHeight)/2, text,
 			DTA_CleanNoMove, true, TAG_DONE);
 		return;
@@ -510,19 +518,19 @@ void DLoadSaveMenu::Drawer ()
 			didSeeSelected = true;
 			if (!mEntering)
 			{
-				DrawText(&twod, SmallFont, color,
+				DrawText(&twod, NewConsoleFont, color,
 					listboxLeft+1, listboxTop+rowHeight*i+CleanYfac, node->Title,
 					DTA_CleanNoMove, true, TAG_DONE);
 			}
 			else
 			{
-				DrawText(&twod, SmallFont, CR_WHITE,
+				DrawText(&twod, NewConsoleFont, CR_WHITE,
 					listboxLeft+1, listboxTop+rowHeight*i+CleanYfac, savegamestring,
 					DTA_CleanNoMove, true, TAG_DONE);
 
-				char curs[2] = { SmallFont->GetCursor(), 0 };
-				DrawText(&twod, SmallFont, CR_WHITE,
-					listboxLeft+1+SmallFont->StringWidth (savegamestring)*CleanXfac,
+				char curs[2] = { NewConsoleFont->GetCursor(), 0 };
+				DrawText(&twod, NewConsoleFont, CR_WHITE,
+					listboxLeft+1+NewConsoleFont->StringWidth (savegamestring)*CleanXfac,
 					listboxTop+rowHeight*i+CleanYfac, 
 					curs,
 					DTA_CleanNoMove, true, TAG_DONE);
@@ -530,7 +538,7 @@ void DLoadSaveMenu::Drawer ()
 		}
 		else
 		{
-			DrawText(&twod, SmallFont, color,
+			DrawText(&twod, NewConsoleFont, color,
 				listboxLeft+1, listboxTop+rowHeight*i+CleanYfac, node->Title,
 				DTA_CleanNoMove, true, TAG_DONE);
 		}
@@ -692,7 +700,7 @@ bool DLoadSaveMenu::Responder (event_t *ev)
 					if (!SaveGames[Selected]->Filename.IsEmpty())
 					{
 						FStringf workbuf("File on disk:\n%s", SaveGames[Selected]->Filename.GetChars());
-						SaveComment = V_BreakLines (SmallFont, 216*screen->GetWidth()/640/CleanXfac, workbuf);
+						SaveComment = V_BreakLines (NewConsoleFont, 216*screen->GetWidth()/640/CleanXfac, workbuf);
 					}
 					return true;
 
@@ -960,7 +968,7 @@ bool DLoadMenu::MenuEvent (int mkey, bool fromcontroller)
 static TMenuClassDescriptor<DLoadMenu> _lm("LoadMenu");
 static TMenuClassDescriptor<DSaveMenu> _sm("SaveMenu");
 
-void RegisterRedneckMenus()
+void RegisterLoadsaveMenus()
 {
 	menuClasses.Push(&_sm);
 	menuClasses.Push(&_lm);

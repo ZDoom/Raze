@@ -98,7 +98,7 @@ public:
 	virtual ~FFont ();
 
 	virtual FTexture *GetChar (int code, int translation, int *const width, bool *redirected = nullptr) const;
-	virtual int GetCharWidth (int code) const;
+	virtual int CharWidth (int code) const;
 	int GetColorTranslation (EColorRange range, PalEntry *color = nullptr) const;
 	int GetSpaceWidth () const { return SpaceWidth; }
 	int GetHeight () const { return FontHeight; }

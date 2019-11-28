@@ -166,6 +166,7 @@ struct GameInterface : ::GameInterface
 	void StartGame(FGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position) override;
+	void DrawMenuCaption(const DVector2& origin, const char* text) override;
 };
 
 END_RR_NS

@@ -213,6 +213,9 @@ struct GameInterface
 	virtual FSavegameInfo GetSaveSig() { return { "", 0, 0}; }
 	virtual bool DrawSpecialScreen(const DVector2 &origin, int tilenum) { return false; }
 	virtual void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position) {}
+	virtual void DrawMenuCaption(const DVector2& origin, const char* text) {}
+
+
 };
 
 extern GameInterface* gi;

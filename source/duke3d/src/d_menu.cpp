@@ -373,11 +373,7 @@ protected:
 	void PreDraw() override
 	{
 		CallScript(CurrentMenu == this ? EVENT_DISPLAYMENU : EVENT_DISPLAYMENUREST, true);
-		if (mDesc->mCaption.IsNotEmpty())
-		{
-			Menu_DrawTopBar(origin);
-			Menu_DrawTopBarCaption(mDesc->mCaption, origin);
-		}
+		Super::PreDraw();
 	}
 
 	void PostDraw() override
@@ -513,6 +509,13 @@ void GameInterface::StartGame(FGameStartup& gs)
 FSavegameInfo GameInterface::GetSaveSig()
 {
 	return { SAVESIG_DN3D, MINSAVEVER_DN3D, SAVEVER_DN3D };
+}
+
+
+void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
+{
+	Menu_DrawTopBar(origin);
+	Menu_DrawTopBarCaption(text, origin);
 }
 
 //----------------------------------------------------------------------------

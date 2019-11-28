@@ -576,11 +576,11 @@ FTexture *FFont::GetChar (int code, int translation, int *const width, bool *red
 
 //==========================================================================
 //
-// FFont :: GetCharWidth
+// FFont :: CharWidth
 //
 //==========================================================================
 
-int FFont::GetCharWidth (int code) const
+int FFont::CharWidth (int code) const
 {
 	code = GetCharCode(code, true);
 	if (code >= 0) return Chars[code - FirstChar].XMove;
@@ -684,7 +684,7 @@ int FFont::StringWidth(const uint8_t *string) const
 		}
 		else
 		{
-			w += GetCharWidth(chr) + GlobalKerning;
+			w += NewSmallFont->CharWidth(chr) + GlobalKerning;
 		}
 	}
 

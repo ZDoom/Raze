@@ -102,7 +102,7 @@ bool MenuTransition::StartTransition(DMenu *from, DMenu *to, MenuTransitionType 
 	else
 	{
 		start  = (int32_t) totalclock;
-		length = 300;
+		length = 30;
 		dir = animtype == MA_Advance? 1 : -1;
 		previous = from;
 		current  = to;
@@ -330,6 +330,7 @@ void DMenu::Drawer ()
 	}
 #endif
 }
+
 
 bool DMenu::DimAllowed()
 {

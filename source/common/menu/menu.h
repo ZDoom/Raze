@@ -537,6 +537,7 @@ public:
 	bool MouseEvent(int type, int x, int y) override;
 	void Ticker () override;
 	void Drawer () override;
+	void PreDraw() override;
 	virtual void SelectionChanged() {}
 	void SetFocus(FListMenuItem *fc)
 	{
