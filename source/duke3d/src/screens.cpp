@@ -1004,31 +1004,6 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-#if 0
-    if (I_EscapeTrigger() && ud.overhead_on == 0
-        && ud.show_help == 0
-        && g_player[myconnectindex].ps->newowner == -1)
-    {
-        if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU &&
-            g_player[myconnectindex].ps->newowner == -1 &&
-            (g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
-        {
-            I_EscapeTriggerClear();
-            S_PauseSounds(true);
-
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2) ready2send = 0;
-
-            if (g_player[myconnectindex].ps->gm&MODE_GAME) Menu_Change(MENU_MAIN_INGAME);
-            else Menu_Change(MENU_MAIN);
-            screenpeek = myconnectindex;
-
-            S_MenuSound();
-        }
-    }
-#endif
-
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         ud.returnvar[0] = (160<<16) - (g_player[myconnectindex].ps->look_ang<<15);

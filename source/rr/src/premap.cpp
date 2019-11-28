@@ -36,6 +36,7 @@ static int32_t g_whichPalForPlayer = 9;
 
 static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t g_precacheCount;
+int32_t g_skillSoundVoice = -1;
 
 
 static void flag_precache(int32_t tile, int32_t type)
@@ -1948,7 +1949,7 @@ end_vol4a:
     pPlayer->zoom = 768;
 #endif
     pPlayer->gm = 0;
-    Menu_Close(0);
+	M_ClearMenus();
 
     //AddLog("Newgame");
 
@@ -2474,7 +2475,6 @@ int G_EnterLevel(int gameMode)
         for (TRAVERSE_CONNECT(i))
         {
             g_player[i].ps->gm = MODE_GAME;
-            Menu_Close(i);
         }
     }
     else if (gameMode & MODE_RESTART)

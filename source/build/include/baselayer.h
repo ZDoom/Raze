@@ -14,6 +14,7 @@
 #include "inputstate.h"
 #include "printf.h"
 #include "zstring.h"
+#include "vectors.h"
 
 
 #ifdef DEBUGGINGAIDS
@@ -211,7 +212,7 @@ struct GameInterface
 	virtual void StartGame(FGameStartup& gs) {}
 	virtual FSavegameInfo GetSaveSig() { return { "", 0, 0}; }
 	virtual bool DrawSpecialScreen(const DVector2 &origin, int tilenum) { return false; }
-	virtual void DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position);
+	virtual void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position) {}
 };
 
 extern GameInterface* gi;

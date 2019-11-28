@@ -40,7 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "namesdyn.h"
 #include "../../glbackend/glbackend.h"
 
-BEGIN_DUKE_NS
+
+BEGIN_RR_NS
 
 #define MENU_MARGIN_REGULAR 40
 #define MENU_MARGIN_WIDE    32
@@ -142,8 +143,7 @@ static void Menu_DrawBackground(const DVector2 &origin)
 
 static void Menu_DrawTopBar(const DVector2 &origin)
 {
-    if ((G_GetLogoFlags() & LOGO_NOTITLEBAR) == 0)
-        rotatesprite_fs(int(origin.X*65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y*65536) + (19<<16), MF_Redfont.cursorScale, 0,MENUBAR,16,0,10);
+    rotatesprite_fs(int(origin.X*65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y*65536) + (19<<16), MF_Redfont.cursorScale, 0,MENUBAR,16,0,10);
 }
 
 static void Menu_DrawTopBarCaption(const char *caption, const DVector2 &origin)
@@ -163,7 +163,7 @@ static void Menu_DrawTopBarCaption(const char *caption, const DVector2 &origin)
 static void Menu_GetFmt(const MenuFont_t* font, uint8_t const status, int32_t* s, int32_t* z)
 {
 	if (status & MT_Selected)
-		*s = VM_OnEventWithReturn(EVENT_MENUSHADESELECTED, -1, myconnectindex, sintable[((int32_t)totalclock << 5) & 2047] >> 12);
+		*s = sintable[((int32_t)totalclock << 5) & 2047] >> 12;
 	else
 		*s = font->shade_deselected;
 	// sum shade values
@@ -335,7 +335,7 @@ class MainMenu : public RedneckListMenu
 	void PreDraw() override
 	{
 		RedneckListMenu::PreDraw();
-		rotatesprite_fs(origin.x + ((MENU_MARGIN_CENTER-5)<<16), origin.y + ((57+l)<<16), 16592L,0,RRRA? THREEDEE : INGAMEDUKETHREEDEE,0,0,10);
+		rotatesprite_fs(int((origin.X  + MENU_MARGIN_CENTER-5) * 65536), int((origin.Y + 57) * 65536), 16592L,0,RRRA? THREEDEE : INGAMEDUKETHREEDEE,0,0,10);
 	}	
 };
 
@@ -423,7 +423,7 @@ void GameInterface::StartGame(FGameStartup& gs)
 	}
 
 	ud.m_player_skill = gs.Skill + 1;
-	ud.skill_voice = S_PlaySound(skillsound);
+	g_skillSoundVoice = S_PlaySound(skillsound);
 	ud.m_respawn_monsters = (gs.Skill == 3);
 	ud.m_monsters_off = ud.monsters_off = 0;
 	ud.m_respawn_items = 0;
@@ -443,9 +443,9 @@ FSavegameInfo GameInterface::GetSaveSig()
 void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position)
 {
 	Menu_DrawBackground(origin);
-	G_ScreenText(MF_Bluefont.tilenum, int(origin.X + 160) * 65536), int((origin.Y + position) * 65536), MF_Bluefont.zoom, 0, 0, text, 0, MF_Bluefont.pal,
+	G_ScreenText(MF_Bluefont.tilenum, int((origin.X + 160) * 65536), int((origin.Y + position) * 65536), MF_Bluefont.zoom, 0, 0, text, 0, MF_Bluefont.pal,
 		2 | 8 | 16 | ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y,
-		MF_Bluefont.textflags | f | TEXT_XCENTER, 0, 0, xdim - 1, ydim - 1);
+		MF_Bluefont.textflags | TEXT_XCENTER, 0, 0, xdim - 1, ydim - 1);
 }
 
 

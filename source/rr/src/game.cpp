@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_argv.h"
 #include "filesystem/filesystem.h"
 #include "statistics.h"
+#include "c_dispatch.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
@@ -6230,82 +6231,6 @@ void G_HandleLocalKeys(void)
             typebuf[0] = 0;
         }
 
-        if (inputState.UnboundKeyPressed(sc_F1)/* || (ud.show_help && I_AdvanceTrigger())*/)
-        {
-            inputState.ClearKeyStatus(sc_F1);
-
-            Menu_Change(MENU_STORY);
-            S_PauseSounds(true);
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2))
-            {
-                ready2send = 0;
-                totalclock = ototalclock;
-                screenpeek = myconnectindex;
-            }
-        }
-
-        //        if((!net_server && ud.multimode < 2))
-        {
-            if (ud.recstat != 2 && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && inputState.UnboundKeyPressed(sc_F2))
-            {
-                inputState.ClearKeyStatus(sc_F2);
-
-FAKE_F2:
-                if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
-                {
-                    P_DoQuote(QUOTE_SAVE_DEAD,g_player[myconnectindex].ps);
-                    return;
-                }
-
-                Menu_Change(MENU_SAVE);
-
-                S_PauseSounds(true);
-                Menu_Open(myconnectindex);
-
-                if ((!g_netServer && ud.multimode < 2))
-                {
-                    ready2send = 0;
-                    totalclock = ototalclock;
-                    screenpeek = myconnectindex;
-                }
-            }
-
-            if ((!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && inputState.UnboundKeyPressed(sc_F3))
-            {
-                inputState.ClearKeyStatus(sc_F3);
-
-FAKE_F3:
-                Menu_Change(MENU_LOAD);
-                S_PauseSounds(true);
-                Menu_Open(myconnectindex);
-
-                if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-                {
-                    ready2send = 0;
-                    totalclock = ototalclock;
-                }
-
-                screenpeek = myconnectindex;
-            }
-        }
-
-        if (inputState.UnboundKeyPressed(sc_F4))
-        {
-            inputState.ClearKeyStatus(sc_F4);
-
-            S_PauseSounds(true);
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-            {
-                ready2send = 0;
-                totalclock = ototalclock;
-            }
-
-            Menu_Change(MENU_SOUND_INGAME);
-        }
 
         if ((buttonMap.ButtonDown(gamefunc_Quick_Save) || g_doQuickSave == 1) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
@@ -6313,8 +6238,11 @@ FAKE_F3:
 
             g_doQuickSave = 0;
 
-            if (!g_lastusersave.isValid())
-                goto FAKE_F2;
+			if (!g_lastusersave.isValid())
+			{
+				C_DoCommand("opensavemenu");
+				return;
+			}
 
             inputState.keyFlushChars();
 
@@ -6375,45 +6303,17 @@ FAKE_F3:
 
             g_doQuickSave = 0;
 
-            if (g_quickload == nullptr || !g_quickload->isValid())
-                goto FAKE_F3;
-            else if (g_quickload->isValid())
+			if (g_quickload == nullptr || !g_quickload->isValid())
+			{
+				C_DoCommand("openloadmenu");
+			}
+			else if (g_quickload->isValid())
             {
                 inputState.keyFlushChars();
                 inputState.ClearKeysDown();
                 S_PauseSounds(true);
                 if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
                     g_quickload->reset();
-            }
-        }
-
-        if (inputState.UnboundKeyPressed(sc_F10))
-        {
-            inputState.ClearKeyStatus(sc_F10);
-
-            Menu_Change(MENU_QUIT_INGAME);
-            S_PauseSounds(true);
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-            {
-                ready2send = 0;
-                totalclock = ototalclock;
-            }
-        }
-
-        if (inputState.UnboundKeyPressed(sc_F11))
-        {
-            inputState.ClearKeyStatus(sc_F11);
-
-            Menu_Change(MENU_COLCORR_INGAME);
-            S_PauseSounds(true);
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-            {
-                ready2send = 0;
-                totalclock = ototalclock;
             }
         }
 
@@ -7381,9 +7281,9 @@ void G_BackToMenu(void)
     if (ud.recstat == 1) G_CloseDemoWrite();
     ud.warp_on = 0;
     g_player[myconnectindex].ps->gm = 0;
-    Menu_Open(myconnectindex);
-    Menu_Change(MENU_MAIN);
-    inputState.keyFlushChars();
+	M_StartControlPanel(false);
+	M_SetMenu(NAME_MainMenu);
+	inputState.keyFlushChars();
 }
 
 static int G_EndOfLevel(void)
@@ -7426,9 +7326,9 @@ static int G_EndOfLevel(void)
                 if (!VOLUMEALL)
                     G_DoOrderScreen();
                 g_player[myconnectindex].ps->gm = 0;
-                Menu_Open(myconnectindex);
-                Menu_Change(MENU_MAIN);
-                return 2;
+				M_StartControlPanel(false);
+				M_SetMenu(NAME_MainMenu);
+				return 2;
             }
             else
             {
@@ -7718,8 +7618,6 @@ MAIN_LOOP_RESTART:
     g_player[myconnectindex].ps->fta = 0;
     for (int & q : user_quote_time)
         q = 0;
-
-    Menu_Change(MENU_MAIN);
 
     //if (g_networkMode != NET_DEDICATED_SERVER)
     {

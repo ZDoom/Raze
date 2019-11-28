@@ -629,17 +629,17 @@ int FListMenuItemPatch::GetWidth()
 
 void ImageScreen::Drawer()
 {
-	if (mDesc->mType == 0)
+	if (mDesc->type == 0)
 	{
-		auto tileindexp = NameToTileIndex.CheckKey(mDesc->mText);
+		auto tileindexp = NameToTileIndex.CheckKey(FName(mDesc->text, true));
 		int tileindex;
 		if (tileindexp == nullptr)
 		{
 			// If this isn't a name, try a literal tile index;
-			auto c = mDesc->mMenuName.GetChars();
+			auto c = mDesc->text.GetChars();
 			if (*c == '#') tileindex = (int)strtoll(c+1, nullptr, 0);
 			// Error out if the screen cannot be found, this is always a definition error that needs to be reported.
-			else I_Error("Invalid menu screen '%s'", mDesc->mMenuName.GetChars());
+			else I_Error("Invalid menu screen '%s'", mDesc->text.GetChars());
 		}
 		else tileindex = *tileindexp;
 		if (!gi->DrawSpecialScreen(origin, tileindex)) // allows the front end to do custom handling for a given image.
@@ -649,6 +649,6 @@ void ImageScreen::Drawer()
 	}
 	else
 	{
-		gi->DrawCenteredTextScreen(origin, mDesc->mText, mDesc->type);
+		gi->DrawCenteredTextScreen(origin, mDesc->text, mDesc->type);
 	}
 }

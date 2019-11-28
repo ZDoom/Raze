@@ -738,9 +738,6 @@ void S_Callback(intptr_t num)
     dnum++;
 }
 
-void S_ClearSoundLocks(void)
-{
-}
 
 bool A_CheckSoundPlaying(int spriteNum, int soundNum)
 {

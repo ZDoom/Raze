@@ -1063,11 +1063,9 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags)
     {
         if (g_quickload && g_quickload->isValid() && ud.recstat != 2)
         {
-            Menu_Open(playerNum);
-            inputState.ClearKeyStatus(sc_Space);
-            I_AdvanceTriggerClear();
-            Menu_Change(MENU_RESETPLAYER);
-        }
+			M_StartControlPanel(false);
+			M_SetMenu(NAME_ConfirmPlayerReset);
+		}
         else
             g_player[playerNum].ps->gm = MODE_RESTART;
         vmFlags |= VM_NOEXECUTE;

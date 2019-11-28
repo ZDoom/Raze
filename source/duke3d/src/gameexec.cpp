@@ -1080,8 +1080,6 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
             }
             else if (!(resetFlags & 1))
             {
-                inputState.ClearKeyStatus(sc_Space);
-                I_AdvanceTriggerClear();
 				M_StartControlPanel(false);
 				M_SetMenu(NAME_ConfirmPlayerReset);
             }

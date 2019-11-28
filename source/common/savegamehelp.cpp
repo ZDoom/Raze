@@ -256,6 +256,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle)
 			return 0;
 		}
 	}
+	return 1;
 }
 
 //=============================================================================

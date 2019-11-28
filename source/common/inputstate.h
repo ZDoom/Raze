@@ -302,6 +302,13 @@ public:
 	int32_t mouseReadAbs(vec2_t* const pResult);
 	void GetMouseDelta(ControlInfo* info);
 
+	void ClearAllInput()
+	{
+		ClearKeysDown();
+		keyFlushChars();
+		keyFlushScans();
+	}
+
 };
 
 

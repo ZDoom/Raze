@@ -71,8 +71,6 @@
 #include "savegamehelp.h"
 #include "sjson.h"
 
-CVARD(Bool, mus_restartonload, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "restart the music when loading a saved game with the same map or not") // only implemented for Blood - todo: generalize
-
 MusPlayingInfo mus_playing;
 MusicAliasMap MusicAliases;
 MidiDeviceMap MidiDevices;
@@ -80,6 +78,8 @@ MusicVolumeMap MusicVolumes;
 MusicAliasMap LevelMusicAliases;
 bool MusicPaused;
 static bool mus_blocked;
+static FString lastStartedMusic;
+
 //==========================================================================
 //
 // 
@@ -257,6 +257,7 @@ bool S_StartMusic (const char *m_id)
 
 bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 {
+	lastStartedMusic = musicname;	// remember the last piece of music that was requested to be played.
 	if (musicname == nullptr || musicname[0] == 0)
 	{
 		// Don't choke if the map doesn't have a song attached
@@ -268,16 +269,6 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 	if (*musicname == '/') musicname++;
 
 	FString DEH_Music;
-
-	FName* aliasp = MusicAliases.CheckKey(musicname);
-	if (aliasp != nullptr)
-	{
-		if (*aliasp == NAME_None)
-		{
-			return true;	// flagged to be ignored
-		}
-		musicname = aliasp->GetChars();
-	}
 
 	if (!mus_playing.name.IsEmpty() &&
 		mus_playing.handle != nullptr &&
@@ -577,15 +568,34 @@ int Mus_Play(const char *mapname, const char *fn, bool loop)
 		mapname = lastMusicLevel.GetChars();
 		fn = lastMusic.GetChars();
 	}
+
 	// Allow per level music substitution.
-	// Unlike some other engines like ZDoom or even Blood which use definition files, the music names in Duke Nukem are being defined in a CON script, making direct replacement a lot harder.
 	// For most cases using $musicalias would be sufficient, but that method only works if a level actually has some music defined at all.
-	// This way it can be done with an add-on definition lump even in cases like Redneck Rampage where no music definitions exist or where music gets reused for multiple levels but replacement is wanted individually.
+	// This way it can be done with an add-on definition lump even in cases like Redneck Rampage where no music definitions exist 
+	// or where music gets reused for multiple levels but replacement is wanted individually.
 	if (mapname && *mapname)
 	{
 		if (*mapname == '/') mapname++;
 		FName *check = LevelMusicAliases.CheckKey(FName(mapname, true));
 		if (check) fn = check->GetChars();
+	}
+
+	// Now perform music aliasing. This also needs to be done before checking identities because multiple names can map to the same song.
+	FName* aliasp = MusicAliases.CheckKey(fn);
+	if (aliasp != nullptr)
+	{
+		if (*aliasp == NAME_None)
+		{
+			return true;	// flagged to be ignored
+		}
+		fn = aliasp->GetChars();
+	}
+
+	if (!mus_restartonload)
+	{
+		// If the currently playing piece of music is the same, do not restart. Note that there's still edge cases where this may fail to detect identities.
+		if (mus_playing.handle != nullptr && lastStartedMusic.CompareNoCase(fn) == 0 && mus_playing.loop)
+			return true;
 	}
 
 	S_ChangeMusic(fn, 0, loop, true);

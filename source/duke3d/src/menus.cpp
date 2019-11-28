@@ -1553,7 +1553,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             }
         }
         break;
-#endif
     case MENU_CREDITS4:   // JBF 20031220
     {
 #define MENU_YOFFSET 40

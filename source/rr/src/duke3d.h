@@ -158,7 +158,14 @@ struct GameInterface : ::GameInterface
 	bool mouseInactiveConditional(bool condition) override;
 	FString statFPS() override;
 	GameStats getStats() override;
+	void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int flags);
+	void MenuOpened() override;
+	void MenuSound(::GameInterface::EMenuSounds snd) override;
+	void MenuClosed() override;
+	bool CanSave() override;
+	void StartGame(FGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
+	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position) override;
 };
 
 END_RR_NS

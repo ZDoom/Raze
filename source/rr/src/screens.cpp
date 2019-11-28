@@ -1035,37 +1035,6 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-    if (I_EscapeTrigger() && ud.overhead_on == 0
-        && ud.show_help == 0
-        && g_player[myconnectindex].ps->newowner == -1)
-    {
-        if ((g_player[myconnectindex].ps->gm&MODE_MENU) == MODE_MENU && g_currentMenu <= MENU_MAIN_INGAME)
-        {
-            I_EscapeTriggerClear();
-            S_PlaySound(EXITMENUSOUND);
-            Menu_Change(MENU_CLOSE);
-            if (!ud.pause_on)
-                S_PauseSounds(false);
-        }
-        else if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU &&
-            g_player[myconnectindex].ps->newowner == -1 &&
-            (g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
-        {
-            I_EscapeTriggerClear();
-            S_PauseSounds(true);
-
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2) ready2send = 0;
-
-            if (g_player[myconnectindex].ps->gm&MODE_GAME) Menu_Change(MENU_MAIN_INGAME);
-            else Menu_Change(MENU_MAIN);
-            screenpeek = myconnectindex;
-
-            S_MenuSound();
-        }
-    }
-
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         int32_t a = CROSSHAIR;
@@ -1171,8 +1140,8 @@ void G_DisplayRest(int32_t smoothratio)
     {
         if (g_player[myconnectindex].ps->gm&MODE_TYPE)
             Net_SendMessage();
-        else
-            M_DisplayMenus();
+        //else
+            //M_DisplayMenus();
     }
 
     {
