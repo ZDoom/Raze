@@ -2737,7 +2737,7 @@ void actInit(bool bSaveLoad) {
                     case kDudeModernCustom:
                     case kDudeModernCustomBurning:
                         pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
-                        seqStartId = getSeqStartId(pXSprite); // by NoOne: Custom Dude stores it's SEQ in data2
+                        seqStartId = genDudeSeqStartId(pXSprite); // by NoOne: Custom Dude stores it's SEQ in data2
                         pXSprite->sysData1 = pXSprite->data3; // by NoOne move sndStartId to sysData1, because data3 used by the game;
                         pXSprite->data3 = 0;
                         break;
@@ -3127,10 +3127,10 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
                 if ((gSysRes.Lookup(pXSprite->data2 + 15, "SEQ") || gSysRes.Lookup(pXSprite->data2 + 16, "SEQ")) && pXSprite->medium == kMediumNormal) {
                     if (gSysRes.Lookup(pXSprite->data2 + 3, "SEQ")) {
                         pSprite->type = kDudeModernCustomBurning;
-                        if (pXSprite->data2 == kDefaultAnimationBase) // don't inherit palette for burning if using default animation
+                        if (pXSprite->data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
                             pSprite->pal = 0;
 
-                        aiNewState(pSprite, pXSprite, &GDXGenDudeBurnGoto);
+                        aiGenDudeNewState(pSprite, &genDudeBurnGoto);
                         actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
                         if (pXSprite->burnTime <= 0) pXSprite->burnTime = 1200;
                         gDudeExtra[pSprite->extra].at0 = (int)gFrameClock + 360;
@@ -3147,7 +3147,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         } else {
             
             pXSprite->locked = 1; // lock while transforming
-            
+
             aiSetGenIdleState(pSprite, pXSprite); // set idle state
             
             if (pXSprite->key > 0) // drop keys
@@ -3156,13 +3156,13 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             if (pXSprite->dropMsg > 0) // drop items
                 actDropObject(pSprite, pXSprite->dropMsg);
             
-
+           
             pSprite->flags &= ~kPhysMove; xvel[pSprite->index] = yvel[pSprite->index] = 0;
 
             int seqId = pXSprite->data2 + 18;
             if (!gSysRes.Lookup(seqId, "SEQ")) {
                 seqKill(3, nXSprite);
-                sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndTransforming);
+                playGenDudeSound(pSprite, kGenDudeSndTransforming);
                 spritetype* pEffect = gFX.fxSpawn((FX_ID)52, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, pSprite->ang);
                 if (pEffect != NULL) {
                     pEffect->cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
@@ -3187,7 +3187,10 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
                 return;
             }
             seqSpawn(seqId, 3, nXSprite, -1);
-            sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndTransforming);
+            playGenDudeSound(pSprite, kGenDudeSndTransforming);
+            
+            pXSprite->sysData1 = kGenDudeTransformStatus; // in transform
+            
             return;
         }
         break;
@@ -3287,7 +3290,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         switch (pSprite->type) {
             case kDudeModernCustom:
             case kDudeModernCustomBurning:
-                sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndDeathExplode);
+                playGenDudeSound(pSprite, kGenDudeSndDeathExplode);
                 break;
             case kDudeCultistTommy:
             case kDudeCultistShotgun:
@@ -3406,26 +3409,25 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             seqSpawn(dudeInfo[nType].seqStartID+15, 3, nXSprite, nDudeToGibClient2);
         break;
     case kDudeModernCustom:
-        sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndDeathNormal);
+        playGenDudeSound(pSprite, kGenDudeSndDeathNormal);
         if (nSeq == 3) {
             
-            bool seq15 = gSysRes.Lookup(pXSprite->data2 + 15, "SEQ"); bool seq16 = gSysRes.Lookup(pXSprite->data2 + 16, "SEQ");
-            if (seq15 && seq16) seqSpawn((15 + Random(2)) + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
-            else if (seq16) seqSpawn(16 + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
-            else if (seq15) seqSpawn(15 + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
-            else if (gSysRes.Lookup(pXSprite->data2 + nSeq, "SEQ")) seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
-            else seqKill(3, nXSprite);
+            GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+            if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
+            else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
+            else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
+            else if (gSysRes.Lookup(pXSprite->data2 + nSeq, "SEQ"))seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
+            else seqSpawn(1 + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
 
          } else {
             seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, nDudeToGibClient1);
-        }
+         }
 
         pXSprite->txID = 0; // to avoid second trigger.
         break;
 
-    case kDudeModernCustomBurning:
-    {
-        sfxPlayGDXGenDudeSound(pSprite, kGenDudeSndDeathExplode);
+    case kDudeModernCustomBurning: {
+        playGenDudeSound(pSprite, kGenDudeSndDeathExplode);
         damageType = DAMAGE_TYPE_3;
 
         if (Chance(0x4000)) {
@@ -3436,14 +3438,11 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             GibSprite(pSprite, GIBTYPE_7, &gibPos, &gibVel);
         }
 
-        int seqId = pXSprite->data2;
-        bool seq15 = gSysRes.Lookup(pXSprite->data2 + 15, "SEQ"); bool seq16 = gSysRes.Lookup(pXSprite->data2 + 16, "SEQ");
-        
-        if (seq15 && seq16) seqId += (15 + Random(2));
-        else if (seq16) seqId += 16;
-        else seqId += 15;
-        
-        seqSpawn(seqId, 3, nXSprite, nDudeToGibClient1);
+        GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+        if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, 3, nXSprite, nDudeToGibClient1);
+        else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, 3, nXSprite, nDudeToGibClient1);
+        else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, 3, nXSprite, nDudeToGibClient1);
+        else seqSpawn(1 + pXSprite->data2, 3, nXSprite, nDudeToGibClient1);
         break;
     }
     case kDudeBurningZombieAxe:
@@ -3571,29 +3570,37 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         seqSpawn(dudeInfo[nType].seqStartID+nSeq, 3, nXSprite, -1);
         break;
     case kDudePodGreen:
-        if (Chance(0x4000) && nSeq == 3)
-            sfxPlay3DSound(pSprite, 2205, -1, 0);
-        else
-            sfxPlay3DSound(pSprite, 2203+Random(2), -1, 0);
-        seqSpawn(dudeInfo[nType].seqStartID+nSeq, 3, nXSprite, -1);
-        break;
     case kDudeTentacleGreen:
-        if (damage == 5)
-            sfxPlay3DSound(pSprite, 2471, -1, 0);
-        else
-            sfxPlay3DSound(pSprite, 2472, -1, 0);
-        seqSpawn(dudeInfo[nType].seqStartID+nSeq, 3, nXSprite, -1);
-        break;
     case kDudePodFire:
-        if (damage == 5)
-            sfxPlay3DSound(pSprite, 2451, -1, 0);
-        else
-            sfxPlay3DSound(pSprite, 2452, -1, 0);
-        seqSpawn(dudeInfo[nType].seqStartID+nSeq, 3, nXSprite, -1);
-        break;
     case kDudeTentacleFire:
-        sfxPlay3DSound(pSprite, 2501, -1, 0);
-        seqSpawn(dudeInfo[nType].seqStartID+nSeq, 3, nXSprite, -1);
+        if ((pSprite->cstat & CSTAT_SPRITE_YFLIP)) pSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
+        switch (pSprite->type) {
+            case kDudePodGreen:
+                if (Chance(0x4000) && nSeq == 3)
+                    sfxPlay3DSound(pSprite, 2205, -1, 0);
+                else
+                    sfxPlay3DSound(pSprite, 2203 + Random(2), -1, 0);
+                seqSpawn(dudeInfo[nType].seqStartID + nSeq, 3, nXSprite, -1);
+                break;
+            case kDudeTentacleGreen:
+                if (damage == 5)
+                    sfxPlay3DSound(pSprite, 2471, -1, 0);
+                else
+                    sfxPlay3DSound(pSprite, 2472, -1, 0);
+                seqSpawn(dudeInfo[nType].seqStartID + nSeq, 3, nXSprite, -1);
+                break;
+            case kDudePodFire:
+                if (damage == 5)
+                    sfxPlay3DSound(pSprite, 2451, -1, 0);
+                else
+                    sfxPlay3DSound(pSprite, 2452, -1, 0);
+                seqSpawn(dudeInfo[nType].seqStartID + nSeq, 3, nXSprite, -1);
+                break;
+            case kDudeTentacleFire:
+                sfxPlay3DSound(pSprite, 2501, -1, 0);
+                seqSpawn(dudeInfo[nType].seqStartID + nSeq, 3, nXSprite, -1);
+                break;
+        }
         break;
     case kDudePodMother:
         if (Chance(0x4000) && nSeq == 3)
@@ -4717,7 +4724,10 @@ void MoveDude(spritetype *pSprite)
     PLAYER *pPlayer = NULL;
     if (IsPlayerSprite(pSprite))
         pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
-    dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
+        consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+        return;
+    }
     DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
@@ -6141,9 +6151,10 @@ void actProcessSprites(void)
             }
 
             // By NoOne: handle incarnations of custom dude
-            if (pSprite->type == kDudeModernCustom && pXSprite->txID > 0 && pXSprite->health <= 0 && seqGetStatus(3, nXSprite) < 0) {
+            if (pSprite->type == kDudeModernCustom && pXSprite->txID > 0 && pXSprite->health <= 0 && pXSprite->sysData1 == kGenDudeTransformStatus) {
+                xvel[pSprite->index] = ClipLow(xvel[pSprite->index] >> 4, 0); yvel[pSprite->index] = ClipLow(yvel[pSprite->index] >> 4, 0);
                 XSPRITE* pXIncarnation = getNextIncarnation(pXSprite);
-                if (pXIncarnation != NULL) {
+                if (seqGetStatus(3, nXSprite) < 0 && pXIncarnation != NULL) {
                     spritetype* pIncarnation = &sprite[pXIncarnation->reference];
                     pXSprite->key = pXSprite->dropMsg = pXSprite->locked = 0;
 
@@ -6157,7 +6168,6 @@ void actProcessSprites(void)
 
                     // trigger dude death before transform
                     trTriggerSprite(nSprite, pXSprite, kCmdOff, pSprite->owner);
-
 
                     pSprite->type = pIncarnation->type;
                     pSprite->flags = pIncarnation->flags;
@@ -6211,8 +6221,8 @@ void actProcessSprites(void)
                             break;
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
-                            seqId = getSeqStartId(pXSprite);
-                            getSpriteMassBySize(pSprite); // create or refresh mass cache 
+                            seqId = genDudeSeqStartId(pXSprite);
+                            genDudePrepare(pSprite, kGenDudePropertyMass);
                             fallthrough__; // go below
                         default:
                             seqSpawn(seqId, 3, nXSprite, -1);
@@ -7510,7 +7520,7 @@ spritetype* actSpawnCustomDude(spritetype* pSprite, int nDist) {
     pXDude->data3 = 0;
 
     // spawn seq
-    seqSpawn(getSeqStartId(pXDude), 3, pDude->extra, -1);
+    seqSpawn(genDudeSeqStartId(pXDude), 3, pDude->extra, -1);
 
     // inherit movement speed.
     pXDude->busyTime = pXSource->busyTime;
@@ -7548,6 +7558,12 @@ spritetype* actSpawnCustomDude(spritetype* pSprite, int nDist) {
             pXDude->dudeFlag4 = pXSource->dudeFlag4;
             break;
         }
+    }
+
+    // inherit sprite size (useful for seqs with zero repeats)
+    if (pSource->flags & kModernTypeFlag2) {
+        pDude->xrepeat = pSource->xrepeat;
+        pDude->yrepeat = pSource->yrepeat;
     }
 
     aiInitSprite(pDude);
@@ -7650,7 +7666,7 @@ int getSpriteMassBySize(spritetype* pSprite) {
     cached->picnum = pSprite->picnum;               cached->seqId = seqId;
     cached->clipdist = pSprite->clipdist;
 
-    viewSetSystemMessage("MASS: %d", cached->mass);
+    //viewSetSystemMessage("MASS: %d", cached->mass);
     return cached->mass;
 }
 

@@ -24,9 +24,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-// Added improved crosshair accuracy
-// Added UsingMenus for fragbar
-//
 
 #include "build.h"
 

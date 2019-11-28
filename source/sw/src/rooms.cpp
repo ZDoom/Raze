@@ -126,7 +126,7 @@ void SetWallWarpHitscan(short sectnum)
     // Travel all the way around loop setting wall bits
     do
     {
-        if (wall[wall_num].nextwall >= 0)
+        if ((uint16_t)wall[wall_num].nextwall < MAXWALLS)
             SET(wall[wall_num].cstat, CSTAT_WALL_WARP_HITSCAN);
         wall_num = wall[wall_num].point2;
     }
@@ -830,9 +830,10 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
                 if (!found)
                     continue;
 
-                sectorlist[sln] = i;
                 if (sln < (int)SIZ(GlobStackSect))
                     GlobStackSect[sln] = i;
+                if (sln < (int)SIZ(sectorlist))
+                    sectorlist[sln] = i;
                 sln++;
             }
         }
@@ -845,10 +846,17 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
         *lower = -1;
         return;
     }
-    else
+    // Map rooms have NOT been dragged on top of each other
+    else if (sln == 1)
+    {
+        *lower = sectorlist[0];
+        *upper = sectorlist[0];
+        return;
+    }
+    // Map rooms HAVE been dragged on top of each other
     // inside will somtimes find that you are in two different sectors if the x,y
     // is exactly on a sector line.
-    if (sln > 2)
+    else if (sln > 2)
     {
         //DSPRINTF(ds, "TOO MANY SECTORS FOUND: x=%d, y=%d, match=%d, num sectors %d, %d, %d, %d, %d, %d", x, y, match, sln, sectorlist[0], sectorlist[1], sectorlist[2], sectorlist[3], sectorlist[4]);
         MONO_PRINT(ds);

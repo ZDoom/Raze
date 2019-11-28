@@ -63,20 +63,23 @@ void CopySectorWalls(short dest_sectnum, short src_sectnum)
         wall[dest_wall_num].lotag =         wall[src_wall_num].lotag;
         wall[dest_wall_num].extra =         wall[src_wall_num].extra;
 
-        if (wall[dest_wall_num].nextwall >= 0 && wall[src_wall_num].nextwall >= 0)
+        uint16_t const dest_nextwall = wall[dest_wall_num].nextwall;
+        uint16_t const src_nextwall = wall[src_wall_num].nextwall;
+
+        if (dest_nextwall < MAXWALLS && src_nextwall < MAXWALLS)
         {
-            wall[wall[dest_wall_num].nextwall].picnum = wall[wall[src_wall_num].nextwall].picnum;
-            wall[wall[dest_wall_num].nextwall].xrepeat = wall[wall[src_wall_num].nextwall].xrepeat;
-            wall[wall[dest_wall_num].nextwall].yrepeat = wall[wall[src_wall_num].nextwall].yrepeat;
-            wall[wall[dest_wall_num].nextwall].overpicnum = wall[wall[src_wall_num].nextwall].overpicnum;
-            wall[wall[dest_wall_num].nextwall].pal = wall[wall[src_wall_num].nextwall].pal;
-            wall[wall[dest_wall_num].nextwall].cstat = wall[wall[src_wall_num].nextwall].cstat;
-            wall[wall[dest_wall_num].nextwall].shade = wall[wall[src_wall_num].nextwall].shade;
-            wall[wall[dest_wall_num].nextwall].xpanning = wall[wall[src_wall_num].nextwall].xpanning;
-            wall[wall[dest_wall_num].nextwall].ypanning = wall[wall[src_wall_num].nextwall].ypanning;
-            wall[wall[dest_wall_num].nextwall].hitag = wall[wall[src_wall_num].nextwall].hitag;
-            wall[wall[dest_wall_num].nextwall].lotag = wall[wall[src_wall_num].nextwall].lotag;
-            wall[wall[dest_wall_num].nextwall].extra = wall[wall[src_wall_num].nextwall].extra;
+            wall[dest_nextwall].picnum = wall[src_nextwall].picnum;
+            wall[dest_nextwall].xrepeat = wall[src_nextwall].xrepeat;
+            wall[dest_nextwall].yrepeat = wall[src_nextwall].yrepeat;
+            wall[dest_nextwall].overpicnum = wall[src_nextwall].overpicnum;
+            wall[dest_nextwall].pal = wall[src_nextwall].pal;
+            wall[dest_nextwall].cstat = wall[src_nextwall].cstat;
+            wall[dest_nextwall].shade = wall[src_nextwall].shade;
+            wall[dest_nextwall].xpanning = wall[src_nextwall].xpanning;
+            wall[dest_nextwall].ypanning = wall[src_nextwall].ypanning;
+            wall[dest_nextwall].hitag = wall[src_nextwall].hitag;
+            wall[dest_nextwall].lotag = wall[src_nextwall].lotag;
+            wall[dest_nextwall].extra = wall[src_nextwall].extra;
         }
 
         dest_wall_num = wall[dest_wall_num].point2;

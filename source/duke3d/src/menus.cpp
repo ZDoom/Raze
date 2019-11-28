@@ -698,7 +698,7 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
 
 
 
-static char const *MenuKeyNone = "  -";
+static char const MenuKeyNone[] = "  -";
 static char const *MEOSN_Keys[NUMKEYS];
 
 static MenuCustom2Col_t MEO_KEYBOARDSETUPFUNCS_TEMPLATE = { 0, &MF_Minifont, NUMKEYS, 54<<16, 0 };
@@ -1565,8 +1565,9 @@ void Menu_Init(void)
     }
     MEOS_Gamefuncs.numOptions = k;
 
-	for (i = 0; i < NUMKEYS; ++i)
+    for (i = 1; i < NUMKEYS-1; ++i)
 		MEOSN_Keys[i] = KB_ScanCodeToString(i);
+    MEOSN_Keys[0] = MenuKeyNone;
     MEOSN_Keys[NUMKEYS-1] = MenuKeyNone;
 
 

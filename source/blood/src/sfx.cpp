@@ -42,28 +42,6 @@ POINT2D earL, earR, earL0, earR0; // Ear position
 VECTOR2D earVL, earVR; // Ear velocity ?
 int lPhase, rPhase, lVol, rVol, lPitch, rPitch;
 
-struct BONKLE
-{
-    int at0;
-    int at4;
-    DICTNODE *at8;
-    int atc;
-    spritetype *at10;
-    int at14;
-    int at18;
-    int at1c;
-    POINT3D at20;
-    POINT3D at2c;
-    //int at20;
-    //int at24;
-    //int at28;
-    //int at2c;
-    //int at30;
-    //int at34;
-    int at38;
-    int at3c;
-};
-
 BONKLE Bonkle[256];
 BONKLE *BonkleCache[256];
 

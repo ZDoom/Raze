@@ -683,12 +683,6 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
         {
             inputState.ClearKeyStatus(inputState.GetLastScanCode());
 
-            //KeyboardKeys[currentkey][currentcol] = KB_GetLastScanCode();
-#if 0 // [JM] Re-do this shit !CHECKME!
-                CONTROL_MapKey(currentkey,
-                               KeyboardKeys[currentkey][0],
-                               KeyboardKeys[currentkey][1]);
-#endif
 
             currentmode = 0;
         }
@@ -811,12 +805,12 @@ SWBOOL MNU_KeySetupCustom(UserCall call, MenuItem *item)
             MNU_DrawSmallString(OPT_XS, j, ds, (i==currentkey) ? 0 : 12, 16);
 
             p = keyGetName(KeyboardKeys[i][0]);
-            if (!p || KeyboardKeys[i][0]==0xff) p = "  -";
+            if (!p || !KeyboardKeys[i][0] || KeyboardKeys[i][0]==0xff) p = "  -";
             MNU_DrawSmallString(OPT_XSIDE, j, p, (i==currentkey) ? -5 : 12,
                                 (i==currentkey && currentcol==0) ? 14 : 16);
 
             p = keyGetName(KeyboardKeys[i][1]);
-            if (!p || KeyboardKeys[i][1]==0xff) p = "  -";
+            if (!p || !KeyboardKeys[i][1] || KeyboardKeys[i][1]==0xff) p = "  -";
             MNU_DrawSmallString(OPT_XSIDE + 4*14, j, p, (i==currentkey) ? -5 : 12,
                                 (i==currentkey && currentcol==1) ? 14 : 16);
 #endif
@@ -1276,7 +1270,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         //5261,
         //5262
 
-        5114    // JBF: for my credits
+        5120 // 5114    // JBF: for my credits
     };
     static short SWOrderScreen[] =
     {
@@ -1288,7 +1282,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         5118,
         4979,
 
-        5114    // JBF: for my credits
+        5120 // 5114    // JBF: for my credits
     };
     short *OrderScreen, OrderScreenSiz;
 
@@ -1317,9 +1311,9 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
     {
         DidOrderSound = TRUE;
         choose_snd = STD_RANDOM_RANGE(1000);
-        if (choose_snd > 500 && !FX_SoundActive(wanghandle))
+        if (choose_snd > 500 && !FX_SoundValidAndActive(wanghandle))
             wanghandle = PlaySound(DIGI_WANGORDER1, &zero, &zero, &zero, v3df_dontpan);
-        else if (!FX_SoundActive(wanghandle))
+        else if (!FX_SoundValidAndActive(wanghandle))
             wanghandle = PlaySound(DIGI_WANGORDER2, &zero, &zero, &zero, v3df_dontpan);
     }
 
@@ -1416,7 +1410,8 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         on_screen = 0;
 // CTW MODIFICATION END
 
-    rotatesprite(0,0,RS_SCALE,0,OrderScreen[on_screen],0,0,
+    int const shade = on_screen == OrderScreenSiz-1 ? 8 : 0;
+    rotatesprite(0,0,RS_SCALE,0,OrderScreen[on_screen], shade, 0,
                  (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK|ROTATE_SPRITE_IGNORE_START_MOST),
                  0, 0, xdim-1, ydim-1);
 
@@ -1427,38 +1422,31 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
         static const char *jtitle = "^Port Credits";
         static const char *jtext[] =
         {
-            "*GAME AND ENGINE PORT",
+            "*Developers",
+            " Richard \"TerminX\" Gobeille",
+            " Evan \"Hendricks266\" Ramos",
+            " Alex \"pogokeen\" Dawson",
+            "*Retired developers",
+            " Pierre-Loup \"Plagman\" Griffais",
+            " Philipp \"Helixhorned\" Kutin",
+            "*Special thanks to",
             " Jonathon \"JonoF\" Fowler",
-            "-",
-            "*\"POLYMOST\" 3D RENDERER",
-            "*NETWORKING, OTHER CODE",
+            "*Uses BUILD Engine technology by",
             " Ken \"Awesoken\" Silverman",
+            "*Additional thanks to",
+            " Alexey \"Nuke.YKT\" Skrybykin",
+            " Jordon \"Striker\" Moss",
+            " Par \"Parkar\" Karlsson", // "Pär \"Parkar\" Karlsson",
+            " Ben \"ProAsm\" Smit",
+            " NY00123",
             "-",
-            " Visit http://www.jonof.id.au/jfsw for the",
-            " source code, latest news, and updates of this port."
+            " Visit eduke32.com for news and updates"
         };
+#if 0
         static const char *scroller[] =
         {
-            "This program is free software; you can redistribute it",
-            "and/or modify it under the terms of the GNU General",
-            "Public License as published by the Free Software",
-            "Foundation; either version 2 of the License, or (at your",
-            "option) any later version.",
-            "",
-            "This program is distributed in the hope that it will be",
-            "useful but WITHOUT ANY WARRANTY; without even the implied",
-            "warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR",
-            "PURPOSE. See the GNU General Public License (GPL.TXT) for",
-            "more details.",
-            "",
-            "",
-            "",
-            "",
             "Thanks to these people for their input and contributions:",
             "",
-            "Richard \"TerminX\" Gobeille,",
-            "Par \"Parkar\" Karlsson", // "Pär \"Parkar\" Karlsson",
-            "Ben \"ProAsm\" Smit",
             "",
             "and all those who submitted bug reports and ",
             "supported the project financially!",
@@ -1470,9 +1458,9 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
             "",
             ""
         };
-        const int numscrollerlines = SIZ(scroller);
+#endif
         short dimx, dimy;
-        int ycur = 54;
+        int ycur = 20;
         unsigned ji;
 
         dimy = 0; MNU_MeasureString(jtitle, &dimx, &dimy);
@@ -1502,6 +1490,8 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
             }
         }
 
+#if 0
+        const int numscrollerlines = SIZ(scroller);
         int m,i;
         for (m=0, i=((int32_t) totalclock/104)%numscrollerlines; m<4; m++,i++)
         {
@@ -1511,6 +1501,7 @@ MNU_OrderCustom(UserCall call, MenuItem *item)
             MNU_MeasureSmallString(scroller[i], &dimx, &dimy);
             MNU_DrawSmallString(160-(dimx>>1), 154+(m*7), scroller[i], 0, 8);
         }
+#endif
     }
 
     //inputState.ClearKeysDown();
@@ -2893,11 +2884,8 @@ MNU_JoystickCheck(MenuItem *item)
 static SWBOOL
 MNU_TryMusicInit(void)
 {
-    if (PlaySong(0, RedBookSong[Level], TRUE, FALSE))
-    {
         if (currentmenu->cursor == 0)
             MNU_MusicCheck(&currentmenu->items[currentmenu->cursor+1]);
-    }
 
     return TRUE;
 }
@@ -3773,11 +3761,11 @@ static void MNU_DownLevel(MenuGroup * group)
 static void MNU_UpLevel(void)
 {
     int zero = 0;
-    static int handle1=0;
+    static int handle1;
     // if run out of menus then EXIT
     if (!menuarrayptr)
     {
-        if(!FX_SoundActive(handle1))
+        if (!FX_SoundValidAndActive(handle1))
             handle1 = PlaySound(DIGI_STARCLINK,&zero,&zero,&zero,v3df_dontpan);
         ExitMenus();
         return;
@@ -4118,7 +4106,7 @@ void MNU_DoMenu( CTLType type, PLAYERp pp )
     SWBOOL resetitem;
     unsigned char key;
     int zero = 0;
-    static int handle2 = 0;
+    static int handle2;
     static int limitmove=0;
     static SWBOOL select_held=FALSE;
 
@@ -4152,7 +4140,7 @@ void MNU_DoMenu( CTLType type, PLAYERp pp )
     {
         static int handle5=0;
 		I_GeneralTriggerClear();
-        if (!FX_SoundActive(handle5))
+        if (!FX_SoundValidAndActive(handle5))
             handle5 = PlaySound(DIGI_SWORDSWOOSH,&zero,&zero,&zero,v3df_dontpan);
         inputState.ClearKeysDown();
         MNU_DoItem();
@@ -4175,16 +4163,16 @@ void MNU_DoMenu( CTLType type, PLAYERp pp )
     else if (I_ReturnTrigger())
     {
 		I_ReturnTriggerClear();
-        static int handle3=0;
-        if (!FX_SoundActive(handle3))
+        static int handle3;
+        if (!FX_SoundValidAndActive(handle3))
             handle3 = PlaySound(DIGI_SWORDSWOOSH,&zero,&zero,&zero,v3df_dontpan);
         MNU_UpLevel();
         resetitem = TRUE;
     }
     else if (MNU_DoHotkey())
     {
-        static int handle4=0;
-        if (!FX_SoundActive(handle4))
+        static int handle4;
+        if (!FX_SoundValidAndActive(handle4))
             handle4 = PlaySound(DIGI_STAR,&zero,&zero,&zero,v3df_dontpan);
         resetitem = TRUE;
     }

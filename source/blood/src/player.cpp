@@ -483,23 +483,45 @@ QAV* qavSceneLoad(int qavId) {
     return pQav;
 }
 
+
+
 void qavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5) {
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
     
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
+    spritetype* pSprite = &sprite[pQavScene->index];
+
     if (pQavScene->qavResrc != NULL) {
 
         QAV* pQAV = pQavScene->qavResrc;
         int v4 = (pPlayer->weaponTimer == 0) ? (int)totalclock % pQAV->at10 : pQAV->at10 - pPlayer->weaponTimer;
-
-        pQAV->x = a3; pQAV->y = a4; int flags = 2;
-        int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
+        
+        int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
         if (nInv >= 120 * 8 || (nInv != 0 && ((int)totalclock & 32))) {
-            a2 = -128;
-            flags |= 1;
+            a2 = -128; flags |= 1;
+        }
+        
+        // draw as weapon
+        if (!(pSprite->flags & kModernTypeFlag1)) {
+            
+            pQAV->x = a3; pQAV->y = a4;
+            pQAV->Draw(v4, flags, a2, a5);
+
+        // draw fullscreen (currently 4:3 only)
+        } else {
+            
+            int wx1 = windowxy1.x, wy1 = windowxy1.y, wx2 = windowxy2.x, wy2 = windowxy2.y;
+            
+            windowxy2.x = xdim - 1; windowxy2.y = ydim - 1;
+            windowxy1.x = windowxy1.y = 0;
+
+            pQAV->Draw(v4, flags, a2, a5);
+            
+            windowxy1.x = wx1; windowxy1.y = wy1;
+            windowxy2.x = wx2; windowxy2.y = wy2;
+
         }
 
-        pQAV->Draw(v4, flags, a2, a5);
     }
 
 }

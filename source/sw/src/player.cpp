@@ -134,7 +134,6 @@ extern SWBOOL FinishedLevel;
 char PlayerGravity = PLAYER_JUMP_GRAV;
 #endif
 
-int vel, svel, angvel;
 extern SWBOOL DebugOperate;
 
 //unsigned char synctics, lastsynctics;
@@ -2405,7 +2404,6 @@ MoveScrollMode2D(PLAYERp pp)
 #define MAXANGVEL    100
 
     ControlInfo scrl_input;
-    int32_t running;
     int32_t keymove;
     int32_t momx, momy;
     static int mfvel=0, mfsvel=0;
@@ -2436,19 +2434,19 @@ MoveScrollMode2D(PLAYERp pp)
         Follow_posy = pp->posy;
     }
 
-    running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-
     if (buttonMap.ButtonDown(gamefunc_Strafe))
         mfsvel -= scrl_input.dyaw>>2;
     mfsvel -= scrl_input.dx>>2;
     mfvel = -scrl_input.dz>>2;
 
+#if 0
+    int const running = !!BUTTON(gamefunc_Run) ^ !!TEST(pp->Flags, PF_LOCK_RUN);
     if (running)
     {
-        //keymove = NORMALKEYMOVE << 1;
-        keymove = NORMALKEYMOVE;
+        keymove = NORMALKEYMOVE << 1;
     }
     else
+#endif
     {
         keymove = NORMALKEYMOVE;
     }
@@ -3116,7 +3114,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             if (sp->z < sop->crush_z)
                 continue;
 
-            vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
+            int32_t const vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
             if (vel < 9000)
             {
                 DoActorBeginSlide(i, getangle(pp->xvect, pp->yvect), vel/8, 5);
@@ -3738,7 +3736,7 @@ DoPlayerFall(PLAYERp pp)
                     PlaySound(DIGI_HITGROUND, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
             }
 
-            if (handle && FX_SoundActive(handle))
+            if (FX_SoundValidAndActive(handle))
             {
                 // My sound code will detect the sound has stopped and clean up
                 // for you.
@@ -5168,9 +5166,10 @@ DoPlayerStopDiveNoWarp(PLAYERp pp)
 
     if (!NoMeters) SetRedrawScreen(pp);
 
-    if (pp->TalkVocHandle && FX_SoundActive(pp->TalkVocHandle))
+    if (FX_SoundValidAndActive(pp->TalkVocHandle))
     {
         FX_StopSound(pp->TalkVocHandle);
+        pp->TalkVocHandle = 0;
         pp->PlayerTalking = FALSE;
     }
 
@@ -5203,9 +5202,10 @@ DoPlayerStopDive(PLAYERp pp)
 
     if (!NoMeters) SetRedrawScreen(pp);
 
-    if (pp->TalkVocHandle && FX_SoundActive(pp->TalkVocHandle))
+    if (FX_SoundValidAndActive(pp->TalkVocHandle))
     {
         FX_StopSound(pp->TalkVocHandle);
+        pp->TalkVocHandle = 0;
         pp->PlayerTalking = FALSE;
     }
 
@@ -6505,7 +6505,7 @@ DoPlayerBeginDie(PLAYERp pp)
     // Override any previous talking, death scream has precedance
     if (pp->PlayerTalking)
     {
-        if (FX_SoundActive(pp->TalkVocHandle))
+        if (FX_SoundValidAndActive(pp->TalkVocHandle))
             FX_StopSound(pp->TalkVocHandle);
         pp->PlayerTalking = FALSE;
         pp->TalkVocnum = -1;

@@ -107,8 +107,12 @@ void SetSectorWallBits(short sectnum, int bit_mask, SWBOOL set_sectwall, SWBOOL 
         if (set_sectwall)
             SET(wall[wall_num].extra, bit_mask);
 
-        if (set_nextwall && wall[wall_num].nextwall >= 0)
-            SET(wall[wall[wall_num].nextwall].extra, bit_mask);
+        if (set_nextwall)
+        {
+            uint16_t const nextwall = wall[wall_num].nextwall;
+            if (nextwall < MAXWALLS)
+                SET(wall[nextwall].extra, bit_mask);
+        }
 
         wall_num = wall[wall_num].point2;
     }
@@ -140,6 +144,28 @@ void WallSetupDontMove(void)
                 }
             }
         }
+    }
+}
+
+static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
+{
+    // set first wall
+    {
+        SET(wp->extra, extra);
+        uint16_t const nextwall = wp->nextwall;
+        if (nextwall < MAXWALLS)
+            SET(wall[nextwall].extra, extra);
+    }
+
+    // Travel all the way around loop setting wall bits
+    for (uint16_t wall_num = wp->point2;
+         wall[wall_num].lotag != lotag;
+         wall_num = wall[wall_num].point2)
+    {
+        SET(wall[wall_num].extra, extra);
+        uint16_t const nextwall = wall[wall_num].nextwall;
+        if (nextwall < MAXWALLS)
+            SET(wall[nextwall].extra, extra);
     }
 }
 
@@ -181,111 +207,33 @@ WallSetup(void)
         {
         case TAG_WALL_LOOP_DONT_SPIN:
         {
-            short wall_num, start_wall;
-
-            // set first wall
-            SET(wp->extra, WALLFX_LOOP_DONT_SPIN);
-            if (wp->nextwall >= 0) 
-				SET(wall[wp->nextwall].extra, WALLFX_LOOP_DONT_SPIN);
-
-            // move the the next wall
-            start_wall = wp->point2;
-
-            // Travel all the way around loop setting wall bits
-            for (wall_num = start_wall;
-                 wall[wall_num].lotag != TAG_WALL_LOOP_DONT_SPIN;
-                 wall_num = wall[wall_num].point2)
-            {
-                SET(wall[wall_num].extra, WALLFX_LOOP_DONT_SPIN);
-                if (wall[wall_num].nextwall >= 0) 
-					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_DONT_SPIN);
-            }
-
+            WallSetupLoop(wp, TAG_WALL_LOOP_DONT_SPIN, WALLFX_LOOP_DONT_SPIN);
             break;
         }
 
         case TAG_WALL_LOOP_DONT_SCALE:
         {
-            short wall_num, start_wall;
-
-            // set first wall
-            SET(wp->extra, WALLFX_DONT_SCALE);
-			if (wp->nextwall >= 0) 
-				SET(wall[wp->nextwall].extra, WALLFX_DONT_SCALE);
-
-            // move the the next wall
-            start_wall = wp->point2;
-
-            // Travel all the way around loop setting wall bits
-            for (wall_num = start_wall;
-                 wall[wall_num].lotag != TAG_WALL_LOOP_DONT_SCALE;
-                 wall_num = wall[wall_num].point2)
-            {
-                SET(wall[wall_num].extra, WALLFX_DONT_SCALE);
-                if (wall[wall_num].nextwall >= 0)
-                    SET(wall[wall[wall_num].nextwall].extra, WALLFX_DONT_SCALE);
-            }
-
+            WallSetupLoop(wp, TAG_WALL_LOOP_DONT_SCALE, WALLFX_DONT_SCALE);
             wp->lotag = 0;
-
             break;
         }
 
         case TAG_WALL_LOOP_OUTER_SECONDARY:
         {
-            short wall_num, start_wall;
+            // make sure it's a red wall
+            ASSERT((uint16_t)wp->nextwall < MAXWALLS);
 
-            // make sure its a red wall
-            ASSERT(wp->nextwall >= 0);
-
-            // set first wall
-            SET(wp->extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
-			if (wp->nextwall >= 0)
-				SET(wall[wp->nextwall].extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
-
-            // move the the next wall
-            start_wall = wp->point2;
-
-            // Travel all the way around loop setting wall bits
-            for (wall_num = start_wall;
-                 wall[wall_num].lotag != TAG_WALL_LOOP_OUTER_SECONDARY;
-                 wall_num = wall[wall_num].point2)
-            {
-                SET(wall[wall_num].extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
-				if (wall[wall_num].nextwall >= 0)
-					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
-            }
-
+            WallSetupLoop(wp, TAG_WALL_LOOP_OUTER_SECONDARY, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
             break;
         }
 
         case TAG_WALL_LOOP_OUTER:
         {
-            short wall_num, start_wall;
+            // make sure it's a red wall
+            ASSERT((uint16_t)wp->nextwall < MAXWALLS);
 
-            // make sure its a red wall
-            ASSERT(wp->nextwall >= 0);
-
-            // set first wall
-            SET(wp->extra, WALLFX_LOOP_OUTER);
-			if (wp->nextwall >= 0)
-				SET(wall[wp->nextwall].extra, WALLFX_LOOP_OUTER);
-
-            // move the the next wall
-            start_wall = wp->point2;
-
-            // Travel all the way around loop setting wall bits
-            for (wall_num = start_wall;
-                 wall[wall_num].lotag != TAG_WALL_LOOP_OUTER;
-                 wall_num = wall[wall_num].point2)
-            {
-                SET(wall[wall_num].extra, WALLFX_LOOP_OUTER);
-				if (wall[wall_num].nextwall >= 0)
-					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_OUTER);
-            }
-
+            WallSetupLoop(wp, TAG_WALL_LOOP_OUTER, WALLFX_LOOP_OUTER);
             wp->lotag = 0;
-
             break;
         }
 
@@ -298,76 +246,19 @@ WallSetup(void)
 
         case TAG_WALL_LOOP_SPIN_2X:
         {
-            short wall_num, start_wall;
-
-            // set first wall
-            SET(wp->extra, WALLFX_LOOP_SPIN_2X);
-			if (wp->nextwall >= 0)
-				SET(wall[wp->nextwall].extra, WALLFX_LOOP_SPIN_2X);
-
-            // move the the next wall
-            start_wall = wp->point2;
-
-            // Travel all the way around loop setting wall bits
-            for (wall_num = start_wall;
-                 wall[wall_num].lotag != TAG_WALL_LOOP_SPIN_2X;
-                 wall_num = wall[wall_num].point2)
-            {
-                SET(wall[wall_num].extra, WALLFX_LOOP_SPIN_2X);
-				if (wall[wall_num].nextwall >= 0)
-					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_SPIN_2X);
-            }
-
+            WallSetupLoop(wp, TAG_WALL_LOOP_SPIN_2X, WALLFX_LOOP_SPIN_2X);
             break;
         }
 
         case TAG_WALL_LOOP_SPIN_4X:
         {
-            short wall_num, start_wall;
-
-            // set first wall
-            SET(wp->extra, WALLFX_LOOP_SPIN_4X);
-			if (wp->nextwall >= 0)
-				SET(wall[wp->nextwall].extra, WALLFX_LOOP_SPIN_4X);
-
-            // move the the next wall
-            start_wall = wp->point2;
-
-            // Travel all the way around loop setting wall bits
-            for (wall_num = start_wall;
-                 wall[wall_num].lotag != TAG_WALL_LOOP_SPIN_4X;
-                 wall_num = wall[wall_num].point2)
-            {
-                SET(wall[wall_num].extra, WALLFX_LOOP_SPIN_4X);
-				if (wall[wall_num].nextwall >= 0)
-					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_SPIN_4X);
-            }
-
+            WallSetupLoop(wp, TAG_WALL_LOOP_SPIN_4X, WALLFX_LOOP_SPIN_4X);
             break;
         }
 
         case TAG_WALL_LOOP_REVERSE_SPIN:
         {
-            short wall_num, start_wall;
-
-            // set first wall
-            SET(wp->extra, WALLFX_LOOP_REVERSE_SPIN);
-			if (wp->nextwall >= 0)
-				SET(wall[wp->nextwall].extra, WALLFX_LOOP_REVERSE_SPIN);
-
-            // move the the next wall
-            start_wall = wp->point2;
-
-            // Travel all the way around loop setting wall bits
-            for (wall_num = start_wall;
-                 wall[wall_num].lotag != TAG_WALL_LOOP_REVERSE_SPIN;
-                 wall_num = wall[wall_num].point2)
-            {
-                SET(wall[wall_num].extra, WALLFX_LOOP_REVERSE_SPIN);
-				if (wall[wall_num].nextwall >= 0)
-					SET(wall[wall[wall_num].nextwall].extra, WALLFX_LOOP_REVERSE_SPIN);
-            }
-
+            WallSetupLoop(wp, TAG_WALL_LOOP_REVERSE_SPIN, WALLFX_LOOP_REVERSE_SPIN);
             break;
         }
 

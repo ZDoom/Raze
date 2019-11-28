@@ -51,6 +51,7 @@ enum CALLBACK_ID {
     kCallbackDropVoodoo = 21, // unused
     kCallbackMissileBurst = 22, // by NoOne
     kCallbackMissileSpriteBlock = 23, // by NoOne
+    kCallbackGenDudeUpdate      = 24, // by NoOne
     kCallbackMax,
 };
 

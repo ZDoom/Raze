@@ -9251,7 +9251,7 @@ DoVulcanBoulder(int16_t Weapon)
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
-    vel = ksqrt(SQ(u->xchange) + SQ(u->ychange));
+    int32_t const vel = ksqrt(SQ(u->xchange) + SQ(u->ychange));
 
     if (vel < 30)
     {
@@ -11268,7 +11268,7 @@ SpawnNuclearSecondaryExp(int16_t Weapon, short ang)
     RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     //ang = RANDOM_P2(2048);
-    vel = (2048+128) + RANDOM_RANGE(2048);
+    int32_t const vel = (2048+128) + RANDOM_RANGE(2048);
     eu->xchange = MOVEx(vel, ang);
     eu->ychange = MOVEy(vel, ang);
     eu->Radius = 200; // was NUKE_RADIUS
@@ -20654,7 +20654,7 @@ SWBOOL TestDontStick(short SpriteNum, short hit_sect, short hit_wall, int hit_z)
         return TRUE;
 
     // if blocking red wallo
-    if (TEST(wp->cstat, CSTAT_WALL_BLOCK) && wp->nextwall >= 0)
+    if (TEST(wp->cstat, CSTAT_WALL_BLOCK) && (uint16_t)wp->nextwall < MAXWALLS)
         return TRUE;
 
     return FALSE;

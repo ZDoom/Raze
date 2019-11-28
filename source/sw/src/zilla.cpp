@@ -725,7 +725,7 @@ int DoZillaMove(short SpriteNum)
     //DoActorSlide(SpriteNum);
 
     // Random Zilla taunts
-    if (!FX_SoundActive(handle))
+    if (!FX_SoundValidAndActive(handle))
     {
         choose = STD_RANDOM_RANGE(1000);
         if (choose > 990)

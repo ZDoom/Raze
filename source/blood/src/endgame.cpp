@@ -158,45 +158,6 @@ void CKillMgr::sub_2641C(void)
     }
 }
 
-/*
-void CKillMgr::AddKill(spritetype *pSprite) {
-    if (pSprite->statnum == kStatDude) {
-        switch (pSprite->type) {
-            case kDudeBat:
-            case kDudeRat:
-            case kDudeBurningInnocent:
-            case kDudeInnocent:
-                return;
-        }
-
-        at4++;
-    }
-}
-
-void CKillMgr::sub_2641C(void)
-{
-    at0 = 0;
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-        
-        spritetype *pSprite = &sprite[nSprite];
-        if (IsDudeSprite(pSprite)) {
-            if (pSprite->statnum == kStatDude) {
-                switch (pSprite->type) {
-                case kDudeBat:
-                case kDudeRat:
-                case kDudeBurningInnocent:
-                case kDudeInnocent:
-                    return;
-                }
-
-                at0++;
-            }
-        }
-
-    }
-}
-*/
-
 void CKillMgr::Draw(void)
 {
     char pBuffer[40];

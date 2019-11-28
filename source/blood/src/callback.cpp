@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trig.h"
 #include "triggers.h"
 #include "view.h"
+#include "aiunicult.h"
 
 BEGIN_BLD_NS
 
@@ -763,6 +764,12 @@ void makeMissileBlocking(int nSprite) // 23
     sprite[nSprite].cstat |= CSTAT_SPRITE_BLOCK;
 }
 
+void genDudeUpdateCallback(int nSprite) // 24
+{
+    if (spriRangeIsFine(nSprite))
+        genDudeUpdate(&sprite[nSprite]);
+}
+
 void(*gCallback[kCallbackMax])(int) =
 {
     fxFlameLick,
@@ -789,6 +796,7 @@ void(*gCallback[kCallbackMax])(int) =
     DropVoodoo, // unused
     UniMissileBurst,
     makeMissileBlocking,
+    genDudeUpdateCallback,
 };
 
 END_BLD_NS

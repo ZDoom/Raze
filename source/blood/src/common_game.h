@@ -436,6 +436,17 @@ enum {
     kSectorMax = 620,
 };
 
+// ai state types
+enum {
+kAiStateOther           = -1,
+kAiStateIdle            =  0,
+kAiStateGenIdle         =  1,
+kAiStateMove            =  2,
+kAiStateSearch          =  3,
+kAiStateChase           =  4,
+kAiStateRecoil          =  5,
+kAiStateAttack          =  6,
+};
 
 // sprite attributes
 #define kHitagAutoAim 0x0008
@@ -470,16 +481,6 @@ enum {
 #define kSecCFlipMask 0x34
 #define kSecCRelAlign 0x40
 #define kSecCFloorShade 0x8000
-
-
-// ai state types
-#define kAiStateOther -1
-#define kAiStateIdle 0
-#define kAiStateGenIdle 1
-#define kAiStateMove 2
-#define kAiStateSearch 3
-#define kAiStateChase 4
-#define kAiStateRecoil 5
 
 
 #define kAng5 28

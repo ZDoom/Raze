@@ -5731,7 +5731,6 @@ int portableBackupSave(const char * path, const char * name, int volume, int lev
     }
 
 	fil->Write(encoded, strlen(encoded));
-	delete fil;
 
     sjson_free_string(ctx, encoded);
     sjson_destroy_context(ctx);
