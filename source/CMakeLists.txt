@@ -827,6 +827,7 @@ set (PCH_SOURCES
 	common/music/backend/oalsound.cpp
 	common/music/backend/i_sound.cpp
 
+	common/menu/imagescroller.cpp
 	common/menu/joystickmenu.cpp
 	common/menu/listmenu.cpp
 	common/menu/loadsavemenu.cpp

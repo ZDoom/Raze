@@ -54,6 +54,7 @@
 
 void RegisterDukeMenus();
 void RegisterRedneckMenus();
+void RegisterLoadsaveMenus();
 extern bool rotatesprite_2doverride;
 bool help_disabled, credits_disabled;
 int g_currentMenu;	// accessible by CON scripts - contains the current menu's script ID if defined or INT_MAX if none given.
@@ -89,26 +90,10 @@ static bool		MenuEnabled = true;
 #define KEY_REPEAT_DELAY	(MENU_TICRATE*5/12)
 #define KEY_REPEAT_RATE		(3)
 
-enum MenuTransitionType
-{ // Note: This enum is for logical categories, not visual types.
-    MA_None,
-    MA_Return,
-    MA_Advance,
-} ;
-
-struct MenuTransition
-{
-    DMenu *previous;
-    DMenu *current;
-
-    int32_t start;
-    int32_t length;
-	int32_t dir;
-};
 
 static MenuTransition transition;
 
-bool M_StartTransition(DMenu *from, DMenu *to, MenuTransitionType animtype, MenuTransition &transition)
+bool MenuTransition::StartTransition(DMenu *from, DMenu *to, MenuTransitionType animtype)
 {
 	if (!from->canAnimate || !to->canAnimate || animtype == MA_None)
 	{
@@ -116,27 +101,26 @@ bool M_StartTransition(DMenu *from, DMenu *to, MenuTransitionType animtype, Menu
 	}
 	else
 	{
-		transition.start  = (int32_t) totalclock;
-		transition.length = 30;
-		transition.dir = animtype == MA_Advance? 1 : -1;
-		transition.previous = from;
-		transition.current  = to;
+		start  = (int32_t) totalclock;
+		length = 300;
+		dir = animtype == MA_Advance? 1 : -1;
+		previous = from;
+		current  = to;
 		return true;
 	}
 }
 
-bool M_DrawTransition(MenuTransition &transition)
+bool MenuTransition::Draw()
 {
-	if (totalclock < transition.start + transition.length)
+	if (totalclock < start + length)
 	{
 		double factor = 120 * xdim / ydim;
-		double phase = ((int32_t) totalclock - transition.start) / double(transition.length) * M_PI + M_PI/2;
+		double phase = ((int32_t) totalclock - start) / double(length) * M_PI + M_PI/2;
 		
-		transition.previous->origin.X = factor * transition.dir * (sin(phase) - 1.);
-		transition.current->origin.X = factor * transition.dir * (sin(phase) + 1.);
-		Printf("prev.X = %2.5f, next.X = %2.5f\n", transition.previous->origin.X, transition.current->origin.X);
-		transition.previous->Drawer();
-		transition.current->Drawer();
+		previous->origin.X = factor * dir * (sin(phase) - 1.);
+		current->origin.X = factor * dir * (sin(phase) + 1.);
+		previous->Drawer();
+		current->Drawer();
 		return true;
 	}
 	return false;
@@ -231,7 +215,7 @@ void DMenu::Close ()
 	assert(DMenu::CurrentMenu == this);
 	
 	DMenu::CurrentMenu = mParentMenu;
-	if (mParentMenu && M_StartTransition(this, mParentMenu, MA_Return, transition))
+	if (mParentMenu && transition.StartTransition(this, mParentMenu, MA_Return))
 	{
 		g_currentMenu = DMenu::CurrentMenu->scriptID;
 	}
@@ -415,7 +399,7 @@ void M_ActivateMenu(DMenu *menu)
 	if (DMenu::CurrentMenu != NULL)
 	{
 		DMenu::CurrentMenu->ReleaseCapture();
-		M_StartTransition(DMenu::CurrentMenu, menu, MA_Advance, transition);
+		transition.StartTransition(DMenu::CurrentMenu, menu, MA_Advance);
 	}
 	DMenu::CurrentMenu = menu;
 }
@@ -555,6 +539,15 @@ bool M_SetMenu(FName menu, int param, FName caller)
 			DOptionMenu *newmenu = new DOptionMenu;
 			newmenu->Init(DMenu::CurrentMenu, ld);
 			M_ActivateMenu(newmenu);
+		}
+		else if ((*desc)->mType == MDESC_ImageScroller)
+		{
+			FImageScrollerDescriptor* ld = static_cast<FImageScrollerDescriptor*>(*desc);
+			if (ld->mItems.Size() > 0) // only open the submenu if it isn't empty.
+			{
+				DImageScrollerMenu* newmenu = new DImageScrollerMenu(DMenu::CurrentMenu, ld);
+				M_ActivateMenu(newmenu);
+			}
 		}
 		return true;
 	}
@@ -824,7 +817,7 @@ void M_Drawer (void)
 		bool going = false;
 		if (transition.previous)
 		{
-			going = M_DrawTransition(transition);
+			going = transition.Draw();
 			if (!going)
 			{
 				if (transition.dir == -1) delete transition.previous;
@@ -876,6 +869,7 @@ void M_Init (void)
 {
 	RegisterDukeMenus();
 	RegisterRedneckMenus();
+	RegisterLoadsaveMenus();
 	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();
 }

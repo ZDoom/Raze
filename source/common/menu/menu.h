@@ -32,6 +32,29 @@ const int MENU_TICRATE = 30;
 extern bool help_disabled, credits_disabled;
 extern int g_currentMenu;
 
+enum MenuTransitionType
+{ // Note: This enum is for logical categories, not visual types.
+	MA_None,
+	MA_Return,
+	MA_Advance,
+};
+
+class DMenu;
+
+struct MenuTransition
+{
+	DMenu* previous;
+	DMenu* current;
+
+	int32_t start;
+	int32_t length;
+	int32_t dir;
+
+	bool StartTransition(DMenu* from, DMenu* to, MenuTransitionType animtype);
+	bool Draw();
+
+};
+
 enum
 {
 	EF_HIDEFROMSP = 1 << 0,
@@ -262,7 +285,8 @@ struct FImageScrollerDescriptor : public FMenuDescriptor
 		int scriptID;
 		FString text;
 	};
-	
+	int mFlags = 0;
+
 	TArray<ScrollerItem> mItems;
 };
 
@@ -635,23 +659,17 @@ public:
 
 class DImageScrollerMenu : public DMenu
 {
-	
-};
+	DMenu* mCurrent;
+	FImageScrollerDescriptor* mDesc;
+	int index;
+	MenuTransition pageTransition = {};
 
-//=============================================================================
-//
-// Show a fullscreen image / centered text screen for an image scroller
-//
-//=============================================================================
-
-class ImageScreen : public DMenu // Todo: This should be global
-{
-	const FImageScrollerDescriptor::ScrollerItem *mDesc;
-	ImageScreen(const FImageScrollerDescriptor::ScrollerItem *it)
-	{
-		mDesc = it;
-	}
-	void Drawer() override;
+public:
+	DImageScrollerMenu(DMenu* parent = nullptr, FImageScrollerDescriptor* desc = nullptr);
+	bool MenuEvent(int mkey, bool fromcontroller);
+	bool MouseEvent(int type, int x, int y);
+	void Ticker();
+	void Drawer();
 };
 
 //=============================================================================

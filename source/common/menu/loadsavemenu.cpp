@@ -957,3 +957,11 @@ bool DLoadMenu::MenuEvent (int mkey, bool fromcontroller)
 	return false;
 }
 
+static TMenuClassDescriptor<DLoadMenu> _lm("LoadMenu");
+static TMenuClassDescriptor<DSaveMenu> _sm("SaveMenu");
+
+void RegisterRedneckMenus()
+{
+	menuClasses.Push(&_sm);
+	menuClasses.Push(&_lm);
+}

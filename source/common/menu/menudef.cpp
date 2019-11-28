@@ -586,15 +586,16 @@ static void ParseImageScrollerBody(FScanner &sc, FImageScrollerDescriptor *desc)
 		else if (sc.Compare("TextItem") || sc.Compare("ImageItem"))
 		{
 			FImageScrollerDescriptor::ScrollerItem item;
-			sc.MustGetString();
-			item.text = sc.String;
 			int type = sc.Compare("TextItem");
+			sc.MustGetString();
+			item.text = strbin1(sc.String);
 			if (type)
 			{
 				sc.MustGetStringName(",");
 				sc.MustGetNumber();
 				item.type = sc.Number; // y-coordinate
 			}
+			else item.type = 0;
 			item.scriptID = INT_MAX;
 			if (sc.CheckString(","))
 			{
@@ -602,6 +603,10 @@ static void ParseImageScrollerBody(FScanner &sc, FImageScrollerDescriptor *desc)
 				item.scriptID = sc.Number;
 			}
 			desc->mItems.Push(item);
+		}
+		else if (sc.Compare("animatedtransition"))
+		{
+			desc->mFlags |= LMF_Animate;
 		}
 		else
 		{
