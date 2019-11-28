@@ -38,6 +38,8 @@ void Saveable_Init(void)
 {
     if (nummodules > 0) return;
 
+    Saveable_Init_Dynamic();
+
 #define MODULE(x) { \
         extern saveable_module saveable_ ## x; \
         saveablemodules[nummodules++] = &saveable_ ## x; \

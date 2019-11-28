@@ -24,6 +24,7 @@
 #ifndef SAVEABLE_H
 #define SAVEABLE_H
 
+#include "compat.h"
 
 typedef void *saveable_code;
 
@@ -42,10 +43,16 @@ typedef struct
     unsigned int numdata;
 } saveable_module;
 
-#define SAVE_CODE(s) (void*)s
-#define SAVE_DATA(s) { (void*)&s, sizeof(s) }
+template <typename T>
+static FORCE_INLINE constexpr enable_if_t<!std::is_pointer<T>::value, size_t> SAVE_SIZEOF(T const & obj) noexcept
+{
+    return sizeof(obj);
+}
 
-#define NUM_SAVEABLE_ITEMS(x) (sizeof(x)/sizeof(x[0]))
+#define SAVE_CODE(s) (void*)(s)
+#define SAVE_DATA(s) { (void*)&(s), SAVE_SIZEOF(s) }
+
+#define NUM_SAVEABLE_ITEMS(x) ARRAY_SIZE(x)
 
 typedef struct
 {
@@ -61,6 +68,7 @@ typedef struct
 } saveddatasym;
 
 void Saveable_Init(void);
+void Saveable_Init_Dynamic(void);
 
 int Saveable_FindCodeSym(void *ptr, savedcodesym *sym);
 int Saveable_FindDataSym(void *ptr, saveddatasym *sym);
