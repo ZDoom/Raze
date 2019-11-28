@@ -2503,8 +2503,9 @@ LOOP3:
                         {
                             levelnew = 0;
                             levelnum = 0;
+
+                            goto STARTGAME2;
                         }
-                        goto STARTGAME2;
                 }
 
                 totalclock = ototalclock = tclocks;
