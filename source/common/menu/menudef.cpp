@@ -1042,7 +1042,7 @@ void M_ParseMenuDefs()
 			{
 				ParseListMenu(sc);
 			}
-			if (sc.Compare("ImageScroller"))
+			else if (sc.Compare("ImageScroller"))
 			{
 				ParseImageScroller(sc);
 			}

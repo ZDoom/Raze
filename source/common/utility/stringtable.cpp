@@ -244,18 +244,20 @@ bool FStringTable::ParseLanguageCSV(int lumpnum, const TArray<uint8_t> &buffer)
 			if (filtercol > -1)
 			{
 				auto filterstr = row[filtercol];
-				auto filter = filterstr.Split(" ", FString::TOK_SKIPEMPTY);
-				bool ok = false;
-				for (auto &entry : filter)
+				if (filterstr.IsNotEmpty())
 				{
-					if (validFilter(entry))
+					auto filter = filterstr.Split(" ", FString::TOK_SKIPEMPTY);
+					bool ok = false;
+					for (auto& entry : filter)
 					{
-						ok = true;
-						break;
+						if (validFilter(entry))
+						{
+							ok = true;
+							break;
+						}
 					}
+					if (!ok) continue;
 				}
-				if (!ok) continue;
-					continue;
 			}
 #endif
 

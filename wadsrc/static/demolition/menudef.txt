@@ -22,11 +22,11 @@ LISTMENU "MainMenu"
 		}
 		ifgame(Duke, Nam, WW2GI, Fury)
 		{
-			class "Duke.ListMenu"
+			class "Duke.MainMenu"
 		}
 		else
 		{
-			class "Redneck.ListMenu"
+			class "Redneck.MainMenu"
 		}
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
@@ -88,11 +88,11 @@ LISTMENU "IngameMenu"
 		}
 		ifgame(Duke, Nam, WW2GI, Fury)
 		{
-			class "Duke.ListMenu"
+			class "Duke.MainMenu"
 		}
 		else
 		{
-			class "Redneck.ListMenu"
+			class "Redneck.MainMenu"
 		}
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
@@ -361,6 +361,7 @@ LISTMENU "MultiMenu"
 //
 //
 //-------------------------------------------------------------------------------------------
+/*
 
 ImageScroller "HelpMenu"
 {
@@ -458,3 +459,4 @@ ImageScroller "CreditsMenu"
 	}
 }
 	
+*/
