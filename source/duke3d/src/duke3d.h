@@ -164,6 +164,8 @@ struct GameInterface : ::GameInterface
 	void CustomMenuSelection(int menu, int item) override;
 	void StartGame(FGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
+	bool DrawSpecialScreen(const DVector2 &origin, int tilenum) override;
+	void DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position) override;
 
 };
 

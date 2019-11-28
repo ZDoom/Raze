@@ -3560,19 +3560,7 @@ DO_DEFSTATE:
                 initprintf("%s:%d: warning: duplicate dynamicremap statement\n",g_scriptFileName,g_lineNumber);
                 g_warningCnt++;
             }
-#ifdef DYNTILEREMAP_ENABLE
-#ifdef DEBUGGINGAIDS
-                else
-                    initprintf("Using dynamic tile remapping\n");
-#endif
             g_dynamicTileMapping = 1;
-#else
-            else
-            {
-                initprintf("%s:%d: warning: dynamic tile remapping is disabled in this build\n",g_scriptFileName,g_lineNumber);
-                g_warningCnt++;
-            }
-#endif
             continue;
 
         case CON_DYNAMICSOUNDREMAP:

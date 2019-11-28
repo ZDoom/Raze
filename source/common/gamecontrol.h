@@ -7,12 +7,16 @@
 #include "zstring.h"
 #include "inputstate.h"
 #include "gamecvars.h"
+#include "tarray.h"
+#include "name.h"
 
 EXTERN_CVAR(Int, cl_defaultconfiguration)
 
 extern FString currentGame;
 extern FString LumpFilter;
 class FArgs;
+
+extern TMap<FName, int32_t> NameToTileIndex;
 
 void D_AddWildFile(TArray<FString>& wadfiles, const char* value);
 

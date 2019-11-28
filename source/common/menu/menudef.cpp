@@ -142,6 +142,8 @@ struct gamefilter
 static const gamefilter games[] = {
 	{ "Duke", GAMEFLAG_DUKE},
 	{ "Nam", GAMEFLAG_NAM|GAMEFLAG_NAPALM},
+	{ "NamOnly", GAMEFLAG_NAM},	// for cases where the difference matters.
+	{ "Napalm", GAMEFLAG_NAPALM},
 	{ "WW2GI", GAMEFLAG_WW2GI},
 	{ "Fury", GAMEFLAG_FURY},
 	{ "Redneck", GAMEFLAG_RR},
@@ -149,6 +151,19 @@ static const gamefilter games[] = {
 	{ "Blood", GAMEFLAG_BLOOD},
 	{ "ShadowWarrior", GAMEFLAG_SW},
 };
+
+// for other parts that need to filter by game name.
+bool validFilter(const char *str)
+{
+	for (auto &gf : games)
+	{
+		if (g_gameType & gf.gameflag)
+		{
+			if (!stricmp(str, gf.gamename)) return true;
+		}
+	}
+	return false;
+}
 
 
 static bool CheckSkipGameBlock(FScanner &sc)
@@ -532,6 +547,85 @@ static void ParseListMenu(FScanner &sc)
 	desc->mWRight = 0;
 
 	ParseListMenuBody(sc, desc);
+	bool scratch = ReplaceMenu(sc, desc);
+	if (scratch) delete desc;
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+static void ParseImageScrollerBody(FScanner &sc, FImageScrollerDescriptor *desc)
+{
+	sc.MustGetStringName("{");
+	while (!sc.CheckString("}"))
+	{
+		sc.MustGetString();
+		if (sc.Compare("else"))
+		{
+			SkipSubBlock(sc);
+		}
+		else if (sc.Compare("ifgame"))
+		{
+			if (!CheckSkipGameBlock(sc))
+			{
+				// recursively parse sub-block
+				ParseImageScrollerBody(sc, desc);
+			}
+		}
+		else if (sc.Compare("ifoption"))
+		{
+			if (!CheckSkipOptionBlock(sc))
+			{
+				// recursively parse sub-block
+				ParseImageScrollerBody(sc, desc);
+			}
+		}
+		else if (sc.Compare("TextItem") || sc.Compare("ImageItem"))
+		{
+			FImageScrollerDescriptor::ScrollerItem item;
+			sc.MustGetString();
+			item.text = sc.String;
+			int type = sc.Compare("TextItem");
+			if (type)
+			{
+				sc.MustGetStringName(",");
+				sc.MustGetNumber();
+				item.type = sc.Number; // y-coordinate
+			}
+			item.scriptID = INT_MAX;
+			if (sc.CheckString(","))
+			{
+				sc.MustGetNumber();
+				item.scriptID = sc.Number;
+			}
+			desc->mItems.Push(item);
+		}
+		else
+		{
+			sc.ScriptError("Unknown keyword '%s'", sc.String);
+		}
+	}
+}
+
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+static void ParseImageScroller(FScanner &sc)
+{
+	sc.MustGetString();
+
+	FImageScrollerDescriptor *desc = new FImageScrollerDescriptor;
+	desc->mType = MDESC_ImageScroller;
+	desc->mMenuName = sc.String;
+
+	ParseImageScrollerBody(sc, desc);
 	bool scratch = ReplaceMenu(sc, desc);
 	if (scratch) delete desc;
 }
@@ -947,6 +1041,10 @@ void M_ParseMenuDefs()
 			if (sc.Compare("LISTMENU"))
 			{
 				ParseListMenu(sc);
+			}
+			if (sc.Compare("ImageScroller"))
+			{
+				ParseImageScroller(sc);
 			}
 			else if (sc.Compare("DEFAULTLISTMENU"))
 			{

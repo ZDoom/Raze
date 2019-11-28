@@ -1926,35 +1926,6 @@ static void Menu_Pre(MenuID_t cm)
 }
 
 
-static void Menu_PreDrawBackground(MenuID_t cm, const vec2_t origin)
-{
-    switch (cm)
-    {
-    case MENU_CREDITS:
-    case MENU_CREDITS2:
-    case MENU_CREDITS3:
-
-    case MENU_LOAD:
-    case MENU_SAVE:
-        if (FURY)
-            break;
-        fallthrough__;
-    case MENU_CREDITS4:
-    case MENU_CREDITS5:
-        Menu_DrawBackground(origin);
-        break;
-
-    case MENU_STORY:
-        rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (100<<16), 65536L,0,TEXTSTORY,0,0,10+64);
-        break;
-
-    case MENU_F1HELP:
-        rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (100<<16), 65536L,0,F1HELP,0,0,10+64);
-        break;
-    }
-}
-
-
 static void Menu_DrawVerifyPrompt(int32_t x, int32_t y, const char * text, int numlines = 1)
 {
     mgametextcenter(x, y + (90<<16), text);

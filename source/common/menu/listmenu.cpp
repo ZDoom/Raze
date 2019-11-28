@@ -40,6 +40,8 @@
 #include "menu.h"
 #include "v_draw.h"
 #include "baselayer.h"
+#include "gamecontrol.h"
+#include "build.h"
 
 //=============================================================================
 //
@@ -619,3 +621,34 @@ int FListMenuItemPatch::GetWidth()
 		: 0;
 }
 
+//=============================================================================
+//
+// Fullscreen image drawer (move to its own source file!)
+//
+//=============================================================================
+
+void ImageScreen::Drawer()
+{
+	if (mDesc->mType == 0)
+	{
+		auto tileindexp = NameToTileIndex.CheckKey(mDesc->mText);
+		int tileindex;
+		if (tileindexp == nullptr)
+		{
+			// If this isn't a name, try a literal tile index;
+			auto c = mDesc->mMenuName.GetChars();
+			if (*c == '#') tileindex = (int)strtoll(c+1, nullptr, 0);
+			// Error out if the screen cannot be found, this is always a definition error that needs to be reported.
+			else I_Error("Invalid menu screen '%s'", mDesc->mMenuName.GetChars());
+		}
+		else tileindex = *tileindexp;
+		if (!gi->DrawSpecialScreen(origin, tileindex)) // allows the front end to do custom handling for a given image.
+		{
+			rotatesprite_fs(int(origin.X * 65536) + (160<<16), int(origin.Y * 65536) + (100<<16), 65536L,0,tileindex,0,0,10+64);
+		}
+	}
+	else
+	{
+		gi->DrawCenteredTextScreen(origin, mDesc->mText, mDesc->type);
+	}
+}

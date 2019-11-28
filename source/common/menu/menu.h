@@ -141,6 +141,7 @@ enum EMenuDescriptorType
 {
 	MDESC_ListMenu,
 	MDESC_OptionsMenu,
+	MDESC_ImageScroller,
 };
 
 struct FMenuDescriptor
@@ -252,7 +253,20 @@ struct FOptionMenuDescriptor : public FMenuDescriptor
 	}
 
 };
-						
+
+struct FImageScrollerDescriptor : public FMenuDescriptor
+{
+	struct ScrollerItem
+	{
+		int type; // 0: fullscreen image; 1: centered text
+		int scriptID;
+		FString text;
+	};
+	
+	TArray<ScrollerItem> mItems;
+};
+
+
 
 typedef TMap<FName, FMenuDescriptor *> MenuDescriptorList;
 
@@ -494,11 +508,11 @@ public:
 	DListMenu(DMenu *parent = NULL, FListMenuDescriptor *desc = NULL);
 	virtual void Init(DMenu *parent = NULL, FListMenuDescriptor *desc = NULL);
 	FListMenuItem *GetItem(FName name);
-	bool Responder (event_t *ev);
-	bool MenuEvent (int mkey, bool fromcontroller);
-	bool MouseEvent(int type, int x, int y);
-	void Ticker ();
-	void Drawer ();
+	bool Responder (event_t *ev) override;
+	bool MenuEvent (int mkey, bool fromcontroller) override;
+	bool MouseEvent(int type, int x, int y) override;
+	void Ticker () override;
+	void Drawer () override;
 	virtual void SelectionChanged() {}
 	void SetFocus(FListMenuItem *fc)
 	{
@@ -612,6 +626,33 @@ public:
 	}
 };
 
+
+//=============================================================================
+//
+// ImageScroller
+//
+//=============================================================================
+
+class DImageScrollerMenu : public DMenu
+{
+	
+};
+
+//=============================================================================
+//
+// Show a fullscreen image / centered text screen for an image scroller
+//
+//=============================================================================
+
+class ImageScreen : public DMenu // Todo: This should be global
+{
+	const FImageScrollerDescriptor::ScrollerItem *mDesc;
+	ImageScreen(const FImageScrollerDescriptor::ScrollerItem *it)
+	{
+		mDesc = it;
+	}
+	void Drawer() override;
+};
 
 //=============================================================================
 //

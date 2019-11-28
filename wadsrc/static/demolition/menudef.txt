@@ -1,13 +1,13 @@
 //-------------------------------------------------------------------------------------------
 //
-// 
+// Main Memu
 //
 //-------------------------------------------------------------------------------------------
 
 LISTMENU "MainMenu"
 {
 	ScriptId 0
-	ifgame(Duke, Nam, WW2GI, Fury)
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
 	{
 		ifgame(fury)
 		{
@@ -20,7 +20,14 @@ LISTMENU "MainMenu"
 			centermenu
 			animatedtransition
 		}
-		class "Duke.MainMenu"
+		ifgame(Duke, Nam, WW2GI, Fury)
+		{
+			class "Duke.ListMenu"
+		}
+		else
+		{
+			class "Redneck.ListMenu"
+		}
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
 		ifgame(fury)
@@ -31,16 +38,6 @@ LISTMENU "MainMenu"
 		{
 			NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		}
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
-	}
-	ifgame(Redneck, RedneckRides)
-	{
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
@@ -67,6 +64,11 @@ LISTMENU "MainMenu"
 	}
 }
 
+//-------------------------------------------------------------------------------------------
+//
+// Ingame Memu (same as above with a few more options)
+//
+//-------------------------------------------------------------------------------------------
 
 LISTMENU "IngameMenu"
 {
@@ -84,19 +86,14 @@ LISTMENU "IngameMenu"
 			centermenu
 			animatedtransition
 		}
-		linespacing 15
-		class "Duke.MainMenu"
-		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
-		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_ENDGAME", "e", "QuitToMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
-	}
-	ifgame(Redneck, RedneckRides)
-	{
-		linespacing 15
+		ifgame(Duke, Nam, WW2GI, Fury)
+		{
+			class "Duke.ListMenu"
+		}
+		else
+		{
+			class "Redneck.ListMenu"
+		}
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
@@ -128,24 +125,36 @@ LISTMENU "IngameMenu"
 	}
 }
 
+//-------------------------------------------------------------------------------------------
+//
+// Episode and skill menu are filled in programmatically
+//
+//-------------------------------------------------------------------------------------------
+
 LISTMENU "EpisodeMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury) // Ion Fury does not use this menu.
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides) // Ion Fury does not use this menu.
 	{
 		caption "$MNU_SELECTEPISODE"
 		position 160, 48, 142
 		centermenu
 		fixedspacing 5
 		animatedtransition
-		class "Duke.ListMenu"
+		ifgame(Duke, Nam, WW2GI, Fury)
+		{
+			class "Duke.ListMenu"
+		}
+		else
+		{
+			class "Redneck.ListMenu"
+		}
 	}
-
 	ScriptId 100
 }
 
 LISTMENU "SkillMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury) // Ion Fury does not use this menu.
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
 	{
 		ifgame(fury)
 		{
@@ -160,13 +169,25 @@ LISTMENU "SkillMenu"
 		}
 		caption "$MNU_SELECTSKILL"
 		fixedspacing 5
-		class "Duke.ListMenu"
+		ifgame(Duke, Nam, WW2GI, Fury)
+		{
+			class "Duke.ListMenu"
+		}
+		else
+		{
+			class "Redneck.ListMenu"
+		}
 		animatedtransition
 	}
 	ScriptId 110
 }
 
+//-------------------------------------------------------------------------------------------
+//
 // The custom menus are only supported by the EDuke32 frontend.
+//
+//-------------------------------------------------------------------------------------------
+
 LISTMENU "CustomGameMenu"
 {
 	caption "$MNU_NEWGAME"
@@ -305,14 +326,27 @@ LISTMENU "CustomSubMenu7"
 	class "Duke.ListMenu"
 }
 
+//-------------------------------------------------------------------------------------------
+//
+// No multiplayer support for now, but kept as a reminder.
+//
+//-------------------------------------------------------------------------------------------
+
 LISTMENU "MultiMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury) // Ion Fury does not use this menu.
+	ifgame(Duke, Nam, WW2GI, Fury)
 	{
 		position 160, 55, 135
 		centermenu
 		fixedspacing 5
-		class "Duke.ListMenu"
+		ifgame(Duke, Nam, WW2GI, Fury)
+		{
+			class "Duke.ListMenu"
+		}
+		else
+		{
+			class "Redneck.ListMenu"
+		}
 		animatedtransition
 	}
 
@@ -321,3 +355,106 @@ LISTMENU "MultiMenu"
 	NativeTextItem "$MNU_JOINGAME", "j", "JoinGameMenu"
 	NativeTextItem "$MNU_HOSTGAME", "h", "HostGameMenu"
 }
+
+//-------------------------------------------------------------------------------------------
+//
+//
+//
+//-------------------------------------------------------------------------------------------
+
+ImageScroller "HelpMenu"
+{
+	ifgame(Duke, Nam, WW2GI, Fury)
+	{
+		ImageItem "TEXTSTORY", 400
+		ImageItem "F1HELP", 401
+	}
+	ifgame(Redneck, RedneckRides)
+	{
+		ImageItem "TEXTSTORY"
+		ImageItem "F1HELP"
+		ImageItem "RRTILE1636"
+	}
+}
+
+//-------------------------------------------------------------------------------------------
+//
+// Credits menu. This is logically highly game specific.
+// Note that this has been split into two submenus so that the engine
+// credits can be handled in a generic fashion instead of having to define
+// them for each game natively.
+//
+// Engine credits are now in the options menu, i.e. the generic part of the menu.
+//
+//-------------------------------------------------------------------------------------------
+
+ImageScroller "CreditsMenu"
+{
+	ifgame(Duke, Nam, WW2GI, Fury)
+	{
+		ImageItem "CREDITSTEXT1", 990
+		ImageItem "CREDITSTEXT2", 991
+		ImageItem "CREDITSTEXT3", 992
+	}
+	ifgame(Redneck)
+	{
+		// no point putting this into the string table.
+		TextItem "ORIGINAL CONCEPT, DESIGN AND DIRECTION\n\nDREW MARKHAM", 80
+		TextItem "PRODUCED BY\n\nGREG GOODRICH", 80
+		TextItem "GAME PROGRAMMING\n\nRAFAEL PAIZ", 80
+		TextItem "ART DIRECTORS\n\nCLAIRE PRADERIE     MAXX KAUFMAN ", 80
+		TextItem "LEAD LEVEL DESIGNER\nALEX MAYBERRY\n\nLEVEL DESIGN\nMAL BLACKWELL\nSVERRE KVERNMO", 80
+		TextItem "SENIOR ANIMATOR AND ARTIST\n\nJASON HOOVER", 80
+		TextItem "TECHNICAL DIRECTOR\n\nBARRY DEMPSEY", 80
+		TextItem "MOTION CAPTURE SPECIALIST AND\nCHARACTER ANIMATION\nAMIT DORON\n\nA.I. PROGRAMMING\nARTHUR DONAVAN\n\nADDITIONAL ANIMATION\nGEORGE KARL", 60
+		TextItem "CHARACTER DESIGN\nCORKY LEHMKUHL\n\nMAP PAINTERS\n"VIKTOR ANTONOV\nMATTHIAS BEEGUER\nSTEPHAN BURLE\n\nSCULPTORS\nGEORGE ENGEL\nJAKE GARBER\nJEFF HIMMEL", 50
+		TextItem "CHARACTER VOICES\n\nLEONARD\nBURTON GILLIAM\n\nBUBBA, BILLY RAY, SKINNY OL' COOT\nAND THE TURD MINION\nDREW MARKHAM\n\nSHERIFF LESTER T. HOBBES\nMOJO NIXON\n\nALIEN VIXEN\nPEGGY JO JACOBS", 40
+		TextItem "SOUND DESIGN\nGARY BRADFIELD\n\nMUSIC\nMOJO NIXON\nTHE BEAT FARMERS\nTHE REVEREND HORTON HEAT\nCEMENT POND\n\nADDITIONAL SOUND EFFECTS\nJIM SPURGIN", 50
+		TextItem "MOTION CAPTURE ACTOR\nJ.P. MANOUX\n\nMOTION CAPTURE VIXEN\nSHAWN WOLFE", 80
+		TextItem "PRODUCTION ASSISTANCE\nMINERVA MAYBERRY\n\nNUTS AND BOLTS\nSTEVE GOLDBERG\nMARCUS HUTCHINSON\n\nBEAN COUNTING\nMAX YOSHIKAWA\n\nADMINISTRATIVE ASSISTANCE\nSERAFIN LEWIS", 50
+		TextItem "LOCATION MANAGER, LOUISIANA\nRICK SKINNER\n\nLOCATION SCOUT, LOUISIANA\nBRIAN BENOS\n\nPHOTOGRAPHER\nCARLOS SERRAO", 70
+		TextItem "ADDITIONAL 3D MODELING BY\n3 NAME 3D\nVIEWPOINT DATALABS INTERNATIONAL\n\nAUDIO RECORDED AT\nPACIFIC OCEAN POST, SANTA MONICA, C.A.\n\nCEMENT POND TRACKS RECORDED AT\nDREAMSTATE RECORDING, BURBANK, C.A.\n\nRECORDING ENGINEER\nDAVE AHLERT", 50
+		TextItem "3D BUILD ENGINE LICENSED FROM\n3D REALMS ENTERTAINMENT\n\nBUILD ENGINE AND RELATED TOOLS\nCREATED BY KEN SILVERMAN", 80
+		TextItem "FOR INTERPLAY\n\nLEAD TESTER\nDARRELL JONES\n\nTESTERS\nTIM ANDERSON\nERICK LUJAN\nTIEN TRAN", 60
+		TextItem "IS TECHS\nBILL DELK\nAARON MEYERS\n\nCOMPATIBILITY TECHS\nMARC DURAN\nDAN FORSYTH\nDEREK GIBBS\nAARON OLAIZ\nJACK PARKER", 60
+		TextItem "DIRECTOR OF COMPATIBILITY\nPHUONG NGUYEN\n\nASSISTANT QA DIRECTOR\nCOLIN TOTMAN\n\nQA DIRECTOR\nCHAD ALLISON", 70
+		TextItem "INTERPLAY PRODUCER\nBILL DUGAN\n\nINTERPLAY LINE PRODUCER\nCHRIS BENSON\n\nPRODUCT MANAGER\nJIM VEEVAERT\n\nPUBLIC RELATIONS\nERIKA PRICE", 50
+		TextItem "SPECIAL THANKS\n\nJIM GAUER\nPAUL VAIS\nSCOTT MILLER\nTODD REPLOGLE\nCHUCK BUECHE\nCARTER LIPSCOMB\nJOHN CONLEY\nDON MAGGI", 60
+		TextItem "EXTRA SPECIAL THANKS\n\nBRIAN FARGO", 80
+		TextItem "REDNECK RAMPAGE\n(c) 1997 XATRIX ENTERTAINMENT, INC.\n\nREDNECK RAMPAGE IS A TRADEMARK OF\nINTERPLAY PRODUCTIONS", 60
+	}
+	ifgame(RedneckRides)
+	{
+		TextItem "ORIGINAL CONCEPT, DESIGN AND DIRECTION\n\nDREW MARKHAM", 80
+		TextItem "ART DIRECTION AND ADDITIONAL DESIGN\n\nCORKY LEHMKUHL", 80
+		TextItem "PRODUCED BY\n\nGREG GOODRICH", 80
+		TextItem "GAME PROGRAMMING\n\nJOSEPH AURILI", 80
+		TextItem "ORIGINAL GAME PROGRAMMING\n\nRAFAEL PAIZ", 80
+		TextItem "LEVEL DESIGN\n\nRHETT BALDWIN & AARON BARBER", 80
+		TextItem "ORIGINAL ART DIRECTION AND SUPPORT\n\nMAXX KAUFMAN & CLAIRE PRADERIE-MARKHAM", 80
+		TextItem "COMPUTER GRAPHICS SUPERVISOR &\nCHARACTER ANIMATION DIRECTION\n\nBARRY DEMPSEY", 80
+		TextItem "SENIOR ANIMATOR & MODELER\n\nJASON HOOVER", 80
+		TextItem "CHARACTER ANIMATION &\nMOTION CAPTURE SPECIALIST\n\nAMIT DORON", 80
+		TextItem "SOUND DESIGN &\nMUSIC PRODUCTION COORDINATION\n\nGARY BRADFIELD", 80
+		TextItem "INTRODUCTION ANIMATION\n\nDOMINIQUE DROZDZ", 80
+		TextItem "ARTIST\n\nMATTHIAS BEEGUER", 80
+		TextItem "ADDITIONAL ART\n\nVIKTOR ANTONOV", 80
+		TextItem "PRODUCTION COORDINATOR\n\nVICTORIA SYLVESTER", 80
+		TextItem "CHARACTER VOICES\n\nLEONARD\nBURTON GILLIAM\n\nDAISY MAE\nTARA CHARENDOFF\n\nBUBBA, BILLY RAY, SKINNY OL' COOT,\nFRANK THE BIKER, THE TURD MINION\n& ALL OTHER VARIOUS RAMBLINGS...\nDREW MARKHAM", 40
+		TextItem "SPECIAL APPEARENCE BY\n\nSHERIFF LESTER T. HOBBES\nMOJO NIXON\n\nALIEN VIXEN\nPEGGY JO JACOBS", 70
+		TextItem "REDNECK RAMPAGE TITLE TRACK & CYBERSEX\nWRITTEN & PERFORMED BY\nMOJO NIXON\n\n(c) MUFFIN'STUFFIN' MUSIC (BMI)\nADMINISTERED BY BUG.", 70
+		TextItem "MUSIC\n\nDISGRACELAND\nTINY D & THE SOFA KINGS\n\nBANJO AND GUITAR PICKIN\nJOHN SCHLOCKER\nHOWARD YEARWOOD", 60
+		TextItem "RECORDING ENGINEER\nDAVE AHLERT\n\nRECORDING ASSISTANCE\nJEFF GILBERT", 80
+		TextItem "MOTION CAPTURE ACTOR\nJ.P. MANOUX\n\nMOTION CAPTURE ACTRESS\nSHAWN WOLFE", 80
+		TextItem "THIS GAME COULD NOT HAVE BEEN MADE WITHOUT\nALEX MAYBERRY\nMAL BLACKWELL\n\nNUTS AND BOLTS\nSTEVE GOLDBERG\n\nBEAN COUNTING\nMAX YOSHIKAWA\n\nADMINISTRATIVE ASSISTANCE\nMINERVA MAYBERRY", 50
+		TextItem "FOR INTERPLAY\n\nPRODUCER\nBILL DUGAN\n\nLINE PRODUCER\nCHRIS BENSON\n\nLEAD TESTER\nDARRELL JONES", 60
+		TextItem "TESTERS\n\nTIM ANDERSON\nPRIMO PULANCO\nMARK MCCARTY\nBRIAN AXLINE", 70
+		TextItem "PRODUCTION BABY\n\nPAULINE MARIE MARKHAM", 80
+		TextItem "ORIGINAL PRODUCTION BABY\n\nALYSON KAUFMAN", 80
+		TextItem "3D BUILD ENGINE LICENSED FROM\n3D REALMS ENTERTAINMENT\n\nBUILD ENGINE AND RELATED TOOLS\nCREATED BY KEN SILVERMAN", 80
+		TextItem "SPECIAL THANKS\n\nSCOTT MILLER\nGEORGE BROUSSARD", 80
+		TextItem "EXTRA SPECIAL THANKS\n\nBRIAN FARGO", 80
+		TextItem "REDNECK RAMPAGE RIDES AGAIN\n(c) 1998 XATRIX ENTERTAINMENT, INC.\n\nREDNECK RAMPAGE RIDES AGAIN\nIS A TRADEMARK OF\nINTERPLAY PRODUCTIONS", 70
+	}
+}
+	

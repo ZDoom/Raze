@@ -43,6 +43,7 @@
 #include "c_cvars.h"
 #include "printf.h"
 
+bool validFilter(const char *str);
 EXTERN_CVAR(String, language)
 CUSTOM_CVAR(Int, cl_gender, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
@@ -239,12 +240,21 @@ bool FStringTable::ParseLanguageCSV(int lumpnum, const TArray<uint8_t> &buffer)
 		for (unsigned i = 1; i < data.Size(); i++)
 		{
 			auto &row = data[i];
-#if 0
+#if 1
 			if (filtercol > -1)
 			{
 				auto filterstr = row[filtercol];
 				auto filter = filterstr.Split(" ", FString::TOK_SKIPEMPTY);
-				if (filter.Size() > 0 && filter.FindEx([](const auto &str) { return str.CompareNoCase(GameNames[gameinfo.gametype]) == 0; }) == filter.Size())
+				bool ok = false;
+				for (auto &entry : filter)
+				{
+					if (validFilter(entry))
+					{
+						ok = true;
+						break;
+					}
+				}
+				if (!ok) continue;
 					continue;
 			}
 #endif

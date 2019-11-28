@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "namesdyn.h"
 #include "global.h"
+#include "gamecontrol.h"
 
 BEGIN_RR_NS
 
@@ -2965,6 +2966,7 @@ void G_InitDynamicTiles(void)
             *(g_dynTileList[i].dynvalptr) = -g_dynTileList[i].staticval_rr;
             if (RRRA && *(g_dynTileList[i].dynvalptr) == -UFO1__STATICRR) *(g_dynTileList[i].dynvalptr) = -UFO1__STATICRRRA;
             DynamicTileMap[*(g_dynTileList[i].dynvalptr)] = g_dynTileList[i].staticval_rr;
+			NameToTileIndex.Insert(g_dynTileList[i].str, *(g_dynTileList[i].dynvalptr));
         }
         for (i = 0; g_dynWeaponList[i].staticval >= 0; i++)
             *(g_dynWeaponList[i].dynvalptr) = g_dynWeaponList[i].staticval_rr;
@@ -2974,7 +2976,10 @@ void G_InitDynamicTiles(void)
 
     for (i=0; g_dynTileList[i].staticval >= 0; i++)
         if (g_dynTileList[i].staticval > 0)
+		{
             DynamicTileMap[*(g_dynTileList[i].dynvalptr)] = g_dynTileList[i].staticval;
+			NameToTileIndex.Insert(g_dynTileList[i].str, *(g_dynTileList[i].dynvalptr));
+		}
 
     for (i=0; g_dynWeaponList[i].staticval >= 0; i++)
         DynamicWeaponMap[*(g_dynWeaponList[i].dynvalptr)] = g_dynWeaponList[i].staticval;
