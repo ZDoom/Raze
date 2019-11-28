@@ -1765,9 +1765,6 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 
         FX_StopAllSounds();
         S_ClearSoundLocks();
-
-        if (MusicEnabled())
-            S_RestartMusic();
     }
     else if (entry == &ME_SAVESETUP_CLEANUP)
     {
@@ -1831,7 +1828,6 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
             S_PauseMusic(true);
         else
         {
-            S_RestartMusic();
             S_PauseMusic(false);
         }
     }

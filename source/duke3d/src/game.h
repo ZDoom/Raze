@@ -481,11 +481,6 @@ static inline int G_GetViewscreenSizeShift(uspriteptr_t const spr)
 #endif
 }
 
-extern void G_PrintCurrentMusic(void);
-
-#ifdef LUNATIC
-void El_SetCON(const char *conluacode);
-#endif
 
 EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
 

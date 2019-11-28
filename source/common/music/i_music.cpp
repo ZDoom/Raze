@@ -140,6 +140,12 @@ CUSTOM_CVARD(Int, mus_volume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls mus
 	}
 }
 
+CUSTOM_CVARD(Bool, mus_enabled, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables music")
+{
+	if (self) S_RestartMusic();
+	else S_StopMusic(true);
+}
+
 //==========================================================================
 //
 // Callbacks for the music system.

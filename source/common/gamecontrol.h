@@ -100,7 +100,7 @@ extern UserConfig userConfig;
 
 inline bool MusicEnabled()
 {
-	return mus_enabled && !userConfig.nomusic;
+	return !userConfig.nomusic;
 }
 
 inline bool SoundEnabled()

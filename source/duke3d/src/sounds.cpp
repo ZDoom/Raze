@@ -119,19 +119,6 @@ void S_PauseSounds(bool paused)
     }
 }
 
-void S_RestartMusic(void)
-{
-	// Fixme: This should be completely decided by the backend, not here.
-    if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
-    {
-        S_PlayLevelMusicOrNothing(g_musicIndex);
-    }
-    else if (G_GetLogoFlags() & LOGO_PLAYMUSIC)
-    {
-        S_PlaySpecialMusicOrNothing(MUS_INTRO);
-    }
-}
-
 void S_MenuSound(void)
 {
     static int SoundNum;

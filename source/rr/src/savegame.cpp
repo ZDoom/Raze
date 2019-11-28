@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "gamecontrol.h"
 #include "version.h"
+#include "z_music.h"
 
 #include "savegamehelp.h"
 BEGIN_RR_NS
@@ -1687,24 +1688,10 @@ static void postloadplayer(int32_t savegamep)
     //2.5
     if (savegamep)
     {
-        int32_t musicIdx = (ud.music_episode*MAXLEVELS) + ud.music_level;
-
         Bmemset(gotpic, 0, sizeof(gotpic));
         S_ClearSoundLocks();
         G_CacheMapData();
-
-        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0 && ud.music_level == 7 && ud.music_episode == 0)
-        {
-            char levname[BMAX_PATH];
-            G_SetupFilenameBasedMusic(levname, boardfilename, ud.level_number);
-        }
-
-        if (g_mapInfo[musicIdx].musicfn != NULL && (musicIdx != g_musicIndex || different_user_map))
-        {
-            ud.music_episode = g_musicIndex / MAXLEVELS;
-            ud.music_level   = g_musicIndex % MAXLEVELS;
-            S_PlayLevelMusicOrNothing(musicIdx);
-        }
+		MUS_ResumeSaved();
 
         if (MusicEnabled())
             S_PauseMusic(false);

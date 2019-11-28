@@ -1189,7 +1189,6 @@ void MusicStartup(void)
     else
     {
         buildprintf("Music error: %s\n", MUSIC_ErrorString(status));
-        mus_enabled = FALSE;
         return;
     }
 

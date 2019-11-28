@@ -43,6 +43,7 @@
 #include "filesystem/filesystem.h"
 #include "statistics.h"
 #include "secrets.h"
+#include "s_music.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -74,8 +75,10 @@ bool OpenSaveGameForRead(const char *name)
 
 	if (savereader != nullptr)
 	{
+		// Load system-side data from savegames.
 		ReadStatistics();
 		SECRET_Load();
+		MUS_Restore();
 	}
 
 	return savereader != nullptr;
@@ -142,8 +145,10 @@ void G_WriteSaveHeader(const char *name, const char*mapname, const char *maptitl
 	sjson_free_string(ctx, encoded);
 	sjson_destroy_context(ctx);
 
+	// Handle system-side modules that need to persist data in savegames here, in a central place.
 	SaveStatistics();
 	SECRET_Save();
+	MUS_Save();
 }
 
 //=============================================================================

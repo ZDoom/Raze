@@ -71,7 +71,6 @@ inline void S_ClearSoundLocks(void) {}
 int32_t S_LoadSound(uint32_t num);
 void S_PrecacheSounds(void);
 void S_MenuSound(void);
-void S_RestartMusic(void);
 void S_PauseMusic(bool paused);
 void S_PauseSounds(bool paused);
 void S_PlayRRMusic(int newTrack = -1);

@@ -4411,11 +4411,6 @@ extern int G_StartRTS(int lumpNum, int localPlayer)
     return 0;
 }
 
-void G_PrintCurrentMusic(void)
-{
-    Bsnprintf(apStrings[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", g_mapInfo[g_musicIndex].musicfn);
-    P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
-}
 
 // Trying to sanitize the mess of options and the mess of variables the mess was stored in. (Did I say this was a total mess before...? >) )
 // Hopefully this is more comprehensible, at least it neatly stores everything useful in a single linear value...
@@ -4662,25 +4657,6 @@ void G_HandleLocalKeys(void)
         {
             if (SHIFTS_IS_PRESSED)
             {
-                if (ridiculeNum == 5 && myplayer.fta > 0 && myplayer.ftq == QUOTE_MUSIC)
-                {
-                    const unsigned int maxi = VOLUMEALL ? MUS_FIRST_SPECIAL : 6;
-
-                    unsigned int const oldMusicIndex = g_musicIndex;
-                    unsigned int MyMusicIndex = g_musicIndex;
-                    do
-                    {
-                        ++MyMusicIndex;
-                        if (MyMusicIndex >= maxi)
-                            MyMusicIndex = 0;
-                    }
-                    while (S_TryPlayLevelMusic(MyMusicIndex) && MyMusicIndex != oldMusicIndex);
-
-                    G_PrintCurrentMusic();
-
-                    return;
-                }
-
                 G_AddUserQuote(*CombatMacros[ridiculeNum-1]);
 				Net_SendTaunt(ridiculeNum);
 
@@ -4710,21 +4686,6 @@ void G_HandleLocalKeys(void)
             buttonMap.ClearButton(gamefunc_SendMessage);
             myplayer.gm |= MODE_TYPE;
             typebuf[0] = 0;
-        }
-
-        if (inputState.UnboundKeyPressed(sc_F5) && MusicEnabled())
-        {
-            map_t *const pMapInfo    = &g_mapInfo[g_musicIndex];
-            char *const  musicString = apStrings[QUOTE_MUSIC];
-
-            inputState.ClearKeyStatus(sc_F5);
-
-            if (pMapInfo->musicfn != NULL)
-                Bsnprintf(musicString, MAXQUOTELEN, "%s.  Use SHIFT-F5 to change.", pMapInfo->musicfn);
-            else
-                musicString[0] = '\0';
-
-            P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
         }
 
         if ((buttonMap.ButtonDown(gamefunc_Quick_Save) || g_doQuickSave == 1) && (myplayer.gm & MODE_GAME))

@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "version.h"
 #include "savegamehelp.h"
 #include "menu/menu.h"
+#include "z_music.h"
 
 BEGIN_DUKE_NS
 
@@ -2110,29 +2111,10 @@ static void postloadplayer(int32_t savegamep)
     //2.5
     if (savegamep)
     {
-        int32_t musicIdx = (ud.music_episode*MAXLEVELS) + ud.music_level;
-
-        Bmemset(gotpic, 0, sizeof(gotpic));
+		Bmemset(gotpic, 0, sizeof(gotpic));
         S_ClearSoundLocks();
         G_CacheMapData();
-
-        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0 && ud.music_level == USERMAPMUSICFAKELEVEL && ud.music_episode == USERMAPMUSICFAKEVOLUME)
-        {
-            char levname[BMAX_PATH];
-            G_SetupFilenameBasedMusic(levname, boardfilename);
-        }
-
-        if (g_mapInfo[musicIdx].musicfn != NULL && (musicIdx != g_musicIndex || different_user_map))
-        {
-            ud.music_episode = g_musicIndex / MAXLEVELS;
-            ud.music_level   = g_musicIndex % MAXLEVELS;
-            S_PlayLevelMusicOrNothing(musicIdx);
-        }
-        else
-            S_ContinueLevelMusic();
-
-        if (MusicEnabled())
-            S_PauseMusic(false);
+		MUS_ResumeSaved();
 
         g_player[myconnectindex].ps->gm = MODE_GAME;
         ud.recstat = 0;

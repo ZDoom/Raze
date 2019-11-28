@@ -5956,12 +5956,6 @@ extern int G_StartRTS(int lumpNum, int localPlayer)
     return 0;
 }
 
-void G_PrintCurrentMusic(void)
-{
-    Bsnprintf(apStrings[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", g_mapInfo[g_musicIndex].musicfn);
-    P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
-}
-
 // Trying to sanitize the mess of options and the mess of variables the mess was stored in. (Did I say this was a total mess before...? >) )
 // Hopefully this is more comprehensible, at least it neatly stores everything useful in a single linear value...
 bool GameInterface::validate_hud(int layout)
@@ -6206,24 +6200,6 @@ void G_HandleLocalKeys(void)
         {
             if (SHIFTS_IS_PRESSED)
             {
-                if (ridiculeNum == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == QUOTE_MUSIC)
-                {
-                    const unsigned int maxi = VOLUMEALL ? MUS_FIRST_SPECIAL : 6;
-
-                    unsigned int MyMusicIndex = g_musicIndex;
-                    do
-                    {
-                        ++MyMusicIndex;
-                        if (MyMusicIndex >= maxi)
-                            MyMusicIndex = 0;
-                    }
-                    while (S_TryPlayLevelMusic(MyMusicIndex));
-
-                    G_PrintCurrentMusic();
-
-                    return;
-                }
-
                 G_AddUserQuote(*CombatMacros[ridiculeNum-1]);
 				Net_SendTaunt(ridiculeNum);
 				pus = NUMPAGES;

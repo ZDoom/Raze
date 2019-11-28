@@ -474,7 +474,6 @@ static inline int G_GetViewscreenSizeShift(const uspritetype *tspr)
 #endif
 }
 
-extern void G_PrintCurrentMusic(void);
 
 EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
 

@@ -68,6 +68,8 @@
 #include "c_dispatch.h"
 #include "gamecontrol.h"
 #include "filereadermusicinterface.h"
+#include "savegamehelp.h"
+#include "sjson.h"
 
 MusPlayingInfo mus_playing;
 MusicAliasMap MusicAliases;
@@ -75,6 +77,7 @@ MidiDeviceMap MidiDevices;
 MusicVolumeMap MusicVolumes;
 MusicAliasMap LevelMusicAliases;
 bool MusicPaused;
+static bool mus_blocked;
 //==========================================================================
 //
 // 
@@ -190,6 +193,7 @@ void S_ResumeMusic ()
 
 void S_UpdateMusic ()
 {
+	mus_blocked = false;
 	if (mus_playing.handle != nullptr)
 	{
 		ZMusic_Update(mus_playing.handle);
@@ -360,8 +364,8 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		// shutdown old music
 		S_StopMusic (true);
 
-		// Just record it if volume is 0
-		if (mus_volume <= 0)
+		// Just record it if volume is 0 or music was disabled
+		if (mus_volume <= 0 || !mus_enabled)
 		{
 			mus_playing.loop = looping;
 			mus_playing.name = musicname;
@@ -416,12 +420,11 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 //
 // S_RestartMusic
 //
-// Must only be called from snd_reset in i_sound.cpp!
 //==========================================================================
 
 void S_RestartMusic ()
 {
-	if (!mus_playing.LastSong.IsEmpty())
+	if (!mus_playing.LastSong.IsEmpty() && mus_volume > 0 && mus_enabled)
 	{
 		FString song = mus_playing.LastSong;
 		mus_playing.LastSong = "";
@@ -557,6 +560,7 @@ CCMD (stopmus)
 static FString lastMusicLevel, lastMusic;
 int Mus_Play(const char *mapname, const char *fn, bool loop)
 {
+	if (mus_blocked) return 0;
 	// Store the requested names for resuming.
 	lastMusicLevel = mapname;
 	lastMusic = fn;
@@ -588,6 +592,7 @@ int Mus_Play(const char *mapname, const char *fn, bool loop)
 
 void Mus_Stop()
 {
+	if (mus_blocked) return;
 	S_StopMusic(true);
 }
 
@@ -597,3 +602,64 @@ void Mus_SetPaused(bool on)
 	else S_ResumeMusic();
 }
 
+void MUS_Save()
+{
+	FString music = mus_playing.name;
+	if (music.IsEmpty()) music = mus_playing.LastSong;
+	
+	sjson_context* ctx = sjson_create_context(0, 0, NULL);
+	if (!ctx)
+	{
+		return;
+	}
+	sjson_node* root = sjson_mkobject(ctx);
+	sjson_put_string(ctx, root, "music", music);
+	sjson_put_int(ctx, root, "baseorder", mus_playing.baseorder);
+	sjson_put_bool(ctx, root, "loop", mus_playing.loop);
+
+	char* encoded = sjson_stringify(ctx, root, "  ");
+	
+	FileWriter* fil = WriteSavegameChunk("music.json");
+	if (!fil)
+	{
+		sjson_destroy_context(ctx);
+		return;
+	}
+	
+	fil->Write(encoded, strlen(encoded));
+	
+	sjson_free_string(ctx, encoded);
+	sjson_destroy_context(ctx);
+}
+
+bool MUS_Restore()
+{
+	auto fil = ReadSavegameChunk("music.json");
+	if (!fil.isOpen())
+	{
+		return false;
+	}
+
+	auto text = fil.ReadPadded(1);
+	fil.Close();
+
+	if (text.Size() == 0)
+	{
+		return false;
+	}
+
+	sjson_context* ctx = sjson_create_context(0, 0, NULL);
+	sjson_node* root = sjson_decode(ctx, (const char*)text.Data());
+	mus_playing.LastSong = sjson_get_string(root, "music", "");
+	mus_playing.baseorder = sjson_get_int(root, "baseorder", 0);
+	mus_playing.loop = sjson_get_bool(root, "loop", true);
+	sjson_destroy_context(ctx);
+	mus_blocked = true; // this is to prevent scripts from resetting the music after it has been loaded from the savegame.
+	
+	return true;
+}
+
+void MUS_ResumeSaved()
+{
+	S_RestartMusic();
+}
