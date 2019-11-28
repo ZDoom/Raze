@@ -98,8 +98,6 @@ void FillWeapons(short nPlayer)
 {
     nPlayerWeapons[nPlayer] = 0xFFFF; // turn on all bits
 
-    StatusMessage(150, "All weapons ON");
-
     for (int i = 0; i < kMaxWeapons; i++)
     {
         if (WeaponInfo[i].d) {
