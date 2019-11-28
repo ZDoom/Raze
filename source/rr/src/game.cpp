@@ -7657,7 +7657,9 @@ MAIN_LOOP_RESTART:
 
         //if (g_networkMode != NET_DEDICATED_SERVER)
         {
-            if (G_PlaybackDemo())
+			M_StartControlPanel(false);
+			M_SetMenu(NAME_MainMenu);
+			if (G_PlaybackDemo())
             {
                 FX_StopAllSounds();
                 g_noLogoAnim = 1;

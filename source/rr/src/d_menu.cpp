@@ -64,16 +64,16 @@ enum MenuTextFlags_t
 // common font types
 // tilenums are set after namesdyn runs.
 // These are also modifiable by scripts.
-//                                      emptychar x,y       between x,y         zoom                cursorLeft          cursorCenter        cursorScale         textflags
-//                                      tilenum             shade_deselected    shade_disabled      pal                 pal_selected        pal_deselected      pal_disabled
-MenuFont_t MF_Redfont =               { { 5<<16, 15<<16 },  { 0, 0 },           65536,              20<<16,             110<<16,            65536,              TEXT_BIGALPHANUM | TEXT_UPPERCASE,
-                                        -1,                 10,                 0,                  0,                  0,                  0,                  1,
+//                                      emptychar x,y       between x,y         zoom                cursorLeft          cursorCenter        cursorScale          textflags
+//                                      tilenum             shade_deselected    shade_disabled      pal                 pal_selected        pal_deselected       pal_disabled
+MenuFont_t MF_Redfont =               { { 5<<16, 15<<16 },  { 0, 0 },           65536,              20<<16,             110<<16,            65536, 65536, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE,
+                                        -1,                 10,                 0,                  0,                  0,                  0,                   1,
                                         0,                  0,                  1 };
-MenuFont_t MF_Bluefont =              { { 5<<16, 7<<16 },   { 0, 0 },           65536,              10<<16,             110<<16,            32768,              0,
-                                        -1,                 10,                 0,                  0,                  10,                 10,                 16,
+MenuFont_t MF_Bluefont =              { { 5<<16, 7<<16 },   { 0, 0 },           65536,              10<<16,             110<<16,            32768, 65536, 65536, 0,
+                                        -1,                 10,                 0,                  0,                  10,                 10,                  16,
                                         0,                  0,                  16 };
-MenuFont_t MF_Minifont =              { { 4<<16, 5<<16 },   { 1<<16, 1<<16 },   65536,              10<<16,             110<<16,            32768,              0,
-                                        -1,                 10,                 0,                  0,                  2,                  2,                  0,
+MenuFont_t MF_Minifont =              { { 4<<16, 5<<16 },   { 1<<16, 1<<16 },   65536,              10<<16,             110<<16,            32768, 65536, 65536, 0,
+                                        -1,                 10,                 0,                  0,                  2,                  2,                   0,
                                         0,                  0,                  16 };
 
 
@@ -81,6 +81,7 @@ MenuFont_t MF_Minifont =              { { 4<<16, 5<<16 },   { 1<<16, 1<<16 },   
 This function prepares data after ART and CON have been processed.
 It also initializes some data in loops rather than statically at compile time.
 */
+
 void Menu_Init(void)
 {
 
@@ -136,6 +137,7 @@ void Menu_Init(void)
 
 }
 
+
 static void Menu_DrawBackground(const DVector2 &origin)
 {
 	rotatesprite_fs(int(origin.X * 65536) + (MENU_MARGIN_CENTER << 16), int(origin.Y * 65536) + (100 << 16), 65536L, 0, MENUSCREEN, 16, 0, 10 + 64);
@@ -143,24 +145,23 @@ static void Menu_DrawBackground(const DVector2 &origin)
 
 static void Menu_DrawTopBar(const DVector2 &origin)
 {
-    rotatesprite_fs(int(origin.X*65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y*65536) + (19<<16), MF_Redfont.cursorScale, 0,MENUBAR,16,0,10);
+    rotatesprite_fs(int(origin.X*65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y*65536) + (19<<16), MF_Redfont.cursorScale3, 0,MENUBAR,16,0,10);
 }
 
-static void Menu_DrawTopBarCaption(const char *caption, const DVector2 &origin)
+static void Menu_DrawTopBarCaption(const char* caption, const DVector2& origin)
 {
-    static char t[64];
-	if (*caption == '$') caption = GStrings(caption + 1);
-    size_t const srclen = strlen(caption);
-    size_t const dstlen = min(srclen, ARRAY_SIZE(t)-1);
-    memcpy(t, caption, dstlen);
-    t[dstlen] = '\0';
-    char *p = &t[dstlen-1];
-    if (*p == ':')
-        *p = '\0';
-    captionmenutext(int(origin.X*65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y*65536) + (24<<16) + ((15>>1)<<16), t);
+	static char t[64];
+	size_t const srclen = strlen(caption);
+	size_t const dstlen = min(srclen, ARRAY_SIZE(t) - 1);
+	memcpy(t, caption, dstlen);
+	t[dstlen] = '\0';
+	char* p = &t[dstlen - 1];
+	if (*p == ':')
+		*p = '\0';
+	captionmenutext(int(origin.X * 65536) + (MENU_MARGIN_CENTER << 16), int(origin.Y * 65536) + (24 << 16) + (15 << 15), t);
 }
 
-static void Menu_GetFmt(const MenuFont_t* font, uint8_t const status, int32_t* s, int32_t* z)
+static void Menu_GetFmt(const MenuFont_t* font, uint8_t const status, int32_t* s)
 {
 	if (status & MT_Selected)
 		*s = sintable[((int32_t)totalclock << 5) & 2047] >> 12;
@@ -174,7 +175,7 @@ static void Menu_GetFmt(const MenuFont_t* font, uint8_t const status, int32_t* s
 static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t* font, const char* t, uint8_t status, int32_t ydim_upper, int32_t ydim_lower)
 {
 	int32_t s, p, ybetween = font->between.y;
-	int32_t f = font->textflags;
+	int32_t f = font->textflags | TEXT_RRMENUTEXTHACK;
 	if (status & MT_XCenter)
 		f |= TEXT_XCENTER;
 	if (status & MT_XRight)
@@ -196,7 +197,7 @@ static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t* font, const char
 	else
 		p = (status & MT_RightSide) ? font->pal_deselected_right : font->pal_deselected;
 
-	Menu_GetFmt(font, status, &s, &z);
+	Menu_GetFmt(font, status, &s);
 
 	return G_ScreenText(font->tilenum, x, y, z, 0, 0, t, s, p, 2 | 8 | 16 | ROTATESPRITE_FULL16, 0, font->emptychar.x, font->emptychar.y, font->between.x, ybetween, f, 0, ydim_upper, xdim - 1, ydim_lower);
 }
@@ -335,8 +336,11 @@ class MainMenu : public RedneckListMenu
 	void PreDraw() override
 	{
 		RedneckListMenu::PreDraw();
-		rotatesprite_fs(int((origin.X  + MENU_MARGIN_CENTER-5) * 65536), int((origin.Y + 57) * 65536), 16592L,0,RRRA? THREEDEE : INGAMEDUKETHREEDEE,0,0,10);
-	}	
+		if (RRRA)
+			rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER - 5) << 16), int(origin.Y * 65536) + ((57) << 16), 16592L, 0, THREEDEE, 0, 0, 10);
+		else
+			rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER + 5) << 16), int(origin.Y * 65536) + ((24) << 16), 23592L, 0, INGAMEDUKETHREEDEE, 0, 0, 10);
+	}
 };
 
 //----------------------------------------------------------------------------
