@@ -332,8 +332,8 @@ grpinfo
 
 grpinfo
 {
+	// This is for detecting zipped versions of the mod. The default configuration with all files dumped in the game filter requires starting the game with "-route66"
 	name "Redneck Rampage: Suckin' Grits on Route 66"
-	loaddirectory
 	scriptname "GAME66.CON"
 	mustcontain "TILESA66.ART", "TILESB66.ART", "CARNIVAL.MAP", "TRUCKSTP.MAP", "GAME66.CON"
 	flags GAMEFLAG_RR|GAMEFLAG_ADDON
@@ -370,13 +370,13 @@ grpinfo
 
 grpinfo
 {
+	// This is for detecting zipped versions of the mod. The default configuration with all files dumped in the game filter requires starting the game with "-cryptic"
 	name "BLOOD: Cryptic Passage"
-	loaddirectory
 	scriptname "CRYPTIC.INI"
 	mustcontain "CRYPTIC.INI", "CP01.MAP", "CP02.MAP"
 	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
 	dependency BLOOD_CRC
-	loadart "CPART07.AR_", "CPART15.AR_" // some versions have these file names, some have the real ones instead so these must be listed but cannot be used for checking.
+	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
 }
 
@@ -414,7 +414,7 @@ grpinfo
 {
 	name "Shadow Warrior Shareware 1.2"
 	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
-	crc 0x08A7FA1F´
+	crc 0x08A7FA1F
 	size 26056769
 	defname "sw.def"
 	gamefilter "ShadowWarrior.Shareware"
@@ -424,7 +424,7 @@ grpinfo
 {
 	name "Shadow Warrior Mac Demo"
 	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
-	crc 0x4227F535u
+	crc 0x4227F535
 	size 26056769
 	defname "sw.def"
 	gamefilter "ShadowWarrior.Shareware"
@@ -452,14 +452,3 @@ grpinfo
 	gamefilter "ShadowWarrior.TwinDragon"
 }
 
-
-
-internalgrpfile grpfiles[numgrpfiles] =
-{
-    { "Shadow Warrior",               SWREG12_CRC, 47536148, 0, 0 },
-    { "Shadow Warrior Shareware 1.0", 0xDAA6BECEu, 25702245, 0, 0 },
-    { "Shadow Warrior Shareware 1.1", 0xF21A6B35u, 25833456, 0, 0 },
-    { "Shadow Warrior Shareware 1.2", 0x08A7FA1Fu, 26056769, 0, 0 },
-    { "Shadow Warrior Mac Demo",      0x4227F535u, 26056769, 0, 0 },
-    { "Wanton Destruction",           SWWD_CRC, 48698128, GRP_HAS_DEPENDENCY, SWREG12_CRC },
-    { "Twin Dragon",                  SWTD_CRC, 12499012, GRP_HAS_DEPENDENCY, SWREG12_CRC },
