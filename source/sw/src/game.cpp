@@ -900,8 +900,8 @@ void InitGame()
 
     // LoadImages will now proceed to steal all the remaining heap space
     //_outtext("\n\n\n\n\n\n\n\n");
+    //buildputs("Loading sound and graphics...\n");
     //AnimateCacheCursor();
-    initprintf("Loading sound and graphics...\n");
 	TileFiles.LoadArtSet("tiles%03d.art");
 
     // Now free it up for later use
@@ -2930,53 +2930,6 @@ void DosScreen(void)
 {
 }
 
-#if 0 //PLOCK_VERSION
-void AlphaMessage(void)
-{
-    Global_PLock = TRUE; // Set the hardwired parental lock mode!
-    initprintf(""
-              "                          SHADOW WARRIOR(tm) Version 1.2                      \n"
-              "Copyright (c) 1997 3D Realms Entertainment\n"
-              "\n\n"
-              "     NOTE: This version of Shadow Warrior has been modified from it's\n"
-              "     original form.  All of the violent and mature content has been\n"
-              "     removed.  To download a patch to restore this version to its\n"
-              "     original form visit www.3drealms.com, www.gtinteractive.com, or look\n"
-              "     inside your retail packaging for information about this version.\n\n\n"
-              );
-}
-#endif
-
-#if 0 //UK_VERSION
-void AlphaMessage(void)
-{
-    initprintf(""
-              "                    SHADOW WARRIOR(tm) Version 1.2 (UK Version)               \n"
-              "Copyright (c) 1997 3D Realms Entertainment\n"
-              "\n\n"
-              "     NOTE: This is a modified version of Shadow Warrior created for the UK.\n"
-              "     It has been altered from its original version to replace \"shurikens\" \n"
-              "     with darts.  We apologize for the inconvenience and hope you enjoy the\n"
-              "     game.  Visit us on the web at www.3drealms.com.\n\n\n"
-              );
-}
-#endif
-
-#if 1 //!UK_VERSION && !PLOCK_VERSION
-void AlphaMessage(void)
-{
-	if (SW_SHAREWARE)
-	{
-	    initprintf("SHADOW WARRIOR(tm) Version 1.2 (Shareware Version)\n");
-	}
-	else
-	{
-	    initprintf("SHADOW WARRIOR(tm) Version 1.2\n");
-    }
-	initprintf("Copyright (c) 1997 3D Realms Entertainment\n\n");
-}
-#endif
-
 typedef struct
 {
     char    notshareware;
@@ -3099,6 +3052,14 @@ int32_t GameInterface::app_main()
     int cnt = 0;
     uint32_t TotalMemory;
 
+    if (argc > 1)
+    {
+        buildputs("Application parameters: ");
+        for (i = 1; i < argc; ++i)
+            buildprintf("%s ", argv[i]);
+        buildputs("\n");
+    }
+
     SW_ExtInit();
 
     CONFIG_ReadSetup();
@@ -3126,9 +3087,12 @@ int32_t GameInterface::app_main()
 
     DebugOperate = TRUE;
 
-    AlphaMessage();
+    if (SW_SHAREWARE)
+        buildputs("SHADOW WARRIOR(tm) Version 1.2 (Shareware Version)\n");
+    else
+        buildputs("SHADOW WARRIOR(tm) Version 1.2\n");
 
-    buildputs("\nType 'SW -?' for command line options.\n\n");
+    buildputs("Copyright (c) 1997 3D Realms Entertainment\n");
 
     UserMapName[0] = '\0';
 
