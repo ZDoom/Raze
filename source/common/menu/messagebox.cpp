@@ -345,7 +345,7 @@ bool DMessageBoxMenu::MouseEvent(int type, int x, int y)
 //
 //=============================================================================
 
-void M_StartMessage(const char *message, int messagemode, FName action)
+void M_StartMessage(const char *message, int messagemode, int scriptId, FName action)
 {
 	if (DMenu::CurrentMenu == NULL) 
 	{
@@ -354,6 +354,7 @@ void M_StartMessage(const char *message, int messagemode, FName action)
 	}
 	DMenu *newmenu = new DMessageBoxMenu(DMenu::CurrentMenu, message, messagemode, false, action);
 	newmenu->mParentMenu = DMenu::CurrentMenu;
+	newmenu->scriptID = scriptId;
 	M_ActivateMenu(newmenu);
 }
 

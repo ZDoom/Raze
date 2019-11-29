@@ -57,17 +57,44 @@ public:
 		mParam = param;
 	}
 
-	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected)
+	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected) override
 	{
 		drawLabel(indent, y, selected? OptionSettings.mFontColorSelection : OptionSettings.mFontColorMore);
 		return indent;
 	}
 
-	bool Activate()
+	bool Activate(FName caller) override
 	{
-		//S_Sound (CHAN_VOICE | CHAN_UI, "menu/choose", snd_menuvolume, ATTN_NONE);
+		M_MenuSound(CursorSound);
 		M_SetMenu(mAction, mParam);
 		return true;
+	}
+};
+
+
+//=============================================================================
+//
+// opens a submenu, command is a submenu name
+//
+//=============================================================================
+
+class FOptionMenuItemLabeledSubmenu : public FOptionMenuItemSubmenu
+{
+	FBaseCVar *mLabelCVar;
+	FOptionMenuItemLabeledSubmenu(const char * label, FBaseCVar *labelcvar, FName command, int param = 0)
+	 : FOptionMenuItemSubmenu(label, command, param)
+	{
+		mLabelCVar = labelcvar;
+	}
+
+	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected) override
+	{
+		drawLabel(indent, y, selected? OptionSettings.mFontColorSelection : OptionSettings.mFontColor);
+		
+		auto text = mLabelCVar->GetHumanString();
+		if (text[0] == 0) text = GStrings("notset");
+		drawValue(indent, y, OptionSettings.mFontColorValue, text);
+		return indent;
 	}
 };
 
@@ -86,9 +113,9 @@ public:
 	{
 	}
 
-	bool Activate()
+	bool Activate(FName caller) override
 	{
-		//S_Sound (CHAN_VOICE | CHAN_UI, "menu/choose", snd_menuvolume, ATTN_NONE);
+		M_MenuSound(AdvanceSound);
 		C_DoCommand(mAction);
 		return true;
 	}
@@ -104,13 +131,17 @@ public:
 class FOptionMenuItemSafeCommand : public FOptionMenuItemCommand
 {
 	// action is a CCMD
+	FString mPrompt;
+	int mScriptId;	// shouldn't be used, but just in case.
 public:
-	FOptionMenuItemSafeCommand(const char *label, const char *menu)
+	FOptionMenuItemSafeCommand(const char *label, const char *menu, const char *prompt = nullptr, int scriptid = INT_MAX)
 		: FOptionMenuItemCommand(label, menu)
 	{
+		mPrompt = prompt;
+		mScriptId = scriptid;
 	}
 
-	bool MenuEvent (int mkey, bool fromcontroller)
+	bool MenuEvent (int mkey, bool fromcontroller) override
 	{
 		if (mkey == MKEY_MBYes)
 		{
@@ -120,9 +151,15 @@ public:
 		return FOptionMenuItemCommand::MenuEvent(mkey, fromcontroller);
 	}
 
-	bool Activate()
+	bool Activate(FName caller) override
 	{
-		M_StartMessage("Do you really want to do this?", 0);
+		auto msg = mPrompt.IsNotEmpty()? mPrompt.GetChars() : "$SAFEMESSAGE";
+		if (*msg == '$') msg = GStrings(msg+1);
+		auto actionLabel = mLabel.GetChars();
+		if (*actionLabel == '$') actionLabel = GStrings(actionLabel+1);
+
+		FStringf FullString("%s%s%s\n\n%s", TEXTCOLOR_WHITE, actionLabel, TEXTCOLOR_NORMAL, msg);
+		M_StartMessage(FullString, 0, mScriptId);
 		return true;
 	}
 };
@@ -155,7 +192,7 @@ public:
 		mCenter = center;
 	}
 
-	bool SetString(int i, const char *newtext)
+	bool SetString(int i, const char *newtext) override
 	{
 		if (i == OP_VALUES) 
 		{
@@ -179,19 +216,16 @@ public:
 	virtual void SetSelection(int Selection) = 0;
 
 	//=============================================================================
-	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected)
+	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected) override
 	{
-		bool grayed = mGrayCheck != NULL && !(mGrayCheck->GetGenericRep(CVAR_Bool).Bool);
-
 		if (mCenter)
 		{
 			indent = (screen->GetWidth() / 2);
 		}
-		drawLabel(indent, y, selected? OptionSettings.mFontColorSelection : OptionSettings.mFontColor, grayed);
+		drawLabel(indent, y, selected? OptionSettings.mFontColorSelection : OptionSettings.mFontColor, isGrayed());
 
-		int overlay = grayed? MAKEARGB(96,48,0,0) : 0;
-		const char *text;
 		int Selection = GetSelection();
+		const char *text;
 		FOptionValues **opt = OptionValues.CheckKey(mValues);
 		if (Selection < 0 || opt == NULL || *opt == NULL)
 		{
@@ -202,13 +236,13 @@ public:
 			text = (*opt)->mValues[Selection].Text;
 		}
 		if (*text == '$') text = GStrings(text + 1);
-		DrawText(&twod,SmallFont, OptionSettings.mFontColorValue, indent + CURSORSPACE, y, 
-			text, DTA_CleanNoMove_1, true, DTA_ColorOverlay, overlay, TAG_DONE);
+
+		drawValue(indent, y, OptionSettings.mFontColorValue, text, isGrayed());
 		return indent;
 	}
 
 	//=============================================================================
-	bool MenuEvent (int mkey, bool fromcontroller)
+	bool MenuEvent (int mkey, bool fromcontroller) override
 	{
 		FOptionValues **opt = OptionValues.CheckKey(mValues);
 		if (opt != NULL && *opt != NULL && (*opt)->mValues.Size() > 0)
@@ -228,14 +262,19 @@ public:
 				return FOptionMenuItem::MenuEvent(mkey, fromcontroller);
 			}
 			SetSelection(Selection);
-			//S_Sound (CHAN_VOICE | CHAN_UI, "menu/change", snd_menuvolume, ATTN_NONE);
+			M_MenuSound(ChangeSound);
 		}
 		return true;
 	}
 
-	bool Selectable()
+	virtual bool isGrayed()
 	{
-		return !(mGrayCheck != NULL && !(mGrayCheck->GetGenericRep(CVAR_Bool).Bool));
+		return mGrayCheck != NULL && !(mGrayCheck->GetGenericRep(CVAR_Bool).Bool);
+	}
+
+	bool Selectable() override
+	{
+		return !isGrayed();
 	}
 };
 
@@ -258,7 +297,7 @@ public:
 	}
 
 	//=============================================================================
-	int GetSelection()
+	int GetSelection() override
 	{
 		int Selection = -1;
 		FOptionValues **opt = OptionValues.CheckKey(mValues);
@@ -292,7 +331,7 @@ public:
 		return Selection;
 	}
 
-	void SetSelection(int Selection)
+	void SetSelection(int Selection) override
 	{
 		UCVarValue value;
 		FOptionValues **opt = OptionValues.CheckKey(mValues);
@@ -333,27 +372,25 @@ public:
 		menuactive = MENU_WaitKey;	// There should be a better way to disable GUI capture...
 	}
 
-	bool TranslateKeyboardEvents()
+	bool TranslateKeyboardEvents() override
 	{
 		return false; 
 	}
 
 	void SetMenuMessage(int which)
 	{
-		/*
-		if (mParentMenu->IsKindOf(RUNTIME_CLASS(DOptionMenu)))
+		DOptionMenu *m = static_cast<DOptionMenu*>(mParentMenu);
+		if (m)
 		{
-			DOptionMenu *m = static_cast<DOptionMenu*>(mParentMenu);
 			FListMenuItem *it = m->GetItem(NAME_Controlmessage);
 			if (it != NULL)
 			{
 				it->SetValue(0, which);
 			}
 		}
-		*/
 	}
 
-	bool Responder(event_t *ev)
+	bool Responder(event_t *ev) override
 	{
 		if (ev->type == EV_KeyDown)
 		{
@@ -367,7 +404,7 @@ public:
 		return false;
 	}
 
-	void Drawer()
+	void Drawer() override
 	{
 		mParentMenu->Drawer();
 	}
@@ -395,27 +432,27 @@ public:
 
 
 	//=============================================================================
-	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected)
+	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected) override
 	{
-		drawLabel(indent, y, mWaiting? OptionSettings.mFontColorHighlight: 
+		drawLabel(indent, y, mWaiting? OptionSettings.mFontColorHighlight:
 			(selected? OptionSettings.mFontColorSelection : OptionSettings.mFontColor));
 
-		auto keys = mBindings->GetKeysForCommand(mAction);
-		auto description = C_NameKeys(keys.Data(), keys.Size());
-		if (description.IsNotEmpty())
+		auto binds = mBindings->GetKeysForCommand(mAction);
+		auto description = C_NameKeys(binds.Data(), binds.Size());
+
+		if (description.Len() > 0)
 		{
-			M_DrawConText(CR_WHITE, indent + CURSORSPACE, y + (OptionSettings.mLinespacing-8)*CleanYfac_1, description);
+			drawValue(indent, y, CR_WHITE, description);
 		}
 		else
 		{
-			DrawText(&twod,SmallFont, CR_BLACK, indent + CURSORSPACE, y + (OptionSettings.mLinespacing-8)*CleanYfac_1, "---",
-				DTA_CleanNoMove_1, true, TAG_DONE);
+			drawValue(indent, y, CR_BLACK, "---");
 		}
 		return indent;
 	}
 
 	//=============================================================================
-	bool MenuEvent(int mkey, bool fromcontroller)
+	bool MenuEvent(int mkey, bool fromcontroller) override
 	{
 		if (mkey == MKEY_Input)
 		{
@@ -436,9 +473,9 @@ public:
 		return false;
 	}
 
-	bool Activate()
+	bool Activate(FName caller) override
 	{
-		//S_Sound (CHAN_VOICE | CHAN_UI, "menu/choose", snd_menuvolume, ATTN_NONE);
+		M_MenuSound(AdvanceSound);
 		mWaiting = true;
 		DMenu *input = new DEnterKey(DMenu::CurrentMenu, &mInput);
 		M_ActivateMenu(input);
@@ -456,19 +493,19 @@ class FOptionMenuItemStaticText : public FOptionMenuItem
 {
 	EColorRange mColor;
 public:
-	FOptionMenuItemStaticText(const char *label, bool header)
+	FOptionMenuItemStaticText(const char *label, EColorRange color = CR_UNDEFINED)
 		: FOptionMenuItem(label, NAME_None, true)
 	{
-		mColor = header? OptionSettings.mFontColorHeader : OptionSettings.mFontColor;
+		mColor = color == CR_UNDEFINED? (EColorRange)OptionSettings.mFontColor : color;
 	}
 
-	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected)
+	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected) override
 	{
 		drawLabel(indent, y, mColor);
 		return -1;
 	}
 
-	bool Selectable()
+	bool Selectable() override
 	{
 		return false;
 	}
@@ -488,25 +525,25 @@ class FOptionMenuItemStaticTextSwitchable : public FOptionMenuItem
 	int mCurrent;
 
 public:
-	FOptionMenuItemStaticTextSwitchable(const char *label, const char *label2, FName action, bool header)
+	FOptionMenuItemStaticTextSwitchable(const char *label, const char *label2, FName action, EColorRange color = CR_UNDEFINED)
 		: FOptionMenuItem(label, action, true)
 	{
-		mColor = header? OptionSettings.mFontColorHeader : OptionSettings.mFontColor;
+		mColor = color == CR_UNDEFINED? (EColorRange)OptionSettings.mFontColor : color;
 		mAltText = label2;
 		mCurrent = 0;
 	}
 
-	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected)
+	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected) override
 	{
 		const char *txt = mCurrent? mAltText.GetChars() : mLabel.GetChars();
 		if (*txt == '$') txt = GStrings(txt + 1);
-		int w = SmallFont->StringWidth(txt) * CleanXfac_1;
+		int w = OptionWidth(txt) * CleanXfac_1;
 		int x = (screen->GetWidth() - w) / 2;
-		DrawText(&twod,SmallFont, mColor, x, y, txt, DTA_CleanNoMove_1, true, TAG_DONE);
+		drawText(x, y, mColor, txt);
 		return -1;
 	}
 
-	bool SetValue(int i, int val)
+	bool SetValue(int i, int val) override
 	{
 		if (i == 0) 
 		{
@@ -516,7 +553,7 @@ public:
 		return false;
 	}
 
-	bool SetString(int i, const char *newtext)
+	bool SetString(int i, const char *newtext) override
 	{
 		if (i == 0) 
 		{
@@ -526,7 +563,7 @@ public:
 		return false;
 	}
 
-	bool Selectable()
+	bool Selectable() override
 	{
 		return false;
 	}
@@ -547,8 +584,8 @@ class FOptionMenuSliderBase : public FOptionMenuItem
 	int mSliderShort;
 
 public:
-	FOptionMenuSliderBase(const char *label, double min, double max, double step, int showval)
-		: FOptionMenuItem(label, NAME_None)
+	FOptionMenuSliderBase(const char *label, double min, double max, double step, int showval, FName command = NAME_None)
+		: FOptionMenuItem(label, command)
 	{
 		mMin = min;
 		mMax = max;
@@ -566,6 +603,11 @@ public:
 	// Draw a slider. Set fracdigits negative to not display the current value numerically.
 	//
 	//=============================================================================
+	
+	void DrawSliderElement (int color, int x, int y, const char * str)
+	{
+		DrawText (&twod, ConFont, color, x, y, str, DTA_CellX, 16 * CleanXfac_1, DTA_CellY, 16 * CleanYfac_1);
+	}
 
 	void DrawSlider (int x, int y, double min, double max, double cur, int fracdigits, int indent)
 	{
@@ -588,36 +630,36 @@ public:
 
 		if (!mSliderShort)
 		{
-			M_DrawConText(CR_WHITE, x, cy, "\x10\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x12");
-			M_DrawConText(CR_ORANGE, x + int((5 + ((ccur * 78) / range)) * CleanXfac_1), cy, "\x13");
+			DrawSliderElement(CR_WHITE, x, cy, "\x10\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x12");
+			DrawSliderElement(CR_ORANGE, x + int((5 + ((ccur * 78) / range)) * CleanXfac_1), cy, "\x13");
 		}
 		else
 		{
 			// On 320x200 we need a shorter slider
-			M_DrawConText(CR_WHITE, x, cy, "\x10\x11\x11\x11\x11\x11\x12");
-			M_DrawConText(CR_ORANGE, x + int((5 + ((ccur * 38) / range)) * CleanXfac_1), cy, "\x13");
+			DrawSliderElement(CR_WHITE, x, cy, "\x10\x11\x11\x11\x11\x11\x12");
+			DrawSliderElement(CR_ORANGE, x + int((5 + ((ccur * 38) / range)) * CleanXfac_1), cy, "\x13");
 			right -= 5*8*CleanXfac_1;
 		}
 
 		if (fracdigits >= 0 && right + maxlen <= screen->GetWidth())
 		{
 			snprintf(textbuf, countof(textbuf), "%.*f", fracdigits, cur);
-			DrawText(&twod,SmallFont, CR_DARKGRAY, right, y, textbuf, DTA_CleanNoMove_1, true, TAG_DONE);
+			drawText(right, y, CR_DARKGRAY, textbuf);
 		}
 	}
 
 
 	//=============================================================================
-	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected)
+	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected) override
 	{
 		drawLabel(indent, y, selected? OptionSettings.mFontColorSelection : OptionSettings.mFontColor);
-		mDrawX = indent + CURSORSPACE;
+		mDrawX = indent + CursorSpace();
 		DrawSlider (mDrawX, y, mMin, mMax, GetSliderValue(), mShowValue, indent);
 		return indent;
 	}
 
 	//=============================================================================
-	bool MenuEvent (int mkey, bool fromcontroller)
+	bool MenuEvent (int mkey, bool fromcontroller) override
 	{
 		double value = GetSliderValue();
 
@@ -634,11 +676,11 @@ public:
 			return FOptionMenuItem::MenuEvent(mkey, fromcontroller);
 		}
 		SetSliderValue(clamp(value, mMin, mMax));
-		//S_Sound (CHAN_VOICE | CHAN_UI, "menu/change", snd_menuvolume, ATTN_NONE);
+		M_MenuSound(ChangeSound);
 		return true;
 	}
 
-	bool MouseEvent(int type, int x, int y)
+	bool MouseEvent(int type, int x, int y) override
 	{
 		DOptionMenu *lm = static_cast<DOptionMenu*>(DMenu::CurrentMenu);
 		if (type != DMenu::MOUSE_Click)
@@ -651,7 +693,7 @@ public:
 		}
 
 		int slide_left = mDrawX+8*CleanXfac_1;
-		int slide_right = slide_left + (10*8*CleanXfac_1 >> mSliderShort);	// 12 char cells with 8 pixels each.
+		int slide_right = slide_left + (10*8*CleanXfac_1 >> mSliderShort);	// 10 char cells with 8 pixels each.
 
 		if (type == DMenu::MOUSE_Click)
 		{
@@ -663,7 +705,7 @@ public:
 		if (v != GetSliderValue())
 		{
 			SetSliderValue(v);
-			////S_Sound (CHAN_VOICE | CHAN_UI, "menu/change", snd_menuvolume, ATTN_NONE);
+			M_MenuSound(ChangeSound);
 		}
 		if (type == DMenu::MOUSE_Click)
 		{
@@ -690,7 +732,7 @@ public:
 		mCVar = FindCVar(menu, NULL);
 	}
 
-	double GetSliderValue()
+	double GetSliderValue() override
 	{
 		if (mCVar != NULL)
 		{
@@ -702,7 +744,7 @@ public:
 		}
 	}
 
-	void SetSliderValue(double val)
+	void SetSliderValue(double val) override
 	{
 		if (mCVar != NULL)
 		{
@@ -730,12 +772,12 @@ public:
 		mPVal = pVal;
 	}
 
-	double GetSliderValue()
+	double GetSliderValue() override
 	{
 		return *mPVal;
 	}
 
-	void SetSliderValue(double val)
+	void SetSliderValue(double val) override
 	{
 		*mPVal = (float)val;
 	}
@@ -771,18 +813,15 @@ public:
 		return GetCVarString();
 	}
 
-	int Draw ( FOptionMenuDescriptor*, int y, int indent, bool selected )
+	int Draw ( FOptionMenuDescriptor*, int y, int indent, bool selected ) override
 	{
 		bool grayed = mGrayCheck != NULL && !( mGrayCheck->GetGenericRep( CVAR_Bool ).Bool );
-		drawLabel( indent, y, selected ? OptionSettings.mFontColorSelection : OptionSettings.mFontColor, grayed );
-		int overlay = grayed? MAKEARGB( 96, 48, 0, 0 ) : 0;
-
-		DrawText(&twod, SmallFont, OptionSettings.mFontColorValue, indent + CURSORSPACE, y,
-			Represent().GetChars(), DTA_CleanNoMove_1, true, DTA_ColorOverlay, overlay, TAG_DONE );
+		drawLabel(indent, y, selected ? OptionSettings.mFontColorSelection : OptionSettings.mFontColor, grayed);
+		drawValue(indent, y, OptionSettings.mFontColorValue, Represent(), grayed);
 		return indent;
 	}
 
-	bool GetString ( int i, char* s, int len )
+	bool GetString ( int i, char* s, int len ) override
 	{
 		if ( i == 0 )
 		{
@@ -794,7 +833,7 @@ public:
 		return false;
 	}
 
-	bool SetString ( int i, const char* s )
+	bool SetString ( int i, const char* s ) override
 	{
 		if ( i == 0 )
 		{
@@ -832,9 +871,9 @@ public:
 		FOptionMenuFieldBase ( label, menu, graycheck ),
 		mEntering ( false ) {}
 
-	FString Represent()
+	FString Represent() override
 	{
-		FString text = mEntering ? mEditName : GetCVarString();
+		FString text = mEntering ? mEditName : FString(GetCVarString());
 
 		if ( mEntering )
 			text += '_';
@@ -842,28 +881,28 @@ public:
 		return text;
 	}
 
-	int Draw(FOptionMenuDescriptor*desc, int y, int indent, bool selected)
+	int Draw(FOptionMenuDescriptor*desc, int y, int indent, bool selected) override
 	{
 		if (mEntering)
 		{
 			// reposition the text so that the cursor is visible when in entering mode.
 			FString text = Represent();
 			int tlen = SmallFont->StringWidth(text) * CleanXfac_1;
-			int newindent = screen->GetWidth() - tlen - CURSORSPACE;
+			int newindent = screen->GetWidth() - tlen - CursorSpace();
 			if (newindent < indent) indent = newindent;
 		}
 		return FOptionMenuFieldBase::Draw(desc, y, indent, selected);
 	}
 
-	bool MenuEvent ( int mkey, bool fromcontroller )
+	bool MenuEvent ( int mkey, bool fromcontroller ) override
 	{
 		if ( mkey == MKEY_Enter )
 		{
-			//S_Sound( CHAN_VOICE | CHAN_UI, "menu/choose", snd_menuvolume, ATTN_NONE );
-			strcpy( mEditName, GetCVarString() );
+			M_MenuSound(AdvanceSound);
+			mEditName = GetCVarString();
 			mEntering = true;
-			//DMenu* input = new DTextEnterMenu ( DMenu::CurrentMenu, mEditName, sizeof mEditName, 2, fromcontroller );
-			//M_ActivateMenu( input );
+			DMenu* input = new DTextEnterMenu ( DMenu::CurrentMenu, mEditName, sizeof mEditName, 2, fromcontroller );
+			M_ActivateMenu( input );
 			return true;
 		}
 		else if ( mkey == MKEY_Input )
@@ -889,7 +928,7 @@ public:
 
 private:
 	bool mEntering;
-	char mEditName[128];
+	FString mEditName;
 };
 
 //=============================================================================
@@ -918,7 +957,7 @@ public:
 			mStep = 1;
 	}
 
-	bool MenuEvent ( int mkey, bool fromcontroller )
+	bool MenuEvent ( int mkey, bool fromcontroller ) override
 	{
 		if ( mCVar )
 		{
@@ -944,7 +983,7 @@ public:
 			UCVarValue vval;
 			vval.Float = value;
 			mCVar->SetGenericRep( vval, CVAR_Float );
-			//S_Sound( CHAN_VOICE | CHAN_UI, "menu/change", snd_menuvolume, ATTN_NONE );
+			M_MenuSound(ChangeSound);
 		}
 
 		return true;

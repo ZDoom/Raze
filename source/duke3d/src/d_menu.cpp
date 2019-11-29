@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "version.h"
 #include "namesdyn.h"
+#include "menus.h"
 #include "../../glbackend/glbackend.h"
 
 BEGIN_DUKE_NS
@@ -429,16 +430,20 @@ void GameInterface::MenuOpened()
 	}
 }
 
-void GameInterface::MenuSound(::GameInterface::EMenuSounds snd)
+void GameInterface::MenuSound(EMenuSounds snd)
 {
 	switch (snd)
 	{
-		case SelectSound:
+		case CursorSound:
 			S_PlaySound(KICK_HIT);
 			break;
 
-		case ChooseSound:
+		case AdvanceSound:
 			S_PlaySound(PISTOL_BODYHIT);
+			break;
+			
+		case CloseSound:
+			S_PlaySound(EXITMENUSOUND);
 			break;
 
 		default:
@@ -449,7 +454,6 @@ void GameInterface::MenuSound(::GameInterface::EMenuSounds snd)
 
 void GameInterface::MenuClosed()
 {
-	S_PlaySound(EXITMENUSOUND);
 	if (!ud.pause_on)
 		S_PauseSounds(false);
 }
@@ -473,6 +477,8 @@ void GameInterface::CustomMenuSelection(int menu, int item)
 	VM_OnEventWithReturn(EVENT_NEWGAMECUSTOM, -1, myconnectindex, menu);
 }
 
+EXTERN_CVAR(Bool, menu_sounds)
+
 void GameInterface::StartGame(FGameStartup& gs)
 {
 	int32_t skillsound = PISTOL_BODYHIT;
@@ -494,7 +500,7 @@ void GameInterface::StartGame(FGameStartup& gs)
 	}
 
 	ud.m_player_skill = gs.Skill + 1;
-	ud.skill_voice = S_PlaySound(skillsound);
+	if (menu_sounds) ud.skill_voice = S_PlaySound(skillsound);
 	ud.m_respawn_monsters = (gs.Skill == 3);
 	ud.m_monsters_off = ud.monsters_off = 0;
 	ud.m_respawn_items = 0;

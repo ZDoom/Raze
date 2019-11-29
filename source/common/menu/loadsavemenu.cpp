@@ -99,16 +99,16 @@ protected:
 
 	DLoadSaveMenu(DMenu *parent = NULL, FListMenuDescriptor *desc = NULL);
 	void Init(DMenu* parent, FListMenuDescriptor* desc) override;
-	void Destroy();
+	void Destroy() override;
 
 	int RemoveSaveSlot (int index);
 	void UnloadSaveData ();
 	void ClearSaveStuff ();
 	void ExtractSaveData (int index);
-	void Drawer ();
-	bool MenuEvent (int mkey, bool fromcontroller);
-	bool MouseEvent(int type, int x, int y);
-	bool Responder(event_t *ev);
+	void Drawer () override;
+	bool MenuEvent (int mkey, bool fromcontroller) override;
+	bool MouseEvent(int type, int x, int y) override;
+	bool Responder(event_t *ev) override;
 
 public:
 	static void NotifyNewSave (const char *file, const char *title, bool okForQuicksave);

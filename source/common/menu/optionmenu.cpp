@@ -53,15 +53,27 @@
 //
 //=============================================================================
 
-void M_DrawConText (int color, int x, int y, const char *str)
+FFont *OptionFont()
 {
-	DrawText (&twod, ConFont, color, x, y, str,
-		DTA_CellX, 8 * CleanXfac_1,
-		DTA_CellY, 8 * CleanYfac_1,
-		TAG_DONE);
+	return NewSmallFont;
 }
 
+int OptionHeight()
+{
+	return OptionFont()->GetHeight();
+}
 
+int OptionWidth(const char * s)
+{
+	return OptionFont()->StringWidth(s);
+}
+
+void DrawOptionText(int x, int y, int color, const char *text, bool grayed)
+{
+	text = *text == '$'? GStrings(text+1) : text;
+	PalEntry overlay = grayed? PalEntry(96,48,0,0) : PalEntry(0,0,0);
+	DrawText (&twod, OptionFont(), color, x, y, text, DTA_CleanNoMove_1, true, DTA_ColorOverlay, overlay);
+}
 
 //=============================================================================
 //
@@ -323,7 +335,7 @@ bool DOptionMenu::MenuEvent (int mkey, bool fromcontroller)
 
 	if (mDesc->mSelectedItem != startedAt)
 	{
-		//S_Sound (CHAN_VOICE | CHAN_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
+		M_MenuSound(CursorSound);
 	}
 	return true;
 }
@@ -355,7 +367,8 @@ bool DOptionMenu::MouseEvent(int type, int x, int y)
 			if (yline != mDesc->mSelectedItem)
 			{
 				mDesc->mSelectedItem = yline;
-				//S_Sound (CHAN_VOICE | CHAN_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
+				//M_MenuSound(CursorSound); too noisy
+
 			}
 			mDesc->mItems[yline]->MouseEvent(type, x, y);
 			return true;
@@ -390,21 +403,9 @@ void DOptionMenu::Drawer ()
 {
 	int y = mDesc->mPosition;
 
-	if (y <= 0)
+	if (mDesc->mTitle.IsNotEmpty())
 	{
-		if (BigFont && mDesc->mTitle.IsNotEmpty())
-		{
-			const char *tt = mDesc->mTitle;
-			if (*tt == '$') tt = GStrings(tt+1);
-			DrawText (&twod, BigFont, OptionSettings.mTitleColor,
-				(screen->GetWidth() - BigFont->StringWidth(tt) * CleanXfac_1) / 2, 10*CleanYfac_1,
-				tt, DTA_CleanNoMove_1, true, TAG_DONE);
-			y = -y + BigFont->GetHeight();
-		}
-		else
-		{
-			y = -y;
-		}
+		gi->DrawMenuCaption(origin, mDesc->mTitle);
 	}
 	mDesc->mDrawTop = y;
 	int fontheight = OptionSettings.mLinespacing * CleanYfac_1;
@@ -445,7 +446,8 @@ void DOptionMenu::Drawer ()
 		{
 			if ((((DMenu::MenuTime>>2)%8) < 6) || DMenu::CurrentMenu != this)
 			{
-				M_DrawConText(OptionSettings.mFontColorSelection, cur_indent + 3 * CleanXfac_1, y+fontheight-9*CleanYfac_1, "\xd");
+				DrawOptionText(cur_indent + 3 * CleanXfac_1, y, OptionSettings.mFontColorSelection, "◄");
+				//M_DrawConText(OptionSettings.mFontColorSelection, cur_indent + 3 * CleanXfac_1, y+fontheight-9*CleanYfac_1, "\xd");
 			}
 		}
 	}
@@ -456,11 +458,13 @@ void DOptionMenu::Drawer ()
 
 	if (CanScrollUp)
 	{
-		M_DrawConText(CR_ORANGE, 3 * CleanXfac_1, ytop, "\x1a");
+		DrawOptionText(screen->GetWidth() - 11 * CleanXfac_1, ytop, OptionSettings.mFontColorSelection, "▲");
+		//M_DrawConText(CR_ORANGE, 3 * CleanXfac_1, ytop, "\x1a");
 	}
 	if (CanScrollDown)
 	{
-		M_DrawConText(CR_ORANGE, 3 * CleanXfac_1, y - 8*CleanYfac_1, "\x1b");
+		DrawOptionText(screen->GetWidth() - 11 * CleanXfac_1 , y - 8*CleanYfac_1, OptionSettings.mFontColorSelection, "▼");
+		//M_DrawConText(CR_ORANGE, 3 * CleanXfac_1, y - 8*CleanYfac_1, "\x1b");
 	}
 	Super::Drawer();
 }
@@ -497,30 +501,40 @@ bool FOptionMenuItem::MouseEvent(int type, int x, int y)
 
 int  FOptionMenuItem::GetIndent()
 {
-	if (mCentered)
-	{
-		return 0;
-	}
+	if (mCentered) return 0;
+	if (screen->GetWidth() < 640) return screen->GetWidth() / 2;
 	const char *label = mLabel;
 	if (*label == '$') label = GStrings(label+1);
-	return SmallFont->StringWidth(label);
+	return OptionWidth(label);
 }
 
-void FOptionMenuItem::drawLabel(int indent, int y, EColorRange color, bool grayed)
+void FOptionMenuItem::drawText(int x, int y, int color, const char * text, bool grayed)
+{
+	DrawOptionText(x, y, color, text, grayed);
+}
+
+int FOptionMenuItem::drawLabel(int indent, int y, EColorRange color, bool grayed)
 {
 	const char *label = mLabel;
 	if (*label == '$') label = GStrings(label+1);
 
-	int overlay = grayed? MAKEARGB(96,48,0,0) : 0;
-
 	int x;
-	int w = SmallFont->StringWidth(label) * CleanXfac_1;
+	int w = OptionWidth(label) * CleanXfac_1;
 	if (!mCentered) x = indent - w;
 	else x = (screen->GetWidth() - w) / 2;
-	DrawText (&twod, SmallFont, color, x, y, label, DTA_CleanNoMove_1, true, DTA_ColorOverlay, overlay, TAG_DONE);
+	DrawOptionText(x, y, color, label, grayed);
+	return x;
 }
 
+void FOptionMenuItem::drawValue(int indent, int y, int color, const char *text, bool grayed)
+{
+	DrawOptionText(indent + CursorSpace(), y, color, text, grayed);
+}
 
+int FOptionMenuItem::CursorSpace()
+{
+	return (14 * CleanXfac_1);
+}
 
 void FOptionMenuDescriptor::CalcIndent()
 {

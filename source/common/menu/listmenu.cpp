@@ -133,7 +133,7 @@ bool DListMenu::Responder (event_t *ev)
 				{
 					mDesc->mSelectedItem = i;
 					SelectionChanged();
-					gi->MenuSound(GameInterface::SelectSound);
+					M_MenuSound(CursorSound);
 					return true;
 				}
 			}
@@ -143,7 +143,7 @@ bool DListMenu::Responder (event_t *ev)
 				{
 					mDesc->mSelectedItem = i;
 					SelectionChanged();
-					gi->MenuSound(GameInterface::SelectSound);
+					M_MenuSound(CursorSound);
 					return true;
 				}
 			}
@@ -171,7 +171,7 @@ bool DListMenu::MenuEvent (int mkey, bool fromcontroller)
 		}
 		while (!mDesc->mItems[mDesc->mSelectedItem]->Selectable() && mDesc->mSelectedItem != startedAt);
 		SelectionChanged();
-		gi->MenuSound(GameInterface::SelectSound);
+		M_MenuSound(CursorSound);
 		return true;
 
 	case MKEY_Down:
@@ -181,13 +181,13 @@ bool DListMenu::MenuEvent (int mkey, bool fromcontroller)
 		}
 		while (!mDesc->mItems[mDesc->mSelectedItem]->Selectable() && mDesc->mSelectedItem != startedAt);
 		SelectionChanged();
-		gi->MenuSound(GameInterface::SelectSound);
+		M_MenuSound(CursorSound);
 		return true;
 
 	case MKEY_Enter:
 		if (mDesc->mSelectedItem >= 0 && mDesc->mItems[mDesc->mSelectedItem]->Activate(mDesc->mMenuName))
 		{
-			gi->MenuSound(GameInterface::ChooseSound);
+			M_MenuSound(AdvanceSound);
 		}
 		return true;
 

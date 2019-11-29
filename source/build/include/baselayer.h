@@ -185,14 +185,10 @@ struct FSavegameInfo
 	int currentsavever;
 };
 
+enum EMenuSounds : int;
+
 struct GameInterface
 {
-	enum EMenuSounds
-	{
-		SelectSound,
-		ChooseSound
-	};
-
 	virtual ~GameInterface() {}
 	virtual void faketimerhandler() {} // This is a remnant of older versions, but Blood backend has not updated yet.
 	virtual int app_main() = 0;
