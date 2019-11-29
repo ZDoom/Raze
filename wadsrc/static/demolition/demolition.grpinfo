@@ -28,6 +28,10 @@ CRC
 	RR_CRC 0x19D9BC79
 	RRRA_CRC 0x958018C6
 	BLOOD_CRC 0xA8FDDA84
+	SWREG12_CRC 0x7545319F
+	SWWD_CRC 0xA9AAA7B7
+	SWTD_CRC 0xA1A65BE8
+
 }
 
 
@@ -87,7 +91,7 @@ grpinfo
 	size 9690241
 	crc DUKE099_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_DUKEBETA
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -97,7 +101,7 @@ grpinfo
 	size 10429258
 	crc DUKE10_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -107,7 +111,7 @@ grpinfo
 	size 10442980
 	crc DUKE11_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -117,7 +121,7 @@ grpinfo
 	size 11035779
 	crc DUKESW_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -127,7 +131,7 @@ grpinfo
 	size 10444391
 	crc DUKEMD_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -137,7 +141,7 @@ grpinfo
 	size 10628573
 	crc DUKEMD2_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -353,6 +357,19 @@ grpinfo
 
 grpinfo
 {
+	// This is for identifying older Blood versions. Since I have no information, all I can do is testing for a few known files.
+	name "BLOOD: Unknown Version"
+	mustcontain "help1.qav", "cult2d2.seq", "tombstn1.kvx", "normal.plu"
+	defname "blood.def"
+	scriptname "BLOOD.INI"
+	flags GAMEFLAG_BLOOD
+	dependency 0
+	loadgrp "SOUNDS.RFF", "GUI.RFF"
+	gamefilter "Blood.Blood"
+}
+
+grpinfo
+{
 	name "BLOOD: Cryptic Passage"
 	loaddirectory
 	scriptname "CRYPTIC.INI"
@@ -367,8 +384,82 @@ grpinfo
 {
 	name "Shadow Warrior"
 	flags GAMEFLAG_SW
-	crc 0x7545319F
+	crc SWREG12_CRC
 	size 47536148
 	defname "sw.def"
 	gamefilter "ShadowWarrior.ShadowWarrior"
 }
+
+grpinfo
+{
+	name "Shadow Warrior Shareware 1.0"
+	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
+	crc 0xDAA6BECE
+	size 25702245
+	defname "sw.def"
+	gamefilter "ShadowWarrior.Shareware"
+}
+
+grpinfo
+{
+	name "Shadow Warrior Shareware 1.1"
+	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
+	crc 0xF21A6B35
+	size 25833456
+	defname "sw.def"
+	gamefilter "ShadowWarrior.Shareware"
+}
+
+grpinfo
+{
+	name "Shadow Warrior Shareware 1.2"
+	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
+	crc 0x08A7FA1F´
+	size 26056769
+	defname "sw.def"
+	gamefilter "ShadowWarrior.Shareware"
+}
+
+grpinfo
+{
+	name "Shadow Warrior Mac Demo"
+	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
+	crc 0x4227F535u
+	size 26056769
+	defname "sw.def"
+	gamefilter "ShadowWarrior.Shareware"
+}
+
+grpinfo
+{
+	name "Shadow Warrior: Wanton Destruction"
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	crc SWWD_CRC
+	size 48698128
+	defname "sw.def"
+	dependency SWREG12_CRC
+	gamefilter "ShadowWarrior.Wanton"
+}
+
+grpinfo
+{
+	name "Shadow Warrior: Twin Dragon"
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	crc SWTD_CRC
+	size 12499012
+	defname "twindrag.def"	// included in the GRP
+	dependency SWREG12_CRC
+	gamefilter "ShadowWarrior.TwinDragon"
+}
+
+
+
+internalgrpfile grpfiles[numgrpfiles] =
+{
+    { "Shadow Warrior",               SWREG12_CRC, 47536148, 0, 0 },
+    { "Shadow Warrior Shareware 1.0", 0xDAA6BECEu, 25702245, 0, 0 },
+    { "Shadow Warrior Shareware 1.1", 0xF21A6B35u, 25833456, 0, 0 },
+    { "Shadow Warrior Shareware 1.2", 0x08A7FA1Fu, 26056769, 0, 0 },
+    { "Shadow Warrior Mac Demo",      0x4227F535u, 26056769, 0, 0 },
+    { "Wanton Destruction",           SWWD_CRC, 48698128, GRP_HAS_DEPENDENCY, SWREG12_CRC },
+    { "Twin Dragon",                  SWTD_CRC, 12499012, GRP_HAS_DEPENDENCY, SWREG12_CRC },
