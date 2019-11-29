@@ -380,6 +380,13 @@ ImageScroller "HelpMenu"
 		ImageItem "TEXTSTORY", 400
 		ImageItem "F1HELP", 401
 	}
+	ifgame(blood)
+	{
+		QAVAnimationItem "Help4"
+		QAVAnimationItem "Help5"
+		QAVAnimationItem "Help3"
+		QAVAnimationItem "Help3b"
+	}
 	ifgame(ShadowWarrior)
 	{
 		// The menu has no default binding, but if someone tries to open it anyway show the cool retro ads that were shipped with the game. :D
@@ -478,6 +485,10 @@ ImageScroller "CreditsMenu"
 		TextItem "EXTRA SPECIAL THANKS\n\nBRIAN FARGO", 80
 		TextItem "REDNECK RAMPAGE RIDES AGAIN\n(c) 1998 XATRIX ENTERTAINMENT, INC.\n\nREDNECK RAMPAGE RIDES AGAIN\nIS A TRADEMARK OF\nINTERPLAY PRODUCTIONS", 70
 		animatedtransition
+	}
+	ifgame(blood)
+	{
+		QAVAnimationItem "Credits"
 	}
 	ifgame(ShadowWarrior)
 	{
