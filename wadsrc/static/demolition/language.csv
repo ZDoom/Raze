@@ -17,3 +17,59 @@ Select a user map to play,MNU_SELECTUSERMAP,,,,,"Wähle ein Level zum Spielen
 Select an Episode,MNU_SELECTEPISODE,,,,,"Welche Episode?
 ",,,,,,,,,,,,,,,,,
 Select Skill,MNU_SELECTSKILL,,,,,Schwierigkeitsgrad,,,,,,,,,,,,,,,,,
+About Demolition,MNU_ENGINECREDITS,,,,,Über Demolition,,,,,,,,,,,,,,,,,
+No Picture,MNU_NOPICTURE,,,,Bez obrázku,Kein Bild,,Neniu Bildo,Sin Imagen,,Ei kuvaa,Pas d'image,,Nessuna immagine,画像無し,사진 없음,Geen beeld,Brak obrazka,Sem imagem,,,"Нет
+изображения",Нема слике
+"Different
+Version",MNU_DIFFVERSION,,,,Jiná verze,Falsche Version,,Malsama Versio,Versión Diferente,,Eri versio,"Version
+Différente",,Versione differente,"別バージョンの
+データ",다른 버젼,Anders Versie,"Inna
+Wersja","Versão
+Diferente",,,"Другая
+версия",Другачија верзија
+No files,MNU_NOFILES,,,,Žádné soubory,Keine Dateien,,Neniuj dosieroj,Sin archivos,,Ei tiedostoja,Pas de fichiers,,Nessun file,ファイル無し,파일 없음,Geen bestanden,Brak plików,Vazio,,,Нет файлов,Нема фајлова
+"Do you really want to delete the savegame
+",MNU_DELETESG,,,,Opravdu chceš smazat tuto uloženou hru?,Willst du diesen Spielstand wirklich löschen?,,Ĉu vi vere volas forviŝi la konservan ludon?,"¿Realmente deseas eliminar la partida?
+",,Haluatko varmasti poistaa tallennetun pelin ,"Voulez vous vraiment effacer cette sauvegarde?
+",Biztos ki akarod törölni a mentést?,Vuoi veramente rimuovere il salvataggio,本当にこのセーブを消すのか?,저장된 게임을 정말로 삭제하시겠습니까?,Wil je echt de opgeslagen spel verwijderen?,Czy naprawdę chcesz usunąć zapis gry,"Deseja mesmo deletar o jogo salvo
+",Deseja mesmo apagar o jogo,,"Вы действительно хотите удалить сохранение
+",Да ли стварно желите да избришете сачувану игру
+Press Y or N.,PRESSYN,,,,Stiskni Y nebo N.,Drücke Y oder N.,"Πάτα Y ή N
+",Premu Y aŭ N.,Presiona Y ó N.,,Paina Y tai N.,Appuyez sur Y ou N.,Nyomj Y-t vagy N-t.,Premi Y oppure N.,YかNで答えろ,Y키 또는 N키를 누르시오.,Druk op Y of N.,Wciśnij Y lub N.,Aperte Y ou N.,Carrega Y ou N.,,Нажмите Y или N.,Притисните Y или N.
+"You can't save if you aren't playing!
+
+Press a key.",SAVEDEAD,,,,"Nemůžeš ukládat pokud nehraješ!
+
+Stiskni libovolnou klávesu.","Du kannst nicht speichern, wenn du nicht spielst.
+
+Drücke eine Taste",,"Vi ne povas konservi, kiam vi ne ludas!
+
+Premu klavon.","¡No puedes guardar si no estás jugando!
+
+Presiona una tecla.",,"Et voi tallentaa, jos et ole pelissä!
+
+Paina jotain näppäintä.","Vous ne pouvez pas sauvegarder si vous ne jouez pas!
+
+Appuyez sur une touche.","Nem tudsz menteni ha nem is játszol!
+
+Nyomj meg egy gombot.","Non puoi salvare se non stai giocando!
+
+Premi un tasto.","プレイ中でないとセーブできない!
+
+何かキーを押せ","게임을 플레이 중이지 않을 때는 게임을 저장할 수 없습니다!
+
+키를 누르시오.","Je kunt niet opslaan als je niet speelt!
+
+Druk op een toets.","Nie możesz zapisać, jeśli nie grasz!
+
+Wciśnij dowolny klawisz.","Você não pode salvar se não estiver jogando!
+
+Aperte qualquer tecla.","Você não pode salvar se não estiver a jogar!
+
+Carrega numa tecla qualquer.",,"Невозможно сохранить игру, не начав её!
+
+Нажмите любую клавишу.","Не можете сачувати игру ако не играте!
+
+Притисните тастер."
+Do you really want to do this?,SAFEMESSAGE,,,,Vážně to chceš udělat?,Möchtest du das wirklich tun?,,Ĉu vi vere volas fari tion?,¿Realmente quieres hacer esto?,¿Realmente quieres hacerlo?,Haluatko varmasti tehdä tämän?,Voulez-vous vraiment faire ça?,Biztos megakarod tenni?,Sei sicuro di volerlo fare?,本当に実行するのか?,정말로 정하시겠습니까?,Wil je dit echt doen?,Naprawdę chcesz to zrobić?,Você deseja mesmo fazer isso?,Desejas mesmo fazer isso?,,Вы уверены?,Да ли заиста желите то да урадите?
+Not set,NOTSET,,,,Není nastavené,Nicht gesetzt,,Ne agordita,No Asignado,,Ei asetettu,Pas paramétré,Nincs beállítva,Non assegnato,セットされてない,정하지 않음,Niet ingesteld,Nie ustawiono,Não definido,,,Не задан,Није намештено
