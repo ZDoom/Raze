@@ -47,8 +47,6 @@
 
 #include "optionmenuitems.h"
 
-void ClearSaveGames();
-
 // Menu-relevant content that gets filled in by scripts. This will get processed after the game has loaded.
 FString gSkillNames[MAXSKILLS];
 FString gVolumeNames[MAXVOLUMES];
@@ -94,7 +92,6 @@ static void DeinitMenus()
 	OptionValues.Clear();
 	DMenu::CurrentMenu = NULL;
 	DefaultListMenuSettings.mItems.Clear();
-	ClearSaveGames();
 }
 
 static FTexture* GetMenuTexture(const char* const name)

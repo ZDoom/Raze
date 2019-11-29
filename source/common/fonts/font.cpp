@@ -684,7 +684,7 @@ int FFont::StringWidth(const uint8_t *string) const
 		}
 		else
 		{
-			w += NewSmallFont->CharWidth(chr) + GlobalKerning;
+			w += CharWidth(chr) + GlobalKerning;
 		}
 	}
 

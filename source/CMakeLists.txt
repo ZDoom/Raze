@@ -830,6 +830,7 @@ set (PCH_SOURCES
 	common/menu/imagescroller.cpp
 	common/menu/joystickmenu.cpp
 	common/menu/listmenu.cpp
+	common/menu/savegamemanager.cpp
 	common/menu/loadsavemenu.cpp
 	common/menu/menu.cpp
 	common/menu/menudef.cpp

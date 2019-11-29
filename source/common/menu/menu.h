@@ -138,18 +138,6 @@ enum ENativeFontValues
 };
 
 extern FGameStartup GameStartupInfo;
-
-struct FSaveGameNode
-{
-	FString Title;
-	FString Filename;
-	bool bOldVersion;
-	bool bMissingWads;
-	bool bNoDelete;
-
-	FSaveGameNode() { bNoDelete = false; }
-};
-
 extern EMenuState		menuactive;
 
 
@@ -682,29 +670,31 @@ public:
 class DTextEnterMenu : public DMenu
 {
 	using Super = DMenu;
-	TArray<char> mEnterString;
-	FString* mOutString;
-	unsigned int mEnterSize;
-	unsigned int mEnterPos;
-	int mSizeMode; // 1: size is length in chars. 2: also check string width
-	bool mInputGridOkay;
 
+	FString mEnterString;
+	int mEnterSize;
+	int mEnterPos;
+	bool mInputGridOkay;
 	int InputGridX;
 	int InputGridY;
-
-	// [TP]
+	int CursorSize;
 	bool AllowColors;
+	FFont *displayFont;
+
+
+	void AppendChar(int ch);
 
 public:
 
 	// [TP] Added allowcolors
-	DTextEnterMenu(DMenu *parent, FString &textbuffer, int sizemode, bool showgrid, bool allowcolors = false);
+	DTextEnterMenu(DMenu *parent, FFont *dpf, FString textbuffer, int maxlen, bool showgrid, bool allowcolors = false);
 
 	void Drawer ();
 	bool MenuEvent (int mkey, bool fromcontroller);
 	bool Responder(event_t *ev);
 	bool TranslateKeyboardEvents();
 	bool MouseEvent(int type, int x, int y);
+	const char* GetText() { return mEnterString.GetChars(); }
 
 };
 
@@ -756,5 +746,57 @@ template<class Menu> struct TMenuClassDescriptor : public MenuClassDescriptor
 		return new Menu;
 	}
 };
+
+
+struct FSaveGameNode
+{
+	FString SaveTitle;
+	FString Filename;
+	bool bOldVersion = false;
+	bool bMissingWads = false;
+	bool bNoDelete = false;
+};
+
+struct FSavegameManager
+{
+private:
+	TArray<FSaveGameNode*> SaveGames;
+	FSaveGameNode NewSaveNode;
+	int LastSaved = -1;
+	int LastAccessed = -1;
+	TArray<char> SavePicData;
+	FTexture *SavePic = nullptr;
+
+public:
+	int WindowSize = 0;
+	FString SaveCommentString;
+	FSaveGameNode *quickSaveSlot = nullptr;
+	~FSavegameManager();
+
+private:
+	int InsertSaveNode(FSaveGameNode *node);
+public:
+	void NotifyNewSave(const FString &file, const FString &title, bool okForQuicksave, bool forceQuicksave);
+	void ClearSaveGames();
+
+	void ReadSaveStrings();
+	void UnloadSaveData();
+
+	int RemoveSaveSlot(int index);
+	void LoadSavegame(int Selected);
+	void DoSave(int Selected, const char *savegamestring);
+	unsigned ExtractSaveData(int index);
+	void ClearSaveStuff();
+	bool DrawSavePic(int x, int y, int w, int h);
+	void DrawSaveComment(FFont *font, int cr, int x, int y, int scalefactor);
+	void SetFileInfo(int Selected);
+	unsigned SavegameCount();
+	FSaveGameNode *GetSavegame(int i);
+	void InsertNewSaveNode();
+	bool RemoveNewSaveNode();
+
+};
+
+extern FSavegameManager savegameManager;
 
 #endif

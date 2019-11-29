@@ -63,16 +63,13 @@ CVAR(Bool, m_showinputgrid, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 //=============================================================================
 
 // [TP] Added allowcolors
-DTextEnterMenu::DTextEnterMenu(DMenu *parent, FString &textbuffer, int sizemode, bool showgrid, bool allowcolors)
+DTextEnterMenu::DTextEnterMenu(DMenu *parent, FFont *dpf, FString textbuffer, int maxlen, bool showgrid, bool allowcolors)
 : DMenu(parent)
 {
-	mOutString = &textbuffer;
-	mEnterSize = 32;	// this needs to calculate the size based on screen space (or scroll)
-	mEnterString.Resize(mEnterSize + 1);
-	mEnterPos = (unsigned)textbuffer.Len();
-	mSizeMode = sizemode;
-	mInputGridOkay = showgrid || m_showinputgrid;
-	if (mEnterPos > 0)
+	mEnterString = textbuffer;
+	mEnterPos = maxlen;
+	mInputGridOkay = (showgrid && (m_showinputgrid == 0)) || (m_showinputgrid >= 1);
+	if (mEnterString.Len() > 0)
 	{
 		InputGridX = INPUTGRID_WIDTH - 1;
 		InputGridY = INPUTGRID_HEIGHT - 1;
@@ -84,6 +81,8 @@ DTextEnterMenu::DTextEnterMenu(DMenu *parent, FString &textbuffer, int sizemode,
 		InputGridY = 0;
 	}
 	AllowColors = allowcolors; // [TP]
+	displayFont = dpf;
+	CursorSize = displayFont->StringWidth(displayFont->GetCursor());
 }
 
 //=============================================================================
@@ -111,12 +110,7 @@ bool DTextEnterMenu::Responder(event_t *ev)
 		if (ev->subtype == EV_GUI_Char)
 		{
 			mInputGridOkay = false;
-			if (mEnterPos < mEnterSize &&
-				(mSizeMode == 2/*entering player name*/ || (size_t)SmallFont->StringWidth(mEnterString) < (mEnterSize-1)*8))
-			{
-				mEnterString[mEnterPos] = (char)ev->data1;
-				mEnterString[++mEnterPos] = 0;
-			}
+			AppendChar(ev->data1);
 			return true;
 		}
 		char ch = (char)ev->data1;
@@ -124,8 +118,7 @@ bool DTextEnterMenu::Responder(event_t *ev)
 		{
 			if (mEnterPos > 0)
 			{
-				mEnterPos--;
-				mEnterString[mEnterPos] = 0;
+				mEnterString.DeleteLastCharacter();
 			}
 		}
 		else if (ev->subtype == EV_GUI_KeyDown)
@@ -133,17 +126,21 @@ bool DTextEnterMenu::Responder(event_t *ev)
 			if (ch == GK_ESCAPE)
 			{
 				DMenu *parent = mParentMenu;
-				Close();
 				parent->MenuEvent(MKEY_Abort, false);
+				Close();
 				return true;
 			}
 			else if (ch == '\r')
 			{
-				if (mEnterString[0])
+				if (mEnterString.Len() > 0)
 				{
+					// [TP] If we allow color codes, colorize the string now.
+					//if (AllowColors)
+						//mEnterString = mEnterString.Filter();
+
 					DMenu *parent = mParentMenu;
-					Close();
 					parent->MenuEvent(MKEY_Input, false);
+					Close();
 					return true;
 				}
 			}
@@ -164,8 +161,8 @@ bool DTextEnterMenu::Responder(event_t *ev)
 
 bool DTextEnterMenu::MouseEvent(int type, int x, int y)
 {
-	const int cell_width = 18 * CleanXfac;
-	const int cell_height = 12 * CleanYfac;
+	const int cell_width = 18 * CleanXfac_1;
+	const int cell_height = 16 * CleanYfac_1;
 	const int screen_y = screen->GetHeight() - INPUTGRID_HEIGHT * cell_height;
 	const int screen_x = (screen->GetWidth() - INPUTGRID_WIDTH * cell_width) / 2;
 
@@ -177,11 +174,11 @@ bool DTextEnterMenu::MouseEvent(int type, int x, int y)
 		{
 			if (MenuEvent(MKEY_Enter, true))
 			{
-				//S_Sound (CHAN_VOICE | CHAN_UI, "menu/choose", snd_menuvolume, ATTN_NONE);
+				//M_MenuSound(CursorSound);
 				if (m_use_mouse == 2) InputGridX = InputGridY = -1;
-				return true;
 			}
 		}
+		return true;
 	}
 	else
 	{
@@ -190,8 +187,21 @@ bool DTextEnterMenu::MouseEvent(int type, int x, int y)
 	return Super::MouseEvent(type, x, y);
 }
 
+//=============================================================================
+//
+//
+//
+//=============================================================================
 
-		
+void DTextEnterMenu::AppendChar(int ch)
+{
+	FStringf newstring("%s%c%c", mEnterString.GetChars(), ch, displayFont->GetCursor());
+	if (mEnterSize < 0 || displayFont->StringWidth(newstring) < mEnterSize)
+	{
+		mEnterString.AppendCharacter(ch);
+	}
+}
+
 //=============================================================================
 //
 //
@@ -237,9 +247,9 @@ bool DTextEnterMenu::MenuEvent (int key, bool fromcontroller)
 			return true;
 
 		case MKEY_Clear:
-			if (mEnterPos > 0)
-			{
-				mEnterString[--mEnterPos] = 0;
+				if (mEnterString.Len() > 0)
+				{
+					mEnterString.DeleteLastCharacter();
 			}
 			return true;
 
@@ -250,26 +260,24 @@ bool DTextEnterMenu::MenuEvent (int key, bool fromcontroller)
 				ch = InputGridChars[InputGridX + InputGridY * INPUTGRID_WIDTH];
 				if (ch == 0)			// end
 				{
-					if (mEnterString[0] != '\0')
+						if (mEnterString.Len() > 0)
 					{
 						DMenu *parent = mParentMenu;
-						Close();
 						parent->MenuEvent(MKEY_Input, false);
+						Close();
 						return true;
 					}
 				}
 				else if (ch == '\b')	// bs
 				{
-					if (mEnterPos > 0)
+					if (mEnterString.Len() > 0)
 					{
-						mEnterString[--mEnterPos] = 0;
+						mEnterString.DeleteLastCharacter();
 					}
 				}
-				else if (mEnterPos < mEnterSize &&
-					(mSizeMode == 2/*entering player name*/ || (size_t)SmallFont->StringWidth(mEnterString) < (mEnterSize-1)*8))
+				else
 				{
-					mEnterString[mEnterPos] = ch;
-					mEnterString[++mEnterPos] = 0;
+					AppendChar(ch);
 				}
 			}
 			return true;
@@ -294,7 +302,7 @@ void DTextEnterMenu::Drawer ()
 	{
 		const int cell_width = 18 * CleanXfac;
 		const int cell_height = 12 * CleanYfac;
-		const int top_padding = cell_height / 2 - SmallFont->GetHeight() * CleanYfac / 2;
+		const int top_padding = cell_height / 2 - displayFont->GetHeight() * CleanYfac / 2;
 
 		// Darken the background behind the character grid.
 		// Unless we frame it with a border, I think it looks better to extend the
@@ -302,7 +310,7 @@ void DTextEnterMenu::Drawer ()
 		twod.AddColorOnlyQuad(0 /*screen->GetWidth()/2 - 13 * cell_width / 2*/,
 			screen->GetHeight() - INPUTGRID_HEIGHT * cell_height,
 			screen->GetWidth() /*13 * cell_width*/,
-			INPUTGRID_HEIGHT * cell_height, 0xff000000);
+			INPUTGRID_HEIGHT * cell_height, 0xc8000000);
 
 		if (InputGridX >= 0 && InputGridY >= 0)
 		{
@@ -321,42 +329,42 @@ void DTextEnterMenu::Drawer ()
 				int width;
 				const int xx = x * cell_width - INPUTGRID_WIDTH * cell_width / 2 + screen->GetWidth() / 2;
 				const int ch = InputGridChars[y * INPUTGRID_WIDTH + x];
-				FTexture *pic = SmallFont->GetChar(ch, CR_DARKGRAY, &width);
+				FTexture *pic = displayFont->GetChar(ch, CR_DARKGRAY, &width);
 				EColorRange color;
 				int remap;
 
 				// The highlighted character is yellow; the rest are dark gray.
 				color = (x == InputGridX && y == InputGridY) ? CR_YELLOW : CR_DARKGRAY;
-				remap = SmallFont->GetColorTranslation(color);
+				remap = displayFont->GetColorTranslation(color);
 
 				if (pic != NULL)
 				{
 					// Draw a normal character.
-					DrawTexture(&twod, pic, xx + cell_width/2 - width*CleanXfac/2, yy + top_padding,
+					DrawTexture(&twod, pic, xx + cell_width/2 - width*CleanXfac_1/2, yy + top_padding,
 						DTA_TranslationIndex, remap,
-						DTA_CleanNoMove, true,
+						DTA_CleanNoMove_1, true,
 						TAG_DONE);
 				}
 				else if (ch == ' ')
 				{
 					// Draw the space as a box outline. We also draw it 50% wider than it really is.
-					const int x1 = xx + cell_width/2 - width * CleanXfac * 3 / 4;
-					const int x2 = x1 + width * 3 * CleanXfac / 2;
+					const int x1 = xx + cell_width/2 - width * CleanXfac_1 * 3 / 4;
+					const int x2 = x1 + width * 3 * CleanXfac_1 / 2;
 					const int y1 = yy + top_padding;
-					const int y2 = y1 + SmallFont->GetHeight() * CleanYfac;
+					const int y2 = y1 + displayFont->GetHeight() * CleanYfac_1;
 					auto palcolor = PalEntry(255, 160, 160, 160);
-					twod.AddColorOnlyQuad(x1, y1, x2, y1+CleanYfac, palcolor);	// top
-					twod.AddColorOnlyQuad(x1, y2, x2, y2+CleanYfac, palcolor);	// bottom
-					twod.AddColorOnlyQuad(x1, y1+CleanYfac, x1+CleanXfac, y2, palcolor);	// left
-					twod.AddColorOnlyQuad(x2-CleanXfac, y1+CleanYfac, x2, y2, palcolor);	// right
+					twod.AddColorOnlyQuad(x1, y1, x2 - x1, CleanYfac_1, palcolor);	// top
+					twod.AddColorOnlyQuad(x1, y2, x2 - x1, CleanYfac_1, palcolor);	// bottom
+					twod.AddColorOnlyQuad(x1, y1+CleanYfac_1, CleanXfac_1, y2 - y1, palcolor);	// left
+					twod.AddColorOnlyQuad(x2-CleanXfac_1, y1+CleanYfac_1, CleanXfac_1, CleanYfac_1, palcolor);	// right
 				}
 				else if (ch == '\b' || ch == 0)
 				{
 					// Draw the backspace and end "characters".
 					const char *const str = ch == '\b' ? "BS" : "ED";
-					DrawText(&twod, SmallFont, color,
-						xx + cell_width/2 - SmallFont->StringWidth(str)*CleanXfac/2,
-						yy + top_padding, str, DTA_CleanNoMove, true, TAG_DONE);
+					DrawText(&twod, NewSmallFont, color,
+						xx + cell_width/2 - displayFont->StringWidth(str)*CleanXfac_1/2,
+						yy + top_padding, str, DTA_CleanNoMove_1, true, TAG_DONE);
 				}
 			}
 		}

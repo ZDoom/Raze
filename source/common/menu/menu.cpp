@@ -569,6 +569,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		*/
 	}
 	Printf("Attempting to open menu of unknown type '%s'\n", menu.GetChars());
+	M_ClearMenus();
 	return false;
 }
 
@@ -974,7 +975,7 @@ CCMD(opensavemenu)
 	{
 		gi->MenuOpened();
 		M_StartControlPanel(false);
-		M_SetMenu(NAME_SaveMenu);
+		M_SetMenu(NAME_SaveGameMenu);
 	}
 }
 
@@ -982,5 +983,5 @@ CCMD(openloadmenu)
 {
 	gi->MenuOpened();
 	M_StartControlPanel(false);
-	M_SetMenu(NAME_LoadMenu);
+	M_SetMenu(NAME_LoadGameMenu);
 }
