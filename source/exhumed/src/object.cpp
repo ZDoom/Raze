@@ -1490,9 +1490,10 @@ void DimLights()
         if (sector[i].floorshade < 100)
             sector[i].floorshade++;
 
-        int nWall = sector[i].wallptr;
+        short startwall = sector[i].wallptr;
+        short endwall = startwall + sector[i].wallnum;
 
-        while (nWall < nWall + sector[i].wallnum)
+        for (int nWall = startwall; nWall < endwall; nWall++)
         {
             if (wall[nWall].shade < 100)
                 wall[nWall].shade++;
