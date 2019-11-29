@@ -3049,14 +3049,6 @@ int32_t GameInterface::app_main()
     int cnt = 0;
     uint32_t TotalMemory;
 
-    if (argc > 1)
-    {
-        buildputs("Application parameters: ");
-        for (i = 1; i < argc; ++i)
-            buildprintf("%s ", argv[i]);
-        buildputs("\n");
-    }
-
     SW_ExtInit();
 
     CONFIG_ReadSetup();
