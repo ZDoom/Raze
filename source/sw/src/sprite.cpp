@@ -5969,6 +5969,9 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_STAR)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_STAR));
+
+            if (!gs.WeaponAutoSwitch)
+                break;
             if (User[pp->PlayerSprite]->WeaponNum <= WPN_STAR && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponStar(pp);
@@ -5994,6 +5997,9 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_MINE)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_MINE));
+
+            if (!gs.WeaponAutoSwitch)
+                break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_MINE && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponMine(pp);
@@ -6035,6 +6041,9 @@ KeyMain:
                 ChoosePlayerGetSound(pp);
             }
 
+            if (!gs.WeaponAutoSwitch)
+                break;
+
             if (User[pp->PlayerSprite]->WeaponNum > WPN_UZI && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
 
@@ -6074,6 +6083,9 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_MICRO)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_MICRO));
+
+            if (!gs.WeaponAutoSwitch)
+                break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_MICRO && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponMicro(pp);
@@ -6142,6 +6154,9 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_GRENADE)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_GRENADE));
+
+            if (!gs.WeaponAutoSwitch)
+                break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_GRENADE && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponGrenade(pp);
@@ -6168,6 +6183,9 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_ROCKET)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_ROCKET));
+
+            if (!gs.WeaponAutoSwitch)
+                break;
             InitWeaponRocket(pp);
             break;
 
@@ -6212,6 +6230,9 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_RAIL)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_RAIL));
+
+            if (!gs.WeaponAutoSwitch)
+                break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_RAIL && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponRail(pp);
@@ -6251,6 +6272,9 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_SHOTGUN)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_SHOTGUN));
+
+            if (!gs.WeaponAutoSwitch)
+                break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_SHOTGUN && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponShotgun(pp);
@@ -6317,6 +6341,9 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_HOTHEAD)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_NAPALM) | BIT(WPN_RING) | BIT(WPN_HOTHEAD));
+
+            if (!gs.WeaponAutoSwitch)
+                break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_HOTHEAD && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponHothead(pp);
@@ -6360,6 +6387,9 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_HEART)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_HEART));
+
+            if (!gs.WeaponAutoSwitch)
+                break;
 
             if (User[pp->PlayerSprite]->WeaponNum > WPN_HEART && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;

@@ -209,6 +209,7 @@ const GAME_SET gs_defaults =
     TRUE, // nuke
     "Track??", // waveform track name
     FALSE,
+    TRUE,
 };
 GAME_SET gs;
 
