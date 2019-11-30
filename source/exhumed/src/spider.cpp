@@ -400,11 +400,6 @@ case_3:
             SpiderList[nSpider].nHealth -= nDamage;
             if (SpiderList[nSpider].nHealth > 0)
             {
-                /* 
-                    TODO - nTarget check was added, but should we return if it's invalid instead
-                    or should code below (action set, b set) happen?
-                    Other AI doesn't show consistency in this regard (see Scorpion code)
-                */
                 if (nTarget > -1 && sprite[nTarget].statnum == 100)
                 {
                     SpiderList[nSpider].nTarget = nTarget;
