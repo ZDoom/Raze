@@ -208,6 +208,7 @@ const GAME_SET gs_defaults =
     0, // Color
     TRUE, // nuke
     "Track??", // waveform track name
+    FALSE,
 };
 GAME_SET gs;
 
@@ -3014,7 +3015,7 @@ Nuke      ->    0=Off 1=On
 commit -map grenade -autonet 0,0,1,1,1,0,3,2,1,1 -name frank
 #endif
 
-char isShareware = FALSE, useDarts = FALSE;
+char isShareware = FALSE;
 
 int DetectShareware(void)
 {

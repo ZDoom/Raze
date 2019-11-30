@@ -1822,7 +1822,7 @@ InitWeaponStar(PLAYERp pp)
     PlaySound(DIGI_PULL, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
     if (STD_RANDOM_RANGE(1000) > 900 && pp == Player+myconnectindex)
     {
-        if (!useDarts)
+        if (!gs.Darts)
             PlayerSound(DIGI_ILIKESHURIKEN,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
     }
 
@@ -7389,7 +7389,7 @@ pDisplaySprites(PLAYERp pp)
             picnum = psp->picndx;
 
         // UK panzies have to have darts instead of shurikens.
-        if (useDarts)
+        if (gs.Darts)
             switch (picnum)
             {
             case STAR_REST:
@@ -7453,7 +7453,7 @@ pDisplaySprites(PLAYERp pp)
 
             case STAR_REST:
             case 2510:
-                if (!useDarts)
+                if (!gs.Darts)
                     picnum = 2138;
                 else
                     picnum = 2518; // Bloody Dart Hand
