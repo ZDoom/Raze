@@ -92,10 +92,20 @@ enum EMenuState : int
 	MENU_OnNoPause,		// Menu is opened but does not pause the game
 };
 
+enum EMenuSounds : int
+{
+	CursorSound,
+	AdvanceSound,
+	BackSound,
+	CloseSound,
+	PageSound
+	ChangeSound
+};
+
 struct event_t;
 class FTexture;
 class FFont;
-enum EColorRange;
+enum EColorRange : int;
 class FPlayerClass;
 class FKeyBindings;
 
@@ -558,7 +568,14 @@ protected:
 	FString mLabel;
 	bool mCentered = false;
 
-	void drawLabel(int indent, int y, EColorRange color, bool grayed = false);
+	void drawText(int x, int y, int color, const char * text, bool grayed = false);
+
+	int drawLabel(int indent, int y, EColorRange color, bool grayed = false);
+	void drawValue(int indent, int y, int color, const char *text, bool grayed = false);
+	
+	int CursorSpace();
+
+
 public:
 
 	FOptionMenuItem(const char *text, FName action = NAME_None, bool center = false)
@@ -639,6 +656,10 @@ public:
 	}
 };
 
+FFont *OptionFont();
+int OptionHeight();
+int OptionWidth(const char * s);
+void DrawOptionText(int x, int y, int color, const char *text, bool grayed = false);
 
 //=============================================================================
 //
@@ -716,8 +737,9 @@ int M_GetDefaultSkill();
 void M_StartControlPanel (bool makeSound);
 bool M_SetMenu(FName menu, int param = -1, FName callingMenu = NAME_None);
 void M_NotifyNewSave (const char *file, const char *title, bool okForQuicksave);
-void M_StartMessage(const char *message, int messagemode, FName action = NAME_None);
+void M_StartMessage(const char *message, int messagemode, int scriptId, FName action = NAME_None);
 void M_UnhideCustomMenu(int menu, int itemmask);
+void M_MenuSound(EMenuSounds snd);
 
 
 void I_SetMouseCapture();

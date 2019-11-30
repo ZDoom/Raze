@@ -195,8 +195,8 @@ bool DMenu::MenuEvent (int mkey, bool fromcontroller)
 	{
 		if (scriptID != 0)
 		{
+			M_MenuSound(DMenu::CurrentMenu->mParentMenu? BackSound : CloseSound);
 			Close();
-			//S_Sound (CHAN_VOICE | CHAN_UI, 	DMenu::CurrentMenu != NULL? "menu/backup" : "menu/clear", snd_menuvolume, ATTN_NONE);
 			return true;
 		}
 	}
@@ -473,15 +473,15 @@ bool M_SetMenu(FName menu, int param, FName caller)
 
 		const char *msg = AllSkills[param].MustConfirmText;
 		if (*msg==0) msg = GStrings("NIGHTMARE");
-		M_StartMessage (msg, 0, NAME_StartgameConfirmed);
+		M_StartMessage (msg, 0, -1, NAME_StartgameConfirmed);
 		return;
 	}
 
 	case NAME_Savegamemenu:
-		if (!usergame || (players[consoleplayer].health <= 0 && !multiplayer) || gamestate != GS_LEVEL)
+		if (gi->canSave())
 		{
 			// cannot save outside the game.
-			M_StartMessage (GStrings("SAVEDEAD"), 1);
+			M_StartMessage (GStrings("SAVEDEAD"), 1, -1);
 			return;
 		}
 #endif
@@ -861,6 +861,18 @@ void Menu_Close(int playerid)
 {
 	M_ClearMenus();
 }
+//=============================================================================
+//
+//
+//
+//=============================================================================
+CVAR(Bool, menu_sounds, true, CVAR_ARCHIVE) // added mainly because RR's sounds are so supremely annoying.
+
+void M_MenuSound(EMenuSounds snd)
+{
+	if (menu_sounds) gi->MenuSound(snd);
+}
+
 //=============================================================================
 //
 //

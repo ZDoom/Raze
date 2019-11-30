@@ -380,6 +380,22 @@ ImageScroller "HelpMenu"
 		ImageItem "TEXTSTORY", 400
 		ImageItem "F1HELP", 401
 	}
+	ifgame(blood)
+	{
+		QAVAnimationItem "Help4"
+		QAVAnimationItem "Help5"
+		QAVAnimationItem "Help3"
+		QAVAnimationItem "Help3b"
+	}
+	ifgame(ShadowWarrior)
+	{
+		// The menu has no default binding, but if someone tries to open it anyway show the cool retro ads that were shipped with the game. :D
+		ImageItem "#5262"
+		ifnotshareware
+		{
+			ImageItem "#5261"
+		}
+	}
 }
 
 //-------------------------------------------------------------------------------------------
@@ -395,12 +411,18 @@ ImageScroller "HelpMenu"
 
 ImageScroller "CreditsMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury)
+	ifgame(Duke, Nam, WW2GI)
 	{
 		ImageItem "CREDITSTEXT1", 990
 		ImageItem "CREDITSTEXT2", 991
 		ImageItem "CREDITSTEXT3", 992
 		animatedtransition
+	}
+	ifgame(fury)
+	{
+		// Ion Fury does not have a separate credits menu, so if someone tries to open it anyway, use the same screens as "Help" but start on the one for the credits.
+		ImageItem "F1HELP", 401
+		ImageItem "TEXTSTORY", 400
 	}
 	ifgame(Redneck)
 	{
@@ -463,6 +485,22 @@ ImageScroller "CreditsMenu"
 		TextItem "EXTRA SPECIAL THANKS\n\nBRIAN FARGO", 80
 		TextItem "REDNECK RAMPAGE RIDES AGAIN\n(c) 1998 XATRIX ENTERTAINMENT, INC.\n\nREDNECK RAMPAGE RIDES AGAIN\nIS A TRADEMARK OF\nINTERPLAY PRODUCTIONS", 70
 		animatedtransition
+	}
+	ifgame(blood)
+	{
+		QAVAnimationItem "Credits"
+	}
+	ifgame(ShadowWarrior)
+	{
+		ifshareware
+		{
+			ImageItem "#5110"
+			ImageItem "#5112"
+		}
+		ImageItem "#5111"
+		ImageItem "#5118"
+		ImageItem "#4979"
+		ImageItem "#5113"
 	}
 }
 	

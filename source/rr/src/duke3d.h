@@ -160,7 +160,7 @@ struct GameInterface : ::GameInterface
 	GameStats getStats() override;
 	void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int flags);
 	void MenuOpened() override;
-	void MenuSound(::GameInterface::EMenuSounds snd) override;
+	void MenuSound(EMenuSounds snd) override;
 	void MenuClosed() override;
 	bool CanSave() override;
 	void StartGame(FGameStartup& gs) override;

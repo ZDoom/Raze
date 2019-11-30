@@ -601,6 +601,19 @@ static void ParseImageScrollerBody(FScanner &sc, FImageScrollerDescriptor *desc)
 			}
 			desc->mItems.Push(item);
 		}
+		else if (sc.Compare("qavanimationitem"))
+		{
+			if (!(g_gameType & GAMEFLAG_BLOOD))
+			{
+				I_Error("QAV animations not available!"); // these (currently) only exist in Blood.
+			}
+			FImageScrollerDescriptor::ScrollerItem item;
+			sc.GetString();
+			item.text = sc.String;
+			item.type = -1;
+			item.scriptID = INT_MAX;
+			desc->mItems.Push(item);
+		}
 		else if (sc.Compare("animatedtransition"))
 		{
 			desc->mFlags |= LMF_Animate;
