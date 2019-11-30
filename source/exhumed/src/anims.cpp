@@ -165,16 +165,16 @@ void FuncAnim(int a, int, int nRun)
 
             if (sprite[nSprite].statnum == kStatIgnited)
             {
-                short nHitag = sprite[nSprite].hitag;
-                if (nHitag > -1)
+                short nSpriteB = sprite[nSprite].hitag;
+                if (nSpriteB > -1)
                 {
-                    sprite[nSprite].x = sprite[nHitag].x;
-                    sprite[nSprite].y = sprite[nHitag].y;
-                    sprite[nSprite].z = sprite[nHitag].z;
+                    sprite[nSprite].x = sprite[nSpriteB].x;
+                    sprite[nSprite].y = sprite[nSpriteB].y;
+                    sprite[nSprite].z = sprite[nSpriteB].z;
 
-                    if (sprite[nHitag].sectnum != sprite[nSprite].sectnum)
+                    if (sprite[nSpriteB].sectnum != sprite[nSprite].sectnum)
                     {
-                        if (sprite[nHitag].sectnum < 0 || sprite[nHitag].sectnum >= kMaxSectors)
+                        if (sprite[nSpriteB].sectnum < 0 || sprite[nSpriteB].sectnum >= kMaxSectors)
                         {
                             DestroyAnim(nAnim);
                             mydeletesprite(nSprite);
@@ -182,46 +182,50 @@ void FuncAnim(int a, int, int nRun)
                         }
                         else
                         {
-                            mychangespritesect(nSprite, sprite[nHitag].sectnum);
+                            mychangespritesect(nSprite, sprite[nSpriteB].sectnum);
                         }
                     }
 
                     if (!var_1C)
                     {
-                        if (sprite[nHitag].cstat != 0x8000)
+                        if (sprite[nSpriteB].cstat != 0x8000)
                         {
-                            short hitag2 = sprite[nHitag].hitag;
-                            sprite[nHitag].hitag--;
+                            short hitag2 = sprite[nSpriteB].hitag;
+                            sprite[nSpriteB].hitag--;
 
                             if (hitag2 >= 15)
                             {
-                                runlist_DamageEnemy(nHitag, -1, (sprite[nHitag].hitag - 14) * 2);
-                                if (sprite[nHitag].shade < 100)
+                                runlist_DamageEnemy(nSpriteB, -1, (sprite[nSpriteB].hitag - 14) * 2);
+
+                                if (sprite[nSpriteB].shade < 100)
                                 {
-                                    sprite[nHitag].pal = 0;
-                                    sprite[nHitag].shade++;
+                                    sprite[nSpriteB].pal = 0;
+                                    sprite[nSpriteB].shade++;
                                 }
 
-                                if (!(sprite[nHitag].cstat & 101))
+                                if (!(sprite[nSpriteB].cstat & 101))
                                 {
                                     DestroyAnim(nAnim);
                                     mydeletesprite(nSprite);
                                     return;
                                 }
-
-                                goto loc_2D755;
+                            }
+                            else
+                            {
+                                sprite[nSpriteB].hitag = 1;
+                                DestroyAnim(nAnim);
+                                mydeletesprite(nSprite);
                             }
                         }
-
-                        sprite[nHitag].hitag = 1;
-                        DestroyAnim(nAnim);
-                        mydeletesprite(nSprite);
+                        else
+                        {
+                            sprite[nSpriteB].hitag = 1;
+                            DestroyAnim(nAnim);
+                            mydeletesprite(nSprite);
+                        }
                     }
                 }
             }
-
-            // loc_2D755
-loc_2D755:
 
             AnimList[nAnim].field_2++;
             if (AnimList[nAnim].field_2 >= SeqSize[nSeq])
