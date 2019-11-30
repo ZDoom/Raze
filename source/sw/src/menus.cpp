@@ -836,7 +836,7 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
 	// Todo: Branch off to the generic keybind menu.
     const int PGSIZ = 9;
     const char *strs[] = { "Select the function to assign to", "%s", "or ESCAPE to cancel." };
-    int topitem = 0, botitem = NUMGAMEFUNCTIONS-1;
+    int topitem = 0, botitem = NUMGAMEFUNCTIONS;
     int i, j, y;
     short w, h=0;
     int returnval = 0;
@@ -853,13 +853,13 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
     }
     else if (inputState.GetKeyStatus(sc_End))
     {
-        *currentfunc = NUMGAMEFUNCTIONS-1;   // -1 because the last one is the console and the top is 'none'
+        *currentfunc = NUMGAMEFUNCTIONS;
         inputState.ClearKeyStatus(sc_End);
     }
     else if (inputState.GetKeyStatus(sc_PgDn))
     {
         *currentfunc += PGSIZ;
-        if (*currentfunc >= NUMGAMEFUNCTIONS) *currentfunc = NUMGAMEFUNCTIONS-1;
+        if (*currentfunc > NUMGAMEFUNCTIONS) *currentfunc = NUMGAMEFUNCTIONS;
         inputState.ClearKeyStatus(sc_PgDn);
     }
     else if (inputState.GetKeyStatus(sc_PgUp))
@@ -881,11 +881,11 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
 	else if (I_MenuDown())
 	{
 		I_MenuDownClear();
-		*currentfunc = min(NUMGAMEFUNCTIONS - 1, *currentfunc + 1);
+		*currentfunc = min(NUMGAMEFUNCTIONS, *currentfunc + 1);
 	}
 
 
-    if (NUMGAMEFUNCTIONS-1 > PGSIZ)
+    if (NUMGAMEFUNCTIONS > PGSIZ)
     {
         topitem = *currentfunc - PGSIZ/2;
         botitem = topitem + PGSIZ;
@@ -895,9 +895,9 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
             botitem += -topitem;
             topitem = 0;
         }
-        else if (botitem >= NUMGAMEFUNCTIONS)
+        else if (botitem > NUMGAMEFUNCTIONS)
         {
-            botitem = NUMGAMEFUNCTIONS-1;
+            botitem = NUMGAMEFUNCTIONS;
             topitem = botitem - PGSIZ;
         }
     }
@@ -941,7 +941,7 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
         MNU_MeasureSmallString(morestr,&dx,&dy);
         if (topitem > 0)
             MNU_DrawSmallString(XDIM - OPT_XS - dx, OPT_LINE(4), morestr, 8,16);
-        if (botitem < NUMGAMEFUNCTIONS-1)
+        if (botitem < NUMGAMEFUNCTIONS)
             MNU_DrawSmallString(XDIM - OPT_XS - dx, OPT_LINE(4)+PGSIZ*8, morestr, 8,16);
     }
 
