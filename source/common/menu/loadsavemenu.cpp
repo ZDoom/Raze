@@ -417,7 +417,7 @@ protected:
 						FString EndString;
 						EndString.Format("%s" TEXTCOLOR_WHITE "%s" TEXTCOLOR_NORMAL "?\n\n%s",
 							GStrings("MNU_DELETESG"), manager.GetSavegame(Selected)->SaveTitle.GetChars(), GStrings("PRESSYN"));
-						M_StartMessage(EndString, 0);
+						M_StartMessage(EndString, 0, -1);
 					}
 					return true;
 					}

@@ -98,9 +98,11 @@ enum EMenuSounds : int
 	AdvanceSound,
 	BackSound,
 	CloseSound,
-	PageSound
+	PageSound,
 	ChangeSound
 };
+
+EXTERN_CVAR(Bool, menu_sounds)
 
 struct event_t;
 class FTexture;

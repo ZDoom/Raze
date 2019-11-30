@@ -426,7 +426,6 @@ bool GameInterface::CanSave()
 	return true;
 }
 
-EXTERN_CVAR(Bool, menu_sounds)
 void GameInterface::StartGame(FGameStartup& gs)
 {
 	int32_t skillsound = PISTOL_BODYHIT;

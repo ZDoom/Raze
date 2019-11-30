@@ -507,8 +507,6 @@ void GameInterface::CustomMenuSelection(int menu, int item)
 	VM_OnEventWithReturn(EVENT_NEWGAMECUSTOM, -1, myconnectindex, menu);
 }
 
-EXTERN_CVAR(Bool, menu_sounds)
-
 void GameInterface::StartGame(FGameStartup& gs)
 {
 	int32_t skillsound = PISTOL_BODYHIT;

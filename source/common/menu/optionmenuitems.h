@@ -34,6 +34,7 @@
 #include "v_text.h"
 #include "v_draw.h"
 #include "gstrings.h"
+#include "v_font.h"
 
 
 void M_DrawConText (int color, int x, int y, const char *str);
@@ -901,7 +902,7 @@ public:
 			M_MenuSound(AdvanceSound);
 			mEditName = GetCVarString();
 			mEntering = true;
-			DMenu* input = new DTextEnterMenu ( DMenu::CurrentMenu, mEditName, sizeof mEditName, 2, fromcontroller );
+			DMenu* input = new DTextEnterMenu(DMenu::CurrentMenu, NewSmallFont, mEditName, 256, fromcontroller );
 			M_ActivateMenu( input );
 			return true;
 		}

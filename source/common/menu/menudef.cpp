@@ -879,11 +879,11 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 		{
 			sc.MustGetString();
 			FString label = sc.String;
-			bool cr = false;
+			EColorRange cr = OptionSettings.mFontColorHeader;
 			if (sc.CheckString(","))
 			{
 				sc.MustGetNumber();
-				cr = !!sc.Number;
+				cr = sc.Number? OptionSettings.mFontColorHeader : OptionSettings.mFontColor;	// fixme!
 			}
 			FOptionMenuItem *it = new FOptionMenuItemStaticText(label, cr);
 			desc->mItems.Push(it);
@@ -898,11 +898,11 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 			sc.MustGetStringName(",");
 			sc.MustGetString();
 			FName action = sc.String;
-			bool cr = false;
+			EColorRange cr = OptionSettings.mFontColorHeader;
 			if (sc.CheckString(","))
 			{
 				sc.MustGetNumber();
-				cr = !!sc.Number;
+				cr = sc.Number ? OptionSettings.mFontColorHeader : OptionSettings.mFontColor;	// fixme!
 			}
 			FOptionMenuItem *it = new FOptionMenuItemStaticTextSwitchable(label, label2, action, cr);
 			desc->mItems.Push(it);
