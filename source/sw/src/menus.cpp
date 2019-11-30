@@ -882,7 +882,7 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
 	else if (I_MenuDown())
 	{
 		I_MenuDownClear();
-		*currentfunc = min(NUMGAMEFUNCTIONS, *currentfunc + 1);
+		*currentfunc = std::min<int>(NUMGAMEFUNCTIONS, *currentfunc + 1);
 	}
 
 

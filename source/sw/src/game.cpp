@@ -94,6 +94,7 @@ Things required to make savegames work:
 #include "gameconfigfile.h"
 #include "printf.h"
 #include "m_argv.h"
+#include "debugbreak.h"
 
 //#include "crc32.h"
 
@@ -3355,7 +3356,7 @@ SWBOOL DoQuickSave(short save_num)
 
 SWBOOL DoQuickLoad()
 {
-    KB_ClearKeysDown();
+    inputState.ClearKeysDown();
 
     PauseAction();
 
@@ -3474,16 +3475,14 @@ FunctionKeys(PLAYERp pp)
 			inputState.ClearKeyStatus(KEYSC_F6);
 			if (!TEST(pp->Flags, PF_DEAD))
             {
-				inputState.SetKeyStatus(sc_Escape);
                 if (QuickLoadNum < 0)
                 {
-                    KEY_PRESSED(KEYSC_ESC) = 1;
-                    ControlPanelType = ct_savemenu;
+					inputState.SetKeyStatus(sc_Escape);
+					ControlPanelType = ct_savemenu;
             }
                 else
                 {
-                    KB_ClearKeysDown();
-                    KB_FlushKeyboardQueue();
+					inputState.ClearAllInput();
                     DoQuickSave(QuickLoadNum);
                     ResumeAction();
         }
@@ -3499,8 +3498,8 @@ FunctionKeys(PLAYERp pp)
             {
                 if (QuickLoadNum < 0)
                 {
-                    KEY_PRESSED(KEYSC_ESC) = 1;
-                    ControlPanelType = ct_loadmenu;
+					inputState.SetKeyStatus(sc_Escape);
+					ControlPanelType = ct_loadmenu;
                 }
                 else
                 {
@@ -4296,9 +4295,9 @@ void getinput(SW_PACKET *loc)
         SET(loc->bits, prev_weapon + 1);
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Alt_Weapon_Mode))
+    if (buttonMap.ButtonDown(gamefunc_Alt_Weapon))
     {
-        buttonMap.ClearButton(gamefunc_Alt_Weapon_Mode);
+        buttonMap.ClearButton(gamefunc_Alt_Weapon);
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
         SET(loc->bits, which_weapon);
