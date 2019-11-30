@@ -400,7 +400,7 @@ case_3:
             SpiderList[nSpider].nHealth -= nDamage;
             if (SpiderList[nSpider].nHealth > 0)
             {
-                if (sprite[nTarget].statnum == 100)
+                if (nTarget > -1 && sprite[nTarget].statnum == 100)
                 {
                     SpiderList[nSpider].nTarget = nTarget;
                 }
