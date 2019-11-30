@@ -74,7 +74,7 @@ LISTMENU "MainMenu"
 LISTMENU "IngameMenu"
 {
 	ScriptId 50
-	ifgame(Duke, Nam, WW2GI, Fury)
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
 	{
 		ifgame(fury)
 		{
@@ -121,7 +121,7 @@ LISTMENU "IngameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_COOLSTUFF", "h", "HelpMenu"
+		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 }

@@ -151,6 +151,7 @@ static void Menu_DrawTopBar(const DVector2 &origin)
 static void Menu_DrawTopBarCaption(const char* caption, const DVector2& origin)
 {
 	static char t[64];
+	if (*caption == '$') caption = GStrings(caption + 1);
 	size_t const srclen = strlen(caption);
 	size_t const dstlen = min(srclen, ARRAY_SIZE(t) - 1);
 	memcpy(t, caption, dstlen);
