@@ -28,6 +28,10 @@ CRC
 	RR_CRC 0x19D9BC79
 	RRRA_CRC 0x958018C6
 	BLOOD_CRC 0xA8FDDA84
+	SWREG12_CRC 0x7545319F
+	SWWD_CRC 0xA9AAA7B7
+	SWTD_CRC 0xA1A65BE8
+
 	POWERSLAVE_CRC 0x303CBD89
 	EXHUMED_CRC 0xE3B172F1
 
@@ -90,7 +94,7 @@ grpinfo
 	size 9690241
 	crc DUKE099_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_DUKEBETA
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -100,7 +104,7 @@ grpinfo
 	size 10429258
 	crc DUKE10_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -110,7 +114,7 @@ grpinfo
 	size 10442980
 	crc DUKE11_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -120,7 +124,7 @@ grpinfo
 	size 11035779
 	crc DUKESW_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -130,7 +134,7 @@ grpinfo
 	size 10444391
 	crc DUKEMD_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -140,7 +144,7 @@ grpinfo
 	size 10628573
 	crc DUKEMD2_CRC
 	flags GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE
-	gamefilter "Duke.Duke"
+	gamefilter "Duke.Shareware"
 	dependency 0
 }
 
@@ -331,8 +335,8 @@ grpinfo
 
 grpinfo
 {
+	// This is for detecting zipped versions of the mod. The default configuration with all files dumped in the game filter requires starting the game with "-route66"
 	name "Redneck Rampage: Suckin' Grits on Route 66"
-	loaddirectory
 	scriptname "GAME66.CON"
 	mustcontain "TILESA66.ART", "TILESB66.ART", "CARNIVAL.MAP", "TRUCKSTP.MAP", "GAME66.CON"
 	flags GAMEFLAG_RR|GAMEFLAG_ADDON
@@ -356,13 +360,26 @@ grpinfo
 
 grpinfo
 {
+	// This is for identifying older Blood versions. Since I have no information, all I can do is testing for a few known files.
+	name "BLOOD: Unknown Version"
+	mustcontain "help1.qav", "cult2d2.seq", "tombstn1.kvx", "normal.plu"
+	defname "blood.def"
+	scriptname "BLOOD.INI"
+	flags GAMEFLAG_BLOOD
+	dependency 0
+	loadgrp "SOUNDS.RFF", "GUI.RFF"
+	gamefilter "Blood.Blood"
+}
+
+grpinfo
+{
+	// This is for detecting zipped versions of the mod. The default configuration with all files dumped in the game filter requires starting the game with "-cryptic"
 	name "BLOOD: Cryptic Passage"
-	loaddirectory
 	scriptname "CRYPTIC.INI"
 	mustcontain "CRYPTIC.INI", "CP01.MAP", "CP02.MAP"
 	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
 	dependency BLOOD_CRC
-	loadart "CPART07.AR_", "CPART15.AR_" // some versions have these file names, some have the real ones instead so these must be listed but cannot be used for checking.
+	loadart "CPART07.AR_", "CPART15.AR_"
 	gamefilter "Blood.Cryptic"
 }
 
@@ -370,11 +387,74 @@ grpinfo
 {
 	name "Shadow Warrior"
 	flags GAMEFLAG_SW
-	crc 0x7545319F
+	crc SWREG12_CRC
 	size 47536148
 	defname "sw.def"
 	gamefilter "ShadowWarrior.ShadowWarrior"
 }
+
+grpinfo
+{
+	name "Shadow Warrior Shareware 1.0"
+	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
+	crc 0xDAA6BECE
+	size 25702245
+	defname "sw.def"
+	gamefilter "ShadowWarrior.Shareware"
+}
+
+grpinfo
+{
+	name "Shadow Warrior Shareware 1.1"
+	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
+	crc 0xF21A6B35
+	size 25833456
+	defname "sw.def"
+	gamefilter "ShadowWarrior.Shareware"
+}
+
+grpinfo
+{
+	name "Shadow Warrior Shareware 1.2"
+	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
+	crc 0x08A7FA1F
+	size 26056769
+	defname "sw.def"
+	gamefilter "ShadowWarrior.Shareware"
+}
+
+grpinfo
+{
+	name "Shadow Warrior Mac Demo"
+	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
+	crc 0x4227F535
+	size 26056769
+	defname "sw.def"
+	gamefilter "ShadowWarrior.Shareware"
+}
+
+grpinfo
+{
+	name "Shadow Warrior: Wanton Destruction"
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	crc SWWD_CRC
+	size 48698128
+	defname "sw.def"
+	dependency SWREG12_CRC
+	gamefilter "ShadowWarrior.Wanton"
+}
+
+grpinfo
+{
+	name "Shadow Warrior: Twin Dragon"
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	crc SWTD_CRC
+	size 12499012
+	defname "twindrag.def"	// included in the GRP
+	dependency SWREG12_CRC
+	gamefilter "ShadowWarrior.TwinDragon"
+}
+
 
 grpinfo
 {
