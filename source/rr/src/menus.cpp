@@ -1472,17 +1472,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_MOUSEADVANCED:
         break;
 
-    case MENU_RESETPLAYER:
-        videoFadeToBlack(1);
-        Bsprintf(tempbuf, "Load last game:\n\"%s\""
-#ifndef EDUKE32_ANDROID_MENU
-                          "\n(Y/N)"
-#endif
-        , g_quickload->name);
-        mgametextcenter(origin.x, origin.y + (90<<16), tempbuf);
-        break;
-
-
     case MENU_NEWVERIFY:
         videoFadeToBlack(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Abort this game?"

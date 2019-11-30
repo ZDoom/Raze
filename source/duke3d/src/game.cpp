@@ -4688,45 +4688,6 @@ void G_HandleLocalKeys(void)
             typebuf[0] = 0;
         }
 
-        if ((buttonMap.ButtonDown(gamefunc_Quick_Save) || g_doQuickSave == 1) && (myplayer.gm & MODE_GAME))
-        {
-            buttonMap.ClearButton(gamefunc_Quick_Save);
-
-            g_doQuickSave = 0;
-
-			if (!g_lastusersave.isValid())
-			{
-				C_DoCommand("opensavemenu");
-				return;
-			}
-            inputState.keyFlushChars();
-
-            if (sprite[myplayer.i].extra <= 0)
-            {
-                P_DoQuote(QUOTE_SAVE_DEAD, &myplayer);
-                return;
-            }
-
-            g_screenCapture = 1;
-            G_DrawRooms(myconnectindex,65536);
-            g_screenCapture = 0;
-
-            if (g_lastusersave.isValid())
-            {
-                savebrief_t & sv = g_lastusersave;
-
-                // dirty hack... char 127 in last position indicates an auto-filled name
-                if (sv.name[MAXSAVEGAMENAME] == 127)
-                {
-                    strncpy(sv.name, g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME);
-                    sv.name[MAXSAVEGAMENAME] = 127;
-                }
-
-                g_quickload = &sv;
-                G_SavePlayerMaybeMulti(sv);
-            }
-        }
-
         if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
         {
             buttonMap.ClearButton(gamefunc_Third_Person_View);
@@ -4749,25 +4710,6 @@ void G_HandleLocalKeys(void)
             hud_messages     = fta;
         }
 
-        if ((buttonMap.ButtonDown(gamefunc_Quick_Load) || g_doQuickSave == 2) && (myplayer.gm & MODE_GAME))
-        {
-            buttonMap.ClearButton(gamefunc_Quick_Load);
-
-            g_doQuickSave = 0;
-
-			if (g_quickload == nullptr || !g_quickload->isValid())
-			{
-				C_DoCommand("openloadmenu");
-			}
-            else if (g_quickload->isValid())
-            {
-                inputState.keyFlushChars();
-                inputState.ClearKeysDown();
-                S_PauseSounds(true);
-                if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
-                    g_quickload->reset();
-            }
-        }
 
         if (ud.overhead_on != 0)
         {
@@ -6362,12 +6304,7 @@ MAIN_LOOP_RESTART:
             inputState.keyFlushChars();
             videoNextPage();
 
-            g_screenCapture = 1;
-            G_DrawRooms(myconnectindex, 65536);
-            g_screenCapture = 0;
-
-            G_SavePlayerMaybeMulti(g_lastautosave, true);
-            g_quickload = &g_lastautosave;
+			M_Autosave();
 
             g_saveRequested = false;
         }

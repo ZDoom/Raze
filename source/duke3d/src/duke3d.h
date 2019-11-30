@@ -167,6 +167,8 @@ struct GameInterface : ::GameInterface
 	bool DrawSpecialScreen(const DVector2 &origin, int tilenum) override;
 	void DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position) override;
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
+	bool SaveGame(FSaveGameNode*) override;
+	bool LoadGame(FSaveGameNode*) override;
 
 };
 

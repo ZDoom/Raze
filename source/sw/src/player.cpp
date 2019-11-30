@@ -6475,7 +6475,6 @@ DoPlayerBeginDie(PLAYERp pp)
     short bak;
     int choosesnd = 0;
     extern short GlobInfoStringTime;
-    extern short QuickLoadNum;
 
     USERp u = User[pp->PlayerSprite];
 
@@ -6518,11 +6517,13 @@ DoPlayerBeginDie(PLAYERp pp)
     PlayerSound(PlayerLowHealthPainVocs[choosesnd],&pp->posx,
                 &pp->posy,&pp->posy,v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
+#if 0
     if (!CommEnabled && numplayers <= 1 && QuickLoadNum >= 0)
     {
         ReloadPrompt = TRUE;
     }
     else
+#endif
     {
         bak = GlobInfoStringTime;
         GlobInfoStringTime = 999;

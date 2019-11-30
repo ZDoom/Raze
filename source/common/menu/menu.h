@@ -94,6 +94,7 @@ enum EMenuState : int
 
 enum EMenuSounds : int
 {
+	ActivateSound,
 	CursorSound,
 	AdvanceSound,
 	BackSound,
@@ -742,6 +743,7 @@ void M_NotifyNewSave (const char *file, const char *title, bool okForQuicksave);
 void M_StartMessage(const char *message, int messagemode, int scriptId, FName action = NAME_None);
 void M_UnhideCustomMenu(int menu, int itemmask);
 void M_MenuSound(EMenuSounds snd);
+void M_Autosave();
 
 
 void I_SetMouseCapture();
@@ -749,6 +751,10 @@ void I_ReleaseMouseCapture();
 
 struct MenuClassDescriptor;
 extern TArray<MenuClassDescriptor*> menuClasses;
+
+using hFunc = std::function<void(bool)>;
+DMenu* CreateMessageBoxMenu(DMenu* parent, const char* message, int messagemode, int scriptID, bool playsound, FName action = NAME_None, hFunc handler = nullptr);
+
 
 struct MenuClassDescriptor
 {
@@ -771,15 +777,6 @@ template<class Menu> struct TMenuClassDescriptor : public MenuClassDescriptor
 	}
 };
 
-
-struct FSaveGameNode
-{
-	FString SaveTitle;
-	FString Filename;
-	bool bOldVersion = false;
-	bool bMissingWads = false;
-	bool bNoDelete = false;
-};
 
 struct FSavegameManager
 {
@@ -818,6 +815,9 @@ public:
 	FSaveGameNode *GetSavegame(int i);
 	void InsertNewSaveNode();
 	bool RemoveNewSaveNode();
+
+	void LoadGame(FSaveGameNode* node, bool ok4q, bool forceq);
+	void SaveGame(FSaveGameNode* node);
 
 };
 

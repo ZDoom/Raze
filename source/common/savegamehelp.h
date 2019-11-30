@@ -20,3 +20,4 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle);
 void G_WriteSaveHeader(const char *name, const char*mapname, const char *title);
 
 #define SAVEGAME_EXT ".dsave"
+

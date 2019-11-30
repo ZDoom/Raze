@@ -57,62 +57,13 @@ typedef struct
     uint8_t numplayers, volnum, levnum, skill;
     char boardfn[BMAX_PATH];
     // 286 bytes
-#ifdef __ANDROID__
-    char skillname[32], volname[32];
-#endif
 
-    uint8_t getPtrSize() const { return ptrsize & 0x7Fu; }
-    bool isAutoSave() const { return !!(ptrsize & (1u<<7u)); }
+    uint8_t getPtrSize() const { return ptrsize; }
 } savehead_t;
 #pragma pack(pop)
 
-struct savebrief_t
-{
-    savebrief_t()
-    {
-        reset();
-    }
-    savebrief_t(char const *n)
-    {
-        strncpy(name, n, MAXSAVEGAMENAME);
-        path[0] = '\0';
-    }
-
-    char name[MAXSAVEGAMENAMESTRUCT];
-    char path[BMAX_PATH];
-    uint8_t isExt = 0;
-
-    void reset()
-    {
-        name[0] = '\0';
-        path[0] = '\0';
-        isExt = 0;
-    }
-    bool isValid() const
-    {
-        return path[0] != '\0';
-    }
-};
-
-struct menusave_t
-{
-    savebrief_t brief;
-    uint8_t isOldVer = 0;
-    uint8_t isUnreadable = 0;
-    uint8_t isAutoSave = 0;
-    void clear()
-    {
-        brief.reset();
-        isOldVer = 0;
-        isUnreadable = 0;
-        isAutoSave = 0;
-    }
-};
-
-extern savebrief_t g_lastautosave, g_lastusersave, g_freshload;
-extern int32_t g_lastAutoSaveArbitraryID;
+extern int32_t g_fakeSaveID;
 extern bool g_saveRequested;
-extern savebrief_t * g_quickload;
 
 
 int32_t sv_updatestate(int32_t frominit);
@@ -120,14 +71,10 @@ int32_t sv_readdiff(FileReader& fil);
 uint32_t sv_writediff(FileWriter *fil);
 int32_t sv_loadheader(FileReader &fil, int32_t spot, savehead_t *h);
 int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h);
-int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave = false);
+int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress);
 void sv_freemem();
-int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave);
-int32_t G_LoadPlayer(savebrief_t & sv);
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh);
 void ReadSaveGameHeaders(void);
-void G_SavePlayerMaybeMulti(savebrief_t & sv, bool isAutoSave = false);
-int32_t G_LoadPlayerMaybeMulti(savebrief_t & sv);
 
 #ifdef YAX_ENABLE
 extern void sv_postyaxload(void);

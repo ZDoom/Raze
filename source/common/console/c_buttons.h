@@ -72,8 +72,6 @@ enum GameFunction_t
 	gamefunc_Dpad_Aiming,
 	gamefunc_AutoRun,
 	gamefunc_Last_Weapon,
-	gamefunc_Quick_Save,
-	gamefunc_Quick_Load,
 	gamefunc_Alt_Weapon,
 	gamefunc_Third_Person_View,
 	gamefunc_See_Chase_View = gamefunc_Third_Person_View,	// this was added by Blood

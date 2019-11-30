@@ -36,6 +36,7 @@ bool	IsNum (const char *str);		// [RH] added
 
 bool CheckWildcards (const char *pattern, const char *text);
 
+const char* myasctime();
 int strbin (char *str);
 FString strbin1 (const char *start);
 

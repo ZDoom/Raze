@@ -762,38 +762,6 @@ void StartNetworkLevel(void)
 
 int gDoQuickSave = 0;
 
-static void DoQuickLoad(void)
-{
-    if (!gGameMenuMgr.m_bActive)
-    {
-        if (gQuickLoadSlot != -1)
-        {
-            QuickLoadGame();
-            return;
-        }
-        if (gQuickLoadSlot == -1 && gQuickSaveSlot != -1)
-        {
-            gQuickLoadSlot = gQuickSaveSlot;
-            QuickLoadGame();
-            return;
-        }
-        gGameMenuMgr.Push(&menuLoadGame,-1);
-    }
-}
-
-static void DoQuickSave(void)
-{
-    if (gGameStarted && !gGameMenuMgr.m_bActive && gPlayer[myconnectindex].pXSprite->health != 0)
-    {
-        if (gQuickSaveSlot != -1)
-        {
-            QuickSaveGame();
-            return;
-        }
-        gGameMenuMgr.Push(&menuSaveGame,-1);
-    }
-}
-
 void LocalKeys(void)
 {
     bool alt = inputState.AltPressed();
@@ -830,21 +798,6 @@ void LocalKeys(void)
             } while (oldViewIndex != gViewIndex);
             gView = &gPlayer[gViewIndex];
         }
-    }
-    if (gDoQuickSave)
-    {
-        inputState.keyFlushScans();
-        switch (gDoQuickSave)
-        {
-        case 1:
-            DoQuickSave();
-            break;
-        case 2:
-            DoQuickLoad();
-            break;
-        }
-        gDoQuickSave = 0;
-        return;
     }
     char key;
     if ((key = inputState.keyGetScan()) != 0)
@@ -914,19 +867,11 @@ void LocalKeys(void)
             if (!gGameMenuMgr.m_bActive)
                 gGameMenuMgr.Push(&menuOptions,-1);
             return;
-        case sc_F6:
-            inputState.keyFlushScans();
-            DoQuickSave();
-            break;
         case sc_F8:
             inputState.keyFlushScans();
             if (!gGameMenuMgr.m_bActive)
                 gGameMenuMgr.Push(&menuOptionsDisplayMode, -1);
             return;
-        case sc_F9:
-            inputState.keyFlushScans();
-            DoQuickLoad();
-            break;
         case sc_F10:
             inputState.keyFlushScans();
             if (!gGameMenuMgr.m_bActive)

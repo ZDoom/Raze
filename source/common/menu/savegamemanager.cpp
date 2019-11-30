@@ -49,10 +49,26 @@
 #include "files.h"
 #include "savegamehelp.h"
 #include "i_specialpaths.h"
+#include "c_dispatch.h"
 #include "../../platform/win32/i_findfile.h"	// This is a temporary direct path. Needs to be fixed when stuff gets cleaned up.
 
 
 FSavegameManager savegameManager;
+
+void FSavegameManager::LoadGame(FSaveGameNode* node, bool ok4q, bool forceq)
+{
+	if (gi->LoadGame(node))
+	{
+		FString fn = node->Filename;
+		FString desc = node->SaveTitle;
+		NotifyNewSave(fn, desc, ok4q, forceq);
+	}
+}
+
+void FSavegameManager::SaveGame(FSaveGameNode* node)
+{
+	gi->SaveGame(node);
+}
 
 //=============================================================================
 //
@@ -261,7 +277,7 @@ void FSavegameManager::NotifyNewSave(const FString &file, const FString &title, 
 
 void FSavegameManager::LoadSavegame(int Selected)
 {
-	//G_LoadGame(SaveGames[Selected]->Filename.GetChars(), true);
+	savegameManager.LoadGame(SaveGames[Selected]);
 	if (quickSaveSlot == (FSaveGameNode*)1)
 	{
 		quickSaveSlot = SaveGames[Selected];
@@ -281,8 +297,9 @@ void FSavegameManager::DoSave(int Selected, const char *savegamestring)
 {
 	if (Selected != 0)
 	{
-		auto node = SaveGames[Selected];
-		//G_SaveGame(node->Filename.GetChars(), savegamestring);
+		auto node = *SaveGames[Selected];
+		node.SaveTitle = savegamestring;
+		savegameManager.SaveGame(&node);
 	}
 	else
 	{
@@ -298,7 +315,8 @@ void FSavegameManager::DoSave(int Selected, const char *savegamestring)
 				break;
 			}
 		}
-		//G_SaveGame(filename, savegamestring);
+		FSaveGameNode sg{ savegamestring, filename };
+		savegameManager.SaveGame(&sg);
 	}
 	M_ClearMenus();
 }
@@ -505,3 +523,575 @@ bool FSavegameManager::RemoveNewSaveNode()
 	return false;
 }
 
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+CVAR(Bool, saveloadconfirmation, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+CVAR(Int, autosavenum, 0, CVAR_NOSET | CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+static int nextautosave = -1;
+CVAR(Int, disableautosave, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CUSTOM_CVAR(Int, autosavecount, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	if (self < 1)
+		self = 1;
+}
+
+CVAR(Int, quicksavenum, 0, CVAR_NOSET | CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+static int nextquicksave = -1;
+ CUSTOM_CVAR(Int, quicksavecount, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	if (self < 1)
+		self = 1;
+}
+
+void M_Autosave()
+{
+	if (!gi->CanSave()) return;
+	FString description;
+	FString file;
+	// Keep a rotating sets of autosaves
+	UCVarValue num;
+	const char* readableTime;
+	int count = autosavecount != 0 ? autosavecount : 1;
+
+	if (nextautosave == -1)
+	{
+		nextautosave = (autosavenum + 1) % count;
+	}
+
+	num.Int = nextautosave;
+	autosavenum.ForceSet(num, CVAR_Int);
+
+	FSaveGameNode sg;
+	sg.Filename = G_BuildSaveName(FStringf("auto%04d", nextautosave));
+	readableTime = myasctime();
+	sg.SaveTitle.Format("Autosave %s", readableTime);
+	nextautosave = (nextautosave + 1) % count;
+	savegameManager.SaveGame(&sg);
+}
+
+CCMD(autosave)
+{
+	if (disableautosave) return;
+	M_Autosave();
+}
+
+CCMD(rotatingquicksave)
+{
+	if (!gi->CanSave()) return;
+	FString description;
+	FString file;
+	// Keep a rotating sets of quicksaves
+	UCVarValue num;
+	const char* readableTime;
+	int count = quicksavecount != 0 ? quicksavecount : 1;
+
+	if (nextquicksave == -1)
+	{
+		nextquicksave = (quicksavenum + 1) % count;
+	}
+
+	num.Int = nextquicksave;
+	quicksavenum.ForceSet(num, CVAR_Int);
+
+	FSaveGameNode sg;
+	sg.Filename = G_BuildSaveName(FStringf("quick%04d", nextquicksave));
+	readableTime = myasctime();
+	sg.SaveTitle.Format("Quicksave %s", readableTime);
+	nextquicksave = (nextquicksave + 1) % count;
+	savegameManager.SaveGame(&sg);
+}
+
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+CCMD(quicksave)
+{	// F6
+	if (!gi->CanSave()) return;
+
+	if (savegameManager.quickSaveSlot == NULL || savegameManager.quickSaveSlot == (FSaveGameNode*)1)
+	{
+		M_StartControlPanel(true);
+		M_SetMenu(NAME_SaveGameMenu);
+		return;
+	}
+
+	auto slot = savegameManager.quickSaveSlot;
+
+	// [mxd]. Just save the game, no questions asked.
+	if (!saveloadconfirmation)
+	{
+		savegameManager.SaveGame(savegameManager.quickSaveSlot);
+		return;
+	}
+
+	gi->MenuSound(ActivateSound);
+
+	FString tempstring = GStrings("QSPROMPT");
+	tempstring.Substitute("%s", slot->SaveTitle.GetChars());
+
+	DMenu* newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, tempstring, 0, INT_MAX, false, NAME_None, [](bool res)
+		{
+			if (res)
+			{
+				savegameManager.SaveGame(savegameManager.quickSaveSlot);
+			}
+		});
+
+	M_ActivateMenu(newmenu);
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+CCMD(quickload)
+{	// F9
+#if 0
+	if (netgame)
+	{
+		M_StartControlPanel(true);
+		M_StartMessage(GStrings("QLOADNET"), 1);
+		return;
+	}
+#endif
+
+	if (savegameManager.quickSaveSlot == nullptr || savegameManager.quickSaveSlot == (FSaveGameNode*)1)
+	{
+		M_StartControlPanel(true);
+		// signal that whatever gets loaded should be the new quicksave
+		savegameManager.quickSaveSlot = (FSaveGameNode*)1;
+		M_SetMenu(NAME_LoadGameMenu);
+		return;
+	}
+
+	// [mxd]. Just load the game, no questions asked.
+	if (!saveloadconfirmation)
+	{
+		savegameManager.LoadGame(savegameManager.quickSaveSlot);
+		return;
+	}
+	FString tempstring = GStrings("QLPROMPT");
+	tempstring.Substitute("%s", savegameManager.quickSaveSlot->SaveTitle.GetChars());
+
+	M_StartControlPanel(true);
+
+	DMenu* newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, tempstring, 0, INT_MAX, false, NAME_None, [](bool res)
+		{
+			if (res)
+			{
+				savegameManager.LoadGame(savegameManager.quickSaveSlot);
+			}
+		});
+	M_ActivateMenu(newmenu);
+}
+
+#if 0
+
+// Duke
+if ((buttonMap.ButtonDown(gamefunc_Quick_Load) || g_doQuickSave == 2) && (myplayer.gm & MODE_GAME))
+{
+	buttonMap.ClearButton(gamefunc_Quick_Load);
+
+	g_doQuickSave = 0;
+
+	if (g_quickload == nullptr || !g_quickload->isValid())
+	{
+		C_DoCommand("openloadmenu");
+	}
+	else if (g_quickload->isValid())
+	{
+		inputState.keyFlushChars();
+		inputState.ClearKeysDown();
+		if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
+			g_quickload->reset();
+	}
+}
+
+if ((buttonMap.ButtonDown(gamefunc_Quick_Save) || g_doQuickSave == 1) && (myplayer.gm & MODE_GAME))
+{
+	buttonMap.ClearButton(gamefunc_Quick_Save);
+
+	g_doQuickSave = 0;
+
+	if (!g_lastusersave.isValid())
+	{
+		C_DoCommand("opensavemenu");
+		return;
+	}
+	inputState.keyFlushChars();
+
+	if (sprite[myplayer.i].extra <= 0)
+	{
+		P_DoQuote(QUOTE_SAVE_DEAD, &myplayer);
+		return;
+	}
+
+	g_screenCapture = 1;
+	G_DrawRooms(myconnectindex, 65536);
+	g_screenCapture = 0;
+
+	if (g_lastusersave.isValid())
+	{
+		savebrief_t& sv = g_lastusersave;
+
+		// dirty hack... char 127 in last position indicates an auto-filled name
+		if (sv.name[MAXSAVEGAMENAME] == 127)
+		{
+			strncpy(sv.name, g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME);
+			sv.name[MAXSAVEGAMENAME] = 127;
+		}
+
+		g_quickload = &sv;
+		G_SavePlayerMaybeMulti(sv);
+	}
+		}
+
+
+// handle CON_SAVE and CON_SAVENN
+if (g_saveRequested)
+{
+	inputState.keyFlushChars();
+	videoNextPage();
+
+	g_screenCapture = 1;
+	G_DrawRooms(myconnectindex, 65536);
+	g_screenCapture = 0;
+
+	G_SavePlayerMaybeMulti(g_lastautosave, true);
+	g_quickload = &g_lastautosave;
+
+	OSD_Printf("Saved: %s\n", g_lastautosave.path);
+
+	g_saveRequested = false;
+}
+
+
+// RR
+
+if ((buttonMap.ButtonDown(gamefunc_Quick_Load) || g_doQuickSave == 2) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm & MODE_GAME))
+{
+	buttonMap.ClearButton(gamefunc_Quick_Load);
+
+	g_doQuickSave = 0;
+
+	if (g_quickload == nullptr || !g_quickload->isValid())
+	{
+		C_DoCommand("openloadmenu");
+	}
+	else if (g_quickload->isValid())
+	{
+		inputState.keyFlushChars();
+		inputState.ClearKeysDown();
+		S_PauseSounds(true);
+		if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
+			g_quickload->reset();
+	}
+}
+
+if ((buttonMap.ButtonDown(gamefunc_Quick_Save) || g_doQuickSave == 1) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm & MODE_GAME))
+{
+	buttonMap.ClearButton(gamefunc_Quick_Save);
+
+	g_doQuickSave = 0;
+
+	if (!g_lastusersave.isValid())
+	{
+		C_DoCommand("opensavemenu");
+		return;
+	}
+
+	inputState.keyFlushChars();
+
+	if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
+	{
+		P_DoQuote(QUOTE_SAVE_DEAD, g_player[myconnectindex].ps);
+		return;
+	}
+
+	g_screenCapture = 1;
+	G_DrawRooms(myconnectindex, 65536);
+	g_screenCapture = 0;
+
+	if (g_lastusersave.isValid())
+	{
+		savebrief_t& sv = g_lastusersave;
+
+		// dirty hack... char 127 in last position indicates an auto-filled name
+		if (sv.name[MAXSAVEGAMENAME] == 127)
+		{
+			strncpy(sv.name, g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME);
+			sv.name[MAXSAVEGAMENAME] = 127;
+		}
+
+		g_quickload = &sv;
+		G_SavePlayerMaybeMulti(sv);
+	}
+}
+
+// sw
+
+SWBOOL DoQuickSave(short save_num)
+{
+	PauseAction();
+
+	if (SaveGame(save_num) != -1)
+	{
+		QuickLoadNum = save_num;
+
+		LastSaveNum = -1;
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+SWBOOL DoQuickLoad()
+{
+	inputState.ClearKeysDown();
+
+	PauseAction();
+
+	ReloadPrompt = FALSE;
+	if (LoadGame(QuickLoadNum) == -1)
+	{
+		return FALSE;
+	}
+
+	ready2send = 1;
+	LastSaveNum = -1;
+
+	return TRUE;
+}
+
+
+// F6 quick save
+if (inputState.GetKeyStatus(KEYSC_F6))
+{
+	inputState.ClearKeyStatus(KEYSC_F6);
+	if (!TEST(pp->Flags, PF_DEAD))
+	{
+		if (QuickLoadNum < 0)
+		{
+			inputState.SetKeyStatus(sc_Escape);
+			ControlPanelType = ct_savemenu;
+		}
+		else
+		{
+			inputState.ClearAllInput();
+			DoQuickSave(QuickLoadNum);
+			ResumeAction();
+		}
+	}
+}
+
+// F9 quick load
+if (inputState.GetKeyStatus(KEYSC_F9))
+{
+	inputState.ClearKeyStatus(KEYSC_F9);
+
+	if (!TEST(pp->Flags, PF_DEAD))
+	{
+		if (QuickLoadNum < 0)
+		{
+			inputState.SetKeyStatus(sc_Escape);
+			ControlPanelType = ct_loadmenu;
+		}
+		else
+		{
+			DoQuickLoad();
+			ResumeAction();
+		}
+	}
+}
+
+////////////////////////////////////////////////
+//  Load Game menu
+//  This function gets called whenever you
+//  press enter on one of the load game
+//  spots.
+//  I'm figuring it need to do the following:
+//  . Load the game if there is one by calling: MNU_LoadGameCustom.
+////////////////////////////////////////////////
+SWBOOL MNU_GetLoadCustom(void)
+{
+	short load_num;
+
+	load_num = currentmenu->cursor;
+
+	// no saved game exists - don't do anything
+	if (SaveGameDescr[load_num][0] == '\0')
+		return FALSE;
+
+	if (InMenuLevel || DemoMode || DemoPlaying)
+	{
+		LoadSaveMsg("Loading...");
+
+		if (LoadGame(load_num) == -1)
+			return FALSE;
+
+		QuickLoadNum = load_num;
+		// the (Quick)Save menu should default to the last loaded game
+		SaveGameGroup.cursor = load_num;
+
+		ExitMenus();
+		ExitLevel = TRUE;
+		LoadGameOutsideMoveLoop = TRUE;
+		if (DemoMode || DemoPlaying)
+			LoadGameFromDemo = TRUE;
+
+		return TRUE;
+	}
+
+	LoadSaveMsg("Loading...");
+
+	PauseAction();
+
+	if (LoadGame(load_num) == -1)
+	{
+		ResumeAction();
+		return FALSE;
+	}
+
+	QuickLoadNum = load_num;
+	// the (Quick)Save menu should default to the last loaded game
+	SaveGameGroup.cursor = load_num;
+
+	ready2send = 1;
+	LastSaveNum = -1;
+	ExitMenus();
+
+	if (DemoMode)
+	{
+		ExitLevel = TRUE;
+		DemoPlaying = FALSE;
+	}
+
+	return TRUE;
+}
+
+////////////////////////////////////////////////
+//  Save Game menu
+//  This function gets called whenever you
+//  press enter on one of the save game
+//  spots.
+//  I'm figuring it need to do the following:
+//  . Call MNU_GetInput to allow string input of description.
+//  . Save the game if there is one by calling: MNU_SaveGameCustom.
+////////////////////////////////////////////////
+SWBOOL MNU_GetSaveCustom(void)
+{
+	short save_num;
+	extern SWBOOL InMenuLevel, LoadGameOutsideMoveLoop;
+
+	save_num = currentmenu->cursor;
+
+	if (InMenuLevel)
+		return FALSE;
+
+	if (MenuInputMode)
+	{
+		LoadSaveMsg("Saving...");
+
+		if (DoQuickSave(save_num) == FALSE)
+		{
+			LoadGameGroup.cursor = save_num;
+		}
+
+		ResumeAction();
+		ExitMenus();
+
+		// toggle edit mode
+		MenuInputMode = FALSE;
+	}
+	else
+	{
+		strcpy(BackupSaveGameDescr, SaveGameDescr[save_num]);
+
+		// clear keyboard buffer
+		while (inputState.keyBufferWaiting())
+		{
+			if (inputState.keyGetChar() == 0)
+				inputState.keyGetChar();
+		}
+
+		// toggle edit mode
+		MenuInputMode = TRUE;
+	}
+
+	return TRUE;
+}
+
+
+
+// Blood
+static void DoQuickLoad(void)
+{
+	if (!gGameMenuMgr.m_bActive)
+	{
+		if (gQuickLoadSlot != -1)
+		{
+			QuickLoadGame();
+			return;
+		}
+		if (gQuickLoadSlot == -1 && gQuickSaveSlot != -1)
+		{
+			gQuickLoadSlot = gQuickSaveSlot;
+			QuickLoadGame();
+			return;
+		}
+		gGameMenuMgr.Push(&menuLoadGame, -1);
+	}
+}
+
+static void DoQuickSave(void)
+{
+	if (gGameStarted && !gGameMenuMgr.m_bActive && gPlayer[myconnectindex].pXSprite->health != 0)
+	{
+		if (gQuickSaveSlot != -1)
+		{
+			QuickSaveGame();
+			return;
+		}
+		gGameMenuMgr.Push(&menuSaveGame, -1);
+	}
+}
+
+if (gDoQuickSave)
+{
+	inputState.keyFlushScans();
+	switch (gDoQuickSave)
+	{
+	case 1:
+		DoQuickSave();
+		break;
+	case 2:
+		DoQuickLoad();
+		break;
+	}
+	gDoQuickSave = 0;
+	return;
+}
+
+		case sc_F6:
+			inputState.keyFlushScans();
+			DoQuickSave();
+			break;
+		case sc_F9:
+			inputState.keyFlushScans();
+			DoQuickLoad();
+			break;
+
+
+#endif

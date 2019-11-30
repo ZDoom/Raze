@@ -10045,7 +10045,7 @@ void videoNextPage(void)
 
 	if (!recursion)
 	{
-		// This protection is needed because the menu can call scripts and the scripts can call the busy-looping Screen_Play script event
+		// This protection is needed because the menu can call scripts from inside its drawers and the scripts can call the busy-looping Screen_Play script event
 		// which calls videoNextPage for page flipping again. In this loop the UI drawers may not get called again.
 		// Ideally this stuff should be moved out of videoNextPage so that all those busy loops won't call UI overlays at all.
 		recursion = true;

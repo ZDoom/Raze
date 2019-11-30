@@ -2055,9 +2055,6 @@ void TenProcess(CGameMenuItem7EA1C *pItem)
     UNREFERENCED_PARAMETER(pItem);
 }
 
-short gQuickLoadSlot = -1;
-short gQuickSaveSlot = -1;
-
 void SaveGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
 {
     int nSlot = pItem->at28;
@@ -2077,31 +2074,6 @@ void SaveGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
     videoNextPage();
     gSaveGameNum = nSlot;
     LoadSave::SaveGame(strSaveGameName.GetChars());
-    gQuickSaveSlot = nSlot;
-    gGameMenuMgr.Deactivate();
-}
-
-void QuickSaveGame(void)
-{
-    if (gGameOptions.nGameType > 0 || !gGameStarted)
-        return;
-    /*if (strSaveGameName[0])
-    {
-        gGameMenuMgr.Deactivate();
-        return;
-    }*/
-	FStringf basename("save%04d", gQuickSaveSlot);
-	auto strSaveGameName = G_BuildSaveName(basename);
-
-    strcpy(gGameOptions.szUserGameName, strRestoreGameStrings[gQuickSaveSlot]);
-    sprintf(gGameOptions.szSaveGameName, "%s", strSaveGameName.GetChars());
-    gGameOptions.nSaveGameSlot = gQuickSaveSlot;
-    viewLoadingScreen(2518, "Saving", "Saving Your Game", strRestoreGameStrings[gQuickSaveSlot]);
-    videoNextPage();
-    LoadSave::SaveGame(strSaveGameName);
-    gGameOptions.picEntry = gSavedOffset;
-    gSaveGameOptions[gQuickSaveSlot] = gGameOptions;
-    UpdateSavedInfo(gQuickSaveSlot);
     gGameMenuMgr.Deactivate();
 }
 
@@ -2116,22 +2088,6 @@ void LoadGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
     if (!FileExists(strLoadGameName))
         return;
     viewLoadingScreen(2518, "Loading", "Loading Saved Game", strRestoreGameStrings[nSlot]);
-    videoNextPage();
-    LoadSave::LoadGame(strLoadGameName);
-    gGameMenuMgr.Deactivate();
-    gQuickLoadSlot = nSlot;
-}
-
-void QuickLoadGame(void)
-{
-
-    if (gGameOptions.nGameType > 0)
-        return;
-	FStringf basename("save%04d", gQuickSaveSlot);
-	auto strLoadGameName = G_BuildSaveName(basename);
-    if (!FileExists(strLoadGameName))
-        return;
-    viewLoadingScreen(2518, "Loading", "Loading Saved Game", strRestoreGameStrings[gQuickLoadSlot]);
     videoNextPage();
     LoadSave::LoadGame(strLoadGameName);
     gGameMenuMgr.Deactivate();

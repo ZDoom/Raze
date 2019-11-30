@@ -6232,46 +6232,6 @@ void G_HandleLocalKeys(void)
         }
 
 
-        if ((buttonMap.ButtonDown(gamefunc_Quick_Save) || g_doQuickSave == 1) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
-        {
-            buttonMap.ClearButton(gamefunc_Quick_Save);
-
-            g_doQuickSave = 0;
-
-			if (!g_lastusersave.isValid())
-			{
-				C_DoCommand("opensavemenu");
-				return;
-			}
-
-            inputState.keyFlushChars();
-
-            if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
-            {
-                P_DoQuote(QUOTE_SAVE_DEAD,g_player[myconnectindex].ps);
-                return;
-            }
-
-            g_screenCapture = 1;
-            G_DrawRooms(myconnectindex,65536);
-            g_screenCapture = 0;
-
-            if (g_lastusersave.isValid())
-            {
-                savebrief_t & sv = g_lastusersave;
-
-                // dirty hack... char 127 in last position indicates an auto-filled name
-                if (sv.name[MAXSAVEGAMENAME] == 127)
-                {
-                    strncpy(sv.name, g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME);
-                    sv.name[MAXSAVEGAMENAME] = 127;
-                }
-
-                g_quickload = &sv;
-                G_SavePlayerMaybeMulti(sv);
-            }
-        }
-        
         if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
         {
             buttonMap.ClearButton(gamefunc_Third_Person_View);
@@ -6295,26 +6255,6 @@ void G_HandleLocalKeys(void)
             hud_messages     = 1;
             P_DoQuote(fta ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, g_player[myconnectindex].ps);
             hud_messages     = fta;
-        }
-
-        if ((buttonMap.ButtonDown(gamefunc_Quick_Load) || g_doQuickSave == 2) && (!RRRA || ud.player_skill != 4) && (!RR || RRRA || ud.player_skill != 5) && (g_player[myconnectindex].ps->gm&MODE_GAME))
-        {
-            buttonMap.ClearButton(gamefunc_Quick_Load);
-
-            g_doQuickSave = 0;
-
-			if (g_quickload == nullptr || !g_quickload->isValid())
-			{
-				C_DoCommand("openloadmenu");
-			}
-			else if (g_quickload->isValid())
-            {
-                inputState.keyFlushChars();
-                inputState.ClearKeysDown();
-                S_PauseSounds(true);
-                if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
-                    g_quickload->reset();
-            }
         }
 
         if (ud.overhead_on != 0)
@@ -7783,7 +7723,7 @@ MAIN_LOOP_RESTART:
         {
             idle();
         }
-        else */if (G_FPSLimit() || g_saveRequested)
+        else */if (G_FPSLimit())
         {
             int const smoothRatio = calc_smoothratio(totalclock, ototalclock);
 
@@ -7797,24 +7737,6 @@ MAIN_LOOP_RESTART:
             {
                 g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
             }
-        }
-
-        // handle CON_SAVE and CON_SAVENN
-        if (g_saveRequested)
-        {
-            inputState.keyFlushChars();
-            videoNextPage();
-
-            g_screenCapture = 1;
-            G_DrawRooms(myconnectindex, 65536);
-            g_screenCapture = 0;
-
-            G_SavePlayerMaybeMulti(g_lastautosave, true);
-            g_quickload = &g_lastautosave;
-
-            OSD_Printf("Saved: %s\n", g_lastautosave.path);
-
-            g_saveRequested = false;
         }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)

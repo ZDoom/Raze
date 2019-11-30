@@ -1341,11 +1341,6 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     ud.volume_number = volumeNum;
 	STAT_StartNewGame(gVolumeNames[volumeNum], skillNum);
 
-    g_lastAutoSaveArbitraryID = -1;
-    g_lastautosave.reset();
-    g_lastusersave.reset();
-    g_quickload = nullptr;
-
     // we don't want the intro to play after the multiplayer setup screen
     if ((!g_netServer && ud.multimode < 2) && !Menu_HaveUserMap()
         && !VM_OnEventWithReturn(EVENT_NEWGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)

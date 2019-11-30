@@ -371,23 +371,6 @@ void onvideomodechange(int32_t newmode)
     UpdateDacs(gLastPal, false);
 }
 
-static int osdcmd_quicksave(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    if (!gGameStarted || gDemo.at1 || gGameMenuMgr.m_bActive)
-        OSD_Printf("quicksave: not in a game.\n");
-    else gDoQuickSave = 1;
-    return OSDCMD_OK;
-}
-
-static int osdcmd_quickload(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    if (!gGameStarted || gDemo.at1 || gGameMenuMgr.m_bActive)
-        OSD_Printf("quickload: not in a game.\n");
-    else gDoQuickSave = 2;
-    return OSDCMD_OK;
-}
 
 
 #if 0
@@ -435,8 +418,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
-    OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
-    OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
 	OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);

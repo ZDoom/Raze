@@ -3338,40 +3338,6 @@ void ConKey(void)
 
 char WangBangMacro[10][64];
 
-SWBOOL DoQuickSave(short save_num)
-{
-    PauseAction();
-
-    if (SaveGame(save_num) != -1)
-    {
-        QuickLoadNum = save_num;
-
-        LastSaveNum = -1;
-
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-SWBOOL DoQuickLoad()
-{
-    inputState.ClearKeysDown();
-
-    PauseAction();
-
-    ReloadPrompt = FALSE;
-    if (LoadGame(QuickLoadNum) == -1)
-    {
-        return FALSE;
-    }
-
-    ready2send = 1;
-    LastSaveNum = -1;
-
-    return TRUE;
-}
-
 void
 FunctionKeys(PLAYERp pp)
 {
@@ -3469,45 +3435,6 @@ FunctionKeys(PLAYERp pp)
             }
         }
 
-        // F6 quick save
-        if (inputState.GetKeyStatus(KEYSC_F6))
-        {
-			inputState.ClearKeyStatus(KEYSC_F6);
-			if (!TEST(pp->Flags, PF_DEAD))
-            {
-                if (QuickLoadNum < 0)
-                {
-					inputState.SetKeyStatus(sc_Escape);
-					ControlPanelType = ct_savemenu;
-            }
-                else
-                {
-					inputState.ClearAllInput();
-                    DoQuickSave(QuickLoadNum);
-                    ResumeAction();
-        }
-            }
-        }
-
-        // F9 quick load
-        if (inputState.GetKeyStatus(KEYSC_F9))
-        {
-			inputState.ClearKeyStatus(KEYSC_F9);
-
-            if (!TEST(pp->Flags, PF_DEAD))
-            {
-                if (QuickLoadNum < 0)
-                {
-					inputState.SetKeyStatus(sc_Escape);
-					ControlPanelType = ct_loadmenu;
-                }
-                else
-                {
-                    DoQuickLoad();
-                    ResumeAction();
-                }
-            }
-        }
     }
 
 
@@ -3609,15 +3536,15 @@ void PauseKey(PLAYERp pp)
     {
         if (ReloadPrompt)
         {
-            if (QuickLoadNum < 0)
-            {
-                ReloadPrompt = FALSE;
+           ReloadPrompt = FALSE;
+		   /*
             }
             else
             {
 				inputState.SetKeyStatus(sc_Escape);
 				ControlPanelType = ct_quickloadmenu;
             }
+			*/
         }
     }
 }

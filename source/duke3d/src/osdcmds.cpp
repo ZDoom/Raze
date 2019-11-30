@@ -687,24 +687,6 @@ void onvideomodechange(int32_t newmode)
     g_crosshairSum = -1;
 }
 
-static int osdcmd_quicksave(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
-        OSD_Printf("quicksave: not in a game.\n");
-    else g_doQuickSave = 1;
-    return OSDCMD_OK;
-}
-
-static int osdcmd_quickload(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
-        OSD_Printf("quickload: not in a game.\n");
-    else g_doQuickSave = 2;
-    return OSDCMD_OK;
-}
-
 
 static int osdcmd_dumpmapstate(osdfuncparm_t const * const)
 {
@@ -981,9 +963,6 @@ int32_t registerosdcommands(void)
 
 
     OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
-
-    OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
-    OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
 
     OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);

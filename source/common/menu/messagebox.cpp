@@ -32,7 +32,7 @@
 **
 */
 
-#include "menu/menu.h"
+#include "menu.h"
 #include "d_event.h"
 #include "d_gui.h"
 #include "v_text.h"
@@ -40,7 +40,6 @@
 #include "gstrings.h"
 #include "c_dispatch.h"
 #include "v_2ddrawer.h"
-
 
 extern FSaveGameNode *quickSaveSlot;
 
@@ -52,10 +51,11 @@ class DMessageBoxMenu : public DMenu
 	int messageSelection;
 	int mMouseLeft, mMouseRight, mMouseY;
 	FName mAction;
+	std::function<void(bool)> mActionFunc;
 
 public:
 
-	DMessageBoxMenu(DMenu *parent = NULL, const char *message = NULL, int messagemode = 0, bool playsound = false, FName action = NAME_None);
+	DMessageBoxMenu(DMenu *parent = NULL, const char *message = NULL, int messagemode = 0, bool playsound = false, FName action = NAME_None, hFunc handler = nullptr);
 	void Destroy();
 	void Init(DMenu *parent, const char *message, int messagemode, bool playsound = false);
 	void Drawer();
@@ -73,10 +73,11 @@ public:
 //
 //=============================================================================
 
-DMessageBoxMenu::DMessageBoxMenu(DMenu *parent, const char *message, int messagemode, bool playsound, FName action)
+DMessageBoxMenu::DMessageBoxMenu(DMenu *parent, const char *message, int messagemode, bool playsound, FName action, hFunc handler)
 : DMenu(parent)
 {
 	mAction = action;
+	mActionFunc = handler;
 	messageSelection = 0;
 	mMouseLeft = 140;
 	mMouseY = INT_MIN;
@@ -128,7 +129,7 @@ void DMessageBoxMenu::Destroy()
 
 void DMessageBoxMenu::CloseSound()
 {
-	//S_Sound (CHAN_VOICE | CHAN_UI, DMenu::CurrentMenu != NULL? "menu/backup" : "menu/dismiss", snd_menuvolume, ATTN_NONE);
+	M_MenuSound(DMenu::CurrentMenu ? BackSound : ::CloseSound);
 }
 
 //=============================================================================
@@ -143,7 +144,12 @@ void DMessageBoxMenu::HandleResult(bool res)
 	{
 		if (mMessageMode == 0)
 		{
-			if (mAction == NAME_None) 
+			if (mActionFunc)
+			{
+				mActionFunc(res);
+				Close();
+			}
+			else if (mAction == NAME_None) 
 			{
 				mParentMenu->MenuEvent(res? MKEY_MBYes : MKEY_MBNo, false);
 				Close();
@@ -358,3 +364,17 @@ void M_StartMessage(const char *message, int messagemode, int scriptId, FName ac
 	M_ActivateMenu(newmenu);
 }
 
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+DMenu* CreateMessageBoxMenu(DMenu* parent, const char* message, int messagemode, int scriptId, bool playsound, FName action = NAME_None, hFunc handler)
+{
+	auto newmenu = new DMessageBoxMenu(DMenu::CurrentMenu, message, messagemode, false, action, handler);
+	newmenu->scriptID = scriptId;
+	return newmenu;
+
+}

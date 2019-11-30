@@ -138,16 +138,6 @@ void G_ResetInterpolations(void)
         G_SetInterpolation(g_animatePtr[i]);
 }
 
-savebrief_t g_lastautosave, g_lastusersave, g_freshload;
-int32_t g_lastAutoSaveArbitraryID = -1;
-bool g_saveRequested;
-savebrief_t * g_quickload;
-
-menusave_t * g_menusaves;
-uint16_t g_nummenusaves;
-
-static menusave_t * g_internalsaves;
-static uint16_t g_numinternalsaves;
 
 static FileReader *OpenSavegame(const char *fn)
 {
@@ -226,9 +216,9 @@ static void sv_postudload();
 static int different_user_map;
 
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
-int32_t G_LoadPlayer(savebrief_t & sv)
+int32_t G_LoadPlayer(const char *path)
 {
-    auto fil = OpenSavegame(sv.path);
+    auto fil = OpenSavegame(path);
 
     if (!fil)
         return -1;
@@ -255,6 +245,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     // some setup first
     ud.multimode = h.numplayers;
+	S_PauseSounds(true);
 
     if (numplayers > 1)
     {
@@ -303,7 +294,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
     {
         // in theory, we could load into an initial dump first and trivially
         // recover if things go wrong...
-        Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", sv.path, status);
+        Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", path, status);
         G_GameExit(tempbuf);
     }
 	
@@ -339,12 +330,8 @@ static void G_RestoreTimers(void)
     lockclock      = g_timers.lockclock;
 }
 
-int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
+bool G_SavePlayer(FSaveGameNode *sv)
 {
-#ifdef __ANDROID__
-    G_SavePalette();
-#endif
-
     G_SaveTimers();
 
     Net_WaitForEverybody();
@@ -355,59 +342,23 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	errno = 0;
 	FileWriter *fil;
 
-	if (sv.isValid())
+	fn = G_BuildSaveName(sv->Filename);
+	OpenSaveGameForWrite(fn);
+	fil = WriteSavegameChunk("snapshot.dat");
+	// The above call cannot fail.
 	{
-		fn = G_BuildSaveName(sv.path);
-		OpenSaveGameForWrite(fn);
-		fil = WriteSavegameChunk("snapshot.dat");
-	}
-	else
-	{
-		fn = G_BuildSaveName("save0000");
-
-		auto fnp = fn.LockBuffer();
-		char* zeros = strstr(fnp, "0000");
-		fil = savecounter.opennextfile(fnp, zeros); // fixme: Rewrite this so that it won't create the file.
-		fn.UnlockBuffer();
-		if (fil)
-		{
-			delete fil;
-			remove(fn);
-			OpenSaveGameForWrite(fn);
-			fil = WriteSavegameChunk("snapshot.dat");
-		}
-		savecounter.count++;
-		// don't copy the mod dir into sv.path (G_BuildSaveName guarantees the presence of a slash.)
-		Bstrcpy(sv.path, strrchr(fn, '/') + 1);
-	}
-
-	if (!fil)
-	{
-		OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
-			fn.GetChars(), strerror(errno));
-		ready2send = 1;
-		Net_WaitForEverybody();
-
-		G_RestoreTimers();
-		ototalclock = totalclock;
-		return -1;
-	}
-	else
-	{
-		WriteSavegameChunk("DEMOLITION_RN");
 		auto& fw = *fil;
-		//CompressedFileWriter fw(fil, true);
 
 		// temporary hack
 		ud.user_map = G_HaveUserMap();
 
 
         // SAVE!
-        sv_saveandmakesnapshot(fw, sv.name, 0, 0, 0, 0, isAutoSave);
+        sv_saveandmakesnapshot(fw, sv->SaveTitle, 0, 0, 0, 0);
 
 
 		fw.Close();
-		FinishSavegameWrite();
+		bool res = FinishSavegameWrite();
 
 		if (!g_netServer && ud.multimode < 2)
 		{
@@ -422,11 +373,11 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 		G_RestoreTimers();
 		ototalclock = totalclock;
 		
-		return 0;
+		return res;
 	}
 }
 
-int32_t G_LoadPlayerMaybeMulti(savebrief_t & sv)
+bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
     if (g_netServer || ud.multimode > 1)
     {
@@ -434,18 +385,18 @@ int32_t G_LoadPlayerMaybeMulti(savebrief_t & sv)
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
 //        g_player[myconnectindex].ps->gm = MODE_GAME;
-        return 127;
+        return false;
     }
     else
     {
-        int32_t c = G_LoadPlayer(sv);
+        int32_t c = G_LoadPlayer(sv->Filename);
         if (c == 0)
             g_player[myconnectindex].ps->gm = MODE_GAME;
-        return c;
+        return !c;
     }
 }
 
-void G_SavePlayerMaybeMulti(savebrief_t & sv, bool isAutoSave)
+bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
     if (g_netServer || ud.multimode > 1)
     {
@@ -454,7 +405,13 @@ void G_SavePlayerMaybeMulti(savebrief_t & sv, bool isAutoSave)
     }
     else
     {
-        G_SavePlayer(sv, isAutoSave);
+
+		videoNextPage();	// no idea if this is needed here.
+		g_screenCapture = 1;
+		G_DrawRooms(myconnectindex, 65536);
+		g_screenCapture = 0;
+
+        G_SavePlayer(sv);
     }
 }
 

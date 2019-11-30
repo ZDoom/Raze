@@ -360,6 +360,9 @@ void M_StartControlPanel (bool makeSound)
 		created = true;
 		M_CreateMenus();
 	}
+	FX_StopAllSounds();
+	gi->MenuOpened();
+	if (makeSound) gi->MenuSound(ActivateSound);
 
 	buttonMap.ResetButtonStates ();
 	inputState.ClearAllKeyStatus();
@@ -964,10 +967,8 @@ CCMD(reset2saved)
 
 CCMD(openmainmenu)
 {
-	FX_StopAllSounds();
 	//gi->ClearSoundLocks();
-	//gi->MenuSound();
-	M_StartControlPanel(false);
+	M_StartControlPanel(true);
 	M_SetMenu(NAME_IngameMenu);
 }
 
@@ -975,8 +976,7 @@ CCMD(openhelpmenu)
 {
 	if (!help_disabled)
 	{
-		gi->MenuOpened();
-		M_StartControlPanel(false);
+		M_StartControlPanel(true);
 		M_SetMenu(NAME_HelpMenu);
 	}
 }
@@ -985,15 +985,13 @@ CCMD(opensavemenu)
 {
 	if (gi->CanSave()) 
 	{
-		gi->MenuOpened();
-		M_StartControlPanel(false);
+		M_StartControlPanel(true);
 		M_SetMenu(NAME_SaveGameMenu);
 	}
 }
 
 CCMD(openloadmenu)
 {
-	gi->MenuOpened();
-	M_StartControlPanel(false);
+	M_StartControlPanel(true);
 	M_SetMenu(NAME_LoadGameMenu);
 }

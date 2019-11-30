@@ -1905,11 +1905,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 	STAT_StartNewGame(gVolumeNames[volumeNum], skillNum);
 
     ud.last_level = -1;
-    g_lastAutoSaveArbitraryID = -1;
-    g_lastautosave.reset();
-    g_lastusersave.reset();
-    g_quickload = nullptr;
-
+    
     int const UserMap = Menu_HaveUserMap();
 
     // we don't want the intro to play after the multiplayer setup screen

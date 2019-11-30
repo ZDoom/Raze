@@ -185,6 +185,22 @@ struct FSavegameInfo
 	int currentsavever;
 };
 
+struct FSaveGameNode
+{
+	FString SaveTitle;
+	FString Filename;
+	bool bOldVersion = false;
+	bool bMissingWads = false;
+	bool bNoDelete = false;
+	bool bIsExt = false;
+
+	bool isValid() const
+	{
+		return Filename.IsNotEmpty() && !bOldVersion && !bMissingWads;
+	}
+};
+
+
 enum EMenuSounds : int;
 
 struct GameInterface
@@ -210,8 +226,8 @@ struct GameInterface
 	virtual bool DrawSpecialScreen(const DVector2 &origin, int tilenum) { return false; }
 	virtual void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position) {}
 	virtual void DrawMenuCaption(const DVector2& origin, const char* text) {}
-
-
+	virtual bool SaveGame(FSaveGameNode*) { return false; }
+	virtual bool LoadGame(FSaveGameNode*) { return false; }
 };
 
 extern GameInterface* gi;

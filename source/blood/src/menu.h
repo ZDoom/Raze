@@ -51,13 +51,9 @@ extern CGameMenu menuSorry2;
 extern CGameMenu menuOptions;
 extern CGameMenu menuOptionsSound;
 extern CGameMenu menuOptionsDisplayMode;
-extern short gQuickLoadSlot;
-extern short gQuickSaveSlot;
 extern char strRestoreGameStrings[][16];
 void drawLoadingScreen(void);
 void SetupMenus(void);
 void UpdateNetworkMenus(void);
-void QuickSaveGame(void);
-void QuickLoadGame(void);
 
 END_BLD_NS

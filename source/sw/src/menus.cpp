@@ -67,8 +67,6 @@ signed char MNU_InputString(char*, short);
 
 short TimeLimitTable[9] = {0,3,5,10,15,20,30,45,60};
 
-short QuickLoadNum = -1;
-char QuickLoadDescrDialog[128];
 SWBOOL SavePrompt = FALSE;
 extern SWBOOL InMenuLevel, LoadGameOutsideMoveLoop, LoadGameFromDemo;
 extern uint8_t RedBookSong[40];
@@ -511,7 +509,7 @@ MenuItem save_i[] =
 
 // No actual submenus for this, just quit text.
 MenuGroup quitgroup = {0, 0, NULL, NULL, 0, 0, m_defshade, MNU_QuitCustom, NULL, 0};
-MenuGroup quickloadgroup = {0, 0, NULL, NULL, 0, 0, m_defshade, MNU_QuickLoadCustom, NULL, 0};
+MenuGroup quickloadgroup = {0, 0, NULL, NULL, 0, 0, m_defshade, MNU_QuitCustom/* MNU_QuickLoadCustom*/, NULL, 0}; // temp.placeholder.
 MenuGroup ordergroup = {0, 0, NULL, NULL, 0, 0, m_defshade, MNU_OrderCustom, NULL, 0};
 
 // save and load function calls
@@ -1734,87 +1732,6 @@ MNU_QuitCustom(UserCall call, MenuItem_p item)
     return TRUE;
 }
 
-SWBOOL
-MNU_QuickLoadCustom(UserCall call, MenuItem_p item)
-{
-    int select;
-    extern SWBOOL ReloadPrompt;
-    int bak;
-    PLAYERp pp = Player + myconnectindex;
-    extern short GlobInfoStringTime;
-    extern SWBOOL DrawScreen;
-    int ret;
-
-    if (cust_callback == NULL)
-    {
-        if (call != uc_setup)
-            return FALSE;
-
-        memset(dialog, 0, sizeof(dialog));
-
-        dialog[0] = "Load saved game";
-        sprintf(QuickLoadDescrDialog,"\"%s\" (Y/N)?",SaveGameDescr[QuickLoadNum]);
-        dialog[1] = QuickLoadDescrDialog;
-    }
-
-    // Ignore the special touchup calls
-    if (call == uc_touchup)
-        return TRUE;
-
-    ret = MNU_Dialog();
-
-    if (DrawScreen)
-    {
-        return TRUE;
-    }
-
-    if (ret == FALSE)
-    {
-        if (inputState.GetKeyStatus(sc_N) || inputState.GetKeyStatus(sc_Space) || inputState.GetKeyStatus(sc_Enter))
-        {
-            cust_callback = NULL;
-            if (ReloadPrompt)
-            {
-                ReloadPrompt = FALSE;
-                bak = GlobInfoStringTime;
-                GlobInfoStringTime = 999;
-                PutStringInfo(pp, "Press SPACE to restart");
-                GlobInfoStringTime = bak;
-            }
-
-            inputState.ClearKeysDown();
-            ExitMenus();
-        }
-        else
-        {
-            cust_callback = MNU_QuickLoadCustom;
-            cust_callback_call = call;
-            cust_callback_item = item;
-        }
-    }
-    else
-    {
-        // Y pressed
-        cust_callback = NULL;
-
-        LoadSaveMsg("Loading...");
-
-        if (DoQuickLoad() == FALSE)
-        {
-            ResumeAction();
-            return FALSE;
-        }
-
-        ExitMenus();
-
-        return TRUE;
-    }
-
-    inputState.ClearKeysDown();
-
-    return TRUE;
-}
-
 // MENU FUNCTIONS /////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////
 // Set some global menu related defaults
@@ -2349,58 +2266,6 @@ void LoadSaveMsg(const char *msg)
 ////////////////////////////////////////////////
 SWBOOL MNU_GetLoadCustom(void)
 {
-    short load_num;
-
-    load_num = currentmenu->cursor;
-
-    // no saved game exists - don't do anything
-    if (SaveGameDescr[load_num][0] == '\0')
-        return FALSE;
-
-    if (InMenuLevel || DemoMode || DemoPlaying)
-    {
-        LoadSaveMsg("Loading...");
-
-        if (LoadGame(load_num) == -1)
-            return FALSE;
-
-        QuickLoadNum = load_num;
-        // the (Quick)Save menu should default to the last loaded game
-        SaveGameGroup.cursor = load_num;
-
-        ExitMenus();
-        ExitLevel = TRUE;
-        LoadGameOutsideMoveLoop = TRUE;
-        if (DemoMode || DemoPlaying)
-            LoadGameFromDemo = TRUE;
-
-        return TRUE;
-    }
-
-    LoadSaveMsg("Loading...");
-
-    PauseAction();
-
-    if (LoadGame(load_num) == -1)
-    {
-        ResumeAction();
-        return FALSE;
-    }
-
-    QuickLoadNum = load_num;
-    // the (Quick)Save menu should default to the last loaded game
-    SaveGameGroup.cursor = load_num;
-
-    ready2send = 1;
-    LastSaveNum = -1;
-    ExitMenus();
-
-    if (DemoMode)
-    {
-        ExitLevel = TRUE;
-        DemoPlaying = FALSE;
-    }
-
     return TRUE;
 }
 
@@ -2415,44 +2280,6 @@ SWBOOL MNU_GetLoadCustom(void)
 ////////////////////////////////////////////////
 SWBOOL MNU_GetSaveCustom(void)
 {
-    short save_num;
-    extern SWBOOL InMenuLevel, LoadGameOutsideMoveLoop;
-
-    save_num = currentmenu->cursor;
-
-    if (InMenuLevel)
-        return FALSE;
-
-    if (MenuInputMode)
-    {
-        LoadSaveMsg("Saving...");
-
-        if (DoQuickSave(save_num) == FALSE)
-        {
-            LoadGameGroup.cursor = save_num;
-        }
-
-        ResumeAction();
-        ExitMenus();
-
-        // toggle edit mode
-        MenuInputMode = FALSE;
-    }
-    else
-    {
-        strcpy(BackupSaveGameDescr, SaveGameDescr[save_num]);
-
-        // clear keyboard buffer
-        while (inputState.keyBufferWaiting())
-        {
-            if (inputState.keyGetChar() == 0)
-                inputState.keyGetChar();
-        }
-
-        // toggle edit mode
-        MenuInputMode = TRUE;
-    }
-
     return TRUE;
 }
 

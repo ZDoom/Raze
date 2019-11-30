@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "base64.h"
 #include "version.h"
 #include "menu/menu.h"
+#include "c_dispatch.h"
 
 #include "debugbreak.h"
 extern bool rotatesprite_2doverride;
@@ -1061,17 +1062,17 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
 
 static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t const resetFlags)
 {
-    // Who thought that allowing a script to do this shit is a good idea???
+    
     if (!g_netServer && ud.multimode < 2 && !(resetFlags & 2))
     {
-        if (g_quickload && g_quickload->isValid() && ud.recstat != 2 && !(resetFlags & 8))
+#if 0 // Who thought that allowing a script to do this shit is a good idea??? This needs to be sorted out later and implemented properly.
+        if (!(resetFlags & 8))
         {
             if (resetFlags & 4)
             {
                 inputState.keyFlushChars();
                 inputState.ClearKeysDown();
                 FX_StopAllSounds();
-                S_ClearSoundLocks();
                 if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
                 {
                     g_quickload->reset();
@@ -1082,16 +1083,22 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
             {
 				M_StartControlPanel(false);
 				M_SetMenu(NAME_ConfirmPlayerReset);
+				/*
+				case MENU_RESETPLAYER:
+					videoFadeToBlack(1);
+					Bsprintf(tempbuf, "Load last game:\n\"%s\"", g_quickload->name);
+					Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
+					break;
+				*/
             }
         }
         else
+#endif
         {
             QuickLoadFailure:
             g_player[playerNum].ps->gm = MODE_RESTART;
         }
-#if !defined LUNATIC
         vmFlags |= VM_NOEXECUTE;
-#endif
     }
     else
     {
@@ -4886,32 +4893,9 @@ badindex:
             vInstruction(CON_SAVENN):
             vInstruction(CON_SAVE):
                 insptr++;
-                {
-                    int32_t const requestedSlot = *insptr++;
-
-                    if ((unsigned)requestedSlot >= 10)
-                        dispatch();
-
-                    // check if we need to make a new file
-                    if (strcmp(g_lastautosave.path, g_lastusersave.path) == 0 || requestedSlot != g_lastAutoSaveArbitraryID)
-                    {
-                        g_lastautosave.reset();
-                    }
-
-                    g_lastAutoSaveArbitraryID = requestedSlot;
-
-                    if (VM_DECODE_INST(tw) == CON_SAVE || g_lastautosave.name[0] == 0)
-                    {
-                        time_t     timeStruct = time(NULL);
-                        struct tm *pTime      = localtime(&timeStruct);
-
-                        strftime(g_lastautosave.name, sizeof(g_lastautosave.name), "%d %b %Y %I:%M%p", pTime);
-                    }
-
-                    g_saveRequested = true;
-
-                    dispatch();
-                }
+				insptr++; // skip the slot. I will not allow the script to do targeted saving without user control.
+				g_saveRequested = true; // cannot save right here.
+                dispatch();
 
             vInstruction(CON_QUAKE):
                 insptr++;

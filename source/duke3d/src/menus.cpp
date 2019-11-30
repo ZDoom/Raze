@@ -1432,12 +1432,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         }
         break;
 
-    case MENU_RESETPLAYER:
-        videoFadeToBlack(1);
-        Bsprintf(tempbuf, "Load last game:\n\"%s\"", g_quickload->name);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
-        break;
-
 
     case MENU_SAVECLEANVERIFY:
         videoFadeToBlack(1);

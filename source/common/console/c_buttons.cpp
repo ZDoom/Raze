@@ -106,8 +106,6 @@ static const ButtonDesc gamefuncs[] = {
 	{ gamefunc_Dpad_Aiming, "Dpad_Aiming"},
 	{ gamefunc_AutoRun, "AutoRun"},
 	{ gamefunc_Last_Weapon, "Last_Used_Weapon"},
-	{ gamefunc_Quick_Save, "Quick_Save"},
-	{ gamefunc_Quick_Load, "Quick_Load"},
 	{ gamefunc_Alt_Weapon, "Alt_Weapon"},
 	{ gamefunc_Third_Person_View, "Third_Person_View"},
 	{ gamefunc_Toggle_Crouch, "Toggle_Crouch"},
