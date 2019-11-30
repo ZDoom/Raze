@@ -130,7 +130,8 @@ protected:
 		commentHeight = listboxHeight - savepicHeight - (16 * wScale);
 		commentRight = commentLeft + commentWidth;
 		commentBottom = commentTop + commentHeight;
-			commentRows = commentHeight / rowHeight;
+		commentRows = commentHeight / rowHeight;
+		UpdateSaveComment();
 	}
 
 	//=============================================================================
@@ -252,7 +253,7 @@ protected:
 
 	void UpdateSaveComment()
 	{
-		//BrokenSaveComment = NewConsoleFont.BreakLines(manager.SaveCommentString, int(commentWidth / FontScale));
+		BrokenSaveComment = V_BreakLines(NewConsoleFont, int(commentWidth / FontScale), savegameManager.SaveCommentString);
 	}
 
 	//=============================================================================

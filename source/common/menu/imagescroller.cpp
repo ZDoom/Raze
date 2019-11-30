@@ -112,7 +112,7 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 	case MKEY_Back:
 		// Before going back the currently running transition must be terminated.
 		pageTransition.previous = nullptr;
-		pageTransition.current->origin = { 0,0 };
+		if (pageTransition.current) pageTransition.current->origin = { 0,0 };
 		return DMenu::MenuEvent(mkey, fromcontroller);
 
 	case MKEY_Left:
