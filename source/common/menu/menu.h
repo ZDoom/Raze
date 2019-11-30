@@ -816,8 +816,8 @@ public:
 	void InsertNewSaveNode();
 	bool RemoveNewSaveNode();
 
-	void LoadGame(FSaveGameNode* node, bool ok4q, bool forceq);
-	void SaveGame(FSaveGameNode* node);
+	void LoadGame(FSaveGameNode* node);
+	void SaveGame(FSaveGameNode* node, bool ok4q, bool forceq);
 
 };
 

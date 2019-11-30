@@ -73,3 +73,141 @@ Carrega numa tecla qualquer.",,"Невозможно сохранить игру
 Притисните тастер."
 Do you really want to do this?,SAFEMESSAGE,,,,Vážně to chceš udělat?,Möchtest du das wirklich tun?,,Ĉu vi vere volas fari tion?,¿Realmente quieres hacer esto?,¿Realmente quieres hacerlo?,Haluatko varmasti tehdä tämän?,Voulez-vous vraiment faire ça?,Biztos megakarod tenni?,Sei sicuro di volerlo fare?,本当に実行するのか?,정말로 정하시겠습니까?,Wil je dit echt doen?,Naprawdę chcesz to zrobić?,Você deseja mesmo fazer isso?,Desejas mesmo fazer isso?,,Вы уверены?,Да ли заиста желите то да урадите?
 Not set,NOTSET,,,,Není nastavené,Nicht gesetzt,,Ne agordita,No Asignado,,Ei asetettu,Pas paramétré,Nincs beállítva,Non assegnato,セットされてない,정하지 않음,Niet ingesteld,Nie ustawiono,Não definido,,,Не задан,Није намештено
+"Quicksave over your game named
+
+'%s'?
+
+Press Y or N.",QSPROMPT,,,,"Rychle uložit přes tvoji hru s názvem
+
+'%s'?
+
+Stiskni Y nebo N.","Überschreibe %s mit einem Schnellspeicherspielstand?
+
+Drücke Y oder N.",,"Ĉu rapidkonservu super via ludo, ke nomita
+
+'%s'?
+
+Premu Y aŭ N.","¿Deseas guardar sobre tu partida llamada
+
+'%s'?
+
+Presiona Y ó N.",,"Haluatko tallentaa pelin %s päälle?
+
+Paina Y tai N.","Sauvegarde rapide sur le fichier 
+
+'%s'?
+
+Appuyez sur Y ou N.","Gyorsmenteni akarsz az alábbi mentésed alatt
+
+'%s'?
+
+Nyomj Y-t vagy N-t.","Sovrascrivere il salvataggio
+
+'%s'?
+
+Premi Y oppure N.","この名前で上書きするのか?
+
+'%s'
+
+Y か N で答えろ","빠른 저장을 하시겠습니까?
+
+'%s'
+
+Y키 또는 N키를 누르시오.","Snel opslaan over je spel genaamd
+
+'%s'?
+
+Druk op Y of N.","Szybko nadpisać grę
+
+„%s”?
+
+Wciśnij Y lub N.","Salvar sobre seu jogo chamado
+
+'%s'?
+
+Aperte Y ou N.","Gravar sobre o seu jogo chamado
+
+'%s'?
+
+Carrega Y ou N.",,"Перезаписать быстрое сохранение
+
+«%s»?
+
+Нажмите Y или N.","Желите брзо чување за игру под именом
+
+„%s“?
+
+Притисните Y или N."
+"Do you want to quickload the game named
+
+'%s'?
+
+Press Y or N.",QLPROMPT,,,,"Přeješ si rychle načíst hru s názvem
+
+'%s'?
+
+Stiskni Y nebo N.","Möchtest du den Spielstand %s schnellladen?
+
+Drücke Y oder N.",,"Ĉu vi volas rapidŝargi la ludon, ke nomita
+
+'%s'?
+
+Premu Y aŭ N.","¿Quieres cargar la partida llamada
+
+'%s'?
+
+Presiona Y ó N.",,"Haluatko pikaladata pelin %s?
+
+Paina Y tai N.","Voulez-vous charger la sauvegarde
+
+'%s'?
+
+Appuyez sur Y ou N.","Gyorstölteni akarod ezt a mentést
+
+'%s'?
+
+Nyomj Y-t vagy N-t.","Vuoi fare un quickload della partita
+
+'%s'?
+
+Premi Y oppure N.","この名前のデータをロードするのか?
+
+'%s'
+
+Y か N で答えろ","빠른 불러오기를 하시겠습니까?
+
+'%s'
+
+Y키 또는 N키를 누르시오.","Wil je het spel snel laden met de naam
+
+'%s'?
+
+Druk op Y of N.","Czy chcesz wczytać szybki zapis
+
+„%s”?
+
+Wciśnij Y lub N.","Deseja carregar o jogo chamado
+
+'%s'?
+
+Aperte Y ou N.","Deseja carregar o jogo chamado
+
+'%s'?
+
+Carrega Y ou N.",,"Загрузить быстрое сохранение
+
+«%s»?
+
+Нажмите Y или N.","Желите брзо учитавање за игру под именом
+
+„%s“?
+
+Притисните Y или N."
+Yes,TXT_YES,,,,Ano,Ja,Ναι,Jes,Sí,,Kyllä,Oui,Igen,Si,はい,네,Ja,Tak,Sim,,,Да,Да
+No,TXT_NO,,,,Ne,Nein,Όχι,Ne,No,,Ei,Non,Nem,No,いいえ,아니요,Nee,Nie,Não,,,Нет,Не
+,,Savegame,,,,,,,,,,,,,,,,,,,,,
+Empty slot,EMPTYSTRING,,,,Prázdný slot,nicht belegt,,Malplena Ingo,Ranura Vacía,,Tyhjä lokero,Emplacement Vide,Üres,Slot libero,空きスロット,빈 슬롯,Lege sleuf,Puste miejsce,Vazio,,,Пустой слот,Празни слот
+<New Save Game>,NEWSAVE,,,,<Nová uložená hra>,<Neuer Spielstand>,,<Novan Konservita Ludo>,<Nueva Partida Guardada>,,<Uusi tallennettu peli>,<Nouveau Fichier de Sauvegarde>,<Új mentés>,<Nuovo Salvataggio>,<新規セーブ>,<새로운 게임 저장>,<Nieuw sparen spel>,<Nowy zapis gry>,<Novo jogo salvo>,<Novo jogo gravado>,,<Новое сохранение>,<Нова сачувана игра>
+Game saved.,GGSAVED,,,,Hra uložena.,Spielstand gespeichert.,,Ludo konservita.,Partida guardada.,,Peli tallennettu.,Partie sauvegardée.,Játék mentve.,Gioco salvato.,セーブ完了。,게임이 저장됨.,Spel opgeslagen.,Gra zapisana.,Jogo salvo.,Jogo gravado.,,Игра сохранена.,Игра сачувана.
+Time,SAVECOMMENT_TIME,,,,Čas,Zeit,,Tempo,Tiempo,,Aika,Temps,Idő,Tempo,"時間
+",시간,Tijd,Czas,Tempo,,,Время,Време

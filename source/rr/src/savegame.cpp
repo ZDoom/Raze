@@ -342,8 +342,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 	errno = 0;
 	FileWriter *fil;
 
-	fn = G_BuildSaveName(sv->Filename);
-	OpenSaveGameForWrite(fn);
+	OpenSaveGameForWrite(sv->Filename);
 	fil = WriteSavegameChunk("snapshot.dat");
 	// The above call cannot fail.
 	{
@@ -402,6 +401,7 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
     {
         Bstrcpy(apStrings[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+		return false;
     }
     else
     {
@@ -411,7 +411,7 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
 		G_DrawRooms(myconnectindex, 65536);
 		g_screenCapture = 0;
 
-        G_SavePlayer(sv);
+        return G_SavePlayer(sv);
     }
 }
 
@@ -1179,7 +1179,8 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
 		auto fw = WriteSavegameChunk("header.dat");
 		fw->Write(&h, sizeof(savehead_t));
 	
-		G_WriteSaveHeader(name, currentboardfilename, g_mapInfo[(MAXLEVELS * ud.volume_number) + ud.level_number].name);
+		auto& mi = g_mapInfo[(MAXLEVELS * ud.volume_number) + ud.level_number];
+		G_WriteSaveHeader(name, mi.filename, mi.name);
 	}
     else
     {

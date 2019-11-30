@@ -126,10 +126,16 @@ void G_WriteSaveHeader(const char *name, const char*mapname, const char *maptitl
 	sjson_put_int(ctx, root, "Save Version", savesig.currentsavever);
 	sjson_put_string(ctx, root, "Engine", savesig.savesig);
 	sjson_put_string(ctx, root, "Game Resource", fileSystem.GetResourceFileName(1));
-	sjson_put_string(ctx, root, "map", mapname);
-	sjson_put_string(ctx, root, "Title", maptitle);
+	sjson_put_string(ctx, root, "Map Name", maptitle);
+	sjson_put_string(ctx, root, "Title", name);
 	if (*mapname == '/') mapname++;
-	sjson_put_string(ctx, root, "Map Resource", mapname);
+	sjson_put_string(ctx, root, "Map File", mapname);
+	auto fileno = fileSystem.FindFile(mapname);
+	auto mapfile = fileSystem.GetFileContainer(fileno);
+	auto mapcname = fileSystem.GetResourceFileName(mapfile);
+	if (mapcname) sjson_put_string(ctx, root, "Map Resource", mapcname);
+	else return; // this should never happen. Saving on a map that isn't present is impossible.
+
 
 	char* encoded = sjson_stringify(ctx, root, "  ");
 
@@ -188,13 +194,11 @@ static bool CheckSingleFile (const char *name, bool &printRequires, bool printwa
 //
 //=============================================================================
 
-bool G_CheckSaveGameWads (sjson_node* root, bool printwarn)
+static bool G_CheckSaveGameWads (const char *gamegrp, const char *mapgrp, bool printwarn)
 {
 	bool printRequires = false;
-	auto text = sjson_get_string(root, "Game Resource", "");
-	CheckSingleFile (text, printRequires, printwarn);
-	text = sjson_get_string(root, "MAP Resource", "");
-	CheckSingleFile (text, printRequires, printwarn);
+	CheckSingleFile (gamegrp, printRequires, printwarn);
+	CheckSingleFile (mapgrp, printRequires, printwarn);
 
 	if (printRequires)
 	{
@@ -228,6 +232,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle)
 		int savever = sjson_get_int(root, "Save Version", -1);
 		FString engine = sjson_get_string(root, "Engine", "");
 		FString gamegrp = sjson_get_string(root, "Game Resource", "");
+		FString mapgrp = sjson_get_string(root, "Map Resource", "");
 		FString title = sjson_get_string(root, "Title", "");
 		auto savesig = gi->GetSaveSig();
 		
@@ -241,22 +246,27 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle)
 			return 0;
 		}
 		
+
 		if (savever < savesig.minsavever)
 		{
 			// old, incompatible savegame. List as not usable.
 			return -1;
 		}
-		else if (gamegrp.CompareNoCase(fileSystem.GetResourceFileName(1)) == 0)
-		{
-			return G_CheckSaveGameWads(root, false)? 0 : -2;
-		}
 		else
 		{
-			// different game. Skip this.
-			return 0;
+			auto ggfn = ExtractFileBase(fileSystem.GetResourceFileName(1), true);
+			if (gamegrp.CompareNoCase(ggfn) == 0)
+			{
+				return G_CheckSaveGameWads(gamegrp, mapgrp, false) ? 1 : -2;
+			}
+			else
+			{
+				// different game. Skip this.
+				return 0;
+			}
 		}
 	}
-	return 1;
+	return 0;
 }
 
 //=============================================================================
@@ -277,7 +287,6 @@ FString G_BuildSaveName (const char *prefix)
 	if (!strchr(prefix, '.')) name << SAVEGAME_EXT; // only add an extension if the prefix doesn't have one already.
 	name = NicePath(name);
 	name.Substitute("\\", "/");
-	CreatePath(name);
 	return name;
 }
 

@@ -849,12 +849,17 @@ void M_Drawer (void)
 void M_ClearMenus ()
 {
 	M_DemoNoPlay = false;
-	if (DMenu::CurrentMenu != NULL)
+	transition.previous = transition.current = nullptr;
+	transition.dir = 0;
+	auto menu = DMenu::CurrentMenu;
+	while (menu != nullptr)
 	{
-		DMenu::CurrentMenu->Destroy();
-		delete DMenu::CurrentMenu;
-		DMenu::CurrentMenu = NULL;
+		auto nextm = menu->mParentMenu;
+		menu->Destroy();
+		delete menu;
+		menu = nextm;
 	}
+	DMenu::CurrentMenu = nullptr;
 	menuactive = MENU_Off;
 	GUICapture &= ~1;
 	gi->MenuClosed();

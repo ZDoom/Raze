@@ -371,7 +371,7 @@ void M_StartMessage(const char *message, int messagemode, int scriptId, FName ac
 //
 //=============================================================================
 
-DMenu* CreateMessageBoxMenu(DMenu* parent, const char* message, int messagemode, int scriptId, bool playsound, FName action = NAME_None, hFunc handler)
+DMenu* CreateMessageBoxMenu(DMenu* parent, const char* message, int messagemode, int scriptId, bool playsound, FName action, hFunc handler)
 {
 	auto newmenu = new DMessageBoxMenu(DMenu::CurrentMenu, message, messagemode, false, action, handler);
 	newmenu->scriptID = scriptId;

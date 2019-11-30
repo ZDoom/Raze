@@ -230,7 +230,8 @@ int FileSystem::CheckIfResourceFileLoaded (const char *name) noexcept
 	{
 		for (i = 0; i < Files.Size(); ++i)
 		{
-			if (stricmp (GetResourceFileName (i), name) == 0)
+			auto pth = ExtractFileBase(GetResourceFileName(i), true);
+			if (stricmp (pth.GetChars(), name) == 0)
 			{
 				return i;
 			}

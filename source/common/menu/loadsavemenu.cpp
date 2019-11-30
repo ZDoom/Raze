@@ -57,8 +57,8 @@ class DLoadSaveMenu : public DListMenu
 
 protected:
 
-	int Selected;
-	int TopItem;
+	int Selected = 0;
+	int TopItem = 0;
 
 
 	int savepicLeft;
@@ -576,7 +576,6 @@ public:
 		if (mSaveName.Len() > 0)
 		{
 			savegameManager.DoSave(Selected, mSaveName);
-			mSaveName = "";
 		}
 	}
 	

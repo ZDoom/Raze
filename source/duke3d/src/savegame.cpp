@@ -594,8 +594,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 	errno = 0;
 	FileWriter *fil;
 
-	fn = G_BuildSaveName(sv->Filename);
-	OpenSaveGameForWrite(fn);
+	OpenSaveGameForWrite(sv->Filename);
 	fil = WriteSavegameChunk("snapshot.dat");
 	// The above call cannot fail.
 	{
@@ -1490,7 +1489,8 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
 		auto fw = WriteSavegameChunk("header.dat");
 		fw->Write(&h, sizeof(savehead_t));
 		
-		G_WriteSaveHeader(name, currentboardfilename, g_mapInfo[(MAXLEVELS * ud.volume_number) + ud.level_number].name);
+		auto& mi = g_mapInfo[(MAXLEVELS * ud.volume_number) + ud.level_number];
+		G_WriteSaveHeader(name, mi.filename, mi.name);
 	}
     else
     {

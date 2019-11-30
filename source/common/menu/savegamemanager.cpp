@@ -55,19 +55,22 @@
 
 FSavegameManager savegameManager;
 
-void FSavegameManager::LoadGame(FSaveGameNode* node, bool ok4q, bool forceq)
+void FSavegameManager::LoadGame(FSaveGameNode* node)
 {
 	if (gi->LoadGame(node))
+	{
+	}
+}
+
+void FSavegameManager::SaveGame(FSaveGameNode* node, bool ok4q, bool forceq)
+{
+	if (gi->SaveGame(node))
 	{
 		FString fn = node->Filename;
 		FString desc = node->SaveTitle;
 		NotifyNewSave(fn, desc, ok4q, forceq);
 	}
-}
 
-void FSavegameManager::SaveGame(FSaveGameNode* node)
-{
-	gi->SaveGame(node);
 }
 
 //=============================================================================
@@ -196,6 +199,7 @@ void FSavegameManager::ReadSaveStrings()
 					auto fr = info->NewReader();
 					FString title;
 					int check = G_ValidateSavegame(fr, &title);
+					fr.Close();
 					delete savegame;
 					if (check != 0)
 					{
@@ -299,7 +303,7 @@ void FSavegameManager::DoSave(int Selected, const char *savegamestring)
 	{
 		auto node = *SaveGames[Selected];
 		node.SaveTitle = savegamestring;
-		savegameManager.SaveGame(&node);
+		savegameManager.SaveGame(&node, true, false);
 	}
 	else
 	{
@@ -316,7 +320,7 @@ void FSavegameManager::DoSave(int Selected, const char *savegamestring)
 			}
 		}
 		FSaveGameNode sg{ savegamestring, filename };
-		savegameManager.SaveGame(&sg);
+		savegameManager.SaveGame(&sg, true, false);
 	}
 	M_ClearMenus();
 }
@@ -501,7 +505,7 @@ FSaveGameNode *FSavegameManager::GetSavegame(int i)
 
 void FSavegameManager::InsertNewSaveNode()
 {
-	NewSaveNode.SaveTitle = GStrings["NEWSAVE"];
+	NewSaveNode.SaveTitle = GStrings("NEWSAVE");
 	NewSaveNode.bNoDelete = true;
 	SaveGames.Insert(0, &NewSaveNode);
 }
@@ -571,7 +575,7 @@ void M_Autosave()
 	readableTime = myasctime();
 	sg.SaveTitle.Format("Autosave %s", readableTime);
 	nextautosave = (nextautosave + 1) % count;
-	savegameManager.SaveGame(&sg);
+	savegameManager.SaveGame(&sg, false, false);
 }
 
 CCMD(autosave)
@@ -603,7 +607,7 @@ CCMD(rotatingquicksave)
 	readableTime = myasctime();
 	sg.SaveTitle.Format("Quicksave %s", readableTime);
 	nextquicksave = (nextquicksave + 1) % count;
-	savegameManager.SaveGame(&sg);
+	savegameManager.SaveGame(&sg, false, false);
 }
 
 
@@ -629,7 +633,7 @@ CCMD(quicksave)
 	// [mxd]. Just save the game, no questions asked.
 	if (!saveloadconfirmation)
 	{
-		savegameManager.SaveGame(savegameManager.quickSaveSlot);
+		savegameManager.SaveGame(savegameManager.quickSaveSlot, true, true);
 		return;
 	}
 
@@ -642,7 +646,7 @@ CCMD(quicksave)
 		{
 			if (res)
 			{
-				savegameManager.SaveGame(savegameManager.quickSaveSlot);
+				savegameManager.SaveGame(savegameManager.quickSaveSlot, true, true);
 			}
 		});
 
