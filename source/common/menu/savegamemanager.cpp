@@ -205,8 +205,8 @@ void FSavegameManager::ReadSaveStrings()
 					{
 						FSaveGameNode *node = new FSaveGameNode;
 						node->Filename = filepath;
-						node->bOldVersion = true;
-						node->bMissingWads = false;
+						node->bOldVersion = check == -1;
+						node->bMissingWads = check == -2;
 						node->SaveTitle = title;
 						InsertSaveNode(node);
 					}
@@ -281,13 +281,17 @@ void FSavegameManager::NotifyNewSave(const FString &file, const FString &title, 
 
 void FSavegameManager::LoadSavegame(int Selected)
 {
-	savegameManager.LoadGame(SaveGames[Selected]);
-	if (quickSaveSlot == (FSaveGameNode*)1)
+	auto sel = savegameManager.GetSavegame(Selected);
+	if (sel && !sel->bOldVersion && !sel->bMissingWads)
 	{
-		quickSaveSlot = SaveGames[Selected];
+		savegameManager.LoadGame(SaveGames[Selected]);
+		if (quickSaveSlot == (FSaveGameNode*)1)
+		{
+			quickSaveSlot = SaveGames[Selected];
+		}
+		M_ClearMenus();
+		LastAccessed = Selected;
 	}
-	M_ClearMenus();
-	LastAccessed = Selected;
 }
 
 
@@ -365,6 +369,7 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 		}
 		auto fr = info->NewReader();
 		auto data = fr.ReadPadded(1);
+		fr.Close();
 		sjson_context* ctx = sjson_create_context(0, 0, NULL);
 		if (ctx)
 		{
@@ -372,8 +377,9 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 
 
 			FString comment = sjson_get_string(root, "Creation Time", "");
-			FString pcomment = sjson_get_string(root, "Comment", "");
-			if (comment.Len() > 0) comment += "\n";
+			FString fcomment = sjson_get_string(root, "Map File", "");
+			FString ncomment = sjson_get_string(root, "Map Name", "");
+			FStringf pcomment("%s - %s\n", fcomment.GetChars(), ncomment.GetChars());
 			comment += pcomment;
 			SaveCommentString = comment;
 

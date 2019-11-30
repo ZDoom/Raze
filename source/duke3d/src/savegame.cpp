@@ -665,7 +665,7 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
     {
 		videoNextPage();	// no idea if this is needed here.
 		g_screenCapture = 1;
-		G_DrawRooms(myconnectindex, 65536);
+		//G_DrawRooms(myconnectindex, 65536);
 		g_screenCapture = 0;
 
         return G_SavePlayer(sv);
