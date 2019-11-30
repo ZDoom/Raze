@@ -1,11 +1,9 @@
 //
-Scroll "+Holster_Weapon"
-E "+Show_Opponents_Weapon"
+V "+Show_Opponents_Weapon"
 B "+Holo_Duke"
 C "+Jetpack"
 Y "+NightVision"
 R "+MedKit"
-+ "+Dpad_Select"
 M "+Steroids"
 Q "+Quick_Kick"
 X "+Last_Used_Weapon"

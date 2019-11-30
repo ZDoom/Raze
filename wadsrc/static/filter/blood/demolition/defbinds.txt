@@ -1,4 +1,3 @@
-//
 U "+Mouse_Aiming"
 I "+Toggle_Crosshair"
 Scroll "+Holster_Weapon"
@@ -7,4 +6,6 @@ C "+CrystalBall"
 P "+ProximityBombs"
 R "+RemoteBombs"
 X "+Alt_Fire"
+J "+Jetpack"
+M "+MedKit"
 Mouse2 "+Alt_Fire"

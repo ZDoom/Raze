@@ -1,2 +1,1 @@
-Scroll "+Holster_Weapon"
 W "+Show_Opponents_Weapon"

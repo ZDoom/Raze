@@ -41,6 +41,7 @@ PgDn "+Look_Down"
 Home "+Aim_Up"
 End "+Aim_Down"
 RCtrl "+Fire"
+Scroll "+Holster_Weapon"
 
 Enter "+Inventory"
 KP-Enter "+Inventory"

@@ -1,5 +1,4 @@
 V "toggleconsole"
-Scroll "+Holster_Weapon"
 E "+Show_Opponents_Weapon"
 M "+Steroids"
 ` "+Quick_Kick"

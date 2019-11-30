@@ -1,5 +1,4 @@
 //
-Scroll "+Holster_Weapon"
 X "+Alt_Fire"
 W "+Show_Opponents_Weapon"
 B "+BeastVision"

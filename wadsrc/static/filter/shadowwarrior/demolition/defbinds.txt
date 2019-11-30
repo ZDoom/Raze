@@ -1,7 +1,6 @@
 //
 I "+Toggle_Crosshair"
 Mouse2 "+MediKit"
-H "+Holster_Weapon"
 M "+MedKit"
 B "+Smoke_Bomb"
 N "+Nightvision"

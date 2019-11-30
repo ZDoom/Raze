@@ -1,7 +1,6 @@
 //
 R "+Steroids"
 ` "+Quick_Kick"
-Scroll "+Holster_Weapon"
 W "+Show_Opponents_Weapon"
 H "+Holo_Duke"
 J "+Jetpack"
@@ -10,3 +9,5 @@ M "+MedKit"
 C "toggleconsole"
 Mouse2 "+Jetpack"
 Mouse3 "+MediKit"
+
+	

@@ -1,4 +1,3 @@
-Scroll "+Holster_Weapon"
 W "+Show_Opponents_Weapon"
 Mouse2 "+Jetpack"
 Mouse3 "+MediKit"

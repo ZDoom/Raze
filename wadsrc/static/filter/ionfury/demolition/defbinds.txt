@@ -1,5 +1,4 @@
 //
-Scroll "+Holster_Weapon"
 X "+Last_Used_Weapon"
 C "+Toggle_Crouch"
 Mouse2 "+Jetpack"

@@ -1,7 +1,6 @@
 M "+MedKit"
-S "+Smoke_Bomb"
+B "+Smoke_Bomb"
 N "+Nightvision"
 G "+Gas_Bomb"
 F "+Flash_Bomb"
 C "+Caltrops"
-Scroll "+Holster_Weapon"

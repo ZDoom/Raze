@@ -1,8 +1,9 @@
 //
-Scroll "+Holster_Weapon"
 W "+Show_Opponents_Weapon"
 B "+BeastVision"
 C "+CrystalBall"
 P "+ProximityBombs"
 R "+RemoteBombs"
 X "+Alt_Fire"
+J "+Jetpack"
+M "+MedKit"
