@@ -355,6 +355,12 @@ void GameInterface::MenuOpened()
 		totalclock = ototalclock;
 		screenpeek = myconnectindex;
 	}
+
+	auto& gm = g_player[myconnectindex].ps->gm;
+	if (gm & MODE_GAME)
+	{
+		gm |= MODE_MENU;
+	}
 }
 
 void GameInterface::MenuSound(::GameInterface::EMenuSounds snd)
@@ -378,8 +384,32 @@ void GameInterface::MenuSound(::GameInterface::EMenuSounds snd)
 void GameInterface::MenuClosed()
 {
 	S_PlaySound(EXITMENUSOUND);
-	if (!ud.pause_on)
+
+	auto& gm = g_player[myconnectindex].ps->gm;
+	if (gm & MODE_GAME)
+	{
+		if (gm & MODE_MENU)
+			I_ClearAllInput();
+
+		// The following lines are here so that you cannot close the menu when no game is running.
+		gm &= ~MODE_MENU;
+
+		if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
+		{
+			ready2send = 1;
+			totalclock = ototalclock;
+			CAMERACLOCK = (int32_t)totalclock;
+			CAMERADIST = 65536;
+
+			// Reset next-viewscreen-redraw counter.
+			// XXX: are there any other cases like that in need of handling?
+			if (g_curViewscreen >= 0)
+				actor[g_curViewscreen].t_data[0] = (int32_t)totalclock;
+		}
+
+		G_UpdateScreenArea();
 		S_PauseSounds(false);
+	}
 }
 
 bool GameInterface::CanSave()
