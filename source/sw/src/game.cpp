@@ -3336,10 +3336,46 @@ void ConKey(void)
 #endif
 }
 
-void FunctionKeys(PLAYERp pp)
+char WangBangMacro[10][64];
+
+SWBOOL DoQuickSave(short save_num)
+{
+    PauseAction();
+
+    if (SaveGame(save_num) != -1)
+    {
+        QuickLoadNum = save_num;
+
+        LastSaveNum = -1;
+
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+SWBOOL DoQuickLoad()
+{
+    KB_ClearKeysDown();
+
+    PauseAction();
+
+    ReloadPrompt = FALSE;
+    if (LoadGame(QuickLoadNum) == -1)
+    {
+        return FALSE;
+    }
+
+    ready2send = 1;
+    LastSaveNum = -1;
+
+    return TRUE;
+}
+
+void
+FunctionKeys(PLAYERp pp)
 {
     extern SWBOOL GamePaused;
-    extern short QuickLoadNum;
     static int rts_delay = 0;
     int fn_key = 0;
 
@@ -3433,16 +3469,25 @@ void FunctionKeys(PLAYERp pp)
             }
         }
 
-        // F6 option menu
+        // F6 quick save
         if (inputState.GetKeyStatus(KEYSC_F6))
         {
-            extern SWBOOL QuickSaveMode;
 			inputState.ClearKeyStatus(KEYSC_F6);
 			if (!TEST(pp->Flags, PF_DEAD))
             {
 				inputState.SetKeyStatus(sc_Escape);
-				ControlPanelType = ct_savemenu;
-                QuickSaveMode = TRUE;
+                if (QuickLoadNum < 0)
+                {
+                    KEY_PRESSED(KEYSC_ESC) = 1;
+                    ControlPanelType = ct_savemenu;
+            }
+                else
+                {
+                    KB_ClearKeysDown();
+                    KB_FlushKeyboardQueue();
+                    DoQuickSave(QuickLoadNum);
+                    ResumeAction();
+        }
             }
         }
 
@@ -3455,17 +3500,16 @@ void FunctionKeys(PLAYERp pp)
             {
                 if (QuickLoadNum < 0)
                 {
-                    PutStringInfoLine(pp, "Last saved game not found.");
+                    KEY_PRESSED(KEYSC_ESC) = 1;
+                    ControlPanelType = ct_loadmenu;
                 }
                 else
                 {
-                    inputState.ClearKeysDown();
-					inputState.SetKeyStatus(sc_Escape);
-					ControlPanelType = ct_quickloadmenu;
+                    DoQuickLoad();
+                    ResumeAction();
                 }
             }
         }
-
     }
 
 
@@ -3535,7 +3579,6 @@ void FunctionKeys(PLAYERp pp)
 void PauseKey(PLAYERp pp)
 {
     extern SWBOOL GamePaused,CheatInputMode;
-    extern short QuickLoadNum;
     extern SWBOOL enabled;
 
     if (inputState.GetKeyStatus(sc_Pause) && !CommEnabled && !InputMode && !UsingMenus && !CheatInputMode && !ConPanel)

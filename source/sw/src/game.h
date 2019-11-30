@@ -2372,6 +2372,12 @@ int COVERinsertsprite(short sectnum, short statnum);   //returns (short)spritenu
 
 void AudioUpdate(void); // stupid
 
+extern short LastSaveNum;
+extern short QuickLoadNum;
+void LoadSaveMsg(const char *msg);
+SWBOOL DoQuickSave(short save_num);
+SWBOOL DoQuickLoad(void);
+
 struct GameInterface : ::GameInterface
 {
 	int app_main() override;

@@ -68,7 +68,6 @@ short TimeLimitTable[9] = {0,3,5,10,15,20,30,45,60};
 
 short QuickLoadNum = -1;
 char QuickLoadDescrDialog[128];
-SWBOOL QuickSaveMode = FALSE;
 SWBOOL SavePrompt = FALSE;
 extern SWBOOL InMenuLevel, LoadGameOutsideMoveLoop, LoadGameFromDemo;
 extern uint8_t RedBookSong[40];
@@ -570,7 +569,6 @@ MenuItem_p cust_callback_item;
 
 static void MNU_ClearDialog(void);
 static SWBOOL MNU_Dialog(void);
-void LoadSaveMsg(const char *msg);
 static void MNU_ItemPreProcess(MenuGroup *group);
 static void MNU_SelectItem(MenuGroup *group, short index, SWBOOL draw);
 static void MNU_PushItem(MenuItem *item, SWBOOL draw);
@@ -1796,24 +1794,17 @@ MNU_QuickLoadCustom(UserCall call, MenuItem_p item)
         // Y pressed
         cust_callback = NULL;
 
-        inputState.ClearKeysDown();
         LoadSaveMsg("Loading...");
 
-        PauseAction();
-
-        ReloadPrompt = FALSE;
-        if (LoadGame(QuickLoadNum) == -1)
+        if (DoQuickLoad() == FALSE)
         {
             ResumeAction();
             return FALSE;
         }
 
-        ready2send = 1;
-        LastSaveNum = -1;
-
-        // do a load game here
-        inputState.ClearKeysDown();
         ExitMenus();
+
+        return TRUE;
     }
 
     inputState.ClearKeysDown();
@@ -2429,16 +2420,11 @@ SWBOOL MNU_GetSaveCustom(void)
 
     if (MenuInputMode)
     {
-        PauseAction();
-
         LoadSaveMsg("Saving...");
 
-        if (SaveGame(save_num) != -1)
+        if (DoQuickSave(save_num) == FALSE)
         {
-            QuickLoadNum = save_num;
-
             LoadGameGroup.cursor = save_num;
-            LastSaveNum = -1;
         }
 
         ResumeAction();
@@ -2521,15 +2507,6 @@ SWBOOL MNU_LoadSaveMove(UserCall call, MenuItem_p item)
 
         sprintf(SaveGameInfo1, "Level %d, Skill %d", SaveGameLevel, SaveGameSkill+1);
         SaveGameInfo2[0] = 0;
-    }
-
-    if (QuickSaveMode)
-    {
-        QuickSaveMode = FALSE;
-        MenuInputMode = TRUE;
-        strcpy(BackupSaveGameDescr, SaveGameDescr[game_num]);
-        inputState.ClearKeysDown();
-        inputState.keyFlushChars();
     }
 
     LastSaveNum = game_num;
