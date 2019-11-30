@@ -50,7 +50,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 //#define SW_SHAREWARE 1     // This determines whether game is shareware compile or not!
-extern char isShareware, useDarts;
+extern char isShareware;
 #define SW_SHAREWARE (isShareware)
 
 // Turn warning off for unreferenced variables.
@@ -2371,6 +2371,12 @@ void SetSpikeActive(short SpriteNum);   // spike.c
 int COVERinsertsprite(short sectnum, short statnum);   //returns (short)spritenum;
 
 void AudioUpdate(void); // stupid
+
+extern short LastSaveNum;
+extern short QuickLoadNum;
+void LoadSaveMsg(const char *msg);
+SWBOOL DoQuickSave(short save_num);
+SWBOOL DoQuickLoad(void);
 
 struct GameInterface : ::GameInterface
 {

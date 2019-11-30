@@ -7492,7 +7492,7 @@ const char *DeathString(short SpriteNum)
     case 5011:
         return "blade";
     case STAR1:
-        if (useDarts) return "dart";
+        if (gs.Darts) return "dart";
         else return "shuriken";
     case CROSSBOLT:
         return "crossbow bolt";

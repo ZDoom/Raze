@@ -651,8 +651,8 @@ short SoundAngle(int x, int y)
     if (delta_angle < 0)
         delta_angle = NORM_ANGLE((1024 + delta_angle) + 1024);
 
-    // convert 2048 degree angle to 32 degree angle
-    return delta_angle >> 6;
+    // convert 2048 degree angle to 128 degree angle
+    return delta_angle >> 4;
 }
 
 int _PlayerSound(const char *file, int line, int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp)

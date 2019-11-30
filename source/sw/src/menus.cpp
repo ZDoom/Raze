@@ -69,7 +69,6 @@ short TimeLimitTable[9] = {0,3,5,10,15,20,30,45,60};
 
 short QuickLoadNum = -1;
 char QuickLoadDescrDialog[128];
-SWBOOL QuickSaveMode = FALSE;
 SWBOOL SavePrompt = FALSE;
 extern SWBOOL InMenuLevel, LoadGameOutsideMoveLoop, LoadGameFromDemo;
 extern uint8_t RedBookSong[40];
@@ -399,6 +398,8 @@ MenuItem options_i[] =
     {DefButton(btn_auto_aim, 0, "Auto-Aiming"), OPT_XS,          OPT_LINE(9), 1, m_defshade, 0, NULL, NULL, NULL},
     {DefButton(btn_voxels, 0, "Voxel Sprites"), OPT_XS,          OPT_LINE(10), 1, m_defshade, 0, NULL, NULL, NULL},
     {DefButton(btn_stats, 0, "Level Stats"), OPT_XS,             OPT_LINE(11), 1, m_defshade, 0, NULL, MNU_StatCheck, NULL},
+    {DefButton(btn_darts, 0, "Use Darts"), OPT_XS,               OPT_LINE(12), 1, m_defshade, 0, NULL, NULL, NULL},
+    {DefButton(btn_autoswitch, 0, "Equip Pickups"), OPT_XS,      OPT_LINE(13), 1, m_defshade, 0, NULL, NULL, NULL},
     {DefNone}
 };
 
@@ -571,7 +572,6 @@ MenuItem_p cust_callback_item;
 
 static void MNU_ClearDialog(void);
 static SWBOOL MNU_Dialog(void);
-void LoadSaveMsg(const char *msg);
 static void MNU_ItemPreProcess(MenuGroup *group);
 static void MNU_SelectItem(MenuGroup *group, short index, SWBOOL draw);
 static void MNU_PushItem(MenuItem *item, SWBOOL draw);
@@ -837,7 +837,7 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
 	// Todo: Branch off to the generic keybind menu.
     const int PGSIZ = 9;
     const char *strs[] = { "Select the function to assign to", "%s", "or ESCAPE to cancel." };
-    int topitem = 0, botitem = NUMGAMEFUNCTIONS-1;
+    int topitem = 0, botitem = NUMGAMEFUNCTIONS;
     int i, j, y;
     short w, h=0;
     int returnval = 0;
@@ -854,13 +854,13 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
     }
     else if (inputState.GetKeyStatus(sc_End))
     {
-        *currentfunc = NUMGAMEFUNCTIONS-1;   // -1 because the last one is the console and the top is 'none'
+        *currentfunc = NUMGAMEFUNCTIONS;
         inputState.ClearKeyStatus(sc_End);
     }
     else if (inputState.GetKeyStatus(sc_PgDn))
     {
         *currentfunc += PGSIZ;
-        if (*currentfunc >= NUMGAMEFUNCTIONS) *currentfunc = NUMGAMEFUNCTIONS-1;
+        if (*currentfunc > NUMGAMEFUNCTIONS) *currentfunc = NUMGAMEFUNCTIONS;
         inputState.ClearKeyStatus(sc_PgDn);
     }
     else if (inputState.GetKeyStatus(sc_PgUp))
@@ -882,11 +882,11 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
 	else if (I_MenuDown())
 	{
 		I_MenuDownClear();
-		*currentfunc = min(NUMGAMEFUNCTIONS - 1, *currentfunc + 1);
+		*currentfunc = min(NUMGAMEFUNCTIONS, *currentfunc + 1);
 	}
 
 
-    if (NUMGAMEFUNCTIONS-1 > PGSIZ)
+    if (NUMGAMEFUNCTIONS > PGSIZ)
     {
         topitem = *currentfunc - PGSIZ/2;
         botitem = topitem + PGSIZ;
@@ -896,9 +896,9 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
             botitem += -topitem;
             topitem = 0;
         }
-        else if (botitem >= NUMGAMEFUNCTIONS)
+        else if (botitem > NUMGAMEFUNCTIONS)
         {
-            botitem = NUMGAMEFUNCTIONS-1;
+            botitem = NUMGAMEFUNCTIONS;
             topitem = botitem - PGSIZ;
         }
     }
@@ -942,7 +942,7 @@ static int MNU_SelectButtonFunction(const char *buttonname, int *currentfunc)
         MNU_MeasureSmallString(morestr,&dx,&dy);
         if (topitem > 0)
             MNU_DrawSmallString(XDIM - OPT_XS - dx, OPT_LINE(4), morestr, 8,16);
-        if (botitem < NUMGAMEFUNCTIONS-1)
+        if (botitem < NUMGAMEFUNCTIONS)
             MNU_DrawSmallString(XDIM - OPT_XS - dx, OPT_LINE(4)+PGSIZ*8, morestr, 8,16);
     }
 
@@ -1797,24 +1797,17 @@ MNU_QuickLoadCustom(UserCall call, MenuItem_p item)
         // Y pressed
         cust_callback = NULL;
 
-        inputState.ClearKeysDown();
         LoadSaveMsg("Loading...");
 
-        PauseAction();
-
-        ReloadPrompt = FALSE;
-        if (LoadGame(QuickLoadNum) == -1)
+        if (DoQuickLoad() == FALSE)
         {
             ResumeAction();
             return FALSE;
         }
 
-        ready2send = 1;
-        LastSaveNum = -1;
-
-        // do a load game here
-        inputState.ClearKeysDown();
         ExitMenus();
+
+        return TRUE;
     }
 
     inputState.ClearKeysDown();
@@ -1874,6 +1867,8 @@ MNU_InitMenus(void)
 	buttonsettings[btn_playcd] = true;// gs.PlayCD;
     buttonsettings[btn_flipstereo] = snd_reversestereo;
     buttonsettings[btn_stats] = hud_stats;
+    buttonsettings[btn_darts] = gs.Darts;
+    buttonsettings[btn_autoswitch] = gs.WeaponAutoSwitch;
 
     slidersettings[sldr_gametype] = gs.NetGameType;
     slidersettings[sldr_netlevel] = gs.NetLevel;
@@ -2430,16 +2425,11 @@ SWBOOL MNU_GetSaveCustom(void)
 
     if (MenuInputMode)
     {
-        PauseAction();
-
         LoadSaveMsg("Saving...");
 
-        if (SaveGame(save_num) != -1)
+        if (DoQuickSave(save_num) == FALSE)
         {
-            QuickLoadNum = save_num;
-
             LoadGameGroup.cursor = save_num;
-            LastSaveNum = -1;
         }
 
         ResumeAction();
@@ -2522,15 +2512,6 @@ SWBOOL MNU_LoadSaveMove(UserCall call, MenuItem_p item)
 
         sprintf(SaveGameInfo1, "Level %d, Skill %d", SaveGameLevel, SaveGameSkill+1);
         SaveGameInfo2[0] = 0;
-    }
-
-    if (QuickSaveMode)
-    {
-        QuickSaveMode = FALSE;
-        MenuInputMode = TRUE;
-        strcpy(BackupSaveGameDescr, SaveGameDescr[game_num]);
-        inputState.ClearKeysDown();
-        inputState.keyFlushChars();
     }
 
     LastSaveNum = game_num;
@@ -2943,6 +2924,12 @@ void MNU_DoButton(MenuItem_p item, SWBOOL draw)
             break;
         case btn_stats:
             hud_stats = state = buttonsettings[item->button];
+            break;
+        case btn_darts:
+            gs.Darts = state = buttonsettings[item->button];
+            break;
+        case btn_autoswitch:
+            gs.WeaponAutoSwitch = state = buttonsettings[item->button];
             break;
         case btn_markers:
             gs.NetSpawnMarkers = state = buttonsettings[item->button];
