@@ -191,7 +191,7 @@ void FuncLion(int a, int nDamage, int nRun)
 
                     if (nTarget > -1)
                     {
-                        if (nTarget > -1 && sprite[nTarget].statnum < 199) {
+                        if (sprite[nTarget].statnum < 199) {
                             LionList[nLion].nTarget = nTarget;
                         }
 
