@@ -1173,8 +1173,8 @@ void FuncPlayer(int pA, int nDamage, int nRun)
             }
             else
             {
-                // ded
-                if (sprite[nSprite2].statnum == 100)
+                // player has died
+                if (nSprite2 > -1 && sprite[nSprite2].statnum == 100)
                 {
                     short nPlayer2 = GetPlayerFromSprite(nSprite2);
 
