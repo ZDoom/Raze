@@ -212,17 +212,6 @@ bool DOptionMenu::MenuEvent (int mkey, bool fromcontroller)
 				// Figure out how many lines of text fit on the menu
 				int y = mDesc->mPosition;
 
-				if (y <= 0)
-				{
-					if (BigFont && mDesc->mTitle.IsNotEmpty())
-					{
-						y = -y + BigFont->GetHeight();
-					}
-					else
-					{
-						y = -y;
-					}
-				}
 				y *= CleanYfac_1;
 				int	rowheight = OptionSettings.mLinespacing * CleanYfac_1;
 				int maxitems = (screen->GetHeight() - rowheight - y) / rowheight + 1;
@@ -397,6 +386,11 @@ void DOptionMenu::Ticker ()
 //
 //
 //=============================================================================
+int DOptionMenu::GetIndent()
+{
+	int indent = std::max(0, (mDesc->mIndent + 40) - CleanWidth_1 / 2);
+	return screen->GetWidth() / 2 + indent * CleanXfac_1;
+}
 
 void DOptionMenu::Drawer ()
 {
@@ -410,25 +404,10 @@ void DOptionMenu::Drawer ()
 	int fontheight = OptionSettings.mLinespacing * CleanYfac_1;
 	y *= CleanYfac_1;
 
-	int indent = mDesc->mIndent;
-	if (indent > 280)
-	{ // kludge for the compatibility options with their extremely long labels
-		if (indent + 40 <= CleanWidth_1)
-		{
-			indent = (screen->GetWidth() - ((indent + 40) * CleanXfac_1)) / 2 + indent * CleanXfac_1;
-		}
-		else
-		{
-			indent = screen->GetWidth() - 40 * CleanXfac_1;
-		}
-	}
-	else
-	{
-		indent = (indent - 160) * CleanXfac_1 + screen->GetWidth() / 2;
-	}
+	int indent = GetIndent();
 
 	int ytop = y + mDesc->mScrollTop * 8 * CleanYfac_1;
-	int lastrow = screen->GetHeight() - SmallFont->GetHeight() * CleanYfac_1;
+	int lastrow = screen->GetHeight() - OptionFont()->GetHeight() * CleanYfac_1;
 
 	unsigned i;
 	for (i = 0; i < mDesc->mItems.Size() && y <= lastrow; i++, y += fontheight)
@@ -497,6 +476,7 @@ bool FOptionMenuItem::MouseEvent(int type, int x, int y)
 	}
 	return false;
 }
+
 
 int  FOptionMenuItem::GetIndent()
 {

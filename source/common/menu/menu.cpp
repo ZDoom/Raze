@@ -541,6 +541,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 			FOptionMenuDescriptor *ld = static_cast<FOptionMenuDescriptor*>(*desc);
 			//const PClass *cls = ld->mClass == NULL? RUNTIME_CLASS(DOptionMenu) : ld->mClass;
 
+			ld->CalcIndent();
 			DOptionMenu *newmenu = new DOptionMenu;
 			newmenu->Init(DMenu::CurrentMenu, ld);
 			M_ActivateMenu(newmenu);

@@ -794,7 +794,7 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 			sc.MustGetString();
 			desc->mClass = sc.String;
 		}
-		else if (sc.Compare("Title"))
+		else if (sc.Compare("Title") || sc.Compare("Caption"))
 		{
 			sc.MustGetString();
 			desc->mTitle = sc.String;
@@ -1025,7 +1025,6 @@ static void ParseOptionMenu(FScanner &sc)
 
 	ParseOptionMenuBody(sc, desc);
 	bool scratch = ReplaceMenu(sc, desc);
-	if (desc->mIndent == 0) desc->CalcIndent();
 	if (scratch) delete desc;
 }
 
@@ -1046,7 +1045,7 @@ void M_ParseMenuDefs()
 	OptionSettings.mFontColorMore = CR_GOLD;// = V_FindFontColor(gameinfo.mFontColorMore);
 	OptionSettings.mFontColorHeader = CR_YELLOW;// = V_FindFontColor(gameinfo.mFontColorHeader);
 	OptionSettings.mFontColorHighlight = CR_BRICK;// = V_FindFontColor(gameinfo.mFontColorHighlight);
-	OptionSettings.mFontColorSelection = CR_DARKRED;// = V_FindFontColor(gameinfo.mFontColorSelection);
+	OptionSettings.mFontColorSelection = CR_RED;// = V_FindFontColor(gameinfo.mFontColorSelection);
 	DefaultListMenuSettings.Reset();
 	DefaultOptionMenuSettings.Reset();
 

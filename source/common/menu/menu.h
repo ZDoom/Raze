@@ -644,6 +644,7 @@ public:
 	bool MouseEvent(int type, int x, int y);
 	void Ticker ();
 	void Drawer ();
+	virtual int GetIndent();
 	const FOptionMenuDescriptor *GetDescriptor() const { return mDesc; }
 	void SetFocus(FOptionMenuItem *fc)
 	{

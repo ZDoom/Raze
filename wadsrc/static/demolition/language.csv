@@ -18,7 +18,7 @@ Select an Episode,MNU_SELECTEPISODE,DN3D et.al.,,,,"Welche Episode?
 ",,,,,,,,,,,,,,,,,
 Episodes,MNU_EPISODES,Blood,,,,Episoden,,,,,,,,,,,,,,,,,
 Select Skill,MNU_SELECTSKILL,DN3D et.al.,,,,Schwierigkeitsgrad,,,,,,,,,,,,,,,,,
-Difficulty,MBU_DIFFICULTY,Blood,,,,Schwierigkeitsgrad,,,,,,,,,,,,,,,,,
+Difficulty,MNU_DIFFICULTY,Blood,,,,Schwierigkeitsgrad,,,,,,,,,,,,,,,,,
 About Demolition,MNU_ENGINECREDITS,,,,,Über Demolition,,,,,,,,,,,,,,,,,
 Press Y or N.,PRESSYN,,,,Stiskni Y nebo N.,Drücke Y oder N.,"Πάτα Y ή N
 ",Premu Y aŭ N.,Presiona Y ó N.,,Paina Y tai N.,Appuyez sur Y ou N.,Nyomj Y-t vagy N-t.,Premi Y oppure N.,YかNで答えろ,Y키 또는 N키를 누르시오.,Druk op Y of N.,Wciśnij Y lub N.,Aperte Y ou N.,Carrega Y ou N.,,Нажмите Y или N.,Притисните Y или N.
@@ -215,3 +215,19 @@ No files,MNU_NOFILES,,,,Žádné soubory,Keine Dateien,,Neniuj dosieroj,Sin arch
 ",Biztos ki akarod törölni a mentést?,Vuoi veramente rimuovere il salvataggio,本当にこのセーブを消すのか?,저장된 게임을 정말로 삭제하시겠습니까?,Wil je echt de opgeslagen spel verwijderen?,Czy naprawdę chcesz usunąć zapis gry,"Deseja mesmo deletar o jogo salvo
 ",Deseja mesmo apagar o jogo,,"Вы действительно хотите удалить сохранение
 ",Да ли стварно желите да избришете сачувану игру
+,,,,,,,,,,,,,,,,,,,,,,,
+Options,OPTMNU_TITLE,,,,Možnosti,Optionen,,Agordoj,Opciones,,Asetukset,Options,Beállítások,Opzioni,オプション,설정,Opties,Opcje,Opções,,,Настройки,Подешавања
+Customize Controls,OPTMNU_CONTROLS,,,,Nastavení ovládání,Steuerung einstellen,,Agordi Regilojn,Personalizar Controles,,Ohjausasetukset,Modifier les Contrôles,Irányítás testreszabása,Personalizza i controlli,キー配置変更,조작 사용자 지정,Instellen van de controle,Ustaw Klawisze,Configurar Controles,Configurar Controlos,,Управление,Контроле
+Mouse Options,OPTMNU_MOUSE,,,,Nastavení myši,Mauseinstellungen,,Musagordoj,Opciones de Ratón,,Hiiriasetukset,Options de la Souris,Egér beállítások,Opzioni Mouse,マウス オプション,마우스 설정,Muis opties,Opcje Myszki,Opções de mouse,Opções do rato,,Мышь,Миш
+Controller Options,OPTMNU_JOYSTICK,,,,Nastavení ovladače,Joystickeinstellungen,,Ludregilagordoj,Opciones de Mando,,Peliohjainasetukset,Options de la Manette,Játékvezérlő beállítások,Opzioni Joystick,コントローラーオプション,조이스틱 설정,Controller opties,Opcje Kontrolera,Opções de joystick,,,Контроллер,Контролер
+Player Setup,OPTMNU_PLAYER,,,,Nastavení hráče,Spieler einrichten,,Ludanta Agordaĵo,Config. del Jugador,,Pelaaja-asetukset,Options du Joueur,Játékos testreszabása,Settaggio giocatore,プレイヤーの特徴,플레이어 설정,Speler instellen,Ustawienia Gracza,Configurações de Jogador,Configurações do Jogador,,Игрок,Играч
+Gameplay Options,OPTMNU_GAMEPLAY,,,,Nastavení herních mechanik,Spieleinstellungen,,Ludadagordoj,Opciones de Jugabilidad,,Pelattavuusasetukset,Options du Gameplay,Játék mechanika,Opzioni Gameplay,ゲームプレイ オプション,게임 설정,Gameplay-opties,Opcje Rozgrywki,Opções de jogabilidade,,,Геймплей,Гејмплеј
+Automap Options,OPTMNU_AUTOMAP,,,,Nastavení automapy,Automapeinstellungen,,Aŭtomapagordoj,Opciones del Automapa,,Automaattikartan asetukset,Options de la Carte,Térkép beállítások,Opzioni Automappa,オートマップ オプション,오토맵 설정,Automap-opties,Opcje Mapy,Opções de automapa,,,Автокарта,Аутомапа
+HUD Options,OPTMNU_HUD,,,,Nastavení HUD,HUD Einstellungen,,Agordoj de HUD,Opciones del HUD,,Tilanäytön asetukset,Options de l'ATH,HUD beállítások,Opzioni HUD,HUD オプション,HUD 설정,HUD opties,Opcje Paska HUD,Opções de HUD,,,HUD,HUD
+Miscellaneous Options,OPTMNU_MISCELLANEOUS,,,,Ostatní nastavení,Verschiedene Einstellungen,,Ekstraĵagordoj,Opciones Misceláneas,,Sekalaiset asetukset,Options Annexes,Általános beállítások,Opzioni miste,その他のオプション,그 외 설정,Diverse opties,Różne Opcje,Outras opções,,,Дополнительно,Разно
+Sound Options,OPTMNU_SOUND,,,,Nastavení zvuku,Soundeinstellungen,,Sonagordoj,Opciones de Sonido,,Ääniasetukset,Options du Son,Hang beállítások,Opzioni Suono,サウンド オプション,음향 설정,Geluidsopties,Opcje Dźwięku,Opções de som,,,Звук,Звук
+Display Options,OPTMNU_DISPLAY,,,,Nastavení grafiky,Anzeigeeinstellungen,,Ekranagordoj,Opciones de Visualización,,Näyttöasetukset,Options de l'Affichage,Megjelenítés beállítások,Opzioni Display,ディスプレイ オプション,디스플레이 설정,Weergaveopties,Opcje Wyświetlania,Opções de vídeo,,,Экран,Приказ
+Set video mode,OPTMNU_VIDEO,,,,Nastavit režim displeje,Videomodus,,Agordi videoreĝimon,Modos de Vídeo,,Aseta videotila,Choisir Mode D'Affichage,Felbontás,Settaggio modalità video,ビデオ 調整,화면 설정,Videomodus instellen,Ustaw tryb wideo,Definir modo de vídeo,,,Видеорежим,Видео мод
+Reset to defaults,OPTMNU_DEFAULTS,,,,Obnovit původní,Auf Vorgaben zurücksetzen,,Reŝanĝi al defaŭltoj,Valores por Defecto,,Palauta oletusasetukset,Réinitialiser les paramètres,Alapértelmezett beállítások használata,Reimposta ai valori di default,初期設定に戻す,초기화,Terugzetten naar standaardinstellingen,Resetuj do domyślnych,Redefinir para configurações padrão,,,Сбросить все настройки,Врати подразумевано
+Reset to last saved,OPTMNU_RESETTOSAVED,,,,Obnovit naposledy uložené,Auf gespeicherte Werte zurücksetzen,,Reŝanĝi al lasta konservo,Últimos Valores Guardados,,Palauta viimeksi tallennettu tila,Recharger dernière config.,Legutóbbi mentett beállítások használata,Reimposta ai valori salvati l'ultima volta,最後に保存した設定に戻す,이전 설정으로 초기화,Reset naar laatste opgeslagen,Resetuj do ostatnio zapisanych,Redefinir para última configuração salva,Redefinir para última configuração gravada,,Вернуть предыдущие настройки,Врати задње сачувано
+Go to console,OPTMNU_CONSOLE,,,,Jít do konzole,Öffne Konsole,,Iri al konzolo,Ir a la consola,,Mene konsoliin,Ouvrir la console,Konzol megnyitása,Vai alla console,コンソールを開く,콘솔로 이동,Ga naar de console,Przejdź do konsoli,Abrir console,Abrir consola,,Открыть консоль,Отвори конзолу

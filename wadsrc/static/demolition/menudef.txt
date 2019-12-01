@@ -575,3 +575,39 @@ ListMenu "SaveGameMenu"
 	Class "SaveMenu"	// uses its own implementation
 }
 	
+//-------------------------------------------------------------------------------------------
+//
+// The generic options menus start here
+//
+//-------------------------------------------------------------------------------------------
+
+OptionMenuSettings
+{
+	Linespacing 17
+	// todo: implement color themes that fit the games
+}
+
+DefaultOptionMenu
+{
+	Position 85
+}
+
+OptionMenu "OptionsMenu"
+{
+	Caption "$MNU_OPTIONS"
+	Submenu "$OPTMNU_CONTROLS",			"CustomizeControls"
+	Submenu "$OPTMNU_MOUSE",			"MouseOptions"
+	Submenu "$OPTMNU_JOYSTICK",			"JoystickOptions"
+	StaticText " "
+	Submenu "$OPTMNU_PLAYER",			"NewPlayerMenu"
+	Submenu "$OPTMNU_SOUND",			"SoundOptions"
+	Submenu "$OPTMNU_DISPLAY",			"VideoOptions"
+	Submenu "$OPTMNU_VIDEO",			"VideoModeMenu"
+	Submenu "$OPTMNU_GAMEPLAY",			"GameplayOptions"
+	Submenu "$OPTMNU_MISCELLANEOUS",	"MiscOptions"
+	StaticText " "
+	SafeCommand "$OPTMNU_DEFAULTS",	"reset2defaults"
+	SafeCommand	"$OPTMNU_RESETTOSAVED",	"reset2saved"
+	Command "$OPTMNU_CONSOLE",			"menuconsole"
+}	
+	
