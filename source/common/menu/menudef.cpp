@@ -644,6 +644,7 @@ static void ParseImageScroller(FScanner &sc)
 	FImageScrollerDescriptor *desc = new FImageScrollerDescriptor;
 	desc->mType = MDESC_ImageScroller;
 	desc->mMenuName = sc.String;
+	desc->mClass = NAME_None;
 
 	ParseImageScrollerBody(sc, desc);
 	bool scratch = ReplaceMenu(sc, desc);

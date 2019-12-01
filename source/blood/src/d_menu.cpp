@@ -181,7 +181,7 @@ protected:
 
 	void PostDraw()
 	{
-		itemBloodQAV->Draw();
+		//itemBloodQAV->Draw();
 	}
 
 };

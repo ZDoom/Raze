@@ -126,7 +126,7 @@ public:
 
 	const char* localize(const char* str)
 	{
-		return *str == '$' ? GetString(str + 1, nullptr) : str;
+		return *str == '$' ? operator()(str + 1) : str;
 	}
 };
 

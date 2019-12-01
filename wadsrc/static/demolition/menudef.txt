@@ -116,11 +116,12 @@ LISTMENU "IngameMenu"
 		centermenu
 		Linespacing 17
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		NativeTextItem "$MNU_ENDGAME", "e", "QuitToMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(ShadowWarrior)
@@ -419,6 +420,7 @@ ImageScroller "HelpMenu"
 	}
 	ifgame(blood)
 	{
+		class "Blood.ImageScrollerMenu"
 		// The duplication here is to integrate the alternating versions of HELP3
 		QAVAnimationItem "Help4.qav"
 		QAVAnimationItem "Help5.qav"
@@ -530,6 +532,7 @@ ImageScroller "CreditsMenu"
 	}
 	ifgame(blood)
 	{
+		class "Blood.ImageScrollerMenu"
 		QAVAnimationItem "Credits.qav"
 	}
 	ifgame(ShadowWarrior)

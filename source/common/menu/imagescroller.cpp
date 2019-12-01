@@ -102,6 +102,7 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 		if (pageTransition.current) pageTransition.current->origin = { 0,0 };
 		return DMenu::MenuEvent(mkey, fromcontroller);
 
+
 	case MKEY_Left:
 		if (pageTransition.previous == nullptr)
 		{
