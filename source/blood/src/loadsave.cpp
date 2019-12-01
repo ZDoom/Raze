@@ -51,7 +51,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-GAMEOPTIONS gSaveGameOptions[10];
 char *gSaveGamePic[10];
 unsigned int gSavedOffset = 0;
 
@@ -101,7 +100,7 @@ void LoadSave::Write(void *pData, int nSize)
         ThrowError("File error #%d writing save file.", errno);
 }
 
-void LoadSave::LoadGame(const char *pzFile)
+bool GameInterface::LoadGame(FSaveGameNode* node)
 {
     bool demoWasPlayed = gDemo.at1;
     if (gDemo.at1)
@@ -117,18 +116,18 @@ void LoadSave::LoadGame(const char *pzFile)
         memset(sprite, 0, sizeof(spritetype)*kMaxSprites);
         automapping = 1;
     }
-	OpenSaveGameForRead(pzFile);
-    hLFile = ReadSavegameChunk("snapshot.bld");
-    if (!hLFile.isOpen())
-        ThrowError("Error loading save file.");
-    LoadSave *rover = head.next;
-    while (rover != &head)
+	OpenSaveGameForRead(node->Filename);
+    LoadSave::hLFile = ReadSavegameChunk("snapshot.bld");
+	if (!LoadSave::hLFile.isOpen())
+		return false;
+    LoadSave *rover = LoadSave::head.next;
+    while (rover != &LoadSave::head)
     {
         rover->Load();
         rover = rover->next;
     }
 
-	hLFile.Close();
+	LoadSave::hLFile.Close();
 	FinishSavegameRead();
     if (!gGameStarted)
         scrLoadPLUs();
@@ -182,30 +181,39 @@ void LoadSave::LoadGame(const char *pzFile)
 
     netBroadcastPlayerInfo(myconnectindex);
     //sndPlaySong(gGameOptions.zLevelSong, 1);
+	return true;
 }
 
-void LoadSave::SaveGame(const char *pzFile)
+bool GameInterface::SaveGame(FSaveGameNode* node)
 {
-	OpenSaveGameForWrite(pzFile);
-	hSFile = WriteSavegameChunk("snapshot.bld");
-    if (hSFile == NULL)
-        ThrowError("File error #%d creating save file.", errno);
-    dword_27AA38 = 0;
-    dword_27AA40 = 0;
-    LoadSave *rover = head.next;
-    while (rover != &head)
-    {
-        rover->Save();
-        if (dword_27AA38 > dword_27AA40)
-            dword_27AA40 = dword_27AA38;
-        dword_27AA38 = 0;
-        rover = rover->next;
-    }
-	auto & li = gEpisodeInfo[gGameOptions.nEpisode].at28[gGameOptions.nLevel];
-	G_WriteSaveHeader(gGameOptions.szUserGameName, li.at0, li.at90);
+	OpenSaveGameForWrite(node->Filename);
+	LoadSave::hSFile = WriteSavegameChunk("snapshot.bld");
 
-	FinishSavegameWrite();
-    hSFile = NULL;
+	try
+	{
+		dword_27AA38 = 0;
+		dword_27AA40 = 0;
+		LoadSave* rover = LoadSave::head.next;
+		while (rover != &LoadSave::head)
+		{
+			rover->Save();
+			if (dword_27AA38 > dword_27AA40)
+				dword_27AA40 = dword_27AA38;
+			dword_27AA38 = 0;
+			rover = rover->next;
+		}
+	}
+	catch (std::runtime_error & err)
+	{
+		// Let's not abort for write errors.
+		Printf(TEXTCOLOR_RED "%s\n", err.what());
+		return false;
+	}
+	auto & li = gEpisodeInfo[gGameOptions.nEpisode].at28[gGameOptions.nLevel];
+	G_WriteSaveHeader(node->SaveTitle, FStringf("%s.map", li.at0), li.at90);
+	LoadSave::hSFile = NULL;
+
+	return FinishSavegameWrite();
 }
 
 class MyLoadSave : public LoadSave
@@ -431,41 +439,6 @@ void MyLoadSave::Save(void)
 
 void LoadSavedInfo(void)
 {
-	FString path = M_GetSavegamesPath() + "game*.sav";
-	TArray<FString> saves;
-	D_AddWildFile(saves, path);
-    int nCount = 0;
-    for (auto & savename : saves)
-    {
-		OpenSaveGameForRead(savename);
-		auto hFile = ReadSavegameChunk("snapshot.bld");
-		if (!hFile.isOpen())
-		{
-			FinishSavegameRead();
-			ThrowError("Error loading save file header.");
-		}
-        int vc;
-        short v4;
-        vc = 0;
-        v4 = word_27AA54;
-        if ((uint32_t)hFile.Read(&vc, sizeof(vc)) != sizeof(vc))
-        {
-            continue;
-        }
-        if (vc != 0x5653424e/*'VSBN'*/)
-        {
-            continue;
-        }
-        hFile.Read(&v4, sizeof(v4));
-        if (v4 != BYTEVERSION)
-        {
-            continue;
-        }
-        if ((uint32_t)hFile.Read(&gSaveGameOptions[nCount], sizeof(gSaveGameOptions[0])) != sizeof(gSaveGameOptions[0]))
-            ThrowError("Error reading save file.");
-		nCount++;
-    }
-	FinishSavegameRead();
 }
 
 void UpdateSavedInfo(int nSlot)

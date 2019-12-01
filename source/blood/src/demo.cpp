@@ -64,8 +64,6 @@ void ReadGameOptionsLegacy(GAMEOPTIONS &gameOptions, GAMEOPTIONSLEGACY &gameOpti
     strcpy(gameOptions.zLevelName, gameOptionsLegacy.zLevelName);
     strcpy(gameOptions.zLevelSong, gameOptionsLegacy.zLevelSong);
     gameOptions.nTrackNumber = gameOptionsLegacy.nTrackNumber;
-    strcpy(gameOptions.szSaveGameName, gameOptionsLegacy.szSaveGameName);
-    strcpy(gameOptions.szUserGameName, gameOptionsLegacy.szUserGameName);
     gameOptions.nSaveGameSlot = gameOptionsLegacy.nSaveGameSlot;
     gameOptions.picEntry = gameOptionsLegacy.picEntry;
     gameOptions.uMapCRC = gameOptionsLegacy.uMapCRC;

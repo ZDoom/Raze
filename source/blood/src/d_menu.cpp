@@ -141,29 +141,22 @@ static std::unique_ptr<CGameMenuItemQAV> itemBloodQAV;	// This must be global to
 
 void UpdateNetworkMenus(void)
 {
-	// Kept as a reminder to reimplement later.
-#if 0
-	if (gGameOptions.nGameType > 0)
+	// For now disable the network menu item as it is not yet functional.
+	for (auto name : { NAME_MainMenu, NAME_IngameMenu })
 	{
-		itemMain1.resource = &menuNetStart;
-		itemMain1.data = 2;
+		FMenuDescriptor** desc = MenuDescriptors.CheckKey(name);
+		if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
+		{
+			FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
+			for (auto& li : ld->mItems)
+			{
+				if (li->GetAction(nullptr) == NAME_MultiMenu)
+				{
+					li->mEnabled = false;
+				}
+			}
+		}
 	}
-	else
-	{
-		itemMain1.resource = &menuEpisode;
-		itemMain1.data = -1;
-	}
-	if (gGameOptions.nGameType > 0)
-	{
-		itemMainSave1.resource = &menuNetStart;
-		itemMainSave1.data = 2;
-	}
-	else
-	{
-		itemMainSave1.resource = &menuEpisode;
-		itemMainSave1.data = -1;
-	}
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -181,7 +174,7 @@ protected:
 
 	void PostDraw()
 	{
-		//itemBloodQAV->Draw();
+		itemBloodQAV->Draw();
 	}
 
 };

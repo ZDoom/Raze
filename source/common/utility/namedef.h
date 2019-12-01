@@ -18,6 +18,7 @@ xx(Controlmessage)
 
 xx(MainMenu)
 xx(IngameMenu)
+xx(MultiMenu)
 xx(HelpMenu)
 xx(CreditsMenu)
 xx(SaveGameMenu)

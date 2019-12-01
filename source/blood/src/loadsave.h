@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include "levels.h"
 
+struct FSavegameNode;
 BEGIN_BLD_NS
 
 class LoadSave {
@@ -49,12 +50,11 @@ public:
     virtual void Load(void);
     void Read(void *, int);
     void Write(void *, int);
-    static void LoadGame(const char *);
-    static void SaveGame(const char *);
+    static void LoadGame(FSavegameNode *);
+    static void SaveGame(FSavegameNode*);
 };
 
 extern unsigned int gSavedOffset;
-extern GAMEOPTIONS gSaveGameOptions[];
 extern char *gSaveGamePic[10];
 void UpdateSavedInfo(int nSlot);
 void LoadSavedInfo(void);

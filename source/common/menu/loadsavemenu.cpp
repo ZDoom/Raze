@@ -165,7 +165,7 @@ protected:
 
 			if (savegameManager.SavegameCount() > 0)
 			{
-				if (Selected > savegameManager.SavegameCount()) Selected = 0;
+				if (Selected >= savegameManager.SavegameCount()) Selected = 0;
 				FString text = (Selected == -1 || !savegameManager.GetSavegame(Selected)->bOldVersion) ? GStrings("MNU_NOPICTURE") : GStrings("MNU_DIFFVERSION");
 				int textlen = NewSmallFont->StringWidth(text) * CleanXfac;
 

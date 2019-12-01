@@ -2032,8 +2032,6 @@ void SaveGame(CGameMenuItemZEditBitmap *pItem, CGameMenuEvent *event)
     }
 	FStringf basename("save%04d", nSlot);
 	auto strSaveGameName = G_BuildSaveName(basename);
-    strcpy(gGameOptions.szUserGameName, strRestoreGameStrings[nSlot]);
-    sprintf(gGameOptions.szSaveGameName, "%s", strSaveGameName.GetChars());
     gGameOptions.nSaveGameSlot = nSlot;
     viewLoadingScreen(2518, "Saving", "Saving Your Game", strRestoreGameStrings[nSlot]);
     videoNextPage();

@@ -95,6 +95,8 @@ struct GameInterface : ::GameInterface
 	void StartGame(FGameStartup& gs) override;
 	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
+	bool SaveGame(FSaveGameNode*) override;
+	bool LoadGame(FSaveGameNode*) override;
 };
 
 END_BLD_NS
