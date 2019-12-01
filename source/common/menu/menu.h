@@ -678,6 +678,7 @@ class DImageScrollerMenu : public DMenu
 	int index = 0;
 	MenuTransition pageTransition = {};
 
+protected:
 	virtual ImageScreen* newImageScreen(FImageScrollerDescriptor::ScrollerItem* desc);
 
 public:

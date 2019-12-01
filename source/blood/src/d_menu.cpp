@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "demo.h"
 #include "network.h"
+#include "mmulti.h"
 #include "c_bind.h"
 #include "menu/menu.h"
 
@@ -136,13 +137,6 @@ void CGameMenuItemQAV::Draw(void)
 
 
 static std::unique_ptr<CGameMenuItemQAV> itemBloodQAV;	// This must be global to ensure that the animation remains consistent across menus.
-/*
-CGameMenuItemQAV itemCreditsQAV("", 3, 160, 100, "CREDITS", false, true);
-CGameMenuItemQAV itemHelp3QAV("", 3, 160, 100, "HELP3", false, false);
-CGameMenuItemQAV itemHelp3BQAV("", 3, 160, 100, "HELP3B", false, false);
-CGameMenuItemQAV itemHelp4QAV("", 3, 160, 100, "HELP4", false, true);
-CGameMenuItemQAV itemHelp5QAV("", 3, 160, 100, "HELP5", false, true);
-*/
 
 
 void UpdateNetworkMenus(void)
@@ -172,29 +166,6 @@ void UpdateNetworkMenus(void)
 #endif
 }
 
-void MenuSetupEpisodeInfo(void)
-{
-#if 0
-	memset(zEpisodeNames, 0, sizeof(zEpisodeNames));
-	memset(zLevelNames, 0, sizeof(zLevelNames));
-	for (int i = 0; i < 6; i++)
-	{
-		if (i < gEpisodeCount)
-		{
-			EPISODEINFO* pEpisode = &gEpisodeInfo[i];
-			zEpisodeNames[i] = pEpisode->at0;
-			for (int j = 0; j < 16; j++)
-			{
-				if (j < pEpisode->nLevels)
-				{
-					zLevelNames[i][j] = pEpisode->data[j].at90;
-				}
-			}
-		}
-	}
-#endif
-}
-
 //----------------------------------------------------------------------------
 //
 // Implements the native looking menu used for the main menu
@@ -213,6 +184,38 @@ protected:
 		itemBloodQAV->Draw();
 	}
 
+};
+
+
+//----------------------------------------------------------------------------
+//
+//
+//
+//----------------------------------------------------------------------------
+
+class BloodImageScreen : public ImageScreen
+{
+	CGameMenuItemQAV anim;
+public:
+	BloodImageScreen(FImageScrollerDescriptor::ScrollerItem* desc)
+		: ImageScreen(desc), anim(169, 100, mDesc->text.GetChars(), false, true)
+	{
+
+	}
+
+	void Drawer() override
+	{
+		anim.Draw();
+	}
+};
+
+class DBloodImageScrollerMenu : public DImageScrollerMenu
+{
+	ImageScreen* newImageScreen(FImageScrollerDescriptor::ScrollerItem* desc) override
+	{
+		if (desc->type >= 0) return DImageScrollerMenu::newImageScreen(desc);
+		return new BloodImageScreen(desc);
+	}
 };
 
 
@@ -246,129 +249,29 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 
 void GameInterface::MenuOpened()
 {
-#if 0
-	S_PauseSounds(true);
-	if ((!g_netServer && ud.multimode < 2))
-	{
-		ready2send = 0;
-		totalclock = ototalclock;
-		screenpeek = myconnectindex;
-	}
-
-	auto& gm = g_player[myconnectindex].ps->gm;
-	if (gm & MODE_GAME)
-	{
-		gm |= MODE_MENU;
-	}
-#endif
-
 	itemBloodQAV.reset(new CGameMenuItemQAV(160, 100, "BDRIP.QAV", true));
-}
-
-void GameInterface::MenuSound(EMenuSounds snd)
-{
-#if 0
-	switch (snd)
-	{
-	case CursorSound:
-		S_PlaySound(RR ? 335 : KICK_HIT);
-		break;
-
-	case AdvanceSound:
-		S_PlaySound(RR ? 341 : PISTOL_BODYHIT);
-		break;
-
-	case CloseSound:
-		S_PlaySound(EXITMENUSOUND);
-		break;
-
-	default:
-		return;
-	}
-#endif
 }
 
 void GameInterface::MenuClosed()
 {
 	itemBloodQAV.reset();
-#if 0
-	auto& gm = g_player[myconnectindex].ps->gm;
-	if (gm & MODE_GAME)
-	{
-		if (gm & MODE_MENU)
-			I_ClearAllInput();
-
-		// The following lines are here so that you cannot close the menu when no game is running.
-		gm &= ~MODE_MENU;
-
-		if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-		{
-			ready2send = 1;
-			totalclock = ototalclock;
-			CAMERACLOCK = (int32_t)totalclock;
-			CAMERADIST = 65536;
-
-			// Reset next-viewscreen-redraw counter.
-			// XXX: are there any other cases like that in need of handling?
-			if (g_curViewscreen >= 0)
-				actor[g_curViewscreen].t_data[0] = (int32_t)totalclock;
-		}
-
-		G_UpdateScreenArea();
-		S_PauseSounds(false);
-	}
-#endif
 }
 
 bool GameInterface::CanSave()
 {
-#if 0
-	if (ud.recstat == 2) return false;
-	auto& myplayer = *g_player[myconnectindex].ps;
-	if (sprite[myplayer.i].extra <= 0)
-	{
-		P_DoQuote(QUOTE_SAVE_DEAD, &myplayer);
-		return false;
-	}
-#endif
-	return true;
+	return (gGameStarted && gPlayer[myconnectindex].pXSprite->health != 0);
 }
 
 void GameInterface::StartGame(FGameStartup& gs)
 {
-#if 0
-	int32_t skillsound = PISTOL_BODYHIT;
-
-	switch (gs.Skill)
-	{
-	case 0:
-		skillsound = 427;
-		break;
-	case 1:
-		skillsound = 428;
-		break;
-	case 2:
-		skillsound = 196;
-		break;
-	case 3:
-		skillsound = 195;
-		break;
-	case 4:
-		skillsound = 197;
-		break;
-	}
-
-	ud.m_player_skill = gs.Skill + 1;
-	if (menu_sounds) g_skillSoundVoice = S_PlaySound(skillsound);
-	ud.m_respawn_monsters = (gs.Skill == 3);
-	ud.m_monsters_off = ud.monsters_off = 0;
-	ud.m_respawn_items = 0;
-	ud.m_respawn_inventory = 0;
-	ud.multimode = 1;
-	ud.m_volume_number = gs.Episode;
-	ud.m_level_number = gs.Level;
-	G_NewGame_EnterLevel();
-#endif
+	gGameOptions.nDifficulty = gs.Skill;
+	gGameOptions.nEpisode = gs.Episode;
+	gSkill = gs.Skill;
+	gGameOptions.nLevel = gs.Level;
+	if (gDemo.at1)
+		gDemo.StopPlayback();
+	gStartNewGame = true;
+	gCheatMgr.sub_5BCF4();
 }
 
 FSavegameInfo GameInterface::GetSaveSig()
@@ -385,16 +288,6 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 	viewDrawText(1, text, 160, 20 - height / 2, -128, 0, 1, false);
 }
 
-void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position)
-{
-#if 0
-	Menu_DrawBackground(origin);
-	G_ScreenText(MF_Bluefont.tilenum, int((origin.X + 160) * 65536), int((origin.Y + position) * 65536), MF_Bluefont.zoom, 0, 0, text, 0, MF_Bluefont.pal,
-		2 | 8 | 16 | ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y,
-		MF_Bluefont.textflags | TEXT_XCENTER, 0, 0, xdim - 1, ydim - 1);
-#endif
-}
-
 
 END_BLD_NS
 
@@ -406,8 +299,10 @@ END_BLD_NS
 
 
 static TMenuClassDescriptor<Blood::BloodListMenu> _lm("Blood.ListMenu");
+static TMenuClassDescriptor<Blood::DBloodImageScrollerMenu> _im("Blood.ImageScrollerMenu");
 
 void RegisterBloodMenus()
 {
 	menuClasses.Push(&_lm);
+	menuClasses.Push(&_im);
 }

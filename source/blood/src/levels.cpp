@@ -221,8 +221,6 @@ void levelLoadMapInfo(IniFile *pIni, LEVELINFO *pLevelInfo, const char *pzSectio
     }
 }
 
-extern void MenuSetupEpisodeInfo(void);
-
 void levelLoadDefaults(void)
 {
     char buffer[64];
@@ -272,7 +270,6 @@ void levelLoadDefaults(void)
         pEpisodeInfo->nLevels = j;
     }
     gEpisodeCount = i;
-    MenuSetupEpisodeInfo();
 }
 
 void levelAddUserMap(const char *pzMap)
@@ -302,7 +299,6 @@ void levelAddUserMap(const char *pzMap)
     gGameOptions.nLevel = nLevel;
     gGameOptions.uMapCRC = dbReadMapCRC(pLevelInfo->at0);
     strcpy(gGameOptions.zLevelName, pLevelInfo->at0);
-    MenuSetupEpisodeInfo();
 }
 
 void levelGetNextLevels(int nEpisode, int nLevel, int *pnEndingA, int *pnEndingB)

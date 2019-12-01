@@ -90,13 +90,11 @@ struct GameInterface : ::GameInterface
 	FString statFPS() override;
 	FSavegameInfo GetSaveSig() override;
 	void MenuOpened() override;
-	void MenuSound(EMenuSounds snd) override;
 	void MenuClosed() override;
 	bool CanSave() override;
 	void StartGame(FGameStartup& gs) override;
 	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
-	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position) override;
 };
 
 END_BLD_NS

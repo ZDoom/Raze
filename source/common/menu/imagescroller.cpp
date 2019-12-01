@@ -69,10 +69,11 @@ void ImageScreen::Drawer()
 			rotatesprite_fs(int(origin.X * 65536) + (160 << 16), int(origin.Y * 65536) + (100 << 16), 65536L, 0, tileindex, 0, 0, 10 + 64);
 		}
 	}
-	else
+	else if (mDesc->type > 0)
 	{
 		gi->DrawCenteredTextScreen(origin, mDesc->text, mDesc->type);
 	}
+	// QAVs are handled in the Blood frontend. Maybe they should be moved out? Stuff for later, but this is a feature where it is feasible.
 }
 
 ImageScreen* DImageScrollerMenu::newImageScreen(FImageScrollerDescriptor::ScrollerItem* desc)
