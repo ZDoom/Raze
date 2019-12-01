@@ -478,7 +478,7 @@ void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *t
 }
 
 
-END_DUKE_NS
+END_RR_NS
 
 //----------------------------------------------------------------------------
 //

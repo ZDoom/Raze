@@ -56,16 +56,6 @@ extern void I_MenuLeftClear(void);
 extern int32_t I_MenuRight(void);
 extern void I_MenuRightClear(void);
 
-extern int32_t I_PanelUp(void);
-extern void I_PanelUpClear(void);
-extern int32_t I_PanelDown(void);
-extern void I_PanelDownClear(void);
-
-extern int32_t I_SliderLeft(void);
-extern void I_SliderLeftClear(void);
-extern int32_t I_SliderRight(void);
-extern void I_SliderRightClear(void);
-
 
 enum EnterTextFlags_t {
     INPUT_NUMERIC        = 0x00000001,
