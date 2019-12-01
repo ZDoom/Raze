@@ -837,7 +837,6 @@ set (PCH_SOURCES
 	common/menu/menuinput.cpp
 	common/menu/messagebox.cpp
 	common/menu/optionmenu.cpp
-	common/menu/readthis.cpp
 )
 
 if( MSVC )

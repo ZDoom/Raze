@@ -67,7 +67,8 @@ CVAR (Float, mouse_sensitivity, 1.f, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 EXTERN_CVAR (Bool, show_messages)
 
 
-CVAR (Float, snd_menuvolume, 0.6f, CVAR_ARCHIVE)
+CVAR(Bool, menu_sounds, true, CVAR_ARCHIVE) // added mainly because RR's sounds are so supremely annoying.
+//CVAR (Float, snd_menuvolume, 0.6f, CVAR_ARCHIVE) the current sound engine cannot deal with this.
 CVAR(Int, m_use_mouse, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Int, m_show_backbutton, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
@@ -874,7 +875,6 @@ void Menu_Close(int playerid)
 //
 //
 //=============================================================================
-CVAR(Bool, menu_sounds, true, CVAR_ARCHIVE) // added mainly because RR's sounds are so supremely annoying.
 
 void M_MenuSound(EMenuSounds snd)
 {
