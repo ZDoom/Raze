@@ -581,6 +581,37 @@ ListMenu "SaveGameMenu"
 //
 //-------------------------------------------------------------------------------------------
 
+OptionValue "YesNo"
+{
+	0, "$TXT_NO"
+	1, "$TXT_YES"
+}
+
+OptionValue "NoYes"
+{
+	0, "$TXT_YES"
+	1, "$TXT_NO"
+}
+
+OptionValue "OnOff"
+{
+	0, "$OPTVAL_OFF"
+	1, "$OPTVAL_ON"
+}
+
+OptionValue "OffOn"
+{
+	0, "$OPTVAL_ON"
+	1, "$OPTVAL_OFF"
+}
+
+OptionValue AutoOffOn
+{
+	-1, "$OPTVAL_AUTO"
+	0, "$OPTVAL_OFF"
+	1, "$OPTVAL_ON"
+}
+
 OptionMenuSettings
 {
 	Linespacing 17
@@ -611,3 +642,234 @@ OptionMenu "OptionsMenu"
 	Command "$OPTMNU_CONSOLE",			"menuconsole"
 }	
 	
+//-------------------------------------------------------------------------------------------
+//
+// Controls Menu
+//
+//-------------------------------------------------------------------------------------------
+
+OptionMenu "CustomizeControls" protected
+{
+	Title "$CNTRLMNU_TITLE"
+
+	Submenu    "$CNTRLMNU_ACTION"      , "ActionControlsMenu"
+	Submenu    "$CNTRLMNU_CHAT"        , "ChatControlsMenu"
+	Submenu    "$CNTRLMNU_WEAPONS"     , "WeaponsControlMenu"
+	Submenu    "$CNTRLMNU_INVENTORY"   , "InventoryControlsMenu"
+	Submenu    "$CNTRLMNU_OTHER"       , "OtherControlsMenu"
+	//Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu" // todo after thorough cleanup
+}
+
+OptionMenu "ActionControlsMenu" protected
+{
+	Title "$CNTRLMNU_ACTION_TITLE"
+	ScrollTop 2
+	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
+
+	StaticText ""
+	Control    "$CNTRLMNU_ATTACK"           , "+fire"
+	ifgame(Blood, Duke, Nam, WW2GI, Fury)
+	{
+		Control    "$CNTRLMNU_ALTATTACK"        , "+alt_fire"
+	}
+	ifgame(Duke, Nam, WW2GI, Fury, ShadowWarrior)
+	{
+		Control    "$CNTRLMNU_ALTWEAPON"        , "+alt_weapon"
+	}
+
+	StaticText ""
+	Control    "$CNTRLMNU_USE"              , "+open"
+
+	StaticText ""
+	Control    "$CNTRLMNU_FORWARD"          , "+move_forward"
+	Control    "$CNTRLMNU_BACK"             , "+move_backward"
+	Control    "$CNTRLMNU_MOVELEFT"         , "+strafe_left"
+	Control    "$CNTRLMNU_MOVERIGHT"        , "+strafe_right"
+
+	StaticText ""
+	Control    "$CNTRLMNU_TURNLEFT"         , "+turn_left"
+	Control    "$CNTRLMNU_TURNRIGHT"        , "+turn_right"
+	Control    "$CNTRLMNU_TURN180"          , "+turn_around"
+
+	StaticText ""
+	Control    "$CNTRLMNU_JUMP"             , "+jump"
+	Control    "$CNTRLMNU_CROUCH"           , "+crouch"
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	{
+		// Fixme: Make this work in all games
+		Control    "$CNTRLMNU_TOGGLECROUCH"     , "+toggle_crouch"
+	}
+
+	StaticText ""
+	Control    "$CNTRLMNU_MOUSELOOK"        , "+mouse_aiming"
+	Control    "$CNTRLMNU_LOOKUP"           , "+look_up"
+	Control    "$CNTRLMNU_LOOKDOWN"         , "+look_down"
+	Control    "$CNTRLMNU_CENTERVIEW"       , "+center_view"
+
+	StaticText ""
+	Control    "$CNTRLMNU_RUN"              , "+run"
+	Control    "$CNTRLMNU_TOGGLERUN"        , "toggle cl_autorun"
+	Control    "$CNTRLMNU_STRAFE"           , "+strafe"
+
+	StaticText ""
+	Control    "$CNTRLMNU_SCOREBOARD"       , "+show_dukematch_scores"
+}
+
+OptionMenu "ChatControlsMenu" protected
+{
+	Title "$CNTRLMNU_CHAT_TITLE"
+	ScrollTop 2
+	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
+
+	StaticText ""
+	Control    "$CNTRLMNU_SAY"     , "+send_message"
+}
+
+OptionMenu "WeaponsControlMenu" protected
+{
+	Title "$CNTRLMNU_WEAPONS_TITLE"
+	ScrollTop 2
+	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
+
+	StaticText ""
+	Control    "$CNTRLMNU_NEXTWEAPON"     , "+nexct_weapon"
+	Control    "$CNTRLMNU_PREVIOUSWEAPON" , "+previous_weapon"
+
+	StaticText ""
+	Control    "$CNTRLMNU_SLOT1"          , "+weapon_1"
+	Control    "$CNTRLMNU_SLOT2"          , "+weapon_2"
+	Control    "$CNTRLMNU_SLOT3"          , "+weapon_3"
+	Control    "$CNTRLMNU_SLOT4"          , "+weapon_4"
+	Control    "$CNTRLMNU_SLOT5"          , "+weapon_5"
+	Control    "$CNTRLMNU_SLOT6"          , "+weapon_6"
+	Control    "$CNTRLMNU_SLOT7"          , "+weapon_7"
+	Control    "$CNTRLMNU_SLOT8"          , "+weapon_8"
+	Control    "$CNTRLMNU_SLOT9"          , "+weapon_9"
+	Control    "$CNTRLMNU_SLOT0"          , "+weapon_10"
+	StaticText ""
+	Control    "$CNTRLMNU_HOLSTER"        , "+holster_weapon"
+	ifgame(Duke, Nam, WW2GI, Fury)
+	{
+		Control "$CNTRLMNU_QUICKKICK"     , "+quick_kick"
+	}
+	ifgame(Redneck, RedneckRides)
+	{
+		Control "$CNTRLMNU_PEE"           , "+quick_kick"
+	}
+	ifgame(Blood)
+	{
+		Control "$CNTRLMNU_PROXIMITYBOMBS","+proximitybombs"
+		Control "$CNTRLMNU_REMOTEBOMBS"   ,"+remotebombs"
+	}
+	ifgame(ShadowWarrior)
+	{
+		Control "$CNTRLMNU_SMOKEBOMB","+smoke_bomb"
+		Control "$CNTRLMNU_GASBOMB"   ,"+gas_bomb"
+		Control "$CNTRLMNU_FLASHBOMB","+flash_bomb"
+		Control "$CNTRLMNU_CALTROPS"   ,"+caltrops"
+	}
+
+}
+
+OptionMenu "InventoryControlsMenu" protected
+{
+	Title "$CNTRLMNU_INVENTORY_TITLE"
+	ScrollTop 2
+	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
+
+	StaticText ""
+	Control    "$CNTRLMNU_USEITEM"      , "+inventory"
+
+	StaticText ""
+	Control    "$CNTRLMNU_NEXTITEM"     , "+inventory_next"
+	Control    "$CNTRLMNU_PREVIOUSITEM" , "+inventory_prev"
+	
+	ifgame(Duke)
+	{
+		StaticText ""
+		Control    "$CNTRLMNU_HOLODUKE" , "+holo_duke"
+		Control    "$CNTRLMNU_JETPACK" , "+jetpack"
+		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
+		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
+		Control    "$CNTRLMNU_STEROIDS" , "+steroids"
+	}
+	ifgame(Nam)
+	{
+		StaticText ""
+		Control    "$CNTRLMNU_HOLOSOLDIER" , "+holo_duke"
+		Control    "$CNTRLMNU_HUEY" , "+jetpack"
+		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
+		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
+		Control    "$CNTRLMNU_TANKMODE" , "+steroids"
+	}
+	ifgame(WW2GI)
+	{
+		StaticText ""
+		Control    "$CNTRLMNU_FIRE MISSION" , "+holo_duke"
+		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
+		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
+		Control    "$CNTRLMNU_SMOKES" , "+steroids"
+	}
+	ifgame(Redneck, RedneckRides)
+	{
+		StaticText ""
+		Control    "$CNTRLMNU_BEER" , "+holo_duke"
+		Control    "$CNTRLMNU_COWPIE" , "+jetpack"
+		Control    "$CNTRLMNU_YEEHAA" , "+nightvision"
+		Control    "$CNTRLMNU_WHISKEY" , "+medkit"
+		Control    "$CNTRLMNU_MOONSHINE" , "+steroids"
+	}
+	ifgame(Blood)
+	{
+		StaticText ""
+		Control    "$CNTRLMNU_CRYSTALBALL" , "+crystalball"
+		Control    "$CNTRLMNU_JUMPBOOTS" , "+jetpack"
+		Control    "$CNTRLMNU_BEASTVISION" , "+nightvision"
+		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
+	}
+	ifgame(ShadowWarrior)
+	{
+		StaticText ""
+		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
+		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
+	}
+
+
+OptionMenu "OtherControlsMenu" protected
+{
+	Title "$CNTRLMNU_OTHER_TITLE"
+	ScrollTop 2
+	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
+
+	StaticText ""
+	Control    "$CNTRLMNU_AUTOMAP"         , "+map"
+	Control 	"$MAPCNTRLMNU_TOGGLEFOLLOW","+map_follow_mode"
+
+	StaticText ""
+	Control    "$CNTRLMNU_CHASECAM"        , "+third_person_view"
+
+	StaticText ""
+	Control    "$CNTRLMNU_SCREENSHOT"      , "screenshot"
+	Control    "$CNTRLMNU_CONSOLE"         , "toggleconsole"
+	Control    "$CNTRLMNU_PAUSE"           , "pause"
+
+	StaticText ""
+	Control    "$CNTRLMNU_DISPLAY_INC"     , "sizeup"
+	Control    "$CNTRLMNU_DISPLAY_DEC"     , "sizedown"
+	Control    "$CNTRLMNU_TOGGLE_MESSAGES" , "togglemessages"
+	Control    "$CNTRLMNU_ADJUST_GAMMA"    , "bumpgamma"
+
+	StaticText ""
+	Control    "$CNTRLMNU_OPEN_HELP"       , "menu_help"
+	Control    "$CNTRLMNU_OPEN_SAVE"       , "menu_save"
+	Control    "$CNTRLMNU_OPEN_LOAD"       , "menu_load"
+	Control    "$CNTRLMNU_OPEN_OPTIONS"    , "menu_options"
+	Control    "$CNTRLMNU_OPEN_DISPLAY"    , "menu_display"
+	Control    "$CNTRLMNU_EXIT_TO_MAIN"    , "menu_endgame"
+	Control    "$CNTRLMNU_MENU_QUIT"       , "menu_quit"
+
+	StaticText ""
+	Control    "$CNTRLMNU_QUICKSAVE"       , "quicksave"
+	Control    "$CNTRLMNU_QUICKLOAD"       , "quickload"
+}
+
