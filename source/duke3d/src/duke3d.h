@@ -151,7 +151,6 @@ struct GameInterface : ::GameInterface
 	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
-	bool mouseInactiveConditional(bool condition) override;
 	FString statFPS() override;
 	GameStats getStats() override;
 	// Access to the front end specific menu code. Use is restricted to the main menu, the ingame menu and the skill/episode selection.

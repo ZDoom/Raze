@@ -4751,12 +4751,6 @@ void Saveable_Init_Dynamic()
 /*extern*/ void GameInterface::set_hud_layout(int requested_size) { /* the relevant setting is gs.BorderNum */}
 /*extern*/ void GameInterface::set_hud_scale(int requested_size) { /* the relevant setting is gs.BorderNum */ }
 
-bool GameInterface::mouseInactiveConditional(bool condition) 
-{
-	return condition;
-}
-
-
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;

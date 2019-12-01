@@ -155,7 +155,6 @@ struct GameInterface : ::GameInterface
 	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
-	bool mouseInactiveConditional(bool condition) override;
 	FString statFPS() override;
 	GameStats getStats() override;
 	void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int flags);

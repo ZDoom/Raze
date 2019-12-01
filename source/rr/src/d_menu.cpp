@@ -342,11 +342,6 @@ class MainMenu : public RedneckListMenu
 //----------------------------------------------------------------------------
 
 
-bool GameInterface::mouseInactiveConditional(bool condition) // can hopefully go away once the menu refactor is complete
-{
-	return condition;
-}
-
 void GameInterface::MenuOpened()
 {
 	S_PauseSounds(true);

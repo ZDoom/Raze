@@ -211,7 +211,6 @@ struct GameInterface
 	virtual bool validate_hud(int) = 0;
 	virtual void set_hud_layout(int size) = 0;
 	virtual void set_hud_scale(int size) = 0;
-	virtual bool mouseInactiveConditional(bool condition) { return condition; }
 	virtual FString statFPS() { return "FPS display not available"; }
 	virtual GameStats getStats() { return {}; }
 	virtual void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int flags) {}

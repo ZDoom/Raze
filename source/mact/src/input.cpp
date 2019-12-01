@@ -31,6 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 char typebuf[TYPEBUFSIZE];
 
 
+bool mouseInactiveConditional(bool condition)
+{
+	return condition;
+}
 
 int32_t I_CheckAllInput(void)
 {
@@ -54,7 +58,7 @@ int32_t I_TextSubmit(void)
     return
         inputState.GetKeyStatus(sc_Enter)
         || inputState.GetKeyStatus(sc_kpad_Enter)
-        || gi->mouseInactiveConditional(inputState.MouseGetButtons()&LEFT_MOUSE)
+        || mouseInactiveConditional(inputState.MouseGetButtons()&LEFT_MOUSE)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_A));
 }
 
@@ -102,7 +106,7 @@ int32_t I_GeneralTrigger(void)
         I_AdvanceTrigger()
         || I_ReturnTrigger()
         || buttonMap.ButtonDown(gamefunc_Open)
-        || gi->mouseInactiveConditional(buttonMap.ButtonDown(gamefunc_Fire))
+        || mouseInactiveConditional(buttonMap.ButtonDown(gamefunc_Fire))
         || buttonMap.ButtonDown(gamefunc_Crouch)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START));
 }
@@ -278,7 +282,7 @@ int32_t I_SliderLeft(void)
     return
         I_MenuLeft()
 #if !defined EDUKE32_TOUCH_DEVICES
-        || gi->mouseInactiveConditional((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELUP_MOUSE))
+        || mouseInactiveConditional((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELUP_MOUSE))
 #endif
         ;
 }
@@ -295,7 +299,7 @@ int32_t I_SliderRight(void)
     return
         I_MenuRight()
 #if !defined EDUKE32_TOUCH_DEVICES
-        || gi->mouseInactiveConditional((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELDOWN_MOUSE))
+        || mouseInactiveConditional((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELDOWN_MOUSE))
 #endif
         ;
 }

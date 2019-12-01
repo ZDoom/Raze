@@ -136,12 +136,6 @@ void MenuSetupEpisodeInfo(void)
 #endif
 }
 
-bool GameInterface::mouseInactiveConditional(bool condition)
-{
-	return condition;
-}
-
-
 
 FSavegameInfo GameInterface::GetSaveSig()
 {
