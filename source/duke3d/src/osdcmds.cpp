@@ -79,42 +79,6 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
 
     if (numplayers > 1)
     {
-        /*
-        if (g_netServer)
-            Net_NewGame(volume,level);
-        else if (voting == -1)
-        {
-            ud.m_volume_number = volume;
-            m_level_number = level;
-
-            if (g_player[myconnectindex].ps->i)
-            {
-                int32_t i;
-
-                for (i=0; i<MAXPLAYERS; i++)
-                {
-                    g_player[i].vote = 0;
-                    g_player[i].gotvote = 0;
-                }
-
-                g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
-
-                voting = myconnectindex;
-
-                tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
-                tempbuf[1] = myconnectindex;
-                tempbuf[2] = ud.m_volume_number;
-                tempbuf[3] = m_level_number;
-
-                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-            }
-            if ((g_gametypeFlags[m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[m_coop] & GAMETYPE_TDM))
-                m_noexits = 0;
-
-            M_OpenMenu(myconnectindex);
-            Menu_Change(MENU_NETWAITVOTES);
-        }
-        */
         return OSDCMD_OK;
     }
     if (g_player[myconnectindex].ps->gm & MODE_GAME)
@@ -172,48 +136,6 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (numplayers > 1)
     {
-        /*
-        if (g_netServer)
-        {
-            Net_SendUserMapName();
-            ud.m_volume_number = 0;
-            m_level_number = 7;
-            Net_NewGame(ud.m_volume_number, m_level_number);
-        }
-        else if (voting == -1)
-        {
-            Net_SendUserMapName();
-
-            ud.m_volume_number = 0;
-            m_level_number = 7;
-
-            if (g_player[myconnectindex].ps->i)
-            {
-                int32_t i;
-
-                for (i=0; i<MAXPLAYERS; i++)
-                {
-                    g_player[i].vote = 0;
-                    g_player[i].gotvote = 0;
-                }
-
-                g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
-                voting = myconnectindex;
-
-                tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
-                tempbuf[1] = myconnectindex;
-                tempbuf[2] = ud.m_volume_number;
-                tempbuf[3] = m_level_number;
-
-                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-            }
-            if ((g_gametypeFlags[m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[m_coop] & GAMETYPE_TDM))
-                m_noexits = 0;
-
-            M_OpenMenu(myconnectindex);
-            Menu_Change(MENU_NETWAITVOTES);
-        }
-        */
         return OSDCMD_OK;
     }
 

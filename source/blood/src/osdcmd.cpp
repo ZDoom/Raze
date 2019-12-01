@@ -332,76 +332,13 @@ static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
 void onvideomodechange(int32_t newmode)
 {
     UNREFERENCED_PARAMETER(newmode);
-#if 0
-    uint8_t palid;
 
-    // XXX?
-    if (!newmode || g_player[screenpeek].ps->palette < BASEPALCOUNT)
-        palid = g_player[screenpeek].ps->palette;
-    else
-        palid = BASEPAL;
-
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-    {
-        int32_t i = 0;
-
-        while (i < MAXSPRITES)
-        {
-            if (actor[i].lightptr)
-            {
-                polymer_deletelight(actor[i].lightId);
-                actor[i].lightptr = NULL;
-                actor[i].lightId = -1;
-            }
-            i++;
-        }
-    }
-#endif
-
-    videoSetPalette(0, palid, 0);
-    g_restorePalette = -1;
-#endif
     if (newmode)
         scrResetPalette();
     UpdateDacs(gLastPal, false);
 }
 
 
-
-#if 0
-static int osdcmd_savestate(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_PARAMETER(parm);
-    G_SaveMapState();
-    return OSDCMD_OK;
-}
-
-static int osdcmd_restorestate(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_PARAMETER(parm);
-    G_RestoreMapState();
-    return OSDCMD_OK;
-}
-#endif
-
-#if 0
-#ifdef DEBUGGINGAIDS
-static int osdcmd_inittimer(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("%dHz timer\n",g_timerTicsPerSecond);
-        return OSDCMD_SHOWHELP;
-    }
-
-    G_InitTimer(Batol(parm->parms[0]));
-
-    OSD_Printf("%s\n",parm->raw);
-    return OSDCMD_OK;
-}
-#endif
-#endif
 
 int32_t registerosdcommands(void)
 {
