@@ -542,7 +542,7 @@ void netGetPackets(void)
             gStartNewGame = 1;
             break;
         case 255:
-			inputState.SetKeyStatus(sc_Escape, 1);
+			inputState.SetKeyStatus(sc_Escape);
             break;
         }
     }
@@ -1007,11 +1007,13 @@ void netInitialize(bool bConsole)
         while (numplayers < gNetPlayers)
         {
             handleevents();
+#if 0
             if (quitevent)
             {
                 netServerDisconnect();
                 QuitGame();
             }
+#endif
             if (!bConsole && inputState.GetKeyStatus(sc_Escape))
             {
                 netServerDisconnect();
@@ -1168,11 +1170,13 @@ void netInitialize(bool bConsole)
         while (bWaitServer)
         {
             handleevents();
+#if 0
             if (quitevent)
             {
                 netClientDisconnect();
                 QuitGame();
             }
+#endif
             if (!bConsole && inputState.GetKeyStatus(sc_Escape))
             {
                 netClientDisconnect();

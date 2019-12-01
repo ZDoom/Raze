@@ -7157,12 +7157,6 @@ static void G_Startup(void)
     for (i=0; i<MAXPLAYERS; i++)
         g_player[i].playerreadyflag = 0;
 
-    if (quitevent)
-    {
-        G_Shutdown();
-        return;
-    }
-
     Net_GetPackets();
 
     if (numplayers > 1)
@@ -7416,8 +7410,6 @@ int GameInterface::app_main()
         i = 1-i;
     }
 
-    if (quitevent) return 4;
-
     Anim_Init();
 
     const char *defsfile = G_DefFile();
@@ -7628,11 +7620,7 @@ MAIN_LOOP_RESTART:
 
     do //main loop
     {
-        if (handleevents() && quitevent)
-        {
-			inputState.SetKeyStatus(sc_Escape, 1);
-			quitevent = 0;
-        }
+		handleevents();
 
         Net_GetPackets();
 

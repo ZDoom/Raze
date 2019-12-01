@@ -842,11 +842,6 @@ void InitGame()
         while (initmultiplayerscycle())
         {
             handleevents();
-            if (quitevent)
-            {
-                QuitFlag = TRUE;
-                return;
-            }
         }
     }
 #else
@@ -1650,7 +1645,6 @@ void LogoLevel(void)
     while (TRUE)
     {
         handleevents();
-        if (quitevent) { QuitFlag = TRUE; break; }
 
         // taken from top of faketimerhandler
         // limits checks to max of 40 times a second
@@ -1778,7 +1772,7 @@ void SybexScreen(void)
     videoNextPage();
 
     ResetKeys();
-    while (!KeyPressed() && !quitevent) handleevents();
+    while (!KeyPressed()) handleevents();
 }
 
 // CTW REMOVED END
@@ -1960,8 +1954,6 @@ void MenuLevel(void)
     {
         handleevents();
         OSD_DispatchQueued();
-
-        if (quitevent) QuitFlag = TRUE;
 
         // taken from top of faketimerhandler
         // limits checks to max of 40 times a second
@@ -2645,8 +2637,6 @@ void Control()
         handleevents();
         OSD_DispatchQueued();
 
-        if (quitevent) QuitFlag = TRUE;
-
         NewLevel();
     }
 
@@ -2902,8 +2892,6 @@ void RunLevel(void)
         OSD_DispatchQueued();
 		D_ProcessEvents();
 		faketimerhandler();
-
-        if (quitevent) QuitFlag = TRUE;
 
         MoveLoop();
 

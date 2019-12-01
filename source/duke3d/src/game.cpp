@@ -5720,12 +5720,6 @@ static void G_Startup(void)
     for (i=0; i<MAXPLAYERS; i++)
         g_player[i].pingcnt = 0;
 
-    if (quitevent)
-    {
-        G_Shutdown();
-        return;
-    }
-
     Net_GetPackets();
 
     if (numplayers > 1)
@@ -6031,8 +6025,6 @@ int GameInterface::app_main()
 
     system_getcvars();
 
-    if (quitevent) return 4;
-
     if (g_networkMode != NET_DEDICATED_SERVER && validmodecnt > 0)
     {
         if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, 1) < 0)
@@ -6195,11 +6187,7 @@ MAIN_LOOP_RESTART:
 
     do //main loop
     {
-        if (gameHandleEvents() && quitevent)
-        {
-			inputState.SetKeyStatus(sc_Escape, 1);
-			quitevent = 0;
-        }
+		gameHandleEvents();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         inputState.SetBindsEnabled(!!(myplayer.gm & (MODE_GAME|MODE_DEMO)));

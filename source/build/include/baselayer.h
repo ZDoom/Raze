@@ -22,7 +22,7 @@
 extern int32_t g_maskDrawMode;
 #endif
 
-extern char quitevent, appactive;
+extern char appactive;
 extern char modechange;
 extern char nogl;
 

@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "view.h"
 #include "gamecontrol.h"
+#include "menu/menu.h"
 
 BEGIN_BLD_NS
 
@@ -293,14 +294,7 @@ void CDemo::ProcessKeys(void)
         {
             switch (nKey)
             {
-            case 1:
-                if (!CGameMenuMgr::m_bActive)
-                {
-                    gGameMenuMgr.Push(&menuMain, -1);
-                    at2 = 1;
-                }
-                break;
-            case 0x58:
+            case sc_F12:
                 gViewIndex = connectpoint2[gViewIndex];
                 if (gViewIndex == -1)
                     gViewIndex = connecthead;
@@ -321,21 +315,12 @@ void CDemo::Playback(void)
     inputState.SetBindsEnabled(false);
     ready2send = 0;
     int v4 = 0;
-    if (!CGameMenuMgr::m_bActive)
-    {
-        gGameMenuMgr.Push(&menuMain, -1);
-        at2 = 1;
-    }
     gNetFifoClock = totalclock;
     gViewMode = 3;
 _DEMOPLAYBACK:
     while (at1 && !gQuitGame)
     {
-        if (handleevents() && quitevent)
-        {
-			inputState.SetKeyStatus(sc_Escape, 1);
-			quitevent = 0;
-        }
+        handleevents();
         MUSIC_Update();
         while (totalclock >= gNetFifoClock && !gQuitGame)
         {
@@ -407,8 +392,6 @@ _DEMOPLAYBACK:
         if (G_FPSLimit())
         {
             viewDrawScreen();
-            if (gInputMode == kInputMenu && CGameMenuMgr::m_bActive)
-                gGameMenuMgr.Draw();
             videoNextPage();
         }
         if (TestBitString(gotpic, 2342))

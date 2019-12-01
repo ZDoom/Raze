@@ -100,7 +100,7 @@ unsigned char syncstate;
 int32_t inputchecked = 0;
 bool screenshot_requested;
 
-char quitevent=0, appactive=1, novideo=0;
+char appactive=1, novideo=0;
 
 // video
 static SDL_Surface *sdl_surface/*=NULL*/;

@@ -1291,11 +1291,7 @@ RESTART:
     ready2send = 1;
     while (!gQuitGame)
     {
-        if (handleevents() && quitevent)
-        {
-			inputState.SetKeyStatus(sc_Escape, 1);
-            quitevent = 0;
-        }
+		handleevents();
         netUpdate();
         MUSIC_Update();
         inputState.SetBindsEnabled(gInputMode == kInputGame);

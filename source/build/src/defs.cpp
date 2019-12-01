@@ -306,7 +306,6 @@ static int32_t defsparser(scriptfile *script)
         }
 #endif
         handleevents();
-        if (quitevent) return 0;
         tokn = getatoken(script,basetokens,ARRAY_SIZE(basetokens));
         cmdtokptr = script->ltextptr;
         switch (tokn)
