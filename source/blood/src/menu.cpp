@@ -49,6 +49,8 @@ EXTERN_CVAR(Bool, hud_powerupduration)
 
 BEGIN_BLD_NS
 
+#if 0
+
 void SaveGame(CGameMenuItemZEditBitmap *, CGameMenuEvent *);
 
 void SaveGameProcess(CGameMenuItemChain *);
@@ -103,13 +105,6 @@ char strRestoreGameStrings[][16] =
     "<Empty>",
     "<Empty>",
     "<Empty>",
-};
-
-const char *zNetGameTypes[] =
-{
-    "Cooperative",
-    "Bloodbath",
-    "Teams",
 };
 
 const char *zMonsterStrings[] =
@@ -1354,30 +1349,6 @@ void SetupMenus(void)
     SetupNetworkMenu();
 }
 
-void UpdateNetworkMenus(void)
-{
-    if (gGameOptions.nGameType > 0)
-    {
-        itemMain1.at24 = &menuNetStart;
-        itemMain1.at28 = 2;
-    }
-    else
-    {
-        itemMain1.at24 = &menuEpisode;
-        itemMain1.at28 = -1;
-    }
-    if (gGameOptions.nGameType > 0)
-    {
-        itemMainSave1.at24 = &menuNetStart;
-        itemMainSave1.at28 = 2;
-    }
-    else
-    {
-        itemMainSave1.at24 = &menuEpisode;
-        itemMainSave1.at28 = -1;
-    }
-}
-
 void SetDoppler(CGameMenuItemZBool *pItem)
 {
     snd_doppler = pItem->at20;
@@ -2183,45 +2154,6 @@ void SetParentalLock(CGameMenuItemZBool *pItem)
     // NUKE-TODO: CONFIG_WriteAdultMode();
 }
 
-void MenuSetupEpisodeInfo(void)
-{
-    memset(zEpisodeNames, 0, sizeof(zEpisodeNames));
-    memset(zLevelNames, 0, sizeof(zLevelNames));
-    for (int i = 0; i < 6; i++)
-    {
-        if (i < gEpisodeCount)
-        {
-            EPISODEINFO *pEpisode = &gEpisodeInfo[i];
-            zEpisodeNames[i] = pEpisode->at0;
-            for (int j = 0; j < 16; j++)
-            {
-                if (j < pEpisode->nLevels)
-                {
-                    zLevelNames[i][j] = pEpisode->at28[j].at90;
-                }
-            }
-        }
-    }
-}
-
-void drawLoadingScreen(void)
-{
-    char buffer[80];
-    if (gGameOptions.nGameType == 0)
-    {
-        if (gDemo.at1)
-            sprintf(buffer, "Loading Demo");
-        else
-            sprintf(buffer, "Loading Level");
-    }
-    else
-        sprintf(buffer, "%s", zNetGameTypes[gGameOptions.nGameType-1]);
-    viewLoadingScreen(2049, buffer, levelGetTitle(), NULL);
-}
-
-FSavegameInfo GameInterface::GetSaveSig()
-{
-	return { SAVESIG_BLD, MINSAVEVER_BLD, SAVEVER_BLD };
-}
+#endif
 
 END_BLD_NS

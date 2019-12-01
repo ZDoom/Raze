@@ -83,13 +83,11 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
         gPacketStartGame.levelId = level;
         netBroadcastNewGame();
         gStartNewGame = 1;
-        gGameMenuMgr.Deactivate();
         return OSDCMD_OK;
     }
     levelSetupOptions(volume, level);
     StartLevel(&gGameOptions);
     viewResizeView(gViewSize);
-    gGameMenuMgr.Deactivate();
 
     return OSDCMD_OK;
 }
@@ -118,13 +116,11 @@ static int osdcmd_map(osdcmdptr_t parm)
         gPacketStartGame.levelId = gGameOptions.nLevel;
         netBroadcastNewGame();
         gStartNewGame = 1;
-        gGameMenuMgr.Deactivate();
         return OSDCMD_OK;
     }
     levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
     StartLevel(&gGameOptions);
     viewResizeView(gViewSize);
-    gGameMenuMgr.Deactivate();
 
     return OSDCMD_OK;
 }

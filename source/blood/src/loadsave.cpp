@@ -463,7 +463,6 @@ void LoadSavedInfo(void)
         }
         if ((uint32_t)hFile.Read(&gSaveGameOptions[nCount], sizeof(gSaveGameOptions[0])) != sizeof(gSaveGameOptions[0]))
             ThrowError("Error reading save file.");
-        strcpy(strRestoreGameStrings[gSaveGameOptions[nCount].nSaveGameSlot], gSaveGameOptions[nCount].szUserGameName);
 		nCount++;
     }
 	FinishSavegameRead();
@@ -471,7 +470,6 @@ void LoadSavedInfo(void)
 
 void UpdateSavedInfo(int nSlot)
 {
-    strcpy(strRestoreGameStrings[gSaveGameOptions[nSlot].nSaveGameSlot], gSaveGameOptions[nSlot].szUserGameName);
 }
 
 static MyLoadSave *myLoadSave;

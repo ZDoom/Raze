@@ -46,7 +46,6 @@ extern INICHAIN *pINIChain;
 
 enum INPUT_MODE {
     kInputGame = 0,
-    kInputMenu,
     kInputMessage,
     kInputEndGame,
 };

@@ -31,6 +31,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+class CMenuTextMgr
+{
+public:
+    int at0;
+    CMenuTextMgr();
+    void DrawText(const char *pString, int nFont, int x, int y, int nShade, int nPalette, bool shadow );
+    void GetFontInfo(int nFont, const char *pString, int *pXSize, int *pYSize);
+};
+
+extern CMenuTextMgr gMenuTextMgr;
+
+void drawLoadingScreen(void);
+void UpdateNetworkMenus(void);
+
+
+#if 0
+
 #define M_MOUSETIMEOUT 210
 
 #define kMaxGameMenuItems 128
@@ -84,15 +101,6 @@ struct CGameMenuEvent {
 #ifdef DrawText
 #undef DrawText
 #endif
-
-class CMenuTextMgr
-{
-public:
-    int at0;
-    CMenuTextMgr();
-    void DrawText(const char *pString, int nFont, int x, int y, int nShade, int nPalette, bool shadow );
-    void GetFontInfo(int nFont, const char *pString, int *pXSize, int *pYSize);
-};
 
 class CGameMenu;
 
@@ -488,7 +496,7 @@ public:
     bool MouseOutsideBounds(vec2_t const * const pos, const int32_t x, const int32_t y, const int32_t width, const int32_t height);
 };
 
-extern CMenuTextMgr gMenuTextMgr;
 extern CGameMenuMgr gGameMenuMgr;
 
+#endif
 END_BLD_NS

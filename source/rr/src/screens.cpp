@@ -1015,7 +1015,7 @@ void G_DisplayRest(int32_t smoothratio)
 
     G_PrintGameQuotes(screenpeek);
 
-    if (ud.show_level_text && hud_showmapname && g_levelTextTime > 1 && DMenu::CurrentMenu == nullptr)
+    if (ud.show_level_text && hud_showmapname && g_levelTextTime > 1 && !M_Active())
     {
         int32_t o = 10|16;
 

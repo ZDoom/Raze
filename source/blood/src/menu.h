@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+#if 0
+
 extern CGameMenu menuMain;
 extern CGameMenu menuMainWithSave;
 extern CGameMenu menuNetMain;
@@ -54,6 +56,7 @@ extern CGameMenu menuOptionsDisplayMode;
 extern char strRestoreGameStrings[][16];
 void drawLoadingScreen(void);
 void SetupMenus(void);
-void UpdateNetworkMenus(void);
+
+#endif
 
 END_BLD_NS

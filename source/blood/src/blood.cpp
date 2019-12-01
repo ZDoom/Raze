@@ -71,6 +71,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "m_argv.h"
 #include "statistics.h"
+#include "menu/menu.h"
 
 #ifdef _WIN32
 # include <shellapi.h>
@@ -713,8 +714,8 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     gCacheMiss = 0;
     gFrame = 0;
     gChokeCounter = 0;
-    if (!gDemo.at1)
-        gGameMenuMgr.Deactivate();
+	if (!gDemo.at1)
+		M_ClearMenus();
     levelTryPlayMusicOrNothing(gGameOptions.nEpisode, gGameOptions.nLevel);
     // viewSetMessage("");
     viewSetErrorMessage("");
@@ -819,67 +820,21 @@ void LocalKeys(void)
             buttonMap.ClearButton(gamefunc_See_Chase_View);
             return;
         }
+#if 0
         switch (key)
         {
         case sc_kpad_Period:
         case sc_Delete:
             if (ctrl && alt)
             {
-                gQuitGame = 1;
+                gQuitGame = 1;  // uh, what?
                 return;
             }
             break;
-        case sc_Escape:
-            inputState.keyFlushScans();
-            if (gGameStarted && gPlayer[myconnectindex].pXSprite->health != 0)
-            {
-                if (!gGameMenuMgr.m_bActive)
-                    gGameMenuMgr.Push(&menuMainWithSave,-1);
-            }
-            else
-            {
-                if (!gGameMenuMgr.m_bActive)
-                    gGameMenuMgr.Push(&menuMain,-1);
-            }
-            return;
-        case sc_F1:
-            inputState.keyFlushScans();
-            if (gGameOptions.nGameType == 0)
-                gGameMenuMgr.Push(&menuOrder,-1);
-            break;
-        case sc_F2:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive && gGameOptions.nGameType == 0)
-                gGameMenuMgr.Push(&menuSaveGame,-1);
-            break;
-        case sc_F3:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive && gGameOptions.nGameType == 0)
-                gGameMenuMgr.Push(&menuLoadGame,-1);
-            break;
-        case sc_F4:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Push(&menuOptionsSound,-1);
-            return;
-        case sc_F5:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Push(&menuOptions,-1);
-            return;
-        case sc_F8:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Push(&menuOptionsDisplayMode, -1);
-            return;
-        case sc_F10:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Push(&menuQuit,-1);
-            break;
-        case sc_F11:
+        case default:
             break;
         }
+#endif
     }
 }
 
@@ -943,7 +898,7 @@ void ProcessFrame(void)
     viewClearInterpolations();
     if (!gDemo.at1)
     {
-        if (gPaused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && gGameMenuMgr.m_bActive))
+        if (gPaused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && M_Active()))
             return;
         if (gDemo.at0)
             gDemo.Write(gFifoInput[(gNetFifoTail-1)&255]);
@@ -1000,8 +955,9 @@ void ProcessFrame(void)
             {
                 if (gGameOptions.uGameFlags&8)
                     levelPlayEndScene(gGameOptions.nEpisode);
-                gGameMenuMgr.Deactivate();
-                gGameMenuMgr.Push(&menuCredits,-1);
+
+				M_StartControlPanel(false);
+				M_SetMenu(NAME_CreditsMenu);
             }
             gGameOptions.uGameFlags &= ~3;
             gRestartGame = 1;
@@ -1249,7 +1205,6 @@ int GameInterface::app_main()
         levelAddUserMap(gUserMapFilename);
         gStartNewGame = 1;
     }
-    SetupMenus();
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
     if (!bQuickStart)
         credLogosDos();
@@ -1285,9 +1240,12 @@ RESTART:
     else if (gDemo.at1 && !bAddUserMap && !bNoDemo)
         gDemo.Playback();
     if (gDemo.at59ef > 0)
-        gGameMenuMgr.Deactivate();
-    if (!bAddUserMap && !gGameStarted)
-        gGameMenuMgr.Push(&menuMain, -1);
+        M_ClearMenus();
+	if (!bAddUserMap && !gGameStarted)
+	{
+		M_StartControlPanel(false);
+		M_SetMenu(NAME_MainMenu);
+	}
     ready2send = 1;
     while (!gQuitGame)
     {
@@ -1297,10 +1255,6 @@ RESTART:
         inputState.SetBindsEnabled(gInputMode == kInputGame);
         switch (gInputMode)
         {
-        case kInputMenu:
-            if (gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Process();
-            break;
         case kInputGame:
             LocalKeys();
             break;
@@ -1377,10 +1331,6 @@ RESTART:
         {
             switch (gInputMode)
             {
-            case kInputMenu:
-                if (gGameMenuMgr.m_bActive)
-                    gGameMenuMgr.Draw();
-                break;
             case kInputMessage:
                 gPlayerMsg.ProcessKeys();
                 gPlayerMsg.Draw();
@@ -1424,6 +1374,8 @@ RESTART:
         gRestartGame = 0;
         gGameStarted = 0;
         levelSetupOptions(0,0);
+#if 0
+		// What's this loop for? Needs checking
         while (gGameMenuMgr.m_bActive)
         {
             gGameMenuMgr.Process();
@@ -1435,6 +1387,7 @@ RESTART:
                 videoNextPage();
             }
         }
+#endif
         if (gGameOptions.nGameType != 0)
         {
             if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo)

@@ -744,6 +744,7 @@ void M_StartMessage(const char *message, int messagemode, int scriptId, FName ac
 void M_UnhideCustomMenu(int menu, int itemmask);
 void M_MenuSound(EMenuSounds snd);
 void M_Autosave();
+bool M_Active();
 
 
 void I_SetMouseCapture();

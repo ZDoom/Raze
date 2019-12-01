@@ -747,7 +747,7 @@ bool M_Responder (event_t *ev)
 		if (ev->type == EV_KeyDown)
 		{
 			// Pop-up menu?
-			if (ev->data1 == KEY_ESCAPE)
+			if (ev->data1 == KEY_ESCAPE) // Should we let the games handle Escape for special actions, like backing out of cameras?
 			{
 				M_StartControlPanel(true);
 				M_SetMenu(NAME_IngameMenu, -1);
@@ -870,6 +870,12 @@ void Menu_Close(int playerid)
 {
 	M_ClearMenus();
 }
+
+bool M_Active()
+{
+	return DMenu::CurrentMenu != nullptr;
+}
+
 //=============================================================================
 //
 //

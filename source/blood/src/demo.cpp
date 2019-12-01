@@ -281,9 +281,6 @@ void CDemo::ProcessKeys(void)
 {
     switch (gInputMode)
     {
-    case kInputMenu:
-        gGameMenuMgr.Process();
-        break;
     case kInputMessage:
         gPlayerMsg.ProcessKeys();
         break;

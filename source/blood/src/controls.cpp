@@ -174,7 +174,7 @@ void ctrlGetInput(void)
     if (gQuitRequest)
         gInput.keyFlags.quit = 1;
 
-    if (gGameStarted && gInputMode != kInputMessage && gInputMode != kInputMenu
+    if (gGameStarted && gInputMode != kInputMessage
         && buttonMap.ButtonDown(gamefunc_SendMessage))
     {
         buttonMap.ClearButton(gamefunc_SendMessage);

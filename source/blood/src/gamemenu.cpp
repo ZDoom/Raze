@@ -43,6 +43,8 @@ bool ShowOptionMenu();
 
 BEGIN_BLD_NS
 
+#if 0
+
 CMenuTextMgr gMenuTextMgr;
 CGameMenuMgr gGameMenuMgr;
 
@@ -2985,9 +2987,6 @@ bool CGameMenuItemPassword::Event(CGameMenuEvent &event)
     return CGameMenuItem::Event(event);
 }
 
-bool GameInterface::mouseInactiveConditional(bool condition)
-{
-	return MOUSEINACTIVECONDITIONAL(condition);
-}
+#endif
 
 END_BLD_NS

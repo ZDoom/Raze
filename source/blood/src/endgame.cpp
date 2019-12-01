@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "messages.h"
 #include "statistics.h"
+#include "gamemenu.h"
 
 BEGIN_BLD_NS
 

@@ -47,7 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "loadsave.h"
 #include "map2d.h"
 #include "messages.h"
-#include "menu.h"
+#include "gamemenu.h"
 #include "mirrors.h"
 #include "network.h"
 #include "player.h"
@@ -61,6 +61,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "warp.h"
 #include "weapon.h"
 #include "zstring.h"
+#include "menu/menu.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable displaying the remaining seconds for power-ups")
 
@@ -1270,7 +1271,7 @@ void viewDrawPowerUps(PLAYER* pPlayer)
 
 void viewDrawMapTitle(void)
 {
-    if (!hud_showmapname || gGameMenuMgr.m_bActive)
+    if (!hud_showmapname || M_Active())
         return;
 
     int const fadeStartTic = int((videoGetRenderMode() == REND_CLASSIC ? 1.25f : 1.f)*kTicsPerSec);
@@ -3056,7 +3057,7 @@ void viewDrawScreen(void)
     if (delta < 0)
         delta = 0;
     lastUpdate = totalclock;
-    if (!gPaused && (!CGameMenuMgr::m_bActive || gGameOptions.nGameType != 0))
+    if (!gPaused && (!M_Active() || gGameOptions.nGameType != 0))
     {
         gInterpolate = ((totalclock-gNetFifoClock)+4).toScale16()/4;
     }
