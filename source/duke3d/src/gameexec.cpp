@@ -1095,7 +1095,6 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
         else
 #endif
         {
-            QuickLoadFailure:
             g_player[playerNum].ps->gm = MODE_RESTART;
         }
         vmFlags |= VM_NOEXECUTE;

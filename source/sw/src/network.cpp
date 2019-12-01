@@ -631,7 +631,7 @@ waitforeverybody(void)
         handleevents();
         getpackets();
 
-        if (wfe_ExitCallback && wfe_ExitCallback()))
+        if (wfe_ExitCallback && wfe_ExitCallback())
         {
             // allow exit
             //if (inputState.GetKeyStatus(KEYSC_ESC))
