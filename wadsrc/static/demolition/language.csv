@@ -8,32 +8,18 @@ Save Game,MNU_SAVEGAME,,,,Uložit hru,Spiel sichern,,Konservi Ludon,Guardar Part
 Help,MNU_HELP,,,,,Hilfe,,,,,,Aide,,,,,,,,,,,
 Continue,MNU_CONTINUE,,,,,Fortfahren,,,,,,,,,,,,,,,,,
 Credits,MNU_CREDITS,,,,,,,,,,,,,,,,,,,,,,
-Cool Stuff,MNU_COOLSTUFF,,,,,Cooles Zeug,,,,,,,,,,,,,,,,,
+Cool Stuff,MNU_COOLSTUFF,Was removed,,,,Cooles Zeug,,,,,,,,,,,,,,,,,
 Multiplayer,MNU_MULTIPLAYER,,,,,Mehrspieler,,,,,,,,,,,,,,,,,
 End Game,MNU_ENDGAME,,,,,Spiel beenden,,,,,,,,,,,,,,,,,
 User Map,MNU_USERMAP,,,,,Benutzerlevel,,,,,,,,,,,,,,,,,
 Select a user map to play,MNU_SELECTUSERMAP,,,,,"Wähle ein Level zum Spielen
 ",,,,,,,,,,,,,,,,,
-Select an Episode,MNU_SELECTEPISODE,,,,,"Welche Episode?
+Select an Episode,MNU_SELECTEPISODE,DN3D et.al.,,,,"Welche Episode?
 ",,,,,,,,,,,,,,,,,
-Select Skill,MNU_SELECTSKILL,,,,,Schwierigkeitsgrad,,,,,,,,,,,,,,,,,
+Episodes,MNU_EPISODES,Blood,,,,Episoden,,,,,,,,,,,,,,,,,
+Select Skill,MNU_SELECTSKILL,DN3D et.al.,,,,Schwierigkeitsgrad,,,,,,,,,,,,,,,,,
+Difficulty,MBU_DIFFICULTY,Blood,,,,Schwierigkeitsgrad,,,,,,,,,,,,,,,,,
 About Demolition,MNU_ENGINECREDITS,,,,,Über Demolition,,,,,,,,,,,,,,,,,
-No Picture,MNU_NOPICTURE,,,,Bez obrázku,Kein Bild,,Neniu Bildo,Sin Imagen,,Ei kuvaa,Pas d'image,,Nessuna immagine,画像無し,사진 없음,Geen beeld,Brak obrazka,Sem imagem,,,"Нет
-изображения",Нема слике
-"Different
-Version",MNU_DIFFVERSION,,,,Jiná verze,Falsche Version,,Malsama Versio,Versión Diferente,,Eri versio,"Version
-Différente",,Versione differente,"別バージョンの
-データ",다른 버젼,Anders Versie,"Inna
-Wersja","Versão
-Diferente",,,"Другая
-версия",Другачија верзија
-No files,MNU_NOFILES,,,,Žádné soubory,Keine Dateien,,Neniuj dosieroj,Sin archivos,,Ei tiedostoja,Pas de fichiers,,Nessun file,ファイル無し,파일 없음,Geen bestanden,Brak plików,Vazio,,,Нет файлов,Нема фајлова
-"Do you really want to delete the savegame
-",MNU_DELETESG,,,,Opravdu chceš smazat tuto uloženou hru?,Willst du diesen Spielstand wirklich löschen?,,Ĉu vi vere volas forviŝi la konservan ludon?,"¿Realmente deseas eliminar la partida?
-",,Haluatko varmasti poistaa tallennetun pelin ,"Voulez vous vraiment effacer cette sauvegarde?
-",Biztos ki akarod törölni a mentést?,Vuoi veramente rimuovere il salvataggio,本当にこのセーブを消すのか?,저장된 게임을 정말로 삭제하시겠습니까?,Wil je echt de opgeslagen spel verwijderen?,Czy naprawdę chcesz usunąć zapis gry,"Deseja mesmo deletar o jogo salvo
-",Deseja mesmo apagar o jogo,,"Вы действительно хотите удалить сохранение
-",Да ли стварно желите да избришете сачувану игру
 Press Y or N.,PRESSYN,,,,Stiskni Y nebo N.,Drücke Y oder N.,"Πάτα Y ή N
 ",Premu Y aŭ N.,Presiona Y ó N.,,Paina Y tai N.,Appuyez sur Y ou N.,Nyomj Y-t vagy N-t.,Premi Y oppure N.,YかNで答えろ,Y키 또는 N키를 누르시오.,Druk op Y of N.,Wciśnij Y lub N.,Aperte Y ou N.,Carrega Y ou N.,,Нажмите Y или N.,Притисните Y или N.
 "You can't save if you aren't playing!
@@ -211,3 +197,21 @@ Empty slot,EMPTYSTRING,,,,Prázdný slot,nicht belegt,,Malplena Ingo,Ranura Vac�
 Game saved.,GGSAVED,,,,Hra uložena.,Spielstand gespeichert.,,Ludo konservita.,Partida guardada.,,Peli tallennettu.,Partie sauvegardée.,Játék mentve.,Gioco salvato.,セーブ完了。,게임이 저장됨.,Spel opgeslagen.,Gra zapisana.,Jogo salvo.,Jogo gravado.,,Игра сохранена.,Игра сачувана.
 Time,SAVECOMMENT_TIME,,,,Čas,Zeit,,Tempo,Tiempo,,Aika,Temps,Idő,Tempo,"時間
 ",시간,Tijd,Czas,Tempo,,,Время,Време
+Load Game,MNU_LOADGAME,,,,Načíst hru,Spiel laden,,Ŝarĝi Ludon,Cargar Partida,,Lataa peli,Chargement,,Carica gioco,ロード,게임 불러오기,Laden spel,Wczytaj Grę,Carregar,,,Загрузка,Учитај игру
+Save Game,MNU_SAVEGAME,,,,Uložit hru,Spiel sichern,,Konservi Ludon,Guardar Partida,,Tallenna peli,Sauvegarde,,Salva gioco,セーブ,게임 저장하기,Opslaan spel,Zapisz Grę,Salvar,Gravar,,Сохранение,Сачувај игру
+No Picture,MNU_NOPICTURE,,,,Bez obrázku,Kein Bild,,Neniu Bildo,Sin Imagen,,Ei kuvaa,Pas d'image,,Nessuna immagine,画像無し,사진 없음,Geen beeld,Brak obrazka,Sem imagem,,,"Нет
+изображения",Нема слике
+"Different
+Version",MNU_DIFFVERSION,,,,Jiná verze,Falsche Version,,Malsama Versio,Versión Diferente,,Eri versio,"Version
+Différente",,Versione differente,"別バージョンの
+データ",다른 버젼,Anders Versie,"Inna
+Wersja","Versão
+Diferente",,,"Другая
+версия",Другачија верзија
+No files,MNU_NOFILES,,,,Žádné soubory,Keine Dateien,,Neniuj dosieroj,Sin archivos,,Ei tiedostoja,Pas de fichiers,,Nessun file,ファイル無し,파일 없음,Geen bestanden,Brak plików,Vazio,,,Нет файлов,Нема фајлова
+"Do you really want to delete the savegame
+",MNU_DELETESG,,,,Opravdu chceš smazat tuto uloženou hru?,Willst du diesen Spielstand wirklich löschen?,,Ĉu vi vere volas forviŝi la konservan ludon?,"¿Realmente deseas eliminar la partida?
+",,Haluatko varmasti poistaa tallennetun pelin ,"Voulez vous vraiment effacer cette sauvegarde?
+",Biztos ki akarod törölni a mentést?,Vuoi veramente rimuovere il salvataggio,本当にこのセーブを消すのか?,저장된 게임을 정말로 삭제하시겠습니까?,Wil je echt de opgeslagen spel verwijderen?,Czy naprawdę chcesz usunąć zapis gry,"Deseja mesmo deletar o jogo salvo
+",Deseja mesmo apagar o jogo,,"Вы действительно хотите удалить сохранение
+",Да ли стварно желите да избришете сачувану игру

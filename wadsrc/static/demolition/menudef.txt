@@ -29,7 +29,7 @@ LISTMENU "MainMenu"
 			class "Redneck.MainMenu"
 		}
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
-		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder (I'm not going to support EDuke's C/S implementation)
+		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder.
 		ifgame(fury)
 		{
 			NativeTextItem "$MNU_CONTINUE", "l", "LoadGameMenu"
@@ -45,6 +45,11 @@ LISTMENU "MainMenu"
 	}
 	ifgame(Blood)
 	{
+		position 160, 45, 150
+		caption "Blood"
+		class "Blood.ListMenu"
+		centermenu
+		Linespacing 20
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
@@ -105,7 +110,11 @@ LISTMENU "IngameMenu"
 	}
 	ifgame(Blood)
 	{
-		linespacing 15
+		position 160, 45, 150
+		caption "Blood"
+		class "Blood.ListMenu"
+		centermenu
+		Linespacing 17
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_MULTIPLAYER", "m", "MultiMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
@@ -150,6 +159,14 @@ LISTMENU "EpisodeMenu"
 			class "Redneck.ListMenu"
 		}
 	}
+	ifgame(blood)
+	{
+		caption "$MNU_EPISODES"
+		position 160, 45, 150
+		class "Blood.ListMenu"
+		centermenu
+		Linespacing 20
+	}
 	ScriptId 100
 }
 
@@ -179,6 +196,14 @@ LISTMENU "SkillMenu"
 			class "Redneck.ListMenu"
 		}
 		animatedtransition
+	}
+	ifgame(blood)
+	{
+		caption "$MNU_DIFFICULTY"
+		position 160, 60, 150
+		class "Blood.ListMenu"
+		centermenu
+		Linespacing 20
 	}
 	ScriptId 110
 }
@@ -349,10 +374,17 @@ LISTMENU "MultiMenu"
 			class "Redneck.ListMenu"
 		}
 		animatedtransition
+		NativeTextItem "$MNU_PLAYERSETUP", "p", "PlayerSetupMenu"
+	}
+	ifgame(blood)
+	{
+		position 160, 80, 150
+		class "Blood.ListMenu"
+		centermenu
+		Linespacing 20
 	}
 
 	Caption "$MNU_NETWORKGAME"
-	NativeTextItem "$MNU_PLAYERSETUP", "p", "PlayerSetupMenu"
 	NativeTextItem "$MNU_JOINGAME", "j", "JoinGameMenu"
 	NativeTextItem "$MNU_HOSTGAME", "h", "HostGameMenu"
 }
@@ -382,9 +414,12 @@ ImageScroller "HelpMenu"
 	}
 	ifgame(blood)
 	{
+		// The duplication here is to integrate the alternating versions of HELP3
 		QAVAnimationItem "Help4"
 		QAVAnimationItem "Help5"
 		QAVAnimationItem "Help3"
+		QAVAnimationItem "Help4"
+		QAVAnimationItem "Help5"
 		QAVAnimationItem "Help3b"
 	}
 	ifgame(ShadowWarrior)

@@ -213,7 +213,7 @@ struct GameInterface
 	virtual void set_hud_scale(int size) = 0;
 	virtual FString statFPS() { return "FPS display not available"; }
 	virtual GameStats getStats() { return {}; }
-	virtual void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int flags) {}
+	virtual void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) {}
 	virtual void MainMenuOpened() {}
 	virtual void MenuOpened() {}
 	virtual void MenuClosed() {}

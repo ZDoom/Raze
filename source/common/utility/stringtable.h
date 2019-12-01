@@ -123,6 +123,11 @@ public:
 		//return FStringf("${%.*s}", len, str);
 		return FString(str, len);
 	}
+
+	const char* localize(const char* str)
+	{
+		return *str == '$' ? GetString(str + 1, nullptr) : str;
+	}
 };
 
 #endif //__STRINGTABLE_H__

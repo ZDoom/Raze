@@ -99,8 +99,7 @@ void DMessageBoxMenu::Init(DMenu *parent, const char *message, int messagemode, 
 	mParentMenu = parent;
 	if (message != NULL) 
 	{
-		if (*message == '$') message = GStrings(message+1);
-		mMessage = V_BreakLines(SmallFont, 300, message);
+		mMessage = V_BreakLines(SmallFont, 300, GStrings.localize(message));
 	}
 	mMessageMode = messagemode;
 	if (playsound)

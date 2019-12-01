@@ -415,7 +415,7 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 
 		auto it = new FListMenuItemNativeText(desc->mXpos, desc->mYpos, desc->mLinespacing, hotkey, text, desc->mNativeFontNum, desc->mNativePalNum, desc->mNativeFontScale, action, param);
 		desc->mItems.Push(it);
-		//desc->mYpos += desc->mLinespacing;
+		desc->mYpos += desc->mLinespacing;
 		if (desc->mSelectedItem == -1) desc->mSelectedItem = desc->mItems.Size() - 1;
 
 		}
@@ -1142,13 +1142,15 @@ static void BuildEpisodeMenu()
 	{
 		FListMenuDescriptor *ld = static_cast<FListMenuDescriptor*>(*desc);
 		ld->mSelectedItem = gDefaultVolume;
+		int y = ld->mYpos;
 
 		for (int i = 0; i < MAXVOLUMES; i++)
 		{
 			if (gVolumeNames[i].IsNotEmpty() && !(gVolumeFlags[i] & EF_HIDEFROMSP))
 
 			{
-				auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i);
+				auto it = new FListMenuItemNativeText(ld->mXpos, y, 0, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i);
+				y += ld->mLinespacing;
 				ld->mItems.Push(it);
 				addedVolumes++;
 				if (gVolumeSubtitles[i].IsNotEmpty())
@@ -1163,7 +1165,8 @@ static void BuildEpisodeMenu()
 			//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "", NIT_SmallFont);	// empty entry as spacer.
 			//ld->mItems.Push(it);
 
-			auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, 0, "$MNU_USERMAP", NIT_BigFont, NIT_ActiveState, 1, NAME_UsermapMenu);
+			y += ld->mLinespacing / 3;
+			auto it = new FListMenuItemNativeText(ld->mXpos, y, 0, 0, "$MNU_USERMAP", NIT_BigFont, NIT_ActiveState, 1, NAME_UsermapMenu);
 			ld->mItems.Push(it);
 			addedVolumes++;
 			if (g_gameType & GAMEFLAG_SW)	// fixme: make this game independent.
@@ -1185,12 +1188,14 @@ static void BuildEpisodeMenu()
 	{
 		FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
 		ld->mSelectedItem = gDefaultSkill;
+		int y = ld->mYpos;
 
 		for (int i = 0; i < MAXSKILLS; i++)
 		{
 			if (gSkillNames[i].IsNotEmpty())
 			{
-				auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, gSkillNames[i][0], gSkillNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_StartGame, i);
+				auto it = new FListMenuItemNativeText(ld->mXpos, y, 0, gSkillNames[i][0], gSkillNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_StartGame, i);
+				y += ld->mLinespacing;
 				ld->mItems.Push(it);
 				addedSkills++;
 			}

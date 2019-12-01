@@ -44,6 +44,7 @@
 #include "v_draw.h"
 #include "image.h"
 #include "v_2ddrawer.h"
+#include "gstrings.h"
 #include "v_font.h"
 
 class FFont;
@@ -225,7 +226,7 @@ void DrawText(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double 
 	{
 		return;
 	}
-	DrawTextCommon(drawer, font, normalcolor, x, y, (const uint8_t*)string, parms);
+	DrawTextCommon(drawer, font, normalcolor, x, y, (const uint8_t*)GStrings.localize(string), parms);
 }
 
 void DrawText(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, const char32_t *string, int tag_first, ...)

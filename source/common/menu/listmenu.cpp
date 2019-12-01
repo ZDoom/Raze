@@ -270,7 +270,7 @@ void DListMenu::PreDraw()
 {
 	if (mDesc->mCaption.IsNotEmpty())
 	{
-		gi->DrawMenuCaption(origin, mDesc->mCaption);
+		gi->DrawMenuCaption(origin, GStrings.localize(mDesc->mCaption));
 	}
 }
 
@@ -447,7 +447,6 @@ void FListMenuItemStaticText::Drawer(DListMenu* menu, const DVector2& origin, bo
 	const char *text = mText;
 	if (text != NULL)
 	{
-		if (*text == '$') text = GStrings(text+1);
 		if (mYpos >= 0)
 		{
 			int x = mXpos;
@@ -550,7 +549,6 @@ void FListMenuItemText::Drawer(DListMenu* menu, const DVector2& origin, bool sel
 	const char *text = mText;
 	if (mText.Len())
 	{
-		if (*text == '$') text = GStrings(text+1);
 		DrawText(&twod, mFont, selected ? mColorSelected : mColor, mXpos, mYpos, text, DTA_Clean, true, TAG_DONE);
 	}
 }
@@ -560,8 +558,7 @@ int FListMenuItemText::GetWidth()
 	const char *text = mText;
 	if (mText.Len())
 	{
-		if (*text == '$') text = GStrings(text+1);
-		return mFont->StringWidth(text); 
+		return mFont->StringWidth(GStrings.localize(text)); 
 	}
 	return 1;
 }
@@ -592,9 +589,8 @@ void FListMenuItemNativeText::Drawer(DListMenu* menu, const DVector2& origin, bo
 	const char* text = mText;
 	if (mText.Len() && !mHidden)
 	{
-		if (*text == '$') text = GStrings(text + 1);
 		auto state = selected ? NIT_SelectedState : mEnabled ? NIT_ActiveState : NIT_InactiveState;
-		gi->DrawNativeMenuText(mFontnum, state, int((origin.X + mXpos) * 65536) , int((origin.Y + mYpos) * 65536), 1.f, text, menu->Descriptor()->mFlags);
+		gi->DrawNativeMenuText(mFontnum, state, origin.X + mXpos, origin.Y + mYpos, 1.f, GStrings.localize(text), menu->Descriptor()->mFlags);
 	}
 } 
 

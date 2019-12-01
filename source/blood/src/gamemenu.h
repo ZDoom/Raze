@@ -31,17 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-class CMenuTextMgr
-{
-public:
-    int at0;
-    CMenuTextMgr();
-    void DrawText(const char *pString, int nFont, int x, int y, int nShade, int nPalette, bool shadow );
-    void GetFontInfo(int nFont, const char *pString, int *pXSize, int *pYSize);
-};
-
-extern CMenuTextMgr gMenuTextMgr;
-
 void drawLoadingScreen(void);
 void UpdateNetworkMenus(void);
 
@@ -329,22 +318,6 @@ public:
     virtual bool Event(CGameMenuEvent &);
 };
 
-class CGameMenuItemQAV : public CGameMenuItem
-{
-public:
-    const char *at20;
-    DICTNODE *at24;
-    QAV *at28;
-    int at2c;
-    int at30;
-    bool bWideScreen;
-    bool bClearBackground;
-    CGameMenuItemQAV();
-    CGameMenuItemQAV(const char *, int, int, int, const char *, bool widescreen = false, bool clearbackground = false);
-    virtual void Draw(void);
-    virtual bool Event(CGameMenuEvent &);
-    void Reset(void);
-};
 
 class CGameMenuItemZCycleSelect : public CGameMenuItem
 {

@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "menu.h"
 #include "qav.h"
+#include "demo.h"
 #include "resource.h"
 #include "view.h"
 #include "c_bind.h"
@@ -42,6 +43,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 bool ShowOptionMenu();
 
 BEGIN_BLD_NS
+
+const char* zNetGameTypes[] =
+{
+	"Cooperative",
+	"Bloodbath",
+	"Teams",
+};
+
+void drawLoadingScreen(void)
+{
+	char buffer[80];
+	if (gGameOptions.nGameType == 0)
+	{
+		if (gDemo.at1)
+			sprintf(buffer, "Loading Demo");
+		else
+			sprintf(buffer, "Loading Level");
+	}
+	else
+		sprintf(buffer, "%s", zNetGameTypes[gGameOptions.nGameType - 1]);
+	viewLoadingScreen(2049, buffer, levelGetTitle(), NULL);
+}
 
 #if 0
 
@@ -159,26 +182,6 @@ void CGameMenuMgr::Draw(void)
 {
     if (pActiveMenu)
     {
-		if (GUICapture & 2)
-		{
-			ImGui_Begin_Frame();
-			bool b = true;
-			videoFadeToBlack(1);
-#if 0
-			ImGui::ShowDemoWindow(&b);
-			if (!b)
-#else
-			if (!ShowOptionMenu())
-#endif
-			{
-				GUICapture &= ~2;
-				GUICapture |= 4;
-				Pop();
-			}
-			return;
-		}
-
-
         pActiveMenu->Draw();
         viewUpdatePages();
     }
@@ -2201,32 +2204,6 @@ bool CGameMenuItemQAV::Event(CGameMenuEvent &event)
         pMenu->FocusNextItem();
         return false;
     case kMenuEventInit:
-        if (at20)
-        {
-            if (!at28)
-            {
-                at24 = gSysRes.Lookup(at20, "QAV");
-                if (!at24)
-                    ThrowError("Could not load QAV %s\n", at20);
-                at28 = (QAV*)gSysRes.Lock(at24);
-                at28->nSprite = -1;
-                at28->x = m_nX;
-                at28->y = m_nY;
-                at28->Preload();
-                at2c = at28->at10;
-                at30 = (int)totalclock;
-                return false;
-            }
-            gSysRes.Lock(at24);
-        }
-        return false;
-    case kMenuEventDeInit:
-        if (at20 && at28)
-        {
-            gSysRes.Unlock(at24);
-            if (at24->LockCount() == 0)
-                at28 = NULL;
-        }
         return false;
     }
     return CGameMenuItem::Event(event);

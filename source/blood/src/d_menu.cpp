@@ -40,51 +40,110 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "network.h"
 #include "c_bind.h"
+#include "menu/menu.h"
 
 bool ShowOptionMenu();
 
 BEGIN_BLD_NS
 
-CMenuTextMgr gMenuTextMgr;
-
-CMenuTextMgr::CMenuTextMgr()
+class CGameMenuItemQAV
 {
-	at0 = -1;
-}
-
-void CMenuTextMgr::DrawText(const char* pString, int nFont, int x, int y, int nShade, int nPalette, bool shadow)
-{
-	viewDrawText(nFont, pString, x, y, nShade, nPalette, 0, shadow);
-}
-
-void CMenuTextMgr::GetFontInfo(int nFont, const char* pString, int* pXSize, int* pYSize)
-{
-	if (nFont < 0 || nFont >= 5)
-		return;
-	viewGetFontInfo(nFont, pString, pXSize, pYSize);
-}
-
-const char* zNetGameTypes[] =
-{
-	"Cooperative",
-	"Bloodbath",
-	"Teams",
+public:
+	int m_nX, m_nY;
+	TArray<uint8_t> raw;
+	int at2c;
+	int lastTick;
+	bool bWideScreen;
+	bool bClearBackground;
+	CGameMenuItemQAV(int, int, const char*, bool widescreen = false, bool clearbackground = false);
+	void Draw(void);
 };
 
-void drawLoadingScreen(void)
+CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widescreen, bool clearbackground)
 {
-	char buffer[80];
-	if (gGameOptions.nGameType == 0)
+	m_nY = a4;
+	m_nX = a3;
+	bWideScreen = widescreen;
+	bClearBackground = clearbackground;
+
+	if (name)
 	{
-		if (gDemo.at1)
-			sprintf(buffer, "Loading Demo");
-		else
-			sprintf(buffer, "Loading Level");
+		// NBlood read this directly from the file system cache, but let's better store the data locally for robustness.
+		raw = kloadfile(name, 0);
+		if (raw.Size() != 0)
+		{
+			auto data = (QAV*)raw.Data();
+			data->nSprite = -1;
+			data->x = m_nX;
+			data->y = m_nY;
+			data->Preload();
+			at2c = data->at10;
+			lastTick = (int)totalclock;
+		}
 	}
-	else
-		sprintf(buffer, "%s", zNetGameTypes[gGameOptions.nGameType - 1]);
-	viewLoadingScreen(2049, buffer, levelGetTitle(), NULL);
 }
+
+void CGameMenuItemQAV::Draw(void)
+{
+	if (bClearBackground)
+		videoClearScreen(0);
+
+	if (raw.Size() > 0)
+	{
+		auto data = (QAV*)raw.Data();
+		ClockTicks backFC = gFrameClock;
+		gFrameClock = totalclock;
+		int nTicks = (int)totalclock - lastTick;
+		lastTick = (int)totalclock;
+		at2c -= nTicks;
+		if (at2c <= 0 || at2c > data->at10)
+		{
+			at2c = data->at10;
+		}
+		data->Play(data->at10 - at2c - nTicks, data->at10 - at2c, -1, NULL);
+		int wx1, wy1, wx2, wy2;
+		wx1 = windowxy1.x;
+		wy1 = windowxy1.y;
+		wx2 = windowxy2.x;
+		wy2 = windowxy2.y;
+		windowxy1.x = 0;
+		windowxy1.y = 0;
+		windowxy2.x = xdim - 1;
+		windowxy2.y = ydim - 1;
+		if (bWideScreen)
+		{
+			int xdim43 = scale(ydim, 4, 3);
+			int nCount = (xdim + xdim43 - 1) / xdim43;
+			int backX = data->x;
+			for (int i = 0; i < nCount; i++)
+			{
+				data->Draw(data->at10 - at2c, 10 + kQavOrientationLeft, 0, 0);
+				data->x += 320;
+			}
+			data->x = backX;
+		}
+		else
+			data->Draw(data->at10 - at2c, 10, 0, 0);
+
+		windowxy1.x = wx1;
+		windowxy1.y = wy1;
+		windowxy2.x = wx2;
+		windowxy2.y = wy2;
+		gFrameClock = backFC;
+	}
+}
+
+
+
+static std::unique_ptr<CGameMenuItemQAV> itemBloodQAV;	// This must be global to ensure that the animation remains consistent across menus.
+/*
+CGameMenuItemQAV itemCreditsQAV("", 3, 160, 100, "CREDITS", false, true);
+CGameMenuItemQAV itemHelp3QAV("", 3, 160, 100, "HELP3", false, false);
+CGameMenuItemQAV itemHelp3BQAV("", 3, 160, 100, "HELP3B", false, false);
+CGameMenuItemQAV itemHelp4QAV("", 3, 160, 100, "HELP4", false, true);
+CGameMenuItemQAV itemHelp5QAV("", 3, 160, 100, "HELP5", false, true);
+*/
+
 
 void UpdateNetworkMenus(void)
 {
@@ -92,23 +151,23 @@ void UpdateNetworkMenus(void)
 #if 0
 	if (gGameOptions.nGameType > 0)
 	{
-		itemMain1.at24 = &menuNetStart;
-		itemMain1.at28 = 2;
+		itemMain1.resource = &menuNetStart;
+		itemMain1.data = 2;
 	}
 	else
 	{
-		itemMain1.at24 = &menuEpisode;
-		itemMain1.at28 = -1;
+		itemMain1.resource = &menuEpisode;
+		itemMain1.data = -1;
 	}
 	if (gGameOptions.nGameType > 0)
 	{
-		itemMainSave1.at24 = &menuNetStart;
-		itemMainSave1.at28 = 2;
+		itemMainSave1.resource = &menuNetStart;
+		itemMainSave1.data = 2;
 	}
 	else
 	{
-		itemMainSave1.at24 = &menuEpisode;
-		itemMainSave1.at28 = -1;
+		itemMainSave1.resource = &menuEpisode;
+		itemMainSave1.data = -1;
 	}
 #endif
 }
@@ -128,7 +187,7 @@ void MenuSetupEpisodeInfo(void)
 			{
 				if (j < pEpisode->nLevels)
 				{
-					zLevelNames[i][j] = pEpisode->at28[j].at90;
+					zLevelNames[i][j] = pEpisode->data[j].at90;
 				}
 			}
 		}
@@ -136,11 +195,219 @@ void MenuSetupEpisodeInfo(void)
 #endif
 }
 
+//----------------------------------------------------------------------------
+//
+// Implements the native looking menu used for the main menu
+// and the episode/skill selection screens, i.e. the parts
+// that need to look authentic
+//
+//----------------------------------------------------------------------------
+
+class BloodListMenu : public DListMenu
+{
+	using Super = DListMenu;
+protected:
+
+	void PostDraw()
+	{
+		itemBloodQAV->Draw();
+	}
+
+};
+
+
+//----------------------------------------------------------------------------
+//
+// Menu related game interface functions
+//
+//----------------------------------------------------------------------------
+
+void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
+{
+	if (!text) return;
+	int shade = (state != NIT_InactiveState) ? 32 : 48;
+	int pal = (state != NIT_InactiveState) ? 5 : 5;
+	if (state == NIT_SelectedState)	shade = 32 - ((int)totalclock & 63);
+	int width, height;
+	int gamefont = fontnum == NIT_BigFont ? 1 : fontnum == NIT_SmallFont ? 2 : 3;
+
+	int x = int(xpos);
+	int y = int(ypos);
+	viewGetFontInfo(gamefont, text, &width, &height);
+
+	if (flags & LMF_Centered)
+	{
+		x -= width / 2;
+	}
+
+	viewDrawText(gamefont, text, x, y, shade, pal, 0, true);
+}
+
+
+void GameInterface::MenuOpened()
+{
+#if 0
+	S_PauseSounds(true);
+	if ((!g_netServer && ud.multimode < 2))
+	{
+		ready2send = 0;
+		totalclock = ototalclock;
+		screenpeek = myconnectindex;
+	}
+
+	auto& gm = g_player[myconnectindex].ps->gm;
+	if (gm & MODE_GAME)
+	{
+		gm |= MODE_MENU;
+	}
+#endif
+
+	itemBloodQAV.reset(new CGameMenuItemQAV(160, 100, "BDRIP.QAV", true));
+}
+
+void GameInterface::MenuSound(EMenuSounds snd)
+{
+#if 0
+	switch (snd)
+	{
+	case CursorSound:
+		S_PlaySound(RR ? 335 : KICK_HIT);
+		break;
+
+	case AdvanceSound:
+		S_PlaySound(RR ? 341 : PISTOL_BODYHIT);
+		break;
+
+	case CloseSound:
+		S_PlaySound(EXITMENUSOUND);
+		break;
+
+	default:
+		return;
+	}
+#endif
+}
+
+void GameInterface::MenuClosed()
+{
+	itemBloodQAV.reset();
+#if 0
+	auto& gm = g_player[myconnectindex].ps->gm;
+	if (gm & MODE_GAME)
+	{
+		if (gm & MODE_MENU)
+			I_ClearAllInput();
+
+		// The following lines are here so that you cannot close the menu when no game is running.
+		gm &= ~MODE_MENU;
+
+		if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
+		{
+			ready2send = 1;
+			totalclock = ototalclock;
+			CAMERACLOCK = (int32_t)totalclock;
+			CAMERADIST = 65536;
+
+			// Reset next-viewscreen-redraw counter.
+			// XXX: are there any other cases like that in need of handling?
+			if (g_curViewscreen >= 0)
+				actor[g_curViewscreen].t_data[0] = (int32_t)totalclock;
+		}
+
+		G_UpdateScreenArea();
+		S_PauseSounds(false);
+	}
+#endif
+}
+
+bool GameInterface::CanSave()
+{
+#if 0
+	if (ud.recstat == 2) return false;
+	auto& myplayer = *g_player[myconnectindex].ps;
+	if (sprite[myplayer.i].extra <= 0)
+	{
+		P_DoQuote(QUOTE_SAVE_DEAD, &myplayer);
+		return false;
+	}
+#endif
+	return true;
+}
+
+void GameInterface::StartGame(FGameStartup& gs)
+{
+#if 0
+	int32_t skillsound = PISTOL_BODYHIT;
+
+	switch (gs.Skill)
+	{
+	case 0:
+		skillsound = 427;
+		break;
+	case 1:
+		skillsound = 428;
+		break;
+	case 2:
+		skillsound = 196;
+		break;
+	case 3:
+		skillsound = 195;
+		break;
+	case 4:
+		skillsound = 197;
+		break;
+	}
+
+	ud.m_player_skill = gs.Skill + 1;
+	if (menu_sounds) g_skillSoundVoice = S_PlaySound(skillsound);
+	ud.m_respawn_monsters = (gs.Skill == 3);
+	ud.m_monsters_off = ud.monsters_off = 0;
+	ud.m_respawn_items = 0;
+	ud.m_respawn_inventory = 0;
+	ud.multimode = 1;
+	ud.m_volume_number = gs.Episode;
+	ud.m_level_number = gs.Level;
+	G_NewGame_EnterLevel();
+#endif
+}
 
 FSavegameInfo GameInterface::GetSaveSig()
 {
 	return { SAVESIG_BLD, MINSAVEVER_BLD, SAVEVER_BLD };
 }
 
+void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
+{
+	int height;
+	// font #1, tile #2038.
+	viewGetFontInfo(1, NULL, NULL, &height);
+	rotatesprite(int(origin.X * 65536) + 320 << 15, 20 << 16, 65536, 0, 2038, -128, 0, 78, 0, 0, xdim - 1, ydim - 1);
+	viewDrawText(1, text, 160, 20 - height / 2, -128, 0, 1, false);
+}
+
+void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position)
+{
+#if 0
+	Menu_DrawBackground(origin);
+	G_ScreenText(MF_Bluefont.tilenum, int((origin.X + 160) * 65536), int((origin.Y + position) * 65536), MF_Bluefont.zoom, 0, 0, text, 0, MF_Bluefont.pal,
+		2 | 8 | 16 | ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y,
+		MF_Bluefont.textflags | TEXT_XCENTER, 0, 0, xdim - 1, ydim - 1);
+#endif
+}
+
 
 END_BLD_NS
+
+//----------------------------------------------------------------------------
+//
+// Class registration
+//
+//----------------------------------------------------------------------------
+
+
+static TMenuClassDescriptor<Blood::BloodListMenu> _lm("Blood.ListMenu");
+
+void RegisterBloodMenus()
+{
+	menuClasses.Push(&_lm);
+}

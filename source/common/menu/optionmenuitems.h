@@ -154,10 +154,8 @@ public:
 
 	bool Activate(FName caller) override
 	{
-		auto msg = mPrompt.IsNotEmpty()? mPrompt.GetChars() : "$SAFEMESSAGE";
-		if (*msg == '$') msg = GStrings(msg+1);
-		auto actionLabel = mLabel.GetChars();
-		if (*actionLabel == '$') actionLabel = GStrings(actionLabel+1);
+		auto msg = GStrings.localize(mPrompt.IsNotEmpty()? mPrompt.GetChars() : "$SAFEMESSAGE");
+		auto actionLabel = GStrings.localize(mLabel.GetChars());
 
 		FStringf FullString("%s%s%s\n\n%s", TEXTCOLOR_WHITE, actionLabel, TEXTCOLOR_NORMAL, msg);
 		M_StartMessage(FullString, 0, mScriptId);
@@ -536,8 +534,7 @@ public:
 
 	int Draw(FOptionMenuDescriptor *desc, int y, int indent, bool selected) override
 	{
-		const char *txt = mCurrent? mAltText.GetChars() : mLabel.GetChars();
-		if (*txt == '$') txt = GStrings(txt + 1);
+		const char *txt = GStrings.localize(mCurrent? mAltText.GetChars() : mLabel.GetChars());
 		int w = OptionWidth(txt) * CleanXfac_1;
 		int x = (screen->GetWidth() - w) / 2;
 		drawText(x, y, mColor, txt);

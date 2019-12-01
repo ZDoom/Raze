@@ -53,7 +53,7 @@ void CEndGameMgr::Draw(void)
 {
     viewLoadingScreenWide();
     int nHeight;
-    gMenuTextMgr.GetFontInfo(1, NULL, NULL, &nHeight);
+    viewGetFontInfo(1, NULL, NULL, &nHeight);
     rotatesprite(160<<16, 20<<16, 65536, 0, 2038, -128, 0, 6, 0, 0, xdim-1, ydim-1);
     int nY = 20 - nHeight / 2;
     if (gGameOptions.nGameType == 0)

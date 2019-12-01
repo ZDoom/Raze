@@ -151,7 +151,6 @@ static void Menu_DrawTopBar(const DVector2 &origin)
 static void Menu_DrawTopBarCaption(const char* caption, const DVector2& origin)
 {
 	static char t[64];
-	if (*caption == '$') caption = GStrings(caption + 1);
 	size_t const srclen = strlen(caption);
 	size_t const dstlen = min(srclen, ARRAY_SIZE(t) - 1);
 	memcpy(t, caption, dstlen);
@@ -231,47 +230,6 @@ static int Menu_GetFontHeight(int fontnum)
 	return font.get_yline();
 }
 
-void GameInterface::DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int flags)
-{
-	int ydim_upper = 0;
-	int ydim_lower = ydim - 1;
-	//int32_t const indent = 0;	// not set for any relevant menu
-	int32_t x = xpos;
-
-	uint8_t status = 0;
-	if (state == NIT_SelectedState)
-		status |= MT_Selected;
-	if (state == NIT_InactiveState)
-		status |= MT_Disabled;
-	if (flags & LMF_Centered)
-		status |= MT_XCenter;
-
-	bool const dodraw = true;
-	MenuFont_t& font = fontnum == NIT_BigFont ? MF_Redfont : fontnum == NIT_SmallFont ? MF_Bluefont : MF_Minifont;
-
-	int32_t const height = font.get_yline();
-	status |= MT_YCenter;
-	int32_t const y_internal = ypos + ((height >> 17) << 16);// -menu->scrollPos;
-
-	vec2_t textsize;
-	if (dodraw)
-		textsize = Menu_Text(x, y_internal, &font, text, status, ydim_upper, ydim_lower);
-
-	if (dodraw && (status & MT_Selected) && state != 1)
-	{
-		if (status & MT_XCenter)
-		{
-			Menu_DrawCursorLeft(x + font.cursorCenterPosition, y_internal, font.cursorScale);
-			Menu_DrawCursorRight(x - font.cursorCenterPosition, y_internal, font.cursorScale);
-		}
-		else
-			Menu_DrawCursorLeft(x /*+ indent*/ - font.cursorLeftPosition, y_internal, font.cursorScale);
-	}
-
-}
-
-
-
 //----------------------------------------------------------------------------
 //
 // Implements the native looking menu used for the main menu
@@ -323,7 +281,7 @@ protected:
 	}
 };
 
-class MainMenu : public RedneckListMenu
+class RedneckMainMenu : public RedneckListMenu
 {
 	void PreDraw() override
 	{
@@ -340,6 +298,45 @@ class MainMenu : public RedneckListMenu
 // Menu related game interface functions
 //
 //----------------------------------------------------------------------------
+
+void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
+{
+	int ydim_upper = 0;
+	int ydim_lower = ydim - 1;
+	//int32_t const indent = 0;	// not set for any relevant menu
+	int x = int(xpos * 65536 * 6);
+
+	uint8_t status = 0;
+	if (state == NIT_SelectedState)
+		status |= MT_Selected;
+	if (state == NIT_InactiveState)
+		status |= MT_Disabled;
+	if (flags & LMF_Centered)
+		status |= MT_XCenter;
+
+	bool const dodraw = true;
+	MenuFont_t& font = fontnum == NIT_BigFont ? MF_Redfont : fontnum == NIT_SmallFont ? MF_Bluefont : MF_Minifont;
+
+	int32_t const height = font.get_yline();
+	status |= MT_YCenter;
+	int32_t const y_internal = int(ypos * 65536) + ((height >> 17) << 16);// -menu->scrollPos;
+
+	vec2_t textsize;
+	if (dodraw)
+		textsize = Menu_Text(x, y_internal, &font, text, status, ydim_upper, ydim_lower);
+
+	if (dodraw && (status & MT_Selected) && state != 1)
+	{
+		if (status & MT_XCenter)
+		{
+			Menu_DrawCursorLeft(x + font.cursorCenterPosition, y_internal, font.cursorScale);
+			Menu_DrawCursorRight(x - font.cursorCenterPosition, y_internal, font.cursorScale);
+		}
+		else
+			Menu_DrawCursorLeft(x /*+ indent*/ - font.cursorLeftPosition, y_internal, font.cursorScale);
+	}
+
+}
 
 
 void GameInterface::MenuOpened()
@@ -487,7 +484,7 @@ END_RR_NS
 //----------------------------------------------------------------------------
 
 
-static TMenuClassDescriptor<Redneck::MainMenu> _mm("Redneck.MainMenu");
+static TMenuClassDescriptor<Redneck::RedneckMainMenu> _mm("Redneck.MainMenu");
 static TMenuClassDescriptor<Redneck::RedneckListMenu> _lm("Redneck.ListMenu");
 
 void RegisterRedneckMenus()

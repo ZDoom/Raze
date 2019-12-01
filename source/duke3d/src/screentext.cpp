@@ -469,7 +469,6 @@ vec2_t G_ScreenText(const int32_t font,
     int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f,
     const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2)
 {
-	if (*str == '$') str = GStrings(str + 1);
     vec2_t size = { 0, 0, }; // eventually the return value
     vec2_t origin = { 0, 0, }; // where to start, depending on the alignment
     vec2_t pos = { 0, 0, }; // holds the coordinate position as we draw each character tile of the string

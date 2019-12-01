@@ -383,7 +383,7 @@ void CGameMessageMgr::Display(void)
                 if (gViewMode == 3)
                 {
                     int height;
-                    gMenuTextMgr.GetFontInfo(nFont, pMessage->text, &height, NULL);
+                    viewGetFontInfo(nFont, pMessage->text, &height, NULL);
                     if (x+height > gViewX1S)
                         viewUpdatePages();
                 }
@@ -428,7 +428,7 @@ void CGameMessageMgr::Display(void)
                 if (gViewMode == 3)
                 {
                     int height;
-                    gMenuTextMgr.GetFontInfo(nFont, pMessage->text, &height, NULL);
+                    viewGetFontInfo(nFont, pMessage->text, &height, NULL);
                     if (x+height > gViewX1S)
                         viewUpdatePages();
                 }

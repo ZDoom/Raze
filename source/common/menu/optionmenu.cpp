@@ -70,7 +70,6 @@ int OptionWidth(const char * s)
 
 void DrawOptionText(int x, int y, int color, const char *text, bool grayed)
 {
-	text = *text == '$'? GStrings(text+1) : text;
 	PalEntry overlay = grayed? PalEntry(96,48,0,0) : PalEntry(0,0,0);
 	DrawText (&twod, OptionFont(), color, x, y, text, DTA_CleanNoMove_1, true, DTA_ColorOverlay, overlay);
 }
@@ -405,7 +404,7 @@ void DOptionMenu::Drawer ()
 
 	if (mDesc->mTitle.IsNotEmpty())
 	{
-		gi->DrawMenuCaption(origin, mDesc->mTitle);
+		gi->DrawMenuCaption(origin, GStrings.localize(mDesc->mTitle));
 	}
 	mDesc->mDrawTop = y;
 	int fontheight = OptionSettings.mLinespacing * CleanYfac_1;
@@ -503,9 +502,7 @@ int  FOptionMenuItem::GetIndent()
 {
 	if (mCentered) return 0;
 	if (screen->GetWidth() < 640) return screen->GetWidth() / 2;
-	const char *label = mLabel;
-	if (*label == '$') label = GStrings(label+1);
-	return OptionWidth(label);
+	return OptionWidth(GStrings.localize(mLabel));
 }
 
 void FOptionMenuItem::drawText(int x, int y, int color, const char * text, bool grayed)
@@ -515,9 +512,7 @@ void FOptionMenuItem::drawText(int x, int y, int color, const char * text, bool 
 
 int FOptionMenuItem::drawLabel(int indent, int y, EColorRange color, bool grayed)
 {
-	const char *label = mLabel;
-	if (*label == '$') label = GStrings(label+1);
-
+	const char *label = GStrings.localize(mLabel);
 	int x;
 	int w = OptionWidth(label) * CleanXfac_1;
 	if (!mCentered) x = indent - w;

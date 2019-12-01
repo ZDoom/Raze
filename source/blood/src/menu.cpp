@@ -187,12 +187,6 @@ CGameMenu menuNetwork;
 CGameMenu menuNetworkHost;
 CGameMenu menuNetworkJoin;
 
-CGameMenuItemQAV itemBloodQAV("", 3, 160, 100, "BDRIP", true);
-CGameMenuItemQAV itemCreditsQAV("", 3, 160, 100, "CREDITS", false, true);
-CGameMenuItemQAV itemHelp3QAV("", 3, 160, 100, "HELP3", false, false);
-CGameMenuItemQAV itemHelp3BQAV("", 3, 160, 100, "HELP3B", false, false);
-CGameMenuItemQAV itemHelp4QAV("", 3, 160, 100, "HELP4", false, true);
-CGameMenuItemQAV itemHelp5QAV("", 3, 160, 100, "HELP5", false, true);
 
 CGameMenuItemTitle itemMainTitle("BLOOD", 1, 160, 20, 2038);
 CGameMenuItemChain itemMain1("NEW GAME", 1, 0, 45, 320, 1, &menuEpisode, -1, NULL, 0);

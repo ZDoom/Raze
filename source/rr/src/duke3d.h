@@ -157,7 +157,7 @@ struct GameInterface : ::GameInterface
 	void set_hud_scale(int size) override;
 	FString statFPS() override;
 	GameStats getStats() override;
-	void DrawNativeMenuText(int fontnum, int state, int xpos, int ypos, float fontscale, const char* text, int flags);
+	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags);
 	void MenuOpened() override;
 	void MenuSound(EMenuSounds snd) override;
 	void MenuClosed() override;
