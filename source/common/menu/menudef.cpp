@@ -580,6 +580,11 @@ static void ParseImageScrollerBody(FScanner &sc, FImageScrollerDescriptor *desc)
 				ParseImageScrollerBody(sc, desc);
 			}
 		}
+		else if (sc.Compare("Class"))
+		{
+			sc.MustGetString();
+			desc->mClass = sc.String;
+		}
 		else if (sc.Compare("TextItem") || sc.Compare("ImageItem"))
 		{
 			FImageScrollerDescriptor::ScrollerItem item;

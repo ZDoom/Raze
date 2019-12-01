@@ -669,16 +669,19 @@ void DrawOptionText(int x, int y, int color, const char *text, bool grayed = fal
 // ImageScroller
 //
 //=============================================================================
+class ImageScreen;
 
 class DImageScrollerMenu : public DMenu
 {
-	DMenu* mCurrent;
-	FImageScrollerDescriptor* mDesc;
-	int index;
+	DMenu* mCurrent = nullptr;
+	FImageScrollerDescriptor* mDesc = nullptr;
+	int index = 0;
 	MenuTransition pageTransition = {};
 
+	virtual ImageScreen* newImageScreen(FImageScrollerDescriptor::ScrollerItem* desc);
+
 public:
-	DImageScrollerMenu(DMenu* parent = nullptr, FImageScrollerDescriptor* desc = nullptr);
+	void Init(DMenu* parent = nullptr, FImageScrollerDescriptor* desc = nullptr);
 	bool MenuEvent(int mkey, bool fromcontroller);
 	bool MouseEvent(int type, int x, int y);
 	void Ticker();
@@ -722,6 +725,23 @@ public:
 
 };
 
+//=============================================================================
+//
+// Show a fullscreen image / centered text screen for an image scroller
+//
+//=============================================================================
+
+class ImageScreen : public DMenu
+{
+protected:
+	const FImageScrollerDescriptor::ScrollerItem* mDesc;
+public:
+	ImageScreen(const FImageScrollerDescriptor::ScrollerItem* it)
+	{
+		mDesc = it;
+	}
+	void Drawer() override;
+};
 
 
 

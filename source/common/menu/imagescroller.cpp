@@ -45,24 +45,6 @@
 
 //=============================================================================
 //
-// Show a fullscreen image / centered text screen for an image scroller
-//
-//=============================================================================
-
-class ImageScreen : public DMenu // Todo: This should be global
-{
-	const FImageScrollerDescriptor::ScrollerItem* mDesc;
-public:
-	ImageScreen(const FImageScrollerDescriptor::ScrollerItem* it)
-	{
-		mDesc = it;
-	}
-	void Drawer() override;
-};
-
-
-//=============================================================================
-//
 // Fullscreen image drawer (move to its own source file!)
 //
 //=============================================================================
@@ -93,15 +75,19 @@ void ImageScreen::Drawer()
 	}
 }
 
-
-DImageScrollerMenu::DImageScrollerMenu(DMenu* parent, FImageScrollerDescriptor* desc)
-	: DMenu(parent)
+ImageScreen* DImageScrollerMenu::newImageScreen(FImageScrollerDescriptor::ScrollerItem* desc)
 {
+	return new ImageScreen(desc);
+}
+
+void DImageScrollerMenu::Init(DMenu* parent, FImageScrollerDescriptor* desc)
+{
+	mParentMenu = parent;
 	index = 0;
 	mDesc = desc;
 	canAnimate = !!(mDesc->mFlags & LMF_Animate);
 
-	mCurrent = new ImageScreen(&mDesc->mItems[0]);
+	mCurrent = newImageScreen(&mDesc->mItems[0]);
 	mCurrent->canAnimate = canAnimate;
 }
 
@@ -119,7 +105,7 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 		if (pageTransition.previous == nullptr)
 		{
 			if (--index < 0) index = mDesc->mItems.Size() - 1;
-			auto next = new ImageScreen(&mDesc->mItems[index]);
+			auto next = newImageScreen(&mDesc->mItems[index]);
 			next->canAnimate = canAnimate;
 			if (!pageTransition.StartTransition(mCurrent, next, MA_Return))
 			{
@@ -135,7 +121,7 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 		if (pageTransition.previous == nullptr)
 		{
 			if (++index >= (int)mDesc->mItems.Size()) index = 0;
-			auto next = new ImageScreen(&mDesc->mItems[index]);
+			auto next = newImageScreen(&mDesc->mItems[index]);
 			next->canAnimate = canAnimate;
 			if (!pageTransition.StartTransition(mCurrent, next, MA_Advance))
 			{

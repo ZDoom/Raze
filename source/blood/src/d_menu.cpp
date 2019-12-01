@@ -381,7 +381,7 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 	int height;
 	// font #1, tile #2038.
 	viewGetFontInfo(1, NULL, NULL, &height);
-	rotatesprite(int(origin.X * 65536) + 320 << 15, 20 << 16, 65536, 0, 2038, -128, 0, 78, 0, 0, xdim - 1, ydim - 1);
+	rotatesprite(int(origin.X * 65536) + (320 << 15), 20 << 16, 65536, 0, 2038, -128, 0, 78, 0, 0, xdim - 1, ydim - 1);
 	viewDrawText(1, text, 160, 20 - height / 2, -128, 0, 1, false);
 }
 

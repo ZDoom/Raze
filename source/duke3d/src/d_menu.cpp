@@ -330,7 +330,7 @@ protected:
 
 	void PreDraw() override
 	{
-		CallScript(CurrentMenu == this ? EVENT_DISPLAYMENU : EVENT_DISPLAYMENUREST, true);
+		CallScript(CurrentMenu == this ? EVENT_DISPLAYMENU : EVENT_DISPLAYINACTIVEMENU, true);
 		Super::PreDraw();
 	}
 
@@ -366,6 +366,56 @@ class DukeMainMenu : public DukeListMenu
 
 //----------------------------------------------------------------------------
 //
+// Hack to display Ion Fury's credits screens
+//
+//----------------------------------------------------------------------------
+
+class DukeImageScreen : public ImageScreen
+{
+public:
+	DukeImageScreen(FImageScrollerDescriptor::ScrollerItem* desc)
+		: ImageScreen(desc)
+	{}
+
+	void CallScript(int event, bool getorigin = false)
+	{
+		ud.returnvar[0] = int(origin.X * 65536);
+		ud.returnvar[1] = int(origin.Y * 65536);
+		ud.returnvar[2] = 0;
+		VM_OnEventWithReturn(event, g_player[screenpeek].ps->i, screenpeek, mDesc->scriptID);
+		if (getorigin)
+		{
+			origin.X = ud.returnvar[0] / 65536.;
+			origin.Y = ud.returnvar[1] / 65536.;
+		}
+	}
+
+	void Drawer() override
+	{
+		// Hack alert: The Ion Fury scripts - being true to the entire design here, take the current menu value
+		// not from the passed variable but instead from the global current_menu, so we have to temporarily alter that here.
+		// Ugh. (Talk about "broken by design"...)
+		auto cm = g_currentMenu;
+		g_currentMenu = mDesc->scriptID;
+		auto o = origin;
+		CallScript(EVENT_DISPLAYMENU, true);
+		ImageScreen::Drawer();
+		CallScript(EVENT_DISPLAYMENUREST, false);
+		g_currentMenu = cm;
+		origin = o;
+	}
+};
+
+class DDukeImageScrollerMenu : public DImageScrollerMenu
+{
+	ImageScreen* newImageScreen(FImageScrollerDescriptor::ScrollerItem* desc) override
+	{
+		return new DukeImageScreen(desc);
+	}
+};
+
+//----------------------------------------------------------------------------
+//
 // Menu related game interface functions
 //
 //----------------------------------------------------------------------------
@@ -390,7 +440,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 
 	int32_t const height = font.get_yline();
 	status |= MT_YCenter;
-	int32_t const y_internal = ypos + ((height >> 17) << 16);// -menu->scrollPos;
+	int32_t const y_internal = int(ypos * 65536) + ((height >> 17) << 16);// -menu->scrollPos;
 
 	vec2_t textsize;
 	if (dodraw)
@@ -720,10 +770,12 @@ END_DUKE_NS
 static TMenuClassDescriptor<Duke::DukeMainMenu> _mm("Duke.MainMenu");
 static TMenuClassDescriptor<Duke::DukeListMenu> _lm("Duke.ListMenu");
 static TMenuClassDescriptor<Duke::DukeNewGameCustomSubMenu> _ngcsm("Duke.NewGameCustomSubMenu");
+static TMenuClassDescriptor<Duke::DDukeImageScrollerMenu> _ism("Duke.ImageScrollerMenu");
 
 void RegisterDukeMenus()
 {
 	menuClasses.Push(&_mm);
 	menuClasses.Push(&_lm);
 	menuClasses.Push(&_ngcsm);
+	menuClasses.Push(&_ism);
 }

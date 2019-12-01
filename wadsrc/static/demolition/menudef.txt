@@ -397,20 +397,25 @@ LISTMENU "MultiMenu"
 
 ImageScroller "HelpMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Fury)
 	{
 		ImageItem "TEXTSTORY", 400
 		ImageItem "F1HELP", 401
+		class "Duke.ImageScrollerMenu"
+		ifgame(Duke, Nam, WW2GI)
+		{
+			animatedtransition
+		}
+	}
+	ifgame(Redneck, RedneckRides)
+	{
+		ImageItem "TEXTSTORY"
+		ImageItem "F1HELP"
 		ifgame(RedneckRides)
 		{
 			ImageItem "RRTILE1636"
 		}
 		animatedtransition
-	}
-	ifgame(fury)
-	{
-		ImageItem "TEXTSTORY", 400
-		ImageItem "F1HELP", 401
 	}
 	ifgame(blood)
 	{
@@ -452,12 +457,14 @@ ImageScroller "CreditsMenu"
 		ImageItem "CREDITSTEXT2", 991
 		ImageItem "CREDITSTEXT3", 992
 		animatedtransition
+		class "Duke.ImageScrollerMenu"
 	}
 	ifgame(fury)
 	{
 		// Ion Fury does not have a separate credits menu, so if someone tries to open it anyway, use the same screens as "Help" but start on the one for the credits.
 		ImageItem "F1HELP", 401
 		ImageItem "TEXTSTORY", 400
+		class "Duke.ImageScrollerMenu"
 	}
 	ifgame(Redneck)
 	{

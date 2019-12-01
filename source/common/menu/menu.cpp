@@ -534,7 +534,6 @@ bool M_SetMenu(FName menu, int param, FName caller)
 				}
 				newmenu->Init(DMenu::CurrentMenu, ld);
 				M_ActivateMenu(newmenu);
-				return true;
 			}
 		}
 		else if ((*desc)->mType == MDESC_OptionsMenu)
@@ -549,11 +548,25 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		else if ((*desc)->mType == MDESC_ImageScroller)
 		{
 			FImageScrollerDescriptor* ld = static_cast<FImageScrollerDescriptor*>(*desc);
-			if (ld->mItems.Size() > 0) // only open the submenu if it isn't empty.
+			DImageScrollerMenu* newmenu;
+			if (ld->mClass != NAME_None)
 			{
-				DImageScrollerMenu* newmenu = new DImageScrollerMenu(DMenu::CurrentMenu, ld);
-				M_ActivateMenu(newmenu);
+				auto ndx = menuClasses.FindEx([=](const auto p) { return p->mName == ld->mClass; });
+				if (ndx == menuClasses.Size())
+				{
+					I_Error("Bad menu class %s\n", ld->mClass.GetChars());
+				}
+				else
+				{
+					newmenu = (DImageScrollerMenu*)menuClasses[ndx]->CreateNew();
+				}
 			}
+			else
+			{
+				newmenu = new DImageScrollerMenu;
+			}
+			newmenu->Init(DMenu::CurrentMenu, ld);
+			M_ActivateMenu(newmenu);
 		}
 		return true;
 	}
