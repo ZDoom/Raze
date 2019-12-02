@@ -39,65 +39,6 @@ void MNU_DrawSmallString(short x, short y, const char* string, short shade, shor
 void MNU_MeasureStringLarge(const char* string, short* w, short* h);
 void MNU_DrawStringLarge(short x, short y, const char* string, int shade = 0);
 
-
-#if 0
-
-typedef enum
-{
-    ct_mainmenu, ct_savemenu, ct_loadmenu, ct_soundmenu, ct_optionmenu, ct_quickloadmenu,
-    ct_quitmenu, ct_ordermenu, ct_episodemenu, ct_max
-} CTLType;
-
-extern SWBOOL UsingMenus;
-extern int SENSITIVITY;
-extern CTLType ControlPanelType;
-extern int16_t MenuTextShade;
-extern int16_t MenuTextPalette;
-
-// Prototypes
-//void MNU_DoMenu( CTLType type, PLAYERp pp );
-void MNU_InitMenus(void);
-//void (*CustomRefresh)(void);
-//void MNU_Refresh( void );
-void MNU_DrawMenu(void);    // This is used in drawscreen to refresh menus in
-// multiplay situations.
-void MNU_CheckForMenus(void);
-void MNU_CheckForMenusAnyKey(void);
-
-// Functions from my other engine
-//void Get_Palette (unsigned char *pal);
-//void Set_Palette(unsigned char *buff);
-//void Fade_Timer(int clicks);
-void FadeIn(unsigned char targetcolor, unsigned int clicks);
-void FadeOut(unsigned char targetcolor, unsigned int clicks);
-void ResetPalette(PLAYERp pp);
-
-void ExitMenus(void);
-void ResetMenuInput(void);
-
-extern SWBOOL BorderAdjust;
-
-// Make memcpy an intrinsic function for an easy frame rate boost
-//#pragma intrinsic( memcpy );
-
-// L O C A L   V A R I A B L E S ////////////////////////////////////////////////////////////////
-
-// Default menu pic brightness
-#define m_defshade      2
-
-#define FLASHTIME       60      // One second per icon flash
-
-// Defines for permanentwritesprite clipping box
-#define M_CX1   0
-#define M_CY1   0
-#define M_CX2   319
-#define M_CY2   199
-
-#define asc_Esc         27
-#define asc_Enter       13
-#define asc_Space       32
-
-
 #define pic_none 0
 #define pic_radiobuttn1 2816
 #define pic_radiobuttn2 2817
@@ -149,6 +90,69 @@ extern SWBOOL BorderAdjust;
 #define pic_loadsavescreenbak 2922
 #define pic_savedescr 2924
 #define pic_shadow_warrior 2366
+
+#define m_defshade      2
+#define MenuDrawFlags (ROTATE_SPRITE_SCREEN_CLIP)
+extern SWBOOL LoadGameOutsideMoveLoop;
+
+
+#if 0
+
+typedef enum
+{
+    ct_mainmenu, ct_savemenu, ct_loadmenu, ct_soundmenu, ct_optionmenu, ct_quickloadmenu,
+    ct_quitmenu, ct_ordermenu, ct_episodemenu, ct_max
+} CTLType;
+
+extern SWBOOL UsingMenus;
+extern int SENSITIVITY;
+extern CTLType ControlPanelType;
+extern int16_t MenuTextShade;
+extern int16_t MenuTextPalette;
+
+// Prototypes
+//void MNU_DoMenu( CTLType type, PLAYERp pp );
+void MNU_InitMenus(void);
+//void (*CustomRefresh)(void);
+//void MNU_Refresh( void );
+void MNU_DrawMenu(void);    // This is used in drawscreen to refresh menus in
+// multiplay situations.
+void MNU_CheckForMenus(void);
+void MNU_CheckForMenusAnyKey(void);
+
+// Functions from my other engine
+//void Get_Palette (unsigned char *pal);
+//void Set_Palette(unsigned char *buff);
+//void Fade_Timer(int clicks);
+void FadeIn(unsigned char targetcolor, unsigned int clicks);
+void FadeOut(unsigned char targetcolor, unsigned int clicks);
+void ResetPalette(PLAYERp pp);
+
+void ExitMenus(void);
+void ResetMenuInput(void);
+
+extern SWBOOL BorderAdjust;
+
+// Make memcpy an intrinsic function for an easy frame rate boost
+//#pragma intrinsic( memcpy );
+
+// L O C A L   V A R I A B L E S ////////////////////////////////////////////////////////////////
+
+// Default menu pic brightness
+
+#define FLASHTIME       60      // One second per icon flash
+
+// Defines for permanentwritesprite clipping box
+#define M_CX1   0
+#define M_CY1   0
+#define M_CX2   319
+#define M_CY2   199
+
+#define asc_Esc         27
+#define asc_Enter       13
+#define asc_Space       32
+
+
 
 // This is the current values set with all slider bar functions
 #define SENSE_DEFAULT   10  // Default mouse sensitivity ** should be 5!!!
@@ -226,7 +230,6 @@ enum
 typedef int MenuFlags;
 
 #define MenuSelectFlags (mf_pushed | mf_selected | mf_disabled)
-#define MenuDrawFlags (ROTATE_SPRITE_SCREEN_CLIP)
 
 typedef enum
 {

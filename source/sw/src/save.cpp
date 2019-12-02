@@ -221,7 +221,8 @@ int LoadSymCodeInfo(MFILE_READ fil, void **ptr)
 }
 
 
-int SaveGame(short save_num)
+
+bool GameInterface::SaveGame(FSaveGameNode *sv)
 {
     MFILE_WRITE fil;
     int i,j;
@@ -247,15 +248,12 @@ int SaveGame(short save_num)
     Saveable_Init();
 	
 	
-	FStringf base("save%04d", save_num);
-	auto game_name = G_BuildSaveName(base);
+	auto game_name = G_BuildSaveName(sv->Filename);
 	OpenSaveGameForWrite(game_name);
-	G_WriteSaveHeader(SaveGameDescr[save_num], LevelInfo[Level].LevelName, LevelInfo[Level].Description);
+	G_WriteSaveHeader(sv->SaveTitle, LevelInfo[Level].LevelName, LevelInfo[Level].Description);
 	fil = WriteSavegameChunk("snapshot.sw");
 
     MWRITE(&GameVersion,sizeof(GameVersion),1,fil);
-
-    MWRITE(SaveGameDescr[save_num],sizeof(SaveGameDescr[save_num]),1,fil);
 
     MWRITE(&Level,sizeof(Level),1,fil);
     MWRITE(&Skill,sizeof(Skill),1,fil);
@@ -693,78 +691,17 @@ int SaveGame(short save_num)
     //MWRITE(&Zombies, sizeof(Zombies), 1, fil);
 
     MCLOSE_WRITE(fil);
+	if (!saveisshot)
+		return FinishSavegameWrite();
 
-    ////DSPRINTF(ds, "done saving");
-    //MONO_PRINT(ds);
-
-    if (saveisshot)
-        CON_Message("There was a problem saving. See \"Save Help\" section of release notes.");
-
-    return saveisshot ? -1 : 0;
-}
-
-int LoadGameFullHeader(short save_num, char *descr, short *level, short *skill)
-{
-#if 0 // only used by the menu. Will go away soon.
-    MFILE_READ fil;
-    char game_name[256];
-    short tile;
-    int ver;
-
-	snprintf(game_name, 256, "%sgame%d.sav", M_GetSavegamesPath().GetChars(), save_num);
-	if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
-        return -1;
-
-    MREAD(&ver,sizeof(ver),1,fil);
-    if (ver != GameVersion)
-    {
-        MCLOSE_READ(fil);
-        return -1;
-    }
-
-    MREAD(descr, sizeof(SaveGameDescr[0]), 1,fil);
-
-    MREAD(level,sizeof(*level),1,fil);
-    MREAD(skill,sizeof(*skill),1,fil);
-
-    tile = ScreenLoadSaveSetup(Player + myconnectindex);
-    ScreenLoad(fil);
-
-    MCLOSE_READ(fil);
-
-    return tile;
-#else
-	return 0;
-#endif
-}
-
-void LoadGameDescr(short save_num, char *descr)
-{
-#if 0
-    MFILE_READ fil;
-    char game_name[256];
-    short tile;
-    int ver;
-
-	snprintf(game_name, 256, "%sgame%d.sav", M_GetSavegamesPath().GetChars(), save_num);
-	if ((fil = MOPEN_READ(game_name)) == MOPEN_READ_ERR)
-        return;
-
-    MREAD(&ver,sizeof(ver),1,fil);
-    if (ver != GameVersion)
-    {
-        MCLOSE_READ(fil);
-        return;
-    }
-
-    MREAD(descr, sizeof(SaveGameDescr[0]),1,fil);
-
-    MCLOSE_READ(fil);
-#endif
+    return false;
 }
 
 
-int LoadGame(short save_num)
+extern SWBOOL LoadGameOutsideMoveLoop;
+extern SWBOOL InMenuLevel;
+
+bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
     MFILE_READ fil;
     int i,j,saveisshot=0;
@@ -786,23 +723,23 @@ int LoadGame(short save_num)
     int StateStartNdx;
     int StateNdx;
     int StateEndNdx;
-    extern SWBOOL InMenuLevel;
+
+	if (!InMenuLevel) PauseAction();
 
     Saveable_Init();
 
-	FStringf base("save%04d", save_num);
-	auto game_name = G_BuildSaveName(base);
+	auto game_name = G_BuildSaveName(sv->Filename);
 	OpenSaveGameForRead(game_name);
 
 	auto filr = ReadSavegameChunk("snapshot.sw");
-	if (!filr.isOpen()) return -1;
+	if (!filr.isOpen()) return false;
 	fil = &filr;
 
     MREAD(&i,sizeof(i),1,fil);
     if (i != GameVersion)
     {
         MCLOSE_READ(fil);
-        return -1;
+        return false;
     }
 
     // Don't terminate until you've made sure conditions are valid for loading.
@@ -813,8 +750,6 @@ int LoadGame(short save_num)
     Terminate3DSounds();
 
     Terminate3DSounds();
-
-    MREAD(SaveGameDescr[save_num], sizeof(SaveGameDescr[save_num]),1,fil);
 
     MREAD(&Level,sizeof(Level),1,fil);
     MREAD(&Skill,sizeof(Skill),1,fil);
@@ -855,7 +790,7 @@ int LoadGame(short save_num)
         saveisshot |= LoadSymCodeInfo(fil, (void **)&pp->DoPlayerAction);
         saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop_control);
         saveisshot |= LoadSymDataInfo(fil, (void **)&pp->sop_riding);
-        if (saveisshot) { MCLOSE_READ(fil); return -1; }
+        if (saveisshot) { MCLOSE_READ(fil); return false; }
     }
 
 
@@ -887,12 +822,12 @@ int LoadGame(short save_num)
             saveisshot |= LoadSymDataInfo(fil, (void **)&psp->ActionState);
             saveisshot |= LoadSymDataInfo(fil, (void **)&psp->RestState);
             saveisshot |= LoadSymCodeInfo(fil, (void **)&psp->PanelSpriteFunc);
-            if (saveisshot) { MCLOSE_READ(fil); return -1; }
+            if (saveisshot) { MCLOSE_READ(fil); return false; }
 
             for (j = 0; j < (int)SIZ(psp->over); j++)
             {
                 saveisshot |= LoadSymDataInfo(fil, (void **)&psp->over[j].State);
-                if (saveisshot) { MCLOSE_READ(fil); return -1; }
+                if (saveisshot) { MCLOSE_READ(fil); return false; }
             }
 
         }
@@ -982,7 +917,7 @@ int LoadGame(short save_num)
         saveisshot |= LoadSymDataInfo(fil, (void **)&u->SpriteP);
         saveisshot |= LoadSymDataInfo(fil, (void **)&u->PlayerP);
         saveisshot |= LoadSymDataInfo(fil, (void **)&u->tgt_sp);
-        if (saveisshot) { MCLOSE_READ(fil); return -1; }
+        if (saveisshot) { MCLOSE_READ(fil); return false; }
 
         MREAD(&SpriteNum,sizeof(SpriteNum),1,fil);
     }
@@ -998,7 +933,7 @@ int LoadGame(short save_num)
         saveisshot |= LoadSymCodeInfo(fil, (void **)&sop->Animator);
         saveisshot |= LoadSymDataInfo(fil, (void **)&sop->controller);
         saveisshot |= LoadSymDataInfo(fil, (void **)&sop->sp_child);
-        if (saveisshot) { MCLOSE_READ(fil); return -1; }
+        if (saveisshot) { MCLOSE_READ(fil); return false; }
     }
 
     MREAD(SineWaveFloor, sizeof(SineWaveFloor),1,fil);
@@ -1071,7 +1006,7 @@ int LoadGame(short save_num)
 
         saveisshot |= LoadSymCodeInfo(fil, (void **)&a->callback);
         saveisshot |= LoadSymDataInfo(fil, (void **)&a->callbackdata);
-        if (saveisshot) { MCLOSE_READ(fil); return -1; }
+        if (saveisshot) { MCLOSE_READ(fil); return false; }
     }
 #else
     AnimCnt = 0;
@@ -1091,7 +1026,7 @@ int LoadGame(short save_num)
         saveisshot |= LoadSymDataInfo(fil, (void **)&a->ptr);
         saveisshot |= LoadSymCodeInfo(fil, (void **)&a->callback);
         saveisshot |= LoadSymDataInfo(fil, (void **)&a->callbackdata);
-        if (saveisshot) { MCLOSE_READ(fil); return -1; }
+        if (saveisshot) { MCLOSE_READ(fil); return false; }
     }
 #endif
 #endif
@@ -1120,7 +1055,7 @@ int LoadGame(short save_num)
     MREAD(bakipos,sizeof(bakipos),1,fil);
     for (i = numinterpolations - 1; i >= 0; i--)
         saveisshot |= LoadSymDataInfo(fil, (void **)&curipos[i]);
-    if (saveisshot) { MCLOSE_READ(fil); return -1; }
+    if (saveisshot) { MCLOSE_READ(fil); return false; }
 
     // short interpolations
     MREAD(&short_numinterpolations,sizeof(short_numinterpolations),1,fil);
@@ -1129,7 +1064,7 @@ int LoadGame(short save_num)
     MREAD(short_bakipos,sizeof(short_bakipos),1,fil);
     for (i = short_numinterpolations - 1; i >= 0; i--)
         saveisshot |= LoadSymDataInfo(fil, (void **)&short_curipos[i]);
-    if (saveisshot) { MCLOSE_READ(fil); return -1; }
+    if (saveisshot) { MCLOSE_READ(fil); return false; }
 
     // parental lock
     for (i = 0; i < (int)SIZ(otlist); i++)
@@ -1311,7 +1246,12 @@ int LoadGame(short save_num)
     DoPlayerDivePalette(Player+myconnectindex);
     DoPlayerNightVisionPalette(Player+myconnectindex);
 
-    return 0;
+
+	ExitLevel = TRUE;
+	LoadGameOutsideMoveLoop = TRUE;
+
+	if (!InMenuLevel) ready2send = 1;
+    return true;
 }
 
 void

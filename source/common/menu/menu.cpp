@@ -55,6 +55,7 @@
 void RegisterDukeMenus();
 void RegisterRedneckMenus();
 void RegisterBloodMenus();
+void RegisterSWMenus();
 void RegisterLoadsaveMenus();
 extern bool rotatesprite_2doverride;
 bool help_disabled, credits_disabled;
@@ -913,6 +914,7 @@ void M_Init (void)
 	RegisterDukeMenus();
 	RegisterRedneckMenus();
 	RegisterBloodMenus();
+	RegisterSWMenus();
 	RegisterLoadsaveMenus();
 	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();

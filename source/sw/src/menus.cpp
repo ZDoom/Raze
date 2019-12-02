@@ -634,6 +634,36 @@ void DoPaletteFlash(PLAYERp pp)
 }
 
 
+SWBOOL MNU_ShareWareMessage()
+{
+	const char* extra_text;
+	short w, h;
+
+	if (SW_SHAREWARE)
+	{
+		extra_text = "Be sure to call 800-3DREALMS today";
+		MNU_MeasureString(extra_text, &w, &h);
+		MNU_DrawString(TEXT_XCENTER(w), 110, extra_text, 1, 16);
+		extra_text = "and order the game.";
+		MNU_MeasureString(extra_text, &w, &h);
+		MNU_DrawString(TEXT_XCENTER(w), 120, extra_text, 1, 16);
+		extra_text = "You are only playing the first ";
+		MNU_MeasureString(extra_text, &w, &h);
+		MNU_DrawString(TEXT_XCENTER(w), 130, extra_text, 1, 16);
+		extra_text = "four levels, and are missing most";
+		MNU_MeasureString(extra_text, &w, &h);
+		MNU_DrawString(TEXT_XCENTER(w), 140, extra_text, 1, 16);
+		extra_text = "of the game, weapons and monsters.";
+		MNU_MeasureString(extra_text, &w, &h);
+		MNU_DrawString(TEXT_XCENTER(w), 150, extra_text, 1, 16);
+		extra_text = "See the ordering information.";
+		MNU_MeasureString(extra_text, &w, &h);
+		MNU_DrawString(TEXT_XCENTER(w), 160, extra_text, 1, 16);
+		//SET(item->flags, mf_disabled);
+	}
+	return TRUE;
+}
+
 
 # if 0
 
@@ -2105,47 +2135,6 @@ ExitMenus(void)
 }
 
 SWBOOL
-MNU_StartGame(void)
-{
-    PLAYERp pp = Player + screenpeek;
-    int handle = 0;
-    int zero = 0;
-
-    // always assumed that a demo is playing
-
-    ready2send = 0;
-    Skill = currentmenu->cursor;
-
-    if (EpisodeMenuSelection >= 1)
-        Level = 5;
-    else
-        Level = 1;
-
-    ExitMenus();
-    DemoPlaying = FALSE;
-    ExitLevel = TRUE;
-    NewGame = TRUE;
-    DemoMode = FALSE;
-    CameraTestMode = FALSE;
-
-    //InitNewGame();
-
-    if (Skill == 0)
-        handle = PlaySound(DIGI_TAUNTAI3,&zero,&zero,&zero,v3df_none);
-    else if (Skill == 1)
-        handle = PlaySound(DIGI_NOFEAR,&zero,&zero,&zero,v3df_none);
-    else if (Skill == 2)
-        handle = PlaySound(DIGI_WHOWANTSWANG,&zero,&zero,&zero,v3df_none);
-    else if (Skill == 3)
-        handle = PlaySound(DIGI_NOPAIN,&zero,&zero,&zero,v3df_none);
-
-    if (handle > FX_Ok)
-        while (FX_SoundActive(handle))
-            handleevents();
-
-    return TRUE;
-}
-
 void ResetMenuInput(void)
 {
     cust_callback = NULL;
@@ -4536,11 +4525,6 @@ void ResetPalette(PLAYERp pp)
 
 #endif
 // vim:ts=4:sw=4:enc=utf-8:
-
-FSavegameInfo GameInterface::GetSaveSig()
-{
-	return { SAVESIG_SW, MINSAVEVER_SW, SAVEVER_SW };
-}
 
 
 END_SW_NS

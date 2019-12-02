@@ -102,6 +102,7 @@ set( PCH_SOURCES
 	src/zilla.cpp
 	src/zombie.cpp
 	src/swcvar.cpp
+	src/d_menu.cpp
 )
 
 

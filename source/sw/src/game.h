@@ -2381,7 +2381,18 @@ struct GameInterface : ::GameInterface
 	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
+	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
+	void MenuOpened() override;
+	void MenuSound(EMenuSounds snd) override;
+	void MenuClosed() override;
+	bool CanSave() override;
+	void StartGame(FGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
+	void DrawMenuCaption(const DVector2& origin, const char* text) override;
+	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position) override;
+	bool LoadGame(FSaveGameNode* sv) override;
+	bool SaveGame(FSaveGameNode* sv) override;
+
 };
 
 
