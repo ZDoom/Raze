@@ -69,7 +69,7 @@ void InitBubbles()
         nBubblesFree[i] = i;
     }
 
-    nFreeCount = 0;
+    nFreeCount = kMaxBubbles;
 }
 
 void DestroyBubble(short nBubble)
