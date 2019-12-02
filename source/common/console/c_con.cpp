@@ -37,6 +37,7 @@
 #include "basics.h"
 #include "zstring.h"
 #include "c_bind.h"
+#include "control.h"
 #include "gamecontrol.h"
 
 //=============================================================================

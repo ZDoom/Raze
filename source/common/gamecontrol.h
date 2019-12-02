@@ -42,8 +42,6 @@ void CONFIG_SetupJoystick(void);
 void CONFIG_WriteControllerSettings();
 void CONFIG_InitMouseAndController();
 
-void CONFIG_SetGameControllerDefaultsStandard();
-void CONFIG_SetGameControllerDefaultsPro();
 void CONFIG_SetGameControllerDefaultsClear();
 
 extern FStringCVar* const CombatMacros[];
