@@ -54,7 +54,7 @@ void menu_DoPlasma();
 int menu_Menu(int val);
 void menu_AdjustVolume();
 short menu_GameLoad(int nSlot);
-void menu_GameLoad2(FILE *fp);
+void menu_GameLoad2(FILE *fp, bool bIsDemo = false);
 void menu_GameSave2(FILE *fp);
 void menu_GameSave(int nSaveSlot);
 

@@ -1441,6 +1441,10 @@ void FinishLevel()
     }
 }
 
+EDUKE32_STATIC_ASSERT(sizeof(demo_header) == 75);
+EDUKE32_STATIC_ASSERT(sizeof(demo_input) == 36);
+
+
 void WritePlaybackInputs()
 {
     fwrite(&moveframes, sizeof(moveframes), 1, vcrfp);
@@ -1449,43 +1453,20 @@ void WritePlaybackInputs()
 
 uint8_t ReadPlaybackInputs()
 {
-    assert(sizeof(PlayerInput) == 32);
-
-    if (fread(&moveframes, 1, sizeof(moveframes), vcrfp))
+    demo_input input;
+    if (fread(&input, 1, sizeof(input), vcrfp))
     {
-#if 0
-        fread(&sPlayerInput[nLocalPlayer], 1, sizeof(PlayerInput), vcrfp);
-#else
-        /*
-        struct PlayerInput
-        {
-            int xVel;
-            int yVel;
-            short nAngle;
-            short buttons;
-            short nTarget;
-            char horizon;
-            int8_t nItem;
-            int h;
-            char i;
-            char field_15[11];
-        };
-        */
-        fread(&sPlayerInput[nLocalPlayer].xVel,    1, sizeof(sPlayerInput[nLocalPlayer].xVel), vcrfp);
-        fread(&sPlayerInput[nLocalPlayer].yVel,    1, sizeof(sPlayerInput[nLocalPlayer].yVel), vcrfp);
-        fread(&sPlayerInput[nLocalPlayer].nAngle,  1, sizeof(sPlayerInput[nLocalPlayer].nAngle), vcrfp);
-        fread(&sPlayerInput[nLocalPlayer].buttons, 1, sizeof(sPlayerInput[nLocalPlayer].buttons), vcrfp);
-        fread(&sPlayerInput[nLocalPlayer].nTarget, 1, sizeof(sPlayerInput[nLocalPlayer].nTarget), vcrfp);
-        fread(&sPlayerInput[nLocalPlayer].horizon, 1, sizeof(sPlayerInput[nLocalPlayer].horizon), vcrfp);
-        fread(&sPlayerInput[nLocalPlayer].nItem,   1, sizeof(sPlayerInput[nLocalPlayer].nItem), vcrfp);
-        fread(&sPlayerInput[nLocalPlayer].h,       1, sizeof(sPlayerInput[nLocalPlayer].h), vcrfp);
-        fread(&sPlayerInput[nLocalPlayer].i,       1, sizeof(sPlayerInput[nLocalPlayer].i), vcrfp);
+        moveframes = input.moveframes;
+        sPlayerInput[nLocalPlayer].xVel = input.xVel;
+        sPlayerInput[nLocalPlayer].yVel = input.yVel;
+        sPlayerInput[nLocalPlayer].nAngle = fix16_from_int(input.nAngle<<2);
+        sPlayerInput[nLocalPlayer].buttons = input.buttons;
+        sPlayerInput[nLocalPlayer].nTarget = input.nTarget;
+        sPlayerInput[nLocalPlayer].horizon = fix16_from_int(input.horizon);
+        sPlayerInput[nLocalPlayer].nItem = input.nItem;
+        sPlayerInput[nLocalPlayer].h = input.h;
+        sPlayerInput[nLocalPlayer].i = input.i;
 
-        // skip pad
-        fseek(vcrfp, 11, SEEK_CUR);
-
-
-#endif
         besttarget = sPlayerInput[nLocalPlayer].nTarget;
         Ra[nLocalPlayer].nTarget = besttarget;
         return kTrue;
@@ -2149,7 +2130,7 @@ STARTGAME2:
 
     if (bPlayback)
     {
-        menu_GameLoad2(vcrfp);
+        menu_GameLoad2(vcrfp, true);
         levelnew = GameStats.nMap;
         levelnum = GameStats.nMap;
         forcelevel = GameStats.nMap;
@@ -2327,7 +2308,7 @@ LOOP3:
             if (bPlayback)
             {
                 // YELLOW
-                if ((bInDemo && inputState.keyBufferWaiting() || !ReadPlaybackInputs()) && inputState.keyGetChar())
+                if (((bInDemo && inputState.keyBufferWaiting()) || !ReadPlaybackInputs()) && inputState.keyGetChar())
                 {
                     inputState.keyFlushChars();
                     inputState.ClearAllKeyStatus();
