@@ -65,6 +65,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "vis.h"
 #include "track.h"
 #include "interp.h"
+#include "menu/menu.h"
 
 BEGIN_SW_NS
 
@@ -2414,7 +2415,7 @@ MoveScrollMode2D(PLAYERp pp)
 
     mfsvel = mfvel = 0;
 
-    if (MenuInputMode || UsingMenus)
+    if (M_Active())
         return;
 
     // Recenter view if told
@@ -2476,7 +2477,7 @@ MoveScrollMode2D(PLAYERp pp)
         }
     }
 
-    if (!UsingMenus && !HelpInputMode && !ConPanel)
+    if (!M_Active() && !HelpInputMode && !ConPanel)
     {
         if (buttonMap.ButtonDown(gamefunc_Move_Forward))
         {
@@ -2520,8 +2521,17 @@ MoveScrollMode2D(PLAYERp pp)
 void
 DoPlayerMenuKeys(PLAYERp pp)
 {
+
     if (!CommEnabled)
     {
+		// Go back to the source to set this - the old code here was catastrophically bad.
+		// this needs to be fixed properly - as it is this can never be compatible with demo playback.
+		if (cl_autoaim)
+			SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+		else
+			RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+
+#if 0
         if (TEST_SYNC_KEY((pp), SK_AUTO_AIM))
         {
             if (FLAG_KEY_PRESSED(pp, SK_AUTO_AIM))
@@ -2532,6 +2542,7 @@ DoPlayerMenuKeys(PLAYERp pp)
         }
         else
             FLAG_KEY_RESET(pp, SK_AUTO_AIM);
+#endif
     }
 }
 
@@ -7660,7 +7671,7 @@ void ChopsCheck(PLAYERp pp)
     extern SWBOOL HelpInputMode;
     extern int ChopTics;
 
-    if (!UsingMenus && !HelpInputMode && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
+    if (!M_Active() && !HelpInputMode && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
         if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.angvel|pp->input.aimvel) ||
             TEST(pp->Flags, PF_CLIMBING|PF_FALLING|PF_DIVING))

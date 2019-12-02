@@ -1497,7 +1497,6 @@ getpackets(void)
             NewGame = TRUE;
             // restart demo for multi-play mode
             DemoInitOnce = FALSE;
-            ResetMenuInput();
 
             // send a dummy packet to see when it arrives
             //tempbuf[0] = PACKET_TYPE_DUMMY;

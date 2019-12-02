@@ -44,6 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "weapon.h"
 #include "fx_man.h"
+#include "menu/menu.h"
 
 BEGIN_SW_NS
 
@@ -67,7 +68,6 @@ int InitFistAttack(PLAYERp pp);
 //#define UK_VERSION TRUE
 
 #define PANF_UZI_XFLIP (BIT(21))
-extern SWBOOL UsingMenus;
 
 #define XDIM 320
 #define YDIM 200
@@ -775,7 +775,7 @@ void PlayerUpdatePanelInfo(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (UsingMenus)
+    if (M_Active())
         return;
 
     PlayerUpdateHealth(pp, 0);

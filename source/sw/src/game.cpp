@@ -95,6 +95,7 @@ Things required to make savegames work:
 #include "printf.h"
 #include "m_argv.h"
 #include "debugbreak.h"
+#include "menu/menu.h"
 
 //#include "crc32.h"
 
@@ -105,6 +106,8 @@ signed char MNU_InputSmallString(char*, short);
 signed char MNU_InputString(char*, short);
 SWBOOL IsCommand(const char* str);
 SWBOOL MNU_StartNetGame(void);
+
+extern SWBOOL MultiPlayQuitFlag;
 
 
 #if DEBUG
@@ -1819,7 +1822,7 @@ TitleLevel(void)
             //MNU_CheckForMenusAnyKey();
         }
 
-        //if (UsingMenus)
+        //if (M_Active())
         //    MNU_DrawMenu();
 
         //drawscreen as fast as you can
@@ -1941,7 +1944,8 @@ void MenuLevel(void)
         if (FinishAnim)
         {
 			inputState.ClearKeyStatus(sc_Escape);
-			ControlPanelType = ct_ordermenu;
+			M_StartControlPanel(false);
+			M_SetMenu(NAME_CreditsMenu);
             FinishAnim = 0;
         }
     }
@@ -1960,7 +1964,6 @@ void MenuLevel(void)
         if (totalclock >= ototalclock + synctics)
         {
             ototalclock += synctics;
-            MNU_CheckForMenusAnyKey();
             if (CommEnabled)
                 getpackets();
         }
@@ -1998,10 +2001,9 @@ void MenuLevel(void)
         }
 
         // force the use of menus at all time
-        if (!UsingMenus && !ConPanel)
+        if (!M_Active() && !ConPanel)
         {
 			inputState.SetKeyStatus(sc_Escape);
-            MNU_CheckForMenusAnyKey();
         }
 
         // must lock the clock for drawing so animations will happen
@@ -2010,9 +2012,6 @@ void MenuLevel(void)
         //drawscreen as fast as you can
         DrawMenuLevelScreen();
 
-        if (UsingMenus)
-            MNU_DrawMenu();
-
         videoNextPage();
     }
 
@@ -2020,8 +2019,7 @@ void MenuLevel(void)
     //LoadGameOutsideMoveLoop = FALSE;
 	inputState.ClearKeyStatus(sc_Escape);
 	inputState.ClearKeysDown();
-    //ExitMenus();
-    UsingMenus = FALSE;
+	M_ClearMenus();
     InMenuLevel = FALSE;
     videoClearViewableArea(0L);
     videoNextPage();
@@ -2270,7 +2268,7 @@ void BonusScreen(PLAYERp pp)
         rotatesprite(0, 0, RS_SCALE, 0, 5120, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
         rotatesprite(158<<16, 86<<16, RS_SCALE, 0, State->Pic, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
         videoNextPage();
-        FadeIn(0,0);
+        //FadeIn(0,0);
     }
 
     BonusDone = FALSE;
@@ -2375,7 +2373,7 @@ void BonusScreen(PLAYERp pp)
 void EndGameSequence(void)
 {
     SWBOOL anim_ok = TRUE;
-    FadeOut(0, 5);
+    //FadeOut(0, 5);
 
     if ((adult_lockout || Global_PLock) && FinishAnim == ANIM_SUMO)
         anim_ok = FALSE;
@@ -2442,7 +2440,7 @@ void StatScreen(PLAYERp mpp)
     // No stats in bot games
     //if (BotMode) return;
 
-    ResetPalette(mpp);
+    //ResetPalette(mpp);
     COVER_SetReverb(0); // Reset reverb
     StopSound();
 
@@ -2628,7 +2626,7 @@ void Control()
 	InitGame();
 
     MONO_PRINT("InitGame done");
-    MNU_InitMenus();
+    //MNU_InitMenus();
     InGame = TRUE;
     GameIntro();
 
@@ -2744,9 +2742,6 @@ void MoveLoop(void)
         //    demosync_record();
 #endif
     }
-
-    if (!InputMode && !PauseKeySet)
-        MNU_CheckForMenus();
 }
 
 
@@ -3179,150 +3174,7 @@ void ManualPlayerDelete(PLAYERp cur_pp)
     }
 }
 
-#if DEBUG
-void SinglePlayInput(PLAYERp pp)
-{
-    int pnum = myconnectindex;
-    uint8_t* kp;
 
-    if (buttonMap.ButtonDown(gamefunc_See_Co_Op_View) && !UsingMenus && !ConPanel && dimensionmode == 3)
-    {
-        short oldscreenpeek = screenpeek;
-
-        buttonMap.ClearButton(gamefunc_See_Co_Op_View);
-
-        screenpeek = connectpoint2[screenpeek];
-
-        if (screenpeek < 0)
-            screenpeek = connecthead;
-
-        if (dimensionmode == 2 || dimensionmode == 5 || dimensionmode == 6)
-            setup2dscreen();
-
-        if (dimensionmode != 2)
-        {
-            PLAYERp tp;
-
-            tp = Player + screenpeek;
-            PlayerUpdatePanelInfo(tp);
-            setpalettefade(0,0,0,0);
-            memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
-            DoPlayerDivePalette(tp);
-            DoPlayerNightVisionPalette(tp);
-//          printf("SingPlayInput set_pal: tp->PlayerSprite = %d\n",tp->PlayerSprite);
-        }
-    }
-
-
-}
-
-void DebugKeys(PLAYERp pp)
-{
-    short w, h;
-
-    if (!(inputState.GetKeyStatus(KEYSC_ALT) || inputState.GetKeyStatus(KEYSC_RALT)))
-        return;
-
-    if (InputMode)
-        return;
-
-    if (CommEnabled)
-        return;
-
-    //
-    // visiblity adjust
-    //
-
-    if (inputState.GetKeyStatus(KEYSC_L) > 0)
-    {
-        if (inputState.GetKeyStatus(KEYSC_LSHIFT) | inputState.GetKeyStatus(KEYSC_RSHIFT))      // SHIFT
-        {
-            g_visibility = g_visibility - (g_visibility >> 3);
-
-            if (g_visibility < 128)
-                g_visibility = 16348;
-
-            //if (g_visibility > 16384)
-            //    g_visibility = 128;
-        }
-        else
-        {
-            inputState.GetKeyStatus(KEYSC_L) = 0;
-
-            g_visibility = g_visibility - (g_visibility >> 3);
-
-            if (g_visibility > 16384)
-                g_visibility = 128;
-        }
-    }
-
-    //
-    // parallax changes
-    //
-
-    if (inputState.GetKeyStatus(KEYSC_X))
-    {
-        if (inputState.GetKeyStatus(KEYSC_LSHIFT))
-        {
-            inputState.GetKeyStatus(KEYSC_LSHIFT) = FALSE;
-            inputState.GetKeyStatus(KEYSC_X) = 0;
-
-            parallaxyoffs_override += 10;
-
-            if (parallaxyoffs_override > 100)
-                parallaxyoffs_override = 0;
-        }
-        else
-        {
-            inputState.GetKeyStatus(KEYSC_X) = 0;
-            parallaxtype++;
-            if (parallaxtype > 2)
-                parallaxtype = 0;
-        }
-    }
-}
-
-#endif
-
-void ConKey(void)
-{
-#if DEBUG
-    // Console Input Panel
-    if (!ConPanel && dimensionmode == 3)
-    {
-        //if (inputState.GetKeyStatus(KEYSC_TILDE) && inputState.GetKeyStatus(KEYSC_LSHIFT))
-        if (inputState.GetKeyStatus(KEYSC_TILDE))
-        {
-            inputState.GetKeyStatus(KEYSC_TILDE) = FALSE;
-            //inputState.GetKeyStatus(KEYSC_LSHIFT) = FALSE;
-            inputState.keyFlushChars();
-            ConPanel = TRUE;
-            InputMode = TRUE;
-            ConInputMode = TRUE;
-            if (!CommEnabled)
-                GamePaused = TRUE;
-            memset(MessageInputString, '\0', sizeof(MessageInputString));
-        }
-    }
-    else if (ConPanel)
-    {
-        //if (inputState.GetKeyStatus(KEYSC_TILDE) && inputState.GetKeyStatus(KEYSC_LSHIFT))
-        if (inputState.GetKeyStatus(KEYSC_TILDE))
-        {
-            inputState.GetKeyStatus(KEYSC_TILDE) = FALSE;
-            //inputState.GetKeyStatus(KEYSC_LSHIFT) = FALSE;
-            inputState.keyFlushChars();
-            ConPanel = FALSE;
-            ConInputMode = FALSE;
-            InputMode = FALSE;
-            if (!CommEnabled)
-                GamePaused = FALSE;
-            memset(MessageInputString, '\0', sizeof(MessageInputString));
-            SetFragBar(Player + myconnectindex);
-        }
-    }
-#endif
-}
 
 char WangBangMacro[10][64];
 
@@ -3398,47 +3250,10 @@ FunctionKeys(PLAYERp pp)
         return;
     }
 
-
-    if (numplayers <= 1)
-    {
-        // F2 save menu
-        if (inputState.GetKeyStatus(KEYSC_F2))
-        {
-			inputState.ClearKeyStatus(KEYSC_F2);
-            if (!TEST(pp->Flags, PF_DEAD))
-            {
-				inputState.SetKeyStatus(sc_Escape);
-				ControlPanelType = ct_savemenu;
-            }
-        }
-
-        // F3 load menu
-        if (inputState.GetKeyStatus(KEYSC_F3))
-        {
-			inputState.ClearKeyStatus(KEYSC_F3);
-			if (!TEST(pp->Flags, PF_DEAD))
-            {
-				inputState.SetKeyStatus(sc_Escape);
-				ControlPanelType = ct_loadmenu;
-            }
-        }
-
-    }
-
-
-    // F4 sound menu
-    if (inputState.GetKeyStatus(KEYSC_F4))
-    {
-		inputState.ClearKeyStatus(KEYSC_F4);
-		inputState.SetKeyStatus(sc_Escape);
-		ControlPanelType = ct_soundmenu;
-    }
-
-
     // F7 VIEW control
-    if (inputState.GetKeyStatus(KEYSC_F7))
+	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
     {
-		inputState.ClearKeyStatus(KEYSC_F7);
+		buttonMap.ClearButton(gamefunc_Third_Person_View);
 
         if (inputState.GetKeyStatus(KEYSC_LSHIFT) || inputState.GetKeyStatus(KEYSC_RSHIFT))
         {
@@ -3459,33 +3274,6 @@ FunctionKeys(PLAYERp pp)
         }
     }
 
-    // F8 toggle messages
-    if (inputState.GetKeyStatus(KEYSC_F8))
-    {
-		inputState.ClearKeyStatus(KEYSC_F8);
-
-        hud_messages = !hud_messages;
-
-        if (hud_messages)
-            PutStringInfoLine(pp, "Messages ON");
-        else
-            PutStringInfoLine(pp, "Messages OFF");
-    }
-
-    // F10 quit menu
-    if (inputState.GetKeyStatus(KEYSC_F10))
-    {
-		inputState.ClearKeyStatus(KEYSC_F10);
-		inputState.SetKeyStatus(sc_Escape);
-		ControlPanelType = ct_quitmenu;
-    }
-
-    // F11 gamma correction
-    if (inputState.GetKeyStatus(KEYSC_F11) > 0)
-    {
-		inputState.ClearKeyStatus(KEYSC_F11);
-		// Do this entirely in the video backend.
-    }
 
 }
 
@@ -3494,7 +3282,7 @@ void PauseKey(PLAYERp pp)
     extern SWBOOL GamePaused,CheatInputMode;
     extern SWBOOL enabled;
 
-    if (inputState.GetKeyStatus(sc_Pause) && !CommEnabled && !InputMode && !UsingMenus && !CheatInputMode && !ConPanel)
+    if (inputState.GetKeyStatus(sc_Pause) && !CommEnabled && !InputMode && !M_Active() && !CheatInputMode && !ConPanel)
     {
 		inputState.ClearKeyStatus(sc_Pause);
 
@@ -3566,6 +3354,7 @@ void GetMessageInput(PLAYERp pp)
             }
         }
     }
+#if 0 // the message input needs to be moved out of the game code!
     else if (MessageInputMode && !ConInputMode)
     {
         if (gs.BorderNum > BORDER_BAR+1)
@@ -3687,141 +3476,7 @@ SEND_MESSAGE:
             break;
         }
     }
-}
-
-void GetConInput(PLAYERp pp)
-{
-    int pnum = myconnectindex;
-    short w,h;
-    static SWBOOL cur_show;
-
-    if (MessageInputMode || HelpInputMode)
-        return;
-
-    ConKey();
-
-    // Console input commands
-    if (ConInputMode && !MessageInputMode)
-    {
-        // get input
-        switch (MNU_InputSmallString(MessageInputString, 250))
-        {
-        case -1: // Cancel Input (pressed ESC) or Err
-            InputMode = FALSE;
-            inputState.ClearKeysDown();
-            inputState.keyFlushChars();
-            memset(MessageInputString, '\0', sizeof(MessageInputString));
-            break;
-        case FALSE: // Input finished (RETURN)
-            if (MessageInputString[0] == '\0')
-            {
-                InputMode = FALSE;
-                inputState.ClearKeysDown();
-                inputState.keyFlushChars();
-                buttonMap.ClearButton(gamefunc_Inventory);
-                memset(MessageInputString, '\0', sizeof(MessageInputString));
-            }
-            else
-            {
-                InputMode = FALSE;
-                inputState.ClearKeysDown();
-                inputState.keyFlushChars();
-                buttonMap.ClearButton(gamefunc_Inventory);
-                CON_ConMessage("%s", MessageInputString);
-                CON_ProcessUserCommand();     // Check to see if it's a cheat or command
-
-                conbot += 6;
-                conbotgoal = conbot;
-                //addconquote(MessageInputString);
-                // Clear it out after every entry
-                memset(MessageInputString, '\0', sizeof(MessageInputString));
-            }
-            break;
-        case TRUE: // Got input
-            break;
-        }
-    }
-}
-
-
-void GetHelpInput(PLAYERp pp)
-{
-    extern SWBOOL GamePaused;
-
-    if (inputState.GetKeyStatus(KEYSC_ALT) || inputState.GetKeyStatus(KEYSC_RALT))
-        return;
-
-    if (inputState.GetKeyStatus(KEYSC_LSHIFT) || inputState.GetKeyStatus(KEYSC_RSHIFT))
-        return;
-
-    if (MessageInputMode || ConInputMode)
-        return;
-
-    // F1 help menu
-    if (!HelpInputMode)
-    {
-        if (inputState.GetKeyStatus(KEYSC_F1))
-        {
-			inputState.ClearKeyStatus(KEYSC_F11);
-			HelpPage = 0;
-            HelpInputMode = TRUE;
-            PanelUpdateMode = FALSE;
-            InputMode = TRUE;
-            if (!CommEnabled)
-                GamePaused = TRUE;
-        }
-    }
-    else if (HelpInputMode)
-    {
-        if (inputState.GetKeyStatus(KEYSC_ESC))
-        {
-			inputState.ClearKeyStatus(sc_Escape);
-			inputState.ClearKeysDown();
-            PanelUpdateMode = TRUE;
-            HelpInputMode = FALSE;
-            InputMode = FALSE;
-            if (!CommEnabled)
-                GamePaused = FALSE;
-            SetRedrawScreen(pp);
-        }
-
-        if (inputState.GetKeyStatus(KEYSC_SPACE) || inputState.GetKeyStatus(KEYSC_ENTER) || inputState.GetKeyStatus(KEYSC_PGDN) || inputState.GetKeyStatus(KEYSC_DOWN) || inputState.GetKeyStatus(KEYSC_RIGHT) || inputState.GetKeyStatus(sc_kpad_3) || inputState.GetKeyStatus(sc_kpad_2) || inputState.GetKeyStatus(sc_kpad_6))
-        {
-			inputState.ClearKeyStatus(KEYSC_SPACE);
-			inputState.ClearKeyStatus(KEYSC_ENTER);
-			inputState.ClearKeyStatus(KEYSC_PGDN);
-			inputState.ClearKeyStatus(KEYSC_DOWN);
-			inputState.ClearKeyStatus(KEYSC_RIGHT);
-			inputState.ClearKeyStatus(sc_kpad_3);
-			inputState.ClearKeyStatus(sc_kpad_2);
-			inputState.ClearKeyStatus(sc_kpad_6);
-
-            HelpPage++;
-            if (HelpPage >= (int)SIZ(HelpPagePic))
-                // CTW MODIFICATION
-                // "Oops! I did it again..."
-                // HelpPage = SIZ(HelpPagePic) - 1;
-                HelpPage = 0;
-            // CTW MODIFICATION END
-        }
-
-        if (inputState.GetKeyStatus(KEYSC_PGUP) || inputState.GetKeyStatus(KEYSC_UP) || inputState.GetKeyStatus(KEYSC_LEFT) || inputState.GetKeyStatus(sc_kpad_9) || inputState.GetKeyStatus(sc_kpad_8) || inputState.GetKeyStatus(sc_kpad_4))
-        {
-			inputState.ClearKeyStatus(KEYSC_PGUP);
-			inputState.ClearKeyStatus(KEYSC_UP);
-			inputState.ClearKeyStatus(KEYSC_LEFT);
-			inputState.ClearKeyStatus(sc_kpad_8);
-			inputState.ClearKeyStatus(sc_kpad_9);
-			inputState.ClearKeyStatus(sc_kpad_4);
-
-            HelpPage--;
-            if (HelpPage < 0)
-                // CTW MODIFICATION
-                // "Played with the logic, got lost in the game..."
-                HelpPage = SIZ(HelpPagePic) - 1;
-            // CTW MODIFICATION END
-        }
-    }
+#endif
 }
 
 short MirrorDelay;
@@ -3920,11 +3575,9 @@ void getinput(SW_PACKET *loc)
     if (PauseKeySet)
         return;
 
-    if (!MenuInputMode && !UsingMenus)
+    if (!M_Active())
     {
         GetMessageInput(pp);
-        GetConInput(pp);
-        GetHelpInput(pp);
     }
 
     // MAP KEY
@@ -3968,8 +3621,8 @@ void getinput(SW_PACKET *loc)
     if (ScrollMode2D && pp == Player + myconnectindex && !Prediction)
         MoveScrollMode2D(Player + myconnectindex);
 
-    // !JIM! Added UsingMenus so that you don't move at all while using menus
-    if (MenuInputMode || UsingMenus || ScrollMode2D || InputMode)
+    // !JIM! Added M_Active() so that you don't move at all while using menus
+    if (M_Active() || ScrollMode2D || InputMode)
         return;
 
     SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
@@ -4097,12 +3750,15 @@ void getinput(SW_PACKET *loc)
 
     if (!CommEnabled)
     {
+		// What a mess...:?
+#if 0
         if (MenuButtonAutoAim)
         {
             MenuButtonAutoAim = FALSE;
             if ((!!TEST(pp->Flags, PF_AUTO_AIM)) != !!cl_autoaim)
                 SET_LOC_KEY(loc->bits, SK_AUTO_AIM, TRUE);
         }
+#endif
     }
     else if (inputState.GetKeyStatus(sc_Pause))
     {

@@ -66,6 +66,7 @@ BEGIN_SW_NS
 
 SWBOOL SpriteInfo = FALSE;
 extern SWBOOL QuitFlag;
+extern SWBOOL MultiPlayQuitFlag;
 
 // FUNCTION PROTOTYPES ///////////////////////////////////////////////////////////////////////
 void CON_ProcessOptions(void);

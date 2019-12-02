@@ -32,8 +32,15 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-#define MENU_SHADE_DEFAULT 0
-#define MENU_SHADE_INACTIVE 20
+void MNU_MeasureString(const char* string, short* w, short* h);
+void MNU_DrawString(short x, short y, const char* string, short shade, short pal);
+void MNU_MeasureSmallString(const char* string, short* w, short* h);
+void MNU_DrawSmallString(short x, short y, const char* string, short shade, short pal);
+void MNU_MeasureStringLarge(const char* string, short* w, short* h);
+void MNU_DrawStringLarge(short x, short y, const char* string, int shade = 0);
+
+
+#if 0
 
 typedef enum
 {
@@ -56,12 +63,6 @@ void MNU_DrawMenu(void);    // This is used in drawscreen to refresh menus in
 // multiplay situations.
 void MNU_CheckForMenus(void);
 void MNU_CheckForMenusAnyKey(void);
-void MNU_MeasureString(const char *string, short *w, short *h);
-void MNU_DrawString(short x, short y, const char *string, short shade, short pal);
-void MNU_MeasureSmallString(const char *string,short *w,short *h);
-void MNU_DrawSmallString(short x,short y,const char *string,short shade,short pal);
-void MNU_MeasureStringLarge(const char *string, short *w, short *h);
-void MNU_DrawStringLarge(short x, short y, const char *string);
 
 // Functions from my other engine
 //void Get_Palette (unsigned char *pal);
@@ -75,7 +76,6 @@ void ExitMenus(void);
 void ResetMenuInput(void);
 
 extern SWBOOL BorderAdjust;
-extern SWBOOL MultiPlayQuitFlag;
 
 // Make memcpy an intrinsic function for an easy frame rate boost
 //#pragma intrinsic( memcpy );
@@ -92,8 +92,6 @@ extern SWBOOL MultiPlayQuitFlag;
 #define M_CY1   0
 #define M_CX2   319
 #define M_CY2   199
-
-#define MZ              65536
 
 #define asc_Esc         27
 #define asc_Enter       13
@@ -334,6 +332,8 @@ typedef struct
 {
     int x,y;
 } VMODE;
+
+#endif
 
 END_SW_NS
 

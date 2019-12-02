@@ -54,23 +54,594 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "music.h"
 #include "text.h"
 #include "version.h"
+#include "network.h"
 
 #include "colormap.h"
 #include "config.h"
 
 BEGIN_SW_NS
 
-signed char MNU_InputString(char*, short);
 
 //#define PLOCK_VERSION TRUE
+
+extern SWBOOL ExitLevel, NewGame;
 
 
 short TimeLimitTable[9] = {0,3,5,10,15,20,30,45,60};
 
+SWBOOL
+MNU_StartNetGame(void)
+{
+	extern SWBOOL ExitLevel, ShortGameMode, DemoInitOnce, FirstTimeIntoGame;
+	extern short Level, Skill;
+	// CTW REMOVED
+	//extern int gTenActivated;
+	// CTW REMOVED END
+	int pnum;
+
+	// always assumed that a demo is playing
+
+	ready2send = 0;
+	// Skill can go negative here
+	Skill = gs.NetMonsters - 1;
+	Level = gs.NetLevel + 1;
+	DemoPlaying = FALSE;
+	ExitLevel = TRUE;
+	NewGame = TRUE;
+	// restart demo for multi-play mode
+	DemoInitOnce = FALSE;
+
+	// TENSW: return if a joiner
+	if (/* CTW REMOVED gTenActivated && */ !AutoNet && FirstTimeIntoGame)
+		return TRUE;
+
+	// need to set gNet vars for self
+	// everone else gets a packet to set them
+	gNet.AutoAim = cl_autoaim;
+	gNet.SpawnMarkers = gs.NetSpawnMarkers;
+	gNet.HurtTeammate = gs.NetHurtTeammate;
+	gNet.Nuke = gs.NetNuke;
+	gNet.KillLimit = gs.NetKillLimit * 10;
+	gNet.TimeLimit = TimeLimitTable[gs.NetTimeLimit] * 60 * 120;
+
+	if (ShortGameMode)
+	{
+		gNet.KillLimit /= 10;
+		gNet.TimeLimit /= 2;
+	}
+
+	gNet.TimeLimitClock = gNet.TimeLimit;
+	gNet.TeamPlay = gs.NetTeamPlay;
+	gNet.MultiGameType = gs.NetGameType + 1;
+
+	if (gNet.MultiGameType == MULTI_GAME_COMMBAT_NO_RESPAWN)
+	{
+		gNet.MultiGameType = MULTI_GAME_COMMBAT;
+		gNet.NoRespawn = TRUE;
+	}
+	else
+	{
+		gNet.NoRespawn = FALSE;
+	}
+
+	if (CommEnabled)
+	{
+		PACKET_NEW_GAME p;
+
+		p.PacketType = PACKET_TYPE_NEW_GAME;
+		p.Level = Level;
+		p.Skill = Skill;
+		p.GameType = gs.NetGameType;
+		p.AutoAim = cl_autoaim;
+		p.HurtTeammate = gs.NetHurtTeammate;
+		p.TeamPlay = gs.NetTeamPlay;
+		p.SpawnMarkers = gs.NetSpawnMarkers;
+		p.KillLimit = gs.NetKillLimit;
+		p.TimeLimit = gs.NetTimeLimit;
+		p.Nuke = gs.NetNuke;
+
+		netbroadcastpacket((uint8_t*)(&p), sizeof(p));            // TENSW
+	}
+
+
+	return TRUE;
+}
+
+
+////////////////////////////////////////////////
+// Measure the pixel width of a graphic string
+////////////////////////////////////////////////
+static char lg_xlat_num[] = { 0,1,2,3,4,5,6,7,8,9 };
+#define FONT_LARGE_ALPHA 3706
+#define FONT_LARGE_DIGIT 3732
+#define MenuDrawFlags (ROTATE_SPRITE_SCREEN_CLIP)
+#define MZ              65536
+#define MENU_SHADE_DEFAULT 0
+#define MENU_SHADE_INACTIVE 20
+
+void MNU_MeasureStringLarge(const char *string, short *w, short *h)
+{
+    short ndx, width, height;
+    char c;
+    short pic;
+
+    width = 0;
+    height = *h;
+
+    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
+    {
+        if (isalpha(c))
+        {
+            c = toupper(c);
+            pic = FONT_LARGE_ALPHA + (c - 'A');
+        }
+        else if (isdigit(c))
+        {
+            pic = FONT_LARGE_DIGIT + lg_xlat_num[(c - '0')];
+        }
+        else if (c == ' ')
+        {
+            width += 10;                 // Special case for space char
+            continue;
+        }
+        else
+        {
+            continue;
+        }
+
+        width += tilesiz[pic].x+1;
+        if (height < tilesiz[pic].y)
+            height = tilesiz[pic].y;
+    }
+
+    *w = width;
+    *h = height;
+}
+
+////////////////////////////////////////////////
+// Draw a string using a graphic font
+////////////////////////////////////////////////
+void MNU_DrawStringLarge(short x, short y, const char *string, int shade)
+{
+    int ndx, offset;
+    char c;
+    short pic;
+
+    offset = x;
+
+    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
+    {
+        if (isalpha(c))
+        {
+            c = toupper(c);
+            pic = FONT_LARGE_ALPHA + (c - 'A');
+        }
+        else if (isdigit(c))
+        {
+            pic = FONT_LARGE_DIGIT + lg_xlat_num[(c - '0')];
+        }
+        else if (c == ' ')
+        {
+            offset += 10;
+            continue;
+        }
+        else
+        {
+            continue;
+        }
+
+        rotatesprite(offset << 16, y << 16, MZ, 0, pic, shade, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+        offset += tilesiz[pic].x + 1;
+    }
+
+}
+
+
+////////////////////////////////////////////////
+// Measure the pixel width of a graphic string
+////////////////////////////////////////////////
+void MNU_MeasureString(const char *string, short *w, short *h)
+{
+    short ndx, width, height;
+    char c;
+    short ac;
+
+    if (string[0] == '^')
+    {
+        MNU_MeasureStringLarge(&string[1], w, h);
+        return;
+    }
+
+    width = 0;
+    height = *h;
+
+    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
+    {
+        ac = c - '!' + STARTALPHANUM;
+        if ((ac < STARTALPHANUM || ac > ENDALPHANUM)  && c != asc_Space)
+            break;
+
+        if (c > asc_Space && c < 127)
+        {
+            width += tilesiz[ac].x;
+            if (height < tilesiz[ac].y)
+                height = tilesiz[ac].y;
+        }
+        else if (c == asc_Space)
+            width += 4;                 // Special case for space char
+    }
+
+    *w = width;
+    *h = height;
+}
+
+////////////////////////////////////////////////
+// Draw a string using a graphic font
+//
+// MenuTextShade and MenuDrawFlags
+////////////////////////////////////////////////
+void MNU_DrawString(short x, short y, const char *string, short shade, short pal)
+{
+    int ndx, offset;
+    char c;
+    short ac;
+
+    if (string[0] == '^')
+    {
+        MNU_DrawStringLarge(x,y, &string[1]);
+        return;
+    }
+
+    offset = x;
+
+    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
+    {
+        ac = c - '!' + STARTALPHANUM;
+        if ((ac < STARTALPHANUM || ac > ENDALPHANUM)  && c != asc_Space)
+            break;
+
+        if (c > asc_Space && c < 127)
+        {
+            rotatesprite(offset<<16,y<<16,MZ,0,ac, shade, pal, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
+            offset += tilesiz[ac].x;
+        }
+        else if (c == asc_Space)
+            offset += 4;                // Special case for space char
+    }
+
+}
+
+////////////////////////////////////////////////
+// Measure the pixel width of a small font string
+////////////////////////////////////////////////
+void MNU_MeasureSmallString(const char *string, short *w, short *h)
+{
+    short ndx, width, height;
+    char c;
+    short ac;
+
+    width = 0;
+    height = *h;
+
+    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
+    {
+        ac = (c - '!') + 2930;
+        if ((ac < 2930 || ac > 3023) && c != asc_Space)
+            break;
+
+        if (c > asc_Space && c < 127)
+        {
+            width += tilesiz[ac].x;
+            if (height < tilesiz[ac].y)
+                height = tilesiz[ac].y;
+        }
+        else if (c == asc_Space)
+            width += 4;                 // Special case for space char
+    }
+
+    *w = width;
+    *h = height;
+}
+
+////////////////////////////////////////////////
+// Draw a string using a small graphic font
+////////////////////////////////////////////////
+void MNU_DrawSmallString(short x, short y, const char *string, short shade, short pal)
+{
+    int ndx;
+    char c;
+    short ac,offset;
+
+
+    offset = x;
+
+    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
+    {
+        ac = c - '!' + 2930;
+        if ((ac < 2930 || ac > 3023)  && c != asc_Space)
+            break;
+
+        if (c > asc_Space && c < 127)
+        {
+            rotatesprite(offset<<16,y<<16,MZ,0,ac, shade, pal, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
+
+            offset += tilesiz[ac].x;
+
+        }
+        else if (c == asc_Space)
+        {
+            offset += 4;                // Special case for space char
+        }
+    }
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+#define FADE_DAMAGE_FACTOR  3   // 100 health / 32 shade cycles = 3.125
+
+// Fades from 100% to 62.5% somewhat quickly,
+//  then from 62.5% to 37.5% slowly,
+//  then from 37.5% to 0% quickly.
+// This seems to capture the pain caused by enemy shots, plus the extreme
+//  fade caused by being blinded or intense pain.
+// Perhaps the next step would be to apply a gentle smoothing to the
+//  intersections of these lines.
+static int faderamp[32] =
+{
+	// y=64-4x
+	252,240,224,208,192,176,
+
+	// y=44.8-(16/20)x
+	160,156,152,152,148,
+	144,140,136,136,132,
+	128,124,120,120,116,
+	112,108,104,104,100,
+
+	// y=128-4x
+	96,80,64,48,32,16
+};
+
+
+typedef struct RGB_color_typ
+{
+	unsigned char red;
+	unsigned char green;
+	unsigned char blue;
+} RGB_color, * RGB_color_ptr;
+
+unsigned char ppalette[MAX_SW_PLAYERS_REG][768];
+unsigned char palette_data[256][3];     // Global palette array
+
+//////////////////////////////////////////
+// Set the amount of redness for damage
+// the player just took
+//////////////////////////////////////////
+void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
+{
+	int palreg, usereg = 0, tmpreg1 = 0, tmpreg2 = 0;
+	short fadedamage = 0;
+	RGB_color color;
+
+	//CON_ConMessage("SetAmt: fadeamt = %d, startcolor = %d, pp = %d",pp->FadeAmt,startcolor,pp->StartColor);
+
+	if (abs(pp->FadeAmt) > 0 && startcolor == pp->StartColor)
+		return;
+
+	// Don't ever over ride flash bomb
+	if (pp->StartColor == 1 && abs(pp->FadeAmt) > 0)
+		return;
+
+	// Reset the palette
+	if (pp == Player + screenpeek)
+	{
+		videoFadePalette(0, 0, 0, 0);
+		if (pp->FadeAmt <= 0)
+			GetPaletteFromVESA(&ppalette[screenpeek][0]);
+	}
+
+	if (damage < -150 && damage > -1000) fadedamage = 150;
+	else if (damage < -1000) // Underwater
+		fadedamage = abs(damage + 1000);
+	else
+		fadedamage = abs(damage);
+
+	if (damage >= -5 && damage < 0)
+		fadedamage += 10;
+
+	// Don't let red to TOO red
+	if (startcolor == COLOR_PAIN && fadedamage > 100) fadedamage = 100;
+
+	pp->FadeAmt = fadedamage / FADE_DAMAGE_FACTOR;
+
+	if (pp->FadeAmt <= 0)
+	{
+		pp->FadeAmt = 0;
+		return;
+	}
+
+	// It's a health item, just do a preset flash amount
+	if (damage > 0)
+		pp->FadeAmt = 3;
+
+	pp->StartColor = startcolor;
+
+	pp->FadeTics = 0;
+
+	// Set player's palette to current game palette
+	GetPaletteFromVESA(pp->temp_pal);
+
+	color.red = palette_data[pp->StartColor][0];
+	color.green = palette_data[pp->StartColor][1];
+	color.blue = palette_data[pp->StartColor][2];
+
+	for (palreg = 0; palreg < 768; palreg++)
+	{
+		tmpreg1 = (int)(pp->temp_pal[palreg]) + ((2 * pp->FadeAmt) + 4);
+		tmpreg2 = (int)(pp->temp_pal[palreg]) - ((2 * pp->FadeAmt) + 4);
+		if (tmpreg1 > 255)
+			tmpreg1 = 255;
+		if (tmpreg2 < 0)
+			tmpreg2 = 0;
+
+		if (usereg == 0)
+		{
+			if (pp->temp_pal[palreg] < color.red)
+			{
+				if ((pp->temp_pal[palreg] = tmpreg1) > color.red)
+					pp->temp_pal[palreg] = color.red;
+			}
+			else if (pp->temp_pal[palreg] > color.red)
+				if ((pp->temp_pal[palreg] = tmpreg2) < color.red)
+					pp->temp_pal[palreg] = color.red;
+		}
+		else if (usereg == 1)
+		{
+			if (pp->temp_pal[palreg] < color.green)
+			{
+				if ((pp->temp_pal[palreg] = tmpreg1) > color.green)
+					pp->temp_pal[palreg] = color.green;
+			}
+			else if (pp->temp_pal[palreg] > color.green)
+				if ((pp->temp_pal[palreg] = tmpreg2) < color.green)
+					pp->temp_pal[palreg] = color.green;
+		}
+		else if (usereg == 2)
+		{
+			if (pp->temp_pal[palreg] < color.blue)
+			{
+				if ((pp->temp_pal[palreg] = tmpreg1) > color.blue)
+					pp->temp_pal[palreg] = color.blue;
+			}
+			else if (pp->temp_pal[palreg] > color.blue)
+				if ((pp->temp_pal[palreg] = tmpreg2) < color.blue)
+					pp->temp_pal[palreg] = color.blue;
+		}
+
+		if (++usereg > 2)
+			usereg = 0;
+	}
+
+	// Do initial palette set
+	if (pp == Player + screenpeek)
+	{
+		if (videoGetRenderMode() < REND_POLYMOST) set_pal(pp->temp_pal);
+		else videoFadePalette(color.red, color.green, color.blue, faderamp[min(31, max(0, 32 - abs(pp->FadeAmt)))]);
+		if (damage < -1000)
+			pp->FadeAmt = 1000;  // Don't call DoPaletteFlash for underwater stuff
+	}
+}
+
+//////////////////////////////////////////
+// Do the screen reddness based on damage
+//////////////////////////////////////////
+#define MAXFADETICS     5
+void DoPaletteFlash(PLAYERp pp)
+{
+	int i, palreg, tmpreg1 = 0, tmpreg2 = 0;
+	unsigned char* pal_ptr = &ppalette[screenpeek][0];
+
+
+	if (pp->FadeAmt <= 1)
+	{
+		pp->FadeAmt = 0;
+		pp->StartColor = 0;
+		if (pp == Player + screenpeek)
+		{
+			videoFadePalette(0, 0, 0, 0);
+			memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
+			DoPlayerDivePalette(pp);  // Check Dive again
+			DoPlayerNightVisionPalette(pp);  // Check Night Vision again
+		}
+
+		return;
+	}
+
+
+	pp->FadeTics += synctics;           // Add this frame's tic amount to
+	// counter
+
+	if (pp->FadeTics >= MAXFADETICS)
+	{
+		while (pp->FadeTics >= MAXFADETICS)
+		{
+			pp->FadeTics -= MAXFADETICS;
+
+			pp->FadeAmt--;              // Decrement FadeAmt till it gets to
+			// 0 again.
+		}
+	}
+	else
+		return;                         // Return if they were not >
+	// MAXFADETICS
+
+	if (pp->FadeAmt > 32)
+		return;
+
+	if (pp->FadeAmt <= 1)
+	{
+		pp->FadeAmt = 0;
+		pp->StartColor = 0;
+		if (pp == Player + screenpeek)
+		{
+			videoFadePalette(0, 0, 0, 0);
+			memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
+			DoPlayerDivePalette(pp);  // Check Dive again
+			DoPlayerNightVisionPalette(pp);  // Check Night Vision again
+		}
+		return;
+	}
+	else
+	{
+		//CON_Message("gamavalues = %d, %d, %d",pp->temp_pal[pp->StartColor],pp->temp_pal[pp->StartColor+1],pp->temp_pal[pp->StartColor+2]);
+		for (palreg = 0; palreg < 768; palreg++)
+		{
+			tmpreg1 = (int)(pp->temp_pal[palreg]) + 2;
+			tmpreg2 = (int)(pp->temp_pal[palreg]) - 2;
+			if (tmpreg1 > 255)
+				tmpreg1 = 255;
+			if (tmpreg2 < 0)
+				tmpreg2 = 0;
+
+			if (pp->temp_pal[palreg] < pal_ptr[palreg])
+			{
+				if ((pp->temp_pal[palreg] = tmpreg1) > pal_ptr[palreg])
+					pp->temp_pal[palreg] = pal_ptr[palreg];
+			}
+			else if (pp->temp_pal[palreg] > pal_ptr[palreg])
+				if ((pp->temp_pal[palreg] = tmpreg2) < pal_ptr[palreg])
+					pp->temp_pal[palreg] = pal_ptr[palreg];
+
+		}
+
+		// Only hard set the palette if this is currently the player's view
+		if (pp == Player + screenpeek)
+		{
+			if (videoGetRenderMode() < REND_POLYMOST) set_pal(pp->temp_pal);
+			else
+			{
+				videoFadePalette(
+					palette_data[pp->StartColor][0],
+					palette_data[pp->StartColor][1],
+					palette_data[pp->StartColor][2],
+					faderamp[min(31, max(0, 32 - abs(pp->FadeAmt)))]
+				);
+			}
+		}
+
+	}
+
+}
+
+
+
+# if 0
+
+signed char MNU_InputString(char*, short);
+
 SWBOOL SavePrompt = FALSE;
 extern SWBOOL InMenuLevel, LoadGameOutsideMoveLoop, LoadGameFromDemo;
 extern uint8_t RedBookSong[40];
-extern SWBOOL ExitLevel, NewGame;
 extern short Level, Skill;
 extern SWBOOL MusicInitialized, FxInitialized;
 SWBOOL MNU_CheckUserMap(MenuItem *item);
@@ -1581,87 +2152,6 @@ void ResetMenuInput(void)
     InputMode = FALSE;
 }
 
-SWBOOL
-MNU_StartNetGame(void)
-{
-    extern SWBOOL ExitLevel, ShortGameMode, DemoInitOnce, FirstTimeIntoGame;
-    extern short Level, Skill;
-    // CTW REMOVED
-    //extern int gTenActivated;
-    // CTW REMOVED END
-    int pnum;
-
-    // always assumed that a demo is playing
-
-    ready2send = 0;
-    // Skill can go negative here
-    Skill = gs.NetMonsters-1;
-    Level = gs.NetLevel + 1;
-    if (!AutoNet)
-        ExitMenus();
-    DemoPlaying = FALSE;
-    ExitLevel = TRUE;
-    NewGame = TRUE;
-    // restart demo for multi-play mode
-    DemoInitOnce = FALSE;
-    ResetMenuInput();
-
-    // TENSW: return if a joiner
-    if (/* CTW REMOVED gTenActivated && */ !AutoNet && FirstTimeIntoGame)
-        return TRUE;
-
-    // need to set gNet vars for self
-    // everone else gets a packet to set them
-    gNet.AutoAim            = cl_autoaim;
-    gNet.SpawnMarkers       = gs.NetSpawnMarkers;
-    gNet.HurtTeammate       = gs.NetHurtTeammate;
-    gNet.Nuke               = gs.NetNuke;
-    gNet.KillLimit          = gs.NetKillLimit*10;
-    gNet.TimeLimit          = TimeLimitTable[gs.NetTimeLimit]*60*120;
-
-    if (ShortGameMode)
-    {
-        gNet.KillLimit /= 10;
-        gNet.TimeLimit /= 2;
-    }
-
-    gNet.TimeLimitClock     = gNet.TimeLimit;
-    gNet.TeamPlay           = gs.NetTeamPlay;
-    gNet.MultiGameType      = gs.NetGameType+1;
-
-    if (gNet.MultiGameType == MULTI_GAME_COMMBAT_NO_RESPAWN)
-    {
-        gNet.MultiGameType = MULTI_GAME_COMMBAT;
-        gNet.NoRespawn = TRUE;
-    }
-    else
-    {
-        gNet.NoRespawn = FALSE;
-    }
-
-    if (CommEnabled)
-    {
-        PACKET_NEW_GAME p;
-
-        p.PacketType = PACKET_TYPE_NEW_GAME;
-        p.Level = Level;
-        p.Skill = Skill;
-        p.GameType = gs.NetGameType;
-        p.AutoAim = cl_autoaim;
-        p.HurtTeammate = gs.NetHurtTeammate;
-        p.TeamPlay = gs.NetTeamPlay;
-        p.SpawnMarkers = gs.NetSpawnMarkers;
-        p.KillLimit = gs.NetKillLimit;
-        p.TimeLimit = gs.NetTimeLimit;
-        p.Nuke = gs.NetNuke;
-
-        netbroadcastpacket((uint8_t*)(&p), sizeof(p));            // TENSW
-    }
-
-
-    return TRUE;
-}
-
 
 SWBOOL
 MNU_EpisodeCustom(void)
@@ -1819,258 +2309,6 @@ MNU_InitMenus(void)
 //        #endif
     main_i[4].text = (SW_SHAREWARE) ? MAIN_MENU_HOW_TO_ORDER : MAIN_MENU_COOL_STUFF;
     main_i[4].hotkey = (SW_SHAREWARE) ? KEYSC_H : KEYSC_C;
-}
-
-////////////////////////////////////////////////
-// Measure the pixel width of a graphic string
-////////////////////////////////////////////////
-static char lg_xlat_num[] = {0,1,2,3,4,5,6,7,8,9};
-#define FONT_LARGE_ALPHA 3706
-#define FONT_LARGE_DIGIT 3732
-
-void MNU_MeasureStringLarge(const char *string, short *w, short *h)
-{
-    short ndx, width, height;
-    char c;
-    short pic;
-
-    width = 0;
-    height = *h;
-
-    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
-    {
-        if (isalpha(c))
-        {
-            c = toupper(c);
-            pic = FONT_LARGE_ALPHA + (c - 'A');
-        }
-        else if (isdigit(c))
-        {
-            pic = FONT_LARGE_DIGIT + lg_xlat_num[(c - '0')];
-        }
-        else if (c == ' ')
-        {
-            width += 10;                 // Special case for space char
-            continue;
-        }
-        else
-        {
-            continue;
-        }
-
-        width += tilesiz[pic].x+1;
-        if (height < tilesiz[pic].y)
-            height = tilesiz[pic].y;
-    }
-
-    *w = width;
-    *h = height;
-}
-
-////////////////////////////////////////////////
-// Draw a string using a graphic font
-////////////////////////////////////////////////
-void MNU_DrawStringLarge(short x, short y, const char *string)
-{
-    int ndx, offset;
-    char c;
-    short pic;
-
-    offset = x;
-
-    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
-    {
-        if (isalpha(c))
-        {
-            c = toupper(c);
-            pic = FONT_LARGE_ALPHA + (c - 'A');
-        }
-        else if (isdigit(c))
-        {
-            pic = FONT_LARGE_DIGIT + lg_xlat_num[(c - '0')];
-        }
-        else if (c == ' ')
-        {
-            offset += 10;
-            continue;
-        }
-        else
-        {
-            continue;
-        }
-
-        rotatesprite(offset << 16, y << 16, MZ, 0, pic, MenuTextShade, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
-        offset += tilesiz[pic].x + 1;
-    }
-
-}
-
-
-////////////////////////////////////////////////
-// Measure the pixel width of a graphic string
-////////////////////////////////////////////////
-void MNU_MeasureString(const char *string, short *w, short *h)
-{
-    short ndx, width, height;
-    char c;
-    short ac;
-
-    if (string[0] == '^')
-    {
-        MNU_MeasureStringLarge(&string[1], w, h);
-        return;
-    }
-
-    width = 0;
-    height = *h;
-
-    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
-    {
-        ac = c - '!' + STARTALPHANUM;
-        if ((ac < STARTALPHANUM || ac > ENDALPHANUM)  && c != asc_Space)
-            break;
-
-        if (c > asc_Space && c < 127)
-        {
-            width += tilesiz[ac].x;
-            if (height < tilesiz[ac].y)
-                height = tilesiz[ac].y;
-        }
-        else if (c == asc_Space)
-            width += 4;                 // Special case for space char
-    }
-
-    *w = width;
-    *h = height;
-}
-
-////////////////////////////////////////////////
-// Draw a string using a graphic font
-//
-// MenuTextShade and MenuDrawFlags
-////////////////////////////////////////////////
-void MNU_DrawString(short x, short y, const char *string, short shade, short pal)
-{
-    int ndx, offset;
-    char c;
-    short ac;
-
-    if (string[0] == '^')
-    {
-        MNU_DrawStringLarge(x,y, &string[1]);
-        return;
-    }
-
-    offset = x;
-
-    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
-    {
-        ac = c - '!' + STARTALPHANUM;
-        if ((ac < STARTALPHANUM || ac > ENDALPHANUM)  && c != asc_Space)
-            break;
-
-        if (c > asc_Space && c < 127)
-        {
-            rotatesprite(offset<<16,y<<16,MZ,0,ac, shade, pal, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
-            offset += tilesiz[ac].x;
-        }
-        else if (c == asc_Space)
-            offset += 4;                // Special case for space char
-    }
-
-}
-/*   Original code
-void
-MNU_DrawString(short x, short y, char *string)
-{
-    int ndx, offset;
-    char c;
-
-    if (string[0] == '^')
-    {
-        MNU_DrawStringLarge(x,y, &string[1]);
-        return;
-    }
-
-    offset = x;
-
-    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
-    {
-        if (c > asc_Space && c < 127)
-        {
-            rotatesprite(offset << 16, y << 16, MZ, 0, xlatfont[c], MenuTextShade, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
-            offset += tilesiz[xlatfont[c]].x;
-        } else
-        if (c == asc_Space)
-            offset += 4;                // Special case for space char
-    }
-
-}
-*/
-
-////////////////////////////////////////////////
-// Measure the pixel width of a small font string
-////////////////////////////////////////////////
-void MNU_MeasureSmallString(const char *string, short *w, short *h)
-{
-    short ndx, width, height;
-    char c;
-    short ac;
-
-    width = 0;
-    height = *h;
-
-    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
-    {
-        ac = (c - '!') + 2930;
-        if ((ac < 2930 || ac > 3023) && c != asc_Space)
-            break;
-
-        if (c > asc_Space && c < 127)
-        {
-            width += tilesiz[ac].x;
-            if (height < tilesiz[ac].y)
-                height = tilesiz[ac].y;
-        }
-        else if (c == asc_Space)
-            width += 4;                 // Special case for space char
-    }
-
-    *w = width;
-    *h = height;
-}
-
-////////////////////////////////////////////////
-// Draw a string using a small graphic font
-////////////////////////////////////////////////
-void MNU_DrawSmallString(short x, short y, const char *string, short shade, short pal)
-{
-    int ndx;
-    char c;
-    short ac,offset;
-
-
-    offset = x;
-
-    for (ndx = 0; (c = string[ndx]) != 0; ndx++)
-    {
-        ac = c - '!' + 2930;
-        if ((ac < 2930 || ac > 3023)  && c != asc_Space)
-            break;
-
-        if (c > asc_Space && c < 127)
-        {
-            rotatesprite(offset<<16,y<<16,MZ,0,ac, shade, pal, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
-
-            offset += tilesiz[ac].x;
-
-        }
-        else if (c == asc_Space)
-        {
-            offset += 4;                // Special case for space char
-        }
-    }
-
 }
 
 ////////////////////////////////////////////////
@@ -4084,19 +4322,12 @@ static int MNU_ControlAxisNum(int offset)
 // Miscellaneous Routines
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef struct RGB_color_typ
-{
-    unsigned char red;
-    unsigned char green;
-    unsigned char blue;
-} RGB_color, *RGB_color_ptr;
 
 #define PALETTE_MASK            0x3c6
 #define PALETTE_READ            0x3c7
 #define PALETTE_WRITE           0x3c8
 #define PALETTE_DATA            0x3c9
 
-unsigned char palette_data[256][3];     // Global palette array
 
 // V E R T I C A L   R E T R A C E   V A R I A B L E S //////////////////////////////////////////
 
@@ -4292,253 +4523,6 @@ void FadeOut(unsigned char targetcolor, unsigned int clicks)
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////
-#define FADE_DAMAGE_FACTOR  3   // 100 health / 32 shade cycles = 3.125
-
-// Fades from 100% to 62.5% somewhat quickly,
-//  then from 62.5% to 37.5% slowly,
-//  then from 37.5% to 0% quickly.
-// This seems to capture the pain caused by enemy shots, plus the extreme
-//  fade caused by being blinded or intense pain.
-// Perhaps the next step would be to apply a gentle smoothing to the
-//  intersections of these lines.
-static int faderamp[32] =
-{
-    // y=64-4x
-    252,240,224,208,192,176,
-
-    // y=44.8-(16/20)x
-    160,156,152,152,148,
-    144,140,136,136,132,
-    128,124,120,120,116,
-    112,108,104,104,100,
-
-    // y=128-4x
-    96,80,64,48,32,16
-};
-
-unsigned char ppalette[MAX_SW_PLAYERS_REG][768];
-
-//////////////////////////////////////////
-// Set the amount of redness for damage
-// the player just took
-//////////////////////////////////////////
-void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
-{
-    int palreg, usereg = 0, tmpreg1 = 0, tmpreg2 = 0;
-    short fadedamage=0;
-    RGB_color color;
-
-    //CON_ConMessage("SetAmt: fadeamt = %d, startcolor = %d, pp = %d",pp->FadeAmt,startcolor,pp->StartColor);
-
-    if (abs(pp->FadeAmt) > 0 && startcolor == pp->StartColor)
-        return;
-
-    // Don't ever over ride flash bomb
-    if (pp->StartColor == 1 && abs(pp->FadeAmt) > 0)
-        return;
-
-    // Reset the palette
-    if (pp == Player + screenpeek)
-    {
-        videoFadePalette(0,0,0,0);
-        if (pp->FadeAmt <= 0)
-            GetPaletteFromVESA(&ppalette[screenpeek][0]);
-    }
-
-    if (damage < -150 && damage > -1000) fadedamage = 150;
-    else if (damage < -1000) // Underwater
-        fadedamage = abs(damage+1000);
-    else
-        fadedamage = abs(damage);
-
-    if (damage >= -5 && damage < 0)
-        fadedamage += 10;
-
-    // Don't let red to TOO red
-    if (startcolor == COLOR_PAIN && fadedamage > 100) fadedamage = 100;
-
-    pp->FadeAmt = fadedamage / FADE_DAMAGE_FACTOR;
-
-    if (pp->FadeAmt <= 0)
-    {
-        pp->FadeAmt = 0;
-        return;
-    }
-
-    // It's a health item, just do a preset flash amount
-    if (damage > 0)
-        pp->FadeAmt = 3;
-
-    pp->StartColor = startcolor;
-
-    pp->FadeTics = 0;
-
-    // Set player's palette to current game palette
-    GetPaletteFromVESA(pp->temp_pal);
-
-    color.red = palette_data[pp->StartColor][0];
-    color.green = palette_data[pp->StartColor][1];
-    color.blue = palette_data[pp->StartColor][2];
-
-    for (palreg = 0; palreg < 768; palreg++)
-    {
-        tmpreg1 = (int)(pp->temp_pal[palreg]) + ((2 * pp->FadeAmt) + 4);
-        tmpreg2 = (int)(pp->temp_pal[palreg]) - ((2 * pp->FadeAmt) + 4);
-        if (tmpreg1 > 255)
-            tmpreg1 = 255;
-        if (tmpreg2 < 0)
-            tmpreg2 = 0;
-
-        if (usereg == 0)
-        {
-            if (pp->temp_pal[palreg] < color.red)
-            {
-                if ((pp->temp_pal[palreg] = tmpreg1) > color.red)
-                    pp->temp_pal[palreg] = color.red;
-            }
-            else if (pp->temp_pal[palreg] > color.red)
-                if ((pp->temp_pal[palreg] = tmpreg2) < color.red)
-                    pp->temp_pal[palreg] = color.red;
-        }
-        else if (usereg == 1)
-        {
-            if (pp->temp_pal[palreg] < color.green)
-            {
-                if ((pp->temp_pal[palreg] = tmpreg1) > color.green)
-                    pp->temp_pal[palreg] = color.green;
-            }
-            else if (pp->temp_pal[palreg] > color.green)
-                if ((pp->temp_pal[palreg] = tmpreg2) < color.green)
-                    pp->temp_pal[palreg] = color.green;
-        }
-        else if (usereg == 2)
-        {
-            if (pp->temp_pal[palreg] < color.blue)
-            {
-                if ((pp->temp_pal[palreg] = tmpreg1) > color.blue)
-                    pp->temp_pal[palreg] = color.blue;
-            }
-            else if (pp->temp_pal[palreg] > color.blue)
-                if ((pp->temp_pal[palreg] = tmpreg2) < color.blue)
-                    pp->temp_pal[palreg] = color.blue;
-        }
-
-        if (++usereg > 2)
-            usereg = 0;
-    }
-
-    // Do initial palette set
-    if (pp == Player + screenpeek)
-    {
-        if (videoGetRenderMode() < REND_POLYMOST) set_pal(pp->temp_pal);
-        else videoFadePalette(color.red, color.green, color.blue, faderamp[min(31,max(0,32-abs(pp->FadeAmt)))]);
-        if (damage < -1000)
-            pp->FadeAmt = 1000;  // Don't call DoPaletteFlash for underwater stuff
-    }
-}
-
-//////////////////////////////////////////
-// Do the screen reddness based on damage
-//////////////////////////////////////////
-#define MAXFADETICS     5
-void DoPaletteFlash(PLAYERp pp)
-{
-    int i, palreg, tmpreg1 = 0, tmpreg2 = 0;
-    unsigned char *pal_ptr = &ppalette[screenpeek][0];
-
-
-    if (pp->FadeAmt <= 1)
-    {
-        pp->FadeAmt = 0;
-        pp->StartColor = 0;
-        if (pp == Player + screenpeek)
-        {
-            videoFadePalette(0,0,0,0);
-            memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
-            DoPlayerDivePalette(pp);  // Check Dive again
-            DoPlayerNightVisionPalette(pp);  // Check Night Vision again
-        }
-
-        return;
-    }
-
-
-    pp->FadeTics += synctics;           // Add this frame's tic amount to
-    // counter
-
-    if (pp->FadeTics >= MAXFADETICS)
-    {
-        while (pp->FadeTics >= MAXFADETICS)
-        {
-            pp->FadeTics -= MAXFADETICS;
-
-            pp->FadeAmt--;              // Decrement FadeAmt till it gets to
-            // 0 again.
-        }
-    }
-    else
-        return;                         // Return if they were not >
-    // MAXFADETICS
-
-    if (pp->FadeAmt > 32)
-        return;
-
-    if (pp->FadeAmt <= 1)
-    {
-        pp->FadeAmt = 0;
-        pp->StartColor = 0;
-        if (pp == Player + screenpeek)
-        {
-            videoFadePalette(0,0,0,0);
-            memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
-            DoPlayerDivePalette(pp);  // Check Dive again
-            DoPlayerNightVisionPalette(pp);  // Check Night Vision again
-        }
-        return;
-    }
-    else
-    {
-        //CON_Message("gamavalues = %d, %d, %d",pp->temp_pal[pp->StartColor],pp->temp_pal[pp->StartColor+1],pp->temp_pal[pp->StartColor+2]);
-        for (palreg = 0; palreg < 768; palreg++)
-        {
-            tmpreg1 = (int)(pp->temp_pal[palreg]) + 2;
-            tmpreg2 = (int)(pp->temp_pal[palreg]) - 2;
-            if (tmpreg1 > 255)
-                tmpreg1 = 255;
-            if (tmpreg2 < 0)
-                tmpreg2 = 0;
-
-            if (pp->temp_pal[palreg] < pal_ptr[palreg])
-            {
-                if ((pp->temp_pal[palreg] = tmpreg1) > pal_ptr[palreg])
-                    pp->temp_pal[palreg] = pal_ptr[palreg];
-            }
-            else if (pp->temp_pal[palreg] > pal_ptr[palreg])
-                if ((pp->temp_pal[palreg] = tmpreg2) < pal_ptr[palreg])
-                    pp->temp_pal[palreg] = pal_ptr[palreg];
-
-        }
-
-        // Only hard set the palette if this is currently the player's view
-        if (pp == Player + screenpeek)
-        {
-            if (videoGetRenderMode() < REND_POLYMOST) set_pal(pp->temp_pal);
-            else
-            {
-                videoFadePalette(
-                    palette_data[pp->StartColor][0],
-                    palette_data[pp->StartColor][1],
-                    palette_data[pp->StartColor][2],
-                    faderamp[min(31,max(0,32-abs(pp->FadeAmt)))]
-                    );
-            }
-        }
-
-    }
-
-}
-
 void ResetPalette(PLAYERp pp)
 {
     videoFadePalette(0,0,0,0);
@@ -4550,6 +4534,7 @@ void ResetPalette(PLAYERp pp)
     pp->FadeTics = 0;
 }
 
+#endif
 // vim:ts=4:sw=4:enc=utf-8:
 
 FSavegameInfo GameInterface::GetSaveSig()

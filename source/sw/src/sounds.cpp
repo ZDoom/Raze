@@ -50,6 +50,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "rts.h"
 #include "menus.h"
 #include "config.h"
+#include "menu/menu.h"
 
 #ifdef _WIN32
 #include "sdlayer.h"
@@ -797,7 +798,7 @@ int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
 
 
     // Don't play game sounds when in menus
-    //if (UsingMenus && (*x!=0 || *y!=0 || *z!=0)) return(-1);
+    //if (M_Active() && (*x!=0 || *y!=0 || *z!=0)) return(-1);
 
     // Weed out parental lock sounds if PLock is active
     if (adult_lockout || Global_PLock)
@@ -864,7 +865,7 @@ int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
 
     // Assign voc to voc pointer
     vp = &voc[num];
-    if (UsingMenus && *x==0 && *y==0 && *z==0)  // Menus sound outdo everything
+    if (M_Active() && *x==0 && *y==0 && *z==0)  // Menus sound outdo everything
         priority = 100;
     else
         priority = vp->priority;
@@ -1637,7 +1638,7 @@ DoUpdateSounds3D(void)
     int i;
     static SWBOOL MoveSkip8 = 0;
 
-    if (UsingMenus) return;
+    if (M_Active()) return;
 
     // This function is already only call 10x per sec, this widdles it down even more!
     MoveSkip8 = (MoveSkip8 + 1) & 15;

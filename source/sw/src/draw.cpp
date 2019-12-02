@@ -56,6 +56,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interp.h"
 #include "sector.h"
 #include "config.h"
+#include "menu/menu.h"
 
 BEGIN_SW_NS
 
@@ -1039,7 +1040,7 @@ post_analyzesprites(void)
 void
 ResizeView(PLAYERp pp)
 {
-    if (MenuInputMode || InputMode || HelpInputMode || ConPanel || ConInputMode || PauseKeySet)
+    if (M_Active() || PauseKeySet)
         return;
 
     if (dimensionmode == 2 || dimensionmode == 5 || dimensionmode == 6)
@@ -1083,7 +1084,6 @@ ResizeView(PLAYERp pp)
 }
 
 // !JIM! 08/06
-extern SWBOOL UsingMenus;
 
 #if 0
 void
@@ -1417,6 +1417,7 @@ void PrintLocationInfo(PLAYERp pp)
 SWBOOL DebugSecret = FALSE;
 void SecretInfo(PLAYERp pp)
 {
+	if (!hud_stats) return;
 #define Y_STEP 7
 #define AVERAGEFRAMES 16
     int x = windowxy1.x+2;
@@ -2485,10 +2486,8 @@ drawscreen(PLAYERp pp)
     DrawCompass(pp);
     UpdateMiniBar(pp);
 
-    if (UsingMenus)
-        MNU_DrawMenu();
-    else
-        SecretInfo(pp);
+	if (!M_Active())
+    SecretInfo(pp);
 
     videoNextPage();
 

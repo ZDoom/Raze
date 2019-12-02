@@ -452,8 +452,6 @@ DemoPlayBack(void)
 
             domovethings();
 
-            MNU_CheckForMenus();
-
             // fast forward and slow mo
             if (DemoEdit)
             {
@@ -621,8 +619,6 @@ ScenePlayBack(void)
 
             //movethings();
             domovethings();
-
-            MNU_CheckForMenus();
         }
 
         // demo is over
