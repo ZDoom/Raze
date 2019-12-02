@@ -765,7 +765,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 
             //#define DART_REPEAT 6
             //#define DART_PIC 2233
-            if (useDarts)
+            if (gs.Darts)
                 if (tu->ID == 1793 || tsp->picnum == 1793)
                 {
                     tsp->picnum = 2519;
@@ -777,7 +777,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 #define DART_REPEAT 16
             if (tu->ID == STAR1)
             {
-                if (useDarts)
+                if (gs.Darts)
                 {
                     tsp->picnum = DART_PIC;
                     tsp->ang = NORM_ANGLE(tsp->ang - 512 - 24);
@@ -841,7 +841,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
             }
         }
 
-        if (useDarts)
+        if (gs.Darts)
             if (tsp->statnum == STAT_STAR_QUEUE)
             {
                 tsp->picnum = DART_PIC;

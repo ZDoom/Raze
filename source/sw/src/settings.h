@@ -46,6 +46,8 @@ typedef struct
     SWBOOL NetNuke;
     //SWBOOL PlayCD;	// Not implemented and no idea how to support it without the music assets.
     char WaveformTrackName[MAXWAVEFORMTRACKLENGTH];
+    SWBOOL Darts;
+    SWBOOL WeaponAutoSwitch;
 } GAME_SET, *GAME_SETp;
 
 extern const GAME_SET gs_defaults;
