@@ -844,8 +844,6 @@ loc_flag:
                     int var_50 = (fix16_to_int(sPlayerInput[nPlayer].horizon) - 92) << 2;
                     nHeight -= var_50;
 
-                    short thetargetthin = sPlayerInput[nPlayer].nTarget;
-
                     if (sPlayerInput[nPlayer].nTarget >= 0)
                     {
                                                 assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);

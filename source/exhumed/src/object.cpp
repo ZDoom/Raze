@@ -567,15 +567,13 @@ void StartElevSound(short nSprite, int nVal)
     D3PlayFX(StaticSound[nSound], nSprite);
 }
 
-void FuncElev(int a, int b, int nRun)
+void FuncElev(int a, int UNUSED(b), int nRun)
 {
     short nElev = RunData[nRun].nVal;
     assert(nElev >= 0 && nElev < kMaxElevs);
 
     short nChannel = Elevator[nElev].nChannel;
     short var_18 = Elevator[nElev].field_0;
-
-    RunChannel *pRunChannel = &sRunChannels[nChannel];
 
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
@@ -825,8 +823,7 @@ int BuildWallFace(short nChannel, short nWall, short nCount, ...)
     return WallFaceCount | 0x70000;
 }
 
-// Confirmed 100% correct with original .exe
-void FuncWallFace(int a, int b, int nRun)
+void FuncWallFace(int a, int UNUSED(b), int nRun)
 {
     int nWallFace = RunData[nRun].nVal;
     assert(nWallFace >= 0 && nWallFace < kMaxWallFace);
@@ -985,9 +982,9 @@ int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int 
     return nSlide | 0x80000;
 }
 
-void FuncSlide(int a, int b, int c)
+void FuncSlide(int a, int UNUSED(b), int nRun)
 {
-    int nSlide = RunData[c].nVal;
+    int nSlide = RunData[nRun].nVal;
     assert(nSlide >= 0 && nSlide < kMaxSlides);
 
     short nChannel = SlideData2[nSlide].nChannel;
@@ -1012,7 +1009,7 @@ void FuncSlide(int a, int b, int c)
                 return;
             }
 
-            SlideData2[nSlide].field_4 = runlist_AddRunRec(NewRun, RunData[c].nMoves);
+            SlideData2[nSlide].field_4 = runlist_AddRunRec(NewRun, RunData[nRun].nMoves);
 
             if (SlideData2[nSlide].field_8 != sRunChannels[nChannel].c)
             {
@@ -1232,7 +1229,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     }
 }
 
-void FuncTrap(int a, int b, int nRun)
+void FuncTrap(int a, int UNUSED(b), int nRun)
 {
     short nTrap = RunData[nRun].nVal;
     short nSprite = sTrap[nTrap].nSprite;
@@ -1421,7 +1418,7 @@ int BuildSpark(int nSprite, int nVal)
     return var_14;
 }
 
-void FuncSpark(int a, int b, int nRun)
+void FuncSpark(int a, int UNUSED(b), int nRun)
 {
     int nSprite = RunData[nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);

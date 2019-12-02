@@ -2306,7 +2306,8 @@ void DoLastLevelCinema()
         int ebp = esi;
 
         ebp -= nString;
-        ebp = 81 - (ebp <<= 2);
+        ebp <<= 2;
+        ebp = 81 - ebp;
 
         int var_1C = esi - nString;
 

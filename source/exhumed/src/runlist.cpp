@@ -439,14 +439,10 @@ void runlist_ReadyChannel(short eax)
 void runlist_ProcessChannels()
 {
 #if 1
-    short v0; // di@1
-    short v1; // si@1
-    short *v2; // ebx@3
-    short v3; // cx@3
-    short v4; // cx@5
-    int v5; // eax@11
-    int result; // eax@13
-    short b; // [sp+0h] [bp-1Ch]@3
+    short v0;
+    short v1;
+    int v5;
+    short b;
     short d;
 
     do
@@ -496,7 +492,6 @@ void runlist_ProcessChannels()
             }
             ChannelList = b;
         }
-        result = v1;
         ChannelList = v1;
     } while (v1 != -1);
 
@@ -603,7 +598,6 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
     int nChannel = runlist_AllocChannel(hitag % 1000);
     assert(nChannel >= 0); // REMOVE
 
-    int var_2C = 1000;
     int var_24 = (hitag / 1000) << 12;
     int var_18 = lotag / 1000;
 

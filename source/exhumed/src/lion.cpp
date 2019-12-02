@@ -425,23 +425,19 @@ void FuncLion(int a, int nDamage, int nRun)
 
                         int var_40 = 0x7FFFFFFF;
 
-                        short nSector = sprite[nSprite].sectnum;
                         short var_28 = sprite[nSprite].ang;
 
                         short nAng = (sprite[nSprite].ang - 512) & kAngleMask;
 
                         for (int i = 0; i < 5; i++)
                         {
-                            short hitsect, hitwall, hitsprite;
-                            int hitx, hity, hitz;
+                            short hitwall;
+                            int hitx, hity;
                             vec3_t startPos = { x, y, z };
                             hitdata_t hitData;
                             hitscan(&startPos, sprite[nSprite].sectnum, Sin(nAng + 512), Sin(nAng), 0, &hitData, CLIPMASK1);
                             hitx = hitData.pos.x;
                             hity = hitData.pos.y;
-                            hitz = hitData.pos.z;
-                            hitsprite = hitData.sprite;
-                            hitsect = hitData.sect;
                             hitwall = hitData.wall;
 
                             if (hitwall > -1)
