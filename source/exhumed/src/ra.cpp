@@ -146,7 +146,7 @@ void MoveRaToEnemy(short nPlayer)
     }
 }
 
-void FuncRa(int a, int nDamage, int nRun)
+void FuncRa(int a, int UNUSED(nDamage), int nRun)
 {
     short nPlayer = RunData[nRun].nVal;
     short nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;

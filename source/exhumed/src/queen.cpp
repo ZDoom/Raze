@@ -674,9 +674,6 @@ int BuildQueenHead(short nQueen)
     QueenHead.nTarget = QueenList[nQueen].nTarget;
     QueenHead.field_2 = 0;
     QueenHead.nSprite = nSprite2;
-    int nSector2 = sprite[QueenHead.nSprite].sectnum;
-    assert(nSector2 >= 0 && nSector2 < kMaxSectors);
-
     QueenHead.field_C = 0;
 
     sprite[nSprite2].owner = runlist_AddRunRec(sprite[nSprite2].lotag - 1, 0x1B0000);
@@ -947,7 +944,7 @@ __MOVEQS:
                                 int dy = Sin(nAngle) << 10;
                                 int dz = (RandomSize(5) - RandomSize(5)) << 7;
 
-                                int nMov = movesprite(nSprite, dx, dy, dz, 0, 0, CLIPMASK1);
+                                movesprite(nSprite, dx, dy, dz, 0, 0, CLIPMASK1);
 
                                 BlowChunks(nSprite);
                                 BuildExplosion(nSprite);

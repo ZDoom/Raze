@@ -121,11 +121,11 @@ static int32_t ydim_from_200_16(int32_t y)
     return scale(y, ydim, 200<<16);
 }
 
-void printext(int x, int y, const char *buffer, short tilenum, char invisiblecol)
+void printext(int x, int y, const char *buffer, short tilenum, char UNUSED(invisiblecol))
 {
     int i;
     unsigned char ch;
-    const int32_t screenwidth = scale(240<<16, xdim, ydim);
+//    const int32_t screenwidth = scale(240<<16, xdim, ydim);
 
     x = xdim_to_320_16(x);
     y = ydim_to_200_16(y);
@@ -137,19 +137,6 @@ void printext(int x, int y, const char *buffer, short tilenum, char invisiblecol
             xdim_from_320_16(x + (8<<16))-1, ydim_from_200_16(y + (8<<16))-1);
         x += (8<<16);
     }
-
-#if 0
-    int i;
-    char ch;
-
-    for(i=0;buffer[i]!=0;i++)
-    {
-        ch = buffer[i];
-        rotatesprite((x-((8&15)<<3))<<16,(y-((8>>4)<<3))<<16,65536L,0,tilenum,0,0,8+16+64+128,x,y,x+7,y+7);
-        rotatesprite((x-((ch&15)<<3))<<16,(y-((ch>>4)<<3))<<16,65536L,0,tilenum,0,0,8+16+128,x,y,x+7,y+7);
-        x += 8;
-    }
-#endif
 }
 
 void doTileLoad(int i)

@@ -142,7 +142,7 @@ int BuildBubble(int x, int y, int z, short nSector)
     return nBubble | 0x140000;
 }
 
-void FuncBubble(int a, int b, int nRun)
+void FuncBubble(int a, int UNUSED(b), int nRun)
 {
     short nBubble = RunData[nRun].nVal;
     assert(nBubble >= 0 && nBubble < kMaxBubbles);

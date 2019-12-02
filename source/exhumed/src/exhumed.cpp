@@ -1138,7 +1138,7 @@ void CheckKeys()
         {
             if (ch)
             {
-                int nStringLen = strlen(sHollyStr);
+                size_t nStringLen = strlen(sHollyStr);
 
                 if (ch == asc_Enter)
                 {
@@ -1546,7 +1546,6 @@ void DrawClock()
 
 	auto pixels = TileFiles.tileMakeWritable(kTile3603);
 
-//    nRedTicks = 0;
     memset(pixels, -1, 4096);
 
     if (lCountDown / 30 != nClockVal)
@@ -1620,8 +1619,8 @@ static void G_PrintFPS(void)
     static int32_t frameCount;
     static double cumulativeFrameDelay;
     static double lastFrameTime;
-    static float lastFPS, minFPS = std::numeric_limits<float>::max(), maxFPS;
-    static double minGameUpdate = std::numeric_limits<double>::max(), maxGameUpdate;
+    static float lastFPS; // , minFPS = std::numeric_limits<float>::max(), maxFPS;
+    //static double minGameUpdate = std::numeric_limits<double>::max(), maxGameUpdate;
 
     double frameTime = timerGetHiTicks();
     double frameDelay = frameTime - lastFrameTime;
@@ -2040,7 +2039,7 @@ int app_main(int argc, char const* const* argv)
     g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
 
     // loc_11745:
-    FadeOut(0);
+//    FadeOut(0);
 //	InstallEngine();
     //KB_Startup();
     InitView();

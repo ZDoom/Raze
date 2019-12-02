@@ -38,11 +38,12 @@ void UpdateNetInputs()
 {
 
 }
-
+/*
 int InitNet(short nSocket, int nPlayers)
 {
     return 0;
 }
+*/
 
 int InitSerial()
 {

@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+
 extern int localclock;
 
 int TimeSlot[KMaxTimeSlots];
@@ -32,7 +33,7 @@ void InitTimeSlot()
     }
 }
 
-int GrabTimeSlot(int nVal)
+int GrabTimeSlot(int UNUSED(nVal))
 {
     return -1;
 

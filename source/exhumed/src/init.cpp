@@ -458,7 +458,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
     int nChannel = runlist_AllocChannel(hitag % 1000);
 //	int ebp = nChannel;
 
-    int nHitag2 = hitag / 1000;
+//    int nHitag2 = hitag / 1000;
 
     int nLotag2 = lotag / 1000;
     if (nLotag2 == 0) {

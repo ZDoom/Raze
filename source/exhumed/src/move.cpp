@@ -159,8 +159,6 @@ void MoveThings()
     UndoFlashes();
     DoLights();
 
-    short the_freeze = nFreeze;
-
     if (nFreeze)
     {
         if (nFreeze == 1 || nFreeze == 2) {
@@ -313,7 +311,7 @@ int BelowNear(short nSprite)
     }
 }
 
-int movespritez(short nSprite, int z, int height, int flordist, int clipdist)
+int movespritez(short nSprite, int z, int height, int UNUSED(flordist), int clipdist)
 {
     spritetype* pSprite = &sprite[nSprite];
     short nSector = pSprite->sectnum;
@@ -492,7 +490,7 @@ int GetSpriteHeight(int nSprite)
 }
 
 // TODO - where is ceildist used?
-int movesprite(short nSprite, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask)
+int movesprite(short nSprite, int dx, int dy, int dz, int UNUSED(ceildist), int flordist, unsigned int clipmask)
 {
     spritetype *pSprite = &sprite[nSprite];
     bTouchFloor = kFalse;
@@ -1150,7 +1148,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
         int var_18 = GetMyAngle(nSqrt, ((sprite[nSprite2].z - nHeight) - sprite[nSprite].z) >> 8);
 
-        int edx = nMyAngle;
+//        int edx = nMyAngle;
 
         int nAngDelta = AngleDelta(sprite[nSprite].ang, nMyAngle, 1024);
         int nAngDelta2 = nAngDelta;
@@ -1163,7 +1161,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
             nAngDelta2 = nAngDelta;
             nAngDelta2 >>= 6;
 
-            edx = ebx;
+//            edx = ebx;
 
             if (nAngDelta2 < 0)
                 nAngDelta2 = -nAngDelta2;
