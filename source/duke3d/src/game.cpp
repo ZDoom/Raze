@@ -4700,16 +4700,6 @@ void G_HandleLocalKeys(void)
             P_DoQuote(QUOTE_VIEW_MODE_OFF + myplayer.over_shoulder_on, &myplayer);
         }
 
-        if (inputState.UnboundKeyPressed(sc_F8))
-        {
-            inputState.ClearKeyStatus(sc_F8);
-
-            int const fta = !hud_messages;
-            hud_messages     = 1;
-            P_DoQuote(fta ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, &myplayer);
-            hud_messages     = fta;
-        }
-
 
         if (ud.overhead_on != 0)
         {

@@ -251,38 +251,6 @@ SWBOOL IsCommand(const char *str)
 }
 
 //
-// Sends a message to the user quote array
-//
-
-void CON_Message(const char *message, ...)
-{
-    va_list argptr;
-
-    va_start(argptr,message);
-    vsprintf(&con_message[0],message,argptr);
-    va_end(argptr);
-
-    // Send message to user quote array for immediate display
-    adduserquote(&con_message[0]);
-}
-
-//
-// Sends a message to the console quote array
-//
-
-void CON_ConMessage(const char *message, ...)
-{
-    va_list argptr;
-
-    va_start(argptr,message);
-    vsprintf(&con_message[0],message,argptr);
-    va_end(argptr);
-
-    // Send message to user quote array for immediate display
-    addconquote(&con_message[0]);
-}
-
-//
 // Stores user arguments passed in on the command line for later inspection
 //
 void CON_StoreArg(const char *userarg)
@@ -389,7 +357,7 @@ void CON_ProcessUserCommand(void)
     }
 
     if (ConPanel)
-        CON_ConMessage("Syntax Error or Command not enabled!");
+        OSD_Printf("Syntax Error or Command not enabled!");
 }
 
 //
@@ -437,7 +405,7 @@ SWBOOL CheckValidSprite(short SpriteNum)
 {
     if (SpriteNum < 0 || SpriteNum > 6144)
     {
-        CON_ConMessage("ERROR: Sprite %d is out of range.",SpriteNum);
+        OSD_Printf("ERROR: Sprite %d is out of range.",SpriteNum);
         return FALSE;
     }
     return TRUE;
@@ -452,7 +420,7 @@ void CON_GetHelp(void)
 
     if (sscanf(MessageInputString,"%s %s",base,command) < 2)
     {
-        CON_ConMessage("Usage: help [keyword]");
+        OSD_Printf("Usage: help [keyword]");
         return;
     }
 
@@ -460,25 +428,25 @@ void CON_GetHelp(void)
 
     if (!strcmp(command, "xrepeat"))
     {
-        CON_ConMessage("Usage: xrepeat [repeat value 0-255],");
-        CON_ConMessage("   [User ID (-1 for all ID's)], [SpriteNum (-1 for all of type ID)]");
+        OSD_Printf("Usage: xrepeat [repeat value 0-255],");
+        OSD_Printf("   [User ID (-1 for all ID's)], [SpriteNum (-1 for all of type ID)]");
         return;
     }
     else if (!strcmp(command, "yrepeat"))
     {
-        CON_ConMessage("Usage: yrepeat [repeat value 0-255],");
-        CON_ConMessage("   [User ID (-1 for all ID's)], [SpriteNum (-1 for all of type ID)]");
+        OSD_Printf("Usage: yrepeat [repeat value 0-255],");
+        OSD_Printf("   [User ID (-1 for all ID's)], [SpriteNum (-1 for all of type ID)]");
         return;
     }
     else if (!strcmp(command, "translucent"))
     {
-        CON_ConMessage("Usage: translucent [OFF/ON 0-1],");
-        CON_ConMessage("   [User ID (-1 for all ID's)], [SpriteNum (-1 for all of type ID)]");
+        OSD_Printf("Usage: translucent [OFF/ON 0-1],");
+        OSD_Printf("   [User ID (-1 for all ID's)], [SpriteNum (-1 for all of type ID)]");
         return;
     }
     else
     {
-        CON_ConMessage("No help was located on that subject.");
+        OSD_Printf("No help was located on that subject.");
     }
 }
 
@@ -513,9 +481,9 @@ void CON_ModXrepeat(void)
             }
         }
         if (op2 == -1)
-            CON_ConMessage("Xrepeat set to %d for all u->ID's for all sprites.",op1);
+            OSD_Printf("Xrepeat set to %d for all u->ID's for all sprites.",op1);
         else
-            CON_ConMessage("Xrepeat set to %d for u->ID = %d for all sprites.",op1,op2);
+            OSD_Printf("Xrepeat set to %d for u->ID = %d for all sprites.",op1,op2);
     }
     else
     {
@@ -526,7 +494,7 @@ void CON_ModXrepeat(void)
         if (!CheckValidSprite(op3)) return;
 
         sp->xrepeat = op1;
-        CON_ConMessage("Xrepeat set to %d for sprite %d.",op1,op3);
+        OSD_Printf("Xrepeat set to %d for sprite %d.",op1,op3);
     }
 }
 
@@ -562,9 +530,9 @@ void CON_ModYrepeat(void)
             }
         }
         if (op2 == -1)
-            CON_ConMessage("Yrepeat set to %d for all u->ID's for all sprites.",op1);
+            OSD_Printf("Yrepeat set to %d for all u->ID's for all sprites.",op1);
         else
-            CON_ConMessage("Yrepeat set to %d for u->ID = %d for all sprites.",op1,op2);
+            OSD_Printf("Yrepeat set to %d for u->ID = %d for all sprites.",op1,op2);
     }
     else
     {
@@ -575,7 +543,7 @@ void CON_ModYrepeat(void)
         if (!CheckValidSprite(op3)) return;
 
         sp->yrepeat = op1;
-        CON_ConMessage("Yrepeat set to %d for sprite %d.",op1,op3);
+        OSD_Printf("Yrepeat set to %d for sprite %d.",op1,op3);
     }
 }
 
@@ -602,12 +570,12 @@ void CON_ModTranslucent(void)
     if (TEST(sp->cstat,CSTAT_SPRITE_TRANSLUCENT))
     {
         RESET(sp->cstat,CSTAT_SPRITE_TRANSLUCENT);
-        CON_ConMessage("Translucence RESET for sprite %d.",op1);
+        OSD_Printf("Translucence RESET for sprite %d.",op1);
     }
     else
     {
         SET(sp->cstat,CSTAT_SPRITE_TRANSLUCENT);
-        CON_ConMessage("Translucence SET for sprite %d.",op1);
+        OSD_Printf("Translucence SET for sprite %d.",op1);
     }
 }
 
@@ -628,7 +596,7 @@ void CON_SoundTest(void)
 
     if (op1 < 0 || op1 >= DIGI_MAX)
     {
-        CON_ConMessage("Sound number out of range.");
+        OSD_Printf("Sound number out of range.");
         return;
     }
 
@@ -650,7 +618,7 @@ void CON_Reverb(void)
         return;
     }
 
-    CON_ConMessage("Reverb is now set to %d.",op1);
+    OSD_Printf("Reverb is now set to %d.",op1);
     COVER_SetReverb(op1);
     pp->Reverb = op1;
 }
@@ -664,10 +632,10 @@ void CON_Heap(void)
     void *testheap;
 
     totalmemory = Z_AvailHeap();
-    CON_ConMessage("Total heap at game startup = %d", TotalMemory);
-    CON_ConMessage("ActualHeap reserved for non-cache use = %d", ActualHeap);
-    CON_ConMessage("Total unallocated blocks in bytes minus reserved heap = %d", totalmemory);
-    CON_ConMessage("NOTE: Allocation exceeding ActualHeap will result in out of memory");
+    OSD_Printf("Total heap at game startup = %d", TotalMemory);
+    OSD_Printf("ActualHeap reserved for non-cache use = %d", ActualHeap);
+    OSD_Printf("Total unallocated blocks in bytes minus reserved heap = %d", totalmemory);
+    OSD_Printf("NOTE: Allocation exceeding ActualHeap will result in out of memory");
     // Find remaining heap space unused
     i = ActualHeap;
     while(i>0)
@@ -677,10 +645,10 @@ void CON_Heap(void)
         i-=1024L; // Decrease in 1k increments
     else
         {
-        CON_ConMessage("Heap test result (+ or - 1k):");
-        CON_ConMessage("=============================");
-        CON_ConMessage("Unallocated heap space remaining  = %d",i);
-        CON_ConMessage("Unallocated heap space used  = %d",ActualHeap - i);
+        OSD_Printf("Heap test result (+ or - 1k):");
+        OSD_Printf("=============================");
+        OSD_Printf("Unallocated heap space remaining  = %d",i);
+        OSD_Printf("Unallocated heap space used  = %d",ActualHeap - i);
         FreeMem(testheap);
         i=0; // Beam us out of here Scotty!
         }
@@ -688,7 +656,7 @@ void CON_Heap(void)
 
     if(ActualHeap < 50000L)
     {
-    CON_ConMessage("ALERT: Memory is critically low!");
+    OSD_Printf("ALERT: Memory is critically low!");
     }
     */
 }
@@ -997,14 +965,14 @@ void CON_Cache(void)
         }
     }
 
-    CON_ConMessage("/////////////////////////////////////////////");
-    CON_ConMessage("Current Memory Consumption:");
-    CON_ConMessage("Total Tiles        = %d",tottiles);
-    CON_ConMessage("Total Sprites      = %d",totsprites);
-    CON_ConMessage("Total Actors       = %d",totactors);
-    CON_ConMessage("Total Memory       = %d",(tottiles+totsprites+totactors));
-    CON_ConMessage("Total with LoWang  = %d",(tottiles+totsprites+totactors+TileRangeMem(1024)));
-    CON_ConMessage("/////////////////////////////////////////////");
+    OSD_Printf("/////////////////////////////////////////////");
+    OSD_Printf("Current Memory Consumption:");
+    OSD_Printf("Total Tiles        = %d",tottiles);
+    OSD_Printf("Total Sprites      = %d",totsprites);
+    OSD_Printf("Total Actors       = %d",totactors);
+    OSD_Printf("Total Memory       = %d",(tottiles+totsprites+totactors));
+    OSD_Printf("Total with LoWang  = %d",(tottiles+totsprites+totactors+TileRangeMem(1024)));
+    OSD_Printf("/////////////////////////////////////////////");
 
 }
 
@@ -1014,11 +982,11 @@ void CON_SpriteInfo(void)
     if (SpriteInfo > 2) SpriteInfo = 0;
 
     if (SpriteInfo == 0)
-        CON_ConMessage("Sprite information is OFF.");
+        OSD_Printf("Sprite information is OFF.");
     else if (SpriteInfo == 1)
-        CON_ConMessage("Sprite information is ON (Brief Mode).");
+        OSD_Printf("Sprite information is ON (Brief Mode).");
     else
-        CON_ConMessage("Sprite information is ON (Verbose Mode).");
+        OSD_Printf("Sprite information is ON (Verbose Mode).");
 }
 
 void CON_KillSprite(void)
@@ -1045,14 +1013,14 @@ void CON_KillSprite(void)
             if (!u->PlayerP)
                 SetSuicide(i);
         }
-        CON_ConMessage("Killed all sprites except Players.");
+        OSD_Printf("Killed all sprites except Players.");
     }
     else
     {
         if (!CheckValidSprite(op1)) return;
 
         SetSuicide(op1);
-        CON_ConMessage("Killed sprite %d.",op1);
+        OSD_Printf("Killed sprite %d.",op1);
     }
 
 }
@@ -1074,15 +1042,15 @@ void CON_SpriteDetail(void)
     if (!CheckValidSprite(op1)) return;
     auto const sp = (uspritetype const *)&sprite[op1];
 
-    CON_ConMessage("x = %d, y = %d, z = %d",sp->x,sp->y,sp->z);
-    CON_ConMessage("cstat = %d, picnum = %d",sp->cstat,sp->picnum);
-    CON_ConMessage("shade = %d, pal = %d, clipdist = %d",sp->shade,sp->pal,sp->clipdist);
-    CON_ConMessage("xrepeat = %d, yrepeat = %d",sp->xrepeat, sp->yrepeat);
-    CON_ConMessage("xoffset = %d, yoffset = %d",sp->xoffset, sp->yoffset);
-    CON_ConMessage("sectnum = %d, statnum = %d",sp->sectnum, sp->statnum);
-    CON_ConMessage("ang = %d, owner = %d",sp->ang,sp->owner);
-    CON_ConMessage("xvel = %d, yvel = %d, zvel = %d",sp->xvel,sp->yvel,sp->zvel);
-    CON_ConMessage("lotag = %d, hitag = %d, extra = %d",sp->lotag,sp->hitag,sp->extra);
+    OSD_Printf("x = %d, y = %d, z = %d",sp->x,sp->y,sp->z);
+    OSD_Printf("cstat = %d, picnum = %d",sp->cstat,sp->picnum);
+    OSD_Printf("shade = %d, pal = %d, clipdist = %d",sp->shade,sp->pal,sp->clipdist);
+    OSD_Printf("xrepeat = %d, yrepeat = %d",sp->xrepeat, sp->yrepeat);
+    OSD_Printf("xoffset = %d, yoffset = %d",sp->xoffset, sp->yoffset);
+    OSD_Printf("sectnum = %d, statnum = %d",sp->sectnum, sp->statnum);
+    OSD_Printf("ang = %d, owner = %d",sp->ang,sp->owner);
+    OSD_Printf("xvel = %d, yvel = %d, zvel = %d",sp->xvel,sp->yvel,sp->zvel);
+    OSD_Printf("lotag = %d, hitag = %d, extra = %d",sp->lotag,sp->hitag,sp->extra);
 }
 
 void CON_UserDetail(void)
@@ -1107,19 +1075,19 @@ void CON_UserDetail(void)
 
     if (!u) return;
 
-    CON_ConMessage("State = %p, Rot = %p",u->State,u->Rot);
-    CON_ConMessage("StateStart = %p, StateEnd = %p",u->StateStart,u->StateEnd);
-    CON_ConMessage("ActorActionFunc = %p",u->ActorActionFunc);
-    CON_ConMessage("ActorActionSet = %p",u->ActorActionSet);
-    CON_ConMessage("Personality = %p",u->Personality);
-    CON_ConMessage("Attrib = %p",u->Attrib);
-    CON_ConMessage("Flags = %d, Flags2 = %d, Tics = %d",u->Flags,u->Flags2,u->Tics);
-    CON_ConMessage("RotNum = %d, ID = %d",u->RotNum,u->ID);
-    CON_ConMessage("Health = %d, MaxHealth = %d",u->Health,u->MaxHealth);
-    CON_ConMessage("LastDamage = %d, PainThreshold = %d",u->LastDamage,u->PainThreshold);
-    CON_ConMessage("jump_speed = %d, jump_grav = %d",u->jump_speed,u->jump_grav);
-    CON_ConMessage("xchange = %d, ychange = %d, zchange = %d",u->xchange,u->ychange,u->zchange);
-    CON_ConMessage("ret = %d, WaitTics = %d, spal = %d",u->ret,u->WaitTics,u->spal);
+    OSD_Printf("State = %p, Rot = %p",u->State,u->Rot);
+    OSD_Printf("StateStart = %p, StateEnd = %p",u->StateStart,u->StateEnd);
+    OSD_Printf("ActorActionFunc = %p",u->ActorActionFunc);
+    OSD_Printf("ActorActionSet = %p",u->ActorActionSet);
+    OSD_Printf("Personality = %p",u->Personality);
+    OSD_Printf("Attrib = %p",u->Attrib);
+    OSD_Printf("Flags = %d, Flags2 = %d, Tics = %d",u->Flags,u->Flags2,u->Tics);
+    OSD_Printf("RotNum = %d, ID = %d",u->RotNum,u->ID);
+    OSD_Printf("Health = %d, MaxHealth = %d",u->Health,u->MaxHealth);
+    OSD_Printf("LastDamage = %d, PainThreshold = %d",u->LastDamage,u->PainThreshold);
+    OSD_Printf("jump_speed = %d, jump_grav = %d",u->jump_speed,u->jump_grav);
+    OSD_Printf("xchange = %d, ychange = %d, zchange = %d",u->xchange,u->ychange,u->zchange);
+    OSD_Printf("ret = %d, WaitTics = %d, spal = %d",u->ret,u->WaitTics,u->spal);
 }
 
 void CON_Quit(void)
@@ -1143,7 +1111,7 @@ void CON_MultiNameChange(void)
 
 void CON_LoadSetup(void)
 {
-    CON_ConMessage("JonoF: Maybe later");
+    OSD_Printf("JonoF: Maybe later");
 }
 
 const char *damagename[] =
@@ -1191,34 +1159,34 @@ void CON_DamageData(void)
 
     if (op1 < -1 || op1 > 46)
     {
-        CON_ConMessage("Damage Data index is out of range.");
+        OSD_Printf("Damage Data index is out of range.");
         return;
     }
 
     if (!strcmp(field,"damage_lo"))
     {
         DamageData[op1].damage_lo = op2;
-        CON_ConMessage("DamageData[%s].damage_lo = %d",damagename[op1],op2);
+        OSD_Printf("DamageData[%s].damage_lo = %d",damagename[op1],op2);
     }
     else if (!strcmp(field,"damage_hi"))
     {
         DamageData[op1].damage_hi = op2;
-        CON_ConMessage("DamageData[%s].damage_hi = %d",damagename[op1],op2);
+        OSD_Printf("DamageData[%s].damage_hi = %d",damagename[op1],op2);
     }
     else if (!strcmp(field,"radius"))
     {
         DamageData[op1].radius = op2;
-        CON_ConMessage("DamageData[%s].radius = %d",damagename[op1],op2);
+        OSD_Printf("DamageData[%s].radius = %d",damagename[op1],op2);
     }
     else if (!strcmp(field,"max_ammo"))
     {
         DamageData[op1].max_ammo = op2;
-        CON_ConMessage("DamageData[%s].max_ammo = %d",damagename[op1],op2);
+        OSD_Printf("DamageData[%s].max_ammo = %d",damagename[op1],op2);
     }
     else if (!strcmp(field,"min_ammo"))
     {
         DamageData[op1].min_ammo = op2;
-        CON_ConMessage("DamageData[%s].min_ammo = %d",damagename[op1],op2);
+        OSD_Printf("DamageData[%s].min_ammo = %d",damagename[op1],op2);
     }
     if (!strcmp(field,"show"))
     {
@@ -1227,17 +1195,17 @@ void CON_DamageData(void)
             for (i=op2; i<=op2+10; i+=2)
             {
                 if (i<47)
-                    CON_ConMessage("[%d] = %s  [%d] = %s",i,damagename[i],i+1,damagename[i+1]);
+                    OSD_Printf("[%d] = %s  [%d] = %s",i,damagename[i],i+1,damagename[i+1]);
             }
         }
         else
         {
-            CON_ConMessage(" ");
-            CON_ConMessage("Item = %s:",damagename[op1]);
-            CON_ConMessage("damage_lo = %d, damag_hi = %d",DamageData[op1].damage_lo,DamageData[op1].damage_hi);
-            CON_ConMessage("radius = %u",DamageData[op1].radius);
-            CON_ConMessage("min_ammo = %d, max_ammo = %d",DamageData[op1].min_ammo,DamageData[op1].max_ammo);
-            CON_ConMessage(" ");
+            OSD_Printf(" ");
+            OSD_Printf("Item = %s:",damagename[op1]);
+            OSD_Printf("damage_lo = %d, damag_hi = %d",DamageData[op1].damage_lo,DamageData[op1].damage_hi);
+            OSD_Printf("radius = %u",DamageData[op1].radius);
+            OSD_Printf("min_ammo = %d, max_ammo = %d",DamageData[op1].min_ammo,DamageData[op1].max_ammo);
+            OSD_Printf(" ");
         }
     }
 }
@@ -1279,13 +1247,13 @@ void CON_Tweak(void)
     {
         extern short ADJUST;
         ADJUST = op1;
-        CON_ConMessage("Zvelocity ADJUST set to %d.",op1);
+        OSD_Printf("Zvelocity ADJUST set to %d.",op1);
     }
     else if (!strcmp(command,"adjustv"))
     {
         extern int ADJUSTV;
         ADJUSTV = op1;
-        CON_ConMessage("Zvelocity ADJUSTV set to %d.",op1);
+        OSD_Printf("Zvelocity ADJUSTV set to %d.",op1);
     }
 }
 
@@ -1309,20 +1277,20 @@ void CON_CheckHeap(void)
     switch( _heapchk() )
     {
     case _HEAPOK:
-      CON_ConMessage( "OK - heap is good\n" );
+      OSD_Printf( "OK - heap is good\n" );
       break;
     case _HEAPEMPTY:
-      CON_ConMessage( "OK - heap is empty\n" );
+      OSD_Printf( "OK - heap is empty\n" );
       break;
     case _HEAPBADBEGIN:
-      CON_ConMessage( "ERROR - heap is damaged\n" );
+      OSD_Printf( "ERROR - heap is damaged\n" );
       break;
     case _HEAPBADNODE:
-      CON_ConMessage( "ERROR - bad node in heap\n" );
+      OSD_Printf( "ERROR - bad node in heap\n" );
       break;
     }
     */
-    CON_ConMessage("JonoF: Not now");
+    OSD_Printf("JonoF: Not now");
 }
 
 /*
@@ -1364,7 +1332,7 @@ void heap_dump( void )
 void CON_DumpHeap(void)
 {
     //heap_dump(); // Dump it.
-    CON_ConMessage("JonoF: Not now");
+    OSD_Printf("JonoF: Not now");
 }
 
 void CON_ShowMirror(void)
@@ -1382,21 +1350,21 @@ void CON_ShowMirror(void)
 
     if (op1 < 0 || op1 > 9)
     {
-        CON_ConMessage("Mirror number is out of range!");
+        OSD_Printf("Mirror number is out of range!");
         return;
     }
 
-    CON_ConMessage("camera is the ST1 sprite used as the view spot");
-    CON_ConMessage("camspite is the SpriteNum of the drawtotile tile in editart");
-    CON_ConMessage("camspic is the tile number of the drawtotile in editart");
-    CON_ConMessage("iscamera is whether or not this mirror is a camera type");
-    CON_ConMessage(" ");
-    CON_ConMessage("mirror[%d].mirrorwall = %d",op1,mirror[op1].mirrorwall);
-    CON_ConMessage("mirror[%d].mirrorsector = %d",op1,mirror[op1].mirrorsector);
-    CON_ConMessage("mirror[%d].camera = %d",op1,mirror[op1].camera);
-    CON_ConMessage("mirror[%d].camsprite = %d",op1,mirror[op1].camsprite);
-    CON_ConMessage("mirror[%d].campic = %d",op1,mirror[op1].campic);
-    CON_ConMessage("mirror[%d].iscamera = %d",op1,mirror[op1].ismagic);
+    OSD_Printf("camera is the ST1 sprite used as the view spot");
+    OSD_Printf("camspite is the SpriteNum of the drawtotile tile in editart");
+    OSD_Printf("camspic is the tile number of the drawtotile in editart");
+    OSD_Printf("iscamera is whether or not this mirror is a camera type");
+    OSD_Printf(" ");
+    OSD_Printf("mirror[%d].mirrorwall = %d",op1,mirror[op1].mirrorwall);
+    OSD_Printf("mirror[%d].mirrorsector = %d",op1,mirror[op1].mirrorsector);
+    OSD_Printf("mirror[%d].camera = %d",op1,mirror[op1].camera);
+    OSD_Printf("mirror[%d].camsprite = %d",op1,mirror[op1].camsprite);
+    OSD_Printf("mirror[%d].campic = %d",op1,mirror[op1].campic);
+    OSD_Printf("mirror[%d].iscamera = %d",op1,mirror[op1].ismagic);
 }
 
 void CON_DumpSoundList(void)
@@ -1404,7 +1372,7 @@ void CON_DumpSoundList(void)
     extern void DumpSounds(void);
 
     DumpSounds();
-    CON_Message("Sounds dumped to dbg.foo");
+    OSD_Printf("Sounds dumped to dbg.foo");
 
 }
 

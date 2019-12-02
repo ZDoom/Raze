@@ -865,8 +865,8 @@ OptionMenu "OtherControlsMenu"// protected
 	Control    "$CNTRLMNU_PAUSE"           , "pause"
 
 	StaticText ""
-	Control    "$CNTRLMNU_DISPLAY_INC"     , "sizeup"
-	Control    "$CNTRLMNU_DISPLAY_DEC"     , "sizedown"
+	Control    "$CNTRLMNU_DISPLAY_INC"     , "+enlarge_Screen"
+	Control    "$CNTRLMNU_DISPLAY_DEC"     , "+shrink_screen"
 	Control    "$CNTRLMNU_TOGGLE_MESSAGES" , "togglemessages"
 	Control    "$CNTRLMNU_ADJUST_GAMMA"    , "bumpgamma"
 

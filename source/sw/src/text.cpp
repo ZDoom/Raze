@@ -447,7 +447,7 @@ void PutStringInfo(PLAYERp pp, const char *string)
     if (!hud_messages)
         return;
 
-    CON_ConMessage("%s", string); // Put it in the console too
+    OSD_Printf("%s", string); // Put it in the console too
     PutStringInfoLine(pp, string);
 }
 

@@ -491,6 +491,16 @@ bool M_SetMenu(FName menu, int param, FName caller)
 			return;
 		}
 #endif
+			
+	case NAME_QuitMenu:
+		// The separate menu class no longer exists but the name still needs support for existing mods.
+		C_DoCommand("menu_quit");
+		return true;
+
+	case NAME_EndgameMenu:
+		// The separate menu class no longer exists but the name still needs support for existing mods.
+		C_DoCommand("memnu_endgame");
+		return true;
 	}
 
 	// End of special checks

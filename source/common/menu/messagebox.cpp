@@ -377,3 +377,89 @@ DMenu* CreateMessageBoxMenu(DMenu* parent, const char* message, int messagemode,
 	return newmenu;
 
 }
+
+
+#if 0
+void ActivateEndGameMenu()
+{
+	FString tempstring = GStrings(netgame ? "NETEND" : "ENDGAME");
+	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
+	{
+		M_ClearMenus();
+		if (!netgame)
+		{
+			if (demorecording)
+				G_CheckDemoStatus();
+			D_StartTitle();
+		}
+	});
+
+	M_ActivateMenu(newmenu);
+}
+
+CCMD (menu_endgame)
+{	// F7
+	if (!usergame)
+	{
+		S_Sound (CHAN_VOICE | CHAN_UI, "menu/invalid", snd_menuvolume, ATTN_NONE);
+		return;
+	}
+		
+	//M_StartControlPanel (true);
+	S_Sound (CHAN_VOICE | CHAN_UI, "menu/activate", snd_menuvolume, ATTN_NONE);
+
+	ActivateEndGameMenu();
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+CCMD (menu_quit)
+{	// F10
+	if (m_quickexit)
+	{
+		ST_Endoom();
+	}
+
+	M_StartControlPanel (true);
+
+	const size_t messageindex = static_cast<size_t>(gametic) % gameinfo.quitmessages.Size();
+	FString EndString;
+	const char *msg = gameinfo.quitmessages[messageindex];
+	if (msg[0] == '$')
+	{
+		if (msg[1] == '*')
+		{
+			EndString = GStrings(msg + 2);
+		}
+		else
+		{
+			EndString.Format("%s\n\n%s", GStrings(msg + 1), GStrings("DOSY"));
+		}
+	}
+	else EndString = gameinfo.quitmessages[messageindex];
+
+	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, EndString, 0, false, NAME_None, []()
+	{
+		if (!netgame)
+		{
+			if (gameinfo.quitSound.IsNotEmpty())
+			{
+				S_Sound(CHAN_VOICE | CHAN_UI, gameinfo.quitSound, snd_menuvolume, ATTN_NONE);
+				I_WaitVBL(105);
+			}
+		}
+		ST_Endoom();
+	});
+
+
+	M_ActivateMenu(newmenu);
+}
+
+
+
+
+#endif

@@ -5798,7 +5798,7 @@ KeyMain:
                         sprintf(ds,"Fortune Say: %s\n",ReadFortune[STD_RANDOM_RANGE(10)]);
                     else
                         sprintf(ds,"Fortune Say: %s\n",ReadFortune[STD_RANDOM_RANGE(MAX_FORTUNES)]);
-                    CON_Message("%s", ds);
+                    OSD_Printf("%s", ds);
                 }
 
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup

@@ -6247,16 +6247,6 @@ void G_HandleLocalKeys(void)
             }
         }
 
-        if (inputState.UnboundKeyPressed(sc_F8))
-        {
-            inputState.ClearKeyStatus(sc_F8);
-
-            int const fta = !hud_messages;
-            hud_messages     = 1;
-            P_DoQuote(fta ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, g_player[myconnectindex].ps);
-            hud_messages     = fta;
-        }
-
         if (ud.overhead_on != 0)
         {
             int const timerOffset = ((int) totalclock - nonsharedtimer);

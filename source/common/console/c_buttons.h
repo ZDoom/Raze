@@ -67,14 +67,11 @@ enum GameFunction_t
 	gamefunc_Quick_Kick,
 	gamefunc_Next_Weapon,
 	gamefunc_Previous_Weapon,
-	gamefunc_Unused1, // was gamefunc_Console. Cannot be deleted thanks to CON usuing numeric indiced for addressing this list.
 	gamefunc_Show_DukeMatch_Scores,
 	gamefunc_Dpad_Select,
 	gamefunc_Dpad_Aiming,
 	gamefunc_AutoRun,
 	gamefunc_Last_Weapon,
-	gamefunc_Unused2, // was quickload/quicksave
-	gamefunc_Unused3,
 	gamefunc_Alt_Weapon,
 	gamefunc_Third_Person_View,
 	gamefunc_See_Chase_View = gamefunc_Third_Person_View,

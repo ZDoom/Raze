@@ -78,13 +78,14 @@ void dsprintf(char *, char *, ...);
 
 void PokeStringMono(uint8_t Attr, uint8_t* String);
 
-#if 1  // !JIM! Frank, I redirect this for me you'll want to set this back for you
+#if 1
+// !JIM! Frank, I redirect this for me you'll want to set this back for you
 extern int DispMono;
 #define MONO_PRINT(str) if (DispMono) PokeStringMono(/*MDA_NORMAL*/ 0, str)
 #else
 void adduserquote(const char *daquote);
 extern int DispMono;
-#define MONO_PRINT(str) if (DispMono) CON_ConMessage(str); // Put it in my userquote stuff!
+#define MONO_PRINT(str) if (DispMono) OSD_Printf(str); // Put it in my userquote stuff!
 //#define MONO_PRINT(str) if (DispMono) printf(str);
 #endif
 
@@ -857,8 +858,6 @@ void addconquote(const char *daquote);
 // Console
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
-void CON_Message(const char *message, ...) PRINTF_FORMAT(1, 2);
-void CON_ConMessage(const char *message, ...) PRINTF_FORMAT(1, 2);
 void CON_StoreArg(const char *userarg);
 SWBOOL CON_CheckParm(const char *userarg);
 void CON_CommandHistory(signed char dir);

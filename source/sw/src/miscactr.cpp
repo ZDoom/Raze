@@ -838,7 +838,7 @@ int PachinkoCheckWin(short SpriteNum)
 
     u->WaitTics = 0;  // Can operate it again now
 
-    //CON_ConMessage("bool1 = %d",TEST_BOOL1(sp));
+    //OSD_Printf("bool1 = %d",TEST_BOOL1(sp));
     // You already won, no more from this machine!
     if (TEST_BOOL1(sp)) return 0;
 

@@ -746,7 +746,7 @@ SWBOOL CacheSound(int num, int type)
         if (!OpenSound(vp, handle, &length))
         {
             sprintf(ds,"Could not open sound %s, num %d, priority %d\n",vp->name,num,vp->priority);
-            CON_ConMessage("%s", ds);
+            OSD_Printf("%s", ds);
             return FALSE;
         }
 

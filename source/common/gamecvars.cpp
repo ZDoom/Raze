@@ -47,6 +47,8 @@
 #include "rts.h"
 #include "stats.h"
 #include "z_music.h"
+#include "c_dispatch.h"
+#include "gstrings.h"
 
 /* Notes
  
@@ -240,7 +242,32 @@ CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bot
 CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable background image stretching in wide resolutions")
 CVARD(Int, hud_messagetime, 120, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "length of time to display multiplayer chat messages")
 // Should be available to all games - the message handling should also be consolidated into a game independent feature.
-/*CUSTOM_*/CVARD(Bool, hud_messages, true, CVAR_ARCHIVE | CVAR_FRONTEND_BLOOD|CVAR_FRONTEND_SHADOWWARRIOR, "enable/disable showing messages")
+/*CUSTOM_*/CVARD(Bool, hud_messages, true, CVAR_ARCHIVE, "enable/disable showing messages")
+CVAR(Bool, hud_messagenative, true, CVAR_ARCHIVE)
+
+CCMD (togglemessages)
+{
+	// Fixme: Needs to redirect to the frontend specific routine to handle on-screen messages.
+	// Ideally as an option to use the ZDoom-style notification.
+	// P_DoQuote(fta ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, &myplayer); (Duke/Redneck - beware of crappy implementation!!!
+	// void viewSetMessage(const char *pMessage, const int pal, const MESSAGE_PRIORITY priority) Blood
+	// void viewSetSystemMessage(const char* pMessage, ...) alternative
+	// void PutStringInfo(PLAYERp pp, const char *string) SW
+
+	if (hud_messages)
+	{
+		Printf (128, "%s\n", GStrings("MSGOFF"));
+		hud_messages = false;
+	}
+	else
+	{
+		Printf (128, "%s\n", GStrings("MSGON"));
+		hud_messages = true;
+	}
+}
+
+
+
 //{
 	//Blood::gGameMessageMgr.SetState(self); // this is for terminaing an active message. Cannot be done like this because CVARs are global.
 //}
@@ -485,6 +512,20 @@ CUSTOM_CVARD(Float, vid_brightness, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adju
 	if (self < 0) self = 0;
 	else if (self > 5) self = 5;
 	// todo: tell the system to update
+}
+
+CCMD (bumpgamma)
+{
+	// [RH] Gamma correction tables are now generated on the fly for *any* gamma level
+	// Q: What are reasonable limits to use here?
+
+	float newgamma = vid_gamma + 0.1f;
+
+	if (newgamma > 3.0)
+		newgamma = 1.0;
+
+	vid_gamma = newgamma;
+	Printf ("Gamma correction level %g\n", newgamma);
 }
 
 //{ "vid_contrast","adjusts contrast component of gamma ramp",(void *) &vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
