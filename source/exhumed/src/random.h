@@ -18,13 +18,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef __random_h__
 #define __random_h__
+#include "compat.h"
 
 BEGIN_PS_NS
 
 void InitRandom();
 int RandomBit();
 char RandomByte();
-short RandomWord();
+uint16_t RandomWord();
 int RandomLong();
 int RandomSize(int nSize);
 
