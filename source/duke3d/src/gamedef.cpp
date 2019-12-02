@@ -39,12 +39,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "stringtable.h"
 
+void C_CON_SetButtonAlias(int num, const char* text);
+void C_CON_ClearButtonAlias(int num);
+
 BEGIN_DUKE_NS
 
 #define LINE_NUMBER (g_lineNumber << 12)
 
-void C_CON_SetButtonAlias(int num, const char* text);
-void C_CON_ClearButtonAlias(int num);
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
@@ -5072,7 +5073,7 @@ repeatcase:
 					}
 				}
 				build.Push(0);
-				buttonMap.SetButtonAlias(j, build.Data());
+				C_CON_SetButtonAlias(j, build.Data());
 			}
             continue;
 
@@ -5091,7 +5092,7 @@ repeatcase:
                 continue;
             }
 
-			buttonMap.ClearButtonAlias(j);
+			C_CON_ClearButtonAlias(j);
             continue;
 
         case CON_DEFINESKILLNAME:

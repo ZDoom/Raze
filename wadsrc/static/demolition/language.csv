@@ -216,6 +216,9 @@ No files,MNU_NOFILES,,,,Žádné soubory,Keine Dateien,,Neniuj dosieroj,Sin arch
 ",Deseja mesmo apagar o jogo,,"Вы действительно хотите удалить сохранение
 ",Да ли стварно желите да избришете сачувану игру
 ,,,,,,,,,,,,,,,,,,,,,,,
+Off,OPTVAL_OFF,,,,Vyp,Aus,,Malaktiva,Desactivado,,Pois,,,Disattivo,オフ,끔,Uit,Wyłączone,Desligado,,,Откл.,Искљ.
+On,OPTVAL_ON,,,,Zap,An,,Aktiva,Activado,,Päällä,,,Attivo,オン,켬,Aan,Włączone,Ligado,,,Вкл.,Укљ.
+Auto,OPTVAL_AUTO,,,,,,,Aŭtomata,Automático,,Automaattinen,,,Automatico,自動,자동,,Automatycznie,Automático,,,Авто,Аутоматски
 Options,OPTMNU_TITLE,,,,Možnosti,Optionen,,Agordoj,Opciones,,Asetukset,Options,Beállítások,Opzioni,オプション,설정,Opties,Opcje,Opções,,,Настройки,Подешавања
 Customize Controls,OPTMNU_CONTROLS,,,,Nastavení ovládání,Steuerung einstellen,,Agordi Regilojn,Personalizar Controles,,Ohjausasetukset,Modifier les Contrôles,Irányítás testreszabása,Personalizza i controlli,キー配置変更,조작 사용자 지정,Instellen van de controle,Ustaw Klawisze,Configurar Controles,Configurar Controlos,,Управление,Контроле
 Mouse Options,OPTMNU_MOUSE,,,,Nastavení myši,Mauseinstellungen,,Musagordoj,Opciones de Ratón,,Hiiriasetukset,Options de la Souris,Egér beállítások,Opzioni Mouse,マウス オプション,마우스 설정,Muis opties,Opcje Myszki,Opções de mouse,Opções do rato,,Мышь,Миш
@@ -231,3 +234,88 @@ Set video mode,OPTMNU_VIDEO,,,,Nastavit režim displeje,Videomodus,,Agordi video
 Reset to defaults,OPTMNU_DEFAULTS,,,,Obnovit původní,Auf Vorgaben zurücksetzen,,Reŝanĝi al defaŭltoj,Valores por Defecto,,Palauta oletusasetukset,Réinitialiser les paramètres,Alapértelmezett beállítások használata,Reimposta ai valori di default,初期設定に戻す,초기화,Terugzetten naar standaardinstellingen,Resetuj do domyślnych,Redefinir para configurações padrão,,,Сбросить все настройки,Врати подразумевано
 Reset to last saved,OPTMNU_RESETTOSAVED,,,,Obnovit naposledy uložené,Auf gespeicherte Werte zurücksetzen,,Reŝanĝi al lasta konservo,Últimos Valores Guardados,,Palauta viimeksi tallennettu tila,Recharger dernière config.,Legutóbbi mentett beállítások használata,Reimposta ai valori salvati l'ultima volta,最後に保存した設定に戻す,이전 설정으로 초기화,Reset naar laatste opgeslagen,Resetuj do ostatnio zapisanych,Redefinir para última configuração salva,Redefinir para última configuração gravada,,Вернуть предыдущие настройки,Врати задње сачувано
 Go to console,OPTMNU_CONSOLE,,,,Jít do konzole,Öffne Konsole,,Iri al konzolo,Ir a la consola,,Mene konsoliin,Ouvrir la console,Konzol megnyitása,Vai alla console,コンソールを開く,콘솔로 이동,Ga naar de console,Przejdź do konsoli,Abrir console,Abrir consola,,Открыть консоль,Отвори конзолу
+,Controls submenu,,,,,,,,,,,,,,,,,,,,,,
+"ENTER to change, BACKSPACE to clear",CNTRLMNU_SWITCHTEXT1,,,,"ENTER pro změnu, BACKSPACE pro smazání",ENTER: Editieren BACKSPACE: Löschen,,"ENTER klavo por ŝanĝi, BACKSPACE klavo por viŝi","ENTER para cambiar, BACKSPACE para limpiar",,"Aseta ENTERILLÄ, tyhjennä ASKELPALAUTTIMELLA","ENTREE pour changer, RET. ARRIERE pour effacer.","ENTER a változtatáshoz, BACKSPACE a törléshez","INVIO per modificare, BACKSPACE per ripulire",Enter で決定、BackSpaceで無効化,"바꿀려면 ENTER키, 지울려면 BACKSPACE키를 누르시오","ENTER om te veranderen, BACKSPACE om te wissen.","ENTER by zmienić, BACKSPACE by wyczyścić","ENTER para alterar, BACKSPACE para limpar",,,"ENTER — изменить, BACKSPACE — очистить","ENTER за промену, BACKSPACE за чишћење"
+"Press new key for control, ESC to cancel",CNTRLMNU_SWITCHTEXT2,,,,"Zmáčkni novou klávesu pro nastavení, ESC pro storno",Drücke eine Taste oder ESC um abzubrechen,,"Premi novan klavon por reakiri regilon, ESC por nuligi","Presiona una tecla para el control, ESC para cancelar",,"Valitse näppäin toiminnolle, ESC peruuttaa","Appuyez sur la nouvelle touche pour l'assigner,
+Appuyez sur ECHAP pour annuler.","Nyomj meg egy gombot, ESC a törléshez","Premi un nuovo tasto per il controllo, ESC per cancellare","登録したいキーを押すか, Escでキャンセル","명령을 얽으려면 아무 키를, 취소는 ESC키를 누르시오","Druk op de nieuwe toets voor controle, ESC om te annuleren.","Wciśnij nowy przycisk by zmienić klawisz, ESC by anulować","Aperte a nova tecla para o comando, ESC para cancelar","Carrega a nova tecla para o comando, ESC para cancelar",,"Нажмите клавишу управления, ESC для отмены","Притисните ново тастер за одређивање контроле, ESC за отказивање"
+Controls,CNTRLMNU_CONTROLS,,,,Ovládání,Steuerung,,Regiloj,Controles,,Ohjaimet,Contrôles,Irányítás,Controlli,操作系統,조작,Bedieningselementen,Klawisze,Comandos,Controlos,,Управление,Контроле
+Fire,CNTRLMNU_ATTACK,,,,Střelba,Feuer,,Pafi,Fuego,,Tuli,Tirer,Tűz,Fuoco,撃つ,공격,Vuur,Strzał,Atirar,,,Атака,Нападни
+Secondary Fire,CNTRLMNU_ALTATTACK,,,,Sekundární střelba,Alternativfeuer,,Duaranga Pafi,Fuego secundario,,Vaihtoehtoistuli,Tir Secondaire,Másodlagos tüzelés,Fuoco secondario,セカンダリ,보조 공격,Secundaire vuur,Strzał Alternatywny,Tiro Secundário,,,Вторичная атака,Секундарни напад
+Alternative Weapon,CNTRLMNU_ALTWEAPON,,,,,Alternative Waffe,,,,,,,,,,,,,,,,,
+Use / Open,CNTRLMNU_USE,,,,Použít / otevřít,Benutzen / Öffnen,,Uzi / Malfermi,Usar / Abrir,,Käytä / Avaa,Utiliser/Ouvrir,Használ / Ajtónyitás,Usa / Apri,開く / スイッチ等使用,사용/열기,Gebruik / Openen,Użyj / Otwórz,Usar / Abrir,,,Использовать/открыть,Користи / Отвори
+Move forward,CNTRLMNU_FORWARD,,,,Pohyb vpřed,Vorwärts bewegen,,Movi anatŭe,Avanzar,,Liiku eteenpäin,Avancer,Előre mozgás,Movimento in Avanti,前進,앞으로 이동,Voorwaarts bewegen,Idź do przodu,Mover para frente,,,Движение вперёд,Крећи се напред
+Move backward,CNTRLMNU_BACK,,,,Pohyb vzad,Rückwarts bewegen,,Movi malantaŭe,Retroceder,,Liiku taaksepäin,Reculer,Hátra mozgás,Movimento in Indietro,後退,뒤로 이동,Achteruit bewegen,Idź do tyłu,Mover para trás,,,Движение назад,Крећи се уназад
+Strafe left,CNTRLMNU_MOVELEFT,,,,Pohyb doleva,Nach links bewegen,,Flankmovi maldekstre,Moverse a la izquierda,,Astu sivuun vasemmalle,Aller à Gauche,Balra oldalazás,Movimento laterale a sinistra,左移動,왼쪽으로 이동,Verplaats naar links,Unik w lewo,Mover para a esquerda,,,Движение влево,Крећи се лево
+Strafe right,CNTRLMNU_MOVERIGHT,,,,Pohyb doprava,Nach rechts bewegen,,Flankmovi dekstre,Moverse a la derecha,,Astu sivuun oikealle,Aller à Droite,Jobbra oldalazás,Movimento laterale a destra,右移動,오른쪽으로 이동,Verplaats naar rechts,Unik w prawo,Mover para a direita,,,Движение вправо,Крећи се десно
+Turn left,CNTRLMNU_TURNLEFT,,,,Otočení vlevo,Nach links drehen,,Turni maldekstre,Girar a la izquierda,,Käänny vasemmalle,Tourner à Gauche,Balra fordul,"Gira a sinistra
+",左を向く,왼쪽으로 회전,Draai naar links,Obróć się w lewo,Girar para a esquerda,,,Поворот налево,Окрени се лево
+Turn right,CNTRLMNU_TURNRIGHT,,,,Otočení vpravo,Nach rechts drehen,,Turni dekstre,Girar a la derecha,,Käänny oikealle,Tourner à Droite,Jobbra fordul,Gira a destra,右を向く,오른쪽으로 회전,Draai naar rechts,Obróć się w prawo,Girar para a direita,,,Поворот направо,Окрени се десно
+Quick Turn,CNTRLMNU_TURN180,,,,Rychlé otočení,Schnelle Drehung,,Rapida turno,Giro rápido,,Pikakäännös,Faire un 180,Megfordulás,Rotazione rapida,背後を向く,빠른 회전,Snelle draai,Nagły Obrót,Giro rápido,,,Быстрый разворот,Брзи окрет
+Jump,CNTRLMNU_JUMP,,,,Skok,Springen,,Salti,Saltar,,Hyppää,Sauter,Ugrás,Salta,ジャンプ,점프,Springen,Skok,Pular,Saltar,,Прыжок,Скок
+Crouch,CNTRLMNU_CROUCH,,,,Kleknutí,Ducken,,Kaŭri,Agacharse,,Kyyristy,S'accroupir (tenir),Guggolás,Abbassati,屈む,숙이기,Hurken,Kucnięcie,Agachar,,,Приседание,Чучни
+Crouch Toggle,CNTRLMNU_TOGGLECROUCH,,,,Zap. / Vyp. kleknutí,Ducken an/aus,,Kaŭrbaskulo,Alternar agachado,,Kyyristymisen vaihtokytkin,S'accroupir (alterner),Guggolási kapcsoló,Toggle abbassamento,屈む切替,숙이기 토글,Hurken Toggle,Włącz / Wyłącz kucnięcie,Agachar (Liga/Desliga),,,Сесть/встать,Чучни (без држања)
+Mouse look,CNTRLMNU_MOUSELOOK,,,,Pohled myší,Maus-Blick,,Musilregardo,Vista con ratón,,Hiirikatselu,Vue à la souris,Egérrel való nézelődés,Modalità vista col mouse,マウス視点上下化,마우스 룩,Muis-look,Rozglądanie się myszką,Vista com o mouse,Vista com o rato,,Обзор мышью,Гледај мишем
+Look up,CNTRLMNU_LOOKUP,,,,Pohled vzhůru,Nach oben schauen,,Rigardi supre,Mirar arriba,,Katso ylös,Regarder en haut,Felfele nézés,Guarda sopra,視点を上げる,위로 보기,Kijk omhoog,Patrz w górę,Olhar para cima,,,Смотреть вверх,Гледај горе
+Look down,CNTRLMNU_LOOKDOWN,,,,Pohled dolů,Nach unten schauen,,Rigardi malsupre,Mirar abajo,,Katso alas,Regarder en bas,Lefele nézés,Guarda sotto,視点を下げる,아래로 보기,Kijk naar beneden,Patrz w dół,Olhar para baixo,,,Смотреть вниз,Гледај доле
+Center view,CNTRLMNU_CENTERVIEW,,,Centre view,Vystředit pohled,Ansicht zentrieren,,Centra vidon,Centrar vista,,Keskitä katse,Recentrer Vue,Nézet középreigazítása,Sguardo centrato,視点を戻す,중앙 시점으로 보기,Middenaanzicht,Wyśrodkuj widok,Olhar para o centro,,,Отцентрировать взгляд,Централизирај поглед
+Run,CNTRLMNU_RUN,,,,Běh,Rennen,,Kuri,Correr,,Juokse,Courir (tenir),Futás,Corri,駆け足,달리기,Rennen,Bieg,Correr,,,Бег,Трчи
+Toggle Run,CNTRLMNU_TOGGLERUN,,,,Zap. / Vyp. běh,Rennen an/aus,,Baskulkuri,Alternar Correr,,Juoksun vaihtokytkin,Courir (alterner),Futás kapcsoló,Toggle corsa,常時駆け足切替,달리기 토글,Rennen aan/uit,Włącz / Wyłącz bieg,Correr (Liga/Desliga),,,Бежать/идти,Трчи (без држања)
+Strafe,CNTRLMNU_STRAFE,,,,Pohyb vlevo/vpravo,Seitwärts,,Flankmovi,Desplazamiento,,Astu sivuttain,Pas de côté,,Spostamento laterale,横移動化,양옆으로 이동,Zijdelings bewegen,Uniki,Deslocamento lateral,,,Движение боком,Кретање у страну
+Show Scoreboard,CNTRLMNU_SCOREBOARD,,,,Zobrazit tabulku skóre,Punktetafel anzeigen,,Montri poentartabulon,Mostrar Marcador,,Näytä pistetaulu,Afficher Scores (tenir),Eredményjelző megjelenítése,Mostra la tabella punteggio,スコアボード表示,점수창 표시,Scorebord tonen,Pokaż tablicę wyników,Mostrar pontuação,,,Таблица очков,Табела
+Action,CNTRLMNU_ACTION,,,,Akce,Aktion,,Ago,Acción,,Toiminta,,Akció,Azione,アクション,동작,Actie,Akcja,Ação,,,Основное,Радња
+Customize Action Controls,CNTRLMNU_ACTION_TITLE,,,,Nastavit ovládání akcí,Aktions-Steuerung einstellen,,Agordi Agajn Regilojn,Controles de Acción,,Toimintaohjausasetukset,Changer Contrôles Action,Akció beállítások testreszabása,Personalizza i controlli di azione,アクション操作設定,사용자 지정 동작 컨트롤,Aanpassen van de actiecontroles,Ustaw Klawisze Akcji,Configurar Comandos de Ação,Configurar Controlos de Ação,,Основные клавиши управления,Контроле радње
+Say,CNTRLMNU_SAY,,,,Říct,Reden,,Diro,Hablar,,Sano,Parler,Üzenet ,Parla,発言,채팅하기,Zeg,Powiedz,Fala,Falar,,Сообщение,Пиши
+Customize Chat Controls,CNTRLMNU_CHAT_TITLE,,,,Nastavit ovládání chatu,Chat-Steuerung einstellen,,Agordi Babiladajn Regilojn,Controles de Chat,,Keskusteluohjausasetukset,Changer Contrôles Chat,Chat beállítások testreszabása,Personalizza i controlli della chat,チャット操作設定,사용자 지정 채팅 컨트롤,Chat-controles aanpassen aan uw wensen,Ustaw Klawisze Czatu,Configurar Comandos de Chat,Configurar Controlos de Chat,,Клавиши управления чатом,Контроле ћаскања
+Customize Weapon Controls,CNTRLMNU_WEAPONS_TITLE,,,,Nastavit ovládání zbraní,Waffen-Steuerung einstellen,,Agordi Armilojn Regilojn,Controles de Armas,,Aseohjausasetukset,Changer Contrôles Armes,Fegyver beállítások testreszabása,Personalizza i controlli delle armi,武器操作設定,사용자 지정 무기 컨트롤,Wapencontroles aanpassen aan uw eigen wensen,Ustaw Klawisze Broni,Configurar Comandos de Arma,Configurar Controlos de Armas,,Клавиши управления оружием,Контроле оружја
+Customize Inventory Controls,CNTRLMNU_INVENTORY_TITLE,,,,Nastavit ovládání inventáře,Inventar-Steuerung einstellen,,Agordi Inventarajn Regilojn,Controles de Inventario,,Varusteohjausasetukset,Changer Contrôles Inventaires,Eszköztár beállítások testreszabása,Personalizza i controlli dell'inventario,インベントリ操作設定,사용자 지정 인벤토리 컨트롤,Inventariscontroles aanpassen aan uw wensen,Ustaw Klawisze Ekwipunku,Configurar Comandos de Inventário,Configurar Controlos de Inventário,,Клавиши управления инвентарём,Контроле складишта
+Customize Other Controls,CNTRLMNU_OTHER_TITLE,,,,Nastavit ostatní ovládání,Sonstige Steuerung einstellen,,Agordi Ekstrajn Regilojn,Otros Controles,,Muut ohjausasetukset,Changer Autres Contrôles,Egyéb irányítás testreszabása,Personalizza altri controlli,その他の操作設定,사용자 지정 그 외 컨트롤,Andere bedieningselementen aanpassen,Ustaw Inne Klawisze,Configurar Outros Comandos,Configurar Outros Controlos,,Прочие клавиши,Друге контроле
+Weapons,CNTRLMNU_WEAPONS,,,,Zbraně,Waffen,,Armiloj,Armas,,Aseet,Armes,Fegyverek,Armi,武器,무기,Wapens,Bronie,Armas,,,Оружие,Оружје
+Next weapon,CNTRLMNU_NEXTWEAPON,,,,Další zbraň,Nächste Waffe,,Proksima armilo,Arma siguiente,,Seuraava ase,Arme Suivante,Következő fegyver,Arma successiva,次の武器,다음 무기,Volgende wapen,Następna broń,Próxima arma,,,Следующее оружие,Следеће оружје
+Previous weapon,CNTRLMNU_PREVIOUSWEAPON,,,,Předchozí zbraň,Vorherige Waffe,,Antaŭa armilo,Arma anterior,,Edellinen ase,Arme Précédente,Előző fegyver,Arma precedente,前の武器,이전 무기,Vorige wapen,Poprzednia broń,Arma anterior,,,Предыдущее оружие,Претходно оружје
+Weapon 1,CNTRLMNU_SLOT1,Todo - make game specific,,,Slot zbraně 1,Waffe 1,,Armingo 1,Ranura de Arma 1,,Aselokero 1,Emplacement D'Arme 1,1. Fegyver,Slot arma 1,武器スロット 1,무기 슬롯 1,Wapenslot 1,Broń 1,Arma 1,,,Оружие 1,Оружје 1
+Weapon 2,CNTRLMNU_SLOT2,"only show appropriate slots per game
+",,,Slot zbraně 2,Waffe 2,,Armingo 2,Ranura de Arma 2,,Aselokero 2,Emplacement D'Arme 2,2. Fegyver,Slot arma 2,武器スロット 2,무기 슬롯 2,Wapenslot 2,Broń 2,Arma 2,,,Оружие 2,Оружје 2
+Weapon 3,CNTRLMNU_SLOT3,,,,Slot zbraně 3,Waffe 3,,Armingo 3,Ranura de Arma 3,,Aselokero 3,Emplacement D'Arme 3,3. Fegyver,Slot arma 3,武器スロット 3,무기 슬롯 3,Wapenslot 3,Broń 3,Arma 3,,,Оружие 3,Оружје 3
+Weapon 4,CNTRLMNU_SLOT4,,,,Slot zbraně 4,Waffe 4,,Armingo 4,Ranura de Arma 4,,Aselokero 4,Emplacement D'Arme 4,4. Fegyver,Slot arma 4,武器スロット 4,무기 슬롯 4,Wapenslot 4,Broń 4,Arma 4,,,Оружие 4,Оружје 4
+Weapon 5,CNTRLMNU_SLOT5,,,,Slot zbraně 5,Waffe 5,,Armingo 5,Ranura de Arma 5,,Aselokero 5,Emplacement D'Arme 5,5. Fegyver,Slot arma 5,武器スロット 5,무기 슬롯 5,Wapenslot 5,Broń 5,Arma 5,,,Оружие 5,Оружје 5
+Weapon 6,CNTRLMNU_SLOT6,,,,Slot zbraně 6,Waffe 6,,Armingo 6,Ranura de Arma 6,,Aselokero 6,Emplacement D'Arme 6,6. Fegyver,Slot arma 6,武器スロット 6,무기 슬롯 6,Wapenslot 6,Broń 6,Arma 6,,,Оружие 6,Оружје 6
+Weapon 7,CNTRLMNU_SLOT7,,,,Slot zbraně 7,Waffe 7,,Armingo 7,Ranura de Arma 7,,Aselokero 7,Emplacement D'Arme 7,7. Fegyver,Slot arma 7,武器スロット 7,무기 슬롯 7,Wapenslot 7,Broń 7,Arma 7,,,Оружие 7,Оружје 7
+Weapon 8,CNTRLMNU_SLOT8,,,,Slot zbraně 8,Waffe 8,,Armingo 8,Ranura de Arma 8,,Aselokero 8,Emplacement D'Arme 8,8. Fegyver,Slot arma 8,武器スロット 8,무기 슬롯 8,Wapenslot 8,Broń 8,Arma 8,,,Оружие 8,Оружје 8
+Weapon 9,CNTRLMNU_SLOT9,,,,Slot zbraně 9,Waffe 9,,Armingo 9,Ranura de Arma 9,,Aselokero 9,Emplacement D'Arme 9,9. Fegyver,Slot arma 9,武器スロット 9,무기 슬롯 9,Wapenslot 9,Broń 9,Arma 9,,,Оружие 9,Оружје 9
+Weapon 10,CNTRLMNU_SLOT0,,,,Slot zbraně 10,Waffe 10,,Armingo 0,Ranura de Arma 0,,Aselokero 0,Emplacement D'Arme 0,0. Fegyver,Slot arma 0,武器スロット 0,무기 슬롯 0,Wapenslot 0,Broń 10,Arma 0,,,Оружие 0,Оружје 0
+Inventory,CNTRLMNU_INVENTORY,,,,Inventář,Inventar,,Inventaro,Inventario,,Varusteet,Inventaire,Eszköztár beállítások testreszabása,Inventario,所持品,인벤토리,Inventaris,Ekwipunek,Inventário,,,Инвентарь,Инвентар
+Activate item,CNTRLMNU_USEITEM,,,,Aktivovat předmět,Gegenstand aktivieren,,Aktivigi aĵon,Activar objeto,,Aktivoi varuste,Activer objet,Eszköz használata,Attiva oggetto,アイテムを使用,선택한 아이템 사용,Item activeren,Użyj przedmiot,Ativar item,,,Использовать предмет,Активирај предмет
+Activate all items,CNTRLMNU_USEALLITEMS,,,,Aktivovat všechny předměty,Alle Gegenstände aktivieren,,Aktivigi ĉiuj aĵojn,Activar todos los objetos,,Aktivoi kaikki varusteet,Activer tous les objets,Minden eszköz használata,Attiva tutti gli oggetti,全てのアイテムを使用,모든 아이템 사용,Activeer alle items,Użyj wszystkie przedmioty,Ativar todos os itens,,,Использовать все предметы,Активирај све предмете
+Next item,CNTRLMNU_NEXTITEM,,,,Další předmět,Nächster Gegenstand,,Proksima aĵo,Objeto siguiente,,Seuraava varuste,Objet suivant,Következő eszköz,Oggetto successivo,次のアイテム,다음 아이템,Volgende item,Następny przedmiot,Próximo item,,,Следующий предмет,Следећи предмет
+Previous item,CNTRLMNU_PREVIOUSITEM,,,,Předchozí předmět,Vorheriger Gegenstand,,Antaŭa aĵo,Objeto anterior,,Edellinen varuste,Objet précédent,Előző eszköz,Oggetto precedente,前のアイテム,이전 아이템,Vorige item,Poprzedni przedmiot,Item anterior,,,Предыдущий предмет,Претходни предмет
+Holster Weapon,CNTRLMNU_HOLSTER,,,,,Waffe wegstecken,,,,,,,,,,,,,,,,,
+Quick Kick,CNTRLMNU_QUICKKICK,,,,,Schneller Tritt,,,,,,,,,,,,,,,,,
+Pee,CNTRLMNU_PEE,,,,,Pinkeln,,,,,,,,,,,,,,,,,
+Proximity Bomb,CNTRLMNU_PROXIMITYBOMBS,,,,,,,,,,,,,,,,,,,,,,
+Remote Bomb,CNTRLMNU_REMOTEBOMBS,,,,,,,,,,,,,,,,,,,,,,
+Smoke Bomb,CNTRLMNU_SMOKEBOMB,,,,,Rauchbombe,,,,,,,,,,,,,,,,,
+Gas Bomb,CNTRLMNU_GASBOMB,,,,,Gasgranate,,,,,,,,,,,,,,,,,
+Flash Bomb,"CNTRLMNU_FLASHBOMB
+",,,,,Blendgranate,,,,,,,,,,,,,,,,,
+Caltrops,CNTRLMNU_CALTROPS,,,,,Krähenfüße,,,,,,,,,,,,,,,,,
+Holo Duke,CNTRLMNU_HOLODUKE,,,,,,,,,,,,,,,,,,,,,,
+Jetpack,CNTRLMNU_JETPACK,,,,,,,,,,,,,,,,,,,,,,
+Night Vision,CNTRLMNU_NIGHTVISION,,,,,Nachtsichtgerät,,,,,,,,,,,,,,,,,
+Medkit,CNTRLMNU_MEDKIT,,,,,,,,,,,,,,,,,,,,,,
+Steroids,CNTRLMNU_STEROIDS,,,,,Steroide,,,,,,,,,,,,,,,,,
+Holo Soldier,CNTRLMNU_HOLOSOLDIER,,,,,Holosoldat,,,,,,,,,,,,,,,,,
+Huey,CNTRLMNU_HUEY,,,,,,,,,,,,,,,,,,,,,,
+Bier,CNTRLMNU_BEER,,,,,Bier,,,,,,,,,,,,,,,,,
+Cow Pie,CNTRLMNU_COWPIE,not translatable,,,,,,,,,,,,,,,,,,,,,
+Yeehaa,CNTRLMNU_YEEHAA,not translatable,,,,,,,,,,,,,,,,,,,,,
+Whiskey,CNTRLMNU_WHISKEY,,,,,Whisky,,,,,,,,,,,,,,,,,
+Moonshine,CNTRLMNU_MOONSHINE,,,,,Schwarzgebrannter,,,,,,,,,,,,,,,,,
+Crystal Ball,CNTRLMNU_CRYSTALBALL,,,,,Kristallkugel,,,,,,,,,,,,,,,,,
+Jump Boots,CNTRLMNU_JUMPBOOTS,,,,,Sprungstiefel,,,,,,,,,,,,,,,,,
+Beast Vision,CNTRLMNU_BEASTVISION,,,,,,,,,,,,,,,,,,,,,,
+Tank Mode,CNTRLMNU_TANKMODE,,,,,Panzermodus,,,,,,,,,,,,,,,,,
+Smokes,CNTRLMNU_SMOKES,What precisely is this?,,,,,,,,,,,,,,,,,,,,,
+Fire Mission,CNTRLMNU_FIREMISSION,,,,,,,,,,,,,,,,,,,,,,
+Reload,CNTRLMENU_RELOAD,,,,,"Waffe laden
+",,,,,,,,,,,,,,,,,
+Radar,CNTRLMENU_RADAR,,,,,,,,,,,,,,,,,,,,,,

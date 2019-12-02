@@ -3305,9 +3305,13 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
 
     case sldr_joyaxisanalog:
     {
-        const char *p;
+#if 0
+		const char *p;
 
-        barwidth = MNU_ControlAxisOffset(analog_maxtype);
+        barwidth = MNU_ControlAxisOffset(analog_maxt
+			
+			
+			ype);
         offset = slidersettings[item->slider] + dir;
 
         if (TEST(item->flags, mf_disabled))
@@ -3327,6 +3331,7 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         while (*p != 0 && *p != '_') p++;
         if (*p == '_') p++;
         MNU_DrawSmallString(OPT_XSIDE+tilesiz[pic_slidelend].x+tilesiz[pic_sliderend].x+(barwidth+1)*tilesiz[pic_slidebar].x, item->y+4, p, 1, 16);
+#endif
     }
     break;
 

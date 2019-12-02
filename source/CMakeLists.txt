@@ -748,7 +748,6 @@ set (PCH_SOURCES
 	common/searchpaths.cpp
 	common/initfs.cpp
 	common/openaudio.cpp
-	common/optionmenu/optionmenu.cpp
 	common/statistics.cpp
 	common/secrets.cpp
 	common/compositesavegame.cpp
@@ -774,6 +773,7 @@ set (PCH_SOURCES
 	common/console/c_commandline.cpp
 	common/console/c_dispatch.cpp
 	common/console/d_event.cpp
+	common/console/c_con.cpp
 	
 	common/utility/i_time.cpp
 	common/utility/name.cpp

@@ -43,6 +43,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "debugbreak.h"
 extern bool rotatesprite_2doverride;
 
+FString C_CON_GetBoundKeyForLastInput(int gameFunc);
+const char* C_CON_GetButtonFunc(int num);
+
 BEGIN_DUKE_NS
 
 #if KRANDDEBUG
@@ -55,7 +58,6 @@ BEGIN_DUKE_NS
 
 vmstate_t vm;
 
-FString C_CON_GetBoundKeyForLastInput(int gameFunc);
 
 
 #if !defined LUNATIC
@@ -3669,7 +3671,7 @@ badindex:
 					VM_ASSERT((unsigned)quoteIndex < MAXQUOTES && apStrings[quoteIndex], "invalid quote %d\n", quoteIndex);
 					VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
 
-					auto bindings = Bindings.GetKeysForCommand(buttonMap.GetButtonAlias(gameFunc));
+					auto bindings = Bindings.GetKeysForCommand(C_CON_GetButtonFunc(gameFunc));
 					if ((unsigned)funcPos >= bindings.Size()) funcPos = 0;
 					Bstrcpy(apStrings[quoteIndex], KB_ScanCodeToString(bindings[funcPos]));
                     dispatch();
