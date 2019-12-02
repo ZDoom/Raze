@@ -2085,9 +2085,9 @@ int app_main(int argc, char const* const* argv)
         goto STARTGAME1;
     }
     // no forcelevel specified...
-    if (!bPlayback)
+    if (bPlayback)
     {
-        goto MENU;
+        goto STARTGAME1;
     }
 MENU:
     SavePosition = -1;
