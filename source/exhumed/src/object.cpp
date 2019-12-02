@@ -1859,7 +1859,24 @@ int BuildObject(short nSprite, int nOjectType, int nHitag)
 
     short nSeq = ObjectSeq[nOjectType];
 
-    if (nSeq <= -1)
+    if (nSeq > -1)
+    {
+        ObjectList[nObject].field_8 = SeqOffsets[nSeq];
+
+        if (!nOjectType) // if not Explosion Trigger (e.g. Exploding Fire Cauldron)
+        {
+            ObjectList[nObject].field_0 = RandomSize(4) % (SeqSize[ObjectList[nObject].field_8] - 1);
+        }
+
+        int nSprite2 = insertsprite(sprite[nSprite].sectnum, 0);
+        ObjectList[nObject].field_10 = nSprite2;
+
+        sprite[nSprite2].cstat = 0x8000;
+        sprite[nSprite2].x = sprite[nSprite].x;
+        sprite[nSprite2].y = sprite[nSprite].y;
+        sprite[nSprite2].z = sprite[nSprite].z;
+    }
+    else
     {
         ObjectList[nObject].field_0 = 0;
         ObjectList[nObject].field_8 = -1;
@@ -1870,23 +1887,6 @@ int BuildObject(short nSprite, int nOjectType, int nHitag)
         else {
             ObjectList[nObject].field_10 = -nHitag;
         }
-    }
-    else
-    {
-        ObjectList[nObject].field_8 = SeqOffsets[nSeq];
-
-        if (!nOjectType) // if not Explosion Trigger (e.g. Exploding Fire Cauldron)
-        {
-            ObjectList[nObject].field_0 = RandomSize(4) % (SeqSize[nSeq] - 1);
-        }
-
-        int nSprite2 = insertsprite(sprite[nSprite].sectnum, 0);
-        ObjectList[nObject].field_10 = nSprite2;
-
-        sprite[nSprite2].cstat = 0x8000;
-        sprite[nSprite2].x = sprite[nSprite].x;
-        sprite[nSprite2].y = sprite[nSprite].y;
-        sprite[nSprite2].z = sprite[nSprite].z;
     }
 
     return nObject | 0x170000;
