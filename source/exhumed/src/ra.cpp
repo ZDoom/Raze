@@ -102,7 +102,7 @@ void MoveRaToEnemy(short nPlayer)
 
     if (nTarget != -1)
     {
-        if (!(sprite[nTarget].cstat & 0x101) || sprite[nTarget].sectnum == kMaxSectors)
+        if (!(sprite[nTarget].cstat & 0x101) || sprite[nTarget].sectnum == MAXSECTORS)
         {
             Ra[nPlayer].nTarget = -1;
             if (!field_0 || field_0 == 3) {
