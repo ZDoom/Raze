@@ -152,6 +152,7 @@ void FuncLion(int a, int nDamage, int nRun)
         {
             nDamage = runlist_CheckRadialDamage(nSprite);
             // now fall through to 0x80000
+            fallthrough__;
         }
         case 0x80000:
         {

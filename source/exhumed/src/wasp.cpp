@@ -192,6 +192,7 @@ void FuncWasp(int a, int nDamage, int nRun)
 
             nDamage = runlist_CheckRadialDamage(nSprite);
             // fall through to case 0x80000
+            fallthrough__;
         }
 
         case 0x80000:

@@ -481,6 +481,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
         {
             nVal = 3 * (hitag / 3);
             // fall through to 6,7 etc
+            fallthrough__;
         }
         case 6:
         case 7:

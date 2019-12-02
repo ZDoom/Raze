@@ -827,6 +827,7 @@ loc_flag:
                         }
 
                         // fall through to case 1 (kWeaponPistol)
+                        fallthrough__;
                     }
                 }
 
@@ -836,6 +837,7 @@ loc_flag:
                         nQuake[nPlayer] = 128;
                     }
                     // fall through
+                    fallthrough__;
                 }
                 case kWeaponPistol:
                 {

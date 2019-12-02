@@ -163,6 +163,7 @@ void FuncRoach(int a, int nDamage, int nRun)
         case 0xA0000: // fall through to next case
         {
             nDamage = runlist_CheckRadialDamage(nSprite);
+            fallthrough__;
         }
         case 0x80000:
         {

@@ -1791,6 +1791,7 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
             }
 
             // fall through to case 0x80000
+            fallthrough__;
         }
 
         case 0x80000:

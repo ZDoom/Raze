@@ -1311,6 +1311,7 @@ void runlist_ProcessSectorTag(int nSector, int lotag, int hitag)
             runlist_AddRunRec(sRunChannels[nChannel].a, nSwitch);
 
             // Fall through to case 62
+            fallthrough__;
         }
         case 62:
         {

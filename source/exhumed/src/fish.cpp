@@ -351,6 +351,7 @@ void FuncFish(int a, int nDamage, int nRun)
                 FishList[nFish].field_C = 10;
             }
             // fall through
+            fallthrough__;
         }
         case 0x80000:
         {

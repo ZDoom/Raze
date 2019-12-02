@@ -212,6 +212,7 @@ goto case_3;
                             SpiderList[nSpider].nAction = 1;
                         }
                         //break; // fall through
+                        fallthrough__;
                     }
                     case 3:
                     {
@@ -388,6 +389,7 @@ case_3:
 
             nDamage = runlist_CheckRadialDamage(nSprite);
             // fall through
+            fallthrough__;
         }
 
         case 0x80000:
