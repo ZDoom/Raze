@@ -55,6 +55,9 @@ BEGIN_DUKE_NS
 
 vmstate_t vm;
 
+FString C_CON_GetBoundKeyForLastInput(int gameFunc);
+
+
 #if !defined LUNATIC
 int32_t g_tw;
 int32_t g_currentEvent = -1;
@@ -3684,7 +3687,7 @@ badindex:
                     static char const s_KeyboardFormat[] = "[%s]";
                     static char const s_JoystickFormat[] = "(%s)";
 
-					auto binding = CONFIG_GetBoundKeyForLastInput(gameFunc);
+					auto binding = C_CON_GetBoundKeyForLastInput(gameFunc);
 					if (binding.Len()) snprintf(apStrings[quoteIndex], MAXQUOTELEN, "(%s)", binding.GetChars());
 					dispatch();
                 }

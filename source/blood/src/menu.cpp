@@ -1874,54 +1874,11 @@ void SetMouseYScale(CGameMenuItemSlider *pItem)
 
 void SetMouseDigitalAxis(CGameMenuItemZCycle *pItem)
 {
-#if 0
-    if (pItem == &itemOptionsControlMouseDigitalUp)
-    {
-        MouseDigitalFunctions[1][0] = nGamefuncsValues[pItem->m_nFocus];
-        CONTROL_MapDigitalAxis(1, MouseDigitalFunctions[1][0], 0, controldevice_mouse);
-    }
-    else if (pItem == &itemOptionsControlMouseDigitalDown)
-    {
-        MouseDigitalFunctions[1][1] = nGamefuncsValues[pItem->m_nFocus];
-        CONTROL_MapDigitalAxis(1, MouseDigitalFunctions[1][1], 1, controldevice_mouse);
-    }
-    else if (pItem == &itemOptionsControlMouseDigitalLeft)
-    {
-        MouseDigitalFunctions[0][0] = nGamefuncsValues[pItem->m_nFocus];
-        CONTROL_MapDigitalAxis(0, MouseDigitalFunctions[0][0], 0, controldevice_mouse);
-    }
-    else if (pItem == &itemOptionsControlMouseDigitalRight)
-    {
-        MouseDigitalFunctions[0][1] = nGamefuncsValues[pItem->m_nFocus];
-        CONTROL_MapDigitalAxis(0, MouseDigitalFunctions[0][1], 1, controldevice_mouse);
-    }
-#endif
 }
 
 void SetupMouseMenu(CGameMenuItemChain *pItem)
 {
     UNREFERENCED_PARAMETER(pItem);
-#if 0
-    static CGameMenuItemZCycle *pMouseDigitalAxis[4] = {
-        &itemOptionsControlMouseDigitalLeft,
-        &itemOptionsControlMouseDigitalRight,
-        &itemOptionsControlMouseDigitalUp,
-        &itemOptionsControlMouseDigitalDown
-    };
-    for (int i = 0; i < ARRAY_SSIZE(pMouseDigitalAxis); i++)
-    {
-        CGameMenuItemZCycle *pItem = pMouseDigitalAxis[i];
-        pItem->m_nFocus = 0;
-        for (int j = 0; j < NUMGAMEFUNCTIONS+1; j++)
-        {
-            if (nGamefuncsValues[j] == MouseDigitalFunctions[i>>1][i&1])
-            {
-                pItem->m_nFocus = j;
-                break;
-            }
-        }
-    }
-#endif
     itemOptionsControlMouseAimFlipped.at20 = in_mouseflip;
     itemOptionsControlMouseFilterInput.at20 = in_mousesmoothing;
     itemOptionsControlMouseAimMode.at20 = in_aimmode;

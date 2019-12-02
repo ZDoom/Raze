@@ -43,6 +43,9 @@ BEGIN_DUKE_NS
 
 #define LINE_NUMBER (g_lineNumber << 12)
 
+void C_CON_SetButtonAlias(int num, const char* text);
+void C_CON_ClearButtonAlias(int num);
+
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
 char g_scriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
@@ -2197,11 +2200,14 @@ void C_InitQuotes(void)
 #ifdef EDUKE32_TOUCH_DEVICES
     apStrings[QUOTE_DEAD] = 0;
 #else
-	// WTF ?!?
-    char const * const OpenGameFunc = buttonMap.GetButtonName(gamefunc_Open);
-    C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", OpenGameFunc);
-    C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", OpenGameFunc);
-    C_ReplaceQuoteSubstring(QUOTE_DEAD, "USE", OpenGameFunc);
+	auto openkeys = Bindings.GetKeysForCommand("+open");
+	if (openkeys.Size())
+	{
+		auto OpenGameFunc = C_NameKeys(openkeys.Data(), 1);
+		C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", OpenGameFunc);
+		C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", OpenGameFunc);
+		C_ReplaceQuoteSubstring(QUOTE_DEAD, "USE", OpenGameFunc);
+	}
 #endif
 
     // most of these are based on Blood, obviously

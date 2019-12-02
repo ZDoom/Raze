@@ -48,168 +48,73 @@ struct ButtonDesc
 };
 
 static const ButtonDesc gamefuncs[] = {
-	{ gamefunc_Move_Forward, "Move_Forward"},
-	{ gamefunc_Move_Backward, "Move_Backward"},
-	{ gamefunc_Turn_Left, "Turn_Left"},
-	{ gamefunc_Turn_Right, "Turn_Right"},
-	{ gamefunc_Strafe, "Strafe"},
-	{ gamefunc_Fire, "Fire"},
-	{ gamefunc_Open, "Open"},
-	{ gamefunc_Run, "Run"},
-	{ gamefunc_Alt_Fire, "Alt_Fire"},
-	{ gamefunc_Jump, "Jump"},
-	{ gamefunc_Crouch, "Crouch"},
-	{ gamefunc_Look_Up, "Look_Up"},
-	{ gamefunc_Look_Down, "Look_Down"},
+		{ gamefunc_Move_Forward, "Move_Forward"},
+		{ gamefunc_Move_Backward, "Move_Backward"},
+		{ gamefunc_Turn_Left, "Turn_Left"},
+		{ gamefunc_Turn_Right, "Turn_Right"},
+		{ gamefunc_Strafe, "Strafe"},
+		{ gamefunc_Fire, "Fire"},
+		{ gamefunc_Open, "Open"},
+		{ gamefunc_Run, "Run"},
+		{ gamefunc_Alt_Fire, "Alt_Fire"},
+		{ gamefunc_Jump, "Jump"},
+		{ gamefunc_Crouch, "Crouch"},
+		{ gamefunc_Look_Up, "Look_Up"},
+		{ gamefunc_Look_Down, "Look_Down"},
 	{ gamefunc_Look_Left, "Look_Left"},
 	{ gamefunc_Look_Right, "Look_Right"},
-	{ gamefunc_Strafe_Left, "Strafe_Left"},
-	{ gamefunc_Strafe_Right, "Strafe_Right"},
+		{ gamefunc_Strafe_Left, "Strafe_Left"},
+		{ gamefunc_Strafe_Right, "Strafe_Right"},
 	{ gamefunc_Aim_Up, "Aim_Up"},
 	{ gamefunc_Aim_Down, "Aim_Down"},
-	{ gamefunc_Weapon_1, "Weapon_1"},
-	{ gamefunc_Weapon_2, "Weapon_2"},
-	{ gamefunc_Weapon_3, "Weapon_3"},
-	{ gamefunc_Weapon_4, "Weapon_4"},
-	{ gamefunc_Weapon_5, "Weapon_5"},
-	{ gamefunc_Weapon_6, "Weapon_6"},
-	{ gamefunc_Weapon_7, "Weapon_7"},
-	{ gamefunc_Weapon_8, "Weapon_8"},
-	{ gamefunc_Weapon_9, "Weapon_9"},
-	{ gamefunc_Weapon_10, "Weapon_10"},
-	{ gamefunc_Inventory, "Inventory"},
-	{ gamefunc_Inventory_Left, "Inventory_Left"},
-	{ gamefunc_Inventory_Right, "Inventory_Right"},
-	{ gamefunc_Holo_Duke, "Holo_Duke"},
-	{ gamefunc_Jetpack, "Jetpack"},
-	{ gamefunc_NightVision, "NightVision"},
-	{ gamefunc_MedKit, "MedKit"},
-	{ gamefunc_TurnAround, "Turn_Around"},
-	{ gamefunc_SendMessage, "Send_Message"},
-	{ gamefunc_Map, "Map"},
+		{ gamefunc_Weapon_1, "Weapon_1"},
+		{ gamefunc_Weapon_2, "Weapon_2"},
+		{ gamefunc_Weapon_3, "Weapon_3"},
+		{ gamefunc_Weapon_4, "Weapon_4"},
+		{ gamefunc_Weapon_5, "Weapon_5"},
+		{ gamefunc_Weapon_6, "Weapon_6"},
+		{ gamefunc_Weapon_7, "Weapon_7"},
+		{ gamefunc_Weapon_8, "Weapon_8"},
+		{ gamefunc_Weapon_9, "Weapon_9"},
+		{ gamefunc_Weapon_10, "Weapon_10"},
+		{ gamefunc_Inventory, "Inventory"},
+		{ gamefunc_Inventory_Left, "Inventory_Left"},
+		{ gamefunc_Inventory_Right, "Inventory_Right"},
+		{ gamefunc_Holo_Duke, "Holo_Duke"},
+		{ gamefunc_Jetpack, "Jetpack"},
+		{ gamefunc_NightVision, "NightVision"},
+		{ gamefunc_MedKit, "MedKit"},
+		{ gamefunc_TurnAround, "Turn_Around"},
+		{ gamefunc_SendMessage, "Send_Message"},
+		{ gamefunc_Map, "Map"},
 	{ gamefunc_Shrink_Screen, "Shrink_Screen"},
 	{ gamefunc_Enlarge_Screen, "Enlarge_Screen"},
-	{ gamefunc_Center_View, "Center_View"},
-	{ gamefunc_Holster_Weapon, "Holster_Weapon"},
+		{ gamefunc_Center_View, "Center_View"},
+		{ gamefunc_Holster_Weapon, "Holster_Weapon"},
 	{ gamefunc_Show_Opponents_Weapon, "Show_Opponents_Weapon"},
-	{ gamefunc_Map_Follow_Mode, "Map_Follow_Mode"},
+		{ gamefunc_Map_Follow_Mode, "Map_Follow_Mode"},
 	{ gamefunc_See_Coop_View, "See_Coop_View"},
-	{ gamefunc_Mouse_Aiming, "Mouse_Aiming"},
+		{ gamefunc_Mouse_Aiming, "Mouse_Aiming"},
 	{ gamefunc_Toggle_Crosshair, "Toggle_Crosshair"},
-	{ gamefunc_Steroids, "Steroids"},
-	{ gamefunc_Quick_Kick, "Quick_Kick"},
-	{ gamefunc_Next_Weapon, "Next_Weapon"},
-	{ gamefunc_Previous_Weapon, "Previous_Weapon"},
-	{ gamefunc_Show_Console, "Show_Console"},
-	{ gamefunc_Show_DukeMatch_Scores, "Show_DukeMatch_Scores"},
+		{ gamefunc_Steroids, "Steroids"},
+		{ gamefunc_Quick_Kick, "Quick_Kick"},
+		{ gamefunc_Next_Weapon, "Next_Weapon"},
+		{ gamefunc_Previous_Weapon, "Previous_Weapon"},
+		{ gamefunc_Show_DukeMatch_Scores, "Show_DukeMatch_Scores"},
 	{ gamefunc_Dpad_Select, "Dpad_Select"},
 	{ gamefunc_Dpad_Aiming, "Dpad_Aiming"},
 	{ gamefunc_AutoRun, "AutoRun"},
 	{ gamefunc_Last_Weapon, "Last_Used_Weapon"},
-	{ gamefunc_Alt_Weapon, "Alt_Weapon"},
-	{ gamefunc_Third_Person_View, "Third_Person_View"},
-	{ gamefunc_Toggle_Crouch, "Toggle_Crouch"},
-	{ gamefunc_See_Chase_View, "See_Chase_View"},	// the following were added by Blood
-	{ gamefunc_BeastVision, "BeastVision"},
-	{ gamefunc_CrystalBall, "CrystalBall"},
-	{ gamefunc_JumpBoots, "JumpBoots"},
-	{ gamefunc_ProximityBombs, "ProximityBombs"},
-	{ gamefunc_RemoteBombs, "RemoteBombs"},
-	{ gamefunc_Smoke_Bomb, "Smoke_Bomb" },
-	{ gamefunc_Gas_Bomb, "Gas_Bomb" },
-	{ gamefunc_Flash_Bomb, "Flash_Bomb" },
-	{ gamefunc_Caltrops, "Calitrops" },
-
-};
-
-static const ButtonDesc gamealiases_Duke3D[] = {
-	{ gamefunc_BeastVision, ""},
-	{ gamefunc_CrystalBall, ""},
-	{ gamefunc_ProximityBombs, ""},
-	{ gamefunc_RemoteBombs, ""},
-	{ gamefunc_Smoke_Bomb, "" },
-	{ gamefunc_Gas_Bomb, "" },
-	{ gamefunc_Flash_Bomb, "" },
-	{ gamefunc_Caltrops, "" },
-
-};
-
-static const ButtonDesc gamealiases_Nam[] = {
-	{ gamefunc_Holo_Duke, "Holo_Soldier"},
-	{ gamefunc_Jetpack, "Huey"},
-	{ gamefunc_Steroids, "Tank_Mode"},
-	{ gamefunc_Show_DukeMatch_Scores, "Show_GruntMatch_Scores"},
-	{ gamefunc_BeastVision, ""},
-	{ gamefunc_CrystalBall, ""},
-	{ gamefunc_ProximityBombs, ""},
-	{ gamefunc_RemoteBombs, ""},
-	{ gamefunc_Smoke_Bomb, "" },
-	{ gamefunc_Gas_Bomb, "" },
-	{ gamefunc_Flash_Bomb, "" },
-	{ gamefunc_Caltrops, "" },
-
-};
-
-static const ButtonDesc gamealiases_WW2GI[] = {
-	{ gamefunc_Holo_Duke, "Fire Mission"},
-	{ gamefunc_Jetpack, ""},
-	{ gamefunc_Steroids, "Smokes"},
-	{ gamefunc_Show_DukeMatch_Scores, "Show_GIMatch_Scores"},
-	{ gamefunc_BeastVision, ""},
-	{ gamefunc_CrystalBall, ""},
-	{ gamefunc_ProximityBombs, ""},
-	{ gamefunc_RemoteBombs, ""},
-	{ gamefunc_Smoke_Bomb, "" },
-	{ gamefunc_Gas_Bomb, "" },
-	{ gamefunc_Flash_Bomb, "" },
-	{ gamefunc_Caltrops, "" },
-};
-
-static const ButtonDesc gamealiases_RR[] = {
-	{ gamefunc_Holo_Duke, "Beer"},
-	{ gamefunc_Jetpack, "Cow Pie"},
-	{ gamefunc_NightVision, "Yeehaa"},
-	{ gamefunc_MedKit, "Whiskey"},
-	{ gamefunc_Steroids, "Moonshine"},
-	{ gamefunc_Quick_Kick, "Pee"},
-	{ gamefunc_Show_DukeMatch_Scores, "Show_Scores"},
-	{ gamefunc_Alt_Fire, ""},
-	{ gamefunc_BeastVision, ""},
-	{ gamefunc_CrystalBall, ""},
-	{ gamefunc_ProximityBombs, ""},
-	{ gamefunc_RemoteBombs, ""},
-	{ gamefunc_Smoke_Bomb, "" },
-	{ gamefunc_Gas_Bomb, "" },
-	{ gamefunc_Flash_Bomb, "" },
-	{ gamefunc_Caltrops, "" },
-};
-
-static const ButtonDesc gamealiases_Blood[] = {
-	{ gamefunc_Holo_Duke, ""},
-	{ gamefunc_JumpBoots, "JumpBoots"},
-	{ gamefunc_Steroids, ""},
-	{ gamefunc_Quick_Kick, ""},
-	{ gamefunc_Show_DukeMatch_Scores, ""},
-	{ gamefunc_Alt_Weapon, ""},
-	{ gamefunc_Smoke_Bomb, "" },
-	{ gamefunc_Gas_Bomb, "" },
-	{ gamefunc_Flash_Bomb, "" },
-	{ gamefunc_Caltrops, "" },
-
-};
-
-static const ButtonDesc gamealiases_SW[] = {
-	{ gamefunc_Holo_Duke, ""},
-	{ gamefunc_Jetpack, ""},
-	{ gamefunc_NightVision, ""},
-	{ gamefunc_MedKit, ""},
-	{ gamefunc_Steroids, ""},
-	{ gamefunc_Quick_Kick, ""},
-	{ gamefunc_Show_DukeMatch_Scores, ""},
-	{ gamefunc_Smoke_Bomb, "" },
-	{ gamefunc_Gas_Bomb, "" },
-	{ gamefunc_Flash_Bomb, "" },
-	{ gamefunc_Caltrops, "" },
+		{ gamefunc_Alt_Weapon, "Alt_Weapon"},
+		{ gamefunc_Third_Person_View, "Third_Person_View"},
+		{ gamefunc_Toggle_Crouch, "Toggle_Crouch"},
+		{ gamefunc_CrystalBall, "CrystalBall"},	// the following were added by Blood
+		{ gamefunc_ProximityBombs, "ProximityBombs"},
+		{ gamefunc_RemoteBombs, "RemoteBombs"},
+		{ gamefunc_Smoke_Bomb, "Smoke_Bomb" },
+		{ gamefunc_Gas_Bomb, "Gas_Bomb" },
+		{ gamefunc_Flash_Bomb, "Flash_Bomb" },
+		{ gamefunc_Caltrops, "Caltrops" },
 
 };
 
@@ -234,60 +139,7 @@ ButtonMap::ButtonMap()
 	for(auto &gf : gamefuncs)
 	{
 		NameToNum.Insert(gf.name, gf.index);
-		NumToAlias[gf.index] = NumToName[gf.index] = gf.name;
-	}
-}
-
-//=============================================================================
-//
-//
-//
-//=============================================================================
-
-void ButtonMap::SetGameAliases()
-{
-	// Ion Fury hacks this together from the CON script and uses the same table as Duke Nukem
-	if (g_gameType & (GAMEFLAG_DUKE|GAMEFLAG_FURY))
-	{
-		for (auto& gf : gamealiases_Duke3D)
-		{
-			NumToAlias[gf.index] = gf.name;
-		}
-	}
-	if (g_gameType & GAMEFLAG_NAM)
-	{
-		for (auto& gf : gamealiases_Nam)
-		{
-			NumToAlias[gf.index] = gf.name;
-		}
-	}
-	if (g_gameType & GAMEFLAG_WW2GI)
-	{
-		for (auto& gf : gamealiases_WW2GI)
-		{
-			NumToAlias[gf.index] = gf.name;
-		}
-	}
-	if (g_gameType & (GAMEFLAG_RR|GAMEFLAG_RRRA))
-	{
-		for (auto& gf : gamealiases_RR)
-		{
-			NumToAlias[gf.index] = gf.name;
-		}
-	}
-	if (g_gameType & GAMEFLAG_BLOOD)
-	{
-		for (auto& gf : gamealiases_Blood)
-		{
-			NumToAlias[gf.index] = gf.name;
-		}
-	}
-	if (g_gameType & GAMEFLAG_SW)
-	{
-		for (auto& gf : gamealiases_SW)
-		{
-			NumToAlias[gf.index] = gf.name;
-		}
+		NumToName[gf.index] = gf.name;
 	}
 }
 
@@ -304,18 +156,16 @@ int ButtonMap::ListActionCommands (const char *pattern)
 
 	for (int i = 0; i < NumButtons(); i++)
 	{
-		if (NumToAlias[i].IsEmpty()) continue;	// do not list buttons that were removed from the alias list
-		
 		if (pattern == NULL || CheckWildcards (pattern,
 			(snprintf (matcher, countof(matcher), "+%s", NumToName[i].GetChars()), matcher)))
 		{
-			Printf ("+%s\n", NumToName[i]);
+			Printf ("+%s\n", NumToName[i].GetChars());
 			count++;
 		}
 		if (pattern == NULL || CheckWildcards (pattern,
 			(snprintf (matcher, countof(matcher), "-%s", NumToName[i].GetChars()), matcher)))
 		{
-			Printf ("-%s\n", NumToName[i]);
+			Printf ("-%s\n", NumToName[i].GetChars());
 			count++;
 		}
 	}
@@ -371,34 +221,6 @@ void ButtonMap::ResetButtonStates ()
 		button.ResetTriggers ();
 	}
 }
-
-//=============================================================================
-//
-//
-//
-//=============================================================================
-
-void ButtonMap::SetButtonAlias(int num, const char *text)
-{
-    if ((unsigned)num >= (unsigned)NUMGAMEFUNCTIONS)
-        return;
-	NumToAlias[num] = text;
-	NameToNum.Insert(text, num);
-}
-
-//=============================================================================
-//
-//
-//
-//=============================================================================
-
-void ButtonMap::ClearButtonAlias(int num)
-{
-    if ((unsigned)num >= (unsigned)NUMGAMEFUNCTIONS)
-        return;
-	NumToAlias[num] = "";
-}
-
 
 //=============================================================================
 //
@@ -495,4 +317,3 @@ bool FButtonStatus::ReleaseKey (int keynum)
 	// Returns true if releasing this key caused the button to go up.
 	return wasdown && !bDown;
 }
-

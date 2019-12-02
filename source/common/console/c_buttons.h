@@ -46,6 +46,7 @@ enum GameFunction_t
 	gamefunc_JumpBoots = gamefunc_Jetpack,
 	gamefunc_NightVision,
 	gamefunc_Night_Vision = gamefunc_NightVision,
+	gamefunc_BeastVision = gamefunc_NightVision,
 	gamefunc_MedKit,
 	gamefunc_Med_Kit = gamefunc_MedKit,
 	gamefunc_TurnAround,
@@ -66,17 +67,18 @@ enum GameFunction_t
 	gamefunc_Quick_Kick,
 	gamefunc_Next_Weapon,
 	gamefunc_Previous_Weapon,
-	gamefunc_Show_Console,
+	gamefunc_Unused1, // was gamefunc_Console. Cannot be deleted thanks to CON usuing numeric indiced for addressing this list.
 	gamefunc_Show_DukeMatch_Scores,
 	gamefunc_Dpad_Select,
 	gamefunc_Dpad_Aiming,
 	gamefunc_AutoRun,
 	gamefunc_Last_Weapon,
+	gamefunc_Unused2, // was quickload/quicksave
+	gamefunc_Unused3,
 	gamefunc_Alt_Weapon,
 	gamefunc_Third_Person_View,
-	gamefunc_See_Chase_View = gamefunc_Third_Person_View,	// this was added by Blood
-	gamefunc_Toggle_Crouch,
-	gamefunc_BeastVision,
+	gamefunc_See_Chase_View = gamefunc_Third_Person_View,
+	gamefunc_Toggle_Crouch,	// This is the last one used by EDuke32.
 	gamefunc_CrystalBall,
 	gamefunc_ProximityBombs,
     gamefunc_RemoteBombs,
@@ -111,7 +113,6 @@ class ButtonMap
 	
 	FButtonStatus Buttons[NUMGAMEFUNCTIONS];
 	FString NumToName[NUMGAMEFUNCTIONS];		// The internal name of the button
-	FString NumToAlias[NUMGAMEFUNCTIONS];	// The display name which can be altered by scripts.
 	TMap<FName, int> NameToNum;
 	
 public:
@@ -131,6 +132,7 @@ public:
 		return index > -1? &Buttons[index] : nullptr;
 	}
 	
+	// This is still in use but all cases are scheduled for termination.
 	const char* GetButtonName(int32_t func) const
 	{
 		if ((unsigned)func >= (unsigned)NumButtons())
@@ -138,15 +140,6 @@ public:
 		return NumToName[func];
 	}
 
-	const char* GetButtonAlias(int32_t func) const
-	{
-		if ((unsigned)func >= (unsigned)NumButtons())
-			return nullptr;
-		return NumToAlias[func];
-	}
-	
-	void SetButtonAlias(int num, const char* text);
-	void ClearButtonAlias(int num);
 	void ResetButtonTriggers ();	// Call ResetTriggers for all buttons
 	void ResetButtonStates ();		// Same as above, but also clear bDown
 	int ListActionCommands(const char* pattern);

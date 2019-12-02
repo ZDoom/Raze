@@ -808,3 +808,216 @@ bool C_DoKey (event_t *ev, FKeyBindings *binds, FKeyBindings *doublebinds)
 	}
 	return false;
 }
+
+// Todo: Move to a separate file.
+//=============================================================================
+//
+// Interface for CON scripts to get descriptions for actions
+// This code can query the 64 original game functions by index.
+//
+//=============================================================================
+
+static GameFuncDesc con_gamefuncs[] = {
+{"+Move_Forward",			"Move_Forward"},
+{"+Move_Backward",			"Move_Backward"},
+{"+Turn_Left",				"Turn_Left"},
+{"+Turn_Right",				"Turn_Right"},
+{"+Strafe",					"Strafe"},
+{"+Fire",					"Fire"},
+{"+Open",					"Open"},
+{"+Run",					"Run"},
+{"+Alt_Fire",				"Alt_Fire"},
+{"+Jump",					"Jump"},
+{"+Crouch",					"Crouch"},
+{"+Look_Up",				"Look_Up"},
+{"+Look_Down",				"Look_Down"},
+{"+Look_Left",				"Look_Left"},
+{"+Look_Right",				"Look_Right"},
+{"+Strafe_Left",			"Strafe_Left"},
+{"+Strafe_Right",			"Strafe_Right"},
+{"+Aim_Up",					"Aim_Up"},
+{"+Aim_Down",				"Aim_Down"},
+{"+Weapon_1",				"Weapon_1"},
+{"+Weapon_2",				"Weapon_2"},
+{"+Weapon_3",				"Weapon_3"},
+{"+Weapon_4",				"Weapon_4"},
+{"+Weapon_5",				"Weapon_5"},
+{"+Weapon_6",				"Weapon_6"},
+{"+Weapon_7",				"Weapon_7"},
+{"+Weapon_8",				"Weapon_8"},
+{"+Weapon_9",				"Weapon_9"},
+{"+Weapon_10",				"Weapon_10"},
+{"+Inventory",				"Inventory"},
+{"+Inventory_Left",			"Inventory_Left"},
+{"+Inventory_Right",		"Inventory_Right"},
+{"+Holo_Duke",				"Holo_Duke"},
+{"+Jetpack",				"Jetpack"},
+{"+NightVision",			"NightVision"},
+{"+MedKit",					"MedKit"},
+{"+TurnAround",				"TurnAround"},
+{"+SendMessage",			"SendMessage"},
+{"+Map",					"Map"},
+{"+Shrink_Screen",			"Shrink_Screen"},
+{"+Enlarge_Screen",			"Enlarge_Screen"},
+{"+Center_View",			"Center_View"},
+{"+Holster_Weapon",			"Holster_Weapon"},
+{"+Show_Opponents_Weapon",	"Show_Opponents_Weapon"},
+{"+Map_Follow_Mode",		"Map_Follow_Mode"},
+{"+See_Coop_View",			"See_Coop_View"},
+{"+Mouse_Aiming",			"Mouse_Aiming"},
+{"+Toggle_Crosshair",		"Toggle_Crosshair"},
+{"+Steroids",				"Steroids"},
+{"+Quick_Kick",				"Quick_Kick"},
+{"+Next_Weapon",			"Next_Weapon"},
+{"+Previous_Weapon",		"Previous_Weapon"},
+{"+Show_Console",			"Show_Console"},
+{"+Show_DukeMatch_Scores",	"Show_Scoreboard"},
+{"+Dpad_Select",			"Dpad_Select"},
+{"+Dpad_Aiming",			"Dpad_Aiming"},
+{"+AutoRun",				"AutoRun"},
+{"+Last_Used_Weapon",		"Last_Used_Weapon"},
+{"+Quick_Save",				"Quick_Save"},
+{"+Quick_Load",				"Quick_Load"},
+{"+Alt_Weapon",				"Alt_Weapon"},
+{"+Third_Person_View",		"Third_Person_View"},
+{"+Toggle_Crouch",			"Toggle_Crouch"}
+};
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void C_CON_SetAliases()
+{
+	if (g_gameType & GAMEFLAG_NAM)
+	{
+		con_gamefuncs[32].description = "Holo_Soldier";
+		con_gamefuncs[33].description = "Huey";
+		con_gamefuncs[48].description = "Tank_Mode";
+	}
+	if (g_gameType & GAMEFLAG_WW2GI)
+	{
+		con_gamefuncs[32].description = "Fire_Mission";
+		con_gamefuncs[33].description = "";
+		con_gamefuncs[48].description = "Smokes";
+	}
+
+}
+
+static FString C_CON_GetGameFuncOnKeyboard(int gameFunc)
+{
+	if (gameFunc >= 0 && gameFunc < countof(con_gamefuncs))
+	{
+		auto keys = Bindings.GetKeysForCommand(con_gamefuncs[gameFunc].action);
+		for (auto key : keys)
+		{
+			if (key < KEY_FIRSTMOUSEBUTTON)
+			{
+				auto scan = KB_ScanCodeToString(key);
+				if (scan) return scan;
+			}
+		}
+	}
+	return "";
+}
+
+static FString C_CON_GetGameFuncOnMouse(int gameFunc)
+{
+	if (gameFunc >= 0 && gameFunc < countof(con_gamefuncs))
+	{
+		auto keys = Bindings.GetKeysForCommand(con_gamefuncs[gameFunc].action);
+		for (auto key : keys)
+		{
+			if ((key >= KEY_FIRSTMOUSEBUTTON && key < KEY_FIRSTJOYBUTTON) || (key >= KEY_MWHEELUP && key <= KEY_MWHEELLEFT))
+			{
+				auto scan = KB_ScanCodeToString(key);
+				if (scan) return scan;
+			}
+		}
+	}
+	return "";
+}
+
+char const* C_CON_GetGameFuncOnJoystick(int gameFunc)
+{
+	if (gameFunc >= 0 && gameFunc < countof(con_gamefuncs))
+	{
+		auto keys = Bindings.GetKeysForCommand(con_gamefuncs[gameFunc].action);
+		for (auto key : keys)
+		{
+			if (key >= KEY_FIRSTJOYBUTTON && !(key >= KEY_MWHEELUP && key <= KEY_MWHEELLEFT))
+			{
+				auto scan = KB_ScanCodeToString(key);
+				if (scan) return scan;
+			}
+		}
+	}
+	return "";
+}
+
+FString C_CON_GetBoundKeyForLastInput(int gameFunc)
+{
+	if (CONTROL_LastSeenInput == LastSeenInput::Joystick)
+	{
+		FString name = C_CON_GetGameFuncOnJoystick(gameFunc);
+		if (name.IsNotEmpty())
+		{
+			return name;
+		}
+	}
+
+	FString name = C_CON_GetGameFuncOnKeyboard(gameFunc);
+	if (name.IsNotEmpty())
+	{
+		return name;
+	}
+
+	name = C_CON_GetGameFuncOnMouse(gameFunc);
+	if (name.IsNotEmpty())
+	{
+		return name;
+	}
+
+	name = C_CON_GetGameFuncOnJoystick(gameFunc);
+	if (name.IsNotEmpty())
+	{
+		return name;
+	}
+	return "UNBOUND";
+}
+
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void C_CON_SetButtonAlias(int num, const char *text)
+{
+	if (num >= 0 && num < countof(con_gamefuncs))
+	{
+		if (con_gamefuncs[num].replaced) free((void*)con_gamefuncs[num].description);
+		con_gamefuncs[num].description = strdup(text);
+		con_gamefuncs[num].replaced = true;
+	}
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void C_CON_ClearButtonAlias(int num)
+{
+	if (num >= 0 && num < countof(con_gamefuncs))
+	{
+		if (con_gamefuncs[num].replaced) free((void*)con_gamefuncs[num].description);
+		con_gamefuncs[num].description = "";
+		con_gamefuncs[num].replaced = false;
+	}
+}
+

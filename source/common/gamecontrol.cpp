@@ -29,6 +29,7 @@
 #include "enet.h"
 #endif
 
+void C_CON_SetAliases();
 InputState inputState;
 void SetClipshapes();
 int ShowStartupWindow(TArray<GrpEntry> &);
@@ -425,7 +426,7 @@ int CONFIG_Init()
 	}
 	GStrings.LoadStrings();
 	V_InitFonts();
-	buttonMap.SetGameAliases();
+	C_CON_SetAliases();
 	Mus_Init();
 	InitStatistics();
 	M_Init();
@@ -483,7 +484,7 @@ int32_t CONFIG_GetMapBestTime(char const* const mapname, uint8_t const* const ma
 	if (GameConfig->SetSection("MapTimes"))
 	{
 		auto s = GameConfig->GetValueForKey(m);
-		if (s) (int)strtoull(s, nullptr, 0);
+		if (s) return (int)strtoull(s, nullptr, 0);
 	}
 	return -1;
 }
@@ -504,7 +505,6 @@ int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm)
 //
 //==========================================================================
 
-int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
 int32_t MouseAnalogueAxes[MAXMOUSEAXES];
 int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
 int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
@@ -518,51 +518,6 @@ static const char* mouseanalogdefaults[MAXMOUSEAXES] =
 {
 "analog_turning",
 "analog_moving",
-};
-
-
-static const char* mousedigitaldefaults[MAXMOUSEDIGITAL] =
-{
-};
-
-static const char* joystickdefaults[MAXJOYBUTTONSANDHATS] =
-{
-"Fire",
-"Strafe",
-"Run",
-"Open",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"Aim_Down",
-"Look_Right",
-"Aim_Up",
-"Look_Left",
 };
 
 
@@ -580,18 +535,6 @@ static const char* joystickanalogdefaults[MAXJOYAXES] =
 "analog_turning",
 "analog_moving",
 "analog_strafing",
-};
-
-
-static const char* joystickdigitaldefaults[MAXJOYDIGITAL] =
-{
-"",
-"",
-"",
-"",
-"",
-"",
-"Run",
 };
 
 
@@ -658,62 +601,6 @@ void CONFIG_SetupMouse(void)
 
 void CONFIG_SetupJoystick(void)
 {
-	const char* val;
-	FString section = currentGame + ".ControllerSettings";
-	if (!GameConfig->SetSection(section)) return;
-
-	for (int i = 0; i < MAXJOYBUTTONSANDHATS; i++)
-	{
-		section.Format("ControllerButton%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickFunctions[i][0] = buttonMap.FindButtonIndex(val);
-
-		section.Format("ControllerButtonClicked%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickFunctions[i][1] = buttonMap.FindButtonIndex(val);
-	}
-
-	// map over the axes
-	for (int i = 0; i < MAXJOYAXES; i++)
-	{
-		section.Format("ControllerAnalogAxes%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(val);
-
-		section.Format("ControllerDigitalAxes%d_0", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickDigitalFunctions[i][0] = buttonMap.FindButtonIndex(val);
-
-		section.Format("ControllerDigitalAxes%d_1", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickDigitalFunctions[i][1] = buttonMap.FindButtonIndex(val);
-
-		section.Format("ControllerAnalogScale%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickAnalogueScale[i] = (int32_t)strtoull(val, nullptr, 0);
-
-		section.Format("ControllerAnalogInvert%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickAnalogueInvert[i] = (int32_t)strtoull(val, nullptr, 0);
-
-		section.Format("ControllerAnalogDead%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickAnalogueDead[i] = (int32_t)strtoull(val, nullptr, 0);
-
-		section.Format("ControllerAnalogSaturate%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickAnalogueSaturate[i] = (int32_t)strtoull(val, nullptr, 0);
-	}
-
 	for (int i = 0; i < MAXJOYAXES; i++)
 	{
 		CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
@@ -877,14 +764,12 @@ void CONFIG_SetGameControllerDefaultsStandard()
 	for (auto const& button : buttons)
 		button.apply();
 
-	/*
-	if (FURY)
+	if (g_gameType & GAMEFLAG_FURY)
 	{
 		for (auto const& button : buttonsFury)
 			button.apply();
 	}
 	else
-	*/
 	{
 		for (auto const& button : buttonsDuke)
 			button.apply();
@@ -938,14 +823,12 @@ void CONFIG_SetGameControllerDefaultsPro()
 	for (auto const& button : buttons)
 		button.apply();
 
-#if 0 // ouch...
-	if (FURY)
+	if (g_gameType & GAMEFLAG_FURY)
 	{
 		for (auto const& button : buttonsFury)
 			button.apply();
 	}
 	else
-#endif
 	{
 		for (auto const& button : buttonsDuke)
 			button.apply();
@@ -955,99 +838,14 @@ void CONFIG_SetGameControllerDefaultsPro()
 		digitalAxis.apply();
 }
 
-FString CONFIG_GetGameFuncOnKeyboard(int gameFunc)
-{
-	auto binding = buttonMap.GetButtonAlias(gameFunc);
-	auto keys = Bindings.GetKeysForCommand(binding);
-	for(auto key : keys)
-	{
-		if (key < KEY_FIRSTMOUSEBUTTON)
-		{
-			auto scan = KB_ScanCodeToString(key);
-			if (scan) return scan;
-
-		}
-	}
-	return "";
-}
-
-FString CONFIG_GetGameFuncOnMouse(int gameFunc)
-{
-	auto binding = buttonMap.GetButtonAlias(gameFunc);
-	auto keys = Bindings.GetKeysForCommand(binding);
-	for (auto key : keys)
-	{
-		if ((key >= KEY_FIRSTMOUSEBUTTON && key < KEY_FIRSTJOYBUTTON) || (key >= KEY_MWHEELUP && key <= KEY_MWHEELLEFT))
-		{
-			auto scan = KB_ScanCodeToString(key);
-			if (scan) return scan;
-
-		}
-	}
-	return "";
-}
-
-char const* CONFIG_GetGameFuncOnJoystick(int gameFunc)
-{
-	auto binding = buttonMap.GetButtonAlias(gameFunc);
-	auto keys = Bindings.GetKeysForCommand(binding);
-	for (auto key : keys)
-	{
-		if (key >= KEY_FIRSTJOYBUTTON && !(key >= KEY_MWHEELUP && key <= KEY_MWHEELLEFT))
-		{
-			auto scan = KB_ScanCodeToString(key);
-			if (scan) return scan;
-		}
-	}
-	return "";
-}
-
-// FIXME: Consider the mouse as well!
-FString CONFIG_GetBoundKeyForLastInput(int gameFunc)
-{
-	if (CONTROL_LastSeenInput == LastSeenInput::Joystick)
-	{
-		FString name = CONFIG_GetGameFuncOnJoystick(gameFunc);
-		if (name.IsNotEmpty())
-		{
-			return name;
-		}
-	}
-
-	FString name = CONFIG_GetGameFuncOnKeyboard(gameFunc);
-	if (name.IsNotEmpty())
-	{
-		return name;
-	}
-
-	name = CONFIG_GetGameFuncOnMouse(gameFunc);
-	if (name.IsNotEmpty())
-	{
-		return name;
-	}
-
-	name = CONFIG_GetGameFuncOnJoystick(gameFunc);
-	if (name.IsNotEmpty())
-	{
-		return name;
-	}
-	return "UNBOUND";
-}
-
 
 void CONFIG_InitMouseAndController()
 {
-	memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
 	memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
 	memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
 
 	for (int i = 0; i < MAXMOUSEAXES; i++)
 	{
-		MouseDigitalFunctions[i][0] = buttonMap.FindButtonIndex(mousedigitaldefaults[i * 2]);
-		MouseDigitalFunctions[i][1] = buttonMap.FindButtonIndex(mousedigitaldefaults[i * 2 + 1]);
-		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0, controldevice_mouse);
-		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1, controldevice_mouse);
-
 		MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
 		CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
 	}
@@ -1074,32 +872,12 @@ void CONFIG_WriteControllerSettings()
 	{
 		FString section = currentGame + ".ControllerSettings";
 		GameConfig->SetSection(section);
-		for (int dummy = 0; dummy < MAXJOYBUTTONSANDHATS; dummy++)
-		{
-			if (buttonMap.GetButtonName(JoystickFunctions[dummy][0]))
-			{
-				buf.Format("ControllerButton%d", dummy);
-				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickFunctions[dummy][0]));
-			}
-
-			if (buttonMap.GetButtonName(JoystickFunctions[dummy][1]))
-			{
-				buf.Format("ControllerButtonClicked%d", dummy);
-				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickFunctions[dummy][1]));
-			}
-		}
 		for (int dummy = 0; dummy < MAXJOYAXES; dummy++)
 		{
 			if (CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]))
 			{
 				buf.Format("ControllerAnalogAxes%d", dummy);
 				GameConfig->SetValueForKey(buf, CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]));
-			}
-
-			if (buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][0]))
-			{
-				buf.Format("ControllerDigitalAxes%d_0", dummy);
-				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][0]));
 			}
 
 			if (buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][1]))

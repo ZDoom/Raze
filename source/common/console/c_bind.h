@@ -116,4 +116,13 @@ struct FKeySection
 };
 extern TArray<FKeySection> KeySections;
 
+struct GameFuncDesc
+{
+	const char *action;
+	const char *description;
+	bool replaced;
+};
 #endif //__C_BINDINGS_H__
+
+
+

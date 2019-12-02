@@ -38,19 +38,6 @@ void CONFIG_SetDefaultKeys(const char *defbinds);
 #define DEFAULTJOYSTICKANALOGUESATURATE     9500
 
 
-extern int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
-extern int32_t MouseAnalogueAxes[MAXMOUSEAXES];
-extern int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
-extern int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
-extern int32_t JoystickAnalogueAxes[MAXJOYAXES];
-extern int32_t JoystickAnalogueScale[MAXJOYAXES];
-extern int32_t JoystickAnalogueDead[MAXJOYAXES];
-extern int32_t JoystickAnalogueSaturate[MAXJOYAXES];
-extern int32_t JoystickAnalogueInvert[MAXJOYAXES];
-
-int32_t CONFIG_AnalogNameToNum(const char* func);
-const char* CONFIG_AnalogNumToName(int32_t func);
-void CONFIG_SetupMouse(void);
 void CONFIG_SetupJoystick(void);
 void CONFIG_WriteControllerSettings();
 void CONFIG_InitMouseAndController();
@@ -58,8 +45,6 @@ void CONFIG_InitMouseAndController();
 void CONFIG_SetGameControllerDefaultsStandard();
 void CONFIG_SetGameControllerDefaultsPro();
 void CONFIG_SetGameControllerDefaultsClear();
-
-FString CONFIG_GetBoundKeyForLastInput(int gameFunc);
 
 extern FStringCVar* const CombatMacros[];
 void CONFIG_ReadCombatMacros();

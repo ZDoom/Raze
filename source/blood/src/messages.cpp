@@ -53,16 +53,6 @@ void sub_5A928(void)
         buttonMap.ClearButton(i);
 }
 
-void sub_5A944(int key)
-{
-	auto binding = Bindings.GetBind(key);
-	if (binding)
-	{
-		auto index = buttonMap.FindButtonIndex(binding);
-		if (index >= 0) buttonMap.ClearButton(index);
-	}
-}
-
 void SetGodMode(bool god)
 {
     playerSetGodMode(gMe, god);
@@ -590,58 +580,6 @@ void CPlayerMsg::Send(void)
 void CPlayerMsg::ProcessKeys(void)
 {
 	if (inputState.GetKeyStatus(sc_Escape)) Term();
-#if 0
-    int key = inputState.keyGetScan();
-    int ch;
-    if (key != 0)
-    {
-        bool ctrl = (inputState.CtrlPressed());
-		bool shift = (inputState.ShiftPressed());
-        switch (key)
-        {
-        case sc_Escape:
-            Term();
-            break;
-        case sc_F1:
-        case sc_F2:
-        case sc_F3:
-        case sc_F4:
-        case sc_F5:
-        case sc_F6:
-        case sc_F7:
-        case sc_F8:
-        case sc_F9:
-        case sc_F10:
-            buttonMap.ClearButton(gamefunc_See_Chase_View);
-            Set(*CombatMacros[key-sc_F1]);
-            Send();
-			inputState.ClearKeyStatus(key);
-		break;
-        case sc_BackSpace:
-            if (ctrl)
-                Clear();
-            else
-                DelChar();
-            break;
-        case sc_Enter:
-        case sc_kpad_Enter:
-            if (gCheatMgr.Check(text))
-                Term();
-            else
-                Send();
-            break;
-        default:
-            if (key < 128)
-            {
-                ch =  shift ? g_keyAsciiTableShift[key] : g_keyAsciiTable[key];
-                if (ch)
-                    AddChar(ch);
-            }
-            break;
-        }
-        sub_5A944(key);
-    }
-#endif
 }
 
 bool CPlayerMsg::IsWhitespaceOnly(const char * const pzString)

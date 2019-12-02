@@ -937,10 +937,14 @@ void C_InitQuotes(void)
 #ifdef EDUKE32_TOUCH_DEVICES
     apStrings[QUOTE_DEAD] = 0;
 #else
-    char const * OpenGameFunc = buttonMap.GetButtonName(gamefunc_Open);
-    C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", OpenGameFunc);
-    C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", OpenGameFunc);
-    C_ReplaceQuoteSubstring(QUOTE_DEAD, "USE", OpenGameFunc);
+	auto openkeys = Bindings.GetKeysForCommand("+open");
+	if (openkeys.Size())
+	{
+		auto OpenGameFunc = C_NameKeys(openkeys.Data(), 1);
+		C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", OpenGameFunc);
+		C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", OpenGameFunc);
+		C_ReplaceQuoteSubstring(QUOTE_DEAD, "USE", OpenGameFunc);
+	}
 #endif
 
     // most of these are based on Blood, obviously
