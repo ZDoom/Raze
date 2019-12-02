@@ -549,7 +549,7 @@ void FuncFish(int a, int nDamage, int nRun)
                     return;
                 }
 
-                if (nVal != 0x30000)
+                if ((nVal & 0x30000) == 0)
                 {
                     if ((nVal & 0xC000) == 0x8000)
                     {
@@ -575,7 +575,7 @@ void FuncFish(int a, int nDamage, int nRun)
                         }
                     }
                 }
-                else if (nVal == 0x20000)
+                else if (nVal & 0x20000)
                 {
                     IdleFish(nFish, -1);
                 }
