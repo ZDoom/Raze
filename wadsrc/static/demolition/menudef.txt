@@ -748,10 +748,15 @@ OptionMenu "WeaponsControlMenu" protected
 	Control    "$CNTRLMNU_SLOT0"          , "+weapon_10"
 	StaticText ""
 	Control    "$CNTRLMNU_HOLSTER"        , "+holster_weapon"
+	ifgame(Fury)
+	{
+		Control    "$CNTRLMNU_RELOAD" , "+steroids"
+	}
 	ifgame(Duke, Nam, WW2GI, Fury)
 	{
 		Control "$CNTRLMNU_QUICKKICK"     , "+quick_kick"
 	}
+
 	ifgame(Redneck, RedneckRides)
 	{
 		Control "$CNTRLMNU_PEE"           , "+quick_kick"
@@ -792,6 +797,12 @@ OptionMenu "InventoryControlsMenu" protected
 		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
 		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
 		Control    "$CNTRLMNU_STEROIDS" , "+steroids"
+	}
+	ifgame(Fury)
+	{
+		StaticText ""
+		Control    "$CNTRLMNU_RADAR" , "+nightvision"
+		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
 	}
 	ifgame(Nam)
 	{
