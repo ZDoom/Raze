@@ -2279,14 +2279,22 @@ void DoLastLevelCinema()
         }
 
         DoStatic(var_28, var_24);
+
+        // WaitVBL();
+        int time = (int)totalclock + 4;
+        while ((int)totalclock < time) {
+            HandleAsync();
+        }
     }
 
     // loc_3AD75
 
     do
-    {
+    {  
+    LABEL_11:
+
         HandleAsync();
-LABEL_11:
+
         if (strlen(gString[nString]) == 0)
             break;
 
@@ -2331,7 +2339,12 @@ LABEL_11:
                 overwritesprite(0, 0, kTileLoboLaptop, 0, 2, kPalNormal);
                 videoNextPage();
 
-                WaitVBL();
+                // WaitVBL();
+                int time = (int)totalclock + 4;
+                while ((int)totalclock < time) {
+                    HandleAsync();
+                }
+
                 if (CheckForEscape())
                     goto LABEL_28;
             }
@@ -2344,7 +2357,7 @@ LABEL_11:
         inputState.keyFlushChars();
         inputState.ClearAllKeyStatus();
 
-        int v11 = kTimerTicks * (var_1C + 2) + (int)totalclock;
+        int v11 = (kTimerTicks * (var_1C + 2)) + (int)totalclock;
 
         do
         {
@@ -2359,11 +2372,19 @@ LABEL_11:
 LABEL_28:
     PlayLocalSound(StaticSound[kSound75], 0);
 
-    while (1)
+    nEndTime = (int)totalclock + 240;
+
+    while (nEndTime > (int)totalclock)
     {
         HandleAsync();
 
         DoStatic(var_28, var_24);
+
+        // WaitVBL();
+        int time = (int)totalclock + 4;
+        while ((int)totalclock < time) {
+            HandleAsync();
+        }
 
         if (var_28 > 20) {
             var_28 -= 20;
