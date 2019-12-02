@@ -304,7 +304,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 	int ydim_upper = 0;
 	int ydim_lower = ydim - 1;
 	//int32_t const indent = 0;	// not set for any relevant menu
-	int x = int(xpos * 65536 * 6);
+	int x = int(xpos * 65536);
 
 	uint8_t status = 0;
 	if (state == NIT_SelectedState)
