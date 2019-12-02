@@ -232,6 +232,26 @@ static bool CheckSkipOptionBlock(FScanner &sc)
 //
 //=============================================================================
 
+static bool CheckSkipNoSwBlock(FScanner& sc)
+{
+	sc.MustGetStringName("(");
+	sc.MustGetString();
+	bool res = sc.Compare("true");
+	sc.MustGetStringName(")");
+	if ((!!(g_gameType & GAMEFLAG_SHAREWARE)) == res)
+	{
+		SkipSubBlock(sc);
+		return !sc.CheckString("else");
+	}
+	return false;
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
 static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 {
 	sc.MustGetStringName("{");
@@ -253,6 +273,14 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		else if (sc.Compare("ifoption"))
 		{
 			if (!CheckSkipOptionBlock(sc))
+			{
+				// recursively parse sub-block
+				ParseListMenuBody(sc, desc);
+			}
+		}
+		else if (sc.Compare("ifshareware"))
+		{
+			if (!CheckSkipNoSwBlock(sc))
 			{
 				// recursively parse sub-block
 				ParseListMenuBody(sc, desc);
@@ -572,6 +600,14 @@ static void ParseImageScrollerBody(FScanner &sc, FImageScrollerDescriptor *desc)
 				ParseImageScrollerBody(sc, desc);
 			}
 		}
+		else if (sc.Compare("ifshareware"))
+		{
+			if (!CheckSkipNoSwBlock(sc))
+			{
+				// recursively parse sub-block
+				ParseImageScrollerBody(sc, desc);
+			}
+		}
 		else if (sc.Compare("ifoption"))
 		{
 			if (!CheckSkipOptionBlock(sc))
@@ -776,6 +812,14 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 		else if (sc.Compare("ifgame"))
 		{
 			if (!CheckSkipGameBlock(sc))
+			{
+				// recursively parse sub-block
+				ParseOptionMenuBody(sc, desc);
+			}
+		}
+		else if (sc.Compare("ifshareware"))
+		{
+			if (!CheckSkipNoSwBlock(sc))
 			{
 				// recursively parse sub-block
 				ParseOptionMenuBody(sc, desc);

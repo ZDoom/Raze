@@ -433,7 +433,7 @@ ImageScroller "HelpMenu"
 	{
 		// The menu has no default binding, but if someone tries to open it anyway show the cool retro ads that were shipped with the game. :D
 		ImageItem "#5262"
-		ifnotshareware
+		ifshareware(false)
 		{
 			ImageItem "#5261"
 		}
@@ -537,7 +537,7 @@ ImageScroller "CreditsMenu"
 	}
 	ifgame(ShadowWarrior)
 	{
-		ifshareware
+		ifshareware(true)
 		{
 			ImageItem "#5110"
 			ImageItem "#5112"
@@ -648,7 +648,7 @@ OptionMenu "OptionsMenu"
 //
 //-------------------------------------------------------------------------------------------
 
-OptionMenu "CustomizeControls" protected
+OptionMenu "CustomizeControls"// protected
 {
 	Title "$CNTRLMNU_TITLE"
 
@@ -660,7 +660,7 @@ OptionMenu "CustomizeControls" protected
 	//Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu" // todo after thorough cleanup
 }
 
-OptionMenu "ActionControlsMenu" protected
+OptionMenu "ActionControlsMenu"// protected
 {
 	Title "$CNTRLMNU_ACTION_TITLE"
 	ScrollTop 2
@@ -715,7 +715,7 @@ OptionMenu "ActionControlsMenu" protected
 	Control    "$CNTRLMNU_SCOREBOARD"       , "+show_dukematch_scores"
 }
 
-OptionMenu "ChatControlsMenu" protected
+OptionMenu "ChatControlsMenu"// protected
 {
 	Title "$CNTRLMNU_CHAT_TITLE"
 	ScrollTop 2
@@ -725,14 +725,14 @@ OptionMenu "ChatControlsMenu" protected
 	Control    "$CNTRLMNU_SAY"     , "+send_message"
 }
 
-OptionMenu "WeaponsControlMenu" protected
+OptionMenu "WeaponsControlMenu"// protected
 {
 	Title "$CNTRLMNU_WEAPONS_TITLE"
 	ScrollTop 2
 	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
 
 	StaticText ""
-	Control    "$CNTRLMNU_NEXTWEAPON"     , "+nexct_weapon"
+	Control    "$CNTRLMNU_NEXTWEAPON"     , "+next_weapon"
 	Control    "$CNTRLMNU_PREVIOUSWEAPON" , "+previous_weapon"
 
 	StaticText ""
@@ -776,7 +776,7 @@ OptionMenu "WeaponsControlMenu" protected
 
 }
 
-OptionMenu "InventoryControlsMenu" protected
+OptionMenu "InventoryControlsMenu"// protected
 {
 	Title "$CNTRLMNU_INVENTORY_TITLE"
 	ScrollTop 2
@@ -786,8 +786,8 @@ OptionMenu "InventoryControlsMenu" protected
 	Control    "$CNTRLMNU_USEITEM"      , "+inventory"
 
 	StaticText ""
-	Control    "$CNTRLMNU_NEXTITEM"     , "+inventory_next"
-	Control    "$CNTRLMNU_PREVIOUSITEM" , "+inventory_prev"
+	Control    "$CNTRLMNU_NEXTITEM"     , "+inventory_right"
+	Control    "$CNTRLMNU_PREVIOUSITEM" , "+inventory_left"
 	
 	ifgame(Duke)
 	{
@@ -844,9 +844,9 @@ OptionMenu "InventoryControlsMenu" protected
 		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
 		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
 	}
+}
 
-
-OptionMenu "OtherControlsMenu" protected
+OptionMenu "OtherControlsMenu"// protected
 {
 	Title "$CNTRLMNU_OTHER_TITLE"
 	ScrollTop 2

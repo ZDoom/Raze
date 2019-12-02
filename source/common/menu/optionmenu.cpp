@@ -71,7 +71,7 @@ int OptionWidth(const char * s)
 void DrawOptionText(int x, int y, int color, const char *text, bool grayed)
 {
 	PalEntry overlay = grayed? PalEntry(96,48,0,0) : PalEntry(0,0,0);
-	DrawText (&twod, OptionFont(), color, x, y, text, DTA_CleanNoMove_1, true, DTA_ColorOverlay, overlay);
+	DrawText (&twod, OptionFont(), color, x, y, text, DTA_CleanNoMove_1, true, DTA_ColorOverlay, overlay, TAG_END);
 }
 
 //=============================================================================
