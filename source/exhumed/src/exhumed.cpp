@@ -2396,7 +2396,7 @@ LOOP3:
             // END YELLOW SECTION
 
             // loc_12149:
-            if (bInDemo)
+            if (bInDemo || bPlayback)
             {
                 while (tclocks > totalclock) { HandleAsync(); }
                 tclocks = totalclock;
