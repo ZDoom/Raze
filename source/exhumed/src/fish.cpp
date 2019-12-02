@@ -281,8 +281,8 @@ void IdleFish(short nFish, short edx)
     sprite[nSprite].ang += (256 - RandomSize(9)) + 1024;
     sprite[nSprite].ang &= kAngleMask;
 
-    sprite[nSprite].xvel = (sprite[nSprite].ang + 512) >> 8;
-    sprite[nSprite].yvel = (sprite[nSprite].ang) >> 8;
+    sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 8;
+    sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 8;
 
     FishList[nFish].nAction = 0;
     FishList[nFish].field_2 = 0;
