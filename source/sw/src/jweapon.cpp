@@ -1389,6 +1389,9 @@ PlayerInitChemBomb(PLAYERp pp)
 
     PlaySound(DIGI_THROW, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan | v3df_doppler);
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
@@ -1833,6 +1836,9 @@ PlayerInitCaltrops(PLAYERp pp)
 
 
     PlaySound(DIGI_THROW, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan | v3df_doppler);
+
+    if (pp->cursectnum < 0)
+        return 0;
 
     nx = pp->posx;
     ny = pp->posy;

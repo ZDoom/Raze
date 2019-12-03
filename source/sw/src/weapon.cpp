@@ -2777,7 +2777,7 @@ int DoLavaErupt(short SpriteNum)
         TRAVERSE_CONNECT(pnum)
         {
             pp = Player + pnum;
-            if (TEST(sector[pp->cursectnum].extra, SECTFX_TRIGGER))
+            if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_TRIGGER))
             {
                 TRAVERSE_SPRITE_SECT(headspritesect[pp->cursectnum],i,nexti)
                 {
@@ -13027,6 +13027,9 @@ InitSpellRing(PLAYERp pp)
     if (!SW_SHAREWARE)
         PlaySound(DIGI_RFWIZ, &pp->posx, &pp->posy, &pp->posz, v3df_none);
 
+    if (pp->cursectnum < 0)
+        return;
+
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
         SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursectnum, pp->posx, pp->posy, pp->posz, ang, 0);
@@ -13575,6 +13578,9 @@ InitSpellNapalm(PLAYERp pp)
 
     PlaySound(DIGI_NAPFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_none);
 
+    if (pp->cursectnum < 0)
+        return;
+
     for (i = 0; i < SIZ(mp); i++)
     {
         SpriteNum = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursectnum,
@@ -13734,6 +13740,9 @@ InitSpellMirv(PLAYERp pp)
     short oclipdist;
 
     PlaySound(DIGI_MIRVFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+
+    if (pp->cursectnum < 0)
+        return 0;
 
     SpriteNum = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursectnum,
                             pp->posx, pp->posy, pp->posz + Z(12), pp->pang, MIRV_VELOCITY);
@@ -14746,12 +14755,15 @@ InitStar(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -3);
 
+    PlaySound(DIGI_STAR, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
 
     nz = pp->posz + pp->bob_z + Z(8);
-
-    PlaySound(DIGI_STAR, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -14877,6 +14889,9 @@ InitHeartAttack(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, WPN_HEART, -1);
 
+    if (pp->cursectnum < 0)
+        return;
+
     SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursectnum,
                             pp->posx, pp->posy, pp->posz + Z(12), pp->pang, BLOOD_WORM_VELOCITY*2);
 
@@ -14949,6 +14964,9 @@ InitHeartAttack(PLAYERp pp)
     };
 
     PlayerUpdateAmmo(pp, WPN_HEART, -1);
+
+    if (pp->cursectnum < 0)
+        return;
 
     SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursectnum,
                             pp->posx, pp->posy, pp->posz + Z(12), pp->pang, BLOOD_WORM_VELOCITY*2);
@@ -15265,6 +15283,9 @@ InitLaser(PLAYERp pp)
 
     PlaySound(DIGI_RIOTFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
 
@@ -15373,6 +15394,9 @@ InitRail(PLAYERp pp)
 
     // Make sprite shade brighter
     u->Vis = 128;
+
+    if (pp->cursectnum < 0)
+        return 0;
 
     nx = pp->posx;
     ny = pp->posy;
@@ -15555,17 +15579,30 @@ InitRocket(PLAYERp pp)
     DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT);
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
+    if (pp->WpnRocketHeat)
+    {
+        switch (pp->WpnRocketType)
+        {
+        case 1:
+            pp->WpnRocketHeat--;
+            break;
+        }
+    }
 
     PlaySound(DIGI_RIOTFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
 
     // Spawn a shot
     // Inserting and setting up variables
+
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursectnum,
@@ -15601,7 +15638,6 @@ InitRocket(PLAYERp pp)
         switch (pp->WpnRocketType)
         {
         case 1:
-            pp->WpnRocketHeat--;
             SET(wu->Flags, SPR_FIND_PLAYER);
             wp->pal = wu->spal = 20; // Yellow
             break;
@@ -15679,11 +15715,15 @@ InitBunnyRocket(PLAYERp pp)
 
     PlaySound(DIGI_BUNNYATTACK, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
 
     // Spawn a shot
     // Inserting and setting up variables
+
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursectnum,
@@ -15789,11 +15829,15 @@ InitNuke(PLAYERp pp)
     // Make sprite shade brighter
     u->Vis = 128;
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
 
     // Spawn a shot
     // Inserting and setting up variables
+
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursectnum,
@@ -15977,6 +16021,9 @@ InitMicro(PLAYERp pp)
 
     if (TargetSortCount > MAX_MICRO)
         TargetSortCount = MAX_MICRO;
+
+    if (pp->cursectnum < 0)
+        return 0;
 
     for (i = 0; i < MAX_MICRO; i++)
     {
@@ -17534,6 +17581,9 @@ DoDefaultStat(short SpriteNum)
 int
 InitTracerUzi(PLAYERp pp)
 {
+    if (pp->cursectnum < 0)
+        return 0;
+
     USERp u = User[pp->PlayerSprite];
     SPRITEp wp, hsp;
     USERp wu;
@@ -17552,6 +17602,7 @@ InitTracerUzi(PLAYERp pp)
 
     // Spawn a shot
     // Inserting and setting up variables
+
     w = SpawnSprite(STAT_MISSILE, 0, s_Tracer, pp->cursectnum,
                     nx, ny, nz, pp->pang, TRACER_VELOCITY);
 
@@ -18549,6 +18600,9 @@ InitTurretRail(short SpriteNum, PLAYERp pp)
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = sp->x;
     ny = sp->y;
     nz = sp->z;
@@ -18605,6 +18659,8 @@ InitTurretLaser(short SpriteNum, PLAYERp pp)
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
+    if (pp->cursectnum < 0)
+        return 0;
 
     nx = sp->x;
     ny = sp->y;
@@ -19394,12 +19450,16 @@ InitGrenade(PLAYERp pp)
     // Make sprite shade brighter
     u->Vis = 128;
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
+
     w = SpawnSprite(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursectnum,
                     nx, ny, nz, pp->pang, GRENADE_VELOCITY);
 
@@ -19561,12 +19621,16 @@ InitMine(PLAYERp pp)
 
     PlaySound(DIGI_MINETHROW, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
+
     w = SpawnSprite(STAT_MISSILE, MINE, s_Mine, pp->cursectnum,
                     nx, ny, nz, pp->pang, MINE_VELOCITY);
 
@@ -19739,6 +19803,9 @@ InitFireball(PLAYERp pp)
 
     // Make sprite shade brighter
     u->Vis = 128;
+
+    if (pp->cursectnum < 0)
+        return 0;
 
     nx += pp->posx;
     ny += pp->posy;

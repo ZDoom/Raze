@@ -2087,10 +2087,13 @@ int DoTrapMatch(short match)
 void
 OperateTripTrigger(PLAYERp pp)
 {
-    SECTORp sectp = &sector[pp->cursectnum];
-
     if (Prediction)
         return;
+
+    if (pp->cursectnum < 0)
+        return;
+
+    SECTORp sectp = &sector[pp->cursectnum];
 
 #if 0
     // new method
@@ -2247,6 +2250,9 @@ void
 OperateContinuousTrigger(PLAYERp pp)
 {
     if (Prediction)
+        return;
+
+    if (pp->cursectnum < 0)
         return;
 
     switch (LOW_TAG(pp->cursectnum))
@@ -2589,8 +2595,6 @@ int DoPlayerGrabStar(PLAYERp pp)
 void
 PlayerOperateEnv(PLAYERp pp)
 {
-    SECT_USERp sectu = SectUser[pp->cursectnum];
-    SECTORp sectp = &sector[pp->cursectnum];
     SWBOOL found;
 
     if (Prediction)
@@ -2730,8 +2734,10 @@ PlayerOperateEnv(PLAYERp pp)
     //
     // ////////////////////////////
 
-    if (sectu && sectu->damage)
+    SECT_USERp sectu;
+    if (pp->cursectnum >= 0 && (sectu = SectUser[pp->cursectnum]) && sectu->damage)
     {
+        SECTORp sectp = &sector[pp->cursectnum];
         if (TEST(sectu->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
         {
             PlayerTakeSectorDamage(pp);
@@ -2761,7 +2767,7 @@ PlayerOperateEnv(PLAYERp pp)
     {
         OperateTripTrigger(pp);
 
-        if (TEST(sector[pp->cursectnum].extra, SECTFX_WARP_SECTOR))
+        if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_WARP_SECTOR))
         {
             if (!TEST(pp->Flags2, PF2_TELEPORTED))
             {

@@ -2186,7 +2186,6 @@ drawscreen(PLAYERp pp)
     int tx, ty, tz,thoriz,pp_siz;
     short tang,tsectnum;
     short i,j;
-    walltype *wal;
     int tiltlock;
     int bob_amt = 0;
     int quake_z, quake_x, quake_y;
@@ -2285,11 +2284,13 @@ drawscreen(PLAYERp pp)
 
     if (tsectnum < 0)
     {
+#if 0
         // if we hit an invalid sector move to the last valid position for drawing
         tsectnum = lv_sectnum;
         tx = lv_x;
         ty = lv_y;
         tz = lv_z;
+#endif
     }
     else
     {
@@ -2301,7 +2302,7 @@ drawscreen(PLAYERp pp)
     }
 
     // with "last valid" code this should never happen
-    ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
+    // ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
 
     pp->six = tx;
     pp->siy = ty;
@@ -2420,18 +2421,21 @@ drawscreen(PLAYERp pp)
 
     i = pp->cursectnum;
 
-    show2dsector[i>>3] |= (1<<(i&7));
-    wal = &wall[sector[i].wallptr];
-    for (j=sector[i].wallnum; j>0; j--,wal++)
+    if (i >= 0)
     {
-        i = wal->nextsector;
-        if (i < 0) continue;
-        if (wal->cstat&0x0071) continue;
-        uint16_t const nextwall = wal->nextwall;
-        if (nextwall < MAXWALLS && wall[nextwall].cstat&0x0071) continue;
-        if (sector[i].lotag == 32767) continue;
-        if (sector[i].ceilingz >= sector[i].floorz) continue;
         show2dsector[i>>3] |= (1<<(i&7));
+        walltype *wal = &wall[sector[i].wallptr];
+        for (j=sector[i].wallnum; j>0; j--,wal++)
+        {
+            i = wal->nextsector;
+            if (i < 0) continue;
+            if (wal->cstat&0x0071) continue;
+            uint16_t const nextwall = wal->nextwall;
+            if (nextwall < MAXWALLS && wall[nextwall].cstat&0x0071) continue;
+            if (sector[i].lotag == 32767) continue;
+            if (sector[i].ceilingz >= sector[i].floorz) continue;
+            show2dsector[i>>3] |= (1<<(i&7));
+        }
     }
 
     if ((dimensionmode == 5 || dimensionmode == 6) && pp == Player+myconnectindex)

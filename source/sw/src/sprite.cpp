@@ -962,7 +962,7 @@ SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int
 
     ASSERT(!Prediction);
 
-    PRODUCTION_ASSERT(sectnum >= 0 && sectnum < MAXSECTORS);
+    // PRODUCTION_ASSERT(sectnum >= 0 && sectnum < MAXSECTORS);
 
     SpriteNum = COVERinsertsprite(sectnum, stat);
 

@@ -59,7 +59,7 @@ SWBOOL FAF_DebugView = 0;
 
 void COVERupdatesector(int32_t x, int32_t y, int16_t* newsector)
 {
-    ASSERT(*newsector>=0 && *newsector<MAXSECTORS);
+    // ASSERT(*newsector>=0 && *newsector<MAXSECTORS);
     updatesector(x,y,newsector);
 }
 
@@ -281,10 +281,10 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     SWBOOL plax_found = FALSE;
     vec3_t s = { xs, ys, zs };
 
-    ASSERT(sects >= 0 && secte >= 0);
+    // ASSERT(sects >= 0 && secte >= 0);
 
     // early out to regular routine
-    if (!FAF_Sector(sects) && !FAF_Sector(secte))
+    if ((sects < 0 || !FAF_Sector(sects)) && (secte < 0 || !FAF_Sector(secte)))
     {
         return cansee(xs,ys,zs,sects,xe,ye,ze,secte);
     }
@@ -356,7 +356,7 @@ GetZadjustment(short sectnum, short hitag)
     short i, nexti;
     SPRITEp sp;
 
-    if (!TEST(sector[sectnum].extra, SECTFX_Z_ADJUST))
+    if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_Z_ADJUST))
         return 0L;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_ST1], i, nexti)
@@ -517,7 +517,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     // because the ceiling and floors get moved out of the way for drawing.
 
     // early out to regular routine
-    if (!FAF_ConnectArea(sectnum))
+    if (sectnum < 0 || !FAF_ConnectArea(sectnum))
     {
         getzrange_old(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, *florhit, loz);
@@ -545,7 +545,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 
         updatesectorz(x, y, newz, &uppersect);
         if (uppersect < 0)
-            _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
+            return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
         getzrange_old(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, -1, NULL);
     }
@@ -568,7 +568,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 
         updatesectorz(x, y, newz, &lowersect);
         if (lowersect < 0)
-            _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
+            return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
         getzrange_old(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
         SectorZadjust(-1, NULL, *florhit, loz);
         WaterAdjust(*florhit, loz);
@@ -614,7 +614,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         }
         updatesectorz(x, y, newz, &uppersect);
         if (uppersect < 0)
-            _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
+            return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
         getzrangepoint(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2);
         SectorZadjust(*ceilhit, hiz, -1, NULL);
     }
@@ -630,7 +630,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         }
         updatesectorz(x, y, newz, &lowersect);
         if (lowersect < 0)
-            _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
+            return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
         getzrangepoint(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit);
         SectorZadjust(-1, NULL, *florhit, loz);
         WaterAdjust(*florhit, loz);

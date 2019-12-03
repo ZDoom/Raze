@@ -1794,12 +1794,13 @@ DoPlayerTurnTurret(PLAYERp pp)
 
 void SlipSlope(PLAYERp pp)
 {
-    short wallptr = sector[pp->cursectnum].wallptr;
     short ang;
-    SECT_USERp sectu = SectUser[pp->cursectnum];
+    SECT_USERp sectu;
 
-    if (!sectu || !TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE))
+    if (pp->cursectnum < 0 || !(sectu = SectUser[pp->cursectnum]) || !TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE))
         return;
+
+    short wallptr = sector[pp->cursectnum].wallptr;
 
     ang = getangle(wall[wall[wallptr].point2].x - wall[wallptr].x, wall[wall[wallptr].point2].y - wall[wallptr].y);
 
@@ -2537,6 +2538,9 @@ DoPlayerMenuKeys(PLAYERp pp)
 
 void PlayerSectorBound(PLAYERp pp, int amt)
 {
+    if (pp->cursectnum < 9)
+        return;
+
     int cz,fz;
 
     // player should never go into a sector
@@ -2680,7 +2684,7 @@ DoPlayerMove(PLAYERp pp)
 
     DoPlayerHorizon(pp);
 
-    if (TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
+    if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
         if (TEST(pp->Flags, PF_FLYING|PF_JUMPING|PF_FALLING))
         {
@@ -2722,6 +2726,9 @@ DoPlayerSectorUpdatePreMove(PLAYERp pp)
 {
     short sectnum = pp->cursectnum;
 
+    if (sectnum < 0)
+        return;
+
     if (TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
         updatesectorz(pp->posx, pp->posy, pp->posz, &sectnum);
@@ -2749,13 +2756,12 @@ DoPlayerSectorUpdatePreMove(PLAYERp pp)
 void
 DoPlayerSectorUpdatePostMove(PLAYERp pp)
 {
-    short sectnum;
+    short sectnum = pp->cursectnum;
     int fz,cz;
 
     // need to do updatesectorz if in connect area
-    if (FAF_ConnectArea(pp->cursectnum))
+    if (sectnum >= 0 && FAF_ConnectArea(sectnum))
     {
-        sectnum = pp->cursectnum;
         updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
 
         // can mess up if below
@@ -2773,7 +2779,7 @@ DoPlayerSectorUpdatePostMove(PLAYERp pp)
 
             // try again
             updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
-            ASSERT(pp->cursectnum >= 0);
+            // ASSERT(pp->cursectnum >= 0);
         }
     }
     else
@@ -3662,7 +3668,7 @@ DoPlayerFall(PLAYERp pp)
         FLAG_KEY_RESET(pp, SK_JUMP);
     }
 
-    if (SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
     {
         StackedWaterSplash(pp);
         DoPlayerBeginDiveNoWarp(pp);
@@ -4245,7 +4251,7 @@ DoPlayerCrawl(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
 
-    if (SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
     {
         // if stacked water - which it should be
         if (FAF_ConnectArea(pp->cursectnum))
@@ -4348,7 +4354,7 @@ DoPlayerCrawl(PLAYERp pp)
         return;
     }
 
-    if (TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
+    if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
         pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
     }
@@ -4430,7 +4436,7 @@ DoPlayerFly(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
 
-    if (SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
     {
         DoPlayerBeginDiveNoWarp(pp);
         return;
@@ -5116,7 +5122,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum < 0 || !SectorIsUnderwaterArea(pp->cursectnum))
         return;
 
     if (pp->Bloody) pp->Bloody = FALSE; // Water washes away the blood
@@ -5282,7 +5288,7 @@ DoPlayerDive(PLAYERp pp)
     SECT_USERp sectu = SectUser[pp->cursectnum];
 
     // whenever your view is not in a water area
-    if (!SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum < 0 || !SectorIsUnderwaterArea(pp->cursectnum))
     {
         DoPlayerStopDiveNoWarp(pp);
         DoPlayerBeginRun(pp);
@@ -7356,7 +7362,7 @@ DoPlayerRun(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
 
-    if (SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
     {
         DoPlayerBeginDiveNoWarp(pp);
         return;
@@ -7428,7 +7434,7 @@ DoPlayerRun(PLAYERp pp)
         {
             if (TEST_SYNC_KEY(pp, SK_OPERATE))
             {
-                if (FLAG_KEY_PRESSED(pp, SK_OPERATE))
+                if (FLAG_KEY_PRESSED(pp, SK_OPERATE) && pp->cursectnum >= 0)
                 {
                     if (TEST(sector[pp->cursectnum].extra, SECTFX_OPERATIONAL))
                     {
@@ -8405,6 +8411,9 @@ DoFootPrints(short SpriteNum)
 
     if (u->PlayerP)
     {
+        if (u->PlayerP->cursectnum < 0)
+            return 0;
+
         if (FAF_ConnectArea(u->PlayerP->cursectnum))
             return 0;
 
