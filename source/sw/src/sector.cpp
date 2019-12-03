@@ -486,7 +486,7 @@ SectorSetup(void)
         {
             SINE_WAVE_FLOOR *swf;
             short near_sect = i, base_sect = i;
-            short swf_ndx = 0;
+            uint16_t swf_ndx = 0;
             short cnt = 0, sector_cnt;
             int range;
             int range_diff = 0;

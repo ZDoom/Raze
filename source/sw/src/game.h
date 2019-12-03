@@ -60,18 +60,22 @@ extern char isShareware;
 
 #define ERR_STD_ARG __FILE__, __LINE__
 
+void _Assert(const char *expr, const char *strFile, unsigned uLine);
+#define PRODUCTION_ASSERT(f) \
+    do { \
+        if (!(f)) \
+            _Assert(#f,ERR_STD_ARG); \
+    } while (0)
+
+#if DEBUG || defined DEBUGGINGAIDS
+#define ASSERT(f) PRODUCTION_ASSERT(f)
+#else
+#define ASSERT(f) do { } while (0)
+#endif
+
 #if DEBUG
 void HeapCheck(char *, int);
 #define HEAP_CHECK() HeapCheck(__FILE__, __LINE__)
-
-void _Assert(const char *expr, const char *strFile, unsigned uLine);
-#define ASSERT(f) \
-    if (f)        \
-        do { } while(0);         \
-    else          \
-        _Assert(#f,ERR_STD_ARG);
-
-#define PRODUCTION_ASSERT(f) ASSERT(f)
 
 void dsprintf(char *, char *, ...);
 #define DSPRINTF dsprintf
@@ -90,15 +94,7 @@ extern int DispMono;
 
 #define RANDOM_DEBUG 1 // Set this to 1 for network testing.
 #else
-#define ASSERT(f) do { } while(0)
 #define MONO_PRINT(str)
-
-void _Assert(const char *expr, const char *strFile, unsigned uLine);
-#define PRODUCTION_ASSERT(f) \
-    if (f)        \
-        do { } while(0);         \
-    else          \
-        _Assert(#f,ERR_STD_ARG);
 
 void dsprintf_null(char *str, const char *format, ...);
 #define DSPRINTF dsprintf_null
@@ -1164,7 +1160,7 @@ struct PLAYERstruct
     short DiveDamageTics;
 
     // Death stuff
-    short DeathType;
+    uint16_t DeathType;
     short Kills;
     short Killer;  //who killed me
     short KilledPlayer[MAX_SW_PLAYERS_REG];

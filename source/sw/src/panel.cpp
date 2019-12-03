@@ -7671,7 +7671,7 @@ pSpriteControl(PLAYERp pp)
         // RULE: Sprites can only kill themselves
         PRODUCTION_ASSERT(psp);
         ASSERT(ValidPtr(psp));
-        ASSERT((uint32_t) psp->Next != 0xCCCCCCCC);
+        // ASSERT((uint32_t) psp->Next != 0xCCCCCCCC);
 
         if (psp->State)
             pStateControl(psp);
