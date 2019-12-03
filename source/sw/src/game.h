@@ -527,11 +527,11 @@ int StdRandomRange(int range);
 #define MDA_REVERSEBLINK   0xF0
 
 // defines for move_sprite return value
-#define HIT_MASK (BIT(13)|BIT(14)|BIT(15))
+#define HIT_MASK (BIT(14)|BIT(15)|BIT(16))
 #define HIT_SPRITE (BIT(14)|BIT(15))
 #define HIT_WALL   BIT(15)
 #define HIT_SECTOR BIT(14)
-#define HIT_PLAX_WALL BIT(13)
+#define HIT_PLAX_WALL BIT(16)
 
 #define NORM_SPRITE(val) ((val) & (MAXSPRITES - 1))
 #define NORM_WALL(val) ((val) & (MAXWALLS - 1))
