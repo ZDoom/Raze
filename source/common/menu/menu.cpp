@@ -967,23 +967,6 @@ CCMD (closemenu)
 	M_ClearMenus();
 }
 
-//
-//		Toggle messages on/off
-//
-CCMD (togglemessages)
-{
-	if (show_messages)
-	{
-		Printf (128, "%s\n", GStrings("MSGOFF"));
-		show_messages = false;
-	}
-	else
-	{
-		Printf (128, "%s\n", GStrings("MSGON"));
-		show_messages = true;
-	}
-}
-
 EXTERN_CVAR (Int, screenblocks)
 
 CCMD(menuconsole)

@@ -20,13 +20,14 @@ protected:
 class FFontChar2 : public FTexture
 {
 public:
-	FFontChar2 (const char *sourcelump, int sourcepos, int width, int height, int leftofs=0, int topofs=0);
+	FFontChar2 (TArray<uint8_t>& sourceData, int sourcepos, int width, int height, int leftofs=0, int topofs=0);
 
 	void Create8BitPixels(uint8_t*) override;
+	FBitmap GetBgraBitmap(const PalEntry* remap, int* ptrans) override;
 	void SetSourceRemap(const uint8_t *sourceremap);
 
 protected:
-	FString SourceLump;
+	TArray<uint8_t>& sourceData;
 	int SourcePos;
 	const uint8_t *SourceRemap;
 };

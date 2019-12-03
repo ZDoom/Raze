@@ -93,7 +93,7 @@ FFont *V_GetFont(const char *name, const char *fontlumpname)
 	FFont *font = FFont::FindFont (name);
 	if (font == nullptr)
 	{
-		auto lumpy = kopenFileReader(name, 0);
+		auto lumpy = kopenFileReader(fontlumpname, 0);
 		if (!lumpy.isOpen()) return nullptr;
 		uint32_t head;
 		lumpy.Read (&head, 4);
@@ -101,7 +101,8 @@ FFont *V_GetFont(const char *name, const char *fontlumpname)
 			head == MAKE_ID(0xE1,0xE6,0xD5,0x1A))
 		{
 			FFont *CreateSingleLumpFont (const char *fontname, const char *lump);
-			return CreateSingleLumpFont (name, name);
+			lumpy.Close();
+			return CreateSingleLumpFont (name, fontlumpname);
 		}
 	}
 	return font;
@@ -720,10 +721,8 @@ void V_InitFonts()
 	NewSmallFont = CreateHexLumpFont2("NewSmallFont", "demolition/newconsolefont.hex");
 	CurrentConsoleFont = NewConsoleFont;
 
-	ConFont = V_GetFont("ConsoleFont", "confont");	// The con font is needed for the slider graphics
-	{
-		ConFont = SmallFont;
-	}
+	ConFont = V_GetFont("ConsoleFont", "demolition/confont.lmp");	// The con font is needed for the slider graphics
+	SmallFont = ConFont;	// This is so that it doesn't crash and that it immediately gets seen as a proble. The SmallFont should later be mapped to the small game font.
 }
 
 void V_ClearFonts()

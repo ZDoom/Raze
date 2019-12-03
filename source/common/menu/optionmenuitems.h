@@ -604,7 +604,7 @@ public:
 	
 	void DrawSliderElement (int color, int x, int y, const char * str)
 	{
-		DrawText (&twod, ConFont, color, x, y, str, DTA_CellX, 16 * CleanXfac_1, DTA_CellY, 16 * CleanYfac_1);
+		DrawText (&twod, ConFont, color, x, y, str, DTA_CellX, 16 * CleanXfac_1, DTA_CellY, 16 * CleanYfac_1, TAG_DONE);
 	}
 
 	void DrawSlider (int x, int y, double min, double max, double cur, int fracdigits, int indent)
@@ -612,8 +612,8 @@ public:
 		char textbuf[16];
 		double range;
 		int maxlen = 0;
-		int right = x + (12*8 + 4) * CleanXfac_1;
-		int cy = y + (OptionSettings.mLinespacing-8)*CleanYfac_1;
+		int right = x + (12*16 + 4) * CleanXfac_1;
+		int cy = y;// +(OptionSettings.mLinespacing - 8) * CleanYfac_1;
 
 		range = max - min;
 		double ccur = clamp(cur, min, max) - min;
@@ -621,7 +621,7 @@ public:
 		if (fracdigits >= 0)
 		{
 			snprintf(textbuf, countof(textbuf), "%.*f", fracdigits, max);
-			maxlen = SmallFont->StringWidth(textbuf) * CleanXfac_1;
+			maxlen = NewSmallFont->StringWidth(textbuf) * CleanXfac_1;
 		}
 
 		mSliderShort = right + maxlen > screen->GetWidth();
@@ -885,7 +885,7 @@ public:
 		{
 			// reposition the text so that the cursor is visible when in entering mode.
 			FString text = Represent();
-			int tlen = SmallFont->StringWidth(text) * CleanXfac_1;
+			int tlen = NewSmallFont->StringWidth(text) * CleanXfac_1;
 			int newindent = screen->GetWidth() - tlen - CursorSpace();
 			if (newindent < indent) indent = newindent;
 		}

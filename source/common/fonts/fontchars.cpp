@@ -89,8 +89,8 @@ void  FFontChar1::Create8BitPixels (uint8_t *data)
 //
 //==========================================================================
 
-FFontChar2::FFontChar2 (const char *sourcelump, int sourcepos, int width, int height, int leftofs, int topofs)
-: SourceLump (sourcelump), SourcePos (sourcepos), SourceRemap(nullptr)
+FFontChar2::FFontChar2 (TArray<uint8_t>& sourcelump, int sourcepos, int width, int height, int leftofs, int topofs)
+: sourceData (sourcelump), SourcePos (sourcepos), SourceRemap(nullptr)
 {
 	Size.x = width;
 	Size.y = height;
@@ -119,7 +119,8 @@ void FFontChar2::SetSourceRemap(const uint8_t *sourceremap)
 
 void FFontChar2::Create8BitPixels(uint8_t *Pixels)
 {
-	auto lump = kopenFileReader(SourceLump, 0);
+	FileReader lump;
+	lump.OpenMemory(sourceData.Data(), sourceData.Size());
 	int destSize = GetWidth() * GetHeight();
 	uint8_t max = 255;
 	bool rle = true;
@@ -225,7 +226,23 @@ void FFontChar2::Create8BitPixels(uint8_t *Pixels)
 
 	if (destSize < 0)
 	{
-		I_Error ("The font %s is corrupt", SourceLump.GetChars());
+		I_Error ("The font %s is corrupt", GetName().GetChars());
 	}
 }
 
+FBitmap FFontChar2::GetBgraBitmap(const PalEntry* remap, int* ptrans)
+{
+	FBitmap bmp;
+	TArray<uint8_t> buffer;
+	bmp.Create(Size.x, Size.y);
+	const uint8_t* ppix = Get8BitPixels();
+	if (!ppix)
+	{
+		// This is needed for tiles with a palette remap.
+		buffer.Resize(Size.x * Size.y);
+		Create8BitPixels(buffer.Data());
+		ppix = buffer.Data();
+	}
+	if (ppix) bmp.CopyPixelData(0, 0, ppix, Size.x, Size.y, Size.y, 1, 0, remap);
+	return bmp;
+}

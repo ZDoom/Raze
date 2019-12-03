@@ -920,7 +920,7 @@ OptionString "Cursors"
 	"-", "$OPTSTR_SYSTEMCURSOR"
 }
 
-OptionMenu "MouseOptions" protected
+OptionMenu "MouseOptions" //protected
 {
 	Title "$MOUSEMNU_TITLE"
 	Option "$MOUSEMNU_ENABLEMOUSE",		"in_mouse", "YesNo"
@@ -949,7 +949,7 @@ OptionMenu "MouseOptions" protected
 //
 //-------------------------------------------------------------------------------------------
 
-OptionMenu "JoystickOptionsDefaults" protected
+OptionMenu "JoystickOptions"//Defaults" //protected
 {
 	Title "$JOYMNU_OPTIONS"
 	Option "$JOYMNU_ENABLE", "use_joystick", "YesNo"
@@ -968,7 +968,7 @@ OptionMenu "JoystickOptionsDefaults" protected
 	// The rest will be filled in by joystick code if devices get connected or disconnected
 }
 
-OptionMenu "JoystickOptions" protected
+OptionMenu "JoystickOptions1" //protected
 {
 	Title "$JOYMNU_OPTIONS"
 }
@@ -989,7 +989,7 @@ OptionValue "Inversion"
 	1, "$OPTVAL_INVERTED"
 }
 
-OptionMenu "JoystickConfigMenu" protected
+OptionMenu "JoystickConfigMenu" //protected
 {
 	Title "$JOYMNU_TITLE"
 	Class "JoystickConfigMenu"

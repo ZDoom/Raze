@@ -168,6 +168,7 @@ protected:
 	uint8_t PatchRemap[256];
 
 	FName FontName = NAME_None;
+	TArray<uint8_t> rawData;
 	FFont *Next;
 
 	static FFont *FirstFont;
