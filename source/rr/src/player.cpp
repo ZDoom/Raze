@@ -2774,26 +2774,6 @@ void P_GetInput(int playerNum)
 
     CONTROL_GetInput(&info);
 
-    if (in_mousedeadzone)
-    {
-        if (info.mousey > 0)
-            info.mousey = max(info.mousey - in_mousedeadzone, 0);
-        else if (info.mousey < 0)
-            info.mousey = min(info.mousey + in_mousedeadzone, 0);
-
-        if (info.mousex > 0)
-            info.mousex = max(info.mousex - in_mousedeadzone, 0);
-        else if (info.mousex < 0)
-            info.mousex = min(info.mousex + in_mousedeadzone, 0);
-    }
-
-    if (in_mousebias)
-    {
-        if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
-        else
-            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
-    }
 
     // JBF: Run key behaviour is selectable
 	
@@ -3080,27 +3060,6 @@ void P_GetInputMotorcycle(int playerNum)
 
     CONTROL_GetInput(&info);
 
-    if (in_mousedeadzone)
-    {
-        if (info.mousey > 0)
-            info.mousey = max(info.mousey - in_mousedeadzone, 0);
-        else if (info.mousey < 0)
-            info.mousey = min(info.mousey + in_mousedeadzone, 0);
-
-        if (info.mousex > 0)
-            info.mousex = max(info.mousex - in_mousedeadzone, 0);
-        else if (info.mousex < 0)
-            info.mousex = min(info.mousex + in_mousedeadzone, 0);
-    }
-
-    if (in_mousebias)
-    {
-        if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
-        else
-            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
-    }
-
     // JBF: Run key behaviour is selectable
     int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     constexpr int const analogTurnAmount = (NORMALTURN << 1);
@@ -3377,27 +3336,6 @@ void P_GetInputBoat(int playerNum)
     }
 
     CONTROL_GetInput(&info);
-
-    if (in_mousedeadzone)
-    {
-        if (info.mousey > 0)
-            info.mousey = max(info.mousey - in_mousedeadzone, 0);
-        else if (info.mousey < 0)
-            info.mousey = min(info.mousey + in_mousedeadzone, 0);
-
-        if (info.mousex > 0)
-            info.mousex = max(info.mousex - in_mousedeadzone, 0);
-        else if (info.mousex < 0)
-            info.mousex = min(info.mousex + in_mousedeadzone, 0);
-    }
-
-    if (in_mousebias)
-    {
-        if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
-        else
-            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
-    }
 
     // JBF: Run key behaviour is selectable
     int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));

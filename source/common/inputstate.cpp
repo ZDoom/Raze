@@ -47,6 +47,27 @@ void InputState::GetMouseDelta(ControlInfo * info)
 	//info->mousex = int(finput.x * (4.f) * in_mousesensitivity * in_mouseside);
 	//info->mousey = int(finput.y * (4.f) * in_mousesensitivity * in_mouseforward);
 
+	if (in_mousedeadzone)
+	{
+		if (info->mousey > 0)
+			info->mousey = max(info->mousey - in_mousedeadzone, 0);
+		else if (info->mousey < 0)
+			info->mousey = min(info->mousey + in_mousedeadzone, 0);
+
+		if (info->mousex > 0)
+			info->mousex = max(info->mousex - in_mousedeadzone, 0);
+		else if (info->mousex < 0)
+			info->mousex = min(info->mousex + in_mousedeadzone, 0);
+	}
+
+	if (in_mousebias)
+	{
+		if (abs(info->mousex) > abs(info->mousey))
+			info->mousey = tabledivide32_noinline(info->mousey, in_mousebias);
+		else
+			info->mousex = tabledivide32_noinline(info->mousex, in_mousebias);
+	}
+
 }
 
 void InputState::AddEvent(const event_t *ev)
