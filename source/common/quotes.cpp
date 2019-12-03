@@ -46,7 +46,7 @@ void Quotes::MakeStringLabel(FString &quote)
 
 void Quotes::InitializeQuote(int num, const char *text, bool fromscript)
 {
-	quotes[num] = num;
+	quotes[num] = text;
 	if (fromscript)	// means this is the initial setup from the source data.
 	{
 		MakeStringLabel(quotes[num]);
@@ -55,7 +55,7 @@ void Quotes::InitializeQuote(int num, const char *text, bool fromscript)
 
 void Quotes::InitializeExQuote(int num, const char *text, bool fromscript)
 {
-	exquotes[num] = num;
+	exquotes[num] = text;
 	if (fromscript)	// means this is the initial setup from the source data.
 	{
 		MakeStringLabel(quotes[num]);
