@@ -2946,12 +2946,11 @@ do_default_b:
                         }
                         else
                         {
-                            int nEyeLevel = eyelevel[nPlayer];
-
-                            if (nEyeLevel < -8320) {
-                                eyelevel[nPlayer] = ((-8320 - nEyeLevel) >> 1) + nEyeLevel;
+                            if (eyelevel[nPlayer] < -8320) {
+                                eyelevel[nPlayer] += ((-8320 - eyelevel[nPlayer]) >> 1);
                             }
 
+loc_1BD2E:
                             if (totalvel[nPlayer] < 1) {
                                 nActionB = 6;
                             }
@@ -2981,13 +2980,7 @@ do_default_b:
                                 // CHECKME - confirm branching in this area is OK
                                 if (var_48)
                                 {
-                                    // loc_1BD2E:
-                                    if (totalvel[nPlayer] < 1) {
-                                        nActionB = 6;
-                                    }
-                                    else {
-                                        nActionB = 7;
-                                    }
+                                    goto loc_1BD2E;
                                 }
                                 else
                                 {
@@ -3003,38 +2996,19 @@ do_default_b:
                                     }
                                 }
                             }
-
-                            // loc_1BE30
-                            if (buttons & kButtonFire) // was var_38
-                            {
-                                if (bUnderwater)
-                                {
-                                    nActionB = 11;
-                                }
-                                else
-                                {
-                                    if (nActionB != 2 && nActionB != 1)
-                                    {
-                                        nActionB = 5;
-                                    }
-                                }
-                            }
                         }
-                        else // player's health is 0
+                        // loc_1BE30
+                        if (buttons & kButtonFire) // was var_38
                         {
-                            // loc_1BE30
-                            if (buttons & kButtonFire) // was var_38
+                            if (bUnderwater)
                             {
-                                if (bUnderwater)
+                                nActionB = 11;
+                            }
+                            else
+                            {
+                                if (nActionB != 2 && nActionB != 1)
                                 {
-                                    nActionB = 11;
-                                }
-                                else
-                                {
-                                    if (nActionB != 2 && nActionB != 1)
-                                    {
-                                        nActionB = 5;
-                                    }
+                                    nActionB = 5;
                                 }
                             }
                         }
