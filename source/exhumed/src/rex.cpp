@@ -335,6 +335,8 @@ void FuncRex(int a, int nDamage, int nRun)
                             nAction = 1;
                             break;
                     }
+
+                    break;
                 }
 
                 case 2:
@@ -401,8 +403,9 @@ void FuncRex(int a, int nDamage, int nRun)
                         RexList[nRex].nAction = 1;
                         RexList[nRex].field_2 = 0;
                         RexList[nRex].field_A = 90;
-                        return;
                     }
+
+                    return;
                 }
 
                 case 3:
