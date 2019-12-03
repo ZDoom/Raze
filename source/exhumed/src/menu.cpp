@@ -182,79 +182,77 @@ void DoEnergyTile()
         {
             for (j = 0; j < 64; j++)
             {
-                if (*c != 96)
+                uint8_t val = *c;
+
+                if (val != 96)
                 {
-                    if (*c <= 158) {
-                        *ptrW = 96;
+                    if (val > 158) {
+                        *ptrW = val - 1;
                     }
                     else {
-                        *ptrW = (*c) - 1;
+                        *ptrW = 96;
                     }
-                    //continue;
                 }
                 else
                 {
                     if (menu_RandomBit2()) {
                         *ptrW = *c;
-                        c++;
-                        ptrW++;
-                        continue;
-                    }
-
-                    char al = *(c + 1);
-                    char ah = *(c - 1);
-
-                    if (al <= ah) {
-                        al = ah;
-                    }
-
-                    char cl = al;
-                    al = *(c - 66);
-
-                    if (cl <= al) {
-                        cl = al;
-                    }
-
-                    al = *(c + 66);
-                    if (cl <= al) {
-                        cl = al;
-                    }
-
-                    al = *(c + 66);
-                    if (cl <= al) {
-                        cl = al;
-                    }
-
-                    al = *(c + 66);
-                    if (cl <= al) {
-                        cl = al;
-                    }
-
-                    al = *(c - 65);
-                    if (cl <= al) {
-                        cl = al;
-                    }
-
-                    al = *(c - 67);
-                    if (cl > al) {
-                        al = cl;
-                    }
-
-                    cl = al;
-
-                    if (al <= 159) {
-                        *ptrW = 96;
-                        //continue;
                     }
                     else
                     {
-                        if (!menu_RandomBit2())
-                        {
-                            cl--;
+                        uint8_t al = *(c + 1);
+                        uint8_t ah = *(c - 1);
+
+                        if (al <= ah) {
+                            al = ah;
                         }
 
-                        *ptrW = cl;
-                    }
+                        uint8_t cl = al;
+
+                        al = *(c - 66);
+                        if (cl <= al) {
+                            cl = al;
+                        }
+
+                        al = *(c + 66);
+                        if (cl <= al) {
+                            cl = al;
+                        }
+
+                        al = *(c + 66);
+                        if (cl <= al) {
+                            cl = al;
+                        }
+
+                        al = *(c + 66);
+                        if (cl <= al) {
+                            cl = al;
+                        }
+
+                        al = *(c - 65);
+                        if (cl <= al) {
+                            cl = al;
+                        }
+
+                        al = *(c - 67);
+                        if (cl > al) {
+                            al = cl;
+                        }
+
+                        cl = al;
+
+                        if (al <= 159) {
+                            *ptrW = 96;
+                        }
+                        else
+                        {
+                            if (!menu_RandomBit2()) {
+                                cl--;
+                            }
+
+                            *ptrW = cl;
+                        }
+                    }     
                 }
 
                 c++;
@@ -267,6 +265,7 @@ void DoEnergyTile()
         c = &energytile[67];
         ptrW = energy2;
 
+        // copy back to energytile[]
         for (i = 0; i < 64; i++)
         {
             memcpy(c, ptrW, 64);
@@ -276,13 +275,12 @@ void DoEnergyTile()
 
         ptrW = energy2;
 
+        // kEnergy2 is 64 x 64
         for (i = 0; i < 4096; i++)
         {
-            if ((*ptrW) == 96) {
-                *ptrW = 255; // -1?
+            if (ptrW[i] == 96) {
+                ptrW[i] = 255; // -1?
             }
-
-            ptrW++;
         }
 
         word_9AB5B--;
@@ -295,6 +293,8 @@ void DoEnergyTile()
             val += randSize;
             val *= 2;
             val += randSize2;
+
+            assert(val < 4356);
 
             energytile[val] = 175;
             word_9AB5B = 1;
@@ -1992,7 +1992,7 @@ void DoCinemaText(short nVal)
         videoNextPage();
 
         // TEMP
-        int time = (int)totalclock + 8;
+        int time = (int)totalclock + 4;
         while ((int)totalclock < time) {
             HandleAsync();
         }
