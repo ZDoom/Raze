@@ -752,6 +752,7 @@ set (PCH_SOURCES
 	common/secrets.cpp
 	common/compositesavegame.cpp
 	common/savegamehelp.cpp
+	common/quotes.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp

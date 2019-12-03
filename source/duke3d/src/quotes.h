@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef quotes_h_
 #define quotes_h_
 
-#define MAXQUOTES                   16384
-#define MAXQUOTELEN                 128
+#include "quotemgr.h"
+
 #define OBITQUOTEINDEX              (MAXQUOTES-128)
 #define SUICIDEQUOTEINDEX           (MAXQUOTES-32)
 

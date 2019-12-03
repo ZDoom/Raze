@@ -2457,7 +2457,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_QUOTE:
                 insptr++;
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)(*insptr) >= MAXQUOTES) || apStrings[*insptr] == NULL)
+                if (EDUKE32_PREDICT_FALSE((unsigned)(*insptr) >= MAXQUOTES))
                 {
                     CON_ERRPRINTF("invalid quote %d\n", (int32_t)(*insptr));
                     insptr++;

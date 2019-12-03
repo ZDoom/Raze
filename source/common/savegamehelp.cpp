@@ -44,6 +44,7 @@
 #include "statistics.h"
 #include "secrets.h"
 #include "s_music.h"
+#include "quotemgr.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -79,6 +80,7 @@ bool OpenSaveGameForRead(const char *name)
 		ReadStatistics();
 		SECRET_Load();
 		MUS_Restore();
+		quoteMgr.ReadFromSavegame();
 	}
 
 	return savereader != nullptr;
@@ -155,6 +157,7 @@ void G_WriteSaveHeader(const char *name, const char*mapname, const char *maptitl
 	SaveStatistics();
 	SECRET_Save();
 	MUS_Save();
+	quoteMgr.WriteToSavegame();
 }
 
 //=============================================================================

@@ -490,7 +490,7 @@ void G_DoCheats(void)
                         //}
                         //else
                         //{
-                        //    Bstrcpy(apStrings[QUOTE_RESERVED4], "Come Get Some!");
+                        //    Bstrcpy(pStrings[QUOTE_RESERVED4], "Come Get Some!");
                         //
                         //    S_PlaySound(DUKE_GETWEAPON2);
                         //    P_DoQuote(QUOTE_RESERVED4, pPlayer);
@@ -661,7 +661,7 @@ void G_DoCheats(void)
                 case CHEAT_TODD:
                     if (NAM)
                     {
-                        Bstrcpy(apStrings[QUOTE_RESERVED4], g_NAMMattCheatQuote);
+                        quoteMgr.InitializeQuote(QUOTE_RESERVED4, g_NAMMattCheatQuote);
                         P_DoQuote(QUOTE_RESERVED4, pPlayer);
                     }
                     else
@@ -698,7 +698,7 @@ void G_DoCheats(void)
                     if (++g_noEnemies == 3)
                         g_noEnemies = 0;
 
-                    Bsprintf(apStrings[QUOTE_RESERVED4], "Monsters: %s", s[g_noEnemies]);
+					quoteMgr.FormatQuote(QUOTE_RESERVED4, "Monsters: %s", s[g_noEnemies]);
                     P_DoQuote(QUOTE_RESERVED4, pPlayer);
 
                     end_cheat(pPlayer);

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sbar.h"
 #include "menus.h"
 #include "gstrings.h"
+#include "quotemgr.h"
 
 BEGIN_DUKE_NS
 
@@ -1069,12 +1070,6 @@ void G_PrintGameQuotes(int32_t snum)
         if (k <= 1)
             break;
 
-        if (EDUKE32_PREDICT_FALSE(apStrings[ps->ftq] == NULL))
-        {
-            OSD_Printf(OSD_ERROR "%s %d null quote %d\n", "screentext:", __LINE__, ps->ftq);
-            break;
-        }
-
         int32_t y = ybase;
         if (reserved_quote)
         {
@@ -1104,7 +1099,7 @@ void G_PrintGameQuotes(int32_t snum)
         }
 #endif
 
-        height = gametext_(x, y, apStrings[ps->ftq], textsh(k), pal, texto(k), texta(k), TEXT_XCENTER).y + (1<<16);
+        height = gametext_(x, y, quoteMgr.GetQuote(ps->ftq), textsh(k), pal, texto(k), texta(k), TEXT_XCENTER).y + (1<<16);
     }
     while (0);
 
@@ -1143,12 +1138,6 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
         q &= ~MAXQUOTES;
     }
 
-    if (EDUKE32_PREDICT_FALSE(apStrings[q] == NULL))
-    {
-        OSD_Printf(OSD_ERROR "%s %d null quote %d\n", "screentext:", __LINE__, q);
-        return;
-    }
-
     if (p->fta > 0 && q != QUOTE_RESERVED && q != QUOTE_RESERVED2)
         if (p->ftq == QUOTE_RESERVED || p->ftq == QUOTE_RESERVED2) return;
 
@@ -1156,8 +1145,9 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
 
     if (p->ftq != q)
     {
-        if (p == g_player[screenpeek].ps && apStrings[q][0] != '\0')
-            OSD_Printf(cq ? OSDTEXT_DEFAULT "%s\n" : "%s\n", apStrings[q]);
+		auto qu = quoteMgr.GetQuote(q);
+        if (p == g_player[screenpeek].ps && qu[0] != '\0')
+            OSD_Printf(cq ? OSDTEXT_DEFAULT "%s\n" : "%s\n", qu);
 
         p->ftq = q;
     }

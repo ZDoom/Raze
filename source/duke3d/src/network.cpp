@@ -1517,7 +1517,7 @@ static void P_RemovePlayer(int32_t p)
             voting = -1;
         }
 
-        Bstrcpy(apStrings[QUOTE_RESERVED2],recbuf);
+        quoteMgr.InitializeQuote(QUOTE_RESERVED2 ,recbuf);
         g_player[myconnectindex].ps->ftq = QUOTE_RESERVED2;
         g_player[myconnectindex].ps->fta = 180;
     }

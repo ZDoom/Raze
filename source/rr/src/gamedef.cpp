@@ -902,129 +902,30 @@ void C_DefineVolumeFlags(int32_t vol, int32_t flags)
 int32_t C_AllocQuote(int32_t qnum)
 {
     Bassert((unsigned)qnum < MAXQUOTES);
-
-    if (apStrings[qnum] == NULL)
-    {
-        apStrings[qnum] = (char *)Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
-        return 1;
-    }
-
-    return 0;
+    return 1;
 }
-
-#ifndef EDUKE32_TOUCH_DEVICES
-static void C_ReplaceQuoteSubstring(const size_t q, char const * const query, char const * const replacement)
-{
-    size_t querylength = Bstrlen(query);
-
-    for (bssize_t i = MAXQUOTELEN - querylength - 2; i >= 0; i--)
-        if (Bstrncmp(&apStrings[q][i], query, querylength) == 0)
-        {
-            Bmemset(tempbuf, 0, sizeof(tempbuf));
-            Bstrncpy(tempbuf, apStrings[q], i);
-            Bstrcat(tempbuf, replacement);
-            Bstrcat(tempbuf, &apStrings[q][i + querylength]);
-            Bstrncpy(apStrings[q], tempbuf, MAXQUOTELEN - 1);
-            i = MAXQUOTELEN - querylength - 2;
-        }
-}
-#endif
 
 void C_InitQuotes(void)
 {
-    for (bssize_t i = 0; i < 128; i++) C_AllocQuote(i);
-
-#ifdef EDUKE32_TOUCH_DEVICES
-    apStrings[QUOTE_DEAD] = 0;
-#else
 	auto openkeys = Bindings.GetKeysForCommand("+open");
 	if (openkeys.Size())
 	{
 		auto OpenGameFunc = C_NameKeys(openkeys.Data(), 1);
-		C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", OpenGameFunc);
-		C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", OpenGameFunc);
-		C_ReplaceQuoteSubstring(QUOTE_DEAD, "USE", OpenGameFunc);
+		quoteMgr.Substitute(QUOTE_DEAD, "SPACE", OpenGameFunc);
+		quoteMgr.Substitute(QUOTE_DEAD, "OPEN", OpenGameFunc);
+		quoteMgr.Substitute(QUOTE_DEAD, "USE", OpenGameFunc);
 	}
-#endif
 
-    // most of these are based on Blood, obviously
-    const char *PlayerObituaries[] =
-    {
-        "^02%s^02 beat %s^02 like a cur",
-        "^02%s^02 broke %s",
-        "^02%s^02 body bagged %s",
-        "^02%s^02 boned %s^02 like a fish",
-        "^02%s^02 castrated %s",
-        "^02%s^02 creamed %s",
-        "^02%s^02 crushed %s",
-        "^02%s^02 destroyed %s",
-        "^02%s^02 diced %s",
-        "^02%s^02 disemboweled %s",
-        "^02%s^02 erased %s",
-        "^02%s^02 eviscerated %s",
-        "^02%s^02 flailed %s",
-        "^02%s^02 flattened %s",
-        "^02%s^02 gave AnAl MaDnEsS to %s",
-        "^02%s^02 gave %s^02 Anal Justice",
-        "^02%s^02 hosed %s",
-        "^02%s^02 hurt %s^02 real bad",
-        "^02%s^02 killed %s",
-        "^02%s^02 made dog meat out of %s",
-        "^02%s^02 made mincemeat out of %s",
-        "^02%s^02 manhandled %s",
-        "^02%s^02 massacred %s",
-        "^02%s^02 mutilated %s",
-        "^02%s^02 murdered %s",
-        "^02%s^02 neutered %s",
-        "^02%s^02 punted %s",
-        "^02%s^02 reamed %s",
-        "^02%s^02 ripped %s^02 a new orifice",
-        "^02%s^02 rocked %s",
-        "^02%s^02 sent %s^02 to hell",
-        "^02%s^02 shredded %s",
-        "^02%s^02 slashed %s",
-        "^02%s^02 slaughtered %s",
-        "^02%s^02 sliced %s",
-        "^02%s^02 smacked %s around",
-        "^02%s^02 smashed %s",
-        "^02%s^02 snuffed %s",
-        "^02%s^02 sodomized %s",
-        "^02%s^02 splattered %s",
-        "^02%s^02 sprayed %s",
-        "^02%s^02 squashed %s",
-        "^02%s^02 throttled %s",
-        "^02%s^02 toasted %s",
-        "^02%s^02 vented %s",
-        "^02%s^02 ventilated %s",
-        "^02%s^02 wasted %s",
-        "^02%s^02 wrecked %s",
-    };
-
-    const char *PlayerSelfObituaries[] =
-    {
-        "^02%s^02 is excrement",
-        "^02%s^02 is hamburger",
-        "^02%s^02 suffered scrotum separation",
-        "^02%s^02 volunteered for population control",
-        "^02%s^02 has suicided",
-        "^02%s^02 bled out",
-    };
-
-    EDUKE32_STATIC_ASSERT(OBITQUOTEINDEX + ARRAY_SIZE(PlayerObituaries)-1 < MAXQUOTES);
-    EDUKE32_STATIC_ASSERT(SUICIDEQUOTEINDEX + ARRAY_SIZE(PlayerSelfObituaries)-1 < MAXQUOTES);
-
-    g_numObituaries = ARRAY_SIZE(PlayerObituaries);
+    g_numObituaries = 48;
     for (bssize_t i = g_numObituaries - 1; i >= 0; i--)
     {
-        if (C_AllocQuote(i + OBITQUOTEINDEX))
-            Bstrcpy(apStrings[i + OBITQUOTEINDEX], PlayerObituaries[i]);
+		quoteMgr.FormatQuote(i + OBITQUOTEINDEX, "$TXT_OBITUARY%d", i + 1);
     }
 
-    g_numSelfObituaries = ARRAY_SIZE(PlayerSelfObituaries);
+    g_numSelfObituaries = 6;
     for (bssize_t i = g_numSelfObituaries - 1; i >= 0; i--)
     {
-        if (C_AllocQuote(i + SUICIDEQUOTEINDEX))
-            Bstrcpy(apStrings[i + SUICIDEQUOTEINDEX], PlayerSelfObituaries[i]);
+		quoteMgr.FormatQuote(i + SUICIDEQUOTEINDEX, "$TXT_SELFOBIT%d", i + 1);
     }
 }
 
@@ -2028,6 +1929,7 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case CON_DEFINEQUOTE:
+		{
             g_scriptPtr--;
 
             C_GetNextValue(LABEL_DEFINE);
@@ -2050,33 +1952,16 @@ static int32_t C_ParseCommand(int32_t loop)
 
             C_SkipSpace();
 
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                /*
-                if (*textptr == '%' && *(textptr+1) == 's')
-                {
-                initprintf("%s:%d: error: quote text contains string identifier.\n",g_szScriptFileName,g_lineNumber);
-                g_numCompilerErrors++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                break;
-                }
-                */
-                *(apStrings[k]+i) = *textptr;
-
-                textptr++,i++;
-                if (EDUKE32_PREDICT_FALSE(i >= MAXQUOTELEN-1))
-                {
-                    initprintf("%s:%d: warning: truncating quote text to %d characters.\n",g_scriptFileName,g_lineNumber,MAXQUOTELEN-1);
-                    g_warningCnt++;
-                    C_NextLine();
-                    break;
-                }
-            }
-
-            if ((unsigned)k < MAXQUOTES)
-                *(apStrings[k]+i) = '\0';
-            continue;
-
+			TArray<char> buffer;
+			while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+			{
+				buffer.Push(*textptr);
+				textptr++;
+			}
+			buffer.Push(0);
+			quoteMgr.InitializeQuote(k, buffer.Data(), true);
+			continue;
+		}
         case CON_DEFINESOUND:
             g_scriptPtr--;
             C_GetNextValue(LABEL_DEFINE);
@@ -2312,14 +2197,6 @@ void C_PrintStats(void)
             MAXSPRITES * sizeof(spritetype)/(1<<6)));
 
     int i, j;
-
-    for (i=MAXQUOTES-1, j=0; i>=0; i--)
-    {
-        if (apStrings[i])
-            j++;
-    }
-
-    if (j) initprintf("%d strings, ", j);
 
     for (i=MAXTILES-1, j=0; i>=0; i--)
     {

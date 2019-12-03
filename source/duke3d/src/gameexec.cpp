@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "version.h"
 #include "menu/menu.h"
 #include "c_dispatch.h"
+#include "quotemgr.h"
 
 #include "debugbreak.h"
 extern bool rotatesprite_2doverride;
@@ -2772,7 +2773,7 @@ badindex:
                     int const strIndex  = *insptr++;
                     int const XstrIndex = *insptr++;
 
-                    Bstrcpy(apStrings[strIndex], apXStrings[XstrIndex]);
+					quoteMgr.CopyExQuote(strIndex, XstrIndex);
                     dispatch();
                 }
 
@@ -3547,9 +3548,9 @@ badindex:
                     int const gameVar  = *insptr++;
                     int const quoteNum = Gv_GetVar(*insptr++);
 
-                    VM_ASSERT((unsigned)quoteNum < MAXQUOTES && apStrings[quoteNum], "invalid quote %d\n", quoteNum);
+                    VM_ASSERT((unsigned)quoteNum < MAXQUOTES, "invalid quote %d\n", quoteNum);
 
-                    Gv_SetVar(gameVar, Bstrlen(apStrings[quoteNum]));
+                    Gv_SetVar(gameVar, strlen(quoteMgr.GetQuote(quoteNum)));
                     dispatch();
                 }
 
@@ -3572,11 +3573,11 @@ badindex:
 
                     if (EDUKE32_PREDICT_FALSE(v.tileNum < 0 || v.tileNum + 127 >= MAXTILES))
                         CON_ERRPRINTF("invalid base tilenum %d\n", v.tileNum);
-                    else if (EDUKE32_PREDICT_FALSE((unsigned)v.quoteNum >= MAXQUOTES || apStrings[v.quoteNum] == NULL))
+                    else if ((unsigned)v.quoteNum >= MAXQUOTES)
                         CON_ERRPRINTF("invalid quote %d\n", v.quoteNum);
                     else
                     {
-                        vec2_t dim = G_ScreenTextSize(v.tileNum, v.vect.x, v.vect.y, v.vect.z, v.blockAngle, apStrings[v.quoteNum], 2 | v.orientation,
+						vec2_t dim = G_ScreenTextSize(v.tileNum, v.vect.x, v.vect.y, v.vect.z, v.blockAngle, quoteMgr.GetQuote(v.quoteNum), 2 | v.orientation,
                                                       v.offset.x, v.offset.y, v.between.x, v.between.y, v.f, v.bound[0].x, v.bound[0].y, v.bound[1].x,
                                                       v.bound[1].y);
 
@@ -3668,12 +3669,12 @@ badindex:
                     int const quoteIndex = Gv_GetVar(*insptr++);
                     int const gameFunc   = Gv_GetVar(*insptr++);
                     int funcPos    = Gv_GetVar(*insptr++);
-					VM_ASSERT((unsigned)quoteIndex < MAXQUOTES && apStrings[quoteIndex], "invalid quote %d\n", quoteIndex);
+					VM_ASSERT((unsigned)quoteIndex < MAXQUOTES, "invalid quote %d\n", quoteIndex);
 					VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
 
 					auto bindings = Bindings.GetKeysForCommand(C_CON_GetButtonFunc(gameFunc));
 					if ((unsigned)funcPos >= bindings.Size()) funcPos = 0;
-					Bstrcpy(apStrings[quoteIndex], KB_ScanCodeToString(bindings[funcPos]));
+					quoteMgr.InitializeQuote(quoteIndex, KB_ScanCodeToString(bindings[funcPos]));
                     dispatch();
                 }
 
@@ -3683,14 +3684,11 @@ badindex:
                     int const quoteIndex = Gv_GetVar(*insptr++);
                     int const gameFunc   = Gv_GetVar(*insptr++);
 
-                    VM_ASSERT((unsigned)quoteIndex < MAXQUOTES && apStrings[quoteIndex], "invalid quote %d\n", quoteIndex);
+                    VM_ASSERT((unsigned)quoteIndex < MAXQUOTES, "invalid quote %d\n", quoteIndex);
                     VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
 
-                    static char const s_KeyboardFormat[] = "[%s]";
-                    static char const s_JoystickFormat[] = "(%s)";
-
 					auto binding = C_CON_GetBoundKeyForLastInput(gameFunc);
-					if (binding.Len()) snprintf(apStrings[quoteIndex], MAXQUOTELEN, "(%s)", binding.GetChars());
+					if (binding.Len()) quoteMgr.FormatQuote(quoteIndex, "(%s)", binding.GetChars());
 					dispatch();
                 }
 
@@ -3703,17 +3701,11 @@ badindex:
                     } v;
                     Gv_FillWithVars(v);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.outputQuote >= MAXQUOTES || apStrings[v.outputQuote] == NULL
+                    if (EDUKE32_PREDICT_FALSE((unsigned)v.outputQuote >= MAXQUOTES
                                               || (unsigned)v.inputQuote >= MAXQUOTES
-                                              || apStrings[v.inputQuote] == NULL))
+                                              ))
                     {
-                        CON_ERRPRINTF("invalid quote %d\n", apStrings[v.outputQuote] ? v.inputQuote : v.outputQuote);
-                        abort_after_error();
-                    }
-
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.quotePos >= MAXQUOTELEN))
-                    {
-                        CON_ERRPRINTF("invalid position %d\n", v.quotePos);
+                        CON_ERRPRINTF("invalid quote %d\n", v.inputQuote >= MAXQUOTES ? v.inputQuote : v.outputQuote);
                         abort_after_error();
                     }
 
@@ -3723,18 +3715,18 @@ badindex:
                         abort_after_error();
                     }
 
-                    char *      pOutput = apStrings[v.outputQuote];
-                    char const *pInput  = apStrings[v.inputQuote];
+					TArray<char> output;
+                    char const *pInput  = quoteMgr.GetQuote(v.inputQuote);
 
                     while (*pInput && v.quotePos--)
                         pInput++;
-                    while ((*pOutput = *pInput) && v.quoteLength--)
+                    while ((*pInput) && v.quoteLength--)
                     {
-                        pOutput++;
+						output.Push(*pInput);
                         pInput++;
                     }
-                    *pOutput = '\0';
-
+					output.Push(0);
+					quoteMgr.InitializeQuote(v.outputQuote, output.Data());
                     dispatch();
                 }
 
@@ -3745,13 +3737,7 @@ badindex:
                     int const quote2  = Gv_GetVar(*insptr++);
                     int const gameVar = *insptr++;
 
-                    if (EDUKE32_PREDICT_FALSE(apStrings[quote1] == NULL || apStrings[quote2] == NULL))
-                    {
-                        CON_ERRPRINTF("null quote %d\n", apStrings[quote1] ? quote2 : quote1);
-                        abort_after_error();
-                    }
-
-                    Gv_SetVar(gameVar, strcmp(apStrings[quote1], apStrings[quote2]));
+                    Gv_SetVar(gameVar, strcmp(quoteMgr.GetQuote(quote1), quoteMgr.GetQuote(quote2)));
                     dispatch();
                 }
 
@@ -3775,14 +3761,14 @@ badindex:
                     switch (VM_DECODE_INST(tw))
                     {
                         case CON_GETPNAME:
-                            VM_ASSERT((unsigned)q < MAXQUOTES && apStrings[q], "invalid quote %d\n", q);
-                            if (g_player[j].user_name[0])
-                                Bstrcpy(apStrings[q], g_player[j].user_name);
-                            else
-                                Bsprintf(apStrings[q], "%d", j);
+                            VM_ASSERT((unsigned)q < MAXQUOTES, "invalid quote %d\n", q);
+							if (g_player[j].user_name[0])
+								quoteMgr.InitializeQuote(q, g_player[j].user_name);
+							else
+								quoteMgr.FormatQuote(q, "%d", j);
                             break;
                         case CON_QGETSYSSTR:
-                            VM_ASSERT((unsigned)q < MAXQUOTES && apStrings[q], "invalid quote %d\n", q);
+                            VM_ASSERT((unsigned)q < MAXQUOTES, "invalid quote %d\n", q);
                             switch (j)
                             {
                                 case STR_MAPNAME:
@@ -3790,7 +3776,7 @@ badindex:
                                 {
                                     if (G_HaveUserMap())
                                     {
-                                        snprintf(apStrings[q], MAXQUOTELEN, "%s", boardfilename);
+                                        quoteMgr.FormatQuote(q, "%s", boardfilename);
                                         break;
                                     }
 
@@ -3812,22 +3798,22 @@ badindex:
                                         abort_after_error();
                                     }
 
-                                    Bstrcpy(apStrings[q], j == STR_MAPNAME ? g_mapInfo[levelNum].name : g_mapInfo[levelNum].filename);
+                                    quoteMgr.InitializeQuote(q, j == STR_MAPNAME ? g_mapInfo[levelNum].name : g_mapInfo[levelNum].filename);
                                     break;
                                 }
                                 case STR_PLAYERNAME:
                                     VM_ASSERT((unsigned)vm.playerNum < (unsigned)g_mostConcurrentPlayers, "invalid player %d\n", vm.playerNum);
-                                    Bstrcpy(apStrings[q], g_player[vm.playerNum].user_name);
+                                    quoteMgr.InitializeQuote(q, g_player[vm.playerNum].user_name);
                                     break;
                                 case STR_VERSION:
                                     Bsprintf(tempbuf, HEAD2 " %s", GetGitDescription());
-                                    Bstrcpy(apStrings[q], tempbuf);
+									quoteMgr.InitializeQuote(q, tempbuf);
                                     break;
-                                case STR_GAMETYPE: Bstrcpy(apStrings[q], g_gametypeNames[ud.coop]); break;
+                                case STR_GAMETYPE: quoteMgr.InitializeQuote(q, g_gametypeNames[ud.coop]); break;
                                 case STR_VOLUMENAME:
                                     if (G_HaveUserMap())
                                     {
-                                        apStrings[q][0] = '\0';
+										quoteMgr.InitializeQuote(q, "");
                                         break;
                                     }
 
@@ -3837,36 +3823,28 @@ badindex:
                                         abort_after_error();
                                     }
 									// length is no longer limited so a check is needed.
-                                    Bstrncpy(apStrings[q], gVolumeNames[ud.volume_number], MAXQUOTELEN);
-									apStrings[q][MAXQUOTELEN-1] = 0;
+									quoteMgr.InitializeQuote(q, gVolumeNames[ud.volume_number]);
                                     break;
-                                case STR_YOURTIME:        Bstrcpy(apStrings[q], G_PrintYourTime());     break;
-                                case STR_PARTIME:         Bstrcpy(apStrings[q], G_PrintParTime());      break;
-                                case STR_DESIGNERTIME:    Bstrcpy(apStrings[q], G_PrintDesignerTime()); break;
-                                case STR_BESTTIME:        Bstrcpy(apStrings[q], G_PrintBestTime());     break;
-                                case STR_USERMAPFILENAME: snprintf(apStrings[q], MAXQUOTELEN, "%s", boardfilename); break;
+                                case STR_YOURTIME:        quoteMgr.InitializeQuote(q, G_PrintYourTime());     break;
+                                case STR_PARTIME:         quoteMgr.InitializeQuote(q, G_PrintParTime());      break;
+                                case STR_DESIGNERTIME:    quoteMgr.InitializeQuote(q, G_PrintDesignerTime()); break;
+                                case STR_BESTTIME:        quoteMgr.InitializeQuote(q, G_PrintBestTime());     break;
+                                case STR_USERMAPFILENAME: quoteMgr.FormatQuote(q, "%s", boardfilename); break;
                                 default: CON_ERRPRINTF("invalid string index %d or %d\n", q, j); abort_after_error();
                             }
                             break;
                         case CON_QSTRCAT:
-                            if (EDUKE32_PREDICT_FALSE(apStrings[q] == NULL || apStrings[j] == NULL))
-                                goto nullquote;
-                            Bstrncat(apStrings[q], apStrings[j], (MAXQUOTELEN - 1) - Bstrlen(apStrings[q]));
+							quoteMgr.AppendQuote(q, j);
                             break;
                         case CON_QSTRNCAT:
-                            if (EDUKE32_PREDICT_FALSE(apStrings[q] == NULL || apStrings[j] == NULL))
-                                goto nullquote;
-                            Bstrncat(apStrings[q], apStrings[j], Gv_GetVar(*insptr++));
+                            quoteMgr.AppendQuote(q, j, Gv_GetVar(*insptr++));
                             break;
                         case CON_QSTRCPY:
-                            if (EDUKE32_PREDICT_FALSE(apStrings[q] == NULL || apStrings[j] == NULL))
-                                goto nullquote;
-                            if (q != j)
-                                Bstrcpy(apStrings[q], apStrings[j]);
+							if (q != j)
+								quoteMgr.CopyQuote(q, j);
                             break;
                         default:
-                        nullquote:
-                            CON_ERRPRINTF("invalid quote %d\n", apStrings[q] ? j : q);
+                            CON_ERRPRINTF("invalid quote %d\n", q < MAXQUOTES? j : q);
                             abort_after_error();
                     }
                     dispatch();
@@ -4188,18 +4166,18 @@ badindex:
                 {
                     int const nQuote = Gv_GetVar(*insptr++);
 
-                    VM_ASSERT((unsigned)nQuote < MAXQUOTES && apStrings[nQuote], "invalid quote %d\n", nQuote);
+                    VM_ASSERT((unsigned)nQuote < MAXQUOTES, "invalid quote %d\n", nQuote);
 
                     if (VM_DECODE_INST(tw) == CON_IFCUTSCENE)
                     {
                         insptr--;
-                        VM_CONDITIONAL(g_animPtr == Anim_Find(apStrings[nQuote]));
+                        VM_CONDITIONAL(g_animPtr == Anim_Find(quoteMgr.GetQuote(nQuote)));
                         dispatch();
                     }
 
                     tw = vm.pPlayer->palette;
                     I_ClearAllInput();
-                    Anim_Play(apStrings[nQuote]);
+                    Anim_Play(quoteMgr.GetQuote(nQuote));
                     P_SetGamePalette(vm.pPlayer, tw, 2 + 16);
                     dispatch();
                 }
@@ -4342,9 +4320,9 @@ badindex:
                         abort_after_error();
                     }
 
-                    VM_ASSERT((unsigned)v.nQuote < MAXQUOTES && apStrings[v.nQuote], "invalid quote %d\n", v.nQuote);
+                    VM_ASSERT((unsigned)v.nQuote < MAXQUOTES, "invalid quote %d\n", v.nQuote);
 
-                    G_PrintGameText(v.tilenum, v.pos.x >> 1, v.pos.y, apStrings[v.nQuote], v.shade, v.pal, v.orientation & (ROTATESPRITE_MAX - 1),
+                    G_PrintGameText(v.tilenum, v.pos.x >> 1, v.pos.y, quoteMgr.GetQuote(v.nQuote), v.shade, v.pal, v.orientation & (ROTATESPRITE_MAX - 1),
                                     v.bound[0].x, v.bound[0].y, v.bound[1].x, v.bound[1].y, z, 0);
                     dispatch();
                 }
@@ -4386,9 +4364,9 @@ badindex:
                     } v;
                     Gv_FillWithVars(v);
 
-                    VM_ASSERT((unsigned)v.nQuote < MAXQUOTES && apStrings[v.nQuote], "invalid quote %d\n", v.nQuote);
+                    VM_ASSERT((unsigned)v.nQuote < MAXQUOTES, "invalid quote %d\n", v.nQuote);
 
-                    minitextshade(v.pos.x, v.pos.y, apStrings[v.nQuote], v.shade, v.pal, 2 + 8 + 16);
+                    minitextshade(v.pos.x, v.pos.y, quoteMgr.GetQuote(v.nQuote), v.shade, v.pal, 2 + 8 + 16);
                     dispatch();
                 }
 
@@ -4412,9 +4390,9 @@ badindex:
                         abort_after_error();
                     }
 
-                    VM_ASSERT((unsigned)v.nQuote < MAXQUOTES && apStrings[v.nQuote], "invalid quote %d\n", v.nQuote);
+                    VM_ASSERT((unsigned)v.nQuote < MAXQUOTES, "invalid quote %d\n", v.nQuote);
 
-                    G_ScreenText(v.tilenum, v.v.x, v.v.y, v.v.z, v.blockangle, v.charangle, apStrings[v.nQuote], v.shade, v.pal,
+                    G_ScreenText(v.tilenum, v.v.x, v.v.y, v.v.z, v.blockangle, v.charangle, quoteMgr.GetQuote(v.nQuote), v.shade, v.pal,
                                  2 | (v.orientation & (ROTATESPRITE_MAX - 1)), v.alpha, v.spacing.x, v.spacing.y, v.between.x, v.between.y, v.nFlags,
                                  v.bound[0].x, v.bound[0].y, v.bound[1].x, v.bound[1].y);
                     dispatch();
@@ -4814,9 +4792,9 @@ badindex:
                 insptr++;
                 int const nQuote = Gv_GetVar(*insptr++);
 
-                VM_ASSERT((unsigned)nQuote < MAXQUOTES && apStrings[nQuote], "invalid quote %d\n", nQuote);
+                VM_ASSERT((unsigned)nQuote < MAXQUOTES, "invalid quote %d\n", nQuote);
 
-                //communityapiUnlockAchievement(apStrings[nQuote]);
+                //communityapiUnlockAchievement(quoteMgr.GetQuote(v.nQuote));
                 dispatch();
             }
 
@@ -4826,9 +4804,9 @@ badindex:
                 int const nQuote = Gv_GetVar(*insptr++);
                 int const value = Gv_GetVar(*insptr++);
 
-                VM_ASSERT((unsigned)nQuote < MAXQUOTES && apStrings[nQuote], "invalid quote %d\n", nQuote);
+                VM_ASSERT((unsigned)nQuote < MAXQUOTES, "invalid quote %d\n", nQuote);
 
-                //communityapiSetStat(apStrings[nQuote], value);
+                //communityapiSetStat(quoteMgr.GetQuote(nQuote), value);
                 dispatch();
             }
 
@@ -5103,16 +5081,10 @@ badindex:
                     int const outputQuote = Gv_GetVar(*insptr++);
                     int const inputQuote  = Gv_GetVar(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE(apStrings[inputQuote] == NULL || apStrings[outputQuote] == NULL))
-                    {
-                        CON_ERRPRINTF("null quote %d\n", apStrings[inputQuote] ? outputQuote : inputQuote);
-                        abort_after_error();
-                    }
-
-                    auto &inBuf = apStrings[inputQuote];
+                    auto inBuf = quoteMgr.GetQuote(inputQuote);
 
                     int32_t arg[32];
-                    char    outBuf[MAXQUOTELEN];
+					TArray<char> outBuf;
 
                     int const quoteLen = Bstrlen(inBuf);
 
@@ -5131,8 +5103,8 @@ badindex:
 
                     do
                     {
-                        while (inputPos < quoteLen && outputPos < MAXQUOTELEN && inBuf[inputPos] != '%')
-                            outBuf[outputPos++] = inBuf[inputPos++];
+                        while (inputPos < quoteLen && inBuf[inputPos] != '%')
+                            outBuf.Push(inBuf[inputPos++]);
 
                         if (inBuf[inputPos] == '%')
                         {
@@ -5143,8 +5115,8 @@ badindex:
                                     if (inBuf[inputPos + 1] != 'd')
                                     {
                                         // write the % and l
-                                        outBuf[outputPos++] = inBuf[inputPos - 1];
-                                        outBuf[outputPos++] = inBuf[inputPos++];
+										outBuf.Push(inBuf[inputPos - 1]);
+										outBuf.Push(inBuf[inputPos++]);
                                         break;
                                     }
                                     inputPos++;
@@ -5158,7 +5130,8 @@ badindex:
                                     Bsprintf(buf, "%d", arg[argIdx++]);
 
                                     int const bufLen = Bstrlen(buf);
-                                    Bmemcpy(&outBuf[outputPos], buf, bufLen);
+									outputPos = outBuf.Reserve(bufLen);
+                                    memcpy(&outBuf[outputPos], buf, bufLen);
                                     outputPos += bufLen;
                                     inputPos++;
                                 }
@@ -5169,22 +5142,24 @@ badindex:
                                     if (argIdx >= numArgs)
                                         goto finish_qsprintf;
 
-                                    int const argLen = Bstrlen(apStrings[arg[argIdx]]);
+									auto quoteArg = quoteMgr.GetQuote(arg[argIdx]);
+                                    int const argLen = (int)strlen(quoteArg);
 
-                                    Bmemcpy(&outBuf[outputPos], apStrings[arg[argIdx]], argLen);
+									outputPos = outBuf.Reserve(argLen);
+									memcpy(&outBuf[outputPos], quoteArg, argLen);
                                     outputPos += argLen;
                                     argIdx++;
                                     inputPos++;
                                 }
                                 break;
 
-                                default: outBuf[outputPos++] = inBuf[inputPos - 1]; break;
+                                default: outBuf.Push(inBuf[inputPos - 1]); break;
                             }
                         }
-                    } while (inputPos < quoteLen && outputPos < MAXQUOTELEN);
+                    } while (inputPos < quoteLen);
                 finish_qsprintf:
-                    outBuf[outputPos] = '\0';
-                    Bstrncpyz(apStrings[outputQuote], outBuf, MAXQUOTELEN);
+					outBuf.Push(0);
+					quoteMgr.InitializeQuote(outputQuote, outBuf.Data());
                     dispatch();
                 }
 
@@ -5600,9 +5575,9 @@ badindex:
                     int const arrayNum      = *insptr++;
                     int const quoteFilename = *insptr++;
 
-                    VM_ASSERT((unsigned)quoteFilename < MAXQUOTES && apStrings[quoteFilename], "invalid quote %d\n", quoteFilename);
+                    VM_ASSERT((unsigned)quoteFilename < MAXQUOTES, "invalid quote %d\n", quoteFilename);
 					FStringf IniSection("%s.UserStrings", LumpFilter.GetChars());
-					auto IniKey = apStrings[quoteFilename];
+					auto IniKey = quoteMgr.GetQuote(quoteFilename);
 					if (!GameConfig->SetSection(IniSection))
 					{
 						dispatch();
@@ -5676,12 +5651,12 @@ badindex:
                     int const arrayNum      = *insptr++;
                     int const quoteFilename = *insptr++;
 
-                    VM_ASSERT((unsigned)quoteFilename < MAXQUOTES && apStrings[quoteFilename], "invalid quote %d\n", quoteFilename);
+                    VM_ASSERT((unsigned)quoteFilename < MAXQUOTES, "invalid quote %d\n", quoteFilename);
 					// No, we are not writing stuff to an arbitrary file on the hard drive! This is a first grade exploit for doing serious damage.
 					// Instead, encode the data as BASE64 and write it to the config file, 
 					// which doesn't create a wide open door for exploits.
 					FStringf IniSection("%s.UserStrings", LumpFilter.GetChars());
-					auto IniKey = apStrings[quoteFilename];
+					auto IniKey = quoteMgr.GetQuote(quoteFilename);
 					BufferWriter bw;
 
                     switch (aGameArrays[arrayNum].flags & GAMEARRAY_SIZE_MASK)
@@ -6198,18 +6173,18 @@ badindex:
                 insptr++;
                 tw = Gv_GetVar(*insptr++);
 
-                VM_ASSERT((unsigned)tw < MAXQUOTES && apStrings[tw], "invalid quote %d\n", (int)tw);
+                VM_ASSERT((unsigned)tw < MAXQUOTES, "invalid quote %d\n", (int)tw);
 
-                G_AddUserQuote(apStrings[tw]);
+                G_AddUserQuote(quoteMgr.GetQuote(tw));
                 dispatch();
 
             vInstruction(CON_ECHO):
                 insptr++;
                 tw = Gv_GetVar(*insptr++);
 
-                VM_ASSERT((unsigned)tw < MAXQUOTES && apStrings[tw], "invalid quote %d\n", (int)tw);
+                VM_ASSERT((unsigned)tw < MAXQUOTES, "invalid quote %d\n", (int)tw);
 
-                OSD_Printf("%s\n", apStrings[tw]);
+                OSD_Printf("%s\n", quoteMgr.GetQuote(tw));
                 dispatch();
 
             vInstruction(CON_RESPAWNHITAG):

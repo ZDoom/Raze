@@ -362,7 +362,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 		if (!g_netServer && ud.multimode < 2)
 		{
 			OSD_Printf("Saved: %s\n", fn.GetChars());
-			Bstrcpy(apStrings[QUOTE_RESERVED4], "Game Saved");
+			quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Game Saved");
 			P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 		}
 		
@@ -380,7 +380,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
     if (g_netServer || ud.multimode > 1)
     {
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "Multiplayer Loading Not Yet Supported");
+		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Loading Not Yet Supported");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
 //        g_player[myconnectindex].ps->gm = MODE_GAME;
@@ -399,7 +399,7 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
     if (g_netServer || ud.multimode > 1)
     {
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
+		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Saving Not Yet Supported");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 		return false;
     }
@@ -881,8 +881,6 @@ static void sv_rrrafog();
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
       +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS)
 
-static uint8_t savegame_quotedef[MAXQUOTES>>3];
-static char (*savegame_quotes)[MAXQUOTELEN];
 static uint8_t savegame_restdata[SVARDATALEN];
 
 static char svgm_udnetw_string [] = "blK:udnt";
@@ -1081,12 +1079,6 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_RAendEpisode, sizeof(g_RAendEpisode), 1 },
     { 0, &g_fogType, sizeof(g_fogType), 1 },
     { DS_LOADFN, (void *)sv_rrrafog, 0, 1 },
-
-    { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)sv_prequote, 0, 1 },
-    { DS_SAVEFN, (void *)&sv_quotesave, 0, 1 },
-    { DS_NOCHK, &savegame_quotedef, sizeof(savegame_quotedef), 1 },  // quotes can change during runtime, but new quote numbers cannot be allocated
-    { DS_DYNAMIC, &savegame_quotes, MAXQUOTELEN, MAXQUOTES },
-    { DS_LOADFN, (void *)&sv_quoteload, 0, 1 },
 
     { DS_SAVEFN, (void *)&sv_restsave, 0, 1 },
     { 0, savegame_restdata, 1, sizeof(savegame_restdata) },  // sz/cnt swapped for kdfread
@@ -1481,33 +1473,6 @@ static void sv_preanimateptrsave()
 static void sv_postanimateptr()
 {
     G_Util_PtrToIdx(g_animatePtr, g_animateCnt, sector, P2I_BACK);
-}
-static void sv_prequote()
-{
-    if (!savegame_quotes)
-    {
-        void *ptr = Xcalloc(MAXQUOTES, MAXQUOTELEN);
-        savegame_quotes = (char(*)[MAXQUOTELEN])ptr;
-    }
-}
-static void sv_quotesave()
-{
-    Bmemset(savegame_quotedef, 0, sizeof(savegame_quotedef));
-    for (int i = 0; i < MAXQUOTES; i++)
-        if (apStrings[i])
-        {
-            savegame_quotedef[i>>3] |= 1<<(i&7);
-            Bmemcpy(savegame_quotes[i], apStrings[i], MAXQUOTELEN);
-        }
-}
-static void sv_quoteload()
-{
-    for (int i = 0; i < MAXQUOTES; i++)
-        if (savegame_quotedef[i>>3] & (1<<(i&7)))
-        {
-            C_AllocQuote(i);
-            Bmemcpy(apStrings[i], savegame_quotes[i], MAXQUOTELEN);
-        }
 }
 static void sv_restsave()
 {

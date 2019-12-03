@@ -143,7 +143,7 @@ void G_OpenDemoWrite(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) && g_player[myconnectindex].ps->dead_flag)
     {
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "CANNOT START DEMO RECORDING WHEN DEAD!");
+		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "CANNOT START DEMO RECORDING WHEN DEAD!");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
         ud.recstat = m_recstat = 0;
         return;
@@ -180,7 +180,7 @@ void G_OpenDemoWrite(void)
         delete g_demo_filePtr;
 		g_demo_filePtr = nullptr;
 error_wopen_demo:
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE CONSOLE FOR DETAILS.");
+		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "FAILED STARTING DEMO RECORDING. SEE CONSOLE FOR DETAILS.");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
         ud.recstat = m_recstat = 0;
         return;
@@ -190,7 +190,7 @@ error_wopen_demo:
     demorec_diffs = demorec_diffs_cvar;
     demorec_difftics = demorec_difftics_cvar;
 
-    Bsprintf(apStrings[QUOTE_RESERVED4], "DEMO %d RECORDING STARTED", demonum-1);
+	quoteMgr.FormatQuote(QUOTE_RESERVED4, "DEMO %d RECORDING STARTED", demonum-1);
     P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
     ud.reccnt = 0;
@@ -285,7 +285,7 @@ void G_CloseDemoWrite(void)
 
         sv_freemem();
 
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "DEMO RECORDING STOPPED");
+		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "DEMO RECORDING STOPPED");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
     }
 #if KRANDDEBUG

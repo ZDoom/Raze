@@ -6805,12 +6805,6 @@ static void G_Cleanup(void)
         G_FreeMapState(i);
     }
 
-    for (i=MAXQUOTES-1; i>=0; i--)
-    {
-        Bfree(apStrings[i]);
-        Bfree(apXStrings[i]);
-    }
-
     for (i=MAXPLAYERS-1; i>=0; i--)
     {
         Bfree(g_player[i].ps);
@@ -7794,7 +7788,7 @@ int G_DoMoveThings(void)
                 {
                     if (ldist(&sprite[pPlayer->i], &sprite[hitData.sprite]) < 9216)
                     {
-                        Bsprintf(apStrings[QUOTE_RESERVED3], "%s", &g_player[playerNum].user_name[0]);
+						quoteMgr.FormatQuote(QUOTE_RESERVED3, "%s", &g_player[playerNum].user_name[0]);
                         pPlayer->fta = 12, pPlayer->ftq = QUOTE_RESERVED3;
                     }
                 }

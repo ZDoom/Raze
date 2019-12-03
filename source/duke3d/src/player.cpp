@@ -3768,18 +3768,18 @@ void P_FragPlayer(int playerNum)
 
             if (playerNum == screenpeek)
             {
-                Bsprintf(apStrings[QUOTE_RESERVED], "Killed by %s", &g_player[pPlayer->frag_ps].user_name[0]);
+                quoteMgr.FormatQuote(QUOTE_RESERVED, "Killed by %s", &g_player[pPlayer->frag_ps].user_name[0]);
                 P_DoQuote(QUOTE_RESERVED, pPlayer);
             }
             else
             {
-                Bsprintf(apStrings[QUOTE_RESERVED2], "Killed %s", &g_player[playerNum].user_name[0]);
+				quoteMgr.FormatQuote(QUOTE_RESERVED2, "Killed %s", &g_player[playerNum].user_name[0]);
                 P_DoQuote(QUOTE_RESERVED2, g_player[pPlayer->frag_ps].ps);
             }
 
             if (cl_obituaries)
             {
-                Bsprintf(tempbuf, apStrings[OBITQUOTEINDEX + (krand() % g_numObituaries)],
+                Bsprintf(tempbuf, quoteMgr.GetQuote(OBITQUOTEINDEX + (krand() % g_numObituaries)),
                          &g_player[pPlayer->frag_ps].user_name[0], &g_player[playerNum].user_name[0]);
                 G_AddUserQuote(tempbuf);
             }
@@ -3792,14 +3792,14 @@ void P_FragPlayer(int playerNum)
             {
                 pPlayer->fraggedself++;
                 if ((unsigned)pPlayer->wackedbyactor < MAXTILES && A_CheckEnemyTile(sprite[pPlayer->wackedbyactor].picnum))
-                    Bsprintf(tempbuf, apStrings[OBITQUOTEINDEX + (krand() % g_numObituaries)], "A monster",
+                    Bsprintf(tempbuf, quoteMgr.GetQuote(OBITQUOTEINDEX + (krand() % g_numObituaries)), "A monster",
                              &g_player[playerNum].user_name[0]);
                 else if (actor[pPlayer->i].picnum == NUKEBUTTON)
                     Bsprintf(tempbuf, "^02%s^02 tried to leave", &g_player[playerNum].user_name[0]);
                 else
                 {
                     // random suicide death string
-                    Bsprintf(tempbuf, apStrings[SUICIDEQUOTEINDEX + (krand() % g_numSelfObituaries)],
+                    Bsprintf(tempbuf, quoteMgr.GetQuote(SUICIDEQUOTEINDEX + (krand() % g_numSelfObituaries)),
                              &g_player[playerNum].user_name[0]);
                 }
             }

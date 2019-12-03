@@ -384,12 +384,6 @@ void ctrlGetInput(void)
 
     strafe = ClipRange(strafe-(info.dx<<5), -2048, 2048);
 
-#if 0
-    if (info.dz < 0)
-        gInput.mlook = ClipRange((info.dz+127)>>7, -127, 127);
-    else
-        gInput.mlook = ClipRange(info.dz>>7, -127, 127);
-#endif
     if (g_MyAimMode)
         gInput.q16mlook = fix16_clamp(fix16_div(fix16_from_int(info.mousey), F16(128)), F16(-127)>>2, F16(127)>>2);
     else

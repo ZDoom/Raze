@@ -67,7 +67,6 @@ G_EXTERN actor_t actor[MAXSPRITES];
 // g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game
 G_EXTERN tiledata_t g_tile[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
-G_EXTERN char *apStrings[MAXQUOTES],*apXStrings[MAXQUOTES];
 G_EXTERN char *label;
 G_EXTERN int32_t g_musicIndex;
 G_EXTERN char g_loadFromGroupOnly;
