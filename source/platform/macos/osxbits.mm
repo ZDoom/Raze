@@ -23,6 +23,20 @@
 # define MAC_OS_VERSION_10_3 1030
 #endif
 
+id nsapp;
+
+void osx_preopen(void)
+{
+    // fix for "ld: absolute address to symbol _NSApp in a different linkage unit not supported"
+    // (OS X 10.6) when building for PPC
+    nsapp = [NSApplication sharedApplication];
+}
+
+void osx_postopen(void)
+{
+    [nsapp finishLaunching];
+}
+
 int osx_msgbox(const char *name, const char *msg)
 {
 	NSString *mmsg = [[NSString alloc] initWithUTF8String:msg];
