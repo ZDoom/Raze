@@ -3641,7 +3641,7 @@ void StackedWaterSplash(PLAYERp pp)
 
         updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(pp->SpriteP), &sectnum);
 
-        if (SectorIsUnderwaterArea(sectnum))
+        if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
         {
             PlaySound(DIGI_SPLASH1, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
         }
@@ -4094,7 +4094,7 @@ DoPlayerWadeSuperJump(PLAYERp pp)
         {
             hitinfo.sect = wall[hitinfo.wall].nextsector;
 
-            if (labs(sector[hitinfo.sect].floorz - pp->posz) < Z(50))
+            if (hitinfo.sect >= 0 && labs(sector[hitinfo.sect].floorz - pp->posz) < Z(50))
             {
                 if (Distance(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y) < ((((int)pp->SpriteP->clipdist)<<2) + 256))
                     return TRUE;
@@ -4694,7 +4694,7 @@ PlayerCanDiveNoWarp(PLAYERp pp)
 
             updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(pp->SpriteP), &sectnum);
 
-            if (SectorIsUnderwaterArea(sectnum))
+            if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
             {
                 pp->cursectnum = sectnum;
                 pp->posz = sector[sectnum].ceilingz;

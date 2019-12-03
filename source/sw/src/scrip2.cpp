@@ -89,7 +89,7 @@ SWBOOL LoadScriptFile(const char *filename)
 
 	size = fp.GetLength();
 
-    scriptbuffer = (char *)AllocMem(size);
+    scriptbuffer = (char *)AllocMem(size+1);
 
     ASSERT(scriptbuffer != NULL);
 
@@ -97,6 +97,7 @@ SWBOOL LoadScriptFile(const char *filename)
 
     ASSERT(readsize == size);
 
+    scriptbuffer[readsize] = '\0';
 
     // Convert filebuffer to all upper case
     //Bstrupr(scriptbuffer);

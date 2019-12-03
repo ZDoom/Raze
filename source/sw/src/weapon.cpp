@@ -2653,12 +2653,12 @@ STATE s_PaperShrapC[] =
 SWBOOL MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
 {
     SPRITEp hsp = &sprite[hit_sprite];
-    SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
 
     if (WeaponNum <= -1)
     {
         ASSERT(Weapon >= 0);
+        SPRITEp wp = &sprite[Weapon];
+        USERp wu = User[Weapon];
         WeaponNum = wu->WeaponNum;
 
         // can be hit by SO only
@@ -5760,8 +5760,6 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
 {
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite];
-    SPRITEp wp = &sprite[Weapon];
-    USERp   wu = User[Weapon];
     int SpawnZombie(PLAYERp pp, short);
 
 
@@ -5785,6 +5783,9 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
             DoPlayerBeginDie(pp);
             return TRUE;
         }
+
+        SPRITEp wp = &sprite[Weapon];
+        USERp   wu = User[Weapon];
 
         if (Weapon > -1 && (wu->ID == RIPPER_RUN_R0 || wu->ID == RIPPER2_RUN_R0))
             pp->DeathType = PLAYER_DEATH_RIPPER;
@@ -5828,13 +5829,13 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
 SWBOOL
 PlayerTakeDamage(PLAYERp pp, short Weapon)
 {
+    if (Weapon < 0)
+        return TRUE;
+
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite];
     SPRITEp wp = &sprite[Weapon];
     USERp   wu = User[Weapon];
-
-    if (Weapon < 0)
-        return TRUE;
 
     if (gNet.MultiGameType == MULTI_GAME_NONE)
     {
@@ -7607,9 +7608,11 @@ DoDamageTest(short Weapon)
     return 0;
 }
 
-int
-DoHitscanDamage(short Weapon, short hit_sprite)
+static int DoHitscanDamage(short Weapon, uint16_t hit_sprite)
 {
+    if (hit_sprite >= MAXSPRITES)
+        return 0;
+
     SPRITEp wp = &sprite[Weapon];
     USERp wu = User[Weapon];
     unsigned stat;
@@ -10832,8 +10835,8 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    SPRITEp ep = &sprite[enemy];
-    USERp eu = User[enemy];
+    SPRITEp ep;
+    USERp eu;
     SPRITEp np;
     USERp nu;
     short New;
@@ -10843,6 +10846,9 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
     if (enemy >= 0)
     {
+        ep = &sprite[enemy];
+        eu = User[enemy];
+
         // test for already burned
         if (TEST(ep->extra, SPRX_BURNABLE) && ep->shade > 40)
             return -1;
@@ -17843,17 +17849,18 @@ SWBOOL
 HitscanSpriteAdjust(short SpriteNum, short hit_wall)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    short w, nw, ang = sp->ang, wall_ang;
+    int16_t ang;
     int xvect,yvect;
     short sectnum;
 
 #if 1
-    w = hit_wall;
-    nw = wall[w].point2;
-    wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y));
-
     if (hit_wall >= 0)
+    {
+        uint16_t const w = hit_wall;
+        uint16_t const nw = wall[hit_wall].point2;
+        int16_t const wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y));
         ang = sp->ang = NORM_ANGLE(wall_ang + 512);
+    }
     else
         ang = sp->ang;
 #endif
@@ -20638,13 +20645,13 @@ void QueueReset(void)
 
 SWBOOL TestDontStick(short SpriteNum, short hit_sect, short hit_wall, int hit_z)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
     WALLp wp;
 
     if (hit_wall < 0)
     {
         ASSERT(SpriteNum>=0);
+        SPRITEp sp = &sprite[SpriteNum];
+        USERp u = User[SpriteNum];
         hit_wall = NORM_WALL(u->ret);
     }
 
