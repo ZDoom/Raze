@@ -70,7 +70,6 @@ enum GameFunction_t
 	gamefunc_Show_DukeMatch_Scores,
 	gamefunc_Dpad_Select,
 	gamefunc_Dpad_Aiming,
-	gamefunc_AutoRun,
 	gamefunc_Last_Weapon,
 	gamefunc_Alt_Weapon,
 	gamefunc_Third_Person_View,

@@ -31,7 +31,7 @@
 ** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **---------------------------------------------------------------------------
 **
-*/ 
+*/
 
 #include <stdlib.h>
 #include "basics.h"
@@ -113,7 +113,7 @@ static GameFuncDesc con_gamefuncs[] = {
 {"+Show_DukeMatch_Scores",	"Show_Scoreboard"},
 {"+Dpad_Select",			"Dpad_Select"},
 {"+Dpad_Aiming",			"Dpad_Aiming"},
-{"+AutoRun",				"AutoRun"},
+{"toggle cl_autorun",				"AutoRun"},
 {"+Last_Used_Weapon",		"Last_Used_Weapon"},
 {"QuickSave",				"Quick_Save"},
 {"QuickLoad",				"Quick_Load"},
@@ -274,4 +274,3 @@ const char *C_CON_GetButtonFunc(int num)
 	}
 	return "";
 }
-

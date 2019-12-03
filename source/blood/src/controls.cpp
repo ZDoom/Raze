@@ -182,16 +182,6 @@ void ctrlGetInput(void)
         gInputMode = kInputMessage;
     }
 
-    if (buttonMap.ButtonDown(gamefunc_AutoRun))
-    {
-        buttonMap.ClearButton(gamefunc_AutoRun);
-        gAutoRun = !gAutoRun;
-        if (gAutoRun)
-            viewSetMessage("Auto run ON");
-        else
-            viewSetMessage("Auto run OFF");
-    }
-
     if (buttonMap.ButtonDown(gamefunc_Map_Toggle))
     {
         buttonMap.ClearButton(gamefunc_Map_Toggle);

@@ -702,8 +702,15 @@ OptionMenu "ActionControlsMenu"// protected
 
 	StaticText ""
 	Control    "$CNTRLMNU_MOUSELOOK"        , "+mouse_aiming"
+	Control    "$CNTRLMNU_AIMUP"           , "+aim_up"
+	Control    "$CNTRLMNU_AIMDOWN"         , "+aim_down"
 	Control    "$CNTRLMNU_LOOKUP"           , "+look_up"
 	Control    "$CNTRLMNU_LOOKDOWN"         , "+look_down"
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	{
+		Control    "$CNTRLMNU_LOOKLEFT"           , "+look_left"
+		Control    "$CNTRLMNU_LOOKRIGHT"         , "+look_right"
+	}
 	Control    "$CNTRLMNU_CENTERVIEW"       , "+center_view"
 
 	StaticText ""
@@ -871,11 +878,11 @@ OptionMenu "OtherControlsMenu"// protected
 	Control    "$CNTRLMNU_ADJUST_GAMMA"    , "bumpgamma"
 
 	StaticText ""
-	Control    "$CNTRLMNU_OPEN_HELP"       , "menu_help"
-	Control    "$CNTRLMNU_OPEN_SAVE"       , "menu_save"
-	Control    "$CNTRLMNU_OPEN_LOAD"       , "menu_load"
-	Control    "$CNTRLMNU_OPEN_OPTIONS"    , "menu_options"
-	Control    "$CNTRLMNU_OPEN_DISPLAY"    , "menu_display"
+	Control    "$CNTRLMNU_OPEN_HELP"       , "openhelpmenu"
+	Control    "$CNTRLMNU_OPEN_SAVE"       , "opensavemenu"
+	Control    "$CNTRLMNU_OPEN_LOAD"       , "openloadmenu"
+	Control    "$CNTRLMNU_OPEN_OPTIONS"    , "openmenu optionsmenu"
+	Control    "$CNTRLMNU_OPEN_DISPLAY"    , "openmenu displayoptions"
 	Control    "$CNTRLMNU_EXIT_TO_MAIN"    , "menu_endgame"
 	Control    "$CNTRLMNU_MENU_QUIT"       , "menu_quit"
 
@@ -883,4 +890,112 @@ OptionMenu "OtherControlsMenu"// protected
 	Control    "$CNTRLMNU_QUICKSAVE"       , "quicksave"
 	Control    "$CNTRLMNU_QUICKLOAD"       , "quickload"
 }
+
+//-------------------------------------------------------------------------------------------
+//
+// Mouse Menu
+//
+//-------------------------------------------------------------------------------------------
+
+OptionValue "Corners"
+{
+	-1, "$OPTVAL_OFF"
+	0, "$OPTVAL_UPPERLEFT"
+	1, "$OPTVAL_UPPERRIGHT"
+	2, "$OPTVAL_LOWERLEFT"
+	3, "$OPTVAL_LOWERRIGHT"
+}
+
+OptionValue "MenuMouse"
+{
+	0, "$TXT_NO"
+	1, "$TXT_YES"
+	2, "$OPTVAL_TOUCHSCREENLIKE"
+}
+
+OptionString "Cursors"
+{
+	"None", "$OPTVAL_DEFAULT"
+	"cursor", "$OPTSTR_SIMPLEARROW"
+	"-", "$OPTSTR_SYSTEMCURSOR"
+}
+
+OptionMenu "MouseOptions" protected
+{
+	Title "$MOUSEMNU_TITLE"
+	Option "$MOUSEMNU_ENABLEMOUSE",		"in_mouse", "YesNo"
+	Option "$MOUSEMNU_MOUSEINMENU",		"m_use_mouse", "MenuMouse", "use_mouse"
+	Option "$MOUSEMNU_SHOWBACKBUTTON",	"m_show_backbutton", "Corners", "use_mouse"
+	// todo Option "$MOUSEMNU_CURSOR",			"vid_cursor", "Cursors"
+	StaticText 	""
+	Slider "$MOUSEMNU_SENSITIVITY",		"mouse_sensitivity", 0.5, 2.5, 0.1
+	Option "$MOUSEMNU_NOPRESCALE",		"m_noprescale", "NoYes"
+	Option "$MOUSEMNU_SMOOTHMOUSE",		"m_filter", "YesNo"
+	StaticText 	""
+	Slider "$MOUSEMNU_TURNSPEED",		"m_yaw", 0, 2.5, 0.1
+	Slider "$MOUSEMNU_MOUSELOOKSPEED",	"m_pitch", 0, 2.5, 0.1
+	Slider "$MOUSEMNU_FORWBACKSPEED",	"m_forward", 0, 2.5, 0.1
+	Slider "$MOUSEMNU_STRAFESPEED",		"m_side", 0, 2.5, 0.1
+	StaticText 	""
+	Option "$MOUSEMNU_ALWAYSMOUSELOOK",	"in_mousemode", "OnOff"
+	Option "$MOUSEMNU_INVERTMOUSE",		"in_mouseflip", "OnOff"
+	Option "$MOUSEMNU_LOOKSPRING",		"in_aimmode", "OnOff" // Functionm exists but is very broken. Definitely needs fixing.
+	// Do we need this? Option "$MOUSEMNU_LOOKSTRAFE",		"lookstrafe", "OnOff"
+}
+
+//-------------------------------------------------------------------------------------------
+//
+// Joystick Menu
+//
+//-------------------------------------------------------------------------------------------
+
+OptionMenu "JoystickOptionsDefaults" protected
+{
+	Title "$JOYMNU_OPTIONS"
+	Option "$JOYMNU_ENABLE", "use_joystick", "YesNo"
+	Option "$JOYMNU_NOMENU", "m_blockcontrollers", "YesNo"
+	/*IfOption(Windows)
+	{
+		Option "$JOYMNU_DINPUT", "joy_dinput", "YesNo"
+		Option "$JOYMNU_XINPUT", "joy_xinput", "YesNo"
+		Option "$JOYMNU_PS2", "joy_ps2raw", "YesNo"
+	}*/
+	StaticText ""
+	StaticTextSwitchable "$JOYMNU_NOCON", "$JOYMNU_CONFIG", "ConfigureMessage"
+	StaticTextSwitchable " ", "$JOYMNU_DISABLED1", "ConnectMessage1"
+	StaticTextSwitchable " ", "$JOYMNU_DISABLED2", "ConnectMessage2"
+
+	// The rest will be filled in by joystick code if devices get connected or disconnected
+}
+
+OptionMenu "JoystickOptions" protected
+{
+	Title "$JOYMNU_OPTIONS"
+}
+
+OptionValue "JoyAxisMapNames"
+{
+	-1, "$OPTVAL_NONE"
+	0, "$OPTVAL_TURNING"
+	1, "$OPTVAL_LOOKINGUPDOWN"
+	2, "$OPTVAL_MOVINGFORWARD"
+	3, "$OPTVAL_STRAFING"
+	4, "$OPTVAL_MOVINGUPDOWN"
+}
+
+OptionValue "Inversion"
+{
+	0, "$OPTVAL_NOTINVERTED"
+	1, "$OPTVAL_INVERTED"
+}
+
+OptionMenu "JoystickConfigMenu" protected
+{
+	Title "$JOYMNU_TITLE"
+	Class "JoystickConfigMenu"
+	// Will be filled in by joystick code.
+}
+
+
+
 

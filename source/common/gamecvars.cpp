@@ -60,7 +60,23 @@
 
 CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players") // Not implemented for Blood
-CVARD(Bool, cl_autorun, true, CVAR_ARCHIVE, "enable/disable autorun")
+CUSTOM_CVARD(Bool, cl_autorun, true, CVAR_ARCHIVE, "enable/disable autorun")
+{
+#if 0 // todo: print a message
+
+        if (gAutoRun)
+            viewSetMessage("Auto run ON");
+        else
+            viewSetMessage("Auto run OFF");
+	
+
+		RUN MODE OFF
+		RUN MODE ON
+        cl_autorun= 1-cl_autorun;
+        P_DoQuote(QUOTE_RUN_MODE_OFF + cl_autorun, &myplayer);
+    }
+#endif
+}
 CVARD(Bool, cl_runmode, true, CVAR_ARCHIVE, "enable/disable modernized run key operation")
 CVARD(Bool, cl_autosave, true, CVAR_ARCHIVE, "enable/disable autosaves") // Not implemented for Blood (but looks like the other games never check it either.)
 CVARD(Bool, cl_autosavedeletion, true, CVAR_ARCHIVE, "enable/disable automatic deletion of autosaves") // Not implemented for Blood

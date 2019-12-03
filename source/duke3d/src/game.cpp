@@ -4725,13 +4725,6 @@ void G_HandleLocalKeys(void)
         G_UpdateScreenArea();
     }
 
-    if (buttonMap.ButtonDown(gamefunc_AutoRun))
-    {
-        buttonMap.ClearButton(gamefunc_AutoRun);
-        cl_autorun= 1-cl_autorun;
-        P_DoQuote(QUOTE_RUN_MODE_OFF + cl_autorun, &myplayer);
-    }
-
     if (buttonMap.ButtonDown(gamefunc_Map))
     {
         buttonMap.ClearButton(gamefunc_Map);
