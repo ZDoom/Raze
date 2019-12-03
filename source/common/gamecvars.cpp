@@ -348,22 +348,22 @@ CUSTOM_CVARD(Int, in_mousedeadzone, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "amount o
 
 CVARD(Bool, in_mousesmoothing, false, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "enable/disable mouse input smoothing")
 
-CUSTOM_CVARD(Float, in_mousesensitivity, DEFAULTMOUSESENSITIVITY, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
+CUSTOM_CVARD(Float, in_mousesensitivity, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
 {
 	if (self < 0) self = 0;
-	else if (self > 25) self = 25;
+	else if (self > 6) self = 6;
 }
 
-CUSTOM_CVARD(Int, in_mousescalex, 65536, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
+CUSTOM_CVARD(Float, in_mousescalex, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
 {
-	if (self < -4*65536) self = 4 * 65536;
-	else if (self > 4 * 65536) self = 4 * 65536;
+	if (self < -4) self = 4;
+	else if (self > 4) self = 4;
 }
 
-CUSTOM_CVARD(Int, in_mousescaley, 65536, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
+CUSTOM_CVARD(Float, in_mousescaley, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
 {
-	if (self < -4 * 65536) self = 4 * 65536;
-	else if (self > 4 * 65536) self = 4 * 65536;
+	if (self < -4) self = 4;
+	else if (self > 4) self = 4;
 }
 
 

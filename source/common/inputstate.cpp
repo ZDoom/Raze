@@ -40,8 +40,13 @@ void InputState::GetMouseDelta(ControlInfo * info)
         last = input;
     }
 
-    info->mousex = int(finput.x * (4.f / 65536.f) * in_mousesensitivity * in_mousescalex);
-    info->mousey = int(finput.y * (4.f / 65536.f) * in_mousesensitivity * in_mousescaley);
+    info->mousex = int(finput.x * (16.f) * in_mousesensitivity * in_mousescalex);
+    info->mousey = int(finput.y * (16.f) * in_mousesensitivity * in_mousescaley);
+
+	// todo: Use these when the mouse is used for moving instead of turning.
+	//info->mousex = int(finput.x * (4.f) * in_mousesensitivity * in_mouseside);
+	//info->mousey = int(finput.y * (4.f) * in_mousesensitivity * in_mouseforward);
+
 }
 
 void InputState::AddEvent(const event_t *ev)
