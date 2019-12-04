@@ -2872,7 +2872,6 @@ void RunLevel(void)
     InitRunLevel();
 
     FX_SetVolume(snd_fxvolume);
-    SetSongVolume(mus_volume);
 
 #if 0
     waitforeverybody();

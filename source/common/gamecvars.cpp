@@ -187,14 +187,6 @@ CUSTOM_CVARD(Int, snd_speech, 5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disabl
 	else if (self > 5) self = 5;
 }
 
-int MusicDevice = ASS_WinMM;
-CUSTOM_CVARD(Int, mus_device, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "selects music device")
-{
-	if (self < 0) self = 0;
-	else if (self > 1) self = 1;
-	else MusicDevice = self? ASS_WinMM : ASS_OPL3;	// must be copied because it gets altered by the music code.
-}
-
 
 // HUD
 

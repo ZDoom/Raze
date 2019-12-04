@@ -561,10 +561,6 @@ PauseSong(SWBOOL pauseon)
     }
 }
 
-void
-SetSongVolume(int volume)
-{
-}
 
 SWBOOL
 SongIsPlaying(void)

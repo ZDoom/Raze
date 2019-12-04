@@ -2222,12 +2222,6 @@ MNU_InitMenus(void)
 
 	slidersettings[sldr_mouse] = in_mousesensitivity; // (MOUSE_SENS_MAX_VALUE / SLDR_MOUSESENSEMAX);
 
-    slidersettings[sldr_sndfxvolume] = snd_fxvolume / (FX_VOL_MAX_VALUE/SLDR_SNDFXVOLMAX);
-    slidersettings[sldr_musicvolume] = mus_volume / (MUSIC_VOL_MAX_VALUE/SLDR_MUSICVOLMAX);
-    slidersettings[sldr_scrsize] = gs.BorderNum;
-    slidersettings[sldr_brightness] = 10;
-    slidersettings[sldr_bordertile] = gs.BorderTile;
-
     {
         int i,newx=xdim,newy=ydim;
 
@@ -3233,20 +3227,6 @@ MNU_DoSlider(short dir, MenuItem_p item, SWBOOL draw)
         slidersettings[sldr_sndfxvolume] = offset;
         snd_fxvolume = FX_MIN + (offset * VOL_MUL);
         FX_SetVolume(snd_fxvolume);
-        break;
-
-    case sldr_musicvolume:
-        barwidth = SLDR_MUSICVOLMAX;
-        offset = slidersettings[sldr_musicvolume] += dir;
-        if (TEST(item->flags, mf_disabled))
-            break;
-
-        offset = max(offset, short(0));
-        offset = min(offset, short(SLDR_MUSICVOLMAX-1));
-
-        slidersettings[sldr_musicvolume] = offset;
-        mus_volume = MUSIC_MIN + (offset * VOL_MUL);
-        SetSongVolume(mus_volume);
         break;
 
     case sldr_scrsize:

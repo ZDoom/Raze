@@ -1229,7 +1229,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     if (snd_ambience)
         StartAmbientSound();
     FX_SetVolume(snd_fxvolume);
-    SetSongVolume(mus_volume);
 
     TRAVERSE_CONNECT(i)
     {

@@ -1144,6 +1144,399 @@ OptionMenu "HUDOptions" //protected
 }
 
 
+//-------------------------------------------------------------------------------------------
+//
+// Polymost options
+//
+//-------------------------------------------------------------------------------------------
+
+OptionMenu "PolymostOptions"
+{
+	Title "Polympost Options"
+	Option "$POLYMOST_TC", "hw_hightile", "OnOff"
+	Option "$POLYMOST_CACHE", "r_precache", "OnOff"
+	StaticText ""
+	Option "$POLYMOST_DETAIL", "hw_detailmapping", "OnOff", "hw_hightile"
+	Option "$POLYMOST_GLOW", "hw_glowmapping", "OnOff", "hw_hightile"
+	StaticText ""
+	Option "$POLYMOST_PALETTEEMU", "hw_useindexedcolortextures", "OnOff"
+	Option "$POLYMOST_PALINTER", "hw_shadeinterpolate", "OnOff", "hw_useindexedcolortextures"
+	StaticText ""
+	Option "$POLYMOST_MODELS", "hw_models", "OnOff"
+}
+
+//-------------------------------------------------------------------------------------------
+//
+// Sound options
+// Many of these options are not active, but will be needed should I manage to transition
+// the entire sound system to OpenAL 3D. So it is easier to just copy all this verbatim
+// and only disable the options not yet usable instead of deleting the content.
+//
+//-------------------------------------------------------------------------------------------
+
+OptionValue SampleRates
+{
+	//0,		"$OPTVAL_DEFAULT"
+	//4000,	"$OPTVAL_4000HZ"
+	//8000,	"$OPTVAL_8000HZ"
+	11025,	"$OPTVAL_11025HZ"
+	22050,	"$OPTVAL_22050HZ"
+	/32000,	"$OPTVAL_32000HZ"
+	44100,	"$OPTVAL_44100HZ"
+	48000,	"$OPTVAL_48000HZ"
+}
+
+
+OptionValue BufferSizes
+{
+	   0, "$OPTVAL_DEFAULT"
+	  64, "$OPTVAL_64SAMPLES"
+	 128, "$OPTVAL_128SAMPLES"
+	 256, "$OPTVAL_256SAMPLES"
+	 512, "$OPTVAL_512SAMPLES"
+	1024, "$OPTVAL_1024SAMPLES"
+	2048, "$OPTVAL_2048SAMPLES"
+	4096, "$OPTVAL_4096SAMPLES"
+}
+
+OptionString ALDevices
+{
+	// filled in by the sound code
+}
+
+OptionString ALResamplers
+{
+	// filled in by the sound code
+}
+
+OptionString SpeakerModes
+{
+	"Auto",		"$OPTSTR_AUTO"
+	"Mono",		"$OPTSTR_MONO"
+	"Stereo",	"$OPTSTR_STEREO"
+	"Prologic",	"$OPTSTR_PROLOGIC"
+	"Quad",		"$OPTSTR_QUAD"
+	"Surround",	"$OPTSTR_SURROUND"
+	"5.1",		"$OPTSTR_5POINT1"
+	"7.1",		"$OPTSTR_7POINT1"
+}
+
+
+OptionMenu OpenALSoundItems //protected
+{
+	Title "$OPENALMNU_TITLE"
+	Option "$OPENALMNU_PLAYBACKDEVICE",		"snd_aldevice",		"ALDevices"
+	Option "$OPENALMNU_ENABLEEFX",			"snd_efx",			"OnOff"
+	Option "$OPENALMNU_RESAMPLER",			"snd_alresampler",	"ALResamplers"
+}
+
+
+OptionValue MidiDevices
+{
+	// filled in by the sound code
+}
+
+OptionMenu SoundOptions //protected
+{
+	Title "$SNDMNU_TITLE"
+	//Slider "$MODMNU_MASTERVOLUME",		"snd_mastervolume", 0, 1, 0.05, 2
+	//StaticText " "
+	Option "$SNDMNU_SNDENABLED",		"snd_enabled", "OnOff"
+	Slider "$SNDMNU_SFXVOLUME",			"snd_fxvolume", 0, 255, 2, 1
+	//Slider "$SNDMNU_SFXVOLUME",			"snd_fxvolume", 0, 1, 0.05, 2 // Todo: Change value type
+	Option "$SNDMNU_MUSENABLED",		"mus_enabled", "OnOff"	Slider "$SNDMNU_MUSICVOLUME",		"mus_volume", 0, 1, 0.05, 2
+	Option "$SNDMNU_MENUSOUND",		"menu_sounds", "OnOff" // placeholder until the slider can be made to work
+	//Slider "$SNDMNU_MENUVOLUME",		"snd_menuvolume", 0, 1, 0.05, 2
+	StaticText " "
+	Option "$SNDMNU_MIDIDEVICE",		"snd_mididevice", "MidiDevices"
+	StaticText " "
+	//Option "$SNDMNU_UNDERWATERREVERB",	"snd_waterreverb", "OnOff"
+	//Option "$SNDMNU_RANDOMIZEPITCHES",	"snd_pitched", "OnOff"
+	Slider "$SNDMNU_CHANNELS",			"snd_numchannels", 64, 128, 8, 0
+	staticText ""
+	ifgame (Blood, ShadowWarrior)
+	{
+		Option "$SNDMNU_CDEMU",			"mus_redbook", "OnOff"
+	}
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, ShadowWarrior)
+	{
+		Option "$SNDMNU_AMBIENCE",		"snd_ambience", "OnOff"
+		Option "$SNDMNU_SPEECH",		"snd_speech", "OnOff"
+	}
+	StaticText " "
+	Submenu "$SNDMNU_ADVANCED",			"AdvSoundOptions"
+}
+
+/*=======================================
+ *
+ * Advanced Sound Options Menu
+ *
+ *=======================================*/
+
+OptionValue OplCores
+{
+	0, "$OPTVAL_MAMEOPL2"
+	1, "$OPTVAL_DOSBOXOPL3"
+	2, "$OPTVAL_JAVAOPL3"
+	3, "$OPTVAL_NUKEDOPL3"
+}
+
+
+OptionMenu AdvSoundOptions //protected
+{
+	Title "$ADVSNDMNU_TITLE"
+	Option "$ADVSNDMNU_SAMPLERATE",			"snd_mixrate", "SampleRates"
+	//Option "$ADVSNDMNU_HRTF",				"snd_hrtf", "AutoOffOn"
+	Option "$ADVSNDMNU_FLIPSTEREO"			"snd_reversestereo", "OnOff"
+	StaticText " "
+	Option "$SNDMNU_BACKGROUND",			"i_soundinbackground", "OnOff"
+	StaticText " "
+
+	ifoption(openal)
+	{
+	StaticText " "
+		Submenu "$SNDMNU_OPENAL",		"OpenALSoundItems"
+	}
+
+	StaticText " "
+	Submenu "$SNDMNU_MIDIPLAYER",		"MidiPlayerOptions"
+	Submenu "$SNDMNU_MODREPLAYER",		"ModReplayerOptions"
+	StaticText " "
+	Command "$SNDMNU_RESTART",			"snd_reset"
+}
+
+
+OptionMenu TimidityConfigMenu protected
+{
+	Title "$ADVSNDMNU_SELCONFIG"
+}
+
+OptionMenu FluidPatchsetMenu protected
+{
+	Title "$ADVSNDMNU_SELCONFIG"
+}
+
+/*=======================================
+ *
+ * Module Replayer Options Menu
+ *
+ *=======================================*/
+
+OptionValue ModQuality
+{
+	0.0, "$OPTVAL_ALIASING"
+	1.0, "$OPTVAL_LINEAR_1"
+	2.0, "$OPTVAL_CUBIC"
+	3.0, "$OPTVAL_BLEP"		// Band-limited step
+	4.0, "$OPTVAL_LINEARSLOW"
+	5.0, "$OPTVAL_BLAM"		// Band-limited linear
+	6.0, "$OPTVAL_CUBICSLOW"
+	7.0, "$OPTVAL_SINC"
+}
+
+
+OptionValue ModVolumeRamps
+{
+	0.0, "$OPTVAL_NONE"
+	1.0, "$OPTVAL_NOTEONOFFONLY"
+	2.0, "$OPTVAL_FULLRAMPING"
+}
+
+
+
+OptionMenu ModReplayerOptions //protected
+{
+	Title "$MODMNU_TITLE"
+	Slider "$MODMNU_MASTERVOLUME",			"mod_dumb_mastervolume", 1, 16, 0.5, 1
+	Option "$ADVSNDMNU_SAMPLERATE",			"mod_samplerate", "SampleRates"
+	Option "$MODMNU_QUALITY",				"mod_interp", "ModQuality"
+	Option "$MODMNU_VOLUMERAMPING",			"mod_volramp", "ModVolumeRamps"
+	StaticText " "
+	Option "$MODMNU_CHIPOMATIC",			"mod_autochip", "OnOff"
+	// TODO if the menu system is ever rewritten: Provide a decent
+	// mechanism to edit the chip-o-matic settings like you can with
+	// the foo_dumb preferences in foobar2000.
+}
+
+/*=======================================
+ *
+ * MIDI player
+ *
+ *=======================================*/
+
+ OptionValue TimidityReverb
+ {
+	0, "$OPTVAL_OFF"
+	1, "$OPTVAL_STANDARD"
+	2, "$ADVSNDMNU_GLOBAL"
+	3, "$ADVSNDMNU_FREEVERB"
+	4, "$ADVSNDMNU_GLOBAL_FREEVERB"
+ }
+
+  OptionMenu MidiPlayerOptions //protected
+ {
+	Title "$SNDMNU_MIDIPLAYER"
+	Submenu "$ADVSNDMNU_FLUIDSYNTH", "FluidsynthOptions", 0, 1
+	Submenu "$ADVSNDMNU_TIMIDITY", "TimidityOptions", 0, 1
+	Submenu "$ADVSNDMNU_OPLSYNTHESIS", "OPLOptions", 0, 1
+ }
+
+ OptionMenu FluidsynthOptions //protected
+ {
+	Title "$ADVSNDMNU_FLUIDSYNTH"
+	LabeledSubMenu "$ADVSNDMNU_SELCONFIG",		"fluid_patchset", "FluidPatchsetMenu"
+	Slider "$ADVSNDMNU_FLUIDGAIN",			"fluid_gain", 0, 10, 0.5, 1
+	Option "$ADVSNDMNU_REVERB", 			"fluid_reverb", "OnOff"
+	Option "$ADVSNDMNU_CHORUS", 			"fluid_chorus", "OnOff"
+	Slider "$ADVSNDMNU_MIDIVOICES", 		"fluid_voices", 16, 4096, 16, 0
+	// other CVARs need to be revieved for usefulness
+ }
+
+ OptionMenu TimidityOptions //protected
+ {
+	Title "$ADVSNDMNU_TIMIDITY"
+	LabeledSubMenu "$ADVSNDMNU_SELCONFIG",		"timidity_config", "TimidityConfigMenu"
+	Option "$ADVSNDMNU_REVERB", 			"timidity_reverb", "TimidityReverb"
+	Slider "$ADVSNDMNU_REVERB_LEVEL", 		"timidity_reverb_level", 9, 127, 1, 0
+	Option "$ADVSNDMNU_CHORUS", 			"timidity_chorus", "OnOff"
+	// other CVARs need to be revieved for usefulness
+ }
+
+ OptionMenu OPLOptions //protected
+ {
+ 	Title "$ADVSNDMNU_OPLSYNTHESIS"
+	Option "$ADVSNDMNU_OPLCORES", 			"opl_core", "OplCores"
+	Slider "$ADVSNDMNU_OPLNUMCHIPS", 		"opl_numchips", 1, 8, 1, 0
+	Option "$ADVSNDMNU_OPLFULLPAN",			"opl_fullpan", "OnOff"
+ }
+
+/*=======================================
+ *
+ * Video mode menu
+ * Even more than the sound, much of this has no backing
+ * and needs replacement of the backend.
+ *
+ *=======================================*/
+
+OptionValue ForceRatios
+{
+	0.0, "$OPTVAL_OFF"
+	3.0, "4:3"
+	1.0, "16:9"
+	5.0, "17:10"
+	2.0, "16:10"
+	4.0, "5:4"
+	6.0, "21:9"
+}
+OptionValue Ratios
+{
+	0.0, "4:3"
+	4.0, "5:4"
+	1.0, "16:9"
+	2.0, "16:10"
+	3.0, "17:10"
+	6.0, "21:9"
+	 -1, "$OPTVAL_ALL"
+}
+OptionValue ScaleModes
+{
+	0, "$OPTVAL_SCALENEAREST"
+	1, "$OPTVAL_SCALELINEAR"
+	2, "640x400"
+	3, "960x600"
+	4, "1280x800"
+	5, "$OPTVAL_CUSTOM"
+}
+OptionValue CropAspect
+{
+	0, "$OPTVAL_STRETCH"
+	1, "$OPTVAL_LETTERBOX"
+}
+
+OptionValue MaxFps
+{
+	0, "$OPTVAL_UNLIMITED"
+	60, "$OPTVAL_60FPS"
+	75, "$OPTVAL_75FPS"
+	90, "$OPTVAL_90FPS"
+	120, "$OPTVAL_120FPS"
+	144, "$OPTVAL_144FPS"
+	200, "$OPTVAL_200FPS"
+}
+
+OptionMenu VideoModeMenu //protected
+{
+	Title "$VIDMNU_TITLE"
+	
+	StaticText "Caution: This menu is currently"
+	StaticText "not functional!"
+
+	Option "$VIDMNU_RENDERMODE",		"vid_rendermode", "RenderMode"
+	Option "$VIDMNU_FULLSCREEN",		"fullscreen", "YesNo"
+
+	IfOption(Mac)
+	{
+		Option "$VIDMNU_HIDPI",			"vid_hidpi", "YesNo"
+	}
+	IfOption(Windows)
+	{
+		Option "$DSPLYMNU_GPUSWITCH",			vid_gpuswitch, "GPUSwitch"
+	}
+
+	Option "$VIDMNU_FORCEASPECT",		"vid_aspect", "ForceRatios"
+	Option "$VIDMNU_CROPASPECT",		"vid_cropaspect", "CropAspect"
+	Option "$VIDMNU_SCALEMODE",			"vid_scalemode", "ScaleModes"
+	Slider "$VIDMNU_SCALEFACTOR",		"vid_scalefactor", 0.25, 2.0, 0.25, 2
+
+	StaticText " "
+	Option "$DSPLYMNU_VSYNC",					"vid_vsync", "OnOff"
+	Option "$VIDMNU_MAXFPS",					"r_maxfps", "MaxFps"
+
+	StaticText ""
+	StaticText "$VIDMNU_CUSTOMRES"
+	TextField "$VIDMNU_CUSTOMX", menu_resolution_custom_width
+	TextField "$VIDMNU_CUSTOMY", menu_resolution_custom_height
+	Option "$VIDMNU_USELINEAR", "vid_scale_customlinear", "YesNo"
+	StaticText ""
+	Command "$VIDMNU_APPLYW", "menu_resolution_commit_changes 0"
+	Command "$VIDMNU_APPLYFS", "menu_resolution_commit_changes 1"
+	StaticText ""
+
+	SubMenu "$VIDMNU_RESPRESET", CustomResolutionMenu
+}
+
+OptionMenu CustomResolutionMenu //protected
+{
+	Title "$VIDMNU_RESPRESETTTL"
+
+	StaticText "$VIDMNU_RESPRESETHEAD"
+	StaticText ""
+	StaticText "$VIDMNU_ASPECT43"
+	Command "640x480", "menu_resolution_set_custom 640 480"
+	Command "1024x768", "menu_resolution_set_custom 1024 768"
+	Command "1280x960", "menu_resolution_set_custom 1280 960"
+	Command "1600x1200", "menu_resolution_set_custom 1600 1200"
+	StaticText ""
+	StaticText "$VIDMNU_ASPECT54"
+	Command "1280x1024", "menu_resolution_set_custom 1280 1024"
+	StaticText ""
+	StaticText "$VIDMNU_ASPECT169"
+	Command "960x540", "menu_resolution_set_custom 960 540"
+	Command "(720p HD)   1280x720", "menu_resolution_set_custom 1280 720"
+	Command "1366x768", "menu_resolution_set_custom 1366 768"
+	Command "(1080p HD) 1920x1080", "menu_resolution_set_custom 1920 1080"
+	Command "(1440p HD) 2560x1440", "menu_resolution_set_custom 2560 1440"
+	Command "(4K UHD) 3840x2160", "menu_resolution_set_custom 3840 2160"
+	StaticText ""
+	StaticText "$VIDMNU_ASPECT1610"
+	Command "960x600", "menu_resolution_set_custom 960 600"
+	Command "1280x800", "menu_resolution_set_custom 1280 800"
+	Command "1440x900", "menu_resolution_set_custom 1440 900"
+	Command "1680x1050", "menu_resolution_set_custom 1680 1050"
+	Command "1920x1200", "menu_resolution_set_custom 1920 1200"
+}
+
+
 
 //-------------------------------------------------------------------------------------------
 //

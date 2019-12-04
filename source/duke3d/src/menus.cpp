@@ -224,26 +224,6 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
 
 
 
-#ifdef USE_OPENGL
-static MenuOption_t MEO_RENDERERSETUP_HIGHTILE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &hw_hightile );
-static MenuEntry_t ME_RENDERERSETUP_HIGHTILE = MAKE_MENUENTRY( "True color textures:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_HIGHTILE, Option );
-
-
-static MenuOption_t MEO_RENDERERSETUP_PRECACHE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_OffOn, &r_precache );
-static MenuEntry_t ME_RENDERERSETUP_PRECACHE = MAKE_MENUENTRY( "Pre-load map textures:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_PRECACHE, Option );
-# ifndef EDUKE32_GLES
-static char const *MEOSN_RENDERERSETUP_TEXCACHE[] = { "Off", "On", "Compr.", };
-static MenuOptionSet_t MEOS_RENDERERSETUP_TEXCACHE = MAKE_MENUOPTIONSET( MEOSN_RENDERERSETUP_TEXCACHE, NULL, 0x2 );
-# endif
-# ifdef USE_GLEXT
-static MenuOption_t MEO_RENDERERSETUP_DETAILTEX = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &hw_detailmapping );
-static MenuEntry_t ME_RENDERERSETUP_DETAILTEX = MAKE_MENUENTRY( "Detail textures:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_DETAILTEX, Option );
-static MenuOption_t MEO_RENDERERSETUP_GLOWTEX = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_NoYes, &hw_glowmapping);
-static MenuEntry_t ME_RENDERERSETUP_GLOWTEX = MAKE_MENUENTRY("Glow textures:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_GLOWTEX, Option);
-# endif
-static MenuOption_t MEO_RENDERERSETUP_MODELS = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &hw_models );
-static MenuEntry_t ME_RENDERERSETUP_MODELS = MAKE_MENUENTRY( "3D models:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_MODELS, Option );
-#endif
 
 
 #ifdef USE_OPENGL
@@ -312,7 +292,6 @@ static char const s_Volume[] = "Volume:";
 static MenuRangeInt32_t MEO_SOUND_VOLUME_FX = MAKE_MENURANGE( &snd_fxvolume, &MF_Redfont, 0, 255, 0, 33, 2 );
 static MenuEntry_t ME_SOUND_VOLUME_FX = MAKE_MENUENTRY( s_Volume, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SOUND_VOLUME_FX, RangeInt32 );
 
-static MenuRangeInt32_t MEO_SOUND_VOLUME_MUSIC = MAKE_MENURANGE( &mus_volume, &MF_Redfont, 0, 255, 0, 33, 2 );
 static MenuEntry_t ME_SOUND_VOLUME_MUSIC = MAKE_MENUENTRY( s_Volume, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SOUND_VOLUME_MUSIC, RangeInt32 );
 
 #ifndef EDUKE32_STANDALONE
@@ -398,104 +377,11 @@ static MenuEntry_t *MEL_SAVESETUP[] = {
     &ME_SAVESETUP_CLEANUP,
 };
 
-
-#define NoTitle NULL
-
-#define MAKE_MENUMENU(Title, Format, Entries) { Title, Format, Entries, ARRAY_SIZE(Entries), 0, 0, 0 }
-#define MAKE_MENUMENU_CUSTOMSIZE(Title, Format, Entries) { Title, Format, Entries, 0, 0, 0, 0 }
-
-#ifndef EDUKE32_SIMPLE_MENU
-static MenuMenu_t M_GAMESETUP = MAKE_MENUMENU( "Game Setup", &MMF_BigOptions, MEL_GAMESETUP );
-#endif
-static MenuMenu_t M_OPTIONS = MAKE_MENUMENU( s_Options, &MMF_Top_Options, MEL_OPTIONS );
-static MenuMenu_t M_VIDEOSETUP = MAKE_MENUMENU( "Video Mode", &MMF_BigOptions, MEL_VIDEOSETUP );
-static MenuMenu_t M_KEYBOARDSETUP = MAKE_MENUMENU( "Configure Controls", &MMF_Top_Options, MEL_KEYBOARDSETUP );
-static MenuMenu_t M_CONTROLS = MAKE_MENUMENU( "Control Setup", &MMF_BigOptions, MEL_CONTROLS );
-static MenuMenu_t M_CHEATS = MAKE_MENUMENU( "Cheats", &MMF_SmallOptions, MEL_CHEATS );
-static MenuMenu_t M_MOUSESETUP = MAKE_MENUMENU( "Mouse Setup", &MMF_BigOptions, MEL_MOUSESETUP );
-static MenuMenu_t M_JOYSTICKSETUP = MAKE_MENUMENU( "Gamepad Setup", &MMF_BigOptions, MEL_JOYSTICKSETUP );
-static MenuMenu_t M_JOYSTICKAXES = MAKE_MENUMENU( "Gamepad Axes", &MMF_BigSliders, MEL_JOYSTICKAXES );
-static MenuMenu_t M_KEYBOARDKEYS = MAKE_MENUMENU( "Key Configuration", &MMF_KeyboardSetupFuncs, MEL_KEYBOARDSETUPFUNCS );
-static MenuMenu_t M_MOUSEADVANCED = MAKE_MENUMENU( "Advanced Mouse", &MMF_BigSliders, MEL_MOUSEADVANCED );
-static MenuMenu_t M_JOYSTICKAXIS = MAKE_MENUMENU( NULL, &MMF_BigSliders, MEL_JOYSTICKAXIS );
-#ifdef USE_OPENGL
-static MenuMenu_t M_RENDERERSETUP_POLYMOST = MAKE_MENUMENU( "Polymost Setup", &MMF_SmallOptions, MEL_RENDERERSETUP_POLYMOST );
-#endif
-static MenuMenu_t M_COLCORR = MAKE_MENUMENU( "Color Correction", &MMF_ColorCorrect, MEL_COLCORR );
-static MenuMenu_t M_SCREENSETUP = MAKE_MENUMENU( "HUD Setup", &MMF_BigOptions, MEL_SCREENSETUP );
-static MenuMenu_t M_DISPLAYSETUP = MAKE_MENUMENU( "Display Setup", &MMF_BigOptions, MEL_DISPLAYSETUP );
-static MenuMenu_t M_LOAD = MAKE_MENUMENU_CUSTOMSIZE( s_LoadGame, &MMF_LoadSave, MEL_LOAD );
-static MenuMenu_t M_SAVE = MAKE_MENUMENU_CUSTOMSIZE( s_SaveGame, &MMF_LoadSave, MEL_SAVE );
-static MenuMenu_t M_SOUND = MAKE_MENUMENU( "Sound Setup", &MMF_BigOptions, MEL_SOUND );
-static MenuMenu_t M_ADVSOUND = MAKE_MENUMENU( "Advanced Sound", &MMF_BigOptions, MEL_ADVSOUND );
-static MenuMenu_t M_SAVESETUP = MAKE_MENUMENU( "Save Setup", &MMF_BigOptions, MEL_SAVESETUP );
-static MenuMenu_t M_NETWORK = MAKE_MENUMENU( "Network Game", &MMF_Top_Joystick_Network, MEL_NETWORK );
-static MenuMenu_t M_PLAYER = MAKE_MENUMENU( "Player Setup", &MMF_SmallOptions, MEL_PLAYER );
-static MenuMenu_t M_MACROS = MAKE_MENUMENU( "Multiplayer Macros", &MMF_Macros, MEL_MACROS );
-static MenuMenu_t M_NETHOST = MAKE_MENUMENU( "Host Network Game", &MMF_SmallOptionsNarrow, MEL_NETHOST );
-static MenuMenu_t M_NETOPTIONS = MAKE_MENUMENU( "Net Game Options", &MMF_NetSetup, MEL_NETOPTIONS );
-static MenuMenu_t M_NETJOIN = MAKE_MENUMENU( "Join Network Game", &MMF_SmallOptionsNarrow, MEL_NETJOIN );
-
-static MenuPanel_t M_CREDITS4 = { "About " APPNAME, MENU_CREDITS3, MA_Return, MENU_CREDITS5, MA_Advance, };
-static MenuPanel_t M_CREDITS5 = { "About " APPNAME, MENU_CREDITS4, MA_Return, MENU_CREDITS, MA_Advance, };
-
-#define CURSOR_CENTER_2LINE { MENU_MARGIN_CENTER<<16, 120<<16, }
-#define CURSOR_CENTER_3LINE { MENU_MARGIN_CENTER<<16, 129<<16, }
-#define CURSOR_BOTTOMRIGHT { 304<<16, 186<<16, }
-
-static MenuVerify_t M_SAVECLEANVERIFY = { CURSOR_CENTER_3LINE, MENU_SAVESETUP, MA_None, };
-static MenuVerify_t M_QUIT = { CURSOR_CENTER_2LINE, MENU_CLOSE, MA_None, };
-static MenuVerify_t M_QUITTOTITLE = { CURSOR_CENTER_2LINE, MENU_CLOSE, MA_None, };
-static MenuVerify_t M_LOADVERIFY = { CURSOR_CENTER_3LINE, MENU_CLOSE, MA_None, };
-static MenuVerify_t M_LOADDELVERIFY = { CURSOR_CENTER_3LINE, MENU_LOAD, MA_None, };
-static MenuVerify_t M_NEWVERIFY = { CURSOR_CENTER_2LINE, MENU_EPISODE, MA_Advance, };
-static MenuVerify_t M_SAVEVERIFY = { CURSOR_CENTER_2LINE, MENU_SAVE, MA_None, };
-static MenuVerify_t M_SAVEDELVERIFY = { CURSOR_CENTER_3LINE, MENU_SAVE, MA_None, };
-static MenuVerify_t M_RESETPLAYER = { CURSOR_CENTER_3LINE, MENU_CLOSE, MA_None, };
-
-static MenuVerify_t M_COLCORRRESETVERIFY = { CURSOR_CENTER_2LINE, MENU_COLCORR, MA_None, };
-static MenuVerify_t M_KEYSRESETVERIFY = { CURSOR_CENTER_2LINE, MENU_KEYBOARDSETUP, MA_None, };
-static MenuVerify_t M_KEYSCLASSICVERIFY = { CURSOR_CENTER_2LINE, MENU_KEYBOARDSETUP, MA_None, };
-static MenuVerify_t M_JOYSTANDARDVERIFY = { CURSOR_CENTER_2LINE, MENU_JOYSTICKSETUP, MA_None, };
-static MenuVerify_t M_JOYPROVERIFY = { CURSOR_CENTER_2LINE, MENU_JOYSTICKSETUP, MA_None, };
-static MenuVerify_t M_JOYCLEARVERIFY = { CURSOR_CENTER_2LINE, MENU_JOYSTICKSETUP, MA_None, };
-
-static MenuMessage_t M_NETWAITMASTER = { CURSOR_BOTTOMRIGHT, MENU_NULL, MA_None, };
-static MenuMessage_t M_NETWAITVOTES = { CURSOR_BOTTOMRIGHT, MENU_NULL, MA_None, };
-static MenuMessage_t M_BUYDUKE = { CURSOR_BOTTOMRIGHT, MENU_EPISODE, MA_Return, };
-
-static MenuTextForm_t M_ADULTPASSWORD = { NULL, "Enter Password:", MAXPWLOCKOUT, MTF_Password };
-static MenuTextForm_t M_CHEATENTRY = { NULL, "Enter Cheat Code:", MAXCHEATLEN, 0 };
-static MenuTextForm_t M_CHEAT_WARP = { NULL, "Enter Warp #:", 3, 0 };
-static MenuTextForm_t M_CHEAT_SKILL = { NULL, "Enter Skill #:", 1, 0 };
-
-
-/*
-This function prepares data after ART and CON have been processed.
-It also initializes some data in loops rather than statically at compile time.
-*/
 void Menu_Init(void)
 {
     int32_t i, j, k;
 
     if (FURY)
-    {
-        MMF_Top_Skill.pos.x = (320<<15);
-        ME_SKILL_TEMPLATE.format = &MEF_LeftMenu;
-    }
-
-
-    ++k;
-    MEOS_NETOPTIONS_GAMETYPE.numOptions = k;
-    if (NAM_WW2GI)
-        ME_NETOPTIONS_MONSTERS.name = "Enemies";
-
-    // prepare cheats
-    for (i = 0; i < NUMCHEATFUNCS; ++i)
-        MEL_CHEATS[i+1] = &ME_CheatCodes[i];
-
- 
-
     // prepare shareware
     if (VOLUMEONE)
     {
@@ -536,46 +422,6 @@ static void Menu_Pre(MenuID_t cm)
     switch (cm)
     {
 
-    case MENU_GAMESETUP:
-        MEO_GAMESETUP_DEMOREC.options = (ps->gm&MODE_GAME) ? &MEOS_DemoRec : &MEOS_OffOn;
-        MenuEntry_DisableOnCondition(&ME_GAMESETUP_DEMOREC, (ps->gm&MODE_GAME) && m_recstat != 1);
-        break;
-
-    case MENU_DISPLAYSETUP:
-        MenuEntry_HideOnCondition(&ME_DISPLAYSETUP_VOXELS, !g_haveVoxels);
-#ifdef USE_OPENGL
-        if (videoGetRenderMode() == REND_CLASSIC)
-            MenuMenu_ChangeEntryList(M_DISPLAYSETUP, MEL_DISPLAYSETUP);
-        else
-            MenuMenu_ChangeEntryList(M_DISPLAYSETUP, MEL_DISPLAYSETUP_GL);
-
-        MEO_SCREENSETUP_SCREENSIZE.steps = !(ud.statusbarflags & STATUSBAR_NONONE) +
-                                           !(ud.statusbarflags & STATUSBAR_NOMODERN) +
-                                           !(ud.statusbarflags & STATUSBAR_NOMINI) +
-                                           !(ud.statusbarflags & STATUSBAR_NOOVERLAY) +
-                                           !(ud.statusbarflags & STATUSBAR_NOFULL) +
-                                           !(ud.statusbarflags & STATUSBAR_NOSHRINK) * 14;
-        MEO_SCREENSETUP_SCREENSIZE.max = MEO_SCREENSETUP_SCREENSIZE.steps - 1;
-        if (MEO_SCREENSETUP_SCREENSIZE.steps <= 2 && !(ud.statusbarflags & STATUSBAR_NONONE))
-        {
-            ME_SCREENSETUP_SCREENSIZE.entry = &MEO_SCREENSETUP_SCREENSIZE_TWO;
-            ME_SCREENSETUP_SCREENSIZE.type = Option;
-        }
-        else
-        {
-            ME_SCREENSETUP_SCREENSIZE.entry = &MEO_SCREENSETUP_SCREENSIZE;
-            ME_SCREENSETUP_SCREENSIZE.type = RangeInt32;
-        }
-        MenuEntry_HideOnCondition(&ME_SCREENSETUP_SCREENSIZE, (MEO_SCREENSETUP_SCREENSIZE.steps < 2));
-
-        break;
-
-    case MENU_POLYMER:
-    case MENU_POLYMOST:
-        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_PRECACHE, !hw_hightile);
-        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_DETAILTEX, !hw_hightile);
-        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_GLOWTEX, !hw_hightile);
-#endif
         break;
 
     case MENU_VIDEOSETUP:
@@ -642,47 +488,7 @@ static void Menu_Pre(MenuID_t cm)
                                                         soundvoices == snd_numvoices);
         break;
 
-    case MENU_SAVESETUP:
-        MenuEntry_DisableOnCondition(&ME_SAVESETUP_MAXAUTOSAVES, !cl_autosavedeletion);
-        break;
-
-    case MENU_JOYSTICKSETUP:
-        MenuEntry_DisableOnCondition(&ME_JOYSTICK_EDITBUTTONS, !CONTROL_JoyPresent || (joystick.numButtons == 0 && joystick.numHats == 0));
-        MenuEntry_DisableOnCondition(&ME_JOYSTICK_EDITAXES, !CONTROL_JoyPresent || joystick.numAxes == 0);
-        MenuEntry_DisableOnCondition(&ME_JOYSTICK_DEFAULTS_STANDARD, !joystick.isGameController);
-        MenuEntry_DisableOnCondition(&ME_JOYSTICK_DEFAULTS_PRO, !joystick.isGameController);
-        break;
-
-    case MENU_NETOPTIONS:
-        if (MEOSV_NetEpisodes[MEO_NETOPTIONS_EPISODE.currentOption] == MAXVOLUMES)
-            MEL_NETOPTIONS[2] = &ME_NETOPTIONS_USERMAP;
-        else
-        {
-            MEL_NETOPTIONS[2] = &ME_NETOPTIONS_LEVEL;
-            MEO_NETOPTIONS_LEVEL.options = &MEOS_NETOPTIONS_LEVEL[MEOSV_NetEpisodes[MEO_NETOPTIONS_EPISODE.currentOption]];
-        }
-        if (!(g_gametypeFlags[m_coop] & GAMETYPE_MARKEROPTION))
-        {
-            ME_NETOPTIONS_MARKERS.type = Dummy;
-            ME_NETOPTIONS_MARKERS.flags |= MEF_Disabled;
-        }
-        else
-        {
-            ME_NETOPTIONS_MARKERS.type = Option;
-            ME_NETOPTIONS_MARKERS.flags &= ~MEF_Disabled;
-        }
-        MEL_NETOPTIONS[5] = (g_gametypeFlags[m_coop] & (GAMETYPE_PLAYERSFRIENDLY|GAMETYPE_TDM)) ? &ME_NETOPTIONS_FRFIRE : &ME_NETOPTIONS_MAPEXITS;
-        break;
-
-    case MENU_OPTIONS:
-        MenuEntry_DisableOnCondition(&ME_OPTIONS_PLAYERSETUP, ud.recstat == 1);
-        break;
-    }
-
-    default:
-        break;
-    }
-}
+ }
 
 
 static void Menu_DrawVerifyPrompt(int32_t x, int32_t y, const char * text, int numlines = 1)
@@ -703,141 +509,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     switch (cm)
     {
 
-    case MENU_PLAYER:
-        rotatesprite_fs(origin.x + (260<<16), origin.y + ((24+(tilesiz[APLAYER].y>>1))<<16), 49152L,0,1441-((((4-((int32_t) totalclock>>4)))&3)*5),0,entry == &ME_PLAYER_TEAM ? G_GetTeamPalette(playerteam) : playercolor,10);
-        break;
-
-    case MENU_MACROS:
-        mgametextcenter(origin.x, origin.y + (144<<16), "Activate in-game with Shift-F#");
-        break;
-
-    case MENU_COLCORR:
-    case MENU_COLCORR_INGAME:
-        // center panel
-        rotatesprite_fs(origin.x + (120<<16), origin.y + (32<<16), 16384, 0, 3290, 0, 0, 2|8|16);
-        rotatesprite_fs(origin.x + (160<<16) - (tilesiz[BOTTOMSTATUSBAR].x<<13), origin.y + (82<<16) - (tilesiz[BOTTOMSTATUSBAR].y<<14), 16384, 0, BOTTOMSTATUSBAR, 0, 0, 2|8|16);
-
-        // left panel
-        rotatesprite_fs(origin.x + (40<<16), origin.y + (32<<16), 16384, 0, BONUSSCREEN, 0, 0, 2|8|16);
-
-        // right panel
-        rotatesprite_fs(origin.x + (200<<16), origin.y + (32<<16), 16384, 0, LOADSCREEN, 0, 0, 2|8|16);
-        break;
-
-    case MENU_SAVECLEANVERIFY:
-        videoFadeToBlack(1);
-
-        if (g_oldSaveCnt)
-        {
-            Bsprintf(tempbuf, "Delete %d obsolete saves?\nThis action cannot be undone.", g_oldSaveCnt);
-            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
-        }
-        else
-            mgametextcenter(origin.x, origin.y + (90<<16), "No obsolete saves found!");
-
-        break;
-
-    case MENU_LOADVERIFY:
-    {
-        videoFadeToBlack(1);
-        menusave_t & msv = g_menusaves[M_LOAD.currentEntry];
-        if (msv.isOldVer && msv.brief.isExt)
-        {
-            Bsprintf(tempbuf, "Resume game from sequence point:\n\"%s\"", msv.brief.name);
-            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
-        }
-        else
-        {
-            Bsprintf(tempbuf, "Load game:\n\"%s\"", msv.brief.name);
-            Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
-        }
-        break;
-    }
-
-    case MENU_SAVEVERIFY:
-        videoFadeToBlack(1);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, "Overwrite previous saved game?");
-        break;
-
-    case MENU_LOADDELVERIFY:
-    case MENU_SAVEDELVERIFY:
-    {
-        videoFadeToBlack(1);
-        menusave_t & msv = cm == MENU_LOADDELVERIFY ? g_menusaves[M_LOAD.currentEntry] : g_menusaves[M_SAVE.currentEntry-1];
-        Bsprintf(tempbuf, "Delete saved game:\n\"%s\"?", msv.brief.name);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, tempbuf, 2);
-        break;
-    }
-
-    case MENU_NEWVERIFY:
-        videoFadeToBlack(1);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, "Abort this game?");
-        break;
-
-    case MENU_COLCORRRESETVERIFY:
-        videoFadeToBlack(1);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, "Reset color correction to defaults?");
-        break;
-    case MENU_KEYSRESETVERIFY:
-        videoFadeToBlack(1);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, "Reset keys to defaults?");
-        break;
-    case MENU_KEYSCLASSICVERIFY:
-        videoFadeToBlack(1);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, "Reset keys to classic defaults?");
-        break;
-    case MENU_JOYSTANDARDVERIFY:
-        videoFadeToBlack(1);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, "Reset gamepad to standard layout?");
-        break;
-    case MENU_JOYPROVERIFY:
-        videoFadeToBlack(1);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, "Reset gamepad to pro layout?");
-        break;
-    case MENU_JOYCLEARVERIFY:
-        videoFadeToBlack(1);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, "Clear all gamepad settings?");
-        break;
-
-    case MENU_QUIT:
-    case MENU_QUIT_INGAME:
-        videoFadeToBlack(1);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, "Are you sure you want to quit?");
-        break;
-
-    case MENU_QUITTOTITLE:
-        videoFadeToBlack(1);
-        Menu_DrawVerifyPrompt(origin.x, origin.y, "End game and return to title screen?");
-        break;
-
-    case MENU_NETWAITMASTER:
-        G_DrawFrags();
-        mgametextcenter(origin.x, origin.y + (50<<16), "Waiting for master\n"
-                                                       "to select level");
-        break;
-
-    case MENU_NETWAITVOTES:
-        G_DrawFrags();
-        mgametextcenter(origin.x, origin.y + (90<<16), "Waiting for votes");
-        break;
-
-#ifndef EDUKE32_STANDALONE
-    case MENU_BUYDUKE:
-        mgametextcenter(origin.x, origin.y + (33<<16), "You are playing the shareware\n"
-                                                       "version of Duke Nukem 3D.  While\n"
-                                                       "this version is really cool, you\n"
-                                                       "are missing over 75% of the total\n"
-                                                       "game, along with other great extras\n"
-                                                       "which you'll get when you order\n"
-                                                       "the complete version and get\n"
-                                                       "the final three episodes.");
-
-        mgametextcenter(origin.x, origin.y + ((148+16)<<16), "Press any key or button...");
-        break;
-#endif
-            }
-        }
-        break;
     case MENU_CREDITS4:   // JBF 20031220
     {
 #define MENU_YOFFSET 40
@@ -961,32 +632,6 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         break;
     }
 
-    case MENU_JOYSTICKAXES:
-        M_JOYSTICKAXIS.title = joyGetName(0, M_JOYSTICKAXES.currentEntry);
-#if 0
-        MEO_JOYSTICKAXIS_ANALOG.data = &JoystickAnalogueAxes[M_JOYSTICKAXES.currentEntry];
-        MEO_JOYSTICKAXIS_SCALE.variable = &JoystickAnalogueScale[M_JOYSTICKAXES.currentEntry];
-        MEO_JOYSTICKAXIS_INVERT.data = &JoystickAnalogueInvert[M_JOYSTICKAXES.currentEntry];
-        MEO_JOYSTICKAXIS_DEAD.variable = &JoystickAnalogueDead[M_JOYSTICKAXES.currentEntry];
-        MEO_JOYSTICKAXIS_SATU.variable = &JoystickAnalogueSaturate[M_JOYSTICKAXES.currentEntry];
-#endif
-        break;
-
-    case MENU_CHEATS:
-    {
-        const int32_t cheatFuncID = M_CHEATS.currentEntry - 1;
-        switch (cheatFuncID)
-        {
-            case -1:
-            case CHEATFUNC_WARP:
-            case CHEATFUNC_SKILL:
-                break;
-            default:
-                Menu_DoCheat(CheatFunctionIDs[cheatFuncID]);
-                break;
-        }
-        break;
-    }
 
     default:
         break;
@@ -1071,146 +716,8 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     }
 }
 
-static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
-{
-    int32_t x;
-    auto ps = g_player[myconnectindex].ps;
-
-    if (entry == &ME_GAMESETUP_DEMOREC)
-    {
-        if ((ps->gm&MODE_GAME))
-            G_CloseDemoWrite();
-    }
-    else if (entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP)
-    {
-        ud.weaponswitch = ud.weaponswitch & ~(1|4);
-        switch (newOption)
-        {
-        case 2:
-            ud.weaponswitch = ud.weaponswitch | 4;
-            fallthrough__;
-        case 1:
-            ud.weaponswitch = ud.weaponswitch | 1;
-            break;
-        default:
-            break;
-        }
-    }
-    else if (entry == &ME_SOUND)
-    {
-        if (newOption == 0)
-        {
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-        }
-    }
-    else if (entry == &ME_SOUND_MUSIC)
-    {
-        mus_enabled = newOption;
-
-        if (newOption == 0)
-            S_PauseMusic(true);
-        else
-        {
-            S_PauseMusic(false);
-        }
-    }
-    else if (entry == &ME_SOUND_DUKETALK)
-        snd_speech = (snd_speech&~1) | newOption;
-    else if (entry == &ME_JOYSTICK_ENABLE)
-    {
-        if (newOption)
-            CONTROL_ScanForControllers();
-        CONTROL_JoystickEnabled = (newOption && CONTROL_JoyPresent);
-    }
-    else if (entry == &ME_JOYSTICKAXIS_ANALOG)
-        CONTROL_MapAnalogAxis(M_JOYSTICKAXES.currentEntry, newOption, controldevice_joystick);
-    else if (entry == &ME_JOYSTICKAXIS_INVERT)
-        CONTROL_SetAnalogAxisInvert(M_JOYSTICKAXES.currentEntry, newOption, controldevice_joystick);
-    else if (entry == &ME_NETOPTIONS_EPISODE)
-    {
-        if (newOption < g_volumeCnt)
-            ud.m_volume_number = newOption;
-    }
-    else if (entry == &ME_NETOPTIONS_MONSTERS)
-    {
-        ud.m_monsters_off = (newOption == g_skillCnt);
-        if (newOption < g_skillCnt)
-            ud.m_player_skill = newOption;
-    }
-    else if (entry == &ME_ADULTMODE)
-    {
-        if (newOption)
-        {
-            for (x=0; x<g_animWallCnt; x++)
-                switch (DYNAMICTILEMAP(wall[animwall[x].wallnum].picnum))
-                {
-                case FEMPIC1__STATIC:
-                    wall[animwall[x].wallnum].picnum = BLANKSCREEN;
-                    break;
-                case FEMPIC2__STATIC:
-                case FEMPIC3__STATIC:
-                    wall[animwall[x].wallnum].picnum = SCREENBREAK6;
-                    break;
-                }
-        }
-        else
-        {
-            adult_lockout = 0;
-        }
-    }
 
 
-    return 0;
-}
-
-
-/*
-This is polled when the menu code is populating the screen but for some reason doesn't have the data.
-*/
-static int32_t Menu_EntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
-{
-    if (entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP)
-        return (cl_weaponswitch & 1) ? ((cl_weaponswitch & 4) ? 2 : 1) : 0;
-    else if (entry == &ME_SOUND_DUKETALK)
-        return snd_speech & 1;
-    else if (entry == &ME_NETOPTIONS_MONSTERS)
-        return (ud.m_monsters_off ? g_skillCnt : ud.m_player_skill);
-
-    return currentValue;
-}
-
-void Menu_Close(uint8_t playerID)
-{
-    auto & gm = g_player[playerID].ps->gm;
-    if (gm & MODE_GAME)
-    {
-        if (gm & MODE_MENU)
-            I_ClearAllInput();
-
-        // The following lines are here so that you cannot close the menu when no game is running.
-        gm &= ~MODE_MENU;
-        mouseLockToWindow(1);
-
-        if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-        {
-            ready2send = 1;
-            totalclock = ototalclock;
-            CAMERACLOCK = (int32_t) totalclock;
-            CAMERADIST = 65536;
-            m_animation.start = 0;
-            m_animation.length = 0;
-
-            // Reset next-viewscreen-redraw counter.
-            // XXX: are there any other cases like that in need of handling?
-            if (g_curViewscreen >= 0)
-                actor[g_curViewscreen].t_data[0] = (int32_t) totalclock;
-        }
-
-        G_UpdateScreenArea();
-        S_PauseSounds(false);
-    }
-}
 
 
 #endif
