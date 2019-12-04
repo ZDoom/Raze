@@ -258,8 +258,11 @@ CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bot
 CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable background image stretching in wide resolutions")
 CVARD(Int, hud_messagetime, 120, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "length of time to display multiplayer chat messages")
 // Should be available to all games - the message handling should also be consolidated into a game independent feature.
-/*CUSTOM_*/CVARD(Bool, hud_messages, true, CVAR_ARCHIVE, "enable/disable showing messages")
-CVAR(Bool, hud_messagenative, true, CVAR_ARCHIVE)
+CUSTOM_CVARD(Int, hud_messages, 1, CVAR_ARCHIVE, "enable/disable showing messages")
+{
+	if (self < 0 || self > 2) self = 1;
+}
+
 
 CCMD (togglemessages)
 {
@@ -530,6 +533,16 @@ CUSTOM_CVARD(Float, vid_brightness, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adju
 	// todo: tell the system to update
 }
 
+
+CUSTOM_CVARD(Float, vid_saturation, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts saturation component of gamma ramp")
+{
+	if (self < -3) self = -3;
+	else if (self > 3) self = 3;
+	// todo: tell the system to update
+}
+
+CVAR(Int, gl_satformula, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
+
 CCMD (bumpgamma)
 {
 	// [RH] Gamma correction tables are now generated on the fly for *any* gamma level
@@ -555,31 +568,43 @@ CUSTOM_CVAR(String, rtsname, "", CVAR_ARCHIVE | CVAR_USERINFO)
 
 CVAR(String, usermapfolder, "", CVAR_ARCHIVE);
 
+CUSTOM_CVAR(Int, playercolor, 0, CVAR_ARCHIVE|CVAR_USERINFO)
+{
+	if (self < 0 || self > 10) self = 0;
+	else ;// gi->UpdatePlayerColor(); // this part is game specific
+}
+
+CUSTOM_CVAR(Int, playerteam, 0, CVAR_USERINFO) // this one is transient and won't be saved.
+{
+	if (self < 0 || self > 3) self = 0;
+	else ;// gi->UpdatePlayerTeam(); // this part is game specific
+}
+
+// Will only become useful if the obituary system gets overhauled.
+CUSTOM_CVAR(Int, playergender, 0, CVAR_USERINFO|CVAR_ARCHIVE)
+{
+	if (self < 0 || self > 3) self = 0;
+}
 
 // Internal settings for demo recording and the multiplayer menu. These won't get saved and only are CVARs so that the menu code can use them.
 CVAR(Bool, m_recstat, false, CVAR_NOSET)
 CVAR(Int, m_coop, 0, CVAR_NOSET)
 CVAR(Int, m_ffire, 1, CVAR_NOSET)
+CVAR(Int, m_monsters, 1, CVAR_NOSET)
 CVAR(Int, m_marker, 1, CVAR_NOSET)
 CVAR(Int, m_level_number, 0, CVAR_NOSET)
+CVAR(Int, m_episode_number, 0, CVAR_NOSET)
 CVAR(Int, m_noexits, 0, CVAR_NOSET)
-CVAR(Int, playercolor, 0, CVAR_NOSET)
-CVAR(Int, playerteam, 0, CVAR_NOSET)
+CVAR(String, m_server, "localhost", CVAR_NOSET)
+CVAR(String, m_netport, "19014", CVAR_NOSET)
 
 #if 0
 
-// These have to wait until the HUD code is cleaned up (no idea which may survive and which won't.)
 /*
 
 
 	// Currently unavailable due to dependency on an obsolete OpenGL feature
 	{ "deliriumblur", "enable/disable delirium blur effect(polymost)", (void *)&gDeliriumBlur, CVAR_BOOL, 0, 1 },
-
-	if (!Bstrcasecmp(parm->name, "color"))
-	{
-		playercolor = G_CheckPlayerColor(playercolor);
-		g_player[0].ps->palookup = g_player[0].pcolor = playercolor;
-	}
 
 	// This one gets changed at run time by the game code, so making it persistent does not work
 
@@ -588,9 +613,6 @@ CVAR(Int, playerteam, 0, CVAR_NOSET)
 
 	// This requires a different approach, because it got used like a CCMD, not a CVAR.
 	{ "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
-
-	// requires cleanup first
-	//{ "team","change team in multiplayer", (void *)&playerteam, CVAR_INT|CVAR_MULTI, 0, 3 },
 
 	// just as a reminder:
 	/*

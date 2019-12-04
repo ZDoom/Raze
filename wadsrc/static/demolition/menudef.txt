@@ -355,43 +355,6 @@ LISTMENU "CustomSubMenu7"
 
 //-------------------------------------------------------------------------------------------
 //
-// No multiplayer support for now, but kept as a reminder.
-//
-//-------------------------------------------------------------------------------------------
-
-LISTMENU "MultiMenu"
-{
-	ifgame(Duke, Nam, WW2GI, Fury)
-	{
-		position 160, 55, 135
-		centermenu
-		fixedspacing 5
-		ifgame(Duke, Nam, WW2GI, Fury)
-		{
-			class "Duke.ListMenu"
-		}
-		else
-		{
-			class "Redneck.ListMenu"
-		}
-		animatedtransition
-		NativeTextItem "$MNU_PLAYERSETUP", "p", "PlayerSetupMenu"
-	}
-	ifgame(blood)
-	{
-		position 160, 80, 150
-		class "Blood.ListMenu"
-		centermenu
-		Linespacing 20
-	}
-
-	Caption "$MNU_NETWORKGAME"
-	NativeTextItem "$MNU_JOINGAME", "j", "JoinGameMenu"
-	NativeTextItem "$MNU_HOSTGAME", "h", "HostGameMenu"
-}
-
-//-------------------------------------------------------------------------------------------
-//
 //
 //
 //-------------------------------------------------------------------------------------------
@@ -997,5 +960,260 @@ OptionMenu "JoystickConfigMenu" //protected
 }
 
 
+OptionValue "PlayerColors"
+{
+	0, OPTVAL_AUTO"
+	1, "$TXT_COLOR_BLUE"
+	2, "TXT_COLOR_RED"
+	3, "TXT_COLOR_GREEN"
+	4, "TXT_COLOR_GRAY"
+	5, "TXT_COLOR_DARKGRAY"
+	6, "TXT_COLOR_DARKGREEN"
+	7, "TXT_COLOR_BROWN"
+	8, "TXT_COLOR_DARKBLUE"
+	9, "TXT_COLOR_LIGHTRED"
+	10, "TXT_COLOR_YELLOW"
+}
+
+OptionValue "PlayerTeam"
+{
+	0, "$TXT_COLOR_BLUE"
+	1, "TXT_COLOR_RED"
+	2, "TXT_COLOR_GREEN"
+	3, "TXT_COLOR_GRAY"
+}
+
+OptionValue "Gender"
+{
+	0, "$OPTVAL_MALE"
+	1, "$OPTVAL_FEMALE"
+	2, "$OPTVAL_NEUTRAL"
+	3, "$OPTVAL_OTHER"
+}
 
 
+OptionMenu "NewPlayerMenu" //protected
+{
+	Title "$MNU_PLAYERSETUP"
+	TextField "$PLYRMNU_NAME", playername
+	Option "$PLYRMNU_TEAM", "playerteam", "PlayerTeam"
+	Option "$PLYRMNU_PLAYERCOLOR", "playercolor", "PlayerColors"
+	Option "$PLYRMNU_PLAYERGENDER", "playergender", "Gender""
+	Submenu "$PLRMNU_TAUNTS", "TauntsMenu"
+	Class "NewPlayerMenu"
+}
+
+OptionMenu "TauntsMenu" //protected
+{
+	Title "$PLRMNU_TAUNTS"
+	TextField "1", "combatmacro0"
+	TextField "2", "combatmacro0"
+	TextField "3", "combatmacro0"
+	TextField "4", "combatmacro0"
+	TextField "5", "combatmacro0"
+	TextField "6", "combatmacro0"
+	TextField "7", "combatmacro0"
+	TextField "8", "combatmacro0"
+	TextField "9", "combatmacro0"
+	TextField "10", "combatmacro0"
+}
+
+//-------------------------------------------------------------------------------------------
+//
+// Game Setup
+//
+//-------------------------------------------------------------------------------------------
+
+OptionValue "AimMode"
+{
+	0, "$OPTVAL_NEVER"
+	1, "$OPTVAL_ALWAYS"
+	2, "$OPTRAL_HITSCAN"
+}
+
+OptionValue "RunMode"
+{
+	0, "$PLRMNU_TOGGLE"
+	1, "$PLRMNU_OVERRIDE"
+}
+
+OptionValue "WeapSwitch"
+{
+	0, "$OPTVAL_NEVER"
+	1, "$PLRMNU_IFNEW"
+	3, "$PLRMNU_PREFERRED"
+}
+
+
+OptionMenu GameplayOptions //protected
+{
+	Position -35
+	Title 	"$GMPLYMNU_TITLE"
+	Option "$PLRMNU_AUTOAIM", "cl_autoaim", "AimMode"
+	Option "$PLRMNU_ALWAYSRUN", "cl_autorun", "OnOff"
+	Option "$PLRMNU_RUNMODE", "cl_runmode", "RunMode"
+	Option "$PLRMNU_EQUIP", "cl_weaponswitch", "WeapSwitch"
+	Option "$PLRMNU_PLOCK", "adult_lockout", "OnOff" // I won't bother password protecting this piece of window dressing
+	// StaticText ""
+	// Option "Record Demo", "m_recstat", "OnOff"
+	// Submenu "Cheats" "CheatsMenu
+}
+
+//-------------------------------------------------------------------------------------------
+//
+// Display options
+//
+//-------------------------------------------------------------------------------------------
+
+OptionValue "FilterModes"
+{
+	0, "$OPTVAL_NONE"
+	1, "$OPTVAL_NONENEARESTMIPMAP"
+	5, "$OPTVAL_NONELINEARMIPMAP"
+	6, "$OPTVAL_NONETRILINEAR"
+	2, "$OPTVAL_LINEAR_2"
+	3, "$OPTVAL_BILINEAR"
+	4, "$OPTVAL_TRILINEAR"
+}
+
+OptionValue "Anisotropy"
+{
+	1, "$OPTVAL_OFF"
+	2, "$OPTVAL_2X"
+	4, "$OPTVAL_4X"
+	8, "$OPTVAL_8X"
+	16, "$OPTVAL_16X"
+}
+
+OptionMenu "VideoOptions" //protected
+{
+	Title "$DSPLYMNU_TITLE"
+	
+	Submenu "$OPTMNU_HUD", "HUDOptions"
+	Submenu "$OPTMNU_POLYMOST", "PolymostOptions"
+
+	Slider "$DSPLYMNU_GAMMA",					"vid_gamma",					0.75, 3.0, 0.05, 2
+	Slider "$DSPLYMNU_BRIGHTNESS",				"vid_brightness",				-0.8,0.8, 0.05,2
+	Slider "$DSPLYMNU_CONTRAST",				"vid_contrast",	   				0.1, 3.0, 0.1
+	Slider "$DSPLYMNU_SATURATION",				"vid_saturation",  				-3.0, 3.0, 0.25, 2
+
+	StaticText ""
+	Option "$GLTEXMNU_TEXFILTER",		hw_texfilter,				"FilterModes"
+	Option "$GLTEXMNU_ANISOTROPIC",		hw_anisotropy,				"Anisotropy"
+}
+
+
+//-------------------------------------------------------------------------------------------
+//
+// HUD options
+//
+//-------------------------------------------------------------------------------------------
+
+OptionValue "HUDMessages"
+{
+	0, "$OPTVAL_OFF"
+	1, "$OPTVAL_ON"
+	2, "$DSPLYMNU_GENERIC"
+}
+
+OptionMenu "HUDOptions" //protected
+{
+	Title "$OPTMNU_HUD"
+
+	Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				3.0, 12.0, 1.0, 0
+	Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				0.3, 1.0, 0.1, 2
+	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
+	Slider "$DSPLYMNU_TEXTSCALE",				"hud_textscale",			0.3, 1.0, 0.1, 2
+	StaticText ""
+	Option "$DSPLYMNU_MESSAGES",				"hud_messages",				"HudMessages"
+	StaticText ""
+	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
+	Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
+	StaticText ""
+	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
+	StaticText ""
+	Option "$DSPLYMNU_FOV",						"r_fov",					60, 130, 10, 1
+}
+
+
+
+//-------------------------------------------------------------------------------------------
+//
+// No multiplayer support for now, but kept for documentation.
+//
+//-------------------------------------------------------------------------------------------
+
+LISTMENU "MultiMenu"
+{
+	ifgame(Duke, Nam, WW2GI, Fury)
+	{
+		position 160, 55, 135
+		centermenu
+		fixedspacing 5
+		ifgame(Duke, Nam, WW2GI, Fury)
+		{
+			class "Duke.ListMenu"
+		}
+		else
+		{
+			class "Redneck.ListMenu"
+		}
+		animatedtransition
+		NativeTextItem "$MNU_PLAYERSETUP", "p", "PlayerSetupMenu"
+	}
+	ifgame(blood)
+	{
+		position 160, 80, 150
+		class "Blood.ListMenu"
+		centermenu
+		Linespacing 20
+	}
+	ifgame(shadowwarrior)
+	{
+		position 160, 80, 150
+		class "ShadowWarrior.ListMenu"
+		centermenu
+		Linespacing 20
+	}
+
+	Caption "$MNU_NETWORKGAME"
+	NativeTextItem "$MNU_JOINGAME", "j", "JoinGameMenu"
+	NativeTextItem "$MNU_HOSTGAME", "h", "HostGameMenu"
+}
+
+OptionMenu "HostGameMenu"
+{
+	title "$MNU_HOSTGAME"
+	Submenu "$NETMNU_OPTIONS", "MultiOptionsMenu"
+	Command "$NETMNU_LAUNCH", "Launch_MP" // currently a no-op
+}
+
+OptionMenu "JoinGameMenu"
+{
+	TextField "$NETMNU_SERVER", "m_server"
+	TextField "$NETMNU_PORT", "m_netport"
+	SaveCommand "$NETMNU_CONNECT", "MultiConnect"
+}
+
+OptionValue "MultiGameType"
+{
+	0, "$NETMNU_GAMETYPE1"
+	1, "$NETMNU_GAMETYPE2"
+	2, "$NETMNU_GAMETYPE3"
+	3, "$NETMNU_GAMETYPE4"
+	4, "$NETMNU_GAMETYPE5"
+}
+
+OptionMenu "MultiOptionsMenu"
+{
+	title "$NETMNU_OPTIONS"
+	Option "$NETMNU_GAMETYPE", "m_coop"
+	Option "$NETMNU_EPISODE", "m_episode_number"
+	Option "$NETMNU_LEVEL", "m_level_number"
+	Submenu "$MNU_USERMAP", "MultiUserMap" // todo: fileselect item
+	Option "$NETMNU_MONSTERS", "m_monsters"
+	Option "$NETMNU_MARKERS", "m_marker"
+	Option "$NETMNU_MAPEXITS", "m_noexit"
+	Option "$NETMNU_FFIRE", "m_ffire"
+	SafeCommand "$NETMNU_ACCEPT", "MultiAccept"
+}

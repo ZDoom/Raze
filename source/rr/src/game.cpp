@@ -7177,7 +7177,7 @@ void G_UpdatePlayerFromMenu(void)
         /*int32_t j = g_player[myconnectindex].ps->team;*/
 
         P_SetupMiscInputSettings();
-        g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = playercolor;
+        g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
 
         g_player[myconnectindex].pteam = playerteam;
 
@@ -7588,7 +7588,7 @@ MAIN_LOOP_RESTART:
         g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_GetTeamPalette(g_player[myconnectindex].pteam);
     else
     {
-        if (playercolor) g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = playercolor;
+        if (playercolor) g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
         else g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor;
     }
 

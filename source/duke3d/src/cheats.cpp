@@ -187,9 +187,6 @@ void G_SetupCheats(void)
         Bstrcpy(CheatStrings[23], "<RESERVED>");
         Bstrcpy(CheatStrings[24], "2debug");
         Bstrcpy(CheatStrings[26], "2cgs");
-
-        Bstrcpy(g_gametypeNames[0], "GI Match (Spawn)");
-        Bstrcpy(g_gametypeNames[2], "GI Match (No Spawn)");
 }
     else if (NAM)
     {
@@ -219,9 +216,6 @@ void G_SetupCheats(void)
         Bstrcpy(CheatStrings[23], "<RESERVED>");
         Bstrcpy(CheatStrings[24], "adebug");
         Bstrcpy(CheatStrings[26], "acgs");
-
-        Bstrcpy(g_gametypeNames[0], "GruntMatch (Spawn)");
-        Bstrcpy(g_gametypeNames[2], "GruntMatch (No Spawn)");
     }
 }
 #endif

@@ -48,6 +48,12 @@ typedef struct MenuFont_t
 extern MenuFont_t MF_Redfont, MF_Bluefont, MF_Minifont;
 
 void Menu_Init(void);
+int G_CheckPlayerColor(int color)
+{
+	static int32_t player_pals[] = { 0, 9, 10, 11, 12, 13, 14, 15, 16, 21, 23, };
+	if (color >= 0 && color < 10) return player_pals[color];
+}
+
 
 #if 0
 
@@ -489,7 +495,6 @@ extern int32_t voting;
 int Menu_Change(MenuID_t cm);
 void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype);
 int32_t Menu_IsTextInput(Menu_t *cm);
-int G_CheckPlayerColor(int color);
 void Menu_Init(void);
 void Menu_Open(uint8_t playerID);
 void Menu_Close(uint8_t playerID);

@@ -4802,7 +4802,7 @@ void Net_SendClientInfo(void)
     tempnetbuf[l++] = g_player[myconnectindex].ps->aim_mode = in_aimmode;
     tempnetbuf[l++] = g_player[myconnectindex].ps->auto_aim = cl_autoaim;
     tempnetbuf[l++] = g_player[myconnectindex].ps->weaponswitch = cl_weaponswitch;
-    tempnetbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = playercolor;
+    tempnetbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
 
     tempnetbuf[l++] = g_player[myconnectindex].pteam = playerteam;
 

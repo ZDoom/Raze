@@ -757,6 +757,12 @@ void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *t
 	mgametextcenter(int(origin.X * 65536), int((origin.Y + position) * 65536), text);
 }
 
+#if 0
+void GameInterface::DrawPlayerSprite(int x, int y)
+{
+	rotatesprite_fs(origin.x + (260<<16), origin.y + ((24+(tilesiz[APLAYER].y>>1))<<16), 49152L,0,1441-((((4-((int32_t) totalclock>>4)))&3)*5),0,entry == &ME_PLAYER_TEAM ? G_GetTeamPalette(playerteam) : playercolor,10);
+}
+#endif
 
 END_DUKE_NS
 

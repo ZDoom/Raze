@@ -1646,7 +1646,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_MOUSEAIMING:                  in_aimmode.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_WEAPONSWITCH:                 cl_weaponswitch.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_DEMOCAMS:                     cl_democams                      = iSet; break;
-        case USERDEFS_COLOR:                        playercolor                         = iSet; break;
+        case USERDEFS_COLOR:                        /*playercolor.SetGenericRepDefault(iSet, CVAR_Int);*/ break; // the value range here does not match, so better leave the CVar alone.
         case USERDEFS_MSGDISPTIME:                  hud_messagetime.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_STATUSBARMODE:                ud.statusbarmode                 = iSet; break;
         case USERDEFS_M_NOEXITS:                    m_noexits                     = iSet; break;
@@ -1654,7 +1654,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_AUTOVOTE:                     cl_autovote.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_AUTOMSG:                      cl_automsg.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_IDPLAYERS:                    cl_idplayers.SetGenericRepDefault(iSet, CVAR_Int); break;
-        case USERDEFS_TEAM:                         playerteam                          = iSet; break;
+        case USERDEFS_TEAM:                         playerteam.SetGenericRepDefault(iSet, CVAR_Int);  break;
         case USERDEFS_VIEWBOB:                      cl_viewbob.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_WEAPONSWAY:                   cl_weaponsway.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_ANGLEINTERPOLATION:           ud.angleinterpolation            = iSet; break;

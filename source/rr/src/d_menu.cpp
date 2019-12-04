@@ -475,6 +475,17 @@ void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *t
 }
 
 
+#if 0
+void GameInterface::DrawPlayerSprite(int x, int y)
+{
+	if (RR)
+		rotatesprite_fs(origin.x + (260<<16), origin.y + ((24+(tilesiz[APLAYER].y>>2))<<16), 24576L,0,3845+36-((((8-((int32_t) totalclock>>4)))&7)*5),0,entry == &ME_PLAYER_TEAM ? G_GetTeamPalette(playerteam) : playercolor,10);
+	else
+		rotatesprite_fs(origin.x + (260<<16), origin.y + ((24+(tilesiz[APLAYER].y>>1))<<16), 49152L,0,1441-((((4-((int32_t) totalclock>>4)))&3)*5),0,entry == &ME_PLAYER_TEAM ? G_GetTeamPalette(playerteam) : playercolor,10);
+}
+#endif
+
+
 END_RR_NS
 
 //----------------------------------------------------------------------------
