@@ -142,7 +142,7 @@ FBaseCVar::~FBaseCVar ()
 const char *FBaseCVar::GetHumanString(int precision) const
 {
 	assert(true);
-	return "";// GetGenericRep(CVAR_String).String;
+	return GetGenericRep(CVAR_String).String;
 }
 
 void FBaseCVar::ForceSet (UCVarValue value, ECVarType type, bool nouserinfosend)
