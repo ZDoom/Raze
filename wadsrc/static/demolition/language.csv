@@ -399,3 +399,170 @@ Strafing,OPTVAL_STRAFING,,,,Pohyb do stran,Seitwärtsbewegung,,Flankmovanta,Desp
 Moving Up/Down,OPTVAL_MOVINGUPDOWN,,,,Pohyb nahoru/dolů,Auf/abwärtsbewegung,,Movanta Supre/Malsupre,Moverse hacia Arriba/Abajo,,Ylös/Alas liikkuminen,Mouvement haut/bas,,Movimento Sopra/Sotto,前進後退,위/아래로 이동,Naar boven/beneden bewegen,Poruszanie się w górę/w dół,Deslocar para cima/baixo,,,Движение вверх/вниз,Кретање горе/доле
 Inverted,OPTVAL_INVERTED,,,,Inverzní,Invertiert,,Inversigita,Invertido,,Käännetty,Inversé,,Invertito,反転する,반전,Omgekeerd,Odwrócony,Invertido,,,Инвертировано,Обрнуто
 Not Inverted,OPTVAL_NOTINVERTED,,,,Nikoliv inverzní,nicht invertiert,,Ne Inversigita,No invertido,,Ei käännetty,Non Inversé,,Non invertito,反転しない,반전되지 않음,Niet omgekeerd,Nieodwrócony,Não Invertido,,,Прямо,Не обрнуто
+,PLayer Menu,,,,,,,,,,,,,,,,,,,,,,
+Player Setup,MNU_PLAYERSETUP,,,,Nastavení hráče,Spielereinstellungen,,Ludanto Agordaĵo,Config. del jugador,,Pelaaja-asetukset,Options Joueur,Játékos testreszabása,Settaggio giocatore,プレイヤーの特徴,플레이어 설정,Speler instellen,Ustawienia Gracza,Definições de Jogador,,,Настройки игрока,Подешавања играча
+Blue,TXT_COLOR_BLUE,,,,Modrá,Blau,,Blua,Azul,,Sininen,Bleu,Kék,Blu,青,청색,Blauw,Niebieski,Azul,,,Синий,Плава
+Red,TXT_COLOR_RED,,,,Červená,Rot,,Ruĝa,Rojo,,Punainen,Rouge,Vörös,Rosso,赤,적색,Rood,Czerwony,Vermelho,,,Красный,Црвена
+Green,TXT_COLOR_GREEN,,,,Zelená,Grün,,Verda,Verde,,Vihreä,Vert,Zöld,Verde,緑,녹색,Groen,Zielony,Verde,,,Зелёный,Зелена
+Gray,TXT_COLOR_GRAY,,,Grey,Šedá,Grau,,Griza,Gris,,Harmaa,Gris,Szürke,Grigio,灰,회색,Grijs,Szary,Cinza,,,Серый,Сива
+Dark gray,TXT_COLOR_DARKGRAY,,,"Dark grey
+",Tmavě šedá,Dunkelgrau,,Grizeta,gris oscuro,,Tummanharmaa,Gris sombre,Sötétszürke,Grigio scuro,鉛,치색,Donkergrijs,Ciemnoszary,Cinza escuro,,,Тёмно-серый,Тамно сива
+Dark Green,TXT_COLOR_DARKGREEN,,,,Tmavě zelená,Dunkelgrün,,Malhelverda,Verde oscuro,,Tummanvihreä,Vert sombre,Sötétzöld,Verde scuro,深,흑녹색,Donkergroen,Ciemnozielony,Verde escuro,,,Тёмно-зелёный,Тамна зелена
+Brown,TXT_COLOR_BROWN,,,,Hnědá,Braun,,Bruna,Marrón,,Ruskea,Brun,Barna,Marrone,茶,갈색,Bruin,Brązowy,Marrom,,,Коричневый,Браон
+Dark Blue,TXT_COLOR_DARKBLUE,,,,Tmavě modrá,Dunkelblau,,Malhelblua,Azul oscuro,,Tummansininen,Bleu sombre,Sötétkék,Blu scuro,,,Donkerblauw,,Azul escuro,,,Тёмно-Синий,Тамна Плава
+Light Red,TXT_COLOR_LIGHTRED,,,,Světle červená,Hellrot,,Ruĝeta,Rojo claro,,Vaaleanpunainen,Rouge clair,,Rosso chiaro,丹,옅은 적색,Licht Rood,Jasnoczerwony,Vermelho claro,,,Светло-красный,Светло црвена
+Yellow,TXT_COLOR_YELLOW,,,,Žlutá,Gelb,,Flava,Amarillo,,Keltainen,Jaune,Sárga,Giallo,黄,노란색,Geel,Żółty,Amarelo,,,Жёлтый,Жута
+Auto,OPTVAL_AUTO,,,,,,,Aŭtomata,Automático,,Automaattinen,,,Automatico,自動,자동,,Automatycznie,Automático,,,Авто,Аутоматски
+Name,PLYRMNU_NAME,,,,Jméno,,,Nomo,Nombre,,Nimi,Nom,Név,Nome,名前,이름,Naam,Imię,Nome,,,Имя,Надимак
+Team,PLYRMNU_TEAM,,,,Tým,,,Teamo,Equipo,,Joukkue,Equipe,Csapat,Squadra,チーム,팀,Team,Drużyna,Equipe,Equipa,,Команда,Тим
+Color,PLYRMNU_PLAYERCOLOR,,,Colour,Barva,Farbe,,Koloro,,,Väri,Couleur,Szín,Colore,色,색상,Kleur,Kolor,Cor,,,Цвет,Боја
+Multiplayer taunts,PLRMNU_TAUNTS,,,,,Mehrspieler-Spott,,,,,,,,,,,,,,,,,
+Male,OPTVAL_MALE,,,,Muž,Männlich,,Vira (Li),Masculino,,Miespuolinen,Masculin,,Maschio,男,남성,Man,Mężczyzna,Masculino,,,Мужской,Мушко
+Female,OPTVAL_FEMALE,,,,Žena,Weiblich,,Ina (Ŝi),Femenino,,Naispuolinen,Féminin,,Femmina,女,여성,Vrouw,Kobieta,Feminino,,,Женский,Женско
+Neutral,OPTVAL_NEUTRAL,,,,Neutrální,Neutral,,Neŭtrala (Ri),Neutro,,Sukupuoleton,Neutre,,Neutrale,中間,중성,Neutraal,Neutralne,Neutro,,,Нейтральный,Неутрално
+Object,OPTVAL_OTHER,,,,Objekt,Objekt,,Objekto (Ĝi),Objeto,,Olio,Objet,,Oggetto,物体,기타,Doel,Obiekt,Objeto,,,Предмет,Предмет
+,Multiplayer,,,,,,,,,,,,,,,,,,,,,,
+Game Options,NETMNU_OPTIONS,,,,,Spieleinstellungen,,,,,,,,,,,,,,,,,
+Launch Game,NETMNU_LAUNCH,,,,,Spiel starten,,,,,,,,,,,,,,,,,
+Game Type,NETMNU_GAMETYPE,,,,,,,,,,,,,,,,,,,,,,
+Deathmatch (Spawn),NETMNU_GAMETYPE1,,,,,,,,,,,,,,,,,,,,,,
+DukeMatch (Spawn),NETMNU_GAMETYPE1,Duke,,,,,,,,,,,,,,,,,,,,,
+GI Match (Spawn),NETMNU_GAMETYPE1,Nam,,,,,,,,,,,,,,,,,,,,,
+GruntMatch (Spawn),NETMNU_GAMETYPE1,WW2GI,,,,,,,,,,,,,,,,,,,,,
+Cooperative Play,NETMNU_GAMETYPE2,,,,,,,,,,,,,,,,,,,,,,
+Deathmatch (No Spawn),NETMNU_GAMETYPE3,,,,,,,,,,,,,,,,,,,,,,
+DukeMatch (No Spawn),NETMNU_GAMETYPE3,Duke,,,,,,,,,,,,,,,,,,,,,
+GI Match (No Spawn),NETMNU_GAMETYPE3,Nam,,,,,,,,,,,,,,,,,,,,,
+GruntMatch (No Spawn),NETMNU_GAMETYPE3,WW2GI,,,,,,,,,,,,,,,,,,,,,
+Team DM (Spawn),NETMNU_GAMETYPE4,,,,,,,,,,,,,,,,,,,,,,
+Team DM (No Spawn),NETMNU_GAMETYPE5,,,,,,,,,,,,,,,,,,,,,,
+Episode,NETMNU_EPISODE,,,,,,,,,,,,,,,,,,,,,,
+Level,NETMNU_LEVEL,,,,,,,,,,,,,,,,,,,,,,
+Monsters,NETMNU_MONSTERS,,,,,,,,,,,,,,,,,,,,,,
+Markers,NETMNU_MARKERS,,,,,,,,,,,,,,,,,,,,,,
+Map Exits,NETMNU_MAPEXITS,,,,,,,,,,,,,,,,,,,,,,
+Friendly Fire,NETMNU_FFIRE,,,,,,,,,,,,,,,,,,,,,,
+Accept,NETMNU_ACCEPT,,,,,,,,,,,,,,,,,,,,,,
+Server,NETMNU_SERVER,,,,,,,,,,,,,,,,,,,,,,
+Port,NETMNU_PORT,Network port!,,,,,,,,,,,,,,,,,,,,,
+Connect,NETMNU_CONNECT,,,,,,,,,,,,,,,,,,,,,,
+,Gameplay options,,,,,,,,,,,,,,,,,,,,,,
+Gameplay Options,GMPLYMNU_TITLE,,,,Nastavení herních mechanik,Gameplay-Optionen,,Ludadagordoj,Opciones de jugabilidad,,Pelattavuusasetukset,Options Gameplay,,Opzioni gameplay,ゲームプレイ オプション,게임플레이 설정,Gameplay-opties,Opcje Rozgrywki,Opções de Jogabilidade,,,Настройки геймплея,Подешавања гејмплеја
+Always,OPTVAL_ALWAYS,,,,Vždy,Immer,,Ĉiam,Siempre,,Aina,Toujours,,Sempre,常に,언제나,Altijd,Zawsze,Sempre,,,Всегда,Увек
+Never,OPTVAL_NEVER,,,,Nikdy,Nie,,Neniam,Nunca,,Ei koskaan,Jamais,,Mai,しない,없음,Nooit,Nigdy,Nunca,,,Никогда,Никад
+Hitscan only,OPTVAL_HITSCAN,,,,,Nur Hitscan,,,,,,,,,,,,,,,,,
+Autoaim,PLYRMNU_AUTOAIM,,,,Automatické míření,Automatisch zielen,,Aŭtomate-celi,Autoapuntar,,Automaattitähtäys,Auto-visée,Auto célzás,Mira automatica,自動照準,자동 조준,Autoaim,Automatyczne Celowanie,Mira Automática,,,Автоприцеливание,Аутоматско циљање
+Always Run,PLYRMNU_ALWAYSRUN,,,,Vždy běžet,Immer Rennen,,Ĉiam Kuri,Siempre correr,,Jatkuva juoksu,Toujours courir,Mindig fusson,Corri sempre,常に駆け足,달리기 토글,Altijd lopen,Zawsze Biegaj,Sempre Correr,Correr Sempre,,Постоянный бег,Увек трчи
+Run Mode,PLRMNU_RUNMODE,,,,,Rennmodus,,,,,,,,,,,,,,,,,
+Allow Toggle,PLRMNU_TOGGLE,,,,,Umschalten erlauben,,,,,,,,,,,,,,,,,
+Override Toggle,PLRMNU_OVERRIDE,,,,,Umschalten blockieren,,,,,,,,,,,,,,,,,
+If New,PLRMNU_IFNEW,,,,,Wenn neu,,,,,,,,,,,,,,,,,
+Equip Weapon Pickups,PLRMNU_EQUIP,,,,,Waffen sofort aktivieren,,,,,,,,,,,,,,,,,
+Parental Lock,PLRMNU_PLOCK,,,,,Kindersicherung,,,,,,,,,,,,,,,,,
+Only preferred,PLRMNU_PREFERRED,,,,,Nur bevorzugte,,,,,,,,,,,,,,,,,
+,Display,,,,,,,,,,,,,,,,,,,,,,
+Display Options,DSPLYMNU_TITLE,,,,Nastavení grafiky,Anzeigeoptionen,,Ekranagordoj,Opciones de visualización,,Näyttöasetukset,Options Affichage,Megjelenítés beállítások,Opzioni display,ディスプレイ オプション,디스플레이 설정,Weergaveopties,Opcje Wyświetlania,Opções de Vídeo,,,Настройки экрана,Подешавања приказа
+Screen size,DSPLYMNU_SCREENSIZE,,,,Velikost obrazovky,Bildschirmgröße,,Ekrano-grandeco,Tamaño de pantalla,,Näytön koko,Taille de l'écran,Képernyő mérete,Dimensione della schermata,画面サイズ,화면 크기,Schermgrootte,Rozmiar Ekranu,Tamanho de tela,Tamanho do ecrã,,Размер экрана,Величина екрана
+Vertical Sync,DSPLYMNU_VSYNC,,,,Vertikální synchronizace,Vertikale Synchronisation,,Vertikala-sinkronigo,Sincr. vertical,,Pystytahdistys,Synchronisation Verticale,Függőleges szinkronizálás,Sync verticale,垂直同期,수직 동기화,Verticale Sync,Synchronizacja Pionowa,Sincronização Vertical,,,Вертикальная синхронизация,Вертикална синхорнизација
+Models,DSPLYMNU_MODELS,,,,Modely,Modelle,,Modeloj,Modelos,,Mallit,Modèles,3D modellek,Modelli,モデル,모델,Modellen,Modele,Modelos,,,Модели,Модели
+Voxels,DSPLYMNU_VOXELS,,,,,Voxel,,,,,,,,,,,,,,,,,
+Scale crosshair,DSPLYMNU_CROSSHAIRSCALE,,,,Velikost zaměřovače,Fadenkreuz skalieren,,Skali translinion,Escalar retícula,,Skaalaa tähtäintä,Mise à l'échelle du viseur,,Scala del mirino,照準サイズ,조준점 크기,Dradenkruis schalen,Skala celownika,Escala da mira,,,Масштабирование прицела,Размера нишана
+Brightness,DSPLYMNU_BRIGHTNESS,,,,Jas,Helligkeit,,Brileco,Brillo,,Kirkkaus,Luminosité,Fényerő,Luminosità,明るさ,밝기,Helderheid,Jasność,Brilho,,,Яркость,Осветљење
+Gamma correction,DSPLYMNU_GAMMA,,,,Korekce gama,Gammakorrektur,,Gamaa korektado,Corrección gamma,,Gammakorjaus,Correction Gamma,,Correzione gamma,ガンマ値,감마 조정,Gamma correctie,Korekta gammy,Correção gama,,,Гамма-коррекция,Корекција светлости
+Contrast,DSPLYMNU_CONTRAST,,,,Kontrast,Kontrast,,Kontrasto,Contraste,,Sävykkyys,Contraste,,Contrasto,コントラスト,대비,,Kontrast,Contraste,,,Контраст,Контраст
+Saturation,DSPLYMNU_SATURATION,,,,Sytost,Sättigung,,Satureco,Saturación,,Värikylläisyys,,,Saturazione,サチュレーション,채도,Verzadiging,Nasycenie,Saturação,,,Насыщенность,Сатурација
+Status Bar Scale,DSPLYMNU_SBSCALE,,,,,Statusleistengröße,,,,,,,,,,,,,,,,,
+Level statistics,DSPLYMNU_LEVELSTATS,,,,,Levelstatistik,,,,,,,,,,,,,,,,,
+Text Scale,DSPLYMNU_TEXTSCALE,,,,,Textgröße,,,,,,,,,,,,,,,,,
+Messages,DSPLYMNU_MESSAGES,,,,Zprávy,Nachrichten,,Mesaĝoj,Mensajes,,Viestit,Messages,,Messaggi,メッセージ類,메시지,Berichten,Wiadomości,Mensagens,,,Сообщения,Поруке
+Generic,DSPLYMNU_GENERIC,,,,,Generisch,,,,,,,,,,,,,,,,,
+Show Map Name,DSPLYMNU_SHOWMAPNAME,,,,,"Levelnamen anzeigen
+",,,,,,,,,,,,,,,,,
+FOV,DSPLYMNU_FOV,,,,,Gesichtsfeld,,,,,,,,,,,,,,,,,
+Crosshair,DSPLYMNU_CROSSHAIRON,,,,Křížek,Fadenkreuz,,Reteto,Retícula,,Tähtäin,Viseur,,Mirino,クロスヘア,조준점,Draadkruis,Celownik,Mira,,,Прицел,Нишан
+HUD Options,OPTMNU_HUD,,,,Nastavení HUD,HUD Einstellungen,,Agordoj de HUD,Opciones del HUD,,Tilanäytön asetukset,Options de l'ATH,HUD beállítások,Opzioni HUD,HUD オプション,HUD 설정,HUD opties,Opcje Paska HUD,Opções de HUD,,,HUD,HUD
+Polymost Options,OPTMNU_POLYMOST,,,,,Polymost Einstellungen,,,,,,,,,,,,,,,,,
+Texture Filter mode,GLTEXMNU_TEXFILTER,,,,Režim filtrování textur,Texturfiltermodus,,Reĝimo por Teksturfiltrado,Modo de filtro de texturas,,Pintakuviointien suodatustapa,Mode de Filtrage Texture,,Modalità filtro texture,テクスチャーフィルター モード,텍스쳐 필터 모드,Textuur Filter mode,Tryb Filtrowania Tekstur,Modo de filtragem de textura,,,Фильтрация текстур,Текстурни филтер мод
+Anisotropic filter,GLTEXMNU_ANISOTROPIC,,,,Anisotropické filtrování,Anisotropische Filterung,,Anizotropa Filtro,Filtro anisotrópico,,Anisotrooppinen suodatus,Filtre Anisotropique,,Filtro anisotropico,異方性フィルター,이방성 필터,Anisotroop filter,Filtr anizotropowy,Filtragem anisotrópica,,,Анизотропная фильтрация,Анизотропни фолтер
+None (nearest mipmap),OPTVAL_NONENEARESTMIPMAP,,,,Žádné (nejbližší mipmapa),Aus (nächste Mipmap),,Nenio (plej proksima mipmapo),Ninguno (mipmap cercano),,Ei mitään (lähin mipkartta),Aucun (mipmap proche voisin),,Nessuno (mipmap più vicina),なし(最寄りミップマップ),없음 (밉멥에 가까움),Geen (dichtstbijzijnde mipmap),Brak (najbliższa mipmapa),Nenhum (mipmap vizinho mais próximo),,,Нет (ближайший мипмап),Ништа (најближи мипмап)
+None (linear mipmap),OPTVAL_NONELINEARMIPMAP,,,,Žádné (lineární mipmapa),Aus (lineare Mipmap),,Nenio (linia mipmapo),Ninguno (mipmap lineal),,Ei mitään (lin. mipkartta),Aucun (mipmap linéaire),,Nessuno (mipmap lineare),なし(リニアミップマップ),없음 (선형 밉맵),Geen (lineaire mipmap),Brak (liniowa mipmapa),Nenhum (mipmap linear),,,Нет (линейный мипмап),Ништа (линеаран мипмап)
+None (trilinear),OPTVAL_NONETRILINEAR,,,,Žádné (trilineární),Aus (trilinear),,Nenio (trilinia),Ninguno (trilineal),,Ei mitään (trilineaarinen),Aucun (mipmap trilinéaire),,Nessuno (mipmap trilineare),なし(トライリニア),없음 (삼선형),Geen (trilineair),Brak (trzyliniowe),Nenhum (trilinear),,,Нет (трилинейная),Ништа (трилинеарно)
+Bilinear,OPTVAL_BILINEAR,,,,Bilineární,,,Dulinia,Bilineal,,Bilineaarinen,Bilinéaire,,Bilineare,バイリニア,쌍선형,Bilineair,Dwuliniowe,,,,Билинейная,Билинеарно
+Trilinear,OPTVAL_TRILINEAR,,,,Trilineární,,,Trilinia,Trilineal,,Trilineaarinen,Trilinéaire,,Trilineare,トライリニア,삼선형,Trilineair,Trzyliniowe,,,,Трилинейная,Трилинеарно
+Linear,OPTVAL_LINEAR_2,,,,Lineární,,,Lineara,Lineal,,Lineaarinen,Linéaire,,Lineare,リニア,선형,Lineair,Liniowa,,,,Линейная,Линеаран
+2x,OPTVAL_2X,,,,,,,2-oble,,,,,,,,,,,,,,,
+4x,OPTVAL_4X,,,,,,,4-oble,,,,,,,,,,,,,,,
+8x,OPTVAL_8X,,,,,,,8-oble,,,,,,,,,,,,,,,
+16x,OPTVAL_16X,,,,,,,16-oble,,,,,,,,,,,,,,,
+32x,OPTVAL_32X,,,,,,,32-oble,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 beat %s^02 like a cur,",TXT_OBITUARY1,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 broke %s,",TXT_OBITUARY2,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 body bagged %s,",TXT_OBITUARY3,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 boned %s^02 like a fish,",TXT_OBITUARY4,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 castrated %s,",TXT_OBITUARY5,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 creamed %s,",TXT_OBITUARY6,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 crushed %s,",TXT_OBITUARY7,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 destroyed %s,",TXT_OBITUARY8,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 diced %s,",TXT_OBITUARY9,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 disemboweled %s,",TXT_OBITUARY10,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 erased %s,",TXT_OBITUARY11,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 eviscerated %s,",TXT_OBITUARY12,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 flailed %s,",TXT_OBITUARY13,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 flattened %s,",TXT_OBITUARY14,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 gave AnAl MaDnEsS to %s,",TXT_OBITUARY15,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 gave %s^02 Anal Justice,",TXT_OBITUARY16,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 hosed %s,",TXT_OBITUARY17,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 hurt %s^02 real bad,",TXT_OBITUARY18,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 killed %s,",TXT_OBITUARY19,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 made dog meat out of %s,",TXT_OBITUARY20,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 made mincemeat out of %s,",TXT_OBITUARY21,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 manhandled %s,",TXT_OBITUARY22,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 massacred %s,",TXT_OBITUARY23,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 mutilated %s,",TXT_OBITUARY24,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 murdered %s,",TXT_OBITUARY25,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 neutered %s,",TXT_OBITUARY26,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 punted %s,",TXT_OBITUARY27,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 reamed %s,",TXT_OBITUARY28,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 ripped %s^02 a new orifice,",TXT_OBITUARY29,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 rocked %s,",TXT_OBITUARY30,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 sent %s^02 to hell,",TXT_OBITUARY31,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 shredded %s,",TXT_OBITUARY32,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 slashed %s,",TXT_OBITUARY33,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 slaughtered %s,",TXT_OBITUARY34,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 sliced %s,",TXT_OBITUARY35,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 smacked %s around,",TXT_OBITUARY36,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 smashed %s,",TXT_OBITUARY37,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 snuffed %s,",TXT_OBITUARY38,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 sodomized %s,",TXT_OBITUARY39,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 splattered %s,",TXT_OBITUARY40,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 sprayed %s,",TXT_OBITUARY41,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 squashed %s,",TXT_OBITUARY42,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 throttled %s,",TXT_OBITUARY43,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 toasted %s,",TXT_OBITUARY44,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 vented %s,",TXT_OBITUARY45,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 ventilated %s,",TXT_OBITUARY46,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 wasted %s,",TXT_OBITUARY47,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 wrecked %s,",TXT_OBITUARY48,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 is excrement,",TXT_SELFOBIT1,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 is hamburger,",TXT_SELFOBIT2,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 suffered scrotum separation,",TXT_SELFOBIT3,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 volunteered for population control,",TXT_SELFOBIT4,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 has suicided,",TXT_SELFOBIT5,,,,,,,,,,,,,,,,,,,,,,
+"^02%s^02 bled out,",TXT_SELFOBIT6,,,,,,,,,,,,,,,,,,,,,,

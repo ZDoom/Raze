@@ -48,10 +48,11 @@ typedef struct MenuFont_t
 extern MenuFont_t MF_Redfont, MF_Bluefont, MF_Minifont;
 
 void Menu_Init(void);
-int G_CheckPlayerColor(int color)
+inline int G_CheckPlayerColor(int color)
 {
 	static int32_t player_pals[] = { 0, 9, 10, 11, 12, 13, 14, 15, 16, 21, 23, };
 	if (color >= 0 && color < 10) return player_pals[color];
+	return 0;
 }
 
 
