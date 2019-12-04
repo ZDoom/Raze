@@ -258,14 +258,13 @@ bool DMenu::MouseEventBack(int type, int x, int y)
 {
 	if (m_show_backbutton >= 0)
 	{
-#if 0
-		FTexture *tex = TexMan(gameinfo.mBackButton);
+		FTexture* tex = TileFiles.GetTexture("demolition/graphics/m_back.png");
 		if (tex != NULL)
 		{
-			if (m_show_backbutton&1) x -= screen->GetWidth() - tex->GetScaledWidth() * CleanXfac;
-			if (m_show_backbutton&2) y -= screen->GetHeight() - tex->GetScaledHeight() * CleanYfac;
-			mBackbuttonSelected = ( x >= 0 && x < tex->GetScaledWidth() * CleanXfac && 
-									y >= 0 && y < tex->GetScaledHeight() * CleanYfac);
+			if (m_show_backbutton&1) x -= screen->GetWidth() - tex->GetWidth() * CleanXfac;
+			if (m_show_backbutton&2) y -= screen->GetHeight() - tex->GetHeight() * CleanYfac;
+			mBackbuttonSelected = ( x >= 0 && x < tex->GetWidth() * CleanXfac && 
+									y >= 0 && y < tex->GetHeight() * CleanYfac);
 			if (mBackbuttonSelected && type == MOUSE_Release)
 			{
 				if (m_use_mouse == 2) mBackbuttonSelected = false;
@@ -273,7 +272,6 @@ bool DMenu::MouseEventBack(int type, int x, int y)
 			}
 			return mBackbuttonSelected;
 		}
-#endif
 	}
 	return false;
 }
@@ -314,24 +312,22 @@ void DMenu::Ticker ()
 
 void DMenu::Drawer () 
 {
-#if 0
 	if (this == DMenu::CurrentMenu && BackbuttonAlpha > 0 && m_show_backbutton >= 0 && m_use_mouse)
 	{
-		FTexture *tex = TexMan(gameinfo.mBackButton);
-		int w = tex->GetScaledWidth() * CleanXfac;
-		int h = tex->GetScaledHeight() * CleanYfac;
+		FTexture* tex = TileFiles.GetTexture("demolition/graphics/m_back.png");
+		int w = tex->GetWidth() * CleanXfac;
+		int h = tex->GetHeight() * CleanYfac;
 		int x = (!(m_show_backbutton&1))? 0:screen->GetWidth() - w;
 		int y = (!(m_show_backbutton&2))? 0:screen->GetHeight() - h;
 		if (mBackbuttonSelected && (mMouseCapture || m_use_mouse == 1))
 		{
-			screen->DrawTexture(tex, x, y, DTA_CleanNoMove, true, DTA_ColorOverlay, MAKEARGB(40, 255,255,255), TAG_DONE);
+			DrawTexture(&twod, tex, x, y, DTA_CleanNoMove, true, DTA_ColorOverlay, MAKEARGB(40, 255,255,255), TAG_DONE);
 		}
 		else
 		{
-			screen->DrawTexture(tex, x, y, DTA_CleanNoMove, true, DTA_Alpha, BackbuttonAlpha, TAG_DONE);
+			DrawTexture(&twod, tex, x, y, DTA_CleanNoMove, true, DTA_Alpha, BackbuttonAlpha, TAG_DONE);
 		}
 	}
-#endif
 }
 
 
