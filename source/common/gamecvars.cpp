@@ -220,7 +220,7 @@ bool G_ChangeHudLayout(int direction)
 	{
 		int layout = hud_size - 1;
 		while (!gi->validate_hud(layout) && layout >= 0) layout--;
-		if (layout >= 0)
+		if (layout >= 0 && layout < hud_size && gi->validate_hud(layout))
 		{
 			hud_size = layout;
 			return true;
@@ -230,7 +230,7 @@ bool G_ChangeHudLayout(int direction)
 	{
 		int layout = hud_size + 1;
 		while (!gi->validate_hud(layout) && layout <= 11) layout++;
-		if (layout <= 11)
+		if (layout <= 11 && layout > hud_size && gi->validate_hud(layout))
 		{
 			hud_size = layout;
 			return true;
