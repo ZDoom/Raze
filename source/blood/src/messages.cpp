@@ -325,7 +325,7 @@ void CGameMessageMgr::SetState(char state)
 
 void CGameMessageMgr::Add(const char *pText, char a2, const int pal, const MESSAGE_PRIORITY priority)
 {
-    if (a2 && messageFlags)
+    if (a2 && messageFlags && hud_messages == 1)	// add only if messages are enabled and in native format
     {
         messageStruct *pMessage = &messages[nextMessagesIndex];
         strncpy(pMessage->text, pText, kMaxMessageTextLength-1);

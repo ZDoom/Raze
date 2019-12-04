@@ -168,6 +168,7 @@ struct GameInterface : ::GameInterface
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
 	bool SaveGame(FSaveGameNode*) override;
 	bool LoadGame(FSaveGameNode*) override;
+	void DoPrintMessage(int prio, const char* text) override;
 };
 
 END_RR_NS

@@ -447,8 +447,17 @@ void PutStringInfo(PLAYERp pp, const char *string)
     if (!hud_messages)
         return;
 
-    OSD_Printf("%s", string); // Put it in the console too
-    PutStringInfoLine(pp, string);
+    Printf(PRINT_LOW|PRINT_NOTIFY, "%s", string); // Put it in the console too
+    if (hud_messages == 1) PutStringInfoLine(pp, string);
+}
+
+void GameInterface::DoPrintMessage(int prio, const char* string)
+{
+	if (!hud_messages)
+		return;
+
+	Printf(prio | PRINT_NOTIFY, "%s", string); // Put it in the console too
+	if (hud_messages == 1) PutStringInfoLine(&Player[myconnectindex], string);
 }
 
 void PutStringInfoLine(PLAYERp pp, const char *string)
@@ -475,22 +484,6 @@ void PutStringInfoLine(PLAYERp pp, const char *string)
     //PutStringInfoLine2(pp, "");
 }
 
-void PutStringInfoLine2(PLAYERp pp, const char *string)
-{
-    short x,y;
-    short w,h;
-
-    if (pp-Player != myconnectindex)
-        return;
-
-    MNU_MeasureString(string, &w, &h);
-
-    x = TEXT_XCENTER(w);
-    y = TEXT_INFO_LINE(1);
-
-    PutStringTimer(pp, x, y, string, GlobInfoStringTime);
-}
-
 void pMenuClearTextLine(PLAYERp pp)
 {
     pMenuClearTextLineID(pp, ID_TEXT, TEXT_INFO_LINE(0), PRI_FRONT_MAX);
@@ -500,22 +493,4 @@ void pMenuClearTextLine(PLAYERp pp)
 #define TEXT_PLAYER_INFO_TIME (3)
 #define TEXT_PLAYER_INFO_Y (200 - 40)
 
-void PutStringPlayerInfo(PLAYERp pp, const char *string)
-{
-    short x,y;
-    short w,h;
-
-    if (pp-Player != myconnectindex)
-        return;
-
-    if (!hud_messages)
-        return;
-
-    MNU_MeasureString(string, &w, &h);
-
-    x = TEXT_XCENTER(w);
-    y = TEXT_PLAYER_INFO_Y;
-
-    PutStringTimer(pp, x, y, string, GlobInfoStringTime);
-}
 END_SW_NS

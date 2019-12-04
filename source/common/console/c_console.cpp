@@ -901,7 +901,7 @@ int PrintString (int iprintlevel, const char *outline)
 #endif
 
 			conbuffer->AddText(printlevel, outline);
-			if (vidactive && screen && !(iprintlevel & PRINT_NONOTIFY))
+			if (vidactive && screen && (iprintlevel & PRINT_NOTIFY))
 			{
 				NotifyStrings.AddString(printlevel, outline);
 			}
@@ -959,7 +959,7 @@ void OSD_Printf(const char *format, ...)
 	int count;
 
 	va_start (argptr, format);
-	count = VPrintf (PRINT_HIGH|PRINT_NONOTIFY, format, argptr);
+	count = VPrintf (PRINT_HIGH, format, argptr);
 	va_end (argptr);
 }
 
@@ -1802,7 +1802,7 @@ void C_MidPrint (FFont *font, const char *msg, bool bold)
 	if (msg != nullptr)
 	{
 		auto color = (EColorRange)PrintColors[bold? PRINTLEVELS+1 : PRINTLEVELS];
-		Printf(PRINT_HIGH|PRINT_NONOTIFY, TEXTCOLOR_ESCAPESTR "%c%s\n%s\n%s\n", color, console_bar, msg, console_bar);
+		Printf(PRINT_HIGH, TEXTCOLOR_ESCAPESTR "%c%s\n%s\n%s\n", color, console_bar, msg, console_bar);
 
 		StatusBar->AttachMessage (Create<DHUDMessage>(font, msg, 1.5f, 0.375f, 0, 0, color, con_midtime), MAKE_ID('C','N','T','R'));
 	}

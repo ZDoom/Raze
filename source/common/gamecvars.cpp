@@ -266,12 +266,6 @@ CUSTOM_CVARD(Int, hud_messages, 1, CVAR_ARCHIVE, "enable/disable showing message
 
 CCMD (togglemessages)
 {
-	// Fixme: Needs to redirect to the frontend specific routine to handle on-screen messages.
-	// Ideally as an option to use the ZDoom-style notification.
-	// P_DoQuote(fta ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, &myplayer); (Duke/Redneck - beware of crappy implementation!!!
-	// void viewSetMessage(const char *pMessage, const int pal, const MESSAGE_PRIORITY priority) Blood
-	// void viewSetSystemMessage(const char* pMessage, ...) alternative
-	// void PutStringInfo(PLAYERp pp, const char *string) SW
 
 	if (hud_messages)
 	{

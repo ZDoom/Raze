@@ -2759,15 +2759,22 @@ void viewSetSystemMessage(const char* pMessage, ...) {
     char buffer[1024]; va_list args; va_start(args, pMessage);
     vsprintf(buffer, pMessage, args);
     
-    OSD_Printf("%s\n", buffer); // print it also in console
+    Printf(PRINT_HIGH | PRINT_NOTIFY, "%s\n", buffer); // print it also in console
     gGameMessageMgr.Add(buffer, 15, 7, MESSAGE_PRIORITY_SYSTEM);
 }
 
 void viewSetMessage(const char *pMessage, const int pal, const MESSAGE_PRIORITY priority)
 {
-    OSD_Printf("%s\n", pMessage);
+	int printlevel = priority < 0 ? PRINT_LOW : priority < MESSAGE_PRIORITY_SYSTEM ? PRINT_MEDIUM : PRINT_HIGH;
+    Printf(printlevel|PRINT_NOTIFY, "%s\n", pMessage);
     gGameMessageMgr.Add(pMessage, 15, pal, priority);
 }
+
+void GameInterface::DoPrintMessage(int prio, const char*msg)
+{
+	viewSetMessage(msg, 0, prio == PRINT_LOW ? MESSAGE_PRIORITY_PICKUP : prio == PRINT_MEDIUM ? MESSAGE_PRIORITY_NORMAL : MESSAGE_PRIORITY_SYSTEM);
+}
+
 
 void viewDisplayMessage(void)
 {
