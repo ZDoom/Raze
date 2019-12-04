@@ -7347,7 +7347,6 @@ pDisplaySprites(PLAYERp pp)
     int smoothratio;
     unsigned i;
 
-    SECT_USERp sectu = SectUser[pp->cursectnum];
     uint8_t pal = 0;
     short ang;
     int flags;
@@ -7488,17 +7487,23 @@ pDisplaySprites(PLAYERp pp)
         // if its a weapon sprite and the view is set to the outside don't draw the sprite
         if (TEST(psp->flags, PANF_WEAPON_SPRITE))
         {
-            pal = sector[pp->cursectnum].floorpal;
-
-            if (sector[pp->cursectnum].floorpal != PALETTE_DEFAULT)
+            SECT_USERp sectu = nullptr;
+            int16_t floorshade = 0;
+            if (pp->cursectnum >= 0)
             {
-                SECT_USERp sectu = SectUser[pp->cursectnum];
-                if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
-                    pal = PALETTE_DEFAULT;
-            }
+                sectu = SectUser[pp->cursectnum];
+                pal = sector[pp->cursectnum].floorpal;
+                floorshade = sector[pp->cursectnum].floorshade;
 
-            if (pal == PALETTE_FOG || pal == PALETTE_DIVE || pal == PALETTE_DIVE_LAVA)
-                pal = psp->pal; // Set it back
+                if (pal != PALETTE_DEFAULT)
+                {
+                    if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
+                        pal = PALETTE_DEFAULT;
+                }
+
+                if (pal == PALETTE_FOG || pal == PALETTE_DIVE || pal == PALETTE_DIVE_LAVA)
+                    pal = psp->pal; // Set it back
+            }
 
             ///////////
 
@@ -7508,7 +7513,7 @@ pDisplaySprites(PLAYERp pp)
             }
 
             //shade = overlay_shade = DIV2(sector[pp->cursectnum].floorshade + sector[pp->cursectnum].ceilingshade);
-            shade = overlay_shade = sector[pp->cursectnum].floorshade - 10;
+            shade = overlay_shade = floorshade - 10;
 
             if (TEST(psp->PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
             {
@@ -7666,7 +7671,7 @@ pSpriteControl(PLAYERp pp)
         // RULE: Sprites can only kill themselves
         PRODUCTION_ASSERT(psp);
         ASSERT(ValidPtr(psp));
-        ASSERT((uint32_t) psp->Next != 0xCCCCCCCC);
+        // ASSERT((uint32_t) psp->Next != 0xCCCCCCCC);
 
         if (psp->State)
             pStateControl(psp);

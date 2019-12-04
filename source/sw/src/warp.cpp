@@ -54,7 +54,7 @@ WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
     if (Prediction)
         return FALSE;
 
-    if (!TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
+    if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
         return FALSE;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_WARP], i, nexti)

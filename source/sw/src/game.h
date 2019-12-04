@@ -60,18 +60,22 @@ extern char isShareware;
 
 #define ERR_STD_ARG __FILE__, __LINE__
 
+void _Assert(const char *expr, const char *strFile, unsigned uLine);
+#define PRODUCTION_ASSERT(f) \
+    do { \
+        if (!(f)) \
+            _Assert(#f,ERR_STD_ARG); \
+    } while (0)
+
+#if DEBUG || defined DEBUGGINGAIDS
+#define ASSERT(f) PRODUCTION_ASSERT(f)
+#else
+#define ASSERT(f) do { } while (0)
+#endif
+
 #if DEBUG
 void HeapCheck(char *, int);
 #define HEAP_CHECK() HeapCheck(__FILE__, __LINE__)
-
-void _Assert(const char *expr, const char *strFile, unsigned uLine);
-#define ASSERT(f) \
-    if (f)        \
-        do { } while(0);         \
-    else          \
-        _Assert(#f,ERR_STD_ARG);
-
-#define PRODUCTION_ASSERT(f) ASSERT(f)
 
 void dsprintf(char *, char *, ...);
 #define DSPRINTF dsprintf
@@ -91,15 +95,7 @@ extern int DispMono;
 
 #define RANDOM_DEBUG 1 // Set this to 1 for network testing.
 #else
-#define ASSERT(f) do { } while(0)
 #define MONO_PRINT(str)
-
-void _Assert(const char *expr, const char *strFile, unsigned uLine);
-#define PRODUCTION_ASSERT(f) \
-    if (f)        \
-        do { } while(0);         \
-    else          \
-        _Assert(#f,ERR_STD_ARG);
 
 void dsprintf_null(char *str, const char *format, ...);
 #define DSPRINTF dsprintf_null
@@ -379,8 +375,8 @@ extern char MessageOutputString[256];
 #define TEST_SYNC_KEY(player, sync_num) TEST((player)->input.bits, (1 << (sync_num)))
 #define RESET_SYNC_KEY(player, sync_num) RESET((player)->input.bits, (1 << (sync_num)))
 
-#define TRAVERSE_SPRITE_SECT(l, o, n)    for ((o) = (l); (n) = nextspritesect[o], (o) != -1; (o) = (n))
-#define TRAVERSE_SPRITE_STAT(l, o, n)    for ((o) = (l); (n) = nextspritestat[o], (o) != -1; (o) = (n))
+#define TRAVERSE_SPRITE_SECT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritesect[o], (o) != -1; (o) = (n))
+#define TRAVERSE_SPRITE_STAT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritestat[o], (o) != -1; (o) = (n))
 #define TRAVERSE_CONNECT(i)   for (i = connecthead; i != -1; i = connectpoint2[i])
 
 
@@ -532,11 +528,11 @@ int StdRandomRange(int range);
 #define MDA_REVERSEBLINK   0xF0
 
 // defines for move_sprite return value
-#define HIT_MASK (BIT(13)|BIT(14)|BIT(15))
+#define HIT_MASK (BIT(14)|BIT(15)|BIT(16))
 #define HIT_SPRITE (BIT(14)|BIT(15))
 #define HIT_WALL   BIT(15)
 #define HIT_SECTOR BIT(14)
-#define HIT_PLAX_WALL BIT(13)
+#define HIT_PLAX_WALL BIT(16)
 
 #define NORM_SPRITE(val) ((val) & (MAXSPRITES - 1))
 #define NORM_WALL(val) ((val) & (MAXWALLS - 1))
@@ -1163,7 +1159,7 @@ struct PLAYERstruct
     short DiveDamageTics;
 
     // Death stuff
-    short DeathType;
+    uint16_t DeathType;
     short Kills;
     short Killer;  //who killed me
     short KilledPlayer[MAX_SW_PLAYERS_REG];
