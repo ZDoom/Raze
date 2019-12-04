@@ -447,7 +447,7 @@ void PutStringInfo(PLAYERp pp, const char *string)
     if (!hud_messages)
         return;
 
-    Printf(PRINT_LOW|PRINT_NOTIFY, "%s", string); // Put it in the console too
+    Printf(PRINT_MEDIUM|PRINT_NOTIFY, "%s", string); // Put it in the console too
     if (hud_messages == 1) PutStringInfoLine(pp, string);
 }
 

@@ -1153,7 +1153,7 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
     {
 		auto qu = quoteMgr.GetQuote(q);
         if (p == g_player[screenpeek].ps && qu[0] != '\0')
-            Printf(PRINT_NOTIFY, cq ? OSDTEXT_DEFAULT "%s\n" : "%s\n", qu);
+			Printf((cq ? PRINT_LOW : PRINT_MEDIUM) | PRINT_NOTIFY, "%s\n", qu);
 
     }
 
@@ -1178,7 +1178,7 @@ void GameInterface::DoPrintMessage(int prio, const char* t)
 		if (p->ftq == QUOTE_RESERVED || p->ftq == QUOTE_RESERVED2) return;
 
 	if (p == g_player[screenpeek].ps)
-		Printf(PRINT_NOTIFY, cq ? OSDTEXT_DEFAULT "%s\n" : "%s\n", t);
+		Printf(prio|PRINT_NOTIFY, cq ? OSDTEXT_DEFAULT "%s\n" : "%s\n", t);
 
 	if (hud_messages == 1)
 	{

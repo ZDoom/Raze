@@ -257,7 +257,6 @@ CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disab
 CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bottom/top")
 CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable background image stretching in wide resolutions")
 CVARD(Int, hud_messagetime, 120, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "length of time to display multiplayer chat messages")
-// Should be available to all games - the message handling should also be consolidated into a game independent feature.
 CUSTOM_CVARD(Int, hud_messages, 1, CVAR_ARCHIVE, "enable/disable showing messages")
 {
 	if (self < 0 || self > 2) self = 1;
@@ -266,16 +265,15 @@ CUSTOM_CVARD(Int, hud_messages, 1, CVAR_ARCHIVE, "enable/disable showing message
 
 CCMD (togglemessages)
 {
-
 	if (hud_messages)
 	{
-		Printf (128, "%s\n", GStrings("MSGOFF"));
+		gi->PrintMessage(PRINT_MEDIUM, "%s\n", GStrings("MSGOFF"));
 		hud_messages = false;
 	}
 	else
 	{
-		Printf (128, "%s\n", GStrings("MSGON"));
 		hud_messages = true;
+		gi->PrintMessage(PRINT_MEDIUM, "%s\n", GStrings("MSGON"));
 	}
 }
 

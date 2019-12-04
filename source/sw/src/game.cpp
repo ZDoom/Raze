@@ -1352,8 +1352,8 @@ InitLevel(void)
 
     if (ArgCheat)
     {
-        SWBOOL bak = hud_messages;
-        hud_messages = FALSE;
+        int bak = hud_messages;
+        hud_messages = 0;
         EveryCheatToggle(&Player[0],NULL);
         hud_messages = bak;
         GodMode = TRUE;

@@ -1107,7 +1107,7 @@ void G_PrintGameQuotes(int32_t snum)
         }
 #endif
 
-		if (text_quote.IsNotEmpty() && ps->ftq == -32878) height = gametext_(x, y, text_quote, textsh(k), pal, texto(k), texta(k), TEXT_XCENTER).y + (1 << 16);
+		if (text_quote.IsNotEmpty() && ps->ftq == -32768) height = gametext_(x, y, text_quote, textsh(k), pal, texto(k), texta(k), TEXT_XCENTER).y + (1 << 16);
         else height = gametext_(x, y, quoteMgr.GetQuote(ps->ftq), textsh(k), pal, texto(k), texta(k), TEXT_XCENTER).y + (1<<16);
     }
     while (0);
@@ -1154,7 +1154,7 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
     {
 		auto qu = quoteMgr.GetQuote(q);
         if (p == g_player[screenpeek].ps && qu[0] != '\0')
-			Printf(PRINT_MEDIUM | PRINT_NOTIFY, cq ? OSDTEXT_DEFAULT "%s\n" : "%s\n", qu);
+			Printf((cq? PRINT_LOW : PRINT_MEDIUM) | PRINT_NOTIFY, "%s\n", qu);
 
 	}
 

@@ -53,6 +53,8 @@
 #include "v_font.h"
 #include "printf.h"
 #include "inputstate.h"
+#include "i_time.h"
+#include "gamecvars.h"
 
 
 #define LEFTMARGIN 8
@@ -123,15 +125,13 @@ static GameAtExit *ExitCmdList;
 #define SCROLLDN 2
 #define SCROLLNO 0
 
-CVAR (Bool, show_messages, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
-
 // Buffer for AddToConsole()
 static char *work = NULL;
 static int worklen = 0;
 
 CVAR(Float, con_notifytime, 3.f, CVAR_ARCHIVE)
 CVAR(Bool, con_centernotify, false, CVAR_ARCHIVE)
-CUSTOM_CVAR(Int, con_scaletext, 0, CVAR_ARCHIVE)		// Scale notify text at high resolutions?
+CUSTOM_CVAR(Int, con_scaletext, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)		// Scale notify text at high resolutions?
 {
 	if (self < 0) self = 0;
 }
@@ -541,7 +541,7 @@ CUSTOM_CVAR(Int, con_notifylines, NUMNOTIFIES, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 }
 
 
-int PrintColors[PRINTLEVELS+2] = { CR_RED, CR_GOLD, CR_GRAY, CR_GREEN, CR_GREEN, CR_GOLD };
+int PrintColors[PRINTLEVELS+2] = { CR_RED, CR_GOLD, CR_YELLOW, CR_GREEN, CR_GREEN, CR_GOLD };
 
 static void setmsgcolor (int index, int color);
 
@@ -775,7 +775,7 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 	TArray<FBrokenLines> lines;
 	int width;
 
-	if ((printlevel != 128 && !show_messages) ||
+	if (hud_messages != 2 ||
 		source.IsEmpty() ||
 		//gamestate == GS_FULLCONSOLE ||
 		//gamestate == GS_DEMOSCREEN ||
@@ -901,7 +901,7 @@ int PrintString (int iprintlevel, const char *outline)
 #endif
 
 			conbuffer->AddText(printlevel, outline);
-			if (vidactive && screen && (iprintlevel & PRINT_NOTIFY))
+			if (vidactive && (iprintlevel & PRINT_NOTIFY))
 			{
 				NotifyStrings.AddString(printlevel, outline);
 			}
@@ -1074,7 +1074,7 @@ void FNotifyBuffer::Tick()
 		if (Text[i].TimeOut != 0 && --Text[i].TimeOut <= 0)
 			break;
 	}
-	if (i > 0)
+	if (i < Text.Size())
 	{
 		Text.Delete(0, i);
 	}
@@ -1106,9 +1106,6 @@ void FNotifyBuffer::Draw()
 		j = notify.TimeOut;
 		if (j > 0)
 		{
-			if (!show_messages && notify.PrintLevel != 128)
-				continue;
-
 			double alpha = (j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1;
 
 			if (notify.PrintLevel >= PRINTLEVELS)

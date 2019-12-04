@@ -234,7 +234,7 @@ struct GameInterface
 		va_start(ap, fmt);
 		FString f;
 		f.VFormat(fmt, ap);
-		DoPrintMessage(prio, fmt);
+		DoPrintMessage(prio, f);
 	}
 };
 
