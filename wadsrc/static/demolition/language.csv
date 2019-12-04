@@ -417,6 +417,7 @@ Name,PLYRMNU_NAME,,,,Jméno,,,Nomo,Nombre,,Nimi,Nom,Név,Nome,名前,이름,Naam
 Team,PLYRMNU_TEAM,,,,Tým,,,Teamo,Equipo,,Joukkue,Equipe,Csapat,Squadra,チーム,팀,Team,Drużyna,Equipe,Equipa,,Команда,Тим
 Color,PLYRMNU_PLAYERCOLOR,,,Colour,Barva,Farbe,,Koloro,,,Väri,Couleur,Szín,Colore,色,색상,Kleur,Kolor,Cor,,,Цвет,Боја
 Multiplayer taunts,PLRMNU_TAUNTS,,,,,Mehrspieler-Spott,,,,,,,,,,,,,,,,,
+Gender,PLYRMNU_PLAYERGENDER,,,,Pohlaví,Geschlecht,,Genro,Género,,Sukupuoli,Genre,Nem,Sesso,性別,성별,Geslacht,Płeć,Gênero,,,Пол,Пол
 Male,OPTVAL_MALE,,,,Muž,Männlich,,Vira (Li),Masculino,,Miespuolinen,Masculin,,Maschio,男,남성,Man,Mężczyzna,Masculino,,,Мужской,Мушко
 Female,OPTVAL_FEMALE,,,,Žena,Weiblich,,Ina (Ŝi),Femenino,,Naispuolinen,Féminin,,Femmina,女,여성,Vrouw,Kobieta,Feminino,,,Женский,Женско
 Neutral,OPTVAL_NEUTRAL,,,,Neutrální,Neutral,,Neŭtrala (Ri),Neutro,,Sukupuoleton,Neutre,,Neutrale,中間,중성,Neutraal,Neutralne,Neutro,,,Нейтральный,Неутрално
@@ -479,7 +480,7 @@ Generic,DSPLYMNU_GENERIC,,,,,Generisch,,,,,,,,,,,,,,,,,
 Show Map Name,DSPLYMNU_SHOWMAPNAME,,,,,"Levelnamen anzeigen
 ",,,,,,,,,,,,,,,,,
 FOV,DSPLYMNU_FOV,,,,,Gesichtsfeld,,,,,,,,,,,,,,,,,
-Crosshair,DSPLYMNU_CROSSHAIRON,,,,Křížek,Fadenkreuz,,Reteto,Retícula,,Tähtäin,Viseur,,Mirino,クロスヘア,조준점,Draadkruis,Celownik,Mira,,,Прицел,Нишан
+Crosshair,DSPLYMNU_CROSSHAIR,,,,Křížek,Fadenkreuz,,Reteto,Retícula,,Tähtäin,Viseur,,Mirino,クロスヘア,조준점,Draadkruis,Celownik,Mira,,,Прицел,Нишан
 HUD Options,OPTMNU_HUD,,,,Nastavení HUD,HUD Einstellungen,,Agordoj de HUD,Opciones del HUD,,Tilanäytön asetukset,Options de l'ATH,HUD beállítások,Opzioni HUD,HUD オプション,HUD 설정,HUD opties,Opcje Paska HUD,Opções de HUD,,,HUD,HUD
 Polymost Options,OPTMNU_POLYMOST,,,,,Polymost Einstellungen,,,,,,,,,,,,,,,,,
 Texture Filter mode,GLTEXMNU_TEXFILTER,,,,Režim filtrování textur,Texturfiltermodus,,Reĝimo por Teksturfiltrado,Modo de filtro de texturas,,Pintakuviointien suodatustapa,Mode de Filtrage Texture,,Modalità filtro texture,テクスチャーフィルター モード,텍스쳐 필터 모드,Textuur Filter mode,Tryb Filtrowania Tekstur,Modo de filtragem de textura,,,Фильтрация текстур,Текстурни филтер мод

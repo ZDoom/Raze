@@ -907,6 +907,7 @@ int32_t C_AllocQuote(int32_t qnum)
 
 void C_InitQuotes(void)
 {
+#if 0	// if we want to keep this it must be done differently. This does not play nice with text substitution.
 	auto openkeys = Bindings.GetKeysForCommand("+open");
 	if (openkeys.Size())
 	{
@@ -915,6 +916,7 @@ void C_InitQuotes(void)
 		quoteMgr.Substitute(QUOTE_DEAD, "OPEN", OpenGameFunc);
 		quoteMgr.Substitute(QUOTE_DEAD, "USE", OpenGameFunc);
 	}
+#endif
 
     g_numObituaries = 48;
     for (bssize_t i = g_numObituaries - 1; i >= 0; i--)

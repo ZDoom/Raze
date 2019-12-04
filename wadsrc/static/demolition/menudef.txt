@@ -962,7 +962,7 @@ OptionMenu "JoystickConfigMenu" //protected
 
 OptionValue "PlayerColors"
 {
-	0, OPTVAL_AUTO"
+	0, "$OPTVAL_AUTO"
 	1, "$TXT_COLOR_BLUE"
 	2, "TXT_COLOR_RED"
 	3, "TXT_COLOR_GREEN"
@@ -998,7 +998,7 @@ OptionMenu "NewPlayerMenu" //protected
 	TextField "$PLYRMNU_NAME", playername
 	Option "$PLYRMNU_TEAM", "playerteam", "PlayerTeam"
 	Option "$PLYRMNU_PLAYERCOLOR", "playercolor", "PlayerColors"
-	Option "$PLYRMNU_PLAYERGENDER", "playergender", "Gender""
+	Option "$PLYRMNU_PLAYERGENDER", "playergender", "Gender"
 	Submenu "$PLRMNU_TAUNTS", "TauntsMenu"
 	Class "NewPlayerMenu"
 }
@@ -1007,15 +1007,15 @@ OptionMenu "TauntsMenu" //protected
 {
 	Title "$PLRMNU_TAUNTS"
 	TextField "1", "combatmacro0"
-	TextField "2", "combatmacro0"
-	TextField "3", "combatmacro0"
-	TextField "4", "combatmacro0"
-	TextField "5", "combatmacro0"
-	TextField "6", "combatmacro0"
-	TextField "7", "combatmacro0"
-	TextField "8", "combatmacro0"
-	TextField "9", "combatmacro0"
-	TextField "10", "combatmacro0"
+	TextField "2", "combatmacro1"
+	TextField "3", "combatmacro2"
+	TextField "4", "combatmacro3"
+	TextField "5", "combatmacro4"
+	TextField "6", "combatmacro5"
+	TextField "7", "combatmacro6"
+	TextField "8", "combatmacro7"
+	TextField "9", "combatmacro8"
+	TextField "10", "combatmacro9"
 }
 
 //-------------------------------------------------------------------------------------------
@@ -1068,12 +1068,12 @@ OptionMenu GameplayOptions //protected
 OptionValue "FilterModes"
 {
 	0, "$OPTVAL_NONE"
-	1, "$OPTVAL_NONENEARESTMIPMAP"
-	5, "$OPTVAL_NONELINEARMIPMAP"
+	2, "$OPTVAL_NONENEARESTMIPMAP"
+	4, "$OPTVAL_NONELINEARMIPMAP"
 	6, "$OPTVAL_NONETRILINEAR"
-	2, "$OPTVAL_LINEAR_2"
-	3, "$OPTVAL_BILINEAR"
-	4, "$OPTVAL_TRILINEAR"
+	3, "$OPTVAL_LINEAR_2"
+	1, "$OPTVAL_BILINEAR"
+	5, "$OPTVAL_TRILINEAR"
 }
 
 OptionValue "Anisotropy"
@@ -1096,6 +1096,11 @@ OptionMenu "VideoOptions" //protected
 	Slider "$DSPLYMNU_BRIGHTNESS",				"vid_brightness",				-0.8,0.8, 0.05,2
 	Slider "$DSPLYMNU_CONTRAST",				"vid_contrast",	   				0.1, 3.0, 0.1
 	Slider "$DSPLYMNU_SATURATION",				"vid_saturation",  				-3.0, 3.0, 0.25, 2
+
+	StaticText ""
+	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
+	StaticText ""
+	Slider "$DSPLYMNU_FOV",						"r_fov",					60, 130, 10, 1
 
 	StaticText ""
 	Option "$GLTEXMNU_TEXFILTER",		hw_texfilter,				"FilterModes"
@@ -1121,18 +1126,20 @@ OptionMenu "HUDOptions" //protected
 	Title "$OPTMNU_HUD"
 
 	Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				3.0, 12.0, 1.0, 0
-	Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				0.3, 1.0, 0.1, 2
+	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury) // Fixme: The scaling really needs to be taken out of the game code.
+	{
+		Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				0.3, 1.0, 0.1, 2
+	}
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
-	Slider "$DSPLYMNU_TEXTSCALE",				"hud_textscale",			0.3, 1.0, 0.1, 2
+	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury)
+	{
+		Slider "$DSPLYMNU_TEXTSCALE",				"hud_textscale",			0.3, 1.0, 0.1, 2
+	}
 	StaticText ""
 	Option "$DSPLYMNU_MESSAGES",				"hud_messages",				"HudMessages"
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
 	Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
-	StaticText ""
-	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
-	StaticText ""
-	Option "$DSPLYMNU_FOV",						"r_fov",					60, 130, 10, 1
 }
 
 
@@ -1192,7 +1199,7 @@ OptionMenu "JoinGameMenu"
 {
 	TextField "$NETMNU_SERVER", "m_server"
 	TextField "$NETMNU_PORT", "m_netport"
-	SaveCommand "$NETMNU_CONNECT", "MultiConnect"
+	SafeCommand "$NETMNU_CONNECT", "MultiConnect"
 }
 
 OptionValue "MultiGameType"
@@ -1204,16 +1211,27 @@ OptionValue "MultiGameType"
 	4, "$NETMNU_GAMETYPE5"
 }
 
+OptionValue "MultiEpisode"
+{
+	0, "1"
+	0, "2"
+	0, "3"
+	0, "4"
+	0, "5"
+	0, "6"
+	0, "7"
+}
+
 OptionMenu "MultiOptionsMenu"
 {
 	title "$NETMNU_OPTIONS"
-	Option "$NETMNU_GAMETYPE", "m_coop"
-	Option "$NETMNU_EPISODE", "m_episode_number"
-	Option "$NETMNU_LEVEL", "m_level_number"
+	Option "$NETMNU_GAMETYPE", "m_coop", "MultiGameType"
+	Option "$NETMNU_EPISODE", "m_episode_number", "MultiEpisode"
+	Option "$NETMNU_LEVEL", "m_level_number", "MultiEpisode"
 	Submenu "$MNU_USERMAP", "MultiUserMap" // todo: fileselect item
-	Option "$NETMNU_MONSTERS", "m_monsters"
-	Option "$NETMNU_MARKERS", "m_marker"
-	Option "$NETMNU_MAPEXITS", "m_noexit"
-	Option "$NETMNU_FFIRE", "m_ffire"
+	Option "$NETMNU_MONSTERS", "m_monsters", "OnOff"
+	Option "$NETMNU_MARKERS", "m_marker", "OnOff"
+	Option "$NETMNU_MAPEXITS", "m_noexit", "OnOff"
+	Option "$NETMNU_FFIRE", "m_ffire", "OnOff"
 	SafeCommand "$NETMNU_ACCEPT", "MultiAccept"
 }
