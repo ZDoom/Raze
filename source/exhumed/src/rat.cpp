@@ -98,7 +98,7 @@ int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
     }
     else
     {
-        sprite[nSprite].ang = nAngle;
+        nAngle = sprite[nSprite].ang;
         changespritestat(nSprite, 108);
     }
 
