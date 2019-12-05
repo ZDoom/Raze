@@ -63,6 +63,7 @@ extern bool rotatesprite_2doverride;
 bool help_disabled, credits_disabled;
 int g_currentMenu;	// accessible by CON scripts - contains the current menu's script ID if defined or INT_MAX if none given.
 int DrawBackground;
+TArray<DMenu*> toDelete;
 
 //
 // Todo: Move these elsewhere
@@ -227,7 +228,7 @@ void DMenu::Close ()
 	else
 	{
 		Destroy();
-		delete this;
+		toDelete.Push(this);
 		if (DMenu::CurrentMenu == NULL)
 		{
 			M_ClearMenus();
@@ -620,7 +621,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 //
 //=============================================================================
 
-bool M_Responder (event_t *ev) 
+bool M_DoResponder (event_t *ev) 
 { 
 	int ch = 0;
 	bool keyup = false;
@@ -801,6 +802,15 @@ bool M_Responder (event_t *ev)
 		}
 	}
 	return false;
+}
+
+bool M_Responder(event_t* ev)
+{
+	// delayed deletion, so that self-deleting menus don't crash if they are getting accesses after being closed.
+	auto res = M_DoResponder(ev);
+	for (auto p : toDelete) delete p;
+	toDelete.Clear();
+	return res;
 }
 
 //=============================================================================

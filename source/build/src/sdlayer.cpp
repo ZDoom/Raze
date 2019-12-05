@@ -1712,6 +1712,8 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
 				event_t evt;
 				evt.type = EV_GUI_Event;
 				evt.subtype = uint8_t((ev->button.state == SDL_PRESSED) ? EV_GUI_LButtonDown : EV_GUI_LButtonUp);
+				evt.data1 = ev->motion.x;
+				evt.data2 = ev->motion.y;
 
 				SDL_Keymod kmod = SDL_GetModState();
 				evt.data3 = ((kmod & KMOD_SHIFT) ? GKM_SHIFT : 0) |
