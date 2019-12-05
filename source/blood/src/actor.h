@@ -133,6 +133,7 @@ struct MissileType
     char shade;
     unsigned char clipDist;
     int fireSound[2]; // By NoOne: predefined fire sounds. used by kDudeModernCustom, but can be used for something else.
+    bool dmgType[kDamageMax];   // By NoOne: list of damages types missile can use
 };
 
 struct EXPLOSION
@@ -268,8 +269,8 @@ void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite);
 spritetype* DropRandomPickupObject(spritetype* pSprite, short prevItem);
 spritetype* spawnRandomDude(spritetype* pSprite);
 int GetDataVal(spritetype* pSprite, int data);
-int my_random(int a, int b);
-int GetRandDataVal(int *rData, spritetype* pSprite);
+int STD_Random(int a, int b);
+int GetRandDataVal(int *rData);
 bool sfxPlayMissileSound(spritetype* pSprite, int missileId);
 bool sfxPlayVectorSound(spritetype* pSprite, int vectorId);
 spritetype* actSpawnCustomDude(spritetype* pSprite, int nDist);
@@ -280,6 +281,7 @@ int isDebris(int nSprite);
 int debrisGetFreeIndex(void);
 void debrisMove(int listIndex);
 void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg);
+bool isImmune(spritetype* pSprite, int dmgType, int minScale = 16);
 
 extern SPRITEMASS gSpriteMass[kMaxXSprites];
 extern short gProxySpritesList[kMaxSuperXSprites];

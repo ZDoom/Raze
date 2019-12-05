@@ -86,6 +86,9 @@ bool valueIsBetween(int val, int min, int max);
 void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, int causedBy);
 void trPlayerCtrlStopScene(XSPRITE* pXSource, PLAYER* pPlayer);
+
+extern int gRdata[4];
+int* xspriData2Array(int nXSprite);
 // -------------------------------------------------------
 
 END_BLD_NS

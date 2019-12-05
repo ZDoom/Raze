@@ -44,10 +44,6 @@ inline bool xwallRangeIsFine(int nXindex) {
     return (nXindex >= 0 && nXindex < kMaxXWalls);
 }
 
-inline bool xspriIsFine(int nIndex) {
-    return (nIndex >= 0 && nIndex < kMaxSprites && !(sprite[nIndex].flags & 32) && sprite[nIndex].statnum != kStatFree);
-}
-
 extern bool gModernMap;
 
 #pragma pack(push, 1)

@@ -346,7 +346,9 @@ void CounterCheck(int nSector) // 12
 
     // By NoOne: remove check below, so every sector can be counter if command 12 (this callback) received.
     //if (pSector->type != kSectorCounter) return;
-    if (sector[nSector].extra <= 0) return; XSECTOR *pXSector = &xsector[sector[nSector].extra];
+    if (sector[nSector].extra <= 0) return;
+    
+    XSECTOR *pXSector = &xsector[sector[nSector].extra];
     int nReq = pXSector->waitTimeA; int nType = pXSector->data; int nCount = 0;
     if (!nType || !nReq) return;
     

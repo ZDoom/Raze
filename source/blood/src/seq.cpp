@@ -388,10 +388,8 @@ void seqSpawn(int a1, int a2, int a3, int a4)
     if (!pInst) return;
     
     DICTNODE *hSeq = gSysRes.Lookup(a1, "SEQ");
-    if (!hSeq) {
-        viewSetSystemMessage("Missing sequence #%d", a1);
-        return;
-    }
+    if (!hSeq)
+        ThrowError("Missing sequence #%d", a1);
 
     int i = activeCount;
     if (pInst->at13)
@@ -588,7 +586,7 @@ void SeqLoadSave::Load(void)
             int nSeq = pInst->at8;
             DICTNODE *hSeq = gSysRes.Lookup(nSeq, "SEQ");
             if (!hSeq) {
-                viewSetSystemMessage("Missing sequence #%d", nSeq);
+                ThrowError("Missing sequence #%d", nSeq);
                 continue;
             }
             Seq *pSeq = (Seq*)gSysRes.Lock(hSeq);

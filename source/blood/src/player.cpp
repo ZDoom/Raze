@@ -1113,6 +1113,18 @@ void playerStart(int nPlayer)
         pPlayer->posture = 1;
         pPlayer->pXSprite->medium = kMediumWater;
     }
+
+    ///////////////// 
+    // reset qav scene
+    playerResetQavScene(pPlayer);
+
+    // restore default movement speed
+    playerResetMoveSpeed(pPlayer);
+
+    // restore default jump height
+    playerResetJumpHeight(pPlayer);
+    /////////////////
+
 }
 
 void playerReset(PLAYER *pPlayer)
@@ -1160,9 +1172,7 @@ void playerReset(PLAYER *pPlayer)
 
     ///////////////// 
     // reset qav scene
-    QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
-    pQavScene->index = pQavScene->causedBy = pPlayer->sceneQav = -1;
-    pQavScene->qavResrc = NULL;
+    playerResetQavScene(pPlayer);
 
     // restore default movement speed
     playerResetMoveSpeed(pPlayer);
@@ -1186,6 +1196,12 @@ void playerResetJumpHeight(PLAYER* pPlayer) {
             gPosture[i][a].pwupJumpZ = gDefaultJumpZ[k++];
         }
     }
+}
+
+void playerResetQavScene(PLAYER* pPlayer) {
+    QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
+    pQavScene->index = pQavScene->causedBy = pPlayer->sceneQav = -1;
+    pQavScene->qavResrc = NULL;
 }
 
 int dword_21EFB0[8];

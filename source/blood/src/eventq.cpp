@@ -356,12 +356,14 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy)
     EVENT event; event.index = nIndex; event.type = nType; event.cmd = command; event.causedBy = causedBy;
 
     switch (command) {
-    case kCmdState:
-        command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
-        break;
-    case kCmdNotState:
-        command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
-        break;
+        case kCmdState:
+            command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
+            break;
+        case kCmdNotState:
+            command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
+            break;
+        default:
+            break;
     }
 
     switch (rxId) {

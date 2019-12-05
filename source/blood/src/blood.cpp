@@ -605,10 +605,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
                         pSprite->type = kSpriteDecoration;
                         changespritestat(pSprite->index, kStatDecoration);
                         break;
-                    case kModernConcussSprite:
-                        pSprite->type = kSpriteDecoration;
-                        changespritestat(pSprite->index, kStatDecoration);
-                        break;
                     // also erase some modernized vanilla types which was not active
                     case kMarkerWarpDest:
                         if (pSprite->statnum != kStatMarker) pSprite->type = kSpriteDecoration;

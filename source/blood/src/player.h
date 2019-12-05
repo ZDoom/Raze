@@ -332,5 +332,6 @@ void qavScenePlay(PLAYER* pPlayer);
 void qavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5);
 void playerResetMoveSpeed(PLAYER* pPlayer);
 void playerResetJumpHeight(PLAYER* pPlayer);
+void playerResetQavScene(PLAYER* pPlayer);
 
 END_BLD_NS

@@ -1546,30 +1546,30 @@ DUDEINFO dudeInfo[kDudeMax-kDudeBase] =
     },
     //254 -  kDudeModernCustom
     {
-        11520,		// start sequence ID
-        85,		// start health
-        75,			// mass
+        11520,		                        // start sequence ID
+        85,		                            // start health
+        75,			                        // mass
         120,
-        48,			// clip distance
-        48,			// eye above z
+        48,			                        // clip distance
+        48,			                        // eye above z
         20,
-        10240,		// hear distance
-        51200,	// seeing distance
-        kAng120,	// vision periphery
+        10240,		                        // hear distance
+        51200,	                            // seeing distance
+        kAng120,	                        // vision periphery
         //			    0,
-        618,			// melee distance
-        5,			// flee health
-        5,			// hinder damage
-        0x0100,		// change target chance
-        0x0010,		// change target to kin chance
-        0x8000,		// alertChance
-        0,		// lockout
-        46603,		// frontSpeed
-        34952,		// sideSpeed
-        13981,		// backSpeed
-        256,		// angSpeed
+        618,                                // melee distance
+        5,			                        // flee health
+        5,			                        // hinder damage
+        0x0100,		                        // change target chance
+        0x0010,		                        // change target to kin chance
+        0x8000,		                        // alertChance
+        0,		                            // lockout
+        46603,		                        // frontSpeed
+        34952,		                        // sideSpeed
+        13981,		                        // backSpeed
+        256,		                        // angSpeed
         //			    0,
-        7,	-1, 18,		// nGibType
+        7,	-1, 18,	                        // nGibType
         128, 150, 128, 256, 128, 128, 128,
         0, 0, 0, 0, 0, 0, 0,
         0,

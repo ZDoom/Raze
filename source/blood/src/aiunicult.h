@@ -31,6 +31,9 @@ BEGIN_BLD_NS
 #define kGenDudeTransformStatus -222
 #define kGenDudeUpdTimeRate 10
 #define kGenDudeMaxMeleeDist 2048
+#define kGenDudeMinDispesion 200
+#define kGenDudeMaxDispersion 3500
+#define kGenDudeKlabsAng 56
 
 enum {
 kGenDudeSeqIdleL            = 0,
@@ -90,6 +93,16 @@ kGenDudePropertyInitVals    = 9,
 kGenDudePropertyMax            ,
 };
 
+enum {
+kGenDudeWeaponNone          = -1,
+kGenDudeWeaponHitscan       = 0,
+kGenDudeWeaponMissile       = 1,
+kGenDudeWeaponThrow         = 2,
+kGenDudeWeaponSummon        = 3,
+kGenDudeWeaponKamikaze      = 4,
+kGenDudeWeaponMax              , 
+};
+
 extern AISTATE genDudeIdleL;
 extern AISTATE genDudeIdleW;
 extern AISTATE genDudeSearchL;
@@ -102,6 +115,9 @@ extern AISTATE genDudeDodgeW;
 extern AISTATE genDudeDodgeShortL;
 extern AISTATE genDudeDodgeShortD;
 extern AISTATE genDudeDodgeShortW;
+extern AISTATE genDudeDodgeShorterL;
+extern AISTATE genDudeDodgeShorterD;
+extern AISTATE genDudeDodgeShorterW;
 extern AISTATE genDudeChaseL;
 extern AISTATE genDudeChaseD;
 extern AISTATE genDudeChaseW;
@@ -134,20 +150,21 @@ extern GENDUDESND gCustomDudeSnd[];
 
 // temporary, until normal DUDEEXTRA gets refactored
 struct GENDUDEEXTRA {
+    unsigned short initVals[3];             // xrepeat, yrepeat, clipdist
+    unsigned short availDeaths[kDamageMax]; // list of seqs with deaths for each damage type
+    unsigned short dmgControl[kDamageMax];  // depends of current weapon, drop armor item, sprite yrepeat and surface type
+    unsigned int moveSpeed;
     unsigned int fireDist;          // counts from sprite size
     unsigned int throwDist;         // counts from sprite size
-    unsigned int frontSpeed;
     unsigned short curWeapon;       // data1 duplicate to avoid potential problems when changing data dynamically
+    unsigned short weaponType;
     unsigned short baseDispersion;
+    unsigned short slaveCount;              // how many dudes is summoned
     signed short nLifeLeech;        // spritenum of dropped dude's leech
-    short slaveCount;
-    short slave[kGenDudeMaxSlaves]; // index of the ones dude is summon
-    short dmgControl[kDamageMax];           // depends of current weapon, drop armor item, sprite yrepeat and surface type
-    short availDeaths[kDamageMax];          // list of seqs with deaths for each damage type
-    short initVals[3];                      // xrepeat, yrepeat, clipdist
-    bool forcePunch;                        // indicate if there is no fire trigger in punch state seq
+    signed short slave[kGenDudeMaxSlaves];  // index of the ones dude is summon
     bool updReq[kGenDudePropertyMax]; // update requests
     bool sndPlaying;                        // indicate if sound of AISTATE currently playing
+    bool forcePunch;                        // indicate if there is no fire trigger in punch state seq
     bool isMelee;
     bool canBurn;                           // can turn in Burning dude or not
     bool canElectrocute;
@@ -171,12 +188,11 @@ void removeLeech(spritetype* pLeech, bool delSprite = true);
 void removeDudeStuff(spritetype* pSprite);
 spritetype* leechIsDropped(spritetype* pSprite);
 bool spriteIsUnderwater(spritetype* pSprite, bool oldWay = false);
-bool playGenDudeSound(spritetype* pSprite, int mode, bool forceInterrupt = false);
+bool playGenDudeSound(spritetype* pSprite, int mode);
 void aiGenDudeMoveForward(spritetype* pSprite, XSPRITE* pXSprite);
 void aiGenDudeChooseDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3, int aXvel = -1, int aYvel = -1);
 void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState);
 int getGenDudeMoveSpeed(spritetype* pSprite, int which, bool mul, bool shift);
-bool TargetNearThing(spritetype* pSprite, int thingType);
 int checkAttackState(spritetype* pSprite, XSPRITE* pXSprite);
 bool doExplosion(spritetype* pSprite, int nType);
 void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT a3);
@@ -188,11 +204,12 @@ void updateTargetOfLeech(spritetype* pSprite);
 bool canSwim(spritetype* pSprite);
 bool canDuck(spritetype* pSprite);
 bool canWalk(spritetype* pSprite);
-bool inDodge(AISTATE* aiState);
+short inDodge(AISTATE* aiState);
 bool inIdle(AISTATE* aiState);
 bool inAttack(AISTATE* aiState);
 short inRecoil(AISTATE* aiState);
 short inSearch(AISTATE* aiState);
+short inChase(AISTATE* aiState);
 short inDuck(AISTATE* aiState);
 int genDudeSeqStartId(XSPRITE* pXSprite);
 int getRangeAttackDist(spritetype* pSprite, int minDist = 1200, int maxDist = 80000);
@@ -201,5 +218,5 @@ void scaleDamage(XSPRITE* pXSprite);
 bool genDudePrepare(spritetype* pSprite, int propId = kGenDudePropertyAll);
 void genDudeUpdate(spritetype* pSprite);
 void genDudeProcess(spritetype* pSprite, XSPRITE* pXSprite);
-
+bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int weaponType, int by = 64);
 END_BLD_NS

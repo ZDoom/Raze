@@ -124,12 +124,6 @@ void aiNewState(spritetype *pSprite, XSPRITE *pXSprite, AISTATE *pAIState)
         pAIState->enterFunc(pSprite, pXSprite);
 }
 
-bool dudeIsImmune(spritetype* pSprite, int dmgType) {
-    if (dmgType < 0 || dmgType > 6) return true;
-    else if (dudeInfo[pSprite->type - kDudeBase].startDamage[dmgType] == 0) return true;
-    else if (pSprite->extra >= 0 && xsprite[pSprite->extra].locked == 1) return true;  // if dude is locked, it immune to any dmg.
-    return false;
-}
 bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
 {
     int top, bottom;
@@ -171,7 +165,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
             switch (pSprite->type) {
                 case kDudeCerberusTwoHead: // Cerberus
                 case kDudeCerberusOneHead: // 1 Head Cerberus
-                    if (VanillaMode() || !dudeIsImmune(pSprite, pXSector->damageType))
+                    if (VanillaMode() || !isImmune(pSprite, pXSector->damageType))
                         Crusher = 1;
                     break;
                 default:
@@ -233,7 +227,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
         break;
     case kDudeModernCustom:
     case kDudeModernCustomBurning:
-        if ((Crusher && !dudeIsImmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(pSprite))) return false;
+        if ((Crusher && !isImmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(pSprite))) return false;
         return true;
         fallthrough__;
     case kDudeZombieAxeNormal:
@@ -1025,7 +1019,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 else if (pXSprite->txID <= 0 || getNextIncarnation(pXSprite) == NULL) {
                     removeDudeStuff(pSprite);
 
-                    if (pExtra->curWeapon >= kTrapExploder && pExtra->curWeapon < (kTrapExploder + kExplodeMax) - 1)
+                    if (pExtra->weaponType == kGenDudeWeaponKamikaze)
                         doExplosion(pSprite, pXSprite->data1 - kTrapExploder);
                         
                     if (spriteIsUnderwater(pSprite, false)) {
@@ -1056,7 +1050,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                     actKillDude(nSource, pSprite, DAMAGE_TYPE_0, 65535);
                 }
             } else if (canWalk(pSprite) && !inDodge(pXSprite->aiState) && !inRecoil(pXSprite->aiState)) {
-                if (inIdle(pXSprite->aiState) || inSearch(pXSprite->aiState) || Chance(getDodgeChance(pSprite))) {
+                if (inIdle(pXSprite->aiState) ||  Chance(getDodgeChance(pSprite))) {
                     if (!spriteIsUnderwater(pSprite, false)) {
                         if (!canDuck(pSprite) || !sub_5BDA8(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
                         else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
@@ -1136,7 +1130,7 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
                 } else if (!dudeIsMelee(pXSprite) || Chance(rChance >> 2)) {
                     if (rState == 1) pXSprite->aiState->nextState = (Chance(rChance) ? &genDudeDodgeL : &genDudeDodgeShortL);
                     else if (rState == 2) pXSprite->aiState->nextState = (Chance(rChance) ? &genDudeDodgeD : &genDudeDodgeShortD);
-                    else if (rState == 1) pXSprite->aiState->nextState = (Chance(rChance) ? &genDudeDodgeW : &genDudeDodgeShortW);
+                    else if (rState == 3) pXSprite->aiState->nextState = (Chance(rChance) ? &genDudeDodgeW : &genDudeDodgeShortW);
 
                 }
                 else if (rState == 1) pXSprite->aiState->nextState = &genDudeChaseL;
@@ -1619,10 +1613,7 @@ void aiInitSprite(spritetype *pSprite)
         break;
     }
     case kDudeGillBeast:
-        if (pXSector && pXSector->Underwater)
-            aiNewState(pSprite, pXSprite, &gillBeastIdle);
-        else
-            aiNewState(pSprite, pXSprite, &gillBeastIdle);
+        aiNewState(pSprite, pXSprite, &gillBeastIdle);
         break;
     case kDudeBat:
     {
