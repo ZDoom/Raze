@@ -33,6 +33,7 @@ extern BlockInfo sBlockInfo[];
 
 extern int hihit;
 extern short nChunkSprite[];
+extern short nBodySprite[];
 
 signed int lsqrt(int a1);
 void MoveThings();
