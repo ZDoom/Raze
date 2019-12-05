@@ -28,8 +28,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "typedefs.h"
 #include "keyboard.h"
 #include "cache1d.h"
+#include "fx_man.h"
+#include "sound.h"
+#include "mutex.h"
 
 BEGIN_PS_NS
+
+void ServeSample(const char** ptr, uint32_t* length);
 
 enum {
     kFramePalette = 0,
@@ -38,23 +43,23 @@ enum {
     kFrameDone
 };
 
+#define kSampleRate     22050
+#define kSampleSize     2205
+
+uint8_t bankbuf[kSampleRate];
+uint32_t bankptr = 0;
+uint32_t banktail = 0;
+
+uint32_t lSoundBytesRead = 0;
+uint32_t lSoundBytesUsed = 0;
+
 uint8_t lh[32] = { 0 };
-char streambuf[2205];
-char byte_1C6DF5[2205];
 
 static uint8_t* CurFrame = NULL;
 
-
-int serve_sample()
-{
-//	if (!SoundCardActive()) {
-//		return 1;
-//	}
-
-    return 0;
-}
-
+bool bServedSample = false;
 palette_t moviepal[256];
+static mutex_t mutex;
 
 int ReadFrame(FileReader &fp)
 {
@@ -102,8 +107,31 @@ int ReadFrame(FileReader &fp)
             case kFrameSound:
             {
                 Printf("Reading sound block size %d...\n", nSize);
-                // TODO - just skip for now
+
+                if (lSoundBytesRead - lSoundBytesUsed >= kSampleRate)
+                {
+                    DebugOut("SOUND BUF FULL!\n");
                 fp.Seek(nSize, FileReader::SeekCur);
+                }
+                else
+                {
+                    mutex_lock(&mutex);
+
+                    int nRead = fread((char*)bankbuf + bankptr, 1, nSize, fp);
+
+                    lSoundBytesRead += nRead;
+                    bankptr += nSize;
+
+                    assert(nSize == nRead);
+                    assert(bankptr <= kSampleRate);
+
+                    if (bankptr >= kSampleRate) {
+                        bankptr -= kSampleRate; // loop back to start
+                    }
+
+                    mutex_unlock(&mutex);
+                }
+
                 continue;
             }
             case kFrameImage:
@@ -149,12 +177,29 @@ int ReadFrame(FileReader &fp)
     }
 }
 
-void PlayMovie(const char *fileName)
+void ServeSample(const char** ptr, uint32_t* length)
 {
-    int bDoFade = 1;
+    mutex_lock(&mutex);
 
-#if 0	// What's the point of preserving this? Let's just read the movie from the game directory and ignore the other locations!
+    *ptr = (char*)bankbuf + banktail;
+    *length = kSampleSize;
+
+    banktail += kSampleSize;
+    if (banktail >= kSampleRate) {
+        banktail -= kSampleRate; // rotate back to start
+    }
+
+    lSoundBytesUsed += kSampleSize;
+    bServedSample = true;
+
+    mutex_unlock(&mutex);
+}
+
+void PlayMovie(const char* fileName)
+{
 	char buffer[256];
+    int bDoFade = kTrue;
+    int hFx = -1;
 
 	if (bNoCDCheck)
     {
@@ -169,7 +214,7 @@ void PlayMovie(const char *fileName)
         sprintf(buffer, "%c:%s", driveLetter, fileName);
     }
 
-	FILE *fp = fopen(buffer, "rb");
+    FILE* fp = fopen(buffer, "rb");
     if (fp == NULL)
     {
         Printf("Can't open movie file '%s' on CD-ROM\n", buffer);
@@ -194,10 +239,11 @@ void PlayMovie(const char *fileName)
 
 
     fp.Read(lh, sizeof(lh));
-    memset(streambuf, 0, sizeof(streambuf));
-    memset(byte_1C6DF5, 0, sizeof(byte_1C6DF5));
 
     // sound stuff
+    mutex_init(&mutex);
+    bankptr = 0;
+    banktail = 0;
 
     // clear keys
     inputState.keyFlushChars();
@@ -210,13 +256,25 @@ void PlayMovie(const char *fileName)
     int angle = 1536;
     int z = 0;
 
-    videoSetPalette(0, ANIMPAL, 2+8);
+    videoSetPalette(0, ANIMPAL, 2 + 8);
 
+    // Read a frame in first
     if (ReadFrame(fp))
     {
+        // start audio playback
+        hFx = FX_StartDemandFeedPlayback(ServeSample, kSampleRate, 0, gMusicVolume, gMusicVolume, gMusicVolume, FX_MUSIC_PRIORITY, fix16_one, -1);
+
         while (!inputState.keyBufferWaiting())
         {
-            handleevents();
+            HandleAsync();
+
+            // audio is king for sync - if the backend doesn't need any more samples yet, 
+            // don't process any more movie file data.
+            if (!bServedSample) {
+                continue;
+            }
+
+            bServedSample = false;
 
             if (z < 65536) { // Zoom - normal zoom is 65536.
                 z += 2048;
@@ -240,6 +298,10 @@ void PlayMovie(const char *fileName)
                 break;
             }
         }
+    }
+
+    if (hFx > 0) {
+        FX_StopSound(hFx);
     }
 
     if (inputState.keyBufferWaiting()) {
