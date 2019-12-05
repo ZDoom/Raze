@@ -51,6 +51,7 @@
 #include "fx_man.h"
 #include "pragmas.h"
 #include "build.h"
+#include "baselayer.h"
 
 void RegisterDukeMenus();
 void RegisterRedneckMenus();
@@ -372,7 +373,7 @@ void M_StartControlPanel (bool makeSound)
 	}
 
 	C_HideConsole ();				// [RH] Make sure console goes bye bye.
-	GUICapture |= 1;
+	mouseGrabInput(false);
 	menuactive = MENU_On;
 	// Pause sound effects before we play the menu switch sound.
 	// That way, it won't be paused.
@@ -814,6 +815,7 @@ void M_Ticker (void)
 	if (DMenu::MenuTime & 3) return;
 	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
+		D_ProcessEvents();	// The main loop is blocked when the menu is open and cannot dispatch the events.
 		if (transition.previous) transition.previous->Ticker();
 		DMenu::CurrentMenu->Ticker();
 
@@ -898,7 +900,7 @@ void M_ClearMenus ()
 	}
 	DMenu::CurrentMenu = nullptr;
 	menuactive = MENU_Off;
-	GUICapture &= ~1;
+	mouseGrabInput(true);
 	gi->MenuClosed();
 }
 

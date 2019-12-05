@@ -55,6 +55,7 @@
 #include "inputstate.h"
 #include "i_time.h"
 #include "gamecvars.h"
+#include "baselayer.h"
 
 
 #define LEFTMARGIN 8
@@ -1317,13 +1318,14 @@ void C_ToggleConsole ()
 		HistPos = NULL;
 		TabbedLast = false;
 		TabbedList = false;
-		GUICapture |= 1;
+		mouseGrabInput(false);
+		
 	}
 	else //if (gamestate != GS_FULLCONSOLE && gamestate != GS_STARTUP)
 	{
 		ConsoleState = c_rising;
 		C_FlushDisplay ();
-		GUICapture &= ~1;
+		mouseGrabInput(true);
 	}
 }
 

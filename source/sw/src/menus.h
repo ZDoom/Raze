@@ -104,7 +104,6 @@ typedef enum
     ct_quitmenu, ct_ordermenu, ct_episodemenu, ct_max
 } CTLType;
 
-extern SWBOOL UsingMenus;
 extern int SENSITIVITY;
 extern CTLType ControlPanelType;
 extern int16_t MenuTextShade;

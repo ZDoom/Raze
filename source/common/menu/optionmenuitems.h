@@ -370,6 +370,7 @@ public:
 		pKey = keyptr;
 		SetMenuMessage(1);
 		menuactive = MENU_WaitKey;	// There should be a better way to disable GUI capture...
+		mouseGrabInput(true);
 	}
 
 	bool TranslateKeyboardEvents() override
@@ -396,9 +397,11 @@ public:
 		{
 			*pKey = ev->data1;
 			menuactive = MENU_On;
+			mouseGrabInput(false);
 			SetMenuMessage(0);
+			auto p = mParentMenu;
 			Close();
-			mParentMenu->MenuEvent((ev->data1 == KEY_ESCAPE)? MKEY_Abort : MKEY_Input, 0);
+			p->MenuEvent((ev->data1 == KEY_ESCAPE)? MKEY_Abort : MKEY_Input, 0);
 			return true;
 		}
 		return false;

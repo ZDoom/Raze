@@ -2591,7 +2591,7 @@ DrawCompass(PLAYERp pp)
     start_ang = NORM_CANG(start_ang - 4);
 
     flags = ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER;
-    if (RedrawCompass && !UsingMenus)
+    if (RedrawCompass && !M_Active())
     {
         RedrawCompass = FALSE;
         SET(flags, ROTATE_SPRITE_ALL_PAGES);

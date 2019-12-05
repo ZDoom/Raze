@@ -33,10 +33,14 @@
 #include "i_time.h"
 #include "c_dispatch.h"
 #include "d_gui.h"
+#include "menu.h"
 #include "utf8.h"
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
+
+
+
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -960,18 +964,9 @@ void mouseGrabInput(bool grab)
         g_mouseGrabbed = grab;
 
 	inputState.MouseSetPos(0, 0);
-}
-
-void mouseLockToWindow(char a)
-{
-    if (!(a & 2))
-    {
-        mouseGrabInput(a);
-        g_mouseLockedToWindow = g_mouseGrabbed;
-    }
-
-	// Fixme
-    SDL_ShowCursor(GUICapture ? SDL_ENABLE : SDL_DISABLE);
+	SDL_ShowCursor(!grab ? SDL_ENABLE : SDL_DISABLE);
+	if (grab) GUICapture &= ~1;
+	else GUICapture |= 1;
 }
 
 //
@@ -1891,7 +1886,7 @@ int32_t handleevents_pollsdl(void)
 				{
 					code = ev.text.text[j];
 					// Fixme: Send an EV_GUI_Event instead and properly deal with Unicode.
-					if (GUICapture & 1)
+					if ((GUICapture & 1) && menuactive != MENU_WaitKey)
 					{
 						event_t ev = { EV_GUI_Event, EV_GUI_Char, int16_t(j), !!(SDL_GetModState() & KMOD_ALT) };
 						D_PostEvent(&ev);
@@ -1903,7 +1898,7 @@ int32_t handleevents_pollsdl(void)
             case SDL_KEYDOWN:
             case SDL_KEYUP:
             {
-				if (GUICapture & 1)
+				if ((GUICapture & 1) && menuactive != MENU_WaitKey)
 				{
 					event_t event = {};
 					event.type = EV_GUI_Event;

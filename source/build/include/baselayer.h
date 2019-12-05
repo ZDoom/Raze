@@ -145,7 +145,7 @@ void joyScanDevices(void);
 void mouseInit(void);
 void mouseUninit(void);
 void mouseGrabInput(bool grab);
-void mouseLockToWindow(char a);
+void mouseLockToWindow(bool a);
 void mouseMoveToCenter(void);
 
 void joyReadButtons(int32_t *pResult);
