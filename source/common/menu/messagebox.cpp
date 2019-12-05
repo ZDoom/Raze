@@ -46,6 +46,7 @@ extern FSaveGameNode *quickSaveSlot;
 class DMessageBoxMenu : public DMenu
 {
 	using Super = DMenu;
+	FString mFullMessage;
 	TArray<FBrokenLines> mMessage;
 	int mMessageMode;
 	int messageSelection;
@@ -99,6 +100,7 @@ void DMessageBoxMenu::Init(DMenu *parent, const char *message, int messagemode, 
 	mParentMenu = parent;
 	if (message != NULL) 
 	{
+		mFullMessage = message;
 		mMessage = V_BreakLines(SmallFont, 300, GStrings.localize(message));
 	}
 	mMessageMode = messagemode;
@@ -168,8 +170,9 @@ void DMessageBoxMenu::HandleResult(bool res)
 //
 //
 //=============================================================================
+CVAR(Bool, m_generic_messagebox, false, CVAR_ARCHIVE)
 
-void DMessageBoxMenu::Drawer ()
+void DMessageBoxMenu::Drawer()
 {
 	int y;
 	PalEntry fade = 0;
@@ -180,43 +183,51 @@ void DMessageBoxMenu::Drawer ()
 
 	y = 100;
 
-	if (mMessage.Size())
+	if (m_generic_messagebox)
 	{
-		for (unsigned i = 0; i < mMessage.Size(); i++)
-			y -= SmallFont->GetHeight () / 2;
-
-		for (unsigned i = 0; i < mMessage.Size(); i++)
+		if (mMessage.Size())
 		{
-			DrawText(&twod, SmallFont, CR_UNTRANSLATED, 160 - mMessage[i].Width/2, y, mMessage[i].Text,
-				DTA_Clean, true, TAG_DONE);
-			y += fontheight;
-		}
-	}
+			for (unsigned i = 0; i < mMessage.Size(); i++)
+				y -= SmallFont->GetHeight() / 2;
 
-	if (mMessageMode == 0)
-	{
-		y += fontheight;
-		mMouseY = y;
-		DrawText(&twod, SmallFont, 
-			messageSelection == 0? OptionSettings.mFontColorSelection : OptionSettings.mFontColor, 
-			160, y, GStrings["TXT_YES"], DTA_Clean, true, TAG_DONE);
-		DrawText(&twod, SmallFont, 
-			messageSelection == 1? OptionSettings.mFontColorSelection : OptionSettings.mFontColor, 
-			160, y + fontheight + 1, GStrings["TXT_NO"], DTA_Clean, true, TAG_DONE);
-
-		if (messageSelection >= 0)
-		{
-			if (((DMenu::MenuTime>>2)%8) < 6)
+			for (unsigned i = 0; i < mMessage.Size(); i++)
 			{
-				DrawText(&twod, ConFont, OptionSettings.mFontColorSelection,
-					(150 - 160) * CleanXfac + screen->GetWidth() / 2,
-					(y + (fontheight + 1) * messageSelection - 100 + fontheight/2 - 5) * CleanYfac + screen->GetHeight() / 2,
-					"\xd",
-					DTA_CellX, 8 * CleanXfac,
-					DTA_CellY, 8 * CleanYfac,
-					TAG_DONE);
+				DrawText(&twod, SmallFont, CR_UNTRANSLATED, 160 - mMessage[i].Width / 2, y, mMessage[i].Text,
+					DTA_Clean, true, TAG_DONE);
+				y += fontheight;
 			}
 		}
+
+		if (mMessageMode == 0)
+		{
+			y += fontheight;
+			mMouseY = y;
+			DrawText(&twod, NewSmallFont,
+				messageSelection == 0 ? OptionSettings.mFontColorSelection : OptionSettings.mFontColor,
+				160, y, GStrings["TXT_YES"], DTA_Clean, true, TAG_DONE);
+			DrawText(&twod, NewSmallFont,
+				messageSelection == 1 ? OptionSettings.mFontColorSelection : OptionSettings.mFontColor,
+				160, y + fontheight + 1, GStrings["TXT_NO"], DTA_Clean, true, TAG_DONE);
+
+			if (messageSelection >= 0)
+			{
+				if (((DMenu::MenuTime >> 2) % 8) < 6)
+				{
+					DrawText(&twod, NewSmallFont, OptionSettings.mFontColorSelection,
+						(150 - 160) * CleanXfac + screen->GetWidth() / 2,
+						(y + (fontheight + 1) * messageSelection - 100 + fontheight / 2 - 5) * CleanYfac + screen->GetHeight() / 2,
+						"\xd",
+						DTA_CellX, 8 * CleanXfac,
+						DTA_CellY, 8 * CleanYfac,
+						TAG_DONE);
+				}
+			}
+		}
+	}
+	else
+	{
+		twod.AddColorOnlyQuad(0, 0, xdim, ydim, 0xa0000000);
+		gi->DrawCenteredTextScreen(origin, mFullMessage, 100, false);
 	}
 }
 
@@ -269,7 +280,7 @@ bool DMessageBoxMenu::MenuEvent(int mkey, bool fromcontroller)
 {
 	if (mMessageMode == 0)
 	{
-		if (mkey == MKEY_Up || mkey == MKEY_Down)
+		if ((mkey == MKEY_Up || mkey == MKEY_Down) && m_generic_messagebox)
 		{
 			//S_Sound (CHAN_VOICE | CHAN_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
 			messageSelection = !messageSelection;
@@ -304,7 +315,7 @@ bool DMessageBoxMenu::MenuEvent(int mkey, bool fromcontroller)
 
 bool DMessageBoxMenu::MouseEvent(int type, int x, int y)
 {
-	if (mMessageMode == 1)
+	if (mMessageMode == 1 || m_generic_messagebox)
 	{
 		if (type == MOUSE_Click)
 		{
@@ -327,7 +338,7 @@ bool DMessageBoxMenu::MouseEvent(int type, int x, int y)
 		}
 		if (sel != -1 && sel != messageSelection)
 		{
-			//S_Sound (CHAN_VOICE | CHAN_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
+			gi->MenuSound(CursorSound);
 		}
 		messageSelection = sel;
 		if (type == MOUSE_Release)
@@ -379,36 +390,38 @@ DMenu* CreateMessageBoxMenu(DMenu* parent, const char* message, int messagemode,
 }
 
 
-#if 0
 void ActivateEndGameMenu()
 {
-	FString tempstring = GStrings(netgame ? "NETEND" : "ENDGAME");
-	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, false, NAME_None, []()
-	{
-		M_ClearMenus();
-		if (!netgame)
-		{
-			if (demorecording)
-				G_CheckDemoStatus();
-			D_StartTitle();
-		}
-	});
-
-	M_ActivateMenu(newmenu);
 }
 
 CCMD (menu_endgame)
 {	// F7
-	if (!usergame)
+	if (!gi->CanSave())
 	{
-		S_Sound (CHAN_VOICE | CHAN_UI, "menu/invalid", snd_menuvolume, ATTN_NONE);
 		return;
 	}
 		
-	//M_StartControlPanel (true);
-	S_Sound (CHAN_VOICE | CHAN_UI, "menu/activate", snd_menuvolume, ATTN_NONE);
+	M_StartControlPanel (true);
+	FString tempstring = GStrings("ENDGAME");
+	DMenu* newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, tempstring, 0, 501, false, NAME_None, [](bool res)
+		{
+			if (res)
+			{
+				M_ClearMenus();
+				/*/
+				if (!netgame)
+				{
+					if (demorecording)
+						G_CheckDemoStatus();
+					D_StartTitle();
+				}
+				*/
 
-	ActivateEndGameMenu();
+				//gi->ReturnToTitle();
+			}
+		});
+
+	M_ActivateMenu(newmenu);
 }
 
 //=============================================================================
@@ -419,47 +432,18 @@ CCMD (menu_endgame)
 
 CCMD (menu_quit)
 {	// F10
-	if (m_quickexit)
-	{
-		ST_Endoom();
-	}
 
 	M_StartControlPanel (true);
 
-	const size_t messageindex = static_cast<size_t>(gametic) % gameinfo.quitmessages.Size();
-	FString EndString;
-	const char *msg = gameinfo.quitmessages[messageindex];
-	if (msg[0] == '$')
-	{
-		if (msg[1] == '*')
-		{
-			EndString = GStrings(msg + 2);
-		}
-		else
-		{
-			EndString.Format("%s\n\n%s", GStrings(msg + 1), GStrings("DOSY"));
-		}
-	}
-	else EndString = gameinfo.quitmessages[messageindex];
+	FString EndString = GStrings("CONFIRM_QUITMSG");
+	EndString << "\n[Y/N]";
 
-	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, EndString, 0, false, NAME_None, []()
+	DMenu *newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, EndString, 0, 500, false, NAME_None, [](bool res)
 	{
-		if (!netgame)
-		{
-			if (gameinfo.quitSound.IsNotEmpty())
-			{
-				S_Sound(CHAN_VOICE | CHAN_UI, gameinfo.quitSound, snd_menuvolume, ATTN_NONE);
-				I_WaitVBL(105);
-			}
-		}
-		ST_Endoom();
+		if (res) throw ExitEvent(0);
 	});
-
 
 	M_ActivateMenu(newmenu);
 }
 
 
-
-
-#endif

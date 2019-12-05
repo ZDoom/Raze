@@ -254,8 +254,24 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 	MNU_DrawString(TEXT_XCENTER(w), 5, text, 1, 16);
 }
 
-void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position)
+void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
 {
+	if (text)
+	{
+		short width, height = 0;
+		MNU_MeasureString("T", &width, &height);
+
+		auto lines = FString(text).Split("\n");
+		int y = 100 - (height * lines.Size() / 2);
+		for (auto& l : lines)
+		{
+			short lheight = 0;
+			MNU_MeasureString(text, &width, &lheight);
+			int x = 160 - width / 2;
+			MNU_DrawString(x, y, l, 0, 0);
+			y += height;
+		}
+	}
 }
 
 

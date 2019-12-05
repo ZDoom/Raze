@@ -98,6 +98,7 @@ struct GameInterface : ::GameInterface
 	bool SaveGame(FSaveGameNode*) override;
 	bool LoadGame(FSaveGameNode*) override;
 	void DoPrintMessage(int prio, const char*) override;
+	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg);
 
 };
 

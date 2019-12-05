@@ -751,9 +751,9 @@ bool GameInterface::DrawSpecialScreen(const DVector2 &origin, int tilenum)
 }
 
 
-void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position)
+void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position, bool bg)
 {
-	Menu_DrawBackground(origin);
+	if (bg) Menu_DrawBackground(origin);
 	mgametextcenter(int(origin.X * 65536), int((origin.Y + position) * 65536), text);
 }
 

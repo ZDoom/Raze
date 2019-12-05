@@ -480,23 +480,23 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		M_StartMessage (msg, 0, -1, NAME_StartgameConfirmed);
 		return;
 	}
+#endif
 
-	case NAME_Savegamemenu:
-		if (gi->canSave())
+	case NAME_SaveGameMenu:
+		if (!gi->CanSave())
 		{
 			// cannot save outside the game.
 			M_StartMessage (GStrings("SAVEDEAD"), 1, -1);
-			return;
+			return true;
 		}
-#endif
 			
 	case NAME_QuitMenu:
-		// The separate menu class no longer exists but the name still needs support for existing mods.
+		// This is no separate class
 		C_DoCommand("menu_quit");
 		return true;
 
 	case NAME_EndgameMenu:
-		// The separate menu class no longer exists but the name still needs support for existing mods.
+		// This is no separate class
 		C_DoCommand("memnu_endgame");
 		return true;
 	}

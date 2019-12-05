@@ -466,9 +466,9 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 	Menu_DrawTopBarCaption(text, origin);
 }
 
-void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position)
+void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position, bool bg)
 {
-	Menu_DrawBackground(origin);
+	if (bg) Menu_DrawBackground(origin);
 	G_ScreenText(MF_Bluefont.tilenum, int((origin.X + 160) * 65536), int((origin.Y + position) * 65536), MF_Bluefont.zoom, 0, 0, text, 0, MF_Bluefont.pal,
 		2 | 8 | 16 | ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y,
 		MF_Bluefont.textflags | TEXT_XCENTER, 0, 0, xdim - 1, ydim - 1);

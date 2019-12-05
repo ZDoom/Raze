@@ -280,6 +280,16 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 	viewDrawText(1, text, 160, 20 - height / 2, -128, 0, 1, false);
 }
 
+void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
+{
+	if (text)
+	{
+		int width;
+		viewGetFontInfo(0, text, &width, NULL);
+		int x = 160 - width / 2;
+		viewDrawText(0, text, x, 100, 0, 0, 0, false);
+	}
+}
 
 END_BLD_NS
 
