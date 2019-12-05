@@ -571,7 +571,7 @@ CUSTOM_CVAR(Int, playerteam, 0, CVAR_USERINFO) // this one is transient and won'
 	else ;// gi->UpdatePlayerTeam(); // this part is game specific
 }
 
-// Will only become useful if the obituary system gets overhauled.
+// Will only become useful if the obituary system gets overhauled and for localization
 CUSTOM_CVAR(Int, playergender, 0, CVAR_USERINFO|CVAR_ARCHIVE)
 {
 	if (self < 0 || self > 3) self = 0;

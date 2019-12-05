@@ -169,6 +169,7 @@ struct GameInterface : ::GameInterface
 	bool SaveGame(FSaveGameNode*) override;
 	bool LoadGame(FSaveGameNode*) override;
 	void DoPrintMessage(int prio, const char* text) override;
+	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 };
 
 END_RR_NS

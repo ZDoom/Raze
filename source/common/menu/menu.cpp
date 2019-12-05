@@ -57,6 +57,7 @@ void RegisterRedneckMenus();
 void RegisterBloodMenus();
 void RegisterSWMenus();
 void RegisterLoadsaveMenus();
+void RegisterOptionMenus();
 extern bool rotatesprite_2doverride;
 bool help_disabled, credits_disabled;
 int g_currentMenu;	// accessible by CON scripts - contains the current menu's script ID if defined or INT_MAX if none given.
@@ -546,10 +547,23 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		else if ((*desc)->mType == MDESC_OptionsMenu)
 		{
 			FOptionMenuDescriptor *ld = static_cast<FOptionMenuDescriptor*>(*desc);
-			//const PClass *cls = ld->mClass == NULL? RUNTIME_CLASS(DOptionMenu) : ld->mClass;
-
-			ld->CalcIndent();
-			DOptionMenu *newmenu = new DOptionMenu;
+			DOptionMenu* newmenu;
+			if (ld->mClass != NAME_None)
+			{
+				auto ndx = menuClasses.FindEx([=](const auto p) { return p->mName == ld->mClass; });
+				if (ndx == menuClasses.Size())
+				{
+					I_Error("Bad menu class %s\n", ld->mClass.GetChars());
+				}
+				else
+				{
+					newmenu = (DOptionMenu*)menuClasses[ndx]->CreateNew();
+				}
+			}
+			else
+			{
+				newmenu = new DOptionMenu;
+			}
 			newmenu->Init(DMenu::CurrentMenu, ld);
 			M_ActivateMenu(newmenu);
 		}
@@ -922,6 +936,7 @@ void M_Init (void)
 	RegisterBloodMenus();
 	RegisterSWMenus();
 	RegisterLoadsaveMenus();
+	RegisterOptionMenus();
 	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();
 }

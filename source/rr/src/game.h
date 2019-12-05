@@ -307,7 +307,7 @@ void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t ste
 //void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);
 void G_InitTimer(int32_t ticspersec);
 
-static inline int32_t G_GetTeamPalette(int32_t team)
+inline int32_t G_GetTeamPalette(int32_t team)
 {
     int8_t pal[] = { 3, 10, 11, 12 };
 

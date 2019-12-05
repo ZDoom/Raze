@@ -539,3 +539,23 @@ FOptionMenuItem *FOptionMenuDescriptor::GetItem(FName name)
 	}
 	return NULL;
 }
+
+class PlayerMenu : public DOptionMenu
+{
+	using Super = DOptionMenu;
+
+public:
+	void Drawer()
+	{
+		// Hack: The team item is #3. This part doesn't work properly yet.
+		gi->DrawPlayerSprite(origin, (mDesc->mSelectedItem == 3));
+		Super::Drawer();
+	}
+};
+
+static TMenuClassDescriptor<PlayerMenu> _ppm("NewPlayerMenu");
+
+void RegisterOptionMenus()
+{
+	menuClasses.Push(&_ppm);
+}

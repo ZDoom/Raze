@@ -236,6 +236,7 @@ struct GameInterface
 		f.VFormat(fmt, ap);
 		DoPrintMessage(prio, f);
 	}
+	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 };
 
 extern GameInterface* gi;

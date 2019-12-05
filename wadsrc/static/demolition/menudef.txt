@@ -965,15 +965,15 @@ OptionValue "PlayerColors"
 {
 	0, "$OPTVAL_AUTO"
 	1, "$TXT_COLOR_BLUE"
-	2, "TXT_COLOR_RED"
-	3, "TXT_COLOR_GREEN"
-	4, "TXT_COLOR_GRAY"
-	5, "TXT_COLOR_DARKGRAY"
-	6, "TXT_COLOR_DARKGREEN"
-	7, "TXT_COLOR_BROWN"
-	8, "TXT_COLOR_DARKBLUE"
-	9, "TXT_COLOR_LIGHTRED"
-	10, "TXT_COLOR_YELLOW"
+	2, "$TXT_COLOR_RED"
+	3, "$TXT_COLOR_GREEN"
+	4, "$TXT_COLOR_GRAY"
+	5, "$TXT_COLOR_DARKGRAY"
+	6, "$TXT_COLOR_DARKGREEN"
+	7, "$TXT_COLOR_BROWN"
+	8, "$TXT_COLOR_DARKBLUE"
+	9, "$TXT_COLOR_LIGHTRED"
+	//10, "TXT_COLOR_YELLOW"
 }
 
 OptionValue "PlayerTeam"
@@ -997,9 +997,9 @@ OptionMenu "NewPlayerMenu" //protected
 {
 	Title "$MNU_PLAYERSETUP"
 	TextField "$PLYRMNU_NAME", playername
-	Option "$PLYRMNU_TEAM", "playerteam", "PlayerTeam"
 	Option "$PLYRMNU_PLAYERCOLOR", "playercolor", "PlayerColors"
 	Option "$PLYRMNU_PLAYERGENDER", "playergender", "Gender"
+	Option "$PLYRMNU_TEAM", "playerteam", "PlayerTeam"
 	Submenu "$PLRMNU_TAUNTS", "TauntsMenu"
 	Class "NewPlayerMenu"
 }
@@ -1048,7 +1048,6 @@ OptionValue "WeapSwitch"
 
 OptionMenu GameplayOptions //protected
 {
-	Position -35
 	Title 	"$GMPLYMNU_TITLE"
 	Option "$PLRMNU_AUTOAIM", "cl_autoaim", "AimMode"
 	Option "$PLRMNU_ALWAYSRUN", "cl_autorun", "OnOff"
