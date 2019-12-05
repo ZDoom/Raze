@@ -5901,7 +5901,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
             {
                 if (object->findhigh[i])
                 {
-                    CACHE1D_FIND_REC *dir;
+                    BUILDVFS_FIND_REC *dir;
                     int32_t y = 0;
                     const int32_t y_upper = object->format[i]->pos.y;
                     const int32_t y_lower = klabs(object->format[i]->bottomcutoff);
@@ -6694,7 +6694,7 @@ static void Menu_RunInput(Menu_t *cm)
             {
                 int32_t i;
 
-                CACHE1D_FIND_REC *seeker = object->findhigh[object->currentList];
+                BUILDVFS_FIND_REC *seeker = object->findhigh[object->currentList];
 
                 inputState.ClearKeyStatus(sc_PgUp);
 
@@ -6717,7 +6717,7 @@ static void Menu_RunInput(Menu_t *cm)
             {
                 int32_t i;
 
-                CACHE1D_FIND_REC *seeker = object->findhigh[object->currentList];
+                BUILDVFS_FIND_REC *seeker = object->findhigh[object->currentList];
 
                 inputState.ClearKeyStatus(sc_PgDn);
 
@@ -6771,7 +6771,7 @@ static void Menu_RunInput(Menu_t *cm)
                 ch = inputState.keyGetChar();
                 if (ch > 0 && ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')))
                 {
-                    CACHE1D_FIND_REC *seeker = object->findhigh[object->currentList]->usera;
+                    BUILDVFS_FIND_REC *seeker = object->findhigh[object->currentList]->usera;
                     if (ch >= 'a')
                         ch -= ('a'-'A');
                     while (seeker)

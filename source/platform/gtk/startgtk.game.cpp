@@ -108,7 +108,9 @@ static struct
     grpfile_t const * grp;
     char *gamedir;
     ud_setup_t shared;
+#ifdef POLYMER
     int polymer;
+#endif
 } settings;
 
 static int32_t retval = -1, mode = TAB_MESSAGES;
@@ -130,6 +132,7 @@ static void on_vmode3dcombo_changed(GtkComboBox *combobox, gpointer user_data)
     gtk_tree_model_get(data, &iter, 1, &val, -1);
     settings.shared.xdim = validmode[val].xdim;
     settings.shared.ydim = validmode[val].ydim;
+    settings.shared.bpp = validmode[val].bpp;
 }
 
 static void on_fullscreencheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
@@ -272,7 +275,7 @@ static unsigned char GetModsDirNames(GtkListStore *list)
     char *homedir;
     char pdir[BMAX_PATH];
     unsigned char iternumb = 0;
-    CACHE1D_FIND_REC *dirs = NULL;
+    BUILDVFS_FIND_REC *dirs = NULL;
     GtkTreeIter iter;
 
     pathsearchmode = 1;
@@ -280,7 +283,7 @@ static unsigned char GetModsDirNames(GtkListStore *list)
     if ((homedir = Bgethomedir()))
     {
         Bsnprintf(pdir, sizeof(pdir), "%s/" ".eduke32", homedir);
-        dirs = klistpath(pdir, "*", CACHE1D_FIND_DIR);
+        dirs = klistpath(pdir, "*", BUILDVFS_FIND_DIR);
         for (; dirs != NULL; dirs=dirs->next)
         {
             if ((Bstrcmp(dirs->name, "autoload") == 0) ||
@@ -866,9 +869,7 @@ int32_t startwin_run(void)
     settings.gamedir = g_modDir;
     settings.grp = g_selectedGrp;
 #ifdef POLYMER
-    settings.polymer = (glrendmode == REND_POLYMER);
-#else
-    settings.polymer = 0;
+    settings.polymer = (glrendmode == REND_POLYMER) & (settings.shared.bpp != 8);
 #endif
     PopulateForm(ALL);
 
@@ -878,7 +879,9 @@ int32_t startwin_run(void)
     if (retval) // launch the game with these parameters
     {
         ud.setup = settings.shared;
+#ifdef POLYMER
         glrendmode = (settings.polymer) ? REND_POLYMER : REND_POLYMOST;
+#endif
         g_selectedGrp = settings.grp;
 
         Bstrcpy(g_modDir, (g_noSetup == 0 && settings.gamedir != NULL) ? settings.gamedir : "/");

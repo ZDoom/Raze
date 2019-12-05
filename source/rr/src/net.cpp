@@ -2863,7 +2863,6 @@ void Net_ReceiveDisconnect(ENetEvent *event)
 
 void Net_GetPackets(void)
 {
-    timerUpdate();
     MUSIC_Update();
 
     G_HandleSpecialKeys();
