@@ -90,16 +90,15 @@ EXTERN_CVAR(Float, vid_brightness)
 
 EXTERN_CVAR(Bool, in_joystick)
 EXTERN_CVAR(Bool, in_mouse)
-EXTERN_CVAR(Bool, in_aimmode)
 EXTERN_CVAR(Int, in_mousebias)
 EXTERN_CVAR(Int, in_mousedeadzone)
 EXTERN_CVAR(Bool, in_mouseflip)
 EXTERN_CVAR(Bool, in_mousemode)
+EXTERN_CVAR(Bool, in_aimmode)
 EXTERN_CVAR(Bool, in_mousesmoothing)
 EXTERN_CVAR(Float, in_mousesensitivity)
 EXTERN_CVAR(Float, in_mousescalex)
 EXTERN_CVAR(Float, in_mousescaley)
-extern int32_t g_MyAimMode;
 EXTERN_CVAR(Bool, in_mousemode)
 EXTERN_CVAR(String, wchoice)
 

@@ -2252,7 +2252,6 @@ MNU_InitMenus(void)
 	buttonsettings[btn_bobbing] = cl_viewbob;
     buttonsettings[btn_shadows] = r_shadows;
 
-    buttonsettings[btn_mouse_aim] = in_aimmode;
     buttonsettings[btn_mouse_invert] = in_mouseflip;
     buttonsettings[btn_sound] = snd_enabled;
     buttonsettings[btn_music] = mus_enabled;
@@ -3012,10 +3011,6 @@ void MNU_DoButton(MenuItem_p item, SWBOOL draw)
             if (cl_autorun != last_value)
                 MenuButtonAutoRun = TRUE;
             break;
-        case btn_mouse_aim:
-            last_value = in_aimmode;
-            in_aimmode = state = buttonsettings[item->button];
-            break;
         case btn_mouse_invert:
             in_mouseflip = state = buttonsettings[item->button];
             break;
@@ -3146,13 +3141,6 @@ void MNU_DoButton(MenuItem_p item, SWBOOL draw)
     if (!draw)
         return;
 
-    switch (item->button)
-    {
-    case btn_mouse_aim:
-        extra_text = in_aimmode ? "Momentary" : "Toggle";
-        break;
-    default: break;
-    }
 
 
     state = buttonsettings[item->button];

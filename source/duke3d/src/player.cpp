@@ -2887,7 +2887,6 @@ enddisplayweapon:
 #define MAXANGVEL    1024
 #define MAXHORIZ     256
 
-int32_t g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
 
 void P_GetInput(int const playerNum)
@@ -2910,19 +2909,7 @@ void P_GetInput(int const playerNum)
 
     D_ProcessEvents();
 
-    if (in_aimmode)
-        g_MyAimMode = buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-    else
-    {
-        g_oldAimStat = g_myAimStat;
-        g_myAimStat  = buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-        if (g_myAimStat > g_oldAimStat)
-        {
-            g_MyAimMode ^= 1;
-            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_MyAimMode, pPlayer);
-        }
-    }
+	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
     CONTROL_GetInput(&info);
 
@@ -2950,7 +2937,7 @@ void P_GetInput(int const playerNum)
         input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
     }
 
-    if (g_MyAimMode)
+    if (mouseaim)
         input.q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
     else
         input.fvel = -(info.mousey >> 6);
@@ -3073,7 +3060,7 @@ void P_GetInput(int const playerNum)
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Quick_Kick) << SK_QUICK_KICK;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_TurnAround) << SK_TURNAROUND;
 
-    localInput.bits |= (g_MyAimMode << SK_AIMMODE);
+    localInput.bits |= (mouseaim << SK_AIMMODE);
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
     localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
     localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE;

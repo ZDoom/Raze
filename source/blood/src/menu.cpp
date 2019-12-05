@@ -1852,11 +1852,6 @@ void SetMouseFilterInput(CGameMenuItemZBool *pItem)
     in_mousesmoothing = pItem->at20;
 }
 
-void SetMouseAimMode(CGameMenuItemZBool *pItem)
-{
-    in_aimmode = pItem->at20;
-}
-
 void SetMouseVerticalAim(CGameMenuItemZBool *pItem)
 {
     in_mousemode = pItem->at20;
@@ -1874,21 +1869,6 @@ void SetMouseYScale(CGameMenuItemSlider *pItem)
 
 void SetMouseDigitalAxis(CGameMenuItemZCycle *pItem)
 {
-}
-
-void SetupMouseMenu(CGameMenuItemChain *pItem)
-{
-    UNREFERENCED_PARAMETER(pItem);
-    itemOptionsControlMouseAimFlipped.at20 = in_mouseflip;
-    itemOptionsControlMouseFilterInput.at20 = in_mousesmoothing;
-    itemOptionsControlMouseAimMode.at20 = in_aimmode;
-	itemOptionsControlMouseVerticalAim.at20 = g_MyAimMode;
-}
-
-void PreDrawControlMouse(CGameMenuItem *pItem)
-{
-    if (pItem == &itemOptionsControlMouseVerticalAim)
-        pItem->bEnable = !in_aimmode;
 }
 
 void SetMouseButton(CGameMenuItemZCycle *pItem)

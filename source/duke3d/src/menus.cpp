@@ -653,11 +653,6 @@ static void Menu_Pre(MenuID_t cm)
         MenuEntry_DisableOnCondition(&ME_JOYSTICK_DEFAULTS_PRO, !joystick.isGameController);
         break;
 
-#ifndef EDUKE32_SIMPLE_MENU
-    case MENU_MOUSESETUP:
-        MenuEntry_DisableOnCondition(&ME_MOUSESETUP_MOUSEAIMING, in_aimmode);
-        break;
-#endif
     case MENU_NETOPTIONS:
         if (MEOSV_NetEpisodes[MEO_NETOPTIONS_EPISODE.currentOption] == MAXVOLUMES)
             MEL_NETOPTIONS[2] = &ME_NETOPTIONS_USERMAP;

@@ -665,6 +665,8 @@ OptionMenu "ActionControlsMenu"// protected
 
 	StaticText ""
 	Control    "$CNTRLMNU_MOUSELOOK"        , "+mouse_aiming"
+	Control    "$CNTRLMNU_MLOOKTOGGLE"		, "togglemouseaim"
+	
 	Control    "$CNTRLMNU_AIMUP"           , "+aim_up"
 	Control    "$CNTRLMNU_AIMDOWN"         , "+aim_down"
 	Control    "$CNTRLMNU_LOOKUP"           , "+look_up"
@@ -902,7 +904,6 @@ OptionMenu "MouseOptions" //protected
 	StaticText 	""
 	Option "$MOUSEMNU_ALWAYSMOUSELOOK",	"in_mousemode", "OnOff"
 	Option "$MOUSEMNU_INVERTMOUSE",		"in_mouseflip", "OnOff"
-	Option "$MOUSEMNU_LOOKSPRING",		"in_aimmode", "OnOff" // Functionm exists but is very broken. Definitely needs fixing.
 	// Do we need this? Option "$MOUSEMNU_LOOKSTRAFE",		"lookstrafe", "OnOff"
 }
 

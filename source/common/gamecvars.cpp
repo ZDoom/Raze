@@ -78,6 +78,14 @@ CUSTOM_CVARD(Bool, cl_autorun, true, CVAR_ARCHIVE, "enable/disable autorun")
 #endif
 }
 CVARD(Bool, cl_runmode, true, CVAR_ARCHIVE, "enable/disable modernized run key operation")
+
+bool G_CheckAutorun(bool button)
+{
+	if (cl_runmode) return button || cl_autorun;
+	else return button ^ !!cl_autorun;
+}
+
+
 CVARD(Bool, cl_autosave, true, CVAR_ARCHIVE, "enable/disable autosaves") // Not implemented for Blood (but looks like the other games never check it either.)
 CVARD(Bool, cl_autosavedeletion, true, CVAR_ARCHIVE, "enable/disable automatic deletion of autosaves") // Not implemented for Blood
 CVARD(Int, cl_maxautosaves, 8, CVAR_ARCHIVE, "number of autosaves to keep before deleting the oldest") // Not implemented for Blood
@@ -122,12 +130,6 @@ CUSTOM_CVARD(Int, cl_weaponswitch, 3, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disabl
 CUSTOM_CVARD(Int, cl_autovote, 0, CVAR_ARCHIVE, "enable/disable automatic voting")
 {
 	if (self < 0 || self > 2) self = 0;
-}
-
-bool G_CheckAutorun(bool button)
-{
-	if (cl_runmode) return button || cl_autorun;
-	else return button ^ !!cl_autorun;
 }
 
 // Demos
@@ -319,14 +321,19 @@ CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCAL
 	CONTROL_MouseEnabled = (self && CONTROL_MousePresent);
 }
 
-// Does it even make sense to have this configurable? It is in the menu but can be switched around at will by the mouse input code.
-int32_t g_MyAimMode = 1;
-CUSTOM_CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
+CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
+
+CVAR(Bool, silentmouseaimtoggle, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+
+CCMD(togglemouseaim)
 {
-	g_MyAimMode = self;	// Needs to be copied to a shadow variable because the input code messes around with this setting - but that should not affect the user's original choice.
+	in_mousemode = !in_mousemode;
+	if (!silentmouseaimtoggle)
+	{
+		gi->DoPrintMessage(PRINT_MEDIUM, in_mousemode? GStrings("TXT_MOUSEAIMON") : GStrings("TXT_MOUSEAIMOFF"));
+	}
 }
 
-CVARD(Bool, in_aimmode, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "0:toggle, 1:hold to aim")
 CVARD(Bool, in_mouseflip, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "invert vertical mouse movement")
 
 CUSTOM_CVARD(Int, in_mousebias, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time")

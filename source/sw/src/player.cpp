@@ -1820,7 +1820,7 @@ PlayerAutoLook(PLAYERp pp)
 
     if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
     {
-        if (!g_MyAimMode && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
+        if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
         {
             // Get a point, 512 units ahead of player's position
             x = pp->posx + (sintable[(pp->pang + 512) & 2047] >> 5);
@@ -2522,29 +2522,6 @@ MoveScrollMode2D(PLAYERp pp)
 void
 DoPlayerMenuKeys(PLAYERp pp)
 {
-
-    if (!CommEnabled)
-    {
-		// Go back to the source to set this - the old code here was catastrophically bad.
-		// this needs to be fixed properly - as it is this can never be compatible with demo playback.
-		if (cl_autoaim)
-			SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-		else
-			RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-
-#if 0
-        if (TEST_SYNC_KEY((pp), SK_AUTO_AIM))
-        {
-            if (FLAG_KEY_PRESSED(pp, SK_AUTO_AIM))
-            {
-                FLAG_KEY_RELEASE(pp, SK_AUTO_AIM);
-                FLIP(pp->Flags, PF_AUTO_AIM);
-            }
-        }
-        else
-            FLAG_KEY_RESET(pp, SK_AUTO_AIM);
-#endif
-    }
 }
 
 void PlayerSectorBound(PLAYERp pp, int amt)

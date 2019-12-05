@@ -3427,7 +3427,7 @@ void Net_SendClientInfo(void)
 	l += 32;
 	tempbuf[l++] = 0;
 
-    tempbuf[l++] = g_player[myconnectindex].ps->aim_mode = in_aimmode;
+    tempbuf[l++] = g_player[myconnectindex].ps->aim_mode = in_mousemode;
     tempbuf[l++] = g_player[myconnectindex].ps->auto_aim = cl_autoaim;
     tempbuf[l++] = g_player[myconnectindex].ps->weaponswitch = cl_weaponswitch;
     tempbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);

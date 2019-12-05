@@ -2772,8 +2772,6 @@ void InitPlayerGameSettings(void)
         else
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
     }
-
-	g_MyAimMode = in_aimmode;
 }
 
 
@@ -3518,29 +3516,23 @@ void getinput(SW_PACKET *loc)
     // MAKE SURE THIS WILL GET SET
     SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
 
-	if (in_aimmode)
-		g_MyAimMode = 0;
+	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
-	if (buttonMap.ButtonDown(gamefunc_Mouse_Aiming))
+	if (!CommEnabled)
 	{
-		if (in_aimmode)
-			g_MyAimMode = 1;
-		else
-		{
-			buttonMap.ClearButton(gamefunc_Mouse_Aiming);
-			g_MyAimMode = !g_MyAimMode;
-			if (g_MyAimMode)
-			{
-				PutStringInfo(pp, "Mouse Aiming Off");
-			}
-			else
-			{
-				PutStringInfo(pp, "Mouse Aiming On");
-			}
-		}
-	}
+		// Go back to the source to set this - the old code here was catastrophically bad.
+		// this needs to be fixed properly - as it is this can never be compatible with demo playback.
 
-    int const aimMode = TEST(pp->Flags, PF_MOUSE_AIMING_ON);
+		if (mouseaim)
+			SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+		else
+			RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+
+		if (cl_autoaim)
+			SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+		else
+			RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+	}
 
     ControlInfo info;
     CONTROL_GetInput(&info);
@@ -3646,7 +3638,7 @@ void getinput(SW_PACKET *loc)
         angvel += info.dyaw * (turnamount << 1) / analogExtent;
     }
 
-    if (true)//aimMode)
+    if (mouseaim)
         aimvel = -info.mousey / 64;
     else
         vel = -(info.mousey >> 6);
@@ -3757,7 +3749,6 @@ void getinput(SW_PACKET *loc)
     // actually just look
     SET_LOC_KEY(loc->bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
     SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
-
 
     for (i = 0; i < MAX_WEAPONS_KEYS; i++)
     {

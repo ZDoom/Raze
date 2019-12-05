@@ -1450,7 +1450,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_MOUSEFLIP:              labelNum = !in_mouseflip;                   break;
         case USERDEFS_STATUSBARSCALE:         labelNum = ud.statusbarscale;               break;
         case USERDEFS_DRAWWEAPON:             labelNum = r_drawweapon;                    break;
-        case USERDEFS_MOUSEAIMING:            labelNum = in_aimmode;                      break;
+        case USERDEFS_MOUSEAIMING:            labelNum = in_mousemode;                      break;
         case USERDEFS_WEAPONSWITCH:           labelNum = cl_weaponswitch;                 break;
         case USERDEFS_DEMOCAMS:               labelNum = cl_democams;                     break;
         case USERDEFS_COLOR:                  labelNum = playercolor;                        break;
@@ -1643,7 +1643,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_MOUSEFLIP:                    in_mouseflip.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_STATUSBARSCALE:               ud.statusbarscale                = iSet; break;
         case USERDEFS_DRAWWEAPON:                   r_drawweapon.SetGenericRepDefault(iSet, CVAR_Int); break;
-        case USERDEFS_MOUSEAIMING:                  in_aimmode.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_MOUSEAIMING:                   break; // the script code has no business whatsoever changing this!
         case USERDEFS_WEAPONSWITCH:                 cl_weaponswitch.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_DEMOCAMS:                     cl_democams                      = iSet; break;
         case USERDEFS_COLOR:                        /*playercolor.SetGenericRepDefault(iSet, CVAR_Int);*/ break; // the value range here does not match, so better leave the CVar alone.
