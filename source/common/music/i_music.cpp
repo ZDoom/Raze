@@ -82,7 +82,8 @@ void I_InitMusicWin32();
 // let the operating system decide for us.
 //
 //==========================================================================
-EXTERN_CVAR(Bool, cd_enabled);
+EXTERN_CVAR(Bool, cd_enabled); 
+EXTERN_CVAR(Float, snd_mastervolume)
 
 CUSTOM_CVAR(String, cd_drive, "", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 {
@@ -125,7 +126,7 @@ CUSTOM_CVARD(Float, mus_volume, 0.5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls m
 		ChangeMusicSetting(ZMusic::snd_musicvolume, nullptr, self);
 		if (GSnd != nullptr)
 		{
-			GSnd->SetMusicVolume(clamp<float>(self * relative_volume/* * snd_mastervolume*/, 0, 1));
+			GSnd->SetMusicVolume(clamp<float>(self * relative_volume * snd_mastervolume, 0, 1));
 		}
 		// For music not implemented through the digital sound system,
 		// let them know about the change.

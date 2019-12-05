@@ -1169,29 +1169,7 @@ SoundShutdown(void)
 
 void MusicStartup(void)
 {
-    // if they chose None lets return
-
-    buildprintf("Initializing MIDI driver... ");
-
-    int status;
-    if ((status = MUSIC_Init(MusicDevice)) == MUSIC_Ok)
-    {
-        if (MusicDevice == ASS_AutoDetect)
-            MusicDevice = MIDI_GetDevice();
-    }
-    else if ((status = MUSIC_Init(ASS_AutoDetect)) == MUSIC_Ok)
-    {
-        MusicDevice = MIDI_GetDevice();
-    }
-    else
-    {
-        buildprintf("Music error: %s\n", MUSIC_ErrorString(status));
-        return;
-    }
-
-    MusicInitialized = TRUE;
-    MUSIC_SetVolume(mus_volume);
-
+#if 0
     auto fil = kopenFileReader("swtimbr.tmb", 0);
 
     if (fil.isOpen())
@@ -1200,6 +1178,7 @@ void MusicStartup(void)
 		if (tmb.Size())
         	AL_RegisterTimbreBank(tmb.Data());
     }
+#endif
 }
 
 void COVER_SetReverb(int amt)

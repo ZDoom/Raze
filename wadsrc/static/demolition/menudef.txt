@@ -1181,7 +1181,7 @@ OptionValue SampleRates
 	//8000,	"$OPTVAL_8000HZ"
 	11025,	"$OPTVAL_11025HZ"
 	22050,	"$OPTVAL_22050HZ"
-	/32000,	"$OPTVAL_32000HZ"
+	32000,	"$OPTVAL_32000HZ"
 	44100,	"$OPTVAL_44100HZ"
 	48000,	"$OPTVAL_48000HZ"
 }
@@ -1239,12 +1239,13 @@ OptionValue MidiDevices
 OptionMenu SoundOptions //protected
 {
 	Title "$SNDMNU_TITLE"
-	//Slider "$MODMNU_MASTERVOLUME",		"snd_mastervolume", 0, 1, 0.05, 2
-	//StaticText " "
-	Option "$SNDMNU_SNDENABLED",		"snd_enabled", "OnOff"
+	Slider "$MODMNU_MASTERVOLUME",		"snd_mastervolume", 0, 1, 0.05, 2
+	StaticText " "
+	Option "$SNDMNU_SNDENABLED",		"snd_enabled", "YesNo"
 	Slider "$SNDMNU_SFXVOLUME",			"snd_fxvolume", 0, 255, 2, 1
-	//Slider "$SNDMNU_SFXVOLUME",			"snd_fxvolume", 0, 1, 0.05, 2 // Todo: Change value type
-	Option "$SNDMNU_MUSENABLED",		"mus_enabled", "OnOff"	Slider "$SNDMNU_MUSICVOLUME",		"mus_volume", 0, 1, 0.05, 2
+	//Slider "$SNDMNU_SFXVOLUME",			"snd_sfxvolume", 0, 1, 0.05, 2 // Todo: Change value type
+	Option "$SNDMNU_MUSENABLED",		"mus_enabled", "YesNo"	
+	Slider "$SNDMNU_MUSICVOLUME",		"mus_volume", 0, 1, 0.05, 2
 	Option "$SNDMNU_MENUSOUND",		"menu_sounds", "OnOff" // placeholder until the slider can be made to work
 	//Slider "$SNDMNU_MENUVOLUME",		"snd_menuvolume", 0, 1, 0.05, 2
 	StaticText " "
@@ -1287,10 +1288,10 @@ OptionMenu AdvSoundOptions //protected
 	Title "$ADVSNDMNU_TITLE"
 	Option "$ADVSNDMNU_SAMPLERATE",			"snd_mixrate", "SampleRates"
 	//Option "$ADVSNDMNU_HRTF",				"snd_hrtf", "AutoOffOn"
-	Option "$ADVSNDMNU_FLIPSTEREO"			"snd_reversestereo", "OnOff"
+	Option "$ADVSNDMNU_FLIPSTEREO",			"snd_reversestereo", "OnOff"
 	StaticText " "
-	Option "$SNDMNU_BACKGROUND",			"i_soundinbackground", "OnOff"
-	StaticText " "
+	//Option "$SNDMNU_BACKGROUND",			"i_soundinbackground", "OnOff"
+	//StaticText " "
 
 	ifoption(openal)
 	{
@@ -1302,16 +1303,16 @@ OptionMenu AdvSoundOptions //protected
 	Submenu "$SNDMNU_MIDIPLAYER",		"MidiPlayerOptions"
 	Submenu "$SNDMNU_MODREPLAYER",		"ModReplayerOptions"
 	StaticText " "
-	Command "$SNDMNU_RESTART",			"snd_reset"
+	Command "$SNDMNU_RESTART",			"restartsound"
 }
 
 
-OptionMenu TimidityConfigMenu protected
+OptionMenu TimidityConfigMenu //protected
 {
 	Title "$ADVSNDMNU_SELCONFIG"
 }
 
-OptionMenu FluidPatchsetMenu protected
+OptionMenu FluidPatchsetMenu //protected
 {
 	Title "$ADVSNDMNU_SELCONFIG"
 }
@@ -1376,9 +1377,9 @@ OptionMenu ModReplayerOptions //protected
   OptionMenu MidiPlayerOptions //protected
  {
 	Title "$SNDMNU_MIDIPLAYER"
-	Submenu "$ADVSNDMNU_FLUIDSYNTH", "FluidsynthOptions", 0, 1
-	Submenu "$ADVSNDMNU_TIMIDITY", "TimidityOptions", 0, 1
-	Submenu "$ADVSNDMNU_OPLSYNTHESIS", "OPLOptions", 0, 1
+	Submenu "$ADVSNDMNU_FLUIDSYNTH", "FluidsynthOptions"//, 0, 1
+	Submenu "$ADVSNDMNU_TIMIDITY", "TimidityOptions"//, 0, 1
+	Submenu "$ADVSNDMNU_OPLSYNTHESIS", "OPLOptions"//, 0, 1
  }
 
  OptionMenu FluidsynthOptions //protected

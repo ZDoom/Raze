@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "inifile.h"
 #include "levels.h"
-#include "menu.h"
 #include "qav.h"
 #include "resource.h"
 #include "view.h"

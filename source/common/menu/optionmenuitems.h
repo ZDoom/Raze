@@ -82,6 +82,7 @@ public:
 class FOptionMenuItemLabeledSubmenu : public FOptionMenuItemSubmenu
 {
 	FBaseCVar *mLabelCVar;
+public:
 	FOptionMenuItemLabeledSubmenu(const char * label, FBaseCVar *labelcvar, FName command, int param = 0)
 	 : FOptionMenuItemSubmenu(label, command, param)
 	{
@@ -92,7 +93,7 @@ class FOptionMenuItemLabeledSubmenu : public FOptionMenuItemSubmenu
 	{
 		drawLabel(indent, y, selected? OptionSettings.mFontColorSelection : OptionSettings.mFontColor);
 		
-		auto text = mLabelCVar->GetHumanString();
+		auto text = mLabelCVar? mLabelCVar->GetHumanString() : "";
 		if (text[0] == 0) text = GStrings("notset");
 		drawValue(indent, y, OptionSettings.mFontColorValue, text);
 		return indent;

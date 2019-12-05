@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "levels.h"
 #include "loadsave.h"
-#include "menu.h"
+#include "gamemenu.h"
 #include "mirrors.h"
 #include "music.h"
 #include "network.h"

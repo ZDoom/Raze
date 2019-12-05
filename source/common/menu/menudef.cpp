@@ -44,7 +44,7 @@
 #include "printf.h"
 #include "gamecontrol.h"
 #include "cmdlib.h"
-
+#include "c_cvars.h"
 #include "optionmenuitems.h"
 
 // Menu-relevant content that gets filled in by scripts. This will get processed after the game has loaded.
@@ -870,6 +870,18 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 			sc.MustGetStringName(",");
 			sc.MustGetString();
 			FOptionMenuItem *it = new FOptionMenuItemSubmenu(label, sc.String);
+			desc->mItems.Push(it);
+		}
+		else if (sc.Compare("LabeledSubmenu"))
+		{
+			sc.MustGetString();
+			FString label = sc.String;
+			sc.MustGetStringName(",");
+			sc.MustGetString();
+			auto cvar = FindCVar(sc.String, nullptr);
+			sc.MustGetStringName(",");
+			sc.MustGetString();
+			FOptionMenuItem* it = new FOptionMenuItemLabeledSubmenu(label, cvar, sc.String);
 			desc->mItems.Push(it);
 		}
 		else if (sc.Compare("Option"))

@@ -79,6 +79,7 @@ MusicAliasMap LevelMusicAliases;
 bool MusicPaused;
 static bool mus_blocked;
 static FString lastStartedMusic;
+EXTERN_CVAR(Float, mus_volume)
 
 //==========================================================================
 //
