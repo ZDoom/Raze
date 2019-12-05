@@ -138,7 +138,8 @@ void UpdateMiniBar(PLAYERp pp)
 
     rotatesprite(x << 16, y << 16, (1 << 16), 0,
                  MINI_BAR_HEALTH_BOX_PIC, 0, 0,
-                 ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+                 ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER | RS_ALIGN_L,
+                 0, 0, xdim - 1, ydim - 1);
 
     x = MINI_BAR_HEALTH_BOX_X+3;
     DisplayMiniBarNumber(pp, x, y+5, u->Health);
@@ -149,7 +150,8 @@ void UpdateMiniBar(PLAYERp pp)
 
         rotatesprite(x << 16, y << 16, (1 << 16), 0,
                      MINI_BAR_AMMO_BOX_PIC, 0, 0,
-                     ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+                     ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER | RS_ALIGN_L,
+                     0, 0, xdim - 1, ydim - 1);
 
         x = MINI_BAR_AMMO_BOX_X+3;
         DisplayMiniBarNumber(pp, x, y+5, pp->WpnAmmo[u->WeaponNum]);
@@ -163,7 +165,8 @@ void UpdateMiniBar(PLAYERp pp)
 
     rotatesprite(x << 16, y << 16, (1 << 16), 0,
                  MINI_BAR_INVENTORY_BOX_PIC, 0, 0,
-                 ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+                 ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER | RS_ALIGN_L,
+                 0, 0, xdim - 1, ydim - 1);
 
     id = &InventoryData[pp->InventoryNum];
 
@@ -173,7 +176,8 @@ void UpdateMiniBar(PLAYERp pp)
 
     rotatesprite(x << 16, y << 16, (1 << 16), 0,
                  id->State->picndx, 0, 0,
-                 ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+                 ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER | RS_ALIGN_L,
+                 0, 0, xdim - 1, ydim - 1);
 
     // will update the AUTO and % inventory values
     PlayerUpdateInventory(pp, pp->InventoryNum);

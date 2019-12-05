@@ -441,10 +441,9 @@ static void BorderSetView(PLAYERp, int *Xdim, int *Ydim, int *ScreenSize)
     y = DIV2(*Ydim) - DIV2((*ScreenSize **Ydim) / *Xdim);
     y2 = y + ((*ScreenSize **Ydim) / *Xdim) - 1;
 
-    if (ydim == 480 && gs.BorderNum == 2)
-    {
-        y2+=2;
-    }
+    // avoid a one-pixel tall HOM
+    if (gs.BorderNum == BORDER_BAR)
+        ++y2;
 
     // global windowxy1, windowxy2 coords set here
     videoSetViewableArea(x, y, x2, y2);

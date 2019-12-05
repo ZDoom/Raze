@@ -494,7 +494,6 @@ int32_t Anim_Play(const char *fn)
     // setpalette(0L,256L,tempbuf);
     P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 8 + 2);
 
-    timerUpdate();
     ototalclock = totalclock;
 
     i = 1;

@@ -643,7 +643,6 @@ void G_CacheMapData(void)
             {
                 Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", lpc, pc, g_precacheCount);
                 G_DoLoadScreen(tempbuf, lpc);
-                timerUpdate();
 
                 if (totalclock - tc >= 1)
                 {

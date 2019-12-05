@@ -1,4 +1,4 @@
-//-------------------------------------------------------------------------
+﻿//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -7639,8 +7639,6 @@ MAIN_LOOP_RESTART:
 
             do
             {
-                timerUpdate();
-
                 if (ready2send == 0) break;
                 Net_GetInput();
 
@@ -7653,8 +7651,6 @@ MAIN_LOOP_RESTART:
                 {
                     G_MoveLoop();
                 }
-
-                timerUpdate();
 
                 if (totalclock - moveClock >= TICSPERFRAME)
                 {
