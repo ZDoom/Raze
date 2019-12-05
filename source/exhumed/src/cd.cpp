@@ -92,7 +92,7 @@ bool playCDtrack(int nTrack, bool bLoop)
 
     kclose(hFile);
 
-    trackhandle = FX_Play(pTrack, nRead, bLoop ? 0 : -1, 0, 0, 255, 255, 255, FX_MUSIC_PRIORITY, fix16_one, MUSIC_ID);
+    trackhandle = FX_Play(pTrack, nRead, bLoop ? 0 : -1, 0, 0, gMusicVolume, gMusicVolume, gMusicVolume, FX_MUSIC_PRIORITY, fix16_one, MUSIC_ID);
     if (trackhandle <= FX_Ok)
     {
         OSD_Printf("Error playing music track %s", filename);
@@ -103,8 +103,6 @@ bool playCDtrack(int nTrack, bool bLoop)
         }
         return false;
     }
-
-    setCDaudiovolume(gMusicVolume);
 
     return true;
 }
