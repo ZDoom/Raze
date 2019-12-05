@@ -46,6 +46,8 @@
 #include "cmdlib.h"
 #include "c_cvars.h"
 #include "optionmenuitems.h"
+#include "i_soundfont.h"
+#include "zmusic/zmusic.h"
 
 // Menu-relevant content that gets filled in by scripts. This will get processed after the game has loaded.
 FString gSkillNames[MAXSKILLS];
@@ -61,7 +63,9 @@ static FOptionMenuDescriptor DefaultOptionMenuSettings;	// contains common setti
 FOptionMenuSettings OptionSettings;
 FOptionMap OptionValues;
 
+void I_BuildMIDIMenuList(FOptionValues* opt);
 void I_BuildALDeviceList(FOptionValues *opt);
+void I_BuildALResamplersList(FOptionValues* opt);
 
 static void DeinitMenus()
 {
@@ -1395,6 +1399,55 @@ static void InitCrosshairsList()
 
 //=============================================================================
 //
+// Initialize the music configuration submenus
+//
+//=============================================================================
+extern "C"
+{
+	extern int adl_getBanksCount();
+	extern const char* const* adl_getBankNames();
+}
+
+static void InitMusicMenus()
+{
+	FMenuDescriptor** advmenu = MenuDescriptors.CheckKey(NAME_AdvSoundOptions);
+	auto soundfonts = sfmanager.GetList();
+	std::tuple<const char*, int, const char*> sfmenus[] = { 
+																std::make_tuple("TimidityConfigMenu", SF_SF2 | SF_GUS, "timidity_config"),
+																std::make_tuple("FluidPatchsetMenu", SF_SF2, "fluid_patchset") };
+
+	for (auto& p : sfmenus)
+	{
+		FMenuDescriptor** menu = MenuDescriptors.CheckKey(std::get<0>(p));
+
+		if (menu != nullptr)
+		{
+			if (soundfonts.Size() > 0)
+			{
+				for (auto& entry : soundfonts)
+				{
+					if (entry.type & std::get<1>(p))
+					{
+						FString display = entry.mName;
+						display.ReplaceChars("_", ' ');
+						auto it = new FOptionMenuItemCommand (display, FStringf("%s \"%s\"", std::get<2>(p), entry.mName.GetChars())/*, true*/);
+						static_cast<FOptionMenuDescriptor*>(*menu)->mItems.Push(it);
+					}
+				}
+			}
+			else if (advmenu != nullptr)
+			{
+				// Remove the item for this submenu
+				auto d = static_cast<FOptionMenuDescriptor*>(*advmenu);
+				auto it = d->GetItem(std::get<0>(p));
+				if (it != nullptr) d->mItems.Delete(d->mItems.Find(it));
+			}
+		}
+	}
+}
+
+//=============================================================================
+//
 // Special menus will be created once all engine data is loaded
 //
 //=============================================================================
@@ -1403,19 +1456,23 @@ void M_CreateMenus()
 {
 	BuildEpisodeMenu();
 	InitCrosshairsList();
+	InitMusicMenus();
 
-#if 0
-	FOptionValues **opt = OptionValues.CheckKey(NAME_Mididevices);
-	if (opt != NULL) 
+	FOptionValues** opt = OptionValues.CheckKey(NAME_Mididevices);
+	if (opt != nullptr)
 	{
 		I_BuildMIDIMenuList(*opt);
 	}
 	opt = OptionValues.CheckKey(NAME_Aldevices);
-	if (opt != NULL) 
+	if (opt != nullptr)
 	{
 		I_BuildALDeviceList(*opt);
 	}
-#endif
+	opt = OptionValues.CheckKey(NAME_Alresamplers);
+	if (opt != nullptr)
+	{
+		I_BuildALResamplersList(*opt);
+	}
 }
 
 //=============================================================================

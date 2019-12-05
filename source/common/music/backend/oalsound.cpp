@@ -43,6 +43,7 @@
 #include "cmdlib.h"
 #include "c_cvars.h"
 #include "printf.h"
+#include "menu.h"
 #include "zmusic/sounddecoder.h"
 #include "filereadermusicinterface.h"
 
@@ -96,7 +97,6 @@ bool IsOpenALPresent()
 
 
 
-#if 0
 void I_BuildALDeviceList(FOptionValues *opt)
 {
 	opt->mValues.Resize(1);
@@ -148,7 +148,6 @@ void I_BuildALResamplersList(FOptionValues *opt)
 	}
 #endif
 }
-#endif
 
 
 ReverbContainer *ForcedEnvironment;

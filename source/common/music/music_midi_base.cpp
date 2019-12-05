@@ -33,32 +33,150 @@
 
 #define DEF_MIDIDEV -5
 
-static uint32_t	nummididevices;
 
-#define NUM_DEF_DEVICES 7
+#define NUM_DEF_DEVICES 3
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mmsystem.h>
-
-void I_InitMusicWin32 ()
-{
-	nummididevices = midiOutGetNumDevs ();
-}
-
-
 #endif
 
 #include "c_dispatch.h"
 
 #include "v_text.h"
+#include "menu/menu.h"
 #include "zmusic/zmusic.h"
 #include "s_music.h"
 #include "c_cvars.h"
 #include "printf.h"
 
 EXTERN_CVAR(Int, snd_mididevice)
+static uint32_t	nummididevices;
+
+
+static void AddDefaultMidiDevices(FOptionValues *opt)
+{
+	FOptionValues::Pair *pair = &opt->mValues[opt->mValues.Reserve(NUM_DEF_DEVICES)];
+	pair[0].Text = "FluidSynth";
+	pair[0].Value = -5.0;
+	pair[1].Text = "TiMidity++";
+	pair[1].Value = -2.0;
+	pair[2].Text = "OPL Synth Emulation";
+	pair[2].Value = -3.0;
+
+}
+
+#ifdef _WIN32
+
+void I_InitMusicWin32 ()
+{
+	nummididevices = midiOutGetNumDevs ();
+}
+
+void I_BuildMIDIMenuList (FOptionValues *opt)
+{
+	AddDefaultMidiDevices(opt);
+
+	for (uint32_t id = 0; id < nummididevices; ++id)
+	{
+		MIDIOUTCAPS caps;
+		MMRESULT res;
+
+		res = midiOutGetDevCaps (id, &caps, sizeof(caps));
+		assert(res == MMSYSERR_NOERROR);
+		if (res == MMSYSERR_NOERROR)
+		{
+			FOptionValues::Pair *pair = &opt->mValues[opt->mValues.Reserve(1)];
+			pair->Text = caps.szPname;
+			pair->Value = (float)id;
+		}
+	}
+}
+
+static void PrintMidiDevice (int id, const char *name, uint16_t tech, uint32_t support)
+{
+	if (id == snd_mididevice)
+	{
+		Printf (TEXTCOLOR_BOLD);
+	}
+	Printf ("% 2d. %s : ", id, name);
+	switch (tech)
+	{
+	case MIDIDEV_MIDIPORT:		Printf ("MIDIPORT");		break;
+	case MIDIDEV_SYNTH:			Printf ("SYNTH");			break;
+	case MIDIDEV_SQSYNTH:		Printf ("SQSYNTH");			break;
+	case MIDIDEV_FMSYNTH:		Printf ("FMSYNTH");			break;
+	case MIDIDEV_MAPPER:		Printf ("MAPPER");			break;
+	case MIDIDEV_WAVETABLE:		Printf ("WAVETABLE");		break;
+	case MIDIDEV_SWSYNTH:		Printf ("SWSYNTH");			break;
+	}
+	if (support & MIDICAPS_CACHE)
+	{
+		Printf (" CACHE");
+	}
+	if (support & MIDICAPS_LRVOLUME)
+	{
+		Printf (" LRVOLUME");
+	}
+	if (support & MIDICAPS_STREAM)
+	{
+		Printf (" STREAM");
+	}
+	if (support & MIDICAPS_VOLUME)
+	{
+		Printf (" VOLUME");
+	}
+	Printf (TEXTCOLOR_NORMAL "\n");
+}
+
+CCMD (snd_listmididevices)
+{
+	UINT id;
+	MIDIOUTCAPS caps;
+	MMRESULT res;
+
+	PrintMidiDevice(-8, "libOPN", MIDIDEV_FMSYNTH, 0);
+	PrintMidiDevice(-7, "libADL", MIDIDEV_FMSYNTH, 0);
+	PrintMidiDevice (-6, "WildMidi", MIDIDEV_SWSYNTH, 0);
+	PrintMidiDevice (-5, "FluidSynth", MIDIDEV_SWSYNTH, 0);
+	PrintMidiDevice (-4, "Gravis Ultrasound Emulation", MIDIDEV_SWSYNTH, 0);
+	PrintMidiDevice (-3, "Emulated OPL FM Synth", MIDIDEV_FMSYNTH, 0);
+	PrintMidiDevice (-2, "TiMidity++", MIDIDEV_SWSYNTH, 0);
+	if (nummididevices != 0)
+	{
+		for (id = 0; id < nummididevices; ++id)
+		{
+			FString text;
+			res = midiOutGetDevCaps (id, &caps, sizeof(caps));
+			if (res == MMSYSERR_NODRIVER)
+				text = "<Driver not installed>";
+			else if (res == MMSYSERR_NOMEM)
+				text = "<No memory for description>";
+			else if (res == MMSYSERR_NOERROR)
+				text = caps.szPname;
+			else
+				continue;
+
+			PrintMidiDevice (id, text, caps.wTechnology, caps.dwSupport);
+		}
+	}
+}
+
+#else
+
+void I_BuildMIDIMenuList (FOptionValues *opt)
+{
+	AddDefaultMidiDevices(opt);
+}
+
+CCMD (snd_listmididevices)
+{
+	Printf("%s-5. FluidSynth\n", -5 == snd_mididevice ? TEXTCOLOR_BOLD : "");
+	Printf("%s-3. Emulated OPL FM Synth\n", -3 == snd_mididevice ? TEXTCOLOR_BOLD : "");
+	Printf("%s-2. TiMidity++\n", -2 == snd_mididevice ? TEXTCOLOR_BOLD : "");
+}
+#endif
 
 
 CUSTOM_CVAR (Int, snd_mididevice, DEF_MIDIDEV, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL)

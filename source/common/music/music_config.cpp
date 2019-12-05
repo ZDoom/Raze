@@ -74,7 +74,7 @@ CUSTOM_CVAR(String, fluid_lib, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTU
 	FORWARD_STRING_CVAR(fluid_lib);
 }
 
-CUSTOM_CVAR(String, fluid_patchset, "gzdoom", CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+CUSTOM_CVAR(String, fluid_patchset, "demolition", CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
 {
 	FORWARD_STRING_CVAR(fluid_patchset);
 }
@@ -273,7 +273,7 @@ CUSTOM_CVAR(Float, min_sustain_time, 5000, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CV
 	FORWARD_CVAR(min_sustain_time);
 }
 
-CUSTOM_CVAR(String, timidity_config, "gzdoom", CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+CUSTOM_CVAR(String, timidity_config, "demolition", CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
 {
 	FORWARD_STRING_CVAR(timidity_config);
 }
