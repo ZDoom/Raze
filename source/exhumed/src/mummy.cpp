@@ -146,26 +146,13 @@ void CheckMummyRevive(short nMummy)
                 continue;
             }
 
-            int x = sprite[nSprite2].x - sprite[nSprite].x;
-            if (x < 0) {
-                x = -x;
-            }
-
-            x = x >> 8;
-
-            int y = sprite[nSprite2].y - sprite[nSprite].y;
-            if (y < 0) {
-                y = -y;
-            }
-
-            y = y >> 8;
+            int x = klabs(sprite[nSprite2].x - sprite[nSprite].x) >> 8;
+            int y = klabs(sprite[nSprite2].y - sprite[nSprite].y) >> 8;
 
             if (x <= 20 && y <= 20)
             {
-                int bCanSee = cansee(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - 8192, sprite[nSprite].sectnum,
-                       sprite[nSprite2].x, sprite[nSprite2].y, sprite[nSprite2].z - 8192, sprite[nSprite2].sectnum);
-
-                if (bCanSee)
+                if (cansee(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - 8192, sprite[nSprite].sectnum,
+                          sprite[nSprite2].x, sprite[nSprite2].y, sprite[nSprite2].z - 8192, sprite[nSprite2].sectnum))
                 {
                     sprite[nSprite2].cstat = 0;
                     MummyList[i].nAction = 6;
@@ -215,7 +202,7 @@ void FuncMummy(int a, int nDamage, int nRun)
 
             if (nTarget != -1 && nAction < 4)
             {
-                if (!sprite[nTarget].cstat && nAction)
+                if ((!sprite[nTarget].cstat) && nAction)
                 {
                     MummyList[nMummy].nAction = 0;
                     MummyList[nMummy].B = 0;
@@ -233,21 +220,23 @@ void FuncMummy(int a, int nDamage, int nRun)
             {
                 case 0:
                 {
-                    if ((MummyList[nMummy].F & 31) == (totalmoves & 31))
+                    if ((MummyList[nMummy].F & 0x1F) == (totalmoves & 0x1F))
                     {
                         sprite[nSprite].cstat = 0x101;
+
                         if (nTarget < 0)
                         {
-                            int nPlayerSprite = FindPlayer(nSprite, 100);
-                            if (nPlayerSprite >= 0)
+                            int nTarget = FindPlayer(nSprite, 100);
+                            if (nTarget >= 0)
                             {
                                 D3PlayFX(StaticSound[kSound7], nSprite);
                                 MummyList[nMummy].B = 0;
-                                MummyList[nMummy].nTarget = nPlayerSprite;
+                                MummyList[nMummy].nTarget = nTarget;
                                 MummyList[nMummy].nAction = 1;
-                                sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512) >> 2;
-                                sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
                                 MummyList[nMummy].G = 90;
+
+                                sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
+                                sprite[nSprite].yvel = sintable[sprite[nSprite].ang] >> 2; // NOTE no angle masking in original code
                             }
                         }
                     }
@@ -261,7 +250,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                         MummyList[nMummy].G--;
                     }
 
-                    if ((MummyList[nMummy].F & 31) == (totalmoves & 31))
+                    if ((MummyList[nMummy].F & 0x1F) == (totalmoves & 0x1F))
                     {
                         sprite[nSprite].cstat = 0x101;
 
@@ -271,86 +260,87 @@ void FuncMummy(int a, int nDamage, int nRun)
                         {
                             if (RandomBit())
                             {
-                                int nTargetHeight = GetSpriteHeight(nTarget);
-                                int nSpriteHeight = GetSpriteHeight(nSprite);
-
-                                if (cansee(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - nSpriteHeight, sprite[nSprite].sectnum, sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - nTargetHeight, sprite[nTarget].sectnum))
+                                if (cansee(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - GetSpriteHeight(nSprite), sprite[nSprite].sectnum,
+                                    sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
                                 {
                                     MummyList[nMummy].nAction = 3;
                                     MummyList[nMummy].B = 0;
-                                    sprite[nSprite].yvel = 0;
+
                                     sprite[nSprite].xvel = 0;
+                                    sprite[nSprite].yvel = 0;
                                     return;
                                 }
                             }
                         }
+                    }
 
-                        if (!MummyList[nMummy].B)
+                    // loc_2B5A8
+                    if (!MummyList[nMummy].B)
+                    {
+                        sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 1;
+                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                    }
+
+                    if (sprite[nSprite].xvel || sprite[nSprite].yvel)
+                    {
+                        if (sprite[nSprite].xvel > 0)
                         {
-                            sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512) >> 1;
-                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 1;
+                            sprite[nSprite].xvel -= 1024;
+                            if (sprite[nSprite].xvel < 0) {
+                                sprite[nSprite].xvel = 0;
+                            }
                         }
-
-                        if (sprite[nSprite].xvel || sprite[nSprite].yvel)
+                        else if (sprite[nSprite].xvel < 0)
                         {
-                            if (sprite[nSprite].xvel > 0)
-                            {
-                                sprite[nSprite].xvel -= 1024;
-                                if (sprite[nSprite].xvel < 0) {
-                                    sprite[nSprite].xvel = 0;
-                                }
-                            }
-                            else if (sprite[nSprite].xvel < 0)
-                            {
-                                sprite[nSprite].xvel += 1024;
-                                if (sprite[nSprite].xvel > 0) {
-                                    sprite[nSprite].xvel = 0;
-                                }
-                            }
-
-                            if (sprite[nSprite].yvel > 0)
-                            {
-                                sprite[nSprite].yvel -= 1024;
-                                if (sprite[nSprite].yvel < 0) {
-                                    sprite[nSprite].yvel = 0;
-                                }
-                            }
-                            else if (sprite[nSprite].yvel < 0)
-                            {
-                                sprite[nSprite].yvel += 1024;
-                                if (sprite[nSprite].yvel > 0) {
-                                    sprite[nSprite].yvel = 0;
-                                }
+                            sprite[nSprite].xvel += 1024;
+                            if (sprite[nSprite].xvel > 0) {
+                                sprite[nSprite].xvel = 0;
                             }
                         }
 
-                        if (nMov)
+                        if (sprite[nSprite].yvel > 0)
                         {
-                            switch (nMov & 0xC000)
-                            {
-                                case 0x8000:
-                                {
-                                    sprite[nSprite].ang = (sprite[nSprite].ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
-                                    sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512) >> 2;
-                                    sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
-                                    return;
-                                }
+                            sprite[nSprite].yvel -= 1024;
+                            if (sprite[nSprite].yvel < 0) {
+                                sprite[nSprite].yvel = 0;
+                            }
+                        }
+                        else if (sprite[nSprite].yvel < 0)
+                        {
+                            sprite[nSprite].yvel += 1024;
+                            if (sprite[nSprite].yvel > 0) {
+                                sprite[nSprite].yvel = 0;
+                            }
+                        }
+                    }
 
-                                case 0xC000:
+                    if (nMov)
+                    {
+                        switch (nMov & 0xC000)
+                        {
+                            case 0x8000:
+                            {
+                                sprite[nSprite].ang = (sprite[nSprite].ang + ((RandomWord() & 0x3FF) + 1024)) & kAngleMask;
+                                sprite[nSprite].xvel = Cos(sprite[nSprite].ang) >> 2;
+                                sprite[nSprite].yvel = Sin(sprite[nSprite].ang) >> 2;
+                                return;
+                            }
+
+                            case 0xC000:
+                            {
+                                if ((nMov & 0x3FFF) == nTarget)
                                 {
-                                    if ((nMov & 0x3FFF) == nTarget)
+                                    int nAngle = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
+                                    if (AngleDiff(sprite[nSprite].ang, nAngle) < 64)
                                     {
-                                        int nAngle = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-                                        if (AngleDiff(sprite[nSprite].ang, nAngle) < 64)
-                                        {
-                                            MummyList[nMummy].nAction = 2;
-                                            MummyList[nMummy].B = 0;
-                                            sprite[nSprite].xvel = 0;
-                                            sprite[nSprite].yvel = 0;
-                                        }
+                                        MummyList[nMummy].nAction = 2;
+                                        MummyList[nMummy].B = 0;
+
+                                        sprite[nSprite].xvel = 0;
+                                        sprite[nSprite].yvel = 0;
                                     }
-                                    return;
                                 }
+                                return;
                             }
                         }
                     }
@@ -451,11 +441,12 @@ void FuncMummy(int a, int nDamage, int nRun)
 
                     if (ecx)
                     {
-                        sprite[nSprite].yvel = 0;
                         sprite[nSprite].xvel = 0;
+                        sprite[nSprite].yvel = 0;
+                        sprite[nSprite].cstat = 0x101;
+
                         MummyList[nMummy].nAction = 0;
                         MummyList[nMummy].B = 0;
-                        sprite[nSprite].cstat = 0x101;
                         MummyList[nMummy].nTarget = -1;
                     }
 
@@ -514,6 +505,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                 {
                     MummyList[nMummy].nAction = 7;
                     MummyList[nMummy].B = 0;
+
                     sprite[nSprite].xvel = 0;
                     sprite[nSprite].yvel = 0;
                 }
