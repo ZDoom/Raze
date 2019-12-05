@@ -284,7 +284,8 @@ void DisplayMiniBarNumber(PLAYERp pp, short xs, short ys, int number)
 
         rotatesprite((long)x << 16, (long)ys << 16, (1 << 16), 0,
                      pic, 0, 0,
-                     ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+                     ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER | RS_ALIGN_L,
+                     0, 0, xdim - 1, ydim - 1);
 
         size = tilesiz[PANEL_FONT_G + (*ptr - '0')].x + 1;
     }
@@ -310,7 +311,8 @@ void DisplayMiniBarSmString(PLAYERp pp, short xs, short ys, short pal, const cha
         pic = FRAG_FIRST_TILE + (*ptr - FRAG_FIRST_ASCII);
 
         rotatesprite((int)x << 16, (int)ys << 16, (1 << 16), 0, pic, 0, pal,
-                     ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+                     ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER | RS_ALIGN_L,
+                     0, 0, xdim - 1, ydim - 1);
     }
 }
 
