@@ -1702,8 +1702,25 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             if (j < 0)
                 break;
 
-			event_t evt = { uint8_t((ev->button.state == SDL_PRESSED)? EV_KeyDown : EV_KeyUp), 0, (int16_t)j};
-			D_PostEvent(&evt);
+			if (!(GUICapture & 1))
+			{
+				event_t evt = { uint8_t((ev->button.state == SDL_PRESSED) ? EV_KeyDown : EV_KeyUp), 0, (int16_t)j };
+				D_PostEvent(&evt);
+			}
+			else
+			{
+				event_t evt;
+				evt.type = EV_GUI_Event;
+				evt.subtype = uint8_t((ev->button.state == SDL_PRESSED) ? EV_GUI_LButtonDown : EV_GUI_LButtonUp);
+
+				SDL_Keymod kmod = SDL_GetModState();
+				evt.data3 = ((kmod & KMOD_SHIFT) ? GKM_SHIFT : 0) |
+					((kmod & KMOD_CTRL) ? GKM_CTRL : 0) |
+					((kmod & KMOD_ALT) ? GKM_ALT : 0);
+
+				D_PostEvent(&evt);
+
+			}
             break;
         }
 
@@ -2059,13 +2076,12 @@ int32_t handleevents(void)
 void I_SetMouseCapture()
 {
 	// Clear out any mouse movement.
-	SDL_GetRelativeMouseState(NULL, NULL);
-	SDL_SetRelativeMouseMode(SDL_TRUE);
+	SDL_CaptureMouse(SDL_TRUE);
 }
 
 void I_ReleaseMouseCapture()
 {
-	SDL_SetRelativeMouseMode(SDL_FALSE);
+	SDL_CaptureMouse(SDL_FALSE);
 }
 
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
