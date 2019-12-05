@@ -6747,6 +6747,9 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
         int32_t zoomsc, sx=*sxptr, sy=*syptr;
         int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
 
+        if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
+            sx += NEGATE_ON_CONDITION(scale(120<<16,xdim,ydim) - (160<<16), !(dastat & RS_ALIGN_R));
+
         sy += rotatesprite_y_offset;
 
         // screen center to s[xy], 320<<16 coords.
@@ -6774,17 +6777,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
             // screen x center to sx1, scaled to viewport
             const int32_t scaledxofs = scale(normxofs, scale(xdimen, xdim, oxdim), 320);
 
-            int32_t xbord = 0;
-
-            if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
-            {
-                xbord = scale(oxdim-xdim, twice_midcx, oxdim);
-
-                if ((dastat & RS_ALIGN_R)==0)
-                    xbord = -xbord;
-            }
-
-            sx = ((twice_midcx+xbord)<<15) + scaledxofs;
+            sx = ((twice_midcx)<<15) + scaledxofs;
 
             zoomsc = xdimenscale;   //= scale(xdimen,yxaspect,320);
             zoomsc = mulscale16(zoomsc, rotatesprite_yxaspect);
@@ -6806,9 +6799,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 
             if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
                 sy += (oydim-ydim)<<15;
-            else if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_R)
-                sx += (oxdim-xdim)<<16;
-            else if ((dastat & RS_ALIGN_MASK) == 0)
+            else
                 sx += (oxdim-xdim)<<15;
 
             if (dastat & RS_CENTERORIGIN)
