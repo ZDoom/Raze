@@ -48,15 +48,8 @@ struct Spider
 
 Spider SpiderList[kMaxSpiders];
 
-static actionSeq ActionSeq[] = {
-    {16, 0},
-    {8, 0},
-    {32, 0},
-    {24, 0},
-    {0, 0},
-    {40, 1},
-    {41, 1},
-};
+static actionSeq ActionSeq[] = { {16, 0}, {8, 0}, {32, 0}, {24, 0}, {0, 0}, {40, 1}, {41, 1} };
+
 
 void InitSpider()
 {
@@ -64,11 +57,9 @@ void InitSpider()
     SpiderSprite = 1;
 }
 
-int BuildSpider(int nSprite, int x, int y, int z, short nSector, int angle)
+int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
 {
-    SpiderCount++;
-
-    int nSpider = SpiderCount;
+    int nSpider = SpiderCount++;
     if (nSpider >= kMaxSpiders) {
         return -1;
     }
@@ -83,7 +74,7 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int angle)
         x = sprite[nSprite].x;
         y = sprite[nSprite].y;
         z = sprite[nSprite].z;
-        angle = sprite[nSprite].ang;
+        nAngle = sprite[nSprite].ang;
     }
 
     assert(nSprite >= 0 && nSprite < kMaxSprites);
@@ -91,7 +82,7 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int angle)
     sprite[nSprite].x = x;
     sprite[nSprite].y = y;
     sprite[nSprite].z = z;
-    sprite[nSprite].cstat = 257;
+    sprite[nSprite].cstat = 0x101;
     sprite[nSprite].shade = -12;
     sprite[nSprite].clipdist = 15;
     sprite[nSprite].xvel = 0;
@@ -102,13 +93,13 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int angle)
     sprite[nSprite].pal = sector[sprite[nSprite].sectnum].ceilingpal;
     sprite[nSprite].xoffset = 0;
     sprite[nSprite].yoffset = 0;
-    sprite[nSprite].ang = angle;
+    sprite[nSprite].ang = nAngle;
     sprite[nSprite].picnum = 1;
     sprite[nSprite].hitag = 0;
     sprite[nSprite].lotag = runlist_HeadRun() + 1;
     sprite[nSprite].extra = -1;
 
-//	GrabTimeSlot(3);
+    //	GrabTimeSlot(3);
 
     SpiderList[nSpider].nAction = 0;
     SpiderList[nSpider].b = 0;
@@ -174,151 +165,155 @@ void FuncSpider(int a, int nDamage, int nRun)
             {
                 switch (nAction)
                 {
-                    case 0:
+                default:
+                    return;
+
+                case 0:
+                {
+                    if ((nSpider & 0x1F) == (totalmoves & 0x1F))
                     {
-                        if ((nSpider & 0x1F) == (totalmoves & 0x1F))
-                        {
-                            if (nTarget < 0) {
-                                nTarget = FindPlayer(nSprite, 100);
-                            }
-
-                            if (nTarget >= 0)
-                            {
-                                SpiderList[nSpider].nAction = 1;
-                                SpiderList[nSpider].b = 0;
-                                SpiderList[nSpider].nTarget = nTarget;
-
-                                sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512);
-                                sprite[nSprite].yvel = sintable[sprite[nSprite].ang];
-                                return;
-                            }
+                        if (nTarget < 0) {
+                            nTarget = FindPlayer(nSprite, 100);
                         }
 
-                        break;
-                    }
-                    case 1:
-                    {
-                        if (nTarget >= 0) {
-                            var_14++;
-                        }
-goto case_3;
-                        break;
-                    }
-                    case 4:
-                    {
-                        if (!SpiderList[nSpider].b)
+                        if (nTarget >= 0)
                         {
+                            SpiderList[nSpider].nAction = 1;
                             SpiderList[nSpider].b = 0;
-                            SpiderList[nSpider].nAction = 1;
+                            SpiderList[nSpider].nTarget = nTarget;
+
+                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
+                            sprite[nSprite].yvel = sintable[sprite[nSprite].ang]; // NOTE - not angle masking here in original code
+                            return;
                         }
-                        //break; // fall through
-                        fallthrough__;
                     }
-                    case 3:
-                    {
-case_3:
-                        short nSector = sprite[nSprite].sectnum;
 
-                        if (sprite[nSprite].cstat & 8)
-                        {
-                            sprite[nSprite].zvel = 0;
-                            sprite[nSprite].z = sector[nSector].ceilingz + (tilesiz[sprite[nSprite].picnum].y << 5);
-
-                            if (sector[nSector].ceilingstat & 1)
-                            {
-                                sprite[nSprite].cstat ^= 8;
-                                sprite[nSprite].zvel = 1;
-
-                                SpiderList[nSpider].nAction = 3;
-                                SpiderList[nSpider].b = 0;
-                            }
-                        }
-
-                        if ((totalmoves & 0x1F) == (nSpider & 0x1F))
-                        {
-                            PlotCourseToSprite(nSprite, nTarget);
-
-                            if (RandomSize(3))
-                            {
-                                sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512);
-                                sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
-                            }
-                            else
-                            {
-                                sprite[nSprite].yvel = 0;
-                                sprite[nSprite].xvel = 0;
-                            }
-
-                            if (SpiderList[nSpider].nAction == 1 && RandomBit())
-                            {
-                                if (sprite[nSprite].cstat & 8)
-                                {
-                                    sprite[nSprite].cstat ^= 8u;
-                                    sprite[nSprite].zvel = 1;
-                                    sprite[nSprite].z = sector[nSector].ceilingz + GetSpriteHeight(nSprite);
-                                }
-                                else
-                                {
-                                    sprite[nSprite].zvel = -5120;
-                                }
-
-                                SpiderList[nSpider].nAction = 3;
-                                SpiderList[nSpider].b = 0;
-
-                                if (!RandomSize(3)) {
-                                    D3PlayFX(StaticSound[kSound29], nSprite);
-                                }
-                            }
-                        }
-                        break;
+                    break;
+                }
+                case 1:
+                {
+                    if (nTarget >= 0) {
+                        var_14++;
                     }
-                    case 5:
+    goto case_3;
+                    break;
+                }
+                case 4:
+                {
+                    if (!SpiderList[nSpider].b)
                     {
-                        if (!SpiderList[nSpider].b)
-                        {
-                            runlist_DoSubRunRec(sprite[nSprite].owner);
-                            runlist_FreeRun(sprite[nSprite].lotag - 1);
-                            runlist_SubRunRec(SpiderList[nSpider].h);
-                            sprite[nSprite].cstat = 0x8000;
-                            mydeletesprite(nSprite);
-                        }
-                        return;
+                        SpiderList[nSpider].b = 0;
+                        SpiderList[nSpider].nAction = 1;
                     }
-                    case 2:
+                    //break; // fall through
+                    fallthrough__;
+                }
+                case 3:
+                {
+    case_3:
+                    short nSector = sprite[nSprite].sectnum;
+
+                    if (sprite[nSprite].cstat & 8)
                     {
-                        if (nTarget != -1)
+                        sprite[nSprite].zvel = 0;
+                        sprite[nSprite].z = sector[nSector].ceilingz + (tilesiz[sprite[nSprite].picnum].y << 5);
+
+                        if (sector[nSector].ceilingstat & 1)
                         {
-                            if (nFrameFlag & 0x80)
-                            {
-                                runlist_DamageEnemy(nTarget, nSprite, 3);
-                                D3PlayFX(StaticSound[kSound38], nSprite);
-                            }
+                            sprite[nSprite].cstat ^= 8;
+                            sprite[nSprite].zvel = 1;
 
-                            if (PlotCourseToSprite(nSprite, nTarget) < 1024) {
-                                return;
-                            }
+                            SpiderList[nSpider].nAction = 3;
+                            SpiderList[nSpider].b = 0;
+                        }
+                    }
 
-                            SpiderList[nSpider].nAction = 1;
+                    if ((totalmoves & 0x1F) == (nSpider & 0x1F))
+                    {
+                        PlotCourseToSprite(nSprite, nTarget);
+
+                        if (RandomSize(3))
+                        {
+                            sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
+                            sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
                         }
                         else
                         {
-                            SpiderList[nSpider].nAction = 0;
                             sprite[nSprite].xvel = 0;
                             sprite[nSprite].yvel = 0;
                         }
 
-                        SpiderList[nSpider].b = 0;
-                        break;
+                        if (SpiderList[nSpider].nAction == 1 && RandomBit())
+                        {
+                            if (sprite[nSprite].cstat & 8)
+                            {
+                                sprite[nSprite].cstat ^= 8u;
+                                sprite[nSprite].zvel = 1;
+                                sprite[nSprite].z = sector[nSector].ceilingz + GetSpriteHeight(nSprite);
+                            }
+                            else
+                            {
+                                sprite[nSprite].zvel = -5120;
+                            }
+
+                            SpiderList[nSpider].nAction = 3;
+                            SpiderList[nSpider].b = 0;
+
+                            if (!RandomSize(3)) {
+                                D3PlayFX(StaticSound[kSound29], nSprite);
+                            }
+                        }
                     }
+                    break;
+                }
+                case 5:
+                {
+                    if (!SpiderList[nSpider].b)
+                    {
+                        runlist_DoSubRunRec(sprite[nSprite].owner);
+                        runlist_FreeRun(sprite[nSprite].lotag - 1);
+                        runlist_SubRunRec(SpiderList[nSpider].h);
+                        sprite[nSprite].cstat = 0x8000;
+                        mydeletesprite(nSprite);
+                    }
+                    return;
+                }
+                case 2:
+                {
+                    if (nTarget != -1)
+                    {
+                        if (nFrameFlag & 0x80)
+                        {
+                            runlist_DamageEnemy(nTarget, nSprite, 3);
+                            D3PlayFX(StaticSound[kSound38], nSprite);
+                        }
+
+                        if (PlotCourseToSprite(nSprite, nTarget) < 1024) {
+                            return;
+                        }
+
+                        SpiderList[nSpider].nAction = 1;
+                    }
+                    else
+                    {
+                        SpiderList[nSpider].nAction = 0;
+                        sprite[nSprite].xvel = 0;
+                        sprite[nSprite].yvel = 0;
+                    }
+
+                    SpiderList[nSpider].b = 0;
+                    break;
+                }
                 }
             }
             else
             {
                 SpiderList[nSpider].nTarget = -1;
                 SpiderList[nSpider].nAction = 0;
-                sprite[nSprite].yvel = 0;
-                sprite[nSprite].xvel = 0;
                 SpiderList[nSpider].b = 0;
+
+                sprite[nSprite].xvel = 0;
+                sprite[nSprite].yvel = 0;
             }
 
             int nMov = movesprite(nSprite, sprite[nSprite].xvel << var_14, sprite[nSprite].yvel << var_14, sprite[nSprite].zvel, 1280, -1280, CLIPMASK0);
@@ -343,26 +338,28 @@ case_3:
             {
                 switch (nMov & 0xC000)
                 {
-                    case 0x8000:
+                case 0x8000:
+                {
+                    sprite[nSprite].ang = (sprite[nSprite].ang + 256) & 0x7EF;
+                    sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
+                    sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
+                    return;
+                }
+                case 0xC000:
+                {
+                    if ((nMov & 0x3FFF) == nTarget)
                     {
-                        sprite[nSprite].ang = (sprite[nSprite].ang + 256) & 0x7EF;
-                        sprite[nSprite].xvel = Sin(sprite[nSprite].ang + 512);
-                        sprite[nSprite].yvel = Sin(sprite[nSprite].ang);
-                        return;
-                    }
-                    case 0xC000:
-                    {
-                        if ((nMov & 0x3FFF) == nTarget)
+                        int nAng = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
+                        if (AngleDiff(sprite[nSprite].ang, nAng) < 64)
                         {
-                            int nAng = getangle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
-                            if (AngleDiff(sprite[nSprite].ang, nAng) < 64)
-                            {
-                                SpiderList[nSpider].nAction = 2;
-                                SpiderList[nSpider].b = 0;
-                            }
+                            SpiderList[nSpider].nAction = 2;
+                            SpiderList[nSpider].b = 0;
                         }
-                        return;
                     }
+                    return;
+                }
+                default:
+                    break;
                 }
 
                 if (SpiderList[nSpider].nAction == 3)
@@ -402,7 +399,7 @@ case_3:
             SpiderList[nSpider].nHealth -= nDamage;
             if (SpiderList[nSpider].nHealth > 0)
             {
-                /* 
+                /*
                     TODO - nTarget check was added, but should we return if it's invalid instead
                     or should code below (action set, b set) happen?
                     Other AI doesn't show consistency in this regard (see Scorpion code)
@@ -419,11 +416,12 @@ case_3:
             {
                 // creature is dead, make some chunks
                 SpiderList[nSpider].nHealth = 0;
-                sprite[nSprite].cstat &= 0x0FEFE;
-
                 SpiderList[nSpider].nAction = 5;
-                nCreaturesLeft--;
                 SpiderList[nSpider].b = 0;
+
+                sprite[nSprite].cstat &= 0xFEFE;
+
+                nCreaturesLeft--;
 
                 for (int i = 0; i < 7; i++)
                 {
