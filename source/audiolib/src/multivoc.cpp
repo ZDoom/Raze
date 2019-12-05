@@ -899,3 +899,103 @@ const char *MV_ErrorString(int ErrorNumber)
     }
 }
 
+/*---------------------------------------------------------------------
+   Function: MV_GetNextDemandFeedBlock
+
+   Controls playback of demand fed data.
+---------------------------------------------------------------------*/
+
+playbackstatus MV_GetNextDemandFeedBlock
+(
+    VoiceNode* voice
+)
+
+{
+    if (voice->BlockLength > 0)
+    {
+        voice->position -= voice->length;
+        voice->sound += voice->length >> 16;
+        voice->length = min(voice->BlockLength, 0x8000u);
+        voice->BlockLength -= voice->length;
+        voice->length <<= 16;
+
+        return(KeepPlaying);
+    }
+
+    if (voice->DemandFeed == NULL)
+    {
+        return(NoMoreData);
+    }
+
+    voice->position = 0;
+    (voice->DemandFeed)(&voice->sound, &voice->BlockLength);
+    voice->length = min(voice->BlockLength, 0x8000u);
+    voice->BlockLength -= voice->length;
+    voice->length <<= 16;
+
+    if ((voice->length > 0) && (voice->sound != NULL))
+    {
+        return(KeepPlaying);
+    }
+    return(NoMoreData);
+}
+
+/*---------------------------------------------------------------------
+   Function: MV_StartDemandFeedPlayback
+
+   Plays a digitized sound from a user controlled buffering system.
+---------------------------------------------------------------------*/
+
+int MV_StartDemandFeedPlayback
+(
+    void (*function)(const char** ptr, uint32_t* length),
+    int rate,
+    int pitchoffset,
+    int vol,
+    int left,
+    int right,
+    int priority,
+    fix16_t volume,
+    uint32_t callbackval
+)
+
+{
+    VoiceNode* voice;
+
+    if (!MV_Installed)
+    {
+        MV_SetErrorCode(MV_NotInstalled);
+        return(MV_Error);
+    }
+
+    // Request a voice from the voice pool
+    voice = MV_AllocVoice(priority);
+    if (voice == NULL)
+    {
+        MV_SetErrorCode(MV_NoVoices);
+        return(MV_Error);
+    }
+
+//    voice->wavetype = FMT_DEMANDFED;
+    voice->bits = 8;
+    voice->channels = 1;
+    voice->GetSound = MV_GetNextDemandFeedBlock;
+    voice->NextBlock = NULL;
+    voice->DemandFeed = function;
+    voice->LoopStart = NULL;
+    voice->LoopCount = 0;
+    voice->BlockLength = 0;
+    voice->position = 0;
+    voice->sound = NULL;
+    voice->length = 0;
+    voice->next = NULL;
+    voice->prev = NULL;
+    voice->priority = priority;
+    voice->callbackval = callbackval;
+
+    MV_SetVoicePitch(voice, rate, pitchoffset);
+    MV_SetVoiceVolume(voice, vol, left, right, volume);
+    MV_PlayVoice(voice);
+
+    return(voice->handle);
+}

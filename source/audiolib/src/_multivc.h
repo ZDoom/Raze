@@ -158,6 +158,8 @@ typedef struct VoiceNode
 
     uint32_t (*mix)(struct VoiceNode *, uint32_t);
 
+    void (*DemandFeed)(const char** ptr, uint32_t* length);
+
     const char *sound;
 
     float LeftVolume, LeftVolumeDest;
