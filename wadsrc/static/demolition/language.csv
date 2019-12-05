@@ -628,7 +628,13 @@ Sound Ambience,SNDMNU_AMBIENCE,,,,,Umgebungsgeräusche,,,,,,,,,,,,,,,,,
 "Player Speech
 ",SNDMNU_SPEECH,,,,,Spielerkommentare,,,,,,,,,,,,,,,,,
 Flip Stereo Channels,ADVSNDMNU_FLIPSTEREO,,,,,Stereo Kanäle vertauschen,,,,,,,,,,,,,,,,,
+MAME OPL2,OPTVAL_MAMEOPL2,,,,,,,,,,,,,,,마메 OPL2,,,,,,,
+DOSBox OPL3,OPTVAL_DOSBOXOPL3,,,,,,,,,,,,,,,도스박스 OPL3,,,,,,,
+Java OPL3,OPTVAL_JAVAOPL3,,,,,,,,,,,,,,,자바 OPL3,,,,,,,
+Nuked OPL3,OPTVAL_NUKEDOPL3,,,,,,,,,,,,,,,,,,,,,,
 ,Video Mode,,,,,,,,,,,,,,,,,,,,,,
+Video Mode,VIDMNU_TITLE,,,,Režim displeje,Videomodus,,Video-reĝimo,Modos de video,,Videotila,Mode Vidéo,,Modalità video,ビデオ 調整,화면 설정,Videomodus,Tryb Wideo,Modo de Vídeo,,,Настройки видеорежима,Видео мод
+Notebook Switchable GPU,DSPLYMNU_GPUSWITCH,,,,Přepínatelné GPU pro notebooky,GPU Umschaltung für Notebooks,,Kajero Ŝanĝa GPU,GPU Altern. de Portátil,,Kannettavan kytkettävä grafiikkapiiri,GPU alternatif sur PC Portable,Váltható GPU laptopon,Scheda GPU Switchable per notebook,ノートブックGPU切替,노트북 성능 조정,Notitieboekje schakelbare GPU,Zmiana GPU Notebooka,Placa de vídeo alternativa de notebook,,,Использование GPU ноутбука,Користи GPU ноутбук
 Scaled (Nearest),OPTVAL_SCALENEAREST,,,,Škálován (nejbližší),Skaliert (nächster Nachbar),,Skalita (Plej proksime),Escalado (Cercano),,Skaalattu (läheisin),Mis à l'échelle (Proche Voisin),,Scalato (più vicino),スケーリング (最寄り),확대 (가깝게),Geschaald (Dichtstbijzijnde),Przeskalowany (Najbliższy),Redimensionado (Vizinho mais próximo),Redimensionado (Apróximado),,Масштабировать (ближайшее),Скалиран (најближи)
 Scaled (Linear),OPTVAL_SCALELINEAR,,,,Škálován (lineární),Skaliert(linear),,Skalita (Linia),Escalado (Lineal),,Skaalattu (lineaarinen),Mis à l'échelle (Linéaire),,Scalato (lineare),スケーリング (リニア),확대 (선형 식),Geschaald (Lineair),Przeskalowany (Liniowy),Redimensionado (Linear),,,Масштабировать (линейное),Скалиран (линеарно)
 Letterbox,OPTVAL_LETTERBOX,,,,,,,Leterkesto,,,,,,Bande nere,レターボックス,레터박스,Brievenbus,,,,,Экранное каше,Поштанско сандуче
@@ -663,7 +669,28 @@ Unlimited,OPTVAL_UNLIMITED,,,,,Unlimitiert,,,,,,,,,,,,,,,,,
 120 fps,OPTVAL_120FPS,,,,,,,,,,,,,,,,,,,,,,
 144 fps,OPTVAL_144FPS,,,,,,,,,,,,,,,,,,,,,,
 200 fps,OPTVAL_200FPS,,,,,,,,,,,,,,,,,,,,,,
-,Obituaries,,,,,,,,,,,,,,,,,,,,,,
+,Miscellaneous Options,,,,,,,,,,,,,,,,,,,,,,
+Miscellaneous Options,MISCMNU_TITLE,,,,Ostatní nastavení,Verschiedene Optionen,,Ekstraĵa agordoj,Opciones Misceláneas,,Sekalaiset asetukset,Options Annexes,,Opzioni miste,その他のオプション,그 외 설정,Diverse opties,Różne Opcje,Outras Opções,,,Дополнительные настройки,Разна подешавања
+Merge left+right Alt/Ctrl/Shift,MISCMNU_MERGEKEYS,,,,Zkombinovat pravý a levý Alt/Ctrl/Shift,Linke und rechte Umschalt/Strg/Alt zusammenfassen,,Kunigi maldekstro+dekstro Alt/Ctrl/Shift,Combinar izq.+der. Alt/Ctrl/Mayús,,Yhdistä vasen ja oikea Alt/Ctrl/Vaihto,Combiner Alt/Ctrl/maj gauche & droite,,Unisci sinistra+destra Alt/Control/Maiusc,左と右のALT/CTRL/SHIFTキーを統合,양쪽 ALT/CTRL/SHIFT키 합병,Samenvoegen links+rechts Alt/Ctrl/Shift,Połącz przyciski lewo+prawo Alt/Ctrl/Shift,Unir teclas Alt/Ctrl/Shift esquerdas e direitas,Juntar Alt/Ctrl/Shift esquerdo+direito,,Не разделять левый/правый ALT/CTRL/SHIFT,Споји лево+десно Аlt/Ctrl/Shift
+Alt-Enter toggles fullscreen,MISCMNU_WINFULLSCREENTOGGLE,,,,Alt-Enter přepíná celou obrazovku,Alt-Enter schaltet Vollbild an/aus,,Alt klavo-Enter klavo baskuligi tutekranon,Alt+Enter alterna pantalla completa,,Alt-Enter kytkee täyden ruudun päälle/pois,Alt-Entrée alterne plein écran,,Alt-Invio attiva/disattiva lo schermo pieno,ALTとENTERで全画面に切り替え,ALT+ENTER키로 전체화면 조정,Alt-Enter schakelt het volledige scherm aan/uit,Alt-Enter przełącza na pełen ekran,Alt-Enter ativa tela cheia,Alt-Enter ativa ecrã cheio,,Переключение полного экрана по ALT+ENTER,Alt-Enter пребацује на цео екран
+Command-F toggles fullscreen,MISCMNU_MACFULLSCREENTOGGLE,,,,Command-F přepíná celou obrazovku,Cmd-F schaltet Vollbild an/aus,,Komando-F baskuligi tutekranon,Cmd-F alterna pantalla completa,,Komento-F kytkee täyden ruudun päälle/pois,Command-F alterne plein écran,,Command-F attiva/disattiva lo schermo pieno,Ctrl + Fキーで全画面表示,COMMAND+F키로 전체화면 조정,Command-F schakelt het volledige scherm aan/uit,Command-F przełącza pełny ekran,Command-F ativa tela cheia,Command-F ativa ecrã cheio,,Переключение полного экрана по Command+F,Command-F пребацује на цео екран
+Show game selection dialog,MISCMNU_QUERYIWAD,,,,Zobrazit dialog pro výběr GRPu,Zeige Spielauswahl,,Montri GRP elekta dialogo,Mostrar diálogo de selección de GRP,,Näytä GRP-valintaikkuna,Afficher la séléction de jeu,,Mostra la schermata della selezione GRP,GRPの選択画面を表示,GRP 게임 선택창 표시,GRP-selectiedialoogvenster weergeven,Pokaż ekran wyboru gry,Mostrar janela de seleção de jogo.,,,Выбор GRP-файла при запуске,Покажи GRP дијалог за избор
+Enable cheats from all games,MISCMNU_ALLCHEATS,,,,Povolit cheaty ze všech her,Ermögliche Cheats aus allen Spielen,,Aktivigi trompojn el tutaj ludoj,Activar trucos de todos los juegos,,Ota käyttöön huijauskoodit kaikista peleistä,Activer cheats de tous les jeux,,Abilita tutti i cheat da tutti i giochi,全ゲームでチート使用可にする,모든 게임에 치트 허용,Laat bedriegers van alle spellen toe,Włącz oszustwa ze wszystkich gier,Habilitar trapaças de todos os jogos,Permitir batotas de todos os jogos,,Читы из всех игр,Омогући читове од свих игара
+Enable autosaves,MISCMNU_ENABLEAUTOSAVES,,,,Povolit automatické ukládání,Automatisches Speichern,,Aktivigi aŭtokonservojn,Activar autoguardado,,Ota käyttöön automaattiset tallennukset,Activer Sauvegardes auto,,Abilita i salvataggi automatici,オートセーブを有効化,빠른 저장 허용,Automatisch opslaan inschakelen,Włącz autozapis,Habilitar salvamento automático,Permitir gravação automática,,Автосохранения,Омогући аутосејвове
+Number of autosaves,MISCMNU_AUTOSAVECOUNT,,,,Počet automatických uložených her,Anzahl von automatischen Speicherständen,,Kvanto da aŭtokonservojn,Número de autoguardados,,Automaattisten tallennusten lukumäärä,Total de sauvegardes auto,,Numero di salvataggi automatici,オートセーブの最大数,빠른 저장 수,Aantal autosafes,Liczba autozapisów,Número de salvamentos automáticos,Número de gravações automáticos,,Количество автосохранений,Број аутоматских чувања
+Save/Load confirmation,MISCMNU_SAVELOADCONFIRMATION,,,,Potvrzení o uložení/načtení,Laden/Speichern bestätigen,,Konservi/Ŝarĝi jesigo,Confirmación al guardar/cargar,,Tallennuksen/Latauksen vahvistus,Confirmation C/S,,Conferma Salvataggio/Caricamento,セーブ/ロード時に確認,스크립트로 스크린샷 생성 허용,Opslaan/Laad bevestiging,Potwierdzenie zapisu/wczytania,Confirmação ao salvar/carregar,Confirmação ao gravar/carregar,,Подтверждение при сохранении/загрузке,Потврђивање током чувања/учитавања
+Enable making screenshots by scripts,MISCMNU_ENABLESCRIPTSCREENSHOTS,,,,Povolit skriptům pořizovat snímky obrazovky,"Erlaube Skripts, Screenshots zu machen",,Aktivigi faranto ekrankopiojn per skriptoj,Habilitar captura de pantalla por scripts,,Salli komentosarjoin otetut kuvakaappaukset,Autoriser les Scripts à prendre des captures,,Abilita la cattura dello schermo tramite scripts,スクリプトからのスクショ作成を有効化,저장/불러오기 확인,Screenshots maken met behulp van scripts,Pozwól na robienie zrzutów ekranu przez skrypty,Habilitar capturas de tela por scripts,Permitir capturas de ecrã por scripts,,Возможность делать скриншоты через скрипты,Омогући прављење скриншотова по скрипти
+Load *.deh/*.bex lumps,MISCMNU_DEHLOAD,,,,Načítat *.deh/*.bex soubory,Lade *.deh/*.bex Daten,,Ŝarĝi *.deh/*.bex lumpoj,Cargar archivos *.deh/*.bex,,Lataa *.deh/*.bex-lump-tiedostot,Charger fichiers *.deh/*.bex,,Carica i lump *.deh/*.bex,.deh/.bexファイルを読み込む,*.deh/*.bex 럼프 파일 불러오기,*.deh/*.bex laden,Załaduj dane *.deh/*.bex,Carregar lumps *.deh/*.bex,,,Загружать файлы *.deh/*.bex,Учитај *.deh/*.bex фајлове
+Cache nodes,MISCMNU_CACHENODES,,,,Cachovat nodes,Nodes zwischenspeichern,,Kaŝmemoraj nodoj,Caché de nodos,,Tallenna solmut välimuistiin,Mise en cache des nodes,,Cache dei nodi,ノードキャッシュ,캐시 노드,Cache nodes,Węzły pamięci podręcznej,Cachê de nodes,Cache de nodes,,Кэширование нодов,Кеширани чворови
+Time threshold for node caching,MISCMNU_CACHETIME,,,,Časový práh pro cachování nodes,Zeitschwelle für das Zwischenspeichern von Nodes,,Templimo pro kaŝmemornodi,Umbral de tiempo para caché de nodos,,Kynnysaika solmujen välimuistitallennukseen,Limite cache des nodes,,Soglia di tempo per il caching dei nodi,ノードキャッシュ時間の閾値,노드 캐싱을 위한 시간 임계값 계산,Tijdsdrempel voor het cachen van nodes,Próg czasowy buforowania węzłów,Limite de tempo para cachê de nodes,Limite de tempo para cache de nodes,,Временной порог для кэширования нодов,Временски праг за кеширање чвора
+Clear node cache,MISCMNU_CLEARNODECACHE,,,,Vyčistit node cache,Nodespeicher löschen,,Viŝi kaŝmemorajn nodojn,Limpiar Caché de nodos,,Tyhjennä solmuvälimuisti,Vider le cache des nodes,,Pulisci la cache dei nodi,ノードのキャッシュをクリア,노드 캐시를 삭제,Duidelijke node cache,Wyczyść pamięć podręczną,Limpar cachê de nodes,Limpar cache de nodes,,Очистить кэш нодов,"Избриши кеширане чворове
+"
+Allow skipping of intermission scrollers,MISCMNU_INTERSCROLL,,,,Povolit přeskakování intermission posuvníků,Erlaube Überspringen von Intermission-Scrollern,,Permesi transsalti interaktajn rulumojn,Permitir omisión de intermedios,,Salli tarinaruutujen vierityksen ohittaminen,Sauter compteurs d'intermission,,Consenti di saltare gli scorrimenti delle intermissioni,クリア結果集計のスキップを許可,인터미션 스크롤러 생략 허용,,Pozwól na pominięcie wstawek,Pular telas de intervalo entre fases,Saltar ecrãs de intervalo entre níveis,,Разрешение пропуска текстовых вставок,Дозволи прескакање прелаза са текстовима
+Scripts Only,OPTVAL_SCRIPTSONLY,,,,Pouze skripty,Nur Skripte,,Skriptoj Sole,Sólo scripts,,Vain komentosarjat,Scripts seulement,,Solo script,スクリプトのみ,스크립트에만,Alleen scripts,Tylko skrypty,Scripts apenas,,,Только скрипты,Само скрипте
+Disable keyboard cheats,MISCMNU_NOCHEATS,,,,,Tastatur-Cheats deaktivieren,,Malaktivigi klavaran trumpon,Desactivar trucos por teclado,,,,,,キーボードからのチート無効,,Schakel cheats uit,,Desabilitar trapaças de teclado,,,,
+Quicksave rotation,MISCMNU_QUICKSAVEROTATION,,,,Rotace rychle uložených her,Schnellspeicherrotation,,Rapidkonservado-rotacio,Rotación de Salvado Rápido,,Pikatallennuskierto,Rotation Sauvegardes Rapides,,Rotazione rapide della quicksave,クイックセーブ間隔,빠른 저장 간격,Roteer quicksaves,Rotacja szybkich zapisów,Rotação de quicksave,,,Чередовать слоты для быстрых сохранений,Окретање брзих чувања
+Number of quicksaves in rotation,MISCMNU_QUICKSAVECOUNT,,,,Počet rychle uložených her v rotaci,Anzahl Schnellspeicherplätze,,Nombro da rapidkonservitaj ludoj en rotaciado,Número de Salvados Rápidos en Rotación,,Pikatallennusten määrä kierrossa,Nombre de sauvegardes en rotation,,Numero di quicksaves in rotazione,間隔クイックセーブの数,빠른 저장 간격의 수,Aantal roterende quicksaves,Ilość szybkich zapisów w rotacji,Número de quicksaves em rotação,,,Кол-во слотов для быстрых сохранений,Број брзих чувања у окретању
+,Miscellaneous,,,,,,,,,,,,,,,,,,,,,,
 "You are playing the shareware
 version of Duke Nukem 3D.  While
 this version is really cool, you
@@ -672,6 +699,13 @@ game, along with other great extras
 which you'll get when you order
 the complete version and get
 the final three episodes.",BUYDUKE,,,,,,,,,,,,,,,,,,,,,,
+"Buy the complete version of
+Blood for three new episodes
+plus eight BloodBath-only levels!",BUYBLOOD,,,,,,,,,,,,,,,,,,,,,,
+"Loading and saving games
+not supported
+in this demo version of Blood.","BLOOD_SW_BLOCK
+",,,,,,,,,,,,,,,,,,,,,,
 "Are you sure you want to end the game?
 ",ENDGAME,,,,"Opravdu si přeješ ukončit hru?
 ","Willst du das Spiel wirklich beenden?
@@ -694,7 +728,7 @@ Are you sure you want to quit?,CONFIRM_QUITMSG,,,,Přeješ si odejít?,"Bist du 
 Reset controls to defaults?,CONFIRM_CTRL1,,,,,Steuerung auf Standard zurücksetzen?,,,,,,,,,,,,,,,,,
 Reset controls to classic defaults?,CONFIRM_CTRL2,,,,,Steuerung auf klassischen Standard zurücksetzen?,,,,,,,,,,,,,,,,,
 Reset controls to left-handed defaults?,CONFIRM_CTRL3,,,,,Steuerung auf linkshändigen Standard zurücksetzen?,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,
+,Obituaries,,,,,,,,,,,,,,,,,,,,,,
 %k boned %o like a fish,TXT_OBITUARY1,,,,%o byl@[ao_cs] vykoštěn@[ao_cs] jako ryba hráčem %k,%k hat %o zerlegt wie einen Fisch,,%k senostigis %o kiel fiŝon,%k deshuesó a %o como a un pescado,,%k perkasi %o paran kuin kalan,%k désossa %o comme un poisson,%k kifilézte %o -t mint a halat,%k ha dissossato %o come un pesce,%k は %o の骨を魚のように引っこ抜いた。,%k 은(는) %o 의 뼈를 발랐다.,%k uitgebeend %o zoals een vis,%k odfiletował@[ao_pl] %o jak rybę,%k desossou %o como um peixe,,,Игрок %k пересчитал косточки игрока %o,%k је очистио %o као рибу
 %k castrated %o,TXT_OBITUARY2,,,,%o byl@[ao_cs] vykastrován@[ao_cs] hráčem %k,%k hat %o kastriert,,%k kastris %o,%k castró a %o,,%k kastroi %o paran,%k castra %o,%k kasztrálta %o -t,%k ha castrato %o,%k は %o を去勢した。,%k 은(는) %o 을(를) 거세시켰다.,%k gecastreerd %o,%k wykastrował@[ao_pl] %o,%k castrou %o,,,Игрок %k кастрировал игрока %o,%k је кастрирао %o
 %k creamed %o,TXT_OBITUARY3,,,,%o byl@[ao_cs] rozšlehán@[ao_cs] hráčem %k,%k hat %o eingeseift,,%k kremigis %o,%k cremó a %o,,%k kermasi %o paran,%k a battu %o à plate couture ,%k elkente %o -t,%k ha cremato %o,%k は %o に反吐ブチ撒けさせた。,%k 은(는) %o 을(를) 양념시켰다.,%k romed %o,%k spienił@[ao_pl] %o,%k fez creme de %o,,,Игрок %k взбил игрока %o,%k је истукао %o

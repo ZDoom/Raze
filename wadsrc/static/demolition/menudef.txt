@@ -1538,6 +1538,45 @@ OptionMenu CustomResolutionMenu //protected
 }
 
 
+//-------------------------------------------------------------------------------------------
+//
+// Misc menu
+//
+//-------------------------------------------------------------------------------------------
+
+OptionValue Autosave
+{
+	0,	"$OPTVAL_ALWAYS"
+	1,	"$OPTVAL_SCRIPTSONLY"
+	2,	"$OPTVAL_NEVER"
+}
+
+OptionMenu "MiscOptions" //protected
+{
+	Title "$MISCMNU_TITLE"
+	//Indent 220
+	IfOption(Windows)
+	{
+		Option "$MISCMNU_WINFULLSCREENTOGGLE",	"k_allowfullscreentoggle", "OnOff"
+	}
+	IfOption(Mac)
+	{
+		Option "$MISCMNU_MACFULLSCREENTOGGLE",	"k_allowfullscreentoggle", "OnOff"
+	}
+	Option "$MISCMNU_QUERYIWAD",				"queryiwad", "OnOff"
+	StaticText " "
+	//Option "$MISCMNU_ALLCHEATS",				"allcheats", "OnOff"
+	Option "$MISCMNU_ENABLEAUTOSAVES",			"disableautosave", "Autosave"
+	//Option "$MISCMNU_SAVELOADCONFIRMATION",			"saveloadconfirmation", "OnOff"
+	Slider "$MISCMNU_AUTOSAVECOUNT",			"autosavecount", 1, 20, 1, 0
+	//Option "$MISCMNU_QUICKSAVEROTATION",			"quicksaverotation", "OnOff"
+	Slider "$MISCMNU_QUICKSAVECOUNT",			"quicksaverotationcount", 1, 20, 1, 0
+	Option "$MISCMNU_INTERSCROLL",				"nointerscrollabort", "OffOn"
+	//StaticText " "
+	//Option "$OPTMNU_LANGUAGE", "language", "LanguageOptions" - not ready yet
+
+}
+
 
 //-------------------------------------------------------------------------------------------
 //
