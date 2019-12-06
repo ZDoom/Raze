@@ -482,7 +482,7 @@ int FileSystem::Iterate (const char *name, int *lastlump, ELookupMode lookupmode
 	}
 
 	lump_p = &FileInfo[*lastlump];
-	while (lump_p < &FileInfo[NumEntries])
+	while (lump_p <= &FileInfo.Last())
 	{
 		auto lump = lump_p->lump;
 		if (lump->LumpName[lookupindex] == lname)

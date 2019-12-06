@@ -1016,7 +1016,7 @@ TArray<GrpEntry> GrpScan()
 
 	for (unsigned i = 0; i < foundGames.Size(); i++)
 	{
-		for (unsigned j = foundGames.Size(); j > i; j--)
+		for (unsigned j = foundGames.Size() - 1; j > i; j--)
 		{
 			if (foundGames[i].FileInfo.CRC == foundGames[j].FileInfo.CRC)
 				foundGames.Delete(j);
