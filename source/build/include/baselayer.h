@@ -237,6 +237,8 @@ struct GameInterface
 		DoPrintMessage(prio, f);
 	}
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
+	virtual void QuitToTitle() {}
+
 };
 
 extern GameInterface* gi;

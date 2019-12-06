@@ -105,7 +105,7 @@ LISTMENU "IngameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "$MNU_ENDGAME", "e", "QuitToMenu"
+		NativeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
@@ -121,7 +121,7 @@ LISTMENU "IngameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		NativeTextItem "$MNU_ENDGAME", "e", "QuitToMenu"
+		NativeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(ShadowWarrior)

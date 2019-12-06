@@ -284,11 +284,31 @@ void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* t
 {
 	if (text)
 	{
-		int width;
-		viewGetFontInfo(0, text, &width, NULL);
-		int x = 160 - width / 2;
-		viewDrawText(0, text, x, 100, 0, 0, 0, false);
+		int width, height = 0;
+		viewGetFontInfo(0, "T", &width, &height);
+
+		auto lines = FString(text).Split("\n");
+		int y = 100 - (height * lines.Size() / 2);
+		for (auto& l : lines)
+		{
+			int lheight = 0;
+			viewGetFontInfo(0, l, &width, &lheight);
+			int x = 160 - width / 2;
+			viewDrawText(0, l, x, y, 0, 0, 0, false);
+			y += height;
+		}
 	}
+}
+
+void GameInterface::QuitToTitle()
+{
+	if (gGameOptions.nGameType == 0 || numplayers == 1)
+	{
+		gQuitGame = true;
+		gRestartGame = true;
+	}
+	else
+		gQuitRequest = 2;
 }
 
 END_BLD_NS

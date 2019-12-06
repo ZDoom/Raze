@@ -74,19 +74,6 @@ void Menu_Init(void)
 
 
 
-
-
-static void Menu_DrawVerifyPrompt(int32_t x, int32_t y, const char * text, int numlines = 1)
-{
-    mgametextcenter(x, y + (90<<16), text);
-#ifndef EDUKE32_ANDROID_MENU
-    char const * inputs = CONTROL_LastSeenInput == LastSeenInput::Joystick
-        ? "Press (A) to accept, (B) to return."
-        : "(Y/N)";
-    mgametextcenter(x, y + (90<<16) + MF_Bluefont.get_yline() * numlines, inputs);
-#endif
-}
-
 static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 {
     int32_t i, j, l = 0;

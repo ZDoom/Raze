@@ -266,7 +266,7 @@ void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* t
 		for (auto& l : lines)
 		{
 			short lheight = 0;
-			MNU_MeasureString(text, &width, &lheight);
+			MNU_MeasureString(l, &width, &lheight);
 			int x = 160 - width / 2;
 			MNU_DrawString(x, y, l, 0, 0);
 			y += height;

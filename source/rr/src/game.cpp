@@ -7598,6 +7598,11 @@ MAIN_LOOP_RESTART:
     do //main loop
     {
 		handleevents();
+		if (g_player[myconnectindex].ps->gm == MODE_DEMO)
+		{
+			M_ClearMenus();
+			goto MAIN_LOOP_RESTART;
+		}
 
         Net_GetPackets();
 

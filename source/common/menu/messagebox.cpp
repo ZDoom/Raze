@@ -407,17 +407,7 @@ CCMD (menu_endgame)
 		{
 			if (res)
 			{
-				M_ClearMenus();
-				/*/
-				if (!netgame)
-				{
-					if (demorecording)
-						G_CheckDemoStatus();
-					D_StartTitle();
-				}
-				*/
-
-				//gi->ReturnToTitle();
+				gi->QuitToTitle();
 			}
 		});
 

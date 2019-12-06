@@ -498,7 +498,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 
 	case NAME_EndgameMenu:
 		// This is no separate class
-		C_DoCommand("memnu_endgame");
+		C_DoCommand("menu_endgame");
 		return true;
 	}
 
@@ -806,7 +806,7 @@ bool M_DoResponder (event_t *ev)
 
 bool M_Responder(event_t* ev)
 {
-	// delayed deletion, so that self-deleting menus don't crash if they are getting accesses after being closed.
+	// delayed deletion, so that self-deleting menus don't crash if they are getting accessed after being closed.
 	auto res = M_DoResponder(ev);
 	for (auto p : toDelete) delete p;
 	toDelete.Clear();
@@ -827,6 +827,7 @@ void M_Ticker (void)
 	{
 		D_ProcessEvents();	// The main loop is blocked when the menu is open and cannot dispatch the events.
 		if (transition.previous) transition.previous->Ticker();
+		if (DMenu::CurrentMenu == nullptr) return; // In case one of the sub-screens has closed the menu.
 		DMenu::CurrentMenu->Ticker();
 
 		for (int i = 0; i < NUM_MKEYS; ++i)
