@@ -375,7 +375,7 @@ static void PrecacheSounds(void)
 		if (pNode->ResType() == NAME_RAW || pNode->ResType() == NAME_SFX)
 		{
 			pNode->Get();
-			if ((i&15) == 15) gameHandleEvents();	// don't do this too often. That made sense in 1996 but not in 2019
+			//if ((i&15) == 15) gameHandleEvents();	// don't do this too often. That made sense in 1996 but not in 2019
 		}
 	}
 }
