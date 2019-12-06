@@ -20,8 +20,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
-#include <random>
 //#include <iostream>
 
 #include "ns.h"	// Must come before everything else!
@@ -7356,17 +7354,6 @@ int GetDataVal(spritetype* pSprite, int data) {
     return -1;
 }
 
-
-
-int STD_Random(int a, int b) {
-
-
-    std::default_random_engine rng;
-    rng.seed(std::random_device()());
-    std::uniform_int_distribution<int> dist_a_b(a, b);
-    return dist_a_b(rng);
-}
-
 // tries to get random data field of sprite
 int GetRandDataVal(int *rData) {
     dassert(rData != NULL);
@@ -7392,10 +7379,8 @@ int GetRandDataVal(int *rData) {
 
 // this function drops random item using random pickup generator(s)
 spritetype* DropRandomPickupObject(spritetype* pSprite, short prevItem) {
-    spritetype* pSprite2 = NULL; int* rData = xspriData2Array(pSprite->extra); 
-    int selected = -1;
-
-    if (rData != NULL) {
+    spritetype* pSprite2 = NULL; int rData[4]; int selected = -1;
+    if (xspriData2Array(pSprite->extra,rData)) {
         
     // randomize only in case if at least 2 data fields fits.
     for (int i = 0; i <= 3; i++)
@@ -7438,9 +7423,8 @@ spritetype* DropRandomPickupObject(spritetype* pSprite, short prevItem) {
 
 // this function spawns random dude using dudeSpawn
 spritetype* spawnRandomDude(spritetype* pSprite) {
-    spritetype* pSprite2 = NULL;
-    int* rData = xspriData2Array(pSprite->extra); int selected = -1; 
-    if (rData != NULL) {
+    spritetype* pSprite2 = NULL; int rData[4]; int selected = -1; 
+    if (xspriData2Array(pSprite->extra, rData)) {
         // randomize only in case if at least 2 data fields fits.
         for (int i = 0; i <= 3; i++)
             if (rData[i] < kDudeBase || rData[i] >= kDudeMax)

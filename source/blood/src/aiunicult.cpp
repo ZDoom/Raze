@@ -145,10 +145,9 @@ static void forcePunch(spritetype* pSprite, XSPRITE* pXSprite) {
 bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int weaponType, int by) {
     if (spriRangeIsFine(pXSprite->target)) {
         int fStart = 0; int fEnd = 0; GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
-
-
+        unsigned int clipMask = (weaponType == kGenDudeWeaponMissile) ? CLIPMASK0 : CLIPMASK1;
         for (int i = -8191; i < 8192; i += by) {
-            HitScan(pSprite, pSprite->z, Cos(pSprite->ang) >> 16, Sin(pSprite->ang) >> 16, i, CLIPMASK0 | CLIPMASK1, dist);
+            HitScan(pSprite, pSprite->z, Cos(pSprite->ang) >> 16, Sin(pSprite->ang) >> 16, i, clipMask, dist);
             if (!fStart && pXSprite->target == gHitInfo.hitsprite) fStart = i;
             else if (fStart && pXSprite->target != gHitInfo.hitsprite) { fEnd = i; break; }
         }
@@ -519,7 +518,6 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
         if (((int)gFrameClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(pSprite, false))
             playGenDudeSound(pSprite, kGenDudeSndChasing);
 
-        aiSetTarget(pXSprite, pXSprite->target);
         gDudeSlope[pSprite->extra] = divscale(pTarget->z - pSprite->z, dist, 10);
 
         short curWeapon = gGenDudeExtra[pSprite->index].curWeapon; short weaponType = gGenDudeExtra[pSprite->index].weaponType;
@@ -725,7 +723,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                             //if (hit == 1) viewSetSystemMessage("CEIL HIT %d", gHitInfo.hitsect);
                             fallthrough__;
                         case 2:
-                            if (hit == 2) viewSetSystemMessage("FLOOR HIT %d", gHitInfo.hitsect);
+                            //if (hit == 2) viewSetSystemMessage("FLOOR HIT %d", gHitInfo.hitsect);
                             if (weaponType != kGenDudeWeaponMissile && genDudeAdjustSlope(pSprite, pXSprite, dist, weaponType) 
                                 && dist < (int)(6000 + Random(2000)) && pExtra->baseDispersion < kGenDudeMaxDispersion >> 1) break;
 
@@ -892,7 +890,8 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                         }
                     }
                 }
-
+                
+                aiSetTarget(pXSprite, pXSprite->target);
                 switch (state) {
                     case 1:
                         aiGenDudeNewState(pSprite, &genDudeFireW);
@@ -907,6 +906,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                         pXSprite->aiState->nextState = &genDudeFireL;
                         break;
                 }
+
 
             } else {
 

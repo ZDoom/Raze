@@ -69,17 +69,7 @@ int nUniMissileTrapClient = seqRegisterClient(UniMissileTrapSeqCallback);
 int nMGunFireClient = seqRegisterClient(MGunFireSeqCallback);
 int nMGunOpenClient = seqRegisterClient(MGunOpenSeqCallback);
 
-int gRdata[4];
-int* xspriData2Array(int nXSprite) {
-    if (xspriRangeIsFine(nXSprite)) {
-        gRdata[0] = xsprite[nXSprite].data1; gRdata[2] = xsprite[nXSprite].data3;
-        gRdata[1] = xsprite[nXSprite].data2; gRdata[3] = xsprite[nXSprite].data4;
-        return gRdata;
-    }
 
-    memset(gRdata, 0, sizeof(gRdata));
-    return NULL;
-}
 
 unsigned int GetWaveValue(unsigned int nPhase, int nType)
 {
@@ -473,8 +463,8 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
 
                 } else {
                     
-                    int* rData = xspriData2Array(pSprite->extra);
-                    if (rData != NULL) {
+                    int rData[4];
+                    if (xspriData2Array(pSprite->extra, rData)) {
                         while (maxRetries > 0) {
                             if ((tx = GetRandDataVal(rData)) > 0 && tx != pXSprite->txID) break;
                             maxRetries--;
@@ -602,8 +592,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             case kModernSpriteDamager:
                 if (pXSprite->txID <= 0) {
                     if (SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1, event.causedBy) == 1) {
-                        if (spriRangeIsFine(event.causedBy)) 
-                            useSpriteDamager(pXSprite, &sprite[event.causedBy]);
+                        if (pXSprite->data1 == 0 && spriRangeIsFine(event.causedBy)) useSpriteDamager(pXSprite, &sprite[event.causedBy]);
                         else if (pXSprite->data1 > 0) {
                             PLAYER* pPlayer = getPlayerById(pXSprite->data1);
                             if (pPlayer != NULL)
@@ -2039,13 +2028,13 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
         XSPRITE* pXSprite = &xsprite[pSprite->extra];
         DAMAGE_TYPE dmgType = (DAMAGE_TYPE) ClipRange(pXSource->data2, kDmgFall, kDmgElectric);
         int dmg = (pXSource->data3 == 0) ? 65535 : ClipRange(pXSource->data3 << 1, 1, 65535);
-        if (pXSprite->data2 >= 0) actDamageSprite(pSource->index, pSprite, dmgType, dmg);
+        if (pXSource->data2 >= 0) actDamageSprite(pSource->index, pSprite, dmgType, dmg);
         else if (pXSource->data2 == -1 && IsDudeSprite(pSprite)) {
             PLAYER* pPlayer = getPlayerById(pSprite->type);
             if (pPlayer == NULL || !pPlayer->godMode) {
                 xsprite[pSprite->extra].health = ClipLow(xsprite[pSprite->extra].health - dmg, 0);
                 if (xsprite[pSprite->extra].health == 0)
-                    actKillDude(pSource->index, pSprite, dmgType, 65535);
+                    actKillDude(pSource->index, pSprite, DAMAGE_TYPE_0, 65535);
             }
         }
     }

@@ -269,7 +269,6 @@ void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite);
 spritetype* DropRandomPickupObject(spritetype* pSprite, short prevItem);
 spritetype* spawnRandomDude(spritetype* pSprite);
 int GetDataVal(spritetype* pSprite, int data);
-int STD_Random(int a, int b);
 int GetRandDataVal(int *rData);
 bool sfxPlayMissileSound(spritetype* pSprite, int missileId);
 bool sfxPlayVectorSound(spritetype* pSprite, int vectorId);
