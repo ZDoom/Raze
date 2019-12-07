@@ -2478,7 +2478,7 @@ MoveScrollMode2D(PLAYERp pp)
         }
     }
 
-    if (!M_Active() && !HelpInputMode && !ConPanel)
+    if (!HelpInputMode && !ConPanel)
     {
         if (buttonMap.ButtonDown(gamefunc_Move_Forward))
         {

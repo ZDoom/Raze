@@ -922,7 +922,7 @@ void Menu_Close(int playerid)
 
 bool M_Active()
 {
-	return DMenu::CurrentMenu != nullptr;
+	return DMenu::CurrentMenu != nullptr || ConsoleState == c_down || ConsoleState == c_falling;
 }
 
 //=============================================================================

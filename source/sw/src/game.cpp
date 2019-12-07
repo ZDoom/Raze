@@ -1999,12 +1999,6 @@ void MenuLevel(void)
             break;
         }
 
-        // force the use of menus at all time
-        if (!M_Active() && !ConPanel)
-        {
-			inputState.SetKeyStatus(sc_Escape);
-        }
-
         // must lock the clock for drawing so animations will happen
         totalclocklock = totalclock;
 
