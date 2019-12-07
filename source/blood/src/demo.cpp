@@ -212,16 +212,14 @@ bool CDemo::SetupPlayback(const char *pzFile)
     at1 = 0;
     if (pzFile)
     {
-        hPFile = fopenFileReader(pzFile, 0);
-        if (!hPFile.isOpen())
+        if (!hPFile.OpenFile(pzFile))
             return false;
     }
     else
     {
         if (!pCurrentDemo)
             return false;
-        hPFile = fopenFileReader(pCurrentDemo->zName, 0);
-        if (hPFile.isOpen())
+        if (!hPFile.OpenFile(pCurrentDemo->zName))
             return false;
     }
     hPFile.Read(&atf, sizeof(DEMOHEADER));
@@ -412,8 +410,8 @@ void CDemo::LoadDemoInfo(void)
 	D_AddWildFile(demos, zFN);
 	for (auto &filename : demos)
     {
-        auto hFile = fopenFileReader(filename, 0);
-        if (!hFile.isOpen())
+        FileReader hFile;
+        if (!hFile.OpenFile(filename))
             ThrowError("Error loading demo file header.");
         hFile.Read(&atf, sizeof(atf));
 #if B_BIG_ENDIAN == 1

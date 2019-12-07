@@ -292,7 +292,8 @@ static char* KeyValues_FindKeyValue(char **vdfbuf, char * const vdfbufend, const
 
 void Paths_ParseSteamKeyValuesForPaths(const char *vdf, SteamPathParseFunc func)
 {
-	FileReader fr = fopenFileReader(vdf, 0);
+    FileReader fr;
+    if (!fr.OpenFile(vdf)) return;
     auto size = fr.GetLength();
     char *vdfbuf, *vdfbufend;
 

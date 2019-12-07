@@ -38,7 +38,7 @@
 #include "bitmap.h"
 #include "image.h"
 #include "files.h"
-#include "cache1d.h"
+#include "filesystem/filesystem.h"
 #include "imagehelpers.h"
 
 int FImageSource::NextID;

@@ -40,7 +40,7 @@
 #include "printf.h"
 #include "bitmap.h"
 #include "image.h"
-#include "cache1d.h"
+#include "filesystem/filesystem.h"
 #include "imagehelpers.h"
 #include "v_text.h"
 

@@ -9,7 +9,7 @@
 #include "scriptfile.h"
 #include "baselayer.h"
 #include "compat.h"
-#include "cache1d.h"
+#include "filesystem/filesystem.h"
 
 
 #define ISWS(x) ((x == ' ') || (x == '\t') || (x == '\r') || (x == '\n'))

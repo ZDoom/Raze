@@ -95,8 +95,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
         demofnptr = demofn;
     }
 
-    g_demo_recFilePtr = fopenFileReader(demofnptr, g_loadFromGroupOnly);
-	if (!g_demo_recFilePtr.isOpen())
+    if (!g_demo_recFilePtr.OpenFile(demofnptr))
         return 0;
 
     Bassert(g_whichDemo >= 1);

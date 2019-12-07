@@ -34,7 +34,7 @@
 **
 */
 
-#include "cache1d.h"
+#include "filesystem/filesystem.h"
 #include "bitmap.h"
 #include "image.h"
 #include "imagehelpers.h"

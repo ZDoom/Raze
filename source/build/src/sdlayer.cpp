@@ -667,8 +667,8 @@ static SDL_GameController *controller = NULL;
 
 static void LoadSDLControllerDB()
 {
-    auto fh = fopenFileReader("gamecontrollerdb.txt", 0);
-    if (!fh.isOpen())
+    FileReader fh;
+    if (!fh.OpenFile("gamecontrollerdb.txt"))
         return;
 
 	int flen = fh.GetLength();

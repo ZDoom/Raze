@@ -18,7 +18,7 @@
  */
 
 #include "FileStream.h"
-#include "cache1d.h"
+#include "filesystem/filesystem.h"
 #include <stdlib.h>
 
 namespace SmackerCommon {
