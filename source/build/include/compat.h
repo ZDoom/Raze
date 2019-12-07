@@ -568,7 +568,10 @@ typedef FILE BFILE;
 // parsing the decimal representation of 0xffffffff,
 // 4294967295 -- long is signed, so strtol would
 // return LONG_MAX (== 0x7fffffff on 32-bit archs))
-#define Batoi(str) ((int32_t)strtol(str, NULL, 10))
+
+static FORCE_INLINE int32_t atoi_safe(const char *str) { return (int32_t)Bstrtol(str, NULL, 10); }
+
+#define Batoi(x) atoi_safe(x)
 #define Batol(str) (strtol(str, NULL, 10))
 #define Batof(str) (strtod(str, NULL))
 
