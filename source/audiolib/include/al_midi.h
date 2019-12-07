@@ -39,7 +39,7 @@ typedef struct
 extern AdLibTimbre ADLIB_TimbreBank[256];
 
 opl3_chip *AL_GetChip(void);
-void AL_RegisterTimbreBank(uint8_t *timbres);
+void AL_RegisterTimbreBank(uint8_t const *timbres);
 void AL_SetStereo(int const stereo);
 
 #endif

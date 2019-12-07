@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "midi.h"
 #include "midifuncs.h"
 #include "opl3.h"
+#include "opl3_reg.h"
 #include "c_cvars.h"
 
 CUSTOM_CVARD(Bool, mus_al_stereo, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable OPL3 stereo mode")
@@ -127,7 +128,7 @@ static opl3_chip chip;
 
 opl3_chip *AL_GetChip(void) { return &chip; }
 
-static constexpr uint32_t OctavePitch[MAX_OCTAVE+1] = {
+static uint32_t constexpr OctavePitch[MAX_OCTAVE+1] = {
     OCTAVE_0, OCTAVE_1, OCTAVE_2, OCTAVE_3, OCTAVE_4, OCTAVE_5, OCTAVE_6, OCTAVE_7,
 };
 
@@ -141,7 +142,7 @@ static uint32_t NoteDiv12[MAX_NOTE+1];
 //      { C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B },
 //   };
 
-static constexpr uint32_t NotePitch[FINETUNE_MAX+1][12] = {
+static uint32_t constexpr NotePitch[FINETUNE_MAX+1][12] = {
     { 0x157, 0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x241, 0x263, 0x287 },
     { 0x157, 0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x242, 0x264, 0x288 },
     { 0x158, 0x16c, 0x182, 0x199, 0x1b1, 0x1cb, 0x1e6, 0x203, 0x221, 0x243, 0x265, 0x289 },
@@ -179,7 +180,7 @@ static constexpr uint32_t NotePitch[FINETUNE_MAX+1][12] = {
 // Slot numbers as a function of the voice and the operator.
 // ( melodic only)
 
-static constexpr int slotVoice[NUMADLIBVOICES][2] = {
+static int constexpr slotVoice[NUMADLIBVOICES][2] = {
     { 0, 3 },    // voice 0
     { 1, 4 },    // 1
     { 2, 5 },    // 2
@@ -197,7 +198,7 @@ static int VoiceKsl[AL_NumChipSlots][2];
 // This table gives the offset of each slot within the chip.
 // offset = fn( slot)
 
-static constexpr int8_t offsetSlot[AL_NumChipSlots] = { 0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21 };
+static int8_t constexpr offsetSlot[AL_NumChipSlots] = { 0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21 };
 
 static int VoiceReserved[NUMADLIBVOICES * 2];
 
@@ -206,10 +207,14 @@ static AdLibVoiceList Voice_Pool;
 
 static AdLibChannel Channel[NUMADLIBCHANNELS];
 
-static int AL_LeftPort  = ADLIB_PORT;
-static int AL_RightPort = ADLIB_PORT;
+static int constexpr AL_LeftPort  = ADLIB_PORT;
+static int constexpr AL_RightPort = ADLIB_PORT + 2;
+
+static int constexpr AL_MaxMidiChannel = ARRAY_SIZE(Channel);
+
 int        AL_Stereo    = TRUE;
-static int AL_MaxMidiChannel = 16;
+
+int AL_PostAmp = 3;
 
 // TODO: clean up this shit...
 #define OFFSET(structure, offset) (*((char **)&(structure)[offset]))
@@ -260,8 +265,7 @@ static void AL_SendOutputToPort(int const port, int const reg, int const data)
 
 static void AL_SendOutput(int const voice, int const reg, int const data)
 {
-    int port = (voice == 0) ? AL_RightPort : AL_LeftPort;
-    AL_SendOutputToPort(port, reg, data);
+    AL_SendOutputToPort(voice ? AL_LeftPort : AL_RightPort, reg, data);
 }
 
 
@@ -282,39 +286,39 @@ static void AL_SetVoiceTimbre(int const voice)
     int       slot = slotVoice[voc][0];
     int       off  = offsetSlot[slot];
 
-    VoiceLevel[slot][port] = 63 - (timbre->Level[0] & 0x3f);
-    VoiceKsl[slot][port]   = timbre->Level[0] & 0xc0;
+    VoiceLevel[slot][port] = OPL3_TOTAL_LEVEL_MASK - (timbre->Level[0] & OPL3_TOTAL_LEVEL_MASK);
+    VoiceKsl[slot][port]   = timbre->Level[0] & OPL3_KSL_MASK;
 
-    AL_SendOutput(port, 0xA0 + voc, 0);
-    AL_SendOutput(port, 0xB0 + voc, 0);
+    AL_SendOutput(port, OPL3_FNUM_LOW + voc, 0);
+    AL_SendOutput(port, OPL3_KEYON_BLOCK + voc, 0);
 
     // Let voice clear the release
-    AL_SendOutput(port, 0x80 + off, 0xff);
+    AL_SendOutput(port, OPL3_SUSTAIN_RELEASE + off, 0xff);
 
-    AL_SendOutput(port, 0x60 + off, timbre->Env1[0]);
-    AL_SendOutput(port, 0x80 + off, timbre->Env2[0]);
-    AL_SendOutput(port, 0x20 + off, timbre->SAVEK[0]);
-    AL_SendOutput(port, 0xE0 + off, timbre->Wave[0]);
+    AL_SendOutput(port, OPL3_ATTACK_DECAY + off, timbre->Env1[0]);
+    AL_SendOutput(port, OPL3_SUSTAIN_RELEASE + off, timbre->Env2[0]);
+    AL_SendOutput(port, OPL3_ENABLE_WAVE_SELECT + off, timbre->SAVEK[0]);
+    AL_SendOutput(port, OPL3_WAVE_SELECT + off, timbre->Wave[0]);
 
-    AL_SendOutput(port, 0x40 + off, timbre->Level[0]);
+    AL_SendOutput(port, OPL3_KSL_LEVEL + off, timbre->Level[0]);
     slot = slotVoice[voc][1];
 
-    AL_SendOutput(port, 0xC0 + voc, (timbre->Feedback & 0x0f) | 0x30);
+    AL_SendOutput(port, OPL3_FEEDBACK_CONNECTION + voc, (timbre->Feedback & OPL3_FEEDBACK_MASK) | OPL3_STEREO_BITS);
 
     off = offsetSlot[slot];
 
-    VoiceLevel[slot][port] = 63 - (timbre->Level[1] & 0x3f);
-    VoiceKsl[slot][port]   = timbre->Level[1] & 0xc0;
+    VoiceLevel[slot][port] = OPL3_TOTAL_LEVEL_MASK - (timbre->Level[1] & OPL3_TOTAL_LEVEL_MASK);
+    VoiceKsl[slot][port]   = timbre->Level[1] & OPL3_KSL_MASK;
 
-    AL_SendOutput(port, 0x40 + off, 63);
+    AL_SendOutput(port, OPL3_KSL_LEVEL + off, OPL3_TOTAL_LEVEL_MASK);
 
     // Let voice clear the release
-    AL_SendOutput(port, 0x80 + off, 0xff);
+    AL_SendOutput(port, OPL3_SUSTAIN_RELEASE + off, 0xff);
 
-    AL_SendOutput(port, 0x60 + off, timbre->Env1[1]);
-    AL_SendOutput(port, 0x80 + off, timbre->Env2[1]);
-    AL_SendOutput(port, 0x20 + off, timbre->SAVEK[1]);
-    AL_SendOutput(port, 0xE0 + off, timbre->Wave[1]);
+    AL_SendOutput(port, OPL3_ATTACK_DECAY + off, timbre->Env1[1]);
+    AL_SendOutput(port, OPL3_SUSTAIN_RELEASE + off, timbre->Env2[1]);
+    AL_SendOutput(port, OPL3_ENABLE_WAVE_SELECT + off, timbre->SAVEK[1]);
+    AL_SendOutput(port, OPL3_WAVE_SELECT + off, timbre->Wave[1]);
 }
 
 
@@ -332,10 +336,10 @@ static void AL_SetVoiceVolume(int const voice)
     auto t1 = (uint32_t)VoiceLevel[slot][port] * (velocity + 0x80);
     t1 = (Channel[channel].Volume * t1) >> 15;
 
-    uint32_t volume = t1 ^ 63;
+    uint32_t volume = t1 ^ OPL3_TOTAL_LEVEL_MASK;
     volume |= (uint32_t)VoiceKsl[slot][port];
 
-    AL_SendOutput(port, 0x40 + offsetSlot[slot], volume);
+    AL_SendOutput(port, OPL3_KSL_LEVEL + offsetSlot[slot], volume);
 
     // Check if this timbre is Additive
     if (timbre->Feedback & 0x01)
@@ -349,24 +353,22 @@ static void AL_SetVoiceVolume(int const voice)
 
         t2 = (Channel[channel].Volume * t1) >> 15;
 
-        volume = t2 ^ 63;
+        volume = t2 ^ OPL3_TOTAL_LEVEL_MASK;
         volume |= (uint32_t)VoiceKsl[slot][port];
 
-        AL_SendOutput(port, 0x40 + offsetSlot[slot], volume);
+        AL_SendOutput(port, OPL3_KSL_LEVEL + offsetSlot[slot], volume);
     }
 }
 
 
 static int AL_AllocVoice(void)
 {
-    if (Voice_Pool.start)
-    {
+    if (!Voice_Pool.start)
+        return AL_VoiceNotFound;
+
         int const voice = Voice_Pool.start->num;
         LL_Remove(AdLibVoice, &Voice_Pool, &Voice[voice]);
         return voice;
-    }
-
-    return  AL_VoiceNotFound;
 }
 
 
@@ -418,8 +420,8 @@ static void AL_SetVoicePitch(int const voice)
 
     pitch |= Voice[voice].status;
 
-    AL_SendOutput(port, 0xA0 + voc, pitch);
-    AL_SendOutput(port, 0xB0 + voc, pitch >> 8);
+    AL_SendOutput(port, OPL3_FNUM_LOW + voc, pitch);
+    AL_SendOutput(port, OPL3_KEYON_BLOCK + voc, pitch >> 8);
 }
 
 static void AL_SetVoicePan(int const voice)
@@ -531,32 +533,32 @@ static void AL_FlushCard(int const port)
         auto slot1 = offsetSlot[slotVoice[i][0]];
         auto slot2 = offsetSlot[slotVoice[i][1]];
 
-        AL_SendOutputToPort(port, 0xA0 + i, 0);
-        AL_SendOutputToPort(port, 0xB0 + i, 0);
+        AL_SendOutputToPort(port, OPL3_FNUM_LOW + i, 0);
+        AL_SendOutputToPort(port, OPL3_KEYON_BLOCK + i, 0);
 
-        AL_SendOutputToPort(port, 0xE0 + slot1, 0);
-        AL_SendOutputToPort(port, 0xE0 + slot2, 0);
+        AL_SendOutputToPort(port, OPL3_WAVE_SELECT + slot1, 0);
+        AL_SendOutputToPort(port, OPL3_WAVE_SELECT + slot2, 0);
 
         // Set the envelope to be fast and quiet
-        AL_SendOutputToPort(port, 0x60 + slot1, 0xff);
-        AL_SendOutputToPort(port, 0x60 + slot2, 0xff);
-        AL_SendOutputToPort(port, 0x80 + slot1, 0xff);
-        AL_SendOutputToPort(port, 0x80 + slot2, 0xff);
+        AL_SendOutputToPort(port, OPL3_ATTACK_DECAY + slot1, 0xff);
+        AL_SendOutputToPort(port, OPL3_ATTACK_DECAY + slot2, 0xff);
+        AL_SendOutputToPort(port, OPL3_SUSTAIN_RELEASE + slot1, 0xff);
+        AL_SendOutputToPort(port, OPL3_SUSTAIN_RELEASE + slot2, 0xff);
 
         // Maximum attenuation
-        AL_SendOutputToPort(port, 0x40 + slot1, 0xff);
-        AL_SendOutputToPort(port, 0x40 + slot2, 0xff);
+        AL_SendOutputToPort(port, OPL3_KSL_LEVEL + slot1, 0xff);
+        AL_SendOutputToPort(port, OPL3_KSL_LEVEL + slot2, 0xff);
     }
 }
 
 
 static void AL_Reset(void)
 {
-    AL_SendOutputToPort(ADLIB_PORT, 1, 0x20);
-    AL_SendOutputToPort(ADLIB_PORT, 0x08, 0);
+    AL_SendOutputToPort(ADLIB_PORT, 1, OPL3_ENABLE_WAVE_SELECT);
+    AL_SendOutputToPort(ADLIB_PORT, OPL3_KBD_SPLIT_REGISTER, 0);
 
     // Set the values: AM Depth, VIB depth & Rhythm
-    AL_SendOutputToPort(ADLIB_PORT, 0xBD, 0);
+    AL_SendOutputToPort(ADLIB_PORT, OPL3_PERCUSSION_REGISTER, 0);
 
     AL_SetStereo(AL_Stereo);
 
@@ -565,10 +567,7 @@ static void AL_Reset(void)
 }
 
 
-void AL_SetStereo(int const stereo)
-{
-    AL_SendOutputToPort(AL_RightPort, 0x5, (stereo<<1)+1);
-}
+void AL_SetStereo(int const stereo) { AL_SendOutputToPort(AL_RightPort, OPL3_MODE_REGISTER, (stereo << 1) + 1); }
 
 
 static void AL_NoteOff(int const channel, int const key, int velocity)
@@ -579,17 +578,17 @@ static void AL_NoteOff(int const channel, int const key, int velocity)
     if (channel > AL_MaxMidiChannel)
         return;
 
-    int voice = AL_GetVoice(channel, key);
+    int const voice = AL_GetVoice(channel, key);
 
     if (voice == AL_VoiceNotFound)
         return;
 
     Voice[voice].status = NOTE_OFF;
 
-    int port = Voice[voice].port;
-    int voc  = (voice >= NUMADLIBVOICES) ? voice - NUMADLIBVOICES : voice;
+    int const port = Voice[voice].port;
+    int const voc  = (voice >= NUMADLIBVOICES) ? voice - NUMADLIBVOICES : voice;
 
-    AL_SendOutput(port, 0xB0 + voc, hibyte(Voice[voice].pitchleft));
+    AL_SendOutput(port, OPL3_KEYON_BLOCK + voc, hibyte(Voice[voice].pitchleft));
 
     LL_Remove(AdLibVoice, &Channel[channel].Voices, &Voice[voice]);
     LL_AddToTail(AdLibVoice, &Voice_Pool, &Voice[voice]);
@@ -720,12 +719,9 @@ static void AL_SetPitchBend(int const channel, int const lsb, int const msb)
         return;
 
     int const pitchbend = lsb + (msb << 8);
+    int const TotalBend = pitchbend * Channel[channel].PitchBendRange / (PITCHBEND_CENTER / FINETUNE_RANGE);
 
     Channel[channel].Pitchbend = pitchbend;
-
-    int TotalBend = pitchbend * Channel[channel].PitchBendRange;
-    TotalBend /= (PITCHBEND_CENTER / FINETUNE_RANGE);
-
     Channel[channel].KeyOffset = (int)(TotalBend / FINETUNE_RANGE);
     Channel[channel].KeyOffset -= Channel[channel].PitchBendSemiTones;
 
@@ -751,9 +747,6 @@ static int AL_Init(int const rate)
 {
     OPL3_Reset(&chip, rate);
 
-    AL_LeftPort  = ADLIB_PORT;
-    AL_RightPort = ADLIB_PORT + 2;
-
     AL_CalcPitchInfo();
     AL_Reset();
     AL_ResetVoices();
@@ -762,7 +755,7 @@ static int AL_Init(int const rate)
 }
 
 
-void AL_RegisterTimbreBank(uint8_t *timbres)
+void AL_RegisterTimbreBank(uint8_t const *timbres)
 {
     for (int i = 0; i < 256; i++)
     {
