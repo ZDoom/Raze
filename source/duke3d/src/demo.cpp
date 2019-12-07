@@ -846,7 +846,7 @@ nextdemo_nomenu:
                     Net_GetPackets();
 
                 if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
-                    gametext_center(60, "Press F1 to Accept, F2 to Decline");
+                    gametext_center(60, GStrings("TXT_PRESSF1_F2"));
             }
 
             if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))

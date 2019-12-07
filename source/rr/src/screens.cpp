@@ -174,14 +174,14 @@ static void G_ShowScores(void)
 
     if (g_mostConcurrentPlayers > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
-        gametext_center(SCORESHEETOFFSET+58+2, "Multiplayer Totals");
+        gametext_center(SCORESHEETOFFSET+58+2, GStrings("Multiplayer Totals"));
         gametext_center(SCORESHEETOFFSET+58+10, g_mapInfo[G_LastMapInfoIndex()].name);
 
         t = 0;
-        minitext(70, SCORESHEETOFFSET+80, "Name", 8, 2+8+16+ROTATESPRITE_MAX);
-        minitext(170, SCORESHEETOFFSET+80, "Frags", 8, 2+8+16+ROTATESPRITE_MAX);
-        minitext(200, SCORESHEETOFFSET+80, "Deaths", 8, 2+8+16+ROTATESPRITE_MAX);
-        minitext(235, SCORESHEETOFFSET+80, "Ping", 8, 2+8+16+ROTATESPRITE_MAX);
+        minitext(70, SCORESHEETOFFSET+80, GStrings("Name"), 8, 2+8+16+ROTATESPRITE_MAX);
+        minitext(170, SCORESHEETOFFSET+80, GStrings("Frags"), 8, 2+8+16+ROTATESPRITE_MAX);
+        minitext(200, SCORESHEETOFFSET+80, GStrings("Deaths"), 8, 2+8+16+ROTATESPRITE_MAX);
+        minitext(235, SCORESHEETOFFSET+80, GStrings("Ping"), 8, 2+8+16+ROTATESPRITE_MAX);
 
         for (i=g_mostConcurrentPlayers-1; i>=0; i--)
         {
@@ -1053,7 +1053,7 @@ void G_DisplayRest(int32_t smoothratio)
 
 
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
-        menutext_center(100, "Game Paused");
+        menutext_center(100, GStrings("Game Paused"));
 
     if (cl_showcoords)
         G_PrintCoords(screenpeek);
@@ -1796,11 +1796,11 @@ static void G_BonusCutscenes(void)
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
                                                                          //        G_FadePalette(0,0,0,252);
         videoClearScreen(0L);
-        menutext_center(60, "Thanks to all our");
-        menutext_center(60+16, "fans for giving");
-        menutext_center(60+16+16, "us big heads.");
-        menutext_center(70+16+16+16, "Look for a Duke Nukem 3D");
-        menutext_center(70+16+16+16+16, "sequel soon.");
+        menutext_center(60, GStrings("Thanks to all our"));
+        menutext_center(60+16, GStrings("fans for giving"));
+        menutext_center(60+16+16, GStrings("us big heads."));
+        menutext_center(70+16+16+16, GStrings("Look for a Duke Nukem 3D"));
+        menutext_center(70+16+16+16+16, GStrings("sequel soon."));
         videoNextPage();
 
         fadepal(0, 0, 0, 252, 0, -12);
@@ -1910,13 +1910,13 @@ static void G_DisplayMPResultsScreen(void)
     rotatesprite_fs(160<<16, 34<<16, RR ? 23592L : 65536L, 0, INGAMEDUKETHREEDEE, 0, 0, 10);
     if (!RR && PLUTOPAK)   // JBF 20030804
         rotatesprite_fs((260)<<16, 36<<16, 65536L, 0, PLUTOPAKSPRITE+2, 0, 0, 2+8);
-    gametext_center(58+(RR ? 0 : 2), "Multiplayer Totals");
+    gametext_center(58+(RR ? 0 : 2), GStrings("Multiplayer Totals"));
     gametext_center(58+10, g_mapInfo[G_LastMapInfoIndex()].name);
 
-    gametext_center_shade(RR ? 175 : 165, "Press any key or button to continue", quotepulseshade);
+    gametext_center_shade(RR ? 175 : 165, GStrings("Presskey"), quotepulseshade);
 
-    minitext(38, 80, "Name", 8, 2+8+16+128);
-    minitext(269, 80, "Kills", 8, 2+8+16+128);
+    minitext(38, 80, GStrings("Name"), 8, 2+8+16+128);
+    minitext(269, 80, GStrings("Kills"), 8, 2+8+16+128);
     for (i=0; i<g_mostConcurrentPlayers; i++)
     {
         Bsprintf(tempbuf, "%-4d", i+1);
@@ -1967,7 +1967,7 @@ static void G_DisplayMPResultsScreen(void)
         minitext(92+(y*23), 96+(8*7), tempbuf, RR ? 0 : 2, 2+8+16+128);
     }
 
-    minitext(45, 96+(8*7), "Deaths", RR ? 0 : 8, 2+8+16+128);
+    minitext(45, 96+(8*7), GStrings("Deaths"), RR ? 0 : 8, 2+8+16+128);
 }
 
 static int32_t G_PrintTime_ClockPad(void)
@@ -2126,9 +2126,9 @@ void G_BonusScreen(int32_t bonusonly)
 
         if (lastmapname)
             menutext_center(20-6, lastmapname);
-        menutext_center(36-6, "Completed");
+    	menutext_center(36-6, GStrings("Completed"));
 
-        gametext_center_shade(192, "Press any key or button to continue", quotepulseshade);
+    gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
 
         if (MusicEnabled())
             S_PlaySound(BONUSMUSIC);
@@ -2148,7 +2148,7 @@ void G_BonusScreen(int32_t bonusonly)
         if (lastmapname)
             menutext(80,16, lastmapname);
 
-        menutext(15, 192, "Press any key to continue");
+        menutext(15, 192, GStrings("PRESSKEY"));
     }
 
     videoNextPage();
@@ -2231,16 +2231,16 @@ void G_BonusScreen(int32_t bonusonly)
                 {
                     if (lastmapname)
                         menutext_center(20-6, lastmapname);
-                    menutext_center(36-6, "Completed");
+    	            menutext_center(36-6, GStrings("Completed"));
 
-                    gametext_center_shade(192, "Press any key or button to continue", quotepulseshade);
+                    gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
                 }
                 else
                 {
                     if (lastmapname)
                         menutext(80, 16, lastmapname);
 
-                    menutext(15, 192, "Press any key to continue");
+                    menutext(15, 192, GStrings("PRESSKEY"));
                 }
 
                 const int yystep = RR ? 16 : 10;
@@ -2249,9 +2249,9 @@ void G_BonusScreen(int32_t bonusonly)
                     yy = zz = RR ? 48 : 59;
 
                     if (!RR)
-                        gametext(10, yy+9, "Your Time:");
+                        gametext(10, yy+9, GStrings("TXT_YourTime"));
                     else
-                        menutext(30, yy, "Yer Time:");
+                        menutext(30, yy, GStrings("TXT_YerTime"));
 
                     yy+= yystep;
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
@@ -2259,18 +2259,18 @@ void G_BonusScreen(int32_t bonusonly)
                         if (g_mapInfo[G_LastMapInfoIndex()].partime)
                         {
                             if (!RR)
-                                gametext(10, yy+9, "Par Time:");
+                                gametext(10, yy+9, GStrings("TXT_ParTime"));
                             else
-                                menutext(30, yy, "Par Time:");
+                                menutext(30, yy, GStrings("TXT_ParTime"));
                             yy+=yystep;
                         }
                         if (g_mapInfo[G_LastMapInfoIndex()].designertime)
                         {
                             // EDuke 2.0 / NAM source suggests "Green Beret's Time:"
                             if (DUKE)
-                                gametext(10, yy+9, "3D Realms' Time:");
+                                gametext(10, yy+9, GStrings("TXT_3DRTIME"));
                             else if (RR)
-                                menutext(30, yy, "Xatrix Time:");
+                                menutext(30, yy, GStrings("TXT_XTRTIME"));
                             yy+=yystep;
                         }
 
@@ -2303,7 +2303,7 @@ void G_BonusScreen(int32_t bonusonly)
                             {
                                 gametext_number((320>>2)+71, yy+9, tempbuf);
                                 if (g_player[myconnectindex].ps->player_par < ud.playerbest)
-                                    gametext((320>>2)+89+(clockpad*24), yy+9, "New record!");
+                                gametext((320>>2)+89+(clockpad*24), yy+9, GStrings("TXT_NEWRECORD"));
                             }
                             else
                             {
@@ -2313,9 +2313,9 @@ void G_BonusScreen(int32_t bonusonly)
                             }
                         }
                         else if (!RR)
-                            gametext_pal((320>>2)+71, yy+9, "Cheated!", 2);
+                            gametext_pal((320>>2)+71, yy+9, GStrings("TXT_Cheated"), 2);
                         else
-                            menutext(191, yy, "Cheated!");
+                            menutext(191, yy, GStrings("TXT_Cheated"));
                         yy+=yystep;
 
                         if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
@@ -2356,14 +2356,14 @@ void G_BonusScreen(int32_t bonusonly)
                 if (totalclock > (60*6))
                 {
                     if (!RR)
-                        gametext(10, yy+9, "Enemies Killed:");
+                        gametext(10, yy+9, GStrings("TXT_EnemiesKilled"));
                     else
-                        menutext(30, yy, "Varmints Killed:");
+                        menutext(30, yy, GStrings("TXT_VarmintsKilled"));
                     yy += yystep;
                     if (!RR)
-                        gametext(10, yy+9, "Enemies Left:");
+                        gametext(10, yy+9, GStrings("TXT_EnemiesLeft"));
                     else
-                        menutext(30, yy, "Varmints Left:");
+                        menutext(30, yy, GStrings("TXT_VarmintsLeft"));
                     yy += yystep;
 
                     if (bonuscnt == 2)
@@ -2391,9 +2391,9 @@ void G_BonusScreen(int32_t bonusonly)
                         if (ud.player_skill > 3 && !RR)
                         {
                             if (!RR)
-                                gametext((320>>2)+70, yy+9, "N/A");
+                      	      gametext((320>>2)+70, yy+9, GStrings("TXT_N_A"));
                             else
-                                menutext(231,yy, "N/A");
+                                menutext(231,yy, GStrings("TXT_N_A"));
                             yy += yystep;
                         }
                         else
@@ -2414,14 +2414,14 @@ void G_BonusScreen(int32_t bonusonly)
                 if (totalclock > (60*9))
                 {
                     if (!RR)
-                        gametext(10, yy+9, "Secrets Found:");
+                        gametext(10, yy+9, GStrings("TXT_SECFND"));
                     else
-                        menutext(30, yy, "Secrets Found:");
+                        menutext(30, yy, GStrings("TXT_SECFND"));
                     yy += yystep;
                     if (!RR)
-                        gametext(10, yy+9, "Secrets Missed:");
+                        gametext(10, yy+9, GStrings("TXT_SECMISS"));
                     else
-                        menutext(30, yy, "Secrets Missed:");
+                        menutext(30, yy, GStrings("TXT_SECMISS"));
                     yy += yystep;
                     if (bonuscnt == 4) bonuscnt++;
 
@@ -2629,9 +2629,9 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     }
 
     if ((g_lastLevel && ud.volume_number == 2) || g_vixenLevel)
-        lastmapname = "CLOSE ENCOUNTERS";
+        lastmapname = GStrings("TXT_CLOSEENCOUNTERS");
     else if (g_turdLevel)
-        lastmapname = "SMELTIN' PLANT";
+        lastmapname = GStrings("SMELTIN' PLANT");
 
 
     fadepal(0, 0, 0, 0, 252, 4);
@@ -2814,7 +2814,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                 if (lastmapname)
                     menutext(80, 16, lastmapname);
 
-                menutext(15, 192, "Press any key to continue");
+                menutext(15, 192, GStrings("TXT_PRESSKEY"));
 
                 const int yystep = 16;
                 if (totalclock > (60*3))
@@ -2828,12 +2828,12 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                     {
                         if (g_mapInfo[G_LastMapInfoIndex()].partime)
                         {
-                            menutext(30, yy, "Par Time:");
+                            menutext(30, yy, GStrings("TXT_PARTIME"));
                             yy+=yystep;
                         }
                         if (g_mapInfo[G_LastMapInfoIndex()].designertime)
                         {
-                            menutext(30, yy, "Xatrix Time:");
+                            menutext(30, yy, GStrings("TXT_XTRTIME"));
                             yy+=yystep;
                         }
 
@@ -2895,9 +2895,9 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                 zz = yy += 16;
                 if (totalclock > (60*6))
                 {
-                    menutext(30, yy, "Varmints Killed:");
+                    menutext(30, yy, GStrings("TXT_VARMINTSKILLED"));
                     yy += yystep;
-                    menutext(30, yy, "Varmints Left:");
+                    menutext(30, yy, GStrings("TXT_VARMINTSLEFT"));
                     yy += yystep;
 
                     if (bonuscnt == 2)
@@ -2934,9 +2934,9 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                 zz = yy += 0;
                 if (totalclock > (60*9))
                 {
-                    menutext(30, yy, "Secrets Found:");
+                    menutext(30, yy, GStrings("TXT_SECFND"));
                     yy += yystep;
-                    menutext(30, yy, "Secrets Missed:");
+                    menutext(30, yy, GStrings("TXT_SECMISS"));
                     yy += yystep;
                     if (bonuscnt == 4) bonuscnt++;
 

@@ -4475,7 +4475,7 @@ void G_HandleLocalKeys(void)
     {
         if (inputState.UnboundKeyPressed(sc_F1) || inputState.UnboundKeyPressed(sc_F2) || cl_autovote)
         {
-            G_AddUserQuote("Vote Cast");
+            G_AddUserQuote(GStrings("VoteCast"));
             Net_SendMapVote(inputState.UnboundKeyPressed(sc_F1) || cl_autovote ? cl_autovote-1 : 0);
             inputState.ClearKeyStatus(sc_F1);
             inputState.ClearKeyStatus(sc_F2);
@@ -5931,7 +5931,7 @@ int GameInterface::app_main()
 
     for (int i=1, j=numplayers; j<ud.multimode; j++)
     {
-        Bsprintf(g_player[j].user_name,"PLAYER %d",j+1);
+        Bsprintf(g_player[j].user_name,"%s %d", GStrings("PLAYER"),j+1);
         g_player[j].ps->team = g_player[j].pteam = i;
         g_player[j].ps->weaponswitch = 3;
         g_player[j].ps->auto_aim = 0;

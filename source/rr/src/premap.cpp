@@ -496,7 +496,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
 
         if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
         {
-            menutext_center(textY, RR ? "ENTERIN' USER MAP" : "Loading User Map");
+            menutext_center(textY, RR ? GStrings("TXT_ENTRUM") : GStrings("TXT_LOADUM"));
             if (RR)
                 menutext_center(textY+20, boardfilename);
             else
@@ -504,12 +504,12 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
         else if (RR && g_lastLevel)
         {
-            menutext_center(textY,"ENTERIN'");
-            menutext_center(textY+16+8,"CLOSE ENCOUNTERS");
+            menutext_center(textY,GStrings("ENTERIN"));
+            menutext_center(textY+16+8,GStrings("TXT_CLOSEENCOUNTERS"));
         }
         else
         {
-            menutext_center(textY, RR ? "ENTERIN'" : "Loading");
+            menutext_center(textY, RR ? GStrings("TXT_ENTERIN") : GStrings("TXT_LOADING"));
             if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
                 menutext_center(textY+16+8,g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
         }
@@ -548,7 +548,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
 
         rotatesprite_fs(320<<15,200<<15,65536L, 0,LOADSCREEN,0,0,2+8+64+BGSTRETCH);
 
-        menutext_center(RRRA?155:105,RR?"LOADIN'":"Loading...");
+        menutext_center(RRRA?155:105,RR? GStrings("TXT_LOADIN") : GStrings("TXT_Loading..."));
         if (statustext) gametext_center_number(180, statustext);
         videoNextPage();
     }
@@ -2370,7 +2370,8 @@ int G_EnterLevel(int gameMode)
     i = ud.screen_size;
     ud.screen_size = 0;
 
-    G_DoLoadScreen("Loading map . . .", -1);
+    FStringf msg("%s . . .", GStrings("TXT_LOADMAP"));
+    G_DoLoadScreen(msg, -1);
     G_UpdateScreenArea();
 
     ud.screen_size = i;
@@ -2540,7 +2541,7 @@ int G_EnterLevel(int gameMode)
 
     if (G_HaveUserMap())
     {
-        OSD_Printf(OSDTEXT_YELLOW "User Map: %s\n", boardfilename);
+        OSD_Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
     }
     else
     {

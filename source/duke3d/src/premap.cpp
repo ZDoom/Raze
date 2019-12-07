@@ -329,7 +329,8 @@ static void G_DemoLoadScreen(const char *statustext, int const loadScreenTile, i
         return;
     }
 
-    menutext_center(105, "Loading...");
+    FStringf msg("%s...", GStrings("TXT_LOADING"));
+    menutext_center(105, msg);
 
     if (statustext)
         gametext_center_number(180, statustext);
@@ -372,12 +373,12 @@ static void G_DoLoadScreen(const char *statustext, int percent)
 
     if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
     {
-        menutext_center(90, "Loading User Map");
+        menutext_center(90, GStrings("TXT_LOADUM"));
         gametext_center_shade_pal(90+10, boardfilename, 14, 2);
     }
     else
     {
-        menutext_center(90, "Loading");
+        menutext_center(90, GStrings("TXT_LOADING"));
 
         if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
             menutext_center(90+16+8, g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
@@ -1832,7 +1833,8 @@ int G_EnterLevel(int gameMode)
     int const ssize = ud.screen_size;
     ud.screen_size = 0;
 
-    G_DoLoadScreen("Loading map . . .", -1);
+    FStringf msg("%s . . .", GStrings("TXT_LOADMAP"));
+    G_DoLoadScreen(msg, -1);
     G_UpdateScreenArea();
 
     ud.screen_size = ssize;
@@ -1957,9 +1959,9 @@ int G_EnterLevel(int gameMode)
     }
 
     if (G_HaveUserMap())
-        OSD_Printf(OSDTEXT_YELLOW "User Map: %s\n", boardfilename);
+        OSD_Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
     else if (FURY)
-        OSD_Printf(OSDTEXT_YELLOW "Entering: %s\n", m.name);
+        OSD_Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_ENTERING"), m.name);
     else
         OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number + 1, ud.level_number + 1, m.name);
 

@@ -690,12 +690,12 @@ void G_DoCheats(void)
 
                 case CHEAT_MONSTERS:
                 {
-                    const char *s [] = { "On", "Off", "On (2)" };
+                    const char *s [] = { "OPTVAL_ON", "OPTVAL_OFF", "$TXT_ON2" };
 
                     if (++g_noEnemies == 3)
                         g_noEnemies = 0;
 
-					quoteMgr.FormatQuote(QUOTE_RESERVED4, "Monsters: %s", s[g_noEnemies]);
+					quoteMgr.FormatQuote(QUOTE_RESERVED4, "%s: %s", GStrings("NETMNU_MONSTERS"), s[g_noEnemies]);
                     P_DoQuote(QUOTE_RESERVED4, pPlayer);
 
                     end_cheat(pPlayer);
