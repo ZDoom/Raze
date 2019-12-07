@@ -122,23 +122,6 @@ void S_MenuSound(void)
 }
 
 
-static int S_PlayMusic(const char *mapname, const char* fn, bool looping = true)
-{
-	return Mus_Play(mapname, fn, looping);
-}
-
-void S_StopMusic(void)
-{
-	Mus_Stop();
-}
-
-
-void S_PauseMusic(bool paused)
-{
-	Mus_SetPaused(paused);
-}
-
-
 static void S_SetMusicIndex(unsigned int m)
 {
     g_musicIndex = m;
@@ -146,25 +129,10 @@ static void S_SetMusicIndex(unsigned int m)
     ud.music_level   = m % MAXLEVELS;
 }
 
-bool S_TryPlayLevelMusic(unsigned int m)
-{
-	// For RR only explicitly invalidate the music name, but still allow the music code to run its own music substitution logic based on map names.
-	if (!S_PlayMusic(g_mapInfo[m].filename,RR? nullptr : g_mapInfo[m].musicfn))
-	{
-		S_SetMusicIndex(m);
-		return false;
-    }
-
-    return true;
-}
-
 void S_PlayLevelMusicOrNothing(unsigned int m)
 {
-    if (S_TryPlayLevelMusic(m))
-    {
-        //S_StopMusic();
-        S_SetMusicIndex(m);
-    }
+    Mus_Play(g_mapInfo[m].filename, RR ? nullptr : g_mapInfo[m].musicfn, true);
+    S_SetMusicIndex(m);
 }
 
 int S_TryPlaySpecialMusic(unsigned int m)
@@ -174,7 +142,7 @@ int S_TryPlaySpecialMusic(unsigned int m)
     char const * musicfn = g_mapInfo[m].musicfn;
     if (musicfn != NULL)
     {
-        if (!S_PlayMusic(nullptr, musicfn, 1))
+        if (!Mus_Play(nullptr, musicfn, 1))
         {
             S_SetMusicIndex(m);
             return 0;
@@ -189,20 +157,19 @@ void S_PlayRRMusic(int newTrack)
     char fileName[16];
     if (!RR)
         return;
-    S_StopMusic();
+    Mus_Stop();
     g_cdTrack = newTrack != -1 ? newTrack : g_cdTrack+1;
     if (newTrack != 10 && (g_cdTrack > 9 || g_cdTrack < 2))
         g_cdTrack = 2;
 
     Bsprintf(fileName, "track%.2d.ogg", g_cdTrack);
-    S_PlayMusic(fileName, 0);
+    Mus_Play(fileName, 0, true);
 }
 
 void S_PlaySpecialMusicOrNothing(unsigned int m)
 {
     if (S_TryPlaySpecialMusic(m))
     {
-        //S_StopMusic();
         S_SetMusicIndex(m);
     }
 }

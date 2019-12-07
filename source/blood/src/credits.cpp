@@ -140,7 +140,7 @@ void credLogosDos(void)
     rotatesprite(160<<16, 100<<16, 65536, 0, 2518, 0, 0, 0x4a, 0, 0, xdim-1, ydim-1);
     scrNextPage();
     Wait(360);
-    sndFadeSong(4000);
+    Mus_Fade(4000);
 }
 
 void credReset(void)

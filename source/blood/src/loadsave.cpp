@@ -180,7 +180,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
 	MUS_ResumeSaved();
 
     netBroadcastPlayerInfo(myconnectindex);
-    //sndPlaySong(gGameOptions.zLevelSong, 1);
 	return true;
 }
 

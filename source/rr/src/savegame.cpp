@@ -1615,7 +1615,7 @@ static void postloadplayer(int32_t savegamep)
 		MUS_ResumeSaved();
 
         if (MusicEnabled())
-            S_PauseMusic(false);
+            Mus_SetPaused(false);
 
         g_player[myconnectindex].ps->gm = MODE_GAME;
         ud.recstat = 0;

@@ -947,7 +947,7 @@ void ProcessFrame(void)
         }
         if (gDemo.at0)
             gDemo.Close();
-        sndFadeSong(4000);
+        Mus_Fade(4000);
         seqKillAll();
         if (gGameOptions.uGameFlags&2)
         {
@@ -1367,7 +1367,7 @@ RESTART:
     if (gRestartGame)
     {
         UpdateDacs(0, true);
-        sndStopSong();
+        Mus_Stop();
         FX_StopAllSounds();
         gQuitGame = 0;
         gQuitRequest = 0;
@@ -1991,27 +1991,18 @@ int sndTryPlaySpecialMusic(int nMusic)
 {
     int nEpisode = nMusic/kMaxLevels;
     int nLevel = nMusic%kMaxLevels;
-    if (sndPlaySong(gEpisodeInfo[nEpisode].at28[nLevel].at0, gEpisodeInfo[nEpisode].at28[nLevel].atd0, true))
+    if (Mus_Play(gEpisodeInfo[nEpisode].at28[nLevel].at0, gEpisodeInfo[nEpisode].at28[nLevel].atd0, true))
     {
-        strncpy(gGameOptions.zLevelSong, gEpisodeInfo[nEpisode].at28[nLevel].atd0, BMAX_PATH);
         return 0;
     }
-	else
-	{
-		// Unable to stat the music.
-		*gGameOptions.zLevelSong = 0;
-	}
     return 1;
 }
 
 void sndPlaySpecialMusicOrNothing(int nMusic)
 {
-    int nEpisode = nMusic/kMaxLevels;
-    int nLevel = nMusic%kMaxLevels;
     if (sndTryPlaySpecialMusic(nMusic))
     {
-        sndStopSong();
-        strncpy(gGameOptions.zLevelSong, gEpisodeInfo[nEpisode].at28[nLevel].atd0, BMAX_PATH);
+        Mus_Stop();
     }
 }
 

@@ -152,7 +152,7 @@ void SetupNetworkJoinMenu(CGameMenuItemChain *pItem)
 void NetworkHostGame(CGameMenuItemChain *pItem)
 {
     UNREFERENCED_PARAMETER(pItem);
-    sndStopSong();
+    Mus_Stop();
     FX_StopAllSounds();
     UpdateDacs(0, true);
     gNetPlayers = itemNetworkHostPlayerNum.nValue;
@@ -168,7 +168,7 @@ void NetworkHostGame(CGameMenuItemChain *pItem)
 void NetworkJoinGame(CGameMenuItemChain *pItem)
 {
     UNREFERENCED_PARAMETER(pItem);
-    sndStopSong();
+    Mus_Stop();
     FX_StopAllSounds();
     UpdateDacs(0, true);
     strcpy(gNetAddress, zNetAddressBuffer);

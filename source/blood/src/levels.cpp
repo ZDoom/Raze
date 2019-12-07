@@ -50,7 +50,7 @@ BEGIN_BLD_NS
 GAMEOPTIONS gGameOptions;
 
 GAMEOPTIONS gSingleGameOptions = {
-    0, 2, 0, 0, "", "", 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
+    0, 2, 0, 0, "", 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
 };
 
 EPISODEINFO gEpisodeInfo[kMaxEpisodes+1];
@@ -88,7 +88,7 @@ void levelOverrideINI(const char *pzIni)
 void levelPlayIntroScene(int nEpisode)
 {
     gGameOptions.uGameFlags &= ~4;
-    sndStopSong();
+    Mus_Stop();
     sndKillAllSounds();
     sfxKillAllSounds();
     ambKillAll();
@@ -104,7 +104,7 @@ void levelPlayIntroScene(int nEpisode)
 void levelPlayEndScene(int nEpisode)
 {
     gGameOptions.uGameFlags &= ~8;
-    sndStopSong();
+    Mus_Stop();
     sndKillAllSounds();
     sfxKillAllSounds();
     ambKillAll();
@@ -199,7 +199,6 @@ void levelSetupOptions(int nEpisode, int nLevel)
     gGameOptions.nLevel = nLevel;
     strcpy(gGameOptions.zLevelName, gEpisodeInfo[nEpisode].at28[nLevel].at0);
     gGameOptions.uMapCRC = dbReadMapCRC(gGameOptions.zLevelName);
-    // strcpy(gGameOptions.zLevelSong, gEpisodeInfo[nEpisode].at28[nLevel].atd0);
     gGameOptions.nTrackNumber = gEpisodeInfo[nEpisode].at28[nLevel].ate0;
 }
 
@@ -401,19 +400,17 @@ bool levelTryPlayMusic(int nEpisode, int nLevel, bool bSetLevelSong)
     if (mus_redbook && gEpisodeInfo[nEpisode].at28[nLevel].ate0 > 0)
         snprintf(buffer, BMAX_PATH, "blood%02i.ogg", gEpisodeInfo[nEpisode].at28[nLevel].ate0);
     else
+    {
         strncpy(buffer, gEpisodeInfo[nEpisode].at28[nLevel].atd0, BMAX_PATH);
+    }
 	if (!strchr(buffer, '.')) strcat(buffer, ".mid");
-    bool bReturn = !!sndPlaySong(gEpisodeInfo[nEpisode].at28[nLevel].at0, buffer, true);
-    if (bReturn || bSetLevelSong)
-        strncpy(gGameOptions.zLevelSong, buffer, BMAX_PATH);
-	else *gGameOptions.zLevelSong = 0;
-    return bReturn;
+    return !!Mus_Play(gEpisodeInfo[nEpisode].at28[nLevel].at0, buffer, true);
 }
 
 void levelTryPlayMusicOrNothing(int nEpisode, int nLevel)
 {
     if (levelTryPlayMusic(nEpisode, nLevel, true))
-        sndStopSong();
+        Mus_Stop();
 }
 
 class LevelsLoadSave : public LoadSave

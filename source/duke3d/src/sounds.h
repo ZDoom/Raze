@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define sounds_public_h_
 
 #include "sounds_common.h"
+#include "z_music.h"
 
 BEGIN_DUKE_NS
 
@@ -72,7 +73,6 @@ void cacheAllSounds(void);
 void S_MenuSound(void);
 void S_PauseMusic(bool paused);
 void S_PauseSounds(bool paused);
-bool S_TryPlayLevelMusic(unsigned int m);
 void S_PlayLevelMusicOrNothing(unsigned int);
 int S_TryPlaySpecialMusic(unsigned int);
 void S_PlaySpecialMusicOrNothing(unsigned int);
@@ -83,7 +83,6 @@ void S_SoundShutdown(void);
 void S_SoundStartup(void);
 void S_StopEnvSound(int sndNum,int sprNum);
 void S_StopAllSounds(void);
-void S_StopMusic(void);
 void S_Update(void);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 

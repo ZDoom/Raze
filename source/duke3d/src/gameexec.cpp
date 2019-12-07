@@ -5008,7 +5008,7 @@ badindex:
 
             vInstruction(CON_STOPALLMUSIC):
                 insptr++;
-                S_StopMusic();
+                Mus_Stop();
                 dispatch();
 
             vInstruction(CON_OPERATE):

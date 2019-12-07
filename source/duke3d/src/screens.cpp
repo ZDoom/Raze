@@ -1287,7 +1287,7 @@ void gameDisplaySharewareScreens()
 
 void G_DisplayExtraScreens(void)
 {
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds();
 
     if (!DUKEBETA && (!VOLUMEALL || G_GetLogoFlags() & LOGO_SHAREWARESCREENS))
@@ -1467,7 +1467,7 @@ void G_DisplayLogo(void)
     renderFlushPerms();
     videoNextPage();
 
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds(); // JBF 20031228
     S_ClearSoundLocks();  // JBF 20031228
 
@@ -1669,7 +1669,7 @@ static void G_BonusCutscenes(void)
         fadepal(0, 0, 0, 0, 252, 4);
 
     VOL1_END:
-        S_StopMusic();
+        Mus_Stop();
         FX_StopAllSounds();
         S_ClearSoundLocks();
         break;
@@ -1680,7 +1680,7 @@ static void G_BonusCutscenes(void)
 
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
-        S_StopMusic();
+        Mus_Stop();
         videoClearScreen(0L);
         videoNextPage();
 
@@ -1714,7 +1714,7 @@ static void G_BonusCutscenes(void)
 
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
-        S_StopMusic();
+        Mus_Stop();
         videoClearScreen(0L);
         videoNextPage();
 
@@ -1796,7 +1796,7 @@ static void G_BonusCutscenes(void)
         if ((G_GetLogoFlags() & LOGO_NOE3BONUSSCENE) && (G_GetLogoFlags() & LOGO_NOE3RADLOGO) && (PLUTOPAK || (G_GetLogoFlags() & LOGO_NODUKETEAMPIC)))
             return;
 
-        S_StopMusic();
+        Mus_Stop();
         videoClearScreen(0L);
         videoNextPage();
         if (adult_lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE3BONUSSCENE))
@@ -2043,7 +2043,7 @@ void G_BonusScreen(int32_t bonusonly)
     totalclock = 0;
     bonuscnt = 0;
 
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds();
     S_ClearSoundLocks();
 

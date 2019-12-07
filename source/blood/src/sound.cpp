@@ -75,27 +75,6 @@ SAMPLE2D * FindChannel(void)
     return NULL;
 }
 
-int sndPlaySong(const char *mapname, const char* songName, bool bLoop)
-{
-	return Mus_Play(mapname, songName, bLoop);
-}
-
-bool sndIsSongPlaying(void)
-{
-	// Not used
-	return false;
-}
-
-void sndFadeSong(int nTime)
-{
-	// not implemented
-}
-
-void sndStopSong(void)
-{
-	Mus_Stop();
-}
-
 void sndSetFXVolume(int nVolume)
 {
 	snd_fxvolume = nVolume;
@@ -307,7 +286,7 @@ void sndTerm(void)
     if (!sndActive)
         return;
     sndActive = false;
-    sndStopSong();
+    Mus_Stop();
     DeinitSoundDevice();
     //DeinitMusicDevice();
 }

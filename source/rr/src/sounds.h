@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define sounds_public_h_
 
 #include "sounds_common.h"
+#include "z_music.h"
 
 BEGIN_RR_NS
 
@@ -71,10 +72,8 @@ inline void S_ClearSoundLocks(void) {}
 int32_t S_LoadSound(uint32_t num);
 void S_PrecacheSounds(void);
 void S_MenuSound(void);
-void S_PauseMusic(bool paused);
 void S_PauseSounds(bool paused);
 void S_PlayRRMusic(int newTrack = -1);
-bool S_TryPlayLevelMusic(unsigned int m);
 void S_PlayLevelMusicOrNothing(unsigned int);
 int S_TryPlaySpecialMusic(unsigned int);
 void S_PlaySpecialMusicOrNothing(unsigned int);
@@ -84,7 +83,6 @@ void S_SoundShutdown(void);
 void S_SoundStartup(void);
 void S_StopEnvSound(int32_t num,int32_t i);
 void S_StopAllSounds(void);
-void S_StopMusic(void);
 void S_Update(void);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 

@@ -133,22 +133,6 @@ void S_MenuSound(void)
 }
 
 
-static int S_PlayMusic(const char *mapname, const char* fn, bool looping = true)
-{
-	return Mus_Play(mapname, fn, looping);
-}
-
-void S_StopMusic(void)
-{
-	Mus_Stop();
-}
-
-void S_PauseMusic(bool paused)
-{
-	Mus_SetPaused(paused);
-}
-
-
 static void S_SetMusicIndex(unsigned int m)
 {
     g_musicIndex = m;
@@ -156,30 +140,16 @@ static void S_SetMusicIndex(unsigned int m)
     ud.music_level   = m % MAXLEVELS;
 }
 
-bool S_TryPlayLevelMusic(unsigned int m)
+void S_PlayLevelMusicOrNothing(unsigned int m)
 {
     ud.returnvar[0] = m / MAXLEVELS;
     ud.returnvar[1] = m % MAXLEVELS;
 
     int retval = VM_OnEvent(EVENT_PLAYLEVELMUSICSLOT, g_player[myconnectindex].ps->i, myconnectindex);
 
-    if (retval < 0)
-        return false;
-
-	if (!S_PlayMusic(g_mapInfo[m].filename, g_mapInfo[m].musicfn))
-	{
-		S_SetMusicIndex(m);
-		return false;
-    }
-
-    return true;
-}
-
-void S_PlayLevelMusicOrNothing(unsigned int m)
-{
-    if (S_TryPlayLevelMusic(m))
+    if (retval >= 0)
     {
-        //S_StopMusic();
+        Mus_Play(g_mapInfo[m].filename, g_mapInfo[m].musicfn, true);
         S_SetMusicIndex(m);
     }
 }
@@ -189,7 +159,7 @@ int S_TryPlaySpecialMusic(unsigned int m)
     char const * musicfn = g_mapInfo[m].musicfn;
     if (musicfn != NULL)
     {
-        if (!S_PlayMusic(nullptr, musicfn))
+        if (!Mus_Play(nullptr, musicfn, true))
         {
             S_SetMusicIndex(m);
             return 0;
@@ -203,7 +173,6 @@ void S_PlaySpecialMusicOrNothing(unsigned int m)
 {
     if (S_TryPlaySpecialMusic(m))
     {
-        //S_StopMusic();
         S_SetMusicIndex(m);
     }
 }

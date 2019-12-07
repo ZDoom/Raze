@@ -1236,7 +1236,7 @@ int inExtraScreens = 0;
 
 void G_DisplayExtraScreens(void)
 {
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds();
     if (RR)
         return;
@@ -1310,7 +1310,7 @@ void G_DisplayLogo(void)
     renderFlushPerms();
     videoNextPage();
 
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds(); // JBF 20031228
     S_ClearSoundLocks();  // JBF 20031228
     if (RRRA)
@@ -1724,7 +1724,7 @@ static void G_BonusCutscenes(void)
         G_HandleEventsWhileNoInput();
         fadepal(0, 0, 0, 0, 252, 4);
 
-        S_StopMusic();
+        Mus_Stop();
         FX_StopAllSounds();
         S_ClearSoundLocks();
         break;
@@ -1732,7 +1732,7 @@ static void G_BonusCutscenes(void)
     case 1:
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
-        S_StopMusic();
+        Mus_Stop();
         videoClearScreen(0L);
         videoNextPage();
 
@@ -1760,7 +1760,7 @@ static void G_BonusCutscenes(void)
     case 3:
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
-        S_StopMusic();
+        Mus_Stop();
         videoClearScreen(0L);
         videoNextPage();
 
@@ -1828,7 +1828,7 @@ static void G_BonusCutscenes(void)
         break;
 
     case 2:
-        S_StopMusic();
+        Mus_Stop();
         videoClearScreen(0L);
         videoNextPage();
         if (adult_lockout == 0)
@@ -2077,7 +2077,7 @@ void G_BonusScreen(int32_t bonusonly)
     totalclock = 0;
     bonuscnt = 0;
 
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
@@ -2669,7 +2669,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     totalclock = 0;
     bonuscnt = 0;
 
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
