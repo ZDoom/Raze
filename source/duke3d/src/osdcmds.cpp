@@ -39,41 +39,29 @@ struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
 
 static int osdcmd_changelevel(osdcmdptr_t parm)
 {
-    int32_t volume=0,level;
-    char *p;
+    int volume = 0;
+    int level;
 
     if (!VOLUMEONE)
     {
         if (parm->numparms != 2) return OSDCMD_SHOWHELP;
 
-        volume = strtol(parm->parms[0], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
-        level = strtol(parm->parms[1], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
+        volume = strtol(parm->parms[0], NULL, 10) - 1;
+        level = strtol(parm->parms[1], NULL, 10) - 1;
     }
     else
     {
         if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
-        level = strtol(parm->parms[0], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
+        level = strtol(parm->parms[0], NULL, 10) - 1;
     }
 
-    if (volume < 0) return OSDCMD_SHOWHELP;
-    if (level < 0) return OSDCMD_SHOWHELP;
+    if (volume < 0 || level < 0)
+        return OSDCMD_SHOWHELP;
 
-    if (!VOLUMEONE)
+    if (level > MAXLEVELS || g_mapInfo[volume * MAXLEVELS + level].filename == NULL)
     {
-        if (volume > g_volumeCnt)
-        {
-            OSD_Printf("changelevel: invalid volume number (range 1-%d)\n",g_volumeCnt);
-            return OSDCMD_OK;
-        }
-    }
-
-    if (level > MAXLEVELS || g_mapInfo[volume *MAXLEVELS+level].filename == NULL)
-    {
-        OSD_Printf("changelevel: invalid level number\n");
+        OSD_Printf("changelevel: no map defined for episode %d level %d\n", volume + 1, level + 1);
         return OSDCMD_SHOWHELP;
     }
 
@@ -81,6 +69,7 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
     {
         return OSDCMD_OK;
     }
+
     if (g_player[myconnectindex].ps->gm & MODE_GAME)
     {
         // in-game behave like a cheat
