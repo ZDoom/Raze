@@ -168,7 +168,7 @@ static inline void VM_DummySprite(void)
 }
 
 // verification that the event actually exists happens elsewhere
-static FORCE_INLINE int32_t VM_EventInlineInternal__(int const &eventNum, int const &spriteNum, int const &playerNum,
+static FORCE_INLINE int32_t VM_EventInlineInternal__(int const eventNum, int const spriteNum, int const playerNum,
                                                        int const playerDist = -1, int32_t returnValue = 0)
 {
     vmstate_t const newVMstate = { spriteNum, playerNum, playerDist, 0,
