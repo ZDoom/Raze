@@ -2388,6 +2388,7 @@ struct GameInterface : ::GameInterface
 	bool LoadGame(FSaveGameNode* sv) override;
 	bool SaveGame(FSaveGameNode* sv) override;
 	void DoPrintMessage(int prio, const char* text) override;
+    void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
 
 };
 

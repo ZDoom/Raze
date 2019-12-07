@@ -1005,7 +1005,19 @@ OptionValue "PlayerColors"
 	7, "$TXT_COLOR_BROWN"
 	8, "$TXT_COLOR_DARKBLUE"
 	9, "$TXT_COLOR_LIGHTRED"
-	//10, "TXT_COLOR_YELLOW"
+	//10, "$TXT_COLOR_YELLOW"
+}
+
+OptionValie "PlayerColorsSW"
+{
+	0, "$TXT_COLOR_BROWN"
+	1, "$TXT_COLOR_GRAY"
+	2, "$TXT_COLOR_PURPLE"
+	3, "$TXT_COLOR_RED"
+	4, "$TXT_COLOR_YELLOW"
+	5, "$TXT_COLOR_DULLGREEN"
+	6, "$TXT_COLOR_GREEN"
+	7, "$TXT_COLOR_BLUE"
 }
 
 OptionValue "PlayerTeam"
@@ -1029,7 +1041,15 @@ OptionMenu "NewPlayerMenu" //protected
 {
 	Title "$MNU_PLAYERSETUP"
 	TextField "$PLYRMNU_NAME", playername
-	Option "$PLYRMNU_PLAYERCOLOR", "playercolor", "PlayerColors"
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	{
+		Option "$PLYRMNU_PLAYERCOLOR", "playercolor", "PlayerColors"
+	}
+	ifgame(ShadowWarrior)
+	{
+		// This curently does not get applied to the single player game.
+		Option "$PLYRMNU_PLAYERCOLOR", "playercolor", "PlayerColorsSW"
+	}
 	Option "$PLYRMNU_PLAYERGENDER", "playergender", "Gender"
 	Option "$PLYRMNU_TEAM", "playerteam", "PlayerTeam"
 	Submenu "$PLRMNU_TAUNTS", "TauntsMenu"
@@ -1084,7 +1104,14 @@ OptionMenu GameplayOptions //protected
 	Option "$PLRMNU_AUTOAIM", "cl_autoaim", "AimMode"
 	Option "$PLRMNU_ALWAYSRUN", "cl_autorun", "OnOff"
 	Option "$PLRMNU_RUNMODE", "cl_runmode", "RunMode"
-	Option "$PLRMNU_EQUIP", "cl_weaponswitch", "WeapSwitch"
+	ifgame(ShadowWarrior)
+	{
+		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "OnOff" // does not have the 'preferred' option.
+	}
+	else
+	{
+		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "WeapSwitch"
+	}
 	Option "$PLRMNU_PLOCK", "adult_lockout", "OnOff" // I won't bother password protecting this piece of window dressing
 	// StaticText ""
 	// Option "Record Demo", "m_recstat", "OnOff"
@@ -1603,6 +1630,11 @@ OptionMenu "MiscOptions" //protected
 	//Option "$MISCMNU_QUICKSAVEROTATION",			"quicksaverotation", "OnOff"
 	Slider "$MISCMNU_QUICKSAVECOUNT",			"quicksaverotationcount", 1, 20, 1, 0
 	Option "$MISCMNU_INTERSCROLL",				"nointerscrollabort", "OffOn"
+	ifgame(shadowwarrior)
+	{
+		Option "$MISCMNU_DARTS",				"sw_darts", "OnOff"
+		Option "$MISCMNU_NINJA",				"sw_ninjahack", "OnOff"
+	}
 	//StaticText " "
 	//Option "$OPTMNU_LANGUAGE", "language", "LanguageOptions" - not ready yet
 

@@ -212,9 +212,6 @@ const GAME_SET gs_defaults =
     0, // Time Limit
     0, // Color
     TRUE, // nuke
-    "Track??", // waveform track name
-    FALSE,
-    TRUE,
 };
 GAME_SET gs;
 

@@ -423,6 +423,8 @@ Brown,TXT_COLOR_BROWN,,,,Hnědá,Braun,,Bruna,Marrón,,Ruskea,Brun,Barna,Marrone
 Dark Blue,TXT_COLOR_DARKBLUE,,,,Tmavě modrá,Dunkelblau,,Malhelblua,Azul oscuro,,Tummansininen,Bleu sombre,Sötétkék,Blu scuro,,,Donkerblauw,,Azul escuro,,,Тёмно-Синий,Тамна Плава
 Light Red,TXT_COLOR_LIGHTRED,,,,Světle červená,Hellrot,,Ruĝeta,Rojo claro,,Vaaleanpunainen,Rouge clair,,Rosso chiaro,丹,옅은 적색,Licht Rood,Jasnoczerwony,Vermelho claro,,,Светло-красный,Светло црвена
 Yellow,TXT_COLOR_YELLOW,,,,Žlutá,Gelb,,Flava,Amarillo,,Keltainen,Jaune,Sárga,Giallo,黄,노란색,Geel,Żółty,Amarelo,,,Жёлтый,Жута
+Purple,TXT_COLOR_PURPLE,,,,Fialová,Violett,,Purpura,Morado,,Purppura,Violet,Lila,Viola,紫,보라색,Paars,Fioletowy,Roxo,,,Фиолетовый,Љубичаста
+Olive,TXT_COLOR_DULLGREEN,,,,Bledě zelená,Blassgrün,,Gris-Verda,Verde pálido,,Haaleanvihreä,Vert pâle,,Verde pallido,苔,암녹색,Saaie groen,Matowa Zieleń,Verde pálido,,,Мутно-зелёный,Тупа зелена
 Auto,OPTVAL_AUTO,,,,,,,Aŭtomata,Automático,,Automaattinen,,,Automatico,自動,자동,,Automatycznie,Automático,,,Авто,Аутоматски
 Name,PLYRMNU_NAME,,,,Jméno,,,Nomo,Nombre,,Nimi,Nom,Név,Nome,名前,이름,Naam,Imię,Nome,,,Имя,Надимак
 Team,PLYRMNU_TEAM,,,,Tým,,,Teamo,Equipo,,Joukkue,Equipe,Csapat,Squadra,チーム,팀,Team,Drużyna,Equipe,Equipa,,Команда,Тим
@@ -691,6 +693,8 @@ Scripts Only,OPTVAL_SCRIPTSONLY,,,,Pouze skripty,Nur Skripte,,Skriptoj Sole,Sól
 Disable keyboard cheats,MISCMNU_NOCHEATS,,,,,Tastatur-Cheats deaktivieren,,Malaktivigi klavaran trumpon,Desactivar trucos por teclado,,,,,,キーボードからのチート無効,,Schakel cheats uit,,Desabilitar trapaças de teclado,,,,
 Quicksave rotation,MISCMNU_QUICKSAVEROTATION,,,,Rotace rychle uložených her,Schnellspeicherrotation,,Rapidkonservado-rotacio,Rotación de Salvado Rápido,,Pikatallennuskierto,Rotation Sauvegardes Rapides,,Rotazione rapide della quicksave,クイックセーブ間隔,빠른 저장 간격,Roteer quicksaves,Rotacja szybkich zapisów,Rotação de quicksave,,,Чередовать слоты для быстрых сохранений,Окретање брзих чувања
 Number of quicksaves in rotation,MISCMNU_QUICKSAVECOUNT,,,,Počet rychle uložených her v rotaci,Anzahl Schnellspeicherplätze,,Nombro da rapidkonservitaj ludoj en rotaciado,Número de Salvados Rápidos en Rotación,,Pikatallennusten määrä kierrossa,Nombre de sauvegardes en rotation,,Numero di quicksaves in rotazione,間隔クイックセーブの数,빠른 저장 간격의 수,Aantal roterende quicksaves,Ilość szybkich zapisów w rotacji,Número de quicksaves em rotação,,,Кол-во слотов для быстрых сохранений,Број брзих чувања у окретању
+Ninja Slice Animation,MISCMNU_NINJA,,,,,,,,,,,,,,,,,,,,,,
+Use Darts instead of Shurikens,MISCMNU_DARTS,,,,,,,,,,,,,,,,,,,,,,
 ,Miscellaneous,,,,,,,,,,,,,,,,,,,,,,
 "You are playing the shareware
 version of Duke Nukem 3D.  While

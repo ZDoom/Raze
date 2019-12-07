@@ -45,6 +45,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "fx_man.h"
 #include "menu/menu.h"
+#include "swcvar.h"
 
 BEGIN_SW_NS
 
@@ -1822,7 +1823,7 @@ InitWeaponStar(PLAYERp pp)
     PlaySound(DIGI_PULL, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
     if (STD_RANDOM_RANGE(1000) > 900 && pp == Player+myconnectindex)
     {
-        if (!gs.Darts)
+        if (!sw_darts)
             PlayerSound(DIGI_ILIKESHURIKEN,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
     }
 
@@ -7388,7 +7389,7 @@ pDisplaySprites(PLAYERp pp)
             picnum = psp->picndx;
 
         // UK panzies have to have darts instead of shurikens.
-        if (gs.Darts)
+        if (sw_darts)
             switch (picnum)
             {
             case STAR_REST:
@@ -7452,7 +7453,7 @@ pDisplaySprites(PLAYERp pp)
 
             case STAR_REST:
             case 2510:
-                if (!gs.Darts)
+                if (!sw_darts)
                     picnum = 2138;
                 else
                     picnum = 2518; // Bloody Dart Hand

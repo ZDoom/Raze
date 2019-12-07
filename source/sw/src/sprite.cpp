@@ -47,6 +47,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "text.h"
 #include "slidor.h"
 #include "player.h"
+#include "swcvar.h"
 
 BEGIN_SW_NS
 
@@ -5959,7 +5960,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_STAR] >= DamageData[WPN_STAR].max_ammo)
                 break;
 
-            sprintf(ds, gs.Darts ? "Darts" : "Shurikens");
+            sprintf(ds, sw_darts ? "Darts" : "Shurikens");
             PutStringInfo(Player+pnum, DamageData[WPN_STAR].weapon_name);
             PlayerUpdateAmmo(pp, WPN_STAR, DamageData[WPN_STAR].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -5970,7 +5971,7 @@ KeyMain:
                 break;
             SET(pp->WpnFlags, BIT(WPN_STAR));
 
-            if (!gs.WeaponAutoSwitch)
+            if (!cl_weaponswitch)
                 break;
             if (User[pp->PlayerSprite]->WeaponNum <= WPN_STAR && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
@@ -5998,7 +5999,7 @@ KeyMain:
                 break;
             SET(pp->WpnFlags, BIT(WPN_MINE));
 
-            if (!gs.WeaponAutoSwitch)
+            if (!cl_weaponswitch)
                 break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_MINE && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
@@ -6041,7 +6042,7 @@ KeyMain:
                 ChoosePlayerGetSound(pp);
             }
 
-            if (!gs.WeaponAutoSwitch)
+            if (!cl_weaponswitch)
                 break;
 
             if (User[pp->PlayerSprite]->WeaponNum > WPN_UZI && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
@@ -6084,7 +6085,7 @@ KeyMain:
                 break;
             SET(pp->WpnFlags, BIT(WPN_MICRO));
 
-            if (!gs.WeaponAutoSwitch)
+            if (!cl_weaponswitch)
                 break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_MICRO && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
@@ -6155,7 +6156,7 @@ KeyMain:
                 break;
             SET(pp->WpnFlags, BIT(WPN_GRENADE));
 
-            if (!gs.WeaponAutoSwitch)
+            if (!cl_weaponswitch)
                 break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_GRENADE && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
@@ -6184,7 +6185,7 @@ KeyMain:
                 break;
             SET(pp->WpnFlags, BIT(WPN_ROCKET));
 
-            if (!gs.WeaponAutoSwitch)
+            if (!cl_weaponswitch)
                 break;
             InitWeaponRocket(pp);
             break;
@@ -6231,7 +6232,7 @@ KeyMain:
                 break;
             SET(pp->WpnFlags, BIT(WPN_RAIL));
 
-            if (!gs.WeaponAutoSwitch)
+            if (!cl_weaponswitch)
                 break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_RAIL && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
@@ -6273,7 +6274,7 @@ KeyMain:
                 break;
             SET(pp->WpnFlags, BIT(WPN_SHOTGUN));
 
-            if (!gs.WeaponAutoSwitch)
+            if (!cl_weaponswitch)
                 break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_SHOTGUN && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
@@ -6342,7 +6343,7 @@ KeyMain:
                 break;
             SET(pp->WpnFlags, BIT(WPN_NAPALM) | BIT(WPN_RING) | BIT(WPN_HOTHEAD));
 
-            if (!gs.WeaponAutoSwitch)
+            if (!cl_weaponswitch)
                 break;
             if (User[pp->PlayerSprite]->WeaponNum > WPN_HOTHEAD && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
                 break;
@@ -6388,7 +6389,7 @@ KeyMain:
                 break;
             SET(pp->WpnFlags, BIT(WPN_HEART));
 
-            if (!gs.WeaponAutoSwitch)
+            if (!cl_weaponswitch)
                 break;
 
             if (User[pp->PlayerSprite]->WeaponNum > WPN_HEART && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)

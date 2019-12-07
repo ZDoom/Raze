@@ -44,10 +44,6 @@ typedef struct
     uint8_t NetTimeLimit;  // Limit time of game
     uint8_t NetColor;      // Chosen color for player
     SWBOOL NetNuke;
-    //SWBOOL PlayCD;	// Not implemented and no idea how to support it without the music assets.
-    char WaveformTrackName[MAXWAVEFORMTRACKLENGTH];
-    SWBOOL Darts;
-    SWBOOL WeaponAutoSwitch;
 } GAME_SET, *GAME_SETp;
 
 extern const GAME_SET gs_defaults;

@@ -57,6 +57,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sector.h"
 #include "config.h"
 #include "menu/menu.h"
+#include "swcvar.h"
 
 BEGIN_SW_NS
 
@@ -766,7 +767,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 
             //#define DART_REPEAT 6
             //#define DART_PIC 2233
-            if (gs.Darts)
+            if (sw_darts)
                 if (tu->ID == 1793 || tsp->picnum == 1793)
                 {
                     tsp->picnum = 2519;
@@ -778,7 +779,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 #define DART_REPEAT 16
             if (tu->ID == STAR1)
             {
-                if (gs.Darts)
+                if (sw_darts)
                 {
                     tsp->picnum = DART_PIC;
                     tsp->ang = NORM_ANGLE(tsp->ang - 512 - 24);
@@ -842,7 +843,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
             }
         }
 
-        if (gs.Darts)
+        if (sw_darts)
             if (tsp->statnum == STAT_STAR_QUEUE)
             {
                 tsp->picnum = DART_PIC;
