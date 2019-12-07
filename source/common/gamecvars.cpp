@@ -144,7 +144,7 @@ CVARD(Bool, demoplay_showsync, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/dis
 
 // Sound
 
-CUSTOM_CVARD(Bool, snd_ambience, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enables/disables ambient sounds") // Not implemented for Blood
+CUSTOM_CVARD(Bool, snd_ambience, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL, "enables/disables ambient sounds") // Not implemented for Blood
 {
 	gi->SetAmbience(self);
 }
@@ -229,7 +229,7 @@ bool G_ChangeHudLayout(int direction)
 			return true;
 		}
 	}
-	else if (hud_size < 11)
+	else if (direction > 0 && hud_size < 11)
 	{
 		int layout = hud_size + 1;
 		while (!gi->validate_hud(layout) && layout <= 11) layout++;

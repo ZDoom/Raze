@@ -177,7 +177,7 @@ SWBOOL NoDemoStartup = FALSE;
 SWBOOL FirstTimeIntoGame;
 extern uint8_t RedBookSong[40];
 
-SWBOOL BorderAdjust = TRUE;
+SWBOOL BorderAdjust = FALSE;
 SWBOOL LocationInfo = 0;
 void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 int DispFrameRate = FALSE;
@@ -2988,6 +2988,7 @@ int32_t GameInterface::app_main()
     int cnt = 0;
     uint32_t TotalMemory;
 
+    BorderAdjust = true;
     SW_ExtInit();
 
     CONFIG_ReadSetup();
@@ -4326,8 +4327,18 @@ void Saveable_Init_Dynamic()
     saveable_build.numdata = NUM_SAVEABLE_ITEMS(saveable_build_data);
 }
 
-/*extern*/ bool GameInterface::validate_hud(int requested_size) { return requested_size; }
-/*extern*/ void GameInterface::set_hud_layout(int requested_size) { /* the relevant setting is gs.BorderNum */}
+/*extern*/ bool GameInterface::validate_hud(int requested_size) 
+{ 
+    return requested_size != 10 && requested_size != 8; 
+}
+/*extern*/ void GameInterface::set_hud_layout(int requested_size) 
+{
+    if (requested_size >= 11) requested_size = 9;
+    else if (requested_size >= 9) requested_size = 8;
+    gs.BorderNum = 9 - requested_size;
+    SetBorder(Player + myconnectindex, gs.BorderNum);
+    SetRedrawScreen(Player + myconnectindex);
+}
 /*extern*/ void GameInterface::set_hud_scale(int requested_size) { /* the relevant setting is gs.BorderNum */ }
 
 ::GameInterface* CreateInterface()

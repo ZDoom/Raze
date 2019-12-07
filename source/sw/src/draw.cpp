@@ -1071,15 +1071,13 @@ ResizeView(PLAYERp pp)
         if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))      // &&
         {
             buttonMap.ClearButton(gamefunc_Shrink_Screen);
-            SetBorder(pp, gs.BorderNum + 1);
-            SetRedrawScreen(pp);
+            G_ChangeHudLayout(-1);
         }
 
         if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen)) // &&
         {
             buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-            SetBorder(pp, gs.BorderNum - 1);
-            SetRedrawScreen(pp);
+            G_ChangeHudLayout(1);
         }
     }
 }
