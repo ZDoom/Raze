@@ -159,7 +159,8 @@ int32_t globaltilesizy;
 int32_t globalx1, globaly2, globalx3, globaly3;
 
 int32_t sloptable[SLOPTABLESIZ];
-static intptr_t slopalookup[16384];    // was 2048
+#define SLOPALOOKUPSIZ (MAXXDIM<<1)
+static intptr_t slopalookup[SLOPALOOKUPSIZ];    // was 2048
 
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
@@ -3389,7 +3390,7 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     int32_t i, j, l, globalx1, globaly1, y1, y2, daslope, daz, wxi, wyi;
     float fi, wx, wy, dasqr;
     float globalx, globaly, globalx2, globaly2, globalx3, globaly3, globalz, globalzd, globalzx;
-    int32_t shoffs, m1, m2;
+    int32_t shoffs, m1, m2, shy1, shy2;
     intptr_t *mptr1, *mptr2;
 
     const usectortype *const sec = (usectortype *)&sector[sectnum];
@@ -3523,7 +3524,14 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     //Avoid visibility overflow by crossing horizon
     m1 += klabs(l);
     m2 = m1+l;
-    mptr1 = (intptr_t *)&slopalookup[y1+(shoffs>>15)]; mptr2 = mptr1+1;
+    shy1 = y1+(shoffs>>15);
+    if ((unsigned)shy1 >= SLOPALOOKUPSIZ-1)
+    {
+        OSD_Printf("%s:%d: slopalookup[] overflow drawing sector %d!\n", EDUKE32_FUNCTION, __LINE__, sectnum);
+        return;
+    }
+
+    mptr1 = &slopalookup[shy1]; mptr2 = mptr1+1;
 
     for (int x=dax1; x<=dax2; x++)
     {
@@ -3531,8 +3539,18 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
         else { y1 = max(umost[x],dplc[x]); y2 = dmost[x]-1; }
         if (y1 <= y2)
         {
-            intptr_t *nptr1 = &slopalookup[y1+(shoffs>>15)];
-            intptr_t *nptr2 = &slopalookup[y2+(shoffs>>15)];
+            shy1 = y1+(shoffs>>15);
+            shy2 = y2+(shoffs>>15);
+
+            if ((unsigned)shy1 >= SLOPALOOKUPSIZ || (unsigned)shy2 >= SLOPALOOKUPSIZ)
+            {
+                // Ridiculously steep gradient?
+                OSD_Printf("%s:%d: slopalookup[] overflow drawing sector %d!\n", EDUKE32_FUNCTION, __LINE__, sectnum);
+                goto next_most;
+            }
+
+            intptr_t *nptr1 = &slopalookup[shy1];
+            intptr_t *nptr2 = &slopalookup[shy2];
 
             while (nptr1 <= mptr1)
             {
@@ -3662,6 +3680,7 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 #undef LINTERPSIZ
             if ((x&15) == 0) faketimerhandler();
         }
+next_most:
         globalx2 += globalx;
         globaly2 += globaly;
         globalzx += globalz;
@@ -3678,7 +3697,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     }
     int32_t i, l, x, y, dx, dy, wx, wy, y1, y2, daz;
     int32_t daslope, dasqr;
-    int32_t shoffs, m1, m2;
+    int32_t shoffs, m1, m2, shy1, shy2;
     intptr_t *mptr1, *mptr2, j;
 
     // Er, yes, they're not global anymore:
@@ -3810,7 +3829,14 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     //Avoid visibility overflow by crossing horizon
     m1 += klabs((int32_t) (globalzd>>16));
     m2 = m1+l;
-    mptr1 = (intptr_t *)&slopalookup[y1+(shoffs>>15)]; mptr2 = mptr1+1;
+    shy1 = y1+(shoffs>>15);
+    if ((unsigned)shy1 >= SLOPALOOKUPSIZ - 1)
+    {
+        OSD_Printf("%s:%d: slopalookup[] overflow drawing sector %d!\n", EDUKE32_FUNCTION, __LINE__, sectnum);
+        return;
+    }
+
+    mptr1 = &slopalookup[shy1]; mptr2 = mptr1+1;
 
     for (x=dax1; x<=dax2; x++)
     {
@@ -3818,8 +3844,18 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
         else { y1 = max(umost[x],dplc[x]); y2 = dmost[x]-1; }
         if (y1 <= y2)
         {
-            intptr_t *nptr1 = &slopalookup[y1+(shoffs>>15)];
-            intptr_t *nptr2 = &slopalookup[y2+(shoffs>>15)];
+            shy1 = y1+(shoffs>>15);
+            shy2 = y2+(shoffs>>15);
+
+            if ((unsigned)shy1 >= SLOPALOOKUPSIZ || (unsigned)shy2 >= SLOPALOOKUPSIZ)
+            {
+                // Ridiculously steep gradient?
+                OSD_Printf("%s:%d: slopalookup[] overflow drawing sector %d!\n", EDUKE32_FUNCTION, __LINE__, sectnum);
+                goto next_most;
+            }
+
+            intptr_t *nptr1 = &slopalookup[shy1];
+            intptr_t *nptr2 = &slopalookup[shy2];
 
             while (nptr1 <= mptr1)
             {
@@ -3851,6 +3887,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 
             if ((x&15) == 0) faketimerhandler();
         }
+next_most:
         globalx2 += globalx;
         globaly2 += globaly;
         globalzx += globalz;
