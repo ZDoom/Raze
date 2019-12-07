@@ -22,9 +22,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
+#include "cheats.h"
+
 #include "duke3d.h"
 #include "osdcmds.h"
-#include "cheats.h"
 
 BEGIN_DUKE_NS
 
@@ -242,10 +243,12 @@ static void G_CheatGetInv(DukePlayer_t *pPlayer)
 static void end_cheat(DukePlayer_t * const pPlayer)
 {
     pPlayer->cheat_phase = 0;
+    g_cheatBufLen = 0;
     inputState.keyFlushChars();
+    KB_ClearKeysDown();
 }
 
-static int32_t cheatbuflen;
+int g_cheatBufLen;
 static int8_t cheatbuf[MAXCHEATLEN];
 
 void G_DoCheats(void)
@@ -311,31 +314,33 @@ void G_DoCheats(void)
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
                 pPlayer->cheat_phase = 0;
+                g_cheatBufLen = 0;
                 //                P_DoQuote(QUOTE_46,pPlayer);
                 return;
             }
 
-            cheatbuf[cheatbuflen++] = (int8_t) ch;
+            cheatbuf[g_cheatBufLen++] = (int8_t) ch;
             // This assertion is not obvious, but it should hold because of the
             // cheat string matching logic below.
-            Bassert(cheatbuflen < (signed)sizeof(cheatbuf));
-            cheatbuf[cheatbuflen] = 0;
+            Bassert(g_cheatBufLen < (signed)sizeof(cheatbuf));
+            cheatbuf[g_cheatBufLen] = 0;
             //            inputState.ClearKeysDown();
 
             for (cheatNum=0; cheatNum < NUMCHEATCODES; cheatNum++)
             {
-                for (bssize_t j = 0; j<cheatbuflen; j++)
+                for (bssize_t j = 0; j<g_cheatBufLen; j++)
                 {
                     if (cheatbuf[j] == CheatStrings[cheatNum][j] || (CheatStrings[cheatNum][j] == '#' && ch >= '0' && ch <= '9'))
                     {
                         if (CheatStrings[cheatNum][j+1] == 0) goto FOUNDCHEAT;
-                        if (j == cheatbuflen-1) return;
+                        if (j == g_cheatBufLen-1) return;
                     }
                     else break;
                 }
             }
 
             pPlayer->cheat_phase = 0;
+            g_cheatBufLen = 0;
             return;
 
         FOUNDCHEAT:;
@@ -458,8 +463,7 @@ void G_DoCheats(void)
 
                 case CHEAT_ALLEN:
                     P_DoQuote(QUOTE_CHEAT_ALLEN, pPlayer);
-                    pPlayer->cheat_phase = 0;
-                    inputState.ClearKeyStatus(sc_N);
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_CORNHOLIO:
@@ -622,8 +626,7 @@ void G_DoCheats(void)
 
                 case CHEAT_CASHMAN:
                     ud.cashman = 1-ud.cashman;
-                    inputState.ClearKeyStatus(sc_N);
-                    pPlayer->cheat_phase = 0;
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_ITEMS:
@@ -666,7 +669,6 @@ void G_DoCheats(void)
 
                 case CHEAT_BETA:
                     P_DoQuote(QUOTE_CHEAT_BETA, pPlayer);
-                    inputState.ClearKeyStatus(sc_H);
                     end_cheat(pPlayer);
                     return;
 
@@ -695,8 +697,8 @@ void G_DoCheats(void)
                 case CHEAT_RESERVED3:
                     ud.eog = 1;
                     pPlayer->player_par = 0;
-                    pPlayer->gm |= MODE_EOL;
-                    inputState.keyFlushChars();
+                    pPlayer->gm |= MODE_EOL;;
+                    end_cheat(pPlayer);
                     return;
 
                 default:
@@ -731,13 +733,14 @@ void G_DoCheats(void)
                 {
                     pPlayer->cheat_phase = 1;
                     //                    P_DoQuote(QUOTE_25,pPlayer);
-                    cheatbuflen = 0;
                 }
+                g_cheatBufLen = 0;
                 inputState.keyFlushChars();
             }
             else if (pPlayer->cheat_phase != 0)
             {
                 pPlayer->cheat_phase = 0;
+                g_cheatBufLen = 0;
                 inputState.ClearKeyStatus((uint8_t) CheatKeys[0]);
                 inputState.ClearKeyStatus((uint8_t) CheatKeys[1]);
             }

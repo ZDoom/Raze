@@ -2894,7 +2894,7 @@ void P_GetInput(int const playerNum)
     auto const pPlayer = g_player[playerNum].ps;
     ControlInfo info;
 
-    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
+    if (g_cheatBufLen > 1 || (pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -3024,20 +3024,23 @@ void P_GetInput(int const playerNum)
     int const sectorLotag = pPlayer->cursectnum != -1 ? sector[pPlayer->cursectnum].lotag : 0;
     int const crouchable = sectorLotag != 2 && (sectorLotag != 1 || pPlayer->spritebridge);
 
-    if (pPlayer->cheat_phase == 0 && buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+    if (pPlayer->cheat_phase < 1)
     {
-        pPlayer->crouch_toggle = !pPlayer->crouch_toggle && crouchable;
+        if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+        {
+            pPlayer->crouch_toggle = !pPlayer->crouch_toggle && crouchable;
 
-        if (crouchable)
-            buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+            if (crouchable)
+                buttonMap.ClearButton(gamefunc_Toggle_Crouch);
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
-        pPlayer->crouch_toggle = 0;
+        if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
+            pPlayer->crouch_toggle = 0;
 
-    int const crouching = buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle;
+        int const crouching = buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle;
 
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Jump) << SK_JUMP) | (crouching << SK_CROUCH);
+        localInput.bits |= (buttonMap.ButtonDown(gamefunc_Jump) << SK_JUMP) | (crouching << SK_CROUCH);
+    }
 
     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && input.fvel > 0)) << SK_AIM_UP;
     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && input.fvel < 0)) << SK_AIM_DOWN;
