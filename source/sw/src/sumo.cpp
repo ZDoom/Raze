@@ -794,7 +794,6 @@ int DoSumoDeathMelt(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    static SWBOOL alreadydid = FALSE;
 
     PlaySound(DIGI_SUMOFART, &sp->x, &sp->y, &sp->z, v3df_follow);
 
@@ -803,10 +802,10 @@ int DoSumoDeathMelt(short SpriteNum)
     u->ID = 0;
 
     DoMatchEverything(NULL, sp->lotag, ON);
-    if (!SW_SHAREWARE && MusicEnabled() && !alreadydid)
+    if (!SW_SHAREWARE)
     {
-        PlaySong(0, RedBookSong[Level], TRUE, TRUE);
-        alreadydid = TRUE;
+        // Resume the regular music - in a hack-free fashion.
+        PlaySong(LevelInfo[Level].LevelName, LevelInfo[Level].SongName, RedBookSong[Level]);
     }
 
     BossSpriteNum[1] = -2; // Sprite is gone, set it back to keep it valid!
@@ -882,25 +881,25 @@ BossHealthMeter(void)
                     if (i == 0 && !serpwasseen)
                     {
                         serpwasseen = TRUE;
-                        if (!SW_SHAREWARE && MusicEnabled())
+                        if (!SW_SHAREWARE)
                         {
-                            PlaySong(0, ThemeTrack[2], TRUE, TRUE);
+                            PlaySong(nullptr, nullptr, ThemeTrack[2], true);
                         }
                     }
                     else if (i == 1 && !sumowasseen)
                     {
                         sumowasseen = TRUE;
-                        if (!SW_SHAREWARE && MusicEnabled())
+                        if (!SW_SHAREWARE)
                         {
-                            PlaySong(0, ThemeTrack[3], TRUE, TRUE);
+                            PlaySong(nullptr, nullptr, ThemeTrack[3], true);
                         }
                     }
                     else if (i == 2 && !zillawasseen)
                     {
                         zillawasseen = TRUE;
-                        if (!SW_SHAREWARE && MusicEnabled())
+                        if (!SW_SHAREWARE)
                         {
-                            PlaySong(0, ThemeTrack[4], TRUE, TRUE);
+                            PlaySong(nullptr, nullptr, ThemeTrack[4], true);
                         }
                     }
                 }
@@ -918,13 +917,6 @@ BossHealthMeter(void)
             continue;
         if (i == 2 && (!zillawasseen || BossSpriteNum[2] < 0))
             continue;
-
-        // This is needed because of possible saved game situation
-        if (!SW_SHAREWARE && !triedplay)
-        {
-            PlaySong(0, ThemeTrack[i+2], TRUE, FALSE);
-            triedplay = TRUE; // Only try once, then give up
-        }
 
         sp = &sprite[BossSpriteNum[i]];
         u = User[BossSpriteNum[i]];

@@ -155,7 +155,7 @@ int S_TryPlaySpecialMusic(unsigned int m)
 void S_PlayRRMusic(int newTrack)
 {
     char fileName[16];
-    if (!RR)
+    if (!RR || !mus_redbook)
         return;
     Mus_Stop();
     g_cdTrack = newTrack != -1 ? newTrack : g_cdTrack+1;

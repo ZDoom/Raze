@@ -2942,7 +2942,6 @@ void MNU_DoButton(MenuItem_p item, SWBOOL draw)
     SWBOOL state;
     int last_value;
     short shade = MENU_SHADE_DEFAULT;
-    extern char LevelSong[];
     const char *extra_text = NULL;
     PLAYERp pp = &Player[myconnectindex];
     int button_x,zero=0;
@@ -3025,35 +3024,6 @@ void MNU_DoButton(MenuItem_p item, SWBOOL draw)
             }
             break;
         case btn_music:
-            last_value = mus_enabled;
-            mus_enabled = state = buttonsettings[item->button];
-            if (mus_enabled != last_value)
-            {
-                SWBOOL bak;
-
-                if (MusicEnabled())
-                {
-                    bak = DemoMode;
-                    PlaySong(LevelSong, RedBookSong[Level], TRUE, TRUE);
-                    DemoMode = bak;
-                }
-                else
-                {
-                    bak = DemoMode;
-                    StopSong();
-                    DemoMode = bak;
-
-                    if (SW_SHAREWARE)
-                    {
-                        handle = PlaySound(DIGI_NOLIKEMUSIC,&zero,&zero,&zero,v3df_none);
-
-                        if (handle > FX_Ok)
-                            while (FX_SoundActive(handle))
-                                handleevents();
-                    }
-                }
-            }
-            break;
         case btn_talking:
             snd_speech = state = buttonsettings[item->button];
             break;

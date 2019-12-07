@@ -57,6 +57,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "player.h"
 #include "i_specialpaths.h"
 #include "savegamehelp.h"
+#include "z_music.h"
 
 //void TimerFunc(task * Task);
 BEGIN_SW_NS
@@ -75,7 +76,6 @@ TO DO
 extern int lastUpdate;
 extern uint8_t RedBookSong[40];
 extern char UserMapName[80];
-extern char LevelSong[16];
 extern char SaveGameDescr[10][80];
 extern int PlayClock;
 extern short TotalKillable;
@@ -663,8 +663,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     // game settings
     MWRITE(&gNet,sizeof(gNet),1,fil);
 
-    MWRITE(LevelSong,sizeof(LevelSong),1,fil);
-
     MWRITE(palette,sizeof(palette),1,fil);
     MWRITE(palette_data,sizeof(palette_data),1,fil);
     MWRITE(&gs,sizeof(gs),1,fil);
@@ -744,7 +742,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     // Don't terminate until you've made sure conditions are valid for loading.
     if (InMenuLevel)
-        StopSong();
+        Mus_Stop();
     else
         TerminateLevel();
     Terminate3DSounds();
@@ -1112,8 +1110,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     // game settings
     MREAD(&gNet,sizeof(gNet),1,fil);
 
-    MREAD(LevelSong,sizeof(LevelSong),1,fil);
-
     MREAD(palette,sizeof(palette),1,fil);
     MREAD(palette_data,sizeof(palette_data),1,fil);
 
@@ -1225,7 +1221,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     screenpeek = myconnectindex;
     PlayingLevel = Level;
 
-    PlaySong(LevelSong, RedBookSong[Level], TRUE, TRUE);
+    MUS_ResumeSaved();
     if (snd_ambience)
         StartAmbientSound();
     FX_SetVolume(snd_fxvolume);

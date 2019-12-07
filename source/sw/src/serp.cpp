@@ -815,14 +815,13 @@ int DoDeathSpecial(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    static SWBOOL alreadydid = FALSE;
 
     DoMatchEverything(NULL, sp->lotag, ON);
 
-    if (!SW_SHAREWARE && MusicEnabled() && !alreadydid)
+    if (!SW_SHAREWARE)
     {
-        PlaySong(0, RedBookSong[Level], TRUE, TRUE);
-        alreadydid = TRUE;
+        // Resume the regular music - in a hack-free fashion.
+        PlaySong(LevelInfo[Level].LevelName, LevelInfo[Level].SongName, RedBookSong[Level]);
     }
 
     BossSpriteNum[0] = -2;

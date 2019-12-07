@@ -1286,7 +1286,7 @@ OptionMenu SoundOptions //protected
 	//Option "$SNDMNU_RANDOMIZEPITCHES",	"snd_pitched", "OnOff"
 	Slider "$SNDMNU_CHANNELS",			"snd_numchannels", 64, 128, 8, 0
 	staticText ""
-	ifgame (Blood, ShadowWarrior)
+	ifgame (Blood, ShadowWarrior, Redneck, RedneckRides)
 	{
 		Option "$SNDMNU_CDEMU",			"mus_redbook", "OnOff"
 	}

@@ -344,35 +344,6 @@ static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum, int angle,
     sndang = S_GetAngle(angle, cam, pos);
     sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z));
 
-#ifdef SPLITSCREEN_MOD_HACKS
-    if (g_fakeMultiMode==2)
-    {
-        // HACK for splitscreen mod: take the min of sound distances
-        // to 1st and 2nd player.
-
-        if (PN(spriteNum) == APLAYER && P_Get(spriteNum) == 1)
-        {
-            sndist = sndang = 0;
-            goto sound_further_processing;
-        }
-
-        {
-            const vec3_t *cam2 = &g_player[1].ps->pos;
-            int32_t sndist2 = FindDistance3D(cam2->x-pos->x, cam2->y-pos->y, (cam2->z-pos->z));
-
-            if (sndist2 < sndist)
-            {
-                cam = cam2;
-                sectNum = g_player[1].ps->cursectnum;
-                angle = g_player[1].ps->ang;
-
-                sndist = sndist2;
-                sndang = S_GetAngle(angle, cam, pos);
-            }
-        }
-    }
-#endif
-
     if ((g_sounds[soundNum].m & (SF_GLOBAL|SF_DTAG)) != SF_GLOBAL && S_IsAmbientSFX(spriteNum) && (sector[SECT(spriteNum)].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
         sndist = divscale14(sndist, SHT(spriteNum)+1);
 
@@ -464,13 +435,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
         while (j < MAXSOUNDINSTANCES && snd.voices[j].id != voice)
             j++;
 
-#ifdef DEBUGGINGAIDS
-        if (EDUKE32_PREDICT_FALSE(j >= MAXSOUNDINSTANCES))
-        {
-            OSD_Printf(OSD_ERROR "%s %d: WTF?\n", __FILE__, __LINE__);
-            return -1;
-        }
-#endif
 
         snd.voices[j].owner = spriteNum;
 
@@ -482,14 +446,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
     int        pitch      = S_GetPitch(sndNum);
     auto const pOther     = g_player[screenpeek].ps;
 
-#ifdef SPLITSCREEN_MOD_HACKS
-    if (g_fakeMultiMode==2)
-    {
-        // splitscreen HACK
-        if (g_player[1].ps->i == spriteNum)
-            pOther = g_player[1].ps;
-}
-#endif
 
     if (pOther->sound_pitch)
         pitch += pOther->sound_pitch;

@@ -3654,7 +3654,7 @@ void P_HandleSharedKeys(int playerNum)
             }
             else
             {
-                if (MusicEnabled()) Mus_SetPaused(false);
+                Mus_SetPaused(false);
 
                 S_PauseSounds(false);
 

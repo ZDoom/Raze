@@ -259,7 +259,8 @@ static void SaveStatistics(const char *fn, TArray<FStatistics> &statlist)
 				{
 					fw->Printf("\t{\n");
 
-					qsort(&ls[0], ls.Size(), sizeof(ls[0]), compare_level_names);
+					// Only makes sense if level names follow a strict format. This is noz the case here.
+					//qsort(&ls[0], ls.Size(), sizeof(ls[0]), compare_level_names);
 
 					for(unsigned k=0;k<ls.Size ();k++)
 					{

@@ -96,6 +96,7 @@ Things required to make savegames work:
 #include "m_argv.h"
 #include "debugbreak.h"
 #include "menu/menu.h"
+#include "z_music.h"
 
 //#include "crc32.h"
 
@@ -964,8 +965,6 @@ void InitGame()
     COVERsetbrightness(0, &palette_data[0][0]);
 
     InitFX();   // JBF: do it down here so we get a hold of the window handle
-    InitMusic();
-
 }
 
 
@@ -986,7 +985,6 @@ TYTAIK16 MID
 YOKOHA03 MID
 */
 
-char LevelSong[16];
 short SongLevelNum;
 //#ifndef SW_SHAREWARE
 LEVEL_INFO LevelInfo[MAX_LEVELS_REG+2] =
@@ -1170,7 +1168,7 @@ InitLevel(void)
     // A few IMPORTANT GLOBAL RESETS
     InitLevelGlobals();
     if (!DemoMode)
-        StopSong();
+        Mus_Stop();
 
     if (LoadGameOutsideMoveLoop)
     {
@@ -1196,7 +1194,6 @@ InitLevel(void)
         FindLevelInfo(LevelName, &Level);
         if (Level > 0)
         {
-            strcpy(LevelSong, LevelInfo[Level].SongName);
             strcpy(LevelName, LevelInfo[Level].LevelName);
             UserMapName[0] = '\0';
         }
@@ -1235,7 +1232,6 @@ InitLevel(void)
             if (Level > 0)
             {
                 // user map is part of game - treat it as such
-                strcpy(LevelSong, LevelInfo[Level].SongName);
                 strcpy(LevelName, LevelInfo[Level].LevelName);
                 UserMapName[0] = '\0';
             }
@@ -1243,7 +1239,6 @@ InitLevel(void)
         else
         {
             strcpy(LevelName, LevelInfo[Level].LevelName);
-            strcpy(LevelSong, LevelInfo[Level].SongName);
         }
     }
 
@@ -1599,8 +1594,7 @@ void ResetKeyRange(uint8_t* kb, uint8_t* ke)
 void PlayTheme()
 {
     // start music at logo
-    strcpy(LevelSong,"theme.mid");
-    PlaySong(LevelSong, RedBookSong[0], TRUE, TRUE);
+    PlaySong(nullptr, "theme.mid", RedBookSong[0]);
 
     DSPRINTF(ds,"After music stuff...");
     MONO_PRINT(ds);
@@ -1704,9 +1698,9 @@ void CreditsLevel(void)
         while (FX_SoundActive(handle)) ;
 
     // try 14 then 2 then quit
-    if (!PlaySong(NULL, 14, FALSE, TRUE))
+    if (!PlaySong(nullptr, nullptr, 14, true))
     {
-        if (!PlaySong(NULL, 2, FALSE, TRUE))
+        if (!PlaySong(nullptr, nullptr, 2, true))
         {
             handle = PlaySound(DIGI_NOLIKEMUSIC,&zero,&zero,&zero,v3df_none);
             if (handle > 0)
@@ -1747,10 +1741,6 @@ void CreditsLevel(void)
             curpic = CREDITS1_PIC;
         }
 
-
-        if (!SongIsPlaying())
-            break;
-
         if (inputState.GetKeyStatus(KEYSC_ESC))
             break;
     }
@@ -1759,7 +1749,7 @@ void CreditsLevel(void)
     videoClearViewableArea(0L);
     videoNextPage();
     ResetKeys();
-    StopSong();
+    Mus_Stop();
 }
 
 
@@ -2247,10 +2237,7 @@ void BonusScreen(PLAYERp pp)
     totalclock = ototalclock = 0;
     limit = synctics;
 
-    if (MusicEnabled())
-    {
-        PlaySong(voc[DIGI_ENDLEV].name, 3, TRUE, TRUE);
-    }
+    PlaySong(nullptr, voc[DIGI_ENDLEV].name, 3);
 
     // special case code because I don't care any more!
     if (FinishAnim)
@@ -2565,10 +2552,7 @@ void StatScreen(PLAYERp mpp)
 	inputState.ClearKeyStatus(KEYSC_SPACE);
 	inputState.ClearKeyStatus(KEYSC_ENTER);
 
-    if (MusicEnabled())
-    {
-        PlaySong(voc[DIGI_ENDLEV].name, 3, TRUE, TRUE);
-    }
+    PlaySong(nullptr, voc[DIGI_ENDLEV].name, 3);
 
     while (!inputState.GetKeyStatus(KEYSC_SPACE) && !inputState.GetKeyStatus(KEYSC_ENTER))
     {
@@ -2781,7 +2765,6 @@ void InitRunLevel(void)
         if (snd_ambience)
             StartAmbientSound();
         SetCrosshair();
-        PlaySong(LevelSong, -1, TRUE, TRUE);
         SetRedrawScreen(Player + myconnectindex);
         // crappy little hack to prevent play clock from being overwritten
         // for load games
@@ -2803,7 +2786,7 @@ void InitRunLevel(void)
 
     waitforeverybody();
 
-    StopSong();
+    Mus_Stop();
 
     if (Bstrcasecmp(CacheLastLevel, LevelName) != 0)
         DoTheCache();
@@ -2827,7 +2810,7 @@ void InitRunLevel(void)
         {
             track = RedBookSong[Level];
         }
-        PlaySong(LevelSong, track, TRUE, TRUE);
+        PlaySong(LevelInfo[Level].LevelName, LevelInfo[Level].SongName, track);
     }
 
     InitPrediction(&Player[myconnectindex]);
@@ -3270,12 +3253,12 @@ void PauseKey(PLAYERp pp)
 #define MSG_GAME_PAUSED "Game Paused"
             MNU_MeasureString(MSG_GAME_PAUSED, &w, &h);
             PutStringTimer(pp, TEXT_TEST_COL(w), 100, MSG_GAME_PAUSED, 999);
-            PauseSong(TRUE);
+            Mus_SetPaused(true);
         }
         else
         {
             pClearTextLine(pp, 100);
-            PauseSong(FALSE);
+            Mus_SetPaused(false);
         }
     }
 

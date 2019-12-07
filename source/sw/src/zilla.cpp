@@ -769,7 +769,6 @@ int DoZillaDeathMelt(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    static SWBOOL alreadydid = FALSE;
 
     if (RANDOM_RANGE(1000) > 800)
         SpawnGrenadeExp(SpriteNum);
@@ -778,10 +777,10 @@ int DoZillaDeathMelt(short SpriteNum)
     RESET(u->Flags, SPR_JUMPING|SPR_FALLING|SPR_MOVED);
 
     //DoMatchEverything(NULL, sp->lotag, ON);
-    if (!SW_SHAREWARE && MusicEnabled() && !alreadydid)
+    if (!SW_SHAREWARE)
     {
-        PlaySong(0, RedBookSong[Level], TRUE, TRUE);
-        alreadydid = TRUE;
+        // Resume the regular music - in a hack-free fashion.
+        PlaySong(LevelInfo[Level].LevelName, LevelInfo[Level].SongName, RedBookSong[Level]);
     }
 
     //KeepActorOnFloor(SpriteNum);

@@ -563,12 +563,6 @@ int Mus_Play(const char *mapname, const char *fn, bool loop)
 	{
 		return 0;
 	}
-	// A restart was requested. Ignore the music name being passed and just try tp restart what got here last.
-	if (mapname && *mapname == '*')
-	{
-		mapname = lastMusicLevel.GetChars();
-		fn = lastMusic.GetChars();
-	}
 
 	// Allow per level music substitution.
 	// For most cases using $musicalias would be sufficient, but that method only works if a level actually has some music defined at all.
