@@ -6,69 +6,63 @@
 void hash_init(hashtable_t *t)
 {
     hash_free(t);
-    t->items=(hashitem_t **) Xcalloc(1, t->size * sizeof(hashitem_t));
+    t->items = (hashitem_t **) Xaligned_calloc(16, t->size, sizeof(hashitem_t));
 }
 
 void hash_loop(hashtable_t *t, void(*func)(const char *, intptr_t))
 {
-    if (t->items == NULL)
+    if (t->items == nullptr)
         return;
 
-    for (bssize_t i=0; i < t->size; i++)
-        for (hashitem_t *item=t->items[i]; item != NULL; item = item->next)
+    for (native_t i=0; i < t->size; i++)
+        for (auto item = t->items[i]; item != nullptr; item = item->next)
             func(item->string, item->key);
 }
 
 void hash_free(hashtable_t *t)
 {
-    if (t == NULL || t->items == NULL)
+    if (t->items == nullptr)
         return;
 
     int remaining = t->size - 1;
 
     do
     {
-        hashitem_t *cur = t->items[remaining];
+        auto cur = t->items[remaining];
 
         while (cur)
         {
-            hashitem_t * const tmp = cur;
+            auto tmp = cur;
             cur = cur->next;
 
             Xfree(tmp->string);
-            Xfree(tmp);
+            Xaligned_free(tmp);
         }
     } while (--remaining >= 0);
 
-    DO_FREE_AND_NULL(t->items);
+    ALIGNED_FREE_AND_NULL(t->items);
 }
 
 void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace)
 {
 #ifdef DEBUGGINGAIDS
-    Bassert(t->items != NULL);
-#else
-    if (EDUKE32_PREDICT_FALSE(t->items == NULL))
-    {
-        initprintf("hash_add(): table not initialized!\n");
-        return;
-    }
+    Bassert(t->items != nullptr);
 #endif
-
-    uint32_t code = hash_getcode(s) % t->size;
-    hashitem_t *cur = t->items[code];
+    uint32_t const code = hash_getcode(s) % t->size;
+    auto cur = t->items[code];
 
     if (!cur)
     {
-        cur = (hashitem_t *) Xcalloc(1, sizeof(hashitem_t));
+        cur = (hashitem_t *) Xaligned_alloc(16, sizeof(hashitem_t));
         cur->string = Xstrdup(s);
-        cur->key = key;
-        cur->next = NULL;
+        cur->key    = key;
+        cur->next   = nullptr;
+
         t->items[code] = cur;
         return;
     }
 
-    hashitem_t *prev = NULL;
+    hashitem_t *prev = nullptr;
 
     do
     {
@@ -80,10 +74,11 @@ void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace)
         prev = cur;
     } while ((cur = cur->next));
 
-    cur = (hashitem_t *) Xcalloc(1, sizeof(hashitem_t));
+    cur = (hashitem_t *) Xaligned_alloc(16, sizeof(hashitem_t));
     cur->string = Xstrdup(s);
-    cur->key = key;
-    cur->next = NULL;
+    cur->key    = key;
+    cur->next   = nullptr;
+
     prev->next = cur;
 }
 
@@ -91,22 +86,15 @@ void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace)
 void hash_delete(hashtable_t *t, const char *s)
 {
 #ifdef DEBUGGINGAIDS
-    Bassert(t->items != NULL);
-#else
-    if (t->items == NULL)
-    {
-        initprintf("hash_delete(): table not initialized!\n");
-        return;
-    }
+    Bassert(t->items != nullptr);
 #endif
-
-    uint32_t code = hash_getcode(s) % t->size;
-    hashitem_t *cur = t->items[code];
+    uint32_t const code = hash_getcode(s) % t->size;
+    auto cur = t->items[code];
 
     if (!cur)
         return;
 
-    hashitem_t *prev = NULL;
+    hashitem_t *prev = nullptr;
 
     do
     {
@@ -119,7 +107,7 @@ void hash_delete(hashtable_t *t, const char *s)
             else
                 prev->next = cur->next;
 
-            Xfree(cur);
+            Xaligned_free(cur);
 
             break;
         }
@@ -130,16 +118,9 @@ void hash_delete(hashtable_t *t, const char *s)
 intptr_t hash_find(const hashtable_t * const t, char const * const s)
 {
 #ifdef DEBUGGINGAIDS
-    Bassert(t->items != NULL);
-#else
-    if (t->items == NULL)
-    {
-        initprintf("hash_find(): table not initialized!\n");
-        return -1;
-    }
+    Bassert(t->items != nullptr);
 #endif
-
-    hashitem_t *cur = t->items[hash_getcode(s) % t->size];
+    auto cur = t->items[hash_getcode(s) % t->size];
 
     if (!cur)
         return -1;
@@ -155,16 +136,9 @@ intptr_t hash_find(const hashtable_t * const t, char const * const s)
 intptr_t hash_findcase(const hashtable_t * const t, char const * const s)
 {
 #ifdef DEBUGGINGAIDS
-    Bassert(t->items != NULL);
-#else
-    if (t->items == NULL)
-    {
-        initprintf("hash_findcase(): table not initialized!\n");
-        return -1;
-    }
+    Bassert(t->items != nullptr);
 #endif
-
-    hashitem_t *cur = t->items[hash_getcode(s) % t->size];
+    auto cur = t->items[hash_getcode(s) % t->size];
 
     if (!cur)
         return -1;
@@ -178,60 +152,36 @@ intptr_t hash_findcase(const hashtable_t * const t, char const * const s)
 }
 
 
+void inthash_free(inthashtable_t *t) { ALIGNED_FREE_AND_NULL(t->items); }
+
 void inthash_init(inthashtable_t *t)
 {
-    if (EDUKE32_PREDICT_FALSE(!t->count))
-    {
-        initputs("inthash_add(): count is zero!\n");
-        return;
-    }
-
     inthash_free(t);
-
-    t->items = (inthashitem_t *) Xcalloc(t->count, sizeof(inthashitem_t));
+    t->items = (inthashitem_t *) Xaligned_calloc(16, t->count, sizeof(inthashitem_t));
 }
 
 void inthash_loop(inthashtable_t const *t, void(*func)(intptr_t, intptr_t))
 {
-#ifdef DEBUGGINGAIDS
-    Bassert(t->items != NULL);
-#else
-    if (EDUKE32_PREDICT_FALSE(t->items == NULL))
-    {
-        initputs("inthash_loop(): table not initialized!\n");
+    if (t->items == nullptr)
         return;
-    }
-#endif
 
-    for (inthashitem_t const * item = t->items, *const items_end = t->items + t->count; item < items_end; ++item)
+    for (auto *item = t->items, *const items_end = t->items + t->count; item < items_end; ++item)
         func(item->key, item->value);
 }
 
-void inthash_free(inthashtable_t *t)
-{
-    DO_FREE_AND_NULL(t->items);
-}
 
 void inthash_add(inthashtable_t *t, intptr_t key, intptr_t value, int32_t replace)
 {
 #ifdef DEBUGGINGAIDS
-    Bassert(t->items != NULL);
-#else
-    if (EDUKE32_PREDICT_FALSE(t->items == NULL))
-    {
-        initputs("inthash_add(): table not initialized!\n");
-        return;
-    }
+    Bassert(t->items != nullptr);
 #endif
+    auto seeker = t->items + inthash_getcode(key) % t->count;
 
-    inthashitem_t * seeker = t->items + inthash_getcode(key) % t->count;
-
-    if (seeker->collision == NULL)
+    if (seeker->collision == nullptr)
     {
         seeker->key = key;
         seeker->value = value;
         seeker->collision = seeker;
-
         return;
     }
 
@@ -254,17 +204,14 @@ void inthash_add(inthashtable_t *t, intptr_t key, intptr_t value, int32_t replac
         }
     }
 
-    inthashitem_t *tail = seeker;
+    auto tail = seeker;
 
     do
         tail = t->items + (tail - t->items + 1) % t->count;
-    while (tail->collision != NULL && tail != seeker);
+    while (tail->collision != nullptr && tail != seeker);
 
     if (EDUKE32_PREDICT_FALSE(tail == seeker))
-    {
-        initputs("inthash_add(): table full!\n");
-        return;
-    }
+        fatal_exit("inthash_add(): table full!\n");
 
     tail->key = key;
     tail->value = value;
@@ -275,35 +222,25 @@ void inthash_add(inthashtable_t *t, intptr_t key, intptr_t value, int32_t replac
 void inthash_delete(inthashtable_t *t, intptr_t key)
 {
 #ifdef DEBUGGINGAIDS
-    Bassert(t->items != NULL);
-#else
-    if (EDUKE32_PREDICT_FALSE(t->items == NULL))
-    {
-        initputs("inthash_delete(): table not initialized!\n");
-        return;
-    }
+    Bassert(t->items != nullptr);
 #endif
+    auto seeker = t->items + inthash_getcode(key) % t->count;
 
-    inthashitem_t * seeker = t->items + inthash_getcode(key) % t->count;
-
-    if (seeker->collision == NULL)
-        return;
-
-    if (seeker->key == key)
+    if (seeker->collision == nullptr || seeker->key == key)
     {
-        seeker->collision = NULL;
+        seeker->collision = nullptr;
         return;
     }
 
     while (seeker != seeker->collision)
     {
-        inthashitem_t * const prev = seeker;
+        auto prev = seeker;
         seeker = seeker->collision;
 
         if (seeker->key == key)
         {
             prev->collision = seeker == seeker->collision ? prev : seeker->collision;
-            seeker->collision = NULL;
+            seeker->collision = nullptr;
             return;
         }
     }
@@ -312,18 +249,11 @@ void inthash_delete(inthashtable_t *t, intptr_t key)
 intptr_t inthash_find(inthashtable_t const *t, intptr_t key)
 {
 #ifdef DEBUGGINGAIDS
-    Bassert(t->items != NULL);
-#else
-    if (EDUKE32_PREDICT_FALSE(t->items == NULL))
-    {
-        initputs("inthash_find(): table not initialized!\n");
-        return -1;
-    }
+    Bassert(t->items != nullptr);
 #endif
+    auto seeker = t->items + inthash_getcode(key) % t->count;
 
-    inthashitem_t const * seeker = t->items + inthash_getcode(key) % t->count;
-
-    if (seeker->collision == NULL)
+    if (seeker->collision == nullptr)
         return -1;
 
     if (seeker->key == key)
