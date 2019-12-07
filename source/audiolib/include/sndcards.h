@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 typedef enum
 {
-    ASS_NoSound,
     ASS_SDL,
     ASS_DirectSound,
     ASS_OPL3,

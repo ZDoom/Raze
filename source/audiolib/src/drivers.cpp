@@ -25,7 +25,6 @@
 
 #include "drivers.h"
 
-#include "driver_nosound.h"
 #include "driver_adlib.h"
 
 #ifdef RENDERTYPESDL
