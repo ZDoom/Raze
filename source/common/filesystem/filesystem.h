@@ -148,6 +148,7 @@ public:
 	{
 		return FileInfo[lump].lump;
 	}
+	void PrintDirectory();
 
 protected:
 
