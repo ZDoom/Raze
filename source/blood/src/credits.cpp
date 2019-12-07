@@ -160,14 +160,14 @@ FileReader credKOpen4Load(char *&pzFile)
         if (pzFile[i] == '\\')
             pzFile[i] = '/';
     }
-    auto nHandle = kopenFileReader(pzFile, 0);
+    auto nHandle = fileSystem.OpenFileReader(pzFile, 0);
     if (!nHandle.isOpen())
     {
         // Hack
         if (nLen >= 3 && isalpha(pzFile[0]) && pzFile[1] == ':' && pzFile[2] == '/')
         {
             pzFile += 3;
-            nHandle = kopenFileReader(pzFile, 0);
+            nHandle = fileSystem.OpenFileReader(pzFile, 0);
         }
     }
     return nHandle;

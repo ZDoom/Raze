@@ -770,6 +770,13 @@ FileReader FileSystem::ReopenFileReader(int lump, bool alwayscache)
 	return rl->NewReader();	// This always gets a reader to the cache
 }
 
+FileReader FileSystem::OpenFileReader(const char* name, int where)
+{
+	auto lump = FindFile(name);
+	if (lump < 0) return FileReader();
+	else return OpenFileReader(lump);
+}
+
 //==========================================================================
 //
 // GetAllFilesOfType

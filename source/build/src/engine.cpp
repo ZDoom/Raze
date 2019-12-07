@@ -9447,7 +9447,7 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
 
     flags &= 3;
 
-	FileReader fr = kopenFileReader(filename, 0);
+	FileReader fr = fileSystem.OpenFileReader(filename, 0);
 	if (!fr.isOpen())
         { mapversion = 7; return -1; }
 
@@ -9639,7 +9639,7 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
     struct walltypev6   v6wall;
     struct spritetypev6 v6spr;
 
-	FileReader fr = kopenFileReader(filename, fromwhere);
+	FileReader fr = fileSystem.OpenFileReader(filename, fromwhere);
     if (!fr.isOpen())
         { mapversion = 5L; return -1; }
 
@@ -10109,7 +10109,7 @@ void videoNextPage(void)
 
 int32_t qloadkvx(int32_t voxindex, const char *filename)
 {
-    auto fil = kopenFileReader(filename, 0);
+    auto fil = fileSystem.OpenFileReader(filename, 0);
     if (!fil.isOpen())
         return -1;
 

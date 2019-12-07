@@ -243,7 +243,7 @@ unsigned char *LoadAnm(short anim_num)
     
     if (anm_ptr[anim_num] == 0)
     {
-        auto handle = kopenFileReader(ANIMname[ANIMnum], 0);
+        auto handle = fileSystem.OpenFileReader(ANIMname[ANIMnum], 0);
         if (!handle.isOpen())
             return NULL;
         length = handle.GetLength();

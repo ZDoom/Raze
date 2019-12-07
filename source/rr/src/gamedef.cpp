@@ -780,7 +780,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
 
 static void C_Include(const char *confile)
 {
-	auto fp = kopenFileReader(confile,0);
+	auto fp = fileSystem.OpenFileReader(confile,0);
 
     if (!fp.isOpen())
     {
@@ -2220,7 +2220,7 @@ void C_Compile(const char *fileName)
 
     C_InitHashes();
 
-    auto kFile = kopenFileReader(fileName,0);
+    auto kFile = fileSystem.OpenFileReader(fileName,0);
 
 	if (!kFile.isOpen())
     {

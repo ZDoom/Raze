@@ -179,7 +179,7 @@ void paletteLoadFromDisk(void)
         return;
     }
 
-	auto fil = kopenFileReader("palette.dat", 0);
+	auto fil = fileSystem.OpenFileReader("palette.dat", 0);
 	if (!fil.isOpen())
         return;
 

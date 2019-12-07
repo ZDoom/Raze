@@ -1862,7 +1862,7 @@ mdmodel_t *mdload(const char *filnam)
     vm = (mdmodel_t *)voxload(filnam);
     if (vm) return vm;
 
-    auto fil = kopenFileReader(filnam,0);
+    auto fil = fileSystem.OpenFileReader(filnam,0);
 
     if (!fil.isOpen())
         return NULL;

@@ -81,7 +81,7 @@ SWBOOL LoadScriptFile(const char *filename)
 
 
 
-	if (!(fp = kopenFileReader(filename, 0)).isOpen())
+	if (!(fp = fileSystem.OpenFileReader(filename, 0)).isOpen())
 	{
 		// If there's no script file, forget it.
 		return FALSE;

@@ -1908,7 +1908,7 @@ static int C_CountCaseStatements()
 
 static void C_Include(const char *confile)
 {
-	auto fp = kopenFileReader(confile,0);
+	auto fp = fileSystem.OpenFileReader(confile,0);
 
     if (!fp.isOpen())
     {
@@ -5922,7 +5922,7 @@ void C_Compile(const char *fileName)
     Gv_Init();
     C_InitProjectiles();
 
-    auto kFile = kopenFileReader(fileName,0);
+    auto kFile = fileSystem.OpenFileReader(fileName,0);
 
 	if (!kFile.isOpen())
     {

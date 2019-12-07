@@ -143,7 +143,7 @@ FScanner &FScanner::operator=(const FScanner &other)
 
 void FScanner::Open (const char *name)
 {
-	auto fr = kopenFileReader(name, 0);
+	auto fr = fileSystem.OpenFileReader(name, 0);
 	if (!fr.isOpen())
 	{
 		I_Error("Could not find script lump '%s'\n", name);

@@ -216,7 +216,7 @@ void sndStartWavDisk(const char *pzFile, int nVolume, int nChannel)
         pChannel = &Channel[nChannel];
     if (pChannel->at0 > 0)
         sndKillSound(pChannel);
-    auto hFile = kopenFileReader(pzFile, 0);
+    auto hFile = fileSystem.OpenFileReader(pzFile, 0);
     if (!hFile.isOpen())
         return;
     int nLength = hFile.GetLength();

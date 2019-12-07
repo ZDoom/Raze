@@ -299,7 +299,7 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
 
 scriptfile *scriptfile_fromfile(const char *fn)
 {
-	auto fr = kopenFileReader(fn, 0);
+	auto fr = fileSystem.OpenFileReader(fn, 0);
 	if (!fr.isOpen()) return nullptr;
 
 	uint32_t flen = fr.GetLength();

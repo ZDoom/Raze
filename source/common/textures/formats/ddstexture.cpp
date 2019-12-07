@@ -374,7 +374,7 @@ void FDDSTexture::CalcBitShift (uint32_t mask, uint8_t *lshiftp, uint8_t *rshift
 
 void FDDSTexture::CreatePalettedPixels(uint8_t *buffer)
 {
-	auto lump = kopenFileReader(Name, 0);
+	auto lump = fileSystem.OpenFileReader(Name, 0);
 	if (!lump.isOpen()) return;	// Just leave the texture blank.
 
 	lump.Seek (sizeof(DDSURFACEDESC2) + 4, FileReader::SeekSet);
@@ -781,7 +781,7 @@ void FDDSTexture::DecompressDXT5 (FileReader &lump, bool premultiplied, uint8_t 
 
 int FDDSTexture::CopyPixels(FBitmap *bmp, int conversion)
 {
-	auto lump = kopenFileReader(Name, 0);
+	auto lump = fileSystem.OpenFileReader(Name, 0);
 	if (!lump.isOpen()) return -1;	// Just leave the texture blank.
 
 	uint8_t *TexBuffer = bmp->GetPixels();

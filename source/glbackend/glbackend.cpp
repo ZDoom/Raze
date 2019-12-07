@@ -49,7 +49,7 @@ extern int ydim;
 
 FileReader GetResource(const char* fn)
 {
-	auto fr = kopenFileReader(fn, 0);
+	auto fr = fileSystem.OpenFileReader(fn, 0);
 	if (!fr.isOpen())
 	{
 		I_Error("Fatal: '%s' not found", fn);

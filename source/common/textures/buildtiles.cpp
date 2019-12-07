@@ -287,7 +287,7 @@ int BuildTiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 	auto old = FindFile(fn);
 	if (old >= ArtFiles.Size())	// Do not process if already loaded.
 	{
-		FileReader fr = kopenFileReader(fn, 0);
+		FileReader fr = fileSystem.OpenFileReader(fn, 0);
 		if (fr.isOpen())
 		{
 			auto artdata = fr.Read();
@@ -565,7 +565,7 @@ void artSetupMapArt(const char* filename)
 	artClearMapArt();
 
 	FStringf firstname("%s_00.art", filename);
-	auto fr = kopenFileReader(firstname, 0);
+	auto fr = fileSystem.OpenFileReader(firstname, 0);
 	if (!fr.isOpen()) return;
 
 	for (bssize_t i = 0; i < MAXARTFILES_TOTAL - MAXARTFILES_BASE; i++)

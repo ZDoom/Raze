@@ -127,6 +127,7 @@ public:
 
 	FileReader OpenFileReader(int file);		// opens a reader that redirects to the containing file's one.
 	FileReader ReopenFileReader(int file, bool alwayscache = false);		// opens an independent reader.
+	FileReader OpenFileReader(const char* name, int where);
 
 	int Iterate (const char *name, int *lastfile, ELookupMode lookupmode = ELookupMode::FullName);		// [RH] Find files with duplication
 

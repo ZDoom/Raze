@@ -166,7 +166,7 @@ int RFS::Open(const char *fileName)
 {
     strcpy(_fileName, fileName);
 
-    auto hFile = kopenFileReader(fileName, 0);
+    auto hFile = fileSystem.OpenFileReader(fileName, 0);
     if (!hFile.isOpen()) {
         initprintf("BARF: Error opening file %s", _fileName);
         return 1;

@@ -179,7 +179,7 @@ void FTGATexture::ReadCompressed(FileReader &lump, uint8_t * buffer, int bytespe
 void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 {
 	uint8_t PaletteMap[256];
-	auto lump = kopenFileReader(Name, 0);
+	auto lump = fileSystem.OpenFileReader(Name, 0);
 	if (!lump.isOpen()) return;
 	TGAHeader hdr;
 	uint16_t w;
@@ -385,7 +385,7 @@ void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 int FTGATexture::CopyPixels(FBitmap *bmp, int conversion)
 {
 	PalEntry pe[256];
-	auto lump = kopenFileReader(Name, 0);
+	auto lump = fileSystem.OpenFileReader(Name, 0);
 	if (!lump.isOpen()) return -1;
 	TGAHeader hdr;
 	uint16_t w;

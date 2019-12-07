@@ -1055,7 +1055,7 @@ void PlaySoundRTS(int rts_num)
 SWBOOL
 OpenSound(VOC_INFOp vp, FileReader &handle, int *length)
 {
-    handle = kopenFileReader(vp->name, 0);
+    handle = fileSystem.OpenFileReader(vp->name, 0);
 
     if (!handle.isOpen())
     {
@@ -1085,7 +1085,7 @@ ReadSound(FileReader &handle, VOC_INFOp vp, int length)
 SWBOOL
 LoadSong(const char *filename)
 {
-	auto fr = kopenFileReader(filename, 0);
+	auto fr = fileSystem.OpenFileReader(filename, 0);
 	if (!fr.isOpen())
     {
         return FALSE;
@@ -1170,7 +1170,7 @@ SoundShutdown(void)
 void MusicStartup(void)
 {
 #if 0
-    auto fil = kopenFileReader("swtimbr.tmb", 0);
+    auto fil = fileSystem.OpenFileReader("swtimbr.tmb", 0);
 
     if (fil.isOpen())
     {

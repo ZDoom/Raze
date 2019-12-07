@@ -18,15 +18,6 @@ extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (e
 
 #include "filesystem/filesystem.h"
 
-// Wrappers for the handle based API to get rid of the direct  calls without any actual changes to the implementation.
-// These are now getting redirected to the file system so that the implementation here can be gutted without making changes to the calling code.
-inline FileReader kopenFileReader(const char* name, int where)
-{
-	auto lump = fileSystem.FindFile(name);
-	if (lump < 0) return FileReader();
-	else return fileSystem.OpenFileReader(lump);
-}
-
 // This is only here to mark a file as not being part of the game assets (e.g. savegames)
 // These should be handled differently (e.g read from a userdata directory or similar things.)
 inline FileReader fopenFileReader(const char* name, int where)

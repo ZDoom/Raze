@@ -93,7 +93,7 @@ FFont *V_GetFont(const char *name, const char *fontlumpname)
 	FFont *font = FFont::FindFont (name);
 	if (font == nullptr)
 	{
-		auto lumpy = kopenFileReader(fontlumpname, 0);
+		auto lumpy = fileSystem.OpenFileReader(fontlumpname, 0);
 		if (!lumpy.isOpen()) return nullptr;
 		uint32_t head;
 		lumpy.Read (&head, 4);
