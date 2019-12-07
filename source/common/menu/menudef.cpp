@@ -1099,13 +1099,47 @@ void M_ParseMenuDefs()
 {
 	int lump, lastlump = 0;
 
-	OptionSettings.mTitleColor = CR_RED;// V_FindFontColor(gameinfo.mTitleColor);
-	OptionSettings.mFontColor = CR_RED; // V_FindFontColor(gameinfo.mFontColor);
-	OptionSettings.mFontColorValue = CR_GRAY;// = V_FindFontColor(gameinfo.mFontColorValue);
-	OptionSettings.mFontColorMore = CR_GOLD;// = V_FindFontColor(gameinfo.mFontColorMore);
-	OptionSettings.mFontColorHeader = CR_YELLOW;// = V_FindFontColor(gameinfo.mFontColorHeader);
-	OptionSettings.mFontColorHighlight = CR_BRICK;// = V_FindFontColor(gameinfo.mFontColorHighlight);
-	OptionSettings.mFontColorSelection = CR_RED;// = V_FindFontColor(gameinfo.mFontColorSelection);
+	//OptionSettings.mTitleColor = CR_RED;// V_FindFontColor(gameinfo.mTitleColor);
+	OptionSettings.mFontColor = CR_RED;
+	OptionSettings.mFontColorValue = CR_GRAY;
+	OptionSettings.mFontColorMore = CR_GRAY;
+	OptionSettings.mFontColorHeader = CR_GOLD;
+	OptionSettings.mFontColorHighlight = CR_YELLOW;
+	OptionSettings.mFontColorSelection = CR_BRICK;
+
+	if (g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI))
+	{
+		OptionSettings.mFontColor = CR_DARKGREEN;
+		OptionSettings.mFontColorHeader = CR_DARKGRAY;
+		OptionSettings.mFontColorHighlight = CR_WHITE;
+		OptionSettings.mFontColorSelection = CR_DARKGREEN;
+	}
+	else if (g_gameType & GAMEFLAG_BLOOD)
+	{
+		OptionSettings.mFontColorHeader = CR_DARKGRAY;
+		OptionSettings.mFontColorHighlight = CR_WHITE;
+		OptionSettings.mFontColorSelection = CR_DARKRED;
+	}
+	else if (g_gameType & GAMEFLAG_FURY)
+	{
+		OptionSettings.mFontColor = CR_TEAL;
+		OptionSettings.mFontColorHeader = CR_LIGHTBLUE;
+		OptionSettings.mFontColorHighlight = CR_ORANGE;
+		OptionSettings.mFontColorSelection = CR_GOLD;
+	}
+	else if (g_gameType & (GAMEFLAG_RR|GAMEFLAG_RRRA))
+	{
+		OptionSettings.mFontColor = CR_BROWN;
+		OptionSettings.mFontColorHeader = CR_DARKBROWN;
+		OptionSettings.mFontColorHighlight = CR_ORANGE;
+		OptionSettings.mFontColorSelection = CR_TAN;
+	}
+	else if (g_gameType & GAMEFLAG_SW)
+	{
+		OptionSettings.mFontColorHeader = CR_DARKRED;
+		OptionSettings.mFontColorHighlight = CR_WHITE;
+	}
+
 	DefaultListMenuSettings.Reset();
 	DefaultOptionMenuSettings.Reset();
 
