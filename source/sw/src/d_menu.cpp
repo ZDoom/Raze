@@ -78,6 +78,19 @@ void Menu_Init(void)
 
 class SWMainMenu : public DListMenu
 {
+	void Ticker() override
+	{
+		// Dynamically enable and disable the save option
+		for (unsigned e = 0; e < mDesc->mItems.Size(); ++e)
+		{
+			auto entry = mDesc->mItems[e];
+			if (entry->GetAction(nullptr) == NAME_SaveGameMenu)
+			{
+				entry->mEnabled = gi->CanSave();
+			}
+		}
+	}
+
 	void PreDraw() override
 	{
         rotatesprite(160 << 16, 15 << 16, 65536, 0, pic_shadow_warrior,
