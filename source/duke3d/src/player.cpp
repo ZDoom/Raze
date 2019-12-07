@@ -4891,7 +4891,9 @@ void P_ProcessInput(int playerNum)
     pPlayer->oq16ang = pPlayer->q16ang;
 
     updatesector(pPlayer->pos.x, pPlayer->pos.y, &pPlayer->cursectnum);
-    pushmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->clipdist - 1, (4L<<8), stepHeight, CLIPMASK0);
+
+    if (!ud.noclip)
+        pushmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->clipdist - 1, (4L<<8), stepHeight, CLIPMASK0);
 
     if (pPlayer->one_eighty_count < 0)
     {
