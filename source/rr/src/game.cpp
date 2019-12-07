@@ -109,14 +109,14 @@ const char *G_DefaultRtsFile(void)
         return defaultrtsfilename[GAME_DUKE];
     else if (NAPALM)
     {
-        if (!testkopen(defaultrtsfilename[GAME_NAPALM],0) && testkopen(defaultrtsfilename[GAME_NAM],0))
+        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAM]))
             return defaultrtsfilename[GAME_NAM]; // NAM/NAPALM Sharing
         else
             return defaultrtsfilename[GAME_NAPALM];
     }
     else if (NAM)
     {
-        if (!testkopen(defaultrtsfilename[GAME_NAM],0) && testkopen(defaultrtsfilename[GAME_NAPALM],0))
+        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]))
             return defaultrtsfilename[GAME_NAPALM]; // NAM/NAPALM Sharing
         else
             return defaultrtsfilename[GAME_NAM];
@@ -6598,7 +6598,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
                 }
 
-                if (fileName == NULL || check_file_exist(fileName))
+                if (fileName == NULL || fileSystem.FileExists(fileName))
                     break;
 
                 if (S_DefineMusic(musicID, fileName) == -1)
@@ -6746,7 +6746,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
                 }
 
-                if (fileName == NULL || check_file_exist(fileName))
+                if (fileName == NULL || fileSystem.FileExists(fileName))
                     break;
 
                 // maybe I should have just packed this into a sound_t and passed a reference...
@@ -7119,7 +7119,7 @@ static void G_Startup(void)
 
             Bcorrectfilename(boardfilename,0);
 
-            if (testkopen(boardfilename, 0))
+            if (fileSystem.FileExists(boardfilename))
             {
                 initprintf("Using level: \"%s\".\n",boardfilename);
             }
@@ -7326,7 +7326,7 @@ int GameInterface::app_main()
         g_Shareware = 1;
     else
     {
-		if (testkopen("DUKESW.BIN",1)) // JBF 20030810
+		if (fileSystem.FileExists("DUKESW.BIN")) // JBF 20030810
         {
             g_Shareware = 1;
         }

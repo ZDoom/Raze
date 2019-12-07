@@ -226,7 +226,7 @@ void AnimZilla(int frame, int numframes)
     }
 }
 
-unsigned char *LoadAnm(short anim_num)
+unsigned char *LoadAnm(short anim_num, int *lengthp)
 {
     int length;
     unsigned char *animbuf, *palptr;
@@ -246,7 +246,7 @@ unsigned char *LoadAnm(short anim_num)
         auto handle = fileSystem.OpenFileReader(ANIMname[ANIMnum], 0);
         if (!handle.isOpen())
             return NULL;
-        length = handle.GetLength();
+        *lengthp = length = handle.GetLength();
 
 		buffer.Resize(length + sizeof(anim_t));
 		anm_ptr[anim_num] = (anim_t*)buffer.Data();
@@ -280,13 +280,9 @@ playanm(short anim_num)
     DSPRINTF(ds,"PlayAnm");
     MONO_PRINT(ds);
 
-    animbuf = LoadAnm(anim_num);
+    animbuf = LoadAnm(anim_num, &length);
     if (!animbuf)
         return;
-
-    // [JM] Temporary, needed to get the file's length for ANIM_LoadAnim. !CHECKME!
-    length = kfilesize(ANIMname[ANIMnum], 0);
-	if (length == -1) return;
 
     DSPRINTF(ds,"PlayAnm - Palette Stuff");
     MONO_PRINT(ds);

@@ -1986,7 +1986,7 @@ static void Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng)
     Bcorrectfilename(boardfilename, 0);
     if (boardfilename[0] != 0)
     {
-        if (testkopen(boardfilename, 0))
+        if (fileSystem.FileExists(boardfilename))
         {
             Bmemset(boardfilename, 0, sizeof(boardfilename));
             Net_SendUserMapName();

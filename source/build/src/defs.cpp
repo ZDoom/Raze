@@ -355,7 +355,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&fnoo)) break; //y-size
             if (scriptfile_getstring(script,&fn))  break;
 
-            if (check_file_exist(fn))
+            if (fileSystem.FileExists(fn))
                 break;
 
             tileSetHightileReplacement(tile,pal,fn,-1.0,1.0,1.0,1.0,1.0,0);
@@ -373,7 +373,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
 
-                if (check_file_exist(fn[i]))
+                if (fileSystem.FileExists(fn[i]))
                     happy = 0;
             }
             if (i < 6 || !happy) break;
@@ -1098,7 +1098,7 @@ static int32_t defsparser(scriptfile *script)
             if (seenframe) { modelskin = ++lastmodelskin; }
             seenframe = 0;
 
-            if (check_file_exist(skinfn))
+            if (fileSystem.FileExists(skinfn))
                 break;
 
 #ifdef USE_OPENGL
@@ -1473,7 +1473,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    if (check_file_exist(skinfn))
+                    if (fileSystem.FileExists(skinfn))
                         break;
 
 #ifdef USE_OPENGL
@@ -1791,7 +1791,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 if (EDUKE32_PREDICT_FALSE(!fn[i])) initprintf("Error: skybox: missing '%s filename' near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
                 // FIXME?
-                if (check_file_exist(fn[i]))
+                if (fileSystem.FileExists(fn[i]))
                     happy = 0;
             }
             if (!happy) break;
@@ -1846,7 +1846,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (check_file_exist(fn))
+            if (fileSystem.FileExists(fn))
                 break;
 
         }
@@ -2101,7 +2101,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    if (EDUKE32_PREDICT_FALSE(check_file_exist(fn)))
+                    if (EDUKE32_PREDICT_FALSE(fileSystem.FileExists(fn)))
                         break;
 
                     if (xsiz > 0 && ysiz > 0)
@@ -2164,7 +2164,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    if (EDUKE32_PREDICT_FALSE(check_file_exist(fn)))
+                    if (EDUKE32_PREDICT_FALSE(fileSystem.FileExists(fn)))
                         break;
 
                     switch (token)

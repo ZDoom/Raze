@@ -157,7 +157,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
 
-    if (!testkopen(filename,0))
+    if (!fileSystem.FileExists(filename))
     {
         OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;

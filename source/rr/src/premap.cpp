@@ -2280,7 +2280,7 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
     {
         Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
 
-        if (testkopen(nameBuf, 0))
+        if (fileSystem.FileExists(nameBuf))
         {
             realloc_copy(&g_mapInfo[levelNum].musicfn, nameBuf);
             return;

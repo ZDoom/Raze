@@ -1615,9 +1615,9 @@ void LogoLevel(void)
     MONO_PRINT(ds);
 
     // PreCache Anim
-    LoadAnm(0);
+    LoadAnm(0, &fin);
 
-	auto pal = kloadfile("3drealms.pal", 0);
+	auto pal = fileSystem.LoadFile("3drealms.pal", 0);
 	if (pal.Size() >= 768)
     {
 
@@ -2991,24 +2991,7 @@ char isShareware = FALSE;
 
 int DetectShareware(void)
 {
-#define DOS_SCREEN_NAME_SW  "SHADSW.BIN"
-#define DOS_SCREEN_NAME_REG "SWREG.BIN"
-
-    int h;
-
-    if (testkopen(DOS_SCREEN_NAME_SW, 1))
-    {
-        isShareware = TRUE;
-        return 0;
-    }
-
-    if (testkopen(DOS_SCREEN_NAME_REG, 1))
-    {
-        isShareware = FALSE;
-        return 0;
-    }
-
-    return 1;   // heavens knows what this is...
+    return (isShareware = !!(g_gameType & GAMEFLAG_SHAREWARE));
 }
 
 

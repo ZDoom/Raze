@@ -125,7 +125,7 @@ FSingleLumpFont::FSingleLumpFont (const char *name, const char * lump)
 
 	FontName = name;
 
-	rawData = kloadfile(lump, 0);
+	rawData = fileSystem.LoadFile(lump, 0);
 	auto& data = rawData;
 
 	if (data[0] == 0xE1 && data[1] == 0xE6 && data[2] == 0xD5 && data[3] == 0x1A)

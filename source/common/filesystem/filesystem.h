@@ -95,12 +95,25 @@ public:
 
 	int FindFile (const char *name, ELookupMode lookupmode = ELookupMode::FullName, int filenum = -1) const noexcept;
 	int GetFile (const char *name, ELookupMode lookupmode = ELookupMode::FullName, int filenum = -1) const;	// Like FindFile, but throws an exception when it cannot find what it looks for.
+	bool FileExists(const char* name)
+	{
+		return FindFile(name) >= 0;
+	}
 
 	int FindFile (const FString &name, ELookupMode lookupmode = ELookupMode::FullName, int filenum = -1) const noexcept { return FindFile(name.GetChars(), lookupmode, filenum); }
 	int GetFile (const FString &name, ELookupMode lookupmode = ELookupMode::FullName, int filenum = -1) const { return GetFile(name.GetChars(), lookupmode, filenum); }
+	bool FileExists(const FString & name)
+	{
+		return FindFile(name) >= 0;
+	}
 
 	int FindFile (const std::string &name, ELookupMode lookupmode = ELookupMode::FullName, int filenum = -1) const noexcept { return FindFile(name.c_str(), lookupmode, filenum); }
 	int GetFile (const std::string &name, ELookupMode lookupmode = ELookupMode::FullName, int filenum = -1) const { return GetFile(name.c_str(), lookupmode, filenum); }
+	bool FileExists(const std::string& name)
+	{
+		return FindFile(name) >= 0;
+	}
+
 
 	int FindResource (int resid, const char *type, int filenum = -1) const noexcept;
 	int GetResource (int resid, const char *type, int filenum = -1) const;	// Like FindFile, but throws an exception when it cannot find what it looks for.
@@ -112,6 +125,15 @@ public:
 	TArray<uint8_t> GetFileData(int file, int pad = 0);	// reads file into a writable buffer and optionally adds some padding at the end. (FileData isn't writable!)
 	FileData ReadFile (int file);
 	FileData ReadFile (const char *name) { return ReadFile (GetFile (name)); }
+
+	inline TArray<uint8_t> LoadFile(const char* name, int padding)
+	{
+		auto lump = FindFile(name);
+		if (lump < 0) return TArray<uint8_t>();
+		return GetFileData(lump, padding);
+	}
+
+
 	
 	const void *Lock(int lump);
 	void Unlock(int lump, bool mayfree = false);

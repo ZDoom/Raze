@@ -27,31 +27,5 @@ inline FileReader fopenFileReader(const char* name, int where)
 	return fr;
 }
 
-inline bool testkopen(const char* name, int where)
-{
-	// todo: if backed by a single file, we must actually open it to make sure.
-	return fileSystem.FindFile(name) >= 0;
-}
-
-inline TArray<uint8_t> kloadfile(const char* name, int where)
-{
-	auto lump = fileSystem.FindFile(name);
-	if (lump < 0) return TArray<uint8_t>();
-	return fileSystem.GetFileData(lump);
-}
-
-inline int32_t kfilesize(const char* name, int where)
-{
-	auto lump = fileSystem.FindFile(name);
-	if (lump < 0) return -1;
-	return fileSystem.FileLength(lump);
-}
-
-// checks from path and in ZIPs, returns 1 if NOT found
-inline int32_t check_file_exist(const char* fn)
-{
-	return fileSystem.FindFile(fn) >= 0;
-}
-
 #endif // cache1d_h_
 

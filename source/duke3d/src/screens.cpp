@@ -1303,7 +1303,7 @@ void gameDisplay3DRScreen()
     {
         Net_GetPackets();
 
-		if (testkopen("3dr.ivf", 0) || testkopen("3dr.anm", 0))
+		if (fileSystem.FileExists("3dr.ivf") || fileSystem.FileExists("3dr.anm"))
 		{
 			Anim_Play("3dr.anm");
             G_FadePalette(0, 0, 0, 252);

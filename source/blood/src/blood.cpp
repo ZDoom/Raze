@@ -1685,7 +1685,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
                 }
 
-                if (fileName == NULL || check_file_exist(fileName))
+                if (fileName == NULL || fileSystem.FileExists(fileName))
                     break;
 
                 if (S_DefineMusic(musicID, fileName) == -1)
@@ -1937,7 +1937,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
                 }
 
-                if (fileName == NULL || check_file_exist(fileName))
+                if (fileName == NULL || fileSystem.FileExists(fileName))
                     break;
 
                 // maybe I should have just packed this into a sound_t and passed a reference...

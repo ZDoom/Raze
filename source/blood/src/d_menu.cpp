@@ -69,7 +69,7 @@ CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widesc
 	if (name)
 	{
 		// NBlood read this directly from the file system cache, but let's better store the data locally for robustness.
-		raw = kloadfile(name, 0);
+		raw = fileSystem.LoadFile(name, 0);
 		if (raw.Size() != 0)
 		{
 			auto data = (QAV*)raw.Data();
