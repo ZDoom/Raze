@@ -242,7 +242,7 @@ static bool CheckSkipNoSwBlock(FScanner& sc)
 	sc.MustGetString();
 	bool res = sc.Compare("true");
 	sc.MustGetStringName(")");
-	if ((!!(g_gameType & GAMEFLAG_SHAREWARE)) == res)
+	if ((!(g_gameType & GAMEFLAG_SHAREWARE)) == res)
 	{
 		SkipSubBlock(sc);
 		return !sc.CheckString("else");

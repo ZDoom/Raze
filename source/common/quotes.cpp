@@ -42,6 +42,7 @@
 
 void Quotes::MakeStringLabel(FString &quote)
 {
+	quote.Insert(0, "$");
 }
 
 void Quotes::InitializeQuote(int num, const char *text, bool fromscript)

@@ -60,12 +60,22 @@ LISTMENU "MainMenu"
 	}
 	ifgame(ShadowWarrior)
 	{
+		Position 55, 32
+		Linespacing 17
+		class "ShadowWarrior.MainMenu"
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		//NativeTextItem "$MNU_COOLSTUFF", "h", "HelpMenu" // Perfectly useless retro ads. :D
-		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		ifshareware(false)
+		{
+			NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		}
+		else
+		{
+			NativeTextItem "$MNU_HOWTOORDER", "h", "CreditsMenu"
+		}
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 }
@@ -126,12 +136,21 @@ LISTMENU "IngameMenu"
 	}
 	ifgame(ShadowWarrior)
 	{
-		linespacing 15
+		Position 55, 32
+		Linespacing 17
+		class "ShadowWarrior.MainMenu"
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		ifshareware(false)
+		{
+			NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
+		}
+		else
+		{
+			NativeTextItem "$MNU_HOWTOORDER", "h", "CreditsMenu"
+		}
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 }
@@ -168,6 +187,13 @@ LISTMENU "EpisodeMenu"
 		centermenu
 		Linespacing 20
 	}
+	ifgame(ShadowWarrior)
+	{
+		caption "$MNU_EPISODES"
+		Position 35, 32
+		Linespacing 17
+	}
+	
 	ScriptId 100
 }
 
@@ -205,6 +231,12 @@ LISTMENU "SkillMenu"
 		class "Blood.ListMenu"
 		centermenu
 		Linespacing 20
+	}
+	ifgame(ShadowWarrior)
+	{
+		caption "$MNU_DIFFICULTY"
+		Position 35, 32
+		Linespacing 17
 	}
 	ScriptId 110
 }

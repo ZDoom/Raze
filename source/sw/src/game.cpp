@@ -1885,10 +1885,8 @@ void MenuLevel(void)
     int fin;
     short w,h;
 
-    DSPRINTF(ds,"MenuLevel...");
-    MONO_PRINT(ds);
-
-
+    M_StartControlPanel(false);
+    M_SetMenu(NAME_MainMenu);
     // do demos only if not playing multi play
     if (!CommEnabled && numplayers <= 1 && !FinishAnim && !NoDemoStartup)
     {

@@ -80,7 +80,7 @@ class SWMainMenu : public DListMenu
 {
 	void PreDraw() override
 	{
-        rotatesprite(160, 15, 65536, 0, pic_shadow_warrior,
+        rotatesprite(160 << 16, 15 << 16, 65536, 0, pic_shadow_warrior,
                      m_defshade, 0, ROTATE_SPRITE_SCREEN_CLIP, 0, 0, xdim - 1, ydim - 1);
 	}
 };
@@ -251,7 +251,7 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 	rotatesprite(10 << 16, (5-3) << 16, 65536, 0, 2427,
 				 2, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
 	MNU_MeasureStringLarge(text, &w, &h);
-	MNU_DrawString(TEXT_XCENTER(w), 5, text, 1, 16);
+	MNU_DrawStringLarge(TEXT_XCENTER(w), 5, text, 1);
 }
 
 void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
