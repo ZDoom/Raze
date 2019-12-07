@@ -748,8 +748,10 @@ void joyScanDevices()
                 buildprintf("Using controller %s\n", SDL_GameControllerName(controller));
 
                 joystick.numAxes    = SDL_CONTROLLER_AXIS_MAX;
+                joystick.numBalls   = 0;
                 joystick.numButtons = SDL_CONTROLLER_BUTTON_MAX;
                 joystick.numHats    = 0;
+
                 joystick.isGameController = 1;
 
                 Xfree(joystick.pAxis);
@@ -772,11 +774,15 @@ void joyScanDevices()
 
                 // KEEPINSYNC duke3d/src/gamedefs.h, mact/include/_control.h
                 joystick.numAxes = min(9, SDL_JoystickNumAxes(joydev));
+                joystick.numBalls   = SDL_JoystickNumBalls(joydev);
                 joystick.numButtons = min(32, SDL_JoystickNumButtons(joydev));
-                joystick.numHats = min((36-joystick.numButtons)/4,SDL_JoystickNumHats(joydev));
+                joystick.numHats    = min((36 - joystick.numButtons) / 4, SDL_JoystickNumHats(joydev));
+
                 joystick.isGameController = 0;
 
-                initprintf("Joystick %d has %d axes, %d buttons, and %d hat(s).\n", i+1, joystick.numAxes, joystick.numButtons, joystick.numHats);
+                buildprint("Joystick ", i+1, " has ", joystick.numAxes, " axes, ", joystick.numButtons, " buttons, ",
+                            (joystick.numHats ? std::to_string(joystick.numHats).c_str() : "no"), " hats, and ",
+                            (joystick.numBalls ? std::to_string(joystick.numBalls).c_str() : "no"), " balls.\n");
 
                 Xfree(joystick.pAxis);
                 joystick.pAxis = (int32_t *)Xcalloc(joystick.numAxes, sizeof(int32_t));
@@ -1659,6 +1665,7 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
     switch (ev->type)
     {
         case SDL_MOUSEMOTION:
+        //case SDL_JOYBALLMOTION:
 		{
 			// The menus need this, even in non GUI-capture mode
 			event_t event;

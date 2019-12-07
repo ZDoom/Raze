@@ -116,6 +116,7 @@ typedef struct
     void (*pCallback)(int32_t, int32_t);
     int32_t  bits;
     int32_t  numAxes;
+    int32_t  numBalls;
     int32_t  numButtons;
     int32_t  numHats;
     int32_t  isGameController;
