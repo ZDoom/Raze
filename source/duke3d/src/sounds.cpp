@@ -85,8 +85,6 @@ void S_SoundStartup(void)
         }
     }
 
-    cacheAllSounds();
-
 	snd_fxvolume.Callback();
 
 	snd_reversestereo.Callback();
