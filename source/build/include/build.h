@@ -891,7 +891,7 @@ void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sect
 void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
 
 int findwallbetweensectors(int sect1, int sect2);
-static FORCE_INLINE bool sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
+static FORCE_INLINE int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
 int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = nullptr);
 extern const int16_t *chsecptr_onextwall;
 int32_t checksectorpointer(int16_t i, int16_t sectnum);
@@ -1147,7 +1147,7 @@ static FORCE_INLINE int32_t md_tilehasmodel(int32_t const tilenume, int32_t cons
 }
 #endif  // defined USE_OPENGL
 
-static FORCE_INLINE bool tilehasmodelorvoxel(int const tilenume, int pal)
+static FORCE_INLINE int tilehasmodelorvoxel(int const tilenume, int pal)
 {
     UNREFERENCED_PARAMETER(pal);
     return
@@ -1189,7 +1189,7 @@ extern const int32_t engine_v8;
 int32_t Mulscale(int32_t a, int32_t b, int32_t sh);
 #endif
 
-static FORCE_INLINE CONSTEXPR bool inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
+static FORCE_INLINE CONSTEXPR int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
 
 #define SET_AND_RETURN(Lval, Rval) \
     do                             \

@@ -83,7 +83,7 @@ int32_t g_structVarIDs   = -1;
 uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
 double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
 
-GAMEEXEC_STATIC void VM_Execute(bool const loop = false);
+GAMEEXEC_STATIC void VM_Execute(int const loop = false);
 
 # include "gamestructures.cpp"
 #endif
@@ -244,7 +244,7 @@ int32_t VM_ExecuteEventWithValue(int const nEventID, int const spriteNum, int co
 }
 
 
-static bool VM_CheckSquished(void)
+static int VM_CheckSquished(void)
 {
     auto const pSector = (usectorptr_t)&sector[vm.pSprite->sectnum];
 
@@ -298,7 +298,9 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 #endif
 
 // wow, this function sucks
-bool A_Dodge(spritetype * const pSprite)
+
+int A_Dodge(spritetype * const);
+int A_Dodge(spritetype * const pSprite)
 {
     if (A_CheckEnemySprite(pSprite) && pSprite->extra <= 0)  // hack
         return 0;
@@ -1175,7 +1177,7 @@ static int G_StartTrackSlotWrap(int const volumeNum, int const levelNum)
 int G_StartTrack(int const levelNum) { return G_StartTrackSlot(ud.volume_number, levelNum); }
 #endif
 
-LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, int ix1, int iy1, int ix2, int iy2, bool unbiasedp)
+LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, int ix1, int iy1, int ix2, int iy2, int unbiasedp)
 {
     int x1 = min(ix1, ix2);
     int x2 = max(ix1, ix2);
@@ -1305,7 +1307,7 @@ void Screen_Play(void)
         }                                                                                         \
     } while (0)
 
-GAMEEXEC_STATIC void VM_Execute(bool const loop /*= false*/)
+GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
 {
     int vm_execution_depth = loop;
 #ifdef CON_USE_COMPUTED_GOTO
@@ -5280,7 +5282,7 @@ badindex:
                     // -1 for none found
                     // <type> <maxdistvarid> <varid>
                     int const  decodedInst  = VM_DECODE_INST(tw);
-                    bool const actorsOnly   = (decodedInst == CON_FINDNEARACTOR || decodedInst == CON_FINDNEARACTOR3D);
+                    int const  actorsOnly   = (decodedInst == CON_FINDNEARACTOR || decodedInst == CON_FINDNEARACTOR3D);
                     auto const dist_funcptr = (decodedInst == CON_FINDNEARACTOR || decodedInst == CON_FINDNEARSPRITE) ? &ldist : &dist;
 
                     int const findTile  = *insptr++;
@@ -5328,7 +5330,7 @@ badindex:
                     // that is of <type> into <getvar>
                     // -1 for none found
                     // <type> <maxdistvarid> <varid>
-                    bool const actorsOnly = (VM_DECODE_INST(tw) == CON_FINDNEARACTORZ);
+                    int const actorsOnly = (VM_DECODE_INST(tw) == CON_FINDNEARACTORZ);
 
                     int const findTile  = *insptr++;
                     int       maxDist   = Gv_GetVar(*insptr++);

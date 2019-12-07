@@ -245,7 +245,7 @@ static FORCE_INLINE void __fastcall Gv_DivVar(int const id, int32_t const operan
         (var.flags & GAMEVAR_PERACTOR && (unsigned) vm.spriteNum > MAXSPRITES - 1)))
         return;
 
-    bool const foundInTable = (unsigned) operand < DIVTABLESIZE;
+    int const foundInTable = (unsigned) operand < DIVTABLESIZE;
     static libdivide::libdivide_s32_t sdiv;
     intptr_t *iptr = &var.global;
     static int32_t lastValue;
