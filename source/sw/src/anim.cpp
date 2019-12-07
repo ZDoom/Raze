@@ -240,13 +240,16 @@ unsigned char *LoadAnm(short anim_num, int *lengthp)
     ANIMnum = anim_num;
 
     // lock it
-    
+
+    int file = fileSystem.FindFile(ANIMname[ANIMnum]);
+    if (file < 0) return nullptr;
+    *lengthp = length = fileSystem.FileLength(file);
+
     if (anm_ptr[anim_num] == 0)
     {
-        auto handle = fileSystem.OpenFileReader(ANIMname[ANIMnum], 0);
+        auto handle = fileSystem.OpenFileReader(file);
         if (!handle.isOpen())
             return NULL;
-        *lengthp = length = handle.GetLength();
 
 		buffer.Resize(length + sizeof(anim_t));
 		anm_ptr[anim_num] = (anim_t*)buffer.Data();
