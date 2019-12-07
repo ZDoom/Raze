@@ -1243,8 +1243,21 @@ static FORCE_INLINE void *xaligned_alloc(const bsize_t alignment, const bsize_t 
     void *ptr = Baligned_alloc(alignment, size);
     return (EDUKE32_PREDICT_TRUE(ptr != NULL)) ? ptr : handle_memerr(ptr);
 }
+
+static FORCE_INLINE void *xaligned_calloc(const bsize_t alignment, const bsize_t count, const bsize_t size)
+{
+    bsize_t const blocksize = count * size;
+    void *ptr = Baligned_alloc(alignment, blocksize);
+    if (EDUKE32_PREDICT_TRUE(ptr != NULL))
+    {
+        Bmemset(ptr, 0, blocksize);
+        return ptr;
+    }
+    return handle_memerr(ptr);
+}
 #else
 # define xaligned_alloc(alignment, size) xmalloc(size)
+# define xaligned_calloc(alignment, count, size) xcalloc(count, size)
 #endif
 
 #ifdef DEBUGGINGAIDS
@@ -1258,6 +1271,7 @@ static FORCE_INLINE void *xaligned_alloc(const bsize_t alignment, const bsize_t 
 #define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLOC xcalloc(nmemb, size))
 #define Xrealloc(ptr, size)  (EDUKE32_PRE_XALLOC xrealloc(ptr, size))
 #define Xaligned_alloc(alignment, size) (EDUKE32_PRE_XALLOC xaligned_alloc(alignment, size))
+#define Xaligned_calloc(alignment, count, size) (EDUKE32_PRE_XALLOC xaligned_calloc(alignment, count, size))
 #define Xfree(ptr) (EDUKE32_PRE_XALLOC xfree(ptr))
 #define Xaligned_free(ptr) (EDUKE32_PRE_XALLOC xaligned_free(ptr))
 
