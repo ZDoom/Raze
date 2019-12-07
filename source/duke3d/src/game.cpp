@@ -5705,8 +5705,6 @@ static void G_Startup(void)
     if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
         G_GameExit("Failed loading art.");
 
-    cacheAllSounds();
-
     // Make the fullscreen nuke logo background non-fullbright.  Has to be
     // after dynamic tile remapping (from C_Compile) and loading tiles.
     picanm[LOADSCREEN].sf |= PICANM_NOFULLBRIGHT_BIT;
@@ -5950,6 +5948,8 @@ int GameInterface::app_main()
     loaddefinitions_game(defsfile, FALSE);
 
 	userConfig.AddDefs.reset();
+
+    cacheAllSounds();
 
     if (enginePostInit())
         G_FatalEngineError();
