@@ -47,15 +47,6 @@ extern void I_GeneralTriggerClear(void);
 extern int32_t I_EscapeTrigger(void);
 extern void I_EscapeTriggerClear(void);
 
-extern int32_t I_MenuUp(void);
-extern void I_MenuUpClear(void);
-extern int32_t I_MenuDown(void);
-extern void I_MenuDownClear(void);
-extern int32_t I_MenuLeft(void);
-extern void I_MenuLeftClear(void);
-extern int32_t I_MenuRight(void);
-extern void I_MenuRightClear(void);
-
 
 enum EnterTextFlags_t {
     INPUT_NUMERIC        = 0x00000001,
