@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "menus.h"
 #include "savegame.h"
-#include "statistics.h"
 #include "menu/menu.h"
 BEGIN_DUKE_NS
 
@@ -1340,7 +1339,6 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     ud.secretlevel   = 0;
     ud.skill_voice   = -1;
     ud.volume_number = volumeNum;
-	STAT_StartNewGame(gVolumeNames[volumeNum], skillNum);
 
     // we don't want the intro to play after the multiplayer setup screen
     if ((!g_netServer && ud.multimode < 2) && !Menu_HaveUserMap()

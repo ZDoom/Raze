@@ -52,6 +52,7 @@
 #include "pragmas.h"
 #include "build.h"
 #include "baselayer.h"
+#include "statistics.h"
 
 void RegisterDukeMenus();
 void RegisterRedneckMenus();
@@ -463,6 +464,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	{
 	case NAME_StartGame:
 		M_ClearMenus();	// must be done before starting the level.
+		STAT_StartNewGame(gVolumeNames[GameStartupInfo.Episode], GameStartupInfo.Skill);
 		gi->StartGame(GameStartupInfo);
 		return false;
 

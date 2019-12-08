@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "savegame.h"
 #include "cmdline.h"
-#include "statistics.h"
 #include "menu/menu.h"
 
 BEGIN_RR_NS
@@ -1901,7 +1900,6 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     ud.player_skill = skillNum;
     ud.secretlevel = 0;
     ud.from_bonus = 0;
-	STAT_StartNewGame(gVolumeNames[volumeNum], skillNum);
 
     ud.last_level = -1;
     
