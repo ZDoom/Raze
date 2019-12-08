@@ -1,35 +1,5 @@
-//-----------------------------------------------------------------------------
-//
-// Copyright 1993-1996 id Software
-// Copyright 1999-2016 Randy Heit
-// Copyright 2002-2016 Christoph Oelckers
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see http://www.gnu.org/licenses/
-//
-//-----------------------------------------------------------------------------
-
-
-#ifndef __D_EVENT_H__
-#define __D_EVENT_H__
-
-
+#pragma once
 #include <functional>
-
-
-//
-// Event handling.
-//
 
 // Input event types.
 enum EGenericEvent
@@ -47,7 +17,7 @@ struct event_t
 {
 	uint8_t		type;
 	uint8_t		subtype;
-	int16_t 		data1;		// keys / mouse/joystick buttons
+	int16_t 	data1;		// keys / mouse/joystick buttons
 	int16_t		data2;
 	int16_t		data3;
 	int 		x;			// mouse/joystick x move
@@ -61,10 +31,6 @@ void D_PostEvent (const event_t* ev);
 void D_RemoveNextCharEvent();
 void D_ProcessEvents(void);
 
-
-//
-// GLOBAL VARIABLES
-//
 enum
 {
 	NUM_EVENTS = 128
@@ -72,5 +38,3 @@ enum
 
 extern	event_t 		events[NUM_EVENTS];
 
-
-#endif

@@ -1,24 +1,37 @@
-//-----------------------------------------------------------------------------
-//
-// Copyright 1993-1996 id Software
-// Copyright 1999-2016 Randy Heit
-// Copyright 2002-2016 Christoph Oelckers
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see http://www.gnu.org/licenses/
-//
-//
-//----------------------------------------------------------------------------- 
+/*
+** c_dispatch.cpp
+** Functions for executing console commands and aliases
+**
+**---------------------------------------------------------------------------
+** Copyright 1998-2016 Randy Heit
+** Copyright 2003-2019 Christoph Oelckers
+** All rights reserved.
+**
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+**    notice, this list of conditions and the following disclaimer.
+** 2. Redistributions in binary form must reproduce the above copyright
+**    notice, this list of conditions and the following disclaimer in the
+**    documentation and/or other materials provided with the distribution.
+** 3. The name of the author may not be used to endorse or promote products
+**    derived from this software without specific prior written permission.
+**
+** THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+** OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+** IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+** INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+** NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**---------------------------------------------------------------------------
+**
+*/ 
 
 #include "c_bind.h"
 #include "d_event.h"
@@ -40,62 +53,6 @@ event_t events[NUM_EVENTS];
 
 bool G_Responder (event_t *ev)
 {
-#if 0
-	// any other key pops up menu if in demos
-	// [RH] But only if the key isn't bound to a "special" command
-	if (gameaction == ga_nothing && 
-		(demoplayback || gamestate == GS_DEMOSCREEN || gamestate == GS_TITLELEVEL))
-	{
-		const char *cmd = Bindings.GetBind (ev->data1);
-
-		if (ev->type == EV_KeyDown)
-		{
-
-			if (!cmd || (
-				strnicmp (cmd, "menu_", 5) &&
-				stricmp (cmd, "toggleconsole") &&
-				stricmp (cmd, "sizeup") &&
-				stricmp (cmd, "sizedown") &&
-				stricmp (cmd, "togglemap") &&
-				stricmp (cmd, "spynext") &&
-				stricmp (cmd, "spyprev") &&
-				stricmp (cmd, "chase") &&
-				stricmp (cmd, "+showscores") &&
-				stricmp (cmd, "bumpgamma") &&
-				stricmp (cmd, "screenshot")))
-			{
-				M_StartControlPanel(true);
-				M_SetMenu(NAME_MainMenu, -1);
-				return true;
-			}
-			else
-			{
-				return 
-					C_DoKey (ev, &Bindings, &DoubleBindings);
-			}
-		}
-		if (cmd && cmd[0] == '+')
-			return C_DoKey (ev, &Bindings, &DoubleBindings);
-
-		return false;
-	}
-#endif
-
-#if 0
-	if (gamestate == GS_LEVEL)
-	{
-		if (ST_Responder (ev))
-			return true;		// status window ate it
-		if (!viewactive && primaryLevel->automap->Responder (ev, false))
-			return true;		// automap ate it
-	}
-	else if (gamestate == GS_FINALE)
-	{
-		if (F_Responder (ev))
-			return true;		// finale ate the event
-	}
-#endif
-
 	switch (ev->type)
 	{
 	case EV_KeyDown:
@@ -116,10 +73,11 @@ bool G_Responder (event_t *ev)
 #endif
 	}
 
-	// [RH] If the view is active, give the automap a chance at
-	// the events *last* so that any bound keys get precedence.
 
 #if 0
+	// [RH] If the view is active, give the automap a chance at
+	// the events *last* so that any bound keys get precedence.
+	// An option for later. Currently the automap is insufficiently separated from the game loop
 	if (gamestate == GS_LEVEL && viewactive && primaryLevel->automap)
 		return primaryLevel->automap->Responder (ev, true);
 #endif
