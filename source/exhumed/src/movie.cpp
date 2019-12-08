@@ -286,6 +286,7 @@ void PlayMovie(const char* fileName)
                 }
             }
 
+            videoClearViewableArea(blackcol);
             rotatesprite(160 << 16, 100 << 16, z, angle, kMovieTile, 0, 1, 2, 0, 0, xdim - 1, ydim - 1);
 
             if (bDoFade) {
