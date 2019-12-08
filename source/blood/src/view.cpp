@@ -1164,6 +1164,11 @@ void viewDrawStats(PLAYER *pPlayer, int x, int y)
     viewDrawText(3, buffer, x, y, 20, 0, 0, true, 256);
 }
 
+GameStats GameInterface::getStats()
+{
+	return { gKillMgr.at4, gKillMgr.at0, gSecretMgr.at8, gSecretMgr.at0, gLevelTime / kTicsPerSec, gPlayer[myconnectindex].fragCount };
+}
+
 #define kSBarNumberHealth 9220
 #define kSBarNumberAmmo 9230
 #define kSBarNumberInv 9240

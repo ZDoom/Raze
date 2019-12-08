@@ -2385,6 +2385,7 @@ struct GameInterface : ::GameInterface
 	void DoPrintMessage(int prio, const char* text) override;
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
 
+	GameStats getStats() override;
 };
 
 

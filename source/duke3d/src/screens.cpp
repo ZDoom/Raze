@@ -1153,7 +1153,7 @@ void G_DisplayRest(int32_t smoothratio)
 GameStats GameInterface::getStats()
 {
 	DukePlayer_t* p = g_player[myconnectindex].ps;
-	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC };
+	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC, p->frag };
 }
 
 

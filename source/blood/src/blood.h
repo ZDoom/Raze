@@ -101,6 +101,7 @@ struct GameInterface : ::GameInterface
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg);
 	void QuitToTitle() override;
 
+	GameStats getStats() override;
 };
 
 END_BLD_NS

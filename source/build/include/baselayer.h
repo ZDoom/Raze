@@ -168,6 +168,7 @@ struct GameStats
 	int kill, tkill;
 	int secret, tsecret;
 	int timesecnd;
+	int frags;
 };
 
 struct FGameStartup

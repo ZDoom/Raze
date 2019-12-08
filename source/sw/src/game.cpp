@@ -97,6 +97,7 @@ Things required to make savegames work:
 #include "debugbreak.h"
 #include "menu/menu.h"
 #include "z_music.h"
+#include "statistics.h"
 
 //#include "crc32.h"
 
@@ -644,24 +645,16 @@ void TerminateGame(void)
 
 }
 
-void LoadLevel(const char *filename)
+bool LoadLevel(const char *filename)
 {
-    int pos;
-
     if (engineLoadBoard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &Player[0].pang, &Player[0].cursectnum) == -1)
     {
         TerminateGame();
-#ifdef RENDERTYPEWIN
-        {
-            char msg[256];
-            Bsnprintf(msg, 256, "Level not found: %s", filename);
-            wm_msgbox(apptitle, msg);
-        }
-#else
-        printf("Level Not Found: %s\n", filename);
-#endif
-        exit(0);
-    }
+		Printf("Level not found: %s", filename);
+		return false;
+	}
+	STAT_NewLevel(filename);
+	return true;
 }
 
 void LoadDemoRun(void)
@@ -808,7 +801,7 @@ static void SW_FatalEngineError(void)
     I_Error("There was a problem initialising the Build engine: %s", engineerrstr);
 }
 
-void InitGame()
+bool InitGame()
 {
     extern int MovesPerPacket;
     //void *ReserveMem=NULL;
@@ -945,7 +938,7 @@ void InitGame()
     if (UserMapName[0] == '\0')
     {
         AnimateCacheCursor();
-        LoadLevel("$dozer.map");
+		if (!LoadLevel("$dozer.map")) return false
         AnimateCacheCursor();
         SetupPreCache();
         DoTheCache();
@@ -953,7 +946,7 @@ void InitGame()
     else
     {
         AnimateCacheCursor();
-        LoadLevel(UserMapName);
+		if (!LoadLevel(UserMapName)) return false;
         AnimateCacheCursor();
         SetupPreCache();
         DoTheCache();
@@ -966,6 +959,7 @@ void InitGame()
     COVERsetbrightness(0, &palette_data[0][0]);
 
     InitFX();   // JBF: do it down here so we get a hold of the window handle
+	return true;
 }
 
 
@@ -1231,7 +1225,12 @@ InitLevel(void)
     if (!DemoMode && !DemoInitOnce)
         DemoPlaySetup();
 
-    LoadLevel(LevelName);
+    if (!LoadLevel(LevelName))
+	{
+		NewGame = false;
+		return;
+	}
+	STAT_NewLevel(LevelName);
 
     if (Bstrcasecmp(CacheLastLevel, LevelName) != 0)
         // clears gotpic and does some bit setting
@@ -1488,6 +1487,7 @@ void NewLevel(void)
         FX_SetVolume(0); // Shut the hell up while game is loading!
         InitLevel();
         RunLevel();
+		STAT_Update(false);
 
         if (!QuitFlag)
         {
@@ -1512,6 +1512,7 @@ void NewLevel(void)
         {
             PlayTheme();
             MenuLevel();
+			STAT_Update(true);
     }
     }
     else
@@ -1520,7 +1521,8 @@ void NewLevel(void)
         {
             PlayTheme();
             MenuLevel();
-    }
+			STAT_Update(true);
+        }
     }
     FinishAnim = 0;
 }
@@ -2092,13 +2094,15 @@ int BonusGrabSound(short SpriteNum)
     return 0;
 }
 
+extern SWBOOL FinishedLevel;
+extern int PlayClock;
+extern short LevelSecrets;
+extern short TotalKillable;
+
 void BonusScreen(PLAYERp pp)
 {
     int minutes,seconds,second_tics;
-    extern SWBOOL FinishedLevel;
-    extern int PlayClock;
-    extern short LevelSecrets;
-    extern short TotalKillable;
+
     short w,h;
     short pic,limit;
     int zero=0;
@@ -4327,6 +4331,14 @@ void Saveable_Init_Dynamic()
 {
 	return new GameInterface;
 }
+
+
+GameStats GameInterface::getStats()
+{
+	PLAYERp pp = Player + myconnectindex;
+	return { pp->Kills, TotalKillable, pp->SecretsFound, LevelSecrets, PlayClock / 120, 0 };
+}
+
 
 
 END_SW_NS

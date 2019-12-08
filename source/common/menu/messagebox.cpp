@@ -39,6 +39,7 @@
 #include "v_draw.h"
 #include "gstrings.h"
 #include "c_dispatch.h"
+#include "statistics.h"
 #include "v_2ddrawer.h"
 
 extern FSaveGameNode *quickSaveSlot;
@@ -407,6 +408,7 @@ CCMD (menu_endgame)
 		{
 			if (res)
 			{
+                STAT_Cancel();
 				gi->QuitToTitle();
 			}
 		});
