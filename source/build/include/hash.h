@@ -80,6 +80,4 @@ intptr_t inthash_find(inthashtable_t const *t, intptr_t key);
 // ideally we would find the next largest prime number
 #define INTHASH_SIZE(size) ((size * 4u / 3u) | 1u)
 
-#endif
-
 #endif // hash_h_

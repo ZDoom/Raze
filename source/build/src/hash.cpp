@@ -211,7 +211,7 @@ void inthash_add(inthashtable_t *t, intptr_t key, intptr_t value, int32_t replac
     while (tail->collision != nullptr && tail != seeker);
 
     if (EDUKE32_PREDICT_FALSE(tail == seeker))
-        fatal_exit("inthash_add(): table full!\n");
+        I_Error("inthash_add(): table full!\n");
 
     tail->key = key;
     tail->value = value;

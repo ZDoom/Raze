@@ -245,7 +245,6 @@ static void end_cheat(DukePlayer_t * const pPlayer)
     pPlayer->cheat_phase = 0;
     g_cheatBufLen = 0;
     inputState.keyFlushChars();
-    KB_ClearKeysDown();
 }
 
 int g_cheatBufLen;
