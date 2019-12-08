@@ -47,6 +47,7 @@
 #include "baselayer.h"
 #include "savegamehelp.h"
 #include "sjson.h"
+#include "gstrings.h"
 
 CVAR(Int, savestatistics, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(String, statfile, "demolitionstat.txt", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -354,7 +355,7 @@ static void LevelStatEntry(FSessionStatistics *es, const char *level, const char
 
 void STAT_StartNewGame(const char *episode, int skill)
 {
-	StartEpisode = episode;
+	StartEpisode = GStrings.localize(episode);
 	StartSkill = skill;
 	LevelData.Clear();
 	LevelName = "";

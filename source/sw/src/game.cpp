@@ -926,9 +926,13 @@ void InitGame()
 
     LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
     LoadPLockFromScript("swplock.txt");   // Get Parental Lock setup info
+	
+	LoadCustomInfoFromScript("demolition/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
-        LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
-
+	{
+		LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
+	}
+ 
     if (!loaddefinitionsfile(G_DefFile())) buildputs("Definitions file loaded.\n");
 
 	userConfig.AddDefs.reset();
@@ -1042,28 +1046,6 @@ const char *ThemeSongs[6] =
 int ThemeTrack[6] =
 {
 	2,3,13,13,13,14
-};
-
-char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2] =
-{
-	"^Enter the Wang",
-	"^Code of Honor",
-	"^User Maps",
-};
-
-char EpisodeSubtitles[3][MAX_EPISODE_SUBTITLE_LEN+1] =
-{
-	"Four levels (Shareware Version)",
-	"Eighteen levels (Full Version Only)",
-	"Select a user map to play",
-};
-
-char SkillNames[4][MAX_SKILL_NAME_LEN+2] =
-{
-	"^Tiny grasshopper",
-	"^I Have No Fear",
-	"^Who Wants Wang",
-	"^No Pain, No Gain"
 };
 
 void InitNewGame(void)

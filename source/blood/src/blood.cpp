@@ -1357,7 +1357,7 @@ RESTART:
         //}
 		if (gStartNewGame)
 		{
-			STAT_StartNewGame(gEpisodeInfo[gGameOptions.nEpisode].at0, gGameOptions.nDifficulty);
+			STAT_StartNewGame(gVolumeNames[gGameOptions.nEpisode], gGameOptions.nDifficulty);
 			StartLevel(&gGameOptions);
 		}
     }

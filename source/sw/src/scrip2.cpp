@@ -39,6 +39,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "jsector.h"
 #include "parent.h"
 #include "scriptfile.h"
+#include "menu/menu.h"
 
 BEGIN_SW_NS
 
@@ -723,18 +724,14 @@ void LoadCustomInfoFromScript(const char *filename)
                 {
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
-
-                    strncpy(&EpisodeNames[curmap][1], t, MAX_EPISODE_NAME_LEN);
-                    EpisodeNames[curmap][MAX_EPISODE_NAME_LEN+1] = 0;
+					gVolumeNames[curmap] = t;
                     break;
                 }
                 case CM_SUBTITLE:
                 {
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
-
-                    strncpy(EpisodeSubtitles[curmap], t, MAX_EPISODE_SUBTITLE_LEN);
-                    EpisodeSubtitles[curmap][MAX_EPISODE_SUBTITLE_LEN] = 0;
+					gVolumeSubtitles[curmap] = t;
                     break;
                 }
                 default:
@@ -775,8 +772,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    strncpy(&SkillNames[curmap][1], t, MAX_SKILL_NAME_LEN);
-                    SkillNames[curmap][MAX_SKILL_NAME_LEN+1] = 0;
+					gSkillNames[curmap] = t;
                     break;
                 }
                 default:

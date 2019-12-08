@@ -235,8 +235,7 @@ void levelLoadDefaults(void)
             break;
         EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[i];
 		auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
-        strncpy(pEpisodeInfo->at0, ep_str, 31);
-		gVolumeNames[i] = ep_str; // For the menu.
+		gVolumeNames[i] = ep_str; // only keep one table for the names. Todo: Consolidate this across games.
         strncpy(pEpisodeInfo->at8f08, BloodINI->GetKeyString(buffer, "CutSceneA", ""), BMAX_PATH);
         pEpisodeInfo->at9028 = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
         if (pEpisodeInfo->at9028 == 0)
@@ -286,7 +285,7 @@ void levelAddUserMap(const char *pzMap)
         if (pEpisodeInfo->nLevels == 0)
         {
             gEpisodeCount++;
-            sprintf(pEpisodeInfo->at0, "Episode %d", nEpisode);
+			gVolumeNames[nEpisode].Format("Episode %d", nEpisode+1);
         }
         nLevel = pEpisodeInfo->nLevels++;
     }

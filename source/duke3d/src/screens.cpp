@@ -962,7 +962,7 @@ void G_DisplayRest(int32_t smoothratio)
                 if (G_HaveUserMap())
                     levelname = boardfilename;
                 else if (!(G_GetLogoFlags() & LOGO_HIDEEPISODE))
-                    minitext(5, a+6, gVolumeNames[ud.volume_number], 0, 2+8+16+256);
+                    minitext(5, a+6, GStrings.localize(gVolumeNames[ud.volume_number]), 0, 2+8+16+256);
                 minitext(5, a+6+6, levelname, 0, 2+8+16+256);
             }
         }

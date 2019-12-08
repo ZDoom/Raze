@@ -49,6 +49,7 @@
 #include "z_music.h"
 #include "c_dispatch.h"
 #include "gstrings.h"
+#include "quotemgr.h"
 
 /* Notes
  
@@ -60,23 +61,8 @@
 
 CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players") // Not implemented for Blood
-CUSTOM_CVARD(Bool, cl_autorun, true, CVAR_ARCHIVE, "enable/disable autorun")
-{
-#if 0 // todo: print a message
+CVARD(Bool, cl_autorun, true, CVAR_ARCHIVE, "enable/disable autorun")
 
-        if (gAutoRun)
-            viewSetMessage("Auto run ON");
-        else
-            viewSetMessage("Auto run OFF");
-	
-
-		RUN MODE OFF
-		RUN MODE ON
-        cl_autorun= 1-cl_autorun;
-        P_DoQuote(QUOTE_RUN_MODE_OFF + cl_autorun, &myplayer);
-    }
-#endif
-}
 CVARD(Bool, cl_runmode, true, CVAR_ARCHIVE, "enable/disable modernized run key operation")
 
 bool G_CheckAutorun(bool button)
@@ -259,18 +245,18 @@ CUSTOM_CVARD(Int, hud_messages, 1, CVAR_ARCHIVE, "enable/disable showing message
 	if (self < 0 || self > 2) self = 1;
 }
 
-
+// This cannot be done with the 'toggle' CCMD because it needs to control itself when to output the message
 CCMD (togglemessages)
 {
 	if (hud_messages)
 	{
-		gi->PrintMessage(PRINT_MEDIUM, "%s\n", GStrings("MSGOFF"));
+		gi->PrintMessage(PRINT_MEDIUM, "%s\n", quoteMgr.GetQuote(24));
 		hud_messages = false;
 	}
 	else
 	{
 		hud_messages = true;
-		gi->PrintMessage(PRINT_MEDIUM, "%s\n", GStrings("MSGON"));
+		gi->PrintMessage(PRINT_MEDIUM, "%s\n", quoteMgr.GetQuote(23));
 	}
 }
 

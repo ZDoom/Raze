@@ -84,7 +84,7 @@ struct LEVELINFO
 
 struct EPISODEINFO
 {
-    char at0[32];
+    //char at0[32]; removed, so that the global episode name table can be used for consistency
     int nLevels;
     unsigned int bloodbath : 1;
     unsigned int cutALevel : 4;

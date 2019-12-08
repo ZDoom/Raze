@@ -114,14 +114,14 @@ private:
 public:
 	static FString MakeMacro(const char *str)
 	{
-		//return FStringf("${%s}", str);
-		return str;
+		if (*str == '$') return str;
+		return FString("$") + str;
 	}
 	
 	static FString MakeMacro(const char *str, size_t len)
 	{
-		//return FStringf("${%.*s}", len, str);
-		return FString(str, len);
+		if (*str == '$') return FString(str, len);
+		return "$" + FString(str, len);
 	}
 
 	const char* localize(const char* str)

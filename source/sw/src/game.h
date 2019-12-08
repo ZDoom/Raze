@@ -960,11 +960,6 @@ extern const char *ThemeSongs[6];                                          //
 #define MAX_EPISODE_NAME_LEN 24
 extern char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2];
 
-#define MAX_EPISODE_SUBTITLE_LEN 40
-extern char EpisodeSubtitles[3][MAX_EPISODE_SUBTITLE_LEN+1];
-
-#define MAX_SKILL_NAME_LEN 24
-extern char SkillNames[4][MAX_SKILL_NAME_LEN+2];
 
 #define MAX_FORTUNES 16
 extern const char *ReadFortune[MAX_FORTUNES];
