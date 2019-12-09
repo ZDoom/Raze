@@ -161,7 +161,7 @@ static void AddAnItem(const char* item)
 void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 {
 	FString path;
-    char *homepath = Bgethomedir();
+    char *homepath = getenv("HOME");
 
     path.Format("%s/.steam/steam", homepath);
     G_AddSteamPaths(searchpaths, buf);

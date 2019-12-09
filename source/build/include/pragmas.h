@@ -189,18 +189,12 @@ void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t 
 #ifndef pragmas_have_clearbuf
 void clearbuf(void *d, int32_t c, int32_t a);
 #endif
-#ifndef pragmas_have_copybuf
-void copybuf(const void *s, void *d, int32_t c);
-#endif
 #ifndef pragmas_have_swaps
 void swapbuf4(void *a, void *b, int32_t c);
 #endif
 
 #ifndef pragmas_have_clearbufbyte
 void clearbufbyte(void *D, int32_t c, int32_t a);
-#endif
-#ifndef pragmas_have_copybufbyte
-void copybufbyte(const void *S, void *D, int32_t c);
 #endif
 #ifndef pragmas_have_copybufreverse
 void copybufreverse(const void *S, void *D, int32_t c);

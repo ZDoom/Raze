@@ -71,17 +71,6 @@ void clearbuf(void *d, int32_t c, int32_t a)
 }
 #endif
 
-#ifndef pragmas_have_copybuf
-void copybuf(const void *s, void *d, int32_t c)
-{
-    auto p = (const int32_t *) s;
-    auto q = (int32_t *) d;
-
-    while (c--)
-        *q++ = *p++;
-}
-#endif
-
 #ifndef pragmas_have_swaps
 void swapbuf4(void *a, void *b, int32_t c)
 {
@@ -113,16 +102,6 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
 }
 #endif
 
-#ifndef pragmas_have_copybufbyte
-void copybufbyte(const void *s, void *d, int32_t c)
-{
-    auto src = (const char *)s;
-    auto dst = (char *)d;
-
-    while (c--)
-        *dst++ = *src++;
-}
-#endif
 
 
 // copybufreverse() is a special case: use the assembly version for GCC on x86
