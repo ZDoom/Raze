@@ -404,6 +404,7 @@ enum
     CM_MAXAMMO,
     CM_DAMAGEMIN,
     CM_DAMAGEMAX,
+	CM_THEME,
     CM_SECRET,
     CM_QUIT,
 };
@@ -424,6 +425,7 @@ static const struct _tokset
     { "inventory",   CM_INVENTORY },
     { "weapon",      CM_WEAPON    },
     { "needkey",     CM_NEEDKEY   },
+	{ "theme",       CM_THEME     },
     { "secret",      CM_SECRET    },
     { "quit",        CM_QUIT      },
 },
@@ -475,14 +477,20 @@ static const struct _tokset
     { "maxdamage",   CM_DAMAGEMAX },
     { "pickup",      CM_AMOUNT    },
     { "weaponpickup",CM_WEAPON    },
-}
-;
+},
+cm_theme_tokens[] = {
+	{ "song",        CM_SONG      },
+	{ "music",       CM_SONG      },
+	{ "cdatrack",    CM_CDATRACK  },
+	{ "cdtrack",     CM_CDATRACK  },
+};
 #define cm_numtokens           (sizeof(cm_tokens)/sizeof(cm_tokens[0]))
 #define cm_map_numtokens       (sizeof(cm_map_tokens)/sizeof(cm_map_tokens[0]))
 #define cm_episode_numtokens   (sizeof(cm_episode_tokens)/sizeof(cm_episode_tokens[0]))
 #define cm_skill_numtokens     (sizeof(cm_skill_tokens)/sizeof(cm_skill_tokens[0]))
 #define cm_inventory_numtokens (sizeof(cm_inventory_tokens)/sizeof(cm_inventory_tokens[0]))
 #define cm_weapons_numtokens   (sizeof(cm_weapons_tokens)/sizeof(cm_weapons_tokens[0]))
+#define cm_theme_numtokens     (sizeof(cm_theme_tokens)/sizeof(cm_theme_tokens[0]))
 
 
 static int cm_transtok(const char *tok, const struct _tokset *set, const unsigned num)
@@ -964,6 +972,51 @@ void LoadCustomInfoFromScript(const char *filename)
             }
             break;
         }
+		case CM_THEME:
+		{
+			char *epnumptr;
+			char *name = NULL;
+			int trak = -1;
+
+			if (scriptfile_getnumber(script, &curmap)) break; epnumptr = script->ltextptr;
+			if (scriptfile_getbraces(script, &braceend)) break;
+			if ((unsigned)--curmap >= 6u)
+			{
+				initprintf("Error: theme number %d not in range 1-6 on line %s:%d\n",
+						curmap, script->filename,
+						scriptfile_getlinum(script,epnumptr));
+				script->textptr = braceend;
+			break;
+		    }
+			while (script->textptr < braceend)
+			{
+				if (!(token = scriptfile_gettoken(script))) break;
+				if (token == braceend) break;
+				switch (cm_transtok(token, cm_theme_tokens, cm_theme_numtokens))
+				{
+					case CM_SONG:
+						if (scriptfile_getstring(script, &name)) break;
+						break;
+					case CM_CDATRACK:
+						if (scriptfile_getnumber(script, &trak)) break;
+						break;
+					default:
+						initprintf("Error on line %s:%d\n",
+								script->filename,
+							scriptfile_getlinum(script,script->ltextptr));
+						break;
+				}
+			}
+			if (name)
+            {
+               ThemeSongs[curmap] = name;
+			}
+			if (trak >= 2)
+			{
+			   ThemeTrack[curmap] = trak;
+			}
+			break;
+		}
         case CM_SECRET:
         case CM_QUIT:
         default:

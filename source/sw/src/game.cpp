@@ -1027,20 +1027,8 @@ LEVEL_INFO LevelInfo[MAX_LEVELS+2] =  // Shareware
     };
 #endif*/
 
-const char *ThemeSongs[6] =
-{
-	"THEME.MID",
-	"ENDLEV3.VOC",
-	"SERPENT.MID",
-	"SUMO.MID",
-	"ZILLA.MID"
-	"ENDING.MID"
-};
-
-int ThemeTrack[6] =
-{
-	2,3,13,13,13,14
-};
+FString ThemeSongs[6];
+int ThemeTrack[6];
 
 void InitNewGame(void)
 {
@@ -1575,7 +1563,7 @@ void ResetKeyRange(uint8_t* kb, uint8_t* ke)
 void PlayTheme()
 {
     // start music at logo
-    PlaySong(nullptr, "theme.mid", RedBookSong[0]);
+    PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
 
     DSPRINTF(ds,"After music stuff...");
     MONO_PRINT(ds);
@@ -1679,7 +1667,7 @@ void CreditsLevel(void)
         while (FX_SoundActive(handle)) ;
 
     // try 14 then 2 then quit
-    if (!PlaySong(nullptr, nullptr, 14, true))
+    if (!PlaySong(nullptr, ThemeSongs[5], ThemeTrack[5], true))
     {
         if (!PlaySong(nullptr, nullptr, 2, true))
         {
@@ -2220,7 +2208,7 @@ void BonusScreen(PLAYERp pp)
     totalclock = ototalclock = 0;
     limit = synctics;
 
-    PlaySong(nullptr, voc[DIGI_ENDLEV].name, 3);
+    PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
 
     // special case code because I don't care any more!
     if (FinishAnim)
@@ -2535,7 +2523,7 @@ void StatScreen(PLAYERp mpp)
 	inputState.ClearKeyStatus(KEYSC_SPACE);
 	inputState.ClearKeyStatus(KEYSC_ENTER);
 
-    PlaySong(nullptr, voc[DIGI_ENDLEV].name, 3);
+    PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
 
     while (!inputState.GetKeyStatus(KEYSC_SPACE) && !inputState.GetKeyStatus(KEYSC_ENTER))
     {

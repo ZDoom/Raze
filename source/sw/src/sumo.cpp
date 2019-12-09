@@ -883,7 +883,7 @@ BossHealthMeter(void)
                         serpwasseen = TRUE;
                         if (!SW_SHAREWARE)
                         {
-                            PlaySong(nullptr, nullptr, ThemeTrack[2], true);
+                            PlaySong(nullptr, ThemeSongs[2], ThemeTrack[2], true);
                         }
                     }
                     else if (i == 1 && !sumowasseen)
@@ -891,7 +891,7 @@ BossHealthMeter(void)
                         sumowasseen = TRUE;
                         if (!SW_SHAREWARE)
                         {
-                            PlaySong(nullptr, nullptr, ThemeTrack[3], true);
+                            PlaySong(nullptr, ThemeSongs[3], ThemeTrack[3], true);
                         }
                     }
                     else if (i == 2 && !zillawasseen)
@@ -899,7 +899,7 @@ BossHealthMeter(void)
                         zillawasseen = TRUE;
                         if (!SW_SHAREWARE)
                         {
-                            PlaySong(nullptr, nullptr, ThemeTrack[4], true);
+                            PlaySong(nullptr, ThemeSongs[4], ThemeTrack[4], true);
                         }
                     }
                 }

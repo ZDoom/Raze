@@ -953,7 +953,7 @@ typedef struct
 
 extern LEVEL_INFO LevelInfo[MAX_LEVELS_REG+2];
 extern int   ThemeTrack[6];                                          // w
-extern const char *ThemeSongs[6];                                          //
+extern FString ThemeSongs[6];                                          //
 
 #define MAX_EPISODE_NAME_LEN 24
 extern char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2];

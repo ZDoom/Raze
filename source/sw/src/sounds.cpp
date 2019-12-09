@@ -308,6 +308,7 @@ InitFX(void)
 }
 
 extern short Level;
+CVAR(Bool, sw_nothememidi, false, CVAR_ARCHIVE)
 
 SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
 {
@@ -316,8 +317,8 @@ SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_tra
         // Get the music defined for the current level.
 
     }
-    // Play  CD audio if enabled or if this is a theme track.
-    if (cdaudio_track >= 0 && (mus_redbook || isThemeTrack))
+    // Play  CD audio if enabled.
+    if (cdaudio_track >= 0 && mus_redbook)
     {
         FStringf trackname("track%02d.ogg", cdaudio_track);
         if (!Mus_Play(nullptr, trackname, true))
@@ -325,6 +326,7 @@ SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_tra
             buildprintf("Can't find CD track %i!\n", cdaudio_track);
         }
     }
+    else if (isThemeTrack && sw_nothememidi) return false;   // The original SW source only used CD Audio for theme tracks, so this is optional.
     return Mus_Play(nullptr, song_file_name, true);
 }
 
