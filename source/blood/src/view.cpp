@@ -62,6 +62,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "weapon.h"
 #include "zstring.h"
 #include "menu/menu.h"
+#include "gstrings.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable displaying the remaining seconds for power-ups")
 
@@ -1401,7 +1402,7 @@ void viewDrawCtfHudVanilla(ClockTicks arg)
     int x = 1, y = 1;
     if (dword_21EFD0[0] == 0 || ((int)totalclock & 8))
     {
-        viewDrawText(0, "BLUE", x, y, -128, 10, 0, 0, 256);
+        viewDrawText(0, GStrings("TXT_COLOR_BLUE"), x, y, -128, 10, 0, 0, 256);
         dword_21EFD0[0] = dword_21EFD0[0] - arg;
         if (dword_21EFD0[0] < 0)
             dword_21EFD0[0] = 0;
@@ -1411,7 +1412,7 @@ void viewDrawCtfHudVanilla(ClockTicks arg)
     x = 319;
     if (dword_21EFD0[1] == 0 || ((int)totalclock & 8))
     {
-        viewDrawText(0, "RED", x, y, -128, 7, 2, 0, 512);
+        viewDrawText(0, GStrings("TXT_COLOR_RED"), x, y, -128, 7, 2, 0, 512);
         dword_21EFD0[1] = dword_21EFD0[1] - arg;
         if (dword_21EFD0[1] < 0)
             dword_21EFD0[1] = 0;
@@ -3557,7 +3558,7 @@ RORHACK:
     viewDrawAimedPlayerName();
     if (gPaused)
     {
-        viewDrawText(1, "PAUSED", 160, 10, 0, 0, 1, 0);
+        viewDrawText(1, GStrings("TXTB_PAUSED"), 160, 10, 0, 0, 1, 0);
     }
     else if (gView != gMe)
     {
@@ -3640,7 +3641,7 @@ void viewLoadingScreenUpdate(const char *pzText4, int nPercent)
     if (nPercent != -1)
         TileHGauge(2260, 86, 110, nPercent, 100, 0, 131072);
 
-    viewDrawText(3, "Please Wait", 160, 134, -128, 0, 1, 1);
+    viewDrawText(3, GStrings("TXTB_PLSWAIT"), 160, 134, -128, 0, 1, 1);
 }
 
 void viewLoadingScreen(int nTile, const char *pText, const char *pText2, const char *pText3)

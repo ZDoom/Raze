@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "messages.h"
 #include "statistics.h"
 #include "gamemenu.h"
+#include "gstrings.h"
 
 BEGIN_BLD_NS
 
@@ -58,22 +59,22 @@ void CEndGameMgr::Draw(void)
     int nY = 20 - nHeight / 2;
     if (gGameOptions.nGameType == 0)
     {
-        viewDrawText(1, "LEVEL STATS", 160, nY, -128, 0, 1, 0);
+        viewDrawText(1, GStrings("TXTB_LEVELSTATS"), 160, nY, -128, 0, 1, 0);
         if (CCheatMgr::m_bPlayerCheated)
         {
-            viewDrawText(3, ">>> YOU CHEATED! <<<", 160, 32, -128, 0, 1, 1);
+            viewDrawText(3, GStrings("TXTB_CHESTED"), 160, 32, -128, 0, 1, 1);
         }
         gKillMgr.Draw();
         gSecretMgr.Draw();
     }
     else
     {
-        viewDrawText(1, "FRAG STATS", 160, nY, -128, 0, 1, 0);
+        viewDrawText(1, GStrings("TXTB_FRAGSTATS"), 160, nY, -128, 0, 1, 0);
         gKillMgr.Draw();
     }
     if (/*dword_28E3D4 != 1 && */((int)totalclock&32))
     {
-        viewDrawText(3, "PRESS A KEY TO CONTINUE", 160, 134, -128, 0, 1, 1);
+        viewDrawText(3, GStrings("PRESSKEY"), 160, 134, -128, 0, 1, 1);
     }
 }
 
@@ -164,18 +165,18 @@ void CKillMgr::Draw(void)
     char pBuffer[40];
     if (gGameOptions.nGameType == 0)
     {
-        viewDrawText(1, "KILLS:", 75, 50, -128, 0, 0, 1);
+        viewDrawText(1, FStringf("%s:", GStrings("KILLS")), 75, 50, -128, 0, 0, 1);
         sprintf(pBuffer, "%2d", at4);
         viewDrawText(1, pBuffer, 160, 50, -128, 0, 0, 1);
-        viewDrawText(1, "OF", 190, 50, -128, 0, 0, 1);
+        viewDrawText(1, GStrings("OF"), 190, 50, -128, 0, 0, 1);
         sprintf(pBuffer, "%2d", at0);
         viewDrawText(1, pBuffer, 220, 50, -128, 0, 0, 1);
     }
     else
     {
         viewDrawText(3, "#", 85, 35, -128, 0, 0, 1);
-        viewDrawText(3, "NAME", 100, 35, -128, 0, 0, 1);
-        viewDrawText(3, "FRAGS", 210, 35, -128, 0, 0, 1);
+        viewDrawText(3, GStrings("NAME"), 100, 35, -128, 0, 0, 1);
+        viewDrawText(3, GStrings("FRAGS"), 210, 35, -128, 0, 0, 1);
         int nStart = 0;
         int nEnd = gInitialNetPlayers;
         //if (dword_28E3D4 == 1)
@@ -219,28 +220,21 @@ void CSecretMgr::Found(int nType)
     } else at8++;
 
     if (gGameOptions.nGameType == 0) {
-        switch (Random(2)) {
-            case 0:
-                viewSetMessage("A secret is revealed.", 0, MESSAGE_PRIORITY_SECRET);
-                break;
-            case 1:
-                viewSetMessage("You found a secret.", 0, MESSAGE_PRIORITY_SECRET);
-                break;
-        }
+		viewSetMessage(GStrings(FStringf("TXT_SECRET%d", Random(2))),  0, MESSAGE_PRIORITY_SECRET);
     }
 }
 
 void CSecretMgr::Draw(void)
 {
     char pBuffer[40];
-    viewDrawText(1, "SECRETS:", 75, 70, -128, 0, 0, 1);
+    viewDrawText(1, FStringf("%s:", GStrings("TXT_SECRETS")), 75, 70, -128, 0, 0, 1);
     sprintf(pBuffer, "%2d", at4);
     viewDrawText(1, pBuffer, 160, 70, -128, 0, 0, 1);
-    viewDrawText(1, "OF", 190, 70, -128, 0, 0, 1);
+    viewDrawText(1, GStrings("OF"), 190, 70, -128, 0, 0, 1);
     sprintf(pBuffer, "%2d", at0);
     viewDrawText(1, pBuffer, 220, 70, -128, 0, 0, 1);
     if (at8 > 0)
-        viewDrawText(1, "YOU FOUND A SUPER SECRET!", 160, 100, -128, 2, 1, 1);
+        viewDrawText(1, GStrings("TXT_SUPERSECRET"), 160, 100, -128, 2, 1, 1);
 }
 
 void CSecretMgr::Clear(void)

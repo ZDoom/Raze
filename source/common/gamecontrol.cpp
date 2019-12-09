@@ -284,9 +284,9 @@ void SetDefaultStrings()
 	
 	//Set a few quotes which are used for common handling of a few status messages
 	quoteMgr.InitializeQuote(23, "$MESSAGES: ON");
-	quoteMgr.InitializeQuote(24, "$MESSAGES:OFF");
-	quoteMgr.InitializeQuote(83, "$MAPFOLLOWOFF");
-	quoteMgr.InitializeQuote(84, "$MAPFOLLOWON");
+	quoteMgr.InitializeQuote(24, "$MESSAGES: OFF");
+	quoteMgr.InitializeQuote(83, "$FOLLOW MODE OFF");
+	quoteMgr.InitializeQuote(84, "$FOLLOW MODE ON");
 	quoteMgr.InitializeQuote(85, "$AUTORUNOFF");
 	quoteMgr.InitializeQuote(86, "$AUTORUNON");
 	#if 0 // todo: print a message

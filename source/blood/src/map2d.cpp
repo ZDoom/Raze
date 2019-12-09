@@ -210,10 +210,12 @@ void CViewMap::sub_25C74(void)
         nViewY = gViewY0S+1;
     viewDrawText(3, pBuffer, gViewX1S, nViewY, -128, 0, 2, 0, 256);
 
+#if 0 // needs to be generalized
     if (gViewMap.bFollowMode)
         viewDrawText(3, "MAP FOLLOW MODE", gViewX1S, nViewY+8, -128, 0, 2, 0, 256);
     else
         viewDrawText(3, "MAP SCROLL MODE", gViewX1S, nViewY+8, -128, 0, 2, 0, 256);
+#endif
     if (tm)
         viewResizeView(viewSize);
 }

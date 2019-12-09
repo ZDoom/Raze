@@ -39,15 +39,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "view.h"
 #include "c_bind.h"
+#include "gstrings.h"
 
 BEGIN_BLD_NS
 
-const char* zNetGameTypes[] =
-{
-	"Cooperative",
-	"Bloodbath",
-	"Teams",
-};
 
 void drawLoadingScreen(void)
 {
@@ -55,12 +50,12 @@ void drawLoadingScreen(void)
 	if (gGameOptions.nGameType == 0)
 	{
 		if (gDemo.at1)
-			sprintf(buffer, "Loading Demo");
+			strcpy(buffer, GStrings("TXTB_LDEMO"));
 		else
-			sprintf(buffer, "Loading Level");
+			strcpy(buffer, GStrings("TXTB_LLEVEL"));
 	}
 	else
-		sprintf(buffer, "%s", zNetGameTypes[gGameOptions.nGameType - 1]);
+		strcpy(buffer, GStrings(FStringf("TXTB_NETGT%d", gGameOptions.nGameType)));
 	viewLoadingScreen(2049, buffer, levelGetTitle(), NULL);
 }
 
