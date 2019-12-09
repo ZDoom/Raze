@@ -159,7 +159,7 @@ int32_t globaltilesizy;
 int32_t globalx1, globaly2, globalx3, globaly3;
 
 int32_t sloptable[SLOPTABLESIZ];
-#define SLOPALOOKUPSIZ (MAXXDIM<<1)
+#define SLOPALOOKUPSIZ 16384
 static intptr_t slopalookup[SLOPALOOKUPSIZ];    // was 2048
 
 static int32_t no_radarang2 = 0;
