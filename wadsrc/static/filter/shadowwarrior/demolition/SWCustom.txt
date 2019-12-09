@@ -485,13 +485,6 @@ needkey
    "You need a BRONZE key for this door."
    "You need a RED key for this door."
 }
-animation
-{
-   "SwpAnim.zip"    // Swp1001.. 43 frames  org = sw.anm
-   "swend.anm"      // Swp2001.. 70
-   "sumocinm.anm"   // Swp3001.. 84
-   "zfcin.anm"      // Swp4001.. 142
-}
 theme 1  // game startup menu
 {
     song "theme.mid"
