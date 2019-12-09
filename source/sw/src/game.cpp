@@ -938,7 +938,7 @@ bool InitGame()
     if (UserMapName[0] == '\0')
     {
         AnimateCacheCursor();
-		if (!LoadLevel("$dozer.map")) return false
+        if (!LoadLevel("$dozer.map")) return false;
         AnimateCacheCursor();
         SetupPreCache();
         DoTheCache();
