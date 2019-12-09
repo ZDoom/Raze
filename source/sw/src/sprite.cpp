@@ -5544,17 +5544,17 @@ SWBOOL CanGetWeapon(PLAYERp pp, short SpriteNum, int WPN)
 
 struct InventoryDecl_t InventoryDecls[InvDecl_TOTAL] =
 {
-    { "Armor Vest +50",           50  },
-    { "Kevlar Armor Vest +100",   100 },
-    { "MedKit +20",               20  },
-    { "Fortune Cookie +50 BOOST", 50  },
-    { "Portable MedKit",          100 },
-    { "Gas Bomb",                 1   },
-    { "Flash Bomb",               2   },
-    { "Caltrops",                 3   },
-    { "Night Vision Goggles",     100 },
-    { "Repair Kit",               100 },
-    { "Smoke Bomb",               100 },
+    {50  },
+    {100 },
+    {20  },
+    {50  },
+    {100 },
+    {1   },
+    {2   },
+    {3   },
+    {100 },
+    {100 },
+    {100 },
 };
 
 #define ITEMFLASHAMT  -8
@@ -5690,14 +5690,14 @@ KeyMain:
                 if (u->spal == PALETTE_PLAYER3)
                 {
                     PlayerUpdateArmor(pp, 1000+InventoryDecls[InvDecl_Kevlar].amount);
-                    PutStringInfo(Player+pnum, InventoryDecls[InvDecl_Kevlar].name);
+                    PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Kevlar));
                 }
                 else
                 {
                     if (pp->Armor < InventoryDecls[InvDecl_Armor].amount)
                     {
                         PlayerUpdateArmor(pp, 1000+InventoryDecls[InvDecl_Armor].amount);
-                        PutStringInfo(Player+pnum, InventoryDecls[InvDecl_Armor].name);
+                        PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Armor));
                     }
                     else
                         break;
@@ -5726,7 +5726,7 @@ KeyMain:
             {
                 SWBOOL putbackmax=FALSE;
 
-                PutStringInfo(Player+pnum, InventoryDecls[InvDecl_SmMedkit].name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_SmMedkit));
 
                 if (pp->MaxHealth == 200)
                 {
@@ -5756,7 +5756,7 @@ KeyMain:
             pp->MaxHealth = 200;
             if (pu->Health < 200)
             {
-                PutStringInfo(Player+pnum, InventoryDecls[InvDecl_Booster].name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Booster));
                 PlayerUpdateHealth(pp, InventoryDecls[InvDecl_Booster].amount);       // This is for health
                 // over 100%
                 // Say something witty
@@ -5789,7 +5789,7 @@ KeyMain:
 
             if (!pp->InventoryAmount[INVENTORY_MEDKIT] || pp->InventoryPercent[INVENTORY_MEDKIT] < InventoryDecls[InvDecl_Medkit].amount)
             {
-                PutStringInfo(Player+pnum, InventoryDecls[InvDecl_Medkit].name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Medkit));
                 pp->InventoryPercent[INVENTORY_MEDKIT] = InventoryDecls[InvDecl_Medkit].amount;
                 pp->InventoryAmount[INVENTORY_MEDKIT] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_MEDKIT);
@@ -5812,7 +5812,7 @@ KeyMain:
 
             if (pp->InventoryAmount[INVENTORY_CHEMBOMB] < InventoryDecls[InvDecl_ChemBomb].amount)
             {
-                PutStringInfo(Player+pnum, InventoryDecls[InvDecl_ChemBomb].name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_ChemBomb));
                 pp->InventoryPercent[INVENTORY_CHEMBOMB] = 0;
                 pp->InventoryAmount[INVENTORY_CHEMBOMB]++;
                 PlayerUpdateInventory(pp, INVENTORY_CHEMBOMB);
@@ -5827,7 +5827,7 @@ KeyMain:
 
             if (pp->InventoryAmount[INVENTORY_FLASHBOMB] < InventoryDecls[InvDecl_FlashBomb].amount)
             {
-                PutStringInfo(Player+pnum, InventoryDecls[InvDecl_FlashBomb].name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_FlashBomb));
                 pp->InventoryPercent[INVENTORY_FLASHBOMB] = 0;
                 pp->InventoryAmount[INVENTORY_FLASHBOMB]++;
                 PlayerUpdateInventory(pp, INVENTORY_FLASHBOMB);
@@ -5842,7 +5842,7 @@ KeyMain:
 
             if (pp->InventoryAmount[INVENTORY_CALTROPS] < InventoryDecls[InvDecl_Caltrops].amount)
             {
-                PutStringInfo(Player+pnum, InventoryDecls[InvDecl_Caltrops].name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Caltrops));
                 pp->InventoryPercent[INVENTORY_CALTROPS] = 0;
                 pp->InventoryAmount[INVENTORY_CALTROPS]+=3;
                 if (pp->InventoryAmount[INVENTORY_CALTROPS] > InventoryDecls[InvDecl_Caltrops].amount)
@@ -5858,7 +5858,7 @@ KeyMain:
         case ICON_NIGHT_VISION:
             if (!pp->InventoryAmount[INVENTORY_NIGHT_VISION] || pp->InventoryPercent[INVENTORY_NIGHT_VISION] < InventoryDecls[InvDecl_NightVision].amount)
             {
-                PutStringInfo(Player+pnum, InventoryDecls[InvDecl_NightVision].name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_NightVision));
                 pp->InventoryPercent[INVENTORY_NIGHT_VISION] = InventoryDecls[InvDecl_NightVision].amount;
                 pp->InventoryAmount[INVENTORY_NIGHT_VISION] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_NIGHT_VISION);
@@ -5871,7 +5871,7 @@ KeyMain:
         case ICON_REPAIR_KIT:
             if (!pp->InventoryAmount[INVENTORY_REPAIR_KIT] || pp->InventoryPercent[INVENTORY_REPAIR_KIT] < InventoryDecls[InvDecl_RepairKit].amount)
             {
-                PutStringInfo(Player+pnum, InventoryDecls[InvDecl_RepairKit].name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_RepairKit));
                 pp->InventoryPercent[INVENTORY_REPAIR_KIT] = InventoryDecls[InvDecl_RepairKit].amount;
                 pp->InventoryAmount[INVENTORY_REPAIR_KIT] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_REPAIR_KIT);
@@ -5902,7 +5902,7 @@ KeyMain:
         case ICON_CLOAK:
             if (!pp->InventoryAmount[INVENTORY_CLOAK] || pp->InventoryPercent[INVENTORY_CLOAK] < InventoryDecls[InvDecl_Cloak].amount)
             {
-                PutStringInfo(Player+pnum, InventoryDecls[InvDecl_Cloak].name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_Cloak));
                 pp->InventoryPercent[INVENTORY_CLOAK] = InventoryDecls[InvDecl_Cloak].amount;
                 pp->InventoryAmount[INVENTORY_CLOAK] = 1;
                 PlayerUpdateInventory(pp, INVENTORY_CLOAK);

@@ -279,57 +279,57 @@ skill 4
 /*
 inventory 1
 {
-   name "Armor Vest +50"
+   name "$TXT_INV1"
    amount 50
 }
 inventory 2
 {
-   name "Kevlar Armor Vest +100"
+   name "$TXT_INV2"
    amount 100
 }
 inventory 3
 {
-   name "MedKit +20"
+   name "$TXT_INV3"
    amount 20
 }
 inventory 4
 {
-   name "Fortune Cookie +50 BOOST"
+   name "$TXT_INV4"
    amount 50
 }
 inventory 5
 {
-   name "Portable MedKit"
+   name "$TXT_INV5"
    amount 100
 }
 inventory 6
 {
-   name "Gas Bomb"
+   name "$TXT_INV6"
    amount 1
 }
 inventory 7
 {
-   name "Flash Bomb"
+   name "$TXT_INV7"
    amount 2
 }
 inventory 8
 {
-   name "Caltrops"
+   name "$TXT_INV8"
    amount 3
 }
 inventory 9
 {
-   name "Night Vision Goggles"
+   name "$TXT_INV9"
    amount 100
 }
 inventory 10
 {
-   name "Repair Kit"
+   name "$TXT_INV10"
    amount 100
 }
 inventory 11
 {
-   name "Smoke Bomb"
+   name "$TXT_INV11"
    amount 100
 }
 weapon 1

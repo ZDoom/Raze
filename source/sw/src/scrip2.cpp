@@ -539,7 +539,6 @@ static int cm_transtok(const char *tok, const struct _tokset *set, const unsigne
 //   quit    "PRESS (Y) TO QUIT, (N) TO FIGHT ON."
 
 static LEVEL_INFO custommaps[MAX_LEVELS_REG];
-static char *custominventoryname[InvDecl_TOTAL];
 static char *customweaponname[2][MAX_WEAPONS];  // weapon, ammo
 
 #define WM_DAMAGE  1
@@ -879,9 +878,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
             if (name)
             {
-                Bfree(custominventoryname[in]);
-                custominventoryname[in] = strdup(name);
-                InventoryDecls[in].name = custominventoryname[in];
+                quoteMgr.InitializeQuote(QUOTE_INVENTORY + in, name);
             }
             if (amt >= 0)
             {

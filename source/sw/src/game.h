@@ -967,11 +967,13 @@ enum
 {
     MAX_KEYS = 8,
     MAX_FORTUNES = 16,
+    MAX_INVENTORY_Q = 11,//InvDecl_TOTAL
 
     QUOTE_KEYMSG = 1,
     QUOTE_DOORMSG = QUOTE_KEYMSG + MAX_KEYS,
     // 23+24 are reserved.
     QUOTE_COOKIE = 25,  
+    QUOTE_INVENTORY = QUOTE_COOKIE + MAX_FORTUNES,
 };
 
 typedef struct

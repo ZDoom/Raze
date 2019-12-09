@@ -77,7 +77,6 @@ enum
 
 struct InventoryDecl_t
 {
-    const char *name;
     int  amount;
 };
 extern struct InventoryDecl_t InventoryDecls[InvDecl_TOTAL];
