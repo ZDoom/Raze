@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "statistics.h"
 #include "menu/menu.h"
+#include "mapinfo.h"
+#include "cmdlib.h"
 BEGIN_DUKE_NS
 
 static uint8_t precachehightile[2][(MAXTILES+7)>>3];
@@ -379,9 +381,7 @@ static void G_DoLoadScreen(const char *statustext, int percent)
     else
     {
         menutext_center(90, GStrings("TXT_LOADING"));
-
-        if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
-            menutext_center(90+16+8, g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
+        menutext_center(90+16+8, mapList[(ud.volume_number*MAXLEVELS) + ud.level_number].DisplayName());
     }
 
 #ifndef EDUKE32_TOUCH_DEVICES
@@ -1621,13 +1621,11 @@ int G_FindLevelByFile(const char *fileName)
 {
     int i = 0;
 
-    for (auto &levelNum : g_mapInfo)
+    for (auto &levelNum : mapList)
     {
         i++;
 
-        if (levelNum.filename == NULL)
-            continue;
-        else if (!Bstrcasecmp(fileName, levelNum.filename))
+        if (levelNum.fileName.CompareNoCase(fileName) == 0)
             return i-1;
     }
 
@@ -1691,20 +1689,18 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
 {
     char *p;
     char const *exts[] = {
-#ifdef HAVE_FLAC
         "flac",
-#endif
-#ifdef HAVE_VORBIS
         "ogg",
-#endif
-#ifdef HAVE_XMP
+        "mp3",
         "xm",
         "mod",
         "it",
         "s3m",
         "mtm",
-#endif
-        "mid"
+        "mid",
+        "hmp",
+        "hmi",
+        "xmi"
     };
 
     Bstrncpy(nameBuf, fileName, BMAX_PATH);
@@ -1717,31 +1713,32 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
         p[0] = '.';
     }
 
+    // Test if a real file with this name exists with all known extensions for music.
     for (auto & ext : exts)
     {
         Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
 
-		if (fileSystem.FileExists(nameBuf))
+		if (FileExists(nameBuf))
 		{
-            realloc_copy(&g_mapInfo[USERMAPMUSICFAKESLOT].musicfn, nameBuf);
+            mapList[USERMAPMUSICFAKESLOT].music = nameBuf;
             return;
         }
     }
 
-    char const * usermapMusic = g_mapInfo[MUS_USERMAP].musicfn;
-    if (usermapMusic != nullptr)
+    auto &usermapMusic = mapList[MUS_USERMAP].music;
+    if (usermapMusic.IsNotEmpty())
     {
-        realloc_copy(&g_mapInfo[USERMAPMUSICFAKESLOT].musicfn, usermapMusic);
+        mapList[USERMAPMUSICFAKESLOT].music = usermapMusic;
         return;
     }
 
 #ifndef EDUKE32_STANDALONE
     if (!FURY)
     {
-        char const * e1l8 = g_mapInfo[7].musicfn;
-        if (e1l8 != nullptr)
+        auto &e1l8 = mapList[7].music;
+        if (e1l8.IsNotEmpty())
         {
-            realloc_copy(&g_mapInfo[USERMAPMUSICFAKESLOT].musicfn, e1l8);
+            mapList[USERMAPMUSICFAKESLOT].music = e1l8;
             return;
         }
     }
@@ -1816,13 +1813,13 @@ int G_EnterLevel(int gameMode)
 
     int const mapidx = (ud.volume_number * MAXLEVELS) + ud.level_number;
 
-    Bassert((unsigned)mapidx < ARRAY_SIZE(g_mapInfo));
+    Bassert((unsigned)mapidx < ARRAY_SIZE(mapList));
 
-    auto &m = g_mapInfo[mapidx];
+    auto& mm = mapList[mapidx];
 
     if (VOLUMEONE || !Menu_HaveUserMap())
     {
-        if (m.name == NULL || m.filename == NULL)
+        if (mm.name.IsEmpty() || mm.fileName.IsEmpty())
         {
             OSD_Printf(OSDTEXT_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
             return 1;
@@ -1856,15 +1853,15 @@ int G_EnterLevel(int gameMode)
         G_LoadMapHack(levelName, boardfilename);
         G_SetupFilenameBasedMusic(levelName, boardfilename);
     }
-    else if (engineLoadBoard(m.filename, VOLUMEONE, &p0.pos, &playerAngle, &p0.cursectnum) < 0)
+    else if (engineLoadBoard(mm.fileName, VOLUMEONE, &p0.pos, &playerAngle, &p0.cursectnum) < 0)
     {
-        OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", m.filename);
+        OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", mm.fileName.GetChars());
         return 1;
     }
     else
     {
-		STAT_NewLevel(m.filename);
-        G_LoadMapHack(levelName, m.filename);
+		STAT_NewLevel(mm.fileName);
+        G_LoadMapHack(levelName, mm.fileName);
     }
 
     p0.q16ang = fix16_from_int(playerAngle);
@@ -1885,7 +1882,7 @@ int G_EnterLevel(int gameMode)
     G_ResetAllPlayers();
     G_CollectSpawnPoints(gameMode);
 
-    ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : m.filename, g_loadedMapHack.md4);
+    ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : mm.fileName.GetChars(), g_loadedMapHack.md4);
 
     // G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     G_CacheMapData();
@@ -1897,8 +1894,8 @@ int G_EnterLevel(int gameMode)
         {
             S_PlayLevelMusicOrNothing(USERMAPMUSICFAKESLOT);
         }
-        else if (g_mapInfo[g_musicIndex].musicfn == NULL || m.musicfn == NULL ||
-            strcmp(g_mapInfo[g_musicIndex].musicfn, m.musicfn) || g_musicSize == 0 || ud.last_level == -1)
+        else if (mapList[g_musicIndex].music.IsEmpty() || mm.music.IsEmpty() || mapList[g_musicIndex].music.CompareNoCase(mm.music) == 0 ||
+            g_musicSize == 0 || ud.last_level == -1)
         {
             S_PlayLevelMusicOrNothing(mapidx);
         }
@@ -1960,9 +1957,9 @@ int G_EnterLevel(int gameMode)
     if (G_HaveUserMap())
         OSD_Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
     else if (FURY)
-        OSD_Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_ENTERING"), m.name);
+        OSD_Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_ENTERING"), mm.DisplayName());
     else
-        OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number + 1, ud.level_number + 1, m.name);
+        OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number + 1, ud.level_number + 1, mm.DisplayName());
 
     g_restorePalette = -1;
 

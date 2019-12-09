@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "c_dispatch.h"
 #include "quotemgr.h"
+#include "mapinfo.h"
 
 #include "debugbreak.h"
 extern bool rotatesprite_2doverride;
@@ -3752,13 +3753,13 @@ badindex:
                                     int const levelNum = ud.volume_number * MAXLEVELS + ud.level_number;
                                     const char *pName;
 
-                                    if (EDUKE32_PREDICT_FALSE((unsigned)levelNum >= ARRAY_SIZE(g_mapInfo)))
+                                    if (EDUKE32_PREDICT_FALSE((unsigned)levelNum >= ARRAY_SIZE(mapList)))
                                     {
                                         CON_ERRPRINTF("out of bounds map number (vol=%d, lev=%d)\n", ud.volume_number, ud.level_number);
                                         abort_after_error();
                                     }
 
-                                    pName = j == STR_MAPNAME ? g_mapInfo[levelNum].name : g_mapInfo[levelNum].filename;
+                                    pName = j == STR_MAPNAME ? mapList[levelNum].DisplayName() : mapList[levelNum].fileName.GetChars();
 
                                     if (EDUKE32_PREDICT_FALSE(pName == NULL))
                                     {
@@ -3767,7 +3768,7 @@ badindex:
                                         abort_after_error();
                                     }
 
-                                    quoteMgr.InitializeQuote(q, j == STR_MAPNAME ? g_mapInfo[levelNum].name : g_mapInfo[levelNum].filename);
+                                    quoteMgr.InitializeQuote(q, j == STR_MAPNAME ? mapList[levelNum].DisplayName() : mapList[levelNum].fileName.GetChars());
                                     break;
                                 }
                                 case STR_PLAYERNAME:

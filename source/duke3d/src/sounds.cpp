@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "al_midi.h"
 #include "openaudio.h"
 #include "z_music.h"
+#include "mapinfo.h"
 #include <atomic>
 
 BEGIN_DUKE_NS
@@ -147,15 +148,15 @@ void S_PlayLevelMusicOrNothing(unsigned int m)
 
     if (retval >= 0)
     {
-        Mus_Play(g_mapInfo[m].filename, g_mapInfo[m].musicfn, true);
+        Mus_Play(mapList[m].fileName, mapList[m].music, true);
         S_SetMusicIndex(m);
     }
 }
 
 int S_TryPlaySpecialMusic(unsigned int m)
 {
-    char const * musicfn = g_mapInfo[m].musicfn;
-    if (musicfn != NULL)
+    auto &musicfn = mapList[m].music;
+    if (musicfn.IsNotEmpty())
     {
         if (!Mus_Play(nullptr, musicfn, true))
         {

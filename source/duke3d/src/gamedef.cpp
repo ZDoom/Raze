@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_argv.h"
 #include "menu/menu.h"
 #include "stringtable.h"
+#include "mapinfo.h"
 
 void C_CON_SetButtonAlias(int num, const char* text);
 void C_CON_ClearButtonAlias(int num);
@@ -2029,10 +2030,7 @@ void C_DefineMusic(int volumeNum, int levelNum, const char *fileName)
     if (strcmp(fileName, "/.") == 0)
         return;
 
-    map_t *const pMapInfo = &g_mapInfo[(MAXLEVELS*volumeNum)+levelNum];
-
-    Xfree(pMapInfo->musicfn);
-    pMapInfo->musicfn = dup_filename(fileName);
+    mapList[(MAXLEVELS * volumeNum) + levelNum].music = fileName;
 }
 
 void C_DefineVolumeFlags(int32_t vol, int32_t flags)
@@ -2084,12 +2082,12 @@ void C_UndefineLevel(int32_t vol, int32_t lev)
     Bassert((unsigned)vol < MAXVOLUMES);
     Bassert((unsigned)lev < MAXLEVELS);
 
-    map_t *const map = &g_mapInfo[(MAXLEVELS*vol)+lev];
+    auto& gmap = mapList[(MAXLEVELS * vol) + lev];
 
-    DO_FREE_AND_NULL(map->filename);
-    DO_FREE_AND_NULL(map->name);
-    map->partime = 0;
-    map->designertime = 0;
+    gmap.fileName = "";
+    gmap.name = "";
+    gmap.parTime = 0;
+    gmap.designerTime = 0;
 }
 
 LUNATIC_EXTERN int32_t C_SetDefName(const char *name)
@@ -5174,16 +5172,11 @@ repeatcase:
 
             Bcorrectfilename(tempbuf,0);
 
-            if (g_mapInfo[j *MAXLEVELS+k].filename == NULL)
-                g_mapInfo[j *MAXLEVELS+k].filename = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
-            else if ((Bstrlen(tempbuf)+1) > sizeof(g_mapInfo[j*MAXLEVELS+k].filename))
-                g_mapInfo[j *MAXLEVELS+k].filename = (char *)Xrealloc(g_mapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
-
-            Bstrcpy(g_mapInfo[j*MAXLEVELS+k].filename,tempbuf);
+            mapList[j * MAXLEVELS + k].fileName = tempbuf;
 
             C_SkipComments();
 
-            g_mapInfo[j *MAXLEVELS+k].partime =
+            mapList[j *MAXLEVELS+k].parTime =
                 (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
                 (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
@@ -5193,7 +5186,7 @@ repeatcase:
             // cheap hack, 0.99 doesn't have the 3D Realms time
             if (*(textptr+2) == ':')
             {
-                g_mapInfo[j *MAXLEVELS+k].designertime =
+                mapList[j *MAXLEVELS+k].designerTime =
                     (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
                     (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
@@ -5220,14 +5213,7 @@ repeatcase:
 
             tempbuf[i] = '\0';
 
-            if (g_mapInfo[j*MAXLEVELS+k].name == NULL)
-                g_mapInfo[j*MAXLEVELS+k].name = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
-            else if ((Bstrlen(tempbuf)+1) > sizeof(g_mapInfo[j*MAXLEVELS+k].name))
-                g_mapInfo[j *MAXLEVELS+k].name = (char *)Xrealloc(g_mapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
-
-            /*         initprintf("level name string len: %d\n",Bstrlen(tempbuf)); */
-
-            Bstrcpy(g_mapInfo[j*MAXLEVELS+k].name,tempbuf);
+            mapList[j * MAXLEVELS + k].SetName(tempbuf);
 
             continue;
 

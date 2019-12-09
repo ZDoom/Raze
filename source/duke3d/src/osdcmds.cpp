@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "savegame.h"
 #include "sbar.h"
+#include "mapinfo.h"
 
 BEGIN_DUKE_NS
 
@@ -59,7 +60,7 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
     if (volume < 0 || level < 0)
         return OSDCMD_SHOWHELP;
 
-    if (level > MAXLEVELS || g_mapInfo[volume * MAXLEVELS + level].filename == NULL)
+    if (level > MAXLEVELS || mapList[volume * MAXLEVELS + level].fileName.IsEmpty())
     {
         OSD_Printf("changelevel: no map defined for episode %d level %d\n", volume + 1, level + 1);
         return OSDCMD_SHOWHELP;

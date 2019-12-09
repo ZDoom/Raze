@@ -26,9 +26,13 @@
 #include "menu.h"
 #include "gstrings.h"
 #include "quotemgr.h"
+#include "mapinfo.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
+
+MapRecord mapList[512];	// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
+MapRecord *currentLevel;	
 
 void C_CON_SetAliases();
 InputState inputState;

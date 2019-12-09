@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "input.h"
 #include "gamecvars.h"
+#include "mapinfo.h"
 
 #include "enet.h"
 #include "m_crc32.h"
@@ -2037,7 +2038,7 @@ static void Net_ReceiveMapVoteInitiate(uint8_t *pbuf)
     vote_map     = pendingnewgame.level_number;
 
     Bsprintf(tempbuf, GStrings("votemap"), g_player[voting].user_name,
-             g_mapInfo[(uint8_t)(vote_episode * MAXLEVELS + vote_map)].name, vote_episode + 1, vote_map + 1);
+             mapList[(uint8_t)(vote_episode * MAXLEVELS + vote_map)].DisplayName(), vote_episode + 1, vote_map + 1);
     G_AddUserQuote(tempbuf);
 
     strcpy(tempbuf, GStrings("TXT_PRESSF1_F2"));

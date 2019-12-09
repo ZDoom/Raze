@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "osdcmds.h"
+#include "mapinfo.h"
 
 BEGIN_DUKE_NS
 
@@ -555,7 +556,7 @@ void G_DoCheats(void)
                     int32_t const volnume = ud.m_volume_number, levnume = m_level_number;
 
                     if ((!VOLUMEONE || volnume == 0) && (unsigned)volnume < (unsigned)g_volumeCnt &&
-                        (unsigned)levnume < MAXLEVELS && g_mapInfo[volnume*MAXLEVELS + levnume].filename != NULL)
+                        (unsigned)levnume < MAXLEVELS && mapList[volnume*MAXLEVELS + levnume].fileName.IsNotEmpty())
                     {
                         ud.volume_number = volnume;
                         ud.level_number = levnume;

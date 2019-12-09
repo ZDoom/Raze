@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "filesystem/filesystem.h"
 #include "statistics.h"
 #include "menu/menu.h"
+#include "mapinfo.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
@@ -4814,7 +4815,8 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
             return -1;
     }
 
-    return S_DefineAudioIfSupported(&g_mapInfo[sel].musicfn, name);
+    mapList[sel].music = name;
+    return 0;
 }
 
 static int parsedefinitions_game(scriptfile *, int);
@@ -5389,10 +5391,6 @@ static void G_Cleanup(void)
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
     {
-        Xfree(g_mapInfo[i].name);
-        Xfree(g_mapInfo[i].filename);
-        Xfree(g_mapInfo[i].musicfn);
-
         G_FreeMapState(i);
     }
 
