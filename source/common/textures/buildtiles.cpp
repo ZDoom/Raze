@@ -556,12 +556,15 @@ void artClearMapArt(void)
 
 //==========================================================================
 //
-// Load map specfici ART
+// Load map specficied ART
 //
 //==========================================================================
+static FString currentMapArt;
 
 void artSetupMapArt(const char* filename)
 {
+	if (currentMapArt.CompareNoCase(filename)) return;
+	currentMapArt = filename;
 	artClearMapArt();
 
 	FStringf firstname("%s_00.art", filename);

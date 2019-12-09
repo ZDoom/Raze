@@ -1,4 +1,4 @@
-﻿//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "filesystem/filesystem.h"
 #include "statistics.h"
 #include "c_dispatch.h"
+#include "mapinfo.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
@@ -6366,8 +6367,8 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
         if (sel < 0)
             return -1;
     }
-
-    return S_DefineAudioIfSupported(&g_mapInfo[sel].musicfn, name);
+	mapList[sel].music = name;
+	return 0;
 }
 
 static int parsedefinitions_game(scriptfile *, int);
@@ -6798,10 +6799,6 @@ static void G_Cleanup(void)
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
     {
-        Bfree(g_mapInfo[i].name);
-        Bfree(g_mapInfo[i].filename);
-        Bfree(g_mapInfo[i].musicfn);
-
         G_FreeMapState(i);
     }
 

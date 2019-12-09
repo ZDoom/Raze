@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mdsprite.h"
 #include "gamecvars.h"
 #include "menu/menu.h"
+#include "mapinfo.h"
 
 BEGIN_RR_NS
 
@@ -175,7 +176,7 @@ static void G_ShowScores(void)
     if (g_mostConcurrentPlayers > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
         gametext_center(SCORESHEETOFFSET+58+2, GStrings("Multiplayer Totals"));
-        gametext_center(SCORESHEETOFFSET+58+10, g_mapInfo[G_LastMapInfoIndex()].name);
+        gametext_center(SCORESHEETOFFSET+58+10, mapList[G_LastMapInfoIndex()].DisplayName());
 
         t = 0;
         minitext(70, SCORESHEETOFFSET+80, GStrings("Name"), 8, 2+8+16+ROTATESPRITE_MAX);
@@ -994,7 +995,7 @@ void G_DisplayRest(int32_t smoothratio)
                 {
                     if (!G_HaveUserMap())
                         minitext(5, a+6, GStrings.localize(gVolumeNames[ud.volume_number]), 0, 2+8+16+256);
-                    minitext(5, a+6+6, g_mapInfo[ud.volume_number*MAXLEVELS + ud.level_number].name, 0, 2+8+16+256);
+                    minitext(5, a+6+6, mapList[ud.volume_number*MAXLEVELS + ud.level_number].DisplayName(), 0, 2+8+16+256);
                 }
             }
         }
@@ -1024,12 +1025,12 @@ void G_DisplayRest(int32_t smoothratio)
         else if (g_levelTextTime < 5)
             o |= 1;
 
-        if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
+        if (mapList[(ud.volume_number*MAXLEVELS) + ud.level_number].name.IsNotEmpty())
         {
             char const * const fn = currentboardfilename[0] != 0 &&
                 ud.volume_number == 0 && ud.level_number == 7
                     ? currentboardfilename
-                    : g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name;
+                    : mapList[(ud.volume_number*MAXLEVELS) + ud.level_number].DisplayName();
 
             menutext_(160<<16, (90+16+8)<<16, -g_levelTextTime+22/*quotepulseshade*/, fn, o, TEXT_XCENTER);
         }
@@ -1118,7 +1119,7 @@ void G_DisplayRest(int32_t smoothratio)
     {
         Bsprintf(tempbuf, "%s^00 has called a vote for map", g_player[voting].user_name);
         gametext_center(40, tempbuf);
-        Bsprintf(tempbuf, "%s (E%dL%d)", g_mapInfo[vote_episode*MAXLEVELS + vote_map].name, vote_episode+1, vote_map+1);
+        Bsprintf(tempbuf, "%s (E%dL%d)", mapList[vote_episode*MAXLEVELS + vote_map].DisplayName(), vote_episode+1, vote_map+1);
         gametext_center(48, tempbuf);
         gametext_center(70, "Press F1 to Accept, F2 to Decline");
     }
@@ -1911,7 +1912,7 @@ static void G_DisplayMPResultsScreen(void)
     if (!RR && PLUTOPAK)   // JBF 20030804
         rotatesprite_fs((260)<<16, 36<<16, 65536L, 0, PLUTOPAKSPRITE+2, 0, 0, 2+8);
     gametext_center(58+(RR ? 0 : 2), GStrings("Multiplayer Totals"));
-    gametext_center(58+10, g_mapInfo[G_LastMapInfoIndex()].name);
+    gametext_center(58+10, mapList[G_LastMapInfoIndex()].DisplayName());
 
     gametext_center_shade(RR ? 175 : 165, GStrings("Presskey"), quotepulseshade);
 
@@ -1979,11 +1980,11 @@ static int32_t G_PrintTime_ClockPad(void)
     clockpad = max(clockpad, ij);
     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
     {
-        for (ii=g_mapInfo[G_LastMapInfoIndex()].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
+        for (ii=mapList[G_LastMapInfoIndex()].parTime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
         clockpad = max(clockpad, ij);
-        if (g_mapInfo[G_LastMapInfoIndex()].designertime)
+        if (mapList[G_LastMapInfoIndex()].designerTime)
         {
-            for (ii=g_mapInfo[G_LastMapInfoIndex()].designertime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
+            for (ii=mapList[G_LastMapInfoIndex()].designerTime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
             clockpad = max(clockpad, ij);
         }
     }
@@ -2012,13 +2013,13 @@ const char* G_PrintParTime(void)
 {
     if (ud.last_level < 1)
         return "<invalid>";
-    return G_PrintTime2(g_mapInfo[G_LastMapInfoIndex()].partime);
+    return G_PrintTime2(mapList[G_LastMapInfoIndex()].parTime);
 }
 const char* G_PrintDesignerTime(void)
 {
     if (ud.last_level < 1)
         return "<invalid>";
-    return G_PrintTime2(g_mapInfo[G_LastMapInfoIndex()].designertime);
+    return G_PrintTime2(mapList[G_LastMapInfoIndex()].designerTime);
 }
 const char* G_PrintBestTime(void)
 {
@@ -2043,17 +2044,17 @@ void G_BonusScreen(int32_t bonusonly)
     }
     else
     {
-        lastmapname = g_mapInfo[G_LastMapInfoIndex()].name;
-        if (!lastmapname) // this isn't right but it's better than no name at all
-            lastmapname = g_mapInfo[G_LastMapInfoIndex()].name;
+        lastmapname = mapList[G_LastMapInfoIndex()].DisplayName();
+        if (!lastmapname || !*lastmapname) // this isn't right but it's better than no name at all
+            lastmapname = mapList[G_LastMapInfoIndex()].fileName;
     }
 
     if (RR)
     {
         if ((g_lastLevel && ud.volume_number == 2) || g_vixenLevel)
-            lastmapname = "CLOSE ENCOUNTERS";
-        else if (g_turdLevel)
-            lastmapname = "SMELTING PLANT";
+				lastmapname = GStrings("TXT_CLOSEENCOUNTERS");
+			else if (g_turdLevel)
+				lastmapname = GStrings("SMELTIN' PLANT");
     }
 
 
@@ -2256,7 +2257,7 @@ void G_BonusScreen(int32_t bonusonly)
                     yy+= yystep;
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                     {
-                        if (g_mapInfo[G_LastMapInfoIndex()].partime)
+                        if (mapList[G_LastMapInfoIndex()].parTime)
                         {
                             if (!RR)
                                 gametext(10, yy+9, GStrings("TXT_ParTime"));
@@ -2264,7 +2265,7 @@ void G_BonusScreen(int32_t bonusonly)
                                 menutext(30, yy, GStrings("TXT_ParTime"));
                             yy+=yystep;
                         }
-                        if (g_mapInfo[G_LastMapInfoIndex()].designertime)
+                        if (mapList[G_LastMapInfoIndex()].designerTime)
                         {
                             // EDuke 2.0 / NAM source suggests "Green Beret's Time:"
                             if (DUKE)
@@ -2320,7 +2321,7 @@ void G_BonusScreen(int32_t bonusonly)
 
                         if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                         {
-                            if (g_mapInfo[G_LastMapInfoIndex()].partime)
+                            if (mapList[G_LastMapInfoIndex()].parTime)
                             {
                                 G_PrintParTime();
                                 if (!RR)
@@ -2329,7 +2330,7 @@ void G_BonusScreen(int32_t bonusonly)
                                     menutext(191, yy, tempbuf);
                                 yy+=yystep;
                             }
-                            if (g_mapInfo[G_LastMapInfoIndex()].designertime)
+                            if (mapList[G_LastMapInfoIndex()].designerTime)
                             {
                                 G_PrintDesignerTime();
                                 if (DUKE)
@@ -2623,9 +2624,9 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     }
     else
     {
-        lastmapname = g_mapInfo[G_LastMapInfoIndex()].name;
-        if (!lastmapname) // this isn't right but it's better than no name at all
-            lastmapname = g_mapInfo[G_LastMapInfoIndex()].name;
+        lastmapname = mapList[G_LastMapInfoIndex()].DisplayName();
+        if (!lastmapname || !*lastmapname) // this isn't right but it's better than no name at all
+            lastmapname = mapList[G_LastMapInfoIndex()].fileName;
     }
 
     if ((g_lastLevel && ud.volume_number == 2) || g_vixenLevel)
@@ -2826,12 +2827,12 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                     yy+= yystep;
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                     {
-                        if (g_mapInfo[G_LastMapInfoIndex()].partime)
+                        if (mapList[G_LastMapInfoIndex()].parTime)
                         {
                             menutext(30, yy, GStrings("TXT_PARTIME"));
                             yy+=yystep;
                         }
-                        if (g_mapInfo[G_LastMapInfoIndex()].designertime)
+                        if (mapList[G_LastMapInfoIndex()].designerTime)
                         {
                             menutext(30, yy, GStrings("TXT_XTRTIME"));
                             yy+=yystep;
@@ -2869,13 +2870,14 @@ void G_BonusScreenRRRA(int32_t bonusonly)
 
                         if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                         {
-                            if (g_mapInfo[G_LastMapInfoIndex()].partime)
+                            if (mapList[G_LastMapInfoIndex()].parTime)
                             {
                                 G_PrintParTime();
                                 menutext(191, yy, tempbuf);
                                 yy+=yystep;
                             }
-                            if (g_mapInfo[G_LastMapInfoIndex()].designertime)
+                            if (mapList[G_LastMapInfoIndex()].designerT
+								ime)
                             {
                                 G_PrintDesignerTime();
                                 menutext(191, yy, tempbuf);

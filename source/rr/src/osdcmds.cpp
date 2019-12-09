@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdcmds.h"
 #include "savegame.h"
 #include "sbar.h"
+#include "mapinfo.h"
 
 BEGIN_RR_NS
 
@@ -68,7 +69,7 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
         }
     }
 
-    if (level > MAXLEVELS || g_mapInfo[volume *MAXLEVELS+level].filename == NULL)
+    if (level > MAXLEVELS || mapList *MAXLEVELS+level].fileName.IsEmpty)
     {
         OSD_Printf("changelevel: invalid level number\n");
         return OSDCMD_SHOWHELP;

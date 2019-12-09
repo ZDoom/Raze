@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "version.h"
 #include "z_music.h"
+#include "mapinfo.h"
 
 #include "savegamehelp.h"
 BEGIN_RR_NS
@@ -273,17 +274,17 @@ int32_t G_LoadPlayer(const char *path)
     Bmemcpy(boardfilename, h.boardfn, sizeof(boardfilename));
 
     int const mapIdx = h.volnum*MAXLEVELS + h.levnum;
-
+	char workbuffer[BMAX_PATH];
     if (boardfilename[0])
-        Bstrcpy(currentboardfilename, boardfilename);
-    else if (g_mapInfo[mapIdx].filename)
-        Bstrcpy(currentboardfilename, g_mapInfo[mapIdx].filename);
+        Bstrcpy(workbuffer, boardfilename);
+    else
+        Bstrcpy(workbuffer, mapList[mapIdx].fileName);
 
-    if (currentboardfilename[0])
+    if (workbuffer[0])
     {
-        artSetupMapArt(currentboardfilename);
-        append_ext_UNSAFE(currentboardfilename, ".mhk");
-        engineLoadMHK(currentboardfilename);
+        artSetupMapArt(workbuffer);
+        append_ext_UNSAFE(workbuffer, ".mhk");
+        engineLoadMHK(workbuffer);
     }
 
     Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
@@ -1169,8 +1170,8 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
 		auto fw = WriteSavegameChunk("header.dat");
 		fw->Write(&h, sizeof(savehead_t));
 	
-		auto& mi = g_mapInfo[(MAXLEVELS * ud.volume_number) + ud.level_number];
-		G_WriteSaveHeader(name, mi.filename, mi.name);
+		auto& mi = mapList[(MAXLEVELS * ud.volume_number) + ud.level_number];
+		G_WriteSaveHeader(name, mi.fileName, mi.DisplayName());
 	}
     else
     {

@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdline.h"
 #include "statistics.h"
 #include "menu/menu.h"
+#include "mapinfo.h"
+#include "cmdlib.h"
 
 BEGIN_RR_NS
 
@@ -504,14 +506,13 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
         else if (RR && g_lastLevel)
         {
-            menutext_center(textY,GStrings("ENTERIN"));
+            menutext_center(textY,GStrings("TXT_ENTERIN"));
             menutext_center(textY+16+8,GStrings("TXT_CLOSEENCOUNTERS"));
         }
         else
         {
             menutext_center(textY, RR ? GStrings("TXT_ENTERIN") : GStrings("TXT_LOADING"));
-            if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
-                menutext_center(textY+16+8,g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
+            menutext_center(textY+16+8,mapList[(ud.volume_number*MAXLEVELS) + ud.level_number].DisplayName());
         }
 
 #ifndef EDUKE32_TOUCH_DEVICES
@@ -2179,10 +2180,7 @@ int G_FindLevelByFile(const char *fileName)
 
         for (bssize_t levelNum = 0; levelNum < MAXLEVELS; levelNum++)
         {
-            if (g_mapInfo[volOffset + levelNum].filename == NULL)
-                continue;
-
-            if (!Bstrcasecmp(fileName, g_mapInfo[volOffset + levelNum].filename))
+             if (!mapList[volOffset + levelNum].fileName.CompareNoCase(fileName))
                 return volOffset + levelNum;
         }
     }
@@ -2249,20 +2247,18 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
 {
     char *p;
     char const *exts[] = {
-#ifdef HAVE_FLAC
         "flac",
-#endif
-#ifdef HAVE_VORBIS
         "ogg",
-#endif
-#ifdef HAVE_XMP
+        "mp3",
         "xm",
         "mod",
         "it",
         "s3m",
         "mtm",
-#endif
-        "mid"
+        "mid",
+        "hmp",
+        "hmi",
+        "xmi"
     };
 
     Bstrncpy(nameBuf, fileName, BMAX_PATH);
@@ -2279,14 +2275,14 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
     {
         Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
 
-        if (fileSystem.FileExists(nameBuf))
-        {
-            realloc_copy(&g_mapInfo[levelNum].musicfn, nameBuf);
+        if (FileExists(nameBuf))
+		{
+            mapList[levelNum].music = nameBuf;
             return;
         }
     }
 
-    realloc_copy(&g_mapInfo[levelNum].musicfn, "dethtoll.mid");
+    mapList[levelNum].music = "dethtoll.mid";
 }
 
 int G_EnterLevel(int gameMode)
@@ -2342,22 +2338,19 @@ int G_EnterLevel(int gameMode)
     }
 
     mii = (ud.volume_number*MAXLEVELS)+ud.level_number;
+	auto &mi = mapList[mii];
 
-    if (g_mapInfo[mii].name == NULL || g_mapInfo[mii].filename == NULL)
+    if ( mi.name.IsEmpty() || mi.fileName.IsEmpty())
     {
         if (RR && g_lastLevel)
         {
-            if (g_mapInfo[mii].filename == NULL)
-                g_mapInfo[mii].filename = (char *)Xcalloc(BMAX_PATH, sizeof(uint8_t));
-            if (g_mapInfo[mii].name == NULL)
-                g_mapInfo[mii].name = Xstrdup("CLOSE ENCOUNTERS");
+			// FIXME: Initialize this properly in the data structures!
+			mi.fileName = "endgame.map";
+			mi.name = "$TXT_CLOSEENCOUNTERS";
         }
         else if (Menu_HaveUserMap())
         {
-            if (g_mapInfo[mii].filename == NULL)
-                g_mapInfo[mii].filename = (char *)Xcalloc(BMAX_PATH, sizeof(uint8_t));
-            if (g_mapInfo[mii].name == NULL)
-                g_mapInfo[mii].name = Xstrdup("User Map");
+			mi.name = "$TXT_USERMAP";
         }
         else
         {
@@ -2378,18 +2371,7 @@ int G_EnterLevel(int gameMode)
     DukePlayer_t *const pPlayer = g_player[0].ps;
     int16_t lbang;
 
-    if (RR && g_lastLevel)
-    {
-        if (engineLoadBoard("endgame.map", 0, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
-        {
-            OSD_Printf(OSD_ERROR "Map \"endgame.map\" not found or invalid map version!\n");
-            return 1;
-        }
-
-        G_LoadMapHack(levelName, "endgame.map");
-        G_SetupFilenameBasedMusic(levelName, "endgame.map", m_level_number);
-    }
-    else if (!VOLUMEONE && Menu_HaveUserMap())
+    if (!VOLUMEONE && Menu_HaveUserMap())
     {
         if (engineLoadBoard(boardfilename, 0, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
         {
@@ -2401,15 +2383,15 @@ int G_EnterLevel(int gameMode)
 		G_LoadMapHack(levelName, boardfilename);
         G_SetupFilenameBasedMusic(levelName, boardfilename, m_level_number);
     }
-    else if (engineLoadBoard(g_mapInfo[mii].filename, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
+    else if (engineLoadBoard(mi.fileName, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
     {
-        OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", g_mapInfo[mii].filename);
+        OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", mi.fileName.GetChars());
         return 1;
     }
     else
     {
-		STAT_NewLevel(g_mapInfo[mii].filename);
-		G_LoadMapHack(levelName, g_mapInfo[mii].filename);
+		STAT_NewLevel(mi.fileName);
+		G_LoadMapHack(levelName, mi.fileName);
     }
 
     if (RR && !RRRA && ud.volume_number == 1 && ud.level_number == 1)
@@ -2444,7 +2426,7 @@ int G_EnterLevel(int gameMode)
     G_AlignWarpElevators();
     resetpspritevars(gameMode);
 
-    ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : g_mapInfo[mii].filename, g_loadedMapHack.md4);
+    ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : mi.fileName.GetChars(), g_loadedMapHack.md4);
 
     // G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     G_CacheMapData();
@@ -2452,9 +2434,9 @@ int G_EnterLevel(int gameMode)
 
     if (ud.recstat != 2)
     {
-        if (g_mapInfo[g_musicIndex].musicfn == NULL ||
-            g_mapInfo[mii].musicfn == NULL || // intentional, to pass control further while avoiding the strcmp on null
-            strcmp(g_mapInfo[g_musicIndex].musicfn, g_mapInfo[mii].musicfn) ||
+        if (mapList[g_musicIndex].music.IsEmpty() ||
+            mi.music.IsEmpty() ||
+            mi.music.CompareNoCase(mapList[g_musicIndex].music) ||
             g_musicSize == 0 ||
             ud.last_level == -1)
         {
@@ -2545,7 +2527,7 @@ int G_EnterLevel(int gameMode)
     else
     {
         OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
-                   g_mapInfo[mii].name);
+                   mapList[mii].DisplayName());
     }
 
     g_restorePalette = -1;

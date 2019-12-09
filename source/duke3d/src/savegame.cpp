@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_DUKE_NS
 
 static OutputFileCounter savecounter;
-char previousboardfilename[BMAX_PATH];
 
 // For storing pointers in files.
 //  back_p==0: ptr -> "small int"
@@ -221,6 +220,8 @@ static int different_user_map;
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(FSaveGameNode *sv)
 {
+	char workbuffer[BMAX_PATH];
+	
     if (sv->bIsExt)
     {
         int volume = -1;
@@ -318,19 +319,17 @@ int32_t G_LoadPlayer(FSaveGameNode *sv)
             int const mapIdx = volume*MAXLEVELS + level;
 
             if (boardfilename[0])
-                strcpy(currentboardfilename, boardfilename);
+                strcpy(workbuffer, boardfilename);
             else if (mapList[mapIdx].fileName.IsNotEmpty())
-                strcpy(currentboardfilename, mapList[mapIdx].fileName);
+                strcpy(workbuffer, mapList[mapIdx].fileName);
 
 
-            if (currentboardfilename[0])
+            if (workbuffer[0])
             {
                 // only setup art if map differs from previous
-                if (!previousboardfilename[0] || Bstrcmp(previousboardfilename, currentboardfilename))
-                    artSetupMapArt(currentboardfilename);
-                Bstrcpy(previousboardfilename, currentboardfilename);
-                append_ext_UNSAFE(currentboardfilename, ".mhk");
-                engineLoadMHK(currentboardfilename);
+                artSetupMapArt(workbuffer);
+                append_ext_UNSAFE(workbuffer, ".mhk");
+                engineLoadMHK(workbuffer);
             }
 
             currentboardfilename[0] = '\0';
@@ -519,20 +518,19 @@ int32_t G_LoadPlayer(FSaveGameNode *sv)
 
     int const mapIdx = h.volnum*MAXLEVELS + h.levnum;
 
-    if (boardfilename[0])
-        strcpy(currentboardfilename, boardfilename);
-    else if (mapList[mapIdx].fileName.IsNotEmpty())
-        strcpy(currentboardfilename, mapList[mapIdx].fileName);
+	if (boardfilename[0])
+		strcpy(workbuffer, boardfilename);
+	else if (mapList[mapIdx].fileName.IsNotEmpty())
+		strcpy(workbuffer, mapList[mapIdx].fileName);
 
-    if (currentboardfilename[0])
-    {
-        // only setup art if map differs from previous
-        if (!previousboardfilename[0] || Bstrcmp(previousboardfilename, currentboardfilename))
-            artSetupMapArt(currentboardfilename);
-        Bstrcpy(previousboardfilename, currentboardfilename);
-        append_ext_UNSAFE(currentboardfilename, ".mhk");
-        engineLoadMHK(currentboardfilename);
-    }
+
+	if (workbuffer[0])
+	{
+		// only setup art if map differs from previous
+		artSetupMapArt(workbuffer);
+		append_ext_UNSAFE(workbuffer, ".mhk");
+		engineLoadMHK(workbuffer);
+	}
 
     Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
 

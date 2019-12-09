@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "printf.h"
 #include "menu/menu.h"
 #include "stringtable.h"
+#include "mapinfo.h"
 
 BEGIN_RR_NS
 
@@ -886,10 +887,7 @@ void C_DefineMusic(int volumeNum, int levelNum, const char *fileName)
     Bassert((unsigned)volumeNum < MAXVOLUMES+1);
     Bassert((unsigned)levelNum < MAXLEVELS);
 
-    map_t *const pMapInfo = &g_mapInfo[(MAXLEVELS*volumeNum)+levelNum];
-
-    Bfree(pMapInfo->musicfn);
-    pMapInfo->musicfn = dup_filename(fileName);
+    mapList[(MAXLEVELS*volumeNum)+levelNum].music = fileName;
 }
 
 void C_DefineVolumeFlags(int32_t vol, int32_t flags)
@@ -1873,16 +1871,11 @@ static int32_t C_ParseCommand(int32_t loop)
 
             Bcorrectfilename(tempbuf,0);
 
-            if (g_mapInfo[j *MAXLEVELS+k].filename == NULL)
-                g_mapInfo[j *MAXLEVELS+k].filename = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
-            else if ((Bstrlen(tempbuf)+1) > sizeof(g_mapInfo[j*MAXLEVELS+k].filename))
-                g_mapInfo[j *MAXLEVELS+k].filename = (char *)Xrealloc(g_mapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
-
-            Bstrcpy(g_mapInfo[j*MAXLEVELS+k].filename,tempbuf);
+			mapList[j *MAXLEVELS+k].fileName = tempbuf;
 
             C_SkipComments();
 
-            g_mapInfo[j *MAXLEVELS+k].partime =
+            mapList[j *MAXLEVELS+k].parTime =
                 (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
                 (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
@@ -1892,7 +1885,7 @@ static int32_t C_ParseCommand(int32_t loop)
             // cheap hack, 0.99 doesn't have the 3D Realms time
             if (*(textptr+2) == ':')
             {
-                g_mapInfo[j *MAXLEVELS+k].designertime =
+                mapList[j *MAXLEVELS+k].designerTime =
                     (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
                     (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
@@ -1919,14 +1912,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
             tempbuf[i] = '\0';
 
-            if (g_mapInfo[j*MAXLEVELS+k].name == NULL)
-                g_mapInfo[j*MAXLEVELS+k].name = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
-            else if ((Bstrlen(tempbuf)+1) > sizeof(g_mapInfo[j*MAXLEVELS+k].name))
-                g_mapInfo[j *MAXLEVELS+k].name = (char *)Xrealloc(g_mapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
-
-            /*         initprintf("level name string len: %d\n",Bstrlen(tempbuf)); */
-
-            Bstrcpy(g_mapInfo[j*MAXLEVELS+k].name,tempbuf);
+			mapList[j *MAXLEVELS+k].name = tempbuf;
 
             continue;
 
