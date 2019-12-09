@@ -5925,8 +5925,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_STAR] >= DamageData[WPN_STAR].max_ammo)
                 break;
 
-            sprintf(ds, sw_darts ? "Darts" : "Shurikens");
-            PutStringInfo(Player+pnum, DamageData[WPN_STAR].weapon_name);
+            PutStringInfo(Player+pnum, sw_darts? GStrings("TXTS_DARTS") : quoteMgr.GetQuote(QUOTE_WPNSHURIKEN));
             PlayerUpdateAmmo(pp, WPN_STAR, DamageData[WPN_STAR].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -5953,7 +5952,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_MINE] >= DamageData[WPN_MINE].max_ammo)
                 break;
             //sprintf(ds,"Sticky Bombs");
-            PutStringInfo(Player+pnum, DamageData[WPN_MINE].weapon_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNSTICKY));
             PlayerUpdateAmmo(pp, WPN_MINE, DamageData[WPN_MINE].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -5982,7 +5981,7 @@ KeyMain:
             if (TEST(pp->Flags, PF_TWO_UZI) && pp->WpnAmmo[WPN_UZI] >= DamageData[WPN_UZI].max_ammo)
                 break;
             //sprintf(ds,"UZI Submachine Gun");
-            PutStringInfo(Player+pnum, DamageData[WPN_UZI].weapon_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNUZI));
 //            pp->WpnAmmo[WPN_UZI] += 50;
             PlayerUpdateAmmo(pp, WPN_UZI, DamageData[WPN_UZI].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -6020,7 +6019,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_UZI] >= DamageData[WPN_UZI].max_ammo)
                 break;
             //sprintf(ds,"UZI Clip");
-            PutStringInfo(Player+pnum, DamageData[WPN_UZI].ammo_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOUZI));
             PlayerUpdateAmmo(pp, WPN_UZI, DamageData[WPN_UZI].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -6038,7 +6037,7 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_MICRO)) && pp->WpnAmmo[WPN_MICRO] >= DamageData[WPN_MICRO].max_ammo)
                 break;
             //sprintf(ds,"Missile Launcher");
-            PutStringInfo(Player+pnum, DamageData[WPN_MICRO].weapon_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNLAUNCH));
 //            pp->WpnAmmo[WPN_MICRO] += 5;
             PlayerUpdateAmmo(pp, WPN_MICRO, DamageData[WPN_MICRO].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -6061,7 +6060,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_MICRO] >= DamageData[WPN_MICRO].max_ammo)
                 break;
             //sprintf(ds,"Missiles");
-            PutStringInfo(Player+pnum, DamageData[WPN_MICRO].ammo_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOLAUNCH));
             PlayerUpdateAmmo(pp, WPN_MICRO, DamageData[WPN_MICRO].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -6073,7 +6072,7 @@ KeyMain:
             if (pp->WpnRocketNuke != 1)
             {
                 //sprintf(ds,"Nuclear Warhead");
-                PutStringInfo(Player+pnum, DamageData[DMG_NUCLEAR_EXP].weapon_name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNNUKE));
                 pp->WpnRocketNuke = DamageData[DMG_NUCLEAR_EXP].weapon_pickup;
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
@@ -6106,7 +6105,7 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_GRENADE)) && pp->WpnAmmo[WPN_GRENADE] >= DamageData[WPN_GRENADE].max_ammo)
                 break;
             //sprintf(ds,"Grenade Launcher");
-            PutStringInfo(Player+pnum, DamageData[WPN_GRENADE].weapon_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNGRENADE));
 //            pp->WpnAmmo[WPN_GRENADE] += 6;
             PlayerUpdateAmmo(pp, WPN_GRENADE, DamageData[WPN_GRENADE].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -6132,7 +6131,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_GRENADE] >= DamageData[WPN_GRENADE].max_ammo)
                 break;
             //sprintf(ds,"Grenade Shells");
-            PutStringInfo(Player+pnum, DamageData[WPN_GRENADE].ammo_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOGRENADE));
             PlayerUpdateAmmo(pp, WPN_GRENADE, DamageData[WPN_GRENADE].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -6177,7 +6176,7 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_RAIL)) && pp->WpnAmmo[WPN_RAIL] >= DamageData[WPN_RAIL].max_ammo)
                 break;
             //sprintf(ds,"Rail Gun");
-            PutStringInfo(Player+pnum, DamageData[WPN_RAIL].weapon_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRAILGUN));
             PlayerUpdateAmmo(pp, WPN_RAIL, DamageData[WPN_RAIL].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -6210,7 +6209,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_RAIL] >= DamageData[WPN_RAIL].max_ammo)
                 break;
             //sprintf(ds,"Rail Gun Rods");
-            PutStringInfo(Player+pnum, DamageData[WPN_RAIL].ammo_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMORAILGUN));
             PlayerUpdateAmmo(pp, WPN_RAIL, DamageData[WPN_RAIL].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -6227,7 +6226,7 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_SHOTGUN)) && pp->WpnAmmo[WPN_SHOTGUN] >= DamageData[WPN_SHOTGUN].max_ammo)
                 break;
             //sprintf(ds,"Riot Gun");
-            PutStringInfo(Player+pnum, DamageData[WPN_SHOTGUN].weapon_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRIOT));
 //            pp->WpnAmmo[WPN_SHOTGUN] += 10;
             PlayerUpdateAmmo(pp, WPN_SHOTGUN, DamageData[WPN_SHOTGUN].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -6250,7 +6249,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_SHOTGUN] >= DamageData[WPN_SHOTGUN].max_ammo)
                 break;
             //sprintf(ds,"Shotshells");
-            PutStringInfo(Player+pnum, DamageData[WPN_SHOTGUN].ammo_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMORIOT));
             PlayerUpdateAmmo(pp, WPN_SHOTGUN, DamageData[WPN_SHOTGUN].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash on item pickup
             if (pp == Player+myconnectindex)
@@ -6294,7 +6293,7 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_HOTHEAD)) && pp->WpnAmmo[WPN_HOTHEAD] >= DamageData[WPN_HOTHEAD].max_ammo)
                 break;
             //sprintf(ds,"Guardian Head");
-            PutStringInfo(Player+pnum, DamageData[WPN_HOTHEAD].weapon_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNHEAD));
             PlayerUpdateAmmo(pp, WPN_HOTHEAD, DamageData[WPN_HOTHEAD].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -6321,7 +6320,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_HOTHEAD] >= DamageData[WPN_HOTHEAD].max_ammo)
                 break;
             //sprintf(ds,"Firebursts");
-            PutStringInfo(Player+pnum, DamageData[WPN_HOTHEAD].ammo_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMOHEAD));
             PlayerUpdateAmmo(pp, WPN_HOTHEAD, DamageData[WPN_HOTHEAD].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -6340,7 +6339,7 @@ KeyMain:
             if (TEST(pp->WpnFlags, BIT(WPN_HEART)) && pp->WpnAmmo[WPN_HEART] >= DamageData[WPN_HEART].max_ammo)
                 break;
             //sprintf(ds,"Ripper Heart");
-            PutStringInfo(Player+pnum, DamageData[WPN_HEART].weapon_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_WPNRIPPER));
             PlayerUpdateAmmo(pp, WPN_HEART, DamageData[WPN_HEART].weapon_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -6369,7 +6368,7 @@ KeyMain:
             if (pp->WpnAmmo[WPN_HEART] >= DamageData[WPN_HEART].max_ammo)
                 break;
             //sprintf(ds,"Deathcoils");
-            PutStringInfo(Player+pnum, DamageData[WPN_HEART].ammo_name);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMORIPPER));
             PlayerUpdateAmmo(pp, WPN_HEART, DamageData[WPN_HEART].ammo_pickup);
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
@@ -6410,7 +6409,7 @@ KeyMain:
             if (pp->WpnRocketHeat != 5)
             {
                 //sprintf(ds,"Heat Seeker Card");
-                PutStringInfo(Player+pnum, DamageData[DMG_NUCLEAR_EXP].ammo_name);
+                PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_AMMONUKE));
                 pp->WpnRocketHeat = DamageData[DMG_NUCLEAR_EXP].ammo_pickup;
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)

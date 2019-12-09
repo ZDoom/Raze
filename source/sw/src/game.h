@@ -886,8 +886,6 @@ typedef struct
     int16_t max_ammo;
     int16_t min_ammo;
     int16_t with_weapon;
-    const char *weapon_name;
-    const char *ammo_name;
     int16_t weapon_pickup;
     int16_t ammo_pickup;
 } DAMAGE_DATA, *DAMAGE_DATAp;
@@ -974,6 +972,34 @@ enum
     // 23+24 are reserved.
     QUOTE_COOKIE = 25,  
     QUOTE_INVENTORY = QUOTE_COOKIE + MAX_FORTUNES,
+    QUOTE_WPNFIST = QUOTE_INVENTORY + MAX_INVENTORY_Q,
+    QUOTE_WPNSWORD,
+    QUOTE_WPNSHURIKEN,
+    QUOTE_WPNSTICKY,
+    QUOTE_WPNUZI,
+    QUOTE_WPNLAUNCH,
+    QUOTE_WPNNUKE,
+    QUOTE_WPNGRENADE,
+    QUOTE_WPNRAILGUN,
+    QUOTE_WPNRIOT,
+    QUOTE_WPNHEAD,
+    QUOTE_WPNRIPPER,
+    // Here a gap of two needs to be inserted because the weapon array contains two bogus entries the parser can access.
+    // Not all ammo types here are used, but the entries must be reserved for the parser.
+    QUOTE_AMMOFIST = QUOTE_WPNRIPPER + 2,
+    QUOTE_AMMOSWORD,
+    QUOTE_AMMOSHURIKEN,
+    QUOTE_AMMOSTICKY,
+    QUOTE_AMMOUZI,
+    QUOTE_AMMOLAUNCH,
+    QUOTE_AMMONUKE,
+    QUOTE_AMMOGRENADE,
+    QUOTE_AMMORAILGUN,
+    QUOTE_AMMORIOT,
+    QUOTE_AMMOHEAD,
+    QUOTE_AMMORIPPER,
+    // Again, here a gap of two needs to be inserted because the weapon array contains two bogus entries the parser can access.
+
 };
 
 typedef struct

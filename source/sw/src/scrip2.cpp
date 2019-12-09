@@ -539,7 +539,6 @@ static int cm_transtok(const char *tok, const struct _tokset *set, const unsigne
 //   quit    "PRESS (Y) TO QUIT, (N) TO FIGHT ON."
 
 static LEVEL_INFO custommaps[MAX_LEVELS_REG];
-static char *customweaponname[2][MAX_WEAPONS];  // weapon, ammo
 
 #define WM_DAMAGE  1
 #define WM_WEAP   2
@@ -951,9 +950,7 @@ void LoadCustomInfoFromScript(const char *filename)
                 if (maxammo >= 0) DamageData[id].max_ammo = maxammo;
                 if (name)
                 {
-                    Bfree(customweaponname[0][id]);
-                    customweaponname[0][id] = strdup(name);
-                    DamageData[id].weapon_name = customweaponname[0][id];
+                    quoteMgr.InitializeQuote(QUOTE_WPNFIST + in, name);
                 }
                 if (wpickup >= 0) DamageData[id].weapon_pickup = wpickup;
             }
@@ -961,9 +958,7 @@ void LoadCustomInfoFromScript(const char *filename)
             {
                 if (ammo)
                 {
-                    Bfree(customweaponname[1][id]);
-                    customweaponname[1][id] = strdup(ammo);
-                    DamageData[id].ammo_name = customweaponname[1][id];
+                    quoteMgr.InitializeQuote(QUOTE_AMMOFIST + in, name);
                 }
                 if (pickup >= 0) DamageData[id].ammo_pickup = pickup;
             }

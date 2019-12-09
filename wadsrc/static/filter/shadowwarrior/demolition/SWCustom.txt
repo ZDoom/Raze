@@ -276,77 +276,77 @@ skill 4
 {
     name "No Pain, No Gain"
 }
-/*
+
 inventory 1
 {
-   name "$TXT_INV1"
+   name "$TXTS_INV1"
    amount 50
 }
 inventory 2
 {
-   name "$TXT_INV2"
+   name "$TXTS_INV2"
    amount 100
 }
 inventory 3
 {
-   name "$TXT_INV3"
+   name "$TXTS_INV3"
    amount 20
 }
 inventory 4
 {
-   name "$TXT_INV4"
+   name "$TXTS_INV4"
    amount 50
 }
 inventory 5
 {
-   name "$TXT_INV5"
+   name "$TXTS_INV5"
    amount 100
 }
 inventory 6
 {
-   name "$TXT_INV6"
+   name "$TXTS_INV6"
    amount 1
 }
 inventory 7
 {
-   name "$TXT_INV7"
+   name "$TXTS_INV7"
    amount 2
 }
 inventory 8
 {
-   name "$TXT_INV8"
+   name "$TXTS_INV8"
    amount 3
 }
 inventory 9
 {
-   name "$TXT_INV9"
+   name "$TXTS_INV9"
    amount 100
 }
 inventory 10
 {
-   name "$TXT_INV10"
+   name "$TXTS_INV10"
    amount 100
 }
 inventory 11
 {
-   name "$TXT_INV11"
+   name "$TXTS_INV11"
    amount 100
 }
 weapon 1
 {
-    name "Fists"
+    name "$TXTS_WEAP1"
     mindamage 10
     maxdamage 40
 }
 weapon 2
 {
-    name "Sword"
+    name "$TXTS_WEAP2"
     mindamage 50
     maxdamage 80
 }
 weapon 3
 {
-    name "Shurikens"
+    name "$TXTS_WEAP3"
     ammoname ""
     maxammo 99
     mindamage 5
@@ -356,7 +356,7 @@ weapon 3
 }
 weapon 4
 {
-    name "Sticky Bombs"
+    name "$TXTS_WEAP4"
     ammoname ""
     maxammo 20
     mindamage 5
@@ -366,8 +366,8 @@ weapon 4
 }
 weapon 5
 {
-    name "UZI Submachine Gun"
-    ammoname "UZI Clip"
+    name "$TXTS_WEAP5"
+    ammoname "$TXTS_AMMO5"
     maxammo 200
     mindamage 5
     maxdamage 7
@@ -376,8 +376,8 @@ weapon 5
 }
 weapon 6
 {
-    name "Missile Launcher"
-    ammoname "Missiles"
+    name "$TXTS_WEAP6"
+    ammoname "$TXTS_AMMO6"
     maxammo 50
     mindamage 15
     maxdamage 30
@@ -386,8 +386,8 @@ weapon 6
 }
 weapon 7
 {
-    name "Nuclear Warhead"
-    ammoname ""
+    name "$TXTS_WEAP7"
+    ammoname "$TXTS_AMMO7"
     maxammo 0
     mindamage 0
     maxdamage 800
@@ -396,8 +396,8 @@ weapon 7
 }
 weapon 8
 {
-    name "Grenade Launcher"
-    ammoname "Grenade Shells"
+    name "$TXTS_WEAP8"
+    ammoname "$TXTS_AMMO8"
     maxammo 50
     mindamage 15
     maxdamage 30
@@ -406,8 +406,8 @@ weapon 8
 }
 weapon 9
 {
-    name "Rail Gun"
-    ammoname "Rail Gun Rods"
+    name "$TXTS_WEAP9"
+    ammoname "$TXTS_AMMO9"
     maxammo 20
     mindamage 40
     maxdamage 60
@@ -416,8 +416,8 @@ weapon 9
 }
 weapon 10
 {
-    name "Riot Gun"
-    ammoname "Shotshells"
+    name "$TXTS_WEAP10"
+    ammoname "$TXTS_AMMO10"
     maxammo 52
     mindamage 4
     maxdamage 4
@@ -426,8 +426,8 @@ weapon 10
 }
 weapon 11
 {
-    name "Guardian Head"
-    ammoname "Firebursts"
+    name "$TXTS_WEAP11"
+    ammoname "$TXTS_AMMO11"
     maxammo 80
     mindamage 10
     maxdamage 25
@@ -436,8 +436,8 @@ weapon 11
 }
 weapon 12
 {
-    name "Ripper Heart"
-    ammoname "Deathcoils"
+    name "$TXTS_WEAP12"
+    ammoname "$TXTS_AMMO12"
     maxammo 5
     mindamage 75
     maxdamage 100
@@ -515,4 +515,3 @@ theme 6  // game end sequence
     song "ending.mid"
     cdatrack 14
 }
-*/
