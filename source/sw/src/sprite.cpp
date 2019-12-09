@@ -48,6 +48,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "slidor.h"
 #include "player.h"
 #include "swcvar.h"
+#include "quotemgr.h"
+#include "v_text.h"
 
 BEGIN_SW_NS
 
@@ -5505,29 +5507,6 @@ void ChoosePlayerGetSound(PLAYERp pp)
     PlayerSound(PlayerGetItemVocs[choose_snd],&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
 }
 
-//#define MAX_FORTUNES 16
-// With PLOCK on, max = 11
-const char *ReadFortune[MAX_FORTUNES] =
-{
-    "You never going to score.",
-    "26-31-43-82-16-29",
-    "Sorry, you no win this time, try again.",
-    "You try harder get along. Be a nice man.",
-    "No man is island, except Lo Wang.",
-    "There is much death in future.",
-    "You should kill all business associates.",
-    "(c)1997,3DRealms fortune cookie company.",
-    "Your chi attracts many chicks.",
-    "Don't you know you the scum of society!?",
-    "You should not scratch yourself there.",
-    "Man who stand on toilet, high on pot.",
-    "Man who fart in church sit in own pew.",
-    "Man trapped in pantry has ass in jam.",
-    "Baseball wrong.  Man with 4 balls cannot walk.",
-    "Man who buy drowned cat pay for wet pussy.",
-};
-
-
 SWBOOL CanGetWeapon(PLAYERp pp, short SpriteNum, int WPN)
 {
     USERp u = User[SpriteNum], pu;
@@ -5562,18 +5541,6 @@ SWBOOL CanGetWeapon(PLAYERp pp, short SpriteNum, int WPN)
 
     return TRUE;
 }
-
-const char *KeyMsg[MAX_KEYS] =
-{
-    "Got the RED key!",
-    "Got the BLUE key!",
-    "Got the GREEN key!",
-    "Got the YELLOW key!",
-    "Got the GOLD master key!",
-    "Got the SILVER master key!",
-    "Got the BRONZE master key!",
-    "Got the RED master key!"
-};
 
 struct InventoryDecl_t InventoryDecls[InvDecl_TOTAL] =
 {
@@ -5702,7 +5669,7 @@ KeyMain:
             if (pp->HasKey[key_num])
                 break;
 
-            PutStringInfo(Player+pnum, KeyMsg[key_num]);
+            PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_KEYMSG + key_num));
 
             pp->HasKey[key_num] = TRUE;
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
@@ -5795,11 +5762,9 @@ KeyMain:
                 // Say something witty
                 if (pp == Player+myconnectindex && hud_messages)
                 {
-                    if (adult_lockout || Global_PLock)
-                        sprintf(ds,"Fortune Say: %s\n",ReadFortune[STD_RANDOM_RANGE(10)]);
-                    else
-                        sprintf(ds,"Fortune Say: %s\n",ReadFortune[STD_RANDOM_RANGE(MAX_FORTUNES)]);
-                    OSD_Printf("%s", ds);
+                    int cookie = (adult_lockout || Global_PLock)? STD_RANDOM_RANGE(10) : STD_RANDOM_RANGE(MAX_FORTUNES);
+                    // print to the console, and if active to the generic notify display.
+                    Printf(PRINT_NOTIFY, TEXTCOLOR_SAPPHIRE "%s: %s\n", GStrings("TXTS_FORTUNE"), quoteMgr.GetQuote(QUOTE_COOKIE + cookie)); 
                 }
 
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup

@@ -40,6 +40,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "parent.h"
 #include "scriptfile.h"
 #include "menu/menu.h"
+#include "quotemgr.h"
 
 BEGIN_SW_NS
 
@@ -538,9 +539,6 @@ static int cm_transtok(const char *tok, const struct _tokset *set, const unsigne
 //   quit    "PRESS (Y) TO QUIT, (N) TO FIGHT ON."
 
 static LEVEL_INFO custommaps[MAX_LEVELS_REG];
-static char *customfortune[MAX_FORTUNES];
-static char *customkeymsg[MAX_KEYS];
-static char *customkeydoormsg[MAX_KEYS];
 static char *custominventoryname[InvDecl_TOTAL];
 static char *customweaponname[2][MAX_WEAPONS];  // weapon, ammo
 
@@ -798,8 +796,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
                 if (fc == MAX_FORTUNES) continue;
 
-                customfortune[fc] = strdup(t);
-                if (customfortune[fc]) ReadFortune[fc] = customfortune[fc];
+                quoteMgr.InitializeQuote(QUOTE_COOKIE + fc, t);
                 fc++;
             }
             break;
@@ -817,8 +814,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
                 if (fc == MAX_KEYS) continue;
 
-                customkeymsg[fc] = strdup(t);
-                if (customkeymsg[fc]) KeyMsg[fc] = customkeymsg[fc];
+                quoteMgr.InitializeQuote(QUOTE_KEYMSG + fc, t);
                 fc++;
             }
             break;
@@ -836,8 +832,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
                 if (fc == MAX_KEYS) continue;
 
-                customkeydoormsg[fc] = strdup(t);
-                if (customkeydoormsg[fc]) KeyDoorMessage[fc] = customkeydoormsg[fc];
+                quoteMgr.InitializeQuote(QUOTE_DOORMSG + fc, t);
                 fc++;
             }
             break;

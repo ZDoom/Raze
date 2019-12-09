@@ -49,18 +49,6 @@ BEGIN_SW_NS
 #define PANEL_SM_FONT_Y 3613
 #define PANEL_SM_FONT_R 3625
 
-const char *KeyDoorMessage[MAX_KEYS] =
-{
-    "You need a RED key for this door.",
-    "You need a BLUE key for this door.",
-    "You need a GREEN key for this door.",
-    "You need a YELLOW key for this door.",
-    "You need a GOLD key for this door.",
-    "You need a SILVER key for this door.",
-    "You need a BRONZE key for this door.",
-    "You need a RED key for this door."
-};
-
 void DisplaySummaryString(PLAYERp pp, short xs, short ys, short color, short shade, const char *buffer)
 {
     short size,x;

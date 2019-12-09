@@ -961,12 +961,18 @@ extern const char *ThemeSongs[6];                                          //
 extern char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2];
 
 
-#define MAX_FORTUNES 16
-extern const char *ReadFortune[MAX_FORTUNES];
 
-#define MAX_KEYS 8
-extern const char *KeyMsg[MAX_KEYS];
-extern const char *KeyDoorMessage[MAX_KEYS];
+
+enum
+{
+    MAX_KEYS = 8,
+    MAX_FORTUNES = 16,
+
+    QUOTE_KEYMSG = 1,
+    QUOTE_DOORMSG = QUOTE_KEYMSG + MAX_KEYS,
+    // 23+24 are reserved.
+    QUOTE_COOKIE = 25,  
+};
 
 typedef struct
 {

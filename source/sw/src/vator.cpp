@@ -36,6 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "text.h"
 #include "sprite.h"
 #include "weapon.h"
+#include "quotemgr.h"
 
 BEGIN_SW_NS
 
@@ -199,7 +200,7 @@ short DoVatorOperate(PLAYERp pp, short sectnum)
                 else
 #endif
                 {
-                    PutStringInfo(pp, KeyDoorMessage[key_num - 1]);
+                    PutStringInfo(pp, quoteMgr.GetExQuote(QUOTE_DOORMSG + key_num - 1));
                     return FALSE;
                 }
             }
@@ -267,7 +268,7 @@ DoVatorMatch(PLAYERp pp, short match)
                 else
 #endif
                 {
-                    PutStringInfo(pp, KeyDoorMessage[key_num - 1]);
+                    PutStringInfo(pp, quoteMgr.GetExQuote(QUOTE_DOORMSG + key_num - 1));
                     return -1;
                 }
             }
