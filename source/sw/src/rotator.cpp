@@ -181,7 +181,7 @@ DoRotatorMatch(PLAYERp pp, short match, SWBOOL manual)
             // SWBOOL 8 must be set for message to display
             if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
-                if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp,"This only opens in single play.");
+                if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp, GStrings("TXT_SPONLY"));
                 continue;
             }
 

@@ -46,6 +46,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "common_game.h"
 #include "light.h"
 #include "text.h"
+#include "gstrings.h"
+#include "secrets.h"
 
 BEGIN_SW_NS
 
@@ -2141,7 +2143,9 @@ OperateTripTrigger(PLAYERp pp)
             PlayerSound(DIGI_ANCIENTSECRET, &pp->posx, &pp->posy, &pp->posz,
                         v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
-        sprintf(ds,"You found a secret area!");
+        sprintf(ds, GStrings("TXTS_SECRET"));
+        SECRET_Trigger(pp->cursectnum);
+
         PutStringInfo(pp, ds);
         // always give to the first player
         Player->SecretsFound++;

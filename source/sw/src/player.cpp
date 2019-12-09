@@ -66,6 +66,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "interp.h"
 #include "menu/menu.h"
+#include "gstrings.h"
 
 BEGIN_SW_NS
 
@@ -6521,7 +6522,7 @@ DoPlayerBeginDie(PLAYERp pp)
     {
         bak = GlobInfoStringTime;
         GlobInfoStringTime = 999;
-        PutStringInfo(pp, "Press SPACE to restart");
+        PutStringInfo(pp, GStrings("TXT_PRESSSPACER"));
         GlobInfoStringTime = bak;
     }
 
@@ -7880,11 +7881,11 @@ void PauseMultiPlay(void)
                 if (GamePaused)
                 {
                     short w,h;
-#define MSG_GAME_PAUSED "Game Paused"
-                    MNU_MeasureString(MSG_GAME_PAUSED, &w, &h);
+                    auto m = GStrings("Game Paused");
+                    MNU_MeasureString(m, &w, &h);
 
                     TRAVERSE_CONNECT(p)
-                    PutStringTimer(Player + p, TEXT_TEST_COL(w), 100, MSG_GAME_PAUSED, 999);
+                    PutStringTimer(Player + p, TEXT_TEST_COL(w), 100, m, 999);
 
                     SavePrediction = PredictionOn;
                     PredictionOn = FALSE;

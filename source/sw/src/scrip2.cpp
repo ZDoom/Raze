@@ -506,46 +506,6 @@ static int cm_transtok(const char *tok, const struct _tokset *set, const unsigne
     return -1;
 }
 
-//   level # {
-//      title    "Map Name"
-//      filename "filename.map"
-//      song     "filename.mid"
-//      cdatrack n
-//      besttime secs
-//      partime  secs
-//   }
-//
-//   episode # {
-//      title    "Episode Name"
-//      subtitle "Caption text"
-//   }
-//
-//   skill # {
-//      name "Tiny grasshopper"
-//   }
-//
-//   fortune {
-//      "You never going to score."
-//      "26-31-43-82-16-29"
-//      "Sorry, you no win this time, try again."
-//   }
-//   gotkey {
-//      "Got the RED key!"
-//      "Got the BLUE key!"
-//      "Got the GREEN key!"
-//      ...
-//   }
-//   needkey {
-//      "You need a RED key for this door."
-//      "You need a BLUE key for this door."
-//      "You need a GREEN key for this door."
-//      ...
-//   }
-//   inventory # { name "Armour" amount 50 }
-//   weapon # { name "Uzi Submachine Gun" ammoname "Uzi Clip" maxammo 200 mindamage 5 maxdamage 7 pickup 50 }
-//   secret  "You found a secret area!"
-//   quit    "PRESS (Y) TO QUIT, (N) TO FIGHT ON."
-
 static LEVEL_INFO custommaps[MAX_LEVELS_REG];
 
 #define WM_DAMAGE  1

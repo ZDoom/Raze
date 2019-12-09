@@ -48,6 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "actor.h"
 #include "track.h"
 #include "player.h"
+#include "gstrings.h"
 
 BEGIN_SW_NS
 
@@ -7466,94 +7467,94 @@ const char *DeathString(short SpriteNum)
     case NINJA_RUN_R0:
         return " ";
     case ZOMBIE_RUN_R0:
-        return "Zombie";
+        return GStrings("Zombie");
     case BLOOD_WORM:
-        return "Blood Worm";
+        return GStrings("Blood Worm");
     case SKEL_RUN_R0:
-        return "Skeletor Priest";
+        return GStrings("Skeletor Priest");
     case COOLG_RUN_R0:
-        return "Coolie Ghost";
+        return GStrings("Coolie Ghost");
     case GORO_RUN_R0:
-        return "Guardian";
+        return GStrings("Guardian");
     case HORNET_RUN_R0:
-        return "Hornet";
+        return GStrings("Hornet");
     case RIPPER_RUN_R0:
-        return "Ripper Hatchling";
+        return GStrings("Ripper Hatchling");
     case RIPPER2_RUN_R0:
-        return "Ripper";
+        return GStrings("Ripper");
     case BUNNY_RUN_R0:
-        return "Killer Rabbit";
+        return GStrings("Killer Rabbit");
     case SERP_RUN_R0:
-        return "Serpent god";
+        return GStrings("Serpent god");
     case GIRLNINJA_RUN_R0:
-        return "Girl Ninja";
+        return GStrings("Girl Ninja");
     case BLADE1:
     case BLADE2:
     case BLADE3:
     case 5011:
-        return "blade";
+        return GStrings("blade");
     case STAR1:
-        if (sw_darts) return "dart";
-        else return "shuriken";
+        if (sw_darts) return GStrings("dart");
+        else return GStrings("shuriken");
     case CROSSBOLT:
-        return "crossbow bolt";
+        return GStrings("crossbow bolt");
     case SPEAR_R0:
-        return "spear";
+        return GStrings("spear");
     case LAVA_BOULDER:
     case LAVA_SHARD:
-        return "lava boulder";
+        return GStrings("lava boulder");
     case UZI_SMOKE:
-        return "Uzi";
+        return GStrings("Uzi");
     case UZI_SMOKE+2:
-        return "Evil Ninja Uzi";
+        return GStrings("Evil Ninja Uzi");
     case SHOTGUN_SMOKE:
-        return "shotgun";
+        return GStrings("shotgun");
     case MIRV_METEOR:
     case SERP_METEOR:
-        return "meteor";
+        return GStrings("meteor");
     case BOLT_THINMAN_R0:
-        return "rocket";
+        return GStrings("rocket");
     case BOLT_THINMAN_R1:
-        return "rail gun";
+        return GStrings("rail gun");
     case BOLT_THINMAN_R2:
-        return "enemy rocket";
+        return GStrings("enemy rocket");
     case BOLT_THINMAN_R4:  // BunnyRocket
-        return "bunny rocket";
+        return GStrings("bunny rocket");
     case BOLT_EXP:
-        return "explosion";
+        return GStrings("explosion");
     case TANK_SHELL_EXP:
-        return "tank shell";
+        return GStrings("tank shell");
     case MUSHROOM_CLOUD:
-        return "nuclear bomb";
+        return GStrings("nuclear bomb");
     case GRENADE_EXP:
-        return "40mm grenade";
+        return GStrings("40mm grenade");
     case MICRO_EXP:
-        return "micro missile";
+        return GStrings("micro missile");
     case MINE_EXP:
         //case MINE_SHRAP:
-        return "sticky bomb";
+        return GStrings("sticky bomb");
     case NAP_EXP:
-        return "napalm";
+        return GStrings("napalm");
     case Vomit1:
     case Vomit2:
-        return "vomit";
+        return GStrings("vomit");
     case COOLG_FIRE:
-        return "Coolie Ghost phlem";
+        return GStrings("Coolie Ghost phlem");
     case SKULL_R0:
-        return "Accursed Head";
+        return GStrings("Accursed Head");
     case BETTY_R0:
-        return "Bouncing Betty";
+        return GStrings("Bouncing Betty");
     case SKULL_SERP:
-        return "Serpent god Protector";
+        return GStrings("Serpent god Protector");
     case FIREBALL1:
     case FIREBALL:
     case GORO_FIREBALL:
     case FIREBALL_FLAMES:
-        return "flames";
+        return GStrings("flames");
     case RADIATION_CLOUD:
-        return "radiation";
+        return GStrings("radiation");
     case CALTROPS:
-        return "caltrops";
+        return GStrings("caltrops");
     }
     return "";
 }

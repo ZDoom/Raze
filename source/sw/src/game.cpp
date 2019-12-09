@@ -98,6 +98,7 @@ Things required to make savegames work:
 #include "menu/menu.h"
 #include "z_music.h"
 #include "statistics.h"
+#include "gstrings.h"
 
 //#include "crc32.h"
 
@@ -2413,17 +2414,18 @@ void StatScreen(PLAYERp mpp)
     memset(death_total,0,sizeof(death_total));
     memset(kills,0,sizeof(kills));
 
-    sprintf(ds,"MULTIPLAYER TOTALS");
-    MNU_MeasureString(ds, &w, &h);
-    MNU_DrawString(TEXT_TEST_COL(w), 68, ds, 0, 0);
+    auto c = GStrings("MULTIPLAYER TOTALS");
+    MNU_MeasureString(c, &w, &h);
+    MNU_DrawString(TEXT_TEST_COL(w), 68, c, 0, 0);
 
-    sprintf(ds,"PRESS SPACE BAR TO CONTINUE");
-    MNU_MeasureString(ds, &w, &h);
-    MNU_DrawString(TEXT_TEST_COL(w), 189, ds, 0, 0);
+    c = GStrings("TXTS_PRESSSPACE");
+    MNU_MeasureString(c, &w, &h);
+    MNU_DrawString(TEXT_TEST_COL(w), 189, c, 0, 0);
 
     x = STAT_START_X;
     y = STAT_START_Y;
 
+    // Hm.... how to translate this without messing up the formatting?
     sprintf(ds,"  NAME         1     2     3     4     5     6     7    8     KILLS");
     DisplayMiniBarSmString(mpp, x, y, 0, ds);
     rows = OrigCommPlayers;
@@ -2485,7 +2487,7 @@ void StatScreen(PLAYERp mpp)
     x = STAT_START_X;
     y += STAT_OFF_Y;
 
-    sprintf(ds,"   DEATHS");
+    sprintf(ds,"   %s", GStrings("DEATHS"));
     DisplayMiniBarSmString(mpp, x, y, 0, ds);
     x = STAT_TABLE_X;
 
