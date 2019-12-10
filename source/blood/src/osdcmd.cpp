@@ -47,51 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static int osdcmd_changelevel(osdcmdptr_t parm)
-{
-    int32_t volume,level;
-    char *p;
-
-    if (parm->numparms != 2) return OSDCMD_SHOWHELP;
-
-    volume = strtol(parm->parms[0], &p, 10) - 1;
-    if (p[0]) return OSDCMD_SHOWHELP;
-    level = strtol(parm->parms[1], &p, 10) - 1;
-    if (p[0]) return OSDCMD_SHOWHELP;
-
-    if (volume < 0) return OSDCMD_SHOWHELP;
-    if (level < 0) return OSDCMD_SHOWHELP;
-
-    if (volume >= 6)
-    {
-        OSD_Printf("changelevel: invalid volume number (range 1-%d)\n",6);
-        return OSDCMD_OK;
-    }
-
-    if (level >= gEpisodeInfo[volume].nLevels)
-    {
-        OSD_Printf("changelevel: invalid level number\n");
-        return OSDCMD_SHOWHELP;
-    }
-
-    if (gDemo.at1)
-        gDemo.StopPlayback();
-
-    if (numplayers > 1)
-    {
-        gPacketStartGame.episodeId = volume;
-        gPacketStartGame.levelId = level;
-        netBroadcastNewGame();
-        gStartNewGame = 1;
-        return OSDCMD_OK;
-    }
-    levelSetupOptions(volume, level);
-    StartLevel(&gGameOptions);
-    viewResizeView(gViewSize);
-
-    return OSDCMD_OK;
-}
-
 static int osdcmd_map(osdcmdptr_t parm)
 {
     char filename[BMAX_PATH];
@@ -342,7 +297,6 @@ void onvideomodechange(int32_t newmode)
 
 int32_t registerosdcommands(void)
 {
-    OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
     OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
     OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);

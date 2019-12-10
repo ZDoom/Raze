@@ -38,68 +38,6 @@ BEGIN_DUKE_NS
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
 
-static int osdcmd_changelevel(osdcmdptr_t parm)
-{
-    int volume = 0;
-    int level;
-
-    if (!VOLUMEONE)
-    {
-        if (parm->numparms != 2) return OSDCMD_SHOWHELP;
-
-        volume = strtol(parm->parms[0], NULL, 10) - 1;
-        level = strtol(parm->parms[1], NULL, 10) - 1;
-    }
-    else
-    {
-        if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-        level = strtol(parm->parms[0], NULL, 10) - 1;
-    }
-
-    if (volume < 0 || level < 0)
-        return OSDCMD_SHOWHELP;
-
-    if (level > MAXLEVELS || mapList[volume * MAXLEVELS + level].fileName.IsEmpty())
-    {
-        OSD_Printf("changelevel: no map defined for episode %d level %d\n", volume + 1, level + 1);
-        return OSDCMD_SHOWHELP;
-    }
-
-    if (numplayers > 1)
-    {
-        return OSDCMD_OK;
-    }
-
-    if (g_player[myconnectindex].ps->gm & MODE_GAME)
-    {
-        // in-game behave like a cheat
-        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_SCOTTY;
-        osdcmd_cheatsinfo_stat.volume   = volume;
-        osdcmd_cheatsinfo_stat.level    = level;
-    }
-    else
-    {
-        // out-of-game behave like a menu command
-        osdcmd_cheatsinfo_stat.cheatnum = -1;
-
-        ud.m_volume_number     = volume;
-        m_level_number      = level;
-
-        ud.m_monsters_off      = 0;
-        ud.monsters_off        = 0;
-
-        ud.m_respawn_items     = 0;
-        ud.m_respawn_inventory = 0;
-
-        ud.multimode           = 1;
-
-        G_NewGame_EnterLevel();
-    }
-
-    return OSDCMD_OK;
-}
-
 static int osdcmd_map(osdcmdptr_t parm)
 {
     char filename[BMAX_PATH];
@@ -856,11 +794,8 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("playerinfo", "Prints information about the current player", osdcmd_playerinfo);
 #endif
 
-    if (VOLUMEONE)
-        OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
-    else
+    if (!VOLUMEONE)
     {
-        OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }

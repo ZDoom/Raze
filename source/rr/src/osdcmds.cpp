@@ -35,115 +35,6 @@ BEGIN_RR_NS
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
 
-static int osdcmd_changelevel(osdcmdptr_t parm)
-{
-    int32_t volume=0,level;
-    char *p;
-
-    if (!VOLUMEONE)
-    {
-        if (parm->numparms != 2) return OSDCMD_SHOWHELP;
-
-        volume = strtol(parm->parms[0], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
-        level = strtol(parm->parms[1], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
-    }
-    else
-    {
-        if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-        level = strtol(parm->parms[0], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
-    }
-
-    if (volume < 0) return OSDCMD_SHOWHELP;
-    if (level < 0) return OSDCMD_SHOWHELP;
-
-    if (!VOLUMEONE)
-    {
-        if (volume > g_volumeCnt)
-        {
-            OSD_Printf("changelevel: invalid volume number (range 1-%d)\n",g_volumeCnt);
-            return OSDCMD_OK;
-        }
-    }
-
-    if (level > MAXLEVELS || mapList *MAXLEVELS+level].fileName.IsEmpty)
-    {
-        OSD_Printf("changelevel: invalid level number\n");
-        return OSDCMD_SHOWHELP;
-    }
-
-    if (numplayers > 1)
-    {
-        /*
-        if (g_netServer)
-            Net_NewGame(volume,level);
-        else if (voting == -1)
-        {
-            ud.m_volume_number = volume;
-            m_level_number = level;
-
-            if (g_player[myconnectindex].ps->i)
-            {
-                int32_t i;
-
-                for (i=0; i<MAXPLAYERS; i++)
-                {
-                    g_player[i].vote = 0;
-                    g_player[i].gotvote = 0;
-                }
-
-                g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
-
-                voting = myconnectindex;
-
-                tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
-                tempbuf[1] = myconnectindex;
-                tempbuf[2] = ud.m_volume_number;
-                tempbuf[3] = m_level_number;
-
-                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-            }
-            if ((g_gametypeFlags[m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[m_coop] & GAMETYPE_TDM))
-                m_noexits = 0;
-
-            M_OpenMenu(myconnectindex);
-            Menu_Change(MENU_NETWAITVOTES);
-        }
-        */
-        return OSDCMD_OK;
-    }
-    if (g_player[myconnectindex].ps->gm & MODE_GAME)
-    {
-        // in-game behave like a cheat
-        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_SCOTTY;
-        osdcmd_cheatsinfo_stat.volume   = volume;
-        osdcmd_cheatsinfo_stat.level    = level;
-    }
-    else
-    {
-        // out-of-game behave like a menu command
-        osdcmd_cheatsinfo_stat.cheatnum = -1;
-
-        ud.m_volume_number     = volume;
-        m_level_number      = level;
-
-        ud.m_monsters_off      = 0;
-        ud.monsters_off        = 0;
-
-        ud.m_respawn_items     = 0;
-        ud.m_respawn_inventory = 0;
-
-        ud.multimode           = 1;
-
-        G_NewGame_EnterLevel();
-    }
-
-    return OSDCMD_OK;
-}
-
 static int osdcmd_map(osdcmdptr_t parm)
 {
     char filename[BMAX_PATH];
@@ -170,48 +61,6 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (numplayers > 1)
     {
-        /*
-        if (g_netServer)
-        {
-            Net_SendUserMapName();
-            ud.m_volume_number = 0;
-            m_level_number = 7;
-            Net_NewGame(ud.m_volume_number, m_level_number);
-        }
-        else if (voting == -1)
-        {
-            Net_SendUserMapName();
-
-            ud.m_volume_number = 0;
-            m_level_number = 7;
-
-            if (g_player[myconnectindex].ps->i)
-            {
-                int32_t i;
-
-                for (i=0; i<MAXPLAYERS; i++)
-                {
-                    g_player[i].vote = 0;
-                    g_player[i].gotvote = 0;
-                }
-
-                g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
-                voting = myconnectindex;
-
-                tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
-                tempbuf[1] = myconnectindex;
-                tempbuf[2] = ud.m_volume_number;
-                tempbuf[3] = m_level_number;
-
-                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-            }
-            if ((g_gametypeFlags[m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[m_coop] & GAMETYPE_TDM))
-                m_noexits = 0;
-
-            M_OpenMenu(myconnectindex);
-            Menu_Change(MENU_NETWAITVOTES);
-        }
-        */
         return OSDCMD_OK;
     }
 
@@ -783,11 +632,8 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 int32_t registerosdcommands(void)
 {
 
-    if (VOLUMEONE)
-        OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
-    else
+    if (!VOLUMEONE)
     {
-        OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }

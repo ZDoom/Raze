@@ -2876,8 +2876,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                                 menutext(191, yy, tempbuf);
                                 yy+=yystep;
                             }
-                            if (mapList[G_LastMapInfoIndex()].designerT
-								ime)
+                            if (mapList[G_LastMapInfoIndex()].designerTime)
                             {
                                 G_PrintDesignerTime();
                                 menutext(191, yy, tempbuf);
