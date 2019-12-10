@@ -1025,15 +1025,11 @@ void G_DisplayRest(int32_t smoothratio)
         else if (g_levelTextTime < 5)
             o |= 1;
 
-        if (mapList[(ud.volume_number*MAXLEVELS) + ud.level_number].name.IsNotEmpty())
-        {
-            char const * const fn = currentboardfilename[0] != 0 &&
-                ud.volume_number == 0 && ud.level_number == 7
-                    ? currentboardfilename
-                    : mapList[(ud.volume_number*MAXLEVELS) + ud.level_number].DisplayName();
-
-            menutext_(160<<16, (90+16+8)<<16, -g_levelTextTime+22/*quotepulseshade*/, fn, o, TEXT_XCENTER);
-        }
+        char const * const fn = currentboardfilename[0] != 0 &&
+            ud.volume_number == 0 && ud.level_number == 7
+                ? currentboardfilename
+                : mapList[(ud.volume_number*MAXLEVELS) + ud.level_number].DisplayName();
+        menutext_(160<<16, (90+16+8)<<16, -g_levelTextTime+22/*quotepulseshade*/, fn, o, TEXT_XCENTER);
     }
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
@@ -2045,8 +2041,6 @@ void G_BonusScreen(int32_t bonusonly)
     else
     {
         lastmapname = mapList[G_LastMapInfoIndex()].DisplayName();
-        if (!lastmapname || !*lastmapname) // this isn't right but it's better than no name at all
-            lastmapname = mapList[G_LastMapInfoIndex()].fileName;
     }
 
     if (RR)
@@ -2625,8 +2619,6 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     else
     {
         lastmapname = mapList[G_LastMapInfoIndex()].DisplayName();
-        if (!lastmapname || !*lastmapname) // this isn't right but it's better than no name at all
-            lastmapname = mapList[G_LastMapInfoIndex()].fileName;
     }
 
     if ((g_lastLevel && ud.volume_number == 2) || g_vixenLevel)

@@ -1819,7 +1819,7 @@ int G_EnterLevel(int gameMode)
 
     if (VOLUMEONE || !Menu_HaveUserMap())
     {
-        if (mm.name.IsEmpty() || mm.fileName.IsEmpty())
+        if (mm.fileName.IsEmpty())
         {
             OSD_Printf(OSDTEXT_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
             return 1;

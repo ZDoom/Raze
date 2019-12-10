@@ -2340,7 +2340,7 @@ int G_EnterLevel(int gameMode)
     mii = (ud.volume_number*MAXLEVELS)+ud.level_number;
 	auto &mi = mapList[mii];
 
-    if ( mi.name.IsEmpty() || mi.fileName.IsEmpty())
+    if (mi.fileName.IsEmpty())
     {
         if (RR && g_lastLevel)
         {

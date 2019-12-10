@@ -5172,7 +5172,7 @@ repeatcase:
 
             Bcorrectfilename(tempbuf,0);
 
-            mapList[j * MAXLEVELS + k].fileName = tempbuf;
+            mapList[j * MAXLEVELS + k].SetFileName(tempbuf);
 
             C_SkipComments();
 

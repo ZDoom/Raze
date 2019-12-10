@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gstrings.h"
+#include "cmdlib.h"
 
 // Localization capable replacement of the game specific solutions.
 
@@ -15,6 +16,7 @@ struct MapRecord
 	int parTime;
 	int designerTime;
 	FString fileName;
+	FString labelName;
 	FString name;
 	FString music;
 	int cdSongId;
@@ -28,6 +30,7 @@ struct MapRecord
 	
 	const char *DisplayName()
 	{
+		if (name.IsEmpty()) return labelName;
 		return GStrings.localize(name);
 	}
 	void SetName(const char *n)
@@ -35,6 +38,12 @@ struct MapRecord
 		name = n;
 		MakeStringLocalizable(name);
 	}
+	void SetFileName(const char* n)
+	{
+		fileName = n;
+		labelName = ExtractFileBase(n);
+	}
+
 };
 
 extern MapRecord mapList[512];

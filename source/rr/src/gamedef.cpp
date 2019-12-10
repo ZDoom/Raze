@@ -1871,7 +1871,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
             Bcorrectfilename(tempbuf,0);
 
-			mapList[j *MAXLEVELS+k].fileName = tempbuf;
+			mapList[j *MAXLEVELS+k].SetFileName(tempbuf);
 
             C_SkipComments();
 
