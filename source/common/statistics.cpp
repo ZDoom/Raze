@@ -601,7 +601,7 @@ CCMD(printstats)
 
 ADD_STAT(statistics)
 {
-	if (*StartEpisode == 0 || *LevelName == 0) return;
+	if (*StartEpisode == 0 || *LevelName == 0) return "";
 	StoreLevelStats();	// Refresh the current level's results.
 	return GetStatString();
 }

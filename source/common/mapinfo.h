@@ -2,6 +2,10 @@
 
 #include "gstrings.h"
 #include "cmdlib.h"
+#include "quotemgr.h"
+#ifdef GetMessage
+#undef GetMessage	// Windows strikes...
+#endif
 
 // Localization capable replacement of the game specific solutions.
 
@@ -18,21 +22,21 @@ enum
 
 struct MapRecord
 {
-	int parTime;
-	int designerTime;
+	int parTime = -1;
+	int designerTime = -1;
 	FString fileName;
 	FString labelName;
 	FString name;
 	FString music;
-	int cdSongId;
+	int cdSongId = -1;
+	int flags = -1;
 
 	// The rest is only used by Blood
-	int nextLevel;
-	int nextSecret;
-	int messageStart;	// messages are stored in the quote array to reduce clutter.
+	int nextLevel = -1;
+	int nextSecret = -1;
+	int messageStart = 0;	// messages are stored in the quote array to reduce clutter.
 	FString author;
-	// bool fog, weather;	// Blood defines these but they aren't used.
-	int flags;
+	int8_t fog = -1, weather = -1;	// Blood defines these but they aren't used.
 	
 	const char *DisplayName()
 	{
@@ -48,6 +52,10 @@ struct MapRecord
 	{
 		fileName = n;
 		labelName = ExtractFileBase(n);
+	}
+	const char* GetMessage(int num)
+	{
+		return quoteMgr.GetQuote(messageStart + num);
 	}
 
 };

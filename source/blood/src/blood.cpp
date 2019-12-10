@@ -542,6 +542,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         return;
     }
     char levelName[BMAX_PATH];
+    currentLevel = &mapList[gGameOptions.nEpisode * kMaxLevels + gGameOptions.nLevel];
 	STAT_NewLevel(gameOptions->zLevelName);
     G_LoadMapHack(levelName, gameOptions->zLevelName);
     wsrand(gameOptions->uMapCRC);
@@ -1444,9 +1445,8 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
             return -1;
     }
 
-    int nEpisode = sel/kMaxLevels;
-    int nLevel = sel%kMaxLevels;
-    return S_DefineAudioIfSupported(gEpisodeInfo[nEpisode].at28[nLevel].atd0, name);
+    quoteMgr.InitializeQuote(sel, name);
+    return 0;
 }
 
 static int parsedefinitions_game(scriptfile *, int);
@@ -1988,9 +1988,7 @@ bool fileExistsRFF(int id, const char *ext) {
 
 int sndTryPlaySpecialMusic(int nMusic)
 {
-    int nEpisode = nMusic/kMaxLevels;
-    int nLevel = nMusic%kMaxLevels;
-    if (Mus_Play(gEpisodeInfo[nEpisode].at28[nLevel].at0, gEpisodeInfo[nEpisode].at28[nLevel].atd0, true))
+    if (Mus_Play(nullptr, quoteMgr.GetQuote(nMusic), true))
     {
         return 0;
     }

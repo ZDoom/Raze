@@ -4769,7 +4769,7 @@ void trInit(void)
 
 void trTextOver(int nId)
 {
-    char *pzMessage = levelGetMessage(nId);
+    const char *pzMessage = levelGetMessage(nId);
     if (pzMessage)
         viewSetMessage(pzMessage, VanillaMode() ? 0 : 8, MESSAGE_PRIORITY_INI); // 8: gold
 }

@@ -209,13 +209,6 @@ bool GameInterface::SaveGame(FSaveGameNode* node)
 		Printf(TEXTCOLOR_RED "%s\n", err.what());
 		return false;
 	}
-	auto & li = gEpisodeInfo[gGameOptions.nEpisode].at28[gGameOptions.nLevel];
-    // workaround until the level info here has been transitioned.
-    MapRecord mr;
-    mr.name = li.at90;
-    mr.labelName = li.at0;
-    mr.fileName.Format("%s.map", li.at0);
-    currentLevel = &mr;
 	G_WriteSaveHeader(node->SaveTitle);
 	LoadSave::hSFile = NULL;
 

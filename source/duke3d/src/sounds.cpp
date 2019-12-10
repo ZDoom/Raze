@@ -149,7 +149,7 @@ void S_PlayLevelMusicOrNothing(unsigned int m)
     {
         // Thanks to scripting that stupid slot hijack cannot be refactored - but we'll store the real data elsewhere anyway!
         auto &mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
-        Mus_Play(mr.fileName, mr.music, true);
+        Mus_Play(mr.labelName, mr.music, true);
         S_SetMusicIndex(m);
     }
 }

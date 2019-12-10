@@ -125,7 +125,7 @@ void S_MenuSound(void)
 
 void S_PlayLevelMusicOrNothing(unsigned int m)
 {
-    Mus_Play(mapList[m].fileName, RR ? nullptr : mapList[m].music, true);
+    Mus_Play(mapList[m].labelName, RR ? nullptr : mapList[m].music, true);
 }
 
 int S_TryPlaySpecialMusic(unsigned int m)

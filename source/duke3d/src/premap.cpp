@@ -419,7 +419,7 @@ void G_CacheMapData(void)
     if (ud.recstat == 2)
         return;
 
-    S_TryPlaySpecialMusic(MUS_LOADING);
+    //S_TryPlaySpecialMusic(MUS_LOADING);
 
     uint32_t const cacheStartTime = timerGetTicks();
 

@@ -197,8 +197,8 @@ void CViewMap::sub_25C74(void)
     videoClearScreen(0);
     renderDrawMapView(x,y,nZoom>>2,angle);
     sub_2541C(x,y,nZoom>>2,angle);
-    char *pTitle = levelGetTitle();
-    char *pFilename = levelGetFilename(gGameOptions.nEpisode, gGameOptions.nLevel);
+    const char *pTitle = levelGetTitle();
+    const char *pFilename = levelGetFilename(gGameOptions.nEpisode, gGameOptions.nLevel);
     if (pTitle)
         sprintf(pBuffer, "%s: %s", pFilename, pTitle);
     else
