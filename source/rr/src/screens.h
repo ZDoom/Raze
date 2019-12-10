@@ -26,12 +26,6 @@ extern void G_DisplayExtraScreens(void);
 extern void G_DisplayLogo(void);
 extern void G_DoOrderScreen(void);
 
-static inline int G_LastMapInfoIndex(void)
-{
-    Bassert(ud.last_level >= 1);  // NOTE: last_level is 1-based
-    return ud.volume_number*MAXLEVELS + ud.last_level-1;
-}
-
 #ifdef DEBUGGINGAIDS
 typedef struct {
     uint32_t lastgtic;

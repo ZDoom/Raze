@@ -2337,26 +2337,14 @@ int G_EnterLevel(int gameMode)
         }
     }
 
-    mii = (ud.volume_number*MAXLEVELS)+ud.level_number;
+    // Redirect the final RR level to a valid map record so that currentLevel can point to something.
+    mii = (RR && g_lastLevel)? 127 : (ud.volume_number*MAXLEVELS)+ud.level_number;
 	auto &mi = mapList[mii];
 
-    if (mi.fileName.IsEmpty())
+    if (mi.fileName.IsEmpty() && !Menu_HaveUserMap())
     {
-        if (RR && g_lastLevel)
-        {
-			// FIXME: Initialize this properly in the data structures!
-			mi.fileName = "endgame.map";
-			mi.name = "$TXT_CLOSEENCOUNTERS";
-        }
-        else if (Menu_HaveUserMap())
-        {
-			mi.name = "$TXT_USERMAP";
-        }
-        else
-        {
-            OSD_Printf(OSDTEXT_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
-            return 1;
-        }
+        OSD_Printf(OSDTEXT_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
+        return 1;
     }
 
     i = ud.screen_size;

@@ -184,7 +184,7 @@ static void G_ShowScores(void)
     if (g_mostConcurrentPlayers > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
         gametext_center(SCORESHEETOFFSET+58+2, GStrings("Multiplayer Totals"));
-        gametext_center(SCORESHEETOFFSET+58+10, mapList[G_LastMapInfoIndex()].DisplayName());
+        gametext_center(SCORESHEETOFFSET+58+10, currentLevel->DisplayName());
 
         t = 0;
         minitext(70, SCORESHEETOFFSET+80, GStrings("Name"), 8, 2+8+16+ROTATESPRITE_MAX);
@@ -1885,7 +1885,7 @@ static void G_DisplayMPResultsScreen(void)
     if (PLUTOPAK)   // JBF 20030804
         rotatesprite_fs((260)<<16, 36<<16, 65536L, 0, PLUTOPAKSPRITE+2, 0, 0, 2+8);
     gametext_center(58+2, GStrings("Multiplayer Totals"));
-    gametext_center(58+10, mapList[G_LastMapInfoIndex()].DisplayName());
+    gametext_center(58+10, currentLevel->DisplayName());
 
     gametext_center_shade(165, GStrings("Presskey"), quotepulseshade);
 
@@ -1953,11 +1953,11 @@ static int32_t G_PrintTime_ClockPad(void)
     clockpad = max(clockpad, ij);
     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
     {
-        for (ii=mapList[G_LastMapInfoIndex()].parTime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
+        for (ii=currentLevel->parTime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
         clockpad = max(clockpad, ij);
-        if (!NAM_WW2GI && mapList[G_LastMapInfoIndex()].designerTime)
+        if (!NAM_WW2GI && currentLevel->designerTime)
         {
-            for (ii= mapList[G_LastMapInfoIndex()].designerTime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
+            for (ii= currentLevel->designerTime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
             clockpad = max(clockpad, ij);
         }
     }
@@ -1986,13 +1986,13 @@ const char* G_PrintParTime(void)
 {
     if (ud.last_level < 1)
         return "<invalid>";
-    return G_PrintTime2(mapList[G_LastMapInfoIndex()].parTime);
+    return G_PrintTime2(currentLevel->parTime);
 }
 const char* G_PrintDesignerTime(void)
 {
     if (ud.last_level < 1)
         return "<invalid>";
-    return G_PrintTime2(mapList[G_LastMapInfoIndex()].designerTime);
+    return G_PrintTime2(currentLevel->designerTime);
 }
 const char* G_PrintBestTime(void)
 {
@@ -2017,9 +2017,9 @@ void G_BonusScreen(int32_t bonusonly)
     }
     else
     {
-        lastmapname = mapList[G_LastMapInfoIndex()].name;
+        lastmapname = currentLevel->name;
         if (!lastmapname || !*lastmapname) // this isn't right but it's better than no name at all
-            lastmapname = mapList[G_LastMapInfoIndex()].fileName;
+            lastmapname = currentLevel->fileName;
     }
 
 
@@ -2185,12 +2185,12 @@ void G_BonusScreen(int32_t bonusonly)
                     yy+=10;
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                     {
-                        if (mapList[G_LastMapInfoIndex()].parTime)
+                        if (currentLevel->parTime)
                         {
                             gametext(10, yy+9, GStrings("TXT_ParTime"));
                             yy+=10;
                         }
-                        if (!NAM_WW2GI && !DUKEBETA && mapList[G_LastMapInfoIndex()].designerTime)
+                        if (!NAM_WW2GI && !DUKEBETA && currentLevel->designerTime)
                         {
                             // EDuke 2.0 / NAM source suggests "Green Beret's Time:"
                             gametext(10, yy+9, GStrings("TXT_3DRTIME"));
@@ -2229,13 +2229,13 @@ void G_BonusScreen(int32_t bonusonly)
 
                         if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                         {
-                            if (mapList[G_LastMapInfoIndex()].parTime)
+                            if (currentLevel->parTime)
                             {
                                 G_PrintParTime();
                                 gametext_number((320>>2)+71, yy+9, tempbuf);
                                 yy+=10;
                             }
-                            if (!NAM_WW2GI && !DUKEBETA && mapList[G_LastMapInfoIndex()].designerTime)
+                            if (!NAM_WW2GI && !DUKEBETA && currentLevel->designerTime)
                             {
                                 G_PrintDesignerTime();
                                 gametext_number((320>>2)+71, yy+9, tempbuf);
