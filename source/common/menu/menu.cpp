@@ -492,6 +492,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 			M_StartMessage (GStrings("SAVEDEAD"), 1, -1);
 			return true;
 		}
+		break;
 			
 	case NAME_QuitMenu:
 		// This is no separate class

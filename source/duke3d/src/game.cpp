@@ -5764,7 +5764,8 @@ static int G_EndOfLevel(void)
 {
     auto &p = *g_player[myconnectindex].ps;
 
-	STAT_Update(ud.eog);
+    if ((currentLevel->flags & MI_FORCEEOG)) ud.eog = 1;    // if the finished level says to end the game, end it!
+    STAT_Update(ud.eog);
     P_SetGamePalette(&p, BASEPAL, 0);
     P_UpdateScreenPal(&p);
 
@@ -5789,7 +5790,7 @@ static int G_EndOfLevel(void)
         // Clear potentially loaded per-map ART only after the bonus screens.
         artClearMapArt();
 
-        if (ud.eog || G_HaveUserMap())
+        if (ud.eog || G_HaveUserMap() || (currentLevel->flags & MI_FORCEEOG))
         {
             ud.eog = 0;
             if ((!g_netServer && ud.multimode < 2))
@@ -5799,8 +5800,6 @@ static int G_EndOfLevel(void)
                     G_DoOrderScreen();
 #endif
                 p.gm = 0;
-				M_StartControlPanel(false);
-				M_SetMenu(NAME_MainMenu);
 				return 2;
             }
             else

@@ -15,8 +15,8 @@ void FinishSavegameRead();
 class FileReader;
 
 FString G_BuildSaveName (const char *prefix);
-int G_ValidateSavegame(FileReader &fr, FString *savetitle);
-void G_WriteSaveHeader(const char *name, const char*mapname, const char *title);
+int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu);
+void G_WriteSaveHeader(const char* name);
 
 #define SAVEGAME_EXT ".dsave"
 

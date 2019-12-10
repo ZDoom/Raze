@@ -7196,7 +7196,7 @@ void G_BackToMenu(void)
 
 static int G_EndOfLevel(void)
 {
-	STAT_Update(ud.eog);
+	STAT_Update(ud.eog || (currentLevel->flags & MI_FORCEEOG));
 	P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
     P_UpdateScreenPal(g_player[myconnectindex].ps);
 
@@ -7226,7 +7226,7 @@ static int G_EndOfLevel(void)
         // Clear potentially loaded per-map ART only after the bonus screens.
         artClearMapArt();
 
-        if (ud.eog)
+        if (ud.eog || (currentLevel->flags & MI_FORCEEOG))
         {
             ud.eog = 0;
             if ((!g_netServer && ud.multimode < 2))
@@ -7234,8 +7234,6 @@ static int G_EndOfLevel(void)
                 if (!VOLUMEALL)
                     G_DoOrderScreen();
                 g_player[myconnectindex].ps->gm = 0;
-				M_StartControlPanel(false);
-				M_SetMenu(NAME_MainMenu);
 				return 2;
             }
             else

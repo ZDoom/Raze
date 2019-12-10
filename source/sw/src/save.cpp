@@ -58,6 +58,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "i_specialpaths.h"
 #include "savegamehelp.h"
 #include "z_music.h"
+#include "mapinfo.h"
 
 //void TimerFunc(task * Task);
 BEGIN_SW_NS
@@ -250,7 +251,12 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 	
 	auto game_name = G_BuildSaveName(sv->Filename);
 	OpenSaveGameForWrite(game_name);
-	G_WriteSaveHeader(sv->SaveTitle, LevelInfo[Level].LevelName, LevelInfo[Level].Description);
+    // workaround until the level info here has been transitioned.
+    MapRecord mr;
+    mr.SetFileName(LevelInfo[Level].Description);
+    mr.labelName = LevelInfo[Level].Description;
+    currentLevel = &mr;
+    G_WriteSaveHeader(sv->SaveTitle);
 	fil = WriteSavegameChunk("snapshot.sw");
 
     MWRITE(&GameVersion,sizeof(GameVersion),1,fil);

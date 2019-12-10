@@ -45,6 +45,7 @@
 #include "secrets.h"
 #include "s_music.h"
 #include "quotemgr.h"
+#include "mapinfo.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -81,8 +82,21 @@ bool OpenSaveGameForRead(const char *name)
 		SECRET_Load();
 		MUS_Restore();
 		quoteMgr.ReadFromSavegame();
-	}
 
+		auto file = ReadSavegameChunk("info.json");
+		if (!file.isOpen())
+		{
+			FinishSavegameRead();
+			delete savereader;
+			return false;
+		}
+		if (G_ValidateSavegame(file, nullptr, false) <= 0)
+		{
+			FinishSavegameRead();
+			delete savereader;
+			return false;
+		}
+	}
 	return savereader != nullptr;
 }
 
@@ -116,7 +130,7 @@ void FinishSavegameRead()
 //
 //=============================================================================
 
-void G_WriteSaveHeader(const char *name, const char*mapname, const char *maptitle)
+void G_WriteSaveHeader(const char *name)
 {
 	sjson_context* ctx = sjson_create_context(0, 0, NULL);
 	if (!ctx)
@@ -128,16 +142,20 @@ void G_WriteSaveHeader(const char *name, const char*mapname, const char *maptitl
 	sjson_put_int(ctx, root, "Save Version", savesig.currentsavever);
 	sjson_put_string(ctx, root, "Engine", savesig.savesig);
 	sjson_put_string(ctx, root, "Game Resource", fileSystem.GetResourceFileName(1));
-	sjson_put_string(ctx, root, "Map Name", maptitle);
+	sjson_put_string(ctx, root, "Map Name", currentLevel->DisplayName());
 	sjson_put_string(ctx, root, "Title", name);
-	if (*mapname == '/') mapname++;
-	sjson_put_string(ctx, root, "Map File", mapname);
-	auto fileno = fileSystem.FindFile(mapname);
-	auto mapfile = fileSystem.GetFileContainer(fileno);
-	auto mapcname = fileSystem.GetResourceFileName(mapfile);
-	if (mapcname) sjson_put_string(ctx, root, "Map Resource", mapcname);
-	else return; // this should never happen. Saving on a map that isn't present is impossible.
-
+	sjson_put_string(ctx, root, "Map File", currentLevel->fileName);
+	sjson_put_string(ctx, root, "Map Label", currentLevel->labelName);
+	const char *fn = currentLevel->fileName;
+	if (*fn == '/') fn++;
+	if (!strncmp(fn, "file://", 7) != 0) // this only has meaning for non-usermaps
+	{
+		auto fileno = fileSystem.FindFile(fn);
+		auto mapfile = fileSystem.GetFileContainer(fileno);
+		auto mapcname = fileSystem.GetResourceFileName(mapfile);
+		if (mapcname) sjson_put_string(ctx, root, "Map Resource", mapcname);
+		else return; // this should never happen. Saving on a map that isn't present is impossible.
+	}
 
 	char* encoded = sjson_stringify(ctx, root, "  ");
 
@@ -171,6 +189,10 @@ static bool CheckSingleFile (const char *name, bool &printRequires, bool printwa
 	if (name == NULL)
 	{
 		return true;
+	}
+	if (!strncmp(name, "file://", 7) == 0)
+	{
+		return FileExists(name + 7);	// User maps  must be present to be validated.
 	}
 	if (fileSystem.CheckIfResourceFileLoaded(name) < 0)
 	{
@@ -222,7 +244,7 @@ static bool G_CheckSaveGameWads (const char *gamegrp, const char *mapgrp, bool p
 //
 //=============================================================================
 
-int G_ValidateSavegame(FileReader &fr, FString *savetitle)
+int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 {
 	auto data = fr.ReadPadded(1);
 	
@@ -237,6 +259,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle)
 		FString gamegrp = sjson_get_string(root, "Game Resource", "");
 		FString mapgrp = sjson_get_string(root, "Map Resource", "");
 		FString title = sjson_get_string(root, "Title", "");
+		FString filename = sjson_get_string(root, "Map File", "");
 		auto savesig = gi->GetSaveSig();
 		
 		sjson_destroy_context(ctx);
@@ -248,6 +271,30 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle)
 			// not our business. Leave it alone.
 			return 0;
 		}
+
+		MapRecord *curLevel = nullptr;
+
+		if (!strncmp(filename, "file://", 7) != 0)
+		{
+			for (auto& mr : mapList)
+			{
+				if (mr.fileName.Compare(filename) == 0)
+				{
+					curLevel = &mr;
+				}
+			}
+		}
+		else
+		{
+			curLevel = &userMapRecord;
+			if (!formenu)
+			{
+				userMapRecord.name = "";
+				userMapRecord.SetFileName(filename);
+			}
+		}
+		if (!curLevel) return 0;
+		if (!formenu) currentLevel = curLevel;
 		
 
 		if (savever < savesig.minsavever)

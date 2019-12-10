@@ -134,7 +134,6 @@ void S_MenuSound(void)
 
 static void S_SetMusicIndex(unsigned int m)
 {
-    g_musicIndex = m;
     ud.music_episode = m / MAXLEVELS;
     ud.music_level   = m % MAXLEVELS;
 }
@@ -148,7 +147,9 @@ void S_PlayLevelMusicOrNothing(unsigned int m)
 
     if (retval >= 0)
     {
-        Mus_Play(mapList[m].fileName, mapList[m].music, true);
+        // Thanks to scripting that stupid slot hijack cannot be refactored - but we'll store the real data elsewhere anyway!
+        auto &mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
+        Mus_Play(mr.fileName, mr.music, true);
         S_SetMusicIndex(m);
     }
 }

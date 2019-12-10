@@ -123,17 +123,9 @@ void S_MenuSound(void)
 }
 
 
-static void S_SetMusicIndex(unsigned int m)
-{
-    g_musicIndex = m;
-    ud.music_episode = m / MAXLEVELS;
-    ud.music_level   = m % MAXLEVELS;
-}
-
 void S_PlayLevelMusicOrNothing(unsigned int m)
 {
     Mus_Play(mapList[m].fileName, RR ? nullptr : mapList[m].music, true);
-    S_SetMusicIndex(m);
 }
 
 int S_TryPlaySpecialMusic(unsigned int m)
@@ -145,7 +137,6 @@ int S_TryPlaySpecialMusic(unsigned int m)
     {
         if (!Mus_Play(nullptr, musicfn, 1))
         {
-            S_SetMusicIndex(m);
             return 0;
         }
     }
@@ -169,10 +160,7 @@ void S_PlayRRMusic(int newTrack)
 
 void S_PlaySpecialMusicOrNothing(unsigned int m)
 {
-    if (S_TryPlaySpecialMusic(m))
-    {
-        S_SetMusicIndex(m);
-    }
+    S_TryPlaySpecialMusic(m);
 }
 
 void S_Cleanup(void)

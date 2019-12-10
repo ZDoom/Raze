@@ -11,6 +11,11 @@ inline void MakeStringLocalizable(FString &quote)
 	if (quote.Len() > 0 && quote[0] != '$' && GStrings[quote]) quote.Insert(0, "$");
 }
 
+enum
+{
+	MI_FORCEEOG = 1,
+};
+
 struct MapRecord
 {
 	int parTime;
@@ -27,6 +32,7 @@ struct MapRecord
 	int messageStart;	// messages are stored in the quote array to reduce clutter.
 	FString author;
 	// bool fog, weather;	// Blood defines these but they aren't used.
+	int flags;
 	
 	const char *DisplayName()
 	{
@@ -47,4 +53,19 @@ struct MapRecord
 };
 
 extern MapRecord mapList[512];
+extern MapRecord userMapRecord;
 extern MapRecord *currentLevel;	
+extern MapRecord* lastLevel;
+
+
+inline void InitRREndMap()
+{
+	// RR defines its end map ad-hoc so give it a proper entry to reference (the last one in episode 2 because it needs to be in Ep. 2.)
+	mapList[127].SetName("$TXT_CLOSEENCOUNTERS");
+	mapList[127].SetFileName("endmap.map");
+}
+
+enum
+{
+	RRENDSLOT = 127
+};

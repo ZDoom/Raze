@@ -31,8 +31,10 @@
 #include "enet.h"
 #endif
 
-MapRecord mapList[512];	// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
-MapRecord *currentLevel;	
+MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
+MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
+MapRecord* lastLevel;		// Same here, for the last level.
+MapRecord userMapRecord;	// stand-in for the user map.
 
 void C_CON_SetAliases();
 InputState inputState;
@@ -428,6 +430,7 @@ int CONFIG_Init()
 	InitStatistics();
 	M_Init();
 	SetDefaultStrings();
+	if (g_gameType & GAMEFLAG_RR) InitRREndMap();	// this needs to be done better later
 	return gi->app_main();
 }
 

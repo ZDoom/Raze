@@ -2243,7 +2243,7 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 }
 
 // levnamebuf should have at least size BMAX_PATH
-void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum)
+void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
 {
     char *p;
     char const *exts[] = {
@@ -2277,12 +2277,12 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
 
         if (FileExists(nameBuf))
 		{
-            mapList[levelNum].music = nameBuf;
+            userMapRecord.music = nameBuf;
             return;
         }
     }
 
-    mapList[levelNum].music = "dethtoll.mid";
+    userMapRecord.music = "dethtoll.mid";
 }
 
 int G_EnterLevel(int gameMode)
@@ -2378,10 +2378,12 @@ int G_EnterLevel(int gameMode)
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
         }
-
-		STAT_NewLevel(boardfilename);
+        userMapRecord.name = "";
+        userMapRecord.SetFileName(boardfilename);
+        currentLevel = &userMapRecord;
+        STAT_NewLevel(boardfilename);
 		G_LoadMapHack(levelName, boardfilename);
-        G_SetupFilenameBasedMusic(levelName, boardfilename, m_level_number);
+        G_SetupFilenameBasedMusic(levelName, boardfilename);
     }
     else if (engineLoadBoard(mi.fileName, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
     {
@@ -2390,6 +2392,7 @@ int G_EnterLevel(int gameMode)
     }
     else
     {
+        currentLevel = &mi;
 		STAT_NewLevel(mi.fileName);
 		G_LoadMapHack(levelName, mi.fileName);
     }
@@ -2434,14 +2437,7 @@ int G_EnterLevel(int gameMode)
 
     if (ud.recstat != 2)
     {
-        if (mapList[g_musicIndex].music.IsEmpty() ||
-            mi.music.IsEmpty() ||
-            mi.music.CompareNoCase(mapList[g_musicIndex].music) ||
-            g_musicSize == 0 ||
-            ud.last_level == -1)
-        {
-            S_PlayLevelMusicOrNothing(mii);
-        }
+        S_PlayLevelMusicOrNothing(mii);
     }
 
     if (RR && !(gameMode & MODE_DEMO))

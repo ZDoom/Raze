@@ -146,18 +146,7 @@ static FileReader *OpenSavegame(const char *fn)
 	{
 		return nullptr;
 	}
-	auto file = ReadSavegameChunk("info.json");
-	if (!file.isOpen())
-	{
-		FinishSavegameRead();
-		return nullptr;
-	}
-	if (G_ValidateSavegame(file, nullptr) <= 0)
-	{
-		FinishSavegameRead();
-		return nullptr;
-	}
-	file = ReadSavegameChunk("snapshot.dat");
+	auto file = ReadSavegameChunk("snapshot.dat");
 	if (!file.isOpen())
 	{
 		FinishSavegameRead();
@@ -181,24 +170,6 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
     int32_t i = sv_loadheader(*fil, 0, saveh);
     if (i < 0)
         goto corrupt;
-
-	ssfil = ReadSavegameChunk("screenshot.dat");
-    
-	TileFiles.tileCreate(TILE_LOADSHOT, 200, 320);
-    if (ssfil.isOpen())
-    {
-        if (ssfil.Read(tileData(TILE_LOADSHOT), 320 * 200) != 320 * 200)
-        {
-            OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot in \"%s\"\n", fn);
-            goto corrupt;
-        }
-    }
-    else
-    {
-        Bmemset(tileData(TILE_LOADSHOT), 0, 320*200);
-    }
-	ssfil.Close();
-    tileInvalidate(TILE_LOADSHOT, 0, 255);
 
 	delete fil;
 	FinishSavegameRead();
@@ -1169,9 +1140,7 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
         Bstrncpyz(h.savename, name, sizeof(h.savename));
 		auto fw = WriteSavegameChunk("header.dat");
 		fw->Write(&h, sizeof(savehead_t));
-	
-		auto& mi = mapList[(MAXLEVELS * ud.volume_number) + ud.level_number];
-		G_WriteSaveHeader(name, mi.fileName, mi.DisplayName());
+		G_WriteSaveHeader(name);
 	}
     else
     {
@@ -1190,12 +1159,14 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
 
     // write header
 
+#if 0 // not usable anymore
     if (spot >= 0 && tileData(TILE_SAVESHOT))
     {
 		auto fw = WriteSavegameChunk("screenshot.dat");
         fw->Write(tileData(TILE_SAVESHOT), 320*200);
 
     }
+#endif
 
 
     if (spot >= 0)

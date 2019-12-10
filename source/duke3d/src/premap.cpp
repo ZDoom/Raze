@@ -1720,7 +1720,7 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
 
 		if (FileExists(nameBuf))
 		{
-            mapList[USERMAPMUSICFAKESLOT].music = nameBuf;
+            userMapRecord.music = nameBuf;
             return;
         }
     }
@@ -1728,7 +1728,7 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
     auto &usermapMusic = mapList[MUS_USERMAP].music;
     if (usermapMusic.IsNotEmpty())
     {
-        mapList[USERMAPMUSICFAKESLOT].music = usermapMusic;
+        userMapRecord.music = usermapMusic;
         return;
     }
 
@@ -1738,7 +1738,7 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
         auto &e1l8 = mapList[7].music;
         if (e1l8.IsNotEmpty())
         {
-            mapList[USERMAPMUSICFAKESLOT].music = e1l8;
+            userMapRecord.music = e1l8;
             return;
         }
     }
@@ -1849,7 +1849,10 @@ int G_EnterLevel(int gameMode)
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
         }
-		STAT_NewLevel(boardfilename);
+        userMapRecord.name = "";
+        userMapRecord.SetFileName(boardfilename);
+        currentLevel = &userMapRecord;
+        STAT_NewLevel(boardfilename);
         G_LoadMapHack(levelName, boardfilename);
         G_SetupFilenameBasedMusic(levelName, boardfilename);
     }
@@ -1860,6 +1863,7 @@ int G_EnterLevel(int gameMode)
     }
     else
     {
+        currentLevel = &mm;
 		STAT_NewLevel(mm.fileName);
         G_LoadMapHack(levelName, mm.fileName);
     }
@@ -1894,15 +1898,7 @@ int G_EnterLevel(int gameMode)
         {
             S_PlayLevelMusicOrNothing(USERMAPMUSICFAKESLOT);
         }
-        else if (mapList[g_musicIndex].music.IsEmpty() || mm.music.IsEmpty() || mapList[g_musicIndex].music.CompareNoCase(mm.music) == 0 ||
-            g_musicSize == 0 || ud.last_level == -1)
-        {
-            S_PlayLevelMusicOrNothing(mapidx);
-        }
-        else
-        {
-            S_ContinueLevelMusic();
-        }
+        else S_PlayLevelMusicOrNothing(mapidx);
     }
 
 	M_ClearMenus();

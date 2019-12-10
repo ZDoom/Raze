@@ -73,7 +73,6 @@ G_EXTERN actor_t actor[MAXSPRITES];
 G_EXTERN tiledata_t g_tile[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
 G_EXTERN char *label;
-G_EXTERN int32_t g_musicIndex;
 G_EXTERN char g_loadFromGroupOnly;
 G_EXTERN char g_skillCnt;
 G_EXTERN char pus,pub;

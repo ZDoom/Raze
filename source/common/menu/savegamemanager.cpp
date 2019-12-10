@@ -198,7 +198,7 @@ void FSavegameManager::ReadSaveStrings()
 					}
 					auto fr = info->NewReader();
 					FString title;
-					int check = G_ValidateSavegame(fr, &title);
+					int check = G_ValidateSavegame(fr, &title, true);
 					fr.Close();
 					delete savegame;
 					if (check != 0)
@@ -377,7 +377,7 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 
 
 			FString comment = sjson_get_string(root, "Creation Time", "");
-			FString fcomment = sjson_get_string(root, "Map File", "");
+			FString fcomment = sjson_get_string(root, "Map Label", "");
 			FString ncomment = sjson_get_string(root, "Map Name", "");
 			FStringf pcomment("%s - %s\n", fcomment.GetChars(), ncomment.GetChars());
 			comment += pcomment;

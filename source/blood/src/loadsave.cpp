@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "savegamehelp.h"
 #include "z_music.h"
+#include "mapinfo.h"
 
 BEGIN_BLD_NS
 
@@ -209,7 +210,13 @@ bool GameInterface::SaveGame(FSaveGameNode* node)
 		return false;
 	}
 	auto & li = gEpisodeInfo[gGameOptions.nEpisode].at28[gGameOptions.nLevel];
-	G_WriteSaveHeader(node->SaveTitle, FStringf("%s.map", li.at0), li.at90);
+    // workaround until the level info here has been transitioned.
+    MapRecord mr;
+    mr.name = li.at90;
+    mr.labelName = li.at0;
+    mr.fileName.Format("%s.map", li.at0);
+    currentLevel = &mr;
+	G_WriteSaveHeader(node->SaveTitle);
 	LoadSave::hSFile = NULL;
 
 	return FinishSavegameWrite();
