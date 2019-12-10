@@ -363,7 +363,11 @@ void STAT_StartNewGame(const char *episode, int skill)
 
 void STAT_NewLevel(const char* mapname)
 {
-	LevelName = mapname;
+	if (!strncmp(mapname, "file://", 7) == 0)
+	{
+		STAT_StartNewGame("", 0);	// reset and deactivate for user maps
+	}
+	else LevelName = mapname;
 }
 
 //==========================================================================
@@ -590,12 +594,14 @@ FString GetStatString()
 
 CCMD(printstats)
 {
+	if (*StartEpisode == 0 || *LevelName == 0) return;
 	StoreLevelStats();	// Refresh the current level's results.
 	Printf("%s", GetStatString().GetChars());
 }
 
 ADD_STAT(statistics)
 {
+	if (*StartEpisode == 0 || *LevelName == 0) return;
 	StoreLevelStats();	// Refresh the current level's results.
 	return GetStatString();
 }
