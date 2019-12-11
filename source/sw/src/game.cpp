@@ -654,7 +654,8 @@ bool LoadLevel(const char *filename)
 		Printf("Level not found: %s", filename);
 		return false;
 	}
-	STAT_NewLevel(filename);
+	currentLevel = &mapList[Level];
+	STAT_NewLevel(currentLevel->labelName);
 	return true;
 }
 
