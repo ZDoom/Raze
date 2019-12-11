@@ -109,7 +109,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 
     demo_hasdiffs = saveh.recdiffsp;
     g_demo_totalCnt = saveh.reccnt;
-    demo_hasseeds = saveh.synccompress & 2;
+    demo_hasseeds = 0;
 
     i = g_demo_totalCnt/REALGAMETICSPERSEC;
     OSD_Printf("demo %d duration: %d min %d sec\n", g_whichDemo, i/60, i%60);

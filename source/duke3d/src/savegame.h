@@ -46,16 +46,13 @@ typedef struct
     uint32_t userbytever;
     uint32_t scriptcrc;
 
-    uint8_t comprthres;
-    uint8_t recdiffsp, diffcompress, synccompress;
+    uint8_t recdiffsp;
     // 4 bytes
 
     int32_t reccnt, snapsiz;
     // 8 bytes
 
-    char savename[MAXSAVEGAMENAMESTRUCT];
     uint8_t numplayers, volnum, levnum, skill;
-    char boardfn[BMAX_PATH];
     // 286 bytes
 
     uint8_t getPtrSize() const { return ptrsize; }
@@ -71,7 +68,7 @@ int32_t sv_readdiff(FileReader& fil);
 uint32_t sv_writediff(FileWriter *fil);
 int32_t sv_loadheader(FileReader &fil, int32_t spot, savehead_t *h);
 int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h);
-int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress);
+int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp);
 void sv_freemem();
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh);
 void ReadSaveGameHeaders(void);

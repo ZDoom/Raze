@@ -148,7 +148,7 @@ void G_WriteSaveHeader(const char *name)
 	sjson_put_string(ctx, root, "Map Label", currentLevel->labelName);
 	const char *fn = currentLevel->fileName;
 	if (*fn == '/') fn++;
-	if (!strncmp(fn, "file://", 7) != 0) // this only has meaning for non-usermaps
+	if (strncmp(fn, "file://", 7) != 0) // this only has meaning for non-usermaps
 	{
 		auto fileno = fileSystem.FindFile(fn);
 		auto mapfile = fileSystem.GetFileContainer(fileno);
@@ -190,7 +190,7 @@ static bool CheckSingleFile (const char *name, bool &printRequires, bool printwa
 	{
 		return true;
 	}
-	if (!strncmp(name, "file://", 7) == 0)
+	if (strncmp(name, "file://", 7) == 0)
 	{
 		return FileExists(name + 7);	// User maps  must be present to be validated.
 	}
@@ -274,7 +274,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 
 		MapRecord *curLevel = nullptr;
 
-		if (!strncmp(filename, "file://", 7) != 0)
+		if (strncmp(filename, "file://", 7) != 0)
 		{
 			for (auto& mr : mapList)
 			{

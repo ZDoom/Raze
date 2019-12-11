@@ -184,10 +184,6 @@ corrupt:
 
 static void sv_postudload();
 
-// hack
-static int different_user_map;
-
-
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(FSaveGameNode *sv)
 {
@@ -480,9 +476,7 @@ int32_t G_LoadPlayer(FSaveGameNode *sv)
     ud.m_player_skill = h.skill;
 
     // NOTE: Bmemcpy needed for SAVEGAME_MUSIC.
-    EDUKE32_STATIC_ASSERT(sizeof(boardfilename) == sizeof(h.boardfn));
-    different_user_map = Bstrcmp(boardfilename, h.boardfn);
-    Bmemcpy(boardfilename, h.boardfn, sizeof(boardfilename));
+    strcpy(boardfilename, currentLevel->fileName);
 
     int const mapIdx = h.volnum*MAXLEVELS + h.levnum;
 
@@ -655,11 +649,6 @@ typedef struct dataspec_gv_
     intptr_t cnt;
 } dataspec_gv_t;
 
-#define SV_DEFAULTCOMPRTHRES 8
-static uint8_t savegame_diffcompress;  // 0:none, 1:Ken's LZW in cache1d.c
-static uint8_t savegame_comprthres;
-
-
 #define DS_DYNAMIC 1  // dereference .ptr one more time
 #define DS_STRING 2
 #define DS_CMP 4
@@ -807,8 +796,8 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
             if (ksiz != siz)
             {
                 OSD_Printf("rsd: spec=%s, idx=%d, mem=%p\n", (char *)sptr->ptr, (int32_t)(spec - sptr), mem);
-                OSD_Printf("     (%s): read %d, expected %d!\n",
-                           ((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres) ? "uncompressed" : "compressed", ksiz, siz);
+                OSD_Printf("     : read %d, expected %d!\n",
+                           ksiz, siz);
 
                 if (ksiz == -1)
                     OSD_Printf("     read: %s\n", strerror(errno));
@@ -1379,13 +1368,9 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress)
+int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp)
 {
     savehead_t h;
-
-    // set a few savegame system globals
-    savegame_comprthres = SV_DEFAULTCOMPRTHRES;
-    savegame_diffcompress = diffcompress;
 
     // calculate total snapshot size
 #if !defined LUNATIC
@@ -1405,10 +1390,6 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
     h.bytever      = BYTEVERSION;
     h.userbytever  = ud.userbytever;
     h.scriptcrc    = g_scriptcrc;
-    h.comprthres   = savegame_comprthres;
-    h.recdiffsp    = recdiffsp;
-    h.diffcompress = savegame_diffcompress;
-    h.synccompress = synccompress;
 
     h.reccnt  = 0;
     h.snapsiz = svsnapsiz;
@@ -1424,7 +1405,6 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
     if (spot >= 0)
     {
         // savegame
-        Bstrncpyz(h.savename, name, sizeof(h.savename));
 		auto fw = WriteSavegameChunk("header.dat");
 		fw->Write(&h, sizeof(savehead_t));
 		
@@ -1432,15 +1412,10 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
 	}
     else
     {
-        // demo
-
+        // demo (currently broken, needs a new format.)
         const time_t t = time(NULL);
-        struct tm *  st;
-
-        Bstrncpyz(h.savename, "EDuke32 demo", sizeof(h.savename));
-        if (t>=0 && (st = localtime(&t)))
-            Bsnprintf(h.savename, sizeof(h.savename), "Demo %04d%02d%02d %s",
-                      st->tm_year+1900, st->tm_mon+1, st->tm_mday, GetGitDescription());
+		struct tm *  st = localtime(&t);
+        FStringf demoname("Demo %04d%02d%02d %s", st->tm_year+1900, st->tm_mon+1, st->tm_mday, GetGitDescription());
 		fil.Write(&h, sizeof(savehead_t));
 	}
 
@@ -1566,8 +1541,6 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
     OSD_Printf("sv_loadsnapshot: snapshot size: %d bytes.\n", h->snapsiz);
 #endif
 
-    savegame_comprthres = h->comprthres;
-
     if (spot >= 0)
     {
         // savegame
@@ -1580,9 +1553,6 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
     }
     else
     {
-        // demo
-        savegame_diffcompress = h->diffcompress;
-
         svsnapsiz = h->snapsiz;
 
         SV_AllocSnap(1);
