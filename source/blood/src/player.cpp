@@ -133,20 +133,20 @@ int gDefaultAccel[] = {
     // shrink human
     10384,  2108,  2192,    // stand (front, side, back)  / swim (front, side, back)  / crouch (front, side, back)
     // grown human
-    19384,  5608,  11192    // stand (front, side, back)  / swim (front, side, back) / crouch (front, side, back) 
+    19384,  5608,  11192,    // stand (front, side, back)  / swim (front, side, back) / crouch (front, side, back) 
 
 };
 
 int gDefaultJumpZ[] = {
 
     // normal human
-    -0xbaaaa, -0x175555, 0x5b05, 0, 0, 0 // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
+    -0xbaaaa, -0x175555, 0x5b05, 0, 0, 0, // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
     // normal beast
-    -0xbaaaa, -0x175555, 0x5b05, 0, 0, 0 // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
+    -0xbaaaa, -0x175555, 0x5b05, 0, 0, 0, // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
     // shrink human
-    -200000, -0x175555, 0x5b05, 0, 0, 0 // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
+    -564586, -1329173, 0x5b05, 0, 0, 0, // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
     // grown human
-    -250000, -0x175555, 0x5b05, 0, 0, 0 // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
+    -1014586, -1779173, 0x5b05, 0, 0, 0, // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
 
 };
 
@@ -1183,17 +1183,19 @@ void playerReset(PLAYER *pPlayer)
 }
 
 void playerResetMoveSpeed(PLAYER* pPlayer) {
-    for (int i = 0, k = 0; i < 4; i++) {
-        for (int a = 0; a < 3; a++, k++)
+    for (int i = kModeHuman, k = 0; i < kModeMax; i++) {
+        for (int a = kPostureStand; a < kPostureMax; a++, k++)
             gPosture[i][a].frontAccel = gPosture[i][a].sideAccel = gPosture[i][a].backAccel = gDefaultAccel[k];
     }
 }
 
 void playerResetJumpHeight(PLAYER* pPlayer) {
-    for (int i = 0, k = 0; i < 4; i++) {
-        for (int a = 0; a < 3; a++) {
+    for (int i = kModeHuman, k = 0; i < kModeMax; i++) {
+        for (int a = kPostureStand; a < kPostureMax; a++) {
+            
             gPosture[i][a].normalJumpZ = gDefaultJumpZ[k++];
             gPosture[i][a].pwupJumpZ = gDefaultJumpZ[k++];
+
         }
     }
 }
@@ -1787,16 +1789,10 @@ void ProcessInput(PLAYER *pPlayer)
     default:
         if (!pPlayer->cantJump && pInput->buttonFlags.jump && pXSprite->height == 0) {
             sfxPlay3DSound(pSprite, 700, 0, 0);
-            if (packItemActive(pPlayer, 4)) zvel[nSprite] = pPosture->pwupJumpZ;// -0x175555;
-            else zvel[nSprite] = pPosture->normalJumpZ;//-0xbaaaa;
-
-
-            if (isShrinked(pPlayer->pSprite)) zvel[nSprite] -= gPosture[kModeHumanShrink][pPlayer->posture].normalJumpZ;//-200000;
-            else if (isGrown(pPlayer->pSprite)) zvel[nSprite] += gPosture[kModeHumanGrown][pPlayer->posture].normalJumpZ; //-250000;
-            
+            if (packItemActive(pPlayer, 4)) zvel[nSprite] = pPosture->pwupJumpZ; //-0x175555;
+            else zvel[nSprite] = pPosture->normalJumpZ; //-0xbaaaa;
             pPlayer->cantJump = 1;
         }
-
 
         if (pInput->buttonFlags.crouch)
             pPlayer->posture = 2;

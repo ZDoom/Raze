@@ -79,7 +79,15 @@ AISTATE genRecoil = {kAiStateRecoil, 5, -1, 20, NULL, NULL, NULL, &genIdle };
 int dword_138BB0[5] = {0x2000, 0x4000, 0x8000, 0xa000, 0xe000};
 
 void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite) {
-    aiNewState(pSprite, pXSprite, &genIdle);
+    switch (pSprite->type) {
+        case kDudeModernCustom:
+        case kDudeModernCustomBurning:
+            aiGenDudeNewState(pSprite, &genIdle);
+            break;
+        default:
+            aiNewState(pSprite, pXSprite, &genIdle);
+            break;
+    }
 }
 
 bool sub_5BDA8(spritetype *pSprite, int nSeq)

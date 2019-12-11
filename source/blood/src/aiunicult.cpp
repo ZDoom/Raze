@@ -237,18 +237,16 @@ static void genDudeAttack1(int, int nXIndex) {
         consoleSysMsg("nIndex >= 0 && nIndex < kMaxSprites");
         return;
     }
-    
+
     int dx, dy, dz; spritetype* pSprite = &sprite[nSprite];
     xvel[pSprite->index] = yvel[pSprite->index] = 0;
     
-    short dispersion = gGenDudeExtra[nSprite].baseDispersion;
+    GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
+    short dispersion = pExtra->baseDispersion;
     if (inDuck(pXSprite->aiState))
         dispersion = ClipLow(dispersion >> 1, kGenDudeMinDispesion);
 
-    //short dispersion = 1;
-    
-    short curWeapon = gGenDudeExtra[nSprite].curWeapon; short weaponType = gGenDudeExtra[nSprite].weaponType;
-    if (weaponType == kGenDudeWeaponHitscan) {
+    if (pExtra->weaponType == kGenDudeWeaponHitscan) {
 
         dx = Cos(pSprite->ang) >> 16; dy = Sin(pSprite->ang) >> 16; dz = gDudeSlope[nXIndex];
         // dispersal modifiers here in case if non-melee enemy
@@ -256,42 +254,40 @@ static void genDudeAttack1(int, int nXIndex) {
             dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion);
         }
 
-        actFireVector(pSprite, 0, 0, dx, dy, dz,(VECTOR_TYPE)curWeapon);
+        actFireVector(pSprite, 0, 0, dx, dy, dz,(VECTOR_TYPE)pExtra->curWeapon);
         if (!playGenDudeSound(pSprite, kGenDudeSndAttackNormal))
-            sfxPlayVectorSound(pSprite, curWeapon);
+            sfxPlayVectorSound(pSprite, pExtra->curWeapon);
             
-    } else if (weaponType == kGenDudeWeaponSummon) {
+    } else if (pExtra->weaponType == kGenDudeWeaponSummon) {
 
         spritetype* pSpawned = NULL; int dist = pSprite->clipdist << 4; 
-        short slaveCnt = gGenDudeExtra[pSprite->index].slaveCount;
-        if (slaveCnt <= gGameOptions.nDifficulty && (pSpawned = actSpawnDude(pSprite, curWeapon, dist + Random(dist), 0)) != NULL) {
-            
-            pSpawned->owner = nSprite;
-            
-            if (pSpawned->extra > -1) {
-                xsprite[pSpawned->extra].target = pXSprite->target;
-                if (pXSprite->target > -1)
-                    aiActivateDude(pSpawned, &xsprite[pSpawned->extra]);
-            }
-                
-            gKillMgr.sub_263E0(1);
-            gGenDudeExtra[pSprite->index].slave[slaveCnt] = pSpawned->index;
-            gGenDudeExtra[pSprite->index].slaveCount++;
+        if (pExtra->slaveCount <= gGameOptions.nDifficulty) {
+            if ((pSpawned = actSpawnDude(pSprite, pExtra->curWeapon, dist + Random(dist), 0)) != NULL) {
+                pSpawned->owner = nSprite;
 
-            if (!playGenDudeSound(pSprite, kGenDudeSndAttackNormal))
-                sfxPlay3DSoundCP(pSprite, 379, 1, 0, 0x10000 - Random3(0x3000));
+                if (xspriRangeIsFine(pSpawned->extra)) {
+                    xsprite[pSpawned->extra].target = pXSprite->target;
+                    if (pXSprite->target > -1)
+                        aiActivateDude(pSpawned, &xsprite[pSpawned->extra]);
+                }
+
+                gKillMgr.sub_263E0(1);
+                pExtra->slave[pExtra->slaveCount++] = pSpawned->index;
+                if (!playGenDudeSound(pSprite, kGenDudeSndAttackNormal))
+                    sfxPlay3DSoundCP(pSprite, 379, 1, 0, 0x10000 - Random3(0x3000));
+            }
         }
 
-    } else if (weaponType == kGenDudeWeaponMissile) {
+    } else if (pExtra->weaponType == kGenDudeWeaponMissile) {
 
         dx = Cos(pSprite->ang) >> 16; dy = Sin(pSprite->ang) >> 16; dz = gDudeSlope[nXIndex];
 
         // dispersal modifiers here
         dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion >> 1);
 
-        actFireMissile(pSprite, 0, 0, dx, dy, dz, curWeapon);
+        actFireMissile(pSprite, 0, 0, dx, dy, dz, pExtra->curWeapon);
         if (!playGenDudeSound(pSprite, kGenDudeSndAttackNormal))
-            sfxPlayMissileSound(pSprite, curWeapon);
+            sfxPlayMissileSound(pSprite, pExtra->curWeapon);
     }
 }
 
@@ -1124,14 +1120,14 @@ void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState) {
     }
     
     pXSprite->stateTimer = pAIState->stateTicks; pXSprite->aiState = pAIState;
-    int seqStartId = pXSprite->data2;
-
-    if (pAIState->seqId >= 0 && gSysRes.Lookup((seqStartId += pAIState->seqId), "SEQ"))
-        seqSpawn(seqStartId, 3, pSprite->extra, pAIState->funcId);
+    
+    int stateSeq = pXSprite->data2 + pAIState->seqId;
+    if (pAIState->seqId >= 0 && gSysRes.Lookup(stateSeq, "SEQ")) {
+        seqSpawn(stateSeq, 3, pSprite->extra, pAIState->funcId);
+    }
 
     if (pAIState->enterFunc)
         pAIState->enterFunc(pSprite, pXSprite);
-
 }
 
     
@@ -1665,41 +1661,38 @@ void updateTargetOfLeech(spritetype* pSprite) {
 }
 
 void updateTargetOfSlaves(spritetype* pSprite) {
-    if (!(pSprite->extra >= 0 && pSprite->extra < kMaxXSprites)) {
-        consoleSysMsg("pSprite->extra >= 0 && pSprite->extra < kMaxXSprites");
+    if (!xspriRangeIsFine(pSprite->extra)) {
+        consoleSysMsg("!xspriRangeIsFine(pSprite->extra)");
         return;
     }
-
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
     
-    short* slave = gGenDudeExtra[pSprite->index].slave;
+    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    GENDUDEEXTRA* pExtra = genDudeExtra(pSprite); short* slave = pExtra->slave;
     spritetype* pTarget = (pXSprite->target >= 0 && IsDudeSprite(&sprite[pXSprite->target])) ? &sprite[pXSprite->target] : NULL;
-    XSPRITE* pXTarget = (pTarget != NULL && pTarget->extra >= 0 && xsprite[pTarget->extra].health > 0) ? &xsprite[pTarget->extra] : NULL;
+    XSPRITE* pXTarget = (pTarget != NULL && xspriRangeIsFine(pTarget->extra) && xsprite[pTarget->extra].health > 0) ? &xsprite[pTarget->extra] : NULL;
 
+    int newCnt = pExtra->slaveCount;
     for (int i = 0; i <= gGameOptions.nDifficulty; i++) {
-        if (slave[i] >= 0) {
+        if (spriRangeIsFine(slave[i])) {
             spritetype* pSlave = &sprite[slave[i]];
-            if (!IsDudeSprite(pSlave) || pSlave->extra < 0 || xsprite[pSlave->extra].health < 0) {
-                slave[i] = -1;
+            if (!IsDudeSprite(pSlave) || !xspriRangeIsFine(pSlave->extra) || xsprite[pSlave->extra].health < 0) {
+                slave[i] = pSlave->owner = -1; newCnt--;
                 continue;
             }
-            
+
             XSPRITE* pXSlave = &xsprite[pSlave->index];
-            if (pXTarget == NULL) aiSetTarget(pXSlave, pSprite->x, pSprite->y, pSprite->z); // try return to master
-            else if (pXSprite->target != pXSlave->target)
-                aiSetTarget(pXSlave, pXSprite->target);
-
-            // check if slave attacking another slave
-            if (pXSlave->target >= 0) {
-                if (sprite[pXSlave->target].owner == pSprite->index)
-                    aiSetTarget(pXSlave, pSprite->x, pSprite->y, pSprite->z); // try return to master
-
+            if (pXTarget != NULL) {
+                if (pXSprite->target != pXSlave->target) aiSetTarget(pXSlave, pXSprite->target);
+                // check if slave have proper target
+                if (!spriRangeIsFine(pXSlave->target) || sprite[pXSlave->target].owner == pSprite->index)
+                    aiSetTarget(pXSlave, pSprite->x, pSprite->y, pSprite->z);
             } else {
-                // try return to master
-                aiSetTarget(pXSlave, pSprite->x, pSprite->y, pSprite->z);
+                aiSetTarget(pXSlave, pSprite->x, pSprite->y, pSprite->z); // try return to master
             }
         } 
     }
+    
+    pExtra->slaveCount = newCnt;
 }
 
 short inDodge(AISTATE* aiState) {
@@ -1933,7 +1926,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                     case kGenDudeSeqMoveD:
                     case kGenDudeSeqDeathBurn2:
                     case kGenDudeSeqIdleW:
-                        continue;
+                        break;
                     case kGenDudeSeqReserved3:
                     case kGenDudeSeqReserved4:
                     case kGenDudeSeqReserved5:
@@ -1967,8 +1960,8 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
         case kGenDudePropertySlaves:
             pExtra->slaveCount = 0; memset(pExtra->slave, -1, sizeof(pExtra->slave));
             for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-                if (sprite[nSprite].owner != pSprite->xvel) continue;
-                else if (!IsDudeSprite(&sprite[nSprite]) || sprite[nSprite].extra < 0 || xsprite[sprite[nSprite].extra].health <= 0) {
+                if (sprite[nSprite].owner != pSprite->index) continue;
+                else if (!IsDudeSprite(&sprite[nSprite]) || !xspriRangeIsFine(sprite[nSprite].extra) || xsprite[sprite[nSprite].extra].health <= 0) {
                     sprite[nSprite].owner = -1;
                     continue;
                 }

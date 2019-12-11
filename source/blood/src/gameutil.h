@@ -85,7 +85,6 @@ int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, cha
 int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pSectors, char *pSectBit, short *a8);
 int picWidth(short nPic, short repeat);
 int picHeight(short nPic, short repeat);
-bool xspriData2Array(int nXSprite, int* rData);
 int STD_Random(int a, int b);
 
 END_BLD_NS

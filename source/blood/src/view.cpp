@@ -402,10 +402,6 @@ void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
         if (!predict.at6f && predict.at71 && predict.at6a == 0) {
             if (packItemActive(pPlayer, 4)) predict.at64 = pPosture->pwupJumpZ;//-0x175555;
             else predict.at64 = pPosture->normalJumpZ;//-0xbaaaa;
-            
-            if (isShrinked(pPlayer->pSprite)) zvel[pPlayer->nSprite] -= gPosture[kModeHumanShrink][pPlayer->posture].normalJumpZ;//-200000;
-            else if (isGrown(pPlayer->pSprite)) zvel[pPlayer->nSprite] += gPosture[kModeHumanGrown][pPlayer->posture].normalJumpZ; //-250000;
-
             predict.at6f = 1;
         }
         if (pInput->buttonFlags.crouch)
@@ -2769,7 +2765,7 @@ void viewSetSystemMessage(const char* pMessage, ...) {
     vsprintf(buffer, pMessage, args);
     
     Printf(PRINT_HIGH | PRINT_NOTIFY, "%s\n", buffer); // print it also in console
-    gGameMessageMgr.Add(buffer, 15, 7, MESSAGE_PRIORITY_SYSTEM);
+    gGameMessageMgr.Add(buffer, 15, 7, MESSAGE_PRIORITY_NORMAL);
 }
 
 void viewSetMessage(const char *pMessage, const int pal, const MESSAGE_PRIORITY priority)

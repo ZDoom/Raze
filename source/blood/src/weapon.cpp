@@ -1938,7 +1938,8 @@ void WeaponProcess(PLAYER *pPlayer) {
             if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) {
                 if (pXSprite->txID > 0)
                     evSend(nIndex, 3, pXSprite->txID, (COMMAND_ID) pXSprite->command, pQavScene->causedBy);
-                evPost(nIndex, 3, 0, (COMMAND_ID) (kCmdNumberic + 4), pQavScene->causedBy);
+                if (pXSprite->locked) trPlayerCtrlStopScene(pXSprite, pPlayer);
+                else evPost(nIndex, 3, 0, (COMMAND_ID) (kCmdNumberic + 4), pQavScene->causedBy);
             } else  {
                 qavScenePlay(pPlayer);
                 pPlayer->weaponTimer = ClipLow(pPlayer->weaponTimer -= 4, 0);

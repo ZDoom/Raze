@@ -917,23 +917,12 @@ int picHeight(short nPic, short repeat) {
     return ClipLow((tilesiz[nPic].y * repeat) << 2, 0);
 }
 
-bool xspriData2Array(int nXSprite, int* rData) {
-    if (xspriRangeIsFine(nXSprite) && rData) {
-        rData[0] = xsprite[nXSprite].data1; rData[2] = xsprite[nXSprite].data3;
-        rData[1] = xsprite[nXSprite].data2; rData[3] = xsprite[nXSprite].data4;
-        return true;
-    }
-
-    return false;
-}
-
 // by NoOne: used for better randomness in single player
 int STD_Random(int a, int b) {
-
-    std::default_random_engine rng;
-    rng.seed(std::random_device()());
+    std::default_random_engine stdRandom;
+    stdRandom.seed(std::random_device()());
     std::uniform_int_distribution<int> dist_a_b(a, b);
-    return dist_a_b(rng);
+    return dist_a_b(stdRandom);
 }
 
 END_BLD_NS

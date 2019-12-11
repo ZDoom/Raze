@@ -68,6 +68,12 @@ enum VECTOR_TYPE {
     kVectorMax,
 };
 
+enum {
+kRandomizeItem          = 0,
+kRandomizeDude          = 1,
+kRandomizeTX            = 2,
+};
+
 struct THINGINFO
 {
     short startHealth;
@@ -269,7 +275,7 @@ void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite);
 spritetype* DropRandomPickupObject(spritetype* pSprite, short prevItem);
 spritetype* spawnRandomDude(spritetype* pSprite);
 int GetDataVal(spritetype* pSprite, int data);
-int GetRandDataVal(int *rData);
+int GetRandDataVal(XSPRITE* pXSprite, int randType);
 bool sfxPlayMissileSound(spritetype* pSprite, int missileId);
 bool sfxPlayVectorSound(spritetype* pSprite, int vectorId);
 spritetype* actSpawnCustomDude(spritetype* pSprite, int nDist);

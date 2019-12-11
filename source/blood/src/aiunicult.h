@@ -178,8 +178,9 @@ struct GENDUDEEXTRA {
 
 extern GENDUDEEXTRA gGenDudeExtra[];
 
-inline GENDUDEEXTRA* genDudeExtra(spritetype* pSprite) {
-    return &gGenDudeExtra[pSprite->index];
+inline GENDUDEEXTRA* genDudeExtra(spritetype* pGenDude) {
+    dassert(spriRangeIsFine(pGenDude->index));
+    return &gGenDudeExtra[pGenDude->index];
 }
 
 XSPRITE* getNextIncarnation(XSPRITE* pXSprite);

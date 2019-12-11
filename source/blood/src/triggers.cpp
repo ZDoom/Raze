@@ -462,21 +462,14 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                     }
 
                 } else {
-                    
-                    int rData[4];
-                    if (xspriData2Array(pSprite->extra, rData)) {
-                        while (maxRetries > 0) {
-                            if ((tx = GetRandDataVal(rData)) > 0 && tx != pXSprite->txID) break;
-                            maxRetries--;
-                        }
+                    while (maxRetries > 0) {
+                        if ((tx = GetRandDataVal(pXSprite, kRandomizeTX)) > 0 && tx != pXSprite->txID) break;
+                        maxRetries--;
                     }
-
                 }
 
-                if (tx > 0) {
-                    pXSprite->txID = tx;
-                    SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1, event.causedBy);
-                }
+                pXSprite->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
+                SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1, event.causedBy);
             }
             return;
             
@@ -569,7 +562,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         break;
                 }
 
-                pXSprite->txID = tx;
+                pXSprite->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
                 SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1, event.causedBy);
             }
             return;
@@ -3695,12 +3688,11 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
         /*			 4: follow player(s) when no targets in sight, attack targets if any in sight					- */
 
         if (type != 3) return;
-        else if (!IsDudeSprite(&sprite[nDest]) && sprite[nDest].statnum != kStatDude && xsprite[sprite[nDest].extra].data3 != 0) {
+        else if (!IsDudeSprite(&sprite[nDest]) && sprite[nDest].statnum != kStatDude) {
             switch (sprite[nDest].type) { // can be dead dude turned in gib
                 // make current target and all other dudes not attack this dude anymore
                 case kThingBloodBits:
                 case kThingBloodChunks:
-                    xsprite[sprite[nDest].extra].data3 = 0;
                     freeTargets(nDest);
                     return;
                 default:
@@ -3713,8 +3705,9 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
         DUDEINFO* pDudeInfo = &dudeInfo[pSprite->type - kDudeBase]; int matesPerEnemy = 1;
 
         // dude is burning?
-        if (pXSprite->burnTime > 0 && pXSprite->burnSource >= 0 && pXSprite->burnSource < kMaxSprites) {
-            if (IsBurningDude(pSprite)) actKillDude(pSource->xvel, pSprite, DAMAGE_TYPE_0, 65535);
+        if (pXSprite->burnTime > 0 && spriRangeIsFine(pXSprite->burnSource)) {
+            
+            if (IsBurningDude(pSprite)) return;
             else {
                 spritetype* pBurnSource = &sprite[pXSprite->burnSource];
                 if (pBurnSource->extra >= 0) {
@@ -3732,12 +3725,6 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
                     }
                 }
             }
-        }
-
-        // dude is dead?
-        if (pXSprite->health <= 0) {
-            pSprite->type = kThingBloodChunks; actPostSprite(pSprite->xvel, kStatThing); // turn it in gib
-            return;
         }
 
         spritetype* pPlayer = targetIsPlayer(pXSprite);

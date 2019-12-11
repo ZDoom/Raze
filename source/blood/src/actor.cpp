@@ -3109,24 +3109,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     int nXSprite = pSprite->extra;
     dassert(nXSprite > 0);
     XSPRITE *pXSprite = &xsprite[pSprite->extra];
-
-    // kMaxSprites - 1 = custom dude had once life leech
-    if (pSprite->owner >= 0 && pSprite->owner != (kMaxSprites - 1)) {
-        switch (sprite[pSprite->owner].type) {
-            case kDudeModernCustom:
-            case kDudeModernCustomBurning:
-                for (int i = 0; i <= gGameOptions.nDifficulty; i++) {
-                    if (!IsDudeSprite(pSprite) || gGenDudeExtra[pSprite->owner].slave[i] == pSprite->index || pXSprite->health <= 0) {
-                        gGenDudeExtra[pSprite->owner].slave[i] = -1;
-                        gGenDudeExtra[pSprite->owner].slaveCount = ClipRange(gGenDudeExtra[pSprite->owner].slaveCount - 1, 0, gGameOptions.nDifficulty + 1);
-                        break;
-                    }
-                }
-                break;
-        }
-    }
-
-
+    
     switch (pSprite->type) {
     case kDudeModernCustom: {
         
@@ -7355,43 +7338,55 @@ int GetDataVal(spritetype* pSprite, int data) {
 }
 
 // tries to get random data field of sprite
-int GetRandDataVal(int *rData) {
-    dassert(rData != NULL);
-    int random = 0, a = 0; int first = -1; int maxRetries = 10;
-    
-    // randomize only in case if at least 2 data fields are not empty
-    for (int i = 0; i < 4; i++) {
-        if (rData[i] <= 0 && a++ > 1) return -1;
-        else if (first == -1) first = rData[i];
-        }
+int GetRandDataVal(XSPRITE* pXSprite, int randType) {
+    if (pXSprite == NULL) return -1;
+    int random = 0; int bad = 0; int maxRetries = 10;
 
+    int rData[4];
+    rData[0] = pXSprite->data1; rData[2] = pXSprite->data3;
+    rData[1] = pXSprite->data2; rData[3] = pXSprite->data4;
+    // randomize only in case if at least 2 data fields fits.
+    for (int i = 0; i < 4; i++) {
+        switch (randType) {
+            case kRandomizeItem:
+                if (rData[i] >= kItemWeaponBase && rData[i] < kItemMax) break;
+                else bad++;
+                break;
+            case kRandomizeDude:
+                if (rData[i] >= kDudeBase && rData[i] < kDudeMax) break;
+                else bad++;
+                break;
+            case kRandomizeTX:
+                if (rData[i] > kChannelZero && rData[i] < kChannelUserMax) break;
+                else bad++;
+                break;
+            default:
+                bad++;
+                break;
+        }
+    }
+    
+    if (bad < 3) {
     // try randomize few times
     while (maxRetries > 0) {
         // use true random only for single player mode, otherwise use Blood's default one.
         random = (gGameOptions.nGameType == 0 && !VanillaMode() && !DemoRecordStatus()) ? STD_Random(0, 3) : Random(3);
-        if (rData[random] > 0)   return rData[random];
-        else maxRetries--;
+            if (rData[random] > 0) return rData[random];
+            maxRetries--;
+    }
     }
 
-     // if nothing, get first found data value from top
-    return first;
+    return -1;
 }
 
 // this function drops random item using random pickup generator(s)
-spritetype* DropRandomPickupObject(spritetype* pSprite, short prevItem) {
-    spritetype* pSprite2 = NULL; int rData[4]; int selected = -1;
-    if (xspriData2Array(pSprite->extra,rData)) {
-        
-    // randomize only in case if at least 2 data fields fits.
-    for (int i = 0; i <= 3; i++)
-        if (rData[i] < kItemWeaponBase || rData[i] >= kItemMax)
-            rData[i] = 0;
-
-    int maxRetries = 9;
-        while ((selected = GetRandDataVal(rData)) == prevItem) if (maxRetries-- <= 0) break;
+spritetype* DropRandomPickupObject(spritetype* pSource, short prevItem) {
+    spritetype* pSprite2 = NULL; int selected = -1; int maxRetries = 9;
+    if (xspriRangeIsFine(pSource->extra)) {
+        XSPRITE* pXSource = &xsprite[pSource->extra];
+        while ((selected = GetRandDataVal(pXSource, kRandomizeItem)) == prevItem) if (maxRetries-- <= 0) break;
     if (selected > 0) {
-        spritetype* pSource = pSprite; XSPRITE* pXSource = &xsprite[pSource->extra];
-        pSprite2 = actDropObject(pSprite, selected);
+            pSprite2 = actDropObject(pSource, selected);
         if (pSprite2 != NULL) {
 
             pXSource->dropMsg = pSprite2->type; // store dropped item type in dropMsg
@@ -7415,23 +7410,17 @@ spritetype* DropRandomPickupObject(spritetype* pSprite, short prevItem) {
             }
         }
     }
-
     }
-
     return pSprite2;
 }
 
 // this function spawns random dude using dudeSpawn
-spritetype* spawnRandomDude(spritetype* pSprite) {
-    spritetype* pSprite2 = NULL; int rData[4]; int selected = -1; 
-    if (xspriData2Array(pSprite->extra, rData)) {
-        // randomize only in case if at least 2 data fields fits.
-        for (int i = 0; i <= 3; i++)
-            if (rData[i] < kDudeBase || rData[i] >= kDudeMax)
-                rData[i] = 0;
-
-        if ((selected = GetRandDataVal(rData)) > 0)
-           pSprite2 = actSpawnDude(pSprite, selected, -1, 0);
+spritetype* spawnRandomDude(spritetype* pSource) {
+    spritetype* pSprite2 = NULL; int selected = -1;
+    if (xspriRangeIsFine(pSource->extra)) {
+        XSPRITE* pXSource = &xsprite[pSource->extra];
+        if ((selected = GetRandDataVal(pXSource, kRandomizeDude)) > 0)
+            pSprite2 = actSpawnDude(pSource, selected, -1, 0);
     }
     return pSprite2;
 }

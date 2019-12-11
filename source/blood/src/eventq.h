@@ -67,6 +67,7 @@ kChannelRemoteBomb5,
 kChannelRemoteBomb6,
 kChannelRemoteBomb7,
 kChannelUser                        = 100,
+kChannelUserMax                     = 1024,
 kChannelMax                         = 4096,
 };
 
