@@ -267,7 +267,7 @@ static void D_AddDirectory (TArray<FString> &wadfiles, const char *dir)
 		{
 			skindir[stuffstart++] = '/';
 			int savedstart = stuffstart;
-			const char* validexts[] = { "*.grp", "*.zip", "*.pk3", "*.pk4", "*.7z", "*.pk7", "*.dat" };
+			static const char* validexts[] = { "*.grp", "*.zip", "*.pk3", "*.pk4", "*.7z", "*.pk7", "*.dat" };
 			for (auto ext : validexts)
 			{
 				stuffstart = savedstart;

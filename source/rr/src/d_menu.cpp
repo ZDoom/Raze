@@ -450,7 +450,7 @@ void GameInterface::StartGame(FGameStartup& gs)
 	ud.m_respawn_inventory = 0;
 	ud.multimode = 1;
 	ud.m_volume_number = gs.Episode;
-	ud.m_level_number = gs.Level;
+	m_level_number = gs.Level;
 	G_NewGame_EnterLevel();
 
 }

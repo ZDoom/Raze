@@ -65,14 +65,16 @@ void UserConfig::ProcessOptions()
 		initprintf("Build-format config files not supported and will be ignored\n");
 	}
 
+#if 0 // MP disabled pending evaluation
 	auto v = Args->CheckValue("-port");
 	if (v) netPort = strtol(v, nullptr, 0);
 
 	netServerMode = Args->CheckParm("-server");
 	netServerAddress = Args->CheckValue("-connect");
 	netPassword = Args->CheckValue("-password");
+#endif
 
-	v = Args->CheckValue("-addon");
+	auto v = Args->CheckValue("-addon");
 	if (v)
 	{
 		auto val = strtol(v, nullptr, 0);
@@ -91,6 +93,22 @@ void UserConfig::ProcessOptions()
 	else if (Args->CheckParm("-ww2gi"))
 	{
 		gamegrp = "WW2GI.GRP";
+	}
+	// Set up all needed content for these two mod which feature a very messy distribution.
+	// As an alternative they can be zipped up - the launcher will be able to detect and set up such versions automatically.
+	else if (Args->CheckParm("-route66"))
+	{
+		gamegrp = "REDNECK.GRP";
+		DefaultCon = "GAME66.CON";
+		const char* argv[] = { "tilesa66.art" , "tilesb66.art" };
+		AddArt.reset(new FArgs(2, argv));
+	}
+	else if (Args->CheckParm("-cryptic"))
+	{
+		gamegrp = "BLOOD.RFF";
+		DefaultCon = "CRYPTIC.INI";
+		const char* argv[] = { "cpart07.ar_" , "cpart15.ar_" };
+		AddArt.reset(new FArgs(2, argv));
 	}
 
 	v = Args->CheckValue("-gamegrp");
@@ -408,6 +426,15 @@ int CONFIG_Init()
 	CheckFrontend(g_gameType);
 
 	InitFileSystem(usedgroups);
+	TArray<FString> addArt;
+	for (auto& grp : usedgroups)
+	{
+		for (auto& art : grp.FileInfo.loadart)
+		{
+			addArt.Push(art);
+		}
+	}
+	TileFiles.AddArt(addArt);
 
 	CONTROL_ClearAssignments();
 	CONFIG_InitMouseAndController();

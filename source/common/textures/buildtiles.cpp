@@ -42,6 +42,7 @@
 #include "palette.h"
 #include "m_crc32.h"
 #include "build.h"
+#include "gamecontrol.h"
 
 enum
 {
@@ -338,6 +339,10 @@ void BuildTiles::LoadArtSet(const char* filename)
 	{
 		FStringf fn(filename, index);
 		LoadArtFile(fn, false);
+	}
+	for (auto& addart : addedArt)
+	{
+		LoadArtFile(addart, false);
 	}
 }
 

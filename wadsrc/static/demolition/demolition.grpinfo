@@ -332,10 +332,10 @@ grpinfo
 
 grpinfo
 {
-	// This is for detecting zipped versions of the mod. The default configuration with all files dumped in the game filter requires starting the game with "-route66"
+	// This is for detecting zipped versions of the mod.
 	name "Redneck Rampage: Suckin' Grits on Route 66"
 	scriptname "GAME66.CON"
-	mustcontain "TILESA66.ART", "TILESB66.ART", "CARNIVAL.MAP", "TRUCKSTP.MAP", "GAME66.CON"
+	mustcontain "TILESA66.ART", "TILESB66.ART", "ROUTE66/CARNIVAL.MAP", "ROUTE66/TRUCKSTP.MAP", "GAME66.CON"
 	flags GAMEFLAG_RR|GAMEFLAG_ADDON
 	dependency RR_CRC
 	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
@@ -355,6 +355,7 @@ grpinfo
 	gamefilter "Blood.Blood"
 }
 
+/* this doesn't work with the current setup.
 grpinfo
 {
 	// This is for identifying older Blood versions. Since I have no information, all I can do is testing for a few known files.
@@ -367,10 +368,11 @@ grpinfo
 	loadgrp "SOUNDS.RFF", "GUI.RFF"
 	gamefilter "Blood.Blood"
 }
+*/
 
 grpinfo
 {
-	// This is for detecting zipped versions of the mod. The default configuration with all files dumped in the game filter requires starting the game with "-cryptic"
+	// This is for detecting zipped versions of the mod.
 	name "BLOOD: Cryptic Passage"
 	scriptname "CRYPTIC.INI"
 	mustcontain "CRYPTIC.INI", "CP01.MAP", "CP02.MAP"

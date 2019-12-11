@@ -29,7 +29,7 @@ struct MapRecord
 	FString name;
 	FString music;
 	int cdSongId = -1;
-	int flags = -1;
+	int flags = 0;
 
 	// The rest is only used by Blood
 	int nextLevel = -1;
