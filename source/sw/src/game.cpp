@@ -99,6 +99,7 @@ Things required to make savegames work:
 #include "z_music.h"
 #include "statistics.h"
 #include "gstrings.h"
+#include "mapinfo.h"
 
 //#include "crc32.h"
 
@@ -177,7 +178,6 @@ extern SWBOOL GamePaused;
 short screenpeek = 0;
 SWBOOL NoDemoStartup = FALSE;
 SWBOOL FirstTimeIntoGame;
-extern uint8_t RedBookSong[40];
 
 SWBOOL BorderAdjust = FALSE;
 SWBOOL LocationInfo = 0;
@@ -982,51 +982,6 @@ YOKOHA03 MID
 */
 
 short SongLevelNum;
-//#ifndef SW_SHAREWARE
-LEVEL_INFO LevelInfo[MAX_LEVELS_REG+2] =
-{
-    {"title.map",      "theme.mid", " ", " ", " "  },
-    {"$bullet.map",    "e1l01.mid", "Seppuku Station", "0 : 55", "5 : 00"  },
-    {"$dozer.map",     "e1l03.mid", "Zilla Construction", "4 : 59", "8 : 00"  },
-    {"$shrine.map",    "e1l02.mid", "Master Leep's Temple", "3 : 16", "10 : 00"  },
-    {"$woods.map",     "e1l04.mid", "Dark Woods of the Serpent", "7 : 06", "16 : 00"  },
-    {"$whirl.map",     "yokoha03.mid", "Rising Son", "5 : 30", "10 : 00"   },
-    {"$tank.map",      "nippon34.mid", "Killing Fields", "1 : 46", "4 : 00"   },
-    {"$boat.map",      "execut11.mid", "Hara-Kiri Harbor", "1 : 56", "4 : 00"   },
-    {"$garden.map",    "execut11.mid", "Zilla's Villa", "1 : 06", "2 : 00"   },
-    {"$outpost.map",   "sanai.mid",    "Monastery", "1 : 23", "3 : 00"      },
-    {"$hidtemp.map",   "kotec2.mid",   "Raider of the Lost Wang", "2 : 05", "4 : 10"     },
-    {"$plax1.map",     "kotec2.mid",   "Sumo Sky Palace", "6 : 32", "12 : 00"     },
-    {"$bath.map",      "yokoha03.mid", "Bath House", "10 : 00", "10 : 00"   },
-    {"$airport.map",   "nippon34.mid", "Unfriendly Skies", "2 : 59", "6 : 00"   },
-    {"$refiner.map",   "kotoki12.mid", "Crude Oil", "2 : 40", "5 : 00"   },
-    {"$newmine.map",   "hoshia02.mid", "Coolie Mines", "2 : 48", "6 : 00"   },
-    {"$subbase.map",   "hoshia02.mid", "Subpen 7", "2 : 02", "4 : 00"   },
-    {"$rock.map",      "kotoki12.mid", "The Great Escape", "3 : 18", "6 : 00"   },
-    {"$yamato.map",    "sanai.mid",    "Floating Fortress", "11 : 38", "20 : 00"      },
-    {"$seabase.map",   "kotec2.mid",   "Water Torture", "5 : 07", "10 : 00"     },
-    {"$volcano.map",   "kotec2.mid",   "Stone Rain", "9 : 15", "20 : 00"     },
-    {"$shore.map",     "kotec2.mid",   "Shanghai Shipwreck", "3 : 58", "8 : 00"     },
-    {"$auto.map",      "kotec2.mid",   "Auto Maul", "4 : 07", "8 : 00"     },
-    {"tank.map",       "kotec2.mid",   "Heavy Metal (DM only)", "10 : 00", "10 : 00"     },
-    {"$dmwoods.map",   "kotec2.mid",   "Ripper Valley (DM only)", "10 : 00", "10 : 00"     },
-    {"$dmshrin.map",   "kotec2.mid",   "House of Wang (DM only)", "10 : 00", "10 : 00"     },
-    {"$rush.map",      "kotec2.mid",   "Lo Wang Rally (DM only)", "10 : 00", "10 : 00"     },
-    {"shotgun.map",    "kotec2.mid",   "Ruins of the Ronin (CTF)", "10 : 00", "10 : 00"     },
-    {"$dmdrop.map",    "kotec2.mid",   "Killing Fields (CTF)", "10 : 00", "10 : 00"     },
-    {NULL, NULL, NULL, NULL, NULL}
-};
-/*#else
-LEVEL_INFO LevelInfo[MAX_LEVELS+2] =  // Shareware
-    {
-    {"title.map",      "theme.mid", " ", " ", " "  },
-    {"$bullet.map",    "e1l01.mid", "Seppuku Station", "0 : 55", "5 : 00"  },
-    {"$dozer.map",     "e1l03.mid", "Zilla Construction", "4 : 59", "8 : 00"  },
-    {"$shrine.map",    "e1l02.mid", "Master Leep's Temple", "3 : 16", "10 : 00"  },
-    {"$woods.map",     "e1l04.mid", "Dark Woods of the Serpent", "7 : 06", "16 : 00"  },
-    {NULL, NULL, NULL, NULL, NULL}
-    };
-#endif*/
 
 FString ThemeSongs[6];
 int ThemeTrack[6];
@@ -1060,13 +1015,10 @@ void FindLevelInfo(char *map_name, short *level)
 
     for (j = 1; j <= MAX_LEVELS; j++)
     {
-        if (LevelInfo[j].LevelName)
+        if (Bstrcasecmp(map_name, mapList[j].fileName.GetChars()) == 0)
         {
-            if (Bstrcasecmp(map_name, LevelInfo[j].LevelName) == 0)
-            {
-                *level = j;
-                return;
-            }
+            *level = j;
+            return;
         }
     }
 
@@ -1156,7 +1108,7 @@ InitLevel(void)
         FindLevelInfo(LevelName, &Level);
         if (Level > 0)
         {
-            strcpy(LevelName, LevelInfo[Level].LevelName);
+            strcpy(LevelName, mapList[Level].fileName);
             UserMapName[0] = '\0';
         }
         else
@@ -1194,13 +1146,13 @@ InitLevel(void)
             if (Level > 0)
             {
                 // user map is part of game - treat it as such
-                strcpy(LevelName, LevelInfo[Level].LevelName);
+                strcpy(LevelName, mapList[Level].fileName);
                 UserMapName[0] = '\0';
             }
         }
         else
         {
-            strcpy(LevelName, LevelInfo[Level].LevelName);
+            strcpy(LevelName, mapList[Level].fileName);
         }
     }
 
@@ -2021,11 +1973,7 @@ void LoadingLevelScreen(char *level_name)
     MNU_MeasureString(ds, &w, &h);
     MNU_DrawString(TEXT_TEST_COL(w), 170, ds,1,16);
 
-    if (UserMapName[0])
-        sprintf(ds,"%s",UserMapName);
-    else
-        sprintf(ds,"%s",LevelInfo[Level].Description);
-
+	auto ds = currentLevel->DisplayName();
     MNU_MeasureString(ds, &w, &h);
     MNU_DrawString(TEXT_TEST_COL(w), 180, ds,1,16);
 
@@ -2259,7 +2207,7 @@ void BonusScreen(PLAYERp pp)
         {
             if (PlayingLevel <= 1)
                 PlayingLevel = 1;
-            sprintf(ds,"%s",LevelInfo[PlayingLevel].Description);
+			auto ds = currentLevel->DisplayName();
             MNU_MeasureString(ds, &w, &h);
             MNU_DrawString(TEXT_TEST_COL(w), 20, ds,1,19);
         }
@@ -2283,12 +2231,12 @@ void BonusScreen(PLAYERp pp)
         if (!UserMapName[0])
         {
             line++;
-            sprintf(ds,"3D Realms Best Time:  %s", LevelInfo[PlayingLevel].BestTime);
+			sprintf(ds,"3D Realms Best Time:  %d:%02d", currentLevel->designerTime/60, currentLevel->designerTime%60);
             MNU_MeasureString(ds, &w, &h);
             MNU_DrawString(40, BONUS_LINE(line), ds,1,16);
 
             line++;
-            sprintf(ds,"Par Time:  %s", LevelInfo[PlayingLevel].ParTime);
+			sprintf(ds,"Par Time:  %d:%02d", currentLevel->parTime/ 60, currentLevel->parTime%60);
             MNU_MeasureString(ds, &w, &h);
             MNU_DrawString(40, BONUS_LINE(line), ds,1,16);
         }
@@ -2774,16 +2722,14 @@ void InitRunLevel(void)
     InitNetVars();
 
     {
-        int track;
         if (Level == 0)
         {
-            track = RedBookSong[4+RANDOM_RANGE(10)];
+			PlaySong(nullptr, currentLevel->music, 1 + RANDOM_RANGE(10));
         }
         else
         {
-            track = RedBookSong[Level];
+			PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
         }
-        PlaySong(LevelInfo[Level].LevelName, LevelInfo[Level].SongName, track);
     }
 
     InitPrediction(&Player[myconnectindex]);
@@ -2978,13 +2924,6 @@ int32_t GameInterface::app_main()
     {
         if (SW_SHAREWARE) buildputs("Detected shareware GRP\n");
         else buildputs("Detected registered GRP\n");
-    }
-
-    if (SW_SHAREWARE)
-    {
-        // Zero out the maps that aren't in shareware version
-        memset(&LevelInfo[MAX_LEVELS_SW+1], 0, sizeof(LEVEL_INFO)*(MAX_LEVELS_REG-MAX_LEVELS_SW));
-        GameVersion++;
     }
 
     for (i = 0; i < MAX_SW_PLAYERS; i++)
@@ -3894,10 +3833,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
         minigametext(txt_x,txt_y-7,"Follow Mode",0,2+8);
     }
 
-    if (UserMapName[0])
-        sprintf(ds,"%s",UserMapName);
-    else
-        sprintf(ds,"%s",LevelInfo[Level].Description);
+    sprintf(ds,"%s",currentLevel->DisplayName());
 
     minigametext(txt_x,txt_y,ds,0,2+8);
 

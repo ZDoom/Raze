@@ -942,16 +942,6 @@ typedef struct
 #define MAX_LEVELS_SW 4
 #define MAX_LEVELS (isShareware ? MAX_LEVELS_SW : MAX_LEVELS_REG)
 
-typedef struct
-{
-    const char *LevelName;
-    const char *SongName;
-    const char *Description;
-    const char *BestTime;
-    const char *ParTime;
-} LEVEL_INFO, *LEVEL_INFOp, * *LEVEL_INFOpp;
-
-extern LEVEL_INFO LevelInfo[MAX_LEVELS_REG+2];
 extern int   ThemeTrack[6];                                          // w
 extern FString ThemeSongs[6];                                          //
 

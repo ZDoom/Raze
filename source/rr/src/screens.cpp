@@ -1967,11 +1967,11 @@ static int32_t G_PrintTime_ClockPad(void)
     clockpad = max(clockpad, ij);
     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
     {
-        for (ii=currentLevel->parTime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
+        for (ii=currentLevel->parTime/(60), ij=1; ii>9; ii/=10, ij++) { }
         clockpad = max(clockpad, ij);
         if (currentLevel->designerTime)
         {
-            for (ii=currentLevel->designerTime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
+            for (ii=currentLevel->designerTime/(60), ij=1; ii>9; ii/=10, ij++) { }
             clockpad = max(clockpad, ij);
         }
     }
@@ -2000,13 +2000,13 @@ const char* G_PrintParTime(void)
 {
     if (ud.last_level < 1)
         return "<invalid>";
-    return G_PrintTime2(currentLevel->parTime);
+    return G_PrintTime2(currentLevel->parTime * REALGAMETICSPERSEC);
 }
 const char* G_PrintDesignerTime(void)
 {
     if (ud.last_level < 1)
         return "<invalid>";
-    return G_PrintTime2(currentLevel->designerTime);
+    return G_PrintTime2(currentLevel->designerTime*REALGAMETICSPERSEC);
 }
 const char* G_PrintBestTime(void)
 {

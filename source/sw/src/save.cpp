@@ -75,7 +75,6 @@ TO DO
 */
 
 extern int lastUpdate;
-extern uint8_t RedBookSong[40];
 extern char UserMapName[80];
 extern char SaveGameDescr[10][80];
 extern int PlayClock;
@@ -252,10 +251,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 	auto game_name = G_BuildSaveName(sv->Filename);
 	OpenSaveGameForWrite(game_name);
     // workaround until the level info here has been transitioned.
-    MapRecord mr;
-    mr.SetFileName(LevelInfo[Level].Description);
-    mr.labelName = LevelInfo[Level].Description;
-    currentLevel = &mr;
     G_WriteSaveHeader(sv->SaveTitle);
 	fil = WriteSavegameChunk("snapshot.sw");
 

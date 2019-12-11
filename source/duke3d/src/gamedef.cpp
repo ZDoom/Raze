@@ -5177,8 +5177,8 @@ repeatcase:
             C_SkipComments();
 
             mapList[j *MAXLEVELS+k].parTime =
-                (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
-                (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
+                (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*60)+
+                (((*(textptr+3)-'0')*10+(*(textptr+4)-'0')));
 
             textptr += 5;
             scriptSkipSpaces();
@@ -5187,8 +5187,8 @@ repeatcase:
             if (*(textptr+2) == ':')
             {
                 mapList[j *MAXLEVELS+k].designerTime =
-                    (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
-                    (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
+                    (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*60)+
+                    (((*(textptr+3)-'0')*10+(*(textptr+4)-'0')));
 
                 textptr += 5;
                 scriptSkipSpaces();

@@ -72,13 +72,6 @@ int PLocked_Sounds[] =
     558,557
 };
 
-uint8_t RedBookSong[40] =
-{
-    2,4,9,12,10, // Title and ShareWare levels
-    5,6,8,11,12,5,10,4,6,9,7,10,8,7,9,10,11,5, // Registered levels
-    11,8,7,13,5,6,  // Deathmatch levels
-    13 // Fight boss
-};
 
 // Global vars used by ambient sounds to set spritenum of ambient sounds for later lookups in
 // the sprite array so FAFcansee can know the sound sprite's current sector location

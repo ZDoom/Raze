@@ -1876,8 +1876,8 @@ static int32_t C_ParseCommand(int32_t loop)
             C_SkipComments();
 
             mapList[j *MAXLEVELS+k].parTime =
-                (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
-                (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
+                (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*60)+
+                (((*(textptr+3)-'0')*10+(*(textptr+4)-'0')));
 
             textptr += 5;
             C_SkipSpace();
@@ -1886,8 +1886,8 @@ static int32_t C_ParseCommand(int32_t loop)
             if (*(textptr+2) == ':')
             {
                 mapList[j *MAXLEVELS+k].designerTime =
-                    (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
-                    (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
+                    (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*60)+
+                    (((*(textptr+3)-'0')*10+(*(textptr+4)-'0')));
 
                 textptr += 5;
                 C_SkipSpace();

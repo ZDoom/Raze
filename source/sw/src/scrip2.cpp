@@ -41,6 +41,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "scriptfile.h"
 #include "menu/menu.h"
 #include "quotemgr.h"
+#include "mapinfo.h"
 
 BEGIN_SW_NS
 
@@ -506,7 +507,6 @@ static int cm_transtok(const char *tok, const struct _tokset *set, const unsigne
     return -1;
 }
 
-static LEVEL_INFO custommaps[MAX_LEVELS_REG];
 
 #define WM_DAMAGE  1
 #define WM_WEAP   2
@@ -575,7 +575,7 @@ void LoadCustomInfoFromScript(const char *filename)
             mapnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
-            // first map file in LevelInfo[] is bogus, last map file is NULL
+            // first map entry may not be used, max. amount needs investigation
             if (curmap < 1 || curmap > MAX_LEVELS_REG)
             {
                 initprintf("Error: map number %d not in range 1-%d on line %s:%d\n",
@@ -596,9 +596,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    //Bfree(custommaps[curmap].LevelName);
-                    custommaps[curmap].LevelName = strdup(t);
-                    LevelInfo[curmap].LevelName = custommaps[curmap].LevelName;
+					mapList[curmap].SetFileName(t);
                     break;
                 }
                 case CM_SONG:
@@ -606,9 +604,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    //Bfree(custommaps[curmap].SongName);
-                    custommaps[curmap].SongName = strdup(t);
-                    LevelInfo[curmap].SongName = custommaps[curmap].SongName;
+					mapList[curmap].music = t;
                     break;
                 }
                 case CM_TITLE:
@@ -616,9 +612,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    //Bfree(custommaps[curmap].Description);
-                    custommaps[curmap].Description = strdup(t);
-                    LevelInfo[curmap].Description = custommaps[curmap].Description;
+					mapList[curmap].SetName(t);
                     break;
                 }
                 case CM_BESTTIME:
@@ -627,10 +621,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char s[10];
                     if (scriptfile_getnumber(script, &n)) break;
 
-                    Bsnprintf(s, 10, "%d : %02d", n/60, n%60);
-                    //Bfree(custommaps[curmap].BestTime);
-                    custommaps[curmap].BestTime = strdup(s);
-                    LevelInfo[curmap].BestTime = custommaps[curmap].BestTime;
+					mapList[curmap].designerTime = (int)strtoll(s, nullptr, 0);
                     break;
                 }
                 case CM_PARTIME:
@@ -639,10 +630,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char s[10];
                     if (scriptfile_getnumber(script, &n)) break;
 
-                    Bsnprintf(s, 10, "%d : %02d", n/60, n%60);
-                    //Bfree(custommaps[curmap].ParTime);
-                    custommaps[curmap].ParTime = strdup(s);
-                    LevelInfo[curmap].ParTime = custommaps[curmap].ParTime;
+					mapList[curmap].parTime = (int)strtoll(s, nullptr, 0);
                     break;
                 }
                 case CM_CDATRACK:
@@ -668,7 +656,6 @@ void LoadCustomInfoFromScript(const char *filename)
             epnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
-            // first map file in LevelInfo[] is bogus, last map file is NULL
             if ((unsigned)--curmap >= 2u)
             {
                 initprintf("Error: episode number %d not in range 1-2 on line %s:%d\n",
@@ -715,7 +702,6 @@ void LoadCustomInfoFromScript(const char *filename)
             epnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
-            // first map file in LevelInfo[] is bogus, last map file is NULL
             if ((unsigned)--curmap >= 4u)
             {
                 initprintf("Error: skill number %d not in range 1-4 on line %s:%d\n",

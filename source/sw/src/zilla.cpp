@@ -37,10 +37,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "fx_man.h"
 #include "gamecontrol.h"
+#include "mapinfo.h"
 
 BEGIN_SW_NS
 
-extern uint8_t RedBookSong[40];
 extern short BossSpriteNum[3];
 
 ANIMATOR InitZillaCharge;
@@ -780,7 +780,7 @@ int DoZillaDeathMelt(short SpriteNum)
     if (!SW_SHAREWARE)
     {
         // Resume the regular music - in a hack-free fashion.
-        PlaySong(LevelInfo[Level].LevelName, LevelInfo[Level].SongName, RedBookSong[Level]);
+        PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
     }
 
     //KeepActorOnFloor(SpriteNum);
