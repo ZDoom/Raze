@@ -5613,7 +5613,6 @@ int portableBackupSave(const char * path, const char * name, int volume, int lev
     sjson_node * root = sjson_mkobject(ctx);
 
     sjson_put_string(ctx, root, "name", name);
-    // sjson_put_string(ctx, root, "map", currentboardfilename);
     sjson_put_int(ctx, root, "volume", volume);
     sjson_put_int(ctx, root, "level", level);
     sjson_put_int(ctx, root, "skill", ud.player_skill);

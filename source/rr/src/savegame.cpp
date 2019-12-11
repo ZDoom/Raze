@@ -258,8 +258,6 @@ int32_t G_LoadPlayer(const char *path)
         engineLoadMHK(workbuffer);
     }
 
-    Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
-
     if (status == 2)
         G_NewGame_EnterLevel();
     else if ((status = sv_loadsnapshot(*fil, 0, &h)))  // read the rest...
@@ -883,8 +881,6 @@ static const dataspec_t svgm_udnetw[] =
     { DS_NOCHK, &ud.noexits, sizeof(ud.noexits), 1 },
     { DS_NOCHK, &ud.playerai, sizeof(ud.playerai), 1 },
     { 0, &ud.pause_on, sizeof(ud.pause_on), 1 },
-    { DS_NOCHK, &currentboardfilename[0], BMAX_PATH, 1 },
-//    { DS_LOADFN, (void *)&sv_postudload, 0, 1 },
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
     { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },
@@ -1129,10 +1125,6 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
     h.volnum     = ud.volume_number;
     h.levnum     = ud.level_number;
     h.skill      = ud.player_skill;
-
-    const uint32_t BSZ = sizeof(h.boardfn);
-    EDUKE32_STATIC_ASSERT(BSZ == sizeof(currentboardfilename));
-    Bstrncpy(h.boardfn, currentboardfilename, BSZ);
 
     if (spot >= 0)
     {
@@ -1382,7 +1374,6 @@ int32_t sv_readdiff(FileReader &fil)
 // SVGM data description
 static void sv_postudload()
 {
-//    Bmemcpy(&boardfilename[0], &currentboardfilename[0], BMAX_PATH);  // DON'T do this in demos!
 #if 1
     m_level_number      = ud.level_number;
     ud.m_volume_number     = ud.volume_number;

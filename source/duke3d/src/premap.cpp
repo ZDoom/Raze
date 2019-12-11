@@ -1940,8 +1940,6 @@ int G_EnterLevel(int gameMode)
 
     G_ResetTimers(0);  // Here we go
 
-    Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
-
     G_CheckIfStateless();
 
     for (int TRAVERSE_CONNECT(i))

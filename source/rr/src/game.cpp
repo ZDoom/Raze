@@ -79,7 +79,7 @@ int32_t g_quitDeadline = 0;
 int32_t g_cameraDistance = 0, g_cameraClock = 0;
 static int32_t g_quickExit;
 
-char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
+char boardfilename[BMAX_PATH] = {0};
 
 int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;

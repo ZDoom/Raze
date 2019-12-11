@@ -2502,7 +2502,6 @@ int G_EnterLevel(int gameMode)
     //AddLog(g_szBuf);
     // variables are set by pointer...
 
-    Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
 
     if (G_HaveUserMap())
     {

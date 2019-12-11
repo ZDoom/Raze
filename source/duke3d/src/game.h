@@ -199,7 +199,7 @@ extern user_defs ud;
 // this is checked against http://eduke32.com/VERSION
 extern const char *s_buildDate;
 
-extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
+extern char boardfilename[BMAX_PATH];
 #define USERMAPMUSICFAKEVOLUME MAXVOLUMES
 #define USERMAPMUSICFAKELEVEL (MAXLEVELS-1)
 #define USERMAPMUSICFAKESLOT ((USERMAPMUSICFAKEVOLUME * MAXLEVELS) + USERMAPMUSICFAKELEVEL)

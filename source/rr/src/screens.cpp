@@ -989,14 +989,9 @@ void G_DisplayRest(int32_t smoothratio)
             if (ud.overhead_on == 2)
             {
                 const int32_t a = RR ? 0 : ((ud.screen_size > 0) ? 147 : 179);
-                if (RR && g_lastLevel)
-                    minitext(5, a+6, "CLOSE ENCOUNTERS", 0, 2+8+16+256);
-                else
-                {
-                    if (!G_HaveUserMap())
-                        minitext(5, a+6, GStrings.localize(gVolumeNames[ud.volume_number]), 0, 2+8+16+256);
-                    minitext(5, a+6+6, mapList[ud.volume_number*MAXLEVELS + ud.level_number].DisplayName(), 0, 2+8+16+256);
-                }
+                if (!G_HaveUserMap())
+                    minitext(5, a+6, GStrings.localize(gVolumeNames[ud.volume_number]), 0, 2+8+16+256);
+                minitext(5, a+6+6, currentLevel->DisplayName(), 0, 2+8+16+256);
             }
         }
     }
@@ -1025,11 +1020,7 @@ void G_DisplayRest(int32_t smoothratio)
         else if (g_levelTextTime < 5)
             o |= 1;
 
-        char const * const fn = currentboardfilename[0] != 0 &&
-            ud.volume_number == 0 && ud.level_number == 7
-                ? currentboardfilename
-                : mapList[(ud.volume_number*MAXLEVELS) + ud.level_number].DisplayName();
-        menutext_(160<<16, (90+16+8)<<16, -g_levelTextTime+22/*quotepulseshade*/, fn, o, TEXT_XCENTER);
+        menutext_(160<<16, (90+16+8)<<16, -g_levelTextTime+22/*quotepulseshade*/, currentLevel->DisplayName(), o, TEXT_XCENTER);
     }
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)

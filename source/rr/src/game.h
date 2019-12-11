@@ -198,7 +198,7 @@ extern user_defs ud;
 // this is checked against http://eduke32.com/VERSION
 extern const char *s_buildDate;
 
-extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
+extern char boardfilename[BMAX_PATH];
 
 static inline int G_HaveUserMap(void)
 {
