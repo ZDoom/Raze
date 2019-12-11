@@ -1,42 +1,7 @@
-level 1
-{
-    title    "Seppuku Station"
-    filename "$bullet.map"
-    song     "e1l01.mid"
-    cdatrack 4
-    besttime 60
-    partime  300
-}
-level 2
-{
-    title    "Zilla Construction"
-    filename "$dozer.map"
-    song     "e1l03.mid"
-    cdatrack 9
-    besttime 300
-    partime  480
-}
-level 3
-{
-    title    "Master Leep's Temple"
-    filename "$shrine.map"
-    song     "e1l02.mid"
-    cdatrack 12
-    besttime 196
-    partime  600
-}
-level 4
-{
-    title    "Dark Woods of the Serpent"
-    filename "$woods.map"
-    song     "e1l04.mid"
-    cdatrack 10
-    besttime 428
-    partime  960
-}
+
 level 5
 {
-    title    "Chinatown"
+    title    "$TXTS_W_MAP01"
     filename "$whirl.map"
     song     "yokoha03.mid"
     cdatrack 5
@@ -45,7 +10,7 @@ level 5
 }
 level 6
 {
-    title    "Monastery"
+    title    "$TXTS_W_MAP02"
     filename "$tank.map"
     song     "nippon34.mid"
     cdatrack 6
@@ -54,7 +19,7 @@ level 6
 }
 level 7
 {
-    title    "Trolly Yard"
+    title    "$TXTS_W_MAP03"
     filename "$boat.map"
     song     "execut11.mid"
     cdatrack 8
@@ -63,7 +28,7 @@ level 7
 }
 level 8
 {
-    title    "Restaurant"
+    title    "$TXTS_W_MAP04"
     filename "$garden.map"
     song     "execut11.mid"
     cdatrack 11
@@ -72,7 +37,7 @@ level 8
 }
 level 9
 {
-    title    "Skyscraper"
+    title    "$TXTS_W_MAP05"
     filename "$outpost.map"
     song     "sanai.mid"
     cdatrack 12
@@ -81,7 +46,7 @@ level 9
 }
 level 10
 {
-    title    "Airplane"
+    title    "$TXTS_W_MAP06"
     filename "$hidtemp.map"
     song     "kotec2.mid"
     cdatrack 5
@@ -90,7 +55,7 @@ level 10
 }
 level 11
 {
-    title    "Military Base"
+    title    "$TXTS_W_MAP07"
     filename "$plax1.map"
     song     "kotec2.mid"
     cdatrack 10
@@ -99,7 +64,7 @@ level 11
 }
 level 12
 {
-    title    "Train"
+    title    "$TXTS_W_MAP08"
     filename "$bath.map"
     song     "yokoha03"
     cdatrack 4
@@ -108,70 +73,16 @@ level 12
 }
 level 13
 {
-    title    "Auto Factor"
+    title    "$TXTS_W_MAP09"
     filename "$airport.map"
     song     "nippon34"
     cdatrack 6
     besttime 180
     partime  300
 }
-level 14
-{
-    title    "Crude Oil"
-    filename "$refiner.map"
-    song     "kotoki12.mid"
-    cdatrack 9
-    besttime 160
-    partime  300
-}
-level 15
-{
-    title    "Coolie Mines"
-    filename "$newmine.map"
-    song     "hoshia02.mid"
-    cdatrack 7
-    besttime 180
-    partime  300
-}
-level 16
-{
-    title    "Subpen 7"
-    filename "$subbase.map"
-    song     "hoshia02.mid"
-    cdatrack 10
-    besttime 122
-    partime  240
-}
-level 17
-{
-    title    "The Great Escape"
-    filename "$rock.map"
-    song     ""
-    cdatrack 8
-    besttime 198
-    partime  360
-}
-level 18
-{
-    title    "Floating Fortress"
-    filename "$yamato.map"
-    song     "sanai.mid"
-    cdatrack 7
-    besttime 698
-    partime  1200
-}
-level 19
-{
-    title    "Water Torture"
-    filename "$seabase.map"
-    song     "kotec2.mid"
-    cdatrack 9
-    besttime 307
-    partime  480
-}
 level 20
 {
-    title    "Skyline"
+    title    "$TXTS_W_MAP10"
     filename "$volcano.map"
     song     ""
     cdatrack 10
@@ -180,7 +91,7 @@ level 20
 }
 level 21
 {
-    title    "Redwood Forest"
+    title    "$TXTS_W_MAP11"
     filename "$shore.map"
     song     ""
     cdatrack 11
@@ -189,7 +100,7 @@ level 21
 }
 level 22
 {
-    title    "The Docks"
+    title    "$TXTS_W_MAP12"
     filename "$auto.map"
     song     ""
     cdatrack 5
@@ -198,7 +109,7 @@ level 22
 }
 level 23
 {
-    title    "Waterfight (DM only)"
+    title    "$TXTS_W_MAP13"
     filename "tank.map"
     song     ""
     cdatrack 11
@@ -207,7 +118,7 @@ level 23
 }
 level 24
 {
-    title    "Wanton DM 1 (DM only)"
+    title    "$TXTS_W_MAP14"
     filename "$dmwoods.map"
     song     ""
     cdatrack 8
@@ -216,37 +127,19 @@ level 24
 }
 level 25
 {
-    title    "Wanton DM2 (DM only)"
+    title    "$TXTS_W_MAP15"
     filename "$dmshrin.map"
     song     ""
     cdatrack 7
     besttime 600
     partime  600
 }
-level 26
-{
-    title    "Lo Wang Rally (DM only"
-    filename "$rush.map"
-    song     ""
-    cdatrack 13
-    besttime 600
-    partime  600
-}
 level 27
 {
-    title    "Wanton CTF (CTF)"
+    title    "$TXTS_W_MAP16"
     filename "shotgun.map"
     song     ""
     cdatrack 5
-    besttime 600
-    partime  600
-}
-level 28
-{
-    title    "Killing Fields (CTF)"
-    filename "$dmdrop.map"
-    song     ""
-    cdatrack 6
     besttime 600
     partime  600
 }
@@ -256,6 +149,6 @@ episode 1
 }
 episode 2
 {
-    title    "Wanton Destruction"
+    title    "$TXTS_W_EP"
     subtitle ""
 }
