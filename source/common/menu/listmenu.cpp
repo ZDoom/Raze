@@ -469,6 +469,30 @@ FListMenuItemStaticText::~FListMenuItemStaticText()
 
 //=============================================================================
 //
+// native static text item
+//
+//=============================================================================
+
+FListMenuItemNativeStaticText::FListMenuItemNativeStaticText(int x, int y, const FString& text, int fontnum, int palnum, bool centered)
+	: FListMenuItem(x, y)
+{
+	mText = text;
+	mFontnum = fontnum;
+	mPalnum = palnum;
+	mCentered = centered;
+}
+
+void FListMenuItemNativeStaticText::Drawer(DListMenu* menu, const DVector2& origin, bool selected)
+{
+	const char* text = mText;
+	if (mText.Len() && !mHidden)
+	{
+		gi->DrawNativeMenuText(mFontnum, mPalnum, origin.X + mXpos, origin.Y + mYpos, 1.f, GStrings.localize(text), menu->Descriptor()->mFlags);
+	}
+}
+
+//=============================================================================
+//
 // base class for selectable items
 //
 //=============================================================================

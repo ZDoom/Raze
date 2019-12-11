@@ -1254,12 +1254,13 @@ static void BuildEpisodeMenu()
 				addedVolumes++;
 				if (gVolumeSubtitles[i].IsNotEmpty())
 				{
-					//auto it = new FListMenuItemNativeStaticText(ld->mXpos, gVolumeSubtitles[i], NIT_SmallFont);
-					//ld->mItems.Push(it);
+					auto it = new FListMenuItemNativeStaticText(ld->mXpos, y, gVolumeSubtitles[i], NIT_SmallFont, NIT_ActiveState, false);
+					y += ld->mLinespacing * 6 / 10;
+					ld->mItems.Push(it);
 				}
 			}
 		}
-		if (1 /*CheckUserMaps()*/)
+		if (!(g_gameType & GAMEFLAG_SHAREWARE))
 		{
 			//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "", NIT_SmallFont);	// empty entry as spacer.
 			//ld->mItems.Push(it);
@@ -1268,11 +1269,6 @@ static void BuildEpisodeMenu()
 			auto it = new FListMenuItemNativeText(ld->mXpos, y, 0, 0, "$MNU_USERMAP", NIT_BigFont, NIT_ActiveState, 1, NAME_UsermapMenu);
 			ld->mItems.Push(it);
 			addedVolumes++;
-			if (g_gameType & GAMEFLAG_SW)	// fixme: make this game independent.
-			{
-				//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "$MNU_SELECTUSERMAP", NIT_SmallFont);
-				//ld->mItems.Push(it);
-			}
 		}
 		if (addedVolumes == 1)
 		{

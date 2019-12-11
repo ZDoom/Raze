@@ -456,6 +456,19 @@ public:
 	void Drawer(DListMenu* menu, const DVector2& origin, bool selected) override;
 };
 
+class FListMenuItemNativeStaticText : public FListMenuItem
+{
+protected:
+	FString mText;
+	int mFontnum;
+	int mPalnum;
+	bool mCentered;
+
+public:
+	FListMenuItemNativeStaticText(int x, int y, const FString & text, int fontnum, int palnum, bool centered);
+	void Drawer(DListMenu* menu, const DVector2& origin, bool selected) override;
+};
+
 //=============================================================================
 //
 // selectable items
