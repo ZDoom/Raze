@@ -68,7 +68,7 @@ int32_t sv_readdiff(FileReader& fil);
 uint32_t sv_writediff(FileWriter *fil);
 int32_t sv_loadheader(FileReader &fil, int32_t spot, savehead_t *h);
 int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h);
-int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp);
+int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot);
 void sv_freemem();
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh);
 void ReadSaveGameHeaders(void);

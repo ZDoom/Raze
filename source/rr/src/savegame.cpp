@@ -313,7 +313,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 
 
         // SAVE!
-        sv_saveandmakesnapshot(fw, sv->SaveTitle, 0, 0, 0, 0);
+        sv_saveandmakesnapshot(fw, sv->SaveTitle, 0, 0);
 
 
 		fw.Close();
@@ -1073,7 +1073,7 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp, bool isAutoSave)
+int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, bool isAutoSave)
 {
     savehead_t h;
 

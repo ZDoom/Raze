@@ -567,7 +567,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
         portableBackupSave(sv->Filename, sv->SaveTitle, ud.last_stateless_volume, ud.last_stateless_level);
 
         // SAVE!
-        sv_saveandmakesnapshot(fw, sv->SaveTitle, 0, 0, 0, 0);
+        sv_saveandmakesnapshot(fw, sv->SaveTitle, 0);
 
 
 		fw.Close();
@@ -1368,7 +1368,7 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp)
+int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot)
 {
     savehead_t h;
 
