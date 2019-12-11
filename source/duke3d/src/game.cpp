@@ -5656,38 +5656,30 @@ static void G_Startup(void)
 
     if (userConfig.CommandMap.IsNotEmpty())
     {
+		FString startupMap;
         if (VOLUMEONE)
         {
             initprintf("The -map option is available in the registered version only!\n");
-            boardfilename[0] = 0;
         }
         else
         {
-            char *dot, *slash;
+			startupMap = userConfig.CommandMap;
+			if (startupMap.IndexOfAny("/\\") < 0) startupMap.Insert(0, "/");
+			DefaultExtension(startupMap, ".map");
+			startupMap.Substitute("\\", "/");
+			NormalizeFileName(startupMap);
 
-            boardfilename[0] = '/';
-            boardfilename[1] = 0;
-            Bstrcat(boardfilename, userConfig.CommandMap);
-
-            dot = Bstrrchr(boardfilename,'.');
-            slash = Bstrrchr(boardfilename,'/');
-            if (!slash) slash = Bstrrchr(boardfilename,'\\');
-
-            if ((!slash && !dot) || (slash && dot < slash))
-                Bstrcat(boardfilename,".map");
-
-            Bcorrectfilename(boardfilename,0);
-
-			if (fileSystem.FileExists(boardfilename))
+			if (fileSystem.FileExists(startupMap))
 			{
-                initprintf("Using level: \"%s\".\n",boardfilename);
+                initprintf("Using level: \"%s\".\n",startupMap.GetChars());
             }
             else
             {
-                initprintf("Level \"%s\" not found.\n",boardfilename);
+                initprintf("Level \"%s\" not found.\n",startupMap.GetChars());
                 boardfilename[0] = 0;
             }
         }
+		strncpy(boardfilename, startupMap, BMAX_PATH);
     }
 
     for (i=0; i<MAXPLAYERS; i++)

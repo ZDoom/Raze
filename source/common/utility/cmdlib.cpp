@@ -47,6 +47,7 @@
 #endif
 #endif
 #include "cmdlib.h"
+#include "compat.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -757,3 +758,17 @@ bool IsAbsPath(const char *name)
 #endif /* _WIN32 */
     return 0;
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void NormalizeFileName(FString &str)
+{
+	auto strp = str.LockBuffer();
+	Bcorrectfilename(strp, false);
+	str.UnlockBuffer();
+}
+
