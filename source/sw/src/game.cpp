@@ -2660,7 +2660,7 @@ void Control()
 void _Assert(const char *expr, const char *strFile, unsigned uLine)
 {
     buildprintf(ds, "Assertion failed: %s %s, line %u", expr, strFile, uLine);
-    debug_break();
+    //debug_break();
 
     TerminateGame();
 
@@ -3358,7 +3358,7 @@ SWBOOL DoQuickSave(short save_num)
 
 SWBOOL DoQuickLoad()
 {
-    KB_ClearKeysDown();
+    //KB_ClearKeysDown();
 
     PauseAction();
 
@@ -3480,13 +3480,13 @@ FunctionKeys(PLAYERp pp)
 				inputState.SetKeyStatus(sc_Escape);
                 if (QuickLoadNum < 0)
                 {
-                    KEY_PRESSED(KEYSC_ESC) = 1;
+                    //KEY_PRESSED(KEYSC_ESC) = 1;
                     ControlPanelType = ct_savemenu;
             }
                 else
                 {
-                    KB_ClearKeysDown();
-                    KB_FlushKeyboardQueue();
+                    //KB_ClearKeysDown();
+                    //KB_FlushKeyboardQueue();
                     DoQuickSave(QuickLoadNum);
                     ResumeAction();
         }
@@ -3502,7 +3502,7 @@ FunctionKeys(PLAYERp pp)
             {
                 if (QuickLoadNum < 0)
                 {
-                    KEY_PRESSED(KEYSC_ESC) = 1;
+                    //KEY_PRESSED(KEYSC_ESC) = 1;
                     ControlPanelType = ct_loadmenu;
                 }
                 else
@@ -4299,13 +4299,14 @@ void getinput(SW_PACKET *loc)
         SET(loc->bits, prev_weapon + 1);
     }
 
+    /*
     if (buttonMap.ButtonDown(gamefunc_Alt_Weapon_Mode))
     {
         buttonMap.ClearButton(gamefunc_Alt_Weapon_Mode);
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
         SET(loc->bits, which_weapon);
-    }
+    }*/
 
     inv_hotkey = 0;
     if (buttonMap.ButtonDown(gamefunc_Med_Kit))
