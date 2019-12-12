@@ -43,7 +43,6 @@
 #include "cmdlib.h"
 #include "c_cvars.h"
 #include "printf.h"
-#include "menu.h"
 #include "zmusic/sounddecoder.h"
 #include "filereadermusicinterface.h"
 
@@ -54,6 +53,11 @@ FModule OpenALModule{"OpenAL"};
 
 #include "oalload.h"
 
+CUSTOM_CVAR(Int, snd_channels, 128, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)	// number of channels available
+{
+	if (self < 64) self = 64;
+}
+CVAR(Bool, snd_waterreverb, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG) 
 CVAR (String, snd_aldevice, "Default", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Bool, snd_efx, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (String, snd_alresampler, "Default", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -97,58 +101,6 @@ bool IsOpenALPresent()
 
 
 
-void I_BuildALDeviceList(FOptionValues *opt)
-{
-	opt->mValues.Resize(1);
-	opt->mValues[0].TextValue = "Default";
-	opt->mValues[0].Text = "Default";
-
-#ifndef NO_OPENAL
-	if (IsOpenALPresent())
-	{
-		const ALCchar *names = (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT") ?
-			alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER) :
-			alcGetString(NULL, ALC_DEVICE_SPECIFIER));
-		if (!names)
-			Printf("Failed to get device list: %s\n", alcGetString(NULL, alcGetError(NULL)));
-		else while (*names)
-		{
-			unsigned int i = opt->mValues.Reserve(1);
-			opt->mValues[i].TextValue = names;
-			opt->mValues[i].Text = names;
-
-			names += strlen(names) + 1;
-		}
-	}
-#endif
-}
-
-void I_BuildALResamplersList(FOptionValues *opt)
-{
-	opt->mValues.Resize(1);
-	opt->mValues[0].TextValue = "Default";
-	opt->mValues[0].Text = "Default";
-
-#ifndef NO_OPENAL
-	if (!IsOpenALPresent())
-		return;
-	if (!alcGetCurrentContext() || !alIsExtensionPresent("AL_SOFT_source_resampler"))
-		return;
-
-	LPALGETSTRINGISOFT alGetStringiSOFT = reinterpret_cast<LPALGETSTRINGISOFT>(alGetProcAddress("alGetStringiSOFT"));
-	ALint num_resamplers = alGetInteger(AL_NUM_RESAMPLERS_SOFT);
-
-	unsigned int idx = opt->mValues.Reserve(num_resamplers);
-	for(ALint i = 0;i < num_resamplers;++i)
-	{
-		const ALchar *name = alGetStringiSOFT(AL_RESAMPLER_NAME_SOFT, i);
-		opt->mValues[idx].TextValue = name;
-		opt->mValues[idx].Text = name;
-		++idx;
-	}
-#endif
-}
-
 
 ReverbContainer *ForcedEnvironment;
 
@@ -156,10 +108,7 @@ ReverbContainer *ForcedEnvironment;
 #ifndef NO_OPENAL
 
 
-//EXTERN_CVAR (Int, snd_channels)
-int snd_channels;
 EXTERN_CVAR (Int, snd_samplerate)
-EXTERN_CVAR (Bool, snd_waterreverb)
 EXTERN_CVAR (Bool, snd_pitched)
 EXTERN_CVAR (Int, snd_hrtf)
 
@@ -239,11 +188,10 @@ class OpenALSoundStream : public SoundStream
 		/* Get a source, killing the farthest, lowest-priority sound if needed */
 		if(Renderer->FreeSfx.Size() == 0)
 		{
-			/*
 			FSoundChan *lowest = Renderer->FindLowestChannel();
 			if(lowest) Renderer->ForceStopChannel(lowest);
 
-			if(Renderer->FreeSfx.Size() == 0)*/
+			if(Renderer->FreeSfx.Size() == 0)
 				return false;
 		}
 		Renderer->FreeSfx.Pop(Source);
@@ -547,26 +495,7 @@ static size_t GetChannelCount(ChannelConfig chans)
 
 static float GetRolloff(const FRolloffInfo *rolloff, float distance)
 {
-#if 0
-	if(distance <= rolloff->MinDistance)
-		return 1.f;
-	// Logarithmic rolloff has no max distance where it goes silent.
-	if(rolloff->RolloffType == ROLLOFF_Log)
-		return rolloff->MinDistance /
-			   (rolloff->MinDistance + rolloff->RolloffFactor*(distance-rolloff->MinDistance));
-	if(distance >= rolloff->MaxDistance)
-		return 0.f;
-
-	float volume = (rolloff->MaxDistance - distance) / (rolloff->MaxDistance - rolloff->MinDistance);
-	if(rolloff->RolloffType == ROLLOFF_Linear)
-		return volume;
-
-	if(rolloff->RolloffType == ROLLOFF_Custom && S_SoundCurve.Size() > 0)
-		return S_SoundCurve[int(S_SoundCurve.Size() * (1.f - volume))] / 127.f;
-	return (powf(10.f, volume) - 1.f) / 9.f;
-#else
-	return 0;
-#endif
+	return soundEngine->GetRolloff(rolloff, distance);
 }
 
 ALCdevice *OpenALSoundRenderer::InitDevice()
@@ -988,10 +917,10 @@ void OpenALSoundRenderer::RemoveStream(OpenALSoundStream *stream)
 
 void OpenALSoundRenderer::SetSfxVolume(float volume)
 {
-#if 0
 	SfxVolume = volume;
 
-	FSoundChan *schan = Channels;
+	if (!soundEngine) return;
+	FSoundChan *schan = soundEngine->GetChannels();
 	while(schan)
 	{
 		if(schan->SysChannel != NULL)
@@ -1009,7 +938,6 @@ void OpenALSoundRenderer::SetSfxVolume(float volume)
 	alProcessUpdatesSOFT();
 
 	getALError();
-#endif
 }
 
 void OpenALSoundRenderer::SetMusicVolume(float volume)
@@ -1364,12 +1292,11 @@ std::pair<SoundHandle, bool> OpenALSoundRenderer::LoadSoundBuffered(FSoundLoadBu
 
 void OpenALSoundRenderer::UnloadSound(SoundHandle sfx)
 {
-#if 0
 	if(!sfx.data)
 		return;
 
 	ALuint buffer = GET_PTRID(sfx.data);
-	FSoundChan *schan = Channels;
+	FSoundChan *schan = soundEngine->GetChannels();
 	while(schan)
 	{
 		if(schan->SysChannel)
@@ -1403,7 +1330,6 @@ void OpenALSoundRenderer::UnloadSound(SoundHandle sfx)
 
 	alDeleteBuffers(1, &buffer);
 	getALError();
-#endif
 }
 
 
@@ -1422,7 +1348,6 @@ SoundStream *OpenALSoundRenderer::CreateStream(SoundStreamCallback callback, int
 
 FISoundChannel *OpenALSoundRenderer::StartSound(SoundHandle sfx, float vol, int pitch, int chanflags, FISoundChannel *reuse_chan)
 {
-#if 0
 	if(FreeSfx.Size() == 0)
 	{
 		FSoundChan *lowest = FindLowestChannel();
@@ -1507,7 +1432,7 @@ FISoundChannel *OpenALSoundRenderer::StartSound(SoundHandle sfx, float vol, int 
 	FreeSfx.Pop();
 
 	FISoundChannel *chan = reuse_chan;
-	if(!chan) chan = S_GetChannel(MAKE_PTRID(source));
+	if(!chan) chan = soundEngine->GetChannel(MAKE_PTRID(source));
 	else chan->SysChannel = MAKE_PTRID(source);
 
 	chan->Rolloff.RolloffType = ROLLOFF_Log;
@@ -1517,16 +1442,12 @@ FISoundChannel *OpenALSoundRenderer::StartSound(SoundHandle sfx, float vol, int 
 	chan->ManualRolloff = false;
 
 	return chan;
-#else
-	return 0;
-#endif
 }
 
 FISoundChannel *OpenALSoundRenderer::StartSound3D(SoundHandle sfx, SoundListener *listener, float vol,
 	FRolloffInfo *rolloff, float distscale, int pitch, int priority, const FVector3 &pos, const FVector3 &vel,
 	int channum, int chanflags, FISoundChannel *reuse_chan)
 {
-#if 0
 	float dist_sqr = (float)(pos - listener->position).LengthSquared();
 
 	if(FreeSfx.Size() == 0)
@@ -1605,7 +1526,7 @@ FISoundChannel *OpenALSoundRenderer::StartSound3D(SoundHandle sfx, SoundListener
 			 * distance that corresponds to the area radius. */
 			alSourcef(source, AL_SOURCE_RADIUS, (chanflags&SNDF_AREA) ?
 				// Clamp in case the max distance is <= the area radius
-				1.f/MAX<float>(GetRolloff(rolloff, AREA_SOUND_RADIUS), 0.00001f) : 0.f
+				1.f/std::max<float>(GetRolloff(rolloff, AREA_SOUND_RADIUS), 0.00001f) : 0.f
 			);
 		}
 		else if((chanflags&SNDF_AREA) && dist_sqr < AREA_SOUND_RADIUS*AREA_SOUND_RADIUS)
@@ -1722,7 +1643,7 @@ FISoundChannel *OpenALSoundRenderer::StartSound3D(SoundHandle sfx, SoundListener
 	FreeSfx.Pop();
 
 	FISoundChannel *chan = reuse_chan;
-	if(!chan) chan = S_GetChannel(MAKE_PTRID(source));
+	if(!chan) chan = soundEngine->GetChannel(MAKE_PTRID(source));
 	else chan->SysChannel = MAKE_PTRID(source);
 
 	chan->Rolloff = *rolloff;
@@ -1730,9 +1651,6 @@ FISoundChannel *OpenALSoundRenderer::StartSound3D(SoundHandle sfx, SoundListener
 	chan->ManualRolloff = manualRolloff;
 
 	return chan;
-#else
-	return 0;
-#endif
 }
 
 void OpenALSoundRenderer::ChannelVolume(FISoundChannel *chan, float volume)
@@ -1753,13 +1671,11 @@ void OpenALSoundRenderer::ChannelPitch(FISoundChannel *chan, float pitch)
 
 	alDeferUpdatesSOFT();
 
-#if 0
 	ALuint source = GET_PTRID(chan->SysChannel);
 	if (WasInWater && !(chan->ChanFlags & CHAN_UI))
 		alSourcef(source, AL_PITCH, std::max(pitch, 0.0001f)*PITCH_MULT);
 	else
 		alSourcef(source, AL_PITCH, std::max(pitch, 0.0001f));
-#endif
 }
 
 void OpenALSoundRenderer::FreeSource(ALuint source)
@@ -1786,9 +1702,8 @@ void OpenALSoundRenderer::StopChannel(FISoundChannel *chan)
 
 	ALuint source = GET_PTRID(chan->SysChannel);
 	// Release first, so it can be properly marked as evicted if it's being killed
-#if 0
-	S_ChannelEnded(chan);
-#endif
+	soundEngine->ChannelEnded(chan);
+
 	ALint state = AL_INITIAL;
 	alGetSourcei(source, AL_SOURCE_STATE, &state);
 	if(state != AL_PLAYING)
@@ -1811,9 +1726,7 @@ void OpenALSoundRenderer::ForceStopChannel(FISoundChannel *chan)
 	ALuint source = GET_PTRID(chan->SysChannel);
 	if(!source) return;
 
-#if 0
-	S_ChannelEnded(chan);
-#endif
+	soundEngine->ChannelEnded(chan);
 	FreeSource(source);
 }
 
@@ -1971,7 +1884,6 @@ void OpenALSoundRenderer::UpdateSoundParams3D(SoundListener *listener, FISoundCh
 
 void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 {
-#if 0
 	if(!listener->valid)
 		return;
 
@@ -2034,7 +1946,7 @@ void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 				alFilterf(EnvFilters[1], AL_LOWPASS_GAINHF, 1.f);
 
 				// Apply the updated filters on the sources
-				FSoundChan *schan = Channels;
+				FSoundChan *schan = soundEngine->GetChannels();
 				while (schan)
 				{
 					ALuint source = GET_PTRID(schan->SysChannel);
@@ -2047,7 +1959,7 @@ void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 				}
 			}
 
-			FSoundChan *schan = Channels;
+			FSoundChan *schan = soundEngine->GetChannels();
 			while (schan)
 			{
 				ALuint source = GET_PTRID(schan->SysChannel);
@@ -2072,7 +1984,7 @@ void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 			alFilterf(EnvFilters[1], AL_LOWPASS_GAIN, 1.f);
 			alFilterf(EnvFilters[1], AL_LOWPASS_GAINHF, 1.f);
 
-			FSoundChan *schan = Channels;
+			FSoundChan *schan = soundEngine->GetChannels();
 			while (schan)
 			{
 				ALuint source = GET_PTRID(schan->SysChannel);
@@ -2085,7 +1997,7 @@ void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 			}
 		}
 
-		FSoundChan *schan = Channels;
+		FSoundChan *schan = soundEngine->GetChannels();
 		while (schan)
 		{
 			ALuint source = GET_PTRID(schan->SysChannel);
@@ -2095,7 +2007,6 @@ void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 		}
 		getALError();
 	}
-#endif
 }
 
 void OpenALSoundRenderer::UpdateSounds()
@@ -2118,7 +2029,7 @@ void OpenALSoundRenderer::UpdateSounds()
 				++iter;
 		}
 	}
-#if 0
+
 	if(ALC.EXT_disconnect)
 	{
 		ALCint connected = ALC_TRUE;
@@ -2126,11 +2037,10 @@ void OpenALSoundRenderer::UpdateSounds()
 		if(connected == ALC_FALSE)
 		{
 			Printf("Sound device disconnected; restarting...\n");
-			S_SoundReset();
+			soundEngine->Reset();
 			return;
 		}
 	}
-#endif
 
 	PurgeStoppedSources();
 }
@@ -2254,7 +2164,6 @@ void OpenALSoundRenderer::PrintDriversList()
 
 void OpenALSoundRenderer::PurgeStoppedSources()
 {
-#if 0
 	// Release channels that are stopped
 	for(uint32_t i = 0;i < SfxGroup.Size();++i)
 	{
@@ -2264,7 +2173,7 @@ void OpenALSoundRenderer::PurgeStoppedSources()
 		if(state == AL_INITIAL || state == AL_PLAYING || state == AL_PAUSED)
 			continue;
 
-		FSoundChan *schan = Channels;
+		FSoundChan *schan = soundEngine->GetChannels();
 		while(schan)
 		{
 			if(schan->SysChannel != NULL && src == GET_PTRID(schan->SysChannel))
@@ -2276,7 +2185,6 @@ void OpenALSoundRenderer::PurgeStoppedSources()
 		}
 	}
 	getALError();
-#endif
 }
 
 void OpenALSoundRenderer::LoadReverb(const ReverbContainer *env)
@@ -2387,8 +2295,7 @@ void OpenALSoundRenderer::LoadReverb(const ReverbContainer *env)
 
 FSoundChan *OpenALSoundRenderer::FindLowestChannel()
 {
-#if 0
-	FSoundChan *schan = Channels;
+	FSoundChan *schan = soundEngine->GetChannels();
 	FSoundChan *lowest = NULL;
 	while(schan)
 	{
@@ -2402,9 +2309,62 @@ FSoundChan *OpenALSoundRenderer::FindLowestChannel()
 		schan = schan->NextChan;
 	}
 	return lowest;
-#else
-	return 0;
+}
+
+
+#include "menu/menu.h"
+
+void I_BuildALDeviceList(FOptionValues* opt)
+{
+	opt->mValues.Resize(1);
+	opt->mValues[0].TextValue = "Default";
+	opt->mValues[0].Text = "Default";
+
+#ifndef NO_OPENAL
+	if (IsOpenALPresent())
+	{
+		const ALCchar* names = (alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT") ?
+			alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER) :
+			alcGetString(NULL, ALC_DEVICE_SPECIFIER));
+		if (!names)
+			Printf("Failed to get device list: %s\n", alcGetString(NULL, alcGetError(NULL)));
+		else while (*names)
+		{
+			unsigned int i = opt->mValues.Reserve(1);
+			opt->mValues[i].TextValue = names;
+			opt->mValues[i].Text = names;
+
+			names += strlen(names) + 1;
+		}
+	}
 #endif
 }
+
+void I_BuildALResamplersList(FOptionValues* opt)
+{
+	opt->mValues.Resize(1);
+	opt->mValues[0].TextValue = "Default";
+	opt->mValues[0].Text = "Default";
+
+#ifndef NO_OPENAL
+	if (!IsOpenALPresent())
+		return;
+	if (!alcGetCurrentContext() || !alIsExtensionPresent("AL_SOFT_source_resampler"))
+		return;
+
+	LPALGETSTRINGISOFT alGetStringiSOFT = reinterpret_cast<LPALGETSTRINGISOFT>(alGetProcAddress("alGetStringiSOFT"));
+	ALint num_resamplers = alGetInteger(AL_NUM_RESAMPLERS_SOFT);
+
+	unsigned int idx = opt->mValues.Reserve(num_resamplers);
+	for (ALint i = 0; i < num_resamplers; ++i)
+	{
+		const ALchar* name = alGetStringiSOFT(AL_RESAMPLER_NAME_SOFT, i);
+		opt->mValues[idx].TextValue = name;
+		opt->mValues[idx].Text = name;
+		++idx;
+	}
+#endif
+}
+
 
 #endif // NO_OPENAL

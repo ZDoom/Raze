@@ -824,9 +824,12 @@ set (PCH_SOURCES
 	common/music/music_config.cpp
 	common/music/music_midi_base.cpp
 	common/music/s_advsound.cpp
-	common/music/backend/oalsound.cpp
-	common/music/backend/i_sound.cpp
-
+	
+	common/sound/backend/oalsound.cpp
+	common/sound/backend/i_sound.cpp
+	common/sound/s_sound.cpp
+	common/sound/s_environment.cpp
+	
 	common/menu/imagescroller.cpp
 	common/menu/joystickmenu.cpp
 	common/menu/listmenu.cpp
@@ -899,6 +902,7 @@ include_directories(
 	common/textures
 	common/filesystem
 	common/music
+	common/sound
 	common/dobject
 	common/menu
 	platform
@@ -1009,6 +1013,8 @@ source_group("Code\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/co
 source_group("Code\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Code\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Code\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/music/.+")
+source_group("Code\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/sound/.+")
+source_group("Code\\Sound\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/sound/backend/.+")
 source_group("Code\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/dobject/.+")
 source_group("Code\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
 source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")

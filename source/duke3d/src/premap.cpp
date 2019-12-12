@@ -1325,7 +1325,6 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
         while (S_CheckSoundPlaying(ud.skill_voice))
             gameHandleEvents();
     }
-    ud.skill_voice = 0;
 
     ready2send = 0;
 

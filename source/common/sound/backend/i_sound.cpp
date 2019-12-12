@@ -249,6 +249,8 @@ void I_InitSound ()
 {
 	FModule_SetProgDir(progdir);
 	/* Get command line options: */
+	nosound = !!Args->CheckParm ("-nosound");
+	nosfx = !!Args->CheckParm ("-nosfx");
 
 	GSnd = NULL;
 	if (nosound)
@@ -266,7 +268,7 @@ void I_InitSound ()
 	{
 		I_CloseSound();
 		GSnd = new NullSoundRenderer;
-		Printf (TEXTCOLOR_RED"Music init failed. Using nosound.\n");
+		Printf (TEXTCOLOR_RED"Sound init failed. Using nosound.\n");
 	}
 	snd_sfxvolume.Callback ();
 }
@@ -274,8 +276,8 @@ void I_InitSound ()
 
 void I_CloseSound ()
 {
-	// Free all loaded samples
-	//S_UnloadAllSounds();
+	// Free all loaded samples. Beware that the sound engine may already have been deleted.
+	if (soundEngine) soundEngine->UnloadAllSounds();
 
 	delete GSnd;
 	GSnd = NULL;
