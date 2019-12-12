@@ -916,13 +916,35 @@ bool SoundEngine::CheckSoundLimit(sfxinfo_t *sfx, const FVector3 &pos, int near_
 //
 //==========================================================================
 
-void SoundEngine::StopSound (int channel)
+void SoundEngine::StopSoundID(int sound_id)
+{
+	FSoundChan* chan = Channels;
+	while (chan != NULL)
+	{
+		FSoundChan* next = chan->NextChan;
+		if (sound_id == chan->SoundID)
+		{
+			StopChannel(chan);
+		}
+		chan = next;
+	}
+}
+
+//==========================================================================
+//
+// S_StopSound
+//
+// Stops an unpositioned sound from playing on a specific channel.
+//
+//==========================================================================
+
+void SoundEngine::StopSound (int channel, int sound_id)
 {
 	FSoundChan *chan = Channels;
 	while (chan != NULL)
 	{
 		FSoundChan *next = chan->NextChan;
-		if (chan->SourceType == SOURCE_None)
+		if (chan->SourceType == SOURCE_None && (sound_id == -1 || sound_id == chan->SoundID))
 		{
 			StopChannel(chan);
 		}
@@ -938,7 +960,7 @@ void SoundEngine::StopSound (int channel)
 //
 //==========================================================================
 
-void SoundEngine::StopSound(int sourcetype, const void* actor, int channel)
+void SoundEngine::StopSound(int sourcetype, const void* actor, int channel, int sound_id)
 {
 	FSoundChan* chan = Channels;
 	while (chan != NULL)
@@ -946,7 +968,7 @@ void SoundEngine::StopSound(int sourcetype, const void* actor, int channel)
 		FSoundChan* next = chan->NextChan;
 		if (chan->SourceType == sourcetype &&
 			chan->Source == actor &&
-			(chan->EntChannel == channel || channel < 0))
+			(sound_id == -1? (chan->EntChannel == channel || channel < 0) : (chan->SoundID == sound_id)))
 		{
 			StopChannel(chan);
 		}
@@ -1050,13 +1072,13 @@ void SoundEngine::ChangeSoundVolume(int sourcetype, const void *source, int chan
 //
 //==========================================================================
 
-void SoundEngine::ChangeSoundPitch(int sourcetype, const void *source, int channel, double pitch)
+void SoundEngine::ChangeSoundPitch(int sourcetype, const void *source, int channel, double pitch, int sound_id)
 {
 	for (FSoundChan *chan = Channels; chan != NULL; chan = chan->NextChan)
 	{
 		if (chan->SourceType == sourcetype &&
 			chan->Source == source &&
-			chan->EntChannel == channel)
+			(sound_id == -1? (chan->EntChannel == channel) : (chan->SoundID == sound_id)))
 		{
 			SetPitch(chan, (float)pitch);
 			return;
@@ -1085,9 +1107,9 @@ bool SoundEngine::GetSoundPlayingInfo (int sourcetype, const void *source, int s
 	{
 		for (FSoundChan *chan = Channels; chan != NULL; chan = chan->NextChan)
 		{
-			if (chan->OrgID == sound_id &&
-				chan->SourceType == sourcetype &&
-				chan->Source == source)
+			if (chan->OrgID == sound_id && (sourcetype == SOURCE_Any ||
+				(chan->SourceType == sourcetype &&
+				chan->Source == source)))
 			{
 				return true;
 			}

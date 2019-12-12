@@ -43,6 +43,8 @@ struct sfxinfo_t
 	unsigned		bPlayerReserve : 1;
 	unsigned		bPlayerCompat : 1;
 	unsigned		bPlayerSilent:1;		// This player sound is intentionally silent.
+	unsigned		userFlags;
+	int				userdata;
 
 	int		RawRate;				// Sample rate to use when bLoadRAW is true
 
@@ -208,6 +210,7 @@ enum
 
 enum // This cannot be remain as this, but for now it has to suffice.
 {
+	SOURCE_Any = -1,	// Input for check functions meaning 'any source'
 	SOURCE_None,		// Sound is always on top of the listener.
 	SOURCE_Actor,		// Sound is coming from an actor.
 	SOURCE_Sector,		// Sound is coming from a sector.
@@ -300,12 +303,13 @@ public:
 		const FVector3* pt, int channel, FSoundID sound_id, float volume, float attenuation, FRolloffInfo* rolloff = nullptr, float spitch = 0.0f);
 
 	// Stops an origin-less sound from playing from this channel.
-	void StopSound(int channel);
-	void StopSound(int sourcetype, const void* actor, int channel);
+	void StopSoundID(int sound_id);
+	void StopSound(int channel, int sound_id = -1);
+	void StopSound(int sourcetype, const void* actor, int channel, int sound_id = -1);
 
 	void RelinkSound(int sourcetype, const void* from, const void* to, const FVector3* optpos);
 	void ChangeSoundVolume(int sourcetype, const void* source, int channel, double dvolume);
-	void ChangeSoundPitch(int sourcetype, const void* source, int channel, double pitch);
+	void ChangeSoundPitch(int sourcetype, const void* source, int channel, double pitch, int sound_id = -1);
 	bool IsSourcePlayingSomething(int sourcetype, const void* actor, int channel, int sound_id);
 
 	// Stop and resume music, during game PAUSE.
@@ -364,6 +368,18 @@ public:
 	void ClearRandoms()
 	{
 		S_rnd.Clear();
+	}
+	int GetUserFlags(int snd)
+	{
+		return S_sfx[snd].userFlags;
+	}
+	int GetUserData(int snd)
+	{
+		return S_sfx[snd].userdata;
+	}
+	bool isValidSoundId(int id)
+	{
+		return id > 0 && id < (int)S_sfx.Size();
 	}
 
 	void ChannelVirtualChanged(FISoundChannel* ichan, bool is_virtual);
