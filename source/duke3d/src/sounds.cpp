@@ -118,70 +118,6 @@ void S_PauseSounds(bool paused)
     }
 }
 
-void S_MenuSound(void)
-{
-    static int SoundNum;
-    int const menusnds[] = {
-        LASERTRIP_EXPLODE, DUKE_GRUNT,       DUKE_LAND_HURT,   CHAINGUN_FIRE, SQUISHED,      KICK_HIT,
-        PISTOL_RICOCHET,   PISTOL_BODYHIT,   PISTOL_FIRE,      SHOTGUN_FIRE,  BOS1_WALK,     RPG_EXPLODE,
-        PIPEBOMB_BOUNCE,   PIPEBOMB_EXPLODE, NITEVISION_ONOFF, RPG_SHOOT,     SELECT_WEAPON,
-    };
-    int s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, FURY ? -1 : menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
-    if (s != -1)
-        S_PlaySound(s);
-}
-
-
-static void S_SetMusicIndex(unsigned int m)
-{
-    ud.music_episode = m / MAXLEVELS;
-    ud.music_level   = m % MAXLEVELS;
-}
-
-void S_PlayLevelMusicOrNothing(unsigned int m)
-{
-    ud.returnvar[0] = m / MAXLEVELS;
-    ud.returnvar[1] = m % MAXLEVELS;
-
-    int retval = VM_OnEvent(EVENT_PLAYLEVELMUSICSLOT, g_player[myconnectindex].ps->i, myconnectindex);
-
-    if (retval >= 0)
-    {
-        // Thanks to scripting that stupid slot hijack cannot be refactored - but we'll store the real data elsewhere anyway!
-        auto &mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
-        Mus_Play(mr.labelName, mr.music, true);
-        S_SetMusicIndex(m);
-    }
-}
-
-int S_TryPlaySpecialMusic(unsigned int m)
-{
-    auto &musicfn = mapList[m].music;
-    if (musicfn.IsNotEmpty())
-    {
-        if (!Mus_Play(nullptr, musicfn, true))
-        {
-            S_SetMusicIndex(m);
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-void S_PlaySpecialMusicOrNothing(unsigned int m)
-{
-    if (S_TryPlaySpecialMusic(m))
-    {
-        S_SetMusicIndex(m);
-    }
-}
-
-void S_ContinueLevelMusic(void)
-{
-    VM_OnEvent(EVENT_CONTINUELEVELMUSICSLOT, g_player[myconnectindex].ps->i, myconnectindex);
-}
-
 void S_Cleanup(void)
 {
     static uint32_t ldnum = 0;
@@ -717,4 +653,76 @@ int S_CheckSoundPlaying(int soundNum)
     if (EDUKE32_PREDICT_FALSE((unsigned)soundNum > (unsigned)g_highestSoundIdx)) return false;
     return (g_sounds[soundNum].num != 0);
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void S_MenuSound(void)
+{
+    static int SoundNum;
+    int const menusnds[] = {
+        LASERTRIP_EXPLODE, DUKE_GRUNT,       DUKE_LAND_HURT,   CHAINGUN_FIRE, SQUISHED,      KICK_HIT,
+        PISTOL_RICOCHET,   PISTOL_BODYHIT,   PISTOL_FIRE,      SHOTGUN_FIRE,  BOS1_WALK,     RPG_EXPLODE,
+        PIPEBOMB_BOUNCE,   PIPEBOMB_EXPLODE, NITEVISION_ONOFF, RPG_SHOOT,     SELECT_WEAPON,
+    };
+    int s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, FURY ? -1 : menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
+    if (s != -1)
+        S_PlaySound(s);
+}
+
+
+static void S_SetMusicIndex(unsigned int m)
+{
+    ud.music_episode = m / MAXLEVELS;
+    ud.music_level = m % MAXLEVELS;
+}
+
+void S_PlayLevelMusicOrNothing(unsigned int m)
+{
+    ud.returnvar[0] = m / MAXLEVELS;
+    ud.returnvar[1] = m % MAXLEVELS;
+
+    int retval = VM_OnEvent(EVENT_PLAYLEVELMUSICSLOT, g_player[myconnectindex].ps->i, myconnectindex);
+
+    if (retval >= 0)
+    {
+        // Thanks to scripting that stupid slot hijack cannot be refactored - but we'll store the real data elsewhere anyway!
+        auto& mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
+        Mus_Play(mr.labelName, mr.music, true);
+        S_SetMusicIndex(m);
+    }
+}
+
+int S_TryPlaySpecialMusic(unsigned int m)
+{
+    auto& musicfn = mapList[m].music;
+    if (musicfn.IsNotEmpty())
+    {
+        if (!Mus_Play(nullptr, musicfn, true))
+        {
+            S_SetMusicIndex(m);
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+void S_PlaySpecialMusicOrNothing(unsigned int m)
+{
+    if (S_TryPlaySpecialMusic(m))
+    {
+        S_SetMusicIndex(m);
+    }
+}
+
+void S_ContinueLevelMusic(void)
+{
+    VM_OnEvent(EVENT_CONTINUELEVELMUSICSLOT, g_player[myconnectindex].ps->i, myconnectindex);
+}
+
+
 END_DUKE_NS

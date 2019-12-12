@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "mapinfo.h"
 #include "cmdlib.h"
+
 BEGIN_DUKE_NS
 
 static uint8_t precachehightile[2][(MAXTILES+7)>>3];
@@ -1321,9 +1322,10 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     if (ud.skill_voice > 0 && SoundEnabled())
     {
-        while (FX_SoundActive(ud.skill_voice))
+        while (S_CheckSoundPlaying(ud.skill_voice))
             gameHandleEvents();
     }
+    ud.skill_voice = 0;
 
     ready2send = 0;
 
