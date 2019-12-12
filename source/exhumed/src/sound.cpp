@@ -448,7 +448,7 @@ int LoadSound(const char *sound)
 
     auto hVoc = kopenFileReader(buffer, 0);
 
-    if (!hVoc.isOpen())
+    if (hVoc.isOpen())
     {
         int nSize = hVoc.GetLength();
         //SoundLock[i] = 255; // crap we don't need.

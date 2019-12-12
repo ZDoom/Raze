@@ -117,7 +117,7 @@ int ReadFrame(FileReader &fp)
                 {
                     mutex_lock(&mutex);
 
-                    int nRead = fread((char*)bankbuf + bankptr, 1, nSize, fp);
+                    int nRead = fp.Read((char*)bankbuf + bankptr, nSize);
 
                     lSoundBytesRead += nRead;
                     bankptr += nSize;
@@ -200,7 +200,7 @@ void PlayMovie(const char* fileName)
 	char buffer[256];
     int bDoFade = kTrue;
     int hFx = -1;
-
+#if 0
 	if (bNoCDCheck)
     {
         sprintf(buffer, "C:\\PS\\%s", fileName);
@@ -226,7 +226,7 @@ void PlayMovie(const char* fileName)
         }
     }
 #else
-	auto fp = kopenFileReader(fileName, 0);
+	auto fp = fileSystem.OpenFileReader(fileSystem.FindFile(fileName));
 	if (!fp.isOpen())
 	{
 		Printf("Unable to open %s\n", fileName);
@@ -241,7 +241,6 @@ void PlayMovie(const char* fileName)
     fp.Read(lh, sizeof(lh));
 
     // sound stuff
-    mutex_init(&mutex);
     bankptr = 0;
     banktail = 0;
 

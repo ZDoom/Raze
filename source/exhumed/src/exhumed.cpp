@@ -75,18 +75,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <ctype.h>
 #include <time.h>
 #include <assert.h>
+#include "gamecvars.h"
 
 BEGIN_PS_NS
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
     extern const char* s_buildRev;
     extern const char* s_buildTimestamp;
-#ifdef __cplusplus
-}
-#endif
 
 const char* AppProperName = APPNAME;
 const char* AppTechnicalName = APPBASENAME;
@@ -817,6 +812,7 @@ void ShutDown(void)
 
 void I_Error(const char *fmt, ...)
 {
+    
     char buf[256];
 
 #ifdef __WATCOMC__
@@ -832,19 +828,7 @@ void I_Error(const char *fmt, ...)
 
     va_end(args);
 
-    initprintf(buf);
-
-    if (*buf != 0)
-    {
-        if (!(buf[0] == ' ' && buf[1] == 0))
-        {
-            char titlebuf[256];
-            Bsprintf(titlebuf,APPNAME " %s",s_buildRev);
-            wm_msgbox(titlebuf, "%s", buf);
-        }
-    }
-
-    exit(0);
+    throw std::runtime_error(buf);
 }
 
 void faketimerhandler()
@@ -1729,7 +1713,6 @@ static int32_t check_filename_casing(void)
 #endif
 
 int32_t r_maxfpsoffset = 0;
-double g_frameDelay = 0.0;
 
 static int32_t nonsharedtimer;
 
@@ -1885,11 +1868,9 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
     }
 }
 
-int app_main(int argc, char const* const* argv)
+int GameInterface::app_main()
 {
     char tempbuf[256];
-
-    initprintf("Exhumed %s\n", s_buildRev);
 
     int i;
 
@@ -1953,7 +1934,6 @@ int app_main(int argc, char const* const* argv)
 
     initprintf("Initializing OSD...\n");
 
-    Bsprintf(tempbuf, "Exhumed %s", s_buildRev);
     registerosdcommands();
 
     //SetupInput();
@@ -2016,8 +1996,6 @@ int app_main(int argc, char const* const* argv)
 
     if (enginePostInit())
         ShutDown();
-
-    g_frameDelay = calcFrameDelay(r_maxfps + r_maxfpsoffset);
 
     // loc_11745:
 //    FadeOut(0);
@@ -3509,4 +3487,11 @@ int DoSpiritHead()
 
     return 0;
 }
+
+::GameInterface* CreateInterface()
+{
+    return new GameInterface;
+}
+
+
 END_PS_NS

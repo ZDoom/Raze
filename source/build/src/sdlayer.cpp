@@ -1559,7 +1559,7 @@ int32_t videoUpdatePalette(int32_t start, int32_t num)
 
 #ifdef USE_OPENGL
     if (!nogl)
-        glsurface_setPalette(curpalettefaded);
+        glsurface_setPalette(curpalette);
     else
 #endif
     {

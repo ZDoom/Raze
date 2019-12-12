@@ -240,13 +240,9 @@ extern const char *gString[];
 
 extern int bVanilla;
 
-extern int32_t g_gameType;
-
 #define POWERSLAVE  (g_gameType & GAMEFLAG_POWERSLAVE)
 #define EXHUMED     (g_gameType & GAMEFLAG_EXHUMED)
 
-extern int32_t r_maxfps;
-extern int32_t r_maxfpsoffset;
 extern double g_frameDelay;
 
 static inline double calcFrameDelay(int const maxFPS) { return maxFPS > 0 ? (timerGetFreqU64()/(double)maxFPS) : 0.0; }
@@ -273,6 +269,17 @@ extern struct grpfile_t const* g_selectedGrp;
 extern int loaddefinitions_game(const char* fn, int32_t preload);
 void G_LoadGroupsInDir(const char* dirname);
 void G_DoAutoload(const char* dirname);
+
+struct GameInterface : ::GameInterface
+{
+    int app_main() override;
+    bool validate_hud(int) override { return true;  }
+    void set_hud_layout(int size) override {}
+    void set_hud_scale(int size) override {}
+    //FString statFPS() override;
+    //GameStats getStats() override;
+};
+
 
 END_PS_NS
 

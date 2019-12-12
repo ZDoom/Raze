@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumed.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "z_music.h"
 
 BEGIN_PS_NS
 
@@ -57,61 +58,14 @@ bool playCDtrack(int nTrack, bool bLoop)
 
     char filename[128];
 
-    // prefer flac if available
-    sprintf(filename, "exhumed%02d.flac", nTrack);
-    int32_t hFile = kopen4load(filename, 0);
-    if (hFile < 0)
-    {
-        // try ogg vorbis now
-        sprintf(filename, "exhumed%02d.ogg", nTrack);
-        hFile = kopen4load(filename, 0);
-        if (hFile < 0) {
-            return false;
-        }
-    }
-
-    int32_t nFileLen = kfilelength(hFile);
-
-    pTrack = (char*)Xaligned_alloc(16, nFileLen);
-    if (pTrack == NULL)
-    {
-        OSD_Printf("Error allocating music track data memory for %s", filename);
-        kclose(hFile);
-        return false;
-    }
-
-    int nRead = kread(hFile, pTrack, nFileLen);
-    if (nRead != nFileLen)
-    {
-        OSD_Printf("Error reading music track data for %s", filename);
-        Xaligned_free(pTrack);
-        pTrack = NULL;
-        kclose(hFile);
-        return false;
-    }
-
-    kclose(hFile);
-
-    trackhandle = FX_Play(pTrack, nRead, bLoop ? 0 : -1, 0, 0, gMusicVolume, gMusicVolume, gMusicVolume, FX_MUSIC_PRIORITY, fix16_one, MUSIC_ID);
-    if (trackhandle <= FX_Ok)
-    {
-        OSD_Printf("Error playing music track %s", filename);
-        if (pTrack)
-        {
-            Xaligned_free(pTrack);
-            pTrack = NULL;
-        }
-        return false;
-    }
-
+    // try ogg vorbis now
+    sprintf(filename, "exhumed%02d.ogg", nTrack);
+    trackhandle = Mus_Play(nullptr, filename, true);
     return true;
 }
 
 void StartfadeCDaudio()
 {
-    if (CDplaying()) {
-        nLastVolumeSet = gMusicVolume;
-    }
 }
 
 int StepFadeCDaudio()
@@ -119,23 +73,8 @@ int StepFadeCDaudio()
     if (!CDplaying()) {
     return 0;
     }
-
-    if (nLastVolumeSet <= 0) {
-        return 0;
-    }
-
-    nLastVolumeSet -= 8;
-
-    if (nLastVolumeSet <= 0) {
-        nLastVolumeSet = 0;
-    }
-
-    setCDaudiovolume(nLastVolumeSet);
-
-    if (nLastVolumeSet == 0) {
-        StopCD();
-    }
-
+    Mus_Stop();
+    trackhandle = 0;
     return 1;
 }
 
@@ -145,22 +84,13 @@ bool CDplaying()
         return false;
     }
     else {
-        return FX_SoundActive(trackhandle);
+        return true;
     }
 }
 
 void StopCD()
 {
-    if (trackhandle > 0) {
-        FX_StopSound(trackhandle);
-        trackhandle = -1;
-    }
-
-    if (pTrack)
-    {
-        Xaligned_free(pTrack);
-        pTrack = NULL;
-    }
+    Mus_Stop();
 }
 
 END_PS_NS

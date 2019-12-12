@@ -200,6 +200,10 @@ namespace ShadowWarrior
 {
 	::GameInterface* CreateInterface();
 }
+namespace Powerslave
+{
+	::GameInterface* CreateInterface();
+}
 
 void CheckFrontend(int flags)
 {
@@ -214,6 +218,10 @@ void CheckFrontend(int flags)
 	else if (flags & GAMEFLAG_SW)
 	{
 		gi = ShadowWarrior::CreateInterface();
+	}
+	else if (flags & GAMEFLAG_PSEXHUMED)
+	{
+		gi = Powerslave::CreateInterface();
 	}
 	else
 	{
