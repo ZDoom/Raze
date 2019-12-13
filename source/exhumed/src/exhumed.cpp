@@ -1607,6 +1607,7 @@ static void GameDisplay(void)
     // End Section B
 
     SetView1();
+    faketimerhandler();
 
     if (levelnum == kMap20)
     {
