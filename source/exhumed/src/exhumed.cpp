@@ -1041,20 +1041,6 @@ void CheckKeys()
         buttonMap.ClearButton(gamefunc_Enlarge_Screen);
     }
 
-    // F11?
-#if 0
-    if (buttonMap.ButtonDown(gamefunc_Gamma_Correction))
-    {
-        nGamma++;
-
-        if (nGamma > 4)
-            nGamma = 0;
-
-        mysetbrightness((uint8_t)nGamma);
-        buttonMap.ClearButton(gamefunc_Gamma_Correction);
-    }
-#endif
-
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
     {
         if (bFullScreen)
@@ -2005,7 +1991,6 @@ int GameInterface::app_main()
     myloadconfig();
     InitFX();
     LoadFX();
-    setCDaudiovolume(gMusicVolume);
     seq_LoadSequences();
     InitStatus();
     InitTimer();
@@ -2240,7 +2225,6 @@ LOOP3:
         ClearSerialInbuf();
     }
 
-    mysetbrightness((uint8_t)nGamma);
     //int edi = totalclock;
     tclocks2 = totalclock;
     CONTROL_BindsEnabled = 1;

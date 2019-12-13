@@ -229,8 +229,6 @@ extern short screensize;
 
 extern int totalmoves;
 
-extern short nGamma;
-
 extern int lCountDown;
 
 extern short bSlipMode;

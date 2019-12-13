@@ -50,8 +50,6 @@ extern "C" {
 }
 #endif
 
-short gMusicVolume = 200;
-short gFXVolume = 200;
 short nSoundsPlaying = 0;
 short nAmbientChannel = -1;
 
@@ -738,7 +736,7 @@ void UpdateSounds()
                 return;
             }
 
-            int nVolume = gFXVolume+10-(Sin(nDist<<1)>>6);
+            int nVolume = snd_fxvolume+10-(Sin(nDist<<1)>>6);
             if (nVolume < 0)
                 nVolume = 0;
             if (nVolume > 255)
@@ -827,7 +825,7 @@ void UpdateLocalSound(void)
         return;
 
     if (sActiveSound[nLocalChan].f_e >= 0)
-        FX_SetPan(sActiveSound[nLocalChan].f_e, gFXVolume, gFXVolume, gFXVolume);
+        FX_SetPan(sActiveSound[nLocalChan].f_e, snd_fxvolume, snd_fxvolume, snd_fxvolume);
 }
 
 void StopLocalSound(void)
@@ -863,18 +861,7 @@ void PlaySound(int nSound)
     if (handle >= 0)
         FX_StopSound(handle);
 
-    handle = FX_Play(SoundBuf[nSound], SoundLen[nSound], bLoop ? 0 : -1, 0, 0, gFXVolume, gFXVolume, gFXVolume, 0, fix16_one, -1);
-
-#if 0
-    AIL_init_sample(handle);
-    AIL_set_sample_file(handle, SoundBuf[nSound], -1);
-    AIL_set_sample_volume(handle, gFXVolume>>1);
-
-    if (SoundBuf[nSound][26] == 6)
-        AIL_set_sample_loop_count(handle, 0);
-
-    AIL_start_sample(handle);
-#endif
+    handle = FX_Play(SoundBuf[nSound], SoundLen[nSound], bLoop ? 0 : -1, 0, 0, snd_fxvolume, snd_fxvolume, snd_fxvolume, 0, fix16_one, -1);
 }
 
 void PlayLocalSound(short nSound, short nRate)
@@ -897,7 +884,7 @@ void PlayLocalSound(short nSound, short nRate)
     if (pASound->f_e >= 0)
         FX_StopSound(pASound->f_e);
 
-    pASound->f_e = FX_Play(SoundBuf[nSound], SoundLen[nSound], bLoop ? 0 : -1, 0, 0, gFXVolume, gFXVolume, gFXVolume, 0, fix16_one, nLocalChan);
+    pASound->f_e = FX_Play(SoundBuf[nSound], SoundLen[nSound], bLoop ? 0 : -1, 0, 0, snd_fxvolume, snd_fxvolume, snd_fxvolume, 0, fix16_one, nLocalChan);
 
     if (nRate)
     {
@@ -905,19 +892,7 @@ void PlayLocalSound(short nSound, short nRate)
         FX_GetFrequency(pASound->f_e, &nFreq);
         FX_SetFrequency(pASound->f_e, nFreq+nRate);
     }
-#if 0
-    AIL_init_sample(pASound->f_e);
-    AIL_set_sample_file(pASound->f_e, SoundBuf[nSound], -1);
-    AIL_set_sample_volume(pASound->f_e, gFXVolume>>1);
 
-    if (nRate)
-        AIL_set_sample_playback_rate(pASound->f_e, AIL_sample_playback_rate(pASound->f_e)+nRate);
-
-    if (SoundBuf[nSound][26] == 6)
-        AIL_set_sample_loop_count(pASound->f_e, 0);
-
-    AIL_start_sample(pASound->f_e);
-#endif
     pASound->f_2 = nSound;
     SetLocalChan(0);
 }
@@ -993,7 +968,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
 
     if (!v1c)
     {
-        nVolume = gFXVolume+10-(Sin(nDist<<1)>>6)-10;
+        nVolume = snd_fxvolume+10-(Sin(nDist<<1)>>6)-10;
         if (nVolume <= 0)
         {
             if ((int16_t)nSound > -1)
@@ -1004,7 +979,7 @@ short PlayFX2(unsigned short nSound, short nSprite)
             nVolume = 255;
     }
     else
-        nVolume = gFXVolume;
+        nVolume = snd_fxvolume;
 
     short vc = nSound & (~0x1ff);
     short v4 = nSound & 0x2000;

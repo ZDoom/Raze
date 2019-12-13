@@ -852,21 +852,22 @@ void menu_AdjustVolume()
         overwritesprite(80, 50, kMenuMusicTile, (Sin((int)totalclock << 4) >> 9) * (nOption == 0), 2, kPalNormal);
         overwritesprite(55, 75, kMenuBlankTitleTile, 0, 2, kPalNormal);
 
+        /*
         seq_DrawGunSequence(
             SeqOffsets[kSeqSlider], // eax
             gMusicVolume % 3, // pick one of 3 frames?
             (gMusicVolume >> 1) - 93, // ebx. must be x???
             -22,
             0,
-            0);
+            0);*/
 
         overwritesprite(80, 110, kMenuSoundFxTile, (Sin((int)totalclock << 4) >> 9) * (nOption == 1), 2, kPalNormal);
         overwritesprite(55, 135, kMenuBlankTitleTile, 0, 2, kPalNormal);
 
         seq_DrawGunSequence(
             SeqOffsets[kSeqSlider],
-            gFXVolume % 3,
-            (gFXVolume / 2) - 93,
+            snd_fxvolume % 3,
+            (snd_fxvolume / 2) - 93,
             38,
             0,
             0);
@@ -914,67 +915,11 @@ void menu_AdjustVolume()
 		if (I_MenuLeft())
 		{
 			I_MenuLeftClear();
-			switch (nOption)
-            {
-                case 0:
-                {
-                    if (gMusicVolume > 3) {
-                        gMusicVolume -= 4;
-                    }
-
-// TODO				SetMusicVolume();
-    				setCDaudiovolume(gMusicVolume);
-                    continue;
-                }
-
-                case 1:
-                {
-                    if (gFXVolume > 3) {
-                        gFXVolume -= 4;
-                    }
-
-                    if (LocalSoundPlaying()) {
-                        UpdateLocalSound();
-                    }
-                    else {
-                        PlayLocalSound(StaticSound[kSound23], 0);
-                    }
-                    continue;
-                }
-            }
         }
 
 		if (I_MenuRight())
 		{
 			I_MenuRightClear();
-			switch (nOption)
-            {
-                case 0:
-                {
-                    if (gMusicVolume < 252) {
-                        gMusicVolume += 4;
-                    }
-
-//  				SetMusicVolume();
-    				setCDaudiovolume(gMusicVolume);
-                    continue;
-                }
-
-                case 1:
-                {
-                    if (gFXVolume < 252) {
-                        gFXVolume += 4;
-                    }
-
-                    if (LocalSoundPlaying()) {
-                        UpdateLocalSound();
-                    }
-                    else {
-                        PlayLocalSound(StaticSound[kSound23], 0);
-                    }
-                    continue;
-                }
-            }
         }
 
         if (GetLocalSound() != 23) {

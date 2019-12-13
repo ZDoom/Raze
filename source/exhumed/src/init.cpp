@@ -1031,62 +1031,12 @@ void LoadObjects()
 
 int myloadconfig()
 {
-    FILE *fp = fopen("psa.ini", "rb");
-
-    if (fp == NULL)
-    {
-        gFXVolume = 200;
-        nGamma = 2;
-        gMusicVolume = 200;
-        bFullScreen = 0;
-        mysetbrightness((uint8_t)nGamma);
-
-        lMouseSens = 8;
-        return -1;
-    }
-
-    fread(&gFXVolume,    sizeof(gFXVolume), 1, fp);
-    fread(&gMusicVolume, sizeof(gMusicVolume), 1, fp);
-    fread(&screensize,   sizeof(screensize), 1, fp);
-    fread(&bFullScreen,  sizeof(bFullScreen), 1, fp);
-    fread(&nGamma,       sizeof(nGamma), 1, fp);
-    fread(&lMouseSens,   sizeof(lMouseSens), 1, fp);
-
-    if (screensize < 0 || screensize > 15) {
-        screensize = 0;
-    }
-
-    fclose(fp);
-
-    if (gFXVolume > 255) {
-        gFXVolume = 125;
-    }
-
-    if (gMusicVolume > 255) {
-        gMusicVolume = 125;
-    }
 
     return 1;
 }
 
 int mysaveconfig()
 {
-    FILE *fp = fopen("psa.ini", "wb");
-    if (fp == NULL) {
-        return -1;
-    }
-
-    fwrite(&gFXVolume,    sizeof(gFXVolume), 1, fp);
-    fwrite(&gMusicVolume, sizeof(gMusicVolume), 1, fp);
-
-    short nSize = screensize;
-
-    fwrite(&nSize,       sizeof(nSize), 1, fp);
-    fwrite(&bFullScreen, sizeof(bFullScreen), 1, fp);
-    fwrite(&nGamma,      sizeof(nGamma), 1, fp);
-    fwrite(&lMouseSens,  sizeof(lMouseSens), 1, fp);
-
-    fclose(fp);
     return 1;
 }
 END_PS_NS

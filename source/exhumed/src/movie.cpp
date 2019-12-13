@@ -261,7 +261,7 @@ void PlayMovie(const char* fileName)
     if (ReadFrame(fp))
     {
         // start audio playback
-        hFx = FX_StartDemandFeedPlayback(ServeSample, kSampleRate, 0, gMusicVolume, gMusicVolume, gMusicVolume, FX_MUSIC_PRIORITY, fix16_one, -1);
+        hFx = FX_StartDemandFeedPlayback(ServeSample, kSampleRate, 0, mus_volume, mus_volume, mus_volume, FX_MUSIC_PRIORITY, fix16_one, -1);
 
         while (!inputState.keyBufferWaiting())
         {
