@@ -1,4 +1,4 @@
-//-------------------------------------------------------------------------
+﻿//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -159,6 +159,14 @@ enum gametokens
     T_FORCENOFILTER,
     T_TEXTUREFILTER,
 };
+
+static void gameTimerHandler(void)
+{
+    S_Cleanup();
+    MUSIC_Update();
+
+    G_HandleSpecialKeys();
+}
 
 void G_HandleSpecialKeys(void)
 {
@@ -7076,6 +7084,7 @@ static void G_Startup(void)
     set_memerr_handler(&G_HandleMemErr);
 
     timerInit(TICRATE);
+    timerSetCallback(gameTimerHandler);
 
     G_CompileScripts();
 
@@ -7611,6 +7620,7 @@ MAIN_LOOP_RESTART:
 
         OSD_DispatchQueued();
 
+        static bool frameJustDrawn;
         char gameUpdate = false;
         double const gameUpdateStartTime = timerGetHiTicks();
         if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
@@ -7627,7 +7637,10 @@ MAIN_LOOP_RESTART:
 
             //Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
 
-            S_Update();
+            if (!frameJustDrawn)
+                break;
+
+            frameJustDrawn = false;
 
             do
             {
@@ -7642,6 +7655,7 @@ MAIN_LOOP_RESTART:
                         (g_player[myconnectindex].ps->gm&MODE_GAME))
                 {
                     G_MoveLoop();
+                    S_Update();
                 }
 
                 if (totalclock - moveClock >= TICSPERFRAME)
@@ -7690,6 +7704,8 @@ MAIN_LOOP_RESTART:
             {
                 g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
             }
+
+            frameJustDrawn = true;
         }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)
