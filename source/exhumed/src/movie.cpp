@@ -269,7 +269,7 @@ void PlayMovie(const char* fileName)
 
             // audio is king for sync - if the backend doesn't need any more samples yet, 
             // don't process any more movie file data.
-            if (!bServedSample) {
+            if (!bServedSample && hFx > 0) {
                 continue;
             }
 
