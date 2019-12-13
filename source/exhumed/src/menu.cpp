@@ -753,7 +753,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
         if (curYPos == destYPos)
         {
-            if (inputState.GetKeyStatus[sc_UpArrow])
+            if (inputState.GetKeyStatus(sc_UpArrow))
             {
                 inputState.ClearKeyStatus(sc_UpArrow);
 
@@ -775,7 +775,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 }
             }
 
-            if (inputState.GetKeyStatus[sc_DownArrow])
+            if (inputState.GetKeyStatus(sc_DownArrow))
             {
                 inputState.ClearKeyStatus(sc_DownArrow);
 
