@@ -186,7 +186,7 @@ extern WEAPONITEMDATA gWeaponItemData[];
 extern ITEMDATA gItemData[];
 extern MissileType missileInfo[];
 extern EXPLOSION explodeInfo[];
-extern THINGINFO thingInfo[];
+extern const THINGINFO thingInfo[];
 extern VECTORDATA gVectorData[];
 
 extern int gDudeDrag;

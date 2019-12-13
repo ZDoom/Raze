@@ -46,7 +46,6 @@ extern INICHAIN *pINIChain;
 
 enum INPUT_MODE {
     kInputGame = 0,
-    kInputMenu,
     kInputMessage,
     kInputEndGame,
 };
@@ -60,8 +59,6 @@ extern bool gRestartGame;
 extern double g_gameUpdateTime, g_gameUpdateAndDrawTime;
 extern double g_gameUpdateAvgTime;
 extern int blood_globalflags;
-extern int gMusicPrevLoadedEpisode;
-extern int gMusicPrevLoadedLevel;
 
 extern int gSaveGameNum;
 extern bool gPaused;
@@ -90,8 +87,21 @@ struct GameInterface : ::GameInterface
 	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
-	bool mouseInactiveConditional(bool condition) override;
 	FString statFPS() override;
+	FSavegameInfo GetSaveSig() override;
+	void MenuOpened() override;
+	void MenuClosed() override;
+	bool CanSave() override;
+	void StartGame(FGameStartup& gs) override;
+	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
+	void DrawMenuCaption(const DVector2& origin, const char* text) override;
+	bool SaveGame(FSaveGameNode*) override;
+	bool LoadGame(FSaveGameNode*) override;
+	void DoPrintMessage(int prio, const char*) override;
+	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg);
+	void QuitToTitle() override;
+
+	GameStats getStats() override;
 };
 
 END_BLD_NS

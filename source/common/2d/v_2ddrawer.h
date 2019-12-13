@@ -19,6 +19,7 @@ public:
 		DrawTypeTriangles,
 		DrawTypeLines,
 		DrawTypePoints,
+		DrawTypeRotateSprite,
 	};
 
 	enum ETextureFlags : uint8_t
@@ -85,7 +86,7 @@ public:
 		bool isCompatible(const RenderCommand &other) const
 		{
 			return mTexture == other.mTexture &&
-				mType == other.mType &&
+				mType == other.mType && mType != DrawTypeRotateSprite &&
 				mRemapIndex == other.mRemapIndex &&
 				mSpecialColormap[0].d == other.mSpecialColormap[0].d &&
 				mSpecialColormap[1].d == other.mSpecialColormap[1].d &&
@@ -121,6 +122,10 @@ public:
 	void AddLine(int x1, int y1, int x2, int y2, uint32_t color, uint8_t alpha = 255);
 	void AddThickLine(int x1, int y1, int x2, int y2, double thickness, uint32_t color, uint8_t alpha = 255);
 	void AddPixel(int x1, int y1, uint32_t color);
+
+	void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+		int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+		int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 
 	void Clear();
 

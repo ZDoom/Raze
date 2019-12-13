@@ -24,8 +24,10 @@
 #include "gamecvars.h"
 #include "c_console.h"
 #include "v_2ddrawer.h"
+#include "v_draw.h"
 #include "imgui.h"
 #include "stats.h"
+#include "menu.h"
 
 #ifdef USE_OPENGL
 # include "glsurface.h"
@@ -157,7 +159,8 @@ int32_t globaltilesizy;
 int32_t globalx1, globaly2, globalx3, globaly3;
 
 int32_t sloptable[SLOPTABLESIZ];
-static intptr_t slopalookup[16384];    // was 2048
+#define SLOPALOOKUPSIZ 16384
+static intptr_t slopalookup[SLOPALOOKUPSIZ];    // was 2048
 
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
@@ -3387,7 +3390,7 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     int32_t i, j, l, globalx1, globaly1, y1, y2, daslope, daz, wxi, wyi;
     float fi, wx, wy, dasqr;
     float globalx, globaly, globalx2, globaly2, globalx3, globaly3, globalz, globalzd, globalzx;
-    int32_t shoffs, m1, m2;
+    int32_t shoffs, m1, m2, shy1, shy2;
     intptr_t *mptr1, *mptr2;
 
     const usectortype *const sec = (usectortype *)&sector[sectnum];
@@ -3521,7 +3524,14 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     //Avoid visibility overflow by crossing horizon
     m1 += klabs(l);
     m2 = m1+l;
-    mptr1 = (intptr_t *)&slopalookup[y1+(shoffs>>15)]; mptr2 = mptr1+1;
+    shy1 = y1+(shoffs>>15);
+    if ((unsigned)shy1 >= SLOPALOOKUPSIZ-1)
+    {
+        OSD_Printf("%s:%d: slopalookup[%" PRId32 "] overflow drawing sector %d!\n", EDUKE32_FUNCTION, __LINE__, shy1, sectnum);
+        return;
+    }
+
+    mptr1 = &slopalookup[shy1]; mptr2 = mptr1+1;
 
     for (int x=dax1; x<=dax2; x++)
     {
@@ -3529,8 +3539,23 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
         else { y1 = max(umost[x],dplc[x]); y2 = dmost[x]-1; }
         if (y1 <= y2)
         {
-            intptr_t *nptr1 = &slopalookup[y1+(shoffs>>15)];
-            intptr_t *nptr2 = &slopalookup[y2+(shoffs>>15)];
+            shy1 = y1+(shoffs>>15);
+            shy2 = y2+(shoffs>>15);
+
+            // Ridiculously steep gradient?
+            if ((unsigned)shy1 >= SLOPALOOKUPSIZ)
+            {
+                OSD_Printf("%s:%d: slopalookup[%" PRId32 "] overflow drawing sector %d!\n", EDUKE32_FUNCTION, __LINE__, shy1, sectnum);
+                goto next_most;
+            }
+            if ((unsigned)shy2 >= SLOPALOOKUPSIZ)
+            {
+                OSD_Printf("%s:%d: slopalookup[%" PRId32 "] overflow drawing sector %d!\n", EDUKE32_FUNCTION, __LINE__, shy2, sectnum);
+                goto next_most;
+            }
+
+            intptr_t *nptr1 = &slopalookup[shy1];
+            intptr_t *nptr2 = &slopalookup[shy2];
 
             while (nptr1 <= mptr1)
             {
@@ -3660,6 +3685,7 @@ static void fgrouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 #undef LINTERPSIZ
             if ((x&15) == 0) faketimerhandler();
         }
+next_most:
         globalx2 += globalx;
         globaly2 += globaly;
         globalzx += globalz;
@@ -3676,7 +3702,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     }
     int32_t i, l, x, y, dx, dy, wx, wy, y1, y2, daz;
     int32_t daslope, dasqr;
-    int32_t shoffs, m1, m2;
+    int32_t shoffs, m1, m2, shy1, shy2;
     intptr_t *mptr1, *mptr2, j;
 
     // Er, yes, they're not global anymore:
@@ -3808,7 +3834,14 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     //Avoid visibility overflow by crossing horizon
     m1 += klabs((int32_t) (globalzd>>16));
     m2 = m1+l;
-    mptr1 = (intptr_t *)&slopalookup[y1+(shoffs>>15)]; mptr2 = mptr1+1;
+    shy1 = y1+(shoffs>>15);
+    if ((unsigned)shy1 >= SLOPALOOKUPSIZ - 1)
+    {
+        OSD_Printf("%s:%d: slopalookup[%" PRId32 "] overflow drawing sector %d!\n", EDUKE32_FUNCTION, __LINE__, shy1, sectnum);
+        return;
+    }
+
+    mptr1 = &slopalookup[shy1]; mptr2 = mptr1+1;
 
     for (x=dax1; x<=dax2; x++)
     {
@@ -3816,8 +3849,23 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
         else { y1 = max(umost[x],dplc[x]); y2 = dmost[x]-1; }
         if (y1 <= y2)
         {
-            intptr_t *nptr1 = &slopalookup[y1+(shoffs>>15)];
-            intptr_t *nptr2 = &slopalookup[y2+(shoffs>>15)];
+            shy1 = y1+(shoffs>>15);
+            shy2 = y2+(shoffs>>15);
+
+            // Ridiculously steep gradient?
+            if ((unsigned)shy1 >= SLOPALOOKUPSIZ)
+            {
+                OSD_Printf("%s:%d: slopalookup[%" PRId32 "] overflow drawing sector %d!\n", EDUKE32_FUNCTION, __LINE__, shy1, sectnum);
+                goto next_most;
+            }
+            if ((unsigned)shy2 >= SLOPALOOKUPSIZ)
+            {
+                OSD_Printf("%s:%d: slopalookup[%" PRId32 "] overflow drawing sector %d!\n", EDUKE32_FUNCTION, __LINE__, shy2, sectnum);
+                goto next_most;
+            }
+
+            intptr_t *nptr1 = &slopalookup[shy1];
+            intptr_t *nptr2 = &slopalookup[shy2];
 
             while (nptr1 <= mptr1)
             {
@@ -3849,6 +3897,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 
             if ((x&15) == 0) faketimerhandler();
         }
+next_most:
         globalx2 += globalx;
         globaly2 += globaly;
         globalzx += globalz;
@@ -4429,7 +4478,7 @@ static void classicDrawBunches(int32_t bunch)
                         smostwall[smostwallcnt] = z;
                         smostwalltype[smostwallcnt] = 1;   //1 for umost
                         smostwallcnt++;
-                        copybufbyte(&umost[x1],&smost[smostcnt],i*sizeof(smost[0]));
+                        memcpy(&umost[x1],&smost[smostcnt],i*sizeof(smost[0]));
                         smostcnt += i;
                     }
                 }
@@ -4515,7 +4564,7 @@ static void classicDrawBunches(int32_t bunch)
                         smostwall[smostwallcnt] = z;
                         smostwalltype[smostwallcnt] = 2;   //2 for dmost
                         smostwallcnt++;
-                        copybufbyte(&dmost[x1],&smost[smostcnt],i*sizeof(smost[0]));
+                        memcpy(&dmost[x1],&smost[smostcnt],i*sizeof(smost[0]));
                         smostcnt += i;
                     }
                 }
@@ -4983,16 +5032,6 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
             }
         }
     }
-
-#if 0
-    for (x=0; x<xdimen; x++)
-    {
-        if (daumost[x]>=0 && daumost[x]<ydimen)
-            *(char *)(frameplace + x + bytesperline*daumost[x]) = editorcolors[13];
-        if (dadmost[x]>=0 && dadmost[x]<ydimen)
-            *(char *)(frameplace + x + bytesperline*dadmost[x]) = editorcolors[14];
-    }
-#endif
 
     videoEndDrawing();   //}}}
 }
@@ -6747,6 +6786,9 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
         int32_t zoomsc, sx=*sxptr, sy=*syptr;
         int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
 
+        if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
+            sx += NEGATE_ON_CONDITION(scale(120<<16,xdim,ydim) - (160<<16), !(dastat & RS_ALIGN_R));
+
         sy += rotatesprite_y_offset;
 
         // screen center to s[xy], 320<<16 coords.
@@ -6774,17 +6816,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
             // screen x center to sx1, scaled to viewport
             const int32_t scaledxofs = scale(normxofs, scale(xdimen, xdim, oxdim), 320);
 
-            int32_t xbord = 0;
-
-            if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
-            {
-                xbord = scale(oxdim-xdim, twice_midcx, oxdim);
-
-                if ((dastat & RS_ALIGN_R)==0)
-                    xbord = -xbord;
-            }
-
-            sx = ((twice_midcx+xbord)<<15) + scaledxofs;
+            sx = ((twice_midcx)<<15) + scaledxofs;
 
             zoomsc = xdimenscale;   //= scale(xdimen,yxaspect,320);
             zoomsc = mulscale16(zoomsc, rotatesprite_yxaspect);
@@ -6806,9 +6838,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 
             if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
                 sy += (oydim-ydim)<<15;
-            else if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_R)
-                sx += (oxdim-xdim)<<16;
-            else if ((dastat & RS_ALIGN_MASK) == 0)
+            else
                 sx += (oxdim-xdim)<<15;
 
             if (dastat & RS_CENTERORIGIN)
@@ -9454,7 +9484,7 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
 
     flags &= 3;
 
-	FileReader fr = kopenFileReader(filename, 0);
+	FileReader fr = fileSystem.OpenFileReader(filename, 0);
 	if (!fr.isOpen())
         { mapversion = 7; return -1; }
 
@@ -9646,7 +9676,7 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
     struct walltypev6   v6wall;
     struct spritetypev6 v6spr;
 
-	FileReader fr = kopenFileReader(filename, fromwhere);
+	FileReader fr = fileSystem.OpenFileReader(filename, fromwhere);
     if (!fr.isOpen())
         { mapversion = 5L; return -1; }
 
@@ -9984,6 +10014,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     }
     xdim = daupscaledxdim/scalefactor;
     ydim = daupscaledydim/scalefactor;
+	V_UpdateModeSize(xdim, ydim);
 
 #ifdef USE_OPENGL
     fxdim = (float) xdim;
@@ -10037,7 +10068,21 @@ void DrawFullscreenBlends();
 //
 void videoNextPage(void)
 {
+	static bool recursion;
     permfifotype *per;
+
+	if (!recursion)
+	{
+		// This protection is needed because the menu can call scripts from inside its drawers and the scripts can call the busy-looping Screen_Play script event
+		// which calls videoNextPage for page flipping again. In this loop the UI drawers may not get called again.
+		// Ideally this stuff should be moved out of videoNextPage so that all those busy loops won't call UI overlays at all.
+		recursion = true;
+		M_Drawer();
+		FStat::PrintStat();
+		C_DrawConsole();
+		recursion = false;
+	}
+
 
     if (in3dmode())
     {
@@ -10055,24 +10100,13 @@ void videoNextPage(void)
 
 		g_beforeSwapTime = timerGetHiTicks();
 
-		// Draw the ImGui menu on top of the game content, but below the console (if open.)
-		if (GUICapture & 6)
-		{
-			ImGui::Render();
-			GLInterface.DrawImGui(ImGui::GetDrawData());
-			GUICapture &= ~4;
-		}
-
 		// Draw the console plus debug output on top of everything else.
 		DrawFullscreenBlends();
-		FStat::PrintStat(); 
-		C_DrawConsole();
 		GLInterface.Draw2D(&twod);
 
 
 		videoShowFrame(0);
 
-		// software rendering only
 		videoBeginDrawing(); //{{{
         for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
@@ -10112,7 +10146,7 @@ void videoNextPage(void)
 
 int32_t qloadkvx(int32_t voxindex, const char *filename)
 {
-    auto fil = kopenFileReader(filename, 0);
+    auto fil = fileSystem.OpenFileReader(filename, 0);
     if (!fil.isOpen())
         return -1;
 
@@ -10962,13 +10996,13 @@ int32_t lastwall(int16_t point)
  * NOTE: The redundant bound checks are expected to be optimized away in the
  * inlined code. */
 
-static FORCE_INLINE CONSTEXPR bool inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
+static FORCE_INLINE CONSTEXPR int inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
 {
     return (sectnum>=0 && !bitmap_test(excludesectbitmap, sectnum) && inside_p(x, y, sectnum));
 }
 
 /* NOTE: no bound check */
-static inline bool inside_z_p(int32_t const x, int32_t const y, int32_t const z, int const sectnum)
+static inline int inside_z_p(int32_t const x, int32_t const y, int32_t const z, int const sectnum)
 {
     int32_t cz, fz;
     getzsofslope(sectnum, x, y, &cz, &fz);
@@ -11396,6 +11430,9 @@ void renderFlushPerms(void)
 }
 
 
+bool rotatesprite_2doverride;	// gross hack alert. Thanks to the insufficient abstraction the only chance to redirect rotatesprite calls
+								// to the 2D drawer is to use a global flag and check in rotatesprite_.
+#include "v_2ddrawer.h"
 //
 // rotatesprite
 //
@@ -11412,6 +11449,12 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     if (z <= 16) return;
     tileUpdatePicnum(&picnum, (int16_t)0xc000);
     if ((tilesiz[picnum].x <= 0) || (tilesiz[picnum].y <= 0)) return;
+
+	if (rotatesprite_2doverride)
+	{
+		twod.rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2);
+		return;
+	}
 
     // Experimental / development bits. ONLY FOR INTERNAL USE!
     //  bit RS_CENTERORIGIN: see dorotspr_handle_bit2
@@ -11594,8 +11637,8 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     rendmode = REND_CLASSIC;
 #endif
 
-    copybufbyte(&startumost[windowxy1.x],&bakumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakumost[0]));
-    copybufbyte(&startdmost[windowxy1.x],&bakdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakdmost[0]));
+    memcpy(&startumost[windowxy1.x],&bakumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakumost[0]));
+    memcpy(&startdmost[windowxy1.x],&bakdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakdmost[0]));
     setviewcnt++;
 
     offscreenrendering = 1;
@@ -11629,8 +11672,8 @@ void renderRestoreTarget(void)
     ydim = bakysiz[setviewcnt];
     videoSetViewableArea(bakwindowxy1[setviewcnt].x,bakwindowxy1[setviewcnt].y,
             bakwindowxy2[setviewcnt].x,bakwindowxy2[setviewcnt].y);
-    copybufbyte(&bakumost[windowxy1.x],&startumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startumost[0]));
-    copybufbyte(&bakdmost[windowxy1.x],&startdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startdmost[0]));
+    memcpy(&bakumost[windowxy1.x],&startumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startumost[0]));
+    memcpy(&bakdmost[windowxy1.x],&startdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startdmost[0]));
     frameplace = bakframeplace[setviewcnt];
 
     calc_ylookup((setviewcnt == 0) ? bytesperline : bakxsiz[setviewcnt],
@@ -12066,42 +12109,6 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
     Xfree(tmpwall);
 }
 
-//
-// qsetmodeany
-//
-void videoSet2dMode(int32_t daxdim, int32_t daydim)
-{
-    if (daxdim < 640) daxdim = 640;
-    if (daydim < 480) daydim = 480;
-
-    if (qsetmode != ((daxdim<<16)|(daydim&0xffff)))
-    {
-        g_lastpalettesum = 0;
-        if (videoSetMode(daxdim, daydim, 8, fullscreen) < 0)
-            return;
-
-        xdim = xres;
-        ydim = yres;
-
-#ifdef USE_OPENGL
-        fxdim = (float) xdim;
-        fydim = (float) ydim;
-
-        rendmode = REND_CLASSIC;
-#endif
-        videoAllocateBuffers();
-
-        ydim16 = ydim - STATUS2DSIZ2;
-        halfxdim16 = xdim >> 1;
-        midydim16 = ydim16 >> 1; // scale(200,ydim,480);
-
-        videoBeginDrawing(); //{{{
-        Bmemset((char *)frameplace, 0, ydim*bytesperline);
-        videoEndDrawing();   //}}}
-    }
-
-    qsetmode = ((daxdim<<16)|(daydim&0xffff));
-}
 
 static int32_t printext_checkypos(int32_t ypos, int32_t *yminptr, int32_t *ymaxptr)
 {

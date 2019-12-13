@@ -506,6 +506,7 @@ struct BuildTiles
 	FTexture* tiles[MAXTILES];
 	FTexture* tilesbak[MAXTILES];
 	TMap<FString, FTexture*> textures;
+	TArray<FString> addedArt;
 
 	BuildTiles()
 	{
@@ -537,6 +538,10 @@ struct BuildTiles
 	int LoadArtFile(const char* file, bool mapart = false, int firsttile = -1);
 	void CloseAllMapArt();
 	void LoadArtSet(const char* filename);
+	void AddArt(TArray<FString>& art)
+	{
+		addedArt = std::move(art);
+	}
 	FTexture* ValidateCustomTile(int tilenum, int type);
 	int32_t artLoadFiles(const char* filename);
 	uint8_t* tileMakeWritable(int num);

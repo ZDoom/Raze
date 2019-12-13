@@ -23,10 +23,20 @@
 #include "i_specialpaths.h"
 #include "z_music.h"
 #include "statistics.h"
+#include "menu.h"
+#include "gstrings.h"
+#include "quotemgr.h"
+#include "mapinfo.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
 
+MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
+MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
+MapRecord* lastLevel;		// Same here, for the last level.
+MapRecord userMapRecord;	// stand-in for the user map.
+
+void C_CON_SetAliases();
 InputState inputState;
 void SetClipshapes();
 int ShowStartupWindow(TArray<GrpEntry> &);
@@ -36,7 +46,8 @@ bool gHaveNetworking;
 
 FString currentGame;
 FString LumpFilter;
-
+TMap<FName, int32_t> NameToTileIndex; // for assigning names to tiles. The menu accesses this list. By default it gets everything from the dynamic tile map in Duke Nukem and Redneck Rampage.
+										// Todo: Add additional definition file for the other games or textures not in that list so that the menu does not have to rely on indices.
 
 CVAR(Int, cl_defaultconfiguration, 2, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
@@ -54,14 +65,16 @@ void UserConfig::ProcessOptions()
 		initprintf("Build-format config files not supported and will be ignored\n");
 	}
 
+#if 0 // MP disabled pending evaluation
 	auto v = Args->CheckValue("-port");
 	if (v) netPort = strtol(v, nullptr, 0);
 
 	netServerMode = Args->CheckParm("-server");
 	netServerAddress = Args->CheckValue("-connect");
 	netPassword = Args->CheckValue("-password");
+#endif
 
-	v = Args->CheckValue("-addon");
+	auto v = Args->CheckValue("-addon");
 	if (v)
 	{
 		auto val = strtol(v, nullptr, 0);
@@ -80,6 +93,22 @@ void UserConfig::ProcessOptions()
 	else if (Args->CheckParm("-ww2gi"))
 	{
 		gamegrp = "WW2GI.GRP";
+	}
+	// Set up all needed content for these two mod which feature a very messy distribution.
+	// As an alternative they can be zipped up - the launcher will be able to detect and set up such versions automatically.
+	else if (Args->CheckParm("-route66"))
+	{
+		gamegrp = "REDNECK.GRP";
+		DefaultCon = "GAME66.CON";
+		const char* argv[] = { "tilesa66.art" , "tilesb66.art" };
+		AddArt.reset(new FArgs(2, argv));
+	}
+	else if (Args->CheckParm("-cryptic"))
+	{
+		gamegrp = "BLOOD.RFF";
+		DefaultCon = "CRYPTIC.INI";
+		const char* argv[] = { "cpart07.ar_" , "cpart15.ar_" };
+		AddArt.reset(new FArgs(2, argv));
 	}
 
 	v = Args->CheckValue("-gamegrp");
@@ -271,6 +300,42 @@ int GameMain()
 //
 //==========================================================================
 
+#define LOCALIZED_STRING(s) "$" s
+
+void SetDefaultStrings()
+{
+	// Blood hard codes its skill names, so we have to define them manually.
+	if (g_gameType & GAMEFLAG_BLOOD)
+	{
+		gSkillNames[0] = "$STILL KICKING";
+		gSkillNames[1] = "$PINK ON THE INSIDE";
+		gSkillNames[2] = "$LIGHTLY BROILED";
+		gSkillNames[3] = "$WELL DONE";
+		gSkillNames[4] = "$EXTRA CRISPY";
+	}
+	
+	//Set a few quotes which are used for common handling of a few status messages
+	quoteMgr.InitializeQuote(23, "$MESSAGES: ON");
+	quoteMgr.InitializeQuote(24, "$MESSAGES: OFF");
+	quoteMgr.InitializeQuote(83, "$FOLLOW MODE OFF");
+	quoteMgr.InitializeQuote(84, "$FOLLOW MODE ON");
+	quoteMgr.InitializeQuote(85, "$AUTORUNOFF");
+	quoteMgr.InitializeQuote(86, "$AUTORUNON");
+	#if 0 // todo: print a message
+			if (gAutoRun)
+				viewSetMessage("Auto run ON");
+			else
+				viewSetMessage("Auto run OFF");
+
+	#endif
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 int CONFIG_Init()
 {
 	SetClipshapes();
@@ -369,10 +434,18 @@ int CONFIG_Init()
 	CheckFrontend(g_gameType);
 
 	InitFileSystem(usedgroups);
+	TArray<FString> addArt;
+	for (auto& grp : usedgroups)
+	{
+		for (auto& art : grp.FileInfo.loadart)
+		{
+			addArt.Push(art);
+		}
+	}
+	TileFiles.AddArt(addArt);
 
 	CONTROL_ClearAssignments();
 	CONFIG_InitMouseAndController();
-	CONFIG_SetGameControllerDefaultsStandard();
 	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
 	
 	G_ReadConfig(currentGame);
@@ -385,13 +458,14 @@ int CONFIG_Init()
 	{
 		playername = userConfig.CommandName;
 	}
+	GStrings.LoadStrings();
 	V_InitFonts();
-	buttonMap.SetGameAliases();
+	C_CON_SetAliases();
 	Mus_Init();
 	InitStatistics();
-
-
-
+	M_Init();
+	SetDefaultStrings();
+	if (g_gameType & GAMEFLAG_RR) InitRREndMap();	// this needs to be done better later
 	return gi->app_main();
 }
 
@@ -452,7 +526,7 @@ int32_t CONFIG_GetMapBestTime(char const* const mapname, uint8_t const* const ma
 	if (GameConfig->SetSection("MapTimes"))
 	{
 		auto s = GameConfig->GetValueForKey(m);
-		if (s) (int)strtoull(s, nullptr, 0);
+		if (s) return (int)strtoull(s, nullptr, 0);
 	}
 	return -1;
 }
@@ -473,7 +547,6 @@ int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm)
 //
 //==========================================================================
 
-int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
 int32_t MouseAnalogueAxes[MAXMOUSEAXES];
 int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
 int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
@@ -487,51 +560,6 @@ static const char* mouseanalogdefaults[MAXMOUSEAXES] =
 {
 "analog_turning",
 "analog_moving",
-};
-
-
-static const char* mousedigitaldefaults[MAXMOUSEDIGITAL] =
-{
-};
-
-static const char* joystickdefaults[MAXJOYBUTTONSANDHATS] =
-{
-"Fire",
-"Strafe",
-"Run",
-"Open",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"Aim_Down",
-"Look_Right",
-"Aim_Up",
-"Look_Left",
 };
 
 
@@ -549,18 +577,6 @@ static const char* joystickanalogdefaults[MAXJOYAXES] =
 "analog_turning",
 "analog_moving",
 "analog_strafing",
-};
-
-
-static const char* joystickdigitaldefaults[MAXJOYDIGITAL] =
-{
-"",
-"",
-"",
-"",
-"",
-"",
-"Run",
 };
 
 
@@ -627,62 +643,6 @@ void CONFIG_SetupMouse(void)
 
 void CONFIG_SetupJoystick(void)
 {
-	const char* val;
-	FString section = currentGame + ".ControllerSettings";
-	if (!GameConfig->SetSection(section)) return;
-
-	for (int i = 0; i < MAXJOYBUTTONSANDHATS; i++)
-	{
-		section.Format("ControllerButton%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickFunctions[i][0] = buttonMap.FindButtonIndex(val);
-
-		section.Format("ControllerButtonClicked%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickFunctions[i][1] = buttonMap.FindButtonIndex(val);
-	}
-
-	// map over the axes
-	for (int i = 0; i < MAXJOYAXES; i++)
-	{
-		section.Format("ControllerAnalogAxes%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickAnalogueAxes[i] = CONFIG_AnalogNameToNum(val);
-
-		section.Format("ControllerDigitalAxes%d_0", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickDigitalFunctions[i][0] = buttonMap.FindButtonIndex(val);
-
-		section.Format("ControllerDigitalAxes%d_1", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickDigitalFunctions[i][1] = buttonMap.FindButtonIndex(val);
-
-		section.Format("ControllerAnalogScale%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickAnalogueScale[i] = (int32_t)strtoull(val, nullptr, 0);
-
-		section.Format("ControllerAnalogInvert%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickAnalogueInvert[i] = (int32_t)strtoull(val, nullptr, 0);
-
-		section.Format("ControllerAnalogDead%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickAnalogueDead[i] = (int32_t)strtoull(val, nullptr, 0);
-
-		section.Format("ControllerAnalogSaturate%d", i);
-		val = GameConfig->GetValueForKey(section);
-		if (val)
-			JoystickAnalogueSaturate[i] = (int32_t)strtoull(val, nullptr, 0);
-	}
-
 	for (int i = 0; i < MAXJOYAXES; i++)
 	{
 		CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
@@ -803,220 +763,15 @@ static void CONFIG_SetGameControllerAxesModern()
 		analogAxis.apply();
 }
 
-void CONFIG_SetGameControllerDefaultsStandard()
-{
-	CONFIG_SetGameControllerDefaultsClear();
-	CONFIG_SetGameControllerAxesModern();
-
-	static GameControllerButtonSetting const buttons[] =
-	{
-		{ GAMECONTROLLER_BUTTON_A, gamefunc_Jump },
-		{ GAMECONTROLLER_BUTTON_B, gamefunc_Toggle_Crouch },
-		{ GAMECONTROLLER_BUTTON_BACK, gamefunc_Map },
-		{ GAMECONTROLLER_BUTTON_LEFTSTICK, gamefunc_Run },
-		{ GAMECONTROLLER_BUTTON_RIGHTSTICK, gamefunc_Quick_Kick },
-		{ GAMECONTROLLER_BUTTON_LEFTSHOULDER, gamefunc_Crouch },
-		{ GAMECONTROLLER_BUTTON_RIGHTSHOULDER, gamefunc_Jump },
-		{ GAMECONTROLLER_BUTTON_DPAD_UP, gamefunc_Previous_Weapon },
-		{ GAMECONTROLLER_BUTTON_DPAD_DOWN, gamefunc_Next_Weapon },
-	};
-
-	static GameControllerButtonSetting const buttonsDuke[] =
-	{
-		{ GAMECONTROLLER_BUTTON_X, gamefunc_Open },
-		{ GAMECONTROLLER_BUTTON_Y, gamefunc_Inventory },
-		{ GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_Inventory_Left },
-		{ GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_Inventory_Right },
-	};
-
-	static GameControllerButtonSetting const buttonsFury[] =
-	{
-		{ GAMECONTROLLER_BUTTON_X, gamefunc_Steroids }, // Reload
-		{ GAMECONTROLLER_BUTTON_Y, gamefunc_Open },
-		{ GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_MedKit },
-		{ GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_NightVision }, // Radar
-	};
-
-	static GameControllerDigitalAxisSetting const digitalAxes[] =
-	{
-		{ GAMECONTROLLER_AXIS_TRIGGERLEFT, 1, gamefunc_Alt_Fire },
-		{ GAMECONTROLLER_AXIS_TRIGGERRIGHT, 1, gamefunc_Fire },
-	};
-
-	for (auto const& button : buttons)
-		button.apply();
-
-	/*
-	if (FURY)
-	{
-		for (auto const& button : buttonsFury)
-			button.apply();
-	}
-	else
-	*/
-	{
-		for (auto const& button : buttonsDuke)
-			button.apply();
-	}
-
-	for (auto const& digitalAxis : digitalAxes)
-		digitalAxis.apply();
-}
-
-void CONFIG_SetGameControllerDefaultsPro()
-{
-	CONFIG_SetGameControllerDefaultsClear();
-	CONFIG_SetGameControllerAxesModern();
-
-	static GameControllerButtonSetting const buttons[] =
-	{
-		{ GAMECONTROLLER_BUTTON_A, gamefunc_Open },
-		{ GAMECONTROLLER_BUTTON_B, gamefunc_Third_Person_View },
-		{ GAMECONTROLLER_BUTTON_Y, gamefunc_Quick_Kick },
-		{ GAMECONTROLLER_BUTTON_BACK, gamefunc_Map },
-		{ GAMECONTROLLER_BUTTON_LEFTSTICK, gamefunc_Run },
-		{ GAMECONTROLLER_BUTTON_RIGHTSTICK, gamefunc_Crouch },
-		{ GAMECONTROLLER_BUTTON_DPAD_UP, gamefunc_Previous_Weapon },
-		{ GAMECONTROLLER_BUTTON_DPAD_DOWN, gamefunc_Next_Weapon },
-	};
-
-	static GameControllerButtonSetting const buttonsDuke[] =
-	{
-		{ GAMECONTROLLER_BUTTON_X, gamefunc_Inventory },
-		{ GAMECONTROLLER_BUTTON_LEFTSHOULDER, gamefunc_Previous_Weapon },
-		{ GAMECONTROLLER_BUTTON_RIGHTSHOULDER, gamefunc_Next_Weapon },
-		{ GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_Inventory_Left },
-		{ GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_Inventory_Right },
-	};
-
-	static GameControllerButtonSetting const buttonsFury[] =
-	{
-		{ GAMECONTROLLER_BUTTON_X, gamefunc_Steroids }, // Reload
-		{ GAMECONTROLLER_BUTTON_LEFTSHOULDER, gamefunc_Crouch },
-		{ GAMECONTROLLER_BUTTON_RIGHTSHOULDER, gamefunc_Alt_Fire },
-		{ GAMECONTROLLER_BUTTON_DPAD_LEFT, gamefunc_MedKit },
-		{ GAMECONTROLLER_BUTTON_DPAD_RIGHT, gamefunc_NightVision }, // Radar
-	};
-
-	static GameControllerDigitalAxisSetting const digitalAxes[] =
-	{
-		{ GAMECONTROLLER_AXIS_TRIGGERLEFT, 1, gamefunc_Jump },
-		{ GAMECONTROLLER_AXIS_TRIGGERRIGHT, 1, gamefunc_Fire },
-	};
-
-	for (auto const& button : buttons)
-		button.apply();
-
-#if 0 // ouch...
-	if (FURY)
-	{
-		for (auto const& button : buttonsFury)
-			button.apply();
-	}
-	else
-#endif
-	{
-		for (auto const& button : buttonsDuke)
-			button.apply();
-	}
-
-	for (auto const& digitalAxis : digitalAxes)
-		digitalAxis.apply();
-}
-
-FString CONFIG_GetGameFuncOnKeyboard(int gameFunc)
-{
-	auto binding = buttonMap.GetButtonAlias(gameFunc);
-	auto keys = Bindings.GetKeysForCommand(binding);
-	for(auto key : keys)
-	{
-		if (key < KEY_FIRSTMOUSEBUTTON)
-		{
-			auto scan = KB_ScanCodeToString(key);
-			if (scan) return scan;
-
-		}
-	}
-	return "";
-}
-
-FString CONFIG_GetGameFuncOnMouse(int gameFunc)
-{
-	auto binding = buttonMap.GetButtonAlias(gameFunc);
-	auto keys = Bindings.GetKeysForCommand(binding);
-	for (auto key : keys)
-	{
-		if ((key >= KEY_FIRSTMOUSEBUTTON && key < KEY_FIRSTJOYBUTTON) || (key >= KEY_MWHEELUP && key <= KEY_MWHEELLEFT))
-		{
-			auto scan = KB_ScanCodeToString(key);
-			if (scan) return scan;
-
-		}
-	}
-	return "";
-}
-
-char const* CONFIG_GetGameFuncOnJoystick(int gameFunc)
-{
-	auto binding = buttonMap.GetButtonAlias(gameFunc);
-	auto keys = Bindings.GetKeysForCommand(binding);
-	for (auto key : keys)
-	{
-		if (key >= KEY_FIRSTJOYBUTTON && !(key >= KEY_MWHEELUP && key <= KEY_MWHEELLEFT))
-		{
-			auto scan = KB_ScanCodeToString(key);
-			if (scan) return scan;
-		}
-	}
-	return "";
-}
-
-// FIXME: Consider the mouse as well!
-FString CONFIG_GetBoundKeyForLastInput(int gameFunc)
-{
-	if (CONTROL_LastSeenInput == LastSeenInput::Joystick)
-	{
-		FString name = CONFIG_GetGameFuncOnJoystick(gameFunc);
-		if (name.IsNotEmpty())
-		{
-			return name;
-		}
-	}
-
-	FString name = CONFIG_GetGameFuncOnKeyboard(gameFunc);
-	if (name.IsNotEmpty())
-	{
-		return name;
-	}
-
-	name = CONFIG_GetGameFuncOnMouse(gameFunc);
-	if (name.IsNotEmpty())
-	{
-		return name;
-	}
-
-	name = CONFIG_GetGameFuncOnJoystick(gameFunc);
-	if (name.IsNotEmpty())
-	{
-		return name;
-	}
-	return "UNBOUND";
-}
 
 
 void CONFIG_InitMouseAndController()
 {
-	memset(MouseDigitalFunctions, -1, sizeof(MouseDigitalFunctions));
 	memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
 	memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
 
 	for (int i = 0; i < MAXMOUSEAXES; i++)
 	{
-		MouseDigitalFunctions[i][0] = buttonMap.FindButtonIndex(mousedigitaldefaults[i * 2]);
-		MouseDigitalFunctions[i][1] = buttonMap.FindButtonIndex(mousedigitaldefaults[i * 2 + 1]);
-		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][0], 0, controldevice_mouse);
-		CONTROL_MapDigitalAxis(i, MouseDigitalFunctions[i][1], 1, controldevice_mouse);
-
 		MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
 		CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
 	}
@@ -1043,32 +798,12 @@ void CONFIG_WriteControllerSettings()
 	{
 		FString section = currentGame + ".ControllerSettings";
 		GameConfig->SetSection(section);
-		for (int dummy = 0; dummy < MAXJOYBUTTONSANDHATS; dummy++)
-		{
-			if (buttonMap.GetButtonName(JoystickFunctions[dummy][0]))
-			{
-				buf.Format("ControllerButton%d", dummy);
-				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickFunctions[dummy][0]));
-			}
-
-			if (buttonMap.GetButtonName(JoystickFunctions[dummy][1]))
-			{
-				buf.Format("ControllerButtonClicked%d", dummy);
-				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickFunctions[dummy][1]));
-			}
-		}
 		for (int dummy = 0; dummy < MAXJOYAXES; dummy++)
 		{
 			if (CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]))
 			{
 				buf.Format("ControllerAnalogAxes%d", dummy);
 				GameConfig->SetValueForKey(buf, CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]));
-			}
-
-			if (buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][0]))
-			{
-				buf.Format("ControllerDigitalAxes%d_0", dummy);
-				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][0]));
 			}
 
 			if (buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][1]))

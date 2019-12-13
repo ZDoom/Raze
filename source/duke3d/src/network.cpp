@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "input.h"
 #include "gamecvars.h"
+#include "mapinfo.h"
 
 #include "enet.h"
 #include "m_crc32.h"
@@ -1517,7 +1518,7 @@ static void P_RemovePlayer(int32_t p)
             voting = -1;
         }
 
-        Bstrcpy(apStrings[QUOTE_RESERVED2],recbuf);
+        quoteMgr.InitializeQuote(QUOTE_RESERVED2 ,recbuf);
         g_player[myconnectindex].ps->ftq = QUOTE_RESERVED2;
         g_player[myconnectindex].ps->fta = 180;
     }
@@ -1692,28 +1693,28 @@ static void Net_ReceiveDisconnect(ENetEvent *event)
     switch (event->data)
     {
     case DISC_BAD_PASSWORD:
-        initprintf("Bad password.\n");
+        initprintf("%s\n", GStrings("Bad password."));
         return;
     case DISC_VERSION_MISMATCH:
-        initprintf("Version mismatch.\n");
+        initprintf("%s\n", GStrings("Version mismatch."));
         return;
     case DISC_INVALID:
-        initprintf("Invalid data detected.\n");
+        initprintf("%s\n", GStrings("Invalid data detected."));
         return;
     case DISC_SERVER_QUIT:
-        initprintf("The server is quitting.\n");
+        initprintf("%s\n", GStrings("The server is quitting."));
         return;
     case DISC_SERVER_FULL:
-        initprintf("The server is full.\n");
+        initprintf("%s\n", GStrings("The server is full.\n"));
         return;
     case DISC_KICKED:
-        initprintf("You have been kicked from the server.\n");
+        initprintf("%s\n", GStrings("You have been kicked from the server.\n"));
         return;
     case DISC_BANNED:
-        initprintf("You are banned from this server.\n");
+        initprintf("%s\n", GStrings("You are banned from this server.\n"));
         return;
     default:
-        initprintf("Disconnected.\n");
+        initprintf("%s\n", GStrings("Disconnected.\n"));
         return;
     }
 }
@@ -1929,11 +1930,11 @@ static void Net_ReceiveMapVoteCancel(uint8_t *pbuf)
 
     if (voting == myconnectindex || voting != pbuf[1])
     {
-        Bsprintf(tempbuf, "Vote Failed");
+        Bsprintf(tempbuf, "%s", GStrings("Vote Failed"));
     }
     else if (voting == pbuf[1])
     {
-        Bsprintf(tempbuf, "%s^00 has canceled the vote", g_player[voting].user_name);
+        Bsprintf(tempbuf, GStrings("canceledthevote"), g_player[voting].user_name);
     }
 
     G_AddUserQuote(tempbuf);
@@ -1986,7 +1987,7 @@ static void Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng)
     Bcorrectfilename(boardfilename, 0);
     if (boardfilename[0] != 0)
     {
-        if (testkopen(boardfilename, 0))
+        if (fileSystem.FileExists(boardfilename))
         {
             Bmemset(boardfilename, 0, sizeof(boardfilename));
             Net_SendUserMapName();
@@ -2036,11 +2037,11 @@ static void Net_ReceiveMapVoteInitiate(uint8_t *pbuf)
     vote_episode = pendingnewgame.volume_number;
     vote_map     = pendingnewgame.level_number;
 
-    Bsprintf(tempbuf, "%s^00 has called a vote to change map to %s (E%dL%d)", g_player[voting].user_name,
-             g_mapInfo[(uint8_t)(vote_episode * MAXLEVELS + vote_map)].name, vote_episode + 1, vote_map + 1);
+    Bsprintf(tempbuf, GStrings("votemap"), g_player[voting].user_name,
+             mapList[(uint8_t)(vote_episode * MAXLEVELS + vote_map)].DisplayName(), vote_episode + 1, vote_map + 1);
     G_AddUserQuote(tempbuf);
 
-    Bsprintf(tempbuf, "Press F1 to Accept, F2 to Decline");
+    strcpy(tempbuf, GStrings("TXT_PRESSF1_F2"));
     G_AddUserQuote(tempbuf);
 
     for (playerIndex = MAXPLAYERS - 1; playerIndex >= 0; playerIndex--)
@@ -2325,7 +2326,7 @@ static void Net_ReceiveNewGame(ENetEvent *event)
     ClientPlayerReady = 0;
 
     if ((vote_map + vote_episode + voting) != -3)
-        G_AddUserQuote("Vote Succeeded");
+        G_AddUserQuote(GStrings("Vote Succeeded"));
 
     Bmemcpy(&pendingnewgame, event->packet->data, sizeof(newgame_t));
     Net_StartNewGame();
@@ -4799,10 +4800,10 @@ void Net_SendClientInfo(void)
 	l += 32;
     tempnetbuf[l++] = 0;
 
-    tempnetbuf[l++] = g_player[myconnectindex].ps->aim_mode = in_aimmode;
+    tempnetbuf[l++] = g_player[myconnectindex].ps->aim_mode = in_mousemode;
     tempnetbuf[l++] = g_player[myconnectindex].ps->auto_aim = cl_autoaim;
     tempnetbuf[l++] = g_player[myconnectindex].ps->weaponswitch = cl_weaponswitch;
-    tempnetbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = playercolor;
+    tempnetbuf[l++] = g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
 
     tempnetbuf[l++] = g_player[myconnectindex].pteam = playerteam;
 
@@ -5051,7 +5052,7 @@ void Net_SendMessage(void)
         else if (g_chatPlayer == -1)
         {
             j = 50;
-            gametext_center(j, "Send message to...");
+            gametext_center(j, GStrings("Send message to"));
             j += 8;
             for (TRAVERSE_CONNECT(i))
             {

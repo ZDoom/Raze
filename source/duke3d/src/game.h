@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamevars.h"
 #include "mmulti.h"
 #include "network.h"
+#include "menu/menu.h"
 
 BEGIN_DUKE_NS
 
@@ -118,32 +119,12 @@ void A_DeleteSprite(int spriteNum);
 
 static inline int32_t G_GetLogoFlags(void)
 {
-#if !defined LUNATIC
     return Gv_GetVarByLabel("LOGO_FLAGS",255, -1, -1);
-#else
-    extern int32_t g_logoFlags;
-    return g_logoFlags;
-#endif
 }
 
-#ifdef LUNATIC
-typedef struct {
-    vec3_t pos;
-    int32_t dist, clock;
-    fix16_t q16horiz, q16ang;
-    int16_t sect;
-} camera_t;
-
-extern camera_t g_camera;
-
-# define CAMERA(Membname) (g_camera.Membname)
-# define CAMERADIST (g_camera.dist)
-# define CAMERACLOCK (g_camera.clock)
-#else
 # define CAMERA(Membname) (ud.camera ## Membname)
 # define CAMERADIST g_cameraDistance
 # define CAMERACLOCK g_cameraClock
-#endif
 
 #endif
 
@@ -155,9 +136,7 @@ extern camera_t g_camera;
 #define MAX_RETURN_VALUES 6
 
 typedef struct {
-#if !defined LUNATIC
     vec3_t camerapos;
-#endif
     int32_t const_visibility,uw_framerate;
     int32_t camera_time,folfvel,folavel,folx,foly,fola;
     int32_t reccnt;
@@ -182,16 +161,12 @@ typedef struct {
 
     int32_t playerbest;
 
-    int32_t default_volume, default_skill;
-
     int32_t returnvar[MAX_RETURN_VALUES-1];
 
     uint32_t userbytever;
 
-#if !defined LUNATIC
     fix16_t cameraq16ang, cameraq16horiz;
     int16_t camerasect;
-#endif
     int16_t pause_on,from_bonus;
     int16_t camerasprite,last_camsprite;
     int16_t last_level,secretlevel;
@@ -224,7 +199,7 @@ extern user_defs ud;
 // this is checked against http://eduke32.com/VERSION
 extern const char *s_buildDate;
 
-extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
+extern char boardfilename[BMAX_PATH];
 #define USERMAPMUSICFAKEVOLUME MAXVOLUMES
 #define USERMAPMUSICFAKELEVEL (MAXLEVELS-1)
 #define USERMAPMUSICFAKESLOT ((USERMAPMUSICFAKEVOLUME * MAXLEVELS) + USERMAPMUSICFAKELEVEL)
@@ -506,11 +481,6 @@ static inline int G_GetViewscreenSizeShift(uspriteptr_t const spr)
 #endif
 }
 
-extern void G_PrintCurrentMusic(void);
-
-#ifdef LUNATIC
-void El_SetCON(const char *conluacode);
-#endif
 
 EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
 

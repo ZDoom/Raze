@@ -1,29 +1,11 @@
-//-----------------------------------------------------------------------------
-//
-// Copyright 1993-1996 id Software
-// Copyright 1999-2016 Randy Heit
-// Copyright 2002-2016 Christoph Oelckers
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see http://www.gnu.org/licenses/
-//
-//-----------------------------------------------------------------------------
-//
-// DESCRIPTION:  none
-//
-//-----------------------------------------------------------------------------
-
-/* For code that originates from ZDoom the following applies:
+/*
+**
+** music.cpp
+**
+** music engine - borrowed from GZDoom
+**
+** Copyright 1999-2016 Randy Heit
+** Copyright 2002-2016 Christoph Oelckers
 **
 **---------------------------------------------------------------------------
 **
@@ -68,6 +50,8 @@
 #include "c_dispatch.h"
 #include "gamecontrol.h"
 #include "filereadermusicinterface.h"
+#include "savegamehelp.h"
+#include "sjson.h"
 
 MusPlayingInfo mus_playing;
 MusicAliasMap MusicAliases;
@@ -75,6 +59,10 @@ MidiDeviceMap MidiDevices;
 MusicVolumeMap MusicVolumes;
 MusicAliasMap LevelMusicAliases;
 bool MusicPaused;
+static bool mus_blocked;
+static FString lastStartedMusic;
+EXTERN_CVAR(Float, mus_volume)
+
 //==========================================================================
 //
 // 
@@ -190,6 +178,7 @@ void S_ResumeMusic ()
 
 void S_UpdateMusic ()
 {
+	mus_blocked = false;
 	if (mus_playing.handle != nullptr)
 	{
 		ZMusic_Update(mus_playing.handle);
@@ -251,6 +240,7 @@ bool S_StartMusic (const char *m_id)
 
 bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 {
+	lastStartedMusic = musicname;	// remember the last piece of music that was requested to be played.
 	if (musicname == nullptr || musicname[0] == 0)
 	{
 		// Don't choke if the map doesn't have a song attached
@@ -262,16 +252,6 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 	if (*musicname == '/') musicname++;
 
 	FString DEH_Music;
-
-	FName* aliasp = MusicAliases.CheckKey(musicname);
-	if (aliasp != nullptr)
-	{
-		if (*aliasp == NAME_None)
-		{
-			return true;	// flagged to be ignored
-		}
-		musicname = aliasp->GetChars();
-	}
 
 	if (!mus_playing.name.IsEmpty() &&
 		mus_playing.handle != nullptr &&
@@ -360,8 +340,8 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		// shutdown old music
 		S_StopMusic (true);
 
-		// Just record it if volume is 0
-		if (mus_volume <= 0)
+		// Just record it if volume is 0 or music was disabled
+		if (mus_volume <= 0 || !mus_enabled)
 		{
 			mus_playing.loop = looping;
 			mus_playing.name = musicname;
@@ -416,12 +396,11 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 //
 // S_RestartMusic
 //
-// Must only be called from snd_reset in i_sound.cpp!
 //==========================================================================
 
 void S_RestartMusic ()
 {
-	if (!mus_playing.LastSong.IsEmpty())
+	if (!mus_playing.LastSong.IsEmpty() && mus_volume > 0 && mus_enabled)
 	{
 		FString song = mus_playing.LastSong;
 		mus_playing.LastSong = "";
@@ -557,6 +536,7 @@ CCMD (stopmus)
 static FString lastMusicLevel, lastMusic;
 int Mus_Play(const char *mapname, const char *fn, bool loop)
 {
+	if (mus_blocked) return 0;
 	// Store the requested names for resuming.
 	lastMusicLevel = mapname;
 	lastMusic = fn;
@@ -565,21 +545,34 @@ int Mus_Play(const char *mapname, const char *fn, bool loop)
 	{
 		return 0;
 	}
-	// A restart was requested. Ignore the music name being passed and just try tp restart what got here last.
-	if (mapname && *mapname == '*')
-	{
-		mapname = lastMusicLevel.GetChars();
-		fn = lastMusic.GetChars();
-	}
+
 	// Allow per level music substitution.
-	// Unlike some other engines like ZDoom or even Blood which use definition files, the music names in Duke Nukem are being defined in a CON script, making direct replacement a lot harder.
 	// For most cases using $musicalias would be sufficient, but that method only works if a level actually has some music defined at all.
-	// This way it can be done with an add-on definition lump even in cases like Redneck Rampage where no music definitions exist or where music gets reused for multiple levels but replacement is wanted individually.
+	// This way it can be done with an add-on definition lump even in cases like Redneck Rampage where no music definitions exist 
+	// or where music gets reused for multiple levels but replacement is wanted individually.
 	if (mapname && *mapname)
 	{
 		if (*mapname == '/') mapname++;
 		FName *check = LevelMusicAliases.CheckKey(FName(mapname, true));
 		if (check) fn = check->GetChars();
+	}
+
+	// Now perform music aliasing. This also needs to be done before checking identities because multiple names can map to the same song.
+	FName* aliasp = MusicAliases.CheckKey(fn);
+	if (aliasp != nullptr)
+	{
+		if (*aliasp == NAME_None)
+		{
+			return true;	// flagged to be ignored
+		}
+		fn = aliasp->GetChars();
+	}
+
+	if (!mus_restartonload)
+	{
+		// If the currently playing piece of music is the same, do not restart. Note that there's still edge cases where this may fail to detect identities.
+		if (mus_playing.handle != nullptr && lastStartedMusic.CompareNoCase(fn) == 0 && mus_playing.loop)
+			return true;
 	}
 
 	S_ChangeMusic(fn, 0, loop, true);
@@ -588,7 +581,14 @@ int Mus_Play(const char *mapname, const char *fn, bool loop)
 
 void Mus_Stop()
 {
+	if (mus_blocked) return;
 	S_StopMusic(true);
+}
+
+void Mus_Fade(double seconds)
+{
+	// Todo: Blood uses this, but the streamer cannot currently fade the volume.
+	Mus_Stop();
 }
 
 void Mus_SetPaused(bool on)
@@ -597,3 +597,64 @@ void Mus_SetPaused(bool on)
 	else S_ResumeMusic();
 }
 
+void MUS_Save()
+{
+	FString music = mus_playing.name;
+	if (music.IsEmpty()) music = mus_playing.LastSong;
+	
+	sjson_context* ctx = sjson_create_context(0, 0, NULL);
+	if (!ctx)
+	{
+		return;
+	}
+	sjson_node* root = sjson_mkobject(ctx);
+	sjson_put_string(ctx, root, "music", music);
+	sjson_put_int(ctx, root, "baseorder", mus_playing.baseorder);
+	sjson_put_bool(ctx, root, "loop", mus_playing.loop);
+
+	char* encoded = sjson_stringify(ctx, root, "  ");
+	
+	FileWriter* fil = WriteSavegameChunk("music.json");
+	if (!fil)
+	{
+		sjson_destroy_context(ctx);
+		return;
+	}
+	
+	fil->Write(encoded, strlen(encoded));
+	
+	sjson_free_string(ctx, encoded);
+	sjson_destroy_context(ctx);
+}
+
+bool MUS_Restore()
+{
+	auto fil = ReadSavegameChunk("music.json");
+	if (!fil.isOpen())
+	{
+		return false;
+	}
+
+	auto text = fil.ReadPadded(1);
+	fil.Close();
+
+	if (text.Size() == 0)
+	{
+		return false;
+	}
+
+	sjson_context* ctx = sjson_create_context(0, 0, NULL);
+	sjson_node* root = sjson_decode(ctx, (const char*)text.Data());
+	mus_playing.LastSong = sjson_get_string(root, "music", "");
+	mus_playing.baseorder = sjson_get_int(root, "baseorder", 0);
+	mus_playing.loop = sjson_get_bool(root, "loop", true);
+	sjson_destroy_context(ctx);
+	mus_blocked = true; // this is to prevent scripts from resetting the music after it has been loaded from the savegame.
+	
+	return true;
+}
+
+void MUS_ResumeSaved()
+{
+	S_RestartMusic();
+}

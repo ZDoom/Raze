@@ -47,6 +47,7 @@
 #endif
 #endif
 #include "cmdlib.h"
+#include "compat.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -393,6 +394,33 @@ void CreatePath(const char *fn)
 
 //==========================================================================
 //
+// myasctime
+//
+// [RH] Returns the current local time as ASCII, even if it's too early
+//
+//==========================================================================
+
+const char* myasctime()
+{
+	static char readabletime[50];
+	time_t clock;
+	struct tm* lt;
+
+	time(&clock);
+	lt = localtime(&clock);
+	if (lt != NULL)
+	{
+		strftime(readabletime, 50, "%F %T", lt);
+		return readabletime;
+	}
+	else
+	{
+		return "Unknown Time";
+	}
+}
+
+//==========================================================================
+//
 // strbin	-- In-place version
 //
 // [RH] Replaces the escape sequences in a string with actual escaped characters.
@@ -730,3 +758,17 @@ bool IsAbsPath(const char *name)
 #endif /* _WIN32 */
     return 0;
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void NormalizeFileName(FString &str)
+{
+	auto strp = str.LockBuffer();
+	Bcorrectfilename(strp, false);
+	str.UnlockBuffer();
+}
+

@@ -149,8 +149,10 @@ int FDirectory::AddDirectory(const char *dirpath)
 					(fi[1] == '\0' ||
 					 (fi[1] == '.' && fi[2] == '\0'))))
 				{
-					// Skip if requested and do not record . and .. directories.
-					continue;
+					// Movie and music subdirectories must always pass.
+					if (fi.CompareNoCase("movie") && fi.CompareNoCase("music"))
+						// Skip if requested and do not record . and .. directories.
+						continue;
 				}
 				FString newdir = dirpath;
 				newdir << fi << '/';

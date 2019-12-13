@@ -40,7 +40,7 @@
 #include "fontchars.h"
 #include "printf.h"
 #include "imagehelpers.h"
-#include "cache1d.h"
+#include "filesystem/filesystem.h"
 
 #include "fontinternals.h"
 
@@ -125,7 +125,8 @@ FSingleLumpFont::FSingleLumpFont (const char *name, const char * lump)
 
 	FontName = name;
 
-	auto data = kloadfile(name, 0);
+	rawData = fileSystem.LoadFile(lump, 0);
+	auto& data = rawData;
 
 	if (data[0] == 0xE1 && data[1] == 0xE6 && data[2] == 0xD5 && data[3] == 0x1A)
 	{
@@ -329,7 +330,7 @@ void FSingleLumpFont::LoadFON2 (const char * lump, const uint8_t *data)
 		}
 		else
 		{
-			Chars[i].TranslatedPic = new FFontChar2 (lump, int(data_p - data), widths2[i], FontHeight);
+			Chars[i].TranslatedPic = new FFontChar2 (rawData, int(data_p - data), widths2[i], FontHeight);
 			TileFiles.AllTiles.Push(Chars[i].TranslatedPic);
 			do
 			{
@@ -458,7 +459,7 @@ void FSingleLumpFont::LoadBMF(const char *lump, const uint8_t *data)
 		{ // Empty character: skip it.
 			continue;
 		}
-		auto tex = new FFontChar2(lump, int(chardata + chari + 6 - data),
+		auto tex = new FFontChar2(rawData, int(chardata + chari + 6 - data),
 			chardata[chari+1],	// width
 			chardata[chari+2],	// height
 			-(int8_t)chardata[chari+3],	// x offset
@@ -514,7 +515,7 @@ int FSingleLumpFont::BMFCompare(const void *a, const void *b)
 
 void FSingleLumpFont::CheckFON1Chars (double *luminosity)
 {
-	auto data = kloadfile(GetName(), 0);
+	auto &data = rawData;
 	if (data.Size() < 8) return;
 
 	uint8_t used[256], reverse[256];
@@ -530,7 +531,7 @@ void FSingleLumpFont::CheckFON1Chars (double *luminosity)
 
 		if(!Chars[i].TranslatedPic)
 		{
-			Chars[i].TranslatedPic = new FFontChar2 (GetName(), int(data_p - data.Data()), SpaceWidth, FontHeight);
+			Chars[i].TranslatedPic = new FFontChar2 (rawData, int(data_p - data.Data()), SpaceWidth, FontHeight);
 			Chars[i].XMove = SpaceWidth;
 			TileFiles.AllTiles.Push(Chars[i].TranslatedPic);
 		}

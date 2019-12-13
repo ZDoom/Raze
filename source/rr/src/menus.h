@@ -27,6 +27,38 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
+// a subset of screentext parameters, restricted because menus require accessibility
+typedef struct MenuFont_t
+{
+	//    int32_t xspace, yline;
+	vec2_t emptychar, between;
+	int32_t zoom;
+	int32_t cursorLeftPosition, cursorCenterPosition, cursorScale, cursorScale2, cursorScale3;
+	int32_t textflags;
+	int16_t tilenum;
+	// selected shade glows, deselected shade is used by Blood, disabled shade is used by SW
+	int8_t shade_deselected, shade_disabled;
+	uint8_t pal;
+	uint8_t pal_selected, pal_deselected, pal_disabled;
+	uint8_t pal_selected_right, pal_deselected_right, pal_disabled_right;
+
+	int32_t get_yline() const { return mulscale16(emptychar.y, zoom); }
+} MenuFont_t;
+
+extern MenuFont_t MF_Redfont, MF_Bluefont, MF_Minifont;
+
+void Menu_Init(void);
+inline int G_CheckPlayerColor(int color)
+{
+	static int32_t player_pals[] = { 0, 9, 10, 11, 12, 13, 14, 15, 16, 21, 23, };
+	if (color >= 0 && color < 10) return player_pals[color];
+	return 0;
+}
+
+
+#if 0
+
+
 enum MenuIndex_t {
     MENU_NULL           = INT32_MIN, // sentinel for "do nothing"
     MENU_CLOSE          = -2, // sentinel for "close the menu"/"no menu"
@@ -140,25 +172,6 @@ typedef enum MenuAnimationType_t
     MA_Return,
     MA_Advance,
 } MenuAnimationType_t;
-
-// a subset of screentext parameters, restricted because menus require accessibility
-typedef struct MenuFont_t
-{
-//    int32_t xspace, yline;
-    vec2_t emptychar, between;
-    int32_t zoom;
-    int32_t cursorLeftPosition, cursorCenterPosition, cursorScale, cursorScale2, cursorScale3;
-    int32_t textflags;
-    int16_t tilenum;
-    // selected shade glows, deselected shade is used by Blood, disabled shade is used by SW
-    int8_t shade_deselected, shade_disabled;
-    uint8_t pal;
-    uint8_t pal_selected, pal_deselected, pal_disabled;
-    uint8_t pal_selected_right, pal_deselected_right, pal_disabled_right;
-
-    int32_t get_yline() const { return mulscale16(emptychar.y, zoom); }
-} MenuFont_t;
-
 
 
 typedef enum MenuEntryType_t
@@ -483,7 +496,6 @@ extern int32_t voting;
 int Menu_Change(MenuID_t cm);
 void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype);
 int32_t Menu_IsTextInput(Menu_t *cm);
-int G_CheckPlayerColor(int color);
 void Menu_Init(void);
 void Menu_Open(uint8_t playerID);
 void Menu_Close(uint8_t playerID);
@@ -504,6 +516,8 @@ extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 # define MOUSEACTIVECONDITIONAL(condition) (MOUSEACTIVECONDITION && (condition))
 # define MOUSEINACTIVECONDITIONAL(condition) (!MOUSEACTIVECONDITION && (condition))
 # define MOUSEWATCHPOINTCONDITIONAL(condition) ((condition) || m_mousewake_watchpoint || m_menuchange_watchpoint == 3)
+
+#endif
 
 END_RR_NS
 

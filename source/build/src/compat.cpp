@@ -73,29 +73,6 @@ void set_memerr_handler(void(*handlerfunc)(int32_t, const char *, const char *))
     g_MemErrHandler = handlerfunc;
 }
 
-//
-// Stuff which must be a function
-//
-char *Bgethomedir(void)
-{
-#ifdef _WIN32
-
-    char appdata[MAX_PATH];
-
-    if (SUCCEEDED(SHGetSpecialFolderPathA(NULL, appdata, CSIDL_APPDATA, FALSE)))
-    {
-        return Xstrdup(appdata);
-    }
-    return NULL;
-#elif defined EDUKE32_OSX
-    return osx_gethomedir();
-#else
-    char *e = getenv("HOME");
-    if (!e) return NULL;
-    return Xstrdup(e);
-#endif
-}
-
 
 int32_t Bcorrectfilename(char *filename, int32_t removefn)
 {

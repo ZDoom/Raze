@@ -2887,7 +2887,6 @@ enddisplayweapon:
 #define MAXANGVEL    1024
 #define MAXHORIZ     256
 
-int32_t g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
 
 void P_GetInput(int const playerNum)
@@ -2895,7 +2894,7 @@ void P_GetInput(int const playerNum)
     auto const pPlayer = g_player[playerNum].ps;
     ControlInfo info;
 
-    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
+    if (g_cheatBufLen > 1 || (pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -2910,42 +2909,9 @@ void P_GetInput(int const playerNum)
 
     D_ProcessEvents();
 
-    if (in_aimmode)
-        g_MyAimMode = buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-    else
-    {
-        g_oldAimStat = g_myAimStat;
-        g_myAimStat  = buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-        if (g_myAimStat > g_oldAimStat)
-        {
-            g_MyAimMode ^= 1;
-            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_MyAimMode, pPlayer);
-        }
-    }
+	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
     CONTROL_GetInput(&info);
-
-    if (in_mousedeadzone)
-    {
-        if (info.mousey > 0)
-            info.mousey = max(info.mousey - in_mousedeadzone, 0);
-        else if (info.mousey < 0)
-            info.mousey = min(info.mousey + in_mousedeadzone, 0);
-
-        if (info.mousex > 0)
-            info.mousex = max(info.mousex - in_mousedeadzone, 0);
-        else if (info.mousex < 0)
-            info.mousex = min(info.mousex + in_mousedeadzone, 0);
-    }
-
-    if (in_mousebias)
-    {
-        if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
-        else
-            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
-    }
 
     // JBF: Run key behaviour is selectable
     int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
@@ -2971,7 +2937,7 @@ void P_GetInput(int const playerNum)
         input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
     }
 
-    if (g_MyAimMode)
+    if (mouseaim)
         input.q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
     else
         input.fvel = -(info.mousey >> 6);
@@ -3058,20 +3024,23 @@ void P_GetInput(int const playerNum)
     int const sectorLotag = pPlayer->cursectnum != -1 ? sector[pPlayer->cursectnum].lotag : 0;
     int const crouchable = sectorLotag != 2 && (sectorLotag != 1 || pPlayer->spritebridge);
 
-    if (pPlayer->cheat_phase == 0 && buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+    if (pPlayer->cheat_phase < 1)
     {
-        pPlayer->crouch_toggle = !pPlayer->crouch_toggle && crouchable;
+        if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+        {
+            pPlayer->crouch_toggle = !pPlayer->crouch_toggle && crouchable;
 
-        if (crouchable)
-            buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+            if (crouchable)
+                buttonMap.ClearButton(gamefunc_Toggle_Crouch);
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
-        pPlayer->crouch_toggle = 0;
+        if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
+            pPlayer->crouch_toggle = 0;
 
-    int const crouching = buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle;
+        int const crouching = buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle;
 
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Jump) << SK_JUMP) | (crouching << SK_CROUCH);
+        localInput.bits |= (buttonMap.ButtonDown(gamefunc_Jump) << SK_JUMP) | (crouching << SK_CROUCH);
+    }
 
     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && input.fvel > 0)) << SK_AIM_UP;
     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && input.fvel < 0)) << SK_AIM_DOWN;
@@ -3094,7 +3063,7 @@ void P_GetInput(int const playerNum)
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Quick_Kick) << SK_QUICK_KICK;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_TurnAround) << SK_TURNAROUND;
 
-    localInput.bits |= (g_MyAimMode << SK_AIMMODE);
+    localInput.bits |= (mouseaim << SK_AIMMODE);
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
     localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
     localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE;
@@ -3789,18 +3758,18 @@ void P_FragPlayer(int playerNum)
 
             if (playerNum == screenpeek)
             {
-                Bsprintf(apStrings[QUOTE_RESERVED], "Killed by %s", &g_player[pPlayer->frag_ps].user_name[0]);
+                quoteMgr.FormatQuote(QUOTE_RESERVED, "Killed by %s", &g_player[pPlayer->frag_ps].user_name[0]);
                 P_DoQuote(QUOTE_RESERVED, pPlayer);
             }
             else
             {
-                Bsprintf(apStrings[QUOTE_RESERVED2], "Killed %s", &g_player[playerNum].user_name[0]);
+				quoteMgr.FormatQuote(QUOTE_RESERVED2, "Killed %s", &g_player[playerNum].user_name[0]);
                 P_DoQuote(QUOTE_RESERVED2, g_player[pPlayer->frag_ps].ps);
             }
 
             if (cl_obituaries)
             {
-                Bsprintf(tempbuf, apStrings[OBITQUOTEINDEX + (krand() % g_numObituaries)],
+                Bsprintf(tempbuf, quoteMgr.GetQuote(OBITQUOTEINDEX + (krand() % g_numObituaries)),
                          &g_player[pPlayer->frag_ps].user_name[0], &g_player[playerNum].user_name[0]);
                 G_AddUserQuote(tempbuf);
             }
@@ -3813,14 +3782,14 @@ void P_FragPlayer(int playerNum)
             {
                 pPlayer->fraggedself++;
                 if ((unsigned)pPlayer->wackedbyactor < MAXTILES && A_CheckEnemyTile(sprite[pPlayer->wackedbyactor].picnum))
-                    Bsprintf(tempbuf, apStrings[OBITQUOTEINDEX + (krand() % g_numObituaries)], "A monster",
+                    Bsprintf(tempbuf, quoteMgr.GetQuote(OBITQUOTEINDEX + (krand() % g_numObituaries)), "A monster",
                              &g_player[playerNum].user_name[0]);
                 else if (actor[pPlayer->i].picnum == NUKEBUTTON)
                     Bsprintf(tempbuf, "^02%s^02 tried to leave", &g_player[playerNum].user_name[0]);
                 else
                 {
                     // random suicide death string
-                    Bsprintf(tempbuf, apStrings[SUICIDEQUOTEINDEX + (krand() % g_numSelfObituaries)],
+                    Bsprintf(tempbuf, quoteMgr.GetQuote(SUICIDEQUOTEINDEX + (krand() % g_numSelfObituaries)),
                              &g_player[playerNum].user_name[0]);
                 }
             }
@@ -4925,7 +4894,9 @@ void P_ProcessInput(int playerNum)
     pPlayer->oq16ang = pPlayer->q16ang;
 
     updatesector(pPlayer->pos.x, pPlayer->pos.y, &pPlayer->cursectnum);
-    pushmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->clipdist - 1, (4L<<8), stepHeight, CLIPMASK0);
+
+    if (!ud.noclip)
+        pushmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->clipdist - 1, (4L<<8), stepHeight, CLIPMASK0);
 
     if (pPlayer->one_eighty_count < 0)
     {
@@ -5642,7 +5613,6 @@ int portableBackupSave(const char * path, const char * name, int volume, int lev
     sjson_node * root = sjson_mkobject(ctx);
 
     sjson_put_string(ctx, root, "name", name);
-    // sjson_put_string(ctx, root, "map", currentboardfilename);
     sjson_put_int(ctx, root, "volume", volume);
     sjson_put_int(ctx, root, "level", level);
     sjson_put_int(ctx, root, "skill", ud.player_skill);

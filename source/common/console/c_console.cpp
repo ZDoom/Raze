@@ -53,6 +53,9 @@
 #include "v_font.h"
 #include "printf.h"
 #include "inputstate.h"
+#include "i_time.h"
+#include "gamecvars.h"
+#include "baselayer.h"
 
 
 #define LEFTMARGIN 8
@@ -123,15 +126,13 @@ static GameAtExit *ExitCmdList;
 #define SCROLLDN 2
 #define SCROLLNO 0
 
-CVAR (Bool, show_messages, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
-
 // Buffer for AddToConsole()
 static char *work = NULL;
 static int worklen = 0;
 
 CVAR(Float, con_notifytime, 3.f, CVAR_ARCHIVE)
 CVAR(Bool, con_centernotify, false, CVAR_ARCHIVE)
-CUSTOM_CVAR(Int, con_scaletext, 0, CVAR_ARCHIVE)		// Scale notify text at high resolutions?
+CUSTOM_CVAR(Int, con_scaletext, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)		// Scale notify text at high resolutions?
 {
 	if (self < 0) self = 0;
 }
@@ -205,13 +206,13 @@ public:
 		if (scale == 1)
 		{
 			DrawChar(&twod, CurrentConsoleFont, CR_ORANGE, x, y, '\x1c', TAG_DONE);
-			DrawText(&twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->GetCharWidth(0x1c), y,
+			DrawText(&twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->CharWidth(0x1c), y,
 				&Text[StartPos], TAG_DONE);
 
 			if (cursor)
 			{
 				DrawChar(&twod, CurrentConsoleFont, CR_YELLOW,
-					x + CurrentConsoleFont->GetCharWidth(0x1c) + (CursorPosCells - StartPosCells) * CurrentConsoleFont->GetCharWidth(0xb),
+					x + CurrentConsoleFont->CharWidth(0x1c) + (CursorPosCells - StartPosCells) * CurrentConsoleFont->CharWidth(0xb),
 					y, '\xb', TAG_DONE);
 			}
 		}
@@ -222,7 +223,7 @@ public:
 				DTA_VirtualHeight, screen->GetHeight() / scale,
 				DTA_KeepRatio, true, TAG_DONE);
 
-			DrawText(&twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->GetCharWidth(0x1c), y,
+			DrawText(&twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->CharWidth(0x1c), y,
 				&Text[StartPos],
 				DTA_VirtualWidth, screen->GetWidth() / scale,
 				DTA_VirtualHeight, screen->GetHeight() / scale,
@@ -231,7 +232,7 @@ public:
 			if (cursor)
 			{
 				DrawChar(&twod, CurrentConsoleFont, CR_YELLOW,
-					x + CurrentConsoleFont->GetCharWidth(0x1c) + (CursorPosCells - StartPosCells) * CurrentConsoleFont->GetCharWidth(0xb),
+					x + CurrentConsoleFont->CharWidth(0x1c) + (CursorPosCells - StartPosCells) * CurrentConsoleFont->CharWidth(0xb),
 					y, '\xb',
 					DTA_VirtualWidth, screen->GetWidth() / scale,
 					DTA_VirtualHeight, screen->GetHeight() / scale,
@@ -541,7 +542,7 @@ CUSTOM_CVAR(Int, con_notifylines, NUMNOTIFIES, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 }
 
 
-int PrintColors[PRINTLEVELS+2] = { CR_RED, CR_GOLD, CR_GRAY, CR_GREEN, CR_GREEN, CR_GOLD };
+int PrintColors[PRINTLEVELS+2] = { CR_RED, CR_GOLD, CR_YELLOW, CR_GREEN, CR_GREEN, CR_GOLD };
 
 static void setmsgcolor (int index, int color);
 
@@ -614,7 +615,7 @@ void C_InitConsole (int width, int height, bool ingame)
 	vidactive = ingame;
 	if (CurrentConsoleFont != NULL)
 	{
-		cwidth = CurrentConsoleFont->GetCharWidth ('M');
+		cwidth = CurrentConsoleFont->CharWidth ('M');
 		cheight = CurrentConsoleFont->GetHeight();
 	}
 	else
@@ -775,7 +776,7 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 	TArray<FBrokenLines> lines;
 	int width;
 
-	if ((printlevel != 128 && !show_messages) ||
+	if (hud_messages != 2 ||
 		source.IsEmpty() ||
 		//gamestate == GS_FULLCONSOLE ||
 		//gamestate == GS_DEMOSCREEN ||
@@ -901,7 +902,7 @@ int PrintString (int iprintlevel, const char *outline)
 #endif
 
 			conbuffer->AddText(printlevel, outline);
-			if (vidactive && screen && !(iprintlevel & PRINT_NONOTIFY))
+			if (vidactive && (iprintlevel & PRINT_NOTIFY))
 			{
 				NotifyStrings.AddString(printlevel, outline);
 			}
@@ -959,7 +960,7 @@ void OSD_Printf(const char *format, ...)
 	int count;
 
 	va_start (argptr, format);
-	count = VPrintf (PRINT_HIGH|PRINT_NONOTIFY, format, argptr);
+	count = VPrintf (PRINT_HIGH, format, argptr);
 	va_end (argptr);
 }
 
@@ -1074,7 +1075,7 @@ void FNotifyBuffer::Tick()
 		if (Text[i].TimeOut != 0 && --Text[i].TimeOut <= 0)
 			break;
 	}
-	if (i > 0)
+	if (i < Text.Size())
 	{
 		Text.Delete(0, i);
 	}
@@ -1106,9 +1107,6 @@ void FNotifyBuffer::Draw()
 		j = notify.TimeOut;
 		if (j > 0)
 		{
-			if (!show_messages && notify.PrintLevel != 128)
-				continue;
-
 			double alpha = (j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1;
 
 			if (notify.PrintLevel >= PRINTLEVELS)
@@ -1320,13 +1318,14 @@ void C_ToggleConsole ()
 		HistPos = NULL;
 		TabbedLast = false;
 		TabbedList = false;
-		GUICapture |= 1;
+		mouseGrabInput(false);
+		
 	}
 	else //if (gamestate != GS_FULLCONSOLE && gamestate != GS_STARTUP)
 	{
 		ConsoleState = c_rising;
 		C_FlushDisplay ();
-		GUICapture &= ~1;
+		mouseGrabInput(true);
 	}
 }
 
@@ -1802,7 +1801,7 @@ void C_MidPrint (FFont *font, const char *msg, bool bold)
 	if (msg != nullptr)
 	{
 		auto color = (EColorRange)PrintColors[bold? PRINTLEVELS+1 : PRINTLEVELS];
-		Printf(PRINT_HIGH|PRINT_NONOTIFY, TEXTCOLOR_ESCAPESTR "%c%s\n%s\n%s\n", color, console_bar, msg, console_bar);
+		Printf(PRINT_HIGH, TEXTCOLOR_ESCAPESTR "%c%s\n%s\n%s\n", color, console_bar, msg, console_bar);
 
 		StatusBar->AttachMessage (Create<DHUDMessage>(font, msg, 1.5f, 0.375f, 0, 0, color, con_midtime), MAKE_ID('C','N','T','R'));
 	}

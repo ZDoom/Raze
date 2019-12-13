@@ -27,6 +27,7 @@ bool DirEntryExists (const char *pathname, bool *isdir = nullptr);
 extern	FString progdir;
 
 void 	DefaultExtension (FString &path, const char *extension);
+void NormalizeFileName(FString &str);
 
 FString	ExtractFilePath (const char *path);
 FString	ExtractFileBase (const char *path, bool keep_extension=false);
@@ -36,6 +37,7 @@ bool	IsNum (const char *str);		// [RH] added
 
 bool CheckWildcards (const char *pattern, const char *text);
 
+const char* myasctime();
 int strbin (char *str);
 FString strbin1 (const char *start);
 

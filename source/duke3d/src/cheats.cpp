@@ -22,9 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
+#include "cheats.h"
+
 #include "duke3d.h"
 #include "osdcmds.h"
-#include "cheats.h"
+#include "mapinfo.h"
 
 BEGIN_DUKE_NS
 
@@ -187,9 +189,6 @@ void G_SetupCheats(void)
         Bstrcpy(CheatStrings[23], "<RESERVED>");
         Bstrcpy(CheatStrings[24], "2debug");
         Bstrcpy(CheatStrings[26], "2cgs");
-
-        Bstrcpy(g_gametypeNames[0], "GI Match (Spawn)");
-        Bstrcpy(g_gametypeNames[2], "GI Match (No Spawn)");
 }
     else if (NAM)
     {
@@ -219,9 +218,6 @@ void G_SetupCheats(void)
         Bstrcpy(CheatStrings[23], "<RESERVED>");
         Bstrcpy(CheatStrings[24], "adebug");
         Bstrcpy(CheatStrings[26], "acgs");
-
-        Bstrcpy(g_gametypeNames[0], "GruntMatch (Spawn)");
-        Bstrcpy(g_gametypeNames[2], "GruntMatch (No Spawn)");
     }
 }
 #endif
@@ -248,10 +244,11 @@ static void G_CheatGetInv(DukePlayer_t *pPlayer)
 static void end_cheat(DukePlayer_t * const pPlayer)
 {
     pPlayer->cheat_phase = 0;
+    g_cheatBufLen = 0;
     inputState.keyFlushChars();
 }
 
-static int32_t cheatbuflen;
+int g_cheatBufLen;
 static int8_t cheatbuf[MAXCHEATLEN];
 
 void G_DoCheats(void)
@@ -317,31 +314,33 @@ void G_DoCheats(void)
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
                 pPlayer->cheat_phase = 0;
+                g_cheatBufLen = 0;
                 //                P_DoQuote(QUOTE_46,pPlayer);
                 return;
             }
 
-            cheatbuf[cheatbuflen++] = (int8_t) ch;
+            cheatbuf[g_cheatBufLen++] = (int8_t) ch;
             // This assertion is not obvious, but it should hold because of the
             // cheat string matching logic below.
-            Bassert(cheatbuflen < (signed)sizeof(cheatbuf));
-            cheatbuf[cheatbuflen] = 0;
+            Bassert(g_cheatBufLen < (signed)sizeof(cheatbuf));
+            cheatbuf[g_cheatBufLen] = 0;
             //            inputState.ClearKeysDown();
 
             for (cheatNum=0; cheatNum < NUMCHEATCODES; cheatNum++)
             {
-                for (bssize_t j = 0; j<cheatbuflen; j++)
+                for (bssize_t j = 0; j<g_cheatBufLen; j++)
                 {
                     if (cheatbuf[j] == CheatStrings[cheatNum][j] || (CheatStrings[cheatNum][j] == '#' && ch >= '0' && ch <= '9'))
                     {
                         if (CheatStrings[cheatNum][j+1] == 0) goto FOUNDCHEAT;
-                        if (j == cheatbuflen-1) return;
+                        if (j == g_cheatBufLen-1) return;
                     }
                     else break;
                 }
             }
 
             pPlayer->cheat_phase = 0;
+            g_cheatBufLen = 0;
             return;
 
         FOUNDCHEAT:;
@@ -464,8 +463,7 @@ void G_DoCheats(void)
 
                 case CHEAT_ALLEN:
                     P_DoQuote(QUOTE_CHEAT_ALLEN, pPlayer);
-                    pPlayer->cheat_phase = 0;
-                    inputState.ClearKeyStatus(sc_N);
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_CORNHOLIO:
@@ -499,7 +497,7 @@ void G_DoCheats(void)
                         }
                         else
                         {
-                            Bstrcpy(apStrings[QUOTE_RESERVED4], "Come Get Some!");
+                            quoteMgr.InitializeQuote(QUOTE_RESERVED4, "$COMEGETSOME");
 
                             S_PlaySound(DUKE_GETWEAPON2);
                             P_DoQuote(QUOTE_RESERVED4, pPlayer);
@@ -558,7 +556,7 @@ void G_DoCheats(void)
                     int32_t const volnume = ud.m_volume_number, levnume = m_level_number;
 
                     if ((!VOLUMEONE || volnume == 0) && (unsigned)volnume < (unsigned)g_volumeCnt &&
-                        (unsigned)levnume < MAXLEVELS && g_mapInfo[volnume*MAXLEVELS + levnume].filename != NULL)
+                        (unsigned)levnume < MAXLEVELS && mapList[volnume*MAXLEVELS + levnume].fileName.IsNotEmpty())
                     {
                         ud.volume_number = volnume;
                         ud.level_number = levnume;
@@ -628,8 +626,7 @@ void G_DoCheats(void)
 
                 case CHEAT_CASHMAN:
                     ud.cashman = 1-ud.cashman;
-                    inputState.ClearKeyStatus(sc_N);
-                    pPlayer->cheat_phase = 0;
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_ITEMS:
@@ -654,7 +651,7 @@ void G_DoCheats(void)
                 case CHEAT_TODD:
                     if (NAM)
                     {
-                        Bstrcpy(apStrings[QUOTE_RESERVED4], CheatDescriptions[CHEAT_TODD]);
+						quoteMgr.InitializeQuote(QUOTE_RESERVED4, CheatDescriptions[CHEAT_TODD]);
                         P_DoQuote(QUOTE_RESERVED4, pPlayer);
                     }
                     else
@@ -672,7 +669,6 @@ void G_DoCheats(void)
 
                 case CHEAT_BETA:
                     P_DoQuote(QUOTE_CHEAT_BETA, pPlayer);
-                    inputState.ClearKeyStatus(sc_H);
                     end_cheat(pPlayer);
                     return;
 
@@ -685,12 +681,12 @@ void G_DoCheats(void)
 
                 case CHEAT_MONSTERS:
                 {
-                    const char *s [] = { "On", "Off", "On (2)" };
+                    const char *s [] = { "OPTVAL_ON", "OPTVAL_OFF", "$TXT_ON2" };
 
                     if (++g_noEnemies == 3)
                         g_noEnemies = 0;
 
-                    Bsprintf(apStrings[QUOTE_RESERVED4], "Monsters: %s", s[g_noEnemies]);
+					quoteMgr.FormatQuote(QUOTE_RESERVED4, "%s: %s", GStrings("NETMNU_MONSTERS"), s[g_noEnemies]);
                     P_DoQuote(QUOTE_RESERVED4, pPlayer);
 
                     end_cheat(pPlayer);
@@ -701,8 +697,8 @@ void G_DoCheats(void)
                 case CHEAT_RESERVED3:
                     ud.eog = 1;
                     pPlayer->player_par = 0;
-                    pPlayer->gm |= MODE_EOL;
-                    inputState.keyFlushChars();
+                    pPlayer->gm |= MODE_EOL;;
+                    end_cheat(pPlayer);
                     return;
 
                 default:
@@ -737,13 +733,14 @@ void G_DoCheats(void)
                 {
                     pPlayer->cheat_phase = 1;
                     //                    P_DoQuote(QUOTE_25,pPlayer);
-                    cheatbuflen = 0;
                 }
+                g_cheatBufLen = 0;
                 inputState.keyFlushChars();
             }
             else if (pPlayer->cheat_phase != 0)
             {
                 pPlayer->cheat_phase = 0;
+                g_cheatBufLen = 0;
                 inputState.ClearKeyStatus((uint8_t) CheatKeys[0]);
                 inputState.ClearKeyStatus((uint8_t) CheatKeys[1]);
             }

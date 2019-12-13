@@ -38,12 +38,14 @@
 #include "c_cvars.h"
 #include "configfile.h"
 
+#include "baselayer.h"
 #include "c_console.h"
 #include "gamecvars.h"
 
 #include "cmdlib.h"
 #include "c_dispatch.h"
 #include "printf.h"
+#include "quotemgr.h"
 
 
 struct FLatchedValue
@@ -142,7 +144,7 @@ FBaseCVar::~FBaseCVar ()
 const char *FBaseCVar::GetHumanString(int precision) const
 {
 	assert(true);
-	return "";// GetGenericRep(CVAR_String).String;
+	return GetGenericRep(CVAR_String).String;
 }
 
 void FBaseCVar::ForceSet (UCVarValue value, ECVarType type, bool nouserinfosend)
@@ -1511,8 +1513,23 @@ CCMD (toggle)
 			val = var->GetGenericRep (CVAR_Bool);
 			val.Bool = !val.Bool;
 			var->SetGenericRep (val, CVAR_Bool);
-			Printf ("\"%s\" = \"%s\"\n", var->GetName(),
-				val.Bool ? "true" : "false");
+			const char *statestr = argv.argc() <= 2? "*" : argv[2];
+			if (*statestr == '*')
+			{
+				gi->PrintMessage(PRINT_MEDIUM, "\"%s\" = \"%s\"\n", var->GetName(), val.Bool ? "true" : "false");
+			}
+			else
+			{
+				int state = (int)strtoll(argv[2], nullptr,  0);
+				if (state != 0)
+				{
+					// Order of Duke's quote string varies, some have on first, some off, so use the sign of the parameter to decide.
+					// Positive means Off/On, negative means On/Off
+					int quote = state > 0? state + val.Bool : -(state + val.Bool);
+					auto text = quoteMgr.GetQuote(quote);
+					if (text) gi->PrintMessage(PRINT_MEDIUM, "%s\n", text);
+				}
+			}
 		}
 	}
 }

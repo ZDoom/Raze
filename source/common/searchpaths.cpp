@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "filesystem/filesystem.h"
 
+static const char* res_exts[] = { ".grp", ".zip", ".pk3", ".pk4", ".7z", ".pk7" };
 
 
 namespace fs = std::filesystem;
@@ -161,7 +162,7 @@ static void AddAnItem(const char* item)
 void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 {
 	FString path;
-    char *homepath = Bgethomedir();
+    char *homepath = getenv("HOME");
 
     path.Format("%s/.steam/steam", homepath);
     G_AddSteamPaths(searchpaths, buf);
@@ -811,7 +812,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 					do
 					{
 						sc.MustGetToken(TK_StringConst);
-						grp.loadfiles.Push(sc.String);
+						grp.loadart.Push(sc.String);
 					}
 					while (sc.CheckToken(','));
 				}
@@ -927,6 +928,7 @@ TArray<GrpEntry> GrpScan()
 
 	TArray<FileEntry*> sortedFileList;
 	TArray<GrpInfo*> sortedGroupList;
+	TArray<GrpInfo*> contentGroupList;
 
 	auto allFiles = CollectAllFilesInSearchPath();
 	auto allGroups = ParseAllGrpInfos(allFiles);
@@ -937,14 +939,65 @@ TArray<GrpEntry> GrpScan()
 	// Remove all unnecessary content from the file list. Since this contains all data from the search path's directories it can be quite large.
 	// Sort both lists by file size so that we only need to pass over each list once to weed out all unrelated content. Go backward to avoid too much item movement
 	// (most will be deleted anyway.)
+
+
 	for (auto& f : allFiles) sortedFileList.Push(&f);
-	for (auto& g : allGroups) sortedGroupList.Push(&g);
+	for (auto& g : allGroups)
+	{
+		if (g.CRC == 0 && g.mustcontain.Size() > 0)
+			contentGroupList.Push(&g);
+		else
+			sortedGroupList.Push(&g);
+	}
+
+	// As a first pass we need to look for all known game resources which only are identified by a content list
+	if (contentGroupList.Size())
+	{
+		for (auto fe : sortedFileList)
+		{
+			FString fn = fe->FileName.MakeLower();
+			for (auto ext : res_exts)
+			{
+				if (strcmp(ext, fn.GetChars() + fn.Len() - 4) == 0)
+				{
+					auto resf = FResourceFile::OpenResourceFile(fe->FileName, true, true);
+					if (resf)
+					{
+						for (auto grp : contentGroupList)
+						{
+							bool ok = true;
+							for (auto &lump : grp->mustcontain)
+							{
+								if (!resf->FindLump(lump))
+								{
+									ok = false;
+									break;
+								}
+							}
+							if (ok)
+							{
+								// got a match
+								foundGames.Reserve(1);
+								auto& fg = foundGames.Last();
+								fg.FileInfo = *grp;
+								fg.FileName = fe->FileName;
+								fg.FileIndex = fe->Index;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 
 	std::sort(sortedFileList.begin(), sortedFileList.end(), [](FileEntry* lhs, FileEntry* rhs) { return lhs->FileLength < rhs->FileLength; });
 	std::sort(sortedGroupList.begin(), sortedGroupList.end(), [](GrpInfo* lhs, GrpInfo* rhs) { return lhs->size < rhs->size; });
 
 	int findex = sortedFileList.Size() - 1;
 	int gindex = sortedGroupList.Size() - 1;
+
 
 	while (findex > 0 && gindex > 0)
 	{
@@ -1018,9 +1071,9 @@ TArray<GrpEntry> GrpScan()
 
 	for (unsigned i = 0; i < foundGames.Size(); i++)
 	{
-		for (unsigned j = foundGames.Size(); j > i; j--)
+		for (unsigned j = foundGames.Size() - 1; j > i; j--)
 		{
-			if (foundGames[i].FileInfo.CRC == foundGames[j].FileInfo.CRC)
+			if (foundGames[i].FileInfo.CRC == foundGames[j].FileInfo.CRC && foundGames[j].FileInfo.CRC != 0)
 				foundGames.Delete(j);
 		}
 	}
@@ -1099,7 +1152,7 @@ const char* G_DefaultConFile(void)
 	}
 
 	if (g_gameType & GAMEFLAG_SW)
-		return nullptr;	// SW has no scripts of any kind (todo: Make Blood's INI files usable here for map definitions)
+		return nullptr;	// SW has no scripts of any kind.
 
 	if (g_gameType & GAMEFLAG_NAM)
 	{

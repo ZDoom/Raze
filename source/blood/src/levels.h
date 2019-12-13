@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "common_game.h"
 #include "inifile.h"
+#include "mapinfo.h"
 
 BEGIN_BLD_NS
 
@@ -39,10 +40,7 @@ struct GAMEOPTIONS {
     int nEpisode;
     int nLevel;
     char zLevelName[BMAX_PATH];
-    char zLevelSong[BMAX_PATH];
     int nTrackNumber; //at12a;
-    char szSaveGameName[BMAX_PATH];
-    char szUserGameName[BMAX_PATH];
     short nSaveGameSlot;
     int picEntry;
     unsigned int uMapCRC;
@@ -71,27 +69,13 @@ enum {
     MUS_LOADING = MUS_FIRST_SPECIAL + 1,
 };
 
-struct LEVELINFO
-{
-    char at0[BMAX_PATH]; // Filename
-    char at90[32]; // Title
-    char atb0[32]; // Author
-    char atd0[BMAX_PATH]; // Song;
-    int ate0; // SongId
-    int ate4; // EndingA
-    int ate8; // EndingB
-    char atec[kMaxMessages][64]; // Messages
-    char at8ec; // Fog
-    char at8ed; // Weather
-}; // 0x8ee bytes
-
 struct EPISODEINFO
 {
-    char at0[32];
+    //char at0[32]; removed, so that the global episode name table can be used for consistency
     int nLevels;
     unsigned int bloodbath : 1;
     unsigned int cutALevel : 4;
-    LEVELINFO at28[kMaxLevels];
+    MapRecord* levels;  // points into the global table.
     char at8f08[BMAX_PATH];
     char at8f98[BMAX_PATH];
     int at9028;
@@ -121,13 +105,12 @@ void levelSetupSecret(int nCount);
 void levelTriggerSecret(int nSecret);
 void CheckSectionAbend(const char *pzSection);
 void CheckKeyAbend(const char *pzSection, const char *pzKey);
-LEVELINFO * levelGetInfoPtr(int nEpisode, int nLevel);
-char * levelGetFilename(int nEpisode, int nLevel);
-char * levelGetMessage(int nMessage);
-char * levelGetTitle(void);
-char * levelGetAuthor(void);
+MapRecord * levelGetInfoPtr(int nEpisode, int nLevel);
+const char * levelGetFilename(int nEpisode, int nLevel);
+const char * levelGetMessage(int nMessage);
+const char * levelGetTitle(void);
+const char * levelGetAuthor(void);
 void levelSetupOptions(int nEpisode, int nLevel);
-void levelLoadMapInfo(IniFile *pIni, LEVELINFO *pLevelInfo, const char *pzSection);
 void levelLoadDefaults(void);
 void levelAddUserMap(const char *pzMap);
 // EndingA is normal ending, EndingB is secret level

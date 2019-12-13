@@ -10,3 +10,13 @@ FileReader ReadSavegameChunk(const char *name);
 
 bool FinishSavegameWrite();
 void FinishSavegameRead();
+
+// Savegame utilities
+class FileReader;
+
+FString G_BuildSaveName (const char *prefix);
+int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu);
+void G_WriteSaveHeader(const char* name);
+
+#define SAVEGAME_EXT ".dsave"
+

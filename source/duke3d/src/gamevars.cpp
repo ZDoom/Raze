@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "savegame.h"
 #include "gamecvars.h"
+#include "menu/menu.h"
 
 BEGIN_DUKE_NS
 
@@ -1310,7 +1311,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("gravitationalconstant", (intptr_t)&g_spriteGravity,              GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("gs",                    (intptr_t)&hudweap.shade,                GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("gun_pos",               (intptr_t)&hudweap.gunposy,              GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("lastsavepos",           (intptr_t)&g_lastAutoSaveArbitraryID,    GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("lastsavepos",           (intptr_t)&g_fakeSaveID,    GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("lastvisinc",            (intptr_t)&lastvisinc,                   GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("looking_angSR1",        (intptr_t)&hudweap.lookhalfang,          GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("looking_arc",           (intptr_t)&hudweap.lookhoriz,            GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
@@ -1464,7 +1465,7 @@ void Gv_RefreshPointers(void)
                                                             (intptr_t)&g_spriteGravity;
     aGameVars[Gv_GetVarIndex("gs")].global                = (intptr_t)&hudweap.shade;
     aGameVars[Gv_GetVarIndex("gun_pos")].global           = (intptr_t)&hudweap.gunposy;
-    aGameVars[Gv_GetVarIndex("lastsavepos")].global       = (intptr_t)&g_lastAutoSaveArbitraryID;
+    aGameVars[Gv_GetVarIndex("lastsavepos")].global       = (intptr_t)&g_fakeSaveID; // This won't be of much use anymore. >D
     aGameVars[Gv_GetVarIndex("lastvisinc")].global        = (intptr_t)&lastvisinc;
     aGameVars[Gv_GetVarIndex("looking_angSR1")].global    = (intptr_t)&hudweap.lookhalfang;
     aGameVars[Gv_GetVarIndex("looking_arc")].global       = (intptr_t)&hudweap.lookhoriz;

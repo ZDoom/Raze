@@ -75,178 +75,6 @@ SAMPLE2D * FindChannel(void)
     return NULL;
 }
 
-#if 0
-DICTNODE *hSong;
-char *pSongPtr;
-int nSongSize;
-bool bWaveMusic;
-int nWaveMusicHandle;
-
-int sndPlaySong(const char *, const char* songName, bool bLoop)
-{
-    if (!MusicEnabled())
-        return 0;
-    if (!songName || strlen(songName) == 0)
-        return 1;
-
-    auto fp = S_OpenAudio(songName, 0, 1);
-    if (!fp.isOpen())
-    {
-        hSong = gSoundRes.Lookup(songName, "MID");
-        if (!hSong)
-        {
-            OSD_Printf(OSD_ERROR "sndPlaySong(): error: can't open \"%s\" for playback!\n", songName);
-            return 2;
-        }
-        int nNewSongSize = hSong->Size();
-        char *pNewSongPtr = (char *)Xaligned_alloc(16, nNewSongSize);
-		memcpy(pNewSongPtr, hSong->Lock(), nNewSongSize);
-		hSong->Unlock(true);
-        MUSIC_SetVolume(mus_volume);
-        int32_t retval = MUSIC_PlaySong(pNewSongPtr, nNewSongSize, bLoop);
-
-        if (retval != MUSIC_Ok)
-        {
-            ALIGNED_FREE_AND_NULL(pNewSongPtr);
-            return 5;
-        }
-
-        if (bWaveMusic && nWaveMusicHandle >= 0)
-        {
-            FX_StopSound(nWaveMusicHandle);
-            nWaveMusicHandle = -1;
-        }
-
-        bWaveMusic = false;
-        ALIGNED_FREE_AND_NULL(pSongPtr);
-        pSongPtr = pNewSongPtr;
-        nSongSize = nNewSongSize;
-        return 0;
-    }
-
-    int32_t nSongLen = fp.Tell();
-
-    if (EDUKE32_PREDICT_FALSE(nSongLen < 4))
-    {
-        OSD_Printf(OSD_ERROR "sndPlaySong(): error: empty music file \"%s\"\n", songName);
-        return 3;
-    }
-
-    char * pNewSongPtr = (char *)Xaligned_alloc(16, nSongLen);
-    int nNewSongSize = fp.Read(pNewSongPtr, nSongLen);
-
-    if (EDUKE32_PREDICT_FALSE(nNewSongSize != nSongLen))
-    {
-        OSD_Printf(OSD_ERROR "sndPlaySong(): error: read %d bytes from \"%s\", expected %d\n",
-            nNewSongSize, songName, nSongLen);
-        ALIGNED_FREE_AND_NULL(pNewSongPtr);
-        return 4;
-    }
-
-    if (!Bmemcmp(pNewSongPtr, "MThd", 4))
-    {
-        int32_t retval = MUSIC_PlaySong(pNewSongPtr, nNewSongSize, bLoop);
-
-        if (retval != MUSIC_Ok)
-        {
-            ALIGNED_FREE_AND_NULL(pNewSongPtr);
-            return 5;
-        }
-
-        if (bWaveMusic && nWaveMusicHandle >= 0)
-        {
-            FX_StopSound(nWaveMusicHandle);
-            nWaveMusicHandle = -1;
-        }
-
-        bWaveMusic = false;
-        ALIGNED_FREE_AND_NULL(pSongPtr);
-        pSongPtr = pNewSongPtr;
-        nSongSize = nNewSongSize;
-    }
-    else
-    {
-        int nNewWaveMusicHandle = FX_Play(pNewSongPtr, bLoop ? nNewSongSize : -1, 0, 0, 0, mus_volume, mus_volume, mus_volume,
-                                   FX_MUSIC_PRIORITY, 1.f, (intptr_t)&nWaveMusicHandle);
-
-        if (nNewWaveMusicHandle <= FX_Ok)
-        {
-            ALIGNED_FREE_AND_NULL(pNewSongPtr);
-            return 5;
-        }
-
-        if (bWaveMusic && nWaveMusicHandle >= 0)
-            FX_StopSound(nWaveMusicHandle);
-
-        MUSIC_StopSong();
-
-        nWaveMusicHandle = nNewWaveMusicHandle;
-        bWaveMusic = true;
-        ALIGNED_FREE_AND_NULL(pSongPtr);
-        pSongPtr = pNewSongPtr;
-        nSongSize = nNewSongSize;
-    }
-
-    return 0;
-}
-
-bool sndIsSongPlaying(void)
-{
-    //return MUSIC_SongPlaying();
-    return false;
-}
-
-void sndFadeSong(int nTime)
-{
-    UNREFERENCED_PARAMETER(nTime);
-
-    if (bWaveMusic && nWaveMusicHandle >= 0)
-    {
-        FX_StopSound(nWaveMusicHandle);
-        nWaveMusicHandle = -1;
-        bWaveMusic = false;
-    }
-    // MUSIC_SetVolume(0);
-    MUSIC_StopSong();
-}
-
-void sndStopSong(void)
-{
-    if (bWaveMusic && nWaveMusicHandle >= 0)
-    {
-        FX_StopSound(nWaveMusicHandle);
-        nWaveMusicHandle = -1;
-        bWaveMusic = false;
-    }
-
-    MUSIC_StopSong();
-
-    ALIGNED_FREE_AND_NULL(pSongPtr);
-    nSongSize = 0;
-}
-#else
-int sndPlaySong(const char *mapname, const char* songName, bool bLoop)
-{
-	return Mus_Play(mapname, songName, bLoop);
-}
-
-bool sndIsSongPlaying(void)
-{
-	// Not used
-	return false;
-}
-
-void sndFadeSong(int nTime)
-{
-	// not implemented
-}
-
-void sndStopSong(void)
-{
-	Mus_Stop();
-}
-#endif
-
 void sndSetFXVolume(int nVolume)
 {
 	snd_fxvolume = nVolume;
@@ -367,7 +195,7 @@ void sndStartWavDisk(const char *pzFile, int nVolume, int nChannel)
         pChannel = &Channel[nChannel];
     if (pChannel->at0 > 0)
         sndKillSound(pChannel);
-    auto hFile = kopenFileReader(pzFile, 0);
+    auto hFile = fileSystem.OpenFileReader(pzFile, 0);
     if (!hFile.isOpen())
         return;
     int nLength = hFile.GetLength();
@@ -450,34 +278,6 @@ void DeinitSoundDevice(void)
         ThrowError(FX_ErrorString(nStatus));
 }
 
-#if 0
-void InitMusicDevice(void)
-{
-    int nStatus;
-    if ((nStatus = MUSIC_Init(MusicDevice)) == MUSIC_Ok)
-    {
-        if (MusicDevice == ASS_AutoDetect)
-            MusicDevice = MIDI_GetDevice();
-    }
-    else if ((nStatus = MUSIC_Init(ASS_AutoDetect)) == MUSIC_Ok)
-    {
-        initprintf("InitMusicDevice: %s\n", MUSIC_ErrorString(nStatus));
-        return;
-    }
-    DICTNODE *hTmb = gSoundRes.Lookup("GMTIMBRE", "TMB");
-    if (hTmb)
-        AL_RegisterTimbreBank((unsigned char*)gSoundRes.Load(hTmb));
-    MUSIC_SetVolume(mus_volume);
-}
-
-void DeinitMusicDevice(void)
-{
-    FX_StopAllSounds();
-    int nStatus = MUSIC_Shutdown();
-    if (nStatus != 0)
-        ThrowError(MUSIC_ErrorString(nStatus));
-}
-#endif
 
 bool sndActive = false;
 
@@ -486,7 +286,7 @@ void sndTerm(void)
     if (!sndActive)
         return;
     sndActive = false;
-    sndStopSong();
+    Mus_Stop();
     DeinitSoundDevice();
     //DeinitMusicDevice();
 }

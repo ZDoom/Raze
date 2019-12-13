@@ -31,6 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 char typebuf[TYPEBUFSIZE];
 
 
+bool mouseInactiveConditional(bool condition)
+{
+	return condition;
+}
 
 int32_t I_CheckAllInput(void)
 {
@@ -54,7 +58,7 @@ int32_t I_TextSubmit(void)
     return
         inputState.GetKeyStatus(sc_Enter)
         || inputState.GetKeyStatus(sc_kpad_Enter)
-        || gi->mouseInactiveConditional(inputState.MouseGetButtons()&LEFT_MOUSE)
+        || mouseInactiveConditional(inputState.MouseGetButtons()&LEFT_MOUSE)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_A));
 }
 
@@ -102,7 +106,7 @@ int32_t I_GeneralTrigger(void)
         I_AdvanceTrigger()
         || I_ReturnTrigger()
         || buttonMap.ButtonDown(gamefunc_Open)
-        || gi->mouseInactiveConditional(buttonMap.ButtonDown(gamefunc_Fire))
+        || mouseInactiveConditional(buttonMap.ButtonDown(gamefunc_Fire))
         || buttonMap.ButtonDown(gamefunc_Crouch)
         || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START));
 }
@@ -130,180 +134,6 @@ void I_EscapeTriggerClear(void)
     inputState.keyFlushChars();
     inputState.ClearKeyStatus(sc_Escape);
     JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_START);
-}
-
-
-int32_t I_MenuUp(void)
-{
-    return
-        inputState.GetKeyStatus(sc_UpArrow)
-        || inputState.GetKeyStatus(sc_kpad_8)
-        || (inputState.MouseGetButtons()&WHEELUP_MOUSE)
-        || buttonMap.ButtonDown(gamefunc_Move_Forward)
-        || (JOYSTICK_GetHat(0)&HAT_UP)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_UP))
-        || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTY);
-}
-
-void I_MenuUpClear(void)
-{
-    inputState.ClearKeyStatus(sc_UpArrow);
-    inputState.ClearKeyStatus(sc_kpad_8);
-    inputState.MouseClearButton(WHEELUP_MOUSE);
-    buttonMap.ClearButton(gamefunc_Move_Forward);
-    JOYSTICK_ClearHat(0);
-    JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_UP);
-    CONTROL_ClearGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTY);
-}
-
-
-int32_t I_MenuDown(void)
-{
-    return
-        inputState.GetKeyStatus(sc_DownArrow)
-        || inputState.GetKeyStatus(sc_kpad_2)
-        || (inputState.MouseGetButtons()&WHEELDOWN_MOUSE)
-        || buttonMap.ButtonDown(gamefunc_Move_Backward)
-        || (JOYSTICK_GetHat(0)&HAT_DOWN)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_DOWN))
-        || CONTROL_GetGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTY);
-}
-
-void I_MenuDownClear(void)
-{
-    inputState.ClearKeyStatus(sc_DownArrow);
-    inputState.ClearKeyStatus(sc_kpad_2);
-    inputState.ClearKeyStatus(sc_PgDn);
-    inputState.MouseClearButton(WHEELDOWN_MOUSE);
-    buttonMap.ClearButton(gamefunc_Move_Backward);
-    JOYSTICK_ClearHat(0);
-    JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_DOWN);
-    CONTROL_ClearGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTY);
-}
-
-
-int32_t I_MenuLeft(void)
-{
-    return
-        inputState.GetKeyStatus(sc_LeftArrow)
-        || inputState.GetKeyStatus(sc_kpad_4)
-        || (inputState.ShiftPressed() && inputState.GetKeyStatus(sc_Tab))
-        || buttonMap.ButtonDown(gamefunc_Turn_Left)
-        || buttonMap.ButtonDown(gamefunc_Strafe_Left)
-        || (JOYSTICK_GetHat(0)&HAT_LEFT)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_LEFT))
-        || CONTROL_GetGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTX);
-}
-
-void I_MenuLeftClear(void)
-{
-    inputState.ClearKeyStatus(sc_LeftArrow);
-    inputState.ClearKeyStatus(sc_kpad_4);
-    inputState.ClearKeyStatus(sc_Tab);
-    buttonMap.ClearButton(gamefunc_Turn_Left);
-    buttonMap.ClearButton(gamefunc_Strafe_Left);
-    JOYSTICK_ClearHat(0);
-    JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_LEFT);
-    CONTROL_ClearGameControllerDigitalAxisNeg(GAMECONTROLLER_AXIS_LEFTX);
-}
-
-
-int32_t I_MenuRight(void)
-{
-    return
-        inputState.GetKeyStatus(sc_RightArrow)
-        || inputState.GetKeyStatus(sc_kpad_6)
-        || (!inputState.ShiftPressed() && inputState.GetKeyStatus(sc_Tab))
-        || buttonMap.ButtonDown(gamefunc_Turn_Right)
-        || buttonMap.ButtonDown(gamefunc_Strafe_Right)
-        || (inputState.MouseGetButtons()&MIDDLE_MOUSE)
-        || (JOYSTICK_GetHat(0)&HAT_RIGHT)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_DPAD_RIGHT))
-        || CONTROL_GetGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTX)
-        ;
-}
-
-void I_MenuRightClear(void)
-{
-    inputState.ClearKeyStatus(sc_RightArrow);
-    inputState.ClearKeyStatus(sc_kpad_6);
-    inputState.ClearKeyStatus(sc_Tab);
-    buttonMap.ClearButton(gamefunc_Turn_Right);
-    buttonMap.ClearButton(gamefunc_Strafe_Right);
-    inputState.MouseClearButton(MIDDLE_MOUSE);
-    JOYSTICK_ClearHat(0);
-    JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_DPAD_RIGHT);
-    CONTROL_ClearGameControllerDigitalAxisPos(GAMECONTROLLER_AXIS_LEFTX);
-}
-
-
-int32_t I_PanelUp(void)
-{
-    return
-        I_MenuUp()
-        || I_MenuLeft()
-        || inputState.GetKeyStatus(sc_PgUp)
-        ;
-}
-
-void I_PanelUpClear(void)
-{
-    I_MenuUpClear();
-    I_MenuLeftClear();
-    inputState.ClearKeyStatus(sc_PgUp);
-}
-
-
-int32_t I_PanelDown(void)
-{
-    return
-        I_MenuDown()
-        || I_MenuRight()
-        || inputState.GetKeyStatus(sc_PgDn)
-        || I_AdvanceTrigger()
-        ;
-}
-
-void I_PanelDownClear(void)
-{
-    I_MenuDownClear();
-    I_MenuRightClear();
-    inputState.ClearKeyStatus(sc_PgDn);
-    I_AdvanceTriggerClear();
-}
-
-
-int32_t I_SliderLeft(void)
-{
-    return
-        I_MenuLeft()
-#if !defined EDUKE32_TOUCH_DEVICES
-        || gi->mouseInactiveConditional((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELUP_MOUSE))
-#endif
-        ;
-}
-
-void I_SliderLeftClear(void)
-{
-    I_MenuLeftClear();
-    inputState.MouseClearButton(WHEELUP_MOUSE);
-}
-
-
-int32_t I_SliderRight(void)
-{
-    return
-        I_MenuRight()
-#if !defined EDUKE32_TOUCH_DEVICES
-        || gi->mouseInactiveConditional((inputState.MouseGetButtons()&LEFT_MOUSE) && (inputState.MouseGetButtons()&WHEELDOWN_MOUSE))
-#endif
-        ;
-}
-
-void I_SliderRightClear(void)
-{
-    I_MenuRightClear();
-    inputState.MouseClearButton(WHEELDOWN_MOUSE);
 }
 
 

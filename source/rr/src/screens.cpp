@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "mdsprite.h"
 #include "gamecvars.h"
+#include "menu/menu.h"
+#include "mapinfo.h"
 
 BEGIN_RR_NS
 
@@ -173,14 +175,14 @@ static void G_ShowScores(void)
 
     if (g_mostConcurrentPlayers > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
-        gametext_center(SCORESHEETOFFSET+58+2, "Multiplayer Totals");
-        gametext_center(SCORESHEETOFFSET+58+10, g_mapInfo[G_LastMapInfoIndex()].name);
+        gametext_center(SCORESHEETOFFSET+58+2, GStrings("Multiplayer Totals"));
+        gametext_center(SCORESHEETOFFSET+58+10, currentLevel->DisplayName());
 
         t = 0;
-        minitext(70, SCORESHEETOFFSET+80, "Name", 8, 2+8+16+ROTATESPRITE_MAX);
-        minitext(170, SCORESHEETOFFSET+80, "Frags", 8, 2+8+16+ROTATESPRITE_MAX);
-        minitext(200, SCORESHEETOFFSET+80, "Deaths", 8, 2+8+16+ROTATESPRITE_MAX);
-        minitext(235, SCORESHEETOFFSET+80, "Ping", 8, 2+8+16+ROTATESPRITE_MAX);
+        minitext(70, SCORESHEETOFFSET+80, GStrings("Name"), 8, 2+8+16+ROTATESPRITE_MAX);
+        minitext(170, SCORESHEETOFFSET+80, GStrings("Frags"), 8, 2+8+16+ROTATESPRITE_MAX);
+        minitext(200, SCORESHEETOFFSET+80, GStrings("Deaths"), 8, 2+8+16+ROTATESPRITE_MAX);
+        minitext(235, SCORESHEETOFFSET+80, GStrings("Ping"), 8, 2+8+16+ROTATESPRITE_MAX);
 
         for (i=g_mostConcurrentPlayers-1; i>=0; i--)
         {
@@ -754,7 +756,7 @@ FString GameInterface::statFPS()
 GameStats GameInterface::getStats()
 {
 	DukePlayer_t* p = g_player[myconnectindex].ps;
-	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC };
+	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC, p->frag };
 }
 
 #undef FPS_COLOR
@@ -987,14 +989,9 @@ void G_DisplayRest(int32_t smoothratio)
             if (ud.overhead_on == 2)
             {
                 const int32_t a = RR ? 0 : ((ud.screen_size > 0) ? 147 : 179);
-                if (RR && g_lastLevel)
-                    minitext(5, a+6, "CLOSE ENCOUNTERS", 0, 2+8+16+256);
-                else
-                {
-                    if (!G_HaveUserMap())
-                        minitext(5, a+6, g_volumeNames[ud.volume_number], 0, 2+8+16+256);
-                    minitext(5, a+6+6, g_mapInfo[ud.volume_number*MAXLEVELS + ud.level_number].name, 0, 2+8+16+256);
-                }
+                if (!G_HaveUserMap())
+                    minitext(5, a+6, GStrings.localize(gVolumeNames[ud.volume_number]), 0, 2+8+16+256);
+                minitext(5, a+6+6, currentLevel->DisplayName(), 0, 2+8+16+256);
             }
         }
     }
@@ -1014,7 +1011,7 @@ void G_DisplayRest(int32_t smoothratio)
 
     G_PrintGameQuotes(screenpeek);
 
-    if (ud.show_level_text && hud_showmapname && g_levelTextTime > 1)
+    if (ud.show_level_text && hud_showmapname && g_levelTextTime > 1 && !M_Active())
     {
         int32_t o = 10|16;
 
@@ -1023,46 +1020,7 @@ void G_DisplayRest(int32_t smoothratio)
         else if (g_levelTextTime < 5)
             o |= 1;
 
-        if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
-        {
-            char const * const fn = currentboardfilename[0] != 0 &&
-                ud.volume_number == 0 && ud.level_number == 7
-                    ? currentboardfilename
-                    : g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name;
-
-            menutext_(160<<16, (90+16+8)<<16, -g_levelTextTime+22/*quotepulseshade*/, fn, o, TEXT_XCENTER);
-        }
-    }
-
-    if (I_EscapeTrigger() && ud.overhead_on == 0
-        && ud.show_help == 0
-        && g_player[myconnectindex].ps->newowner == -1)
-    {
-        if ((g_player[myconnectindex].ps->gm&MODE_MENU) == MODE_MENU && g_currentMenu <= MENU_MAIN_INGAME)
-        {
-            I_EscapeTriggerClear();
-            S_PlaySound(EXITMENUSOUND);
-            Menu_Change(MENU_CLOSE);
-            if (!ud.pause_on)
-                S_PauseSounds(false);
-        }
-        else if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU &&
-            g_player[myconnectindex].ps->newowner == -1 &&
-            (g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
-        {
-            I_EscapeTriggerClear();
-            S_PauseSounds(true);
-
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2) ready2send = 0;
-
-            if (g_player[myconnectindex].ps->gm&MODE_GAME) Menu_Change(MENU_MAIN_INGAME);
-            else Menu_Change(MENU_MAIN);
-            screenpeek = myconnectindex;
-
-            S_MenuSound();
-        }
+        menutext_(160<<16, (90+16+8)<<16, -g_levelTextTime+22/*quotepulseshade*/, currentLevel->DisplayName(), o, TEXT_XCENTER);
     }
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
@@ -1083,7 +1041,7 @@ void G_DisplayRest(int32_t smoothratio)
 
 
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
-        menutext_center(100, "Game Paused");
+        menutext_center(100, GStrings("Game Paused"));
 
     if (cl_showcoords)
         G_PrintCoords(screenpeek);
@@ -1148,7 +1106,7 @@ void G_DisplayRest(int32_t smoothratio)
     {
         Bsprintf(tempbuf, "%s^00 has called a vote for map", g_player[voting].user_name);
         gametext_center(40, tempbuf);
-        Bsprintf(tempbuf, "%s (E%dL%d)", g_mapInfo[vote_episode*MAXLEVELS + vote_map].name, vote_episode+1, vote_map+1);
+        Bsprintf(tempbuf, "%s (E%dL%d)", mapList[vote_episode*MAXLEVELS + vote_map].DisplayName(), vote_episode+1, vote_map+1);
         gametext_center(48, tempbuf);
         gametext_center(70, "Press F1 to Accept, F2 to Decline");
     }
@@ -1170,8 +1128,8 @@ void G_DisplayRest(int32_t smoothratio)
     {
         if (g_player[myconnectindex].ps->gm&MODE_TYPE)
             Net_SendMessage();
-        else
-            M_DisplayMenus();
+        //else
+            //M_DisplayMenus();
     }
 
     {
@@ -1266,7 +1224,7 @@ int inExtraScreens = 0;
 
 void G_DisplayExtraScreens(void)
 {
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds();
     if (RR)
         return;
@@ -1340,7 +1298,7 @@ void G_DisplayLogo(void)
     renderFlushPerms();
     videoNextPage();
 
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds(); // JBF 20031228
     S_ClearSoundLocks();  // JBF 20031228
     if (RRRA)
@@ -1423,7 +1381,7 @@ void G_DisplayLogo(void)
         {
             Net_GetPackets();
 
-			if (testkopen("3dr.ivf", 0) || testkopen("3dr.anm", 0))
+			if (fileSystem.FileExists("3dr.ivf") || fileSystem.FileExists("3dr.anm"))
             {
                 Anim_Play("3dr.anm");
                 G_FadePalette(0, 0, 0, 252);
@@ -1754,7 +1712,7 @@ static void G_BonusCutscenes(void)
         G_HandleEventsWhileNoInput();
         fadepal(0, 0, 0, 0, 252, 4);
 
-        S_StopMusic();
+        Mus_Stop();
         FX_StopAllSounds();
         S_ClearSoundLocks();
         break;
@@ -1762,7 +1720,7 @@ static void G_BonusCutscenes(void)
     case 1:
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
-        S_StopMusic();
+        Mus_Stop();
         videoClearScreen(0L);
         videoNextPage();
 
@@ -1790,7 +1748,7 @@ static void G_BonusCutscenes(void)
     case 3:
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
-        S_StopMusic();
+        Mus_Stop();
         videoClearScreen(0L);
         videoNextPage();
 
@@ -1826,11 +1784,11 @@ static void G_BonusCutscenes(void)
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
                                                                          //        G_FadePalette(0,0,0,252);
         videoClearScreen(0L);
-        menutext_center(60, "Thanks to all our");
-        menutext_center(60+16, "fans for giving");
-        menutext_center(60+16+16, "us big heads.");
-        menutext_center(70+16+16+16, "Look for a Duke Nukem 3D");
-        menutext_center(70+16+16+16+16, "sequel soon.");
+        menutext_center(60, GStrings("Thanks to all our"));
+        menutext_center(60+16, GStrings("fans for giving"));
+        menutext_center(60+16+16, GStrings("us big heads."));
+        menutext_center(70+16+16+16, GStrings("Look for a Duke Nukem 3D"));
+        menutext_center(70+16+16+16+16, GStrings("sequel soon."));
         videoNextPage();
 
         fadepal(0, 0, 0, 252, 0, -12);
@@ -1858,7 +1816,7 @@ static void G_BonusCutscenes(void)
         break;
 
     case 2:
-        S_StopMusic();
+        Mus_Stop();
         videoClearScreen(0L);
         videoNextPage();
         if (adult_lockout == 0)
@@ -1940,13 +1898,13 @@ static void G_DisplayMPResultsScreen(void)
     rotatesprite_fs(160<<16, 34<<16, RR ? 23592L : 65536L, 0, INGAMEDUKETHREEDEE, 0, 0, 10);
     if (!RR && PLUTOPAK)   // JBF 20030804
         rotatesprite_fs((260)<<16, 36<<16, 65536L, 0, PLUTOPAKSPRITE+2, 0, 0, 2+8);
-    gametext_center(58+(RR ? 0 : 2), "Multiplayer Totals");
-    gametext_center(58+10, g_mapInfo[G_LastMapInfoIndex()].name);
+    gametext_center(58+(RR ? 0 : 2), GStrings("Multiplayer Totals"));
+    gametext_center(58+10, currentLevel->DisplayName());
 
-    gametext_center_shade(RR ? 175 : 165, "Press any key or button to continue", quotepulseshade);
+    gametext_center_shade(RR ? 175 : 165, GStrings("Presskey"), quotepulseshade);
 
-    minitext(38, 80, "Name", 8, 2+8+16+128);
-    minitext(269, 80, "Kills", 8, 2+8+16+128);
+    minitext(38, 80, GStrings("Name"), 8, 2+8+16+128);
+    minitext(269, 80, GStrings("Kills"), 8, 2+8+16+128);
     for (i=0; i<g_mostConcurrentPlayers; i++)
     {
         Bsprintf(tempbuf, "%-4d", i+1);
@@ -1997,7 +1955,7 @@ static void G_DisplayMPResultsScreen(void)
         minitext(92+(y*23), 96+(8*7), tempbuf, RR ? 0 : 2, 2+8+16+128);
     }
 
-    minitext(45, 96+(8*7), "Deaths", RR ? 0 : 8, 2+8+16+128);
+    minitext(45, 96+(8*7), GStrings("Deaths"), RR ? 0 : 8, 2+8+16+128);
 }
 
 static int32_t G_PrintTime_ClockPad(void)
@@ -2009,11 +1967,11 @@ static int32_t G_PrintTime_ClockPad(void)
     clockpad = max(clockpad, ij);
     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
     {
-        for (ii=g_mapInfo[G_LastMapInfoIndex()].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
+        for (ii=currentLevel->parTime/(60), ij=1; ii>9; ii/=10, ij++) { }
         clockpad = max(clockpad, ij);
-        if (g_mapInfo[G_LastMapInfoIndex()].designertime)
+        if (currentLevel->designerTime)
         {
-            for (ii=g_mapInfo[G_LastMapInfoIndex()].designertime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
+            for (ii=currentLevel->designerTime/(60), ij=1; ii>9; ii/=10, ij++) { }
             clockpad = max(clockpad, ij);
         }
     }
@@ -2042,13 +2000,13 @@ const char* G_PrintParTime(void)
 {
     if (ud.last_level < 1)
         return "<invalid>";
-    return G_PrintTime2(g_mapInfo[G_LastMapInfoIndex()].partime);
+    return G_PrintTime2(currentLevel->parTime * REALGAMETICSPERSEC);
 }
 const char* G_PrintDesignerTime(void)
 {
     if (ud.last_level < 1)
         return "<invalid>";
-    return G_PrintTime2(g_mapInfo[G_LastMapInfoIndex()].designertime);
+    return G_PrintTime2(currentLevel->designerTime*REALGAMETICSPERSEC);
 }
 const char* G_PrintBestTime(void)
 {
@@ -2073,19 +2031,8 @@ void G_BonusScreen(int32_t bonusonly)
     }
     else
     {
-        lastmapname = g_mapInfo[G_LastMapInfoIndex()].name;
-        if (!lastmapname) // this isn't right but it's better than no name at all
-            lastmapname = g_mapInfo[G_LastMapInfoIndex()].name;
+        lastmapname = currentLevel->DisplayName();
     }
-
-    if (RR)
-    {
-        if ((g_lastLevel && ud.volume_number == 2) || g_vixenLevel)
-            lastmapname = "CLOSE ENCOUNTERS";
-        else if (g_turdLevel)
-            lastmapname = "SMELTING PLANT";
-    }
-
 
     fadepal(0, 0, 0, 0, 252, RR ? 4 : 28);
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
@@ -2107,7 +2054,7 @@ void G_BonusScreen(int32_t bonusonly)
     totalclock = 0;
     bonuscnt = 0;
 
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
@@ -2156,9 +2103,9 @@ void G_BonusScreen(int32_t bonusonly)
 
         if (lastmapname)
             menutext_center(20-6, lastmapname);
-        menutext_center(36-6, "Completed");
+    	menutext_center(36-6, GStrings("Completed"));
 
-        gametext_center_shade(192, "Press any key or button to continue", quotepulseshade);
+    gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
 
         if (MusicEnabled())
             S_PlaySound(BONUSMUSIC);
@@ -2178,7 +2125,7 @@ void G_BonusScreen(int32_t bonusonly)
         if (lastmapname)
             menutext(80,16, lastmapname);
 
-        menutext(15, 192, "Press any key to continue");
+        menutext(15, 192, GStrings("PRESSKEY"));
     }
 
     videoNextPage();
@@ -2261,16 +2208,16 @@ void G_BonusScreen(int32_t bonusonly)
                 {
                     if (lastmapname)
                         menutext_center(20-6, lastmapname);
-                    menutext_center(36-6, "Completed");
+    	            menutext_center(36-6, GStrings("Completed"));
 
-                    gametext_center_shade(192, "Press any key or button to continue", quotepulseshade);
+                    gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
                 }
                 else
                 {
                     if (lastmapname)
                         menutext(80, 16, lastmapname);
 
-                    menutext(15, 192, "Press any key to continue");
+                    menutext(15, 192, GStrings("PRESSKEY"));
                 }
 
                 const int yystep = RR ? 16 : 10;
@@ -2279,28 +2226,28 @@ void G_BonusScreen(int32_t bonusonly)
                     yy = zz = RR ? 48 : 59;
 
                     if (!RR)
-                        gametext(10, yy+9, "Your Time:");
+                        gametext(10, yy+9, GStrings("TXT_YourTime"));
                     else
-                        menutext(30, yy, "Yer Time:");
+                        menutext(30, yy, GStrings("TXT_YerTime"));
 
                     yy+= yystep;
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                     {
-                        if (g_mapInfo[G_LastMapInfoIndex()].partime)
+                        if (currentLevel->parTime)
                         {
                             if (!RR)
-                                gametext(10, yy+9, "Par Time:");
+                                gametext(10, yy+9, GStrings("TXT_ParTime"));
                             else
-                                menutext(30, yy, "Par Time:");
+                                menutext(30, yy, GStrings("TXT_ParTime"));
                             yy+=yystep;
                         }
-                        if (g_mapInfo[G_LastMapInfoIndex()].designertime)
+                        if (currentLevel->designerTime)
                         {
                             // EDuke 2.0 / NAM source suggests "Green Beret's Time:"
                             if (DUKE)
-                                gametext(10, yy+9, "3D Realms' Time:");
+                                gametext(10, yy+9, GStrings("TXT_3DRTIME"));
                             else if (RR)
-                                menutext(30, yy, "Xatrix Time:");
+                                menutext(30, yy, GStrings("TXT_XTRTIME"));
                             yy+=yystep;
                         }
 
@@ -2333,7 +2280,7 @@ void G_BonusScreen(int32_t bonusonly)
                             {
                                 gametext_number((320>>2)+71, yy+9, tempbuf);
                                 if (g_player[myconnectindex].ps->player_par < ud.playerbest)
-                                    gametext((320>>2)+89+(clockpad*24), yy+9, "New record!");
+                                gametext((320>>2)+89+(clockpad*24), yy+9, GStrings("TXT_NEWRECORD"));
                             }
                             else
                             {
@@ -2343,14 +2290,14 @@ void G_BonusScreen(int32_t bonusonly)
                             }
                         }
                         else if (!RR)
-                            gametext_pal((320>>2)+71, yy+9, "Cheated!", 2);
+                            gametext_pal((320>>2)+71, yy+9, GStrings("TXT_Cheated"), 2);
                         else
-                            menutext(191, yy, "Cheated!");
+                            menutext(191, yy, GStrings("TXT_Cheated"));
                         yy+=yystep;
 
                         if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                         {
-                            if (g_mapInfo[G_LastMapInfoIndex()].partime)
+                            if (currentLevel->parTime)
                             {
                                 G_PrintParTime();
                                 if (!RR)
@@ -2359,7 +2306,7 @@ void G_BonusScreen(int32_t bonusonly)
                                     menutext(191, yy, tempbuf);
                                 yy+=yystep;
                             }
-                            if (g_mapInfo[G_LastMapInfoIndex()].designertime)
+                            if (currentLevel->designerTime)
                             {
                                 G_PrintDesignerTime();
                                 if (DUKE)
@@ -2386,14 +2333,14 @@ void G_BonusScreen(int32_t bonusonly)
                 if (totalclock > (60*6))
                 {
                     if (!RR)
-                        gametext(10, yy+9, "Enemies Killed:");
+                        gametext(10, yy+9, GStrings("TXT_EnemiesKilled"));
                     else
-                        menutext(30, yy, "Varmints Killed:");
+                        menutext(30, yy, GStrings("TXT_VarmintsKilled"));
                     yy += yystep;
                     if (!RR)
-                        gametext(10, yy+9, "Enemies Left:");
+                        gametext(10, yy+9, GStrings("TXT_EnemiesLeft"));
                     else
-                        menutext(30, yy, "Varmints Left:");
+                        menutext(30, yy, GStrings("TXT_VarmintsLeft"));
                     yy += yystep;
 
                     if (bonuscnt == 2)
@@ -2421,9 +2368,9 @@ void G_BonusScreen(int32_t bonusonly)
                         if (ud.player_skill > 3 && !RR)
                         {
                             if (!RR)
-                                gametext((320>>2)+70, yy+9, "N/A");
+                      	      gametext((320>>2)+70, yy+9, GStrings("TXT_N_A"));
                             else
-                                menutext(231,yy, "N/A");
+                                menutext(231,yy, GStrings("TXT_N_A"));
                             yy += yystep;
                         }
                         else
@@ -2444,14 +2391,14 @@ void G_BonusScreen(int32_t bonusonly)
                 if (totalclock > (60*9))
                 {
                     if (!RR)
-                        gametext(10, yy+9, "Secrets Found:");
+                        gametext(10, yy+9, GStrings("TXT_SECFND"));
                     else
-                        menutext(30, yy, "Secrets Found:");
+                        menutext(30, yy, GStrings("TXT_SECFND"));
                     yy += yystep;
                     if (!RR)
-                        gametext(10, yy+9, "Secrets Missed:");
+                        gametext(10, yy+9, GStrings("TXT_SECMISS"));
                     else
-                        menutext(30, yy, "Secrets Missed:");
+                        menutext(30, yy, GStrings("TXT_SECMISS"));
                     yy += yystep;
                     if (bonuscnt == 4) bonuscnt++;
 
@@ -2653,16 +2600,8 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     }
     else
     {
-        lastmapname = g_mapInfo[G_LastMapInfoIndex()].name;
-        if (!lastmapname) // this isn't right but it's better than no name at all
-            lastmapname = g_mapInfo[G_LastMapInfoIndex()].name;
+        lastmapname = currentLevel->DisplayName();
     }
-
-    if ((g_lastLevel && ud.volume_number == 2) || g_vixenLevel)
-        lastmapname = "CLOSE ENCOUNTERS";
-    else if (g_turdLevel)
-        lastmapname = "SMELTIN' PLANT";
-
 
     fadepal(0, 0, 0, 0, 252, 4);
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
@@ -2699,7 +2638,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
     totalclock = 0;
     bonuscnt = 0;
 
-    S_StopMusic();
+    Mus_Stop();
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
@@ -2844,7 +2783,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                 if (lastmapname)
                     menutext(80, 16, lastmapname);
 
-                menutext(15, 192, "Press any key to continue");
+                menutext(15, 192, GStrings("TXT_PRESSKEY"));
 
                 const int yystep = 16;
                 if (totalclock > (60*3))
@@ -2856,14 +2795,14 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                     yy+= yystep;
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                     {
-                        if (g_mapInfo[G_LastMapInfoIndex()].partime)
+                        if (currentLevel->parTime)
                         {
-                            menutext(30, yy, "Par Time:");
+                            menutext(30, yy, GStrings("TXT_PARTIME"));
                             yy+=yystep;
                         }
-                        if (g_mapInfo[G_LastMapInfoIndex()].designertime)
+                        if (currentLevel->designerTime)
                         {
-                            menutext(30, yy, "Xatrix Time:");
+                            menutext(30, yy, GStrings("TXT_XTRTIME"));
                             yy+=yystep;
                         }
 
@@ -2899,13 +2838,13 @@ void G_BonusScreenRRRA(int32_t bonusonly)
 
                         if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                         {
-                            if (g_mapInfo[G_LastMapInfoIndex()].partime)
+                            if (currentLevel->parTime)
                             {
                                 G_PrintParTime();
                                 menutext(191, yy, tempbuf);
                                 yy+=yystep;
                             }
-                            if (g_mapInfo[G_LastMapInfoIndex()].designertime)
+                            if (currentLevel->designerTime)
                             {
                                 G_PrintDesignerTime();
                                 menutext(191, yy, tempbuf);
@@ -2925,9 +2864,9 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                 zz = yy += 16;
                 if (totalclock > (60*6))
                 {
-                    menutext(30, yy, "Varmints Killed:");
+                    menutext(30, yy, GStrings("TXT_VARMINTSKILLED"));
                     yy += yystep;
-                    menutext(30, yy, "Varmints Left:");
+                    menutext(30, yy, GStrings("TXT_VARMINTSLEFT"));
                     yy += yystep;
 
                     if (bonuscnt == 2)
@@ -2964,9 +2903,9 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                 zz = yy += 0;
                 if (totalclock > (60*9))
                 {
-                    menutext(30, yy, "Secrets Found:");
+                    menutext(30, yy, GStrings("TXT_SECFND"));
                     yy += yystep;
-                    menutext(30, yy, "Secrets Missed:");
+                    menutext(30, yy, GStrings("TXT_SECMISS"));
                     yy += yystep;
                     if (bonuscnt == 4) bonuscnt++;
 

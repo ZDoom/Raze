@@ -11,6 +11,7 @@
 #include "compat.h"
 #include "baselayer.h"
 #include "grpscan.h"
+#include "osxbits.h"
 
 #import "GrpFile.game.h"
 #import "GameListSource.game.h"
@@ -104,8 +105,6 @@ static NSPopUpButton * makeComboBox(void)
     [comboBox sizeToFit];
     return comboBox;
 }
-
-static id nsapp;
 
 /* setAppleMenu disappeared from the headers in 10.4 */
 @interface NSApplication(NSAppleMenu)
@@ -599,18 +598,12 @@ static StartupWindow *startwin = nil;
 
 int startwin_open(void)
 {
-    // fix for "ld: absolute address to symbol _NSApp in a different linkage unit not supported"
-    // (OS X 10.6) when building for PPC
-    nsapp = [NSApplication sharedApplication];
-
     if (startwin != nil) return 1;
 
     startwin = [[StartupWindow alloc] init];
     if (startwin == nil) return -1;
 
     [startwin setupMessagesMode];
-
-    [nsapp finishLaunching];
 
     [startwin center];
     [startwin makeKeyAndOrderFront:nil];

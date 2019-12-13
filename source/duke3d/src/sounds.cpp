@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "al_midi.h"
 #include "openaudio.h"
 #include "z_music.h"
+#include "mapinfo.h"
 #include <atomic>
 
 BEGIN_DUKE_NS
@@ -83,16 +84,9 @@ void S_SoundStartup(void)
             g_sounds[i].num = 0;
             S_SetProperties(&voice, -1, 0, UINT16_MAX, 0);
         }
-
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[i] = 199;
-#endif
     }
 
-    cacheAllSounds();
-
 	snd_fxvolume.Callback();
-    S_MusicVolume(mus_volume);
 
 	snd_reversestereo.Callback();
     FX_SetCallBack(S_Callback);
@@ -101,54 +95,12 @@ void S_SoundStartup(void)
 
 void S_SoundShutdown(void)
 {
-    if (MusicVoice >= 0)
-        S_MusicShutdown();
-
     int status = FX_Shutdown();
     if (status != FX_Ok)
     {
         Bsprintf(tempbuf, "S_SoundShutdown(): error: %s", FX_ErrorString(status));
         G_GameExit(tempbuf);
     }
-}
-
-void S_MusicStartup(void)
-{
-    initprintf("Initializing MIDI driver... ");
-
-    int status;
-    if ((status = MUSIC_Init(MusicDevice)) == MUSIC_Ok)
-    {
-        if (MusicDevice == ASS_AutoDetect)
-            MusicDevice = MIDI_GetDevice();
-    }
-    else if ((status = MUSIC_Init(ASS_AutoDetect)) == MUSIC_Ok)
-    {
-        MusicDevice = MIDI_GetDevice();
-    }
-    else
-    {
-        initprintf("S_MusicStartup(): failed initializing: %s\n", MUSIC_ErrorString(status));
-        return;
-    }
-
-        MUSIC_SetVolume(mus_volume);
-		auto fr = kopenFileReader("d3dtimbr.tmb", 0);
-
-        if (fr.isOpen())
-        {
-			auto tmb = fr.Read();
-            AL_RegisterTimbreBank(tmb.Data());
-        }
-}
-
-void S_MusicShutdown(void)
-{
-    S_StopMusic();
-
-    int status = MUSIC_Shutdown();
-    if (status != MUSIC_Ok)
-        initprintf("S_MusicShutdown(): %s\n", MUSIC_ErrorString(status));
 }
 
 void S_PauseSounds(bool paused)
@@ -166,30 +118,8 @@ void S_PauseSounds(bool paused)
     }
 }
 
-
-void S_MusicVolume(int32_t volume)
-{
-    if (MusicIsWaveform && MusicVoice >= 0)
-        FX_SetPan(MusicVoice, volume, volume, volume);
-
-    MUSIC_SetVolume(volume);
-}
-
-void S_RestartMusic(void)
-{
-    if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
-    {
-        S_PlayLevelMusicOrNothing(g_musicIndex);
-    }
-    else if (G_GetLogoFlags() & LOGO_PLAYMUSIC)
-    {
-        S_PlaySpecialMusicOrNothing(MUS_INTRO);
-    }
-}
-
 void S_MenuSound(void)
 {
-#ifndef EDUKE32_STANDALONE
     static int SoundNum;
     int const menusnds[] = {
         LASERTRIP_EXPLODE, DUKE_GRUNT,       DUKE_LAND_HURT,   CHAINGUN_FIRE, SQUISHED,      KICK_HIT,
@@ -197,191 +127,39 @@ void S_MenuSound(void)
         PIPEBOMB_BOUNCE,   PIPEBOMB_EXPLODE, NITEVISION_ONOFF, RPG_SHOOT,     SELECT_WEAPON,
     };
     int s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, FURY ? -1 : menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
-#else
-    int s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, -1);
-#endif
     if (s != -1)
         S_PlaySound(s);
 }
 
-#if 0 // In case you desperately want the old system back... ;)
-static int S_PlayMusic(const char *, const char *fn, int loop)
-{
-    if (!MusicEnabled())
-        return 0;
-
-    if (fn == NULL)
-        return 1;
-
-    auto fp = S_OpenAudio(fn, 0, 1);
-    if (!fp.isOpen())
-    {
-        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open \"%s\" for playback!\n",fn);
-        return 2;
-    }
-
-    int32_t MusicLen = fp.GetLength();
-
-    if (EDUKE32_PREDICT_FALSE(MusicLen < 4))
-    {
-        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: empty music file \"%s\"\n", fn);
-        return 3;
-    }
-
-    char * MyMusicPtr = (char *)Xaligned_alloc(16, MusicLen);
-    int MyMusicSize = fp.Read(MyMusicPtr, MusicLen);
-
-    if (EDUKE32_PREDICT_FALSE(MyMusicSize != MusicLen))
-    {
-        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from \"%s\", expected %d\n",
-                   MyMusicSize, fn, MusicLen);
-        ALIGNED_FREE_AND_NULL(MyMusicPtr);
-        return 4;
-    }
-
-    if (!Bmemcmp(MyMusicPtr, "MThd", 4))
-    {
-        int32_t retval = MUSIC_PlaySong(MyMusicPtr, MyMusicSize, MUSIC_LoopSong, fn);
-
-        if (retval != MUSIC_Ok)
-        {
-            ALIGNED_FREE_AND_NULL(MyMusicPtr);
-            return 5;
-        }
-
-        if (MusicIsWaveform && MusicVoice >= 0)
-        {
-            FX_StopSound(MusicVoice);
-            MusicVoice = -1;
-        }
-
-        MusicIsWaveform = 0;
-        ALIGNED_FREE_AND_NULL(MusicPtr);
-        MusicPtr    = MyMusicPtr;
-        g_musicSize = MyMusicSize;
-    }
-    else
-    {
-        int MyMusicVoice = FX_Play(MyMusicPtr, MusicLen, 0, 0, 0, mus_volume, mus_volume, mus_volume,
-                                   FX_MUSIC_PRIORITY, 1.f, MUSIC_ID);
-
-        if (MyMusicVoice <= FX_Ok)
-        {
-            ALIGNED_FREE_AND_NULL(MyMusicPtr);
-            return 5;
-        }
-
-        if (MusicIsWaveform && MusicVoice >= 0)
-            FX_StopSound(MusicVoice);
-
-        MUSIC_StopSong();
-
-        MusicVoice      = MyMusicVoice;
-        MusicIsWaveform = 1;
-        ALIGNED_FREE_AND_NULL(MusicPtr);
-        MusicPtr    = MyMusicPtr;
-        g_musicSize = MyMusicSize;
-    }
-
-    return 0;
-}
-
-void S_StopMusic(void)
-{
-	MusicPaused = 0;
-
-	if (MusicIsWaveform && MusicVoice >= 0)
-	{
-		FX_StopSound(MusicVoice);
-		MusicVoice = -1;
-		MusicIsWaveform = 0;
-	}
-
-	MUSIC_StopSong();
-
-	ALIGNED_FREE_AND_NULL(MusicPtr);
-	g_musicSize = 0;
-}
-
-void S_PauseMusic(bool paused)
-{
-	if (MusicPaused == paused || (MusicIsWaveform && MusicVoice < 0))
-		return;
-
-	MusicPaused = paused;
-
-	if (MusicIsWaveform)
-	{
-		FX_PauseVoice(MusicVoice, paused);
-		return;
-	}
-
-	if (paused)
-		MUSIC_Pause();
-	else
-		MUSIC_Continue();
-}
-
-#else
-static int S_PlayMusic(const char *mapname, const char* fn, bool looping = true)
-{
-	return Mus_Play(mapname, fn, looping);
-}
-
-void S_StopMusic(void)
-{
-	Mus_Stop();
-}
-
-void S_PauseMusic(bool paused)
-{
-	Mus_SetPaused(paused);
-}
-
-
-#endif
 
 static void S_SetMusicIndex(unsigned int m)
 {
-    g_musicIndex = m;
     ud.music_episode = m / MAXLEVELS;
     ud.music_level   = m % MAXLEVELS;
 }
 
-bool S_TryPlayLevelMusic(unsigned int m)
+void S_PlayLevelMusicOrNothing(unsigned int m)
 {
     ud.returnvar[0] = m / MAXLEVELS;
     ud.returnvar[1] = m % MAXLEVELS;
 
     int retval = VM_OnEvent(EVENT_PLAYLEVELMUSICSLOT, g_player[myconnectindex].ps->i, myconnectindex);
 
-    if (retval < 0)
-        return false;
-
-	if (!S_PlayMusic(g_mapInfo[m].filename, g_mapInfo[m].musicfn))
-	{
-		S_SetMusicIndex(m);
-		return false;
-    }
-
-    return true;
-}
-
-void S_PlayLevelMusicOrNothing(unsigned int m)
-{
-    if (S_TryPlayLevelMusic(m))
+    if (retval >= 0)
     {
-        //S_StopMusic();
+        // Thanks to scripting that stupid slot hijack cannot be refactored - but we'll store the real data elsewhere anyway!
+        auto &mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
+        Mus_Play(mr.labelName, mr.music, true);
         S_SetMusicIndex(m);
     }
 }
 
 int S_TryPlaySpecialMusic(unsigned int m)
 {
-    char const * musicfn = g_mapInfo[m].musicfn;
-    if (musicfn != NULL)
+    auto &musicfn = mapList[m].music;
+    if (musicfn.IsNotEmpty())
     {
-        if (!S_PlayMusic(nullptr, musicfn))
+        if (!Mus_Play(nullptr, musicfn, true))
         {
             S_SetMusicIndex(m);
             return 0;
@@ -395,7 +173,6 @@ void S_PlaySpecialMusicOrNothing(unsigned int m)
 {
     if (S_TryPlaySpecialMusic(m))
     {
-        //S_StopMusic();
         S_SetMusicIndex(m);
     }
 }
@@ -423,9 +200,6 @@ void S_Cleanup(void)
         // for which there was no open slot to keep track of the voice
         if (num >= (MAXSOUNDS*MAXSOUNDINSTANCES))
         {
-#ifdef CACHING_DOESNT_SUCK
-            --g_soundlocks[num-(MAXSOUNDS*MAXSOUNDINSTANCES)];
-#endif
             continue;
         }
 
@@ -450,9 +224,6 @@ void S_Cleanup(void)
 
         S_SetProperties(&voice, -1, 0, UINT16_MAX, 0);
 
-#ifdef CACHING_DOESNT_SUCK
-        --g_soundlocks[num];
-#endif
     }
 }
 
@@ -473,9 +244,8 @@ int32_t S_LoadSound(int num)
     }
 
 	int32_t l = fp.GetLength();
-    g_soundlocks[num] = 255;
     snd.siz = l;
-    cacheAllocateBlock((intptr_t *)&snd.ptr, l, &g_soundlocks[num]);
+    cacheAllocateBlock((intptr_t *)&snd.ptr, l, nullptr);
     l = fp.Read(snd.ptr, l);
 
     return l;
@@ -574,35 +344,6 @@ static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum, int angle,
     sndang = S_GetAngle(angle, cam, pos);
     sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z));
 
-#ifdef SPLITSCREEN_MOD_HACKS
-    if (g_fakeMultiMode==2)
-    {
-        // HACK for splitscreen mod: take the min of sound distances
-        // to 1st and 2nd player.
-
-        if (PN(spriteNum) == APLAYER && P_Get(spriteNum) == 1)
-        {
-            sndist = sndang = 0;
-            goto sound_further_processing;
-        }
-
-        {
-            const vec3_t *cam2 = &g_player[1].ps->pos;
-            int32_t sndist2 = FindDistance3D(cam2->x-pos->x, cam2->y-pos->y, (cam2->z-pos->z));
-
-            if (sndist2 < sndist)
-            {
-                cam = cam2;
-                sectNum = g_player[1].ps->cursectnum;
-                angle = g_player[1].ps->ang;
-
-                sndist = sndist2;
-                sndang = S_GetAngle(angle, cam, pos);
-            }
-        }
-    }
-#endif
-
     if ((g_sounds[soundNum].m & (SF_GLOBAL|SF_DTAG)) != SF_GLOBAL && S_IsAmbientSFX(spriteNum) && (sector[SECT(spriteNum)].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
         sndist = divscale14(sndist, SHT(spriteNum)+1);
 
@@ -611,19 +352,13 @@ sound_further_processing:
     if (sndist < 0)
         sndist = 0;
 
-#ifndef EDUKE32_STANDALONE
     if (!FURY && sectNum > -1 && sndist && PN(spriteNum) != MUSICANDSFX
         && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (24 << 8), SECT(spriteNum)))
         sndist += sndist>>5;
-#else
-    UNREFERENCED_PARAMETER(sectNum);
-#endif
 
     if ((g_sounds[soundNum].m & (SF_GLOBAL|SF_DTAG)) == (SF_GLOBAL|SF_DTAG))
     {
-#ifndef EDUKE32_STANDALONE
 boost:
-#endif
         int const sdist = g_sounds[soundNum].vo > 0 ? g_sounds[soundNum].vo : 6144;
 
         explosion = true;
@@ -631,8 +366,6 @@ boost:
         if (sndist > sdist)
             sndist = sdist;
     }
-
-#ifndef EDUKE32_STANDALONE
     else if (!FURY)
     {
         switch (DYNAMICSOUNDMAP(soundNum))
@@ -643,7 +376,6 @@ boost:
                 goto boost;
         }
     }
-#endif
 
     if ((g_sounds[soundNum].m & (SF_GLOBAL|SF_DTAG)) == SF_GLOBAL || sndist < ((255-LOUDESTVOLUME) << 6))
         sndist = ((255-LOUDESTVOLUME) << 6);
@@ -703,13 +435,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
         while (j < MAXSOUNDINSTANCES && snd.voices[j].id != voice)
             j++;
 
-#ifdef DEBUGGINGAIDS
-        if (EDUKE32_PREDICT_FALSE(j >= MAXSOUNDINSTANCES))
-        {
-            OSD_Printf(OSD_ERROR "%s %d: WTF?\n", __FILE__, __LINE__);
-            return -1;
-        }
-#endif
 
         snd.voices[j].owner = spriteNum;
 
@@ -721,14 +446,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
     int        pitch      = S_GetPitch(sndNum);
     auto const pOther     = g_player[screenpeek].ps;
 
-#ifdef SPLITSCREEN_MOD_HACKS
-    if (g_fakeMultiMode==2)
-    {
-        // splitscreen HACK
-        if (g_player[1].ps->i == spriteNum)
-            pOther = g_player[1].ps;
-}
-#endif
 
     if (pOther->sound_pitch)
         pitch += pOther->sound_pitch;
@@ -751,18 +468,10 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
     if (snd.num > 0 && PN(spriteNum) != MUSICANDSFX)
         S_StopEnvSound(sndNum, spriteNum);
 
-#ifdef CACHING_DOESNT_SUCK
-    if (++g_soundlocks[sndNum] < 200)
-        g_soundlocks[sndNum] = 200;
-#endif
-
     int const sndSlot = S_GetSlot(sndNum);
 
     if (sndSlot >= MAXSOUNDINSTANCES)
     {
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[sndNum]--;
-#endif
         return -1;
     }
 
@@ -770,9 +479,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 
     if (repeatp && (snd.m & SF_ONEINST_INTERNAL) && snd.num > 0)
     {
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[sndNum]--;
-#endif
         return -1;
     }
 
@@ -781,9 +487,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
 
     if (voice <= FX_Ok)
     {
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[sndNum]--;
-#endif
         return -1;
     }
 
@@ -816,18 +519,10 @@ int S_PlaySound(int num)
 
     int const pitch = S_GetPitch(num);
 
-#ifdef CACHING_DOESNT_SUCK
-    if (++g_soundlocks[num] < 200)
-        g_soundlocks[num] = 200;
-#endif
-
     sndnum = S_GetSlot(num);
 
     if (sndnum >= MAXSOUNDINSTANCES)
     {
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[num]--;
-#endif
         return -1;
     }
 
@@ -838,9 +533,6 @@ int S_PlaySound(int num)
 
     if (voice <= FX_Ok)
     {
-#ifdef CACHING_DOESNT_SUCK
-        g_soundlocks[num]--;
-#endif
         return -1;
     }
 
@@ -876,11 +568,6 @@ void S_StopEnvSound(int sndNum, int sprNum)
 
             if ((sprNum == -1 && voice.id > FX_Ok) || (sprNum != -1 && voice.owner == sprNum))
             {
-#ifdef DEBUGGINGAIDS
-                if (EDUKE32_PREDICT_FALSE(sprNum >= 0 && voice.id <= FX_Ok))
-                    initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", voice.id, sndNum, j);
-                else
-#endif
                 if (voice.id > FX_Ok)
                 {
                     if (FX_SoundActive(voice.id))
@@ -994,18 +681,6 @@ void S_Callback(intptr_t num)
     dq[ldnum & (DQSIZE - 1)] = (uint32_t)num;
     dnum++;
     mutex_unlock(&m_callback);
-}
-
-void S_ClearSoundLocks(void)
-{
-#ifdef CACHING_DOESNT_SUCK
-    int32_t i;
-    int32_t const msp = g_highestSoundIdx;
-
-    for (native_t i = 0; i <= msp; ++i)
-        if (g_soundlocks[i] >= 200)
-            g_soundlocks[i] = 199;
-#endif
 }
 
 int A_CheckSoundPlaying(int spriteNum, int soundNum)

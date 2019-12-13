@@ -47,7 +47,6 @@ BEGIN_RR_NS
 
 #define MAXINTERPOLATIONS MAXSPRITES
 // KEEPINSYNC lunatic/con_lang.lua
-#define MAXSKILLS 7
 
 // duke3d global soup :(
 
@@ -73,9 +72,7 @@ G_EXTERN actor_t actor[MAXSPRITES];
 // g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game
 G_EXTERN tiledata_t g_tile[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
-G_EXTERN char *apStrings[MAXQUOTES],*apXStrings[MAXQUOTES];
 G_EXTERN char *label;
-G_EXTERN int32_t g_musicIndex;
 G_EXTERN char g_loadFromGroupOnly;
 G_EXTERN char g_skillCnt;
 G_EXTERN char pus,pub;
@@ -246,7 +243,6 @@ G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
 G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 #pragma pack(pop)
 
-G_EXTERN uint8_t g_soundlocks[MAXSOUNDS];
 G_EXTERN int32_t g_noEnemies;
 G_EXTERN int32_t g_restorePalette;
 G_EXTERN int32_t g_screenCapture;
@@ -261,8 +257,6 @@ extern float g_gameUpdateAvgTime;
 #ifndef global_c_
 extern char CheatKeys[2];
 extern char g_gametypeNames[MAXGAMETYPES][33];
-extern char g_skillNames[MAXSKILLS][33];
-extern char g_volumeNames[MAXVOLUMES][33];
 
 extern int32_t g_actorRespawnTime;
 extern int32_t g_bouncemineRadius;
@@ -284,7 +278,6 @@ extern int32_t g_volumeCnt;
 
 extern int16_t g_blimpSpawnItems[15];
 extern int32_t g_gametypeFlags[MAXGAMETYPES];
-extern int32_t g_volumeFlags[MAXVOLUMES];
 
 extern const char *s_buildDate;
 #endif
@@ -292,7 +285,6 @@ extern const char *s_buildDate;
 enum
 {
     EF_HIDEFROMSP = 1<<0,
-    // EF_HIDEFROMMP = 1<<1,
 };
 
 EXTERN_INLINE_HEADER void G_UpdateInterpolations(void);

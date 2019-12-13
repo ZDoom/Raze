@@ -1,6 +1,6 @@
 level 1
 {
-    title    "Seppuku Station"
+    title    "$TXTS_MAP01"
     filename "$bullet.map"
     song     "e1l01.mid"
     cdatrack 4
@@ -9,7 +9,7 @@ level 1
 }
 level 2
 {
-    title    "Zilla Construction"
+    title    "$TXTS_MAP02"
     filename "$dozer.map"
     song     "e1l03.mid"
     cdatrack 9
@@ -18,7 +18,7 @@ level 2
 }
 level 3
 {
-    title    "Master Leep's Temple"
+    title    "$TXTS_MAP03"
     filename "$shrine.map"
     song     "e1l02.mid"
     cdatrack 12
@@ -27,7 +27,7 @@ level 3
 }
 level 4
 {
-    title    "Dark Woods of the Serpent"
+    title    "$TXTS_MAP04"
     filename "$woods.map"
     song     "e1l04.mid"
     cdatrack 10
@@ -36,7 +36,7 @@ level 4
 }
 level 5
 {
-    title    "Rising Son"
+    title    "$TXTS_MAP05"
     filename "$whirl.map"
     song     "yokoha03.mid"
     cdatrack 5
@@ -45,7 +45,7 @@ level 5
 }
 level 6
 {
-    title    "Killing Fields"
+    title    "$TXTS_MAP06"
     filename "$tank.map"
     song     "nippon34.mid"
     cdatrack 6
@@ -54,7 +54,7 @@ level 6
 }
 level 7
 {
-    title    "Hara-Kiri Harbor"
+    title    "$TXTS_MAP07"
     filename "$boat.map"
     song     "execut11.mid"
     cdatrack 8
@@ -63,7 +63,7 @@ level 7
 }
 level 8
 {
-    title    "Zilla's Villa"
+    title    "$TXTS_MAP08"
     filename "$garden.map"
     song     "execut11.mid"
     cdatrack 11
@@ -72,7 +72,7 @@ level 8
 }
 level 9
 {
-    title    "Monastery"
+    title    "$TXTS_MAP09"
     filename "$outpost.map"
     song     "sanai.mid"
     cdatrack 12
@@ -81,7 +81,7 @@ level 9
 }
 level 10
 {
-    title    "Raider of the Lost Wang"
+    title    "$TXTS_MAP10"
     filename "$hidtemp.map"
     song     "kotec2.mid"
     cdatrack 5
@@ -90,7 +90,7 @@ level 10
 }
 level 11
 {
-    title    "Sumo Sky Palace"
+    title    "$TXTS_MAP11"
     filename "$plax1.map"
     song     "kotec2.mid"
     cdatrack 10
@@ -99,7 +99,7 @@ level 11
 }
 level 12
 {
-    title    "Bath House"
+    title    "$TXTS_MAP12"
     filename "$bath.map"
     song     "yokoha03"
     cdatrack 4
@@ -108,7 +108,7 @@ level 12
 }
 level 13
 {
-    title    "Unfriendly Skies"
+    title    "$TXTS_MAP13"
     filename "$airport.map"
     song     "nippon34"
     cdatrack 6
@@ -117,7 +117,7 @@ level 13
 }
 level 14
 {
-    title    "Crude Oil"
+    title    "$TXTS_MAP14"
     filename "$refiner.map"
     song     "kotoki12.mid"
     cdatrack 9
@@ -126,7 +126,7 @@ level 14
 }
 level 15
 {
-    title    "Coolie Mines"
+    title    "$TXTS_MAP15"
     filename "$newmine.map"
     song     "hoshia02.mid"
     cdatrack 7
@@ -135,7 +135,7 @@ level 15
 }
 level 16
 {
-    title    "Subpen 7"
+    title    "$TXTS_MAP16"
     filename "$subbase.map"
     song     "hoshia02.mid"
     cdatrack 10
@@ -144,7 +144,7 @@ level 16
 }
 level 17
 {
-    title    "The Great Escape"
+    title    "$TXTS_MAP17"
     filename "$rock.map"
     song     ""
     cdatrack 8
@@ -153,7 +153,7 @@ level 17
 }
 level 18
 {
-    title    "Floating Fortress"
+    title    "$TXTS_MAP18"
     filename "$yamato.map"
     song     "sanai.mid"
     cdatrack 7
@@ -162,7 +162,7 @@ level 18
 }
 level 19
 {
-    title    "Water Torture"
+    title    "$TXTS_MAP19"
     filename "$seabase.map"
     song     "kotec2.mid"
     cdatrack 9
@@ -171,7 +171,7 @@ level 19
 }
 level 20
 {
-    title    "Stone Rain"
+    title    "$TXTS_MAP20"
     filename "$volcano.map"
     song     ""
     cdatrack 10
@@ -180,7 +180,7 @@ level 20
 }
 level 21
 {
-    title    "Shanghai Shipwreck"
+    title    "$TXTS_MAP21"
     filename "$shore.map"
     song     ""
     cdatrack 11
@@ -189,7 +189,7 @@ level 21
 }
 level 22
 {
-    title    "Auto Maul"
+    title    "$TXTS_MAP22"
     filename "$auto.map"
     song     ""
     cdatrack 5
@@ -198,7 +198,7 @@ level 22
 }
 level 23
 {
-    title    "Heavy Metal (DM only)"
+    title    "$TXTS_MAP23"
     filename "tank.map"
     song     ""
     cdatrack 11
@@ -207,7 +207,7 @@ level 23
 }
 level 24
 {
-    title    "Ripper Valley (DM only)"
+    title    "$TXTS_MAP24"
     filename "$dmwoods.map"
     song     ""
     cdatrack 8
@@ -216,7 +216,7 @@ level 24
 }
 level 25
 {
-    title    "House of Wang (DM only)"
+    title    "$TXTS_MAP25"
     filename "$dmshrin.map"
     song     ""
     cdatrack 7
@@ -225,7 +225,7 @@ level 25
 }
 level 26
 {
-    title    "Lo Wang Rally (DM only"
+    title    "$TXTS_MAP26"
     filename "$rush.map"
     song     ""
     cdatrack 13
@@ -234,7 +234,7 @@ level 26
 }
 level 27
 {
-    title    "Ruins of the Ronin (CTF)"
+    title    "$TXTS_MAP27"
     filename "shotgun.map"
     song     ""
     cdatrack 5
@@ -243,7 +243,7 @@ level 27
 }
 level 28
 {
-    title    "Killing Fields (CTF)"
+    title    "$TXTS_MAP28"
     filename "$dmdrop.map"
     song     ""
     cdatrack 6
@@ -252,101 +252,101 @@ level 28
 }
 episode 1
 {
-    title    "Enter the Wang"
-    subtitle "Four levels (Shareware Version)"
+    title    "$TXTS_EP1"
+    subtitle "$TXTS_EPD1"
 }
 episode 2
 {
-    title    "Code of Honor"
-    subtitle "Eighteen levels (Full Version Only)"
+    title    "$TXTS_EP2"
+    subtitle "$TXTS_EPD2"
 }
 skill 1
 {
-    name "Tiny Grasshopper"
+    name "$TXTS_SK1"
 }
 skill 2
 {
-    name "I Have No Fear"
+    name "$TXTS_SK2"
 }
 skill 3
 {
-    name "Who Wants Wang"
+    name "$TXTS_SK3"
 }
 skill 4
 {
-    name "No Pain, No Gain"
+    name "$TXTS_SK4"
 }
-/*
+
 inventory 1
 {
-   name "Armor Vest +50"
+   name "$TXTS_INV1"
    amount 50
 }
 inventory 2
 {
-   name "Kevlar Armor Vest +100"
+   name "$TXTS_INV2"
    amount 100
 }
 inventory 3
 {
-   name "MedKit +20"
+   name "$TXTS_INV3"
    amount 20
 }
 inventory 4
 {
-   name "Fortune Cookie +50 BOOST"
+   name "$TXTS_INV4"
    amount 50
 }
 inventory 5
 {
-   name "Portable MedKit"
+   name "$TXTS_INV5"
    amount 100
 }
 inventory 6
 {
-   name "Gas Bomb"
+   name "$TXTS_INV6"
    amount 1
 }
 inventory 7
 {
-   name "Flash Bomb"
+   name "$TXTS_INV7"
    amount 2
 }
 inventory 8
 {
-   name "Caltrops"
+   name "$TXTS_INV8"
    amount 3
 }
 inventory 9
 {
-   name "Night Vision Goggles"
+   name "$TXTS_INV9"
    amount 100
 }
 inventory 10
 {
-   name "Repair Kit"
+   name "$TXTS_INV10"
    amount 100
 }
 inventory 11
 {
-   name "Smoke Bomb"
+   name "$TXTS_INV11"
    amount 100
 }
 weapon 1
 {
-    name "Fists"
+    name "$TXTS_WEAP1"
     mindamage 10
     maxdamage 40
 }
 weapon 2
 {
-    name "Sword"
+    name "$TXTS_WEAP2"
     mindamage 50
     maxdamage 80
 }
 weapon 3
 {
-    name "Shurikens"
+    name "$TXTS_WEAP3"
     ammoname ""
     maxammo 99
     mindamage 5
@@ -356,7 +356,7 @@ weapon 3
 }
 weapon 4
 {
-    name "Sticky Bombs"
+    name "$TXTS_WEAP4"
     ammoname ""
     maxammo 20
     mindamage 5
@@ -366,8 +366,8 @@ weapon 4
 }
 weapon 5
 {
-    name "UZI Submachine Gun"
-    ammoname "UZI Clip"
+    name "$TXTS_WEAP5"
+    ammoname "$TXTS_AMMO5"
     maxammo 200
     mindamage 5
     maxdamage 7
@@ -376,8 +376,8 @@ weapon 5
 }
 weapon 6
 {
-    name "Missile Launcher"
-    ammoname "Missiles"
+    name "$TXTS_WEAP6"
+    ammoname "$TXTS_AMMO6"
     maxammo 50
     mindamage 15
     maxdamage 30
@@ -386,8 +386,8 @@ weapon 6
 }
 weapon 7
 {
-    name "Nuclear Warhead"
-    ammoname ""
+    name "$TXTS_WEAP7"
+    ammoname "$TXTS_AMMO7"
     maxammo 0
     mindamage 0
     maxdamage 800
@@ -396,8 +396,8 @@ weapon 7
 }
 weapon 8
 {
-    name "Grenade Launcher"
-    ammoname "Grenade Shells"
+    name "$TXTS_WEAP8"
+    ammoname "$TXTS_AMMO8"
     maxammo 50
     mindamage 15
     maxdamage 30
@@ -406,8 +406,8 @@ weapon 8
 }
 weapon 9
 {
-    name "Rail Gun"
-    ammoname "Rail Gun Rods"
+    name "$TXTS_WEAP9"
+    ammoname "$TXTS_AMMO9"
     maxammo 20
     mindamage 40
     maxdamage 60
@@ -416,8 +416,8 @@ weapon 9
 }
 weapon 10
 {
-    name "Riot Gun"
-    ammoname "Shotshells"
+    name "$TXTS_WEAP10"
+    ammoname "$TXTS_AMMO10"
     maxammo 52
     mindamage 4
     maxdamage 4
@@ -426,8 +426,8 @@ weapon 10
 }
 weapon 11
 {
-    name "Guardian Head"
-    ammoname "Firebursts"
+    name "$TXTS_WEAP11"
+    ammoname "$TXTS_AMMO11"
     maxammo 80
     mindamage 10
     maxdamage 25
@@ -436,8 +436,8 @@ weapon 11
 }
 weapon 12
 {
-    name "Ripper Heart"
-    ammoname "Deathcoils"
+    name "$TXTS_WEAP12"
+    ammoname "$TXTS_AMMO12"
     maxammo 5
     mindamage 75
     maxdamage 100
@@ -446,51 +446,44 @@ weapon 12
 }
 fortune
 {
-    "You never going to score."
-    "26-31-43-82-16-29"
-    "Sorry, you no win this time, try again."
-    "You try harder get along. Be a nice man."
-    "No man is island, except Lo Wang."
-    "There is much death in future."
-    "You should kill all business associates."
-    "(c)1997,3DRealms fortune cookie company."
-    "Your chi attracts many chicks."
-    "Don't you know you the scum of society!?"
-    "You should not scratch yourself there."
-    "Man who stand on toilet, high on pot."
-    "Man who fart in church sit in own pew."
-    "Man trapped in pantry has ass in jam."
-    "Baseball wrong.  Man with 4 balls cannot walk."
-    "Man who buy drowned cat pay for wet pussy."
+	"$TXTS_COOKIE1"
+	"$TXTS_COOKIE2"
+	"$TXTS_COOKIE3"
+	"$TXTS_COOKIE4"
+	"$TXTS_COOKIE5"
+	"$TXTS_COOKIE6"
+	"$TXTS_COOKIE7"
+	"$TXTS_COOKIE8"
+	"$TXTS_COOKIE9"
+	"$TXTS_COOKIE10"
+	"$TXTS_COOKIE11"
+	"$TXTS_COOKIE12"
+	"$TXTS_COOKIE13"
+	"$TXTS_COOKIE14"
+	"$TXTS_COOKIE15"
+	"$TXTS_COOKIE16"
 }
 gotkey
 {
-    "Got the RED key!"
-    "Got the BLUE key!"
-    "Got the GREEN key!"
-    "Got the YELLOW key!"
-    "Got the GOLD master key!"
-    "Got the SILVER master key!"
-    "Got the BRONZE master key!"
-    "Got the RED master key!"
+    "$TXTS_KEY1"
+    "$TXTS_KEY2"
+    "$TXTS_KEY3"
+    "$TXTS_KEY4"
+    "$TXTS_KEY5"
+    "$TXTS_KEY6"
+    "$TXTS_KEY7"
+    "$TXTS_KEY8"
 }
 needkey
 {
-   "You need a RED key for this door."
-   "You need a BLUE key for this door."
-   "You need a GREEN key for this door."
-   "You need a YELLOW key for this door."
-   "You need a GOLD key for this door."
-   "You need a SILVER key for this door."
-   "You need a BRONZE key for this door."
-   "You need a RED key for this door."
-}
-animation
-{
-   "SwpAnim.zip"    // Swp1001.. 43 frames  org = sw.anm
-   "swend.anm"      // Swp2001.. 70
-   "sumocinm.anm"   // Swp3001.. 84
-   "zfcin.anm"      // Swp4001.. 142
+    "$TXTS_DOOR1"
+    "$TXTS_DOOR2"
+    "$TXTS_DOOR3"
+    "$TXTS_DOOR4"
+    "$TXTS_DOOR5"
+    "$TXTS_DOOR6"
+    "$TXTS_DOOR7"
+    "$TXTS_DOOR8"
 }
 theme 1  // game startup menu
 {
@@ -522,4 +515,3 @@ theme 6  // game end sequence
     song "ending.mid"
     cdatrack 14
 }
-*/

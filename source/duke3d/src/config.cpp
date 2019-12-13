@@ -74,7 +74,6 @@ void CONFIG_SetDefaults(void)
     ud.angleinterpolation     = 0;
     ud.camerasprite           = -1;
     ud.config.ShowWeapons     = 0;
-    ud.default_skill          = 1;
     ud.display_bonus_screen   = 1;
 
     hud_position               = 0;

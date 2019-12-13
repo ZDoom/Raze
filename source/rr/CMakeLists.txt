@@ -31,9 +31,9 @@ include_directories(
 
 set( NOT_COMPILED_SOURCE_FILES
 )
-	
+
 set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
-	
+
 set( PCH_SOURCES
 	src/actors.cpp
 	src/anim.cpp
@@ -41,6 +41,7 @@ set( PCH_SOURCES
 	src/cmdline.cpp
 	src/common.cpp
 	src/config.cpp
+	src/d_menu.cpp
 	src/demo.cpp
 	src/game.cpp
 	src/gamedef.cpp
@@ -69,7 +70,7 @@ if( MSVC )
 else()
 	# Temporary solution for compilers other than MSVC
 	set_source_files_properties( ${PCH_SOURCES} PROPERTIES COMPILE_FLAGS "-include g_pch.h" )
-endif() 
+endif()
 
 file( GLOB HEADER_FILES
 	src/*.h
@@ -79,5 +80,3 @@ add_library( rr STATIC
 	${PCH_SOURCES}
 	${NOT_COMPILED_SOURCE_FILES}
 	)
-
-

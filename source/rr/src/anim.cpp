@@ -289,7 +289,7 @@ int32_t Anim_Play(const char *fn)
 		FileReader handle;
         if (!Bstrcmp(dot, ".ivf"))
         {
-            handle = kopenFileReader(fn, 0);
+            handle = fileSystem.OpenFileReader(fn, 0);
             if (!handle.isOpen())
                 break;
         }
@@ -308,7 +308,7 @@ int32_t Anim_Play(const char *fn)
             vpxfndot[3] = 'f';
             vpxfndot[4] = '\0';
 
-            handle = kopenFileReader(vpxfn, 0);
+            handle = fileSystem.OpenFileReader(vpxfn, 0);
 			if (!handle.isOpen())
 				break;
 
@@ -451,7 +451,7 @@ int32_t Anim_Play(const char *fn)
 #ifdef USE_OPENGL
     int32_t ogltexfiltermode = hw_texfilter;
 #endif
-	auto fr = kopenFileReader(fn, 0);
+	auto fr = fileSystem.OpenFileReader(fn, 0);
 
     if (!fr.isOpen())
         return 0;
@@ -494,7 +494,6 @@ int32_t Anim_Play(const char *fn)
     // setpalette(0L,256L,tempbuf);
     P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 8 + 2);
 
-    timerUpdate();
     ototalclock = totalclock;
 
     i = 1;

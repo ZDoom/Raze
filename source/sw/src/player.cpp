@@ -65,6 +65,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "vis.h"
 #include "track.h"
 #include "interp.h"
+#include "menu/menu.h"
+#include "gstrings.h"
 
 BEGIN_SW_NS
 
@@ -1794,12 +1796,13 @@ DoPlayerTurnTurret(PLAYERp pp)
 
 void SlipSlope(PLAYERp pp)
 {
-    short wallptr = sector[pp->cursectnum].wallptr;
     short ang;
-    SECT_USERp sectu = SectUser[pp->cursectnum];
+    SECT_USERp sectu;
 
-    if (!sectu || !TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE))
+    if (pp->cursectnum < 0 || !(sectu = SectUser[pp->cursectnum]) || !TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE))
         return;
+
+    short wallptr = sector[pp->cursectnum].wallptr;
 
     ang = getangle(wall[wall[wallptr].point2].x - wall[wallptr].x, wall[wall[wallptr].point2].y - wall[wallptr].y);
 
@@ -1818,7 +1821,7 @@ PlayerAutoLook(PLAYERp pp)
 
     if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
     {
-        if (!g_MyAimMode && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
+        if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
         {
             // Get a point, 512 units ahead of player's position
             x = pp->posx + (sintable[(pp->pang + 512) & 2047] >> 5);
@@ -2414,7 +2417,7 @@ MoveScrollMode2D(PLAYERp pp)
 
     mfsvel = mfvel = 0;
 
-    if (MenuInputMode || UsingMenus)
+    if (M_Active())
         return;
 
     // Recenter view if told
@@ -2476,7 +2479,7 @@ MoveScrollMode2D(PLAYERp pp)
         }
     }
 
-    if (!UsingMenus && !HelpInputMode && !ConPanel)
+    if (!HelpInputMode && !ConPanel)
     {
         if (buttonMap.ButtonDown(gamefunc_Move_Forward))
         {
@@ -2520,23 +2523,13 @@ MoveScrollMode2D(PLAYERp pp)
 void
 DoPlayerMenuKeys(PLAYERp pp)
 {
-    if (!CommEnabled)
-    {
-        if (TEST_SYNC_KEY((pp), SK_AUTO_AIM))
-        {
-            if (FLAG_KEY_PRESSED(pp, SK_AUTO_AIM))
-            {
-                FLAG_KEY_RELEASE(pp, SK_AUTO_AIM);
-                FLIP(pp->Flags, PF_AUTO_AIM);
-            }
-        }
-        else
-            FLAG_KEY_RESET(pp, SK_AUTO_AIM);
-    }
 }
 
 void PlayerSectorBound(PLAYERp pp, int amt)
 {
+    if (pp->cursectnum < 9)
+        return;
+
     int cz,fz;
 
     // player should never go into a sector
@@ -2680,7 +2673,7 @@ DoPlayerMove(PLAYERp pp)
 
     DoPlayerHorizon(pp);
 
-    if (TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
+    if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
         if (TEST(pp->Flags, PF_FLYING|PF_JUMPING|PF_FALLING))
         {
@@ -2722,6 +2715,9 @@ DoPlayerSectorUpdatePreMove(PLAYERp pp)
 {
     short sectnum = pp->cursectnum;
 
+    if (sectnum < 0)
+        return;
+
     if (TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
         updatesectorz(pp->posx, pp->posy, pp->posz, &sectnum);
@@ -2749,13 +2745,12 @@ DoPlayerSectorUpdatePreMove(PLAYERp pp)
 void
 DoPlayerSectorUpdatePostMove(PLAYERp pp)
 {
-    short sectnum;
+    short sectnum = pp->cursectnum;
     int fz,cz;
 
     // need to do updatesectorz if in connect area
-    if (FAF_ConnectArea(pp->cursectnum))
+    if (sectnum >= 0 && FAF_ConnectArea(sectnum))
     {
-        sectnum = pp->cursectnum;
         updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
 
         // can mess up if below
@@ -2773,7 +2768,7 @@ DoPlayerSectorUpdatePostMove(PLAYERp pp)
 
             // try again
             updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
-            ASSERT(pp->cursectnum >= 0);
+            // ASSERT(pp->cursectnum >= 0);
         }
     }
     else
@@ -3641,7 +3636,7 @@ void StackedWaterSplash(PLAYERp pp)
 
         updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(pp->SpriteP), &sectnum);
 
-        if (SectorIsUnderwaterArea(sectnum))
+        if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
         {
             PlaySound(DIGI_SPLASH1, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
         }
@@ -3662,7 +3657,7 @@ DoPlayerFall(PLAYERp pp)
         FLAG_KEY_RESET(pp, SK_JUMP);
     }
 
-    if (SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
     {
         StackedWaterSplash(pp);
         DoPlayerBeginDiveNoWarp(pp);
@@ -4094,7 +4089,7 @@ DoPlayerWadeSuperJump(PLAYERp pp)
         {
             hitinfo.sect = wall[hitinfo.wall].nextsector;
 
-            if (labs(sector[hitinfo.sect].floorz - pp->posz) < Z(50))
+            if (hitinfo.sect >= 0 && labs(sector[hitinfo.sect].floorz - pp->posz) < Z(50))
             {
                 if (Distance(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y) < ((((int)pp->SpriteP->clipdist)<<2) + 256))
                     return TRUE;
@@ -4245,7 +4240,7 @@ DoPlayerCrawl(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
 
-    if (SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
     {
         // if stacked water - which it should be
         if (FAF_ConnectArea(pp->cursectnum))
@@ -4348,7 +4343,7 @@ DoPlayerCrawl(PLAYERp pp)
         return;
     }
 
-    if (TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
+    if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
         pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
     }
@@ -4430,7 +4425,7 @@ DoPlayerFly(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
 
-    if (SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
     {
         DoPlayerBeginDiveNoWarp(pp);
         return;
@@ -4694,7 +4689,7 @@ PlayerCanDiveNoWarp(PLAYERp pp)
 
             updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(pp->SpriteP), &sectnum);
 
-            if (SectorIsUnderwaterArea(sectnum))
+            if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
             {
                 pp->cursectnum = sectnum;
                 pp->posz = sector[sectnum].ceilingz;
@@ -5116,7 +5111,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum < 0 || !SectorIsUnderwaterArea(pp->cursectnum))
         return;
 
     if (pp->Bloody) pp->Bloody = FALSE; // Water washes away the blood
@@ -5282,7 +5277,7 @@ DoPlayerDive(PLAYERp pp)
     SECT_USERp sectu = SectUser[pp->cursectnum];
 
     // whenever your view is not in a water area
-    if (!SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum < 0 || !SectorIsUnderwaterArea(pp->cursectnum))
     {
         DoPlayerStopDiveNoWarp(pp);
         DoPlayerBeginRun(pp);
@@ -6475,7 +6470,6 @@ DoPlayerBeginDie(PLAYERp pp)
     short bak;
     int choosesnd = 0;
     extern short GlobInfoStringTime;
-    extern short QuickLoadNum;
 
     USERp u = User[pp->PlayerSprite];
 
@@ -6518,15 +6512,17 @@ DoPlayerBeginDie(PLAYERp pp)
     PlayerSound(PlayerLowHealthPainVocs[choosesnd],&pp->posx,
                 &pp->posy,&pp->posy,v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
+#if 0
     if (!CommEnabled && numplayers <= 1 && QuickLoadNum >= 0)
     {
         ReloadPrompt = TRUE;
     }
     else
+#endif
     {
         bak = GlobInfoStringTime;
         GlobInfoStringTime = 999;
-        PutStringInfo(pp, "Press SPACE to restart");
+        PutStringInfo(pp, GStrings("TXT_PRESSSPACER"));
         GlobInfoStringTime = bak;
     }
 
@@ -7356,7 +7352,7 @@ DoPlayerRun(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
 
-    if (SectorIsUnderwaterArea(pp->cursectnum))
+    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
     {
         DoPlayerBeginDiveNoWarp(pp);
         return;
@@ -7428,7 +7424,7 @@ DoPlayerRun(PLAYERp pp)
         {
             if (TEST_SYNC_KEY(pp, SK_OPERATE))
             {
-                if (FLAG_KEY_PRESSED(pp, SK_OPERATE))
+                if (FLAG_KEY_PRESSED(pp, SK_OPERATE) && pp->cursectnum >= 0)
                 {
                     if (TEST(sector[pp->cursectnum].extra, SECTFX_OPERATIONAL))
                     {
@@ -7659,7 +7655,7 @@ void ChopsCheck(PLAYERp pp)
     extern SWBOOL HelpInputMode;
     extern int ChopTics;
 
-    if (!UsingMenus && !HelpInputMode && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
+    if (!M_Active() && !HelpInputMode && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
         if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.angvel|pp->input.aimvel) ||
             TEST(pp->Flags, PF_CLIMBING|PF_FALLING|PF_DIVING))
@@ -7885,11 +7881,11 @@ void PauseMultiPlay(void)
                 if (GamePaused)
                 {
                     short w,h;
-#define MSG_GAME_PAUSED "Game Paused"
-                    MNU_MeasureString(MSG_GAME_PAUSED, &w, &h);
+                    auto m = GStrings("Game Paused");
+                    MNU_MeasureString(m, &w, &h);
 
                     TRAVERSE_CONNECT(p)
-                    PutStringTimer(Player + p, TEXT_TEST_COL(w), 100, MSG_GAME_PAUSED, 999);
+                    PutStringTimer(Player + p, TEXT_TEST_COL(w), 100, m, 999);
 
                     SavePrediction = PredictionOn;
                     PredictionOn = FALSE;
@@ -8405,6 +8401,9 @@ DoFootPrints(short SpriteNum)
 
     if (u->PlayerP)
     {
+        if (u->PlayerP->cursectnum < 0)
+            return 0;
+
         if (FAF_ConnectArea(u->PlayerP->cursectnum))
             return 0;
 

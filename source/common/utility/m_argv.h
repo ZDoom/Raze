@@ -50,28 +50,28 @@ public:
 
 	iterator begin()
 	{
-		return &Argv[0];
+		return Argv.begin();
 	}
 	const_iterator begin() const
 	{
-		return &Argv[0];
+		return Argv.begin();
 	}
 	const_iterator cbegin() const
 	{
-		return &Argv[0];
+		return Argv.begin();
 	}
 
 	iterator end()
 	{
-		return &Argv[Argv.Size()];
+		return Argv.end();
 	}
 	const_iterator end() const
 	{
-		return &Argv[Argv.Size()];
+		return Argv.end();
 	}
 	const_iterator cend() const
 	{
-		return &Argv[Argv.Size()];
+		return Argv.end();
 	}
 
 	FArgs();

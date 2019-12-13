@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef quotes_h_
 #define quotes_h_
 
-#define MAXQUOTES                   16384
-#define MAXQUOTELEN                 128
+#include "quotemgr.h"
+
 #define OBITQUOTEINDEX              (MAXQUOTES-128)
 #define SUICIDEQUOTEINDEX           (MAXQUOTES-32)
 
@@ -89,7 +89,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define QUOTE_RESERVED              115
 #define QUOTE_RESERVED2             116
 #define QUOTE_RESERVED3             117
-#define QUOTE_SAVE_DEAD             NOBETAQUOTE(118)
+#define QUOTE_SAVE_DEAD             118
 #define QUOTE_CHEAT_ALL_WEAPONS     NOBETAQUOTE(119)
 #define QUOTE_CHEAT_ALL_INV         NOBETAQUOTE(120)
 #define QUOTE_CHEAT_ALL_KEYS        NOBETAQUOTE(121)

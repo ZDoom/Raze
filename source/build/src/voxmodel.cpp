@@ -607,7 +607,7 @@ static void read_pal(FileReader &fil, int32_t pal[256])
 
 static int32_t loadvox(const char *filnam)
 {
-	auto fil = kopenFileReader(filnam, 0);
+	auto fil = fileSystem.OpenFileReader(filnam, 0);
 	if (!fil.isOpen())
 		return -1;
 
@@ -683,7 +683,7 @@ static int32_t loadkvx(const char *filnam)
 {
     int32_t i, mip1leng;
 
-	auto fil = kopenFileReader(filnam, 0);
+	auto fil = fileSystem.OpenFileReader(filnam, 0);
 	if (!fil.isOpen())
 		return -1;
 
@@ -767,7 +767,7 @@ static int32_t loadkv6(const char *filnam)
 {
     int32_t i;
 
-    auto fil = kopenFileReader(filnam, 0);
+    auto fil = fileSystem.OpenFileReader(filnam, 0);
     if (!fil.isOpen())
         return -1;
 

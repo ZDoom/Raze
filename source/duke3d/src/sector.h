@@ -106,12 +106,10 @@ extern void G_SaveMapState();
 extern void G_RestoreMapState();
 
 typedef struct {
-    int32_t partime, designertime;
-    char *name, *filename, *musicfn;
     mapstate_t *savedstate;
 } map_t;
 
-//extern map_t g_mapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
+
 
 void G_ActivateBySector(int sect,int spriteNum);
 int S_FindMusicSFX(int sectNum, int *sndptr);

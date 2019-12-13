@@ -61,8 +61,9 @@ public:
 	void DoBind (const char *key, const char *bind);
 	void DefaultBind(const char *keyname, const char *cmd);
 
-	void SetBind(unsigned int key, const char *bind)
+	void SetBind(unsigned int key, const char *bind, bool override = true)
 	{
+		if (!override && Binds[key].IsNotEmpty()) return;
 		if (key < NUM_KEYS) Binds[key] = bind;
 	}
 
@@ -115,4 +116,13 @@ struct FKeySection
 };
 extern TArray<FKeySection> KeySections;
 
+struct GameFuncDesc
+{
+	const char *action;
+	const char *description;
+	bool replaced;
+};
 #endif //__C_BINDINGS_H__
+
+
+

@@ -13,7 +13,3 @@ static FORCE_INLINE int32_t paletteGetClosestColor(int32_t r, int32_t g, int32_t
 {
     return getclosestcol_lim(r, g, b, 255);
 }
-static FORCE_INLINE int32_t getclosestcol_nocache(int32_t r, int32_t g, int32_t b)
-{
-    return getclosestcol_nocache_lim(r, g, b, 255);
-}

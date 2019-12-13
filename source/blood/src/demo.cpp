@@ -39,7 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamemenu.h"
 #include "globals.h"
 #include "levels.h"
-#include "menu.h"
 #include "messages.h"
 #include "misc.h"
 #include "music.h"
@@ -49,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "view.h"
 #include "gamecontrol.h"
+#include "menu/menu.h"
 
 BEGIN_BLD_NS
 
@@ -61,10 +61,7 @@ void ReadGameOptionsLegacy(GAMEOPTIONS &gameOptions, GAMEOPTIONSLEGACY &gameOpti
     gameOptions.nEpisode = gameOptionsLegacy.nEpisode;
     gameOptions.nLevel = gameOptionsLegacy.nLevel;
     strcpy(gameOptions.zLevelName, gameOptionsLegacy.zLevelName);
-    strcpy(gameOptions.zLevelSong, gameOptionsLegacy.zLevelSong);
     gameOptions.nTrackNumber = gameOptionsLegacy.nTrackNumber;
-    strcpy(gameOptions.szSaveGameName, gameOptionsLegacy.szSaveGameName);
-    strcpy(gameOptions.szUserGameName, gameOptionsLegacy.szUserGameName);
     gameOptions.nSaveGameSlot = gameOptionsLegacy.nSaveGameSlot;
     gameOptions.picEntry = gameOptionsLegacy.picEntry;
     gameOptions.uMapCRC = gameOptionsLegacy.uMapCRC;
@@ -214,16 +211,14 @@ bool CDemo::SetupPlayback(const char *pzFile)
     at1 = 0;
     if (pzFile)
     {
-        hPFile = fopenFileReader(pzFile, 0);
-        if (!hPFile.isOpen())
+        if (!hPFile.OpenFile(pzFile))
             return false;
     }
     else
     {
         if (!pCurrentDemo)
             return false;
-        hPFile = fopenFileReader(pCurrentDemo->zName, 0);
-        if (hPFile.isOpen())
+        if (!hPFile.OpenFile(pCurrentDemo->zName))
             return false;
     }
     hPFile.Read(&atf, sizeof(DEMOHEADER));
@@ -280,9 +275,6 @@ void CDemo::ProcessKeys(void)
 {
     switch (gInputMode)
     {
-    case kInputMenu:
-        gGameMenuMgr.Process();
-        break;
     case kInputMessage:
         gPlayerMsg.ProcessKeys();
         break;
@@ -293,14 +285,7 @@ void CDemo::ProcessKeys(void)
         {
             switch (nKey)
             {
-            case 1:
-                if (!CGameMenuMgr::m_bActive)
-                {
-                    gGameMenuMgr.Push(&menuMain, -1);
-                    at2 = 1;
-                }
-                break;
-            case 0x58:
+            case sc_F12:
                 gViewIndex = connectpoint2[gViewIndex];
                 if (gViewIndex == -1)
                     gViewIndex = connecthead;
@@ -321,21 +306,12 @@ void CDemo::Playback(void)
     inputState.SetBindsEnabled(false);
     ready2send = 0;
     int v4 = 0;
-    if (!CGameMenuMgr::m_bActive)
-    {
-        gGameMenuMgr.Push(&menuMain, -1);
-        at2 = 1;
-    }
     gNetFifoClock = totalclock;
     gViewMode = 3;
 _DEMOPLAYBACK:
     while (at1 && !gQuitGame)
     {
-        if (handleevents() && quitevent)
-        {
-			inputState.SetKeyStatus(sc_Escape, 1);
-			quitevent = 0;
-        }
+        handleevents();
         MUSIC_Update();
         while (totalclock >= gNetFifoClock && !gQuitGame)
         {
@@ -407,8 +383,6 @@ _DEMOPLAYBACK:
         if (G_FPSLimit())
         {
             viewDrawScreen();
-            if (gInputMode == kInputMenu && CGameMenuMgr::m_bActive)
-                gGameMenuMgr.Draw();
             videoNextPage();
         }
         if (TestBitString(gotpic, 2342))
@@ -435,8 +409,8 @@ void CDemo::LoadDemoInfo(void)
 	D_AddWildFile(demos, zFN);
 	for (auto &filename : demos)
     {
-        auto hFile = fopenFileReader(filename, 0);
-        if (!hFile.isOpen())
+        FileReader hFile;
+        if (!hFile.OpenFile(filename))
             ThrowError("Error loading demo file header.");
         hFile.Read(&atf, sizeof(atf));
 #if B_BIG_ENDIAN == 1

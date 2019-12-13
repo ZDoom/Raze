@@ -30,6 +30,6 @@ BEGIN_SW_NS
 #define ANIM_SUMO 2
 #define ANIM_ZILLA 3
 
-unsigned char *LoadAnm(short anim_num);
+unsigned char *LoadAnm(short anim_num, int *);
 void playanm(short anim_num);
 END_SW_NS

@@ -47,6 +47,9 @@
 #include "rts.h"
 #include "stats.h"
 #include "z_music.h"
+#include "c_dispatch.h"
+#include "gstrings.h"
+#include "quotemgr.h"
 
 /* Notes
  
@@ -59,7 +62,16 @@
 CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players") // Not implemented for Blood
 CVARD(Bool, cl_autorun, true, CVAR_ARCHIVE, "enable/disable autorun")
+
 CVARD(Bool, cl_runmode, true, CVAR_ARCHIVE, "enable/disable modernized run key operation")
+
+bool G_CheckAutorun(bool button)
+{
+	if (cl_runmode) return button || cl_autorun;
+	else return button ^ !!cl_autorun;
+}
+
+
 CVARD(Bool, cl_autosave, true, CVAR_ARCHIVE, "enable/disable autosaves") // Not implemented for Blood (but looks like the other games never check it either.)
 CVARD(Bool, cl_autosavedeletion, true, CVAR_ARCHIVE, "enable/disable automatic deletion of autosaves") // Not implemented for Blood
 CVARD(Int, cl_maxautosaves, 8, CVAR_ARCHIVE, "number of autosaves to keep before deleting the oldest") // Not implemented for Blood
@@ -106,12 +118,6 @@ CUSTOM_CVARD(Int, cl_autovote, 0, CVAR_ARCHIVE, "enable/disable automatic voting
 	if (self < 0 || self > 2) self = 0;
 }
 
-bool G_CheckAutorun(bool button)
-{
-	if (cl_runmode) return button || cl_autorun;
-	else return button ^ !!cl_autorun;
-}
-
 // Demos
 
 CVARD_NAMED(Bool, demorec_diffcompress, demorec_diffcompress_cvar, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "Compression for diffs")
@@ -124,12 +130,14 @@ CVARD(Bool, demoplay_showsync, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/dis
 
 // Sound
 
-CVARD(Bool, snd_ambience, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables ambient sounds") // Not implemented for Blood
+CUSTOM_CVARD(Bool, snd_ambience, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL, "enables/disables ambient sounds") // Not implemented for Blood
+{
+	gi->SetAmbience(self);
+}
 CVARD(Bool, snd_enabled, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables sound effects")
 CVARD(Bool, snd_tryformats, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables automatic discovery of replacement sounds and music in .flac and .ogg formats")
 CVARD(Bool, snd_doppler, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable 3d sound")
 
-CVARD(Bool, mus_enabled, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables music")
 CVARD(Bool, mus_restartonload, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "restart the music when loading a saved game with the same map or not") // only implemented for Blood - todo: generalize
 CVARD(Bool, mus_redbook, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_FRONTEND_BLOOD, "enables/disables redbook audio (Blood only!)") // only Blood has assets for this.
 
@@ -168,14 +176,6 @@ CUSTOM_CVARD(Int, snd_speech, 5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disabl
 	else if (self > 5) self = 5;
 }
 
-int MusicDevice = ASS_WinMM;
-CUSTOM_CVARD(Int, mus_device, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "selects music device")
-{
-	if (self < 0) self = 0;
-	else if (self > 1) self = 1;
-	else MusicDevice = self? ASS_WinMM : ASS_OPL3;	// must be copied because it gets altered by the music code.
-}
-
 
 // HUD
 
@@ -209,17 +209,17 @@ bool G_ChangeHudLayout(int direction)
 	{
 		int layout = hud_size - 1;
 		while (!gi->validate_hud(layout) && layout >= 0) layout--;
-		if (layout >= 0)
+		if (layout >= 0 && layout < hud_size && gi->validate_hud(layout))
 		{
 			hud_size = layout;
 			return true;
 		}
 	}
-	else if (hud_size < 11)
+	else if (direction > 0 && hud_size < 11)
 	{
 		int layout = hud_size + 1;
 		while (!gi->validate_hud(layout) && layout <= 11) layout++;
-		if (layout <= 11)
+		if (layout <= 11 && layout > hud_size && gi->validate_hud(layout))
 		{
 			hud_size = layout;
 			return true;
@@ -240,8 +240,28 @@ CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disab
 CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bottom/top")
 CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable background image stretching in wide resolutions")
 CVARD(Int, hud_messagetime, 120, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "length of time to display multiplayer chat messages")
-// Should be available to all games - the message handling should also be consolidated into a game independent feature.
-/*CUSTOM_*/CVARD(Bool, hud_messages, true, CVAR_ARCHIVE | CVAR_FRONTEND_BLOOD|CVAR_FRONTEND_SHADOWWARRIOR, "enable/disable showing messages")
+CUSTOM_CVARD(Int, hud_messages, 1, CVAR_ARCHIVE, "enable/disable showing messages")
+{
+	if (self < 0 || self > 2) self = 1;
+}
+
+// This cannot be done with the 'toggle' CCMD because it needs to control itself when to output the message
+CCMD (togglemessages)
+{
+	if (hud_messages)
+	{
+		gi->PrintMessage(PRINT_MEDIUM, "%s\n", quoteMgr.GetQuote(24));
+		hud_messages = false;
+	}
+	else
+	{
+		hud_messages = true;
+		gi->PrintMessage(PRINT_MEDIUM, "%s\n", quoteMgr.GetQuote(23));
+	}
+}
+
+
+
 //{
 	//Blood::gGameMessageMgr.SetState(self); // this is for terminaing an active message. Cannot be done like this because CVARs are global.
 //}
@@ -282,14 +302,19 @@ CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCAL
 	CONTROL_MouseEnabled = (self && CONTROL_MousePresent);
 }
 
-// Does it even make sense to have this configurable? It is in the menu but can be switched around at will by the mouse input code.
-int32_t g_MyAimMode = 1;
-CUSTOM_CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
+CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
+
+CVAR(Bool, silentmouseaimtoggle, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+
+CCMD(togglemouseaim)
 {
-	g_MyAimMode = self;	// Needs to be copied to a shadow variable because the input code messes around with this setting - but that should not affect the user's original choice.
+	in_mousemode = !in_mousemode;
+	if (!silentmouseaimtoggle)
+	{
+		gi->DoPrintMessage(PRINT_MEDIUM, in_mousemode? GStrings("TXT_MOUSEAIMON") : GStrings("TXT_MOUSEAIMOFF"));
+	}
 }
 
-CVARD(Bool, in_aimmode, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "0:toggle, 1:hold to aim")
 CVARD(Bool, in_mouseflip, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "invert vertical mouse movement")
 
 CUSTOM_CVARD(Int, in_mousebias, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "emulates the original mouse code's weighting of input towards whichever axis is moving the most at any given time")
@@ -306,22 +331,22 @@ CUSTOM_CVARD(Int, in_mousedeadzone, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "amount o
 
 CVARD(Bool, in_mousesmoothing, false, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "enable/disable mouse input smoothing")
 
-CUSTOM_CVARD(Float, in_mousesensitivity, DEFAULTMOUSESENSITIVITY, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
+CUSTOM_CVARD(Float, in_mousesensitivity, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
 {
 	if (self < 0) self = 0;
-	else if (self > 25) self = 25;
+	else if (self > 6) self = 6;
 }
 
-CUSTOM_CVARD(Int, in_mousescalex, 65536, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
+CUSTOM_CVARD(Float, in_mousescalex, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
 {
-	if (self < -4*65536) self = 4 * 65536;
-	else if (self > 4 * 65536) self = 4 * 65536;
+	if (self < -4) self = 4;
+	else if (self > 4) self = 4;
 }
 
-CUSTOM_CVARD(Int, in_mousescaley, 65536, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
+CUSTOM_CVARD(Float, in_mousescaley, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
 {
-	if (self < -4 * 65536) self = 4 * 65536;
-	else if (self > 4 * 65536) self = 4 * 65536;
+	if (self < -4) self = 4;
+	else if (self > 4) self = 4;
 }
 
 
@@ -488,6 +513,30 @@ CUSTOM_CVARD(Float, vid_brightness, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adju
 	// todo: tell the system to update
 }
 
+
+CUSTOM_CVARD(Float, vid_saturation, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts saturation component of gamma ramp")
+{
+	if (self < -3) self = -3;
+	else if (self > 3) self = 3;
+	// todo: tell the system to update
+}
+
+CVAR(Int, gl_satformula, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
+
+CCMD (bumpgamma)
+{
+	// [RH] Gamma correction tables are now generated on the fly for *any* gamma level
+	// Q: What are reasonable limits to use here?
+
+	float newgamma = vid_gamma + 0.1f;
+
+	if (newgamma > 3.0)
+		newgamma = 1.0;
+
+	vid_gamma = newgamma;
+	Printf ("Gamma correction level %g\n", newgamma);
+}
+
 //{ "vid_contrast","adjusts contrast component of gamma ramp",(void *) &vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
 //{ "vid_brightness","adjusts brightness component of gamma ramp",(void *) &vid_brightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
 
@@ -499,31 +548,43 @@ CUSTOM_CVAR(String, rtsname, "", CVAR_ARCHIVE | CVAR_USERINFO)
 
 CVAR(String, usermapfolder, "", CVAR_ARCHIVE);
 
+CUSTOM_CVAR(Int, playercolor, 0, CVAR_ARCHIVE|CVAR_USERINFO)
+{
+	if (self < 0 || self > 10) self = 0;
+	else ;// gi->UpdatePlayerColor(); // this part is game specific
+}
+
+CUSTOM_CVAR(Int, playerteam, 0, CVAR_USERINFO) // this one is transient and won't be saved.
+{
+	if (self < 0 || self > 3) self = 0;
+	else ;// gi->UpdatePlayerTeam(); // this part is game specific
+}
+
+// Will only become useful if the obituary system gets overhauled and for localization
+CUSTOM_CVAR(Int, playergender, 0, CVAR_USERINFO|CVAR_ARCHIVE)
+{
+	if (self < 0 || self > 3) self = 0;
+}
 
 // Internal settings for demo recording and the multiplayer menu. These won't get saved and only are CVARs so that the menu code can use them.
 CVAR(Bool, m_recstat, false, CVAR_NOSET)
 CVAR(Int, m_coop, 0, CVAR_NOSET)
 CVAR(Int, m_ffire, 1, CVAR_NOSET)
+CVAR(Int, m_monsters, 1, CVAR_NOSET)
 CVAR(Int, m_marker, 1, CVAR_NOSET)
 CVAR(Int, m_level_number, 0, CVAR_NOSET)
+CVAR(Int, m_episode_number, 0, CVAR_NOSET)
 CVAR(Int, m_noexits, 0, CVAR_NOSET)
-CVAR(Int, playercolor, 0, CVAR_NOSET)
-CVAR(Int, playerteam, 0, CVAR_NOSET)
+CVAR(String, m_server, "localhost", CVAR_NOSET)
+CVAR(String, m_netport, "19014", CVAR_NOSET)
 
 #if 0
 
-// These have to wait until the HUD code is cleaned up (no idea which may survive and which won't.)
 /*
 
 
 	// Currently unavailable due to dependency on an obsolete OpenGL feature
 	{ "deliriumblur", "enable/disable delirium blur effect(polymost)", (void *)&gDeliriumBlur, CVAR_BOOL, 0, 1 },
-
-	if (!Bstrcasecmp(parm->name, "color"))
-	{
-		playercolor = G_CheckPlayerColor(playercolor);
-		g_player[0].ps->palookup = g_player[0].pcolor = playercolor;
-	}
 
 	// This one gets changed at run time by the game code, so making it persistent does not work
 
@@ -532,9 +593,6 @@ CVAR(Int, playerteam, 0, CVAR_NOSET)
 
 	// This requires a different approach, because it got used like a CCMD, not a CVAR.
 	{ "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
-
-	// requires cleanup first
-	//{ "team","change team in multiplayer", (void *)&playerteam, CVAR_INT|CVAR_MULTI, 0, 3 },
 
 	// just as a reminder:
 	/*

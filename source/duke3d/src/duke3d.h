@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "pragmas.h"
 #include "polymost.h"
 #include "gamecvars.h"
+#include "menu/menu.h"
 
 
 #define HEAD2                   APPNAME
@@ -58,7 +59,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MOVEFIFOSIZ         2
 
 // KEEPINSYNC lunatic/con_lang.lua
-#define MAXVOLUMES          7
 #define MAXLEVELS           64
 #define MAXGAMETYPES        16
 
@@ -151,9 +151,27 @@ struct GameInterface : ::GameInterface
 	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
-	bool mouseInactiveConditional(bool condition) override;
 	FString statFPS() override;
 	GameStats getStats() override;
+	// Access to the front end specific menu code. Use is restricted to the main menu, the ingame menu and the skill/episode selection.
+	// Everything else is either custom screens or will use the generic option menu style.
+	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int orientation) override;
+	void MenuOpened() override;
+	void MenuClosed() override;
+	void MenuSound(EMenuSounds snd) override;
+	bool CanSave() override;
+	void CustomMenuSelection(int menu, int item) override;
+	void StartGame(FGameStartup& gs) override;
+	FSavegameInfo GetSaveSig() override;
+	bool DrawSpecialScreen(const DVector2 &origin, int tilenum) override;
+	void DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position, bool bg) override;
+	void DrawMenuCaption(const DVector2& origin, const char* text) override;
+	bool SaveGame(FSaveGameNode*) override;
+	bool LoadGame(FSaveGameNode*) override;
+	void DoPrintMessage(int prio, const char*) override;
+	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
+	void QuitToTitle() override;
+
 };
 
 END_DUKE_NS

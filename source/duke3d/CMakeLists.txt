@@ -62,8 +62,9 @@ set( PCH_SOURCES
 	src/sector.cpp
 	src/sounds.cpp
 	src/soundsdyn.cpp
+	src/d_menu.cpp
 )
-
+		
 if( MSVC )
 	enable_precompiled_headers( ../g_pch.h PCH_SOURCES )
 	# The original Build code was written with unsigned chars and unfortunately they still haven't been eliminated entirely.

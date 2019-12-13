@@ -623,6 +623,7 @@ file( GLOB HEADER_FILES
 	common/console/*.h
 	common/filesystem/*.h
 	common/music/*.h
+	common/menu/*.h
 
 	build/src/*.h
 	thirdparty/include/*.h
@@ -664,9 +665,9 @@ set( FASTMATH_SOURCES
 
 
 set (PCH_SOURCES
+
 	audiolib/src/drivers.cpp
 	audiolib/src/driver_adlib.cpp
-	audiolib/src/driver_nosound.cpp
 	audiolib/src/driver_sdl.cpp
 	audiolib/src/driver_winmm.cpp
 	audiolib/src/formats.cpp
@@ -746,11 +747,11 @@ set (PCH_SOURCES
 	common/searchpaths.cpp
 	common/initfs.cpp
 	common/openaudio.cpp
-	common/optionmenu/optionmenu.cpp
 	common/statistics.cpp
 	common/secrets.cpp
 	common/compositesavegame.cpp
 	common/savegamehelp.cpp
+	common/quotes.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp
@@ -772,6 +773,7 @@ set (PCH_SOURCES
 	common/console/c_commandline.cpp
 	common/console/c_dispatch.cpp
 	common/console/d_event.cpp
+	common/console/c_con.cpp
 	
 	common/utility/i_time.cpp
 	common/utility/name.cpp
@@ -788,6 +790,7 @@ set (PCH_SOURCES
 	common/utility/m_png.cpp
 	common/utility/memarena.cpp
 	common/utility/sc_man.cpp
+	common/utility/stringtable.cpp
 	common/utility/stats.cpp
 
 	common/filesystem/filesystem.cpp
@@ -824,7 +827,16 @@ set (PCH_SOURCES
 	common/music/backend/oalsound.cpp
 	common/music/backend/i_sound.cpp
 
-
+	common/menu/imagescroller.cpp
+	common/menu/joystickmenu.cpp
+	common/menu/listmenu.cpp
+	common/menu/savegamemanager.cpp
+	common/menu/loadsavemenu.cpp
+	common/menu/menu.cpp
+	common/menu/menudef.cpp
+	common/menu/menuinput.cpp
+	common/menu/messagebox.cpp
+	common/menu/optionmenu.cpp
 )
 
 if( MSVC )
@@ -848,7 +860,7 @@ add_executable( demolition WIN32 MACOSX_BUNDLE
 	#zzautozend.cpp
 )
 
-set_source_files_properties( ${FASTMATH_SOURCES} PROPERTIES COMPILE_FLAGS ${DEM_FASTMATH_FLAG} )
+#set_source_files_properties( ${FASTMATH_SOURCES} PROPERTIES COMPILE_FLAGS ${DEM_FASTMATH_FLAG} )
 set_source_files_properties( xlat/parse_xlat.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/xlat_parser.c" )
 set_source_files_properties( utility/sc_man.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h" )
 set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
@@ -887,6 +899,8 @@ include_directories(
 	common/textures
 	common/filesystem
 	common/music
+	common/dobject
+	common/menu
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
@@ -995,6 +1009,8 @@ source_group("Code\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/co
 source_group("Code\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Code\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Code\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/music/.+")
+source_group("Code\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/dobject/.+")
+source_group("Code\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
 source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")
 source_group("Utility\\Audiolib Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/include/.+")
 source_group("Utility\\Audiolib Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/src/.+")

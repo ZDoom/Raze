@@ -49,7 +49,7 @@ extern int ydim;
 
 FileReader GetResource(const char* fn)
 {
-	auto fr = kopenFileReader(fn, 0);
+	auto fr = fileSystem.OpenFileReader(fn, 0);
 	if (!fr.isOpen())
 	{
 		I_Error("Fatal: '%s' not found", fn);
@@ -104,8 +104,8 @@ void GLInstance::Init(int ydim)
 	ImGui_ImplOpenGL3_Init();
 	if (!ttf.Size())
 	{
-		//ttf = kloadfile("demolition/Capsmall_clean.ttf", 0);
-		ttf = kloadfile("demolition/Roboto-Regular.ttf", 0);
+		//ttf = fileSystem.LoadFile("demolition/Capsmall_clean.ttf", 0);
+		ttf = fileSystem.LoadFile("demolition/Roboto-Regular.ttf", 0);
 	}
 	if (ttf.Size()) io.Fonts->AddFontFromMemoryTTF(ttf.Data(), ttf.Size(), std::clamp(ydim / 40, 10, 30));
 }

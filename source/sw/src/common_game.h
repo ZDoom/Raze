@@ -65,10 +65,6 @@ BEGIN_SW_NS
 #define SETUPPROGRAMNAME ("Shadow Warrior Setup")
 #define SETUPPROGRAMVERSION ("1.2")
 
-#define GAMENAME "Shadow Warrior"
-#define GAMELAUNCHER ("SW.EXE")
-#define GAMETOTYPE ("SW")
-
 #define MENUFOOTER "Esc Exits   Move  ды Selects\0"
 
 #define COMMITLAUNCHER ("COMMIT.EXE")

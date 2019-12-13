@@ -53,6 +53,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "weapon.h"
 #include "common_game.h"
 #include "messages.h"
+#include "gstrings.h"
 
 BEGIN_BLD_NS
 
@@ -1468,7 +1469,7 @@ char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) {
 
 void PickUp(PLAYER *pPlayer, spritetype *pSprite)
 {
-    char buffer[80];
+	const char *msg = nullptr;
     int nType = pSprite->type;
     char pickedUp = 0;
     int customMsg = -1;
@@ -1481,15 +1482,15 @@ void PickUp(PLAYER *pPlayer, spritetype *pSprite)
 
     if (nType >= kItemBase && nType <= kItemMax) {
         pickedUp = PickupItem(pPlayer, pSprite);
-        if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gItemText[nType - kItemBase]);
+        if (pickedUp && customMsg == -1) msg = GStrings(FStringf("TXTB_ITEM%02d", int(nType - kItemBase +1)));
     
     } else if (nType >= kItemAmmoBase && nType < kItemAmmoMax) {
         pickedUp = PickupAmmo(pPlayer, pSprite);
-        if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gAmmoText[nType - kItemAmmoBase]);
+        if (pickedUp && customMsg == -1) msg = GStrings(FStringf("TXTB_AMMO%02d", int(nType - kItemAmmoBase +1)));
     
     } else if (nType >= kItemWeaponBase && nType < kItemWeaponMax) {
         pickedUp = PickupWeapon(pPlayer, pSprite);
-        if (pickedUp && customMsg == -1) sprintf(buffer, "Picked up %s", gWeaponText[nType - kItemWeaponBase]);
+        if (pickedUp && customMsg == -1) msg = GStrings(FStringf("TXTB_WPN%02d", int(nType - kItemWeaponBase +1)));
     }
 
     if (!pickedUp) return;
@@ -1505,7 +1506,7 @@ void PickUp(PLAYER *pPlayer, spritetype *pSprite)
     pPlayer->pickupEffect = 30;
     if (pPlayer == gMe) {
         if (customMsg > 0) trTextOver(customMsg - 1);
-        else viewSetMessage(buffer, 0, MESSAGE_PRIORITY_PICKUP);
+        else if (msg) viewSetMessage(msg, 0, MESSAGE_PRIORITY_PICKUP);
     }
 }
 
@@ -1798,14 +1799,14 @@ void ProcessInput(PLAYER *pPlayer)
                 int key = pXSector->Key;
                 if (pXSector->locked && pPlayer == gMe)
                 {
-                    viewSetMessage("It's locked");
+                    viewSetMessage(GStrings("TXTB_LOCKED"));
                     sndStartSample(3062, 255, 2, 0);
                 }
                 if (!key || pPlayer->hasKey[key])
                     trTriggerSector(a2, pXSector, kCmdSpritePush, nSprite);
                 else if (pPlayer == gMe)
                 {
-                    viewSetMessage("That requires a key.");
+                    viewSetMessage(GStrings("TXTB_KEY"));
                     sndStartSample(3063, 255, 2, 0);
                 }
             }
@@ -1816,14 +1817,14 @@ void ProcessInput(PLAYER *pPlayer)
             int key = pXWall->key;
             if (pXWall->locked && pPlayer == gMe)
             {
-                viewSetMessage("It's locked");
+                viewSetMessage(GStrings("TXTB_LOCKED"));
                 sndStartSample(3062, 255, 2, 0);
             }
             if (!key || pPlayer->hasKey[key])
                 trTriggerWall(a2, pXWall, kCmdWallPush, pPlayer->nSprite);
             else if (pPlayer == gMe)
             {
-                viewSetMessage("That requires a key.");
+                viewSetMessage(GStrings("TXTB_KEY"));
                 sndStartSample(3063, 255, 2, 0);
             }
             break;
@@ -1838,7 +1839,7 @@ void ProcessInput(PLAYER *pPlayer)
                 trTriggerSprite(a2, pXSprite, kCmdSpritePush, pPlayer->nSprite);
             else if (pPlayer == gMe)
             {
-                viewSetMessage("That requires a key.");
+                viewSetMessage(GStrings("TXTB_KEY"));
                 sndStartSample(3063, 255, 2, 0);
             }
             break;
@@ -2157,7 +2158,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         int nSound = gSuicide[nMessage].at4;
         if (pVictim == gMe && gMe->handTime <= 0)
         {
-            sprintf(buffer, "You killed yourself!");
+			sprintf(buffer, GStrings("TXTB_KILLSELF"));
             if (gGameOptions.nGameType > 0 && nSound >= 0)
                 sndStartSample(nSound, 255, 2, 0);
         }
@@ -2487,7 +2488,7 @@ void PlayerSurvive(int, int nXSprite)
         {
             PLAYER *pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
             if (pPlayer == gMe)
-                viewSetMessage("I LIVE...AGAIN!!");
+                viewSetMessage(GStrings("TXT_LIVEAGAIM"));
             else
             {
                 sprintf(buffer, "%s lives again!", gProfile[pPlayer->nPlayer].name);

@@ -982,12 +982,12 @@ void G_DrawStatusBar(int32_t snum)
                     G_DrawInvNum(284-30-o, yofssh, 200-6, (uint8_t) i, 0, orient&~16);
 
                     if (j > 0)
-                        minitext(288-30-o, 180, "On", 0, orient);
+                        minitext(288-30-o, 180, GStrings("OPTVAL_ON"), 0, orient);
                     else if ((uint32_t) j != 0x80000000)
-                        minitext(284-30-o, 180, "Off", 2, orient);
+                        minitext(284-30-o, 180, GStrings("OPTVAL_OFF"), 2, orient);
 
                     if (p->inven_icon >= ICON_SCUBA)
-                        minitext(284-35-o, 180, "Auto", 2, orient);
+                    	minitext(284-35-o, 180, GStrings("OPTVAL_AUTO"), 2, orient);
 
                     minitext_yofs = 0;
                 }
@@ -1276,7 +1276,7 @@ void G_DrawStatusBar(int32_t snum)
                 {
                     rotatesprite_fs(sbarx(231-o), sbary(SBY+13), sb16, 0, i, 0, 0, 10+16+permbit);
                     minitext(292-30-o, SBY+24, "%", 6, 10+16+permbit + ROTATESPRITE_MAX);
-                    if (p->inven_icon >= ICON_SCUBA) minitext(284-35-o, SBY+14, "Auto", 2, 10+16+permbit + ROTATESPRITE_MAX);
+                if (p->inven_icon >= ICON_SCUBA) minitext(284-35-o, SBY+14, GStrings("OPTVAL_AUTO"), 2, 10+16+permbit + ROTATESPRITE_MAX);
                 }
             }
 
@@ -1286,8 +1286,8 @@ void G_DrawStatusBar(int32_t snum)
 
                 if (!RR)
                 {
-                    if (j > 0) minitext(288-30-o, SBY+14, "On", 0, 10+16+permbit  + ROTATESPRITE_MAX);
-                    else if ((uint32_t) j != 0x80000000) minitext(284-30-o, SBY+14, "Off", 2, 10+16+permbit + ROTATESPRITE_MAX);
+    	            if (j > 0) minitext(288-30-o, SBY+14, GStrings("OPTVAL_ON"), 0, 10+16+permbit  + ROTATESPRITE_MAX);
+        	        else if ((uint32_t) j != 0x80000000) minitext(284-30-o, SBY+14, GStrings("OPTVAL_OFF"), 2, 10+16+permbit + ROTATESPRITE_MAX);
                 }
             }
 

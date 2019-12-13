@@ -26,19 +26,31 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "compat.h"
 #include "cache1d.h"
+#include "savegamehelp.h"
 
 BEGIN_SW_NS
 
-typedef FILE* MFILE_WRITE;
-typedef FILE* MFILE_READ;
+typedef FileWriter* MFILE_WRITE;
+typedef FileReader* MFILE_READ;
 
-// This needs some real fixing...
-#define MREAD(ptr, size, num,handle) fread((ptr),(size),(num),(handle))
-#define MWRITE(ptr, size, num,handle) fwrite((ptr),(size),(num),(handle))
-#define MOPEN_WRITE(name) fopen(name,"wb")
-#define MOPEN_READ(name) fopen(name,"rb")
-#define MCLOSE_WRITE(handle) fclose(handle)
-#define MCLOSE_READ(handle) fclose(handle)
-#define MOPEN_WRITE_ERR nullptr
-#define MOPEN_READ_ERR nullptr
+inline size_t MREAD(void* buf, size_t size, size_t nelem, FileReader* handle)
+{
+	return handle->Read(buf, size * nelem) / size;
+}
+
+inline size_t MWRITE(void* buf, size_t size, size_t nelem, FileWriter* handle)
+{
+	return handle->Write(buf, size * nelem) / size;
+}
+
+inline void MCLOSE_WRITE(FileWriter* handle)
+{
+	FinishSavegameWrite();
+}
+
+inline void MCLOSE_READ(FileReader* handle)
+{
+	FinishSavegameRead();
+}
+
 END_SW_NS

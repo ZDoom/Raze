@@ -25,7 +25,6 @@
 
 #include "drivers.h"
 
-#include "driver_nosound.h"
 #include "driver_adlib.h"
 
 #ifdef RENDERTYPESDL
@@ -67,26 +66,7 @@ static struct {
     void (*MIDI_Unlock)(void);
 } SoundDrivers[ASS_NumSoundCards] = {
     
-    // Everyone gets the "no sound" driver
-    {
-        "null sound device",
-        NoSoundDrv_GetError,
-        NoSoundDrv_ErrorString,
-        NoSoundDrv_PCM_Init,
-        NoSoundDrv_PCM_Shutdown,
-        NoSoundDrv_PCM_BeginPlayback,
-        NoSoundDrv_PCM_StopPlayback,
-        NoSoundDrv_PCM_Lock,
-        NoSoundDrv_PCM_Unlock,
-        NoSoundDrv_MIDI_Init,
-        NoSoundDrv_MIDI_Shutdown,
-        NoSoundDrv_MIDI_StartPlayback,
-        NoSoundDrv_MIDI_HaltPlayback,
-        NoSoundDrv_MIDI_SetTempo,
-        NoSoundDrv_MIDI_Lock,
-        NoSoundDrv_MIDI_Unlock,
-   },
-    
+  
     // Simple DirectMedia Layer
     {
         "SDL",

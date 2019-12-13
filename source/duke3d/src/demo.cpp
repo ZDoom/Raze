@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screens.h"
 #include "i_specialpaths.h"
 #include "printf.h"
+#include "menu/menu.h"
 
 
 BEGIN_DUKE_NS
@@ -55,9 +56,9 @@ static int32_t demorec_seeds=1, demo_hasseeds;
 static void Demo_RestoreModes(int32_t menu)
 {
     if (menu)
-        Menu_Open(myconnectindex);
+        M_StartControlPanel(false);
     else
-        Menu_Close(myconnectindex);
+        M_ClearMenus();
 
     g_player[myconnectindex].ps->gm &= ~MODE_GAME;
     g_player[myconnectindex].ps->gm |= MODE_DEMO;
@@ -94,8 +95,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
         demofnptr = demofn;
     }
 
-    g_demo_recFilePtr = fopenFileReader(demofnptr, g_loadFromGroupOnly);
-	if (!g_demo_recFilePtr.isOpen())
+    if (!g_demo_recFilePtr.OpenFile(demofnptr))
         return 0;
 
     Bassert(g_whichDemo >= 1);
@@ -109,7 +109,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 
     demo_hasdiffs = saveh.recdiffsp;
     g_demo_totalCnt = saveh.reccnt;
-    demo_hasseeds = saveh.synccompress & 2;
+    demo_hasseeds = 0;
 
     i = g_demo_totalCnt/REALGAMETICSPERSEC;
     OSD_Printf("demo %d duration: %d min %d sec\n", g_whichDemo, i/60, i%60);
@@ -142,7 +142,7 @@ void G_OpenDemoWrite(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) && g_player[myconnectindex].ps->dead_flag)
     {
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "CANNOT START DEMO RECORDING WHEN DEAD!");
+		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "CANNOT START DEMO RECORDING WHEN DEAD!");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
         ud.recstat = m_recstat = 0;
         return;
@@ -172,14 +172,13 @@ void G_OpenDemoWrite(void)
     if (g_demo_filePtr == NULL)
         return;
 
-    i=sv_saveandmakesnapshot(*g_demo_filePtr, nullptr, -1, demorec_diffs_cvar, demorec_diffcompress_cvar,
-                             (demorec_seeds_cvar<<1));
+    i=sv_saveandmakesnapshot(*g_demo_filePtr, nullptr, -1);
     if (i)
     {
         delete g_demo_filePtr;
 		g_demo_filePtr = nullptr;
 error_wopen_demo:
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE CONSOLE FOR DETAILS.");
+		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "FAILED STARTING DEMO RECORDING. SEE CONSOLE FOR DETAILS.");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
         ud.recstat = m_recstat = 0;
         return;
@@ -189,7 +188,7 @@ error_wopen_demo:
     demorec_diffs = demorec_diffs_cvar;
     demorec_difftics = demorec_difftics_cvar;
 
-    Bsprintf(apStrings[QUOTE_RESERVED4], "DEMO %d RECORDING STARTED", demonum-1);
+	quoteMgr.InitializeQuote(QUOTE_RESERVED4, "DEMO %d RECORDING STARTED", demonum-1);
     P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
     ud.reccnt = 0;
@@ -284,7 +283,7 @@ void G_CloseDemoWrite(void)
 
         sv_freemem();
 
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "DEMO RECORDING STOPPED");
+		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "DEMO RECORDING STOPPED");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
     }
 #if KRANDDEBUG
@@ -488,7 +487,7 @@ RECHECK:
         fadepal(0,0,0, 0,252,28);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         G_DrawBackground();
-        M_DisplayMenus();
+        //M_DisplayMenus();
         videoNextPage();
         fadepal(0,0,0, 252,0,-28);
         ud.reccnt = 0;
@@ -522,7 +521,7 @@ RECHECK:
     {
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        Menu_Open(myconnectindex);
+        M_StartControlPanel(false);
     }
 
     ready2send = 0;
@@ -663,7 +662,7 @@ RECHECK:
 corrupt:
                         OSD_Printf(OSD_ERROR "Demo %d is corrupt (code %d).\n", g_whichDemo-1, corruptcode);
 nextdemo:
-                        Menu_Open(myconnectindex);
+                        M_StartControlPanel(false);
 nextdemo_nomenu:
                         foundemo = 0;
                         ud.reccnt = 0;
@@ -846,7 +845,7 @@ nextdemo_nomenu:
                     Net_GetPackets();
 
                 if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
-                    gametext_center(60, "Press F1 to Accept, F2 to Decline");
+                    gametext_center(60, GStrings("TXT_PRESSF1_F2"));
             }
 
             if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))
@@ -854,16 +853,6 @@ nextdemo_nomenu:
                 Demo_FinishProfile();
                 videoNextPage();
                 goto RECHECK;
-            }
-
-            if (I_EscapeTrigger() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && (g_player[myconnectindex].ps->gm&MODE_TYPE) == 0)
-            {
-                I_EscapeTriggerClear();
-                FX_StopAllSounds();
-                S_ClearSoundLocks();
-                Menu_Open(myconnectindex);
-                Menu_Change(MENU_MAIN);
-                S_MenuSound();
             }
 
             if (Demo_IsProfiling())
@@ -878,15 +867,15 @@ nextdemo_nomenu:
                 if ((g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
                 {
                     g_player[myconnectindex].ps->gm = 0;
-                    Menu_Open(myconnectindex);
+                    M_StartControlPanel(false);
                 }
             }
             else
             {
-                if (ud.recstat != 2)
-                    M_DisplayMenus();
+                //if (ud.recstat != 2)
+                   // M_DisplayMenus();
 
-                if ((g_netServer || ud.multimode > 1)  && !Menu_IsTextInput(m_currentMenu))
+                if ((g_netServer || ud.multimode > 1))//  && !Menu_IsTextInput(m_currentMenu))
                 {
                     ControlInfo noshareinfo;
                     CONTROL_GetInput(&noshareinfo);

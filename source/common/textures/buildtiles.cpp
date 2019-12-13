@@ -42,6 +42,7 @@
 #include "palette.h"
 #include "m_crc32.h"
 #include "build.h"
+#include "gamecontrol.h"
 
 enum
 {
@@ -287,7 +288,7 @@ int BuildTiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 	auto old = FindFile(fn);
 	if (old >= ArtFiles.Size())	// Do not process if already loaded.
 	{
-		FileReader fr = kopenFileReader(fn, 0);
+		FileReader fr = fileSystem.OpenFileReader(fn, 0);
 		if (fr.isOpen())
 		{
 			auto artdata = fr.Read();
@@ -338,6 +339,10 @@ void BuildTiles::LoadArtSet(const char* filename)
 	{
 		FStringf fn(filename, index);
 		LoadArtFile(fn, false);
+	}
+	for (auto& addart : addedArt)
+	{
+		LoadArtFile(addart, false);
 	}
 }
 
@@ -557,16 +562,19 @@ void artClearMapArt(void)
 
 //==========================================================================
 //
-// Load map specfici ART
+// Load map specficied ART
 //
 //==========================================================================
+static FString currentMapArt;
 
 void artSetupMapArt(const char* filename)
 {
+	if (currentMapArt.CompareNoCase(filename)) return;
+	currentMapArt = filename;
 	artClearMapArt();
 
 	FStringf firstname("%s_00.art", filename);
-	auto fr = kopenFileReader(firstname, 0);
+	auto fr = fileSystem.OpenFileReader(firstname, 0);
 	if (!fr.isOpen()) return;
 
 	for (bssize_t i = 0; i < MAXARTFILES_TOTAL - MAXARTFILES_BASE; i++)

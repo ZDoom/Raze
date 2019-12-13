@@ -37,10 +37,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "fx_man.h"
 #include "gamecontrol.h"
+#include "mapinfo.h"
 
 BEGIN_SW_NS
 
-extern uint8_t RedBookSong[40];
 extern short BossSpriteNum[3];
 
 ANIMATOR InitZillaCharge;
@@ -769,7 +769,6 @@ int DoZillaDeathMelt(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    static SWBOOL alreadydid = FALSE;
 
     if (RANDOM_RANGE(1000) > 800)
         SpawnGrenadeExp(SpriteNum);
@@ -778,10 +777,10 @@ int DoZillaDeathMelt(short SpriteNum)
     RESET(u->Flags, SPR_JUMPING|SPR_FALLING|SPR_MOVED);
 
     //DoMatchEverything(NULL, sp->lotag, ON);
-    if (!SW_SHAREWARE && MusicEnabled() && !alreadydid)
+    if (!SW_SHAREWARE)
     {
-        PlaySong(0, RedBookSong[Level], TRUE, TRUE);
-        alreadydid = TRUE;
+        // Resume the regular music - in a hack-free fashion.
+        PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
     }
 
     //KeepActorOnFloor(SpriteNum);

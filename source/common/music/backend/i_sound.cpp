@@ -53,6 +53,7 @@
 #include "zmusic/zmusic.h"
 
 EXTERN_CVAR (Float, snd_sfxvolume)
+EXTERN_CVAR(Float, mus_volume)
 CVAR (Int, snd_samplerate, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Int, snd_buffersize, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Int, snd_hrtf, -1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)

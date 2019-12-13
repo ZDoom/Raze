@@ -28,8 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "gamecontrol.h"
 #include "version.h"
-#include "statistics.h"
-#include "secrets.h"
+#include "z_music.h"
+#include "mapinfo.h"
+
 #include "savegamehelp.h"
 BEGIN_RR_NS
 
@@ -138,16 +139,6 @@ void G_ResetInterpolations(void)
         G_SetInterpolation(g_animatePtr[i]);
 }
 
-savebrief_t g_lastautosave, g_lastusersave, g_freshload;
-int32_t g_lastAutoSaveArbitraryID = -1;
-bool g_saveRequested;
-savebrief_t * g_quickload;
-
-menusave_t * g_menusaves;
-uint16_t g_nummenusaves;
-
-static menusave_t * g_internalsaves;
-static uint16_t g_numinternalsaves;
 
 static FileReader *OpenSavegame(const char *fn)
 {
@@ -155,13 +146,7 @@ static FileReader *OpenSavegame(const char *fn)
 	{
 		return nullptr;
 	}
-	auto file = ReadSavegameChunk("DEMOLITION_RN");
-	if (!file.isOpen())
-	{
-		FinishSavegameRead();
-		return nullptr;
-	}
-	file = ReadSavegameChunk("snapshot.dat");
+	auto file = ReadSavegameChunk("snapshot.dat");
 	if (!file.isOpen())
 	{
 		FinishSavegameRead();
@@ -170,130 +155,9 @@ static FileReader *OpenSavegame(const char *fn)
 	return new FileReader(std::move(file));
 }
 
-static void ReadSaveGameHeaders_CACHE1D(TArray<FString>& saves)
-{
-    savehead_t h;
-
-	for (FString &save : saves)
-    {
-		auto fil = OpenSavegame(save);
-        if (!fil)
-            continue;
-
-        menusave_t & msv = g_internalsaves[g_numinternalsaves];
-
-        int32_t k = sv_loadheader(*fil, 0, &h);
-		delete fil;
-        if (k)
-        {
-            if (k < 0)
-                msv.isUnreadable = 1;
-            msv.isOldVer = 1;
-        }
-        else
-            msv.isOldVer = 0;
-
-        msv.isAutoSave = h.isAutoSave();
-
-        strncpy(msv.brief.path, save.GetChars(), ARRAY_SIZE(msv.brief.path));
-        ++g_numinternalsaves;
-
-        if (k >= 0 && h.savename[0] != '\0')
-        {
-            memcpy(msv.brief.name, h.savename, ARRAY_SIZE(msv.brief.name));
-        }
-        else
-            msv.isUnreadable = 1;
-    }
-	FinishSavegameRead();
-}
-
-static void ReadSaveGameHeaders_Internal(void)
-{
-	FString pattern = M_GetSavegamesPath() + "*.bsv";
-	TArray<FString> saves;
-	D_AddWildFile(saves, pattern);
-
-    // potentially overallocating but programmatically simple
-	int const numfiles = saves.Size();
-	size_t const internalsavesize = sizeof(menusave_t) * numfiles;
-
-    g_internalsaves = (menusave_t *)Xrealloc(g_internalsaves, internalsavesize);
-
-    for (int x = 0; x < numfiles; ++x)
-        g_internalsaves[x].clear();
-
-    g_numinternalsaves = 0;
-    ReadSaveGameHeaders_CACHE1D(saves);
-
-    g_nummenusaves = 0;
-    for (int x = g_numinternalsaves-1; x >= 0; --x)
-    {
-        menusave_t & msv = g_internalsaves[x];
-        if (!msv.isUnreadable)
-        {
-            ++g_nummenusaves;
-        }
-    }
-    size_t const menusavesize = sizeof(menusave_t) * g_nummenusaves;
-
-    g_menusaves = (menusave_t *)Xrealloc(g_menusaves, menusavesize);
-    
-    for (int x = 0; x < g_nummenusaves; ++x)
-        g_menusaves[x].clear();
-    
-    for (int x = g_numinternalsaves-1, y = 0; x >= 0; --x)
-    {
-        menusave_t & msv = g_internalsaves[x];
-        if (!msv.isUnreadable)
-        {
-            g_menusaves[y++] = msv;
-        }
-    }
-    
-    for (int x = g_numinternalsaves-1; x >= 0; --x)
-    {
-        char const * const path = g_internalsaves[x].brief.path;
-        int const pathlen = Bstrlen(path);
-        if (pathlen < 12)
-            continue;
-        char const * const fn = path + (pathlen-12);
-        if (fn[0] == 's' && fn[1] == 'a' && fn[2] == 'v' && fn[3] == 'e' &&
-            isdigit(fn[4]) && isdigit(fn[5]) && isdigit(fn[6]) && isdigit(fn[7]))
-        {
-            char number[5];
-            memcpy(number, fn+4, 4);
-            number[4] = '\0';
-            savecounter.count = Batoi(number)+1;
-            break;
-        }
-    }
-}
 
 void ReadSaveGameHeaders(void)
 {
-    ReadSaveGameHeaders_Internal();
-
-    if (!cl_autosavedeletion)
-        return;
-
-    bool didDelete = false;
-    int numautosaves = 0;
-    for (int x = 0; x < g_nummenusaves; ++x)
-    {
-        menusave_t & msv = g_menusaves[x];
-        if (!msv.isAutoSave)
-            continue;
-        if (numautosaves >= cl_maxautosaves)
-        {
-            G_DeleteSave(msv.brief);
-            didDelete = true;
-        }
-        ++numautosaves;
-    }
-
-    if (didDelete)
-        ReadSaveGameHeaders_Internal();
 }
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
@@ -306,24 +170,6 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
     int32_t i = sv_loadheader(*fil, 0, saveh);
     if (i < 0)
         goto corrupt;
-
-	ssfil = ReadSavegameChunk("screenshot.dat");
-    
-	TileFiles.tileCreate(TILE_LOADSHOT, 200, 320);
-    if (ssfil.isOpen())
-    {
-        if (ssfil.Read(tileData(TILE_LOADSHOT), 320 * 200) != 320 * 200)
-        {
-            OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot in \"%s\"\n", fn);
-            goto corrupt;
-        }
-    }
-    else
-    {
-        Bmemset(tileData(TILE_LOADSHOT), 0, 320*200);
-    }
-	ssfil.Close();
-    tileInvalidate(TILE_LOADSHOT, 0, 255);
 
 	delete fil;
 	FinishSavegameRead();
@@ -338,13 +184,11 @@ corrupt:
 
 static void sv_postudload();
 
-// hack
-static int different_user_map;
 
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
-int32_t G_LoadPlayer(savebrief_t & sv)
+int32_t G_LoadPlayer(const char *path)
 {
-    auto fil = OpenSavegame(sv.path);
+    auto fil = OpenSavegame(path);
 
     if (!fil)
         return -1;
@@ -371,6 +215,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     // some setup first
     ud.multimode = h.numplayers;
+	S_PauseSounds(true);
 
     if (numplayers > 1)
     {
@@ -393,33 +238,25 @@ int32_t G_LoadPlayer(savebrief_t & sv)
     ud.m_player_skill = h.skill;
 
     // NOTE: Bmemcpy needed for SAVEGAME_MUSIC.
-    EDUKE32_STATIC_ASSERT(sizeof(boardfilename) == sizeof(h.boardfn));
-    different_user_map = Bstrcmp(boardfilename, h.boardfn);
-    Bmemcpy(boardfilename, h.boardfn, sizeof(boardfilename));
+    strcpy(boardfilename, currentLevel->fileName);
 
-    int const mapIdx = h.volnum*MAXLEVELS + h.levnum;
+	char workbuffer[BMAX_PATH];
+	Bstrcpy(workbuffer, currentLevel->fileName);
 
-    if (boardfilename[0])
-        Bstrcpy(currentboardfilename, boardfilename);
-    else if (g_mapInfo[mapIdx].filename)
-        Bstrcpy(currentboardfilename, g_mapInfo[mapIdx].filename);
-
-    if (currentboardfilename[0])
+    if (workbuffer[0])
     {
-        artSetupMapArt(currentboardfilename);
-        append_ext_UNSAFE(currentboardfilename, ".mhk");
-        engineLoadMHK(currentboardfilename);
+        artSetupMapArt(workbuffer);
+        append_ext_UNSAFE(workbuffer, ".mhk");
+        engineLoadMHK(workbuffer);
     }
-
-    Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
 
     if (status == 2)
         G_NewGame_EnterLevel();
-    else if ((status = sv_loadsnapshot(*fil, 0, &h)) || !ReadStatistics() || !SECRET_Load())  // read the rest...
+    else if ((status = sv_loadsnapshot(*fil, 0, &h)))  // read the rest...
     {
         // in theory, we could load into an initial dump first and trivially
         // recover if things go wrong...
-        Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", sv.path, status);
+        Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", path, status);
         G_GameExit(tempbuf);
     }
 	
@@ -447,66 +284,14 @@ static void G_SaveTimers(void)
 
 static void G_RestoreTimers(void)
 {
-    timerUpdate();
-
     totalclock     = g_timers.totalclock;
     totalclocklock = g_timers.totalclocklock;
     ototalclock    = g_timers.ototalclock;
     lockclock      = g_timers.lockclock;
 }
 
-//////////
-
-
-void G_DeleteSave(savebrief_t const & sv)
+bool G_SavePlayer(FSaveGameNode *sv)
 {
-    if (!sv.isValid())
-        return;
-
-    char temp[BMAX_PATH];
-
-    if (snprintf(temp, sizeof(temp), "%s%s", M_GetSavegamesPath().GetChars(), sv.path))
-    {
-        OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", sv.path);
-        return;
-    }
-
-    remove(temp);
-}
-
-void G_DeleteOldSaves(void)
-{
-    ReadSaveGameHeaders();
-
-    for (int x = 0; x < g_numinternalsaves; ++x)
-    {
-        menusave_t const & msv = g_internalsaves[x];
-        if (msv.isOldVer || msv.isUnreadable)
-            G_DeleteSave(msv.brief);
-    }
-}
-
-uint16_t G_CountOldSaves(void)
-{
-    ReadSaveGameHeaders();
-
-    int bad = 0;
-    for (int x = 0; x < g_numinternalsaves; ++x)
-    {
-        menusave_t const & msv = g_internalsaves[x];
-        if (msv.isOldVer || msv.isUnreadable)
-            ++bad;
-    }
-
-    return bad;
-}
-
-int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
-{
-#ifdef __ANDROID__
-    G_SavePalette();
-#endif
-
     G_SaveTimers();
 
     Net_WaitForEverybody();
@@ -517,66 +302,27 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 	errno = 0;
 	FileWriter *fil;
 
-	if (sv.isValid())
+	OpenSaveGameForWrite(sv->Filename);
+	fil = WriteSavegameChunk("snapshot.dat");
+	// The above call cannot fail.
 	{
-		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), sv.path);
-		OpenSaveGameForWrite(fn);
-		fil = WriteSavegameChunk("snapshot.dat");
-	}
-	else
-	{
-		static char const SaveName[] = "save0000.bsv";
-		fn.Format("%s%s", M_GetSavegamesPath().GetChars(), SaveName);
-
-		auto fnp = fn.LockBuffer();
-		char* zeros = fnp + (fn.Len() - 8);
-		fil = savecounter.opennextfile(fnp, zeros);
-		if (fil)
-		{
-			delete fil;
-			remove(fnp);
-			OpenSaveGameForWrite(fnp);
-			fil = WriteSavegameChunk("snapshot.dat");
-		}
-		fn.UnlockBuffer();
-		savecounter.count++;
-		// don't copy the mod dir into sv.path
-		Bstrcpy(sv.path, fn + (fn.Len() - (ARRAY_SIZE(SaveName) - 1)));
-	}
-
-	if (!fil)
-	{
-		OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
-			fn.GetChars(), strerror(errno));
-		ready2send = 1;
-		Net_WaitForEverybody();
-
-		G_RestoreTimers();
-		ototalclock = totalclock;
-		return -1;
-	}
-	else
-	{
-		WriteSavegameChunk("DEMOLITION_RN");
 		auto& fw = *fil;
-		//CompressedFileWriter fw(fil, true);
 
 		// temporary hack
 		ud.user_map = G_HaveUserMap();
 
 
         // SAVE!
-        sv_saveandmakesnapshot(fw, sv.name, 0, 0, 0, 0, isAutoSave);
-		SaveStatistics();
-		SECRET_Save();
+        sv_saveandmakesnapshot(fw, sv->SaveTitle, 0, 0);
+
 
 		fw.Close();
-		FinishSavegameWrite();
+		bool res = FinishSavegameWrite();
 
 		if (!g_netServer && ud.multimode < 2)
 		{
 			OSD_Printf("Saved: %s\n", fn.GetChars());
-			Bstrcpy(apStrings[QUOTE_RESERVED4], "Game Saved");
+			quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Game Saved");
 			P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 		}
 		
@@ -586,39 +332,46 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 		G_RestoreTimers();
 		ototalclock = totalclock;
 		
-		return 0;
+		return res;
 	}
 }
 
-int32_t G_LoadPlayerMaybeMulti(savebrief_t & sv)
+bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
     if (g_netServer || ud.multimode > 1)
     {
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "Multiplayer Loading Not Yet Supported");
+		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Loading Not Yet Supported");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
 //        g_player[myconnectindex].ps->gm = MODE_GAME;
-        return 127;
+        return false;
     }
     else
     {
-        int32_t c = G_LoadPlayer(sv);
+        int32_t c = G_LoadPlayer(sv->Filename);
         if (c == 0)
             g_player[myconnectindex].ps->gm = MODE_GAME;
-        return c;
+        return !c;
     }
 }
 
-void G_SavePlayerMaybeMulti(savebrief_t & sv, bool isAutoSave)
+bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
     if (g_netServer || ud.multimode > 1)
     {
-        Bstrcpy(apStrings[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
+		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Saving Not Yet Supported");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+		return false;
     }
     else
     {
-        G_SavePlayer(sv, isAutoSave);
+
+		videoNextPage();	// no idea if this is needed here.
+		g_screenCapture = 1;
+		G_DrawRooms(myconnectindex, 65536);
+		g_screenCapture = 0;
+
+        return G_SavePlayer(sv);
     }
 }
 
@@ -631,11 +384,6 @@ typedef struct dataspec_
     uint32_t size;
     intptr_t cnt;
 } dataspec_t;
-
-#define SV_DEFAULTCOMPRTHRES 8
-static uint8_t savegame_diffcompress;  // 0:none, 1:Ken's LZW in cache1d.c
-static uint8_t savegame_comprthres;
-
 
 #define DS_DYNAMIC 1  // dereference .ptr one more time
 #define DS_STRING 2
@@ -784,8 +532,8 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
             if (ksiz != siz)
             {
                 OSD_Printf("rsd: spec=%s, idx=%d, mem=%p\n", (char *)sptr->ptr, (int32_t)(spec - sptr), mem);
-                OSD_Printf("     (%s): read %d, expected %d!\n",
-                           ((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres) ? "uncompressed" : "compressed", ksiz, siz);
+                OSD_Printf("     : read %d, expected %d!\n",
+                           ksiz, siz);
 
                 if (ksiz == -1)
                     OSD_Printf("     read: %s\n", strerror(errno));
@@ -1088,8 +836,6 @@ static void sv_rrrafog();
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
       +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS)
 
-static uint8_t savegame_quotedef[MAXQUOTES>>3];
-static char (*savegame_quotes)[MAXQUOTELEN];
 static uint8_t savegame_restdata[SVARDATALEN];
 
 static char svgm_udnetw_string [] = "blK:udnt";
@@ -1122,8 +868,6 @@ static const dataspec_t svgm_udnetw[] =
     { DS_NOCHK, &ud.noexits, sizeof(ud.noexits), 1 },
     { DS_NOCHK, &ud.playerai, sizeof(ud.playerai), 1 },
     { 0, &ud.pause_on, sizeof(ud.pause_on), 1 },
-    { DS_NOCHK, &currentboardfilename[0], BMAX_PATH, 1 },
-//    { DS_LOADFN, (void *)&sv_postudload, 0, 1 },
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
     { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },
@@ -1289,12 +1033,6 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_fogType, sizeof(g_fogType), 1 },
     { DS_LOADFN, (void *)sv_rrrafog, 0, 1 },
 
-    { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)sv_prequote, 0, 1 },
-    { DS_SAVEFN, (void *)&sv_quotesave, 0, 1 },
-    { DS_NOCHK, &savegame_quotedef, sizeof(savegame_quotedef), 1 },  // quotes can change during runtime, but new quote numbers cannot be allocated
-    { DS_DYNAMIC, &savegame_quotes, MAXQUOTELEN, MAXQUOTES },
-    { DS_LOADFN, (void *)&sv_quoteload, 0, 1 },
-
     { DS_SAVEFN, (void *)&sv_restsave, 0, 1 },
     { 0, savegame_restdata, 1, sizeof(savegame_restdata) },  // sz/cnt swapped for kdfread
     { DS_LOADFN, (void *)&sv_restload, 0, 1 },
@@ -1335,13 +1073,9 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave)
+int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, bool isAutoSave)
 {
     savehead_t h;
-
-    // set a few savegame system globals
-    savegame_comprthres = SV_DEFAULTCOMPRTHRES;
-    savegame_diffcompress = diffcompress;
 
     // calculate total snapshot size
     svsnapsiz = calcsz(svgm_udnetw) + calcsz(svgm_secwsp) + calcsz(svgm_script) + calcsz(svgm_anmisc);
@@ -1359,10 +1093,6 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
     h.bytever      = BYTEVERSION;
     h.userbytever  = ud.userbytever;
     h.scriptcrc    = g_scriptcrc;
-    h.comprthres   = savegame_comprthres;
-    h.recdiffsp    = recdiffsp;
-    h.diffcompress = savegame_diffcompress;
-    h.synccompress = synccompress;
 
     h.reccnt  = 0;
     h.snapsiz = svsnapsiz;
@@ -1375,40 +1105,35 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, i
     h.levnum     = ud.level_number;
     h.skill      = ud.player_skill;
 
-    const uint32_t BSZ = sizeof(h.boardfn);
-    EDUKE32_STATIC_ASSERT(BSZ == sizeof(currentboardfilename));
-    Bstrncpy(h.boardfn, currentboardfilename, BSZ);
-
     if (spot >= 0)
     {
         // savegame
-        Bstrncpyz(h.savename, name, sizeof(h.savename));
 		auto fw = WriteSavegameChunk("header.dat");
 		fw->Write(&h, sizeof(savehead_t));
+		G_WriteSaveHeader(name);
 	}
     else
     {
         // demo
-
+        // demo (currently broken, needs a new format.)
         const time_t t = time(NULL);
-        struct tm *  st;
-
-        Bstrncpyz(h.savename, "EDuke32 demo", sizeof(h.savename));
-        if (t>=0 && (st = localtime(&t)))
-            Bsnprintf(h.savename, sizeof(h.savename), "Demo %04d%02d%02d %s",
-                      st->tm_year+1900, st->tm_mon+1, st->tm_mday, GetGitDescription());
+		struct tm *  st = localtime(&t);
+        FStringf demoname("Demo %04d%02d%02d %s", st->tm_year+1900, st->tm_mon+1, st->tm_mday, GetGitDescription());
 		fil.Write(&h, sizeof(savehead_t));
+
 	}
 
 
     // write header
 
+#if 0 // not usable anymore
     if (spot >= 0 && tileData(TILE_SAVESHOT))
     {
 		auto fw = WriteSavegameChunk("screenshot.dat");
         fw->Write(tileData(TILE_SAVESHOT), 320*200);
 
     }
+#endif
 
 
     if (spot >= 0)
@@ -1521,8 +1246,6 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
     OSD_Printf("sv_loadsnapshot: snapshot size: %d bytes.\n", h->snapsiz);
 #endif
 
-    savegame_comprthres = h->comprthres;
-
     if (spot >= 0)
     {
         // savegame
@@ -1535,9 +1258,6 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
     }
     else
     {
-        // demo
-        savegame_diffcompress = h->diffcompress;
-
         svsnapsiz = h->snapsiz;
 
         SV_AllocSnap(1);
@@ -1624,7 +1344,6 @@ int32_t sv_readdiff(FileReader &fil)
 // SVGM data description
 static void sv_postudload()
 {
-//    Bmemcpy(&boardfilename[0], &currentboardfilename[0], BMAX_PATH);  // DON'T do this in demos!
 #if 1
     m_level_number      = ud.level_number;
     ud.m_volume_number     = ud.volume_number;
@@ -1685,33 +1404,6 @@ static void sv_preanimateptrsave()
 static void sv_postanimateptr()
 {
     G_Util_PtrToIdx(g_animatePtr, g_animateCnt, sector, P2I_BACK);
-}
-static void sv_prequote()
-{
-    if (!savegame_quotes)
-    {
-        void *ptr = Xcalloc(MAXQUOTES, MAXQUOTELEN);
-        savegame_quotes = (char(*)[MAXQUOTELEN])ptr;
-    }
-}
-static void sv_quotesave()
-{
-    Bmemset(savegame_quotedef, 0, sizeof(savegame_quotedef));
-    for (int i = 0; i < MAXQUOTES; i++)
-        if (apStrings[i])
-        {
-            savegame_quotedef[i>>3] |= 1<<(i&7);
-            Bmemcpy(savegame_quotes[i], apStrings[i], MAXQUOTELEN);
-        }
-}
-static void sv_quoteload()
-{
-    for (int i = 0; i < MAXQUOTES; i++)
-        if (savegame_quotedef[i>>3] & (1<<(i&7)))
-        {
-            C_AllocQuote(i);
-            Bmemcpy(apStrings[i], savegame_quotes[i], MAXQUOTELEN);
-        }
 }
 static void sv_restsave()
 {
@@ -1850,27 +1542,11 @@ static void postloadplayer(int32_t savegamep)
     //2.5
     if (savegamep)
     {
-        int32_t musicIdx = (ud.music_episode*MAXLEVELS) + ud.music_level;
-
         Bmemset(gotpic, 0, sizeof(gotpic));
         S_ClearSoundLocks();
         G_CacheMapData();
-
-        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0 && ud.music_level == 7 && ud.music_episode == 0)
-        {
-            char levname[BMAX_PATH];
-            G_SetupFilenameBasedMusic(levname, boardfilename, ud.level_number);
-        }
-
-        if (g_mapInfo[musicIdx].musicfn != NULL && (musicIdx != g_musicIndex || different_user_map))
-        {
-            ud.music_episode = g_musicIndex / MAXLEVELS;
-            ud.music_level   = g_musicIndex % MAXLEVELS;
-            S_PlayLevelMusicOrNothing(musicIdx);
-        }
-
-        if (MusicEnabled())
-            S_PauseMusic(false);
+		MUS_ResumeSaved();
+        Mus_SetPaused(false);
 
         g_player[myconnectindex].ps->gm = MODE_GAME;
         ud.recstat = 0;

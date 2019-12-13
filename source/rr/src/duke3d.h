@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "polymost.h"
 #include "gamecvars.h"
+#include "menu/menu.h"
 
 BEGIN_RR_NS
 
@@ -60,7 +61,6 @@ BEGIN_RR_NS
 #define MOVEFIFOSIZ         256
 
 // KEEPINSYNC lunatic/con_lang.lua
-#define MAXVOLUMES          7
 #define MAXLEVELS           64
 #define MAXGAMETYPES        16
 
@@ -155,9 +155,22 @@ struct GameInterface : ::GameInterface
 	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
-	bool mouseInactiveConditional(bool condition) override;
 	FString statFPS() override;
 	GameStats getStats() override;
+	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags);
+	void MenuOpened() override;
+	void MenuSound(EMenuSounds snd) override;
+	void MenuClosed() override;
+	bool CanSave() override;
+	void StartGame(FGameStartup& gs) override;
+	FSavegameInfo GetSaveSig() override;
+	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
+	void DrawMenuCaption(const DVector2& origin, const char* text) override;
+	bool SaveGame(FSaveGameNode*) override;
+	bool LoadGame(FSaveGameNode*) override;
+	void DoPrintMessage(int prio, const char* text) override;
+	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
+	void QuitToTitle() override;
 };
 
 END_RR_NS

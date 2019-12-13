@@ -631,7 +631,7 @@ waitforeverybody(void)
         handleevents();
         getpackets();
 
-        if (quitevent || (wfe_ExitCallback && wfe_ExitCallback()))
+        if (wfe_ExitCallback && wfe_ExitCallback())
         {
             // allow exit
             //if (inputState.GetKeyStatus(KEYSC_ESC))
@@ -1497,7 +1497,6 @@ getpackets(void)
             NewGame = TRUE;
             // restart demo for multi-play mode
             DemoInitOnce = FALSE;
-            ResetMenuInput();
 
             // send a dummy packet to see when it arrives
             //tempbuf[0] = PACKET_TYPE_DUMMY;

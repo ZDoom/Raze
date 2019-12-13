@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define sounds_public_h_
 
 #include "sounds_common.h"
+#include "z_music.h"
 
 BEGIN_RR_NS
 
@@ -57,7 +58,6 @@ typedef struct
     char      pr, m;                         // 2b
 } sound_t;
 
-extern uint8_t g_soundlocks[MAXSOUNDS];
 extern sound_t g_sounds[MAXSOUNDS];
 extern int32_t g_skillSoundVoice;
 extern int32_t g_numEnvSoundsPlaying,g_highestSoundIdx;
@@ -68,18 +68,12 @@ void S_Callback(intptr_t num);
 bool A_CheckAnySoundPlaying(int spriteNum);
 bool S_CheckSoundPlaying(int spriteNum,int soundNum);
 void S_Cleanup(void);
-void S_ClearSoundLocks(void);
+inline void S_ClearSoundLocks(void) {}
 int32_t S_LoadSound(uint32_t num);
 void S_PrecacheSounds(void);
 void S_MenuSound(void);
-void S_MusicShutdown(void);
-void S_MusicStartup(void);
-void S_MusicVolume(int32_t volume);
-void S_RestartMusic(void);
-void S_PauseMusic(bool paused);
 void S_PauseSounds(bool paused);
 void S_PlayRRMusic(int newTrack = -1);
-bool S_TryPlayLevelMusic(unsigned int m);
 void S_PlayLevelMusicOrNothing(unsigned int);
 int S_TryPlaySpecialMusic(unsigned int);
 void S_PlaySpecialMusicOrNothing(unsigned int);
@@ -89,7 +83,6 @@ void S_SoundShutdown(void);
 void S_SoundStartup(void);
 void S_StopEnvSound(int32_t num,int32_t i);
 void S_StopAllSounds(void);
-void S_StopMusic(void);
 void S_Update(void);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 

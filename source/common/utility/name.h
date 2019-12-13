@@ -34,6 +34,8 @@
 #ifndef NAME_H
 #define NAME_H
 
+#include "tarray.h"
+
 enum ENamedName
 {
 #define xx(n) NAME_##n,
@@ -50,8 +52,6 @@ public:
 	FName (const char *text) { Index = NameData.FindName (text, false); }
 	FName (const char *text, bool noCreate) { Index = NameData.FindName (text, noCreate); }
 	FName (const char *text, size_t textlen, bool noCreate) { Index = NameData.FindName (text, textlen, noCreate); }
-	FName (const FString &text);
-	FName (const FString &text, bool noCreate);
 	FName (const FName &other) = default;
 	FName (ENamedName index) { Index = index; }
  //   ~FName () {}	// Names can be added but never removed.
@@ -122,4 +122,13 @@ protected:
 	static NameManager NameData;
 };
 
+
+template<> struct THashTraits<FName>
+{
+	hash_t Hash(FName key)
+	{
+		return key.GetIndex();
+	}
+	int Compare(FName left, FName right) { return left != right; }
+}; 
 #endif

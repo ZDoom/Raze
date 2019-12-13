@@ -163,8 +163,6 @@ typedef struct {
 
     int32_t playerbest;
 
-    int32_t default_volume, default_skill;
-
     //int32_t returnvar[MAX_RETURN_VALUES-1];
 
     uint32_t userbytever;
@@ -200,7 +198,7 @@ extern user_defs ud;
 // this is checked against http://eduke32.com/VERSION
 extern const char *s_buildDate;
 
-extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
+extern char boardfilename[BMAX_PATH];
 
 static inline int G_HaveUserMap(void)
 {
@@ -309,7 +307,7 @@ void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t ste
 //void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);
 void G_InitTimer(int32_t ticspersec);
 
-static inline int32_t G_GetTeamPalette(int32_t team)
+inline int32_t G_GetTeamPalette(int32_t team)
 {
     int8_t pal[] = { 3, 10, 11, 12 };
 
@@ -476,7 +474,6 @@ static inline int G_GetViewscreenSizeShift(const uspritetype *tspr)
 #endif
 }
 
-extern void G_PrintCurrentMusic(void);
 
 EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
 

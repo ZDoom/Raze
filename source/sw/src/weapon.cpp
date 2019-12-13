@@ -48,6 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "actor.h"
 #include "track.h"
 #include "player.h"
+#include "gstrings.h"
 
 BEGIN_SW_NS
 
@@ -2653,12 +2654,12 @@ STATE s_PaperShrapC[] =
 SWBOOL MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
 {
     SPRITEp hsp = &sprite[hit_sprite];
-    SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
 
     if (WeaponNum <= -1)
     {
         ASSERT(Weapon >= 0);
+        SPRITEp wp = &sprite[Weapon];
+        USERp wu = User[Weapon];
         WeaponNum = wu->WeaponNum;
 
         // can be hit by SO only
@@ -2777,7 +2778,7 @@ int DoLavaErupt(short SpriteNum)
         TRAVERSE_CONNECT(pnum)
         {
             pp = Player + pnum;
-            if (TEST(sector[pp->cursectnum].extra, SECTFX_TRIGGER))
+            if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_TRIGGER))
             {
                 TRAVERSE_SPRITE_SECT(headspritesect[pp->cursectnum],i,nexti)
                 {
@@ -5760,8 +5761,6 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
 {
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite];
-    SPRITEp wp = &sprite[Weapon];
-    USERp   wu = User[Weapon];
     int SpawnZombie(PLAYERp pp, short);
 
 
@@ -5785,6 +5784,9 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
             DoPlayerBeginDie(pp);
             return TRUE;
         }
+
+        SPRITEp wp = &sprite[Weapon];
+        USERp   wu = User[Weapon];
 
         if (Weapon > -1 && (wu->ID == RIPPER_RUN_R0 || wu->ID == RIPPER2_RUN_R0))
             pp->DeathType = PLAYER_DEATH_RIPPER;
@@ -5828,13 +5830,13 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
 SWBOOL
 PlayerTakeDamage(PLAYERp pp, short Weapon)
 {
+    if (Weapon < 0)
+        return TRUE;
+
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite];
     SPRITEp wp = &sprite[Weapon];
     USERp   wu = User[Weapon];
-
-    if (Weapon < 0)
-        return TRUE;
 
     if (gNet.MultiGameType == MULTI_GAME_NONE)
     {
@@ -7465,94 +7467,94 @@ const char *DeathString(short SpriteNum)
     case NINJA_RUN_R0:
         return " ";
     case ZOMBIE_RUN_R0:
-        return "Zombie";
+        return GStrings("Zombie");
     case BLOOD_WORM:
-        return "Blood Worm";
+        return GStrings("Blood Worm");
     case SKEL_RUN_R0:
-        return "Skeletor Priest";
+        return GStrings("Skeletor Priest");
     case COOLG_RUN_R0:
-        return "Coolie Ghost";
+        return GStrings("Coolie Ghost");
     case GORO_RUN_R0:
-        return "Guardian";
+        return GStrings("Guardian");
     case HORNET_RUN_R0:
-        return "Hornet";
+        return GStrings("Hornet");
     case RIPPER_RUN_R0:
-        return "Ripper Hatchling";
+        return GStrings("Ripper Hatchling");
     case RIPPER2_RUN_R0:
-        return "Ripper";
+        return GStrings("Ripper");
     case BUNNY_RUN_R0:
-        return "Killer Rabbit";
+        return GStrings("Killer Rabbit");
     case SERP_RUN_R0:
-        return "Serpent god";
+        return GStrings("Serpent god");
     case GIRLNINJA_RUN_R0:
-        return "Girl Ninja";
+        return GStrings("Girl Ninja");
     case BLADE1:
     case BLADE2:
     case BLADE3:
     case 5011:
-        return "blade";
+        return GStrings("blade");
     case STAR1:
-        if (gs.Darts) return "dart";
-        else return "shuriken";
+        if (sw_darts) return GStrings("dart");
+        else return GStrings("shuriken");
     case CROSSBOLT:
-        return "crossbow bolt";
+        return GStrings("crossbow bolt");
     case SPEAR_R0:
-        return "spear";
+        return GStrings("spear");
     case LAVA_BOULDER:
     case LAVA_SHARD:
-        return "lava boulder";
+        return GStrings("lava boulder");
     case UZI_SMOKE:
-        return "Uzi";
+        return GStrings("Uzi");
     case UZI_SMOKE+2:
-        return "Evil Ninja Uzi";
+        return GStrings("Evil Ninja Uzi");
     case SHOTGUN_SMOKE:
-        return "shotgun";
+        return GStrings("shotgun");
     case MIRV_METEOR:
     case SERP_METEOR:
-        return "meteor";
+        return GStrings("meteor");
     case BOLT_THINMAN_R0:
-        return "rocket";
+        return GStrings("rocket");
     case BOLT_THINMAN_R1:
-        return "rail gun";
+        return GStrings("rail gun");
     case BOLT_THINMAN_R2:
-        return "enemy rocket";
+        return GStrings("enemy rocket");
     case BOLT_THINMAN_R4:  // BunnyRocket
-        return "bunny rocket";
+        return GStrings("bunny rocket");
     case BOLT_EXP:
-        return "explosion";
+        return GStrings("explosion");
     case TANK_SHELL_EXP:
-        return "tank shell";
+        return GStrings("tank shell");
     case MUSHROOM_CLOUD:
-        return "nuclear bomb";
+        return GStrings("nuclear bomb");
     case GRENADE_EXP:
-        return "40mm grenade";
+        return GStrings("40mm grenade");
     case MICRO_EXP:
-        return "micro missile";
+        return GStrings("micro missile");
     case MINE_EXP:
         //case MINE_SHRAP:
-        return "sticky bomb";
+        return GStrings("sticky bomb");
     case NAP_EXP:
-        return "napalm";
+        return GStrings("napalm");
     case Vomit1:
     case Vomit2:
-        return "vomit";
+        return GStrings("vomit");
     case COOLG_FIRE:
-        return "Coolie Ghost phlem";
+        return GStrings("Coolie Ghost phlem");
     case SKULL_R0:
-        return "Accursed Head";
+        return GStrings("Accursed Head");
     case BETTY_R0:
-        return "Bouncing Betty";
+        return GStrings("Bouncing Betty");
     case SKULL_SERP:
-        return "Serpent god Protector";
+        return GStrings("Serpent god Protector");
     case FIREBALL1:
     case FIREBALL:
     case GORO_FIREBALL:
     case FIREBALL_FLAMES:
-        return "flames";
+        return GStrings("flames");
     case RADIATION_CLOUD:
-        return "radiation";
+        return GStrings("radiation");
     case CALTROPS:
-        return "caltrops";
+        return GStrings("caltrops");
     }
     return "";
 }
@@ -7607,9 +7609,11 @@ DoDamageTest(short Weapon)
     return 0;
 }
 
-int
-DoHitscanDamage(short Weapon, short hit_sprite)
+static int DoHitscanDamage(short Weapon, uint16_t hit_sprite)
 {
+    if (hit_sprite >= MAXSPRITES)
+        return 0;
+
     SPRITEp wp = &sprite[Weapon];
     USERp wu = User[Weapon];
     unsigned stat;
@@ -7745,7 +7749,7 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
     {
         sect = sectlist[sectlistplc++];
 
-        ASSERT(sectlistplc < SIZ(sectlist));
+        ASSERT((uint16_t)sectlistplc < SIZ(sectlist));
 
         startwall = sector[sect].wallptr;
         endwall = startwall + sector[sect].wallnum;
@@ -7795,7 +7799,7 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
             if (k < 0)
             {
                 sectlist[sectlistend++] = nextsector;
-                ASSERT(sectlistend < SIZ(sectlist));
+                ASSERT((uint16_t)sectlistend < SIZ(sectlist));
             }
         }
 
@@ -10832,8 +10836,8 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    SPRITEp ep = &sprite[enemy];
-    USERp eu = User[enemy];
+    SPRITEp ep;
+    USERp eu;
     SPRITEp np;
     USERp nu;
     short New;
@@ -10843,6 +10847,9 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
     if (enemy >= 0)
     {
+        ep = &sprite[enemy];
+        eu = User[enemy];
+
         // test for already burned
         if (TEST(ep->extra, SPRX_BURNABLE) && ep->shade > 40)
             return -1;
@@ -13021,6 +13028,9 @@ InitSpellRing(PLAYERp pp)
     if (!SW_SHAREWARE)
         PlaySound(DIGI_RFWIZ, &pp->posx, &pp->posy, &pp->posz, v3df_none);
 
+    if (pp->cursectnum < 0)
+        return;
+
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
         SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursectnum, pp->posx, pp->posy, pp->posz, ang, 0);
@@ -13569,6 +13579,9 @@ InitSpellNapalm(PLAYERp pp)
 
     PlaySound(DIGI_NAPFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_none);
 
+    if (pp->cursectnum < 0)
+        return;
+
     for (i = 0; i < SIZ(mp); i++)
     {
         SpriteNum = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursectnum,
@@ -13728,6 +13741,9 @@ InitSpellMirv(PLAYERp pp)
     short oclipdist;
 
     PlaySound(DIGI_MIRVFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+
+    if (pp->cursectnum < 0)
+        return 0;
 
     SpriteNum = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursectnum,
                             pp->posx, pp->posy, pp->posz + Z(12), pp->pang, MIRV_VELOCITY);
@@ -14740,12 +14756,15 @@ InitStar(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -3);
 
+    PlaySound(DIGI_STAR, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
 
     nz = pp->posz + pp->bob_z + Z(8);
-
-    PlaySound(DIGI_STAR, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -14871,6 +14890,9 @@ InitHeartAttack(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, WPN_HEART, -1);
 
+    if (pp->cursectnum < 0)
+        return;
+
     SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursectnum,
                             pp->posx, pp->posy, pp->posz + Z(12), pp->pang, BLOOD_WORM_VELOCITY*2);
 
@@ -14943,6 +14965,9 @@ InitHeartAttack(PLAYERp pp)
     };
 
     PlayerUpdateAmmo(pp, WPN_HEART, -1);
+
+    if (pp->cursectnum < 0)
+        return;
 
     SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursectnum,
                             pp->posx, pp->posy, pp->posz + Z(12), pp->pang, BLOOD_WORM_VELOCITY*2);
@@ -15259,6 +15284,9 @@ InitLaser(PLAYERp pp)
 
     PlaySound(DIGI_RIOTFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
 
@@ -15367,6 +15395,9 @@ InitRail(PLAYERp pp)
 
     // Make sprite shade brighter
     u->Vis = 128;
+
+    if (pp->cursectnum < 0)
+        return 0;
 
     nx = pp->posx;
     ny = pp->posy;
@@ -15549,17 +15580,30 @@ InitRocket(PLAYERp pp)
     DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT);
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
+    if (pp->WpnRocketHeat)
+    {
+        switch (pp->WpnRocketType)
+        {
+        case 1:
+            pp->WpnRocketHeat--;
+            break;
+        }
+    }
 
     PlaySound(DIGI_RIOTFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
 
     // Spawn a shot
     // Inserting and setting up variables
+
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursectnum,
@@ -15595,7 +15639,6 @@ InitRocket(PLAYERp pp)
         switch (pp->WpnRocketType)
         {
         case 1:
-            pp->WpnRocketHeat--;
             SET(wu->Flags, SPR_FIND_PLAYER);
             wp->pal = wu->spal = 20; // Yellow
             break;
@@ -15673,11 +15716,15 @@ InitBunnyRocket(PLAYERp pp)
 
     PlaySound(DIGI_BUNNYATTACK, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
 
     // Spawn a shot
     // Inserting and setting up variables
+
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursectnum,
@@ -15783,11 +15830,15 @@ InitNuke(PLAYERp pp)
     // Make sprite shade brighter
     u->Vis = 128;
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
 
     // Spawn a shot
     // Inserting and setting up variables
+
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
     w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursectnum,
@@ -15971,6 +16022,9 @@ InitMicro(PLAYERp pp)
 
     if (TargetSortCount > MAX_MICRO)
         TargetSortCount = MAX_MICRO;
+
+    if (pp->cursectnum < 0)
+        return 0;
 
     for (i = 0; i < MAX_MICRO; i++)
     {
@@ -17528,6 +17582,9 @@ DoDefaultStat(short SpriteNum)
 int
 InitTracerUzi(PLAYERp pp)
 {
+    if (pp->cursectnum < 0)
+        return 0;
+
     USERp u = User[pp->PlayerSprite];
     SPRITEp wp, hsp;
     USERp wu;
@@ -17546,6 +17603,7 @@ InitTracerUzi(PLAYERp pp)
 
     // Spawn a shot
     // Inserting and setting up variables
+
     w = SpawnSprite(STAT_MISSILE, 0, s_Tracer, pp->cursectnum,
                     nx, ny, nz, pp->pang, TRACER_VELOCITY);
 
@@ -17843,17 +17901,18 @@ SWBOOL
 HitscanSpriteAdjust(short SpriteNum, short hit_wall)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    short w, nw, ang = sp->ang, wall_ang;
+    int16_t ang;
     int xvect,yvect;
     short sectnum;
 
 #if 1
-    w = hit_wall;
-    nw = wall[w].point2;
-    wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y));
-
     if (hit_wall >= 0)
+    {
+        uint16_t const w = hit_wall;
+        uint16_t const nw = wall[hit_wall].point2;
+        int16_t const wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y));
         ang = sp->ang = NORM_ANGLE(wall_ang + 512);
+    }
     else
         ang = sp->ang;
 #endif
@@ -18542,6 +18601,9 @@ InitTurretRail(short SpriteNum, PLAYERp pp)
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = sp->x;
     ny = sp->y;
     nz = sp->z;
@@ -18598,6 +18660,8 @@ InitTurretLaser(short SpriteNum, PLAYERp pp)
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
+    if (pp->cursectnum < 0)
+        return 0;
 
     nx = sp->x;
     ny = sp->y;
@@ -19387,12 +19451,16 @@ InitGrenade(PLAYERp pp)
     // Make sprite shade brighter
     u->Vis = 128;
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
+
     w = SpawnSprite(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursectnum,
                     nx, ny, nz, pp->pang, GRENADE_VELOCITY);
 
@@ -19554,12 +19622,16 @@ InitMine(PLAYERp pp)
 
     PlaySound(DIGI_MINETHROW, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
 
+    if (pp->cursectnum < 0)
+        return 0;
+
     nx = pp->posx;
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
+
     w = SpawnSprite(STAT_MISSILE, MINE, s_Mine, pp->cursectnum,
                     nx, ny, nz, pp->pang, MINE_VELOCITY);
 
@@ -19732,6 +19804,9 @@ InitFireball(PLAYERp pp)
 
     // Make sprite shade brighter
     u->Vis = 128;
+
+    if (pp->cursectnum < 0)
+        return 0;
 
     nx += pp->posx;
     ny += pp->posy;
@@ -20638,13 +20713,13 @@ void QueueReset(void)
 
 SWBOOL TestDontStick(short SpriteNum, short hit_sect, short hit_wall, int hit_z)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
     WALLp wp;
 
     if (hit_wall < 0)
     {
         ASSERT(SpriteNum>=0);
+        SPRITEp sp = &sprite[SpriteNum];
+        USERp u = User[SpriteNum];
         hit_wall = NORM_WALL(u->ret);
     }
 

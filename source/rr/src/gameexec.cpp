@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 
 #include "debugbreak.h"
+extern bool rotatesprite_2doverride;
 
 BEGIN_RR_NS
 
@@ -1060,14 +1061,14 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags)
     //AddLog("resetplayer");
     if (!g_netServer && ud.multimode < 2)
     {
+#if 0
         if (g_quickload && g_quickload->isValid() && ud.recstat != 2)
         {
-            Menu_Open(playerNum);
-            inputState.ClearKeyStatus(sc_Space);
-            I_AdvanceTriggerClear();
-            Menu_Change(MENU_RESETPLAYER);
-        }
+			M_StartControlPanel(false);
+			M_SetMenu(NAME_ConfirmPlayerReset);
+		}
         else
+#endif
             g_player[playerNum].ps->gm = MODE_RESTART;
         vmFlags |= VM_NOEXECUTE;
     }
@@ -1120,7 +1121,9 @@ void Screen_Play(void)
 
     I_ClearAllInput();
 
-    do
+	auto r2dover = rotatesprite_2doverride;
+	rotatesprite_2doverride = false;
+	do
     {
         G_HandleAsync();
 
@@ -1136,6 +1139,7 @@ void Screen_Play(void)
         videoNextPage();
         I_ClearAllInput();
     } while (running);
+	rotatesprite_2doverride = r2dover;
 }
 
 GAMEEXEC_STATIC void VM_Execute(native_t loop)
@@ -2453,7 +2457,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_QUOTE:
                 insptr++;
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)(*insptr) >= MAXQUOTES) || apStrings[*insptr] == NULL)
+                if (EDUKE32_PREDICT_FALSE((unsigned)(*insptr) >= MAXQUOTES))
                 {
                     CON_ERRPRINTF("invalid quote %d\n", (int32_t)(*insptr));
                     insptr++;

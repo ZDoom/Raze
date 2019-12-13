@@ -29,119 +29,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdcmds.h"
 #include "savegame.h"
 #include "sbar.h"
+#include "mapinfo.h"
 
 BEGIN_RR_NS
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
-
-static int osdcmd_changelevel(osdcmdptr_t parm)
-{
-    int32_t volume=0,level;
-    char *p;
-
-    if (!VOLUMEONE)
-    {
-        if (parm->numparms != 2) return OSDCMD_SHOWHELP;
-
-        volume = strtol(parm->parms[0], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
-        level = strtol(parm->parms[1], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
-    }
-    else
-    {
-        if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-        level = strtol(parm->parms[0], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
-    }
-
-    if (volume < 0) return OSDCMD_SHOWHELP;
-    if (level < 0) return OSDCMD_SHOWHELP;
-
-    if (!VOLUMEONE)
-    {
-        if (volume > g_volumeCnt)
-        {
-            OSD_Printf("changelevel: invalid volume number (range 1-%d)\n",g_volumeCnt);
-            return OSDCMD_OK;
-        }
-    }
-
-    if (level > MAXLEVELS || g_mapInfo[volume *MAXLEVELS+level].filename == NULL)
-    {
-        OSD_Printf("changelevel: invalid level number\n");
-        return OSDCMD_SHOWHELP;
-    }
-
-    if (numplayers > 1)
-    {
-        /*
-        if (g_netServer)
-            Net_NewGame(volume,level);
-        else if (voting == -1)
-        {
-            ud.m_volume_number = volume;
-            m_level_number = level;
-
-            if (g_player[myconnectindex].ps->i)
-            {
-                int32_t i;
-
-                for (i=0; i<MAXPLAYERS; i++)
-                {
-                    g_player[i].vote = 0;
-                    g_player[i].gotvote = 0;
-                }
-
-                g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
-
-                voting = myconnectindex;
-
-                tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
-                tempbuf[1] = myconnectindex;
-                tempbuf[2] = ud.m_volume_number;
-                tempbuf[3] = m_level_number;
-
-                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-            }
-            if ((g_gametypeFlags[m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[m_coop] & GAMETYPE_TDM))
-                m_noexits = 0;
-
-            M_OpenMenu(myconnectindex);
-            Menu_Change(MENU_NETWAITVOTES);
-        }
-        */
-        return OSDCMD_OK;
-    }
-    if (g_player[myconnectindex].ps->gm & MODE_GAME)
-    {
-        // in-game behave like a cheat
-        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_SCOTTY;
-        osdcmd_cheatsinfo_stat.volume   = volume;
-        osdcmd_cheatsinfo_stat.level    = level;
-    }
-    else
-    {
-        // out-of-game behave like a menu command
-        osdcmd_cheatsinfo_stat.cheatnum = -1;
-
-        ud.m_volume_number     = volume;
-        m_level_number      = level;
-
-        ud.m_monsters_off      = 0;
-        ud.monsters_off        = 0;
-
-        ud.m_respawn_items     = 0;
-        ud.m_respawn_inventory = 0;
-
-        ud.multimode           = 1;
-
-        G_NewGame_EnterLevel();
-    }
-
-    return OSDCMD_OK;
-}
 
 static int osdcmd_map(osdcmdptr_t parm)
 {
@@ -157,7 +49,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
 
-    if (!testkopen(filename,0))
+    if (!fileSystem.FileExists(filename))
     {
         OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;
@@ -169,48 +61,6 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (numplayers > 1)
     {
-        /*
-        if (g_netServer)
-        {
-            Net_SendUserMapName();
-            ud.m_volume_number = 0;
-            m_level_number = 7;
-            Net_NewGame(ud.m_volume_number, m_level_number);
-        }
-        else if (voting == -1)
-        {
-            Net_SendUserMapName();
-
-            ud.m_volume_number = 0;
-            m_level_number = 7;
-
-            if (g_player[myconnectindex].ps->i)
-            {
-                int32_t i;
-
-                for (i=0; i<MAXPLAYERS; i++)
-                {
-                    g_player[i].vote = 0;
-                    g_player[i].gotvote = 0;
-                }
-
-                g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
-                voting = myconnectindex;
-
-                tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
-                tempbuf[1] = myconnectindex;
-                tempbuf[2] = ud.m_volume_number;
-                tempbuf[3] = m_level_number;
-
-                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-            }
-            if ((g_gametypeFlags[m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[m_coop] & GAMETYPE_TDM))
-                m_noexits = 0;
-
-            M_OpenMenu(myconnectindex);
-            Menu_Change(MENU_NETWAITVOTES);
-        }
-        */
         return OSDCMD_OK;
     }
 
@@ -323,48 +173,13 @@ static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     S_SoundShutdown();
-    S_MusicShutdown();
 
-    S_MusicStartup();
     S_SoundStartup();
 
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
-    if (MusicEnabled())
-        S_RestartMusic();
-
     return OSDCMD_OK;
-}
-
-static int osdcmd_music(osdcmdptr_t parm)
-{
-    if (parm->numparms == 1)
-    {
-        int32_t sel = G_GetMusicIdx(parm->parms[0]);
-
-        if (sel == -1)
-            return OSDCMD_SHOWHELP;
-
-        if (sel == -2)
-        {
-            OSD_Printf("%s is not a valid episode/level number pair\n", parm->parms[0]);
-            return OSDCMD_OK;
-        }
-
-        if (!S_TryPlayLevelMusic(sel))
-        {
-            G_PrintCurrentMusic();
-        }
-        else
-        {
-            OSD_Printf("No music defined for %s\n", parm->parms[0]);
-        }
-
-        return OSDCMD_OK;
-    }
-
-    return OSDCMD_SHOWHELP;
 }
 
 int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
@@ -519,27 +334,6 @@ static int osdcmd_spawn(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_cmenu(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    if (numplayers > 1)
-    {
-        OSD_Printf("Command not allowed in multiplayer\n");
-        return OSDCMD_OK;
-    }
-
-    if ((g_player[myconnectindex].ps->gm & MODE_MENU) != MODE_MENU)
-        Menu_Open(myconnectindex);
-
-    Menu_Change(Batol(parm->parms[0]));
-
-    return OSDCMD_OK;
-}
-
-
-
 
 static int osdcmd_crosshaircolor(osdcmdptr_t parm)
 {
@@ -645,63 +439,6 @@ void onvideomodechange(int32_t newmode)
     g_crosshairSum = -1;
 }
 
-
-static int osdcmd_quicksave(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
-        OSD_Printf("quicksave: not in a game.\n");
-    else g_doQuickSave = 1;
-    return OSDCMD_OK;
-}
-
-static int osdcmd_quickload(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
-        OSD_Printf("quickload: not in a game.\n");
-    else g_doQuickSave = 2;
-    return OSDCMD_OK;
-}
-
-static int osdcmd_screenshot(osdcmdptr_t parm)
-{
-    videoCaptureScreen();
-
-    return OSDCMD_OK;
-}
-
-#if 0
-static int osdcmd_savestate(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_PARAMETER(parm);
-    G_SaveMapState();
-    return OSDCMD_OK;
-}
-
-static int osdcmd_restorestate(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_PARAMETER(parm);
-    G_RestoreMapState();
-    return OSDCMD_OK;
-}
-#endif
-
-#ifdef DEBUGGINGAIDS
-static int osdcmd_inittimer(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("%dHz timer\n",g_timerTicsPerSecond);
-        return OSDCMD_SHOWHELP;
-    }
-
-    G_InitTimer(Batol(parm->parms[0]));
-
-    OSD_Printf("%s\n",parm->raw);
-    return OSDCMD_OK;
-}
-#endif
 
 #if !defined NETCODE_DISABLE
 static int osdcmd_disconnect(osdcmdptr_t UNUSED(parm))
@@ -851,13 +588,6 @@ static int osdcmd_kickban(osdcmdptr_t parm)
 #endif
 #endif
 
-static int osdcmd_purgesaves(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    G_DeleteOldSaves();
-    return OSDCMD_OK;
-}
-
 static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -902,16 +632,12 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 int32_t registerosdcommands(void)
 {
 
-    if (VOLUMEONE)
-        OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
-    else
+    if (!VOLUMEONE)
     {
-        OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
 
-    OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
 
 #if !defined NETCODE_DISABLE
@@ -927,13 +653,13 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
 #endif
 #if !defined NETCODE_DISABLE
-    //OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
-    //OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
+#if 0
+    OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
+    OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
+#endif
 
     OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
 #endif
-    OSD_RegisterFunction("music","music E<ep>L<lev>: change music", osdcmd_music);
-
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
 #if !defined NETCODE_DISABLE
@@ -942,15 +668,8 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
 
-    OSD_RegisterFunction("purgesaves", "purgesaves: deletes obsolete and unreadable save files", osdcmd_purgesaves);
-
-    OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
-    OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
-
     OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
-
-    OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 

@@ -44,6 +44,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "weapon.h"
 #include "fx_man.h"
+#include "menu/menu.h"
+#include "swcvar.h"
 
 BEGIN_SW_NS
 
@@ -67,7 +69,6 @@ int InitFistAttack(PLAYERp pp);
 //#define UK_VERSION TRUE
 
 #define PANF_UZI_XFLIP (BIT(21))
-extern SWBOOL UsingMenus;
 
 #define XDIM 320
 #define YDIM 200
@@ -775,7 +776,7 @@ void PlayerUpdatePanelInfo(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (UsingMenus)
+    if (M_Active())
         return;
 
     PlayerUpdateHealth(pp, 0);
@@ -1822,7 +1823,7 @@ InitWeaponStar(PLAYERp pp)
     PlaySound(DIGI_PULL, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
     if (STD_RANDOM_RANGE(1000) > 900 && pp == Player+myconnectindex)
     {
-        if (!gs.Darts)
+        if (!sw_darts)
             PlayerSound(DIGI_ILIKESHURIKEN,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
     }
 
@@ -7347,7 +7348,6 @@ pDisplaySprites(PLAYERp pp)
     int smoothratio;
     unsigned i;
 
-    SECT_USERp sectu = SectUser[pp->cursectnum];
     uint8_t pal = 0;
     short ang;
     int flags;
@@ -7389,7 +7389,7 @@ pDisplaySprites(PLAYERp pp)
             picnum = psp->picndx;
 
         // UK panzies have to have darts instead of shurikens.
-        if (gs.Darts)
+        if (sw_darts)
             switch (picnum)
             {
             case STAR_REST:
@@ -7453,7 +7453,7 @@ pDisplaySprites(PLAYERp pp)
 
             case STAR_REST:
             case 2510:
-                if (!gs.Darts)
+                if (!sw_darts)
                     picnum = 2138;
                 else
                     picnum = 2518; // Bloody Dart Hand
@@ -7488,17 +7488,23 @@ pDisplaySprites(PLAYERp pp)
         // if its a weapon sprite and the view is set to the outside don't draw the sprite
         if (TEST(psp->flags, PANF_WEAPON_SPRITE))
         {
-            pal = sector[pp->cursectnum].floorpal;
-
-            if (sector[pp->cursectnum].floorpal != PALETTE_DEFAULT)
+            SECT_USERp sectu = nullptr;
+            int16_t floorshade = 0;
+            if (pp->cursectnum >= 0)
             {
-                SECT_USERp sectu = SectUser[pp->cursectnum];
-                if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
-                    pal = PALETTE_DEFAULT;
-            }
+                sectu = SectUser[pp->cursectnum];
+                pal = sector[pp->cursectnum].floorpal;
+                floorshade = sector[pp->cursectnum].floorshade;
 
-            if (pal == PALETTE_FOG || pal == PALETTE_DIVE || pal == PALETTE_DIVE_LAVA)
-                pal = psp->pal; // Set it back
+                if (pal != PALETTE_DEFAULT)
+                {
+                    if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
+                        pal = PALETTE_DEFAULT;
+                }
+
+                if (pal == PALETTE_FOG || pal == PALETTE_DIVE || pal == PALETTE_DIVE_LAVA)
+                    pal = psp->pal; // Set it back
+            }
 
             ///////////
 
@@ -7508,7 +7514,7 @@ pDisplaySprites(PLAYERp pp)
             }
 
             //shade = overlay_shade = DIV2(sector[pp->cursectnum].floorshade + sector[pp->cursectnum].ceilingshade);
-            shade = overlay_shade = sector[pp->cursectnum].floorshade - 10;
+            shade = overlay_shade = floorshade - 10;
 
             if (TEST(psp->PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
             {
@@ -7592,7 +7598,7 @@ pDisplaySprites(PLAYERp pp)
         }
 
 #if 1
-        if (TEST(psp->flags, PANF_KILL_AFTER_SHOW) && !TEST(psp->flags, PANF_NOT_ALL_PAGES))
+        if (TEST(psp->flags, PANF_KILL_AFTER_SHOW) && !TEST(psp->flags, PANF_NOT_ALL_PAGES) && !M_Active())
         {
             psp->numpages = 0;
             SET(flags, ROTATE_SPRITE_ALL_PAGES);
@@ -7666,7 +7672,7 @@ pSpriteControl(PLAYERp pp)
         // RULE: Sprites can only kill themselves
         PRODUCTION_ASSERT(psp);
         ASSERT(ValidPtr(psp));
-        ASSERT((uint32_t) psp->Next != 0xCCCCCCCC);
+        // ASSERT((uint32_t) psp->Next != 0xCCCCCCCC);
 
         if (psp->State)
             pStateControl(psp);

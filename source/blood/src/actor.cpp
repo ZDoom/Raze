@@ -1707,7 +1707,7 @@ MissileType missileInfo[] = {
     }
 };
 
-THINGINFO thingInfo[] = {
+const THINGINFO thingInfo[] = {
     //TNT Barrel
     {
         25,
@@ -3868,7 +3868,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
     sectortype *pSectorHit = NULL; XSECTOR *pXSectorHit = NULL;
 
     actHitcodeToData(hitCode, &gHitInfo, &nSpriteHit, &pSpriteHit, &pXSpriteHit, &nWallHit, &pWallHit, &pXWallHit, &nSectorHit, &pSectorHit, &pXSectorHit);
-    THINGINFO *pThingInfo = NULL; DUDEINFO *pDudeInfo = NULL;
+    const THINGINFO *pThingInfo = NULL; DUDEINFO *pDudeInfo = NULL;
 
     if (hitCode == 3 && pSpriteHit) {
         switch (pSpriteHit->statnum) {
@@ -4211,7 +4211,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                 if (pSprite2->statnum == kStatThing)
                 {
                     int nType = pSprite2->type-kThingBase;
-                    THINGINFO *pThingInfo = &thingInfo[nType];
+                    const THINGINFO *pThingInfo = &thingInfo[nType];
                     if (pThingInfo->flags&1)
 
                         pSprite2->flags |= 1;
@@ -4546,7 +4546,7 @@ int MoveThing(spritetype *pSprite)
     int nSprite = pSprite->index;
     int v8 = 0;
     dassert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
-    THINGINFO *pThingInfo = &thingInfo[pSprite->type-kThingBase];
+    const THINGINFO *pThingInfo = &thingInfo[pSprite->type-kThingBase];
     int nSector = pSprite->sectnum;
     dassert(nSector >= 0 && nSector < kMaxSectors);
     int top, bottom;
@@ -5829,7 +5829,7 @@ void actProcessSprites(void)
         if (pXSector && pXSector->panVel && (pXSector->panAlways || pXSector->state || pXSector->busy))
         {
             int nType = pSprite->type - kThingBase;
-            THINGINFO *pThingInfo = &thingInfo[nType];
+            const THINGINFO *pThingInfo = &thingInfo[nType];
             if (pThingInfo->flags & 1)
 
                 pSprite->flags |= 1;
@@ -6546,7 +6546,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
     pSprite->type = nThingType;
     dassert(nXThing > 0 && nXThing < kMaxXSprites);
     XSPRITE *pXThing = &xsprite[nXThing];
-    THINGINFO *pThingInfo = &thingInfo[nType];
+    const THINGINFO *pThingInfo = &thingInfo[nType];
     pXThing->health = pThingInfo->startHealth<<4;
     pSprite->clipdist = pThingInfo->clipdist;
     pSprite->flags = pThingInfo->flags;

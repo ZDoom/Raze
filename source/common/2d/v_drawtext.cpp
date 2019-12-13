@@ -44,6 +44,7 @@
 #include "v_draw.h"
 #include "image.h"
 #include "v_2ddrawer.h"
+#include "gstrings.h"
 #include "v_font.h"
 
 class FFont;
@@ -225,7 +226,7 @@ void DrawText(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double 
 	{
 		return;
 	}
-	DrawTextCommon(drawer, font, normalcolor, x, y, (const uint8_t*)string, parms);
+	DrawTextCommon(drawer, font, normalcolor, x, y, (const uint8_t*)GStrings.localize(string), parms);
 }
 
 void DrawText(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double y, const char32_t *string, int tag_first, ...)
@@ -246,3 +247,25 @@ void DrawText(F2DDrawer* drawer, FFont *font, int normalcolor, double x, double 
 	DrawTextCommon(drawer, font, normalcolor, x, y, string, parms);
 }
 
+//==========================================================================
+//
+// V_DrawFrame
+//
+// Draw a frame around the specified area using the view border
+// frame graphics. The border is drawn outside the area, not in it.
+//
+//==========================================================================
+
+void DrawFrame(F2DDrawer* twod, PalEntry color, int left, int top, int width, int height, int thickness)
+{
+	// Sanity check for incomplete gameinfo
+	int offset = thickness == -1 ? screen->GetHeight() / 400 : thickness;
+	int right = left + width;
+	int bottom = top + height;
+
+	// Draw top and bottom sides.
+	twod->AddColorOnlyQuad(left, top - offset, width, offset, color);
+	twod->AddColorOnlyQuad(left - offset, top - offset, offset, height + 2 * offset, color);
+	twod->AddColorOnlyQuad(left, bottom, width, offset, color);
+	twod->AddColorOnlyQuad(right, top - offset, offset, height + 2 * offset, color);
+}

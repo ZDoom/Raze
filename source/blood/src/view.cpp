@@ -47,7 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "loadsave.h"
 #include "map2d.h"
 #include "messages.h"
-#include "menu.h"
+#include "gamemenu.h"
 #include "mirrors.h"
 #include "network.h"
 #include "player.h"
@@ -61,6 +61,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "warp.h"
 #include "weapon.h"
 #include "zstring.h"
+#include "menu/menu.h"
+#include "gstrings.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable displaying the remaining seconds for power-ups")
 
@@ -1003,39 +1005,6 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
     if (shadow)
         G_ScreenText(pFont->tile, x + 1, y + 1, 65536, 0, 0, pString, 127, nPalette, 2|8|16|nStat, alpha, 0, 0, pFont->space, 0, nFlags, 0, 0, xdim-1, ydim-1);
     G_ScreenText(pFont->tile, x, y, 65536, 0, 0, pString, nShade, nPalette, 2|8|16|nStat, alpha, 0, 0, pFont->space, 0, nFlags, 0, 0, xdim-1, ydim-1);
-    //if (nFont < 0 || nFont >= 5 || !pString) return;
-    //FONT *pFont = &gFont[nFont];
-    //
-    //if (position)
-    //{
-    //    const char *s = pString;
-    //    int width = -pFont->space;
-    //    while (*s)
-    //    {
-    //        int nTile = ((*s-' ')&127)+pFont->tile;
-    //        if (tilesiz[nTile].x && tilesiz[nTile].y)
-    //            width += tilesiz[nTile].x+pFont->space;
-    //        s++;
-    //    }
-    //    if (position == 1)
-    //        width >>= 1;
-    //    x -= width;
-    //}
-    //const char *s = pString;
-    //while (*s)
-    //{
-    //    int nTile = ((*s-' ')&127) + pFont->tile;
-    //    if (tilesiz[nTile].x && tilesiz[nTile].y)
-    //    {
-    //        if (shadow)
-    //        {
-    //            rotatesprite_fs_alpha((x+1)<<16, (y+1)<<16, 65536, 0, nTile, 127, nPalette, 26|nStat, alpha);
-    //        }
-    //        rotatesprite_fs_alpha(x<<16, y<<16, 65536, 0, nTile, nShade, nPalette, 26|nStat, alpha);
-    //        x += tilesiz[nTile].x+pFont->space;
-    //    }
-    //    s++;
-    //}
 }
 
 void viewTileSprite(int nTile, int nShade, int nPalette, int x1, int y1, int x2, int y2)
@@ -1196,6 +1165,11 @@ void viewDrawStats(PLAYER *pPlayer, int x, int y)
     viewDrawText(3, buffer, x, y, 20, 0, 0, true, 256);
 }
 
+GameStats GameInterface::getStats()
+{
+	return { gKillMgr.at4, gKillMgr.at0, gSecretMgr.at8, gSecretMgr.at0, gLevelTime / kTicsPerSec, gPlayer[myconnectindex].fragCount };
+}
+
 #define kSBarNumberHealth 9220
 #define kSBarNumberAmmo 9230
 #define kSBarNumberInv 9240
@@ -1270,7 +1244,7 @@ void viewDrawPowerUps(PLAYER* pPlayer)
 
 void viewDrawMapTitle(void)
 {
-    if (!hud_showmapname || gGameMenuMgr.m_bActive)
+    if (!hud_showmapname || M_Active())
         return;
 
     int const fadeStartTic = int((videoGetRenderMode() == REND_CLASSIC ? 1.25f : 1.f)*kTicsPerSec);
@@ -1428,7 +1402,7 @@ void viewDrawCtfHudVanilla(ClockTicks arg)
     int x = 1, y = 1;
     if (dword_21EFD0[0] == 0 || ((int)totalclock & 8))
     {
-        viewDrawText(0, "BLUE", x, y, -128, 10, 0, 0, 256);
+        viewDrawText(0, GStrings("TXT_COLOR_BLUE"), x, y, -128, 10, 0, 0, 256);
         dword_21EFD0[0] = dword_21EFD0[0] - arg;
         if (dword_21EFD0[0] < 0)
             dword_21EFD0[0] = 0;
@@ -1438,7 +1412,7 @@ void viewDrawCtfHudVanilla(ClockTicks arg)
     x = 319;
     if (dword_21EFD0[1] == 0 || ((int)totalclock & 8))
     {
-        viewDrawText(0, "RED", x, y, -128, 7, 2, 0, 512);
+        viewDrawText(0, GStrings("TXT_COLOR_RED"), x, y, -128, 7, 2, 0, 512);
         dword_21EFD0[1] = dword_21EFD0[1] - arg;
         if (dword_21EFD0[1] < 0)
             dword_21EFD0[1] = 0;
@@ -2791,15 +2765,22 @@ void viewSetSystemMessage(const char* pMessage, ...) {
     char buffer[1024]; va_list args; va_start(args, pMessage);
     vsprintf(buffer, pMessage, args);
     
-    OSD_Printf("%s\n", buffer); // print it also in console
+    Printf(PRINT_HIGH | PRINT_NOTIFY, "%s\n", buffer); // print it also in console
     gGameMessageMgr.Add(buffer, 15, 7, MESSAGE_PRIORITY_SYSTEM);
 }
 
 void viewSetMessage(const char *pMessage, const int pal, const MESSAGE_PRIORITY priority)
 {
-    OSD_Printf("%s\n", pMessage);
+	int printlevel = priority < 0 ? PRINT_LOW : priority < MESSAGE_PRIORITY_SYSTEM ? PRINT_MEDIUM : PRINT_HIGH;
+    Printf(printlevel|PRINT_NOTIFY, "%s\n", pMessage);
     gGameMessageMgr.Add(pMessage, 15, pal, priority);
 }
+
+void GameInterface::DoPrintMessage(int prio, const char*msg)
+{
+	viewSetMessage(msg, 0, prio == PRINT_LOW ? MESSAGE_PRIORITY_PICKUP : prio == PRINT_MEDIUM ? MESSAGE_PRIORITY_NORMAL : MESSAGE_PRIORITY_SYSTEM);
+}
+
 
 void viewDisplayMessage(void)
 {
@@ -3056,7 +3037,7 @@ void viewDrawScreen(void)
     if (delta < 0)
         delta = 0;
     lastUpdate = totalclock;
-    if (!gPaused && (!CGameMenuMgr::m_bActive || gGameOptions.nGameType != 0))
+    if (!gPaused && (!M_Active() || gGameOptions.nGameType != 0))
     {
         gInterpolate = ((totalclock-gNetFifoClock)+4).toScale16()/4;
     }
@@ -3577,7 +3558,7 @@ RORHACK:
     viewDrawAimedPlayerName();
     if (gPaused)
     {
-        viewDrawText(1, "PAUSED", 160, 10, 0, 0, 1, 0);
+        viewDrawText(1, GStrings("TXTB_PAUSED"), 160, 10, 0, 0, 1, 0);
     }
     else if (gView != gMe)
     {
@@ -3631,7 +3612,7 @@ void viewLoadingScreenWide(void)
 void viewLoadingScreenUpdate(const char *pzText4, int nPercent)
 {
     int vc;
-    gMenuTextMgr.GetFontInfo(1, NULL, NULL, &vc);
+    viewGetFontInfo(1, NULL, NULL, &vc);
     if (nLoadingScreenTile == kLoadScreen)
         viewLoadingScreenWide();
     else if (nLoadingScreenTile)
@@ -3660,7 +3641,7 @@ void viewLoadingScreenUpdate(const char *pzText4, int nPercent)
     if (nPercent != -1)
         TileHGauge(2260, 86, 110, nPercent, 100, 0, 131072);
 
-    viewDrawText(3, "Please Wait", 160, 134, -128, 0, 1, 1);
+    viewDrawText(3, GStrings("TXTB_PLSWAIT"), 160, 134, -128, 0, 1, 1);
 }
 
 void viewLoadingScreen(int nTile, const char *pText, const char *pText2, const char *pText3)

@@ -35,10 +35,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "sector.h"
 #include "gamecontrol.h"
+#include "mapinfo.h"
 
 BEGIN_SW_NS
 
-extern uint8_t RedBookSong[40];
 extern short BossSpriteNum[3];
 
 DECISION SerpBattle[] =
@@ -815,14 +815,13 @@ int DoDeathSpecial(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    static SWBOOL alreadydid = FALSE;
 
     DoMatchEverything(NULL, sp->lotag, ON);
 
-    if (!SW_SHAREWARE && MusicEnabled() && !alreadydid)
+    if (!SW_SHAREWARE)
     {
-        PlaySong(0, RedBookSong[Level], TRUE, TRUE);
-        alreadydid = TRUE;
+        // Resume the regular music - in a hack-free fashion.
+        PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
     }
 
     BossSpriteNum[0] = -2;

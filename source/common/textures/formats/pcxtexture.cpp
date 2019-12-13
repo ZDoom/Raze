@@ -39,7 +39,7 @@
 #include "bitmap.h"
 #include "imagehelpers.h"
 #include "image.h"
-#include "cache1d.h"
+#include "filesystem/filesystem.h"
 
 //==========================================================================
 //
@@ -350,7 +350,7 @@ void FPCXTexture::CreatePalettedPixels(uint8_t *buffer)
 	PCXHeader header;
 	int bitcount;
 
-	auto lump = kopenFileReader(Name, 0);
+	auto lump = fileSystem.OpenFileReader(Name, 0);
 	if (!lump.isOpen()) return;	// Just leave the texture blank.
 
 	lump.Read(&header, sizeof(header));
@@ -436,7 +436,7 @@ int FPCXTexture::CopyPixels(FBitmap *bmp, int conversion)
 	int bitcount;
 	TArray<uint8_t> Pixels;
 
-	auto lump = kopenFileReader(Name, 0);
+	auto lump = fileSystem.OpenFileReader(Name, 0);
 	if (!lump.isOpen()) return -1;	// Just leave the texture blank.
 
 	lump.Read(&header, sizeof(header));

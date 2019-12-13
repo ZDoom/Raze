@@ -36,6 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interp.h"
 #include "text.h"
 #include "sprite.h"
+#include "quotemgr.h"
 
 BEGIN_SW_NS
 
@@ -176,7 +177,7 @@ DoSlidorMatch(PLAYERp pp, short match, SWBOOL manual)
             // SWBOOL 8 must be set for message to display
             if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
-                if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp,"This only opens in single play.");
+                if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp, GStrings("TXTS_SPONLY"));
                 continue;
             }
 
@@ -213,7 +214,7 @@ DoSlidorMatch(PLAYERp pp, short match, SWBOOL manual)
                 else
 #endif
                 {
-                    PutStringInfo(pp, KeyDoorMessage[key_num - 1]);
+                    PutStringInfo(pp, quoteMgr.GetExQuote(QUOTE_DOORMSG + key_num - 1));
                     return -1;
                 }
             }

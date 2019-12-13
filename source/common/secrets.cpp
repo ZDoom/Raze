@@ -1,5 +1,5 @@
 #include "c_dispatch.h"
-#include "cache1d.h"
+#include "filesystem/filesystem.h"
 #include "printf.h"
 #include "v_text.h"
 #include "tarray.h"
@@ -166,7 +166,7 @@ void SECRET_SetMapName(const char *filename, const char *_maptitle)
 
 void  SECRET_Trigger(int num)
 {
-	if (secret_notify) Printf(PRINT_NONOTIFY, "Secret #%d found\n", num);
+	if (secret_notify) Printf("Secret #%d found\n", num);
 	if (discovered_secrets.Find(num) == discovered_secrets.Size())
 		discovered_secrets.Push(num);
 }

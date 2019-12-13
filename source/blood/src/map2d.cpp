@@ -197,8 +197,8 @@ void CViewMap::sub_25C74(void)
     videoClearScreen(0);
     renderDrawMapView(x,y,nZoom>>2,angle);
     sub_2541C(x,y,nZoom>>2,angle);
-    char *pTitle = levelGetTitle();
-    char *pFilename = levelGetFilename(gGameOptions.nEpisode, gGameOptions.nLevel);
+    const char *pTitle = levelGetTitle();
+    const char *pFilename = levelGetFilename(gGameOptions.nEpisode, gGameOptions.nLevel);
     if (pTitle)
         sprintf(pBuffer, "%s: %s", pFilename, pTitle);
     else
@@ -210,10 +210,12 @@ void CViewMap::sub_25C74(void)
         nViewY = gViewY0S+1;
     viewDrawText(3, pBuffer, gViewX1S, nViewY, -128, 0, 2, 0, 256);
 
+#if 0 // needs to be generalized
     if (gViewMap.bFollowMode)
         viewDrawText(3, "MAP FOLLOW MODE", gViewX1S, nViewY+8, -128, 0, 2, 0, 256);
     else
         viewDrawText(3, "MAP SCROLL MODE", gViewX1S, nViewY+8, -128, 0, 2, 0, 256);
+#endif
     if (tm)
         viewResizeView(viewSize);
 }

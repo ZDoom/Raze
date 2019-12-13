@@ -11,7 +11,7 @@
 #ifndef palette_h_
 #define palette_h_
 
-#include "cache1d.h"
+#include "filesystem/filesystem.h"
 
 #define MAXBASEPALS 256
 #define MAXPALOOKUPS 256

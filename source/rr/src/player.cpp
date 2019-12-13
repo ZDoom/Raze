@@ -2758,42 +2758,10 @@ void P_GetInput(int playerNum)
 
 	D_ProcessEvents();
 
-    if (in_aimmode)
-        g_MyAimMode = buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-    else
-    {
-        g_oldAimStat = g_myAimStat;
-        g_myAimStat  = buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-        if (g_myAimStat > g_oldAimStat)
-        {
-            g_MyAimMode ^= 1;
-            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_MyAimMode, pPlayer);
-        }
-    }
+	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
     CONTROL_GetInput(&info);
 
-    if (in_mousedeadzone)
-    {
-        if (info.mousey > 0)
-            info.mousey = max(info.mousey - in_mousedeadzone, 0);
-        else if (info.mousey < 0)
-            info.mousey = min(info.mousey + in_mousedeadzone, 0);
-
-        if (info.mousex > 0)
-            info.mousex = max(info.mousex - in_mousedeadzone, 0);
-        else if (info.mousex < 0)
-            info.mousex = min(info.mousex + in_mousedeadzone, 0);
-    }
-
-    if (in_mousebias)
-    {
-        if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
-        else
-            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
-    }
 
     // JBF: Run key behaviour is selectable
 	
@@ -2820,7 +2788,7 @@ void P_GetInput(int playerNum)
         input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
     }
 
-    if (g_MyAimMode)
+    if (mouseaim)
         input.q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
     else
         input.fvel = -(info.mousey >> 6);
@@ -2985,7 +2953,7 @@ void P_GetInput(int playerNum)
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Quick_Kick) << SK_QUICK_KICK;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_TurnAround) << SK_TURNAROUND;
 
-    localInput.bits |= (g_MyAimMode << SK_AIMMODE);
+    localInput.bits |= (mouseaim << SK_AIMMODE);
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
     localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
     localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE;
@@ -3064,42 +3032,9 @@ void P_GetInputMotorcycle(int playerNum)
 
     D_ProcessEvents();
 
-    if (in_aimmode)
-        g_MyAimMode = buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-    else
-    {
-        g_oldAimStat = g_myAimStat;
-        g_myAimStat  = buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-        if (g_myAimStat > g_oldAimStat)
-        {
-            g_MyAimMode ^= 1;
-            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_MyAimMode, pPlayer);
-        }
-    }
+	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
     CONTROL_GetInput(&info);
-
-    if (in_mousedeadzone)
-    {
-        if (info.mousey > 0)
-            info.mousey = max(info.mousey - in_mousedeadzone, 0);
-        else if (info.mousey < 0)
-            info.mousey = min(info.mousey + in_mousedeadzone, 0);
-
-        if (info.mousex > 0)
-            info.mousex = max(info.mousex - in_mousedeadzone, 0);
-        else if (info.mousex < 0)
-            info.mousex = min(info.mousex + in_mousedeadzone, 0);
-    }
-
-    if (in_mousebias)
-    {
-        if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
-        else
-            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
-    }
 
     // JBF: Run key behaviour is selectable
     int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
@@ -3362,42 +3297,9 @@ void P_GetInputBoat(int playerNum)
 
     D_ProcessEvents();
 
-    if (in_aimmode)
-        g_MyAimMode = buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-    else
-    {
-        g_oldAimStat = g_myAimStat;
-        g_myAimStat  = buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-        if (g_myAimStat > g_oldAimStat)
-        {
-            g_MyAimMode ^= 1;
-            P_DoQuote(QUOTE_MOUSE_AIMING_OFF + g_MyAimMode, pPlayer);
-        }
-    }
+	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
     CONTROL_GetInput(&info);
-
-    if (in_mousedeadzone)
-    {
-        if (info.mousey > 0)
-            info.mousey = max(info.mousey - in_mousedeadzone, 0);
-        else if (info.mousey < 0)
-            info.mousey = min(info.mousey + in_mousedeadzone, 0);
-
-        if (info.mousex > 0)
-            info.mousex = max(info.mousex - in_mousedeadzone, 0);
-        else if (info.mousex < 0)
-            info.mousex = min(info.mousex + in_mousedeadzone, 0);
-    }
-
-    if (in_mousebias)
-    {
-        if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
-        else
-            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
-    }
 
     // JBF: Run key behaviour is selectable
     int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
@@ -4540,18 +4442,18 @@ void P_FragPlayer(int playerNum)
 
             if (playerNum == screenpeek)
             {
-                Bsprintf(apStrings[QUOTE_RESERVED], "Killed by %s", &g_player[pPlayer->frag_ps].user_name[0]);
+				quoteMgr.InitializeQuote(QUOTE_RESERVED, "Killed by %s", &g_player[pPlayer->frag_ps].user_name[0]);
                 P_DoQuote(QUOTE_RESERVED, pPlayer);
             }
             else
             {
-                Bsprintf(apStrings[QUOTE_RESERVED2], "Killed %s", &g_player[playerNum].user_name[0]);
+				quoteMgr.InitializeQuote(QUOTE_RESERVED2, "Killed %s", &g_player[playerNum].user_name[0]);
                 P_DoQuote(QUOTE_RESERVED2, g_player[pPlayer->frag_ps].ps);
             }
 
             if (cl_obituaries)
             {
-                Bsprintf(tempbuf, apStrings[OBITQUOTEINDEX + (krand2() % g_numObituaries)],
+                Bsprintf(tempbuf, quoteMgr.GetQuote(OBITQUOTEINDEX + (krand2() % g_numObituaries)),
                          &g_player[pPlayer->frag_ps].user_name[0], &g_player[playerNum].user_name[0]);
                 G_AddUserQuote(tempbuf);
             }
@@ -4564,14 +4466,14 @@ void P_FragPlayer(int playerNum)
             {
                 pPlayer->fraggedself++;
                 if ((unsigned)pPlayer->wackedbyactor < MAXTILES && A_CheckEnemyTile(sprite[pPlayer->wackedbyactor].picnum))
-                    Bsprintf(tempbuf, apStrings[OBITQUOTEINDEX + (krand2() % g_numObituaries)], "A monster",
+                    Bsprintf(tempbuf, quoteMgr.GetQuote(OBITQUOTEINDEX + (krand2() % g_numObituaries)), "A monster",
                              &g_player[playerNum].user_name[0]);
                 else if (actor[pPlayer->i].picnum == NUKEBUTTON)
                     Bsprintf(tempbuf, "^02%s^02 tried to leave", &g_player[playerNum].user_name[0]);
                 else
                 {
                     // random suicide death string
-                    Bsprintf(tempbuf, apStrings[SUICIDEQUOTEINDEX + (krand2() % g_numSelfObituaries)],
+                    Bsprintf(tempbuf, quoteMgr.GetQuote(SUICIDEQUOTEINDEX + (krand2() % g_numSelfObituaries)),
                              &g_player[playerNum].user_name[0]);
                 }
             }

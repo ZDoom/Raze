@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "levels.h"
 #include "loadsave.h"
-#include "menu.h"
+#include "gamemenu.h"
 #include "mirrors.h"
 #include "music.h"
 #include "network.h"
@@ -71,6 +71,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "m_argv.h"
 #include "statistics.h"
+#include "menu/menu.h"
 
 #ifdef _WIN32
 # include <shellapi.h>
@@ -97,8 +98,6 @@ char bAddUserMap = false;
 bool bNoDemo = false;
 bool bQuickStart = true;
 
-int gMusicPrevLoadedEpisode = -1;
-int gMusicPrevLoadedLevel = -1;
 
 char gUserMapFilename[BMAX_PATH];
 
@@ -376,7 +375,7 @@ static void PrecacheSounds(void)
 		if (pNode->ResType() == NAME_RAW || pNode->ResType() == NAME_SFX)
 		{
 			pNode->Get();
-			if ((i&15) == 15) gameHandleEvents();	// don't do this too often. That made sense in 1996 but not in 2019
+			//if ((i&15) == 15) gameHandleEvents();	// don't do this too often. That made sense in 1996 but not in 2019
 		}
 	}
 }
@@ -387,8 +386,6 @@ void PreloadCache(void)
     if (gDemo.at1)
         return;
     PrecacheSounds();
-    if (mus_restartonload)
-        sndTryPlaySpecialMusic(MUS_LOADING);
     PreloadTiles();
     ClockTicks clock = totalclock;
     int cnt = 0;
@@ -485,8 +482,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     EndLevel();
     gStartNewGame = 0;
     ready2send = 0;
-    gMusicPrevLoadedEpisode = gGameOptions.nEpisode;
-    gMusicPrevLoadedLevel = gGameOptions.nLevel;
     if (gDemo.at0 && gGameStarted)
         gDemo.Close();
     netWaitForEveryone(0);
@@ -547,6 +542,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         return;
     }
     char levelName[BMAX_PATH];
+    currentLevel = &mapList[gGameOptions.nEpisode * kMaxLevels + gGameOptions.nLevel];
 	STAT_NewLevel(gameOptions->zLevelName);
     G_LoadMapHack(levelName, gameOptions->zLevelName);
     wsrand(gameOptions->uMapCRC);
@@ -719,8 +715,8 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     gCacheMiss = 0;
     gFrame = 0;
     gChokeCounter = 0;
-    if (!gDemo.at1)
-        gGameMenuMgr.Deactivate();
+	if (!gDemo.at1)
+		M_ClearMenus();
     levelTryPlayMusicOrNothing(gGameOptions.nEpisode, gGameOptions.nLevel);
     // viewSetMessage("");
     viewSetErrorMessage("");
@@ -768,38 +764,6 @@ void StartNetworkLevel(void)
 
 int gDoQuickSave = 0;
 
-static void DoQuickLoad(void)
-{
-    if (!gGameMenuMgr.m_bActive)
-    {
-        if (gQuickLoadSlot != -1)
-        {
-            QuickLoadGame();
-            return;
-        }
-        if (gQuickLoadSlot == -1 && gQuickSaveSlot != -1)
-        {
-            gQuickLoadSlot = gQuickSaveSlot;
-            QuickLoadGame();
-            return;
-        }
-        gGameMenuMgr.Push(&menuLoadGame,-1);
-    }
-}
-
-static void DoQuickSave(void)
-{
-    if (gGameStarted && !gGameMenuMgr.m_bActive && gPlayer[myconnectindex].pXSprite->health != 0)
-    {
-        if (gQuickSaveSlot != -1)
-        {
-            QuickSaveGame();
-            return;
-        }
-        gGameMenuMgr.Push(&menuSaveGame,-1);
-    }
-}
-
 void LocalKeys(void)
 {
     bool alt = inputState.AltPressed();
@@ -837,21 +801,6 @@ void LocalKeys(void)
             gView = &gPlayer[gViewIndex];
         }
     }
-    if (gDoQuickSave)
-    {
-        inputState.keyFlushScans();
-        switch (gDoQuickSave)
-        {
-        case 1:
-            DoQuickSave();
-            break;
-        case 2:
-            DoQuickLoad();
-            break;
-        }
-        gDoQuickSave = 0;
-        return;
-    }
     char key;
     if ((key = inputState.keyGetScan()) != 0)
     {
@@ -872,78 +821,21 @@ void LocalKeys(void)
             buttonMap.ClearButton(gamefunc_See_Chase_View);
             return;
         }
+#if 0
         switch (key)
         {
         case sc_kpad_Period:
         case sc_Delete:
             if (ctrl && alt)
             {
-                gQuitGame = 1;
+                gQuitGame = 1;  // uh, what?
                 return;
             }
             break;
-        case sc_Escape:
-            inputState.keyFlushScans();
-            if (gGameStarted && gPlayer[myconnectindex].pXSprite->health != 0)
-            {
-                if (!gGameMenuMgr.m_bActive)
-                    gGameMenuMgr.Push(&menuMainWithSave,-1);
-            }
-            else
-            {
-                if (!gGameMenuMgr.m_bActive)
-                    gGameMenuMgr.Push(&menuMain,-1);
-            }
-            return;
-        case sc_F1:
-            inputState.keyFlushScans();
-            if (gGameOptions.nGameType == 0)
-                gGameMenuMgr.Push(&menuOrder,-1);
-            break;
-        case sc_F2:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive && gGameOptions.nGameType == 0)
-                gGameMenuMgr.Push(&menuSaveGame,-1);
-            break;
-        case sc_F3:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive && gGameOptions.nGameType == 0)
-                gGameMenuMgr.Push(&menuLoadGame,-1);
-            break;
-        case sc_F4:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Push(&menuOptionsSound,-1);
-            return;
-        case sc_F5:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Push(&menuOptions,-1);
-            return;
-        case sc_F6:
-            inputState.keyFlushScans();
-            DoQuickSave();
-            break;
-        case sc_F8:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Push(&menuOptionsDisplayMode, -1);
-            return;
-        case sc_F9:
-            inputState.keyFlushScans();
-            DoQuickLoad();
-            break;
-        case sc_F10:
-            inputState.keyFlushScans();
-            if (!gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Push(&menuQuit,-1);
-            break;
-        case sc_F11:
-            break;
-        case sc_F12:
-            videoCaptureScreen();
+        case default:
             break;
         }
+#endif
     }
 }
 
@@ -1007,7 +899,7 @@ void ProcessFrame(void)
     viewClearInterpolations();
     if (!gDemo.at1)
     {
-        if (gPaused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && gGameMenuMgr.m_bActive))
+        if (gPaused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && M_Active()))
             return;
         if (gDemo.at0)
             gDemo.Write(gFifoInput[(gNetFifoTail-1)&255]);
@@ -1056,7 +948,7 @@ void ProcessFrame(void)
         }
         if (gDemo.at0)
             gDemo.Close();
-        sndFadeSong(4000);
+        Mus_Fade(4000);
         seqKillAll();
         if (gGameOptions.uGameFlags&2)
         {
@@ -1064,8 +956,9 @@ void ProcessFrame(void)
             {
                 if (gGameOptions.uGameFlags&8)
                     levelPlayEndScene(gGameOptions.nEpisode);
-                gGameMenuMgr.Deactivate();
-                gGameMenuMgr.Push(&menuCredits,-1);
+
+				M_StartControlPanel(false);
+				M_SetMenu(NAME_CreditsMenu);
             }
             gGameOptions.uGameFlags &= ~3;
             gRestartGame = 1;
@@ -1313,7 +1206,6 @@ int GameInterface::app_main()
         levelAddUserMap(gUserMapFilename);
         gStartNewGame = 1;
     }
-    SetupMenus();
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
     if (!bQuickStart)
         credLogosDos();
@@ -1349,26 +1241,21 @@ RESTART:
     else if (gDemo.at1 && !bAddUserMap && !bNoDemo)
         gDemo.Playback();
     if (gDemo.at59ef > 0)
-        gGameMenuMgr.Deactivate();
-    if (!bAddUserMap && !gGameStarted)
-        gGameMenuMgr.Push(&menuMain, -1);
+        M_ClearMenus();
+	if (!bAddUserMap && !gGameStarted)
+	{
+		M_StartControlPanel(false);
+		M_SetMenu(NAME_MainMenu);
+	}
     ready2send = 1;
     while (!gQuitGame)
     {
-        if (handleevents() && quitevent)
-        {
-			inputState.SetKeyStatus(sc_Escape, 1);
-            quitevent = 0;
-        }
+		handleevents();
         netUpdate();
         MUSIC_Update();
         inputState.SetBindsEnabled(gInputMode == kInputGame);
         switch (gInputMode)
         {
-        case kInputMenu:
-            if (gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Process();
-            break;
         case kInputGame:
             LocalKeys();
             break;
@@ -1445,10 +1332,6 @@ RESTART:
         {
             switch (gInputMode)
             {
-            case kInputMenu:
-                if (gGameMenuMgr.m_bActive)
-                    gGameMenuMgr.Draw();
-                break;
             case kInputMessage:
                 gPlayerMsg.ProcessKeys();
                 gPlayerMsg.Draw();
@@ -1475,7 +1358,6 @@ RESTART:
         //}
 		if (gStartNewGame)
 		{
-			STAT_StartNewGame(gEpisodeInfo[gGameOptions.nEpisode].at0, gGameOptions.nDifficulty);
 			StartLevel(&gGameOptions);
 		}
     }
@@ -1485,13 +1367,15 @@ RESTART:
     if (gRestartGame)
     {
         UpdateDacs(0, true);
-        sndStopSong();
+        Mus_Stop();
         FX_StopAllSounds();
         gQuitGame = 0;
         gQuitRequest = 0;
         gRestartGame = 0;
         gGameStarted = 0;
         levelSetupOptions(0,0);
+#if 0
+		// What's this loop for? Needs checking
         while (gGameMenuMgr.m_bActive)
         {
             gGameMenuMgr.Process();
@@ -1503,6 +1387,7 @@ RESTART:
                 videoNextPage();
             }
         }
+#endif
         if (gGameOptions.nGameType != 0)
         {
             if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo)
@@ -1560,9 +1445,8 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
             return -1;
     }
 
-    int nEpisode = sel/kMaxLevels;
-    int nLevel = sel%kMaxLevels;
-    return S_DefineAudioIfSupported(gEpisodeInfo[nEpisode].at28[nLevel].atd0, name);
+    quoteMgr.InitializeQuote(sel, name);
+    return 0;
 }
 
 static int parsedefinitions_game(scriptfile *, int);
@@ -1800,7 +1684,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
                 }
 
-                if (fileName == NULL || check_file_exist(fileName))
+                if (fileName == NULL || fileSystem.FileExists(fileName))
                     break;
 
                 if (S_DefineMusic(musicID, fileName) == -1)
@@ -2052,7 +1936,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
                 }
 
-                if (fileName == NULL || check_file_exist(fileName))
+                if (fileName == NULL || fileSystem.FileExists(fileName))
                     break;
 
                 // maybe I should have just packed this into a sound_t and passed a reference...
@@ -2104,29 +1988,18 @@ bool fileExistsRFF(int id, const char *ext) {
 
 int sndTryPlaySpecialMusic(int nMusic)
 {
-    int nEpisode = nMusic/kMaxLevels;
-    int nLevel = nMusic%kMaxLevels;
-    if (sndPlaySong(gEpisodeInfo[nEpisode].at28[nLevel].at0, gEpisodeInfo[nEpisode].at28[nLevel].atd0, true))
+    if (Mus_Play(nullptr, quoteMgr.GetQuote(nMusic), true))
     {
-        strncpy(gGameOptions.zLevelSong, gEpisodeInfo[nEpisode].at28[nLevel].atd0, BMAX_PATH);
         return 0;
     }
-	else
-	{
-		// Unable to stat the music.
-		*gGameOptions.zLevelSong = 0;
-	}
     return 1;
 }
 
 void sndPlaySpecialMusicOrNothing(int nMusic)
 {
-    int nEpisode = nMusic/kMaxLevels;
-    int nLevel = nMusic%kMaxLevels;
     if (sndTryPlaySpecialMusic(nMusic))
     {
-        sndStopSong();
-        strncpy(gGameOptions.zLevelSong, gEpisodeInfo[nEpisode].at28[nLevel].atd0, BMAX_PATH);
+        Mus_Stop();
     }
 }
 

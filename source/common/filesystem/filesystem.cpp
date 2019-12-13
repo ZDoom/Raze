@@ -48,6 +48,7 @@
 #include "filesystem.h"
 #include "resourcefile.h"
 #include "v_text.h"
+#include "c_dispatch.h"
 //#include "md5.h"
 //#include "doomstat.h"
 
@@ -230,7 +231,8 @@ int FileSystem::CheckIfResourceFileLoaded (const char *name) noexcept
 	{
 		for (i = 0; i < Files.Size(); ++i)
 		{
-			if (stricmp (GetResourceFileName (i), name) == 0)
+			auto pth = ExtractFileBase(GetResourceFileName(i), true);
+			if (stricmp (pth.GetChars(), name) == 0)
 			{
 				return i;
 			}
@@ -321,6 +323,7 @@ int FileSystem::FindResource (int resid, const char *type, int filenum) const no
 	for (i = fli[int(resid) % NumEntries]; i != NULL_INDEX; i = nli[i])
 	{
 		if (filenum > 0 && FileInfo[i].rfnum != filenum) continue;
+		if (FileInfo[i].lump->ResourceId != resid) continue;
 		auto lump = FileInfo[i].lump;
 		if (lump->LumpName[lookuptype] == lname) return i;
 	}
@@ -481,7 +484,7 @@ int FileSystem::Iterate (const char *name, int *lastlump, ELookupMode lookupmode
 	}
 
 	lump_p = &FileInfo[*lastlump];
-	while (lump_p < &FileInfo[NumEntries])
+	while (lump_p <= &FileInfo.Last())
 	{
 		auto lump = lump_p->lump;
 		if (lump->LumpName[lookupindex] == lname)
@@ -765,6 +768,13 @@ FileReader FileSystem::ReopenFileReader(int lump, bool alwayscache)
 		}
 	}
 	return rl->NewReader();	// This always gets a reader to the cache
+}
+
+FileReader FileSystem::OpenFileReader(const char* name, int where)
+{
+	auto lump = FindFile(name);
+	if (lump < 0) return FileReader();
+	else return OpenFileReader(lump);
 }
 
 //==========================================================================
@@ -1063,28 +1073,18 @@ static void PrintLastError ()
 }
 #endif
 
-#if 0
-void FileSystem::HashDump()
+CCMD(printfs)
 {
-	FILE* f = fopen("fs_hash.txt", "wb");
-	for (int list = 0; list < 5; list++)
-	{
-		fprintf(f, "List %d\n------------\n", list);
-		auto fli = FirstFileIndex[list];
-		auto nli = NextFileIndex[list];
-		for (int hash = 0; hash < NumEntries; hash++)
-		{
-			if (fli[hash] != NULL_INDEX)
-			{
-				fprintf(f, "\tHash %d\n", hash);
-				for (uint32_t i = fli[hash]; i != NULL_INDEX; i = nli[i])
-				{
-					auto lump = FileInfo[i].lump;
-					fprintf(f, "\t\t%s (%d)\t%d, %d\n", lump->LumpName[list].GetChars(), lump->LumpName[list].GetIndex(), lump->Size(), i);
-				}
-			}
-		}
-	}
-	fclose(f);
+	fileSystem.PrintDirectory();
 }
-#endif
+
+void FileSystem::PrintDirectory()
+{
+	for (int i = 0; i < NumEntries; i++)
+	{
+		auto lump = FileInfo[i].lump;
+		auto f = GetFileContainer(i);
+		auto n = GetResourceFileFullName(f);
+		Printf("%5d: %9d    %64s %4s %3d    %s\n", i, lump->LumpSize, lump->LumpName[0].GetChars(), lump->LumpName[4].GetChars(), lump->ResourceId, n);
+	}
+}

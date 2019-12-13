@@ -13,7 +13,7 @@ static FileReader S_TryFormats(char * const testfn, char * const fn_suffix, char
 #ifdef HAVE_FLAC
     {
         Bstrcpy(fn_suffix, ".flac");
-        auto fp = kopenFileReader(testfn, searchfirst);
+        auto fp = fileSystem.OpenFileReader(testfn, searchfirst);
         if (fp.isOpen())
             return fp;
     }
@@ -22,7 +22,7 @@ static FileReader S_TryFormats(char * const testfn, char * const fn_suffix, char
 #ifdef HAVE_VORBIS
     {
         Bstrcpy(fn_suffix, ".ogg");
-		auto fp = kopenFileReader(testfn, searchfirst);
+		auto fp = fileSystem.OpenFileReader(testfn, searchfirst);
 		if (fp.isOpen())
 			return fp;
 	}
@@ -64,7 +64,7 @@ static FileReader S_TryExtensionReplacements(char * const testfn, char const sea
 
 FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 {
-	auto origfp = kopenFileReader(fn, searchfirst);
+	auto origfp = fileSystem.OpenFileReader(fn, searchfirst);
 	if (!snd_tryformats) return origfp;
 	return origfp;
 #if 0 // this needs to be redone

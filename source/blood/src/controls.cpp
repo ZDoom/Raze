@@ -121,75 +121,20 @@ void ctrlGetInput(void)
 
     D_ProcessEvents();
 
-    if (in_aimmode)
-        g_MyAimMode = 0;
-
-    if (buttonMap.ButtonDown(gamefunc_Mouse_Aiming))
-    {
-        if (in_aimmode)
-            g_MyAimMode = 1;
-        else
-        {
-            buttonMap.ClearButton(gamefunc_Mouse_Aiming);
-            g_MyAimMode = !g_MyAimMode;
-            if (g_MyAimMode)
-            {
-                if (!bSilentAim)
-                    viewSetMessage("Mouse aiming ON");
-            }
-            else
-            {
-                if (!bSilentAim)
-                    viewSetMessage("Mouse aiming OFF");
-                gInput.keyFlags.lookCenter = 1;
-            }
-        }
-    }
-    else if (in_aimmode)
-        gInput.keyFlags.lookCenter = 1;
+	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
+	if (!mouseaim) gInput.keyFlags.lookCenter = 1;
 
     CONTROL_GetInput(&info);
-
-    if (in_mousedeadzone)
-    {
-        if (info.mousey > 0)
-            info.mousey = max(info.mousey - in_mousedeadzone, 0);
-        else if (info.mousey < 0)
-            info.mousey = min(info.mousey + in_mousedeadzone, 0);
-
-        if (info.mousex > 0)
-            info.mousex = max(info.mousex - in_mousedeadzone, 0);
-        else if (info.mousex < 0)
-            info.mousex = min(info.mousex + in_mousedeadzone, 0);
-    }
-
-    if (in_mousebias)
-    {
-        if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
-        else
-            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
-    }
 
     if (gQuitRequest)
         gInput.keyFlags.quit = 1;
 
-    if (gGameStarted && gInputMode != kInputMessage && gInputMode != kInputMenu
+    if (gGameStarted && gInputMode != kInputMessage
         && buttonMap.ButtonDown(gamefunc_SendMessage))
     {
         buttonMap.ClearButton(gamefunc_SendMessage);
         inputState.keyFlushScans();
         gInputMode = kInputMessage;
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_AutoRun))
-    {
-        buttonMap.ClearButton(gamefunc_AutoRun);
-        gAutoRun = !gAutoRun;
-        if (gAutoRun)
-            viewSetMessage("Auto run ON");
-        else
-            viewSetMessage("Auto run OFF");
     }
 
     if (buttonMap.ButtonDown(gamefunc_Map_Toggle))
@@ -415,13 +360,7 @@ void ctrlGetInput(void)
 
     strafe = ClipRange(strafe-(info.dx<<5), -2048, 2048);
 
-#if 0
-    if (info.dz < 0)
-        gInput.mlook = ClipRange((info.dz+127)>>7, -127, 127);
-    else
-        gInput.mlook = ClipRange(info.dz>>7, -127, 127);
-#endif
-    if (g_MyAimMode)
+    if (mouseaim)
         gInput.q16mlook = fix16_clamp(fix16_div(fix16_from_int(info.mousey), F16(128)), F16(-127)>>2, F16(127)>>2);
     else
         forward = ClipRange(forward - info.mousey, -2048, 2048);

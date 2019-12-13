@@ -44,8 +44,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameconfigfile.h"
 #include "printf.h"
 #include "m_argv.h"
+#include "c_dispatch.h"
 #include "filesystem/filesystem.h"
 #include "statistics.h"
+#include "menu/menu.h"
+#include "mapinfo.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
@@ -76,7 +79,7 @@ int32_t g_quitDeadline = 0;
 int32_t g_cameraDistance = 0, g_cameraClock = 0;
 static int32_t g_quickExit;
 
-char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
+char boardfilename[BMAX_PATH];
 
 int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
@@ -112,14 +115,14 @@ const char *G_DefaultRtsFile(void)
         return defaultrtsfilename[GAME_WW2GI];
     else if (NAPALM)
     {
-        if (!testkopen(defaultrtsfilename[GAME_NAPALM],0) && testkopen(defaultrtsfilename[GAME_NAM],0))
+        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAM]))
             return defaultrtsfilename[GAME_NAM]; // NAM/NAPALM Sharing
         else
             return defaultrtsfilename[GAME_NAPALM];
     }
     else if (NAM)
     {
-        if (!testkopen(defaultrtsfilename[GAME_NAM],0) && testkopen(defaultrtsfilename[GAME_NAPALM],0))
+        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]))
             return defaultrtsfilename[GAME_NAPALM]; // NAM/NAPALM Sharing
         else
             return defaultrtsfilename[GAME_NAM];
@@ -202,13 +205,6 @@ void G_HandleSpecialKeys(void)
         inputState.ClearKeyStatus(sc_Enter);
         g_restorePalette = 1;
         G_UpdateScreenArea();
-    }
-
-    if (inputState.UnboundKeyPressed(sc_F12))
-    {
-        inputState.ClearKeyStatus(sc_F12);
-        videoCaptureScreen();
-        P_DoQuote(QUOTE_SCREEN_SAVED, &myplayer);
     }
 
     // only dispatch commands here when not in a game
@@ -4416,11 +4412,6 @@ extern int G_StartRTS(int lumpNum, int localPlayer)
     return 0;
 }
 
-void G_PrintCurrentMusic(void)
-{
-    Bsnprintf(apStrings[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", g_mapInfo[g_musicIndex].musicfn);
-    P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
-}
 
 // Trying to sanitize the mess of options and the mess of variables the mess was stored in. (Did I say this was a total mess before...? >) )
 // Hopefully this is more comprehensible, at least it neatly stores everything useful in a single linear value...
@@ -4485,7 +4476,7 @@ void G_HandleLocalKeys(void)
     {
         if (inputState.UnboundKeyPressed(sc_F1) || inputState.UnboundKeyPressed(sc_F2) || cl_autovote)
         {
-            G_AddUserQuote("Vote Cast");
+            G_AddUserQuote(GStrings("VoteCast"));
             Net_SendMapVote(inputState.UnboundKeyPressed(sc_F1) || cl_autovote ? cl_autovote-1 : 0);
             inputState.ClearKeyStatus(sc_F1);
             inputState.ClearKeyStatus(sc_F2);
@@ -4667,25 +4658,6 @@ void G_HandleLocalKeys(void)
         {
             if (SHIFTS_IS_PRESSED)
             {
-                if (ridiculeNum == 5 && myplayer.fta > 0 && myplayer.ftq == QUOTE_MUSIC)
-                {
-                    const unsigned int maxi = VOLUMEALL ? MUS_FIRST_SPECIAL : 6;
-
-                    unsigned int const oldMusicIndex = g_musicIndex;
-                    unsigned int MyMusicIndex = g_musicIndex;
-                    do
-                    {
-                        ++MyMusicIndex;
-                        if (MyMusicIndex >= maxi)
-                            MyMusicIndex = 0;
-                    }
-                    while (S_TryPlayLevelMusic(MyMusicIndex) && MyMusicIndex != oldMusicIndex);
-
-                    G_PrintCurrentMusic();
-
-                    return;
-                }
-
                 G_AddUserQuote(*CombatMacros[ridiculeNum-1]);
 				Net_SendTaunt(ridiculeNum);
 
@@ -4717,136 +4689,6 @@ void G_HandleLocalKeys(void)
             typebuf[0] = 0;
         }
 
-        if (inputState.UnboundKeyPressed(sc_F1) && !(G_GetLogoFlags() & LOGO_NOHELP)/* || (ud.show_help && I_AdvanceTrigger())*/)
-        {
-            inputState.ClearKeyStatus(sc_F1);
-
-            Menu_Change(MENU_STORY);
-            S_PauseSounds(true);
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2))
-            {
-                ready2send = 0;
-                totalclock = ototalclock;
-                screenpeek = myconnectindex;
-            }
-        }
-
-        //        if((!net_server && ud.multimode < 2))
-        {
-            if (ud.recstat != 2 && inputState.UnboundKeyPressed(sc_F2))
-            {
-                inputState.ClearKeyStatus(sc_F2);
-
-FAKE_F2:
-                if (sprite[myplayer.i].extra <= 0)
-                {
-                    P_DoQuote(QUOTE_SAVE_DEAD, &myplayer);
-                    return;
-                }
-
-                Menu_Change(MENU_SAVE);
-
-                S_PauseSounds(true);
-                Menu_Open(myconnectindex);
-
-                if ((!g_netServer && ud.multimode < 2))
-                {
-                    ready2send = 0;
-                    totalclock = ototalclock;
-                    screenpeek = myconnectindex;
-                }
-            }
-
-            if (inputState.UnboundKeyPressed(sc_F3))
-            {
-                inputState.ClearKeyStatus(sc_F3);
-
-FAKE_F3:
-                Menu_Change(MENU_LOAD);
-                S_PauseSounds(true);
-                Menu_Open(myconnectindex);
-
-                if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-                {
-                    ready2send = 0;
-                    totalclock = ototalclock;
-                }
-
-                screenpeek = myconnectindex;
-            }
-        }
-
-		if (inputState.GetKeyStatus(sc_F4))
-			if (inputState.UnboundKeyPressed(sc_F4))
-        {
-            inputState.ClearKeyStatus(sc_F4);
-
-            S_PauseSounds(true);
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-            {
-                ready2send = 0;
-                totalclock = ototalclock;
-            }
-
-            Menu_Change(MENU_SOUND_INGAME);
-        }
-
-        if (inputState.UnboundKeyPressed(sc_F5) && MusicEnabled())
-        {
-            map_t *const pMapInfo    = &g_mapInfo[g_musicIndex];
-            char *const  musicString = apStrings[QUOTE_MUSIC];
-
-            inputState.ClearKeyStatus(sc_F5);
-
-            if (pMapInfo->musicfn != NULL)
-                Bsnprintf(musicString, MAXQUOTELEN, "%s.  Use SHIFT-F5 to change.", pMapInfo->musicfn);
-            else
-                musicString[0] = '\0';
-
-            P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
-        }
-
-        if ((buttonMap.ButtonDown(gamefunc_Quick_Save) || g_doQuickSave == 1) && (myplayer.gm & MODE_GAME))
-        {
-            buttonMap.ClearButton(gamefunc_Quick_Save);
-
-            g_doQuickSave = 0;
-
-            if (!g_lastusersave.isValid())
-                goto FAKE_F2;
-
-            inputState.keyFlushChars();
-
-            if (sprite[myplayer.i].extra <= 0)
-            {
-                P_DoQuote(QUOTE_SAVE_DEAD, &myplayer);
-                return;
-            }
-
-            g_screenCapture = 1;
-            G_DrawRooms(myconnectindex,65536);
-            g_screenCapture = 0;
-
-            if (g_lastusersave.isValid())
-            {
-                savebrief_t & sv = g_lastusersave;
-
-                // dirty hack... char 127 in last position indicates an auto-filled name
-                if (sv.name[MAXSAVEGAMENAME] == 127)
-                {
-                    strncpy(sv.name, g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME);
-                    sv.name[MAXSAVEGAMENAME] = 127;
-                }
-
-                g_quickload = &sv;
-                G_SavePlayerMaybeMulti(sv);
-            }
-        }
-
         if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
         {
             buttonMap.ClearButton(gamefunc_Third_Person_View);
@@ -4859,63 +4701,6 @@ FAKE_F3:
             P_DoQuote(QUOTE_VIEW_MODE_OFF + myplayer.over_shoulder_on, &myplayer);
         }
 
-        if (inputState.UnboundKeyPressed(sc_F8))
-        {
-            inputState.ClearKeyStatus(sc_F8);
-
-            int const fta = !hud_messages;
-            hud_messages     = 1;
-            P_DoQuote(fta ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, &myplayer);
-            hud_messages     = fta;
-        }
-
-        if ((buttonMap.ButtonDown(gamefunc_Quick_Load) || g_doQuickSave == 2) && (myplayer.gm & MODE_GAME))
-        {
-            buttonMap.ClearButton(gamefunc_Quick_Load);
-
-            g_doQuickSave = 0;
-
-            if (g_quickload == nullptr || !g_quickload->isValid())
-                goto FAKE_F3;
-            else if (g_quickload->isValid())
-            {
-                inputState.keyFlushChars();
-                inputState.ClearKeysDown();
-                S_PauseSounds(true);
-                if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
-                    g_quickload->reset();
-            }
-        }
-
-        if (inputState.UnboundKeyPressed(sc_F10))
-        {
-            inputState.ClearKeyStatus(sc_F10);
-
-            Menu_Change(MENU_QUIT_INGAME);
-            S_PauseSounds(true);
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-            {
-                ready2send = 0;
-                totalclock = ototalclock;
-            }
-        }
-
-        if (inputState.UnboundKeyPressed(sc_F11))
-        {
-            inputState.ClearKeyStatus(sc_F11);
-
-            Menu_Change(MENU_COLCORR_INGAME);
-            S_PauseSounds(true);
-            Menu_Open(myconnectindex);
-
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-            {
-                ready2send = 0;
-                totalclock = ototalclock;
-            }
-        }
 
         if (ud.overhead_on != 0)
         {
@@ -4941,13 +4726,6 @@ FAKE_F3:
         G_UpdateScreenArea();
     }
 
-    if (buttonMap.ButtonDown(gamefunc_AutoRun))
-    {
-        buttonMap.ClearButton(gamefunc_AutoRun);
-        cl_autorun= 1-cl_autorun;
-        P_DoQuote(QUOTE_RUN_MODE_OFF + cl_autorun, &myplayer);
-    }
-
     if (buttonMap.ButtonDown(gamefunc_Map))
     {
         buttonMap.ClearButton(gamefunc_Map);
@@ -4963,17 +4741,6 @@ FAKE_F3:
             ud.last_overhead = ud.overhead_on;
         }
 
-#ifdef __ANDROID__
-        if (ud.overhead_on == 1)
-            ud.scrollmode = 0;
-        else if (ud.overhead_on == 2)
-        {
-            ud.scrollmode = 1;
-            ud.folx = g_player[screenpeek].ps->opos.x;
-            ud.foly = g_player[screenpeek].ps->opos.y;
-            ud.fola = g_player[screenpeek].ps->oang;
-        }
-#endif
         g_restorePalette = 1;
         G_UpdateScreenArea();
     }
@@ -5048,7 +4815,8 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
             return -1;
     }
 
-    return S_DefineAudioIfSupported(&g_mapInfo[sel].musicfn, name);
+    mapList[sel].music = name;
+    return 0;
 }
 
 static int parsedefinitions_game(scriptfile *, int);
@@ -5299,7 +5067,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
                 }
 
-                if (fileName == NULL || check_file_exist(fileName))
+                if (fileName == NULL || fileSystem.FileExists(fileName))
                     break;
 
                 if (S_DefineMusic(musicID, fileName) == -1)
@@ -5447,7 +5215,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
                 }
 
-                if (fileName == NULL || check_file_exist(fileName))
+                if (fileName == NULL || fileSystem.FileExists(fileName))
                     break;
 
                 // maybe I should have just packed this into a sound_t and passed a reference...
@@ -5617,23 +5385,13 @@ static void G_FreeHashAnim(const char * /*string*/, intptr_t key)
 
 static void G_Cleanup(void)
 {
-    ReadSaveGameHeaders(); // for culling
+    //ReadSaveGameHeaders(); // for culling
 
     int32_t i;
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
     {
-        Xfree(g_mapInfo[i].name);
-        Xfree(g_mapInfo[i].filename);
-        Xfree(g_mapInfo[i].musicfn);
-
         G_FreeMapState(i);
-    }
-
-    for (i=MAXQUOTES-1; i>=0; i--)
-    {
-        Xfree(apStrings[i]);
-        Xfree(apXStrings[i]);
     }
 
     for (i=MAXPLAYERS-1; i>=0; i--)
@@ -5676,7 +5434,6 @@ static void G_Cleanup(void)
 void G_Shutdown(void)
 {
 	S_SoundShutdown();
-    S_MusicShutdown();
     CONTROL_Shutdown();
     engineUnInit();
     G_Cleanup();
@@ -5901,48 +5658,34 @@ static void G_Startup(void)
 
     if (userConfig.CommandMap.IsNotEmpty())
     {
+		FString startupMap;
         if (VOLUMEONE)
         {
             initprintf("The -map option is available in the registered version only!\n");
-            boardfilename[0] = 0;
         }
         else
         {
-            char *dot, *slash;
+			startupMap = userConfig.CommandMap;
+			if (startupMap.IndexOfAny("/\\") < 0) startupMap.Insert(0, "/");
+			DefaultExtension(startupMap, ".map");
+			startupMap.Substitute("\\", "/");
+			NormalizeFileName(startupMap);
 
-            boardfilename[0] = '/';
-            boardfilename[1] = 0;
-            Bstrcat(boardfilename, userConfig.CommandMap);
-
-            dot = Bstrrchr(boardfilename,'.');
-            slash = Bstrrchr(boardfilename,'/');
-            if (!slash) slash = Bstrrchr(boardfilename,'\\');
-
-            if ((!slash && !dot) || (slash && dot < slash))
-                Bstrcat(boardfilename,".map");
-
-            Bcorrectfilename(boardfilename,0);
-
-			if (testkopen(boardfilename, 0))
+			if (fileSystem.FileExists(startupMap))
 			{
-                initprintf("Using level: \"%s\".\n",boardfilename);
+                initprintf("Using level: \"%s\".\n",startupMap.GetChars());
             }
             else
             {
-                initprintf("Level \"%s\" not found.\n",boardfilename);
+                initprintf("Level \"%s\" not found.\n",startupMap.GetChars());
                 boardfilename[0] = 0;
             }
         }
+		strncpy(boardfilename, startupMap, BMAX_PATH);
     }
 
     for (i=0; i<MAXPLAYERS; i++)
         g_player[i].pingcnt = 0;
-
-    if (quitevent)
-    {
-        G_Shutdown();
-        return;
-    }
 
     Net_GetPackets();
 
@@ -5951,8 +5694,6 @@ static void G_Startup(void)
 
     if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
         G_GameExit("Failed loading art.");
-
-    cacheAllSounds();
 
     // Make the fullscreen nuke logo background non-fullbright.  Has to be
     // after dynamic tile remapping (from C_Compile) and loading tiles.
@@ -5968,7 +5709,7 @@ static void P_SetupMiscInputSettings(void)
 {
     auto ps = g_player[myconnectindex].ps;
 
-    ps->aim_mode = in_aimmode;
+    ps->aim_mode = in_mousemode;
     ps->auto_aim = cl_autoaim;
     ps->weaponswitch = cl_weaponswitch;
 }
@@ -5991,7 +5732,7 @@ void G_UpdatePlayerFromMenu(void)
         /*int32_t j = p.team;*/
 
         P_SetupMiscInputSettings();
-        p.palookup = g_player[myconnectindex].pcolor = playercolor;
+        p.palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
 
         g_player[myconnectindex].pteam = playerteam;
 
@@ -6006,8 +5747,8 @@ void G_BackToMenu(void)
     if (ud.recstat == 1) G_CloseDemoWrite();
     ud.warp_on = 0;
     g_player[myconnectindex].ps->gm = 0;
-    Menu_Open(myconnectindex);
-    Menu_Change(MENU_MAIN);
+	M_StartControlPanel(false);
+	M_SetMenu(NAME_MainMenu);
     inputState.keyFlushChars();
 }
 
@@ -6015,7 +5756,8 @@ static int G_EndOfLevel(void)
 {
     auto &p = *g_player[myconnectindex].ps;
 
-	STAT_Update(ud.eog);
+    if ((currentLevel->flags & MI_FORCEEOG)) ud.eog = 1;    // if the finished level says to end the game, end it!
+    STAT_Update(ud.eog);
     P_SetGamePalette(&p, BASEPAL, 0);
     P_UpdateScreenPal(&p);
 
@@ -6040,7 +5782,7 @@ static int G_EndOfLevel(void)
         // Clear potentially loaded per-map ART only after the bonus screens.
         artClearMapArt();
 
-        if (ud.eog || G_HaveUserMap())
+        if (ud.eog || G_HaveUserMap() || (currentLevel->flags & MI_FORCEEOG))
         {
             ud.eog = 0;
             if ((!g_netServer && ud.multimode < 2))
@@ -6050,9 +5792,7 @@ static int G_EndOfLevel(void)
                     G_DoOrderScreen();
 #endif
                 p.gm = 0;
-                Menu_Open(myconnectindex);
-                Menu_Change(MENU_MAIN);
-                return 2;
+				return 2;
             }
             else
             {
@@ -6122,7 +5862,7 @@ int GameInterface::app_main()
         g_Shareware = 1;
     else
     {
-		if (testkopen("DUKESW.BIN", 1)) // JBF 20030810
+		if (fileSystem.FileExists("DUKESW.BIN")) // JBF 20030810
 		{
 			g_Shareware = 1;
 		}
@@ -6178,7 +5918,7 @@ int GameInterface::app_main()
 
     for (int i=1, j=numplayers; j<ud.multimode; j++)
     {
-        Bsprintf(g_player[j].user_name,"PLAYER %d",j+1);
+        Bsprintf(g_player[j].user_name,"%s %d", GStrings("PLAYER"),j+1);
         g_player[j].ps->team = g_player[j].pteam = i;
         g_player[j].ps->weaponswitch = 3;
         g_player[j].ps->auto_aim = 0;
@@ -6197,6 +5937,8 @@ int GameInterface::app_main()
     loaddefinitions_game(defsfile, FALSE);
 
 	userConfig.AddDefs.reset();
+
+    cacheAllSounds();
 
     if (enginePostInit())
         G_FatalEngineError();
@@ -6249,8 +5991,6 @@ int GameInterface::app_main()
 
     system_getcvars();
 
-    if (quitevent) return 4;
-
     if (g_networkMode != NET_DEDICATED_SERVER && validmodecnt > 0)
     {
         if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, 1) < 0)
@@ -6294,7 +6034,6 @@ int GameInterface::app_main()
 
         videoSetPalette(0, myplayer.palette, 0);
         S_SoundStartup();
-        S_MusicStartup();
     }
 
     // check if the minifont will support lowercase letters (3136-3161)
@@ -6308,8 +6047,6 @@ int GameInterface::app_main()
     {
         Menu_Init();
     }
-
-    ReadSaveGameHeaders();
 
     FX_StopAllSounds();
     S_ClearSoundLocks();
@@ -6334,8 +6071,6 @@ MAIN_LOOP_RESTART:
     myplayer.fta = 0;
     for (int32_t & q : user_quote_time)
         q = 0;
-
-    Menu_Change(MENU_MAIN);
 
     if(g_netClient)
     {
@@ -6380,6 +6115,9 @@ MAIN_LOOP_RESTART:
 
         if (g_networkMode != NET_DEDICATED_SERVER)
         {
+			M_StartControlPanel(false);
+			M_SetMenu(NAME_MainMenu);
+
             if (G_PlaybackDemo())
             {
                 FX_StopAllSounds();
@@ -6389,6 +6127,7 @@ MAIN_LOOP_RESTART:
         }
     }
     else G_UpdateScreenArea();
+
 
 //    G_GameExit(" "); ///
 
@@ -6400,7 +6139,7 @@ MAIN_LOOP_RESTART:
         myplayer.palookup = g_player[myconnectindex].pcolor = G_GetTeamPalette(g_player[myconnectindex].pteam);
     else
     {
-        if (playercolor) myplayer.palookup = g_player[myconnectindex].pcolor = playercolor;
+        if (playercolor) myplayer.palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
         else myplayer.palookup = g_player[myconnectindex].pcolor;
     }
 
@@ -6414,11 +6153,12 @@ MAIN_LOOP_RESTART:
 
     do //main loop
     {
-        if (gameHandleEvents() && quitevent)
-        {
-			inputState.SetKeyStatus(sc_Escape, 1);
-			quitevent = 0;
-        }
+		gameHandleEvents();
+		if (myplayer.gm == MODE_DEMO)
+		{
+			M_ClearMenus();
+			goto MAIN_LOOP_RESTART;
+		}
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         inputState.SetBindsEnabled(!!(myplayer.gm & (MODE_GAME|MODE_DEMO)));
@@ -6523,12 +6263,7 @@ MAIN_LOOP_RESTART:
             inputState.keyFlushChars();
             videoNextPage();
 
-            g_screenCapture = 1;
-            G_DrawRooms(myconnectindex, 65536);
-            g_screenCapture = 0;
-
-            G_SavePlayerMaybeMulti(g_lastautosave, true);
-            g_quickload = &g_lastautosave;
+			M_Autosave();
 
             g_saveRequested = false;
         }
@@ -6600,7 +6335,7 @@ int G_DoMoveThings(void)
                 {
                     if (ldist(&sprite[pPlayer->i], &sprite[hitData.sprite]) < 9216)
                     {
-                        Bsprintf(apStrings[QUOTE_RESERVED3], "%s", &g_player[playerNum].user_name[0]);
+						quoteMgr.InitializeQuote(QUOTE_RESERVED3, "%s", &g_player[playerNum].user_name[0]);
                         pPlayer->fta = 12, pPlayer->ftq = QUOTE_RESERVED3;
                     }
                 }

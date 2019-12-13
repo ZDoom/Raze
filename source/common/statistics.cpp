@@ -47,6 +47,7 @@
 #include "baselayer.h"
 #include "savegamehelp.h"
 #include "sjson.h"
+#include "gstrings.h"
 
 CVAR(Int, savestatistics, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(String, statfile, "demolitionstat.txt", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -259,7 +260,8 @@ static void SaveStatistics(const char *fn, TArray<FStatistics> &statlist)
 				{
 					fw->Printf("\t{\n");
 
-					qsort(&ls[0], ls.Size(), sizeof(ls[0]), compare_level_names);
+					// Only makes sense if level names follow a strict format. This is noz the case here.
+					//qsort(&ls[0], ls.Size(), sizeof(ls[0]), compare_level_names);
 
 					for(unsigned k=0;k<ls.Size ();k++)
 					{
@@ -353,7 +355,7 @@ static void LevelStatEntry(FSessionStatistics *es, const char *level, const char
 
 void STAT_StartNewGame(const char *episode, int skill)
 {
-	StartEpisode = episode;
+	StartEpisode = GStrings.localize(episode);
 	StartSkill = skill;
 	LevelData.Clear();
 	LevelName = "";
@@ -361,7 +363,11 @@ void STAT_StartNewGame(const char *episode, int skill)
 
 void STAT_NewLevel(const char* mapname)
 {
-	LevelName = mapname;
+	if (!strncmp(mapname, "file://", 7) == 0)
+	{
+		STAT_StartNewGame("", 0);	// reset and deactivate for user maps
+	}
+	else LevelName = mapname;
 }
 
 //==========================================================================
@@ -588,12 +594,14 @@ FString GetStatString()
 
 CCMD(printstats)
 {
+	if (*StartEpisode == 0 || *LevelName == 0) return;
 	StoreLevelStats();	// Refresh the current level's results.
 	Printf("%s", GetStatString().GetChars());
 }
 
 ADD_STAT(statistics)
 {
+	if (*StartEpisode == 0 || *LevelName == 0) return "";
 	StoreLevelStats();	// Refresh the current level's results.
 	return GetStatString();
 }

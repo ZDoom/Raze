@@ -36,10 +36,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "printf.h"
 #include "m_argv.h"
+#include "menu/menu.h"
+#include "stringtable.h"
+#include "mapinfo.h"
+
+void C_CON_SetButtonAlias(int num, const char* text);
+void C_CON_ClearButtonAlias(int num);
 
 BEGIN_DUKE_NS
 
 #define LINE_NUMBER (g_lineNumber << 12)
+
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
@@ -1902,7 +1909,7 @@ static int C_CountCaseStatements()
 
 static void C_Include(const char *confile)
 {
-	auto fp = kopenFileReader(confile,0);
+	auto fp = fileSystem.OpenFileReader(confile,0);
 
     if (!fp.isOpen())
     {
@@ -2023,17 +2030,14 @@ void C_DefineMusic(int volumeNum, int levelNum, const char *fileName)
     if (strcmp(fileName, "/.") == 0)
         return;
 
-    map_t *const pMapInfo = &g_mapInfo[(MAXLEVELS*volumeNum)+levelNum];
-
-    Xfree(pMapInfo->musicfn);
-    pMapInfo->musicfn = dup_filename(fileName);
+    mapList[(MAXLEVELS * volumeNum) + levelNum].music = fileName;
 }
 
 void C_DefineVolumeFlags(int32_t vol, int32_t flags)
 {
     Bassert((unsigned)vol < MAXVOLUMES);
 
-    g_volumeFlags[vol] = flags;
+    gVolumeFlags[vol] = flags;
 }
 
 void C_UndefineVolume(int32_t vol)
@@ -2043,12 +2047,12 @@ void C_UndefineVolume(int32_t vol)
     for (bssize_t i = 0; i < MAXLEVELS; i++)
         C_UndefineLevel(vol, i);
 
-    g_volumeNames[vol][0] = '\0';
+    gVolumeNames[vol] = "";
 
     g_volumeCnt = 0;
     for (bssize_t i = MAXVOLUMES-1; i >= 0; i--)
     {
-        if (g_volumeNames[i][0])
+        if (gVolumeNames[i].IsNotEmpty())
         {
             g_volumeCnt = i+1;
             break;
@@ -2060,12 +2064,12 @@ void C_UndefineSkill(int32_t skill)
 {
     Bassert((unsigned)skill < MAXSKILLS);
 
-    g_skillNames[skill][0] = '\0';
+    gSkillNames[skill] = "";
 
     g_skillCnt = 0;
     for (bssize_t i = MAXSKILLS-1; i >= 0; i--)
     {
-        if (g_skillNames[i][0])
+        if (gSkillNames[i][0])
         {
             g_skillCnt = i+1;
             break;
@@ -2078,12 +2082,12 @@ void C_UndefineLevel(int32_t vol, int32_t lev)
     Bassert((unsigned)vol < MAXVOLUMES);
     Bassert((unsigned)lev < MAXLEVELS);
 
-    map_t *const map = &g_mapInfo[(MAXLEVELS*vol)+lev];
+    auto& gmap = mapList[(MAXLEVELS * vol) + lev];
 
-    DO_FREE_AND_NULL(map->filename);
-    DO_FREE_AND_NULL(map->name);
-    map->partime = 0;
-    map->designertime = 0;
+    gmap.fileName = "";
+    gmap.name = "";
+    gmap.parTime = 0;
+    gmap.designerTime = 0;
 }
 
 LUNATIC_EXTERN int32_t C_SetDefName(const char *name)
@@ -2160,126 +2164,33 @@ LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
 int32_t C_AllocQuote(int32_t qnum)
 {
     Bassert((unsigned)qnum < MAXQUOTES);
-
-    if (apStrings[qnum] == NULL)
-    {
-        apStrings[qnum] = (char *)Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
-        return 1;
-    }
-
-    return 0;
+	// No longer needed, quotes are now FStrings.
+    return 1;
 }
-
-#ifndef EDUKE32_TOUCH_DEVICES
-static void C_ReplaceQuoteSubstring(const size_t q, char const * const query, char const * const replacement)
-{
-    size_t querylength = Bstrlen(query);
-
-    for (bssize_t i = MAXQUOTELEN - querylength - 2; i >= 0; i--)
-        if (Bstrncmp(&apStrings[q][i], query, querylength) == 0)
-        {
-            Bmemset(tempbuf, 0, sizeof(tempbuf));
-            Bstrncpy(tempbuf, apStrings[q], i);
-            Bstrcat(tempbuf, replacement);
-            Bstrcat(tempbuf, &apStrings[q][i + querylength]);
-            Bstrncpy(apStrings[q], tempbuf, MAXQUOTELEN - 1);
-            i = MAXQUOTELEN - querylength - 2;
-        }
-}
-#endif
 
 void C_InitQuotes(void)
 {
-    for (int i = 0; i < 128; i++) C_AllocQuote(i);
-
-#ifdef EDUKE32_TOUCH_DEVICES
-    apStrings[QUOTE_DEAD] = 0;
-#else
-	// WTF ?!?
-    char const * const OpenGameFunc = buttonMap.GetButtonName(gamefunc_Open);
-    C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", OpenGameFunc);
-    C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", OpenGameFunc);
-    C_ReplaceQuoteSubstring(QUOTE_DEAD, "USE", OpenGameFunc);
+#if 0
+	auto openkeys = Bindings.GetKeysForCommand("+open");
+	if (openkeys.Size())
+	{
+		auto OpenGameFunc = C_NameKeys(openkeys.Data(), 1);
+		quoteMgr.Substitute(QUOTE_DEAD, "SPACE", OpenGameFunc);
+		quoteMgr.Substitute(QUOTE_DEAD, "OPEN", OpenGameFunc);
+		quoteMgr.Substitute(QUOTE_DEAD, "USE", OpenGameFunc);
+	}
 #endif
 
-    // most of these are based on Blood, obviously
-    const char *PlayerObituaries[] =
-    {
-        "^02%s^02 beat %s^02 like a cur",
-        "^02%s^02 broke %s",
-        "^02%s^02 body bagged %s",
-        "^02%s^02 boned %s^02 like a fish",
-        "^02%s^02 castrated %s",
-        "^02%s^02 creamed %s",
-        "^02%s^02 crushed %s",
-        "^02%s^02 destroyed %s",
-        "^02%s^02 diced %s",
-        "^02%s^02 disemboweled %s",
-        "^02%s^02 erased %s",
-        "^02%s^02 eviscerated %s",
-        "^02%s^02 flailed %s",
-        "^02%s^02 flattened %s",
-        "^02%s^02 gave AnAl MaDnEsS to %s",
-        "^02%s^02 gave %s^02 Anal Justice",
-        "^02%s^02 hosed %s",
-        "^02%s^02 hurt %s^02 real bad",
-        "^02%s^02 killed %s",
-        "^02%s^02 made dog meat out of %s",
-        "^02%s^02 made mincemeat out of %s",
-        "^02%s^02 manhandled %s",
-        "^02%s^02 massacred %s",
-        "^02%s^02 mutilated %s",
-        "^02%s^02 murdered %s",
-        "^02%s^02 neutered %s",
-        "^02%s^02 punted %s",
-        "^02%s^02 reamed %s",
-        "^02%s^02 ripped %s^02 a new orifice",
-        "^02%s^02 rocked %s",
-        "^02%s^02 sent %s^02 to hell",
-        "^02%s^02 shredded %s",
-        "^02%s^02 slashed %s",
-        "^02%s^02 slaughtered %s",
-        "^02%s^02 sliced %s",
-        "^02%s^02 smacked %s around",
-        "^02%s^02 smashed %s",
-        "^02%s^02 snuffed %s",
-        "^02%s^02 sodomized %s",
-        "^02%s^02 splattered %s",
-        "^02%s^02 sprayed %s",
-        "^02%s^02 squashed %s",
-        "^02%s^02 throttled %s",
-        "^02%s^02 toasted %s",
-        "^02%s^02 vented %s",
-        "^02%s^02 ventilated %s",
-        "^02%s^02 wasted %s",
-        "^02%s^02 wrecked %s",
-    };
-
-    const char *PlayerSelfObituaries[] =
-    {
-        "^02%s^02 is excrement",
-        "^02%s^02 is hamburger",
-        "^02%s^02 suffered scrotum separation",
-        "^02%s^02 volunteered for population control",
-        "^02%s^02 has suicided",
-        "^02%s^02 bled out",
-    };
-
-    EDUKE32_STATIC_ASSERT(OBITQUOTEINDEX + ARRAY_SIZE(PlayerObituaries)-1 < MAXQUOTES);
-    EDUKE32_STATIC_ASSERT(SUICIDEQUOTEINDEX + ARRAY_SIZE(PlayerSelfObituaries)-1 < MAXQUOTES);
-
-    g_numObituaries = ARRAY_SIZE(PlayerObituaries);
+    g_numObituaries = 48;
     for (bssize_t i = g_numObituaries - 1; i >= 0; i--)
     {
-        if (C_AllocQuote(i + OBITQUOTEINDEX))
-            Bstrcpy(apStrings[i + OBITQUOTEINDEX], PlayerObituaries[i]);
+		quoteMgr.FormatQuote(i + OBITQUOTEINDEX, "$TXT_OBITUARY%d", i + 1);
     }
 
-    g_numSelfObituaries = ARRAY_SIZE(PlayerSelfObituaries);
+    g_numSelfObituaries = 6;
     for (bssize_t i = g_numSelfObituaries - 1; i >= 0; i--)
     {
-        if (C_AllocQuote(i + SUICIDEQUOTEINDEX))
-            Bstrcpy(apStrings[i + SUICIDEQUOTEINDEX], PlayerSelfObituaries[i]);
+		quoteMgr.FormatQuote(i + SUICIDEQUOTEINDEX, "$TXT_SELFOBIT%d", i + 1);
     }
 }
 
@@ -3158,7 +3069,7 @@ DO_DEFSTATE:
 
         case CON_QUOTE:
             C_GetNextValue(LABEL_DEFINE);
-            if (EDUKE32_PREDICT_FALSE(((unsigned)g_scriptPtr[-1] >= MAXQUOTES) || apStrings[g_scriptPtr[-1]] == NULL))
+            if (EDUKE32_PREDICT_FALSE(((unsigned)g_scriptPtr[-1] >= MAXQUOTES)))
             {
                 g_errorCnt++;
                 C_ReportError(-1);
@@ -3558,19 +3469,7 @@ DO_DEFSTATE:
                 initprintf("%s:%d: warning: duplicate dynamicremap statement\n",g_scriptFileName,g_lineNumber);
                 g_warningCnt++;
             }
-#ifdef DYNTILEREMAP_ENABLE
-#ifdef DEBUGGINGAIDS
-                else
-                    initprintf("Using dynamic tile remapping\n");
-#endif
             g_dynamicTileMapping = 1;
-#else
-            else
-            {
-                initprintf("%s:%d: warning: dynamic tile remapping is disabled in this build\n",g_scriptFileName,g_lineNumber);
-                g_warningCnt++;
-            }
-#endif
             continue;
 
         case CON_DYNAMICSOUNDREMAP:
@@ -5015,23 +4914,11 @@ repeatcase:
                 continue;
             }
 
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                g_volumeNames[j][i] = *textptr;
-                textptr++,i++;
-                if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(g_volumeNames[j])-1))
-                {
-                    initprintf("%s:%d: warning: truncating volume name to %d characters.\n",
-                        g_scriptFileName,g_lineNumber,(int32_t)sizeof(g_volumeNames[j])-1);
-                    g_warningCnt++;
-                    scriptSkipLine();
-                    break;
-                }
-            }
+			i = strcspn(textptr, "\r\n");
+			gVolumeNames[j] = FStringTable::MakeMacro(textptr, i);
+			textptr += i;
+  
             g_volumeCnt = j+1;
-            g_volumeNames[j][i] = '\0';
             continue;
 
         case CON_DEFINEVOLUMEFLAGS:
@@ -5088,7 +4975,7 @@ repeatcase:
 					}
 				}
 				build.Push(0);
-				buttonMap.SetButtonAlias(j, build.Data());
+				C_CON_SetButtonAlias(j, build.Data());
 			}
             continue;
 
@@ -5107,7 +4994,7 @@ repeatcase:
                 continue;
             }
 
-			buttonMap.ClearButtonAlias(j);
+			C_CON_ClearButtonAlias(j);
             continue;
 
         case CON_DEFINESKILLNAME:
@@ -5128,27 +5015,14 @@ repeatcase:
                 continue;
             }
 
-            i = 0;
-
-            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
-            {
-                g_skillNames[j][i] = *textptr;
-                textptr++,i++;
-                if (EDUKE32_PREDICT_FALSE(i >= (signed)sizeof(g_skillNames[j])-1))
-                {
-                    initprintf("%s:%d: warning: truncating skill name to %d characters.\n",
-                        g_scriptFileName,g_lineNumber,(int32_t)sizeof(g_skillNames[j])-1);
-                    g_warningCnt++;
-                    scriptSkipLine();
-                    break;
-                }
-            }
-
-            g_skillNames[j][i] = '\0';
+			i = strcspn(textptr, "\r\n");
+			gSkillNames[j] = FStringTable::MakeMacro(textptr, i);
+			textptr+=i;
 
             for (i=0; i<MAXSKILLS; i++)
-                if (g_skillNames[i][0] == 0)
+                if (gSkillNames[i].IsEmpty())
                     break;
+
             g_skillCnt = i;
 
             continue;
@@ -5298,18 +5172,13 @@ repeatcase:
 
             Bcorrectfilename(tempbuf,0);
 
-            if (g_mapInfo[j *MAXLEVELS+k].filename == NULL)
-                g_mapInfo[j *MAXLEVELS+k].filename = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
-            else if ((Bstrlen(tempbuf)+1) > sizeof(g_mapInfo[j*MAXLEVELS+k].filename))
-                g_mapInfo[j *MAXLEVELS+k].filename = (char *)Xrealloc(g_mapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
-
-            Bstrcpy(g_mapInfo[j*MAXLEVELS+k].filename,tempbuf);
+            mapList[j * MAXLEVELS + k].SetFileName(tempbuf);
 
             C_SkipComments();
 
-            g_mapInfo[j *MAXLEVELS+k].partime =
-                (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
-                (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
+            mapList[j *MAXLEVELS+k].parTime =
+                (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*60)+
+                (((*(textptr+3)-'0')*10+(*(textptr+4)-'0')));
 
             textptr += 5;
             scriptSkipSpaces();
@@ -5317,9 +5186,9 @@ repeatcase:
             // cheap hack, 0.99 doesn't have the 3D Realms time
             if (*(textptr+2) == ':')
             {
-                g_mapInfo[j *MAXLEVELS+k].designertime =
-                    (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
-                    (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
+                mapList[j *MAXLEVELS+k].designerTime =
+                    (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*60)+
+                    (((*(textptr+3)-'0')*10+(*(textptr+4)-'0')));
 
                 textptr += 5;
                 scriptSkipSpaces();
@@ -5344,19 +5213,13 @@ repeatcase:
 
             tempbuf[i] = '\0';
 
-            if (g_mapInfo[j*MAXLEVELS+k].name == NULL)
-                g_mapInfo[j*MAXLEVELS+k].name = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
-            else if ((Bstrlen(tempbuf)+1) > sizeof(g_mapInfo[j*MAXLEVELS+k].name))
-                g_mapInfo[j *MAXLEVELS+k].name = (char *)Xrealloc(g_mapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
-
-            /*         initprintf("level name string len: %d\n",Bstrlen(tempbuf)); */
-
-            Bstrcpy(g_mapInfo[j*MAXLEVELS+k].name,tempbuf);
+            mapList[j * MAXLEVELS + k].SetName(tempbuf);
 
             continue;
 
         case CON_DEFINEQUOTE:
         case CON_REDEFINEQUOTE:
+		{
             if (tw == CON_DEFINEQUOTE)
             {
                 g_scriptPtr--;
@@ -5381,53 +5244,27 @@ repeatcase:
             if (tw == CON_DEFINEQUOTE)
                 g_scriptPtr--;
 
-            i = 0;
-
             scriptSkipSpaces();
 
-            if (tw == CON_REDEFINEQUOTE)
-            {
-                if (apXStrings[g_numXStrings] == NULL)
-                    apXStrings[g_numXStrings] = (char *)Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
-            }
-
+			TArray<char> buffer;
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
             {
-                /*
-                if (*textptr == '%' && *(textptr+1) == 's')
-                {
-                initprintf("%s:%d: error: quote text contains string identifier.\n",g_szScriptFileName,g_lineNumber);
-                g_numCompilerErrors++;
-                while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0) textptr++;
-                break;
-                }
-                */
-                if (tw == CON_DEFINEQUOTE)
-                    *(apStrings[k]+i) = *textptr;
-                else
-                    *(apXStrings[g_numXStrings]+i) = *textptr;
-                textptr++,i++;
-                if (EDUKE32_PREDICT_FALSE(i >= MAXQUOTELEN-1))
-                {
-                    initprintf("%s:%d: warning: truncating quote text to %d characters.\n",g_scriptFileName,g_lineNumber,MAXQUOTELEN-1);
-                    g_warningCnt++;
-                    scriptSkipLine();
-                    break;
-                }
+				buffer.Push(*textptr);
+                textptr++;
             }
+			buffer.Push(0);
+			if (tw == CON_DEFINEQUOTE)
+				quoteMgr.InitializeQuote(k, buffer.Data(), true);
+			else
+				quoteMgr.InitializeExQuote(k, buffer.Data(), true);
 
-            if (tw == CON_DEFINEQUOTE)
+
+            if (tw != CON_DEFINEQUOTE)
             {
-                if ((unsigned)k < MAXQUOTES)
-                    *(apStrings[k]+i) = '\0';
-            }
-            else
-            {
-                *(apXStrings[g_numXStrings]+i) = '\0';
                 scriptWriteValue(g_numXStrings++);
             }
             continue;
-
+		}
         case CON_DEFINECHEATDESCRIPTION:
             g_scriptPtr--;
 
@@ -6009,14 +5846,7 @@ void C_PrintStats(void)
             MAXSPRITES * sizeof(spritetype)/(1<<6)),
         g_gameVarCount, MAXGAMEVARS, g_gameArrayCount, MAXGAMEARRAYS);
 
-    int cnt = g_numXStrings;
-
-    for (auto &ptr : apStrings)
-        if (ptr)
-            cnt++;
-
-    if (cnt) initprintf("%d strings, ", cnt);
-    cnt = 0;
+    int cnt = 0;
 
     for (auto & apScriptEvent : apScriptEvents)
         if (apScriptEvent)
@@ -6080,7 +5910,7 @@ void C_Compile(const char *fileName)
     Gv_Init();
     C_InitProjectiles();
 
-    auto kFile = kopenFileReader(fileName,0);
+    auto kFile = fileSystem.OpenFileReader(fileName,0);
 
 	if (!kFile.isOpen())
     {

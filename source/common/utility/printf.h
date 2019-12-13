@@ -23,7 +23,7 @@ enum
 	PRINT_LOG,		// only to logfile
 	PRINT_BOLD = 200,				// What Printf_Bold used
 	PRINT_TYPES = 1023,		// Bitmask.
-	PRINT_NONOTIFY = 1024,	// Flag - do not add to notify buffer
+	PRINT_NOTIFY = 1024,	// Flag - add to notify buffer
 	PRINT_NOLOG = 2048,		// Flag - do not print to log file
 };
 
@@ -39,6 +39,9 @@ enum
 
 void I_Error(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
 
+// This really could need some cleanup - the main problem is that it'd create
+// lots of potential for merge conflicts.
+
 int PrintString (int iprintlevel, const char *outline);
 int VPrintf(int printlevel, const char* format, va_list parms);
 int Printf (int printlevel, const char *format, ...) ATTRIBUTE((format(printf,2,3)));
@@ -49,17 +52,19 @@ int DPrintf (int level, const char *format, ...) ATTRIBUTE((format(printf,2,3)))
 void OSD_Printf(const char *format, ...) ATTRIBUTE((format(printf,1,2)));
 
 template<class... Args>
-inline void initprintf(const char *format, Args&&... args) ATTRIBUTE((format(printf,1,2)))
+inline void initprintf(const char *format, Args&&... args) //ATTRIBUTE((format(printf,1,2)))
 {
 	OSD_Printf(format, std::forward<Args>(args)...);
 }
 
 // This was a define before - which should be avoided. Used by Shadow Warrior
 template<class... Args>
-inline void buildprintf(const char *format, Args&&... args) ATTRIBUTE((format(printf,1,2)))
+inline void buildprintf(const char *format, Args&&... args) //ATTRIBUTE((format(printf,1,2)))
 {
 	OSD_Printf(format, std::forward<Args>(args)...);
 }
+
+
 
 inline void initputs(const char *s)
 {

@@ -46,6 +46,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "common_game.h"
 #include "light.h"
 #include "text.h"
+#include "gstrings.h"
+#include "secrets.h"
 
 BEGIN_SW_NS
 
@@ -486,7 +488,7 @@ SectorSetup(void)
         {
             SINE_WAVE_FLOOR *swf;
             short near_sect = i, base_sect = i;
-            short swf_ndx = 0;
+            uint16_t swf_ndx = 0;
             short cnt = 0, sector_cnt;
             int range;
             int range_diff = 0;
@@ -2087,10 +2089,13 @@ int DoTrapMatch(short match)
 void
 OperateTripTrigger(PLAYERp pp)
 {
-    SECTORp sectp = &sector[pp->cursectnum];
-
     if (Prediction)
         return;
+
+    if (pp->cursectnum < 0)
+        return;
+
+    SECTORp sectp = &sector[pp->cursectnum];
 
 #if 0
     // new method
@@ -2138,7 +2143,9 @@ OperateTripTrigger(PLAYERp pp)
             PlayerSound(DIGI_ANCIENTSECRET, &pp->posx, &pp->posy, &pp->posz,
                         v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
-        sprintf(ds,"You found a secret area!");
+        sprintf(ds, GStrings("TXTS_SECRET"));
+        SECRET_Trigger(pp->cursectnum);
+
         PutStringInfo(pp, ds);
         // always give to the first player
         Player->SecretsFound++;
@@ -2247,6 +2254,9 @@ void
 OperateContinuousTrigger(PLAYERp pp)
 {
     if (Prediction)
+        return;
+
+    if (pp->cursectnum < 0)
         return;
 
     switch (LOW_TAG(pp->cursectnum))
@@ -2589,8 +2599,6 @@ int DoPlayerGrabStar(PLAYERp pp)
 void
 PlayerOperateEnv(PLAYERp pp)
 {
-    SECT_USERp sectu = SectUser[pp->cursectnum];
-    SECTORp sectp = &sector[pp->cursectnum];
     SWBOOL found;
 
     if (Prediction)
@@ -2730,8 +2738,10 @@ PlayerOperateEnv(PLAYERp pp)
     //
     // ////////////////////////////
 
-    if (sectu && sectu->damage)
+    SECT_USERp sectu;
+    if (pp->cursectnum >= 0 && (sectu = SectUser[pp->cursectnum]) && sectu->damage)
     {
+        SECTORp sectp = &sector[pp->cursectnum];
         if (TEST(sectu->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
         {
             PlayerTakeSectorDamage(pp);
@@ -2761,7 +2771,7 @@ PlayerOperateEnv(PLAYERp pp)
     {
         OperateTripTrigger(pp);
 
-        if (TEST(sector[pp->cursectnum].extra, SECTFX_WARP_SECTOR))
+        if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_WARP_SECTOR))
         {
             if (!TEST(pp->Flags2, PF2_TELEPORTED))
             {
@@ -3168,7 +3178,7 @@ void movelava(char *dapic)
     offs2 = (LAVASIZ + 2) + 1 + ((intptr_t) lavabakpic);
     for (x = 0; x < LAVASIZ; x++)
     {
-        copybuf(offs, offs2, LAVASIZ >> 2);
+        memcpy(offs, offs2, LAVASIZ);
         offs += LAVASIZ;
         offs2 += LAVASIZ + 2;
     }

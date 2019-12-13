@@ -226,7 +226,7 @@ void AnimZilla(int frame, int numframes)
     }
 }
 
-unsigned char *LoadAnm(short anim_num)
+unsigned char *LoadAnm(short anim_num, int *lengthp)
 {
     int length;
     unsigned char *animbuf, *palptr;
@@ -240,13 +240,16 @@ unsigned char *LoadAnm(short anim_num)
     ANIMnum = anim_num;
 
     // lock it
-    
+
+    int file = fileSystem.FindFile(ANIMname[ANIMnum]);
+    if (file < 0) return nullptr;
+    *lengthp = length = fileSystem.FileLength(file);
+
     if (anm_ptr[anim_num] == 0)
     {
-        auto handle = kopenFileReader(ANIMname[ANIMnum], 0);
+        auto handle = fileSystem.OpenFileReader(file);
         if (!handle.isOpen())
             return NULL;
-        length = handle.GetLength();
 
 		buffer.Resize(length + sizeof(anim_t));
 		anm_ptr[anim_num] = (anim_t*)buffer.Data();
@@ -280,13 +283,9 @@ playanm(short anim_num)
     DSPRINTF(ds,"PlayAnm");
     MONO_PRINT(ds);
 
-    animbuf = LoadAnm(anim_num);
+    animbuf = LoadAnm(anim_num, &length);
     if (!animbuf)
         return;
-
-    // [JM] Temporary, needed to get the file's length for ANIM_LoadAnim. !CHECKME!
-    length = kfilesize(ANIMname[ANIMnum], 0);
-	if (length == -1) return;
 
     DSPRINTF(ds,"PlayAnm - Palette Stuff");
     MONO_PRINT(ds);
@@ -320,12 +319,12 @@ playanm(short anim_num)
             switch (ANIMnum)
             {
             case ANIM_INTRO:
-				if (I_GeneralTrigger() || quitevent)
+				if (I_GeneralTrigger())
 					I_GeneralTriggerClear();
                     goto ENDOFANIMLOOP;
                 break;
             case ANIM_SERP:
-				if (I_EscapeTrigger() || quitevent)
+				if (I_EscapeTrigger())
 					I_EscapeTriggerClear();
                     goto ENDOFANIMLOOP;
                 break;

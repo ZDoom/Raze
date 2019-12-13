@@ -31,120 +31,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "savegame.h"
 #include "sbar.h"
+#include "mapinfo.h"
 
 BEGIN_DUKE_NS
 
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
-
-static int osdcmd_changelevel(osdcmdptr_t parm)
-{
-    int32_t volume=0,level;
-    char *p;
-
-    if (!VOLUMEONE)
-    {
-        if (parm->numparms != 2) return OSDCMD_SHOWHELP;
-
-        volume = strtol(parm->parms[0], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
-        level = strtol(parm->parms[1], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
-    }
-    else
-    {
-        if (parm->numparms != 1) return OSDCMD_SHOWHELP;
-
-        level = strtol(parm->parms[0], &p, 10) - 1;
-        if (p[0]) return OSDCMD_SHOWHELP;
-    }
-
-    if (volume < 0) return OSDCMD_SHOWHELP;
-    if (level < 0) return OSDCMD_SHOWHELP;
-
-    if (!VOLUMEONE)
-    {
-        if (volume > g_volumeCnt)
-        {
-            OSD_Printf("changelevel: invalid volume number (range 1-%d)\n",g_volumeCnt);
-            return OSDCMD_OK;
-        }
-    }
-
-    if (level > MAXLEVELS || g_mapInfo[volume *MAXLEVELS+level].filename == NULL)
-    {
-        OSD_Printf("changelevel: invalid level number\n");
-        return OSDCMD_SHOWHELP;
-    }
-
-    if (numplayers > 1)
-    {
-        /*
-        if (g_netServer)
-            Net_NewGame(volume,level);
-        else if (voting == -1)
-        {
-            ud.m_volume_number = volume;
-            m_level_number = level;
-
-            if (g_player[myconnectindex].ps->i)
-            {
-                int32_t i;
-
-                for (i=0; i<MAXPLAYERS; i++)
-                {
-                    g_player[i].vote = 0;
-                    g_player[i].gotvote = 0;
-                }
-
-                g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
-
-                voting = myconnectindex;
-
-                tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
-                tempbuf[1] = myconnectindex;
-                tempbuf[2] = ud.m_volume_number;
-                tempbuf[3] = m_level_number;
-
-                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-            }
-            if ((g_gametypeFlags[m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[m_coop] & GAMETYPE_TDM))
-                m_noexits = 0;
-
-            M_OpenMenu(myconnectindex);
-            Menu_Change(MENU_NETWAITVOTES);
-        }
-        */
-        return OSDCMD_OK;
-    }
-    if (g_player[myconnectindex].ps->gm & MODE_GAME)
-    {
-        // in-game behave like a cheat
-        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_SCOTTY;
-        osdcmd_cheatsinfo_stat.volume   = volume;
-        osdcmd_cheatsinfo_stat.level    = level;
-    }
-    else
-    {
-        // out-of-game behave like a menu command
-        osdcmd_cheatsinfo_stat.cheatnum = -1;
-
-        ud.m_volume_number     = volume;
-        m_level_number      = level;
-
-        ud.m_monsters_off      = 0;
-        ud.monsters_off        = 0;
-
-        ud.m_respawn_items     = 0;
-        ud.m_respawn_inventory = 0;
-
-        ud.multimode           = 1;
-
-        G_NewGame_EnterLevel();
-    }
-
-    return OSDCMD_OK;
-}
 
 static int osdcmd_map(osdcmdptr_t parm)
 {
@@ -160,7 +52,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
 
-    if (!testkopen(filename,0))
+    if (!fileSystem.FileExists(filename))
     {
         OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;
@@ -172,48 +64,6 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (numplayers > 1)
     {
-        /*
-        if (g_netServer)
-        {
-            Net_SendUserMapName();
-            ud.m_volume_number = 0;
-            m_level_number = 7;
-            Net_NewGame(ud.m_volume_number, m_level_number);
-        }
-        else if (voting == -1)
-        {
-            Net_SendUserMapName();
-
-            ud.m_volume_number = 0;
-            m_level_number = 7;
-
-            if (g_player[myconnectindex].ps->i)
-            {
-                int32_t i;
-
-                for (i=0; i<MAXPLAYERS; i++)
-                {
-                    g_player[i].vote = 0;
-                    g_player[i].gotvote = 0;
-                }
-
-                g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
-                voting = myconnectindex;
-
-                tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
-                tempbuf[1] = myconnectindex;
-                tempbuf[2] = ud.m_volume_number;
-                tempbuf[3] = m_level_number;
-
-                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-            }
-            if ((g_gametypeFlags[m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[m_coop] & GAMETYPE_TDM))
-                m_noexits = 0;
-
-            M_OpenMenu(myconnectindex);
-            Menu_Change(MENU_NETWAITVOTES);
-        }
-        */
         return OSDCMD_OK;
     }
 
@@ -326,48 +176,13 @@ static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     S_SoundShutdown();
-    S_MusicShutdown();
 
     S_SoundStartup();
-    S_MusicStartup();
 
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
-    if (MusicEnabled())
-        S_RestartMusic();
-
     return OSDCMD_OK;
-}
-
-static int osdcmd_music(osdcmdptr_t parm)
-{
-    if (parm->numparms == 1)
-    {
-        int32_t sel = G_GetMusicIdx(parm->parms[0]);
-
-        if (sel == -1)
-            return OSDCMD_SHOWHELP;
-
-        if (sel == -2)
-        {
-            OSD_Printf("%s is not a valid episode/level number pair\n", parm->parms[0]);
-            return OSDCMD_OK;
-        }
-
-        if (!S_TryPlayLevelMusic(sel))
-        {
-            G_PrintCurrentMusic();
-        }
-        else
-        {
-            OSD_Printf("No music defined for %s\n", parm->parms[0]);
-        }
-
-        return OSDCMD_OK;
-    }
-
-    return OSDCMD_SHOWHELP;
 }
 
 int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
@@ -428,11 +243,6 @@ static int osdcmd_vidmode(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-#ifdef LUNATIC
-// Returns: INT32_MIN if no such CON label, its value else.
-LUNATIC_CB int32_t (*El_GetLabelValue)(const char *label);
-#endif
-
 static int osdcmd_spawn(osdcmdptr_t parm)
 {
     int32_t picnum = 0;
@@ -476,12 +286,6 @@ static int osdcmd_spawn(osdcmdptr_t parm)
         else
         {
             int32_t i;
-#ifdef LUNATIC
-            i = g_labelCnt;
-            picnum = El_GetLabelValue(parm->parms[0]);
-            if (picnum != INT32_MIN)
-                i = !i;
-#else
             int32_t j;
 
             for (j=0; j<2; j++)
@@ -499,7 +303,6 @@ static int osdcmd_spawn(osdcmdptr_t parm)
                 if (i < g_labelCnt)
                     break;
             }
-#endif
             if (i==g_labelCnt)
             {
                 OSD_Printf("spawn: Invalid tile label given\n");
@@ -534,7 +337,6 @@ static int osdcmd_spawn(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-#if !defined LUNATIC
 static int osdcmd_setvar(osdcmdptr_t parm)
 {
     if (numplayers > 1)
@@ -624,59 +426,6 @@ static int osdcmd_setactorvar(osdcmdptr_t parm)
         OSD_Printf("setactorvar: %s is not a game variable!\n", parm->parms[1]);
         return OSDCMD_SHOWHELP;
     }
-
-    return OSDCMD_OK;
-}
-#else
-static int osdcmd_lua(osdcmdptr_t parm)
-{
-    // Should be used like
-    // lua "lua code..."
-    // (the quotes making the whole string passed as one argument)
-
-    int32_t ret;
-
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    if (!L_IsInitialized(&g_ElState))
-    {
-        OSD_Printf("Lua state is not initialized.\n");
-        return OSDCMD_OK;
-    }
-
-    // TODO: "=<expr>" as shorthand for "print(<expr>)", like in the
-    //  stand-alone Lua interpreter?
-    // TODO: reserve some table to explicitly store stuff on the top level, for
-    //  debugging convenience?
-
-    // For the 'lua' OSD command, don't make errors appear on-screen:
-    el_addNewErrors = 0;
-    ret = L_RunString(&g_ElState, parm->parms[0], -1, "console");
-    el_addNewErrors = 1;
-
-    if (ret != 0)
-        OSD_Printf("Error running the Lua code (error code %d)\n", ret);
-
-    return OSDCMD_OK;
-}
-#endif
-
-static int osdcmd_cmenu(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    if (numplayers > 1)
-    {
-        OSD_Printf("Command not allowed in multiplayer\n");
-        return OSDCMD_OK;
-    }
-
-    if ((g_player[myconnectindex].ps->gm & MODE_MENU) != MODE_MENU)
-        Menu_Open(myconnectindex);
-
-    Menu_Change(Batol(parm->parms[0]));
 
     return OSDCMD_OK;
 }
@@ -787,62 +536,6 @@ void onvideomodechange(int32_t newmode)
     g_restorePalette = -1;
     g_crosshairSum = -1;
 }
-
-static int osdcmd_quicksave(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
-        OSD_Printf("quicksave: not in a game.\n");
-    else g_doQuickSave = 1;
-    return OSDCMD_OK;
-}
-
-static int osdcmd_quickload(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
-        OSD_Printf("quickload: not in a game.\n");
-    else g_doQuickSave = 2;
-    return OSDCMD_OK;
-}
-
-static int osdcmd_screenshot(osdcmdptr_t parm)
-{
-    videoCaptureScreen();
-    return OSDCMD_OK;
-}
-
-#if 0
-static int osdcmd_savestate(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_PARAMETER(parm);
-    G_SaveMapState();
-    return OSDCMD_OK;
-}
-
-static int osdcmd_restorestate(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_PARAMETER(parm);
-    G_RestoreMapState();
-    return OSDCMD_OK;
-}
-#endif
-
-#ifdef DEBUGGINGAIDS
-static int osdcmd_inittimer(osdcmdptr_t parm)
-{
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("%dHz timer\n",g_timerTicsPerSecond);
-        return OSDCMD_SHOWHELP;
-    }
-
-    G_InitTimer(Batol(parm->parms[0]));
-
-    OSD_Printf("%s\n",parm->raw);
-    return OSDCMD_OK;
-}
-#endif
 
 
 static int osdcmd_dumpmapstate(osdfuncparm_t const * const)
@@ -1017,12 +710,6 @@ static int osdcmd_kickban(osdcmdptr_t parm)
 }
 #endif
 
-static int osdcmd_purgesaves(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    G_DeleteOldSaves();
-    return OSDCMD_OK;
-}
 
 static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 {
@@ -1107,33 +794,22 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("playerinfo", "Prints information about the current player", osdcmd_playerinfo);
 #endif
 
-    if (VOLUMEONE)
-        OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
-    else
+    if (!VOLUMEONE)
     {
-        OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
 
-    OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
 
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     OSD_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
 
-    OSD_RegisterFunction("music","music E<ep>L<lev>: change music", osdcmd_music);
-
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
 
     OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
-
-    OSD_RegisterFunction("purgesaves", "purgesaves: deletes obsolete and unreadable save files", osdcmd_purgesaves);
-
-    OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
-    OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
 
     OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
@@ -1141,7 +817,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("setvar","setvar <gamevar> <value>: sets the value of a gamevar", osdcmd_setvar);
     OSD_RegisterFunction("setvarvar","setvarvar <gamevar1> <gamevar2>: sets the value of <gamevar1> to <gamevar2>", osdcmd_setvar);
     OSD_RegisterFunction("setactorvar","setactorvar <actor#> <gamevar> <value>: sets the value of <actor#>'s <gamevar> to <value>", osdcmd_setactorvar);
-    OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 

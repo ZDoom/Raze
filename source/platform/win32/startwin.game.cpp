@@ -432,7 +432,6 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
     case WM_CLOSE:
         if (mode == TAB_CONFIG) done = 0;
-        else quitevent++;
         return TRUE;
 
     case WM_DESTROY:
@@ -456,7 +455,6 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         {
         case WIN_STARTWIN_CANCEL:
             if (mode == TAB_CONFIG) done = 0;
-            else quitevent++;
             return TRUE;
         case WIN_STARTWIN_START:
             done = 1;

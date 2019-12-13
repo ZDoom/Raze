@@ -62,8 +62,6 @@ int FX_Init(int numvoices, int numchannels, int mixrate, void *initdata)
         SoundCard = ASS_SDL;
 #elif defined RENDERTYPEWIN
         SoundCard = ASS_DirectSound;
-#else
-        SoundCard = ASS_NoSound;
 #endif
     }
 
@@ -76,8 +74,8 @@ int FX_Init(int numvoices, int numchannels, int mixrate, void *initdata)
     if (SoundDriver_IsPCMSupported(SoundCard) == 0)
     {
         // unsupported cards fall back to no sound
-        MV_Printf("Couldn't init %s, falling back to no sound...\n", SoundDriver_GetName(SoundCard));
-        SoundCard = ASS_NoSound;
+        FX_SetErrorCode(FX_InvalidCard);
+        return FX_Error;
     }
 
     int status = FX_Ok;

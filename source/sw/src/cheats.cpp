@@ -45,6 +45,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "control.h"
 #include "gamecontrol.h"
+#include "gstrings.h"
 //#include "inv.h"
 
 BEGIN_SW_NS
@@ -104,8 +105,7 @@ void MapCheat(PLAYERp pp, const char *)
     else
         MapSetAll2D(0xFF);
 
-    sprintf(ds, "AUTOMAPPING %s", automapping ? "ON" : "OFF" );
-    PutStringInfo(pp, ds);
+    PutStringInfo(pp, GStrings(automapping ? "TXT_AMON" : "TXT_AMOFF"));
 }
 
 void LocCheat(PLAYERp pp, const char *)
@@ -123,7 +123,7 @@ void GunsCheat(PLAYERp pp, const char *cheat_string)
     unsigned int i;
     short gAmmo[10] = {0,9,12,20,3,6,5,5,10,1};
     const char *cp = cheat_string;
-	const char *str = "GIVEN WEAPON %1d";
+	const char *str = "TXT_GIVENW";
     int gunnum, x;
     USERp u;
 
@@ -142,17 +142,16 @@ void GunsCheat(PLAYERp pp, const char *cheat_string)
         if (TEST(p->WpnFlags, BIT(gunnum-1)) == 0)
             p->WpnFlags += BIT(gunnum-2) << 1;
         else
-            str = "ADD AMMO TO WEAPON %1d";
+            str = "TXTS_AMMOW";
         p->WpnAmmo[gunnum-1] += x;
         if (p->WpnAmmo[gunnum-1] > DamageData[gunnum-1].max_ammo)
         {
            p->WpnAmmo[gunnum-1] = DamageData[gunnum-1].max_ammo;
-           str = "";
+           str = nullptr;
         }
         PlayerUpdateWeapon(p, u->WeaponNum);
     }
-    sprintf(ds, str, gunnum);
-    PutStringInfo(pp, ds);
+    if (str) PutStringInfo(pp, FStringf("%s %d", GStrings(str), gunnum));
 }
 
 void WeaponCheat(PLAYERp pp, const char *)
@@ -195,16 +194,13 @@ void GodCheat(PLAYERp pp, const char *)
     //
     GodMode ^= 1;
 
-    sprintf(ds, "GOD MODE %s", GodMode ? "ON" : "OFF");
-    PutStringInfo(pp, ds);
+    PutStringInfo(pp, GStrings(GodMode? "GOD MODE: ON" : "GOD MODE: OFF"));
 }
 
 void ClipCheat(PLAYERp pp, const char *)
 {
     FLIP(pp->Flags, PF_CLIP_CHEAT);
-
-    sprintf(ds, "NO CLIP MODE %s", TEST(pp->Flags, PF_CLIP_CHEAT) ? "ON" : "OFF");
-    PutStringInfo(pp, ds);
+    PutStringInfo(pp, GStrings(TEST(pp->Flags, PF_CLIP_CHEAT) ? "CLIPPING: OFF" : "CLIPPING: ON"));;
 }
 
 void WarpCheat(PLAYERp pp, const char *cheat_string)
@@ -233,7 +229,7 @@ void WarpCheat(PLAYERp pp, const char *cheat_string)
     Level = level_num;
     ExitLevel = TRUE;
 
-    sprintf(ds, "ENTERING %1d", Level);
+    sprintf(ds, "%s %1d", GStrings("TXT_ENTERING"), Level);
     PutStringInfo(pp, ds);
 }
 
@@ -284,15 +280,15 @@ void ItemCheat(PLAYERp pp, const char *cheat_string)
 VOID HealCheat(PLAYERp pp, const char *cheat_string)
 {
     short pnum;
-    const char *str = "";
+    const char *str = nullptr;
 
     TRAVERSE_CONNECT(pnum)
     {
         if (User[Player[pnum].PlayerSprite]->Health < pp->MaxHealth)
-            str = "ADDED HEALTH";
+            str = "TXTS_ADDEDHEALTH";
         User[Player[pnum].PlayerSprite]->Health += 25;
     }
-    PutStringInfo(pp, str);
+    if (str) PutStringInfo(pp, GStrings(str));
 }
 
 VOID SortKeyCheat(PLAYERp pp, const char *sKey)
@@ -359,7 +355,7 @@ VOID KeysCheat(PLAYERp pp, const char *cheat_string)
     PLAYERp p;
     short pnum;
     const char *cp = cheat_string;
-	const char *str = "Given all keys";
+	const char *str = "TXT_GIVEKEY";
     int keynum = 0;
 
     cp += sizeof("swkey")-1;
@@ -378,21 +374,17 @@ VOID KeysCheat(PLAYERp pp, const char *cheat_string)
            if (p->HasKey[keynum-1] == FALSE)
            {
               p->HasKey[keynum-1] = TRUE; // cards: 0=red 1=blue 2=green 3=yellow | keys: 4=gold 5=silver 6=bronze 7=red
-              str = "Given %s";
+              str = "TXT_KEYGIVEN";
            }
            else
            {
               p->HasKey[keynum-1] = FALSE;
-              str = "Removed %s";
+              str = "TXT_KEYREMOVED";
            }
         }
     }
     PlayerUpdateKeys(pp);
-    if (keynum == 0)
-        sprintf(ds, str);
-    else
-        sprintf(ds, str, CheatKeyType);
-    PutStringInfo(pp, ds);
+    PutStringInfo(pp, GStrings(str));
 }
 
 void EveryCheatToggle(PLAYERp pp, const char *cheat_string)
@@ -402,9 +394,6 @@ void EveryCheatToggle(PLAYERp pp, const char *cheat_string)
     WeaponCheat(pp, cheat_string);
     GodCheat(pp, cheat_string);
     ItemCheat(pp, cheat_string);
-
-    sprintf(ds, "EVERY CHEAT %s", EveryCheat ? "ON" : "OFF");
-    PutStringInfo(pp, ds);
 }
 
 void GeorgeFunc(PLAYERp pp, char *)
@@ -521,7 +510,7 @@ void CheatInput(void)
 
                     if (Skill >= 3)
                     {
-                        PutStringInfo(Player, "You're too skillful to cheat\n");
+                        PutStringInfo(Player, GStrings("TXTS_TOOSKILLFUL"));
                         return;
                     }
                 }

@@ -86,12 +86,12 @@ int tileInit(char a1, const char *a2)
     for (int i = 0; i < kMaxTiles; i++)
         voxelIndex[i] = 0;
 
-    auto hFile = kopenFileReader("SURFACE.DAT", 0);
+    auto hFile = fileSystem.OpenFileReader("SURFACE.DAT", 0);
     if (hFile.isOpen())
     {
         hFile.Read(surfType, sizeof(surfType));
     }
-    hFile = kopenFileReader("VOXEL.DAT", 0);
+    hFile = fileSystem.OpenFileReader("VOXEL.DAT", 0);
     if (hFile.isOpen())
     {
         hFile.Read(voxelIndex, sizeof(voxelIndex));
@@ -100,7 +100,7 @@ int tileInit(char a1, const char *a2)
             voxelIndex[i] = B_LITTLE16(voxelIndex[i]);
 #endif
     }
-    hFile = kopenFileReader("SHADE.DAT", 0);
+    hFile = fileSystem.OpenFileReader("SHADE.DAT", 0);
     if (hFile.isOpen())
     {
 		hFile.Read(tileShade, sizeof(tileShade));

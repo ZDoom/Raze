@@ -56,6 +56,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interp.h"
 #include "sector.h"
 #include "config.h"
+#include "menu/menu.h"
+#include "swcvar.h"
 
 BEGIN_SW_NS
 
@@ -693,7 +695,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
         tu = User[SpriteNum];
 
         //if(tsp->statnum == STAT_GENERIC_QUEUE)
-        //    CON_ConMessage("tsp->pal = %d",tsp->pal);
+        //    OSD_Printf("tsp->pal = %d",tsp->pal);
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so
@@ -765,7 +767,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 
             //#define DART_REPEAT 6
             //#define DART_PIC 2233
-            if (gs.Darts)
+            if (sw_darts)
                 if (tu->ID == 1793 || tsp->picnum == 1793)
                 {
                     tsp->picnum = 2519;
@@ -777,7 +779,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 #define DART_REPEAT 16
             if (tu->ID == STAR1)
             {
-                if (gs.Darts)
+                if (sw_darts)
                 {
                     tsp->picnum = DART_PIC;
                     tsp->ang = NORM_ANGLE(tsp->ang - 512 - 24);
@@ -841,7 +843,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
             }
         }
 
-        if (gs.Darts)
+        if (sw_darts)
             if (tsp->statnum == STAT_STAR_QUEUE)
             {
                 tsp->picnum = DART_PIC;
@@ -1039,7 +1041,7 @@ post_analyzesprites(void)
 void
 ResizeView(PLAYERp pp)
 {
-    if (MenuInputMode || InputMode || HelpInputMode || ConPanel || ConInputMode || PauseKeySet)
+    if (M_Active() || PauseKeySet)
         return;
 
     if (dimensionmode == 2 || dimensionmode == 5 || dimensionmode == 6)
@@ -1069,21 +1071,18 @@ ResizeView(PLAYERp pp)
         if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))      // &&
         {
             buttonMap.ClearButton(gamefunc_Shrink_Screen);
-            SetBorder(pp, gs.BorderNum + 1);
-            SetRedrawScreen(pp);
+            G_ChangeHudLayout(-1);
         }
 
         if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen)) // &&
         {
             buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-            SetBorder(pp, gs.BorderNum - 1);
-            SetRedrawScreen(pp);
+            G_ChangeHudLayout(1);
         }
     }
 }
 
 // !JIM! 08/06
-extern SWBOOL UsingMenus;
 
 #if 0
 void
@@ -1417,6 +1416,7 @@ void PrintLocationInfo(PLAYERp pp)
 SWBOOL DebugSecret = FALSE;
 void SecretInfo(PLAYERp pp)
 {
+	if (!hud_stats) return;
 #define Y_STEP 7
 #define AVERAGEFRAMES 16
     int x = windowxy1.x+2;
@@ -1665,22 +1665,6 @@ void ResChange(void)
 }
 #endif
 
-void ScreenCaptureKeys(void)
-{
-    if (ConPanel)
-        return;
-
-    // screen capture
-    if (inputState.GetKeyStatus(KEYSC_F12))
-    {
-		inputState.ClearKeyStatus(KEYSC_F12);
-        PauseAction();
-        videoCaptureScreen();
-        ResumeAction();
-        PutStringInfo(Player + myconnectindex, "Screen Captured");
-    }
-}
-
 void DrawCheckKeys(PLAYERp pp)
 {
     extern SWBOOL ResCheat;
@@ -1696,8 +1680,6 @@ void DrawCheckKeys(PLAYERp pp)
 
     if (!InputMode)
         ResizeView(pp);
-
-    ScreenCaptureKeys();
 }
 
 #if 0
@@ -2186,7 +2168,6 @@ drawscreen(PLAYERp pp)
     int tx, ty, tz,thoriz,pp_siz;
     short tang,tsectnum;
     short i,j;
-    walltype *wal;
     int tiltlock;
     int bob_amt = 0;
     int quake_z, quake_x, quake_y;
@@ -2197,6 +2178,8 @@ drawscreen(PLAYERp pp)
     // last valid stuff
     static short lv_sectnum = -1;
     static int lv_x, lv_y, lv_z;
+
+    int const viewingRange = viewingrange;
 
     if (HelpInputMode)
     {
@@ -2247,12 +2230,6 @@ drawscreen(PLAYERp pp)
     PreUpdatePanel();
 
 
-	if (r_usenewaspect)
-	{
-		newaspect_enable = 1;
-		videoSetCorrectedAspect();
-	}
-
     smoothratio = min(max(((int32_t) totalclock - ototalclock) * (65536 / synctics),0),65536);
 
     if (!ScreenSavePic)
@@ -2283,11 +2260,13 @@ drawscreen(PLAYERp pp)
 
     if (tsectnum < 0)
     {
+#if 0
         // if we hit an invalid sector move to the last valid position for drawing
         tsectnum = lv_sectnum;
         tx = lv_x;
         ty = lv_y;
         tz = lv_z;
+#endif
     }
     else
     {
@@ -2299,7 +2278,7 @@ drawscreen(PLAYERp pp)
     }
 
     // with "last valid" code this should never happen
-    ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
+    // ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
 
     pp->six = tx;
     pp->siy = ty;
@@ -2363,6 +2342,12 @@ drawscreen(PLAYERp pp)
         thoriz = min(thoriz, PLAYER_HORIZ_MAX);
     }
 
+    if (r_usenewaspect)
+    {
+        newaspect_enable = 1;
+        videoSetCorrectedAspect();
+    }
+
     if (FAF_DebugView)
         videoClearViewableArea(255L);
 
@@ -2387,6 +2372,12 @@ drawscreen(PLAYERp pp)
     post_analyzesprites();
     renderDrawMasks();
 
+    if (r_usenewaspect)
+    {
+        newaspect_enable = 0;
+        renderSetAspect(viewingRange, tabledivide32_noinline(65536 * ydim * 8, xdim * 5));
+    }
+
     UpdatePanel();
 
 #define SLIME 2305
@@ -2406,18 +2397,21 @@ drawscreen(PLAYERp pp)
 
     i = pp->cursectnum;
 
-    show2dsector[i>>3] |= (1<<(i&7));
-    wal = &wall[sector[i].wallptr];
-    for (j=sector[i].wallnum; j>0; j--,wal++)
+    if (i >= 0)
     {
-        i = wal->nextsector;
-        if (i < 0) continue;
-        if (wal->cstat&0x0071) continue;
-        uint16_t const nextwall = wal->nextwall;
-        if (nextwall < MAXWALLS && wall[nextwall].cstat&0x0071) continue;
-        if (sector[i].lotag == 32767) continue;
-        if (sector[i].ceilingz >= sector[i].floorz) continue;
         show2dsector[i>>3] |= (1<<(i&7));
+        walltype *wal = &wall[sector[i].wallptr];
+        for (j=sector[i].wallnum; j>0; j--,wal++)
+        {
+            i = wal->nextsector;
+            if (i < 0) continue;
+            if (wal->cstat&0x0071) continue;
+            uint16_t const nextwall = wal->nextwall;
+            if (nextwall < MAXWALLS && wall[nextwall].cstat&0x0071) continue;
+            if (sector[i].lotag == 32767) continue;
+            if (sector[i].ceilingz >= sector[i].floorz) continue;
+            show2dsector[i>>3] |= (1<<(i&7));
+        }
     }
 
     if ((dimensionmode == 5 || dimensionmode == 6) && pp == Player+myconnectindex)
@@ -2460,12 +2454,6 @@ drawscreen(PLAYERp pp)
             SET(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
     }
 
-	if (r_usenewaspect)
-	{
-		newaspect_enable = 0;
-		videoSetCorrectedAspect();
-	}
-
 
     // if doing a screen save don't need to process the rest
     if (ScreenSavePic)
@@ -2503,10 +2491,8 @@ drawscreen(PLAYERp pp)
     DrawCompass(pp);
     UpdateMiniBar(pp);
 
-    if (UsingMenus)
-        MNU_DrawMenu();
-    else
-        SecretInfo(pp);
+	if (!M_Active())
+    SecretInfo(pp);
 
     videoNextPage();
 
@@ -2604,7 +2590,7 @@ DrawCompass(PLAYERp pp)
     start_ang = NORM_CANG(start_ang - 4);
 
     flags = ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER;
-    if (RedrawCompass)
+    if (RedrawCompass && !M_Active())
     {
         RedrawCompass = FALSE;
         SET(flags, ROTATE_SPRITE_ALL_PAGES);

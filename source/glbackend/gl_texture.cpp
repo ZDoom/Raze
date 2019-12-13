@@ -69,7 +69,6 @@ void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
 FHardwareTexture* GLInstance::CreateIndexedTexture(FTexture* tex)
 {
 	auto siz = tex->GetSize();
-	bool npoty = false;
 
 	const uint8_t* p = tex->Get8BitPixels();
 	TArray<uint8_t> store(siz.x * siz.y, true);
@@ -96,11 +95,8 @@ FHardwareTexture* GLInstance::CreateIndexedTexture(FTexture* tex)
 
 FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency, bool rgb8bit)
 {
-	auto siz = tex->GetSize();
-	bool npoty = false;
-
 	auto palette = palid < 0? nullptr : palmanager.GetPaletteData(palid);
-	if (palette == nullptr) return nullptr;
+	if (palid >= 0 && palette == nullptr) return nullptr;
 	auto texbuffer = tex->CreateTexBuffer(palette, CTF_ProcessData);
 	// Check if the texture is fully transparent. When creating a brightmap such textures can be discarded.
 	if (checkfulltransparency)
@@ -266,7 +262,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				auto brep = tex->FindReplacement(BRIGHTPAL);
 				if (brep)
 				{
-					auto htex = LoadTexture(brep->faces[0], TT_HICREPLACE, 0);
+					LoadTexture(brep->faces[0], TT_HICREPLACE, 0);
 					UseBrightmaps(true);
 					BindTexture(5, mtex, sampler);
 				}

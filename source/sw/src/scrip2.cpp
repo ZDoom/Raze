@@ -39,6 +39,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "jsector.h"
 #include "parent.h"
 #include "scriptfile.h"
+#include "menu/menu.h"
+#include "quotemgr.h"
+#include "mapinfo.h"
 
 BEGIN_SW_NS
 
@@ -81,7 +84,7 @@ SWBOOL LoadScriptFile(const char *filename)
 
 
 
-	if (!(fp = kopenFileReader(filename, 0)).isOpen())
+	if (!(fp = fileSystem.OpenFileReader(filename, 0)).isOpen())
 	{
 		// If there's no script file, forget it.
 		return FALSE;
@@ -89,7 +92,7 @@ SWBOOL LoadScriptFile(const char *filename)
 
 	size = fp.GetLength();
 
-    scriptbuffer = (char *)AllocMem(size);
+    scriptbuffer = (char *)AllocMem(size+1);
 
     ASSERT(scriptbuffer != NULL);
 
@@ -97,6 +100,7 @@ SWBOOL LoadScriptFile(const char *filename)
 
     ASSERT(readsize == size);
 
+    scriptbuffer[readsize] = '\0';
 
     // Convert filebuffer to all upper case
     //Bstrupr(scriptbuffer);
@@ -401,6 +405,7 @@ enum
     CM_MAXAMMO,
     CM_DAMAGEMIN,
     CM_DAMAGEMAX,
+	CM_THEME,
     CM_SECRET,
     CM_QUIT,
 };
@@ -421,6 +426,7 @@ static const struct _tokset
     { "inventory",   CM_INVENTORY },
     { "weapon",      CM_WEAPON    },
     { "needkey",     CM_NEEDKEY   },
+	{ "theme",       CM_THEME     },
     { "secret",      CM_SECRET    },
     { "quit",        CM_QUIT      },
 },
@@ -472,14 +478,20 @@ static const struct _tokset
     { "maxdamage",   CM_DAMAGEMAX },
     { "pickup",      CM_AMOUNT    },
     { "weaponpickup",CM_WEAPON    },
-}
-;
+},
+cm_theme_tokens[] = {
+	{ "song",        CM_SONG      },
+	{ "music",       CM_SONG      },
+	{ "cdatrack",    CM_CDATRACK  },
+	{ "cdtrack",     CM_CDATRACK  },
+};
 #define cm_numtokens           (sizeof(cm_tokens)/sizeof(cm_tokens[0]))
 #define cm_map_numtokens       (sizeof(cm_map_tokens)/sizeof(cm_map_tokens[0]))
 #define cm_episode_numtokens   (sizeof(cm_episode_tokens)/sizeof(cm_episode_tokens[0]))
 #define cm_skill_numtokens     (sizeof(cm_skill_tokens)/sizeof(cm_skill_tokens[0]))
 #define cm_inventory_numtokens (sizeof(cm_inventory_tokens)/sizeof(cm_inventory_tokens[0]))
 #define cm_weapons_numtokens   (sizeof(cm_weapons_tokens)/sizeof(cm_weapons_tokens[0]))
+#define cm_theme_numtokens     (sizeof(cm_theme_tokens)/sizeof(cm_theme_tokens[0]))
 
 
 static int cm_transtok(const char *tok, const struct _tokset *set, const unsigned num)
@@ -495,52 +507,6 @@ static int cm_transtok(const char *tok, const struct _tokset *set, const unsigne
     return -1;
 }
 
-//   level # {
-//      title    "Map Name"
-//      filename "filename.map"
-//      song     "filename.mid"
-//      cdatrack n
-//      besttime secs
-//      partime  secs
-//   }
-//
-//   episode # {
-//      title    "Episode Name"
-//      subtitle "Caption text"
-//   }
-//
-//   skill # {
-//      name "Tiny grasshopper"
-//   }
-//
-//   fortune {
-//      "You never going to score."
-//      "26-31-43-82-16-29"
-//      "Sorry, you no win this time, try again."
-//   }
-//   gotkey {
-//      "Got the RED key!"
-//      "Got the BLUE key!"
-//      "Got the GREEN key!"
-//      ...
-//   }
-//   needkey {
-//      "You need a RED key for this door."
-//      "You need a BLUE key for this door."
-//      "You need a GREEN key for this door."
-//      ...
-//   }
-//   inventory # { name "Armour" amount 50 }
-//   weapon # { name "Uzi Submachine Gun" ammoname "Uzi Clip" maxammo 200 mindamage 5 maxdamage 7 pickup 50 }
-//   secret  "You found a secret area!"
-//   quit    "PRESS (Y) TO QUIT, (N) TO FIGHT ON."
-
-static LEVEL_INFO custommaps[MAX_LEVELS_REG];
-static char *customfortune[MAX_FORTUNES];
-static char *customkeymsg[MAX_KEYS];
-static char *customkeydoormsg[MAX_KEYS];
-static char *custominventoryname[InvDecl_TOTAL];
-static char *customweaponname[2][MAX_WEAPONS];  // weapon, ammo
 
 #define WM_DAMAGE  1
 #define WM_WEAP   2
@@ -609,7 +575,7 @@ void LoadCustomInfoFromScript(const char *filename)
             mapnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
-            // first map file in LevelInfo[] is bogus, last map file is NULL
+            // first map entry may not be used, max. amount needs investigation
             if (curmap < 1 || curmap > MAX_LEVELS_REG)
             {
                 initprintf("Error: map number %d not in range 1-%d on line %s:%d\n",
@@ -630,9 +596,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    //Bfree(custommaps[curmap].LevelName);
-                    custommaps[curmap].LevelName = strdup(t);
-                    LevelInfo[curmap].LevelName = custommaps[curmap].LevelName;
+					mapList[curmap].SetFileName(t);
                     break;
                 }
                 case CM_SONG:
@@ -640,9 +604,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    //Bfree(custommaps[curmap].SongName);
-                    custommaps[curmap].SongName = strdup(t);
-                    LevelInfo[curmap].SongName = custommaps[curmap].SongName;
+					mapList[curmap].music = t;
                     break;
                 }
                 case CM_TITLE:
@@ -650,9 +612,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    //Bfree(custommaps[curmap].Description);
-                    custommaps[curmap].Description = strdup(t);
-                    LevelInfo[curmap].Description = custommaps[curmap].Description;
+					mapList[curmap].SetName(t);
                     break;
                 }
                 case CM_BESTTIME:
@@ -661,10 +621,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char s[10];
                     if (scriptfile_getnumber(script, &n)) break;
 
-                    Bsnprintf(s, 10, "%d : %02d", n/60, n%60);
-                    //Bfree(custommaps[curmap].BestTime);
-                    custommaps[curmap].BestTime = strdup(s);
-                    LevelInfo[curmap].BestTime = custommaps[curmap].BestTime;
+					mapList[curmap].designerTime = (int)strtoll(s, nullptr, 0);
                     break;
                 }
                 case CM_PARTIME:
@@ -673,10 +630,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char s[10];
                     if (scriptfile_getnumber(script, &n)) break;
 
-                    Bsnprintf(s, 10, "%d : %02d", n/60, n%60);
-                    //Bfree(custommaps[curmap].ParTime);
-                    custommaps[curmap].ParTime = strdup(s);
-                    LevelInfo[curmap].ParTime = custommaps[curmap].ParTime;
+					mapList[curmap].parTime = (int)strtoll(s, nullptr, 0);
                     break;
                 }
                 case CM_CDATRACK:
@@ -702,7 +656,6 @@ void LoadCustomInfoFromScript(const char *filename)
             epnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
-            // first map file in LevelInfo[] is bogus, last map file is NULL
             if ((unsigned)--curmap >= 2u)
             {
                 initprintf("Error: episode number %d not in range 1-2 on line %s:%d\n",
@@ -722,18 +675,14 @@ void LoadCustomInfoFromScript(const char *filename)
                 {
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
-
-                    strncpy(&EpisodeNames[curmap][1], t, MAX_EPISODE_NAME_LEN);
-                    EpisodeNames[curmap][MAX_EPISODE_NAME_LEN+1] = 0;
+					gVolumeNames[curmap] = t;
                     break;
                 }
                 case CM_SUBTITLE:
                 {
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
-
-                    strncpy(EpisodeSubtitles[curmap], t, MAX_EPISODE_SUBTITLE_LEN);
-                    EpisodeSubtitles[curmap][MAX_EPISODE_SUBTITLE_LEN] = 0;
+					gVolumeSubtitles[curmap] = t;
                     break;
                 }
                 default:
@@ -753,7 +702,6 @@ void LoadCustomInfoFromScript(const char *filename)
             epnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
-            // first map file in LevelInfo[] is bogus, last map file is NULL
             if ((unsigned)--curmap >= 4u)
             {
                 initprintf("Error: skill number %d not in range 1-4 on line %s:%d\n",
@@ -774,8 +722,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    strncpy(&SkillNames[curmap][1], t, MAX_SKILL_NAME_LEN);
-                    SkillNames[curmap][MAX_SKILL_NAME_LEN+1] = 0;
+					gSkillNames[curmap] = t;
                     break;
                 }
                 default:
@@ -801,8 +748,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
                 if (fc == MAX_FORTUNES) continue;
 
-                customfortune[fc] = strdup(t);
-                if (customfortune[fc]) ReadFortune[fc] = customfortune[fc];
+                quoteMgr.InitializeQuote(QUOTE_COOKIE + fc, t);
                 fc++;
             }
             break;
@@ -820,8 +766,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
                 if (fc == MAX_KEYS) continue;
 
-                customkeymsg[fc] = strdup(t);
-                if (customkeymsg[fc]) KeyMsg[fc] = customkeymsg[fc];
+                quoteMgr.InitializeQuote(QUOTE_KEYMSG + fc, t);
                 fc++;
             }
             break;
@@ -839,8 +784,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
                 if (fc == MAX_KEYS) continue;
 
-                customkeydoormsg[fc] = strdup(t);
-                if (customkeydoormsg[fc]) KeyDoorMessage[fc] = customkeydoormsg[fc];
+                quoteMgr.InitializeQuote(QUOTE_DOORMSG + fc, t);
                 fc++;
             }
             break;
@@ -887,9 +831,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
             if (name)
             {
-                Bfree(custominventoryname[in]);
-                custominventoryname[in] = strdup(name);
-                InventoryDecls[in].name = custominventoryname[in];
+                quoteMgr.InitializeQuote(QUOTE_INVENTORY + in, name);
             }
             if (amt >= 0)
             {
@@ -962,9 +904,7 @@ void LoadCustomInfoFromScript(const char *filename)
                 if (maxammo >= 0) DamageData[id].max_ammo = maxammo;
                 if (name)
                 {
-                    Bfree(customweaponname[0][id]);
-                    customweaponname[0][id] = strdup(name);
-                    DamageData[id].weapon_name = customweaponname[0][id];
+                    quoteMgr.InitializeQuote(QUOTE_WPNFIST + in, name);
                 }
                 if (wpickup >= 0) DamageData[id].weapon_pickup = wpickup;
             }
@@ -972,14 +912,57 @@ void LoadCustomInfoFromScript(const char *filename)
             {
                 if (ammo)
                 {
-                    Bfree(customweaponname[1][id]);
-                    customweaponname[1][id] = strdup(ammo);
-                    DamageData[id].ammo_name = customweaponname[1][id];
+                    quoteMgr.InitializeQuote(QUOTE_AMMOFIST + in, name);
                 }
                 if (pickup >= 0) DamageData[id].ammo_pickup = pickup;
             }
             break;
         }
+		case CM_THEME:
+		{
+			char *epnumptr;
+			char *name = NULL;
+			int trak = -1;
+
+			if (scriptfile_getnumber(script, &curmap)) break; epnumptr = script->ltextptr;
+			if (scriptfile_getbraces(script, &braceend)) break;
+			if ((unsigned)--curmap >= 6u)
+			{
+				initprintf("Error: theme number %d not in range 1-6 on line %s:%d\n",
+						curmap, script->filename,
+						scriptfile_getlinum(script,epnumptr));
+				script->textptr = braceend;
+			break;
+		    }
+			while (script->textptr < braceend)
+			{
+				if (!(token = scriptfile_gettoken(script))) break;
+				if (token == braceend) break;
+				switch (cm_transtok(token, cm_theme_tokens, cm_theme_numtokens))
+				{
+					case CM_SONG:
+						if (scriptfile_getstring(script, &name)) break;
+						break;
+					case CM_CDATRACK:
+						if (scriptfile_getnumber(script, &trak)) break;
+						break;
+					default:
+						initprintf("Error on line %s:%d\n",
+								script->filename,
+							scriptfile_getlinum(script,script->ltextptr));
+						break;
+				}
+			}
+			if (name)
+            {
+               ThemeSongs[curmap] = name;
+			}
+			if (trak >= 2)
+			{
+			   ThemeTrack[curmap] = trak;
+			}
+			break;
+		}
         case CM_SECRET:
         case CM_QUIT:
         default:

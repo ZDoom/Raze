@@ -3649,12 +3649,12 @@ void P_HandleSharedKeys(int playerNum)
             else ud.pause_on = 1+SHIFTS_IS_PRESSED;
             if (ud.pause_on)
             {
-                S_PauseMusic(true);
+                Mus_SetPaused(true);
                 S_PauseSounds(true);
             }
             else
             {
-                if (MusicEnabled()) S_PauseMusic(false);
+                Mus_SetPaused(false);
 
                 S_PauseSounds(false);
 

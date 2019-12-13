@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 
 #include "resource.h"
+#include "z_music.h"
 
 BEGIN_BLD_NS
 
@@ -44,12 +45,7 @@ struct SFX
 };
 
 int sndGetRate(int format);
-int sndPlaySong(const char *mapname, const char *songName, bool bLoop);
-bool sndIsSongPlaying(void);
-void sndFadeSong(int nTime);
-void sndSetMusicVolume(int nVolume);
 void sndSetFXVolume(int nVolume);
-void sndStopSong(void);
 void sndStartSample(const char *pzSound, int nVolume, int nChannel = -1);
 void sndStartSample(unsigned int nSound, int nVolume, int nChannel = -1, bool bLoop = false);
 void sndStartWavID(unsigned int nSound, int nVolume, int nChannel = -1);

@@ -27,14 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "namesdyn.h"
 #include "global.h"
+#include "gamecontrol.h"
 
 BEGIN_DUKE_NS
 
-#ifdef DYNTILEREMAP_ENABLE
 # define DVPTR(x) &x
-#else
-# define DVPTR(x) NULL
-#endif
 
 int16_t DynamicTileMap[MAXTILES];
 
@@ -170,6 +167,9 @@ LUNATIC_EXTERN struct dynitem g_dynTileList[] =
     { "CRACKKNUCKLES",       DVPTR(CRACKKNUCKLES),       CRACKKNUCKLES__STATIC },
     { "CRANE",               DVPTR(CRANE),               CRANE__STATIC },
     { "CRANEPOLE",           DVPTR(CRANEPOLE),           CRANEPOLE__STATIC },
+    { "CREDITSTEXT1",        DVPTR(CREDITSTEXT1),        CREDITSTEXT1__STATIC },
+    { "CREDITSTEXT2",        DVPTR(CREDITSTEXT2),        CREDITSTEXT2__STATIC },
+    { "CREDITSTEXT3",        DVPTR(CREDITSTEXT3),        CREDITSTEXT3__STATIC },
     { "CROSSHAIR",           DVPTR(CROSSHAIR),           CROSSHAIR__STATIC },
     { "CRYSTALAMMO",         DVPTR(CRYSTALAMMO),         CRYSTALAMMO__STATIC },
     { "CYCLER",              DVPTR(CYCLER),              CYCLER__STATIC },
@@ -642,7 +642,7 @@ LUNATIC_EXTERN struct dynitem g_dynTileList[] =
     { "XXXSTACY",            DVPTR(XXXSTACY),            XXXSTACY__STATIC },
  };
 
-#ifdef DYNTILEREMAP_ENABLE
+
 int32_t ACCESS_ICON         = ACCESS_ICON__STATIC;
 int32_t ACCESSCARD          = ACCESSCARD__STATIC;
 int32_t ACCESSSWITCH        = ACCESSSWITCH__STATIC;
@@ -766,6 +766,9 @@ int32_t CRACK4              = CRACK4__STATIC;
 int32_t CRACKKNUCKLES       = CRACKKNUCKLES__STATIC;
 int32_t CRANE               = CRANE__STATIC;
 int32_t CRANEPOLE           = CRANEPOLE__STATIC;
+int32_t CREDITSTEXT1        = CREDITSTEXT1__STATIC;
+int32_t CREDITSTEXT2        = CREDITSTEXT2__STATIC;
+int32_t CREDITSTEXT3        = CREDITSTEXT3__STATIC;
 int32_t CROSSHAIR           = CROSSHAIR__STATIC;
 int32_t CRYSTALAMMO         = CRYSTALAMMO__STATIC;
 int32_t CYCLER              = CYCLER__STATIC;
@@ -1237,7 +1240,6 @@ int32_t WOMAN               = WOMAN__STATIC;
 int32_t WOODENHORSE         = WOODENHORSE__STATIC;
 int32_t XXXSTACY            = XXXSTACY__STATIC;
 
-#if !defined LUNATIC
 static hashtable_t h_names = {512, NULL};
 
 void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue)
@@ -1250,10 +1252,6 @@ void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue)
     if (i>=0)
     {
         struct dynitem *di = &g_dynTileList[i];
-#ifdef DEBUGGINGAIDS
-        if (g_scriptDebug && di->staticval != lValue)
-            OSD_Printf("REMAP %s (%d) --> %d\n", di->str, di->staticval, lValue);
-#endif
         *di->dynvalptr = lValue;
     }
 }
@@ -1270,8 +1268,6 @@ void freehashnames(void)
 {
     hash_free(&h_names);
 }
-#endif
-#endif
 
 // This is run after all CON define's have been processed to set up the
 // dynamic->static tile mapping.
@@ -1280,11 +1276,10 @@ void G_InitDynamicTiles(void)
     Bmemset(DynamicTileMap, 0, sizeof(DynamicTileMap));
 
     for (auto & i : g_dynTileList)
-#ifdef DYNTILEREMAP_ENABLE
+	{
         DynamicTileMap[*(i.dynvalptr)] = i.staticval;
-#else
-        DynamicTileMap[i.staticval] = i.staticval;
-#endif
+		NameToTileIndex.Insert(i.str, *(i.dynvalptr));
+	}
 
     g_blimpSpawnItems[0] = RPGSPRITE;
     g_blimpSpawnItems[1] = CHAINGUNSPRITE;
@@ -1314,10 +1309,5 @@ void G_InitDynamicTiles(void)
     WeaponPickupSprites[9] = FREEZESPRITE;
     WeaponPickupSprites[10] = HEAVYHBOMB;
     WeaponPickupSprites[11] = SHRINKERSPRITE;
-
-    // ouch... the big background image takes up a fuckload of memory and takes a second to load!
-#ifdef EDUKE32_GLES
-    MENUSCREEN = LOADSCREEN = BETASCREEN;
-#endif
 }
 END_DUKE_NS

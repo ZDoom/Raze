@@ -94,6 +94,12 @@ Things required to make savegames work:
 #include "gameconfigfile.h"
 #include "printf.h"
 #include "m_argv.h"
+#include "debugbreak.h"
+#include "menu/menu.h"
+#include "z_music.h"
+#include "statistics.h"
+#include "gstrings.h"
+#include "mapinfo.h"
 
 //#include "crc32.h"
 
@@ -104,6 +110,8 @@ signed char MNU_InputSmallString(char*, short);
 signed char MNU_InputString(char*, short);
 SWBOOL IsCommand(const char* str);
 SWBOOL MNU_StartNetGame(void);
+
+extern SWBOOL MultiPlayQuitFlag;
 
 
 #if DEBUG
@@ -170,9 +178,8 @@ extern SWBOOL GamePaused;
 short screenpeek = 0;
 SWBOOL NoDemoStartup = FALSE;
 SWBOOL FirstTimeIntoGame;
-extern uint8_t RedBookSong[40];
 
-SWBOOL BorderAdjust = TRUE;
+SWBOOL BorderAdjust = FALSE;
 SWBOOL LocationInfo = 0;
 void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 int DispFrameRate = FALSE;
@@ -207,9 +214,6 @@ const GAME_SET gs_defaults =
     0, // Time Limit
     0, // Color
     TRUE, // nuke
-    "Track??", // waveform track name
-    FALSE,
-    TRUE,
 };
 GAME_SET gs;
 
@@ -642,24 +646,17 @@ void TerminateGame(void)
 
 }
 
-void LoadLevel(const char *filename)
+bool LoadLevel(const char *filename)
 {
-    int pos;
-
     if (engineLoadBoard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &Player[0].pang, &Player[0].cursectnum) == -1)
     {
         TerminateGame();
-#ifdef RENDERTYPEWIN
-        {
-            char msg[256];
-            Bsnprintf(msg, 256, "Level not found: %s", filename);
-            wm_msgbox(apptitle, msg);
+		Printf("Level not found: %s", filename);
+		return false;
         }
-#else
-        printf("Level Not Found: %s\n", filename);
-#endif
-        exit(0);
-    }
+	currentLevel = &mapList[Level];
+	STAT_NewLevel(currentLevel->labelName);
+	return true;
 }
 
 void LoadDemoRun(void)
@@ -806,7 +803,7 @@ static void SW_FatalEngineError(void)
     I_Error("There was a problem initialising the Build engine: %s", engineerrstr);
 }
 
-void InitGame()
+bool InitGame()
 {
     extern int MovesPerPacket;
     //void *ReserveMem=NULL;
@@ -841,13 +838,8 @@ void InitGame()
         while (initmultiplayerscycle())
         {
             handleevents();
-            if (quitevent)
-            {
-                QuitFlag = TRUE;
-                return;
             }
         }
-    }
 #else
 	numplayers = 1; myconnectindex = 0;
 	connecthead = 0; connectpoint2[0] = -1;
@@ -929,9 +921,13 @@ void InitGame()
 
     LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
     LoadPLockFromScript("swplock.txt");   // Get Parental Lock setup info
+	
+	LoadCustomInfoFromScript("demolition/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
+	{
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
-
+	}
+ 
     if (!loaddefinitionsfile(G_DefFile())) buildputs("Definitions file loaded.\n");
 
 	userConfig.AddDefs.reset();
@@ -944,7 +940,7 @@ void InitGame()
     if (UserMapName[0] == '\0')
     {
         AnimateCacheCursor();
-        LoadLevel("$dozer.map");
+        if (!LoadLevel("$dozer.map")) return false;
         AnimateCacheCursor();
         SetupPreCache();
         DoTheCache();
@@ -952,7 +948,7 @@ void InitGame()
     else
     {
         AnimateCacheCursor();
-        LoadLevel(UserMapName);
+		if (!LoadLevel(UserMapName)) return false;
         AnimateCacheCursor();
         SetupPreCache();
         DoTheCache();
@@ -965,8 +961,7 @@ void InitGame()
     COVERsetbrightness(0, &palette_data[0][0]);
 
     InitFX();   // JBF: do it down here so we get a hold of the window handle
-    InitMusic();
-
+	return true;
 }
 
 
@@ -987,90 +982,10 @@ TYTAIK16 MID
 YOKOHA03 MID
 */
 
-char LevelSong[16];
 short SongLevelNum;
-//#ifndef SW_SHAREWARE
-LEVEL_INFO LevelInfo[MAX_LEVELS_REG+2] =
-{
-    {"title.map",      "theme.mid", " ", " ", " "  },
-    {"$bullet.map",    "e1l01.mid", "Seppuku Station", "0 : 55", "5 : 00"  },
-    {"$dozer.map",     "e1l03.mid", "Zilla Construction", "4 : 59", "8 : 00"  },
-    {"$shrine.map",    "e1l02.mid", "Master Leep's Temple", "3 : 16", "10 : 00"  },
-    {"$woods.map",     "e1l04.mid", "Dark Woods of the Serpent", "7 : 06", "16 : 00"  },
-    {"$whirl.map",     "yokoha03.mid", "Rising Son", "5 : 30", "10 : 00"   },
-    {"$tank.map",      "nippon34.mid", "Killing Fields", "1 : 46", "4 : 00"   },
-    {"$boat.map",      "execut11.mid", "Hara-Kiri Harbor", "1 : 56", "4 : 00"   },
-    {"$garden.map",    "execut11.mid", "Zilla's Villa", "1 : 06", "2 : 00"   },
-    {"$outpost.map",   "sanai.mid",    "Monastery", "1 : 23", "3 : 00"      },
-    {"$hidtemp.map",   "kotec2.mid",   "Raider of the Lost Wang", "2 : 05", "4 : 10"     },
-    {"$plax1.map",     "kotec2.mid",   "Sumo Sky Palace", "6 : 32", "12 : 00"     },
-    {"$bath.map",      "yokoha03.mid", "Bath House", "10 : 00", "10 : 00"   },
-    {"$airport.map",   "nippon34.mid", "Unfriendly Skies", "2 : 59", "6 : 00"   },
-    {"$refiner.map",   "kotoki12.mid", "Crude Oil", "2 : 40", "5 : 00"   },
-    {"$newmine.map",   "hoshia02.mid", "Coolie Mines", "2 : 48", "6 : 00"   },
-    {"$subbase.map",   "hoshia02.mid", "Subpen 7", "2 : 02", "4 : 00"   },
-    {"$rock.map",      "kotoki12.mid", "The Great Escape", "3 : 18", "6 : 00"   },
-    {"$yamato.map",    "sanai.mid",    "Floating Fortress", "11 : 38", "20 : 00"      },
-    {"$seabase.map",   "kotec2.mid",   "Water Torture", "5 : 07", "10 : 00"     },
-    {"$volcano.map",   "kotec2.mid",   "Stone Rain", "9 : 15", "20 : 00"     },
-    {"$shore.map",     "kotec2.mid",   "Shanghai Shipwreck", "3 : 58", "8 : 00"     },
-    {"$auto.map",      "kotec2.mid",   "Auto Maul", "4 : 07", "8 : 00"     },
-    {"tank.map",       "kotec2.mid",   "Heavy Metal (DM only)", "10 : 00", "10 : 00"     },
-    {"$dmwoods.map",   "kotec2.mid",   "Ripper Valley (DM only)", "10 : 00", "10 : 00"     },
-    {"$dmshrin.map",   "kotec2.mid",   "House of Wang (DM only)", "10 : 00", "10 : 00"     },
-    {"$rush.map",      "kotec2.mid",   "Lo Wang Rally (DM only)", "10 : 00", "10 : 00"     },
-    {"shotgun.map",    "kotec2.mid",   "Ruins of the Ronin (CTF)", "10 : 00", "10 : 00"     },
-    {"$dmdrop.map",    "kotec2.mid",   "Killing Fields (CTF)", "10 : 00", "10 : 00"     },
-    {NULL, NULL, NULL, NULL, NULL}
-};
-/*#else
-LEVEL_INFO LevelInfo[MAX_LEVELS+2] =  // Shareware
-    {
-    {"title.map",      "theme.mid", " ", " ", " "  },
-    {"$bullet.map",    "e1l01.mid", "Seppuku Station", "0 : 55", "5 : 00"  },
-    {"$dozer.map",     "e1l03.mid", "Zilla Construction", "4 : 59", "8 : 00"  },
-    {"$shrine.map",    "e1l02.mid", "Master Leep's Temple", "3 : 16", "10 : 00"  },
-    {"$woods.map",     "e1l04.mid", "Dark Woods of the Serpent", "7 : 06", "16 : 00"  },
-    {NULL, NULL, NULL, NULL, NULL}
-    };
-#endif*/
 
-const char *ThemeSongs[6] =
-{
-	"THEME.MID",
-	"ENDLEV3.VOC",
-	"SERPENT.MID",
-	"SUMO.MID",
-	"ZILLA.MID"
-	"ENDING.MID"
-};
-
-int ThemeTrack[6] =
-{
-	2,3,13,13,13,14
-};
-
-char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2] =
-{
-	"^Enter the Wang",
-	"^Code of Honor",
-	"^User Maps",
-};
-
-char EpisodeSubtitles[3][MAX_EPISODE_SUBTITLE_LEN+1] =
-{
-	"Four levels (Shareware Version)",
-	"Eighteen levels (Full Version Only)",
-	"Select a user map to play",
-};
-
-char SkillNames[4][MAX_SKILL_NAME_LEN+2] =
-{
-	"^Tiny grasshopper",
-	"^I Have No Fear",
-	"^Who Wants Wang",
-	"^No Pain, No Gain"
-};
+FString ThemeSongs[6];
+int ThemeTrack[6];
 
 void InitNewGame(void)
 {
@@ -1101,15 +1016,12 @@ void FindLevelInfo(char *map_name, short *level)
 
     for (j = 1; j <= MAX_LEVELS; j++)
     {
-        if (LevelInfo[j].LevelName)
+        if (Bstrcasecmp(map_name, mapList[j].fileName.GetChars()) == 0)
         {
-            if (Bstrcasecmp(map_name, LevelInfo[j].LevelName) == 0)
-            {
                 *level = j;
                 return;
             }
         }
-    }
 
     *level = 0;
     return;
@@ -1171,7 +1083,7 @@ InitLevel(void)
     // A few IMPORTANT GLOBAL RESETS
     InitLevelGlobals();
     if (!DemoMode)
-        StopSong();
+        Mus_Stop();
 
     if (LoadGameOutsideMoveLoop)
     {
@@ -1197,8 +1109,7 @@ InitLevel(void)
         FindLevelInfo(LevelName, &Level);
         if (Level > 0)
         {
-            strcpy(LevelSong, LevelInfo[Level].SongName);
-            strcpy(LevelName, LevelInfo[Level].LevelName);
+            strcpy(LevelName, mapList[Level].fileName);
             UserMapName[0] = '\0';
         }
         else
@@ -1236,15 +1147,13 @@ InitLevel(void)
             if (Level > 0)
             {
                 // user map is part of game - treat it as such
-                strcpy(LevelSong, LevelInfo[Level].SongName);
-                strcpy(LevelName, LevelInfo[Level].LevelName);
+                strcpy(LevelName, mapList[Level].fileName);
                 UserMapName[0] = '\0';
             }
         }
         else
         {
-            strcpy(LevelName, LevelInfo[Level].LevelName);
-            strcpy(LevelSong, LevelInfo[Level].SongName);
+            strcpy(LevelName, mapList[Level].fileName);
         }
     }
 
@@ -1258,7 +1167,12 @@ InitLevel(void)
     if (!DemoMode && !DemoInitOnce)
         DemoPlaySetup();
 
-    LoadLevel(LevelName);
+    if (!LoadLevel(LevelName))
+	{
+		NewGame = false;
+		return;
+	}
+	STAT_NewLevel(LevelName);
 
     if (Bstrcasecmp(CacheLastLevel, LevelName) != 0)
         // clears gotpic and does some bit setting
@@ -1353,8 +1267,8 @@ InitLevel(void)
 
     if (ArgCheat)
     {
-        SWBOOL bak = hud_messages;
-        hud_messages = FALSE;
+        int bak = hud_messages;
+        hud_messages = 0;
         EveryCheatToggle(&Player[0],NULL);
         hud_messages = bak;
         GodMode = TRUE;
@@ -1515,6 +1429,7 @@ void NewLevel(void)
         FX_SetVolume(0); // Shut the hell up while game is loading!
         InitLevel();
         RunLevel();
+		STAT_Update(false);
 
         if (!QuitFlag)
         {
@@ -1539,6 +1454,7 @@ void NewLevel(void)
         {
             PlayTheme();
             MenuLevel();
+			STAT_Update(true);
     }
     }
     else
@@ -1547,6 +1463,7 @@ void NewLevel(void)
         {
             PlayTheme();
             MenuLevel();
+			STAT_Update(true);
     }
     }
     FinishAnim = 0;
@@ -1600,8 +1517,7 @@ void ResetKeyRange(uint8_t* kb, uint8_t* ke)
 void PlayTheme()
 {
     // start music at logo
-    strcpy(LevelSong,"theme.mid");
-    PlaySong(LevelSong, RedBookSong[0], TRUE, TRUE);
+    PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
 
     DSPRINTF(ds,"After music stuff...");
     MONO_PRINT(ds);
@@ -1616,9 +1532,9 @@ void LogoLevel(void)
     MONO_PRINT(ds);
 
     // PreCache Anim
-    LoadAnm(0);
+    LoadAnm(0, &fin);
 
-	auto pal = kloadfile("3drealms.pal", 0);
+	auto pal = fileSystem.LoadFile("3drealms.pal", 0);
 	if (pal.Size() >= 768)
     {
 
@@ -1649,7 +1565,6 @@ void LogoLevel(void)
     while (TRUE)
     {
         handleevents();
-        if (quitevent) { QuitFlag = TRUE; break; }
 
         // taken from top of faketimerhandler
         // limits checks to max of 40 times a second
@@ -1694,7 +1609,6 @@ void CreditsLevel(void)
     // get rid of all PERM sprites!
     renderFlushPerms();
     save = gs.BorderNum;
-    SetBorder(Player + myconnectindex,0);
     ClearStartMost();
     gs.BorderNum = save;
     videoClearViewableArea(0L);
@@ -1707,9 +1621,9 @@ void CreditsLevel(void)
         while (FX_SoundActive(handle)) ;
 
     // try 14 then 2 then quit
-    if (!PlaySong(NULL, 14, FALSE, TRUE))
+    if (!PlaySong(nullptr, ThemeSongs[5], ThemeTrack[5], true))
     {
-        if (!PlaySong(NULL, 2, FALSE, TRUE))
+        if (!PlaySong(nullptr, nullptr, 2, true))
         {
             handle = PlaySound(DIGI_NOLIKEMUSIC,&zero,&zero,&zero,v3df_none);
             if (handle > 0)
@@ -1750,10 +1664,6 @@ void CreditsLevel(void)
             curpic = CREDITS1_PIC;
         }
 
-
-        if (!SongIsPlaying())
-            break;
-
         if (inputState.GetKeyStatus(KEYSC_ESC))
             break;
     }
@@ -1762,7 +1672,7 @@ void CreditsLevel(void)
     videoClearViewableArea(0L);
     videoNextPage();
     ResetKeys();
-    StopSong();
+    Mus_Stop();
 }
 
 
@@ -1777,7 +1687,7 @@ void SybexScreen(void)
     videoNextPage();
 
     ResetKeys();
-    while (!KeyPressed() && !quitevent) handleevents();
+    while (!KeyPressed()) handleevents();
 }
 
 // CTW REMOVED END
@@ -1824,7 +1734,7 @@ TitleLevel(void)
             //MNU_CheckForMenusAnyKey();
         }
 
-        //if (UsingMenus)
+        //if (M_Active())
         //    MNU_DrawMenu();
 
         //drawscreen as fast as you can
@@ -1888,10 +1798,8 @@ void MenuLevel(void)
     int fin;
     short w,h;
 
-    DSPRINTF(ds,"MenuLevel...");
-    MONO_PRINT(ds);
-
-
+    M_StartControlPanel(false);
+    M_SetMenu(NAME_MainMenu);
     // do demos only if not playing multi play
     if (!CommEnabled && numplayers <= 1 && !FinishAnim && !NoDemoStartup)
     {
@@ -1946,7 +1854,8 @@ void MenuLevel(void)
         if (FinishAnim)
         {
 			inputState.ClearKeyStatus(sc_Escape);
-			ControlPanelType = ct_ordermenu;
+			M_StartControlPanel(false);
+			M_SetMenu(NAME_CreditsMenu);
             FinishAnim = 0;
         }
     }
@@ -1960,14 +1869,11 @@ void MenuLevel(void)
         handleevents();
         OSD_DispatchQueued();
 
-        if (quitevent) QuitFlag = TRUE;
-
         // taken from top of faketimerhandler
         // limits checks to max of 40 times a second
         if (totalclock >= ototalclock + synctics)
         {
             ototalclock += synctics;
-            MNU_CheckForMenusAnyKey();
             if (CommEnabled)
                 getpackets();
         }
@@ -2004,21 +1910,11 @@ void MenuLevel(void)
             break;
         }
 
-        // force the use of menus at all time
-        if (!UsingMenus && !ConPanel)
-        {
-			inputState.SetKeyStatus(sc_Escape);
-            MNU_CheckForMenusAnyKey();
-        }
-
         // must lock the clock for drawing so animations will happen
         totalclocklock = totalclock;
 
         //drawscreen as fast as you can
         DrawMenuLevelScreen();
-
-        if (UsingMenus)
-            MNU_DrawMenu();
 
         videoNextPage();
     }
@@ -2027,8 +1923,7 @@ void MenuLevel(void)
     //LoadGameOutsideMoveLoop = FALSE;
 	inputState.ClearKeyStatus(sc_Escape);
 	inputState.ClearKeysDown();
-    //ExitMenus();
-    UsingMenus = FALSE;
+	M_ClearMenus();
     InMenuLevel = FALSE;
     videoClearViewableArea(0L);
     videoNextPage();
@@ -2079,11 +1974,7 @@ void LoadingLevelScreen(char *level_name)
     MNU_MeasureString(ds, &w, &h);
     MNU_DrawString(TEXT_TEST_COL(w), 170, ds,1,16);
 
-    if (UserMapName[0])
-        sprintf(ds,"%s",UserMapName);
-    else
-        sprintf(ds,"%s",LevelInfo[Level].Description);
-
+	auto ds = currentLevel->DisplayName();
     MNU_MeasureString(ds, &w, &h);
     MNU_DrawString(TEXT_TEST_COL(w), 180, ds,1,16);
 
@@ -2141,13 +2032,15 @@ int BonusGrabSound(short SpriteNum)
     return 0;
 }
 
+extern SWBOOL FinishedLevel;
+extern int PlayClock;
+extern short LevelSecrets;
+extern short TotalKillable;
+
 void BonusScreen(PLAYERp pp)
 {
     int minutes,seconds,second_tics;
-    extern SWBOOL FinishedLevel;
-    extern int PlayClock;
-    extern short LevelSecrets;
-    extern short TotalKillable;
+
     short w,h;
     short pic,limit;
     int zero=0;
@@ -2265,10 +2158,7 @@ void BonusScreen(PLAYERp pp)
     totalclock = ototalclock = 0;
     limit = synctics;
 
-    if (MusicEnabled())
-    {
-        PlaySong(voc[DIGI_ENDLEV].name, 3, TRUE, TRUE);
-    }
+    PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
 
     // special case code because I don't care any more!
     if (FinishAnim)
@@ -2277,7 +2167,7 @@ void BonusScreen(PLAYERp pp)
         rotatesprite(0, 0, RS_SCALE, 0, 5120, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
         rotatesprite(158<<16, 86<<16, RS_SCALE, 0, State->Pic, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
         videoNextPage();
-        FadeIn(0,0);
+        //FadeIn(0,0);
     }
 
     BonusDone = FALSE;
@@ -2318,7 +2208,7 @@ void BonusScreen(PLAYERp pp)
         {
             if (PlayingLevel <= 1)
                 PlayingLevel = 1;
-            sprintf(ds,"%s",LevelInfo[PlayingLevel].Description);
+			auto ds = currentLevel->DisplayName();
             MNU_MeasureString(ds, &w, &h);
             MNU_DrawString(TEXT_TEST_COL(w), 20, ds,1,19);
         }
@@ -2342,12 +2232,12 @@ void BonusScreen(PLAYERp pp)
         if (!UserMapName[0])
         {
             line++;
-            sprintf(ds,"3D Realms Best Time:  %s", LevelInfo[PlayingLevel].BestTime);
+			sprintf(ds,"3D Realms Best Time:  %d:%02d", currentLevel->designerTime/60, currentLevel->designerTime%60);
             MNU_MeasureString(ds, &w, &h);
             MNU_DrawString(40, BONUS_LINE(line), ds,1,16);
 
             line++;
-            sprintf(ds,"Par Time:  %s", LevelInfo[PlayingLevel].ParTime);
+			sprintf(ds,"Par Time:  %d:%02d", currentLevel->parTime/ 60, currentLevel->parTime%60);
             MNU_MeasureString(ds, &w, &h);
             MNU_DrawString(40, BONUS_LINE(line), ds,1,16);
         }
@@ -2370,7 +2260,6 @@ void BonusScreen(PLAYERp pp)
         MNU_DrawString(TEXT_TEST_COL(w), 185, ds,1,19);
 
         videoNextPage();
-        ScreenCaptureKeys();
 
         if (State == State->NextState)
             BonusDone = TRUE;
@@ -2383,7 +2272,7 @@ void BonusScreen(PLAYERp pp)
 void EndGameSequence(void)
 {
     SWBOOL anim_ok = TRUE;
-    FadeOut(0, 5);
+    //FadeOut(0, 5);
 
     if ((adult_lockout || Global_PLock) && FinishAnim == ANIM_SUMO)
         anim_ok = FALSE;
@@ -2450,7 +2339,7 @@ void StatScreen(PLAYERp mpp)
     // No stats in bot games
     //if (BotMode) return;
 
-    ResetPalette(mpp);
+    //ResetPalette(mpp);
     COVER_SetReverb(0); // Reset reverb
     StopSound();
 
@@ -2474,17 +2363,18 @@ void StatScreen(PLAYERp mpp)
     memset(death_total,0,sizeof(death_total));
     memset(kills,0,sizeof(kills));
 
-    sprintf(ds,"MULTIPLAYER TOTALS");
-    MNU_MeasureString(ds, &w, &h);
-    MNU_DrawString(TEXT_TEST_COL(w), 68, ds, 0, 0);
+    auto c = GStrings("MULTIPLAYER TOTALS");
+    MNU_MeasureString(c, &w, &h);
+    MNU_DrawString(TEXT_TEST_COL(w), 68, c, 0, 0);
 
-    sprintf(ds,"PRESS SPACE BAR TO CONTINUE");
-    MNU_MeasureString(ds, &w, &h);
-    MNU_DrawString(TEXT_TEST_COL(w), 189, ds, 0, 0);
+    c = GStrings("TXTS_PRESSSPACE");
+    MNU_MeasureString(c, &w, &h);
+    MNU_DrawString(TEXT_TEST_COL(w), 189, c, 0, 0);
 
     x = STAT_START_X;
     y = STAT_START_Y;
 
+    // Hm.... how to translate this without messing up the formatting?
     sprintf(ds,"  NAME         1     2     3     4     5     6     7    8     KILLS");
     DisplayMiniBarSmString(mpp, x, y, 0, ds);
     rows = OrigCommPlayers;
@@ -2546,7 +2436,7 @@ void StatScreen(PLAYERp mpp)
     x = STAT_START_X;
     y += STAT_OFF_Y;
 
-    sprintf(ds,"   DEATHS");
+    sprintf(ds,"   %s", GStrings("DEATHS"));
     DisplayMiniBarSmString(mpp, x, y, 0, ds);
     x = STAT_TABLE_X;
 
@@ -2584,16 +2474,11 @@ void StatScreen(PLAYERp mpp)
 	inputState.ClearKeyStatus(KEYSC_SPACE);
 	inputState.ClearKeyStatus(KEYSC_ENTER);
 
-    if (MusicEnabled())
-    {
-        PlaySong(voc[DIGI_ENDLEV].name, 3, TRUE, TRUE);
-    }
+    PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
 
     while (!inputState.GetKeyStatus(KEYSC_SPACE) && !inputState.GetKeyStatus(KEYSC_ENTER))
     {
         handleevents();
-
-        ScreenCaptureKeys();
     }
 
     StopSound();
@@ -2638,7 +2523,7 @@ void Control()
 	InitGame();
 
     MONO_PRINT("InitGame done");
-    MNU_InitMenus();
+    //MNU_InitMenus();
     InGame = TRUE;
     GameIntro();
 
@@ -2646,8 +2531,6 @@ void Control()
     {
         handleevents();
         OSD_DispatchQueued();
-
-        if (quitevent) QuitFlag = TRUE;
 
         NewLevel();
     }
@@ -2756,9 +2639,6 @@ void MoveLoop(void)
         //    demosync_record();
 #endif
     }
-
-    if (!InputMode && !PauseKeySet)
-        MNU_CheckForMenus();
 }
 
 
@@ -2789,8 +2669,6 @@ void InitPlayerGameSettings(void)
         else
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
     }
-
-	g_MyAimMode = in_aimmode;
 }
 
 
@@ -2809,7 +2687,6 @@ void InitRunLevel(void)
         if (snd_ambience)
             StartAmbientSound();
         SetCrosshair();
-        PlaySong(LevelSong, -1, TRUE, TRUE);
         SetRedrawScreen(Player + myconnectindex);
         // crappy little hack to prevent play clock from being overwritten
         // for load games
@@ -2831,7 +2708,7 @@ void InitRunLevel(void)
 
     waitforeverybody();
 
-    StopSong();
+    Mus_Stop();
 
     if (Bstrcasecmp(CacheLastLevel, LevelName) != 0)
         DoTheCache();
@@ -2846,16 +2723,14 @@ void InitRunLevel(void)
     InitNetVars();
 
     {
-        int track;
         if (Level == 0)
         {
-            track = RedBookSong[4+RANDOM_RANGE(10)];
+			PlaySong(nullptr, currentLevel->music, 1 + RANDOM_RANGE(10));
         }
         else
         {
-            track = RedBookSong[Level];
+			PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
         }
-        PlaySong(LevelSong, track, TRUE, TRUE);
     }
 
     InitPrediction(&Player[myconnectindex]);
@@ -2891,7 +2766,6 @@ void RunLevel(void)
     InitRunLevel();
 
     FX_SetVolume(snd_fxvolume);
-    SetSongVolume(mus_volume);
 
 #if 0
     waitforeverybody();
@@ -2904,8 +2778,6 @@ void RunLevel(void)
         OSD_DispatchQueued();
 		D_ProcessEvents();
 		faketimerhandler();
-
-        if (quitevent) QuitFlag = TRUE;
 
         MoveLoop();
 
@@ -3020,24 +2892,7 @@ char isShareware = FALSE;
 
 int DetectShareware(void)
 {
-#define DOS_SCREEN_NAME_SW  "SHADSW.BIN"
-#define DOS_SCREEN_NAME_REG "SWREG.BIN"
-
-    int h;
-
-    if (testkopen(DOS_SCREEN_NAME_SW, 1))
-    {
-        isShareware = TRUE;
-        return 0;
-    }
-
-    if (testkopen(DOS_SCREEN_NAME_REG, 1))
-    {
-        isShareware = FALSE;
-        return 0;
-    }
-
-    return 1;   // heavens knows what this is...
+    return (isShareware = !!(g_gameType & GAMEFLAG_SHAREWARE));
 }
 
 
@@ -3056,6 +2911,7 @@ int32_t GameInterface::app_main()
     int cnt = 0;
     uint32_t TotalMemory;
 
+    BorderAdjust = true;
     SW_ExtInit();
 
     CONFIG_ReadSetup();
@@ -3069,13 +2925,6 @@ int32_t GameInterface::app_main()
     {
         if (SW_SHAREWARE) buildputs("Detected shareware GRP\n");
         else buildputs("Detected registered GRP\n");
-    }
-
-    if (SW_SHAREWARE)
-    {
-        // Zero out the maps that aren't in shareware version
-        memset(&LevelInfo[MAX_LEVELS_SW+1], 0, sizeof(LEVEL_INFO)*(MAX_LEVELS_REG-MAX_LEVELS_SW));
-        GameVersion++;
     }
 
     for (i = 0; i < MAX_SW_PLAYERS; i++)
@@ -3193,186 +3042,9 @@ void ManualPlayerDelete(PLAYERp cur_pp)
     }
 }
 
-#if DEBUG
-void SinglePlayInput(PLAYERp pp)
-{
-    int pnum = myconnectindex;
-    uint8_t* kp;
 
-    if (buttonMap.ButtonDown(gamefunc_See_Co_Op_View) && !UsingMenus && !ConPanel && dimensionmode == 3)
-    {
-        short oldscreenpeek = screenpeek;
-
-        buttonMap.ClearButton(gamefunc_See_Co_Op_View);
-
-        screenpeek = connectpoint2[screenpeek];
-
-        if (screenpeek < 0)
-            screenpeek = connecthead;
-
-        if (dimensionmode == 2 || dimensionmode == 5 || dimensionmode == 6)
-            setup2dscreen();
-
-        if (dimensionmode != 2)
-        {
-            PLAYERp tp;
-
-            tp = Player + screenpeek;
-            PlayerUpdatePanelInfo(tp);
-            setpalettefade(0,0,0,0);
-            memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
-            DoPlayerDivePalette(tp);
-            DoPlayerNightVisionPalette(tp);
-//          printf("SingPlayInput set_pal: tp->PlayerSprite = %d\n",tp->PlayerSprite);
-        }
-    }
-
-
-}
-
-void DebugKeys(PLAYERp pp)
-{
-    short w, h;
-
-    if (!(inputState.GetKeyStatus(KEYSC_ALT) || inputState.GetKeyStatus(KEYSC_RALT)))
-        return;
-
-    if (InputMode)
-        return;
-
-    if (CommEnabled)
-        return;
-
-    //
-    // visiblity adjust
-    //
-
-    if (inputState.GetKeyStatus(KEYSC_L) > 0)
-    {
-        if (inputState.GetKeyStatus(KEYSC_LSHIFT) | inputState.GetKeyStatus(KEYSC_RSHIFT))      // SHIFT
-        {
-            g_visibility = g_visibility - (g_visibility >> 3);
-
-            if (g_visibility < 128)
-                g_visibility = 16348;
-
-            //if (g_visibility > 16384)
-            //    g_visibility = 128;
-        }
-        else
-        {
-            inputState.GetKeyStatus(KEYSC_L) = 0;
-
-            g_visibility = g_visibility - (g_visibility >> 3);
-
-            if (g_visibility > 16384)
-                g_visibility = 128;
-        }
-    }
-
-    //
-    // parallax changes
-    //
-
-    if (inputState.GetKeyStatus(KEYSC_X))
-    {
-        if (inputState.GetKeyStatus(KEYSC_LSHIFT))
-        {
-            inputState.GetKeyStatus(KEYSC_LSHIFT) = FALSE;
-            inputState.GetKeyStatus(KEYSC_X) = 0;
-
-            parallaxyoffs_override += 10;
-
-            if (parallaxyoffs_override > 100)
-                parallaxyoffs_override = 0;
-        }
-        else
-        {
-            inputState.GetKeyStatus(KEYSC_X) = 0;
-            parallaxtype++;
-            if (parallaxtype > 2)
-                parallaxtype = 0;
-        }
-    }
-}
-
-#endif
-
-void ConKey(void)
-{
-#if DEBUG
-    // Console Input Panel
-    if (!ConPanel && dimensionmode == 3)
-    {
-        //if (inputState.GetKeyStatus(KEYSC_TILDE) && inputState.GetKeyStatus(KEYSC_LSHIFT))
-        if (inputState.GetKeyStatus(KEYSC_TILDE))
-        {
-            inputState.GetKeyStatus(KEYSC_TILDE) = FALSE;
-            //inputState.GetKeyStatus(KEYSC_LSHIFT) = FALSE;
-            inputState.keyFlushChars();
-            ConPanel = TRUE;
-            InputMode = TRUE;
-            ConInputMode = TRUE;
-            if (!CommEnabled)
-                GamePaused = TRUE;
-            memset(MessageInputString, '\0', sizeof(MessageInputString));
-        }
-    }
-    else if (ConPanel)
-    {
-        //if (inputState.GetKeyStatus(KEYSC_TILDE) && inputState.GetKeyStatus(KEYSC_LSHIFT))
-        if (inputState.GetKeyStatus(KEYSC_TILDE))
-        {
-            inputState.GetKeyStatus(KEYSC_TILDE) = FALSE;
-            //inputState.GetKeyStatus(KEYSC_LSHIFT) = FALSE;
-            inputState.keyFlushChars();
-            ConPanel = FALSE;
-            ConInputMode = FALSE;
-            InputMode = FALSE;
-            if (!CommEnabled)
-                GamePaused = FALSE;
-            memset(MessageInputString, '\0', sizeof(MessageInputString));
-            SetFragBar(Player + myconnectindex);
-        }
-    }
-#endif
-}
 
 char WangBangMacro[10][64];
-
-SWBOOL DoQuickSave(short save_num)
-{
-    PauseAction();
-
-    if (SaveGame(save_num) != -1)
-    {
-        QuickLoadNum = save_num;
-
-        LastSaveNum = -1;
-
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-SWBOOL DoQuickLoad()
-{
-    //KB_ClearKeysDown();
-
-    PauseAction();
-
-    ReloadPrompt = FALSE;
-    if (LoadGame(QuickLoadNum) == -1)
-    {
-        return FALSE;
-    }
-
-    ready2send = 1;
-    LastSaveNum = -1;
-
-    return TRUE;
-}
 
 void
 FunctionKeys(PLAYERp pp)
@@ -3446,88 +3118,10 @@ FunctionKeys(PLAYERp pp)
         return;
     }
 
-
-    if (numplayers <= 1)
-    {
-        // F2 save menu
-        if (inputState.GetKeyStatus(KEYSC_F2))
-        {
-			inputState.ClearKeyStatus(KEYSC_F2);
-            if (!TEST(pp->Flags, PF_DEAD))
-            {
-				inputState.SetKeyStatus(sc_Escape);
-				ControlPanelType = ct_savemenu;
-            }
-        }
-
-        // F3 load menu
-        if (inputState.GetKeyStatus(KEYSC_F3))
-        {
-			inputState.ClearKeyStatus(KEYSC_F3);
-			if (!TEST(pp->Flags, PF_DEAD))
-            {
-				inputState.SetKeyStatus(sc_Escape);
-				ControlPanelType = ct_loadmenu;
-            }
-        }
-
-        // F6 quick save
-        if (inputState.GetKeyStatus(KEYSC_F6))
-        {
-			inputState.ClearKeyStatus(KEYSC_F6);
-			if (!TEST(pp->Flags, PF_DEAD))
-            {
-				inputState.SetKeyStatus(sc_Escape);
-                if (QuickLoadNum < 0)
-                {
-                    //KEY_PRESSED(KEYSC_ESC) = 1;
-                    ControlPanelType = ct_savemenu;
-            }
-                else
-                {
-                    //KB_ClearKeysDown();
-                    //KB_FlushKeyboardQueue();
-                    DoQuickSave(QuickLoadNum);
-                    ResumeAction();
-        }
-            }
-        }
-
-        // F9 quick load
-        if (inputState.GetKeyStatus(KEYSC_F9))
-        {
-			inputState.ClearKeyStatus(KEYSC_F9);
-
-            if (!TEST(pp->Flags, PF_DEAD))
-            {
-                if (QuickLoadNum < 0)
-                {
-                    //KEY_PRESSED(KEYSC_ESC) = 1;
-                    ControlPanelType = ct_loadmenu;
-                }
-                else
-                {
-                    DoQuickLoad();
-                    ResumeAction();
-                }
-            }
-        }
-    }
-
-
-    // F4 sound menu
-    if (inputState.GetKeyStatus(KEYSC_F4))
-    {
-		inputState.ClearKeyStatus(KEYSC_F4);
-		inputState.SetKeyStatus(sc_Escape);
-		ControlPanelType = ct_soundmenu;
-    }
-
-
     // F7 VIEW control
-    if (inputState.GetKeyStatus(KEYSC_F7))
+	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
     {
-		inputState.ClearKeyStatus(KEYSC_F7);
+		buttonMap.ClearButton(gamefunc_Third_Person_View);
 
         if (inputState.GetKeyStatus(KEYSC_LSHIFT) || inputState.GetKeyStatus(KEYSC_RSHIFT))
         {
@@ -3548,33 +3142,6 @@ FunctionKeys(PLAYERp pp)
         }
     }
 
-    // F8 toggle messages
-    if (inputState.GetKeyStatus(KEYSC_F8))
-    {
-		inputState.ClearKeyStatus(KEYSC_F8);
-
-        hud_messages = !hud_messages;
-
-        if (hud_messages)
-            PutStringInfoLine(pp, "Messages ON");
-        else
-            PutStringInfoLine(pp, "Messages OFF");
-    }
-
-    // F10 quit menu
-    if (inputState.GetKeyStatus(KEYSC_F10))
-    {
-		inputState.ClearKeyStatus(KEYSC_F10);
-		inputState.SetKeyStatus(sc_Escape);
-		ControlPanelType = ct_quitmenu;
-    }
-
-    // F11 gamma correction
-    if (inputState.GetKeyStatus(KEYSC_F11) > 0)
-    {
-		inputState.ClearKeyStatus(KEYSC_F11);
-		// Do this entirely in the video backend.
-    }
 
 }
 
@@ -3583,7 +3150,7 @@ void PauseKey(PLAYERp pp)
     extern SWBOOL GamePaused,CheatInputMode;
     extern SWBOOL enabled;
 
-    if (inputState.GetKeyStatus(sc_Pause) && !CommEnabled && !InputMode && !UsingMenus && !CheatInputMode && !ConPanel)
+    if (inputState.GetKeyStatus(sc_Pause) && !CommEnabled && !InputMode && !M_Active() && !CheatInputMode && !ConPanel)
     {
 		inputState.ClearKeyStatus(sc_Pause);
 
@@ -3600,12 +3167,12 @@ void PauseKey(PLAYERp pp)
 #define MSG_GAME_PAUSED "Game Paused"
             MNU_MeasureString(MSG_GAME_PAUSED, &w, &h);
             PutStringTimer(pp, TEXT_TEST_COL(w), 100, MSG_GAME_PAUSED, 999);
-            PauseSong(TRUE);
+            Mus_SetPaused(true);
         }
         else
         {
             pClearTextLine(pp, 100);
-            PauseSong(FALSE);
+            Mus_SetPaused(false);
         }
     }
 
@@ -3613,15 +3180,15 @@ void PauseKey(PLAYERp pp)
     {
         if (ReloadPrompt)
         {
-            if (QuickLoadNum < 0)
-            {
                 ReloadPrompt = FALSE;
+		   /*
             }
             else
             {
 				inputState.SetKeyStatus(sc_Escape);
 				ControlPanelType = ct_quickloadmenu;
             }
+			*/
         }
     }
 }
@@ -3655,6 +3222,7 @@ void GetMessageInput(PLAYERp pp)
             }
         }
     }
+#if 0 // the message input needs to be moved out of the game code!
     else if (MessageInputMode && !ConInputMode)
     {
         if (gs.BorderNum > BORDER_BAR+1)
@@ -3776,141 +3344,7 @@ SEND_MESSAGE:
             break;
         }
     }
-}
-
-void GetConInput(PLAYERp pp)
-{
-    int pnum = myconnectindex;
-    short w,h;
-    static SWBOOL cur_show;
-
-    if (MessageInputMode || HelpInputMode)
-        return;
-
-    ConKey();
-
-    // Console input commands
-    if (ConInputMode && !MessageInputMode)
-    {
-        // get input
-        switch (MNU_InputSmallString(MessageInputString, 250))
-        {
-        case -1: // Cancel Input (pressed ESC) or Err
-            InputMode = FALSE;
-            inputState.ClearKeysDown();
-            inputState.keyFlushChars();
-            memset(MessageInputString, '\0', sizeof(MessageInputString));
-            break;
-        case FALSE: // Input finished (RETURN)
-            if (MessageInputString[0] == '\0')
-            {
-                InputMode = FALSE;
-                inputState.ClearKeysDown();
-                inputState.keyFlushChars();
-                buttonMap.ClearButton(gamefunc_Inventory);
-                memset(MessageInputString, '\0', sizeof(MessageInputString));
-            }
-            else
-            {
-                InputMode = FALSE;
-                inputState.ClearKeysDown();
-                inputState.keyFlushChars();
-                buttonMap.ClearButton(gamefunc_Inventory);
-                CON_ConMessage("%s", MessageInputString);
-                CON_ProcessUserCommand();     // Check to see if it's a cheat or command
-
-                conbot += 6;
-                conbotgoal = conbot;
-                //addconquote(MessageInputString);
-                // Clear it out after every entry
-                memset(MessageInputString, '\0', sizeof(MessageInputString));
-            }
-            break;
-        case TRUE: // Got input
-            break;
-        }
-    }
-}
-
-
-void GetHelpInput(PLAYERp pp)
-{
-    extern SWBOOL GamePaused;
-
-    if (inputState.GetKeyStatus(KEYSC_ALT) || inputState.GetKeyStatus(KEYSC_RALT))
-        return;
-
-    if (inputState.GetKeyStatus(KEYSC_LSHIFT) || inputState.GetKeyStatus(KEYSC_RSHIFT))
-        return;
-
-    if (MessageInputMode || ConInputMode)
-        return;
-
-    // F1 help menu
-    if (!HelpInputMode)
-    {
-        if (inputState.GetKeyStatus(KEYSC_F1))
-        {
-			inputState.ClearKeyStatus(KEYSC_F11);
-			HelpPage = 0;
-            HelpInputMode = TRUE;
-            PanelUpdateMode = FALSE;
-            InputMode = TRUE;
-            if (!CommEnabled)
-                GamePaused = TRUE;
-        }
-    }
-    else if (HelpInputMode)
-    {
-        if (inputState.GetKeyStatus(KEYSC_ESC))
-        {
-			inputState.ClearKeyStatus(sc_Escape);
-			inputState.ClearKeysDown();
-            PanelUpdateMode = TRUE;
-            HelpInputMode = FALSE;
-            InputMode = FALSE;
-            if (!CommEnabled)
-                GamePaused = FALSE;
-            SetRedrawScreen(pp);
-        }
-
-        if (inputState.GetKeyStatus(KEYSC_SPACE) || inputState.GetKeyStatus(KEYSC_ENTER) || inputState.GetKeyStatus(KEYSC_PGDN) || inputState.GetKeyStatus(KEYSC_DOWN) || inputState.GetKeyStatus(KEYSC_RIGHT) || inputState.GetKeyStatus(sc_kpad_3) || inputState.GetKeyStatus(sc_kpad_2) || inputState.GetKeyStatus(sc_kpad_6))
-        {
-			inputState.ClearKeyStatus(KEYSC_SPACE);
-			inputState.ClearKeyStatus(KEYSC_ENTER);
-			inputState.ClearKeyStatus(KEYSC_PGDN);
-			inputState.ClearKeyStatus(KEYSC_DOWN);
-			inputState.ClearKeyStatus(KEYSC_RIGHT);
-			inputState.ClearKeyStatus(sc_kpad_3);
-			inputState.ClearKeyStatus(sc_kpad_2);
-			inputState.ClearKeyStatus(sc_kpad_6);
-
-            HelpPage++;
-            if (HelpPage >= (int)SIZ(HelpPagePic))
-                // CTW MODIFICATION
-                // "Oops! I did it again..."
-                // HelpPage = SIZ(HelpPagePic) - 1;
-                HelpPage = 0;
-            // CTW MODIFICATION END
-        }
-
-        if (inputState.GetKeyStatus(KEYSC_PGUP) || inputState.GetKeyStatus(KEYSC_UP) || inputState.GetKeyStatus(KEYSC_LEFT) || inputState.GetKeyStatus(sc_kpad_9) || inputState.GetKeyStatus(sc_kpad_8) || inputState.GetKeyStatus(sc_kpad_4))
-        {
-			inputState.ClearKeyStatus(KEYSC_PGUP);
-			inputState.ClearKeyStatus(KEYSC_UP);
-			inputState.ClearKeyStatus(KEYSC_LEFT);
-			inputState.ClearKeyStatus(sc_kpad_8);
-			inputState.ClearKeyStatus(sc_kpad_9);
-			inputState.ClearKeyStatus(sc_kpad_4);
-
-            HelpPage--;
-            if (HelpPage < 0)
-                // CTW MODIFICATION
-                // "Played with the logic, got lost in the game..."
-                HelpPage = SIZ(HelpPagePic) - 1;
-            // CTW MODIFICATION END
-        }
-    }
+#endif
 }
 
 short MirrorDelay;
@@ -3952,53 +3386,26 @@ void getinput(SW_PACKET *loc)
     // MAKE SURE THIS WILL GET SET
     SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
 
-	if (in_aimmode)
-		g_MyAimMode = 0;
+	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
-	if (buttonMap.ButtonDown(gamefunc_Mouse_Aiming))
+	if (!CommEnabled)
 	{
-		if (in_aimmode)
-			g_MyAimMode = 1;
-		else
-		{
-			buttonMap.ClearButton(gamefunc_Mouse_Aiming);
-			g_MyAimMode = !g_MyAimMode;
-			if (g_MyAimMode)
-			{
-				PutStringInfo(pp, "Mouse Aiming Off");
-			}
-			else
-			{
-				PutStringInfo(pp, "Mouse Aiming On");
-			}
-		}
-	}
+		// Go back to the source to set this - the old code here was catastrophically bad.
+		// this needs to be fixed properly - as it is this can never be compatible with demo playback.
 
-    int const aimMode = TEST(pp->Flags, PF_MOUSE_AIMING_ON);
+		if (mouseaim)
+			SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+		else
+			RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+
+		if (cl_autoaim)
+			SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+			else
+			RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+			}
 
     ControlInfo info;
     CONTROL_GetInput(&info);
-
-	if (in_mousedeadzone)
-	{
-		if (info.mousey > 0)
-			info.mousey = max(info.mousey - in_mousedeadzone, 0);
-		else if (info.mousey < 0)
-			info.mousey = min(info.mousey + in_mousedeadzone, 0);
-
-		if (info.mousex > 0)
-			info.mousex = max(info.mousex - in_mousedeadzone, 0);
-		else if (info.mousex < 0)
-			info.mousex = min(info.mousex + in_mousedeadzone, 0);
-	}
-
-	if (in_mousebias)
-	{
-		if (klabs(info.mousex) > klabs(info.mousey))
-			info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
-		else
-			info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
-	}
 
 
     //info.dz = (info.dz * move_scale)>>8;
@@ -4009,11 +3416,9 @@ void getinput(SW_PACKET *loc)
     if (PauseKeySet)
         return;
 
-    if (!MenuInputMode && !UsingMenus)
+    if (!M_Active())
     {
         GetMessageInput(pp);
-        GetConInput(pp);
-        GetHelpInput(pp);
     }
 
     // MAP KEY
@@ -4057,8 +3462,8 @@ void getinput(SW_PACKET *loc)
     if (ScrollMode2D && pp == Player + myconnectindex && !Prediction)
         MoveScrollMode2D(Player + myconnectindex);
 
-    // !JIM! Added UsingMenus so that you don't move at all while using menus
-    if (MenuInputMode || UsingMenus || ScrollMode2D || InputMode)
+    // !JIM! Added M_Active() so that you don't move at all while using menus
+    if (M_Active() || ScrollMode2D || InputMode)
         return;
 
     SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
@@ -4103,7 +3508,7 @@ void getinput(SW_PACKET *loc)
         angvel += info.dyaw * (turnamount << 1) / analogExtent;
     }
 
-    if (true)//aimMode)
+    if (mouseaim)
         aimvel = -info.mousey / 64;
     else
         vel = -(info.mousey >> 6);
@@ -4186,12 +3591,15 @@ void getinput(SW_PACKET *loc)
 
     if (!CommEnabled)
     {
+		// What a mess...:?
+#if 0
         if (MenuButtonAutoAim)
         {
             MenuButtonAutoAim = FALSE;
             if ((!!TEST(pp->Flags, PF_AUTO_AIM)) != !!cl_autoaim)
                 SET_LOC_KEY(loc->bits, SK_AUTO_AIM, TRUE);
         }
+#endif
     }
     else if (inputState.GetKeyStatus(sc_Pause))
     {
@@ -4211,7 +3619,6 @@ void getinput(SW_PACKET *loc)
     // actually just look
     SET_LOC_KEY(loc->bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
     SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
-
 
     for (i = 0; i < MAX_WEAPONS_KEYS; i++)
     {
@@ -4299,14 +3706,13 @@ void getinput(SW_PACKET *loc)
         SET(loc->bits, prev_weapon + 1);
     }
 
-    /*
-    if (buttonMap.ButtonDown(gamefunc_Alt_Weapon_Mode))
+    if (buttonMap.ButtonDown(gamefunc_Alt_Weapon))
     {
-        buttonMap.ClearButton(gamefunc_Alt_Weapon_Mode);
+        buttonMap.ClearButton(gamefunc_Alt_Weapon);
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
         SET(loc->bits, which_weapon);
-    }*/
+
 
     inv_hotkey = 0;
     if (buttonMap.ButtonDown(gamefunc_Med_Kit))
@@ -4428,10 +3834,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
         minigametext(txt_x,txt_y-7,"Follow Mode",0,2+8);
     }
 
-    if (UserMapName[0])
-        sprintf(ds,"%s",UserMapName);
-    else
-        sprintf(ds,"%s",LevelInfo[Level].Description);
+    sprintf(ds,"%s",currentLevel->DisplayName());
 
     minigametext(txt_x,txt_y,ds,0,2+8);
 
@@ -4837,20 +4240,32 @@ void Saveable_Init_Dynamic()
     saveable_build.numdata = NUM_SAVEABLE_ITEMS(saveable_build_data);
 }
 
-/*extern*/ bool GameInterface::validate_hud(int requested_size) { return requested_size; }
-/*extern*/ void GameInterface::set_hud_layout(int requested_size) { /* the relevant setting is gs.BorderNum */}
-/*extern*/ void GameInterface::set_hud_scale(int requested_size) { /* the relevant setting is gs.BorderNum */ }
-
-bool GameInterface::mouseInactiveConditional(bool condition) 
-{
-	return condition;
+/*extern*/ bool GameInterface::validate_hud(int requested_size) 
+{ 
+    return requested_size != 10 && requested_size != 8; 
 }
-
+/*extern*/ void GameInterface::set_hud_layout(int requested_size) 
+{
+    if (requested_size >= 11) requested_size = 9;
+    else if (requested_size >= 9) requested_size = 8;
+    gs.BorderNum = 9 - requested_size;
+    SetBorder(Player + myconnectindex, gs.BorderNum);
+    SetRedrawScreen(Player + myconnectindex);
+}
+/*extern*/ void GameInterface::set_hud_scale(int requested_size) { /* the relevant setting is gs.BorderNum */ }
 
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;
 }
+
+
+GameStats GameInterface::getStats()
+{
+	PLAYERp pp = Player + myconnectindex;
+	return { pp->Kills, TotalKillable, pp->SecretsFound, LevelSecrets, PlayClock / 120, 0 };
+}
+
 
 
 END_SW_NS

@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "osdcmds.h"
 #include "cheats.h"
+#include "mapinfo.h"
 
 BEGIN_RR_NS
 
@@ -211,9 +212,6 @@ void G_SetupCheats(void)
         Bstrcpy(CheatStrings[23], "<RESERVED>");
         Bstrcpy(CheatStrings[24], "adebug");
         Bstrcpy(CheatStrings[26], "acgs");
-
-        Bstrcpy(g_gametypeNames[0], "GruntMatch (Spawn)");
-        Bstrcpy(g_gametypeNames[2], "GruntMatch (No Spawn)");
     }
 }
 
@@ -490,7 +488,7 @@ void G_DoCheats(void)
                         //}
                         //else
                         //{
-                        //    Bstrcpy(apStrings[QUOTE_RESERVED4], "Come Get Some!");
+                        //    Bstrcpy(pStrings[QUOTE_RESERVED4], "Come Get Some!");
                         //
                         //    S_PlaySound(DUKE_GETWEAPON2);
                         //    P_DoQuote(QUOTE_RESERVED4, pPlayer);
@@ -557,7 +555,7 @@ void G_DoCheats(void)
                     int32_t const volnume = ud.m_volume_number, levnume = m_level_number;
 
                     if ((!VOLUMEONE || volnume == 0) && (unsigned)volnume < (unsigned)g_volumeCnt &&
-                        (unsigned)levnume < MAXLEVELS && g_mapInfo[volnume*MAXLEVELS + levnume].filename != NULL)
+                        (unsigned)levnume < MAXLEVELS && mapList[volnume*MAXLEVELS + levnume].fileName.IsNotEmpty())
                     {
                         ud.volume_number = volnume;
                         ud.level_number = levnume;
@@ -661,7 +659,7 @@ void G_DoCheats(void)
                 case CHEAT_TODD:
                     if (NAM)
                     {
-                        Bstrcpy(apStrings[QUOTE_RESERVED4], g_NAMMattCheatQuote);
+                        quoteMgr.InitializeQuote(QUOTE_RESERVED4, g_NAMMattCheatQuote);
                         P_DoQuote(QUOTE_RESERVED4, pPlayer);
                     }
                     else
@@ -693,12 +691,12 @@ void G_DoCheats(void)
 
                 case CHEAT_MONSTERS:
                 {
-                    const char *s [] = { "On", "Off", "On (2)" };
+                    const char *s [] = { "OPTVAL_ON", "OPTVAL_OFF", "$TXT_ON2" };
 
                     if (++g_noEnemies == 3)
                         g_noEnemies = 0;
 
-                    Bsprintf(apStrings[QUOTE_RESERVED4], "Monsters: %s", s[g_noEnemies]);
+					quoteMgr.FormatQuote(QUOTE_RESERVED4, "%s: %s", GStrings("NETMNU_MONSTERS"), s[g_noEnemies]);
                     P_DoQuote(QUOTE_RESERVED4, pPlayer);
 
                     end_cheat(pPlayer);

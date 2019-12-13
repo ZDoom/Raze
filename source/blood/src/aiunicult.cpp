@@ -284,7 +284,7 @@ static void ThrowThing(int nXIndex, bool impact) {
     if (curWeapon < kThingBase || curWeapon >= kThingMax)
         return;
 
-    THINGINFO* pThinkInfo = &thingInfo[curWeapon - kThingBase];
+    const THINGINFO* pThinkInfo = &thingInfo[curWeapon - kThingBase];
     if (!pThinkInfo->allowThrow) return;
 
     if (!playGenDudeSound(pSprite, kGenDudeSndAttackThrow))

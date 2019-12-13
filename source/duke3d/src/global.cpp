@@ -34,19 +34,9 @@ user_defs ud;
 const char *s_buildDate = "20120522";
 
 
-#ifndef EDUKE32_STANDALONE
-char    g_volumeNames[MAXVOLUMES][33] = { "L.A. Meltdown", "Lunar Apocalypse", "Shrapnel City" };
-char    g_skillNames[MAXSKILLS][33] = { "Piece Of Cake", "Let's Rock", "Come Get Some", "Damn I'm Good" };
 char    g_gametypeNames[MAXGAMETYPES][33]
-= { "DukeMatch (Spawn)", "Cooperative Play", "DukeMatch (No Spawn)", "Team DM (Spawn)", "Team DM (No Spawn)" };
-#else
-char    g_volumeNames[MAXVOLUMES][33];
-char    g_skillNames[MAXSKILLS][33];
-char    g_gametypeNames[MAXGAMETYPES][33]
-= { "Deathmatch (Spawn)", "Cooperative Play", "Deathmatch (No Spawn)", "Team DM (Spawn)", "Team DM (No Spawn)" };
-#endif
+= { "$NETMNU_GAMETYPE1", "$NETMNU_GAMETYPE2", "NETMNU_GAMETYPE3", "NETMNU_GAMETYPE4", "NETMNU_GAMETYPE5" };
 
-int32_t g_volumeFlags[MAXVOLUMES];
 
 int32_t g_gametypeFlags[MAXGAMETYPES] =
 {

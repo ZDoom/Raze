@@ -1,5 +1,5 @@
 /*
-** i_music.h
+** gstrings.h
 **
 **---------------------------------------------------------------------------
 ** Copyright 1998-2006 Randy Heit
@@ -31,23 +31,18 @@
 **
 */
 
-#ifndef __I_MUSIC_H__
-#define __I_MUSIC_H__
+#ifndef __GSTRINGS_H__
+#define __GSTRINGS_H__
 
-class FileReader;
-struct FOptionValues;
+#ifdef _MSC_VER
+#pragma once
+#endif
 
-//
-//	MUSIC I/O
-//
-void I_InitMusic ();
-void I_BuildMIDIMenuList (FOptionValues *);
+#include "stringtable.h"
 
-// Volume.
-void I_SetRelativeVolume(float);
-void I_SetMusicVolume (double volume);
+extern FStringTable GStrings;
+
+extern const char *endmsg[];
 
 
-extern int nomusic;
-
-#endif //__I_MUSIC_H__
+#endif //__GSTRINGS_H__

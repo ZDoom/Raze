@@ -62,7 +62,6 @@ void _consoleSysMsg(const char* pzFormat, ...) {
     va_list args;
     va_start(args, pzFormat);
     vsprintf(buffer, pzFormat, args);
-    initprintf("%s(%i): %s\n", _module, _line, buffer);
 
     OSD_Printf(OSDTEXT_RED "%s(%i): %s\n", _module, _line, buffer);
 }

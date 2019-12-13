@@ -50,6 +50,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "rts.h"
 #include "menus.h"
 #include "config.h"
+#include "menu/menu.h"
+#include "z_music.h"
 
 #ifdef _WIN32
 #include "sdlayer.h"
@@ -70,24 +72,15 @@ int PLocked_Sounds[] =
     558,557
 };
 
-uint8_t RedBookSong[40] =
-{
-    2,4,9,12,10, // Title and ShareWare levels
-    5,6,8,11,12,5,10,4,6,9,7,10,8,7,9,10,11,5, // Registered levels
-    11,8,7,13,5,6,  // Deathmatch levels
-    13 // Fight boss
-};
 
 // Global vars used by ambient sounds to set spritenum of ambient sounds for later lookups in
 // the sprite array so FAFcansee can know the sound sprite's current sector location
 SWBOOL Use_SoundSpriteNum = FALSE;
 int16_t SoundSpriteNum = -1;  // Always set this back to -1 for proper validity checking!
 
-SWBOOL MusicInitialized = FALSE;
 SWBOOL FxInitialized = FALSE;
 
 void SoundCallBack(unsigned int num);
-SWBOOL LoadSong(const char *track);
 
 #define MUSIC_ID -65536
 
@@ -120,19 +113,6 @@ int voice;
 
 int loopflag;
 
-typedef enum
-{
-    SongTypeNone,
-    SongTypeMIDI,
-    SongTypeWave,
-} SongType_t;
-
-char *SongPtr = NULL;
-int SongLength = 0;
-char *SongName = NULL;
-int SongTrack = 0;
-SongType_t SongType = SongTypeNone;
-int SongVoice = -1;
 extern SWBOOL DemoMode;
 
 //
@@ -253,27 +233,6 @@ int PlayerYellVocs[] =
     DIGI_PLAYERYELL3
 };
 
-#if 0
-// DEBUG
-void CheckSndData(char *file, int line)
-{
-    short i;
-
-    //return;
-
-    for (i = 0; i<DIGI_MAX; i++)
-    {
-        if (!globsndata[i] && !globvpdata[i]) continue;
-
-        if (memcmp(globsndata[i], globvpdata[i], glength[i]) != 0)
-        {
-            printf("%s %d\n",file,line);
-            printf("CheckSndData: Data is not the same! num = %d",i);
-            exit(0);
-        }
-    }
-}
-#endif
 
 //
 // Routine called when a sound is finished playing
@@ -320,7 +279,7 @@ void
 UnInitSound(void)
 {
     SoundShutdown();
-    MusicShutdown();
+    Mus_Stop();
 }
 
 void
@@ -328,17 +287,6 @@ InitFX(void)
 {
     VOC_INFOp vp;
     short i;
-
-#if 0
-    // DEBUG
-    for (i=0; i<DIGI_MAX; i++)
-    {
-        globsndata[i] = globvpdata[i] = NULL;
-        glength[i] = 0;
-    }
-#endif
-
-    //ExternalSoundMod();
 
     // Select which cards to use
     SoundStartup();
@@ -352,167 +300,27 @@ InitFX(void)
     FX_SetCallBack(SoundCallBack);
 }
 
-void
-InitMusic(void)
-{
-    // Select which cards to use
-    MusicStartup();
-    //SendGeneralMidiSysX();
-}
-
-void
-ExternalSoundMod(void)
-{
-    FILE *fin;
-    VOC_INFOp vp;
-    char name[40];
-    char new_name[40];
-    int pri;
-    int pitch_lo, pitch_hi;
-    int ret;
-
-    fin = fopen("swextern.snd", "r");
-
-    if (!fin)
-        return;
-
-    while (TRUE)
-    {
-        ret = fscanf(fin, "%s %s %d %d", name, new_name, &pitch_lo, &pitch_hi);
-
-        if (ret == EOF)
-            break;
-
-        for (vp = voc; vp < &voc[SIZ(voc)]; vp++)
-        {
-#if 0
-            if (!vp->name)
-                continue;
-#endif
-
-            if (!Bstrcasecmp(name, vp->name))
-            {
-                // vp->priority = pri;
-                strcpy(vp->name, new_name);
-                vp->pitch_lo = pitch_lo;
-                vp->pitch_hi = pitch_hi;
-            }
-        }
-    }
-
-    fclose(fin);
-}
-
 extern short Level;
+CVAR(Bool, sw_nothememidi, false, CVAR_ARCHIVE)
 
-SWBOOL
-PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
+SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
 {
-    if (!MusicEnabled())
+    if (mapname == nullptr && song_file_name == nullptr && cdaudio_track == -1)
     {
-        return FALSE;
+        // Get the music defined for the current level.
+
     }
-
-    if (DemoMode)
-        return FALSE;
-
-    if (!restart)
+    // Play  CD audio if enabled.
+    if (cdaudio_track >= 0 && mus_redbook)
     {
-        if (SongType == SongTypeWave)
+        FStringf trackname("track%02d.ogg", cdaudio_track);
+        if (!Mus_Play(nullptr, trackname, true))
         {
-            if (SongTrack > 0 && SongTrack == cdaudio_track)
-            {
-                // ogg replacement for a CD track
-                return TRUE;
-            }
-            else if (SongName && song_file_name && !strcmp(SongName, song_file_name))
-            {
-                return TRUE;
-            }
-        }
-        else if (SongType == SongTypeMIDI)
-        {
-            if (SongName && song_file_name && !strcmp(SongName, song_file_name))
-            {
-                return TRUE;
-            }
+            buildprintf("Can't find CD track %i!\n", cdaudio_track);
         }
     }
-
-    StopSong();
-
-    if (!SW_SHAREWARE)
-    {
-        if (cdaudio_track >= 0 && mus_redbook)
-        {
-            char waveformtrack[MAXWAVEFORMTRACKLENGTH];
-            Bstrncpy(waveformtrack, gs.WaveformTrackName, MAXWAVEFORMTRACKLENGTH - 1);
-
-            char *numPos = Bstrstr(waveformtrack, "??");
-
-            if (numPos && (numPos-waveformtrack) < MAXWAVEFORMTRACKLENGTH - 2)
-            {
-                static const char *tracktypes[] = { ".flac", ".ogg" };
-                const size_t tracknamebaselen = Bstrlen(waveformtrack);
-                size_t i;
-
-                numPos[0] = '0' + (cdaudio_track / 10) % 10;
-                numPos[1] = '0' + cdaudio_track % 10;
-
-                for (i = 0; i < ARRAY_SIZE(tracktypes); ++i)
-                {
-                    waveformtrack[tracknamebaselen] = '\0';
-                    Bstrncat(waveformtrack, tracktypes[i], MAXWAVEFORMTRACKLENGTH - 1);
-
-                    if (LoadSong(waveformtrack))
-                    {
-                        SongVoice = FX_Play(SongPtr, SongLength, 0, 0, 0,
-                                                      255, 255, 255, FX_MUSIC_PRIORITY, 1.f, MUSIC_ID);
-                        if (SongVoice > FX_Ok)
-                        {
-                            SongType = SongTypeWave;
-                            SongTrack = cdaudio_track;
-                            SongName = Bstrdup(waveformtrack);
-                            return TRUE;
-                        }
-                    }
-                }
-
-                buildprintf("Can't find CD track %i!\n", cdaudio_track);
-            }
-            else
-            {
-                buildprintf("Make sure to have \"??\" as a placeholder for the track number in your WaveformTrackName!\n");
-                buildprintf("  e.g. WaveformTrackName = \"MUSIC/Track??\"\n");
-            }
-        }
-    }
-
-    if (!song_file_name || !LoadSong(song_file_name))
-    {
-        return FALSE;
-    }
-
-    if (!memcmp(SongPtr, "MThd", 4))
-    {
-        MUSIC_PlaySong(SongPtr, SongLength, MUSIC_LoopSong);
-        SongType = SongTypeMIDI;
-        SongName = strdup(song_file_name);
-        return TRUE;
-    }
-    else
-    {
-        SongVoice = FX_Play(SongPtr, SongLength, 0, 0, 0,
-                                      255, 255, 255, FX_MUSIC_PRIORITY, 1.f, MUSIC_ID);
-        if (SongVoice > FX_Ok)
-        {
-            SongType = SongTypeWave;
-            SongName = strdup(song_file_name);
-            return TRUE;
-        }
-    }
-
-    return FALSE;
+    else if (isThemeTrack && sw_nothememidi) return false;   // The original SW source only used CD Audio for theme tracks, so this is optional.
+    return Mus_Play(nullptr, song_file_name, true);
 }
 
 void
@@ -522,60 +330,10 @@ StopFX(void)
 }
 
 void
-StopSong(void)
-{
-    if (DemoMode)
-        return;
-
-    if (SongType == SongTypeWave && SongVoice > 0)
-    {
-        FX_StopSound(SongVoice);
-        SongVoice = 0;
-    }
-    else if (SongType == SongTypeMIDI)
-    {
-        MUSIC_StopSong();
-    }
-    SongType = SongTypeNone;
-
-    DO_FREE_AND_NULL(SongName);
-    SongTrack = 0;
-
-    if (SongPtr)
-    {
-        FreeMem(SongPtr);
-        SongPtr = 0;
-        SongLength = 0;
-    }
-}
-
-void
-PauseSong(SWBOOL pauseon)
-{
-    if (!MusicEnabled()) return;
-
-    if (SongType == SongTypeWave && SongVoice > 0)
-    {
-        FX_PauseVoice(SongVoice, pauseon);
-    }
-}
-
-void
-SetSongVolume(int volume)
-{
-}
-
-SWBOOL
-SongIsPlaying(void)
-{
-    return FALSE;
-}
-
-void
 StopSound(void)
 {
     StopFX();
-    StopSong();
+    Mus_Stop();
 }
 
 //
@@ -745,7 +503,7 @@ SWBOOL CacheSound(int num, int type)
         if (!OpenSound(vp, handle, &length))
         {
             sprintf(ds,"Could not open sound %s, num %d, priority %d\n",vp->name,num,vp->priority);
-            CON_ConMessage("%s", ds);
+            OSD_Printf("%s", ds);
             return FALSE;
         }
 
@@ -797,7 +555,7 @@ int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
 
 
     // Don't play game sounds when in menus
-    //if (UsingMenus && (*x!=0 || *y!=0 || *z!=0)) return(-1);
+    //if (M_Active() && (*x!=0 || *y!=0 || *z!=0)) return(-1);
 
     // Weed out parental lock sounds if PLock is active
     if (adult_lockout || Global_PLock)
@@ -864,7 +622,7 @@ int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
 
     // Assign voc to voc pointer
     vp = &voc[num];
-    if (UsingMenus && *x==0 && *y==0 && *z==0)  // Menus sound outdo everything
+    if (M_Active() && *x==0 && *y==0 && *z==0)  // Menus sound outdo everything
         priority = 100;
     else
         priority = vp->priority;
@@ -1058,7 +816,7 @@ void PlaySoundRTS(int rts_num)
 SWBOOL
 OpenSound(VOC_INFOp vp, FileReader &handle, int *length)
 {
-    handle = kopenFileReader(vp->name, 0);
+    handle = fileSystem.OpenFileReader(vp->name, 0);
 
     if (!handle.isOpen())
     {
@@ -1083,34 +841,6 @@ ReadSound(FileReader &handle, VOC_INFOp vp, int length)
 
     vp->datalen = length;
     return 0;
-}
-
-SWBOOL
-LoadSong(const char *filename)
-{
-	auto fr = kopenFileReader(filename, 0);
-	if (!fr.isOpen())
-    {
-        return FALSE;
-    }
-
-    auto size = fr.GetLength();
-
-    auto ptr = (char *) AllocMem(size);
-    if (ptr == NULL)
-    {
-        return FALSE;
-    }
-
-    if (fr.Read(ptr, size) != size)
-    {
-        FreeMem(ptr);
-        return FALSE;
-    }
-    SongPtr = ptr;
-    SongLength = size;
-
-    return TRUE;
 }
 
 void
@@ -1162,72 +892,9 @@ SoundShutdown(void)
 }
 
 
-/*
-===================
-=
-= MusicStartup
-=
-===================
-*/
-
-void MusicStartup(void)
-{
-    // if they chose None lets return
-
-    buildprintf("Initializing MIDI driver... ");
-
-    int status;
-    if ((status = MUSIC_Init(MusicDevice)) == MUSIC_Ok)
-    {
-        if (MusicDevice == ASS_AutoDetect)
-            MusicDevice = MIDI_GetDevice();
-    }
-    else if ((status = MUSIC_Init(ASS_AutoDetect)) == MUSIC_Ok)
-    {
-        MusicDevice = MIDI_GetDevice();
-    }
-    else
-    {
-        buildprintf("Music error: %s\n", MUSIC_ErrorString(status));
-        mus_enabled = FALSE;
-        return;
-    }
-
-    MusicInitialized = TRUE;
-    MUSIC_SetVolume(mus_volume);
-
-    auto fil = kopenFileReader("swtimbr.tmb", 0);
-
-    if (fil.isOpen())
-    {
-        auto tmb = fil.Read();
-		if (tmb.Size())
-        	AL_RegisterTimbreBank(tmb.Data());
-    }
-}
-
 void COVER_SetReverb(int amt)
 {
     FX_SetReverb(amt);
-}
-
-/*
-===================
-=
-= MusicShutdown
-=
-===================
-*/
-
-void MusicShutdown(void)
-{
-    StopSong();
-
-    int status = MUSIC_Shutdown();
-    if (status != MUSIC_Ok)
-    {
-        buildprintf("Music error: %s\n", MUSIC_ErrorString(status));
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1638,7 +1305,7 @@ DoUpdateSounds3D(void)
     int i;
     static SWBOOL MoveSkip8 = 0;
 
-    if (UsingMenus) return;
+    if (M_Active()) return;
 
     // This function is already only call 10x per sec, this widdles it down even more!
     MoveSkip8 = (MoveSkip8 + 1) & 15;

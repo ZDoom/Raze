@@ -915,11 +915,13 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
             break;
 
         case PLAYER_GM:
+			/* WTF?!?
             if (!(ps.gm & MODE_MENU) && (newValue & MODE_MENU))
                 Menu_Open(playerNum);
             else if ((ps.gm & MODE_MENU) && !(newValue & MODE_MENU))
                 Menu_Close(playerNum);
-            ps.gm = newValue;
+			*/
+            ps.gm = (newValue & ~MODE_MENU) | (ps.gm & MODE_MENU);
             break;
 
         case PLAYER_GOTWEAPON:
@@ -1448,7 +1450,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_MOUSEFLIP:              labelNum = !in_mouseflip;                   break;
         case USERDEFS_STATUSBARSCALE:         labelNum = ud.statusbarscale;               break;
         case USERDEFS_DRAWWEAPON:             labelNum = r_drawweapon;                    break;
-        case USERDEFS_MOUSEAIMING:            labelNum = in_aimmode;                      break;
+        case USERDEFS_MOUSEAIMING:            labelNum = in_mousemode;                      break;
         case USERDEFS_WEAPONSWITCH:           labelNum = cl_weaponswitch;                 break;
         case USERDEFS_DEMOCAMS:               labelNum = cl_democams;                     break;
         case USERDEFS_COLOR:                  labelNum = playercolor;                        break;
@@ -1506,8 +1508,8 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_GLOBAL_R:               labelNum = globalr;                         break;
         case USERDEFS_GLOBAL_G:               labelNum = globalg;                         break;
         case USERDEFS_GLOBAL_B:               labelNum = globalb;                         break;
-        case USERDEFS_DEFAULT_VOLUME:         labelNum = ud.default_volume;               break;
-        case USERDEFS_DEFAULT_SKILL:          labelNum = ud.default_skill;                break;
+        case USERDEFS_DEFAULT_VOLUME:         labelNum = gDefaultVolume;                  break;
+        case USERDEFS_DEFAULT_SKILL:          labelNum = gDefaultSkill;                   break;
         case USERDEFS_MENU_SHADEDESELECTED:   labelNum = MF_Redfont.shade_deselected;     break;
         case USERDEFS_MENU_SHADEDISABLED:     labelNum = MF_Redfont.shade_disabled;       break;
         case USERDEFS_MENUTEXT_ZOOM:          labelNum = MF_Redfont.zoom;                 break;
@@ -1529,7 +1531,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_MENUTITLE_PAL:          labelNum = ud.menutitle_pal;                break;
         case USERDEFS_SLIDEBAR_PALSELECTED:   labelNum = ud.slidebar_palselected;         break;
         case USERDEFS_SLIDEBAR_PALDISABLED:   labelNum = ud.slidebar_paldisabled;         break;
-        case USERDEFS_MUSIC_EPISODE:          labelNum = ud.music_episode;                break;
+        case USERDEFS_MUSIC_EPISODE:          labelNum = ud.music_episode;                break; // Problem: This info is utterly meaningless with the new music system.
         case USERDEFS_MUSIC_LEVEL:            labelNum = ud.music_level;                  break;
         case USERDEFS_SHADOW_PAL:             labelNum = ud.shadow_pal;                   break;
         case USERDEFS_MENU_SCROLLBARTILENUM:  labelNum = ud.menu_scrollbartilenum;        break;
@@ -1630,8 +1632,8 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_M_FFIRE:                      m_ffire                       = iSet; break;
         case USERDEFS_FFIRE:                        ud.ffire                         = iSet; break;
         case USERDEFS_M_PLAYER_SKILL:               ud.m_player_skill                = iSet; break;
-        case USERDEFS_M_LEVEL_NUMBER:               m_level_number                = iSet; break;
-        case USERDEFS_M_VOLUME_NUMBER:              ud.m_volume_number               = iSet; break;
+        case USERDEFS_M_LEVEL_NUMBER:               GameStartupInfo.Level = m_level_number                = iSet; break;
+        case USERDEFS_M_VOLUME_NUMBER:              GameStartupInfo.Episode = ud.m_volume_number               = iSet; break;
         case USERDEFS_MULTIMODE:                    ud.multimode                     = iSet; break;
         case USERDEFS_PLAYER_SKILL:                 ud.player_skill                  = iSet; break;
         case USERDEFS_LEVEL_NUMBER:                 ud.level_number                  = iSet; break;
@@ -1641,10 +1643,10 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_MOUSEFLIP:                    in_mouseflip.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_STATUSBARSCALE:               ud.statusbarscale                = iSet; break;
         case USERDEFS_DRAWWEAPON:                   r_drawweapon.SetGenericRepDefault(iSet, CVAR_Int); break;
-        case USERDEFS_MOUSEAIMING:                  in_aimmode.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_MOUSEAIMING:                   break; // the script code has no business whatsoever changing this!
         case USERDEFS_WEAPONSWITCH:                 cl_weaponswitch.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_DEMOCAMS:                     cl_democams                      = iSet; break;
-        case USERDEFS_COLOR:                        playercolor                         = iSet; break;
+        case USERDEFS_COLOR:                        /*playercolor.SetGenericRepDefault(iSet, CVAR_Int);*/ break; // the value range here does not match, so better leave the CVar alone.
         case USERDEFS_MSGDISPTIME:                  hud_messagetime.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_STATUSBARMODE:                ud.statusbarmode                 = iSet; break;
         case USERDEFS_M_NOEXITS:                    m_noexits                     = iSet; break;
@@ -1652,7 +1654,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_AUTOVOTE:                     cl_autovote.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_AUTOMSG:                      cl_automsg.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_IDPLAYERS:                    cl_idplayers.SetGenericRepDefault(iSet, CVAR_Int); break;
-        case USERDEFS_TEAM:                         playerteam                          = iSet; break;
+        case USERDEFS_TEAM:                         playerteam.SetGenericRepDefault(iSet, CVAR_Int);  break;
         case USERDEFS_VIEWBOB:                      cl_viewbob.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_WEAPONSWAY:                   cl_weaponsway.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_ANGLEINTERPOLATION:           ud.angleinterpolation            = iSet; break;
@@ -1699,8 +1701,8 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_GLOBAL_R:                     globalr                          = iSet; break;
         case USERDEFS_GLOBAL_G:                     globalg                          = iSet; break;
         case USERDEFS_GLOBAL_B:                     globalb                          = iSet; break;
-        case USERDEFS_DEFAULT_VOLUME:               ud.default_volume                = iSet; break;
-        case USERDEFS_DEFAULT_SKILL:                ud.default_skill                 = iSet; break;
+        case USERDEFS_DEFAULT_VOLUME:               gDefaultVolume                   = iSet; break;
+        case USERDEFS_DEFAULT_SKILL:                gDefaultSkill                    = iSet; break;
         case USERDEFS_MENU_SHADEDESELECTED:         MF_Redfont.shade_deselected      = MF_Bluefont.shade_deselected = MF_Minifont.shade_deselected = iSet; break;
         case USERDEFS_MENU_SHADEDISABLED:           MF_Redfont.shade_disabled        = MF_Bluefont.shade_disabled   = MF_Minifont.shade_disabled   = iSet; break;
         case USERDEFS_MENUTEXT_ZOOM:                MF_Redfont.zoom                  = iSet; break;
@@ -1749,16 +1751,8 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_DRAW_Y:                       rotatesprite_y_offset            = iSet; break;
         case USERDEFS_DRAW_YXASPECT:                rotatesprite_yxaspect            = iSet; break;
         case USERDEFS_FOV:                          r_fov.SetGenericRepDefault(iSet, CVAR_Int); break;
-        case USERDEFS_NEWGAMECUSTOMOPEN:
-            for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
-                if (iSet & (1u<<b))
-                    ME_NEWGAMECUSTOMENTRIES[b].flags = 0;
-            break;
-        case USERDEFS_NEWGAMECUSTOMSUBOPEN:
-            for (unsigned int b = 0; b < MAXMENUGAMEPLAYENTRIES; ++b)
-                if (iSet & (1u<<b))
-                    ME_NEWGAMECUSTOMSUBENTRIES[lParm2][b].flags = 0;
-            break;
+		case USERDEFS_NEWGAMECUSTOMOPEN:			M_UnhideCustomMenu(-1, iSet); break;
+		case USERDEFS_NEWGAMECUSTOMSUBOPEN:			M_UnhideCustomMenu(lParm2, iSet); break;
     }
 }
 

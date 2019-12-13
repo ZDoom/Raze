@@ -50,7 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-int32_t mus_restartonload;
 int32_t gTurnSpeed;
 int32_t gDetail;
 int32_t cl_weaponswitch;

@@ -1,0 +1,154 @@
+
+level 5
+{
+    title    "$TXTS_W_MAP01"
+    filename "$whirl.map"
+    song     "yokoha03.mid"
+    cdatrack 5
+    besttime 330
+    partime  600
+}
+level 6
+{
+    title    "$TXTS_W_MAP02"
+    filename "$tank.map"
+    song     "nippon34.mid"
+    cdatrack 6
+    besttime 120
+    partime  240
+}
+level 7
+{
+    title    "$TXTS_W_MAP03"
+    filename "$boat.map"
+    song     "execut11.mid"
+    cdatrack 8
+    besttime 120
+    partime  240
+}
+level 8
+{
+    title    "$TXTS_W_MAP04"
+    filename "$garden.map"
+    song     "execut11.mid"
+    cdatrack 11
+    besttime 66
+    partime  120
+}
+level 9
+{
+    title    "$TXTS_W_MAP05"
+    filename "$outpost.map"
+    song     "sanai.mid"
+    cdatrack 12
+    besttime 90
+    partime  180
+}
+level 10
+{
+    title    "$TXTS_W_MAP06"
+    filename "$hidtemp.map"
+    song     "kotec2.mid"
+    cdatrack 5
+    besttime 125
+    partime  250
+}
+level 11
+{
+    title    "$TXTS_W_MAP07"
+    filename "$plax1.map"
+    song     "kotec2.mid"
+    cdatrack 10
+    besttime 392
+    partime  720
+}
+level 12
+{
+    title    "$TXTS_W_MAP08"
+    filename "$bath.map"
+    song     "yokoha03"
+    cdatrack 4
+    besttime 600
+    partime  600
+}
+level 13
+{
+    title    "$TXTS_W_MAP09"
+    filename "$airport.map"
+    song     "nippon34"
+    cdatrack 6
+    besttime 180
+    partime  300
+}
+level 20
+{
+    title    "$TXTS_W_MAP10"
+    filename "$volcano.map"
+    song     ""
+    cdatrack 10
+    besttime 554
+    partime  660
+}
+level 21
+{
+    title    "$TXTS_W_MAP11"
+    filename "$shore.map"
+    song     ""
+    cdatrack 11
+    besttime 240
+    partime  480
+}
+level 22
+{
+    title    "$TXTS_W_MAP12"
+    filename "$auto.map"
+    song     ""
+    cdatrack 5
+    besttime 247
+    partime  480
+}
+level 23
+{
+    title    "$TXTS_W_MAP13"
+    filename "tank.map"
+    song     ""
+    cdatrack 11
+    besttime 600
+    partime  600
+}
+level 24
+{
+    title    "$TXTS_W_MAP14"
+    filename "$dmwoods.map"
+    song     ""
+    cdatrack 8
+    besttime 600
+    partime  600
+}
+level 25
+{
+    title    "$TXTS_W_MAP15"
+    filename "$dmshrin.map"
+    song     ""
+    cdatrack 7
+    besttime 600
+    partime  600
+}
+level 27
+{
+    title    "$TXTS_W_MAP16"
+    filename "shotgun.map"
+    song     ""
+    cdatrack 5
+    besttime 600
+    partime  600
+}
+episode 1
+{
+    title    ""
+}
+episode 2
+{
+    title    "$TXTS_W_EP"
+    subtitle ""
+}

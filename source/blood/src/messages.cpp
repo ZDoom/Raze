@@ -36,11 +36,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "levels.h"
 #include "loadsave.h"
-#include "menu.h"
+#include "gamemenu.h"
 #include "messages.h"
 #include "network.h"
 #include "player.h"
 #include "view.h"
+#include "gstrings.h"
 
 BEGIN_BLD_NS
 
@@ -53,32 +54,22 @@ void sub_5A928(void)
         buttonMap.ClearButton(i);
 }
 
-void sub_5A944(int key)
-{
-	auto binding = Bindings.GetBind(key);
-	if (binding)
-	{
-		auto index = buttonMap.FindButtonIndex(binding);
-		if (index >= 0) buttonMap.ClearButton(index);
-	}
-}
-
 void SetGodMode(bool god)
 {
     playerSetGodMode(gMe, god);
     if (gMe->godMode)
-        viewSetMessage("You are immortal.");
+		viewSetMessage(GStrings("TXTB_GODMODE"));
     else
-        viewSetMessage("You are mortal.");
+        viewSetMessage(GStrings("TXTB_NOTGODMODE"));
 }
 
 void SetClipMode(bool noclip)
 {
     gNoClip = noclip;
     if (gNoClip)
-        viewSetMessage("Unclipped movement.");
+		viewSetMessage(GStrings("TXTB_NOCLIP"));
     else
-        viewSetMessage("Normal movement.");
+        viewSetMessage(GStrings("TXTB_NOCLIPOFF"));
 }
 
 void packStuff(PLAYER *pPlayer)
@@ -103,13 +94,13 @@ void SetAmmo(bool stat)
     {
         for (int i = 0; i < 12; i++)
             gMe->ammoCount[i] = gAmmoInfo[i].max;
-        viewSetMessage("You have full ammo.");
+        viewSetMessage(GStrings("TXTB_FULLAMMO"));
     }
     else
     {
         for (int i = 0; i < 12; i++)
             gMe->ammoCount[i] = 0;
-        viewSetMessage("You have no ammo.");
+        viewSetMessage(GStrings("TXTB_NOAMMO"));
     }
 }
 
@@ -121,7 +112,7 @@ void SetWeapons(bool stat)
     }
     SetAmmo(stat);
     if (stat)
-        viewSetMessage("You have all weapons.");
+        viewSetMessage(GStrings("TXTB_ALLWEAP"));
     else
     {
         if (!VanillaMode())
@@ -131,7 +122,7 @@ void SetWeapons(bool stat)
             gMe->curWeapon = 0;
             gMe->nextWeapon = 1;
         }
-        viewSetMessage("You have no weapons.");
+        viewSetMessage(GStrings("TXTB_NOWEAP"));
     }
 }
 
@@ -140,12 +131,12 @@ void SetToys(bool stat)
     if (stat)
     {
         packStuff(gMe);
-        viewSetMessage("Your inventory is full.");
+        viewSetMessage(GStrings("TXTB_FULLINV"));
     }
     else
     {
         packClear(gMe);
-        viewSetMessage("Your inventory is empty.");
+        viewSetMessage(GStrings("TXTB_NOINV"));
     }
 }
 
@@ -154,12 +145,12 @@ void SetArmor(bool stat)
     int nAmount;
     if (stat)
     {
-        viewSetMessage("You have full armor.");
+        viewSetMessage(GStrings("TXTB_FULLARM"));
         nAmount = 3200;
     }
     else
     {
-        viewSetMessage("You have no armor.");
+        viewSetMessage(GStrings("TXTB_NOARM"));
         nAmount = 0;
     }
     for (int i = 0; i < 3; i++)
@@ -171,27 +162,27 @@ void SetKeys(bool stat)
     for (int i = 1; i <= 6; i++)
         gMe->hasKey[i] = stat;
     if (stat)
-        viewSetMessage("You have all keys.");
+        viewSetMessage(GStrings("TXTB_ALLKEYS"));
     else
-        viewSetMessage("You have no keys.");
+        viewSetMessage(GStrings("TXTB_NOKEYS"));
 }
 
 void SetInfiniteAmmo(bool stat)
 {
     gInfiniteAmmo = stat;
     if (gInfiniteAmmo)
-        viewSetMessage("You have infinite ammo.");
+        viewSetMessage(GStrings("TXTB_INFAMMO"));
     else
-        viewSetMessage("You have limited ammo.");
+        viewSetMessage(GStrings("TXTB_LIMAMMO"));
 }
 
 void SetMap(bool stat)
 {
     gFullMap = stat;
     if (gFullMap)
-        viewSetMessage("You have the map.");
+        viewSetMessage(GStrings("TXTB_ALLMAP"));
     else
-        viewSetMessage("You have no map.");
+        viewSetMessage(GStrings("TXTB_NOALLMAP"));
 }
 
 void SetWooMode(bool stat)
@@ -221,7 +212,7 @@ void ToggleBoots(void)
 {
     if (powerupCheck(gMe, kPwUpJumpBoots))
     {
-        viewSetMessage("You have no Jumping Boots.");
+        viewSetMessage(GStrings("TXTB_NOJBOOTS"));
         if (!VanillaMode())
         {
             gMe->pwUpTime[kPwUpJumpBoots] = 0;
@@ -231,7 +222,7 @@ void ToggleBoots(void)
     }
     else
     {
-        viewSetMessage("You have the Jumping Boots.");
+        viewSetMessage(GStrings("TXTB_JBOOTS"));
         if (!VanillaMode())
             gMe->pwUpTime[kPwUpJumpBoots] = gPowerUpInfo[kPwUpJumpBoots].bonusTime;
         powerupActivate(gMe, kPwUpJumpBoots);
@@ -242,14 +233,14 @@ void ToggleInvisibility(void)
 {
     if (powerupCheck(gMe, kPwUpShadowCloak))
     {
-        viewSetMessage("You are visible.");
+        viewSetMessage(GStrings("TXTB_VISIBLE"));
         if (!VanillaMode())
             gMe->pwUpTime[kPwUpShadowCloak] = 0;
         powerupDeactivate(gMe, kPwUpShadowCloak);
     }
     else
     {
-        viewSetMessage("You are invisible.");
+        viewSetMessage(GStrings("TXTB_INVISIBLE"));
         powerupActivate(gMe, kPwUpShadowCloak);
     }
 }
@@ -258,14 +249,14 @@ void ToggleInvulnerability(void)
 {
     if (powerupCheck(gMe, kPwUpDeathMask))
     {
-        viewSetMessage("You are vulnerable.");
+        viewSetMessage(GStrings("TXTB_VULN"));
         if (!VanillaMode())
             gMe->pwUpTime[kPwUpDeathMask] = 0;
         powerupDeactivate(gMe, kPwUpDeathMask);
     }
     else
     {
-        viewSetMessage("You are invulnerable.");
+        viewSetMessage(GStrings("TXTB_INVULN"));
         powerupActivate(gMe, kPwUpDeathMask);
     }
 }
@@ -274,14 +265,14 @@ void ToggleDelirium(void)
 {
     if (powerupCheck(gMe, kPwUpDeliriumShroom))
     {
-        viewSetMessage("You are not delirious.");
+        viewSetMessage(GStrings("TXTB_NODELIR"));
         if (!VanillaMode())
             gMe->pwUpTime[kPwUpDeliriumShroom] = 0;
         powerupDeactivate(gMe, kPwUpDeliriumShroom);
     }
     else
     {
-        viewSetMessage("You are delirious.");
+        viewSetMessage(GStrings("TXTB_DELIR"));
         powerupActivate(gMe, kPwUpDeliriumShroom);
     }
 }
@@ -335,7 +326,7 @@ void CGameMessageMgr::SetState(char state)
 
 void CGameMessageMgr::Add(const char *pText, char a2, const int pal, const MESSAGE_PRIORITY priority)
 {
-    if (a2 && messageFlags)
+    if (a2 && messageFlags && hud_messages == 1)	// add only if messages are enabled and in native format
     {
         messageStruct *pMessage = &messages[nextMessagesIndex];
         strncpy(pMessage->text, pText, kMaxMessageTextLength-1);
@@ -383,7 +374,7 @@ void CGameMessageMgr::Display(void)
                 if (gViewMode == 3)
                 {
                     int height;
-                    gMenuTextMgr.GetFontInfo(nFont, pMessage->text, &height, NULL);
+                    viewGetFontInfo(nFont, pMessage->text, &height, NULL);
                     if (x+height > gViewX1S)
                         viewUpdatePages();
                 }
@@ -428,7 +419,7 @@ void CGameMessageMgr::Display(void)
                 if (gViewMode == 3)
                 {
                     int height;
-                    gMenuTextMgr.GetFontInfo(nFont, pMessage->text, &height, NULL);
+                    viewGetFontInfo(nFont, pMessage->text, &height, NULL);
                     if (x+height > gViewX1S)
                         viewUpdatePages();
                 }
@@ -590,58 +581,6 @@ void CPlayerMsg::Send(void)
 void CPlayerMsg::ProcessKeys(void)
 {
 	if (inputState.GetKeyStatus(sc_Escape)) Term();
-#if 0
-    int key = inputState.keyGetScan();
-    int ch;
-    if (key != 0)
-    {
-        bool ctrl = (inputState.CtrlPressed());
-		bool shift = (inputState.ShiftPressed());
-        switch (key)
-        {
-        case sc_Escape:
-            Term();
-            break;
-        case sc_F1:
-        case sc_F2:
-        case sc_F3:
-        case sc_F4:
-        case sc_F5:
-        case sc_F6:
-        case sc_F7:
-        case sc_F8:
-        case sc_F9:
-        case sc_F10:
-            buttonMap.ClearButton(gamefunc_See_Chase_View);
-            Set(*CombatMacros[key-sc_F1]);
-            Send();
-			inputState.ClearKeyStatus(key);
-		break;
-        case sc_BackSpace:
-            if (ctrl)
-                Clear();
-            else
-                DelChar();
-            break;
-        case sc_Enter:
-        case sc_kpad_Enter:
-            if (gCheatMgr.Check(text))
-                Term();
-            else
-                Send();
-            break;
-        default:
-            if (key < 128)
-            {
-                ch =  shift ? g_keyAsciiTableShift[key] : g_keyAsciiTable[key];
-                if (ch)
-                    AddChar(ch);
-            }
-            break;
-        }
-        sub_5A944(key);
-    }
-#endif
 }
 
 bool CPlayerMsg::IsWhitespaceOnly(const char * const pzString)
@@ -781,19 +720,19 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
         break;
     case kCheatKevorkian:
         actDamageSprite(gMe->nSprite, gMe->pSprite, DAMAGE_TYPE_2, 8000);
-        viewSetMessage("Kevorkian approves.");
+        viewSetMessage(GStrings("TXTB_KEVORKIAN"));
         break;
     case kCheatMcGee:
     {
         if (!gMe->pXSprite->burnTime)
             evPost(gMe->nSprite, 3, 0, kCallbackFXFlameLick);
         actBurnSprite(actSpriteIdToOwnerId(gMe->nSprite), gMe->pXSprite, 2400);
-        viewSetMessage("You're fired!");
+        viewSetMessage(GStrings("TXTB_FIRED"));
         break;
     }
     case kCheatEdmark:
         actDamageSprite(gMe->nSprite, gMe->pSprite, DAMAGE_TYPE_3, 8000);
-        viewSetMessage("Ahhh...those were the days.");
+        viewSetMessage(GStrings("TXTB_THEDAYS"));
         break;
     case kCheatKrueger:
     {
@@ -802,7 +741,7 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
         if (!gMe->pXSprite->burnTime)
             evPost(gMe->nSprite, 3, 0, kCallbackFXFlameLick);
         actBurnSprite(actSpriteIdToOwnerId(gMe->nSprite), gMe->pXSprite, 2400);
-        viewSetMessage("Flame retardant!");
+        viewSetMessage(GStrings("TXTB_RETARD"));
         break;
     }
     case kCheatSterno:
@@ -820,7 +759,7 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
     case kCheatClarice:
         if (!VanillaMode())
         {
-            viewSetMessage("You have half armor.");
+            viewSetMessage(GStrings("TXTB_HALFARMOR"));
             for (int i = 0; i < 3; i++)
                 gMe->armor[i] = 1600;
         }

@@ -84,7 +84,6 @@ SWBOOL DemoInitOnce = FALSE;
 short DemoDebugBufferMax = 1;
 
 extern char LevelName[];
-extern char LevelSong[16];
 extern uint8_t FakeMultiNumPlayers;
 extern SWBOOL QuitFlag;
 
@@ -179,7 +178,7 @@ DemoWriteHeader(void)
         return;
 
     strcpy(dh.map_name, LevelName);
-    strcpy(dh.LevelSong, LevelSong);
+    strcpy(dh.LevelSong, "");
     dh.Level = Level;
 
     if (FakeMultiNumPlayers)
@@ -238,7 +237,6 @@ DemoReadHeader(void)
     DREAD(&dh, sizeof(dh), 1, DemoFileIn);
 
     strcpy(DemoLevelName, dh.map_name);
-    strcpy(LevelSong, dh.LevelSong);
     Level = dh.Level;
     if (dh.numplayers > 1)
     {
@@ -389,13 +387,6 @@ DemoPlayBack(void)
     ControlInfo info;
     int Xdim, Ydim, ScreenSize;
 
-    if (SW_SHAREWARE)
-    {
-        // code here needs to be similar to RunLevel startup code
-        PlaySong(LevelSong, -1, TRUE, TRUE);
-    }
-
-
     // Initialize Game part of network code (When ready2send != 0)
     InitNetVars();
 
@@ -451,8 +442,6 @@ DemoPlayBack(void)
             CONTROL_GetInput(&info);
 
             domovethings();
-
-            MNU_CheckForMenus();
 
             // fast forward and slow mo
             if (DemoEdit)
@@ -572,8 +561,7 @@ ScenePlayBack(void)
     if (SW_SHAREWARE)
     {
         // code here needs to be similar to RunLevel startup code
-        strcpy(LevelSong,"yokoha03.mid");
-        PlaySong(LevelSong, -1, TRUE, TRUE);
+        PlaySong(nullptr, "yokoha03.mid", -1);
     }
 
     // IMPORTANT - MUST be right before game loop
@@ -621,8 +609,6 @@ ScenePlayBack(void)
 
             //movethings();
             domovethings();
-
-            MNU_CheckForMenus();
         }
 
         // demo is over

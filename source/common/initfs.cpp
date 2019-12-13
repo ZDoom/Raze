@@ -129,7 +129,7 @@ bool D_AddFile (TArray<FString> &wadfiles, const char *file, bool check = true, 
 
 	if (check && !DirEntryExists (file))
 	{
-		const char *f = BaseFileSearch (file, ".wad", false);
+		const char *f = BaseFileSearch (file, ".grp", false);
 		if (f == NULL)
 		{
 			Printf ("Can't find '%s'\n", file);
@@ -267,7 +267,7 @@ static void D_AddDirectory (TArray<FString> &wadfiles, const char *dir)
 		{
 			skindir[stuffstart++] = '/';
 			int savedstart = stuffstart;
-			const char* validexts[] = { "*.grp", "*.zip", "*.pk3", "*.pk4", "*.7z", "*.pk7", "*.dat" };
+			static const char* validexts[] = { "*.grp", "*.zip", "*.pk3", "*.pk4", "*.7z", "*.pk7", "*.dat" };
 			for (auto ext : validexts)
 			{
 				stuffstart = savedstart;

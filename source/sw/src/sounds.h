@@ -84,16 +84,11 @@ SWBOOL CacheSound(int num, int type);
 void COVER_SetReverb(int amt);
 void UnInitSound(void);
 void InitFX(void);
-void InitMusic(void);
 void StopFX(void);
-void StopSong(void);
-void PauseSong(SWBOOL pauseon);
 void StopSound(void);
 void StartAmbientSound(void);
 void StopAmbientSound(void);
-SWBOOL PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart);
-void SetSongVolume(int volume);
-SWBOOL SongIsPlaying(void);
+SWBOOL PlaySong(const char *mapname, const char *song_file_name, int cdaudio_track, bool isThemeTrack = false); //(nullptr, nullptr, -1, false) starts the normal level music.
 void PlaySoundRTS(int rts_num);
 
 //

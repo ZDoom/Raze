@@ -26,15 +26,15 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #ifdef DAMAGE_TABLE
 #define DAMAGE_ENTRY(id, init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon) \
-    { init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon, NULL, NULL, -1, -1 },
-#define DAMAGE_ENTRY_WPN(id, init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon, weapon_name, ammo_name, weapon_pickup, ammo_pickup ) \
-    { init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon, weapon_name, ammo_name, weapon_pickup, ammo_pickup },
+    { init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon, -1, -1 },
+#define DAMAGE_ENTRY_WPN(id, init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon, weapon_pickup, ammo_pickup ) \
+    { init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon, weapon_pickup, ammo_pickup },
 #endif
 
 #ifdef DAMAGE_ENUM
 #define DAMAGE_ENTRY(id, init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon) \
     id,
-#define DAMAGE_ENTRY_WPN(id, init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon, weapon_name, ammo_name, weapon_pickup, ammo_pickup ) \
+#define DAMAGE_ENTRY_WPN(id, init_func, damage_lo, damage_hi, radius, max_ammo, min_ammo, with_weapon, weapon_pickup, ammo_pickup ) \
     id,
 #endif
 
@@ -42,15 +42,15 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 // weapon
 DAMAGE_ENTRY(WPN_FIST,            InitWeaponFist,       10,    40,   0,  -1, -1, -1)
-DAMAGE_ENTRY_WPN(WPN_STAR,        InitWeaponStar,        5,    10,   0,  99,  3, -1, "Shurikens", NULL, 9, -1)
-DAMAGE_ENTRY_WPN(WPN_SHOTGUN,     InitWeaponShotgun,     4,     4,   0,  52,  1, -1, "Riot Gun", "Shotshells", 8, 24)
-DAMAGE_ENTRY_WPN(WPN_UZI,         InitWeaponUzi,         5,     7,   0, 200,  1, -1, "UZI Submachine Gun", "UZI Clip", 50, 50)
-DAMAGE_ENTRY_WPN(WPN_MICRO,       InitWeaponMicro,      15,    30,   0,  50,  1, -1, "Missile Launcher", "Missiles", 5, 5)
-DAMAGE_ENTRY_WPN(WPN_GRENADE,     InitWeaponGrenade,    15,    30,   0,  50,  1, -1, "Grenade Launcher", "Grenade Shells", 6, 8)
-DAMAGE_ENTRY_WPN(WPN_MINE,        InitWeaponMine,        5,    10,   0,  20,  1, -1, "Sticky Bombs", NULL, 5, -1)
-DAMAGE_ENTRY_WPN(WPN_RAIL,        InitWeaponRail,       40,    60,   0,  20,  1, -1, "Rail Gun", "Rail Gun Rods", 10, 10)
-DAMAGE_ENTRY_WPN(WPN_HOTHEAD,     InitWeaponHothead,    10,    25,   0,  80,  1, -1, "Guardian Head", "Firebursts", 30, 60)
-DAMAGE_ENTRY_WPN(WPN_HEART,       InitWeaponHeart,      75,   100,   0,   5,  1, -1, "Ripper Heart", "Deathcoils", 1, 6)
+DAMAGE_ENTRY_WPN(WPN_STAR,        InitWeaponStar,        5,    10,   0,  99,  3, -1,  9, -1)
+DAMAGE_ENTRY_WPN(WPN_SHOTGUN,     InitWeaponShotgun,     4,     4,   0,  52,  1, -1,  8, 24)
+DAMAGE_ENTRY_WPN(WPN_UZI,         InitWeaponUzi,         5,     7,   0, 200,  1, -1,  50, 50)
+DAMAGE_ENTRY_WPN(WPN_MICRO,       InitWeaponMicro,      15,    30,   0,  50,  1, -1,  5, 5)
+DAMAGE_ENTRY_WPN(WPN_GRENADE,     InitWeaponGrenade,    15,    30,   0,  50,  1, -1,  6, 8)
+DAMAGE_ENTRY_WPN(WPN_MINE,        InitWeaponMine,        5,    10,   0,  20,  1, -1,  5, -1)
+DAMAGE_ENTRY_WPN(WPN_RAIL,        InitWeaponRail,       40,    60,   0,  20,  1, -1,  10, 10)
+DAMAGE_ENTRY_WPN(WPN_HOTHEAD,     InitWeaponHothead,    10,    25,   0,  80,  1, -1,  30, 60)
+DAMAGE_ENTRY_WPN(WPN_HEART,       InitWeaponHeart,      75,   100,   0,   5,  1, -1,  1, 6)
 
 DAMAGE_ENTRY(WPN_NAPALM,          InitWeaponHothead,    50,   100,   0, 100,  40, WPN_HOTHEAD)
 DAMAGE_ENTRY(WPN_RING,            InitWeaponHothead,    15,    50,   0, 100,  20, WPN_HOTHEAD)
@@ -77,7 +77,7 @@ DAMAGE_ENTRY(DMG_GRENADE_EXP,     NULL,                70,   140,   6500, -1, -1
 DAMAGE_ENTRY(DMG_MINE_EXP,        NULL,                85,   115,   6500, -1, -1, -1)
 DAMAGE_ENTRY(DMG_MINE_SHRAP,      NULL,                15,    30,      0, -1, -1, -1)
 DAMAGE_ENTRY(DMG_MICRO_EXP,       NULL,                50,   100,   4500, -1, -1, -1)
-DAMAGE_ENTRY_WPN(DMG_NUCLEAR_EXP, NULL,                 0,   800,  30000, -1, -1, -1, "Nuclear Warhead", "Heat Seeker Card", 1, 5)
+DAMAGE_ENTRY_WPN(DMG_NUCLEAR_EXP, NULL,                 0,   800,  30000, -1, -1, -1,  1, 5)
 DAMAGE_ENTRY(DMG_RADIATION_CLOUD, NULL,                 2,     6,   5000, -1, -1, -1)
 DAMAGE_ENTRY(DMG_FLASHBOMB,       NULL,               100,   150,  16384, -1, -1, -1)
 

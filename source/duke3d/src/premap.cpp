@@ -29,6 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "savegame.h"
 #include "statistics.h"
+#include "menu/menu.h"
+#include "mapinfo.h"
+#include "cmdlib.h"
 BEGIN_DUKE_NS
 
 static uint8_t precachehightile[2][(MAXTILES+7)>>3];
@@ -328,7 +331,8 @@ static void G_DemoLoadScreen(const char *statustext, int const loadScreenTile, i
         return;
     }
 
-    menutext_center(105, "Loading...");
+    FStringf msg("%s...", GStrings("TXT_LOADING"));
+    menutext_center(105, msg);
 
     if (statustext)
         gametext_center_number(180, statustext);
@@ -371,15 +375,13 @@ static void G_DoLoadScreen(const char *statustext, int percent)
 
     if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
     {
-        menutext_center(90, "Loading User Map");
+        menutext_center(90, GStrings("TXT_LOADUM"));
         gametext_center_shade_pal(90+10, boardfilename, 14, 2);
     }
     else
     {
-        menutext_center(90, "Loading");
-
-        if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
-            menutext_center(90+16+8, g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
+        menutext_center(90, GStrings("TXT_LOADING"));
+        menutext_center(90+16+8, mapList[(ud.volume_number*MAXLEVELS) + ud.level_number].DisplayName());
     }
 
 #ifndef EDUKE32_TOUCH_DEVICES
@@ -417,7 +419,7 @@ void G_CacheMapData(void)
     if (ud.recstat == 2)
         return;
 
-    S_TryPlaySpecialMusic(MUS_LOADING);
+    //S_TryPlaySpecialMusic(MUS_LOADING);
 
     uint32_t const cacheStartTime = timerGetTicks();
 
@@ -1338,12 +1340,6 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     ud.secretlevel   = 0;
     ud.skill_voice   = -1;
     ud.volume_number = volumeNum;
-	STAT_StartNewGame(g_volumeNames[volumeNum], skillNum);
-
-    g_lastAutoSaveArbitraryID = -1;
-    g_lastautosave.reset();
-    g_lastusersave.reset();
-    g_quickload = nullptr;
 
     // we don't want the intro to play after the multiplayer setup screen
     if ((!g_netServer && ud.multimode < 2) && !Menu_HaveUserMap()
@@ -1358,7 +1354,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 #endif
     p0.gm = 0;
 
-    Menu_Close(0);
+	M_ClearMenus();
 
 #if !defined LUNATIC
     Gv_ResetVars();
@@ -1625,13 +1621,11 @@ int G_FindLevelByFile(const char *fileName)
 {
     int i = 0;
 
-    for (auto &levelNum : g_mapInfo)
+    for (auto &levelNum : mapList)
     {
         i++;
 
-        if (levelNum.filename == NULL)
-            continue;
-        else if (!Bstrcasecmp(fileName, levelNum.filename))
+        if (levelNum.fileName.CompareNoCase(fileName) == 0)
             return i-1;
     }
 
@@ -1695,20 +1689,18 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
 {
     char *p;
     char const *exts[] = {
-#ifdef HAVE_FLAC
         "flac",
-#endif
-#ifdef HAVE_VORBIS
         "ogg",
-#endif
-#ifdef HAVE_XMP
+        "mp3",
         "xm",
         "mod",
         "it",
         "s3m",
         "mtm",
-#endif
-        "mid"
+        "mid",
+        "hmp",
+        "hmi",
+        "xmi"
     };
 
     Bstrncpy(nameBuf, fileName, BMAX_PATH);
@@ -1721,31 +1713,32 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
         p[0] = '.';
     }
 
+    // Test if a real file with this name exists with all known extensions for music.
     for (auto & ext : exts)
     {
         Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
 
-		if (testkopen(nameBuf, 0))
+		if (FileExists(nameBuf))
 		{
-            realloc_copy(&g_mapInfo[USERMAPMUSICFAKESLOT].musicfn, nameBuf);
+            userMapRecord.music = nameBuf;
             return;
         }
     }
 
-    char const * usermapMusic = g_mapInfo[MUS_USERMAP].musicfn;
-    if (usermapMusic != nullptr)
+    auto &usermapMusic = mapList[MUS_USERMAP].music;
+    if (usermapMusic.IsNotEmpty())
     {
-        realloc_copy(&g_mapInfo[USERMAPMUSICFAKESLOT].musicfn, usermapMusic);
+        userMapRecord.music = usermapMusic;
         return;
     }
 
 #ifndef EDUKE32_STANDALONE
     if (!FURY)
     {
-        char const * e1l8 = g_mapInfo[7].musicfn;
-        if (e1l8 != nullptr)
+        auto &e1l8 = mapList[7].music;
+        if (e1l8.IsNotEmpty())
         {
-            realloc_copy(&g_mapInfo[USERMAPMUSICFAKESLOT].musicfn, e1l8);
+            userMapRecord.music = e1l8;
             return;
         }
     }
@@ -1820,13 +1813,13 @@ int G_EnterLevel(int gameMode)
 
     int const mapidx = (ud.volume_number * MAXLEVELS) + ud.level_number;
 
-    Bassert((unsigned)mapidx < ARRAY_SIZE(g_mapInfo));
+    Bassert((unsigned)mapidx < ARRAY_SIZE(mapList));
 
-    auto &m = g_mapInfo[mapidx];
+    auto& mm = mapList[mapidx];
 
     if (VOLUMEONE || !Menu_HaveUserMap())
     {
-        if (m.name == NULL || m.filename == NULL)
+        if (mm.fileName.IsEmpty())
         {
             OSD_Printf(OSDTEXT_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
             return 1;
@@ -1836,7 +1829,8 @@ int G_EnterLevel(int gameMode)
     int const ssize = ud.screen_size;
     ud.screen_size = 0;
 
-    G_DoLoadScreen("Loading map . . .", -1);
+    FStringf msg("%s . . .", GStrings("TXT_LOADMAP"));
+    G_DoLoadScreen(msg, -1);
     G_UpdateScreenArea();
 
     ud.screen_size = ssize;
@@ -1855,19 +1849,23 @@ int G_EnterLevel(int gameMode)
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
         }
-		STAT_NewLevel(boardfilename);
+        userMapRecord.name = "";
+        userMapRecord.SetFileName(boardfilename);
+        currentLevel = &userMapRecord;
+        STAT_NewLevel(boardfilename);
         G_LoadMapHack(levelName, boardfilename);
         G_SetupFilenameBasedMusic(levelName, boardfilename);
     }
-    else if (engineLoadBoard(m.filename, VOLUMEONE, &p0.pos, &playerAngle, &p0.cursectnum) < 0)
+    else if (engineLoadBoard(mm.fileName, VOLUMEONE, &p0.pos, &playerAngle, &p0.cursectnum) < 0)
     {
-        OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", m.filename);
+        OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", mm.fileName.GetChars());
         return 1;
     }
     else
     {
-		STAT_NewLevel(m.filename);
-        G_LoadMapHack(levelName, m.filename);
+        currentLevel = &mm;
+		STAT_NewLevel(mm.fileName);
+        G_LoadMapHack(levelName, mm.fileName);
     }
 
     p0.q16ang = fix16_from_int(playerAngle);
@@ -1888,7 +1886,7 @@ int G_EnterLevel(int gameMode)
     G_ResetAllPlayers();
     G_CollectSpawnPoints(gameMode);
 
-    ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : m.filename, g_loadedMapHack.md4);
+    ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : mm.fileName.GetChars(), g_loadedMapHack.md4);
 
     // G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     G_CacheMapData();
@@ -1900,23 +1898,15 @@ int G_EnterLevel(int gameMode)
         {
             S_PlayLevelMusicOrNothing(USERMAPMUSICFAKESLOT);
         }
-        else if (g_mapInfo[g_musicIndex].musicfn == NULL || m.musicfn == NULL ||
-            strcmp(g_mapInfo[g_musicIndex].musicfn, m.musicfn) || g_musicSize == 0 || ud.last_level == -1)
-        {
-            S_PlayLevelMusicOrNothing(mapidx);
-        }
-        else
-        {
-            S_ContinueLevelMusic();
-        }
+        else S_PlayLevelMusicOrNothing(mapidx);
     }
 
+	M_ClearMenus();
     if (gameMode & (MODE_GAME|MODE_EOL))
     {
         for (int TRAVERSE_CONNECT(i))
         {
             g_player[i].ps->gm = MODE_GAME;
-            Menu_Close(i);
         }
     }
     else if (gameMode & MODE_RESTART)
@@ -1950,8 +1940,6 @@ int G_EnterLevel(int gameMode)
 
     G_ResetTimers(0);  // Here we go
 
-    Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
-
     G_CheckIfStateless();
 
     for (int TRAVERSE_CONNECT(i))
@@ -1961,11 +1949,11 @@ int G_EnterLevel(int gameMode)
     }
 
     if (G_HaveUserMap())
-        OSD_Printf(OSDTEXT_YELLOW "User Map: %s\n", boardfilename);
+        OSD_Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
     else if (FURY)
-        OSD_Printf(OSDTEXT_YELLOW "Entering: %s\n", m.name);
+        OSD_Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_ENTERING"), mm.DisplayName());
     else
-        OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number + 1, ud.level_number + 1, m.name);
+        OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number + 1, ud.level_number + 1, mm.DisplayName());
 
     g_restorePalette = -1;
 

@@ -41,7 +41,7 @@
 #include "imagehelpers.h"
 #include "image.h"
 #include "printf.h"
-#include "cache1d.h"
+#include "filesystem/filesystem.h"
 
 //==========================================================================
 //
@@ -291,7 +291,7 @@ void FPNGTexture::CreatePalettedPixels(uint8_t *buffer)
 	FileReader *lump;
 	FileReader lfr;
 
-	lfr = kopenFileReader(Name, 0);
+	lfr = fileSystem.OpenFileReader(Name, 0);
 	if (!lfr.isOpen()) return;
 	lump = &lfr;
 
@@ -408,7 +408,7 @@ int FPNGTexture::CopyPixels(FBitmap *bmp, int conversion)
 	FileReader *lump;
 	FileReader lfr;
 
-	lfr = kopenFileReader(Name, 0);
+	lfr = fileSystem.OpenFileReader(Name, 0);
 	if (!lfr.isOpen()) return -1;	// Just leave the texture blank.
 
 	lump = &lfr;

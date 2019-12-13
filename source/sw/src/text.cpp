@@ -49,18 +49,6 @@ BEGIN_SW_NS
 #define PANEL_SM_FONT_Y 3613
 #define PANEL_SM_FONT_R 3625
 
-const char *KeyDoorMessage[MAX_KEYS] =
-{
-    "You need a RED key for this door.",
-    "You need a BLUE key for this door.",
-    "You need a GREEN key for this door.",
-    "You need a YELLOW key for this door.",
-    "You need a GOLD key for this door.",
-    "You need a SILVER key for this door.",
-    "You need a BRONZE key for this door.",
-    "You need a RED key for this door."
-};
-
 void DisplaySummaryString(PLAYERp pp, short xs, short ys, short color, short shade, const char *buffer)
 {
     short size,x;
@@ -284,7 +272,8 @@ void DisplayMiniBarNumber(PLAYERp pp, short xs, short ys, int number)
 
         rotatesprite((long)x << 16, (long)ys << 16, (1 << 16), 0,
                      pic, 0, 0,
-                     ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+                     ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER | RS_ALIGN_L,
+                     0, 0, xdim - 1, ydim - 1);
 
         size = tilesiz[PANEL_FONT_G + (*ptr - '0')].x + 1;
     }
@@ -310,7 +299,8 @@ void DisplayMiniBarSmString(PLAYERp pp, short xs, short ys, short pal, const cha
         pic = FRAG_FIRST_TILE + (*ptr - FRAG_FIRST_ASCII);
 
         rotatesprite((int)x << 16, (int)ys << 16, (1 << 16), 0, pic, 0, pal,
-                     ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+                     ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER | RS_ALIGN_L,
+                     0, 0, xdim - 1, ydim - 1);
     }
 }
 
@@ -447,8 +437,17 @@ void PutStringInfo(PLAYERp pp, const char *string)
     if (!hud_messages)
         return;
 
-    CON_ConMessage("%s", string); // Put it in the console too
-    PutStringInfoLine(pp, string);
+    Printf(PRINT_MEDIUM|PRINT_NOTIFY, "%s", string); // Put it in the console too
+    if (hud_messages == 1) PutStringInfoLine(pp, string);
+}
+
+void GameInterface::DoPrintMessage(int prio, const char* string)
+{
+	if (!hud_messages)
+		return;
+
+	Printf(prio | PRINT_NOTIFY, "%s", string); // Put it in the console too
+	if (hud_messages == 1) PutStringInfoLine(&Player[myconnectindex], string);
 }
 
 void PutStringInfoLine(PLAYERp pp, const char *string)
@@ -475,22 +474,6 @@ void PutStringInfoLine(PLAYERp pp, const char *string)
     //PutStringInfoLine2(pp, "");
 }
 
-void PutStringInfoLine2(PLAYERp pp, const char *string)
-{
-    short x,y;
-    short w,h;
-
-    if (pp-Player != myconnectindex)
-        return;
-
-    MNU_MeasureString(string, &w, &h);
-
-    x = TEXT_XCENTER(w);
-    y = TEXT_INFO_LINE(1);
-
-    PutStringTimer(pp, x, y, string, GlobInfoStringTime);
-}
-
 void pMenuClearTextLine(PLAYERp pp)
 {
     pMenuClearTextLineID(pp, ID_TEXT, TEXT_INFO_LINE(0), PRI_FRONT_MAX);
@@ -500,22 +483,4 @@ void pMenuClearTextLine(PLAYERp pp)
 #define TEXT_PLAYER_INFO_TIME (3)
 #define TEXT_PLAYER_INFO_Y (200 - 40)
 
-void PutStringPlayerInfo(PLAYERp pp, const char *string)
-{
-    short x,y;
-    short w,h;
-
-    if (pp-Player != myconnectindex)
-        return;
-
-    if (!hud_messages)
-        return;
-
-    MNU_MeasureString(string, &w, &h);
-
-    x = TEXT_XCENTER(w);
-    y = TEXT_PLAYER_INFO_Y;
-
-    PutStringTimer(pp, x, y, string, GlobInfoStringTime);
-}
 END_SW_NS

@@ -697,7 +697,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         skyzbufferhack_pass--;
     }
 
-	if (!tilePtr(globalpicnum))
+	if (!success)
 		GLInterface.SetColorMask(true);
 }
 

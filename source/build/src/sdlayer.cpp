@@ -33,10 +33,14 @@
 #include "i_time.h"
 #include "c_dispatch.h"
 #include "d_gui.h"
+#include "menu.h"
 #include "utf8.h"
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
+
+
+
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -98,8 +102,9 @@ unsigned char syncstate;
 
 // fix for mousewheel
 int32_t inputchecked = 0;
+bool screenshot_requested;
 
-char quitevent=0, appactive=1, novideo=0;
+char appactive=1, novideo=0;
 
 // video
 static SDL_Surface *sdl_surface/*=NULL*/;
@@ -662,8 +667,8 @@ static SDL_GameController *controller = NULL;
 
 static void LoadSDLControllerDB()
 {
-    auto fh = fopenFileReader("gamecontrollerdb.txt", 0);
-    if (!fh.isOpen())
+    FileReader fh;
+    if (!fh.OpenFile("gamecontrollerdb.txt"))
         return;
 
 	int flen = fh.GetLength();
@@ -743,8 +748,10 @@ void joyScanDevices()
                 buildprintf("Using controller %s\n", SDL_GameControllerName(controller));
 
                 joystick.numAxes    = SDL_CONTROLLER_AXIS_MAX;
+                joystick.numBalls   = 0;
                 joystick.numButtons = SDL_CONTROLLER_BUTTON_MAX;
                 joystick.numHats    = 0;
+
                 joystick.isGameController = 1;
 
                 Xfree(joystick.pAxis);
@@ -767,11 +774,15 @@ void joyScanDevices()
 
                 // KEEPINSYNC duke3d/src/gamedefs.h, mact/include/_control.h
                 joystick.numAxes = min(9, SDL_JoystickNumAxes(joydev));
+                joystick.numBalls   = SDL_JoystickNumBalls(joydev);
                 joystick.numButtons = min(32, SDL_JoystickNumButtons(joydev));
-                joystick.numHats = min((36-joystick.numButtons)/4,SDL_JoystickNumHats(joydev));
+                joystick.numHats    = min((36 - joystick.numButtons) / 4, SDL_JoystickNumHats(joydev));
+
                 joystick.isGameController = 0;
 
-                initprintf("Joystick %d has %d axes, %d buttons, and %d hat(s).\n", i+1, joystick.numAxes, joystick.numButtons, joystick.numHats);
+                buildprint("Joystick ", i+1, " has ", joystick.numAxes, " axes, ", joystick.numButtons, " buttons, ",
+                            (joystick.numHats ? std::to_string(joystick.numHats).c_str() : "no"), " hats, and ",
+                            (joystick.numBalls ? std::to_string(joystick.numBalls).c_str() : "no"), " balls.\n");
 
                 Xfree(joystick.pAxis);
                 joystick.pAxis = (int32_t *)Xcalloc(joystick.numAxes, sizeof(int32_t));
@@ -959,18 +970,9 @@ void mouseGrabInput(bool grab)
         g_mouseGrabbed = grab;
 
 	inputState.MouseSetPos(0, 0);
-}
-
-void mouseLockToWindow(char a)
-{
-    if (!(a & 2))
-    {
-        mouseGrabInput(a);
-        g_mouseLockedToWindow = g_mouseGrabbed;
-    }
-
-	// Fixme
-    SDL_ShowCursor(GUICapture ? SDL_ENABLE : SDL_DISABLE);
+	SDL_ShowCursor(!grab ? SDL_ENABLE : SDL_DISABLE);
+	if (grab) GUICapture &= ~1;
+	else GUICapture |= 1;
 }
 
 //
@@ -1663,6 +1665,7 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
     switch (ev->type)
     {
         case SDL_MOUSEMOTION:
+        //case SDL_JOYBALLMOTION:
 		{
 			// The menus need this, even in non GUI-capture mode
 			event_t event;
@@ -1706,8 +1709,27 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             if (j < 0)
                 break;
 
-			event_t evt = { uint8_t((ev->button.state == SDL_PRESSED)? EV_KeyDown : EV_KeyUp), 0, (int16_t)j};
-			D_PostEvent(&evt);
+			if (!(GUICapture & 1))
+			{
+				event_t evt = { uint8_t((ev->button.state == SDL_PRESSED) ? EV_KeyDown : EV_KeyUp), 0, (int16_t)j };
+				D_PostEvent(&evt);
+			}
+			else
+			{
+				event_t evt;
+				evt.type = EV_GUI_Event;
+				evt.subtype = uint8_t((ev->button.state == SDL_PRESSED) ? EV_GUI_LButtonDown : EV_GUI_LButtonUp);
+				evt.data1 = ev->motion.x;
+				evt.data2 = ev->motion.y;
+
+				SDL_Keymod kmod = SDL_GetModState();
+				evt.data3 = ((kmod & KMOD_SHIFT) ? GKM_SHIFT : 0) |
+					((kmod & KMOD_CTRL) ? GKM_CTRL : 0) |
+					((kmod & KMOD_ALT) ? GKM_ALT : 0);
+
+				D_PostEvent(&evt);
+
+			}
             break;
         }
 
@@ -1779,7 +1801,7 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             break;
 
         case SDL_QUIT:
-            quitevent = 1;
+			throw ExitEvent(0);	// completely bypass the hackery in the games to block Alt-F4.
             return -1;
     }
 
@@ -1890,7 +1912,7 @@ int32_t handleevents_pollsdl(void)
 				{
 					code = ev.text.text[j];
 					// Fixme: Send an EV_GUI_Event instead and properly deal with Unicode.
-					if (GUICapture & 1)
+					if ((GUICapture & 1) && menuactive != MENU_WaitKey)
 					{
 						event_t ev = { EV_GUI_Event, EV_GUI_Char, int16_t(j), !!(SDL_GetModState() & KMOD_ALT) };
 						D_PostEvent(&ev);
@@ -1902,7 +1924,7 @@ int32_t handleevents_pollsdl(void)
             case SDL_KEYDOWN:
             case SDL_KEYUP:
             {
-				if (GUICapture & 1)
+				if ((GUICapture & 1) && menuactive != MENU_WaitKey)
 				{
 					event_t event = {};
 					event.type = EV_GUI_Event;
@@ -2060,6 +2082,17 @@ int32_t handleevents(void)
     return rv;
 }
 
+void I_SetMouseCapture()
+{
+	// Clear out any mouse movement.
+	SDL_CaptureMouse(SDL_TRUE);
+}
+
+void I_ReleaseMouseCapture()
+{
+	SDL_CaptureMouse(SDL_FALSE);
+}
+
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
 
 //
@@ -2078,3 +2111,4 @@ void debugprintf(const char* f, ...)
 
 	OutputDebugStringA(buf);
 }
+

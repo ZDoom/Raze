@@ -60,45 +60,42 @@ extern char isShareware;
 
 #define ERR_STD_ARG __FILE__, __LINE__
 
+void _Assert(const char *expr, const char *strFile, unsigned uLine);
+#define PRODUCTION_ASSERT(f) \
+    do { \
+        if (!(f)) \
+            _Assert(#f,ERR_STD_ARG); \
+    } while (0)
+
+#if DEBUG || defined DEBUGGINGAIDS
+#define ASSERT(f) PRODUCTION_ASSERT(f)
+#else
+#define ASSERT(f) do { } while (0)
+#endif
+
 #if DEBUG
 void HeapCheck(char *, int);
 #define HEAP_CHECK() HeapCheck(__FILE__, __LINE__)
-
-void _Assert(const char *expr, const char *strFile, unsigned uLine);
-#define ASSERT(f) \
-    if (f)        \
-        do { } while(0);         \
-    else          \
-        _Assert(#f,ERR_STD_ARG);
-
-#define PRODUCTION_ASSERT(f) ASSERT(f)
 
 void dsprintf(char *, char *, ...);
 #define DSPRINTF dsprintf
 
 void PokeStringMono(uint8_t Attr, uint8_t* String);
 
-#if 1  // !JIM! Frank, I redirect this for me you'll want to set this back for you
+#if 1
+// !JIM! Frank, I redirect this for me you'll want to set this back for you
 extern int DispMono;
 #define MONO_PRINT(str) if (DispMono) PokeStringMono(/*MDA_NORMAL*/ 0, str)
 #else
 void adduserquote(const char *daquote);
 extern int DispMono;
-#define MONO_PRINT(str) if (DispMono) CON_ConMessage(str); // Put it in my userquote stuff!
+#define MONO_PRINT(str) if (DispMono) OSD_Printf(str); // Put it in my userquote stuff!
 //#define MONO_PRINT(str) if (DispMono) printf(str);
 #endif
 
 #define RANDOM_DEBUG 1 // Set this to 1 for network testing.
 #else
-#define ASSERT(f) do { } while(0)
 #define MONO_PRINT(str)
-
-void _Assert(const char *expr, const char *strFile, unsigned uLine);
-#define PRODUCTION_ASSERT(f) \
-    if (f)        \
-        do { } while(0);         \
-    else          \
-        _Assert(#f,ERR_STD_ARG);
 
 void dsprintf_null(char *str, const char *format, ...);
 #define DSPRINTF dsprintf_null
@@ -378,8 +375,8 @@ extern char MessageOutputString[256];
 #define TEST_SYNC_KEY(player, sync_num) TEST((player)->input.bits, (1 << (sync_num)))
 #define RESET_SYNC_KEY(player, sync_num) RESET((player)->input.bits, (1 << (sync_num)))
 
-#define TRAVERSE_SPRITE_SECT(l, o, n)    for ((o) = (l); (n) = nextspritesect[o], (o) != -1; (o) = (n))
-#define TRAVERSE_SPRITE_STAT(l, o, n)    for ((o) = (l); (n) = nextspritestat[o], (o) != -1; (o) = (n))
+#define TRAVERSE_SPRITE_SECT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritesect[o], (o) != -1; (o) = (n))
+#define TRAVERSE_SPRITE_STAT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritestat[o], (o) != -1; (o) = (n))
 #define TRAVERSE_CONNECT(i)   for (i = connecthead; i != -1; i = connectpoint2[i])
 
 
@@ -531,11 +528,11 @@ int StdRandomRange(int range);
 #define MDA_REVERSEBLINK   0xF0
 
 // defines for move_sprite return value
-#define HIT_MASK (BIT(13)|BIT(14)|BIT(15))
+#define HIT_MASK (BIT(14)|BIT(15)|BIT(16))
 #define HIT_SPRITE (BIT(14)|BIT(15))
 #define HIT_WALL   BIT(15)
 #define HIT_SECTOR BIT(14)
-#define HIT_PLAX_WALL BIT(13)
+#define HIT_PLAX_WALL BIT(16)
 
 #define NORM_SPRITE(val) ((val) & (MAXSPRITES - 1))
 #define NORM_WALL(val) ((val) & (MAXWALLS - 1))
@@ -857,8 +854,6 @@ void addconquote(const char *daquote);
 // Console
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
-void CON_Message(const char *message, ...) PRINTF_FORMAT(1, 2);
-void CON_ConMessage(const char *message, ...) PRINTF_FORMAT(1, 2);
 void CON_StoreArg(const char *userarg);
 SWBOOL CON_CheckParm(const char *userarg);
 void CON_CommandHistory(signed char dir);
@@ -891,8 +886,6 @@ typedef struct
     int16_t max_ammo;
     int16_t min_ammo;
     int16_t with_weapon;
-    const char *weapon_name;
-    const char *ammo_name;
     int16_t weapon_pickup;
     int16_t ammo_pickup;
 } DAMAGE_DATA, *DAMAGE_DATAp;
@@ -949,34 +942,55 @@ typedef struct
 #define MAX_LEVELS_SW 4
 #define MAX_LEVELS (isShareware ? MAX_LEVELS_SW : MAX_LEVELS_REG)
 
-typedef struct
-{
-    const char *LevelName;
-    const char *SongName;
-    const char *Description;
-    const char *BestTime;
-    const char *ParTime;
-} LEVEL_INFO, *LEVEL_INFOp, * *LEVEL_INFOpp;
-
-extern LEVEL_INFO LevelInfo[MAX_LEVELS_REG+2];
 extern int   ThemeTrack[6];                                          // w
-extern const char *ThemeSongs[6];                                          //
+extern FString ThemeSongs[6];                                          //
 
 #define MAX_EPISODE_NAME_LEN 24
 extern char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2];
 
-#define MAX_EPISODE_SUBTITLE_LEN 40
-extern char EpisodeSubtitles[3][MAX_EPISODE_SUBTITLE_LEN+1];
 
-#define MAX_SKILL_NAME_LEN 24
-extern char SkillNames[4][MAX_SKILL_NAME_LEN+2];
 
-#define MAX_FORTUNES 16
-extern const char *ReadFortune[MAX_FORTUNES];
 
-#define MAX_KEYS 8
-extern const char *KeyMsg[MAX_KEYS];
-extern const char *KeyDoorMessage[MAX_KEYS];
+enum
+{
+    MAX_KEYS = 8,
+    MAX_FORTUNES = 16,
+    MAX_INVENTORY_Q = 11,//InvDecl_TOTAL
+
+    QUOTE_KEYMSG = 1,
+    QUOTE_DOORMSG = QUOTE_KEYMSG + MAX_KEYS,
+    // 23+24 are reserved.
+    QUOTE_COOKIE = 25,  
+    QUOTE_INVENTORY = QUOTE_COOKIE + MAX_FORTUNES,
+    QUOTE_WPNFIST = QUOTE_INVENTORY + MAX_INVENTORY_Q,
+    QUOTE_WPNSWORD,
+    QUOTE_WPNSHURIKEN,
+    QUOTE_WPNSTICKY,
+    QUOTE_WPNUZI,
+    QUOTE_WPNLAUNCH,
+    QUOTE_WPNNUKE,
+    QUOTE_WPNGRENADE,
+    QUOTE_WPNRAILGUN,
+    QUOTE_WPNRIOT,
+    QUOTE_WPNHEAD,
+    QUOTE_WPNRIPPER,
+    // Here a gap of two needs to be inserted because the weapon array contains two bogus entries the parser can access.
+    // Not all ammo types here are used, but the entries must be reserved for the parser.
+    QUOTE_AMMOFIST = QUOTE_WPNRIPPER + 2,
+    QUOTE_AMMOSWORD,
+    QUOTE_AMMOSHURIKEN,
+    QUOTE_AMMOSTICKY,
+    QUOTE_AMMOUZI,
+    QUOTE_AMMOLAUNCH,
+    QUOTE_AMMONUKE,
+    QUOTE_AMMOGRENADE,
+    QUOTE_AMMORAILGUN,
+    QUOTE_AMMORIOT,
+    QUOTE_AMMOHEAD,
+    QUOTE_AMMORIPPER,
+    // Again, here a gap of two needs to be inserted because the weapon array contains two bogus entries the parser can access.
+
+};
 
 typedef struct
 {
@@ -1164,7 +1178,7 @@ struct PLAYERstruct
     short DiveDamageTics;
 
     // Death stuff
-    short DeathType;
+    uint16_t DeathType;
     short Kills;
     short Killer;  //who killed me
     short KilledPlayer[MAX_SW_PLAYERS_REG];
@@ -2373,10 +2387,7 @@ int COVERinsertsprite(short sectnum, short statnum);   //returns (short)spritenu
 void AudioUpdate(void); // stupid
 
 extern short LastSaveNum;
-extern short QuickLoadNum;
 void LoadSaveMsg(const char *msg);
-SWBOOL DoQuickSave(short save_num);
-SWBOOL DoQuickLoad(void);
 
 struct GameInterface : ::GameInterface
 {
@@ -2384,7 +2395,21 @@ struct GameInterface : ::GameInterface
 	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
-	bool mouseInactiveConditional(bool condition) override;
+	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
+	void MenuOpened() override;
+	void MenuSound(EMenuSounds snd) override;
+	void MenuClosed() override;
+	bool CanSave() override;
+	void StartGame(FGameStartup& gs) override;
+	FSavegameInfo GetSaveSig() override;
+	void DrawMenuCaption(const DVector2& origin, const char* text) override;
+	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
+	bool LoadGame(FSaveGameNode* sv) override;
+	bool SaveGame(FSaveGameNode* sv) override;
+	void DoPrintMessage(int prio, const char* text) override;
+    void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
+
+	GameStats getStats() override;
 };
 
 
