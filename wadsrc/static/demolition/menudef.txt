@@ -78,6 +78,18 @@ LISTMENU "MainMenu"
 		}
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
+	ifgame(Exhumed)
+	{
+		Position 160, 65
+		centermenu
+		class "Exhumed.MainMenu"
+		linespacing 22
+		NativeTextItem "3460", "n", "StartGame 1"
+		NativeTextItem "3461", "l", "LoadGameMenu"
+		NativeTextItem "3462", "m", "StartGame 2"
+		NativeTextItem "3463", "v", "OptionsMenu"
+		NativeTextItem "3464", "q", "QuitMenu"
+	}
 }
 
 //-------------------------------------------------------------------------------------------
@@ -152,6 +164,18 @@ LISTMENU "IngameMenu"
 			NativeTextItem "$MNU_HOWTOORDER", "h", "CreditsMenu"
 		}
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+	}
+	ifgame(Exhumed)
+	{
+		Position 160, 65
+		centermenu
+		class "Exhumed.MainMenu"
+		linespacing 22
+		NativeTextItem "3460", "n", "StartGame 1"
+		NativeTextItem "3461", "l", "LoadGameMenu"
+		NativeTextItem "3462", "m", "StartGame 2"
+		NativeTextItem "3463", "v", "OptionsMenu"
+		NativeTextItem "3464", "q", "QuitMenu"
 	}
 }
 
