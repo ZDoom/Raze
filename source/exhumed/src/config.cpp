@@ -86,9 +86,8 @@ void CONFIG_SetDefaults()
     gSetup.forcesetup = 1;
     gSetup.noautoload = 1;
     gSetup.fullscreen = 1;
+    gSetup.bpp = 32;
 
-    FXVolume = 255;
-    MusicVolume = 255;
     NumBits = 16;
 }
 
