@@ -751,12 +751,11 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
             moveTimer = (int)totalclock;
         }
 
-#if 0
         if (curYPos == destYPos)
         {
-            if (I_MenuUp())
+            if (inputState.GetKeyStatus[sc_UpArrow])
             {
-				I_MenuUpClear();
+                inputState.ClearKeyStatus(sc_UpArrow);
 
                 if (nLevelNew <= nLevelBest)
                 {
@@ -776,9 +775,9 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 }
             }
 
-			if (I_MenuDown())
-			{
-				I_MenuDownClear();
+            if (inputState.GetKeyStatus[sc_DownArrow])
+            {
+                inputState.ClearKeyStatus(sc_DownArrow);
 
                 if (nLevelNew > 0)
                 {
@@ -833,7 +832,6 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
             nIdleSeconds = 0;
         }
-#endif
     }
 
     MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
