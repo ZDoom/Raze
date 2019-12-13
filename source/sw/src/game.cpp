@@ -3712,6 +3712,7 @@ void getinput(SW_PACKET *loc)
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
         SET(loc->bits, which_weapon);
+    }
 
 
     inv_hotkey = 0;

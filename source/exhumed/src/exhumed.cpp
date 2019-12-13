@@ -3043,7 +3043,7 @@ void InitSpiritHead()
     lNextStateChange = (int)totalclock;
     lHeadStartClock = (int)totalclock;
 
-	auto headfd = kopenFileReader(filename, 512); // 512??
+	auto headfd = fileSystem.OpenFileReader(filename, 512); // 512??
 	if (!headfd.isOpen())
 	{
 		memset(cPupData, 0, sizeof(cPupData));

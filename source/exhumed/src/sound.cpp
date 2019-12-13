@@ -444,7 +444,7 @@ int LoadSound(const char *sound)
 
     strcat(buffer, ".voc");
 
-    auto hVoc = kopenFileReader(buffer, 0);
+    auto hVoc = fileSystem.OpenFileReader(buffer, 0);
 
     if (hVoc.isOpen())
     {

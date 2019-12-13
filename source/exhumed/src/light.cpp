@@ -84,7 +84,7 @@ int LoadPaletteLookups()
 
     for (int i = 0; i < kMaxGrads; i++)
     {
-        auto hFile = kopenFileReader(GradList[i], 1);
+        auto hFile = fileSystem.OpenFileReader(GradList[i], 1);
         if (!hFile.isOpen())
         {
             initprintf("Error reading palette lookup '%s'\n", GradList[i]);

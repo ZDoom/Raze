@@ -197,42 +197,14 @@ void ServeSample(const char** ptr, uint32_t* length)
 
 void PlayMovie(const char* fileName)
 {
-	char buffer[256];
     int bDoFade = kTrue;
     int hFx = -1;
-#if 0
-	if (bNoCDCheck)
-    {
-        sprintf(buffer, "C:\\PS\\%s", fileName);
-    }
-    else
-    {
-        char driveLetter = GetCDDriveLetter();
-        if (!driveLetter) {
-            driveLetter = 'C';
-        }
-        sprintf(buffer, "%c:%s", driveLetter, fileName);
-    }
-
-    FILE* fp = fopen(buffer, "rb");
-    if (fp == NULL)
-    {
-        Printf("Can't open movie file '%s' on CD-ROM\n", buffer);
-        fp = fopen(fileName, "rb");
-        if (fp == NULL)
-        {
-            Printf("Can't open movie file on hard drive\n");
-            return;
-        }
-    }
-#else
-	auto fp = fileSystem.OpenFileReader(fileSystem.FindFile(fileName));
+	auto fp = fileSystem.OpenFileReader(fileName, 0);
 	if (!fp.isOpen())
 	{
 		Printf("Unable to open %s\n", fileName);
 		return;
 	}
-#endif
 
 	tileLoad(kMovieTile);
 	CurFrame = TileFiles.tileMakeWritable(kMovieTile);
@@ -261,7 +233,7 @@ void PlayMovie(const char* fileName)
     if (ReadFrame(fp))
     {
         // start audio playback
-        hFx = FX_StartDemandFeedPlayback(ServeSample, kSampleRate, 0, mus_volume, mus_volume, mus_volume, FX_MUSIC_PRIORITY, fix16_one, -1);
+        hFx = FX_StartDemandFeedPlayback(ServeSample, kSampleRate, 0, snd_fxvolume, snd_fxvolume, snd_fxvolume, FX_MUSIC_PRIORITY, fix16_one, -1);
 
         while (!inputState.keyBufferWaiting())
         {

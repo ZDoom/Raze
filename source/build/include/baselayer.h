@@ -229,7 +229,7 @@ struct GameInterface
 	virtual void DrawMenuCaption(const DVector2& origin, const char* text) {}
 	virtual bool SaveGame(FSaveGameNode*) { return false; }
 	virtual bool LoadGame(FSaveGameNode*) { return false; }
-	virtual void DoPrintMessage(int prio, const char*) = 0;
+	virtual void DoPrintMessage(int prio, const char*) {}
 	void PrintMessage(int prio, const char*fmt, ...)
 	{
 		va_list ap;

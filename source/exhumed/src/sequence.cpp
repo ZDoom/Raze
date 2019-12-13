@@ -166,7 +166,7 @@ int seq_ReadSequence(const char *seqName)
     strcat(buffer, seqName);
     strcat(buffer, ".seq");
 
-    auto hFile = kopenFileReader(buffer, 1);
+    auto hFile = fileSystem.OpenFileReader(buffer, 1);
     if (!hFile.isOpen())
     {
         initprintf("Unable to open '%s'!\n", buffer);

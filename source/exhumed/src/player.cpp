@@ -71,6 +71,7 @@ fix16_t nPlayerDAng = 0;
 short obobangle = 0, bobangle  = 0;
 short bPlayerPan = 0;
 short bLockPan  = 0;
+bool g_MyAimMode;
 
 static actionSeq ActionSeq[] = {
     {18,  0}, {0,   0}, {9,   0}, {27,  0}, {63,  0},
@@ -165,27 +166,6 @@ void PlayerInterruptKeys()
     CONTROL_GetInput(&info);
 	D_ProcessEvents();
 
-    if (in_mousedeadzone)
-    {
-        if (info.mousey > 0)
-            info.mousey = max(info.mousey - in_mousedeadzone, 0);
-        else if (info.mousey < 0)
-            info.mousey = min(info.mousey + in_mousedeadzone, 0);
-
-        if (info.mousex > 0)
-            info.mousex = max(info.mousex - in_mousedeadzone, 0);
-        else if (info.mousex < 0)
-            info.mousex = min(info.mousex + in_mousedeadzone, 0);
-    }
-
-    if (in_mousebias)
-    {
-        if (klabs(info.mousex) > klabs(info.mousey))
-            info.mousey = tabledivide32_noinline(info.mousey, in_mousebias);
-        else
-            info.mousex = tabledivide32_noinline(info.mousex, in_mousebias);
-    }
-
     if (PlayerList[nLocalPlayer].nHealth == 0)
     {
         lPlayerYVel = 0;
@@ -195,7 +175,7 @@ void PlayerInterruptKeys()
     }
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+    int const playerRunning = false;// G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int const turnAmount = playerRunning ? 12 : 8;
     int const keyMove    = playerRunning ? 12 : 6;
     constexpr int const analogTurnAmount = 12;
@@ -217,6 +197,8 @@ void PlayerInterruptKeys()
         q16avel = fix16_div(fix16_from_int(info.mousex), F16(32));
         q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
     }
+
+    g_MyAimMode = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
     if (g_MyAimMode)
         q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
@@ -346,13 +328,17 @@ void PlayerInterruptKeys()
             info.mousey = 6400;
         }
 
-        if (mouseaiming)
-            aimmode = buttonMap.ButtonDown(gamefunc_Mouseview);
+
+        int aimmode = true;
+        // This needs serious fixing
+        //if (mouseaiming)
+            //aimmode = buttonMap.ButtonDown(gamefunc_Mouseview);
+        /*
         else
         {
             buttonMap.ClearButton(gamefunc_Mouseview);
             aimmode = !aimmode;
-        }
+        }*/
 
         // loc_18EE4
         if (aimmode)

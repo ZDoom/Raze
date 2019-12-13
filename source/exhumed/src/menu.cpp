@@ -751,6 +751,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
             moveTimer = (int)totalclock;
         }
 
+#if 0
         if (curYPos == destYPos)
         {
             if (I_MenuUp())
@@ -832,6 +833,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
             nIdleSeconds = 0;
         }
+#endif
     }
 
     MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
@@ -886,6 +888,7 @@ void menu_AdjustVolume()
             return;
         }
 
+#if 0
         if (I_MenuUp())
         {
 			I_MenuUpClear();
@@ -921,6 +924,7 @@ void menu_AdjustVolume()
 		{
 			I_MenuRightClear();
         }
+#endif
 
         if (GetLocalSound() != 23) {
             continue;
@@ -933,6 +937,7 @@ void menu_AdjustVolume()
 
 int menu_NewGameMenu()
 {
+#if 0
     const char endMark = 0xF;
     char nameList[5][25];
     int nNameLen = sizeof(nameList);
@@ -1218,10 +1223,13 @@ check_keys:
             y += 22;
         }
     }
+#endif
+    return 0;
 }
 
 int menu_LoadGameMenu()
 {
+#if 0
     char nameList[5][25];
 
     int nSlot = 0;
@@ -1312,6 +1320,8 @@ int menu_LoadGameMenu()
 
         PlayLocalSound(4, 0);
     }
+#endif
+    return 0;
 }
 
 void menu_ResetKeyTimer()
@@ -1437,6 +1447,7 @@ void menu_ResetZoom()
 
 int menu_Menu(int nVal)
 {
+#if 0
     GrabPalette();
 
     int var_1C = 0;
@@ -1714,7 +1725,7 @@ LABEL_21:
         }
 		*/
     }
-
+#endif
     return 0;// todo
 }
 
@@ -1756,7 +1767,7 @@ int LoadCinemaPalette(int nPal)
 
     // original code strcpy'd into a buffer first...
 
-    auto hFile = kopenFileReader(cinpalfname[nPal], 1);
+    auto hFile = fileSystem.OpenFileReader(cinpalfname[nPal], 0);
     if (!hFile.isOpen()) {
         return -2;
     }
