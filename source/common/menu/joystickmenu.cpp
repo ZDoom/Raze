@@ -42,11 +42,11 @@
 #include "c_bind.h"
 #include "d_event.h"
 #include "d_gui.h"
+#include "input/m_joy.h"
 
 #define NO_IMP
 #include "optionmenuitems.h"
 
-#if 0 // This requires the entire ZDoom backend to work.
 
 static TArray<IJoystickConfig *> Joysticks;
 IJoystickConfig *SELECTED_JOYSTICK;
@@ -245,10 +245,10 @@ public:
 		mJoy = joy;
 	}
 
-	bool Activate()
+	bool Activate(FName caller) override
 	{
 		UpdateJoystickConfigMenu(mJoy);
-		return FOptionMenuItemSubmenu::Activate();
+		return FOptionMenuItemSubmenu::Activate(caller);
 	}
 };
 
@@ -273,51 +273,50 @@ FOptionMenuDescriptor *UpdateJoystickConfigMenu(IJoystickConfig *joy)
 		}
 		if (joy == NULL)
 		{
-			opt->mTitle = "Configure Controller";
-			it = new FOptionMenuItemStaticText("Invalid controller specified for menu", false);
+			opt->mTitle = "$JOYMNU_TITLE";
+			it = new FOptionMenuItemStaticText("$JOYMNU_INVALID");
 			opt->mItems.Push(it);
 		}
 		else
 		{
-			opt->mTitle.Format("Configure %s", joy->GetName().GetChars());
+			opt->mTitle.Format("%s", joy->GetName().GetChars());
 
 			SELECTED_JOYSTICK = joy;
 
-			it = new FOptionMenuSliderJoySensitivity("Overall sensitivity", 0, 2, 0.1, 3);
+			it = new FOptionMenuSliderJoySensitivity("$JOYMNU_OVRSENS", 0, 2, 0.1, 3);
 			opt->mItems.Push(it);
-			it = new FOptionMenuItemStaticText(" ", false);
+			it = new FOptionMenuItemStaticText(" ");
 			opt->mItems.Push(it);
 
 			if (joy->GetNumAxes() > 0)
 			{
-				it = new FOptionMenuItemStaticText("Axis Configuration", true);
+				it = new FOptionMenuItemStaticText("$JOYMNU_AXIS");
 				opt->mItems.Push(it);
 
 				for (int i = 0; i < joy->GetNumAxes(); ++i)
 				{
-					it = new FOptionMenuItemStaticText(" ", false);
+					it = new FOptionMenuItemStaticText(" ");
 					opt->mItems.Push(it);
 
 					it = new FOptionMenuItemJoyMap(joy->GetAxisName(i), i, "JoyAxisMapNames", false);
 					opt->mItems.Push(it);
-					it = new FOptionMenuSliderJoyScale("Overall sensitivity", i, 0, 4, 0.1, 3);
+					it = new FOptionMenuSliderJoyScale("$JOYMNU_OVRSENS", i, 0, 4, 0.1, 3);
 					opt->mItems.Push(it);
-					it = new FOptionMenuItemInverter("Invert", i, false);
+					it = new FOptionMenuItemInverter("$JOYMNU_INVERT", i, false);
 					opt->mItems.Push(it);
-					it = new FOptionMenuSliderJoyDeadZone("Dead Zone", i, 0, 0.9, 0.05, 3);
+					it = new FOptionMenuSliderJoyDeadZone("$JOYMNU_DEADZONE", i, 0, 0.9, 0.05, 3);
 					opt->mItems.Push(it);
 				}
 			}
 			else
 			{
-				it = new FOptionMenuItemStaticText("No configurable axes", false);
+				it = new FOptionMenuItemStaticText("$JOYMNU_NOAXES");
 				opt->mItems.Push(it);
 			}
 		}
 		opt->mScrollPos = 0;
 		opt->mSelectedItem = -1;
 		opt->mIndent = 0;
-		opt->mPosition = -25;
 		opt->CalcIndent();
 		return opt;
 	}
@@ -333,6 +332,7 @@ void UpdateJoystickMenu(IJoystickConfig *selected)
 	{
 		FOptionMenuDescriptor *opt = (FOptionMenuDescriptor *)*desc;
 		FOptionMenuItem *it;
+
 		for(unsigned i=0;i<opt->mItems.Size();i++)
 		{
 			delete opt->mItems[i];
@@ -360,9 +360,9 @@ void UpdateJoystickMenu(IJoystickConfig *selected)
 		}
 
 		// Todo: Block joystick for changing this one.
-		it = new FOptionMenuItemOption("Enable controller support", "use_joystick", "YesNo", NULL, false);
+		it = new FOptionMenuItemOption("$JOYMNU_ENABLE", "use_joystick", "YesNo", NULL, false);
 		opt->mItems.Push(it);
-		#ifdef _WIN32
+		#if 0//def _WIN32
 			it = new FOptionMenuItemOption("Enable DirectInput controllers", "joy_dinput", "YesNo", NULL, false);
 			opt->mItems.Push(it);
 			it = new FOptionMenuItemOption("Enable XInput controllers", "joy_xinput", "YesNo", NULL, false);
@@ -371,24 +371,24 @@ void UpdateJoystickMenu(IJoystickConfig *selected)
 			opt->mItems.Push(it);
 		#endif
 
-		it = new FOptionMenuItemStaticText(" ", false);
+		it = new FOptionMenuItemStaticText(" ");
 		opt->mItems.Push(it);
 
 		if (Joysticks.Size() == 0)
 		{
-			it = new FOptionMenuItemStaticText("No controllers detected", false);
+			it = new FOptionMenuItemStaticText("$JOYMNU_NOCON");
 			opt->mItems.Push(it);
 			if (!use_joystick)
 			{
-				it = new FOptionMenuItemStaticText("Controller support must be", false);
+				it = new FOptionMenuItemStaticText("$JOYMNU_DISABLED1");
 				opt->mItems.Push(it);
-				it = new FOptionMenuItemStaticText("enabled to detect any", false);
+				it = new FOptionMenuItemStaticText("$JOYMNU_DISABLED1");
 				opt->mItems.Push(it);
 			}
 		}
 		else
 		{
-			it = new FOptionMenuItemStaticText("Configure controllers:", false);
+			it = new FOptionMenuItemStaticText("$JOYMNU_CONFIG");
 			opt->mItems.Push(it);
 
 			for (int i = 0; i < (int)Joysticks.Size(); ++i)
@@ -417,7 +417,7 @@ void UpdateJoystickMenu(IJoystickConfig *selected)
 		if (i == (int)Joysticks.Size())
 		{
 			SELECTED_JOYSTICK = NULL;
-			if (DMenu::CurrentMenu != NULL && DMenu::CurrentMenu->IsKindOf(RUNTIME_CLASS(DJoystickConfigMenu)))
+			if (DMenu::CurrentMenu != NULL && dynamic_cast<DJoystickConfigMenu*>(DMenu::CurrentMenu))
 			{
 				DMenu::CurrentMenu->Close();
 			}
@@ -425,4 +425,9 @@ void UpdateJoystickMenu(IJoystickConfig *selected)
 	}
 }
 
-#endif
+static TMenuClassDescriptor<DJoystickConfigMenu> _im("JoystickConfigMenu");
+
+void RegisterJoystickMenus()
+{
+	menuClasses.Push(&_im);
+}

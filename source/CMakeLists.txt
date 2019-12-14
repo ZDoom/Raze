@@ -639,7 +639,6 @@ file( GLOB HEADER_FILES
 # without being compiled.
 set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
-	build/src/sdlkeytrans.cpp
 	sc_man_scanner.h
 	common/utility/sc_man_scanner.re
 )

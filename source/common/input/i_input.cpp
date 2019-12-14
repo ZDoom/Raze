@@ -33,8 +33,8 @@
 **
 */
 
-#include <SDL.h>
 #include "compat.h"
+#include <SDL.h>
 
 //#include "doomtype.h"
 //#include "doomdef.h"
@@ -671,6 +671,13 @@ int32_t handleevents_pollsdl(void)
 
         case SDL_JOYBUTTONDOWN:
         case SDL_JOYBUTTONUP:
+#if 0 // SDL_MAJOR_VERSION >= 2
+            if (joystick.isGameController)
+                break;
+            fallthrough__;
+        case SDL_CONTROLLERBUTTONDOWN:
+        case SDL_CONTROLLERBUTTONUP:
+#endif
             if (!GUICapture)
             {
                 evt.type = ev.type == SDL_JOYBUTTONDOWN ? EV_KeyDown : EV_KeyUp;

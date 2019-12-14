@@ -283,11 +283,11 @@ int GameMain()
 		// Just let the rest of the function execute.
 		r = exit.Reason();
 	}
+	I_ShutdownInput();
 	G_SaveConfig();
 #ifndef NETCODE_DISABLE
 	if (gHaveNetworking) enet_deinitialize();
 #endif
-	I_ShutdownInput();
 	return r;
 }
 
