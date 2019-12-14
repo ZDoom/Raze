@@ -34,6 +34,8 @@ CRC
 
 	POWERSLAVE_CRC 0x303CBD89
 	EXHUMED_CRC 0xE3B172F1
+	POWERSLAVE_DEMO_CRC 0x1D8C7645
+	EXHUMED_DEMO_CRC 0x1A6E27FA
 
 }
 
@@ -477,3 +479,16 @@ grpinfo
 	defname "exhumed.def"
 	gamefilter "Exhumed.Exhumed"
 }
+
+grpinfo
+{
+	name "Powerslave Demo"
+	flags GAMEFLAG_POWERSLAVE|GAMEFLAG_SHAREWARE
+	crc POWERSLAVE_DEMO_CRC
+	size 27020745
+	defname "exhumed.def"
+	gamefilter "Exhumed.Powerslave"
+}
+
+
+//  { "Exhumed Demo",    EXHUMED_DEMO_CRC,    16481687, GAMEFLAG_EXHUMED | GAMEFLAG_DEMO,    0 },

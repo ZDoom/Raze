@@ -243,7 +243,7 @@ extern int bVanilla;
 
 #define POWERSLAVE  (g_gameType & GAMEFLAG_POWERSLAVE)
 #define EXHUMED     (g_gameType & GAMEFLAG_EXHUMED)
-#define ISDEMOVER   (g_gameType & GAMEFLAG_DEMO)
+#define ISDEMOVER   (g_gameType & GAMEFLAG_SHAREWARE)
 
 extern double g_frameDelay;
 
