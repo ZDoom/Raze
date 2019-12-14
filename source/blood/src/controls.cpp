@@ -25,10 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "baselayer.h"
-#include "keyboard.h"
-#include "mouse.h"
-#include "joystick.h"
-#include "control.h"
 #include "gamecontrol.h"
 #include "common_game.h"
 #include "blood.h"
@@ -46,8 +42,8 @@ int32_t ctrlCheckAllInput(void)
 {
     return (
         inputState.keyBufferWaiting() ||
-        inputState.MouseGetButtons() ||
-        JOYSTICK_GetButtons()
+        inputState.MouseGetButtons() 
+        //JOYSTICK_GetButtons()
         );
 }
 
@@ -56,7 +52,8 @@ void ctrlClearAllInput(void)
     inputState.keyFlushChars();
     inputState.ClearKeysDown();
     inputState.MouseClearAllButtonss();
-    JOYSTICK_ClearAllButtons();
+    //JOYSTICK_ClearAllButtons()
+    ;
 }
 
 GINPUT gInput;
@@ -75,7 +72,6 @@ void ctrlInit(void)
 
 void ctrlTerm(void)
 {
-    CONTROL_Shutdown();
 }
 
 int32_t mouseyaxismode = -1;

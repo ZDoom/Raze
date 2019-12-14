@@ -6844,7 +6844,6 @@ static void G_Cleanup(void)
 void G_Shutdown(void)
 {
 	S_SoundShutdown();
-    CONTROL_Shutdown();
     G_SetFog(0);
     engineUnInit();
     G_Cleanup();

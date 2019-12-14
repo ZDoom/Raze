@@ -33,9 +33,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "fx_man.h"
 #include "music.h"
 #include "gamedefs.h"
-#include "keyboard.h"
 
-#include "control.h"
 #include "config.h"
 #include "sounds.h"
 #include "gamecontrol.h"

@@ -175,7 +175,6 @@ void ShutDown(void)
     sndTerm();
     sfxTerm();
     scrUnInit();
-    CONTROL_Shutdown();
     // PORT_TODO: Check argument
     if (syncstate)
         printf("A packet was lost! (syncstate)\n");

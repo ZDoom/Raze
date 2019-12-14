@@ -1,18 +1,36 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 2019 Christoph Oelckers
+
+This is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+//-------------------------------------------------------------------------
+
 #include <filesystem>
 #include "gamecontrol.h"
 #include "tarray.h"
 #include "zstring.h"
 #include "name.h"
-#include "control.h"
-#include "keyboard.h"
 #include "sc_man.h"
 #include "c_cvars.h"
 #include "gameconfigfile.h"
 #include "gamecvars.h"
 #include "build.h"
 #include "inputstate.h"
-#include "_control.h"
-#include "control.h"
 #include "m_argv.h"
 #include "rts.h"
 #include "printf.h"
@@ -261,6 +279,7 @@ int GameMain()
 	FStringf logpath("logfile %sdemolition.log", M_GetDocumentsPath().GetChars());
 	C_DoCommand(logpath);
 	I_StartupJoysticks();
+	mouseInit();
 
 #ifndef NETCODE_DISABLE
 	gHaveNetworking = !enet_initialize();
@@ -318,13 +337,6 @@ void SetDefaultStrings()
 	quoteMgr.InitializeQuote(84, "$FOLLOW MODE ON");
 	quoteMgr.InitializeQuote(85, "$AUTORUNOFF");
 	quoteMgr.InitializeQuote(86, "$AUTORUNON");
-	#if 0 // todo: print a message
-			if (gAutoRun)
-				viewSetMessage("Auto run ON");
-			else
-				viewSetMessage("Auto run OFF");
-
-	#endif
 }
 
 //==========================================================================
@@ -336,12 +348,6 @@ void SetDefaultStrings()
 int RunGame()
 {
 	SetClipshapes();
-
-	// This must be done before initializing any data, so doing it late in the startup process won't work.
-	if (CONTROL_Startup(controltype_keyboardandmouse, BGetTime, 120))
-	{
-		return 1;
-	}
 
 	userConfig.ProcessOptions();
 
@@ -441,7 +447,6 @@ int RunGame()
 	}
 	TileFiles.AddArt(addArt);
 
-	CONTROL_ClearAssignments();
 	CONFIG_InitMouseAndController();
 	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
 	

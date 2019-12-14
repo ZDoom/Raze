@@ -1,8 +1,5 @@
 #pragma once
 
-#include "keyboard.h"
-#include "control.h"
-#include "_control.h"
 #include "c_cvars.h"
 #include "zstring.h"
 #include "inputstate.h"

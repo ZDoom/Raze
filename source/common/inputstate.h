@@ -7,6 +7,8 @@
 #include "c_buttons.h"
 #include "d_event.h"
 #include "osd.h"
+#include "m_joy.h"
+#include "gamecvars.h"
 
 extern char appactive;
 
@@ -20,8 +22,6 @@ enum
 	NUMKEYS = 256,
 	MAXMOUSEBUTTONS = 10,
 };
-
-extern bool CONTROL_BindsEnabled;
 
 extern bool    g_mouseGrabbed;
 extern bool    g_mouseEnabled;
@@ -137,8 +137,6 @@ public:
 	
 	void SetBindsEnabled(bool on)
 	{
-		// This just forwards the setting
-		CONTROL_BindsEnabled = on;
 	}
 	
 	bool keyBufferWaiting()
@@ -298,6 +296,12 @@ public:
 	{
 		g_mouseAbs = { x, y };
 	}
+
+	bool gamePadActive()
+	{
+		// fixme: This needs to be tracked.
+		return false;
+	}
 	int32_t MouseGetButtons(void) { return mouseReadButtons(); }
 	inline void MouseClearButton(int32_t b) { g_mouseBits &= ~b; }
 	inline void MouseClearAllButtonss(void) { g_mouseBits = 0; }
@@ -313,7 +317,28 @@ public:
 
 };
 
-
-
 extern InputState inputState;
+
+inline void CONTROL_GetInput(ControlInfo* info)
+{
+	memset(info, 0, sizeof(ControlInfo));
+
+	if (in_mouse)
+		inputState.GetMouseDelta(info);
+
+	if (in_joystick)
+	{
+		// Handle joysticks/game controllers.
+		float joyaxes[NUM_JOYAXIS];
+
+		I_GetAxes(joyaxes);
+
+		info->dyaw += joyaxes[JOYAXIS_Yaw];
+		info->dx += joyaxes[JOYAXIS_Side];
+		info->dz += joyaxes[JOYAXIS_Forward];
+		info->dpitch += joyaxes[JOYAXIS_Pitch];
+	}
+}
+
+
 

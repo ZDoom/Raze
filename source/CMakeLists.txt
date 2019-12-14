@@ -614,8 +614,6 @@ file( GLOB HEADER_FILES
 	libsmackerdec/include/*.h
 	libxmp-lite/include/libxmp-lite/*.h
 	libxmp-lite/src/*.h
-	mact/include/*.h
-	mact/src/*.h
 	common/*.h
 	common/2d/*.h
 	common/fonts/*.h
@@ -691,11 +689,6 @@ set (PCH_SOURCES
 	glbackend/gl_buffers.cpp
 	glbackend/hw_draw2d.cpp
 	
-	mact/src/animlib.cpp
-	mact/src/control.cpp
-	mact/src/joystick.cpp
-	mact/src/input.cpp
-	
 	thirdparty/src/base64.cpp
 	thirdparty/src/sjson.cpp
 	thirdparty/src/fix16.cpp
@@ -739,6 +732,7 @@ set (PCH_SOURCES
 	build/src/timer.cpp
 	build/src/voxmodel.cpp
 	
+	common/animlib.cpp
 	common/rts.cpp
 	common/gameconfigfile.cpp
 	common/gamecvars.cpp
@@ -842,6 +836,7 @@ set (PCH_SOURCES
 	common/input/i_joystick.cpp
 	common/input/i_input.cpp
 	common/input/m_joy.cpp
+	common/input/input.cpp
 )
 
 if( MSVC )
@@ -888,7 +883,6 @@ target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
     build/include
-	mact/include
 	audiolib/include
 	glad/include
 	libxmp-lite/include
@@ -906,6 +900,7 @@ include_directories(
 	common/music
 	common/dobject
 	common/menu
+	common/input
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
@@ -1029,9 +1024,6 @@ source_group("Utility\\Smackerdec\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT
 source_group("Utility\\XMP-Lite" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite/.+")
 source_group("Utility\\XMP-Lite Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite/include/libxmp-lite/.+")
 source_group("Utility\\XMP-Lite Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite/src/.+")
-source_group("Utility\\Mact" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/mact/.+")
-source_group("Utility\\Mact Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/mact/include/.+")
-source_group("Utility\\Mact Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/mact/src/.+")
 source_group("Utility\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/.+")
 source_group("Utility\\Third Party Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/include/.+")
 source_group("Utility\\Third Party Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/src/.+")

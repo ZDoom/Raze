@@ -21,10 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 
 #include "gamecontrol.h"
-#include "keyboard.h"
-#include "mouse.h"
-#include "joystick.h"
-#include "control.h"
 #include "input.h"
 #include "inputstate.h"
 
@@ -41,14 +37,15 @@ int32_t I_CheckAllInput(void)
     return
         inputState.keyBufferWaiting()
         || inputState.MouseGetButtons()
-        || JOYSTICK_GetButtons();
+        //|| JOYSTICK_GetButtons()
+        ;
 }
 void I_ClearAllInput(void)
 {
     inputState.keyFlushChars();
     inputState.ClearKeysDown();
     inputState.MouseClearAllButtonss();
-    JOYSTICK_ClearAllButtons();
+    //JOYSTICK_ClearAllButtons();
     buttonMap.ResetButtonStates();
 }
 
@@ -59,7 +56,7 @@ int32_t I_TextSubmit(void)
         inputState.GetKeyStatus(sc_Enter)
         || inputState.GetKeyStatus(sc_kpad_Enter)
         || mouseInactiveConditional(inputState.MouseGetButtons()&LEFT_MOUSE)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_A));
+        /*|| (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_A))*/;
 }
 
 void I_TextSubmitClear(void)
@@ -68,7 +65,7 @@ void I_TextSubmitClear(void)
     inputState.ClearKeyStatus(sc_kpad_Enter);
     inputState.ClearKeyStatus(sc_Enter);
     inputState.MouseClearButton(LEFT_MOUSE);
-    JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_A);
+    //JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_A);
 }
 
 int32_t I_AdvanceTrigger(void)
@@ -89,7 +86,7 @@ int32_t I_ReturnTrigger(void)
     return
         inputState.GetKeyStatus(sc_Escape)
         || (inputState.MouseGetButtons()&RIGHT_MOUSE)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_B));
+        /*|| (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_B))*/;
 }
 
 void I_ReturnTriggerClear(void)
@@ -97,7 +94,7 @@ void I_ReturnTriggerClear(void)
     inputState.keyFlushChars();
     inputState.ClearKeyStatus(sc_Escape);
     inputState.MouseClearButton(RIGHT_MOUSE);
-    JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_B);
+    //JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_B);
 }
 
 int32_t I_GeneralTrigger(void)
@@ -108,7 +105,7 @@ int32_t I_GeneralTrigger(void)
         || buttonMap.ButtonDown(gamefunc_Open)
         || mouseInactiveConditional(buttonMap.ButtonDown(gamefunc_Fire))
         || buttonMap.ButtonDown(gamefunc_Crouch)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START));
+        /*|| (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START))*/;
 }
 
 void I_GeneralTriggerClear(void)
@@ -118,7 +115,7 @@ void I_GeneralTriggerClear(void)
     buttonMap.ClearButton(gamefunc_Open);
     buttonMap.ClearButton(gamefunc_Fire);
     buttonMap.ClearButton(gamefunc_Crouch);
-    JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_START);
+    //JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_START);
 }
 
 
@@ -126,14 +123,14 @@ int32_t I_EscapeTrigger(void)
 {
     return
         inputState.GetKeyStatus(sc_Escape)
-        || (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START));
+        /*|| (JOYSTICK_GetGameControllerButtons()&(1<<GAMECONTROLLER_BUTTON_START))*/;
 }
 
 void I_EscapeTriggerClear(void)
 {
     inputState.keyFlushChars();
     inputState.ClearKeyStatus(sc_Escape);
-    JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_START);
+    //JOYSTICK_ClearGameControllerButton(1<<GAMECONTROLLER_BUTTON_START);
 }
 
 

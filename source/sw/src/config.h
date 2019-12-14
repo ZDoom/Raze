@@ -30,8 +30,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "compat.h"
 
 #include "gamecontrol.h"
-#include "keyboard.h"
-#include "control.h"
 
 BEGIN_SW_NS
 

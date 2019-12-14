@@ -1548,7 +1548,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_DRAW_Y:                 labelNum = rotatesprite_y_offset;           break;
         case USERDEFS_DRAW_YXASPECT:          labelNum = rotatesprite_yxaspect;           break;
         case USERDEFS_FOV:                    labelNum = r_fov;                          break;
-        case USERDEFS_GAMEPADACTIVE:          labelNum = (CONTROL_LastSeenInput == LastSeenInput::Joystick); break;
+        case USERDEFS_GAMEPADACTIVE:          labelNum = inputState.gamePadActive();     break;
 
         default: EDUKE32_UNREACHABLE_SECTION(labelNum = -1; break);
     }

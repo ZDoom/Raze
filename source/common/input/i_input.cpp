@@ -33,14 +33,9 @@
 **
 */
 
-#include "compat.h"
 #include <SDL.h>
 
-//#include "doomtype.h"
-//#include "doomdef.h"
-//#include "doomstat.h"
 #include "m_argv.h"
-//#include "v_video.h"
 
 #include "c_buttons.h"
 #include "d_event.h"
@@ -49,10 +44,6 @@
 #include "c_dispatch.h"
 #include "c_cvars.h"
 #include "keydef.h"
-//#include "dikeys.h"
-//#include "events.h"
-//#include "g_game.h"
-//#include "g_levellocals.h"
 #include "utf8.h"
 #include "menu/menu.h"
 

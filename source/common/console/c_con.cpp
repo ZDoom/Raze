@@ -37,7 +37,6 @@
 #include "basics.h"
 #include "zstring.h"
 #include "c_bind.h"
-#include "control.h"
 #include "gamecontrol.h"
 
 //=============================================================================
@@ -198,7 +197,7 @@ char const* C_CON_GetGameFuncOnJoystick(int gameFunc)
 
 FString C_CON_GetBoundKeyForLastInput(int gameFunc)
 {
-	if (CONTROL_LastSeenInput == LastSeenInput::Joystick)
+	if (inputState.gamePadActive())
 	{
 		FString name = C_CON_GetGameFuncOnJoystick(gameFunc);
 		if (name.IsNotEmpty())

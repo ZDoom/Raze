@@ -38,7 +38,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "player.h"
 #include "jsector.h"
-#include "control.h"
 #include "menus.h"
 #include "sw_strs.h"
 #include "pal.h"
