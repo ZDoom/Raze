@@ -93,9 +93,9 @@ set( PCH_SOURCES
 	src/text2.cpp
 	src/timer.cpp
 	src/trigdat.cpp
-	src/version.cpp
 	src/view.cpp
 	src/wasp.cpp
+	src/d_menu.cpp
 )
 
 if( MSVC )

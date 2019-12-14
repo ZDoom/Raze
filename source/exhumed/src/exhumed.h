@@ -278,7 +278,16 @@ struct GameInterface : ::GameInterface
     bool validate_hud(int) override { return true;  }
     void set_hud_layout(int size) override {}
     void set_hud_scale(int size) override {}
-    //FString statFPS() override;
+    void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
+    void MenuOpened() override;
+    void MenuSound(EMenuSounds snd) override;
+    void MenuClosed() override;
+    void StartGame(FGameStartup& gs) override;
+    bool CanSave() override;
+    FSavegameInfo GetSaveSig() override;
+    void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg);
+
+        //FString statFPS() override;
     //GameStats getStats() override;
 };
 

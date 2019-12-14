@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cd.h"
 #include "cdaudio.h"
 #include "input.h"
+#include "menu/menu.h"
 #include <string>
 
 #include <assert.h>
@@ -89,7 +90,6 @@ int plasma_C[5] = {0};
 
 short nMenuKeys[] = { sc_N, sc_L, sc_M, sc_V, sc_Q, sc_None }; // select a menu item using the keys. 'N' for New Gane, 'V' for voume etc. 'M' picks Training for some reason...
 
-int zoomsize = 0;
 
 void menu_ResetKeyTimer();
 
@@ -1243,88 +1243,9 @@ int menu_LoadGameMenu()
         fclose(fp);
     }
 
-    while (1)
-    {
-        menu_DoPlasma();
 
-        HandleAsync();
-
-        overwritesprite(80, 65, kMenuLoadGameTile, 0, 2, kPalNormal);
-
-        int spriteY = 90;
-        int textY = 98;
-
-        for (int i = 0; i < kMaxSaveSlots; i++)
-        {
-            int8_t shade = ((Sin((int)totalclock << 4) >> 9)* (i == nSlot)) + ((i != nSlot) * 31);
-            overwritesprite(55, spriteY, kMenuBlankTitleTile, shade, 2, kPalNormal);
-
-            myprintext(63, textY, nameList[i], 0);
-            textY += 22;
-            spriteY += 22;
-        }
-
-        int y = (nSlot * 22) + 78;
-
-        overwritesprite(35,  y, kMenuCursorTile, 0, 2, kPalNormal);
-        overwritesprite(233, y, kMenuCursorTile, 0, 10, kPalNormal);
-        videoNextPage();
-
-        if (I_EscapeTrigger())
-        {
-			I_EscapeTriggerClear();
-            PlayLocalSound(StaticSound[kSound33], 0);
-            return -1;
-        }
-
-        if (I_MenuUp())
-        {
-			I_MenuUpClear();
-            PlayLocalSound(StaticSound[kSound35], 0);
-            if (nSlot > 0) {
-                nSlot--;
-            }
-            else {
-                nSlot = kMaxSaveSlots - 1;
-            }
-        }
-
-		if (I_MenuDown())
-		{
-			I_MenuDownClear();
-			PlayLocalSound(StaticSound[kSound35], 0);
-            if (nSlot < kMaxSaveSlots - 1) {
-                nSlot++;
-            }
-            else {
-                nSlot = 0;
-            }
-        }
-
-		if (!I_AdvanceTrigger()) {
-            continue;
-        }
-
-        PlayLocalSound(StaticSound[kSound33], 0);
-		I_AdvanceTriggerClear();
-        inputState.ClearAllKeyStatus();
-        inputState.keyFlushChars();
-
-        if (nameList[nSlot][0] != '\0')
-        {
-            PlayLocalSound(StaticSound[33], 0);
-            return nSlot;
-        }
-
-        PlayLocalSound(4, 0);
-    }
 #endif
     return 0;
-}
-
-void menu_ResetKeyTimer()
-{
-    keytimer = (int)totalclock + 2400;
 }
 
 void menu_GameLoad2(FILE *fp, bool bIsDemo)
@@ -1435,296 +1356,6 @@ void menu_GameSave(int nSaveSlot)
         menu_GameSave2(fp);
         fclose(fp);
     }
-}
-
-void menu_ResetZoom()
-{
-    zoomsize = 0;
-    PlayLocalSound(StaticSound[kSound31], 0);
-}
-
-int menu_Menu(int nVal)
-{
-#if 0
-    GrabPalette();
-
-    int var_1C = 0;
-
-    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-
-    StopAllSounds();
-    StopLocalSound();
-
-    menu_ResetKeyTimer();
-
-    inputState.keyFlushChars();
-    inputState.ClearAllKeyStatus();
-
-    menu_ResetZoom();
-
-    short ptr[5];
-    memset(ptr, 1, sizeof(ptr));
-
-    // disable new game and load game if in multiplayer?
-    if (nNetPlayerCount)
-    {
-        ptr[1] = 0;
-        ptr[0] = 0;
-    }
-
-    // denote which menu item we've currently got selected
-    int nMenu = 0;
-
-    while (1)
-    {
-        HandleAsync();
-
-        // skip any disabled menu items so we're selecting the first active one
-        while (!ptr[nMenu])
-        {
-            nMenu++;
-            if (nMenu == 5) {
-                nMenu = 0;
-            }
-        }
-
-        // handle the menu zoom-in
-        if (zoomsize < 0x10000)
-        {
-            zoomsize += 4096;
-            if (zoomsize >= 0x10000) {
-                zoomsize = 0x10000;
-            }
-        }
-
-        // TODO: Uncomment after fixing demo playback
-        // menu idle timer
-        // if (!nVal && (int)totalclock > keytimer) {
-        //     return 9;
-        // }
-
-        // loc_39F54:
-        menu_DoPlasma();
-
-        int y = 65 - tilesiz[kMenuNewGameTile].y / 2;
-
-        // YELLOW loop - Draw the 5 menu options (NEW GAME, TRAINING etc)
-        for (int j = 0; j < 5; j++)
-        {
-            int8_t shade;
-
-            if (nMenu == j) { // currently selected menu item
-                shade = Sin((int)totalclock << 4) >> 9;
-            }
-            else if (ptr[j]) {
-                shade = 0;
-            }
-            else {
-                shade = 25;
-            }
-
-            picanm[j + kMenuNewGameTile].xofs = 0;
-            picanm[j + kMenuNewGameTile].yofs = 0;
-            rotatesprite(160 << 16, (y + tilesiz[j + kMenuNewGameTile].y) << 16, zoomsize, 0, kMenuNewGameTile + j, shade, 0, 2, 0, 0, xdim, ydim);
-
-            y += 22;
-        }
-
-        // tilesizx is 51
-        // tilesizy is 33
-
-        int markerY = (22 * nMenu) + 53;
-        overwritesprite(62,       markerY, kMenuCursorTile, 0, 2, kPalNormal);
-        overwritesprite(62 + 146, markerY, kMenuCursorTile, 0, 10, kPalNormal);
-
-        videoNextPage();
-
-        int l = 0; // edi
-
-        // ORANGE loop
-        for (l = 0; ; l++)
-        {
-            int nKey = nMenuKeys[l];
-            if (!nKey) {
-                break;
-            }
-
-            if (inputState.GetKeyStatus(nKey))
-            {
-                goto LABEL_21; // TEMP
-            }
-        }
-
-        // loc_3A0A7
-        while (I_EscapeTrigger())
-        {
-            HandleAsync();
-
-            PlayLocalSound(StaticSound[kSound33], 0);
-			I_EscapeTriggerClear();
-
-            if (nVal)
-            {
-                StopAllSounds();
-                PlayLocalSound(StaticSound[kSound33], 0);
-                MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
-                return -1;
-            }
-
-            l = 4;
-LABEL_21:
-
-            menu_ResetKeyTimer();
-
-            if (l != nMenu)
-            {
-                PlayLocalSound(StaticSound[kSound35], 0);
-				inputState.ClearKeyStatus(nMenuKeys[l]);
-                nMenu = l;
-            }
-        }
-
-        if (I_AdvanceTrigger())
-        {
-			I_AdvanceTriggerClear();
-            var_1C = 1;
-        }
-        else if (var_1C)
-        {
-            var_1C = 0;
-
-            PlayLocalSound(StaticSound[kSound33], 0);
-
-            switch (nMenu) // TODO - change var name?
-            {
-                case kMenuNewGame:
-                {
-                    if (nTotalPlayers > 1) {
-                        menu_ResetZoom();
-                        menu_ResetKeyTimer();
-                        break;
-                    }
-
-                    SavePosition = menu_NewGameMenu();
-                    if (SavePosition == -1) {
-                        menu_ResetZoom();
-                        menu_ResetKeyTimer();
-                        break;
-                    }
-
-                    FadeOut(1);
-                    StopAllSounds();
-
-                    StopAllSounds();
-                    PlayLocalSound(StaticSound[kSound33], 0);
-                    MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
-                    return 1;
-                }
-
-                case kMenuLoadGame:
-                {
-                    if (nTotalPlayers > 1) {
-                        menu_ResetZoom();
-                        menu_ResetKeyTimer();
-                        break;
-                    }
-
-                    SavePosition = menu_LoadGameMenu();
-
-                    if (SavePosition == -1) {
-                        menu_ResetZoom();
-                        menu_ResetKeyTimer();
-                        break;
-                    }
-
-                    StopAllSounds();
-
-                    StopAllSounds();
-                    PlayLocalSound(StaticSound[kSound33], 0);
-                    MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
-                    return 2;
-                }
-
-                case kMenuTraining:
-                {
-                    if (nTotalPlayers > 1) {
-                        menu_ResetZoom();
-                        menu_ResetKeyTimer();
-                        break;
-                    }
-
-                    StopAllSounds();
-                    PlayLocalSound(StaticSound[kSound33], 0);
-                    MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
-                    return 3;
-                }
-
-                case kMenuVolume:
-                {
-                    menu_AdjustVolume();
-                    menu_ResetZoom();
-                    menu_ResetKeyTimer();
-                    break;
-                }
-
-                case kMenuQuitGame:
-                {
-                    StopAllSounds();
-                    StopAllSounds();
-                    PlayLocalSound(StaticSound[kSound33], 0);
-                    MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
-                    return 0;
-                }
-
-                default:
-                    menu_ResetZoom();
-                    menu_ResetKeyTimer();
-                    break;
-            }
-        }
-
-        if (I_MenuUp())
-        {
-			I_MenuUpClear();
-            PlayLocalSound(StaticSound[kSound35], 0);
-            if (nMenu <= 0) {
-                nMenu = 4;
-            }
-            else {
-                nMenu--;
-            }
-
-            menu_ResetKeyTimer();
-        }
-
-		if (I_MenuDown())
-		{
-			I_MenuDownClear();
-			PlayLocalSound(StaticSound[kSound35], 0);
-            if (nMenu >= 4) {
-                nMenu = 0;
-            }
-            else {
-                nMenu++;
-            }
-
-            menu_ResetKeyTimer();
-        }
-
-		
-        // TODO - change to #defines
-		/* why are these cleares although they are never used anywhere?
-        if (KB_KeyDown[0x5c]) {
-            KB_KeyDown[0x5c] = 0;
-        }
-
-        if (KB_KeyDown[0x5d]) {
-            KB_KeyDown[0x5d] = 0;
-        }
-		*/
-    }
-#endif
-    return 0;// todo
 }
 
 #define kMaxCinemaPals	16
@@ -2016,11 +1647,13 @@ void GoToTheCinema(int nVal)
         }
     }
 
+#if 0
     if (ISDEMOVER) {
-        if (!waloff[cinematile]) {
-            tileCreate(cinematile, 320, 200);
-        }
+        //???
+        if (tilesiz[cinematile].x * tilesiz[cinematile].y == 0)
+            TileFiles.tileCreate(cinematile, 320, 200);
     }
+#endif
 
     FadeOut(kFalse);
     StopAllSounds();

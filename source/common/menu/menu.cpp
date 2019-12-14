@@ -58,6 +58,7 @@ void RegisterDukeMenus();
 void RegisterRedneckMenus();
 void RegisterBloodMenus();
 void RegisterSWMenus();
+void RegisterPSMenus();
 void RegisterLoadsaveMenus();
 void RegisterOptionMenus();
 extern bool rotatesprite_2doverride;
@@ -952,6 +953,7 @@ void M_Init (void)
 	RegisterRedneckMenus();
 	RegisterBloodMenus();
 	RegisterSWMenus();
+	RegisterPSMenus();
 	RegisterLoadsaveMenus();
 	RegisterOptionMenus();
 	timerSetCallback(M_Ticker);
