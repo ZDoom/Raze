@@ -84,9 +84,9 @@ LISTMENU "MainMenu"
 		centermenu
 		class "Exhumed.MainMenu"
 		linespacing 22
-		NativeTextItem "3460", "n", "StartGame 1"
+		NativeTextItem "3460", "n", "StartGame", 1
 		NativeTextItem "3461", "l", "LoadGameMenu"
-		NativeTextItem "3462", "m", "StartGame 3"
+		NativeTextItem "3462", "m", "StartGame", 3
 		NativeTextItem "3463", "v", "OptionsMenu"
 		NativeTextItem "3464", "q", "QuitMenu"
 	}
@@ -171,9 +171,9 @@ LISTMENU "IngameMenu"
 		centermenu
 		class "Exhumed.MainMenu"
 		linespacing 22
-		NativeTextItem "3460", "n", "StartGame 1"
+		NativeTextItem "3460", "n", "StartGame", 1
 		NativeTextItem "3461", "l", "LoadGameMenu"
-		NativeTextItem "3462", "m", "StartGame 3"
+		NativeTextItem "3462", "m", "StartGame", 3
 		NativeTextItem "3463", "v", "OptionsMenu"
 		NativeTextItem "3464", "q", "QuitMenu"
 	}

@@ -385,8 +385,6 @@ void M_StartControlPanel (bool makeSound)
 	BackbuttonTime = 0;
 	BackbuttonAlpha = 0;
 	DrawBackground = -1;
-	DMenu::MenuTime = -1;	
-	M_Ticker();	// This needs to be called once here to make sure that the menu actually has ticked before it gets drawn for the first time.
 }
 
 void Menu_Open(int playerid)
@@ -410,6 +408,8 @@ void M_ActivateMenu(DMenu *menu)
 		transition.StartTransition(DMenu::CurrentMenu, menu, MA_Advance);
 	}
 	DMenu::CurrentMenu = menu;
+	DMenu::MenuTime = -1;
+	M_Ticker();	// This needs to be called once here to make sure that the menu actually has ticked before it gets drawn for the first time.
 }
 
 //=============================================================================
@@ -420,7 +420,7 @@ void M_ActivateMenu(DMenu *menu)
 
 bool M_SetMenu(FName menu, int param, FName caller)
 {
-	if (DrawBackground == -1)
+		if (DrawBackground == -1)
 	{
 		if (menu == NAME_MainMenu) DrawBackground = 1;
 		else DrawBackground = 0;
