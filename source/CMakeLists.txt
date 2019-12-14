@@ -624,6 +624,7 @@ file( GLOB HEADER_FILES
 	common/filesystem/*.h
 	common/music/*.h
 	common/menu/*.h
+	common/input/*.h
 
 	build/src/*.h
 	thirdparty/include/*.h
@@ -837,6 +838,11 @@ set (PCH_SOURCES
 	common/menu/menuinput.cpp
 	common/menu/messagebox.cpp
 	common/menu/optionmenu.cpp
+	
+	common/input/i_gui.cpp
+	common/input/i_joystick.cpp
+	common/input/i_input.cpp
+	common/input/m_joy.cpp
 )
 
 if( MSVC )

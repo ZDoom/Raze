@@ -250,6 +250,9 @@ void CheckFrontend(int flags)
 	}
 }
 
+void I_StartupJoysticks();
+void I_ShutdownInput();
+int RunGame();
 
 int GameMain()
 {
@@ -257,6 +260,7 @@ int GameMain()
 	C_InitConsole(1024, 768, true);
 	FStringf logpath("logfile %sdemolition.log", M_GetDocumentsPath().GetChars());
 	C_DoCommand(logpath);
+	I_StartupJoysticks();
 
 #ifndef NETCODE_DISABLE
 	gHaveNetworking = !enet_initialize();
@@ -267,7 +271,7 @@ int GameMain()
 	int r;
 	try
 	{
-		r = CONFIG_Init();
+		r = RunGame();
 	}
 	catch (const std::runtime_error & err)
 	{
@@ -283,6 +287,7 @@ int GameMain()
 #ifndef NETCODE_DISABLE
 	if (gHaveNetworking) enet_deinitialize();
 #endif
+	I_ShutdownInput();
 	return r;
 }
 
@@ -328,7 +333,7 @@ void SetDefaultStrings()
 //
 //==========================================================================
 
-int CONFIG_Init()
+int RunGame()
 {
 	SetClipshapes();
 
@@ -526,288 +531,12 @@ int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm)
 	}
 	return 0;
 }
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
-int32_t MouseAnalogueAxes[MAXMOUSEAXES];
-int32_t JoystickFunctions[MAXJOYBUTTONSANDHATS][2];
-int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
-int32_t JoystickAnalogueAxes[MAXJOYAXES];
-int32_t JoystickAnalogueScale[MAXJOYAXES];
-int32_t JoystickAnalogueDead[MAXJOYAXES];
-int32_t JoystickAnalogueSaturate[MAXJOYAXES];
-int32_t JoystickAnalogueInvert[MAXJOYAXES];
-
-static const char* mouseanalogdefaults[MAXMOUSEAXES] =
-{
-"analog_turning",
-"analog_moving",
-};
-
-
-static const char* joystickclickeddefaults[MAXJOYBUTTONSANDHATS] =
-{
-"",
-"Inventory",
-"Jump",
-"Crouch",
-};
-
-
-static const char* joystickanalogdefaults[MAXJOYAXES] =
-{
-"analog_turning",
-"analog_moving",
-"analog_strafing",
-};
-
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-int32_t CONFIG_AnalogNameToNum(const char* func)
-{
-	if (!func)
-		return -1;
-
-	if (!Bstrcasecmp(func, "analog_turning"))
-	{
-		return analog_turning;
-	}
-	if (!Bstrcasecmp(func, "analog_strafing"))
-	{
-		return analog_strafing;
-	}
-	if (!Bstrcasecmp(func, "analog_moving"))
-	{
-		return analog_moving;
-	}
-	if (!Bstrcasecmp(func, "analog_lookingupanddown"))
-	{
-		return analog_lookingupanddown;
-	}
-
-	return -1;
-}
-
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-const char* CONFIG_AnalogNumToName(int32_t func)
-{
-	switch (func)
-	{
-	case analog_turning:
-		return "analog_turning";
-	case analog_strafing:
-		return "analog_strafing";
-	case analog_moving:
-		return "analog_moving";
-	case analog_lookingupanddown:
-		return "analog_lookingupanddown";
-	}
-
-	return NULL;
-}
-
-void CONFIG_SetupMouse(void)
-{
-	CONTROL_MouseEnabled    = (in_mouse && CONTROL_MousePresent);
-}
-
-
-void CONFIG_SetupJoystick(void)
-{
-	for (int i = 0; i < MAXJOYAXES; i++)
-	{
-		CONTROL_MapAnalogAxis(i, JoystickAnalogueAxes[i], controldevice_joystick);
-		CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][0], 0, controldevice_joystick);
-		CONTROL_MapDigitalAxis(i, JoystickDigitalFunctions[i][1], 1, controldevice_joystick);
-		CONTROL_SetAnalogAxisScale(i, JoystickAnalogueScale[i], controldevice_joystick);
-		CONTROL_SetAnalogAxisInvert(i, JoystickAnalogueInvert[i], controldevice_joystick);
-	}
-	
-	CONTROL_JoystickEnabled = (in_joystick && CONTROL_JoyPresent);
-
-	// JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-	for (int i=0; i<joystick.numAxes; i++)
-		joySetDeadZone(i,JoystickAnalogueDead[i],JoystickAnalogueSaturate[i]);
-
-}
-
-static void CONFIG_SetJoystickButtonFunction(int i, int j, int function)
-{
-	JoystickFunctions[i][j] = function;
-	//CONTROL_MapButton(function, i, j, controldevice_joystick);
-}
-static void CONFIG_SetJoystickAnalogAxisScale(int i, int scale)
-{
-	JoystickAnalogueScale[i] = scale;
-	CONTROL_SetAnalogAxisScale(i, scale, controldevice_joystick);
-}
-static void CONFIG_SetJoystickAnalogAxisInvert(int i, int invert)
-{
-	JoystickAnalogueInvert[i] = invert;
-	CONTROL_SetAnalogAxisInvert(i, invert, controldevice_joystick);
-}
-static void CONFIG_SetJoystickAnalogAxisDeadSaturate(int i, int dead, int saturate)
-{
-	JoystickAnalogueDead[i] = dead;
-	JoystickAnalogueSaturate[i] = saturate;
-	joySetDeadZone(i, dead, saturate);
-}
-static void CONFIG_SetJoystickDigitalAxisFunction(int i, int j, int function)
-{
-	JoystickDigitalFunctions[i][j] = function;
-	CONTROL_MapDigitalAxis(i, function, j, controldevice_joystick);
-}
-static void CONFIG_SetJoystickAnalogAxisFunction(int i, int function)
-{
-	JoystickAnalogueAxes[i] = function;
-	CONTROL_MapAnalogAxis(i, function, controldevice_joystick);
-}
-
-struct GameControllerButtonSetting
-{
-	GameControllerButton button;
-	int function;
-
-	void apply() const
-	{
-		CONFIG_SetJoystickButtonFunction(button, 0, function);
-	}
-};
-struct GameControllerAnalogAxisSetting
-{
-	GameControllerAxis axis;
-	int function;
-
-	void apply() const
-	{
-		CONFIG_SetJoystickAnalogAxisFunction(axis, function);
-	}
-};
-struct GameControllerDigitalAxisSetting
-{
-	GameControllerAxis axis;
-	int polarity;
-	int function;
-
-	void apply() const
-	{
-		CONFIG_SetJoystickDigitalAxisFunction(axis, polarity, function);
-	}
-};
-
-
-void CONFIG_SetGameControllerDefaultsClear()
-{
-	for (int i = 0; i < MAXJOYBUTTONSANDHATS; i++)
-	{
-		CONFIG_SetJoystickButtonFunction(i, 0, -1);
-		CONFIG_SetJoystickButtonFunction(i, 1, -1);
-	}
-
-	for (int i = 0; i < MAXJOYAXES; i++)
-	{
-		CONFIG_SetJoystickAnalogAxisScale(i, DEFAULTJOYSTICKANALOGUESCALE);
-		CONFIG_SetJoystickAnalogAxisInvert(i, 0);
-		CONFIG_SetJoystickAnalogAxisDeadSaturate(i, DEFAULTJOYSTICKANALOGUEDEAD, DEFAULTJOYSTICKANALOGUESATURATE);
-
-		CONFIG_SetJoystickDigitalAxisFunction(i, 0, -1);
-		CONFIG_SetJoystickDigitalAxisFunction(i, 1, -1);
-
-		CONFIG_SetJoystickAnalogAxisFunction(i, -1);
-	}
-}
-
-static void CONFIG_SetGameControllerAxesModern()
-{
-	static GameControllerAnalogAxisSetting const analogAxes[] =
-	{
-		{ GAMECONTROLLER_AXIS_LEFTX, analog_strafing },
-		{ GAMECONTROLLER_AXIS_LEFTY, analog_moving },
-		{ GAMECONTROLLER_AXIS_RIGHTX, analog_turning },
-		{ GAMECONTROLLER_AXIS_RIGHTY, analog_lookingupanddown },
-	};
-
-	CONFIG_SetJoystickAnalogAxisScale(GAMECONTROLLER_AXIS_RIGHTX, 32768 + 16384);
-	CONFIG_SetJoystickAnalogAxisScale(GAMECONTROLLER_AXIS_RIGHTY, 32768 + 16384);
-
-	for (auto const& analogAxis : analogAxes)
-		analogAxis.apply();
-}
-
 
 
 void CONFIG_InitMouseAndController()
 {
-	memset(JoystickFunctions, -1, sizeof(JoystickFunctions));
-	memset(JoystickDigitalFunctions, -1, sizeof(JoystickDigitalFunctions));
-
-	for (int i = 0; i < MAXMOUSEAXES; i++)
-	{
-		MouseAnalogueAxes[i] = CONFIG_AnalogNameToNum(mouseanalogdefaults[i]);
-		CONTROL_MapAnalogAxis(i, MouseAnalogueAxes[i], controldevice_mouse);
-	}
-	CONFIG_SetupMouse();
-	CONFIG_SetupJoystick();
 	inputState.ClearKeysDown();
 	inputState.keyFlushChars();
 	inputState.keyFlushScans();
 }
 
-
-void CONFIG_PutNumber(const char* key, int number)
-{
-	FStringf str("%d", number);
-	GameConfig->SetValueForKey(key, str);
-}
-
-void CONFIG_WriteControllerSettings()
-{
-	FString buf;
-
-
-	if (in_joystick)
-	{
-		FString section = currentGame + ".ControllerSettings";
-		GameConfig->SetSection(section);
-		for (int dummy = 0; dummy < MAXJOYAXES; dummy++)
-		{
-			if (CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]))
-			{
-				buf.Format("ControllerAnalogAxes%d", dummy);
-				GameConfig->SetValueForKey(buf, CONFIG_AnalogNumToName(JoystickAnalogueAxes[dummy]));
-			}
-
-			if (buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][1]))
-			{
-				buf.Format("ControllerDigitalAxes%d_1", dummy);
-				GameConfig->SetValueForKey(buf, buttonMap.GetButtonName(JoystickDigitalFunctions[dummy][1]));
-			}
-
-			buf.Format("ControllerAnalogScale%d", dummy);
-			CONFIG_PutNumber(buf, JoystickAnalogueScale[dummy]);
-
-			buf.Format("ControllerAnalogInvert%d", dummy);
-			CONFIG_PutNumber(buf, JoystickAnalogueInvert[dummy]);
-
-			buf.Format("ControllerAnalogDead%d", dummy);
-			CONFIG_PutNumber(buf, JoystickAnalogueDead[dummy]);
-
-			buf.Format("ControllerAnalogSaturate%d", dummy);
-			CONFIG_PutNumber(buf, JoystickAnalogueSaturate[dummy]);
-		}
-	}
-}

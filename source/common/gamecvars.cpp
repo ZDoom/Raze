@@ -297,10 +297,7 @@ CUSTOM_CVARD(Bool, in_joystick, false, CVAR_ARCHIVE||CVAR_GLOBALCONFIG|CVAR_NOIN
 	CONTROL_JoystickEnabled = (self && CONTROL_JoyPresent);
 }
 
-CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the mouse if it is present")
-{
-	CONTROL_MouseEnabled = (self && CONTROL_MousePresent);
-}
+CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the mouse if it is present")
 
 CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
 

@@ -83,6 +83,8 @@ void InputState::AddEvent(const event_t *ev)
 			case KEY_MOUSE4	: mouseSetBit(THUMB_MOUSE, ev->type == EV_KeyDown); break;
 			case KEY_MWHEELUP: mouseSetBit(WHEELUP_MOUSE, ev->type == EV_KeyDown); break;
 			case KEY_MWHEELDOWN: mouseSetBit(WHEELDOWN_MOUSE, ev->type == EV_KeyDown); break;
+			case KEY_MWHEELLEFT: mouseSetBit(WHEELLEFT_MOUSE, ev->type == EV_KeyDown); break;
+			case KEY_MWHEELRIGHT: mouseSetBit(WHEELRIGHT_MOUSE, ev->type == EV_KeyDown); break;
 			case KEY_MOUSE5: mouseSetBit(THUMB2_MOUSE, ev->type == EV_KeyDown); break;
 			default: break;
 		}

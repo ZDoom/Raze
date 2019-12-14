@@ -18,8 +18,6 @@
 #include "pragmas.h"
 
 bool CONTROL_Started         = false;
-bool CONTROL_MouseEnabled    = false;
-bool CONTROL_MousePresent    = false;
 bool CONTROL_JoyPresent      = false;
 bool CONTROL_JoystickEnabled = false;
 
@@ -368,7 +366,7 @@ static void CONTROL_PollDevices(ControlInfo *info)
 {
     memset(info, 0, sizeof(ControlInfo));
 
-    if (CONTROL_MouseEnabled)
+    if (in_mouse)
         inputState.GetMouseDelta(info);
 
     if (CONTROL_JoystickEnabled)
@@ -531,8 +529,6 @@ bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ti
 
     CONTROL_NumMouseButtons = MAXMOUSEBUTTONS;
     mouseInit();
-    CONTROL_MousePresent = ((inputdevices & 2) == 2);
-    CONTROL_MouseEnabled    = CONTROL_MousePresent;
 
     CONTROL_ResetJoystickValues();
 
