@@ -59,127 +59,6 @@ static int32_t CONTROL_GetTime(void)
     return t;
 }
 
-void CONTROL_MapAnalogAxis(int whichaxis, int whichanalog, controldevice device)
-{
-    controlaxismaptype *set;
-
-    if ((unsigned)whichanalog >= (unsigned)analog_maxtype && whichanalog != -1)
-    {
-        //Error("CONTROL_MapAnalogAxis: analog function %d out of valid range for %d analog functions.",
-        //		whichanalog, analog_maxtype);
-        return;
-    }
-
-    switch (device)
-    {
-    case controldevice_joystick:
-        if ((unsigned)whichaxis >= (unsigned)MAXJOYAXES)
-        {
-            //Error("CONTROL_MapAnalogAxis: axis %d out of valid range for %d joystick axes.",
-            //		whichaxis, MAXJOYAXES);
-            return;
-        }
-
-        set = CONTROL_JoyAxesMap;
-        break;
-
-    default:
-        //Error("CONTROL_MapAnalogAxis: invalid controller device type");
-        return;
-    }
-
-    set[whichaxis].analogmap = whichanalog;
-}
-
-void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldevice device)
-{
-    int32_t *set;
-
-    switch (device)
-    {
-    case controldevice_joystick:
-        if ((unsigned) whichaxis >= (unsigned) MAXJOYAXES)
-        {
-            //Error("CONTROL_SetAnalogAxisScale: axis %d out of valid range for %d joystick axes.",
-            //		whichaxis, MAXJOYAXES);
-            return;
-        }
-
-        set = CONTROL_JoyAxesScale;
-        break;
-
-    default:
-        //Error("CONTROL_SetAnalogAxisScale: invalid controller device type");
-        return;
-    }
-
-    set[whichaxis] = axisscale;
-}
-
-void CONTROL_SetAnalogAxisInvert(int32_t whichaxis, int32_t invert, controldevice device)
-{
-    int8_t * set;
-
-    switch (device)
-    {
-    case controldevice_joystick:
-        if ((unsigned) whichaxis >= (unsigned) MAXJOYAXES)
-        {
-            //Error("CONTROL_SetAnalogAxisInvert: axis %d out of valid range for %d joystick axes.",
-            //		whichaxis, MAXJOYAXES);
-            return;
-        }
-
-        set = CONTROL_JoyAxesInvert;
-        break;
-
-    default:
-        //Error("CONTROL_SetAnalogAxisInvert: invalid controller device type");
-        return;
-    }
-
-    set[whichaxis] = invert;
-}
-
-void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t direction, controldevice device)
-{
-    controlaxismaptype *set;
-
-    if (CONTROL_CheckRange(whichfunction)) whichfunction = AXISUNDEFINED;
-
-    switch (device)
-    {
-    case controldevice_joystick:
-        if ((unsigned) whichaxis >= (unsigned) MAXJOYAXES)
-        {
-            //Error("CONTROL_MapDigitalAxis: axis %d out of valid range for %d joystick axes.",
-            //		whichaxis, MAXJOYAXES);
-            return;
-        }
-
-        set = CONTROL_JoyAxesMap;
-        break;
-
-    default:
-        //Error("CONTROL_MapDigitalAxis: invalid controller device type");
-        return;
-    }
-
-    switch (direction)  	// JBF: this is all very much a guess. The ASM puzzles me.
-    {
-    case axis_up:
-    case axis_left:
-        set[whichaxis].minmap = whichfunction;
-        break;
-    case axis_down:
-    case axis_right:
-        set[whichaxis].maxmap = whichfunction;
-        break;
-    default:
-        break;
-    }
-}
-
 void CONTROL_ClearAssignments(void)
 {
     memset(CONTROL_JoyAxes,             0,               sizeof(CONTROL_JoyAxes));
@@ -453,37 +332,6 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
     }
 }
 
-int32_t CONTROL_GetGameControllerDigitalAxisPos(int32_t axis)
-{
-    if (!joystick.isGameController)
-        return 0;
-
-    return CONTROL_JoyAxes[axis].digital > 0 && !CONTROL_JoyAxes[axis].digitalClearedP;
-}
-int32_t CONTROL_GetGameControllerDigitalAxisNeg(int32_t axis)
-{
-    if (!joystick.isGameController)
-        return 0;
-
-    return CONTROL_JoyAxes[axis].digital < 0 && !CONTROL_JoyAxes[axis].digitalClearedN;
-}
-
-void CONTROL_ClearGameControllerDigitalAxisPos(int32_t axis)
-{
-    if (!joystick.isGameController)
-        return;
-
-    CONTROL_JoyAxes[axis].digitalClearedP = 1;
-}
-void CONTROL_ClearGameControllerDigitalAxisNeg(int32_t axis)
-{
-    if (!joystick.isGameController)
-        return;
-
-    CONTROL_JoyAxes[axis].digitalClearedN = 1;
-}
-
-
 static void CONTROL_GetFunctionInput(void)
 {
     CONTROL_ButtonFunctionState(CONTROL_ButtonFlags);
@@ -504,11 +352,6 @@ static void CONTROL_ResetJoystickValues()
     CONTROL_JoystickEnabled = CONTROL_JoyPresent = !!((inputdevices & 4) >> 2);
 }
 
-void CONTROL_ScanForControllers()
-{
-    joyScanDevices();
-    CONTROL_ResetJoystickValues();
-}
 
 bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ticspersecond)
 {
