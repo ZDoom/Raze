@@ -1701,6 +1701,61 @@ static int32_t check_filename_casing(void)
 
 int32_t r_maxfpsoffset = 0;
 
+void PatchDemoStrings()
+{
+    if (!ISDEMOVER)
+        return;
+
+    if (EXHUMED) {
+        gString[60] = "PICK UP A COPY OF EXHUMED";
+    }
+    else {
+        gString[60] = "PICK UP A COPY OF POWERSLAVE";
+    }
+
+    gString[61] = "TODAY TO CONTINUE THE ADVENTURE!";
+    gString[62] = "MORE LEVELS, NASTIER CREATURES";
+    gString[63] = "AND THE EVIL DOINGS OF THE";
+    gString[64] = "KILMAAT AWAIT YOU IN THE FULL";
+    gString[65] = "VERSION OF THE GAME.";
+    gString[66] = "TWENTY LEVELS, PLUS 12 NETWORK";
+    gString[67] = "PLAY LEVELS CAN BE YOURS!";
+    gString[68] = "END";
+}
+
+void ExitGame()
+{
+    if (bRecord) {
+        fclose(vcrfp);
+    }
+
+    FadeSong();
+    if (CDplaying()) {
+        fadecdaudio();
+    }
+
+    StopAllSounds();
+    StopLocalSound();
+    mysaveconfig();
+
+    if (bSerialPlay)
+    {
+        if (nNetPlayerCount != 0) {
+            bSendBye = kTrue;
+            UpdateSerialInputs();
+        }
+    }
+    else
+    {
+        if (nNetPlayerCount != 0) {
+            SendGoodbye();
+        }
+    }
+
+    ShutDown();
+    exit(0);
+}
+
 static int32_t nonsharedtimer;
 
 void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
@@ -1905,6 +1960,7 @@ int GameInterface::app_main()
 
 
 
+    PatchDemoStrings();
     // loc_115F5:
     nItemTextIndex = FindGString("ITEMS");
     nFirstPassword = FindGString("PASSWORDS");
@@ -2508,34 +2564,8 @@ LOOP3:
         fps++;
     }
 EXITGAME:
-    if (bRecord) {
-        fclose(vcrfp);
-    }
 
-    FadeSong();
-    if (CDplaying()) {
-        fadecdaudio();
-    }
-
-    StopAllSounds();
-    StopLocalSound();
-    mysaveconfig();
-
-    if (bSerialPlay)
-    {
-        if (nNetPlayerCount != 0) {
-            bSendBye = kTrue;
-            UpdateSerialInputs();
-        }
-    }
-    else
-    {
-        if (nNetPlayerCount != 0) {
-            SendGoodbye();
-        }
-    }
-
-    ShutDown();
+    ExitGame();
     return 0;
 }
 

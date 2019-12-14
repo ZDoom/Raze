@@ -2016,6 +2016,12 @@ void GoToTheCinema(int nVal)
         }
     }
 
+    if (ISDEMOVER) {
+        if (!waloff[cinematile]) {
+            tileCreate(cinematile, 320, 200);
+        }
+    }
+
     FadeOut(kFalse);
     StopAllSounds();
     NoClip();
@@ -2095,6 +2101,11 @@ void GoToTheCinema(int nVal)
 
     GrabPalette();
     Clip();
+
+    // quit the game if we've finished level 4 and displayed the advert text
+    if (ISDEMOVER && nVal == 3) {
+        ExitGame();
+    }
 }
 
 

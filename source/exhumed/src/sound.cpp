@@ -460,7 +460,8 @@ int LoadSound(const char *sound)
     }
     else
     {
-        Printf("Unable to open sound '%s'!\n", buffer);
+        if (!ISDEMOVER)  // demo tries to load sound files it doesn't have
+            Printf("Unable to open sound '%s'!\n", buffer);
         SoundBuf[i] = NULL;
         SoundLen[i] = 0;
         //return hVoc;
