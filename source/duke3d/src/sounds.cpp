@@ -101,7 +101,7 @@ void cacheAllSounds(void)
 
 static inline int S_GetPitch(int num)
 {
-    auto const* snd = (sound_t*)soundEngine->GetUserData(num);
+    auto const* snd = (sound_t*)soundEngine->GetUserData(num+1);
     int const   range = abs(snd->pitchEnd - snd->pitchStart);
 
     return (range == 0) ? snd->pitchStart : min(snd->pitchStart, snd->pitchEnd) + rand() % range;
@@ -154,6 +154,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
     sndinf->volAdjust = clamp(distance, INT16_MIN, INT16_MAX);
     sfx->Volume = volume;
     sfx->NearLimit = 4;
+    sfx->bTentative = false;
     return 0;
 }
 
@@ -227,8 +228,12 @@ boost:
         // Now calculate the virtual position in sound system coordinates.
         FVector3 sndvec = { float(pos->x - cam->x), (pos->z - cam->z) / 16.f, float(pos->y - cam->y) };   // distance vector. Note that the z-coordinate has different precision.
         FVector3 campos = { float(pos->x), (cam->z) / 16.f, float(cam->y) };                              // camera position
-        sndvec *= float(sndist) / orgsndist;                                                // adjust by what was calculated above;
-        *sndPos = campos + sndvec;                                                          // final sound pos - still in Build fixed point coordinates.
+        if (orgsndist > 0)
+        {
+            sndvec *= float(sndist) / orgsndist;                                                // adjust by what was calculated above;
+            *sndPos = campos + sndvec;                                                          // final sound pos - still in Build fixed point coordinates.
+        }
+        else *sndPos = campos;
         *sndPos *= (1.f / 16); sndPos->Z = -sndPos->Z;                                      // The sound engine works with Doom's coordinate system so do the necessary conversions
     }
 
@@ -368,6 +373,7 @@ void S_Update(void)
     }
     listener.ListenerObject = ud.camerasprite == -1 ? nullptr : &sprite[ud.camerasprite];
     soundEngine->SetListener(listener);
+    soundEngine->UpdateSounds((int)totalclock);
 }
 
 

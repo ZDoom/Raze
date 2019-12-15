@@ -473,6 +473,7 @@ int RunGame()
 	GStrings.LoadStrings();
 	V_InitFonts();
 	C_CON_SetAliases();
+	sfx_empty = fileSystem.FindFile("demolition/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
 	Mus_Init();
 	InitStatistics();
 	M_Init();
