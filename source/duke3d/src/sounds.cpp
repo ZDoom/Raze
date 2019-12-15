@@ -41,7 +41,10 @@ class DukeSoundEngine : public SoundEngine
     TArray<uint8_t> ReadSound(int lumpnum);
 
 public:
-    DukeSoundEngine() = default;
+    DukeSoundEngine()
+    {
+        S_Rolloff = { ROLLOFF_Linear, 576, 1088 };  // These are the original values derived from the DN3D source, but the lower end looks like a bug. Needs checking and maybe an option.
+    }
 };
 
 //==========================================================================
@@ -137,11 +140,13 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
     if (sndinf->flags & SF_LOOP)
         sndinf->flags |= SF_ONEINST_INTERNAL;
 
+    sfx->lumpnum = fileSystem.FindFile(filename);
     sndinf->pitchStart = clamp(minpitch, INT16_MIN, INT16_MAX);
     sndinf->pitchEnd = clamp(maxpitch, INT16_MIN, INT16_MAX);
     sndinf->priority = priority & 255;
     sndinf->volAdjust = clamp(distance, INT16_MIN, INT16_MAX);
     sfx->Volume = volume;
+    sfx->NearLimit = 4;
     return 0;
 }
 
@@ -155,21 +160,22 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum,
                              const vec3_t *cam, const vec3_t *pos, int *distPtr, FVector3 *sndPos)
 {
-    // Todo: Some of this hackery really should be done using rolloff and attenuation instead of messing around with the sound origin.
+    // There's a lot of hackery going on here that could be mapped to rolloff and attenuation parameters.
+    // However, ultimately rolloff would also just reposition the sound source so this can remain as it is.
+
     int orgsndist = 0, sndang = 0, sndist = 0, explosion = 0;
     auto const* snd = (sound_t*)soundEngine->GetUserData(soundNum);
     int userflags = snd->flags;
     int dist_adjust = snd->volAdjust;
 
-    if (PN(spriteNum) == APLAYER && P_Get(spriteNum) == screenpeek)
-        goto sound_further_processing;
+    if (PN(spriteNum) != APLAYER || P_Get(spriteNum) != screenpeek)
+    {
+        orgsndist = sndist = FindDistance3D(cam->x - pos->x, cam->y - pos->y, (cam->z - pos->z));
 
-    orgsndist = sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z));
+        if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && S_IsAmbientSFX(spriteNum) && (sector[SECT(spriteNum)].lotag & 0xff) < 9)  // ST_9_SLIDING_ST_DOOR
+            sndist = divscale14(sndist, SHT(spriteNum) + 1);
+    }
 
-    if ((userflags & (SF_GLOBAL|SF_DTAG)) != SF_GLOBAL && S_IsAmbientSFX(spriteNum) && (sector[SECT(spriteNum)].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
-        sndist = divscale14(sndist, SHT(spriteNum)+1);
-
-sound_further_processing:
     sndist += dist_adjust;
     if (sndist < 0)
         sndist = 0;
@@ -199,8 +205,10 @@ boost:
         }
     }
 
-    if ((userflags & (SF_GLOBAL|SF_DTAG)) == SF_GLOBAL || sndist < ((255-LOUDESTVOLUME) << 6))
-        sndist = ((255-LOUDESTVOLUME) << 6);
+    // Here the sound distance was clamped to a minimum of 144*4. 
+    // It's better to handle rolloff in the backend instead of whacking the sound origin here.
+    // That way the lower end can be made customizable instead of losing all precision right here at the source.
+    if (sndist < 0) sndist = 0;
 
     if (distPtr)
     {
@@ -209,8 +217,8 @@ boost:
 
     if (sndPos)
     {
-        // Now calculate the position in sound system coordinates.
-        FVector3 sndvec = { float(pos->x - cam->x), (pos->z - cam->z) / 16.f, float(pos->y - cam->y) };   // distance vector
+        // Now calculate the virtual position in sound system coordinates.
+        FVector3 sndvec = { float(pos->x - cam->x), (pos->z - cam->z) / 16.f, float(pos->y - cam->y) };   // distance vector. Note that the z-coordinate has different precision.
         FVector3 campos = { float(pos->x), (cam->z) / 16.f, float(cam->y) };                              // camera position
         sndvec *= float(sndist) / orgsndist;                                                // adjust by what was calculated above;
         *sndPos = campos + sndvec;                                                          // final sound pos - still in Build fixed point coordinates.
@@ -445,8 +453,9 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, bool looped)
     }
 
     // Now 
+    float attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
     auto chflg = ((userflags & SF_LOOP) || looped) ? CHAN_AUTO | CHAN_LOOP : CHAN_AUTO;
-    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, chflg, sndnum+1, 1.f, 1.f, nullptr, S_ConvertPitch(pitch));
+    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, chflg, sndnum+1, 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
     if (!chan) return -1;
     return 0;
 }

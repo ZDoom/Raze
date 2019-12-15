@@ -410,6 +410,11 @@ public:
 		return false;
 	}
 
+	void SetDefaultRolloff(FRolloffInfo* ro)
+	{
+		S_Rolloff = *ro;
+	}
+
 	void ChannelVirtualChanged(FISoundChannel* ichan, bool is_virtual);
 	FString ListSoundChannels();
 
@@ -422,7 +427,7 @@ public:
 	int FindSoundByResID(int rid);
 	int FindSoundNoHash(const char* logicalname);
 	int FindSoundByLump(int lump);
-	int AddSoundLump(const char* logicalname, int lump, int CurrentPitchMask, int resid = -1);
+	int AddSoundLump(const char* logicalname, int lump, int CurrentPitchMask, int resid = -1, int nearlimit = 2);
 	int FindSoundTentative(const char* name);
 	void CacheRandomSound(sfxinfo_t* sfx);
 	unsigned int GetMSLength(FSoundID sound);

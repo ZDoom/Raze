@@ -1522,7 +1522,7 @@ int SoundEngine::FindSoundByLump(int lump)
 // Adds a new sound mapping to S_sfx.
 //==========================================================================
 
-int SoundEngine::AddSoundLump(const char* logicalname, int lump, int CurrentPitchMask, int resid)
+int SoundEngine::AddSoundLump(const char* logicalname, int lump, int CurrentPitchMask, int resid, int nearlimit)
 {
 	S_sfx.Reserve(1);
 	sfxinfo_t &newsfx = S_sfx.Last();
@@ -1536,7 +1536,7 @@ int SoundEngine::AddSoundLump(const char* logicalname, int lump, int CurrentPitc
 	newsfx.Volume = 1;
 	newsfx.Attenuation = 1;
 	newsfx.PitchMask = CurrentPitchMask;
-	newsfx.NearLimit = 2;
+	newsfx.NearLimit = nearlimit;
 	newsfx.LimitRange = 256 * 256;
 	newsfx.bRandomHeader = false;
 	newsfx.bLoadRAW = false;
