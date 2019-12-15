@@ -43,7 +43,9 @@ class DukeSoundEngine : public SoundEngine
 public:
     DukeSoundEngine()
     {
-        S_Rolloff = { ROLLOFF_Linear, 576, 1088 };  // These are the original values derived from the DN3D source, but the lower end looks like a bug. Needs checking and maybe an option.
+        S_Rolloff.RolloffType = ROLLOFF_Doom;   // Seems like Duke uses the same rolloff type as Doom.
+        S_Rolloff.MinDistance = 144;            // was originally 576 which looks like a bug and sounds like crap.
+        S_Rolloff.MaxDistance = 1088;
     }
 };
 
@@ -353,7 +355,7 @@ void S_Update(void)
 
     if (c != nullptr)
     {
-        listener.angle = (float)ca * pi::pi() / 2048; // todo: Check value range for angle.
+        listener.angle = (float)ca * pi::pi() / 1024; // Build uses a period of 2048.
         listener.velocity.Zero();
         listener.position = { c->x / 16.f, c->z / 256.f, -c->y / 16.f };
         listener.underwater = false; 
