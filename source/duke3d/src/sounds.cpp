@@ -90,7 +90,7 @@ void S_SoundStartup(void)
 	snd_fxvolume.Callback();
 
 	snd_reversestereo.Callback();
-    FX_SetCallBack(S_Callback);
+    //FX_SetCallBack(S_Callback);
     FX_SetPrintf(OSD_Printf);
 }
 
@@ -116,51 +116,6 @@ void S_PauseSounds(bool paused)
         for (auto & voice : g_sounds[i].voices)
             if (voice.id > 0)
                 FX_PauseVoice(voice.id, paused);
-    }
-}
-
-void S_Cleanup(void)
-{
-    static uint32_t ldnum = 0;
-
-    while (ldnum < dnum)
-    {
-        uint32_t num = dq[ldnum++ & (DQSIZE - 1)];
-
-        // negative index is RTS playback
-        if ((int32_t)num < 0)
-        {
-            continue;
-        }
-
-        // num + (MAXSOUNDS*MAXSOUNDINSTANCES) is a sound played globally
-        // for which there was no open slot to keep track of the voice
-        if (num >= (MAXSOUNDS*MAXSOUNDINSTANCES))
-        {
-            continue;
-        }
-
-        int const voiceindex = num & (MAXSOUNDINSTANCES - 1);
-
-        num = (num - voiceindex) / MAXSOUNDINSTANCES;
-
-        auto &snd   = g_sounds[num];
-        auto &voice = snd.voices[voiceindex];
-
-        int const spriteNum = voice.owner;
-
-        if (EDUKE32_PREDICT_FALSE(snd.num > MAXSOUNDINSTANCES))
-            OSD_Printf(OSD_ERROR "S_Cleanup(): num exceeds MAXSOUNDINSTANCES! g_sounds[%d].num %d wtf?\n", num, snd.num);
-        else if (snd.num > 0)
-            --snd.num;
-
-        // MUSICANDSFX uses t_data[0] to control restarting the sound
-        // CLEAR_SOUND_T0
-        if (spriteNum != -1 && S_IsAmbientSFX(spriteNum) && sector[SECT(spriteNum)].lotag < 3)  // ST_2_UNDERWATER
-            actor[spriteNum].t_data[0] = 0;
-
-        S_SetProperties(&voice, -1, 0, UINT16_MAX, 0);
-
     }
 }
 
@@ -211,74 +166,105 @@ static inline int S_GetPitch(int num)
     return (range == 0) ? snd.ps : min(snd.ps, snd.pe) + rand() % range;
 }
 
-static int S_TakeSlot(int soundNum)
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+float S_ConvertPitch(int lpitch)
 {
-    S_Cleanup();
+    return pow(2, lpitch / 1200.);   // I hope I got this right that ASS uses a linear scale where 1200 is a full octave.
+}
 
-    uint16_t dist  = 0;
-    uint16_t clock = 0;
+//==========================================================================
+//
+// 
+//
+//==========================================================================
 
-    int bestslot = 0;
-    int slot     = 0;
+static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum, int angle,
+                             const vec3_t *cam, const vec3_t *pos, int *distPtr, FVector3 *sndPos)
+{
+    // Todo: Some of this hackery really should be done using rolloff and attenuation instead of messing around with the sound origin.
+    int orgsndist = 0, sndang = 0, sndist = 0, explosion = 0;
+    int userflags = soundEngine->GetUserFlags(soundNum);
+    int dist_adjust = soundEngine->GetUserData(soundNum);
 
-    auto &snd = g_sounds[soundNum];
+    if (PN(spriteNum) == APLAYER && P_Get(spriteNum) == screenpeek)
+        goto sound_further_processing;
 
-    while (slot < MAXSOUNDINSTANCES && snd.voices[slot].id > 0)
+    orgsndist = sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z));
+
+    if ((userflags & (SF_GLOBAL|SF_DTAG)) != SF_GLOBAL && S_IsAmbientSFX(spriteNum) && (sector[SECT(spriteNum)].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
+        sndist = divscale14(sndist, SHT(spriteNum)+1);
+
+sound_further_processing:
+    sndist += dist_adjust;
+    if (sndist < 0)
+        sndist = 0;
+
+    if (!FURY && sectNum > -1 && sndist && PN(spriteNum) != MUSICANDSFX
+        && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (24 << 8), SECT(spriteNum)))
+        sndist += sndist>>5;
+
+    if ((userflags & (SF_GLOBAL|SF_DTAG)) == (SF_GLOBAL|SF_DTAG))
     {
-        auto &voice = snd.voices[slot];
+boost:
+        int const sdist = dist_adjust ? dist_adjust : 6144;
 
-        if (voice.dist > dist || (voice.dist == dist && voice.clock > clock))
+        explosion = true;
+
+        if (sndist > sdist)
+            sndist = sdist;
+    }
+    else if (!FURY)
+    {
+        switch (DYNAMICSOUNDMAP(soundNum))
         {
-            clock = voice.clock;
-            dist  = voice.dist;
-
-            bestslot = slot;
+            case PIPEBOMB_EXPLODE__STATIC:
+            case LASERTRIP_EXPLODE__STATIC:
+            case RPG_EXPLODE__STATIC:
+                goto boost;
         }
-
-        slot++;
     }
 
-    if (slot != MAXSOUNDINSTANCES)
-        return slot;
+    if ((userflags & (SF_GLOBAL|SF_DTAG)) == SF_GLOBAL || sndist < ((255-LOUDESTVOLUME) << 6))
+        sndist = ((255-LOUDESTVOLUME) << 6);
 
-    if (FX_SoundActive(snd.voices[bestslot].id))
-        FX_StopSound(snd.voices[bestslot].id);
+    if (distPtr)
+    {
+        *distPtr = sndist;
+    }
 
-    mutex_lock(&m_callback);
-    unative_t const ldnum = dnum;
-    dq[ldnum & (DQSIZE-1)] = (soundNum * MAXSOUNDINSTANCES) + bestslot;
-    dnum++;
-    mutex_unlock(&m_callback);
+    if (sndPos)
+    {
+        // Now calculate the position in sound system coordinates.
+        FVector3 sndvec = { float(pos->x - cam->x), (pos->z - cam->z) / 16.f, float(pos->y - cam->y) };   // distance vector
+        FVector3 campos = { float(pos->x), (cam->z) / 16.f, float(cam->y) };                              // camera position
+        sndvec *= float(sndist) / orgsndist;                                                // adjust by what was calculated above;
+        *sndPos = campos + sndvec;                                                          // final sound pos - still in Build fixed point coordinates.
+        *sndPos *= (1.f / 16); sndPos->Z = -sndPos->Z;                                      // The sound engine works with Doom's coordinate system so do the necessary conversions
+    }
 
-    S_Cleanup();
-
-    return bestslot;
+    return explosion;
 }
 
-static int S_GetSlot(int soundNum)
-{
-    int slot = 0;
-
-    while (slot < MAXSOUNDINSTANCES && g_sounds[soundNum].voices[slot].id > 0)
-        slot++;
-
-    return slot == MAXSOUNDINSTANCES ? S_TakeSlot(soundNum) : slot;
-}
-
-static inline int S_GetAngle(int ang, const vec3_t *cam, const vec3_t *pos)
-{
-    return (2048 + ang - getangle(cam->x - pos->x, cam->y - pos->y)) & 2047;
-}
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
 void S_Update(void)
 {
-    if ((g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO)) == 0)
+    if ((g_player[myconnectindex].ps->gm & (MODE_GAME | MODE_DEMO)) == 0)
         return;
 
     g_numEnvSoundsPlaying = 0;
 
-    const vec3_t *c;
-    int32_t ca,cs;
+    const vec3_t* c;
+    int32_t ca, cs;
 
     if (ud.camerasprite == -1)
     {
@@ -303,7 +289,7 @@ void S_Update(void)
         ca = sprite[ud.camerasprite].ang;
     }
 
-    int       sndnum  = 0;
+    int       sndnum = 0;
     int const highest = g_highestSoundIdx;
 
     do
@@ -311,9 +297,7 @@ void S_Update(void)
         if (g_sounds[sndnum].num == 0)
             continue;
 
-        S_Cleanup();
-
-        for (auto &voice : g_sounds[sndnum].voices)
+        for (auto& voice : g_sounds[sndnum].voices)
         {
             int const spriteNum = voice.owner;
 
@@ -322,76 +306,17 @@ void S_Update(void)
 
             int sndist, sndang;
 
-            S_CalcDistAndAng(spriteNum, sndnum, cs, ca, c, (const vec3_t *)&sprite[spriteNum], &sndist, &sndang);
+            S_CalcDistAndAng(spriteNum, sndnum, cs, ca, c, (const vec3_t*)&sprite[spriteNum], &sndist, nullptr);
 
             if (S_IsAmbientSFX(spriteNum))
                 g_numEnvSoundsPlaying++;
 
             // AMBIENT_SOUND
-            FX_Pan3D(voice.id, sndang >> 4, sndist >> 6);
+            //FX_Pan3D(voice.id, sndang >> 4, sndist >> 6);
             voice.dist = sndist >> 6;
             voice.clock++;
         }
     } while (++sndnum <= highest);
-}
-
-//==========================================================================
-//
-// With OpenAL we are only interested in how this function alters
-// the distance to calculate attenuation.
-//
-//==========================================================================
-
-static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum, int angle, int* distPtr)
-{
-    int sndang = 0, sndist = 0, explosion = 0;
-
-    if (PN(spriteNum) == APLAYER && P_Get(spriteNum) == screenpeek)
-        goto sound_further_processing;
-
-    sndang = S_GetAngle(angle, cam, pos);
-    sndist = FindDistance3D(cam->x - pos->x, cam->y - pos->y, (cam->z - pos->z));
-
-    if ((g_sounds[soundNum].m & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && S_IsAmbientSFX(spriteNum) && (sector[SECT(spriteNum)].lotag & 0xff) < 9)  // ST_9_SLIDING_ST_DOOR
-        sndist = divscale14(sndist, SHT(spriteNum) + 1);
-
-sound_further_processing:
-    sndist += g_sounds[soundNum].vo;
-    if (sndist < 0)
-        sndist = 0;
-
-    if (!FURY && sectNum > -1 && sndist && PN(spriteNum) != MUSICANDSFX
-        && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (24 << 8), SECT(spriteNum)))
-        sndist += sndist >> 5;
-
-    if ((g_sounds[soundNum].m & (SF_GLOBAL | SF_DTAG)) == (SF_GLOBAL | SF_DTAG))
-    {
-    boost:
-        int const sdist = g_sounds[soundNum].vo > 0 ? g_sounds[soundNum].vo : 6144;
-
-        explosion = true;
-
-        if (sndist > sdist)
-            sndist = sdist;
-    }
-    else if (!FURY)
-    {
-        switch (DYNAMICSOUNDMAP(soundNum))
-        {
-        case PIPEBOMB_EXPLODE__STATIC:
-        case LASERTRIP_EXPLODE__STATIC:
-        case RPG_EXPLODE__STATIC:
-            goto boost;
-        }
-    }
-
-    if ((g_sounds[soundNum].m & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL || sndist < ((255 - LOUDESTVOLUME) << 6))
-        sndist = ((255 - LOUDESTVOLUME) << 6);
-
-    *distPtr = sndist;
-    *angPtr = sndang;
-
-    return explosion;
 }
 
 
@@ -437,8 +362,9 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos)
 
     }
 
-    int32_t    sndist, sndang;
-    int const  explosionp = S_CalcDistAndAng(spriteNum, sndnum, CAMERA(sect), fix16_to_int(CAMERA(q16ang)), &CAMERA(pos), pos, &sndist, &sndang);
+    int32_t    sndist;
+    FVector3 sndpos;    // this is in sound engine space.
+    int const  explosionp = S_CalcDistAndAng(spriteNum, sndnum, CAMERA(sect), fix16_to_int(CAMERA(q16ang)), &CAMERA(pos), pos, &sndist, &sndpos);
     int        pitch = S_GetPitch(sndnum);
     auto const pOther = g_player[screenpeek].ps;
 
@@ -461,36 +387,21 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos)
             pitch = -768;
     }
 
-    if (snd.num > 0 && PN(spriteNum) != MUSICANDSFX)
-        S_StopEnvSound(sndNum, spriteNum);
+    bool is_playing = soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, sndnum);
+    if (is_playing &&  PN(spriteNum) != MUSICANDSFX)
+        S_StopEnvSound(sndnum, spriteNum);
 
-    int const sndSlot = S_GetSlot(sndNum);
+    int const repeatp = (userflags & SF_LOOP);
 
-    if (sndSlot >= MAXSOUNDINSTANCES)
+    if (repeatp && (userflags & SF_ONEINST_INTERNAL) && is_playing)
     {
         return -1;
     }
 
-    int const repeatp = (snd.m & SF_LOOP);
-
-    if (repeatp && (snd.m & SF_ONEINST_INTERNAL) && snd.num > 0)
-    {
-        return -1;
-    }
-
-    int const voice = FX_Play3D(snd.ptr, snd.siz, repeatp ? FX_LOOP : FX_ONESHOT, pitch, sndang >> 4, sndist >> 6,
-        snd.pr, snd.volume, (sndNum * MAXSOUNDINSTANCES) + sndSlot);
-
-    if (voice <= FX_Ok)
-    {
-        return -1;
-    }
-
-    snd.num++;
-
-    S_SetProperties(&snd.voices[sndSlot], spriteNum, voice, sndist >> 6, 0);
-
-    return voice;
+    // Now 
+    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, CHAN_AUTO, sndnum, 1.f, 1.f, nullptr, S_ConvertPitch(pitch));
+    if (!chan) return -1;
+    return 0;
 }
 
 //==========================================================================
@@ -510,9 +421,8 @@ int S_PlaySound(int num)
         return -1;
 
     int const pitch = S_GetPitch(num);
-    double expitch = pow(2, pitch / 1200.);   // I hope I got this right that ASS uses a linear scale where 1200 is a full octave.
 
-    soundEngine->StartSound(SOURCE_None, nullptr, nullptr, (userflags & SF_LOOP)? CHAN_AUTO|CHAN_LOOP : CHAN_AUTO, sndnum, 1.f, ATTN_NONE, nullptr, expitch);
+    soundEngine->StartSound(SOURCE_None, nullptr, nullptr, (userflags & SF_LOOP)? CHAN_AUTO|CHAN_LOOP : CHAN_AUTO, sndnum, 1.f, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
     /* for reference. May still be needed for balancing later.
        : FX_Play3D(snd.ptr, snd.siz, FX_ONESHOT, pitch, 0, 255 - LOUDESTVOLUME, snd.pr, snd.volume,
         (num * MAXSOUNDINSTANCES) + sndnum);

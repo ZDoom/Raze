@@ -3734,7 +3734,6 @@ void P_FragPlayer(int playerNum)
         if (pPlayer->scream_voice > FX_Ok)
         {
             FX_StopSound(pPlayer->scream_voice);
-            S_Cleanup();
             pPlayer->scream_voice = -1;
         }
     }
@@ -5048,7 +5047,6 @@ void P_ProcessInput(int playerNum)
             if (pPlayer->scream_voice > FX_Ok)
             {
                 FX_StopSound(pPlayer->scream_voice);
-                S_Cleanup();
                 pPlayer->scream_voice = -1;
             }
 

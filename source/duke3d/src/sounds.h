@@ -66,7 +66,6 @@ int A_PlaySound(int soundNum, int spriteNum);
 void S_Callback(intptr_t num);
 int A_CheckAnySoundPlaying(int spriteNum);
 int S_CheckSoundPlaying(int soundNum);
-void S_Cleanup(void);
 inline void S_ClearSoundLocks(void) {}
 int32_t S_LoadSound(uint32_t num);
 void cacheAllSounds(void);
