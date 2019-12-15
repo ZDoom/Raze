@@ -4478,7 +4478,7 @@ static void classicDrawBunches(int32_t bunch)
                         smostwall[smostwallcnt] = z;
                         smostwalltype[smostwallcnt] = 1;   //1 for umost
                         smostwallcnt++;
-                        memcpy(&umost[x1],&smost[smostcnt],i*sizeof(smost[0]));
+                        copybufbyte(&umost[x1],&smost[smostcnt],i*sizeof(smost[0]));
                         smostcnt += i;
                     }
                 }
@@ -4564,7 +4564,7 @@ static void classicDrawBunches(int32_t bunch)
                         smostwall[smostwallcnt] = z;
                         smostwalltype[smostwallcnt] = 2;   //2 for dmost
                         smostwallcnt++;
-                        memcpy(&dmost[x1],&smost[smostcnt],i*sizeof(smost[0]));
+                        copybufbyte(&dmost[x1],&smost[smostcnt],i*sizeof(smost[0]));
                         smostcnt += i;
                     }
                 }
@@ -5032,6 +5032,16 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
             }
         }
     }
+
+#if 0
+    for (x=0; x<xdimen; x++)
+    {
+        if (daumost[x]>=0 && daumost[x]<ydimen)
+            *(char *)(frameplace + x + bytesperline*daumost[x]) = editorcolors[13];
+        if (dadmost[x]>=0 && dadmost[x]<ydimen)
+            *(char *)(frameplace + x + bytesperline*dadmost[x]) = editorcolors[14];
+    }
+#endif
 
     videoEndDrawing();   //}}}
 }
@@ -11638,8 +11648,8 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     rendmode = REND_CLASSIC;
 #endif
 
-    memcpy(&startumost[windowxy1.x],&bakumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakumost[0]));
-    memcpy(&startdmost[windowxy1.x],&bakdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakdmost[0]));
+    copybufbyte(&startumost[windowxy1.x],&bakumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakumost[0]));
+    copybufbyte(&startdmost[windowxy1.x],&bakdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakdmost[0]));
     setviewcnt++;
 
     offscreenrendering = 1;
@@ -11673,8 +11683,8 @@ void renderRestoreTarget(void)
     ydim = bakysiz[setviewcnt];
     videoSetViewableArea(bakwindowxy1[setviewcnt].x,bakwindowxy1[setviewcnt].y,
             bakwindowxy2[setviewcnt].x,bakwindowxy2[setviewcnt].y);
-    memcpy(&bakumost[windowxy1.x],&startumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startumost[0]));
-    memcpy(&bakdmost[windowxy1.x],&startdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startdmost[0]));
+    copybufbyte(&bakumost[windowxy1.x],&startumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startumost[0]));
+    copybufbyte(&bakdmost[windowxy1.x],&startdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startdmost[0]));
     frameplace = bakframeplace[setviewcnt];
 
     calc_ylookup((setviewcnt == 0) ? bytesperline : bakxsiz[setviewcnt],
