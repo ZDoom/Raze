@@ -40,11 +40,7 @@ struct sfxinfo_t
 	unsigned		bSingular:1;
 
 	unsigned		bTentative:1;
-	unsigned		bPlayerReserve : 1;
-	unsigned		bPlayerCompat : 1;
-	unsigned		bPlayerSilent:1;		// This player sound is intentionally silent.
-	unsigned		userFlags;
-	int				userdata;
+	TArray<uint8_t> UserData;
 
 	int		RawRate;				// Sample rate to use when bLoadRAW is true
 
@@ -57,6 +53,37 @@ struct sfxinfo_t
 	float		Attenuation;			// Multiplies the attenuation passed to S_Sound.
 
 	void		MarkUsed();				// Marks this sound as used.
+
+	void Clear()
+	{
+		data.Clear();
+		data3d.Clear();
+		lumpnum = -1;				// lump number of sfx
+		next = -1;
+		index = 0;			// [RH] For hashing
+		Volume = 1.f;
+		ResourceId = -1;
+		PitchMask = 0;
+		NearLimit = 4;				// 0 means unlimited
+		LimitRange = 256*256;
+
+		bRandomHeader = false;
+		bLoadRAW = false;
+		b16bit= false;
+		bUsed = false;
+		bSingular = false;
+
+		bTentative = true;
+
+		RawRate = 0;				// Sample rate to use when bLoadRAW is true
+
+		LoopStart = 0;				// -1 means no specific loop defined
+
+		link = NO_LINK;
+
+		Rolloff = {};
+		Attenuation = 1.f;
+	}
 };
 
 // Rolloff types
@@ -256,7 +283,7 @@ private:
 
 	bool IsChannelUsed(int sourcetype, const void* actor, int channel, int* seen);
 	// This is the actual sound positioning logic which needs to be provided by the client.
-	virtual void CalcPosVel(int type, const void* source, const float pt[3], int channel, int chanflags, FVector3* pos, FVector3* vel) = 0;
+	virtual void CalcPosVel(int type, const void* source, const float pt[3], int channel, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel) = 0;
 	// This can be overridden by the clent to provide some diagnostics. The default lets everything pass.
 	virtual bool ValidatePosVel(int sourcetype, const void* source, const FVector3& pos, const FVector3& vel) { return true; }
 
@@ -313,7 +340,7 @@ public:
 	bool IsSourcePlayingSomething(int sourcetype, const void* actor, int channel, int sound_id);
 
 	// Stop and resume music, during game PAUSE.
-	bool GetSoundPlayingInfo(int sourcetype, const void* source, int sound_id);
+	int GetSoundPlayingInfo(int sourcetype, const void* source, int sound_id);
 	void UnloadAllSounds();
 	void Reset();
 	void MarkUsed(int num);
@@ -328,10 +355,6 @@ public:
 	bool isListener(const void* object) const
 	{
 		return object && listener.ListenerObject == object;
-	}
-	bool isPlayerReserve(int snd_id)
-	{
-		return S_sfx[snd_id].bPlayerReserve;	// Later this needs to be abstracted out of the engine itself. Right now that cannot be done.
 	}
 	void SetListener(SoundListener& l)
 	{
@@ -369,17 +392,22 @@ public:
 	{
 		S_rnd.Clear();
 	}
-	int GetUserFlags(int snd)
+	void *GetUserData(int snd)
 	{
-		return S_sfx[snd].userFlags;
-	}
-	int GetUserData(int snd)
-	{
-		return S_sfx[snd].userdata;
+		return S_sfx[snd].UserData.Data();
 	}
 	bool isValidSoundId(int id)
 	{
-		return id > 0 && id < (int)S_sfx.Size();
+		return id > 0 && id < (int)S_sfx.Size() && !S_sfx[id].bTentative;
+	}
+
+	template<class func> bool EnumerateChannels(func callback)
+	{
+		for (FSoundChan* chan = Channels; chan; chan = chan->NextChan)
+		{
+			if (callback(chan)) return true;
+		}
+		return false;
 	}
 
 	void ChannelVirtualChanged(FISoundChannel* ichan, bool is_virtual);

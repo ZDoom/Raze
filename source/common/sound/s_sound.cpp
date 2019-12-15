@@ -157,12 +157,8 @@ void SoundEngine::CacheMarkedSounds()
 
 void SoundEngine::CacheSound (sfxinfo_t *sfx)
 {
-	if (GSnd)
+	if (GSnd && !sfx->bTentative)
 	{
-		if (sfx->bPlayerReserve)
-		{
-			return;
-		}
 		sfxinfo_t *orig = sfx;
 		while (!sfx->bRandomHeader && sfx->link != sfxinfo_t::NO_LINK)
 		{
@@ -338,8 +334,7 @@ FString SoundEngine::ListSoundChannels()
 
 void SoundEngine::CalcPosVel(FSoundChan *chan, FVector3 *pos, FVector3 *vel)
 {
-	CalcPosVel(chan->SourceType, chan->Source, chan->Point,
-		chan->EntChannel, chan->ChanFlags, pos, vel);
+	CalcPosVel(chan->SourceType, chan->Source, chan->Point,	chan->EntChannel, chan->ChanFlags, chan->SoundID, pos, vel);
 }
 
 bool SoundEngine::ValidatePosVel(const FSoundChan* const chan, const FVector3& pos, const FVector3& vel)
@@ -403,7 +398,7 @@ FSoundChan *SoundEngine::StartSound(int type, const void *source,
 	chanflags = channel & ~7;
 	channel &= 7;
 
-	CalcPosVel(type, source, &pt->X, channel, chanflags, &pos, &vel);
+	CalcPosVel(type, source, &pt->X, channel, chanflags, sound_id, &pos, &vel);
 
 	if (!ValidatePosVel(type, source, pos, vel))
 	{
@@ -1101,8 +1096,9 @@ void SoundEngine::SetPitch(FSoundChan *chan, float pitch)
 // Is a sound being played by a specific emitter?
 //==========================================================================
 
-bool SoundEngine::GetSoundPlayingInfo (int sourcetype, const void *source, int sound_id)
+int SoundEngine::GetSoundPlayingInfo (int sourcetype, const void *source, int sound_id)
 {
+	int count = 0;
 	if (sound_id > 0)
 	{
 		for (FSoundChan *chan = Channels; chan != NULL; chan = chan->NextChan)
@@ -1111,11 +1107,11 @@ bool SoundEngine::GetSoundPlayingInfo (int sourcetype, const void *source, int s
 				(chan->SourceType == sourcetype &&
 				chan->Source == source)))
 			{
-				return true;
+				count++;
 			}
 		}
 	}
-	return false;
+	return count;
 }
 
 //==========================================================================
@@ -1543,14 +1539,11 @@ int SoundEngine::AddSoundLump(const char* logicalname, int lump, int CurrentPitc
 	newsfx.NearLimit = 2;
 	newsfx.LimitRange = 256 * 256;
 	newsfx.bRandomHeader = false;
-	newsfx.bPlayerReserve = false;
 	newsfx.bLoadRAW = false;
-	newsfx.bPlayerCompat = false;
 	newsfx.b16bit = false;
 	newsfx.bUsed = false;
 	newsfx.bSingular = false;
 	newsfx.bTentative = false;
-	newsfx.bPlayerSilent = false;
 	newsfx.ResourceId = resid;
 	newsfx.RawRate = 0;
 	newsfx.link = sfxinfo_t::NO_LINK;

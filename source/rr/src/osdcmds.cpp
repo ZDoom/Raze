@@ -169,19 +169,6 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    S_SoundShutdown();
-
-    S_SoundStartup();
-
-    FX_StopAllSounds();
-    S_ClearSoundLocks();
-
-    return OSDCMD_OK;
-}
-
 int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -669,7 +656,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
 
     OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
-    OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
 
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 

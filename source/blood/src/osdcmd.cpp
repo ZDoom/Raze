@@ -270,6 +270,7 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
+/*
 static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -281,6 +282,7 @@ static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
 
     return OSDCMD_OK;
 }
+*/
 
 void onvideomodechange(int32_t newmode)
 {
@@ -303,7 +305,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
-	OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
 
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
 

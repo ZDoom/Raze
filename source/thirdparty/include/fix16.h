@@ -37,7 +37,7 @@ static FORCE_INLINE CONSTEXPR fix16_t fix16_from_int(int a)     { return a * fix
 static FORCE_INLINE CONSTEXPR float   fix16_to_float(fix16_t a) { return (float)a / fix16_one; }
 static FORCE_INLINE CONSTEXPR double  fix16_to_dbl(fix16_t a)   { return (double)a / fix16_one; }
 
-static inline int fix16_to_int(fix16_t a)
+static inline constexpr int fix16_to_int(fix16_t a)
 {
 #ifdef FIXMATH_NO_ROUNDING
     return (a >> 16);

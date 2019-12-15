@@ -4745,43 +4745,6 @@ void G_HandleLocalKeys(void)
     }
 }
 
-static int32_t S_DefineAudioIfSupported(char **fn, const char *name)
-{
-#if !defined HAVE_FLAC || !defined HAVE_VORBIS
-    const char *extension = Bstrrchr(name, '.');
-# if !defined HAVE_FLAC
-    if (extension && !Bstrcasecmp(extension, ".flac"))
-        return -2;
-# endif
-# if !defined HAVE_VORBIS
-    if (extension && !Bstrcasecmp(extension, ".ogg"))
-        return -2;
-# endif
-#endif
-    realloc_copy(fn, name);
-    return 0;
-}
-
-static int32_t S_DefineSound(int sndidx, const char *name, int minpitch, int maxpitch, int priority, int type, int distance, float volume)
-{
-    if ((unsigned)sndidx >= MAXSOUNDS || S_DefineAudioIfSupported(&g_sounds[sndidx].filename, name))
-        return -1;
-
-    auto &snd = g_sounds[sndidx];
-
-    snd.ps     = clamp(minpitch, INT16_MIN, INT16_MAX);
-    snd.pe     = clamp(maxpitch, INT16_MIN, INT16_MAX);
-    snd.pr     = priority & 255;
-    snd.m      = type & ~SF_ONEINST_INTERNAL;
-    snd.vo     = clamp(distance, INT16_MIN, INT16_MAX);
-    snd.volume = volume;
-
-    if (snd.m & SF_LOOP)
-        snd.m |= SF_ONEINST_INTERNAL;
-
-    return 0;
-}
-
 // Returns:
 //   0: all OK
 //  -1: ID declaration was invalid:
@@ -5399,10 +5362,6 @@ static void G_Cleanup(void)
         Xfree(g_player[i].input);
     }
 
-    for (i=MAXSOUNDS-1; i>=0; i--)
-    {
-        Xfree(g_sounds[i].filename);
-    }
 #if !defined LUNATIC
     if (label != (char *)&sprite[0]) Xfree(label);
     if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
@@ -5432,7 +5391,6 @@ static void G_Cleanup(void)
 
 void G_Shutdown(void)
 {
-	S_SoundShutdown();
     engineUnInit();
     G_Cleanup();
 }
@@ -6031,7 +5989,6 @@ int GameInterface::app_main()
         }
 
         videoSetPalette(0, myplayer.palette, 0);
-        S_SoundStartup();
     }
 
     // check if the minifont will support lowercase letters (3136-3161)

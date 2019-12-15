@@ -1344,7 +1344,7 @@ OptionMenu AdvSoundOptions //protected
 	Submenu "$SNDMNU_MIDIPLAYER",		"MidiPlayerOptions"
 	Submenu "$SNDMNU_MODREPLAYER",		"ModReplayerOptions"
 	StaticText " "
-	Command "$SNDMNU_RESTART",			"restartsound"
+	Command "$SNDMNU_RESTART",			"snd_reset"
 }
 
 

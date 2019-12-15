@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
+#include "s_soundinternal.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -543,5 +544,13 @@ void CONFIG_InitMouseAndController()
 	inputState.ClearKeysDown();
 	inputState.keyFlushChars();
 	inputState.keyFlushScans();
+}
+
+
+CCMD(snd_reset)
+{
+	Mus_Stop();
+	soundEngine->Reset();
+	MUS_ResumeSaved();
 }
 
