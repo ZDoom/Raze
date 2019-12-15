@@ -24,9 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef config_public_h_
 #define config_public_h_
 
-#include "keyboard.h"
-#include "control.h"
-#include "_control.h"
 #include "hash.h"
 #include "gamecvars.h"
 #include "gamecontrol.h"

@@ -44,3 +44,6 @@ xx(Mididevices)
 xx(Aldevices)
 xx(Alresamplers)
 xx(AdvSoundOptions)
+xx(JoystickConfigMenu)
+xx(JoystickOptions)
+

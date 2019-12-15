@@ -7316,6 +7316,7 @@ static void dosetaspect(void)
     {
         oxyaspect = xyaspect;
         j = xyaspect*320;
+        horizycent = (ydim*4)>>1;
         horizlookup2[horizycent-1] = divscale32(131072,j);
 
         for (i=0; i < horizycent-1; i++)

@@ -33,12 +33,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "weapon.h"
 #include "player.h"
 #include "jsector.h"
-#include "control.h"
 #include "menus.h"
 #include "sw_strs.h"
 #include "pal.h"
 #include "demo.h"
-#include "input.h"
 #include "keydef.h"
 
 #include "gamecontrol.h"

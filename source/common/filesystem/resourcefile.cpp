@@ -299,7 +299,6 @@ void FResourceFile::PostProcessArchive(void *lumps, size_t lumpsize)
 	// each one so that we don't risk refiltering already filtered lumps.
 	uint32_t max = NumLumps;
 
-	long len;
 	int lastpos = -1;
 	FString file;
 

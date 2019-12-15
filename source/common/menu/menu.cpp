@@ -53,6 +53,7 @@
 #include "build.h"
 #include "baselayer.h"
 #include "statistics.h"
+#include "input/m_joy.h"
 
 void RegisterDukeMenus();
 void RegisterRedneckMenus();
@@ -60,6 +61,8 @@ void RegisterBloodMenus();
 void RegisterSWMenus();
 void RegisterLoadsaveMenus();
 void RegisterOptionMenus();
+void RegisterJoystickMenus();
+void UpdateJoystickMenu(IJoystickConfig* joy);
 extern bool rotatesprite_2doverride;
 bool help_disabled, credits_disabled;
 int g_currentMenu;	// accessible by CON scripts - contains the current menu's script ID if defined or INT_MAX if none given.
@@ -953,8 +956,10 @@ void M_Init (void)
 	RegisterSWMenus();
 	RegisterLoadsaveMenus();
 	RegisterOptionMenus();
+	RegisterJoystickMenus();
 	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();
+	UpdateJoystickMenu(nullptr);
 }
 
 

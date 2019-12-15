@@ -14,7 +14,6 @@ endif()
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../build/include
-	${CMAKE_CURRENT_SOURCE_DIR}/../mact/include
 	${CMAKE_CURRENT_SOURCE_DIR}/../audiolib/include
 	${CMAKE_CURRENT_SOURCE_DIR}/../libsmackerdec/include
 	${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty/include
@@ -25,6 +24,7 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/../common/fonts
 	${CMAKE_CURRENT_SOURCE_DIR}/../common/2d
 	${CMAKE_CURRENT_SOURCE_DIR}/../common/music
+	${CMAKE_CURRENT_SOURCE_DIR}/../common/input
 	${CMAKE_CURRENT_SOURCE_DIR}/../platform
 )
 

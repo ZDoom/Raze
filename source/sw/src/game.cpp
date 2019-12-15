@@ -68,7 +68,6 @@ Things required to make savegames work:
 
 #include "menus.h"
 
-#include "control.h"
 #include "gamecontrol.h"
 #include "gamedefs.h"
 #include "config.h"
@@ -85,7 +84,6 @@ Things required to make savegames work:
 #include "light.h"
 #include "track.h"
 #include "jsector.h"
-#include "keyboard.h"
 #include "text.h"
 #include "music.h"
 

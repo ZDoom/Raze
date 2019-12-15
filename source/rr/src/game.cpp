@@ -1,4 +1,4 @@
-//-------------------------------------------------------------------------
+﻿//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -159,6 +159,14 @@ enum gametokens
     T_FORCENOFILTER,
     T_TEXTUREFILTER,
 };
+
+static void gameTimerHandler(void)
+{
+    S_Cleanup();
+    MUSIC_Update();
+
+    G_HandleSpecialKeys();
+}
 
 void G_HandleSpecialKeys(void)
 {
@@ -6836,7 +6844,6 @@ static void G_Cleanup(void)
 void G_Shutdown(void)
 {
 	S_SoundShutdown();
-    CONTROL_Shutdown();
     G_SetFog(0);
     engineUnInit();
     G_Cleanup();
@@ -7076,6 +7083,7 @@ static void G_Startup(void)
     set_memerr_handler(&G_HandleMemErr);
 
     timerInit(TICRATE);
+    timerSetCallback(gameTimerHandler);
 
     G_CompileScripts();
 
@@ -7611,54 +7619,62 @@ MAIN_LOOP_RESTART:
 
         OSD_DispatchQueued();
 
+        static bool frameJustDrawn;
         char gameUpdate = false;
         double const gameUpdateStartTime = timerGetHiTicks();
         if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
         {
-            //if (g_networkMode != NET_DEDICATED_SERVER)
-            //{
-            //    if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
-            //        P_GetInputMotorcycle(myconnectindex);
-            //    else if (RRRA && g_player[myconnectindex].ps->on_boat)
-            //        P_GetInputBoat(myconnectindex);
-            //    else
-            //        P_GetInput(myconnectindex);
-            //}
-
-            //Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
-
-            S_Update();
-
             do
             {
-                if (ready2send == 0) break;
-                Net_GetInput();
+	            //if (g_networkMode != NET_DEDICATED_SERVER)
+	            //{
+	            //    if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+	            //        P_GetInputMotorcycle(myconnectindex);
+	            //    else if (RRRA && g_player[myconnectindex].ps->on_boat)
+	            //        P_GetInputBoat(myconnectindex);
+	            //    else
+	            //        P_GetInput(myconnectindex);
+	            //}
 
-                ototalclock += TICSPERFRAME;
+	            //Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
 
-                int const moveClock = (int) totalclock;
+	            if (!frameJustDrawn)
+	                break;
 
-                if (((ud.show_help == 0 && !GUICapture && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
-                        (g_player[myconnectindex].ps->gm&MODE_GAME))
-                {
-                    G_MoveLoop();
-                }
+	            frameJustDrawn = false;
 
-                if (totalclock - moveClock >= TICSPERFRAME)
-                {
-                    // computing a tic takes longer than a tic, so we're slowing
-                    // the game down. rather than tightly spinning here, go draw
-                    // a frame since we're fucked anyway
-                    break;
-                }
-            }
-            while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
+	            do
+	            {
+	                if (ready2send == 0) break;
+	                Net_GetInput();
 
-            gameUpdate = true;
-            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
-            if (g_gameUpdateAvgTime < 0.f)
-                g_gameUpdateAvgTime = g_gameUpdateTime;
-            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
+	                ototalclock += TICSPERFRAME;
+
+	                int const moveClock = (int) totalclock;
+
+	                if (((ud.show_help == 0 && !GUICapture && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
+	                        (g_player[myconnectindex].ps->gm&MODE_GAME))
+	                {
+	                    G_MoveLoop();
+	                    S_Update();
+	                }
+
+	                if (totalclock - moveClock >= TICSPERFRAME)
+	                {
+	                    // computing a tic takes longer than a tic, so we're slowing
+	                    // the game down. rather than tightly spinning here, go draw
+	                    // a frame since we're fucked anyway
+	                    break;
+	                }
+	            }
+	            while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
+
+	            gameUpdate = true;
+	            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
+	            if (g_gameUpdateAvgTime < 0.f)
+	                g_gameUpdateAvgTime = g_gameUpdateTime;
+	            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
+            } while(0);
         }
 
         G_DoCheats();
@@ -7690,6 +7706,8 @@ MAIN_LOOP_RESTART:
             {
                 g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
             }
+
+            frameJustDrawn = true;
         }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)
