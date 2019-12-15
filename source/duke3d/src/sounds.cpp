@@ -155,6 +155,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
     sfx->Volume = volume;
     sfx->NearLimit = 4;
     sfx->bTentative = false;
+    sfx->name = filename;
     return 0;
 }
 
@@ -354,7 +355,7 @@ void S_Update(void)
     {
         listener.angle = (float)ca * pi::pi() / 2048; // todo: Check value range for angle.
         listener.velocity.Zero();
-        listener.position = { c->x / 16.f, c->z / 256.f, c->y / 16.f };
+        listener.position = { c->x / 16.f, c->z / 256.f, -c->y / 16.f };
         listener.underwater = false; 
         // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
         // listenactor->waterlevel == 3;

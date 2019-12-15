@@ -345,6 +345,7 @@ public:
 	void Reset();
 	void MarkUsed(int num);
 	void CacheMarkedSounds();
+	FString NoiseDebug();
 	TArray<FSoundChan*> AllActiveChannels();
 
 	void MarkAllUnused()
