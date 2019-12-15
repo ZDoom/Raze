@@ -5807,6 +5807,7 @@ int GameInterface::app_main()
     {
         I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
     }
+    S_InitSound();
 
     
     g_logFlushWindow = 0;

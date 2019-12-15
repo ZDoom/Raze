@@ -273,6 +273,13 @@ void I_StartupJoysticks();
 void I_ShutdownInput();
 int RunGame();
 
+void ShutdownSystem()
+{
+	Mus_Stop();
+	if (soundEngine) delete soundEngine;
+	I_ShutdownInput();
+}
+
 int GameMain()
 {
 	// Set up the console before anything else so that it can receive text.
@@ -295,6 +302,8 @@ int GameMain()
 	}
 	catch (const std::runtime_error & err)
 	{
+		// shut down critical systems before showing a message box.
+		ShutdownSystem();
 		wm_msgbox("Error", "%s", err.what());
 		return 3;
 	}
@@ -303,7 +312,7 @@ int GameMain()
 		// Just let the rest of the function execute.
 		r = exit.Reason();
 	}
-	I_ShutdownInput();
+	ShutdownSystem();
 	G_SaveConfig();
 #ifndef NETCODE_DISABLE
 	if (gHaveNetworking) enet_deinitialize();
@@ -550,7 +559,7 @@ void CONFIG_InitMouseAndController()
 CCMD(snd_reset)
 {
 	Mus_Stop();
-	soundEngine->Reset();
+	if (soundEngine) soundEngine->Reset();
 	MUS_ResumeSaved();
 }
 

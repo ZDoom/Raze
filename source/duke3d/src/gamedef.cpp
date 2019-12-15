@@ -2255,6 +2255,7 @@ static void scriptUpdateOpcodeForVariableType(intptr_t *ins)
 static bool C_ParseCommand(bool loop /*= false*/)
 {
     int32_t i, j=0, k=0, tw;
+    TArray<char> buffer;
 
     do
     {
@@ -4960,10 +4961,10 @@ repeatcase:
 
             i = 0;
 			{
-				TArray<char> build;
+                buffer.Clear();
 				while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
 				{
-					build.Push(*textptr);
+					buffer.Push(*textptr);
 					textptr++, i++;
 					if (EDUKE32_PREDICT_FALSE(*textptr != 0x0a && *textptr != 0x0d && ispecial(*textptr)))
 					{
@@ -4974,8 +4975,8 @@ repeatcase:
 						break;
 					}
 				}
-				build.Push(0);
-				C_CON_SetButtonAlias(j, build.Data());
+				buffer.Push(0);
+				C_CON_SetButtonAlias(j, buffer.Data());
 			}
             continue;
 
@@ -5246,7 +5247,7 @@ repeatcase:
 
             scriptSkipSpaces();
 
-			TArray<char> buffer;
+            buffer.Clear();
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
             {
 				buffer.Push(*textptr);
@@ -5362,7 +5363,6 @@ repeatcase:
 
         case CON_DEFINESOUND:
         {
-            FString filename;
             int ps, pe, vo, pr, m;
             float volume;
 
@@ -5390,7 +5390,7 @@ repeatcase:
             i = 0;
             C_SkipComments();
 
-            TArray<char> buffer;
+            buffer.Clear();
 
             if (*textptr == '\"')
             {
@@ -5421,7 +5421,7 @@ repeatcase:
             vo = g_scriptPtr[-1];
             g_scriptPtr -= 5;
 
-            int res = S_DefineSound(k, filename, ps, pe, pr, m, vo, 1.f);
+            int res = S_DefineSound(k, buffer.Data(), ps, pe, pr, m, vo, 1.f);
 
             volume = 1.f;
 

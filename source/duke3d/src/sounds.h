@@ -66,6 +66,7 @@ void S_Update(void);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 int S_GetUserFlags(int sndnum);
 int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, int m, int vo, float vol);
+void S_InitSound();
 
 static inline bool S_IsAmbientSFX(int spriteNum)
 {

@@ -47,6 +47,11 @@ public:
     }
 };
 
+void S_InitSound()
+{
+    soundEngine = new DukeSoundEngine;
+}
+
 //==========================================================================
 //
 // This is to avoid hardscoding the dependency on Wads into the sound engine
@@ -78,10 +83,12 @@ void S_PauseSounds(bool paused)
 
 void cacheAllSounds(void)
 {
-    for (int i=0, j=0; i < MAXSOUNDS; ++i)
+    auto& sfx = soundEngine->GetSounds();
+    int i = 0;
+    for(auto &snd : sfx)
     {
-        soundEngine->CacheSound(i);
-        if ((i&31) == 0)
+        soundEngine->CacheSound(&snd);
+        if (((++i)&31) == 0)
             gameHandleEvents();
     }
 }
