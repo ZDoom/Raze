@@ -359,7 +359,7 @@ void S_Update(void)
 int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int flags)
 {
     auto const pPlayer = g_player[myconnectindex].ps;
-    if (!soundEngine->isValidSoundId(sndnum) || !SoundEnabled() || (unsigned)spriteNum >= MAXSPRITES || (pPlayer->gm & MODE_MENU) ||
+    if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || (unsigned)spriteNum >= MAXSPRITES || (pPlayer->gm & MODE_MENU) ||
         (pPlayer->timebeforeexit > 0 && pPlayer->timebeforeexit <= GAMETICSPERSEC * 3)) return -1;
 
     int userflags = S_GetUserFlags(sndnum);
@@ -380,7 +380,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int flags)
 
         bool foundone =  soundEngine->EnumerateChannels([&](FSoundChan* chan)
             {
-                auto sid = chan->SoundID;
+                auto sid = chan->OrgID;
                 auto flags = ((sound_t*)soundEngine->GetUserData(sid))->flags;
                 return !!(flags & SF_TALK);
             });

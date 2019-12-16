@@ -918,7 +918,7 @@ void SoundEngine::StopSoundID(int sound_id)
 	while (chan != NULL)
 	{
 		FSoundChan* next = chan->NextChan;
-		if (sound_id == chan->SoundID)
+		if (sound_id == chan->OrgID)
 		{
 			StopChannel(chan);
 		}
@@ -940,7 +940,7 @@ void SoundEngine::StopSound (int channel, int sound_id)
 	while (chan != NULL)
 	{
 		FSoundChan *next = chan->NextChan;
-		if (chan->SourceType == SOURCE_None && (sound_id == -1 || sound_id == chan->SoundID))
+		if (chan->SourceType == SOURCE_None && (sound_id == -1 || sound_id == chan->OrgID))
 		{
 			StopChannel(chan);
 		}
@@ -964,7 +964,7 @@ void SoundEngine::StopSound(int sourcetype, const void* actor, int channel, int 
 		FSoundChan* next = chan->NextChan;
 		if (chan->SourceType == sourcetype &&
 			chan->Source == actor &&
-			(sound_id == -1? (chan->EntChannel == channel || channel < 0) : (chan->SoundID == sound_id)))
+			(sound_id == -1? (chan->EntChannel == channel || channel < 0) : (chan->OrgID == sound_id)))
 		{
 			StopChannel(chan);
 		}
@@ -1074,7 +1074,7 @@ void SoundEngine::ChangeSoundPitch(int sourcetype, const void *source, int chann
 	{
 		if (chan->SourceType == sourcetype &&
 			chan->Source == source &&
-			(sound_id == -1? (chan->EntChannel == channel) : (chan->SoundID == sound_id)))
+			(sound_id == -1? (chan->EntChannel == channel) : (chan->OrgID == sound_id)))
 		{
 			SetPitch(chan, (float)pitch);
 			return;
