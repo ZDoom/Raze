@@ -335,7 +335,7 @@ FString SoundEngine::ListSoundChannels()
 
 void SoundEngine::CalcPosVel(FSoundChan *chan, FVector3 *pos, FVector3 *vel)
 {
-	CalcPosVel(chan->SourceType, chan->Source, chan->Point,	chan->EntChannel, chan->ChanFlags, chan->SoundID, pos, vel);
+	CalcPosVel(chan->SourceType, chan->Source, chan->Point,	chan->EntChannel, chan->ChanFlags, chan->OrgID, pos, vel);
 }
 
 bool SoundEngine::ValidatePosVel(const FSoundChan* const chan, const FVector3& pos, const FVector3& vel)
@@ -1723,18 +1723,17 @@ FString SoundEngine::NoiseDebug()
 	FVector3 listener;
 	FVector3 origin;
 
-	FString out = "*** SOUND DEBUG INFO ***\n"
-		"x     y     z     vol   dist  chan  pri   flags aud   pos   name\n";
+	listener = this->listener.position;
+	int ch = 0;
 
+	FStringf out("*** SOUND DEBUG INFO ***\nListener: %3.2f %2.3f %2.3f\n"
+		"x     y     z     vol   dist  chan  pri   flags aud   pos   name\n", listener.X, listener.Y, listener.Z);
 
 	if (Channels == nullptr)
 	{
 		return out;
 	}
 
-
-	listener = this->listener.position;
-	int ch = 0;
 	for (auto chan = Channels; chan; chan = chan->NextChan)
 	{
 		if (!(chan->ChanFlags & CHAN_IS3D))
@@ -1746,7 +1745,7 @@ FString SoundEngine::NoiseDebug()
 			CalcPosVel(chan, &origin, nullptr);
 			out.AppendFormat(TEXTCOLOR_GOLD "%5.0f | %5.0f | %5.0f | %5.0f ", origin.X, origin.Z, origin.Y, (origin - listener).Length());
 		}
-		out.AppendFormat("%-.2g     %-4d  %-4d  %s3%sZ%sU%sM%sN%sA%sL%sE%sV" TEXTCOLOR_GOLD " %-5.4f %-4u  %s\n", chan->Volume, chan->EntChannel, chan->Priority,
+		out.AppendFormat("%-.2g     %-4d  %-4d  %s3%sZ%sU%sM%sN%sA%sL%sE%sV" TEXTCOLOR_GOLD " %-5.4f %-4u  %d: %s\n", chan->Volume, chan->EntChannel, chan->Priority,
 			(chan->ChanFlags & CHAN_IS3D) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
 			(chan->ChanFlags & CHAN_LISTENERZ) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
 			(chan->ChanFlags & CHAN_UI) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
@@ -1756,7 +1755,7 @@ FString SoundEngine::NoiseDebug()
 			(chan->ChanFlags & CHAN_LOOP) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
 			(chan->ChanFlags & CHAN_EVICTED) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
 			(chan->ChanFlags & CHAN_VIRTUAL) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
-			GSnd->GetAudibility(chan), GSnd->GetPosition(chan), S_sfx[chan->SoundID].name.GetChars());
+			GSnd->GetAudibility(chan), GSnd->GetPosition(chan), ((int)chan->OrgID)-1, S_sfx[chan->SoundID].name.GetChars());
 		ch++;
 	}
 	out.AppendFormat("%d channels\n", ch);
