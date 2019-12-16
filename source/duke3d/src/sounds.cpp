@@ -156,7 +156,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
     sndinf->priority = priority & 255;
     sndinf->volAdjust = clamp(distance, INT16_MIN, INT16_MAX);
     sfx->Volume = volume;
-    sfx->NearLimit = 4;
+    sfx->NearLimit = 6;
     sfx->bTentative = false;
     sfx->name = filename;
     return 0;
@@ -196,27 +196,6 @@ static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum,
         && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (24 << 8), SECT(spriteNum)))
         sndist += sndist>>5;
 
-    if ((userflags & (SF_GLOBAL|SF_DTAG)) == (SF_GLOBAL|SF_DTAG))
-    {
-boost:
-        int const sdist = dist_adjust ? dist_adjust : 6144;
-
-        explosion = true;
-
-        if (sndist > sdist)
-            sndist = sdist;
-    }
-    else if (!FURY)
-    {
-        switch (DYNAMICSOUNDMAP(soundNum))
-        {
-            case PIPEBOMB_EXPLODE__STATIC:
-            case LASERTRIP_EXPLODE__STATIC:
-            case RPG_EXPLODE__STATIC:
-                goto boost;
-        }
-    }
-
     // Here the sound distance was clamped to a minimum of 144*4. 
     // It's better to handle rolloff in the backend instead of whacking the sound origin here.
     // That way the lower end can be made customizable instead of losing all precision right here at the source.
@@ -226,7 +205,6 @@ boost:
     {
         *distPtr = sndist;
     }
-
 
     if (sndPos)
     {
@@ -242,7 +220,7 @@ boost:
         else *sndPos = campos;
     }
 
-    return explosion;
+    return false;
 }
 
 //==========================================================================
@@ -421,13 +399,15 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
     int32_t camsect;
 
     S_GetCamera(&campos, nullptr, &camsect);
-    int const  explosionp = S_CalcDistAndAng(spriteNum, sndnum, camsect, campos, pos, &sndist, &sndpos);
+    S_CalcDistAndAng(spriteNum, sndnum, camsect, campos, pos, &sndist, &sndpos);
     int        pitch = S_GetPitch(sndnum);
     auto const pOther = g_player[screenpeek].ps;
 
 
     if (pOther->sound_pitch)
         pitch += pOther->sound_pitch;
+
+    bool explosionp = ((userflags & (SF_GLOBAL | SF_DTAG)) == (SF_GLOBAL | SF_DTAG)) || ((!FURY) && (sndnum == PIPEBOMB_EXPLODE || sndnum == LASERTRIP_EXPLODE || sndnum == RPG_EXPLODE));
 
     if (explosionp)
     {
@@ -455,8 +435,13 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
         return -1;
     }
 
-    // Now 
-    float attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
+    // These explosion sounds originally used some distance hackery to make them louder but due to how the rolloff was set up they always played at full volume as a result.
+    // I think it is better to lower their attenuation so that they are louder than the rest but still fade in the distance.
+    // For the original effect, attenuation needs to be set to ATTN_NONE here.
+    float attenuation;
+    if (explosionp) attenuation = 0.5f;
+    else attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
+
     if (userflags & SF_LOOP) flags |= CHAN_LOOP;
     auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
     return chan ? 0 : -1;
