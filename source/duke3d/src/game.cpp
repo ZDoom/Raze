@@ -172,8 +172,7 @@ enum gametokens
 
 static void gameTimerHandler(void)
 {
-    MUSIC_Update();
-
+    S_Update();
     G_HandleSpecialKeys();
 }
 
@@ -4492,7 +4491,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(1))
 				{
-					S_PlaySound(THUD);
+					S_PlaySound(THUD, CHAN_UI);
 				}
             }
             else
@@ -4511,7 +4510,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(-1))
 				{
-					S_PlaySound(THUD);
+					S_PlaySound(THUD, CHAN_UI);
 				}
             }
             else
@@ -6159,7 +6158,6 @@ MAIN_LOOP_RESTART:
                         && (myplayer.gm & MODE_GAME))
                     {
                         G_MoveLoop();
-                        S_Update();
                     }
 
                     if (totalclock - moveClock >= (TICSPERFRAME>>1))

@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define actors_c_
 
 #include "duke3d.h"
+#include "sounds.h"
 
 BEGIN_DUKE_NS
 
@@ -1527,7 +1528,7 @@ ACTOR_STATIC void G_MoveFX(void)
                                 goto next_sprite;
                         }
 #endif
-                        A_PlaySound(pSprite->lotag,spriteNum, true);
+                        A_PlaySound(pSprite->lotag,spriteNum, CHAN_LOOP);
                         T1(spriteNum) = 1;  // AMBIENT_SFX_PLAYING
                     }
                     else if (playerDist >= spriteHitag && T1(spriteNum) == 1)

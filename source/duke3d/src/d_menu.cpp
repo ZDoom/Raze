@@ -481,15 +481,15 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	switch (snd)
 	{
 		case CursorSound:
-			S_PlaySound(KICK_HIT);
+			S_PlaySound(KICK_HIT, CHAN_UI);
 			break;
 
 		case AdvanceSound:
-			S_PlaySound(PISTOL_BODYHIT);
+			S_PlaySound(PISTOL_BODYHIT, CHAN_UI);
 			break;
 			
 		case CloseSound:
-			S_PlaySound(EXITMENUSOUND);
+			S_PlaySound(EXITMENUSOUND, CHAN_UI);
 			break;
 
 		default:

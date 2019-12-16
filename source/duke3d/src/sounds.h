@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define sounds_public_h_
 
 #include "sounds_common.h"
+#include "sound/s_soundinternal.h"
 #include "z_music.h"
 
 BEGIN_DUKE_NS
@@ -45,7 +46,7 @@ typedef struct
 } sound_t;
 
 int A_CheckSoundPlaying(int spriteNum,int soundNum);
-int A_PlaySound(int soundNum, int spriteNum, bool looped = false);
+int A_PlaySound(int soundNum, int spriteNum, int flags = 0);
 void S_Callback(intptr_t num);
 int A_CheckAnySoundPlaying(int spriteNum);
 int S_CheckSoundPlaying(int soundNum);
@@ -58,8 +59,8 @@ void S_PlayLevelMusicOrNothing(unsigned int);
 int S_TryPlaySpecialMusic(unsigned int);
 void S_PlaySpecialMusicOrNothing(unsigned int);
 void S_ContinueLevelMusic(void);
-int S_PlaySound(int num, bool looped = false);
-int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos, bool looped = false);
+int S_PlaySound(int num, int flags = 0);
+int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos, int flags = 0);
 void S_StopEnvSound(int sndNum,int sprNum);
 void S_StopAllSounds(void);
 void S_Update(void);

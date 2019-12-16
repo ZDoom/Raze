@@ -386,7 +386,7 @@ void S_Update(void)
 //
 //==========================================================================
 
-int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, bool looped)
+int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
 {
     int32_t j = VM_OnEventWithReturn(EVENT_SOUND, spriteNum, screenpeek, num);
 
@@ -470,8 +470,8 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, bool looped)
 
     // Now 
     float attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
-    auto chflg = ((userflags & SF_LOOP) || looped) ? CHAN_AUTO | CHAN_LOOP : CHAN_AUTO;
-    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, chflg, sndnum+1, 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
+    if (userflags & SF_LOOP) flags |= CHAN_LOOP;
+    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, flags, sndnum+1, 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
     if (!chan) return -1;
     return 0;
 }
@@ -482,7 +482,7 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, bool looped)
 //
 //==========================================================================
 
-int S_PlaySound(int num, bool looped)
+int S_PlaySound(int num, int flags)
 {
     int sndnum = VM_OnEventWithReturn(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, num);
 
@@ -494,8 +494,8 @@ int S_PlaySound(int num, bool looped)
 
     int const pitch = S_GetPitch(sndnum);
 
-    auto chflg = ((userflags & SF_LOOP) || looped) ? CHAN_AUTO | CHAN_LOOP : CHAN_AUTO;
-    soundEngine->StartSound(SOURCE_None, nullptr, nullptr, chflg, sndnum + 1, 1.f, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
+    if (userflags & SF_LOOP) flags |= CHAN_LOOP;
+    soundEngine->StartSound(SOURCE_None, nullptr, nullptr, flags, sndnum + 1, 1.f, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
     /* for reference. May still be needed for balancing later.
        : FX_Play3D(snd.ptr, snd.siz, FX_ONESHOT, pitch, 0, 255 - LOUDESTVOLUME, snd.pr, snd.volume,
         (num * MAXSOUNDINSTANCES) + sndnum);
@@ -509,10 +509,10 @@ int S_PlaySound(int num, bool looped)
 //
 //==========================================================================
 
-int A_PlaySound(int soundNum, int spriteNum, bool looped)
+int A_PlaySound(int soundNum, int spriteNum, int flags)
 {
-    return (unsigned)spriteNum >= MAXSPRITES ? S_PlaySound(soundNum, looped) :
-        S_PlaySound3D(soundNum, spriteNum, &sprite[spriteNum].pos, looped);
+    return (unsigned)spriteNum >= MAXSPRITES ? S_PlaySound(soundNum, flags) :
+        S_PlaySound3D(soundNum, spriteNum, &sprite[spriteNum].pos, flags);
 }
 
 void S_StopEnvSound(int sndNum, int sprNum)
