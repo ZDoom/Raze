@@ -162,9 +162,7 @@ enum gametokens
 
 static void gameTimerHandler(void)
 {
-    S_Cleanup();
-    MUSIC_Update();
-
+    S_Update();
     G_HandleSpecialKeys();
 }
 
@@ -6046,7 +6044,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(1))
 				{
-					S_PlaySound(RR ? 341 : THUD);
+					S_PlaySound(RR ? 341 : THUD, CHAN_UI);
 				}
             }
             else
@@ -6065,7 +6063,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(-1))
 				{
-					S_PlaySound(RR ? 341 : THUD);
+					S_PlaySound(RR ? 341 : THUD, CHAN_UI);
 				}
             }
             else
@@ -6309,43 +6307,6 @@ void G_HandleLocalKeys(void)
         g_restorePalette = 1;
         G_UpdateScreenArea();
     }
-}
-
-static int32_t S_DefineAudioIfSupported(char **fn, const char *name)
-{
-#if !defined HAVE_FLAC || !defined HAVE_VORBIS
-    const char *extension = Bstrrchr(name, '.');
-# if !defined HAVE_FLAC
-    if (extension && !Bstrcasecmp(extension, ".flac"))
-        return -2;
-# endif
-# if !defined HAVE_VORBIS
-    if (extension && !Bstrcasecmp(extension, ".ogg"))
-        return -2;
-# endif
-#endif
-    realloc_copy(fn, name);
-    return 0;
-}
-
-static int32_t S_DefineSound(int sndidx, const char *name, int minpitch, int maxpitch, int priority, int type, int distance, float volume)
-{
-    if ((unsigned)sndidx >= MAXSOUNDS || S_DefineAudioIfSupported(&g_sounds[sndidx].filename, name))
-        return -1;
-
-    auto &snd = g_sounds[sndidx];
-
-    snd.ps     = clamp(minpitch, INT16_MIN, INT16_MAX);
-    snd.pe     = clamp(maxpitch, INT16_MIN, INT16_MAX);
-    snd.pr     = priority & 255;
-    snd.m      = type & ~SF_ONEINST_INTERNAL;
-    snd.vo     = clamp(distance, INT16_MIN, INT16_MAX);
-    snd.volume = volume;
-
-    if (snd.m & SF_LOOP)
-        snd.m |= SF_ONEINST_INTERNAL;
-
-    return 0;
 }
 
 // Returns:
@@ -6816,10 +6777,6 @@ static void G_Cleanup(void)
         Bfree(g_player[i].inputBits);
     }
 
-    for (i=MAXSOUNDS-1; i>=0; i--)
-    {
-        Bfree(g_sounds[i].filename);
-    }
     if (label != (char *)&sprite[0]) Bfree(label);
     if (labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
     Bfree(apScript);
@@ -6843,7 +6800,6 @@ static void G_Cleanup(void)
 
 void G_Shutdown(void)
 {
-	S_SoundShutdown();
     G_SetFog(0);
     engineUnInit();
     G_Cleanup();
@@ -7306,6 +7262,7 @@ int GameInterface::app_main()
     {
         I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
     }
+    S_InitSound();
 
     
     g_logFlushWindow = 0;
@@ -7487,7 +7444,6 @@ int GameInterface::app_main()
         }
 
         videoSetPalette(0, g_player[myconnectindex].ps->palette, 0);
-        S_SoundStartup();
     }
 
     // check if the minifont will support lowercase letters (3136-3161)
@@ -7656,7 +7612,6 @@ MAIN_LOOP_RESTART:
 	                        (g_player[myconnectindex].ps->gm&MODE_GAME))
 	                {
 	                    G_MoveLoop();
-	                    S_Update();
 	                }
 
 	                if (totalclock - moveClock >= TICSPERFRAME)

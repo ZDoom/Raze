@@ -448,4 +448,8 @@ struct FReverbField
 	unsigned int Flag;
 };
 
+inline void FX_StopAllSounds(void) 
+{ 
+	soundEngine->StopAllChannels();
+}
 

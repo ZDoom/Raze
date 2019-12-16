@@ -366,7 +366,7 @@ void M_StartControlPanel (bool makeSound)
 		created = true;
 		M_CreateMenus();
 	}
-	FX_StopAllSounds();
+	FX_StopAllSounds_();
 	gi->MenuOpened();
 	if (makeSound) gi->MenuSound(ActivateSound);
 

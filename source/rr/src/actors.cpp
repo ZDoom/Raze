@@ -1359,7 +1359,8 @@ ACTOR_STATIC void G_MoveFX(void)
             else if (pSprite->lotag < 999 && (unsigned)sector[pSprite->sectnum].lotag < 9 &&  // ST_9_SLIDING_ST_DOOR
                          snd_ambience && sector[SECT(spriteNum)].floorz != sector[SECT(spriteNum)].ceilingz)
             {
-                if (g_sounds[pSprite->lotag].m & SF_MSFX)
+                auto flags = S_GetUserFlags(pSprite->lotag);
+                if (flags & SF_MSFX)
                 {
                     int playerDist = dist(&sprite[pPlayer->i], pSprite);
 
@@ -1372,11 +1373,10 @@ ACTOR_STATIC void G_MoveFX(void)
                     }
 #endif
 
-                    if (playerDist < spriteHitag && T1(spriteNum) == 0 && FX_VoiceAvailable(g_sounds[pSprite->lotag].pr-1))
+                    if (playerDist < spriteHitag && T1(spriteNum) == 0)// && FX_VoiceAvailable(g_sounds[pSprite->lotag].pr-1))
                     {
                         // Start playing an ambience sound.
-
-                        char om = g_sounds[pSprite->lotag].m;
+#if 0 // let the sound system handle this internally.
                         if (g_numEnvSoundsPlaying == snd_numvoices)
                         {
                             int32_t j;
@@ -1392,10 +1392,8 @@ ACTOR_STATIC void G_MoveFX(void)
                             if (j == -1)
                                 goto next_sprite;
                         }
-
-                        g_sounds[pSprite->lotag].m |= SF_LOOP;
-                        A_PlaySound(pSprite->lotag,spriteNum);
-                        g_sounds[pSprite->lotag].m = om;
+#endif
+                        A_PlaySound(pSprite->lotag, spriteNum, CHAN_LOOP);
                         T1(spriteNum) = 1;  // AMBIENT_SFX_PLAYING
                     }
                     else if (playerDist >= spriteHitag && T1(spriteNum) == 1)
@@ -1408,7 +1406,7 @@ ACTOR_STATIC void G_MoveFX(void)
                     }
                 }
 
-                if (g_sounds[pSprite->lotag].m & SF_GLOBAL)
+                if (flags & SF_GLOBAL)
                 {
                     // Randomly playing global sounds (flyby of planes, screams, ...)
 

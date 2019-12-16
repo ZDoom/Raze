@@ -1367,7 +1367,7 @@ RESTART:
     {
         UpdateDacs(0, true);
         Mus_Stop();
-        FX_StopAllSounds();
+        FX_StopAllSounds_();
         gQuitGame = 0;
         gQuitRequest = 0;
         gRestartGame = 0;

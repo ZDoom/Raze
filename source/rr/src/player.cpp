@@ -4417,12 +4417,7 @@ void P_FragPlayer(int playerNum)
     if (!RR)
         S_StopEnvSound(DUKE_JETPACK_IDLE, pPlayer->i);
 
-    if (pPlayer->scream_voice > FX_Ok)
-    {
-        FX_StopSound(pPlayer->scream_voice);
-        S_Cleanup();
-        pPlayer->scream_voice = -1;
-    }
+    S_StopEnvSound(-1, pPlayer->i, CHAN_VOICE);
 
     if (pSprite->pal != 1 && (pSprite->cstat & 32768) == 0)
         pSprite->cstat = 0;
@@ -7123,11 +7118,9 @@ check_enemy_sprite:
                 if (pPlayer->vel.z > 2400 && pPlayer->falling_counter < 255)
                 {
                     pPlayer->falling_counter++;
-                    if (pPlayer->falling_counter >= 38 && pPlayer->scream_voice <= FX_Ok)
+                    if (pPlayer->falling_counter >= 38 && !A_CheckSoundPlaying(pPlayer->i, -1, CHAN_VOICE))
                     {
-                        int32_t voice = A_PlaySound(DUKE_SCREAM,pPlayer->i);
-                        if (voice <= 127)  // XXX: p->scream_voice is an int8_t
-                            pPlayer->scream_voice = voice;
+                        A_PlaySound(DUKE_SCREAM, pPlayer->i, CHAN_VOICE);
                     }
                 }
 
@@ -7179,12 +7172,7 @@ check_enemy_sprite:
         {
             pPlayer->falling_counter = 0;
 
-            if (pPlayer->scream_voice > FX_Ok)
-            {
-                FX_StopSound(pPlayer->scream_voice);
-                S_Cleanup();
-                pPlayer->scream_voice = -1;
-            }
+            S_StopEnvSound(-1, pPlayer->i, CHAN_VOICE);
 
             if ((sectorLotag != ST_1_ABOVE_WATER && sectorLotag != ST_2_UNDERWATER) &&
                 (pPlayer->on_ground == 0 && pPlayer->vel.z > (6144 >> 1)))

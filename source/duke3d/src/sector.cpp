@@ -3025,11 +3025,7 @@ CHECKINV1:
                     if (pPlayer->jetpack_on)
                     {
                         pPlayer->inven_icon = ICON_JETPACK;
-                        if (pPlayer->scream_voice > FX_Ok)
-                        {
-                            FX_StopSound(pPlayer->scream_voice);
-                            pPlayer->scream_voice = -1;
-                        }
+                        S_StopEnvSound(-1, pPlayer->i, CHAN_VOICE);
 #ifndef EDUKE32_STANDALONE
                         if (!FURY)
                             A_PlaySound(DUKE_JETPACK_ON,pPlayer->i);

@@ -326,7 +326,7 @@ SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_tra
 void
 StopFX(void)
 {
-    FX_StopAllSounds();
+    FX_StopAllSounds_();
 }
 
 void

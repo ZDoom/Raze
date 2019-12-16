@@ -361,15 +361,15 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	switch (snd)
 	{
 		case CursorSound:
-			S_PlaySound(RR ? 335 : KICK_HIT);
+			S_PlaySound(RR ? 335 : KICK_HIT, CHAN_UI);
 			break;
 
 		case AdvanceSound:
-			S_PlaySound(RR? 341 : PISTOL_BODYHIT);
+			S_PlaySound(RR? 341 : PISTOL_BODYHIT, CHAN_UI);
 			break;
 			
 		case CloseSound:
-			S_PlaySound(EXITMENUSOUND);
+			S_PlaySound(EXITMENUSOUND, CHAN_UI);
 			break;
 
 		default:
@@ -443,7 +443,16 @@ void GameInterface::StartGame(FGameStartup& gs)
 	}
 
 	ud.m_player_skill = gs.Skill + 1;
-	if (menu_sounds) g_skillSoundVoice = S_PlaySound(skillsound);
+	if (menu_sounds && skillsound >= 0 && SoundEnabled())
+	{
+		S_PlaySound(skillsound, CHAN_UI);
+
+		while (S_CheckSoundPlaying(skillsound))
+		{
+			S_Update();
+			G_HandleAsync();
+		}
+	}
 	ud.m_respawn_monsters = (gs.Skill == 3);
 	ud.m_monsters_off = ud.monsters_off = 0;
 	ud.m_respawn_items = 0;

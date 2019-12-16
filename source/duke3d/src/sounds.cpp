@@ -350,11 +350,9 @@ void S_Update(void)
 //
 //
 //==========================================================================
-CVAR(Int, soundtest, -1, 0) // Debug aid to block all sounds except the one selected
 
 int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
 {
-    if (soundtest > -1 && num != soundtest) return -1;
     int sndnum = VM_OnEventWithReturn(EVENT_SOUND, spriteNum, screenpeek, num);
 
     auto const pPlayer = g_player[myconnectindex].ps;
@@ -455,7 +453,6 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
 
 int S_PlaySound(int num, int flags)
 {
-    if (soundtest > -1 && num != soundtest) return -1;
     int sndnum = VM_OnEventWithReturn(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, num);
 
     if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled()) return -1;
@@ -483,12 +480,13 @@ int A_PlaySound(int soundNum, int spriteNum, int flags)
         S_PlaySound3D(soundNum, spriteNum, &sprite[spriteNum].pos, flags);
 }
 
-void S_StopEnvSound(int sndNum, int sprNum)
+void S_StopEnvSound(int sndNum, int sprNum, int flags)
 {
     if (sprNum < -1 || sprNum >= MAXSPRITES) return;
 
     if (sprNum == -1) soundEngine->StopSoundID(sndNum+1);
-    else soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], -1, sndNum+1);
+    else if (flags == -1) soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], -1, sndNum+1);
+    else soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], flags, -1);
 }
 
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
@@ -511,11 +509,11 @@ void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
 //
 //==========================================================================
 
-int A_CheckSoundPlaying(int spriteNum, int soundNum)
+int A_CheckSoundPlaying(int spriteNum, int soundNum, int flags)
 {
     if (spriteNum == -1) return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
     if ((unsigned)spriteNum >= MAXSPRITES) return false;
-    return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[spriteNum], CHAN_AUTO, soundNum+1);
+    return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[spriteNum], flags, soundNum+1);
 }
 
 // Check if actor <i> is playing any sound.
@@ -570,7 +568,6 @@ void S_PlayLevelMusicOrNothing(unsigned int m)
 
     if (retval >= 0)
     {
-        // Thanks to scripting that stupid slot hijack cannot be refactored - but we'll store the real data elsewhere anyway!
         auto& mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
         Mus_Play(mr.labelName, mr.music, true);
         S_SetMusicIndex(m);

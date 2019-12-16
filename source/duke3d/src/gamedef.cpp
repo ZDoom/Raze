@@ -5364,7 +5364,6 @@ repeatcase:
         case CON_DEFINESOUND:
         {
             int ps, pe, vo, pr, m;
-            float volume;
 
             g_scriptPtr--;
             C_GetNextValue(LABEL_DEFINE);
@@ -5422,8 +5421,6 @@ repeatcase:
             g_scriptPtr -= 5;
 
             int res = S_DefineSound(k, buffer.Data(), ps, pe, pr, m, vo, 1.f);
-
-            volume = 1.f;
 
             if (g_dynamicSoundMapping && j >= 0 && (labeltype[j] & LABEL_DEFINE))
                 G_ProcessDynamicSoundMapping(label + (j << 6), k);

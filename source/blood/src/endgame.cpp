@@ -119,7 +119,7 @@ void CEndGameMgr::Finish(void)
 {
     levelSetupOptions(gGameOptions.nEpisode, gNextLevel);
     gInitialNetPlayers = numplayers;
-	FX_StopAllSounds();
+	FX_StopAllSounds_();
     sndKillAllSounds();
     gStartNewGame = 1;
     gInputMode = (INPUT_MODE)at1;

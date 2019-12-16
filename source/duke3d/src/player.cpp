@@ -3730,12 +3730,7 @@ void P_FragPlayer(int playerNum)
         pPlayer->holoduke_on = -1;
 
         S_StopEnvSound(DUKE_JETPACK_IDLE, pPlayer->i);
-
-        if (pPlayer->scream_voice > FX_Ok)
-        {
-            FX_StopSound(pPlayer->scream_voice);
-            pPlayer->scream_voice = -1;
-        }
+        S_StopEnvSound(-1, pPlayer->i, CHAN_VOICE);
     }
 #endif
 
@@ -4996,11 +4991,9 @@ void P_ProcessInput(int playerNum)
                 if (pPlayer->vel.z > 2400 && pPlayer->falling_counter < 255)
                 {
                     pPlayer->falling_counter++;
-                    if (pPlayer->falling_counter >= 38 && pPlayer->scream_voice <= FX_Ok)
+                    if (pPlayer->falling_counter >= 38 && !A_CheckSoundPlaying(pPlayer->i, -1, CHAN_VOICE))
                     {
-                        int32_t voice = A_PlaySound(DUKE_SCREAM,pPlayer->i);
-                        if (voice <= 127)  // XXX: p->scream_voice is an int8_t
-                            pPlayer->scream_voice = voice;
+                        A_PlaySound(DUKE_SCREAM, pPlayer->i, CHAN_VOICE);
                     }
                 }
 
@@ -5044,11 +5037,7 @@ void P_ProcessInput(int playerNum)
         {
             pPlayer->falling_counter = 0;
 
-            if (pPlayer->scream_voice > FX_Ok)
-            {
-                FX_StopSound(pPlayer->scream_voice);
-                pPlayer->scream_voice = -1;
-            }
+            S_StopEnvSound(-1, pPlayer->i, CHAN_VOICE);
 
             if ((sectorLotag != ST_1_ABOVE_WATER && sectorLotag != ST_2_UNDERWATER) &&
                 (pPlayer->on_ground == 0 && pPlayer->vel.z > (6144 >> 1)))

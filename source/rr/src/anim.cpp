@@ -396,7 +396,7 @@ int32_t Anim_Play(const char *fn)
                     if (sound == -1)
                         FX_StopAllSounds();
                     else
-                        S_PlaySound(sound);
+                        S_PlaySound(sound, CHAN_UI);
 
                     soundidx++;
                 }
@@ -410,7 +410,7 @@ int32_t Anim_Play(const char *fn)
                     if (sound == -1)
                         FX_StopAllSounds();
                     else
-                        S_PlaySound(sound);
+                        S_PlaySound(sound, CHAN_UI);
 
                     soundidx++;
                 }
@@ -566,7 +566,7 @@ int32_t Anim_Play(const char *fn)
             if (sound == -1)
                 FX_StopAllSounds();
             else
-                S_PlaySound(sound);
+                S_PlaySound(sound, CHAN_UI);
 
             soundidx++;
         }

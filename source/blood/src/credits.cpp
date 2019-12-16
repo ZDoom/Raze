@@ -282,7 +282,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
     Smacker_Close(hSMK);
     ctrlClearAllInput();
-    FX_StopAllSounds();
+    FX_StopAllSounds_();
     videoSetPalette(0, 0, 8+2);
 	tileDelete(kSMKTile);
     Bfree(pzSMK_);

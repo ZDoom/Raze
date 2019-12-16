@@ -2979,7 +2979,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                 Net_GetPackets();
                 break;
             }
-            S_Cleanup();
+
             if (!S_CheckSoundPlaying(-1,35)) break;
             if (I_CheckAllInput())
             {

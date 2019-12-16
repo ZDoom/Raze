@@ -199,6 +199,9 @@ extern user_defs ud;
 extern const char *s_buildDate;
 
 extern char boardfilename[BMAX_PATH];
+#define USERMAPMUSICFAKEVOLUME MAXVOLUMES
+#define USERMAPMUSICFAKELEVEL (MAXLEVELS-1)
+#define USERMAPMUSICFAKESLOT ((USERMAPMUSICFAKEVOLUME * MAXLEVELS) + USERMAPMUSICFAKELEVEL)
 
 static inline int G_HaveUserMap(void)
 {

@@ -45,7 +45,7 @@ typedef struct
     int priority, flags;
 } sound_t;
 
-int A_CheckSoundPlaying(int spriteNum,int soundNum);
+int A_CheckSoundPlaying(int spriteNum, int soundNum, int flags = 0);
 int A_PlaySound(int soundNum, int spriteNum, int flags = 0);
 void S_Callback(intptr_t num);
 int A_CheckAnySoundPlaying(int spriteNum);
@@ -61,7 +61,7 @@ void S_PlaySpecialMusicOrNothing(unsigned int);
 void S_ContinueLevelMusic(void);
 int S_PlaySound(int num, int flags = 0);
 int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos, int flags = 0);
-void S_StopEnvSound(int sndNum,int sprNum);
+void S_StopEnvSound(int sndNum,int sprNum, int flags = -1);
 void S_StopAllSounds(void);
 void S_Update(void);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);

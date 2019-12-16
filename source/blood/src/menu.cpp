@@ -153,7 +153,7 @@ void NetworkHostGame(CGameMenuItemChain *pItem)
 {
     UNREFERENCED_PARAMETER(pItem);
     Mus_Stop();
-    FX_StopAllSounds();
+    FX_StopAllSounds_();
     UpdateDacs(0, true);
     gNetPlayers = itemNetworkHostPlayerNum.nValue;
     gNetPort = strtoul(zNetPortBuffer, NULL, 10);
@@ -169,7 +169,7 @@ void NetworkJoinGame(CGameMenuItemChain *pItem)
 {
     UNREFERENCED_PARAMETER(pItem);
     Mus_Stop();
-    FX_StopAllSounds();
+    FX_StopAllSounds_();
     UpdateDacs(0, true);
     strcpy(gNetAddress, zNetAddressBuffer);
     gNetPort = strtoul(zNetPortBuffer, NULL, 10);
