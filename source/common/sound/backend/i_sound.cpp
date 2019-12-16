@@ -400,7 +400,7 @@ std::pair<SoundHandle,bool> SoundRenderer::LoadSoundVoc(uint8_t *sfxdata, int le
 					if (codec == 0)
 						bits = 8;
 					else if (codec == 4)
-						bits = -16;
+						bits = 16;
 					else okay = false;
 					len += blocksize - 2;
 				}
@@ -451,7 +451,7 @@ std::pair<SoundHandle,bool> SoundRenderer::LoadSoundVoc(uint8_t *sfxdata, int le
 					if (codec == 0)
 						bits = 8;
 					else if (codec == 4)
-						bits = -16;
+						bits = 16;
 					else okay = false;
 					len += blocksize - 12;
 				} else okay = false;
