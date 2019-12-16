@@ -481,15 +481,15 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	switch (snd)
 	{
 		case CursorSound:
-			S_PlaySound(KICK_HIT, CHAN_UI);
+			S_PlaySound(KICK_HIT, CHAN_AUTO, CHANF_UI);
 			break;
 
 		case AdvanceSound:
-			S_PlaySound(PISTOL_BODYHIT, CHAN_UI);
+			S_PlaySound(PISTOL_BODYHIT, CHAN_AUTO, CHANF_UI);
 			break;
 			
 		case CloseSound:
-			S_PlaySound(EXITMENUSOUND, CHAN_UI);
+			S_PlaySound(EXITMENUSOUND, CHAN_AUTO, CHANF_UI);
 			break;
 
 		default:
@@ -570,7 +570,7 @@ void GameInterface::StartGame(FGameStartup& gs)
 	ud.m_player_skill = gs.Skill + 1;
 	if (menu_sounds && skillsound >= 0 && SoundEnabled())
 	{
-		S_PlaySound(skillsound, CHAN_UI);
+		S_PlaySound(skillsound, CHAN_AUTO, CHANF_UI);
 
 		while (S_CheckSoundPlaying(skillsound))
 		{

@@ -299,7 +299,7 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
                 */
             }
         }
-        if ((chanflags & CHAN_LISTENERZ) && campos != nullptr && type != SOURCE_None)
+        if ((chanflags & CHANF_LISTENERZ) && campos != nullptr && type != SOURCE_None)
         {
             pos->Y = campos->z / 256.f;
         }
@@ -354,7 +354,7 @@ void S_Update(void)
 //
 //==========================================================================
 
-int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
+int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int channel, EChanFlags flags)
 {
     int sndnum = VM_OnEventWithReturn(EVENT_SOUND, spriteNum, screenpeek, num);
 
@@ -443,8 +443,8 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
     if (explosionp) attenuation = 0.5f;
     else attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
 
-    if (userflags & SF_LOOP) flags |= CHAN_LOOP;
-    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
+    if (userflags & SF_LOOP) flags |= CHANF_LOOP;
+    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, channel, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
     return chan ? 0 : -1;
 }
 
@@ -454,7 +454,7 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
 //
 //==========================================================================
 
-int S_PlaySound(int num, int flags)
+int S_PlaySound(int num, int channel, EChanFlags flags)
 {
     int sndnum = VM_OnEventWithReturn(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, num);
 
@@ -466,8 +466,8 @@ int S_PlaySound(int num, int flags)
 
     int const pitch = S_GetPitch(sndnum);
 
-    if (userflags & SF_LOOP) flags |= CHAN_LOOP;
-    auto chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, flags, sndnum + 1, 0.8f, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
+    if (userflags & SF_LOOP) flags |= CHANF_LOOP;
+    auto chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, channel, flags, sndnum + 1, 0.8f, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
     return chan ? 0 : -1;
 }
 
@@ -477,19 +477,19 @@ int S_PlaySound(int num, int flags)
 //
 //==========================================================================
 
-int A_PlaySound(int soundNum, int spriteNum, int flags)
+int A_PlaySound(int soundNum, int spriteNum, int channel, EChanFlags flags)
 {
     return (unsigned)spriteNum >= MAXSPRITES ? S_PlaySound(soundNum, flags) :
         S_PlaySound3D(soundNum, spriteNum, &sprite[spriteNum].pos, flags);
 }
 
-void S_StopEnvSound(int sndNum, int sprNum, int flags)
+void S_StopEnvSound(int sndNum, int sprNum, int channel)
 {
     if (sprNum < -1 || sprNum >= MAXSPRITES) return;
 
     if (sprNum == -1) soundEngine->StopSoundID(sndNum+1);
-    else if (flags == -1) soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], -1, sndNum+1);
-    else soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], flags, -1);
+    else if (channel == -1) soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], -1, sndNum+1);
+    else soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], channel, -1);
 }
 
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
@@ -512,11 +512,11 @@ void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
 //
 //==========================================================================
 
-int A_CheckSoundPlaying(int spriteNum, int soundNum, int flags)
+int A_CheckSoundPlaying(int spriteNum, int soundNum, int channel)
 {
     if (spriteNum == -1) return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
     if ((unsigned)spriteNum >= MAXSPRITES) return false;
-    return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[spriteNum], flags, soundNum+1);
+    return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[spriteNum], channel, soundNum+1);
 }
 
 // Check if actor <i> is playing any sound.

@@ -4125,7 +4125,7 @@ badindex:
                             if (S_CheckSoundPlaying(soundNum))
                                 S_StopSound((int16_t)soundNum);
                             dispatch();
-                        case CON_SCREENSOUND: S_PlaySound(soundNum, CHAN_UI); dispatch();
+                        case CON_SCREENSOUND: S_PlaySound(soundNum, CHAN_AUTO, CHANF_UI); dispatch();
                     }
                 }
                 dispatch();

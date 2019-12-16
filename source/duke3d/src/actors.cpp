@@ -1527,7 +1527,7 @@ ACTOR_STATIC void G_MoveFX(void)
                                 goto next_sprite;
                         }
 #endif
-                        A_PlaySound(pSprite->lotag,spriteNum, CHAN_LOOP);
+                        A_PlaySound(pSprite->lotag,spriteNum, CHAN_AUTO, CHANF_LOOP);
                         T1(spriteNum) = 1;  // AMBIENT_SFX_PLAYING
                     }
                     else if (playerDist >= spriteHitag && T1(spriteNum) == 1)

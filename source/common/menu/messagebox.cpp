@@ -108,7 +108,7 @@ void DMessageBoxMenu::Init(DMenu *parent, const char *message, int messagemode, 
 	if (playsound)
 	{
 		//S_StopSound (CHAN_VOICE);
-		//S_Sound (CHAN_VOICE | CHAN_UI, "menu/prompt", snd_menuvolume, ATTN_NONE);
+		//S_Sound (CHAN_VOICE | CHANF_UI, "menu/prompt", snd_menuvolume, ATTN_NONE);
 	}
 }
 
@@ -283,7 +283,7 @@ bool DMessageBoxMenu::MenuEvent(int mkey, bool fromcontroller)
 	{
 		if ((mkey == MKEY_Up || mkey == MKEY_Down) && m_generic_messagebox)
 		{
-			//S_Sound (CHAN_VOICE | CHAN_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
+			//S_Sound (CHAN_VOICE | CHANF_UI, "menu/cursor", snd_menuvolume, ATTN_NONE);
 			messageSelection = !messageSelection;
 			return true;
 		}

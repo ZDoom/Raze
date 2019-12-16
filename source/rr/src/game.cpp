@@ -5954,7 +5954,7 @@ int G_StartRTS(int lumpNum, int localPlayer)
         auto sid = RTS_GetSoundID(lumpNum - 1);
         if (sid != -1)
         {
-            S_PlaySound(sid, CHAN_UI);
+            S_PlaySound(sid, CHAN_AUTO, CHANF_UI);
             g_RTSPlaying = 7;
             return 1;
         }
@@ -6043,7 +6043,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(1))
 				{
-					S_PlaySound(RR ? 341 : THUD, CHAN_UI);
+					S_PlaySound(RR ? 341 : THUD, CHAN_AUTO, CHANF_UI);
 				}
             }
             else
@@ -6062,7 +6062,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(-1))
 				{
-					S_PlaySound(RR ? 341 : THUD, CHAN_UI);
+					S_PlaySound(RR ? 341 : THUD, CHAN_AUTO, CHANF_UI);
 				}
             }
             else

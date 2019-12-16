@@ -299,7 +299,7 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
                 */
             }
         }
-        if ((chanflags & CHAN_LISTENERZ) && campos != nullptr && type != SOURCE_None)
+        if ((chanflags & CHANF_LISTENERZ) && campos != nullptr && type != SOURCE_None)
         {
             pos->Y = campos->z / 256.f;
         }
@@ -359,7 +359,7 @@ void S_Update(void)
 //
 //==========================================================================
 
-int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int flags)
+int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, EChanFlags flags)
 {
     auto const pPlayer = g_player[myconnectindex].ps;
     if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || (unsigned)spriteNum >= MAXSPRITES || (pPlayer->gm & MODE_MENU) ||
@@ -446,8 +446,8 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int flags)
     if (explosionp) attenuation = 0.5f;
     else attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
 
-    if (userflags & SF_LOOP) flags |= CHAN_LOOP;
-    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
+    if (userflags & SF_LOOP) flags |= CHANF_LOOP;
+    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, CHAN_AUTO, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
     return chan ? 0 : -1;
 }
 
@@ -457,7 +457,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int flags)
 //
 //==========================================================================
 
-int S_PlaySound(int sndnum, int flags)
+int S_PlaySound(int sndnum, int channel, EChanFlags flags)
 {
     if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled()) return -1;
 
@@ -467,8 +467,8 @@ int S_PlaySound(int sndnum, int flags)
 
     int const pitch = S_GetPitch(sndnum);
 
-    if (userflags & SF_LOOP) flags |= CHAN_LOOP;
-    auto chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, flags, sndnum + 1, 0.8f, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
+    if (userflags & SF_LOOP) flags |= CHANF_LOOP;
+    auto chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, channel, flags, sndnum + 1, 0.8f, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
     return chan ? 0 : -1;
 }
 
@@ -478,7 +478,7 @@ int S_PlaySound(int sndnum, int flags)
 //
 //==========================================================================
 
-int A_PlaySound(int soundNum, int spriteNum, int flags)
+int A_PlaySound(int soundNum, int spriteNum, int channel, EChanFlags flags)
 {
     return (unsigned)spriteNum >= MAXSPRITES ? S_PlaySound(soundNum, flags) :
         S_PlaySound3D(soundNum, spriteNum, &sprite[spriteNum].pos, flags);
@@ -513,11 +513,11 @@ void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
 //
 //==========================================================================
 
-int A_CheckSoundPlaying(int spriteNum, int soundNum, int flags)
+int A_CheckSoundPlaying(int spriteNum, int soundNum, int channel)
 {
     if (spriteNum == -1) return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
     if ((unsigned)spriteNum >= MAXSPRITES) return false;
-    return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[spriteNum], flags, soundNum+1);
+    return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[spriteNum], channel, soundNum+1);
 }
 
 // Check if actor <i> is playing any sound.

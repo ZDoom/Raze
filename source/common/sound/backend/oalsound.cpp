@@ -1672,7 +1672,7 @@ void OpenALSoundRenderer::ChannelPitch(FISoundChannel *chan, float pitch)
 	alDeferUpdatesSOFT();
 
 	ALuint source = GET_PTRID(chan->SysChannel);
-	if (WasInWater && !(chan->ChanFlags & CHAN_UI))
+	if (WasInWater && !(chan->ChanFlags & CHANF_UI))
 		alSourcef(source, AL_PITCH, std::max(pitch, 0.0001f)*PITCH_MULT);
 	else
 		alSourcef(source, AL_PITCH, std::max(pitch, 0.0001f));
@@ -1950,7 +1950,7 @@ void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 				while (schan)
 				{
 					ALuint source = GET_PTRID(schan->SysChannel);
-					if (source && !(schan->ChanFlags & CHAN_UI))
+					if (source && !(schan->ChanFlags & CHANF_UI))
 					{
 						alSourcei(source, AL_DIRECT_FILTER, EnvFilters[0]);
 						alSource3i(source, AL_AUXILIARY_SEND_FILTER, EnvSlot, 0, EnvFilters[1]);
@@ -1963,7 +1963,7 @@ void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 			while (schan)
 			{
 				ALuint source = GET_PTRID(schan->SysChannel);
-				if (source && !(schan->ChanFlags & CHAN_UI))
+				if (source && !(schan->ChanFlags & CHANF_UI))
 					alSourcef(source, AL_PITCH, schan->Pitch / 128.0f * PITCH_MULT);
 				schan = schan->NextChan;
 			}
@@ -1988,7 +1988,7 @@ void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 			while (schan)
 			{
 				ALuint source = GET_PTRID(schan->SysChannel);
-				if (source && !(schan->ChanFlags & CHAN_UI))
+				if (source && !(schan->ChanFlags & CHANF_UI))
 				{
 					alSourcei(source, AL_DIRECT_FILTER, EnvFilters[0]);
 					alSource3i(source, AL_AUXILIARY_SEND_FILTER, EnvSlot, 0, EnvFilters[1]);
@@ -2001,7 +2001,7 @@ void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 		while (schan)
 		{
 			ALuint source = GET_PTRID(schan->SysChannel);
-			if (source && !(schan->ChanFlags & CHAN_UI))
+			if (source && !(schan->ChanFlags & CHANF_UI))
 				alSourcef(source, AL_PITCH, schan->Pitch / 128.0f);
 			schan = schan->NextChan;
 		}
