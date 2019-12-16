@@ -105,6 +105,7 @@ void cacheAllSounds(void)
 static inline int S_GetPitch(int num)
 {
     auto const* snd = (sound_t*)soundEngine->GetUserData(num+1);
+    if (!snd) return 0;
     int const   range = abs(snd->pitchEnd - snd->pitchStart);
 
     return (range == 0) ? snd->pitchStart : min(snd->pitchStart, snd->pitchEnd) + rand() % range;
@@ -115,9 +116,11 @@ float S_ConvertPitch(int lpitch)
     return pow(2, lpitch / 1200.);   // I hope I got this right that ASS uses a linear scale where 1200 is a full octave.
 }
 
-int S_GetUserFlags(int sndnum)
+int S_GetUserFlags(int num)
 {
-    return ((sound_t*)soundEngine->GetUserData(sndnum + 1))->flags;
+    auto const* snd = (sound_t*)soundEngine->GetUserData(num + 1);
+    if (!snd) return 0;
+    return snd->flags;
 }
 
 //==========================================================================
@@ -176,9 +179,9 @@ static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum,
     // However, ultimately rolloff would also just reposition the sound source so this can remain as it is.
 
     int orgsndist = 0, sndang = 0, sndist = 0, explosion = 0;
-    auto const* snd = (sound_t*)soundEngine->GetUserData(soundNum+1);
-    int userflags = snd->flags;
-    int dist_adjust = snd->volAdjust;
+    auto const* snd = (sound_t*)soundEngine->GetUserData(soundNum + 1);
+    int userflags = snd ? snd->flags : 0;
+    int dist_adjust = snd ? snd->volAdjust : 0;
 
     if (PN(spriteNum) != APLAYER || P_Get(spriteNum) != screenpeek)
     {
@@ -381,7 +384,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int flags)
         bool foundone =  soundEngine->EnumerateChannels([&](FSoundChan* chan)
             {
                 auto sid = chan->OrgID;
-                auto flags = ((sound_t*)soundEngine->GetUserData(sid))->flags;
+                auto flags = S_GetUserFlags(sid - 1);
                 return !!(flags & SF_TALK);
             });
         // don't play if any Duke talk sounds are already playing

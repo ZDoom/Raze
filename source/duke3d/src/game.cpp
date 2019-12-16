@@ -4392,16 +4392,15 @@ void G_InitTimer(int32_t ticspersec)
 static int32_t g_RTSPlaying;
 
 // Returns: started playing?
-extern int G_StartRTS(int lumpNum, int localPlayer)
+int G_StartRTS(int lumpNum, int localPlayer)
 {
     if (!adult_lockout && SoundEnabled() &&
         RTS_IsInitialized() && g_RTSPlaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
     {
-        char *const pData = (char *)RTS_GetSound(lumpNum - 1);
-
-        if (pData != NULL)
+        auto sid = RTS_GetSoundID(lumpNum - 1);
+        if (sid != -1)
         {
-            FX_Play3D(pData, RTS_SoundLength(lumpNum - 1), FX_ONESHOT, 0, 0, 1, 255, 1.f, -lumpNum);
+            S_PlaySound(sid, CHAN_UI);
             g_RTSPlaying = 7;
             return 1;
         }

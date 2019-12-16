@@ -621,6 +621,8 @@ file( GLOB HEADER_FILES
 	common/console/*.h
 	common/filesystem/*.h
 	common/music/*.h
+	common/sound/*.h
+	common/sound/backend/*.h
 	common/menu/*.h
 	common/input/*.h
 
@@ -902,6 +904,7 @@ include_directories(
 	common/filesystem
 	common/music
 	common/sound
+	common/sound/backend
 	common/dobject
 	common/menu
 	common/input

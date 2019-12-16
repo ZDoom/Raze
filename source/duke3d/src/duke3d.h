@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "cache1d.h"
 #include "compat.h"
-#include "fx_man.h"
 #include "pragmas.h"
 #include "polymost.h"
 #include "gamecvars.h"

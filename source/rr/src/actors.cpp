@@ -1352,7 +1352,6 @@ ACTOR_STATIC void G_MoveFX(void)
                 else if (playerDist >= spriteHitag && T1(spriteNum) == 1)
                 {
                     FX_SetReverb(0);
-                    FX_SetReverbDelay(0);
                     T1(spriteNum) = 0;
                 }
             }

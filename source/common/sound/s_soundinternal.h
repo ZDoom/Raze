@@ -453,3 +453,7 @@ inline void FX_StopAllSounds(void)
 	soundEngine->StopAllChannels();
 }
 
+inline void FX_SetReverb(int strength)
+{
+	// todo: investigate how this works and set a proper environment.
+}

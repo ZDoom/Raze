@@ -488,22 +488,22 @@ void sfxSetReverb(bool toggle)
 {
     if (toggle)
     {
-        FX_SetReverb(128);
+        FX_SetReverb_(128);
         FX_SetReverbDelay(10);
     }
     else
-        FX_SetReverb(0);
+        FX_SetReverb_(0);
 }
 
 void sfxSetReverb2(bool toggle)
 {
     if (toggle)
     {
-        FX_SetReverb(128);
+        FX_SetReverb_(128);
         FX_SetReverbDelay(20);
     }
     else
-        FX_SetReverb(0);
+        FX_SetReverb_(0);
 }
 
 END_BLD_NS

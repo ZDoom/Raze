@@ -118,7 +118,7 @@ public:
 	int FindResource (int resid, const char *type, int filenum = -1) const noexcept;
 	int GetResource (int resid, const char *type, int filenum = -1) const;	// Like FindFile, but throws an exception when it cannot find what it looks for.
 
-	void AddFromBuffer(const char* name, const char* type, char* data, int size, int id, int flags);
+	int AddFromBuffer(const char* name, const char* type, char* data, int size, int id, int flags);
 
 
 	TArray<FString> GetAllFilesOfType(FName type, bool withsubdirs = false);

@@ -894,7 +894,7 @@ SoundShutdown(void)
 
 void COVER_SetReverb(int amt)
 {
-    FX_SetReverb(amt);
+    FX_SetReverb_(amt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
