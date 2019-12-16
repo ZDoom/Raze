@@ -1406,7 +1406,7 @@ ACTOR_STATIC void G_MoveFX(void)
                     }
                 }
 
-                if (flags & SF_GLOBAL)
+                if ((flags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL)
                 {
                     // Randomly playing global sounds (flyby of planes, screams, ...)
 
