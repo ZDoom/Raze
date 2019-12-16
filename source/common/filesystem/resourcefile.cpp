@@ -309,7 +309,7 @@ void FResourceFile::PostProcessArchive(void *lumps, size_t lumpsize)
 	{
 		if (build.IsEmpty()) build = segment;
 		else build << "." << segment;
-		max -= FilterLumps(LumpFilter, lumps, lumpsize, max);
+		max -= FilterLumps(build, lumps, lumpsize, max);
 	}
 	JunkLeftoverFilters(lumps, lumpsize, max);
 }
@@ -337,13 +337,6 @@ int FResourceFile::FilterLumps(FString filtername, void *lumps, size_t lumpsize,
 	
 	bool found = FindPrefixRange(filter, lumps, lumpsize, max, start, end);
 	
-	// Workaround for old Doom filter names.
-	if (!found && filtername.IndexOf("doom.id.doom") == 0)
-	{
-		filter.Substitute("doom.id.doom", "doom.doom");
-		found = FindPrefixRange(filter, lumps, lumpsize, max, start, end);
-	}
-
 	if (found)
 	{
 		void *from = (uint8_t *)lumps + start * lumpsize;
