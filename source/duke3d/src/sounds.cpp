@@ -1,10 +1,9 @@
 //-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
+Copyright (C) 2019 Christoph Oelckers
 
-This file is part of EDuke32.
-
-EDuke32 is free software; you can redistribute it and/or
+This is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
 as published by the Free Software Foundation.
 
@@ -31,8 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-int32_t g_highestSoundIdx;
-
+// Coordinate factors to map Build coordinate space to sound system coordinate space.
+const float xmul = 1 / 16.f;
+const float ymul = -1 / 16.f;
+const float zmul = -1 / 256.f;
 
 class DukeSoundEngine : public SoundEngine
 {
@@ -56,7 +57,7 @@ void S_InitSound()
 
 //==========================================================================
 //
-// This is to avoid hardscoding the dependency on Wads into the sound engine
+//
 // 
 //==========================================================================
 
@@ -175,7 +176,7 @@ static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum,
     // However, ultimately rolloff would also just reposition the sound source so this can remain as it is.
 
     int orgsndist = 0, sndang = 0, sndist = 0, explosion = 0;
-    auto const* snd = (sound_t*)soundEngine->GetUserData(soundNum);
+    auto const* snd = (sound_t*)soundEngine->GetUserData(soundNum+1);
     int userflags = snd->flags;
     int dist_adjust = snd->volAdjust;
 
@@ -226,18 +227,19 @@ boost:
         *distPtr = sndist;
     }
 
+
     if (sndPos)
     {
+        FVector3 sndorg = { pos->x * xmul, pos->z * zmul, pos->y * ymul };
+        FVector3 campos = { cam->x * xmul, cam->z * zmul, cam->y * ymul };
         // Now calculate the virtual position in sound system coordinates.
-        FVector3 sndvec = { float(pos->x - cam->x), (pos->z - cam->z) / 16.f, float(pos->y - cam->y) };   // distance vector. Note that the z-coordinate has different precision.
-        FVector3 campos = { float(pos->x), (cam->z) / 16.f, float(cam->y) };                              // camera position
+        FVector3 sndvec = sndorg - campos;
         if (orgsndist > 0)
         {
-            sndvec *= float(sndist) / orgsndist;                                                // adjust by what was calculated above;
-            *sndPos = campos + sndvec;                                                          // final sound pos - still in Build fixed point coordinates.
+            float scale = float(sndist) / orgsndist;                                                // adjust by what was calculated above;
+            *sndPos = campos + sndvec * scale;
         }
         else *sndPos = campos;
-        *sndPos *= (1.f / 16); sndPos->Z = -sndPos->Z;                                      // The sound engine works with Doom's coordinate system so do the necessary conversions
     }
 
     return explosion;
@@ -293,47 +295,32 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
         S_GetCamera(&campos, nullptr, &camsect);
         if (vel) vel->Zero();
 
-        // [BL] Moved this case out of the switch statement to make code easier
-        //      on static analysis.
         if (type == SOURCE_Unattached)
         {
             pos->X = pt[0];
-            pos->Y = campos && !(chanflags & CHAN_LISTENERZ) ? pt[1] : campos->z / 256.f;
+            pos->Y = pt[1];
             pos->Z = pt[2];
         }
-        else
+        else if (type == SOURCE_Actor)
         {
-            switch (type)
+            auto actor = (spritetype*)source;
+            assert(actor != nullptr);
+            if (actor != nullptr)
             {
-            case SOURCE_None:
-            default:
-                break;
-
-            case SOURCE_Actor:
-            {
-                auto actor = (spritetype*)source;
-                assert(actor != nullptr);
-                if (actor != nullptr)
+                S_CalcDistAndAng(int(actor - sprite), chanSound - 1, camsect, campos, &actor->pos, nullptr, pos);
+                /*
+                if (vel) // DN3D does not properly maintain this.
                 {
-                    S_CalcDistAndAng(int(actor - sprite), chanSound - 1, camsect, campos, &actor->pos, nullptr, pos);
-                    /*
-                    if (vel)
-                    {
-                        vel->X = float(actor->Vel.X * TICRATE);
-                        vel->Y = float(actor->Vel.Z * TICRATE);
-                        vel->Z = float(actor->Vel.Y * TICRATE);
-                    }
-                    */
+                    vel->X = float(actor->Vel.X * TICRATE);
+                    vel->Y = float(actor->Vel.Z * TICRATE);
+                    vel->Z = float(actor->Vel.Y * TICRATE);
                 }
-                break;
+                */
             }
-
-            }
-
-            if ((chanflags & CHAN_LISTENERZ) && campos != nullptr)
-            {
-                pos->Y = campos->z / 256.f;
-            }
+        }
+        if ((chanflags & CHAN_LISTENERZ) && campos != nullptr && type != SOURCE_None)
+        {
+            pos->Y = campos->z / 256.f;
         }
     }
 }
@@ -355,9 +342,9 @@ void S_Update(void)
 
     if (c != nullptr)
     {
-        listener.angle = (float)ca * pi::pi() / 1024; // Build uses a period of 2048.
+        listener.angle = -(float)ca * pi::pi() / 1024; // Build uses a period of 2048.
         listener.velocity.Zero();
-        listener.position = { c->x / 16.f, c->z / 256.f, -c->y / 16.f };
+        listener.position = { c->x * xmul, c->z * zmul, c->y * ymul };
         listener.underwater = false; 
         // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
         // listenactor->waterlevel == 3;
@@ -366,7 +353,7 @@ void S_Update(void)
         listener.valid = true;
     }
     else
-    {
+    { 
         listener.angle = 0;
         listener.position.Zero();
         listener.velocity.Zero();
@@ -385,11 +372,11 @@ void S_Update(void)
 //
 //
 //==========================================================================
+CVAR(Int, soundtest, -1, 0) // Debug aid to block all sounds except the one selected
 
 int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
 {
-    int32_t j = VM_OnEventWithReturn(EVENT_SOUND, spriteNum, screenpeek, num);
-
+    if (soundtest > -1 && num != soundtest) return -1;
     int sndnum = VM_OnEventWithReturn(EVENT_SOUND, spriteNum, screenpeek, num);
 
     auto const pPlayer = g_player[myconnectindex].ps;
@@ -471,9 +458,8 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
     // Now 
     float attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
     if (userflags & SF_LOOP) flags |= CHAN_LOOP;
-    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, flags, sndnum+1, 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
-    if (!chan) return -1;
-    return 0;
+    auto chan = soundEngine->StartSound(SOURCE_Actor, &sprite[spriteNum], &sndpos, flags, sndnum+1, attenuation == ATTN_NONE? 0.8f : 1.f, attenuation, nullptr, S_ConvertPitch(pitch));
+    return chan ? 0 : -1;
 }
 
 //==========================================================================
@@ -484,6 +470,7 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int flags)
 
 int S_PlaySound(int num, int flags)
 {
+    if (soundtest > -1 && num != soundtest) return -1;
     int sndnum = VM_OnEventWithReturn(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, num);
 
     if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled()) return -1;
@@ -495,12 +482,8 @@ int S_PlaySound(int num, int flags)
     int const pitch = S_GetPitch(sndnum);
 
     if (userflags & SF_LOOP) flags |= CHAN_LOOP;
-    soundEngine->StartSound(SOURCE_None, nullptr, nullptr, flags, sndnum + 1, 1.f, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
-    /* for reference. May still be needed for balancing later.
-       : FX_Play3D(snd.ptr, snd.siz, FX_ONESHOT, pitch, 0, 255 - LOUDESTVOLUME, snd.pr, snd.volume,
-        (num * MAXSOUNDINSTANCES) + sndnum);
-    */
-    return 0;
+    auto chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, flags, sndnum + 1, 0.8f, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
+    return chan ? 0 : -1;
 }
 
 //==========================================================================
