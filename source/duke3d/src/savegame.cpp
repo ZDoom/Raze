@@ -313,7 +313,6 @@ int32_t G_LoadPlayer(FSaveGameNode *sv)
             ud.level_number  = level;
             ud.player_skill  = skill;
             ud.secretlevel   = 0;
-            ud.skill_voice   = -1;
             ud.volume_number = volume;
 
 #ifdef EDUKE32_TOUCH_DEVICES

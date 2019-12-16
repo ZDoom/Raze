@@ -568,10 +568,15 @@ void GameInterface::StartGame(FGameStartup& gs)
 	}
 
 	ud.m_player_skill = gs.Skill + 1;
-	if (menu_sounds)
+	if (menu_sounds && skillsound >= 0 && SoundEnabled())
 	{
-		ud.skill_voice = skillsound;
-		S_PlaySound(skillsound);
+		S_PlaySound(skillsound, CHAN_UI);
+
+		while (S_CheckSoundPlaying(skillsound))
+		{
+			S_Update();
+			gameHandleEvents();
+		}
 	}
 	ud.m_respawn_monsters = (gs.Skill == 3);
 	ud.m_monsters_off = ud.monsters_off = 0;
