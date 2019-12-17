@@ -748,7 +748,7 @@ int PachinkoLightOperate(short SpriteNum)
 // PACHINKO MACHINE #1
 ////////////////////////////////////////////////////////////////////
 
-SWBOOL Pachinko_Win_Cheat = FALSE;
+CVAR(Bool, Pachinko_Win_Cheat, false, 0)
 
 ATTRIBUTE Pachinko1Attrib =
 {
