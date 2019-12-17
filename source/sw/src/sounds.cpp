@@ -26,7 +26,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "compat.h"
 #include "build.h"
-#include "cache1d.h"
+
 
 #include "keys.h"
 
@@ -52,15 +52,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "config.h"
 #include "menu/menu.h"
 #include "z_music.h"
-
-#ifdef _WIN32
-#include "sdlayer.h"
-#endif
+#include "sound/s_soundinternal.h"
+#include "filesystem/filesystem.h"
 
 BEGIN_SW_NS
-
-extern USERp User[MAXSPRITES];
-void DumpSounds(void);
 
 // Parentally locked sounds list
 int PLocked_Sounds[] =
@@ -71,6 +66,79 @@ int PLocked_Sounds[] =
     539,536,529,525,522,521,515,516,612,611,589,625,570,569,567,565,
     558,557
 };
+
+//
+// Includes digi.h to build the table
+//
+
+#define DIGI_TABLE
+VOC_INFO voc[] =
+{
+#include "digi.h"
+};
+
+#undef  DIGI_TABLE
+
+//
+// Includes ambient.h to build the table of ambient sounds for game
+//
+
+#define AMBIENT_TABLE
+AMB_INFO ambarray[] =
+{
+#include "ambient.h"
+};
+#undef  AMBIENT_TABLE
+#define MAX_AMBIENT_SOUNDS 82
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void InitFX(void)
+{
+    auto &S_sfx = soundEngine->GetSounds();
+    S_sfx.Resize(countof(voc));
+    for (auto& sfx : S_sfx) { sfx.Clear(); sfx.lumpnum = sfx_empty; }
+    for (size_t i = 1; i < countof(voc); i++)
+    {
+        auto& entry = voc[i];
+        auto lump = fileSystem.FindFile(entry.name);
+        if (lump > 0)
+        {
+            auto& newsfx = S_sfx[i];
+            newsfx.name = entry.name;
+            newsfx.lumpnum = lump;
+            newsfx.NearLimit = 6;
+            newsfx.UserData.Resize(sizeof(void*));
+            auto p = (VOC_INFOp *)newsfx.UserData.Data();
+            *p = &entry;    // store a link to the static data.
+        }
+    }
+    soundEngine->HashSounds();
+    for (auto& sfx : S_sfx)
+    {
+        soundEngine->CacheSound(&sfx);
+    }
+}
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+
+
+
+
+extern USERp User[MAXSPRITES];
+void DumpSounds(void);
+
 
 
 // Global vars used by ambient sounds to set spritenum of ambient sounds for later lookups in
@@ -100,30 +168,6 @@ int loopflag;
 
 extern SWBOOL DemoMode;
 
-//
-// Includes digi.h to build the table
-//
-
-#define DIGI_TABLE
-VOC_INFO voc[] =
-{
-#include "digi.h"
-};
-
-#undef  DIGI_TABLE
-
-//
-// Includes ambient.h to build the table of ambient sounds for game
-//
-
-#define AMBIENT_TABLE
-AMB_INFO ambarray[] =
-{
-#include "ambient.h"
-};
-#undef  AMBIENT_TABLE
-#define MAX_AMBIENT_SOUNDS 82
-
 SWBOOL OpenSound(VOC_INFOp vp, FileReader &handle, int *length);
 int ReadSound(FileReader & handle, VOC_INFOp vp, int length);
 
@@ -134,56 +178,6 @@ VOC3D_INFOp Insert3DSound(void);
 // Routine called when a sound is finished playing
 //
 
-void
-SoundCallBack(intptr_t num)
-{
-    VOC_INFOp vp;
-
-    if ((int) num == MUSIC_ID)
-    {
-        return;
-    }
-
-    // RTS sounds are negative
-    if ((int)num < 0)
-    {
-        return;
-    }
-
-    vp = &voc[num];
-}
-
-//
-
-void
-ClearSoundLocks(void)
-{
-}
-
-void
-UnInitSound(void)
-{
-    SoundShutdown();
-    Mus_Stop();
-}
-
-void
-InitFX(void)
-{
-    VOC_INFOp vp;
-    short i;
-
-    // Select which cards to use
-    SoundStartup();
-
-    for (vp = voc; vp < &voc[SIZ(voc)]; vp++)
-    {
-        vp->playing = 0;
-    }
-
-    // Set up our fx callback so we can display the sounds that are playing
-    FX_SetCallBack(SoundCallBack);
-}
 
 
 void
@@ -274,96 +268,6 @@ short SoundAngle(int x, int y)
 
     // convert 2048 degree angle to 128 degree angle
     return delta_angle >> 4;
-}
-
-int _PlayerSound(const char *file, int line, int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp)
-{
-    int handle;
-    VOC_INFOp vp;
-
-    if (Prediction)
-        return 0;
-
-    if (pp < Player || pp >= Player + MAX_SW_PLAYERS)
-    {
-        TerminateGame();
-        printf("Player Sound invalid player: file %s, line %d\n",file,line);
-        exit(0);
-    }
-
-    PRODUCTION_ASSERT(pp >= Player && pp < Player+MAX_SW_PLAYERS);
-    PRODUCTION_ASSERT(num >= 0 && num < DIGI_MAX);
-
-    if (TEST(pp->Flags, PF_DEAD)) return 0; // You're dead, no talking!
-
-    // If this is a player voice and he's already yacking, forget it.
-    vp = &voc[num];
-    if (vp == NULL)
-    {
-        TerminateGame();
-        printf("vp == NULL in PlayerSound, num = %d\n",num);
-        exit(0);
-    }
-
-    // Not a player voice, bail.
-    if (vp->priority != PRI_PLAYERVOICE && vp->priority != PRI_PLAYERDEATH)
-        return 0;
-
-    // He wasn't talking, but he will be now.
-    if (!pp->PlayerTalking)
-    {
-        pp->PlayerTalking = TRUE;
-        pp->TalkVocnum = num;   // Set the voc number
-        pp->TalkVocHandle = PlaySound(num, x, y, z, flags); // Play the sound
-        if (pp->TalkVocHandle < 0)
-        {
-            pp->PlayerTalking = FALSE;
-            pp->TalkVocnum = -1;
-            pp->TalkVocHandle = -1;
-        }
-    }
-
-    return 0;
-}
-
-void LockSound(int num)
-{
-}
-
-SWBOOL CacheSound(int num, int type)
-{
-    VOC_INFOp vp = &voc[num];
-
-    PRODUCTION_ASSERT(num >= 0 && num < DIGI_MAX);
-
-    // if no data we need to cache it in
-    if (!vp->data)
-    {
-        FileReader handle;
-        int length;
-
-        if (!OpenSound(vp, handle, &length))
-        {
-            sprintf(ds,"Could not open sound %s, num %d, priority %d\n",vp->name,num,vp->priority);
-            OSD_Printf("%s", ds);
-            return FALSE;
-        }
-
-        if (vp != NULL)
-        {
-            vp->lock = CACHE_UNLOCK_MAX;
-
-            cacheAllocateBlock((intptr_t*)&vp->data, length, &vp->lock);
-
-            ///////
-
-            ASSERT(vp->data);
-            ReadSound(handle, vp, length);
-
-        }
-    }
-
-    return TRUE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -489,7 +393,6 @@ int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
         tx=sp->x;
         ty=sp->y;
         tz=sp->z;
-        //CON_Message("Using sp to set tx=%ld,ty=%ld,tz=%ld",tx,ty,tz);
     }
 
     // Calculate sound angle
@@ -506,9 +409,6 @@ int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
 
     v3p->doplr_delta = sound_dist;      // Save of distance for doppler
     // effect
-
-//  //DSPRINTF(ds,"sound dist = %d\n",sound_dist);
-//  MONO_PRINT(ds);
 
     // Can the ambient sound see the player?  If not, tone it down some.
     if ((vp->voc_flags & vf_loop) && Use_SoundSpriteNum && SoundSpriteNum >= 0)
@@ -534,6 +434,7 @@ int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
         priority = v3p->priority;
     }
 
+    /*
     if (!CacheSound(num, CACHE_SOUND_PLAY))
     {
         v3p->flags = v3df_kill;
@@ -541,9 +442,7 @@ int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
         v3p->dist = 0;
         v3p->deleted = TRUE;            // Sound init failed, remove it!
         return -1;
-    }
-
-    LockSound(num);
+    }*/
 
     if (sound_dist < 5)
         angle = 0;
@@ -626,65 +525,6 @@ void PlaySoundRTS(int rts_num)
     voice = FX_Play3D(rtsptr, RTS_SoundLength(rts_num - 1), FX_ONESHOT, 0, 0, 0, 255, 1.f, -rts_num); // [JM] Float volume here too I bet. !CHECKME!
 }
 
-///////////////////////////////////////////////
-
-SWBOOL
-OpenSound(VOC_INFOp vp, FileReader &handle, int *length)
-{
-    handle = fileSystem.OpenFileReader(vp->name, 0);
-
-    if (!handle.isOpen())
-    {
-        return FALSE;
-    }
-
-    *length = handle.GetLength();
-
-    return TRUE;
-}
-
-
-int
-ReadSound(FileReader &handle, VOC_INFOp vp, int length)
-{
-    if (handle.Read(vp->data, length) != length)
-    {
-        TerminateGame();
-        printf("Error reading file '%s'.\n", vp->name);
-        exit(0);
-    }
-
-    vp->datalen = length;
-    return 0;
-}
-
-void
-SoundStartup(void)
-{
-    void *initdata = 0;
-
-
-#ifdef MIXERTYPEWIN
-    initdata = (void *) win_gethwnd();
-#endif
-
-    //snd_enabled = TRUE;
-
-
-    int status = FX_Init(snd_numvoices, snd_numchannels, snd_mixrate, initdata);
-    if (status != FX_Ok)
-    {
-        buildprintf("Sound error: %s\n", FX_ErrorString(status));
-        return;
-    }
-
-        FxInitialized = TRUE;
-		snd_fxvolume.Callback();
-		snd_reversestereo.Callback();
-
-    FX_SetCallBack(SoundCallBack);
-}
-
 /*
 ===================
 =
@@ -692,19 +532,6 @@ SoundStartup(void)
 =
 ===================
 */
-
-void
-SoundShutdown(void)
-{
-    if (!FxInitialized)
-        return;
-
-    int status = FX_Shutdown();
-    if (status != FX_Ok)
-    {
-        buildprintf("Sound error: %s\n", FX_ErrorString(status));
-    }
-}
 
 
 void COVER_SetReverb(int amt)
@@ -905,23 +732,6 @@ Delete3DSounds(void)
             {
                 printf("Delete3DSounds(): NULL vp->vp\n");
             }
-            else    // JBF: added null check
-            if (vp->vp->priority == PRI_PLAYERVOICE || vp->vp->priority == PRI_PLAYERDEATH)
-            {
-                int16_t pnum;
-
-                TRAVERSE_CONNECT(pnum)
-                {
-                    pp = &Player[pnum];
-
-                    if (vp->num == pp->TalkVocnum)
-                    {
-                        pp->PlayerTalking = FALSE;
-                        pp->TalkVocnum = -1;
-                        pp->TalkVocHandle = -1;
-                    }
-                }
-            }
 
             dp = vp;                    // Point to sound to be deleted
             if (vp->prev)
@@ -1008,10 +818,6 @@ DoTimedSound(VOC3D_INFOp p)
         }
 
         p->tics = 0;
-        //while (p->tics >= p->maxtics)  // Really stupid thing to do!
-        //    {
-        //    p->tics -= p->maxtics;
-        //    }
     }
 }
 
@@ -1355,7 +1161,6 @@ Terminate3DSounds(void)
     }
 
     Delete3DSounds();                   // Now delete all remaining sounds
-    ClearSoundLocks();
 }
 
 
@@ -1483,13 +1288,58 @@ int PlayerYellVocs[] =
     DIGI_PLAYERYELL3
 };
 
-/*
-============================================================================
-=
-= PLays music
-=
-============================================================================
-*/
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+int _PlayerSound(int num, PLAYERp pp)
+{
+    int handle;
+    VOC_INFOp vp;
+
+    if (Prediction)
+        return 0;
+
+    if (pp < Player || pp >= Player + MAX_SW_PLAYERS)
+    {
+        return 0;
+    }
+
+    if (num < 0 || num >= DIGI_MAX || !soundEngine->isValidSoundId(num))
+        return 0;
+
+    if (TEST(pp->Flags, PF_DEAD)) return 0; // You're dead, no talking!
+
+    // If this is a player voice and he's already yacking, forget it.
+    vp = &voc[num];
+
+    // Not a player voice, bail.
+    if (vp->priority != PRI_PLAYERVOICE && vp->priority != PRI_PLAYERDEATH)
+        return 0;
+
+    // He wasn't talking, but he will be now.
+    if (!soundEngine->IsSourcePlayingSomething(SOURCE_Player, pp, CHAN_VOICE))
+    {
+        soundEngine->StartSound(SOURCE_Player, pp, nullptr, CHAN_VOICE, 0, num, 1.f, ATTN_NORM);
+    }
+
+    return 0;
+}
+
+void StopPlayerSound(PLAYERp pp)
+{
+    soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE);
+}
+
+//==========================================================================
+//
+// PLays music
+//
+//==========================================================================
 
 extern short Level;
 CVAR(Bool, sw_nothememidi, false, CVAR_ARCHIVE)

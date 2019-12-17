@@ -44,7 +44,7 @@ Things required to make savegames work:
 #define QUIET
 #include "build.h"
 #include "baselayer.h"
-#include "cache1d.h"
+
 #include "osd.h"
 #include "renderlayer.h"
 
@@ -274,7 +274,6 @@ int krandcount;
 void BOT_DeleteAllBots(void);
 void BotPlayerInsert(PLAYERp pp);
 void SybexScreen(void);
-void DosScreen(void);
 void PlayTheme(void);
 void MenuLevel(void);
 void StatScreen(PLAYERp mpp);
@@ -634,14 +633,8 @@ void TerminateGame(void)
 
     engineUnInit();
 
-    //Terminate3DSounds();                // Kill the sounds linked list
-    UnInitSound();
-
     timerUninit();
-
-    if (CleanExit)
-        DosScreen();
-
+    Bexit(0);
 }
 
 bool LoadLevel(const char *filename)
@@ -731,7 +724,6 @@ void MultiSharewareCheck(void)
         //uninitmultiplayers();
         //uninitkeys();
         engineUnInit();
-        UnInitSound();
         timerUninit();
         Bexit(0);
     }
@@ -1318,8 +1310,7 @@ TerminateLevel(void)
 
     StopSound();
     Terminate3DSounds();        // Kill the 3d sounds linked list
-    //ClearSoundLocks();
-
+    
     // Clear all anims and any memory associated with them
     // Clear before killing sprites - save a little time
     //AnimClear();
@@ -2795,15 +2786,6 @@ void RunLevel(void)
     ready2send = 0;
 }
 
-void swexit(int exitval)
-{
-    exit(exitval);
-}
-
-void DosScreen(void)
-{
-}
-
 typedef struct
 {
     char    notshareware;
@@ -2813,20 +2795,7 @@ typedef struct
     const char    *arg_descr;
 } CLI_ARG;
 
-#if DEBUG
-CLI_ARG cli_dbg_arg[] =
-{
-    {0, "/demosyncrecord",     13,     "-demosyncrecord",      "Demo sync record"                      },
-    {0, "/demosynctest",       13,     "-demosynctest",        "Demo sync test"                        },
-    {0, "/cam",                4,      "-cam",                 "Camera test mode"                      },
-    {0, "/debugactor",         11,     "-debugactor",          "No Actors"                             },
-    {0, "/debuganim",          10,     "-debuganim",           "No Anims"                              },
-    {0, "/debugso",            8,      "-debugso",             "No Sector Objects"                     },
-    {0, "/debugsector",        12,     "-debugsector",         "No Sector Movement"                    },
-    {0, "/debugpanel",         11,     "-debugpanel",          "No Panel"                              },
-    {0, "/mono",               5,      "-mono",                "Mono"                                  },
-};
-#endif
+
 
 
 CLI_ARG cli_arg[] =

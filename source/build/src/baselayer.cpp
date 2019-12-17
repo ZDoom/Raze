@@ -7,7 +7,7 @@
 
 #include "a.h"
 #include "polymost.h"
-#include "cache1d.h"
+
 #include "inputstate.h"
 #include "d_event.h"
 #include "../../glbackend/glbackend.h"

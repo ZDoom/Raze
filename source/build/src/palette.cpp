@@ -11,7 +11,7 @@
 #include "engine_priv.h"
 #include "baselayer.h"
 #include "colmatch.h"
-#include "cache1d.h"
+
 #include "palette.h"
 #include "a.h"
 #include "superfasthash.h"

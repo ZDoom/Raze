@@ -216,6 +216,7 @@ enum // This cannot be remain as this, but for now it has to suffice.
 	SOURCE_Actor,		// Sound is coming from an actor.
 	SOURCE_Ambient,		// Sound is coming from a blood ambient definition.
 	SOURCE_Unattached,	// Sound is not attached to any particular emitter.
+	SOURCE_Player,		// SW player sound (player in SW is not connected to a sprite so needs to be special.)
 };
 
 
@@ -310,7 +311,7 @@ public:
 	void RelinkSound(int sourcetype, const void* from, const void* to, const FVector3* optpos);
 	void ChangeSoundVolume(int sourcetype, const void* source, int channel, double dvolume);
 	void ChangeSoundPitch(int sourcetype, const void* source, int channel, double pitch, int sound_id = -1);
-	bool IsSourcePlayingSomething(int sourcetype, const void* actor, int channel, int sound_id);
+	bool IsSourcePlayingSomething(int sourcetype, const void* actor, int channel, int sound_id = -1);
 
 	// Stop and resume music, during game PAUSE.
 	int GetSoundPlayingInfo(int sourcetype, const void* source, int sound_id);
@@ -372,7 +373,7 @@ public:
 	}
 	bool isValidSoundId(int id)
 	{
-		return id > 0 && id < (int)S_sfx.Size() && !S_sfx[id].bTentative;
+		return id > 0 && id < (int)S_sfx.Size() && !S_sfx[id].bTentative && S_sfx[id].lumpnum != sfx_empty;
 	}
 
 	template<class func> bool EnumerateChannels(func callback)

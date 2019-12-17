@@ -709,7 +709,6 @@ set (PCH_SOURCES
 	build/src/a-c.cpp
 	build/src/animvpx.cpp
 	build/src/baselayer.cpp
-	build/src/cache1d.cpp
 	build/src/clip.cpp
 	build/src/colmatch.cpp
 	build/src/common.cpp

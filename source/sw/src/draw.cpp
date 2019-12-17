@@ -28,7 +28,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define QUIET
 #include "build.h"
 #include "pragmas.h"
-#include "cache1d.h"
+
 
 #include "keys.h"
 #include "names2.h"

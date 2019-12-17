@@ -3648,7 +3648,6 @@ DoPlayerFall(PLAYERp pp)
     short i;
     int recoil_amt;
     int depth;
-    static int handle=0;
 
     // reset flag key for double jumps
     if (!TEST_SYNC_KEY(pp, SK_JUMP))
@@ -3680,7 +3679,6 @@ DoPlayerFall(PLAYERp pp)
         {
             PlayerSound(DIGI_FALLSCREAM, &pp->posx, &pp->posy, &pp->posz,
                         v3df_dontpan|v3df_doppler|v3df_follow,pp);
-            handle = pp->TalkVocHandle; // Save id for later
         }
         else if (pp->jump_speed > 1300)
         {
@@ -3728,15 +3726,6 @@ DoPlayerFall(PLAYERp pp)
                 if (pp->jump_speed > 1020)
                     // Feet hitting ground sound
                     PlaySound(DIGI_HITGROUND, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
-            }
-
-            if (FX_SoundValidAndActive(handle))
-            {
-                // My sound code will detect the sound has stopped and clean up
-                // for you.
-                FX_StopSound(handle);
-                pp->PlayerTalking = FALSE;
-                handle = 0;
             }
 
             // i any kind of crawl key get rid of recoil
@@ -5160,12 +5149,7 @@ DoPlayerStopDiveNoWarp(PLAYERp pp)
 
     if (!NoMeters) SetRedrawScreen(pp);
 
-    if (FX_SoundValidAndActive(pp->TalkVocHandle))
-    {
-        FX_StopSound(pp->TalkVocHandle);
-        pp->TalkVocHandle = 0;
-        pp->PlayerTalking = FALSE;
-    }
+    StopPlayerSound(pp);
 
     // stop diving no warp
     PlayerSound(DIGI_SURFACE,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow|v3df_doppler,pp);
@@ -5196,12 +5180,7 @@ DoPlayerStopDive(PLAYERp pp)
 
     if (!NoMeters) SetRedrawScreen(pp);
 
-    if (FX_SoundValidAndActive(pp->TalkVocHandle))
-    {
-        FX_StopSound(pp->TalkVocHandle);
-        pp->TalkVocHandle = 0;
-        pp->PlayerTalking = FALSE;
-    }
+    StopPlayerSound(pp);
 
     // stop diving with warp
     PlayerSound(DIGI_SURFACE,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow|v3df_doppler,pp);

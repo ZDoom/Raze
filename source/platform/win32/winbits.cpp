@@ -6,7 +6,7 @@
 #include "build.h"
 #include "baselayer.h"
 #include "osd.h"
-#include "cache1d.h"
+
 #include "zstring.h"
 #include "winbits.h"
 

@@ -1204,9 +1204,6 @@ struct PLAYERstruct
     SWBOOL IsAI;                      // Is this and AI character?
     short fta,ftq;                  // First time active and first time quote, for talking in multiplayer games
     short NumFootPrints;            // Number of foot prints left to lay down
-    SWBOOL PlayerTalking;             // Is player currently talking
-    int TalkVocnum;                 // Number of sound that player is using
-    int TalkVocHandle;              // Handle of sound in sound queue, to access in Dose's code
     unsigned char WpnUziType;                // Toggle between single or double uzi's if you own 2.
     unsigned char WpnShotgunType;            // Shotgun has normal or fully automatic fire
     unsigned char WpnShotgunAuto;            // 50-0 automatic shotgun rounds
@@ -2277,8 +2274,10 @@ extern void DoPaletteFlash(PLAYERp pp);
 extern unsigned char palette_data[256][3];
 extern SWBOOL NightVision;
 
-int _PlayerSound(const char *file, int line, int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp);
-#define PlayerSound(num, x, y, z, flags, pp) _PlayerSound(__FILE__, __LINE__, (num), (x), (y), (z), (flags), (pp))
+int _PlayerSound(int num, PLAYERp pp);
+inline int PlayerSound(int num, int x, int y, int z, int flags, PLAYERp pp) { return _PlayerSound(num, pp); }
+void StopPlayerSound(PLAYERp pp);
+
 
 #define MAXSO (INT32_MAX)
 

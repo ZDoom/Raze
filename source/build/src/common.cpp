@@ -2,7 +2,7 @@
 #include "compat.h"
 #include "build.h"
 #include "scriptfile.h"
-#include "cache1d.h"
+
 #include "baselayer.h"
 
 #include "common.h"

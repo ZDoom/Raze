@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define ONLY_USERDEFS
 
 #include "build.h"
-#include "cache1d.h"
+
 #include "compat.h"
 #include "startwin.game.h"
 #include "windows_inc.h"

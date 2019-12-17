@@ -10,7 +10,7 @@
 #include "engine_priv.h"
 #include "baselayer.h"
 #include "scriptfile.h"
-#include "cache1d.h"
+
 #include "common.h"
 #include "mdsprite.h"  // md3model_t
 #include "colmatch.h"
