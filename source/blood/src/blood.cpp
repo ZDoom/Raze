@@ -172,7 +172,7 @@ void ShutDown(void)
     if (!in3dmode())
         return;
 	netDeinitialize();
-    sndTerm();
+    //sndTerm();
     sfxTerm();
     scrUnInit();
     // PORT_TODO: Check argument
@@ -915,7 +915,6 @@ void ProcessFrame(void)
     actProcessSprites();
     actPostProcess();
     viewCorrectPrediction();
-    sndProcess();
     ambProcess();
     viewUpdateDelirium();
     viewUpdateShake();
@@ -1198,7 +1197,6 @@ int GameInterface::app_main()
     viewResizeView(gViewSize);
     initprintf("Initializing sound system\n");
     sndInit();
-    sfxInit();
     gChoke.sub_83ff0(518, sub_84230);
     if (bAddUserMap)
     {

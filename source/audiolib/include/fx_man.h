@@ -94,7 +94,6 @@ static FORCE_INLINE int FX_GetReverseStereo(void) { return MV_GetReverseStereo()
 static FORCE_INLINE void FX_SetReverb_(int reverb) { MV_SetReverb(reverb); }
 static FORCE_INLINE int FX_GetMaxReverbDelay(void) { return MV_GetMaxReverbDelay(); }
 static FORCE_INLINE int FX_GetReverbDelay(void) { return MV_GetReverbDelay(); }
-static FORCE_INLINE void FX_SetReverbDelay(int delay) { MV_SetReverbDelay(delay); }
 static FORCE_INLINE int FX_VoiceAvailable(int priority) { return MV_VoiceAvailable(priority); }
 static FORCE_INLINE int FX_PauseVoice(int handle, int pause) { return FX_CheckMVErr(MV_PauseVoice(handle, pause)); }
 static FORCE_INLINE int FX_EndLooping(int handle) { return FX_CheckMVErr(MV_EndLooping(handle)); }

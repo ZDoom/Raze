@@ -25,30 +25,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+#if 0
 struct BONKLE
 {
-    int at0;
-    int at4;
-    DICTNODE* at8;
-    int atc;
-    spritetype* at10;
-    int at14;
-    int at18;
-    int at1c;
-    POINT3D at20;
-    POINT3D at2c;
-    //int at20;
-    //int at24;
-    //int at28;
-    //int at2c;
-    //int at30;
-    //int at34;
-    int at38;
-    int at3c;
+    int left;
+    int right;
+    DICTNODE* data;
+    int soundId;
+    spritetype* origin;
+    int channel;
+    int pitch;
+    int relVol;
+    POINT3D originPt;
+    POINT3D oldOriginPt;
 };
 
 extern BONKLE Bonkle[256];
 extern BONKLE* BonkleCache[256];
+#endif
 
 void sfxInit(void);
 void sfxTerm(void);

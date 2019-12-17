@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "al_midi.h"
 #include "openaudio.h"
 #include "z_music.h"
+#include "sfx.h"
+#include "sound/s_soundinternal.h"
 
 BEGIN_BLD_NS
 
@@ -57,6 +59,72 @@ int soundRates[13] = {
 };
 #define kChannelMax 32
 
+
+//==========================================================================
+//
+// S_AddBloodSFX
+//
+// Registers a new sound with the name "<lumpname>.sfx"
+// Actual sound data is searched for in the ns_bloodraw namespace.
+//
+//==========================================================================
+
+static void S_AddBloodSFX(int lumpnum)
+{
+    auto sfxlump = fileSystem.ReadFile(lumpnum);
+    const SFX* sfx = (SFX*)sfxlump.GetMem();
+    FStringf rawname("%s.raw", sfx->rawName);
+    auto rawlump = fileSystem.FindFile(rawname);
+    int sfxnum;
+
+    if (rawlump != -1)
+    {
+        auto& S_sfx = soundEngine->GetSounds();
+        sfxnum = soundEngine->AddSoundLump(sfx->rawName, rawlump, 0, fileSystem.GetResourceId(lumpnum), 6);
+        if (sfx->format < 5 || sfx->format > 12)
+        {	// [0..4] + invalid formats
+            S_sfx[sfxnum].RawRate = 11025;
+        }
+        else if (sfx->format < 9)
+        {	// [5..8]
+            S_sfx[sfxnum].RawRate = 22050;
+        }
+        else
+        {	// [9..12]
+            S_sfx[sfxnum].RawRate = 44100;
+        }
+        S_sfx[sfxnum].bLoadRAW = true;
+        S_sfx[sfxnum].LoopStart = LittleLong(sfx->loopStart);
+        //S_sfx[sfxnum].Volume = sfx->relVol / 255.f; This cannot be done because this volume setting is optional.
+        S_sfx[sfxnum].UserData.Resize(8);
+        int* udata = (int*)S_sfx[sfxnum].UserData.Data();
+        udata[0] = sfx->pitch;
+        udata[1] = sfx->pitchRange;
+        udata[2] = sfx->relVol;    }
+}
+
+void sndInit(void)
+{
+    sfxInit();
+    for (int i = fileSystem.GetNumEntries() - 1; i >= 0; i--)
+    {
+        auto type = fileSystem.GetResourceType(i);
+        if (type == NAME_SFX)
+        {
+            if (soundEngine->FindSoundByResID(fileSystem.GetResourceId(i)) == 0)
+                S_AddBloodSFX(i);
+        }
+        else if (type == NAME_WAV || type == NAME_OGG || type == NAME_FLAC || type == NAME_VOC)
+        {
+            soundEngine->AddSoundLump(fileSystem.GetFileName(i), i, 0, fileSystem.GetResourceId(i)| 0x40000000, 6); // mark the resource ID as special.
+        }
+    }
+    soundEngine->HashSounds();
+}
+
+
+
+
 int sndGetRate(int format)
 {
     if (format < 13)
@@ -64,22 +132,6 @@ int sndGetRate(int format)
     return 11025;
 }
 
-SAMPLE2D Channel[kChannelMax];
-
-SAMPLE2D * FindChannel(void)
-{
-    for (int i = kChannelMax - 1; i >= 0; i--)
-        if (Channel[i].at5 == 0) return &Channel[i];
-    consoleSysMsg("No free channel available for sample");
-    //ThrowError("No free channel available for sample");
-    return NULL;
-}
-
-void sndSetFXVolume(int nVolume)
-{
-	snd_fxvolume = nVolume;
-	FX_SetVolume(nVolume);
-}
 
 
 void SoundCallback(intptr_t val)
@@ -88,8 +140,6 @@ void SoundCallback(intptr_t val)
     pChannel->at0 = 0;
 }
 
-void sndKillSound(SAMPLE2D *pChannel);
-
 void sndStartSample(const char *pzSound, int nVolume, int nChannel)
 {
     if (!SoundEnabled())
@@ -97,19 +147,11 @@ void sndStartSample(const char *pzSound, int nVolume, int nChannel)
     if (!strlen(pzSound))
         return;
     dassert(nChannel >= -1 && nChannel < kChannelMax);
-    SAMPLE2D *pChannel;
-    if (nChannel == -1)
-        pChannel = FindChannel();
-    else
-        pChannel = &Channel[nChannel];
-    if (pChannel->at0 > 0)
-        sndKillSound(pChannel);
-    pChannel->at5 = gSoundRes.Lookup(pzSound, "RAW");
-    if (!pChannel->at5)
-        return;
-    int nSize = pChannel->at5->Size();
-    char *pData = (char*)gSoundRes.Lock(pChannel->at5);
-    pChannel->at0 = FX_PlayRaw(pData, nSize, sndGetRate(1), 0, nVolume, nVolume, nVolume, nVolume, 1.f, (intptr_t)&pChannel->at0);
+    auto snd = soundEngine->FindSound(pzSound);
+    if (snd > 0)
+    {
+        soundEngine->StartSound(SOURCE_None, nullptr, nullptr, nChannel + 1, 0, snd, nVolume / 255.f, ATTN_NONE);
+    }
 }
 
 void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
@@ -117,193 +159,35 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
     if (!SoundEnabled())
         return;
     dassert(nChannel >= -1 && nChannel < kChannelMax);
-    DICTNODE *hSfx = gSoundRes.Lookup(nSound, "SFX");
-    if (!hSfx)
-        return;
-    SFX *pEffect = (SFX*)gSoundRes.Lock(hSfx);
-    dassert(pEffect != NULL);
-    SAMPLE2D *pChannel;
-    if (nChannel == -1)
-        pChannel = FindChannel();
-    else
-        pChannel = &Channel[nChannel];
-    if (pChannel->at0 > 0)
-        sndKillSound(pChannel);
-    pChannel->at5 = gSoundRes.Lookup(pEffect->rawName, "RAW");
-    if (!pChannel->at5)
-        return;
-    if (nVolume < 0)
-        nVolume = pEffect->relVol;
-    int nSize = pChannel->at5->Size();
-    int nLoopEnd = nSize - 1;
-    if (nLoopEnd < 0)
-        nLoopEnd = 0;
-    if (nSize <= 0)
-        return;
-    char *pData = (char*)gSoundRes.Lock(pChannel->at5);
-    if (nChannel < 0)
-        bLoop = false;
-    if (bLoop)
+    if (nChannel >= 7) nChannel = -1;
+    auto snd = soundEngine->FindSoundByResID(nSound);
+    if (snd > 0)
     {
-        pChannel->at0 = FX_PlayLoopedRaw(pData, nSize, pData + pEffect->loopStart, pData + nLoopEnd, sndGetRate(pEffect->format),
-            0, nVolume, nVolume, nVolume, nVolume, 1.f, (intptr_t)&pChannel->at0);
-        pChannel->at4 |= 1;
-    }
-    else
-    {
-        pChannel->at0 = FX_PlayRaw(pData, nSize, sndGetRate(pEffect->format), 0, nVolume, nVolume, nVolume, nVolume, 1.f, (intptr_t)&pChannel->at0);
-        pChannel->at4 &= ~1;
+        if (nVolume < 0)
+        {
+            auto udata = (int*)soundEngine->GetUserData(snd);
+            if (udata) nVolume = udata[2];
+            else nVolume = 255;
+        }
+        soundEngine->StartSound(SOURCE_None, nullptr, nullptr, (nChannel + 1), (bLoop? CHANF_LOOP : EChanFlags::FromInt(0)), snd, nVolume / 255.f, ATTN_NONE);
     }
 }
 
 void sndStartWavID(unsigned int nSound, int nVolume, int nChannel)
 {
-    if (!SoundEnabled())
-        return;
-    dassert(nChannel >= -1 && nChannel < kChannelMax);
-    SAMPLE2D *pChannel;
-    if (nChannel == -1)
-        pChannel = FindChannel();
-    else
-        pChannel = &Channel[nChannel];
-    if (pChannel->at0 > 0)
-        sndKillSound(pChannel);
-    pChannel->at5 = gSoundRes.Lookup(nSound, "WAV");
-    if (!pChannel->at5)
-        return;
-    char *pData = (char*)gSoundRes.Lock(pChannel->at5);
-    pChannel->at0 = FX_Play(pData, pChannel->at5->Size(), 0, -1, 0, nVolume, nVolume, nVolume, nVolume, 1.f, (intptr_t)&pChannel->at0);
-}
-
-void sndKillSound(SAMPLE2D *pChannel)
-{
-    if (pChannel->at4 & 1)
-    {
-        FX_EndLooping(pChannel->at0);
-        pChannel->at4 &= ~1;
-    }
-    FX_StopSound(pChannel->at0);
+    return sndStartSample(nSound | 0x40000000, nVolume, nChannel);
 }
 
 void sndStartWavDisk(const char *pzFile, int nVolume, int nChannel)
 {
-    dassert(nChannel >= -1 && nChannel < kChannelMax);
-    SAMPLE2D *pChannel;
-    if (nChannel == -1)
-        pChannel = FindChannel();
-    else
-        pChannel = &Channel[nChannel];
-    if (pChannel->at0 > 0)
-        sndKillSound(pChannel);
-    auto hFile = fileSystem.OpenFileReader(pzFile, 0);
-    if (!hFile.isOpen())
-        return;
-    int nLength = hFile.GetLength();
-	char* pData = nullptr;
-	cacheAllocateBlock((intptr_t*)pData, nLength, nullptr);	// use this obsolete call to indicate that some work is needed here!
-    if (!pData)
-    {
-        return;
-    }
-	hFile.Read(pData, nLength);
-    pChannel->at5 = (DICTNODE*)pData;
-    pChannel->at4 |= 2;
-    pChannel->at0 = FX_Play(pData, nLength, 0, -1, 0, nVolume, nVolume, nVolume, nVolume, 1.f, (intptr_t)&pChannel->at0);
+    return sndStartSample(pzFile, nVolume, nChannel);
 }
 
 void sndKillAllSounds(void)
 {
-    for (int i = 0; i < kChannelMax; i++)
-    {
-        SAMPLE2D *pChannel = &Channel[i];
-        if (pChannel->at0 > 0)
-            sndKillSound(pChannel);
-        if (pChannel->at5)
-        {
-            if (pChannel->at4 & 2)
-            {
-                pChannel->at4 &= ~2;
-            }
-            else // This 'else' needs to be removed once the file system is up (when cacheAllocateBlock gets replaced.)
-            {
-                gSoundRes.Unlock(pChannel->at5);
-            }
-            pChannel->at5 = 0;
-        }
-    }
-}
-
-void sndProcess(void)
-{
-    for (int i = 0; i < kChannelMax; i++)
-    {
-        if (Channel[i].at0 <= 0 && Channel[i].at5)
-        {
-            if (Channel[i].at4 & 2)
-            {
-                Channel[i].at4 &= ~2;
-            }
-            else // This 'else' needs to be removed once the file system is up (when cacheAllocateBlock gets replaced.)
-            {
-                gSoundRes.Unlock(Channel[i].at5);
-            }
-            Channel[i].at5 = 0;
-        }
-    }
-}
-
-void InitSoundDevice(void)
-{
-#ifdef MIXERTYPEWIN
-    void *initdata = (void *)win_gethwnd(); // used for DirectSound
-#else
-    void *initdata = NULL;
-#endif
-    int nStatus;
-    nStatus = FX_Init(snd_numvoices, snd_numchannels, snd_mixrate, initdata);
-    if (nStatus != 0)
-    {
-        initprintf("InitSoundDevice: %s\n", FX_ErrorString(nStatus));
-        return;
-    }
-	snd_reversestereo.Callback();
-	snd_fxvolume.Callback();
-    FX_SetCallBack(SoundCallback);
-}
-
-void DeinitSoundDevice(void)
-{
-    int nStatus = FX_Shutdown();
-    if (nStatus != 0)
-        ThrowError(FX_ErrorString(nStatus));
+    soundEngine->StopSound(CHAN_AUTO);
 }
 
 
-bool sndActive = false;
-
-void sndTerm(void)
-{
-    if (!sndActive)
-        return;
-    sndActive = false;
-    Mus_Stop();
-    DeinitSoundDevice();
-    //DeinitMusicDevice();
-}
-extern char *pUserSoundRFF;
-void sndInit(void)
-{
-    memset(Channel, 0, sizeof(Channel));
-#if 0
-    pSongPtr = NULL;
-    nSongSize = 0;
-    bWaveMusic = false;
-    nWaveMusicHandle = -1;
-#endif
-    InitSoundDevice();
-    //InitMusicDevice();
-    //atexit(sndTerm);
-    sndActive = true;
-}
 
 END_BLD_NS

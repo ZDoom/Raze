@@ -238,13 +238,13 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
         nScale = divscale16(200, nHeight);
 
     if (nWav)
-        sndStartWavID(nWav, snd_fxvolume);
+        sndStartWavID(nWav, 255);
     else
     {
         auto nHandleWAV = credKOpen4Load(pzWAV);
         if (nHandleWAV.isOpen())
         {
-            sndStartWavDisk(pzWAV, snd_fxvolume);
+            sndStartWavDisk(pzWAV, 255);
         }
     }
 

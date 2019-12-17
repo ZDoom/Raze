@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "resource.h"
 #include "sound.h"
+#include "sound/s_soundinternal.h"
 
 BEGIN_BLD_NS
 
@@ -40,13 +41,9 @@ BEGIN_BLD_NS
 
 struct AMB_CHANNEL
 {
-    int at0;
-    int at4;
-    int at8;
-    DICTNODE *atc;
-    char *at10;
-    int at14;
-    int at18;
+    FSoundID soundID;
+    int distance;
+    int check;
 };
 
 AMB_CHANNEL ambChannels[kMaxAmbChannel];
@@ -75,22 +72,31 @@ void ambProcess(void)
                 dz >>= 8;
                 int nDist = ksqrt(dx*dx+dy*dy+dz*dz);
                 int vs = mulscale16(pXSprite->data4, pXSprite->busy);
-                ambChannels[pSprite->owner].at4 += ClipRange(scale(nDist, pXSprite->data1, pXSprite->data2, vs, 0), 0, vs);
+                ambChannels[pSprite->owner].distance += ClipRange(scale(nDist, pXSprite->data1, pXSprite->data2, vs, 0), 0, vs);
             }
         }
     }
     AMB_CHANNEL *pChannel = ambChannels;
     for (int i = 0; i < nAmbChannels; i++, pChannel++)
     {
-        if (pChannel->at0 > 0)
-            FX_SetPan(pChannel->at0, pChannel->at4, pChannel->at4, pChannel->at4);
-        else
+        if (soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, pChannel, CHAN_BODY, -1))
         {
-            int end = ClipLow(pChannel->at14-1, 0);
-            pChannel->at0 = FX_PlayLoopedRaw(pChannel->at10, pChannel->at14, pChannel->at10, pChannel->at10+end, sndGetRate(pChannel->at18), 0,
-                pChannel->at4, pChannel->at4, pChannel->at4, pChannel->at4, 1.f, (intptr_t)&pChannel->at0);
+            if (pChannel->distance > 0)
+            {
+                soundEngine->ChangeSoundVolume(SOURCE_Ambient, pChannel, CHAN_BODY, pChannel->distance / 255.f);
+            }
+            else
+            {
+                // Stop the sound if it cannot be heard so that it doesn't occupy a physical channel.
+                soundEngine->StopSound(SOURCE_Ambient, pChannel, CHAN_BODY);
+            }
         }
-        pChannel->at4 = 0;
+        else if (pChannel->distance > 0)
+        {
+            FVector3 pt{};
+            soundEngine->StartSound(SOURCE_Ambient, pChannel, &pt, CHAN_BODY, CHANF_LOOP, pChannel->soundID, pChannel->distance / 255.f, ATTN_NONE);
+        }
+        pChannel->distance = 0;
     }
 }
 
@@ -99,16 +105,8 @@ void ambKillAll(void)
     AMB_CHANNEL *pChannel = ambChannels;
     for (int i = 0; i < nAmbChannels; i++, pChannel++)
     {
-        if (pChannel->at0 > 0)
-        {
-            FX_EndLooping(pChannel->at0);
-            FX_StopSound(pChannel->at0);
-        }
-        if (pChannel->atc)
-        {
-            gSoundRes.Unlock(pChannel->atc);
-            pChannel->atc = NULL;
-        }
+        soundEngine->StopSound(SOURCE_Ambient, pChannel, CHAN_BODY);
+        pChannel->soundID = 0;
     }
     nAmbChannels = 0;
 }
@@ -125,7 +123,7 @@ void ambInit(void)
         
         int i; AMB_CHANNEL *pChannel = ambChannels;
         for (i = 0; i < nAmbChannels; i++, pChannel++)
-            if (pXSprite->data3 == pChannel->at8) break;
+            if (pXSprite->data3 == pChannel->check) break;
         
         if (i == nAmbChannels) {
             
@@ -135,30 +133,17 @@ void ambInit(void)
             }
                     
             int nSFX = pXSprite->data3;
-            DICTNODE *pSFXNode = gSoundRes.Lookup(nSFX, "SFX");
-            if (!pSFXNode) {
+            auto snd = soundEngine->FindSoundByResID(nSFX);
+            if (!snd) {
                 //ThrowError("Missing sound #%d used in ambient sound generator %d\n", nSFX);
                 viewSetSystemMessage("Missing sound #%d used in ambient sound generator #%d\n", nSFX);
                 continue;
             }
 
-            SFX *pSFX = (SFX*)gSoundRes.Load(pSFXNode);
-            DICTNODE *pRAWNode = gSoundRes.Lookup(pSFX->rawName, "RAW");
-            if (!pRAWNode) {
-                //ThrowError("Missing RAW sound \"%s\" used in ambient sound generator %d\n", pSFX->rawName, nSFX);
-                viewSetSystemMessage("Missing RAW sound \"%s\" used in ambient sound generator %d\n", pSFX->rawName, nSFX);
-                continue;
-            }
-            
-            if (pRAWNode->Size() > 0) {
-                pChannel->at14 = pRAWNode->Size();
-                pChannel->at8 = nSFX;
-                pChannel->atc = pRAWNode;
-                pChannel->at14 = pRAWNode->Size();
-                pChannel->at10 = (char*)gSoundRes.Lock(pRAWNode);
-                pChannel->at18 = pSFX->format;
-                nAmbChannels++;
-            }
+            pChannel->soundID = FSoundID(snd);
+            pChannel->check = nSFX;
+            pChannel->distance = 0;
+            nAmbChannels++;
 
         }
 

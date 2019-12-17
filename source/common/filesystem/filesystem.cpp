@@ -550,6 +550,15 @@ int FileSystem::GetResourceId(int lump) const
 		return FileInfo[lump].lump->ResourceId;
 }
 
+FName FileSystem::GetResourceType(int lump) const
+{
+	if ((size_t)lump >= NumEntries)
+		return NAME_None;
+	else
+		return FileInfo[lump].lump->LumpName[FResourceLump::ExtensionType];
+}
+
+
 //==========================================================================
 //
 // GetLumpFile

@@ -1300,6 +1300,16 @@ static inline void maybe_grow_buffer(char ** const buffer, int32_t * const buffe
 #include "fix16.h"
 #include "libdivide.h"
 #include "clockticks.hpp"
+#include "vectors.h"
+
+inline FVector3 GetSoundPos(const vec3_t *pos)
+{
+    // converts a Build coordinate to a sound system coordinate
+    const float xmul = 1 / 16.f;
+    const float ymul = -1 / 16.f;
+    const float zmul = -1 / 256.f;
+    return { pos->x* xmul, pos->z* zmul, pos->y* ymul };
+}
 
 /* End dependence on compat.o object. */
 

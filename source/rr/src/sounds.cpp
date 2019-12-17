@@ -30,11 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
-// Coordinate factors to map Build coordinate space to sound system coordinate space.
-const float xmul = 1 / 16.f;
-const float ymul = -1 / 16.f;
-const float zmul = -1 / 256.f;
-
 class DukeSoundEngine : public SoundEngine
 {
     // client specific parts of the sound engine go in this class.
@@ -211,8 +206,8 @@ static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum,
 
     if (sndPos)
     {
-        FVector3 sndorg = { pos->x * xmul, pos->z * zmul, pos->y * ymul };
-        FVector3 campos = { cam->x * xmul, cam->z * zmul, cam->y * ymul };
+        FVector3 sndorg = GetSoundPos(pos);
+        FVector3 campos = GetSoundPos(cam);
         // Now calculate the virtual position in sound system coordinates.
         FVector3 sndvec = sndorg - campos;
         if (orgsndist > 0)
@@ -330,7 +325,7 @@ void S_Update(void)
     {
         listener.angle = -(float)ca * pi::pi() / 1024; // Build uses a period of 2048.
         listener.velocity.Zero();
-        listener.position = { c->x * xmul, c->z * zmul, c->y * ymul };
+        listener.position = GetSoundPos(c);
         listener.underwater = false; 
         // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
         // listenactor->waterlevel == 3;

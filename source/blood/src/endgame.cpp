@@ -220,7 +220,7 @@ void CSecretMgr::Found(int nType)
     } else at8++;
 
     if (gGameOptions.nGameType == 0) {
-		viewSetMessage(GStrings(FStringf("TXT_SECRET%d", Random(2))),  0, MESSAGE_PRIORITY_SECRET);
+		viewSetMessage(GStrings(FStringf("TXTB_SECRET%d", Random(2))),  0, MESSAGE_PRIORITY_SECRET);
     }
 }
 

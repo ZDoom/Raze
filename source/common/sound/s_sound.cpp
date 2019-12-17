@@ -727,7 +727,8 @@ sfxinfo_t *SoundEngine::LoadSound(sfxinfo_t *sfx, FSoundLoadBuffer *pBuffer)
 		// then set this one up as a link, and don't load the sound again.
 		for (i = 0; i < S_sfx.Size(); i++)
 		{
-			if (S_sfx[i].data.isValid() && S_sfx[i].link == sfxinfo_t::NO_LINK && S_sfx[i].lumpnum == sfx->lumpnum)
+			if (S_sfx[i].data.isValid() && S_sfx[i].link == sfxinfo_t::NO_LINK && S_sfx[i].lumpnum == sfx->lumpnum &&
+				(!sfx->bLoadRAW || (sfx->RawRate == S_sfx[i].RawRate)))	// Raw sounds with different sample rates may not share buffers, even if they use the same source data.
 			{
 				//DPrintf (DMSG_NOTIFY, "Linked %s to %s (%d)\n", sfx->name.GetChars(), S_sfx[i].name.GetChars(), i);
 				sfx->link = i;
@@ -803,7 +804,7 @@ void SoundEngine::LoadSound3D(sfxinfo_t *sfx, FSoundLoadBuffer *pBuffer)
 	{
 		snd = GSnd->LoadSoundBuffered(pBuffer, true);
 	}
-	else if (sfx->lumpnum >= 0)
+	else
 	{
 		auto sfxdata = ReadSound(sfx->lumpnum);
 		int size = sfxdata.Size();
@@ -1554,6 +1555,14 @@ int SoundEngine::AddSoundLump(const char* logicalname, int lump, int CurrentPitc
 	if (resid >= 0) ResIdMap[resid] = S_sfx.Size() - 1;
 	return (int)S_sfx.Size()-1;
 }
+
+int SoundEngine::AddSfx(sfxinfo_t &sfx)
+{
+	S_sfx.Push(sfx);
+	if (sfx.ResourceId >= 0) ResIdMap[sfx.ResourceId] = S_sfx.Size() - 1;
+	return (int)S_sfx.Size() - 1;
+}
+
 
 //==========================================================================
 //

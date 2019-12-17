@@ -95,8 +95,8 @@ enum
 	ROLLOFF_Custom		// Lookup volume from SNDCURVE
 };
 
-int S_FindSound(const char *logicalname);
-int S_FindSoundByResID(int snd_id);
+int S_FindSoundByResID(int ndx);
+int S_FindSound(const char* name);
 
 // An index into the S_sfx[] array.
 class FSoundID
@@ -173,11 +173,8 @@ struct FSoundChan : public FISoundChannel
 	int16_t		NearLimit;
 	uint8_t		SourceType;
 	float		LimitRange;
-	union
-	{
-		const void *Source;
-		float Point[3];	// Sound is not attached to any source.
-	};
+	const void *Source;
+	float Point[3];	// Sound is not attached to any source.
 };
 
 
@@ -217,8 +214,7 @@ enum // This cannot be remain as this, but for now it has to suffice.
 	SOURCE_Any = -1,	// Input for check functions meaning 'any source'
 	SOURCE_None,		// Sound is always on top of the listener.
 	SOURCE_Actor,		// Sound is coming from an actor.
-	SOURCE_Sector,		// Sound is coming from a sector.
-	SOURCE_Polyobj,		// Sound is coming from a polyobject.
+	SOURCE_Ambient,		// Sound is coming from a blood ambient definition.
 	SOURCE_Unattached,	// Sound is not attached to any particular emitter.
 };
 
@@ -383,7 +379,8 @@ public:
 	{
 		for (FSoundChan* chan = Channels; chan; chan = chan->NextChan)
 		{
-			if (callback(chan)) return true;
+			int res = callback(chan);
+			if (res) return res > 0;
 		}
 		return false;
 	}
@@ -406,6 +403,7 @@ public:
 	int FindSoundNoHash(const char* logicalname);
 	int FindSoundByLump(int lump);
 	int AddSoundLump(const char* logicalname, int lump, int CurrentPitchMask, int resid = -1, int nearlimit = 2);
+	int AddSfx(sfxinfo_t &sfx);
 	int FindSoundTentative(const char* name);
 	void CacheRandomSound(sfxinfo_t* sfx);
 	unsigned int GetMSLength(FSoundID sound);
@@ -433,4 +431,18 @@ inline void FX_StopAllSounds(void)
 inline void FX_SetReverb(int strength)
 {
 	// todo: investigate how this works and set a proper environment.
+}
+
+inline void FX_SetReverbDelay(int delay) 
+{ 
+}
+
+inline int S_FindSoundByResID(int ndx)
+{
+	return soundEngine->FindSoundByResID(ndx);
+}
+
+inline int S_FindSound(const char* name)
+{
+	return soundEngine->FindSound(name);
 }

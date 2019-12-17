@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "endgame.h"
 #include "view.h"
 #include "tile.h"
+#include "sound/s_soundinternal.h"
 
 BEGIN_BLD_NS
 static void genDudeAttack1(int, int);
@@ -902,6 +903,7 @@ bool playGenDudeSound(spritetype* pSprite, int mode, bool forceInterrupt) {
     // let's check if there same sounds already played by other dudes
     // so we won't get a lot of annoying screams in the same time and ensure sound played in it's full length (if not interruptable)
     if (pExtra->sndPlaying && !sndInfo->interruptable) {
+#if 0
         for (int i = 0; i < 256; i++) {
             if (Bonkle[i].atc <= 0) continue;
             for (int a = 0; a < rand; a++) {
@@ -915,6 +917,7 @@ bool playGenDudeSound(spritetype* pSprite, int mode, bool forceInterrupt) {
                 }
             }
         }
+#endif
 
         pExtra->sndPlaying = false;
         
@@ -928,7 +931,7 @@ bool playGenDudeSound(spritetype* pSprite, int mode, bool forceInterrupt) {
         int maxRetries = 5;
         while (maxRetries-- > 0) {
             int random = Random(rand);
-            if (!gSoundRes.Lookup(sndId + random, "SFX")) continue;
+            if (!soundEngine->FindSoundByResID(sndId + random)) continue;
             sndId = sndId + random;
             gotSnd = true;
             break;
@@ -938,7 +941,7 @@ bool playGenDudeSound(spritetype* pSprite, int mode, bool forceInterrupt) {
         if (gotSnd == false) {
             int maxSndId = sndId + rand;
             while (sndId++ <= maxSndId) {
-                if (!gSoundRes.Lookup(sndId, "SFX")) continue;
+                if (!soundEngine->FindSoundByResID(sndId)) continue;
                 gotSnd = true;
                 break;
             }

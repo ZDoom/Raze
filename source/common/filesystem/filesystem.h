@@ -164,6 +164,7 @@ public:
 
 	bool IsEncryptedFile(int file) const noexcept;
 	int GetResourceId(int file) const;
+	FName GetResourceType(int file) const;
 
 	int GetNumResourceFiles() const { return NumFiles; }
 	int GetNumEntries () const { return NumEntries; }

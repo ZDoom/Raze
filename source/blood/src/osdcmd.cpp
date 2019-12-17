@@ -270,20 +270,6 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-/*
-static int osdcmd_restartsound(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    sfxTerm();
-    sndTerm();
-
-    sndInit();
-    sfxInit();
-
-    return OSDCMD_OK;
-}
-*/
-
 void onvideomodechange(int32_t newmode)
 {
     UNREFERENCED_PARAMETER(newmode);
