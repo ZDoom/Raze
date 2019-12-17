@@ -2244,7 +2244,7 @@ void C_Compile(const char *fileName)
 
     C_ParseCommand(1);
 
-	for (FString & m : *userConfig.AddCons.get())
+    if (userConfig.AddCons) for (FString & m : *userConfig.AddCons.get())
     {
 		C_Include(m);
     }

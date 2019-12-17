@@ -5325,7 +5325,7 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     if (pScript)
         parsedefinitions_game(pScript, firstPass);
 
-    for (auto& m : *userConfig.AddDefs)
+    if (userConfig.AddDefs) for (auto& m : *userConfig.AddDefs)
         parsedefinitions_game_include(m, NULL, "null", firstPass);
 
     if (pScript)

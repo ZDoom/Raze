@@ -3409,7 +3409,7 @@ int32_t loaddefinitionsfile(const char *fn)
         defsparser(script);
     }
 
-    for (auto& m : *userConfig.AddDefs)
+    if (userConfig.AddDefs) for (auto& m : *userConfig.AddDefs)
         defsparser_include(m, NULL, NULL);
 
     g_logFlushWindow = f;

@@ -5937,7 +5937,7 @@ void C_Compile(const char *fileName)
     C_AddDefaultDefinitions();
     C_ParseCommand(true);
 
-	for (FString& m : *userConfig.AddCons.get())
+    if (userConfig.AddCons) for (FString& m : *userConfig.AddCons.get())
 	{
 		C_Include(m);
 	}

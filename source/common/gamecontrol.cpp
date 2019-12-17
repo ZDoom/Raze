@@ -455,6 +455,10 @@ int RunGame()
 			addArt.Push(art);
 		}
 	}
+	if (userConfig.AddArt) for (auto& art : *userConfig.AddArt)
+	{
+		addArt.Push(art);
+	}
 	TileFiles.AddArt(addArt);
 
 	CONFIG_InitMouseAndController();
