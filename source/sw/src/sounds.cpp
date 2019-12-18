@@ -150,6 +150,7 @@ void InitFX(void)
             newsfx.name = entry.name;
             newsfx.lumpnum = lump;
             newsfx.NearLimit = 6;
+            newsfx.bTentative = false;
         }
     }
     soundEngine->HashSounds();
@@ -350,7 +351,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
                 // For unpanned sounds the volume must be set directly and the position taken from the listener.
                 *pos = campos;
                 auto sdist = SoundDist(vpos->x, vpos->y, vpos->z, voc[chanSound].voc_distance);
-                SetVolume(chan, (255 - sdist) * (1 / 255.f));
+                if (chan) SetVolume(chan, (255 - sdist) * (1 / 255.f));
             }
             else
             {
@@ -385,6 +386,22 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 
 void DoUpdateSounds(void)
 {
+    PLAYERp pp = Player + screenpeek;
+    SoundListener listener;
+
+    listener.angle = -(float)pp->pang * pi::pi() / 1024; // Build uses a period of 2048.
+    listener.velocity.Zero();
+    listener.position = GetSoundPos((vec3_t*)&pp->posx);
+    listener.underwater = false;
+    // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
+    // listenactor->waterlevel == 3;
+    //assert(primaryLevel->Zones.Size() > listenactor->Sector->ZoneNumber);
+    listener.Environment = 0;// primaryLevel->Zones[listenactor->Sector->ZoneNumber].Environment;
+    listener.valid = true;
+
+    listener.ListenerObject = pp;
+    soundEngine->SetListener(listener);
+
     soundEngine->EnumerateChannels([](FSoundChan* chan)
         {
             if (chan->ChanFlags & EChanFlags::FromInt(CHANEXF_INTERMIT))
@@ -538,7 +555,7 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t *pos, Voc3D_Flags flags, 
         float fpitch = S_ConvertPitch(pitch);
 
         auto rolloff = GetRolloff(vp->voc_distance);
-        auto spos = GetSoundPos(pos);
+        FVector3 spos = pos ? GetSoundPos(pos) : FVector3(0, 0, 0);
         auto chan = soundEngine->StartSound(sourcetype, source, &spos, CHAN_BODY, cflags, num, 1.f, ATTN_NORM, &rolloff, fpitch);
         if (chan)
         {
