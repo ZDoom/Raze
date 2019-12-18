@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "build.h"
 
-#include "sndcards.h"
 #include "hash.h"
 #include "renderlayer.h"
 #include "gamecontrol.h"

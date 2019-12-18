@@ -104,10 +104,7 @@ if( WIN32 )
 		libSDL2main
 		libSDL2
 
-		# this local library crap needs to go away. The Ogg/Vorbis libraries are easy to replace with libsndfile but there doesn't seem to be anything to get a working libvpx that doesn't force linking with MinGW dependencies.
-		libogg
-		libvorbis
-		libvorbisfile
+		# this local library crap needs to go away. Sadly there doesn't seem to be anything to get a working libvpx that doesn't force linking with MinGW dependencies.
 		libvpx
 		libcompat-to-msvc
 		

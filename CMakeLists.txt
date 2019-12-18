@@ -241,7 +241,7 @@ if( MSVC )
 	
 	
 	# Most of these need to be cleaned out. The source is currently infested with far too much conditional compilation which is a constant source of problems.
-	set( ALL_C_FLAGS "${ALL_C_FLAGS} /DRENDERTYPESDL=1 /DMIXERTYPEWIN=1 /DSDL_USEFOLDER /DSDL_TARGET=2 /DUSE_OPENGL=1 /DSTARTUP_WINDOW /DUSE_LIBVPX /DHAVE_VORBIS /DHAVE_XMP /DNOASM=1 /DWIN32 /DLIBXMP_CORE_PLAYER" )
+	set( ALL_C_FLAGS "${ALL_C_FLAGS} /DRENDERTYPESDL=1 /DMIXERTYPEWIN=1 /DSDL_USEFOLDER /DSDL_TARGET=2 /DUSE_OPENGL=1 /DSTARTUP_WINDOW /DUSE_LIBVPX /DNOASM=1 /DWIN32" )
 
 	# The CMake configurations set /GR and /MD by default, which conflict with our settings.
 	string(REPLACE "/MD " " " CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} )
