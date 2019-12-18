@@ -1246,12 +1246,11 @@ int DoRipper2StandHeart(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    static int riphearthandle;
 
     NullRipper2(SpriteNum);
 
-    if (!FX_SoundValidAndActive(riphearthandle))
-        riphearthandle = PlaySound(DIGI_RIPPER2HEARTOUT, sp, v3df_none);
+    if (!SoundValidAndActive(sp, CHAN_RipHeart))
+        PlaySound(DIGI_RIPPER2HEARTOUT, sp, v3df_none, CHAN_RipHeart);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         NewStateGroup(SpriteNum, sg_Ripper2Run);

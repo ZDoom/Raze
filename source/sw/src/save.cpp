@@ -748,8 +748,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
         TerminateLevel();
     Terminate3DSounds();
 
-    Terminate3DSounds();
-
     MREAD(&Level,sizeof(Level),1,fil);
     MREAD(&Skill,sizeof(Skill),1,fil);
 

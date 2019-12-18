@@ -719,23 +719,22 @@ int DoZillaMove(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     short choose;
-    static int handle;
 
     //if (TEST(u->Flags,SPR_SLIDING))
     //DoActorSlide(SpriteNum);
 
     // Random Zilla taunts
-    if (!FX_SoundValidAndActive(handle))
+    if (!SoundValidAndActive(sp, CHAN_AnimeMad))
     {
         choose = STD_RANDOM_RANGE(1000);
         if (choose > 990)
-            handle = PlaySound(DIGI_Z16004, sp, v3df_none);
+            PlaySound(DIGI_Z16004, sp, v3df_none, CHAN_AnimeMad);
         else if (choose > 985)
-            handle = PlaySound(DIGI_Z16004, sp, v3df_none);
+            PlaySound(DIGI_Z16004, sp, v3df_none, CHAN_AnimeMad);
         else if (choose > 980)
-            handle = PlaySound(DIGI_Z16004, sp, v3df_none);
+            PlaySound(DIGI_Z16004, sp, v3df_none, CHAN_AnimeMad);
         else if (choose > 975)
-            handle = PlaySound(DIGI_Z16004, sp, v3df_none);
+            PlaySound(DIGI_Z16004, sp, v3df_none, CHAN_AnimeMad);
     }
 
 

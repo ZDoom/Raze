@@ -60,6 +60,10 @@ BEGIN_SW_NS
 enum EChanExFlags
 {
     CHANEXF_AMBIENT = 0x40000000,
+    CHANEXF_NODOPPLER = 0x20000000,
+    CHANEXF_DONTPAN = 0x10000000,
+    CHANEXF_INTERMIT = 0x08000000,
+
 };
 
 // Parentally locked sounds list
@@ -118,9 +122,6 @@ void InitFX(void)
             newsfx.name = entry.name;
             newsfx.lumpnum = lump;
             newsfx.NearLimit = 6;
-            newsfx.UserData.Resize(sizeof(void*));
-            auto p = (VOC_INFOp *)newsfx.UserData.Data();
-            *p = &entry;    // store a link to the static data.
         }
     }
     soundEngine->HashSounds();
@@ -133,9 +134,89 @@ void InitFX(void)
 
 //==========================================================================
 //
-//
+// Sound Distance Calculation
 //
 //==========================================================================
+
+enum
+{
+    MAXLEVLDIST = 19000,   // The higher the number, the further away you can hear sound
+    DECAY_CONST = 4000
+};
+
+short SoundDist(int x, int y, int z, int basedist)
+{
+    double tx, ty, tz;
+    double sqrdist, retval;
+    extern short screenpeek;
+
+    tx = fabs(Player[screenpeek].posx - x);
+    ty = fabs(Player[screenpeek].posy - y);
+    tz = fabs((Player[screenpeek].posz - z) >> 4);
+
+    // Use the Pythagreon Theorem to compute the magnitude of a 3D vector
+    sqrdist = fabs(tx * tx + ty * ty + tz * tz);
+    retval = sqrt(sqrdist);
+
+    if (basedist < 0) // if basedist is negative
+    {
+        double decayshift = 2;
+        int decay = labs(basedist) / DECAY_CONST;
+
+        for (int i = 0; i < decay; i++)
+            decayshift *= 2;
+
+        if (fabs(double(basedist) / decayshift) >= retval)
+            retval = 0;
+        else
+            retval *= decay;
+    }
+    else
+    {
+        if (basedist > retval)
+            retval = 0;
+        else
+            retval -= basedist;
+    }
+
+    retval = retval * 256 / MAXLEVLDIST;
+
+    if (retval < 0) retval = 0;
+    if (retval > 255) retval = 255;
+
+    return retval;
+}
+
+//==========================================================================
+//
+// Calculate rolloff info. 
+//
+//==========================================================================
+
+FRolloffInfo GetRolloff(int basedist)
+{
+    FRolloffInfo info;
+
+    if (basedist < 0) // if basedist is negative
+    {
+        double decayshift = 2;
+        int decay = labs(basedist) / DECAY_CONST;
+
+        for (int i = 0; i < decay; i++)
+            decayshift *= 2;
+
+        info.RolloffType = ROLLOFF_Doom;
+        info.MinDistance = (float)(-basedist / decayshift / 16.);
+        info.MaxDistance = MAXLEVLDIST / 16.f / decay;
+    }
+    else
+    {
+        info.RolloffType = ROLLOFF_Doom;
+        info.MinDistance = basedist / 16.f;
+        info.MaxDistance = info.MinDistance + MAXLEVLDIST / 16.f;
+    }
+    return info;
+}
 
 
 
@@ -151,35 +232,6 @@ void DumpSounds(void);
 SWBOOL Use_SoundSpriteNum = FALSE;
 int16_t SoundSpriteNum = -1;  // Always set this back to -1 for proper validity checking!
 
-SWBOOL FxInitialized = FALSE;
-
-void SoundCallBack(unsigned int num);
-
-#define MUSIC_ID -65536
-
-#define NUM_SAMPLES 10
-
-int music;
-int soundfx;
-int num_voices;
-
-int NumSounds = 0;
-
-int angle;
-int distance;
-int voice;
-
-int loopflag;
-
-extern SWBOOL DemoMode;
-
-SWBOOL OpenSound(VOC_INFOp vp, FileReader &handle, int *length);
-int ReadSound(FileReader & handle, VOC_INFOp vp, int length);
-
-
-//
-// Routine called when a sound is finished playing
-//
 
 ////////////////////////////////////////////////////////////////////////////
 // Play a sound
@@ -250,7 +302,7 @@ typedef struct
 } TVOC_INFO, * TVOC_INFOp;
 
 void
-DoUpdateSounds3D(void)
+DoUpdateSounds(void)
 {
     VOC3D_INFOp p;
     SWBOOL looping;
@@ -262,8 +314,7 @@ DoUpdateSounds3D(void)
     TVOC_INFO TmpVocArray[32];
     int i;
 
-    if (M_Active()) return;
-
+    // Zero out the temporary array
     // Zero out the temporary array
     //memset(&TmpVocArray[0],0,sizeof(TmpVocArray));
     for (i = 0; i < 32; i++)
@@ -500,222 +551,8 @@ DoUpdateSounds3D(void)
 }
 
 
-void
-StopFX(void)
-{
-    FX_StopAllSounds_();
-}
+/*
 
-void
-StopSound(void)
-{
-    StopFX();
-    Mus_Stop();
-}
-
-//
-// Sound Distance Calculation
-//
-
-#define MAXLEVLDIST 19000   // The higher the number, the further away you can hear sound
-
-short SoundDist(int x, int y, int z, int basedist)
-{
-    double tx, ty, tz;
-    double sqrdist,retval;
-    double decay,decayshift;
-    extern short screenpeek;
-
-#define DECAY_CONST 4000
-
-
-    tx = fabs(Player[screenpeek].posx - x);
-    ty = fabs(Player[screenpeek].posy - y);
-    tz = fabs((Player[screenpeek].posz - z) >> 4);
-
-    // Use the Pythagreon Theorem to compute the magnitude of a 3D vector
-    sqrdist = fabs(tx*tx + ty*ty + tz*tz);
-    retval = sqrt(sqrdist);
-
-    if (basedist < 0) // if basedist is negative
-    {
-        short i;
-
-        decayshift=2;
-        decay = labs(basedist) / DECAY_CONST;
-
-        for (i=0; i<decay; i++)
-            decayshift *= 2;
-
-        if (fabs(double(basedist)/decayshift) >= retval)
-            retval = 0;
-        else
-            retval *= decay;
-    }
-    else
-    {
-        if (basedist > retval)
-            retval = 0;
-        else
-            retval -= basedist;
-    }
-
-    retval = retval * 256 / MAXLEVLDIST;
-
-    if (retval < 0) retval = 0;
-    if (retval > 255) retval = 255;
-
-    return retval;
-}
-
-//
-// Angle calcuations - may need to be checked to make sure they are right
-//
-
-short SoundAngle(int x, int y)
-{
-    extern short screenpeek;
-
-    short angle, delta_angle;
-
-    angle = getangle(x - Player[screenpeek].posx, y - Player[screenpeek].posy);
-
-    delta_angle = GetDeltaAngle(angle, Player[screenpeek].pang);
-
-    // convert a delta_angle to a real angle if negative
-    if (delta_angle < 0)
-        delta_angle = NORM_ANGLE((1024 + delta_angle) + 1024);
-
-    // convert 2048 degree angle to 128 degree angle
-    return delta_angle >> 4;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// Play a sound
-////////////////////////////////////////////////////////////////////////////
-
-#define SOUND_UNIT  MAXLEVLDIST/255
-// NOTE: If v3df_follow == 1, x,y,z are considered literal coordinates
-int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t *pos, Voc3D_Flags flags)
-{
-    VOC_INFOp vp;
-    VOC3D_INFOp v3p;
-    int pitch = 0;
-    short angle, sound_dist;
-    int tx, ty, tz;
-    uint8_t priority;
-
-    // Weed out parental lock sounds if PLock is active
-    if (adult_lockout || Global_PLock)
-    {
-        unsigned i;
-
-        for (i=0; i<sizeof(PLocked_Sounds); i++)
-        {
-            if (num == PLocked_Sounds[i])
-                return -1;
-        }
-    }
-
-    if (Prediction || !SoundEnabled() || num < 0 || num >= DIGI_MAX)
-        return -1;
-
-    if (TEST(flags,v3df_ambient) && !TEST(flags,v3df_nolookup))  // Look for invalid ambient numbers
-    {
-        if (!snd_ambience) return -1;
-        if (num < 0 || num > MAX_AMBIENT_SOUNDS)
-        {
-            sprintf(ds,"Invalid or out of range ambient sound number %d\n",num);
-            PutStringInfo(Player+screenpeek, ds);
-            return -1;
-        }
-        v3p->maxtics = STD_RANDOM_RANGE(ambarray[num].maxtics);
-
-        // If the ambient flag is set, do a name conversion to point to actual
-        // digital sound entry.
-        flags |= ambarray[num].ambient_flags;   // Add to flags if any
-        num = ambarray[num].diginame;
-        if (num < 0 || num >= DIGI_MAX)
-        {
-            return -1;
-        }
-    }
-
-    //auto chan = soundEngine->StartSound()
-
-
-    v3p->num = num;
-    v3p->priority = 0;
-    v3p->FX_Ok = FALSE; // Hasn't played yet
-    // Reset voice
-    voice = -1;
-
-    // Assign voc to voc pointer
-    vp = &voc[num];
-    if (M_Active() && sp == nullptr && pp == nullptr)  // Menus sound outdo everything
-        priority = 100;
-    else
-        priority = vp->priority;
-    v3p->vp = vp;
-
-    // Assign voc info to 3d struct for future reference
-    /*
-    v3p->x = x;
-    v3p->y = y;
-    v3p->z = z;
-    v3p->fx = *x;
-    v3p->fy = *y;
-    v3p->fz = *z;
-    */
-    v3p->flags = flags;
-
-    /*
-    if (flags & v3df_follow)
-    {
-        tx = *x;
-        ty = *y;
-        if (!z)
-            tz = 0;                     // Some sound calls don't have a z
-        // value
-        else
-            tz = *z;
-    }
-    else
-    {
-        // Don't use pointers to coordinate values.
-        tx = v3p->fx;
-        ty = v3p->fy;
-        tz = v3p->fz;
-    }
-    */
-
-    // Special case stuff for sounds being played in a level
-    /*
-    if (*x==0 && *y==0 && *z==0)
-        tx = ty = tz = 0;
-        */
-
-    if ((vp->voc_flags & vf_loop) && Use_SoundSpriteNum && SoundSpriteNum >= 0 && sp)
-    {
-        tx=sp->x;
-        ty=sp->y;
-        tz=sp->z;
-    }
-
-    // Calculate sound angle
-    if (flags & v3df_dontpan)               // If true, don't do panning
-        angle = 0;
-    else
-        angle = SoundAngle(tx, ty);
-
-    // Calculate sound distance
-    if (tx == 0 && ty == 0 && tz == 0)
-        sound_dist = 255;  // Special case for menus sounds,etc.
-    else
-        sound_dist = SoundDist(tx, ty, tz, vp->voc_distance);
-
-    v3p->doplr_delta = sound_dist;      // Save of distance for doppler
-    // effect
 
     // Can the ambient sound see the player?  If not, tone it down some.
     if ((vp->voc_flags & vf_loop) && Use_SoundSpriteNum && SoundSpriteNum >= 0)
@@ -733,88 +570,148 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t *pos, Voc3D_Flags flags)
             if (num == DIGI_WHIPME) sound_dist = 255;
         }
     }
+*/
 
-    // Assign ambient priorities based on distance
-    if (snd_ambience && TEST(flags, v3df_ambient))
+
+
+
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+
+float S_ConvertPitch(int lpitch)
+{
+    return pow(2, lpitch / 1200.);
+}
+
+//==========================================================================
+//
+// Play a sound
+//
+//==========================================================================
+
+int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t *pos, Voc3D_Flags flags, int channel)
+{
+    VOC_INFOp vp;
+    VOC3D_INFOp v3p;
+    int pitch = 0;
+    short angle, sound_dist;
+    int tx, ty, tz;
+    uint8_t priority;
+    int maxtics = 0;
+    EChanFlags cflags = channel == 8 ?CHANF_OVERLAP : CHANF_NONE;  // for the default channel we do not want to have sounds stopping each other.
+
+    // Weed out parental lock sounds if PLock is active
+    if (adult_lockout || Global_PLock)
     {
-        v3p->priority = v3p->vp->priority - (sound_dist / 26);
-        priority = v3p->priority;
+        unsigned i;
+
+        for (i=0; i<sizeof(PLocked_Sounds); i++)
+        {
+            if (num == PLocked_Sounds[i])
+                return -1;
+        }
     }
 
-    /*
-    if (!CacheSound(num, CACHE_SOUND_PLAY))
-    {
-        v3p->flags = v3df_kill;
-        v3p->handle = -1;
-        v3p->dist = 0;
-        v3p->deleted = TRUE;            // Sound init failed, remove it!
+    if (Prediction || !SoundEnabled())
         return -1;
-    }*/
 
-    if (sound_dist < 5)
-        angle = 0;
-
-    // Check for pitch bending
-    if (vp->pitch_lo > vp->pitch_hi)
-        ASSERT(vp->pitch_lo <= vp->pitch_hi);
-
-    if (vp->pitch_hi == vp->pitch_lo)
-        pitch = vp->pitch_lo;
-    else if (vp->pitch_hi != vp->pitch_lo)
-        pitch = vp->pitch_lo + (STD_RANDOM_RANGE(vp->pitch_hi - vp->pitch_lo));
-
-    // Request playback and play it as a looping sound if flag is set.
-    if (vp->voc_flags & vf_loop)
+    if (TEST(flags,v3df_ambient) && !TEST(flags,v3df_nolookup))  // Look for invalid ambient numbers
     {
-        short loopvol=0;
-
-        if ((loopvol = 255-sound_dist) <= 0)
-            loopvol = 0;
-
-        if (sound_dist < 255 || (flags & v3df_init))
+        // Ambient sounds need special treatment
+        if (!snd_ambience) return -1;
+        if (num < 0 || num > MAX_AMBIENT_SOUNDS)
         {
-            voice = FX_Play((char *)vp->data, vp->datalen, 0, 0,
-                                      pitch, loopvol, loopvol, loopvol, priority, 1.f, num); // [JM] Should probably utilize floating point volume. !CHECKME!
+            sprintf(ds,"Invalid or out of range ambient sound number %d\n",num);
+            PutStringInfo(Player+screenpeek, ds);
+            return -1;
         }
-        else
-            voice = -1;
+        maxtics = STD_RANDOM_RANGE(ambarray[num].maxtics);
 
+        // If the ambient flag is set, do a name conversion to point to actual
+        // digital sound entry.
+        flags |= ambarray[num].ambient_flags;   // Add to flags if any
+        num = ambarray[num].diginame;
+        cflags |= EChanFlags::FromInt(CHANEXF_AMBIENT); // flag the sound as being an ambient sound.
     }
-    else
-    //if(!flags & v3df_init)  // If not initing sound, play it
-    if (tx==0 && ty==0 && tz==0)     // It's a non-inlevel sound
+    //else
     {
-        voice = FX_Play((char *)vp->data, vp->datalen, -1, -1, pitch, 255, 255, 255, priority, 1.f, num); // [JM] And here !CHECKME!
-    }
-    else     // It's a 3d sound
-    {
-        if (sound_dist < 255)
+        if (!soundEngine->isValidSoundId(num))
         {
-            voice = FX_Play3D((char *)vp->data, vp->datalen, FX_ONESHOT, pitch, angle, sound_dist, priority, 1.f, num); // [JM] And here !CHECKME!
+            return -1;
         }
-        else
-            voice = -1;
+
+        vp = &voc[num];
+        int sourcetype = SOURCE_None;
+        void* source = nullptr;
+        // If the sound is not supposd to be positioned, it may not be linked to the launching actor.
+        if (!(flags & v3df_follow))
+        {
+            if (sp && !pos)
+            {
+                pos = &sp->pos;
+                sp = nullptr;
+            }
+            else if (pp && !pos)
+            {
+                pos = (vec3_t*)&pp->posx;
+                pp = nullptr;
+            }
+        }
+
+        if (pos != nullptr)
+        {
+            sourcetype = SOURCE_Unattached;
+        }
+        else if (sp != nullptr)
+        {
+            source = sp;
+            sourcetype = SOURCE_Actor;
+        }
+        else if (pp != nullptr)
+        {
+            source = pp;
+            sourcetype = SOURCE_Player;
+        }
+        // Otherwise it's an unpositioned sound.
+
+        if (!(flags & v3df_doppler))
+        {
+            cflags |= EChanFlags::FromInt(CHANEXF_NODOPPLER);    // this must ensure that CalcPosVel always zeros the velocity.
+        }
+        if (flags & v3df_dontpan)
+        {
+            cflags |= EChanFlags::FromInt(CHANEXF_DONTPAN);      // beware of hackery to emulate this. 
+        }
+        if (flags & v3df_init)
+        {
+            cflags |= CHANF_VIRTUAL;                            // don't start right away but keep the channel around until explicitly deleted.
+        }
+        if (vp->voc_flags & vf_loop)
+        {
+            cflags |= CHANF_LOOP;                               // with the new sound engine these can just be started and don't have to be stopped ever.
+        }
+
+        if (vp->pitch_hi <= vp->pitch_lo)
+            pitch = vp->pitch_lo;
+        else if (vp->pitch_hi != vp->pitch_lo)
+            pitch = vp->pitch_lo + (STD_RANDOM_RANGE(vp->pitch_hi - vp->pitch_lo));
+
+        float fpitch = S_ConvertPitch(pitch);
+
+        auto rolloff = GetRolloff(vp->voc_distance);
+        auto spos = GetSoundPos(pos);
+        auto chan = soundEngine->StartSound(sourcetype, source, &spos, CHAN_BODY, cflags, num, 1.f, ATTN_NORM, &rolloff, fpitch);
+        if (chan)
+        {
+            if (flags & v3df_intermit)
+            {
+                chan->ChanFlags |= CHANF_VIRTUAL | EChanFlags::FromInt(CHANEXF_INTERMIT);   // for intermittent sounds this must be set after starting the sound so that it actually plays.
+            }
+            chan->UserData = maxtics; // counter for intermittent delay.
+        }
     }
 
-    // If sound played, update our counter
-    if (voice > FX_Ok)
-    {
-        //vp->playing++;
-        v3p->FX_Ok = TRUE;
-    }
-    else
-    {
-        vp->lock--;
-    }
-
-    // Assign voc info to 3d struct for future reference
-    v3p->handle = voice;                // Save the current voc handle in struct
-    v3p->dist = sound_dist;
-    v3p->tics = 0;                      // Reset tics
-    if (flags & v3df_init)
-        v3p->flags ^= v3df_init;        // Turn init off now
-
-    return voice;
+    return 1;
 }
 
 //==========================================================================
@@ -1012,6 +909,11 @@ void StopPlayerSound(PLAYERp pp)
     soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE);
 }
 
+bool SoundValidAndActive(SPRITEp spr, int channel)
+{
+    return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, spr, channel);
+}
+
 
 /*
 ============================================================================
@@ -1121,6 +1023,12 @@ SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_tra
     }
     else if (isThemeTrack && sw_nothememidi) return false;   // The original SW source only used CD Audio for theme tracks, so this is optional.
     return Mus_Play(nullptr, song_file_name, true);
+}
+
+void StopSound(void)
+{
+    soundEngine->StopAllChannels();
+    Mus_Stop();
 }
 
 

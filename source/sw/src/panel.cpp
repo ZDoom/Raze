@@ -46,6 +46,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "fx_man.h"
 #include "menu/menu.h"
 #include "swcvar.h"
+#include "sound/s_soundinternal.h"
 
 BEGIN_SW_NS
 
@@ -996,11 +997,7 @@ int WeaponOperate(PLAYERp pp)
     if (pp->WpnRocketType != 2 || pp->CurWpn != pp->Wpn[WPN_MICRO])
     {
         pp->InitingNuke = FALSE;
-        if (pp->nukevochandle > 0)
-        {
-            FX_StopSound(pp->nukevochandle);
-            pp->nukevochandle = 0;
-        }
+        soundEngine->StopSound(SOURCE_Player, pp, CHAN_WEAPON);
     }
 
     return 0;
@@ -3694,8 +3691,6 @@ PANEL_STATE ps_RetractRail[] =
 //#define RAIL_XOFF (160+60)
 #define RAIL_XOFF (160+6)
 
-static int railvochandle=0;
-
 void
 InitWeaponRail(PLAYERp pp)
 {
@@ -3740,7 +3735,7 @@ InitWeaponRail(PLAYERp pp)
     pSetState(psp, psp->PresentState);
 
     PlaySound(DIGI_RAIL_UP, pp, v3df_follow);
-    railvochandle = PlaySound(DIGI_RAILREADY, pp, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_RAILREADY, pp, v3df_follow|v3df_dontpan);
     Set3DSoundOwner(psp->PlayerP->PlayerSprite);
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
@@ -5007,8 +5002,7 @@ pMicroStandBy(PANEL_SPRITEp psp)
     PLAYERp pp = psp->PlayerP;
 
     pMicroOverlays(psp);
-    pp->nukevochandle =
-        PlaySound(DIGI_NUKESTDBY, psp->PlayerP, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_NUKESTDBY, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
 }
 
 void
@@ -5016,8 +5010,7 @@ pMicroCount(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
 
-    pp->nukevochandle =
-        PlaySound(DIGI_NUKECDOWN, pp, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_NUKECDOWN, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
 }
 
 void
@@ -5025,8 +5018,7 @@ pMicroReady(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
 
-    pp->nukevochandle =
-        PlaySound(DIGI_NUKEREADY, pp, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_NUKEREADY, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
     pp->NukeInitialized = TRUE;
 }
 

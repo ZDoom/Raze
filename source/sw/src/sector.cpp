@@ -1242,7 +1242,6 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
 
             if (TEST_BOOL2(sp))
                 flags = v3df_follow|v3df_nolookup|v3df_init;
-            //flags = v3df_follow|v3df_ambient|v3df_nolookup;
 
             // play once and only once
             if (TEST_BOOL1(sp))

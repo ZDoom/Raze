@@ -8069,8 +8069,8 @@ domovethings(void)
 
     MultiPlayLimits();
 
-    if (MoveSkip8 == 0)     // 8=5x 4=10x, 2=20x, 0=40x per second
-        DoUpdateSounds3D();
+    //if (MoveSkip8 == 0)     // 8=5x 4=10x, 2=20x, 0=40x per second
+        DoUpdateSounds();
 
     CorrectPrediction(movefifoplc - 1);
 

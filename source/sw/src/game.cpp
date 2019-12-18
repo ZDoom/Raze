@@ -98,6 +98,7 @@ Things required to make savegames work:
 #include "statistics.h"
 #include "gstrings.h"
 #include "mapinfo.h"
+#include "sound/s_soundinternal.h"
 
 //#include "crc32.h"
 
@@ -1309,7 +1310,6 @@ TerminateLevel(void)
     memset(Track, 0, sizeof(Track));
 
     StopSound();
-    Terminate3DSounds();        // Kill the 3d sounds linked list
     
     // Clear all anims and any memory associated with them
     // Clear before killing sprites - save a little time
@@ -1604,19 +1604,24 @@ void CreditsLevel(void)
     videoNextPage();
 
     // Lo Wang feel like singing!
-    handle = PlaySound(DIGI_JG95012, v3df_none);
-
-    if (handle > 0)
-        while (FX_SoundActive(handle)) ;
+    PlaySound(DIGI_JG95012, v3df_none, CHAN_VOICE);
+    while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+    {
+        DoUpdateSounds();
+        handleevents();
+    }
 
     // try 14 then 2 then quit
     if (!PlaySong(nullptr, ThemeSongs[5], ThemeTrack[5], true))
     {
         if (!PlaySong(nullptr, nullptr, 2, true))
         {
-            handle = PlaySound(DIGI_NOLIKEMUSIC, v3df_none);
-            if (handle > 0)
-                while (FX_SoundActive(handle)) handleevents();
+            PlaySound(DIGI_NOLIKEMUSIC, v3df_none, CHAN_VOICE);
+            while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+            {
+                DoUpdateSounds();
+                handleevents();
+            }
             return;
         }
     }
@@ -2255,7 +2260,6 @@ void BonusScreen(PLAYERp pp)
     }
 
     StopSound();
-    Terminate3DSounds();
 }
 
 void EndGameSequence(void)
@@ -2471,7 +2475,6 @@ void StatScreen(PLAYERp mpp)
     }
 
     StopSound();
-    Terminate3DSounds();
 }
 
 void GameIntro(void)

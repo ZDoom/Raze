@@ -1210,7 +1210,6 @@ struct PLAYERstruct
     unsigned char WpnShotgunLastShell;       // Number of last shell fired
     unsigned char WpnRailType;               // Normal Rail Gun or EMP Burst Mode
     SWBOOL Bloody;                    // Is player gooey from the slaughter?
-    int nukevochandle;              // Stuff for the Nuke
     SWBOOL InitingNuke;
     SWBOOL TestNukeInit;
     SWBOOL NukeInitialized;           // Nuke already has counted down
@@ -2067,30 +2066,48 @@ short ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *
 
 SECT_USERp GetSectUser(short sectnum);
 
+// Some sounds were checked by storing handles in static local variables.
+// Problems with this design:
+// 1. The variables were unmaintained and could refer to handles that had been reused already.
+// 2. No proper sound ownership tracking.
+// 3. In some cases items that were supposed to use the same check referred to different handle variables.
+// In short: I was very broken. This is a list of all sound items used this way, now each one gets a dedicated channel
+// so that proper checks can be performed and sound ownership be tracked.
+
+enum
+{
+    CHAN_ToiletFart = 1000,
+    CHAN_AnimeMad = 1001,
+    CHAN_AnimeSing = 1002,
+    CHAN_CoyHandle = 1003,
+    CHAN_RipHeart = 1004,
+};
+
 short SoundDist(int x, int y, int z, int basedist);
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
-int _PlaySound(int num, SPRITEp sprite, PLAYERp player, vec3_t *pos, Voc3D_Flags flags);
-inline int PlaySound(int num, SPRITEp sprite, Voc3D_Flags flags)
+int _PlaySound(int num, SPRITEp sprite, PLAYERp player, vec3_t *pos, Voc3D_Flags flags, int channel);
+inline void PlaySound(int num, SPRITEp sprite, Voc3D_Flags flags, int channel = 8)
 {
-    return _PlaySound(num, sprite, nullptr, nullptr, flags);
+    _PlaySound(num, sprite, nullptr, nullptr, flags, channel);
 }
-inline int PlaySound(int num, PLAYERp player, Voc3D_Flags flags)
+inline void PlaySound(int num, PLAYERp player, Voc3D_Flags flags, int channel = 8)
 {
-    return _PlaySound(num, nullptr, player, nullptr, flags);
+    _PlaySound(num, nullptr, player, nullptr, flags, channel);
 }
-inline int PlaySound(int num, Voc3D_Flags flags)
+inline void PlaySound(int num, Voc3D_Flags flags, int channel = 8)
 {
-    return _PlaySound(num, nullptr, nullptr, nullptr, flags);
+    _PlaySound(num, nullptr, nullptr, nullptr, flags, channel);
 }
-inline int PlaySound(int num, vec3_t *pos, Voc3D_Flags flags)
+inline void PlaySound(int num, vec3_t *pos, Voc3D_Flags flags, int channel = 8)
 {
-    return _PlaySound(num, nullptr, nullptr, pos, flags);
+    _PlaySound(num, nullptr, nullptr, pos, flags, channel);
 }
 
 int _PlayerSound(int num, PLAYERp pp);
 inline int PlayerSound(int num, int flags, PLAYERp pp) { return _PlayerSound(num, pp); }
 void StopPlayerSound(PLAYERp pp);
+bool SoundValidAndActive(SPRITEp spr, int channel);
 
 
 ANIMATOR DoActorBeginJump,DoActorJump,DoActorBeginFall,DoActorFall,DoActorDeathMove;

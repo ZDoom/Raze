@@ -2258,7 +2258,6 @@ PlayerDeathReset(PLAYERp pp)
     pp->Bloody = FALSE;
     pp->TestNukeInit = FALSE;
     pp->InitingNuke = FALSE;
-    pp->nukevochandle = 0;
     pp->NukeInitialized = FALSE;
     pp->BunnyMode = FALSE;
 
@@ -2348,7 +2347,6 @@ PlayerGameReset(PLAYERp pp)
     pp->Bloody = FALSE;
     pp->TestNukeInit = FALSE;
     pp->InitingNuke = FALSE;
-    pp->nukevochandle = 0;
     pp->NukeInitialized = FALSE;
     pp->BunnyMode = FALSE;
     pp->SecretsFound = 0;

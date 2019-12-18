@@ -52,6 +52,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "colormap.h"
 #include "config.h"
 #include "menu/menu.h"
+#include "sound/s_soundinternal.h"
+#include "sounds.h"
 
 #include "../../glbackend/glbackend.h"
 
@@ -237,17 +239,20 @@ void GameInterface::StartGame(FGameStartup& gs)
     //InitNewGame();
 
     if (Skill == 0)
-        handle = PlaySound(DIGI_TAUNTAI3, v3df_none);
+        PlaySound(DIGI_TAUNTAI3, v3df_none, CHAN_VOICE);
     else if (Skill == 1)
-        handle = PlaySound(DIGI_NOFEAR, v3df_none);
+        PlaySound(DIGI_NOFEAR, v3df_none, CHAN_VOICE);
     else if (Skill == 2)
-        handle = PlaySound(DIGI_WHOWANTSWANG, v3df_none);
+        PlaySound(DIGI_WHOWANTSWANG, v3df_none, CHAN_VOICE);
     else if (Skill == 3)
-        handle = PlaySound(DIGI_NOPAIN, v3df_none);
+        PlaySound(DIGI_NOPAIN, v3df_none, CHAN_VOICE);
 
     if (handle > FX_Ok)
-        while (FX_SoundActive(handle))
-            handleevents();
+		while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+		{
+			DoUpdateSounds();
+			handleevents();
+		}
 }
 
 FSavegameInfo GameInterface::GetSaveSig()

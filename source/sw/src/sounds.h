@@ -73,7 +73,7 @@ typedef struct ambientstruct AMB_INFO, *AMB_INFOp;
 extern VOC3D_INFOp voc3dstart;
 extern VOC3D_INFOp voc3dend;
 
-void DoUpdateSounds3D(void);
+void DoUpdateSounds(void);
 void Terminate3DSounds(void);
 
 void Set3DSoundOwner(short spritenum);
