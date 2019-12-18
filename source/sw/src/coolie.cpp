@@ -662,7 +662,7 @@ int InitCoolieCharge(short SpriteNum)
     USERp u = User[SpriteNum];
 
     if (RANDOM_P2(1024) > 950)
-        PlaySound(DIGI_COOLIESCREAM, &sp->x, &sp->y, &sp->z, v3df_follow);
+        PlaySound(DIGI_COOLIESCREAM, sp, v3df_follow);
 
     DoActorSetSpeed(SpriteNum, FAST_SPEED);
 

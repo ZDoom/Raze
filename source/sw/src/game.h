@@ -2070,8 +2070,28 @@ SECT_USERp GetSectUser(short sectnum);
 short SoundDist(int x, int y, int z, int basedist);
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
-int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags);
-void PlayerSound(int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp);
+int _PlaySound(int num, SPRITEp sprite, PLAYERp player, vec3_t *pos, Voc3D_Flags flags);
+inline int PlaySound(int num, SPRITEp sprite, Voc3D_Flags flags)
+{
+    return _PlaySound(num, sprite, nullptr, nullptr, flags);
+}
+inline int PlaySound(int num, PLAYERp player, Voc3D_Flags flags)
+{
+    return _PlaySound(num, nullptr, player, nullptr, flags);
+}
+inline int PlaySound(int num, Voc3D_Flags flags)
+{
+    return _PlaySound(num, nullptr, nullptr, nullptr, flags);
+}
+inline int PlaySound(int num, vec3_t *pos, Voc3D_Flags flags)
+{
+    return _PlaySound(num, nullptr, nullptr, pos, flags);
+}
+
+int _PlayerSound(int num, PLAYERp pp);
+inline int PlayerSound(int num, int flags, PLAYERp pp) { return _PlayerSound(num, pp); }
+void StopPlayerSound(PLAYERp pp);
+
 
 ANIMATOR DoActorBeginJump,DoActorJump,DoActorBeginFall,DoActorFall,DoActorDeathMove;
 
@@ -2274,9 +2294,6 @@ extern void DoPaletteFlash(PLAYERp pp);
 extern unsigned char palette_data[256][3];
 extern SWBOOL NightVision;
 
-int _PlayerSound(int num, PLAYERp pp);
-inline int PlayerSound(int num, int x, int y, int z, int flags, PLAYERp pp) { return _PlayerSound(num, pp); }
-void StopPlayerSound(PLAYERp pp);
 
 
 #define MAXSO (INT32_MAX)

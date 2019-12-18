@@ -257,7 +257,7 @@ private:
 
 	bool IsChannelUsed(int sourcetype, const void* actor, int channel, int* seen);
 	// This is the actual sound positioning logic which needs to be provided by the client.
-	virtual void CalcPosVel(int type, const void* source, const float pt[3], int channel, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel) = 0;
+	virtual void CalcPosVel(int type, const void* source, const float pt[3], int channel, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan *chan) = 0;
 	// This can be overridden by the clent to provide some diagnostics. The default lets everything pass.
 	virtual bool ValidatePosVel(int sourcetype, const void* source, const FVector3& pos, const FVector3& vel) { return true; }
 

@@ -397,12 +397,12 @@ void EveryCheatToggle(PLAYERp pp, const char *cheat_string)
 
 void GeorgeFunc(PLAYERp pp, char *)
 {
-    PlayerSound(DIGI_TAUNTAI9,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_doppler|v3df_follow,pp);
+    PlayerSound(DIGI_TAUNTAI9, v3df_dontpan|v3df_doppler|v3df_follow,pp);
 }
 
 void BlackburnFunc(PLAYERp pp, char *)
 {
-    PlayerSound(DIGI_TAUNTAI3,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_doppler|v3df_follow,pp);
+    PlayerSound(DIGI_TAUNTAI3, v3df_dontpan|v3df_doppler|v3df_follow,pp);
 }
 
 int cheatcmp(const char *str1, const char *str2, int len)

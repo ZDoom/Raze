@@ -176,11 +176,11 @@ int DoToiletGirl(short SpriteNum)
             if (!FX_SoundValidAndActive(handle))
             {
                 if (choose_snd > 750)
-                    handle = PlaySound(DIGI_TOILETGIRLFART1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    handle = PlaySound(DIGI_TOILETGIRLFART1, sp, v3df_dontpan);
                 else if (choose_snd > 350)
-                    handle = PlaySound(DIGI_TOILETGIRLFART2,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    handle = PlaySound(DIGI_TOILETGIRLFART2, sp, v3df_dontpan);
                 else
-                    handle = PlaySound(DIGI_TOILETGIRLFART3,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    handle = PlaySound(DIGI_TOILETGIRLFART3, sp, v3df_dontpan);
             }
         }
     }
@@ -191,9 +191,9 @@ int DoToiletGirl(short SpriteNum)
         if (!FX_SoundValidAndActive(madhandle))
         {
             if (RANDOM_RANGE(1000<<8)>>8 > 500)
-                madhandle = PlaySound(DIGI_ANIMEMAD1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan);
             else
-                madhandle = PlaySound(DIGI_ANIMEMAD2,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan);
         }
         ChangeState(SpriteNum,s_ToiletGirlUzi);
         u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
@@ -238,9 +238,9 @@ int NullToiletGirl(short SpriteNum)
         if (!FX_SoundValidAndActive(madhandle))
         {
             if (RANDOM_RANGE(1000<<8)>>8 > 500)
-                madhandle = PlaySound(DIGI_ANIMEMAD1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan);
             else
-                madhandle = PlaySound(DIGI_ANIMEMAD2,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan);
         }
         ChangeState(SpriteNum,s_ToiletGirlUzi);
         u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
@@ -419,9 +419,9 @@ int DoWashGirl(short SpriteNum)
         if (!FX_SoundValidAndActive(handle))
         {
             if (RANDOM_P2(1024<<4)>>4 > 500)
-                handle = PlaySound(DIGI_ANIMESING1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                handle = PlaySound(DIGI_ANIMESING1, sp, v3df_dontpan);
             else
-                handle = PlaySound(DIGI_ANIMESING2,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                handle = PlaySound(DIGI_ANIMESING2, sp, v3df_dontpan);
         }
 
         ChangeState(SpriteNum,s_WashGirlStandScrub);
@@ -449,9 +449,9 @@ int DoWashGirl(short SpriteNum)
         if (!FX_SoundValidAndActive(madhandle))
         {
             if (RANDOM_RANGE(1000<<8)>>8 > 500)
-                madhandle = PlaySound(DIGI_ANIMEMAD1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan);
             else
-                madhandle = PlaySound(DIGI_ANIMEMAD2,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan);
         }
         ChangeState(SpriteNum,s_WashGirlUzi);
         u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
@@ -493,9 +493,9 @@ int NullWashGirl(short SpriteNum)
         if (!FX_SoundValidAndActive(madhandle))
         {
             if (RANDOM_RANGE(1000<<8)>>8 > 500)
-                madhandle = PlaySound(DIGI_ANIMEMAD1,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_ANIMEMAD1, sp, v3df_dontpan);
             else
-                madhandle = PlaySound(DIGI_ANIMEMAD2,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_ANIMEMAD2, sp, v3df_dontpan);
         }
         ChangeState(SpriteNum,s_WashGirlUzi);
         u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
@@ -857,7 +857,7 @@ int PachinkoCheckWin(short SpriteNum)
         }
 
         ActorCoughItem(SpriteNum); // I WON! I WON!
-        PlaySound(DIGI_PALARM,&sp->x,&sp->y,&sp->z,v3df_none);
+        PlaySound(DIGI_PALARM, sp, v3df_none);
 
         // Can't win any more now!
         SET_BOOL1(sp);
@@ -883,13 +883,13 @@ int PachinkoCheckWin(short SpriteNum)
 
     //{
     //if(rnd > 950)
-    //    PlayerSound(DIGI_SHISEISI,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+    //    PlayerSound(DIGI_SHISEISI, pp, v3df_follow|v3df_dontpan,pp);
     //else
     //if(rnd > 900)
-    //    PlayerSound(DIGI_YOULOOKSTUPID,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+    //    PlayerSound(DIGI_YOULOOKSTUPID, pp, v3df_follow|v3df_dontpan,pp);
     //else
     //if(rnd > 850)
-    //    PlayerSound(DIGI_HURTBAD5,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+    //    PlayerSound(DIGI_HURTBAD5, pp, v3df_follow|v3df_dontpan,pp);
     //}
 
     return 0;
@@ -907,11 +907,11 @@ int Pachinko1Operate(short SpriteNum)
     {
         rnd = RANDOM_RANGE(1000);  // TEMP SOUNDS: Need pachinko sounds!
         if (rnd > 700)
-            PlaySound(DIGI_PROLL1,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_PROLL1, sp, v3df_none);
         else if (rnd > 400)
-            PlaySound(DIGI_PROLL2,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_PROLL2, sp, v3df_none);
         else
-            PlaySound(DIGI_PROLL3,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_PROLL3, sp, v3df_none);
     }
 
     return 0;
@@ -1311,13 +1311,13 @@ int DoCarGirl(short SpriteNum)
                 choose = RANDOM_RANGE(1000);
 
                 if (choose > 750)
-                    madhandle = PlaySound(DIGI_LANI049,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI049, sp, v3df_dontpan);
                 else if (choose > 500)
-                    madhandle = PlaySound(DIGI_LANI051,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI051, sp, v3df_dontpan);
                 else if (choose > 250)
-                    madhandle = PlaySound(DIGI_LANI052,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI052, sp, v3df_dontpan);
                 else
-                    madhandle = PlaySound(DIGI_LANI054,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI054, sp, v3df_dontpan);
             }
             ChangeState(SpriteNum,s_CarGirlUzi);
             u->WaitTics = SEC(3)+SEC(RANDOM_RANGE(2<<8)>>8);
@@ -1366,13 +1366,13 @@ int NullCarGirl(short SpriteNum)
             choose = RANDOM_RANGE(1000);
 
             if (choose > 750)
-                madhandle = PlaySound(DIGI_LANI049,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI049, sp, v3df_dontpan);
             else if (choose > 500)
-                madhandle = PlaySound(DIGI_LANI051,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI051, sp, v3df_dontpan);
             else if (choose > 250)
-                madhandle = PlaySound(DIGI_LANI052,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI052, sp, v3df_dontpan);
             else
-                madhandle = PlaySound(DIGI_LANI054,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI054, sp, v3df_dontpan);
         }
         ChangeState(SpriteNum,s_CarGirlUzi);
         u->WaitTics = SEC(3)+SEC(RANDOM_RANGE(2<<8)>>8);
@@ -1538,13 +1538,13 @@ int DoMechanicGirl(short SpriteNum)
                 choose = RANDOM_RANGE(1000);
 
                 if (choose > 750)
-                    madhandle = PlaySound(DIGI_LANI073,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI073, sp, v3df_dontpan);
                 else if (choose > 500)
-                    madhandle = PlaySound(DIGI_LANI075,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI075, sp, v3df_dontpan);
                 else if (choose > 250)
-                    madhandle = PlaySound(DIGI_LANI077,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI077, sp, v3df_dontpan);
                 else
-                    madhandle = PlaySound(DIGI_LANI079,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI079, sp, v3df_dontpan);
             }
             ChangeState(SpriteNum,s_MechanicGirlDrill);
             u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(2<<8)>>8);
@@ -1593,13 +1593,13 @@ int NullMechanicGirl(short SpriteNum)
             choose = RANDOM_RANGE(1000);
 
             if (choose > 750)
-                madhandle = PlaySound(DIGI_LANI073,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI073, sp, v3df_dontpan);
             else if (choose > 500)
-                madhandle = PlaySound(DIGI_LANI075,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI075, sp, v3df_dontpan);
             else if (choose > 250)
-                madhandle = PlaySound(DIGI_LANI077,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI077, sp, v3df_dontpan);
             else
-                madhandle = PlaySound(DIGI_LANI079,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI079, sp, v3df_dontpan);
         }
         ChangeState(SpriteNum,s_MechanicGirlDrill);
         u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(2<<8)>>8);
@@ -1769,14 +1769,14 @@ int DoSailorGirl(short SpriteNum)
                 {
                     ActorCoughItem(SpriteNum);
                     alreadythrew++;
-                    madhandle = PlaySound(DIGI_LANI060,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI060, sp, v3df_dontpan);
                 }
                 else if (choose > 500)
-                    madhandle = PlaySound(DIGI_LANI063,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI063, sp, v3df_dontpan);
                 else if (choose > 250)
-                    madhandle = PlaySound(DIGI_LANI065,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI065, sp, v3df_dontpan);
                 else
-                    madhandle = PlaySound(DIGI_LANI066,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI066, sp, v3df_dontpan);
             }
             ChangeState(SpriteNum,s_SailorGirlThrow);
             u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
@@ -1829,14 +1829,14 @@ int NullSailorGirl(short SpriteNum)
             {
                 ActorCoughItem(SpriteNum);
                 alreadythrew++;
-                madhandle = PlaySound(DIGI_LANI060,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI060, sp, v3df_dontpan);
             }
             else if (choose > 500)
-                madhandle = PlaySound(DIGI_LANI063,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI063, sp, v3df_dontpan);
             else if (choose > 250)
-                madhandle = PlaySound(DIGI_LANI065,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI065, sp, v3df_dontpan);
             else
-                madhandle = PlaySound(DIGI_LANI066,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI066, sp, v3df_dontpan);
         }
         ChangeState(SpriteNum,s_SailorGirlThrow);
         u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
@@ -1984,13 +1984,13 @@ int DoPruneGirl(short SpriteNum)
                 choose = STD_RANDOM_RANGE(1000);
 
                 if (choose > 750)
-                    madhandle = PlaySound(DIGI_LANI089,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI089, sp, v3df_dontpan);
                 else if (choose > 500)
-                    madhandle = PlaySound(DIGI_LANI091,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI091, sp, v3df_dontpan);
                 else if (choose > 250)
-                    madhandle = PlaySound(DIGI_LANI093,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI093, sp, v3df_dontpan);
                 else
-                    madhandle = PlaySound(DIGI_LANI095,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                    madhandle = PlaySound(DIGI_LANI095, sp, v3df_dontpan);
             }
             u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
             u->FlagOwner = 0;
@@ -2004,13 +2004,13 @@ int DoPruneGirl(short SpriteNum)
             choose = STD_RANDOM_RANGE(1000);
 
             if (choose > 990)
-                coyhandle = PlaySound(DIGI_PRUNECACKLE,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                coyhandle = PlaySound(DIGI_PRUNECACKLE, sp, v3df_dontpan);
             else if (choose > 985)
-                coyhandle = PlaySound(DIGI_PRUNECACKLE2,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                coyhandle = PlaySound(DIGI_PRUNECACKLE2, sp, v3df_dontpan);
             else if (choose > 980)
-                coyhandle = PlaySound(DIGI_PRUNECACKLE3,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                coyhandle = PlaySound(DIGI_PRUNECACKLE3, sp, v3df_dontpan);
             else if (choose > 975)
-                coyhandle = PlaySound(DIGI_LANI091,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                coyhandle = PlaySound(DIGI_LANI091, sp, v3df_dontpan);
         }
     }
 
@@ -2055,13 +2055,13 @@ int NullPruneGirl(short SpriteNum)
             choose = RANDOM_RANGE(1000);
 
             if (choose > 750)
-                madhandle = PlaySound(DIGI_LANI089,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI089, sp, v3df_dontpan);
             else if (choose > 500)
-                madhandle = PlaySound(DIGI_LANI091,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI091, sp, v3df_dontpan);
             else if (choose > 250)
-                madhandle = PlaySound(DIGI_LANI093,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI093, sp, v3df_dontpan);
             else
-                madhandle = PlaySound(DIGI_LANI095,&sp->x,&sp->y,&sp->z,v3df_dontpan);
+                madhandle = PlaySound(DIGI_LANI095, sp, v3df_dontpan);
         }
         u->WaitTics = SEC(1)+SEC(RANDOM_RANGE(3<<8)>>8);
         u->FlagOwner = 0;

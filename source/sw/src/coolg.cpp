@@ -850,7 +850,7 @@ int DoCoolgMove(short SpriteNum)
             u->ShellNum = SEC(2);
             break;
         case 1:
-            PlaySound(DIGI_VOID3, &sp->x, &sp->y, &sp->z, v3df_follow);
+            PlaySound(DIGI_VOID3, sp, v3df_follow);
             RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
             SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
             u->ShellNum = SEC(1) + SEC(RANDOM_RANGE(2));
@@ -861,7 +861,7 @@ int DoCoolgMove(short SpriteNum)
             u->ShellNum = SEC(2);
             break;
         case 3:
-            PlaySound(DIGI_VOID3, &sp->x, &sp->y, &sp->z, v3df_follow);
+            PlaySound(DIGI_VOID3, sp, v3df_follow);
             RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
             RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
             u->ShellNum = SEC(2) + SEC(RANDOM_RANGE(3));

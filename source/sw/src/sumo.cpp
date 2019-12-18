@@ -726,7 +726,7 @@ int InitSumoCharge(short SpriteNum)
     USERp u = User[SpriteNum];
 
     if (RANDOM_P2(1024) > 950)
-        PlaySound(DIGI_SUMOALERT, &sp->x, &sp->y, &sp->z, v3df_follow);
+        PlaySound(DIGI_SUMOALERT, sp, v3df_follow);
 
     DoActorSetSpeed(SpriteNum, FAST_SPEED);
 
@@ -754,7 +754,7 @@ int InitSumoFart(short SpriteNum)
     USERp u = User[SpriteNum];
     extern int InitSumoNapalm(short SpriteNum);
 
-    PlaySound(DIGI_SUMOFART, &sp->x, &sp->y, &sp->z, v3df_follow);
+    PlaySound(DIGI_SUMOFART, sp, v3df_follow);
 
     InitChemBomb(SpriteNum);
 
@@ -770,7 +770,7 @@ int InitSumoStomp(short SpriteNum)
     USERp u = User[SpriteNum];
     extern int InitSumoStompAttack(short SpriteNum);
 
-    PlaySound(DIGI_SUMOSTOMP, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_SUMOSTOMP, sp, v3df_none);
     SetSumoQuake(SpriteNum);
     InitSumoStompAttack(SpriteNum);
 
@@ -795,7 +795,7 @@ int DoSumoDeathMelt(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
-    PlaySound(DIGI_SUMOFART, &sp->x, &sp->y, &sp->z, v3df_follow);
+    PlaySound(DIGI_SUMOFART, sp, v3df_follow);
 
     u->ID = SUMO_RUN_R0;
     InitChemBomb(SpriteNum);

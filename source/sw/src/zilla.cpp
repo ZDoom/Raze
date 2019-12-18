@@ -729,13 +729,13 @@ int DoZillaMove(short SpriteNum)
     {
         choose = STD_RANDOM_RANGE(1000);
         if (choose > 990)
-            handle = PlaySound(DIGI_Z16004,&sp->x,&sp->y,&sp->z,v3df_none);
+            handle = PlaySound(DIGI_Z16004, sp, v3df_none);
         else if (choose > 985)
-            handle = PlaySound(DIGI_Z16004,&sp->x,&sp->y,&sp->z,v3df_none);
+            handle = PlaySound(DIGI_Z16004, sp, v3df_none);
         else if (choose > 980)
-            handle = PlaySound(DIGI_Z16004,&sp->x,&sp->y,&sp->z,v3df_none);
+            handle = PlaySound(DIGI_Z16004, sp, v3df_none);
         else if (choose > 975)
-            handle = PlaySound(DIGI_Z16004,&sp->x,&sp->y,&sp->z,v3df_none);
+            handle = PlaySound(DIGI_Z16004, sp, v3df_none);
     }
 
 
@@ -758,7 +758,7 @@ int DoZillaStomp(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
 
-    PlaySound(DIGI_ZILLASTOMP,&sp->x,&sp->y,&sp->z,v3df_follow);
+    PlaySound(DIGI_ZILLASTOMP, sp, v3df_follow);
 
     return 0;
 }

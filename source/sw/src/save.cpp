@@ -1229,9 +1229,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     TRAVERSE_CONNECT(i)
     {
-        Player[i].PlayerTalking = FALSE;
-        Player[i].TalkVocnum = -1;
-        Player[i].TalkVocHandle = -1;
         Player[i].StartColor = 0;
     }
 

@@ -472,7 +472,7 @@ int DoSkullWait(short SpriteNum)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        PlaySound(DIGI_AHSCREAM,&sp->x,&sp->y,&sp->z,v3df_none);
+        PlaySound(DIGI_AHSCREAM, sp, v3df_none);
         u->WaitTics = SEC(3) + RANDOM_RANGE(360);
     }
 
@@ -881,7 +881,7 @@ int DoBettyWait(short SpriteNum)
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
-        PlaySound(DIGI_MINEBEEP,&sp->x,&sp->y,&sp->z,v3df_none);
+        PlaySound(DIGI_MINEBEEP, sp, v3df_none);
         u->WaitTics = SEC(3);
     }
 

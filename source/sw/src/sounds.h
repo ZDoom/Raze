@@ -57,7 +57,8 @@ enum
     v3df_intermit   = 32,   // 1 = Intermittant sound
     v3df_init       = 64,   // 1 = First pass of sound, don't play it.
     // This is mainly used for intermittent sounds
-    v3df_nolookup   = 128   // don't use ambient table lookup
+    v3df_nolookup   = 128,   // don't use ambient table lookup
+    v3df_listenerz  = 256   // ignore height when positioning sound (was mostly hacked by providing bad cooordinates to the code before.)
 };
 typedef int Voc3D_Flags;
 
@@ -80,7 +81,7 @@ void PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags);
 void DeleteNoSoundOwner(short spritenum);
 void DeleteNoFollowSoundOwner(short spritenum);
 
-SWBOOL CacheSound(int num, int type);
+inline SWBOOL CacheSound(int num, int type) { return false; }
 void COVER_SetReverb(int amt);
 void UnInitSound(void);
 void InitFX(void);

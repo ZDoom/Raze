@@ -1604,7 +1604,7 @@ void CreditsLevel(void)
     videoNextPage();
 
     // Lo Wang feel like singing!
-    handle = PlaySound(DIGI_JG95012,&zero,&zero,&zero,v3df_none);
+    handle = PlaySound(DIGI_JG95012, v3df_none);
 
     if (handle > 0)
         while (FX_SoundActive(handle)) ;
@@ -1614,7 +1614,7 @@ void CreditsLevel(void)
     {
         if (!PlaySong(nullptr, nullptr, 2, true))
         {
-            handle = PlaySound(DIGI_NOLIKEMUSIC,&zero,&zero,&zero,v3df_none);
+            handle = PlaySound(DIGI_NOLIKEMUSIC, v3df_none);
             if (handle > 0)
                 while (FX_SoundActive(handle)) handleevents();
             return;
@@ -2003,21 +2003,21 @@ void gStateControl(STATEp *State, int *tics)
 int BonusPunchSound(short SpriteNum)
 {
     PLAYERp pp = Player + myconnectindex;
-    PlaySound(DIGI_PLAYERYELL3, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_PLAYERYELL3, pp, v3df_none);
     return 0;
 }
 
 int BonusKickSound(short SpriteNum)
 {
     PLAYERp pp = Player + myconnectindex;
-    PlaySound(DIGI_PLAYERYELL2, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_PLAYERYELL2, pp, v3df_none);
     return 0;
 }
 
 int BonusGrabSound(short SpriteNum)
 {
     PLAYERp pp = Player + myconnectindex;
-    PlaySound(DIGI_BONUS_GRAB, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_BONUS_GRAB, pp, v3df_none);
     return 0;
 }
 

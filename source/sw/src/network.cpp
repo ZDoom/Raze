@@ -1425,7 +1425,7 @@ getpackets(void)
                 break;
             }
 
-            PlaySound(DIGI_PMESSAGE,&tp->posx,&tp->posy,&tp->posz,v3df_dontpan);
+            PlaySound(DIGI_PMESSAGE,tp,v3df_dontpan);
 
             memcpy(ds,&packbuf[3],packbufleng-3);
             ds[packbufleng-3] = 0;

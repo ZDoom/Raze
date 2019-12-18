@@ -3284,7 +3284,7 @@ AutoShrap:
                 return FALSE;
 
             case SHRAP_GLASS:
-                PlaySound(DIGI_BREAKGLASS,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
                 p = GlassShrap;
                 //BreakShrapSetup(GlassShrap, sizeof(GlassShrap), CustomShrap, shrap_amt);
                 if (shrap_amt)
@@ -3300,7 +3300,7 @@ AutoShrap:
 
             case SHRAP_GENERIC:
             case SHRAP_STONE:
-                PlaySound(DIGI_BREAKSTONES,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKSTONES,parent,v3df_dontpan|v3df_doppler);
                 p = StoneShrap;
                 if (shrap_amt)
                 {
@@ -3314,7 +3314,7 @@ AutoShrap:
                 break;
 
             case SHRAP_WOOD:
-                PlaySound(DIGI_BREAKINGWOOD,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKINGWOOD,parent,v3df_dontpan|v3df_doppler);
                 p = WoodShrap;
                 if (shrap_amt)
                 {
@@ -3332,14 +3332,14 @@ AutoShrap:
                 break;
 
             case SHRAP_GIBS:
-                PlaySound(DIGI_GIBS1,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_GIBS1,parent,v3df_dontpan|v3df_doppler);
                 p = SmallGore;
                 shrap_xsize = shrap_ysize = 34;
                 shrap_bounce = FALSE;
                 break;
 
             case SHRAP_TREE_BARK:
-                PlaySound(DIGI_BREAKINGWOOD,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKINGWOOD,parent,v3df_dontpan|v3df_doppler);
                 p = WoodShrap;
                 if (shrap_amt)
                 {
@@ -3365,7 +3365,7 @@ AutoShrap:
                 break;
 
             case SHRAP_METAL:
-                PlaySound(DIGI_BREAKMETAL,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKMETAL,parent,v3df_dontpan|v3df_doppler);
                 p = MetalShrap;
                 if (shrap_amt)
                 {
@@ -3380,7 +3380,7 @@ AutoShrap:
 
 
             case SHRAP_COIN:
-                PlaySound(DIGI_COINS,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_COINS,parent,v3df_dontpan|v3df_doppler);
                 p = CoinShrap;
                 if (shrap_amt)
                 {
@@ -3394,7 +3394,7 @@ AutoShrap:
                 break;
 
             case SHRAP_METALMIX:
-                PlaySound(DIGI_BREAKMETAL,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKMETAL,parent,v3df_dontpan|v3df_doppler);
                 p = MetalMix;
                 if (shrap_amt)
                 {
@@ -3428,7 +3428,7 @@ AutoShrap:
                 ep->xrepeat = ep->yrepeat = size + shrap_delta_size;
 #endif
 
-                //PlaySound(DIGI_BREAKMARBELS,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                //PlaySound(DIGI_BREAKMARBELS,parent,v3df_dontpan|v3df_doppler);
                 p = Marbels;
                 if (shrap_amt)
                 {
@@ -3443,7 +3443,7 @@ AutoShrap:
             break;
 
             case SHRAP_WOODMIX:
-                PlaySound(DIGI_BREAKINGWOOD,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKINGWOOD,parent,v3df_dontpan|v3df_doppler);
                 p = WoodMix;
                 if (shrap_amt)
                 {
@@ -3457,7 +3457,7 @@ AutoShrap:
                 break;
 
             case SHRAP_PAPERMIX:
-                PlaySound(DIGI_BREAKINGWOOD,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKINGWOOD,parent,v3df_dontpan|v3df_doppler);
                 p = PaperMix;
                 if (shrap_amt)
                 {
@@ -3533,42 +3533,42 @@ AutoShrap:
         break;
 
     case BREAK_BARREL:
-        PlaySound(DIGI_BREAKDEBRIS,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKDEBRIS,parent,v3df_dontpan|v3df_doppler);
         p = WoodShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = TRUE;
         ChangeState(parent - sprite, s_BreakBarrel);
         break;
     case BREAK_LIGHT:
-        PlaySound(DIGI_BREAKGLASS,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = TRUE;
         ChangeState(parent - sprite, s_BreakLight);
         break;
     case BREAK_PEDISTAL:
-        PlaySound(DIGI_BREAKSTONES,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKSTONES,parent,v3df_dontpan|v3df_doppler);
         p = StoneShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = TRUE;
         ChangeState(parent - sprite, s_BreakPedistal);
         break;
     case BREAK_BOTTLE1:
-        PlaySound(DIGI_BREAKGLASS,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 8;
         shrap_bounce = TRUE;
         ChangeState(parent - sprite, s_BreakBottle1);
         break;
     case BREAK_BOTTLE2:
-        PlaySound(DIGI_BREAKGLASS,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 8;
         shrap_bounce = TRUE;
         ChangeState(parent - sprite, s_BreakBottle2);
         break;
     case BREAK_MUSHROOM:
-        PlaySound(DIGI_BREAKDEBRIS,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKDEBRIS,parent,v3df_dontpan|v3df_doppler);
         p = StoneShrap;
         shrap_xsize = shrap_ysize = 4;
         shrap_bounce = TRUE;
@@ -3600,7 +3600,7 @@ AutoShrap:
         shrap_xsize = shrap_ysize = 10;
         break;
     case LAVA_BOULDER:
-        PlaySound(DIGI_BREAKSTONES,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKSTONES,parent,v3df_dontpan|v3df_doppler);
         p = LavaBoulderShrap;
         shrap_owner = parent->owner;
         shrap_xsize = shrap_ysize = 24;
@@ -3715,7 +3715,7 @@ AutoShrap:
     case PACHINKO3:
     case PACHINKO4:
     case 623:
-        PlaySound(DIGI_BREAKGLASS,&parent->x,&parent->y,&parent->z,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
         p = MetalShrap;
         shrap_xsize = shrap_ysize = 10;
         break;
@@ -4606,8 +4606,8 @@ WeaponMoveHit(short SpriteNum)
                     switch (hu->ID)
                     {
                     case TRASHCAN:
-                        PlaySound(DIGI_TRASHLID, &sp->x, &sp->y, &sp->z, v3df_none);
-                        PlaySound(DIGI_STARCLINK, &sp->x, &sp->y, &sp->z, v3df_none);
+                        PlaySound(DIGI_TRASHLID, sp, v3df_none);
+                        PlaySound(DIGI_STARCLINK, sp, v3df_none);
                         if (hu->WaitTics <= 0)
                         {
                             hu->WaitTics = SEC(2);
@@ -4621,7 +4621,7 @@ WeaponMoveHit(short SpriteNum)
                     case ZILLA_RUN_R0:
                     case 623:
                     {
-                        PlaySound(DIGI_STARCLINK, &sp->x, &sp->y, &sp->z, v3df_none);
+                        PlaySound(DIGI_STARCLINK, sp, v3df_none);
                     }
                     break;
                     }
@@ -5148,7 +5148,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
             PLAYERp pp = wu->PlayerP;
             if (pp && !TEST(pp->Flags, PF_DIVING))  // JBF: added null test
                 pp->Bloody = TRUE;
-            PlaySound(DIGI_TOILETGIRLSCREAM, &sp->x, &sp->y, &sp->z, v3df_none);
+            PlaySound(DIGI_TOILETGIRLSCREAM, sp, v3df_none);
         }
         if (SpawnShrap(SpriteNum, Weapon))
             SetSuicide(SpriteNum);
@@ -5179,17 +5179,17 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                     choosesnd=STD_RANDOM_RANGE(6);
 
                     if (choosesnd == 0)
-                        PlayerSound(DIGI_KUNGFU,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                        PlayerSound(DIGI_KUNGFU, v3df_follow|v3df_dontpan,pp);
                     else if (choosesnd == 1)
-                        PlayerSound(DIGI_PAYINGATTENTION,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                        PlayerSound(DIGI_PAYINGATTENTION, v3df_follow|v3df_dontpan,pp);
                     else if (choosesnd == 2)
-                        PlayerSound(DIGI_EATTHIS,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                        PlayerSound(DIGI_EATTHIS, v3df_follow|v3df_dontpan,pp);
                     else if (choosesnd == 3)
-                        PlayerSound(DIGI_TAUNTAI4,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                        PlayerSound(DIGI_TAUNTAI4, v3df_follow|v3df_dontpan,pp);
                     else if (choosesnd == 4)
-                        PlayerSound(DIGI_TAUNTAI5,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                        PlayerSound(DIGI_TAUNTAI5, v3df_follow|v3df_dontpan,pp);
                     else if (choosesnd == 5)
-                        PlayerSound(DIGI_HOWYOULIKEMOVE,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                        PlayerSound(DIGI_HOWYOULIKEMOVE, v3df_follow|v3df_dontpan,pp);
                     //PlayerSound(TauntAIVocs[choosesnd],&pp->posx,
                     //    &pp->posy,&pp->posy,v3df_dontpan|v3df_follow,pp);
                 }
@@ -5199,13 +5199,13 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 
                     choose_snd = STD_RANDOM_RANGE(1000);
                     if (choose_snd > 750)
-                        PlayerSound(DIGI_SWORDGOTU1,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                        PlayerSound(DIGI_SWORDGOTU1, v3df_follow|v3df_dontpan,pp);
                     else if (choose_snd > 575)
-                        PlayerSound(DIGI_SWORDGOTU2,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                        PlayerSound(DIGI_SWORDGOTU2, v3df_follow|v3df_dontpan,pp);
                     else if (choose_snd > 250)
-                        PlayerSound(DIGI_SWORDGOTU3,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                        PlayerSound(DIGI_SWORDGOTU3, v3df_follow|v3df_dontpan,pp);
                     else
-                        PlayerSound(DIGI_CANBEONLYONE,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                        PlayerSound(DIGI_CANBEONLYONE, v3df_follow|v3df_dontpan,pp);
                 }
                 if (!TEST(pp->Flags, PF_DIVING))
                     pp->Bloody = TRUE;
@@ -5293,8 +5293,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                             choosesnd=STD_RANDOM_RANGE(MAX_TAUNTAI<<8)>>8;
 
                             if (pp && pp == Player+myconnectindex)
-                                PlayerSound(TauntAIVocs[choosesnd],&pp->posx,
-                                            &pp->posy,&pp->posy,v3df_dontpan|v3df_follow,pp);
+                                PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);
                         }
                     }
                 }
@@ -5419,7 +5418,7 @@ ActorHealth(short SpriteNum, short amt)
                     SET(u->Flags2, SPR2_DYING); // Only let it check this once!
                     u->WaitTics = SEC(1) + SEC(RANDOM_RANGE(2));
                     u->Health = 60;
-                    PlaySound(DIGI_NINJACHOKE,&sp->x,&sp->y,&sp->z,v3df_follow);
+                    PlaySound(DIGI_NINJACHOKE, sp, v3df_follow);
                     InitPlasmaFountain(NULL, sp);
                     InitBloodSpray(SpriteNum,FALSE,105);
                     sp->ang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y) + 1024);
@@ -6012,8 +6011,7 @@ DoDamage(short SpriteNum, short Weapon)
                     if (STD_RANDOM_RANGE(1024) > 512 && pp == Player+myconnectindex)
                     {
                         choosesnd=RANDOM_RANGE(MAX_TAUNTAI);
-                        PlayerSound(TauntAIVocs[choosesnd],&pp->posx,
-                                    &pp->posy,&pp->posy,v3df_dontpan|v3df_follow,pp);
+                        PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);
                     }
                     SpawnShrap(SpriteNum, Weapon);
                     SetSuicide(SpriteNum);
@@ -6079,7 +6077,7 @@ DoDamage(short SpriteNum, short Weapon)
                 damage -= 5 - RANDOM_RANGE(10);
                 break;
             }
-            PlaySound(DIGI_CGTHIGHBONE,&wp->x,&wp->y,&wp->z,v3df_follow|v3df_dontpan);
+            PlaySound(DIGI_CGTHIGHBONE,wp,v3df_follow|v3df_dontpan);
         }
 
         ////DSPRINTF(ds,"got here 3, %d",damage);
@@ -6101,7 +6099,7 @@ DoDamage(short SpriteNum, short Weapon)
                 PlayerCheckDeath(u->PlayerP, Weapon);
             }
             if (u->PlayerP->Armor)
-                PlaySound(DIGI_ARMORHIT,&u->PlayerP->posx,&u->PlayerP->posy,&u->PlayerP->posz,v3df_dontpan|v3df_follow|v3df_doppler);
+                PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
         }
         else
         {
@@ -6147,7 +6145,7 @@ DoDamage(short SpriteNum, short Weapon)
         break;
 
     case HORNET_RUN_R0:
-        PlaySound(DIGI_HORNETSTING,&sp->x,&sp->y,&sp->z,v3df_follow|v3df_dontpan);
+        PlaySound(DIGI_HORNETSTING, sp, v3df_follow|v3df_dontpan);
         damage = GetDamage(SpriteNum, Weapon, DMG_HORNET_STING);
         if (u->sop_parent)
         {
@@ -6224,8 +6222,7 @@ DoDamage(short SpriteNum, short Weapon)
                 PlayerUpdateHealth(u->PlayerP, damage);
                 if (PlayerCheckDeath(u->PlayerP, Weapon))
                 {
-                    PlaySound(DIGI_RIPPERHEARTOUT,&u->PlayerP->posx,&u->PlayerP->posy,
-                              &u->PlayerP->posz,v3df_dontpan|v3df_doppler);
+                    PlaySound(DIGI_RIPPERHEARTOUT,u->PlayerP,v3df_dontpan|v3df_doppler);
 
                     DoRipperRipHeart(Weapon);
                 }
@@ -6259,8 +6256,7 @@ DoDamage(short SpriteNum, short Weapon)
                 PlayerUpdateHealth(u->PlayerP, damage);
                 if (PlayerCheckDeath(u->PlayerP, Weapon))
                 {
-                    PlaySound(DIGI_RIPPERHEARTOUT,&u->PlayerP->posx,&u->PlayerP->posy,
-                              &u->PlayerP->posz,v3df_dontpan|v3df_doppler);
+                    PlaySound(DIGI_RIPPERHEARTOUT,u->PlayerP,v3df_dontpan|v3df_doppler);
 
                     DoRipper2RipHeart(Weapon);
                 }
@@ -6405,7 +6401,7 @@ DoDamage(short SpriteNum, short Weapon)
                 PlayerCheckDeath(u->PlayerP, Weapon);
             }
             if (u->PlayerP->Armor)
-                PlaySound(DIGI_ARMORHIT,&u->PlayerP->posx,&u->PlayerP->posy,&u->PlayerP->posz,v3df_dontpan|v3df_follow|v3df_doppler);
+                PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
         }
         else
         {
@@ -6439,7 +6435,7 @@ DoDamage(short SpriteNum, short Weapon)
                 PlayerCheckDeath(u->PlayerP, Weapon);
             }
             if (u->PlayerP->Armor)
-                PlaySound(DIGI_ARMORHIT,&u->PlayerP->posx,&u->PlayerP->posy,&u->PlayerP->posz,v3df_dontpan|v3df_follow|v3df_doppler);
+                PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
         }
         else
         {
@@ -6539,7 +6535,7 @@ DoDamage(short SpriteNum, short Weapon)
                 PlayerCheckDeath(u->PlayerP, Weapon);
             }
             if (u->PlayerP->Armor)
-                PlaySound(DIGI_ARMORHIT,&u->PlayerP->posx,&u->PlayerP->posy,&u->PlayerP->posz,v3df_dontpan|v3df_follow|v3df_doppler);
+                PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
         }
         else
         {
@@ -6588,7 +6584,7 @@ DoDamage(short SpriteNum, short Weapon)
                 PlayerCheckDeath(u->PlayerP, Weapon);
             }
             if (u->PlayerP->Armor)
-                PlaySound(DIGI_ARMORHIT,&u->PlayerP->posx,&u->PlayerP->posy,&u->PlayerP->posz,v3df_dontpan|v3df_follow|v3df_doppler);
+                PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
         }
         else
         {
@@ -6723,7 +6719,7 @@ DoDamage(short SpriteNum, short Weapon)
                 PlayerCheckDeath(u->PlayerP, Weapon);
             }
             if (u->PlayerP->Armor)
-                PlaySound(DIGI_ARMORHIT,&u->PlayerP->posx,&u->PlayerP->posy,&u->PlayerP->posz,v3df_dontpan|v3df_follow|v3df_doppler);
+                PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
         }
         else
         {
@@ -7263,7 +7259,7 @@ DoDamage(short SpriteNum, short Weapon)
                 PlayerCheckDeath(u->PlayerP, Weapon);
             }
             if (u->PlayerP->Armor)
-                PlaySound(DIGI_ARMORHIT,&u->PlayerP->posx,&u->PlayerP->posy,&u->PlayerP->posz,v3df_dontpan|v3df_follow|v3df_doppler);
+                PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
         }
         else
         {
@@ -7320,7 +7316,7 @@ DoDamage(short SpriteNum, short Weapon)
             {
                 PLAYERp pp = u->PlayerP;
 
-                PlayerSound(DIGI_GASHURT,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow|v3df_doppler,pp);
+                PlayerSound(DIGI_GASHURT, v3df_dontpan|v3df_follow|v3df_doppler,pp);
                 PlayerUpdateHealth(u->PlayerP, damage-1000);
                 PlayerCheckDeath(u->PlayerP, Weapon);
             }
@@ -7388,7 +7384,7 @@ DoDamage(short SpriteNum, short Weapon)
             if (PlayerTakeDamage(u->PlayerP, Weapon))
             {
                 if (RANDOM_P2(1024<<4)>>4 < 800)
-                    PlayerSound(DIGI_STEPONCALTROPS, &sp->x, &sp->y, &sp->z, v3df_follow|v3df_dontpan, u->PlayerP);
+                    PlayerSound(DIGI_STEPONCALTROPS, v3df_follow|v3df_dontpan, u->PlayerP);
                 PlayerUpdateHealth(u->PlayerP, damage);
                 PlayerCheckDeath(u->PlayerP, Weapon);
             }
@@ -7446,11 +7442,11 @@ DoDamage(short SpriteNum, short Weapon)
     if (u && u->PlayerP)
     {
         if (damage <= -40 && RANDOM_RANGE(1000) > 700)
-            PlayerSound(DIGI_SONOFABITCH, &sp->x, &sp->y, &sp->z, v3df_dontpan|v3df_follow, u->PlayerP);
+            PlayerSound(DIGI_SONOFABITCH, v3df_dontpan|v3df_follow, u->PlayerP);
         else if (damage <= -40 && RANDOM_RANGE(1000) > 700)
-            PlayerSound(DIGI_PAINFORWEAK, &sp->x, &sp->y, &sp->z, v3df_dontpan|v3df_follow, u->PlayerP);
+            PlayerSound(DIGI_PAINFORWEAK, v3df_dontpan|v3df_follow, u->PlayerP);
         else if (damage <= -10)
-            PlayerSound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], &sp->x, &sp->y, &sp->z, v3df_dontpan|v3df_follow, u->PlayerP);
+            PlayerSound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], v3df_dontpan|v3df_follow, u->PlayerP);
     }
 
     return 0;
@@ -8216,11 +8212,11 @@ DoStar(int16_t Weapon)
         {
             su = User[hit_sprite];
             if (su && (su->ID == TRASHCAN || su->ID == ZILLA_RUN_R0))   // JBF: added null test
-                PlaySound(DIGI_STARCLINK, &sp->x, &sp->y, &sp->z, v3df_none);
+                PlaySound(DIGI_STARCLINK, sp, v3df_none);
         }
 
         if (TEST(u->ret, HIT_MASK) != HIT_SPRITE) // Don't clank on sprites
-            PlaySound(DIGI_STARCLINK, &sp->x, &sp->y, &sp->z, v3df_none);
+            PlaySound(DIGI_STARCLINK, sp, v3df_none);
 
         if (WeaponMoveHit(Weapon))
         {
@@ -8841,7 +8837,7 @@ DoCoolgFire(int16_t Weapon)
     {
         if (WeaponMoveHit(Weapon))
         {
-            PlaySound(DIGI_CGMAGICHIT,&sp->x,&sp->y,&sp->z,v3df_follow);
+            PlaySound(DIGI_CGMAGICHIT, sp, v3df_follow);
             ChangeState(Weapon, s_CoolgFireDone);
             if (sp->owner >= 0 && User[sp->owner] && User[sp->owner]->ID != RIPPER_RUN_R0)  // JBF: added range check
                 SpawnDemonFist(Weapon); // Just a red magic circle flash
@@ -9037,7 +9033,7 @@ DoGrenade(int16_t Weapon)
             short hit_sprite = -2;
             SPRITEp hsp;
 
-            PlaySound(DIGI_40MMBNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_40MMBNCE, sp, v3df_dontpan);
 
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
@@ -9089,7 +9085,7 @@ DoGrenade(int16_t Weapon)
                 break;
             }
 
-            PlaySound(DIGI_40MMBNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_40MMBNCE, sp, v3df_dontpan);
 
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
@@ -9168,7 +9164,7 @@ DoGrenade(int16_t Weapon)
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(Weapon, 40000); // 18000
                         u->zchange /= 4;
-                        PlaySound(DIGI_40MMBNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+                        PlaySound(DIGI_40MMBNCE, sp, v3df_dontpan);
                     }
                     else
                     {
@@ -9191,7 +9187,7 @@ DoGrenade(int16_t Weapon)
                 {
                     u->zchange = -u->zchange;
                     ScaleSpriteVector(Weapon, 22000);
-                    PlaySound(DIGI_40MMBNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+                    PlaySound(DIGI_40MMBNCE, sp, v3df_dontpan);
                 }
             }
             break;
@@ -9277,7 +9273,7 @@ DoVulcanBoulder(int16_t Weapon)
             short hit_sprite = -2;
             SPRITEp hsp;
 
-//                PlaySound(DIGI_DHCLUNK, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+//                PlaySound(DIGI_DHCLUNK, sp, v3df_dontpan);
 
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
@@ -9315,7 +9311,7 @@ DoVulcanBoulder(int16_t Weapon)
                 break;
             }
 
-//                PlaySound(DIGI_DHCLUNK, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+//                PlaySound(DIGI_DHCLUNK, sp, v3df_dontpan);
 
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
@@ -9517,7 +9513,7 @@ DoMineStuck(int16_t Weapon)
     {
         if ((u->Counter2++) > 30)
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->WaitTics = 32767;  // Keep reseting tics to make it stay forever
             u->Counter2 = 0;
         }
@@ -9549,56 +9545,56 @@ DoMineStuck(int16_t Weapon)
     case 0:
         if (u->WaitTics < SEC(45))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 1:
         if (u->WaitTics < SEC(38))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 2:
         if (u->WaitTics < SEC(30))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 3:
         if (u->WaitTics < SEC(20))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 4:
         if (u->WaitTics < SEC(15))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 5:
         if (u->WaitTics < SEC(12))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 6:
         if (u->WaitTics < SEC(10))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 7:
         if (u->WaitTics < SEC(8))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
@@ -9606,7 +9602,7 @@ DoMineStuck(int16_t Weapon)
     case 30:
         if (u->WaitTics < SEC(6))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2 = MINE_DETONATE_STATE;
         }
         break;
@@ -9614,14 +9610,14 @@ DoMineStuck(int16_t Weapon)
 //            if (u->WaitTics < SEC(5))
 //                {
     // start frantic beeping
-//                PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+//                PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
 //                u->Counter2++;
 //                }
 //            break;
     case MINE_DETONATE_STATE:
         if (u->WaitTics < 0)
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             SpawnMineExp(Weapon);
             KillSprite(Weapon);
             return FALSE;
@@ -9720,13 +9716,13 @@ DoMine(int16_t Weapon)
                         pp = uo->PlayerP;
 
                         if (RANDOM_RANGE(1000) > 800)
-                            PlayerSound(DIGI_STICKYGOTU1,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                            PlayerSound(DIGI_STICKYGOTU1, v3df_follow|v3df_dontpan,pp);
                         else if (RANDOM_RANGE(1000) > 800)
-                            PlayerSound(DIGI_STICKYGOTU2,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                            PlayerSound(DIGI_STICKYGOTU2, v3df_follow|v3df_dontpan,pp);
                         else if (RANDOM_RANGE(1000) > 800)
-                            PlayerSound(DIGI_STICKYGOTU3,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                            PlayerSound(DIGI_STICKYGOTU3, v3df_follow|v3df_dontpan,pp);
                         else if (RANDOM_RANGE(1000) > 800)
-                            PlayerSound(DIGI_STICKYGOTU4,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                            PlayerSound(DIGI_STICKYGOTU4, v3df_follow|v3df_dontpan,pp);
                     }
                 }
             }
@@ -10282,7 +10278,7 @@ DoRocket(int16_t Weapon)
         DISTANCE(sp->x, sp->y, u->tgt_sp->x, u->tgt_sp->y, dist, a, b, c);
         u->FlagOwner = dist>>6;
         // Special warn sound attached to each seeker spawned
-        PlaySound(DIGI_MINEBEEP,&sp->x,&sp->y,&sp->z,v3df_follow);
+        PlaySound(DIGI_MINEBEEP, sp, v3df_follow);
     }
 
     if (TEST(u->Flags, SPR_FIND_PLAYER))
@@ -10766,7 +10762,7 @@ int SpawnCoolieExp(short SpriteNum)
     nx = sp->x + MOVEx(64, sp->ang+1024);
     ny = sp->y + MOVEy(64, sp->ang+1024);
 
-    PlaySound(DIGI_COOLIEEXPLODE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_COOLIEEXPLODE, sp, v3df_none);
 
     explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_BoltExp, sp->sectnum,
                             nx, ny, zh, sp->ang, 0);
@@ -10802,7 +10798,7 @@ SpawnBasicExp(int16_t Weapon)
     if (TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    PlaySound(DIGI_MEDIUMEXP, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_MEDIUMEXP, sp, v3df_none);
 
     explosion = SpawnSprite(STAT_MISSILE, BASIC_EXP, s_BasicExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -10959,7 +10955,7 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
         DoBeginJump(New);
     }
 
-    PlaySound(DIGI_FIRE1,&np->x,&np->y,&np->z,v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
     Set3DSoundOwner(New);
 
     return New;
@@ -11001,7 +10997,7 @@ SpawnBreakFlames(int16_t SpriteNum)
     nu->jump_speed = 0;
     DoBeginJump(New);
 
-    PlaySound(DIGI_FIRE1,&np->x,&np->y,&np->z,v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
     Set3DSoundOwner(New);
 
     return New;
@@ -11051,7 +11047,7 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
     //nu->jump_speed = 0;
     //DoBeginJump(New);
 
-    PlaySound(DIGI_FIRE1,&np->x,&np->y,&np->z,v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
     Set3DSoundOwner(New);
 
     return New;
@@ -11072,7 +11068,7 @@ SpawnFireballExp(int16_t Weapon)
     if (TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    PlaySound(DIGI_SMALLEXP, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_SMALLEXP, sp, v3df_none);
 
     explosion = SpawnSprite(STAT_MISSILE, FIREBALL_EXP, s_FireballExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -11115,7 +11111,7 @@ SpawnGoroFireballExp(int16_t Weapon)
     if (TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    PlaySound(DIGI_MEDIUMEXP, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_MEDIUMEXP, sp, v3df_none);
 
     explosion = SpawnSprite(STAT_MISSILE, 0, s_FireballExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -11154,7 +11150,7 @@ SpawnBoltExp(int16_t Weapon)
     if (u && TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    PlaySound(DIGI_BOLTEXPLODE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_BOLTEXPLODE, sp, v3df_none);
 
     explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_BoltExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -11196,7 +11192,7 @@ SpawnBunnyExp(int16_t Weapon)
     if (u && TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    PlaySound(DIGI_BUNNYDIE3, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_BUNNYDIE3, sp, v3df_none);
 
     u->ID = BOLT_EXP; // Change id
     InitBloodSpray(Weapon,TRUE,-1);
@@ -11221,7 +11217,7 @@ SpawnTankShellExp(int16_t Weapon)
     if (u && TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    PlaySound(DIGI_BOLTEXPLODE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_BOLTEXPLODE, sp, v3df_none);
 
     explosion = SpawnSprite(STAT_MISSILE, TANK_SHELL_EXP, s_TankShellExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -11310,7 +11306,7 @@ SpawnNuclearExp(int16_t Weapon)
     if (u && TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    PlaySound(DIGI_NUCLEAREXP, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
+    PlaySound(DIGI_NUCLEAREXP, sp, v3df_dontpan | v3df_doppler);
 
     if (sp->owner)
     {
@@ -11318,11 +11314,11 @@ SpawnNuclearExp(int16_t Weapon)
         rnd_rng = RANDOM_RANGE(1000);
 
         if (rnd_rng > 990)
-            PlayerSound(DIGI_LIKEHIROSHIMA,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_LIKEHIROSHIMA, v3df_follow|v3df_dontpan,pp);
         else if (rnd_rng > 980)
-            PlayerSound(DIGI_LIKENAGASAKI,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_LIKENAGASAKI, v3df_follow|v3df_dontpan,pp);
         else if (rnd_rng > 970)
-            PlayerSound(DIGI_LIKEPEARL,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_LIKEPEARL, v3df_follow|v3df_dontpan,pp);
     }
 
     // Spawn big mushroom cloud
@@ -11448,7 +11444,7 @@ SpawnMicroExp(int16_t Weapon)
     if (u && TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-//    PlaySound(DIGI_MISSLEXP, &sp->x, &sp->y, &sp->z, v3df_none);
+//    PlaySound(DIGI_MISSLEXP, sp, v3df_none);
 
     explosion = SpawnSprite(STAT_MISSILE, MICRO_EXP, s_MicroExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -11668,14 +11664,14 @@ SpawnGrenadeExp(int16_t Weapon)
     if (u && TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    PlaySound(DIGI_30MMEXPLODE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
 
     if (RANDOM_RANGE(1000) > 990)
     {
         if (sp->owner >= 0 && User[sp->owner] && User[sp->owner]->PlayerP)
         {
             PLAYERp pp = User[sp->owner]->PlayerP;
-            PlayerSound(DIGI_LIKEFIREWORKS,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_LIKEFIREWORKS, v3df_follow|v3df_dontpan,pp);
         }
     }
 
@@ -11793,7 +11789,7 @@ SpawnMineExp(int16_t Weapon)
 
     change_sprite_stat(Weapon, STAT_MISSILE);
 
-    PlaySound(DIGI_MINEBLOW, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_MINEBLOW, sp, v3df_none);
 
     explosion = SpawnSprite(STAT_MISSILE, MINE_EXP, s_MineExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -11919,7 +11915,7 @@ SpawnSectorExp(int16_t Weapon)
     if (TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    PlaySound(DIGI_30MMEXPLODE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
 
     explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -11951,7 +11947,7 @@ SpawnLargeExp(int16_t Weapon)
     USERp eu;
     short explosion;
 
-    PlaySound(DIGI_30MMEXPLODE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
 
     explosion = SpawnSprite(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -11997,7 +11993,7 @@ SpawnMeteorExp(int16_t Weapon)
     }
     else
     {
-        PlaySound(DIGI_MEDIUMEXP, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_MEDIUMEXP, sp, v3df_none);
         explosion = SpawnSprite(STAT_MISSILE, METEOR_EXP, s_MeteorExp, sp->sectnum,
                                 sp->x, sp->y, sp->z, sp->ang, 0);
     }
@@ -12036,7 +12032,7 @@ SpawnLittleExp(int16_t Weapon)
     USERp eu;
     short explosion;
 
-    PlaySound(DIGI_HEADSHOTHIT, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_HEADSHOTHIT, sp, v3df_none);
     explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
     exp = &sprite[explosion];
@@ -12335,7 +12331,7 @@ DoNapalm(int16_t Weapon)
     {
         USERp eu;
 
-        PlaySound(DIGI_NAPPUFF, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_NAPPUFF, sp, v3df_none);
 
         explosion = SpawnSprite(STAT_MISSILE, NAP_EXP, s_NapExp, sp->sectnum,
                                 sp->x, sp->y, sp->z, sp->ang, 0);
@@ -13026,7 +13022,7 @@ InitSpellRing(PLAYERp pp)
     ang_start = NORM_ANGLE(pp->pang - DIV2(2048));
 
     if (!SW_SHAREWARE)
-        PlaySound(DIGI_RFWIZ, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+        PlaySound(DIGI_RFWIZ, pp, v3df_none);
 
     if (pp->cursectnum < 0)
         return;
@@ -13209,7 +13205,7 @@ InitLavaThrow(short SpriteNum)
     int nx, ny, nz, dist, nang;
     short w;
 
-    //PlaySound(DIGI_NINJAROCKETATTACK, &sp->x, &sp->y, &sp->z, v3df_none);
+    //PlaySound(DIGI_NINJAROCKETATTACK, sp, v3df_none);
 
     // get angle to player and also face player when attacking
     sp->ang = nang = getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y);
@@ -13350,7 +13346,7 @@ InitSerpRing(short SpriteNum)
     ang_start = NORM_ANGLE(sp->ang - DIV2(2048));
 
     if (!SW_SHAREWARE)
-        PlaySound(DIGI_RFWIZ, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_RFWIZ, sp, v3df_none);
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
@@ -13414,7 +13410,7 @@ InitSerpRing(short SpriteNum)
 
     ang_start = NORM_ANGLE(sp->ang - DIV2(2048));
 
-    PlaySound(DIGI_SERPSUMMONHEADS, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_SERPSUMMONHEADS, sp, v3df_none);
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
@@ -13485,7 +13481,7 @@ InitSerpRing2(short SpriteNum)
 
     static int zpos[NUM_SERP_RING] = {Z(25), Z(130)};
 
-    PlaySound(DIGI_SERPSUMMONHEADS, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_SERPSUMMONHEADS, sp, v3df_none);
 
     for (i = 0; i < NUM_SERP_RING; i++)
     {
@@ -13577,7 +13573,7 @@ InitSpellNapalm(PLAYERp pp)
     else
         PlayerUpdateAmmo(pp, WPN_HOTHEAD, -ammo);
 
-    PlaySound(DIGI_NAPFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_NAPFIRE, pp, v3df_none);
 
     if (pp->cursectnum < 0)
         return;
@@ -13594,7 +13590,7 @@ InitSpellNapalm(PLAYERp pp)
 
         if (i==0) // Only attach sound to first projectile
         {
-            PlaySound(DIGI_NAPWIZ, &sp->x, &sp->y, &sp->z, v3df_follow);
+            PlaySound(DIGI_NAPWIZ, sp, v3df_follow);
             Set3DSoundOwner(SpriteNum);
         }
 
@@ -13667,7 +13663,7 @@ InitEnemyNapalm(short SpriteNum)
         {600 * 6, 400, -512},
     };
 
-    PlaySound(DIGI_NAPFIRE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_NAPFIRE, sp, v3df_none);
 
     for (i = 0; i < SIZ(mp); i++)
     {
@@ -13680,7 +13676,7 @@ InitEnemyNapalm(short SpriteNum)
         wp->hitag = LUMINOUS; //Always full brightness
         if (i==0) // Only attach sound to first projectile
         {
-            PlaySound(DIGI_NAPWIZ, &wp->x, &wp->y, &wp->z, v3df_follow);
+            PlaySound(DIGI_NAPWIZ, wp, v3df_follow);
             Set3DSoundOwner(w);
         }
 
@@ -13740,7 +13736,7 @@ InitSpellMirv(PLAYERp pp)
     short i;
     short oclipdist;
 
-    PlaySound(DIGI_MIRVFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_MIRVFIRE, pp, v3df_none);
 
     if (pp->cursectnum < 0)
         return 0;
@@ -13751,7 +13747,7 @@ InitSpellMirv(PLAYERp pp)
     sp = &sprite[SpriteNum];
     u = User[SpriteNum];
 
-    PlaySound(DIGI_MIRVWIZ, &sp->x, &sp->y, &sp->z, v3df_follow);
+    PlaySound(DIGI_MIRVWIZ, sp, v3df_follow);
     Set3DSoundOwner(SpriteNum);
 
     //sp->owner = pp->SpriteP - sprite;
@@ -13792,7 +13788,7 @@ InitEnemyMirv(short SpriteNum)
     short oclipdist;
     int dist;
 
-    PlaySound(DIGI_MIRVFIRE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_MIRVFIRE, sp, v3df_none);
 
     w = SpawnSprite(STAT_MISSILE, MIRV_METEOR, s_Mirv, sp->sectnum,
                     sp->x, sp->y, SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)), sp->ang, MIRV_VELOCITY);
@@ -13800,7 +13796,7 @@ InitEnemyMirv(short SpriteNum)
     wp = &sprite[w];
     wu = User[w];
 
-    PlaySound(DIGI_MIRVWIZ, &wp->x, &wp->y, &wp->z, v3df_follow);
+    PlaySound(DIGI_MIRVWIZ, wp, v3df_follow);
     Set3DSoundOwner(w);
 
     SetOwner(SpriteNum, w);
@@ -13841,7 +13837,7 @@ InitSwordAttack(PLAYERp pp)
     int dist;
     short reach,face;
 
-    PlaySound(DIGI_SWORDSWOOSH, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_SWORDSWOOSH, pp, v3df_dontpan|v3df_doppler);
 
     if (TEST(pp->Flags, PF_DIVING))
     {
@@ -13940,7 +13936,7 @@ InitSwordAttack(PLAYERp pp)
                     {
                     case ZILLA_RUN_R0:
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
+                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
                         break;
                     case TRASHCAN:
                         if (tu->WaitTics <= 0)
@@ -13949,8 +13945,8 @@ InitSwordAttack(PLAYERp pp)
                             ChangeState(hitinfo.sprite,s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
-                        PlaySound(DIGI_TRASHLID, &sp->x, &sp->y, &sp->z, v3df_none);
+                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
+                        PlaySound(DIGI_TRASHLID, sp, v3df_none);
                         break;
                     case PACHINKO1:
                     case PACHINKO2:
@@ -13958,7 +13954,7 @@ InitSwordAttack(PLAYERp pp)
                     case PACHINKO4:
                     case 623:
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
+                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
                         break;
                     }
 
@@ -14002,7 +13998,7 @@ InitSwordAttack(PLAYERp pp)
                 else
                 {
                     SpawnSwordSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                    PlaySound(DIGI_SWORDCLANK, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
+                    PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
                 }
             }
         }
@@ -14021,7 +14017,7 @@ InitFistAttack(PLAYERp pp)
     int dist;
     short reach,face;
 
-    PlaySound(DIGI_STAR, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_STAR, pp, v3df_dontpan|v3df_doppler);
 
     if (TEST(pp->Flags, PF_DIVING))
     {
@@ -14132,7 +14128,7 @@ InitFistAttack(PLAYERp pp)
                     {
                     case ZILLA_RUN_R0:
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
+                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
                         break;
                     case TRASHCAN:
                         if (tu->WaitTics <= 0)
@@ -14141,8 +14137,8 @@ InitFistAttack(PLAYERp pp)
                             ChangeState(hitinfo.sprite,s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
-                        PlaySound(DIGI_TRASHLID, &sp->x, &sp->y, &sp->z, v3df_none);
+                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
+                        PlaySound(DIGI_TRASHLID, sp, v3df_none);
                         break;
                     case PACHINKO1:
                     case PACHINKO2:
@@ -14150,7 +14146,7 @@ InitFistAttack(PLAYERp pp)
                     case PACHINKO4:
                     case 623:
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
+                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
                         break;
                     }
 
@@ -14177,7 +14173,7 @@ InitFistAttack(PLAYERp pp)
                 case 5063:
                 case 4947:
                     SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                    PlaySound(DIGI_ARMORHIT, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
+                    PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
                     if (RANDOM_RANGE(1000) > 700)
                         PlayerUpdateHealth(pp,1); // Give some health
                     SET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -14207,7 +14203,7 @@ InitFistAttack(PLAYERp pp)
                 else
                 {
                     SpawnSwordSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                    PlaySound(DIGI_ARMORHIT, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
+                    PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
                     if (PlayerTakeDamage(pp, -1))
                     {
                         PlayerUpdateHealth(pp, -(RANDOM_RANGE(2<<8)>>8));
@@ -14242,7 +14238,7 @@ InitSumoNapalm(short SpriteNum)
         {0, 1100, 0},
     };
 
-    PlaySound(DIGI_NAPFIRE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_NAPFIRE, sp, v3df_none);
 
     ang = sp->ang;
     for (j=0; j<4; j++)
@@ -14258,7 +14254,7 @@ InitSumoNapalm(short SpriteNum)
             wp->hitag = LUMINOUS; //Always full brightness
             if (i==0) // Only attach sound to first projectile
             {
-                PlaySound(DIGI_NAPWIZ, &wp->x, &wp->y, &wp->z, v3df_follow);
+                PlaySound(DIGI_NAPWIZ, wp, v3df_follow);
                 Set3DSoundOwner(w);
             }
 
@@ -14321,7 +14317,7 @@ InitSumoSkull(short SpriteNum)
     extern ATTRIBUTE SkullAttrib;
 
 
-    PlaySound(DIGI_SERPSUMMONHEADS, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_SERPSUMMONHEADS, sp, v3df_none);
 
     New = SpawnSprite(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], sp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
@@ -14375,7 +14371,7 @@ InitSumoStompAttack(short SpriteNum)
     short reach,face;
 
 
-    PlaySound(DIGI_30MMEXPLODE, &sp->x, &sp->y, &sp->z, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_30MMEXPLODE, sp, v3df_dontpan|v3df_doppler);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -14427,7 +14423,7 @@ InitMiniSumoClap(short SpriteNum)
         {
             if (FAFcansee(u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
             {
-                PlaySound(DIGI_CGTHIGHBONE,&sp->x,&sp->y,&sp->z,v3df_follow|v3df_dontpan);
+                PlaySound(DIGI_CGTHIGHBONE, sp, v3df_follow|v3df_dontpan);
                 DoDamage(u->tgt_sp - sprite, SpriteNum);
             }
         }
@@ -14436,7 +14432,7 @@ InitMiniSumoClap(short SpriteNum)
     {
         if (FAFcansee(u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
         {
-            PlaySound(DIGI_30MMEXPLODE, &sp->x, &sp->y, &sp->z, v3df_none);
+            PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
             SpawnFireballFlames(SpriteNum, u->tgt_sp - sprite);
         }
     }
@@ -14756,7 +14752,7 @@ InitStar(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -3);
 
-    PlaySound(DIGI_STAR, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_STAR, pp, v3df_dontpan|v3df_doppler);
 
     if (pp->cursectnum < 0)
         return 0;
@@ -15107,7 +15103,7 @@ InitShotgun(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
-    PlaySound(DIGI_RIOTFIRE2, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RIOTFIRE2, pp, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
@@ -15230,7 +15226,7 @@ InitShotgun(PLAYERp pp)
             {
                 extern STATE s_TrashCanPain[];
 
-                PlaySound(DIGI_TRASHLID, &sp->x, &sp->y, &sp->z, v3df_none);
+                PlaySound(DIGI_TRASHLID, sp, v3df_none);
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
@@ -15282,7 +15278,7 @@ InitLaser(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
-    PlaySound(DIGI_RIOTFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RIOTFIRE, pp, v3df_dontpan|v3df_doppler);
 
     if (pp->cursectnum < 0)
         return 0;
@@ -15391,7 +15387,7 @@ InitRail(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
-    PlaySound(DIGI_RAILFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RAILFIRE, pp, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
@@ -15480,7 +15476,7 @@ InitZillaRail(short SpriteNum)
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
-    PlaySound(DIGI_RAILFIRE, &sp->x, &sp->y, &sp->z, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RAILFIRE, sp, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
@@ -15590,7 +15586,7 @@ InitRocket(PLAYERp pp)
         }
     }
 
-    PlaySound(DIGI_RIOTFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RIOTFIRE, pp, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
@@ -15714,7 +15710,7 @@ InitBunnyRocket(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
-    PlaySound(DIGI_BUNNYATTACK, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_BUNNYATTACK, pp, v3df_dontpan|v3df_doppler);
 
     if (pp->cursectnum < 0)
         return 0;
@@ -15825,7 +15821,7 @@ InitNuke(PLAYERp pp)
     DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT*12);
 
 
-    PlaySound(DIGI_RIOTFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RIOTFIRE, pp, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
@@ -15923,7 +15919,7 @@ InitEnemyNuke(short SpriteNum)
     int zvel;
 
 
-    PlaySound(DIGI_RIOTFIRE, &sp->x, &sp->y, &sp->z, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RIOTFIRE, sp, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
@@ -16144,7 +16140,7 @@ InitRipperSlash(short SpriteNum)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_RIPPER2ATTACK, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_RIPPER2ATTACK, sp, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -16163,7 +16159,7 @@ InitRipperSlash(short SpriteNum)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-//                  PlaySound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], &sp->x, &sp->y, &sp->z, v3df_none);
+//                  PlaySound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], sp, v3df_none);
                 DoDamage(i, SpriteNum);
             }
         }
@@ -16182,7 +16178,7 @@ InitBunnySlash(short SpriteNum)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_BUNNYATTACK, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_BUNNYATTACK, sp, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -16217,7 +16213,7 @@ InitSerpSlash(short SpriteNum)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_SERPSWORDATTACK, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_SERPSWORDATTACK, sp, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -16233,7 +16229,7 @@ InitSerpSlash(short SpriteNum)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 800) && FACING_RANGE(hp, sp, 150))
             {
-//                PlaySound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], &sp->x, &sp->y, &sp->z, v3df_none);
+//                PlaySound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], sp, v3df_none);
                 DoDamage(i, SpriteNum);
             }
         }
@@ -16313,7 +16309,7 @@ DoBladeDamage(short SpriteNum)
             if (WallSpriteInsideSprite(sp, hp))
             {
                 DoDamage(i, SpriteNum);
-//                    PlaySound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], &sp->x, &sp->y, &sp->z, v3df_none);
+//                    PlaySound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], sp, v3df_none);
             }
         }
     }
@@ -16376,7 +16372,7 @@ InitCoolgBash(short SpriteNum)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_CGTHIGHBONE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_CGTHIGHBONE, sp, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -16395,7 +16391,7 @@ InitCoolgBash(short SpriteNum)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-//                PlaySound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], &sp->x, &sp->y, &sp->z, v3df_none);
+//                PlaySound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], sp, v3df_none);
                 DoDamage(i, SpriteNum);
             }
         }
@@ -16414,7 +16410,7 @@ InitSkelSlash(short SpriteNum)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_SPBLADE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_SPBLADE, sp, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -16429,7 +16425,7 @@ InitSkelSlash(short SpriteNum)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-//                PlaySound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], &sp->x, &sp->y, &sp->z, v3df_none);
+//                PlaySound(PlayerPainVocs[RANDOM_RANGE(MAX_PAIN)], sp, v3df_none);
                 DoDamage(i, SpriteNum);
             }
         }
@@ -16448,7 +16444,7 @@ InitGoroChop(short SpriteNum)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_GRDSWINGAXE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_GRDSWINGAXE, sp, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -16463,7 +16459,7 @@ InitGoroChop(short SpriteNum)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 700) && FACING_RANGE(hp, sp, 150))
             {
-                PlaySound(DIGI_GRDAXEHIT, &sp->x, &sp->y, &sp->z, v3df_none);
+                PlaySound(DIGI_GRDAXEHIT, sp, v3df_none);
                 DoDamage(i, SpriteNum);
             }
         }
@@ -16523,7 +16519,7 @@ InitSerpSpell(short SpriteNum)
         //np->owner = SpriteNum;
         SetOwner(SpriteNum, New);
         np->shade = -40;
-        PlaySound(DIGI_SERPMAGICLAUNCH, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_SERPMAGICLAUNCH, sp, v3df_none);
         nu->spal = np->pal = 27; // Bright Green
         np->xrepeat = 64;
         np->yrepeat = 64;
@@ -16576,7 +16572,7 @@ SpawnDemonFist(int16_t Weapon)
     if (TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    //PlaySound(DIGI_ITEM_SPAWN, &sp->x, &sp->y, &sp->z, v3df_none);
+    //PlaySound(DIGI_ITEM_SPAWN, sp, v3df_none);
     explosion = SpawnSprite(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
                             sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
@@ -16621,7 +16617,7 @@ InitSerpMonstSpell(short SpriteNum)
         -10, 10
     };
 
-    PlaySound(DIGI_MISSLFIRE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_MISSLFIRE, sp, v3df_none);
 
     for (i = 0; i < 1; i++)
     {
@@ -16689,7 +16685,7 @@ DoTeleRipper(short SpriteNum)
     USERp u = User[SpriteNum];
     extern void Ripper2Hatch(short Weapon);
 
-    PlaySound(DIGI_ITEM_SPAWN,&sp->x,&sp->y,&sp->z,v3df_none);
+    PlaySound(DIGI_ITEM_SPAWN, sp, v3df_none);
     Ripper2Hatch(SpriteNum);
 
     return 0;
@@ -16705,7 +16701,7 @@ InitEnemyRocket(short SpriteNum)
     short w;
 
 
-    PlaySound(DIGI_NINJARIOTATTACK, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_NINJARIOTATTACK, sp, v3df_none);
 
     // get angle to player and also face player when attacking
     sp->ang = nang = getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y);
@@ -16792,7 +16788,7 @@ InitEnemyRail(short SpriteNum)
         }
     }
 
-    PlaySound(DIGI_RAILFIRE, &sp->x, &sp->y, &sp->z, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RAILFIRE, sp, v3df_dontpan|v3df_doppler);
 
     // get angle to player and also face player when attacking
     sp->ang = nang = getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y);
@@ -16881,7 +16877,7 @@ InitZillaRocket(short SpriteNum)
         {1100 * 6, 400, -512},
     };
 
-    PlaySound(DIGI_NINJARIOTATTACK, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_NINJARIOTATTACK, sp, v3df_none);
 
     // get angle to player and also face player when attacking
     sp->ang = nang = getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y);
@@ -17000,7 +16996,7 @@ InitEnemyStar(short SpriteNum)
         USERp nu;
         short sn;
 
-        PlaySound(DIGI_STAR, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_STAR, sp, v3df_none);
         for (i = 0; i < SIZ(dang); i++)
         {
             sn = SpawnSprite(STAT_MISSILE, STAR1, s_Star, sp->sectnum, wp->x, wp->y, wp->z, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
@@ -17027,7 +17023,7 @@ InitEnemyStar(short SpriteNum)
     else
 #endif
 
-    PlaySound(DIGI_STAR, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_STAR, sp, v3df_none);
 
 
 
@@ -17094,7 +17090,7 @@ InitEnemyCrossbow(short SpriteNum)
         USERp nu;
         short sn;
 
-        PlaySound(DIGI_STAR, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_STAR, sp, v3df_none);
         for (i = 0; i < SIZ(dang); i++)
         {
             sn = SpawnSprite(STAT_MISSILE, CROSSBOLT, s_CrossBolt, sp->sectnum, wp->x, wp->y, wp->z, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
@@ -17121,7 +17117,7 @@ InitEnemyCrossbow(short SpriteNum)
     else
 #endif
 
-    PlaySound(DIGI_STAR, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_STAR, sp, v3df_none);
 
 
 
@@ -17137,7 +17133,7 @@ InitSkelSpell(short SpriteNum)
     int nx, ny, nz, dist, nang;
     short w;
 
-    PlaySound(DIGI_SPELEC, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_SPELEC, sp, v3df_none);
 
     // get angle to player and also face player when attacking
     sp->ang = nang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y));
@@ -17197,7 +17193,7 @@ InitCoolgFire(short SpriteNum)
     // Spawn a shot
     // Inserting and setting up variables
 
-    PlaySound(DIGI_CGMAGIC, &sp->x, &sp->y, &sp->z, v3df_follow);
+    PlaySound(DIGI_CGMAGIC, sp, v3df_follow);
 
     w = SpawnSprite(STAT_MISSILE, COOLG_FIRE, s_CoolgFire, sp->sectnum,
                     nx, ny, nz, u->tgt_sp->ang, COOLG_FIRE_VELOCITY);
@@ -17221,7 +17217,7 @@ InitCoolgFire(short SpriteNum)
     else
         wu->spal = wp->pal = 25; // Bright Red
 
-    PlaySound(DIGI_MAGIC1, &wp->x, &wp->y, &wp->z, v3df_follow|v3df_doppler);
+    PlaySound(DIGI_MAGIC1, wp, v3df_follow|v3df_doppler);
 
     // find the distance to the target (player)
     dist = Distance(nx, ny, u->tgt_sp->x, u->tgt_sp->y);
@@ -17257,7 +17253,7 @@ int DoCoolgDrip(short SpriteNum)
         sp->yrepeat = sp->xrepeat = 32;
         ChangeState(SpriteNum, s_GoreFloorSplash);
         if (u->spal == PALETTE_BLUE_LIGHTING)
-            PlaySound(DIGI_DRIP, &sp->x, &sp->y, &sp->z, v3df_none);
+            PlaySound(DIGI_DRIP, sp, v3df_none);
     }
     return 0;
 }
@@ -17373,7 +17369,7 @@ InitEelFire(short SpriteNum)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-                PlaySound(DIGI_GIBS1, &sp->x, &sp->y, &sp->z, v3df_none);
+                PlaySound(DIGI_GIBS1, sp, v3df_none);
                 DoDamage(i, SpriteNum);
             }
             else
@@ -17392,7 +17388,7 @@ InitFireballTrap(short SpriteNum)
     int nx, ny, nz, dist;
     short w;
 
-    PlaySound(DIGI_FIREBALL1, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_FIREBALL1, sp, v3df_none);
 
     nx = sp->x;
     ny = sp->y;
@@ -17430,7 +17426,7 @@ InitBoltTrap(short SpriteNum)
     int nx, ny, nz, dist;
     short w;
 
-    PlaySound(DIGI_RIOTFIRE, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_RIOTFIRE, sp, v3df_none);
 
     nx = sp->x;
     ny = sp->y;
@@ -17509,7 +17505,7 @@ InitEnemyCrossbow(short SpriteNum)
     if (dist != 0)
         wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp) - wp->z)) / dist;
 
-    PlaySound(DIGI_STAR, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_STAR, sp, v3df_none);
 
     return w;
 }
@@ -17560,7 +17556,7 @@ InitSpearTrap(short SpriteNum)
     //if (dist != 0)
     //wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp) - wp->z)) / dist;
 
-    PlaySound(DIGI_STAR, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_STAR, sp, v3df_none);
     return w;
 }
 
@@ -17978,7 +17974,7 @@ InitUzi(PLAYERp pp)
     }
 
     if (FireSnd)
-        PlaySound(DIGI_UZIFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_UZIFIRE, pp, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
@@ -18087,7 +18083,7 @@ InitUzi(PLAYERp pp)
             {
                 extern STATE s_TrashCanPain[];
 
-                PlaySound(DIGI_TRASHLID, &hsp->x, &hsp->y, &hsp->z, v3df_none);
+                PlaySound(DIGI_TRASHLID, hsp, v3df_none);
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
@@ -18145,10 +18141,10 @@ InitUzi(PLAYERp pp)
 
     if (RANDOM_P2(1024) < 100)
     {
-        PlaySound(DIGI_RICHOCHET1,&wp->x, &wp->y, &wp->z, v3df_none);
+        PlaySound(DIGI_RICHOCHET1,wp, v3df_none);
     }
     else if (RANDOM_P2(1024) < 100)
-        PlaySound(DIGI_RICHOCHET2,&wp->x, &wp->y, &wp->z, v3df_none);
+        PlaySound(DIGI_RICHOCHET2,wp, v3df_none);
 
     return 0;
 }
@@ -18172,7 +18168,7 @@ InitEMP(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
-    PlaySound(DIGI_RAILFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RAILFIRE, pp, v3df_dontpan|v3df_doppler);
 
     InitTracerUzi(pp);
 
@@ -18300,7 +18296,7 @@ InitEMP(PLAYERp pp)
             SetAttach(hitinfo.sprite, j);
             wu->sz = sprite[hitinfo.sprite].z - wp->z;
             if (RANDOM_RANGE(1000) > 500)
-                PlayerSound(DIGI_YOULOOKSTUPID,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                PlayerSound(DIGI_YOULOOKSTUPID, v3df_follow|v3df_dontpan,pp);
         }
         else
         {
@@ -18338,7 +18334,7 @@ InitTankShell(short SpriteNum, PLAYERp pp)
     short w;
 
     if (!SW_SHAREWARE)
-        PlaySound(DIGI_CANNON, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_CANNON, pp, v3df_dontpan|v3df_doppler);
 
     w = SpawnSprite(STAT_MISSILE, 0, s_TankShell, sp->sectnum,
                     sp->x, sp->y, sp->z, sp->ang, TANK_SHELL_VELOCITY);
@@ -18723,7 +18719,7 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
 
     //sound = (++sound)&1;
     //if (sound == 0)
-    PlaySound(DIGI_BOATFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_BOATFIRE, pp, v3df_dontpan|v3df_doppler);
 
     nx = sp->x;
     ny = sp->y;
@@ -18970,7 +18966,7 @@ SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y
     HitscanSpriteAdjust(j, hit_wall);
 
     if (RANDOM_P2(1024) < 100)
-        PlaySound(DIGI_RICHOCHET1,&wp->x, &wp->y, &wp->z, v3df_none);
+        PlaySound(DIGI_RICHOCHET1,wp, v3df_none);
 
     return j;
 }
@@ -19055,7 +19051,7 @@ SpawnTurretSparks(SPRITEp sp, short hit_sect, short hit_wall, int hit_x, int hit
     HitscanSpriteAdjust(j, hit_wall);
 
     if (RANDOM_P2(1024) < 100)
-        PlaySound(DIGI_RICHOCHET1, &wp->x, &wp->y, &wp->z, v3df_none);
+        PlaySound(DIGI_RICHOCHET1, wp, v3df_none);
 
     return j;
 }
@@ -19117,7 +19113,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
     SPRITEp sp,ep;
     int xvect,yvect,zvect;
 
-    PlaySound(DIGI_BOATFIRE, &sop->xmid, &sop->ymid, &sop->zmid, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_BOATFIRE, (vec3_t*)sop, v3df_dontpan|v3df_doppler);
 
     for (i = 0; sop->sp_num[i] != -1; i++)
     {
@@ -19342,9 +19338,9 @@ InitEnemyUzi(short SpriteNum)
     {
         if (sp->pal == PALETTE_PLAYER3 || sp->pal == PALETTE_PLAYER5 ||
             sp->pal == PAL_XLAT_LT_GREY || sp->pal == PAL_XLAT_LT_TAN)
-            PlaySound(DIGI_M60, &sp->x, &sp->y, &sp->z, v3df_none);
+            PlaySound(DIGI_M60, sp, v3df_none);
         else
-            PlaySound(DIGI_NINJAUZIATTACK, &sp->x, &sp->y, &sp->z, v3df_none);
+            PlaySound(DIGI_NINJAUZIATTACK, sp, v3df_none);
     }
 
     if (hitinfo.wall >= 0)
@@ -19420,10 +19416,10 @@ InitEnemyUzi(short SpriteNum)
 
     if (RANDOM_P2(1024) < 100)
     {
-        PlaySound(DIGI_RICHOCHET1,&wp->x, &wp->y, &wp->z, v3df_none);
+        PlaySound(DIGI_RICHOCHET1,wp, v3df_none);
     }
     else if (RANDOM_P2(1024) < 100)
-        PlaySound(DIGI_RICHOCHET2,&wp->x, &wp->y, &wp->z, v3df_none);
+        PlaySound(DIGI_RICHOCHET2,wp, v3df_none);
 
     return 0;
 }
@@ -19446,7 +19442,7 @@ InitGrenade(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
-    PlaySound(DIGI_30MMFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_30MMFIRE, pp, v3df_dontpan|v3df_doppler);
 
     // Make sprite shade brighter
     u->Vis = 128;
@@ -19552,7 +19548,7 @@ InitSpriteGrenade(short SpriteNum)
     int dist;
 
 
-    PlaySound(DIGI_30MMFIRE, &sp->x, &sp->y, &sp->z, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_30MMFIRE, sp, v3df_dontpan|v3df_doppler);
 
     nx = sp->x;
     ny = sp->y;
@@ -19620,7 +19616,7 @@ InitMine(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
-    PlaySound(DIGI_MINETHROW, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_MINETHROW, pp, v3df_dontpan|v3df_doppler);
 
     if (pp->cursectnum < 0)
         return 0;
@@ -19692,7 +19688,7 @@ InitEnemyMine(short SpriteNum)
     int tvel;
 
 
-    PlaySound(DIGI_MINETHROW, &sp->x, &sp->y, &sp->z, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_MINETHROW, sp, v3df_dontpan|v3df_doppler);
 
     nx = sp->x;
     ny = sp->y;
@@ -19800,7 +19796,7 @@ InitFireball(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, WPN_HOTHEAD, -1);
 
-    PlaySound(DIGI_HEADFIRE, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_HEADFIRE, pp, v3df_none);
 
     // Make sprite shade brighter
     u->Vis = 128;
@@ -19891,7 +19887,7 @@ InitEnemyFireball(short SpriteNum)
 
     tsp = u->tgt_sp;
 
-    PlaySound(DIGI_FIREBALL1, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_FIREBALL1, sp, v3df_none);
 
     // get angle to player and also face player when attacking
     sp->ang = NORM_ANGLE(getangle(tsp->x - sp->x, tsp->y - sp->y));
@@ -20290,7 +20286,7 @@ SpawnSplash(short SpriteNum)
     if (sectu && TEST(sectp->floorstat, FLOOR_STAT_PLAX))
         return 0;
 
-    PlaySound(DIGI_SPLASH1, &sp->x, &sp->y, &sp->z, v3df_none);
+    PlaySound(DIGI_SPLASH1, sp, v3df_none);
 
     DoActorZrange(SpriteNum);
     MissileWaterAdjust(SpriteNum);
@@ -20423,7 +20419,7 @@ MissileHitDiveArea(short SpriteNum)
             SpriteWarpToUnderwater(sp);
             //SpawnUnderSplash(sp - sprite);
             u->ret = 0;
-            PlaySound(DIGI_PROJECTILEWATERHIT, &sp->x, &sp->y, &sp->z, v3df_none);
+            PlaySound(DIGI_PROJECTILEWATERHIT, sp, v3df_none);
             return TRUE;
         }
         else if (SpriteInUnderwaterArea(sp))
@@ -20463,7 +20459,7 @@ SpawnBubble(short SpriteNum)
     bp = &sprite[b];
     bu = User[b];
 
-    //PlaySound(DIGI_BUBBLES, &sp->x, &sp->y, &sp->z, v3df_none);
+    //PlaySound(DIGI_BUBBLES, sp, v3df_none);
 
     bp->xrepeat = 8 + (RANDOM_P2(8 << 8) >> 8);
     bp->yrepeat = bp->xrepeat;
@@ -21427,7 +21423,7 @@ DoShrapVelocity(int16_t SpriteNum)
             short wall_ang, dang;
             short hit_sprite = -2;
             SPRITEp hsp;
-//                PlaySound(DIGI_DHCLUNK, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+//                PlaySound(DIGI_DHCLUNK, sp, v3df_dontpan);
 
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
@@ -21449,7 +21445,7 @@ DoShrapVelocity(int16_t SpriteNum)
             wph = &wall[hit_wall];
 
 
-//                PlaySound(DIGI_DHCLUNK, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+//                PlaySound(DIGI_DHCLUNK, sp, v3df_dontpan);
 
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
@@ -21523,10 +21519,10 @@ DoShrapVelocity(int16_t SpriteNum)
                         switch (u->ID)
                         {
                         case UZI_SHELL:
-                            PlaySound(DIGI_SHELL, &sp->x, &sp->y, &sp->z, v3df_none);
+                            PlaySound(DIGI_SHELL, sp, v3df_none);
                             break;
                         case SHOT_SHELL:
-                            PlaySound(DIGI_SHOTSHELLSPENT, &sp->x, &sp->y, &sp->z, v3df_none);
+                            PlaySound(DIGI_SHOTSHELLSPENT, sp, v3df_none);
                             break;
                         }
                     }
@@ -21623,9 +21619,9 @@ ShrapKillSprite(short SpriteNum)
         sp->clipdist = SPRITEp_SIZE_X(sp);
         SpawnFloorSplash(SpriteNum);
         if (RANDOM_RANGE(1000) < 500)
-            PlaySound(DIGI_GIBS1,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_GIBS1, sp, v3df_none);
         else
-            PlaySound(DIGI_GIBS2,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_GIBS2, sp, v3df_none);
         if (rnd_num > 683)
         {
             QueueGeneric(SpriteNum,900);
@@ -21645,9 +21641,9 @@ ShrapKillSprite(short SpriteNum)
         sp->clipdist = SPRITEp_SIZE_X(sp);
         SpawnFloorSplash(SpriteNum);
         if (RANDOM_RANGE(1000) < 500)
-            PlaySound(DIGI_GIBS1,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_GIBS1, sp, v3df_none);
         else
-            PlaySound(DIGI_GIBS2,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_GIBS2, sp, v3df_none);
         if (rnd_num > 683)
         {
             QueueGeneric(SpriteNum,915);

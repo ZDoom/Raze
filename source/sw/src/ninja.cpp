@@ -1965,7 +1965,7 @@ DoNinjaHariKari(short SpriteNum)
     SET(sp->extra, SPRX_BREAKABLE);
     SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
 
-    PlaySound(DIGI_NINJAUZIATTACK,&sp->x,&sp->y,&sp->z,v3df_follow);
+    PlaySound(DIGI_NINJAUZIATTACK, sp, v3df_follow);
 
     SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
 
@@ -2005,7 +2005,7 @@ DoNinjaGrabThroat(short SpriteNum)
         sp->xvel = 0;
         //u->jump_speed = -300;
         //DoActorBeginJump(SpriteNum);
-        PlaySound(DIGI_NINJASCREAM,&sp->x,&sp->y,&sp->z,v3df_follow);
+        PlaySound(DIGI_NINJASCREAM, sp, v3df_follow);
     }
 
     return 0;

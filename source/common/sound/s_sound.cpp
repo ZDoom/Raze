@@ -335,7 +335,7 @@ FString SoundEngine::ListSoundChannels()
 
 void SoundEngine::CalcPosVel(FSoundChan *chan, FVector3 *pos, FVector3 *vel)
 {
-	CalcPosVel(chan->SourceType, chan->Source, chan->Point,	chan->EntChannel, chan->ChanFlags, chan->OrgID, pos, vel);
+	CalcPosVel(chan->SourceType, chan->Source, chan->Point,	chan->EntChannel, chan->ChanFlags, chan->OrgID, pos, vel, chan);
 }
 
 bool SoundEngine::ValidatePosVel(const FSoundChan* const chan, const FVector3& pos, const FVector3& vel)
@@ -397,7 +397,7 @@ FSoundChan *SoundEngine::StartSound(int type, const void *source,
 
 	org_id = sound_id;
 
-	CalcPosVel(type, source, &pt->X, channel, chanflags, sound_id, &pos, &vel);
+	CalcPosVel(type, source, &pt->X, channel, chanflags, sound_id, &pos, &vel, nullptr);
 
 	if (!ValidatePosVel(type, source, pos, vel))
 	{

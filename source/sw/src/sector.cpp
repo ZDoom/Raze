@@ -861,7 +861,7 @@ DoSpawnActorTrigger(short match)
             if (ActorSpawn(sp))
             {
                 DoSpawnTeleporterEffectPlace(sp);
-                PlaySound(DIGI_PLAYER_TELEPORT, &sp->x, &sp->y, &sp->z, v3df_none);
+                PlaySound(DIGI_PLAYER_TELEPORT, sp, v3df_none);
                 spawn_count++;
             }
         }
@@ -1285,12 +1285,12 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
                 if (pp)
                 {
                     if (pp == Player+myconnectindex)
-                        PlayerSound(snd2play,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                        PlayerSound(snd2play, v3df_dontpan|v3df_follow,pp);
                 }
             }
             else
             {
-                PlaySound(snd2play, &sp->x, &sp->y, &sp->z, flags);
+                PlaySound(snd2play, sp, flags);
 
                 //if (TEST(flags, v3df_follow)) // Just set it anyway
                 Set3DSoundOwner(sn);
@@ -1724,68 +1724,68 @@ OperateSprite(short SpriteNum, short player_is_operating)
         if (sp->lotag == CARGIRL_R0)
         {
             if (choose_snd > 700)
-                PlayerSound(DIGI_JG44052,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG44052, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 500)
-                PlayerSound(DIGI_JG45014,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG45014, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 250)
-                PlayerSound(DIGI_JG44068,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG44068, v3df_dontpan|v3df_follow,pp);
             else
-                PlayerSound(DIGI_JG45010,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG45010, v3df_dontpan|v3df_follow,pp);
         }
         else if (sp->lotag == MECHANICGIRL_R0)
         {
             if (choose_snd > 700)
-                PlayerSound(DIGI_JG44027,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG44027, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 500)
-                PlayerSound(DIGI_JG44038,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG44038, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 250)
-                PlayerSound(DIGI_JG44039,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG44039, v3df_dontpan|v3df_follow,pp);
             else
-                PlayerSound(DIGI_JG44048,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG44048, v3df_dontpan|v3df_follow,pp);
         }
         else if (sp->lotag == SAILORGIRL_R0)
         {
             if (choose_snd > 700)
-                PlayerSound(DIGI_JG45018,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG45018, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 500)
-                PlayerSound(DIGI_JG45030,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG45030, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 250)
-                PlayerSound(DIGI_JG45033,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG45033, v3df_dontpan|v3df_follow,pp);
             else
-                PlayerSound(DIGI_JG45043,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG45043, v3df_dontpan|v3df_follow,pp);
         }
         else if (sp->lotag == PRUNEGIRL_R0)
         {
             if (choose_snd > 700)
-                PlayerSound(DIGI_JG45053,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG45053, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 500)
-                PlayerSound(DIGI_JG45067,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG45067, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 250)
-                PlayerSound(DIGI_JG46005,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG46005, v3df_dontpan|v3df_follow,pp);
             else
-                PlayerSound(DIGI_JG46010,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_JG46010, v3df_dontpan|v3df_follow,pp);
         }
         else if (sp->lotag == TOILETGIRL_R0)
         {
             if (choose_snd > 700)
-                PlayerSound(DIGI_WHATYOUEATBABY,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_WHATYOUEATBABY, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 500)
-                PlayerSound(DIGI_WHATDIEDUPTHERE,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_WHATDIEDUPTHERE, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 250)
-                PlayerSound(DIGI_YOUGOPOOPOO,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_YOUGOPOOPOO, v3df_dontpan|v3df_follow,pp);
             else
-                PlayerSound(DIGI_PULLMYFINGER,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_PULLMYFINGER, v3df_dontpan|v3df_follow,pp);
         }
         else
         {
             if (choose_snd > 700)
-                PlayerSound(DIGI_SOAPYOUGOOD,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_SOAPYOUGOOD, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 500)
-                PlayerSound(DIGI_WASHWANG,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_WASHWANG, v3df_dontpan|v3df_follow,pp);
             else if (choose_snd > 250)
-                PlayerSound(DIGI_DROPSOAP,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_DROPSOAP, v3df_dontpan|v3df_follow,pp);
             else
-                PlayerSound(DIGI_REALTITS,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow,pp);
+                PlayerSound(DIGI_REALTITS, v3df_dontpan|v3df_follow,pp);
         }
     }
         return TRUE;
@@ -1795,7 +1795,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return TRUE;
 
-        PlaySound(DIGI_PFLIP,&sp->x,&sp->y,&sp->z,v3df_none);
+        PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
         ChangeState(SpriteNum,s_Pachinko1Operate);
 
@@ -1806,7 +1806,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return TRUE;
 
-        PlaySound(DIGI_PFLIP,&sp->x,&sp->y,&sp->z,v3df_none);
+        PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
         ChangeState(SpriteNum,s_Pachinko2Operate);
 
@@ -1817,7 +1817,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return TRUE;
 
-        PlaySound(DIGI_PFLIP,&sp->x,&sp->y,&sp->z,v3df_none);
+        PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
         ChangeState(SpriteNum,s_Pachinko3Operate);
 
@@ -1828,7 +1828,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return TRUE;
 
-        PlaySound(DIGI_PFLIP,&sp->x,&sp->y,&sp->z,v3df_none);
+        PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
         ChangeState(SpriteNum,s_Pachinko4Operate);
 
@@ -1853,7 +1853,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         // change the switch state
         AnimateSwitch(sp, -1);
-        PlaySound(DIGI_REGULARSWITCH, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_REGULARSWITCH, sp, v3df_none);
 
         if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, sp->hitag))
         {
@@ -1866,7 +1866,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         // change the switch state
         AnimateSwitch(sp, -1);
-        PlaySound(DIGI_REGULARSWITCH, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_REGULARSWITCH, sp, v3df_none);
 
         if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, sp->hitag))
         {
@@ -1921,7 +1921,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         AnimateSwitch(sp, -1);
 
-        PlaySound(DIGI_BIGSWITCH, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_BIGSWITCH, sp, v3df_none);
 
         if (sp->hitag)
             Level = sp->hitag;
@@ -1970,7 +1970,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         sp->hitag = 0;
         sp->lotag = 0;
 
-        PlaySound(DIGI_REGULARSWITCH, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_REGULARSWITCH, sp, v3df_none);
         break;
     }
 
@@ -1990,7 +1990,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         sop->ang_tgt = NORM_ANGLE(sop->ang_tgt + 512);
 
-        PlaySound(DIGI_BIGSWITCH, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_BIGSWITCH, sp, v3df_none);
 
         return TRUE;
 
@@ -2140,8 +2140,7 @@ OperateTripTrigger(PLAYERp pp)
 
     case TAG_SECRET_AREA_TRIGGER:
         if (pp == Player+myconnectindex)
-            PlayerSound(DIGI_ANCIENTSECRET, &pp->posx, &pp->posy, &pp->posz,
-                        v3df_dontpan|v3df_doppler|v3df_follow,pp);
+            PlayerSound(DIGI_ANCIENTSECRET, v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
         sprintf(ds, GStrings("TXTS_SECRET"));
         SECRET_Trigger(pp->cursectnum);
@@ -2244,7 +2243,7 @@ OperateTripTrigger(PLAYERp pp)
         sector[pp->cursectnum].hitag = 0;
         sector[pp->cursectnum].lotag = 0;
 
-        PlaySound(DIGI_REGULARSWITCH, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+        PlaySound(DIGI_REGULARSWITCH, pp, v3df_none);
         break;
     }
     }
@@ -2351,7 +2350,7 @@ SWBOOL NearThings(PLAYERp pp)
     if (sector[pp->cursectnum].hitag == PLAYER_SOUNDEVENT_TAG)
     {
         if (pp == Player+myconnectindex)
-            PlayerSound(sector[pp->cursectnum].lotag,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(sector[pp->cursectnum].lotag, v3df_follow|v3df_dontpan,pp);
         return FALSE;
     }
 
@@ -2370,7 +2369,7 @@ SWBOOL NearThings(PLAYERp pp)
         if (sp->hitag == PLAYER_SOUNDEVENT_TAG)
         {
             if (pp == Player+myconnectindex)
-                PlayerSound(sp->lotag,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                PlayerSound(sp->lotag, v3df_follow|v3df_dontpan,pp);
         }
         return FALSE;   // Return false so he doesn't grunt
     }
@@ -2381,7 +2380,7 @@ SWBOOL NearThings(PLAYERp pp)
         if (wall[neartagwall].hitag == PLAYER_SOUNDEVENT_TAG)
         {
             if (pp == Player+myconnectindex)
-                PlayerSound(wall[neartagwall].lotag,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                PlayerSound(wall[neartagwall].lotag, v3df_follow|v3df_dontpan,pp);
             return FALSE;   // We are playing a sound so don't return true
         }
         return TRUE;
@@ -2420,9 +2419,9 @@ SWBOOL NearThings(PLAYERp pp)
             if (!TEST(wp->extra, WALLFX_DONT_STICK) && pp == Player+myconnectindex)
             {
                 if (STD_RANDOM_RANGE(1000) > 970)
-                    PlayerSound(DIGI_HITTINGWALLS,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                    PlayerSound(DIGI_HITTINGWALLS, v3df_follow|v3df_dontpan,pp);
                 else
-                    PlayerSound(DIGI_SEARCHWALL,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+                    PlayerSound(DIGI_SEARCHWALL, v3df_follow|v3df_dontpan,pp);
             }
 
             return TRUE;
@@ -2581,7 +2580,7 @@ int DoPlayerGrabStar(PLAYERp pp)
     {
         // Pull a star out of wall and up your ammo
         PlayerUpdateAmmo(pp, WPN_STAR, 1);
-        PlaySound(DIGI_ITEM, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_ITEM, sp, v3df_none);
         KillSprite(StarQueue[i]);
         StarQueue[i] = -1;
         if (TEST(pp->WpnFlags, BIT(WPN_STAR)))

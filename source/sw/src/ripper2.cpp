@@ -1251,7 +1251,7 @@ int DoRipper2StandHeart(short SpriteNum)
     NullRipper2(SpriteNum);
 
     if (!FX_SoundValidAndActive(riphearthandle))
-        riphearthandle = PlaySound(DIGI_RIPPER2HEARTOUT,&sp->x,&sp->y,&sp->z,v3df_none);
+        riphearthandle = PlaySound(DIGI_RIPPER2HEARTOUT, sp, v3df_none);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         NewStateGroup(SpriteNum, sg_Ripper2Run);
@@ -1375,7 +1375,7 @@ int ChestRipper2(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
 
-    PlaySound(DIGI_RIPPER2CHEST,&sp->x,&sp->y,&sp->z,v3df_follow);
+    PlaySound(DIGI_RIPPER2CHEST, sp, v3df_follow);
 
     return 0;
 }
