@@ -600,9 +600,6 @@ void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
 
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
 {
-    if (numshades != 32)
-        return -1;
-
     if (shtab != NULL)
     {
         maybe_alloc_palookup(palnum);
