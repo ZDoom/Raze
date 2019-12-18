@@ -6786,16 +6786,13 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
         int32_t zoomsc, sx=*sxptr, sy=*syptr;
         int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
 
-        if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
-            sx += NEGATE_ON_CONDITION(scale(120<<16,xdim,ydim) - (160<<16), !(dastat & RS_ALIGN_R));
-
         sy += rotatesprite_y_offset;
-
-        // screen center to s[xy], 320<<16 coords.
-        const int32_t normxofs = sx-(320<<15), normyofs = sy-(200<<15);
 
         if (!(dastat & RS_STRETCH) && 4*ydim <= 3*xdim)
         {
+            if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
+                sx += NEGATE_ON_CONDITION(scale(120<<16,xdim,ydim) - (160<<16), !(dastat & RS_ALIGN_R));
+
             if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
                 ydim = scale(xdim, 3, 4);
             else
@@ -6807,6 +6804,9 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 
         ouryxaspect = mulscale16(ouryxaspect, rotatesprite_yxaspect);
         ourxyaspect = divscale16(ourxyaspect, rotatesprite_yxaspect);
+
+        // screen center to s[xy], 320<<16 coords.
+        const int32_t normxofs = sx-(320<<15), normyofs = sy-(200<<15);
 
         // nasty hacks go here
         if (!(dastat & RS_NOCLIP))
