@@ -34,7 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "mytypes.h"
 #include "gamedefs.h"
 #include "gamecontrol.h"
-#include "fx_man.h"
 #include "sounds.h"
 #include "config.h"
 #include "common_game.h"

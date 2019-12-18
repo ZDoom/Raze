@@ -36,7 +36,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "actor.h"
 #include "sprite.h"
 #include "track.h"
-#include "fx_man.h"
 
 BEGIN_SW_NS
 

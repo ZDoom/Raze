@@ -35,7 +35,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "quake.h"
 #include "actor.h"
 #include "track.h"
-#include "fx_man.h"
 #include "gamecontrol.h"
 #include "mapinfo.h"
 

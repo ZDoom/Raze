@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "common.h"
 #include "mmulti.h"
-#include "fx_man.h"
 #include "common_game.h"
 #include "blood.h"
 #include "endgame.h"
@@ -42,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statistics.h"
 #include "gamemenu.h"
 #include "gstrings.h"
+#include "sound/s_soundinternal.h"
 
 BEGIN_BLD_NS
 
@@ -119,8 +119,7 @@ void CEndGameMgr::Finish(void)
 {
     levelSetupOptions(gGameOptions.nEpisode, gNextLevel);
     gInitialNetPlayers = numplayers;
-	FX_StopAllSounds_();
-    sndKillAllSounds();
+    soundEngine->StopAllChannels();
     gStartNewGame = 1;
     gInputMode = (INPUT_MODE)at1;
     at0 = 0;

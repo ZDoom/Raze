@@ -32,7 +32,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "names2.h"
 #include "mytypes.h"
-#include "fx_man.h"
 #include "music.h"
 #include "al_midi.h"
 #include "gamedefs.h"

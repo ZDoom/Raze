@@ -60,7 +60,6 @@ Things required to make savegames work:
 #include "lists.h"
 #include "network.h"
 #include "pal.h"
-#include "fx_man.h"
 #include "input.h"
 
 #include "mytypes.h"
@@ -1392,7 +1391,6 @@ void NewLevel(void)
 {
     if (DemoPlaying)
     {
-        FX_SetVolume(0); // Shut the hell up while game is loading!
         InitLevel();
         InitRunLevel();
 
@@ -1415,7 +1413,6 @@ void NewLevel(void)
     }
     else
     {
-        FX_SetVolume(0); // Shut the hell up while game is loading!
         InitLevel();
         RunLevel();
 		STAT_Update(false);
@@ -2743,9 +2740,6 @@ void InitRunLevel(void)
 
     SetRedrawScreen(Player + myconnectindex);
 	
-	snd_reversestereo.Callback();
-	snd_fxvolume.Callback();
-    FX_SetVolume(snd_fxvolume); // Turn volume back up
     if (snd_ambience)
         StartAmbientSound();
 }
@@ -2756,8 +2750,6 @@ void RunLevel(void)
 {
     int i;
     InitRunLevel();
-
-    FX_SetVolume(snd_fxvolume);
 
 #if 0
     waitforeverybody();

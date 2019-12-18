@@ -43,7 +43,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "player.h"
 
 #include "weapon.h"
-#include "fx_man.h"
 #include "menu/menu.h"
 #include "swcvar.h"
 #include "sound/s_soundinternal.h"

@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "compat.h"
 #include "renderlayer.h"
-#include "fx_man.h"
 #include "common.h"
 #include "common_game.h"
 
@@ -72,6 +71,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_argv.h"
 #include "statistics.h"
 #include "menu/menu.h"
+#include "sound/s_soundinternal.h"
 
 #ifdef _WIN32
 # include <shellapi.h>
@@ -1365,7 +1365,7 @@ RESTART:
     {
         UpdateDacs(0, true);
         Mus_Stop();
-        FX_StopAllSounds_();
+        soundEngine->StopAllChannels();
         gQuitGame = 0;
         gQuitRequest = 0;
         gRestartGame = 0;

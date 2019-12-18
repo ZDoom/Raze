@@ -43,7 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamedefs.h"
 #include "config.h"
 #include "network.h"
-#include "fx_man.h"
 #include "music.h"
 #include "text.h"
 #include "version.h"
@@ -247,12 +246,11 @@ void GameInterface::StartGame(FGameStartup& gs)
     else if (Skill == 3)
         PlaySound(DIGI_NOPAIN, v3df_none, CHAN_VOICE);
 
-    if (handle > FX_Ok)
-		while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
-		{
-			DoUpdateSounds();
-			handleevents();
-		}
+	while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+	{
+		DoUpdateSounds();
+		handleevents();
+	}
 }
 
 FSavegameInfo GameInterface::GetSaveSig()

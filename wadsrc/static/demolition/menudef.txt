@@ -1327,7 +1327,6 @@ OptionMenu AdvSoundOptions //protected
 	Title "$ADVSNDMNU_TITLE"
 	Option "$ADVSNDMNU_SAMPLERATE",			"snd_mixrate", "SampleRates"
 	//Option "$ADVSNDMNU_HRTF",				"snd_hrtf", "AutoOffOn"
-	Option "$ADVSNDMNU_FLIPSTEREO",			"snd_reversestereo", "OnOff"
 	StaticText " "
 	//Option "$SNDMNU_BACKGROUND",			"i_soundinbackground", "OnOff"
 	//StaticText " "

@@ -48,7 +48,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //#define FILE_TYPE 1
 #include "mfile.h"
 
-#include "fx_man.h"
 #include "music.h"
 
 #include "weapon.h"
@@ -1223,7 +1222,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     MUS_ResumeSaved();
     if (snd_ambience)
         StartAmbientSound();
-    FX_SetVolume(snd_fxvolume);
 
     TRAVERSE_CONNECT(i)
     {

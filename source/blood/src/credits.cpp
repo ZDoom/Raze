@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "compat.h"
 #include "SmackerDecoder.h"
-#include "fx_man.h"
 #include "common_game.h"
 #include "blood.h"
 #include "config.h"
@@ -36,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screen.h"
 #include "sound.h"
 #include "view.h"
+#include "sound/s_soundinternal.h"
 
 BEGIN_BLD_NS
 
@@ -282,7 +282,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
     Smacker_Close(hSMK);
     ctrlClearAllInput();
-    FX_StopAllSounds_();
+    soundEngine->StopAllChannels();
     videoSetPalette(0, 0, 8+2);
 	tileDelete(kSMKTile);
     Bfree(pzSMK_);

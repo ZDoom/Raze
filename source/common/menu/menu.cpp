@@ -48,12 +48,12 @@
 #include "printf.h"
 #include "v_draw.h"
 #include "gamecontrol.h"
-#include "fx_man.h"
 #include "pragmas.h"
 #include "build.h"
 #include "baselayer.h"
 #include "statistics.h"
 #include "input/m_joy.h"
+#include "sound/s_soundinternal.h"
 
 void RegisterDukeMenus();
 void RegisterRedneckMenus();
@@ -366,7 +366,7 @@ void M_StartControlPanel (bool makeSound)
 		created = true;
 		M_CreateMenus();
 	}
-	FX_StopAllSounds_();
+	soundEngine->StopAllChannels();
 	gi->MenuOpened();
 	if (makeSound) gi->MenuSound(ActivateSound);
 
