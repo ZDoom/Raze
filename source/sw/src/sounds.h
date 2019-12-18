@@ -58,20 +58,18 @@ enum
     v3df_init       = 64,   // 1 = First pass of sound, don't play it.
     // This is mainly used for intermittent sounds
     v3df_nolookup   = 128,   // don't use ambient table lookup
-    v3df_listenerz  = 256   // ignore height when positioning sound (was mostly hacked by providing bad cooordinates to the code before.)
 };
 typedef int Voc3D_Flags;
 
 struct VOCstruct;
 typedef struct VOCstruct VOC_INFO, *VOC_INFOp;
+#if 0
 struct VOC3Dstruct;
 typedef struct VOC3Dstruct VOC3D_INFO, *VOC3D_INFOp;
+#endif
 struct ambientstruct;
 typedef struct ambientstruct AMB_INFO, *AMB_INFOp;
 
-
-extern VOC3D_INFOp voc3dstart;
-extern VOC3D_INFOp voc3dend;
 
 void DoUpdateSounds(void);
 void Terminate3DSounds(void);
@@ -151,6 +149,7 @@ struct VOCstruct
 
 // JIMSOUND3D(tm) variables section //////////////////////////////////////////
 
+#if 0
 struct VOC3Dstruct
 {
     VOC_INFOp vp;                       // Pointer to the sound
@@ -175,6 +174,7 @@ struct VOC3Dstruct
     SWBOOL deleted;                       // Has sound been marked for deletion?
     SWBOOL FX_Ok;                         // Did this sound play ok?
 };
+#endif
 
 extern VOC_INFO voc[];
 

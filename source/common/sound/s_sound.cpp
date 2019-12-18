@@ -640,7 +640,7 @@ FSoundChan *SoundEngine::StartSound(int type, const void *source,
 
 void SoundEngine::RestartChannel(FSoundChan *chan)
 {
-	assert(chan->ChanFlags & CHANF_EVICTED);
+	if (!(chan->ChanFlags & CHANF_EVICTED)) return;
 
 	FSoundChan *ochan;
 	sfxinfo_t *sfx = &S_sfx[chan->SoundID];
@@ -1061,6 +1061,16 @@ void SoundEngine::ChangeSoundVolume(int sourcetype, const void *source, int chan
 	return;
 }
 
+void SoundEngine::SetVolume(FSoundChan* chan, float volume)
+{
+	if (volume < 0.0) volume = 0.0;
+	else if (volume > 1.0) volume = 1.0;
+
+	assert(chan != nullptr);
+	GSnd->ChannelVolume(chan, volume);
+	chan->Volume = volume;
+}
+
 //==========================================================================
 //
 // S_ChangeSoundPitch
@@ -1167,6 +1177,31 @@ bool SoundEngine::IsSourcePlayingSomething (int sourcetype, const void *actor, i
 
 //==========================================================================
 //
+// S_EvictChannel
+//
+// Forcibly evicts one single channel.
+//
+//==========================================================================
+
+void SoundEngine::EvictChannel(FSoundChan *chan)
+{
+	if (!(chan->ChanFlags & CHANF_EVICTED))
+	{
+		chan->ChanFlags |= CHANF_EVICTED;
+		if (chan->SysChannel != NULL)
+		{
+			if (!(chan->ChanFlags & CHANF_ABSTIME))
+			{
+				chan->StartTime = GSnd ? GSnd->GetPosition(chan) : 0;
+				chan->ChanFlags |= CHANF_ABSTIME;
+			}
+			StopChannel(chan);
+		}
+	}
+}
+
+//==========================================================================
+//
 // S_EvictAllChannels
 //
 // Forcibly evicts all channels so that there are none playing, but all
@@ -1181,21 +1216,7 @@ void SoundEngine::EvictAllChannels()
 	for (chan = Channels; chan != NULL; chan = next)
 	{
 		next = chan->NextChan;
-
-		if (!(chan->ChanFlags & CHANF_EVICTED))
-		{
-			chan->ChanFlags |= CHANF_EVICTED;
-			if (chan->SysChannel != NULL)
-			{
-				if (!(chan->ChanFlags & CHANF_ABSTIME))
-				{
-					chan->StartTime = GSnd ? GSnd->GetPosition(chan) : 0;
-					chan->ChanFlags |= CHANF_ABSTIME;
-				}
-				StopChannel(chan);
-			}
-//			assert(chan->NextChan == next);
-		}
+		EvictChannel(chan);
 	}
 }
 
@@ -1338,7 +1359,7 @@ void SoundEngine::ChannelEnded(FISoundChannel *ichan)
 	if (schan != NULL)
 	{
 		// If the sound was stopped with GSnd->StopSound(), then we know
-		// it wasn't evicted. Otherwise, if it's looping, it must have
+		// it wasn't evicted. Otherwise, if it's looping or declared virtual, it must have
 		// been evicted. If it's not looping, then it was evicted if it
 		// didn't reach the end of its playback.
 		if (schan->ChanFlags & CHANF_FORGETTABLE)

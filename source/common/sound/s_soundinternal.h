@@ -174,8 +174,8 @@ struct FSoundChan : public FISoundChannel
 	uint8_t		SourceType;
 	float		LimitRange;
 	const void *Source;
-	float Point[3];	// Sound is not attached to any source.
-	int UserData;	// One word of data for user-specific data
+	float Point[3];	// Sound is not attached to any source, can also be used as auxiliary storage for sounds with a real source.
+	int UserData[2];	// storage for user-specific data (Shadow Warrior's intermittent sounds use this as a counter.
 };
 
 
@@ -217,7 +217,7 @@ enum // This cannot be remain as this, but for now it has to suffice.
 	SOURCE_Actor,		// Sound is coming from an actor.
 	SOURCE_Ambient,		// Sound is coming from a blood ambient definition.
 	SOURCE_Unattached,	// Sound is not attached to any particular emitter.
-	SOURCE_Player,		// SW player sound (player in SW is not connected to a sprite so needs to be special.)
+	SOURCE_Player,		// SW player sound (player in SW maintains its own position separately from the sprite so needs to be special.)
 };
 
 
@@ -253,7 +253,6 @@ private:
 	void LinkChannel(FSoundChan* chan, FSoundChan** head);
 	void UnlinkChannel(FSoundChan* chan);
 	void ReturnChannel(FSoundChan* chan);
-	void RestartChannel(FSoundChan* chan);
 	void RestoreEvictedChannel(FSoundChan* chan);
 
 	bool IsChannelUsed(int sourcetype, const void* actor, int channel, int* seen);
@@ -273,6 +272,7 @@ protected:
 
 public:
 	virtual ~SoundEngine() = default;
+	void EvictChannel(FSoundChan *chan);
 	void EvictAllChannels();
 
 	void StopChannel(FSoundChan* chan);
@@ -289,8 +289,10 @@ public:
 
 	void StopAllChannels(void);
 	void SetPitch(FSoundChan* chan, float dpitch);
+	void SetVolume(FSoundChan* chan, float vol);
 
 	FSoundChan* GetChannel(void* syschan);
+	void RestartChannel(FSoundChan* chan);
 	void RestoreEvictedChannels();
 	void CalcPosVel(FSoundChan* chan, FVector3* pos, FVector3* vel);
 

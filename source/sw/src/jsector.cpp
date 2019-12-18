@@ -213,8 +213,6 @@ JS_SpriteSetup(void)
             else if (tag == AMBIENT_SOUND)
             {
                 change_sprite_stat(SpriteNum, STAT_AMBIENT);
-                // PlaySound(sp->lotag, sp, v3df_ambient
-                // | v3df_init | v3df_doppler);
             }
             else if (tag == TAG_ECHO_SOUND)
             {
