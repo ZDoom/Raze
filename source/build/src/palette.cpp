@@ -265,13 +265,15 @@ void paletteLoadFromDisk(void)
 
             // Read the entries above and on the diagonal, if the table is
             // thought as being row-major.
-            if (read_and_test(fil, &transluc[256*i + i], 256-i-1))
+            if (read_and_test(fil, &transluc[256*i + i + 1], 255-i))
                 return;
 
             // Duplicate the entries below the diagonal.
-            for (bssize_t j=0; j<i; j++)
-                transluc[256*i + j] = transluc[256*j + i];
+            for (bssize_t j=i+1; j<256; j++)
+                transluc[256*j + i] = transluc[256*i + j];
         }
+        for (bssize_t i=0; i<256; i++)
+            transluc[256*i + i] = i;
     }
     else
     {
