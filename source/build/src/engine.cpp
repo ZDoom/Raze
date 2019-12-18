@@ -6796,16 +6796,13 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
         int32_t zoomsc, sx=*sxptr, sy=*syptr;
         int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
 
-        if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
-            sx += NEGATE_ON_CONDITION(scale(120<<16,xdim,ydim) - (160<<16), !(dastat & RS_ALIGN_R));
-
         sy += rotatesprite_y_offset;
-
-        // screen center to s[xy], 320<<16 coords.
-        const int32_t normxofs = sx-(320<<15), normyofs = sy-(200<<15);
 
         if (!(dastat & RS_STRETCH) && 4*ydim <= 3*xdim)
         {
+            if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
+                sx += NEGATE_ON_CONDITION(scale(120<<16,xdim,ydim) - (160<<16), !(dastat & RS_ALIGN_R));
+
             if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
                 ydim = scale(xdim, 3, 4);
             else
@@ -6817,6 +6814,9 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 
         ouryxaspect = mulscale16(ouryxaspect, rotatesprite_yxaspect);
         ourxyaspect = divscale16(ourxyaspect, rotatesprite_yxaspect);
+
+        // screen center to s[xy], 320<<16 coords.
+        const int32_t normxofs = sx-(320<<15), normyofs = sy-(200<<15);
 
         // nasty hacks go here
         if (!(dastat & RS_NOCLIP))
@@ -7150,7 +7150,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                     if (d4 >= u4) vlineasm4(d4-u4+1, (char *)(ylookup[u4]+p));
 
-                    i = p+ylookup[d4+1];
+                    intptr_t i = p+ylookup[d4+1];
                     if (y2ve[0] > d4) prevlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],i+0);
                     if (y2ve[1] > d4) prevlineasm1(vince[1],palookupoffse[1],y2ve[1]-d4-1,vplce[1],bufplce[1],i+1);
                     if (y2ve[2] > d4) prevlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],i+2);
@@ -7174,7 +7174,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                     if (d4 >= u4) mvlineasm4(d4-u4+1, (char *)(ylookup[u4]+p));
 
-                    i = p+ylookup[d4+1];
+                    intptr_t i = p+ylookup[d4+1];
                     if (y2ve[0] > d4) mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],i+0);
                     if (y2ve[1] > d4) mvlineasm1(vince[1],palookupoffse[1],y2ve[1]-d4-1,vplce[1],bufplce[1],i+1);
                     if (y2ve[2] > d4) mvlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],i+2);

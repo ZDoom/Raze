@@ -28,7 +28,6 @@ palette_t curpalette[256];			// the current palette, unadjusted for brightness o
 palette_t curpalettefaded[256];		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
 palette_t palfadergb = { 0, 0, 0, 0 };
 char palfadedelta = 0;
-uint8_t blackcol;
 
 int32_t realmaxshade;
 float frealmaxshade;
@@ -266,13 +265,15 @@ void paletteLoadFromDisk(void)
 
             // Read the entries above and on the diagonal, if the table is
             // thought as being row-major.
-            if (read_and_test(fil, &transluc[256*i + i], 256-i-1))
+            if (read_and_test(fil, &transluc[256*i + i + 1], 255-i))
                 return;
 
             // Duplicate the entries below the diagonal.
-            for (bssize_t j=0; j<i; j++)
-                transluc[256*i + j] = transluc[256*j + i];
+            for (bssize_t j=i+1; j<256; j++)
+                transluc[256*j + i] = transluc[256*i + j];
         }
+        for (bssize_t i=0; i<256; i++)
+            transluc[256*i + i] = i;
     }
     else
     {
@@ -600,9 +601,6 @@ void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
 
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
 {
-    if (numshades != 32)
-        return -1;
-
     if (shtab != NULL)
     {
         maybe_alloc_palookup(palnum);
