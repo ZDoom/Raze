@@ -48,8 +48,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //#define FILE_TYPE 1
 #include "mfile.h"
 
-#include "music.h"
-
 #include "weapon.h"
 #include "cache.h"
 #include "colormap.h"

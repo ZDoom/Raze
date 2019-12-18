@@ -2055,7 +2055,6 @@ void G_BonusScreen(int32_t bonusonly)
         while (totalclock < TICRATE*10)
         {
             gameHandleEvents();
-            MUSIC_Update();
 
             if (G_FPSLimit())
             {
@@ -2099,7 +2098,6 @@ void G_BonusScreen(int32_t bonusonly)
         int32_t yy = 0, zz;
 
         gameHandleEvents();
-        MUSIC_Update();
 
         if (G_FPSLimit())
         {

@@ -629,8 +629,6 @@ void G_CacheMapData(void)
         }
         else continue;
 
-        MUSIC_Update();
-
         if ((j&7) == 0)
             G_HandleAsync();
 

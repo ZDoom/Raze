@@ -468,8 +468,6 @@ void G_CacheMapData(void)
 		if (r_precache) PrecacheHardwareTextures(i);
 #endif
 
-        MUSIC_Update();
-
         if ((++cnt & 7) == 0)
             gameHandleEvents();
     }

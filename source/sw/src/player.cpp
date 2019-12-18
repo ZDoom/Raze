@@ -59,12 +59,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sector.h"
 #include "actor.h"
 #include "colormap.h"
-#include "music.h"
 #include "vis.h"
 #include "track.h"
 #include "interp.h"
 #include "menu/menu.h"
 #include "gstrings.h"
+#include "z_music.h"
 
 BEGIN_SW_NS
 
@@ -7856,14 +7856,14 @@ void PauseMultiPlay(void)
 
                     SavePrediction = PredictionOn;
                     PredictionOn = FALSE;
-                    MUSIC_Pause();
+                    Mus_SetPaused(true);
                 }
                 else
                 {
                     PredictionOn = SavePrediction;
-                    MUSIC_Continue();
                     TRAVERSE_CONNECT(p)
                     pClearTextLine(Player + p, 100);
+                    Mus_SetPaused(false);
                 }
             }
         }

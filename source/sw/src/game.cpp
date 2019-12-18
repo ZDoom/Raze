@@ -84,7 +84,6 @@ Things required to make savegames work:
 #include "track.h"
 #include "jsector.h"
 #include "text.h"
-#include "music.h"
 
 #include "common.h"
 #include "common_game.h"

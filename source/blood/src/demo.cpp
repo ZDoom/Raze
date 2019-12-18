@@ -39,7 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "messages.h"
 #include "misc.h"
-#include "music.h"
 #include "network.h"
 #include "player.h"
 #include "screen.h"
@@ -310,7 +309,6 @@ _DEMOPLAYBACK:
     while (at1 && !gQuitGame)
     {
         handleevents();
-        MUSIC_Update();
         while (totalclock >= gNetFifoClock && !gQuitGame)
         {
             if (!v4)

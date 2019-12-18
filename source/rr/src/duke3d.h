@@ -122,7 +122,6 @@ END_RR_NS
 #include "global.h"
 #include "inv.h"
 #include "macros.h"
-#include "music.h"
 #include "namesdyn.h"
 #include "net.h"
 #include "player.h"

@@ -49,7 +49,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamedefs.h"
 #include "config.h"
 #include "network.h"
-#include "music.h"
 #include "text.h"
 #include "version.h"
 #include "network.h"

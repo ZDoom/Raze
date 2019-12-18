@@ -7568,7 +7568,6 @@ MAIN_LOOP_RESTART:
         else
 #endif
         {
-            MUSIC_Update();
             G_HandleLocalKeys();
         }
 

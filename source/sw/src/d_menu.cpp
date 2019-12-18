@@ -43,7 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamedefs.h"
 #include "config.h"
 #include "network.h"
-#include "music.h"
 #include "text.h"
 #include "version.h"
 #include "network.h"

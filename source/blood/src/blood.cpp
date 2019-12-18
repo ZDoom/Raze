@@ -49,7 +49,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "loadsave.h"
 #include "gamemenu.h"
 #include "mirrors.h"
-#include "music.h"
 #include "network.h"
 #include "osdcmds.h"
 #include "replace.h"
@@ -401,8 +400,6 @@ void PreloadCache(void)
 #ifdef USE_OPENGL
             if (r_precache) PrecacheHardwareTextures(i);
 #endif
-
-            MUSIC_Update();
 
             if ((++cnt & 7) == 0)
                 gameHandleEvents();
@@ -1249,7 +1246,6 @@ RESTART:
     {
 		handleevents();
         netUpdate();
-        MUSIC_Update();
         inputState.SetBindsEnabled(gInputMode == kInputGame);
         switch (gInputMode)
         {

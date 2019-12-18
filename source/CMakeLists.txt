@@ -476,7 +476,6 @@ endif()
 
 # Start defining source files for Demolition
 set( PLAT_WIN32_SOURCES
-	audiolib/src/driver_directsound.cpp
 	glad/src/glad_wgl.c
 	platform/win32/winbits.cpp
 	platform/win32/i_specialpaths.cpp
@@ -489,8 +488,6 @@ set( PLAT_WIN32_SOURCES
 	)
 
 set( PLAT_POSIX_SOURCES
-	#audiolib/src/driver_sdl.cpp
-	#audiolib/src/sdlmusic.cpp
 	#platform/gtk/startgtk.game.cpp
 	)
 	
@@ -605,8 +602,6 @@ add_definitions(-DOPNMIDI_DISABLE_GX_EMULATOR)
 # Project files should be aware of the header files. We can GLOB these since
 # there's generally a new cpp for every header so this file will get changed
 file( GLOB HEADER_FILES
-	audiolib/include/*.h
-	audiolib/src/*.h
 	build/include/*.h
 	glad/include/glad/*.h
 	glad/include/Khr/*.h
@@ -665,22 +660,6 @@ set( FASTMATH_SOURCES
 
 
 set (PCH_SOURCES
-
-	audiolib/src/drivers.cpp
-	audiolib/src/driver_adlib.cpp
-	audiolib/src/driver_sdl.cpp
-	audiolib/src/driver_winmm.cpp
-	audiolib/src/formats.cpp
-	audiolib/src/fx_man.cpp
-	audiolib/src/gmtimbre.cpp
-	audiolib/src/midi.cpp
-	audiolib/src/mix.cpp
-	audiolib/src/mixst.cpp
-	audiolib/src/multivoc.cpp
-	audiolib/src/music.cpp
-	audiolib/src/opl3.cpp
-	audiolib/src/pitch.cpp
-	audiolib/src/vorbis.cpp
 
 	glbackend/gl_hwtexture.cpp
 	glbackend/gl_samplers.cpp
@@ -887,7 +866,6 @@ target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
     build/include
-	audiolib/include
 	glad/include
 	libxmp-lite/include
 	libxmp-lite/include/libxmp-lite
@@ -1019,9 +997,6 @@ source_group("Code\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/comm
 source_group("Code\\Sound\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/sound/backend/.+")
 source_group("Code\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/dobject/.+")
 source_group("Code\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
-source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")
-source_group("Utility\\Audiolib Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/include/.+")
-source_group("Utility\\Audiolib Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/src/.+")
 source_group("Utility\\Glad" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/.+")
 source_group("Utility\\Glad Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/include/glad/.+")
 source_group("Utility\\Glad Khr Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/include/Khr/.+")

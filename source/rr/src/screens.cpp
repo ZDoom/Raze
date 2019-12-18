@@ -2074,7 +2074,6 @@ void G_BonusScreen(int32_t bonusonly)
         while (totalclock < TICRATE*10)
         {
             G_HandleAsync();
-            MUSIC_Update();
 
             if (G_FPSLimit())
             {
@@ -2139,7 +2138,6 @@ void G_BonusScreen(int32_t bonusonly)
         int32_t yy = 0, zz;
 
         G_HandleAsync();
-        MUSIC_Update();
 
         if (G_FPSLimit())
         {
@@ -2619,7 +2617,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         if ((ud.eog == 0 || ud.volume_number != 1) && ud.volume_number <= 1)
         {
             showMap = 1;
-            MUSIC_StopSong();
+            Mus_Stop();
             inputState.keyFlushChars();
 
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);
@@ -2658,7 +2656,6 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         while (totalclock < TICRATE*10)
         {
             G_HandleAsync();
-            MUSIC_Update();
 
             if (G_FPSLimit())
             {
@@ -2709,7 +2706,6 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         int32_t yy = 0, zz;
 
         G_HandleAsync();
-        MUSIC_Update();
 
         if (G_FPSLimit())
         {
@@ -2726,7 +2722,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                     if (bonuscnt == 7)
                     {
                         bonuscnt++;
-                        MUSIC_StopSong();
+                        Mus_Stop();
                         G_PlayMapAnim();
                         break;
                     }
