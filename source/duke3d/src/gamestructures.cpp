@@ -1473,7 +1473,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_SHOW_LEVEL_TEXT:        labelNum = ud.show_level_text;              break;
         case USERDEFS_WEAPONSCALE:            labelNum = hud_weaponscale;                  break;
         case USERDEFS_TEXTSCALE:              labelNum = hud_textscale;                    break;
-        case USERDEFS_RUNKEY_MODE:            labelNum = ud.runkey_mode;                  break;
+        case USERDEFS_RUNKEY_MODE:            labelNum = cl_runmode;                  break;
         case USERDEFS_M_ORIGIN_X:             labelNum = ud.returnvar[0];                 break;
         case USERDEFS_M_ORIGIN_Y:             labelNum = ud.returnvar[1];                 break;
         case USERDEFS_PLAYERBEST:             labelNum = ud.playerbest;                   break;
@@ -1502,9 +1502,9 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_STATUSBARRANGE:         labelNum = ud.statusbarrange;               break;
         case USERDEFS_STATUSBARCUSTOM:        labelNum = hud_custom;              break;
         case USERDEFS_HUDONTOP:               labelNum = hud_position;                     break;
-        case USERDEFS_MENU_SLIDEBARZ:         labelNum = ud.menu_slidebarz;               break;
-        case USERDEFS_MENU_SLIDEBARMARGIN:    labelNum = ud.menu_slidebarmargin;          break;
-        case USERDEFS_MENU_SLIDECURSORZ:      labelNum = ud.menu_slidecursorz;            break;
+        case USERDEFS_MENU_SLIDEBARZ:         labelNum = 65536;          break;
+        case USERDEFS_MENU_SLIDEBARMARGIN:    labelNum = 65536;          break;
+        case USERDEFS_MENU_SLIDECURSORZ:      labelNum = 65536;          break;
         case USERDEFS_GLOBAL_R:               labelNum = globalr;                         break;
         case USERDEFS_GLOBAL_G:               labelNum = globalg;                         break;
         case USERDEFS_GLOBAL_B:               labelNum = globalb;                         break;
@@ -1534,9 +1534,9 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_MUSIC_EPISODE:          labelNum = ud.music_episode;                break; // Problem: This info is utterly meaningless with the new music system.
         case USERDEFS_MUSIC_LEVEL:            labelNum = ud.music_level;                  break;
         case USERDEFS_SHADOW_PAL:             labelNum = ud.shadow_pal;                   break;
-        case USERDEFS_MENU_SCROLLBARTILENUM:  labelNum = ud.menu_scrollbartilenum;        break;
-        case USERDEFS_MENU_SCROLLBARZ:        labelNum = ud.menu_scrollbarz;              break;
-        case USERDEFS_MENU_SCROLLCURSORZ:     labelNum = ud.menu_scrollcursorz;           break;
+        case USERDEFS_MENU_SCROLLBARTILENUM:  labelNum = -1;        break;
+        case USERDEFS_MENU_SCROLLBARZ:        labelNum = 65536;              break;
+        case USERDEFS_MENU_SCROLLCURSORZ:     labelNum = 65536;           break;
         case USERDEFS_RETURN:
             if (lParm2 == 0)
                 labelNum = aGameVars[g_returnVarID].global;
@@ -1666,7 +1666,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_SHOW_LEVEL_TEXT:              ud.show_level_text               = iSet; break;
         case USERDEFS_WEAPONSCALE:                  hud_weaponscale.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_TEXTSCALE:                    hud_textscale.SetGenericRepDefault(iSet, CVAR_Int); break;
-        case USERDEFS_RUNKEY_MODE:                  ud.runkey_mode                   = iSet; break;
+        case USERDEFS_RUNKEY_MODE:                  cl_runmode.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_M_ORIGIN_X:                   ud.returnvar[0]                  = iSet; break;
         case USERDEFS_M_ORIGIN_Y:                   ud.returnvar[1]                  = iSet; break;
         case USERDEFS_GLOBALFLAGS:                  globalflags                      = iSet; break;
@@ -1695,9 +1695,9 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_STATUSBARRANGE:               ud.statusbarrange                = iSet; break;
         case USERDEFS_STATUSBARCUSTOM:              hud_custom.SetGenericRepDefault(iSet, CVAR_Int); break;
         case USERDEFS_HUDONTOP:                     hud_position.SetGenericRepDefault(iSet, CVAR_Int); break;
-        case USERDEFS_MENU_SLIDEBARZ:               ud.menu_slidebarz                = iSet; break;
-        case USERDEFS_MENU_SLIDEBARMARGIN:          ud.menu_slidebarmargin           = iSet; break;
-        case USERDEFS_MENU_SLIDECURSORZ:            ud.menu_slidecursorz             = iSet; break;
+        case USERDEFS_MENU_SLIDEBARZ:               break;
+        case USERDEFS_MENU_SLIDEBARMARGIN:          break;
+        case USERDEFS_MENU_SLIDECURSORZ:            break;
         case USERDEFS_GLOBAL_R:                     globalr                          = iSet; break;
         case USERDEFS_GLOBAL_G:                     globalg                          = iSet; break;
         case USERDEFS_GLOBAL_B:                     globalb                          = iSet; break;
@@ -1737,9 +1737,9 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_SLIDEBAR_PALSELECTED:         ud.slidebar_palselected          = iSet; break;
         case USERDEFS_SLIDEBAR_PALDISABLED:         ud.slidebar_paldisabled          = iSet; break;
         case USERDEFS_SHADOW_PAL:                   ud.shadow_pal                    = iSet; break;
-        case USERDEFS_MENU_SCROLLBARTILENUM:        ud.menu_scrollbartilenum         = iSet; break;
-        case USERDEFS_MENU_SCROLLBARZ:              ud.menu_scrollbarz               = iSet; break;
-        case USERDEFS_MENU_SCROLLCURSORZ:           ud.menu_scrollcursorz            = iSet; break;
+        case USERDEFS_MENU_SCROLLBARTILENUM:        break;
+        case USERDEFS_MENU_SCROLLBARZ:              break;
+        case USERDEFS_MENU_SCROLLCURSORZ:           break;
         case USERDEFS_RETURN:
             if (lParm2 == 0)
                 aGameVars[g_returnVarID].global = iSet;

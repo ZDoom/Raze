@@ -1905,6 +1905,7 @@ void MenuLevel(void)
 
         //drawscreen as fast as you can
         DrawMenuLevelScreen();
+        DoUpdateSounds();
 
         videoNextPage();
     }
@@ -2881,6 +2882,7 @@ int32_t GameInterface::app_main()
     {
 		I_Error("There was a problem initialising the Build engine: %s", engineerrstr);
     }
+    hud_size.Callback();
 
     if (!DetectShareware())
     {

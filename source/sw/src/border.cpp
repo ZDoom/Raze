@@ -545,6 +545,7 @@ void SetBorder(PLAYERp pp, int value)
         gs.BorderNum = SIZ(BorderInfoValues) - 1;
         return;
     }
+    if (xdim == 0) return;  // game not set up yet.
 
     BorderSetView(pp, &Xdim, &Ydim, &ScreenSize);
 

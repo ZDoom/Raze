@@ -1191,7 +1191,7 @@ int GameInterface::app_main()
     netInitialize(true);
     scrSetGameMode( ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP);
     scrSetGamma(gGamma);
-    viewResizeView(gViewSize);
+    hud_size.Callback();
     initprintf("Initializing sound system\n");
     sndInit();
     gChoke.sub_83ff0(518, sub_84230);

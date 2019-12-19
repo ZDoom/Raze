@@ -52,7 +52,6 @@ BEGIN_BLD_NS
 int32_t gTurnSpeed;
 int32_t gDetail;
 int32_t cl_weaponswitch;
-int32_t gAutoRun;
 int32_t gFollowMap;
 int32_t gOverlayMap;
 int32_t gRotateMap;
@@ -104,7 +103,6 @@ void CONFIG_SetDefaults(void)
     gViewSize = 2;
     gTurnSpeed = 92;
     gDetail = 4;
-    gAutoRun = 0;
     gFollowMap = 1;
     gOverlayMap = 0;
     gRotateMap = 0;

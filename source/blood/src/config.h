@@ -34,7 +34,6 @@ BEGIN_BLD_NS
 
 extern int32_t gTurnSpeed;
 extern int32_t gDetail;
-extern int32_t gAutoRun;
 extern int32_t gFollowMap;
 extern int32_t gOverlayMap;
 extern int32_t gRotateMap;
