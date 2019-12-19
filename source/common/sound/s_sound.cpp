@@ -804,7 +804,7 @@ void SoundEngine::LoadSound3D(sfxinfo_t *sfx, FSoundLoadBuffer *pBuffer)
 	{
 		snd = GSnd->LoadSoundBuffered(pBuffer, true);
 	}
-	else
+	else if (sfx->lumpnum >= 0)
 	{
 		auto sfxdata = ReadSound(sfx->lumpnum);
 		int size = sfxdata.Size();
@@ -1166,9 +1166,9 @@ bool SoundEngine::IsSourcePlayingSomething (int sourcetype, const void *actor, i
 	{
 		if (chan->SourceType == sourcetype && (sourcetype == SOURCE_None || sourcetype == SOURCE_Unattached || chan->Source == actor))
 		{
-			if (channel == 0 || chan->EntChannel == channel)
+			if ((channel == 0 || chan->EntChannel == channel) && (sound_id <= 0 || chan->OrgID == sound_id))
 			{
-				return sound_id <= 0 || chan->OrgID == sound_id;
+				return true;
 			}
 		}
 	}

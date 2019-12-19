@@ -95,8 +95,8 @@ enum
 	ROLLOFF_Custom		// Lookup volume from SNDCURVE
 };
 
-int S_FindSoundByResID(int ndx);
-int S_FindSound(const char* name);
+int S_FindSound(const char *logicalname);
+int S_FindSoundByResID(int snd_id);
 
 // An index into the S_sfx[] array.
 class FSoundID
@@ -167,10 +167,10 @@ struct FSoundChan : public FISoundChannel
 	FSoundID	SoundID;	// Sound ID of playing sound.
 	FSoundID	OrgID;		// Sound ID of sound used to start this channel.
 	float		Volume;
+	int 		EntChannel;	// Actor's sound channel.
 	int16_t		Pitch;		// Pitch variation.
-	int32_t		EntChannel;	// Actor's sound channel.
-	int8_t		Priority;
 	int16_t		NearLimit;
+	int8_t		Priority;
 	uint8_t		SourceType;
 	float		LimitRange;
 	const void *Source;
