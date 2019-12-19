@@ -577,7 +577,7 @@ FSoundChan *SoundEngine::StartSound(int type, const void *source,
 		if (chanflags & (CHANF_UI|CHANF_NOPAUSE)) startflags |= SNDF_NOPAUSE;
 		if (chanflags & CHANF_UI) startflags |= SNDF_NOREVERB;
 
-		if (attenuation > 0)
+		if (attenuation > 0 && type != SOURCE_None)
 		{
             LoadSound3D(sfx, &SoundBuffer);
             chan = (FSoundChan*)GSnd->StartSound3D (sfx->data3d, &listener, float(volume), rolloff, float(attenuation), pitch, basepriority, pos, vel, channel, startflags, NULL);
