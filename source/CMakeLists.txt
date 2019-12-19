@@ -699,7 +699,6 @@ set (PCH_SOURCES
 	build/src/palette.cpp
 	build/src/polymost.cpp
 	build/src/pragmas.cpp
-	build/src/screenshot.cpp
 	build/src/scriptfile.cpp
 	build/src/sdlayer.cpp
 	build/src/smalltextfont.cpp
@@ -723,6 +722,7 @@ set (PCH_SOURCES
 	common/compositesavegame.cpp
 	common/savegamehelp.cpp
 	common/quotes.cpp
+	common/screenshot.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp

@@ -149,9 +149,6 @@ void mouseGrabInput(bool grab);
 void mouseLockToWindow(bool a);
 void mouseMoveToCenter(void);
 
-void joyReadButtons(int32_t *pResult);
-void joySetDeadZone(int32_t axis, uint16_t dead, uint16_t satur);
-void joyGetDeadZone(int32_t axis, uint16_t *dead, uint16_t *satur);
 extern int32_t inputchecked;
 
 void getScreen(uint8_t* imgBuf);

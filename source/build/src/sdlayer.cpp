@@ -926,26 +926,6 @@ const char *joyGetName(int32_t what, int32_t num)
 
 
 //
-// setjoydeadzone() -- sets the dead and saturation zones for the joystick
-//
-void joySetDeadZone(int32_t axis, uint16_t dead, uint16_t satur)
-{
-    joydead[axis] = dead;
-    joysatur[axis] = satur;
-}
-
-
-//
-// getjoydeadzone() -- gets the dead and saturation zones for the joystick
-//
-void joyGetDeadZone(int32_t axis, uint16_t *dead, uint16_t *satur)
-{
-    *dead = joydead[axis];
-    *satur = joysatur[axis];
-}
-
-
-//
 //
 // ---------------------------------------
 //

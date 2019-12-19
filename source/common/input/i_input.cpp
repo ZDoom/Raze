@@ -610,31 +610,6 @@ int32_t handleevents_pollsdl(void)
         }
         break;
 
-#if 0
-        case SDL_JOYAXISMOTION:
-#if SDL_MAJOR_VERSION >= 2
-            if (joystick.isGameController)
-                break;
-            fallthrough__;
-        case SDL_CONTROLLERAXISMOTION:
-#endif
-            if (appactive && ev.jaxis.axis < joystick.numAxes)
-            {
-                joystick.pAxis[ev.jaxis.axis] = ev.jaxis.value;
-                int32_t const scaledValue = ev.jaxis.value * 10000 / 32767;
-                if ((scaledValue < joydead[ev.jaxis.axis]) &&
-                    (scaledValue > -joydead[ev.jaxis.axis]))
-                    joystick.pAxis[ev.jaxis.axis] = 0;
-                else if (scaledValue >= joysatur[ev.jaxis.axis])
-                    joystick.pAxis[ev.jaxis.axis] = 32767;
-                else if (scaledValue <= -joysatur[ev.jaxis.axis])
-                    joystick.pAxis[ev.jaxis.axis] = -32767;
-                else
-                    joystick.pAxis[ev.jaxis.axis] = joystick.pAxis[ev.jaxis.axis] * 10000 / joysatur[ev.jaxis.axis];
-            }
-            break;
-#endif
-
         case SDL_JOYHATMOTION:
         {
             int32_t hatvals[16] = {
