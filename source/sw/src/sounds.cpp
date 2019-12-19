@@ -558,7 +558,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             *pos = npos;
         }
 
-        if (chanflags & CHANEXF_DONTPAN)
+        if (vpos && chanflags & CHANEXF_DONTPAN)
         {
             // For unpanned sounds the volume must be set directly and the position taken from the listener.
             *pos = campos;
@@ -668,7 +668,7 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
 
     auto rolloff = GetRolloff(vp->voc_distance);
     FVector3 spos = pos ? GetSoundPos(pos) : FVector3(0, 0, 0);
-    soundEngine->StartSound(sourcetype, source, &spos, CHAN_BODY, cflags, num, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
+    soundEngine->StartSound(sourcetype, source, &spos, channel, cflags, num, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
     return 1;
 }
 
