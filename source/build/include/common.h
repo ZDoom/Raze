@@ -66,8 +66,6 @@ static inline void realloc_copy(char **fn, const char *buf)
 
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
-int32_t G_CheckCmdSwitch(int32_t argc, char const * const * argv, const char *str);
-
 int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char *ext);
 
 // Approximations to 2D and 3D Euclidean distances. Initial EDuke32 SVN import says

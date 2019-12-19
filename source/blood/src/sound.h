@@ -54,6 +54,4 @@ void sndProcess(void);
 void sndTerm(void);
 void sndInit(void);
 
-extern Resource &gSoundRes;
-
 END_BLD_NS

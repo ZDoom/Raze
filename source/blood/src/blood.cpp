@@ -1135,7 +1135,6 @@ int GameInterface::app_main()
 #endif
     //gSysRes.Init(pUserRFF ? pUserRFF : "BLOOD.RFF");
     //gGuiRes.Init("GUI.RFF");
-    //gSoundRes.Init(pUserSoundRFF ? pUserSoundRFF : "SOUNDS.RFF");
 
     HookReplaceFunctions();
 

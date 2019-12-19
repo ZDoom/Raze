@@ -37,8 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-Resource& gSoundRes = fileSystem;
-
 int soundRates[13] = {
     11025,
     11025,
