@@ -1091,8 +1091,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
             GLInterface.EnableBlend(true);  // else GLInterface.EnableBlend(false);
     }
     else pc[3] = 1.f;
-	GLInterface.SetFadeDisable(true); // disable depth fading. The voxel code is somewhat broken and messes this up.
-	GLInterface.SetShade(0, numshades);
+	GLInterface.SetShade(std::max(0, globalshade), numshades);
     //------------
 
     //transform to Build coords
