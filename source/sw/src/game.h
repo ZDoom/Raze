@@ -2087,6 +2087,7 @@ short SoundDist(int x, int y, int z, int basedist);
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
 int _PlaySound(int num, SPRITEp sprite, PLAYERp player, vec3_t *pos, Voc3D_Flags flags, int channel);
+void InitAmbient(int num, SPRITEp sprite);
 inline void PlaySound(int num, SPRITEp sprite, Voc3D_Flags flags, int channel = 8)
 {
     _PlaySound(num, sprite, nullptr, nullptr, flags, channel);

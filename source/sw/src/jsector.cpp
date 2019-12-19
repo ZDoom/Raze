@@ -251,8 +251,7 @@ JS_SpriteSetup(void)
             PlaySound(DIGI_WATERFLOW1, sp, v3df_follow|v3df_dontpan|v3df_doppler);
             break;
         case 460:  // Wind Chimes
-            PlaySound(79, sp, v3df_ambient | v3df_init
-                               | v3df_doppler | v3df_follow);
+            InitAmbient(79, sp);
             break;
 
         }

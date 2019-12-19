@@ -1,6 +1,7 @@
 //-------------------------------------------------------------------------
 /*
 Copyright (C) 1997, 2005 - 3D Realms Entertainment
+Copyright (C) 2019 Christoph Oelckers
 
 This file is part of Shadow Warrior version 1.2
 
@@ -56,11 +57,8 @@ BEGIN_SW_NS
 
 enum EChanExFlags
 {
-    CHANEXF_AMBIENT = 0x40000000,
     CHANEXF_NODOPPLER = 0x20000000,
-    CHANEXF_DONTPAN = 0x10000000,
-    CHANEXF_INTERMIT = 0x08000000,
-
+    CHANEXF_DONTPAN = 0x40000000,
 };
 
 // Parentally locked sounds list
@@ -98,68 +96,17 @@ AMB_INFO ambarray[] =
 #define MAX_AMBIENT_SOUNDS 82
 
 
-class SWSoundEngine : public SoundEngine
-{
-    // client specific parts of the sound engine go in this class.
-    void CalcPosVel(int type, const void* source, const float pt[3], int channum, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan* chan) override;
-    TArray<uint8_t> ReadSound(int lumpnum);
-
-public:
-    SWSoundEngine()
-    {
-        S_Rolloff.RolloffType = ROLLOFF_Doom;  
-        S_Rolloff.MinDistance = 0;            // These are the default values, SW uses a few different rolloff settings.
-        S_Rolloff.MaxDistance = 1187;
-    }
-};
 
 //==========================================================================
-//
 //
 // 
+//
 //==========================================================================
 
-TArray<uint8_t> SWSoundEngine::ReadSound(int lumpnum)
+float S_ConvertPitch(int lpitch)
 {
-    auto wlump = fileSystem.OpenFileReader(lumpnum);
-    return wlump.Read();
+    return pow(2, lpitch / 1200.);
 }
-
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void InitFX(void)
-{
-    if (soundEngine) return; // just in case.
-    soundEngine = new SWSoundEngine;
-
-    auto &S_sfx = soundEngine->GetSounds();
-    S_sfx.Resize(countof(voc));
-    for (auto& sfx : S_sfx) { sfx.Clear(); sfx.lumpnum = sfx_empty; }
-    for (size_t i = 1; i < countof(voc); i++)
-    {
-        auto& entry = voc[i];
-        auto lump = fileSystem.FindFile(entry.name);
-        if (lump > 0)
-        {
-            auto& newsfx = S_sfx[i];
-            newsfx.name = entry.name;
-            newsfx.lumpnum = lump;
-            newsfx.NearLimit = 6;
-            newsfx.bTentative = false;
-        }
-    }
-    soundEngine->HashSounds();
-    for (auto& sfx : S_sfx)
-    {
-        soundEngine->CacheSound(&sfx);
-    }
-}
-
 
 //==========================================================================
 //
@@ -251,10 +198,132 @@ FRolloffInfo GetRolloff(int basedist)
 //==========================================================================
 //
 //
+// Ambient sounds
+//
 //
 //==========================================================================
 
-int RandomizeAmbientSpecials(int handle)
+struct AmbientSound
+{
+    SPRITEp sp;
+    FSoundChan* sndChan;
+    int ambIndex;
+    int vocIndex;
+    int ChanFlags;
+    int maxIndex;
+    int curIndex;
+    bool intermit;
+};
+
+static TArray<AmbientSound*> ambients;
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void StopAmbientSound(void)
+{
+    for (auto& amb : ambients)
+    {
+        if (amb->sndChan)
+        {
+            soundEngine->StopChannel(amb->sndChan);
+        }
+    }
+    ambients.Clear();
+}
+
+
+//==========================================================================
+//
+// Play a sound
+//
+//==========================================================================
+
+void InitAmbient(int num, SPRITEp sp)
+{
+    VOC_INFOp vp;
+    int pitch = 0;
+    short angle, sound_dist;
+    int tx, ty, tz;
+    uint8_t priority;
+    int maxtics = 0;
+
+    if (!snd_ambience) return;
+
+    // Ambient sounds need special treatment
+    if (num < 0 || num > MAX_AMBIENT_SOUNDS)
+    {
+        sprintf(ds, "Invalid or out of range ambient sound number %d\n", num);
+        PutStringInfo(Player + screenpeek, ds);
+        return;
+    }
+    auto vnum = ambarray[num].diginame;
+    if (!soundEngine->isValidSoundId(vnum))
+    {
+        return; // linked sound does not exist.
+    }
+
+    auto amb = new AmbientSound;
+    amb->sp = sp;
+    amb->ambIndex = num;
+    amb->vocIndex = vnum;
+    amb->sndChan = nullptr;
+    amb->ChanFlags = 0;
+    if (ambarray[num].ambient_flags & v3df_dontpan) amb->ChanFlags |= EChanFlags::FromInt(CHANEXF_DONTPAN);
+    if (voc[vnum].voc_flags & vf_loop) amb->ChanFlags |= CHANF_LOOP; 
+    amb->maxIndex = ambarray[num].maxtics * 8;
+    amb->curIndex = 0;
+    amb->intermit = !!(ambarray[num].ambient_flags & v3df_intermit);
+    ambients.Push(amb);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void StartAmbientSound(void)
+{
+    short i, nexti;
+    extern SWBOOL InMenuLevel;
+
+    if (InMenuLevel || !SoundEnabled()) return; // Don't restart ambience if no level is active! Will crash game.
+
+    TRAVERSE_SPRITE_STAT(headspritestat[STAT_AMBIENT], i, nexti)
+    {
+        SPRITEp sp = &sprite[i];
+        InitAmbient(sp->lotag, sp);
+    }
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+static void RestartAmbient(AmbientSound* amb)
+{
+    auto& vp = voc[amb->vocIndex];
+    auto rolloff = GetRolloff(vp.voc_distance);
+    int pitch = 0;
+    if (vp.pitch_hi <= vp.pitch_lo) pitch = vp.pitch_lo;
+    else pitch = vp.pitch_lo + (STD_RANDOM_RANGE(vp.pitch_hi - vp.pitch_lo));
+
+    soundEngine->StartSound(SOURCE_Ambient, amb, nullptr, CHAN_BODY, EChanFlags::FromInt(amb->ChanFlags), amb->vocIndex, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
+}
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+static int RandomizeAmbientSpecials(int handle)
 {
 #define MAXRNDAMB 12
     int ambrand[] =
@@ -280,28 +349,154 @@ int RandomizeAmbientSpecials(int handle)
 //==========================================================================
 
 
-void DoTimedSound(FSoundChan *chan)
+static void DoTimedSound(AmbientSound* amb)
 {
-    chan->UserData[1] += synctics;  // This got called 5x a second, incrementing by 3 each time, meaning that 15 units are one second. Now it gets called 40x a second.
-
-    if (chan->UserData[1] >= chan->UserData[0] * 8) // account for the 8x higher update frequency.
+    amb->curIndex += synctics;
+    if (amb->curIndex >= amb->maxIndex)
     {
-        if (chan->ChanFlags & CHANF_EVICTED)
+        if (amb->sndChan == nullptr)
         {
             // Check for special case ambient sounds. Since the sound is stopped and doesn't occupy a real channel at this time we can just swap out the sound ID before restarting it.
-            int ambid = RandomizeAmbientSpecials(chan->SoundID);
+            int ambid = RandomizeAmbientSpecials(amb->vocIndex);
             if (ambid != -1)
             {
-                chan->SoundID = FSoundID(ambarray[ambid].maxtics);
-                chan->UserData[0] = STD_RANDOM_RANGE(ambarray[ambid].maxtics);
+                amb->vocIndex = ambid;
+                amb->maxIndex = STD_RANDOM_RANGE(ambarray[ambid].maxtics);
             }
-
-            soundEngine->RestartChannel(chan);
+            RestartAmbient(amb);
         }
-
-        chan->UserData[1] = 0;
     }
 }
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+static void UpdateAmbients()
+{
+    for (auto& amb : ambients)
+    {
+        auto sp = amb->sp;
+        auto sdist = SoundDist(sp->pos.x, sp->pos.y, sp->pos.z, voc[amb->vocIndex].voc_distance);
+
+        if (sdist < 255 && amb->vocIndex == DIGI_WHIPME)
+        {
+            PLAYERp pp = Player + screenpeek;
+            if (!FAFcansee(sp->pos.x, sp->pos.y, sp->pos.z, sp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
+            {
+                sdist = 255;
+            }
+        }
+        if (sdist < 255)
+        {
+            if (amb->intermit) DoTimedSound(amb);
+            else RestartAmbient(amb);
+
+        }
+        else
+        {
+            if (amb->sndChan)
+            {
+                soundEngine->StopChannel(amb->sndChan);
+                amb->sndChan = nullptr;
+            }
+        }
+
+    }
+}
+
+//==========================================================================
+//
+// end of ambient sounds
+//
+//==========================================================================
+
+
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+class SWSoundEngine : public SoundEngine
+{
+    // client specific parts of the sound engine go in this class.
+    void CalcPosVel(int type, const void* source, const float pt[3], int channum, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan* chan) override;
+    TArray<uint8_t> ReadSound(int lumpnum) override;
+    void ChannelEnded(FISoundChannel* chan) override;
+
+public:
+    SWSoundEngine()
+    {
+        S_Rolloff.RolloffType = ROLLOFF_Doom;  
+        S_Rolloff.MinDistance = 0;            // These are the default values, SW uses a few different rolloff settings.
+        S_Rolloff.MaxDistance = 1187;
+    }
+};
+
+//==========================================================================
+//
+//
+// 
+//==========================================================================
+
+TArray<uint8_t> SWSoundEngine::ReadSound(int lumpnum)
+{
+    auto wlump = fileSystem.OpenFileReader(lumpnum);
+    return wlump.Read();
+}
+
+void SWSoundEngine::ChannelEnded(FISoundChannel* chan)
+{
+    // if this channel belongs to an ambient sound we have to delete the reference to it.
+    for (auto amb : ambients)
+    {
+        if (amb->sndChan == chan)
+        {
+            amb->sndChan = nullptr;
+        }
+    }
+    SoundEngine::ChannelEnded(chan);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void InitFX(void)
+{
+    if (soundEngine) return; // just in case.
+    soundEngine = new SWSoundEngine;
+
+    auto &S_sfx = soundEngine->GetSounds();
+    S_sfx.Resize(countof(voc));
+    for (auto& sfx : S_sfx) { sfx.Clear(); sfx.lumpnum = sfx_empty; }
+    for (size_t i = 1; i < countof(voc); i++)
+    {
+        auto& entry = voc[i];
+        auto lump = fileSystem.FindFile(entry.name);
+        if (lump > 0)
+        {
+            auto& newsfx = S_sfx[i];
+            newsfx.name = entry.name;
+            newsfx.lumpnum = lump;
+            newsfx.NearLimit = 6;
+            newsfx.bTentative = false;
+        }
+    }
+    soundEngine->HashSounds();
+    for (auto& sfx : S_sfx)
+    {
+        soundEngine->CacheSound(&sfx);
+    }
+}
+
 
 
 //==========================================================================
@@ -316,8 +511,8 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
     {
         PLAYERp pp = Player + screenpeek;
         FVector3 campos = GetSoundPos((vec3_t*)pp);
+        vec3_t *vpos = nullptr;
 
-        //S_GetCamera(&campos, nullptr, &camsect);
         if (vel) vel->Zero();
 
         if (type == SOURCE_Unattached)
@@ -328,49 +523,50 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         else if (type == SOURCE_Actor || type == SOURCE_Player)
         {
+            vpos = type == SOURCE_Actor ? &((SPRITEp)source)->pos : (vec3_t*)&((PLAYERp)source)->posx;
+            FVector3 npos = GetSoundPos(vpos);
+
+            *pos = npos;
+            if (!(chanflags & CHANEXF_NODOPPLER) && vel)
+            {
+                // Hack alert. Velocity may only be set if a) the sound is already running and b) an actual sound channel is modified.
+                // It remains to be seen if this is actually workable. I have my doubts. The velocity should be taken from a stable source.
+                if (chan && !(chanflags & (CHANF_JUSTSTARTED | CHANF_EVICTED)))
+                {
+                    *vel = (npos - FVector3(pt[0], pt[1], pt[2])) * 40; // SW ticks 40 times a second.
+                    chan->Point[0] = npos.X;
+                    chan->Point[1] = npos.Y;
+                    chan->Point[2] = npos.Z;
+                }
+            }
+        }
+        else if (type == SOURCE_Ambient)
+        {
+            auto sp = ((AmbientSound*)source)->sp;
             vec3_t* vpos = type == SOURCE_Actor ? &((SPRITEp)source)->pos : (vec3_t*)&((PLAYERp)source)->posx;
             FVector3 npos = GetSoundPos(vpos);
 
             // Can the ambient sound see the player?  If not, tone it down some.
-            if ((chanflags & CHANF_LOOP) && (chanflags & CHANEXF_AMBIENT) && type == SOURCE_Actor)
+            if ((chanflags & CHANF_LOOP))
             {
-                auto sp = (SPRITEp)source;
-                //MONO_PRINT("PlaySound:Checking sound cansee");
                 if (!FAFcansee(vpos->x, vpos->y, vpos->z, sp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
                 {
-                    //MONO_PRINT("PlaySound:Reducing sound distance");
                     auto distvec = npos - campos;
-                    // Special Cases
                     npos = campos + distvec * 1.75f;  // Play more quietly
-                    chanflags |= CHANEXF_NODOPPLER; // Ambient sounds should be stationary, but let's make sure that no doppler gets applied after messing up the position.
                 }
             }
-
-            if (chanflags & CHANEXF_DONTPAN)
-            {
-                // For unpanned sounds the volume must be set directly and the position taken from the listener.
-                *pos = campos;
-                auto sdist = SoundDist(vpos->x, vpos->y, vpos->z, voc[chanSound].voc_distance);
-                if (chan) SetVolume(chan, (255 - sdist) * (1 / 255.f));
-            }
-            else
-            {
-                *pos = npos;
-                // Doppler only makes sense for sounds that are actually positioned in the world (i.e. not in combination with DONTPAN)
-                if (!(chanflags & CHANEXF_NODOPPLER) && vel)
-                {
-                    // Hack alert. Velocity may only be set if a) the sound is already running and b) an actual sound channel is modified.
-                    // It remains to be seen if this is actually workable. I have my doubts. The velocity should be taken from a stable source.
-                    if (chan && !(chanflags & (CHANF_JUSTSTARTED|CHANF_EVICTED)))
-                    {
-                        *vel = (npos - FVector3(pt[0], pt[1], pt[2])) * 40; // SW ticks 40 times a second.
-                        chan->Point[0] = npos.X;
-                        chan->Point[1] = npos.Y;
-                        chan->Point[2] = npos.Z;
-                    }
-                }
-            }
+            *pos = npos;
         }
+
+        if (chanflags & CHANEXF_DONTPAN)
+        {
+            // For unpanned sounds the volume must be set directly and the position taken from the listener.
+            *pos = campos;
+            auto sdist = SoundDist(vpos->x, vpos->y, vpos->z, voc[chanSound].voc_distance);
+            if (chan) SetVolume(chan, (255 - sdist) * (1 / 255.f));
+        }
+
+
         if ((chanflags & CHANF_LISTENERZ) && campos != nullptr && type != SOURCE_None)
         {
             pos->Y = campos.Y;
@@ -402,40 +598,8 @@ void DoUpdateSounds(void)
     listener.ListenerObject = pp;
     soundEngine->SetListener(listener);
 
-    soundEngine->EnumerateChannels([](FSoundChan* chan)
-        {
-            if (chan->ChanFlags & EChanFlags::FromInt(CHANEXF_INTERMIT))
-            {
-                DoTimedSound(chan);
-            }
-
-            if (chan->SoundID == DIGI_WHIPME && chan->SourceType == SOURCE_Actor)
-            {
-                auto sp = (SPRITEp)chan->Source;
-                PLAYERp pp = Player + screenpeek;
-                if (!FAFcansee(sp->pos.x, sp->pos.y, sp->pos.z, sp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
-                {
-                    soundEngine->EvictChannel(chan);
-                }
-                else if (chan->ChanFlags & CHANF_EVICTED)
-                {
-                    soundEngine->RestartChannel(chan);
-                }
-            }
-            return false;
-        });
+    UpdateAmbients();
     soundEngine->UpdateSounds((int)totalclock);
-}
-
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
-float S_ConvertPitch(int lpitch)
-{
-    return pow(2, lpitch / 1200.);
 }
 
 //==========================================================================
@@ -444,130 +608,67 @@ float S_ConvertPitch(int lpitch)
 //
 //==========================================================================
 
-int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t *pos, Voc3D_Flags flags, int channel)
+int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, int channel)
 {
-    VOC_INFOp vp;
-    int pitch = 0;
-    short angle, sound_dist;
-    int tx, ty, tz;
-    uint8_t priority;
-    int maxtics = 0;
-    EChanFlags cflags = channel == 8 ?CHANF_OVERLAP : CHANF_NONE;  // for the default channel we do not want to have sounds stopping each other.
+    if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(num))
+        return -1;
 
     // Weed out parental lock sounds if PLock is active
     if (adult_lockout || Global_PLock)
     {
-        unsigned i;
-
-        for (i=0; i<sizeof(PLocked_Sounds); i++)
+        for (unsigned i = 0; i < sizeof(PLocked_Sounds); i++)
         {
             if (num == PLocked_Sounds[i])
                 return -1;
         }
     }
 
-    if (Prediction || !SoundEnabled())
-        return -1;
-
-    if (TEST(flags,v3df_ambient) && !TEST(flags,v3df_nolookup))  // Look for invalid ambient numbers
+    auto vp = &voc[num];
+    int sourcetype = SOURCE_None;
+    EChanFlags cflags = channel == 8 ? CHANF_OVERLAP : CHANF_NONE;  // for the default channel we do not want to have sounds stopping each other.
+    void* source = nullptr;
+    // If the sound is not supposd to be positioned, it may not be linked to the launching actor.
+    if (!(flags & v3df_follow))
     {
-        // Ambient sounds need special treatment
-        if (!snd_ambience) return -1;
-        if (num < 0 || num > MAX_AMBIENT_SOUNDS)
+        if (sp && !pos)
         {
-            sprintf(ds,"Invalid or out of range ambient sound number %d\n",num);
-            PutStringInfo(Player+screenpeek, ds);
-            return -1;
+            pos = &sp->pos;
+            sp = nullptr;
         }
-        maxtics = STD_RANDOM_RANGE(ambarray[num].maxtics);
-
-        // If the ambient flag is set, do a name conversion to point to actual
-        // digital sound entry.
-        flags |= ambarray[num].ambient_flags;   // Add to flags if any
-        num = ambarray[num].diginame;
-        cflags |= EChanFlags::FromInt(CHANEXF_AMBIENT); // flag the sound as being an ambient sound.
-    }
-    //else
-    {
-        if (!soundEngine->isValidSoundId(num))
+        else if (pp && !pos)
         {
-            return -1;
-        }
-
-        vp = &voc[num];
-        int sourcetype = SOURCE_None;
-        void* source = nullptr;
-        // If the sound is not supposd to be positioned, it may not be linked to the launching actor.
-        if (!(flags & v3df_follow))
-        {
-            if (sp && !pos)
-            {
-                pos = &sp->pos;
-                sp = nullptr;
-            }
-            else if (pp && !pos)
-            {
-                pos = (vec3_t*)&pp->posx;
-                pp = nullptr;
-            }
-        }
-
-        if (pos != nullptr)
-        {
-            sourcetype = SOURCE_Unattached;
-        }
-        else if (sp != nullptr)
-        {
-            source = sp;
-            sourcetype = SOURCE_Actor;
-        }
-        else if (pp != nullptr)
-        {
-            source = pp;
-            sourcetype = SOURCE_Player;
-        }
-        // Otherwise it's an unpositioned sound.
-
-        if (!(flags & v3df_doppler))
-        {
-            cflags |= EChanFlags::FromInt(CHANEXF_NODOPPLER);    // this must ensure that CalcPosVel always zeros the velocity.
-        }
-        if (flags & v3df_dontpan)
-        {
-            cflags |= EChanFlags::FromInt(CHANEXF_DONTPAN);      // beware of hackery to emulate this. 
-        }
-        /*
-        if (flags & v3df_init)
-        {
-            // this only gets used for starting looped sounds that are outside hearing range - something the sound engine handles transparently.
-        }
-        */
-        if (vp->voc_flags & vf_loop)
-        {
-            cflags |= CHANF_LOOP;                               // with the new sound engine these can just be started and don't have to be stopped ever.
-        }
-
-        if (vp->pitch_hi <= vp->pitch_lo)
-            pitch = vp->pitch_lo;
-        else if (vp->pitch_hi != vp->pitch_lo)
-            pitch = vp->pitch_lo + (STD_RANDOM_RANGE(vp->pitch_hi - vp->pitch_lo));
-
-        float fpitch = S_ConvertPitch(pitch);
-
-        auto rolloff = GetRolloff(vp->voc_distance);
-        FVector3 spos = pos ? GetSoundPos(pos) : FVector3(0, 0, 0);
-        auto chan = soundEngine->StartSound(sourcetype, source, &spos, CHAN_BODY, cflags, num, 1.f, ATTN_NORM, &rolloff, fpitch);
-        if (chan)
-        {
-            if (flags & v3df_intermit)
-            {
-                chan->ChanFlags |= CHANF_VIRTUAL | EChanFlags::FromInt(CHANEXF_INTERMIT);   // for intermittent sounds this must be set after starting the sound so that it actually plays.
-            }
-            chan->UserData[0] = maxtics; // counter for intermittent delay.
-            chan->UserData[1] = 0;
+            pos = (vec3_t*)&pp->posx;
+            pp = nullptr;
         }
     }
 
+    if (pos != nullptr)
+    {
+        sourcetype = SOURCE_Unattached;
+    }
+    else if (sp != nullptr)
+    {
+        source = sp;
+        sourcetype = SOURCE_Actor;
+    }
+    else if (pp != nullptr)
+    {
+        source = pp;
+        sourcetype = SOURCE_Player;
+    }
+    // Otherwise it's an unpositioned sound.
+
+    if (flags & v3df_doppler) cflags |= EChanFlags::FromInt(CHANEXF_NODOPPLER);    // this must ensure that CalcPosVel always zeros the velocity.
+    if (flags & v3df_dontpan) cflags |= EChanFlags::FromInt(CHANEXF_DONTPAN);      // beware of hackery to emulate this. 
+    if (vp->voc_flags & vf_loop) cflags |= CHANF_LOOP;                               // with the new sound engine these can just be started and don't have to be stopped ever.
+
+    int pitch = 0;
+    if (vp->pitch_hi <= vp->pitch_lo) pitch = vp->pitch_lo;
+    else if (vp->pitch_hi != vp->pitch_lo) pitch = vp->pitch_lo + (STD_RANDOM_RANGE(vp->pitch_hi - vp->pitch_lo));
+
+    auto rolloff = GetRolloff(vp->voc_distance);
+    FVector3 spos = pos ? GetSoundPos(pos) : FVector3(0, 0, 0);
+    soundEngine->StartSound(sourcetype, source, &spos, CHAN_BODY, cflags, num, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
     return 1;
 }
 
@@ -631,46 +732,6 @@ void DeleteNoFollowSoundOwner(short spritenum)
 {
     SPRITEp sp = &sprite[spritenum];
     soundEngine->StopSound(SOURCE_Actor, sp, -1); // all non-follow sounds are SOURCE_Unattached
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void StopAmbientSound(void)
-{
-    soundEngine->EnumerateChannels([](FSoundChan* chan)
-        {
-            if (chan->ChanFlags & EChanFlags::FromInt(CHANEXF_AMBIENT))
-            {
-                soundEngine->StopChannel(chan);
-            }
-            return false;
-        });
-}
-
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void StartAmbientSound(void)
-{
-    short i, nexti;
-    extern SWBOOL InMenuLevel;
-
-    if (InMenuLevel) return; // Don't restart ambience if no level is active! Will crash game.
-
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_AMBIENT], i, nexti)
-    {
-        SPRITEp sp = &sprite[i];
-
-        PlaySound(sp->lotag, sp, v3df_ambient | v3df_init | v3df_doppler | v3df_follow);
-    }
 }
 
 //==========================================================================

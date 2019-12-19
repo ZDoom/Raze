@@ -174,8 +174,7 @@ struct FSoundChan : public FISoundChannel
 	uint8_t		SourceType;
 	float		LimitRange;
 	const void *Source;
-	float Point[3];	// Sound is not attached to any source, can also be used as auxiliary storage for sounds with a real source.
-	int UserData[2];	// storage for user-specific data (Shadow Warrior's intermittent sounds use this as a counter.
+	float Point[3];	// Sound is not attached to any source.
 };
 
 
@@ -253,6 +252,7 @@ private:
 	void LinkChannel(FSoundChan* chan, FSoundChan** head);
 	void UnlinkChannel(FSoundChan* chan);
 	void ReturnChannel(FSoundChan* chan);
+	void RestartChannel(FSoundChan* chan);
 	void RestoreEvictedChannel(FSoundChan* chan);
 
 	bool IsChannelUsed(int sourcetype, const void* actor, int channel, int* seen);
@@ -272,7 +272,6 @@ protected:
 
 public:
 	virtual ~SoundEngine() = default;
-	void EvictChannel(FSoundChan *chan);
 	void EvictAllChannels();
 
 	void StopChannel(FSoundChan* chan);
@@ -292,7 +291,6 @@ public:
 	void SetVolume(FSoundChan* chan, float vol);
 
 	FSoundChan* GetChannel(void* syschan);
-	void RestartChannel(FSoundChan* chan);
 	void RestoreEvictedChannels();
 	void CalcPosVel(FSoundChan* chan, FVector3* pos, FVector3* vel);
 
