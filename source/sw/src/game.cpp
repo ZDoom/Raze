@@ -1516,9 +1516,6 @@ void LogoLevel(void)
     DSPRINTF(ds,"LogoLevel...");
     MONO_PRINT(ds);
 
-    // PreCache Anim
-    LoadAnm(0, &fin);
-
 	auto pal = fileSystem.LoadFile("3drealms.pal", 0);
 	if (pal.Size() >= 768)
     {

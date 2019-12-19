@@ -222,45 +222,6 @@ void AnimZilla(int frame, int numframes)
     }
 }
 
-unsigned char *LoadAnm(short anim_num, int *lengthp)
-{
-    int length;
-    unsigned char *animbuf, *palptr;
-    int i,j,k;
-
-    DSPRINTF(ds,"LoadAnm");
-    MONO_PRINT(ds);
-
-    // this seperate allows the anim to be precached easily
-
-    ANIMnum = anim_num;
-
-    // lock it
-
-    int file = fileSystem.FindFile(ANIMname[ANIMnum]);
-    if (file < 0) return nullptr;
-    *lengthp = length = fileSystem.FileLength(file);
-
-    if (anm_ptr[anim_num] == 0)
-    {
-        auto handle = fileSystem.OpenFileReader(file);
-        if (!handle.isOpen())
-            return NULL;
-
-		buffer.Resize(length + sizeof(anim_t));
-		anm_ptr[anim_num] = (anim_t*)buffer.Data();
-        animbuf = (unsigned char *)((intptr_t)anm_ptr[anim_num] + sizeof(anim_t));
-
-        handle.Read(animbuf, length);
-    }
-    else
-    {
-        animbuf = (unsigned char *)((intptr_t)anm_ptr[anim_num] + sizeof(anim_t));
-    }
-
-    return animbuf;
-}
-
 void
 playanm(short anim_num)
 {
@@ -279,14 +240,19 @@ playanm(short anim_num)
     DSPRINTF(ds,"PlayAnm");
     MONO_PRINT(ds);
 
-    animbuf = LoadAnm(anim_num, &length);
-    if (!animbuf)
-        return;
+    TArray<uint8_t> buffer;
+    auto fr = fileSystem.OpenFileReader(ANIMname[ANIMnum], 0);
+
+    if (!fr.isOpen())
+        goto ENDOFANIMLOOP;
+
+    buffer = fr.ReadPadded(1);
+    fr.Close();
 
     DSPRINTF(ds,"PlayAnm - Palette Stuff");
     MONO_PRINT(ds);
 
-    ANIM_LoadAnim(animbuf, length);
+    ANIM_LoadAnim(buffer.Data(), buffer.Size()-1);
     ANIMnumframes = ANIM_NumFrames();
     numframes = ANIMnumframes;
 
@@ -315,14 +281,18 @@ playanm(short anim_num)
             switch (ANIMnum)
             {
             case ANIM_INTRO:
-				if (I_GeneralTrigger())
-					I_GeneralTriggerClear();
+                if (I_GeneralTrigger())
+                {
+                    I_GeneralTriggerClear();
                     goto ENDOFANIMLOOP;
+                }
                 break;
             case ANIM_SERP:
-				if (I_EscapeTrigger())
-					I_EscapeTriggerClear();
+                if (I_EscapeTrigger())
+                {
+                    I_EscapeTriggerClear();
                     goto ENDOFANIMLOOP;
+                }
                 break;
             }
 
@@ -345,7 +315,7 @@ playanm(short anim_num)
             break;
         }
 
-		TileFiles.tileSetExternal(ANIM_TILE(ANIMnum), 200, 320, ANIM_DrawFrame(1));
+		TileFiles.tileSetExternal(ANIM_TILE(ANIMnum), 200, 320, ANIM_DrawFrame(i));
 		tileInvalidate(ANIM_TILE(ANIMnum), 0, 1<<4);
 
         rotatesprite(0 << 16, 0 << 16, 65536L, 512, ANIM_TILE(ANIMnum), 0, 0, 2 + 4 + 8 + 16 + 64, 0, 0, xdim - 1, ydim - 1);
