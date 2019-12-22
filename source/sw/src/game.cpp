@@ -714,7 +714,7 @@ void MultiSharewareCheck(void)
     if (!SW_SHAREWARE) return;
     if (numplayers > 4)
     {
-#ifdef RENDERTYPEWIN
+#if 1 /* defined RENDERTYPEWIN */
         wm_msgbox(apptitle,"To play a Network game with more than 4 players you must purchase "
                   "the full version.  Read the Ordering Info screens for details.");
 #else
@@ -2536,7 +2536,7 @@ void _Assert(const char *expr, const char *strFile, unsigned uLine)
 
     TerminateGame();
 
-#if 1 //def RENDERTYPEWIN
+#if 1 /* defined RENDERTYPEWIN */
     wm_msgbox(apptitle, "%s", ds);
 #else
     printf("Assertion failed: %s\n %s, line %u\n", expr, strFile, uLine);
@@ -2553,7 +2553,7 @@ void _ErrMsg(const char *strFile, unsigned uLine, const char *format, ...)
     //MONO_PRINT(ds);
     TerminateGame();
 
-#if 1 //def RENDERTYPEWIN
+#if 1 /* defined RENDERTYPEWIN */
     {
         char msg[256], *p;
         Bsnprintf(msg, sizeof(msg), "Error: %s, line %u\n", strFile, uLine);
