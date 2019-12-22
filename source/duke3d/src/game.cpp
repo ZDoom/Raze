@@ -65,7 +65,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef _WIN32
 # include <shellapi.h>
 # define UPDATEINTERVAL 604800 // 1w
-# include "win32/winbits.h"
 #else
 # ifndef GEKKO
 #  include <sys/ioctl.h>

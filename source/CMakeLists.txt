@@ -474,7 +474,6 @@ endif()
 # Start defining source files for Demolition
 set( PLAT_WIN32_SOURCES
 	glad/src/glad_wgl.c
-	platform/win32/winbits.cpp
 	platform/win32/i_specialpaths.cpp
 	platform/win32/startwin.game.cpp
 	
