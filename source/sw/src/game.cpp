@@ -924,6 +924,8 @@ bool InitGame()
     if (enginePostInit())
         SW_FatalEngineError();
 
+    palettePostLoadLookups();
+
     DemoModeMenuInit = TRUE;
     // precache as much stuff as you can
     if (UserMapName[0] == '\0')
