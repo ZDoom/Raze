@@ -3,6 +3,11 @@
 #include <algorithm>
 #include <stdint.h>
 
+#ifdef max
+#undef min
+#undef max
+#endif
+
 struct PalEntry
 {
 	PalEntry() = default;

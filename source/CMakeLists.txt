@@ -442,9 +442,9 @@ endif()
 
 # Ugh... These precompiled dependencies need to go.
 if (WIN32)
-	include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
+	include_directories( "platform/win32" "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
 else ()
-include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
+	include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
 endif()
 
 
@@ -474,8 +474,26 @@ endif()
 # Start defining source files for Demolition
 set( PLAT_WIN32_SOURCES
 	glad/src/glad_wgl.c
-	platform/win32/i_specialpaths.cpp
 	platform/win32/startwin.game.cpp
+	platform/win32/base_sysfb.cpp
+	platform/win32/gl_sysfb.cpp
+	platform/win32/hardware.cpp
+	platform/win32/i_crash.cpp
+	platform/win32/i_dijoy.cpp
+	platform/win32/i_input.cpp
+	platform/win32/i_keyboard.cpp
+	platform/win32/i_main.cpp
+	platform/win32/i_mouse.cpp
+	platform/win32/i_rawps2.cpp
+	platform/win32/i_specialpaths.cpp
+	platform/win32/i_system.cpp
+	platform/win32/i_xinput.cpp
+	platform/win32/startwin.game.cpp
+	platform/win32/st_start.cpp
+	platform/win32/st_start_util.cpp
+	platform/win32/win32basevideo.cpp
+	platform/win32/win32glvideo.cpp
+	platform/win32/win32vulkanvideo.cpp
 	
 	# This needs a rework anyway in order to consolidate the startup dialogs so don't bother to sort in properly.
 	#startosx.game.mm
@@ -616,8 +634,10 @@ file( GLOB HEADER_FILES
 	common/sound/backend/*.h
 	common/menu/*.h
 	common/input/*.h
+	common/rendering/*.h
 
 	build/src/*.h
+	platform/win32/*.h
 	thirdparty/include/*.h
 	thirdparty/include/*.hpp
 	thirdparty/imgui/*.h
@@ -632,6 +652,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
 	sc_man_scanner.h
 	common/utility/sc_man_scanner.re
+	platform/win32/demolition.natvis
 )
 
 
@@ -881,6 +902,7 @@ include_directories(
 	common/dobject
 	common/menu
 	common/input
+	common/rendering
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa

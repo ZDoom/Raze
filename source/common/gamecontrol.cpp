@@ -569,3 +569,48 @@ CCMD(snd_reset)
 	MUS_ResumeSaved();
 }
 
+//==========================================================================
+//
+// S_SetSoundPaused
+//
+// Called with state non-zero when the app is active, zero when it isn't.
+//
+//==========================================================================
+
+void S_SetSoundPaused(int state)
+{
+#if 0
+	if (state)
+	{
+		if (paused == 0)
+		{
+			S_ResumeSound(true);
+			if (GSnd != nullptr)
+			{
+				GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
+			}
+		}
+	}
+	else
+	{
+		if (paused == 0)
+		{
+			S_PauseSound(false, true);
+			if (GSnd != nullptr)
+			{
+				GSnd->SetInactive(gamestate == GS_LEVEL || gamestate == GS_TITLELEVEL ?
+					SoundRenderer::INACTIVE_Complete :
+					SoundRenderer::INACTIVE_Mute);
+			}
+		}
+	}
+	if (!netgame
+#ifdef _DEBUG
+		&& !demoplayback
+#endif
+		)
+	{
+		pauseext = !state;
+	}
+#endif
+}

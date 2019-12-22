@@ -245,7 +245,23 @@ void I_Error(const char *error, ...)
 
 	throw std::runtime_error(errortext);
 }
- 
+
+void I_FatalError(const char* error, ...)
+{
+    va_list argptr;
+    char errortext[MAX_ERRORTEXT];
+
+    va_start(argptr, error);
+    vsnprintf(errortext, MAX_ERRORTEXT, error, argptr);
+    va_end(argptr);
+#ifdef _WIN32
+    OutputDebugStringA(errortext);
+#endif
+
+    throw std::runtime_error(errortext);
+}
+
+
 #ifdef _WIN32
 # if SDL_MAJOR_VERSION != 1
 //

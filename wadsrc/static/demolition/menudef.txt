@@ -920,7 +920,7 @@ OptionString "Cursors"
 OptionMenu "MouseOptions" //protected
 {
 	Title "$MOUSEMNU_TITLE"
-	Option "$MOUSEMNU_ENABLEMOUSE",		"in_mouse", "YesNo"
+	//Option "$MOUSEMNU_ENABLEMOUSE",		"in_mouse", "YesNo"
 	Option "$MOUSEMNU_MOUSEINMENU",		"m_use_mouse", "MenuMouse", "use_mouse"
 	Option "$MOUSEMNU_SHOWBACKBUTTON",	"m_show_backbutton", "Corners", "use_mouse"
 	// todo Option "$MOUSEMNU_CURSOR",			"vid_cursor", "Cursors"

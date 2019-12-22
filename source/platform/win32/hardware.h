@@ -1,8 +1,8 @@
 /*
-** version.h
+** hardware.h
 **
 **---------------------------------------------------------------------------
-** Copyright 1998-2007 Randy Heit
+** Copyright 1998-2006 Randy Heit
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -31,54 +31,10 @@
 **
 */
 
-#ifndef __VERSION_H__
-#define __VERSION_H__
+#ifndef __HARDWARE_H__
+#define __HARDWARE_H__
 
-const char *GetGitDescription();
-const char *GetGitHash();
-const char *GetGitTime();
-const char *GetVersionString();
+#include "i_video.h"
+#include "v_video.h"
 
-/** Lots of different version numbers **/
-
-#define VERSIONSTR "0.1.0"
-
-// The version as seen in the Windows resource
-#define RC_FILEVERSION 0,1,0,0
-#define RC_PRODUCTVERSION 0,1,0,0
-#define RC_PRODUCTVERSION2 VERSIONSTR
-// These are for content versioning.
-#define VER_MAJOR 0
-#define VER_MINOR 0
-#define VER_REVISION 1
-
-// More stuff that needs to be different for derivatives.
-#define GAMENAME "Demolition"
-#define WGAMENAME L"Demolition"
-#define GAMENAMELOWERCASE "demolition"
-#define FORUM_URL "http://forum.zdoom.org/"
-#define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"	// fixme before release!!!
-
-#define SAVESIG_DN3D "Demolition.Duke"
-#define SAVESIG_BLD "Demolition.Blood"
-#define SAVESIG_RR "Demolition.Redneck"
-#define SAVESIG_SW "Demolition.SW"
-
-#define MINSAVEVER_DN3D 1
-#define MINSAVEVER_BLD 1
-#define MINSAVEVER_RR 1
-#define MINSAVEVER_SW 1
-
-#define SAVEVER_DN3D 1
-#define SAVEVER_BLD 1
-#define SAVEVER_RR 1
-#define SAVEVER_SW 1
-
-#if defined(__APPLE__) || defined(_WIN32)
-#define GAME_DIR GAMENAME
-#else
-#define GAME_DIR ".config/" GAMENAMELOWERCASE
-#endif
-
-
-#endif //__VERSION_H__
+#endif	// __HARDWARE_H__

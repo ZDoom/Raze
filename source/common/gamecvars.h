@@ -86,7 +86,7 @@ EXTERN_CVAR(Float, vid_brightness)
 
 
 EXTERN_CVAR(Bool, in_joystick)
-EXTERN_CVAR(Bool, in_mouse)
+EXTERN_CVAR(Int, in_mouse)
 EXTERN_CVAR(Int, in_mousebias)
 EXTERN_CVAR(Int, in_mousedeadzone)
 EXTERN_CVAR(Bool, in_mouseflip)

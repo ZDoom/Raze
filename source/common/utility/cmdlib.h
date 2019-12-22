@@ -26,6 +26,8 @@ bool DirEntryExists (const char *pathname, bool *isdir = nullptr);
 
 extern	FString progdir;
 
+static void	inline FixPathSeperator (FString &path) { path.ReplaceChars('\\', '/'); }
+
 void 	DefaultExtension (FString &path, const char *extension);
 void NormalizeFileName(FString &str);
 
@@ -37,7 +39,10 @@ bool	IsNum (const char *str);		// [RH] added
 
 bool CheckWildcards (const char *pattern, const char *text);
 
-const char* myasctime();
+void FormatGUID (char *buffer, size_t buffsize, const GUID &guid);
+
+const char *myasctime ();
+
 int strbin (char *str);
 FString strbin1 (const char *start);
 

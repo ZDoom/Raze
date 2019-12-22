@@ -34,6 +34,7 @@
 #ifndef __C_DISPATCH_H__
 #define __C_DISPATCH_H__
 
+#include <functional>
 #include "c_console.h"
 #include "zstring.h"
 #include "c_commandline.h"
