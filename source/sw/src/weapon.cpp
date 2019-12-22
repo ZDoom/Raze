@@ -4949,8 +4949,11 @@ SetSuicide(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
-    SET(u->Flags, SPR_SUICIDE);
-    u->RotNum = 0;
+    if (u != nullptr)
+    {
+        SET(u->Flags, SPR_SUICIDE);
+        u->RotNum = 0;
+    }
     ChangeState(SpriteNum, s_Suicide);
 #else
     // this will NOT work because
