@@ -10157,6 +10157,9 @@ void videoNextPage(void)
 
 int32_t qloadkvx(int32_t voxindex, const char *filename)
 {
+    if ((unsigned)voxindex >= MAXVOXELS)
+        return -1;
+
     auto fil = fileSystem.OpenFileReader(filename, 0);
     if (!fil.isOpen())
         return -1;
