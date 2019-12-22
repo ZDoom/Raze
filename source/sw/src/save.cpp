@@ -400,6 +400,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     MWRITE(headspritestat,sizeof(headspritestat),1,fil);
     MWRITE(prevspritestat,sizeof(prevspritestat),1,fil);
     MWRITE(nextspritestat,sizeof(nextspritestat),1,fil);
+    MWRITE(&tailspritefree,sizeof(tailspritefree),1,fil);
 
     //User information
     for (i = 0; i < MAXSPRITES; i++)
@@ -491,11 +492,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
         else
             MWRITE(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
     }
-
-    int32_t svel = 0, vel = 0, angvel = 0;
-    MWRITE(&vel,sizeof(vel),1,fil);
-    MWRITE(&svel,sizeof(svel),1,fil);
-    MWRITE(&angvel,sizeof(angvel),1,fil);
 
     MWRITE(&loc,sizeof(loc),1,fil);
     //MWRITE(&oloc,sizeof(oloc),1,fil);
@@ -859,6 +855,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     MREAD(headspritestat,sizeof(headspritestat),1,fil);
     MREAD(prevspritestat,sizeof(prevspritestat),1,fil);
     MREAD(nextspritestat,sizeof(nextspritestat),1,fil);
+    MREAD(&tailspritefree,sizeof(tailspritefree),1,fil);
 
     //User information
     memset(User, 0, sizeof(User));
@@ -954,11 +951,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
             MREAD(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
         }
     }
-
-    int32_t svel, vel, angvel;
-    MREAD(&vel,sizeof(vel),1,fil);
-    MREAD(&svel,sizeof(svel),1,fil);
-    MREAD(&angvel,sizeof(angvel),1,fil);
 
     MREAD(&loc,sizeof(loc),1,fil);
 
