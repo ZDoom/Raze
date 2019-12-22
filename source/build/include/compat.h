@@ -750,8 +750,6 @@ typedef struct MAY_ALIAS {
     int16_t x, y;
 } vec2_16_t;
 
-using vec2_16_t = vec2_16_t;
-
 typedef struct {
     uint32_t x, y;
 } vec2u_t;
