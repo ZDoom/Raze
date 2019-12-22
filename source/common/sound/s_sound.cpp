@@ -39,6 +39,7 @@
 #include "s_soundinternal.h"
 #include "m_swap.h"
 #include "superfasthash.h"
+#include "c_cvars.h"
 
 #ifdef _WIN32
 #undef DrawText
@@ -1724,6 +1725,22 @@ void SoundEngine::AddRandomSound(int Owner, TArray<uint32_t> list)
 	S_sfx[Owner].bRandomHeader = true;
 	S_sfx[Owner].NearLimit = -1;
 }
+
+extern ReverbContainer* ForcedEnvironment;
+
+CVAR(Bool, snd_reverb, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+void FX_SetReverb(int strength)
+{
+	if (snd_reverb)
+	{
+		// todo: optimize environments. The original "reverb" was garbage and not usable as reference.
+		if (strength < 64) strength = 0x1400;
+		else if (strength < 192) strength = 0x1500;
+		else strength = 0x1900;
+		ForcedEnvironment = S_FindEnvironment(strength);
+	}
+}
+
 
 #include "basics.h"
 #include "stats.h"

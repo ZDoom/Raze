@@ -2366,5 +2366,4 @@ void I_BuildALResamplersList(FOptionValues* opt)
 #endif
 }
 
-
 #endif // NO_OPENAL
