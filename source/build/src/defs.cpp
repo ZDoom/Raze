@@ -130,7 +130,6 @@ enum scripttoken_t
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
-static int32_t nextvoxid = 0;
 static char *faketilebuffer = NULL;
 static int32_t faketilebuffersiz = 0;
 

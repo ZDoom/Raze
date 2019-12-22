@@ -1116,6 +1116,7 @@ int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, f
 extern GrowArray<char *> g_clipMapFiles;
 #endif
 
+EXTERN int32_t nextvoxid;
 EXTERN intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild
 EXTERN int8_t voxreserve[(MAXVOXELS+7)>>3];
 EXTERN int8_t voxrotate[(MAXVOXELS+7)>>3];

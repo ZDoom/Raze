@@ -784,7 +784,6 @@ void COVERsetbrightness(int bright, unsigned char *pal)
 
 
 static int firstnet = 0;    // JBF
-int nextvoxid = 0;  // JBF
 
 
 static void SW_FatalEngineError(void)

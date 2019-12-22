@@ -49,8 +49,6 @@ BEGIN_SW_NS
 
 //#define COMPUTE_TOTALS    1
 
-extern int nextvoxid;   // JBF: in game.c
-
 ParentalStruct aVoxelArray[MAXTILES];
 
 
