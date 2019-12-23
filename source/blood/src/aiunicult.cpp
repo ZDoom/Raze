@@ -188,7 +188,8 @@ void genDudeProcess(spritetype* pSprite, XSPRITE* pXSprite) {
     if (pXSprite->stateTimer == 0 && pXSprite->aiState->nextState && (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0))
         aiGenDudeNewState(pSprite, pXSprite->aiState->nextState);
 
-    if (pXSprite->health > 0 && ((dudeInfo[pSprite->type - kDudeBase].hinderDamage << 4) <= cumulDamage[pSprite->extra])) {
+    int hinder = ((pExtra->isMelee) ? 25 : 5) << 4;
+    if (pXSprite->health > 0 && hinder <= cumulDamage[pSprite->extra]) {
         pXSprite->data3 = cumulDamage[pSprite->extra];
         RecoilDude(pSprite, pXSprite);
     }

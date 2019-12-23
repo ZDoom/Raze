@@ -589,16 +589,24 @@ void deactivateSizeShrooms(PLAYER* pPlayer) {
 
 
 PLAYER* getPlayerById(short id) {
-    if (id > 0) {
+    
+    // relative to connected players
+    if (id >= 1 && id <= kMaxPlayers) {
+        id = id - 1;
         for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
-            if (id < kMaxPlayers && id == i + 1) return &gPlayer[i]; // relative to connected players
-            else if (id >= kDudePlayer1 && id <= kDudePlayer8 && id == gPlayer[i].pSprite->type) // absolute type
+            if (id == gPlayer[i].nPlayer)
+                return &gPlayer[i]; 
+        }
+        
+    // absolute sprite type
+    } else if (id >= kDudePlayer1 && id <= kDudePlayer8) {
+        for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
+            if (id == gPlayer[i].pSprite->type)
                 return &gPlayer[i];
         }
-
-        if (id >= kDudePlayer1 && id <= kDudePlayer8) viewSetSystemMessage("There is no player #%d", (kDudePlayer8 - id) + kMaxPlayers);
-        else  viewSetSystemMessage("There is no player #%d", id);
     }
+    
+    viewSetSystemMessage("There is no player id #%d", id);
     return NULL;
 }
 

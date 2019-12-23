@@ -1560,8 +1560,8 @@ DUDEINFO dudeInfo[kDudeMax-kDudeBase] =
         618,                                // melee distance
         5,			                        // flee health
         5,			                        // hinder damage
-        0x0100,		                        // change target chance
-        0x0010,		                        // change target to kin chance
+        0x0000,		                        // change target chance
+        0x0000,		                        // change target to kin chance
         0x8000,		                        // alertChance
         0,		                            // lockout
         46603,		                        // frontSpeed
