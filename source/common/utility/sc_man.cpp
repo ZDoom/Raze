@@ -1,14 +1,39 @@
+/* For code that originates from ZDoom the following applies:
+**
+**---------------------------------------------------------------------------
+** Copyright 2005-2016 Randy Heit
+** Copyright 2005-2016 Christoph Oelckers
+** All rights reserved.
+**
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+**    notice, this list of conditions and the following disclaimer.
+** 2. Redistributions in binary form must reproduce the above copyright
+**    notice, this list of conditions and the following disclaimer in the
+**    documentation and/or other materials provided with the distribution.
+** 3. The name of the author may not be used to endorse or promote products
+**    derived from this software without specific prior written permission.
+**
+** THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+** OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+** IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+** INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+** NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**---------------------------------------------------------------------------
+**
+*/
 
-//**************************************************************************
-//**
-//** sc_man.c : Heretic 2 : Raven Software, Corp.
-//**
-//** $RCSfile: sc_man.c,v $
-//** $Revision: 1.3 $
-//** $Date: 96/01/06 03:23:43 $
-//** $Author: bgokey $
-//**
-//**************************************************************************
+
+
+
 
 // HEADER FILES ------------------------------------------------------------
 
@@ -240,11 +265,11 @@ void FScanner::PrepareScript ()
 {
 	// The scanner requires the file to end with a '\n', so add one if
 	// it doesn't already.
-	if (ScriptBuffer.Len() == 0 || ScriptBuffer[ScriptBuffer.Len() - 1] != '\n')
+	if (ScriptBuffer.Len() == 0 || ScriptBuffer.Back() != '\n')
 	{
 		// If the last character in the buffer is a null character, change
 		// it to a newline. Otherwise, append a newline to the end.
-		if (ScriptBuffer.Len() > 0 && ScriptBuffer[ScriptBuffer.Len() - 1] == '\0')
+		if (ScriptBuffer.Len() > 0 && ScriptBuffer.Back() == '\0')
 		{
 			ScriptBuffer.LockBuffer()[ScriptBuffer.Len() - 1] = '\n';
 			ScriptBuffer.UnlockBuffer();
@@ -873,6 +898,76 @@ bool FScanner::Compare (const char *text)
 	return (stricmp (text, String) == 0);
 }
 
+
+//==========================================================================
+//
+// Convenience helpers that parse an entire number including a leading minus or plus sign
+//
+//==========================================================================
+
+bool FScanner::ScanValue(bool allowfloat)
+{
+	bool neg = false;
+	if (!GetToken()) 
+	{
+		return false;
+	}
+	if (TokenType == '-' || TokenType == '+')
+	{
+		neg = TokenType == '-';
+		if (!GetToken())
+		{
+			return false;
+		}
+	}
+	if (TokenType != TK_IntConst && (TokenType != TK_FloatConst || !allowfloat)) 
+	{
+		return false;
+	}
+	if (neg)
+	{
+		Number = -Number;
+		Float = -Float;
+	}
+	return true;
+}
+
+bool FScanner::CheckValue(bool allowfloat) 
+{ 
+	auto savedstate = SavePos();
+	bool res = ScanValue(allowfloat);
+	if (!res) RestorePos(savedstate);
+	return res;
+}
+
+void FScanner::MustGetValue(bool allowfloat)
+{
+	if (!ScanValue(allowfloat)) ScriptError(allowfloat ? "Numeric constant expected" : "Integer constant expected");
+}
+
+bool FScanner::CheckBoolToken()
+{
+	if (CheckToken(TK_True))
+	{
+		Number = 1;
+		Float = 1;
+		return true;
+	}
+	if (CheckToken(TK_False))
+	{
+		Number = 0;
+		Float = 0;
+		return true;
+	}
+	return false;
+}
+
+void FScanner::MustGetBoolToken()
+{
+	if (!CheckBoolToken())
+		ScriptError("Expected true or false");
+}
+
 //==========================================================================
 //
 // FScanner :: TokenName
@@ -977,7 +1072,7 @@ void FScanner::ScriptMessage (const char *message, ...)
 		va_end (arglist);
 	}
 
-	Printf (TEXTCOLOR_RED "Script error, \"%s\" line %d:\n" TEXTCOLOR_RED "%s\n", ScriptName.GetChars(),
+	Printf (TEXTCOLOR_RED "Script error, \"%s\"" TEXTCOLOR_RED " line %d:\n" TEXTCOLOR_RED "%s\n", ScriptName.GetChars(),
 		AlreadyGot? AlreadyGotLine : Line, composed.GetChars());
 }
 
@@ -991,10 +1086,118 @@ void FScanner::CheckOpen()
 {
 	if (ScriptOpen == false)
 	{
-		I_Error ("SC_ call before SC_Open().");
+		I_FatalError ("SC_ call before SC_Open().");
 	}
 }
 
+//==========================================================================
+//
+// a class that remembers a parser position
+//
+//==========================================================================
+int FScriptPosition::ErrorCounter;
+int FScriptPosition::WarnCounter;
+bool FScriptPosition::StrictErrors;	// makes all OPTERROR messages real errors.
+bool FScriptPosition::errorout;		// call I_Error instead of printing the error itself.
+
+
+FScriptPosition::FScriptPosition(FString fname, int line)
+{
+	FileName = fname.GetChars();
+	ScriptLine = line;
+}
+
+FScriptPosition::FScriptPosition(FScanner &sc)
+{
+	FileName = sc.ScriptName;
+	ScriptLine = sc.GetMessageLine();
+}
+
+FScriptPosition &FScriptPosition::operator=(FScanner &sc)
+{
+	FileName = sc.ScriptName;
+	ScriptLine = sc.GetMessageLine();
+	return *this;
+}
+
+//==========================================================================
+//
+// FScriptPosition::Message
+//
+//==========================================================================
+
+void FScriptPosition::Message (int severity, const char *message, ...) const
+{
+	FString composed;
+
+#if 0
+	if (severity == MSG_DEBUGLOG && developer < DMSG_NOTIFY) return;
+	if (severity == MSG_DEBUGERROR && developer < DMSG_ERROR) return;
+	if (severity == MSG_DEBUGWARN && developer < DMSG_WARNING) return;
+	if (severity == MSG_DEBUGMSG && developer < DMSG_NOTIFY) return;
+#endif
+	if (severity == MSG_OPTERROR)
+	{
+		severity = StrictErrors ? MSG_ERROR : MSG_WARNING;
+	}
+	// This is mainly for catching the error with an exception handler.
+	if (severity == MSG_ERROR && errorout) severity = MSG_FATAL;
+
+	if (message == NULL)
+	{
+		composed = "Bad syntax.";
+	}
+	else
+	{
+		va_list arglist;
+		va_start (arglist, message);
+		composed.VFormat (message, arglist);
+		va_end (arglist);
+	}
+	const char *type = "";
+	const char *color;
+	int level = PRINT_HIGH;
+
+	switch (severity)
+	{
+	default:
+		return;
+
+	case MSG_WARNING:
+	case MSG_DEBUGWARN:
+	case MSG_DEBUGERROR:	// This is intentionally not being printed as an 'error', the difference to MSG_DEBUGWARN is only the severity level at which it gets triggered.
+		WarnCounter++;
+		type = "warning";
+		color = TEXTCOLOR_ORANGE;
+		break;
+
+	case MSG_ERROR:
+		ErrorCounter++;
+		type = "error";
+		color = TEXTCOLOR_RED;
+		break;
+
+	case MSG_MESSAGE:
+	case MSG_DEBUGMSG:
+		type = "message";
+		color = TEXTCOLOR_GREEN;
+		break;
+
+	case MSG_DEBUGLOG:
+	case MSG_LOG:
+		type = "message";
+		level = PRINT_LOG;
+		color = "";
+		break;
+
+	case MSG_FATAL:
+		I_Error ("Script error, \"%s\" line %d:\n%s\n",
+			FileName.GetChars(), ScriptLine, composed.GetChars());
+		return;
+	}
+	Printf (level, "%sScript %s, \"%s\" line %d:\n%s%s\n",
+		color, type, FileName.GetChars(), ScriptLine, color, composed.GetChars());
+}
 
 //==========================================================================
 //
@@ -1002,9 +1205,9 @@ void FScanner::CheckOpen()
 //
 //==========================================================================
 
-int ParseHex(const char* hex)
+int ParseHex(const char* hex, FScriptPosition* sc)
 {
-		const char* str;
+	const char* str;
 	int num;
 
 	num = 0;
@@ -1020,7 +1223,8 @@ int ParseHex(const char* hex)
 		else if (*str >= 'A' && *str <= 'F')
 			num += 10 + *str - 'A';
 		else {
-			Printf("Bad hex number: %s\n", hex);
+			if (sc) sc->Message(MSG_WARNING, "Bad hex number: %s", hex);
+			else Printf("Bad hex number: %s\n", hex);
 			return 0;
 		}
 		str++;
@@ -1029,4 +1233,4 @@ int ParseHex(const char* hex)
 	return num;
 }
 
- 
+

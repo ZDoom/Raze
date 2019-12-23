@@ -396,34 +396,6 @@ static INT_PTR CALLBACK NetStartPaneProc (HWND hDlg, UINT msg, WPARAM wParam, LP
 	return FALSE;
 }
 
-//==========================================================================
-//
-// FGraphicalStartupScreen Constructor
-//
-// This doesn't really do anything. The subclass is responsible for
-// creating the resources that will be freed by this class's destructor.
-//
-//==========================================================================
-
-FGraphicalStartupScreen::FGraphicalStartupScreen(int max_progress)
-: FBasicStartupScreen(max_progress, false)
-{
-}
-
-//==========================================================================
-//
-// FGraphicalStartupScreen Destructor
-//
-//==========================================================================
-
-FGraphicalStartupScreen::~FGraphicalStartupScreen()
-{
-	if (StartupScreen != NULL)
-	{
-		DestroyWindow (StartupScreen);
-		StartupScreen = NULL;
-	}
-}
 
 //==========================================================================
 //

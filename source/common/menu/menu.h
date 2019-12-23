@@ -765,6 +765,7 @@ void M_EnableMenu (bool on) ;
 bool M_Responder (event_t *ev);
 void M_Ticker (void);
 void M_Drawer (void);
+void M_PreviousMenu();
 void M_Init (void);
 void M_CreateMenus();
 void M_ActivateMenu(DMenu *menu);

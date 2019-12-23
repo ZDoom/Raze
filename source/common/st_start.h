@@ -41,18 +41,22 @@ class FStartupScreen
 public:
 	static FStartupScreen *CreateInstance(int max_progress);
 
-	FStartupScreen(int max_progress);
-	virtual ~FStartupScreen();
+	FStartupScreen(int max_progress)
+	{
+		MaxPos = max_progress;
+		CurPos = 0;
+		NotchPos = 0;
+	}
+	
+	virtual ~FStartupScreen() = default;
 
-	virtual void Progress();
-	virtual void LoadingStatus(const char *message, int colors); // Used by Heretic only
-	virtual void AppendStatusLine(const char *status);			 // Used by Heretic only
+	virtual void Progress() {}
 
-	virtual void NetInit(const char *message, int num_players);
-	virtual void NetProgress(int count);
-	virtual void NetMessage(const char *format, ...);	// cover for printf
-	virtual void NetDone();
-	virtual bool NetLoop(bool (*timer_callback)(void *), void *userdata);
+	virtual void NetInit(const char *message, int num_players) {}
+	virtual void NetProgress(int count) {}
+	virtual void NetMessage(const char *format, ...) {}	// cover for printf
+	virtual void NetDone() {}
+	virtual bool NetLoop(bool (*timer_callback)(void *), void *userdata) { return false; }
 protected:
 	int MaxPos, CurPos, NotchPos;
 };
@@ -74,17 +78,28 @@ protected:
 	int NetMaxPos, NetCurPos;
 };
 
-class FGraphicalStartupScreen : public FBasicStartupScreen
-{
-public:
-	FGraphicalStartupScreen(int max_progress);
-	~FGraphicalStartupScreen();
-};
-
 
 extern FStartupScreen *StartScreen;
 
-void DeleteStartupScreen();
+
+
+//===========================================================================
+//
+// DeleteStartupScreen
+//
+// Makes sure the startup screen has been deleted before quitting.
+//
+//===========================================================================
+
+inline void DeleteStartupScreen()
+{
+	if (StartScreen != nullptr)
+	{
+		delete StartScreen;
+		StartScreen = nullptr;
+	}
+}
+
 extern void ST_Endoom();
 
 // The entire set of functions here uses native Windows types. These are recreations of those types so that the code doesn't need to be changed more than necessary

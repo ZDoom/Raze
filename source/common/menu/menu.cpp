@@ -948,6 +948,22 @@ void M_MenuSound(EMenuSounds snd)
 //
 //=============================================================================
 
+void M_PreviousMenu()
+{
+	if (DMenu::CurrentMenu != nullptr)
+	{
+		DMenu* parent = DMenu::CurrentMenu->mParentMenu;
+		DMenu::CurrentMenu->Destroy();
+		DMenu::CurrentMenu = parent;
+	}
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
 void M_Init (void) 
 {
 	RegisterDukeMenus();

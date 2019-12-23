@@ -1,8 +1,9 @@
 /*
-** i_gui.cpp
+** resolutionmenu.cpp
+** Basic Custom Resolution Selector for the Menu
 **
 **---------------------------------------------------------------------------
-** Copyright 2008 Randy Heit
+** Copyright 2018 Rachael Alexanderson
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -31,57 +32,61 @@
 **
 */
 
-#include <string.h>
+#include "c_dispatch.h"
+#include "c_cvars.h"
+#include "v_video.h"
+#include "menu/menu.h"
 
-#include <SDL.h>
+CVAR(Int, menu_resolution_custom_width, 640, 0)
+CVAR(Int, menu_resolution_custom_height, 480, 0)
 
-#include "bitmap.h"
-//#include "v_palette.h"
-#include "textures.h"
+EXTERN_CVAR(Bool, vid_fullscreen)
+EXTERN_CVAR(Bool, win_maximized)
+EXTERN_CVAR(Bool, vid_scale_customlinear)
+EXTERN_CVAR(Bool, vid_scale_customstretched)
+EXTERN_CVAR(Int, vid_scale_customwidth)
+EXTERN_CVAR(Int, vid_scale_customheight)
+EXTERN_CVAR(Int, vid_scalemode)
+EXTERN_CVAR(Float, vid_scalefactor)
 
-bool I_SetCursor(FTexture *cursorpic)
+CCMD (menu_resolution_set_custom)
 {
-	static SDL_Cursor *cursor;
-	static SDL_Surface *cursorSurface;
-
-	if (cursorpic != NULL)
+	if (argv.argc() > 2)
 	{
-		auto src = cursorpic->GetBgraBitmap(nullptr);
-		// Must be no larger than 32x32.
-		if (src.GetWidth() > 32 || src.GetHeight() > 32)
-		{
-			return false;
-		}
-
-		if (cursorSurface == NULL)
-			cursorSurface = SDL_CreateRGBSurface (0, 32, 32, 32, MAKEARGB(0,255,0,0), MAKEARGB(0,0,255,0), MAKEARGB(0,0,0,255), MAKEARGB(255,0,0,0));
-
-		SDL_LockSurface(cursorSurface);
-		uint8_t buffer[32*32*4];
-		memset(buffer, 0, 32*32*4);
-		FBitmap bmp(buffer, 32*4, 32, 32);
-		bmp.Blit(0, 0, src);	// expand to 32*32
-		memcpy(cursorSurface->pixels, bmp.GetPixels(), 32*32*4);
-		SDL_UnlockSurface(cursorSurface);
-
-		if (cursor)
-			SDL_FreeCursor (cursor);
-		cursor = SDL_CreateColorCursor (cursorSurface, 0, 0);
-		SDL_SetCursor (cursor);
+		menu_resolution_custom_width = atoi(argv[1]);
+		menu_resolution_custom_height = atoi(argv[2]);
 	}
 	else
 	{
-		if (cursor)
-		{
-			SDL_SetCursor (NULL);
-			SDL_FreeCursor (cursor);
-			cursor = NULL;
-		}
-		if (cursorSurface != NULL)
-		{
-			SDL_FreeSurface(cursorSurface);
-			cursorSurface = NULL;
-		}
+		Printf("This command is not meant to be used outside the menu! But if you want to use it, please specify <x> and <y>.\n");
 	}
-	return true;
+	M_PreviousMenu();
 }
+
+CCMD (menu_resolution_commit_changes)
+{
+	int do_fullscreen = fullscreen;
+	if (argv.argc() > 1)
+	{
+		do_fullscreen = atoi(argv[1]);
+	}
+
+	if (do_fullscreen == false)
+	{
+		vid_scalemode = vid_scale_customlinear;
+		vid_scalefactor = 1.;
+		screen->SetWindowSize(menu_resolution_custom_width, menu_resolution_custom_height);
+		V_OutputResized(screen->GetClientWidth(), screen->GetClientHeight());
+	}
+	else
+	{
+		fullscreen = true;
+		vid_scalemode = 5;
+		vid_scalefactor = 1.;
+		vid_scale_customwidth = menu_resolution_custom_width;
+		vid_scale_customheight = menu_resolution_custom_height;
+		vid_scale_customstretched = false;
+	}
+}
+
+

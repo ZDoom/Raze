@@ -131,8 +131,8 @@ static bool noidle = false;
 LPDIRECTINPUT8			g_pdi;
 LPDIRECTINPUT			g_pdi3;
 
+bool AppActive;
 
-extern bool AppActive;
 int SessionState = 0;
 int BlockMouseMove; 
 
@@ -144,30 +144,6 @@ CVAR (Bool, k_allowfullscreentoggle, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 extern int chatmodeon;
 
-static void I_CheckGUICapture ()
-{
-#if 0
-	bool wantCapt;
-
-	if (menuactive == MENU_Off)
-	{
-		wantCapt = ConsoleState == c_down || ConsoleState == c_falling || chatmodeon;
-	}
-	else
-	{
-		wantCapt = (menuactive == MENU_On || menuactive == MENU_OnNoPause);
-	}
-
-	if (wantCapt != GUICapture)
-	{
-		GUICapture = wantCapt;
-		if (wantCapt && Keyboard != NULL)
-		{
-			Keyboard->AllKeysUp();
-		}
-	}
-#endif
-}
 
 void I_SetMouseCapture()
 {
@@ -762,9 +738,7 @@ void I_StartTic ()
 {
 	BlockMouseMove--;
 	buttonMap.ResetButtonTriggers ();
-	I_CheckGUICapture ();
-	EventHandlerResultForNativeMouse = false;
-	I_CheckNativeMouse (false, EventHandlerResultForNativeMouse);
+	I_CheckNativeMouse (false, false);
 	I_GetEvent ();
 }
 

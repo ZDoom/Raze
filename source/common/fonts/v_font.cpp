@@ -304,7 +304,7 @@ int V_GetColor(const char* cstr)
 			{
 				val[0] = cstr[1 + i * 2];
 				val[1] = cstr[2 + i * 2];
-				c[i] = ParseHex(val);
+				c[i] = ParseHex(val, nullptr);
 			}
 		}
 		else if (len == 4)
@@ -313,7 +313,7 @@ int V_GetColor(const char* cstr)
 			for (i = 0; i < 3; ++i)
 			{
 				val[1] = val[0] = cstr[1 + i];
-				c[i] = ParseHex(val);
+				c[i] = ParseHex(val, nullptr);
 			}
 		}
 		else
@@ -366,7 +366,7 @@ int V_GetColor(const char* cstr)
 					{
 						val[1] = val[0];
 					}
-					c[i] = ParseHex(val);
+					c[i] = ParseHex(val, nullptr);
 				}
 			}
 		}

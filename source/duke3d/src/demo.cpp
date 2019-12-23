@@ -791,7 +791,7 @@ nextdemo_nomenu:
                     // draw status
                     Demo_DisplayProfStatus();
 
-                    if (handleevents_peekkeys())
+                    if (I_GeneralTrigger())
                         Demo_StopProfiling();
                 }
                 else

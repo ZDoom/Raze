@@ -76,7 +76,6 @@ static SDL_version linked;
 
 double g_beforeSwapTime;
 GameInterface* gi;
-FArgs* Args;
 
 void buildkeytranslationtable();;
 
@@ -155,72 +154,6 @@ static SDL_Surface *loadappicon(void);
 uint16_t joydead[9], joysatur[9];
 
 #define MAX_ERRORTEXT 4096
-
-//==========================================================================
-//
-// CalculateCPUSpeed
-//
-// Make a decent guess at how much time elapses between TSC steps. This can
-// vary over runtime depending on power management settings, so should not
-// be used anywhere that truely accurate timing actually matters.
-//
-//==========================================================================
-
-double PerfToSec, PerfToMillisec;
-#include "stats.h"
-
-static void CalculateCPUSpeed()
-{
-    LARGE_INTEGER freq;
-
-    QueryPerformanceFrequency(&freq);
-
-    if (freq.QuadPart != 0)
-    {
-        LARGE_INTEGER count1, count2;
-        cycle_t       ClockCalibration;
-        DWORD         min_diff;
-
-        ClockCalibration.Reset();
-
-        // Count cycles for at least 55 milliseconds.
-        // The performance counter may be very low resolution compared to CPU
-        // speeds today, so the longer we count, the more accurate our estimate.
-        // On the other hand, we don't want to count too long, because we don't
-        // want the user to notice us spend time here, since most users will
-        // probably never use the performance statistics.
-        min_diff = freq.LowPart * 11 / 200;
-
-        // Minimize the chance of task switching during the testing by going very
-        // high priority. This is another reason to avoid timing for too long.
-        SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
-        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
-
-        // Make sure we start timing on a counter boundary.
-        QueryPerformanceCounter(&count1);
-        do
-        {
-            QueryPerformanceCounter(&count2);
-        } while (count1.QuadPart == count2.QuadPart);
-
-        // Do the timing loop.
-        ClockCalibration.Clock();
-        do
-        {
-            QueryPerformanceCounter(&count1);
-        } while ((count1.QuadPart - count2.QuadPart) < min_diff);
-        ClockCalibration.Unclock();
-
-        SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
-        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_NORMAL);
-
-        PerfToSec = double(count1.QuadPart - count2.QuadPart) / (double(ClockCalibration.GetRawCounter()) * freq.QuadPart);
-        PerfToMillisec = PerfToSec * 1000.0;
-    }
-}
-
-
-
 
 //==========================================================================
 //
@@ -578,6 +511,7 @@ static void sighandler(int signum)
 
 int GameMain();
 
+#if 0
 #ifdef _WIN32
 
 int WINAPI WinMain(HINSTANCE , HINSTANCE , LPSTR , int )
@@ -585,58 +519,7 @@ int WINAPI WinMain(HINSTANCE , HINSTANCE , LPSTR , int )
 int main(int argc, char *argv[])
 #endif
 {
-#ifdef _WIN32
-	char* argvbuf;
-	int32_t buildargc =  win_buildargs(&argvbuf);
-	const char** buildargv = (const char**)Xmalloc(sizeof(char*) * (buildargc + 1));
-	char* wp = argvbuf;
-
-	for (bssize_t i = 0; i < buildargc; i++, wp++)
-	{
-		buildargv[i] = wp;
-		while (*wp) wp++;
-	}
-	buildargv[buildargc] = NULL;
-#else
-	auto buildargc = argc;
-	auto buildargv = argv;
-#endif
-
-	Args = new FArgs(buildargc, buildargv);
-
-#if defined _WIN32 && defined SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING
-    // Thread naming interferes with debugging using MinGW-w64's GDB.
-    SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
-#endif
-
-    int32_t r;
-
-    
-#ifndef _WIN32
-    setenv("__GL_THREADED_OPTIMIZATIONS", "1", 0);
-#endif
-    CalculateCPUSpeed();
-
     buildkeytranslationtable();
-
-#ifndef _WIN32	// catching signals is not really helpful on Windows.
-    signal(SIGSEGV, sighandler);
-    signal(SIGILL, sighandler);  /* clang -fcatch-undefined-behavior uses an ill. insn */
-    signal(SIGABRT, sighandler);
-    signal(SIGFPE, sighandler);
-#endif
-
-
-#if defined(HAVE_GTK2)
-    // Pre-initialize SDL video system in order to make sure XInitThreads() is called
-    // before GTK starts talking to X11.
-    uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
-    if (inited == 0)
-        SDL_Init(SDL_INIT_VIDEO);
-    else if (!(inited & SDL_INIT_VIDEO))
-        SDL_InitSubSystem(SDL_INIT_VIDEO);
-    gtkbuild_init(&argc, &argv);
-#endif
 
 	if (initsystem()) Bexit(9);
 	SDL_StartTextInput();
@@ -648,6 +531,7 @@ int main(int argc, char *argv[])
 #endif
 	return r;
 }
+#endif
 
 // The resourge manager in cache1d is far too broken to add some arbitrary file without some adjustment.
 // For now, keep this file here, until the resource management can be redone in a more workable fashion.
@@ -695,117 +579,6 @@ int32_t videoSetVsync(int32_t newSync)
     return newSync;
 }
 #endif
-
-int32_t sdlayer_checkversion(void);
-#if SDL_MAJOR_VERSION != 1
-int32_t sdlayer_checkversion(void)
-{
-#if 0
-    SDL_version compiled;
-
-    SDL_GetVersion(&linked);
-    SDL_VERSION(&compiled);
-
-    if (!Bmemcmp(&compiled, &linked, sizeof(SDL_version)))
-        initprintf("Initializing SDL %d.%d.%d\n",
-            compiled.major, compiled.minor, compiled.patch);
-    else
-    initprintf("Initializing SDL %d.%d.%d"
-               " (built against SDL version %d.%d.%d)\n",
-               linked.major, linked.minor, linked.patch, compiled.major, compiled.minor, compiled.patch);
-
-    if (SDL_VERSIONNUM(linked.major, linked.minor, linked.patch) < SDL_REQUIREDVERSION)
-    {
-        /*reject running under SDL versions older than what is stated in sdl_inc.h */
-        initprintf("You need at least v%d.%d.%d of SDL to run this game\n",SDL_MIN_X,SDL_MIN_Y,SDL_MIN_Z);
-        return -1;
-    }
-
-#endif
-    return 0;
-}
-
-//
-// initsystem() -- init SDL systems
-//
-int32_t initsystem(void)
-{
-    const int sdlinitflags = SDL_INIT_VIDEO;
-
-    if (sdlayer_checkversion())
-        return -1;
-
-    int32_t err = 0;
-    uint32_t inited = SDL_WasInit(sdlinitflags);
-    if (inited == 0)
-        err = SDL_Init(sdlinitflags);
-    else if ((inited & sdlinitflags) != sdlinitflags)
-        err = SDL_InitSubSystem(sdlinitflags & ~inited);
-
-    if (err)
-    {
-        initprintf("Initialization failed! (%s)\nNon-interactive mode enabled\n", SDL_GetError());
-        novideo = 1;
-#ifdef USE_OPENGL
-        nogl = 1;
-#endif
-    }
-
-#if SDL_MAJOR_VERSION > 1
-    SDL_StopTextInput();
-#endif
-
-    atexit(uninitsystem);
-
-    frameplace = 0;
-    lockcount = 0;
-
-    if (!novideo)
-    {
-#ifdef USE_OPENGL
-        if (SDL_GL_LoadLibrary(0))
-        {
-            initprintf("Failed loading OpenGL Driver.  GL modes will be unavailable. Error: %s\n", SDL_GetError());
-            nogl = 1;
-        }
-#endif
-
-#ifndef _WIN32
-        const char *drvname = SDL_GetVideoDriver(0);
-
-        if (drvname)
-            initprintf("Using \"%s\" video driver\n", drvname);
-#endif
-    }
-
-    return 0;
-}
-#endif
-
-
-//
-// uninitsystem() -- uninit SDL systems
-//
-void uninitsystem(void)
-{
-    uninitinput();
-    timerUninit();
-
-    if (appicon)
-    {
-        SDL_FreeSurface(appicon);
-        appicon = NULL;
-    }
-
-    SDL_Quit();
-
-#ifdef USE_OPENGL
-# if SDL_MAJOR_VERSION!=1
-    SDL_GL_UnloadLibrary();
-# endif
-#endif
-}
-
 
 //
 // system_getcvars() -- propagate any cvars that are read post-initialization
@@ -1007,8 +780,6 @@ int32_t initinput(void)
 //
 void uninitinput(void)
 {
-    mouseUninit();
-
     if (controller)
     {
         SDL_GameControllerClose(controller);

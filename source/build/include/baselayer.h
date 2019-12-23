@@ -128,23 +128,23 @@ extern int32_t qsetmode;
 
 #define in3dmode() (qsetmode==200)
 
-int32_t initsystem(void);
-void uninitsystem(void);
 void system_getcvars(void);
 
 extern int32_t g_logFlushWindow;
 
-int32_t handleevents(void);
+void I_GetEvent();
+
+inline int32_t handleevents(void)
+{
+	I_GetEvent();
+	return 0;
+}
+
 int32_t handleevents_peekkeys(void);
 
 int32_t initinput(void);
 void uninitinput(void);
-void joySetCallback(void (*callback)(int32_t,int32_t));
-const char *joyGetName(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=hat
-void joyScanDevices(void);
 
-void mouseInit(void);
-void mouseUninit(void);
 void mouseGrabInput(bool grab);
 void mouseLockToWindow(bool a);
 void mouseMoveToCenter(void);

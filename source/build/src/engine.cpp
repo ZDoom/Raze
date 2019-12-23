@@ -8100,8 +8100,6 @@ void engineUnInit(void)
     Bmemset(basepaltable, 0, sizeof(basepaltable));
     basepaltable[0] = palette;
 
-    uninitsystem();
-
     for (bssize_t i = 0; i < num_usermaphacks; i++)
     {
         Xfree(usermaphacks[i].mhkfile);

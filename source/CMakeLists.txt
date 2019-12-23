@@ -831,12 +831,16 @@ set (PCH_SOURCES
 	common/menu/menuinput.cpp
 	common/menu/messagebox.cpp
 	common/menu/optionmenu.cpp
+	common/menu/resolutionmenu.cpp
 	
-	common/input/i_gui.cpp
-	common/input/i_joystick.cpp
-	common/input/i_input.cpp
+	#common/input/i_joystick.cpp
+	#common/input/i_input.cpp
 	common/input/m_joy.cpp
 	common/input/input.cpp
+	
+	common/rendering/v_video.cpp
+	common/rendering/v_framebuffer.cpp
+	common/rendering/r_videoscale.cpp
 )
 
 if( MSVC )

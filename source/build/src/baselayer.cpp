@@ -12,15 +12,6 @@
 #include "d_event.h"
 #include "../../glbackend/glbackend.h"
 
-// video
-#ifdef _WIN32
-extern "C"
-{
-    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 0x00000001;
-    __declspec(dllexport) DWORD NvOptimusEnablement                = 0x00000001;
-}
-#endif // _WIN32
-
 int32_t g_borderless=2;
 int GUICapture = false;
 

@@ -286,8 +286,8 @@ int GameMain()
 	C_InitConsole(1024, 768, true);
 	FStringf logpath("logfile %sdemolition.log", M_GetDocumentsPath().GetChars());
 	C_DoCommand(logpath);
-	I_StartupJoysticks();
-	mouseInit();
+	//I_StartupJoysticks();
+	//mouseInit();
 
 #ifndef NETCODE_DISABLE
 	gHaveNetworking = !enet_initialize();
