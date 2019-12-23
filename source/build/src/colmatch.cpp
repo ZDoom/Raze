@@ -19,9 +19,9 @@ static uint8_t const * colmatch_palette;
 #define pow2char(x) (1u << (x))
 
 //
-// initfastcolorlookup
+// paletteInitClosestColor
 //
-void initfastcolorlookup_scale(int32_t rscale, int32_t gscale, int32_t bscale)
+void paletteInitClosestColorScale(int32_t rscale, int32_t gscale, int32_t bscale)
 {
     int32_t j = 0;
     for (bssize_t i=256; i>=0; i--)
@@ -33,7 +33,7 @@ void initfastcolorlookup_scale(int32_t rscale, int32_t gscale, int32_t bscale)
         j += FASTPALRGBDIST-(i<<1);
     }
 }
-void initfastcolorlookup_palette(uint8_t const * const pal)
+void paletteInitClosestColorMap(uint8_t const * const pal)
 {
     Bmemset(colhere,0,sizeof(colhere));
     Bmemset(colhead,0,sizeof(colhead));
@@ -51,9 +51,9 @@ void initfastcolorlookup_palette(uint8_t const * const pal)
         colhere[j>>3] |= pow2char(j&7);
     }
 
-    getclosestcol_flush();
+    paletteFlushClosestColor();
 }
-void initfastcolorlookup_gridvectors(void)
+void paletteInitClosestColorGrid(void)
 {
     int i = 0;
     int32_t x, y, z;
@@ -71,18 +71,18 @@ void initfastcolorlookup_gridvectors(void)
 
 #define COLRESULTSIZ 4096
 
-static uint32_t getclosestcol_results[COLRESULTSIZ];
-static int32_t numclosestcolresults;
+static uint32_t colmatchresults[COLRESULTSIZ];
+static int32_t numcolmatchresults;
 
-void getclosestcol_flush(void)
+void paletteFlushClosestColor(void)
 {
-    Bmemset(getclosestcol_results, 0, COLRESULTSIZ * sizeof(uint32_t));
-    numclosestcolresults = 0;
+    Bmemset(colmatchresults, 0, COLRESULTSIZ * sizeof(uint32_t));
+    numcolmatchresults = 0;
 }
 
 // Finds a color index in [0 .. lastokcol] closest to (r, g, b).
 // <lastokcol> must be in [0 .. 255].
-int32_t getclosestcol_lim(int32_t const r, int32_t const g, int32_t const b, int32_t const lastokcol)
+int32_t paletteGetClosestColorUpToIndex(int32_t const r, int32_t const g, int32_t const b, int32_t const lastokcol)
 {
 #ifdef DEBUGGINGAIDS
     Bassert(lastokcol >= 0 && lastokcol <= 255);
@@ -92,37 +92,37 @@ int32_t getclosestcol_lim(int32_t const r, int32_t const g, int32_t const b, int
 
     int mindist = -1;
 
-    int const k = (numclosestcolresults > COLRESULTSIZ) ? COLRESULTSIZ : numclosestcolresults;
+    int const k = (numcolmatchresults > COLRESULTSIZ) ? COLRESULTSIZ : numcolmatchresults;
 
-    if (!numclosestcolresults) goto skip;
+    if (!numcolmatchresults) goto skip;
 
-    if (col == (getclosestcol_results[(numclosestcolresults-1) & (COLRESULTSIZ-1)] & 0x00ffffff))
-        return getclosestcol_results[(numclosestcolresults-1) & (COLRESULTSIZ-1)]>>24;
+    if (col == (colmatchresults[(numcolmatchresults-1) & (COLRESULTSIZ-1)] & 0x00ffffff))
+        return colmatchresults[(numcolmatchresults-1) & (COLRESULTSIZ-1)]>>24;
 
     int i;
 
     for (i = 0; i <= k-4; i+=4)
     {
-        if (col == (getclosestcol_results[i]   & 0x00ffffff)) { mindist = i; break; }
-        if (col == (getclosestcol_results[i+1] & 0x00ffffff)) { mindist = i+1; break; }
-        if (col == (getclosestcol_results[i+2] & 0x00ffffff)) { mindist = i+2; break; }
-        if (col == (getclosestcol_results[i+3] & 0x00ffffff)) { mindist = i+3; break; }
+        if (col == (colmatchresults[i]   & 0x00ffffff)) { mindist = i; break; }
+        if (col == (colmatchresults[i+1] & 0x00ffffff)) { mindist = i+1; break; }
+        if (col == (colmatchresults[i+2] & 0x00ffffff)) { mindist = i+2; break; }
+        if (col == (colmatchresults[i+3] & 0x00ffffff)) { mindist = i+3; break; }
     }
 
     if (mindist == -1)
     for (; i < k; i++)
-        if (col == (getclosestcol_results[i] & 0x00ffffff)) { mindist = i; break; }
+        if (col == (colmatchresults[i] & 0x00ffffff)) { mindist = i; break; }
 
-    if (mindist != -1 && getclosestcol_results[mindist]>>24 < (unsigned)lastokcol)
-        return getclosestcol_results[mindist]>>24;
+    if (mindist != -1 && colmatchresults[mindist]>>24 < (unsigned)lastokcol)
+        return colmatchresults[mindist]>>24;
 
 skip:
-    i = getclosestcol_nocache_lim(r, g, b, lastokcol);
-    getclosestcol_results[numclosestcolresults++ & (COLRESULTSIZ-1)] = col | (i << 24);
+    i = paletteGetClosestColorUpToIndexNoCache(r, g, b, lastokcol);
+    colmatchresults[numcolmatchresults++ & (COLRESULTSIZ-1)] = col | (i << 24);
     return i;
 }
 
-int32_t getclosestcol_nocache_lim(int32_t r, int32_t g, int32_t b, int32_t const lastokcol)
+int32_t paletteGetClosestColorUpToIndexNoCache(int32_t r, int32_t g, int32_t b, int32_t const lastokcol)
 {
 #ifdef DEBUGGINGAIDS
     Bassert(lastokcol >= 0 && lastokcol <= 255);

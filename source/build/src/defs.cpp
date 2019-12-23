@@ -2713,7 +2713,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (didLoadPal && id == 0)
             {
-                initfastcolorlookup_palette(palette);
+                paletteInitClosestColorMap(palette);
 
                 paletteloaded |= PALETTE_MAIN;
             }

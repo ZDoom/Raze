@@ -5829,7 +5829,7 @@ badindex:
                 {
                     tw = *insptr++;
                     int32_t const rgb = Gv_GetVar(*insptr++);
-                    Gv_SetVar(tw, getclosestcol_lim(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVar(*insptr++)));
+                    Gv_SetVar(tw, paletteGetClosestColorUpToIndex(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVar(*insptr++)));
                 }
                 dispatch();
 
