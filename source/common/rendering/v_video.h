@@ -44,7 +44,7 @@
 #include "renderstyle.h"
 #include "c_cvars.h"
 #include "v_2ddrawer.h"
-#include "hwrenderer/dynlights/hw_shadowmap.h"
+//#include "hwrenderer/dynlights/hw_shadowmap.h"
 
 static const int VID_MIN_WIDTH = 640;
 static const int VID_MIN_HEIGHT = 400;
@@ -212,14 +212,6 @@ class DFrameBuffer
 {
 protected:
 
-	void DrawTextureV(FTexture *img, double x, double y, uint32_t tag, va_list tags) = delete;
-	void DrawTextureParms(FTexture *img, DrawParms &parms);
-
-	template<class T>
-	bool ParseDrawTextureTags(FTexture *img, double x, double y, uint32_t tag, T& tags, DrawParms *parms, bool fortext) const;
-	template<class T>
-	void DrawTextCommon(FFont *font, int normalcolor, double x, double y, const T *string, DrawParms &parms);
-
 	F2DDrawer m2DDrawer;
 private:
 	int Width = 0;
@@ -340,8 +332,6 @@ public:
 	// Report a game restart
 	virtual int Backend() { return 0; }
 	virtual const char* DeviceName() const { return "Unknown"; }
-	virtual void WriteSavePic(player_t *player, FileWriter *file, int width, int height);
-	virtual sector_t *RenderView(player_t *player) { return nullptr;  }
 
 	// Screen wiping
 	virtual FTexture *WipeStartScreen();

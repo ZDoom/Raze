@@ -223,20 +223,6 @@ FTexture *DFrameBuffer::WipeEndScreen()
 
 //==========================================================================
 //
-// DFrameBuffer :: GetCaps
-//
-//==========================================================================
-
-EXTERN_CVAR(Bool, r_drawvoxels)
-
-void DFrameBuffer::WriteSavePic(player_t *player, FileWriter *file, int width, int height)
-{
-	//SWRenderer->WriteSavePic(player, file, width, height);
-}
-
-
-//==========================================================================
-//
 // Calculates the viewport values needed for 2D and 3D operations
 //
 //==========================================================================

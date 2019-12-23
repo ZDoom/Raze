@@ -33,7 +33,7 @@
 **
 */
 
-#include "glad/glad.h"
+#include "gl_load.h"
 #include "glbackend.h"
 
 struct TexFilter_s

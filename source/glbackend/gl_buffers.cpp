@@ -25,7 +25,7 @@
 **/
 
 #include <algorithm>
-#include "glad/glad.h"
+#include "gl_load.h"
 #include "glbackend.h"
 #include "gl_buffers.h"
 

@@ -473,7 +473,6 @@ endif()
 
 # Start defining source files for Demolition
 set( PLAT_WIN32_SOURCES
-	glad/src/glad_wgl.c
 	platform/win32/startwin.game.cpp
 	platform/win32/base_sysfb.cpp
 	platform/win32/gl_sysfb.cpp
@@ -617,8 +616,6 @@ add_definitions(-DOPNMIDI_DISABLE_GX_EMULATOR)
 # there's generally a new cpp for every header so this file will get changed
 file( GLOB HEADER_FILES
 	build/include/*.h
-	glad/include/glad/*.h
-	glad/include/Khr/*.h
 	glbackend/*.h
 	libsmackerdec/include/*.h
 	libxmp-lite/include/libxmp-lite/*.h
@@ -635,6 +632,8 @@ file( GLOB HEADER_FILES
 	common/menu/*.h
 	common/input/*.h
 	common/rendering/*.h
+	common/rendering/gl_load/*.h
+	common/rendering/gl/system/*.h
 
 	build/src/*.h
 	platform/win32/*.h
@@ -667,8 +666,8 @@ set( FASTMATH_SOURCES
 	libsmackerdec/src/SmackerDecoder.cpp
 
 	# The rest is only here because it is C, not C++
-	glad/src/glad.c
 	common/utility/strnatcmp.c
+	common/rendering/gl_load/gl_load.c
 	
 	# Another bit of cruft just to make S(hit)DL happy...
 	sdlappicon.cpp
@@ -841,6 +840,10 @@ set (PCH_SOURCES
 	common/rendering/v_video.cpp
 	common/rendering/v_framebuffer.cpp
 	common/rendering/r_videoscale.cpp
+	common/rendering/gl_load/gl_interface.cpp
+	common/rendering/gl/system/gl_debug.cpp
+	common/rendering/gl/system/gl_framebuffer.cpp
+	
 )
 
 if( MSVC )
@@ -887,7 +890,6 @@ target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
     build/include
-	glad/include
 	libxmp-lite/include
 	libxmp-lite/include/libxmp-lite
 	libsmackerdec/include
@@ -906,6 +908,9 @@ include_directories(
 	common/dobject
 	common/menu
 	common/input
+	common/rendering/gl/system
+	common/rendering/gl_load
+	common/rendering/gl
 	common/rendering
 	platform
 
@@ -1019,10 +1024,9 @@ source_group("Code\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/comm
 source_group("Code\\Sound\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/sound/backend/.+")
 source_group("Code\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/dobject/.+")
 source_group("Code\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
-source_group("Utility\\Glad" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/.+")
-source_group("Utility\\Glad Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/include/glad/.+")
-source_group("Utility\\Glad Khr Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/include/Khr/.+")
-source_group("Utility\\Glad Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/src/.+")
+source_group("Code\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/.+")
+source_group("Code\\Rendering\\GL_Load" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl_load/.+")
+source_group("Code\\Rendering\\GL\\System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl/system.+")
 source_group("Utility\\Smackerdec" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/smackerdec/.+")
 source_group("Utility\\Smackerdec\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libsmackerdec/include/.+")
 source_group("Utility\\Smackerdec\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libsmackerdec/src/.+")

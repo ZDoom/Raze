@@ -6,7 +6,7 @@
 #include <signal.h>
 #include <string>
 #include <stdexcept>
-# include "glad/glad.h"
+# include "gl_load.h"
 
 #include "a.h"
 #include "build.h"
@@ -1234,15 +1234,6 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
             if (!sdl_window || !sdl_context)
             {
                 initprintf("Unable to set video mode: %s failed: %s\n", sdl_window ? "SDL_GL_CreateContext" : "SDL_GL_CreateWindow",  SDL_GetError());
-                nogl = 1;
-                destroy_window_resources();
-                return -1;
-            }
-
-            gladLoadGLLoader(SDL_GL_GetProcAddress);
-            if (GLVersion.major < 2)
-            {
-                initprintf("Your computer does not support OpenGL version 2 or greater. GL modes are unavailable.\n");
                 nogl = 1;
                 destroy_window_resources();
                 return -1;

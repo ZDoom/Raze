@@ -33,7 +33,7 @@
 **
 */
 #include <memory>
-#include "glad/glad.h"
+#include "gl_load.h"
 #include "glbackend.h"
 #include "gl_samplers.h"
 #include "gl_shader.h"
@@ -167,7 +167,7 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 
     if (multisample > 0 )
     {
-		glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
+		//glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
         glEnable(GL_MULTISAMPLE);
     }
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
