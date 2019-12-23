@@ -164,8 +164,8 @@ inline bool read_and_test(FileReader& handle, void* buffer, int32_t leng)
 //
 void paletteLoadFromDisk(void)
 {
-    initfastcolorlookup_scale(30, 59, 11);
-    initfastcolorlookup_gridvectors();
+    paletteInitClosestColorScale(30, 59, 11);
+    paletteInitClosestColorGrid();
 
 #ifdef USE_OPENGL
     for (auto & x : glblend)
@@ -191,7 +191,7 @@ void paletteLoadFromDisk(void)
     for (unsigned char & k : palette)
         k <<= 2;
 
-    initfastcolorlookup_palette(palette);
+    paletteInitClosestColorMap(palette);
 
     paletteloaded |= PALETTE_MAIN;
 
@@ -335,7 +335,7 @@ void paletteLoadFromDisk(void)
     }
 }
 
-uint32_t PaletteIndexFullbrights[8];
+uint8_t PaletteIndexFullbrights[32];
 
 void palettePostLoadTables(void)
 {
@@ -357,12 +357,6 @@ void palettePostLoadTables(void)
     blackcol = paletteGetClosestColor(0, 0, 0);
     whitecol = paletteGetClosestColor(255, 255, 255);
     redcol = paletteGetClosestColor(255, 0, 0);
-
-    for (size_t i = 0; i<16; i++)
-    {
-        palette_t *edcol = (palette_t *) &vgapal16[4*i];
-        editorcolors[i] = getclosestcol_lim(edcol->b, edcol->g, edcol->r, playing_blood ? 254 : 239);
-    }
 
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
     for (bssize_t c = 0; c < 255; ++c) // skipping transparent color
@@ -399,6 +393,15 @@ void palettePostLoadTables(void)
         }
         PostLoad_FoundShade: ;
         frealmaxshade = (float)(realmaxshade = s+1);
+    }
+
+    for (size_t i = 0; i<256; i++)
+    {
+        if (editorcolorsdef[i])
+            continue;
+
+        palette_t *edcol = (palette_t *) &vgapal16[4*i];
+        editorcolors[i] = paletteGetClosestColorWithBlacklist(edcol->b, edcol->g, edcol->r, 254, PaletteIndexFullbrights);
     }
 }
 

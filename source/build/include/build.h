@@ -618,6 +618,7 @@ EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char editorcolors[256];
+EXTERN char editorcolorsdef[256];
 
 EXTERN char editwall[(MAXWALLS+7)>>3];
 

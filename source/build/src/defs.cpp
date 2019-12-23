@@ -467,7 +467,10 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&idxend)) break;
 
             while ((unsigned)col < 256 && idx <= idxend)
+            {
+                editorcolorsdef[col] = 1;
                 editorcolors[col++] = idx++;
+            }
         }
         break;
         case T_FOGPAL:
@@ -2713,7 +2716,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (didLoadPal && id == 0)
             {
-                initfastcolorlookup_palette(palette);
+                paletteInitClosestColorMap(palette);
 
                 paletteloaded |= PALETTE_MAIN;
             }

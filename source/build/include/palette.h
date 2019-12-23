@@ -28,16 +28,17 @@ extern uint8_t curbasepal;
 
 #define paletteGetBlendTable(blend) (blendtable[blend])
 
-extern uint32_t PaletteIndexFullbrights[8];
+extern uint8_t PaletteIndexFullbrights[32];
+
 
 inline bool IsPaletteIndexFullbright(uint8_t col)
 {
-	return (PaletteIndexFullbrights[col >> 5] & (1u << (col & 31)));
+	return (PaletteIndexFullbrights[col >> 3] & (1u << (col & 7)));
 }
 
 inline void SetPaletteIndexFullbright(int col)
 {
-	PaletteIndexFullbrights[col >> 5] |= (1u << (col & 31));
+	PaletteIndexFullbrights[col >> 3] |= (1u << (col & 7));
 }
 
 struct palette_t 
