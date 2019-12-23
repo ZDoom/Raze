@@ -335,7 +335,7 @@ void paletteLoadFromDisk(void)
     }
 }
 
-uint32_t PaletteIndexFullbrights[8];
+uint8_t PaletteIndexFullbrights[32];
 
 void palettePostLoadTables(void)
 {
