@@ -36,44 +36,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
-void CONFIG_SetDefaults(void)
+int32_t CONFIG_ReadSetup(void)
 {
-
-# if defined RENDERTYPESDL && SDL_MAJOR_VERSION > 1
-    uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
-    if (inited == 0)
-        SDL_Init(SDL_INIT_VIDEO);
-    else if (!(inited & SDL_INIT_VIDEO))
-        SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-    SDL_DisplayMode dm;
-    if (SDL_GetDesktopDisplayMode(0, &dm) == 0)
-    {
-        ScreenWidth = dm.w;
-        ScreenHeight = dm.h;
-    }
-    else
-# endif
-    {
-        ScreenWidth = 1024;
-        ScreenHeight = 768;
-    }
-
-    ScreenBPP = 32;
     g_player[0].ps->aim_mode = 1;
     ud.config.ShowOpponentWeapons = 0;
     ud.automsg = 0;
     ud.camerasprite = -1;
 
-	ud.camera_time = 0;//4;
+    ud.camera_time = 0;//4;
 
-	ud.screen_tilting = 1;
+    ud.screen_tilting = 1;
     ud.statusbarflags = STATUSBAR_NOSHRINK;
     ud.statusbarscale = 100;
     playerteam = 0;
     ud.angleinterpolation = 0;
-
-    ScreenMode = 1;
 
     ud.display_bonus_screen = 1;
     ud.show_level_text = 1;
@@ -81,21 +57,7 @@ void CONFIG_SetDefaults(void)
     ud.menubackground = 1;
     ud.slidebar_paldisabled = 1;
     ud.shadow_pal = 4;
-}
-
-
-int32_t CONFIG_ReadSetup(void)
-{
-    CONFIG_SetDefaults();
-    if (ScreenBPP < 8) ScreenBPP = 32;
     return 0;
 }
-
-
-void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.cfg
-{
-}
-
-
 
 END_RR_NS

@@ -44,6 +44,7 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 #include "baselayer.h"
+#include "gl_interface.h"
 
 extern int ydim;
 
@@ -77,17 +78,9 @@ void GLInstance::Init(int ydim)
 		memset(LastBoundTextures, 0, sizeof(LastBoundTextures));
 	}
 
-	glinfo.vendor = (const char*)glGetString(GL_VENDOR);
-	glinfo.renderer = (const char*)glGetString(GL_RENDERER);
-	glinfo.version = (const char*)glGetString(GL_VERSION);
-	glinfo.extensions = (const char*)glGetString(GL_EXTENSIONS);
-	glinfo.bufferstorage = !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");
+	//glinfo.bufferstorage =  !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
-	if (!glinfo.dumped)
-	{
-		//osdcmd_glinfo(NULL);
-		glinfo.dumped = 1;
-	}
+
 	new(&renderState) PolymostRenderState;	// reset to defaults.
 	LoadSurfaceShader();
 	LoadVPXShader();

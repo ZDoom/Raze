@@ -30,16 +30,6 @@ CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable
 CVARD(Float, hw_shadescale, 1.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "multiplier for shading")
 CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
 
-CUSTOM_CVAR(Int, vid_vsync, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-{
-	static bool recursion;
-	if (!recursion)
-	{
-		recursion = true;
-		self = videoSetVsync(self);
-		recursion = false;
-	}
-}
 
 CUSTOM_CVARD(Int, hw_texfilter, TEXFILTER_ON, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the texture filtering settings")
 {
@@ -5415,4 +5405,37 @@ void PrecacheHardwareTextures(int nTile)
 	// PRECACHE
 	// This really *really* needs improvement on the game side - the entire precaching logic has no clue about the different needs of a hardware renderer.
 	polymost_precache(nTile, 0, 1);
+}
+
+extern char* voxfilenames[MAXVOXELS];
+void (*PolymostProcessVoxels_Callback)(void) = NULL;
+static void PolymostProcessVoxels(void)
+{
+    if (PolymostProcessVoxels_Callback)
+        PolymostProcessVoxels_Callback();
+
+    if (g_haveVoxels != 1)
+        return;
+
+    g_haveVoxels = 2;
+
+    OSD_Printf("Generating voxel models for Polymost. This may take a while...\n");
+    videoNextPage();
+
+    for (bssize_t i = 0; i < MAXVOXELS; i++)
+    {
+        if (voxfilenames[i])
+        {
+            voxmodels[i] = voxload(voxfilenames[i]);
+            voxmodels[i]->scale = voxscale[i] * (1.f / 65536.f);
+            DO_FREE_AND_NULL(voxfilenames[i]);
+        }
+    }
+}
+
+void Polymost_Startup()
+{
+    polymost_glreset();
+    polymost_glinit();
+    PolymostProcessVoxels();
 }

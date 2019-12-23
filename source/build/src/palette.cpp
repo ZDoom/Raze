@@ -745,7 +745,6 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 	const uint8_t* dapal;
 
 	int32_t paldidchange;
-	int32_t palsumdidchange;
 	//    uint32_t lastbright = curbrightness;
 
     // Bassert((flags&4)==0); // What is so bad about this flag?
@@ -792,21 +791,6 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 	if ((flags & 16) && palfadedelta)  // keep the fade
 		paletteSetFade(palfadedelta >> 2);
 
-	// Don't waste time on this palette voodoo if we are hardware rendering. videoUpdatePalette is a strictly software rendering function.
-	if (videoGetRenderMode() < REND_POLYMOST)
-	{
-		static uint32_t lastpalettesum = 0;
-		uint32_t newpalettesum = SuperFastHash((char*)curpalettefaded, sizeof(curpalettefaded));
-
-		palsumdidchange = (newpalettesum != lastpalettesum);
-
-		if (palsumdidchange || newpalettesum != g_lastpalettesum)
-		{
-			videoUpdatePalette(0, 256);
-		}
-
-		g_lastpalettesum = lastpalettesum = newpalettesum;
-	}
 
 	if ((flags & 16) == 0)
 	{
@@ -851,18 +835,4 @@ void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
     palfadedelta = offset;
 
     paletteSetFade(offset);
-
-	// Don't waste time on this palette voodoo if we are hardware rendering. videoUpdatePalette is a strictly software rendering function.
-	if (videoGetRenderMode() < REND_POLYMOST)
-	{
-		static uint32_t lastpalettesum = 0;
-		uint32_t newpalettesum = SuperFastHash((char*)curpalettefaded, sizeof(curpalettefaded));
-
-		if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
-		{
-			videoUpdatePalette(0, 256);
-		}
-
-		g_lastpalettesum = lastpalettesum = newpalettesum;
-	}
 }

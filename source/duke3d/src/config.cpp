@@ -27,93 +27,46 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h"
 #include "cmdline.h"
 
-#if defined RENDERTYPESDL && defined SDL_TARGET && SDL_TARGET > 1
-# include "sdl_inc.h"
-#endif
-
-// we load this in to get default button and key assignments
-// as well as setting up function mappings
-
 BEGIN_DUKE_NS
-
-
-
-void CONFIG_SetDefaults(void)
-{
-
-# if defined RENDERTYPESDL && SDL_MAJOR_VERSION > 1
-    uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
-    if (inited == 0)
-        SDL_Init(SDL_INIT_VIDEO);
-    else if (!(inited & SDL_INIT_VIDEO))
-        SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-    SDL_DisplayMode dm;
-    if (SDL_GetDesktopDisplayMode(0, &dm) == 0)
-    {
-        ScreenWidth = dm.w;
-        ScreenHeight = dm.h;
-    }
-    else
-# endif
-    {
-        ScreenWidth = 1024;
-        ScreenHeight = 768;
-    }
-
-    ScreenBPP = 32;
-
-
-	ud.camera_time    = 0;//4;
-
-    g_player[0].ps->aim_mode = 1;
-
-    ScreenMode       = 1;
-
-    ud.althud                 = 1;
-    ud.angleinterpolation     = 0;
-    ud.camerasprite           = -1;
-    ud.config.ShowWeapons     = 0;
-    ud.display_bonus_screen   = 1;
-
-    hud_position               = 0;
-    ud.menubackground         = 1;
-    ud.screen_size            = 4;
-    ud.screen_tilting         = 1;
-    ud.screenfade             = 1;
-    ud.shadow_pal             = 4;
-    ud.show_level_text        = 1;
-    ud.slidebar_paldisabled   = 1;
-    ud.statusbarflags         = 0;//STATUSBAR_NOSHRINK;
-    ud.statusbarmode          = 1;
-    ud.statusbarscale         = 100;
-
-	ud.god = 0;
-	ud.m_respawn_items = 0;
-	ud.m_respawn_monsters = 0;
-	ud.m_respawn_inventory = 0;
-	ud.warp_on = 0;
-	ud.cashman = 0;
-	m_ffire = 1;
-	ud.m_player_skill = ud.player_skill = 2;
-	memcpy(g_player[0].wchoice, "\3\4\5\7\0x8\6\0\2\0x9\1", 10);
-	wchoice.Callback();
-}
 
 
 
 
 int CONFIG_ReadSetup(void)
 {
-    CONFIG_SetDefaults();
-    if (ScreenBPP < 8) ScreenBPP = 32;
+    ud.camera_time = 0;//4;
+
+    g_player[0].ps->aim_mode = 1;
+
+    ud.althud = 1;
+    ud.angleinterpolation = 0;
+    ud.camerasprite = -1;
+    ud.config.ShowWeapons = 0;
+    ud.display_bonus_screen = 1;
+
+    hud_position = 0;
+    ud.menubackground = 1;
+    ud.screen_size = 4;
+    ud.screen_tilting = 1;
+    ud.screenfade = 1;
+    ud.shadow_pal = 4;
+    ud.show_level_text = 1;
+    ud.slidebar_paldisabled = 1;
+    ud.statusbarflags = 0;//STATUSBAR_NOSHRINK;
+    ud.statusbarmode = 1;
+    ud.statusbarscale = 100;
+
+    ud.god = 0;
+    ud.m_respawn_items = 0;
+    ud.m_respawn_monsters = 0;
+    ud.m_respawn_inventory = 0;
+    ud.warp_on = 0;
+    ud.cashman = 0;
+    m_ffire = 1;
+    ud.m_player_skill = ud.player_skill = 2;
+    memcpy(g_player[0].wchoice, "\3\4\5\7\0x8\6\0\2\0x9\1", 10);
+    wchoice.Callback();
     return 0;
 }
-
-
-void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.cfg
-{
-}
-
 
 END_DUKE_NS

@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statistics.h"
 #include "c_dispatch.h"
 #include "mapinfo.h"
+#include "rendering/v_video.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
@@ -172,22 +173,6 @@ void G_HandleSpecialKeys(void)
     {
         ControlInfo noshareinfo;
         CONTROL_GetInput(&noshareinfo);
-    }
-
-//    CONTROL_ProcessBinds();
-
-    if (/*g_networkMode != NET_DEDICATED_SERVER && */ALT_IS_PRESSED && inputState.GetKeyStatus(sc_Enter))
-    {
-        if (videoSetGameMode(!ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,1))
-        {
-            OSD_Printf(OSD_ERROR "Failed setting fullscreen video mode.\n");
-            if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, 1))
-                G_GameExit("Failed to recover from failure to set fullscreen video mode.\n");
-        }
-        else ScreenMode = !ScreenMode;
-        inputState.ClearKeyStatus(sc_Enter);
-        g_restorePalette = 1;
-        G_UpdateScreenArea();
     }
 
     // only dispatch commands here when not in a game
@@ -375,7 +360,6 @@ void G_GameExit(const char *msg)
         if (g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
-            videoSetGameMode(ScreenMode,ScreenWidth,ScreenHeight,ScreenBPP,1);
         }
 
         // shareware and TEN screens
@@ -7256,10 +7240,6 @@ int GameInterface::app_main()
     CONFIG_ReadSetup();
 
 
-    if (enginePreInit())
-    {
-        I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
-    }
     hud_size.Callback();
     S_InitSound();
 
@@ -7395,55 +7375,8 @@ int GameInterface::app_main()
     g_clipMapFiles.clear();
 #endif
 
-#if 0
-    OSD_Exec("autoexec.cfg");
-#endif
-
-    system_getcvars();
-
-    //if (g_networkMode != NET_DEDICATED_SERVER)
-    {
-        if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, 1) < 0)
-        {
-            initprintf("Failure setting video mode %dx%dx%d %s! Trying next mode...\n", *ScreenWidth, *ScreenHeight,
-                       *ScreenBPP, *ScreenMode ? "fullscreen" : "windowed");
-
-            int resIdx = 0;
-
-            for (int i=0; i < validmodecnt; i++)
-            {
-                if (validmode[i].xdim == ScreenWidth && validmode[i].ydim == ScreenHeight)
-                {
-                    resIdx = i;
-                    break;
-                }
-            }
-
-            int const savedIdx = resIdx;
-            int bpp = ScreenBPP;
-
-            while (videoSetGameMode(0, validmode[resIdx].xdim, validmode[resIdx].ydim, bpp, 1) < 0)
-            {
-                initprintf("Failure setting video mode %dx%dx%d windowed! Trying next mode...\n",
-                           validmode[resIdx].xdim, validmode[resIdx].ydim, bpp);
-
-                if (++resIdx == validmodecnt)
-                {
-                    if (bpp == 8)
-                        G_GameExit("Fatal error: unable to set any video mode!");
-
-                    resIdx = savedIdx;
-                    bpp = 8;
-                }
-            }
-
-            ScreenWidth = validmode[resIdx].xdim;
-            ScreenHeight = validmode[resIdx].ydim;
-            ScreenBPP  = bpp;
-        }
-
-        videoSetPalette(0, g_player[myconnectindex].ps->palette, 0);
-    }
+    V_Init2();
+    videoSetPalette(0, g_player[myconnectindex].ps->palette, 0);
 
     // check if the minifont will support lowercase letters (3136-3161)
     // there is room for them in tiles012.art between "[\]^_." and "{|}~"

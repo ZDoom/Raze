@@ -56,6 +56,8 @@
 #include "i_time.h"
 #include "version.h"
 #include "filesystem.h"
+#include "build.h"
+#include "glbackend/glbackend.h"
 
 EXTERN_CVAR(Int, menu_resolution_custom_width)
 EXTERN_CVAR(Int, menu_resolution_custom_height)
@@ -613,6 +615,13 @@ void V_Init2()
 	screen->SetGamma ();
 	FBaseCVar::ResetColors ();
 	C_NewModeAdjust();
+	videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);
+
+	polymost_glinit();
+	GLInterface.Init(SCREENHEIGHT);
+	GLInterface.InitGLState(4, glmultisample);
+	GLInterface.mSamplers->SetTextureFilterMode(hw_texfilter, hw_anisotropy);
+
 	//setsizeneeded = true;
 }
 

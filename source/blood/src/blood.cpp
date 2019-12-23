@@ -1096,39 +1096,12 @@ void ClockStrobe()
     //gGameClock++;
 }
 
-#if defined(_WIN32) && defined(DEBUGGINGAIDS)
-// See FILENAME_CASE_CHECK in cache1d.c
-static int32_t check_filename_casing(void)
-{
-    return 1;
-}
-#endif
-
 int GameInterface::app_main()
 {
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = !userConfig.nomonsters;
 	bQuickStart = userConfig.nologo;
-    ParseOptions();
     
-    CONFIG_ReadSetup();
-
-    if (enginePreInit())
-    {
-        I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
-    }
-    registerosdcommands();
-
-#if 0
-	// todo: Handle more intelligently.
-    OSD_Exec("autoexec.cfg");
-#endif
-
-    // Not neccessary ?
-    // CONFIG_SetDefaultKeys(keydefaults, true);
-
-    system_getcvars();
-
 #ifdef USE_QHEAP
     Resource::heap = new QHeap(nMaxAlloc);
 #endif
@@ -1187,7 +1160,7 @@ int GameInterface::app_main()
 
     initprintf("Initializing network users\n");
     netInitialize(true);
-    scrSetGameMode( ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP);
+    scrSetGameMode(0, 0, 0, 0);
     scrSetGamma(gGamma);
     hud_size.Callback();
     initprintf("Initializing sound system\n");

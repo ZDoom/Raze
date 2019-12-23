@@ -96,6 +96,7 @@ Things required to make savegames work:
 #include "statistics.h"
 #include "gstrings.h"
 #include "mapinfo.h"
+#include "rendering/v_video.h"
 #include "sound/s_soundinternal.h"
 
 //#include "crc32.h"
@@ -697,18 +698,6 @@ void DisplayDemoText(void)
     }
 }
 
-
-void Set_GameMode(void)
-{
-    int result;
-    char ch;
-
-    //DSPRINTF(ds,"ScreenMode %d, ScreenWidth %d, ScreenHeight %d",ScreenMode, ScreenWidth, ScreenHeight);
-    //MONO_PRINT(ds);
-    result = COVERsetgamemode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP);
-
-}
-
 void MultiSharewareCheck(void)
 {
     if (!SW_SHAREWARE) return;
@@ -946,7 +935,7 @@ bool InitGame()
         DoTheCache();
     }
 
-    Set_GameMode();
+    V_Init2();
     GraphicsMode = TRUE;
     SetupAspectRatio();
 
@@ -2878,10 +2867,6 @@ int32_t GameInterface::app_main()
 
     CONFIG_ReadSetup();
 
-    if (enginePreInit())
-    {
-		I_Error("There was a problem initialising the Build engine: %s", engineerrstr);
-    }
     hud_size.Callback();
 
     if (!DetectShareware())

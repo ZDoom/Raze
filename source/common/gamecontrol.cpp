@@ -46,6 +46,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "quotemgr.h"
 #include "mapinfo.h"
 #include "s_soundinternal.h"
+#include "i_system.h"
+#include "inputstate.h"
+#include "v_video.h"
+#include "st_start.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -282,19 +286,6 @@ void ShutdownSystem()
 
 int GameMain()
 {
-	// Set up the console before anything else so that it can receive text.
-	C_InitConsole(1024, 768, true);
-	FStringf logpath("logfile %sdemolition.log", M_GetDocumentsPath().GetChars());
-	C_DoCommand(logpath);
-	//I_StartupJoysticks();
-	//mouseInit();
-
-#ifndef NETCODE_DISABLE
-	gHaveNetworking = !enet_initialize();
-	if (!gHaveNetworking)
-		initprintf("An error occurred while initializing ENet.\n");
-#endif
-
 	int r;
 	try
 	{
@@ -355,14 +346,8 @@ void SetDefaultStrings()
 //
 //==========================================================================
 
-int RunGame()
+static TArray<GrpEntry> SetupGame()
 {
-	SetClipshapes();
-
-	userConfig.ProcessOptions();
-
-	G_LoadConfig();
-
 	// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
 
 	auto groups = GrpScan();
@@ -399,8 +384,8 @@ int RunGame()
 	if (groupno == -1 || userConfig.setupstate == 1)
 		groupno = ShowStartupWindow(groups);
 
-	if (groupno == -1) return 0;
-	auto &group = groups[groupno];
+	if (groupno == -1) return TArray<GrpEntry>();
+	auto& group = groups[groupno];
 
 	// Now filter out the data we actually need and delete the rest.
 
@@ -425,8 +410,8 @@ int RunGame()
 		if (ugroup.FileInfo.defname.IsNotEmpty()) selectedDef = ugroup.FileInfo.defname;
 
 		// CVAR has priority. This also overwrites the global variable each time. Init here is lazy so this is ok.
-		if (ugroup.FileInfo.rtsname.IsNotEmpty() && **rtsname == 0) RTS_Init(ugroup.FileInfo.rtsname); 
-		
+		if (ugroup.FileInfo.rtsname.IsNotEmpty() && **rtsname == 0) RTS_Init(ugroup.FileInfo.rtsname);
+
 		// For the game filter the last non-empty one wins.
 		if (ugroup.FileInfo.gamefilter.IsNotEmpty()) LumpFilter = ugroup.FileInfo.gamefilter;
 		g_gameType |= ugroup.FileInfo.flags;
@@ -445,8 +430,61 @@ int RunGame()
 	currentGame = LumpFilter;
 	currentGame.Truncate(currentGame.IndexOf("."));
 	CheckFrontend(g_gameType);
+	return usedgroups;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+int RunGame()
+{
+	// Set up the console before anything else so that it can receive text.
+	C_InitConsole(1024, 768, true);
+
+	// +logfile gets checked too late to catch the full startup log in the logfile so do some extra check for it here.
+	FString logfile = Args->TakeValue("+logfile");
+
+	// As long as this engine is still in prerelease mode let's always write a log file.
+	if (logfile.IsEmpty()) logfile.Format("%sdemolition.log", M_GetDocumentsPath().GetChars());
+
+	if (logfile.IsNotEmpty())
+	{
+		execLogfile(logfile);
+	}
+	I_DetectOS();
+	SetClipshapes();
+	userConfig.ProcessOptions();
+	G_LoadConfig();
+
+	//I_StartupJoysticks();
+	//mouseInit();
+
+
+#ifndef NETCODE_DISABLE
+	gHaveNetworking = !enet_initialize();
+	if (!gHaveNetworking)
+		initprintf("An error occurred while initializing ENet.\n");
+#endif
+
+	auto usedgroups = SetupGame();
+
 
 	InitFileSystem(usedgroups);
+	if (usedgroups.Size() == 0) return 0;
+
+	G_ReadConfig(currentGame);
+
+	V_InitFontColors();
+	GStrings.LoadStrings();
+
+	I_Init();
+	V_InitScreenSize();
+	V_InitScreen();
+	StartScreen = FStartupScreen::CreateInstance(100);
+
 	TArray<FString> addArt;
 	for (auto& grp : usedgroups)
 	{
@@ -461,10 +499,9 @@ int RunGame()
 	}
 	TileFiles.AddArt(addArt);
 
-	CONFIG_InitMouseAndController();
+	inputState.ClearAllInput();
 	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
 	
-	G_ReadConfig(currentGame);
 	if (!GameConfig->IsInitialized())
 	{
 		CONFIG_ReadCombatMacros();
@@ -474,7 +511,6 @@ int RunGame()
 	{
 		playername = userConfig.CommandName;
 	}
-	GStrings.LoadStrings();
 	V_InitFonts();
 	C_CON_SetAliases();
 	sfx_empty = fileSystem.FindFile("demolition/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
@@ -484,6 +520,12 @@ int RunGame()
 	SetDefaultStrings();
 	if (g_gameType & GAMEFLAG_RR) InitRREndMap();	// this needs to be done better later
 	//C_DoCommand("stat sounddebug");
+
+	if (enginePreInit())
+	{
+		I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
+	}
+
 	return gi->app_main();
 }
 
@@ -551,14 +593,6 @@ int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm)
 		GameConfig->SetValueForKey(m, t);
 	}
 	return 0;
-}
-
-
-void CONFIG_InitMouseAndController()
-{
-	inputState.ClearKeysDown();
-	inputState.keyFlushChars();
-	inputState.keyFlushScans();
 }
 
 

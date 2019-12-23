@@ -405,7 +405,7 @@ bool Win32GLVideo::InitHardware(HWND Window, int multisample)
 	int prof = WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
 	const char *version = Args->CheckValue("-glversion");
 
-	if (version != nullptr && strtod(version, nullptr) < 3.0) prof = WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
+	prof = WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB; // At the moment the renderer still needs the compatibility profile.
 
 	for (; prof <= WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB; prof++)
 	{
@@ -413,8 +413,8 @@ bool Win32GLVideo::InitHardware(HWND Window, int multisample)
 		if (myWglCreateContextAttribsARB != NULL)
 		{
 			// let's try to get the best version possible. Some drivers only give us the version we request
-			// which breaks all version checks for feature support. The highest used features we use are from version 4.4, and 3.0 is a requirement.
-			static int versions[] = { 46, 45, 44, 43, 42, 41, 40, 33, 32, 31, 30, -1 };
+			// which breaks all version checks for feature support. The highest used features we use are from version 4.4, and 3.3 is a requirement.
+			static int versions[] = { 46, 45, 44, 43, 42, 41, 40, 33, -1 };
 
 			for (int i = 0; versions[i] > 0; i++)
 			{

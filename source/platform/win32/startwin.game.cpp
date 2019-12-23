@@ -131,48 +131,6 @@ static void PopulateForm(int32_t pgs)
 #endif
     }
 
-    if (pgs & POPULATE_VIDEO)
-    {
-        HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
-        int mode = videoCheckMode(&settings.shared.xdim, &settings.shared.ydim, settings.shared.bpp, settings.shared.fullscreen, 1);
-
-        if (mode < 0 || (settings.shared.bpp < 15))
-        {
-            int CONSTEXPR cd[] = { 32, 24, 16, 15, 8, 0 };
-            int i;
-
-            for (i=0; cd[i];)
-            {
-                if (cd[i] >= settings.shared.bpp) i++;
-                else break;
-            }
-            for (; cd[i]; i++)
-            {
-                mode = videoCheckMode(&settings.shared.xdim, &settings.shared.ydim, cd[i], settings.shared.fullscreen, 1);
-                if (mode < 0) continue;
-                settings.shared.bpp = cd[i];
-                break;
-            }
-        }
-
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), ((settings.shared.fullscreen) ? BST_CHECKED : BST_UNCHECKED));
-        //Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), ((settings.polymer) ? BST_CHECKED : BST_UNCHECKED));
-
-        (void)ComboBox_ResetContent(hwnd);
-
-        for (int i=0; i<validmodecnt; i++)
-        {
-            if (validmode[i].fs != (settings.shared.fullscreen)) continue;
-            if ((validmode[i].bpp < 15)) continue;
-
-            // all modes get added to the 3D mode list
-            Bsprintf(buf, "%dx%d %s", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp == 8 ? "software" : "OpenGL");
-            int const j = ComboBox_AddString(hwnd, buf);
-            (void)ComboBox_SetItemData(hwnd, j, i);
-            if (i == mode)(void)ComboBox_SetCurSel(hwnd, j);
-        }
-    }
-
 
     if (pgs & POPULATE_GAME)
     {
@@ -584,7 +542,7 @@ int32_t startwin_run(void)
     SetPage(TAB_CONFIG);
     EnableConfig(1);
 
-	settings.shared = { ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP };
+	settings.shared = { 0, 0, 0, 0 };
 	settings.grp = 0;
 
     PopulateForm(-1);
@@ -612,14 +570,6 @@ int32_t startwin_run(void)
 
     SetPage(TAB_MESSAGES);
     EnableConfig(0);
-
-    if (done)
-    {
-		ScreenWidth = settings.shared.xdim;
-		ScreenHeight = settings.shared.ydim;
-		ScreenMode = settings.shared.fullscreen;
-		ScreenBPP = settings.shared.bpp;
-    }
 
     return done;
 }

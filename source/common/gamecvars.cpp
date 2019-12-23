@@ -457,11 +457,6 @@ bool G_AllowAutoload()
 	return true;
 }
 
-CVAR(Int, ScreenMode, 0, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, ScreenWidth, 1024, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, ScreenHeight, 768, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, ScreenBPP, 32, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-
 CVAR(Bool, adult_lockout, false, CVAR_ARCHIVE)
 CUSTOM_CVAR(String, playername, "Player", CVAR_ARCHIVE | CVAR_USERINFO)
 {

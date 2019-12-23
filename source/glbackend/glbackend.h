@@ -91,14 +91,7 @@ public:
 
 
 struct glinfo_t {
-	const char* vendor;
-	const char* renderer;
-	const char* version;
-	const char* extensions;
-
 	float maxanisotropy;
-	char bufferstorage;
-	char dumped;
 };
 
 struct BaseVertex

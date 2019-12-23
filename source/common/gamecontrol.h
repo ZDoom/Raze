@@ -36,7 +36,6 @@ void CONFIG_SetDefaultKeys(const char *defbinds);
 
 
 void CONFIG_SetupJoystick(void);
-void CONFIG_InitMouseAndController();
 
 void CONFIG_SetGameControllerDefaultsClear();
 

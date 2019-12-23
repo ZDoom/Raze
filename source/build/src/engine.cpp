@@ -34,6 +34,7 @@
 # include "hightile.h"
 # include "mdsprite.h"
 # include "polymost.h"
+#include "v_video.h"
 #include "../../glbackend/glbackend.h"
 #endif
 
@@ -98,7 +99,7 @@ static TArray<TArray<uint8_t>> voxelmemory;
 void (*loadvoxel_replace)(int32_t voxindex) = NULL;
 int16_t tiletovox[MAXTILES];
 #ifdef USE_OPENGL
-static char *voxfilenames[MAXVOXELS];
+char *voxfilenames[MAXVOXELS];
 #endif
 char g_haveVoxels;
 //#define kloadvoxel loadvoxel
@@ -9654,8 +9655,6 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
 
         OSD_Exec(fn);
 #endif
-        system_getcvars();
-
         // Per-map ART
         artSetupMapArt(filename);
     }
@@ -9947,32 +9946,6 @@ static void videoAllocateBuffers(void)
 #endif
 }
 
-#ifdef USE_OPENGL
-void (*PolymostProcessVoxels_Callback)(void) = NULL;
-static void PolymostProcessVoxels(void)
-{
-	if (PolymostProcessVoxels_Callback)
-		PolymostProcessVoxels_Callback();
-
-    if (g_haveVoxels != 1)
-        return;
-
-    g_haveVoxels = 2;
-
-    OSD_Printf("Generating voxel models for Polymost. This may take a while...\n");
-    videoNextPage();
-
-    for (bssize_t i=0; i<MAXVOXELS; i++)
-    {
-        if (voxfilenames[i])
-        {
-            voxmodels[i] = voxload(voxfilenames[i]);
-            voxmodels[i]->scale = voxscale[i]*(1.f/65536.f);
-            DO_FREE_AND_NULL(voxfilenames[i]);
-        }
-    }
-}
-#endif
 
 //
 // setgamemode
@@ -9983,14 +9956,13 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 {
     int32_t j;
 
-#ifdef USE_OPENGL
-    if (nogl) dabpp = 8;
-#endif
+    if (dabpp != 32) return -1; // block software mode.
+
     daupscaledxdim = max(320, daupscaledxdim);
     daupscaledydim = max(200, daupscaledydim);
 
-    if (in3dmode() && videomodereset == 0 && (davidoption == fullscreen) &&
-        (xres == daupscaledxdim) && (yres == daupscaledydim) && (bpp == dabpp) && (upscalefactor == daupscalefactor))
+    if (in3dmode() && videomodereset == 0 &&
+        (xres == daupscaledxdim) && (yres == daupscaledydim) && (bpp == dabpp))
         return 0;
 
     Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
@@ -10005,24 +9977,12 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     j = bpp;
 
     g_lastpalettesum = 0;
-    if (videoSetMode(daupscaledxdim,daupscaledydim,dabpp,davidoption) < 0) return -1;
 
-#ifdef USE_OPENGL
-    if (dabpp > 8) rendmode = glrendmode;    // GL renderer
-    else rendmode = REND_CLASSIC;
-#endif
+    rendmode = REND_POLYMOST;
 
-    upscalefactor = max(1, min(tabledivide32(yres, 200), daupscalefactor));
-    //POGOTODO: Polymost/Polymer could work with upscaling with a couple more changes
-    int32_t scalefactor = upscalefactor;
-#ifdef RENDERTYPESDL
-    if (bpp != 8)
-#endif
-    {
-        scalefactor = 1;
-    }
-    xdim = daupscaledxdim/scalefactor;
-    ydim = daupscaledydim/scalefactor;
+    upscalefactor = 1;
+    xdim = daupscaledxdim;
+    ydim = daupscaledydim;
 	V_UpdateModeSize(xdim, ydim);
 
 #ifdef USE_OPENGL
@@ -10056,16 +10016,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        polymost_glreset();
-        polymost_glinit();
-
-        if (videoGetRenderMode() == REND_POLYMOST)
-            PolymostProcessVoxels();
-    }
-#endif
     qsetmode = 200;
     return 0;
 }
@@ -12242,5 +12192,10 @@ void renderSetRollAngle(int32_t rolla)
     gtang = (float)rolla * (fPI * (1.f/1024.f));
 }
 #endif
+
+void videoShowFrame(int32_t w)
+{
+    screen->Update();
+}
 
 

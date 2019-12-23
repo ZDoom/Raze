@@ -16,12 +16,6 @@
 #include "zstring.h"
 #include "vectors.h"
 
-
-#ifdef DEBUGGINGAIDS
-# define DEBUG_MASK_DRAWING
-extern int32_t g_maskDrawMode;
-#endif
-
 extern char appactive;
 extern char modechange;
 extern char nogl;
@@ -49,26 +43,9 @@ void    videoResetMode(void);
 void    videoEndDrawing(void);
 void    videoShowFrame(int32_t);
 int32_t videoUpdatePalette(int32_t start, int32_t num);
-int32_t videoSetGamma(void);
-int32_t videoSetVsync(int32_t newSync);
 
-//#define DEBUG_FRAME_LOCKING
-#if !defined DEBUG_FRAME_LOCKING
 void videoBeginDrawing(void);
-#else
-void begindrawing_real(void);
-# define BEGINDRAWING_SIZE 256
-extern uint32_t begindrawing_line[BEGINDRAWING_SIZE];
-extern const char *begindrawing_file[BEGINDRAWING_SIZE];
-extern int32_t lockcount;
-# define videoBeginDrawing() do {                     \
-    if (lockcount < BEGINDRAWING_SIZE) {         \
-        begindrawing_line[lockcount] = __LINE__; \
-        begindrawing_file[lockcount] = __FILE__; \
-    }                                            \
-    begindrawing_real();                         \
-} while(0)
-#endif
+
 
 #define GAMMA_CALC ((int32_t)(min(max((float)((vid_gamma - 1.0f) * 10.0f), 0.f), 15.f)))
 
@@ -88,22 +65,6 @@ extern char inputdevices;
 
 // keys
 #define KEYFIFOSIZ 64
-
-char CONSTEXPR const g_keyAsciiTable[128] = {
-    0  ,   0,   '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0,  0,   'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
-    '[', ']', 0,   0,   'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 39, '`', 0,   92,  'z', 'x', 'c', 'v', 'b', 'n', 'm', ',',
-    '.', '/', 0,   '*', 0,   32,  0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   '7', '8', '9', '-', '4', '5', '6',
-    '+', '1', '2', '3', '0', '.', 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0  ,   0,   0,   0,   0,   0, 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,
-};
-
-char CONSTEXPR const g_keyAsciiTableShift[128] = {
-    0  ,   0,   '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 0,  0,   'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
-    '{', '}', 0,   0,   'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~', 0,   '|',  'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<',
-    '>', '?', 0,   '*', 0,   32,  0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   '7', '8', '9', '-', '4', '5', '6',
-    '+', '1', '2', '3', '0', '.', 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0  ,   0,   0,   0,   0,   0, 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,
-};
 
 // mouse
 
@@ -128,14 +89,13 @@ extern int32_t qsetmode;
 
 #define in3dmode() (qsetmode==200)
 
-void system_getcvars(void);
-
 extern int32_t g_logFlushWindow;
 
 void I_GetEvent();
 
 inline int32_t handleevents(void)
 {
+	timerUpdateClock();
 	I_GetEvent();
 	return 0;
 }

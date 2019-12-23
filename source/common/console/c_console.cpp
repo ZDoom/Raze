@@ -56,6 +56,7 @@
 #include "i_time.h"
 #include "gamecvars.h"
 #include "baselayer.h"
+#include "i_system.h"
 
 
 #define LEFTMARGIN 8
@@ -897,9 +898,7 @@ int PrintString (int iprintlevel, const char *outline)
 
 		if (printlevel != PRINT_LOG)
 		{
-#if 0
 			I_PrintStr(outline);
-#endif
 
 			conbuffer->AddText(printlevel, outline);
 			if (vidactive && (iprintlevel & PRINT_NOTIFY))

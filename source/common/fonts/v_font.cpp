@@ -709,7 +709,6 @@ EColorRange V_ParseFontColor (const uint8_t *&color_value, int normalcolor, int 
 
 void V_InitFonts()
 {
-	V_InitFontColors();
 	V_InitCustomFonts();
 
 	FFont *CreateHexLumpFont(const char *fontname, const char* lump);
