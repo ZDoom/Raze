@@ -118,10 +118,6 @@ static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 
 static int32_t lastglpolygonmode = 0; //FUK
 
-#ifdef USE_GLEXT
-int32_t glmultisample = 0, glnvmultisamplehint = 0;
-#endif
-
 int32_t glprojectionhacks = 2;
 static FHardwareTexture *polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;

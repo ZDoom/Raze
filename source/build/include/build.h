@@ -23,7 +23,6 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 
 #include "collections.h"
 #include "compat.h"
-#include "glbuild.h"
 #include "palette.h"
 #include "pragmas.h"
 
@@ -1074,7 +1073,6 @@ enum {
     TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
 };
 
-extern int32_t glmultisample, glnvmultisamplehint;
 extern int32_t glprojectionhacks;
 extern int32_t gltexmaxsize;
 void gltexapplyprops (void);

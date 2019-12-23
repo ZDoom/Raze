@@ -619,7 +619,7 @@ void V_Init2()
 
 	polymost_glinit();
 	GLInterface.Init(SCREENHEIGHT);
-	GLInterface.InitGLState(4, glmultisample);
+	GLInterface.InitGLState(4, 4/*glmultisample*/);
 	GLInterface.mSamplers->SetTextureFilterMode(hw_texfilter, hw_anisotropy);
 
 	//setsizeneeded = true;

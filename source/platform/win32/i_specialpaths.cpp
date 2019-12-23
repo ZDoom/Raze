@@ -47,7 +47,7 @@
 //#include "version.h"	// for GAMENAME
 
 // Stuff that needs to be set up later.
-extern FString progdir;
+FString progdir;
 static bool batchrun;
 #define GAMENAMELOWERCASE "demolition"
 #define GAMENAME "Demolition"

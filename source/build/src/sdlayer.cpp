@@ -46,7 +46,6 @@
 #include "../../glbackend/glbackend.h"
 
 #ifdef USE_OPENGL
-# include "glbuild.h"
 # include "glsurface.h"
 #endif
 
@@ -59,15 +58,6 @@
 # include <mach/mach.h>
 # include <mach/mach_time.h>
 #endif
-
-FString progdir;
-
-CVAR(Int, r_displayindex, 0, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, r_borderless, 2, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, maxrefreshfreq, 0, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, windowpos, 0, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, windowx, -1, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, windowy, -1, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
 
 double g_beforeSwapTime;
 GameInterface* gi;

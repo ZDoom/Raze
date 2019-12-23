@@ -577,7 +577,7 @@ void setBlendFactor(int index, int alpha)
 
 void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
 {
-    static GLenum const blendFuncTokens[NUMBLENDFACTORS] =
+    static uint8_t const blendFuncTokens[NUMBLENDFACTORS] =
     {
         STYLEALPHA_Zero,
         STYLEALPHA_One,

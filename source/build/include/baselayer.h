@@ -22,7 +22,6 @@ extern char nogl;
 
 extern int32_t swapcomplete;
 
-EXTERN_CVAR(Int, r_borderless);
 EXTERN_CVAR(Bool, r_usenewaspect)
 
 // video

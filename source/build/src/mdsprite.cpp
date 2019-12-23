@@ -1492,7 +1492,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     md3xyzn_t *v0, *v1;
     int32_t i, surfi;
     float f, g, k0, k1, k2=0, k3=0, mat[16];  // inits: compiler-happy
-    GLfloat pc[4];
+    float pc[4];
  //   int32_t texunits = GL_TEXTURE0;
 
     const int32_t owner = tspr->owner;

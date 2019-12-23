@@ -666,8 +666,6 @@ set( FASTMATH_SOURCES
 	common/utility/strnatcmp.c
 	common/rendering/gl_load/gl_load.c
 	
-	# Another bit of cruft just to make S(hit)DL happy...
-	sdlappicon.cpp
 	gitinfo.cpp
 )
 
