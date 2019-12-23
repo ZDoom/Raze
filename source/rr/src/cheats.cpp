@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdcmds.h"
 #include "cheats.h"
 #include "mapinfo.h"
+#include "c_dispatch.h"
 
 BEGIN_RR_NS
 
@@ -588,7 +589,7 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_COORDS:
-					cl_showcoords = cl_showcoords + 1;
+                    C_DoCommand("stat coord");
                     end_cheat(pPlayer);
                     return;
 

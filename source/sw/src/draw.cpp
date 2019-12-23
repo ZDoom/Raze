@@ -1370,46 +1370,38 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
     *nang = ang;
 }
 
-void PrintLocationInfo(PLAYERp pp)
+FString GameInterface::statFPS()
 {
-#define Y_STEP 7
 #define AVERAGEFRAMES 16
-    int x = windowxy1.x+2;
-    int y = windowxy1.y+2;
     static int frameval[AVERAGEFRAMES], framecnt = 0;
     int i;
 
-    if (LocationInfo)
+    FString out;
+    //if (LocationInfo)
     {
 
-        i = (int32_t) totalclock;
+        i = (int32_t)totalclock;
         if (i != frameval[framecnt])
         {
-            sprintf(buffer, "FPS: %d", ((120 * AVERAGEFRAMES) / (i - frameval[framecnt])) + f_c);
-            printext256(x, y, 1, -1, buffer, 1);
+            out.AppendFormat("FPS: %d\n", ((120 * AVERAGEFRAMES) / (i - frameval[framecnt])) + f_c);
             frameval[framecnt] = i;
         }
 
         framecnt = ((framecnt + 1) & (AVERAGEFRAMES - 1));
-
-        if (LocationInfo > 1)
-        {
-            y += Y_STEP;
-
-            sprintf(buffer, "POSX:%d", pp->posx);
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "POSY:%d", pp->posy);
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "POSZ:%d", pp->posz);
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "ANG:%d", (int32_t) pp->pang);
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-        }
     }
+    return out;
+}
+
+FString GameInterface::GetCoordString()
+{
+    PLAYERp pp = Player + myconnectindex;
+    FString out;
+    out.AppendFormat("POSX:%d ", pp->posx);
+    out.AppendFormat("POSY:%d ", pp->posy);
+    out.AppendFormat("POSZ:%d ", pp->posz);
+    out.AppendFormat("ANG:%d\n", (int32_t)pp->pang);
+
+    return out;
 }
 
 SWBOOL DebugSecret = FALSE;
@@ -1446,7 +1438,7 @@ void PrintSpriteInfo(PLAYERp pp)
     SPRITEp sp;
     USERp u;
 
-    if (SpriteInfo && !LocationInfo)
+    //if (SpriteInfo && !LocationInfo)
     {
         short hit_sprite = DoPickTarget(pp->SpriteP, 32, 2);
 
@@ -1455,54 +1447,29 @@ void PrintSpriteInfo(PLAYERp pp)
 
         sp->hitag = 9997; // Special tag to make the actor glow red for one frame
 
-        y += Y_STEP;
-
         if (hit_sprite == -1)
         {
-            sprintf(buffer, "SPRITENUM: NONE TARGETED");
-            printext256(x, y, 1, -1, buffer, 1);
+            Printf("SPRITENUM: NONE TARGETED\n");
             return;
         }
         else
-            sprintf(buffer, "SPRITENUM:%d", hit_sprite);
+            Printf("SPRITENUM:%d\n", hit_sprite);
 
-        printext256(x, y, 1, -1, buffer, 1);
-        y += Y_STEP;
         if (u)
         {
-            sprintf(buffer, "ID:%d", u->ID);
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "PALETTE:%d", u->spal);
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "HEALTH:%d", u->Health);
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "WAITTICS:%d", u->WaitTics);
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "COUNTER:%d", u->Counter);
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "COUNTER2:%d", u->Counter);
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
+            Printf("ID:%d, ", u->ID);
+            Printf("PALETTE:%d, ", u->spal);
+            Printf("HEALTH:%d, ", u->Health);
+            Printf("WAITTICS:%d, ", u->WaitTics);
+            Printf("COUNTER:%d, ", u->Counter);
+            Printf("COUNTER2:%d\n", u->Counter);
         }
         if (SpriteInfo > 1)
         {
-            sprintf(buffer, "POSX:%d", TrackerCast(sp->x));
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "POSY:%d", TrackerCast(sp->y));
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "POSZ:%d", TrackerCast(sp->z));
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
-            sprintf(buffer, "ANG:%d", TrackerCast(sp->ang));
-            printext256(x, y, 1, -1, buffer, 1);
-            y += Y_STEP;
+            Printf("POSX:%d, ", TrackerCast(sp->x));
+            Printf("POSY:%d, ", TrackerCast(sp->y));
+            Printf("POSZ:%d,", TrackerCast(sp->z));
+            Printf("ANG:%d\n", TrackerCast(sp->ang));
         }
     }
 }
@@ -2338,8 +2305,8 @@ drawscreen(PLAYERp pp)
         return;
     }
 
-    PrintLocationInfo(pp);
-    PrintSpriteInfo(pp);
+    //PrintLocationInfo(pp);
+    //PrintSpriteInfo(pp);
 
 #if SYNC_TEST
     SyncStatMessage();

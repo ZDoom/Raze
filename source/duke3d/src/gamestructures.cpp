@@ -1414,7 +1414,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_FTA_ON:                 labelNum = hud_messages;                       break;
         case USERDEFS_EXECUTIONS:             labelNum = 1;                               break;
         case USERDEFS_AUTO_RUN:               labelNum = cl_autorun;                      break;
-        case USERDEFS_COORDS:                 labelNum = cl_showcoords;                   break;
+        case USERDEFS_COORDS:                 labelNum = 0;                   break;
         case USERDEFS_TICKRATE:               labelNum = r_showfps;                       break;
         case USERDEFS_M_COOP:                 labelNum = m_coop;                       break;
         case USERDEFS_COOP:                   labelNum = ud.coop;                         break;
@@ -1602,7 +1602,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_FTA_ON:                       hud_messages                        = iSet; break;
         case USERDEFS_EXECUTIONS:                                                            break; // what was this supposed to accomplish?
         case USERDEFS_AUTO_RUN:                     cl_autorun.SetGenericRepDefault(iSet, CVAR_Int); break;
-        case USERDEFS_COORDS:                       cl_showcoords.SetGenericRepDefault(iSet, CVAR_Int); break;
+        case USERDEFS_COORDS:                       break;
         case USERDEFS_TICKRATE:                     r_showfps                       = iSet; break;
         case USERDEFS_M_COOP:                       m_coop                        = iSet; break;
         case USERDEFS_COOP:                         ud.coop                          = iSet; break;

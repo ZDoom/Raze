@@ -172,8 +172,6 @@ uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256],
 
 char britable[16][256]; // JBF 20040207: full 8bit precision
 
-extern char textfont[2048], smalltextfont[2048];
-
 static char kensmessage[128];
 const char *engineerrstr = "No error";
 
@@ -4648,49 +4646,6 @@ static void classicDrawBunches(int32_t bunch)
                 searchstat = (nextsectnum < 0) ? 0 : 4;
             }
         }
-
-#ifdef ENGINE_SCREENSHOT_DEBUG
-        if (engine_screenshot)
-# ifdef YAX_ENABLE
-        if (!g_nodraw)
-# endif
-        {
-            static char fn[32], tmpbuf[80];
-            char purple = paletteGetClosestColor(255, 0, 255);
-            char yellow = paletteGetClosestColor(255, 255, 0);
-            char *bakframe = (char *)Xaligned_alloc(16, xdim*ydim);
-
-            videoBeginDrawing();  //{{{
-            Bmemcpy(bakframe, (char *)frameplace, xdim*ydim);
-            for (x=0; x<xdim; x++)
-            {
-                if (umost[x] > dmost[x])
-                {
-                    *((char *)frameplace + (ydim/2)*bytesperline + x) = yellow;
-                    *((char *)frameplace + (ydim/2+1)*bytesperline + x) = purple;
-                    continue;
-                }
-
-                if (umost[x] >= 0 && umost[x] < ydim)
-                    *((char *)frameplace + umost[x]*bytesperline + x) = purple;
-
-                if (dmost[x]-1 >= 0 && dmost[x]-1 < ydim)
-                    *((char *)frameplace + (dmost[x]-1)*bytesperline + x) = yellow;
-            }
-
-            Bsprintf(tmpbuf, "nmp%d l%d b%d s%d w%d", yax_nomaskpass, yax_globallev-YAX_MAXDRAWS,
-                     yax_globalbunch, sectnum, wallnum);
-            printext256(8,8, whitecol,0, tmpbuf, 0);
-
-            videoCaptureScreen();
-            engine_screenshot++;
-
-            Bmemcpy((char *)frameplace, bakframe, xdim*ydim);
-            videoEndDrawing();  //}}}
-
-            Xaligned_free(bakframe);
-        }
-#endif
     }
 }
 
@@ -7466,13 +7421,6 @@ static int32_t engineLoadTables(void)
             qradarang[i] = fix16_from_float(atanf(((float)(5120-i)-0.5f) * (1.f/1280.f)) * (-64.f * (1.f/BANG2RAD)));
         for (i=0; i<5120; i++)
             qradarang[10239-i] = -qradarang[i];
-
-        // TABLES.DAT format:
-        //fr.Read(sintable,2048*2);
-        //fr.Read(radarang,640*2);
-        //fr.Read(textfont,1024);
-        //fr.Read(smalltextfont,1024);
-        //fr.Read(britable,1024);
 
         calcbritable();
 
@@ -12097,61 +12045,6 @@ static int32_t printext_checkypos(int32_t ypos, int32_t *yminptr, int32_t *ymaxp
     return 0;
 }
 
-
-//
-// printext256
-//
-void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
-{
-    int32_t stx, i, x, y, charxsiz;
-    char *fontptr, *letptr, *ptr;
-
-    stx = xpos;
-
-    if (fontsize) { fontptr = smalltextfont; charxsiz = 4; }
-    else { fontptr = textfont; charxsiz = 8; }
-
-#ifdef USE_OPENGL
-    if (!polymost_printext256(xpos,ypos,col,backcol,name,fontsize)) return;
-#endif
-
-    videoBeginDrawing(); //{{{
-    for (i=0; name[i]; i++)
-    {
-        if (name[i] == '^' && isdigit(name[i+1]))
-        {
-            char smallbuf[8];
-            int32_t bi=0;
-            while (isdigit(name[i+1]) && bi<3)
-            {
-                smallbuf[bi++]=name[i+1];
-                i++;
-            }
-            smallbuf[bi++]=0;
-            if (col)col = Batol(smallbuf);
-            continue;
-        }
-
-        if (stx-fontsize+charxsiz > xdim)
-            break;
-
-        letptr = &fontptr[name[i]<<3];
-        ptr = (char *)(ylookup[ypos+7]+(stx-fontsize)+frameplace);
-        for (y=7; y>=0; y--)
-        {
-            for (x=charxsiz-1; x>=0; x--)
-            {
-                if (letptr[y]&pow2char[7-fontsize-x])
-                    ptr[x] = (uint8_t)col;
-                else if (backcol >= 0)
-                    ptr[x] = (uint8_t)backcol;
-            }
-            ptr -= ylookup[1];
-        }
-        stx += charxsiz;
-    }
-    videoEndDrawing();   //}}}
-}
 
 
 

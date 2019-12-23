@@ -599,16 +599,11 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     }
 }
 
-#define printcoordsline(fmt, ...) do { \
-    Bsprintf(tempbuf, fmt, ## __VA_ARGS__); \
-    printext256(20, y+=9, COLOR_WHITE, -1, tempbuf, 0); \
-} while (0)
-
 #ifdef DEBUGGINGAIDS
 sprstat_t g_spriteStat;
 #endif
 
-static void G_PrintCoords(int32_t snum)
+FString G_PrintCoords(int32_t snum)
 {
     const int32_t x = g_Debug ? 288 : 0;
     int32_t y = 0;
@@ -623,53 +618,43 @@ static void G_PrintCoords(int32_t snum)
         else if (g_netServer || ud.multimode > 1)
             y = 24;
     }
-    Bsprintf(tempbuf, "XYZ= (%d, %d, %d)", ps->pos.x, ps->pos.y, ps->pos.z);
-    printext256(x, y, COLOR_WHITE, -1, tempbuf, 0);
+    FString out;
+
+    out.AppendFormat("XYZ= (%d, %d, %d)\n", ps->pos.x, ps->pos.y, ps->pos.z);
     char ang[16], horiz[16], horizoff[16];
     fix16_to_str(ps->q16ang, ang, 2);
     fix16_to_str(ps->q16horiz, horiz, 2);
     fix16_to_str(ps->q16horizoff, horizoff, 2);
-    Bsprintf(tempbuf, "A/H/HO= %s, %s, %s", ang, horiz, horizoff);
-    printext256(x, y+9, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "VEL= (%d, %d, %d) + (%d, %d, 0)",
-        ps->vel.x>>14, ps->vel.y>>14, ps->vel.z, ps->fric.x>>5, ps->fric.y>>5);
-    printext256(x, y+18, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "OG= %d  SBRIDGE=%d SBS=%d", ps->on_ground, ps->spritebridge, ps->sbs);
-    printext256(x, y+27, COLOR_WHITE, -1, tempbuf, 0);
+    out.AppendFormat("A/H/HO= %s, %s, %s\n", ang, horiz, horizoff);
+    out.AppendFormat("VEL= (%d, %d, %d) + (%d, %d, 0)\n", ps->vel.x>>14, ps->vel.y>>14, ps->vel.z, ps->fric.x>>5, ps->fric.y>>5);
+    out.AppendFormat("OG= %d  SBRIDGE=%d SBS=%d\n", ps->on_ground, ps->spritebridge, ps->sbs);
     if (sectnum >= 0)
-        Bsprintf(tempbuf, "SECT= %d (LO=%d EX=%d)", sectnum,
-            TrackerCast(sector[sectnum].lotag), TrackerCast(sector[sectnum].extra));
+        out.AppendFormat("SECT= %d (LO=%d EX=%d)\n", sectnum, TrackerCast(sector[sectnum].lotag), TrackerCast(sector[sectnum].extra));
     else
-        Bsprintf(tempbuf, "SECT= %d", sectnum);
-    printext256(x, y+36, COLOR_WHITE, -1, tempbuf, 0);
-    //    Bsprintf(tempbuf,"SEED= %d",randomseed);
-    //    printext256(x,y+45,COLOR_WHITE,-1,tempbuf,0);
-    y -= 9;
+        out.AppendFormat("SECT= %d\n", sectnum);
 
-    y += 7;
-    Bsprintf(tempbuf, "THOLD= %d", ps->transporter_hold);
-    printext256(x, y+54, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "GAMETIC= %u, TOTALCLOCK=%d", g_moveThingsCount, (int32_t) totalclock);
-    printext256(x, y+63, COLOR_WHITE, -1, tempbuf, 0);
+    out.AppendFormat("\nTHOLD= %d ", ps->transporter_hold);
+    out.AppendFormat("GAMETIC= %u, TOTALCLOCK=%d\n", g_moveThingsCount, (int32_t) totalclock);
 #ifdef DEBUGGINGAIDS
-    Bsprintf(tempbuf, "NUMSPRITES= %d", Numsprites);
-    printext256(x, y+72, COLOR_WHITE, -1, tempbuf, 0);
+    out.AppendFormat("NUMSPRITES= %d\n", Numsprites);
     if (g_moveThingsCount > g_spriteStat.lastgtic + REALGAMETICSPERSEC)
     {
         g_spriteStat.lastgtic = g_moveThingsCount;
         g_spriteStat.lastnumins = g_spriteStat.numins;
         g_spriteStat.numins = 0;
     }
-    Bsprintf(tempbuf, "INSERTIONS/s= %u", g_spriteStat.lastnumins);
-    printext256(x, y+81, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "ONSCREEN= %d", g_spriteStat.numonscreen);
-    printext256(x, y+90, COLOR_WHITE, -1, tempbuf, 0);
-    y += 3*9;
+    out.AppendFormat("INSERTIONS/s= %u\n", g_spriteStat.lastnumins);
+    out.AppendFormat("ONSCREEN= %d\n", g_spriteStat.numonscreen);
 #endif
-    y += 7;
-    Bsprintf(tempbuf, "VR=%.03f  YX=%.03f", (double) dr_viewingrange/65536.0, (double) dr_yxaspect/65536.0);
-    printext256(x, y+72, COLOR_WHITE, -1, tempbuf, 0);
+    out.AppendFormat("\nVR=%.03f  YX=%.03f", (double) dr_viewingrange/65536.0, (double) dr_yxaspect/65536.0);
+    return out;
 }
+
+FString GameInterface::GetCoordString()
+{
+    return G_PrintCoords(screenpeek);
+}
+
 
 #define LOW_FPS ((videoGetRenderMode() == REND_CLASSIC) ? 35 : 50)
 #define SLOW_FRAME_TIME 20
@@ -1036,9 +1021,6 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
         menutext_center(100, GStrings("Game Paused"));
-
-    if (cl_showcoords)
-        G_PrintCoords(screenpeek);
 
 #ifdef YAX_DEBUG
     M32_drawdebug();

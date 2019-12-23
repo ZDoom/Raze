@@ -717,9 +717,7 @@ set (PCH_SOURCES
 	build/src/pragmas.cpp
 	build/src/scriptfile.cpp
 	build/src/sdlayer.cpp
-	build/src/smalltextfont.cpp
 	build/src/softsurface.cpp
-	build/src/textfont.cpp
 	build/src/tiles.cpp
 	build/src/timer.cpp
 	build/src/voxmodel.cpp

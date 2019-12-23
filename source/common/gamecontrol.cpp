@@ -225,6 +225,10 @@ void UserConfig::ProcessOptions()
 		Args->CollectFiles("-game_dir", dirs, nullptr);
 		AddFiles.reset(Args->GatherFiles("-game_dir"));
 	}
+	if (Args->CheckParm("-showcoords") || Args->CheckParm("-w"))
+	{
+		C_DoCommand("stat coord");
+	}
 
 
 }

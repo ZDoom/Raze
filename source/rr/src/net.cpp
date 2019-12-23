@@ -1618,8 +1618,7 @@ void Net_DisplaySyncMsg(void)
         {
             if (g_numSyncBytes > 1)
             {
-                Bsprintf(tempbuf, "Out Of Sync - %s", SyncNames[i]);
-                printext256(4L, 100L + (i * 8), 31, 1, tempbuf, 0);
+                Printf(PRINT_NOTIFY, "Out Of Sync - %s\n", SyncNames[i]);
             }
 
             if (!g_foundSyncError && g_szfirstSyncMsg[i][0] == '\0')
@@ -1634,8 +1633,7 @@ void Net_DisplaySyncMsg(void)
                 {
                     if (syncstat[j] != 0 && g_szfirstSyncMsg[j][0] == '\0')
                     {
-                        Bsprintf(tempbuf, "Out Of Sync (%s) - Please restart game", SyncNames[j]);
-                        Bstrcpy(g_szfirstSyncMsg[j], tempbuf);
+                        Printf(PRINT_NOTIFY, "Out Of Sync (%s) - Please restart game\n", SyncNames[j]);
                     }
                 }
             }
@@ -1649,20 +1647,14 @@ void Net_DisplaySyncMsg(void)
         {
             if (g_numSyncBytes > 1)
             {
-                Bsprintf(tempbuf, "FIRST %s", g_szfirstSyncMsg[i]);
-                printext256(4L, 44L + (i * 8), 31, 1, tempbuf, 0);
-                Bsprintf(tempbuf, "moveCount %d",moveCount);
-                printext256(4L, 52L + (i * 8), 31, 1, tempbuf, 0);
+                Printf(PRINT_NOTIFY, "FIRST %s - moveCount %d\n", g_szfirstSyncMsg[i],moveCount);
             }
             else
             {
-                printext256(4L,100L,31,0,g_szfirstSyncMsg[i],0);
+                Printf(PRINT_NOTIFY, "%s\n", g_szfirstSyncMsg[i],0);
             }
         }
     }
-
-//    if (syncstate != 0)
-//        printext256(68L, 92L, 1, 31, "Missed Network packet!", 0);
 }
 
 

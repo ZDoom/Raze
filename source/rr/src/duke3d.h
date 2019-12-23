@@ -167,6 +167,7 @@ struct GameInterface : ::GameInterface
 	void DoPrintMessage(int prio, const char* text) override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 	void QuitToTitle() override;
+	FString GetCoordString() override;
 };
 
 END_RR_NS

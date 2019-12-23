@@ -93,9 +93,5 @@ void G_CheckCommandLine()
 		}
 		OSD_Printf("Respawn on.\n");
 	}
-	if (Args->CheckParm("-showcoords") || Args->CheckParm("-w"))
-	{
-		cl_showcoords = 1;
-	}
 }
 END_RR_NS

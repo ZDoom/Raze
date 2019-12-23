@@ -364,8 +364,7 @@ SyncStatMessage(void)
         {
             if (NumSyncBytes > 1)
             {
-                sprintf(ds, "GAME OUT OF SYNC - %s", SyncNames[i]);
-                printext256(68L, 68L + (i * 8), 1, 31, ds, 0);
+                Printf(PRINT_NOTIFY, "GAME OUT OF SYNC - %s", SyncNames[i]);
             }
 
             if (!sync_found && sync_first[i][0] == '\0')
@@ -395,10 +394,8 @@ SyncStatMessage(void)
         {
             if (NumSyncBytes > 1)
             {
-                sprintf(ds, "FIRST %s", sync_first[i]);
-                printext256(50L, 0L, 1, 31, ds, 0);
-                sprintf(ds, "MoveCount %u",MoveCount);
-                printext256(50L, 10L, 1, 31, ds, 0);
+                Printf(PRINT_NOTIFY, "FIRST %s\n", sync_first[i]);
+                Printf(PRINT_NOTIFY, "MoveCount %u\n",MoveCount);
             }
             else
             {
@@ -417,7 +414,7 @@ SyncStatMessage(void)
     }
 
     if (syncstate != 0)
-        printext256(68L, 92L, 1, 31, "Missed Network packet!", 0);
+        Printf(PRINT_NOTIFY, "Missed Network packet!", 0);
 }
 
 

@@ -2440,8 +2440,10 @@ struct GameInterface : ::GameInterface
 	bool SaveGame(FSaveGameNode* sv) override;
 	void DoPrintMessage(int prio, const char* text) override;
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
+    FString GetCoordString() override;
 
-	GameStats getStats() override;
+    FString statFPS() override;
+    GameStats getStats() override;
 };
 
 

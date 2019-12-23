@@ -275,28 +275,6 @@ void G_GameExit(const char *msg)
 }
 
 
-#ifdef YAX_DEBUG
-// ugh...
-char m32_debugstr[64][128];
-int32_t m32_numdebuglines=0;
-
-static void M32_drawdebug(void)
-{
-    int i, col=paletteGetClosestColor(255,255,255);
-    int x=4, y=8;
-
-    if (m32_numdebuglines>0)
-    {
-        videoBeginDrawing();
-        for (i=0; i<m32_numdebuglines && y<ydim-8; i++, y+=8)
-            printext256(x,y,col,0,m32_debugstr[i],xdim>640?0:1);
-        videoEndDrawing();
-    }
-    m32_numdebuglines=0;
-}
-#endif
-
-
 static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int16_t ang, int16_t horiz)
 {
     auto const sp = &sprite[pp->i];

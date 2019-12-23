@@ -100,6 +100,7 @@ struct GameInterface : ::GameInterface
 	void DoPrintMessage(int prio, const char*) override;
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg);
 	void QuitToTitle() override;
+	FString GetCoordString() override;
 
 	GameStats getStats() override;
 };
