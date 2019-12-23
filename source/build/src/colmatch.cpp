@@ -113,7 +113,7 @@ int32_t paletteGetClosestColorUpToIndex(int32_t const r, int32_t const g, int32_
     for (; i < k; i++)
         if (col == (colmatchresults[i] & 0x00ffffff)) { mindist = i; break; }
 
-    if (mindist != -1 && colmatchresults[mindist]>>24 < (unsigned)lastokcol)
+    if (mindist != -1 && colmatchresults[mindist]>>24 <= (unsigned)lastokcol)
         return colmatchresults[mindist]>>24;
 
 skip:
@@ -173,7 +173,7 @@ int32_t paletteGetClosestColorUpToIndexNoCache(int32_t r, int32_t g, int32_t b, 
 
     mindist = INT32_MAX;
 
-    for (bssize_t i = 0; i < lastokcol; ++i)
+    for (bssize_t i = 0; i <= lastokcol; ++i)
     {
         char const * const pal1 = (char const *)&colmatch_palette[i*3];
         int dist = gdist[pal1[1]+g];
