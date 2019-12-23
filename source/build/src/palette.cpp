@@ -401,7 +401,7 @@ void palettePostLoadTables(void)
             continue;
 
         palette_t *edcol = (palette_t *) &vgapal16[4*i];
-        editorcolors[i] = paletteGetClosestColorUpToIndex(edcol->b, edcol->g, edcol->r, 239);
+        editorcolors[i] = paletteGetClosestColorWithBlacklist(edcol->b, edcol->g, edcol->r, 254, PaletteIndexFullbrights);
     }
 }
 
