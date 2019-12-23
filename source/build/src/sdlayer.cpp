@@ -17,7 +17,6 @@
 #include "osd.h"
 #include "palette.h"
 #include "renderlayer.h"
-#include "sdl_inc.h"
 #include "softsurface.h"
 #include "m_argv.h"
 #include "mmulti.h"
@@ -70,10 +69,6 @@ CVAR(Int, windowpos, 0, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
 CVAR(Int, windowx, -1, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
 CVAR(Int, windowy, -1, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
 
-#if SDL_MAJOR_VERSION != 1
-static SDL_version linked;
-#endif
-
 double g_beforeSwapTime;
 GameInterface* gi;
 
@@ -98,24 +93,17 @@ bool screenshot_requested;
 
 char appactive=1, novideo=0;
 
-// video
-static SDL_Surface *sdl_surface/*=NULL*/;
-
-#if SDL_MAJOR_VERSION==2
-SDL_Window *sdl_window=NULL;
-SDL_GLContext sdl_context=NULL;
-#endif
 
 void ImGui_Init_Backend()
 {
-	ImGui_ImplSDL2_InitForOpenGL(sdl_window, sdl_context);
+	//ImGui_ImplSDL2_InitForOpenGL(sdl_window, sdl_context);
 }
 
 void ImGui_Begin_Frame()
 {
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplSDL2_NewFrame(sdl_window);
-	ImGui::NewFrame();
+	//ImGui_ImplOpenGL3_NewFrame();
+	//ImGui_ImplSDL2_NewFrame(sdl_window);
+	//ImGui::NewFrame();
 }
 
 int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, refreshfreq=-1;
@@ -131,15 +119,6 @@ char nogl=0;
 #endif
 static int32_t vsync_renderlayer;
 
-// last gamma, contrast, brightness
-
-//#define KEY_PRINT_DEBUG
-
-
-static SDL_Surface *appicon = NULL;
-#if !defined __APPLE__ && !defined EDUKE32_TOUCH_DEVICES
-static SDL_Surface *loadappicon(void);
-#endif
 
 // Joystick dead and saturation zones
 uint16_t joydead[9], joysatur[9];
@@ -186,37 +165,6 @@ void I_FatalError(const char* error, ...)
 }
 
 
-#ifdef _WIN32
-# if SDL_MAJOR_VERSION != 1
-//
-// win_gethwnd() -- gets the window handle
-//
-HWND win_gethwnd(void)
-{
-    struct SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-
-    if (SDL_GetWindowWMInfo(sdl_window, &wmInfo) != SDL_TRUE)
-        return 0;
-
-    if (wmInfo.subsystem == SDL_SYSWM_WINDOWS)
-        return wmInfo.info.win.window;
-
-    initprintf("win_gethwnd: Unknown WM subsystem?!\n");
-
-    return 0;
-}
-# endif
-//
-// win_gethinstance() -- gets the application instance
-//
-HINSTANCE win_gethinstance(void)
-{
-    return (HINSTANCE)GetModuleHandle(NULL);
-}
-#endif
-
-
 int32_t wm_msgbox(const char *name, const char *fmt, ...)
 {
     char buf[2048];
@@ -231,7 +179,7 @@ int32_t wm_msgbox(const char *name, const char *fmt, ...)
 #if defined EDUKE32_OSX
     return osx_msgbox(name, buf);
 #elif defined _WIN32
-    MessageBoxA(win_gethwnd(),buf,name,MB_OK|MB_TASKMODAL);
+    MessageBoxA(nullptr,buf,name,MB_OK|MB_TASKMODAL);
     return 0;
 #elif defined EDUKE32_TOUCH_DEVICES
     initprintf("wm_msgbox called. Message: %s: %s",name,buf);
@@ -359,21 +307,6 @@ void videoEndDrawing(void)
     if (lockcount == 0) return;
     lockcount = 0;
 }
-
-//
-// showframe() -- update the display
-//
-
-
-#if !defined __APPLE__ && !defined EDUKE32_TOUCH_DEVICES
-extern struct sdlappicon sdlappicon;
-static inline SDL_Surface *loadappicon(void)
-{
-    SDL_Surface *surf = SDL_CreateRGBSurfaceFrom((void *)sdlappicon.pixels, sdlappicon.width, sdlappicon.height, 32,
-                                                 sdlappicon.width * 4, 0xffl, 0xff00l, 0xff0000l, 0xff000000l);
-    return surf;
-}
-#endif
 
 //
 //

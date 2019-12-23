@@ -1140,8 +1140,7 @@ struct PLAYERstruct
     } PanelSpriteList;
 
     // Key stuff
-#define NUM_KEYS 8
-    unsigned char HasKey[NUM_KEYS];
+    unsigned char HasKey[8];
 
     // Weapon stuff
     short SwordAng;

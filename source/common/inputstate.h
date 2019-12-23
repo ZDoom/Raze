@@ -19,7 +19,6 @@ extern int GUICapture;
 
 enum
 {
-	NUMKEYS = 256,
 	MAXMOUSEBUTTONS = 10,
 };
 
@@ -71,7 +70,7 @@ class InputState
 		KEYFIFOSIZ = 64,
 	};
 
-	uint8_t KeyStatus[NUMKEYS];
+	uint8_t KeyStatus[NUM_KEYS];
 
 	char    g_keyFIFO[KEYFIFOSIZ];
 	char    g_keyAsciiFIFO[KEYFIFOSIZ];

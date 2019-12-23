@@ -43,9 +43,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "renderlayer.h"
 
-#if defined RENDERTYPESDL && defined SDL_TARGET && SDL_TARGET > 1
-# include "sdl_inc.h"
-#endif
 
 BEGIN_SW_NS
 

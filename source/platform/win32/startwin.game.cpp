@@ -101,7 +101,7 @@ const char *controlstrings[] = { "Keyboard only", "Keyboard and mouse", "Keyboar
 
 static void PopulateForm(int32_t pgs)
 {
-    char buf[512];
+    //char buf[512];
 
     if (pgs & POPULATE_GAMEDIRS)
     {
@@ -285,7 +285,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         rdlg.top = 0;
 
         // Load the bitmap into the bitmap control and fetch its dimensions
-        hbmp = LoadBitmap((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(RSRC_BMP));
+        hbmp = LoadBitmap((HINSTANCE)GetModuleHandleA(nullptr), MAKEINTRESOURCE(RSRC_BMP));
 
         HWND hwnd = GetDlgItem(hwndDlg, WIN_STARTWIN_BITMAP);
         SendMessageA(hwnd, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmp);
@@ -344,7 +344,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             r.left += rtab.left;
 
             // Create the pages and position them in the tab control, but hide them
-            pages[TAB_CONFIG] = CreateDialog((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(WIN_STARTWINPAGE_CONFIG), hwndDlg, ConfigPageProc);
+            pages[TAB_CONFIG] = CreateDialog((HINSTANCE)GetModuleHandleA(nullptr), MAKEINTRESOURCE(WIN_STARTWINPAGE_CONFIG), hwndDlg, ConfigPageProc);
             SetWindowPos(pages[TAB_CONFIG], hwnd, r.left, r.top, r.right, r.bottom, SWP_HIDEWINDOW);
 
             pages[TAB_MESSAGES] = GetDlgItem(hwndDlg, WIN_STARTWIN_MESSAGES);
@@ -435,7 +435,7 @@ int32_t startwin_open(void)
     if (startupdlg) return 1;
     INITCOMMONCONTROLSEX icc = { sizeof(icc), ICC_TAB_CLASSES };
     InitCommonControlsEx(&icc);
-    startupdlg = CreateDialog((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(WIN_STARTWIN), NULL, startup_dlgproc);
+    startupdlg = CreateDialog((HINSTANCE)GetModuleHandleA(nullptr), MAKEINTRESOURCE(WIN_STARTWIN), NULL, startup_dlgproc);
     if (startupdlg)
     {
         SetPage(TAB_MESSAGES);

@@ -85,6 +85,7 @@ void GLInstance::Init(int ydim)
 	LoadSurfaceShader();
 	LoadVPXShader();
 	LoadPolymostShader();
+#if 0
 	IMGUI_CHECKVERSION();
 	im_ctx = ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -101,6 +102,7 @@ void GLInstance::Init(int ydim)
 		ttf = fileSystem.LoadFile("demolition/Roboto-Regular.ttf", 0);
 	}
 	if (ttf.Size()) io.Fonts->AddFontFromMemoryTTF(ttf.Data(), ttf.Size(), std::clamp(ydim / 40, 10, 30));
+#endif
 }
 
 void GLInstance::LoadPolymostShader()
@@ -168,12 +170,14 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 
 void GLInstance::Deinit()
 {
+#if 0
 	if (im_ctx)
 	{
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplSDL2_Shutdown();
 		ImGui::DestroyContext(im_ctx);
 	}
+#endif
 	if (mSamplers) delete mSamplers;
 	mSamplers = nullptr;
 	if (polymostShader) delete polymostShader;
@@ -493,7 +497,9 @@ void GLInstance::SetPalswap(int index)
 
 void GLInstance::DrawImGui(ImDrawData* data)
 {
+#if 0
 	ImGui_ImplOpenGL3_RenderDrawData(data);
+#endif
 }
 
 

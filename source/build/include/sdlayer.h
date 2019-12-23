@@ -7,7 +7,6 @@
 
 #include "baselayer.h"
 #include "compat.h"
-#include "sdl_inc.h"
 
 #define EDUKE32_SDL_LINKED_PREREQ(x, a, b, c) ((x).major > (a) || ((x).major == (a) && ((x).minor > (b) || ((x).minor == (b) && (x).patch >= (c)))))
 
@@ -78,17 +77,8 @@ int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout);
     }
 #endif
 
-static inline void idle_waitevent_timeout(uint32_t timeout)
-{
-    SDL_WaitEventTimeout(NULL, timeout);
-}
 
-static inline void idle_waitevent(void)
-{
-    SDL_WaitEvent(NULL);
-}
-
-static inline void idle(int const msec = 1)
+inline void idle(int const msec = 1)
 {
 #ifdef _WIN32
     Sleep(msec);

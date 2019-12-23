@@ -1457,15 +1457,7 @@ ResetKeys(void)
 
 SWBOOL KeyPressed(void)
 {
-    int i;
-
-    for (i = 0; i < NUMKEYS; i++)
-    {
-        if (inputState.GetKeyStatus(i))
-            return TRUE;
-    }
-
-    return FALSE;
+    return I_GeneralTrigger();
 }
 
 uint8_t* KeyPressedRange(uint8_t* kb, uint8_t* ke)
