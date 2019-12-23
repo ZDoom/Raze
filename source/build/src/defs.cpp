@@ -467,7 +467,10 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&idxend)) break;
 
             while ((unsigned)col < 256 && idx <= idxend)
+            {
+                editorcolorsdef[col] = 1;
                 editorcolors[col++] = idx++;
+            }
         }
         break;
         case T_FOGPAL:

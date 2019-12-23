@@ -358,12 +358,6 @@ void palettePostLoadTables(void)
     whitecol = paletteGetClosestColor(255, 255, 255);
     redcol = paletteGetClosestColor(255, 0, 0);
 
-    for (size_t i = 0; i<16; i++)
-    {
-        palette_t *edcol = (palette_t *) &vgapal16[4*i];
-        editorcolors[i] = paletteGetClosestColorUpToIndex(edcol->b, edcol->g, edcol->r, playing_blood ? 254 : 239);
-    }
-
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
     for (bssize_t c = 0; c < 255; ++c) // skipping transparent color
     {
@@ -399,6 +393,15 @@ void palettePostLoadTables(void)
         }
         PostLoad_FoundShade: ;
         frealmaxshade = (float)(realmaxshade = s+1);
+    }
+
+    for (size_t i = 0; i<256; i++)
+    {
+        if (editorcolorsdef[i])
+            continue;
+
+        palette_t *edcol = (palette_t *) &vgapal16[4*i];
+        editorcolors[i] = paletteGetClosestColorUpToIndex(edcol->b, edcol->g, edcol->r, 239);
     }
 }
 
