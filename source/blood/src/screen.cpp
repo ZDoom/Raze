@@ -137,8 +137,8 @@ void scrLoadPalette(void)
 		x = bloodglblend;
 #endif
 
-    initfastcolorlookup_scale(30, 59, 11);
-    initfastcolorlookup_gridvectors();
+    paletteInitClosestColorScale(30, 59, 11);
+    paletteInitClosestColorGrid();
     paletteloaded = 0;
     initprintf("Loading palettes\n");
     for (int i = 0; i < 5; i++)
@@ -161,7 +161,7 @@ void scrLoadPalette(void)
     blendtable[0] = (char*)gSysRes.Lock(pTrans);
     paletteloaded |= PALETTE_TRANSLUC;
 
-    initfastcolorlookup_palette(palette);
+    paletteInitClosestColorMap(palette);
     palettePostLoadTables();
 }
 
