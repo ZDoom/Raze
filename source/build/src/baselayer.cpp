@@ -12,19 +12,7 @@
 #include "d_event.h"
 #include "../../glbackend/glbackend.h"
 
-int32_t g_borderless=2;
 int GUICapture = false;
-
-// input
-char    inputdevices = 0;
-
-
-bool g_mouseEnabled;
-bool g_mouseGrabbed;
-bool g_mouseInsideWindow   = 1;
-bool g_mouseLockedToWindow = 1;
-
-controllerinput_t joystick;
 
 
 // Calculate ylookup[] and call setvlinebpl()

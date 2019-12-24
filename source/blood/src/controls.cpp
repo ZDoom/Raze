@@ -43,11 +43,6 @@ bool bSilentAim = false;
 
 int iTurnCount = 0;
 
-int32_t GetTime(void)
-{
-    return (int32_t)totalclock;
-}
-
 void ctrlInit(void)
 {
 }

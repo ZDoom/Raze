@@ -132,21 +132,12 @@ void D_PostEvent (const event_t *ev)
 		return;
 	}
 
-	if (ev->type == EV_Mouse && GUICapture == 0 && appactive && g_mouseGrabbed)
+	if (ev->type == EV_Mouse && GUICapture == 0 && appactive)
 	{
 		inputState.MouseAddToPos(ev->x / 3, -ev->y / 2);
 		return;
 	}
-	else if (ev->type == EV_GUI_Event && ev->subtype == EV_GUI_MouseMove && appactive && GUICapture == 0 && !g_mouseGrabbed)
-	{
-		inputState.MouseSetAbs(ev->data1, ev->data2);
-		return;
-	}
 
-	// Add the key to the global keyboard state.
-	// This is probably the biggest roadblock with the input system as it undermines a proper event driven approach.
-	// Too much code depends on just checking this instead of waiting for events to happen.
-	// Here's also definitely not the best place to maintain the keyboard state but right now it's unavoidable to do this outside the event processing because so much code depends on it.
 	inputState.AddEvent(ev);
 	
 	// Also add it to the event queue.

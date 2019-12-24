@@ -72,13 +72,9 @@ unsigned char syncstate;
 //#define SDL_WM_GrabInput(x) SDL_WM_GrabInput(SDL_GRAB_OFF)
 //#define SDL_ShowCursor(x) SDL_ShowCursor(SDL_ENABLE)
 
-#define SURFACE_FLAGS	(SDL_SWSURFACE|SDL_HWPALETTE|SDL_HWACCEL)
-
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
 
-// fix for mousewheel
-int32_t inputchecked = 0;
 bool screenshot_requested;
 
 char appactive=1, novideo=0;

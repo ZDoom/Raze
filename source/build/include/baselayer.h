@@ -45,63 +45,13 @@ int32_t videoUpdatePalette(int32_t start, int32_t num);
 
 void videoBeginDrawing(void);
 
-
-#define GAMMA_CALC ((int32_t)(min(max((float)((vid_gamma - 1.0f) * 10.0f), 0.f), 15.f)))
-
-#ifdef USE_OPENGL
-extern int osdcmd_glinfo(osdcmdptr_t parm);
-
-
-#endif
-
-vec2_t CONSTEXPR const g_defaultVideoModes []
-= { { 2560, 1440 }, { 2560, 1200 }, { 2560, 1080 }, { 1920, 1440 }, { 1920, 1200 }, { 1920, 1080 }, { 1680, 1050 },
-    { 1600, 1200 }, { 1600, 900 },  { 1366, 768 },  { 1280, 1024 }, { 1280, 960 },  { 1280, 720 },  { 1152, 864 },
-    { 1024, 768 },  { 1024, 600 },  { 800, 600 },   { 640, 480 },   { 640, 400 },   { 512, 384 },   { 480, 360 },
-    { 400, 300 },   { 320, 240 },   { 320, 200 },   { 0, 0 } };
-
-extern char inputdevices;
-
-// keys
-#define KEYFIFOSIZ 64
-
-// mouse
-
-// joystick
-
-typedef struct
-{
-    int32_t *pAxis;
-    int32_t *pHat;
-    void (*pCallback)(int32_t, int32_t);
-    int32_t  bits;
-    int32_t  numAxes;
-    int32_t  numBalls;
-    int32_t  numButtons;
-    int32_t  numHats;
-    int32_t  isGameController;
-} controllerinput_t;
-
-extern controllerinput_t joystick;
-
 extern int32_t qsetmode;
 
 #define in3dmode() (qsetmode==200)
 
 extern int32_t g_logFlushWindow;
 
-void I_StartTic();
-
-inline int32_t handleevents(void)
-{
-	timerUpdateClock();
-	I_StartTic();
-	return 0;
-}
-
 void mouseGrabInput(bool grab);
-
-extern int32_t inputchecked;
 
 void getScreen(uint8_t* imgBuf);
 

@@ -17,39 +17,6 @@ extern int GUICapture;
 
 // This encapsulates the entire game-readable input state which previously was spread out across several files.
 
-enum
-{
-	MAXMOUSEBUTTONS = 10,
-};
-
-extern bool    g_mouseGrabbed;
-extern bool    g_mouseEnabled;
-extern bool    g_mouseInsideWindow;
-extern bool    g_mouseLockedToWindow;
-
-
-
-enum EMouseBits
-{
-	LEFT_MOUSE     = 1,
-	RIGHT_MOUSE    = 2,
-	MIDDLE_MOUSE   = 4,
-	THUMB_MOUSE    = 8,
-	WHEELUP_MOUSE  = 16,
-	WHEELDOWN_MOUSE= 32,
-	THUMB2_MOUSE    = 64,
-	WHEELLEFT_MOUSE = 128,
-	WHEELRIGHT_MOUSE = 256,
-};
-
-enum
-{
-    MOUSE_IDLE = 0,
-    MOUSE_PRESSED,
-    MOUSE_HELD,
-    MOUSE_RELEASED,
-};
-
 struct ControlInfo
 {
 	int32_t     dx;
@@ -82,7 +49,6 @@ class InputState
 	kb_scancode KB_LastScan;
 	
 	vec2_t  g_mousePos;
-	vec2_t  g_mouseAbs;
 
 public:
 
@@ -241,17 +207,12 @@ public:
 		g_mousePos.x += x;
 		g_mousePos.y += y;
 	}
-	void MouseSetAbs(int x, int y)
-	{
-		g_mouseAbs = { x, y };
-	}
 
 	bool gamePadActive()
 	{
 		// fixme: This needs to be tracked.
 		return false;
 	}
-	int32_t mouseReadAbs(vec2_t* const pResult);
 	void GetMouseDelta(ControlInfo* info);
 
 	void ClearAllInput()
@@ -273,26 +234,9 @@ public:
 
 extern InputState inputState;
 
-inline void CONTROL_GetInput(ControlInfo* info)
-{
-	memset(info, 0, sizeof(ControlInfo));
+void CONTROL_GetInput(ControlInfo* info);
+int32_t handleevents(void);
 
-	if (in_mouse)
-		inputState.GetMouseDelta(info);
-
-	if (in_joystick)
-	{
-		// Handle joysticks/game controllers.
-		float joyaxes[NUM_JOYAXIS];
-
-		I_GetAxes(joyaxes);
-
-		info->dyaw += joyaxes[JOYAXIS_Yaw];
-		info->dx += joyaxes[JOYAXIS_Side];
-		info->dz += joyaxes[JOYAXIS_Forward];
-		info->dpitch += joyaxes[JOYAXIS_Pitch];
-	}
-}
 
 #define WIN_IS_PRESSED ( inputState.WinPressed() )
 #define ALT_IS_PRESSED ( inputState.AltPressed() )

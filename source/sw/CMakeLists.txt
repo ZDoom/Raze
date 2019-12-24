@@ -83,7 +83,6 @@ set( PCH_SOURCES
 	src/scrip2.cpp
 	src/sector.cpp
 	src/serp.cpp
-	src/setup.cpp
 	src/skel.cpp
 	src/skull.cpp
 	src/slidor.cpp
