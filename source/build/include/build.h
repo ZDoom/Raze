@@ -1057,6 +1057,7 @@ void polymostSet2dView(void);   // sets up GL for 2D drawing
 void polymost_glreset(void);
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 void PrecacheHardwareTextures(int nTile);
+void Polymost_Startup();
 
 typedef uint16_t polytintflags_t;
 

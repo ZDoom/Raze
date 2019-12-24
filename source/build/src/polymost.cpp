@@ -5242,7 +5242,7 @@ static void PolymostProcessVoxels(void)
     g_haveVoxels = 2;
 
     OSD_Printf("Generating voxel models for Polymost. This may take a while...\n");
-    videoNextPage();
+    //videoNextPage();
 
     for (bssize_t i = 0; i < MAXVOXELS; i++)
     {
@@ -5257,7 +5257,6 @@ static void PolymostProcessVoxels(void)
 
 void Polymost_Startup()
 {
-    polymost_glreset();
     polymost_glinit();
     PolymostProcessVoxels();
 }

@@ -617,7 +617,7 @@ void V_Init2()
 	C_NewModeAdjust();
 	videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);
 
-	polymost_glinit();
+	Polymost_Startup();
 	GLInterface.Init(SCREENHEIGHT);
 	GLInterface.InitGLState(4, 4/*glmultisample*/);
 	GLInterface.mSamplers->SetTextureFilterMode(hw_texfilter, hw_anisotropy);
