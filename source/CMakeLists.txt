@@ -470,7 +470,6 @@ endif()
 
 # Start defining source files for Demolition
 set( PLAT_WIN32_SOURCES
-	platform/win32/startwin.game.cpp
 	platform/win32/base_sysfb.cpp
 	platform/win32/gl_sysfb.cpp
 	platform/win32/hardware.cpp
@@ -484,21 +483,14 @@ set( PLAT_WIN32_SOURCES
 	platform/win32/i_specialpaths.cpp
 	platform/win32/i_system.cpp
 	platform/win32/i_xinput.cpp
-	platform/win32/startwin.game.cpp
 	platform/win32/st_start.cpp
 	platform/win32/st_start_util.cpp
 	platform/win32/win32basevideo.cpp
 	platform/win32/win32glvideo.cpp
 	platform/win32/win32vulkanvideo.cpp
-	
-	# This needs a rework anyway in order to consolidate the startup dialogs so don't bother to sort in properly.
-	#startosx.game.mm
-	#sw/src/startgtk.game.cpp
-	
 	)
 
 set( PLAT_POSIX_SOURCES
-	#platform/gtk/startgtk.game.cpp
 	)
 	
 set( PLAT_SDL_SOURCES
@@ -517,9 +509,6 @@ set( PLAT_OSX_SOURCES
 	)
 	
 set( PLAT_COCOA_SOURCES
-	#platform/macos/startosx.game.mm
-	#platform/macos/GrpFile.game.mm
-	#platform/macos/GameListSource.game.mm
 	)
 	
 

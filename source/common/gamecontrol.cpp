@@ -74,8 +74,11 @@ TMap<FName, int32_t> NameToTileIndex; // for assigning names to tiles. The menu 
 										// Todo: Add additional definition file for the other games or textures not in that list so that the menu does not have to rely on indices.
 
 CVAR(Int, cl_defaultconfiguration, 2, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-
-
+CVAR(Bool, queryiwad, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+CVAR(String, defaultiwad, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+CVAR(Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
+//CVAR(Bool, autoloadbrightmaps, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)	// hopefully this is an option for later
+//CVAR(Bool, autoloadlights, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 
 UserConfig userConfig;
 
@@ -194,8 +197,8 @@ void UserConfig::ProcessOptions()
 	nomusic = Args->CheckParm("-nomusic");
 	nosound = Args->CheckParm("-nosfx");
 	if (Args->CheckParm("-nosound")) nomusic = nosound = true;
-	if (Args->CheckParm("-setup")) setupstate = 1;
-	else if (Args->CheckParm("-nosetup")) setupstate = 0;
+	if (Args->CheckParm("-setup")) queryiwad = 1;
+	else if (Args->CheckParm("-nosetup")) queryiwad = 0;
 
 
 	if (Args->CheckParm("-file"))
@@ -386,8 +389,48 @@ static TArray<GrpEntry> SetupGame()
 			g++;
 		}
 	}
-	if (groupno == -1 || userConfig.setupstate == 1)
-		groupno = ShowStartupWindow(groups);
+
+
+	if (groupno == -1)
+	{
+		int pick = 0;
+
+		// We got more than one so present the IWAD selection box.
+		if (groups.Size() > 1)
+		{
+			// Locate the user's prefered IWAD, if it was found.
+			if (defaultiwad[0] != '\0')
+			{
+				for (unsigned i = 0; i < groups.Size(); ++i)
+				{
+					FString& basename = groups[i].FileName;
+					if (stricmp(basename, defaultiwad) == 0)
+					{
+						pick = i;
+						break;
+					}
+				}
+			}
+			if (groups.Size() > 1)
+			{
+				TArray<WadStuff> wads;
+				for (auto& found : groups)
+				{
+					WadStuff stuff;
+					stuff.Name = found.FileInfo.name;
+					stuff.Path = ExtractFileBase(found.FileName);
+					wads.Push(stuff);
+				}
+				pick = I_PickIWad(&wads[0], (int)wads.Size(), queryiwad, pick);
+				if (pick >= 0)
+				{
+					// The newly selected IWAD becomes the new default
+					defaultiwad = groups[pick].FileName;
+				}
+				groupno = pick;
+			}
+		}
+	}
 
 	if (groupno == -1) return TArray<GrpEntry>();
 	auto& group = groups[groupno];

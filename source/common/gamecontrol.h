@@ -126,6 +126,11 @@ struct GrpInfo
 };
 
 
+struct WadStuff
+{
+	FString Path;
+	FString Name;
+};
 
 struct GrpEntry
 {

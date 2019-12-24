@@ -76,7 +76,7 @@
 #include "s_music.h"
 
 #include "stats.h"
-//#include "st_start.h"
+#include "st_start.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -537,7 +537,7 @@ void RestoreConView()
 	ShowWindow (GameTitleWindow, SW_SHOW);
 	I_ShutdownInput ();		// Make sure the mouse pointer is available.
 	// Make sure the progress bar isn't visible.
-	//DeleteStartupScreen();
+	DeleteStartupScreen();
 }
 
 //==========================================================================
