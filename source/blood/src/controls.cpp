@@ -38,24 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-int32_t ctrlCheckAllInput(void)
-{
-    return (
-        inputState.keyBufferWaiting() ||
-        inputState.MouseGetButtons() 
-        //JOYSTICK_GetButtons()
-        );
-}
-
-void ctrlClearAllInput(void)
-{
-    inputState.keyFlushChars();
-    inputState.ClearKeysDown();
-    inputState.MouseClearAllButtonss();
-    //JOYSTICK_ClearAllButtons()
-    ;
-}
-
 GINPUT gInput;
 bool bSilentAim = false;
 

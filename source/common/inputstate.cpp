@@ -72,22 +72,8 @@ void InputState::GetMouseDelta(ControlInfo * info)
 
 void InputState::AddEvent(const event_t *ev)
 {
-	// Set the old mouseBits. Yet another piece of cruft that needs to go away.
 	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
 	{
-		switch (ev->data1)
-		{
-			case KEY_MOUSE1	: mouseSetBit(LEFT_MOUSE, ev->type == EV_KeyDown); handleevents_updatemousestate(ev->type); break;
-			case KEY_MOUSE2	: mouseSetBit(RIGHT_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MOUSE3	: mouseSetBit(MIDDLE_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MOUSE4	: mouseSetBit(THUMB_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MWHEELUP: mouseSetBit(WHEELUP_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MWHEELDOWN: mouseSetBit(WHEELDOWN_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MWHEELLEFT: mouseSetBit(WHEELLEFT_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MWHEELRIGHT: mouseSetBit(WHEELRIGHT_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MOUSE5: mouseSetBit(THUMB2_MOUSE, ev->type == EV_KeyDown); break;
-			default: break;
-		}
 		keySetState(ev->data1, ev->type == EV_KeyDown);
 		if (ev->data2) keySetChar(ev->data2);
 	}

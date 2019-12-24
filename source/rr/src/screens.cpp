@@ -54,24 +54,22 @@ int32_t g_noLogo = 0;
 ////////// OFTEN-USED FEW-LINERS //////////
 static void G_HandleEventsWhileNoInput(void)
 {
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 
-    while (!I_CheckAllInput())
+    while (!inputState.CheckAllInput())
         G_HandleAsync();
 
-    I_ClearAllInput();
 }
 
 static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
 {
     S_PlaySound(soundnum);
-    I_ClearAllInput();
+    inputState.ClearAllInput();
     while (S_CheckSoundPlaying(-1, soundnum))
     {
         G_HandleAsync();
-        if (I_CheckAllInput())
+        if (inputState.CheckAllInput())
         {
-            I_ClearAllInput();
             return 1;
         }
     }
@@ -830,37 +828,6 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-    if (ud.show_help)
-    {
-        switch (ud.show_help)
-        {
-        case 1:
-            rotatesprite_fs(160<<16, 100<<16, 65536L, 0, TEXTSTORY, 0, 0, 10+64);
-            break;
-        case 2:
-            rotatesprite_fs(160<<16, 100<<16, 65536L, 0, F1HELP, 0, 0, 10+64);
-            break;
-        case 3:
-            if (RRRA)
-                rotatesprite_fs(160<<16, 100<<16, 65536L, 0, RRTILE1636, 0, 0, 10+64);
-            break;
-        }
-
-        if (I_ReturnTrigger())
-        {
-            I_ReturnTriggerClear();
-            ud.show_help = 0;
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-            {
-                ready2send = 1;
-                totalclock = ototalclock;
-            }
-            G_UpdateScreenArea();
-        }
-
-        return;
-    }
-
     i = pp->cursectnum;
     if (i > -1)
     {
@@ -1096,7 +1063,7 @@ void G_DisplayRest(int32_t smoothratio)
 #ifndef EDUKE32_TOUCH_DEVICES
     if (VOLUMEONE)
     {
-        if (ud.show_help == 0 && g_showShareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+        if (g_showShareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             rotatesprite_fs((320-50)<<16, 9<<16, 65536L, 0, BETAVERSION, 0, 0, 2+8+16+128);
     }
 #endif
@@ -1216,17 +1183,16 @@ void G_DisplayExtraScreens(void)
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         fadepal(0, 0, 0, 0, 252, 28);
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3291, 0, 0, 2+8+64+BGSTRETCH);
         fadepaltile(0, 0, 0, 252, 0, -28, 3291);
-        while (!I_CheckAllInput())
+        while (!inputState.CheckAllInput())
             G_HandleAsync();
 
         fadepaltile(0, 0, 0, 0, 252, 28, 3291);
-        I_ClearAllInput();
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3290, 0, 0, 2+8+64+BGSTRETCH);
         fadepaltile(0, 0, 0, 252, 0, -28, 3290);
-        while (!I_CheckAllInput())
+        while (!inputState.CheckAllInput())
             G_HandleAsync();
 
 #ifdef __ANDROID__
@@ -1244,15 +1210,15 @@ void G_DisplayExtraScreens(void)
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         fadepal(0, 0, 0, 0, 252, 28);
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         totalclock = 0;
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, TENSCREEN, 0, 0, 2+8+64+BGSTRETCH);
         fadepaltile(0, 0, 0, 252, 0, -28, TENSCREEN);
-        while (!I_CheckAllInput() && totalclock < 2400)
+        while (!inputState.CheckAllInput() && totalclock < 2400)
             G_HandleAsync();
 
         fadepaltile(0, 0, 0, 0, 252, 28, TENSCREEN);
-        I_ClearAllInput();
+        inputState.ClearAllInput();
 #ifdef __ANDROID__
         inExtraScreens = 0;
 #endif
@@ -1266,7 +1232,7 @@ void G_DisplayLogo(void)
 
     ready2send = 0;
 
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
     videoClearScreen(0L);
@@ -1282,12 +1248,12 @@ void G_DisplayLogo(void)
         return;
     if (RR)
     {
-        if (!I_CheckAllInput() && g_noLogoAnim == 0)
+        if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
         {
             Net_GetPackets();
             Anim_Play("rr_intro.anm");
             G_FadePalette(0, 0, 0, 252);
-            I_ClearAllInput();
+            inputState.ClearAllInput();
         }
 
         videoClearScreen(0L);
@@ -1295,12 +1261,12 @@ void G_DisplayLogo(void)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        if (!I_CheckAllInput() && g_noLogoAnim == 0)
+        if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
         {
             Net_GetPackets();
             Anim_Play("redneck.anm");
             G_FadePalette(0, 0, 0, 252);
-            I_ClearAllInput();
+            inputState.ClearAllInput();
         }
 
         videoClearScreen(0L);
@@ -1308,12 +1274,12 @@ void G_DisplayLogo(void)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        if (!I_CheckAllInput() && g_noLogoAnim == 0)
+        if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
         {
             Net_GetPackets();
             Anim_Play("xatlogo.anm");
             G_FadePalette(0, 0, 0, 252);
-            I_ClearAllInput();
+            inputState.ClearAllInput();
         }
 
         videoClearScreen(0L);
@@ -1335,12 +1301,12 @@ void G_DisplayLogo(void)
         if (VOLUMEALL)
 #endif
         {
-            if (!I_CheckAllInput() && g_noLogoAnim == 0)
+            if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
             {
                 Net_GetPackets();
                 Anim_Play("logo.anm");
                 G_FadePalette(0, 0, 0, 252);
-                I_ClearAllInput();
+                inputState.ClearAllInput();
             }
 
             videoClearScreen(0L);
@@ -1354,7 +1320,7 @@ void G_DisplayLogo(void)
         //g_player[myconnectindex].ps->palette = drealms;
         //G_FadePalette(0,0,0,252);
 
-        if (!I_CheckAllInput() && g_noLogoAnim == 0)
+        if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
         {
             Net_GetPackets();
 
@@ -1362,7 +1328,7 @@ void G_DisplayLogo(void)
             {
                 Anim_Play("3dr.anm");
                 G_FadePalette(0, 0, 0, 252);
-                I_ClearAllInput();
+                inputState.ClearAllInput();
             }
             else
             {
@@ -1376,7 +1342,7 @@ void G_DisplayLogo(void)
                 fadepaltile(0, 0, 0, 252, 0, -28, DREALMS);
                 totalclock = 0;
 
-                while (totalclock < (120 * 7) && !I_CheckAllInput())
+                while (totalclock < (120 * 7) && !inputState.CheckAllInput())
                 {
                     if (G_FPSLimit())
                     {
@@ -1400,7 +1366,7 @@ void G_DisplayLogo(void)
         videoClearScreen(0L);
         videoNextPage();
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
 
         videoClearScreen(0L);
         videoNextPage();
@@ -1419,7 +1385,7 @@ void G_DisplayLogo(void)
 #ifndef EDUKE32_SIMPLE_MENU
             totalclock < (860+120) &&
 #endif
-            !I_CheckAllInput())
+            !inputState.CheckAllInput())
         {
             if (G_FPSLimit())
             {
@@ -1487,7 +1453,7 @@ void G_DisplayLogo(void)
             G_HandleAsync();
         }
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
     }
 
     renderFlushPerms();
@@ -1513,14 +1479,12 @@ void G_DoOrderScreen(void)
     for (i=0; i<4; i++)
     {
         fadepal(0, 0, 0, 0, 252, 28);
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, ORDERING+i, 0, 0, 2+8+64+BGSTRETCH);
         fadepal(0, 0, 0, 252, 0, -28);
-        while (!I_CheckAllInput())
+        while (!inputState.CheckAllInput())
             G_HandleAsync();
     }
-
-    I_ClearAllInput();
 }
 
 
@@ -1541,7 +1505,7 @@ static void G_BonusCutscenes(void)
             if (adult_lockout == 0)
             {
                 Anim_Play("turdmov.anm");
-                I_ClearAllInput();
+                inputState.ClearAllInput();
                 videoClearScreen(0L);
                 videoNextPage();
             }
@@ -1549,12 +1513,12 @@ static void G_BonusCutscenes(void)
             ud.volume_number = 1;
             ud.eog = 0;
             fadepal(0, 0, 0, 0, 252, 4);
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);
             rotatesprite_fs(0, 0, 65536L, 0, TENSCREEN, 0, 0, 2+8+16+64+128+BGSTRETCH);
             videoNextPage();
             fadepal(0, 0, 0, 252, 0, -4);
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             G_HandleEventsWhileNoInput();
             fadepal(0, 0, 0, 0, 252, 4);
             FX_StopAllSounds();
@@ -1566,7 +1530,7 @@ static void G_BonusCutscenes(void)
             if (adult_lockout == 0)
             {
                 Anim_Play("rr_outro.anm");
-                I_ClearAllInput();
+                inputState.ClearAllInput();
                 videoClearScreen(0L);
                 videoNextPage();
             }
@@ -1576,12 +1540,12 @@ static void G_BonusCutscenes(void)
             ud.volume_number = 0;
             fadepal(0, 0, 0, 0, 252, 4);
             videoSetViewableArea(0, 0, xdim-1, ydim-1);
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8 + 2 + 1);
             rotatesprite_fs(0, 0, 65536L, 0, TENSCREEN, 0, 0, 2 + 8 + 16 + 64 + 128 + BGSTRETCH);
             videoNextPage();
             fadepal(0, 0, 0, 252, 0, -4);
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             G_HandleEventsWhileNoInput();
             fadepal(0, 0, 0, 0, 252, 4);
             FX_StopAllSounds();
@@ -1614,7 +1578,7 @@ static void G_BonusCutscenes(void)
             videoNextPage();
             fadepal(0, 0, 0, 252, 0, -4);
 
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             totalclock = 0;
 
             while (1)
@@ -1675,13 +1639,13 @@ static void G_BonusCutscenes(void)
 
                 G_HandleAsync();
 
-                if (I_CheckAllInput()) break;
+                if (inputState.CheckAllInput()) break;
             }
 
             fadepal(0, 0, 0, 0, 252, 4);
         }
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
 
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3292, 0, 0, 2+8+64+BGSTRETCH);
@@ -1705,7 +1669,7 @@ static void G_BonusCutscenes(void)
         {
             fadepal(0, 0, 0, 252, 0, -4);
             Anim_Play("cineov2.anm");
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             videoClearScreen(0L);
             videoNextPage();
 
@@ -1713,7 +1677,7 @@ static void G_BonusCutscenes(void)
             fadepal(0, 0, 0, 0, 252, 4);
         }
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3293, 0, 0, 2+8+64+BGSTRETCH);
         fadepal(0, 0, 0, 252, 0, -4);
@@ -1733,7 +1697,7 @@ static void G_BonusCutscenes(void)
         {
             fadepal(0, 0, 0, 252, 0, -4);
 
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             int t = Anim_Play("vol4e1.anm");
             videoClearScreen(0L);
             videoNextPage();
@@ -1755,7 +1719,7 @@ static void G_BonusCutscenes(void)
         FX_StopAllSounds();
         S_ClearSoundLocks();
         S_PlaySound(ENDSEQVOL3SND4);
-        I_ClearAllInput();
+        inputState.ClearAllInput();
 
         G_FadePalette(0, 0, 0, 0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
@@ -1770,7 +1734,7 @@ static void G_BonusCutscenes(void)
 
         fadepal(0, 0, 0, 252, 0, -12);
         videoNextPage();
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         G_HandleEventsWhileNoInput();
         fadepal(0, 0, 0, 0, 252, 12);
 
@@ -1779,7 +1743,7 @@ static void G_BonusCutscenes(void)
 
         Anim_Play("DUKETEAM.ANM");
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         G_HandleEventsWhileNoInput();
 
         videoClearScreen(0L);
@@ -1788,7 +1752,7 @@ static void G_BonusCutscenes(void)
 
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        I_ClearAllInput();
+        inputState.ClearAllInput();
 
         break;
 
@@ -1800,7 +1764,7 @@ static void G_BonusCutscenes(void)
         {
             fadepal(0, 0, 0, 252, 0, -4);
             Anim_Play("cineov3.anm");
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             ototalclock = totalclock+200;
             while (totalclock < ototalclock)
                 G_HandleAsync();
@@ -1813,7 +1777,7 @@ static void G_BonusCutscenes(void)
 
         Anim_Play("RADLOGO.ANM");
 
-        if (adult_lockout == 0 && !I_CheckAllInput())
+        if (!inputState.CheckAllInput() && adult_lockout == 0)
         {
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND5)) goto ENDANM;
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND6)) goto ENDANM;
@@ -1822,15 +1786,11 @@ static void G_BonusCutscenes(void)
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND9)) goto ENDANM;
         }
 
-        I_ClearAllInput();
-
         totalclock = 0;
         if (PLUTOPAK)
         {
-            while (totalclock < 120 && !I_CheckAllInput())
+            while (!inputState.CheckAllInput() && totalclock < 120)
                 G_HandleAsync();
-
-            I_ClearAllInput();
         }
         else
         {
@@ -1849,7 +1809,7 @@ static void G_BonusCutscenes(void)
 
             Anim_Play("DUKETEAM.ANM");
 
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             G_HandleEventsWhileNoInput();
 
             videoClearScreen(0L);
@@ -1857,7 +1817,7 @@ static void G_BonusCutscenes(void)
             G_FadePalette(0, 0, 0, 252);
         }
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
@@ -2044,7 +2004,7 @@ void G_BonusScreen(int32_t bonusonly)
             S_PlaySound(BONUSMUSIC);
 
         videoNextPage();
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         fadepal(0, 0, 0, 252, 0, RR ? -4 : -28);
         totalclock = 0;
 
@@ -2059,9 +2019,8 @@ void G_BonusScreen(int32_t bonusonly)
                 videoNextPage();
             }
 
-            if (I_CheckAllInput())
+            if (inputState.CheckAllInput())
             {
-                I_ClearAllInput();
                 break;
             }
         }
@@ -2105,7 +2064,7 @@ void G_BonusScreen(int32_t bonusonly)
     }
 
     videoNextPage();
-    I_ClearAllInput();
+    inputState.ClearAllInput();
     fadepal(0, 0, 0, 252, 0, -4);
     bonuscnt = 0;
     totalclock = 0;
@@ -2408,12 +2367,10 @@ void G_BonusScreen(int32_t bonusonly)
                 if (totalclock > 10240 && totalclock < 10240+10240)
                     totalclock = 1024;
 
-                if (I_CheckAllInput() && totalclock >(60*2)) // JBF 20030809
+                if (inputState.CheckAllInput() && totalclock >(60*2)) // JBF 20030809
                 {
-                    I_ClearAllInput();
                     if (totalclock < (60*13))
                     {
-                        inputState.keyFlushChars();
                         totalclock = (60*13);
                     }
                     else if (totalclock < 1000000000)
@@ -2626,7 +2583,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
             S_PlaySound(BONUSMUSIC);
 
         videoNextPage();
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         fadepal(0, 0, 0, 252, 0, -4);
         totalclock = 0;
 
@@ -2641,9 +2598,8 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                 videoNextPage();
             }
 
-            if (I_CheckAllInput())
+            if (inputState.CheckAllInput())
             {
-                I_ClearAllInput();
                 break;
             }
         }
@@ -2669,7 +2625,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
 
     menutext(15, 192, "Press any key to continue");
 
-    I_ClearAllInput();
+    inputState.ClearAllInput();
     if (!showMap)
     {
         videoNextPage();
@@ -2907,13 +2863,10 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                 if (totalclock > 10240 && totalclock < 10240+10240)
                     totalclock = 1024;
 
-                if (I_CheckAllInput() && totalclock >(60*2)) // JBF 20030809
+                if (inputState.CheckAllInput() && totalclock >(60*2)) // JBF 20030809
                 {
-                    I_ClearAllInput();
-
                     if (totalclock < (60*13))
                     {
-                        inputState.keyFlushChars();
                         totalclock = (60*13);
                     }
                     else if (totalclock < 1000000000)
@@ -2954,9 +2907,8 @@ void G_BonusScreenRRRA(int32_t bonusonly)
             }
 
             if (!S_CheckSoundPlaying(-1,35)) break;
-            if (I_CheckAllInput())
+            if (inputState.CheckAllInput())
             {
-                I_ClearAllInput();
                 S_StopSound(35);
                 break;
             }

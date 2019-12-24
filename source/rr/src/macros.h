@@ -37,10 +37,6 @@ static FORCE_INLINE int32_t krand2(void)
 
 #define BGSTRETCH (hud_bgstretch ? 1024 : 0)
 
-#define WIN_IS_PRESSED ( inputState.WinPressed() )
-#define ALT_IS_PRESSED ( inputState.AltPressed() )
-#define SHIFTS_IS_PRESSED ( inputState.ShiftPressed() )
-
 #define RANDOMSCRAP(s, i) \
 { \
     int32_t const r1 = krand2(), r2 = krand2(), r3 = krand2(), r4 = krand2(), r5 = krand2(), r6 = krand2(), r7 = krand2(); \

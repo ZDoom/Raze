@@ -2333,7 +2333,6 @@ void MapSetAll2D(uint8_t fill);    // game.c
 void TerminateGame(void);   // game.c
 void TerminateLevel(void);  // game.c
 void ResetKeys(void);   // game.c
-SWBOOL KeyPressed(void);  // game.c
 void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
 void COVERsetbrightness(int bright, unsigned char *pal);    // game.c
 void DrawMenuLevelScreen(void); // game.c

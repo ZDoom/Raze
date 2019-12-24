@@ -47,7 +47,7 @@ char Wait(int nTicks)
     while (totalclock < nTicks)
     {
         gameHandleEvents();
-        char key = inputState.keyGetScan();
+        auto key = inputState.keyGetScan();
         if (key)
         {
             if (key == sc_Escape) // sc_Escape
@@ -253,7 +253,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     gameHandleEvents();
     ClockTicks nStartTime = totalclock;
 
-    ctrlClearAllInput();
+    inputState.ClearAllInput();
     
     int nFrame = 0;
     do
@@ -262,7 +262,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
         if (scale((int)(totalclock-nStartTime), nFrameRate, kTicRate) < nFrame)
             continue;
 
-        if (ctrlCheckAllInput())
+        if (inputState.CheckAllInput())
             break;
 
         videoClearScreen(0);
@@ -275,13 +275,12 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
         videoNextPage();
 
-        ctrlClearAllInput();
         nFrame++;
         Smacker_GetNextFrame(hSMK);
     } while(nFrame < nFrames);
 
     Smacker_Close(hSMK);
-    ctrlClearAllInput();
+    inputState.ClearAllInput();
     soundEngine->StopAllChannels();
     videoSetPalette(0, 0, 8+2);
 	tileDelete(kSMKTile);

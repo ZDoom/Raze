@@ -687,7 +687,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     VM_OnEvent(EVENT_DISPLAYSTART, pPlayer->i, playerNum);
 
-    if ((ud.overhead_on == 2 && !automapping) || ud.show_help || (pPlayer->cursectnum == -1 && videoGetRenderMode() != REND_CLASSIC))
+    if ((ud.overhead_on == 2 && !automapping) || (pPlayer->cursectnum == -1 && videoGetRenderMode() != REND_CLASSIC))
         return;
 
     if (r_usenewaspect)
@@ -4635,8 +4635,7 @@ void G_HandleLocalKeys(void)
             }
         }
     }
-
-    if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED && !WIN_IS_PRESSED)
+    else
     {
         if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_SendMessage))
         {
@@ -4674,6 +4673,7 @@ void G_HandleLocalKeys(void)
         }
     }
 
+#if 0 // fixme: We should not query Esc here, this needs to be done differently
     if (I_EscapeTrigger() && ud.overhead_on && myplayer.newowner == -1)
     {
         I_EscapeTriggerClear();
@@ -4682,6 +4682,7 @@ void G_HandleLocalKeys(void)
         ud.scrollmode    = 0;
         G_UpdateScreenArea();
     }
+#endif
 
     if (buttonMap.ButtonDown(gamefunc_Map))
     {
@@ -6066,7 +6067,7 @@ MAIN_LOOP_RESTART:
 
                     int const moveClock = (int)totalclock;
 
-                    if (((ud.show_help == 0 && !GUICapture && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
+                    if (((!GUICapture && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
                         && (myplayer.gm & MODE_GAME))
                     {
                         G_MoveLoop();

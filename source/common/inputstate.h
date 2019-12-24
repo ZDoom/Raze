@@ -12,7 +12,7 @@
 
 extern char appactive;
 
-typedef uint8_t kb_scancode;
+typedef uint16_t kb_scancode;
 extern int GUICapture;
 
 // This encapsulates the entire game-readable input state which previously was spread out across several files.
@@ -72,8 +72,8 @@ class InputState
 
 	uint8_t KeyStatus[NUM_KEYS];
 
-	char    g_keyFIFO[KEYFIFOSIZ];
-	char    g_keyAsciiFIFO[KEYFIFOSIZ];
+	kb_scancode g_keyFIFO[KEYFIFOSIZ];
+	char16_t   g_keyAsciiFIFO[KEYFIFOSIZ];
 	uint8_t g_keyFIFOpos;
 	uint8_t g_keyFIFOend;
 	uint8_t g_keyAsciiPos;
@@ -81,9 +81,6 @@ class InputState
 
 	kb_scancode KB_LastScan;
 	
-	int g_mouseBits;
-	uint8_t g_mouseClickState;
-
 	vec2_t  g_mousePos;
 	vec2_t  g_mouseAbs;
 
@@ -148,12 +145,6 @@ public:
 		return ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1)) == g_keyAsciiPos;
 	}
 
-	void keyBufferInsert(char code)
-	{
-		g_keyAsciiFIFO[g_keyAsciiEnd] = code;
-		g_keyAsciiEnd = ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1));
-	}
-
 	void keySetState(int32_t key, int32_t state)
 	{
 		if (state && !GetKeyStatus(key))
@@ -162,8 +153,6 @@ public:
 		}
 
 		SetKeyStatus(key, state);
-		event_t ev = { (uint8_t)(state ? EV_KeyDown : EV_KeyUp), 0, (int16_t)key };
-
 		if (state)
 		{
 			g_keyFIFO[g_keyFIFOend] = key;
@@ -172,14 +161,13 @@ public:
 		}
 	}
 
-	char keyGetScan(void)
+	kb_scancode keyGetScan()
 	{
 		if (g_keyFIFOpos == g_keyFIFOend)
 			return 0;
 
-		char const c = g_keyFIFO[g_keyFIFOpos];
+		auto const c = g_keyFIFO[g_keyFIFOpos];
 		g_keyFIFOpos = ((g_keyFIFOpos + 2) & (KEYFIFOSIZ - 1));
-
 		return c;
 	}
 
@@ -205,7 +193,7 @@ public:
 	
 	void keySetChar(int key)
 	{
-		g_keyAsciiFIFO[g_keyAsciiEnd] = key;
+		g_keyAsciiFIFO[g_keyAsciiEnd] = (char16_t)key;
 		g_keyAsciiEnd = ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1));
 	}
 
@@ -242,45 +230,7 @@ public:
 		ClearAllKeyStatus();
 	}
 	
-	void mouseSetBit(int val, int state)
-	{
-		if (state) g_mouseBits |= val;
-		else g_mouseBits &=~val;
-	}
-	
-	void handleevents_updatemousestate(uint8_t state)
-	{
-		g_mouseClickState = state == EV_KeyUp ? MOUSE_RELEASED : MOUSE_PRESSED;
-	}
-
 	void AddEvent(const event_t* ev);
-
-	int32_t mouseReadButtons(void)
-	{
-		return (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || GUICapture) ? 0 : g_mouseBits;
-	}
-	
-	int mouseClickState()
-	{
-		return g_mouseClickState;
-	}
-	
-	void clearMouseClickState()
-	{
-		g_mouseClickState = MOUSE_IDLE;
-	}
-	
-
-	int32_t mouseAdvanceClickState(void)
-	{
-		switch (g_mouseClickState)
-		{
-			case MOUSE_PRESSED: g_mouseClickState  = MOUSE_HELD; return 1;
-			case MOUSE_RELEASED: g_mouseClickState = MOUSE_IDLE; return 1;
-			case MOUSE_HELD: return 1;
-		}
-		return 0;
-	}
 
 	void MouseSetPos(int x, int y)
 	{
@@ -301,9 +251,6 @@ public:
 		// fixme: This needs to be tracked.
 		return false;
 	}
-	int32_t MouseGetButtons(void) { return mouseReadButtons(); }
-	inline void MouseClearButton(int32_t b) { g_mouseBits &= ~b; }
-	inline void MouseClearAllButtonss(void) { g_mouseBits = 0; }
 	int32_t mouseReadAbs(vec2_t* const pResult);
 	void GetMouseDelta(ControlInfo* info);
 
@@ -312,6 +259,14 @@ public:
 		ClearKeysDown();
 		keyFlushChars();
 		keyFlushScans();
+		buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
+	}
+
+	bool CheckAllInput()
+	{
+		auto res = keyGetScan();
+		ClearAllInput();
+		return res;
 	}
 
 };
@@ -339,5 +294,6 @@ inline void CONTROL_GetInput(ControlInfo* info)
 	}
 }
 
-
-
+#define WIN_IS_PRESSED ( inputState.WinPressed() )
+#define ALT_IS_PRESSED ( inputState.AltPressed() )
+#define SHIFTS_IS_PRESSED ( inputState.ShiftPressed() )

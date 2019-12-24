@@ -90,23 +90,16 @@ extern int32_t qsetmode;
 
 extern int32_t g_logFlushWindow;
 
-void I_GetEvent();
+void I_StartTic();
 
 inline int32_t handleevents(void)
 {
 	timerUpdateClock();
-	I_GetEvent();
+	I_StartTic();
 	return 0;
 }
 
-int32_t handleevents_peekkeys(void);
-
-int32_t initinput(void);
-void uninitinput(void);
-
 void mouseGrabInput(bool grab);
-void mouseLockToWindow(bool a);
-void mouseMoveToCenter(void);
 
 extern int32_t inputchecked;
 
@@ -115,7 +108,6 @@ void getScreen(uint8_t* imgBuf);
 
 int32_t wm_msgbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
 int32_t wm_ynbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
-void wm_setapptitle(const char *name);
 
 #include "print.h"
 

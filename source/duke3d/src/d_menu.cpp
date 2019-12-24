@@ -505,7 +505,7 @@ void GameInterface::MenuClosed()
 	if (gm & MODE_GAME)
 	{
 		if (gm & MODE_MENU)
-			I_ClearAllInput();
+			inputState.ClearAllInput();
 
 		// The following lines are here so that you cannot close the menu when no game is running.
 		gm &= ~MODE_MENU;

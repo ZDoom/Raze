@@ -4268,9 +4268,6 @@ static int32_t our_neartag_blacklist(int32_t UNUSED(spriteNum))
 static void G_ClearCameras(DukePlayer_t *p)
 {
     G_ClearCameraView(p);
-
-    if (I_EscapeTrigger())
-        I_EscapeTriggerClear();
 }
 
 void P_CheckSectors(int playerNum)

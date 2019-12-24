@@ -50,6 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "inputstate.h"
 #include "v_video.h"
 #include "st_start.h"
+#include "s_music.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -530,6 +531,7 @@ int RunGame()
 		I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
 	}
 
+	mouseGrabInput(true);	// the intros require the mouse to be grabbed.
 	return gi->app_main();
 }
 

@@ -811,8 +811,6 @@ void LocalKeys(void)
                 gPlayerMsg.Set(*CombatMacros[fk]);
                 gPlayerMsg.Send();
             }
-            inputState.keyFlushScans();
-			inputState.ClearKeyStatus(key);
             buttonMap.ClearButton(gamefunc_See_Chase_View);
             return;
         }

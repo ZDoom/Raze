@@ -841,7 +841,6 @@ void P_ResetStatus(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
-    ud.show_help               = 0;
     ud.showallmap              = 0;
     pPlayer->dead_flag         = 0;
     pPlayer->wackedbyactor     = -1;

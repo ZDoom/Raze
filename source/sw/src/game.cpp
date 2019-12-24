@@ -1455,11 +1455,6 @@ ResetKeys(void)
 }
 
 
-SWBOOL KeyPressed(void)
-{
-    return I_GeneralTrigger();
-}
-
 uint8_t* KeyPressedRange(uint8_t* kb, uint8_t* ke)
 {
     uint8_t* k;
@@ -1539,9 +1534,9 @@ void LogoLevel(void)
             ototalclock += synctics;
         }
 
-        if (totalclock > 5*120 || I_GeneralTrigger())
+        if (totalclock > 5*120 || inputState.CheckAllInput())
         {
-			I_GeneralTriggerClear();
+			inputState.ClearAllInput();
             break;
         }
     }
@@ -1658,7 +1653,7 @@ void SybexScreen(void)
     videoNextPage();
 
     ResetKeys();
-    while (!KeyPressed()) handleevents();
+    while (!inputState.CheckAllInput()) handleevents();
 }
 
 // CTW REMOVED END
@@ -1713,7 +1708,7 @@ TitleLevel(void)
 
         videoNextPage();
 
-        if (totalclock > 5*120 || KeyPressed())
+        if (totalclock > 5*120 || inputState.CheckAllInput())
         {
             DemoMode = TRUE;
             DemoPlaying = TRUE;
@@ -2154,9 +2149,8 @@ void BonusScreen(PLAYERp pp)
         }
         ototalclock += limit;
 
-        if (I_GeneralTrigger())
+        if (inputState.CheckAllInput())
         {
-			I_GeneralTriggerClear();
             if (State >= s_BonusRest && State < &s_BonusRest[SIZ(s_BonusRest)])
             {
                 State = s_BonusAnim[STD_RANDOM_RANGE(SIZ(s_BonusAnim))];
@@ -2437,13 +2431,7 @@ void StatScreen(PLAYERp mpp)
 
     videoNextPage();
 
-    if (KeyPressed())
-    {
-        while (KeyPressed()) ;
-    }
-
-	inputState.ClearKeyStatus(KEYSC_SPACE);
-	inputState.ClearKeyStatus(KEYSC_ENTER);
+    inputState.ClearAllInput();
 
     PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
 

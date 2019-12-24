@@ -598,7 +598,7 @@ ScenePlayBack(void)
                 }
             }
 
-            if (KeyPressed())
+            if (inputState.CheckAllInput())
                 DemoDone = TRUE;
 
             if (DemoDone)

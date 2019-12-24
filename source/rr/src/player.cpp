@@ -2956,7 +2956,7 @@ void P_GetInput(int playerNum)
     localInput.bits |= (mouseaim << SK_AIMMODE);
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
     localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
-    localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE;
+    //localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE; fixme.This needs to be done differently
 
     if (RR)
     {
@@ -3077,7 +3077,7 @@ void P_GetInputMotorcycle(int playerNum)
                  (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel < 0 || input.q16avel > 0))) << SK_INV_RIGHT;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Open) << SK_OPEN;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Inventory) << SK_INVENTORY;
-    localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE;
+    //localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE; fixme.This needs to be done differently
 
     if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
     {
@@ -3342,7 +3342,7 @@ void P_GetInputBoat(int playerNum)
                  (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel < 0 || input.q16avel > 0))) << SK_INV_RIGHT;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Open) << SK_OPEN;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Inventory) << SK_INVENTORY;
-    localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE;
+    //localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE; fixme.This needs to be done differently
 
     if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
     {

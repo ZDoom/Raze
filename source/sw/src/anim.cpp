@@ -281,16 +281,9 @@ playanm(short anim_num)
             switch (ANIMnum)
             {
             case ANIM_INTRO:
-                if (I_GeneralTrigger())
-                {
-                    I_GeneralTriggerClear();
-                    goto ENDOFANIMLOOP;
-                }
-                break;
             case ANIM_SERP:
-                if (I_EscapeTrigger())
+                if (inputState.CheckAllInput())
                 {
-                    I_EscapeTriggerClear();
                     goto ENDOFANIMLOOP;
                 }
                 break;

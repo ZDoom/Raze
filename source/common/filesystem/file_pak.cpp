@@ -33,6 +33,7 @@
 */
 
 #include "resourcefile.h"
+#include "printf.h"
 //#include "w_wad.h"
 //#include "doomtype.h"
 
@@ -103,7 +104,7 @@ bool FPakFile::Open(bool quiet)
 
 	Lumps.Resize(NumLumps);
 
-	//if (!quiet) Printf(", %d lumps\n", NumLumps);
+	if (!quiet) Printf(", %d lumps\n", NumLumps);
 
 	for(uint32_t i = 0; i < NumLumps; i++)
 	{

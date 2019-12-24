@@ -669,7 +669,6 @@ void P_ResetPlayer(int playerNum)
 {
     auto &p = *g_player[playerNum].ps;
 
-    ud.show_help  = 0;
     ud.showallmap = 0;
 
     p.access_spritenum   = -1;

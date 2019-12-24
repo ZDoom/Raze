@@ -274,7 +274,7 @@ int32_t Anim_Play(const char *fn)
     uint16_t soundidx = 0;  // custom anim sounds
     int32_t running = 1, i;
 
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 
 #ifdef USE_LIBVPX
     uint16_t framenum = 0;
@@ -421,13 +421,13 @@ int32_t Anim_Play(const char *fn)
             palfadedelta = 0;
             videoShowFrame(0);
 
-            //            I_ClearAllInput();
+            //            inputState.ClearAllInput();
 
             do
             {
                 G_HandleAsync();
 
-                if (I_CheckAllInput())
+                if (inputState.CheckAllInput())
                 {
                     running = 0;
                     break;
@@ -441,7 +441,7 @@ int32_t Anim_Play(const char *fn)
         animvpx_restore_glstate();
         animvpx_uninit_codec(&codec);
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         return !running;  // done with playing VP8!
     }
 #endif
@@ -514,7 +514,7 @@ int32_t Anim_Play(const char *fn)
 		TileFiles.tileSetExternal(TILE_ANIM, 200, 320, ANIM_DrawFrame(i));
         tileInvalidate(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
-        if (I_CheckAllInput())
+        if (inputState.CheckAllInput())
         {
             running = 0;
             goto end_anim_restore_gl;
@@ -556,7 +556,7 @@ int32_t Anim_Play(const char *fn)
 
         videoNextPage();
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
 
         ototalclock += anim->framedelay;
 
@@ -580,7 +580,7 @@ end_anim_restore_gl:
     gltexapplyprops();
 #endif
 end_anim:
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 	anim->animbuf = nullptr;
     ANIM_FreeAnim();
 	tileDelete(TILE_ANIM);

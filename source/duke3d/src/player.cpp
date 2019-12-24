@@ -3066,7 +3066,7 @@ void P_GetInput(int const playerNum)
     localInput.bits |= (mouseaim << SK_AIMMODE);
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
     localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
-    localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE;
+    //localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE; fixme.This needs to be done differently
 
     if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
     {

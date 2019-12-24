@@ -30,8 +30,6 @@ enum {
 extern char typebuf[TYPEBUFSIZE];
 
 
-extern int32_t I_CheckAllInput(void);
-extern void I_ClearAllInput(void);
 
 // Advance = Selecting a menu option || Saying "Yes" || Going forward in Help/Credits
 // Return = Closing a sub-menu || Saying "No"
@@ -40,12 +38,6 @@ extern void I_ClearAllInput(void);
 
 extern int32_t I_AdvanceTrigger(void);
 extern void I_AdvanceTriggerClear(void);
-extern int32_t I_ReturnTrigger(void);
-extern void I_ReturnTriggerClear(void);
-extern int32_t I_GeneralTrigger(void);
-extern void I_GeneralTriggerClear(void);
-extern int32_t I_EscapeTrigger(void);
-extern void I_EscapeTriggerClear(void);
 
 
 enum EnterTextFlags_t {

@@ -517,7 +517,7 @@ RECHECK:
         }
     }
 
-    if (foundemo == 0 || in_menu || I_CheckAllInput() || numplayers > 1)
+    if (foundemo == 0 || in_menu || inputState.CheckAllInput() || numplayers > 1)
     {
         FX_StopAllSounds();
         S_ClearSoundLocks();
@@ -527,7 +527,7 @@ RECHECK:
     ready2send = 0;
     bigi = 0;
 
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 
     //    OSD_Printf("ticcnt=%d, total=%d\n", g_demo_cnt, g_demo_totalCnt);
     while (g_demo_cnt < g_demo_totalCnt || foundemo==0)
@@ -791,7 +791,7 @@ nextdemo_nomenu:
                     // draw status
                     Demo_DisplayProfStatus();
 
-                    if (I_GeneralTrigger())
+                    if (inputState.CheckAllInput())
                         Demo_StopProfiling();
                 }
                 else
@@ -897,7 +897,7 @@ nextdemo_nomenu:
 
             if (VOLUMEONE)
             {
-                if (ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+                if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
                     rotatesprite_fs((320-50)<<16, 9<<16, 65536L, 0, BETAVERSION, 0, 0, 2+8+16+128);
             }
 
