@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "anim.h"
 #include "demo.h"
-#include "input.h"
+
 #include "colmatch.h"
 #include "cheats.h"
 #include "sbar.h"
@@ -6190,15 +6190,6 @@ void G_HandleLocalKeys(void)
     }
     else
     {
-        if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_SendMessage))
-        {
-            inputState.keyFlushChars();
-            buttonMap.ClearButton(gamefunc_SendMessage);
-            g_player[myconnectindex].ps->gm |= MODE_TYPE;
-            typebuf[0] = 0;
-        }
-
-
         if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
         {
             buttonMap.ClearButton(gamefunc_Third_Person_View);

@@ -42,7 +42,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "animlib.h"
 #include "anim.h"
-#include "input.h"
+
 
 #include "common_game.h"
 

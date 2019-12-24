@@ -107,14 +107,6 @@ void ctrlGetInput(void)
     if (gQuitRequest)
         gInput.keyFlags.quit = 1;
 
-    if (gGameStarted && gInputMode != kInputMessage
-        && buttonMap.ButtonDown(gamefunc_SendMessage))
-    {
-        buttonMap.ClearButton(gamefunc_SendMessage);
-        inputState.keyFlushScans();
-        gInputMode = kInputMessage;
-    }
-
     if (buttonMap.ButtonDown(gamefunc_Map_Toggle))
     {
         buttonMap.ClearButton(gamefunc_Map_Toggle);
@@ -364,5 +356,16 @@ void ctrlGetInput(void)
     gInput.q16turn = turn;
     gInput.strafe = strafe;
 }
+
+#if 0
+if (gGameStarted && gInputMode != kInputMessage
+    && buttonMap.ButtonDown(gamefunc_SendMessage))
+{
+    buttonMap.ClearButton(gamefunc_SendMessage);
+    inputState.keyFlushScans();
+    gInputMode = kInputMessage;
+}
+
+#endif
 
 END_BLD_NS

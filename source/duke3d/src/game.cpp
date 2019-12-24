@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "anim.h"
 #include "demo.h"
-#include "input.h"
+
 #include "colmatch.h"
 #include "cheats.h"
 #include "sbar.h"
@@ -4637,14 +4637,6 @@ void G_HandleLocalKeys(void)
     }
     else
     {
-        if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_SendMessage))
-        {
-            inputState.keyFlushChars();
-            buttonMap.ClearButton(gamefunc_SendMessage);
-            myplayer.gm |= MODE_TYPE;
-            typebuf[0] = 0;
-        }
-
         if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
         {
             buttonMap.ClearButton(gamefunc_Third_Person_View);
@@ -6429,6 +6421,56 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
         sprite[k].pal = krand() & 7;
     }
 }
+#endif
+
+#if 0
+void GameInterface::SendMessage(const char* msg)
+{
+    if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_SendMessage))
+    {
+        inputState.keyFlushChars();
+        buttonMap.ClearButton(gamefunc_SendMessage);
+        myplayer.gm |= MODE_TYPE;
+        typebuf[0] = 0;
+    }
+}
+    else
+    {
+    int32_t const hitstate = I_EnterText(typebuf, 120, 0);
+
+    int32_t const y = ud.screen_size > 1 ? (200 - 58) << 16 : (200 - 35) << 16;
+
+    int32_t const width = mpgametextsize(typebuf, TEXT_LITERALESCAPE).x;
+    int32_t const fullwidth = width + textsc((tilesiz[SPINNINGNUKEICON].x << 15) + (2 << 16));
+    int32_t const text_x = fullwidth >= (320 << 16) ? (320 << 16) - fullwidth : mpgametext_x;
+    mpgametext(text_x, y, typebuf, 1, 2 | 8 | 16 | ROTATESPRITE_FULL16, 0, TEXT_YCENTER | TEXT_LITERALESCAPE);
+    int32_t const cursor_x = text_x + width + textsc((tilesiz[SPINNINGNUKEICON].x << 14) + (1 << 16));
+    rotatesprite_fs(cursor_x, y, textsc(32768), 0, SPINNINGNUKEICON + (((int32_t)totalclock >> 3) % 7),
+        4 - (sintable[((int32_t)totalclock << 4) & 2047] >> 11), 0, 2 | 8);
+
+    if (hitstate == 1)
+    {
+        inputState.ClearKeyStatus(sc_Enter);
+        if (Bstrlen(typebuf) == 0)
+        {
+            g_player[myconnectindex].ps->gm &= ~(MODE_TYPE | MODE_SENDTOWHOM);
+            return;
+        }
+        if (cl_automsg)
+        {
+            if (SHIFTS_IS_PRESSED)
+                g_chatPlayer = -1;
+            else
+                g_chatPlayer = ud.multimode;
+        }
+        g_player[myconnectindex].ps->gm |= MODE_SENDTOWHOM;
+    }
+    else if (hitstate == -1)
+        g_player[myconnectindex].ps->gm &= ~(MODE_TYPE | MODE_SENDTOWHOM);
+    else
+        pub = NUMPAGES;
+    }
+
 #endif
 
 ::GameInterface* CreateInterface()

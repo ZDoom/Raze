@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "network.h"
 #include "premap.h"
 #include "savegame.h"
-#include "input.h"
+
 #include "gamecvars.h"
 #include "mapinfo.h"
 
@@ -4998,6 +4998,7 @@ void Net_SendClientUpdate(void)
 
 void Net_SendMessage(void)
 {
+#if 0
     if (g_player[myconnectindex].ps->gm & MODE_SENDTOWHOM)
     {
         int32_t i, j;
@@ -5110,42 +5111,7 @@ void Net_SendMessage(void)
             }
         }
     }
-    else
-    {
-        int32_t const hitstate = I_EnterText(typebuf, 120, 0);
-
-        int32_t const y = ud.screen_size > 1 ? (200 - 58) << 16 : (200 - 35) << 16;
-
-        int32_t const width     = mpgametextsize(typebuf, TEXT_LITERALESCAPE).x;
-        int32_t const fullwidth = width + textsc((tilesiz[SPINNINGNUKEICON].x << 15) + (2 << 16));
-        int32_t const text_x    = fullwidth >= (320 << 16) ? (320 << 16) - fullwidth : mpgametext_x;
-        mpgametext(text_x, y, typebuf, 1, 2 | 8 | 16 | ROTATESPRITE_FULL16, 0, TEXT_YCENTER | TEXT_LITERALESCAPE);
-        int32_t const cursor_x = text_x + width + textsc((tilesiz[SPINNINGNUKEICON].x << 14) + (1 << 16));
-        rotatesprite_fs(cursor_x, y, textsc(32768), 0, SPINNINGNUKEICON + (((int32_t) totalclock >> 3) % 7),
-                        4 - (sintable[((int32_t) totalclock << 4) & 2047] >> 11), 0, 2 | 8);
-
-        if (hitstate == 1)
-        {
-            inputState.ClearKeyStatus(sc_Enter);
-            if (Bstrlen(typebuf) == 0)
-            {
-                g_player[myconnectindex].ps->gm &= ~(MODE_TYPE | MODE_SENDTOWHOM);
-                return;
-            }
-            if (cl_automsg)
-            {
-                if (SHIFTS_IS_PRESSED)
-                    g_chatPlayer = -1;
-                else
-                    g_chatPlayer = ud.multimode;
-            }
-            g_player[myconnectindex].ps->gm |= MODE_SENDTOWHOM;
-        }
-        else if (hitstate == -1)
-            g_player[myconnectindex].ps->gm &= ~(MODE_TYPE | MODE_SENDTOWHOM);
-        else
-            pub = NUMPAGES;
-    }
+#endif
 }
 
 

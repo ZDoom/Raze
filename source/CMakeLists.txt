@@ -828,7 +828,6 @@ set (PCH_SOURCES
 	#common/input/i_joystick.cpp
 	#common/input/i_input.cpp
 	common/input/m_joy.cpp
-	common/input/input.cpp
 	
 	common/rendering/v_video.cpp
 	common/rendering/v_framebuffer.cpp

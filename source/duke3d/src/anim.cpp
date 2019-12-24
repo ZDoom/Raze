@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "animlib.h"
 #include "compat.h"
-#include "input.h"
+
 
 #include "anim.h"
 

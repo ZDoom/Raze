@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "demo.h"
 #include "duke3d.h"
-#include "input.h"
+
 #include "menus.h"
 #include "savegame.h"
 #include "screens.h"
@@ -879,13 +879,6 @@ nextdemo_nomenu:
                 {
                     ControlInfo noshareinfo;
                     CONTROL_GetInput(&noshareinfo);
-                    if (buttonMap.ButtonDown(gamefunc_SendMessage))
-                    {
-                        inputState.keyFlushChars();
-                        buttonMap.ClearButton(gamefunc_SendMessage);
-                        g_player[myconnectindex].ps->gm = MODE_TYPE;
-                        typebuf[0] = 0;
-                    }
                 }
             }
 

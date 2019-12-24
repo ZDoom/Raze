@@ -60,7 +60,7 @@ Things required to make savegames work:
 #include "lists.h"
 #include "network.h"
 #include "pal.h"
-#include "input.h"
+
 
 #include "mytypes.h"
 //#include "config.h"
@@ -3121,160 +3121,6 @@ void PauseKey(PLAYERp pp)
     }
 }
 
-
-
-void GetMessageInput(PLAYERp pp)
-{
-    int pnum = myconnectindex;
-    short w,h;
-    static SWBOOL cur_show;
-    static SWBOOL TeamSendAll, TeamSendTeam;
-#define TEAM_MENU "A - Send to ALL,  T - Send to TEAM"
-    static char HoldMessageInputString[256];
-    int i;
-
-    if (!MessageInputMode && !ConInputMode)
-    {
-        if (buttonMap.ButtonDown(gamefunc_SendMessage))
-        {
-            buttonMap.ClearButton(gamefunc_SendMessage);
-            inputState.keyFlushChars();
-            MessageInputMode = TRUE;
-            InputMode = TRUE;
-            TeamSendTeam = FALSE;
-            TeamSendAll = FALSE;
-
-            if (MessageInputMode)
-            {
-                memset(MessageInputString, '\0', sizeof(MessageInputString));
-            }
-        }
-    }
-#if 0 // the message input needs to be moved out of the game code!
-    else if (MessageInputMode && !ConInputMode)
-    {
-        if (gs.BorderNum > BORDER_BAR+1)
-            SetRedrawScreen(pp);
-
-        // get input
-        switch (MNU_InputSmallString(MessageInputString, 320-20))
-        {
-        case -1: // Cancel Input (pressed ESC) or Err
-            MessageInputMode = FALSE;
-            InputMode = FALSE;
-            inputState.ClearKeysDown();
-            inputState.keyFlushChars();
-            break;
-        case FALSE: // Input finished (RETURN)
-            if (MessageInputString[0] == '\0')
-            {
-                // no input
-                MessageInputMode = FALSE;
-                InputMode = FALSE;
-                inputState.ClearKeysDown();
-                inputState.keyFlushChars();
-                buttonMap.ClearButton(gamefunc_Inventory);
-            }
-            else
-            {
-                if (gNet.TeamPlay)
-                {
-                    if (memcmp(MessageInputString, TEAM_MENU, sizeof(TEAM_MENU)) != 0)
-                    {
-                        // see if its a command
-                        if (IsCommand(MessageInputString))
-                        {
-                            TeamSendAll = TRUE;
-                        }
-                        else
-                        {
-                            strcpy(HoldMessageInputString, MessageInputString);
-                            strcpy(MessageInputString, TEAM_MENU);
-                            break;
-                        }
-                    }
-                    else if (memcmp(MessageInputString, TEAM_MENU, sizeof(TEAM_MENU)) == 0)
-                    {
-                        strcpy(MessageInputString, HoldMessageInputString);
-                        TeamSendAll = TRUE;
-                    }
-                }
-
-SEND_MESSAGE:
-
-                // broadcast message
-                MessageInputMode = FALSE;
-                InputMode = FALSE;
-                inputState.ClearKeysDown();
-                inputState.keyFlushChars();
-                buttonMap.ClearButton(gamefunc_Inventory);
-                CON_ProcessUserCommand();     // Check to see if it's a cheat or command
-
-                for (i = 0; i < NUMGAMEFUNCTIONS; i++)
-                    buttonMap.ClearButton(i);
-
-                // Put who sent this
-                sprintf(ds,"%s: %s",pp->PlayerName,MessageInputString);
-
-                if (gNet.TeamPlay)
-                {
-                    TRAVERSE_CONNECT(pnum)
-                    {
-                        if (pnum != myconnectindex)
-                        {
-                            if (TeamSendAll)
-                                SW_SendMessage(pnum, ds);
-                            else if (User[pp->PlayerSprite]->spal == User[Player[pnum].PlayerSprite]->spal)
-                                SW_SendMessage(pnum, ds);
-                        }
-                    }
-                }
-                else
-                    TRAVERSE_CONNECT(pnum)
-                    {
-                        if (pnum != myconnectindex)
-                        {
-                            SW_SendMessage(pnum, ds);
-                        }
-                    }
-                    adduserquote(MessageInputString);
-                quotebot += 8;
-                quotebotgoal = quotebot;
-            }
-            break;
-
-        case TRUE: // Got input
-
-            if (gNet.TeamPlay)
-            {
-                if (memcmp(MessageInputString, TEAM_MENU "a", sizeof(TEAM_MENU)+1) == 0)
-                {
-                    strcpy(MessageInputString, HoldMessageInputString);
-                    TeamSendAll = TRUE;
-                    goto SEND_MESSAGE;
-                }
-                else if (memcmp(MessageInputString, TEAM_MENU "t", sizeof(TEAM_MENU)+1) == 0)
-                {
-                    strcpy(MessageInputString, HoldMessageInputString);
-                    TeamSendTeam = TRUE;
-                    goto SEND_MESSAGE;
-                }
-                else
-                {
-                    // reset the string if anything else is typed
-                    if (strlen(MessageInputString)+1 > sizeof(TEAM_MENU))
-                    {
-                        strcpy(MessageInputString, TEAM_MENU);
-                    }
-                }
-            }
-
-            break;
-        }
-    }
-#endif
-}
-
 short MirrorDelay;
 
 void getinput(SW_PACKET *loc)
@@ -3343,11 +3189,6 @@ void getinput(SW_PACKET *loc)
 
     if (PauseKeySet)
         return;
-
-    if (!M_Active())
-    {
-        GetMessageInput(pp);
-    }
 
     // MAP KEY
     if (buttonMap.ButtonDown(gamefunc_Map))
@@ -4194,6 +4035,157 @@ GameStats GameInterface::getStats()
 	return { pp->Kills, TotalKillable, pp->SecretsFound, LevelSecrets, PlayClock / 120, 0 };
 }
 
+#if 0 // the message input needs to be moved out of the game code!
+void GetMessageInput(PLAYERp pp)
+{
+    int pnum = myconnectindex;
+    short w, h;
+    static SWBOOL cur_show;
+    static SWBOOL TeamSendAll, TeamSendTeam;
+#define TEAM_MENU "A - Send to ALL,  T - Send to TEAM"
+    static char HoldMessageInputString[256];
+    int i;
 
+    if (!MessageInputMode && !ConInputMode)
+    {
+        if (buttonMap.ButtonDown(gamefunc_SendMessage))
+        {
+            buttonMap.ClearButton(gamefunc_SendMessage);
+            inputState.keyFlushChars();
+            MessageInputMode = TRUE;
+            InputMode = TRUE;
+            TeamSendTeam = FALSE;
+            TeamSendAll = FALSE;
+
+            if (MessageInputMode)
+            {
+                memset(MessageInputString, '\0', sizeof(MessageInputString));
+            }
+        }
+    }
+
+    else if (MessageInputMode && !ConInputMode)
+    {
+        if (gs.BorderNum > BORDER_BAR + 1)
+            SetRedrawScreen(pp);
+
+        // get input
+        switch (MNU_InputSmallString(MessageInputString, 320 - 20))
+        {
+        case -1: // Cancel Input (pressed ESC) or Err
+            MessageInputMode = FALSE;
+            InputMode = FALSE;
+            inputState.ClearKeysDown();
+            inputState.keyFlushChars();
+            break;
+        case FALSE: // Input finished (RETURN)
+            if (MessageInputString[0] == '\0')
+            {
+                // no input
+                MessageInputMode = FALSE;
+                InputMode = FALSE;
+                inputState.ClearKeysDown();
+                inputState.keyFlushChars();
+                buttonMap.ClearButton(gamefunc_Inventory);
+            }
+            else
+            {
+                if (gNet.TeamPlay)
+                {
+                    if (memcmp(MessageInputString, TEAM_MENU, sizeof(TEAM_MENU)) != 0)
+                    {
+                        // see if its a command
+                        if (IsCommand(MessageInputString))
+                        {
+                            TeamSendAll = TRUE;
+                        }
+                        else
+                        {
+                            strcpy(HoldMessageInputString, MessageInputString);
+                            strcpy(MessageInputString, TEAM_MENU);
+                            break;
+                        }
+                    }
+                    else if (memcmp(MessageInputString, TEAM_MENU, sizeof(TEAM_MENU)) == 0)
+                    {
+                        strcpy(MessageInputString, HoldMessageInputString);
+                        TeamSendAll = TRUE;
+                    }
+                }
+
+            SEND_MESSAGE:
+
+                // broadcast message
+                MessageInputMode = FALSE;
+                InputMode = FALSE;
+                inputState.ClearKeysDown();
+                inputState.keyFlushChars();
+                buttonMap.ClearButton(gamefunc_Inventory);
+                CON_ProcessUserCommand();     // Check to see if it's a cheat or command
+
+                for (i = 0; i < NUMGAMEFUNCTIONS; i++)
+                    buttonMap.ClearButton(i);
+
+                // Put who sent this
+                sprintf(ds, "%s: %s", pp->PlayerName, MessageInputString);
+
+                if (gNet.TeamPlay)
+                {
+                    TRAVERSE_CONNECT(pnum)
+                    {
+                        if (pnum != myconnectindex)
+                        {
+                            if (TeamSendAll)
+                                SW_SendMessage(pnum, ds);
+                            else if (User[pp->PlayerSprite]->spal == User[Player[pnum].PlayerSprite]->spal)
+                                SW_SendMessage(pnum, ds);
+                        }
+                    }
+                }
+                else
+                    TRAVERSE_CONNECT(pnum)
+                {
+                    if (pnum != myconnectindex)
+                    {
+                        SW_SendMessage(pnum, ds);
+                    }
+                }
+                adduserquote(MessageInputString);
+                quotebot += 8;
+                quotebotgoal = quotebot;
+            }
+            break;
+
+        case TRUE: // Got input
+
+            if (gNet.TeamPlay)
+            {
+                if (memcmp(MessageInputString, TEAM_MENU "a", sizeof(TEAM_MENU) + 1) == 0)
+                {
+                    strcpy(MessageInputString, HoldMessageInputString);
+                    TeamSendAll = TRUE;
+                    goto SEND_MESSAGE;
+                }
+                else if (memcmp(MessageInputString, TEAM_MENU "t", sizeof(TEAM_MENU) + 1) == 0)
+                {
+                    strcpy(MessageInputString, HoldMessageInputString);
+                    TeamSendTeam = TRUE;
+                    goto SEND_MESSAGE;
+                }
+                else
+                {
+                    // reset the string if anything else is typed
+                    if (strlen(MessageInputString) + 1 > sizeof(TEAM_MENU))
+                    {
+                        strcpy(MessageInputString, TEAM_MENU);
+                    }
+                }
+            }
+
+            break;
+        }
+    }
+}
+#endif
 
 END_SW_NS
