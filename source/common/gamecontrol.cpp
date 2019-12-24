@@ -285,13 +285,6 @@ void I_StartupJoysticks();
 void I_ShutdownInput();
 int RunGame();
 
-void ShutdownSystem()
-{
-	Mus_Stop();
-	if (soundEngine) delete soundEngine;
-	I_ShutdownInput();
-}
-
 int GameMain()
 {
 	int r;
@@ -299,24 +292,28 @@ int GameMain()
 	{
 		r = RunGame();
 	}
-	catch (const std::runtime_error & err)
-	{
-		// shut down critical systems before showing a message box.
-		ShutdownSystem();
-		wm_msgbox("Error", "%s", err.what());
-		return 3;
-	}
 	catch (const ExitEvent & exit)
 	{
 		// Just let the rest of the function execute.
 		r = exit.Reason();
 	}
-	ShutdownSystem();
+	catch (const std::exception & err)
+	{
+		// shut down critical systems before showing a message box.
+		I_ShowFatalError(err.what());
+		r = -1;
+	}
+	S_StopMusic(true);
+	if (soundEngine) delete soundEngine;
+	I_ShutdownInput();
 	G_SaveConfig();
 	C_DeinitConsole();
+	V_ClearFonts();
+	if (gi) delete gi;
 #ifndef NETCODE_DISABLE
 	if (gHaveNetworking) enet_deinitialize();
 #endif
+	DeleteStartupScreen();
 	if (Args) delete Args;
 	return r;
 }
