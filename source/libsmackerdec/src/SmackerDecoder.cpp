@@ -47,8 +47,8 @@
 #include "LogError.h"
 #include <assert.h>
 #include <algorithm>
-#include <string.h>
 #include "compat.h"
+#include "baselayer.h"
 
 std::vector<class SmackerDecoder*> classInstances;
 
@@ -295,13 +295,13 @@ int SmackerDecoder::GetCode(SmackerCommon::BitReader &bits, std::vector<int> &re
     return v;
 }
 
-bool SmackerDecoder::Open(const std::string &fileName)
+bool SmackerDecoder::Open(const char *fileName)
 {
 	// open the file (read only)
 	file.Open(fileName);
 	if (!file.Is_Open())
 	{
-		SmackerCommon::LogError("Can't open file " + fileName);
+        buildprintf("SmackerDecoder::Open() - Can't open file %s\n", fileName);
 		return false;
 	}
 
@@ -310,7 +310,7 @@ bool SmackerDecoder::Open(const std::string &fileName)
 	if (memcmp(signature, kSMK2iD, 4) != 0
 		&& memcmp(signature, kSMK4iD, 4) != 0)
 	{
-		SmackerCommon::LogError("Unknown Smacker signature");
+        buildprintf("SmackerDecoder::Open() - Unknown Smacker signature\n");
 		return false;
 	}
 
@@ -358,7 +358,7 @@ bool SmackerDecoder::Open(const std::string &fileName)
 
 	if (nFrames > 0xFFFFFF)
 	{
-		SmackerCommon::LogError("Too many frames!");
+        buildprintf("SmackerDecoder::Open() - Too many frames\n");
 		return false;
 	}
 
@@ -447,7 +447,7 @@ int SmackerDecoder::DecodeTree(SmackerCommon::BitReader &bits, HuffContext *hc, 
     if (!bits.GetBit()) // Leaf
 	{
         if (hc->current >= 256){
-			SmackerCommon::LogError("Tree size exceeded!");
+            buildprintf("SmackerDecoder::DecodeTree() - Tree size exceeded\n");
             return -1;
         }
         if (length){
@@ -486,7 +486,7 @@ int SmackerDecoder::DecodeBigTree(SmackerCommon::BitReader &bits, HuffContext *h
 		i2 = 0;
 
 		if (hc->current >= hc->length){
-			SmackerCommon::LogError("Tree size exceeded!");
+            buildprintf("SmackerDecoder::DecodeBigTree() - Tree size exceeded");
             return -1;
         }
 
@@ -548,7 +548,7 @@ int SmackerDecoder::DecodeHeaderTree(SmackerCommon::BitReader &bits, std::vector
 
 	if ((uint32_t)size >= UINT_MAX>>4)
 	{
-		SmackerCommon::LogError("Size too large");
+        buildprintf("SmackerDecoder::DecodeHeaderTree() - Size too large\n");
 		return -1;
 	}
 
@@ -971,7 +971,7 @@ int SmackerDecoder::DecodeAudio(uint32_t size, SmackerAudioTrack &track)
 	int buf_size = track.bufferSize;
 
     if (buf_size <= 4) {
-		SmackerCommon::LogError("packet is too small");
+        buildprintf("SmackerDecoder::DecodeAudio() - Packet is too small\n");
 		return -1;
     }
 
@@ -988,7 +988,7 @@ int SmackerDecoder::DecodeAudio(uint32_t size, SmackerAudioTrack &track)
     sampleBits = bits.GetBit();
 
     if (stereo ^ (track.nChannels != 1)) {
-		SmackerCommon::LogError("channels mismatch");
+        buildprintf("SmackerDecoder::DecodeAudio() - Channels mismatch\n");
 		return -1;
     }
 
@@ -1112,7 +1112,7 @@ float SmackerDecoder::GetFrameRate()
 void SmackerDecoder::GotoFrame(uint32_t frameNum)
 {
 	if (frameNum >= nFrames) {
-		SmackerCommon::LogError("Invalid frame number for GotoFrame");
+        buildprintf("SmackerDecoder::GotoFrame() - Invalid frame number\n");
 		return;
 	}
 

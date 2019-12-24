@@ -66,7 +66,7 @@ struct SmackerAudioInfo
 	uint32_t idealBufferSize;
 };
 
-SmackerHandle     Smacker_Open                 (const char* fileName);
+SmackerHandle     Smacker_Open                 (const char *fileName);
 void              Smacker_Close                (SmackerHandle &handle);
 uint32_t          Smacker_GetNumAudioTracks    (SmackerHandle &handle);
 SmackerAudioInfo  Smacker_GetAudioTrackDetails (SmackerHandle &handle, uint32_t trackIndex);
@@ -110,7 +110,7 @@ class SmackerDecoder
 		SmackerDecoder();
 		~SmackerDecoder();
 
-		bool Open(const std::string &fileName);
+		bool Open(const char *fileName);
 		void GetPalette(uint8_t *palette);
 		void GetFrame(uint8_t *frame);
 

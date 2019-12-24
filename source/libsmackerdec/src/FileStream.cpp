@@ -23,9 +23,9 @@
 
 namespace SmackerCommon {
 
-bool FileStream::Open(const std::string &fileName)
+bool FileStream::Open(const char *fileName)
 {
-    file = fileSystem.OpenFileReader(fileName.c_str(), 0);
+    file = fileSystem.OpenFileReader(fileName, 0);
 	if (!file.isOpen())
 	{
 		// log error
