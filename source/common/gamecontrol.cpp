@@ -313,9 +313,11 @@ int GameMain()
 	}
 	ShutdownSystem();
 	G_SaveConfig();
+	C_DeinitConsole();
 #ifndef NETCODE_DISABLE
 	if (gHaveNetworking) enet_deinitialize();
 #endif
+	if (Args) delete Args;
 	return r;
 }
 

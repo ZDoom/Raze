@@ -1108,9 +1108,7 @@ int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-extern GrowArray<char *> g_clipMapFiles;
-#endif
+extern TArray<FString> g_clipMapFiles;
 
 EXTERN int32_t nextvoxid;
 EXTERN intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild

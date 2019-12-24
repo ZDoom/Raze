@@ -5880,15 +5880,11 @@ int GameInterface::app_main()
 
     registerosdcommands();
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
     int const clipMapError = engineLoadClipMaps();
     if (clipMapError > 0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", clipMapError);
 
-    for (char * m : g_clipMapFiles)
-        free(m);
-    g_clipMapFiles.clear();
-#endif
+    g_clipMapFiles.Reset();
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {

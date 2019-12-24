@@ -7341,9 +7341,7 @@ int GameInterface::app_main()
     if (clipMapError > 0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", clipMapError);
 
-    for (char * m : g_clipMapFiles)
-        free(m);
-    g_clipMapFiles.clear();
+    g_clipMapFiles.Reset();
 #endif
 
     V_Init2();
