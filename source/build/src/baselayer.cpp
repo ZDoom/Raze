@@ -27,9 +27,7 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx)
 
     if (lastyidx > ylookupsiz)
     {
-        Xaligned_free(ylookup);
-
-        ylookup = (intptr_t *)Xaligned_alloc(16, lastyidx * sizeof(intptr_t));
+        ylookup.Resize(lastyidx);
         ylookupsiz = lastyidx;
     }
 

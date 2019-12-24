@@ -367,11 +367,6 @@ void G_GameExit(const char *msg)
             G_DisplayExtraScreens();
     }
 
-    if (*msg != 0) initprintf("%s\n",msg);
-
-    if (in3dmode())
-        G_Shutdown();
-
 	if (*msg != 0)
 	{
 		if (!(msg[0] == ' ' && msg[1] == 0))
@@ -6732,6 +6727,7 @@ static void G_Cleanup(void)
 
     if (label != (char *)&sprite[0]) Bfree(label);
     if (labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
+    if (labeltype != (int32_t*)&wall[0]) Bfree(labeltype);
     Bfree(apScript);
     Bfree(bitptr);
 
@@ -6741,21 +6737,6 @@ static void G_Cleanup(void)
 
     hash_loop(&h_dukeanim, G_FreeHashAnim);
     hash_free(&h_dukeanim);
-}
-
-/*
-===================
-=
-= ShutDown
-=
-===================
-*/
-
-void G_Shutdown(void)
-{
-    G_SetFog(0);
-    engineUnInit();
-    G_Cleanup();
 }
 
 /*
@@ -7931,6 +7912,13 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
                                      32 + (r2 & 63), -(r1 & 2047), spriteNum, 5);
         sprite[k].pal = krand2() & 7;
     }
+}
+
+void GameInterface::FreeGameData()
+{
+    G_SetFog(0);
+    engineUnInit();
+    G_Cleanup();
 }
 
 ::GameInterface* CreateInterface()

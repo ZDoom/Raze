@@ -51,6 +51,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_video.h"
 #include "st_start.h"
 #include "s_music.h"
+#include "i_video.h"
+#include "glbackend/glbackend.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -59,6 +61,9 @@ MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDu
 MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
 MapRecord* lastLevel;		// Same here, for the last level.
 MapRecord userMapRecord;	// stand-in for the user map.
+
+FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
+
 
 void C_CON_SetAliases();
 InputState inputState;
@@ -305,10 +310,17 @@ int GameMain()
 	}
 	S_StopMusic(true);
 	if (soundEngine) delete soundEngine;
+	soundEngine = nullptr;
+	I_CloseSound();
 	I_ShutdownInput();
 	G_SaveConfig();
 	C_DeinitConsole();
 	V_ClearFonts();
+	TileFiles.ClearTextureCache();
+	TileFiles.CloseAll();	// do this before shutting down graphics.
+	GLInterface.Deinit();
+	I_ShutdownGraphics();
+	gi->FreeGameData();
 	if (gi) delete gi;
 #ifndef NETCODE_DISABLE
 	if (gHaveNetworking) enet_deinitialize();

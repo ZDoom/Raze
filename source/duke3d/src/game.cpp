@@ -259,11 +259,6 @@ void G_GameExit(const char *msg)
             G_DisplayExtraScreens();
     }
 
-    if (*msg != 0) initprintf("%s\n",msg);
-
-    if (in3dmode())
-        G_Shutdown();
-
     if (*msg != 0)
     {
         if (!(msg[0] == ' ' && msg[1] == 0))
@@ -5316,6 +5311,7 @@ static void G_Cleanup(void)
 #if !defined LUNATIC
     if (label != (char *)&sprite[0]) Xfree(label);
     if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
+    if (labeltype != (int32_t*)&wall[0]) Xfree(labeltype);
     Xfree(apScript);
     Xfree(bitptr);
 
@@ -5342,8 +5338,6 @@ static void G_Cleanup(void)
 
 void G_Shutdown(void)
 {
-    engineUnInit();
-    G_Cleanup();
 }
 
 /*
@@ -5513,21 +5507,13 @@ void G_PostCreateGameState(void)
 
 static void G_HandleMemErr(int32_t lineNum, const char *fileName, const char *funcName)
 {
-    static char msg[128];
-    Bsnprintf(msg, sizeof(msg), "Out of memory in %s:%d (%s)\n", fileName, lineNum, funcName);
-#ifdef DEBUGGINGAIDS
-    Bassert(0);
-#endif
-    G_GameExit(msg);
+    I_FatalError("Out of memory in %s:%d (%s)\n", fileName, lineNum, funcName);
 }
 
 static void G_FatalEngineError(void)
 {
-    wm_msgbox("Fatal Engine Initialization Error",
+    I_FatalError("Fatal Engine Initialization Error",
               "There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
-    G_Cleanup();
-    ERRprintf("G_Startup: There was a problem initializing the engine: %s\n", engineerrstr);
-    exit(6);
 }
 
 static void G_Startup(void)
@@ -5732,6 +5718,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
     if (g_player[pnum].input == NULL)
         g_player[pnum].input = (input_t *)Xcalloc(1, sizeof(input_t));
 }
+
 
 
 // TODO: reorder (net)actor_t to eliminate slop and update assertion
@@ -6430,7 +6417,8 @@ void GameInterface::SendMessage(const char* msg)
         typebuf[0] = 0;
     }
 }
-    else
+ 
+void nix()
     {
     int32_t const hitstate = I_EnterText(typebuf, 120, 0);
 
@@ -6466,8 +6454,14 @@ void GameInterface::SendMessage(const char* msg)
     else
         pub = NUMPAGES;
     }
-
+}
 #endif
+
+void GameInterface::FreeGameData()
+{
+    engineUnInit();
+    G_Cleanup();
+}
 
 ::GameInterface* CreateInterface()
 {

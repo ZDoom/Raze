@@ -726,6 +726,7 @@ void C_DeinitConsole ()
 	// Make sure all tab commands are cleared before the memory for
 	// their names is deallocated.
 	C_ClearTabCommands ();
+	C_ClearDynCCmds();
 
 	// Free AddToConsole()'s work buffer
 	if (work != NULL)

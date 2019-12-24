@@ -1385,9 +1385,7 @@ void Gv_InitWeaponPointers(void)
 
         if (!aplWeaponClip[i])
         {
-            initprintf("ERROR: NULL weapon!  WTF?! %s\n", aszBuf);
-            // Bexit(EXIT_SUCCESS);
-            G_Shutdown();
+            I_FatalError("ERROR: NULL weapon!  WTF?! %s\n", aszBuf);
         }
 
         Bsprintf(aszBuf, "WEAPON%d_RELOAD", i);

@@ -32,8 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "pragmas.h"
 #include "polymost.h"
 #include "gamecvars.h"
+#include "gamecontrol.h"
 #include "menu/menu.h"
-
+#include "memarena.h"
 
 #define HEAD2                   APPNAME
 
@@ -144,6 +145,7 @@ static inline int32_t G_DefaultActorHealth(int spriteNum)
 struct GameInterface : ::GameInterface
 {
 	int app_main() override;
+	void FreeGameData() override;
 	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;

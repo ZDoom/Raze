@@ -236,12 +236,12 @@ void videoBeginDrawing(void)
         {
             if (!backupFrameplace)
                 backupFrameplace = frameplace;
-            else if (frameplace != (intptr_t)mirrorBuffer &&
+            else if (frameplace != (intptr_t)mirrorBuffer.Data() &&
                      frameplace != backupFrameplace)
                 return;
         }
 
-        frameplace = (intptr_t)mirrorBuffer;
+        frameplace = (intptr_t)mirrorBuffer.Data();
 
         if (offscreenrendering)
             return;

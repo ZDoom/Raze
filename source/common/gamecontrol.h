@@ -6,12 +6,15 @@
 #include "gamecvars.h"
 #include "tarray.h"
 #include "name.h"
+#include "memarena.h"
 
 EXTERN_CVAR(Int, cl_defaultconfiguration)
 
 extern FString currentGame;
 extern FString LumpFilter;
 class FArgs;
+
+extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
 extern TMap<FName, int32_t> NameToTileIndex;
 

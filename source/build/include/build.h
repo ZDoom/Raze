@@ -459,7 +459,7 @@ EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 EXTERN int32_t wx1, wy1, wx2, wy2;
 EXTERN int32_t xdim, ydim, numpages, upscalefactor;
 EXTERN int32_t yxaspect, viewingrange;
-EXTERN intptr_t *ylookup;
+EXTERN TArray<intptr_t> ylookup;
 
 EXTERN int32_t rotatesprite_y_offset;
 EXTERN int32_t rotatesprite_yxaspect;
@@ -527,7 +527,7 @@ EXTERN int32_t g_visibility, parallaxvisibility;
 EXTERN uint8_t numalphatabs;
 
 EXTERN vec2_t windowxy1, windowxy2;
-EXTERN int16_t *startumost, *startdmost;
+EXTERN TArray<int16_t> startumost, startdmost;
 
 // The maximum tile offset ever used in any tiled parallaxed multi-sky.
 #define PSKYOFF_MAX 8
