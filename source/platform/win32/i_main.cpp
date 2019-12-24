@@ -1173,7 +1173,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE nothing, LPWSTR cmdline, int
 
 	// Use this to break at a specific allocation number.
 	
-//	_crtBreakAlloc = 257481;
+	_crtBreakAlloc = 253018;
 #endif
 
 	int ret = DoMain (hInstance);

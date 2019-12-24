@@ -123,7 +123,7 @@ FStartupScreen *FStartupScreen::CreateInstance(int max_progress)
 FBasicStartupScreen::FBasicStartupScreen(int max_progress, bool show_bar)
 : FStartupScreen(max_progress)
 {
-	if (show_bar)
+	if (false)//show_bar)
 	{
 		ProgressBar = CreateWindowEx(0, PROGRESS_CLASS,
 			NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,

@@ -104,8 +104,6 @@ short BloodVersion = 0x115;
 int gNetPlayers;
 
 char *pUserTiles = NULL;
-char *pUserSoundRFF = NULL;
-char *pUserRFF = NULL;
 
 int gChokeCounter = 0;
 
@@ -177,8 +175,6 @@ void ShutDown(void)
     if (syncstate)
         printf("A packet was lost! (syncstate)\n");
     DO_FREE_AND_NULL(pUserTiles);
-    DO_FREE_AND_NULL(pUserSoundRFF);
-    DO_FREE_AND_NULL(pUserRFF);
 }
 
 void QuitGame(void)
@@ -1963,6 +1959,13 @@ void sndPlaySpecialMusicOrNothing(int nMusic)
     {
         Mus_Stop();
     }
+}
+
+extern  IniFile* BloodINI;
+void GameInterface::FreeGameData()
+{
+    if (BloodINI) delete BloodINI;
+    ShutDown();
 }
 
 

@@ -60,9 +60,9 @@ unsigned int dword_27AA3C = 0;
 unsigned int dword_27AA40 = 0;
 void *dword_27AA44 = NULL;
 
-LoadSave LoadSave::head(123);
 FileWriter *LoadSave::hSFile = NULL;
 FileReader LoadSave::hLFile;
+TDeletingArray<LoadSave*> LoadSave::loadSaves;
 
 short word_27AA54 = 0;
 
@@ -121,11 +121,10 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     LoadSave::hLFile = ReadSavegameChunk("snapshot.bld");
 	if (!LoadSave::hLFile.isOpen())
 		return false;
-    LoadSave *rover = LoadSave::head.next;
-    while (rover != &LoadSave::head)
+
+    for (auto rover : LoadSave::loadSaves)
     {
         rover->Load();
-        rover = rover->next;
     }
 
 	LoadSave::hLFile.Close();
@@ -193,14 +192,12 @@ bool GameInterface::SaveGame(FSaveGameNode* node)
 	{
 		dword_27AA38 = 0;
 		dword_27AA40 = 0;
-		LoadSave* rover = LoadSave::head.next;
-		while (rover != &LoadSave::head)
+        for (auto rover : LoadSave::loadSaves)
 		{
 			rover->Save();
 			if (dword_27AA38 > dword_27AA40)
 				dword_27AA40 = dword_27AA38;
 			dword_27AA38 = 0;
-			rover = rover->next;
 		}
 	}
 	catch (std::runtime_error & err)

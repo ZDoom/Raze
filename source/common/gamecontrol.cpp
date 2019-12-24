@@ -320,6 +320,7 @@ int GameMain()
 	TileFiles.CloseAll();	// do this before shutting down graphics.
 	GLInterface.Deinit();
 	I_ShutdownGraphics();
+	paletteFreeColorTables();
 	gi->FreeGameData();
 	if (gi) delete gi;
 #ifndef NETCODE_DISABLE

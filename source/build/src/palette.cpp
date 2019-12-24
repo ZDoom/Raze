@@ -729,6 +729,13 @@ void paletteFreeColorTable(int32_t const id)
         DO_FREE_AND_NULL(basepaltable[id]);
 }
 
+void paletteFreeColorTables()
+{
+    for (int i = 0; i < countof(basepaltable); i++)
+    {
+        paletteFreeColorTable(i);
+    }
+}
 //
 // setbrightness
 //

@@ -55,6 +55,7 @@ extern void videoFadeToBlack(int32_t moreopaquep);
 void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
 void paletteSetColorTable(int32_t id, uint8_t const *table, bool transient = false);
 void paletteFreeColorTable(int32_t id);
+void paletteFreeColorTables();
 void paletteSetBlendTable(int32_t blend, const char *tab);
 void paletteFreeBlendTable(int32_t blend);
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab);

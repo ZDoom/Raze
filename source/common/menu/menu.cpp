@@ -422,6 +422,12 @@ void M_ActivateMenu(DMenu *menu)
 
 bool M_SetMenu(FName menu, int param, FName caller)
 {
+#if 0 
+	// skip the menu and go right into the first level. 
+	// For tracking memory leaks that normally require operating the menu to start the game so that they always get the same allocation number.
+	GameStartupInfo.Episode = GameStartupInfo.Skill = 0;
+	menu = NAME_StartGame;
+#endif
 	if (DrawBackground == -1)
 	{
 		if (menu == NAME_MainMenu) DrawBackground = 1;
