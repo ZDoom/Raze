@@ -389,8 +389,9 @@ void FMouse::WheelMoved(int axis, int wheelmove)
 		{
 			ev.type = EV_KeyDown;
 			D_PostEvent(&ev);
-			ev.type = EV_KeyUp;
-			D_PostEvent(&ev);
+			// The Up events must be delayed so that the wheel can remain in a "pressed" state for the next tic's duration.
+			//ev.type = EV_KeyUp;
+			//D_PostEvent(&ev);
 			WheelMove[axis] += dir;
 		}
 	}
