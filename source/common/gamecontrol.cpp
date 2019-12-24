@@ -322,9 +322,14 @@ int GameMain()
 	TileFiles.CloseAll();	// do this before shutting down graphics.
 	GLInterface.Deinit();
 	I_ShutdownGraphics();
+	M_DeinitMenus();
 	paletteFreeColorTables();
-	gi->FreeGameData();
-	if (gi) delete gi;
+	if (gi)
+	{
+		gi->FreeGameData();
+		delete gi;
+		gi = nullptr;
+	}
 #ifndef NETCODE_DISABLE
 	if (gHaveNetworking) enet_deinitialize();
 #endif
@@ -520,10 +525,6 @@ int RunGame()
 	SetClipshapes();
 	userConfig.ProcessOptions();
 	G_LoadConfig();
-
-	//I_StartupJoysticks();
-	//mouseInit();
-
 
 #ifndef NETCODE_DISABLE
 	gHaveNetworking = !enet_initialize();

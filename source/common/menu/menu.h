@@ -781,6 +781,7 @@ void M_UnhideCustomMenu(int menu, int itemmask);
 void M_MenuSound(EMenuSounds snd);
 void M_Autosave();
 bool M_Active();
+void M_DeinitMenus();
 
 
 void I_SetMouseCapture();

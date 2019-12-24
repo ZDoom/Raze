@@ -67,7 +67,7 @@ void I_BuildMIDIMenuList(FOptionValues* opt);
 void I_BuildALDeviceList(FOptionValues *opt);
 void I_BuildALResamplersList(FOptionValues* opt);
 
-static void DeinitMenus()
+void M_DeinitMenus()
 {
 	{
 		MenuDescriptorList::Iterator it(MenuDescriptors);
@@ -1143,8 +1143,7 @@ void M_ParseMenuDefs()
 	DefaultListMenuSettings.Reset();
 	DefaultOptionMenuSettings.Reset();
 
-	atexit(DeinitMenus);
-	DeinitMenus();
+	M_DeinitMenus();
 	while ((lump = fileSystem.Iterate("demolition/menudef.txt", &lastlump)) != -1)
 	{
 		FScanner sc(lump);
