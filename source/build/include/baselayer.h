@@ -56,9 +56,6 @@ void mouseGrabInput(bool grab);
 void getScreen(uint8_t* imgBuf);
 
 
-int32_t wm_msgbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
-int32_t wm_ynbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
-
 #include "print.h"
 
 struct GameStats

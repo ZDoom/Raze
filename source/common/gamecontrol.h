@@ -149,3 +149,6 @@ const char* G_ConFile(void);
 
 TArray<GrpEntry> GrpScan();
 void S_SetSoundPaused(int state);
+
+void G_HandleMemErr(int32_t lineNum, const char* fileName, const char* funcName);
+void G_FatalEngineError(void);

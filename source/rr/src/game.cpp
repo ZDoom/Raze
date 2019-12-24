@@ -6947,30 +6947,9 @@ void G_PostCreateGameState(void)
     A_InitEnemyFlags();
 }
 
-static void G_HandleMemErr(int32_t lineNum, const char *fileName, const char *funcName)
-{
-    static char msg[128];
-    Bsnprintf(msg, sizeof(msg), "Out of memory in %s:%d (%s)\n", fileName, lineNum, funcName);
-#ifdef DEBUGGINGAIDS
-    Bassert(0);
-#endif
-    G_GameExit(msg);
-}
-
-static void G_FatalEngineError(void)
-{
-    wm_msgbox("Build Engine Initialization Error",
-              "There was a problem initializing the Build engine: %s", engineerrstr);
-    G_Cleanup();
-    ERRprintf("G_Startup: There was a problem initializing the Build engine: %s\n", engineerrstr);
-    exit(6);
-}
-
 static void G_Startup(void)
 {
     int32_t i;
-
-    set_memerr_handler(&G_HandleMemErr);
 
     timerInit(TICRATE);
     timerSetCallback(gameTimerHandler);

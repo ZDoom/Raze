@@ -151,52 +151,6 @@ void I_FatalError(const char* error, ...)
 }
 
 
-int32_t wm_msgbox(const char *name, const char *fmt, ...)
-{
-    char buf[2048];
-    va_list va;
-
-    UNREFERENCED_PARAMETER(name);
-
-    va_start(va,fmt);
-    vsnprintf(buf,sizeof(buf),fmt,va);
-    va_end(va);
-
-#if defined EDUKE32_OSX
-    return osx_msgbox(name, buf);
-#elif defined _WIN32
-    MessageBoxA(nullptr,buf,name,MB_OK|MB_TASKMODAL);
-    return 0;
-#elif defined EDUKE32_TOUCH_DEVICES
-    initprintf("wm_msgbox called. Message: %s: %s",name,buf);
-    return 0;
-#elif defined GEKKO
-    puts(buf);
-    return 0;
-#else
-# if defined HAVE_GTK2
-    if (gtkbuild_msgbox(name, buf) >= 0)
-        return 0;
-# endif
-# if SDL_MAJOR_VERSION > 1
-#  if !defined _WIN32
-    // Replace all tab chars with spaces because the hand-rolled SDL message
-    // box diplays the former as N/L instead of whitespace.
-    for (size_t i=0; i<sizeof(buf); i++)
-        if (buf[i] == '\t')
-            buf[i] = ' ';
-#  endif
-    return SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, name, buf, NULL);
-# else
-    puts(buf);
-    puts("   (press Return or Enter to continue)");
-    getchar();
-
-    return 0;
-# endif
-#endif
-}
-
 
 
 void videoResetMode(void)

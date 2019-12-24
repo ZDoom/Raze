@@ -292,6 +292,8 @@ int RunGame();
 
 int GameMain()
 {
+	set_memerr_handler(G_HandleMemErr);
+
 	int r;
 	try
 	{
@@ -583,12 +585,24 @@ int RunGame()
 
 	if (enginePreInit())
 	{
-		I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
+		I_FatalError("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
 	}
 
 	mouseGrabInput(true);	// the intros require the mouse to be grabbed.
 	return gi->app_main();
 }
+
+void G_HandleMemErr(int32_t lineNum, const char* fileName, const char* funcName)
+{
+	I_FatalError("Out of memory in %s:%d (%s)\n", fileName, lineNum, funcName);
+}
+
+void G_FatalEngineError(void)
+{
+	I_FatalError("Fatal Engine Initialization Error",
+		"There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
+}
+
 
 //==========================================================================
 //

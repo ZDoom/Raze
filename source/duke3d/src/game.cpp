@@ -5505,22 +5505,9 @@ void G_PostCreateGameState(void)
     A_InitEnemyFlags();
 }
 
-static void G_HandleMemErr(int32_t lineNum, const char *fileName, const char *funcName)
-{
-    I_FatalError("Out of memory in %s:%d (%s)\n", fileName, lineNum, funcName);
-}
-
-static void G_FatalEngineError(void)
-{
-    I_FatalError("Fatal Engine Initialization Error",
-              "There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
-}
-
 static void G_Startup(void)
 {
     int32_t i;
-
-    set_memerr_handler(&G_HandleMemErr);
 
     timerInit(TICRATE);
     timerSetCallback(gameTimerHandler);

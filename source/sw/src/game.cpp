@@ -703,19 +703,8 @@ void MultiSharewareCheck(void)
     if (!SW_SHAREWARE) return;
     if (numplayers > 4)
     {
-#if 1 /* defined RENDERTYPEWIN */
-        wm_msgbox(apptitle,"To play a Network game with more than 4 players you must purchase "
+        I_FatalError("To play a Network game with more than 4 players you must purchase "
                   "the full version.  Read the Ordering Info screens for details.");
-#else
-        printf(
-            "\n\nTo play a Network game with more than 4 players you must purchase the\n"
-            "full version.  Read the Ordering Info screens for details.\n\n");
-#endif
-        //uninitmultiplayers();
-        //uninitkeys();
-        engineUnInit();
-        timerUninit();
-        Bexit(0);
     }
 }
 
@@ -2500,48 +2489,10 @@ void Control()
 
 void _Assert(const char *expr, const char *strFile, unsigned uLine)
 {
-    buildprintf(ds, "Assertion failed: %s %s, line %u", expr, strFile, uLine);
-    debug_break();
-
-    TerminateGame();
-
-#if 1 /* defined RENDERTYPEWIN */
-    wm_msgbox(apptitle, "%s", ds);
-#else
-    printf("Assertion failed: %s\n %s, line %u\n", expr, strFile, uLine);
-#endif
-    exit(0);
+    I_FatalError("Assertion failed: %s %s, line %u", expr, strFile, uLine);
 }
 
 
-void _ErrMsg(const char *strFile, unsigned uLine, const char *format, ...)
-{
-    va_list arglist;
-
-    //DSPRINTF(ds, "Error: %s, line %u", strFile, uLine);
-    //MONO_PRINT(ds);
-    TerminateGame();
-
-#if 1 /* defined RENDERTYPEWIN */
-    {
-        char msg[256], *p;
-        Bsnprintf(msg, sizeof(msg), "Error: %s, line %u\n", strFile, uLine);
-        p = &msg[strlen(msg)];
-        va_start(arglist, format);
-        Bvsnprintf(msg, sizeof(msg) - (p-msg), format, arglist);
-        va_end(arglist);
-        wm_msgbox(apptitle, "%s", msg);
-    }
-#else
-    printf("Error: %s, line %u\n", strFile, uLine);
-
-    va_start(arglist, format);
-    vprintf(format, arglist);
-    va_end(arglist);
-#endif
-
-    exit(0);
-}
 
 void dsprintf(char *str, const char *format, ...)
 {
