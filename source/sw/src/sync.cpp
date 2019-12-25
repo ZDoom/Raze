@@ -526,9 +526,7 @@ demosync_test(int cnt)
         if (sync_val != (*SyncFunc[i])())
         {
             TerminateLevel();
-            TerminateGame();
-            printf("Demo out of sync - Sync Byte Number %d - Iteration %d.", i, cnt);
-            exit(0);
+            I_Error("Demo out of sync - Sync Byte Number %d - Iteration %d.", i, cnt);
         }
     }
 }

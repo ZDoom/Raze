@@ -237,7 +237,6 @@ void scrUnInit(void)
 {
     memset(palookup, 0, sizeof(palookup));
     memset(blendtable, 0, sizeof(blendtable));
-    engineUnInit();
 }
 
 

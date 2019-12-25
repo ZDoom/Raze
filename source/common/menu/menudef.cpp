@@ -94,6 +94,7 @@ void M_DeinitMenus()
 	}
 	MenuDescriptors.Clear();
 	OptionValues.Clear();
+
 	DMenu::CurrentMenu = NULL;
 	DefaultListMenuSettings.mItems.Clear();
 }

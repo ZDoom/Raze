@@ -228,9 +228,7 @@ DemoReadHeader(void)
 
     if (DF_ERR(DemoFileIn))
     {
-        TerminateGame();
-        printf("File %s is not a valid demo file.",DemoFileName);
-        exit(0);
+        I_Error("File %s is not a valid demo file.",DemoFileName);
     }
 
     DREAD(&dh, sizeof(dh), 1, DemoFileIn);
@@ -542,7 +540,6 @@ DemoPlayBack(void)
     {
         TerminateLevel();
         TerminateGame();
-        exit(0);
     }
 
 }

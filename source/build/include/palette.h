@@ -81,6 +81,7 @@ extern int32_t curbrightness;
 
 extern int32_t paletteLoadLookupTable(FileReader &fp);
 extern void paletteSetupDefaultFog(void);
+void paletteFreeLookups();
 extern void palettePostLoadLookups(void);
 extern void paletteFixTranslucencyMask(void);
 

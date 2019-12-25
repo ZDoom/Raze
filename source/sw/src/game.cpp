@@ -424,9 +424,7 @@ AllocMem(int size)
     // Used for debugging, we can remove this at ship time
     if (bp == NULL)
     {
-        TerminateGame();
-        printf("Memory could NOT be allocated in AllocMem: size = %d\n",size);
-        exit(0);
+        I_FatalError("Memory could NOT be allocated in AllocMem: size = %d\n",size);
     }
 
     ASSERT(bp != NULL);
@@ -489,9 +487,7 @@ CallocMem(int size, int num)
     // Used for debugging, we can remove this at ship time
     if (bp == NULL)
     {
-        TerminateGame();
-        printf("Memory could NOT be allocated in CallocMem: size = %d, num = %d\n",size,num);
-        exit(0);
+        I_FatalError("Memory could NOT be allocated in CallocMem: size = %d, num = %d\n",size,num);
     }
 
     ASSERT(bp != NULL);
@@ -532,6 +528,7 @@ ValidPtr(void *ptr)
     return TRUE;
 }
 
+#if 0
 void *
 AllocMem(int size)
 {
@@ -555,6 +552,7 @@ FreeMem(void *ptr)
 {
     free(ptr);
 }
+#endif
 
 #endif
 
@@ -632,18 +630,13 @@ void TerminateGame(void)
         SybexScreen();
         //TenScreen();
     }
-
-    engineUnInit();
-
-    timerUninit();
-    Bexit(0);
+    throw ExitEvent(3);
 }
 
 bool LoadLevel(const char *filename)
 {
     if (engineLoadBoard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &Player[0].pang, &Player[0].cursectnum) == -1)
     {
-        TerminateGame();
 		Printf("Level not found: %s", filename);
 		return false;
 	}
@@ -786,12 +779,6 @@ bool InitGame()
     InitAutoNet();
 
     timerInit(120);
-
-    CON_InitConsole();  // Init console command list
-
-    ////DSPRINTF(ds,"%s, %d",__FILE__,__LINE__);   MONO_PRINT(ds);
-
-    //InitFX();
 
     memcpy(palette_data,palette,768);
     InitPalette();
@@ -2483,7 +2470,7 @@ void Control()
     }
 
     CleanExit = TRUE;
-    TerminateGame();
+    throw ExitEvent(0);
 }
 
 
@@ -3986,6 +3973,13 @@ GameStats GameInterface::getStats()
 	return { pp->Kills, TotalKillable, pp->SecretsFound, LevelSecrets, PlayClock / 120, 0 };
 }
 
+void GameInterface::FreeGameData()
+{
+    TerminateLevel();
+}
+
+
+
 #if 0 // the message input needs to be moved out of the game code!
 void GetMessageInput(PLAYERp pp)
 {
@@ -4045,12 +4039,6 @@ void GetMessageInput(PLAYERp pp)
                 {
                     if (memcmp(MessageInputString, TEAM_MENU, sizeof(TEAM_MENU)) != 0)
                     {
-                        // see if its a command
-                        if (IsCommand(MessageInputString))
-                        {
-                            TeamSendAll = TRUE;
-                        }
-                        else
                         {
                             strcpy(HoldMessageInputString, MessageInputString);
                             strcpy(MessageInputString, TEAM_MENU);
@@ -4072,7 +4060,6 @@ void GetMessageInput(PLAYERp pp)
                 inputState.ClearKeysDown();
                 inputState.keyFlushChars();
                 buttonMap.ClearButton(gamefunc_Inventory);
-                CON_ProcessUserCommand();     // Check to see if it's a cheat or command
 
                 for (i = 0; i < NUMGAMEFUNCTIONS; i++)
                     buttonMap.ClearButton(i);

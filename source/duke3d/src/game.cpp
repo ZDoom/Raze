@@ -6435,7 +6435,6 @@ void nix()
 
 void GameInterface::FreeGameData()
 {
-    engineUnInit();
     G_Cleanup();
 }
 

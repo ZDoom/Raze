@@ -858,7 +858,6 @@ SWBOOL CON_CheckParm(const char *userarg);
 void CON_CommandHistory(signed char dir);
 SWBOOL CON_AddCommand(const char *command, void (*function)(void));
 void CON_ProcessUserCommand(void);
-void CON_InitConsole(void);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1756,10 +1755,18 @@ typedef struct
 } MEM_HDR,*MEM_HDRp;
 
 SWBOOL ValidPtr(void *ptr);
+#if 0
 void *AllocMem(int size);
 void *CallocMem(int size, int num);
 void *ReAllocMem(void *ptr, int size);
 void FreeMem(void *ptr);
+#else
+// Make these #defines so that MSVC's allocation tracker gets correct line numbers
+#define AllocMem malloc
+#define CallocMem calloc
+#define ReAllocMem realloc
+#define FreeMem free
+#endif
 
 typedef struct
 {
@@ -2423,6 +2430,7 @@ void LoadSaveMsg(const char *msg);
 struct GameInterface : ::GameInterface
 {
 	int app_main() override;
+    void FreeGameData() override;
     bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;

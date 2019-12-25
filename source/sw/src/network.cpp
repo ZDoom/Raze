@@ -648,7 +648,6 @@ waitforeverybody(void)
                 }
 
                 TerminateGame();
-                exit(0);
             }
         }
 

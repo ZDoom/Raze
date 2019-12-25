@@ -7884,7 +7884,6 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
 void GameInterface::FreeGameData()
 {
     G_SetFog(0);
-    engineUnInit();
     G_Cleanup();
 }
 

@@ -310,6 +310,11 @@ int GameMain()
 		I_ShowFatalError(err.what());
 		r = -1;
 	}
+	M_ClearMenus(true);
+	if (gi)
+	{
+		gi->FreeGameData();	// Must be done before taking down any subsystems.
+	}
 	S_StopMusic(true);
 	if (soundEngine) delete soundEngine;
 	soundEngine = nullptr;
@@ -325,9 +330,9 @@ int GameMain()
 	I_ShutdownGraphics();
 	M_DeinitMenus();
 	paletteFreeColorTables();
+	engineUnInit();
 	if (gi)
 	{
-		gi->FreeGameData();
 		delete gi;
 		gi = nullptr;
 	}

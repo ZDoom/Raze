@@ -1464,7 +1464,7 @@ void PrintSpriteInfo(PLAYERp pp)
             Printf("COUNTER:%d, ", u->Counter);
             Printf("COUNTER2:%d\n", u->Counter);
         }
-        if (SpriteInfo > 1)
+        if (sp)
         {
             Printf("POSX:%d, ", TrackerCast(sp->x));
             Printf("POSY:%d, ", TrackerCast(sp->y));
