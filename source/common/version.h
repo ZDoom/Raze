@@ -57,7 +57,7 @@ const char *GetVersionString();
 #define WGAMENAME L"Demolition"
 #define GAMENAMELOWERCASE "demolition"
 #define FORUM_URL "http://forum.zdoom.org/"
-//#define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"
+#define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"	// fixme before release!!!
 
 #define SAVESIG_DN3D "Demolition.Duke"
 #define SAVESIG_BLD "Demolition.Blood"

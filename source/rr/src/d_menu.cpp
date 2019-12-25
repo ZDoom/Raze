@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "demo.h"
 #include "duke3d.h"
-#include "input.h"
+
 #include "menus.h"
 #include "osdcmds.h"
 #include "savegame.h"
@@ -384,7 +384,7 @@ void GameInterface::MenuClosed()
 	if (gm & MODE_GAME)
 	{
 		if (gm & MODE_MENU)
-			I_ClearAllInput();
+			inputState.ClearAllInput();
 
 		// The following lines are here so that you cannot close the menu when no game is running.
 		gm &= ~MODE_MENU;

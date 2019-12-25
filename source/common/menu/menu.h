@@ -765,10 +765,11 @@ void M_EnableMenu (bool on) ;
 bool M_Responder (event_t *ev);
 void M_Ticker (void);
 void M_Drawer (void);
+void M_PreviousMenu();
 void M_Init (void);
 void M_CreateMenus();
 void M_ActivateMenu(DMenu *menu);
-void M_ClearMenus ();
+void M_ClearMenus (bool final = false);
 void M_ParseMenuDefs();
 void M_StartupSkillMenu(FGameStartup *gs);
 int M_GetDefaultSkill();
@@ -780,6 +781,7 @@ void M_UnhideCustomMenu(int menu, int itemmask);
 void M_MenuSound(EMenuSounds snd);
 void M_Autosave();
 bool M_Active();
+void M_DeinitMenus();
 
 
 void I_SetMouseCapture();

@@ -31,71 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
-int osdcmd_restartvid(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    videoResetMode();
-    if (videoSetGameMode(gSetup.fullscreen,gSetup.xdim,gSetup.ydim,gSetup.bpp,0))
-        I_Error("restartvid: Reset failed...\n");
-    onvideomodechange(gSetup.bpp>8);
-    UpdateScreenSize();
-
-    return OSDCMD_OK;
-}
-
-static int osdcmd_vidmode(osdcmdptr_t parm)
-{
-    int32_t newbpp = gSetup.bpp, newwidth = gSetup.xdim,
-            newheight = gSetup.ydim, newfs = gSetup.fullscreen;
-    int32_t tmp;
-
-    if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
-
-    switch (parm->numparms)
-    {
-    case 1: // bpp switch
-        tmp = Batol(parm->parms[0]);
-        if (!(tmp==8 || tmp==16 || tmp==32))
-            return OSDCMD_SHOWHELP;
-        newbpp = tmp;
-        break;
-    case 2: // res switch
-        newwidth = Batol(parm->parms[0]);
-        newheight = Batol(parm->parms[1]);
-        break;
-    case 3: // res & bpp switch
-    case 4:
-        newwidth = Batol(parm->parms[0]);
-        newheight = Batol(parm->parms[1]);
-        tmp = Batol(parm->parms[2]);
-        if (!(tmp==8 || tmp==16 || tmp==32))
-            return OSDCMD_SHOWHELP;
-        newbpp = tmp;
-        if (parm->numparms == 4)
-            newfs = (Batol(parm->parms[3]) != 0);
-        break;
-    }
-
-    if (videoSetGameMode(newfs,newwidth,newheight,newbpp,upscalefactor))
-    {
-        initprintf("vidmode: Mode change failed!\n");
-        if (videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, upscalefactor))
-            I_Error("vidmode: Reset failed!\n");
-    }
-    gSetup.bpp = newbpp;
-    gSetup.xdim = newwidth;
-    gSetup.ydim = newheight;
-    gSetup.fullscreen = newfs;
-    onvideomodechange(gSetup.bpp>8);
-    UpdateScreenSize();
-    return OSDCMD_OK;
-}
-
-void onvideomodechange(int32_t newmode)
-{
-    uint8_t palid = BASEPAL;
-    videoSetPalette(0, palid, 0);
-}
 
 int32_t registerosdcommands(void)
 {
@@ -118,11 +53,8 @@ int32_t registerosdcommands(void)
 
     //OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     //OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
-    OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
 
     //OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
-
-    OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
 
     return 0;
 }

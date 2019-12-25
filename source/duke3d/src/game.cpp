@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "anim.h"
 #include "demo.h"
-#include "input.h"
+
 #include "colmatch.h"
 #include "cheats.h"
 #include "sbar.h"
@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statistics.h"
 #include "menu/menu.h"
 #include "mapinfo.h"
+#include "rendering/v_video.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
@@ -65,7 +66,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef _WIN32
 # include <shellapi.h>
 # define UPDATEINTERVAL 604800 // 1w
-# include "win32/winbits.h"
 #else
 # ifndef GEKKO
 #  include <sys/ioctl.h>
@@ -188,23 +188,6 @@ void G_HandleSpecialKeys(void)
         CONTROL_GetInput(&noshareinfo);
     }
 
-    if (g_networkMode != NET_DEDICATED_SERVER && ALT_IS_PRESSED && inputState.GetKeyStatus(sc_Enter))
-    {
-        if (videoSetGameMode(!ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, 1))
-        {
-            OSD_Printf(OSD_ERROR "Failed setting video mode!\n");
-
-            if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, 1))
-                G_GameExit("Fatal error: unable to recover from failure setting video mode!\n");
-        }
-        else
-            ScreenMode = !ScreenMode;
-
-        inputState.ClearKeyStatus(sc_Enter);
-        g_restorePalette = 1;
-        G_UpdateScreenArea();
-    }
-
     // only dispatch commands here when not in a game
     if ((myplayer.gm & MODE_GAME) != MODE_GAME)
         OSD_DispatchQueued();
@@ -268,7 +251,6 @@ void G_GameExit(const char *msg)
            g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm & MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
-            videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, 1);
         }
 
         // shareware and TEN screens
@@ -276,11 +258,6 @@ void G_GameExit(const char *msg)
            *msg != 0 && *(msg+1) != 'V' && *(msg+1) != 'Y')
             G_DisplayExtraScreens();
     }
-
-    if (*msg != 0) initprintf("%s\n",msg);
-
-    if (in3dmode())
-        G_Shutdown();
 
     if (*msg != 0)
     {
@@ -291,28 +268,6 @@ void G_GameExit(const char *msg)
     }
 	throw ExitEvent(0);
 }
-
-
-#ifdef YAX_DEBUG
-// ugh...
-char m32_debugstr[64][128];
-int32_t m32_numdebuglines=0;
-
-static void M32_drawdebug(void)
-{
-    int i, col=paletteGetClosestColor(255,255,255);
-    int x=4, y=8;
-
-    if (m32_numdebuglines>0)
-    {
-        videoBeginDrawing();
-        for (i=0; i<m32_numdebuglines && y<ydim-8; i++, y+=8)
-            printext256(x,y,col,0,m32_debugstr[i],xdim>640?0:1);
-        videoEndDrawing();
-    }
-    m32_numdebuglines=0;
-}
-#endif
 
 
 static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int16_t ang, int16_t horiz)
@@ -727,7 +682,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     VM_OnEvent(EVENT_DISPLAYSTART, pPlayer->i, playerNum);
 
-    if ((ud.overhead_on == 2 && !automapping) || ud.show_help || (pPlayer->cursectnum == -1 && videoGetRenderMode() != REND_CLASSIC))
+    if ((ud.overhead_on == 2 && !automapping) || (pPlayer->cursectnum == -1 && videoGetRenderMode() != REND_CLASSIC))
         return;
 
     if (r_usenewaspect)
@@ -4675,17 +4630,8 @@ void G_HandleLocalKeys(void)
             }
         }
     }
-
-    if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED && !WIN_IS_PRESSED)
+    else
     {
-        if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_SendMessage))
-        {
-            inputState.keyFlushChars();
-            buttonMap.ClearButton(gamefunc_SendMessage);
-            myplayer.gm |= MODE_TYPE;
-            typebuf[0] = 0;
-        }
-
         if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
         {
             buttonMap.ClearButton(gamefunc_Third_Person_View);
@@ -4714,6 +4660,7 @@ void G_HandleLocalKeys(void)
         }
     }
 
+#if 0 // fixme: We should not query Esc here, this needs to be done differently
     if (I_EscapeTrigger() && ud.overhead_on && myplayer.newowner == -1)
     {
         I_EscapeTriggerClear();
@@ -4722,6 +4669,7 @@ void G_HandleLocalKeys(void)
         ud.scrollmode    = 0;
         G_UpdateScreenArea();
     }
+#endif
 
     if (buttonMap.ButtonDown(gamefunc_Map))
     {
@@ -4808,12 +4756,9 @@ static void parsedefinitions_game_include(const char *fileName, scriptfile *pScr
 
 static void parsedefinitions_game_animsounds(scriptfile *pScript, const char * blockEnd, char const * fileName, dukeanim_t * animPtr)
 {
-    Xfree(animPtr->sounds);
+    size_t numPairs = 0;
 
-    size_t numPairs = 0, allocSize = 4;
-
-    animPtr->sounds = (animsound_t *)Xmalloc(allocSize * sizeof(animsound_t));
-    animPtr->numsounds = 0;
+    animPtr->Sounds.Clear();
 
     int defError = 1;
     uint16_t lastFrameNum = 1;
@@ -4864,32 +4809,27 @@ static void parsedefinitions_game_animsounds(scriptfile *pScript, const char * b
             break;
         }
 
-        if (numPairs >= allocSize)
-        {
-            allocSize *= 2;
-            animPtr->sounds = (animsound_t *)Xrealloc(animPtr->sounds, allocSize * sizeof(animsound_t));
-        }
 
         defError = 0;
 
-        animsound_t & sound = animPtr->sounds[numPairs];
+        animsound_t sound;
         sound.frame = frameNum;
         sound.sound = soundNum;
+        animPtr->Sounds.Push(sound);
 
         ++numPairs;
     }
 
     if (!defError)
     {
-        animPtr->numsounds = numPairs;
         // initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
         //           hardcoded_anim_tokens[animnum].text, numpairs);
     }
     else
     {
-        DO_FREE_AND_NULL(animPtr->sounds);
         initprintf("Failed defining sound sequence for anim \"%s\".\n", fileName);
     }
+    animPtr->Sounds.ShrinkToFit();
 }
 
 static int parsedefinitions_game(scriptfile *pScript, int firstPass)
@@ -5363,6 +5303,7 @@ static void G_Cleanup(void)
 #if !defined LUNATIC
     if (label != (char *)&sprite[0]) Xfree(label);
     if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
+    if (labeltype != (int32_t*)&wall[0]) Xfree(labeltype);
     Xfree(apScript);
     Xfree(bitptr);
 
@@ -5374,9 +5315,6 @@ static void G_Cleanup(void)
     hash_free(&h_arrays);
     hash_free(&h_labels);
 #endif
-
-    hash_loop(&h_dukeanim, G_FreeHashAnim);
-    hash_free(&h_dukeanim);
 }
 
 /*
@@ -5389,8 +5327,6 @@ static void G_Cleanup(void)
 
 void G_Shutdown(void)
 {
-    engineUnInit();
-    G_Cleanup();
 }
 
 /*
@@ -5558,30 +5494,9 @@ void G_PostCreateGameState(void)
     A_InitEnemyFlags();
 }
 
-static void G_HandleMemErr(int32_t lineNum, const char *fileName, const char *funcName)
-{
-    static char msg[128];
-    Bsnprintf(msg, sizeof(msg), "Out of memory in %s:%d (%s)\n", fileName, lineNum, funcName);
-#ifdef DEBUGGINGAIDS
-    Bassert(0);
-#endif
-    G_GameExit(msg);
-}
-
-static void G_FatalEngineError(void)
-{
-    wm_msgbox("Fatal Engine Initialization Error",
-              "There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
-    G_Cleanup();
-    ERRprintf("G_Startup: There was a problem initializing the engine: %s\n", engineerrstr);
-    exit(6);
-}
-
 static void G_Startup(void)
 {
     int32_t i;
-
-    set_memerr_handler(&G_HandleMemErr);
 
     timerInit(TICRATE);
     timerSetCallback(gameTimerHandler);
@@ -5781,6 +5696,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
 }
 
 
+
 // TODO: reorder (net)actor_t to eliminate slop and update assertion
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)%4 == 0);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
@@ -5801,10 +5717,6 @@ int GameInterface::app_main()
 
     CONFIG_ReadSetup();
 
-    if (enginePreInit())
-    {
-        I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
-    }
     hud_size.Callback();
     S_InitSound();
 
@@ -5931,63 +5843,15 @@ int GameInterface::app_main()
 
     registerosdcommands();
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
     int const clipMapError = engineLoadClipMaps();
     if (clipMapError > 0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", clipMapError);
 
-    for (char * m : g_clipMapFiles)
-        free(m);
-    g_clipMapFiles.clear();
-#endif
+    g_clipMapFiles.Reset();
 
-#if 0
-    OSD_Exec("autoexec.cfg");
-#endif
-
-    system_getcvars();
-
-    if (g_networkMode != NET_DEDICATED_SERVER && validmodecnt > 0)
+    if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, 1) < 0)
-        {
-            initprintf("Failure setting video mode %dx%dx%d %s! Trying next mode...\n", *ScreenWidth, *ScreenHeight,
-                       *ScreenBPP, *ScreenMode ? "fullscreen" : "windowed");
-
-            int resIdx = 0;
-
-            for (int i=0; i < validmodecnt; i++)
-            {
-                if (validmode[i].xdim == ScreenWidth && validmode[i].ydim == ScreenHeight)
-                {
-                    resIdx = i;
-                    break;
-                }
-            }
-
-            int const savedIdx = resIdx;
-            int bpp = ScreenBPP;
-
-            while (videoSetGameMode(0, validmode[resIdx].xdim, validmode[resIdx].ydim, bpp, 1) < 0)
-            {
-                initprintf("Failure setting video mode %dx%dx%d windowed! Trying next mode...\n",
-                           validmode[resIdx].xdim, validmode[resIdx].ydim, bpp);
-
-                if (++resIdx >= validmodecnt)
-                {
-                    if (bpp == 8)
-                        G_GameExit("Fatal error: unable to set any video mode!");
-
-                    resIdx = savedIdx;
-                    bpp = 8;
-                }
-            }
-
-            ScreenWidth = validmode[resIdx].xdim;
-            ScreenHeight = validmode[resIdx].ydim;
-            ScreenBPP  = bpp;
-        }
-
+        V_Init2();
         videoSetPalette(0, myplayer.palette, 0);
     }
 
@@ -6154,7 +6018,7 @@ MAIN_LOOP_RESTART:
 
                     int const moveClock = (int)totalclock;
 
-                    if (((ud.show_help == 0 && !GUICapture && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
+                    if (((!GUICapture && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
                         && (myplayer.gm & MODE_GAME))
                     {
                         G_MoveLoop();
@@ -6517,6 +6381,62 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
     }
 }
 #endif
+
+#if 0
+void GameInterface::SendMessage(const char* msg)
+{
+    if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_SendMessage))
+    {
+        inputState.keyFlushChars();
+        buttonMap.ClearButton(gamefunc_SendMessage);
+        myplayer.gm |= MODE_TYPE;
+        typebuf[0] = 0;
+    }
+}
+ 
+void nix()
+    {
+    int32_t const hitstate = I_EnterText(typebuf, 120, 0);
+
+    int32_t const y = ud.screen_size > 1 ? (200 - 58) << 16 : (200 - 35) << 16;
+
+    int32_t const width = mpgametextsize(typebuf, TEXT_LITERALESCAPE).x;
+    int32_t const fullwidth = width + textsc((tilesiz[SPINNINGNUKEICON].x << 15) + (2 << 16));
+    int32_t const text_x = fullwidth >= (320 << 16) ? (320 << 16) - fullwidth : mpgametext_x;
+    mpgametext(text_x, y, typebuf, 1, 2 | 8 | 16 | ROTATESPRITE_FULL16, 0, TEXT_YCENTER | TEXT_LITERALESCAPE);
+    int32_t const cursor_x = text_x + width + textsc((tilesiz[SPINNINGNUKEICON].x << 14) + (1 << 16));
+    rotatesprite_fs(cursor_x, y, textsc(32768), 0, SPINNINGNUKEICON + (((int32_t)totalclock >> 3) % 7),
+        4 - (sintable[((int32_t)totalclock << 4) & 2047] >> 11), 0, 2 | 8);
+
+    if (hitstate == 1)
+    {
+        inputState.ClearKeyStatus(sc_Enter);
+        if (Bstrlen(typebuf) == 0)
+        {
+            g_player[myconnectindex].ps->gm &= ~(MODE_TYPE | MODE_SENDTOWHOM);
+            return;
+        }
+        if (cl_automsg)
+        {
+            if (SHIFTS_IS_PRESSED)
+                g_chatPlayer = -1;
+            else
+                g_chatPlayer = ud.multimode;
+        }
+        g_player[myconnectindex].ps->gm |= MODE_SENDTOWHOM;
+    }
+    else if (hitstate == -1)
+        g_player[myconnectindex].ps->gm &= ~(MODE_TYPE | MODE_SENDTOWHOM);
+    else
+        pub = NUMPAGES;
+    }
+}
+#endif
+
+void GameInterface::FreeGameData()
+{
+    G_Cleanup();
+}
 
 ::GameInterface* CreateInterface()
 {

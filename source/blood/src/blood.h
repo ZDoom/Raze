@@ -84,6 +84,7 @@ struct GameInterface : ::GameInterface
 {
 	void faketimerhandler() override;
 	int app_main() override;
+	void FreeGameData() override;
 	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
@@ -100,6 +101,7 @@ struct GameInterface : ::GameInterface
 	void DoPrintMessage(int prio, const char*) override;
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg);
 	void QuitToTitle() override;
+	FString GetCoordString() override;
 
 	GameStats getStats() override;
 };

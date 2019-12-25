@@ -41,20 +41,15 @@ extern int32_t gMessageCount;
 extern int32_t gMessageTime;
 extern int32_t gMessageFont;
 extern int32_t gbAdultContent;
-extern char gzAdultPassword[9];
 extern int32_t gMouseSensitivity;
 extern bool gNoClip;
 extern bool gInfiniteAmmo;
 extern bool gFullMap;
-extern int32_t gUpscaleFactor;
 extern int32_t gDeliriumBlur;
 
 ///////
 extern int gWeaponsV10x;
 //////
-
-int  CONFIG_ReadSetup(void);
-void CONFIG_SetDefaults(void);
 
 END_BLD_NS
 

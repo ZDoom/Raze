@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "demo.h"
 #include "duke3d.h"
-#include "input.h"
+
 #include "mdsprite.h"
 #include "sbar.h"
 #include "screens.h"
@@ -55,24 +55,21 @@ int32_t g_noLogo = 0;
 #ifndef EDUKE32_STANDALONE
 static void G_HandleEventsWhileNoInput(void)
 {
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 
-    while (!I_GeneralTrigger())
+    while (!inputState.CheckAllInput())
         gameHandleEvents();
-
-    I_ClearAllInput();
 }
 
 static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
 {
     S_PlaySound(soundnum);
-    I_ClearAllInput();
+    inputState.ClearAllInput();
     while (S_CheckSoundPlaying(soundnum))
     {
         gameHandleEvents();
-        if (I_GeneralTrigger())
+        if (inputState.CheckAllInput())
         {
-            I_ClearAllInput();
             return 1;
         }
     }
@@ -599,16 +596,11 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     }
 }
 
-#define printcoordsline(fmt, ...) do { \
-    Bsprintf(tempbuf, fmt, ## __VA_ARGS__); \
-    printext256(20, y+=9, COLOR_WHITE, -1, tempbuf, 0); \
-} while (0)
-
 #ifdef DEBUGGINGAIDS
 sprstat_t g_spriteStat;
 #endif
 
-static void G_PrintCoords(int32_t snum)
+FString G_PrintCoords(int32_t snum)
 {
     const int32_t x = g_Debug ? 288 : 0;
     int32_t y = 0;
@@ -623,53 +615,43 @@ static void G_PrintCoords(int32_t snum)
         else if (g_netServer || ud.multimode > 1)
             y = 24;
     }
-    Bsprintf(tempbuf, "XYZ= (%d, %d, %d)", ps->pos.x, ps->pos.y, ps->pos.z);
-    printext256(x, y, COLOR_WHITE, -1, tempbuf, 0);
+    FString out;
+
+    out.AppendFormat("XYZ= (%d, %d, %d)\n", ps->pos.x, ps->pos.y, ps->pos.z);
     char ang[16], horiz[16], horizoff[16];
     fix16_to_str(ps->q16ang, ang, 2);
     fix16_to_str(ps->q16horiz, horiz, 2);
     fix16_to_str(ps->q16horizoff, horizoff, 2);
-    Bsprintf(tempbuf, "A/H/HO= %s, %s, %s", ang, horiz, horizoff);
-    printext256(x, y+9, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "VEL= (%d, %d, %d) + (%d, %d, 0)",
-        ps->vel.x>>14, ps->vel.y>>14, ps->vel.z, ps->fric.x>>5, ps->fric.y>>5);
-    printext256(x, y+18, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "OG= %d  SBRIDGE=%d SBS=%d", ps->on_ground, ps->spritebridge, ps->sbs);
-    printext256(x, y+27, COLOR_WHITE, -1, tempbuf, 0);
+    out.AppendFormat("A/H/HO= %s, %s, %s\n", ang, horiz, horizoff);
+    out.AppendFormat("VEL= (%d, %d, %d) + (%d, %d, 0)\n", ps->vel.x>>14, ps->vel.y>>14, ps->vel.z, ps->fric.x>>5, ps->fric.y>>5);
+    out.AppendFormat("OG= %d  SBRIDGE=%d SBS=%d\n", ps->on_ground, ps->spritebridge, ps->sbs);
     if (sectnum >= 0)
-        Bsprintf(tempbuf, "SECT= %d (LO=%d EX=%d)", sectnum,
-            TrackerCast(sector[sectnum].lotag), TrackerCast(sector[sectnum].extra));
+        out.AppendFormat("SECT= %d (LO=%d EX=%d)\n", sectnum, TrackerCast(sector[sectnum].lotag), TrackerCast(sector[sectnum].extra));
     else
-        Bsprintf(tempbuf, "SECT= %d", sectnum);
-    printext256(x, y+36, COLOR_WHITE, -1, tempbuf, 0);
-    //    Bsprintf(tempbuf,"SEED= %d",randomseed);
-    //    printext256(x,y+45,COLOR_WHITE,-1,tempbuf,0);
-    y -= 9;
+        out.AppendFormat("SECT= %d\n", sectnum);
 
-    y += 7;
-    Bsprintf(tempbuf, "THOLD= %d", ps->transporter_hold);
-    printext256(x, y+54, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "GAMETIC= %u, TOTALCLOCK=%d", g_moveThingsCount, (int32_t) totalclock);
-    printext256(x, y+63, COLOR_WHITE, -1, tempbuf, 0);
+    out.AppendFormat("\nTHOLD= %d ", ps->transporter_hold);
+    out.AppendFormat("GAMETIC= %u, TOTALCLOCK=%d\n", g_moveThingsCount, (int32_t) totalclock);
 #ifdef DEBUGGINGAIDS
-    Bsprintf(tempbuf, "NUMSPRITES= %d", Numsprites);
-    printext256(x, y+72, COLOR_WHITE, -1, tempbuf, 0);
+    out.AppendFormat("NUMSPRITES= %d\n", Numsprites);
     if (g_moveThingsCount > g_spriteStat.lastgtic + REALGAMETICSPERSEC)
     {
         g_spriteStat.lastgtic = g_moveThingsCount;
         g_spriteStat.lastnumins = g_spriteStat.numins;
         g_spriteStat.numins = 0;
     }
-    Bsprintf(tempbuf, "INSERTIONS/s= %u", g_spriteStat.lastnumins);
-    printext256(x, y+81, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "ONSCREEN= %d", g_spriteStat.numonscreen);
-    printext256(x, y+90, COLOR_WHITE, -1, tempbuf, 0);
-    y += 3*9;
+    out.AppendFormat("INSERTIONS/s= %u\n", g_spriteStat.lastnumins);
+    out.AppendFormat("ONSCREEN= %d\n", g_spriteStat.numonscreen);
 #endif
-    y += 7;
-    Bsprintf(tempbuf, "VR=%.03f  YX=%.03f", (double) dr_viewingrange/65536.0, (double) dr_yxaspect/65536.0);
-    printext256(x, y+72, COLOR_WHITE, -1, tempbuf, 0);
+    out.AppendFormat("\nVR=%.03f  YX=%.03f", (double) dr_viewingrange/65536.0, (double) dr_yxaspect/65536.0);
+    return out;
 }
+
+FString GameInterface::GetCoordString()
+{
+    return G_PrintCoords(screenpeek);
+}
+
 
 #define LOW_FPS ((videoGetRenderMode() == REND_CLASSIC) ? 35 : 50)
 #define SLOW_FRAME_TIME 20
@@ -824,33 +806,6 @@ void G_DisplayRest(int32_t smoothratio)
             // delay setting the palette by one game tic
             omovethingscnt = g_moveThingsCount;
         }
-    }
-
-    if (ud.show_help)
-    {
-        switch (ud.show_help)
-        {
-        case 1:
-            rotatesprite_fs(160<<16, 100<<16, 65536L, 0, TEXTSTORY, 0, 0, 10+64);
-            break;
-        case 2:
-            rotatesprite_fs(160<<16, 100<<16, 65536L, 0, F1HELP, 0, 0, 10+64);
-            break;
-        }
-
-        if (I_ReturnTrigger())
-        {
-            I_ReturnTriggerClear();
-            ud.show_help = 0;
-            if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-            {
-                ready2send = 1;
-                totalclock = ototalclock;
-            }
-            G_UpdateScreenArea();
-        }
-
-        return;
     }
 
     i = pp->cursectnum;
@@ -1037,9 +992,6 @@ void G_DisplayRest(int32_t smoothratio)
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
         menutext_center(100, GStrings("Game Paused"));
 
-    if (cl_showcoords)
-        G_PrintCoords(screenpeek);
-
 #ifdef YAX_DEBUG
     M32_drawdebug();
 #endif
@@ -1110,7 +1062,7 @@ void G_DisplayRest(int32_t smoothratio)
 #ifndef EDUKE32_TOUCH_DEVICES
     if (VOLUMEONE)
     {
-        if (ud.show_help == 0 && g_showShareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+        if (g_showShareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             rotatesprite_fs((320-50)<<16, 9<<16, 65536L, 0, BETAVERSION, 0, 0, 2+8+16+128);
     }
 #endif
@@ -1178,9 +1130,8 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
     // (end-start)/step + 1 iterations
     do
     {
-        if (I_GeneralTrigger())
+        if (inputState.CheckAllInput())
         {
-            I_ClearAllInput();
             videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
             return;
         }
@@ -1204,9 +1155,8 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
     // (end-start)/step + 1 iterations
     do
     {
-        if (I_GeneralTrigger())
+        if (inputState.CheckAllInput())
         {
-            I_ClearAllInput();
             videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
             return;
         }
@@ -1235,15 +1185,15 @@ void gameDisplayTENScreen()
     // g_player[myconnectindex].ps->palette = palette;
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);  // JBF 20040308
     fadepal(0, 0, 0, 0, 252, 28);
-    I_ClearAllInput();
+    inputState.ClearAllInput();
     totalclock = 0;
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, TENSCREEN, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     fadepaltile(0, 0, 0, 252, 0, -28, TENSCREEN);
-    while (!I_GeneralTrigger() && totalclock < 2400)
+    while (!inputState.CheckAllInput() && totalclock < 2400)
         gameHandleEvents();
 
     fadepaltile(0, 0, 0, 0, 252, 28, TENSCREEN);
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 #ifdef __ANDROID__
     inExtraScreens = 0;
 #endif
@@ -1259,17 +1209,17 @@ void gameDisplaySharewareScreens()
     // g_player[myconnectindex].ps->palette = palette;
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);  // JBF 20040308
     fadepal(0, 0, 0, 0, 252, 28);
-    I_ClearAllInput();
+    inputState.ClearAllInput();
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 3291, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     fadepaltile(0, 0, 0, 252, 0, -28, 3291);
-    while (!I_GeneralTrigger())
+    while (!inputState.CheckAllInput())
         gameHandleEvents();
 
     fadepaltile(0, 0, 0, 0, 252, 28, 3291);
-    I_ClearAllInput();
+    inputState.ClearAllInput();
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 3290, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     fadepaltile(0, 0, 0, 252, 0, -28, 3290);
-    while (!I_GeneralTrigger())
+    while (!inputState.CheckAllInput())
         gameHandleEvents();
 
 #ifdef __ANDROID__
@@ -1291,7 +1241,7 @@ void G_DisplayExtraScreens(void)
 
 void gameDisplay3DRScreen()
 {
-    if (!I_GeneralTrigger() && g_noLogoAnim == 0)
+    if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
     {
         Net_GetPackets();
 
@@ -1299,7 +1249,7 @@ void gameDisplay3DRScreen()
 		{
 			Anim_Play("3dr.anm");
             G_FadePalette(0, 0, 0, 252);
-            I_ClearAllInput();
+            inputState.ClearAllInput();
         }
         else
         {
@@ -1313,7 +1263,7 @@ void gameDisplay3DRScreen()
             fadepaltile(0, 0, 0, 252, 0, -28, DREALMS);
             totalclock = 0;
 
-            while (totalclock < (120 * 7) && !I_GeneralTrigger())
+            while (totalclock < (120 * 7) && !inputState.CheckAllInput())
             {
                 if (G_FPSLimit())
                 {
@@ -1354,7 +1304,7 @@ void gameDisplayTitleScreen(void)
 #ifndef EDUKE32_SIMPLE_MENU
     totalclock < (860 + 120) &&
 #endif
-    !I_GeneralTrigger())
+    !inputState.CheckAllInput())
     {
         if (G_FPSLimit())
         {
@@ -1450,7 +1400,7 @@ void G_DisplayLogo(void)
 
     ready2send = 0;
 
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
     videoClearScreen(0L);
@@ -1473,12 +1423,12 @@ void G_DisplayLogo(void)
 #endif
             (logoflags & LOGO_PLAYANIM))
         {
-            if (!I_GeneralTrigger() && g_noLogoAnim == 0)
+            if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
             {
                 Net_GetPackets();
                 Anim_Play("logo.anm");
                 G_FadePalette(0, 0, 0, 252);
-                I_ClearAllInput();
+                inputState.ClearAllInput();
             }
 
             videoClearScreen(0L);
@@ -1507,7 +1457,7 @@ void G_DisplayLogo(void)
                 videoNextPage();
             }
 
-            I_ClearAllInput();
+            inputState.ClearAllInput();
         }
 
         videoClearScreen(0L);
@@ -1516,7 +1466,7 @@ void G_DisplayLogo(void)
         if (logoflags & LOGO_TITLESCREEN)
             gameDisplayTitleScreen();
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
     }
 
     renderFlushPerms();
@@ -1541,14 +1491,14 @@ void G_DoOrderScreen(void)
     for (int i=0; i<4; i++)
     {
         fadepal(0, 0, 0, 0, 252, 28);
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, ORDERING+i, 0, 0, 2+8+64+BGSTRETCH);
         fadepal(0, 0, 0, 252, 0, -28);
-        while (!I_CheckAllInput())
+        while (!inputState.CheckAllInput())
             gameHandleEvents();
     }
 
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 }
 
 
@@ -1583,7 +1533,7 @@ static void G_BonusCutscenes(void)
             videoNextPage();
             fadepal(0, 0, 0, 252, 0, -4);
 
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             totalclock = 0;
 
             do
@@ -1643,7 +1593,7 @@ static void G_BonusCutscenes(void)
 
                 gameHandleEvents();
 
-                if (I_GeneralTrigger()) break;
+                if (inputState.CheckAllInput()) break;
             } while (1);
 
             fadepal(0, 0, 0, 0, 252, 4);
@@ -1652,7 +1602,7 @@ static void G_BonusCutscenes(void)
         if (G_GetLogoFlags() & LOGO_NOE1ENDSCREEN)
             goto VOL1_END;
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
 
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3292, 0, 0, 2+8+64+BGSTRETCH);
@@ -1680,7 +1630,7 @@ static void G_BonusCutscenes(void)
         {
             fadepal(0, 0, 0, 252, 0, -4);
             Anim_Play("cineov2.anm");
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             videoClearScreen(0L);
             videoNextPage();
 
@@ -1691,7 +1641,7 @@ static void G_BonusCutscenes(void)
         if (G_GetLogoFlags() & LOGO_NOE2ENDSCREEN)
             return;
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3293, 0, 0, 2+8+64+BGSTRETCH);
         fadepal(0, 0, 0, 252, 0, -4);
@@ -1714,7 +1664,7 @@ static void G_BonusCutscenes(void)
         {
             fadepal(0, 0, 0, 252, 0, -4);
 
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             int t = Anim_Play("vol4e1.anm");
             videoClearScreen(0L);
             videoNextPage();
@@ -1739,7 +1689,7 @@ static void G_BonusCutscenes(void)
         FX_StopAllSounds();
         S_ClearSoundLocks();
         S_PlaySound(ENDSEQVOL3SND4);
-        I_ClearAllInput();
+        inputState.ClearAllInput();
 
         if (G_GetLogoFlags() & LOGO_NODUKETEAMTEXT)
             goto VOL4_DUKETEAM;
@@ -1757,7 +1707,7 @@ static void G_BonusCutscenes(void)
 
         fadepal(0, 0, 0, 252, 0, -12);
         videoNextPage();
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         G_HandleEventsWhileNoInput();
         fadepal(0, 0, 0, 0, 252, 12);
 
@@ -1770,7 +1720,7 @@ static void G_BonusCutscenes(void)
 
         Anim_Play("DUKETEAM.ANM");
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         G_HandleEventsWhileNoInput();
 
         videoClearScreen(0L);
@@ -1780,7 +1730,7 @@ static void G_BonusCutscenes(void)
     VOL4_END:
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        I_ClearAllInput();
+        inputState.ClearAllInput();
 
         break;
 
@@ -1795,7 +1745,7 @@ static void G_BonusCutscenes(void)
         {
             fadepal(0, 0, 0, 252, 0, -4);
             Anim_Play("cineov3.anm");
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             ototalclock = totalclock+200;
             while (totalclock < ototalclock)
                 gameHandleEvents();
@@ -1811,7 +1761,7 @@ static void G_BonusCutscenes(void)
 
         Anim_Play("RADLOGO.ANM");
 
-        if (adult_lockout == 0 && !I_GeneralTrigger())
+        if (adult_lockout == 0 && !inputState.CheckAllInput())
         {
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND5)) goto ENDANM;
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND6)) goto ENDANM;
@@ -1820,15 +1770,15 @@ static void G_BonusCutscenes(void)
             if (G_PlaySoundWhileNoInput(ENDSEQVOL3SND9)) goto ENDANM;
         }
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
 
         totalclock = 0;
         if (PLUTOPAK || (G_GetLogoFlags() & LOGO_NODUKETEAMPIC))
         {
-            while (totalclock < 120 && !I_GeneralTrigger())
+            while (totalclock < 120 && !inputState.CheckAllInput())
                 gameHandleEvents();
 
-            I_ClearAllInput();
+            inputState.ClearAllInput();
         }
         else
         {
@@ -1847,7 +1797,7 @@ static void G_BonusCutscenes(void)
 
             Anim_Play("DUKETEAM.ANM");
 
-            I_ClearAllInput();
+            inputState.ClearAllInput();
             G_HandleEventsWhileNoInput();
 
             videoClearScreen(0L);
@@ -1855,7 +1805,7 @@ static void G_BonusCutscenes(void)
             G_FadePalette(0, 0, 0, 252);
         }
 
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
@@ -2048,7 +1998,7 @@ void G_BonusScreen(int32_t bonusonly)
             S_PlaySound(BONUSMUSIC);
 
         videoNextPage();
-        I_ClearAllInput();
+        inputState.ClearAllInput();
         fadepal(0, 0, 0, 252, 0, -28);
         totalclock = 0;
 
@@ -2063,9 +2013,8 @@ void G_BonusScreen(int32_t bonusonly)
                 videoNextPage();
             }
 
-            if (I_CheckAllInput())
+            if (inputState.CheckAllInput())
             {
-                I_ClearAllInput();
                 break;
             }
         }
@@ -2088,7 +2037,7 @@ void G_BonusScreen(int32_t bonusonly)
         S_PlaySound(BONUSMUSIC);
 
     videoNextPage();
-    I_ClearAllInput();
+    inputState.ClearAllInput();
     fadepal(0, 0, 0, 252, 0, -4);
     bonuscnt = 0;
     totalclock = 0;
@@ -2316,9 +2265,8 @@ void G_BonusScreen(int32_t bonusonly)
                 if (totalclock > 10240 && totalclock < 10240+10240)
                     totalclock = 1024;
 
-                if (I_CheckAllInput() && totalclock >(60*2)) // JBF 20030809
+                if (inputState.CheckAllInput() && totalclock >(60*2)) // JBF 20030809
                 {
-                    I_ClearAllInput();
                     if (totalclock < (60*13))
                     {
                         inputState.keyFlushChars();

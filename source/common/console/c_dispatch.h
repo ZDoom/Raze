@@ -34,6 +34,7 @@
 #ifndef __C_DISPATCH_H__
 #define __C_DISPATCH_H__
 
+#include <functional>
 #include "c_console.h"
 #include "zstring.h"
 #include "c_commandline.h"
@@ -69,6 +70,7 @@ void C_DoCommand (const char *cmd, int keynum=0);
 
 FExecList *C_ParseExecFile(const char *file, FExecList *source);
 bool C_ExecFile(const char *file);
+void C_ClearDynCCmds();
 
 // Write out alias commands to a file for all current aliases.
 void C_ArchiveAliases (FConfigFile *f);

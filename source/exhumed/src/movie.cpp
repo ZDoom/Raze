@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "typedefs.h"
 #include "keyboard.h"
 #include "sound.h"
-#include "mutex.h"
 
 BEGIN_PS_NS
 
@@ -57,7 +56,6 @@ static uint8_t* CurFrame = NULL;
 
 bool bServedSample = false;
 palette_t moviepal[256];
-static mutex_t mutex;
 
 int ReadFrame(FileReader &fp)
 {
@@ -113,7 +111,7 @@ int ReadFrame(FileReader &fp)
                 }
                 else
                 {
-                    mutex_lock(&mutex);
+                    //mutex_lock(&mutex);
 
                     int nRead = fp.Read((char*)bankbuf + bankptr, nSize);
 
@@ -127,7 +125,7 @@ int ReadFrame(FileReader &fp)
                         bankptr -= kSampleRate; // loop back to start
                     }
 
-                    mutex_unlock(&mutex);
+                    //mutex_unlock(&mutex);
                 }
 
                 continue;
@@ -177,7 +175,7 @@ int ReadFrame(FileReader &fp)
 
 void ServeSample(const char** ptr, uint32_t* length)
 {
-    mutex_lock(&mutex);
+    //mutex_lock(&mutex);
 
     *ptr = (char*)bankbuf + banktail;
     *length = kSampleSize;
@@ -190,7 +188,7 @@ void ServeSample(const char** ptr, uint32_t* length)
     lSoundBytesUsed += kSampleSize;
     bServedSample = true;
 
-    mutex_unlock(&mutex);
+    //mutex_unlock(&mutex);
 }
 
 void PlayMovie(const char* fileName)

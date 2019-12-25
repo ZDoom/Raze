@@ -164,8 +164,8 @@ inline bool read_and_test(FileReader& handle, void* buffer, int32_t leng)
 //
 void paletteLoadFromDisk(void)
 {
-    initfastcolorlookup_scale(30, 59, 11);
-    initfastcolorlookup_gridvectors();
+    paletteInitClosestColorScale(30, 59, 11);
+    paletteInitClosestColorGrid();
 
 #ifdef USE_OPENGL
     for (auto & x : glblend)
@@ -191,7 +191,7 @@ void paletteLoadFromDisk(void)
     for (unsigned char & k : palette)
         k <<= 2;
 
-    initfastcolorlookup_palette(palette);
+    paletteInitClosestColorMap(palette);
 
     paletteloaded |= PALETTE_MAIN;
 
@@ -335,7 +335,7 @@ void paletteLoadFromDisk(void)
     }
 }
 
-uint32_t PaletteIndexFullbrights[8];
+uint8_t PaletteIndexFullbrights[32];
 
 void palettePostLoadTables(void)
 {
@@ -357,12 +357,6 @@ void palettePostLoadTables(void)
     blackcol = paletteGetClosestColor(0, 0, 0);
     whitecol = paletteGetClosestColor(255, 255, 255);
     redcol = paletteGetClosestColor(255, 0, 0);
-
-    for (size_t i = 0; i<16; i++)
-    {
-        palette_t *edcol = (palette_t *) &vgapal16[4*i];
-        editorcolors[i] = getclosestcol_lim(edcol->b, edcol->g, edcol->r, playing_blood ? 254 : 239);
-    }
 
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
     for (bssize_t c = 0; c < 255; ++c) // skipping transparent color
@@ -399,6 +393,15 @@ void palettePostLoadTables(void)
         }
         PostLoad_FoundShade: ;
         frealmaxshade = (float)(realmaxshade = s+1);
+    }
+
+    for (size_t i = 0; i<256; i++)
+    {
+        if (editorcolorsdef[i])
+            continue;
+
+        palette_t *edcol = (palette_t *) &vgapal16[4*i];
+        editorcolors[i] = paletteGetClosestColorWithBlacklist(edcol->b, edcol->g, edcol->r, 254, PaletteIndexFullbrights);
     }
 }
 
@@ -574,7 +577,7 @@ void setBlendFactor(int index, int alpha)
 
 void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
 {
-    static GLenum const blendFuncTokens[NUMBLENDFACTORS] =
+    static uint8_t const blendFuncTokens[NUMBLENDFACTORS] =
     {
         STYLEALPHA_Zero,
         STYLEALPHA_One,
@@ -726,6 +729,13 @@ void paletteFreeColorTable(int32_t const id)
         DO_FREE_AND_NULL(basepaltable[id]);
 }
 
+void paletteFreeColorTables()
+{
+    for (int i = 0; i < countof(basepaltable); i++)
+    {
+        paletteFreeColorTable(i);
+    }
+}
 //
 // setbrightness
 //
@@ -742,7 +752,6 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 	const uint8_t* dapal;
 
 	int32_t paldidchange;
-	int32_t palsumdidchange;
 	//    uint32_t lastbright = curbrightness;
 
     // Bassert((flags&4)==0); // What is so bad about this flag?
@@ -789,21 +798,6 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 	if ((flags & 16) && palfadedelta)  // keep the fade
 		paletteSetFade(palfadedelta >> 2);
 
-	// Don't waste time on this palette voodoo if we are hardware rendering. videoUpdatePalette is a strictly software rendering function.
-	if (videoGetRenderMode() < REND_POLYMOST)
-	{
-		static uint32_t lastpalettesum = 0;
-		uint32_t newpalettesum = SuperFastHash((char*)curpalettefaded, sizeof(curpalettefaded));
-
-		palsumdidchange = (newpalettesum != lastpalettesum);
-
-		if (palsumdidchange || newpalettesum != g_lastpalettesum)
-		{
-			videoUpdatePalette(0, 256);
-		}
-
-		g_lastpalettesum = lastpalettesum = newpalettesum;
-	}
 
 	if ((flags & 16) == 0)
 	{
@@ -848,18 +842,4 @@ void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
     palfadedelta = offset;
 
     paletteSetFade(offset);
-
-	// Don't waste time on this palette voodoo if we are hardware rendering. videoUpdatePalette is a strictly software rendering function.
-	if (videoGetRenderMode() < REND_POLYMOST)
-	{
-		static uint32_t lastpalettesum = 0;
-		uint32_t newpalettesum = SuperFastHash((char*)curpalettefaded, sizeof(curpalettefaded));
-
-		if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
-		{
-			videoUpdatePalette(0, 256);
-		}
-
-		g_lastpalettesum = lastpalettesum = newpalettesum;
-	}
 }

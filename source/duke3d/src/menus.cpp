@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "demo.h"
 #include "duke3d.h"
-#include "input.h"
+
 #include "menus.h"
 #include "osdcmds.h"
 #include "savegame.h"

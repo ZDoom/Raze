@@ -509,11 +509,11 @@ static FString GameName;
 void G_LoadConfig()
 {
 	GameConfig = new FGameConfigFile();
+	GameConfig->DoGlobalSetup();
 }
 
 void G_ReadConfig(const char* game)
 {
-	GameConfig->DoGlobalSetup();
 	GameConfig->DoGameSetup(game);
 	GameConfig->DoKeySetup(game);
 	FBaseCVar::EnableCallbacks();

@@ -3,26 +3,10 @@
 #include "build.h"
 #include "gamecvars.h"
 
-int32_t InputState::mouseReadAbs(vec2_t * const pResult)
-{
-	auto pInput = &g_mouseAbs;
-    if (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || GUICapture)
-        return 0;
-
-    int32_t const xwidth = max(scale(240<<16, screen->GetWidth(), screen->GetHeight()), 320<<16);
-
-    pResult->x = scale(pInput->x, xwidth, xres) - ((xwidth>>1) - (320<<15));
-    pResult->y = scale(pInput->y, 200<<16, yres);
-
-    pResult->y = divscale16(pResult->y - (200<<15), rotatesprite_yxaspect) + (200<<15) - rotatesprite_y_offset;
-
-    return 1;
-}
-
 void InputState::GetMouseDelta(ControlInfo * info)
 {
     vec2_t input;
-    if (!g_mouseEnabled || !g_mouseGrabbed || !appactive)
+    if (!appactive)
     {
 		input = {0,0};
         return;
@@ -72,23 +56,62 @@ void InputState::GetMouseDelta(ControlInfo * info)
 
 void InputState::AddEvent(const event_t *ev)
 {
-	// Set the old mouseBits. Yet another piece of cruft that needs to go away.
 	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
 	{
-		switch (ev->data1)
-		{
-			case KEY_MOUSE1	: mouseSetBit(LEFT_MOUSE, ev->type == EV_KeyDown); handleevents_updatemousestate(ev->type); break;
-			case KEY_MOUSE2	: mouseSetBit(RIGHT_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MOUSE3	: mouseSetBit(MIDDLE_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MOUSE4	: mouseSetBit(THUMB_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MWHEELUP: mouseSetBit(WHEELUP_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MWHEELDOWN: mouseSetBit(WHEELDOWN_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MWHEELLEFT: mouseSetBit(WHEELLEFT_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MWHEELRIGHT: mouseSetBit(WHEELRIGHT_MOUSE, ev->type == EV_KeyDown); break;
-			case KEY_MOUSE5: mouseSetBit(THUMB2_MOUSE, ev->type == EV_KeyDown); break;
-			default: break;
-		}
 		keySetState(ev->data1, ev->type == EV_KeyDown);
 		if (ev->data2) keySetChar(ev->data2);
+	}
+}
+
+void I_StartTic();
+
+int32_t handleevents(void)
+{
+	timerUpdateClock();
+
+	// The mouse wheel is not a real key so in order to be "pressed" it may only be cleared at the end of the tic (or the start of the next.)
+	if (inputState.GetKeyStatus(KEY_MWHEELUP))
+	{
+		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELUP };
+		D_PostEvent(&ev);
+	}
+	if (inputState.GetKeyStatus(KEY_MWHEELDOWN))
+	{
+		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELDOWN };
+		D_PostEvent(&ev);
+	}
+	if (inputState.GetKeyStatus(KEY_MWHEELLEFT))
+	{
+		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELLEFT };
+		D_PostEvent(&ev);
+	}
+	if (inputState.GetKeyStatus(KEY_MWHEELRIGHT))
+	{
+		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELRIGHT };
+		D_PostEvent(&ev);
+	}
+
+	I_StartTic();
+	return 0;
+}
+
+void CONTROL_GetInput(ControlInfo* info)
+{
+	memset(info, 0, sizeof(ControlInfo));
+
+	if (in_mouse)
+		inputState.GetMouseDelta(info);
+
+	if (in_joystick)
+	{
+		// Handle joysticks/game controllers.
+		float joyaxes[NUM_JOYAXIS];
+
+		I_GetAxes(joyaxes);
+
+		info->dyaw += joyaxes[JOYAXIS_Yaw];
+		info->dx += joyaxes[JOYAXIS_Side];
+		info->dz += joyaxes[JOYAXIS_Forward];
+		info->dpitch += joyaxes[JOYAXIS_Pitch];
 	}
 }

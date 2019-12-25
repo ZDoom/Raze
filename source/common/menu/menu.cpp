@@ -423,6 +423,12 @@ void M_ActivateMenu(DMenu *menu)
 
 bool M_SetMenu(FName menu, int param, FName caller)
 {
+#if 0
+	// skip the menu and go right into the first level. 
+	// For tracking memory leaks that normally require operating the menu to start the game so that they always get the same allocation number.
+	GameStartupInfo.Episode = GameStartupInfo.Skill = 0;
+	menu = NAME_StartGame;
+#endif
 		if (DrawBackground == -1)
 	{
 		if (menu == NAME_MainMenu) DrawBackground = 1;
@@ -905,7 +911,7 @@ void M_Drawer (void)
 //
 //=============================================================================
 
-void M_ClearMenus ()
+void M_ClearMenus (bool final)
 {
 	M_DemoNoPlay = false;
 	transition.previous = transition.current = nullptr;
@@ -920,8 +926,11 @@ void M_ClearMenus ()
 	}
 	DMenu::CurrentMenu = nullptr;
 	menuactive = MENU_Off;
+	if (!final)
+	{
 	mouseGrabInput(true);
 	gi->MenuClosed();
+	}
 }
 
 void Menu_Close(int playerid)
@@ -943,6 +952,22 @@ bool M_Active()
 void M_MenuSound(EMenuSounds snd)
 {
 	if (menu_sounds) gi->MenuSound(snd);
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+void M_PreviousMenu()
+{
+	if (DMenu::CurrentMenu != nullptr)
+	{
+		DMenu* parent = DMenu::CurrentMenu->mParentMenu;
+		DMenu::CurrentMenu->Destroy();
+		DMenu::CurrentMenu = parent;
+	}
 }
 
 //=============================================================================

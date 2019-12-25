@@ -38,33 +38,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-int32_t ctrlCheckAllInput(void)
-{
-    return (
-        inputState.keyBufferWaiting() ||
-        inputState.MouseGetButtons() 
-        //JOYSTICK_GetButtons()
-        );
-}
-
-void ctrlClearAllInput(void)
-{
-    inputState.keyFlushChars();
-    inputState.ClearKeysDown();
-    inputState.MouseClearAllButtonss();
-    //JOYSTICK_ClearAllButtons()
-    ;
-}
-
 GINPUT gInput;
 bool bSilentAim = false;
 
 int iTurnCount = 0;
-
-int32_t GetTime(void)
-{
-    return (int32_t)totalclock;
-}
 
 void ctrlInit(void)
 {
@@ -124,14 +101,6 @@ void ctrlGetInput(void)
 
     if (gQuitRequest)
         gInput.keyFlags.quit = 1;
-
-    if (gGameStarted && gInputMode != kInputMessage
-        && buttonMap.ButtonDown(gamefunc_SendMessage))
-    {
-        buttonMap.ClearButton(gamefunc_SendMessage);
-        inputState.keyFlushScans();
-        gInputMode = kInputMessage;
-    }
 
     if (buttonMap.ButtonDown(gamefunc_Map_Toggle))
     {
@@ -382,5 +351,16 @@ void ctrlGetInput(void)
     gInput.q16turn = turn;
     gInput.strafe = strafe;
 }
+
+#if 0
+if (gGameStarted && gInputMode != kInputMessage
+    && buttonMap.ButtonDown(gamefunc_SendMessage))
+{
+    buttonMap.ClearButton(gamefunc_SendMessage);
+    inputState.keyFlushScans();
+    gInputMode = kInputMessage;
+}
+
+#endif
 
 END_BLD_NS

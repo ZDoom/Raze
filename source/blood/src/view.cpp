@@ -3523,37 +3523,7 @@ RORHACK:
     }
     viewDisplayMessage();
     CalcFrameRate();
-#if 0
-    if (gShowFrameRate)
-    {
-        int fX, fY;
-        if (gViewMode == 3)
-        {
-            fX = gViewX1;
-        }
-        else
-        {
-            fX = xdim;
-        }
-        if (gViewMode == 3)
-        {
-            fY = gViewY0;
-        }
-        else
-        {
-            fY = 0;
-        }
-        if (gViewMode == 4)
-        {
-            fY += mulscale16(20, yscale);
-        }
-        sprintf(gTempStr, "%3i", gFrameRate);
-        printext256(fX-12, fY, 31, -1, gTempStr, 1);
-        fY += 8;
-        sprintf(gTempStr, "pos=%d,%d,%d", gView->pSprite->x, gView->pSprite->y, gView->pSprite->z);
-        printext256(fX-strlen(gTempStr)*4, fY, 31, -1, gTempStr, 1);
-    }
-#endif
+
     viewDrawMapTitle();
     viewDrawAimedPlayerName();
     if (gPaused)
@@ -3805,6 +3775,12 @@ FString GameInterface::statFPS(void)
     lastFrameTime = frameTime;
 	return output;
 }
+
+FString GameInterface::GetCoordString()
+{
+    return "Player pos is unknown"; // todo: output at least something useful.
+}
+
 
 #undef FPS_COLOR
 

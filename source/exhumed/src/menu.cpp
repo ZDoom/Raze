@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "light.h"
 #include "cd.h"
 #include "cdaudio.h"
-#include "input.h"
 #include "menu/menu.h"
 #include <string>
 
@@ -798,9 +797,8 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 }
             }
 
-			if (I_AdvanceTrigger())
+            if (inputState.CheckAllInput())
             {
-				I_AdvanceTriggerClear();
                 return nLevelNew + 1;
             }
         }
@@ -814,9 +812,8 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
             //curYPos += var_2C * (((int)totalclock - moveTimer) / 2);
 
-			if (I_AdvanceTrigger())
+			if (inputState.CheckAllInput())
 			{
-				I_AdvanceTriggerClear();
 				if (var_2C < 8) {
                     var_2C *= 2;
                 }
@@ -880,10 +877,9 @@ void menu_AdjustVolume()
 
         videoNextPage();
 
-		if (I_AdvanceTrigger())
-		{
-			I_AdvanceTriggerClear();
-			PlayLocalSound(StaticSound[kSound33], 0);
+        if (inputState.CheckAllInput())
+        {
+            PlayLocalSound(StaticSound[kSound33], 0);
             return;
         }
 
@@ -1542,9 +1538,8 @@ uint8_t AdvanceCinemaText()
         {
             HandleAsync();
 
-			if (I_AdvanceTrigger())
+            if (inputState.CheckAllInput())
             {
-				I_AdvanceTriggerClear();
                 break;
             }
 

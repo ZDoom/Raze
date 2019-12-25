@@ -14,7 +14,6 @@ EXTERN_CVAR(Int, cl_cheatmask)
 EXTERN_CVAR(Bool, cl_obituaries)
 EXTERN_CVAR(Bool, cl_democams)
 EXTERN_CVAR(Bool, cl_idplayers)
-EXTERN_CVAR(Bool, cl_showcoords)
 EXTERN_CVAR(Bool, cl_viewbob)
 EXTERN_CVAR(Bool, cl_weaponsway)
 EXTERN_CVAR(Bool, cl_viewhbob)
@@ -86,7 +85,7 @@ EXTERN_CVAR(Float, vid_brightness)
 
 
 EXTERN_CVAR(Bool, in_joystick)
-EXTERN_CVAR(Bool, in_mouse)
+EXTERN_CVAR(Int, in_mouse)
 EXTERN_CVAR(Int, in_mousebias)
 EXTERN_CVAR(Int, in_mousedeadzone)
 EXTERN_CVAR(Bool, in_mouseflip)
@@ -100,11 +99,6 @@ EXTERN_CVAR(String, wchoice)
 
 EXTERN_CVAR(Bool, displaysetup)
 EXTERN_CVAR(Bool, noautoload)
-
-EXTERN_CVAR(Int, ScreenMode)
-EXTERN_CVAR(Int, ScreenWidth)
-EXTERN_CVAR(Int, ScreenHeight)
-EXTERN_CVAR(Int, ScreenBPP)
 
 EXTERN_CVAR(Bool, adult_lockout)
 EXTERN_CVAR(String, playername)

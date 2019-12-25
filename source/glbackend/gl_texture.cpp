@@ -46,7 +46,6 @@
 CVAR(Int, fixpalette, 0, 0)
 CVAR(Int, fixpalswap, 0, 0)
 
-
 template<class T>
 void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
 {
@@ -177,7 +176,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 		if (TextureType == TT_TRUECOLOR)
 		{
 			/*lookuppal = palmanager.LookupPalette(usepalette, usepalswap, true);
-			if (lookuppal< 0)*/ lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false);
+			if (lookuppal< 0)*/ lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false, g_nontransparent255);
 		}
 
 	}

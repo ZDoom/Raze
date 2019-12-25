@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "serial.h"
 #include "network.h"
 #include "config.h"
-#include "input.h"
 #include <string.h>
 
 BEGIN_PS_NS
@@ -194,7 +193,7 @@ int WaitAnyKey(int nSecs)
         if (nTotalTime <= (int)totalclock || nSecs == -1) {
             return -1;
         }
-		if (I_AdvanceTrigger()) return 1;
+		if (inputState.CheckAllInput()) return 1;
     }
 }
 

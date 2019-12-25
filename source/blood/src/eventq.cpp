@@ -49,6 +49,10 @@ public:
     {
         PQueue = NULL;
     }
+    ~EventQueue()
+    {
+        if (PQueue) delete PQueue;
+    }
     bool IsNotEmpty(unsigned int nTime)
     {
         return PQueue->Size() > 0 && nTime >= PQueue->LowestPriority();

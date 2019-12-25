@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screen.h"
 #include "sound.h"
 #include "view.h"
+#include "../glbackend/glbackend.h"
 #include "sound/s_soundinternal.h"
 
 BEGIN_BLD_NS
@@ -47,7 +48,7 @@ char Wait(int nTicks)
     while (totalclock < nTicks)
     {
         gameHandleEvents();
-        char key = inputState.keyGetScan();
+        auto key = inputState.keyGetScan();
         if (key)
         {
             if (key == sc_Escape) // sc_Escape
@@ -96,6 +97,8 @@ char DoUnFade(int nTicks)
     return 1;
 }
 
+void credPlaySmk(const char* _pzSMK, const char* _pzWAV, int nWav);
+
 void credLogosDos(void)
 {
     char bShift = inputState.ShiftPressed();
@@ -105,9 +108,12 @@ void credLogosDos(void)
     if (bShift)
         return;
     {
-        //CSMKPlayer smkPlayer;
-        //if (smkPlayer.PlaySMKWithWAV("LOGO.SMK", 300) == 1)
-        //{
+        if (fileSystem.FindFile("logo.smk"))
+        {
+            credPlaySmk("logo.smk", "logo.wav", -1);
+        }
+        else
+        {
             rotatesprite(160<<16, 100<<16, 65536, 0, 2050, 0, 0, 0x4a, 0, 0, xdim-1, ydim-1);
             sndStartSample("THUNDER2", 128, -1);
             scrNextPage();
@@ -115,9 +121,13 @@ void credLogosDos(void)
                 return;
             if (!DoFade(0, 0, 0, 60))
                 return;
-        //}
-        //if (smkPlayer.PlaySMKWithWAV("GTI.SMK", 301) == 1)
-        //{
+        }
+        if (fileSystem.FindFile("gti.smk"))
+        {
+            credPlaySmk("gti.smk", "gt.wav", -1);
+        }
+        else
+        {
             videoClearScreen(0);
             rotatesprite(160<<16, 100<<16, 65536, 0, 2052, 0, 0, 0x0a, 0, 0, xdim-1, ydim-1);
             scrNextPage();
@@ -125,7 +135,7 @@ void credLogosDos(void)
             sndStartSample("THUNDER2", 128, -1);
             if (!Wait(360))
                 return;
-        //}
+        }
     }
     sndPlaySpecialMusicOrNothing(MUS_INTRO);
     sndStartSample("THUNDER2", 128, -1);
@@ -139,7 +149,7 @@ void credLogosDos(void)
     rotatesprite(160<<16, 100<<16, 65536, 0, 2518, 0, 0, 0x4a, 0, 0, xdim-1, ydim-1);
     scrNextPage();
     Wait(360);
-    Mus_Fade(4000);
+    //Mus_Fade(4000);
 }
 
 void credReset(void)
@@ -177,7 +187,6 @@ FileReader credKOpen4Load(char *&pzFile)
 
 void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 {
-    return;
 #if 0
     CSMKPlayer smkPlayer;
     if (dword_148E14 >= 0)
@@ -215,7 +224,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     Smacker_GetFrameSize(hSMK, nWidth, nHeight);
     uint8_t palette[768];
 	tileDelete(kSMKTile);
-	auto pFrame = TileFiles.tileCreate(kSMKTile, nWidth, nHeight);
+	auto pFrame = TileFiles.tileCreate(kSMKTile, nHeight, nWidth);
     if (!pFrame)
     {
         Smacker_Close(hSMK);
@@ -228,6 +237,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
     Smacker_GetPalette(hSMK, palette);
     paletteSetColorTable(kSMKPal, palette, true);
+    GLInterface.EnableNonTransparent255(true);
     videoSetPalette(0, kSMKPal, 8+2);
 
     int nScale;
@@ -253,7 +263,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     gameHandleEvents();
     ClockTicks nStartTime = totalclock;
 
-    ctrlClearAllInput();
+    inputState.ClearAllInput();
     
     int nFrame = 0;
     do
@@ -262,7 +272,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
         if (scale((int)(totalclock-nStartTime), nFrameRate, kTicRate) < nFrame)
             continue;
 
-        if (ctrlCheckAllInput())
+        if (inputState.CheckAllInput())
             break;
 
         videoClearScreen(0);
@@ -275,14 +285,14 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
         videoNextPage();
 
-        ctrlClearAllInput();
         nFrame++;
         Smacker_GetNextFrame(hSMK);
     } while(nFrame < nFrames);
 
     Smacker_Close(hSMK);
-    ctrlClearAllInput();
+    inputState.ClearAllInput();
     soundEngine->StopAllChannels();
+    GLInterface.EnableNonTransparent255(false);
     videoSetPalette(0, 0, 8+2);
 	tileDelete(kSMKTile);
     Bfree(pzSMK_);

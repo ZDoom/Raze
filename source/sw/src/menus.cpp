@@ -42,7 +42,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sw_strs.h"
 #include "pal.h"
 #include "demo.h"
-#include "input.h"
+
 #include "keydef.h"
 
 #include "gamecontrol.h"

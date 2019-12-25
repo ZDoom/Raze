@@ -39,8 +39,7 @@
 #include "drawparms.h"
 #include "templates.h"
 #include "v_draw.h"
-
-ScreenDummy* screen;
+#include "v_video.h"
 
 CUSTOM_CVAR(Int, uiscale, 0, CVAR_ARCHIVE | CVAR_NOINITCALL)
 {
@@ -51,8 +50,6 @@ CUSTOM_CVAR(Int, uiscale, 0, CVAR_ARCHIVE | CVAR_NOINITCALL)
 	}
 	//setsizeneeded = true;
 }
-
-CVAR(Int, vid_aspect, 0, 0)
 
 int GetUIScale(int altval)
 {
@@ -106,36 +103,6 @@ int CleanWidth, CleanHeight;
 // Above minus 1 (or 1, if they are already 1)
 int CleanXfac_1, CleanYfac_1, CleanWidth_1, CleanHeight_1;
 
-
-void V_UpdateModeSize(int width, int height)
-{
-	// This calculates the menu scale.
-	// The optimal scale will always be to fit a virtual 640 pixel wide display onto the screen.
-	// Exceptions are made for a few ranges where the available virtual width is > 480.
-
-	// This reference size is being used so that on 800x450 (small 16:9) a scale of 2 gets used.
-
-	CleanXfac = std::max(std::min(screen->GetWidth() / 400, screen->GetHeight() / 240), 1);
-	if (CleanXfac >= 4) CleanXfac--;	// Otherwise we do not have enough space for the episode/skill menus in some languages.
-	CleanYfac = CleanXfac;
-	CleanWidth = screen->GetWidth() / CleanXfac;
-	CleanHeight = screen->GetHeight() / CleanYfac;
-
-	int w = screen->GetWidth();
-	int factor;
-	if (w < 640) factor = 1;
-	else if (w >= 1024 && w < 1280) factor = 2;
-	else if (w >= 1600 && w < 1920) factor = 3;
-	else  factor = w / 640;
-
-	if (w < 1360) factor = 1;
-	else if (w < 1920) factor = 2;
-	else factor = int(factor * 0.7);
-
-	CleanYfac_1 = CleanXfac_1 = factor;// MAX(1, int(factor * 0.7));
-	CleanWidth_1 = width / CleanXfac_1;
-	CleanHeight_1 = height / CleanYfac_1;
-}
 
 //==========================================================================
 //
@@ -748,157 +715,4 @@ void VirtualToRealCoords(double &x, double &y, double &w, double &h,
 		h = bottom * screen->GetHeight() / vheight - y;
 	}
 }
-
-
-// Helper for ActiveRatio and CheckRatio. Returns the forced ratio type, or -1 if none.
-int ActiveFakeRatio(int width, int height)
-{
-	int fakeratio = -1;
-	if ((vid_aspect >= 1) && (vid_aspect <= 6))
-	{
-		// [SP] User wants to force aspect ratio; let them.
-		fakeratio = int(vid_aspect);
-		if (fakeratio == 3)
-		{
-			fakeratio = 0;
-		}
-		else if (fakeratio == 5)
-		{
-			fakeratio = 3;
-		}
-	}
-	else if (vid_aspect == 0)// && ViewportIsScaled43())
-	{
-		fakeratio = 0;
-	}
-	return fakeratio;
-}
-
-// Active screen ratio based on cvars and size
-float ActiveRatio(int width, int height, float* trueratio)
-{
-	static float forcedRatioTypes[] =
-	{
-		4 / 3.0f,
-		16 / 9.0f,
-		16 / 10.0f,
-		17 / 10.0f,
-		5 / 4.0f,
-		17 / 10.0f,
-		21 / 9.0f
-	};
-
-	float ratio = width / (float)height;
-	int fakeratio = ActiveFakeRatio(width, height);
-
-	if (trueratio)
-		*trueratio = ratio;
-	return (fakeratio != -1) ? forcedRatioTypes[fakeratio] : ratio;
-}
-
-// Tries to guess the physical dimensions of the screen based on the
-// screen's pixel dimensions. Can return:
-// 0: 4:3
-// 1: 16:9
-// 2: 16:10
-// 3: 17:10
-// 4: 5:4
-// 5: 17:10 (redundant, never returned)
-// 6: 21:9
-int CheckRatio(int width, int height, int* trueratio)
-{
-	float aspect = width / (float)height;
-
-	static std::pair<float, int> ratioTypes[] =
-	{
-		{ 21 / 9.0f , 6 },
-		{ 16 / 9.0f , 1 },
-		{ 17 / 10.0f , 3 },
-		{ 16 / 10.0f , 2 },
-		{ 4 / 3.0f , 0 },
-		{ 5 / 4.0f , 4 },
-		{ 0.0f, 0 }
-	};
-
-	int ratio = ratioTypes[0].second;
-	float distance = fabs(ratioTypes[0].first - aspect);
-	for (int i = 1; ratioTypes[i].first != 0.0f; i++)
-	{
-		float d = fabs(ratioTypes[i].first - aspect);
-		if (d < distance)
-		{
-			ratio = ratioTypes[i].second;
-			distance = d;
-		}
-	}
-
-	int fakeratio = ActiveFakeRatio(width, height);
-	if (fakeratio == -1)
-		fakeratio = ratio;
-
-	if (trueratio)
-		*trueratio = ratio;
-	return fakeratio;
-}
-
-int AspectBaseWidth(float aspect)
-{
-	return (int)round(240.0f * aspect * 3.0f);
-}
-
-int AspectBaseHeight(float aspect)
-{
-	if (!AspectTallerThanWide(aspect))
-		return (int)round(200.0f * (320.0f / (AspectBaseWidth(aspect) / 3.0f)) * 3.0f);
-	else
-		return (int)round((200.0f * (4.0f / 3.0f)) / aspect * 3.0f);
-}
-
-double AspectPspriteOffset(float aspect)
-{
-	if (!AspectTallerThanWide(aspect))
-		return 0.0;
-	else
-		return ((4.0 / 3.0) / aspect - 1.0) * 97.5;
-}
-
-int AspectMultiplier(float aspect)
-{
-	if (!AspectTallerThanWide(aspect))
-		return (int)round(320.0f / (AspectBaseWidth(aspect) / 3.0f) * 48.0f);
-	else
-		return (int)round(200.0f / (AspectBaseHeight(aspect) / 3.0f) * 48.0f);
-}
-
-bool AspectTallerThanWide(float aspect)
-{
-	return aspect < 1.333f;
-}
-
-void ScaleWithAspect(int& w, int& h, int Width, int Height)
-{
-	int resRatio = CheckRatio(Width, Height);
-	int screenRatio;
-	CheckRatio(w, h, &screenRatio);
-	if (resRatio == screenRatio)
-		return;
-
-	double yratio;
-	switch (resRatio)
-	{
-	case 0: yratio = 4. / 3.; break;
-	case 1: yratio = 16. / 9.; break;
-	case 2: yratio = 16. / 10.; break;
-	case 3: yratio = 17. / 10.; break;
-	case 4: yratio = 5. / 4.; break;
-	case 6: yratio = 21. / 9.; break;
-	default: return;
-	}
-	double y = w / yratio;
-	if (y > h)
-		w = static_cast<int>(h * yratio);
-	else
-		h = static_cast<int>(y);
-}
-
 

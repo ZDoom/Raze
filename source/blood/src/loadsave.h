@@ -32,18 +32,9 @@ public:
     static LoadSave head;
     static FileWriter *hSFile;
     static FileReader hLFile;
-    LoadSave *prev;
-    LoadSave *next;
+    static TDeletingArray<LoadSave*> loadSaves;
     LoadSave() {
-        prev = head.prev;
-        prev->next = this;
-        next = &head;
-        next->prev = this;
-    }
-    LoadSave(int dummy)
-    {
-        UNREFERENCED_PARAMETER(dummy);
-        next = prev = this;
+        loadSaves.Push(this);
     }
     //~LoadSave() { }
     virtual void Save(void);

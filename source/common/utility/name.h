@@ -62,7 +62,6 @@ public:
 	operator const char *() const { return NameData.NameArray[Index].Text; }
 
 	FName &operator = (const char *text) { Index = NameData.FindName (text, false); return *this; }
-	FName &operator = (const FString &text);
 	FName &operator = (const FName &other) = default;
 	FName &operator = (ENamedName index) { Index = index; return *this; }
 

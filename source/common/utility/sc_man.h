@@ -56,6 +56,12 @@ public:
 	bool GetFloat();
 	void MustGetFloat();
 	bool CheckFloat();
+	
+	// Token based variant
+	bool CheckValue(bool allowfloat);
+	void MustGetValue(bool allowfloat);
+	bool CheckBoolToken();
+	void MustGetBoolToken();
 
 	void UnGet();
 
@@ -103,9 +109,12 @@ protected:
 	const char *LastGotPtr;
 	int LastGotLine;
 	bool CMode;
-	BYTE StateMode;
+	uint8_t StateMode;
 	bool StateOptions;
 	bool Escape;
+
+
+	bool ScanValue(bool allowfloat);
 };
 
 enum
@@ -137,6 +146,40 @@ enum
 	MSG_MESSAGE
 };
 
-int ParseHex(const char* hex);
+//==========================================================================
+//
+// a class that remembers a parser position
+//
+//==========================================================================
+
+struct FScriptPosition
+{
+	static int WarnCounter;
+	static int ErrorCounter;
+	static bool StrictErrors;
+	static bool errorout;
+	FName FileName;
+	int ScriptLine;
+
+	FScriptPosition()
+	{
+		FileName = NAME_None;
+		ScriptLine=0;
+	}
+	FScriptPosition(const FScriptPosition &other) = default;
+	FScriptPosition(FString fname, int line);
+	FScriptPosition(FScanner &sc);
+	FScriptPosition &operator=(const FScriptPosition &other) = default;
+	FScriptPosition &operator=(FScanner &sc);
+	void Message(int severity, const char *message,...) const GCCPRINTF(3,4);
+	static void ResetErrorCounter()
+	{
+		WarnCounter = 0;
+		ErrorCounter = 0;
+	}
+};
+
+int ParseHex(const char* hex, FScriptPosition* sc);
+
 
 #endif //__SC_MAN_H__

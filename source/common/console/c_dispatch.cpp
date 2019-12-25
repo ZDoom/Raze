@@ -1055,6 +1055,16 @@ int OSD_RegisterFunction(const char* pszName, const char* pszDesc, int (*func)(o
 	return 0;
 }
 
+
+void C_ClearDynCCmds()
+{
+	for (auto ccmd : dynccmds)
+	{
+		delete ccmd;
+	}
+	dynccmds.Clear();
+}
+
 CCMD (quit)
 {
 	throw ExitEvent(0);

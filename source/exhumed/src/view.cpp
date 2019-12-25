@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "trigdat.h"
 #include "runlist.h"
-#include "input.h"
 #include <string.h>
 
 BEGIN_PS_NS
@@ -243,11 +242,11 @@ static void analyzesprites()
 
 void ResetView()
 {
-    videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, 0);
+    //videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, 0);
     DoOverscanSet(overscanindex);
     EraseScreen(overscanindex);
     memcpy(curpalettefaded, curpalette, sizeof(curpalette));
-    videoUpdatePalette(0, 256);
+    //videoUpdatePalette(0, 256);
 #ifdef USE_OPENGL
     videoTintBlood(0, 0, 0);
 #endif
@@ -588,9 +587,9 @@ void DrawView(int smoothRatio)
                 }
                 else
                 {
-                    if ((bSubTitles && !AdvanceCinemaText()) || I_AdvanceTrigger())
+                    if ((bSubTitles && !AdvanceCinemaText()) || inputState.CheckAllInput())
                     {
-						I_AdvanceTriggerClear();
+						inputState.ClearAllInput();
                         levelnew = levelnum + 1;
 
                         if (CDplaying()) {

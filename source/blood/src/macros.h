@@ -29,10 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define BGSTRETCH (hud_bgstretch ? 1024 : 0)
 
-#define WIN_IS_PRESSED ( inputState.GetKeyStatus( sc_RightWin ) || inputState.GetKeyStatus( sc_LeftWin ) )
-#define ALT_IS_PRESSED ( inputState.GetKeyStatus( sc_RightAlt ) || inputState.GetKeyStatus( sc_LeftAlt ) )
-#define SHIFTS_IS_PRESSED ( inputState.GetKeyStatus( sc_RightShift ) || inputState.GetKeyStatus( sc_LeftShift ) )
-
 #define TRAVERSE_SPRITE_SECT(l, o, n)    (o) = (l); ((o) != -1) && ((n) = nextspritesect[o]); (o) = (n)
 #define TRAVERSE_SPRITE_STAT(l, o, n)    (o) = (l); ((o) != -1) && ((n) = nextspritestat[o]); (o) = (n)
 #define TRAVERSE_CONNECT(i)              i = 0; i != -1; i = connectpoint2[i]

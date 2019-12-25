@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "config.h"
 #include "resource.h"
 #include "screen.h"
+#include "rendering/v_video.h"
 
 BEGIN_BLD_NS
 
@@ -137,8 +138,8 @@ void scrLoadPalette(void)
 		x = bloodglblend;
 #endif
 
-    initfastcolorlookup_scale(30, 59, 11);
-    initfastcolorlookup_gridvectors();
+    paletteInitClosestColorScale(30, 59, 11);
+    paletteInitClosestColorGrid();
     paletteloaded = 0;
     initprintf("Loading palettes\n");
     for (int i = 0; i < 5; i++)
@@ -161,7 +162,7 @@ void scrLoadPalette(void)
     blendtable[0] = (char*)gSysRes.Lock(pTrans);
     paletteloaded |= PALETTE_TRANSLUC;
 
-    initfastcolorlookup_palette(palette);
+    paletteInitClosestColorMap(palette);
     palettePostLoadTables();
 }
 
@@ -236,52 +237,13 @@ void scrUnInit(void)
 {
     memset(palookup, 0, sizeof(palookup));
     memset(blendtable, 0, sizeof(blendtable));
-    engineUnInit();
 }
 
 
 void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits)
 {
     videoResetMode();
-    //videoSetGameMode(vidMode, XRes, YRes, nBits, 0);
-    if (videoSetGameMode(vidMode, XRes, YRes, nBits, 0) < 0)
-    {
-        initprintf("Failure setting video mode %dx%dx%d %s! Trying next mode...\n", XRes, YRes,
-                    nBits, vidMode ? "fullscreen" : "windowed");
-
-        int resIdx = 0;
-
-        for (int i=0; i < validmodecnt; i++)
-        {
-            if (validmode[i].xdim == XRes && validmode[i].ydim == YRes)
-            {
-                resIdx = i;
-                break;
-            }
-        }
-
-        int const savedIdx = resIdx;
-        int bpp = nBits;
-
-        while (videoSetGameMode(0, validmode[resIdx].xdim, validmode[resIdx].ydim, bpp, 0) < 0)
-        {
-            initprintf("Failure setting video mode %dx%dx%d windowed! Trying next mode...\n",
-                        validmode[resIdx].xdim, validmode[resIdx].ydim, bpp);
-
-            if (++resIdx == validmodecnt)
-            {
-                if (bpp == 8)
-                    ThrowError("Fatal error: unable to set any video mode!");
-
-                resIdx = savedIdx;
-                bpp = 8;
-            }
-        }
-
-        ScreenWidth = validmode[resIdx].xdim;
-        ScreenHeight = validmode[resIdx].ydim;
-        ScreenBPP  = bpp;
-    }
+    V_Init2();
     videoClearViewableArea(0);
     scrNextPage();
     scrSetPalette(curPalette);

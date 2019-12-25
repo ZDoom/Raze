@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 
 #include "anim.h"
-#include "input.h"
+
 #include "menus.h"
 #include "osdcmds.h"
 #include "savegame.h"
@@ -1119,7 +1119,7 @@ void Screen_Play(void)
 {
     int32_t running = 1;
 
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 
 	auto r2dover = rotatesprite_2doverride;
 	rotatesprite_2doverride = false;
@@ -1133,11 +1133,11 @@ void Screen_Play(void)
             continue;
 
         videoClearScreen(0);
-        if (I_CheckAllInput())
+        if (inputState.CheckAllInput())
             running = 0;
 
         videoNextPage();
-        I_ClearAllInput();
+        inputState.ClearAllInput();
     } while (running);
 	rotatesprite_2doverride = r2dover;
 }

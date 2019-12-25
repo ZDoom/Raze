@@ -40,6 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "anims.h"
 #include "ps_input.h"
 #include "util.h"
+#include "gamecontrol.h"
+#include "rendering/v_video.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -281,51 +283,9 @@ void InstallEngine()
 
     if (engineInit())
     {
-        wm_msgbox("Fatal Engine Initialization Error",
-                  "There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
-        //TODO:
-        //G_Cleanup();
-        ERRprintf("G_Startup: There was a problem initializing the engine: %s\n", engineerrstr);
-        exit(6);
+        G_FatalEngineError();
     }
-    if (videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, 0) < 0)
-    {
-        initprintf("Failure setting video mode %dx%dx%d %s! Trying next mode...\n", gSetup.xdim, gSetup.ydim,
-                    gSetup.bpp, gSetup.fullscreen ? "fullscreen" : "windowed");
-
-        int resIdx = 0;
-
-        for (int i=0; i < validmodecnt; i++)
-        {
-            if (validmode[i].xdim == gSetup.xdim && validmode[i].ydim == gSetup.ydim)
-            {
-                resIdx = i;
-                break;
-            }
-        }
-
-        int const savedIdx = resIdx;
-        int bpp = gSetup.bpp;
-
-        while (videoSetGameMode(0, validmode[resIdx].xdim, validmode[resIdx].ydim, bpp, 0) < 0)
-        {
-            initprintf("Failure setting video mode %dx%dx%d windowed! Trying next mode...\n",
-                        validmode[resIdx].xdim, validmode[resIdx].ydim, bpp);
-
-            if (++resIdx == validmodecnt)
-            {
-                if (bpp == 8)
-                    I_Error("Fatal error: unable to set any video mode!");
-
-                resIdx = savedIdx;
-                bpp = 8;
-            }
-        }
-
-        gSetup.xdim = validmode[resIdx].xdim;
-        gSetup.ydim = validmode[resIdx].ydim;
-        gSetup.bpp  = bpp;
-    }
+    V_Init2();
 
     LoadPaletteLookups();
 

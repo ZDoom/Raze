@@ -34,7 +34,7 @@
 */
 
 #include <algorithm>
-#include "glad/glad.h"
+#include "gl_load.h"
 #include "glbackend.h"
 #include "bitmap.h"
 #include "c_dispatch.h"

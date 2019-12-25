@@ -2896,9 +2896,7 @@ SpriteSetup(void)
                     {
                         if (sprite[i].hitag == sp->hitag && sprite[i].lotag == sp->lotag)
                         {
-                            TerminateGame();
-                            printf("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", TrackerCast(sp->x), TrackerCast(sp->y), TrackerCast(sprite[i].x), TrackerCast(sprite[i].y));
-                            exit(0);
+                            I_Error("Two VIEW_THRU_ tags with same match found on level\n1: x %d, y %d \n2: x %d, y %d", TrackerCast(sp->x), TrackerCast(sp->y), TrackerCast(sprite[i].x), TrackerCast(sprite[i].y));
                         }
                     }
                     change_sprite_stat(SpriteNum, STAT_FAF);
@@ -4964,11 +4962,10 @@ ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_heig
 #if 0
     if (florhit < 0 || ceilhit < 0)
     {
+        Printf("ERROR: FAFgetzrange() returned -1 for floor or ceiling check.\n");
+        Printf("Most likely a sprite has been placed too close to a white wall.\n");
+        Printf("spnum %d, sect %d, x %d, y %d, z %d, florhit %d, pic %d\n", SpriteNum, sp->sectnum, sp->x, sp->y, z - DIV2(SPRITEp_SIZE_Z(sp)), florhit, sp->picnum);
         TerminateGame();
-        printf("ERROR: FAFgetzrange() returned -1 for floor or ceiling check.\n");
-        printf("Most likely a sprite has been placed too close to a white wall.\n");
-        printf("spnum %d, sect %d, x %d, y %d, z %d, florhit %d, pic %d\n", SpriteNum, sp->sectnum, sp->x, sp->y, z - DIV2(SPRITEp_SIZE_Z(sp)), florhit, sp->picnum);
-        exit(0);
     }
 #else
     if (florhit < 0 || ceilhit < 0)

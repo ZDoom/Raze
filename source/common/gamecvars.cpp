@@ -75,7 +75,6 @@ CVARD(Int, cl_cheatmask, ~0, CVAR_ARCHIVE, "configure what cheats show in the ch
 CVARD(Bool, cl_obituaries, true, CVAR_ARCHIVE, "enable/disable multiplayer death messages") // Not implemented for Blood
 CVARD(Bool, cl_democams, true, CVAR_ARCHIVE, "enable/disable demo playback cameras") // Not implemented for Blood
 CVARD(Bool, cl_idplayers, true, CVAR_ARCHIVE, "enable/disable name display when aiming at opponents")
-CVARD(Bool, cl_showcoords, false, 0, "show your position in the game world") // This is a debug oprion in its current form, not implemented in Blood
 CVARD(Bool, cl_weaponsway, true, CVAR_ARCHIVE, "enable/disable player weapon swaying") // Not implemented for Blood
 
 // Todo: Consolidate these to be consistent across games?
@@ -284,7 +283,6 @@ CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field o
 CVARD(Bool, r_horizcenter, false, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable centered horizon line") // only present in Blood, maybe add to others?
 
 CVARD(Bool, in_joystick, false, CVAR_ARCHIVE||CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the joystick if it is present")
-CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the mouse if it is present")
 CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
 
 CVAR(Bool, silentmouseaimtoggle, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -341,6 +339,11 @@ CUSTOM_CVARD(Int, r_drawweapon, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disab
 ADD_STAT(fps)
 {
 	return gi->statFPS();
+}
+
+ADD_STAT(coord)
+{
+	return gi->GetCoordString();
 }
 
 CUSTOM_CVARD(Int, r_showfps, 0, 0, "show the frame rate counter")
@@ -457,11 +460,6 @@ bool G_AllowAutoload()
 	if (noautoload || gNoAutoLoad || Args->CheckParm("-noautoload")) return false;
 	return true;
 }
-
-CVAR(Int, ScreenMode, 0, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, ScreenWidth, 1024, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, ScreenHeight, 768, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
-CVAR(Int, ScreenBPP, 32, CVAR_ARCHIVE | CVAR_VIDEOCONFIG)
 
 CVAR(Bool, adult_lockout, false, CVAR_ARCHIVE)
 CUSTOM_CVAR(String, playername, "Player", CVAR_ARCHIVE | CVAR_USERINFO)

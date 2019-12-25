@@ -985,6 +985,7 @@ TArray<GrpEntry> GrpScan()
 								break;
 							}
 						}
+						delete resf;
 					}
 				}
 			}

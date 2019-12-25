@@ -295,6 +295,51 @@ bool CheckWildcards (const char *pattern, const char *text)
 
 //==========================================================================
 //
+// FormatGUID
+//
+// [RH] Print a GUID to a text buffer using the standard format.
+//
+//==========================================================================
+
+void FormatGUID (char *buffer, size_t buffsize, const GUID &guid)
+{
+	snprintf (buffer, buffsize, "{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}",
+		(uint32_t)guid.Data1, guid.Data2, guid.Data3,
+		guid.Data4[0], guid.Data4[1],
+		guid.Data4[2], guid.Data4[3],
+		guid.Data4[4], guid.Data4[5],
+		guid.Data4[6], guid.Data4[7]);
+}
+
+//==========================================================================
+//
+// myasctime
+//
+// [RH] Returns the current local time as ASCII, even if it's too early
+//
+//==========================================================================
+
+const char *myasctime ()
+{
+	static char readabletime[50];
+	time_t clock;
+	struct tm *lt;
+
+	time (&clock);
+	lt = localtime (&clock);
+	if (lt != NULL)
+	{
+		strftime(readabletime, 50, "%F %T", lt);
+		return readabletime;
+	}
+	else
+	{
+		return "Unknown\n";
+	}
+}
+
+//==========================================================================
+//
 // CreatePath
 //
 // Creates a directory including all levels necessary
@@ -391,33 +436,6 @@ void CreatePath(const char *fn)
 	free(copy);
 }
 #endif
-
-//==========================================================================
-//
-// myasctime
-//
-// [RH] Returns the current local time as ASCII, even if it's too early
-//
-//==========================================================================
-
-const char* myasctime()
-{
-	static char readabletime[50];
-	time_t clock;
-	struct tm* lt;
-
-	time(&clock);
-	lt = localtime(&clock);
-	if (lt != NULL)
-	{
-		strftime(readabletime, 50, "%F %T", lt);
-		return readabletime;
-	}
-	else
-	{
-		return "Unknown Time";
-	}
-}
 
 //==========================================================================
 //

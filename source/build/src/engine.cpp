@@ -34,6 +34,7 @@
 # include "hightile.h"
 # include "mdsprite.h"
 # include "polymost.h"
+#include "v_video.h"
 #include "../../glbackend/glbackend.h"
 #endif
 
@@ -98,7 +99,7 @@ static TArray<TArray<uint8_t>> voxelmemory;
 void (*loadvoxel_replace)(int32_t voxindex) = NULL;
 int16_t tiletovox[MAXTILES];
 #ifdef USE_OPENGL
-static char *voxfilenames[MAXVOXELS];
+char *voxfilenames[MAXVOXELS];
 #endif
 char g_haveVoxels;
 //#define kloadvoxel loadvoxel
@@ -129,7 +130,7 @@ static struct {
 } distrecipcache[DISTRECIPCACHESIZE];
 static int32_t distrecipagecnt = 0;
 
-static int32_t *lookups = NULL;
+static TArray<int32_t> lookups;
 static int32_t beforedrawrooms = 1;
 
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
@@ -144,7 +145,7 @@ int32_t globalflags;
 
 //Textured Map variables
 static char globalpolytype;
-static int16_t **dotp1, **dotp2;
+static TArray<int16_t *>dotp1, dotp2;
 
 static int8_t tempbuf[MAXWALLS];
 
@@ -164,14 +165,13 @@ static intptr_t slopalookup[SLOPALOOKUPSIZ];    // was 2048
 
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
-static int32_t qradarang[10240], *radarang2;
+static int32_t qradarang[10240];
+static TArray<int32_t> radarang2;
 const char ATTRIBUTE((used)) pow2char_[8] = {1,2,4,8,16,32,64,128};
 
 uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256], ATTRIBUTE((used)) sqrtable_old[2048];
 
 char britable[16][256]; // JBF 20040207: full 8bit precision
-
-extern char textfont[2048], smalltextfont[2048];
 
 static char kensmessage[128];
 const char *engineerrstr = "No error";
@@ -1332,14 +1332,14 @@ int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
 int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
 static int32_t nodesperline, ysavecnt;
-static int16_t *smost, *umost, *dmost, *bakumost, *bakdmost;
-static int16_t *uplc, *dplc, *uwall, *dwall;
-static int32_t *swplc, *lplc, *swall, *lwall;
+static TArray<int16_t> smost, umost, dmost, bakumost, bakdmost;
+static TArray<int16_t> uplc, dplc, uwall, dwall;
+static TArray<int32_t> swplc, lplc, swall, lwall;
 #ifdef HIGH_PRECISION_SPRITE
-static float *swallf;
+static TArray<float> swallf;
 #endif
 
-uint8_t* mirrorBuffer;
+TArray<uint8_t> mirrorBuffer;
 
 static int32_t smostcnt;
 static int32_t smoststart[MAXWALLSB];
@@ -1397,7 +1397,7 @@ static int32_t globaly1, globalx2;
 int16_t sectorborder[256];
 int32_t ydim16, qsetmode = 0;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
-static int32_t *lastx;
+static TArray<int32_t> lastx;
 
 int32_t halfxdim16, midydim16;
 
@@ -1927,7 +1927,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
 
         calc_bufplc(&bufplce[0], lwall[x], tsiz);
-        calc_vplcinc(&vplce[0], &vince[0], swall, x, y1ve[0]);
+        calc_vplcinc(&vplce[0], &vince[0], swall.Data(), x, y1ve[0]);
 
         mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0],p+ylookup[y1ve[0]]);
     }
@@ -1942,7 +1942,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
             if (y2ve[z] < y1ve[z]) { bad += pow2char[z]; continue; }
 
             calc_bufplc(&bufplce[z], lwall[dax], tsiz);
-            calc_vplcinc(&vplce[z], &vince[z], swall, dax, y1ve[z]);
+            calc_vplcinc(&vplce[z], &vince[z], swall.Data(), dax, y1ve[z]);
         }
         if (bad == 15) continue;
 
@@ -2000,7 +2000,7 @@ do_mvlineasm1:
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
 
         calc_bufplc(&bufplce[0], lwall[x], tsiz);
-        calc_vplcinc(&vplce[0], &vince[0], swall, x, y1ve[0]);
+        calc_vplcinc(&vplce[0], &vince[0], swall.Data(), x, y1ve[0]);
 
 #ifdef NONPOW2_YSIZE_ASM
         if (globalshiftval==0)
@@ -3043,7 +3043,7 @@ static void transmaskvline(int32_t x)
     calc_bufplc(&bufplc, lwall[x], ntsiz);
     uint32_t vplc;
     int32_t vinc;
-    calc_vplcinc(&vplc, &vinc, swall, x, y1v);
+    calc_vplcinc(&vplc, &vinc, swall.Data(), x, y1v);
 
     intptr_t p = ylookup[y1v]+x+frameoffset;
 
@@ -3084,8 +3084,8 @@ static void transmaskvline2(int32_t x)
 
     calc_bufplc(&bufplce[0], lwall[x], ntsiz);
     calc_bufplc(&bufplce[1], lwall[x2], ntsiz);
-    calc_vplcinc(&vplce[0], &vince[0], swall, x, y1ve[0]);
-    calc_vplcinc(&vplce[1], &vince[1], swall, x2, y1ve[1]);
+    calc_vplcinc(&vplce[0], &vince[0], swall.Data(), x, y1ve[0]);
+    calc_vplcinc(&vplce[1], &vince[1], swall.Data(), x2, y1ve[1]);
 
     int32_t const y1 = max(y1ve[0],y1ve[1]);
     int32_t const y2 = min(y2ve[0],y2ve[1]);
@@ -3932,8 +3932,8 @@ static void parascan(char dastat, int32_t bunch)
         globalshade = (int32_t)sec->ceilingshade;
         globalxpanning = (int32_t)sec->ceilingxpanning;
         globalypanning = (int32_t)sec->ceilingypanning;
-        topptr = umost;
-        botptr = uplc;
+        topptr = umost.Data();
+        botptr = uplc.Data();
     }
     else
     {
@@ -3942,8 +3942,8 @@ static void parascan(char dastat, int32_t bunch)
         globalshade = (int32_t)sec->floorshade;
         globalxpanning = (int32_t)sec->floorxpanning;
         globalypanning = (int32_t)sec->floorypanning;
-        topptr = dplc;
-        botptr = dmost;
+        topptr = dplc.Data();
+        botptr = dmost.Data();
     }
 
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
@@ -4041,7 +4041,7 @@ static void parascan(char dastat, int32_t bunch)
             globalpicnum = l + dapskyoff[lplc[x]>>m];
 
             if (((lplc[x]^lplc[xb1[z]-1])>>m) == 0)
-                wallscan(x,xb1[z]-1,topptr,botptr,swplc,lplc);
+                wallscan(x,xb1[z]-1,topptr,botptr,swplc.Data(),lplc.Data());
             else
             {
                 j = x;
@@ -4050,14 +4050,14 @@ static void parascan(char dastat, int32_t bunch)
                     n = l + dapskyoff[lplc[x]>>m];
                     if (n != globalpicnum)
                     {
-                        wallscan(j,x-1,topptr,botptr,swplc,lplc);
+                        wallscan(j,x-1,topptr,botptr,swplc.Data(),lplc.Data());
                         j = x;
                         globalpicnum = n;
                     }
                     x++;
                 }
                 if (j < x)
-                    wallscan(j,x-1,topptr,botptr,swplc,lplc);
+                    wallscan(j,x-1,topptr,botptr,swplc.Data(),lplc.Data());
             }
 
             globalpicnum = l;
@@ -4071,7 +4071,7 @@ static void parascan(char dastat, int32_t bunch)
         globalpicnum = l + dapskyoff[lplc[x]>>m];
 
         if (((lplc[x]^lplc[xb2[bunchlast[bunch]]])>>m) == 0)
-            wallscan(x,xb2[bunchlast[bunch]],topptr,botptr,swplc,lplc);
+            wallscan(x,xb2[bunchlast[bunch]],topptr,botptr,swplc.Data(),lplc.Data());
         else
         {
             j = x;
@@ -4080,14 +4080,14 @@ static void parascan(char dastat, int32_t bunch)
                 n = l + dapskyoff[lplc[x]>>m];
                 if (n != globalpicnum)
                 {
-                    wallscan(j,x-1,topptr,botptr,swplc,lplc);
+                    wallscan(j,x-1,topptr,botptr,swplc.Data(),lplc.Data());
                     j = x;
                     globalpicnum = n;
                 }
                 x++;
             }
             if (j <= x)
-                wallscan(j,x-1,topptr,botptr,swplc,lplc);
+                wallscan(j,x-1,topptr,botptr,swplc.Data(),lplc.Data());
         }
         globalpicnum = l;
     }
@@ -4222,8 +4222,8 @@ static void classicDrawBunches(int32_t bunch)
 
     for (; z>=0; z=bunchp2[z]) //uplc/dplc calculation
     {
-        andwstat1 &= wallmost(uplc,z,sectnum,(uint8_t)0);
-        andwstat2 &= wallmost(dplc,z,sectnum,(uint8_t)1);
+        andwstat1 &= wallmost(uplc.Data(),z,sectnum,(uint8_t)0);
+        andwstat2 &= wallmost(dplc.Data(),z,sectnum,(uint8_t)1);
     }
 
 #ifdef YAX_ENABLE
@@ -4415,7 +4415,7 @@ static void classicDrawBunches(int32_t bunch)
                 }
                 else
                 {
-                    wallmost(dwall,z,nextsectnum,(uint8_t)0);
+                    wallmost(dwall.Data(),z,nextsectnum,(uint8_t)0);
 
                     if ((cz[2] > fz[0]) || (cz[3] > fz[1]))
                         for (i=x1; i<=x2; i++) if (dwall[i] > dplc[i]) dwall[i] = dplc[i];
@@ -4436,7 +4436,7 @@ static void classicDrawBunches(int32_t bunch)
 
                     gotswall = 1;
                     prepwall(z,wal);
-                    wallscan(x1,x2,uplc,dwall,swall,lwall);
+                    wallscan(x1,x2,uplc.Data(),dwall.Data(),swall.Data(),lwall.Data());
 
                     if ((cz[2] >= cz[0]) && (cz[3] >= cz[1]))
                     {
@@ -4500,7 +4500,7 @@ static void classicDrawBunches(int32_t bunch)
                 }
                 else
                 {
-                    wallmost(uwall,z,nextsectnum,(uint8_t)1);
+                    wallmost(uwall.Data(),z,nextsectnum,(uint8_t)1);
 
                     if ((fz[2] < cz[0]) || (fz[3] < cz[1]))
                         for (i=x1; i<=x2; i++) if (uwall[i] < uplc[i]) uwall[i] = uplc[i];
@@ -4523,7 +4523,7 @@ static void classicDrawBunches(int32_t bunch)
                     setup_globals_wall2(wal, sec->visibility, nextsec->floorz, sec->ceilingz);
 
                     if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
-                    wallscan(x1,x2,uwall,dplc,swall,lwall);
+                    wallscan(x1,x2,uwall.Data(),dplc.Data(),swall.Data(),lwall.Data());
 
                     if ((fz[2] <= fz[0]) && (fz[3] <= fz[1]))
                     {
@@ -4605,7 +4605,7 @@ static void classicDrawBunches(int32_t bunch)
                                 (nextsectnum >= 0) ? sec->ceilingz : sec->floorz);
 
             if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
-            wallscan(x1,x2,uplc,dplc,swall,lwall);
+            wallscan(x1,x2,uplc.Data(),dplc.Data(),swall.Data(),lwall.Data());
 
 #ifdef YAX_ENABLE
             // TODO: slopes?
@@ -4647,49 +4647,6 @@ static void classicDrawBunches(int32_t bunch)
                 searchstat = (nextsectnum < 0) ? 0 : 4;
             }
         }
-
-#ifdef ENGINE_SCREENSHOT_DEBUG
-        if (engine_screenshot)
-# ifdef YAX_ENABLE
-        if (!g_nodraw)
-# endif
-        {
-            static char fn[32], tmpbuf[80];
-            char purple = paletteGetClosestColor(255, 0, 255);
-            char yellow = paletteGetClosestColor(255, 255, 0);
-            char *bakframe = (char *)Xaligned_alloc(16, xdim*ydim);
-
-            videoBeginDrawing();  //{{{
-            Bmemcpy(bakframe, (char *)frameplace, xdim*ydim);
-            for (x=0; x<xdim; x++)
-            {
-                if (umost[x] > dmost[x])
-                {
-                    *((char *)frameplace + (ydim/2)*bytesperline + x) = yellow;
-                    *((char *)frameplace + (ydim/2+1)*bytesperline + x) = purple;
-                    continue;
-                }
-
-                if (umost[x] >= 0 && umost[x] < ydim)
-                    *((char *)frameplace + umost[x]*bytesperline + x) = purple;
-
-                if (dmost[x]-1 >= 0 && dmost[x]-1 < ydim)
-                    *((char *)frameplace + (dmost[x]-1)*bytesperline + x) = yellow;
-            }
-
-            Bsprintf(tmpbuf, "nmp%d l%d b%d s%d w%d", yax_nomaskpass, yax_globallev-YAX_MAXDRAWS,
-                     yax_globalbunch, sectnum, wallnum);
-            printext256(8,8, whitecol,0, tmpbuf, 0);
-
-            videoCaptureScreen();
-            engine_screenshot++;
-
-            Bmemcpy((char *)frameplace, bakframe, xdim*ydim);
-            videoEndDrawing();  //}}}
-
-            Xaligned_free(bakframe);
-        }
-#endif
     }
 }
 
@@ -5491,8 +5448,8 @@ draw_as_face_sprite:
         xb2[MAXWALLSB-1] = sx2;
         yb1[MAXWALLSB-1] = sy1;
         yb2[MAXWALLSB-1] = sy2;
-        owallmost(uwall, MAXWALLSB-1, z1-globalposz);
-        owallmost(dwall, MAXWALLSB-1, z2-globalposz);
+        owallmost(uwall.Data(), MAXWALLSB-1, z1-globalposz);
+        owallmost(dwall.Data(), MAXWALLSB-1, z2-globalposz);
 
         int32_t hplc = divscale19(xdimenscale,sy1);
         const int32_t hplc2 = divscale19(xdimenscale,sy2);
@@ -6200,7 +6157,7 @@ draw_as_face_sprite:
         const int32_t floorz = (sec->floorstat&3) == 0 ? sec->floorz : INT32_MAX;
 
         classicDrawVoxel(tspr->x,tspr->y,tspr->z,i,daxrepeat,(int32_t)tspr->yrepeat,vtilenum,
-            tspr->shade,tspr->pal,lwall,swall,tspr->cstat,(tspr->cstat&48)!=48,floorz,ceilingz);
+            tspr->shade,tspr->pal,lwall.Data(),swall.Data(),tspr->cstat,(tspr->cstat&48)!=48,floorz,ceilingz);
     }
 
     if (automapping == 1 && (unsigned)spritenum < MAXSPRITES)
@@ -6242,13 +6199,13 @@ static void renderDrawMaskedWall(int16_t damaskwallcnt)
     int32_t z1 = max(nsec->ceilingz,sec->ceilingz);
     int32_t z2 = min(nsec->floorz,sec->floorz);
 
-    wallmost(uwall,z,sectnum,(uint8_t)0);
-    wallmost(uplc,z,(int32_t)wal->nextsector,(uint8_t)0);
+    wallmost(uwall.Data(),z,sectnum,(uint8_t)0);
+    wallmost(uplc.Data(),z,(int32_t)wal->nextsector,(uint8_t)0);
     for (bssize_t x=xb1[z]; x<=xb2[z]; x++)
         if (uplc[x] > uwall[x])
             uwall[x] = uplc[x];
-    wallmost(dwall,z,sectnum,(uint8_t)1);
-    wallmost(dplc,z,(int32_t)wal->nextsector,(uint8_t)1);
+    wallmost(dwall.Data(),z,sectnum,(uint8_t)1);
+    wallmost(dplc.Data(),z,(int32_t)wal->nextsector,(uint8_t)1);
     for (bssize_t x=xb1[z]; x<=xb2[z]; x++)
         if (dplc[x] < dwall[x])
             dwall[x] = dplc[x];
@@ -7466,13 +7423,6 @@ static int32_t engineLoadTables(void)
         for (i=0; i<5120; i++)
             qradarang[10239-i] = -qradarang[i];
 
-        // TABLES.DAT format:
-        //fr.Read(sintable,2048*2);
-        //fr.Read(radarang,640*2);
-        //fr.Read(textfont,1024);
-        //fr.Read(smalltextfont,1024);
-        //fr.Read(britable,1024);
-
         calcbritable();
 
         tablesloaded = 1;
@@ -8076,7 +8026,6 @@ void engineUnInit(void)
 
 	TileFiles.CloseAll();
 
-    DO_FREE_AND_NULL(lookups);
     for (bssize_t i=0; i<DISTRECIPCACHESIZE; i++)
         ALIGNED_FREE_AND_NULL(distrecipcache[i].distrecip);
     Bmemset(distrecipcache, 0, sizeof(distrecipcache));
@@ -8099,8 +8048,6 @@ void engineUnInit(void)
         Xfree(basepaltable[i]);
     Bmemset(basepaltable, 0, sizeof(basepaltable));
     basepaltable[0] = palette;
-
-    uninitsystem();
 
     for (bssize_t i = 0; i < num_usermaphacks; i++)
     {
@@ -8338,8 +8285,8 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     {
         j = yax_globalbunch*xdimen;
 
-        Bmemcpy(umost, yumost+j, xdimen*sizeof(int16_t));
-        Bmemcpy(dmost, ydmost+j, xdimen*sizeof(int16_t));
+        Bmemcpy(umost.Data(), yumost+j, xdimen*sizeof(int16_t));
+        Bmemcpy(dmost.Data(), ydmost+j, xdimen*sizeof(int16_t));
 
         for (i=0; i<xdimen; i++)
             if (umost[i] > dmost[i])
@@ -9656,8 +9603,6 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
 
         OSD_Exec(fn);
 #endif
-        system_getcvars();
-
         // Per-map ART
         artSetupMapArt(filename);
     }
@@ -9890,43 +9835,29 @@ static int32_t get_mapversion(void)
 
 static void videoAllocateBuffers(void)
 {
-    int32_t i;
     // Needed for the game's TILT_SETVIEWTOTILE_320.
     const int32_t clamped_ydim = max(ydim, 320);
 
-    struct
-    {
-        void **ptr;
-        size_t size;
-    } dynarray[] = {
-          { (void **)&smost, YSAVES * sizeof(int16_t) },
-          { (void **)&umost, xdim * sizeof(int16_t) },
-          { (void **)&dmost, xdim * sizeof(int16_t) },
-          { (void **)&startumost, xdim * sizeof(int16_t) },
-          { (void **)&startdmost, xdim * sizeof(int16_t) },
-          { (void **)&bakumost, xdim * sizeof(int16_t) },
-          { (void **)&bakdmost, xdim * sizeof(int16_t) },
-          { (void **)&uplc, xdim * sizeof(int16_t) },
-          { (void **)&dplc, xdim * sizeof(int16_t) },
-          { (void **)&uwall, xdim * sizeof(int16_t) },
-          { (void **)&dwall, xdim * sizeof(int16_t) },
-          { (void **)&swplc, xdim * sizeof(int32_t) },
-          { (void **)&lplc, xdim * sizeof(int32_t) },
-          { (void **)&swall, xdim * sizeof(int32_t) },
-          { (void **)&lwall, (xdim + 4) * sizeof(int32_t) },
-          { (void **)&radarang2, xdim * sizeof(int32_t) },
-          { (void **)&dotp1, clamped_ydim * sizeof(intptr_t) },
-          { (void **)&dotp2, clamped_ydim * sizeof(intptr_t) },
-          { (void **)&lastx, clamped_ydim * sizeof(int32_t) },
-          { (void **)&mirrorBuffer, (size_t) (xdim * ydim)},
-      };
-
-    for (i = 0; i < (signed)ARRAY_SIZE(dynarray); i++)
-    {
-        Xaligned_free(*dynarray[i].ptr);
-
-        *dynarray[i].ptr = Xaligned_alloc(16, dynarray[i].size);
-    }
+    smost.Resize(YSAVES);
+    umost.Resize(xdim);
+      dmost.Resize(xdim);
+      startumost.Resize(xdim);
+      startdmost.Resize(xdim);
+      bakumost.Resize(xdim);
+      bakdmost.Resize(xdim);
+      uplc.Resize(xdim);
+      dplc.Resize(xdim);
+      uwall.Resize(xdim);
+      dwall.Resize(xdim);
+      swplc.Resize(xdim);
+      lplc.Resize(xdim);
+      swall.Resize(xdim);
+      lwall.Resize((xdim + 4));
+      radarang2.Resize(xdim);
+      dotp1.Resize(clamped_ydim);
+      dotp2.Resize(clamped_ydim);
+      lastx.Resize(clamped_ydim);
+      mirrorBuffer.Resize(xdim * ydim);
 
     ysavecnt = YSAVES;
     nodesperline = tabledivide32_noinline(YSAVES, ydim);
@@ -9949,32 +9880,6 @@ static void videoAllocateBuffers(void)
 #endif
 }
 
-#ifdef USE_OPENGL
-void (*PolymostProcessVoxels_Callback)(void) = NULL;
-static void PolymostProcessVoxels(void)
-{
-	if (PolymostProcessVoxels_Callback)
-		PolymostProcessVoxels_Callback();
-
-    if (g_haveVoxels != 1)
-        return;
-
-    g_haveVoxels = 2;
-
-    OSD_Printf("Generating voxel models for Polymost. This may take a while...\n");
-    videoNextPage();
-
-    for (bssize_t i=0; i<MAXVOXELS; i++)
-    {
-        if (voxfilenames[i])
-        {
-            voxmodels[i] = voxload(voxfilenames[i]);
-            voxmodels[i]->scale = voxscale[i]*(1.f/65536.f);
-            DO_FREE_AND_NULL(voxfilenames[i]);
-        }
-    }
-}
-#endif
 
 //
 // setgamemode
@@ -9985,14 +9890,13 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 {
     int32_t j;
 
-#ifdef USE_OPENGL
-    if (nogl) dabpp = 8;
-#endif
+    if (dabpp != 32) return -1; // block software mode.
+
     daupscaledxdim = max(320, daupscaledxdim);
     daupscaledydim = max(200, daupscaledydim);
 
-    if (in3dmode() && videomodereset == 0 && (davidoption == fullscreen) &&
-        (xres == daupscaledxdim) && (yres == daupscaledydim) && (bpp == dabpp) && (upscalefactor == daupscalefactor))
+    if (in3dmode() && videomodereset == 0 &&
+        (xres == daupscaledxdim) && (yres == daupscaledydim) && (bpp == dabpp))
         return 0;
 
     Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
@@ -10007,24 +9911,12 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     j = bpp;
 
     g_lastpalettesum = 0;
-    if (videoSetMode(daupscaledxdim,daupscaledydim,dabpp,davidoption) < 0) return -1;
 
-#ifdef USE_OPENGL
-    if (dabpp > 8) rendmode = glrendmode;    // GL renderer
-    else rendmode = REND_CLASSIC;
-#endif
+    rendmode = REND_POLYMOST;
 
-    upscalefactor = max(1, min(tabledivide32(yres, 200), daupscalefactor));
-    //POGOTODO: Polymost/Polymer could work with upscaling with a couple more changes
-    int32_t scalefactor = upscalefactor;
-#ifdef RENDERTYPESDL
-    if (bpp != 8)
-#endif
-    {
-        scalefactor = 1;
-    }
-    xdim = daupscaledxdim/scalefactor;
-    ydim = daupscaledydim/scalefactor;
+    upscalefactor = 1;
+    xdim = daupscaledxdim;
+    ydim = daupscaledydim;
 	V_UpdateModeSize(xdim, ydim);
 
 #ifdef USE_OPENGL
@@ -10035,16 +9927,14 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     videoAllocateBuffers();
 
 #ifdef HIGH_PRECISION_SPRITE
-    swallf = (float *) Xrealloc(swallf, xdim * sizeof(float));
+    swallf.Resize(xdim);
 #endif
 
-    Xfree(lookups);
-
     j = ydim*4;  //Leave room for horizlookup&horizlookup2
-    lookups = (int32_t *)Xmalloc(2*j*sizeof(lookups[0]));
+    lookups.Resize(2 * j);
 
-    horizlookup = lookups;
-    horizlookup2 = lookups + j;
+    horizlookup = lookups.Data();
+    horizlookup2 = lookups.Data() + j;
     horizycent = ((ydim*4)>>1);
 
     //Force drawrooms to call dosetaspect & recalculate stuff
@@ -10058,16 +9948,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        polymost_glreset();
-        polymost_glinit();
-
-        if (videoGetRenderMode() == REND_POLYMOST)
-            PolymostProcessVoxels();
-    }
-#endif
     qsetmode = 200;
     return 0;
 }
@@ -10222,6 +10102,15 @@ void vox_undefine(int32_t const tile)
     tiletovox[tile] = -1;
 
     // TODO: nextvoxid
+}
+
+void vox_deinit()
+{
+    for (auto &vox : voxmodels)
+    {
+        voxfree(vox);
+        vox = nullptr;
+    }
 }
 
 //
@@ -11804,7 +11693,7 @@ void renderCompleteMirror(void)
     int const height = mirrorsy2-mirrorsy1;
 
     // Address of the mirror wall's top left corner in the source scene:
-    intptr_t s = (intptr_t) mirrorBuffer + ylookup[windowxy1.y+mirrorsy1] + windowxy1.x+mirrorsx1;
+    intptr_t s = (intptr_t) mirrorBuffer.Data() + ylookup[windowxy1.y+mirrorsy1] + windowxy1.x+mirrorsx1;
 
     // Pointer to the mirror line's left corner in the destination:
     intptr_t d = (intptr_t) frameplace + ylookup[windowxy1.y+mirrorsy1] + windowxy2.x-mirrorsx2;
@@ -12150,61 +12039,6 @@ static int32_t printext_checkypos(int32_t ypos, int32_t *yminptr, int32_t *ymaxp
 }
 
 
-//
-// printext256
-//
-void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
-{
-    int32_t stx, i, x, y, charxsiz;
-    char *fontptr, *letptr, *ptr;
-
-    stx = xpos;
-
-    if (fontsize) { fontptr = smalltextfont; charxsiz = 4; }
-    else { fontptr = textfont; charxsiz = 8; }
-
-#ifdef USE_OPENGL
-    if (!polymost_printext256(xpos,ypos,col,backcol,name,fontsize)) return;
-#endif
-
-    videoBeginDrawing(); //{{{
-    for (i=0; name[i]; i++)
-    {
-        if (name[i] == '^' && isdigit(name[i+1]))
-        {
-            char smallbuf[8];
-            int32_t bi=0;
-            while (isdigit(name[i+1]) && bi<3)
-            {
-                smallbuf[bi++]=name[i+1];
-                i++;
-            }
-            smallbuf[bi++]=0;
-            if (col)col = Batol(smallbuf);
-            continue;
-        }
-
-        if (stx-fontsize+charxsiz > xdim)
-            break;
-
-        letptr = &fontptr[name[i]<<3];
-        ptr = (char *)(ylookup[ypos+7]+(stx-fontsize)+frameplace);
-        for (y=7; y>=0; y--)
-        {
-            for (x=charxsiz-1; x>=0; x--)
-            {
-                if (letptr[y]&pow2char[7-fontsize-x])
-                    ptr[x] = (uint8_t)col;
-                else if (backcol >= 0)
-                    ptr[x] = (uint8_t)backcol;
-            }
-            ptr -= ylookup[1];
-        }
-        stx += charxsiz;
-    }
-    videoEndDrawing();   //}}}
-}
-
 
 
 //
@@ -12244,5 +12078,10 @@ void renderSetRollAngle(int32_t rolla)
     gtang = (float)rolla * (fPI * (1.f/1024.f));
 }
 #endif
+
+void videoShowFrame(int32_t w)
+{
+    screen->Update();
+}
 
 

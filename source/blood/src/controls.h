@@ -106,8 +106,6 @@ struct GINPUT
 extern GINPUT gInput;
 extern bool bSilentAim;
 
-int32_t ctrlCheckAllInput(void);
-void ctrlClearAllInput(void);
 void ctrlInit();
 void ctrlGetInput();
 

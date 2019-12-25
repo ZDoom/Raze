@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "hash.h"
+#include "tarray.h"
+#include "zstring.h"
 
 BEGIN_DUKE_NS
 
@@ -35,16 +37,17 @@ typedef struct {
 
 typedef struct
 {
+    FString name;
     double frameaspect1, frameaspect2;
     uint8_t* animbuf;
-    animsound_t *sounds;
-    uint16_t numsounds;
+    TArray<animsound_t> Sounds;
     uint8_t framedelay;
     uint8_t frameflags;
 } dukeanim_t;
 
-extern dukeanim_t * g_animPtr;
-extern hashtable_t h_dukeanim;
+extern dukeanim_t* g_animPtr;
+extern TArray<dukeanim_t> g_Animations;
+
 extern dukeanim_t * Anim_Find(const char *s);
 extern dukeanim_t * Anim_Create(const char *fn);
 int32_t Anim_Play(const char *fn);

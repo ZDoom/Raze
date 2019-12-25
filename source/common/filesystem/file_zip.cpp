@@ -279,6 +279,7 @@ bool FZipFile::Open(bool quiet)
 	// Resize the lump record array to its actual size
 	NumLumps -= skipped;
 	free(directory);
+	if (!quiet) Printf(", %d lumps\n", NumLumps);
 
 	PostProcessArchive(&Lumps[0], sizeof(FZipLump));
 	return true;

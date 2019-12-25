@@ -710,6 +710,7 @@ void COVER_SetReverb(int amt)
 
 void DeleteNoSoundOwner(short spritenum)
 {
+    if (!soundEngine) return;
     SPRITEp sp = &sprite[spritenum];
 
     soundEngine->EnumerateChannels([=](FSoundChan* chan)
@@ -945,7 +946,8 @@ SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_tra
 
 void StopSound(void)
 {
-    soundEngine->StopAllChannels();
+    // This gets also called on shutdown.
+    if (soundEngine) soundEngine->StopAllChannels();
     Mus_Stop();
 }
 

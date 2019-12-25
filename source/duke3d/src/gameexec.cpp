@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "colmatch.h"
 #include "compat.h"
 #include "duke3d.h"
-#include "input.h"
+
 #include "menus.h"
 #include "osdcmds.h"
 #include "savegame.h"
@@ -1238,7 +1238,7 @@ void Screen_Play(void)
 {
     bool running = true;
 
-    I_ClearAllInput();
+    inputState.ClearAllInput();
 
 	// This needs to be disabled during the loop.
 	auto r2dover = rotatesprite_2doverride;
@@ -1254,11 +1254,11 @@ void Screen_Play(void)
 
         videoClearScreen(0);
 
-        if (VM_OnEventWithReturn(EVENT_SCREEN, -1, myconnectindex, I_CheckAllInput()))
+        if (VM_OnEventWithReturn(EVENT_SCREEN, -1, myconnectindex, inputState.CheckAllInput()))
             running = false;
 
         videoNextPage();
-        I_ClearAllInput();
+        inputState.ClearAllInput();
     } while (running);
 	rotatesprite_2doverride = r2dover;
 }
@@ -4146,7 +4146,7 @@ badindex:
                     }
 
                     tw = vm.pPlayer->palette;
-                    I_ClearAllInput();
+                    inputState.ClearAllInput();
                     Anim_Play(quoteMgr.GetQuote(nQuote));
                     P_SetGamePalette(vm.pPlayer, tw, 2 + 16);
                     dispatch();
@@ -4154,7 +4154,7 @@ badindex:
 
             vInstruction(CON_STARTSCREEN):
                 insptr++;
-                I_ClearAllInput();
+                inputState.ClearAllInput();
                 Screen_Play();
                 dispatch();
 
@@ -5829,7 +5829,7 @@ badindex:
                 {
                     tw = *insptr++;
                     int32_t const rgb = Gv_GetVar(*insptr++);
-                    Gv_SetVar(tw, getclosestcol_lim(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVar(*insptr++)));
+                    Gv_SetVar(tw, paletteGetClosestColorUpToIndex(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVar(*insptr++)));
                 }
                 dispatch();
 

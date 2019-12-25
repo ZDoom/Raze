@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdline.h"
 #include "m_argv.h"
 #include "printf.h"
+#include "c_dispatch.h"
 
 BEGIN_DUKE_NS
 
@@ -93,10 +94,6 @@ void G_CheckCommandLine()
 			ud.m_respawn_inventory = 1;
 		}
 		Printf("Respawn on.\n");
-	}
-	if (Args->CheckParm("-showcoords") || Args->CheckParm("-w"))
-	{
-		cl_showcoords = 1;
 	}
 }
 

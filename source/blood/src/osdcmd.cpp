@@ -102,54 +102,6 @@ static int osdcmd_demo(osdcmdptr_t parm)
 }
 
 
-static int osdcmd_vidmode(osdcmdptr_t parm)
-{
-    int32_t newbpp = ScreenBPP, newwidth = ScreenWidth,
-            newheight = ScreenHeight, newfs = ScreenMode;
-    int32_t tmp;
-
-    if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
-
-    switch (parm->numparms)
-    {
-    case 1: // bpp switch
-        tmp = Batol(parm->parms[0]);
-        if (!(tmp==8 || tmp==16 || tmp==32))
-            return OSDCMD_SHOWHELP;
-        newbpp = tmp;
-        break;
-    case 2: // res switch
-        newwidth = Batol(parm->parms[0]);
-        newheight = Batol(parm->parms[1]);
-        break;
-    case 3: // res & bpp switch
-    case 4:
-        newwidth = Batol(parm->parms[0]);
-        newheight = Batol(parm->parms[1]);
-        tmp = Batol(parm->parms[2]);
-        if (!(tmp==8 || tmp==16 || tmp==32))
-            return OSDCMD_SHOWHELP;
-        newbpp = tmp;
-        if (parm->numparms == 4)
-            newfs = (Batol(parm->parms[3]) != 0);
-        break;
-    }
-
-    if (videoSetGameMode(newfs,newwidth,newheight,newbpp,upscalefactor))
-    {
-        initprintf("vidmode: Mode change failed!\n");
-        if (videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, upscalefactor))
-            ThrowError("vidmode: Reset failed!\n");
-    }
-    ScreenBPP = newbpp;
-    ScreenWidth = newwidth;
-    ScreenHeight = newheight;
-    ScreenMode = newfs;
-    onvideomodechange(ScreenBPP>8);
-    viewResizeView(gViewSize);
-    return OSDCMD_OK;
-}
-
 static int osdcmd_crosshaircolor(osdcmdptr_t parm)
 {
     if (parm->numparms != 3)
@@ -290,8 +242,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
-
-    OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: change the video mode",osdcmd_vidmode);
 
 
     return 0;

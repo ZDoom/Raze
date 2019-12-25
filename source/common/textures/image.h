@@ -123,12 +123,11 @@ class FImageTexture : public FTexture
 	FImageSource *mImage;
 public:
 	FImageTexture (FImageSource *image, const char *name = nullptr);
-	void Create8BitPixels(uint8_t* buffer) override;
-
-	void SetImage(FImageSource *img)	// This is only for the multipatch texture builder!
+	~FImageTexture()
 	{
-		mImage = img;
+		if (mImage) delete mImage;
 	}
+	void Create8BitPixels(uint8_t* buffer) override;
 
 	FImageSource *GetImage() const override { return mImage; }
 	FBitmap GetBgraBitmap(const PalEntry *p, int *trans) override;

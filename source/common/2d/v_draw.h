@@ -2,18 +2,13 @@
 
 #include "drawparms.h"
 #include "c_cvars.h"
+#include "v_video.h"
 // Undo Windows's forced #defines
 #ifdef DrawText
 #undef DrawText
 #endif
 
 extern int32_t xdim, ydim;
-struct ScreenDummy
-{
-	static int GetWidth() { return xdim; }
-	static int GetHeight() { return ydim; }
-};
-extern ScreenDummy* screen;
 
 int GetUIScale(int altval);
 int GetConScale(int altval);
@@ -33,7 +28,7 @@ extern int CleanXfac_1, CleanYfac_1, CleanWidth_1, CleanHeight_1;
 bool SetTextureParms(DrawParms *parms, FTexture *img, double xx, double yy);
 bool ParseDrawTextureTags(FTexture *img, double x, double y, uint32_t tag, Va_List& tags, DrawParms *parms, bool fortext);
 void VirtualToRealCoords(double &x, double &y, double &w, double &h, double vwidth, double vheight, bool vbottom, bool handleaspect);
-int ActiveFakeRatio(int width, int height);
+//int ActiveFakeRatio(int width, int height);
 float ActiveRatio(int width, int height, float* trueratio);
 int CheckRatio(int width, int height, int* trueratio);
 int AspectBaseWidth(float aspect);;
@@ -52,14 +47,4 @@ void DrawFrame(F2DDrawer* twod, PalEntry color, int left, int top, int width, in
 
 EXTERN_CVAR(Int, con_scaletext)		// Scale notify text at high resolutions?
 EXTERN_CVAR(Int, con_scale)
-
-inline int active_con_scaletext(bool newconfont = false)
-{
-	return newconfont ? GetConScale(con_scaletext) : GetUIScale(con_scaletext);
-}
-
-inline int active_con_scale()
-{
-	return GetConScale(con_scale);
-}
 

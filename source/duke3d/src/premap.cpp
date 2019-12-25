@@ -669,7 +669,6 @@ void P_ResetPlayer(int playerNum)
 {
     auto &p = *g_player[playerNum].ps;
 
-    ud.show_help  = 0;
     ud.showallmap = 0;
 
     p.access_spritenum   = -1;
@@ -1778,7 +1777,6 @@ int G_EnterLevel(int gameMode)
         FX_StopAllSounds();
         S_ClearSoundLocks();
         FX_SetReverb(0);
-        videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, upscalefactor);
     }
 
     if (Menu_HaveUserMap())

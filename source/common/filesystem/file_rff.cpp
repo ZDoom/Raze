@@ -34,6 +34,7 @@
 */
 #include <algorithm>
 #include "resourcefile.h"
+#include "printf.h"
 
 //==========================================================================
 //
@@ -144,7 +145,7 @@ bool FRFFFile::Open(bool quiet)
 
 	Lumps.Grow(NumLumps);
 
-	//if (!quiet) Printf(", %d lumps\n", NumLumps);
+	if (!quiet) Printf(", %d lumps\n", NumLumps);
 	for (uint32_t i = 0; i < NumLumps; ++i)
 	{
 		Lumps.Reserve(1);

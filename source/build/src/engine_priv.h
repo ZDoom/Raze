@@ -92,7 +92,7 @@ extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
 extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
-extern uint8_t* mirrorBuffer;
+extern TArray<uint8_t> mirrorBuffer;
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern intptr_t frameoffset;

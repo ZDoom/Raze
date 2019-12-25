@@ -387,9 +387,8 @@ void JS_InitMirrors(void)
 
                     if (!Found_Cam)
                     {
-                        printf("Cound not find the camera view sprite for match %d\n",TrackerCast(wall[i].hitag));
-                        printf("Map Coordinates: x = %d, y = %d\n",TrackerCast(wall[i].x),TrackerCast(wall[i].y));
-                        exit(0);
+                        Printf("Cound not find the camera view sprite for match %d\n",TrackerCast(wall[i].hitag));
+                        Printf("Map Coordinates: x = %d, y = %d\n",TrackerCast(wall[i].x),TrackerCast(wall[i].y));
                     }
 
                     Found_Cam = FALSE;
@@ -413,10 +412,9 @@ void JS_InitMirrors(void)
 
                         if (!Found_Cam)
                         {
-                            printf("Did not find drawtotile for camera number %d\n",mirrorcnt);
-                            printf("wall[%d].hitag == %d\n",i,TrackerCast(wall[i].hitag));
-                            printf("Map Coordinates: x = %d, y = %d\n", TrackerCast(wall[i].x), TrackerCast(wall[i].y));
-                            exit(0);
+                            Printf("Did not find drawtotile for camera number %d\n",mirrorcnt);
+                            Printf("wall[%d].hitag == %d\n",i,TrackerCast(wall[i].hitag));
+                            Printf("Map Coordinates: x = %d, y = %d\n", TrackerCast(wall[i].x), TrackerCast(wall[i].y));
                         }
                     }
 
@@ -692,10 +690,8 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 
                         if (mirror[cnt].campic == -1)
                         {
-                            TerminateGame();
-                            printf("Missing campic for mirror %d\n",cnt);
-                            printf("Map Coordinates: x = %d, y = %d\n",midx,midy);
-                            exit(0);
+                            Printf("Missing campic for mirror %d. Map Coordinates: x = %d, y = %d\n", cnt,midx,midy);
+                            return;
                         }
 
                         // BOOL2 = Oscilate camera
@@ -1086,22 +1082,33 @@ JS_UnInitLockouts(void)
 {
     OrgTileP tp=NULL, next_tp=NULL;
 
-
-    TRAVERSE(&orgwalllist, tp, next_tp)
+    if (orgwalllist.Next)
     {
-        KillOrgTile(tp);
+        TRAVERSE(&orgwalllist, tp, next_tp)
+        {
+            KillOrgTile(tp);
+        }
     }
-    TRAVERSE(&orgwalloverlist, tp, next_tp)
+    if (orgwalloverlist.Next)
     {
-        KillOrgTile(tp);
+        TRAVERSE(&orgwalloverlist, tp, next_tp)
+        {
+            KillOrgTile(tp);
+        }
     }
-    TRAVERSE(&orgsectorceilinglist, tp, next_tp)
+    if (orgsectorceilinglist.Next)
     {
-        KillOrgTile(tp);
+        TRAVERSE(&orgsectorceilinglist, tp, next_tp)
+        {
+            KillOrgTile(tp);
+        }
     }
-    TRAVERSE(&orgsectorfloorlist, tp, next_tp)
+    if (orgsectorfloorlist.Next)
     {
-        KillOrgTile(tp);
+        TRAVERSE(&orgsectorfloorlist, tp, next_tp)
+        {
+            KillOrgTile(tp);
+        }
     }
 }
 
@@ -1120,24 +1127,22 @@ JS_UnInitLockouts(void)
 void
 JS_PlockError(short wall_num, short t)
 {
-    TerminateGame();
-    printf("ERROR: JS_InitLockouts(), out of range tile number\n");
+    Printf("ERROR: JS_InitLockouts(), out of range tile number\n");
     switch (t)
     {
     case 1:
-        printf("wall %d, x %d, y %d, pic %d\n", wall_num, TrackerCast(wall[wall_num].x), TrackerCast(wall[wall_num].y), TrackerCast(wall[wall_num].picnum));
+        Printf("wall %d, x %d, y %d, pic %d\n", wall_num, TrackerCast(wall[wall_num].x), TrackerCast(wall[wall_num].y), TrackerCast(wall[wall_num].picnum));
         break;
     case 2:
-        printf("wall %d, x %d, y %d, OVERpic %d\n", wall_num, TrackerCast(wall[wall_num].x), TrackerCast(wall[wall_num].y), TrackerCast(wall[wall_num].overpicnum));
+        Printf("wall %d, x %d, y %d, OVERpic %d\n", wall_num, TrackerCast(wall[wall_num].x), TrackerCast(wall[wall_num].y), TrackerCast(wall[wall_num].overpicnum));
         break;
     case 3:
-        printf("sector %d, ceiling %d\n", wall_num, TrackerCast(sector[wall_num].ceilingpicnum));
+        Printf("sector %d, ceiling %d\n", wall_num, TrackerCast(sector[wall_num].ceilingpicnum));
         break;
     case 4:
-        printf("sector %d, floor %d\n", wall_num, TrackerCast(sector[wall_num].floorpicnum));
+        Printf("sector %d, floor %d\n", wall_num, TrackerCast(sector[wall_num].floorpicnum));
         break;
     }
-    exit(0);
 }
 
 void
@@ -1163,7 +1168,10 @@ JS_InitLockouts(void)
 
         picnum = wall[i].picnum;
         if (aVoxelArray[picnum].Parental >= INVISTILE)
-            JS_PlockError(i,1);
+        {
+            JS_PlockError(i, 1);
+            continue;
+        }
 
         if (aVoxelArray[picnum].Parental >= 0)
         {
@@ -1175,7 +1183,10 @@ JS_InitLockouts(void)
 
         picnum = wall[i].overpicnum;
         if (aVoxelArray[picnum].Parental >= INVISTILE)
-            JS_PlockError(i,2);
+        {
+            JS_PlockError(i, 2);
+            continue;
+        }
 
         if (aVoxelArray[picnum].Parental >= 0)
         {
@@ -1192,7 +1203,10 @@ JS_InitLockouts(void)
 
         picnum = sector[i].ceilingpicnum;
         if (aVoxelArray[picnum].Parental >= INVISTILE)
-            JS_PlockError(i,3);
+        {
+            JS_PlockError(i, 3);
+            continue;
+        }
 
         if (aVoxelArray[picnum].Parental >= 0)
         {
@@ -1204,7 +1218,10 @@ JS_InitLockouts(void)
 
         picnum = sector[i].floorpicnum;
         if (aVoxelArray[picnum].Parental >= INVISTILE)
-            JS_PlockError(i,2);
+        {
+            JS_PlockError(i, 2);
+            continue;
+        }
 
         if (aVoxelArray[picnum].Parental >= 0)
         {

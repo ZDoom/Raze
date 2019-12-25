@@ -841,7 +841,6 @@ void P_ResetStatus(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
-    ud.show_help               = 0;
     ud.showallmap              = 0;
     pPlayer->dead_flag         = 0;
     pPlayer->wackedbyactor     = -1;
@@ -2306,7 +2305,6 @@ int G_EnterLevel(int gameMode)
         FX_StopAllSounds();
         S_ClearSoundLocks();
         FX_SetReverb(0);
-        videoSetGameMode(ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, upscalefactor);
     }
 
     if (Menu_HaveUserMap())

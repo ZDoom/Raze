@@ -33,7 +33,7 @@
 **
 */
 #include <memory>
-#include "glad/glad.h"
+#include "gl_load.h"
 #include "glbackend.h"
 #include "gl_samplers.h"
 #include "gl_shader.h"
@@ -44,6 +44,7 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
 #include "baselayer.h"
+#include "gl_interface.h"
 
 extern int ydim;
 
@@ -77,21 +78,14 @@ void GLInstance::Init(int ydim)
 		memset(LastBoundTextures, 0, sizeof(LastBoundTextures));
 	}
 
-	glinfo.vendor = (const char*)glGetString(GL_VENDOR);
-	glinfo.renderer = (const char*)glGetString(GL_RENDERER);
-	glinfo.version = (const char*)glGetString(GL_VERSION);
-	glinfo.extensions = (const char*)glGetString(GL_EXTENSIONS);
-	glinfo.bufferstorage = !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");
+	//glinfo.bufferstorage =  !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
-	if (!glinfo.dumped)
-	{
-		//osdcmd_glinfo(NULL);
-		glinfo.dumped = 1;
-	}
+
 	new(&renderState) PolymostRenderState;	// reset to defaults.
 	LoadSurfaceShader();
 	LoadVPXShader();
 	LoadPolymostShader();
+#if 0
 	IMGUI_CHECKVERSION();
 	im_ctx = ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -108,6 +102,7 @@ void GLInstance::Init(int ydim)
 		ttf = fileSystem.LoadFile("demolition/Roboto-Regular.ttf", 0);
 	}
 	if (ttf.Size()) io.Fonts->AddFontFromMemoryTTF(ttf.Data(), ttf.Size(), std::clamp(ydim / 40, 10, 30));
+#endif
 }
 
 void GLInstance::LoadPolymostShader()
@@ -167,7 +162,7 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 
     if (multisample > 0 )
     {
-		glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
+		//glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
         glEnable(GL_MULTISAMPLE);
     }
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
@@ -175,12 +170,14 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 
 void GLInstance::Deinit()
 {
+#if 0
 	if (im_ctx)
 	{
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplSDL2_Shutdown();
 		ImGui::DestroyContext(im_ctx);
 	}
+#endif
 	if (mSamplers) delete mSamplers;
 	mSamplers = nullptr;
 	if (polymostShader) delete polymostShader;
@@ -500,7 +497,9 @@ void GLInstance::SetPalswap(int index)
 
 void GLInstance::DrawImGui(ImDrawData* data)
 {
+#if 0
 	ImGui_ImplOpenGL3_RenderDrawData(data);
+#endif
 }
 
 

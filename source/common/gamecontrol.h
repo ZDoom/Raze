@@ -6,12 +6,15 @@
 #include "gamecvars.h"
 #include "tarray.h"
 #include "name.h"
+#include "memarena.h"
 
 EXTERN_CVAR(Int, cl_defaultconfiguration)
 
 extern FString currentGame;
 extern FString LumpFilter;
 class FArgs;
+
+extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
 extern TMap<FName, int32_t> NameToTileIndex;
 
@@ -36,7 +39,6 @@ void CONFIG_SetDefaultKeys(const char *defbinds);
 
 
 void CONFIG_SetupJoystick(void);
-void CONFIG_InitMouseAndController();
 
 void CONFIG_SetGameControllerDefaultsClear();
 
@@ -45,6 +47,7 @@ void CONFIG_ReadCombatMacros();
 
 int32_t CONFIG_GetMapBestTime(char const* const mapname, uint8_t const* const mapmd4);
 int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm);
+int GameMain();
 
 struct UserConfig
 {
@@ -129,6 +132,11 @@ struct GrpInfo
 };
 
 
+struct WadStuff
+{
+	FString Path;
+	FString Name;
+};
 
 struct GrpEntry
 {
@@ -143,3 +151,7 @@ const char* G_DefaultConFile(void);
 const char* G_ConFile(void);
 
 TArray<GrpEntry> GrpScan();
+void S_SetSoundPaused(int state);
+
+void G_HandleMemErr(int32_t lineNum, const char* fileName, const char* funcName);
+void G_FatalEngineError(void);

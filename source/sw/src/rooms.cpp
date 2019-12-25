@@ -33,7 +33,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void _ErrMsg(const char *strFile, unsigned uLine, const char *format, ...);
 void FAF_DrawRooms(int posx, int posy, int posz, short ang, int horiz, short cursectnum);
 
 ////////////////////////////////////////////////////////////////////

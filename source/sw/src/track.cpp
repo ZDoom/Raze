@@ -880,9 +880,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
     if (!FoundOutsideLoop)
     {
-        TerminateGame();
-        printf("Forgot to tag outer loop for Sector Object #%d", (int)(sop - SectorObject));
-        exit(1);
+        I_Error("Forgot to tag outer loop for Sector Object #%d", (int)(sop - SectorObject));
     }
 
     for (i = 0; i < (int)SIZ(StatList); i++)
@@ -3660,9 +3658,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 #if DEBUG
             if (wall[hit_wall].nextsector < 0)
             {
-                TerminateGame();
-                printf("Take out white wall ladder x = %d, y = %d",wall[hit_wall].x, wall[hit_wall].y);
-                exit(0);
+                I_Error("Take out white wall ladder x = %d, y = %d",wall[hit_wall].x, wall[hit_wall].y);
             }
 #endif
 

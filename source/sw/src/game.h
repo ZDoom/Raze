@@ -858,7 +858,6 @@ SWBOOL CON_CheckParm(const char *userarg);
 void CON_CommandHistory(signed char dir);
 SWBOOL CON_AddCommand(const char *command, void (*function)(void));
 void CON_ProcessUserCommand(void);
-void CON_InitConsole(void);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1140,8 +1139,7 @@ struct PLAYERstruct
     } PanelSpriteList;
 
     // Key stuff
-#define NUM_KEYS 8
-    unsigned char HasKey[NUM_KEYS];
+    unsigned char HasKey[8];
 
     // Weapon stuff
     short SwordAng;
@@ -1757,10 +1755,18 @@ typedef struct
 } MEM_HDR,*MEM_HDRp;
 
 SWBOOL ValidPtr(void *ptr);
+#if 0
 void *AllocMem(int size);
 void *CallocMem(int size, int num);
 void *ReAllocMem(void *ptr, int size);
 void FreeMem(void *ptr);
+#else
+// Make these #defines so that MSVC's allocation tracker gets correct line numbers
+#define AllocMem malloc
+#define CallocMem calloc
+#define ReAllocMem realloc
+#define FreeMem free
+#endif
 
 typedef struct
 {
@@ -2334,7 +2340,6 @@ void MapSetAll2D(uint8_t fill);    // game.c
 void TerminateGame(void);   // game.c
 void TerminateLevel(void);  // game.c
 void ResetKeys(void);   // game.c
-SWBOOL KeyPressed(void);  // game.c
 void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
 void COVERsetbrightness(int bright, unsigned char *pal);    // game.c
 void DrawMenuLevelScreen(void); // game.c
@@ -2425,7 +2430,8 @@ void LoadSaveMsg(const char *msg);
 struct GameInterface : ::GameInterface
 {
 	int app_main() override;
-	bool validate_hud(int) override;
+    void FreeGameData() override;
+    bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
 	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
@@ -2441,8 +2447,10 @@ struct GameInterface : ::GameInterface
 	bool SaveGame(FSaveGameNode* sv) override;
 	void DoPrintMessage(int prio, const char* text) override;
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
+    FString GetCoordString() override;
 
-	GameStats getStats() override;
+    FString statFPS() override;
+    GameStats getStats() override;
 };
 
 

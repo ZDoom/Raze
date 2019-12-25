@@ -49,54 +49,18 @@ int32_t MusicDevice;
 int32_t FXDevice;
 int32_t ControllerType;
 
-int32_t scripthandle;
 int32_t setupread;
 // TODO: implement precaching toggle
 int32_t useprecache;
 
-void CONFIG_SetDefaults()
+int CONFIG_ReadSetup(void)
 {
-    scripthandle = -1;
-# if defined RENDERTYPESDL && SDL_MAJOR_VERSION > 1
-    uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
-    if (inited == 0)
-        SDL_Init(SDL_INIT_VIDEO);
-    else if (!(inited & SDL_INIT_VIDEO))
-        SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-    SDL_DisplayMode dm;
-    if (SDL_GetDesktopDisplayMode(0, &dm) == 0)
-    {
-        gSetup.xdim = dm.w;
-        gSetup.ydim = dm.h;
-    }
-    else
-# endif
-    {
-        gSetup.xdim = 1024;
-        gSetup.ydim = 768;
-    }
 
     // currently settings.cfg is only read after the startup window launches the game,
     // and rereading binds might be fickle so just enable this
-    gSetup.forcesetup = 1;
-    gSetup.noautoload = 1;
-    gSetup.fullscreen = 1;
-    gSetup.bpp = 32;
-
+    
     NumBits = 16;
+    return 0;
 }
-
-int CONFIG_ReadSetup(void)
-{
-	CONFIG_SetDefaults();
-	if (ScreenBPP < 8) ScreenBPP = 32;
-	return 0;
-}
-
-
-void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.cfg
-{
-} 
 
 END_PS_NS

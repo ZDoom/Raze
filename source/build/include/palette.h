@@ -28,16 +28,17 @@ extern uint8_t curbasepal;
 
 #define paletteGetBlendTable(blend) (blendtable[blend])
 
-extern uint32_t PaletteIndexFullbrights[8];
+extern uint8_t PaletteIndexFullbrights[32];
+
 
 inline bool IsPaletteIndexFullbright(uint8_t col)
 {
-	return (PaletteIndexFullbrights[col >> 5] & (1u << (col & 31)));
+	return (PaletteIndexFullbrights[col >> 3] & (1u << (col & 7)));
 }
 
 inline void SetPaletteIndexFullbright(int col)
 {
-	PaletteIndexFullbrights[col >> 5] |= (1u << (col & 31));
+	PaletteIndexFullbrights[col >> 3] |= (1u << (col & 7));
 }
 
 struct palette_t 
@@ -54,6 +55,7 @@ extern void videoFadeToBlack(int32_t moreopaquep);
 void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
 void paletteSetColorTable(int32_t id, uint8_t const *table, bool transient = false);
 void paletteFreeColorTable(int32_t id);
+void paletteFreeColorTables();
 void paletteSetBlendTable(int32_t blend, const char *tab);
 void paletteFreeBlendTable(int32_t blend);
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab);
@@ -79,6 +81,7 @@ extern int32_t curbrightness;
 
 extern int32_t paletteLoadLookupTable(FileReader &fp);
 extern void paletteSetupDefaultFog(void);
+void paletteFreeLookups();
 extern void palettePostLoadLookups(void);
 extern void paletteFixTranslucencyMask(void);
 

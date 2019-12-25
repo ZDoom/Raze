@@ -1563,9 +1563,9 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
 
 #define FPS_COLOR(x) ((x) ? COLOR_RED : COLOR_WHITE)
 
-static void G_PrintFPS(void)
+FString GameInterface::statFPS()
 {
-    static char tempbuf[256];
+    FString out;
     static int32_t frameCount;
     static double cumulativeFrameDelay;
     static double lastFrameTime;
@@ -1578,16 +1578,7 @@ static void G_PrintFPS(void)
 
     if (frameDelay >= 0)
     {
-        int32_t x = (xdim <= 640);
-
-        if (r_showfps)
-        {
-            int32_t chars = Bsprintf(tempbuf, "%.1f ms, %5.1f fps", frameDelay, lastFPS);
-
-            printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+2+FPS_YOFFSET, blackcol, -1, tempbuf, x);
-            printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+1+FPS_YOFFSET,
-                FPS_COLOR(lastFPS < LOW_FPS), -1, tempbuf, x);
-        }
+       out.Format("%.1f ms, %5.1f fps", frameDelay, lastFPS);
 
         if (cumulativeFrameDelay >= 1000.0)
         {
@@ -1599,6 +1590,7 @@ static void G_PrintFPS(void)
         frameCount++;
     }
     lastFrameTime = frameTime;
+    return out;
 }
 
 static void GameDisplay(void)
@@ -1624,8 +1616,6 @@ static void GameDisplay(void)
         int nLen = MyGetStringWidth("PAUSED");
         myprintext((320 - nLen) / 2, 100, "PAUSED", 0);
     }
-
-    G_PrintFPS();
 
     videoNextPage();
 }
@@ -1945,16 +1935,6 @@ int GameInterface::app_main()
 #endif
     CONFIG_ReadSetup();
 
-    if (enginePreInit())
-    {
-        wm_msgbox("Build Engine Initialization Error",
-                  "There was a problem initializing the Build engine: %s", engineerrstr);
-        ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
-        Bexit(2);
-    }
-
-
-
     PatchDemoStrings();
     // loc_115F5:
     nItemTextIndex = FindGString("ITEMS");
@@ -1973,10 +1953,6 @@ int GameInterface::app_main()
     initprintf("Initializing OSD...\n");
 
     registerosdcommands();
-
-    //SetupInput();
-
-    system_getcvars();
 
     if (nNetPlayerCount == -1)
     {

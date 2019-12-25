@@ -29,7 +29,6 @@ BEGIN_DUKE_NS
 
 
 int  CONFIG_ReadSetup(void);
-void CONFIG_SetDefaults(void);
 
 END_DUKE_NS
 #endif

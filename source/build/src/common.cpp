@@ -12,7 +12,7 @@
 // def/clipmap handling
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
-GrowArray<char *> g_clipMapFiles;
+TArray<FString> g_clipMapFiles;
 #endif
 
 void SetClipshapes()
@@ -24,7 +24,7 @@ void SetClipshapes()
 		char clipshape[16] = "_clipshape0.map";
 
 		clipshape[10] = j;
-		g_clipMapFiles.append(Xstrdup(clipshape));
+		g_clipMapFiles.Push(clipshape);
 	}
 #endif
 }
@@ -32,7 +32,7 @@ void SetClipshapes()
 #ifdef HAVE_CLIPSHAPE_FEATURE
 void G_AddClipMap(const char *buffer)
 {
-    g_clipMapFiles.append(Xstrdup(buffer));
+    g_clipMapFiles.Push(buffer);
 }
 #endif
 

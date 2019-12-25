@@ -20,7 +20,6 @@
 #ifndef _SmackerFileStream_h_
 #define _SmackerFileStream_h_
 
-#include <string>
 #include "compat.h"
 #include <stdint.h>
 #include "files.h"
@@ -31,7 +30,7 @@ class FileStream
 {
 	public:
 
-		bool Open(const std::string &fileName);
+		bool Open(const char *fileName);
 		bool Is_Open();
 		void Close();
 

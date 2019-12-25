@@ -31,20 +31,16 @@ typedef struct {
     int32_t xdim;
     int32_t ydim;
     int32_t bpp;
-    int32_t forcesetup;
-    int32_t noautoload;
 } ud_setup_t;
 
 
 extern int lMouseSens;
 
 extern ud_setup_t gSetup;
-extern int32_t scripthandle;
 extern int32_t setupread;
 
 
 int  CONFIG_ReadSetup(void);
-void CONFIG_SetDefaults(void);
 
 END_PS_NS
 

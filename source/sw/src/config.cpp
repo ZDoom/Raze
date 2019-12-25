@@ -43,9 +43,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "renderlayer.h"
 
-#if defined RENDERTYPESDL && defined SDL_TARGET && SDL_TARGET > 1
-# include "sdl_inc.h"
-#endif
 
 BEGIN_SW_NS
 
@@ -58,47 +55,6 @@ int32_t NumberPlayers,CommPort,PortSpeed,IrqNumber,UartAddress;
 /*
 ===================
 =
-= CONFIG_SetDefaults
-=
-===================
-*/
-
-void CONFIG_SetDefaults(void)
-{
-    ScreenMode = 1;
-
-#if defined RENDERTYPESDL && SDL_MAJOR_VERSION > 1
-    uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
-    if (inited == 0)
-        SDL_Init(SDL_INIT_VIDEO);
-    else if (!(inited & SDL_INIT_VIDEO))
-        SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-    SDL_DisplayMode dm;
-    if (SDL_GetDesktopDisplayMode(0, &dm) == 0)
-    {
-        ScreenWidth = dm.w;
-        ScreenHeight = dm.h;
-    }
-    else
-#endif
-    {
-        ScreenWidth = 1024;
-        ScreenHeight = 768;
-    }
-
-    memcpy(&gs, &gs_defaults, sizeof(gs));
-}
-
-
-void SetDefaultKeyDefinitions(int style)
-{
-	CONFIG_SetDefaultKeys(style ? "demolition/defbinds.txt" : "demolition/origbinds.txt");
-}
-
-/*
-===================
-=
 = CONFIG_ReadSetup
 =
 ===================
@@ -106,7 +62,7 @@ void SetDefaultKeyDefinitions(int style)
 
 int32_t CONFIG_ReadSetup(void)
 {
-    CONFIG_SetDefaults();
+    memcpy(&gs, &gs_defaults, sizeof(gs));
     return 0;
 }
 

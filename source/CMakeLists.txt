@@ -101,9 +101,6 @@ if( WIN32 )
 		odbc32
 		odbccp32
 
-		libSDL2main
-		libSDL2
-
 		# this local library crap needs to go away. Sadly there doesn't seem to be anything to get a working libvpx that doesn't force linking with MinGW dependencies.
 		libvpx
 		libcompat-to-msvc
@@ -442,9 +439,9 @@ endif()
 
 # Ugh... These precompiled dependencies need to go.
 if (WIN32)
-	include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
+	include_directories( "platform/win32" "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
 else ()
-include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
+	include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
 endif()
 
 
@@ -473,19 +470,27 @@ endif()
 
 # Start defining source files for Demolition
 set( PLAT_WIN32_SOURCES
-	glad/src/glad_wgl.c
-	platform/win32/winbits.cpp
+	platform/win32/base_sysfb.cpp
+	platform/win32/gl_sysfb.cpp
+	platform/win32/hardware.cpp
+	platform/win32/i_crash.cpp
+	platform/win32/i_dijoy.cpp
+	platform/win32/i_input.cpp
+	platform/win32/i_keyboard.cpp
+	platform/win32/i_main.cpp
+	platform/win32/i_mouse.cpp
+	platform/win32/i_rawps2.cpp
 	platform/win32/i_specialpaths.cpp
-	platform/win32/startwin.game.cpp
-	
-	# This needs a rework anyway in order to consolidate the startup dialogs so don't bother to sort in properly.
-	#startosx.game.mm
-	#sw/src/startgtk.game.cpp
-	
+	platform/win32/i_system.cpp
+	platform/win32/i_xinput.cpp
+	platform/win32/st_start.cpp
+	platform/win32/st_start_util.cpp
+	platform/win32/win32basevideo.cpp
+	platform/win32/win32glvideo.cpp
+	platform/win32/win32vulkanvideo.cpp
 	)
 
 set( PLAT_POSIX_SOURCES
-	#platform/gtk/startgtk.game.cpp
 	)
 	
 set( PLAT_SDL_SOURCES
@@ -504,9 +509,6 @@ set( PLAT_OSX_SOURCES
 	)
 	
 set( PLAT_COCOA_SOURCES
-	#platform/macos/startosx.game.mm
-	#platform/macos/GrpFile.game.mm
-	#platform/macos/GameListSource.game.mm
 	)
 	
 
@@ -600,8 +602,6 @@ add_definitions(-DOPNMIDI_DISABLE_GX_EMULATOR)
 # there's generally a new cpp for every header so this file will get changed
 file( GLOB HEADER_FILES
 	build/include/*.h
-	glad/include/glad/*.h
-	glad/include/Khr/*.h
 	glbackend/*.h
 	libsmackerdec/include/*.h
 	libxmp-lite/include/libxmp-lite/*.h
@@ -617,8 +617,12 @@ file( GLOB HEADER_FILES
 	common/sound/backend/*.h
 	common/menu/*.h
 	common/input/*.h
+	common/rendering/*.h
+	common/rendering/gl_load/*.h
+	common/rendering/gl/system/*.h
 
 	build/src/*.h
+	platform/win32/*.h
 	thirdparty/include/*.h
 	thirdparty/include/*.hpp
 	thirdparty/imgui/*.h
@@ -633,6 +637,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
 	sc_man_scanner.h
 	common/utility/sc_man_scanner.re
+	platform/win32/demolition.natvis
 )
 
 
@@ -647,11 +652,9 @@ set( FASTMATH_SOURCES
 	libsmackerdec/src/SmackerDecoder.cpp
 
 	# The rest is only here because it is C, not C++
-	glad/src/glad.c
 	common/utility/strnatcmp.c
+	common/rendering/gl_load/gl_load.c
 	
-	# Another bit of cruft just to make S(hit)DL happy...
-	sdlappicon.cpp
 	gitinfo.cpp
 )
 
@@ -673,12 +676,12 @@ set (PCH_SOURCES
 	thirdparty/src/fix16_str.cpp
 	thirdparty/src/md4.cpp
 	thirdparty/src/enet.cpp
-	thirdparty/imgui/imgui.cpp
-	thirdparty/imgui/imgui_demo.cpp
-	thirdparty/imgui/imgui_draw.cpp
-	thirdparty/imgui/imgui_impl_opengl3.cpp
-	thirdparty/imgui/imgui_impl_sdl.cpp
-	thirdparty/imgui/imgui_widgets.cpp
+	#thirdparty/imgui/imgui.cpp
+	#thirdparty/imgui/imgui_demo.cpp
+	#thirdparty/imgui/imgui_draw.cpp
+	#thirdparty/imgui/imgui_impl_opengl3.cpp
+	#thirdparty/imgui/imgui_impl_sdl.cpp
+	#thirdparty/imgui/imgui_widgets.cpp
 	
 	# Todo: Split out the license-safe code from this.
 	build/src/2d.cpp
@@ -701,9 +704,7 @@ set (PCH_SOURCES
 	build/src/pragmas.cpp
 	build/src/scriptfile.cpp
 	build/src/sdlayer.cpp
-	build/src/smalltextfont.cpp
 	build/src/softsurface.cpp
-	build/src/textfont.cpp
 	build/src/tiles.cpp
 	build/src/timer.cpp
 	build/src/voxmodel.cpp
@@ -811,12 +812,19 @@ set (PCH_SOURCES
 	common/menu/menuinput.cpp
 	common/menu/messagebox.cpp
 	common/menu/optionmenu.cpp
+	common/menu/resolutionmenu.cpp
 	
-	common/input/i_gui.cpp
-	common/input/i_joystick.cpp
-	common/input/i_input.cpp
+	#common/input/i_joystick.cpp
+	#common/input/i_input.cpp
 	common/input/m_joy.cpp
-	common/input/input.cpp
+	
+	common/rendering/v_video.cpp
+	common/rendering/v_framebuffer.cpp
+	common/rendering/r_videoscale.cpp
+	common/rendering/gl_load/gl_interface.cpp
+	common/rendering/gl/system/gl_debug.cpp
+	common/rendering/gl/system/gl_framebuffer.cpp
+	
 )
 
 if( MSVC )
@@ -863,7 +871,6 @@ target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
     build/include
-	glad/include
 	libxmp-lite/include
 	libxmp-lite/include/libxmp-lite
 	libsmackerdec/include
@@ -882,6 +889,10 @@ include_directories(
 	common/dobject
 	common/menu
 	common/input
+	common/rendering/gl/system
+	common/rendering/gl_load
+	common/rendering/gl
+	common/rendering
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
@@ -994,10 +1005,9 @@ source_group("Code\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/comm
 source_group("Code\\Sound\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/sound/backend/.+")
 source_group("Code\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/dobject/.+")
 source_group("Code\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
-source_group("Utility\\Glad" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/.+")
-source_group("Utility\\Glad Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/include/glad/.+")
-source_group("Utility\\Glad Khr Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/include/Khr/.+")
-source_group("Utility\\Glad Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/src/.+")
+source_group("Code\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/.+")
+source_group("Code\\Rendering\\GL_Load" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl_load/.+")
+source_group("Code\\Rendering\\GL\\System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl/system.+")
 source_group("Utility\\Smackerdec" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/smackerdec/.+")
 source_group("Utility\\Smackerdec\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libsmackerdec/include/.+")
 source_group("Utility\\Smackerdec\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libsmackerdec/src/.+")

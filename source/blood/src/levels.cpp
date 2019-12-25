@@ -88,7 +88,7 @@ void levelOverrideINI(const char *pzIni)
 void levelPlayIntroScene(int nEpisode)
 {
     gGameOptions.uGameFlags &= ~4;
-    Mus_Stop();
+    Mus_SetPaused(true);
     sndKillAllSounds();
     sfxKillAllSounds();
     ambKillAll();
@@ -99,6 +99,7 @@ void levelPlayIntroScene(int nEpisode)
     viewResizeView(gViewSize);
     credReset();
     scrSetDac();
+    Mus_SetPaused(false);
 }
 
 void levelPlayEndScene(int nEpisode)
@@ -207,7 +208,7 @@ void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSectio
     char buffer[16];
     pLevelInfo->SetName(pIni->GetKeyString(pzSection, "Title", pLevelInfo->labelName));
     pLevelInfo->author = pIni->GetKeyString(pzSection, "Author", "");
-    pLevelInfo->music.Format("%s.%s", pIni->GetKeyString(pzSection, "Song", ""), ".mid"); 
+    pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", ""); DefaultExtension(pLevelInfo->music, ".mid");
     pLevelInfo->cdSongId = pIni->GetKeyInt(pzSection, "Track", -1);
     pLevelInfo->nextLevel = pIni->GetKeyInt(pzSection, "EndingA", -1); //if (pLevelInfo->nextLevel >= 0) pLevelInfo->nextLevel +epinum * kMaxLevels;
     pLevelInfo->nextSecret = pIni->GetKeyInt(pzSection, "EndingB", -1); //if (pLevelInfo->nextSecret >= 0) pLevelInfo->nextSecret + epinum * kMaxLevels;
@@ -398,20 +399,20 @@ int levelGetMusicIdx(const char *str)
 
 bool levelTryPlayMusic(int nEpisode, int nLevel, bool bSetLevelSong)
 {
-    char buffer[BMAX_PATH];
+    FString buffer;
     if (mus_redbook && gEpisodeInfo[nEpisode].levels[nLevel].cdSongId > 0)
-        snprintf(buffer, BMAX_PATH, "blood%02i.ogg", gEpisodeInfo[nEpisode].levels[nLevel].cdSongId);
+        buffer.Format("blood%02i.ogg", gEpisodeInfo[nEpisode].levels[nLevel].cdSongId);
     else
     {
-        strncpy(buffer, gEpisodeInfo[nEpisode].levels[nLevel].music, BMAX_PATH);
+        buffer = gEpisodeInfo[nEpisode].levels[nLevel].music;
+        DefaultExtension(buffer, ".mid");
     }
-	if (!strchr(buffer, '.')) strcat(buffer, ".mid");
     return !!Mus_Play(gEpisodeInfo[nEpisode].levels[nLevel].labelName, buffer, true);
 }
 
 void levelTryPlayMusicOrNothing(int nEpisode, int nLevel)
 {
-    if (levelTryPlayMusic(nEpisode, nLevel, true))
+    if (!levelTryPlayMusic(nEpisode, nLevel, true))
         Mus_Stop();
 }
 

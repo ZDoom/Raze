@@ -180,7 +180,7 @@ typedef struct {
 
     char overhead_on,last_overhead,showweapons;
     char god,warp_on,cashman,eog,showallmap;
-    char show_help,scrollmode,noclip;
+    char scrollmode,noclip;
     char display_bonus_screen;
     char show_level_text;
 
@@ -346,7 +346,7 @@ static inline int32_t calc_smoothratio_demo(ClockTicks totalclk, ClockTicks otot
 
 static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 {
-    if (!((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && ((g_player[myconnectindex].ps->gm & MODE_MENU) == 0)) ||
+    if (!(((!g_netServer && ud.multimode < 2) && ((g_player[myconnectindex].ps->gm & MODE_MENU) == 0)) ||
           (g_netServer || ud.multimode > 1) ||
           ud.recstat == 2) ||
         ud.pause_on)

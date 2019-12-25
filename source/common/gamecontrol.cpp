@@ -46,6 +46,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "quotemgr.h"
 #include "mapinfo.h"
 #include "s_soundinternal.h"
+#include "i_system.h"
+#include "inputstate.h"
+#include "v_video.h"
+#include "st_start.h"
+#include "s_music.h"
+#include "i_video.h"
+#include "glbackend/glbackend.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
 #endif
@@ -54,6 +61,9 @@ MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDu
 MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
 MapRecord* lastLevel;		// Same here, for the last level.
 MapRecord userMapRecord;	// stand-in for the user map.
+
+FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
+
 
 void C_CON_SetAliases();
 InputState inputState;
@@ -69,8 +79,11 @@ TMap<FName, int32_t> NameToTileIndex; // for assigning names to tiles. The menu 
 										// Todo: Add additional definition file for the other games or textures not in that list so that the menu does not have to rely on indices.
 
 CVAR(Int, cl_defaultconfiguration, 2, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-
-
+CVAR(Bool, queryiwad, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+CVAR(String, defaultiwad, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+CVAR(Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
+//CVAR(Bool, autoloadbrightmaps, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)	// hopefully this is an option for later
+//CVAR(Bool, autoloadlights, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 
 UserConfig userConfig;
 
@@ -189,8 +202,8 @@ void UserConfig::ProcessOptions()
 	nomusic = Args->CheckParm("-nomusic");
 	nosound = Args->CheckParm("-nosfx");
 	if (Args->CheckParm("-nosound")) nomusic = nosound = true;
-	if (Args->CheckParm("-setup")) setupstate = 1;
-	else if (Args->CheckParm("-nosetup")) setupstate = 0;
+	if (Args->CheckParm("-setup")) queryiwad = 1;
+	else if (Args->CheckParm("-nosetup")) queryiwad = 0;
 
 
 	if (Args->CheckParm("-file"))
@@ -220,6 +233,10 @@ void UserConfig::ProcessOptions()
 		AddFilesPre.reset(Args->GatherFiles("-grp"));
 		Args->CollectFiles("-game_dir", dirs, nullptr);
 		AddFiles.reset(Args->GatherFiles("-game_dir"));
+	}
+	if (Args->CheckParm("-showcoords") || Args->CheckParm("-w"))
+	{
+		C_DoCommand("stat coord");
 	}
 
 
@@ -281,50 +298,57 @@ void I_StartupJoysticks();
 void I_ShutdownInput();
 int RunGame();
 
-void ShutdownSystem()
-{
-	Mus_Stop();
-	if (soundEngine) delete soundEngine;
-	I_ShutdownInput();
-}
-
 int GameMain()
 {
-	// Set up the console before anything else so that it can receive text.
-	C_InitConsole(1024, 768, true);
-	FStringf logpath("logfile %sdemolition.log", M_GetDocumentsPath().GetChars());
-	C_DoCommand(logpath);
-	I_StartupJoysticks();
-	mouseInit();
-
-#ifndef NETCODE_DISABLE
-	gHaveNetworking = !enet_initialize();
-	if (!gHaveNetworking)
-		initprintf("An error occurred while initializing ENet.\n");
-#endif
+	set_memerr_handler(G_HandleMemErr);
 
 	int r;
 	try
 	{
 		r = RunGame();
 	}
-	catch (const std::runtime_error & err)
-	{
-		// shut down critical systems before showing a message box.
-		ShutdownSystem();
-		wm_msgbox("Error", "%s", err.what());
-		return 3;
-	}
 	catch (const ExitEvent & exit)
 	{
 		// Just let the rest of the function execute.
 		r = exit.Reason();
 	}
-	ShutdownSystem();
+	catch (const std::exception & err)
+	{
+		// shut down critical systems before showing a message box.
+		I_ShowFatalError(err.what());
+		r = -1;
+	}
+	M_ClearMenus(true);
+	if (gi)
+	{
+		gi->FreeGameData();	// Must be done before taking down any subsystems.
+	}
+	S_StopMusic(true);
+	if (soundEngine) delete soundEngine;
+	soundEngine = nullptr;
+	I_CloseSound();
+	I_ShutdownInput();
 	G_SaveConfig();
+	C_DeinitConsole();
+	V_ClearFonts();
+	vox_deinit();
+	TileFiles.ClearTextureCache();
+	TileFiles.CloseAll();	// do this before shutting down graphics.
+	GLInterface.Deinit();
+	I_ShutdownGraphics();
+	M_DeinitMenus();
+	paletteFreeColorTables();
+	engineUnInit();
+	if (gi)
+	{
+		delete gi;
+		gi = nullptr;
+	}
 #ifndef NETCODE_DISABLE
 	if (gHaveNetworking) enet_deinitialize();
 #endif
+	DeleteStartupScreen();
+	if (Args) delete Args;
 	return r;
 }
 
@@ -363,14 +387,8 @@ void SetDefaultStrings()
 //
 //==========================================================================
 
-int RunGame()
+static TArray<GrpEntry> SetupGame()
 {
-	SetClipshapes();
-
-	userConfig.ProcessOptions();
-
-	G_LoadConfig();
-
 	// Startup dialog must be presented here so that everything can be set up before reading the keybinds.
 
 	auto groups = GrpScan();
@@ -404,11 +422,51 @@ int RunGame()
 			g++;
 		}
 	}
-	if (groupno == -1 || userConfig.setupstate == 1)
-		groupno = ShowStartupWindow(groups);
 
-	if (groupno == -1) return 0;
-	auto &group = groups[groupno];
+
+	if (groupno == -1)
+	{
+		int pick = 0;
+
+		// We got more than one so present the IWAD selection box.
+		if (groups.Size() > 1)
+		{
+			// Locate the user's prefered IWAD, if it was found.
+			if (defaultiwad[0] != '\0')
+			{
+				for (unsigned i = 0; i < groups.Size(); ++i)
+				{
+					FString& basename = groups[i].FileName;
+					if (stricmp(basename, defaultiwad) == 0)
+					{
+						pick = i;
+						break;
+					}
+				}
+			}
+			if (groups.Size() > 1)
+			{
+				TArray<WadStuff> wads;
+				for (auto& found : groups)
+				{
+					WadStuff stuff;
+					stuff.Name = found.FileInfo.name;
+					stuff.Path = ExtractFileBase(found.FileName);
+					wads.Push(stuff);
+				}
+				pick = I_PickIWad(&wads[0], (int)wads.Size(), queryiwad, pick);
+				if (pick >= 0)
+				{
+					// The newly selected IWAD becomes the new default
+					defaultiwad = groups[pick].FileName;
+				}
+				groupno = pick;
+			}
+		}
+	}
+
+	if (groupno == -1) return TArray<GrpEntry>();
+	auto& group = groups[groupno];
 
 	// Now filter out the data we actually need and delete the rest.
 
@@ -433,8 +491,8 @@ int RunGame()
 		if (ugroup.FileInfo.defname.IsNotEmpty()) selectedDef = ugroup.FileInfo.defname;
 
 		// CVAR has priority. This also overwrites the global variable each time. Init here is lazy so this is ok.
-		if (ugroup.FileInfo.rtsname.IsNotEmpty() && **rtsname == 0) RTS_Init(ugroup.FileInfo.rtsname); 
-		
+		if (ugroup.FileInfo.rtsname.IsNotEmpty() && **rtsname == 0) RTS_Init(ugroup.FileInfo.rtsname);
+
 		// For the game filter the last non-empty one wins.
 		if (ugroup.FileInfo.gamefilter.IsNotEmpty()) LumpFilter = ugroup.FileInfo.gamefilter;
 		g_gameType |= ugroup.FileInfo.flags;
@@ -453,8 +511,57 @@ int RunGame()
 	currentGame = LumpFilter;
 	currentGame.Truncate(currentGame.IndexOf("."));
 	CheckFrontend(g_gameType);
+	return usedgroups;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+int RunGame()
+{
+	// Set up the console before anything else so that it can receive text.
+	C_InitConsole(1024, 768, true);
+
+	// +logfile gets checked too late to catch the full startup log in the logfile so do some extra check for it here.
+	FString logfile = Args->TakeValue("+logfile");
+
+	// As long as this engine is still in prerelease mode let's always write a log file.
+	if (logfile.IsEmpty()) logfile.Format("%sdemolition.log", M_GetDocumentsPath().GetChars());
+
+	if (logfile.IsNotEmpty())
+	{
+		execLogfile(logfile);
+	}
+	I_DetectOS();
+	SetClipshapes();
+	userConfig.ProcessOptions();
+	G_LoadConfig();
+
+#ifndef NETCODE_DISABLE
+	gHaveNetworking = !enet_initialize();
+	if (!gHaveNetworking)
+		initprintf("An error occurred while initializing ENet.\n");
+#endif
+
+	auto usedgroups = SetupGame();
+
 
 	InitFileSystem(usedgroups);
+	if (usedgroups.Size() == 0) return 0;
+
+	G_ReadConfig(currentGame);
+
+	V_InitFontColors();
+	GStrings.LoadStrings();
+
+	I_Init();
+	V_InitScreenSize();
+	V_InitScreen();
+	StartScreen = FStartupScreen::CreateInstance(100);
+
 	TArray<FString> addArt;
 	for (auto& grp : usedgroups)
 	{
@@ -469,10 +576,9 @@ int RunGame()
 	}
 	TileFiles.AddArt(addArt);
 
-	CONFIG_InitMouseAndController();
+	inputState.ClearAllInput();
 	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
 	
-	G_ReadConfig(currentGame);
 	if (!GameConfig->IsInitialized())
 	{
 		CONFIG_ReadCombatMacros();
@@ -482,7 +588,6 @@ int RunGame()
 	{
 		playername = userConfig.CommandName;
 	}
-	GStrings.LoadStrings();
 	V_InitFonts();
 	C_CON_SetAliases();
 	sfx_empty = fileSystem.FindFile("demolition/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
@@ -492,8 +597,27 @@ int RunGame()
 	SetDefaultStrings();
 	if (g_gameType & GAMEFLAG_RR) InitRREndMap();	// this needs to be done better later
 	//C_DoCommand("stat sounddebug");
+
+	if (enginePreInit())
+	{
+		I_FatalError("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
+	}
+
+	mouseGrabInput(true);	// the intros require the mouse to be grabbed.
 	return gi->app_main();
 }
+
+void G_HandleMemErr(int32_t lineNum, const char* fileName, const char* funcName)
+{
+	I_FatalError("Out of memory in %s:%d (%s)\n", fileName, lineNum, funcName);
+}
+
+void G_FatalEngineError(void)
+{
+	I_FatalError("Fatal Engine Initialization Error",
+		"There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
+}
+
 
 //==========================================================================
 //
@@ -569,14 +693,6 @@ int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm)
 }
 
 
-void CONFIG_InitMouseAndController()
-{
-	inputState.ClearKeysDown();
-	inputState.keyFlushChars();
-	inputState.keyFlushScans();
-}
-
-
 CCMD(snd_reset)
 {
 	Mus_Stop();
@@ -584,3 +700,48 @@ CCMD(snd_reset)
 	MUS_ResumeSaved();
 }
 
+//==========================================================================
+//
+// S_SetSoundPaused
+//
+// Called with state non-zero when the app is active, zero when it isn't.
+//
+//==========================================================================
+
+void S_SetSoundPaused(int state)
+{
+#if 0
+	if (state)
+	{
+		if (paused == 0)
+		{
+			S_ResumeSound(true);
+			if (GSnd != nullptr)
+			{
+				GSnd->SetInactive(SoundRenderer::INACTIVE_Active);
+			}
+		}
+	}
+	else
+	{
+		if (paused == 0)
+		{
+			S_PauseSound(false, true);
+			if (GSnd != nullptr)
+			{
+				GSnd->SetInactive(gamestate == GS_LEVEL || gamestate == GS_TITLELEVEL ?
+					SoundRenderer::INACTIVE_Complete :
+					SoundRenderer::INACTIVE_Mute);
+			}
+		}
+	}
+	if (!netgame
+#ifdef _DEBUG
+		&& !demoplayback
+#endif
+		)
+	{
+		pauseext = !state;
+	}
+#endif
+}

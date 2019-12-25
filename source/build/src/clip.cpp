@@ -26,7 +26,6 @@ static int16_t clipobjectval[MAXCLIPNUM];
 static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
 
 ////// sector-like clipping for sprites //////
-#ifdef HAVE_CLIPSHAPE_FEATURE
 void engineSetClipMap(mapinfo_t *bak, mapinfo_t *newmap)
 {
     if (bak)
@@ -63,9 +62,7 @@ static uwalltype *loadwall, *loadwallinv;
 static uspritetype *loadsprite;
 
 vec2_t hitscangoal = { (1<<29)-1, (1<<29)-1 };
-#ifdef USE_OPENGL
 int32_t hitallsprites = 0;
-#endif
 
 void engineInitClipMaps()
 {
@@ -96,7 +93,7 @@ int32_t engineLoadClipMaps(void)
 
     int32_t lwcp = 0;
     size_t fi;
-    size_t const g_clipMapFilesNum = g_clipMapFiles.size();
+    size_t const g_clipMapFilesNum = g_clipMapFiles.Size();
 
     int32_t *fisec = NULL;
     int32_t *fispr = NULL;
@@ -129,13 +126,13 @@ int32_t engineLoadClipMaps(void)
             continue;
         // Numsprites will now be set!
 
-        initprintf("Loading clip map: %s\n", g_clipMapFiles[fi]);
+        initprintf("Loading clip map: %s\n", g_clipMapFiles[fi].GetChars());
 
         if (ournumsectors+numsectors>MAXSECTORS ||
             ournumwalls+numwalls>MAXWALLS ||
             ournumsprites+Numsprites>MAXSPRITES)
         {
-            initprintf("clip map: warning: exceeded limits when loading %s, aborting.\n", g_clipMapFiles[fi]);
+            initprintf("clip map: warning: exceeded limits when loading %s, aborting.\n", g_clipMapFiles[fi].GetChars());
             break;
         }
 
@@ -251,7 +248,7 @@ int32_t engineLoadClipMaps(void)
                         if (k>=fisec[fi])
                             break;
                     initprintf("clip map \"%s\": error: tried to chain picnum %d (sprite %d) in sector %d which"
-                        " already belongs to picnum %d.\n", g_clipMapFiles[fi], pn, i-fispr[fi], k-fisec[fi],
+                        " already belongs to picnum %d.\n", g_clipMapFiles[fi].GetChars(), pn, i-fispr[fi], k-fisec[fi],
                         clipinfo[sectoidx[k]].picnum);
                     engineInitClipMaps();
 
@@ -279,7 +276,7 @@ int32_t engineLoadClipMaps(void)
                         if (i>=fispr[fi])
                             break;
                     initprintf("clip map \"%s\": warning: sprite %d pointing neither northward nor southward. %s will be wrong.\n",
-                        g_clipMapFiles[fi], i-fispr[fi], (sprite[i].cstat&48)==32 ? "Scaling and flipping" : "X-flipping");
+                        g_clipMapFiles[fi].GetChars(), i-fispr[fi], (sprite[i].cstat&48)==32 ? "Scaling and flipping" : "X-flipping");
                 }
             }
 
@@ -316,7 +313,7 @@ int32_t engineLoadClipMaps(void)
                                     if (ns>=fisec[fi])
                                         break;
                                 initprintf("clip map \"%s\": error: encountered more than one outer sector (%d and %d)"
-                                    " for sprite %d.\n", g_clipMapFiles[fi], outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
+                                    " for sprite %d.\n", g_clipMapFiles[fi].GetChars(), outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
                                 engineInitClipMaps();
 
                                 Xfree(fisec);
@@ -335,7 +332,7 @@ int32_t engineLoadClipMaps(void)
                                     break;
                             initprintf("clip map \"%s\": error: encountered sector %d belonging to index %d"
                                 " while collecting sectors for sprite %d (index %d).\n",
-                                g_clipMapFiles[fi], ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
+                                g_clipMapFiles[fi].GetChars(), ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
                             engineInitClipMaps();
 
                             Xfree(fisec);
@@ -535,15 +532,6 @@ int clipshape_idx_for_sprite(uspriteptr_t const curspr, int curidx)
 
      return curidx;
 }
-#else
-int32_t clipshape_idx_for_sprite(uspriteptr_t const curspr, int32_t curidx)
-{
-    (void)curspr;
-    UNREFERENCED_PARAMETER(curidx);
-    return -1;
-}
-#endif  // HAVE_CLIPSHAPE_FEATURE
-////// //////
 
 ////////// CLIPMOVE //////////
 

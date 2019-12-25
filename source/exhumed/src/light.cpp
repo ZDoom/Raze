@@ -232,7 +232,7 @@ void BlackOut()
         curpalettefaded[i].g = 0;
         curpalettefaded[i].b = 0;
     }
-    videoUpdatePalette(0, 256);
+    //videoUpdatePalette(0, 256);
     g_lastpalettesum = -1;
 #ifdef USE_OPENGL
     videoTintBlood(0, 0, 0);
@@ -291,7 +291,7 @@ void DoFadeToRed()
         }
     }
 
-    videoUpdatePalette(0, 256);
+    //videoUpdatePalette(0, 256);
     g_lastpalettesum = -1;
 }
 
@@ -338,7 +338,7 @@ void FadeToWhite()
             pPal++;
         }
 
-        videoUpdatePalette(0, 256);
+        //videoUpdatePalette(0, 256);
         g_lastpalettesum = -1;
         WaitTicks(2);
 
@@ -397,7 +397,7 @@ void FadeOut(int bFadeMusic)
             pPal++;
         }
 
-        videoUpdatePalette(0, 256);
+        //videoUpdatePalette(0, 256);
         g_lastpalettesum = -1;
         WaitTicks(2);
 
@@ -470,7 +470,7 @@ int DoFadeIn()
         }
     }
 
-    videoUpdatePalette(0, 256);
+    //videoUpdatePalette(0, 256);
     g_lastpalettesum = -1;
 
     return v2;
@@ -587,7 +587,8 @@ void FixPalette()
     else
 #endif
     {
-        videoUpdatePalette(0, 256);
+        
+        //videoUpdatePalette(0, 256);
         g_lastpalettesum = -1;
     }
 }

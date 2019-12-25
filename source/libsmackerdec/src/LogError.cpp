@@ -21,11 +21,13 @@
 
 namespace SmackerCommon {
 
+#if 0
 static std::string LastError;
 
 void LogError(const std::string &error)
 {
 	LastError = error;
 }
+#endif
 
 } // close namespace SmackerCommon

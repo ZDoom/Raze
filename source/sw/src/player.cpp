@@ -4578,9 +4578,7 @@ PlayerOnLadder(PLAYERp pp)
 #if DEBUG
     if (wall[wal].nextsector < 0)
     {
-        TerminateGame();
-        printf("Take out white wall ladder x = %d, y = %d",wall[wal].x, wall[wal].y);
-        exit(0);
+        I_Error("Take out white wall ladder x = %d, y = %d",wall[wal].x, wall[wal].y);
     }
 #endif
 
@@ -4733,9 +4731,7 @@ GetOverlapSector(int x, int y, short *over, short *under)
 
     if (!found)
     {
-        TerminateGame();
-        printf("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, *over, *under);
-        exit(0);
+        I_Error("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, *over, *under);
     }
 
     PRODUCTION_ASSERT(found != 0);
@@ -4823,9 +4819,7 @@ GetOverlapSector2(int x, int y, short *over, short *under)
 
     if (!found)
     {
-        TerminateGame();
-        printf("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, *over, *under);
-        exit(0);
+        I_Error("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, *over, *under);
     }
 
     PRODUCTION_ASSERT(found != 0);
@@ -8252,7 +8246,6 @@ PlayerSpawnPosition(PLAYERp pp)
         spawn_sprite = headspritestat[STAT_MULTI_START + 0];
         //TerminateGame();
         //printf("Map does not contain a spawn position for Player %d.", pp - Player);
-        //exit(0);
     }
 
     ASSERT(spawn_sprite >= 0);

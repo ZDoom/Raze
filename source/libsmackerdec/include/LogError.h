@@ -20,11 +20,11 @@
 #ifndef _SmackerLogError_h_
 #define _SmackerLogError_h_
 
-#include <string>
+//#include <string>
 
 namespace SmackerCommon {
 
-void LogError(const std::string &error);
+//void LogError(const std::string &error);
 
 } // close namespace SmackerCommon
 

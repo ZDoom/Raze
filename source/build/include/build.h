@@ -23,7 +23,6 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 
 #include "collections.h"
 #include "compat.h"
-#include "glbuild.h"
 #include "palette.h"
 #include "pragmas.h"
 
@@ -460,7 +459,7 @@ EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 EXTERN int32_t wx1, wy1, wx2, wy2;
 EXTERN int32_t xdim, ydim, numpages, upscalefactor;
 EXTERN int32_t yxaspect, viewingrange;
-EXTERN intptr_t *ylookup;
+EXTERN TArray<intptr_t> ylookup;
 
 EXTERN int32_t rotatesprite_y_offset;
 EXTERN int32_t rotatesprite_yxaspect;
@@ -528,7 +527,7 @@ EXTERN int32_t g_visibility, parallaxvisibility;
 EXTERN uint8_t numalphatabs;
 
 EXTERN vec2_t windowxy1, windowxy2;
-EXTERN int16_t *startumost, *startdmost;
+EXTERN TArray<int16_t> startumost, startdmost;
 
 // The maximum tile offset ever used in any tiled parallaxed multi-sky.
 #define PSKYOFF_MAX 8
@@ -618,6 +617,7 @@ EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char editorcolors[256];
+EXTERN char editorcolorsdef[256];
 
 EXTERN char editwall[(MAXWALLS+7)>>3];
 
@@ -802,6 +802,8 @@ int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, in
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
+void vox_deinit();
+
 void   tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   squarerotatetile(int16_t tilenume);
 
@@ -835,8 +837,6 @@ void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnu
                      int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 void   renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col);
 void   drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p);
-void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
-                   const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
 static FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
@@ -1059,6 +1059,7 @@ void polymostSet2dView(void);   // sets up GL for 2D drawing
 void polymost_glreset(void);
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 void PrecacheHardwareTextures(int nTile);
+void Polymost_Startup();
 
 typedef uint16_t polytintflags_t;
 
@@ -1075,7 +1076,6 @@ enum {
     TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
 };
 
-extern int32_t glmultisample, glnvmultisamplehint;
 extern int32_t glprojectionhacks;
 extern int32_t gltexmaxsize;
 void gltexapplyprops (void);
@@ -1087,7 +1087,6 @@ EXTERN_CVAR(Bool, hw_animsmoothing)
 EXTERN_CVAR(Bool, hw_hightile)
 EXTERN_CVAR(Bool, hw_models)
 EXTERN_CVAR(Float, hw_shadescale)
-EXTERN_CVAR(Int, vid_vsync)
 EXTERN_CVAR(Int, hw_anisotropy)
 EXTERN_CVAR(Int, hw_texfilter)
 EXTERN_CVAR(Bool, hw_useindexedcolortextures)
@@ -1112,9 +1111,7 @@ int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-extern GrowArray<char *> g_clipMapFiles;
-#endif
+extern TArray<FString> g_clipMapFiles;
 
 EXTERN int32_t nextvoxid;
 EXTERN intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild
