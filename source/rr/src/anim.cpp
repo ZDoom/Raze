@@ -567,13 +567,11 @@ int32_t Anim_Play(const char *fn)
 
         ++i;
     } while (i < numframes);
-    GLInterface.EnableNonTransparent255(false);
 
 end_anim_restore_gl:
-#ifdef USE_OPENGL
+    GLInterface.EnableNonTransparent255(false);
     hw_texfilter = ogltexfiltermode;
     gltexapplyprops();
-#endif
 end_anim:
     inputState.ClearAllInput();
 	anim->animbuf = nullptr;
