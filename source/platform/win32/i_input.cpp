@@ -412,7 +412,6 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		return 0;
 
-#if 0 // NOTE: Reactivate!!!
 	case WM_KILLFOCUS:
 		I_CheckNativeMouse (true, false);	// Make sure mouse gets released right away
 		break;
@@ -420,7 +419,6 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SETFOCUS:
 		I_CheckNativeMouse (false, false);	// This cannot call the event handler. Doing it from here is unsafe.
 		break;
-#endif
 
 	case WM_SETCURSOR:
 		if (!CursorState)
