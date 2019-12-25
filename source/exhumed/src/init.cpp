@@ -285,9 +285,9 @@ void InstallEngine()
     {
         G_FatalEngineError();
     }
-    V_Init2();
 
     LoadPaletteLookups();
+    V_Init2();
 
     enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 }
