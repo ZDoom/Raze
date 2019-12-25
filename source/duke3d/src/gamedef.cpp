@@ -5257,7 +5257,7 @@ repeatcase:
 			if (tw == CON_DEFINEQUOTE)
 				quoteMgr.InitializeQuote(k, buffer.Data(), true);
 			else
-				quoteMgr.InitializeExQuote(k, buffer.Data(), true);
+				quoteMgr.InitializeExQuote(g_numXStrings, buffer.Data(), true);
 
 
             if (tw != CON_DEFINEQUOTE)
