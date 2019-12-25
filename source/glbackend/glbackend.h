@@ -83,7 +83,7 @@ public:
 	void BindPalette(int index);
 	void BindPalswap(int index);
 	int ActivePalswap() const { return lastsindex; }
-	int LookupPalette(int palette, int palswap, bool brightmap);
+	int LookupPalette(int palette, int palswap, bool brightmap, bool nontransparent255 = false);
 	const PalEntry *GetPaletteData(int palid) const { return palettes[palid].colors; }
 	unsigned FindPalette(const uint8_t* paldata);
 
@@ -194,6 +194,7 @@ class GLInstance
 	int TextureType;
 	int MatrixChange = 0;
 	bool istrans = false;
+	bool g_nontransparent255 = false;	// Ugh... This is for movie playback and needs to be maintained as global state.
 
 	IVertexBuffer* LastVertexBuffer = nullptr;
 	int LastVB_Offset[2] = {};
@@ -240,6 +241,11 @@ public:
 	void EnableBlend(bool on);
 	void EnableDepthTest(bool on);
 	void EnableMultisampling(bool on);
+	void EnableNonTransparent255(bool on)
+	{
+		g_nontransparent255 = on;
+	}
+
 	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2)
 	{
 		renderState.VertexBuffer = vb;

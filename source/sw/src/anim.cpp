@@ -42,6 +42,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "animlib.h"
 #include "anim.h"
+#include "../glbackend/glbackend.h"
 
 
 #include "common_game.h"
@@ -273,6 +274,7 @@ playanm(short anim_num)
     //ototalclock = totalclock + 120*2;
     ototalclock = (int32_t) totalclock;
 
+    GLInterface.EnableNonTransparent255(true);
     for (i = 1; i < numframes; i++)
     {
         while (totalclock < ototalclock)
@@ -324,6 +326,7 @@ playanm(short anim_num)
 
 ENDOFANIMLOOP:
 
+    GLInterface.EnableNonTransparent255(false);
     videoClearViewableArea(0L);
     videoNextPage();
 

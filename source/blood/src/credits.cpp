@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screen.h"
 #include "sound.h"
 #include "view.h"
+#include "../glbackend/glbackend.h"
 #include "sound/s_soundinternal.h"
 
 BEGIN_BLD_NS
@@ -236,6 +237,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
     Smacker_GetPalette(hSMK, palette);
     paletteSetColorTable(kSMKPal, palette, true);
+    GLInterface.EnableNonTransparent255(true);
     videoSetPalette(0, kSMKPal, 8+2);
 
     int nScale;
@@ -290,6 +292,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     Smacker_Close(hSMK);
     inputState.ClearAllInput();
     soundEngine->StopAllChannels();
+    GLInterface.EnableNonTransparent255(false);
     videoSetPalette(0, 0, 8+2);
 	tileDelete(kSMKTile);
     Bfree(pzSMK_);

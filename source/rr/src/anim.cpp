@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "animlib.h"
 #include "compat.h"
 #include "cmdlib.h"
+#include "../glbackend/glbackend.h"
 
 
 #include "anim.h"
@@ -39,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_RR_NS
 
 // animsound_t.sound
-EDUKE32_STATIC_ASSERT(INT16_MAX >= MAXSOUNDS);
 
 TArray<dukeanim_t> g_Animations;
 dukeanim_t * g_animPtr;
@@ -338,6 +338,7 @@ int32_t Anim_Play(const char *fn)
 
         //        OSD_Printf("msecs per frame: %d\n", msecsperframe);
 
+        GLInterface.EnableNonTransparent255(true);
         do
         {
             nextframetime += msecsperframe;
@@ -425,6 +426,7 @@ int32_t Anim_Play(const char *fn)
                 }
             } while (timerGetTicks() < nextframetime);
         } while (running);
+        GLInterface.EnableNonTransparent255(false);
 
         animvpx_print_stats(&codec);
 
@@ -482,6 +484,7 @@ int32_t Anim_Play(const char *fn)
     paletteSetColorTable(ANIMPAL, ANIM_GetPalette(), true);
 
     // setpalette(0L,256L,tempbuf);
+    GLInterface.EnableNonTransparent255(true);
     P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 8 + 2);
 
     ototalclock = totalclock;
@@ -564,6 +567,7 @@ int32_t Anim_Play(const char *fn)
 
         ++i;
     } while (i < numframes);
+    GLInterface.EnableNonTransparent255(false);
 
 end_anim_restore_gl:
 #ifdef USE_OPENGL

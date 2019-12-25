@@ -285,20 +285,21 @@ void PaletteManager::BindPalswap(int index)
 }
 
 
-int PaletteManager::LookupPalette(int palette, int palswap, bool brightmap)
+int PaletteManager::LookupPalette(int palette, int palswap, bool brightmap, bool nontransparent255)
 {
 	int realpal = palettemap[palette];
 	int realswap = palswapmap[palswap];
-	int combined = (brightmap? 0x1000000 : 0) + realpal * 0x10000 + realswap;
+	int combined = (nontransparent255? 0x2000000 : 0) + (brightmap? 0x1000000 : 0) + realpal * 0x10000 + realswap;
 	int* combinedindex = swappedpalmap.CheckKey(combined);
 	if (combinedindex) return *combinedindex;
 	
 	PaletteData* paldata = &palettes[realpal];
 	PalswapData* swapdata = &palswaps[realswap];
 	PalEntry swappedpalette[256];
+	int end = nontransparent255 ? 256 : 255;
 	if (!brightmap)
 	{
-		for (int i = 0; i < 255; i++)
+		for (int i = 0; i < end; i++)
 		{
 			int swapi = swapdata->lookup[i];
 			swappedpalette[i] = paldata->colors[swapi];
@@ -330,7 +331,7 @@ int PaletteManager::LookupPalette(int palette, int palswap, bool brightmap)
 			return -1;
 		}
 	}
-	swappedpalette[255] = 0;
+	if (!nontransparent255) swappedpalette[255] = 0;
 	int palid = FindPalette((uint8_t*)swappedpalette);
 	swappedpalmap.Insert(combined, palid);
 	return palid;
