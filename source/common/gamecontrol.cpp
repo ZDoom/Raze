@@ -318,6 +318,7 @@ int GameMain()
 	G_SaveConfig();
 	C_DeinitConsole();
 	V_ClearFonts();
+	vox_deinit();
 	TileFiles.ClearTextureCache();
 	TileFiles.CloseAll();	// do this before shutting down graphics.
 	GLInterface.Deinit();

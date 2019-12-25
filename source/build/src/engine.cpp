@@ -10104,6 +10104,15 @@ void vox_undefine(int32_t const tile)
     // TODO: nextvoxid
 }
 
+void vox_deinit()
+{
+    for (auto &vox : voxmodels)
+    {
+        voxfree(vox);
+        vox = nullptr;
+    }
+}
+
 //
 // inside
 //

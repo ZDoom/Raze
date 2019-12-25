@@ -842,6 +842,11 @@ void voxfree(voxmodel_t *m)
 
     DO_FREE_AND_NULL(m->mytex);
     DO_FREE_AND_NULL(m->quad);
+    for (auto& tex : m->texid)
+    {
+        if (tex) delete tex;
+        tex = nullptr;
+    }
 
     Xfree(m);
 }
