@@ -27,11 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "a.h"
 #include "baselayer.h"
 #include "build.h"
-#include "cache1d.h"
+
 #include "compat.h"
 
-#include "fx_man.h"
-#include "keyboard.h"
 #include "pragmas.h"
 
 #include "polymost.h"
@@ -115,7 +113,6 @@ END_RR_NS
 #include "actors.h"
 #include "common_game.h"
 #include "config.h"
-#include "control.h"
 #include "gamecontrol.h"
 #include "game.h"
 #include "gamedef.h"
@@ -125,7 +122,6 @@ END_RR_NS
 #include "global.h"
 #include "inv.h"
 #include "macros.h"
-#include "music.h"
 #include "namesdyn.h"
 #include "net.h"
 #include "player.h"

@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string.h>
 #include <ctype.h>
 #include "compat.h"
-#include "cache1d.h"
+
 #include "common_game.h"
 
 #include "misc.h"

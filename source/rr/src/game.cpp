@@ -1,4 +1,4 @@
-//-------------------------------------------------------------------------
+﻿//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -159,6 +159,12 @@ enum gametokens
     T_FORCENOFILTER,
     T_TEXTUREFILTER,
 };
+
+static void gameTimerHandler(void)
+{
+    S_Update();
+    G_HandleSpecialKeys();
+}
 
 void G_HandleSpecialKeys(void)
 {
@@ -5940,16 +5946,15 @@ void G_InitTimer(int32_t ticspersec)
 static int32_t g_RTSPlaying;
 
 // Returns: started playing?
-extern int G_StartRTS(int lumpNum, int localPlayer)
+int G_StartRTS(int lumpNum, int localPlayer)
 {
     if (!adult_lockout && SoundEnabled() &&
         RTS_IsInitialized() && g_RTSPlaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
     {
-        char *const pData = (char *)RTS_GetSound(lumpNum - 1);
-
-        if (pData != NULL)
+        auto sid = RTS_GetSoundID(lumpNum - 1);
+        if (sid != -1)
         {
-            FX_Play3D(pData, RTS_SoundLength(lumpNum - 1), FX_ONESHOT, 0, 0, 1, 255, 1.f, -lumpNum);
+            S_PlaySound(sid, CHAN_AUTO, CHANF_UI);
             g_RTSPlaying = 7;
             return 1;
         }
@@ -6038,7 +6043,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(1))
 				{
-					S_PlaySound(RR ? 341 : THUD);
+					S_PlaySound(RR ? 341 : THUD, CHAN_AUTO, CHANF_UI);
 				}
             }
             else
@@ -6057,7 +6062,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(-1))
 				{
-					S_PlaySound(RR ? 341 : THUD);
+					S_PlaySound(RR ? 341 : THUD, CHAN_AUTO, CHANF_UI);
 				}
             }
             else
@@ -6301,43 +6306,6 @@ void G_HandleLocalKeys(void)
         g_restorePalette = 1;
         G_UpdateScreenArea();
     }
-}
-
-static int32_t S_DefineAudioIfSupported(char **fn, const char *name)
-{
-#if !defined HAVE_FLAC || !defined HAVE_VORBIS
-    const char *extension = Bstrrchr(name, '.');
-# if !defined HAVE_FLAC
-    if (extension && !Bstrcasecmp(extension, ".flac"))
-        return -2;
-# endif
-# if !defined HAVE_VORBIS
-    if (extension && !Bstrcasecmp(extension, ".ogg"))
-        return -2;
-# endif
-#endif
-    realloc_copy(fn, name);
-    return 0;
-}
-
-static int32_t S_DefineSound(int sndidx, const char *name, int minpitch, int maxpitch, int priority, int type, int distance, float volume)
-{
-    if ((unsigned)sndidx >= MAXSOUNDS || S_DefineAudioIfSupported(&g_sounds[sndidx].filename, name))
-        return -1;
-
-    auto &snd = g_sounds[sndidx];
-
-    snd.ps     = clamp(minpitch, INT16_MIN, INT16_MAX);
-    snd.pe     = clamp(maxpitch, INT16_MIN, INT16_MAX);
-    snd.pr     = priority & 255;
-    snd.m      = type & ~SF_ONEINST_INTERNAL;
-    snd.vo     = clamp(distance, INT16_MIN, INT16_MAX);
-    snd.volume = volume;
-
-    if (snd.m & SF_LOOP)
-        snd.m |= SF_ONEINST_INTERNAL;
-
-    return 0;
 }
 
 // Returns:
@@ -6773,7 +6741,7 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     if (pScript)
         parsedefinitions_game(pScript, firstPass);
 
-    for (auto& m : *userConfig.AddDefs)
+    if (userConfig.AddDefs) for (auto& m : *userConfig.AddDefs)
         parsedefinitions_game_include(m, NULL, "null", firstPass);
 
     if (pScript)
@@ -6808,10 +6776,6 @@ static void G_Cleanup(void)
         Bfree(g_player[i].inputBits);
     }
 
-    for (i=MAXSOUNDS-1; i>=0; i--)
-    {
-        Bfree(g_sounds[i].filename);
-    }
     if (label != (char *)&sprite[0]) Bfree(label);
     if (labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
     Bfree(apScript);
@@ -6835,8 +6799,6 @@ static void G_Cleanup(void)
 
 void G_Shutdown(void)
 {
-	S_SoundShutdown();
-    CONTROL_Shutdown();
     G_SetFog(0);
     engineUnInit();
     G_Cleanup();
@@ -7076,6 +7038,7 @@ static void G_Startup(void)
     set_memerr_handler(&G_HandleMemErr);
 
     timerInit(TICRATE);
+    timerSetCallback(gameTimerHandler);
 
     G_CompileScripts();
 
@@ -7298,6 +7261,8 @@ int GameInterface::app_main()
     {
         I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
     }
+    hud_size.Callback();
+    S_InitSound();
 
     
     g_logFlushWindow = 0;
@@ -7479,7 +7444,6 @@ int GameInterface::app_main()
         }
 
         videoSetPalette(0, g_player[myconnectindex].ps->palette, 0);
-        S_SoundStartup();
     }
 
     // check if the minifont will support lowercase letters (3136-3161)
@@ -7605,60 +7569,66 @@ MAIN_LOOP_RESTART:
         else
 #endif
         {
-            MUSIC_Update();
             G_HandleLocalKeys();
         }
 
         OSD_DispatchQueued();
 
+        static bool frameJustDrawn;
         char gameUpdate = false;
         double const gameUpdateStartTime = timerGetHiTicks();
         if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
         {
-            //if (g_networkMode != NET_DEDICATED_SERVER)
-            //{
-            //    if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
-            //        P_GetInputMotorcycle(myconnectindex);
-            //    else if (RRRA && g_player[myconnectindex].ps->on_boat)
-            //        P_GetInputBoat(myconnectindex);
-            //    else
-            //        P_GetInput(myconnectindex);
-            //}
-
-            //Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
-
-            S_Update();
-
             do
             {
-                if (ready2send == 0) break;
-                Net_GetInput();
+	            //if (g_networkMode != NET_DEDICATED_SERVER)
+	            //{
+	            //    if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+	            //        P_GetInputMotorcycle(myconnectindex);
+	            //    else if (RRRA && g_player[myconnectindex].ps->on_boat)
+	            //        P_GetInputBoat(myconnectindex);
+	            //    else
+	            //        P_GetInput(myconnectindex);
+	            //}
 
-                ototalclock += TICSPERFRAME;
+	            //Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
 
-                int const moveClock = (int) totalclock;
+	            if (!frameJustDrawn)
+	                break;
 
-                if (((ud.show_help == 0 && !GUICapture && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
-                        (g_player[myconnectindex].ps->gm&MODE_GAME))
-                {
-                    G_MoveLoop();
-                }
+	            frameJustDrawn = false;
 
-                if (totalclock - moveClock >= TICSPERFRAME)
-                {
-                    // computing a tic takes longer than a tic, so we're slowing
-                    // the game down. rather than tightly spinning here, go draw
-                    // a frame since we're fucked anyway
-                    break;
-                }
-            }
-            while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
+	            do
+	            {
+	                if (ready2send == 0) break;
+	                Net_GetInput();
 
-            gameUpdate = true;
-            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
-            if (g_gameUpdateAvgTime < 0.f)
-                g_gameUpdateAvgTime = g_gameUpdateTime;
-            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
+	                ototalclock += TICSPERFRAME;
+
+	                int const moveClock = (int) totalclock;
+
+	                if (((ud.show_help == 0 && !GUICapture && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
+	                        (g_player[myconnectindex].ps->gm&MODE_GAME))
+	                {
+	                    G_MoveLoop();
+	                }
+
+	                if (totalclock - moveClock >= TICSPERFRAME)
+	                {
+	                    // computing a tic takes longer than a tic, so we're slowing
+	                    // the game down. rather than tightly spinning here, go draw
+	                    // a frame since we're fucked anyway
+	                    break;
+	                }
+	            }
+	            while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
+
+	            gameUpdate = true;
+	            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
+	            if (g_gameUpdateAvgTime < 0.f)
+	                g_gameUpdateAvgTime = g_gameUpdateTime;
+	            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
+            } while(0);
         }
 
         G_DoCheats();
@@ -7690,6 +7660,8 @@ MAIN_LOOP_RESTART:
             {
                 g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
             }
+
+            frameJustDrawn = true;
         }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)

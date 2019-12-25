@@ -339,9 +339,9 @@ void UseInventoryMedkit(PLAYERp pp)
     if (pp == Player+myconnectindex)
     {
         if (amt >= 30)
-            PlayerSound(DIGI_GETMEDKIT,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_GETMEDKIT, v3df_follow|v3df_dontpan,pp);
         else
-            PlayerSound(DIGI_AHH,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_AHH, v3df_follow|v3df_dontpan,pp);
     }
 }
 
@@ -431,13 +431,13 @@ void UseInventoryRepairKit(PLAYERp pp)
     SPRITEp sp = pp->SpriteP;
     short inv = INVENTORY_REPAIR_KIT;
 
-    //PlaySound(DIGI_TOOLBOX, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    //PlaySound(DIGI_TOOLBOX, pp, v3df_none);
     if (pp == Player + myconnectindex)
     {
         if (STD_RANDOM_RANGE(1000) > 500)
-            PlayerSound(DIGI_NOREPAIRMAN,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_NOREPAIRMAN, v3df_follow|v3df_dontpan,pp);
         else
-            PlayerSound(DIGI_NOREPAIRMAN2,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_NOREPAIRMAN2, v3df_follow|v3df_dontpan,pp);
     }
 
     pp->InventoryPercent[inv] = 0;
@@ -475,10 +475,10 @@ void UseInventoryCloak(PLAYERp pp)
     SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
     sp->shade = 100;
 
-    PlaySound(DIGI_GASPOP, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_GASPOP, pp, v3df_none);
     //if(RANDOM_RANGE(1000) > 950)
     if (pp == Player+myconnectindex)
-        PlayerSound(DIGI_IAMSHADOW,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+        PlayerSound(DIGI_IAMSHADOW, v3df_follow|v3df_dontpan,pp);
 }
 
 void StopInventoryCloak(PLAYERp pp, short InventoryNum)
@@ -500,7 +500,7 @@ void StopInventoryCloak(PLAYERp pp, short InventoryNum)
     RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
     sp->shade = 0;
 
-    PlaySound(DIGI_GASPOP, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_GASPOP, pp, v3df_none);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -540,7 +540,7 @@ void StopInventoryEnvironSuit(PLAYERp pp, short InventoryNum)
     // on/off
     PlayerUpdateInventory(pp, InventoryNum);
 
-    PlaySound(DIGI_SWCLOAKUNCLOAK, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_SWCLOAKUNCLOAK, pp, v3df_none);
 }
 #endif
 
@@ -600,7 +600,7 @@ UseInventoryNightVision(PLAYERp pp)
     PlayerUpdateInventory(pp, pp->InventoryNum);
 
     DoPlayerNightVisionPalette(pp);
-    PlaySound(DIGI_NIGHTON, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_follow);
+    PlaySound(DIGI_NIGHTON, pp, v3df_dontpan|v3df_follow);
 }
 
 void
@@ -624,7 +624,7 @@ StopInventoryNightVision(PLAYERp pp, short InventoryNum)
 
     DoPlayerNightVisionPalette(pp);
     DoPlayerDivePalette(pp);
-    PlaySound(DIGI_NIGHTOFF, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_follow);
+    PlaySound(DIGI_NIGHTOFF, pp, v3df_dontpan|v3df_follow);
 }
 
 //////////////////////////////////////////////////////////////////////

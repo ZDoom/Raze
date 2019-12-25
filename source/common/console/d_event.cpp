@@ -105,8 +105,8 @@ void D_ProcessEvents (void)
 		ev = &events[eventtail];
 		if (ev->type == EV_None)
 			continue;
-		if (ev->type == EV_DeviceChange)
-			(void)0;//UpdateJoystickMenu(I_UpdateDeviceList());
+		/*if (ev->type == EV_DeviceChange)
+			UpdateJoystickMenu(I_UpdateDeviceList());*/
 		if (C_Responder (ev))
 			continue;				// console ate the event
 		if (M_Responder (ev))

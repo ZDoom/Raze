@@ -10,7 +10,7 @@
 #include "engine_priv.h"
 #include "baselayer.h"
 #include "scriptfile.h"
-#include "cache1d.h"
+
 #include "common.h"
 #include "mdsprite.h"  // md3model_t
 #include "colmatch.h"
@@ -121,7 +121,8 @@ enum scripttoken_t
     T_DST_COLOR, T_ONE_MINUS_DST_COLOR,
     T_SHADERED, T_SHADEGREEN, T_SHADEBLUE,
     T_SHADEFACTOR,
-    T_IFCRC,
+    T_IFCRC,T_IFMATCH,T_CRC32,
+    T_SIZE,
     T_NEWGAMECHOICES,
     T_RFFDEFINEID,
     T_EXTRA,
@@ -129,7 +130,6 @@ enum scripttoken_t
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
-static int32_t nextvoxid = 0;
 static char *faketilebuffer = NULL;
 static int32_t faketilebuffersiz = 0;
 
@@ -649,8 +649,10 @@ static int32_t defsparser(scriptfile *script)
             int32_t havexoffset = 0, haveyoffset = 0, haveextra = 0;
             int32_t xoffset = 0, yoffset = 0;
             int32_t istexture = 0;
-            int32_t tilecrc = 0;
-            uint8_t have_ifcrc = 0;
+            int32_t tile_crc32 = 0;
+            vec2_t  tile_size{};
+            uint8_t have_crc32 = 0;
+            uint8_t have_size = 0;
             int32_t extra = 0;
 
             static const tokenlist tilefromtexturetokens[] =
@@ -666,6 +668,7 @@ static int32_t defsparser(scriptfile *script)
                 { "nofullbright",    T_NOFULLBRIGHT },
                 { "texture",         T_TEXTURE },
                 { "ifcrc",           T_IFCRC },
+                { "ifmatch",         T_IFMATCH },
                 { "extra",           T_EXTRA },
             };
 
@@ -694,9 +697,40 @@ static int32_t defsparser(scriptfile *script)
                     yoffset = clamp(yoffset, -128, 127);
                     break;
                 case T_IFCRC:
-                    scriptfile_getsymbol(script, &tilecrc);
-                    have_ifcrc = 1;
+                    scriptfile_getsymbol(script, &tile_crc32);
+                    have_crc32 = 1;
                     break;
+                case T_IFMATCH:
+                {
+                    char *ifmatchend;
+
+                    static const tokenlist ifmatchtokens[] =
+                    {
+                        { "crc32",           T_CRC32 },
+                        { "size",            T_SIZE },
+                    };
+
+                    if (scriptfile_getbraces(script,&ifmatchend)) break;
+                    while (script->textptr < ifmatchend)
+                    {
+                        int32_t token = getatoken(script,ifmatchtokens,ARRAY_SIZE(ifmatchtokens));
+                        switch (token)
+                        {
+                        case T_CRC32:
+                            scriptfile_getsymbol(script, &tile_crc32);
+                            have_crc32 = 1;
+                            break;
+                        case T_SIZE:
+                            scriptfile_getsymbol(script, &tile_size.x);
+                            scriptfile_getsymbol(script, &tile_size.y);
+                            have_size = 1;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                    break;
+                }
                 case T_TEXHITSCAN:
                     flags |= PICANM_TEXHITSCAN_BIT;
                     break;
@@ -722,12 +756,22 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (have_ifcrc)
+            if (have_crc32)
             {
-                int32_t origcrc = tileCRC(tile);
-                if (origcrc != tilecrc)
+                int32_t const orig_crc32 = tileCRC(tile);
+                if (orig_crc32 != tile_crc32)
                 {
-                    //initprintf("CRC of tile %d doesn't match! CRC: %d, Expected: %d\n", tile, origcrc, tilecrc);
+                    // initprintf("CRC32 of tile %d doesn't match! CRC32: %d, Expected: %d\n", tile, orig_crc32, tile_crc32);
+                    break;
+                }
+            }
+
+            if (have_size)
+            {
+                vec2_16_t const orig_size = tilesiz[tile];
+                if (orig_size.x != tile_size.x && orig_size.y != tile_size.y)
+                {
+                    // initprintf("Size of tile %d doesn't match! Size: (%d, %d), Expected: (%d, %d)\n", tile, orig_size.x, orig_size.y, tile_size.x, tile_size.y);
                     break;
                 }
             }
@@ -3409,7 +3453,7 @@ int32_t loaddefinitionsfile(const char *fn)
         defsparser(script);
     }
 
-    for (auto& m : *userConfig.AddDefs)
+    if (userConfig.AddDefs) for (auto& m : *userConfig.AddDefs)
         defsparser_include(m, NULL, NULL);
 
     g_logFlushWindow = f;

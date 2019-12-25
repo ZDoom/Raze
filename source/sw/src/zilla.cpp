@@ -35,7 +35,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "quake.h"
 #include "actor.h"
 #include "track.h"
-#include "fx_man.h"
 #include "gamecontrol.h"
 #include "mapinfo.h"
 
@@ -719,23 +718,22 @@ int DoZillaMove(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     short choose;
-    static int handle;
 
     //if (TEST(u->Flags,SPR_SLIDING))
     //DoActorSlide(SpriteNum);
 
     // Random Zilla taunts
-    if (!FX_SoundValidAndActive(handle))
+    if (!SoundValidAndActive(sp, CHAN_AnimeMad))
     {
         choose = STD_RANDOM_RANGE(1000);
         if (choose > 990)
-            handle = PlaySound(DIGI_Z16004,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_Z16004, sp, v3df_none, CHAN_AnimeMad);
         else if (choose > 985)
-            handle = PlaySound(DIGI_Z16004,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_Z16004, sp, v3df_none, CHAN_AnimeMad);
         else if (choose > 980)
-            handle = PlaySound(DIGI_Z16004,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_Z16004, sp, v3df_none, CHAN_AnimeMad);
         else if (choose > 975)
-            handle = PlaySound(DIGI_Z16004,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_Z16004, sp, v3df_none, CHAN_AnimeMad);
     }
 
 
@@ -758,7 +756,7 @@ int DoZillaStomp(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
 
-    PlaySound(DIGI_ZILLASTOMP,&sp->x,&sp->y,&sp->z,v3df_follow);
+    PlaySound(DIGI_ZILLASTOMP, sp, v3df_follow);
 
     return 0;
 }

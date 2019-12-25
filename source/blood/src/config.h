@@ -24,9 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef config_public_h_
 #define config_public_h_
 
-#include "keyboard.h"
-#include "control.h"
-#include "_control.h"
 #include "hash.h"
 #include "gamecvars.h"
 #include "gamecontrol.h"
@@ -37,7 +34,6 @@ BEGIN_BLD_NS
 
 extern int32_t gTurnSpeed;
 extern int32_t gDetail;
-extern int32_t gAutoRun;
 extern int32_t gFollowMap;
 extern int32_t gOverlayMap;
 extern int32_t gRotateMap;

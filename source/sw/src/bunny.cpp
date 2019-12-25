@@ -997,8 +997,8 @@ DoBunnyQuickJump(short SpriteNum)
         {
             if (u->spal == PALETTE_PLAYER8 && tu->spal == PALETTE_PLAYER8)
             {
-                PlaySound(DIGI_BUNNYATTACK, &sp->x, &sp->y, &sp->z, v3df_follow);
-                PlaySound(DIGI_BUNNYDIE2, &tsp->x, &tsp->y, &tsp->z, v3df_follow);
+                PlaySound(DIGI_BUNNYATTACK, sp, v3df_follow);
+                PlaySound(DIGI_BUNNYDIE2, tsp, v3df_follow);
                 tu->Health = 0;
 
                 // Blood fountains
@@ -1060,7 +1060,7 @@ DoBunnyQuickJump(short SpriteNum)
                         {
                             choose_snd = STD_RANDOM_RANGE(2<<8)>>8;
                             if (FAFcansee(sp->x,sp->y,SPRITEp_TOS(sp),sp->sectnum,pp->posx, pp->posy, pp->posz, pp->cursectnum) && FACING(sp, u->tgt_sp))
-                                PlayerSound(fagsnds[choose_snd],&pp->posx,&pp->posy,&pp->posz,v3df_doppler|v3df_follow|v3df_dontpan,pp);
+                                PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
                 }
@@ -1076,7 +1076,7 @@ DoBunnyQuickJump(short SpriteNum)
                         {
                             choose_snd = STD_RANDOM_RANGE(3<<8)>>8;
                             if (FAFcansee(sp->x,sp->y,SPRITEp_TOS(sp),sp->sectnum,pp->posx, pp->posy, pp->posz, pp->cursectnum) && FACING(sp, u->tgt_sp))
-                                PlayerSound(straightsnds[choose_snd],&pp->posx,&pp->posy,&pp->posz,v3df_doppler|v3df_follow|v3df_dontpan,pp);
+                                PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
                 }
@@ -1171,7 +1171,7 @@ int DoBunnyStandKill(short SpriteNum)
 
     // Growl like the bad ass bunny you are!
     if (RANDOM_RANGE(1000) > 800)
-        PlaySound(DIGI_BUNNYATTACK,&sp->x,&sp->y,&sp->z,v3df_none);
+        PlaySound(DIGI_BUNNYATTACK, sp, v3df_none);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         NewStateGroup(SpriteNum, sg_BunnyRun);
@@ -1488,7 +1488,7 @@ DoBunnyScrew(short SpriteNum)
     if (RANDOM_RANGE(1000) > 990) // Bunny sex sounds
     {
         if (!adult_lockout && !Global_PLock)
-            PlaySound(DIGI_BUNNYATTACK, &sp->x, &sp->y, &sp->z, v3df_follow);
+            PlaySound(DIGI_BUNNYATTACK, sp, v3df_follow);
     }
 
     u->WaitTics -= ACTORMOVETICS;
@@ -1538,7 +1538,7 @@ DoBunnyGrowUp(short SpriteNum)
         {
             if (Bunny_Count < 20)
             {
-                PlaySound(DIGI_BUNNYDIE2, &sp->x, &sp->y, &sp->z, v3df_follow);
+                PlaySound(DIGI_BUNNYDIE2, sp, v3df_follow);
                 BunnyHatch(SpriteNum); // Baby time
             }
             u->ShellNum = 0; // Not pregnent anymore

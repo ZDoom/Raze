@@ -104,10 +104,7 @@ if( WIN32 )
 		libSDL2main
 		libSDL2
 
-		# this local library crap needs to go away. The Ogg/Vorbis libraries are easy to replace with libsndfile but there doesn't seem to be anything to get a working libvpx that doesn't force linking with MinGW dependencies.
-		libogg
-		libvorbis
-		libvorbisfile
+		# this local library crap needs to go away. Sadly there doesn't seem to be anything to get a working libvpx that doesn't force linking with MinGW dependencies.
 		libvpx
 		libcompat-to-msvc
 		
@@ -476,7 +473,6 @@ endif()
 
 # Start defining source files for Demolition
 set( PLAT_WIN32_SOURCES
-	audiolib/src/driver_directsound.cpp
 	glad/src/glad_wgl.c
 	platform/win32/winbits.cpp
 	platform/win32/i_specialpaths.cpp
@@ -489,8 +485,6 @@ set( PLAT_WIN32_SOURCES
 	)
 
 set( PLAT_POSIX_SOURCES
-	#audiolib/src/driver_sdl.cpp
-	#audiolib/src/sdlmusic.cpp
 	#platform/gtk/startgtk.game.cpp
 	)
 	
@@ -605,8 +599,6 @@ add_definitions(-DOPNMIDI_DISABLE_GX_EMULATOR)
 # Project files should be aware of the header files. We can GLOB these since
 # there's generally a new cpp for every header so this file will get changed
 file( GLOB HEADER_FILES
-	audiolib/include/*.h
-	audiolib/src/*.h
 	build/include/*.h
 	glad/include/glad/*.h
 	glad/include/Khr/*.h
@@ -614,8 +606,6 @@ file( GLOB HEADER_FILES
 	libsmackerdec/include/*.h
 	libxmp-lite/include/libxmp-lite/*.h
 	libxmp-lite/src/*.h
-	mact/include/*.h
-	mact/src/*.h
 	common/*.h
 	common/2d/*.h
 	common/fonts/*.h
@@ -623,7 +613,10 @@ file( GLOB HEADER_FILES
 	common/console/*.h
 	common/filesystem/*.h
 	common/music/*.h
+	common/sound/*.h
+	common/sound/backend/*.h
 	common/menu/*.h
+	common/input/*.h
 
 	build/src/*.h
 	thirdparty/include/*.h
@@ -638,7 +631,6 @@ file( GLOB HEADER_FILES
 # without being compiled.
 set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
-	build/src/sdlkeytrans.cpp
 	sc_man_scanner.h
 	common/utility/sc_man_scanner.re
 )
@@ -666,22 +658,6 @@ set( FASTMATH_SOURCES
 
 set (PCH_SOURCES
 
-	audiolib/src/drivers.cpp
-	audiolib/src/driver_adlib.cpp
-	audiolib/src/driver_sdl.cpp
-	audiolib/src/driver_winmm.cpp
-	audiolib/src/formats.cpp
-	audiolib/src/fx_man.cpp
-	audiolib/src/gmtimbre.cpp
-	audiolib/src/midi.cpp
-	audiolib/src/mix.cpp
-	audiolib/src/mixst.cpp
-	audiolib/src/multivoc.cpp
-	audiolib/src/music.cpp
-	audiolib/src/opl3.cpp
-	audiolib/src/pitch.cpp
-	audiolib/src/vorbis.cpp
-
 	glbackend/gl_hwtexture.cpp
 	glbackend/gl_samplers.cpp
 	glbackend/gl_shader.cpp
@@ -690,11 +666,6 @@ set (PCH_SOURCES
 	glbackend/gl_texture.cpp
 	glbackend/gl_buffers.cpp
 	glbackend/hw_draw2d.cpp
-	
-	mact/src/animlib.cpp
-	mact/src/control.cpp
-	mact/src/joystick.cpp
-	mact/src/input.cpp
 	
 	thirdparty/src/base64.cpp
 	thirdparty/src/sjson.cpp
@@ -714,7 +685,6 @@ set (PCH_SOURCES
 	build/src/a-c.cpp
 	build/src/animvpx.cpp
 	build/src/baselayer.cpp
-	build/src/cache1d.cpp
 	build/src/clip.cpp
 	build/src/colmatch.cpp
 	build/src/common.cpp
@@ -729,7 +699,6 @@ set (PCH_SOURCES
 	build/src/palette.cpp
 	build/src/polymost.cpp
 	build/src/pragmas.cpp
-	build/src/screenshot.cpp
 	build/src/scriptfile.cpp
 	build/src/sdlayer.cpp
 	build/src/smalltextfont.cpp
@@ -739,6 +708,7 @@ set (PCH_SOURCES
 	build/src/timer.cpp
 	build/src/voxmodel.cpp
 	
+	common/animlib.cpp
 	common/rts.cpp
 	common/gameconfigfile.cpp
 	common/gamecvars.cpp
@@ -752,6 +722,7 @@ set (PCH_SOURCES
 	common/compositesavegame.cpp
 	common/savegamehelp.cpp
 	common/quotes.cpp
+	common/screenshot.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp
@@ -824,9 +795,12 @@ set (PCH_SOURCES
 	common/music/music_config.cpp
 	common/music/music_midi_base.cpp
 	common/music/s_advsound.cpp
-	common/music/backend/oalsound.cpp
-	common/music/backend/i_sound.cpp
-
+	
+	common/sound/backend/oalsound.cpp
+	common/sound/backend/i_sound.cpp
+	common/sound/s_sound.cpp
+	common/sound/s_environment.cpp
+	
 	common/menu/imagescroller.cpp
 	common/menu/joystickmenu.cpp
 	common/menu/listmenu.cpp
@@ -837,6 +811,12 @@ set (PCH_SOURCES
 	common/menu/menuinput.cpp
 	common/menu/messagebox.cpp
 	common/menu/optionmenu.cpp
+	
+	common/input/i_gui.cpp
+	common/input/i_joystick.cpp
+	common/input/i_input.cpp
+	common/input/m_joy.cpp
+	common/input/input.cpp
 )
 
 if( MSVC )
@@ -883,8 +863,6 @@ target_link_libraries( demolition ${DEMOLITION_LIBS} gdtoa lzma duke3d blood rr 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
     build/include
-	mact/include
-	audiolib/include
 	glad/include
 	libxmp-lite/include
 	libxmp-lite/include/libxmp-lite
@@ -899,8 +877,11 @@ include_directories(
 	common/textures
 	common/filesystem
 	common/music
+	common/sound
+	common/sound/backend
 	common/dobject
 	common/menu
+	common/input
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
@@ -1009,11 +990,10 @@ source_group("Code\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/co
 source_group("Code\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Code\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Code\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/music/.+")
+source_group("Code\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/sound/.+")
+source_group("Code\\Sound\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/sound/backend/.+")
 source_group("Code\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/dobject/.+")
 source_group("Code\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
-source_group("Utility\\Audiolib" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/.+")
-source_group("Utility\\Audiolib Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/include/.+")
-source_group("Utility\\Audiolib Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/audiolib/src/.+")
 source_group("Utility\\Glad" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/.+")
 source_group("Utility\\Glad Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/include/glad/.+")
 source_group("Utility\\Glad Khr Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glad/include/Khr/.+")
@@ -1024,9 +1004,6 @@ source_group("Utility\\Smackerdec\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT
 source_group("Utility\\XMP-Lite" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite/.+")
 source_group("Utility\\XMP-Lite Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite/include/libxmp-lite/.+")
 source_group("Utility\\XMP-Lite Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite/src/.+")
-source_group("Utility\\Mact" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/mact/.+")
-source_group("Utility\\Mact Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/mact/include/.+")
-source_group("Utility\\Mact Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/mact/src/.+")
 source_group("Utility\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/.+")
 source_group("Utility\\Third Party Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/include/.+")
 source_group("Utility\\Third Party Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/src/.+")

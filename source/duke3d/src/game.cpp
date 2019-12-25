@@ -172,9 +172,7 @@ enum gametokens
 
 static void gameTimerHandler(void)
 {
-    S_Cleanup();
-    MUSIC_Update();
-
+    S_Update();
     G_HandleSpecialKeys();
 }
 
@@ -4394,16 +4392,15 @@ void G_InitTimer(int32_t ticspersec)
 static int32_t g_RTSPlaying;
 
 // Returns: started playing?
-extern int G_StartRTS(int lumpNum, int localPlayer)
+int G_StartRTS(int lumpNum, int localPlayer)
 {
     if (!adult_lockout && SoundEnabled() &&
         RTS_IsInitialized() && g_RTSPlaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
     {
-        char *const pData = (char *)RTS_GetSound(lumpNum - 1);
-
-        if (pData != NULL)
+        auto sid = RTS_GetSoundID(lumpNum - 1);
+        if (sid != -1)
         {
-            FX_Play3D(pData, RTS_SoundLength(lumpNum - 1), FX_ONESHOT, 0, 0, 1, 255, 1.f, -lumpNum);
+            S_PlaySound(sid, CHAN_AUTO, CHANF_UI);
             g_RTSPlaying = 7;
             return 1;
         }
@@ -4493,7 +4490,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(1))
 				{
-					S_PlaySound(THUD);
+					S_PlaySound(THUD, CHAN_AUTO, CHANF_UI);
 				}
             }
             else
@@ -4512,7 +4509,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(-1))
 				{
-					S_PlaySound(THUD);
+					S_PlaySound(THUD, CHAN_AUTO, CHANF_UI);
 				}
             }
             else
@@ -4744,43 +4741,6 @@ void G_HandleLocalKeys(void)
         g_restorePalette = 1;
         G_UpdateScreenArea();
     }
-}
-
-static int32_t S_DefineAudioIfSupported(char **fn, const char *name)
-{
-#if !defined HAVE_FLAC || !defined HAVE_VORBIS
-    const char *extension = Bstrrchr(name, '.');
-# if !defined HAVE_FLAC
-    if (extension && !Bstrcasecmp(extension, ".flac"))
-        return -2;
-# endif
-# if !defined HAVE_VORBIS
-    if (extension && !Bstrcasecmp(extension, ".ogg"))
-        return -2;
-# endif
-#endif
-    realloc_copy(fn, name);
-    return 0;
-}
-
-static int32_t S_DefineSound(int sndidx, const char *name, int minpitch, int maxpitch, int priority, int type, int distance, float volume)
-{
-    if ((unsigned)sndidx >= MAXSOUNDS || S_DefineAudioIfSupported(&g_sounds[sndidx].filename, name))
-        return -1;
-
-    auto &snd = g_sounds[sndidx];
-
-    snd.ps     = clamp(minpitch, INT16_MIN, INT16_MAX);
-    snd.pe     = clamp(maxpitch, INT16_MIN, INT16_MAX);
-    snd.pr     = priority & 255;
-    snd.m      = type & ~SF_ONEINST_INTERNAL;
-    snd.vo     = clamp(distance, INT16_MIN, INT16_MAX);
-    snd.volume = volume;
-
-    if (snd.m & SF_LOOP)
-        snd.m |= SF_ONEINST_INTERNAL;
-
-    return 0;
 }
 
 // Returns:
@@ -5365,7 +5325,7 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     if (pScript)
         parsedefinitions_game(pScript, firstPass);
 
-    for (auto& m : *userConfig.AddDefs)
+    if (userConfig.AddDefs) for (auto& m : *userConfig.AddDefs)
         parsedefinitions_game_include(m, NULL, "null", firstPass);
 
     if (pScript)
@@ -5400,10 +5360,6 @@ static void G_Cleanup(void)
         Xfree(g_player[i].input);
     }
 
-    for (i=MAXSOUNDS-1; i>=0; i--)
-    {
-        Xfree(g_sounds[i].filename);
-    }
 #if !defined LUNATIC
     if (label != (char *)&sprite[0]) Xfree(label);
     if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
@@ -5433,8 +5389,6 @@ static void G_Cleanup(void)
 
 void G_Shutdown(void)
 {
-	S_SoundShutdown();
-    CONTROL_Shutdown();
     engineUnInit();
     G_Cleanup();
 }
@@ -5851,6 +5805,8 @@ int GameInterface::app_main()
     {
         I_Error("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
     }
+    hud_size.Callback();
+    S_InitSound();
 
     
     g_logFlushWindow = 0;
@@ -6033,7 +5989,6 @@ int GameInterface::app_main()
         }
 
         videoSetPalette(0, myplayer.palette, 0);
-        S_SoundStartup();
     }
 
     // check if the minifont will support lowercase letters (3136-3161)
@@ -6203,7 +6158,6 @@ MAIN_LOOP_RESTART:
                         && (myplayer.gm & MODE_GAME))
                     {
                         G_MoveLoop();
-                        S_Update();
                     }
 
                     if (totalclock - moveClock >= (TICSPERFRAME>>1))

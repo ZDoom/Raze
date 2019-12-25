@@ -28,7 +28,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //#define MAIN
 //#define QUIET
 #include "build.h"
-#include "cache1d.h"
+
 
 #include "keys.h"
 #include "names2.h"
@@ -37,7 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "network.h"
 
 #include "mytypes.h"
-#include "control.h"
 #include "gamecontrol.h"
 #include "demo.h"
 

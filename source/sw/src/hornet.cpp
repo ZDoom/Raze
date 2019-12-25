@@ -328,7 +328,7 @@ SetupHornet(short SpriteNum)
     sp->yrepeat = 32;
 
     // Special looping buzz sound attached to each hornet spawned
-    PlaySound(DIGI_HORNETBUZZ,&sp->x,&sp->y,&sp->z,v3df_follow|v3df_init);
+    PlaySound(DIGI_HORNETBUZZ, sp, v3df_follow|v3df_init);
     Set3DSoundOwner(SpriteNum);
 
     return 0;

@@ -44,7 +44,7 @@ Things required to make savegames work:
 #define QUIET
 #include "build.h"
 #include "baselayer.h"
-#include "cache1d.h"
+
 #include "osd.h"
 #include "renderlayer.h"
 
@@ -60,7 +60,6 @@ Things required to make savegames work:
 #include "lists.h"
 #include "network.h"
 #include "pal.h"
-#include "fx_man.h"
 #include "input.h"
 
 #include "mytypes.h"
@@ -68,7 +67,6 @@ Things required to make savegames work:
 
 #include "menus.h"
 
-#include "control.h"
 #include "gamecontrol.h"
 #include "gamedefs.h"
 #include "config.h"
@@ -85,9 +83,7 @@ Things required to make savegames work:
 #include "light.h"
 #include "track.h"
 #include "jsector.h"
-#include "keyboard.h"
 #include "text.h"
-#include "music.h"
 
 #include "common.h"
 #include "common_game.h"
@@ -100,6 +96,7 @@ Things required to make savegames work:
 #include "statistics.h"
 #include "gstrings.h"
 #include "mapinfo.h"
+#include "sound/s_soundinternal.h"
 
 //#include "crc32.h"
 
@@ -135,7 +132,9 @@ SWBOOL Global_PLock = TRUE;
 SWBOOL Global_PLock = FALSE;
 #endif
 
-int GameVersion = 13;   // 12 was original source release. For future releases increment by two.
+// 12 was original source release. For future releases increment by two.
+int GameVersion = 15;
+
 char DemoText[3][64];
 int DemoTextYstart = 0;
 
@@ -276,7 +275,6 @@ int krandcount;
 void BOT_DeleteAllBots(void);
 void BotPlayerInsert(PLAYERp pp);
 void SybexScreen(void);
-void DosScreen(void);
 void PlayTheme(void);
 void MenuLevel(void);
 void StatScreen(PLAYERp mpp);
@@ -636,14 +634,8 @@ void TerminateGame(void)
 
     engineUnInit();
 
-    //Terminate3DSounds();                // Kill the sounds linked list
-    UnInitSound();
-
     timerUninit();
-
-    if (CleanExit)
-        DosScreen();
-
+    Bexit(0);
 }
 
 bool LoadLevel(const char *filename)
@@ -722,7 +714,7 @@ void MultiSharewareCheck(void)
     if (!SW_SHAREWARE) return;
     if (numplayers > 4)
     {
-#ifdef RENDERTYPEWIN
+#if 1 /* defined RENDERTYPEWIN */
         wm_msgbox(apptitle,"To play a Network game with more than 4 players you must purchase "
                   "the full version.  Read the Ordering Info screens for details.");
 #else
@@ -733,7 +725,6 @@ void MultiSharewareCheck(void)
         //uninitmultiplayers();
         //uninitkeys();
         engineUnInit();
-        UnInitSound();
         timerUninit();
         Bexit(0);
     }
@@ -795,7 +786,6 @@ void COVERsetbrightness(int bright, unsigned char *pal)
 
 
 static int firstnet = 0;    // JBF
-int nextvoxid = 0;  // JBF
 
 
 static void SW_FatalEngineError(void)
@@ -934,6 +924,8 @@ bool InitGame()
 
     if (enginePostInit())
         SW_FatalEngineError();
+
+    palettePostLoadLookups();
 
     DemoModeMenuInit = TRUE;
     // precache as much stuff as you can
@@ -1319,9 +1311,7 @@ TerminateLevel(void)
     memset(Track, 0, sizeof(Track));
 
     StopSound();
-    Terminate3DSounds();        // Kill the 3d sounds linked list
-    //ClearSoundLocks();
-
+    
     // Clear all anims and any memory associated with them
     // Clear before killing sprites - save a little time
     //AnimClear();
@@ -1403,7 +1393,6 @@ void NewLevel(void)
 {
     if (DemoPlaying)
     {
-        FX_SetVolume(0); // Shut the hell up while game is loading!
         InitLevel();
         InitRunLevel();
 
@@ -1426,7 +1415,6 @@ void NewLevel(void)
     }
     else
     {
-        FX_SetVolume(0); // Shut the hell up while game is loading!
         InitLevel();
         RunLevel();
 		STAT_Update(false);
@@ -1531,9 +1519,6 @@ void LogoLevel(void)
     DSPRINTF(ds,"LogoLevel...");
     MONO_PRINT(ds);
 
-    // PreCache Anim
-    LoadAnm(0, &fin);
-
 	auto pal = fileSystem.LoadFile("3drealms.pal", 0);
 	if (pal.Size() >= 768)
     {
@@ -1615,19 +1600,24 @@ void CreditsLevel(void)
     videoNextPage();
 
     // Lo Wang feel like singing!
-    handle = PlaySound(DIGI_JG95012,&zero,&zero,&zero,v3df_none);
-
-    if (handle > 0)
-        while (FX_SoundActive(handle)) ;
+    PlaySound(DIGI_JG95012, v3df_none, CHAN_VOICE);
+    while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+    {
+        DoUpdateSounds();
+        handleevents();
+    }
 
     // try 14 then 2 then quit
     if (!PlaySong(nullptr, ThemeSongs[5], ThemeTrack[5], true))
     {
         if (!PlaySong(nullptr, nullptr, 2, true))
         {
-            handle = PlaySound(DIGI_NOLIKEMUSIC,&zero,&zero,&zero,v3df_none);
-            if (handle > 0)
-                while (FX_SoundActive(handle)) handleevents();
+            PlaySound(DIGI_NOLIKEMUSIC, v3df_none, CHAN_VOICE);
+            while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+            {
+                DoUpdateSounds();
+                handleevents();
+            }
             return;
         }
     }
@@ -1915,6 +1905,7 @@ void MenuLevel(void)
 
         //drawscreen as fast as you can
         DrawMenuLevelScreen();
+        DoUpdateSounds();
 
         videoNextPage();
     }
@@ -2014,21 +2005,21 @@ void gStateControl(STATEp *State, int *tics)
 int BonusPunchSound(short SpriteNum)
 {
     PLAYERp pp = Player + myconnectindex;
-    PlaySound(DIGI_PLAYERYELL3, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_PLAYERYELL3, pp, v3df_none);
     return 0;
 }
 
 int BonusKickSound(short SpriteNum)
 {
     PLAYERp pp = Player + myconnectindex;
-    PlaySound(DIGI_PLAYERYELL2, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_PLAYERYELL2, pp, v3df_none);
     return 0;
 }
 
 int BonusGrabSound(short SpriteNum)
 {
     PLAYERp pp = Player + myconnectindex;
-    PlaySound(DIGI_BONUS_GRAB, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+    PlaySound(DIGI_BONUS_GRAB, pp, v3df_none);
     return 0;
 }
 
@@ -2266,7 +2257,6 @@ void BonusScreen(PLAYERp pp)
     }
 
     StopSound();
-    Terminate3DSounds();
 }
 
 void EndGameSequence(void)
@@ -2482,7 +2472,6 @@ void StatScreen(PLAYERp mpp)
     }
 
     StopSound();
-    Terminate3DSounds();
 }
 
 void GameIntro(void)
@@ -2547,7 +2536,7 @@ void _Assert(const char *expr, const char *strFile, unsigned uLine)
 
     TerminateGame();
 
-#if 1 //def RENDERTYPEWIN
+#if 1 /* defined RENDERTYPEWIN */
     wm_msgbox(apptitle, "%s", ds);
 #else
     printf("Assertion failed: %s\n %s, line %u\n", expr, strFile, uLine);
@@ -2564,7 +2553,7 @@ void _ErrMsg(const char *strFile, unsigned uLine, const char *format, ...)
     //MONO_PRINT(ds);
     TerminateGame();
 
-#if 1 //def RENDERTYPEWIN
+#if 1 /* defined RENDERTYPEWIN */
     {
         char msg[256], *p;
         Bsnprintf(msg, sizeof(msg), "Error: %s, line %u\n", strFile, uLine);
@@ -2751,9 +2740,6 @@ void InitRunLevel(void)
 
     SetRedrawScreen(Player + myconnectindex);
 	
-	snd_reversestereo.Callback();
-	snd_fxvolume.Callback();
-    FX_SetVolume(snd_fxvolume); // Turn volume back up
     if (snd_ambience)
         StartAmbientSound();
 }
@@ -2764,8 +2750,6 @@ void RunLevel(void)
 {
     int i;
     InitRunLevel();
-
-    FX_SetVolume(snd_fxvolume);
 
 #if 0
     waitforeverybody();
@@ -2797,15 +2781,6 @@ void RunLevel(void)
     ready2send = 0;
 }
 
-void swexit(int exitval)
-{
-    exit(exitval);
-}
-
-void DosScreen(void)
-{
-}
-
 typedef struct
 {
     char    notshareware;
@@ -2815,20 +2790,7 @@ typedef struct
     const char    *arg_descr;
 } CLI_ARG;
 
-#if DEBUG
-CLI_ARG cli_dbg_arg[] =
-{
-    {0, "/demosyncrecord",     13,     "-demosyncrecord",      "Demo sync record"                      },
-    {0, "/demosynctest",       13,     "-demosynctest",        "Demo sync test"                        },
-    {0, "/cam",                4,      "-cam",                 "Camera test mode"                      },
-    {0, "/debugactor",         11,     "-debugactor",          "No Actors"                             },
-    {0, "/debuganim",          10,     "-debuganim",           "No Anims"                              },
-    {0, "/debugso",            8,      "-debugso",             "No Sector Objects"                     },
-    {0, "/debugsector",        12,     "-debugsector",         "No Sector Movement"                    },
-    {0, "/debugpanel",         11,     "-debugpanel",          "No Panel"                              },
-    {0, "/mono",               5,      "-mono",                "Mono"                                  },
-};
-#endif
+
 
 
 CLI_ARG cli_arg[] =
@@ -2920,6 +2882,7 @@ int32_t GameInterface::app_main()
     {
 		I_Error("There was a problem initialising the Build engine: %s", engineerrstr);
     }
+    hud_size.Callback();
 
     if (!DetectShareware())
     {

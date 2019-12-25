@@ -27,7 +27,7 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 #include "palette.h"
 #include "pragmas.h"
 
-#include "cache1d.h"
+
 #include "textures.h"
 #include "c_cvars.h"
 
@@ -866,6 +866,7 @@ static FORCE_INLINE void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int
 
 void   getzrange(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
                  int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
+extern vec2_t hitscangoal;
 int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                   hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
 void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
@@ -1115,6 +1116,7 @@ int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, f
 extern GrowArray<char *> g_clipMapFiles;
 #endif
 
+EXTERN int32_t nextvoxid;
 EXTERN intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; // used in KenBuild
 EXTERN int8_t voxreserve[(MAXVOXELS+7)>>3];
 EXTERN int8_t voxrotate[(MAXVOXELS+7)>>3];

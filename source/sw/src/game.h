@@ -41,7 +41,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "mmulti.h"
 
 #include "mytypes.h"
-#include "keyboard.h"
 #include "sounds.h"
 #include "settings.h"
 #include "pragmas.h"
@@ -1205,16 +1204,12 @@ struct PLAYERstruct
     SWBOOL IsAI;                      // Is this and AI character?
     short fta,ftq;                  // First time active and first time quote, for talking in multiplayer games
     short NumFootPrints;            // Number of foot prints left to lay down
-    SWBOOL PlayerTalking;             // Is player currently talking
-    int TalkVocnum;                 // Number of sound that player is using
-    int TalkVocHandle;              // Handle of sound in sound queue, to access in Dose's code
     unsigned char WpnUziType;                // Toggle between single or double uzi's if you own 2.
     unsigned char WpnShotgunType;            // Shotgun has normal or fully automatic fire
     unsigned char WpnShotgunAuto;            // 50-0 automatic shotgun rounds
     unsigned char WpnShotgunLastShell;       // Number of last shell fired
     unsigned char WpnRailType;               // Normal Rail Gun or EMP Burst Mode
     SWBOOL Bloody;                    // Is player gooey from the slaughter?
-    int nukevochandle;              // Stuff for the Nuke
     SWBOOL InitingNuke;
     SWBOOL TestNukeInit;
     SWBOOL NukeInitialized;           // Nuke already has counted down
@@ -2071,11 +2066,50 @@ short ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *
 
 SECT_USERp GetSectUser(short sectnum);
 
+// Some sounds were checked by storing handles in static local variables.
+// Problems with this design:
+// 1. The variables were unmaintained and could refer to handles that had been reused already.
+// 2. No proper sound ownership tracking.
+// 3. In some cases items that were supposed to use the same check referred to different handle variables.
+// In short: I was very broken. This is a list of all sound items used this way, now each one gets a dedicated channel
+// so that proper checks can be performed and sound ownership be tracked.
+
+enum
+{
+    CHAN_ToiletFart = 1000,
+    CHAN_AnimeMad = 1001,
+    CHAN_AnimeSing = 1002,
+    CHAN_CoyHandle = 1003,
+    CHAN_RipHeart = 1004,
+};
+
 short SoundDist(int x, int y, int z, int basedist);
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
-int PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags);
-void PlayerSound(int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp);
+int _PlaySound(int num, SPRITEp sprite, PLAYERp player, vec3_t *pos, Voc3D_Flags flags, int channel);
+void InitAmbient(int num, SPRITEp sprite);
+inline void PlaySound(int num, SPRITEp sprite, Voc3D_Flags flags, int channel = 8)
+{
+    _PlaySound(num, sprite, nullptr, nullptr, flags, channel);
+}
+inline void PlaySound(int num, PLAYERp player, Voc3D_Flags flags, int channel = 8)
+{
+    _PlaySound(num, nullptr, player, nullptr, flags, channel);
+}
+inline void PlaySound(int num, Voc3D_Flags flags, int channel = 8)
+{
+    _PlaySound(num, nullptr, nullptr, nullptr, flags, channel);
+}
+inline void PlaySound(int num, vec3_t *pos, Voc3D_Flags flags, int channel = 8)
+{
+    _PlaySound(num, nullptr, nullptr, pos, flags, channel);
+}
+
+int _PlayerSound(int num, PLAYERp pp);
+inline int PlayerSound(int num, int flags, PLAYERp pp) { return _PlayerSound(num, pp); }
+void StopPlayerSound(PLAYERp pp);
+bool SoundValidAndActive(SPRITEp spr, int channel);
+
 
 ANIMATOR DoActorBeginJump,DoActorJump,DoActorBeginFall,DoActorFall,DoActorDeathMove;
 
@@ -2278,8 +2312,7 @@ extern void DoPaletteFlash(PLAYERp pp);
 extern unsigned char palette_data[256][3];
 extern SWBOOL NightVision;
 
-int _PlayerSound(const char *file, int line, int num, int *x, int *y, int *z, Voc3D_Flags flags, PLAYERp pp);
-#define PlayerSound(num, x, y, z, flags, pp) _PlayerSound(__FILE__, __LINE__, (num), (x), (y), (z), (flags), (pp))
+
 
 #define MAXSO (INT32_MAX)
 

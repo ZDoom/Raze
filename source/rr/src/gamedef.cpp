@@ -945,6 +945,7 @@ static inline void C_FinishBitOr(int32_t value)
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw;
+    TArray<char> buffer;
 
     do
     {
@@ -1940,8 +1941,8 @@ static int32_t C_ParseCommand(int32_t loop)
 
             C_SkipSpace();
 
-			TArray<char> buffer;
-			while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
+            buffer.Clear();
+            while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
 			{
 				buffer.Push(*textptr);
 				textptr++;
@@ -1951,77 +1952,68 @@ static int32_t C_ParseCommand(int32_t loop)
 			continue;
 		}
         case CON_DEFINESOUND:
+        {
+            int ps, pe, vo, pr, m;
+
             g_scriptPtr--;
             C_GetNextValue(LABEL_DEFINE);
 
             // Ideally we could keep the value of i from C_GetNextValue() instead of having to hash_find() again.
             // This depends on tempbuf remaining in place after C_GetNextValue():
-            j = hash_find(&h_labels,tempbuf);
+            j = hash_find(&h_labels, tempbuf);
 
-            k = *(g_scriptPtr-1);
-            if (EDUKE32_PREDICT_FALSE((unsigned)k >= MAXSOUNDS-1))
+            k = g_scriptPtr[-1];
+            if ((unsigned)k >= MAXSOUNDS - 1)
             {
-                initprintf("%s:%d: error: index exceeds sound limit of %d.\n",g_scriptFileName,g_lineNumber, MAXSOUNDS-1);
+                initprintf("%s:%d: error: sound index exceeds limit of %d.\n", g_scriptFileName, g_lineNumber, MAXSOUNDS - 1);
                 g_errorCnt++;
-                k = MAXSOUNDS-1;
+                k = MAXSOUNDS - 1;
             }
+            /*else if (g_sounds[k].filename != NULL)
+            {
+                initprintf("%s:%d: warning: sound %d already defined (%s)\n", g_scriptFileName, g_lineNumber, k, g_sounds[k].filename);
+                g_warningCnt++;
+            }*/
+
             g_scriptPtr--;
             i = 0;
             C_SkipComments();
 
-            if (g_sounds[k].filename == NULL)
-                g_sounds[k].filename = (char *)Xcalloc(BMAX_PATH,sizeof(uint8_t));
+            buffer.Clear();
 
             if (*textptr == '\"')
             {
                 textptr++;
                 while (*textptr && *textptr != '\"')
                 {
-                    g_sounds[k].filename[i++] = *textptr++;
-                    if (EDUKE32_PREDICT_FALSE(i >= BMAX_PATH-1))
-                    {
-                        initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,BMAX_PATH-1);
-                        g_errorCnt++;
-                        C_SkipComments();
-                        break;
-                    }
+                    buffer.Push(*textptr++);
                 }
                 textptr++;
             }
             else while (*textptr != ' ' && *textptr != '\t' && *textptr != '\r' && *textptr != '\n')
             {
-                g_sounds[k].filename[i++] = *textptr++;
-                if (EDUKE32_PREDICT_FALSE(i >= BMAX_PATH-1))
-                {
-                    initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,BMAX_PATH-1);
-                    g_errorCnt++;
-                    C_SkipComments();
-                    break;
-                }
+                buffer.Push(*textptr++);
             }
-            g_sounds[k].filename[i] = '\0';
+            buffer.Push(0);
 
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].ps = *(g_scriptPtr-1);
+            ps = g_scriptPtr[-1];
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].pe = *(g_scriptPtr-1);
+            pe = g_scriptPtr[-1];
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].pr = *(g_scriptPtr-1);
+            pr = g_scriptPtr[-1];
 
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].m = *(g_scriptPtr-1) & ~SF_ONEINST_INTERNAL;
-            if (*(g_scriptPtr-1) & SF_LOOP)
-                g_sounds[k].m |= SF_ONEINST_INTERNAL;
+            m = g_scriptPtr[-1];
 
             C_GetNextValue(LABEL_DEFINE);
-            g_sounds[k].vo = *(g_scriptPtr-1);
+            vo = g_scriptPtr[-1];
             g_scriptPtr -= 5;
 
-            g_sounds[k].volume = 1.f;
+            int res = S_DefineSound(k, buffer.Data(), ps, pe, pr, m, vo, 1.f);
 
-            if (k > g_highestSoundIdx)
-                g_highestSoundIdx = k;
             continue;
+        }
 
         case CON_ENDA:
             if (EDUKE32_PREDICT_FALSE(!g_parsingActorPtr))
@@ -2252,7 +2244,7 @@ void C_Compile(const char *fileName)
 
     C_ParseCommand(1);
 
-	for (FString & m : *userConfig.AddCons.get())
+    if (userConfig.AddCons) for (FString & m : *userConfig.AddCons.get())
     {
 		C_Include(m);
     }

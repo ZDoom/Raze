@@ -152,7 +152,7 @@ DoActorDie(short SpriteNum, short weapon)
                     SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
                 InitPlasmaFountain(wp, sp);
                 InitPlasmaFountain(wp, sp);
-                PlaySound(DIGI_NINJAINHALF,&sp->x,&sp->y,&sp->z,v3df_none);
+                PlaySound(DIGI_NINJAINHALF, sp, v3df_none);
                 if (sw_ninjahack)
                     ChangeState(SpriteNum, &s_NinjaDieSlicedHack[5]);
                 else
@@ -830,11 +830,11 @@ DoActorStopFall(short SpriteNum)
         if (TEST(u->Flags, SPR_DEAD))
         {
             NewStateGroup(SpriteNum, u->ActorActionSet->Dead);
-            PlaySound(DIGI_ACTORBODYFALL1,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_ACTORBODYFALL1, sp, v3df_none);
         }
         else
         {
-            PlaySound(DIGI_ACTORHITGROUND,&sp->x,&sp->y,&sp->z,v3df_none);
+            PlaySound(DIGI_ACTORHITGROUND, sp, v3df_none);
 
             NewStateGroup(SpriteNum, u->ActorActionSet->Run);
 

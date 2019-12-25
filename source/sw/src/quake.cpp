@@ -273,7 +273,7 @@ int SpawnQuake(short sectnum, int x, int y, int z,
     QUAKE_AngAmt(sp) = 8;
     QUAKE_PosAmt(sp) = 0;
 
-    PlaySound(DIGI_ERUPTION, &sp->x, &sp->y, &sp->z, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_ERUPTION, sp, v3df_follow|v3df_dontpan);
     Set3DSoundOwner(SpriteNum);
 
     return SpriteNum;

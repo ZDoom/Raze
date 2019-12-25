@@ -7,7 +7,7 @@
 
 #include "a.h"
 #include "polymost.h"
-#include "cache1d.h"
+
 #include "inputstate.h"
 #include "d_event.h"
 #include "../../glbackend/glbackend.h"
@@ -35,8 +35,6 @@ bool g_mouseLockedToWindow = 1;
 
 controllerinput_t joystick;
 
-void joySetCallback(void (*callback)(int32_t, int32_t)) { joystick.pCallback = callback; }
-void joyReadButtons(int32_t *pResult) { *pResult = appactive ? joystick.bits : 0; }
 
 // Calculate ylookup[] and call setvlinebpl()
 void calc_ylookup(int32_t bpl, int32_t lastyidx)

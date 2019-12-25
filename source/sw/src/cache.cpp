@@ -407,11 +407,13 @@ void PreCacheSoundList(short table[], int num)
 {
     short j;
 
+#if 0
     for (j = 0; j < num; j++)
     {
         CacheSound(table[j], CACHE_SOUND_PRECACHE);
         AnimateCacheCursor();
     }
+#endif
 }
 
 void

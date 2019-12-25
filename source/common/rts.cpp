@@ -38,6 +38,7 @@
 #include "filesystem/filesystem.h"
 #include "rts.h"
 #include "m_swap.h"
+#include "s_soundinternal.h"
 
 
 struct WadInfo
@@ -56,7 +57,7 @@ struct FileLump
 
 struct LumpInfoInternal
 {
-	int32_t position, size;
+	int32_t position, size, sid;
 };
 
 //=============
@@ -96,7 +97,7 @@ bool RTS_IsInitialized()
 				LumpInfo.Resize(numlumps);
 				for(unsigned i = 0; i < numlumps; i++, li++)
 				{
-					LumpInfo[i] = { LittleLong(li->position), LittleLong(li->size) };
+					LumpInfo[i] = { LittleLong(li->position), LittleLong(li->size), -1 };
 					if (unsigned(LumpInfo[i].position + LumpInfo[i].size) >= RTSFile.Size())
 					{
 						LumpInfo[i].size = 0;	// points to invalid data
@@ -108,6 +109,19 @@ bool RTS_IsInitialized()
 	}
 	RTSFile.Reset();
 	LumpInfo.Reset();
+
+	// For the benefit of the sound system we have to link the RTS content into the file system.
+	// Unfortunately the file cannot be added directly because the internal names are meaningless.
+	int i = 0;
+	for (auto& li : LumpInfo)
+	{
+		if (li.size > 0)
+		{
+			FStringf rts("rts%02d", i);
+			int lump = fileSystem.AddFromBuffer(rts, "rts", (char*)RTSFile.Data() + li.position, li.size, -1, 0);
+			li.sid = soundEngine->AddSoundLump(rts, lump, 0, -1);
+		}
+	}
 	return false;
 }
 
@@ -126,4 +140,13 @@ void *RTS_GetSound(int lump)
     if ((unsigned)lump >= LumpInfo.Size()) return nullptr;
 	if(LumpInfo[lump].size <= 0) return nullptr;
 	return RTSFile.Data() + LumpInfo[lump].position;
+}
+
+int RTS_GetSoundID(int lump)
+{
+	if (!RTS_IsInitialized()) return -1;
+	lump++;
+	if ((unsigned)lump >= LumpInfo.Size()) return -1;
+	if (LumpInfo[lump].size <= 0) return -1;
+	return LumpInfo[lump].sid;
 }

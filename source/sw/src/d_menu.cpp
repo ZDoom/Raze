@@ -33,20 +33,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "weapon.h"
 #include "player.h"
 #include "jsector.h"
-#include "control.h"
 #include "menus.h"
 #include "sw_strs.h"
 #include "pal.h"
 #include "demo.h"
-#include "input.h"
 #include "keydef.h"
 
 #include "gamecontrol.h"
 #include "gamedefs.h"
 #include "config.h"
 #include "network.h"
-#include "fx_man.h"
-#include "music.h"
 #include "text.h"
 #include "version.h"
 #include "network.h"
@@ -54,6 +50,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "colormap.h"
 #include "config.h"
 #include "menu/menu.h"
+#include "sound/s_soundinternal.h"
+#include "sounds.h"
 
 #include "../../glbackend/glbackend.h"
 
@@ -110,9 +108,9 @@ public:
 			DidOrderSound = true;
 			int choose_snd = STD_RANDOM_RANGE(1000);
 			if (choose_snd > 500)
-				PlaySound(DIGI_WANGORDER1, &zero, &zero, &zero, v3df_dontpan);
+				PlaySound(DIGI_WANGORDER1, v3df_dontpan);
 			else 
-				PlaySound(DIGI_WANGORDER2, &zero, &zero, &zero, v3df_dontpan);
+				PlaySound(DIGI_WANGORDER2, v3df_dontpan);
 		}
 	}
 };
@@ -180,15 +178,15 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	switch (snd)
 	{
 		case CursorSound:
-            PlaySound(DIGI_STAR,&zero,&zero,&zero,v3df_dontpan);
+            PlaySound(DIGI_STAR, v3df_dontpan);
 			break;
 
 		case AdvanceSound:
-			PlaySound(DIGI_SWORDSWOOSH,&zero,&zero,&zero,v3df_dontpan);
+			PlaySound(DIGI_SWORDSWOOSH, v3df_dontpan);
 			break;
 			
 		case CloseSound:
-			PlaySound(DIGI_STARCLINK,&zero,&zero,&zero,v3df_dontpan);
+			PlaySound(DIGI_STARCLINK, v3df_dontpan);
 			break;
 
 		default:
@@ -239,17 +237,19 @@ void GameInterface::StartGame(FGameStartup& gs)
     //InitNewGame();
 
     if (Skill == 0)
-        handle = PlaySound(DIGI_TAUNTAI3,&zero,&zero,&zero,v3df_none);
+        PlaySound(DIGI_TAUNTAI3, v3df_none, CHAN_VOICE);
     else if (Skill == 1)
-        handle = PlaySound(DIGI_NOFEAR,&zero,&zero,&zero,v3df_none);
+        PlaySound(DIGI_NOFEAR, v3df_none, CHAN_VOICE);
     else if (Skill == 2)
-        handle = PlaySound(DIGI_WHOWANTSWANG,&zero,&zero,&zero,v3df_none);
+        PlaySound(DIGI_WHOWANTSWANG, v3df_none, CHAN_VOICE);
     else if (Skill == 3)
-        handle = PlaySound(DIGI_NOPAIN,&zero,&zero,&zero,v3df_none);
+        PlaySound(DIGI_NOPAIN, v3df_none, CHAN_VOICE);
 
-    if (handle > FX_Ok)
-        while (FX_SoundActive(handle))
-            handleevents();
+	while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+	{
+		DoUpdateSounds();
+		handleevents();
+	}
 }
 
 FSavegameInfo GameInterface::GetSaveSig()

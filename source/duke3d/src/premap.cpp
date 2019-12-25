@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "mapinfo.h"
 #include "cmdlib.h"
+
 BEGIN_DUKE_NS
 
 static uint8_t precachehightile[2][(MAXTILES+7)>>3];
@@ -466,8 +467,6 @@ void G_CacheMapData(void)
 #ifdef USE_OPENGL
 		if (r_precache) PrecacheHardwareTextures(i);
 #endif
-
-        MUSIC_Update();
 
         if ((++cnt & 7) == 0)
             gameHandleEvents();
@@ -1319,12 +1318,6 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     gameHandleEvents();
 
-    if (ud.skill_voice > 0 && SoundEnabled())
-    {
-        while (FX_SoundActive(ud.skill_voice))
-            gameHandleEvents();
-    }
-
     ready2send = 0;
 
     if (m_recstat != 2 && ud.last_level != -1 && !VM_OnEventWithReturn(EVENT_EXITGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)
@@ -1338,7 +1331,6 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     ud.level_number  = levelNum;
     ud.player_skill  = skillNum;
     ud.secretlevel   = 0;
-    ud.skill_voice   = -1;
     ud.volume_number = volumeNum;
 
     // we don't want the intro to play after the multiplayer setup screen

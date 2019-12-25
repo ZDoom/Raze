@@ -30,45 +30,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define sounds_public_h_
 
 #include "sounds_common.h"
+#include "sound/s_soundinternal.h"
 #include "z_music.h"
 
 BEGIN_DUKE_NS
 
 // KEEPINSYNC lunatic/con_lang.lua
 #define MAXSOUNDS           4096
-#define MAXSOUNDINSTANCES   8
 #define LOUDESTVOLUME       111
-#define MUSIC_ID            -65536
 
 typedef struct
 {
-    int16_t  owner;
-    int16_t  id;
-    uint16_t dist;
-    uint16_t clock;
-} assvoice_t;
-
-typedef struct
-{
-    char *    ptr, *filename;                // 8b/16b
-    int32_t   length, num, siz;              // 12b
-    float     volume;                        // 4b
-    assvoice_t voices[MAXSOUNDINSTANCES];  // 64b
-    int16_t   ps, pe, vo;                    // 6b
-    char      pr, m;                         // 2b
+    int pitchStart, pitchEnd, volAdjust;
+    int priority, flags;
 } sound_t;
 
-extern sound_t g_sounds[MAXSOUNDS];
-extern int32_t g_numEnvSoundsPlaying,g_highestSoundIdx;
-
-int A_CheckSoundPlaying(int spriteNum,int soundNum);
-int A_PlaySound(int soundNum, int spriteNum);
+int A_CheckSoundPlaying(int spriteNum, int soundNum, int channel = 0);
+int A_PlaySound(int soundNum, int spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0);
 void S_Callback(intptr_t num);
 int A_CheckAnySoundPlaying(int spriteNum);
 int S_CheckSoundPlaying(int soundNum);
-void S_Cleanup(void);
 inline void S_ClearSoundLocks(void) {}
-int32_t S_LoadSound(uint32_t num);
 void cacheAllSounds(void);
 void S_MenuSound(void);
 void S_PauseMusic(bool paused);
@@ -77,14 +59,15 @@ void S_PlayLevelMusicOrNothing(unsigned int);
 int S_TryPlaySpecialMusic(unsigned int);
 void S_PlaySpecialMusicOrNothing(unsigned int);
 void S_ContinueLevelMusic(void);
-int S_PlaySound(int num);
-int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos);
-void S_SoundShutdown(void);
-void S_SoundStartup(void);
-void S_StopEnvSound(int sndNum,int sprNum);
+int S_PlaySound(int num, int channel = CHAN_AUTO, EChanFlags flags = 0);
+int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
+void S_StopEnvSound(int sndNum,int sprNum, int flags = -1);
 void S_StopAllSounds(void);
 void S_Update(void);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
+int S_GetUserFlags(int sndnum);
+int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, int m, int vo, float vol);
+void S_InitSound();
 
 static inline bool S_IsAmbientSFX(int spriteNum)
 {

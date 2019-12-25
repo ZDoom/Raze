@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h"
 #include "duke3d.h"
 #include "animlib.h"
-#include "mouse.h"
 #include "compat.h"
 #include "input.h"
 
@@ -365,7 +364,7 @@ int32_t Anim_Play(const char *fn)
                     if (sound == -1)
                         FX_StopAllSounds();
                     else
-                        S_PlaySound(sound);
+                        S_PlaySound(sound, CHAN_AUTO, CHANF_UI);
 
                     soundidx++;
                 }
@@ -379,7 +378,7 @@ int32_t Anim_Play(const char *fn)
                     if (sound == -1)
                         FX_StopAllSounds();
                     else
-                        S_PlaySound(sound);
+                        S_PlaySound(sound, CHAN_AUTO, CHANF_UI);
 
                     soundidx++;
                 }
@@ -537,7 +536,7 @@ int32_t Anim_Play(const char *fn)
             if (sound == -1)
                 FX_StopAllSounds();
             else
-                S_PlaySound(sound);
+                S_PlaySound(sound, CHAN_AUTO, CHANF_UI);
 
             soundidx++;
         }

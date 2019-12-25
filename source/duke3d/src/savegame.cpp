@@ -37,8 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-static OutputFileCounter savecounter;
-
 // For storing pointers in files.
 //  back_p==0: ptr -> "small int"
 //  back_p==1: "small int" -> ptr
@@ -313,7 +311,6 @@ int32_t G_LoadPlayer(FSaveGameNode *sv)
             ud.level_number  = level;
             ud.player_skill  = skill;
             ud.secretlevel   = 0;
-            ud.skill_voice   = -1;
             ud.volume_number = volume;
 
 #ifdef EDUKE32_TOUCH_DEVICES

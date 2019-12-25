@@ -35,5 +35,5 @@ void main()
    v_fogCoord = abs(eyeCoordPosition.z);
 
    v_color = i_color;
-   v_distance = i_vertPos.z;
+   v_distance = eyeCoordPosition.z;
 }

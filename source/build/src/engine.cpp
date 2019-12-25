@@ -11,7 +11,7 @@
 #include "a.h"
 #include "baselayer.h"
 #include "build.h"
-#include "cache1d.h"
+
 #include "colmatch.h"
 #include "common.h"
 #include "compat.h"
@@ -4478,7 +4478,7 @@ static void classicDrawBunches(int32_t bunch)
                         smostwall[smostwallcnt] = z;
                         smostwalltype[smostwallcnt] = 1;   //1 for umost
                         smostwallcnt++;
-                        memcpy(&umost[x1],&smost[smostcnt],i*sizeof(smost[0]));
+                        copybufbyte(&umost[x1],&smost[smostcnt],i*sizeof(smost[0]));
                         smostcnt += i;
                     }
                 }
@@ -4564,7 +4564,7 @@ static void classicDrawBunches(int32_t bunch)
                         smostwall[smostwallcnt] = z;
                         smostwalltype[smostwallcnt] = 2;   //2 for dmost
                         smostwallcnt++;
-                        memcpy(&dmost[x1],&smost[smostcnt],i*sizeof(smost[0]));
+                        copybufbyte(&dmost[x1],&smost[smostcnt],i*sizeof(smost[0]));
                         smostcnt += i;
                     }
                 }
@@ -5032,6 +5032,16 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
             }
         }
     }
+
+#if 0
+    for (x=0; x<xdimen; x++)
+    {
+        if (daumost[x]>=0 && daumost[x]<ydimen)
+            *(char *)(frameplace + x + bytesperline*daumost[x]) = editorcolors[13];
+        if (dadmost[x]>=0 && dadmost[x]<ydimen)
+            *(char *)(frameplace + x + bytesperline*dadmost[x]) = editorcolors[14];
+    }
+#endif
 
     videoEndDrawing();   //}}}
 }
@@ -6786,16 +6796,13 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
         int32_t zoomsc, sx=*sxptr, sy=*syptr;
         int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
 
-        if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
-            sx += NEGATE_ON_CONDITION(scale(120<<16,xdim,ydim) - (160<<16), !(dastat & RS_ALIGN_R));
-
         sy += rotatesprite_y_offset;
-
-        // screen center to s[xy], 320<<16 coords.
-        const int32_t normxofs = sx-(320<<15), normyofs = sy-(200<<15);
 
         if (!(dastat & RS_STRETCH) && 4*ydim <= 3*xdim)
         {
+            if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
+                sx += NEGATE_ON_CONDITION(scale(120<<16,xdim,ydim) - (160<<16), !(dastat & RS_ALIGN_R));
+
             if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
                 ydim = scale(xdim, 3, 4);
             else
@@ -6807,6 +6814,9 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 
         ouryxaspect = mulscale16(ouryxaspect, rotatesprite_yxaspect);
         ourxyaspect = divscale16(ourxyaspect, rotatesprite_yxaspect);
+
+        // screen center to s[xy], 320<<16 coords.
+        const int32_t normxofs = sx-(320<<15), normyofs = sy-(200<<15);
 
         // nasty hacks go here
         if (!(dastat & RS_NOCLIP))
@@ -7316,6 +7326,7 @@ static void dosetaspect(void)
     {
         oxyaspect = xyaspect;
         j = xyaspect*320;
+        horizycent = (ydim*4)>>1;
         horizlookup2[horizycent-1] = divscale32(131072,j);
 
         for (i=0; i < horizycent-1; i++)
@@ -10146,6 +10157,9 @@ void videoNextPage(void)
 
 int32_t qloadkvx(int32_t voxindex, const char *filename)
 {
+    if ((unsigned)voxindex >= MAXVOXELS)
+        return -1;
+
     auto fil = fileSystem.OpenFileReader(filename, 0);
     if (!fil.isOpen())
         return -1;
@@ -11637,8 +11651,8 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     rendmode = REND_CLASSIC;
 #endif
 
-    memcpy(&startumost[windowxy1.x],&bakumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakumost[0]));
-    memcpy(&startdmost[windowxy1.x],&bakdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakdmost[0]));
+    copybufbyte(&startumost[windowxy1.x],&bakumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakumost[0]));
+    copybufbyte(&startdmost[windowxy1.x],&bakdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakdmost[0]));
     setviewcnt++;
 
     offscreenrendering = 1;
@@ -11672,8 +11686,8 @@ void renderRestoreTarget(void)
     ydim = bakysiz[setviewcnt];
     videoSetViewableArea(bakwindowxy1[setviewcnt].x,bakwindowxy1[setviewcnt].y,
             bakwindowxy2[setviewcnt].x,bakwindowxy2[setviewcnt].y);
-    memcpy(&bakumost[windowxy1.x],&startumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startumost[0]));
-    memcpy(&bakdmost[windowxy1.x],&startdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startdmost[0]));
+    copybufbyte(&bakumost[windowxy1.x],&startumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startumost[0]));
+    copybufbyte(&bakdmost[windowxy1.x],&startdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startdmost[0]));
     frameplace = bakframeplace[setviewcnt];
 
     calc_ylookup((setviewcnt == 0) ? bytesperline : bakxsiz[setviewcnt],

@@ -327,7 +327,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		{
 			// Build's original 'file system' loads all GRPs before the first external directory.
 			// Do this only if explicitly requested because this severely limits the usability of GRP files.
-			if (insertdirectoriesafter) for (auto& file : *userConfig.AddFilesPre)
+			if (insertdirectoriesafter && userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
 			{
 				D_AddFile(Files, '*' + file);	// The * tells the file system not to pull in all subdirectories.
 			}
@@ -337,27 +337,30 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		i--;
 	}
 
-	if (!insertdirectoriesafter) for (auto& file : *userConfig.AddFilesPre)
+	if (!insertdirectoriesafter && userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
 	{
 		D_AddFile(Files, file);
 	}
-	for (auto& file : *userConfig.AddFiles)
+	if (userConfig.AddFiles)
 	{
-		D_AddFile(Files, file);
-	}
-
-	// Finally, if the last entry in the chain is a directory, it's being considered the mod directory, and all GRPs inside need to be loaded, too.
-	if (userConfig.AddFiles->NumArgs() > 0)
-	{
-		auto fn = (*userConfig.AddFiles)[userConfig.AddFiles->NumArgs() - 1];
-		bool isdir = false;
-		if (DirEntryExists(fn, &isdir) && isdir)
+		for (auto& file : *userConfig.AddFiles)
 		{
-			// Insert the GRPs before this entry itself.
-			FString lastfn;
-			Files.Pop(lastfn);
-			D_AddDirectory(Files, fn);
-			Files.Push(lastfn);
+			D_AddFile(Files, file);
+		}
+
+		// Finally, if the last entry in the chain is a directory, it's being considered the mod directory, and all GRPs inside need to be loaded, too.
+		if (userConfig.AddFiles->NumArgs() > 0)
+		{
+			auto fn = (*userConfig.AddFiles)[userConfig.AddFiles->NumArgs() - 1];
+			bool isdir = false;
+			if (DirEntryExists(fn, &isdir) && isdir)
+			{
+				// Insert the GRPs before this entry itself.
+				FString lastfn;
+				Files.Pop(lastfn);
+				D_AddDirectory(Files, fn);
+				Files.Push(lastfn);
+			}
 		}
 	}
 	const char* key;

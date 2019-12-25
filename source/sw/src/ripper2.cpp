@@ -36,7 +36,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "actor.h"
 #include "sprite.h"
 #include "track.h"
-#include "fx_man.h"
 
 BEGIN_SW_NS
 
@@ -1246,12 +1245,11 @@ int DoRipper2StandHeart(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    static int riphearthandle;
 
     NullRipper2(SpriteNum);
 
-    if (!FX_SoundValidAndActive(riphearthandle))
-        riphearthandle = PlaySound(DIGI_RIPPER2HEARTOUT,&sp->x,&sp->y,&sp->z,v3df_none);
+    if (!SoundValidAndActive(sp, CHAN_RipHeart))
+        PlaySound(DIGI_RIPPER2HEARTOUT, sp, v3df_none, CHAN_RipHeart);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
         NewStateGroup(SpriteNum, sg_Ripper2Run);
@@ -1375,7 +1373,7 @@ int ChestRipper2(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
 
-    PlaySound(DIGI_RIPPER2CHEST,&sp->x,&sp->y,&sp->z,v3df_follow);
+    PlaySound(DIGI_RIPPER2CHEST, sp, v3df_follow);
 
     return 0;
 }

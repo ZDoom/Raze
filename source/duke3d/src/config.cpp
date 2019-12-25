@@ -77,14 +77,7 @@ void CONFIG_SetDefaults(void)
     ud.display_bonus_screen   = 1;
 
     hud_position               = 0;
-    ud.menu_scrollbartilenum  = -1;
-    ud.menu_scrollbarz        = 65536;
-    ud.menu_scrollcursorz     = 65536;
-    ud.menu_slidebarmargin    = 65536;
-    ud.menu_slidebarz         = 65536;
-    ud.menu_slidecursorz      = 65536;
     ud.menubackground         = 1;
-    ud.runkey_mode            = 0;
     ud.screen_size            = 4;
     ud.screen_tilting         = 1;
     ud.screenfade             = 1;

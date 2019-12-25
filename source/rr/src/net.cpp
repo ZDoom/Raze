@@ -1802,7 +1802,7 @@ void Net_GetInput(void)
     
     if (g_player[myconnectindex].movefifoend&(g_movesPerPacket-1))
     {
-        memcpy(&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex],
+        copybufbyte(&inputfifo[(g_player[myconnectindex].movefifoend-1)&(MOVEFIFOSIZ-1)][myconnectindex],
                     &inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex],sizeof(input_t));
         g_player[myconnectindex].movefifoend++;
         return;
@@ -2180,7 +2180,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
                 continue;
             }
 
-            memcpy(&osyn[i],&nsyn[i],sizeof(input_t));
+            copybufbyte(&osyn[i],&nsyn[i],sizeof(input_t));
             if (l&1)   nsyn[i].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
             if (l&2)   nsyn[i].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
             if (l&4)
@@ -2219,7 +2219,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         if (i != myconnectindex)
             for (j=g_movesPerPacket-1;j>=1;j--)
             {
-                memcpy(&nsyn[i],&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t));
+                copybufbyte(&nsyn[i],&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t));
                 g_player[i].movefifoend++;
             }
 
@@ -2233,7 +2233,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         osyn = (input_t *)&inputfifo[(g_player[other].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
         nsyn = (input_t *)&inputfifo[(g_player[other].movefifoend)&(MOVEFIFOSIZ-1)][0];
 
-        memcpy(&osyn[other],&nsyn[other],sizeof(input_t));
+        copybufbyte(&osyn[other],&nsyn[other],sizeof(input_t));
         if (k&1)   nsyn[other].fvel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
         if (k&2)   nsyn[other].svel = packbuf[j]+((short)packbuf[j+1]<<8), j += 2;
         if (k&4)
@@ -2272,7 +2272,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
 
         for (i=g_movesPerPacket-1;i>=1;i--)
         {
-            memcpy(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
+            copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
             g_player[other].movefifoend++;
         }
 
@@ -2296,7 +2296,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         osyn = (input_t *)&inputfifo[(g_player[other].movefifoend-1)&(MOVEFIFOSIZ-1)][0];
         nsyn = (input_t *)&inputfifo[(g_player[other].movefifoend)&(MOVEFIFOSIZ-1)][0];
 
-        memcpy(&osyn[other],&nsyn[other],sizeof(input_t));
+        copybufbyte(&osyn[other],&nsyn[other],sizeof(input_t));
         k = packbuf[j] + (int)(packbuf[j+1]<<8);
         j += 2;
 
@@ -2332,7 +2332,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
 
         for (i=g_movesPerPacket-1;i>=1;i--)
         {
-            memcpy(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
+            copybufbyte(&nsyn[other],&inputfifo[g_player[other].movefifoend&(MOVEFIFOSIZ-1)][other],sizeof(input_t));
             g_player[other].movefifoend++;
         }
 
@@ -2531,10 +2531,6 @@ void Net_ReceiveDisconnect(ENetEvent *event)
 
 void Net_GetPackets(void)
 {
-    MUSIC_Update();
-
-    G_HandleSpecialKeys();
-
     if (g_netDisconnect)
     {
         Net_Disconnect();

@@ -33,16 +33,15 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "settings.h"
 #include "mytypes.h"
 #include "gamedefs.h"
-#include "keyboard.h"
 #include "gamecontrol.h"
-#include "control.h"
-#include "fx_man.h"
 #include "sounds.h"
 #include "config.h"
 #include "common_game.h"
 
 // we load this in to get default button and key assignments
 // as well as setting up function mappings
+
+#include "renderlayer.h"
 
 #if defined RENDERTYPESDL && defined SDL_TARGET && SDL_TARGET > 1
 # include "sdl_inc.h"

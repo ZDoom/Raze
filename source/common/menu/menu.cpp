@@ -48,11 +48,12 @@
 #include "printf.h"
 #include "v_draw.h"
 #include "gamecontrol.h"
-#include "fx_man.h"
 #include "pragmas.h"
 #include "build.h"
 #include "baselayer.h"
 #include "statistics.h"
+#include "input/m_joy.h"
+#include "sound/s_soundinternal.h"
 
 void RegisterDukeMenus();
 void RegisterRedneckMenus();
@@ -61,6 +62,8 @@ void RegisterSWMenus();
 void RegisterPSMenus();
 void RegisterLoadsaveMenus();
 void RegisterOptionMenus();
+void RegisterJoystickMenus();
+void UpdateJoystickMenu(IJoystickConfig* joy);
 extern bool rotatesprite_2doverride;
 bool help_disabled, credits_disabled;
 int g_currentMenu;	// accessible by CON scripts - contains the current menu's script ID if defined or INT_MAX if none given.
@@ -364,7 +367,7 @@ void M_StartControlPanel (bool makeSound)
 		created = true;
 		M_CreateMenus();
 	}
-	FX_StopAllSounds();
+	soundEngine->StopAllChannels();
 	gi->MenuOpened();
 	if (makeSound) gi->MenuSound(ActivateSound);
 
@@ -957,8 +960,10 @@ void M_Init (void)
 	RegisterPSMenus();
 	RegisterLoadsaveMenus();
 	RegisterOptionMenus();
+	RegisterJoystickMenus();
 	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();
+	UpdateJoystickMenu(nullptr);
 }
 
 

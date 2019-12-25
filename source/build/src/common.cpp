@@ -2,7 +2,7 @@
 #include "compat.h"
 #include "build.h"
 #include "scriptfile.h"
-#include "cache1d.h"
+
 #include "baselayer.h"
 
 #include "common.h"
@@ -57,20 +57,6 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 
 //////////
 
-int32_t G_CheckCmdSwitch(int32_t argc, char const * const * argv, const char *str)
-{
-    int32_t i;
-    for (i=0; i<argc; i++)
-    {
-        if (str && !Bstrcasecmp(argv[i], str))
-            return 1;
-    }
-
-    return 0;
-}
-
-
-////
 
 // Copy FN to WBUF and append an extension if it's not there, which is checked
 // case-insensitively.

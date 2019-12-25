@@ -57,22 +57,21 @@ enum
     v3df_intermit   = 32,   // 1 = Intermittant sound
     v3df_init       = 64,   // 1 = First pass of sound, don't play it.
     // This is mainly used for intermittent sounds
-    v3df_nolookup   = 128   // don't use ambient table lookup
+    v3df_nolookup   = 128,   // don't use ambient table lookup
 };
 typedef int Voc3D_Flags;
 
 struct VOCstruct;
 typedef struct VOCstruct VOC_INFO, *VOC_INFOp;
+#if 0
 struct VOC3Dstruct;
 typedef struct VOC3Dstruct VOC3D_INFO, *VOC3D_INFOp;
+#endif
 struct ambientstruct;
 typedef struct ambientstruct AMB_INFO, *AMB_INFOp;
 
 
-extern VOC3D_INFOp voc3dstart;
-extern VOC3D_INFOp voc3dend;
-
-void DoUpdateSounds3D(void);
+void DoUpdateSounds(void);
 void Terminate3DSounds(void);
 
 void Set3DSoundOwner(short spritenum);
@@ -80,7 +79,7 @@ void PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags);
 void DeleteNoSoundOwner(short spritenum);
 void DeleteNoFollowSoundOwner(short spritenum);
 
-SWBOOL CacheSound(int num, int type);
+inline SWBOOL CacheSound(int num, int type) { return false; }
 void COVER_SetReverb(int amt);
 void UnInitSound(void);
 void InitFX(void);
@@ -143,13 +142,14 @@ struct VOCstruct
     int16_t voc_num;                      // Backward reference to parent sound
     int voc_distance;                   // Sound's distance effectiveness
     Voc_Flags voc_flags;                // Various allowable flag settings for voc
-    uint8_t lock;                          // locking byte for caching
+    uint16_t lock;                          // locking byte for caching
     uint8_t playing;                       // number of this type of sound currently playing
 };
 
 
 // JIMSOUND3D(tm) variables section //////////////////////////////////////////
 
+#if 0
 struct VOC3Dstruct
 {
     VOC_INFOp vp;                       // Pointer to the sound
@@ -174,6 +174,7 @@ struct VOC3Dstruct
     SWBOOL deleted;                       // Has sound been marked for deletion?
     SWBOOL FX_Ok;                         // Did this sound play ok?
 };
+#endif
 
 extern VOC_INFO voc[];
 

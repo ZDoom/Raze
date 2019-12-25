@@ -34,12 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define NEED_COMMCTRL_H
 #define ONLY_USERDEFS
 
-#include "_control.h"
 #include "build.h"
-#include "cache1d.h"
+
 #include "compat.h"
-#include "control.h"
-#include "keyboard.h"
 #include "startwin.game.h"
 #include "windows_inc.h"
 #include "gamecontrol.h"

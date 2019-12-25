@@ -47,7 +47,7 @@
 #include "v_text.h"
 #include "image.h"
 #include "utf8.h"
-#include "cache1d.h"
+
 #include "m_png.h"
 #include "printf.h"
 #include "filesystem.h"

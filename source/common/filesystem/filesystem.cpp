@@ -550,6 +550,15 @@ int FileSystem::GetResourceId(int lump) const
 		return FileInfo[lump].lump->ResourceId;
 }
 
+FName FileSystem::GetResourceType(int lump) const
+{
+	if ((size_t)lump >= NumEntries)
+		return NAME_None;
+	else
+		return FileInfo[lump].lump->LumpName[FResourceLump::ExtensionType];
+}
+
+
 //==========================================================================
 //
 // GetLumpFile
@@ -893,13 +902,14 @@ const char *FileSystem::GetResourceFileFullName (int rfnum) const noexcept
 //
 //==========================================================================
 
-void FileSystem::AddFromBuffer(const char* name, const char* type, char* data, int size, int id, int flags)
+int FileSystem::AddFromBuffer(const char* name, const char* type, char* data, int size, int id, int flags)
 {
 	FStringf fullname("%s.%s", name, type);
 	auto newlump = new FMemoryLump(data, size);
 	newlump->LumpNameSetup(fullname);
 	newlump->ResourceId = id;
 	AddLump(newlump);
+	return Files.Size()-1;
 }
 
 //==========================================================================

@@ -575,7 +575,7 @@ void G_CacheMapData(void)
 
     starttime = timerGetTicks();
 
-    S_PrecacheSounds();
+    cacheAllSounds();
     G_PrecacheSprites();
 
     for (i=0; i<numwalls; i++)
@@ -628,8 +628,6 @@ void G_CacheMapData(void)
             pc++;
         }
         else continue;
-
-        MUSIC_Update();
 
         if ((j&7) == 0)
             G_HandleAsync();
@@ -1873,12 +1871,6 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     G_HandleAsync();
 
-    if (g_skillSoundVoice >= 0 && SoundEnabled())
-    {
-        while (FX_SoundActive(g_skillSoundVoice))
-            G_HandleAsync();
-    }
-
     g_skillSoundVoice = -1;
 
     ready2send = 0;
@@ -2282,7 +2274,7 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
         }
     }
 
-    userMapRecord.music = "dethtoll.mid";
+    if (!RR) userMapRecord.music = "dethtoll.mid";
 }
 
 int G_EnterLevel(int gameMode)
@@ -2425,7 +2417,11 @@ int G_EnterLevel(int gameMode)
 
     if (ud.recstat != 2)
     {
-        S_PlayLevelMusicOrNothing(mii);
+        if (Menu_HaveUserMap())
+        {
+            S_PlayLevelMusicOrNothing(USERMAPMUSICFAKESLOT);
+        }
+        else S_PlayLevelMusicOrNothing(mii);
     }
 
     if (RR && !(gameMode & MODE_DEMO))

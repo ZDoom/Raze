@@ -83,7 +83,6 @@ void SpawnWallSound(short sndnum, short i)
     short SpriteNum;
     vec3_t mid;
     SPRITEp sp;
-    int handle;
 
     SpriteNum = COVERinsertsprite(0, STAT_DEFAULT);
     if (SpriteNum < 0)
@@ -99,9 +98,7 @@ void SpawnWallSound(short sndnum, short i)
     setspritez(SpriteNum, &mid);
     sp = &sprite[SpriteNum];
 
-    handle = PlaySound(sndnum, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
-    if (handle != -1)
-        Set3DSoundOwner(SpriteNum);
+    PlaySound(sndnum, sp, v3df_dontpan | v3df_doppler);
 }
 
 short
@@ -179,7 +176,6 @@ JS_SpriteSetup(void)
     short SpriteNum = 0, NextSprite, ndx;
     USERp u;
     short i, num;
-    int handle;
 
 
     TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
@@ -217,8 +213,6 @@ JS_SpriteSetup(void)
             else if (tag == AMBIENT_SOUND)
             {
                 change_sprite_stat(SpriteNum, STAT_AMBIENT);
-                // PlaySound(sp->lotag, &sp->x, &sp->y, &sp->z, v3df_ambient
-                // | v3df_init | v3df_doppler);
             }
             else if (tag == TAG_ECHO_SOUND)
             {
@@ -250,21 +244,14 @@ JS_SpriteSetup(void)
         case 2720:
         case 3143:
         case 3157:
-            handle = PlaySound(DIGI_FIRE1, &sp->x, &sp->y, &sp->z, v3df_follow|v3df_dontpan|v3df_doppler);
-            if (handle != -1)
-                Set3DSoundOwner(SpriteNum);
+            PlaySound(DIGI_FIRE1, sp, v3df_follow|v3df_dontpan|v3df_doppler);
             break;
         case 795:
         case 880:
-            handle = PlaySound(DIGI_WATERFLOW1, &sp->x, &sp->y, &sp->z, v3df_follow|v3df_dontpan|v3df_doppler);
-            if (handle != -1)
-                Set3DSoundOwner(SpriteNum);
+            PlaySound(DIGI_WATERFLOW1, sp, v3df_follow|v3df_dontpan|v3df_doppler);
             break;
         case 460:  // Wind Chimes
-            handle = PlaySound(79, &sp->x, &sp->y, &sp->z, v3df_ambient | v3df_init
-                               | v3df_doppler | v3df_follow);
-            if (handle != -1)
-                Set3DSoundOwner(SpriteNum);
+            InitAmbient(79, sp);
             break;
 
         }
@@ -1353,7 +1340,7 @@ UnlockKeyLock(short key_num, short hit_sprite)
         case SKEL_LOCKED:
             if (sp->pal == color)
             {
-                PlaySound(DIGI_UNLOCK, &sp->x, &sp->y, &sp->z, v3df_doppler | v3df_dontpan);
+                PlaySound(DIGI_UNLOCK, sp, v3df_doppler | v3df_dontpan);
                 if (SpriteNum == hit_sprite)
                     sp->picnum = SKEL_UNLOCKED;
             }
@@ -1361,14 +1348,14 @@ UnlockKeyLock(short key_num, short hit_sprite)
         case RAMCARD_LOCKED:
             if (sp->pal == color)
             {
-                PlaySound(DIGI_CARDUNLOCK, &sp->x, &sp->y, &sp->z, v3df_doppler | v3df_dontpan);
+                PlaySound(DIGI_CARDUNLOCK, sp, v3df_doppler | v3df_dontpan);
                 sp->picnum = RAMCARD_UNLOCKED;
             }
             break;
         case CARD_LOCKED:
             if (sp->pal == color)
             {
-                PlaySound(DIGI_RAMUNLOCK, &sp->x, &sp->y, &sp->z, v3df_doppler | v3df_dontpan);
+                PlaySound(DIGI_RAMUNLOCK, sp, v3df_doppler | v3df_dontpan);
                 if (SpriteNum == hit_sprite)
                     sp->picnum = CARD_UNLOCKED;
                 else

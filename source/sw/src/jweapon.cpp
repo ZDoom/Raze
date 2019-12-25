@@ -874,7 +874,7 @@ DoChemBomb(int16_t Weapon)
             SPRITEp hsp;
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
-                PlaySound(DIGI_CHEMBOUNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+                PlaySound(DIGI_CHEMBOUNCE, sp, v3df_dontpan);
 
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
@@ -890,8 +890,8 @@ DoChemBomb(int16_t Weapon)
                 // Canister pops when first smoke starts out
                 if (u->WaitTics == CHEMTICS && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                 {
-                    PlaySound(DIGI_GASPOP, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
-                    PlaySound(DIGI_CHEMGAS, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
+                    PlaySound(DIGI_GASPOP, sp, v3df_dontpan | v3df_doppler);
+                    PlaySound(DIGI_CHEMGAS, sp, v3df_dontpan | v3df_doppler);
                     Set3DSoundOwner(Weapon);
                 }
                 u->xchange = u->ychange = 0;
@@ -921,7 +921,7 @@ DoChemBomb(int16_t Weapon)
             }
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
-                PlaySound(DIGI_CHEMBOUNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+                PlaySound(DIGI_CHEMBOUNCE, sp, v3df_dontpan);
 
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
@@ -953,7 +953,7 @@ DoChemBomb(int16_t Weapon)
                         if (!TEST(u->Flags, SPR_BOUNCE))
                         {
                             if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
-                                PlaySound(DIGI_CHEMBOUNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+                                PlaySound(DIGI_CHEMBOUNCE, sp, v3df_dontpan);
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(Weapon, 32000);       // was 18000
                             u->zchange /= 6;
@@ -965,8 +965,8 @@ DoChemBomb(int16_t Weapon)
                             // Canister pops when first smoke starts out
                             if (u->WaitTics == CHEMTICS && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                             {
-                                PlaySound(DIGI_GASPOP, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
-                                PlaySound(DIGI_CHEMGAS, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
+                                PlaySound(DIGI_GASPOP, sp, v3df_dontpan | v3df_doppler);
+                                PlaySound(DIGI_CHEMGAS, sp, v3df_dontpan | v3df_doppler);
                                 Set3DSoundOwner(Weapon);
                             }
                             SpawnRadiationCloud(Weapon);
@@ -1000,7 +1000,7 @@ DoChemBomb(int16_t Weapon)
                     if (!TEST(u->Flags, SPR_BOUNCE))
                     {
                         if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
-                            PlaySound(DIGI_CHEMBOUNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+                            PlaySound(DIGI_CHEMBOUNCE, sp, v3df_dontpan);
                         SET(u->Flags, SPR_BOUNCE);
                         u->ret = 0;
                         u->Counter = 0;
@@ -1013,8 +1013,8 @@ DoChemBomb(int16_t Weapon)
                         // Canister pops when first smoke starts out
                         if (u->WaitTics == CHEMTICS && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                         {
-                            PlaySound(DIGI_GASPOP, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
-                            PlaySound(DIGI_CHEMGAS, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
+                            PlaySound(DIGI_GASPOP, sp, v3df_dontpan | v3df_doppler);
+                            PlaySound(DIGI_CHEMGAS, sp, v3df_dontpan | v3df_doppler);
                             Set3DSoundOwner(Weapon);
                         }
                         // WeaponMoveHit(Weapon);
@@ -1132,7 +1132,7 @@ DoCaltrops(int16_t Weapon)
             short hit_sprite;
             SPRITEp hsp;
 
-            PlaySound(DIGI_CALTROPS, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_CALTROPS, sp, v3df_dontpan);
 
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
@@ -1168,7 +1168,7 @@ DoCaltrops(int16_t Weapon)
                 break;
             }
 
-            PlaySound(DIGI_CALTROPS, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_CALTROPS, sp, v3df_dontpan);
 
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
@@ -1199,7 +1199,7 @@ DoCaltrops(int16_t Weapon)
                         // hit a floor
                         if (!TEST(u->Flags, SPR_BOUNCE))
                         {
-                            PlaySound(DIGI_CALTROPS, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+                            PlaySound(DIGI_CALTROPS, sp, v3df_dontpan);
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(Weapon, 1000);        // was 18000
                             u->ret = 0;
@@ -1236,7 +1236,7 @@ DoCaltrops(int16_t Weapon)
 
                     if (!TEST(u->Flags, SPR_BOUNCE))
                     {
-                        PlaySound(DIGI_CALTROPS, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+                        PlaySound(DIGI_CALTROPS, sp, v3df_dontpan);
                         SET(u->Flags, SPR_BOUNCE);
                         u->ret = 0;
                         u->Counter = 0;
@@ -1387,7 +1387,7 @@ PlayerInitChemBomb(PLAYERp pp)
     int dist;
 
 
-    PlaySound(DIGI_THROW, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan | v3df_doppler);
+    PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
 
     if (pp->cursectnum < 0)
         return 0;
@@ -1474,7 +1474,7 @@ InitSpriteChemBomb(int16_t SpriteNum)
     int dist;
 
 
-    PlaySound(DIGI_THROW, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
+    PlaySound(DIGI_THROW, sp, v3df_dontpan | v3df_doppler);
 
     nx = sp->x;
     ny = sp->y;
@@ -1606,7 +1606,7 @@ PlayerInitFlashBomb(PLAYERp pp)
     SPRITEp sp = pp->SpriteP, hp;
     USERp u = User[pp->PlayerSprite], hu;
 
-    PlaySound(DIGI_GASPOP, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan | v3df_doppler);
+    PlaySound(DIGI_GASPOP, pp, v3df_dontpan | v3df_doppler);
 
     // Set it just a little to let player know what he just did
     SetFadeAmt(pp, -30, 1);             // White flash
@@ -1650,8 +1650,7 @@ PlayerInitFlashBomb(PLAYERp pp)
 
                     choosesnd = RANDOM_RANGE(MAX_PAIN);
 
-                    PlayerSound(PlayerLowHealthPainVocs[choosesnd],&pp->posx,
-                                &pp->posy,&pp->posy,v3df_dontpan|v3df_doppler|v3df_follow,pp);
+                    PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
                 }
                 SetFadeAmt(hu->PlayerP, damage, 1);     // White flash
             }
@@ -1677,7 +1676,7 @@ InitFlashBomb(int16_t SpriteNum)
     USERp u = User[SpriteNum], hu;
     PLAYERp pp = Player + screenpeek;
 
-    PlaySound(DIGI_GASPOP, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
+    PlaySound(DIGI_GASPOP, sp, v3df_dontpan | v3df_doppler);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -1710,8 +1709,7 @@ InitFlashBomb(int16_t SpriteNum)
 
                     choosesnd = RANDOM_RANGE(MAX_PAIN);
 
-                    PlayerSound(PlayerLowHealthPainVocs[choosesnd],&pp->posx,
-                                &pp->posy,&pp->posy,v3df_dontpan|v3df_doppler|v3df_follow,pp);
+                    PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
                 }
                 SetFadeAmt(hu->PlayerP, damage, 1);     // White flash
             }
@@ -1835,7 +1833,7 @@ PlayerInitCaltrops(PLAYERp pp)
     int dist;
 
 
-    PlaySound(DIGI_THROW, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan | v3df_doppler);
+    PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
 
     if (pp->cursectnum < 0)
         return 0;
@@ -1920,7 +1918,7 @@ InitCaltrops(int16_t SpriteNum)
     int dist;
 
 
-    PlaySound(DIGI_THROW, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
+    PlaySound(DIGI_THROW, sp, v3df_dontpan | v3df_doppler);
 
     nx = sp->x;
     ny = sp->y;
@@ -1973,7 +1971,7 @@ InitPhosphorus(int16_t SpriteNum)
     int dist;
 
 
-    PlaySound(DIGI_FIREBALL1, &sp->x, &sp->y, &sp->z, v3df_follow);
+    PlaySound(DIGI_FIREBALL1, sp, v3df_follow);
 
     nx = sp->x;
     ny = sp->y;
@@ -2042,11 +2040,11 @@ InitBloodSpray(int16_t SpriteNum, SWBOOL dogib, short velocity)
     //    {
     rnd = RANDOM_RANGE(1000);
     if (rnd > 650)
-        PlaySound(DIGI_GIBS1, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_GIBS1, sp, v3df_none);
     else if (rnd > 350)
-        PlaySound(DIGI_GIBS2, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_GIBS2, sp, v3df_none);
     else
-        PlaySound(DIGI_GIBS3, &sp->x, &sp->y, &sp->z, v3df_none);
+        PlaySound(DIGI_GIBS3, sp, v3df_none);
     //    }
 
     ang = sp->ang;
@@ -2265,7 +2263,7 @@ DoCarryFlag(int16_t Weapon)
                 }
                 if (!TEST_BOOL1(fp))
                 {
-                    PlaySound(DIGI_BIGITEM, &ap->x, &ap->y, &ap->z, v3df_none);
+                    PlaySound(DIGI_BIGITEM, ap, v3df_none);
                     DoFlagScore(ap->pal);
                     if (SP_TAG5(fp) > 0)
                     {
@@ -2296,55 +2294,55 @@ DoCarryFlag(int16_t Weapon)
     case 0:
         if (u->WaitTics < SEC(30))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 1:
         if (u->WaitTics < SEC(20))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 2:
         if (u->WaitTics < SEC(10))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 3:
         if (u->WaitTics < SEC(5))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 4:
         if (u->WaitTics < SEC(4))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 5:
         if (u->WaitTics < SEC(3))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 6:
         if (u->WaitTics < SEC(2))
         {
-            PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
             u->Counter2 = FLAG_DETONATE_STATE;
         }
         break;
     case FLAG_DETONATE_STATE:
         // start frantic beeping
-        PlaySound(DIGI_MINEBEEP, &sp->x, &sp->y, &sp->z, v3df_dontpan);
+        PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
         u->Counter2++;
         break;
     case FLAG_DETONATE_STATE + 1:
@@ -2406,7 +2404,7 @@ DoCarryFlagNoDet(int16_t Weapon)
         }
         if (!TEST_BOOL1(fp))
         {
-            PlaySound(DIGI_BIGITEM, &ap->x, &ap->y, &ap->z, v3df_none);
+            PlaySound(DIGI_BIGITEM, ap, v3df_none);
             DoFlagScore(ap->pal);
             if (SP_TAG5(fp) > 0)
             {

@@ -3995,17 +3995,21 @@ void polymost_drawsprite(int32_t snum)
             break;  // else, render as flat sprite
         }
 
-        if (r_voxels && (tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
+        if (r_voxels)
         {
-            if (polymost_voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
-            break;  // else, render as flat sprite
+            if ((tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
+            {
+                if (polymost_voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
+                break;  // else, render as flat sprite
+            }
+
+            if ((tspr->cstat & 48) == 48 && voxmodels[tspr->picnum])
+            {
+                polymost_voxdraw(voxmodels[tspr->picnum], tspr);
+                return;
+            }
         }
 
-        if ((tspr->cstat & 48) == 48 && voxmodels[tspr->picnum])
-        {
-            polymost_voxdraw(voxmodels[tspr->picnum], tspr);
-            return;
-        }
 
         break;
     }

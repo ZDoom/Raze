@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "compat.h"
 #include "renderlayer.h"
-#include "fx_man.h"
 #include "common.h"
 #include "common_game.h"
 
@@ -50,7 +49,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "loadsave.h"
 #include "gamemenu.h"
 #include "mirrors.h"
-#include "music.h"
 #include "network.h"
 #include "osdcmds.h"
 #include "replace.h"
@@ -72,6 +70,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_argv.h"
 #include "statistics.h"
 #include "menu/menu.h"
+#include "sound/s_soundinternal.h"
 
 #ifdef _WIN32
 # include <shellapi.h>
@@ -172,10 +171,9 @@ void ShutDown(void)
     if (!in3dmode())
         return;
 	netDeinitialize();
-    sndTerm();
+    //sndTerm();
     sfxTerm();
     scrUnInit();
-    CONTROL_Shutdown();
     // PORT_TODO: Check argument
     if (syncstate)
         printf("A packet was lost! (syncstate)\n");
@@ -402,8 +400,6 @@ void PreloadCache(void)
 #ifdef USE_OPENGL
             if (r_precache) PrecacheHardwareTextures(i);
 #endif
-
-            MUSIC_Update();
 
             if ((++cnt & 7) == 0)
                 gameHandleEvents();
@@ -916,7 +912,6 @@ void ProcessFrame(void)
     actProcessSprites();
     actPostProcess();
     viewCorrectPrediction();
-    sndProcess();
     ambProcess();
     viewUpdateDelirium();
     viewUpdateShake();
@@ -1140,7 +1135,6 @@ int GameInterface::app_main()
 #endif
     //gSysRes.Init(pUserRFF ? pUserRFF : "BLOOD.RFF");
     //gGuiRes.Init("GUI.RFF");
-    //gSoundRes.Init(pUserSoundRFF ? pUserSoundRFF : "SOUNDS.RFF");
 
     HookReplaceFunctions();
 
@@ -1196,10 +1190,9 @@ int GameInterface::app_main()
     netInitialize(true);
     scrSetGameMode( ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP);
     scrSetGamma(gGamma);
-    viewResizeView(gViewSize);
+    hud_size.Callback();
     initprintf("Initializing sound system\n");
     sndInit();
-    sfxInit();
     gChoke.sub_83ff0(518, sub_84230);
     if (bAddUserMap)
     {
@@ -1252,7 +1245,6 @@ RESTART:
     {
 		handleevents();
         netUpdate();
-        MUSIC_Update();
         inputState.SetBindsEnabled(gInputMode == kInputGame);
         switch (gInputMode)
         {
@@ -1368,7 +1360,7 @@ RESTART:
     {
         UpdateDacs(0, true);
         Mus_Stop();
-        FX_StopAllSounds();
+        soundEngine->StopAllChannels();
         gQuitGame = 0;
         gQuitRequest = 0;
         gRestartGame = 0;
@@ -1963,7 +1955,7 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     if (pScript)
         parsedefinitions_game(pScript, firstPass);
 
-    for (auto & m : *userConfig.AddDefs)
+    if (userConfig.AddDefs) for (auto & m : *userConfig.AddDefs)
         parsedefinitions_game_include(m, NULL, "null", firstPass);
 
     if (pScript)

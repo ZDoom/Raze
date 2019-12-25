@@ -42,7 +42,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "common_game.h"
 #include "gamecontrol.h"
-#include "control.h"
 #include "trigger.h"
 
 #include "savedef.h"
@@ -51,7 +50,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 #include "demo.h"
 #include "mclip.h"
-#include "fx_man.h"
 
 #include "sprite.h"
 #include "weapon.h"
@@ -61,12 +59,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sector.h"
 #include "actor.h"
 #include "colormap.h"
-#include "music.h"
 #include "vis.h"
 #include "track.h"
 #include "interp.h"
 #include "menu/menu.h"
 #include "gstrings.h"
+#include "z_music.h"
 
 BEGIN_SW_NS
 
@@ -1457,7 +1455,7 @@ DoPlayerWarpTeleporter(PLAYERp pp)
     default:
         DoPlayerTeleportToSprite(pp, sp_warp);
 
-        PlaySound(DIGI_TELEPORT, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+        PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
         DoPlayerResetMovement(pp);
 
@@ -3638,7 +3636,7 @@ void StackedWaterSplash(PLAYERp pp)
 
         if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
         {
-            PlaySound(DIGI_SPLASH1, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
+            PlaySound(DIGI_SPLASH1, pp, v3df_dontpan);
         }
     }
 }
@@ -3649,7 +3647,6 @@ DoPlayerFall(PLAYERp pp)
     short i;
     int recoil_amt;
     int depth;
-    static int handle=0;
 
     // reset flag key for double jumps
     if (!TEST_SYNC_KEY(pp, SK_JUMP))
@@ -3679,9 +3676,7 @@ DoPlayerFall(PLAYERp pp)
 
         if (pp->jump_speed > 2000)
         {
-            PlayerSound(DIGI_FALLSCREAM, &pp->posx, &pp->posy, &pp->posz,
-                        v3df_dontpan|v3df_doppler|v3df_follow,pp);
-            handle = pp->TalkVocHandle; // Save id for later
+            PlayerSound(DIGI_FALLSCREAM, v3df_dontpan|v3df_doppler|v3df_follow,pp);
         }
         else if (pp->jump_speed > 1300)
         {
@@ -3722,22 +3717,13 @@ DoPlayerFall(PLAYERp pp)
 
             if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
             {
-                PlaySound(DIGI_SPLASH1, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
+                PlaySound(DIGI_SPLASH1, pp, v3df_dontpan);
             }
             else
             {
                 if (pp->jump_speed > 1020)
                     // Feet hitting ground sound
-                    PlaySound(DIGI_HITGROUND, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
-            }
-
-            if (FX_SoundValidAndActive(handle))
-            {
-                // My sound code will detect the sound has stopped and clean up
-                // for you.
-                FX_StopSound(handle);
-                pp->PlayerTalking = FALSE;
-                handle = 0;
+                    PlaySound(DIGI_HITGROUND, pp, v3df_follow|v3df_dontpan);
             }
 
             // i any kind of crawl key get rid of recoil
@@ -3760,7 +3746,7 @@ DoPlayerFall(PLAYERp pp)
             if (pp->jump_speed > 1700 && depth == 0)
             {
 
-                PlayerSound(DIGI_PLAYERPAIN2, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan,pp);
+                PlayerSound(DIGI_PLAYERPAIN2, v3df_follow|v3df_dontpan,pp);
                 // PlayerUpdateHealth(pp, -RANDOM_RANGE(PLAYER_FALL_DAMAGE_AMOUNT) - 2);
 
                 if (pp->jump_speed > 1700 && pp->jump_speed < 4000)
@@ -4698,7 +4684,7 @@ PlayerCanDiveNoWarp(PLAYERp pp)
                 pp->z_speed = Z(20);
                 pp->jump_speed = 0;
 
-                PlaySound(DIGI_SPLASH1, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
+                PlaySound(DIGI_SPLASH1, pp, v3df_dontpan);
                 DoPlayerBeginDiveNoWarp(pp);
                 return TRUE;
             }
@@ -5161,15 +5147,10 @@ DoPlayerStopDiveNoWarp(PLAYERp pp)
 
     if (!NoMeters) SetRedrawScreen(pp);
 
-    if (FX_SoundValidAndActive(pp->TalkVocHandle))
-    {
-        FX_StopSound(pp->TalkVocHandle);
-        pp->TalkVocHandle = 0;
-        pp->PlayerTalking = FALSE;
-    }
+    StopPlayerSound(pp);
 
     // stop diving no warp
-    PlayerSound(DIGI_SURFACE,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow|v3df_doppler,pp);
+    PlayerSound(DIGI_SURFACE, v3df_dontpan|v3df_follow|v3df_doppler,pp);
 
     pp->bob_amt = 0;
 
@@ -5197,15 +5178,10 @@ DoPlayerStopDive(PLAYERp pp)
 
     if (!NoMeters) SetRedrawScreen(pp);
 
-    if (FX_SoundValidAndActive(pp->TalkVocHandle))
-    {
-        FX_StopSound(pp->TalkVocHandle);
-        pp->TalkVocHandle = 0;
-        pp->PlayerTalking = FALSE;
-    }
+    StopPlayerSound(pp);
 
     // stop diving with warp
-    PlayerSound(DIGI_SURFACE,&pp->posx,&pp->posy,&pp->posz,v3df_dontpan|v3df_follow|v3df_doppler,pp);
+    PlayerSound(DIGI_SURFACE, v3df_dontpan|v3df_follow|v3df_doppler,pp);
 
     pp->bob_amt = 0;
     DoPlayerWarpToSurface(pp);
@@ -5290,7 +5266,7 @@ DoPlayerDive(PLAYERp pp)
         {
             pp->DiveDamageTics = PLAYER_DIVE_DAMAGE_TIME;
             //PlayerUpdateHealth(pp, PLAYER_DIVE_DAMAGE_AMOUNT);
-            PlayerSound(DIGI_WANGDROWNING, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_follow, pp);
+            PlayerSound(DIGI_WANGDROWNING, v3df_dontpan|v3df_follow, pp);
             PlayerUpdateHealth(pp, -3 -(RANDOM_RANGE(7<<8)>>8));
             PlayerCheckDeath(pp, -1);
             if (TEST(pp->Flags, PF_DEAD))
@@ -5429,7 +5405,7 @@ DoPlayerDive(PLAYERp pp)
 
     // Random bubble sounds
     // if((RANDOM_RANGE(1000<<5)>>5) < 100)
-    //     PlaySound(DIGI_BUBBLES, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_follow);
+    //     PlaySound(DIGI_BUBBLES, pp, v3df_dontpan|v3df_follow);
 
     if ((!Prediction && pp->z_speed && ((RANDOM_P2(1024<<5)>>5) < 64)) ||
         (PLAYER_MOVING(pp) && (RANDOM_P2(1024<<5)>>5) < 64))
@@ -5439,7 +5415,7 @@ DoPlayerDive(PLAYERp pp)
         SPRITEp bp;
         int nx,ny;
 
-        PlaySound(DIGI_BUBBLES, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+        PlaySound(DIGI_BUBBLES, pp, v3df_none);
         bubble = SpawnBubble(pp->SpriteP - sprite);
         if (bubble >= 0)
         {
@@ -5893,7 +5869,7 @@ DoPlayerBeginOperate(PLAYERp pp)
         }
         else
         {
-            PlayerSound(DIGI_USEBROKENVEHICLE, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_USEBROKENVEHICLE, v3df_follow|v3df_dontpan,pp);
             return;
         }
     }
@@ -5981,7 +5957,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         }
         else
         {
-            PlayerSound(DIGI_USEBROKENVEHICLE, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_USEBROKENVEHICLE, v3df_follow|v3df_dontpan,pp);
             return;
         }
     }
@@ -6334,9 +6310,9 @@ DoPlayerDeathFall(PLAYERp pp)
                 SpawnSplash(pp->PlayerSprite);
 
             if (RANDOM_RANGE(1000) > 500)
-                PlaySound(DIGI_BODYFALL1, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
+                PlaySound(DIGI_BODYFALL1, pp, v3df_dontpan);
             else
-                PlaySound(DIGI_BODYFALL2, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
+                PlaySound(DIGI_BODYFALL2, pp, v3df_dontpan);
 
             pp->posz = loz - PLAYER_DEATH_HEIGHT;
             RESET(pp->Flags, PF_FALLING);
@@ -6496,21 +6472,12 @@ DoPlayerBeginDie(PLAYERp pp)
     if (GodMode)
         return;
 
-    // Override any previous talking, death scream has precedance
-    if (pp->PlayerTalking)
-    {
-        if (FX_SoundValidAndActive(pp->TalkVocHandle))
-            FX_StopSound(pp->TalkVocHandle);
-        pp->PlayerTalking = FALSE;
-        pp->TalkVocnum = -1;
-        pp->TalkVocHandle = -1;
-    }
+    StopPlayerSound(pp);
 
     // Do the death scream
     choosesnd = RANDOM_RANGE(MAX_PAIN);
 
-    PlayerSound(PlayerLowHealthPainVocs[choosesnd],&pp->posx,
-                &pp->posy,&pp->posy,v3df_dontpan|v3df_doppler|v3df_follow,pp);
+    PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
 #if 0
     if (!CommEnabled && numplayers <= 1 && QuickLoadNum >= 0)
@@ -6640,7 +6607,7 @@ DoPlayerBeginDie(PLAYERp pp)
     case PLAYER_DEATH_FLIP:
     case PLAYER_DEATH_RIPPER:
 
-        //PlaySound(DIGI_SCREAM1, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_follow);
+        //PlaySound(DIGI_SCREAM1, pp, v3df_dontpan|v3df_follow);
 
         SET(pp->Flags, PF_JUMPING);
         u->ID = NINJA_DEAD;
@@ -6658,7 +6625,7 @@ DoPlayerBeginDie(PLAYERp pp)
         break;
     case PLAYER_DEATH_CRUMBLE:
 
-        PlaySound(DIGI_BODYSQUISH1, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
+        PlaySound(DIGI_BODYSQUISH1, pp, v3df_dontpan);
 
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -300;
@@ -6674,7 +6641,7 @@ DoPlayerBeginDie(PLAYERp pp)
         break;
     case PLAYER_DEATH_EXPLODE:
 
-        PlaySound(DIGI_BODYSQUISH1, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
+        PlaySound(DIGI_BODYSQUISH1, pp, v3df_dontpan);
 
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = -650;
@@ -6691,7 +6658,7 @@ DoPlayerBeginDie(PLAYERp pp)
         break;
     case PLAYER_DEATH_SQUISH:
 
-        PlaySound(DIGI_BODYCRUSHED1, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
+        PlaySound(DIGI_BODYCRUSHED1, pp, v3df_dontpan);
 
         SET(pp->Flags, PF_DEAD_HEAD | PF_JUMPING);
         pp->jump_speed = 200;
@@ -6791,7 +6758,7 @@ void DoPlayerDeathHurl(PLAYERp pp)
                 {
                     SpawnShrap(pp->PlayerSprite, -1);
                     if (RANDOM_RANGE(1000) > 400)
-                        PlayerSound(DIGI_DHVOMIT, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_follow,pp);
+                        PlayerSound(DIGI_DHVOMIT, v3df_dontpan|v3df_follow,pp);
                 }
                 return;
             }
@@ -6876,7 +6843,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         pp->SpriteP->ang = pp->pang;
 
         DoSpawnTeleporterEffect(pp->SpriteP);
-        PlaySound(DIGI_TELEPORT, &pp->posx, &pp->posy, &pp->posz, v3df_none);
+        PlaySound(DIGI_TELEPORT, pp, v3df_none);
 
         DoPlayerZrange(pp);
 
@@ -7028,7 +6995,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
             short hit_sprite = -2;
             SPRITEp hsp;
 
-            //PlaySound(DIGI_DHCLUNK, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
+            //PlaySound(DIGI_DHCLUNK, pp, v3df_dontpan);
 
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
@@ -7048,7 +7015,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
         {
             short w,nw,wall_ang,dang;
 
-            //PlaySound(DIGI_DHCLUNK, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
+            //PlaySound(DIGI_DHCLUNK, pp, v3df_dontpan);
 
             w = NORM_WALL(u->ret);
 
@@ -7889,14 +7856,14 @@ void PauseMultiPlay(void)
 
                     SavePrediction = PredictionOn;
                     PredictionOn = FALSE;
-                    MUSIC_Pause();
+                    Mus_SetPaused(true);
                 }
                 else
                 {
                     PredictionOn = SavePrediction;
-                    MUSIC_Continue();
                     TRAVERSE_CONNECT(p)
                     pClearTextLine(Player + p, 100);
+                    Mus_SetPaused(false);
                 }
             }
         }
@@ -8101,8 +8068,8 @@ domovethings(void)
 
     MultiPlayLimits();
 
-    if (MoveSkip8 == 0)     // 8=5x 4=10x, 2=20x, 0=40x per second
-        DoUpdateSounds3D();
+    //if (MoveSkip8 == 0)     // 8=5x 4=10x, 2=20x, 0=40x per second
+        DoUpdateSounds();
 
     CorrectPrediction(movefifoplc - 1);
 

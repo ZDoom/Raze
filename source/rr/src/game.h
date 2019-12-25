@@ -143,13 +143,11 @@ typedef struct {
     int32_t camera_time,folfvel,folavel,folx,foly,fola;
     int32_t reccnt;
 
-    int32_t runkey_mode,statusbarscale,weaponswitch;   // JBF 20031125
+    int32_t statusbarscale,weaponswitch;   // JBF 20031125
     int32_t statusbarmode;
 	int32_t noexits,automsg;
     int32_t althud;
     int32_t statusbarflags, statusbarrange;
-    int32_t menu_slidebarz, menu_slidebarmargin, menu_slidecursorz;
-    int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
     int32_t entered_name,screen_tilting;
     int32_t coop,screen_size,lockout,crosshair;
@@ -199,6 +197,9 @@ extern user_defs ud;
 extern const char *s_buildDate;
 
 extern char boardfilename[BMAX_PATH];
+#define USERMAPMUSICFAKEVOLUME MAXVOLUMES
+#define USERMAPMUSICFAKELEVEL (MAXLEVELS-1)
+#define USERMAPMUSICFAKESLOT ((USERMAPMUSICFAKEVOLUME * MAXLEVELS) + USERMAPMUSICFAKELEVEL)
 
 static inline int G_HaveUserMap(void)
 {

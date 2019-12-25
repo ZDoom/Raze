@@ -141,13 +141,11 @@ typedef struct {
     int32_t camera_time,folfvel,folavel,folx,foly,fola;
     int32_t reccnt;
 
-    int32_t runkey_mode,statusbarscale,weaponswitch;   // JBF 20031125
+    int32_t statusbarscale,weaponswitch;   // JBF 20031125
     int32_t statusbarmode;
     int32_t noexits;
     int32_t althud;
     int32_t statusbarflags, statusbarrange;
-    int32_t menu_slidebarz, menu_slidebarmargin, menu_slidecursorz;
-    int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
 	int32_t entered_name,screen_tilting;
     int32_t coop,screen_size;
@@ -157,7 +155,7 @@ typedef struct {
     int32_t m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_monsters_off;
     int32_t ffire,m_player_skill,m_level_number,m_volume_number,multimode;
     int32_t player_skill,level_number,volume_number,marker;
-    int32_t music_episode, music_level, skill_voice;
+    int32_t music_episode, music_level;
 
     int32_t playerbest;
 

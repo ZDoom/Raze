@@ -62,20 +62,13 @@ void CONFIG_SetDefaults(void)
     ScreenBPP = 32;
     g_player[0].ps->aim_mode = 1;
     ud.config.ShowOpponentWeapons = 0;
-    ud.althud = 1;
     ud.automsg = 0;
     ud.camerasprite = -1;
 
 	ud.camera_time = 0;//4;
 
-    ud.menu_slidebarz = 65536;
-    ud.menu_slidebarmargin = RR ? 6 * 65536 : 65536;
-    ud.menu_slidecursorz = RR ? 32768 : 65536;
-    ud.runkey_mode = 0;
-    ud.screen_size = 4;
 	ud.screen_tilting = 1;
     ud.statusbarflags = STATUSBAR_NOSHRINK;
-    ud.statusbarmode = 1;
     ud.statusbarscale = 100;
     playerteam = 0;
     ud.angleinterpolation = 0;
@@ -88,9 +81,6 @@ void CONFIG_SetDefaults(void)
     ud.menubackground = 1;
     ud.slidebar_paldisabled = 1;
     ud.shadow_pal = 4;
-    ud.menu_scrollbartilenum = -1;
-    ud.menu_scrollbarz = 65536;
-    ud.menu_scrollcursorz = 65536;
 }
 
 

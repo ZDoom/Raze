@@ -43,9 +43,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "player.h"
 
 #include "weapon.h"
-#include "fx_man.h"
 #include "menu/menu.h"
 #include "swcvar.h"
+#include "sound/s_soundinternal.h"
 
 BEGIN_SW_NS
 
@@ -266,7 +266,7 @@ void DoPlayerChooseYell(PLAYERp pp)
     choose_snd = STD_RANDOM_RANGE(MAX_YELLSOUNDS);
 
     if (pp == Player+myconnectindex)
-        PlayerSound(PlayerYellVocs[choose_snd],&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+        PlayerSound(PlayerYellVocs[choose_snd], v3df_follow|v3df_dontpan,pp);
 }
 
 void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
@@ -353,13 +353,11 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
 
             if (u->Health > 50)
             {
-                PlayerSound(PlayerPainVocs[choosesnd],&pp->posx,
-                            &pp->posy,&pp->posy,v3df_dontpan|v3df_doppler|v3df_follow,pp);
+                PlayerSound(PlayerPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
             }
             else
             {
-                PlayerSound(PlayerLowHealthPainVocs[choosesnd],&pp->posx,
-                            &pp->posy,&pp->posy,v3df_dontpan|v3df_doppler|v3df_follow,pp);
+                PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
             }
 
         }
@@ -884,7 +882,7 @@ int WeaponOperate(PLAYERp pp)
                     if (TEST(pp->Flags, PF_TWO_UZI))
                     {
                         pp->WpnUziType++;
-                        PlaySound(DIGI_UZI_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
+                        PlaySound(DIGI_UZI_UP, pp, v3df_follow);
                         if (pp->WpnUziType > 1)
                             pp->WpnUziType = 0;
                     }
@@ -897,7 +895,7 @@ int WeaponOperate(PLAYERp pp)
                 if (u->WeaponNum == WPN_MICRO)
                 {
                     pp->WpnRocketType++;
-                    PlaySound(DIGI_ROCKET_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
+                    PlaySound(DIGI_ROCKET_UP, pp, v3df_follow);
                     if (pp->WpnRocketType > 2)
                         pp->WpnRocketType = 0;
                     if (pp->WpnRocketType == 2 && pp->WpnRocketNuke == 0)
@@ -915,7 +913,7 @@ int WeaponOperate(PLAYERp pp)
                     pp->WpnShotgunType++;
                     if (pp->WpnShotgunType > 1)
                         pp->WpnShotgunType = 0;
-                    PlaySound(DIGI_SHOTGUN_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
+                    PlaySound(DIGI_SHOTGUN_UP, pp, v3df_follow);
                 }
                 InitWeaponShotgun(pp);
                 break;
@@ -930,7 +928,7 @@ int WeaponOperate(PLAYERp pp)
                             pp->WpnRailType = 0;
                     }
                     if (pp->WpnRailType == 1)
-                        PlaySound(DIGI_RAIL_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
+                        PlaySound(DIGI_RAIL_UP, pp, v3df_follow);
 #endif
                     InitWeaponRail(pp);
                 }
@@ -951,7 +949,7 @@ int WeaponOperate(PLAYERp pp)
                             pp->WpnFlameType = 0;
 //                      if(pp->Wpn[WPN_HOTHEAD])
                         pHotHeadOverlays(pp->Wpn[WPN_HOTHEAD], pp->WpnFlameType);
-                        PlaySound(DIGI_HOTHEADSWITCH, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_follow);
+                        PlaySound(DIGI_HOTHEADSWITCH, pp, v3df_dontpan|v3df_follow);
                     }
 
                     InitWeaponHothead(pp);
@@ -998,11 +996,7 @@ int WeaponOperate(PLAYERp pp)
     if (pp->WpnRocketType != 2 || pp->CurWpn != pp->Wpn[WPN_MICRO])
     {
         pp->InitingNuke = FALSE;
-        if (pp->nukevochandle > 0)
-        {
-            FX_StopSound(pp->nukevochandle);
-            pp->nukevochandle = 0;
-        }
+        soundEngine->StopSound(SOURCE_Player, pp, CHAN_WEAPON);
     }
 
     return 0;
@@ -1349,19 +1343,19 @@ InitWeaponSword(PLAYERp pp)
     psp->RestState = ps_SwordRest;
     pSetState(psp, psp->PresentState);
 
-    PlaySound(DIGI_SWORD_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_SWORD_UP, pp, v3df_follow|v3df_dontpan);
 
     if (pp == Player+myconnectindex)
     {
         rnd_num = STD_RANDOM_RANGE(1024);
         if (rnd_num > 900)
-            PlaySound(DIGI_TAUNTAI2, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+            PlaySound(DIGI_TAUNTAI2, pp, v3df_follow|v3df_dontpan);
         else if (rnd_num > 800)
-            PlaySound(DIGI_PLAYERYELL1, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+            PlaySound(DIGI_PLAYERYELL1, pp, v3df_follow|v3df_dontpan);
         else if (rnd_num > 700)
-            PlaySound(DIGI_PLAYERYELL2, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+            PlaySound(DIGI_PLAYERYELL2, pp, v3df_follow|v3df_dontpan);
         else if (rnd_num > 600)
-            PlayerSound(DIGI_ILIKESWORD,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_ILIKESWORD, v3df_follow|v3df_dontpan,pp);
     }
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
@@ -1820,11 +1814,11 @@ InitWeaponStar(PLAYERp pp)
     //psp->RestState = ps_ThrowStar;
     pSetState(psp, psp->PresentState);
 
-    PlaySound(DIGI_PULL, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_PULL, pp, v3df_follow|v3df_dontpan);
     if (STD_RANDOM_RANGE(1000) > 900 && pp == Player+myconnectindex)
     {
         if (!sw_darts)
-            PlayerSound(DIGI_ILIKESHURIKEN,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+            PlayerSound(DIGI_ILIKESHURIKEN, v3df_follow|v3df_dontpan,pp);
     }
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
@@ -2196,8 +2190,7 @@ pSpawnUziClip(PANEL_SPRITEp gun)
 {
     PANEL_SPRITEp New;
 
-    PlaySound(DIGI_REMOVECLIP, &gun->PlayerP->posx, &gun->PlayerP->posy,
-              &gun->PlayerP->posz,v3df_follow|v3df_dontpan|v3df_doppler|v3df_follow);
+    PlaySound(DIGI_REMOVECLIP, gun->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler|v3df_follow);
 
     if (TEST(gun->flags, PANF_XFLIP))
     {
@@ -2279,8 +2272,7 @@ pUziReload(PANEL_SPRITEp nclip)
     {
         if (nclip->x < gun->x)
         {
-            PlaySound(DIGI_REPLACECLIP, &nclip->PlayerP->posx, &nclip->PlayerP->posy,
-                      &nclip->PlayerP->posz,v3df_follow|v3df_dontpan|v3df_doppler);
+            PlaySound(DIGI_REPLACECLIP, nclip->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
             nclip->x = gun->x - UZI_CLIP_XOFF;
             nclip->y = gun->y + UZI_CLIP_YOFF;
@@ -2294,8 +2286,7 @@ pUziReload(PANEL_SPRITEp nclip)
     {
         if (nclip->x > gun->x)
         {
-            PlaySound(DIGI_REPLACECLIP, &nclip->PlayerP->posx, &nclip->PlayerP->posy,
-                      &nclip->PlayerP->posz,v3df_follow|v3df_dontpan|v3df_doppler);
+            PlaySound(DIGI_REPLACECLIP, nclip->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
             nclip->x = gun->x + UZI_CLIP_XOFF;
             nclip->y = gun->y + UZI_CLIP_YOFF;
@@ -2523,7 +2514,7 @@ InitWeaponUzi(PLAYERp pp)
         InitWeaponUzi2(psp);
     }
 
-    PlaySound(DIGI_UZI_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
+    PlaySound(DIGI_UZI_UP, pp, v3df_follow);
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
     FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
@@ -3231,7 +3222,7 @@ InitWeaponShotgun(PLAYERp pp)
     psp->RestState = ps_ShotgunRest;
     pSetState(psp, psp->PresentState);
 
-    PlaySound(DIGI_SHOTGUN_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
+    PlaySound(DIGI_SHOTGUN_UP, pp, v3df_follow);
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
     FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
@@ -3315,8 +3306,7 @@ pShotgunReloadDown(PANEL_SPRITEp psp)
 
     if (psp->y >= SHOTGUN_YOFF + (tilesiz[picnum].y/2))
     {
-        PlaySound(DIGI_ROCKET_UP, &psp->PlayerP->posx, &psp->PlayerP->posy,
-                  &psp->PlayerP->posz,v3df_follow|v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_ROCKET_UP, psp->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
         psp->y = SHOTGUN_YOFF + (tilesiz[picnum].y/2);
 
@@ -3333,8 +3323,7 @@ pShotgunReloadUp(PANEL_SPRITEp psp)
 
     if (psp->y < SHOTGUN_YOFF)
     {
-        PlaySound(DIGI_SHOTGUN_UP, &psp->PlayerP->posx, &psp->PlayerP->posy,
-                  &psp->PlayerP->posz,v3df_follow|v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_SHOTGUN_UP, psp->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
         psp->y = SHOTGUN_YOFF;
 
@@ -3701,8 +3690,6 @@ PANEL_STATE ps_RetractRail[] =
 //#define RAIL_XOFF (160+60)
 #define RAIL_XOFF (160+6)
 
-static int railvochandle=0;
-
 void
 InitWeaponRail(PLAYERp pp)
 {
@@ -3746,8 +3733,8 @@ InitWeaponRail(PLAYERp pp)
     psp->RestState = ps_RailRest;
     pSetState(psp, psp->PresentState);
 
-    PlaySound(DIGI_RAIL_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
-    railvochandle = PlaySound(DIGI_RAILREADY, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_RAIL_UP, pp, v3df_follow);
+    PlaySound(DIGI_RAILREADY, pp, v3df_follow|v3df_dontpan);
     Set3DSoundOwner(psp->PlayerP->PlayerSprite);
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
@@ -4206,7 +4193,7 @@ InitWeaponHothead(PLAYERp pp)
     psp->over[0].xoff = HOTHEAD_FINGER_XOFF;
     psp->over[0].yoff = HOTHEAD_FINGER_YOFF;
 
-    PlaySound(DIGI_GRDALERT, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_GRDALERT, pp, v3df_follow|v3df_dontpan);
 }
 
 void
@@ -4649,7 +4636,7 @@ InitWeaponMicro(PLAYERp pp)
     if (pp->WpnRocketType == 2 && !pp->InitingNuke && !pp->NukeInitialized)
         pp->TestNukeInit = pp->InitingNuke = TRUE;
 
-    PlaySound(DIGI_ROCKET_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
+    PlaySound(DIGI_ROCKET_UP, pp, v3df_follow);
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
     FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
@@ -4892,11 +4879,9 @@ pMicroRest(PANEL_SPRITEp psp)
         {
             choose_voc = STD_RANDOM_RANGE(1024);
             if (choose_voc > 600)
-                PlayerSound(DIGI_TAUNTAI2,&psp->PlayerP->posx,
-                            &psp->PlayerP->posy,&psp->PlayerP->posy,v3df_dontpan|v3df_follow,psp->PlayerP);
+                PlayerSound(DIGI_TAUNTAI2,v3df_dontpan|v3df_follow,psp->PlayerP);
             else if (choose_voc > 300)
-                PlayerSound(DIGI_TAUNTAI4,&psp->PlayerP->posx,
-                            &psp->PlayerP->posy,&psp->PlayerP->posy,v3df_dontpan|v3df_follow,psp->PlayerP);
+                PlayerSound(DIGI_TAUNTAI4,v3df_dontpan|v3df_follow,psp->PlayerP);
         }
     }
 
@@ -4969,7 +4954,7 @@ pMicroFire(PANEL_SPRITEp psp)
             InitRocket(psp->PlayerP);
         break;
     case 2:
-        PlaySound(DIGI_WARNING,&psp->PlayerP->posx,&psp->PlayerP->posy,&psp->PlayerP->posz,v3df_dontpan|v3df_follow);
+        PlaySound(DIGI_WARNING,psp->PlayerP,v3df_dontpan|v3df_follow);
         InitNuke(psp->PlayerP);
         psp->PlayerP->NukeInitialized = FALSE;
         break;
@@ -5016,8 +5001,7 @@ pMicroStandBy(PANEL_SPRITEp psp)
     PLAYERp pp = psp->PlayerP;
 
     pMicroOverlays(psp);
-    pp->nukevochandle =
-        PlaySound(DIGI_NUKESTDBY, &psp->PlayerP->posx, &psp->PlayerP->posy, &psp->PlayerP->posz, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_NUKESTDBY, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
 }
 
 void
@@ -5025,8 +5009,7 @@ pMicroCount(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
 
-    pp->nukevochandle =
-        PlaySound(DIGI_NUKECDOWN, &psp->PlayerP->posx, &psp->PlayerP->posy, &psp->PlayerP->posz, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_NUKECDOWN, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
 }
 
 void
@@ -5034,8 +5017,7 @@ pMicroReady(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
 
-    pp->nukevochandle =
-        PlaySound(DIGI_NUKEREADY, &psp->PlayerP->posx, &psp->PlayerP->posy, &psp->PlayerP->posz, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_NUKEREADY, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
     pp->NukeInitialized = TRUE;
 }
 
@@ -5136,7 +5118,7 @@ InitWeaponHeart(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    PlaySound(DIGI_HEARTBEAT, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_HEARTBEAT, pp, v3df_follow|v3df_dontpan|v3df_doppler);
 
     // Set up the new Weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_HEART];
@@ -5281,9 +5263,9 @@ pHeartAttack(PANEL_SPRITEp psp)
     //int InitHeartAttack(PLAYERp pp);
     // CTW MODIFICATION END
 
-    PlaySound(DIGI_HEARTFIRE,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_HEARTFIRE, pp, v3df_follow|v3df_dontpan);
     if (RANDOM_RANGE(1000) > 800)
-        PlayerSound(DIGI_JG9009,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
+        PlayerSound(DIGI_JG9009, v3df_follow|v3df_dontpan,pp);
     InitHeartAttack(psp->PlayerP);
 }
 
@@ -5400,7 +5382,7 @@ SpawnSmallHeartBlood(PANEL_SPRITEp psp)
         {0, 0, 0, 0, 0, 0, 0, {0,0}},
     };
 
-    PlaySound(DIGI_HEARTBEAT, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_HEARTBEAT, pp, v3df_follow|v3df_dontpan|v3df_doppler);
 
     for (hsp = HeartShrap; hsp->lo_jump_speed; hsp++)
     {
@@ -5645,7 +5627,7 @@ InitWeaponGrenade(PLAYERp pp)
 
     pGrenadePresentSetup(psp);
 
-    PlaySound(DIGI_GRENADE_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
+    PlaySound(DIGI_GRENADE_UP, pp, v3df_follow);
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
     FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
@@ -5931,7 +5913,7 @@ InitWeaponMine(PLAYERp pp)
     psp->RestState = ps_MineRest;
     pSetState(psp, psp->PresentState);
 
-    PlaySound(DIGI_PULL, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_PULL, pp, v3df_follow|v3df_dontpan);
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
     FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
@@ -5942,7 +5924,7 @@ pMineUpSound(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
 
-    PlaySound(DIGI_MINE_UP, &pp->posx, &pp->posy, &pp->posz, v3df_follow);
+    PlaySound(DIGI_MINE_UP, pp, v3df_follow);
 }
 
 void
@@ -6191,10 +6173,10 @@ InitChops(PLAYERp pp)
     psp->RetractState = ps_ChopsRetract;
     psp->RestState = ps_ChopsAttack1;
 
-    PlaySound(DIGI_BUZZZ,&psp->PlayerP->posx,&psp->PlayerP->posy,&psp->PlayerP->posz,v3df_none);
+    PlaySound(DIGI_BUZZZ, psp->PlayerP,v3df_none);
 
     if (RANDOM_RANGE(1000) > 750)
-        PlayerSound(DIGI_MRFLY,&psp->PlayerP->posx,&psp->PlayerP->posy,&psp->PlayerP->posz,v3df_follow|v3df_dontpan,psp->PlayerP);
+        PlayerSound(DIGI_MRFLY,v3df_follow|v3df_dontpan,psp->PlayerP);
 
 }
 
@@ -6202,15 +6184,15 @@ void
 pChopsClick(PANEL_SPRITEp psp)
 {
     int16_t rnd_rng;
-    PlaySound(DIGI_CHOP_CLICK,&psp->PlayerP->posx,&psp->PlayerP->posy,&psp->PlayerP->posz,v3df_none);
+    PlaySound(DIGI_CHOP_CLICK,psp->PlayerP,v3df_none);
 
     rnd_rng = RANDOM_RANGE(1000);
     if (rnd_rng > 950)
-        PlayerSound(DIGI_SEARCHWALL,&psp->PlayerP->posx,&psp->PlayerP->posy,&psp->PlayerP->posz,v3df_follow|v3df_dontpan,psp->PlayerP);
+        PlayerSound(DIGI_SEARCHWALL,v3df_follow|v3df_dontpan,psp->PlayerP);
     else if (rnd_rng > 900)
-        PlayerSound(DIGI_EVADEFOREVER,&psp->PlayerP->posx,&psp->PlayerP->posy,&psp->PlayerP->posz,v3df_follow|v3df_dontpan,psp->PlayerP);
+        PlayerSound(DIGI_EVADEFOREVER,v3df_follow|v3df_dontpan,psp->PlayerP);
     else if (rnd_rng > 800)
-        PlayerSound(DIGI_SHISEISI,&psp->PlayerP->posx,&psp->PlayerP->posy,&psp->PlayerP->posz,v3df_follow|v3df_dontpan,psp->PlayerP);
+        PlayerSound(DIGI_SHISEISI,v3df_follow|v3df_dontpan,psp->PlayerP);
 }
 
 void
@@ -6273,7 +6255,7 @@ pChopsWait(PANEL_SPRITEp psp)
         // do a random attack here
         psp->x = CHOPS_XOFF + (RANDOM_P2(128) - 64);
 
-        PlaySound(DIGI_BUZZZ,&psp->PlayerP->posx,&psp->PlayerP->posy,&psp->PlayerP->posz,v3df_none);
+        PlaySound(DIGI_BUZZZ,psp->PlayerP,v3df_none);
         pSetState(psp, psp_ChopsAttack[RANDOM_RANGE(SIZ(psp_ChopsAttack))]);
     }
 }
@@ -6296,7 +6278,7 @@ pChopsRetract(PANEL_SPRITEp psp)
     if (psp->y >= CHOPS_YOFF + tilesiz[picnum].y)
     {
         if (RANDOM_RANGE(1000) > 800)
-            PlayerSound(DIGI_GETTINGSTIFF,&psp->PlayerP->posx,&psp->PlayerP->posy,&psp->PlayerP->posz,v3df_follow|v3df_dontpan,psp->PlayerP);
+            PlayerSound(DIGI_GETTINGSTIFF,v3df_follow|v3df_dontpan,psp->PlayerP);
         psp->PlayerP->Chops = NULL;
         pKillSprite(psp);
     }
@@ -6604,11 +6586,11 @@ InitWeaponFist(PLAYERp pp)
 
     rnd_num = RANDOM_P2(1024);
     if (rnd_num > 900)
-        PlaySound(DIGI_TAUNTAI2, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+        PlaySound(DIGI_TAUNTAI2, pp, v3df_follow|v3df_dontpan);
     else if (rnd_num > 800)
-        PlaySound(DIGI_PLAYERYELL1, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+        PlaySound(DIGI_PLAYERYELL1, pp, v3df_follow|v3df_dontpan);
     else if (rnd_num > 700)
-        PlaySound(DIGI_PLAYERYELL2, &pp->posx, &pp->posy, &pp->posz, v3df_follow|v3df_dontpan);
+        PlaySound(DIGI_PLAYERYELL2, pp, v3df_follow|v3df_dontpan);
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
     FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);

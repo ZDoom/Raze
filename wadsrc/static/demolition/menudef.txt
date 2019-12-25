@@ -969,29 +969,12 @@ OptionMenu "MouseOptions" //protected
 //
 //-------------------------------------------------------------------------------------------
 
-OptionMenu "JoystickOptions"//Defaults" //protected
+OptionMenu "JoystickOptions" //protected
 {
 	Title "$JOYMNU_OPTIONS"
-	Option "$JOYMNU_ENABLE", "use_joystick", "YesNo"
-	Option "$JOYMNU_NOMENU", "m_blockcontrollers", "YesNo"
-	/*IfOption(Windows)
-	{
-		Option "$JOYMNU_DINPUT", "joy_dinput", "YesNo"
-		Option "$JOYMNU_XINPUT", "joy_xinput", "YesNo"
-		Option "$JOYMNU_PS2", "joy_ps2raw", "YesNo"
-	}*/
-	StaticText ""
-	StaticTextSwitchable "$JOYMNU_NOCON", "$JOYMNU_CONFIG", "ConfigureMessage"
-	StaticTextSwitchable " ", "$JOYMNU_DISABLED1", "ConnectMessage1"
-	StaticTextSwitchable " ", "$JOYMNU_DISABLED2", "ConnectMessage2"
-
-	// The rest will be filled in by joystick code if devices get connected or disconnected
+	// This will be filled in by joystick code if devices get connected or disconnected
 }
 
-OptionMenu "JoystickOptions1" //protected
-{
-	Title "$JOYMNU_OPTIONS"
-}
 
 OptionValue "JoyAxisMapNames"
 {
@@ -1324,8 +1307,7 @@ OptionMenu SoundOptions //protected
 	Slider "$MODMNU_MASTERVOLUME",		"snd_mastervolume", 0, 1, 0.05, 2
 	StaticText " "
 	Option "$SNDMNU_SNDENABLED",		"snd_enabled", "YesNo"
-	Slider "$SNDMNU_SFXVOLUME",			"snd_fxvolume", 0, 255, 2, 1
-	//Slider "$SNDMNU_SFXVOLUME",			"snd_sfxvolume", 0, 1, 0.05, 2 // Todo: Change value type
+	Slider "$SNDMNU_SFXVOLUME",			"snd_sfxvolume", 0, 1, 0.05, 2
 	Option "$SNDMNU_MUSENABLED",		"mus_enabled", "YesNo"	
 	Slider "$SNDMNU_MUSICVOLUME",		"mus_volume", 0, 1, 0.05, 2
 	Option "$SNDMNU_MENUSOUND",		"menu_sounds", "OnOff" // placeholder until the slider can be made to work
@@ -1334,7 +1316,6 @@ OptionMenu SoundOptions //protected
 	Option "$SNDMNU_MIDIDEVICE",		"snd_mididevice", "MidiDevices"
 	StaticText " "
 	//Option "$SNDMNU_UNDERWATERREVERB",	"snd_waterreverb", "OnOff"
-	//Option "$SNDMNU_RANDOMIZEPITCHES",	"snd_pitched", "OnOff"
 	Slider "$SNDMNU_CHANNELS",			"snd_numchannels", 64, 128, 8, 0
 	staticText ""
 	ifgame (Blood, ShadowWarrior, Redneck, RedneckRides)
@@ -1370,7 +1351,6 @@ OptionMenu AdvSoundOptions //protected
 	Title "$ADVSNDMNU_TITLE"
 	Option "$ADVSNDMNU_SAMPLERATE",			"snd_mixrate", "SampleRates"
 	//Option "$ADVSNDMNU_HRTF",				"snd_hrtf", "AutoOffOn"
-	Option "$ADVSNDMNU_FLIPSTEREO",			"snd_reversestereo", "OnOff"
 	StaticText " "
 	//Option "$SNDMNU_BACKGROUND",			"i_soundinbackground", "OnOff"
 	//StaticText " "
@@ -1385,7 +1365,7 @@ OptionMenu AdvSoundOptions //protected
 	Submenu "$SNDMNU_MIDIPLAYER",		"MidiPlayerOptions"
 	Submenu "$SNDMNU_MODREPLAYER",		"ModReplayerOptions"
 	StaticText " "
-	Command "$SNDMNU_RESTART",			"restartsound"
+	Command "$SNDMNU_RESTART",			"snd_reset"
 }
 
 

@@ -45,7 +45,6 @@ struct SFX
 };
 
 int sndGetRate(int format);
-void sndSetFXVolume(int nVolume);
 void sndStartSample(const char *pzSound, int nVolume, int nChannel = -1);
 void sndStartSample(unsigned int nSound, int nVolume, int nChannel = -1, bool bLoop = false);
 void sndStartWavID(unsigned int nSound, int nVolume, int nChannel = -1);
@@ -54,7 +53,5 @@ void sndKillAllSounds(void);
 void sndProcess(void);
 void sndTerm(void);
 void sndInit(void);
-
-extern Resource &gSoundRes;
 
 END_BLD_NS

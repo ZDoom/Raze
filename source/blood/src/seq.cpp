@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "actor.h"
 #include "tile.h"
 #include "view.h"
+#include "sound/s_soundinternal.h"
 
 BEGIN_BLD_NS
 
@@ -327,8 +328,13 @@ void SEQINST::Update(ACTIVE *pActive)
             };
 
             int sndId = surfSfxMove[surf][Random(2)];
-            DICTNODE * hRes = gSoundRes.Lookup(sndId, "SFX"); SFX * pEffect = (SFX*)gSoundRes.Load(hRes);
-            sfxPlay3DSoundCP(pSprite, sndId, -1, 0, 0, (surfSfxMove[surf][2] != pEffect->relVol) ? pEffect->relVol : surfSfxMove[surf][3]);
+            auto snd = soundEngine->FindSoundByResID(sndId);
+            if (snd > 0)
+            {
+                auto udata = (int*)soundEngine->GetUserData(snd);
+                int relVol = udata ? udata[2] : 255;
+                sfxPlay3DSoundCP(pSprite, sndId, -1, 0, 0, (surfSfxMove[surf][2] != relVol) ? relVol : surfSfxMove[surf][3]);
+            }
         }
         
 

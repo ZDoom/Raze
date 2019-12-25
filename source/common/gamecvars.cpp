@@ -36,12 +36,8 @@
 
 #include "c_cvars.h"
 #include "common.h"
-#include "fx_man.h"
 #include "baselayer.h"
 #include "gameconfigfile.h"
-#include "keyboard.h"
-#include "control.h"
-#include "_control.h"
 #include "gamecontrol.h"
 #include "m_argv.h"
 #include "rts.h"
@@ -99,7 +95,7 @@ CUSTOM_CVARD(Int, cl_crosshairscale, 50, CVAR_ARCHIVE, "changes the size of the 
 
 CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable weapon autoaim")
 {
-	if (self < 0 || self > (playing_blood? 2 : 3)) self = 1;	// The Shadow Warrior backend only has a bool for this.
+	if (self < 0 || self > ((g_gameType & GAMEFLAG_BLOOD)? 2 : 3)) self = 1;	// The Shadow Warrior backend only has a bool for this.
 	//UpdatePlayerFromMenu(); todo: networking (only operational in EDuke32 frontend anyway.)
 };
 
@@ -107,7 +103,7 @@ CUSTOM_CVARD(Int, cl_weaponswitch, 3, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disabl
 
 {
 	if (self < 0) self = 0;
-	if (self > 3 && playing_blood) self = 3;
+	if (self > 3 && (g_gameType & GAMEFLAG_BLOOD)) self = 3;
 	if (self > 7) self = 7;
 	//UpdatePlayerFromMenu(); todo: networking (only operational in EDuke32 frontend anyway.)
 }
@@ -140,11 +136,6 @@ CVARD(Bool, snd_doppler, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable 
 
 CVARD(Bool, mus_restartonload, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "restart the music when loading a saved game with the same map or not") // only implemented for Blood - todo: generalize
 CVARD(Bool, mus_redbook, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_FRONTEND_BLOOD, "enables/disables redbook audio (Blood only!)") // only Blood has assets for this.
-
-CUSTOM_CVARD(Bool, snd_reversestereo, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "reverses the stereo channels")
-{
-	FX_SetReverseStereo(self);
-}
 
 CUSTOM_CVARD(Int, snd_fxvolume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls volume for sound effects")
 {
@@ -292,16 +283,8 @@ CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field o
 
 CVARD(Bool, r_horizcenter, false, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable centered horizon line") // only present in Blood, maybe add to others?
 
-CUSTOM_CVARD(Bool, in_joystick, false, CVAR_ARCHIVE||CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the joystick if it is present")
-{
-	CONTROL_JoystickEnabled = (self && CONTROL_JoyPresent);
-}
-
-CUSTOM_CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the mouse if it is present")
-{
-	CONTROL_MouseEnabled = (self && CONTROL_MousePresent);
-}
-
+CVARD(Bool, in_joystick, false, CVAR_ARCHIVE||CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the joystick if it is present")
+CVARD(Bool, in_mouse, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the mouse if it is present")
 CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
 
 CVAR(Bool, silentmouseaimtoggle, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)

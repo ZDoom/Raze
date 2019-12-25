@@ -37,7 +37,7 @@
 #include "zstring.h"
 #include "textures.h"
 #include "image.h"
-#include "cache1d.h"
+
 #include "baselayer.h"
 #include "palette.h"
 #include "m_crc32.h"
