@@ -4756,12 +4756,9 @@ static void parsedefinitions_game_include(const char *fileName, scriptfile *pScr
 
 static void parsedefinitions_game_animsounds(scriptfile *pScript, const char * blockEnd, char const * fileName, dukeanim_t * animPtr)
 {
-    Xfree(animPtr->sounds);
+    size_t numPairs = 0;
 
-    size_t numPairs = 0, allocSize = 4;
-
-    animPtr->sounds = (animsound_t *)Xmalloc(allocSize * sizeof(animsound_t));
-    animPtr->numsounds = 0;
+    animPtr->Sounds.Clear();
 
     int defError = 1;
     uint16_t lastFrameNum = 1;
@@ -4812,32 +4809,27 @@ static void parsedefinitions_game_animsounds(scriptfile *pScript, const char * b
             break;
         }
 
-        if (numPairs >= allocSize)
-        {
-            allocSize *= 2;
-            animPtr->sounds = (animsound_t *)Xrealloc(animPtr->sounds, allocSize * sizeof(animsound_t));
-        }
 
         defError = 0;
 
-        animsound_t & sound = animPtr->sounds[numPairs];
+        animsound_t sound;
         sound.frame = frameNum;
         sound.sound = soundNum;
+        animPtr->Sounds.Push(sound);
 
         ++numPairs;
     }
 
     if (!defError)
     {
-        animPtr->numsounds = numPairs;
         // initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
         //           hardcoded_anim_tokens[animnum].text, numpairs);
     }
     else
     {
-        DO_FREE_AND_NULL(animPtr->sounds);
         initprintf("Failed defining sound sequence for anim \"%s\".\n", fileName);
     }
+    animPtr->Sounds.ShrinkToFit();
 }
 
 static int parsedefinitions_game(scriptfile *pScript, int firstPass)
@@ -5323,9 +5315,6 @@ static void G_Cleanup(void)
     hash_free(&h_arrays);
     hash_free(&h_labels);
 #endif
-
-    hash_loop(&h_dukeanim, G_FreeHashAnim);
-    hash_free(&h_dukeanim);
 }
 
 /*

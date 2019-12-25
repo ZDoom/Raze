@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "animlib.h"
 #include "compat.h"
+#include "cmdlib.h"
 
 
 #include "anim.h"
@@ -40,40 +41,34 @@ BEGIN_RR_NS
 // animsound_t.sound
 EDUKE32_STATIC_ASSERT(INT16_MAX >= MAXSOUNDS);
 
-hashtable_t h_dukeanim = { 8, NULL };
+TArray<dukeanim_t> g_Animations;
 dukeanim_t * g_animPtr;
 
-dukeanim_t *Anim_Find(const char *s)
+dukeanim_t* Anim_Find(const char* s)
 {
-    intptr_t ptr = hash_findcase(&h_dukeanim, s);
-
-    if (ptr == -1)
+    auto index = g_Animations.FindEx([=](dukeanim_t& anm) { return !anm.name.CompareNoCase(s);  });
+    if (index == g_Animations.Size())
     {
-        int const siz = Bstrlen(s) + 5;
-        char * const str = (char *)Xcalloc(1, siz);
-
-        maybe_append_ext(str, siz, s, ".anm");
-        ptr = hash_findcase(&h_dukeanim, str);
-
-        if (ptr == -1)
+        FString fname = s;
+        DefaultExtension(fname, ".anm");
+        index = g_Animations.FindEx([=](dukeanim_t& anm) { return !anm.name.CompareNoCase(fname);  });
+        if (index == g_Animations.Size())
         {
-            maybe_append_ext(str, siz, s, ".ivf");
-            ptr = hash_findcase(&h_dukeanim, str);
+            fname = s;
+            DefaultExtension(fname, ".ivf");
+            index = g_Animations.FindEx([=](dukeanim_t& anm) { return !anm.name.CompareNoCase(fname);  });
+            if (index == g_Animations.Size()) return nullptr;
         }
-
-        Bfree(str);
     }
-
-    return (dukeanim_t *)(ptr == -1 ? NULL : (dukeanim_t *)ptr);
+    return &g_Animations[index];
 }
 
 dukeanim_t * Anim_Create(char const * fn)
 {
-    dukeanim_t * anim = (dukeanim_t *)Xcalloc(1, sizeof(dukeanim_t));
-
-    hash_add(&h_dukeanim, fn, (intptr_t)anim, 0);
-
-    return anim;
+    g_Animations.Reserve(1);
+    auto p = &g_Animations.Last();
+    p->name = fn;
+    return p;
 }
 
 #ifdef DYNSOUNDREMAP_ENABLE
@@ -84,9 +79,6 @@ static int32_t const StopAllSounds = -1;
 
 void Anim_Init(void)
 {
-    hash_init(&h_dukeanim);
-
-
     struct defaultanmsound {
 #ifdef DYNSOUNDREMAP_ENABLE
         int32_t const & sound;
@@ -237,24 +229,23 @@ void Anim_Init(void)
     };
 #undef anmsnd
 
-    for (defaultanm const & anm : anms)
+    for (defaultanm const& anm : anms)
     {
-        dukeanim_t * anim = Anim_Create(anm.fn);
+        dukeanim_t* anim = Anim_Create(anm.fn);
         anim->framedelay = anm.fdelay;
 
         if (anm.numsounds)
         {
-            anim->sounds = (animsound_t *)Xmalloc(anm.numsounds * sizeof(animsound_t));
-            size_t const numsounds = anm.numsounds;
-            for (size_t i = 0; i < numsounds; ++i)
+            anim->Sounds.Resize(anm.numsounds);
+            int const numsounds = anm.numsounds;
+            for (int i = 0; i < numsounds; ++i)
             {
-                defaultanmsound const & src = anm.sounds[i];
-                animsound_t & dst = anim->sounds[i];
+                defaultanmsound const& src = anm.sounds[i];
+                animsound_t& dst = anim->Sounds[i];
 
                 dst.sound = src.sound;
                 dst.frame = src.frame;
             }
-            anim->numsounds = numsounds;
         }
 
         anim->frameflags = 0;
@@ -390,9 +381,9 @@ int32_t Anim_Play(const char *fn)
             framenum++;
             if (anim)
             {
-                while (soundidx < anim->numsounds && anim->sounds[soundidx].frame <= framenum)
+                while (soundidx < anim->Sounds.Size() && anim->Sounds[soundidx].frame <= framenum)
                 {
-                    int16_t sound = anim->sounds[soundidx].sound;
+                    int16_t sound = anim->Sounds[soundidx].sound;
                     if (sound == -1)
                         FX_StopAllSounds();
                     else
@@ -404,9 +395,9 @@ int32_t Anim_Play(const char *fn)
             else
             {
                 uint16_t convframenum = scale(framenum, convnumer, convdenom);
-                while (soundidx < origanim->numsounds && origanim->sounds[soundidx].frame <= convframenum)
+                while (soundidx < origanim->Sounds.Size() && origanim->Sounds[soundidx].frame <= convframenum)
                 {
-                    int16_t sound = origanim->sounds[soundidx].sound;
+                    int16_t sound = origanim->Sounds[soundidx].sound;
                     if (sound == -1)
                         FX_StopAllSounds();
                     else
@@ -560,9 +551,9 @@ int32_t Anim_Play(const char *fn)
 
         ototalclock += anim->framedelay;
 
-        while (soundidx < anim->numsounds && anim->sounds[soundidx].frame <= (uint16_t)i)
+        while (soundidx < anim->Sounds.Size() && anim->Sounds[soundidx].frame <= (uint16_t)i)
         {
-            int16_t sound = anim->sounds[soundidx].sound;
+            int16_t sound = anim->Sounds[soundidx].sound;
             if (sound == -1)
                 FX_StopAllSounds();
             else
