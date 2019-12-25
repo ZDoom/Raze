@@ -17,8 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "compat.h"
-#include "keyboard.h"
-#include "control.h"
 #include "init.h"
 #include "runlist.h"
 #include "switch.h"

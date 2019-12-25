@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "baselayer.h"
 #include "cd.h"
-#include "fx_man.h"
 #include "sound.h"
 #include "exhumed.h"
 #include <stdio.h>
@@ -40,13 +39,6 @@ int nLastVolumeSet = 0;
 Currently playing music must keep playing on return to map screen or exit from training level
 
 */
-
-void setCDaudiovolume(int val)
-{
-    if (trackhandle > 0) {
-        FX_SetPan(trackhandle, val, val, val);
-    }
-}
 
 bool playCDtrack(int nTrack, bool bLoop)
 {
@@ -91,6 +83,10 @@ bool CDplaying()
 void StopCD()
 {
     Mus_Stop();
+}
+
+void FadeSong()
+{
 }
 
 END_PS_NS

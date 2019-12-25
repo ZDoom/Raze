@@ -21,8 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "renderlayer.h"
 #include "typedefs.h"
 #include "common.h"
-#include "keyboard.h"
-#include "control.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "osdcmds.h"
@@ -807,7 +805,7 @@ void ShutDown(void)
 
     RemoveEngine();
     UnInitNet();
-    UnInitFX();
+    //UnInitFX();
 }
 
 void I_Error(const char *fmt, ...)
@@ -1383,6 +1381,7 @@ void FinishLevel()
         EraseScreen(4);
         SetLocalChan(1);
         PlayLocalSound(StaticSound[59], 0);
+        SetLocalChan(0);
         videoNextPage();
         WaitTicks(12);
         WaitVBL();
@@ -1912,11 +1911,7 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
 
 int GameInterface::app_main()
 {
-    char tempbuf[256];
-
     int i;
-
-
     //int esi = 1;
     //int edi = esi;
     int doTitle = kTrue; // REVERT kTrue;
@@ -2047,7 +2042,6 @@ int GameInterface::app_main()
     InitView();
     myloadconfig();
     InitFX();
-    LoadFX();
     seq_LoadSequences();
     InitStatus();
     InitTimer();
@@ -2285,13 +2279,11 @@ LOOP3:
 
     //int edi = totalclock;
     tclocks2 = totalclock;
-    CONTROL_BindsEnabled = 1;
     // Game Loop
     while (1)
     {
         if (levelnew >= 0)
         {
-            CONTROL_BindsEnabled = 0;
             goto LOOP1;
         }
 
@@ -2340,7 +2332,6 @@ LOOP3:
                         fclose(vcrfp);
                     }
 
-                    CONTROL_BindsEnabled = 0;
                     goto MENU;
                 }
             }
@@ -2480,7 +2471,6 @@ LOOP3:
             {
 				inputState.ClearKeyStatus(sc_Escape);
 // MENU2:
-                CONTROL_BindsEnabled = 0;
                 bInMove = kTrue;
                 nMenu = menu_Menu(1);
 
@@ -2510,7 +2500,6 @@ LOOP3:
 
                 totalclock = ototalclock = tclocks;
                 bInMove = kFalse;
-                CONTROL_BindsEnabled = 1;
                 RefreshStatus();
             }
             else if (buttonMap.ButtonDown(gamefunc_Map)) // e.g. TAB (to show 2D map)

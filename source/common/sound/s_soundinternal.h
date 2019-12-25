@@ -217,6 +217,8 @@ enum // This cannot be remain as this, but for now it has to suffice.
 	SOURCE_Ambient,		// Sound is coming from a blood ambient definition.
 	SOURCE_Unattached,	// Sound is not attached to any particular emitter.
 	SOURCE_Player,		// SW player sound (player in SW maintains its own position separately from the sprite so needs to be special.)
+	SOURCE_Swirly,		// Special stuff for Exhumed. (local sound with custom panning)
+	SOURCE_EXBoss,		// Another special case for Exhumed.
 };
 
 
@@ -234,6 +236,7 @@ class SoundEngine
 {
 protected:
 	bool SoundPaused = false;		// whether sound is paused
+	uint8_t SndCurveFactor = 127;
 	int RestartEvictionsAt = 0;	// do not restart evicted channels before this time
 	SoundListener listener{};
 
@@ -281,7 +284,7 @@ public:
 	// Sets channels, SFX and music volume,
 	//	allocates channel buffer, sets S_sfx lookup.
 	//
-	void Init(TArray<uint8_t> &sndcurve);
+	void Init(TArray<uint8_t> &sndcurve, int factor = 127);
 	void InitData();
 	void Clear();
 	void Shutdown();

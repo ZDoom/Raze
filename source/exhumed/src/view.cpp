@@ -17,8 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "compat.h"
-#include "keyboard.h"
-#include "control.h"
 #include "engine.h"
 #include "config.h"
 #include "names.h"
@@ -31,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "light.h"
 #include "init.h"
 #include "menu.h"
-#include "keyboard.h"
 #include "cd.h"
 #include "cdaudio.h"
 #include "typedefs.h"

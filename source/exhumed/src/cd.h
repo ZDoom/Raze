@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __cd_h__
 
 BEGIN_PS_NS
-void setCDaudiovolume(int val);
 bool playCDtrack(int nTrack, bool bLoop);
 void StartfadeCDaudio();
 int StepFadeCDaudio();

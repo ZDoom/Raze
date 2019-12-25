@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "build.h"
 #include "common.h"
-#include "keyboard.h"
-#include "control.h"
 #include "exhumed.h"
 #include "config.h"
 #include "osdcmds.h"

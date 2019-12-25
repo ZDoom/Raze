@@ -63,7 +63,7 @@ int sfx_empty = -1;
 //
 //==========================================================================
 
-void SoundEngine::Init(TArray<uint8_t> &curve)
+void SoundEngine::Init(TArray<uint8_t> &curve, int factor)
 {
 	// Free all channels for use.
 	while (Channels != NULL)
@@ -71,6 +71,7 @@ void SoundEngine::Init(TArray<uint8_t> &curve)
 		ReturnChannel(Channels);
 	}
 	S_SoundCurve = std::move(curve);
+	SndCurveFactor = (uint8_t)factor;
 }
 
 //==========================================================================
@@ -1330,7 +1331,7 @@ float SoundEngine::GetRolloff(const FRolloffInfo* rolloff, float distance)
 
 	if (rolloff->RolloffType == ROLLOFF_Custom && S_SoundCurve.Size() > 0)
 	{
-		return S_SoundCurve[int(S_SoundCurve.Size() * (1.f - volume))] / 127.f;
+		return S_SoundCurve[int(S_SoundCurve.Size() * (1.f - volume))] / (float)SndCurveFactor;
 	}
 	return (powf(10.f, volume) - 1.f) / 9.f;
 }

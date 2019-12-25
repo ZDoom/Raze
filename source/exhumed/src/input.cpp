@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "serial.h"
 #include "network.h"
-#include "keyboard.h"
-#include "control.h"
 #include "config.h"
 #include "input.h"
 #include <string.h>
