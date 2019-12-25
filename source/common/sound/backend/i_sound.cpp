@@ -392,11 +392,11 @@ std::pair<SoundHandle,bool> SoundRenderer::LoadSoundVoc(uint8_t *sfxdata, int le
 			switch (blocktype)
 			{
 			case 1: // Sound data
-				if (noextra && (codec == -1 || codec == sfxdata[i+1]))
+				if (/*noextra &*/ (codec == -1 || codec == sfxdata[i + 1])) // NAM contains a VOC where a valid data block follows an extra block.
 				{
-					frequency = 1000000/(256 - sfxdata[i]);
+					frequency = 1000000 / (256 - sfxdata[i]);
 					channels = 1;
-					codec = sfxdata[i+1];
+					codec = sfxdata[i + 1];
 					if (codec == 0)
 						bits = 8;
 					else if (codec == 4)
@@ -404,6 +404,7 @@ std::pair<SoundHandle,bool> SoundRenderer::LoadSoundVoc(uint8_t *sfxdata, int le
 					else okay = false;
 					len += blocksize - 2;
 				}
+				else okay = false;
 				break;
 			case 2: // Sound data continuation
 				if (codec == -1)
