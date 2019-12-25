@@ -887,6 +887,7 @@ void M_Drawer (void)
 		}
 		if (!going)
 		{
+			assert(DMenu::CurrentMenu);
 			DMenu::CurrentMenu->origin = { 0,0 };
 			// else if (DrawBackground) Menu_DrawBackground(origin);
 			DMenu::CurrentMenu->Drawer();
