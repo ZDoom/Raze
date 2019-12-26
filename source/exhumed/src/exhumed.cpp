@@ -434,24 +434,6 @@ const char *gString[] =
 };
 
 
-struct grpfile_t const *g_selectedGrp;
-
-// g_gameNamePtr can point to one of: grpfiles[].name (string literal), string
-// literal, malloc'd block (XXX: possible leak)
-const char *g_gameNamePtr = NULL;
-
-int32_t g_commandSetup = 0;
-int32_t g_noSetup = 0;
-int32_t g_noAutoLoad = 0;
-int g_useCwd;
-int32_t g_groupFileHandle;
-
-static struct strllist *CommandPaths, *CommandGrps;
-
-void G_ExtInit(void)
-{
-}
-
 //////////
 
 enum gametokens
@@ -579,8 +561,6 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
             break;
         }
         case T_NOAUTOLOAD:
-            if (firstPass)
-                g_noAutoLoad = 1;
             break;
         case T_GLOBALGAMEFLAGS: scriptfile_getnumber(pScript, &exhumed_globalflags); break;
         case T_EOF: return 0;
@@ -707,7 +687,6 @@ int lLocalCodes = 0;
 short bHiRes = kFalse;
 short bCoordinates = kFalse;
 
-short bNoCDCheck = kFalse;
 int nNetTime = -1;
 
 short nCodeMin = 0;
@@ -740,18 +719,6 @@ short nFirstPassword = 0;
 short nFirstPassInfo = 0;
 short nPasswordCount = 0;
 
-short word_964B0 = 0;
-
-short word_9AC30 = 0;
-
-short word_96E3C = 0;
-short word_96E3E = -1;
-short word_96E40 = 0;
-
-short nGamma = 0;
-
-short word_CB326;
-
 short screensize;
 
 short bSnakeCam = kFalse;
@@ -771,8 +738,6 @@ int nStartLevel;
 int nTimeLimit;
 
 int bVanilla = 0;
-
-char debugBuffer[256];
 
 short wConsoleNode; // TODO - move me into network file
 
@@ -1836,13 +1801,6 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
 
                 doTitle = kFalse;
             }
-            else if (Bstrcasecmp(pChar, "setup") == 0) {
-                g_commandSetup = 1;
-            }
-            else if (Bstrcasecmp(pChar, "nosetup") == 0) {
-                g_noSetup = 1;
-                g_commandSetup = 0;
-            }
             else
             {
                 char c = tolower(*pChar);
@@ -1868,11 +1826,6 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
                         break;
                     case 'c':
                     {
-                        // CHANGEME? - make this a strcmp. this is how the original does it though...
-                        if (pChar[1] == 'd' && pChar[2] == 'o' && pChar[3] == 'f' && pChar[4] == 'f') {
-                            bNoCDCheck = kTrue;
-                        }
-
 						break;
                     }
                     default:
@@ -1914,11 +1867,6 @@ int GameInterface::app_main()
     if (nNetPlayerCount && forcelevel == -1) {
         forcelevel = 1;
     }
-
-    // This needs to happen afterwards, as G_CheckCommandLine() is where we set
-    // up the command-line-provided search paths (duh).
-    // TODO:
-    //G_ExtInit();
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
     if (forcegl) initprintf("GL driver blacklist disabled.\n");
@@ -3442,6 +3390,12 @@ int DoSpiritHead()
     return 0;
 }
 
+#if 0
+bool GameInterface::CanSave()
+{
+    return !bRecord && !bPlayback && !bPause && !bInDemo && nTotalPlayers == 1;
+}
+#endif
 ::GameInterface* CreateInterface()
 {
     return new GameInterface;

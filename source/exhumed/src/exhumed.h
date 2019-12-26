@@ -186,8 +186,6 @@ extern short nEnergyChan;
 
 extern short nSpiritSprite;
 
-extern short bNoCDCheck;
-
 extern short bInDemo;
 
 extern short nFreeze;
@@ -265,8 +263,6 @@ enum {
 };
 
 extern char g_modDir[BMAX_PATH];
-
-extern struct grpfile_t const* g_selectedGrp;
 
 extern int loaddefinitions_game(const char* fn, int32_t preload);
 void G_LoadGroupsInDir(const char* dirname);

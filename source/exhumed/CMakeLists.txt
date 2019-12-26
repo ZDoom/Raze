@@ -43,7 +43,6 @@ set( PCH_SOURCES
 	src/cd.cpp
 	src/enginesubs.cpp
 	src/exhumed.cpp
-	src/exscript.cpp
 	src/fish.cpp
 	src/grenade.cpp
 	src/gun.cpp
