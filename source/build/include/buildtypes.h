@@ -212,6 +212,38 @@ typedef struct
     StructTracker(Sprite, int16_t) extra;
 } StructName(spritetypev7);
 
+#ifndef buildtypes_h__enums
+//44 bytes
+// TODO: Remove unused fields from the end of this struct. (TSPRITE_SIZE)
+typedef struct
+{
+    union {
+        struct
+        {
+            int32_t x, y, z;
+        };
+        vec3_t pos;
+    };
+    uint16_t cstat;
+    int16_t picnum;
+    int8_t shade;
+    uint8_t pal, clipdist, blend;
+    uint8_t xrepeat, yrepeat;
+    int8_t xoffset, yoffset;
+    int16_t sectnum, statnum;
+    int16_t ang, owner;
+    union {
+        struct
+        {
+            int16_t xvel, yvel, zvel;
+        };
+        vec3_16_t vel;
+    };
+    int16_t lotag, hitag;
+    int16_t extra;
+} tspritetype;
+#endif
+
 //////////////////// END Version 7 map format ////////////////
 
 //////////////////// Lunatic new-generation map format ////////////////////

@@ -308,7 +308,6 @@ using uwalltype = uwalltypevx;
 
 using spritetype  = spritetypev7;
 using uspritetype = uspritetypev7;
-using tspritetype = uspritetypev7;
 
 using uspriteptr_t = uspritetype const *;
 using uwallptr_t   = uwalltype const *;
