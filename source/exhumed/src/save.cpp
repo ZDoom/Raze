@@ -19,113 +19,114 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "save.h"
 #include <stdio.h>
 #include <stdarg.h>
+#include "init.h"
 //#include <fcntl.h>
 //#include <sys/stat.h>
 //#include <io.h>
 #include "engine.h"
 #include "exhumed.h"
+#include "mmulti.h"
 #include "savegamehelp.h"
 
 BEGIN_PS_NS
 
+static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
+
 int savegame(int nSlot)
 {
-    char filename[92];
+    auto fw = WriteSavegameChunk("engine");
+    fw->Write(&numsectors, sizeof(numsectors));
+    fw->Write(sector, sizeof(sectortype) * numsectors);
+    fw->Write(&numwalls, sizeof(numwalls));
+    fw->Write(wall, sizeof(walltype) * numwalls);
+    fw->Write(sprite, sizeof(spritetype) * kMaxSprites);
+    fw->Write(headspritesect, sizeof(headspritesect));
+    fw->Write(prevspritesect, sizeof(prevspritesect));
+    fw->Write(nextspritesect, sizeof(nextspritesect));
+    fw->Write(headspritestat, sizeof(headspritestat));
+    fw->Write(prevspritestat, sizeof(prevspritestat));
+    fw->Write(nextspritestat, sizeof(nextspritestat));
 
-    if (nSlot < 0 || nSlot >= 10) {
-        return 0;
-    }
+    fw->Write(&tailspritefree, sizeof(tailspritefree));
+    fw->Write(&myconnectindex, sizeof(myconnectindex));
+    fw->Write(&connecthead, sizeof(connecthead));
+    fw->Write(connectpoint2, sizeof(connectpoint2));
+    fw->Write(&numframes, sizeof(numframes));
+    fw->Write(&randomseed, sizeof(randomseed));
+    fw->Write(&numshades, sizeof(numshades));
 
-    sprintf(filename, "save%1d.gam", nSlot);
+    fw->Write(&g_visibility, sizeof(g_visibility));
+    fw->Write(&parallaxtype, sizeof(parallaxtype));
+    fw->Write(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
+    fw->Write(&parallaxyscale_override, sizeof(parallaxyscale_override));
+    fw->Write(&pskybits_override, sizeof(pskybits_override));
 
-    int hFile = open(filename, 609, 128);
-    if (hFile != -1)
-    {
-#if 0 // TODO
-        write(hFile, &numsectors, sizeof(numsectors));
-        write(hFile, sector, sizeof(SECTOR) * numsectors);
-        write(hFile, &numwalls, sizeof(numwalls));
-        write(hFile, wall, sizeof(WALL) * numwalls);
-        write(hFile, sprite, sizeof(SPRITE) * kMaxSprites);
-        write(hFile, headspritesect, sizeof(headspritesect));
-        write(hFile, prevspritesect, sizeof(prevspritesect));
-        write(hFile, nextspritesect, sizeof(nextspritesect));
-        write(hFile, headspritestat, sizeof(headspritestat));
-        write(hFile, prevspritestat, sizeof(prevspritestat));
-        write(hFile, nextspritestat, sizeof(nextspritestat));
-        write(hFile, startumost, sizeof(startumost));
-        write(hFile, startdmost, sizeof(startdmost));
-        write(hFile, &brightness, 2);
-        write(hFile, &visibility, 4);
-        write(hFile, &parallaxtype, 1);
-        write(hFile, &parallaxyoffs, 4);
-        write(hFile, pskyoff, 512);
-        write(hFile, &pskybits, 2);
-        write(hFile, &inita, 2);
-        write(hFile, &initsect, 2);
-        write(hFile, &initx, 4);
-        write(hFile, &inity, 4);
-        write(hFile, &initz, 4);
-        write(hFile, &levelnum, 2);
-#endif
-        close(hFile);
-    }
+    fw->Write(show2dwall, sizeof(show2dwall));
+    fw->Write(show2dsprite, sizeof(show2dsprite));
+    fw->Write(show2dsector, sizeof(show2dsector));
 
+    for (auto sgh : sghelpers) sgh->Save();
     return 1; // CHECKME
 }
 
 int loadgame(int nSlot)
 {
-    char filename[92];
-
-    if (nSlot < 0 || nSlot >= 10) {
-        return 0;
-    }
-
-    sprintf(filename, "save%1d.gam", nSlot);
-
-    int hFile = open(filename, 514, 256);
-    if (hFile != -1)
+    auto fr = ReadSavegameChunk("engine");
+    if (fr.isOpen())
     {
-#if 0 // TODO
-        read(hFile, &numsectors, sizeof(numsectors));
-        read(hFile, sector, sizeof(SECTOR) * numsectors);
-        read(hFile, &numwalls, sizeof(numwalls));
-        read(hFile, wall, sizeof(WALL) * numwalls);
-        read(hFile, sprite, sizeof(SPRITE) * kMaxSprites);
-        read(hFile, headspritesect, sizeof(headspritesect));
-        read(hFile, prevspritesect, sizeof(prevspritesect));
-        read(hFile, nextspritesect, sizeof(nextspritesect));
-        read(hFile, headspritestat, sizeof(headspritestat));
-        read(hFile, prevspritestat, sizeof(prevspritestat));
-        read(hFile, nextspritestat, sizeof(nextspritestat));
-        read(hFile, startumost, sizeof(startumost));
-        read(hFile, startdmost, sizeof(startdmost));
-        read(hFile, &brightness, 2);
-        read(hFile, &visibility, 4);
-        read(hFile, &parallaxtype, 1);
-        read(hFile, &parallaxyoffs, 4);
-        read(hFile, pskyoff, 512);
-        read(hFile, &pskybits, 2);
-        read(hFile, &inita, 2);
-        read(hFile, &initsect, 2);
-        read(hFile, &initx, 4);
-        read(hFile, &inity, 4);
-        read(hFile, &initz, 4);
-        read(hFile, &levelnum, 2);
+        fr.Read(&numsectors, sizeof(numsectors));
+        fr.Read(sector, sizeof(sectortype) * numsectors);
+        fr.Read(&numwalls, sizeof(numwalls));
+        fr.Read(wall, sizeof(walltype) * numwalls);
+        fr.Read(sprite, sizeof(spritetype) * kMaxSprites);
+        fr.Read(headspritesect, sizeof(headspritesect));
+        fr.Read(prevspritesect, sizeof(prevspritesect));
+        fr.Read(nextspritesect, sizeof(nextspritesect));
+        fr.Read(headspritestat, sizeof(headspritestat));
+        fr.Read(prevspritestat, sizeof(prevspritestat));
+        fr.Read(nextspritestat, sizeof(nextspritestat));
 
-        lPlayerXVel = 0;
-        lPlayerYVel = 0;
-        nPlayerDAng = 0;
-#endif
-        close(hFile);
+        fr.Read(&tailspritefree, sizeof(tailspritefree));
+        fr.Read(&myconnectindex, sizeof(myconnectindex));
+        fr.Read(&connecthead, sizeof(connecthead));
+        fr.Read(connectpoint2, sizeof(connectpoint2));
+        fr.Read(&numframes, sizeof(numframes));
+        fr.Read(&randomseed, sizeof(randomseed));
+        fr.Read(&numshades, sizeof(numshades));
+
+        fr.Read(&g_visibility, sizeof(g_visibility));
+        fr.Read(&parallaxtype, sizeof(parallaxtype));
+        fr.Read(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
+        fr.Read(&parallaxyscale_override, sizeof(parallaxyscale_override));
+        fr.Read(&pskybits_override, sizeof(pskybits_override));
+
+        fr.Read(show2dwall, sizeof(show2dwall));
+        fr.Read(show2dsprite, sizeof(show2dsprite));
+        fr.Read(show2dsector, sizeof(show2dsector));
+
     }
+
+    for (auto sgh : sghelpers) sgh->Load();
+
+    // reset the sky in case it hasn't been done yet.
+    psky_t* pSky = tileSetupSky(0);
+    pSky->tileofs[0] = 0;
+    pSky->tileofs[1] = 0;
+    pSky->tileofs[2] = 0;
+    pSky->tileofs[3] = 0;
+    pSky->yoffs = 256;
+    pSky->lognumtiles = 2;
+    pSky->horizfrac = 65536;
+    pSky->yscale = 65536;
+    parallaxtype = 2;
+    g_visibility = 2048;
+    ototalclock = totalclock;
+
+
 
     return 1; // CHECKME
 }
 
-
-static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
 
 SavegameHelper::SavegameHelper(const char* name, ...)
 {
@@ -150,20 +151,6 @@ void SavegameHelper::Load()
         auto read = fr.Read(entry.first, entry.second);
         if (read != entry.second) I_Error("Save game read error in %s", Name.GetChars());
     }
-
-    // reset the sky in case it hasn't been done yet.
-    psky_t* pSky = tileSetupSky(0);
-    pSky->tileofs[0] = 0;
-    pSky->tileofs[1] = 0;
-    pSky->tileofs[2] = 0;
-    pSky->tileofs[3] = 0;
-    pSky->yoffs = 256;
-    pSky->lognumtiles = 2;
-    pSky->horizfrac = 65536;
-    pSky->yscale = 65536;
-    parallaxtype = 2;
-    g_visibility = 2048;
-
 }
 void SavegameHelper::Save()
 {

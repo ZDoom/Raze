@@ -71,6 +71,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <time.h>
 #include <assert.h>
 #include "gamecvars.h"
+#include "savegamehelp.h"
 
 BEGIN_PS_NS
 
@@ -3450,16 +3451,48 @@ static SavegameHelper sgh("exhumed",
     SV(nBodyTotal),
     SV(bSnakeCam),
     SV(bSlipMode),
+    SV(lHeadStartClock),
+    SV(lNextStateChange),
+    SV(nHeadTimeStart),
+    SV(localclock),
+    SV(tclocks),
+    SV(tclocks2),
+    SV(totalclock),
     nullptr);
 
-// These need to be saved as diffs.
-//int lHeadStartClock; // Timer
-//int lNextStateChange; // Timer
-//int nHeadTimeStart; // Timer
-//int localclock;	// timer
 
-//short* pPupData;
-//uint8_t* Worktile;
+void SaveTextureState()
+{
+    auto fw = WriteSavegameChunk("texture");
+    int pupOffset = pPupData? int(pPupData - cPupData) : -1;
+
+    // There is really no good way to restore these two tiles, so it's probably best to save them as well, so that they can be reloaded with the saved data.
+    fw->Write(&pupOffset, 4);
+    uint8_t loaded = !!Worktile;
+    fw->Write(&loaded, 1);
+    if (Worktile) fw->Write(Worktile, WorktileSize);
+    auto pixels = TileFiles.tileMakeWritable(kTile3603);
+    fw->Write(pixels, tilesiz[kTile3603].x * tilesiz[kTile3603].y);
+}
+
+void LoadTextureState()
+{
+    auto fr = ReadSavegameChunk("texture");
+    int pofs;
+    fr.Read(&pofs, 4);
+    pPupData = pofs == -1 ? nullptr : cPupData + pofs;
+    uint8_t loaded;
+    fr.Read(&loaded, 1);
+    if (loaded)
+    {
+        Worktile = TileFiles.tileCreate(kTileRamsesWorkTile, kSpiritX * 2, kSpiritY * 2);
+        fr.Read(Worktile, WorktileSize);
+    }
+    auto pixels = TileFiles.tileMakeWritable(kTile3603);
+    fr.Read(pixels, tilesiz[kTile3603].x * tilesiz[kTile3603].y);
+    TileFiles.InvalidateTile(kTileRamsesWorkTile);
+    TileFiles.InvalidateTile(kTile3603);
+}
 
 
 END_PS_NS

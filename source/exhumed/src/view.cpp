@@ -675,6 +675,10 @@ static SavegameHelper sgh("view",
     SA(dVertPan),
     SA(nVertPan),
     SA(nQuake),
+    SV(g_interpolationCnt),
+    SA(oldipos),
+    SA(curipos),
+    SA(bakipos),
     nullptr);
 
 END_PS_NS
