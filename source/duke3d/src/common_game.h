@@ -7,6 +7,7 @@
 #ifndef EDUKE32_COMMON_GAME_H_
 #define EDUKE32_COMMON_GAME_H_
 
+#include "build.h"
 #include "gamecontrol.h"
 
 BEGIN_DUKE_NS
@@ -55,5 +56,23 @@ extern void G_LoadLookups(void);
 
 //////////
 
+static inline void Duke_ApplySpritePropertiesToTSprite(tspriteptr_t tspr, uspriteptr_t spr)
+{
+    EDUKE32_STATIC_ASSERT(CSTAT_SPRITE_RESERVED1 >> 9 == TSPR_FLAGS_DRAW_LAST);
+    EDUKE32_STATIC_ASSERT(CSTAT_SPRITE_RESERVED4 >> 11 == TSPR_FLAGS_NO_SHADOW);
+    EDUKE32_STATIC_ASSERT(CSTAT_SPRITE_RESERVED5 >> 11 == TSPR_FLAGS_INVISIBLE_WITH_SHADOW);
+
+    auto const cstat = spr->cstat;
+    tspr->clipdist |= ((cstat & CSTAT_SPRITE_RESERVED1) >> 9) | ((cstat & (CSTAT_SPRITE_RESERVED4|CSTAT_SPRITE_RESERVED5)) >> 11);
+}
+
+void Duke_CommonCleanup(void);
+
+#if defined HAVE_FLAC || defined HAVE_VORBIS
+# define FORMAT_UPGRADE_ELIGIBLE
+extern int g_maybeUpgradeSoundFormats;
+extern buildvfs_kfd S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
+#else
+# define S_OpenAudio(fn, searchfirst, ismusic) kopen4loadfrommod(fn, searchfirst)
 END_DUKE_NS
 #endif

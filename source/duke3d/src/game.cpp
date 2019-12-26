@@ -363,6 +363,7 @@ static void G_OROR_DupeSprites(spritetype const *sp)
         if (sprite[k].picnum != SECTOREFFECTOR && sprite[k].z >= sp->z)
         {
             tspriteptr_t tsp = renderAddTSpriteFromSprite(k);
+            Duke_ApplySpritePropertiesToTSprite(tsp, (uspriteptr_t)&sprite[k]);
 
             tsp->x += (refsp->x - sp->x);
             tsp->y += (refsp->y - sp->y);
@@ -3502,6 +3503,8 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
         const int32_t i = t->owner;
         auto const s = &sprite[i];
 
+        Duke_ApplySpritePropertiesToTSprite(t, (uspriteptr_t)s);
+
         switch (DYNAMICTILEMAP(s->picnum))
         {
         case SECTOREFFECTOR__STATIC:
@@ -3633,7 +3636,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
         if (pSprite->picnum == NATURALLIGHTNING)
         {
             t->shade = -127;
-            t->cstat |= 8192;
+            t->clipdist |= TSPR_FLAGS_NO_SHADOW;
         }
 #endif
         if (t->statnum == TSPR_TEMP)
@@ -3936,7 +3939,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
                     if ((!g_netServer && ud.multimode < 2) || ((g_netServer || ud.multimode > 1) && playerNum == screenpeek))
                     {
                         if (videoGetRenderMode() == REND_POLYMER)
-                            t->cstat |= 16384;
+                            t->clipdist |= TSPR_FLAGS_INVISIBLE_WITH_SHADOW;
                         else
                         {
                             t->owner = -1;
@@ -4219,7 +4222,7 @@ skip:
                 //g_restorePalette = 1;   // JBF 20040101: why?
             }
             t->shade = -127;
-            t->cstat |= 8192+1024;
+            t->clipdist |= TSPR_FLAGS_DRAW_LAST | TSPR_FLAGS_NO_SHADOW;
             break;
 #ifndef EDUKE32_STANDALONE
         case FIRE__STATIC:
@@ -4233,11 +4236,11 @@ skip:
             t->shade = -127;
             fallthrough__;
         case SMALLSMOKE__STATIC:
-            t->cstat |= 8192+1024;
+            t->clipdist |= TSPR_FLAGS_DRAW_LAST | TSPR_FLAGS_NO_SHADOW;
             break;
         case COOLEXPLOSION1__STATIC:
             t->shade = -127;
-            t->cstat |= 8192+1024;
+            t->clipdist |= TSPR_FLAGS_DRAW_LAST | TSPR_FLAGS_NO_SHADOW;
             t->picnum += (pSprite->shade>>1);
             break;
         case PLAYERONWATER__STATIC:

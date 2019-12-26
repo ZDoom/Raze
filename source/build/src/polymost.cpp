@@ -418,7 +418,7 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
 
 int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
 {
-    if ((tspr->cstat & (CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_RESERVED1)) ||
+    if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || (tspr->clipdist & TSPR_FLAGS_DRAW_LAST) || 
         ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
         return true;
 

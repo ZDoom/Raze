@@ -132,10 +132,6 @@ enum
     CSTAT_SPRITE_RESERVED4 = 1u<<13u, // used by Duke 3D (Polymer), Shadow Warrior, Blood
     CSTAT_SPRITE_RESERVED5 = 1u<<14u, // used by Duke 3D (Polymer), Shadow Warrior, Blood
 
-    // TODO: Make these two Duke3D-only by translating them to bits in tspr
-    CSTAT_SPRITE_NO_SHADOW = 1u<<13u, // re-defined in Shadow Warrior
-    CSTAT_SPRITE_INVISIBLE_WITH_SHADOW = 1u<<14u, // re-defined in Shadow Warrior
-
     CSTAT_SPRITE_INVISIBLE = 1u<<15u,
 };
 enum
