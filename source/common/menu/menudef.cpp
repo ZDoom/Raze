@@ -1260,6 +1260,7 @@ static void BuildEpisodeMenu()
 				}
 			}
 		}
+#if 0	// this needs to be backed by a working selection menu, until that gets done it must be disabled.
 		if (!(g_gameType & GAMEFLAG_SHAREWARE))
 		{
 			//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "", NIT_SmallFont);	// empty entry as spacer.
@@ -1270,6 +1271,7 @@ static void BuildEpisodeMenu()
 			ld->mItems.Push(it);
 			addedVolumes++;
 		}
+#endif
 		if (addedVolumes == 1)
 		{
 			ld->mAutoselect = 0;
