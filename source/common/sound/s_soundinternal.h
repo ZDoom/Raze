@@ -271,7 +271,10 @@ protected:
 	virtual FSoundID ResolveSound(const void *ent, int srctype, FSoundID soundid, float &attenuation);
 
 public:
-	virtual ~SoundEngine() = default;
+	virtual ~SoundEngine()
+	{
+		Shutdown();
+	}
 	void EvictAllChannels();
 
 	void StopChannel(FSoundChan* chan);
