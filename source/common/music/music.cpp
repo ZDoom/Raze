@@ -536,7 +536,7 @@ CCMD (stopmus)
 static FString lastMusicLevel, lastMusic;
 int Mus_Play(const char *mapname, const char *fn, bool loop)
 {
-	if (mus_blocked) return 0;
+	if (mus_blocked) return 1;	// Caller should believe it succeeded.
 	// Store the requested names for resuming.
 	lastMusicLevel = mapname;
 	lastMusic = fn;
@@ -576,6 +576,11 @@ int Mus_Play(const char *mapname, const char *fn, bool loop)
 	}
 
 	S_ChangeMusic(fn, 0, loop, true);
+	return mus_playing.handle != nullptr;
+}
+
+bool Mus_IsPlaying()
+{
 	return mus_playing.handle != nullptr;
 }
 
@@ -654,7 +659,7 @@ bool MUS_Restore()
 	return true;
 }
 
-void MUS_ResumeSaved()
+void Mus_ResumeSaved()
 {
 	S_RestartMusic();
 }

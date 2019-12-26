@@ -544,6 +544,13 @@ int RunGame()
 	InitFileSystem(usedgroups);
 	if (usedgroups.Size() == 0) return 0;
 
+	if (g_gameType & GAMEFLAG_BLOOD)
+	{
+		UCVarValue v;
+		v.Bool = false;
+		mus_redbook.SetGenericRepDefault(v, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
+	}
+
 	G_ReadConfig(currentGame);
 
 	V_InitFontColors();
@@ -682,7 +689,7 @@ CCMD(snd_reset)
 {
 	Mus_Stop();
 	if (soundEngine) soundEngine->Reset();
-	MUS_ResumeSaved();
+	Mus_ResumeSaved();
 }
 
 //==========================================================================
