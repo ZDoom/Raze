@@ -2188,7 +2188,7 @@ DoFlagRangeTest(short Weapon, short range)
             if (!FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, wp->x, wp->y, wp->z, wp->sectnum))
                 continue;
 
-            dist = FindDistance3D(wp->x - sp->x, wp->y - sp->y, (wp->z - sp->z) >> 4);
+            dist = FindDistance3D(wp->x - sp->x, wp->y - sp->y, wp->z - sp->z);
             if (dist > range)
                 continue;
 

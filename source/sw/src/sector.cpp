@@ -1424,7 +1424,7 @@ WeaponExplodeSectorInRange(short weapon)
         sp = &sprite[i];
 
         // test to see if explosion is close to crack sprite
-        dist = FindDistance3D(wp->x - sp->x, wp->y - sp->y, (wp->z - sp->z)>>4);
+        dist = FindDistance3D(wp->x - sp->x, wp->y - sp->y, wp->z - sp->z);
 
         if (sp->clipdist == 0)
             continue;
@@ -2568,7 +2568,7 @@ int DoPlayerGrabStar(PLAYERp pp)
         {
             sp = &sprite[StarQueue[i]];
 
-            if (FindDistance3D(sp->x - pp->posx, sp->y - pp->posy, (sp->z - pp->posz + Z(12))>>4) < 500)
+            if (FindDistance3D(sp->x - pp->posx, sp->y - pp->posy, sp->z - pp->posz + Z(12)) < 500)
             {
                 break;
             }

@@ -200,7 +200,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
     {
         sp = &sprite[i];
 
-        dist = FindDistance3D(pp->posx - sp->x, pp->posy - sp->y, (pp->posz - sp->z)>>4);
+        dist = FindDistance3D(pp->posx - sp->x, pp->posy - sp->y, pp->posz - sp->z);
 
         // shake whole level
         if (QUAKE_TestDontTaper(sp))
