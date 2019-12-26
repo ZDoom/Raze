@@ -1633,10 +1633,9 @@ void DrawCrosshair(PLAYERp pp)
 
     {
 //NORMALXHAIR:
-        rotatesprite(CrosshairX, CrosshairY, (1 << 16), 0,
+        rotatesprite(160<<16, 100<<16, (1 << 16), 0,
                      2326, 10, 0,
-                     //ROTATE_SPRITE_VIEW_CLIP|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
-                     ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+                     ROTATE_SPRITE_VIEW_CLIP, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
     }
 
     //#define TITLE_ROT_FLAGS (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
