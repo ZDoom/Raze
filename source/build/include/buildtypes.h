@@ -126,11 +126,11 @@ enum
     CSTAT_SPRITE_BLOCK_HITSCAN = 1u<<8u,
     CSTAT_SPRITE_TRANSLUCENT_INVERT = 1u<<9u,
 
-    CSTAT_SPRITE_RESERVED1 = 1u<<10u, // game-side
-    CSTAT_SPRITE_RESERVED2 = 1u<<11u, // game-side
-    CSTAT_SPRITE_RESERVED3 = 1u<<12u,
-    CSTAT_SPRITE_RESERVED4 = 1u<<13u,
-    CSTAT_SPRITE_RESERVED5 = 1u<<14u,
+    CSTAT_SPRITE_RESERVED1 = 1u<<10u, // used by Duke 3D (Polymost)
+    CSTAT_SPRITE_RESERVED2 = 1u<<11u, // used by Duke 3D (EDuke32 game code extension)
+    CSTAT_SPRITE_RESERVED3 = 1u<<12u, // used by Shadow Warrior, Blood
+    CSTAT_SPRITE_RESERVED4 = 1u<<13u, // used by Duke 3D (Polymer), Shadow Warrior, Blood
+    CSTAT_SPRITE_RESERVED5 = 1u<<14u, // used by Duke 3D (Polymer), Shadow Warrior, Blood
 
     // TODO: Make these two Duke3D-only by translating them to bits in tspr
     CSTAT_SPRITE_NO_SHADOW = 1u<<13u, // re-defined in Shadow Warrior
@@ -160,9 +160,14 @@ enum
     CSTAT_WALL_TRANSLUCENT   = 1u<<7u,
     CSTAT_WALL_YFLIP         = 1u<<8u,
     CSTAT_WALL_TRANS_FLIP    = 1u<<9u,
-    CSTAT_WALL_YAX_UPWALL    = 1u<<10u,
-    CSTAT_WALL_YAX_DOWNWALL  = 1u<<11u,
-    CSTAT_WALL_ROTATE_90     = 1u<<12u,
+
+    CSTAT_WALL_YAX_UPWALL    = 1u<<10u, // EDuke32 extension
+    CSTAT_WALL_YAX_DOWNWALL  = 1u<<11u, // EDuke32 extension
+    CSTAT_WALL_ROTATE_90     = 1u<<12u, // EDuke32 extension
+
+    CSTAT_WALL_RESERVED1     = 1u<<13u,
+    CSTAT_WALL_RESERVED2     = 1u<<14u, // used by Shadow Warrior, Blood
+    CSTAT_WALL_RESERVED3     = 1u<<15u, // used by Shadow Warrior, Blood
 };
 #endif
 
