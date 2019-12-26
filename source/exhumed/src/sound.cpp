@@ -338,7 +338,7 @@ void PlayLocalSound(short nSound, short nRate)
     // There is exactly one occurence in the entire game which alters the pitch.
     pASound->snd_channel = soundEngine->StartSound(SOURCE_Unattached, nullptr, nullptr, CHAN_BODY, CHANF_OVERLAP, nSound + 1, 1.f, ATTN_NONE, nullptr);
 
-    if (nRate)
+    if (nRate && pASound->snd_channel)
     {
         float ratefac = (11025 + nRate) / 11025.f;
         soundEngine->SetPitch(pASound->snd_channel, ratefac);

@@ -256,6 +256,15 @@ public:
 	{
 		renderState.IndexBuffer = vb;
 	}
+	void ClearBufferState()
+	{
+		SetVertexBuffer(nullptr, 0, 0);
+		SetIndexBuffer(nullptr);
+		// Invalidate the pointers as well to make sure that if another buffer with the same address is used it actually gets bound.
+		LastVertexBuffer = (IVertexBuffer*)~intptr_t(0);
+		LastIndexBuffer = (IIndexBuffer*)~intptr_t(0);
+	}
+
 	const VSMatrix &GetMatrix(int num)
 	{
 		return matrices[num];

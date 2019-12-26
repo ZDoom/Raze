@@ -983,9 +983,9 @@ if( APPLE )
 endif()
 
 if( WIN32 )
-	set( INSTALL_PATH . CACHE STRING "Directory where the demolition executable will be placed during install." )
+	set( INSTALL_PATH . CACHE STRING "Directory where the executable will be placed during install." )
 else()
-	set( INSTALL_PATH bin CACHE STRING "Directory where the demolition executable will be placed during install." )
+	set( INSTALL_PATH bin CACHE STRING "Directory where the executable will be placed during install." )
 endif()
 install(TARGETS demolition
 		DESTINATION ${INSTALL_PATH}
@@ -1008,6 +1008,8 @@ source_group("Code\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/commo
 source_group("Code\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/.+")
 source_group("Code\\Rendering\\GL_Load" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl_load/.+")
 source_group("Code\\Rendering\\GL\\System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl/system.+")
+source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")
+source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("Utility\\Smackerdec" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/smackerdec/.+")
 source_group("Utility\\Smackerdec\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libsmackerdec/include/.+")
 source_group("Utility\\Smackerdec\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libsmackerdec/src/.+")

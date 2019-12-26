@@ -839,7 +839,7 @@ void M_Ticker (void)
 	if (DMenu::MenuTime & 3) return;
 	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
-		D_ProcessEvents();	// The main loop is blocked when the menu is open and cannot dispatch the events.
+		if (DMenu::MenuTime != 0) D_ProcessEvents();	// The main loop is blocked when the menu is open and cannot dispatch the events.
 		if (transition.previous) transition.previous->Ticker();
 		if (DMenu::CurrentMenu == nullptr) return; // In case one of the sub-screens has closed the menu.
 		DMenu::CurrentMenu->Ticker();

@@ -81,8 +81,6 @@ BEGIN_PS_NS
     extern const char* s_buildRev;
     extern const char* s_buildTimestamp;
 
-const char* AppProperName = APPNAME;
-const char* AppTechnicalName = APPBASENAME;
 
 void FinishLevel();
 

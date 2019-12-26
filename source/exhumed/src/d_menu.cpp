@@ -52,6 +52,20 @@ int menu_Menu(int nVal)
 	M_SetMenu(NAME_MainMenu);
 	while (M_Active())
 	{
+		auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
+		int dword_9AB5F = ((int)totalclock / 16) & 3;
+
+		videoClearScreen(blackcol);
+
+		overwritesprite(160, 100, kSkullHead, 32, 3, kPalNormal);
+		overwritesprite(161, 130, kSkullJaw, 32, 3, kPalNormal);
+
+		overwritesprite(160, 40, nLogoTile, 32, 3, kPalNormal);
+
+		// draw the fire urn/lamp thingies
+		overwritesprite(50, 150, kTile3512 + dword_9AB5F, 32, 3, kPalNormal);
+		overwritesprite(270, 150, kTile3512 + ((dword_9AB5F + 2) & 3), 32, 3, kPalNormal);
+
 		HandleAsync();
 		videoNextPage();
 
@@ -190,8 +204,8 @@ void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* t
 	{
 		int height = 11;
 
-		auto lines = FString(text).Split("\n");
-		int y = 100 - (height * lines.Size() / 2);
+		auto lines = FString(text).MakeUpper().Split("\n");
+		int y = position - (height * lines.Size() / 2);
 		for (auto& l : lines)
 		{
 			int width = MyGetStringWidth(l);
@@ -199,6 +213,11 @@ void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* t
 			y += height;
 		}
 	}
+}
+
+void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
+{
+	DrawCenteredTextScreen(origin, text, 10, false);
 }
 
 

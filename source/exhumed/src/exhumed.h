@@ -285,7 +285,8 @@ struct GameInterface : ::GameInterface
     void StartGame(FGameStartup& gs) override;
     bool CanSave() override;
     FSavegameInfo GetSaveSig() override;
-    void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg);
+    void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
+    void DrawMenuCaption(const DVector2& origin, const char* text) override;
 
     FString statFPS() override;
     //GameStats getStats() override;
