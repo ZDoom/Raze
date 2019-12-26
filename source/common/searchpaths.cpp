@@ -847,13 +847,13 @@ TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 	engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
 	if (engine_res)
 	{
-		auto basegrp = engine_res->FindLump("demolition/demolition.grpinfo");
+		auto basegrp = engine_res->FindLump("demolition/grpinfo.txt");
 		if (basegrp)
 		{
 			auto fr = basegrp->NewReader();
 			if (fr.isOpen())
 			{
-				groups = ParseGrpInfo("demolition/demolition.grpinfo", fr, CRCMap);
+				groups = ParseGrpInfo("demolition/grpinfo.txt", fr, CRCMap);
 			}
 		}
 	}
