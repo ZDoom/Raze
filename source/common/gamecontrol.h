@@ -124,6 +124,7 @@ struct GrpInfo
 	int flags = 0;
 	bool loaddirectory = false;
 	TArray<FString> mustcontain;
+	TArray<FString> tobedeleted;
 	TArray<FString> loadfiles;
 	TArray<FString> loadart;
 };

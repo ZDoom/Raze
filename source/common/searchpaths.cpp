@@ -797,6 +797,14 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 					}
 					while (sc.CheckToken(','));
 				}
+				else if (sc.Compare("deletecontent"))
+				{
+					do
+					{
+						sc.MustGetToken(TK_StringConst);
+						grp.tobedeleted.Push(sc.String);
+					} while (sc.CheckToken(','));
+				}
 				else if (sc.Compare("loadgrp"))
 				{
 				do

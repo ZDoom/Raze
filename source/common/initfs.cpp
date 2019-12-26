@@ -378,7 +378,11 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	}
 
 	TArray<FString> todelete;
-	fileSystem.InitMultipleFiles(Files, todelete);
+	for (auto& g : groups)
+	{
+		todelete.Append(g.FileInfo.tobedeleted);
+	}
+	fileSystem.InitMultipleFiles(Files, todelete, groups.Size());
 
 	FILE* f = fopen("filesystem.dir", "wb");
 	for (int i = 0; i < fileSystem.GetNumEntries(); i++)
