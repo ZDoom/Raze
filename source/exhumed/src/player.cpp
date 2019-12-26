@@ -43,7 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "grenade.h"
 #include "menu.h"
 #include "cd.h"
-#include "cdaudio.h"
 #include "map.h"
 #include "sound.h"
 #include "textures.h"

@@ -30,8 +30,6 @@ BEGIN_PS_NS
 
 extern short word_9AC30;
 
-static char *pTrack = NULL;
-static int trackhandle = -1;
 int nLastVolumeSet = 0;
 
 /* TODO
@@ -52,7 +50,7 @@ bool playCDtrack(int nTrack, bool bLoop)
 
     // try ogg vorbis now
     sprintf(filename, "exhumed%02d.ogg", nTrack);
-    trackhandle = Mus_Play(nullptr, filename, true);
+    Mus_Play(nullptr, filename, true);
     return true;
 }
 
@@ -66,18 +64,12 @@ int StepFadeCDaudio()
     return 0;
     }
     Mus_Stop();
-    trackhandle = 0;
     return 1;
 }
 
 bool CDplaying()
 {
-    if (trackhandle <= 0) {
-        return false;
-    }
-    else {
-        return true;
-    }
+    return Mus_IsPlaying();
 }
 
 void StopCD()
@@ -88,5 +80,23 @@ void StopCD()
 void FadeSong()
 {
 }
+
+int fadecdaudio()
+{
+    StartfadeCDaudio();
+
+    while (1)
+    {
+        if (!StepFadeCDaudio()) {
+            return 1;
+        }
+        else {
+            WaitTicks(1);
+        }
+    }
+
+    return 1;
+}
+
 
 END_PS_NS

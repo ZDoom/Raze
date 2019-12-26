@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "init.h"
 #include "menu.h"
 #include "cd.h"
-#include "cdaudio.h"
 #include "typedefs.h"
 #include "map.h"
 #include "move.h"

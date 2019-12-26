@@ -57,8 +57,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "wasp.h"
 #include "scorp.h"
 #include "rat.h"
-#include "cdrom.h"
-#include "cdaudio.h"
 #include "serial.h"
 #include "network.h"
 #include "random.h"
@@ -2181,23 +2179,6 @@ LOOP3:
         if (CDplaying()) {
             fadecdaudio();
         }
-
-        CheckCD();
-
-#if 0
-        if (!bNoCDCheck)
-        {
-            while (!checkcdrom())
-            {
-                EraseScreen(overscanindex);
-                Query(2, 0, "Insert CD into drive", "(ESC to abort)");
-                inputState.ClearAllKeyStatus();
-                if (inputState.keyGetChar() == asc_Escape) {
-                    I_Error("Aborted\n");
-                }
-            }
-        }
-#endif
 
         if (levelnew == kMap20)
         {

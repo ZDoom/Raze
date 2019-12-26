@@ -121,6 +121,7 @@ void UpdateCreepySounds();
 void InitFX();
 void UnInitFX();
 void FadeSong();
+int fadecdaudio();
 int LocalSoundPlaying();
 void LoadFX();
 void StopAllSounds();
