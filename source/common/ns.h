@@ -30,10 +30,3 @@
 
 #endif
 
-#ifndef APPNAME
-#define APPNAME             "Demolition"
-#endif
-
-#ifndef APPBASENAME
-#define APPBASENAME         "demolition"
-#endif

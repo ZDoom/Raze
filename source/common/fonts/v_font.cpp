@@ -404,7 +404,7 @@ void V_InitFontColors ()
 	TranslationLookup.Clear();
 	TranslationColors.Clear();
 
-	while ((lump = fileSystem.Iterate("demolition/textcolors.txt", &lastlump)) != -1)
+	while ((lump = fileSystem.Iterate("engine/textcolors.txt", &lastlump)) != -1)
 	{
 		FScanner sc(lump);
 		while (sc.GetString())
@@ -714,13 +714,13 @@ void V_InitFonts()
 	FFont *CreateHexLumpFont(const char *fontname, const char* lump);
 	FFont *CreateHexLumpFont2(const char *fontname, const char * lump);
 
-	if (fileSystem.FindFile("demolition/newconsolefont.hex") < 0)
+	if (fileSystem.FindFile("engine/newconsolefont.hex") < 0)
 		I_Error("newconsolefont.hex not found");	// This font is needed - do not start up without it.
-	NewConsoleFont = CreateHexLumpFont("NewConsoleFont", "demolition/newconsolefont.hex");
-	NewSmallFont = CreateHexLumpFont2("NewSmallFont", "demolition/newconsolefont.hex");
+	NewConsoleFont = CreateHexLumpFont("NewConsoleFont", "engine/newconsolefont.hex");
+	NewSmallFont = CreateHexLumpFont2("NewSmallFont", "engine/newconsolefont.hex");
 	CurrentConsoleFont = NewConsoleFont;
 
-	ConFont = V_GetFont("ConsoleFont", "demolition/confont.lmp");	// The con font is needed for the slider graphics
+	ConFont = V_GetFont("ConsoleFont", "engine/confont.lmp");	// The con font is needed for the slider graphics
 	SmallFont = ConFont;	// This is so that it doesn't crash and that it immediately gets seen as a proble. The SmallFont should later be mapped to the small game font.
 }
 

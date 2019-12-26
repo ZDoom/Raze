@@ -98,8 +98,8 @@ void GLInstance::Init(int ydim)
 	ImGui_ImplOpenGL3_Init();
 	if (!ttf.Size())
 	{
-		//ttf = fileSystem.LoadFile("demolition/Capsmall_clean.ttf", 0);
-		ttf = fileSystem.LoadFile("demolition/Roboto-Regular.ttf", 0);
+		//ttf = fileSystem.LoadFile("engine/Capsmall_clean.ttf", 0);
+		ttf = fileSystem.LoadFile("engine/Roboto-Regular.ttf", 0);
 	}
 	if (ttf.Size()) io.Fonts->AddFontFromMemoryTTF(ttf.Data(), ttf.Size(), std::clamp(ydim / 40, 10, 30));
 #endif
@@ -107,9 +107,9 @@ void GLInstance::Init(int ydim)
 
 void GLInstance::LoadPolymostShader()
 {
-	auto fr1 = GetResource("demolition/shaders/glsl/polymost.vp");
+	auto fr1 = GetResource("engine/shaders/glsl/polymost.vp");
 	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetResource("demolition/shaders/glsl/polymost.fp");
+	fr1 = GetResource("engine/shaders/glsl/polymost.fp");
 	TArray<uint8_t> Frag = fr1.Read();
 	// Zero-terminate both strings.
 	Vert.Push(0);
@@ -121,9 +121,9 @@ void GLInstance::LoadPolymostShader()
 
 void GLInstance::LoadVPXShader()
 {
-	auto fr1 = GetResource("demolition/shaders/glsl/animvpx.vp");
+	auto fr1 = GetResource("engine/shaders/glsl/animvpx.vp");
 	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetResource("demolition/shaders/glsl/animvpx.fp");
+	fr1 = GetResource("engine/shaders/glsl/animvpx.fp");
 	TArray<uint8_t> Frag = fr1.Read();
 	// Zero-terminate both strings.
 	Vert.Push(0);
@@ -134,9 +134,9 @@ void GLInstance::LoadVPXShader()
 
 void GLInstance::LoadSurfaceShader()
 {
-	auto fr1 = GetResource("demolition/shaders/glsl/glsurface.vp");
+	auto fr1 = GetResource("engine/shaders/glsl/glsurface.vp");
 	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetResource("demolition/shaders/glsl/glsurface.fp");
+	fr1 = GetResource("engine/shaders/glsl/glsurface.fp");
 	TArray<uint8_t> Frag = fr1.Read();
 	// Zero-terminate both strings.
 	Vert.Push(0);

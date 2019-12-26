@@ -41,6 +41,7 @@
 #include "gameconfigfile.h"
 #include "printf.h"
 #include "m_argv.h"
+#include "version.h"
 #include "../platform/win32/i_findfile.h"	// This is a temporary direct path. Needs to be fixed when stuff gets cleaned up.
 
 #ifndef PATH_MAX
@@ -296,7 +297,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	TArray<FString> Files;
 
 	// First comes the engine's own stuff.
-	FString baseres = progdir + "demolition.pk3";
+	FString baseres = progdir + ENGINERES_FILE;
 	D_AddFile(Files, baseres);
 
 	bool insertdirectoriesafter = Args->CheckParm("-insertdirafter");

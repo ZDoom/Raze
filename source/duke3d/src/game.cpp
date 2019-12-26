@@ -263,7 +263,7 @@ void G_GameExit(const char *msg)
     {
         if (!(msg[0] == ' ' && msg[1] == 0))
         {
-			I_Error("%s", msg);
+			I_FatalError("%s", msg);
         }
     }
 	throw ExitEvent(0);

@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resourcefile.h"
 #include "printf.h"
 #include "common.h"
+#include "version.h"
 #include "gamecontrol.h"
 #include "filesystem/filesystem.h"
 
@@ -843,17 +844,17 @@ TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 	extern FString progdir;
 	// This opens the base resource only for reading the grpinfo from it which we need before setting up the game state.
 	std::unique_ptr<FResourceFile> engine_res;
-	FString baseres = progdir + "demolition.pk3";
+	FString baseres = progdir + ENGINERES_FILE;
 	engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
 	if (engine_res)
 	{
-		auto basegrp = engine_res->FindLump("demolition/grpinfo.txt");
+		auto basegrp = engine_res->FindLump("engine/grpinfo.txt");
 		if (basegrp)
 		{
 			auto fr = basegrp->NewReader();
 			if (fr.isOpen())
 			{
-				groups = ParseGrpInfo("demolition/grpinfo.txt", fr, CRCMap);
+				groups = ParseGrpInfo("engine/grpinfo.txt", fr, CRCMap);
 			}
 		}
 	}

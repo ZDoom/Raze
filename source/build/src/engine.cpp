@@ -28,6 +28,7 @@
 #include "imgui.h"
 #include "stats.h"
 #include "menu.h"
+#include "version.h"
 
 #ifdef USE_OPENGL
 # include "glsurface.h"
@@ -1454,8 +1455,8 @@ static int32_t bakrendmode;
 #endif
 static int32_t baktile;
 
-#ifdef APPNAME
-char apptitle[256] = APPNAME;
+#ifdef GAMENAME
+char apptitle[256] = GAMENAME;
 #else
 char apptitle[256] = "Build Engine";
 #endif

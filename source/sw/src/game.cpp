@@ -852,7 +852,7 @@ bool InitGame()
     LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
     LoadPLockFromScript("swplock.txt");   // Get Parental Lock setup info
 	
-	LoadCustomInfoFromScript("demolition/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
+	LoadCustomInfoFromScript("engine/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
 	{
 		LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
