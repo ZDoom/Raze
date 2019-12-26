@@ -3401,5 +3401,65 @@ bool GameInterface::CanSave()
     return new GameInterface;
 }
 
+//short lastlevel;
+//short forcelevel = -1;
+//int lLocalCodes = 0;
+//int flash;
+//short textpages;
+
+// This is only the static global data.
+static SavegameHelper sgh("exhumed",
+    SA(cPupData),
+    SV(nPupData),
+    SV(nPixels),
+    SA(curx),
+    SA(cury),
+    SA(destvelx),
+    SA(destvely),
+    SA(pixelval),
+    SA(origy),
+    SA(origx),
+    SA(velx),
+    SA(vely),
+    SV(nMouthTile),
+    SV(nSpiritSprite),
+    SV(word_964E8),
+    SV(word_964EA),
+    SV(word_964EC),
+    SV(nSpiritRepeatX),
+    SV(nSpiritRepeatY),
+    SV(nPixelsToShow),
+    SV(nCreaturesLeft), // todo: also maintain a total counter.
+    SV(nFreeze),
+    SV(nSnakeCam),
+    SV(nLocalSpr),
+    SV(levelnew),
+    SV(nClockVal),  // kTile3603
+    SV(nRedTicks),
+    SV(nAlarmTicks),
+    SV(nButtonColor),
+    SV(nEnergyChan),
+    SV(lCountDown),
+    SV(nEnergyTowers),
+    SV(nHeadStage),
+    SV(nTalkTime),
+    SV(levelnum),
+    SV(moveframes),
+    SV(totalmoves),
+    SV(nCurBodyNum),
+    SV(nBodyTotal),
+    SV(bSnakeCam),
+    SV(bSlipMode),
+    nullptr);
+
+// These need to be saved as diffs.
+//int lHeadStartClock; // Timer
+//int lNextStateChange; // Timer
+//int nHeadTimeStart; // Timer
+//int localclock;	// timer
+
+//short* pPupData;
+//uint8_t* Worktile;
+
 
 END_PS_NS

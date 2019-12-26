@@ -87,7 +87,6 @@ short QueenChan[kMaxQueens];
 
 
 
-
 struct Queen
 {
     short nHealth;
@@ -135,6 +134,27 @@ int MoveQY[25];
 int MoveQZ[25];
 short MoveQS[25];
 short MoveQA[25];
+
+
+
+static SavegameHelper sgh("queen",
+    SV(QueenCount),
+    SV(nQHead),
+    SV(nEggsFree),
+    SV(nHeadVel),
+    SV(nVelShift),
+    SV(QueenHead),
+    SA(tailspr),
+    SA(nEggFree),
+    SA(QueenChan),
+    SA(QueenEgg),
+    SA(QueenList),
+    SA(MoveQX),
+    SA(MoveQY),
+    SA(MoveQZ),
+    SA(MoveQS),
+    SA(MoveQA),
+    nullptr);
 
 
 void InitQueens()

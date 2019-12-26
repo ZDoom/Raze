@@ -2673,4 +2673,46 @@ void PostProcess()
         }
     }
 }
+
+
+static SavegameHelper sgh("objects",
+    SA(sTrap),
+    SA(sBob),
+    SA(sTrail),
+    SA(sTrailPoint),
+    SA(Elevator),
+    SA(ObjectList),
+    SA(sMoveSect),
+    SA(SlideData),
+    SA(sMoveDir),
+    SA(WallFace),
+    SA(SlideData2),
+    SA(PointList),
+    SA(nTrapInterval),
+    SA(sBobID),
+    SA(PointFree),
+    SA(SlideFree),
+    SA(nTrailPointVal),
+    SA(nTrailPointPrev),
+    SA(nTrailPointNext),
+    SA(sDrip),
+    SV(PointCount),
+    SV(SlideCount),
+    SV(ElevCount),
+    SV(WallFaceCount),
+    SV(lFinaleStart),
+    SV(nTrailPoints),
+    SV(nEnergyBlocks),
+    SV(nMoveSects),
+    SV(nFinaleStage),
+    SV(nTrails),
+    SV(nTraps),
+    SV(nFinaleSpr),
+    SV(ObjectCount),
+    SV(nDrips),
+    SV(nBobs),
+    SV(nDronePitch),
+    SV(nSmokeSparks),
+    nullptr);
+
 END_PS_NS

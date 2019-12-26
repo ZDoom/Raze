@@ -53,6 +53,11 @@ static actionSeq ActionSeq[] = {
     {53, 1}
 };
 
+static SavegameHelper sgh("scorp",
+    SV(ScorpCount),
+    SA(scorpion),
+    SA(ScorpChan),
+    nullptr);
 
 void InitScorp()
 {

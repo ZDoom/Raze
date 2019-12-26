@@ -50,6 +50,11 @@ Spider SpiderList[kMaxSpiders];
 
 static actionSeq ActionSeq[] = { {16, 0}, {8, 0}, {32, 0}, {24, 0}, {0, 0}, {40, 1}, {41, 1} };
 
+static SavegameHelper sgh("spider",
+    SV(SpiderSprite),
+    SV(SpiderCount),
+    SA(SpiderList),
+    nullptr);
 
 void InitSpider()
 {

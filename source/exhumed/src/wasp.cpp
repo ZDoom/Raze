@@ -55,6 +55,12 @@ Wasp WaspList[kMaxWasps];
 
 static actionSeq ActionSeq[] = {{0,0}, {0,0}, {9,0}, {18,0}, {27,1}, {28,1}, {29,1}};
 
+static SavegameHelper sgh("wasp",
+    SV(nVelShift),
+    SV(nWaspCount),
+    SA(WaspList),
+    nullptr);
+
 
 void InitWasps()
 {

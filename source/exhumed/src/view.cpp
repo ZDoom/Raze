@@ -650,4 +650,31 @@ void Clip()
 
     bClip = kTrue;
 }
+
+
+static SavegameHelper sgh("view",
+    SV(nCamerax),
+    SV(nCameray),
+    SV(nCameraz),
+    SV(bTouchFloor),
+    SV(nChunkTotal),
+    SV(nCameraa),
+    SV(nCamerapan),
+    SV(nViewTop),
+    SV(bClip),
+    SV(nViewBottom),
+    SV(nViewRight),
+    SV(besttarget),
+    SV(nViewLeft),
+    SV(bCamera),
+    SV(nViewy),
+    SV(viewz),
+    SV(enemy),
+    SV(nEnemyPal),
+    SA(nDestVertPan),
+    SA(dVertPan),
+    SA(nVertPan),
+    SA(nQuake),
+    nullptr);
+
 END_PS_NS

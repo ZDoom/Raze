@@ -59,6 +59,14 @@ uint8_t nBubblesFree[kMaxBubbles];
 machine Machine[kMaxMachines];
 Bubble BubbleList[kMaxBubbles];
 
+static SavegameHelper sgh("bubbles",
+    SA(BubbleCount),
+    SA(nFreeCount),
+    SA(nMachineCount),
+    SA(nBubblesFree),
+    SA(Machine),
+    SA(BubbleList),
+    nullptr);
 
 void InitBubbles()
 {

@@ -64,6 +64,12 @@ struct Set
 Set SetList[kMaxSets];
 short SetChan[kMaxSets];
 
+static SavegameHelper sgh("set",
+    SV(SetCount),
+    SA(SetList),
+    SA(SetChan),
+    nullptr);
+
 
 void InitSets()
 {

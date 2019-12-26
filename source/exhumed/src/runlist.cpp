@@ -1842,4 +1842,24 @@ void runlist_DamageEnemy(int nSprite, int nSprite2, short nDamage)
         }
     }
 }
+
+static SavegameHelper sgh("runlist",
+    SV(RunCount),
+    SV(nRadialSpr),
+    SV(nStackCount),
+    SV(word_966BE),
+    SV(ChannelList),
+    SV(ChannelLast),
+    SV(nRadialOwner),
+    SV(nDamageRadius),
+    SV(nRadialDamage),
+    SV(RunChain),
+    SV(NewRun),
+    SA(sRunStack),
+    SA(RunFree),
+    SA(sRunChannels),
+    SA(RunData),
+    SV(word_96760),
+    nullptr);
+
 END_PS_NS

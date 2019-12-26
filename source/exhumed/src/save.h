@@ -18,11 +18,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifndef __save_h__
 #define __save_h__
+#include "zstring.h"
 
 BEGIN_PS_NS
 
 int savegame(int nSlot);
 int loadgame(int nSlot);
+
+
+struct SavegameHelper
+{
+    FString Name;
+    TArray<std::pair<void*, size_t>> Elements;
+    SavegameHelper(const char* name, ...);
+    void Load();
+    void Save();
+};
+
+#define SV(v) &v, sizeof(v)
+#define SA(a) a, sizeof(a)
+
 
 END_PS_NS
 

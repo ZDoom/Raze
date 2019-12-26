@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-
 #define kMaxAnims	400
 
 short nMagicSeq = -1;
@@ -41,6 +40,16 @@ short AnimsFree[kMaxAnims];
 Anim AnimList[kMaxAnims];
 uint8_t AnimFlags[kMaxAnims];
 
+static SavegameHelper sgh("anims",
+    SV(nMagicSeq),
+    SV(nPreMagicSeq),
+    SV(nSavePointSeq),
+    SV(nAnimsFree),
+    SA(AnimRunRec),
+    SA(AnimsFree),
+    SA(AnimList),
+    SA(AnimFlags),
+    nullptr);
 
 void InitAnims()
 {

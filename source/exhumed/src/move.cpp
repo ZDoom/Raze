@@ -65,6 +65,21 @@ BlockInfo sBlockInfo[kMaxPushBlocks];
 short nChunkSprite[kMaxChunks];
 
 
+static SavegameHelper sgh("move",
+    SV(nPushBlocks),
+    SV(overridesect),
+    SV(NearCount),
+    SV(hihit),
+    SV(sprceiling),
+    SV(sprfloor),
+    SV(lohit),
+    SA(nBodySprite),
+    SA(NearSector),
+    SA(sBlockInfo),
+    SA(nChunkSprite),
+    nullptr);
+
+
 signed int lsqrt(int a1)
 {
     int v1; // edx@1

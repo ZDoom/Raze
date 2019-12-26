@@ -74,6 +74,22 @@ short lasthitsect, lasthitsprite, lasthitwall;
 int nBulletCount = 0;
 short nRadialBullet = 0;
 
+static SavegameHelper sgh("bullet",
+    SV(BulletFree),
+    SV(BulletList),
+    SV(nBulletEnemy),
+    SA(nBulletsFree),
+    SA(lasthitz),
+    SA(lasthitx),
+    SA(lasthity),
+    SA(lasthitsect),
+    SA(lasthitsprite),
+    SA(lasthitwall),
+    SV(nBulletCount),
+    SV(nRadialBullet),
+    nullptr);
+
+
 bulletInfo BulletInfo[] = {
     { 25,   1,    20, -1, -1, 13, 0,  0, -1, 0 },
     { 25,  -1, 65000, -1, 31, 73, 0,  0, -1, 0 },

@@ -56,6 +56,13 @@ struct Grenade
 
 Grenade GrenadeList[kMaxGrenades];
 
+static SavegameHelper sgh("grenade",
+    SV(nGrenadeCount),
+    SV(nGrenadesFree),
+    SA(GrenadeFree),
+    SA(GrenadeList),
+    nullptr);
+
 
 void InitGrenades()
 {

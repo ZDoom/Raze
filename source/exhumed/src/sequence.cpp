@@ -661,4 +661,14 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
 
     return nPict;
 }
+
+static SavegameHelper sgh("sequence",
+    SV(nPilotLightFrame),
+    SV(nPilotLightCount),
+    SV(nPilotLightBase),
+    SV(laststatustile),
+    SV(nShadowWidth),
+    SV(nFlameHeight),
+    nullptr);
+
 END_PS_NS

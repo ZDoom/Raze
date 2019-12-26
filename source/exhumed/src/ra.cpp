@@ -41,6 +41,12 @@ static actionSeq ActionSeq[] = {
     {2, 1}, {0, 0}, {1, 0}, {2, 0}
 };
 
+static SavegameHelper sgh("ra",
+    SA(Ra),
+    SV(RaCount),
+    nullptr);
+
+
 void FreeRa(short nPlayer)
 {
     int nRun = Ra[nPlayer].field_4;

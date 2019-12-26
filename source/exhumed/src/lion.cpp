@@ -52,6 +52,12 @@ struct Lion
 
 Lion LionList[kMaxLions];
 
+static SavegameHelper sgh("lion",
+    SV(LionCount),
+    SA(MoveHook),
+    SA(LionList),
+    nullptr);
+
 
 void InitLion()
 {

@@ -90,6 +90,28 @@ short nGlowCount;
 int bDoFlicks = 0;
 int bDoGlows = 0;
 
+
+static SavegameHelper sgh("lightning",
+    SA(sFlash),
+    SA(sGlow),
+    SA(nNextFlash),
+    SA(sFlicker),
+    SA(nFreeFlash),
+    SA(sFlowInfo),
+    SA(flickermask),
+    SV(bTorch),
+    SV(nFirstFlash),
+    SV(nLastFlash),
+    SV(nFlashDepth),
+    SV(nFlashes),
+    SV(nFlowCount),
+    SV(nFlickerCount),
+    SV(nGlowCount),
+    SV(bDoFlicks),
+    SV(bDoGlows),
+    nullptr);
+
+
 // done
 int GrabFlash()
 {

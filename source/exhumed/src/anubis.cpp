@@ -71,6 +71,13 @@ static actionSeq ActionSeq[] = {
 
 short nAnubisDrum = 0;
 
+static SavegameHelper sgh("anubis",
+    SA(AnubisList),
+    SV(AnubisSprite),
+    SV(AnubisCount),
+    SV(nAnubisDrum),
+    nullptr);
+
 
 void InitAnubis()
 {

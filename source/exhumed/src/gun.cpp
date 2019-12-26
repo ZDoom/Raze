@@ -74,6 +74,11 @@ short nTemperature[kMaxPlayers];
 short nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
 short word_96E26 = 0;
 
+static SavegameHelper sgh("gun",
+    SA(nTemperature),
+    SV(word_96E26),
+    nullptr);
+
 
 void RestoreMinAmmo(short nPlayer)
 {

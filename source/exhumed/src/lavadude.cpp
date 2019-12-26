@@ -61,6 +61,13 @@ static actionSeq ActionSeq[] = {
     {42, 1}
 };
 
+static SavegameHelper sgh("lavadude",
+    SA(LavaList),
+    SV(LavaCount),
+    SV(LavaSprite),
+    nullptr);
+
+
 // done
 void InitLava()
 {

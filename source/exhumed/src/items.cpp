@@ -113,6 +113,12 @@ short nRegenerates;
 short nFirstRegenerate;
 short nMagicCount;
 
+static SavegameHelper sgh("items",
+    SV(nRegenerates),
+    SV(nFirstRegenerate),
+    SV(nMagicCount),
+    nullptr);
+
 
 void BuildItemAnim(short nSprite)
 {

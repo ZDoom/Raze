@@ -2036,4 +2036,9 @@ LABEL_28:
     MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
     MaskStatus();
 }
+
+static SavegameHelper sgh("menu",
+    SA(nCinemaSeen),
+    nullptr);
+
 END_PS_NS

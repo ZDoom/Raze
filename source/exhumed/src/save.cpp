@@ -18,10 +18,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "save.h"
 #include <stdio.h>
+#include <stdarg.h>
 //#include <fcntl.h>
 //#include <sys/stat.h>
 //#include <io.h>
 #include "engine.h"
+#include "exhumed.h"
+#include "savegamehelp.h"
 
 BEGIN_PS_NS
 
@@ -119,6 +122,57 @@ int loadgame(int nSlot)
     }
 
     return 1; // CHECKME
+}
+
+
+static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
+
+SavegameHelper::SavegameHelper(const char* name, ...)
+{
+    Name = name;
+    sghelpers.Push(this);
+    va_list ap;
+    va_start(ap, name);
+    for(;;)
+    {
+        void* addr = va_arg(ap, void*);
+        if (!addr) break;
+        size_t size = va_arg(ap, size_t);
+        Elements.Push(std::make_pair(addr, size));
+    }
+}
+
+void SavegameHelper::Load()
+{
+    auto fr = ReadSavegameChunk(Name);
+    for (auto& entry : Elements)
+    {
+        auto read = fr.Read(entry.first, entry.second);
+        if (read != entry.second) I_Error("Save game read error in %s", Name.GetChars());
+    }
+
+    // reset the sky in case it hasn't been done yet.
+    psky_t* pSky = tileSetupSky(0);
+    pSky->tileofs[0] = 0;
+    pSky->tileofs[1] = 0;
+    pSky->tileofs[2] = 0;
+    pSky->tileofs[3] = 0;
+    pSky->yoffs = 256;
+    pSky->lognumtiles = 2;
+    pSky->horizfrac = 65536;
+    pSky->yscale = 65536;
+    parallaxtype = 2;
+    g_visibility = 2048;
+
+}
+void SavegameHelper::Save()
+{
+    auto fw = WriteSavegameChunk(Name);
+    for (auto& entry : Elements)
+    {
+        auto write = fw->Write(entry.first, entry.second);
+        if (write != entry.second) I_Error("Save game write error in %s", Name.GetChars());
+    }
 }
 
 END_PS_NS

@@ -60,6 +60,13 @@ static actionSeq ActionSeq[] = {
 };
 
 
+static SavegameHelper sgh("rex",
+    SV(RexCount),
+    SA(RexChan),
+    SA(RexList),
+    nullptr);
+
+
 void InitRexs()
 {
     RexCount = kMaxRex;

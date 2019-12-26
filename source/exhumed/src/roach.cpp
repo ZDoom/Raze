@@ -52,6 +52,12 @@ struct Roach
 
 Roach RoachList[kMaxRoach];
 
+static SavegameHelper sgh("roach",
+    SV(RoachSprite),
+    SV(RoachCount),
+    SA(RoachList),
+    nullptr);
+
 
 /* Kilmaat Sentry */
 

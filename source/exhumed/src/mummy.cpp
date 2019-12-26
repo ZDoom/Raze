@@ -58,6 +58,12 @@ static actionSeq ActionSeq[] = {
     {50, 0}
 };
 
+
+static SavegameHelper sgh("mummy",
+    SV(nMummies),
+    SA(MummyList),
+    nullptr);
+
 // done
 void InitMummy()
 {

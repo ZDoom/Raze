@@ -53,6 +53,14 @@ Rat RatList[kMaxRats];
 static actionSeq ActionSeq[] = {{0, 1}, {1, 0}, {1, 0}, {9, 1}, {0, 1}};
 
 
+static SavegameHelper sgh("rat",
+    SV(nMinChunk),
+    SV(nPlayerPic),
+    SV(nRatCount),
+    SV(nMaxChunk),
+    SA(RatList),
+    nullptr);
+
 void InitRats()
 {
     nRatCount = 0;

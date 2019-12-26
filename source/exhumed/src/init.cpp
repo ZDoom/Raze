@@ -76,58 +76,7 @@ int   SectBelow[kMaxSectors]     = { 0 };
 
 uint8_t bIsVersion6 = kTrue;
 
-#if 0
-// definitions for map version 6 structures
-#pragma pack(1)
 
-// 37 bytes
-struct Sector_6
-{
-    uint16_t wallptr, wallnum;
-    short ceilingpicnum, floorpicnum;
-    short ceilingheinum, floorheinum;
-    int ceilingz, floorz;
-    int8_t ceilingshade, floorshade;
-    uint8_t ceilingxpanning, floorxpanning;
-    uint8_t ceilingypanning, floorypanning;
-    uint8_t ceilingstat, floorstat;
-    uint8_t ceilingpal, floorpal;
-    uint8_t visibility;
-    short lotag, hitag, extra;
-};
-
-struct Wall_6
-{
-    int x, y;
-    short point2, nextsector, nextwall;
-    short picnum, overpicnum;
-    int8_t shade;
-    uint8_t pal;
-    short cstat;
-    uint8_t xrepeat, yrepeat, xpanning, ypanning;
-    short lotag, hitag, extra;
-};
-
-// 43 bytes
-struct Sprite_6
-{
-    int x, y, z;
-    short cstat;
-    int8_t shade;
-    uint8_t pal, clipdist;
-    uint8_t xrepeat, yrepeat;
-    int8_t xoffset, yoffset;
-    short picnum, ang, xvel, yvel, zvel, owner;
-    short sectnum, statnum;
-    short lotag, hitag, extra;
-};
-
-#pragma pack()
-
-static Sector_6 sector_6[1024];
-static Wall_6   wall_6[8192];
-static Sprite_6 sprite_6[4096];
-#endif
 
 
 uint8_t LoadLevel(int nMap)
@@ -996,4 +945,25 @@ int mysaveconfig()
 {
     return 1;
 }
+
+static SavegameHelper sgh("init",
+    SV(initx),
+    SV(inity),
+    SV(initz),
+    SV(inita),
+    SV(initsect),
+    SV(nCurChunkNum),
+    SA(nBodyGunSprite),
+    SV(nCurBodyGunNum),
+    SA(SectSoundSect),
+    SA(SectSound),
+    SA(SectFlag),
+    SA(SectDepth),
+    SA(SectAbove),
+    SA(SectDamage),
+    SA(SectSpeed),
+    SA(SectBelow),
+    nullptr);
+
+
 END_PS_NS

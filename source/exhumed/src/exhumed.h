@@ -27,6 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_argv.h"
 #include "gamecontrol.h"
 #include "c_buttons.h"
+#include <algorithm>
+#include "tarray.h"
+#include "save.h"
+#include "zstring.h"
 #include "filesystem/filesystem.h"
 
 BEGIN_PS_NS
