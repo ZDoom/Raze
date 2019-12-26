@@ -362,17 +362,14 @@ static void G_OROR_DupeSprites(spritetype const *sp)
 
         if (sprite[k].picnum != SECTOREFFECTOR && sprite[k].z >= sp->z)
         {
-            Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(tspritetype));
+            tspriteptr_t tsp = renderAddTSpriteFromSprite(k);
 
-            tsprite[spritesortcnt].x += (refsp->x - sp->x);
-            tsprite[spritesortcnt].y += (refsp->y - sp->y);
-            tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + actor[sp->yvel].ceilingz;
-            tsprite[spritesortcnt].sectnum = refsp->sectnum;
-            tsprite[spritesortcnt].owner = k;
-            tsprite[spritesortcnt].extra = 0;
+            tsp->x += (refsp->x - sp->x);
+            tsp->y += (refsp->y - sp->y);
+            tsp->z += -sp->z + actor[sp->yvel].ceilingz;
+            tsp->sectnum = refsp->sectnum;
 
-//            OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
-            spritesortcnt++;
+//            OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsp->picnum,tsp->x,tsp->y,tsp->z);
         }
     }
 }

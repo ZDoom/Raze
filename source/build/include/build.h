@@ -449,6 +449,39 @@ static FORCE_INLINE void sprite_tracker_hook__(intptr_t const address)
 }
 #endif
 
+static inline tspriteptr_t renderMakeTSpriteFromSprite(tspriteptr_t const tspr, uint16_t const spritenum)
+{
+    auto const spr = (uspriteptr_t)&sprite[spritenum];
+
+    tspr->pos = spr->pos;
+    tspr->cstat = spr->cstat;
+    tspr->picnum = spr->picnum;
+    tspr->shade = spr->shade;
+    tspr->pal = spr->pal;
+    tspr->blend = spr->blend;
+    tspr->xrepeat = spr->xrepeat;
+    tspr->yrepeat = spr->yrepeat;
+    tspr->xoffset = spr->xoffset;
+    tspr->yoffset = spr->yoffset;
+    tspr->sectnum = spr->sectnum;
+    tspr->statnum = spr->statnum;
+    tspr->ang = spr->ang;
+    tspr->vel = spr->vel;
+    tspr->lotag = spr->lotag;
+    tspr->hitag = spr->hitag;
+
+    tspr->clipdist = 0;
+    tspr->owner = spritenum;
+    tspr->extra = 0;
+
+    return tspr;
+}
+
+static inline tspriteptr_t renderAddTSpriteFromSprite(uint16_t const spritenum)
+{
+    return renderMakeTSpriteFromSprite(&tsprite[spritesortcnt++], spritenum);
+}
+
 
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];

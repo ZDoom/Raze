@@ -824,11 +824,8 @@ static void yax_copytsprites()
         if (spritesortcnt >= maxspritesonscreen)
             break;
 
-        Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(tspritetype));
-        tsprite[spritesortcnt].owner = spritenum;
-        tsprite[spritesortcnt].extra = 0;
-        tsprite[spritesortcnt].sectnum = sectnum;  // potentially tweak sectnum!
-        spritesortcnt++;
+        tspriteptr_t tsp = renderAddTSpriteFromSprite(spritenum);
+        tsp->sectnum = sectnum;  // potentially tweak sectnum!
     }
 }
 
@@ -1465,9 +1462,7 @@ int32_t renderAddTsprite(int16_t z, int16_t sectnum)
             if (spritesortcnt >= maxspritesonscreen)
                 return 1;
 
-            Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(tspritetype));
-            tsprite[spritesortcnt].extra = 0;
-            tsprite[spritesortcnt++].owner = z;
+            renderAddTSpriteFromSprite(z);
 
 #ifdef YAX_ENABLE
         }
