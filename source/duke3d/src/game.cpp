@@ -4168,7 +4168,7 @@ skip:
                                 tsprShadow->yrepeat = 0;
                                 // 512:trans reverse
                                 //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
-                                tsprShadow->extra |= TSPR_EXTRA_MDHACK;
+                                tsprShadow->clipdist |= TSPR_FLAGS_MDHACK;
                                 tsprShadow->cstat |= 512;
                             }
                             else

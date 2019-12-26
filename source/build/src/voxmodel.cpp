@@ -1051,7 +1051,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     f = (65536.f*512.f) / ((float)xdimen*viewingrange);
     g = 32.f / ((float)xdimen*gxyaspect);
 
-    int const shadowHack = !!(tspr->extra&TSPR_EXTRA_MDHACK);
+    int const shadowHack = !!(tspr->clipdist & TSPR_FLAGS_MDHACK);
 
     m0.y *= f; a0.y = (((float)(tspr->x-globalposx)) * (1.f/1024.f) + a0.y) * f;
     m0.x *=-f; a0.x = (((float)(tspr->y-globalposy)) * -(1.f/1024.f) + a0.x) * -f;

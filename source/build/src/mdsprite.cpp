@@ -1584,11 +1584,11 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
 
     //------------
-    // TSPR_EXTRA_MDHACK is an ugly hack in game.c:G_DoSpriteAnimations() telling md2sprite
+    // TSPR_FLAGS_MDHACK is an ugly hack in game.c:G_DoSpriteAnimations() telling md2sprite
     // to use Z-buffer hacks to hide overdraw problems with the flat-tsprite-on-floor shadows,
     // also disabling detail, glow, normal, and specular maps.
 
-    if (tspr->extra&TSPR_EXTRA_MDHACK)
+    if (tspr->clipdist & TSPR_FLAGS_MDHACK)
     {
         double f = (double) (tspr->owner + 1) * (std::numeric_limits<double>::epsilon() * 8.0);
         if (f != 0.0) f *= 1.0/(double) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
@@ -1640,7 +1640,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if (sext->offset.y)  // Compare with SCREEN_FACTORS above
             a0.y = (float) sext->offset.y * f;
 
-        if ((sext->offset.z) && !(tspr->extra&TSPR_EXTRA_MDHACK))  // Compare with SCREEN_FACTORS above
+        if ((sext->offset.z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
             a0.z = (float)sext->offset.z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.z+m1.z));
 
         k0 = (float)sintable[(sext->pitch+512)&2047] * (1.f/16384.f);
@@ -1720,7 +1720,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 		float detscale = 1.f;
 
 		// The data lookup here is one incredible mess. Thanks to whoever cooked this up... :(
-        if (!(tspr->extra&TSPR_EXTRA_MDHACK))
+        if (!(tspr->clipdist & TSPR_FLAGS_MDHACK))
         {
 			det = tex = hw_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi, nullptr) : nullptr;
 			if (det)
