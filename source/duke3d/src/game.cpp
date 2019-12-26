@@ -360,7 +360,7 @@ static void G_OROR_DupeSprites(spritetype const *sp)
 
         if (sprite[k].picnum != SECTOREFFECTOR && sprite[k].z >= sp->z)
         {
-            Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(spritetype));
+            Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(tspritetype));
 
             tsprite[spritesortcnt].x += (refsp->x - sp->x);
             tsprite[spritesortcnt].y += (refsp->y - sp->y);
@@ -3621,6 +3621,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
         const int32_t i = t->owner;
         // XXX: what's up with the (i < 0) check?
         // NOTE: not const spritetype because set at SET_SPRITE_NOT_TSPRITE (see below).
+        EDUKE32_STATIC_ASSERT(sizeof(uspritetype) == sizeof(tspritetype)); // see TSPRITE_SIZE
         auto const pSprite = (i < 0) ? (uspriteptr_t)&tsprite[j] : (uspriteptr_t)&sprite[i];
 
 #ifndef EDUKE32_STANDALONE
@@ -3762,7 +3763,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
                 {
                     auto const newt = &tsprite[spritesortcnt++];
 
-                    Bmemcpy(newt, t, sizeof(spritetype));
+                    *newt = *t;
 
                     newt->cstat |= 2|512;
                     newt->x += (sintable[(newt->ang+512)&2047]>>12);

@@ -823,7 +823,7 @@ static void yax_copytsprites()
         if (spritesortcnt >= maxspritesonscreen)
             break;
 
-        Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(spritetype));
+        Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(tspritetype));
         tsprite[spritesortcnt].owner = spritenum;
         tsprite[spritesortcnt].extra = 0;
         tsprite[spritesortcnt].sectnum = sectnum;  // potentially tweak sectnum!
@@ -1478,7 +1478,7 @@ int32_t renderAddTsprite(int16_t z, int16_t sectnum)
             if (spritesortcnt >= maxspritesonscreen)
                 return 1;
 
-            Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(spritetype));
+            Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(tspritetype));
             tsprite[spritesortcnt].extra = 0;
             tsprite[spritesortcnt++].owner = z;
 
@@ -2051,7 +2051,7 @@ int32_t wallfront(int32_t l1, int32_t l2)
 //
 // spritewallfront (internal)
 //
-static inline int32_t spritewallfront(uspriteptr_t s, int32_t w)
+static inline int32_t spritewallfront(tspritetype const * const s, int32_t w)
 {
     auto const wal = (uwallptr_t)&wall[w];
     auto const wal2 = (uwallptr_t)&wall[wal->point2];
@@ -8863,7 +8863,7 @@ killsprite:
                             if ((tspr->cstat & 48) != 16)
                                 tspriteptr[i]->ang = globalang;
 
-                            get_wallspr_points((uspriteptr_t)tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
+                            get_wallspr_points(tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
 
                             if (!playing_blood?  ((tspr->cstat & 48) == 0) : ((tspr->cstat & 48) != 16))
                                 tspriteptr[i]->ang = oang;
@@ -10602,70 +10602,6 @@ add_nextsector:
         return 1;
 
     return 0;
-}
-
-// x1, y1: in/out
-// rest x/y: out
-void get_wallspr_points(uspriteptr_t const spr, int32_t *x1, int32_t *x2,
-                               int32_t *y1, int32_t *y2)
-{
-    //These lines get the 2 points of the rotated sprite
-    //Given: (x1, y1) starts out as the center point
-
-    const int32_t tilenum=spr->picnum, ang=spr->ang;
-    const int32_t xrepeat = spr->xrepeat;
-    int32_t xoff = picanm[tilenum].xofs + spr->xoffset;
-    int32_t k, l, dax, day;
-
-    if (spr->cstat&4)
-        xoff = -xoff;
-
-    dax = sintable[ang&2047]*xrepeat;
-    day = sintable[(ang+1536)&2047]*xrepeat;
-
-    l = tilesiz[tilenum].x;
-    k = (l>>1)+xoff;
-
-    *x1 -= mulscale16(dax,k);
-    *x2 = *x1 + mulscale16(dax,l);
-
-    *y1 -= mulscale16(day,k);
-    *y2 = *y1 + mulscale16(day,l);
-}
-
-// x1, y1: in/out
-// rest x/y: out
-void get_floorspr_points(uspriteptr_t const spr, int32_t px, int32_t py,
-                                int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
-                                int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
-{
-    const int32_t tilenum = spr->picnum;
-    const int32_t cosang = sintable[(spr->ang+512)&2047];
-    const int32_t sinang = sintable[spr->ang&2047];
-
-    vec2_t const span = { tilesiz[tilenum].x, tilesiz[tilenum].y};
-    vec2_t const repeat = { spr->xrepeat, spr->yrepeat };
-
-    vec2_t adjofs = { picanm[tilenum].xofs + spr->xoffset, picanm[tilenum].yofs + spr->yoffset };
-
-    if (spr->cstat & 4)
-        adjofs.x = -adjofs.x;
-
-    if (spr->cstat & 8)
-        adjofs.y = -adjofs.y;
-
-    vec2_t const center = { ((span.x >> 1) + adjofs.x) * repeat.x, ((span.y >> 1) + adjofs.y) * repeat.y };
-    vec2_t const rspan  = { span.x * repeat.x, span.y * repeat.y };
-    vec2_t const ofs    = { -mulscale16(cosang, rspan.y), -mulscale16(sinang, rspan.y) };
-
-    *x1 += dmulscale16(sinang, center.x, cosang, center.y) - px;
-    *y1 += dmulscale16(sinang, center.y, -cosang, center.x) - py;
-
-    *x2 = *x1 - mulscale16(sinang, rspan.x);
-    *y2 = *y1 + mulscale16(cosang, rspan.x);
-
-    *x3 = *x2 + ofs.x, *x4 = *x1 + ofs.x;
-    *y3 = *y2 + ofs.y, *y4 = *y1 + ofs.y;
 }
 
 //
