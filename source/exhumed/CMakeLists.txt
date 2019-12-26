@@ -41,7 +41,6 @@ set( PCH_SOURCES
 	src/bubbles.cpp
 	src/bullet.cpp
 	src/cd.cpp
-	src/config.cpp
 	src/enginesubs.cpp
 	src/exhumed.cpp
 	src/exscript.cpp

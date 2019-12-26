@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "sound.h"
 #include "exhumed.h"
-#include "config.h"
 #include "items.h"
 #include "light.h"
 #include "map.h"

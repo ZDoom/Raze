@@ -36,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cd.h"
 #include "view.h"
 #include "status.h"
-#include "config.h"
 #include "init.h"
 #include "ra.h"
 #include "version.h"
@@ -1925,11 +1924,6 @@ int GameInterface::app_main()
     if (forcegl) initprintf("GL driver blacklist disabled.\n");
 #endif
 
-
-#ifdef STARTUP_SETUP_WINDOW
-    int const readSetup =
-#endif
-    CONFIG_ReadSetup();
 
     PatchDemoStrings();
     // loc_115F5:

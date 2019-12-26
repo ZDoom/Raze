@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "compat.h"
 #include "engine.h"
-#include "config.h"
 #include "names.h"
 #include "view.h"
 #include "status.h"
