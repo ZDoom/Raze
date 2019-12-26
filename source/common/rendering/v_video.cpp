@@ -373,7 +373,7 @@ FString V_GetColorStringByName (const char *name, FScriptPosition *sc)
 
 	if (fileSystem.GetNumEntries()==0) return FString();
 
-	rgblump = fileSystem.FindFile ("demolition/X11R6RGB.txt");
+	rgblump = fileSystem.FindFile ("engine/X11R6RGB.txt");
 	if (rgblump == -1)
 	{
 		if (!sc) Printf ("X11R6RGB lump not found\n");

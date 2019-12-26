@@ -1146,7 +1146,7 @@ void M_ParseMenuDefs()
 	DefaultOptionMenuSettings.Reset();
 
 	M_DeinitMenus();
-	while ((lump = fileSystem.Iterate("demolition/menudef.txt", &lastlump)) != -1)
+	while ((lump = fileSystem.Iterate("engine/menudef.txt", &lastlump)) != -1)
 	{
 		FScanner sc(lump);
 
@@ -1261,6 +1261,7 @@ static void BuildEpisodeMenu()
 				}
 			}
 		}
+#if 0	// this needs to be backed by a working selection menu, until that gets done it must be disabled.
 		if (!(g_gameType & GAMEFLAG_SHAREWARE))
 		{
 			//auto it = new FListMenuItemNativeStaticText(ld->mXpos, "", NIT_SmallFont);	// empty entry as spacer.
@@ -1271,6 +1272,7 @@ static void BuildEpisodeMenu()
 			ld->mItems.Push(it);
 			addedVolumes++;
 		}
+#endif
 		if (addedVolumes == 1)
 		{
 			ld->mAutoselect = 0;

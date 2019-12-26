@@ -255,7 +255,7 @@ static FORCE_INLINE void __fastcall Gv_DivVar(int const id, int32_t const d)
     {
         case GAMEVAR_PERACTOR: iptr = &var.pValues[vm.spriteNum & (MAXSPRITES-1)]; goto jmp;
         case GAMEVAR_PERPLAYER: iptr = &var.pValues[vm.playerNum & (MAXPLAYERS-1)]; fallthrough__;
-        jmp: default: *iptr = libdivide_s32_do(*iptr, dptr); break;
+        default: jmp: *iptr = libdivide_s32_do(*iptr, dptr); break;
 
         case GAMEVAR_INT32PTR:
         {

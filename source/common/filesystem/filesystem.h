@@ -81,7 +81,9 @@ public:
 	FileSystem () = default;
 	~FileSystem ();
 
-	int InitMultipleFiles (TArray<FString> &filenames, const TArray<FString> &todelete);
+	int InitMultipleFiles (TArray<FString> &filenames, const TArray<FString> &todelete, int maingamefiles);
+	void DeleteStuff(const TArray<FString>& deletelumps, int numgamefiles);
+
 	void AddFile (const char *filename, FileReader *wadinfo = NULL, bool nosubdirflag = false);
 	void AddAdditionalFile(const char* filename, FileReader* wadinfo = NULL) {}
 	int CheckIfResourceFileLoaded (const char *name) noexcept;

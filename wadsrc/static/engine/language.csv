@@ -2060,7 +2060,7 @@ Ruins of the Ronin (CTF),TXTS_MAP27,,,,,,,,,,,,,,,,,,,,,,
 Killing Fields (CTF),TXTS_MAP28,,,,,,,,,,,,,,,,,,,,,,
 Chinatown,TXTS_W_MAP01,,,,,,,,,,,,,,,,,,,,,,
 Monastery,TXTS_W_MAP02,,,,,,,,,,,,,,,,,,,,,,
-Trolly Yard,TXTS_W_MAP03,,,,,,,,,,,,,,,,,,,,,,
+Trolley Yard,TXTS_W_MAP03,,,,,,,,,,,,,,,,,,,,,,
 Restaurant,TXTS_W_MAP04,,,,,,,,,,,,,,,,,,,,,,
 Skyscraper,TXTS_W_MAP05,,,,,,,,,,,,,,,,,,,,,,
 Airplane,TXTS_W_MAP06,,,,,,,,,,,,,,,,,,,,,,
@@ -2075,38 +2075,20 @@ Wanton DM 1 (DM only),TXTS_W_MAP14,,,,,,,,,,,,,,,,,,,,,,
 Wanton DM2 (DM only),TXTS_W_MAP15,,,,,,,,,,,,,,,,,,,,,,
 Wanton CTF (CTF),TXTS_W_MAP16,,,,,,,,,,,,,,,,,,,,,,
 Wanton Destruction,TXTS_W_EP,,,,,,,,,,,,,,,,,,,,,,
-Home Sweet Home,Home Sweet Home,"Twin Dragon
-","ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-City of Dispair,City of Dispair,already contains,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Emergency Room,Emergency Room,SWCUSTOM.TXT,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Hide and Seek,Hide and Seek,,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Warehouse Madness,Warehouse Madness,,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Weapons Research Center,Weapons Research Center,,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Toxic Waste Facility,Toxic Waste Facility,,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Silver Bullet,Silver Bullet,,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Fishing Village,Fishing Village,,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Secret Garden,Secret Garden,,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Hung Lo's Fortress,Hung Lo's Fortress,,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Hung Lo's Palace,Hung Lo's Palace,,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Prison Camp (secret level),Prison Camp (secret level),,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Ninja Training Camp (dm),Ninja Training Camp (dm),,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-The Morgue/mortuary (dm),The Morgue/mortuary (dm),,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Island Caves (dm),Island Caves (dm),,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
-Twin Dragon,Twin Dragon,,"ShadowWarrior
-",,,,,,,,,,,,,,,,,,,,
+Home Sweet Home,TXTS_T_MAP05,"Twin Dragon",,,,,,,,,,,,,,,,,,,,,
+City of Dispair,TXTS_T_MAP06,,,,,,,,,,,,,,,,,,,,,,
+Emergency Room,TXTS_T_MAP07,,,,,,,,,,,,,,,,,,,,,,
+Hide and Seek,TXTS_T_MAP08,,,,,,,,,,,,,,,,,,,,,,
+Warehouse Madness,TXTS_T_MAP09,,,,,,,,,,,,,,,,,,,,,,
+Weapons Research Center,TXTS_T_MAP10,,,,,,,,,,,,,,,,,,,,,,
+Toxic Waste Facility,TXTS_T_MAP11,,,,,,,,,,,,,,,,,,,,,,
+Silver Bullet,TXTS_T_MAP12,,,,,,,,,,,,,,,,,,,,,,
+Fishing Village,TXTS_T_MAP13,,,,,,,,,,,,,,,,,,,,,,
+Secret Garden,TXTS_T_MAP14,,,,,,,,,,,,,,,,,,,,,,
+Hung Lo's Fortress,TXTS_T_MAP15,,,,,,,,,,,,,,,,,,,,,,
+Hung Lo's Palace,TXTS_T_MAP20,,,,,,,,,,,,,,,,,,,,,,
+Prison Camp (secret level),TXTS_T_MAP21,,,,,,,,,,,,,,,,,,,,,,
+Ninja Training Camp (dm),TXTS_T_MAP23,,,,,,,,,,,,,,,,,,,,,,
+The Morgue/mortuary (dm),TXTS_T_MAP24,,,,,,,,,,,,,,,,,,,,,,
+Island Caves (dm),TXTS_T_MAP25,,,,,,,,,,,,,,,,,,,,,,
+Twin Dragon,TXTS_T_TITLE,,,,,,,,,,,,,,,,,,,,,,

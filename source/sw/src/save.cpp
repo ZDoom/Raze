@@ -1209,7 +1209,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     screenpeek = myconnectindex;
     PlayingLevel = Level;
 
-    MUS_ResumeSaved();
+    Mus_ResumeSaved();
     if (snd_ambience)
         StartAmbientSound();
 

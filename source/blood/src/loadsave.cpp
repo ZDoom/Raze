@@ -177,7 +177,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     gGameStarted = 1;
     bVanilla = false;
 
-	MUS_ResumeSaved();
+	Mus_ResumeSaved();
 
     netBroadcastPlayerInfo(myconnectindex);
 	return true;

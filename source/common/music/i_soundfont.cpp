@@ -40,6 +40,7 @@
 #include "filereadermusicinterface.h"
 #include "zmusic/zmusic.h"
 #include "resourcefile.h"
+#include "version.h"
 #include "../platform/win32/i_findfile.h"	// This is a temporary direct path. Needs to be fixed when stuff gets cleaned up.
 
 //==========================================================================
@@ -436,7 +437,7 @@ void FSoundFontManager::CollectSoundfonts()
 
 	if (soundfonts.Size() == 0)
 	{
-		ProcessOneFile(NicePath("$PROGDIR/soundfonts/demolition.sf2"));
+		ProcessOneFile(NicePath("$PROGDIR/soundfonts/" GAMENAMELOWERCASE ".sf2"));
 	}
 }
 

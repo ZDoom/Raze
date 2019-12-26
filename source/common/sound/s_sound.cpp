@@ -65,6 +65,7 @@ int sfx_empty = -1;
 
 void SoundEngine::Init(TArray<uint8_t> &curve, int factor)
 {
+	StopAllChannels();
 	// Free all channels for use.
 	while (Channels != NULL)
 	{
@@ -1428,7 +1429,7 @@ void SoundEngine::StopChannel(FSoundChan *chan)
 				chan->Source = NULL;
 			}
 		}
-		GSnd->StopChannel(chan);
+		if (GSnd) GSnd->StopChannel(chan);
 	}
 	else
 	{

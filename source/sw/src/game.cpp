@@ -443,11 +443,18 @@ AllocMem(int size)
 void *
 ReAllocMem(void *ptr, int size)
 {
+    if (ptr == nullptr)
+        return AllocMem(size);
+
+    if (size == 0)
+    {
+        FreeMem(ptr);
+        return nullptr;
+    }
+
     uint8_t* bp;
     MEM_HDRp mhp;
     uint8_t* check;
-
-    ASSERT(size != 0);
 
     ASSERT(ValidPtr(ptr));
 
@@ -506,10 +513,11 @@ CallocMem(int size, int num)
 void
 FreeMem(void *ptr)
 {
+    if (ptr == nullptr)
+        return;
+
     MEM_HDRp mhp;
     uint8_t* check;
-
-    ASSERT(ptr != NULL);
 
     ASSERT(ValidPtr(ptr));
 
@@ -520,39 +528,6 @@ FreeMem(void *ptr)
 
     free(mhp);
 }
-
-#else
-SWBOOL
-ValidPtr(void *ptr)
-{
-    return TRUE;
-}
-
-#if 0
-void *
-AllocMem(int size)
-{
-    return malloc(size);
-}
-
-void *
-CallocMem(int size, int num)
-{
-    return calloc(size, num);
-}
-
-void *
-ReAllocMem(void *ptr, int size)
-{
-    return realloc(ptr, size);
-}
-
-void
-FreeMem(void *ptr)
-{
-    free(ptr);
-}
-#endif
 
 #endif
 
@@ -877,7 +852,7 @@ bool InitGame()
     LoadKVXFromScript("swvoxfil.txt");    // Load voxels from script file
     LoadPLockFromScript("swplock.txt");   // Get Parental Lock setup info
 	
-	LoadCustomInfoFromScript("demolition/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
+	LoadCustomInfoFromScript("engine/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
 	{
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information

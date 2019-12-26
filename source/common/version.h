@@ -58,12 +58,13 @@ const char *GetVersionString();
 #define GAMENAMELOWERCASE "demolition"
 #define FORUM_URL "http://forum.zdoom.org/"
 #define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"	// fixme before release!!!
+#define ENGINERES_FILE GAMENAMELOWERCASE ".pk3"
 
-#define SAVESIG_DN3D "Demolition.Duke"
-#define SAVESIG_BLD "Demolition.Blood"
-#define SAVESIG_RR "Demolition.Redneck"
-#define SAVESIG_SW "Demolition.SW"
-#define SAVESIG_PS "Demolition.Powerslave"
+#define SAVESIG_DN3D GAMENAME ".Duke"
+#define SAVESIG_BLD GAMENAME "Blood"
+#define SAVESIG_RR GAMENAME "Redneck"
+#define SAVESIG_SW GAMENAME "SW"
+#define SAVESIG_PS GAMENAME "Powerslave"
 
 #define MINSAVEVER_DN3D 1
 #define MINSAVEVER_BLD 1

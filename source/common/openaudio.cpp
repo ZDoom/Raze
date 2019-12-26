@@ -79,7 +79,7 @@ FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 	auto fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
 	if (fp.isOpen())
 	{
-		Bfree(testfn);
+		Xfree(testfn);
 		return fp;
 	}
 
@@ -95,7 +95,7 @@ FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 		auto fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
 		if (fp.isOpen())
 		{
-			Bfree(testfn);
+			Xfree(testfn);
 			return fp;
 		}
     }
@@ -107,12 +107,12 @@ FileReader S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 		auto fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
 		if (fp.isOpen())
 		{
-			Bfree(testfn);
+			Xfree(testfn);
 			return fp;
 		}
 	}
 
-	Bfree(testfn);
+	Xfree(testfn);
 	return origfp;
 #endif
 }

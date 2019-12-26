@@ -429,7 +429,7 @@ add_custom_target( revision_check ALL
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	DEPENDS updaterevision )
 
-# Libraries Demolition needs
+# required libraries
 
 message( STATUS "Fluid synth libs: ${FLUIDSYNTH_LIBRARIES}" )
 set( DEMOLITION_LIBS ${DEMOLITION_LIBS} "${ZLIB_LIBRARIES}" "${JPEG_LIBRARIES}" "${BZIP2_LIBRARIES}" "${GME_LIBRARIES}" "${CMAKE_DL_LIBS}" )
@@ -468,7 +468,7 @@ endif()
 
 
 
-# Start defining source files for Demolition
+# Start defining source files
 set( PLAT_WIN32_SOURCES
 	platform/win32/base_sysfb.cpp
 	platform/win32/gl_sysfb.cpp

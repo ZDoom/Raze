@@ -44,14 +44,11 @@
 #include "i_findfile.h"
 #include "gamecontrol.h"
 #include "m_argv.h"
-//#include "version.h"	// for GAMENAME
+#include "version.h"	// for GAMENAME
 
 // Stuff that needs to be set up later.
 FString progdir;
 static bool batchrun;
-#define GAMENAMELOWERCASE "demolition"
-#define GAMENAME "Demolition"
-#define GAME_DIR "demolition"
 
 // Vanilla MinGW does not have folder ids
 #if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)
@@ -136,8 +133,6 @@ FString M_GetAppDataPath(bool create)
 	{ // Failed (e.g. On Win9x): use program directory
 		path = progdir;
 	}
-	// Don't use GAME_DIR and such so that demolition and its child ports can
-	// share the node cache.
 	path += "/" GAMENAMELOWERCASE;
 	path.Substitute("//", "/");	// needed because progdir ends with a slash.
 	if (create)
@@ -165,8 +160,8 @@ FString M_GetAutoexecPath()
 // M_GetConfigPath													Windows
 //
 // Returns the path to the config file. On Windows, this can vary for reading
-// vs writing. i.e. If $PROGDIR/demolition-<user>.ini does not exist, it will try
-// to read from $PROGDIR/demolition.ini, but it will never write to demolition.ini.
+// vs writing. i.e. If the user specific ini does not exist, it will try
+// to read from a neutral version, but never write to it.
 //
 //===========================================================================
 
@@ -190,7 +185,7 @@ FString M_GetConfigPath(bool for_reading)
 		path += "/" GAMENAMELOWERCASE ".ini";
 	}
 	else
-	{ // construct "$PROGDIR/demolition-$USER.ini"
+	{ // construct "$PROGDIR/-$USER.ini"
 		WCHAR uname[UNLEN+1];
 		DWORD unamelen = UNLEN;
 
@@ -210,13 +205,13 @@ FString M_GetConfigPath(bool for_reading)
 			path << GAMENAMELOWERCASE "-" << FString(uname) << ".ini";
 		}
 		else
-		{ // Couldn't get user name, so just use demolition.ini
+		{ // Couldn't get user name, so just use base version.
 			path += GAMENAMELOWERCASE ".ini";
 		}
 	}
 
 	// If we are reading the config file, check if it exists. If not, fallback
-	// to $PROGDIR/demolition.ini
+	// to base version.
 	if (for_reading)
 	{
 		if (!FileExists(path))

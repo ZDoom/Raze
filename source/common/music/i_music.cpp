@@ -226,7 +226,7 @@ static void SetupGenMidi()
 {
 	// The OPL renderer should not care about where this comes from.
 	// Note: No I_Error here - this needs to be consistent with the rest of the music code.
-	auto lump = fileSystem.FindFile("demolition/genmidi.op2");
+	auto lump = fileSystem.FindFile("engine/genmidi.op2");
 	if (lump < 0)
 	{
 		Printf("No GENMIDI lump found. OPL playback not available.");

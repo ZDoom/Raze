@@ -399,6 +399,36 @@ grpinfo
 
 grpinfo
 {
+	name "Shadow Warrior (Europe)"
+	flags GAMEFLAG_SW
+	crc 0xD4A1E153
+	size 47536148
+	defname "sw.def"
+	gamefilter "ShadowWarrior.ShadowWarrior"
+}
+
+grpinfo
+{
+	name "Shadow Warrior (UK)"
+	flags GAMEFLAG_SW
+	crc 0x3EE68767
+	size 47536148
+	defname "sw.def"
+	gamefilter "ShadowWarrior.ShadowWarrior"
+}
+
+grpinfo
+{
+	name "Shadow Warrior (Censored)"
+	flags GAMEFLAG_SW
+	crc 0x1A8776D2
+	size 47537951
+	defname "sw.def"
+	gamefilter "ShadowWarrior.ShadowWarrior"
+}
+
+grpinfo
+{
 	name "Shadow Warrior Shareware 1.0"
 	flags GAMEFLAG_SW|GAMEFLAG_SHAREWARE
 	crc 0xDAA6BECE
@@ -457,8 +487,21 @@ grpinfo
 	defname "twindrag.def"	// included in the GRP
 	dependency SWREG12_CRC
 	gamefilter "ShadowWarrior.TwinDragon"
+	deletecontent "swcustom.txt"	// not localizable and also not present in the alternative package.
 }
 
+grpinfo
+{
+	name "Shadow Warrior: Twin Dragon"
+	flags GAMEFLAG_SW|GAMEFLAG_ADDON
+	crc 0xB5B71277
+	size 6236287
+	defname "twindrag.def"	// included in the GRP
+	dependency SWREG12_CRC
+	gamefilter "ShadowWarrior.TwinDragon"
+}
+
+   
 
 grpinfo
 {

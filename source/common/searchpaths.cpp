@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resourcefile.h"
 #include "printf.h"
 #include "common.h"
+#include "version.h"
 #include "gamecontrol.h"
 #include "filesystem/filesystem.h"
 
@@ -799,6 +800,14 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 					}
 					while (sc.CheckToken(','));
 				}
+				else if (sc.Compare("deletecontent"))
+				{
+					do
+					{
+						sc.MustGetToken(TK_StringConst);
+						grp.tobedeleted.Push(sc.String);
+					} while (sc.CheckToken(','));
+				}
 				else if (sc.Compare("loadgrp"))
 				{
 				do
@@ -837,17 +846,17 @@ TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 	extern FString progdir;
 	// This opens the base resource only for reading the grpinfo from it which we need before setting up the game state.
 	std::unique_ptr<FResourceFile> engine_res;
-	FString baseres = progdir + "demolition.pk3";
+	FString baseres = progdir + ENGINERES_FILE;
 	engine_res.reset(FResourceFile::OpenResourceFile(baseres, true, true));
 	if (engine_res)
 	{
-		auto basegrp = engine_res->FindLump("demolition/demolition.grpinfo");
+		auto basegrp = engine_res->FindLump("engine/grpinfo.txt");
 		if (basegrp)
 		{
 			auto fr = basegrp->NewReader();
 			if (fr.isOpen())
 			{
-				groups = ParseGrpInfo("demolition/demolition.grpinfo", fr, CRCMap);
+				groups = ParseGrpInfo("engine/grpinfo.txt", fr, CRCMap);
 			}
 		}
 	}
@@ -1188,10 +1197,10 @@ bool AddINIFile(const char* pzFile, bool bForce = false)
 		if (findfrompath(pzFile, &pzFN)) return false; // failed to resolve the filename
 		if (!FileExists(pzFN))
 		{
-			Bfree(pzFN);
+			Xfree(pzFN);
 			return false;
 		} // failed to stat the file
-		Bfree(pzFN);
+		Xfree(pzFN);
 		IniFile* pTempIni = new IniFile(pzFile);
 		if (!pTempIni->FindSection("Episode1"))
 		{

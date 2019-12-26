@@ -334,7 +334,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
     else
         Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((newsize+7)>>3));
 
-    Bfree(bitptr);
+    Xfree(bitptr);
     bitptr = newbitptr;
     if (apScript != newscript)
     {
@@ -358,7 +358,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
     G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
 
-    Bfree(scriptptrs);
+    Xfree(scriptptrs);
     return 0;
 }
 
@@ -659,7 +659,7 @@ static int32_t C_GetNextValue(int32_t type)
             {
                 char *gl = C_GetLabelType(labeltype[i]);
                 initprintf("%s:%d: debug: %s label `%s'.\n",g_scriptFileName,g_lineNumber,gl,label+(i<<6));
-                Bfree(gl);
+                Xfree(gl);
             }
 
             BITPTR_CLEAR(g_scriptPtr-apScript);
@@ -677,8 +677,8 @@ static int32_t C_GetNextValue(int32_t type)
         C_ReportError(-1);
         initprintf("%s:%d: warning: expected %s, found %s.\n",g_scriptFileName,g_lineNumber,el,gl);
         g_warningCnt++;
-        Bfree(el);
-        Bfree(gl);
+        Xfree(el);
+        Xfree(gl);
         return -1;  // valid label name, but wrong type
     }
 
@@ -829,7 +829,7 @@ static void C_Include(const char *confile)
 
     textptr = origtptr;
 
-    Bfree(mptr);
+    Xfree(mptr);
 }
 
 void G_DoGameStartup(const int32_t *params)
@@ -1001,7 +1001,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_ReportError(-1);
                 initprintf("%s:%d: warning: expected state, found %s.\n", g_scriptFileName, g_lineNumber, gl);
                 g_warningCnt++;
-                Bfree(gl);
+                Xfree(gl);
                 *(g_scriptPtr-1) = CON_NULLOP; // get rid of the state, leaving a nullop to satisfy if conditions
                 BITPTR_CLEAR(g_scriptPtr-apScript-1);
                 continue;  // valid label name, but wrong type
@@ -2226,7 +2226,7 @@ void C_Compile(const char *fileName)
     g_scriptcrc = Bcrc32(NULL, 0, 0L);
     g_scriptcrc = Bcrc32(textptr, kFileLen, g_scriptcrc);
 
-    Bfree(apScript);
+    Xfree(apScript);
 
     apScript = (intptr_t *)Xcalloc(1, g_scriptSize * sizeof(intptr_t));
     bitptr   = (char *)Xcalloc(1, (((g_scriptSize + 7) >> 3) + 1) * sizeof(uint8_t));

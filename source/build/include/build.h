@@ -337,7 +337,7 @@ typedef struct {
     uint8_t filler;
     float alpha;
     // NOTE: keep 'tspr' on an 8-byte boundary:
-    uspritetype *tspr;
+    tspriteptr_t tspr;
 #if !defined UINTPTR_MAX
 # error Need UINTPTR_MAX define to select between 32- and 64-bit structs
 #endif

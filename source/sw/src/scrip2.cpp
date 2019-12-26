@@ -616,25 +616,24 @@ void LoadCustomInfoFromScript(const char *filename)
                 case CM_BESTTIME:
                 {
                     int n;
-                    char s[10];
                     if (scriptfile_getnumber(script, &n)) break;
 
-					mapList[curmap].designerTime = (int)strtoll(s, nullptr, 0);
+					mapList[curmap].designerTime = n;
                     break;
                 }
                 case CM_PARTIME:
                 {
                     int n;
-                    char s[10];
                     if (scriptfile_getnumber(script, &n)) break;
 
-					mapList[curmap].parTime = (int)strtoll(s, nullptr, 0);
+					mapList[curmap].parTime = n;
                     break;
                 }
                 case CM_CDATRACK:
                 {
                     int n;
                     if (scriptfile_getnumber(script, &n)) break;
+                    mapList[curmap].cdSongId = n;
                     break;
                 }
                 default:

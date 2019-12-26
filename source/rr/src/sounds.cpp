@@ -314,10 +314,8 @@ void S_Update(void)
     vec3_t* c;
     int32_t ca, cs;
 	
-#if 0
-    if (RR /*&& todo: fix the conditions here */ )
+    if (RR && Mus_IsPlaying())
         S_PlayRRMusic(); 
-#endif
 
     S_GetCamera(&c, &ca, &cs);
 
@@ -552,6 +550,8 @@ void S_MenuSound(void)
 //
 //==========================================================================
 
+static bool cd_disabled = false;    // This is in case mus_redbook is enabled but no tracks found so that the regular music system can be switched on.
+
 static void S_SetMusicIndex(unsigned int m)
 {
     ud.music_episode = m / MAXLEVELS;
@@ -560,6 +560,7 @@ static void S_SetMusicIndex(unsigned int m)
 
 void S_PlayLevelMusicOrNothing(unsigned int m)
 {
+    if (RR && mus_redbook && !cd_disabled) return;
     auto& mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
     Mus_Play(mr.labelName, mr.music, true);
     S_SetMusicIndex(m);
@@ -567,6 +568,7 @@ void S_PlayLevelMusicOrNothing(unsigned int m)
 
 int S_TryPlaySpecialMusic(unsigned int m)
 {
+    if (RR) return 0;   // Can only be MUS_LOADING, RR does not use it.
     auto& musicfn = mapList[m].music;
     if (musicfn.IsNotEmpty())
     {
@@ -590,16 +592,21 @@ void S_PlaySpecialMusicOrNothing(unsigned int m)
 
 void S_PlayRRMusic(int newTrack)
 {
-    char fileName[16];
-    if (!RR || !mus_redbook)
+    if (!RR || !mus_redbook || cd_disabled)
         return;
     Mus_Stop();
-    g_cdTrack = newTrack != -1 ? newTrack : g_cdTrack + 1;
-    if (newTrack != 10 && (g_cdTrack > 9 || g_cdTrack < 2))
-        g_cdTrack = 2;
 
-    Bsprintf(fileName, "track%.2d.ogg", g_cdTrack);
-    Mus_Play(fileName, 0, true);
+    for (int i = 0; i < 10; i++)
+    {
+        g_cdTrack = newTrack != -1 ? newTrack : g_cdTrack + 1;
+        if (newTrack != 10 && (g_cdTrack > 9 || g_cdTrack < 2))
+            g_cdTrack = 2;
+
+        FStringf filename("track%02d.ogg", g_cdTrack);
+        if (Mus_Play(nullptr, 0, false)) return;
+    }
+    // If none of the tracks managed to start, disable the CD music for this session so that regular music can play if defined.
+    cd_disabled = true;
 }
 
 

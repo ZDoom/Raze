@@ -100,7 +100,7 @@ void FileSystem::DeleteAll ()
 //
 //==========================================================================
 
-int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FString> &deletelumps)
+int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FString> &deletelumps, int maingamefiles)
 {
 	int numfiles;
 
@@ -126,6 +126,7 @@ int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FStr
 	{
 		return 0;
 	}
+	DeleteStuff(deletelumps, maingamefiles);
 
 	// [RH] Set up hash table
 	Hashes.Resize(NumLookupModes * 2 * NumEntries);
@@ -138,6 +139,34 @@ int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FStr
 	FileInfo.ShrinkToFit();
 	Files.ShrinkToFit();
 	return NumEntries;
+}
+
+//==========================================================================
+//
+// Deletes unwanted content from the main game files
+//
+//==========================================================================
+
+void FileSystem::DeleteStuff(const TArray<FString>& deletelumps, int numgamefiles)
+{
+	// This must account for the game directory being inserted at index 2.
+	// Deletion may only occur in the main game file, the directory and the add-on, there are no secondary dependencies, i.e. more than two game files.
+	numgamefiles++; 
+	if (deletelumps.Size())
+	for (uint32_t i = 0; i < FileInfo.Size(); i++)
+	{
+		if (FileInfo[i].rfnum >= 1 && FileInfo[i].rfnum <= numgamefiles)
+		{ 
+			auto cmp = FileInfo[i].lump->LumpName[FResourceLump::FullNameType].GetChars();
+			for (auto &str : deletelumps)
+			{
+				if (!str.CompareNoCase(cmp))
+				{
+					for (auto& n : FileInfo[i].lump->LumpName) n = NAME_None;
+				}
+			}
+		}
+	}
 }
 
 //==========================================================================

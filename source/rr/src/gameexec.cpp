@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdcmds.h"
 #include "savegame.h"
 #include "gamecvars.h"
+#include "version.h"
 
 #include "debugbreak.h"
 extern bool rotatesprite_2doverride;
@@ -2528,12 +2529,14 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 }
                 debug_break();
                 VM_ScriptInfo(insptr, 64);
-                G_GameExit("An error has occurred in the " APPNAME " virtual machine.\n\n"
-                           "If you are an end user, please e-mail the file " APPBASENAME ".log\n"
+                G_GameExit("An error has occurred in the " GAMENAME " virtual machine.\n\n");
+#if 0
+                           "If you are an end user, please e-mail the file " GAMENAMELOWERCASE ".log\n"
                            "along with links to any mods you're using to development@voidpoint.com.\n\n"
                            "If you are a developer, please attach all of your script files\n"
                            "along with instructions on how to reproduce this error.\n\n"
                            "Thank you!");
+#endif
                 break;
         }
     }

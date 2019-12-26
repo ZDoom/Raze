@@ -1754,18 +1754,18 @@ typedef struct
     unsigned int size, checksum;
 } MEM_HDR,*MEM_HDRp;
 
+#if !DEBUG
+# define ValidPtr(ptr) ((SWBOOL)(TRUE))
+# define AllocMem(size) Xmalloc(size)
+# define CallocMem(size, num) Xcalloc(size, num)
+# define ReAllocMem(ptr, size) Xrealloc(ptr, size)
+# define FreeMem(ptr) Xfree(ptr)
+#else
 SWBOOL ValidPtr(void *ptr);
-#if 0
 void *AllocMem(int size);
 void *CallocMem(int size, int num);
 void *ReAllocMem(void *ptr, int size);
 void FreeMem(void *ptr);
-#else
-// Make these #defines so that MSVC's allocation tracker gets correct line numbers
-#define AllocMem malloc
-#define CallocMem calloc
-#define ReAllocMem realloc
-#define FreeMem free
 #endif
 
 typedef struct

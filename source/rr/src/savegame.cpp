@@ -1543,7 +1543,7 @@ static void postloadplayer(int32_t savegamep)
         Bmemset(gotpic, 0, sizeof(gotpic));
         S_ClearSoundLocks();
         G_CacheMapData();
-		MUS_ResumeSaved();
+		Mus_ResumeSaved();
         Mus_SetPaused(false);
 
         g_player[myconnectindex].ps->gm = MODE_GAME;

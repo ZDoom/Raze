@@ -1229,7 +1229,7 @@ static FORCE_INLINE void *xrealloc(void * const ptr, const bsize_t size)
     return (EDUKE32_PREDICT_TRUE(newptr != NULL || size == 0)) ? newptr: handle_memerr(ptr);
 }
 
-// This will throw up when BFee is no longer usable, I do not want to change all code right now that uses it to make future merges easier.
+// This will throw up when BFree is no longer usable, I do not want to change all code right now that uses it to make future merges easier.
 static_assert(Bfree == free, "BFree must be free");
 
 static FORCE_INLINE void xfree(void *const ptr) { Bfree(ptr); }
@@ -1265,6 +1265,7 @@ static FORCE_INLINE void *xaligned_calloc(const bsize_t alignment, const bsize_t
 # define EDUKE32_PRE_XALLOC
 #endif
 
+#ifndef _DEBUG
 #define Xstrdup(s)    (EDUKE32_PRE_XALLOC xstrdup(s))
 #define Xmalloc(size) (EDUKE32_PRE_XALLOC xmalloc(size))
 #define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLOC xcalloc(nmemb, size))
@@ -1273,6 +1274,17 @@ static FORCE_INLINE void *xaligned_calloc(const bsize_t alignment, const bsize_t
 #define Xaligned_calloc(alignment, count, size) (EDUKE32_PRE_XALLOC xaligned_calloc(alignment, count, size))
 #define Xfree(ptr) (EDUKE32_PRE_XALLOC xfree(ptr))
 #define Xaligned_free(ptr) (EDUKE32_PRE_XALLOC xaligned_free(ptr))
+#else
+// This is for allowing the compiler's heap checker to do its job. When wrapped it only points to the wrapper for a memory leak, not to the real location where the allocation takes place.
+#define Xstrdup(s)    (strdup(s))
+#define Xmalloc(size) (malloc(size))
+#define Xcalloc(nmemb, size) (calloc(nmemb, size))
+#define Xrealloc(ptr, size)  (realloc(ptr, size))
+#define Xaligned_alloc(alignment, size) (malloc(size))
+#define Xaligned_calloc(alignment, count, size) (calloc(count, size))
+#define Xfree(ptr) (free(ptr))
+#define Xaligned_free(ptr) (free(ptr))
+#endif
 
 
 ////////// More utility functions //////////

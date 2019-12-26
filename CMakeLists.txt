@@ -115,9 +115,9 @@ function( add_pk3 PK3_NAME PK3_DIR )
 	assort_pk3_source_folder("Source Files" ${PK3_DIR})
 	# Phase 4: Add the resulting PK3 to the install target.
 	if( WIN32 )
-		set( INSTALL_PK3_PATH . CACHE STRING "Directory where demolition.pk3 will be placed during install." )
+		set( INSTALL_PK3_PATH . CACHE STRING "Directory where engine data will be placed during install." )
 	else()
-		set( INSTALL_PK3_PATH share/games/doom CACHE STRING "Directory where demolition.pk3 will be placed during install." )
+		set( INSTALL_PK3_PATH share/games/doom CACHE STRING "Directory where engine data will be placed during install." )
 	endif()
 	install(FILES "${PROJECT_BINARY_DIR}/${PK3_NAME}"
 			DESTINATION ${INSTALL_PK3_PATH}
@@ -140,7 +140,7 @@ IF( NOT CMAKE_BUILD_TYPE )
 		FORCE )
 ENDIF()
 
-set( DEMOLITION_OUTPUT_DIR ${CMAKE_BINARY_DIR} CACHE PATH "Directory where demolition.pk3 and the executable will be created." )
+set( DEMOLITION_OUTPUT_DIR ${CMAKE_BINARY_DIR} CACHE PATH "Directory where engine data and the executable will be created." )
 set( DEMOLITION_EXE_NAME "demolition" CACHE FILEPATH "Name of the executable to create" )
 if( MSVC )
 	# Allow the user to use DEMOLITION_OUTPUT_DIR as a single release point.
@@ -206,20 +206,6 @@ if( MSVC )
 	#set( ALL_C_FLAGS "${ALL_C_FLAGS} /arch:SSE2") # This is already the default
 
 
-#	if( CMAKE_SIZEOF_VOID_P MATCHES "4")
-#		# SSE2 option (to allow x87 in 32 bit and disallow extended feature sets which have not yet been checked for precision)
-#		option (DEMOLITION_USE_SSE2	"Use SSE2 instruction set")
-#		if (DEMOLITION_USE_SSE2)
-#			set( ALL_C_FLAGS "${ALL_C_FLAGS} /arch:SSE2")
-#		else ()
-#			if (MSVC_VERSION GREATER 1699)	
-#				# On Visual C++ 2012 and later SSE2 is the default, so we need to switch it off explicitly
-#				set( ALL_C_FLAGS "${ALL_C_FLAGS} /arch:IA32")
-#			endif ()
-#		endif ()
-#	else()
-#		set( ALL_C_FLAGS "${ALL_C_FLAGS} /arch:SSE2")
-#	endif()
 
 	# Avoid CRT DLL dependancies in release builds, optionally generate assembly output for checking crash locations.
 	option( DEMOLITION_GENERATE_ASM "Generate assembly output." OFF )

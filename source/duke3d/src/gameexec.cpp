@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_dispatch.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
+#include "version.h"
 
 #include "debugbreak.h"
 extern bool rotatesprite_2doverride;
@@ -3776,7 +3777,7 @@ badindex:
                                     quoteMgr.InitializeQuote(q, g_player[vm.playerNum].user_name);
                                     break;
                                 case STR_VERSION:
-                                    Bsprintf(tempbuf, HEAD2 " %s", GetGitDescription());
+                                    Bsprintf(tempbuf, GAMENAME " %s", GetGitDescription());
 									quoteMgr.InitializeQuote(q, tempbuf);
                                     break;
                                 case STR_GAMETYPE: quoteMgr.InitializeQuote(q, g_gametypeNames[ud.coop]); break;
@@ -6222,12 +6223,14 @@ badindex:
             vmErrorCase: // you're not supposed to be here
                 VM_ScriptInfo(insptr, 64);
                 debug_break();
-                G_GameExit("An error has occurred in the " APPNAME " virtual machine.\n\n"
-                           "If you are an end user, please e-mail the file " APPBASENAME ".log\n"
+                G_GameExit("An error has occurred in the " GAMENAME " virtual machine.\n\n");
+#if 0
+                           "If you are an end user, please e-mail the file " GAMENAMELOWERCASE ".log\n"
                            "along with links to any mods you're using to development@voidpoint.com.\n\n"
                            "If you are a developer, please attach all of your script files\n"
                            "along with instructions on how to reproduce this error.\n\n"
                            "Thank you!");
+#endif
         }
 #ifndef CON_USE_COMPUTED_GOTO
     }

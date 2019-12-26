@@ -48,9 +48,10 @@
 #include "savegamehelp.h"
 #include "sjson.h"
 #include "gstrings.h"
+#include "version.h"
 
 CVAR(Int, savestatistics, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
-CVAR(String, statfile, "demolitionstat.txt", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+CVAR(String, statfile, GAMENAMELOWERCASE "stat.txt", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 //==========================================================================
 //

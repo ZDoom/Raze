@@ -36,8 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "memarena.h"
 
-#define HEAD2                   APPNAME
-
 #ifdef EDUKE32_STANDALONE
     #define VOLUMEALL           (1)
     #define PLUTOPAK            (1)

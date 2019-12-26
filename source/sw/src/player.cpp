@@ -1219,7 +1219,7 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, SWBOOL skip_targets)
 
             // Only look at closest ones
             //if ((dist = Distance(sp->x, sp->y, ep->x, ep->y)) > PICK_DIST)
-            if ((dist = FindDistance3D(sp->x - ep->x, sp->y - ep->y, (sp->z - ep->z)>>4)) > PICK_DIST)
+            if ((dist = FindDistance3D(sp->x - ep->x, sp->y - ep->y, sp->z - ep->z)) > PICK_DIST)
                 continue;
 
             if (skip_targets != 2) // Used for spriteinfo mode
@@ -8178,7 +8178,7 @@ int SearchSpawnPosition(PLAYERp pp)
 
             if (opp != pp)  // don't test for yourself
             {
-                if (FindDistance3D(sp->x - opp->posx, sp->y - opp->posy, (sp->z - opp->posz)>>4) < 1000)
+                if (FindDistance3D(sp->x - opp->posx, sp->y - opp->posy, sp->z - opp->posz) < 1000)
                 {
                     blocked = TRUE;
                     break;

@@ -161,22 +161,17 @@ void credReset(void)
     DoUnFade(1);
 }
 
-FileReader credKOpen4Load(char *&pzFile)
+FileReader credKOpen4Load(FString pzFile)
 {
     int nLen = strlen(pzFile);
-    for (int i = 0; i < nLen; i++)
-    {
-        if (pzFile[i] == '\\')
-            pzFile[i] = '/';
-    }
+    FixPathSeperator(pzFile);
     auto nHandle = fileSystem.OpenFileReader(pzFile, 0);
     if (!nHandle.isOpen())
     {
         // Hack
         if (nLen >= 3 && isalpha(pzFile[0]) && pzFile[1] == ':' && pzFile[2] == '/')
         {
-            pzFile += 3;
-            nHandle = fileSystem.OpenFileReader(pzFile, 0);
+            nHandle = fileSystem.OpenFileReader(pzFile.GetChars()+3, 0);
         }
     }
     return nHandle;
@@ -200,24 +195,18 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     }
     smkPlayer.sub_82E6C(pzSMK, pzWAV);
 #endif
-    if (Bstrlen(_pzSMK) == 0)
+    if (!_pzSMK || !*_pzSMK)
         return;
-    char *pzSMK = Xstrdup(_pzSMK);
-    char *pzWAV = Xstrdup(_pzWAV);
-    char *pzSMK_ = pzSMK;
-    char *pzWAV_ = pzWAV;
+    FString pzSMK = _pzSMK;
+    FString pzWAV = _pzWAV;
     auto nHandleSMK = credKOpen4Load(pzSMK);
     if (!nHandleSMK.isOpen())
     {
-        Bfree(pzSMK_);
-        Bfree(pzWAV_);
         return;
     }
     SmackerHandle hSMK = Smacker_Open(pzSMK);
     if (!hSMK.isValid)
     {
-        Bfree(pzSMK_);
-        Bfree(pzWAV_);
         return;
     }
     uint32_t nWidth, nHeight;
@@ -228,8 +217,6 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     if (!pFrame)
     {
         Smacker_Close(hSMK);
-        Bfree(pzSMK_);
-        Bfree(pzWAV_);
         return;
     }
     int nFrameRate = Smacker_GetFrameRate(hSMK);
@@ -295,8 +282,6 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     GLInterface.EnableNonTransparent255(false);
     videoSetPalette(0, 0, 8+2);
 	tileDelete(kSMKTile);
-    Bfree(pzSMK_);
-    Bfree(pzWAV_);
 }
 
 END_BLD_NS

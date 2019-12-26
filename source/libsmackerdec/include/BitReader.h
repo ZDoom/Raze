@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include "FileStream.h"
+#include "tarray.h"
 
 namespace SmackerCommon {
 
@@ -44,7 +45,7 @@ class BitReader
 
 		SmackerCommon::FileStream *file;
 
-		uint8_t *cache;
+        TArray<uint8_t> Cache;
 
 		void FillCache();
 };

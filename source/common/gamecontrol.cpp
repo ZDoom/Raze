@@ -529,7 +529,7 @@ int RunGame()
 	FString logfile = Args->TakeValue("+logfile");
 
 	// As long as this engine is still in prerelease mode let's always write a log file.
-	if (logfile.IsEmpty()) logfile.Format("%sdemolition.log", M_GetDocumentsPath().GetChars());
+	if (logfile.IsEmpty()) logfile.Format("%s" GAMENAMELOWERCASE ".log", M_GetDocumentsPath().GetChars());
 
 	if (logfile.IsNotEmpty())
 	{
@@ -551,6 +551,13 @@ int RunGame()
 
 	InitFileSystem(usedgroups);
 	if (usedgroups.Size() == 0) return 0;
+
+	if (g_gameType & GAMEFLAG_BLOOD)
+	{
+		UCVarValue v;
+		v.Bool = false;
+		mus_redbook.SetGenericRepDefault(v, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
+	}
 
 	G_ReadConfig(currentGame);
 
@@ -577,7 +584,7 @@ int RunGame()
 	TileFiles.AddArt(addArt);
 
 	inputState.ClearAllInput();
-	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
+	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "engine/origbinds.txt" : cl_defaultconfiguration == 2 ? "engine/leftbinds.txt" : "engine/defbinds.txt");
 	
 	if (!GameConfig->IsInitialized())
 	{
@@ -590,7 +597,7 @@ int RunGame()
 	}
 	V_InitFonts();
 	C_CON_SetAliases();
-	sfx_empty = fileSystem.FindFile("demolition/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
+	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
 	Mus_Init();
 	InitStatistics();
 	M_Init();
@@ -642,7 +649,7 @@ void CONFIG_ReadCombatMacros()
 	FScanner sc;
 	try
 	{
-		sc.Open("demolition/combatmacros.txt");
+		sc.Open("engine/combatmacros.txt");
 		for (auto s : CombatMacros)
 		{
 			sc.MustGetToken(TK_StringConst);
@@ -697,7 +704,7 @@ CCMD(snd_reset)
 {
 	Mus_Stop();
 	if (soundEngine) soundEngine->Reset();
-	MUS_ResumeSaved();
+	Mus_ResumeSaved();
 }
 
 //==========================================================================

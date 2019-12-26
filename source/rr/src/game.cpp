@@ -876,7 +876,7 @@ static void G_ReadGLFrame(void)
         }
     }
 
-    Bfree(frame);
+    Xfree(frame);
 }
 #endif
 
@@ -4678,7 +4678,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
 #endif
     for (j=spritesortcnt-1; j>=0; j--)
     {
-        uspritetype *const t = &tsprite[j];
+        tspritetype *const t = &tsprite[j];
         const int32_t i = t->owner;
         const spritetype *const s = &sprite[i];
 
@@ -4707,7 +4707,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
 
     for (j=spritesortcnt-1; j>=0; j--)
     {
-        uspritetype *const t = &tsprite[j];
+        tspritetype *const t = &tsprite[j];
         const int32_t i = t->owner;
         spritetype *const s = &sprite[i];
 
@@ -4818,11 +4818,11 @@ default_case1:
         int32_t curframe;
         int32_t scrofs_action;
         //is the perfect time to animate sprites
-        uspritetype *const t = &tsprite[j];
+        tspritetype *const t = &tsprite[j];
         const int32_t i = t->owner;
         // XXX: what's up with the (i < 0) check?
         // NOTE: not const spritetype because set at SET_SPRITE_NOT_TSPRITE (see below).
-        uspritetype *const pSprite = (i < 0) ? &tsprite[j] : (uspritetype *)&sprite[i];
+        tspritetype *const pSprite = (i < 0) ? &tsprite[j] : (tspritetype *)&sprite[i];
 
         if (adult_lockout && G_CheckAdultTile(DYNAMICTILEMAP(pSprite->picnum)))
         {
@@ -6696,7 +6696,7 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
 
 static void G_FreeHashAnim(const char * /*string*/, intptr_t key)
 {
-    Bfree((void *)key);
+    Xfree((void *)key);
 }
 
 static void G_Cleanup(void)
@@ -6712,17 +6712,17 @@ static void G_Cleanup(void)
 
     for (i=MAXPLAYERS-1; i>=0; i--)
     {
-        Bfree(g_player[i].ps);
-        Bfree(g_player[i].inputBits);
+        Xfree(g_player[i].ps);
+        Xfree(g_player[i].inputBits);
     }
 
-    if (label != (char *)&sprite[0]) Bfree(label);
-    if (labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
-    if (labeltype != (int32_t*)&wall[0]) Bfree(labeltype);
-    Bfree(apScript);
-    Bfree(bitptr);
+    if (label != (char *)&sprite[0]) Xfree(label);
+    if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
+    if (labeltype != (int32_t*)&wall[0]) Xfree(labeltype);
+    Xfree(apScript);
+    Xfree(bitptr);
 
-//    Bfree(MusicPtr);
+//    Xfree(MusicPtr);
 
     hash_free(&h_labels);
 }

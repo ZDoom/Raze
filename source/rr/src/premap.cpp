@@ -1669,7 +1669,7 @@ static void prelevel(char g)
             actor[j].t_data[0] = 1;
     }
 
-    Bfree(tagbitmap);
+    Xfree(tagbitmap);
 
     g_mirrorCount = 0;
 
@@ -2413,6 +2413,10 @@ int G_EnterLevel(int gameMode)
     G_CacheMapData();
     // G_FadeLoad(0,0,0, 0,252, 28, 4, -2);
 
+    // Try this first so that it can disable the CD player if no tracks are found.
+    if (RR && !(gameMode & MODE_DEMO))
+        S_PlayRRMusic();
+
     if (ud.recstat != 2)
     {
         if (Menu_HaveUserMap())
@@ -2421,9 +2425,6 @@ int G_EnterLevel(int gameMode)
         }
         else S_PlayLevelMusicOrNothing(mii);
     }
-
-    if (RR && !(gameMode & MODE_DEMO))
-        S_PlayRRMusic();
 
     if (gameMode & (MODE_GAME|MODE_EOL))
     {

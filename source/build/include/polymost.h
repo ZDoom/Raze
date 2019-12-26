@@ -39,7 +39,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
 void polymost_completeMirror();
 
 int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall);
-int32_t polymost_spriteHasTranslucency(uspritetype const * const tspr);
+int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr);
 
 float* multiplyMatrix4f(float m0[4*4], const float m1[4*4]);
 

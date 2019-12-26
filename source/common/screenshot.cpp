@@ -76,7 +76,7 @@ CVAR(String, screenshot_dir, "", CVAR_ARCHIVE)					// same here.
 static void WritePNGfile(FileWriter* file, const uint8_t* buffer, const PalEntry* palette,
 	ESSType color_type, int width, int height, int pitch, float gamma)
 {
-	FStringf software("Demolition %s", GetVersionString());
+	FStringf software(GAMENAME " %s", GetVersionString());
 	if (!M_CreatePNG(file, buffer, palette, color_type, width, height, pitch, gamma) ||
 		!M_AppendPNGText(file, "Software", software) ||
 		!M_FinishPNG(file))

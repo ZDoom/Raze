@@ -2000,7 +2000,7 @@ void G_BonusScreen(int32_t bonusonly)
         videoClearScreen(0);
         G_DisplayMPResultsScreen();
 
-        if (MusicEnabled())
+        if (MusicEnabled() && mus_enabled)
             S_PlaySound(BONUSMUSIC);
 
         videoNextPage();
@@ -2042,7 +2042,7 @@ void G_BonusScreen(int32_t bonusonly)
 
     gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
 
-        if (MusicEnabled())
+        if (MusicEnabled() && mus_enabled)
             S_PlaySound(BONUSMUSIC);
     }
     else
@@ -2579,7 +2579,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         videoClearScreen(0);
         G_DisplayMPResultsScreen();
 
-        if (MusicEnabled())
+        if (MusicEnabled() && mus_enabled)
             S_PlaySound(BONUSMUSIC);
 
         videoNextPage();

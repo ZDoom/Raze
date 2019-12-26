@@ -905,7 +905,7 @@ voxmodel_t *loadkvxfrombuf(const char *kvxbuffer, int32_t length)
     if (mip1leng > length - 4)
     {
         // Invalid KVX file
-        Bfree(buffer);
+        Xfree(buffer);
         return NULL;
     }
     memcpy(&voxsiz, longptr, sizeof(vec3_t));
@@ -993,7 +993,7 @@ voxmodel_t *loadkvxfrombuf(const char *kvxbuffer, int32_t length)
     DO_FREE_AND_NULL(vcol);
     vnum = vmax = 0;
     DO_FREE_AND_NULL(vcolhashead);
-    Bfree(buffer);
+    Xfree(buffer);
 
     return vm;
 }

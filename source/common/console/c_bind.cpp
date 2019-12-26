@@ -682,7 +682,7 @@ void ReadBindings(int lump, bool override)
 
 void CONFIG_SetDefaultKeys(const char* baseconfig)
 {
-	auto lump = fileSystem.GetFile("demolition/commonbinds.txt", ELookupMode::FullName, 0);
+	auto lump = fileSystem.GetFile("engine/commonbinds.txt", ELookupMode::FullName, 0);
 	if (lump >= 0) ReadBindings(lump, true);
 	int lastlump = 0;
 
@@ -700,7 +700,7 @@ void CONFIG_SetDefaultKeys(const char* baseconfig)
 
 void C_BindDefaults()
 {
-	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "demolition/origbinds.txt" : cl_defaultconfiguration == 2 ? "demolition/leftbinds.txt" : "demolition/defbinds.txt");
+	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "engine/origbinds.txt" : cl_defaultconfiguration == 2 ? "engine/leftbinds.txt" : "engine/defbinds.txt");
 }
 
 #if 0

@@ -266,7 +266,7 @@ bool DMenu::MouseEventBack(int type, int x, int y)
 {
 	if (m_show_backbutton >= 0)
 	{
-		FTexture* tex = TileFiles.GetTexture("demolition/graphics/m_back.png");
+		FTexture* tex = TileFiles.GetTexture("engine/graphics/m_back.png");
 		if (tex != NULL)
 		{
 			if (m_show_backbutton&1) x -= screen->GetWidth() - tex->GetWidth() * CleanXfac;
@@ -322,7 +322,7 @@ void DMenu::Drawer ()
 {
 	if (this == DMenu::CurrentMenu && BackbuttonAlpha > 0 && m_show_backbutton >= 0 && m_use_mouse)
 	{
-		FTexture* tex = TileFiles.GetTexture("demolition/graphics/m_back.png");
+		FTexture* tex = TileFiles.GetTexture("engine/graphics/m_back.png");
 		int w = tex->GetWidth() * CleanXfac;
 		int h = tex->GetHeight() * CleanYfac;
 		int x = (!(m_show_backbutton&1))? 0:screen->GetWidth() - w;
