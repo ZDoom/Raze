@@ -1702,7 +1702,9 @@ void OpenALSoundRenderer::StopChannel(FISoundChannel *chan)
 
 	ALuint source = GET_PTRID(chan->SysChannel);
 	// Release first, so it can be properly marked as evicted if it's being killed
+	chan->ChanFlags |= CHANF_ENDED;
 	soundEngine->ChannelEnded(chan);
+	assert(!(chan->ChanFlags & CHANF_ENDED));
 
 	ALint state = AL_INITIAL;
 	alGetSourcei(source, AL_SOURCE_STATE, &state);
@@ -1726,7 +1728,9 @@ void OpenALSoundRenderer::ForceStopChannel(FISoundChannel *chan)
 	ALuint source = GET_PTRID(chan->SysChannel);
 	if(!source) return;
 
+	chan->ChanFlags |= CHANF_ENDED;
 	soundEngine->ChannelEnded(chan);
+	assert(!(chan->ChanFlags & CHANF_ENDED));
 	FreeSource(source);
 }
 

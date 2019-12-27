@@ -73,6 +73,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <assert.h>
 #include "gamecvars.h"
 #include "savegamehelp.h"
+#include "c_dispatch.h"
 
 BEGIN_PS_NS
 
@@ -805,6 +806,7 @@ void faketimerhandler()
 
 void timerhandler()
 {
+    UpdateSounds();
     scan_char++;
     if (scan_char == kTimerTicks)
     {
@@ -1840,8 +1842,10 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
     }
 }
 
+
 int GameInterface::app_main()
 {
+    C_DoCommand("stat sounddebug");
     int i;
     //int esi = 1;
     //int edi = esi;
@@ -2209,7 +2213,6 @@ GAMELOOP:
 
 // TODO		CONTROL_GetButtonInput();
         CheckKeys();
-        UpdateSounds();
 
         if (bRecord || bPlayback)
         {

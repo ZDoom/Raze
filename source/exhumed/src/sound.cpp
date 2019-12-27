@@ -182,6 +182,7 @@ class EXSoundEngine : public SoundEngine
         {
             if (inf.snd_channel == chan) inf.snd_channel = nullptr;
         }
+        SoundEngine::ChannelEnded(chan);
     }
 
 public:

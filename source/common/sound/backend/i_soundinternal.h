@@ -31,6 +31,7 @@ enum EChanFlag
 	CHANF_VIRTUAL = 2048,	// internal: Channel is currently virtual
 	CHANF_NOSTOP = 4096,	// only for A_PlaySound. Does not start if channel is playing something.
 	CHANF_OVERLAP = 8192, // [MK] Does not stop any sounds in the channel and instead plays over them.
+	CHANF_ENDED = 16384,	// Helper to detect broken ChannelEnded implementations.
 };
 
 typedef TFlags<EChanFlag> EChanFlags;
