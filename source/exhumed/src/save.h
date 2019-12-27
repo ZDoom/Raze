@@ -36,7 +36,7 @@ struct SavegameHelper
 };
 
 #define SV(v) &v, sizeof(v)
-#define SA(a) a, sizeof(a)
+#define SA(a) &a, sizeof(a)
 
 
 END_PS_NS

@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "anims.h"
 #include "ps_input.h"
 #include "util.h"
+#include "mapinfo.h"
 #include "gamecontrol.h"
 #include "rendering/v_video.h"
 #include <stdio.h>
@@ -81,27 +82,9 @@ uint8_t bIsVersion6 = kTrue;
 
 uint8_t LoadLevel(int nMap)
 {
-    char fileName_1[80];
-    char fileName_2[32];
-
     initspritelists();
 
-//	nMap = 1;
-
-//	sprintf(fileName_2, "queen");
-    sprintf(fileName_2, "lev%d", nMap);
-//	sprintf(fileName_2, "sentry");
-//	sprintf(fileName_2, "bjd");
-//	sprintf(fileName_2, "door");
-//	sprintf(fileName_2, "ceil");
-//	sprintf(fileName_2, "scarab");
-//	sprintf(fileName_2, "guns");
-//	sprintf(fileName_2, "wasp");
-//	sprintf(fileName_2, "items");
-
-    fileName_1[0] = '\0';
-    strcat(fileName_1, fileName_2);
-    strcat(fileName_1, ".map");
+    currentLevel = &mapList[nMap];
 
     // init stuff
     {
@@ -162,9 +145,9 @@ uint8_t LoadLevel(int nMap)
     }
 
     vec3_t startPos;
-    int status = engineLoadBoard(fileName_1, 0, &startPos, &inita, &initsect);
+    int status = engineLoadBoard(currentLevel->fileName, 0, &startPos, &inita, &initsect);
     if (status == -2)
-        status = engineLoadBoardV5V6(fileName_1, 0, &startPos, &inita, &initsect);
+        status = engineLoadBoardV5V6(currentLevel->fileName, 0, &startPos, &inita, &initsect);
     initx = startPos.x;
     inity = startPos.y;
     initz = startPos.z;

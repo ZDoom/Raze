@@ -2039,6 +2039,9 @@ LABEL_28:
 
 static SavegameHelper sgh("menu",
     SA(nCinemaSeen),
+    SA(energytile),
+    SV(nButtonColor),
+    SV(word_9AB5B),
     nullptr);
 
 END_PS_NS

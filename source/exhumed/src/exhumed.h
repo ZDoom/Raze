@@ -283,10 +283,12 @@ struct GameInterface : ::GameInterface
     void MenuSound(EMenuSounds snd) override;
     void MenuClosed() override;
     void StartGame(FGameStartup& gs) override;
-    bool CanSave() override;
     FSavegameInfo GetSaveSig() override;
     void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
     void DrawMenuCaption(const DVector2& origin, const char* text) override;
+    bool LoadGame(FSaveGameNode* sv) override;
+    bool SaveGame(FSaveGameNode* sv) override;
+    bool CanSave() override;
 
     FString statFPS() override;
     //GameStats getStats() override;

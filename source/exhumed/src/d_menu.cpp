@@ -182,11 +182,6 @@ void GameInterface::MenuClosed()
 }
 
 
-bool GameInterface::CanSave()
-{
-    return MenuStartCondition == 1;
-}
-
 void GameInterface::StartGame(FGameStartup& gs)
 {
 	MenuExitCondition = gs.Episode;	// Gross hack. The main loop needs to be redone for better handling.

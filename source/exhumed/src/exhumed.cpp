@@ -63,6 +63,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trigdat.h"
 #include "record.h"
 #include "lighting.h"
+#include "mapinfo.h"
 #include <string.h>
 #include <cstdio> // for printf
 #include <cstdlib>
@@ -1857,6 +1858,19 @@ int GameInterface::app_main()
     int stopTitle = kFalse;
     levelnew = 1;
 
+    // Create the global level table. Parts of the engine need it, even though the game itself does not.
+    for (int i = 0; i <= 32; i++)
+    {
+        auto mi = &mapList[i];
+        mi->fileName.Format("LEV%d.MAP", i);
+        mi->labelName.Format("LEV%d", i);
+        mi->name.Format("$TXT_EX_MAP%02d", i);
+
+        int nTrack = i;
+        if (nTrack != 0) nTrack--;
+        mi->cdSongId = (nTrack % 8) + 11;
+    }
+
     // REVERT - change back to kTrue
 //	short bDoTitle = kFalse;
 
@@ -3391,12 +3405,12 @@ int DoSpiritHead()
     return 0;
 }
 
-#if 0
 bool GameInterface::CanSave()
 {
     return !bRecord && !bPlayback && !bPause && !bInDemo && nTotalPlayers == 1;
 }
-#endif
+
+
 ::GameInterface* CreateInterface()
 {
     return new GameInterface;
@@ -3466,13 +3480,18 @@ void SaveTextureState()
     auto fw = WriteSavegameChunk("texture");
     int pupOffset = pPupData? int(pPupData - cPupData) : -1;
 
-    // There is really no good way to restore these two tiles, so it's probably best to save them as well, so that they can be reloaded with the saved data.
+    // There is really no good way to restore these tiles, so it's probably best to save them as well, so that they can be reloaded with the exact state they were left in
     fw->Write(&pupOffset, 4);
     uint8_t loaded = !!Worktile;
     fw->Write(&loaded, 1);
     if (Worktile) fw->Write(Worktile, WorktileSize);
     auto pixels = TileFiles.tileMakeWritable(kTile3603);
     fw->Write(pixels, tilesiz[kTile3603].x * tilesiz[kTile3603].y);
+    pixels = TileFiles.tileMakeWritable(kEnergy1);
+    fw->Write(pixels, tilesiz[kEnergy1].x * tilesiz[kEnergy1].y);
+    pixels = TileFiles.tileMakeWritable(kEnergy2);
+    fw->Write(pixels, tilesiz[kEnergy2].x * tilesiz[kEnergy2].y);
+    
 }
 
 void LoadTextureState()
@@ -3490,8 +3509,14 @@ void LoadTextureState()
     }
     auto pixels = TileFiles.tileMakeWritable(kTile3603);
     fr.Read(pixels, tilesiz[kTile3603].x * tilesiz[kTile3603].y);
+    pixels = TileFiles.tileMakeWritable(kEnergy1);
+    fr.Read(pixels, tilesiz[kEnergy1].x * tilesiz[kEnergy1].y);
+    pixels = TileFiles.tileMakeWritable(kEnergy2);
+    fr.Read(pixels, tilesiz[kEnergy2].x * tilesiz[kEnergy2].y);
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
     TileFiles.InvalidateTile(kTile3603);
+    TileFiles.InvalidateTile(kEnergy1);
+    TileFiles.InvalidateTile(kEnergy2);
 }
 
 

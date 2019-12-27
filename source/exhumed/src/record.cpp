@@ -153,7 +153,7 @@ int CloseRecord()
 {
     if (record_mode == 1)
     {
-        loadgame(0);
+        //loadgame(0); ???
 
         if (record_index)
         {
@@ -164,7 +164,7 @@ int CloseRecord()
     }
     else if (record_mode == 2 || record_mode == 3)
     {
-        loadgame(1);
+        //loadgame(1); ???
     }
 
     fclose(record_file);

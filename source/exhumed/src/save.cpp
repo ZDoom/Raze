@@ -30,10 +30,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+void SaveTextureState();
+void LoadTextureState();
+
 static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
 
-int savegame(int nSlot)
+bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
+    OpenSaveGameForWrite(sv->Filename);
+    // workaround until the level info here has been transitioned.
+    G_WriteSaveHeader(sv->SaveTitle);
+
     auto fw = WriteSavegameChunk("engine");
     fw->Write(&numsectors, sizeof(numsectors));
     fw->Write(sector, sizeof(sectortype) * numsectors);
@@ -66,11 +73,14 @@ int savegame(int nSlot)
     fw->Write(show2dsector, sizeof(show2dsector));
 
     for (auto sgh : sghelpers) sgh->Save();
+    SaveTextureState();
+    FinishSavegameWrite();
     return 1; // CHECKME
 }
 
-int loadgame(int nSlot)
+bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
+    OpenSaveGameForRead(sv->Filename);
     auto fr = ReadSavegameChunk("engine");
     if (fr.isOpen())
     {
@@ -107,6 +117,8 @@ int loadgame(int nSlot)
     }
 
     for (auto sgh : sghelpers) sgh->Load();
+    LoadTextureState();
+    FinishSavegameRead();
 
     // reset the sky in case it hasn't been done yet.
     psky_t* pSky = tileSetupSky(0);
@@ -121,8 +133,6 @@ int loadgame(int nSlot)
     parallaxtype = 2;
     g_visibility = 2048;
     ototalclock = totalclock;
-
-
 
     return 1; // CHECKME
 }

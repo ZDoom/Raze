@@ -64,7 +64,7 @@ const char *GetVersionString();
 #define SAVESIG_BLD GAMENAME "Blood"
 #define SAVESIG_RR GAMENAME "Redneck"
 #define SAVESIG_SW GAMENAME "SW"
-#define SAVESIG_PS GAMENAME "Powerslave"
+#define SAVESIG_PS GAMENAME ".Exhumed"
 
 #define MINSAVEVER_DN3D 1
 #define MINSAVEVER_BLD 1

@@ -60,9 +60,9 @@ machine Machine[kMaxMachines];
 Bubble BubbleList[kMaxBubbles];
 
 static SavegameHelper sgh("bubbles",
-    SA(BubbleCount),
-    SA(nFreeCount),
-    SA(nMachineCount),
+    SV(BubbleCount),
+    SV(nFreeCount),
+    SV(nMachineCount),
     SA(nBubblesFree),
     SA(Machine),
     SA(BubbleList),
