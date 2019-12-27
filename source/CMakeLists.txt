@@ -630,7 +630,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
 	sc_man_scanner.h
 	common/utility/sc_man_scanner.re
-	platform/win32/demolition.natvis
+	platform/win32/zutil.natvis
 )
 
 
