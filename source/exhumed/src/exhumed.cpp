@@ -1680,15 +1680,6 @@ void ExitGame()
         fclose(vcrfp);
     }
 
-    FadeSong();
-    if (CDplaying()) {
-        fadecdaudio();
-    }
-
-    StopAllSounds();
-    StopLocalSound();
-    mysaveconfig();
-
     if (bSerialPlay)
     {
         if (nNetPlayerCount != 0) {
@@ -1704,7 +1695,7 @@ void ExitGame()
     }
 
     ShutDown();
-    exit(0);
+    throw ExitEvent(0);
 }
 
 static int32_t nonsharedtimer;
@@ -2026,6 +2017,8 @@ MENU:
     case 3:
         forcelevel = 0;
         goto STARTGAME2;
+    case 6:
+        goto GAMELOOP;
     case 9:
         vcrfp = fopen("demo.vcr", "rb");
         if (vcrfp == NULL) {
@@ -2192,6 +2185,7 @@ LOOP3:
     //int edi = totalclock;
     tclocks2 = totalclock;
     // Game Loop
+GAMELOOP:
     while (1)
     {
         if (levelnew >= 0)
@@ -2408,6 +2402,8 @@ LOOP3:
 
                             goto STARTGAME2;
                         }
+                    case 6:
+                        goto GAMELOOP;
                 }
 
                 totalclock = ototalclock = tclocks;
@@ -2615,9 +2611,11 @@ void DoTitle()
 
     var_18 += theArray[0];
 
+    inputState.ClearAllKeyStatus();
     while (LocalSoundPlaying())
     {
         HandleAsync();
+        if (inputState.CheckAllInput()) break;
 
         menu_DoPlasma();
         overwritesprite(160, 100, nTile, 0, 3, kPalNormal);
@@ -2636,7 +2634,7 @@ void DoTitle()
         {
             nCount++;
 
-            assert(nCount <= 12);
+            if (nCount > 12) break;
             var_18 = nStartTime + theArray[nCount];
 
             var_4 = var_4 == 0;

@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include <stdarg.h>
 #include "init.h"
+#include "music/z_music.h"
 //#include <fcntl.h>
 //#include <sys/stat.h>
 //#include <io.h>
@@ -30,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+extern int MenuExitCondition;
 void SaveTextureState();
 void LoadTextureState();
 
@@ -113,7 +115,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
         fr.Read(show2dwall, sizeof(show2dwall));
         fr.Read(show2dsprite, sizeof(show2dsprite));
         fr.Read(show2dsector, sizeof(show2dsector));
-
+        fr.Close();
     }
 
     for (auto sgh : sghelpers) sgh->Load();
@@ -133,7 +135,8 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     parallaxtype = 2;
     g_visibility = 2048;
     ototalclock = totalclock;
-
+    MenuExitCondition = 6;
+    Mus_ResumeSaved();
     return 1; // CHECKME
 }
 

@@ -555,45 +555,67 @@ void UpdateSounds()
 
     int nLocalSectFlags = SectFlag[nPlayerViewSect[nLocalPlayer]];
 
-    int x, y;
+    vec3_t pos;
     short ang;
     if (nSnakeCam > -1)
     {
         Snake *pSnake = &SnakeList[nSnakeCam];
         spritetype *pSnakeSprite = &sprite[pSnake->nSprites[0]];
-        x = pSnakeSprite->x;
-        y = pSnakeSprite->y;
+        pos = pSnakeSprite->pos;
         ang = pSnakeSprite->ang;
     }
     else
     {
-        x = initx;
-        y = inity;
+        pos = { initx, inity, initz };
         ang = inita;
     }
+    auto fv = GetSoundPos(&pos);
+    SoundListener listener;
+    listener.angle = -(float)ang * pi::pi() / 1024; // Build uses a period of 2048.
+    listener.velocity.Zero();
+    listener.position = GetSoundPos(&pos);
+    listener.underwater = false;
+    // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
+    // listenactor->waterlevel == 3;
+    //assert(primaryLevel->Zones.Size() > listenactor->Sector->ZoneNumber);
+    listener.Environment = 0;// primaryLevel->Zones[listenactor->Sector->ZoneNumber].Environment;
+    listener.valid = true;
+
+
+    soundEngine->SetListener(listener);
+    soundEngine->UpdateSounds((int)totalclock);
     ActiveSound* pASound = sActiveSound;
     pASound++;
     for (int i = 1; i < kMaxActiveSounds; i++, pASound++)
     {
         if (pASound->snd_channel != nullptr)
         {
-            short nSoundSprite = pASound->snd_sprite;
-            int nPitch = pASound->snd_pitch;
-            short nSoundSect;
-            if (nSoundSprite >= 0)
+            if (pASound->snd_channel->ChanFlags & CHANF_FORGETTABLE)
             {
-                if (nSoundSprite == nLocalSpr)
-                    nSoundSect = nPlayerViewSect[nLocalPlayer];
-                else
-                    nSoundSect = sprite[nSoundSprite].sectnum;
+                // If the channel has become invalid, remove the reference.
+                // ChannelEnded may be called late so waiting for it is problematic.
+                pASound->snd_channel = nullptr; 
             }
             else
-                nSoundSect = pASound->snd_sector;
+            {
+                short nSoundSprite = pASound->snd_sprite;
+                int nPitch = pASound->snd_pitch;
+                short nSoundSect;
+                if (nSoundSprite >= 0)
+                {
+                    if (nSoundSprite == nLocalSpr)
+                        nSoundSect = nPlayerViewSect[nLocalPlayer];
+                    else
+                        nSoundSect = sprite[nSoundSprite].sectnum;
+                }
+                else
+                    nSoundSect = pASound->snd_sector;
 
-            int nVolume = pASound->snd_volume;
-            GetSpriteSoundPitch(nSoundSect, &nVolume, &nPitch, nLocalSectFlags);
-            soundEngine->SetPitch(pASound->snd_channel, (11025 + nPitch) / 11025.f);
-            soundEngine->SetVolume(pASound->snd_channel, nVolume / 255.f);
+                int nVolume = pASound->snd_volume;
+                GetSpriteSoundPitch(nSoundSect, &nVolume, &nPitch, nLocalSectFlags);
+                soundEngine->SetPitch(pASound->snd_channel, (11025 + nPitch) / 11025.f);
+                soundEngine->SetVolume(pASound->snd_channel, nVolume / 255.f);
+            }
         }
     }
 }
