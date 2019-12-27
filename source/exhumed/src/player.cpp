@@ -170,7 +170,7 @@ void PlayerInterruptKeys()
     }
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = false;// G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+    int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int const turnAmount = playerRunning ? 12 : 8;
     int const keyMove    = playerRunning ? 12 : 6;
     constexpr int const analogTurnAmount = 12;
@@ -248,8 +248,9 @@ void PlayerInterruptKeys()
                 turn = 0;
         }
 
-        if ((counter++) % 4 == 0)
-            q16avel += fix16_from_int(turn<<2);
+        //if ((counter++) % 4 == 0) // what was this for???
+            q16avel += fix16_from_int(turn);
+
     }
 
     if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
