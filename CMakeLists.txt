@@ -1,5 +1,6 @@
 cmake_minimum_required( VERSION 3.1.0 )
 project(Demolition)
+set ( PROJECT_NAME "demolition")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -76,21 +77,21 @@ function( add_pk3 PK3_NAME PK3_DIR )
 	# Generate target name. Just use "pk3" for main pk3 target.
 	string( REPLACE "." "_" PK3_TARGET ${PK3_NAME} )
 
-	if( NOT DEMOLITION_OUTPUT_OLDSTYLE )
-		add_custom_command( OUTPUT ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME}
-			COMMAND zipdir -udf ${PK3_ZIPDIR_OPTIONS} ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME} ${PK3_DIR}
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME} $<TARGET_FILE_DIR:demolition>/${PK3_NAME}
+	if( NOT COMPILE_OUTPUT_OLDSTYLE )
+		add_custom_command( OUTPUT ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME}
+			COMMAND zipdir -udf ${PK3_ZIPDIR_OPTIONS} ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME} ${PK3_DIR}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME} $<TARGET_FILE_DIR:${PROJECT_NAME}>/${PK3_NAME}
 			DEPENDS zipdir )
 	else()
-		add_custom_command( OUTPUT ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME}
-			COMMAND zipdir -udf ${PK3_ZIPDIR_OPTIONS} ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME} ${PK3_DIR}
+		add_custom_command( OUTPUT ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME}
+			COMMAND zipdir -udf ${PK3_ZIPDIR_OPTIONS} ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME} ${PK3_DIR}
 			DEPENDS zipdir )
 	endif()
 	# Create a list of source files for this PK3, for use in the IDE
 	# Phase 1: Create a list of all source files for this PK3 archive, except
 	#  for a couple of strife image file names that confuse CMake.
 	file(GLOB_RECURSE PK3_SRCS ${PK3_DIR}/*)
-	# Exclude from the source list some demolition .png files with brackets in the
+	# Exclude from the source list some files with brackets in the
 	# file names here, because they confuse CMake.
 	# This only affects the list of source files shown in the IDE.
 	# It does not actually remove the files from the PK3 archive.
@@ -109,7 +110,7 @@ function( add_pk3 PK3_NAME PK3_DIR )
 	# rebuild each time since their dependency has "changed."
 	add_custom_target( ${PK3_TARGET} ALL
 		COMMAND ${CMAKE_COMMAND} -E touch $<TARGET_FILE:zipdir>
-		DEPENDS ${DEMOLITION_OUTPUT_DIR}/${PK3_NAME}
+		DEPENDS ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME}
 		SOURCES ${PK3_SRCS})
 	# Phase 3: Assign source files to a nice folder structure in the IDE
 	assort_pk3_source_folder("Source Files" ${PK3_DIR})
@@ -140,14 +141,14 @@ IF( NOT CMAKE_BUILD_TYPE )
 		FORCE )
 ENDIF()
 
-set( DEMOLITION_OUTPUT_DIR ${CMAKE_BINARY_DIR} CACHE PATH "Directory where engine data and the executable will be created." )
-set( DEMOLITION_EXE_NAME "demolition" CACHE FILEPATH "Name of the executable to create" )
+set( COMPILE_OUTPUT_DIECTRORY ${CMAKE_BINARY_DIR} CACHE PATH "Directory where engine data and the executable will be created." )
+set( COMPILE_EXE_NAME ${PROJECT_NAME} CACHE FILEPATH "Name of the executable to create" )
 if( MSVC )
-	# Allow the user to use DEMOLITION_OUTPUT_DIR as a single release point.
-	# Use demolition, demolitiond, demolition64, and demolitiond64 for the binary names
-	option( DEMOLITION_OUTPUT_OLDSTYLE "Don't use Release/Debug directories." OFF )
+	# Allow the user to use COMPILE_OUTPUT_DIECTRORY as a single release point.
+	# Use different names for the various compile targets.
+	option( COMPILE_OUTPUT_OLDSTYLE "Don't use Release/Debug directories." OFF )
 else()
-	set( DEMOLITION_OUTPUT_OLDSTYLE OFF )
+	set( COMPILE_OUTPUT_OLDSTYLE OFF )
 endif()
 
 # Replacement variables for a possible long list of C/C++ compilers compatible with GCC
@@ -176,7 +177,7 @@ find_package( ZLIB )
 include( TargetArch )
 
 # Things for later. Currently we have no VM and no Vulkan
-#if( ${DEMOLITION_TARGET_ARCH} MATCHES "x86_64" )
+#if( ${TARGET_ARCHITECTURE} MATCHES "x86_64" )
 #	set( HAVE_VM_JIT ON )
 #	option (HAVE_VULKAN "Enable Vulkan support" ON)
 #endif()
@@ -208,8 +209,8 @@ if( MSVC )
 
 
 	# Avoid CRT DLL dependancies in release builds, optionally generate assembly output for checking crash locations.
-	option( DEMOLITION_GENERATE_ASM "Generate assembly output." OFF )
-	if( DEMOLITION_GENERATE_ASM )
+	option( COMPILE_GENERATE_ASM "Generate assembly output." OFF )
+	if( COMPILE_GENERATE_ASM )
 		set( REL_C_FLAGS "/MT /Oy /Oi /FAcs /GS-" )
 	else()
 		set( REL_C_FLAGS "/MT /Oy /Oi /GS-" )
@@ -323,7 +324,7 @@ if( ZLIB_FOUND AND NOT FORCE_INTERNAL_ZLIB )
 	message( STATUS "Using system zlib, includes found at ${ZLIB_INCLUDE_DIR}" )
 else()
 	message( STATUS "Using internal zlib" )
-	set( SKIP_INSTALL_ALL TRUE ) # Avoid installing zlib alongside demolition
+	set( SKIP_INSTALL_ALL TRUE ) # Avoid installing zlib
 	add_subdirectory( libraries/zlib )
 	set( ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib )
 	set( ZLIB_LIBRARIES z )
@@ -348,7 +349,7 @@ endif()
 #		message( STATUS "Using system asmjit, includes found at ${ASMJIT_INCLUDE_DIR}" )
 #	else()
 #		message( STATUS "Using internal asmjit" )
-#		set( SKIP_INSTALL_ALL TRUE ) # Avoid installing asmjit alongside demolition
+#		set( SKIP_INSTALL_ALL TRUE ) # Avoid installing asmjit
 #		add_subdirectory( libraries/asmjit )
 #		set( ASMJIT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/asmjit )
 #		set( ASMJIT_LIBRARIES asmjit )
@@ -393,7 +394,7 @@ endif()
 #if( WIN32 )
 #	set( INSTALL_DOCS_PATH docs CACHE STRING "Directory where the documentation will be placed during install." )
 #else()
-#	set( INSTALL_DOCS_PATH share/doc/${DEMOLITION_EXE_NAME} CACHE STRING "Directory where the demolition documentation will be placed during install." )
+#	set( INSTALL_DOCS_PATH share/doc/${COMPILE_EXE_NAME} CACHE STRING "Directory where the documentation will be placed during install." )
 #endif()
 #install(DIRECTORY docs/
 #		DESTINATION ${INSTALL_DOCS_PATH}
