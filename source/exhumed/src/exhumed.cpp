@@ -1343,9 +1343,7 @@ void FinishLevel()
     if (levelnum != kMap20)
     {
         EraseScreen(4);
-        SetLocalChan(1);
-        PlayLocalSound(StaticSound[59], 0);
-        SetLocalChan(0);
+        PlayLocalSound(StaticSound[59], 0, true);
         videoNextPage();
         WaitTicks(12);
         WaitVBL();
@@ -2570,10 +2568,7 @@ void DoTitle()
     SetOverscan(BASEPAL);
     GrabPalette();
 
-    SetLocalChan(1);
-    PlayLocalSound(StaticSound[59], 0);
-
-    SetLocalChan(0);
+    PlayLocalSound(StaticSound[59], 0, true);
 
     EraseScreen(4);
 

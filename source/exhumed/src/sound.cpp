@@ -160,11 +160,6 @@ enum
     nSwirlyChan4,
 };
 
-void SetLocalChan(int c)
-{
-    nLocalChan = c;
-}
-
 //==========================================================================
 //
 //
@@ -337,33 +332,41 @@ void BendAmbientSound(void)
 //
 //==========================================================================
 
-void PlayLocalSound(short nSound, short nRate)
+void PlayLocalSound(short nSound, short nRate, bool unattached)
 {
     if (nSound < 0 || nSound >= kMaxSounds || !soundEngine->isValidSoundId(nSound + 1))
     {
         initprintf("PlayLocalSound: Invalid sound nSound == %i, nRate == %i\n", nSound, nRate);
         return;
     }
+    int bLoop = looped[nSound];
 
     if (nLocalChan == nAmbientChannel)
         nAmbientChannel = -1;
 
-    int bLoop = looped[nSound];
 
-    ActiveSound* pASound = &sActiveSound[nLocalChan];
-    if (pASound->snd_channel != nullptr)
-        soundEngine->StopChannel(pASound->snd_channel);
-
-    // There is exactly one occurence in the entire game which alters the pitch.
-    pASound->snd_channel = soundEngine->StartSound(SOURCE_Unattached, nullptr, nullptr, CHAN_BODY, CHANF_OVERLAP, nSound + 1, 1.f, ATTN_NONE, nullptr);
-
-    if (nRate && pASound->snd_channel)
+    ActiveSound* pASound = nullptr; 
+    
+    if (!unattached)
     {
-        float ratefac = (11025 + nRate) / 11025.f;
-        soundEngine->SetPitch(pASound->snd_channel, ratefac);
+        pASound = &sActiveSound[nLocalChan];
+        if (pASound->snd_channel != nullptr)
+            soundEngine->StopChannel(pASound->snd_channel);
     }
 
-    pASound->snd_id = nSound;
+    // There is exactly one occurence in the entire game which alters the pitch, and that's the laugh on the logo.
+    auto chan = soundEngine->StartSound(SOURCE_Unattached, nullptr, nullptr, CHAN_BODY, CHANF_OVERLAP, nSound + 1, 1.f, ATTN_NONE, nullptr);
+
+    if (nRate && chan)
+    {
+        float ratefac = (11025 + nRate) / 11025.f;
+        soundEngine->SetPitch(chan, ratefac);
+    }
+    if (pASound)
+    {
+        pASound->snd_id = nSound;
+        pASound->snd_channel = chan;
+    }
 }
 
 //==========================================================================

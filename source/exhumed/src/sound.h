@@ -125,11 +125,10 @@ int fadecdaudio();
 int LocalSoundPlaying();
 void LoadFX();
 void StopAllSounds();
-void SetLocalChan(int nChannel);
 int GetLocalSound();
 void UpdateLocalSound();
 void StopLocalSound();
-void PlayLocalSound(short nSound, short val);
+void PlayLocalSound(short nSound, short val, bool unattached = false);
 int LoadSound(const char* sound);
 
 void BendAmbientSound();
