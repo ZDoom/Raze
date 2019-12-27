@@ -887,6 +887,7 @@ bool SoundEngine::CheckSoundLimit(sfxinfo_t *sfx, const FVector3 &pos, int near_
 	
 	for (chan = Channels, count = 0; chan != NULL && count < near_limit; chan = chan->NextChan)
 	{
+		if (chan->ChanFlags & CHANF_FORGETTABLE) continue;
 		if (!(chan->ChanFlags & CHANF_EVICTED) && &S_sfx[chan->SoundID] == sfx)
 		{
 			FVector3 chanorigin;
@@ -1428,6 +1429,7 @@ void SoundEngine::StopChannel(FSoundChan *chan)
 			if (chan->SourceType == SOURCE_Actor)
 			{
 				chan->Source = NULL;
+				chan->SourceType = SOURCE_Unattached;
 			}
 		}
 		if (GSnd) GSnd->StopChannel(chan);
