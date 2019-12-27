@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"
 #include "version.h"
 #include "gamecontrol.h"
+#include "m_argv.h"
 #include "filesystem/filesystem.h"
 
 static const char* res_exts[] = { ".grp", ".zip", ".pk3", ".pk4", ".7z", ".pk7" };
@@ -827,6 +828,12 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 				}
 				else sc.ScriptError(nullptr);
 			}
+#ifndef _DEBUG // Exhumed is not yet ready for prime time, so it will remain hidden for the uninitiated.
+			if ((grp.flags & GAMEFLAG_PSEXHUMED) && !Args->CheckParm("-experimental"))
+			{
+				groups.Pop();
+			}
+#endif
 		}
 		else sc.ScriptError(nullptr);
 	}
