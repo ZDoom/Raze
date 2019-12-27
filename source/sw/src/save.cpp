@@ -245,8 +245,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     Saveable_Init();
 	
 	
-	auto game_name = G_BuildSaveName(sv->Filename);
-	OpenSaveGameForWrite(game_name);
+	OpenSaveGameForWrite(sv->Filename);
     // workaround until the level info here has been transitioned.
     G_WriteSaveHeader(sv->SaveTitle);
 	fil = WriteSavegameChunk("snapshot.sw");
@@ -720,8 +719,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     Saveable_Init();
 
-	auto game_name = G_BuildSaveName(sv->Filename);
-	OpenSaveGameForRead(game_name);
+	OpenSaveGameForRead(sv->Filename);
 
 	auto filr = ReadSavegameChunk("snapshot.sw");
 	if (!filr.isOpen()) return false;
