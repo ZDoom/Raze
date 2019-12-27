@@ -127,7 +127,7 @@ short nLocalEyeSect;
 short nElevSound;
 short nCreepyTimer;
 
-bool looped[kMaxSoundFiles];
+bool looped[kMaxSounds];
 
 struct ActiveSound
 {
@@ -148,7 +148,7 @@ struct ActiveSound
 };
 
 ActiveSound sActiveSound[kMaxSounds];
-short StaticSound[kMaxSoundFiles];
+short StaticSound[kMaxSounds];
 int fakesources[] = { 0, 1, 2, 3 };
 int nLocalChan = 0;
 
@@ -199,7 +199,7 @@ public:
             }
             else
             {
-                disttable[i] = eax >> 8;
+                disttable[i] = 255 - eax >> 8;
 
                 eax = (eax * eax) >> 8;
             }
@@ -231,41 +231,60 @@ TArray<uint8_t> EXSoundEngine::ReadSound(int lumpnum)
 //
 //==========================================================================
 
+int LoadSound(const char* name)
+{
+    FString nname(name, 8);
+    int sndid = soundEngine->FindSoundNoHash(nname.GetChars());
+    if (sndid > 0) return sndid - 1;
+
+    FStringf filename("%s.voc", nname.GetChars());
+    auto lump = fileSystem.FindFile(filename);
+    if (lump > 0)
+    {
+        auto &S_sfx = soundEngine->GetSounds();
+        S_sfx.Reserve(1);
+        int retval = S_sfx.Size() - 2;
+        auto check = fileSystem.GetFileData(lump);
+        if (check.Size() > 26 && check[26] == 6 && !memcmp("Creative Voice File", check.Data(), 19))
+        {
+            // This game uses the actual loop point information in the sound data as its only means to check if a sound is looped.
+            looped[retval] = true;
+        }
+        auto& newsfx = S_sfx.Last();
+        newsfx.Clear();
+        newsfx.name = nname;
+        newsfx.lumpnum = lump;
+        newsfx.NearLimit = 6;
+        newsfx.bTentative = false;
+        soundEngine->CacheSound(retval + 1);
+        return retval;
+    }
+    else if (!ISDEMOVER)  // demo tries to load sound files it doesn't have
+    {
+        Printf("Unable to open sound '%s'!\n", filename.GetChars());
+        return 0;
+    }
+
+}
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void InitFX(void)
 {
     if (soundEngine) return; // just in case.
     soundEngine = new EXSoundEngine;
 
     auto& S_sfx = soundEngine->GetSounds();
-    S_sfx.Resize(kMaxSoundFiles+1);
-    for (auto& sfx : S_sfx) { sfx.Clear(); sfx.lumpnum = sfx_empty; }
+    S_sfx.Resize(1);
+    S_sfx[0].Clear(); S_sfx[0].lumpnum = sfx_empty; 
     for (size_t i = 0; i < kMaxSoundFiles; i++)
     {
-        FStringf filename("%s.voc", SoundFiles[i]);
-        auto lump = fileSystem.FindFile(filename);
-        if (lump > 0)
-        {
-            auto check = fileSystem.GetFileData(lump);
-            if (check.Size() > 26 && check[26] == 6 && !memcmp("Creative Voice File", check.Data(), 19))
-            {
-                // This game uses the actual loop point information in the sound data as its only means to check if a sound is looped.
-                looped[i] = true;
-            }
-            auto& newsfx = S_sfx[i];
-            newsfx.name = SoundFiles[i];
-            newsfx.lumpnum = lump;
-            newsfx.NearLimit = 6;
-            newsfx.bTentative = false;
-        }
-        else if (!ISDEMOVER)  // demo tries to load sound files it doesn't have
-            Printf("Unable to open sound '%s'!\n", filename.GetChars());
-        StaticSound[i] = i;
+        StaticSound[i] = LoadSound(SoundFiles[i]);
     }
     soundEngine->HashSounds();
-    for (auto& sfx : S_sfx)
-    {
-        soundEngine->CacheSound(&sfx);
-    }
 
     memset(sActiveSound, 255, sizeof(sActiveSound));
     for (int i = 0; i < kMaxSounds; i++)
@@ -410,7 +429,7 @@ void StartSwirly(int nActiveSound)
     pASound->snd_volume = nVolume;
     if (pASound->snd_channel) soundEngine->StopChannel(pASound->snd_channel);
 
-    pASound->snd_channel = soundEngine->StartSound(SOURCE_Swirly, &fakesources[nActiveSound-1], nullptr, CHAN_BODY, 0, kSound67, nVolume / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
+    pASound->snd_channel = soundEngine->StartSound(SOURCE_Swirly, &fakesources[nActiveSound-1], nullptr, CHAN_BODY, 0, StaticSound[kSound67]+1, nVolume / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
 }
 
 //==========================================================================
@@ -463,7 +482,7 @@ void SoundBigEntrance(void)
         short nPitch = i * 512 - 1200;
         pASound->snd_pitch = nPitch;
         if (pASound->snd_channel) soundEngine->StopChannel(pASound->snd_channel);
-        pASound->snd_channel = soundEngine->StartSound(SOURCE_EXBoss, &fakesources[i], nullptr, CHAN_BODY, 0, kSoundTorchOn, 200 / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
+        pASound->snd_channel = soundEngine->StartSound(SOURCE_EXBoss, &fakesources[i], nullptr, CHAN_BODY, 0, StaticSound[kSoundTorchOn]+1, 200 / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
     }
 }
 
@@ -632,7 +651,7 @@ short soundsect;
 
 short PlayFX2(unsigned short nSound, short nSprite)
 {
-    if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId(nSound+1))
+    if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
     {
         initprintf("PlayFX2: Invalid sound nSound == %i, nSprite == %i\n", nSound, nSprite);
         return -1;
@@ -961,11 +980,6 @@ void PlayLogoSound(void)
 void PlayGameOverSound(void)
 {
     PlayLocalSound(StaticSound[kSound28], 0);
-}
-
-int LoadSound(const char* name)
-{
-    return soundEngine->FindSound(name) - 1;
 }
 
 END_PS_NS

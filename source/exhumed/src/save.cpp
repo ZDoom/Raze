@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumed.h"
 #include "mmulti.h"
 #include "savegamehelp.h"
+#include "sound.h"
 
 BEGIN_PS_NS
 
@@ -136,6 +137,22 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     g_visibility = 2048;
     ototalclock = totalclock;
     MenuExitCondition = 6;
+
+    if (levelnum > 15)
+    {
+        nSwitchSound = 35;
+        nStoneSound = 23;
+        nElevSound = 51;
+        nStopSound = 35;
+    }
+    else
+    {
+        nSwitchSound = 33;
+        nStoneSound = 23;
+        nElevSound = 23;
+        nStopSound = 66;
+    }
+
     Mus_ResumeSaved();
     return 1; // CHECKME
 }
