@@ -64,16 +64,19 @@ const char *GetVersionString();
 #define SAVESIG_BLD GAMENAME ".Blood"
 #define SAVESIG_RR GAMENAME ".Redneck"
 #define SAVESIG_SW GAMENAME ".ShadowWarrior"
+#define SAVESIG_PS GAMENAME ".Exhumed"
 
 #define MINSAVEVER_DN3D 1
 #define MINSAVEVER_BLD 1
 #define MINSAVEVER_RR 1
 #define MINSAVEVER_SW 1
+#define MINSAVEVER_PS 1
 
 #define SAVEVER_DN3D 1
 #define SAVEVER_BLD 1
 #define SAVEVER_RR 1
 #define SAVEVER_SW 1
+#define SAVEVER_PS 1
 
 #if defined(__APPLE__) || defined(_WIN32)
 #define GAME_DIR GAMENAME

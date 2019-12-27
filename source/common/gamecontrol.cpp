@@ -265,6 +265,10 @@ namespace ShadowWarrior
 {
 	::GameInterface* CreateInterface();
 }
+namespace Powerslave
+{
+	::GameInterface* CreateInterface();
+}
 
 void CheckFrontend(int flags)
 {
@@ -279,6 +283,10 @@ void CheckFrontend(int flags)
 	else if (flags & GAMEFLAG_SW)
 	{
 		gi = ShadowWarrior::CreateInterface();
+	}
+	else if (flags & GAMEFLAG_PSEXHUMED)
+	{
+		gi = Powerslave::CreateInterface();
 	}
 	else
 	{
@@ -639,12 +647,19 @@ FStringCVar* const CombatMacros[] = { &combatmacro0, &combatmacro1, &combatmacro
 void CONFIG_ReadCombatMacros()
 {
 	FScanner sc;
-	sc.Open("engine/combatmacros.txt");
-	for (auto s : CombatMacros)
+	try
 	{
-		sc.MustGetToken(TK_StringConst);
-		if (strlen(*s) == 0)
-			*s = sc.String;
+		sc.Open("engine/combatmacros.txt");
+		for (auto s : CombatMacros)
+		{
+			sc.MustGetToken(TK_StringConst);
+			if (strlen(*s) == 0)
+				*s = sc.String;
+		}
+	}
+	catch (const std::runtime_error &)
+	{
+		// We do not want this to error out. Just ignore if it fails.
 	}
 }
 

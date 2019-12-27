@@ -1051,7 +1051,7 @@ void C_Ticker()
 
 	lasttic = consoletic;
 	NotifyStrings.Tick();
-	if (GUICapture & 1)
+	if (ConsoleState == c_down)
 	{
 		D_ProcessEvents();
 	}

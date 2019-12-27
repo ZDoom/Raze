@@ -614,7 +614,7 @@ bool LoadLevel(const char *filename)
     {
 		Printf("Level not found: %s", filename);
 		return false;
-	}
+        }
 	currentLevel = &mapList[Level];
 	STAT_NewLevel(currentLevel->labelName);
 	return true;
@@ -768,8 +768,8 @@ bool InitGame()
         while (initmultiplayerscycle())
         {
             handleevents();
+            }
         }
-    }
 #else
 	numplayers = 1; myconnectindex = 0;
 	connecthead = 0; connectpoint2[0] = -1;
@@ -855,7 +855,7 @@ bool InitGame()
 	LoadCustomInfoFromScript("engine/swcustom.txt");	// load the internal definitions. These also apply to the shareware version.
     if (!SW_SHAREWARE)
 	{
-		LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
+        LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
 	}
  
     if (!loaddefinitionsfile(G_DefFile())) buildputs("Definitions file loaded.\n");
@@ -950,10 +950,10 @@ void FindLevelInfo(char *map_name, short *level)
     {
         if (Bstrcasecmp(map_name, mapList[j].fileName.GetChars()) == 0)
         {
-            *level = j;
-            return;
+                *level = j;
+                return;
+            }
         }
-    }
 
     *level = 0;
     return;
@@ -1392,7 +1392,7 @@ void NewLevel(void)
             PlayTheme();
             MenuLevel();
 			STAT_Update(true);
-        }
+    }
     }
     FinishAnim = 0;
 }
@@ -3021,7 +3021,7 @@ void PauseKey(PLAYERp pp)
     {
         if (ReloadPrompt)
         {
-           ReloadPrompt = FALSE;
+                ReloadPrompt = FALSE;
 		   /*
             }
             else
@@ -3087,9 +3087,9 @@ void getinput(SW_PACKET *loc)
 
 		if (cl_autoaim)
 			SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-		else
+			else
 			RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-	}
+			}
 
     ControlInfo info;
     CONTROL_GetInput(&info);
@@ -3395,6 +3395,7 @@ void getinput(SW_PACKET *loc)
         short const which_weapon = u->WeaponNum + 1;
         SET(loc->bits, which_weapon);
     }
+
 
     inv_hotkey = 0;
     if (buttonMap.ButtonDown(gamefunc_Med_Kit))

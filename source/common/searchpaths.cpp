@@ -664,6 +664,8 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 	FlagMap.Insert("GAMEFLAG_RRRA", GAMEFLAG_RRRA);
 	FlagMap.Insert("GAMEFLAG_BLOOD", GAMEFLAG_BLOOD);
 	FlagMap.Insert("GAMEFLAG_SW", GAMEFLAG_SW);
+	FlagMap.Insert("GAMEFLAG_POWERSLAVE", GAMEFLAG_POWERSLAVE);
+	FlagMap.Insert("GAMEFLAG_EXHUMED", GAMEFLAG_EXHUMED);
 
 	FScanner sc;
 	auto mem = fr.Read();
@@ -1123,6 +1125,9 @@ const char* G_DefaultDefFile(void)
 
 	if (g_gameType & GAMEFLAG_SW)
 		return "sw.def";
+
+	if (g_gameType & GAMEFLAG_PSEXHUMED)
+		return "exhumed.def";
 
 	if (g_gameType & GAMEFLAG_NAM)
 		return fileSystem.FindFile("nam.def") ? "nam.def" : "napalm.def";

@@ -32,6 +32,11 @@ CRC
 	SWWD_CRC 0xA9AAA7B7
 	SWTD_CRC 0xA1A65BE8
 
+	POWERSLAVE_CRC 0x303CBD89
+	EXHUMED_CRC 0xE3B172F1
+	POWERSLAVE_DEMO_CRC 0x1D8C7645
+	EXHUMED_DEMO_CRC 0x1A6E27FA
+
 }
 
 
@@ -497,3 +502,36 @@ grpinfo
 }
 
    
+
+grpinfo
+{
+	name "Powerslave"
+	flags GAMEFLAG_POWERSLAVE
+	crc POWERSLAVE_CRC
+	size 27020745
+	defname "exhumed.def"
+	gamefilter "Exhumed.Powerslave"
+}
+
+grpinfo
+{
+	name "Exhumed"
+	flags GAMEFLAG_EXHUMED
+	crc EXHUMED_CRC
+	size 27108170
+	defname "exhumed.def"
+	gamefilter "Exhumed.Exhumed"
+}
+
+grpinfo
+{
+	name "Powerslave Demo"
+	flags GAMEFLAG_POWERSLAVE|GAMEFLAG_SHAREWARE
+	crc POWERSLAVE_DEMO_CRC
+	size 27020745
+	defname "exhumed.def"
+	gamefilter "Exhumed.Powerslave"
+}
+
+
+//  { "Exhumed Demo",    EXHUMED_DEMO_CRC,    16481687, GAMEFLAG_EXHUMED | GAMEFLAG_DEMO,    0 },

@@ -105,7 +105,10 @@ enum
 	GAMEFLAG_RRRA       = 0x00000200,
 	GAMEFLAG_BLOOD      = 0x00000400,
 	GAMEFLAG_SW			= 0x00000800,
-	GAMEFLAG_STANDALONE = 0x00001000,
+	GAMEFLAG_POWERSLAVE	= 0x00001000,
+	GAMEFLAG_EXHUMED	= 0x00002000,
+	GAMEFLAG_PSEXHUMED  = 0x00003000,	// the two games really are the same, except for the name and the publisher.
+	GAMEFLAG_STANDALONE = 0x00004000,
 	GAMEFLAGMASK        = 0x00000FFF, // flags allowed from grpinfo
 
 };

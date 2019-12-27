@@ -354,7 +354,7 @@ static void DoTimedSound(AmbientSound* amb)
     amb->curIndex += synctics;
     if (amb->curIndex >= amb->maxIndex)
     {
-        if (amb->sndChan == nullptr)
+        if (amb->sndChan == nullptr || (amb->sndChan->ChanFlags & CHANF_FORGETTABLE))
         {
             // Check for special case ambient sounds. Since the sound is stopped and doesn't occupy a real channel at this time we can just swap out the sound ID before restarting it.
             int ambid = RandomizeAmbientSpecials(amb->vocIndex);

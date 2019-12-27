@@ -32,8 +32,6 @@ BEGIN_RR_NS
 int32_t CONFIG_ReadSetup( void );
 void CONFIG_GetSetupFilename( void );
 
-void CONFIG_SetDefaults(void);
-
 END_RR_NS
 
 #endif

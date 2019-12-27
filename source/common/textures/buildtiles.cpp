@@ -379,9 +379,10 @@ FTexture* BuildTiles::ValidateCustomTile(int tilenum, int type)
 	else if (type == FTexture::Restorable)
 	{
 		// This is for modifying an existing tile.
-		// It only gets used for the crosshair and two specific effects:
+		// It only gets used for the crosshair and a few specific effects:
 		// A) the fire in Blood.
 		// B) the pin display in Redneck Rampage's bowling lanes.
+		// C) Exhumed's menu plus one special effect tile.
 		// All of these effects should probably be redone without actual texture hacking...
 		if (tile->GetWidth() == 0 || tile->GetHeight() == 0) return nullptr;	// The base must have a size for this to work.
 		// todo: invalidate hardware textures for tile.

@@ -56,12 +56,14 @@ enum GameFunction_t
 	gamefunc_Shrink_Screen,
 	gamefunc_Enlarge_Screen,
 	gamefunc_Center_View,
+	gamefunc_Look_Straight = gamefunc_Center_View,
 	gamefunc_Holster_Weapon,
 	gamefunc_Show_Opponents_Weapon,
 	gamefunc_Map_Follow_Mode,
 	gamefunc_See_Coop_View,
 	gamefunc_See_Co_Op_View = gamefunc_See_Coop_View,
 	gamefunc_Mouse_Aiming,
+	gamefunc_Mouseview = gamefunc_Mouse_Aiming,
 	gamefunc_Toggle_Crosshair,
 	gamefunc_Steroids,
 	gamefunc_Quick_Kick,
@@ -83,8 +85,12 @@ enum GameFunction_t
 	gamefunc_Flash_Bomb,
 	gamefunc_Caltrops,
 
+	gamefunc_Zoom_In,	// Map controls should not pollute the global button namespace.
+	gamefunc_Zoom_Out,
+	
 	NUMGAMEFUNCTIONS
 };
+
 
 
 // Actions

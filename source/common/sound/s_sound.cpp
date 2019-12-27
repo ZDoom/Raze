@@ -63,7 +63,7 @@ int sfx_empty = -1;
 //
 //==========================================================================
 
-void SoundEngine::Init(TArray<uint8_t> &curve)
+void SoundEngine::Init(TArray<uint8_t> &curve, int factor)
 {
 	StopAllChannels();
 	// Free all channels for use.
@@ -72,6 +72,7 @@ void SoundEngine::Init(TArray<uint8_t> &curve)
 		ReturnChannel(Channels);
 	}
 	S_SoundCurve = std::move(curve);
+	SndCurveFactor = (uint8_t)factor;
 }
 
 //==========================================================================
@@ -605,6 +606,7 @@ FSoundChan *SoundEngine::StartSound(int type, const void *source,
 	}
 	if (chan != NULL)
 	{
+		assert(!(chan->ChanFlags & CHANF_FORGETTABLE));
 		chan->SoundID = sound_id;
 		chan->OrgID = FSoundID(org_id);
 		chan->EntChannel = channel;
@@ -1332,7 +1334,7 @@ float SoundEngine::GetRolloff(const FRolloffInfo* rolloff, float distance)
 
 	if (rolloff->RolloffType == ROLLOFF_Custom && S_SoundCurve.Size() > 0)
 	{
-		return S_SoundCurve[int(S_SoundCurve.Size() * (1.f - volume))] / 127.f;
+		return S_SoundCurve[int(S_SoundCurve.Size() * (1.f - volume))] / (float)SndCurveFactor;
 	}
 	return (powf(10.f, volume) - 1.f) / 9.f;
 }
@@ -1347,7 +1349,7 @@ void SoundEngine::ChannelEnded(FISoundChannel *ichan)
 {
 	FSoundChan *schan = static_cast<FSoundChan*>(ichan);
 	bool evicted;
-
+	schan->ChanFlags &= ~CHANF_ENDED;
 	if (schan != NULL)
 	{
 		// If the sound was stopped with GSnd->StopSound(), then we know
@@ -1764,7 +1766,7 @@ FString SoundEngine::NoiseDebug()
 	int ch = 0;
 
 	FStringf out("*** SOUND DEBUG INFO ***\nListener: %3.2f %2.3f %2.3f\n"
-		"x     y     z     vol   dist  chan  pri   flags aud   pos   name\n", listener.X, listener.Y, listener.Z);
+		"x     y     z     vol   dist  chan  pri   flags       aud   pos   name\n", listener.X, listener.Y, listener.Z);
 
 	if (Channels == nullptr)
 	{
@@ -1782,16 +1784,17 @@ FString SoundEngine::NoiseDebug()
 			CalcPosVel(chan, &origin, nullptr);
 			out.AppendFormat(TEXTCOLOR_GOLD "%5.0f | %5.0f | %5.0f | %5.0f ", origin.X, origin.Z, origin.Y, (origin - listener).Length());
 		}
-		out.AppendFormat("%-.2g     %-4d  %-4d  %s3%sZ%sU%sM%sN%sA%sL%sE%sV" TEXTCOLOR_GOLD " %-5.4f %-4u  %d: %s\n", chan->Volume, chan->EntChannel, chan->Priority,
-			(chan->ChanFlags & CHANF_IS3D) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
-			(chan->ChanFlags & CHANF_LISTENERZ) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
-			(chan->ChanFlags & CHANF_UI) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
-			(chan->ChanFlags & CHANF_MAYBE_LOCAL) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
-			(chan->ChanFlags & CHANF_NOPAUSE) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
-			(chan->ChanFlags & CHANF_AREA) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
-			(chan->ChanFlags & CHANF_LOOP) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
-			(chan->ChanFlags & CHANF_EVICTED) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
-			(chan->ChanFlags & CHANF_VIRTUAL) ? TEXTCOLOR_GREEN : TEXTCOLOR_BLACK,
+		out.AppendFormat("%-.2g     %-4d  %-4d  %sF%s3%sZ%sU%sM%sN%sA%sL%sE%sV" TEXTCOLOR_GOLD " %-5.4f %-4u  %d: %s\n", chan->Volume, chan->EntChannel, chan->Priority,
+			(chan->ChanFlags & CHANF_FORGETTABLE) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
+			(chan->ChanFlags & CHANF_IS3D) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
+			(chan->ChanFlags & CHANF_LISTENERZ) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
+			(chan->ChanFlags & CHANF_UI) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
+			(chan->ChanFlags & CHANF_MAYBE_LOCAL) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
+			(chan->ChanFlags & CHANF_NOPAUSE) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
+			(chan->ChanFlags & CHANF_AREA) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
+			(chan->ChanFlags & CHANF_LOOP) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
+			(chan->ChanFlags & CHANF_EVICTED) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
+			(chan->ChanFlags & CHANF_VIRTUAL) ? TEXTCOLOR_GREEN : TEXTCOLOR_DARKRED,
 			GSnd->GetAudibility(chan), GSnd->GetPosition(chan), ((int)chan->OrgID)-1, S_sfx[chan->SoundID].name.GetChars());
 		ch++;
 	}

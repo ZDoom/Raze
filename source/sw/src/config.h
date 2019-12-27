@@ -66,7 +66,6 @@ extern char  UserPath[MAXUSERLEVELPATHLENGTH];
 
 #endif
 // controller externs
-extern int32_t UseMouse, UseJoystick;
 
 extern int32_t EnableRudder;
 

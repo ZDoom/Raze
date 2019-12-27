@@ -118,6 +118,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	}
 	F2DVertexBuffer vb;
 	vb.UploadData(&vertices[0], vertices.Size(), &indices[0], indices.Size());
+	assert(vb.GetBufferObjects().first && vb.GetBufferObjects().second);
 	SetVertexBuffer(vb.GetBufferObjects().first, 0, 0);
 	SetIndexBuffer(vb.GetBufferObjects().second);
 	SetFadeDisable(true);
@@ -210,8 +211,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	//state.SetScissor(-1, -1, -1, -1);
 
 	//state.SetRenderStyle(STYLE_Translucent);
-	SetVertexBuffer(nullptr, 0, 0);
-	SetIndexBuffer(nullptr);
+	ClearBufferState();
 	UseColorOnly(false);
 	//state.EnableBrightmap(true);
 	//state.SetTextureMode(TM_NORMAL);

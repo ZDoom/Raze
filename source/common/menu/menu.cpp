@@ -59,6 +59,7 @@ void RegisterDukeMenus();
 void RegisterRedneckMenus();
 void RegisterBloodMenus();
 void RegisterSWMenus();
+void RegisterPSMenus();
 void RegisterLoadsaveMenus();
 void RegisterOptionMenus();
 void RegisterJoystickMenus();
@@ -387,8 +388,6 @@ void M_StartControlPanel (bool makeSound)
 	BackbuttonTime = 0;
 	BackbuttonAlpha = 0;
 	DrawBackground = -1;
-	DMenu::MenuTime = -1;	
-	M_Ticker();	// This needs to be called once here to make sure that the menu actually has ticked before it gets drawn for the first time.
 }
 
 void Menu_Open(int playerid)
@@ -412,6 +411,8 @@ void M_ActivateMenu(DMenu *menu)
 		transition.StartTransition(DMenu::CurrentMenu, menu, MA_Advance);
 	}
 	DMenu::CurrentMenu = menu;
+	DMenu::MenuTime = -1;
+	M_Ticker();	// This needs to be called once here to make sure that the menu actually has ticked before it gets drawn for the first time.
 }
 
 //=============================================================================
@@ -428,7 +429,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	GameStartupInfo.Episode = GameStartupInfo.Skill = 0;
 	menu = NAME_StartGame;
 #endif
-	if (DrawBackground == -1)
+		if (DrawBackground == -1)
 	{
 		if (menu == NAME_MainMenu) DrawBackground = 1;
 		else DrawBackground = 0;
@@ -473,6 +474,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	{
 	case NAME_StartGame:
 		M_ClearMenus();	// must be done before starting the level.
+		if (caller == NAME_MainMenu) GameStartupInfo.Episode = param;
 		STAT_StartNewGame(gVolumeNames[GameStartupInfo.Episode], GameStartupInfo.Skill);
 		gi->StartGame(GameStartupInfo);
 		return false;
@@ -837,7 +839,7 @@ void M_Ticker (void)
 	if (DMenu::MenuTime & 3) return;
 	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
-		D_ProcessEvents();	// The main loop is blocked when the menu is open and cannot dispatch the events.
+		if (DMenu::MenuTime != 0) D_ProcessEvents();	// The main loop is blocked when the menu is open and cannot dispatch the events.
 		if (transition.previous) transition.previous->Ticker();
 		if (DMenu::CurrentMenu == nullptr) return; // In case one of the sub-screens has closed the menu.
 		DMenu::CurrentMenu->Ticker();
@@ -894,6 +896,7 @@ void M_Drawer (void)
 		}
 		if (!going)
 		{
+			assert(DMenu::CurrentMenu);
 			DMenu::CurrentMenu->origin = { 0,0 };
 			// else if (DrawBackground) Menu_DrawBackground(origin);
 			DMenu::CurrentMenu->Drawer();
@@ -925,8 +928,8 @@ void M_ClearMenus (bool final)
 	menuactive = MENU_Off;
 	if (!final)
 	{
-		mouseGrabInput(true);
-		gi->MenuClosed();
+	mouseGrabInput(true);
+	gi->MenuClosed();
 	}
 }
 
@@ -979,6 +982,7 @@ void M_Init (void)
 	RegisterRedneckMenus();
 	RegisterBloodMenus();
 	RegisterSWMenus();
+	RegisterPSMenus();
 	RegisterLoadsaveMenus();
 	RegisterOptionMenus();
 	RegisterJoystickMenus();
