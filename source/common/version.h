@@ -61,9 +61,9 @@ const char *GetVersionString();
 #define ENGINERES_FILE GAMENAMELOWERCASE ".pk3"
 
 #define SAVESIG_DN3D GAMENAME ".Duke"
-#define SAVESIG_BLD GAMENAME "Blood"
-#define SAVESIG_RR GAMENAME "Redneck"
-#define SAVESIG_SW GAMENAME "SW"
+#define SAVESIG_BLD GAMENAME ".Blood"
+#define SAVESIG_RR GAMENAME ".Redneck"
+#define SAVESIG_SW GAMENAME ".ShadowWarrior"
 #define SAVESIG_PS GAMENAME ".Exhumed"
 
 #define MINSAVEVER_DN3D 1
