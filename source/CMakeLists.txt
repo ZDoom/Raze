@@ -526,7 +526,7 @@ elseif( APPLE )
 
 	set( SYSTEM_SOURCES ${SYSTEM_SOURCES} ${PLAT_POSIX_SOURCES} ${PLAT_OSX_SOURCES} )
 
-	##set_source_files_properties( posix/osx/demolition.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
+	##set_source_files_properties( posix/osx/${PROJECT_NAME}.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
 	##set_source_files_properties( posix/osx/iwadpicker_cocoa.mm PROPERTIES COMPILE_FLAGS -fobjc-exceptions )
 else()
 	#set( SYSTEM_SOURCES_DIR posix posix/sdl )
@@ -829,7 +829,7 @@ else()
 	set_source_files_properties( ${PCH_SOURCES} PROPERTIES COMPILE_FLAGS "-include g_pch.h" )
 endif()
 
-add_executable( demolition WIN32 MACOSX_BUNDLE
+add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 	${HEADER_FILES}
 	${NOT_COMPILED_SOURCE_FILES}
 	#__autostart.cpp
@@ -859,7 +859,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( demolition ${PROJECT_LIBRARIES} gdtoa lzma duke3d blood rr sw zmusic )
+target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} gdtoa lzma duke3d blood rr sw zmusic )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -893,23 +893,23 @@ include_directories(
 	#${SYSTEM_SOURCES_DIR} 
 )
 
-add_dependencies( demolition revision_check )
+add_dependencies( ${PROJECT_NAME} revision_check )
 
 # Due to some quirks, we need to do this in this order
 if( NOT COMPILE_OUTPUT_OLDSTYLE )
 	# RUNTIME_OUTPUT_DIRECTORY does not exist in CMake 2.4.
 	# Linux distributions are slow to adopt 2.6. :(
-	set_target_properties( demolition PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${COMPILE_OUTPUT_DIECTRORY} )
-	set_target_properties( demolition PROPERTIES OUTPUT_NAME ${EXECUTABLE_NAME} )
+	set_target_properties( ${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${COMPILE_OUTPUT_DIECTRORY} )
+	set_target_properties( ${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME} )
 else()
-	set_target_properties( demolition PROPERTIES
-		RUNTIME_OUTPUT_NAME ${EXECUTABLE_NAME}
+	set_target_properties( ${PROJECT_NAME} PROPERTIES
+		RUNTIME_OUTPUT_NAME ${PROJECT_NAME}
 		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${COMPILE_OUTPUT_DIECTRORY}
-		RUNTIME_OUTPUT_NAME_DEBUG ${EXECUTABLE_NAME}d
+		RUNTIME_OUTPUT_NAME_DEBUG ${PROJECT_NAME}d
 		RUNTIME_OUTPUT_DIRECTORY_DEBUG ${COMPILE_OUTPUT_DIECTRORY}
-		RUNTIME_OUTPUT_NAME_MINSIZEREL ${EXECUTABLE_NAME}msr
+		RUNTIME_OUTPUT_NAME_MINSIZEREL ${PROJECT_NAME}msr
 		RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${COMPILE_OUTPUT_DIECTRORY}
-		RUNTIME_OUTPUT_NAME_RELWITHDEBINFO ${EXECUTABLE_NAME}rd
+		RUNTIME_OUTPUT_NAME_RELWITHDEBINFO ${PROJECT_NAME}rd
 		RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${COMPILE_OUTPUT_DIECTRORY}
 	)
 endif()
@@ -921,29 +921,29 @@ if( MSVC )
 	if( COMPILE_GENERATE_MAPFILE )
 		set( LINKERSTUFF "${LINKERSTUFF} /MAP" )
 	endif()
-	set_target_properties(demolition PROPERTIES LINK_FLAGS ${LINKERSTUFF})
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS ${LINKERSTUFF})
 
-	add_custom_command(TARGET demolition POST_BUILD
-		COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\platform\\win32\\manifest.game.xml\" -outputresource:\"$<TARGET_FILE:demolition>\"\;\#1
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\platform\\win32\\manifest.game.xml\" -outputresource:\"$<TARGET_FILE:${PROJECT_NAME}>\"\;\#1
 		COMMENT "Adding manifest..."
 	)
 
 endif()
 
 if( NOT WIN32 AND NOT APPLE )
-	FILE( WRITE ${CMAKE_CURRENT_BINARY_DIR}/link-make "if [ ! -e ${COMPILE_OUTPUT_DIECTRORY}/${EXECUTABLE_NAME} ]; then ln -sf ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME} ${COMPILE_OUTPUT_DIECTRORY}/${EXECUTABLE_NAME}; fi" )
-	add_custom_command( TARGET demolition POST_BUILD
+	FILE( WRITE ${CMAKE_CURRENT_BINARY_DIR}/link-make "if [ ! -e ${COMPILE_OUTPUT_DIECTRORY}/${PROJECT_NAME} ]; then ln -sf ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME} ${COMPILE_OUTPUT_DIECTRORY}/${PROJECT_NAME}; fi" )
+	add_custom_command( TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/link-make
 		COMMAND /bin/sh -c ${CMAKE_CURRENT_BINARY_DIR}/link-make )
 endif()
 
-#add_custom_command(TARGET demolition POST_BUILD
+#add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 #	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#	${CMAKE_SOURCE_DIR}/soundfont/demolition.sf2 $<TARGET_FILE_DIR:demolition>/soundfonts/demolition.sf2
+#	${CMAKE_SOURCE_DIR}/soundfont/${PROJECT_NAME}.sf2 $<TARGET_FILE_DIR:${PROJECT_NAME}>/soundfonts/${PROJECT_NAME}.sf2
 #	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#	${CMAKE_SOURCE_DIR}/fm_banks/GENMIDI.GS.wopl $<TARGET_FILE_DIR:demolition>/fm_banks/GENMIDI.GS.wopl
+#	${CMAKE_SOURCE_DIR}/fm_banks/GENMIDI.GS.wopl $<TARGET_FILE_DIR:${PROJECT_NAME}>/fm_banks/GENMIDI.GS.wopl
 #	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#	${CMAKE_SOURCE_DIR}/fm_banks/gs-by-papiezak-and-sneakernets.wopn $<TARGET_FILE_DIR:demolition>/fm_banks/gs-by-papiezak-and-sneakernets.wopn
+#	${CMAKE_SOURCE_DIR}/fm_banks/gs-by-papiezak-and-sneakernets.wopn $<TARGET_FILE_DIR:${PROJECT_NAME}>/fm_banks/gs-by-papiezak-and-sneakernets.wopn
 #)
 
 if( CMAKE_COMPILER_IS_GNUCXX )
@@ -958,9 +958,9 @@ if( APPLE )
 		set( LINK_FRAMEWORKS "${LINK_FRAMEWORKS} -framework QuartzCore" )
 	endif()
 
-	set_target_properties(demolition PROPERTIES
+	set_target_properties(${PROJECT_NAME} PROPERTIES
 		LINK_FLAGS "${LINK_FRAMEWORKS}"
-		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/posix/osx/demolition-info.plist" )
+		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/posix/osx/${PROJECT_NAME}-info.plist" )
 
 	# Dymanic libraries like libvulkan.dylib or libMoltenVK.dylib will be loaded by dlopen()
 	# if placed in the directory with the main executable
@@ -972,7 +972,7 @@ if( WIN32 )
 else()
 	set( INSTALL_PATH bin CACHE STRING "Directory where the executable will be placed during install." )
 endif()
-install(TARGETS demolition
+install(TARGETS ${PROJECT_NAME}
 		DESTINATION ${INSTALL_PATH}
 		COMPONENT "Game executable")
 

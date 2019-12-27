@@ -1,5 +1,6 @@
 cmake_minimum_required( VERSION 3.1.0 )
 project(Demolition)
+set ( PROJECT_NAME "demolition")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -79,7 +80,7 @@ function( add_pk3 PK3_NAME PK3_DIR )
 	if( NOT COMPILE_OUTPUT_OLDSTYLE )
 		add_custom_command( OUTPUT ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME}
 			COMMAND zipdir -udf ${PK3_ZIPDIR_OPTIONS} ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME} ${PK3_DIR}
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME} $<TARGET_FILE_DIR:demolition>/${PK3_NAME}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME} $<TARGET_FILE_DIR:${PROJECT_NAME}>/${PK3_NAME}
 			DEPENDS zipdir )
 	else()
 		add_custom_command( OUTPUT ${COMPILE_OUTPUT_DIECTRORY}/${PK3_NAME}
@@ -141,7 +142,7 @@ IF( NOT CMAKE_BUILD_TYPE )
 ENDIF()
 
 set( COMPILE_OUTPUT_DIECTRORY ${CMAKE_BINARY_DIR} CACHE PATH "Directory where engine data and the executable will be created." )
-set( COMPILE_EXE_NAME "demolition" CACHE FILEPATH "Name of the executable to create" )
+set( COMPILE_EXE_NAME ${PROJECT_NAME} CACHE FILEPATH "Name of the executable to create" )
 if( MSVC )
 	# Allow the user to use COMPILE_OUTPUT_DIECTRORY as a single release point.
 	# Use different names for the various compile targets.
