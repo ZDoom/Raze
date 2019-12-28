@@ -9994,9 +9994,6 @@ void videoNextPage(void)
 
 		// Draw the console plus debug output on top of everything else.
 		DrawFullscreenBlends();
-		GLInterface.Draw2D(&twod);
-
-
 		videoShowFrame(0);
 
 		videoBeginDrawing(); //{{{
@@ -11417,13 +11414,11 @@ void videoClearScreen(int32_t dacol)
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        palette_t const p = paletteGetColor(dacol);
+        glox1 = -1;
 
-		GLInterface.SetViewport(0,0,xdim,ydim); glox1 = -1;
-        GLInterface.ClearScreen((float)p.r * (1.f/255.f),
-                      (float)p.g * (1.f/255.f),
-                      (float)p.b * (1.f/255.f),
-                      false);
+        palette_t const p = paletteGetColor(dacol);
+        PalEntry clearcol = PalEntry(255, p.r, p.g, p.b);
+        GLInterface.ClearScreen(clearcol);
         return;
     }
 #endif
@@ -12007,10 +12002,5 @@ void renderSetRollAngle(int32_t rolla)
     gtang = (float)rolla * (fPI * (1.f/1024.f));
 }
 #endif
-
-void videoShowFrame(int32_t w)
-{
-    screen->Update();
-}
 
 

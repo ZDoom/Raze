@@ -265,31 +265,31 @@ FString RemoveLayoutLocationDecl(FString code, const char *inoutkeyword)
 // Note: the MaterialShaderIndex enum in gl_shader.h needs to be updated whenever this array is modified.
 const FDefaultShader defaultshaders[] =
 {
-	{"Default",	"shaders/glsl/func_normal.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Warp 1",	"shaders/glsl/func_warp1.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Warp 2",	"shaders/glsl/func_warp2.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Brightmap","shaders/glsl/func_brightmap.fp", "shaders/glsl/material_normal.fp", "#define BRIGHTMAP\n"},
-	{"Specular", "shaders/glsl/func_spec.fp", "shaders/glsl/material_specular.fp", "#define SPECULAR\n#define NORMALMAP\n"},
-	{"SpecularBrightmap", "shaders/glsl/func_spec.fp", "shaders/glsl/material_specular.fp", "#define SPECULAR\n#define NORMALMAP\n#define BRIGHTMAP\n"},
-	{"PBR","shaders/glsl/func_pbr.fp", "shaders/glsl/material_pbr.fp", "#define PBR\n#define NORMALMAP\n"},
-	{"PBRBrightmap","shaders/glsl/func_pbr.fp", "shaders/glsl/material_pbr.fp", "#define PBR\n#define NORMALMAP\n#define BRIGHTMAP\n"},
-	{"Paletted",	"shaders/glsl/func_paletted.fp", "shaders/glsl/material_nolight.fp", ""},
-	{"No Texture", "shaders/glsl/func_notexture.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Basic Fuzz", "shaders/glsl/fuzz_standard.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Smooth Fuzz", "shaders/glsl/fuzz_smooth.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Swirly Fuzz", "shaders/glsl/fuzz_swirly.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Translucent Fuzz", "shaders/glsl/fuzz_smoothtranslucent.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Jagged Fuzz", "shaders/glsl/fuzz_jagged.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Noise Fuzz", "shaders/glsl/fuzz_noise.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Smooth Noise Fuzz", "shaders/glsl/fuzz_smoothnoise.fp", "shaders/glsl/material_normal.fp", ""},
-	{"Software Fuzz", "shaders/glsl/fuzz_software.fp", "shaders/glsl/material_normal.fp", ""},
+	{"Default",	"engine/shaders/pp/func_normal.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Warp 1",	"engine/shaders/pp/func_warp1.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Warp 2",	"engine/shaders/pp/func_warp2.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Brightmap","engine/shaders/pp/func_brightmap.fp", "engine/shaders/pp/material_normal.fp", "#define BRIGHTMAP\n"},
+	{"Specular", "engine/shaders/pp/func_spec.fp", "engine/shaders/pp/material_specular.fp", "#define SPECULAR\n#define NORMALMAP\n"},
+	{"SpecularBrightmap", "engine/shaders/pp/func_spec.fp", "engine/shaders/pp/material_specular.fp", "#define SPECULAR\n#define NORMALMAP\n#define BRIGHTMAP\n"},
+	{"PBR","engine/shaders/pp/func_pbr.fp", "engine/shaders/pp/material_pbr.fp", "#define PBR\n#define NORMALMAP\n"},
+	{"PBRBrightmap","engine/shaders/pp/func_pbr.fp", "engine/shaders/pp/material_pbr.fp", "#define PBR\n#define NORMALMAP\n#define BRIGHTMAP\n"},
+	{"Paletted",	"engine/shaders/pp/func_paletted.fp", "engine/shaders/pp/material_nolight.fp", ""},
+	{"No Texture", "engine/shaders/pp/func_notexture.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Basic Fuzz", "engine/shaders/pp/fuzz_standard.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Smooth Fuzz", "engine/shaders/pp/fuzz_smooth.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Swirly Fuzz", "engine/shaders/pp/fuzz_swirly.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Translucent Fuzz", "engine/shaders/pp/fuzz_smoothtranslucent.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Jagged Fuzz", "engine/shaders/pp/fuzz_jagged.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Noise Fuzz", "engine/shaders/pp/fuzz_noise.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Smooth Noise Fuzz", "engine/shaders/pp/fuzz_smoothnoise.fp", "engine/shaders/pp/material_normal.fp", ""},
+	{"Software Fuzz", "engine/shaders/pp/fuzz_software.fp", "engine/shaders/pp/material_normal.fp", ""},
 	{nullptr,nullptr,nullptr,nullptr}
 };
 
 const FEffectShader effectshaders[] =
 {
-	{ "fogboundary", "shaders/glsl/main.vp", "shaders/glsl/fogboundary.fp", nullptr, nullptr, "#define NO_ALPHATEST\n" },
-	{ "spheremap", "shaders/glsl/main.vp", "shaders/glsl/main.fp", "shaders/glsl/func_normal.fp", "shaders/glsl/material_normal.fp", "#define SPHEREMAP\n#define NO_ALPHATEST\n" },
-	{ "burn", "shaders/glsl/main.vp", "shaders/glsl/burn.fp", nullptr, nullptr, "#define SIMPLE\n#define NO_ALPHATEST\n" },
-	{ "stencil", "shaders/glsl/main.vp", "shaders/glsl/stencil.fp", nullptr, nullptr, "#define SIMPLE\n#define NO_ALPHATEST\n" },
+	{ "fogboundary", "engine/shaders/pp/main.vp", "engine/shaders/pp/fogboundary.fp", nullptr, nullptr, "#define NO_ALPHATEST\n" },
+	{ "spheremap", "engine/shaders/pp/main.vp", "engine/shaders/pp/main.fp", "engine/shaders/pp/func_normal.fp", "engine/shaders/pp/material_normal.fp", "#define SPHEREMAP\n#define NO_ALPHATEST\n" },
+	{ "burn", "engine/shaders/pp/main.vp", "engine/shaders/pp/burn.fp", nullptr, nullptr, "#define SIMPLE\n#define NO_ALPHATEST\n" },
+	{ "stencil", "engine/shaders/pp/main.vp", "engine/shaders/pp/stencil.fp", nullptr, nullptr, "#define SIMPLE\n#define NO_ALPHATEST\n" },
 };

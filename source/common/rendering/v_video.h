@@ -331,6 +331,7 @@ public:
 	// Report a game restart
 	virtual int Backend() { return 0; }
 	virtual const char* DeviceName() const { return "Unknown"; }
+	virtual void Draw2D() {}
 
 	// Screen wiping
 	virtual FTexture *WipeStartScreen();

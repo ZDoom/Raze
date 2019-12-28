@@ -306,7 +306,7 @@ void FPresentShaderBase::Init(const char * vtx_shader_name, const char * program
 	FString prolog = Uniforms.CreateDeclaration("Uniforms", PresentUniforms::Desc());
 
 	mShader.reset(new FShaderProgram());
-	mShader->Compile(FShaderProgram::Vertex, "shaders/glsl/screenquad.vp", prolog, 330);
+	mShader->Compile(FShaderProgram::Vertex, "engine/shaders/pp/screenquad.vp", prolog, 330);
 	mShader->Compile(FShaderProgram::Fragment, vtx_shader_name, prolog, 330);
 	mShader->Link(program_name);
 	mShader->SetUniformBufferLocation(Uniforms.BindingPoint(), "Uniforms");
@@ -317,7 +317,7 @@ void FPresentShader::Bind()
 {
 	if (!mShader)
 	{
-		Init("shaders/glsl/present.fp", "shaders/glsl/present");
+		Init("engine/shaders/pp/present.fp", "engine/shaders/pp/present");
 	}
 	mShader->Bind();
 }
@@ -328,7 +328,7 @@ void FPresent3DCheckerShader::Bind()
 {
 	if (!mShader)
 	{
-		Init("shaders/glsl/present_checker3d.fp", "shaders/glsl/presentChecker3d");
+		Init("engine/shaders/pp/present_checker3d.fp", "engine/shaders/pp/presentChecker3d");
 	}
 	mShader->Bind();
 }
@@ -337,7 +337,7 @@ void FPresent3DColumnShader::Bind()
 {
 	if (!mShader)
 	{
-		Init("shaders/glsl/present_column3d.fp", "shaders/glsl/presentColumn3d");
+		Init("engine/shaders/pp/present_column3d.fp", "engine/shaders/pp/presentColumn3d");
 	}
 	mShader->Bind();
 }
@@ -346,7 +346,7 @@ void FPresent3DRowShader::Bind()
 {
 	if (!mShader)
 	{
-		Init("shaders/glsl/present_row3d.fp", "shaders/glsl/presentRow3d");
+		Init("engine/shaders/pp/present_row3d.fp", "engine/shaders/pp/presentRow3d");
 	}
 	mShader->Bind();
 }

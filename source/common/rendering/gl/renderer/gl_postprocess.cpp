@@ -79,7 +79,7 @@ void FGLRenderer::PostProcessScene(int fixedcm, const std::function<void()> &aft
 
 	hw_postprocess.Pass1(&renderstate, fixedcm, sceneWidth, sceneHeight);
 	mBuffers->BindCurrentFB();
-	afterBloomDrawEndScene2D();
+	if (afterBloomDrawEndScene2D) afterBloomDrawEndScene2D();
 	hw_postprocess.Pass2(&renderstate, fixedcm, sceneWidth, sceneHeight);
 }
 
@@ -132,8 +132,7 @@ void FGLRenderer::Flush()
 
 void FGLRenderer::CopyToBackbuffer(const IntRect *bounds, bool applyGamma)
 {
-	//screen->Draw2D();	// draw all pending 2D stuff before copying the buffer
-	//screen->Clear2D();
+	screen->Draw2D();	// draw all pending 2D stuff before copying the buffer
 
 	GLPPRenderState renderstate(mBuffers);
 

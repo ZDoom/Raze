@@ -300,6 +300,7 @@ public:
 	void SetPalette(int palette);
 	bool ApplyTextureProps(FTexture *tex, int pal);
 	void RestoreTextureProps();
+	void ClearScreen(PalEntry color);
 
 	void ReadPixels(int w, int h, uint8_t* buffer);
 

@@ -66,15 +66,10 @@ PFNWGLSWAPINTERVALEXTPROC myWglSwapIntervalExtProc;
 // 
 //
 //==========================================================================
-#ifndef OFFSCREEN
-#define MS 4
-#else
-#define MS 0
-#endif
 
 SystemGLFrameBuffer::SystemGLFrameBuffer(void *hMonitor, bool fullscreen) : SystemBaseFrameBuffer(hMonitor, fullscreen)
 {
-	if (!static_cast<Win32GLVideo *>(Video)->InitHardware(Window, MS))
+	if (!static_cast<Win32GLVideo *>(Video)->InitHardware(Window, 0))
 	{
 		I_FatalError("Unable to initialize OpenGL");
 		return;

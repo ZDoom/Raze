@@ -31,12 +31,13 @@
 #include "m_png.h"
 #include "printf.h"
 #include "templates.h"
+#include "glbackend/glbackend.h"
 
 #include "gl_load/gl_interface.h"
 #include "gl/system/gl_framebuffer.h"
-/*
 #include "gl/renderer/gl_renderer.h"
 #include "gl/renderer/gl_renderbuffers.h"
+/*
 #include "gl/textures/gl_samplers.h"
 #include "hwrenderer/utility/hw_clock.h"
 #include "hwrenderer/utility/hw_vrmodes.h"
@@ -65,9 +66,7 @@ extern bool vid_hdr_active;
 
 namespace OpenGLRenderer
 {
-#ifdef IMPLEMENT_IT
 	FGLRenderer *GLRenderer;
-#endif
 
 //==========================================================================
 //
@@ -86,28 +85,28 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(void *hMonitor, bool fullscreen) :
 	// Make sure all global variables tracking OpenGL context state are reset..
 	FHardwareTexture::InitGlobalState();
 	gl_RenderState.Reset();
+#endif
 
 	GLRenderer = nullptr;
-#endif
 }
 
 OpenGLFrameBuffer::~OpenGLFrameBuffer()
 {
-#ifdef IMPLEMENT_IT
 	PPResource::ResetAll();
 
+#ifdef IMPLEMENT_IT
 	if (mVertexData != nullptr) delete mVertexData;
 	if (mSkyData != nullptr) delete mSkyData;
 	if (mViewpoints != nullptr) delete mViewpoints;
 	if (mLights != nullptr) delete mLights;
 	mShadowMap.Reset();
+#endif
 
 	if (GLRenderer)
 	{
 		delete GLRenderer;
 		GLRenderer = nullptr;
 	}
-#endif
 }
 
 //==========================================================================
@@ -166,10 +165,10 @@ void OpenGLFrameBuffer::InitializeState()
 	mSkyData = new FSkyVertexBuffer;
 	mViewpoints = new HWViewpointBuffer;
 	mLights = new FLightBuffer();
-
+#endif
 	GLRenderer = new FGLRenderer(this);
 	GLRenderer->Initialize(GetWidth(), GetHeight());
-
+#ifdef IMPLEMENT_IT
 	static_cast<GLDataBuffer*>(mLights->GetBuffer())->BindBase();
 #endif
 
@@ -185,14 +184,14 @@ void OpenGLFrameBuffer::InitializeState()
 
 void OpenGLFrameBuffer::Update()
 {
-#ifdef IMPLEMENT_IT
+#if 0
 	twoD.Reset();
 	Flush3D.Reset();
 
 	Flush3D.Clock();
-	GLRenderer->Flush();
-	Flush3D.Unclock();
 #endif
+	GLRenderer->Flush();
+//	Flush3D.Unclock();
 
 	Swap();
 	Super::Update();
@@ -305,34 +304,32 @@ IIndexBuffer *OpenGLFrameBuffer::CreateIndexBuffer()
 { 
 	return new GLIndexBuffer; 
 }
+#endif
 
 IDataBuffer *OpenGLFrameBuffer::CreateDataBuffer(int bindingpoint, bool ssbo, bool needsresize)
 {
 	return new GLDataBuffer(bindingpoint, ssbo);
 }
 
+#ifdef IMPLEMENT_IT
 void OpenGLFrameBuffer::TextureFilterChanged()
 {
 	if (GLRenderer != NULL && GLRenderer->mSamplerManager != NULL) GLRenderer->mSamplerManager->SetTextureFilterMode();
 }
+#endif
 
 void OpenGLFrameBuffer::BlurScene(float amount)
 {
 	GLRenderer->BlurScene(amount);
 }
 
-void OpenGLFrameBuffer::SetViewportRects(IntRect *bounds)
+#if 0
+void OpenGLFrameBuffer::UpdatePalette()
 {
-	Super::SetViewportRects(bounds);
-	if (!bounds)
-	{
-		auto vrmode = VRMode::GetVRMode(true);
-		vrmode->AdjustViewport(this);
-	}
+	if (GLRenderer)
+		GLRenderer->ClearTonemapPalette();
 }
-
 #endif
-
 
 //===========================================================================
 //
@@ -343,6 +340,8 @@ void OpenGLFrameBuffer::SetViewportRects(IntRect *bounds)
 void OpenGLFrameBuffer::BeginFrame()
 {
 	SetViewportRects(nullptr);
+	if (GLRenderer != nullptr)
+		GLRenderer->BeginFrame();
 }
 
 //===========================================================================
@@ -401,9 +400,18 @@ TArray<uint8_t> OpenGLFrameBuffer::GetScreenshotBuffer(int &pitch, ESSType &colo
 //
 //===========================================================================
 
+void OpenGLFrameBuffer::Draw2D()
+{
+	if (GLRenderer != nullptr)
+	{
+		GLRenderer->mBuffers->BindCurrentFB();
+		GLInterface.Draw2D(&twod);
+	}
+}
+
 void OpenGLFrameBuffer::PostProcessScene(int fixedcm, const std::function<void()> &afterBloomDrawEndScene2D)
 {
-	//GLRenderer->PostProcessScene(fixedcm, afterBloomDrawEndScene2D);
+	GLRenderer->PostProcessScene(fixedcm, afterBloomDrawEndScene2D);
 }
 
 

@@ -23,6 +23,7 @@ public:
 
 	void InitializeState() override;
 	void Update() override;
+	void Draw2D() override;
 
 	void CleanForRestart() override;
 	const char* DeviceName() const override;
@@ -34,13 +35,13 @@ public:
 	void TextureFilterChanged() override;
 #endif
 	void BeginFrame() override;
-#ifdef IMPLEMENT_IT
-	void SetViewportRects(IntRect *bounds) override;
+	//void SetViewportRects(IntRect *bounds) override;
 	void BlurScene(float amount) override;
+#ifdef IMPLEMENT_IT
 	IVertexBuffer *CreateVertexBuffer() override;
 	IIndexBuffer *CreateIndexBuffer() override;
-	IDataBuffer *CreateDataBuffer(int bindingpoint, bool ssbo, bool needsresize) override;
 #endif
+	IDataBuffer *CreateDataBuffer(int bindingpoint, bool ssbo, bool needsresize) override;
 
 	// Retrieves a buffer containing image data for a screenshot.
 	// Hint: Pitch can be negative for upside-down images, in which case buffer

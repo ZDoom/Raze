@@ -45,8 +45,11 @@
 #include "imgui_impl_opengl3.h"
 #include "baselayer.h"
 #include "gl_interface.h"
+#include "v_2ddrawer.h"
+#include "v_video.h"
+#include "gl_renderer.h"
 
-extern int ydim;
+extern int xdim, ydim;
 
 FileReader GetResource(const char* fn)
 {
@@ -149,16 +152,10 @@ void GLInstance::LoadSurfaceShader()
 void GLInstance::InitGLState(int fogmode, int multisample)
 {
 	glShadeModel(GL_SMOOTH);  // GL_FLAT
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glDisable(GL_DITHER);
 	glEnable(GL_TEXTURE_2D);
-    glHint(GL_FOG_HINT, GL_NICEST);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glEnable(GL_DEPTH_CLAMP);
 
     if (multisample > 0 )
     {
@@ -166,7 +163,24 @@ void GLInstance::InitGLState(int fogmode, int multisample)
         glEnable(GL_MULTISAMPLE);
     }
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+
+	// This is a bad place to call this but without deconstructing the entire render loops in all front ends there is no way to have a well defined spot for this stuff.
+	// Before doing that the backend needs to work in some fashion, so we have to make sure everything is set up when the first render call is performed.
+	screen->BeginFrame();	
+	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
 }
+
+void videoShowFrame(int32_t w)
+{
+	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
+	screen->PostProcessScene(0, nullptr);	// at the moment this won't work because there's no guarantee that this is a clean buffer what we get here.
+	screen->Update();
+	// After finishing the frame, reset everything for the next frame. This needs to be done better.
+	screen->BeginFrame();
+	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
+}
+
+
 
 void GLInstance::Deinit()
 {
@@ -502,6 +516,22 @@ void GLInstance::DrawImGui(ImDrawData* data)
 #endif
 }
 
+void GLInstance::ClearScreen(PalEntry color)
+{
+	twod.Clear(); // Since we clear the entire screen, all previous draw operations become redundant, so delete them.
+#if 1
+
+	SetViewport(0, 0, xdim, ydim);
+	ClearScreen((float)color.r * (1.f / 255.f),
+		(float)color.g * (1.f / 255.f),
+		(float)color.b * (1.f / 255.f),
+		false);
+#else
+		// This must be synchronized with the rest of the 2D operations.
+	twod.AddColorOnlyQuad(0, 0, xdim, ydim, );
+#endif
+
+}
 
 
 void PolymostRenderState::Apply(PolymostShader* shader)

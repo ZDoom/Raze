@@ -62,7 +62,6 @@ void DoWriteSavePic(FileWriter *file, ESSType ssformat, uint8_t *scr, int width,
 namespace OpenGLRenderer
 {
 
-	FGLRenderer* GLRenderer;
 //===========================================================================
 // 
 // Renderer interface

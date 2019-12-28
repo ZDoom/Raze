@@ -372,8 +372,8 @@ void PPFXAA::CreateShaders()
 	if (LastQuality == gl_fxaa)
 		return;
 
-	FXAALuma = { "shaders/glsl/fxaa.fp", "#define FXAA_LUMA_PASS\n", {} };
-	FXAA = { "shaders/glsl/fxaa.fp", GetDefines(), FXAAUniforms::Desc(), GetMaxVersion() };
+	FXAALuma = { "engine/shaders/pp/fxaa.fp", "#define FXAA_LUMA_PASS\n", {} };
+	FXAA = { "engine/shaders/pp/fxaa.fp", GetDefines(), FXAAUniforms::Desc(), GetMaxVersion() };
 	LastQuality = gl_fxaa;
 }
 
@@ -627,14 +627,14 @@ void PPAmbientOcclusion::CreateShaders()
 		#define NUM_STEPS %d.0
 	)", numDirections, numSteps);
 
-	LinearDepth = { "shaders/glsl/lineardepth.fp", "", LinearDepthUniforms::Desc() };
-	LinearDepthMS = { "shaders/glsl/lineardepth.fp", "#define MULTISAMPLE\n", LinearDepthUniforms::Desc() };
-	AmbientOcclude = { "shaders/glsl/ssao.fp", defines, SSAOUniforms::Desc() };
-	AmbientOccludeMS = { "shaders/glsl/ssao.fp", defines + "\n#define MULTISAMPLE\n", SSAOUniforms::Desc() };
-	BlurVertical = { "shaders/glsl/depthblur.fp", "#define BLUR_VERTICAL\n", DepthBlurUniforms::Desc() };
-	BlurHorizontal = { "shaders/glsl/depthblur.fp", "#define BLUR_HORIZONTAL\n", DepthBlurUniforms::Desc() };
-	Combine = { "shaders/glsl/ssaocombine.fp", "", AmbientCombineUniforms::Desc() };
-	CombineMS = { "shaders/glsl/ssaocombine.fp", "#define MULTISAMPLE\n", AmbientCombineUniforms::Desc() };
+	LinearDepth = { "engine/shaders/pp/lineardepth.fp", "", LinearDepthUniforms::Desc() };
+	LinearDepthMS = { "engine/shaders/pp/lineardepth.fp", "#define MULTISAMPLE\n", LinearDepthUniforms::Desc() };
+	AmbientOcclude = { "engine/shaders/pp/ssao.fp", defines, SSAOUniforms::Desc() };
+	AmbientOccludeMS = { "engine/shaders/pp/ssao.fp", defines + "\n#define MULTISAMPLE\n", SSAOUniforms::Desc() };
+	BlurVertical = { "engine/shaders/pp/depthblur.fp", "#define BLUR_VERTICAL\n", DepthBlurUniforms::Desc() };
+	BlurHorizontal = { "engine/shaders/pp/depthblur.fp", "#define BLUR_HORIZONTAL\n", DepthBlurUniforms::Desc() };
+	Combine = { "engine/shaders/pp/ssaocombine.fp", "", AmbientCombineUniforms::Desc() };
+	CombineMS = { "engine/shaders/pp/ssaocombine.fp", "#define MULTISAMPLE\n", AmbientCombineUniforms::Desc() };
 
 	LastQuality = gl_ssao;
 }
