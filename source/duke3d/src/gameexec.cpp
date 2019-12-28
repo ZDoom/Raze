@@ -44,7 +44,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "version.h"
 
 #include "debugbreak.h"
-extern bool rotatesprite_2doverride;
 
 FString C_CON_GetBoundKeyForLastInput(int gameFunc);
 const char* C_CON_GetButtonFunc(int num);
@@ -1241,9 +1240,6 @@ void Screen_Play(void)
 
     inputState.ClearAllInput();
 
-	// This needs to be disabled during the loop.
-	auto r2dover = rotatesprite_2doverride;
-	rotatesprite_2doverride = false;
 	do
     {
         gameHandleEvents();
@@ -1261,7 +1257,6 @@ void Screen_Play(void)
         videoNextPage();
         inputState.ClearAllInput();
     } while (running);
-	rotatesprite_2doverride = r2dover;
 }
 
 #if !defined LUNATIC

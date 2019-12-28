@@ -64,7 +64,6 @@ void RegisterLoadsaveMenus();
 void RegisterOptionMenus();
 void RegisterJoystickMenus();
 void UpdateJoystickMenu(IJoystickConfig* joy);
-extern bool rotatesprite_2doverride;
 bool help_disabled, credits_disabled;
 int g_currentMenu;	// accessible by CON scripts - contains the current menu's script ID if defined or INT_MAX if none given.
 int DrawBackground;
@@ -876,7 +875,6 @@ void M_Ticker (void)
 
 void M_Drawer (void) 
 {
-	rotatesprite_2doverride = true;
 	PalEntry fade = 0x70000000;
 
 	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off)
@@ -902,7 +900,6 @@ void M_Drawer (void)
 			DMenu::CurrentMenu->Drawer();
 		}
 	}
-	rotatesprite_2doverride = false;
 }
 
 //=============================================================================

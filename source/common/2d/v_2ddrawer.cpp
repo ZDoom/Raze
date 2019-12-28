@@ -578,7 +578,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
 	// This is mainly a hack because the rotatesprite code is far too messed up to integrate into the 2D drawer.
 	// This merely stores the parameters and later just calls polymost_rotatesprite do do the work.
-	// Cleanup can be done once everything is working - but for the menu's transition the original calls should be preserved.
+	// Cleanup can be done once everything is working.
 	RenderCommand dg;
 
 	dg.mType = DrawTypeRotateSprite;

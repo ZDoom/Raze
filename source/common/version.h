@@ -53,9 +53,9 @@ const char *GetVersionString();
 #define VER_REVISION 1
 
 // More stuff that needs to be different for derivatives.
-#define GAMENAME "Demolition"
-#define WGAMENAME L"Demolition"
-#define GAMENAMELOWERCASE "demolition"
+#define GAMENAME "Raze"
+#define WGAMENAME L"Raze"
+#define GAMENAMELOWERCASE "raze"
 #define FORUM_URL "http://forum.zdoom.org/"
 #define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"	// fixme before release!!!
 #define ENGINERES_FILE GAMENAMELOWERCASE ".pk3"
