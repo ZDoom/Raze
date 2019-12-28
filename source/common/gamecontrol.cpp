@@ -52,6 +52,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "st_start.h"
 #include "s_music.h"
 #include "i_video.h"
+#include "c_dispatch.h"
 #include "glbackend/glbackend.h"
 #ifndef NETCODE_DISABLE
 #include "enet.h"
@@ -603,7 +604,8 @@ int RunGame()
 	M_Init();
 	SetDefaultStrings();
 	if (g_gameType & GAMEFLAG_RR) InitRREndMap();	// this needs to be done better later
-	//C_DoCommand("stat sounddebug");
+	if (Args->CheckParm("-sounddebug"))
+		C_DoCommand("stat sounddebug");
 
 	if (enginePreInit())
 	{

@@ -1843,7 +1843,6 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
 
 int GameInterface::app_main()
 {
-    C_DoCommand("stat sounddebug");
     int i;
     //int esi = 1;
     //int edi = esi;

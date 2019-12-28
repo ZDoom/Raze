@@ -1736,7 +1736,7 @@ extern ReverbContainer* ForcedEnvironment;
 CVAR(Bool, snd_reverb, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 void FX_SetReverb(int strength)
 {
-	if (snd_reverb)
+	if (snd_reverb && strength > 0)
 	{
 		// todo: optimize environments. The original "reverb" was garbage and not usable as reference.
 		if (strength < 64) strength = 0x1400;
@@ -1744,6 +1744,7 @@ void FX_SetReverb(int strength)
 		else strength = 0x1900;
 		ForcedEnvironment = S_FindEnvironment(strength);
 	}
+	else ForcedEnvironment = nullptr;
 }
 
 

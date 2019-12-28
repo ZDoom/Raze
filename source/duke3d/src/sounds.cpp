@@ -475,8 +475,8 @@ int S_PlaySound(int num, int channel, EChanFlags flags)
 
 int A_PlaySound(int soundNum, int spriteNum, int channel, EChanFlags flags)
 {
-    return (unsigned)spriteNum >= MAXSPRITES ? S_PlaySound(soundNum, flags) :
-        S_PlaySound3D(soundNum, spriteNum, &sprite[spriteNum].pos, flags);
+    return (unsigned)spriteNum >= MAXSPRITES ? S_PlaySound(soundNum, channel, flags) :
+        S_PlaySound3D(soundNum, spriteNum, &sprite[spriteNum].pos, channel, flags);
 }
 
 void S_StopEnvSound(int sndNum, int sprNum, int channel)
@@ -484,8 +484,15 @@ void S_StopEnvSound(int sndNum, int sprNum, int channel)
     if (sprNum < -1 || sprNum >= MAXSPRITES) return;
 
     if (sprNum == -1) soundEngine->StopSoundID(sndNum+1);
-    else if (channel == -1) soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], -1, sndNum+1);
-    else soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], channel, -1);
+    else
+    {
+        if (channel == -1) soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], -1, sndNum + 1);
+        else soundEngine->StopSound(SOURCE_Actor, &sprite[sprNum], channel, -1);
+
+        // StopSound kills the actor reference so this cannot be delayed until ChannelEnded gets called. At that point the actor may also not be valid anymore.
+        if ( S_IsAmbientSFX(sprNum) && sector[SECT(sprNum)].lotag < 3)  // ST_2_UNDERWATER
+            actor[sprNum].t_data[0] = 0;
+    }
 }
 
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
