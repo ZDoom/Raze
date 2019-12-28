@@ -613,6 +613,11 @@ file( GLOB HEADER_FILES
 	common/rendering/*.h
 	common/rendering/gl_load/*.h
 	common/rendering/gl/system/*.h
+	common/rendering/gl/renderer/*.h
+	common/rendering/gl/shaders/*.h
+	common/rendering/hwrenderer/data/*.h
+	common/rendering/hwrenderer/postprocessing/*.h
+	common/rendering/hwrenderer/utility/*.h
 
 	build/src/*.h
 	platform/win32/*.h
@@ -660,7 +665,6 @@ set (PCH_SOURCES
 	glbackend/glbackend.cpp
 	glbackend/gl_palmanager.cpp
 	glbackend/gl_texture.cpp
-	glbackend/gl_buffers.cpp
 	glbackend/hw_draw2d.cpp
 	
 	thirdparty/src/base64.cpp
@@ -811,13 +815,21 @@ set (PCH_SOURCES
 	#common/input/i_input.cpp
 	common/input/m_joy.cpp
 	
-	common/rendering/v_video.cpp
-	common/rendering/v_framebuffer.cpp
 	common/rendering/r_videoscale.cpp
-	common/rendering/gl_load/gl_interface.cpp
+	common/rendering/v_framebuffer.cpp
+	common/rendering/v_video.cpp
+	common/rendering/gl/renderer/gl_renderer.cpp
+	common/rendering/gl/renderer/gl_postprocess.cpp
+	common/rendering/gl/renderer/gl_postprocessstate.cpp
+	common/rendering/gl/renderer/gl_renderbuffers.cpp
+	common/rendering/gl/shaders/gl_shaderprogram.cpp
+	common/rendering/gl/system/gl_buffers.cpp
 	common/rendering/gl/system/gl_debug.cpp
 	common/rendering/gl/system/gl_framebuffer.cpp
-	
+	common/rendering/gl_load/gl_interface.cpp
+	common/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
+	common/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
+	common/rendering/hwrenderer/utility/hw_shaderpatcher.cpp
 )
 
 if( MSVC )
@@ -882,9 +894,13 @@ include_directories(
 	common/dobject
 	common/menu
 	common/input
-	common/rendering/gl/system
 	common/rendering/gl_load
-	common/rendering/gl
+	common/rendering/gl/system
+	common/rendering/gl/renderer
+	common/rendering/gl/shaders
+	common/rendering/hwrenderer/data
+	common/rendering/hwrenderer/postprocessing
+	common/rendering/hwrenderer/utility
 	common/rendering
 	platform
 

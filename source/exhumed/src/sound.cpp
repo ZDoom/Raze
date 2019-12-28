@@ -194,7 +194,7 @@ public:
             }
             else
             {
-                disttable[i] = 255 - eax >> 8;
+                disttable[i] = 255 - (eax >> 8);
 
                 eax = (eax * eax) >> 8;
             }
@@ -257,9 +257,8 @@ int LoadSound(const char* name)
     else if (!ISDEMOVER)  // demo tries to load sound files it doesn't have
     {
         Printf("Unable to open sound '%s'!\n", filename.GetChars());
-        return 0;
     }
-
+    return -1;
 }
 //==========================================================================
 //

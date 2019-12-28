@@ -34,7 +34,7 @@
 #include "v_video.h"
 #include "printf.h"
 #include "gl_load/gl_interface.h"
-//#include "hwrenderer/utility/hw_cvars.h"
+#include "gamecvars.h"
 
 static TArray<FString>  m_Extensions;
 RenderContext gl;

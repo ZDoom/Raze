@@ -26,7 +26,7 @@
 
 #include <algorithm>
 #include "gl_load.h"
-#include "glbackend.h"
+//#include "glbackend.h"
 #include "gl_buffers.h"
 
 namespace OpenGLRenderer

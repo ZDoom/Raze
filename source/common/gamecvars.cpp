@@ -503,6 +503,7 @@ CUSTOM_CVARD(Float, vid_saturation, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adju
 }
 
 CVAR(Int, gl_satformula, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
+CVAR(Int, gl_multisample, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
 
 CCMD (bumpgamma)
 {

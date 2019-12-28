@@ -44,9 +44,9 @@ CUSTOM_CVAR(Int, gl_debug_level, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOIN
 
 CVAR(Bool, gl_debug_breakpoint, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 
-bool gpuStatActive;
-bool keepGpuStatActive;
-FString gpuStatOutput;
+extern bool gpuStatActive;
+extern bool keepGpuStatActive;
+extern FString gpuStatOutput;
 
 namespace OpenGLRenderer
 {

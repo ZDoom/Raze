@@ -292,6 +292,9 @@ void DFrameBuffer::SetViewportRects(IntRect *bounds)
 	mSceneViewport.top = screenHeight - (height + viewwindowy - ((height - viewheight) / 2));
 	mSceneViewport.width = viewwidth;
 	mSceneViewport.height = height;
+#else
+	// For now use the full screen. This needs to be done better.
+	mSceneViewport = mScreenViewport;
 #endif
 
 	// Scale viewports to fit letterbox
@@ -302,12 +305,12 @@ void DFrameBuffer::SetViewportRects(IntRect *bounds)
 	{
 		mScreenViewport.width = mOutputLetterbox.width;
 		mScreenViewport.height = mOutputLetterbox.height;
-#if 0
+
 		mSceneViewport.left = (int)round(mSceneViewport.left * scaleX);
 		mSceneViewport.top = (int)round(mSceneViewport.top * scaleY);
 		mSceneViewport.width = (int)round(mSceneViewport.width * scaleX);
 		mSceneViewport.height = (int)round(mSceneViewport.height * scaleY);
-#endif
+
 	}
 }
 

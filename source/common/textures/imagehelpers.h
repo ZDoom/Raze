@@ -59,6 +59,7 @@ namespace ImageHelpers
 
 	// Todo: This should not pick fullbright colors.
 	int BestColor(int r, int g, int b, int first = 0, int num = 255);
+	int PTM_BestColor(int r, int g, int b, bool reverselookup, float powtable_val, int first, int num);
 	void SetPalette(const PalEntry* colors);
 
 

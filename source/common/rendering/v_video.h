@@ -236,7 +236,7 @@ public:
 	//IShadowMap mShadowMap;
 
 	IntRect mScreenViewport;
-	//IntRect mSceneViewport;
+	IntRect mSceneViewport;
 	IntRect mOutputLetterbox;
 	float mSceneClearColor[4];
 
@@ -259,7 +259,7 @@ public:
 	inline int GetWidth() const { return Width; }
 	inline int GetHeight() const { return Height; }
 
-#if 0
+	// Currently there is no concept of a scene viewport in Build, but let's keep this stuff here to implement it later.
 	FVector2 SceneScale() const
 	{
 		return { mSceneViewport.width / (float)mScreenViewport.width, mSceneViewport.height / (float)mScreenViewport.height };
@@ -269,7 +269,6 @@ public:
 	{
 		return { mSceneViewport.left / (float)mScreenViewport.width, mSceneViewport.top / (float)mScreenViewport.height };
 	}
-#endif
 
 	// Make the surface visible.
 	virtual void Update ();
@@ -394,8 +393,6 @@ extern DFrameBuffer *screen;
 #define SCREENWIDTH (screen->GetWidth ())
 #define SCREENHEIGHT (screen->GetHeight ())
 #define SCREENPITCH (screen->GetPitch ())
-
-EXTERN_CVAR (Float, Gamma)
 
 
 // Allocates buffer screens, call before R_Init.

@@ -26,6 +26,14 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/../common/music
 	${CMAKE_CURRENT_SOURCE_DIR}/../common/input
 	${CMAKE_CURRENT_SOURCE_DIR}/../platform
+	${CMAKE_CURRENT_SOURCE_DIR}/../common/rendering/gl_load
+	${CMAKE_CURRENT_SOURCE_DIR}/../common/rendering/gl/system
+	${CMAKE_CURRENT_SOURCE_DIR}/../common/rendering/gl/renderer
+	${CMAKE_CURRENT_SOURCE_DIR}/../common/rendering/gl/shaders
+	${CMAKE_CURRENT_SOURCE_DIR}/../common/rendering/hwrenderer/data
+	${CMAKE_CURRENT_SOURCE_DIR}/../common/rendering/hwrenderer/postprocessing
+	${CMAKE_CURRENT_SOURCE_DIR}/../common/rendering/hwrenderer/utility
+	${CMAKE_CURRENT_SOURCE_DIR}/../common/rendering
 )
 
 
