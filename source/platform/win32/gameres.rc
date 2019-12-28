@@ -12,7 +12,7 @@ CAPTION "Welcome"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDI_ICON1,IDC_STATIC,7,7,20,20
-    LTEXT           "Welcome to Demolition!",IDC_STATIC,42,8,180,8
+    LTEXT           "Welcome to Raze!",IDC_STATIC,42,8,180,8
     LTEXT           "<Version info>",IDC_WELCOME_VERSION,42,18,180,8
     GROUPBOX        "Game selection",IDC_STATIC,8,32,208,117
     LTEXT           "Select which game file (GRP) to run.",IDC_STATIC,12,44,190,8
@@ -34,7 +34,7 @@ END
 IDD_CRASHDIALOG DIALOGEX 0, 0, 415, 308
 STYLE DS_SETFONT | DS_MODALFRAME | DS_SETFOREGROUND | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT | WS_EX_APPWINDOW
-CAPTION "Demolition Very Fatal Error"
+CAPTION "Very Fatal Error"
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     CONTROL         "",IDC_CRASHTAB,"SysTabControl32",WS_TABSTOP,4,4,404,280
@@ -98,13 +98,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "Demolition " GIT_DESCRIPTION
+            VALUE "FileDescription", "Raze " GIT_DESCRIPTION
             VALUE "FileVersion", GIT_DESCRIPTION
-            VALUE "InternalName", "Demolition"
-            VALUE "LegalCopyright", "Copyright © 2019 Christoph Oelckers, Copyright © 2018 EDuke32 Developers, 1996, 2003, 2005 3D Realms Entertainment"
-            VALUE "LegalTrademarks", "Duke Nukem® is a Registered Trademark of Gearbox Software, LLC.; Shadow Warrior® is a Registered Trademark of GHI Media LLC."
-            VALUE "OriginalFilename", "demolition.exe"
-            VALUE "ProductName", "Demolition"
+            VALUE "InternalName", "Raze"
+            VALUE "LegalCopyright", "Copyright © 2019-2020 Christoph Oelckers, Copyright © 2019 EDuke32 Developers, Copyright © 2019 Nuke.YKT et.al. © 1996, 2003, 2005 3D Realms Entertainment"
+            VALUE "LegalTrademarks", "Duke Nukem® is a Registered Trademark of Gearbox Software, LLC.; Shadow Warrior® is a Registered Trademark of GHI Media LLC.; Redneck Rampage and Redneck Rampage Rides Aagain are Trademarks of Interplay Productions"
+            VALUE "OriginalFilename", "raze.exe"
+            VALUE "ProductName", "Raze"
             VALUE "ProductVersion", GIT_DESCRIPTION
         END
     END
