@@ -410,6 +410,7 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 					}
 				}
 			}
+			sjson_destroy_context(ctx);
 		}
 		delete resf;
 	}
