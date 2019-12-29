@@ -316,7 +316,7 @@ static inline int GetWallType(int nWall)
     return wall[nWall].type;
 }
 
-inline void GetSpriteExtents(spritetype *pSprite, int *top, int *bottom)
+template<typename T> void GetSpriteExtents(T *pSprite, int *top, int *bottom)
 {
     *top = *bottom = pSprite->z;
     if ((pSprite->cstat & 0x30) != 0x20)

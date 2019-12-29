@@ -149,7 +149,8 @@ enum gametokens
     T_TEXTUREFILTER,
     T_RFFDEFINEID,
     T_TILEFROMTEXTURE,
-    T_IFCRC,
+    T_IFCRC, T_IFMATCH, T_CRC32,
+    T_SIZE,
     T_SURFACE,
     T_VOXEL,
     T_VIEW,
@@ -1596,7 +1597,10 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
             int32_t tile = -1;
             int32_t havesurface = 0, havevox = 0, haveview = 0, haveshade = 0;
             int32_t surface = 0, vox = 0, view = 0, shade = 0;
-            int32_t tilecrc = 0, origcrc = 0;
+            int32_t tile_crc32 = 0;
+            vec2_t  tile_size{};
+            uint8_t have_crc32 = 0;
+            uint8_t have_size = 0;
 
             static const tokenlist tilefromtexturetokens[] =
             {
@@ -1615,8 +1619,40 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 switch (token)
                 {
                 case T_IFCRC:
-                    scriptfile_getsymbol(pScript, &tilecrc);
+                    scriptfile_getsymbol(pScript, &tile_crc32);
+                    have_crc32 = 1;
                     break;
+                case T_IFMATCH:
+                {
+                    char *ifmatchend;
+
+                    static const tokenlist ifmatchtokens[] =
+                    {
+                        { "crc32",           T_CRC32 },
+                        { "size",            T_SIZE },
+                    };
+
+                    if (scriptfile_getbraces(pScript,&ifmatchend)) break;
+                    while (pScript->textptr < ifmatchend)
+                    {
+                        int32_t token = getatoken(pScript,ifmatchtokens,ARRAY_SIZE(ifmatchtokens));
+                        switch (token)
+                        {
+                        case T_CRC32:
+                            scriptfile_getsymbol(pScript, &tile_crc32);
+                            have_crc32 = 1;
+                            break;
+                        case T_SIZE:
+                            scriptfile_getsymbol(pScript, &tile_size.x);
+                            scriptfile_getsymbol(pScript, &tile_size.y);
+                            have_size = 1;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                    break;
+                }
                 case T_SURFACE:
                     havesurface = 1;
                     scriptfile_getsymbol(pScript, &surface);
@@ -1645,12 +1681,22 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
                 }
 
-                if (tilecrc)
+                if (have_crc32)
                 {
-                    origcrc = tileCRC(tile);
-                    if (origcrc != tilecrc)
+                    int32_t const orig_crc32 = tileGetCRC32(tile);
+                    if (orig_crc32 != tile_crc32)
                     {
-                        //initprintf("CRC of tile %d doesn't match! CRC: %d, Expected: %d\n", tile, origcrc, tilecrc);
+                        // initprintf("CRC32 of tile %d doesn't match! CRC32: %d, Expected: %d\n", tile, orig_crc32, tile_crc32);
+                        break;
+                    }
+                }
+
+                if (have_size)
+                {
+                    vec2_16_t const orig_size = tileGetSize(tile);
+                    if (orig_size.x != tile_size.x && orig_size.y != tile_size.y)
+                    {
+                        // initprintf("Size of tile %d doesn't match! Size: (%d, %d), Expected: (%d, %d)\n", tile, orig_size.x, orig_size.y, tile_size.x, tile_size.y);
                         break;
                     }
                 }

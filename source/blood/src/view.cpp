@@ -1766,7 +1766,7 @@ void viewInit(void)
         dword_172CE0[i][2] = mulscale16(wrand(), 2048);
     }
     gViewMap.sub_25C38(0, 0, gZoom, 0, gFollowMap);
-    bLoadScreenCrcMatch = tileCRC(kLoadScreen) == kLoadScreenCRC;
+    bLoadScreenCrcMatch = tileGetCRC32(kLoadScreen) == kLoadScreenCRC;
 }
 
 void viewResizeView(int size)
@@ -1849,17 +1849,17 @@ void viewDrawInterface(ClockTicks arg)
 
 static fix16_t gCameraAng;
 
-uspritetype *viewInsertTSprite(int nSector, int nStatnum, uspritetype *pSprite)
+template<typename T> tspritetype* viewInsertTSprite(int nSector, int nStatnum, T *pSprite)
 {
     int nTSprite = spritesortcnt;
-    uspritetype *pTSprite = &tsprite[nTSprite];
-    memset(pTSprite, 0, sizeof(uspritetype));
+    tspritetype *pTSprite = &tsprite[nTSprite];
+    memset(pTSprite, 0, sizeof(tspritetype));
     pTSprite->cstat = 128;
     pTSprite->xrepeat = 64;
     pTSprite->yrepeat = 64;
     pTSprite->owner = -1;
     pTSprite->extra = -1;
-    pTSprite->type = -spritesortcnt;
+    pTSprite->lotag = -spritesortcnt;
     pTSprite->statnum = nStatnum;
     pTSprite->sectnum = nSector;
     spritesortcnt++;
@@ -1883,17 +1883,17 @@ int effectDetail[] = {
     4, 4, 4, 4, 0, 0, 0, 0, 0, 1, 4, 4, 0, 0, 0, 1, 0, 0, 0
 };
 
-uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
+tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
 {
     dassert(nViewEffect >= 0 && nViewEffect < kViewEffectMax);
-    uspritetype *pTSprite = &tsprite[nTSprite];
+    auto pTSprite = &tsprite[nTSprite];
     if (gDetail < effectDetail[nViewEffect] || nTSprite >= kMaxViewSprites) return NULL;
     switch (nViewEffect)
     {
     case VIEW_EFFECT_18:
         for (int i = 0; i < 16; i++)
         {
-            uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+            auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
             int ang = ((int)gFrameClock*2048)/120;
             int nRand1 = dword_172CE0[i][0];
             int nRand2 = dword_172CE0[i][1];
@@ -1915,8 +1915,8 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     case VIEW_EFFECT_17:
     {
         int top, bottom;
-        GetSpriteExtents((spritetype *)pTSprite, &top, &bottom);
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        GetSpriteExtents(pTSprite, &top, &bottom);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         pNSprite->shade = -128;
         pNSprite->pal = 0;
         pNSprite->z = top;
@@ -1929,7 +1929,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_15:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         pNSprite->z = pTSprite->z;
         pNSprite->cstat |= 2;
         pNSprite->shade = -128;
@@ -1940,7 +1940,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_14:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         pNSprite->shade = -128;
         pNSprite->pal = 0;
         pNSprite->xrepeat = pNSprite->yrepeat = 64;
@@ -1949,7 +1949,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_13:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         pNSprite->shade = 26;
         pNSprite->pal = 0;
         pNSprite->cstat |= 2;
@@ -1959,9 +1959,9 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_11:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         int top, bottom;
-        GetSpriteExtents((spritetype *)pTSprite, &top, &bottom);
+        GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->shade = 26;
         pNSprite->pal = 0;
         pNSprite->cstat |= 2;
@@ -1984,7 +1984,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         for (int i = 0; i < 5 && spritesortcnt < kMaxViewSprites; i++)
         {
             int nSector = pTSprite->sectnum;
-            uspritetype *pNSprite = viewInsertTSprite(nSector, 32767, NULL);
+            auto pNSprite = viewInsertTSprite<tspritetype>(nSector, 32767, NULL);
             int nLen = 128+(i<<7);
             int x = mulscale30(nLen, Cos(nAng));
             pNSprite->x = pTSprite->x + x;
@@ -2008,7 +2008,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_8:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         pNSprite->shade = -128;
         pNSprite->z = pTSprite->z;
         pNSprite->picnum = 908;
@@ -2018,11 +2018,11 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_6:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         int top, bottom;
-        GetSpriteExtents((spritetype *)pTSprite, &top, &bottom);
+        GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->z = top;
-        if (IsDudeSprite((spritetype *)pTSprite))
+        if (IsDudeSprite(pTSprite))
             pNSprite->picnum = 672;
         else
             pNSprite->picnum = 754;
@@ -2034,11 +2034,11 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_7:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         int top, bottom;
-        GetSpriteExtents((spritetype *)pTSprite, &top, &bottom);
+        GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->z = bottom;
-        if (pTSprite->type >= kDudeBase && pTSprite->type < kDudeMax)
+        if (pTSprite->lotag >= kDudeBase && pTSprite->lotag < kDudeMax)
             pNSprite->picnum = 672;
         else
             pNSprite->picnum = 754;
@@ -2050,9 +2050,9 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_4:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         int top, bottom;
-        GetSpriteExtents((spritetype *)pTSprite, &top, &bottom);
+        GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->z = top;
         pNSprite->picnum = 2101;
         pNSprite->shade = -128;
@@ -2061,9 +2061,9 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_5:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         int top, bottom;
-        GetSpriteExtents((spritetype *)pTSprite, &top, &bottom);
+        GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->z = bottom;
         pNSprite->picnum = 2101;
         pNSprite->shade = -128;
@@ -2072,7 +2072,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_0:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         pNSprite->z = getflorzofslope(pTSprite->sectnum, pNSprite->x, pNSprite->y);
         pNSprite->shade = 127;
         pNSprite->cstat |= 2;
@@ -2087,7 +2087,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_1:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         pNSprite->shade = -128;
         pNSprite->pal = 2;
         pNSprite->cstat |= 2;
@@ -2099,7 +2099,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_2:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         sectortype *pSector = &sector[pTSprite->sectnum];
         pNSprite->x = pTSprite->x;
         pNSprite->y = pTSprite->y;
@@ -2115,7 +2115,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_3:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         sectortype *pSector = &sector[pTSprite->sectnum];
         pNSprite->x = pTSprite->x;
         pNSprite->y = pTSprite->y;
@@ -2132,7 +2132,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_9:
     {
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         pNSprite->z = pTSprite->z;
         if (gDetail > 1)
             pNSprite->cstat |= 514;
@@ -2144,12 +2144,12 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_12:
     {
-        dassert(pTSprite->type >= kDudePlayer1 && pTSprite->type <= kDudePlayer8);
-        PLAYER *pPlayer = &gPlayer[pTSprite->type-kDudePlayer1];
+        dassert(pTSprite->lotag >= kDudePlayer1 && pTSprite->lotag <= kDudePlayer8);
+        PLAYER *pPlayer = &gPlayer[pTSprite->lotag-kDudePlayer1];
         WEAPONICON weaponIcon = gWeaponIcon[pPlayer->curWeapon];
         const int nTile = weaponIcon.nTile;
         if (nTile < 0) break;
-        uspritetype *pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
         pNSprite->x = pTSprite->x;
         pNSprite->y = pTSprite->y;
         pNSprite->z = pTSprite->z-(32<<8);
@@ -2179,7 +2179,7 @@ uspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
 
 LOCATION gPrevSpriteLoc[kMaxSprites];
 
-static void viewApplyDefaultPal(uspritetype *pTSprite, sectortype const *pSector)
+static void viewApplyDefaultPal(tspritetype *pTSprite, sectortype const *pSector)
 {
     int const nXSector = pSector->extra;
     XSECTOR const *pXSector = nXSector >= 0 ? &xsector[nXSector] : NULL;
@@ -2197,7 +2197,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
     int nViewSprites = spritesortcnt;
     for (int nTSprite = spritesortcnt-1; nTSprite >= 0; nTSprite--)
     {
-        uspritetype *pTSprite = &tsprite[nTSprite];
+        tspritetype *pTSprite = &tsprite[nTSprite];
         //int nXSprite = pTSprite->extra;
         int nXSprite = sprite[pTSprite->owner].extra;
         XSPRITE *pTXSprite = NULL;
@@ -2217,7 +2217,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
 
         int nSprite = pTSprite->owner;
-        if (cl_interpolate && TestBitString(gInterpolateSprite, nSprite) && !(pTSprite->flags&512))
+        if (cl_interpolate && TestBitString(gInterpolateSprite, nSprite) && !(pTSprite->hitag&512))
         {
             LOCATION *pPrevLoc = &gPrevSpriteLoc[nSprite];
             pTSprite->x = interpolate(pPrevLoc->x, pTSprite->x, gInterpolate);
@@ -2230,7 +2230,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             case 0:
                 //dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
                 if (nXSprite <= 0 || nXSprite >= kMaxXSprites) break;
-                switch (pTSprite->type) {
+                switch (pTSprite->lotag) {
                     case kSwitchToggle:
                     case kSwitchOneWay:
                         if (xsprite[nXSprite].state) nAnim = 1;
@@ -2301,7 +2301,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 // Can be overridden by def script
                 if (r_voxels && gDetail >= 4 && videoGetRenderMode() != REND_POLYMER && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1)
                 {
-                    if ((pTSprite->flags&kHitagRespawn) == 0)
+                    if ((pTSprite->hitag&kHitagRespawn) == 0)
                     {
                         pTSprite->cstat |= 48;
                         pTSprite->cstat &= ~(4|8);
@@ -2361,7 +2361,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         nShade += tileShade[pTSprite->picnum];
         pTSprite->shade = ClipRange(nShade, -128, 127);
-        if ((pTSprite->flags&kHitagRespawn) && sprite[pTSprite->owner].owner == 3)
+        if ((pTSprite->hitag&kHitagRespawn) && sprite[pTSprite->owner].owner == 3)
         {
             dassert(pTXSprite != NULL);
             pTSprite->xrepeat = 48;
@@ -2384,21 +2384,21 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         {
             pTSprite->shade = ClipRange(pTSprite->shade-16-QRandom(8), -128, 127);
         }
-        if (pTSprite->flags&256)
+        if (pTSprite->hitag&256)
         {
             viewAddEffect(nTSprite, VIEW_EFFECT_6);
         }
-        if (pTSprite->flags&1024)
+        if (pTSprite->hitag&1024)
         {
             pTSprite->cstat |= 4;
         }
-        if (pTSprite->flags&2048)
+        if (pTSprite->hitag&2048)
         {
             pTSprite->cstat |= 8;
         }
         switch (pTSprite->statnum) {
         case kStatDecoration: {
-            switch (pTSprite->type) {
+            switch (pTSprite->hitag) {
                 case kDecorationCandle:
                     if (!pTXSprite || pTXSprite->state == 1) {
                         pTSprite->shade = -128;
@@ -2422,16 +2422,16 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         break;
         case kStatItem: {
-            switch (pTSprite->type) {
+            switch (pTSprite->hitag) {
                 case kItemFlagABase:
                     if (pTXSprite && pTXSprite->state > 0 && gGameOptions.nGameType == 3) {
-                        uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_17);
+                        auto pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_17);
                         if (pNTSprite) pNTSprite->pal = 10;
                     }
                     break;
                 case kItemFlagBBase:
                     if (pTXSprite && pTXSprite->state > 0 && gGameOptions.nGameType == 3) {
-                        uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_17);
+                        auto pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_17);
                         if (pNTSprite) pNTSprite->pal = 7;
                     }
                     break;
@@ -2444,7 +2444,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     pTSprite->cstat |= 1024;
                     break;
                 default:
-                    if (pTSprite->type >= kItemKeySkull && pTSprite->type < kItemKeyMax)
+                    if (pTSprite->lotag >= kItemKeySkull && pTSprite->lotag < kItemKeyMax)
                         pTSprite->shade = -128;
 
                     viewApplyDefaultPal(pTSprite, pSector);
@@ -2453,7 +2453,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         break;
         case kStatProjectile: {
-            switch (pTSprite->type) {
+            switch (pTSprite->lotag) {
                 case kMissileTeslaAlt:
                     pTSprite->yrepeat = 128;
                     pTSprite->cstat |= 32;
@@ -2475,7 +2475,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     }
                     
                     viewAddEffect(nTSprite, VIEW_EFFECT_1);
-                    if (pTSprite->type != kMissileFlareRegular) break;
+                    if (pTSprite->lotag != kMissileFlareRegular) break;
                     sectortype *pSector = &sector[pTSprite->sectnum];
                     
                     int zDiff = (pTSprite->z - pSector->ceilingz) >> 8;
@@ -2493,7 +2493,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         case kStatDude:
         {
-            if (pTSprite->type == kDudeHand && pTXSprite->aiState == &hand13A3B4)
+            if (pTSprite->lotag == kDudeHand && pTXSprite->aiState == &hand13A3B4)
             {
                 spritetype *pTTarget = &sprite[pTXSprite->target];
                 dassert(pTXSprite != NULL && pTTarget != NULL);
@@ -2508,7 +2508,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             if (powerupCheck(gView, kPwUpBeastVision) > 0) pTSprite->shade = -128;
 
             if (IsPlayerSprite((spritetype *)pTSprite)) {
-                PLAYER *pPlayer = &gPlayer[pTSprite->type-kDudePlayer1];
+                PLAYER *pPlayer = &gPlayer[pTSprite->lotag-kDudePlayer1];
                 if (powerupCheck(pPlayer, kPwUpShadowCloak) && !powerupCheck(gView, kPwUpBeastVision)) {
                     pTSprite->cstat |= 2;
                     pTSprite->pal = 5;
@@ -2528,7 +2528,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 }
                 
                 if (pPlayer->flashEffect && (gView != pPlayer || gViewPos != VIEWPOS_0)) {
-                    uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_14);
+                    auto pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_14);
                     if (pNTSprite) {
                         POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
                         pNTSprite->x += mulscale28(pPosture->zOffset, Cos(pTSprite->ang));
@@ -2539,7 +2539,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 
                 if (pPlayer->hasFlag > 0 && gGameOptions.nGameType == 3) {
                     if (pPlayer->hasFlag&1)  {
-                        uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_16);
+                        auto pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_16);
                         if (pNTSprite)
                         {
                             pNTSprite->pal = 10;
@@ -2547,7 +2547,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                         }
                     }
                     if (pPlayer->hasFlag&2) {
-                        uspritetype *pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_16);
+                        auto pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_16);
                         if (pNTSprite)
                         {
                             pNTSprite->pal = 7;
@@ -2566,7 +2566,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             break;
         }
         case kStatTraps: {
-            if (pTSprite->type == kTrapSawCircular) {
+            if (pTSprite->lotag == kTrapSawCircular) {
                 if (pTXSprite->state) {
                     if (pTXSprite->data1) {
                         pTSprite->picnum = 772;
@@ -2583,8 +2583,8 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         case kStatThing: {
             viewApplyDefaultPal(pTSprite, pSector);
 
-            if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || !gSpriteHit[nXSprite].florhit) {
-                if ((pTSprite->flags & kPhysMove) && getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
+            if (pTSprite->lotag < kThingBase || pTSprite->lotag >= kThingMax || !gSpriteHit[nXSprite].florhit) {
+                if ((pTSprite->hitag & kPhysMove) && getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
                     viewAddEffect(nTSprite, VIEW_EFFECT_0);
             }
         }
@@ -2594,7 +2594,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
 
     for (int nTSprite = spritesortcnt-1; nTSprite >= nViewSprites; nTSprite--)
     {
-        uspritetype *pTSprite = &tsprite[nTSprite];
+        tspritetype *pTSprite = &tsprite[nTSprite];
         int nAnim = 0;
         switch (picanm[pTSprite->picnum].extra&7)
         {
