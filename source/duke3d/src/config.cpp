@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "osdcmds.h"
-#include "renderlayer.h"
+#include "baselayer.h"
 #include "cmdline.h"
 
 BEGIN_DUKE_NS

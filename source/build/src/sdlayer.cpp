@@ -16,7 +16,7 @@
 #include "engine_priv.h"
 #include "osd.h"
 #include "palette.h"
-#include "renderlayer.h"
+#include "baselayer.h"
 #include "softsurface.h"
 #include "m_argv.h"
 #include "mmulti.h"

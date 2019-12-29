@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "demo.h"
 #include "screens.h"
-#include "renderlayer.h"
+#include "baselayer.h"
 #include "cmdline.h"
 #include "m_argv.h"
 

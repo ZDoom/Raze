@@ -24,9 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define game_c_
 
+#include <chrono>
+#include <thread>
 #include "duke3d.h"
 #include "compat.h"
-#include "renderlayer.h"
+#include "baselayer.h"
 #include "osdcmds.h"
 #include "network.h"
 #include "menus.h"
@@ -6058,7 +6060,7 @@ MAIN_LOOP_RESTART:
 
         if (g_networkMode == NET_DEDICATED_SERVER)
         {
-            idle();
+            std::this_thread::sleep_for(std::chrono::microseconds(1));
         }
         else if (G_FPSLimit() || g_saveRequested)
         {

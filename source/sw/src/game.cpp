@@ -46,7 +46,7 @@ Things required to make savegames work:
 #include "baselayer.h"
 
 #include "osd.h"
-#include "renderlayer.h"
+#include "baselayer.h"
 
 #include "keys.h"
 #include "names2.h"

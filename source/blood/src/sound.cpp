@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "resource.h"
 #include "sound.h"
-#include "renderlayer.h"
+#include "baselayer.h"
 #include "openaudio.h"
 #include "z_music.h"
 #include "sfx.h"

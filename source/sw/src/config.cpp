@@ -41,7 +41,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 // we load this in to get default button and key assignments
 // as well as setting up function mappings
 
-#include "renderlayer.h"
+#include "baselayer.h"
 
 
 BEGIN_SW_NS
