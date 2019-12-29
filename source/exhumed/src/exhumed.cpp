@@ -2760,13 +2760,6 @@ void EraseScreen(int nVal)
     }
 
     videoClearScreen(nVal);
-#if 0
-    for (int i = 0; i < numpages; i++)
-    {
-        videoClearScreen(nVal);
-        videoNextPage();
-    }
-#endif
 }
 
 int Query(short nLines, short nKeys, ...)

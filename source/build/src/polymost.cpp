@@ -257,7 +257,7 @@ void polymost_glreset()
     {
         gltexcacnum = 0;
 
-        //Hack for polymost_dorotatesprite calls before 1st polymost_drawrooms()
+        //For 2D calls before 1st polymost_drawrooms()
         gcosang = gcosang2 = 16384.f/262144.f;
         gsinang = gsinang2 = 0.f;
     }

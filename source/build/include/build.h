@@ -812,7 +812,7 @@ void   videoNextPage(void);
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   renderSetAspect(int32_t daxrange, int32_t daaspect);
-void   renderFlushPerms(void);
+inline void   renderFlushPerms(void) {}
 
 void   plotpixel(int32_t x, int32_t y, char col);
 void   renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz);

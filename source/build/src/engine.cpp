@@ -1402,20 +1402,6 @@ static TArray<int32_t> lastx;
 
 int32_t halfxdim16, midydim16;
 
-typedef struct
-{
-    int32_t sx, sy, z;
-    int16_t a, picnum;
-    int8_t dashade;
-    uint8_t dapalnum, dastat;
-    uint8_t daalpha, dablend;
-    char pagesleft;
-    int32_t cx1, cy1, cx2, cy2;
-    int32_t uniqid;    //JF extension
-} permfifotype;
-static permfifotype permfifo[MAXPERMS];
-static int32_t permhead = 0, permtail = 0;
-
 EDUKE32_STATIC_ASSERT(MAXWALLSB < INT16_MAX);
 int16_t numscans, numbunches;
 static int16_t numhits;
@@ -6822,393 +6808,6 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
     }
 }
 
-
-//
-// dorotatesprite (internal)
-//
-//JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
-static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                           int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-                           int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2,
-                           int32_t uniqid)
-{
-    // NOTE: if these are made unsigned (for safety), angled tiles may draw
-    // incorrectly, showing vertical seams at intervals.
-    int32_t bx, by;
-
-    int32_t cosang, sinang, v, nextv, dax1, dax2, oy;
-    int32_t i, x, y, x1, y1, x2, y2, gx1, gy1;
-    intptr_t p, bufplc, palookupoffs;
-    int32_t xsiz, ysiz, xoff, yoff, npoints, yplc, yinc, lx, rx;
-    int32_t xv, yv, xv2, yv2;
-
-    int32_t ouryxaspect, ourxyaspect;
-
-    if (r_rotatespritenowidescreen)
-    {
-        dastat |= RS_STRETCH;
-        dastat &= ~RS_ALIGN_MASK;
-    }
-
-    //============================================================================= //POLYMOST BEGINS
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
-    {
-        // We must store all calls in the 2D drawer so that the backend can operate on a clean 3D view.
-        twod.rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2);
-        return;
-    }
-#else
-    UNREFERENCED_PARAMETER(uniqid);
-#endif
-    //============================================================================= //POLYMOST ENDS
-
-    // bound clipping rectangle to screen
-    if (cx1 < 0) cx1 = 0;
-    else if (cx1 > xdim-1) cx1 = xdim-1;
-    if (cy1 < 0) cy1 = 0;
-    else if (cy1 > ydim-1) cy1 = ydim-1;
-    if (cx2 < 0) cx2 = 0;
-    else if (cx2 > xdim-1) cx2 = xdim-1;
-    if (cy2 < 0) cy2 = 0;
-    else if (cy2 > ydim-1) cy2 = ydim-1;
-
-    xsiz = tilesiz[picnum].x;
-    ysiz = tilesiz[picnum].y;
-
-    if (dastat & RS_TOPLEFT)
-    {
-        // Bit 1<<4 set: origin is top left corner?
-        xoff = 0;
-        yoff = 0;
-    }
-    else
-    {
-        // Bit 1<<4 clear: origin is center of tile, and per-tile offset is applied.
-        // TODO: split the two?
-        xoff = picanm[picnum].xofs + (xsiz>>1);
-        yoff = picanm[picnum].yofs + (ysiz>>1);
-    }
-
-    // Bit 1<<2: invert y
-    if (dastat & RS_YFLIP)
-        yoff = ysiz-yoff;
-
-    cosang = sintable[(a+512)&2047];
-    sinang = sintable[a&2047];
-
-    dorotspr_handle_bit2(&sx, &sy, &z, dastat, cx1+cx2, cy1+cy2, &ouryxaspect, &ourxyaspect);
-
-    xv = mulscale14(cosang,z);
-    yv = mulscale14(sinang,z);
-    if ((dastat&RS_AUTO) || (dastat&RS_NOCLIP) == 0) //Don't aspect unscaled perms
-    {
-        xv2 = mulscale16(xv,ourxyaspect);
-        yv2 = mulscale16(yv,ourxyaspect);
-    }
-    else
-    {
-        xv2 = xv;
-        yv2 = yv;
-    }
-
-    nry1[0] = sy - (yv*xoff + xv*yoff);
-    nry1[1] = nry1[0] + yv*xsiz;
-    nry1[3] = nry1[0] + xv*ysiz;
-    nry1[2] = nry1[1]+nry1[3]-nry1[0];
-    i = (cy1<<16); if ((nry1[0]<i) && (nry1[1]<i) && (nry1[2]<i) && (nry1[3]<i)) return;
-    i = (cy2<<16); if ((nry1[0]>i) && (nry1[1]>i) && (nry1[2]>i) && (nry1[3]>i)) return;
-
-    nrx1[0] = sx - (xv2*xoff - yv2*yoff);
-    nrx1[1] = nrx1[0] + xv2*xsiz;
-    nrx1[3] = nrx1[0] - yv2*ysiz;
-    nrx1[2] = nrx1[1]+nrx1[3]-nrx1[0];
-    i = (cx1<<16); if ((nrx1[0]<i) && (nrx1[1]<i) && (nrx1[2]<i) && (nrx1[3]<i)) return;
-    i = (cx2<<16); if ((nrx1[0]>i) && (nrx1[1]>i) && (nrx1[2]>i) && (nrx1[3]>i)) return;
-
-    gx1 = nrx1[0]; gy1 = nry1[0];   //back up these before clipping
-
-    npoints = clippoly4(cx1<<16,cy1<<16,(cx2+1)<<16,(cy2+1)<<16);
-    if (npoints < 3) return;
-
-    lx = nrx1[0]; rx = nrx1[0];
-
-    nextv = 0;
-    for (v=npoints-1; v>=0; v--)
-    {
-        x1 = nrx1[v]; x2 = nrx1[nextv];
-        dax1 = (x1>>16); if (x1 < lx) lx = x1;
-        dax2 = (x2>>16); if (x1 > rx) rx = x1;
-        if (dax1 != dax2)
-        {
-            y1 = nry1[v]; y2 = nry1[nextv];
-            yinc = divscale16(y2-y1,x2-x1);
-            if (dax2 > dax1)
-            {
-                yplc = y1 + mulscale16((dax1<<16)+65535-x1,yinc);
-                // Assertion fails with DNF mod: in mapster32,
-                // set dt_t 3864  (bike HUD, 700x220)
-                // set dt_a 100
-                // set dt_z 1280000  <- CRASH!
-                Bassert((unsigned)dax1 < MAXXDIM && (unsigned)dax2 < MAXXDIM+1);
-                qinterpolatedown16short((intptr_t)&uplc[dax1], dax2-dax1, yplc, yinc);
-            }
-            else
-            {
-                yplc = y2 + mulscale16((dax2<<16)+65535-x2,yinc);
-                Bassert((unsigned)dax2 < MAXXDIM && (unsigned)dax1 < MAXXDIM+1);
-                qinterpolatedown16short((intptr_t)&dplc[dax2], dax1-dax2, yplc, yinc);
-            }
-        }
-        nextv = v;
-    }
-
-    tileLoad(picnum);
-    setgotpic(picnum);
-    bufplc = (intptr_t)tilePtr(picnum);
-
-    if (palookup[dapalnum] == NULL) dapalnum = 0;
-    palookupoffs = FP_OFF(palookup[dapalnum]) + (getpalookup(0, dashade)<<8);
-
-    // Alpha handling
-    if (!(dastat&RS_TRANS1) && daalpha > 0)
-    {
-        if (daalpha == 255)
-            return;
-
-        if (numalphatabs != 0)
-        {
-            if (falpha_to_blend((float)daalpha / 255.0f, &dastat, &dablend, RS_TRANS1, RS_TRANS2))
-                return;
-        }
-        else if (daalpha > 84)
-        {
-            dastat |= RS_TRANS1;
-
-            if (daalpha > 168)
-                dastat |= RS_TRANS2;
-            else
-                dastat &= ~RS_TRANS2;
-
-            // Blood's transparency table is inverted
-            if (playing_blood)
-                dastat ^= RS_TRANS2;
-        }
-    }
-
-    i = divscale32(1L,z);
-    xv = mulscale14(sinang,i);
-    yv = mulscale14(cosang,i);
-    if ((dastat&RS_AUTO) || (dastat&RS_NOCLIP)==0) //Don't aspect unscaled perms
-    {
-        yv2 = mulscale16(-xv,ouryxaspect);
-        xv2 = mulscale16(yv,ouryxaspect);
-    }
-    else
-    {
-        yv2 = -xv;
-        xv2 = yv;
-    }
-
-    x1 = (lx>>16);
-    x2 = (rx>>16);
-
-    oy = 0;
-    x = (x1<<16)-1-gx1;
-    y = (oy<<16)+65535-gy1;
-    bx = dmulscale16(x,xv2,y,xv);
-    by = dmulscale16(x,yv2,y,yv);
-
-    if (dastat & RS_YFLIP)
-    {
-        yv = -yv;
-        yv2 = -yv2;
-        by = (ysiz<<16)-1-by;
-    }
-
-    if ((dastat&RS_TRANS1)==0 && ((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
-    {
-        int32_t y1ve[4], y2ve[4], u4, d4;
-
-        if (((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
-        {
-            if (dastat & RS_NOMASK)
-                setupvlineasm(24L);
-            else
-                setupmvlineasm(24L, 0);
-
-            by <<= 8; yv <<= 8; yv2 <<= 8;
-
-            palookupoffse[0] = palookupoffse[1] = palookupoffse[2] = palookupoffse[3] = palookupoffs;
-            vince[0] = vince[1] = vince[2] = vince[3] = yv;
-
-            for (x=x1; x<x2; x+=4)
-            {
-                char bad;
-                int32_t xx, xend;
-
-                bad = 15; xend = min(x2-x,4);
-                for (xx=0; xx<xend; xx++)
-                {
-                    bx += xv2;
-
-                    y1 = uplc[x+xx]; y2 = dplc[x+xx];
-                    if ((dastat & RS_NOCLIP) == 0)
-                    {
-                        if (startumost[x+xx] > y1) y1 = startumost[x+xx];
-                        if (startdmost[x+xx] < y2) y2 = startdmost[x+xx];
-                    }
-                    if (y2 <= y1) continue;
-
-                    by += (uint32_t)yv*(y1-oy); oy = y1;
-
-                    // Assertion would fail with DNF mod without (uint32_t) below: in mapster32,
-                    // set dt_t 3864  (bike HUD, 700x220)
-                    // set dt_z 16777216
-                    // <Increase yxaspect by pressing [9]>  <-- CRASH!
-                    // (It also fails when wrecking the bike in-game by driving into a wall.)
-//                    Bassert(bx >= 0);
-
-                    bufplce[xx] = ((uint32_t)bx>>16)*ysiz+bufplc;
-                    vplce[xx] = by;
-                    y1ve[xx] = y1;
-                    y2ve[xx] = y2-1;
-                    bad &= ~pow2char[xx];
-                }
-
-                p = x+frameplace;
-
-                u4 = INT32_MIN;
-                d4 = INT32_MAX;
-                for (xx=0; xx<4; xx++)
-                    if (!(bad&pow2char[xx]))
-                    {
-                        u4 = max(u4, y1ve[xx]);
-                        d4 = min(d4, y2ve[xx]);
-                    }
-                // This version may access uninitialized y?ve[] values with
-                // thin tiles, e.g. 3085 (MINIFONT period, 1x5):
-//                u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
-//                d4 = min(min(y2ve[0],y2ve[1]),min(y2ve[2],y2ve[3]));
-
-                if (dastat & RS_NOMASK)
-                {
-                    if ((bad != 0) || (u4 >= d4))
-                    {
-                        if (!(bad&1)) prevlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0],vplce[0],bufplce[0],ylookup[y1ve[0]]+p+0);
-                        if (!(bad&2)) prevlineasm1(vince[1],palookupoffse[1],y2ve[1]-y1ve[1],vplce[1],bufplce[1],ylookup[y1ve[1]]+p+1);
-                        if (!(bad&4)) prevlineasm1(vince[2],palookupoffse[2],y2ve[2]-y1ve[2],vplce[2],bufplce[2],ylookup[y1ve[2]]+p+2);
-                        if (!(bad&8)) prevlineasm1(vince[3],palookupoffse[3],y2ve[3]-y1ve[3],vplce[3],bufplce[3],ylookup[y1ve[3]]+p+3);
-                        continue;
-                    }
-
-                    if (u4 > y1ve[0]) vplce[0] = prevlineasm1(vince[0],palookupoffse[0],u4-y1ve[0]-1,vplce[0],bufplce[0],ylookup[y1ve[0]]+p+0);
-                    if (u4 > y1ve[1]) vplce[1] = prevlineasm1(vince[1],palookupoffse[1],u4-y1ve[1]-1,vplce[1],bufplce[1],ylookup[y1ve[1]]+p+1);
-                    if (u4 > y1ve[2]) vplce[2] = prevlineasm1(vince[2],palookupoffse[2],u4-y1ve[2]-1,vplce[2],bufplce[2],ylookup[y1ve[2]]+p+2);
-                    if (u4 > y1ve[3]) vplce[3] = prevlineasm1(vince[3],palookupoffse[3],u4-y1ve[3]-1,vplce[3],bufplce[3],ylookup[y1ve[3]]+p+3);
-
-                    if (d4 >= u4) vlineasm4(d4-u4+1, (char *)(ylookup[u4]+p));
-
-                    intptr_t i = p+ylookup[d4+1];
-                    if (y2ve[0] > d4) prevlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],i+0);
-                    if (y2ve[1] > d4) prevlineasm1(vince[1],palookupoffse[1],y2ve[1]-d4-1,vplce[1],bufplce[1],i+1);
-                    if (y2ve[2] > d4) prevlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],i+2);
-                    if (y2ve[3] > d4) prevlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],i+3);
-                }
-                else
-                {
-                    if ((bad != 0) || (u4 >= d4))
-                    {
-                        if (!(bad&1)) mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0],vplce[0],bufplce[0],ylookup[y1ve[0]]+p+0);
-                        if (!(bad&2)) mvlineasm1(vince[1],palookupoffse[1],y2ve[1]-y1ve[1],vplce[1],bufplce[1],ylookup[y1ve[1]]+p+1);
-                        if (!(bad&4)) mvlineasm1(vince[2],palookupoffse[2],y2ve[2]-y1ve[2],vplce[2],bufplce[2],ylookup[y1ve[2]]+p+2);
-                        if (!(bad&8)) mvlineasm1(vince[3],palookupoffse[3],y2ve[3]-y1ve[3],vplce[3],bufplce[3],ylookup[y1ve[3]]+p+3);
-                        continue;
-                    }
-
-                    if (u4 > y1ve[0]) vplce[0] = mvlineasm1(vince[0],palookupoffse[0],u4-y1ve[0]-1,vplce[0],bufplce[0],ylookup[y1ve[0]]+p+0);
-                    if (u4 > y1ve[1]) vplce[1] = mvlineasm1(vince[1],palookupoffse[1],u4-y1ve[1]-1,vplce[1],bufplce[1],ylookup[y1ve[1]]+p+1);
-                    if (u4 > y1ve[2]) vplce[2] = mvlineasm1(vince[2],palookupoffse[2],u4-y1ve[2]-1,vplce[2],bufplce[2],ylookup[y1ve[2]]+p+2);
-                    if (u4 > y1ve[3]) vplce[3] = mvlineasm1(vince[3],palookupoffse[3],u4-y1ve[3]-1,vplce[3],bufplce[3],ylookup[y1ve[3]]+p+3);
-
-                    if (d4 >= u4) mvlineasm4(d4-u4+1, (char *)(ylookup[u4]+p));
-
-                    intptr_t i = p+ylookup[d4+1];
-                    if (y2ve[0] > d4) mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],i+0);
-                    if (y2ve[1] > d4) mvlineasm1(vince[1],palookupoffse[1],y2ve[1]-d4-1,vplce[1],bufplce[1],i+1);
-                    if (y2ve[2] > d4) mvlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],i+2);
-                    if (y2ve[3] > d4) mvlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],i+3);
-                }
-
-                faketimerhandler();
-            }
-        }
-    }
-    else
-    {
-        if ((dastat & RS_TRANS1) == 0)
-        {
-            if (dastat & RS_NOMASK)
-                setupspritevline(palookupoffs,xv,yv,ysiz);
-            else
-                msetupspritevline(palookupoffs,xv,yv,ysiz);
-        }
-        else
-        {
-            tsetupspritevline(palookupoffs,xv,yv,ysiz);
-            setup_blend(dablend, dastat & RS_TRANS2);
-        }
-
-        for (x=x1; x<x2; x++)
-        {
-            bx += xv2; by += yv2;
-
-            y1 = uplc[x]; y2 = dplc[x];
-            if ((dastat & RS_NOCLIP) == 0)
-            {
-                if (startumost[x] > y1) y1 = startumost[x];
-                if (startdmost[x] < y2) y2 = startdmost[x];
-            }
-            if (y2 <= y1) continue;
-
-            switch (y1-oy)
-            {
-            case -1:
-                bx -= xv; by -= yv; oy = y1; break;
-            case 0:
-                break;
-            case 1:
-                bx += xv; by += yv; oy = y1; break;
-            default:
-                bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1; break;
-            }
-
-            p = ylookup[y1]+x+frameplace;
-
-            if ((dastat & RS_TRANS1) == 0)
-            {
-                if (dastat & RS_NOMASK)
-                    spritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
-                else
-                    mspritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
-            }
-            else
-            {
-                tspritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
-                //transarea += (y2-y1);
-            }
-
-            faketimerhandler();
-        }
-    }
-
-    /*  if ((dastat & RS_PERM) && (origbuffermode == 0))
-        {
-            buffermode = obuffermode;
-            setactivepage(activepage);
-        }*/
-}
-
 static uint32_t msqrtasm(uint32_t c)
 {
     uint32_t a = 0x40000000l, b = 0x20000000l;
@@ -9920,6 +9519,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     xdim = daupscaledxdim;
     ydim = daupscaledydim;
 	V_UpdateModeSize(xdim, ydim);
+    numpages = 1; // We have only one page, no exceptions.
 
 #ifdef USE_OPENGL
     fxdim = (float) xdim;
@@ -9962,7 +9562,6 @@ void DrawFullscreenBlends();
 void videoNextPage(void)
 {
 	static bool recursion;
-    permfifotype *per;
 
 	if (!recursion)
 	{
@@ -9979,37 +9578,11 @@ void videoNextPage(void)
 
     if (in3dmode())
     {
-        videoBeginDrawing(); //{{{
-        for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
-        {
-            per = &permfifo[i];
-            if ((per->pagesleft > 0) && (per->pagesleft <= numpages))
-                dorotatesprite(per->sx,per->sy,per->z,per->a,per->picnum,
-                               per->dashade,per->dapalnum,per->dastat,per->daalpha,per->dablend,
-                               per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
-        }
-        videoEndDrawing();   //}}}
-
-		g_beforeSwapTime = timerGetHiTicks();
+ 		g_beforeSwapTime = timerGetHiTicks();
 
 		// Draw the console plus debug output on top of everything else.
 		DrawFullscreenBlends();
 		videoShowFrame(0);
-
-		videoBeginDrawing(); //{{{
-        for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
-        {
-            per = &permfifo[i];
-            if (per->pagesleft >= 130)
-                dorotatesprite(per->sx,per->sy,per->z,per->a,per->picnum,
-                               per->dashade,per->dapalnum,per->dastat,per->daalpha,per->dablend,
-                               per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
-
-            if (per->pagesleft&127) per->pagesleft--;
-            if (((per->pagesleft&127) == 0) && (i == permtail))
-                permtail = ((permtail+1)&(MAXPERMS-1));
-        }
-        videoEndDrawing();   //}}}
     }
 
     faketimerhandler();
@@ -11258,14 +10831,6 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
 }
 
 
-//
-// flushperms
-//
-void renderFlushPerms(void)
-{
-    permhead = permtail = 0;
-}
-
 
 #include "v_2ddrawer.h"
 //
@@ -11289,79 +10854,16 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     //  bit RS_CENTERORIGIN: see dorotspr_handle_bit2
     ////////////////////
 
-    if (((dastat & RS_PERM) == 0) || (numpages < 2) || (beforedrawrooms != 0))
+    if (r_rotatespritenowidescreen)
     {
-        videoBeginDrawing(); //{{{
-        dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,dablend,cx1,cy1,cx2,cy2,guniqhudid);
-        videoEndDrawing();   //}}}
+        dastat |= RS_STRETCH;
+        dastat &= ~RS_ALIGN_MASK;
     }
 
-    if ((dastat & RS_NOMASK) && (cx1 <= 0) && (cy1 <= 0) && (cx2 >= xdim-1) && (cy2 >= ydim-1) &&
-            (sx == (160<<16)) && (sy == (100<<16)) && (z == 65536L) && (a == 0) && ((dastat&RS_TRANS1) == 0))
-        permhead = permtail = 0;
+    // We must store all calls in the 2D drawer so that the backend can operate on a clean 3D view.
+    twod.rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2);
 
-    if ((dastat & RS_PERM) == 0)
-        return;
-
-    if (numpages >= 2)
-    {
-        permfifotype *per = &permfifo[permhead];
-
-        per->sx = sx; per->sy = sy; per->z = z; per->a = a;
-        per->picnum = picnum;
-        per->dashade = dashade; per->dapalnum = dapalnum;
-        per->dastat = dastat;
-        per->daalpha = daalpha;
-        per->dablend = dablend;
-        per->pagesleft = numpages+((beforedrawrooms&1)<<7);
-        per->cx1 = cx1; per->cy1 = cy1; per->cx2 = cx2; per->cy2 = cy2;
-        per->uniqid = guniqhudid;   //JF extension
-
-        //Would be better to optimize out true bounding boxes
-        if (dastat & RS_NOMASK)  //If non-masking write, checking for overlapping cases
-        {
-            for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
-            {
-                permfifotype *per2 = &permfifo[i];
-
-                if ((per2->pagesleft&127) == 0) continue;
-                if (per2->sx != per->sx) continue;
-                if (per2->sy != per->sy) continue;
-                if (per2->z != per->z) continue;
-                if (per2->a != per->a) continue;
-                if (tilesiz[per2->picnum].x > tilesiz[per->picnum].x) continue;
-                if (tilesiz[per2->picnum].y > tilesiz[per->picnum].y) continue;
-                if (per2->cx1 < per->cx1) continue;
-                if (per2->cy1 < per->cy1) continue;
-                if (per2->cx2 > per->cx2) continue;
-                if (per2->cy2 > per->cy2) continue;
-
-                per2->pagesleft = 0;
-            }
-
-            if ((per->z == 65536) && (per->a == 0))
-                for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
-                {
-                    permfifotype *per2 = &permfifo[i];
-
-                    if ((per2->pagesleft&127) == 0) continue;
-                    if (per2->z != 65536) continue;
-                    if (per2->a != 0) continue;
-                    if (per2->cx1 < per->cx1) continue;
-                    if (per2->cy1 < per->cy1) continue;
-                    if (per2->cx2 > per->cx2) continue;
-                    if (per2->cy2 > per->cy2) continue;
-                    if ((per2->sx>>16) < (per->sx>>16)) continue;
-                    if ((per2->sy>>16) < (per->sy>>16)) continue;
-                    if ((per2->sx>>16)+tilesiz[per2->picnum].x > (per->sx>>16)+tilesiz[per->picnum].x) continue;
-                    if ((per2->sy>>16)+tilesiz[per2->picnum].y > (per->sy>>16)+tilesiz[per->picnum].y) continue;
-
-                    per2->pagesleft = 0;
-                }
-        }
-
-        permhead = ((permhead+1)&(MAXPERMS-1));
-    }
+    // RS_PERM code was removed because the current backend supports only one page that needs to be redrawn each frame in which case the perm list was skipped anyway.
 }
 
 

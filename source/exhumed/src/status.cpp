@@ -144,7 +144,6 @@ int BuildStatusAnim(int val, int nFlags)
     StatusAnim[nStatusAnim].s1 = val;
     StatusAnim[nStatusAnim].s2 = 0;
     StatusAnimFlags[nStatusAnim] = nFlags;
-//    StatusAnim[nStatusAnim].nPage = numpages;
     return nStatusAnim;
 }
 

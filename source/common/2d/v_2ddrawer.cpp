@@ -566,16 +566,23 @@ void F2DDrawer::Clear()
 #include "build.h"
 #include "../src/engine_priv.h"
 
+//sx,sy       center of sprite; screen coords*65536
+//z           zoom*65536. > is zoomed in
+//a           angle (0 is default)
+//dastat&1    1:translucence
+//dastat&2    1:auto-scale mode (use 320*200 coordinates)
+//dastat&4    1:y-flip
+//dastat&8    1:don't clip to startumost/startdmost
+//dastat&16   1:force point passed to be top-left corner, 0:Editart center
+//dastat&32   1:reverse translucence
+//dastat&64   1:non-masked, 0:masked
+//dastat&128  1:draw all pages (permanent - no longer used)
+//cx1,...     clip window (actual screen coords)
+
 void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 	int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
 	int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
-	if (r_rotatespritenowidescreen)
-	{
-		dastat |= RS_STRETCH;
-		dastat &= ~RS_ALIGN_MASK;
-	}
-
 	// This is mainly a hack because the rotatesprite code is far too messed up to integrate into the 2D drawer.
 	// This merely stores the parameters and later just calls polymost_rotatesprite do do the work.
 	// Cleanup can be done once everything is working.
