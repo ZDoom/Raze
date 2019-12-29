@@ -335,7 +335,7 @@ void menu_DoPlasma()
 
             //uint32_t t = time(0) << 16;
             //uint32_t t2 = time(0) | t;
-            nRandom = timerGetTicksU64();
+        nRandom = timerGetPerformanceCounter();
 
             for (int i = 0; i < 5; i++)
             {
