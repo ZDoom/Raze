@@ -131,7 +131,6 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		int gltrans = -1;
 
 		SetBlendFunc(cmd.mRenderStyle.SrcAlpha, cmd.mRenderStyle.DestAlpha);
-		EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 		//state.SetRenderStyle(cmd.mRenderStyle);
 		//state.EnableBrightmap(!(cmd.mRenderStyle.Flags & STYLEF_ColorIsFixed));
 		//state.SetTextureMode(cmd.mDrawMode);
@@ -145,12 +144,13 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 			sciY = screen->ScreenToWindowY(cmd.mScissor[3]);
 			sciW = screen->ScreenToWindowX(cmd.mScissor[2]) - sciX;
 			sciH = screen->ScreenToWindowY(cmd.mScissor[1]) - sciY;
+			SetScissor(sciX, sciY, sciW, sciH);
 		}
 		else
 		{
 			sciX = sciY = sciW = sciH = -1;
+			DisableScissor();
 		}
-		SetScissor(sciX, sciY, sciW, sciH);
 
 		//state.SetFog(cmd.mColor1, 0);
 		SetColor(1, 1, 1);
@@ -165,12 +165,14 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 				SetShade(cmd.mRemapIndex >> 16, numshades);
 				SetFadeDisable(false);
 				SetTexture(0, tex, cmd.mRemapIndex & 0xffff, 4/*DAMETH_CLAMPED*/, SamplerClampXY);
+				EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 			}
 			else
 			{
 				SetFadeDisable(true);
 				SetShade(0, numshades);
 				SetNamedTexture(cmd.mTexture, cmd.mRemapIndex, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
+				EnableBlend(true);
 			}
 			UseColorOnly(false);
 		}
@@ -214,6 +216,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	SetShade(0, numshades);
 	SetFadeDisable(false);
 	SetColor(1, 1, 1);
+	DisableScissor();
 	//drawer->mIsFirstPass = false;
 	twod.Clear();
 	EnableBlend(true);

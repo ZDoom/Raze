@@ -286,6 +286,7 @@ public:
 	}
 
 	void SetScissor(int x1, int y1, int x2, int y2);
+	void DisableScissor();
 	void SetDepthFunc(int func);
 	void SetColorMask(bool on);
 	void SetDepthMask(bool on);

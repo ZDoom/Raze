@@ -701,10 +701,14 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	int method = 0;
 
 	dg.mType = DrawTypeRotateSprite;
-	dg.mScissor[0] = cx1;
-	dg.mScissor[1] = cy1;
-	dg.mScissor[2] = cx2;
-	dg.mScissor[3] = cy2;
+	if (cx1 > 0 || cy1 > 0 || cx2 < xdim - 1 || cy2 < ydim - 1)
+	{
+		dg.mScissor[0] = cx1;
+		dg.mScissor[1] = cy1;
+		dg.mScissor[2] = cx2 + 1;
+		dg.mScissor[3] = cy2 + 1;
+		dg.mFlags |= DTF_Scissor;
+	}
 
 	if (!(dastat & RS_NOMASK))
 	{
@@ -730,8 +734,8 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
 	if (!(dastat & RS_TOPLEFT))
 	{
-		ofs = { int16_t(picanm[globalpicnum].xofs + (siz.x >> 1)),
-				int16_t(picanm[globalpicnum].yofs + (siz.y >> 1)) };
+		ofs = { int16_t(picanm[picnum].xofs + (siz.x >> 1)),
+				int16_t(picanm[picnum].yofs + (siz.y >> 1)) };
 	}
 
 	if (dastat & RS_YFLIP)

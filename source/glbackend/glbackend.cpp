@@ -412,7 +412,14 @@ void GLInstance::SetCull(int type, int winding)
 void GLInstance::SetScissor(int x1, int y1, int x2, int y2)
 {
 	glScissor(x1, y1, x2, y2);
+	glEnable(GL_SCISSOR_TEST);
 }
+
+void GLInstance::DisableScissor()
+{
+	glDisable(GL_SCISSOR_TEST);
+}
+
 
 void GLInstance::SetColor(float r, float g, float b, float a)
 {
