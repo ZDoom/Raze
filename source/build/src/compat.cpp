@@ -6,28 +6,6 @@
 #include "compat.h"
 #include "debugbreak.h"
 
-#ifdef _WIN32
-# define NEED_SHLOBJ_H
-# include "windows_inc.h"
-#elif __APPLE__
-# include "osxbits.h"
-#endif
-
-#ifndef USE_PHYSFS
-#if defined(_MSC_VER)
-# include <io.h>
-#else
-# include <dirent.h>
-#endif
-#endif
-
-#if defined __linux || defined EDUKE32_BSD
-# include <libgen.h> // for dirname()
-#endif
-#if defined EDUKE32_BSD
-# include <limits.h> // for PATH_MAX
-# include <sys/sysctl.h> // for sysctl() to get path to executable
-#endif
 
 #include "baselayer.h"
 
@@ -161,7 +139,7 @@ char *Bstrtolower(char *str)
     if (!str)
         return NULL;
 
-    int len = Bstrlen(str);
+    int len = strlen(str);
 
     if (len <= 0)
         return str;
@@ -170,28 +148,9 @@ char *Bstrtolower(char *str)
 
     do
     {
-        *(str + i) = Btolower(*(str + i));
+        *(str + i) = tolower(*(str + i));
         i++;
     } while (--len);
 
     return str;
 }
-
-#if !defined(_WIN32)
-char *Bstrlwr(char *s)
-{
-    if (!s) return s;
-    char *t = s;
-    while (*t) { *t = Btolower(*t); t++; }
-    return s;
-}
-
-char *Bstrupr(char *s)
-{
-    if (!s) return s;
-    char *t = s;
-    while (*t) { *t = Btoupper(*t); t++; }
-    return s;
-}
-#endif
-

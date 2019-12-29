@@ -635,7 +635,6 @@ bool CCheatMgr::Check(char *pzString)
 {
     char buffer[80];
     strcpy(buffer, pzString);
-    Bstrupr(buffer);
     for (size_t i = 0; i < strlen(pzString); i++)
         buffer[i]++;
     for (int i = 0; i < 36; i++)
@@ -643,7 +642,7 @@ bool CCheatMgr::Check(char *pzString)
         int nCheatLen = strlen(s_CheatInfo[i].pzString);
         if (s_CheatInfo[i].flags & 1)
         {
-            if (!strncmp(buffer, s_CheatInfo[i].pzString, nCheatLen))
+            if (!strnicmp(buffer, s_CheatInfo[i].pzString, nCheatLen))
             {
                 Process(s_CheatInfo[i].id, buffer+nCheatLen);
                 return true;

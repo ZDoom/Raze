@@ -98,7 +98,6 @@ set( PCH_SOURCES
 	src/spike.cpp
 	src/sprite.cpp
 	src/sumo.cpp
-	src/swconfig.cpp
 	src/sync.cpp
 	src/text.cpp
 	src/track.cpp

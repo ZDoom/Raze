@@ -1346,10 +1346,9 @@ void viewDrawPlayerSlots(void)
     }
 }
 
-char gTempStr[128];
-
 void viewDrawPlayerFrags(void)
 {
+    FString gTempStr;
     viewDrawPlayerSlots();
     for (int i = 0, p = connecthead; p >= 0; i++, p = connectpoint2[p])
     {
@@ -1358,18 +1357,19 @@ void viewDrawPlayerFrags(void)
         int col = gPlayer[p].teamId & 3;
         char* name = gProfile[p].name;
         if (gProfile[p].skill == 2)
-            sprintf(gTempStr, "%s", name);
+            gTempStr.Format("%s", name);
         else
-            sprintf(gTempStr, "%s [%d]", name, gProfile[p].skill);
-        Bstrupr(gTempStr);
+            gTempStr.Format("%s [%d]", name, gProfile[p].skill);
+        gTempStr.ToUpper();
         viewDrawText(4, gTempStr, x + 4, y + 1, -128, 11 + col, 0, 0);
-        sprintf(gTempStr, "%2d", gPlayer[p].fragCount);
+        gTempStr.Format("%2d", gPlayer[p].fragCount);
         viewDrawText(4, gTempStr, x + 76, y + 1, -128, 11 + col, 2, 0);
     }
 }
 
 void viewDrawPlayerFlags(void)
 {
+    FString gTempStr;
     viewDrawPlayerSlots();
     for (int i = 0, p = connecthead; p >= 0; i++, p = connectpoint2[p])
     {
@@ -1378,13 +1378,13 @@ void viewDrawPlayerFlags(void)
         int col = gPlayer[p].teamId & 3;
         char* name = gProfile[p].name;
         if (gProfile[p].skill == 2)
-            sprintf(gTempStr, "%s", name);
+            gTempStr.Format("%s", name);
         else
-            sprintf(gTempStr, "%s [%d]", name, gProfile[p].skill);
-        Bstrupr(gTempStr);
+            gTempStr.Format("%s [%d]", name, gProfile[p].skill);
+        gTempStr.ToUpper();
         viewDrawText(4, gTempStr, x + 4, y + 1, -128, 11 + col, 0, 0);
 
-        sprintf(gTempStr, "F");
+        gTempStr.Format("F");
         x += 76;
         if (gPlayer[p].hasFlag & 2)
         {
@@ -1399,6 +1399,7 @@ void viewDrawPlayerFlags(void)
 
 void viewDrawCtfHudVanilla(ClockTicks arg)
 {
+    FString gTempStr;
     int x = 1, y = 1;
     if (dword_21EFD0[0] == 0 || ((int)totalclock & 8))
     {
@@ -1406,7 +1407,7 @@ void viewDrawCtfHudVanilla(ClockTicks arg)
         dword_21EFD0[0] = dword_21EFD0[0] - arg;
         if (dword_21EFD0[0] < 0)
             dword_21EFD0[0] = 0;
-        sprintf(gTempStr, "%-3d", dword_21EFB0[0]);
+        gTempStr.Format("%-3d", dword_21EFB0[0]);
         viewDrawText(0, gTempStr, x, y + 10, -128, 10, 0, 0, 256);
     }
     x = 319;
@@ -1416,7 +1417,7 @@ void viewDrawCtfHudVanilla(ClockTicks arg)
         dword_21EFD0[1] = dword_21EFD0[1] - arg;
         if (dword_21EFD0[1] < 0)
             dword_21EFD0[1] = 0;
-        sprintf(gTempStr, "%3d", dword_21EFB0[1]);
+        gTempStr.Format("%3d", dword_21EFB0[1]);
         viewDrawText(0, gTempStr, x, y + 10, -128, 7, 2, 0, 512);
     }
 }
@@ -1673,7 +1674,8 @@ void UpdateStatusBar(ClockTicks arg)
             TileHGauge(2208, 44, 190, pPlayer->armor[2], 3200);
             DrawStatNumber("%3d", pPlayer->armor[2]>>4, 2230, 50, 193, 0, 0);
         }
-        sprintf(gTempStr, "v%s", GetVersionString());
+        FString gTempStr;
+        gTempStr.Format("v%s", GetVersionString());
         viewDrawText(3, gTempStr, 20, 191, 32, 0, 1, 0);
 
         for (int i = 0; i < 6; i++)
@@ -3532,7 +3534,7 @@ RORHACK:
     }
     else if (gView != gMe)
     {
-        sprintf(gTempStr, "] %s [", gProfile[gView->nPlayer].name);
+        FStringf gTempStr("] %s [", gProfile[gView->nPlayer].name);
         viewDrawText(0, gTempStr, 160, 10, 0, 0, 1, 0);
     }
     if (errMsg[0])

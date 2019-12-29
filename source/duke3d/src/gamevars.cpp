@@ -1075,8 +1075,8 @@ static int32_t G_StaticToDynamicSound(int32_t const sound)
 } while (0)
 #else
 # define ADDWEAPONVAR(Weapidx, Membname) do { \
-    Bsprintf(aszBuf, "WEAPON%d_" #Membname, Weapidx); \
-    Bstrupr(aszBuf); \
+    FStringf aszBuf("WEAPON%d_" #Membname, Weapidx); \
+    aszBuf.ToUpper(); \
     Gv_NewVar(aszBuf, weapondefaults[Weapidx].Membname, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM); \
 } while (0)
 #endif

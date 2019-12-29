@@ -548,12 +548,9 @@ MAPHEADER2 byte_19AE44;
 
 unsigned int dbReadMapCRC(const char *pPath)
 {
-    char name2[BMAX_PATH];
     byte_1A76C7 = 0;
     byte_1A76C8 = 0;
 
-    Bstrncpy(name2, pPath, BMAX_PATH);
-    Bstrupr(name2);
 	DICTNODE* pNode;
     pNode = gSysRes.Lookup(pPath, "MAP");
     if (!pNode)
@@ -604,7 +601,7 @@ const int nXSpriteSize = 56;
 const int nXWallSize = 24;
 
 int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC) {
-    char name2[BMAX_PATH]; int16_t tpskyoff[256];
+    int16_t tpskyoff[256];
     memset(show2dsector, 0, sizeof(show2dsector));
     memset(show2dwall, 0, sizeof(show2dwall));
     memset(show2dsprite, 0, sizeof(show2dsprite));
@@ -615,8 +612,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     Polymost_prepare_loadboard();
 #endif
 
-    Bstrncpy(name2, pPath, BMAX_PATH);
-    Bstrupr(name2);
 	DICTNODE* pNode;
 
     pNode = gSysRes.Lookup(pPath, "MAP");

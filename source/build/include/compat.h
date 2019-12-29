@@ -808,30 +808,9 @@ typedef struct {
 
 ////////// Language tricks that depend on size_t //////////
 
-#if defined _MSC_VER
-# define ARRAY_SIZE(arr) _countof(arr)
-#elif defined HAVE_CONSTEXPR
-template <typename T, size_t N>
-static FORCE_INLINE constexpr size_t ARRAY_SIZE(T const (&)[N]) noexcept
-{
-    return N;
-}
-#elif defined __cplusplus
-struct bad_arg_to_ARRAY_SIZE
-{
-   class Is_pointer; // incomplete
-   class Is_array {};
-   template <typename T>
-   static Is_pointer check_type(const T*, const T* const*);
-   static Is_array check_type(const void*, const void*);
-};
-# define ARRAY_SIZE(arr) ( \
-   0 * sizeof(reinterpret_cast<const ::bad_arg_to_ARRAY_SIZE*>(arr)) + \
-   0 * sizeof(::bad_arg_to_ARRAY_SIZE::check_type((arr), &(arr))) + \
-   sizeof(arr) / sizeof((arr)[0]) )
-#else
-# define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-#endif
+#include "basics.h"
+
+# define ARRAY_SIZE(arr) countof(arr)
 #define ARRAY_SSIZE(arr) (native_t)ARRAY_SIZE(arr)
 
 
@@ -961,9 +940,6 @@ static FORCE_INLINE CONSTEXPR uint64_t B_PASS64(uint64_t const x) { return x; }
 # define B_BIG16(x)    B_PASS16(x)
 #endif
 
-// TODO: Determine when, if ever, we should use the bit-shift-and-mask variants
-// due to alignment issues or performance gains.
-#if 1
 static FORCE_INLINE void B_BUF16(void * const buf, uint16_t const x) { *(uint16_t *) buf = x; }
 static FORCE_INLINE void B_BUF32(void * const buf, uint32_t const x) { *(uint32_t *) buf = x; }
 static FORCE_INLINE void B_BUF64(void * const buf, uint64_t const x) { *(uint64_t *) buf = x; }
@@ -971,54 +947,6 @@ static FORCE_INLINE void B_BUF64(void * const buf, uint64_t const x) { *(uint64_
 static FORCE_INLINE CONSTEXPR uint16_t B_UNBUF16(void const * const buf) { return *(uint16_t const *) buf; }
 static FORCE_INLINE CONSTEXPR uint32_t B_UNBUF32(void const * const buf) { return *(uint32_t const *) buf; }
 static FORCE_INLINE CONSTEXPR uint64_t B_UNBUF64(void const * const buf) { return *(uint64_t const *) buf; }
-#else
-static FORCE_INLINE void B_BUF16(void * const vbuf, uint16_t const x)
-{
-    uint8_t * const buf = (uint8_t *) vbuf;
-    buf[0] = (x & 0x00FF);
-    buf[1] = (x & 0xFF00) >> 8;
-}
-static FORCE_INLINE void B_BUF32(void * const vbuf, uint32_t const x)
-{
-    uint8_t * const buf = (uint8_t *) vbuf;
-    buf[0] = (x & 0x000000FF);
-    buf[1] = (x & 0x0000FF00) >> 8;
-    buf[2] = (x & 0x00FF0000) >> 16;
-    buf[3] = (x & 0xFF000000) >> 24;
-}
-# if 0
-// i686-apple-darwin11-llvm-gcc-4.2 complains "integer constant is too large for 'long' type"
-static FORCE_INLINE void B_BUF64(void * const vbuf, uint64_t const x)
-{
-    uint8_t * const buf = (uint8_t *) vbuf;
-    buf[0] = (x & 0x00000000000000FF);
-    buf[1] = (x & 0x000000000000FF00) >> 8;
-    buf[2] = (x & 0x0000000000FF0000) >> 16;
-    buf[3] = (x & 0x00000000FF000000) >> 24;
-    buf[4] = (x & 0x000000FF00000000) >> 32;
-    buf[5] = (x & 0x0000FF0000000000) >> 40;
-    buf[6] = (x & 0x00FF000000000000) >> 48;
-    buf[7] = (x & 0xFF00000000000000) >> 56;
-}
-# endif
-
-static FORCE_INLINE uint16_t B_UNBUF16(void const * const vbuf)
-{
-    uint8_t const * const buf = (uint8_t const *) vbuf;
-    return (buf[1] << 8) | (buf[0]);
-}
-static FORCE_INLINE uint32_t B_UNBUF32(void const * const vbuf)
-{
-    uint8_t const * const buf = (uint8_t const *) vbuf;
-    return (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
-}
-static FORCE_INLINE uint64_t B_UNBUF64(void const * const vbuf)
-{
-    uint8_t const * const buf = (uint8_t const *) vbuf;
-    return ((uint64_t)buf[7] << 56) | ((uint64_t)buf[6] << 48) | ((uint64_t)buf[5] << 40) |
-        ((uint64_t)buf[4] << 32) | (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | (buf[0]);
-}
-#endif
 
 
 ////////// Abstract data operations //////////
@@ -1174,18 +1102,6 @@ int32_t Bcorrectfilename(char *filename, int32_t removefn);
 char *Bstrtoken(char *s, const char *delim, char **ptrptr, int chop);
 char *Bstrtolower(char *str);
 
-#ifdef _WIN32
-# ifdef _MSC_VER
-#  define Bstrlwr _strlwr
-#  define Bstrupr _strupr
-# else
-#  define Bstrlwr strlwr
-#  define Bstrupr strupr
-# endif
-#else
-char *Bstrlwr(char *);
-char *Bstrupr(char *);
-#endif
 
 ////////// Miscellaneous //////////
 

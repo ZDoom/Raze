@@ -458,6 +458,7 @@ InitNetPlayerOptions(void)
     }
 }
 
+#if 0
 void
 SendMulitNameChange(char *new_name)
 {
@@ -468,7 +469,6 @@ SendMulitNameChange(char *new_name)
     if (!CommEnabled)
         return;
 
-    Bstrupr(new_name);
     strcpy(pp->PlayerName, new_name);
     playername = new_name;
     SetRedrawScreen(pp);
@@ -484,6 +484,7 @@ SendMulitNameChange(char *new_name)
         }
     }
 }
+#endif
 
 void
 SendVersion(int version)

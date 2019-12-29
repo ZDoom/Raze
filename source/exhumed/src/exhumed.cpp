@@ -2394,14 +2394,8 @@ GAMELOOP:
                         nBestLevel = levelnew - 1;
                         goto LOOP2;
 
-                    case 3: // When selecting 'Training' from ingame menu when already playing a level
-                        if (levelnum == 0 || !Query(2, 4, "Quit current game?", "Y/N", 'Y', 13, 'N', 27))
-                        {
-                            levelnew = 0;
-                            levelnum = 0;
-
-                            goto STARTGAME2;
-                        }
+                    case 3:
+                        goto STARTGAME2;
                     case 6:
                         goto GAMELOOP;
                 }
@@ -2760,112 +2754,6 @@ void EraseScreen(int nVal)
     }
 
     videoClearScreen(nVal);
-}
-
-int Query(short nLines, short nKeys, ...)
-{
-    short i;
-
-    char strings[20][80];
-    char keys[20];
-
-    va_list args;
-
-    short bPrevClip = bClip;
-    NoClip();
-
-    short nWidth = 0;
-
-    va_start(args, nKeys);
-
-    for (i = 0; i < nLines; i++)
-    {
-        char *str = va_arg(args, char*);
-        strcpy(strings[i], str);
-        Bstrupr(strings[i]);
-
-        int strWidth = MyGetStringWidth(strings[i]);
-
-        if (strWidth > nWidth) {
-            nWidth = strWidth;
-        }
-    }
-
-    for (i = 0; i < nKeys; i++) {
-        keys[i] = (char)va_arg(args, int);
-    }
-
-    va_end(args);
-
-    int nHeight = (nLines + 1) * 10;
-    int y1 = (200 - nHeight) / 2;
-    int yB = y1;
-
-    // add some padding to left and right sides of text in the box
-    nWidth += 30;
-
-    int x1 = (320 - nWidth) / 2;
-    int x2 = x1 + nWidth;
-
-    // if (bHiRes)
-    // {
-    //     x1 *= 2;
-    //     y1 *= 2;
-    //     nHeight *= 2;
-    //     x2 *= 2;
-    // }
-
-    y1 = scale(y1, ydim, 200);
-    nHeight = scale(nHeight, ydim, 200);
-    x1 = scale(x1-160, ydim*4/3, 320)+xdim/2;
-    x2 = scale(x2-160, ydim*4/3, 320)+xdim/2;
-
-    // draw background box that the text sits in
-    for (i = 0; i < nHeight; i++) {
-        renderDrawLine(x1 << 12, (y1 + i) << 12, x2 << 12, (y1 + i) << 12, overscanindex);
-    }
-
-    y1 = yB + 5;
-
-    // draw each line of text
-    for (i = 0; i < nLines; i++) {
-        myprintext((320 - MyGetStringWidth(strings[i])) / 2, (y1 + i*10) , strings[i], 0);
-    }
-
-    videoNextPage();
-
-    if (bPrevClip) {
-        Clip();
-    }
-
-    i = 0;
-
-    if (nKeys)
-    {
-        inputState.keyFlushChars();
-
-        while (1)
-        {
-            HandleAsync();
-
-            char key = toupper(inputState.keyGetChar());
-
-            for (i = 0; i < nKeys; i++)
-            {
-                if (keys[i] == 0 || key == keys[i])
-                {
-                    RefreshStatus();
-                    ClearAllKeys();
-                    return i;
-                }
-            }
-        }
-    }
-
-    RefreshStatus();
-    ClearAllKeys();
-
-    return i;
 }
 
 void InitSpiritHead()

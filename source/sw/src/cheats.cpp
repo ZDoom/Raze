@@ -50,7 +50,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 SWBOOL CheatInputMode = FALSE;
-char CheatInputString[256];
 SWBOOL EveryCheat = FALSE;
 SWBOOL ResCheat = FALSE;
 
@@ -480,17 +479,14 @@ void CheatInput(void)
 
     //if (CommEnabled)
     //    return;
-
-    strcpy(CheatInputString,MessageInputString);
-
-    // make sure string is lower cased
-    Bstrlwr(CheatInputString);
+    FString CheatInputString = MessageInputString;
+    CheatInputString.ToLower();
 
     // check for at least one single match
     for (i = 0; i < SIZ(ci); i++)
     {
         // compare without the NULL
-        if (cheatcmp(CheatInputString, ci[i].CheatInputCode, strlen(CheatInputString)) == 0)
+        if (cheatcmp(CheatInputString, ci[i].CheatInputCode, CheatInputString.Len()) == 0)
         {
 
             // if they are equal in length then its a complet match
