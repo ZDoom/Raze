@@ -21,7 +21,6 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 # error Visual Studio 2013 is the minimum supported version.
 #endif
 
-#include "collections.h"
 #include "compat.h"
 #include "palette.h"
 #include "pragmas.h"

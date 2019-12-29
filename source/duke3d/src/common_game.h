@@ -7,7 +7,6 @@
 #ifndef EDUKE32_COMMON_GAME_H_
 #define EDUKE32_COMMON_GAME_H_
 
-#include "collections.h"
 #include "gamecontrol.h"
 
 BEGIN_DUKE_NS
