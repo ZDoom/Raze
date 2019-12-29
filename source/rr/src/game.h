@@ -458,7 +458,14 @@ static inline int G_GetMusicIdx(const char *str)
     return (ep * MAXLEVELS) + lev;
 }
 
-static inline int G_GetViewscreenSizeShift(const uspritetype *tspr)
+extern void G_PrintCurrentMusic(void);
+
+EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
+
+EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue);
+
+template <typename T>
+static inline int G_GetViewscreenSizeShift(T const *tspr)
 {
 #if VIEWSCREENFACTOR == 0
     UNREFERENCED_PARAMETER(tspr);
@@ -474,16 +481,6 @@ static inline int G_GetViewscreenSizeShift(const uspritetype *tspr)
     return VIEWSCREENFACTOR;
 #endif
 }
-
-
-EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
-
-EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue);
-
-#endif
-
-
-#ifndef ONLY_USERDEFS
 
 #if defined game_c_ || !defined DISABLE_INLINING
 
