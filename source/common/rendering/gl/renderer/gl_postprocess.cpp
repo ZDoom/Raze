@@ -58,13 +58,13 @@ void FGLRenderer::RenderScreenQuad()
 	glDrawArrays(GL_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
 #else
 	glBegin(GL_TRIANGLE_STRIP);
-	glTexCoord2f(0, 0);
+    glVertexAttrib2f(1, 0, 0);
 	glVertex2f(-1, -1);
-	glTexCoord2f(0, 1);
+    glVertexAttrib2f(1, 0, 1);
 	glVertex2f(-1, 1);
-	glTexCoord2f(1, 0);
+    glVertexAttrib2f(1, 1, 0);
 	glVertex2f(1, -1);
-	glTexCoord2f(1, 1);
+    glVertexAttrib2f(1, 1, 1);
 	glVertex2f(1,1);
 	glEnd();
 #endif
