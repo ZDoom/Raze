@@ -410,7 +410,7 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 	strncpy (subsection, "ConsoleAliases", sublen);
 	SetSection (section, true);
 	ClearCurrentSection ();
-	//C_ArchiveAliases (this);
+	C_ArchiveAliases (this);
 
 	//M_SaveCustomKeys (this, section, subsection, sublen);
 
