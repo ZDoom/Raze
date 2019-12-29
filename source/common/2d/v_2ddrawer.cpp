@@ -774,10 +774,11 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	dg.mVertIndex = (int)mVertices.Reserve(4);
 	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
 	auto ptr = &mVertices[dg.mVertIndex];
-	ptr->Set(pxy[0].x / 65536.f, pxy[0].y / 65536.f, 0.f, 0.f, 0.f, p); ptr++;
-	ptr->Set(pxy[1].x / 65536.f, pxy[1].y / 65536.f, 0.f, 1.f, 0.f, p); ptr++;
-	ptr->Set(pxy[2].x / 65536.f, pxy[2].y / 65536.f, 0.f, 1.f, 1.f, p); ptr++;
-	ptr->Set(pxy[3].x / 65536.f, pxy[3].y / 65536.f, 0.f, 0.f, 1.f, p); ptr++;
+	float y = (dastat & RS_YFLIP) ? 1.f : 0.f;
+	ptr->Set(pxy[0].x / 65536.f, pxy[0].y / 65536.f, 0.f, 0.f, y, p); ptr++;
+	ptr->Set(pxy[1].x / 65536.f, pxy[1].y / 65536.f, 0.f, 1.f, y, p); ptr++;
+	ptr->Set(pxy[2].x / 65536.f, pxy[2].y / 65536.f, 0.f, 1.f, 1.f-y, p); ptr++;
+	ptr->Set(pxy[3].x / 65536.f, pxy[3].y / 65536.f, 0.f, 0.f, 1.f-y, p); ptr++;
 	dg.mIndexIndex = mIndices.Size();
 	dg.mIndexCount += 6;
 	AddIndices(dg.mVertIndex, 6, 0, 1, 2, 0, 2, 3);
