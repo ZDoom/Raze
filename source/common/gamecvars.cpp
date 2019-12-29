@@ -476,30 +476,25 @@ CUSTOM_CVAR(String, playername, "Player", CVAR_ARCHIVE | CVAR_USERINFO)
 CUSTOM_CVARD(Float, vid_gamma, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts gamma component of gamma ramp")
 {
 	if (self < 0) self = 0;
-	else if (self > 5) self = 5;
-	// todo: tell the system to update
+	else if (self > 4) self = 4;
 }
 
 CUSTOM_CVARD(Float, vid_contrast, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts contrast component of gamma ramp")
 {
 	if (self < 0) self = 0;
 	else if (self > 5) self = 5;
-	// todo: tell the system to update
 }
 
 CUSTOM_CVARD(Float, vid_brightness, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts brightness component of gamma ramp")
 {
-	if (self < 0) self = 0;
-	else if (self > 5) self = 5;
-	// todo: tell the system to update
+	if (self < -2) self = -2;
+	else if (self > 2) self = 2;
 }
 
-
-CUSTOM_CVARD(Float, vid_saturation, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts saturation component of gamma ramp")
+CUSTOM_CVARD(Float, vid_saturation, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts saturation component of gamma ramp")
 {
 	if (self < -3) self = -3;
 	else if (self > 3) self = 3;
-	// todo: tell the system to update
 }
 
 CVAR(Int, gl_satformula, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);

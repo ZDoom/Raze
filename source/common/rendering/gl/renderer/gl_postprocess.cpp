@@ -59,13 +59,13 @@ void FGLRenderer::RenderScreenQuad()
 #else
 	glBegin(GL_TRIANGLE_STRIP);
     glVertexAttrib2f(1, 0, 0);
-	glVertex2f(-1, -1);
+	glVertexAttrib2f(0, -1, -1);
     glVertexAttrib2f(1, 0, 1);
-	glVertex2f(-1, 1);
+	glVertexAttrib2f(0, -1, 1);
     glVertexAttrib2f(1, 1, 0);
-	glVertex2f(1, -1);
+	glVertexAttrib2f(0, 1, -1);
     glVertexAttrib2f(1, 1, 1);
-	glVertex2f(1,1);
+	glVertexAttrib2f(0, 1,1);
 	glEnd();
 #endif
 }
