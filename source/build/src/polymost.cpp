@@ -133,18 +133,6 @@ int32_t r_yshearing = 0;
 // used for fogcalc
 static float fogresult, fogresult2;
 
-static inline float float_trans(uint32_t maskprops, uint8_t blend)
-{
-    switch (maskprops)
-    {
-    case DAMETH_TRANS1:
-    case DAMETH_TRANS2:
-        return glblend[blend].def[maskprops-2].alpha;
-    default:
-        return 1.0f;
-    }
-}
-
 char ptempbuf[MAXWALLSB<<1];
 
 // polymost ART sky control
@@ -624,9 +612,10 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     float pc[4];
 
 	polytint_t const& tint = hictinting[globalpal];
-	pc[0] = (1.f - (tint.sr * (1.f / 255.f))) + (tint.sr * (1.f / 255.f));
-	pc[1] = (1.f - (tint.sg * (1.f / 255.f))) + (tint.sg * (1.f / 255.f));
-	pc[2] = (1.f - (tint.sb * (1.f / 255.f))) + (tint.sb * (1.f / 255.f));
+    // This makes no sense.
+    pc[0] = 1.f;// (1.f - (tint.sr * (1.f / 255.f))) + (tint.sr * (1.f / 255.f));
+	pc[1] = 1.f;// (1.f - (tint.sg * (1.f / 255.f))) + (tint.sg * (1.f / 255.f));
+	pc[2] = 1.f;// (1.f - (tint.sb * (1.f / 255.f))) + (tint.sb * (1.f / 255.f));
 
     // spriteext full alpha control
     pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
@@ -4739,6 +4728,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         polymost_dorotatespritemodel(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, uniqid);
         return;
     }
+#if 0
 
     polymost_outputGLDebugMessage(3, "polymost_dorotatesprite(sx:%d, sy:%d, z:%d, a:%hd, picnum:%hd, dashade:%hhd, dapalnum:%hhu, dastat:%d, daalpha:%hhu, dablend:%hhu, cx1:%d, cy1:%d, cx2:%d, cy2:%d, uniqid:%d)",
                                   sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2, uniqid);
@@ -4976,6 +4966,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     gvrcorrection = ogvrcorrection;
 
     polymost_identityrotmat();
+#endif
 }
 
 static float trapextx[2];

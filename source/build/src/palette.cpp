@@ -575,7 +575,7 @@ void setBlendFactor(int index, int alpha)
 	}
 }
 
-void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
+FRenderStyle GetBlend(int blend, int def)
 {
     static uint8_t const blendFuncTokens[NUMBLENDFACTORS] =
     {
@@ -586,20 +586,42 @@ void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
         STYLEALPHA_Src,
         STYLEALPHA_InvSrc,
         STYLEALPHA_Dst,
-		STYLEALPHA_InvDst,
-		STYLEALPHA_DstCol,
-		STYLEALPHA_InvDstCol,
-	};
+        STYLEALPHA_InvDst,
+        STYLEALPHA_DstCol,
+        STYLEALPHA_InvDstCol,
+    };
+    FRenderStyle rs;
+    rs.BlendOp = STYLEOP_Add;
+    glblenddef_t const* const glbdef = glblend[blend].def + def;
+    rs.SrcAlpha = blendFuncTokens[glbdef->src];
+    rs.SrcAlpha = blendFuncTokens[glbdef->dst];
+    rs.Flags = 0;
+    return rs;
+}
 
+void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
+{
     if (!enable)
     {
 		GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
 		return;
     }
-
-    glblenddef_t const * const glbdef = glblend[blend].def + def;
-	GLInterface.SetBlendFunc(blendFuncTokens[glbdef->src], blendFuncTokens[glbdef->dst]);
+    auto rs = GetBlend(blend, def);
+    GLInterface.SetBlendFunc(rs.SrcAlpha, rs.DestAlpha);
 }
+
+float float_trans(uint32_t maskprops, uint8_t blend)
+{
+    switch (maskprops)
+    {
+    case DAMETH_TRANS1:
+    case DAMETH_TRANS2:
+        return glblend[blend].def[maskprops - 2].alpha;
+    default:
+        return 1.0f;
+    }
+}
+
 #endif
 
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)

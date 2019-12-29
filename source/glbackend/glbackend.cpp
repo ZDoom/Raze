@@ -409,6 +409,11 @@ void GLInstance::SetCull(int type, int winding)
 	}
 }
 
+void GLInstance::SetScissor(int x1, int y1, int x2, int y2)
+{
+	glScissor(x1, y1, x2, y2);
+}
+
 void GLInstance::SetColor(float r, float g, float b, float a)
 {
 	glVertexAttrib4f(2, r, g, b, a);

@@ -11,6 +11,7 @@
 #ifndef palette_h_
 #define palette_h_
 
+#include "renderstyle.h"
 #include "filesystem/filesystem.h"
 
 #define MAXBASEPALS 256
@@ -128,7 +129,10 @@ typedef struct glblend_
 extern glblend_t const nullglblend, defaultglblend;
 extern glblend_t glblend[MAXBLENDTABS];
 
+FRenderStyle GetBlend(int blend, int def);
 extern void handle_blend(uint8_t enable, uint8_t blend, uint8_t def);
+float float_trans(uint32_t maskprops, uint8_t blend);
+
 #endif
 
 #endif

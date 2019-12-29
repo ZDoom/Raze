@@ -285,6 +285,7 @@ public:
 		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
 	}
 
+	void SetScissor(int x1, int y1, int x2, int y2);
 	void SetDepthFunc(int func);
 	void SetColorMask(bool on);
 	void SetDepthMask(bool on);

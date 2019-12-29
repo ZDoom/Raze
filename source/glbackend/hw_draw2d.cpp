@@ -33,6 +33,7 @@
 #include "v_draw.h"
 #include "palette.h"
 
+extern int16_t numshades;
 //===========================================================================
 // 
 // Vertex buffer for 2D drawer
@@ -125,30 +126,12 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 
 	for(auto &cmd : commands)
 	{
-		if (cmd.mType == F2DDrawer::DrawTypeRotateSprite)
-		{
-			// This just gets forwarded to the original drawer. Long term this should not survive and all calls be refactored.
-			UseColorOnly(false);
-			SetFadeDisable(false);
-			SetVertexBuffer(nullptr, 0, 0);
-			SetIndexBuffer(nullptr);
-			polymost_dorotatesprite(cmd.mVertIndex, cmd.mVertCount, cmd.mIndexIndex, cmd.mIndexCount, cmd.mSpecialColormap[0].d, cmd.mRemapIndex, cmd.mFlags, cmd.mSpecialColormap[1].d,
-				cmd.mDesaturate, cmd.mColor1.d, cmd.mScissor[0], cmd.mScissor[1], cmd.mScissor[2], cmd.mScissor[3], 0);
-			// Reset everything to the default.
-			SetFadeDisable(true);
-			EnableDepthTest(false);
-			EnableMultisampling(false);
-			EnableBlend(true);
-			EnableAlphaTest(true);
-			SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
-			SetVertexBuffer(vb.GetBufferObjects().first, 0, 0);
-			SetIndexBuffer(vb.GetBufferObjects().second);
-
-			continue;
-		}
 
 
 		int gltrans = -1;
+
+		SetBlendFunc(cmd.mRenderStyle.SrcAlpha, cmd.mRenderStyle.DestAlpha);
+		EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 		//state.SetRenderStyle(cmd.mRenderStyle);
 		//state.EnableBrightmap(!(cmd.mRenderStyle.Flags & STYLEF_ColorIsFixed));
 		//state.SetTextureMode(cmd.mDrawMode);
@@ -158,16 +141,16 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		{
 			// scissor test doesn't use the current viewport for the coordinates, so use real screen coordinates
 			// Note that the origin here is the lower left corner!
-			sciX = /*screen->ScreenToWindowX*/(cmd.mScissor[0]);
-			sciY = /*screen->ScreenToWindowY*/(cmd.mScissor[3]);
-			sciW = /*screen->ScreenToWindowX*/(cmd.mScissor[2]) - sciX;
-			sciH = /*screen->ScreenToWindowY*/(cmd.mScissor[1]) - sciY;
+			sciX = screen->ScreenToWindowX(cmd.mScissor[0]);
+			sciY = screen->ScreenToWindowY(cmd.mScissor[3]);
+			sciW = screen->ScreenToWindowX(cmd.mScissor[2]) - sciX;
+			sciH = screen->ScreenToWindowY(cmd.mScissor[1]) - sciY;
 		}
 		else
 		{
 			sciX = sciY = sciW = sciH = -1;
 		}
-		//SetScissor(sciX, sciY, sciW, sciH);
+		SetScissor(sciX, sciY, sciW, sciH);
 
 		//state.SetFog(cmd.mColor1, 0);
 		SetColor(1, 1, 1);
@@ -176,7 +159,19 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		if (cmd.mTexture != nullptr)
 		{
 			auto tex = cmd.mTexture;
-			SetNamedTexture(cmd.mTexture, cmd.mRemapIndex, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
+			if (cmd.mType == F2DDrawer::DrawTypeRotateSprite)
+			{
+				// todo: Set up hictinting. (broken as the feature is...)
+				SetShade(cmd.mRemapIndex >> 16, numshades);
+				SetFadeDisable(false);
+				SetTexture(0, tex, cmd.mRemapIndex & 0xffff, 4/*DAMETH_CLAMPED*/, SamplerClampXY);
+			}
+			else
+			{
+				SetFadeDisable(true);
+				SetShade(0, numshades);
+				SetNamedTexture(cmd.mTexture, cmd.mRemapIndex, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
+			}
 			UseColorOnly(false);
 		}
 		else
@@ -187,6 +182,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		switch (cmd.mType)
 		{
 		case F2DDrawer::DrawTypeTriangles:
+		case F2DDrawer::DrawTypeRotateSprite:
 			Draw(DT_TRIANGLES, cmd.mIndexIndex, cmd.mIndexCount);
 			break;
 
@@ -215,10 +211,12 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	UseColorOnly(false);
 	//state.EnableBrightmap(true);
 	//state.SetTextureMode(TM_NORMAL);
+	SetShade(0, numshades);
 	SetFadeDisable(false);
 	SetColor(1, 1, 1);
 	//drawer->mIsFirstPass = false;
 	twod.Clear();
+	EnableBlend(true);
 	EnableMultisampling(true);
 }
 

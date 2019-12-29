@@ -159,10 +159,6 @@ static FORCE_INLINE int32_t getpalookup(int32_t davis, int32_t dashade)
 
 static FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(davis, globalshade) << 8; }
 
-void dorotspr_handle_bit2(int32_t *sx, int32_t *sy, int32_t *z, int32_t dastat,
-                          int32_t cx1_plus_cx2, int32_t cy1_plus_cy2,
-                          int32_t *ret_yxaspect, int32_t *ret_xyaspect);
-
 ////// yax'y stuff //////
 #ifdef USE_OPENGL
 extern void polymost_scansector(int32_t sectnum);

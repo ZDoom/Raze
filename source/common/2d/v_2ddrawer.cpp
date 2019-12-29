@@ -579,32 +579,204 @@ void F2DDrawer::Clear()
 //dastat&128  1:draw all pages (permanent - no longer used)
 //cx1,...     clip window (actual screen coords)
 
+//==========================================================================
+//
+// INTERNAL helper function for classic/polymost dorotatesprite
+//  sxptr, sxptr, z: in/out
+//  ret_yxaspect, ret_xyaspect: out
+//
+//==========================================================================
+
+static void dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, int32_t dastat,
+	int32_t cx1_plus_cx2, int32_t cy1_plus_cy2,
+	int32_t* ret_yxaspect, int32_t* ret_xyaspect)
+{
+	if ((dastat & RS_AUTO) == 0)
+	{
+		if (!(dastat & RS_STRETCH) && 4 * ydim <= 3 * xdim)
+		{
+			*ret_yxaspect = (12 << 16) / 10;
+			*ret_xyaspect = (10 << 16) / 12;
+		}
+		else
+		{
+			*ret_yxaspect = yxaspect;
+			*ret_xyaspect = xyaspect;
+		}
+
+		// *sxptr and *syptr and *z are left unchanged
+
+		return;
+	}
+	else
+	{
+		// dastat&2: Auto window size scaling
+		const int32_t oxdim = xdim;
+		const int32_t oydim = ydim;
+		int32_t xdim = oxdim;  // SHADOWS global
+		int32_t ydim = oydim;
+
+		int32_t zoomsc, sx = *sxptr, sy = *syptr;
+		int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
+
+		sy += rotatesprite_y_offset;
+
+		if (!(dastat & RS_STRETCH) && 4 * ydim <= 3 * xdim)
+		{
+			if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
+				sx += NEGATE_ON_CONDITION(scale(120 << 16, xdim, ydim) - (160 << 16), !(dastat & RS_ALIGN_R));
+
+			if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
+				ydim = scale(xdim, 3, 4);
+			else
+				xdim = scale(ydim, 4, 3);
+
+			ouryxaspect = (12 << 16) / 10;
+			ourxyaspect = (10 << 16) / 12;
+		}
+
+		ouryxaspect = mulscale16(ouryxaspect, rotatesprite_yxaspect);
+		ourxyaspect = divscale16(ourxyaspect, rotatesprite_yxaspect);
+
+		// screen center to s[xy], 320<<16 coords.
+		const int32_t normxofs = sx - (320 << 15), normyofs = sy - (200 << 15);
+
+		// nasty hacks go here
+		if (!(dastat & RS_NOCLIP))
+		{
+			const int32_t twice_midcx = cx1_plus_cx2 + 2;
+
+			// screen x center to sx1, scaled to viewport
+			const int32_t scaledxofs = scale(normxofs, scale(xdimen, xdim, oxdim), 320);
+
+			sx = ((twice_midcx) << 15) + scaledxofs;
+
+			zoomsc = xdimenscale;   //= scale(xdimen,yxaspect,320);
+			zoomsc = mulscale16(zoomsc, rotatesprite_yxaspect);
+
+			if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
+				zoomsc = scale(zoomsc, ydim, oydim);
+
+			sy = ((cy1_plus_cy2 + 2) << 15) + mulscale16(normyofs, zoomsc);
+		}
+		else
+		{
+			//If not clipping to startmosts, & auto-scaling on, as a
+			//hard-coded bonus, scale to full screen instead
+
+			sx = (xdim << 15) + 32768 + scale(normxofs, xdim, 320);
+
+			zoomsc = scale(xdim, ouryxaspect, 320);
+			sy = (ydim << 15) + 32768 + mulscale16(normyofs, zoomsc);
+
+			if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
+				sy += (oydim - ydim) << 15;
+			else
+				sx += (oxdim - xdim) << 15;
+
+			if (dastat & RS_CENTERORIGIN)
+				sx += oxdim << 15;
+		}
+
+		*sxptr = sx;
+		*syptr = sy;
+		*z = mulscale16(*z, zoomsc);
+
+		*ret_yxaspect = ouryxaspect;
+		*ret_xyaspect = ourxyaspect;
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 	int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
 	int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
-	// This is mainly a hack because the rotatesprite code is far too messed up to integrate into the 2D drawer.
-	// This merely stores the parameters and later just calls polymost_rotatesprite do do the work.
-	// Cleanup can be done once everything is working.
-	RenderCommand dg;
+	RenderCommand dg = {};
+	int method = 0;
 
 	dg.mType = DrawTypeRotateSprite;
-
-	// Just store the values in the otherwise useless fields of the draw command instead of allocating separate memory.
-	dg.mVertIndex = sx;
-	dg.mVertCount = sy;
-	dg.mIndexIndex = z;
-	dg.mIndexCount = a;
-	dg.mSpecialColormap[0].d = picnum;
-	dg.mRemapIndex = dashade;
-	dg.mFlags = dapalnum;
-	dg.mSpecialColormap[1].d = dastat;
-	dg.mDesaturate = daalpha;
-	dg.mColor1.d = dablend;
 	dg.mScissor[0] = cx1;
 	dg.mScissor[1] = cy1;
 	dg.mScissor[2] = cx2;
 	dg.mScissor[3] = cy2;
-	mData.Push(dg);	// don't even try to merge.
-}
 
+	if (!(dastat & RS_NOMASK))
+	{
+		if (dastat & RS_TRANS1)
+			method |= (dastat & RS_TRANS2) ? DAMETH_TRANS2 : DAMETH_TRANS1;
+		else
+			method |= DAMETH_MASK;
+
+		dg.mRenderStyle = GetBlend(dablend, (dastat & RS_TRANS2) ? 1 : 0);
+	}
+	else
+	{
+		dg.mRenderStyle.SrcAlpha = STYLEALPHA_One;
+		dg.mRenderStyle.DestAlpha = STYLEALPHA_Zero;
+		dg.mRenderStyle.Flags = STYLEF_Alpha1;
+		dg.mRenderStyle.BlendOp = STYLEOP_Add;
+	}
+	float drawpoly_alpha = daalpha * (1.0f / 255.0f);
+	float alpha = float_trans(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
+
+	vec2_16_t const siz = tilesiz[picnum];
+	vec2_16_t ofs = { 0, 0 };
+
+	if (!(dastat & RS_TOPLEFT))
+	{
+		ofs = { int16_t(picanm[globalpicnum].xofs + (siz.x >> 1)),
+				int16_t(picanm[globalpicnum].yofs + (siz.y >> 1)) };
+	}
+
+	if (dastat & RS_YFLIP)
+		ofs.y = siz.y - ofs.y;
+
+	int32_t ourxyaspect = 65536, ouryxaspect = 65536;
+	dorotspr_handle_bit2(&sx, &sy, &z, dastat, cx1 + cx2, cy1 + cy2, &ouryxaspect, &ourxyaspect);
+
+	int32_t cosang = mulscale14(sintable[(a + 512) & 2047], z);
+	int32_t cosang2 = cosang;
+	int32_t sinang = mulscale14(sintable[a & 2047], z);
+	int32_t sinang2 = sinang;
+
+	if ((dastat & RS_AUTO) || (!(dastat & RS_NOCLIP)))  // Don't aspect unscaled perms
+	{
+		cosang2 = mulscale16(cosang2, ourxyaspect);
+		sinang2 = mulscale16(sinang2, ourxyaspect);
+	}
+
+	int32_t const cx = sx - ofs.x * cosang2 + ofs.y * sinang2;
+	int32_t const cy = sy - ofs.x * sinang - ofs.y * cosang;
+
+	vec2_t pxy[8] = { { cx, cy },
+					  { cx + siz.x * cosang2, cy + siz.x * sinang },
+					  { 0, 0 },
+					  { cx - siz.y * sinang2, cy + siz.y * cosang } };
+
+	pxy[2] = { pxy[1].x + pxy[3].x - pxy[0].x,
+			  pxy[1].y + pxy[3].y - pxy[0].y };
+
+
+	PalEntry p = 0xffffffff;
+	dg.mTexture = TileFiles.tiles[picnum];
+	dg.mRemapIndex = dapalnum | (dashade << 16);
+	dg.mVertCount = 4;
+	dg.mVertIndex = (int)mVertices.Reserve(4);
+	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
+	auto ptr = &mVertices[dg.mVertIndex];
+	ptr->Set(pxy[0].x / 65536.f, pxy[0].y / 65536.f, 0.f, 0.f, 0.f, p); ptr++;
+	ptr->Set(pxy[1].x / 65536.f, pxy[1].y / 65536.f, 0.f, 1.f, 0.f, p); ptr++;
+	ptr->Set(pxy[2].x / 65536.f, pxy[2].y / 65536.f, 0.f, 1.f, 1.f, p); ptr++;
+	ptr->Set(pxy[3].x / 65536.f, pxy[3].y / 65536.f, 0.f, 0.f, 1.f, p); ptr++;
+	dg.mIndexIndex = mIndices.Size();
+	dg.mIndexCount += 6;
+	AddIndices(dg.mVertIndex, 6, 0, 1, 2, 0, 2, 3);
+	AddCommand(&dg);
+
+}
