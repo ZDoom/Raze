@@ -1219,8 +1219,6 @@ static void Gv_AddSystemVars(void)
     }
 #endif
 
-    char aszBuf[64];
-
     for (int i=0; i<MAX_WEAPONS; i++)
     {
         ADDWEAPONVAR(i, Clip);

@@ -1736,7 +1736,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 		VSMatrix texmat(0);
 		texmat.translate(xpanning, ypanning, 1.0f);
 
-        if (!(tspr->extra&TSPR_EXTRA_MDHACK))
+        if (tspr->clipdist & TSPR_FLAGS_MDHACK)
         {
             //POGOTODO: if we add support for palette indexing on model skins, the texture for the palswap could be setup here
 

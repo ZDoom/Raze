@@ -249,8 +249,6 @@ extern int bVanilla;
 
 extern double g_frameDelay;
 
-static inline double calcFrameDelay(unsigned int const maxFPS) { return maxFPS ? timerGetPerformanceFrequency() / (double)maxFPS : 0.0; }
-
 enum {
     kPalNormal = 0,
     kPalNoDim,

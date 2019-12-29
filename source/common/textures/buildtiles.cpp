@@ -457,7 +457,7 @@ void BuildTiles::tileSetExternal(int tilenum, int width, int height, uint8_t* da
 //
 //==========================================================================
 
-int32_t tileCRC(int tileNum)
+int32_t tileGetCRC32(int tileNum)
 {
 	if ((unsigned)tileNum >= (unsigned)MAXTILES) return 0;
 	auto tile = TileFiles.tiles[tileNum];

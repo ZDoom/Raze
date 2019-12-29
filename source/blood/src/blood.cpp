@@ -1693,7 +1693,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
                 if (have_size)
                 {
-                    vec2_16_t const orig_size = tileGetSize(tile);
+                    vec2_16_t const orig_size = tilesiz[tile];
                     if (orig_size.x != tile_size.x && orig_size.y != tile_size.y)
                     {
                         // initprintf("Size of tile %d doesn't match! Size: (%d, %d), Expected: (%d, %d)\n", tile, orig_size.x, orig_size.y, tile_size.x, tile_size.y);

@@ -761,7 +761,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (have_crc32)
             {
-                int32_t const orig_crc32 = tileCRC(tile);
+                int32_t const orig_crc32 = tileGetCRC32(tile);
                 if (orig_crc32 != tile_crc32)
                 {
                     // initprintf("CRC32 of tile %d doesn't match! CRC32: %d, Expected: %d\n", tile, orig_crc32, tile_crc32);
