@@ -490,9 +490,9 @@ set( PLAT_SDL_SOURCES
 	)
 	
 set( PLAT_UNIX_SOURCES
-	platform/gtk/dynamicgtk.cpp
-	platform/gtk/gtkbits.cpp
-	platform/unix/i_specialpaths.cpp
+#	platform/gtk/dynamicgtk.cpp
+#	platform/gtk/gtkbits.cpp
+#	platform/unix/i_specialpaths.cpp
 	)
 	
 set( PLAT_OSX_SOURCES
