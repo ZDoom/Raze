@@ -703,12 +703,10 @@ void C_BindDefaults()
 	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "engine/origbinds.txt" : cl_defaultconfiguration == 2 ? "engine/leftbinds.txt" : "engine/defbinds.txt");
 }
 
-#if 0
 CCMD(binddefaults)
 {
 	C_BindDefaults();
 }
-#endif
 
 void C_SetDefaultBindings()
 {

@@ -589,7 +589,6 @@ int RunGame()
 	TileFiles.AddArt(addArt);
 
 	inputState.ClearAllInput();
-	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "engine/origbinds.txt" : cl_defaultconfiguration == 2 ? "engine/leftbinds.txt" : "engine/defbinds.txt");
 	
 	if (!GameConfig->IsInitialized())
 	{

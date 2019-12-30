@@ -319,7 +319,7 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 	subsection = section + countof(section) - sublen - 1;
 	section[countof(section) - 1] = '\0';
 
-	//C_SetDefaultBindings ();
+	C_SetDefaultBindings ();
 
 	const char* key, * value;
 	for (int i = 0; binders[i].label != NULL; ++i)
