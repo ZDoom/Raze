@@ -594,7 +594,7 @@ FRenderStyle GetBlend(int blend, int def)
     rs.BlendOp = STYLEOP_Add;
     glblenddef_t const* const glbdef = glblend[blend].def + def;
     rs.SrcAlpha = blendFuncTokens[glbdef->src];
-    rs.SrcAlpha = blendFuncTokens[glbdef->dst];
+    rs.DestAlpha = blendFuncTokens[glbdef->dst];
     rs.Flags = 0;
     return rs;
 }
