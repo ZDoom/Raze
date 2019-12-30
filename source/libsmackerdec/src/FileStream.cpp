@@ -20,12 +20,15 @@
 #include "FileStream.h"
 #include "filesystem/filesystem.h"
 #include <stdlib.h>
+#include "cmdlib.h"
 
 namespace SmackerCommon {
 
 bool FileStream::Open(const char *fileName)
 {
-    file = fileSystem.OpenFileReader(fileName, 0);
+	FString fixedname = fileName;
+	FixPathSeperator(fixedname);
+    file = fileSystem.OpenFileReader(fixedname, 0);
 	if (!file.isOpen())
 	{
 		// log error
