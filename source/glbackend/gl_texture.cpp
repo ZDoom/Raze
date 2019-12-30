@@ -157,6 +157,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	int usepalswap = fixpalswap >= 1 ? fixpalswap - 1 : palette;
 	GLInterface.SetPalette(usepalette);
 	GLInterface.SetPalswap(usepalswap);
+	bool texbound[3] = {};
 
 	TextureType = hw_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
 
@@ -192,6 +193,8 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
 		}
 		else renderState.Flags &= ~RF_UsePalette;
+		UseDetailMapping(false);
+		UseGlowMapping(false);
 		UseBrightmaps(false);
 
 		BindTexture(0, mtex, sampler);
@@ -223,6 +226,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				auto htex = LoadTexture(det, TT_HICREPLACE, 0);
 				UseDetailMapping(true);
 				BindTexture(3, htex, SamplerRepeat);
+				texbound[0] = true;
 
 				// Q: Pass the scale factor as a separate uniform to get rid of the additional matrix?
 				if (MatrixChange & 1) MatrixChange |= 2;
@@ -240,7 +244,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 		{
 			if (!(method & DAMETH_MODEL))
 			{
-				auto drep = tex->FindReplacement(DETAILPAL);
+				auto drep = tex->FindReplacement(GLOWPAL);
 				if (drep)
 				{
 					glow = drep->faces[0];
@@ -251,6 +255,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				auto htex = LoadTexture(glow, TT_HICREPLACE, 0);
 				UseGlowMapping(true);
 				BindTexture(4, htex, SamplerRepeat);
+				texbound[1] = true;
 			}
 		}
 #if 1
@@ -264,6 +269,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 					LoadTexture(brep->faces[0], TT_HICREPLACE, 0);
 					UseBrightmaps(true);
 					BindTexture(5, mtex, sampler);
+					texbound[2] = true;
 				}
 				else
 				{
@@ -285,10 +291,14 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 					{
 						UseBrightmaps(true);
 						BindTexture(5, htex, sampler);
+						texbound[2] = true;
 					}
 				}
 			}
 		}
+		if (!texbound[0]) UnbindTexture(3);
+		if (!texbound[1]) UnbindTexture(4);
+		if (!texbound[2]) UnbindTexture(5);
 #endif
 	}
 	else return false;

@@ -39,6 +39,7 @@
 
 #include "bitmap.h"
 #include "image.h"
+#include "palette.h"
 #include "../glbackend/gl_hwtexture.h"
 
 FTexture *CreateBrightmapTexture(FImageSource*);
@@ -413,7 +414,7 @@ HightileReplacement *FTexture::FindReplacement(int palnum, bool skybox)
 		{
 			if (rep.palnum == palnum && (rep.faces[1] != nullptr) == skybox) return &rep;
 		}
-        if (!palnum) break;
+        if (!palnum || palnum >= MAXPALOOKUPS - RESERVEDPALS) break;
         palnum = 0;
     }
     return nullptr;	// no replacement found
