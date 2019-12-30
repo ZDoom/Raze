@@ -587,26 +587,18 @@ void F2DDrawer::Clear()
 //
 //==========================================================================
 
-static void dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, int32_t dastat,
-	int32_t cx1_plus_cx2, int32_t cy1_plus_cy2,
-	int32_t* ret_yxaspect, int32_t* ret_xyaspect)
+static int32_t dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, int32_t dastat, int32_t cx1_plus_cx2, int32_t cy1_plus_cy2)
 {
 	if ((dastat & RS_AUTO) == 0)
 	{
 		if (!(dastat & RS_STRETCH) && 4 * ydim <= 3 * xdim)
 		{
-			*ret_yxaspect = (12 << 16) / 10;
-			*ret_xyaspect = (10 << 16) / 12;
+			return (10 << 16) / 12;
 		}
 		else
 		{
-			*ret_yxaspect = yxaspect;
-			*ret_xyaspect = xyaspect;
+			return xyaspect;
 		}
-
-		// *sxptr and *syptr and *z are left unchanged
-
-		return;
 	}
 	else
 	{
@@ -682,8 +674,7 @@ static void dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, int
 		*syptr = sy;
 		*z = mulscale16(*z, zoomsc);
 
-		*ret_yxaspect = ouryxaspect;
-		*ret_xyaspect = ourxyaspect;
+		return ourxyaspect;
 	}
 }
 
@@ -695,18 +686,18 @@ static void dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, int
 
 void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 	int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-	int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+	int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2)
 {
 	RenderCommand dg = {};
 	int method = 0;
 
 	dg.mType = DrawTypeRotateSprite;
-	if (cx1 > 0 || cy1 > 0 || cx2 < xdim - 1 || cy2 < ydim - 1)
+	if (clipx1 > 0 || clipy1 > 0 || clipx2 < xdim - 1 || clipy2 < ydim - 1)
 	{
-		dg.mScissor[0] = cx1;
-		dg.mScissor[1] = cy1;
-		dg.mScissor[2] = cx2 + 1;
-		dg.mScissor[3] = cy2 + 1;
+		dg.mScissor[0] = clipx1;
+		dg.mScissor[1] = clipy1;
+		dg.mScissor[2] = clipx2 + 1;
+		dg.mScissor[3] = clipy2 + 1;
 		dg.mFlags |= DTF_Scissor;
 	}
 
@@ -721,11 +712,16 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	}
 	else
 	{
-		dg.mRenderStyle.SrcAlpha = STYLEALPHA_One;
-		dg.mRenderStyle.DestAlpha = STYLEALPHA_Zero;
-		dg.mRenderStyle.Flags = STYLEF_Alpha1;
-		dg.mRenderStyle.BlendOp = STYLEOP_Add;
+		dg.mRenderStyle = LegacyRenderStyles[STYLE_Normal];
 	}
+
+	PalEntry p = 0xffffffff;
+	dg.mTexture = TileFiles.tiles[picnum];
+	dg.mRemapIndex = dapalnum | (dashade << 16);
+	dg.mVertCount = 4;
+	dg.mVertIndex = (int)mVertices.Reserve(4);
+	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
+	auto ptr = &mVertices[dg.mVertIndex];
 	float drawpoly_alpha = daalpha * (1.0f / 255.0f);
 	float alpha = float_trans(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
 
@@ -741,8 +737,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	if (dastat & RS_YFLIP)
 		ofs.y = siz.y - ofs.y;
 
-	int32_t ourxyaspect = 65536, ouryxaspect = 65536;
-	dorotspr_handle_bit2(&sx, &sy, &z, dastat, cx1 + cx2, cy1 + cy2, &ouryxaspect, &ourxyaspect);
+	int32_t aspectcorrect = dorotspr_handle_bit2(&sx, &sy, &z, dastat, clipx1 + clipx2, clipy1 + clipy2);
 
 	int32_t cosang = mulscale14(sintable[(a + 512) & 2047], z);
 	int32_t cosang2 = cosang;
@@ -751,34 +746,28 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
 	if ((dastat & RS_AUTO) || (!(dastat & RS_NOCLIP)))  // Don't aspect unscaled perms
 	{
-		cosang2 = mulscale16(cosang2, ourxyaspect);
-		sinang2 = mulscale16(sinang2, ourxyaspect);
+		cosang2 = mulscale16(cosang2, aspectcorrect);
+		sinang2 = mulscale16(sinang2, aspectcorrect);
 	}
 
-	int32_t const cx = sx - ofs.x * cosang2 + ofs.y * sinang2;
-	int32_t const cy = sy - ofs.x * sinang - ofs.y * cosang;
+	int cx0 = sx - ofs.x * cosang2 + ofs.y * sinang2;
+	int cy0 = sy - ofs.x * sinang - ofs.y * cosang;
 
-	vec2_t pxy[8] = { { cx, cy },
-					  { cx + siz.x * cosang2, cy + siz.x * sinang },
-					  { 0, 0 },
-					  { cx - siz.y * sinang2, cy + siz.y * cosang } };
+	int cx1 = cx0 + siz.x * cosang2;
+	int cy1 = cy0 + siz.x * sinang;
 
-	pxy[2] = { pxy[1].x + pxy[3].x - pxy[0].x,
-			  pxy[1].y + pxy[3].y - pxy[0].y };
+	int cx3 = cx0 - siz.y * sinang2;
+	int cy3 = cy0 + siz.y * cosang;
 
+	int cx2 = cx1 + cx3 - cx0;
+	int cy2 = cy1 + cy3 - cy0;
 
-	PalEntry p = 0xffffffff;
-	dg.mTexture = TileFiles.tiles[picnum];
-	dg.mRemapIndex = dapalnum | (dashade << 16);
-	dg.mVertCount = 4;
-	dg.mVertIndex = (int)mVertices.Reserve(4);
-	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
-	auto ptr = &mVertices[dg.mVertIndex];
 	float y = (dastat & RS_YFLIP) ? 1.f : 0.f;
-	ptr->Set(pxy[0].x / 65536.f, pxy[0].y / 65536.f, 0.f, 0.f, y, p); ptr++;
-	ptr->Set(pxy[1].x / 65536.f, pxy[1].y / 65536.f, 0.f, 1.f, y, p); ptr++;
-	ptr->Set(pxy[2].x / 65536.f, pxy[2].y / 65536.f, 0.f, 1.f, 1.f-y, p); ptr++;
-	ptr->Set(pxy[3].x / 65536.f, pxy[3].y / 65536.f, 0.f, 0.f, 1.f-y, p); ptr++;
+
+	ptr->Set(cx0 / 65536.f, cy0 / 65536.f, 0.f, 0.f, y, p); ptr++;
+	ptr->Set(cx1 / 65536.f, cy1 / 65536.f, 0.f, 1.f, y, p); ptr++;
+	ptr->Set(cx2 / 65536.f, cy2 / 65536.f, 0.f, 1.f, 1.f-y, p); ptr++;
+	ptr->Set(cx3 / 65536.f, cy3 / 65536.f, 0.f, 0.f, 1.f-y, p); ptr++;
 	dg.mIndexIndex = mIndices.Size();
 	dg.mIndexCount += 6;
 	AddIndices(dg.mVertIndex, 6, 0, 1, 2, 0, 2, 3);
