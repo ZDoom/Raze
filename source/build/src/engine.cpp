@@ -9446,8 +9446,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     return 0;
 }
 
-void DrawFullscreenBlends();
-
 //
 // nextpage
 //
@@ -9472,8 +9470,6 @@ void videoNextPage(void)
     {
  		g_beforeSwapTime = timerGetHiTicks();
 
-		// Draw the console plus debug output on top of everything else.
-		DrawFullscreenBlends();
 		videoShowFrame(0);
     }
 
@@ -10732,8 +10728,6 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                    int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                    int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
-    int32_t i;
-
     if ((unsigned)picnum >= MAXTILES)
         return;
 
@@ -10754,7 +10748,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
         return;
     }
     // We must store all calls in the 2D drawer so that the backend can operate on a clean 3D view.
-    twod.rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2);
+    twod->rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2);
 
     // RS_PERM code was removed because the current backend supports only one page that needs to be redrawn each frame in which case the perm list was skipped anyway.
 }

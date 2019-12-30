@@ -380,7 +380,7 @@ void DrawView(int smoothRatio)
         bgpages--;
     }
 #else
-    FlushMessageLine();
+    //FlushMessageLine();
     RefreshBackground();
 #endif
 

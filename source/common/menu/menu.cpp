@@ -328,11 +328,11 @@ void DMenu::Drawer ()
 		int y = (!(m_show_backbutton&2))? 0:screen->GetHeight() - h;
 		if (mBackbuttonSelected && (mMouseCapture || m_use_mouse == 1))
 		{
-			DrawTexture(&twod, tex, x, y, DTA_CleanNoMove, true, DTA_ColorOverlay, MAKEARGB(40, 255,255,255), TAG_DONE);
+			DrawTexture(twod, tex, x, y, DTA_CleanNoMove, true, DTA_ColorOverlay, MAKEARGB(40, 255,255,255), TAG_DONE);
 		}
 		else
 		{
-			DrawTexture(&twod, tex, x, y, DTA_CleanNoMove, true, DTA_Alpha, BackbuttonAlpha, TAG_DONE);
+			DrawTexture(twod, tex, x, y, DTA_CleanNoMove, true, DTA_Alpha, BackbuttonAlpha, TAG_DONE);
 		}
 	}
 }
@@ -879,7 +879,7 @@ void M_Drawer (void)
 
 	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off)
 	{
-		if (DMenu::CurrentMenu->DimAllowed() && fade && !DrawBackground) twod.AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
+		if (DMenu::CurrentMenu->DimAllowed() && fade && !DrawBackground) twod->AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
 
 		bool going = false;
 		if (transition.previous)

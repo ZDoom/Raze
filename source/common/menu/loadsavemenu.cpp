@@ -158,10 +158,10 @@ protected:
 
 		PalEntry frameColor(255, 80, 80, 80);	// todo: pick a proper color per game.
 		PalEntry fillColor(160, 0, 0, 0);
-		DrawFrame(&twod, frameColor, savepicLeft, savepicTop, savepicWidth, savepicHeight, -1);
+		DrawFrame(twod, frameColor, savepicLeft, savepicTop, savepicWidth, savepicHeight, -1);
 		if (!savegameManager.DrawSavePic(savepicLeft, savepicTop, savepicWidth, savepicHeight))
 		{
-			twod.AddColorOnlyQuad(savepicLeft, savepicTop, savepicWidth, savepicHeight, fillColor);
+			twod->AddColorOnlyQuad(savepicLeft, savepicTop, savepicWidth, savepicHeight, fillColor);
 
 			if (savegameManager.SavegameCount() > 0)
 			{
@@ -169,33 +169,33 @@ protected:
 				FString text = (Selected == -1 || !savegameManager.GetSavegame(Selected)->bOldVersion) ? GStrings("MNU_NOPICTURE") : GStrings("MNU_DIFFVERSION");
 				int textlen = NewSmallFont->StringWidth(text) * CleanXfac;
 
-				DrawText(&twod, NewSmallFont, CR_GOLD, savepicLeft + (savepicWidth - textlen) / 2,
+				DrawText(twod, NewSmallFont, CR_GOLD, savepicLeft + (savepicWidth - textlen) / 2,
 					savepicTop + (savepicHeight - rowHeight) / 2, text, DTA_CleanNoMove, true, TAG_DONE);
 			}
 		}
 
 		// Draw comment area
-		DrawFrame(&twod, frameColor, commentLeft, commentTop, commentWidth, commentHeight, -1);
-		twod.AddColorOnlyQuad(commentLeft, commentTop, commentWidth, commentHeight, fillColor);
+		DrawFrame(twod, frameColor, commentLeft, commentTop, commentWidth, commentHeight, -1);
+		twod->AddColorOnlyQuad(commentLeft, commentTop, commentWidth, commentHeight, fillColor);
 
 		int numlinestoprint = std::min(commentRows, (int)BrokenSaveComment.Size());
 		for (int i = 0; i < numlinestoprint; i++)
 		{
-			DrawText(&twod, NewConsoleFont, CR_ORANGE, commentLeft / FontScale, (commentTop + rowHeight * i) / FontScale, BrokenSaveComment[i].Text,
+			DrawText(twod, NewConsoleFont, CR_ORANGE, commentLeft / FontScale, (commentTop + rowHeight * i) / FontScale, BrokenSaveComment[i].Text,
 				DTA_VirtualWidthF, screen->GetWidth() / FontScale, DTA_VirtualHeightF, screen->GetHeight() / FontScale, DTA_KeepRatio, true, TAG_DONE);
 		}
 
 
 		// Draw file area
-		DrawFrame(&twod, frameColor, listboxLeft, listboxTop, listboxWidth, listboxHeight, -1);
-		twod.AddColorOnlyQuad(listboxLeft, listboxTop, listboxWidth, listboxHeight, fillColor);
+		DrawFrame(twod, frameColor, listboxLeft, listboxTop, listboxWidth, listboxHeight, -1);
+		twod->AddColorOnlyQuad(listboxLeft, listboxTop, listboxWidth, listboxHeight, fillColor);
 
 		if (savegameManager.SavegameCount() == 0)
 		{
 			FString text = GStrings("MNU_NOFILES");
 			int textlen = int(NewConsoleFont->StringWidth(text) * FontScale);
 
-			DrawText(&twod, NewConsoleFont, CR_GOLD, (listboxLeft + (listboxWidth - textlen) / 2) / FontScale, (listboxTop + (listboxHeight - rowHeight) / 2) / FontScale, text,
+			DrawText(twod, NewConsoleFont, CR_GOLD, (listboxLeft + (listboxWidth - textlen) / 2) / FontScale, (listboxTop + (listboxHeight - rowHeight) / 2) / FontScale, text,
 				DTA_VirtualWidthF, screen->GetWidth() / FontScale, DTA_VirtualHeightF, screen->GetHeight() / FontScale, DTA_KeepRatio, true, TAG_DONE);
 			return;
 		}
@@ -226,11 +226,11 @@ protected:
 
 			if ((int)j == Selected)
 			{
-				twod.AddColorOnlyQuad(listboxLeft, listboxTop + rowHeight * i, listboxWidth, rowHeight, mEntering ? PalEntry(255, 255, 0, 0) : PalEntry(255, 0, 0, 255));
+				twod->AddColorOnlyQuad(listboxLeft, listboxTop + rowHeight * i, listboxWidth, rowHeight, mEntering ? PalEntry(255, 255, 0, 0) : PalEntry(255, 0, 0, 255));
 				didSeeSelected = true;
 				if (!mEntering)
 				{
-					DrawText(&twod, NewConsoleFont, colr, (listboxLeft + 1) / FontScale, (listboxTop + rowHeight * i + FontScale) / FontScale, node.SaveTitle,
+					DrawText(twod, NewConsoleFont, colr, (listboxLeft + 1) / FontScale, (listboxTop + rowHeight * i + FontScale) / FontScale, node.SaveTitle,
 						DTA_VirtualWidthF, screen->GetWidth() / FontScale, DTA_VirtualHeightF, screen->GetHeight() / FontScale, DTA_KeepRatio, true, TAG_DONE);
 				}
 				else
@@ -238,13 +238,13 @@ protected:
 					FStringf s("%s%c", mInput->GetText(), NewConsoleFont->GetCursor());
 					int length = int(NewConsoleFont->StringWidth(s) * FontScale);
 					int displacement = std::min(0, listboxWidth - 2 - length);
-					DrawText(&twod, NewConsoleFont, CR_WHITE, (listboxLeft + 1 + displacement) / FontScale, (listboxTop + rowHeight * i + FontScale) / FontScale, s,
+					DrawText(twod, NewConsoleFont, CR_WHITE, (listboxLeft + 1 + displacement) / FontScale, (listboxTop + rowHeight * i + FontScale) / FontScale, s,
 						DTA_VirtualWidthF, screen->GetWidth() / FontScale, DTA_VirtualHeightF, screen->GetHeight() / FontScale, DTA_KeepRatio, true, TAG_DONE);
 				}
 			}
 			else
 			{
-				DrawText(&twod, NewConsoleFont, colr, (listboxLeft + 1) / FontScale, (listboxTop + rowHeight * i + FontScale) / FontScale, node.SaveTitle,
+				DrawText(twod, NewConsoleFont, colr, (listboxLeft + 1) / FontScale, (listboxTop + rowHeight * i + FontScale) / FontScale, node.SaveTitle,
 					DTA_VirtualWidthF, screen->GetWidth() / FontScale, DTA_VirtualHeightF, screen->GetHeight() / FontScale, DTA_KeepRatio, true, TAG_DONE);
 			}
 			//screen->ClearClipRect();

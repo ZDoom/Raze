@@ -193,7 +193,7 @@ void DMessageBoxMenu::Drawer()
 
 			for (unsigned i = 0; i < mMessage.Size(); i++)
 			{
-				DrawText(&twod, SmallFont, CR_UNTRANSLATED, 160 - mMessage[i].Width / 2, y, mMessage[i].Text,
+				DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - mMessage[i].Width / 2, y, mMessage[i].Text,
 					DTA_Clean, true, TAG_DONE);
 				y += fontheight;
 			}
@@ -203,10 +203,10 @@ void DMessageBoxMenu::Drawer()
 		{
 			y += fontheight;
 			mMouseY = y;
-			DrawText(&twod, NewSmallFont,
+			DrawText(twod, NewSmallFont,
 				messageSelection == 0 ? OptionSettings.mFontColorSelection : OptionSettings.mFontColor,
 				160, y, GStrings["TXT_YES"], DTA_Clean, true, TAG_DONE);
-			DrawText(&twod, NewSmallFont,
+			DrawText(twod, NewSmallFont,
 				messageSelection == 1 ? OptionSettings.mFontColorSelection : OptionSettings.mFontColor,
 				160, y + fontheight + 1, GStrings["TXT_NO"], DTA_Clean, true, TAG_DONE);
 
@@ -214,7 +214,7 @@ void DMessageBoxMenu::Drawer()
 			{
 				if (((DMenu::MenuTime >> 2) % 8) < 6)
 				{
-					DrawText(&twod, NewSmallFont, OptionSettings.mFontColorSelection,
+					DrawText(twod, NewSmallFont, OptionSettings.mFontColorSelection,
 						(150 - 160) * CleanXfac + screen->GetWidth() / 2,
 						(y + (fontheight + 1) * messageSelection - 100 + fontheight / 2 - 5) * CleanYfac + screen->GetHeight() / 2,
 						"\xd",
@@ -227,7 +227,7 @@ void DMessageBoxMenu::Drawer()
 	}
 	else
 	{
-		twod.AddColorOnlyQuad(0, 0, xdim, ydim, 0xa0000000);
+		twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xa0000000);
 		gi->DrawCenteredTextScreen(origin, mFullMessage, 100, false);
 	}
 }

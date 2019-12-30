@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "object.h"
 #include <string.h>
 #include <assert.h>
+#include "v_2ddrawer.h"
 
 BEGIN_PS_NS
 
@@ -936,6 +937,7 @@ void DrawWeapons(int smooth)
     if (nWeapon < -1) {
         return;
     }
+    PspTwoDSetter set;
 
     short var_34 = PlayerList[nLocalPlayer].field_3A;
 

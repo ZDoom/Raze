@@ -39,7 +39,9 @@
 //#include "g_levellocals.h"
 //#include "vm.h"
 
-F2DDrawer twod;
+F2DDrawer twodpsp;
+F2DDrawer twodgen;
+F2DDrawer *twod = &twodgen;
 
 //==========================================================================
 //

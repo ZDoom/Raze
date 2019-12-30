@@ -206,25 +206,25 @@ public:
 	{
 		if (scale == 1)
 		{
-			DrawChar(&twod, CurrentConsoleFont, CR_ORANGE, x, y, '\x1c', TAG_DONE);
-			DrawText(&twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->CharWidth(0x1c), y,
+			DrawChar(twod, CurrentConsoleFont, CR_ORANGE, x, y, '\x1c', TAG_DONE);
+			DrawText(twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->CharWidth(0x1c), y,
 				&Text[StartPos], TAG_DONE);
 
 			if (cursor)
 			{
-				DrawChar(&twod, CurrentConsoleFont, CR_YELLOW,
+				DrawChar(twod, CurrentConsoleFont, CR_YELLOW,
 					x + CurrentConsoleFont->CharWidth(0x1c) + (CursorPosCells - StartPosCells) * CurrentConsoleFont->CharWidth(0xb),
 					y, '\xb', TAG_DONE);
 			}
 		}
 		else
 		{
-			DrawChar(&twod, CurrentConsoleFont, CR_ORANGE, x, y, '\x1c',
+			DrawChar(twod, CurrentConsoleFont, CR_ORANGE, x, y, '\x1c',
 				DTA_VirtualWidth, screen->GetWidth() / scale,
 				DTA_VirtualHeight, screen->GetHeight() / scale,
 				DTA_KeepRatio, true, TAG_DONE);
 
-			DrawText(&twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->CharWidth(0x1c), y,
+			DrawText(twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->CharWidth(0x1c), y,
 				&Text[StartPos],
 				DTA_VirtualWidth, screen->GetWidth() / scale,
 				DTA_VirtualHeight, screen->GetHeight() / scale,
@@ -232,7 +232,7 @@ public:
 
 			if (cursor)
 			{
-				DrawChar(&twod, CurrentConsoleFont, CR_YELLOW,
+				DrawChar(twod, CurrentConsoleFont, CR_YELLOW,
 					x + CurrentConsoleFont->CharWidth(0x1c) + (CursorPosCells - StartPosCells) * CurrentConsoleFont->CharWidth(0xb),
 					y, '\xb',
 					DTA_VirtualWidth, screen->GetWidth() / scale,
@@ -1116,13 +1116,13 @@ void FNotifyBuffer::Draw()
 
 			int scale = active_con_scaletext(generic_ui);
 			if (!center)
-				DrawText (&twod, font, color, 0, line, notify.Text,
+				DrawText (twod, font, color, 0, line, notify.Text,
 					DTA_VirtualWidth, screen->GetWidth() / scale,
 					DTA_VirtualHeight, screen->GetHeight() / scale,
 					DTA_KeepRatio, true,
 					DTA_Alpha, alpha, TAG_DONE);
 			else
-				DrawText (&twod, font, color, (screen->GetWidth() -
+				DrawText (twod, font, color, (screen->GetWidth() -
 					font->StringWidth (notify.Text) * scale) / 2 / scale,
 					line, notify.Text,
 					DTA_VirtualWidth, screen->GetWidth() / scale,
@@ -1182,7 +1182,7 @@ void C_DrawConsole ()
 
 		if (conback)
 		{
-			DrawTexture (&twod, conback, 0, visheight - screen->GetHeight(),
+			DrawTexture (twod, conback, 0, visheight - screen->GetHeight(),
 						 DTA_DestWidth, screen->GetWidth(),
 						 DTA_DestHeight, screen->GetHeight(),
 						 DTA_ColorOverlay, conshade,
@@ -1193,22 +1193,22 @@ void C_DrawConsole ()
 		else
 		{
 			PalEntry pe((uint8_t)(con_alpha * 255), 0, 0, 0);
-			twod.AddColorOnlyQuad(0, 0, screen->GetWidth(), visheight, pe);
+			twod->AddColorOnlyQuad(0, 0, screen->GetWidth(), visheight, pe);
 		}
 		if (conline && visheight < screen->GetHeight())
 		{
-			twod.AddColorOnlyQuad(0, visheight, screen->GetWidth(), visheight+1, 0xff000000);
+			twod->AddColorOnlyQuad(0, visheight, screen->GetWidth(), visheight+1, 0xff000000);
 		}
 
 		if (ConBottom >= 12)
 		{
 			if (textScale == 1)
-				DrawText (&twod, CurrentConsoleFont, CR_ORANGE, screen->GetWidth() - 8 -
+				DrawText (twod, CurrentConsoleFont, CR_ORANGE, screen->GetWidth() - 8 -
 					CurrentConsoleFont->StringWidth (GetVersionString()),
 					ConBottom / textScale - CurrentConsoleFont->GetHeight() - 4,
 					GetVersionString(), TAG_DONE);
 			else
-				DrawText(&twod, CurrentConsoleFont, CR_ORANGE, screen->GetWidth() / textScale - 8 -
+				DrawText(twod, CurrentConsoleFont, CR_ORANGE, screen->GetWidth() / textScale - 8 -
 					CurrentConsoleFont->StringWidth(GetVersionString()),
 					ConBottom / textScale - CurrentConsoleFont->GetHeight() - 4,
 					GetVersionString(),
@@ -1241,11 +1241,11 @@ void C_DrawConsole ()
 		{
 			if (textScale == 1)
 			{
-				DrawText(&twod, CurrentConsoleFont, CR_TAN, LEFTMARGIN, offset + lines * CurrentConsoleFont->GetHeight(), p->Text, TAG_DONE);
+				DrawText(twod, CurrentConsoleFont, CR_TAN, LEFTMARGIN, offset + lines * CurrentConsoleFont->GetHeight(), p->Text, TAG_DONE);
 			}
 			else
 			{
-				DrawText(&twod, CurrentConsoleFont, CR_TAN, LEFTMARGIN, offset + lines * CurrentConsoleFont->GetHeight(), p->Text,
+				DrawText(twod, CurrentConsoleFont, CR_TAN, LEFTMARGIN, offset + lines * CurrentConsoleFont->GetHeight(), p->Text,
 					DTA_VirtualWidth, screen->GetWidth() / textScale,
 					DTA_VirtualHeight, screen->GetHeight() / textScale,
 					DTA_KeepRatio, true, TAG_DONE);
@@ -1263,9 +1263,9 @@ void C_DrawConsole ()
 				// Indicate that the view has been scrolled up (10)
 				// and if we can scroll no further (12)
 				if (textScale == 1)
-					DrawChar (&twod, CurrentConsoleFont, CR_GREEN, 0, bottomline, RowAdjust == conbuffer->GetFormattedLineCount() ? 12 : 10, TAG_DONE);
+					DrawChar (twod, CurrentConsoleFont, CR_GREEN, 0, bottomline, RowAdjust == conbuffer->GetFormattedLineCount() ? 12 : 10, TAG_DONE);
 				else
-					DrawChar(&twod, CurrentConsoleFont, CR_GREEN, 0, bottomline, RowAdjust == conbuffer->GetFormattedLineCount() ? 12 : 10,
+					DrawChar(twod, CurrentConsoleFont, CR_GREEN, 0, bottomline, RowAdjust == conbuffer->GetFormattedLineCount() ? 12 : 10,
 						DTA_VirtualWidth, screen->GetWidth() / textScale,
 						DTA_VirtualHeight, screen->GetHeight() / textScale,
 						DTA_KeepRatio, true, TAG_DONE);

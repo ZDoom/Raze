@@ -321,7 +321,7 @@ void FListMenuItem::DrawSelector(int xofs, int yofs, FTexture *tex)
 	{
 		if ((DMenu::MenuTime%8) < 6)
 		{
-			DrawText(&twod, ConFont, OptionSettings.mFontColorSelection,
+			DrawText(twod, ConFont, OptionSettings.mFontColorSelection,
 				(mXpos + xofs - 160) * CleanXfac + screen->GetWidth() / 2,
 				(mYpos + yofs - 100) * CleanYfac + screen->GetHeight() / 2,
 				"\xd",
@@ -332,7 +332,7 @@ void FListMenuItem::DrawSelector(int xofs, int yofs, FTexture *tex)
 	}
 	else
 	{
-		DrawTexture (&twod, tex, mXpos + xofs, mYpos + yofs, DTA_Clean, true, TAG_DONE);
+		DrawTexture (twod, tex, mXpos + xofs, mYpos + yofs, DTA_Clean, true, TAG_DONE);
 	}
 }
 
@@ -417,13 +417,13 @@ void FListMenuItemStaticPatch::Drawer(DListMenu* menu, const DVector2& origin, b
 	if (mYpos >= 0)
 	{
 		if (mCentered) x -= tex->GetWidth()/2;
-		DrawTexture (&twod, tex, x, mYpos, DTA_Clean, true, TAG_DONE);
+		DrawTexture (twod, tex, x, mYpos, DTA_Clean, true, TAG_DONE);
 	}
 	else
 	{
 		int x = (mXpos - 160) * CleanXfac + (screen->GetWidth()>>1);
 		if (mCentered) x -= (tex->GetWidth()*CleanXfac)/2;
-		DrawTexture (&twod, tex, x, -mYpos*CleanYfac, DTA_CleanNoMove, true, TAG_DONE);
+		DrawTexture (twod, tex, x, -mYpos*CleanYfac, DTA_CleanNoMove, true, TAG_DONE);
 	}
 }
 
@@ -451,13 +451,13 @@ void FListMenuItemStaticText::Drawer(DListMenu* menu, const DVector2& origin, bo
 		{
 			int x = mXpos;
 			if (mCentered) x -= mFont->StringWidth(text)/2;
-			DrawText(&twod, mFont, mColor, x, mYpos, text, DTA_Clean, true, TAG_DONE);
+			DrawText(twod, mFont, mColor, x, mYpos, text, DTA_Clean, true, TAG_DONE);
 		}
 		else
 		{
 			int x = (mXpos - 160) * CleanXfac + (screen->GetWidth()>>1);
 			if (mCentered) x -= (mFont->StringWidth(text)*CleanXfac)/2;
-			DrawText (&twod, mFont, mColor, x, -mYpos*CleanYfac, text, DTA_CleanNoMove, true, TAG_DONE);
+			DrawText (twod, mFont, mColor, x, -mYpos*CleanYfac, text, DTA_CleanNoMove, true, TAG_DONE);
 		}
 	}
 }
@@ -573,7 +573,7 @@ void FListMenuItemText::Drawer(DListMenu* menu, const DVector2& origin, bool sel
 	const char *text = mText;
 	if (mText.Len())
 	{
-		DrawText(&twod, mFont, selected ? mColorSelected : mColor, mXpos, mYpos, text, DTA_Clean, true, TAG_DONE);
+		DrawText(twod, mFont, selected ? mColorSelected : mColor, mXpos, mYpos, text, DTA_Clean, true, TAG_DONE);
 	}
 }
 
@@ -639,7 +639,7 @@ FListMenuItemPatch::FListMenuItemPatch(int x, int y, int height, int hotkey, FTe
 
 void FListMenuItemPatch::Drawer(DListMenu* menu, const DVector2& origin, bool selected)
 {
-	DrawTexture (&twod, mTexture, mXpos, mYpos, DTA_Clean, true, TAG_DONE);
+	DrawTexture (twod, mTexture, mXpos, mYpos, DTA_Clean, true, TAG_DONE);
 }
 
 int FListMenuItemPatch::GetWidth() 

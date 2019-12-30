@@ -64,6 +64,8 @@ void gl_PrintStartupLog();
 
 extern bool vid_hdr_active;
 
+void DrawFullscreenBlends();
+
 namespace OpenGLRenderer
 {
 	FGLRenderer *GLRenderer;
@@ -405,7 +407,8 @@ void OpenGLFrameBuffer::Draw2D()
 	if (GLRenderer != nullptr)
 	{
 		GLRenderer->mBuffers->BindCurrentFB();
-		GLInterface.Draw2D(&twod);
+		::DrawFullscreenBlends();
+		GLInterface.Draw2D(&twodgen);
 	}
 }
 
@@ -416,3 +419,18 @@ void OpenGLFrameBuffer::PostProcessScene(int fixedcm, const std::function<void()
 
 
 }
+
+void videoShowFrame(int32_t w)
+{
+	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
+	screen->PostProcessScene(0, []() {
+		GLInterface.Draw2D(&twodpsp); // draws the weapon sprites
+		});
+	screen->Update();
+	// After finishing the frame, reset everything for the next frame. This needs to be done better.
+	screen->BeginFrame();
+	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
+	twodpsp.Clear();
+	twodgen.Clear();
+}
+

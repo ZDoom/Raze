@@ -218,7 +218,6 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	SetColor(1, 1, 1);
 	DisableScissor();
 	//drawer->mIsFirstPass = false;
-	twod.Clear();
 	EnableBlend(true);
 	EnableMultisampling(true);
 }

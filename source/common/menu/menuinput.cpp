@@ -307,7 +307,7 @@ void DTextEnterMenu::Drawer ()
 		// Darken the background behind the character grid.
 		// Unless we frame it with a border, I think it looks better to extend the
 		// background across the full width of the screen.
-		twod.AddColorOnlyQuad(0 /*screen->GetWidth()/2 - 13 * cell_width / 2*/,
+		twod->AddColorOnlyQuad(0 /*screen->GetWidth()/2 - 13 * cell_width / 2*/,
 			screen->GetHeight() - INPUTGRID_HEIGHT * cell_height,
 			screen->GetWidth() /*13 * cell_width*/,
 			INPUTGRID_HEIGHT * cell_height, 0xc8000000);
@@ -315,7 +315,7 @@ void DTextEnterMenu::Drawer ()
 		if (InputGridX >= 0 && InputGridY >= 0)
 		{
 			// Highlight the background behind the selected character.
-			twod.AddColorOnlyQuad(
+			twod->AddColorOnlyQuad(
 				InputGridX * cell_width - INPUTGRID_WIDTH * cell_width / 2 + screen->GetWidth() / 2,
 				InputGridY * cell_height - INPUTGRID_HEIGHT * cell_height + screen->GetHeight(),
 				cell_width, cell_height, PalEntry(255, 255, 248, 220));
@@ -340,7 +340,7 @@ void DTextEnterMenu::Drawer ()
 				if (pic != NULL)
 				{
 					// Draw a normal character.
-					DrawTexture(&twod, pic, xx + cell_width/2 - width*CleanXfac_1/2, yy + top_padding,
+					DrawTexture(twod, pic, xx + cell_width/2 - width*CleanXfac_1/2, yy + top_padding,
 						DTA_TranslationIndex, remap,
 						DTA_CleanNoMove_1, true,
 						TAG_DONE);
@@ -353,16 +353,16 @@ void DTextEnterMenu::Drawer ()
 					const int y1 = yy + top_padding;
 					const int y2 = y1 + displayFont->GetHeight() * CleanYfac_1;
 					auto palcolor = PalEntry(255, 160, 160, 160);
-					twod.AddColorOnlyQuad(x1, y1, x2 - x1, CleanYfac_1, palcolor);	// top
-					twod.AddColorOnlyQuad(x1, y2, x2 - x1, CleanYfac_1, palcolor);	// bottom
-					twod.AddColorOnlyQuad(x1, y1+CleanYfac_1, CleanXfac_1, y2 - y1, palcolor);	// left
-					twod.AddColorOnlyQuad(x2-CleanXfac_1, y1+CleanYfac_1, CleanXfac_1, CleanYfac_1, palcolor);	// right
+					twod->AddColorOnlyQuad(x1, y1, x2 - x1, CleanYfac_1, palcolor);	// top
+					twod->AddColorOnlyQuad(x1, y2, x2 - x1, CleanYfac_1, palcolor);	// bottom
+					twod->AddColorOnlyQuad(x1, y1+CleanYfac_1, CleanXfac_1, y2 - y1, palcolor);	// left
+					twod->AddColorOnlyQuad(x2-CleanXfac_1, y1+CleanYfac_1, CleanXfac_1, CleanYfac_1, palcolor);	// right
 				}
 				else if (ch == '\b' || ch == 0)
 				{
 					// Draw the backspace and end "characters".
 					const char *const str = ch == '\b' ? "BS" : "ED";
-					DrawText(&twod, NewSmallFont, color,
+					DrawText(twod, NewSmallFont, color,
 						xx + cell_width/2 - displayFont->StringWidth(str)*CleanXfac_1/2,
 						yy + top_padding, str, DTA_CleanNoMove_1, true, TAG_DONE);
 				}

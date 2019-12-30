@@ -170,18 +170,6 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
 }
 
-void videoShowFrame(int32_t w)
-{
-	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
-	screen->PostProcessScene(0, nullptr);	// at the moment this won't work because there's no guarantee that this is a clean buffer what we get here.
-	screen->Update();
-	// After finishing the frame, reset everything for the next frame. This needs to be done better.
-	screen->BeginFrame();
-	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
-}
-
-
-
 void GLInstance::Deinit()
 {
 #if 0
@@ -530,7 +518,7 @@ void GLInstance::DrawImGui(ImDrawData* data)
 
 void GLInstance::ClearScreen(PalEntry color)
 {
-	twod.Clear(); // Since we clear the entire screen, all previous draw operations become redundant, so delete them.
+	twod->Clear(); // Since we clear the entire screen, all previous draw operations become redundant, so delete them.
 #if 1
 
 	SetViewport(0, 0, xdim, ydim);
@@ -540,7 +528,7 @@ void GLInstance::ClearScreen(PalEntry color)
 		false);
 #else
 		// This must be synchronized with the rest of the 2D operations.
-	twod.AddColorOnlyQuad(0, 0, xdim, ydim, );
+	twod->AddColorOnlyQuad(0, 0, xdim, ydim, );
 #endif
 
 }

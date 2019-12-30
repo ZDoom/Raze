@@ -41,6 +41,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "vis.h"
 #include "text.h"
 #include "player.h"
+#include "v_2ddrawer.h"
 
 #include "weapon.h"
 #include "menu/menu.h"
@@ -7334,7 +7335,9 @@ pDisplaySprites(PLAYERp pp)
     short ang;
     int flags;
     int x1,y1,x2,y2;
+    PspTwoDSetter set;
 
+    set.clear();
     TRAVERSE(&pp->PanelSpriteList, psp, next)
     {
         ASSERT(ValidPtr(psp));
@@ -7470,6 +7473,7 @@ pDisplaySprites(PLAYERp pp)
         // if its a weapon sprite and the view is set to the outside don't draw the sprite
         if (TEST(psp->flags, PANF_WEAPON_SPRITE))
         {
+            set.set();
             SECT_USERp sectu = nullptr;
             int16_t floorshade = 0;
             if (pp->cursectnum >= 0)
@@ -7512,6 +7516,7 @@ pDisplaySprites(PLAYERp pp)
             if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
                 pal = 0;
         }
+        else set.clear();
 
         //PANF_STATUS_AREA | PANF_SCREEN_CLIP | PANF_KILL_AFTER_SHOW,
 

@@ -116,7 +116,7 @@ void FStat::PrintStat ()
 					// Count number of linefeeds but ignore terminating ones.
 					if (stattext[i] == '\n') y -= fontheight;
 				}
-				DrawText(&twod, NewConsoleFont, CR_GREEN, 5 / textScale, y, stattext,
+				DrawText(twod, NewConsoleFont, CR_GREEN, 5 / textScale, y, stattext,
 					DTA_VirtualWidth, screen->GetWidth() / textScale,
 					DTA_VirtualHeight, screen->GetHeight() / textScale,
 					DTA_KeepRatio, true, TAG_DONE);

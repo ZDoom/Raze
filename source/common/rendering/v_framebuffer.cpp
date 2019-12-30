@@ -137,8 +137,8 @@ void DFrameBuffer::DrawRateStuff ()
 
 			chars = snprintf (fpsbuff, countof(fpsbuff), "%2llu ms (%3llu fps)", (unsigned long long)howlong, (unsigned long long)LastCount);
 			rate_x = Width / textScale - NewConsoleFont->StringWidth(&fpsbuff[0]);
-			twod.AddColorOnlyQuad(rate_x * textScale, 0, Width, NewConsoleFont->GetHeight() * textScale, 0);
-			DrawText (&twod, NewConsoleFont, CR_WHITE, rate_x, 0, (char *)&fpsbuff[0],
+			twod->AddColorOnlyQuad(rate_x * textScale, 0, Width, NewConsoleFont->GetHeight() * textScale, 0);
+			DrawText (twod, NewConsoleFont, CR_WHITE, rate_x, 0, (char *)&fpsbuff[0],
 				DTA_VirtualWidth, screen->GetWidth() / textScale,
 				DTA_VirtualHeight, screen->GetHeight() / textScale,
 				DTA_KeepRatio, true, TAG_DONE);

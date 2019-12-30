@@ -608,7 +608,7 @@ public:
 	
 	void DrawSliderElement (int color, int x, int y, const char * str)
 	{
-		DrawText (&twod, ConFont, color, x, y, str, DTA_CellX, 16 * CleanXfac_1, DTA_CellY, 16 * CleanYfac_1, TAG_DONE);
+		DrawText (twod, ConFont, color, x, y, str, DTA_CellX, 16 * CleanXfac_1, DTA_CellY, 16 * CleanYfac_1, TAG_DONE);
 	}
 
 	void DrawSlider (int x, int y, double min, double max, double cur, int fracdigits, int indent)

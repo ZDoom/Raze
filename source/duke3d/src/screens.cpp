@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 #include "menu/menu.h"
 #include "mapinfo.h"
+#include "v_2ddrawer.h"
 
 BEGIN_DUKE_NS
 
@@ -834,6 +835,7 @@ void G_DisplayRest(int32_t smoothratio)
                 G_DrawCameraText(pp->newowner);
             else
             {
+                PspTwoDSetter set;
                 P_DisplayWeapon();
 #ifdef SPLITSCREEN_MOD_HACKS
                 if (pp2)  // HACK
@@ -856,7 +858,7 @@ void G_DisplayRest(int32_t smoothratio)
                     screenpeek = oscreenpeek;
                 }
 #endif
-            }
+    }
             G_MoveClouds();
         }
 

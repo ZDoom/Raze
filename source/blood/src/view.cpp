@@ -63,6 +63,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "zstring.h"
 #include "menu/menu.h"
 #include "gstrings.h"
+#include "v_2ddrawer.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable displaying the remaining seconds for power-ups")
 
@@ -3065,11 +3066,11 @@ void viewDrawScreen(void)
             newaspect_enable = 1;
             videoSetCorrectedAspect();
         }
-        renderSetAspect(Blrintf(float(viewingrange) * tanf(r_fov * (PI/360.f))), yxaspect);
+        renderSetAspect(Blrintf(float(viewingrange) * tanf(r_fov * (PI / 360.f))), yxaspect);
         int cX = gView->pSprite->x;
         int cY = gView->pSprite->y;
         int cZ = gView->zView;
-        int zDelta = gView->zWeapon-gView->zView-(12<<8);
+        int zDelta = gView->zWeapon - gView->zView - (12 << 8);
         fix16_t cA = gView->q16ang;
         fix16_t q16horiz = gView->q16horiz;
         fix16_t q16slopehoriz = gView->q16slopehoriz;
@@ -3097,7 +3098,7 @@ void viewDrawScreen(void)
             }
             else
             {
-                VIEW *pView = &gPrevView[gViewIndex];
+                VIEW* pView = &gPrevView[gViewIndex];
                 cX = interpolate(pView->at50, cX, gInterpolate);
                 cY = interpolate(pView->at54, cY, gInterpolate);
                 cZ = interpolate(pView->at38, cZ, gInterpolate);
@@ -3119,13 +3120,13 @@ void viewDrawScreen(void)
         cZ += shakeZ;
         v4c += shakeBobX;
         v48 += shakeBobY;
-        q16horiz += fix16_from_int(mulscale30(0x40000000-Cos(gView->tiltEffect<<2), 30));
+        q16horiz += fix16_from_int(mulscale30(0x40000000 - Cos(gView->tiltEffect << 2), 30));
         if (gViewPos == 0)
         {
             if (cl_viewhbob)
             {
-                cX -= mulscale30(v74, Sin(fix16_to_int(cA)))>>4;
-                cY += mulscale30(v74, Cos(fix16_to_int(cA)))>>4;
+                cX -= mulscale30(v74, Sin(fix16_to_int(cA))) >> 4;
+                cY += mulscale30(v74, Cos(fix16_to_int(cA))) >> 4;
             }
             if (cl_viewvbob)
             {
@@ -3135,7 +3136,7 @@ void viewDrawScreen(void)
             {
                 q16horiz += q16slopehoriz;
             }
-            cZ += fix16_to_int(q16horiz*10);
+            cZ += fix16_to_int(q16horiz * 10);
             cameradist = -1;
             cameraclock = (int)totalclock;
         }
@@ -3174,10 +3175,10 @@ void viewDrawScreen(void)
                     tiltdim = 320;
                 }
                 renderSetTarget(TILTBUFFER, tiltdim, tiltdim);
-                int nAng = v78&511;
+                int nAng = v78 & 511;
                 if (nAng > 256)
                 {
-                    nAng = 512-nAng;
+                    nAng = 512 - nAng;
                 }
                 renderSetAspect(mulscale16(vr, dmulscale32(Cos(nAng), 262144, Sin(nAng), 163840)), yxaspect);
             }
@@ -3188,7 +3189,7 @@ void viewDrawScreen(void)
         }
         else if (v4 && gNetPlayers > 1)
         {
-            int tmp = ((int)totalclock/240)%(gNetPlayers-1);
+            int tmp = ((int)totalclock / 240) % (gNetPlayers - 1);
             int i = connecthead;
             while (1)
             {
@@ -3199,7 +3200,7 @@ void viewDrawScreen(void)
                 i = connectpoint2[i];
                 tmp--;
             }
-            PLAYER *pOther = &gPlayer[i];
+            PLAYER* pOther = &gPlayer[i];
             //othercameraclock = gGameClock;
             if (!tileData(4079))
             {
@@ -3215,16 +3216,16 @@ void viewDrawScreen(void)
             int v54 = 0;
             if (pOther->flickerEffect)
             {
-                int nValue = ClipHigh(pOther->flickerEffect*8, 2000);
-                v54 += QRandom2(nValue>>8);
-                v50 += QRandom2(nValue>>8);
-                vd8 += QRandom2(nValue>>4);
-                vd4 += QRandom2(nValue>>4);
+                int nValue = ClipHigh(pOther->flickerEffect * 8, 2000);
+                v54 += QRandom2(nValue >> 8);
+                v50 += QRandom2(nValue >> 8);
+                vd8 += QRandom2(nValue >> 4);
+                vd4 += QRandom2(nValue >> 4);
                 vd0 += QRandom2(nValue);
             }
             if (pOther->quakeEffect)
             {
-                int nValue = ClipHigh(pOther->quakeEffect*8, 2000);
+                int nValue = ClipHigh(pOther->quakeEffect * 8, 2000);
                 v54 += QRandom2(nValue >> 8);
                 v50 += QRandom2(nValue >> 8);
                 vd8 += QRandom2(nValue >> 4);
@@ -3237,21 +3238,21 @@ void viewDrawScreen(void)
             {
                 v14 = 10;
             }
-            memcpy(bakMirrorGotpic, gotpic+510, 2);
-            memcpy(gotpic+510, otherMirrorGotpic, 2);
-            g_visibility = (int32_t)(ClipLow(gVisibility-32*pOther->visibility, 0) * (numplayers > 1 ? 1.f : r_ambientlightrecip));
+            memcpy(bakMirrorGotpic, gotpic + 510, 2);
+            memcpy(gotpic + 510, otherMirrorGotpic, 2);
+            g_visibility = (int32_t)(ClipLow(gVisibility - 32 * pOther->visibility, 0) * (numplayers > 1 ? 1.f : r_ambientlightrecip));
             int vc4, vc8;
             getzsofslope(vcc, vd8, vd4, &vc8, &vc4);
             if (vd0 >= vc4)
             {
-                vd0 = vc4-(gUpperLink[vcc] >= 0 ? 0 : (8<<8));
+                vd0 = vc4 - (gUpperLink[vcc] >= 0 ? 0 : (8 << 8));
             }
             if (vd0 <= vc8)
             {
-                vd0 = vc8+(gLowerLink[vcc] >= 0 ? 0 : (8<<8));
+                vd0 = vc8 + (gLowerLink[vcc] >= 0 ? 0 : (8 << 8));
             }
             v54 = ClipRange(v54, -200, 200);
-RORHACKOTHER:
+        RORHACKOTHER:
             int ror_status[16];
             for (int i = 0; i < 16; i++)
                 ror_status[i] = TestBitString(gotpic, 4080 + i);
@@ -3265,8 +3266,8 @@ RORHACKOTHER:
                     do_ror_hack = true;
             if (do_ror_hack)
                 goto RORHACKOTHER;
-            memcpy(otherMirrorGotpic, gotpic+510, 2);
-            memcpy(gotpic+510, bakMirrorGotpic, 2);
+            memcpy(otherMirrorGotpic, gotpic + 510, 2);
+            memcpy(gotpic + 510, bakMirrorGotpic, 2);
             viewProcessSprites(vd8, vd4, vd0, v50, gInterpolate);
             renderDrawMasks();
             renderRestoreTarget();
@@ -3286,26 +3287,26 @@ RORHACKOTHER:
         int unk = 0;
         while (nSprite >= 0)
         {
-            spritetype *pSprite = &sprite[nSprite];
+            spritetype* pSprite = &sprite[nSprite];
             int nXSprite = pSprite->extra;
             dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
-            XSPRITE *pXSprite = &xsprite[nXSprite];
+            XSPRITE* pXSprite = &xsprite[nXSprite];
             if (TestBitString(gotsector, pSprite->sectnum))
             {
-                unk += pXSprite->data3*32;
+                unk += pXSprite->data3 * 32;
             }
             nSprite = nextspritestat[nSprite];
         }
         nSprite = headspritestat[kStatProjectile];
         while (nSprite >= 0) {
-            spritetype *pSprite = &sprite[nSprite];
+            spritetype* pSprite = &sprite[nSprite];
             switch (pSprite->type) {
-                case kMissileFlareRegular:
-                case kMissileTeslaAlt:
-                case kMissileFlareAlt:
-                case kMissileTeslaRegular:
-                    if (TestBitString(gotsector, pSprite->sectnum)) unk += 256;
-                    break;
+            case kMissileFlareRegular:
+            case kMissileTeslaAlt:
+            case kMissileFlareAlt:
+            case kMissileTeslaRegular:
+                if (TestBitString(gotsector, pSprite->sectnum)) unk += 256;
+                break;
             }
             nSprite = nextspritestat[nSprite];
         }
@@ -3315,17 +3316,17 @@ RORHACKOTHER:
         getzsofslope(nSectnum, cX, cY, &vfc, &vf8);
         if (cZ >= vf8)
         {
-            cZ = vf8-(gUpperLink[nSectnum] >= 0 ? 0 : (8<<8));
+            cZ = vf8 - (gUpperLink[nSectnum] >= 0 ? 0 : (8 << 8));
         }
         if (cZ <= vfc)
         {
-            cZ = vfc+(gLowerLink[nSectnum] >= 0 ? 0 : (8<<8));
+            cZ = vfc + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
         }
         q16horiz = ClipRange(q16horiz, F16(-200), F16(200));
-RORHACK:
+    RORHACK:
         int ror_status[16];
         for (int i = 0; i < 16; i++)
-            ror_status[i] = TestBitString(gotpic, 4080+i);
+            ror_status[i] = TestBitString(gotpic, 4080 + i);
         fix16_t deliriumPitchI = interpolate(fix16_from_int(deliriumPitchO), fix16_from_int(deliriumPitch), gInterpolate);
         DrawMirrors(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, gInterpolate, gViewIndex);
         int bakCstat = gView->pSprite->cstat;
@@ -3347,7 +3348,7 @@ RORHACK:
         viewProcessSprites(cX, cY, cZ, fix16_to_int(cA), gInterpolate);
         bool do_ror_hack = false;
         for (int i = 0; i < 16; i++)
-            if (ror_status[i] != TestBitString(gotpic, 4080+i))
+            if (ror_status[i] != TestBitString(gotpic, 4080 + i))
                 do_ror_hack = true;
         if (do_ror_hack)
         {
@@ -3367,28 +3368,28 @@ RORHACK:
         {
             if (videoGetRenderMode() == REND_CLASSIC)
             {
-                dassert(tileData(TILTBUFFER) !=  0);
+                dassert(tileData(TILTBUFFER) != 0);
                 renderRestoreTarget();
-                int vrc = 64+4+2+1024;
+                int vrc = 64 + 4 + 2 + 1024;
                 if (bDelirium)
                 {
-                    vrc = 64+32+4+2+1+1024;
+                    vrc = 64 + 32 + 4 + 2 + 1 + 1024;
                 }
                 int nAng = v78 & 511;
                 if (nAng > 256)
                 {
                     nAng = 512 - nAng;
                 }
-                int nScale = dmulscale32(Cos(nAng), 262144, Sin(nAng), 163840)>>tiltcs;
-                rotatesprite(160<<16, 100<<16, nScale, v78+512, TILTBUFFER, 0, 0, vrc, gViewX0, gViewY0, gViewX1, gViewY1);
+                int nScale = dmulscale32(Cos(nAng), 262144, Sin(nAng), 163840) >> tiltcs;
+                rotatesprite(160 << 16, 100 << 16, nScale, v78 + 512, TILTBUFFER, 0, 0, vrc, gViewX0, gViewY0, gViewX1, gViewY1);
             }
 #ifdef USE_OPENGL
             else
             {
                 if (videoGetRenderMode() == REND_POLYMOST && gDeliriumBlur)
                 {
-					// todo: Implement using modern techniques instead of relying on deprecated old stuff that isn't well supported anymore.
-					/* names broken up so that searching for GL keywords won't find them anymore
+                    // todo: Implement using modern techniques instead of relying on deprecated old stuff that isn't well supported anymore.
+                    /* names broken up so that searching for GL keywords won't find them anymore
                     if (!bDeliriumOld)
                     {
                         g lAccum(GL_LOAD, 1.f);
@@ -3400,7 +3401,7 @@ RORHACK:
                         g lAccum(GL _ACCUM, 1.f-fBlur);
                         g lAccum(GL _RETURN, 1.f);
                     }
-					*/
+                    */
                 }
             }
 #endif
@@ -3411,52 +3412,53 @@ RORHACK:
         if (r_usenewaspect)
             newaspect_enable = 0;
         renderSetAspect(viewingRange, yxAspect);
-        int nClipDist = gView->pSprite->clipdist<<2;
+        int nClipDist = gView->pSprite->clipdist << 2;
         int ve8, vec, vf0, vf4;
         GetZRange(gView->pSprite, &vf4, &vf0, &vec, &ve8, nClipDist, 0);
 #if 0
         int tmpSect = nSectnum;
         if ((vf0 & 0xc000) == 0x4000)
         {
-            tmpSect = vf0 & (kMaxWalls-1);
+            tmpSect = vf0 & (kMaxWalls - 1);
         }
-        int v8 = byte_1CE5C2 > 0 && (sector[tmpSect].ceilingstat&1);
+        int v8 = byte_1CE5C2 > 0 && (sector[tmpSect].ceilingstat & 1);
         if (gWeather.at12d8 > 0 || v8)
         {
             gWeather.Draw(cX, cY, cZ, cA, q16horiz + defaultHoriz + deliriumPitch, gWeather.at12d8);
             if (v8)
             {
-                gWeather.at12d8 = ClipRange(delta*8+gWeather.at12d8, 0, 4095);
+                gWeather.at12d8 = ClipRange(delta * 8 + gWeather.at12d8, 0, 4095);
             }
             else
             {
-                gWeather.at12d8 = ClipRange(gWeather.at12d8-delta*64, 0, 4095);
+                gWeather.at12d8 = ClipRange(gWeather.at12d8 - delta * 64, 0, 4095);
             }
         }
 #endif
+        //PspTwoDSetter set;
         if (gViewPos == 0)
         {
             if (cl_crosshair)
             {
-                rotatesprite(160<<16, defaultHoriz<<16, 65536, 0, kCrosshairTile, 0, CROSSHAIR_PAL, 2, gViewX0, gViewY0, gViewX1, gViewY1);
+                rotatesprite(160 << 16, defaultHoriz << 16, 65536, 0, kCrosshairTile, 0, CROSSHAIR_PAL, 2, gViewX0, gViewY0, gViewX1, gViewY1);
             }
-            cX = (v4c>>8)+160;
-            cY = (v48>>8)+220+(zDelta>>7);
+            cX = (v4c >> 8) + 160;
+            cY = (v48 >> 8) + 220 + (zDelta >> 7);
             int nShade = sector[nSectnum].floorshade; int nPalette = 0;
             if (sector[gView->pSprite->sectnum].extra > 0) {
-                sectortype *pSector = &sector[gView->pSprite->sectnum];
-                XSECTOR *pXSector = &xsector[pSector->extra];
+                sectortype* pSector = &sector[gView->pSprite->sectnum];
+                XSECTOR* pXSector = &xsector[pSector->extra];
                 if (pXSector->color)
                     nPalette = pSector->floorpal;
             }
-            
+
             if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette);
             else if (gView->pXSprite->health > 0) qavSceneDraw(gView, nShade, cX, cY, nPalette);
             else {
                 gView->sceneQav = gView->weaponQav = -1;
                 gView->weaponTimer = gView->curWeapon = 0;
             }
-           
+
 
         }
         if (gViewPos == 0 && gView->pXSprite->burnTime > 60)
@@ -3465,20 +3467,20 @@ RORHACK:
         }
         if (packItemActive(gView, 1))
         {
-            rotatesprite(0, 0, 65536, 0, 2344, 0, 0, 256+18, gViewX0, gViewY0, gViewX1, gViewY1);
-            rotatesprite(320<<16, 0, 65536, 1024, 2344, 0, 0, 512+22, gViewX0, gViewY0, gViewX1, gViewY1);
-            rotatesprite(0, 200<<16, 65536, 0, 2344, 0, 0, 256+22, gViewX0, gViewY0, gViewX1, gViewY1);
-            rotatesprite(320<<16, 200<<16, 65536, 1024, 2344, 0, 0, 512+18, gViewX0, gViewY0, gViewX1, gViewY1);
+            rotatesprite(0, 0, 65536, 0, 2344, 0, 0, 256 + 18, gViewX0, gViewY0, gViewX1, gViewY1);
+            rotatesprite(320 << 16, 0, 65536, 1024, 2344, 0, 0, 512 + 22, gViewX0, gViewY0, gViewX1, gViewY1);
+            rotatesprite(0, 200 << 16, 65536, 0, 2344, 0, 0, 256 + 22, gViewX0, gViewY0, gViewX1, gViewY1);
+            rotatesprite(320 << 16, 200 << 16, 65536, 1024, 2344, 0, 0, 512 + 18, gViewX0, gViewY0, gViewX1, gViewY1);
             if (gDetail >= 4)
             {
-                rotatesprite(15<<16, 3<<16, 65536, 0, 2346, 32, 0, 256+19, gViewX0, gViewY0, gViewX1, gViewY1);
-                rotatesprite(212<<16, 77<<16, 65536, 0, 2347, 32, 0, 512+19, gViewX0, gViewY0, gViewX1, gViewY1);
+                rotatesprite(15 << 16, 3 << 16, 65536, 0, 2346, 32, 0, 256 + 19, gViewX0, gViewY0, gViewX1, gViewY1);
+                rotatesprite(212 << 16, 77 << 16, 65536, 0, 2347, 32, 0, 512 + 19, gViewX0, gViewY0, gViewX1, gViewY1);
             }
         }
         if (powerupCheck(gView, kPwUpAsbestArmor) > 0)
         {
-            rotatesprite(0, 200<<16, 65536, 0, 2358, 0, 0, 256+22, gViewX0, gViewY0, gViewX1, gViewY1);
-            rotatesprite(320<<16, 200<<16, 65536, 1024, 2358, 0, 0, 512+18, gViewX0, gViewY0, gViewX1, gViewY1);
+            rotatesprite(0, 200 << 16, 65536, 0, 2358, 0, 0, 256 + 22, gViewX0, gViewY0, gViewX1, gViewY1);
+            rotatesprite(320 << 16, 200 << 16, 65536, 1024, 2358, 0, 0, 512 + 18, gViewX0, gViewY0, gViewX1, gViewY1);
         }
         if (v4 && gNetPlayers > 1)
         {
@@ -3486,22 +3488,22 @@ RORHACK:
             viewingRange = viewingrange;
             yxAspect = yxaspect;
             renderSetAspect(65536, 54613);
-            rotatesprite(280<<16, 35<<16, 53248, 512, 4077, v10, v14, 512+6, gViewX0, gViewY0, gViewX1, gViewY1);
-            rotatesprite(280<<16, 35<<16, 53248, 0, 1683, v10, 0, 512+35, gViewX0, gViewY0, gViewX1, gViewY1);
+            rotatesprite(280 << 16, 35 << 16, 53248, 512, 4077, v10, v14, 512 + 6, gViewX0, gViewY0, gViewX1, gViewY1);
+            rotatesprite(280 << 16, 35 << 16, 53248, 0, 1683, v10, 0, 512 + 35, gViewX0, gViewY0, gViewX1, gViewY1);
             renderSetAspect(viewingRange, yxAspect);
         }
-        
+
         if (powerupCheck(gView, kPwUpDeathMask) > 0) nPalette = 4;
-        else if(powerupCheck(gView, kPwUpReflectShots) > 0) nPalette = 1;
+        else if (powerupCheck(gView, kPwUpReflectShots) > 0) nPalette = 1;
         else if (gView->isUnderwater) {
             if (gView->nWaterPal) nPalette = gView->nWaterPal;
             else {
                 if (gView->pXSprite->medium == kMediumWater) nPalette = 1;
                 else if (gView->pXSprite->medium == kMediumGoo) nPalette = 3;
                 else nPalette = 2;
+            }
         }
-        }
-                }
+    }
     if (gViewMode == 4)
     {
         gViewMap.sub_25DB0(gView->pSprite);
