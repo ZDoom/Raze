@@ -10742,16 +10742,17 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     tileUpdatePicnum(&picnum, (int16_t)0xc000);
     if ((tilesiz[picnum].x <= 0) || (tilesiz[picnum].y <= 0)) return;
 
-    // Experimental / development bits. ONLY FOR INTERNAL USE!
-    //  bit RS_CENTERORIGIN: see dorotspr_handle_bit2
-    ////////////////////
-
     if (r_rotatespritenowidescreen)
     {
         dastat |= RS_STRETCH;
         dastat &= ~RS_ALIGN_MASK;
     }
 
+    if (hw_models && tile2model[picnum].hudmem[(dastat & 4) >> 2])
+    {
+        polymost_dorotatespritemodel(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, guniqhudid);
+        return;
+    }
     // We must store all calls in the 2D drawer so that the backend can operate on a clean 3D view.
     twod.rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2);
 
