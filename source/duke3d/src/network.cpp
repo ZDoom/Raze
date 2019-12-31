@@ -402,9 +402,13 @@ static netField_t ActorFields[] =
     { ACTF(ext_pitch),          16 },
     { ACTF(ext_roll),           16 },
 
-    { ACTF(ext_offset_x),                   32 },
-    { ACTF(ext_offset_y),                   32 },
-    { ACTF(ext_offset_z),                   32 },
+    { ACTF(ext_pivot_offset_x),                   32 },
+    { ACTF(ext_pivot_offset_y),                   32 },
+    { ACTF(ext_pivot_offset_z),                   32 },
+
+    { ACTF(ext_position_offset_x),                   32 },
+    { ACTF(ext_position_offset_y),                   32 },
+    { ACTF(ext_position_offset_z),                   32 },
 
     { ACTF(ext_flags),      8 },
     { ACTF(ext_xpanning),   8 },
@@ -1020,9 +1024,13 @@ static void Net_CopySpriteExtFromNet(const netactor_t* netActor, spriteext_t* ga
     gameSprExt->pitch = netActor->ext_pitch;
     gameSprExt->roll = netActor->ext_roll;
 
-    gameSprExt->offset.x = netActor->ext_offset_x;
-    gameSprExt->offset.y = netActor->ext_offset_y;
-    gameSprExt->offset.z = netActor->ext_offset_z;
+    gameSprExt->pivot_offset.x = netActor->ext_pivot_offset_x;
+    gameSprExt->pivot_offset.y = netActor->ext_pivot_offset_y;
+    gameSprExt->pivot_offset.z = netActor->ext_pivot_offset_z;
+
+    gameSprExt->position_offset.x = netActor->ext_position_offset_x;
+    gameSprExt->position_offset.y = netActor->ext_position_offset_y;
+    gameSprExt->position_offset.z = netActor->ext_position_offset_z;
 
     gameSprExt->flags = netActor->ext_flags;
     gameSprExt->xpanning = netActor->ext_xpanning;
@@ -1375,9 +1383,13 @@ static void Net_CopySpriteExtToNet(const spriteext_t* gameSpriteExt, netactor_t*
     netActor->ext_pitch = gameSpriteExt->pitch;
     netActor->ext_roll = gameSpriteExt->roll;
 
-    netActor->ext_offset_x = gameSpriteExt->offset.x;
-    netActor->ext_offset_y = gameSpriteExt->offset.y;
-    netActor->ext_offset_z = gameSpriteExt->offset.z;
+    netActor->ext_pivot_offset_x = gameSpriteExt->pivot_offset.x;
+    netActor->ext_pivot_offset_y = gameSpriteExt->pivot_offset.y;
+    netActor->ext_pivot_offset_z = gameSpriteExt->pivot_offset.z;
+
+    netActor->ext_position_offset_x = gameSpriteExt->position_offset.x;
+    netActor->ext_position_offset_y = gameSpriteExt->position_offset.y;
+    netActor->ext_position_offset_z = gameSpriteExt->position_offset.z;
 
     netActor->ext_flags = gameSpriteExt->flags;
     netActor->ext_xpanning = gameSpriteExt->xpanning;

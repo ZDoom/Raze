@@ -329,10 +329,11 @@ typedef struct {
     uint32_t mdanimtims;
     int16_t mdanimcur;
     int16_t angoff, pitch, roll;
-    vec3_t offset;
+    vec3_t pivot_offset, position_offset;
     uint8_t flags;
     uint8_t xpanning, ypanning;
     uint8_t filler;
+    uint32_t filler2;
     float alpha;
     // NOTE: keep 'tspr' on an 8-byte boundary:
     tspriteptr_t tspr;
