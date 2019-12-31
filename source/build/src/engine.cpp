@@ -6251,19 +6251,6 @@ static void renderDrawMaskedWall(int16_t damaskwallcnt)
 }
 
 
-//
-// fillpolygon (internal)
-//
-static void renderFillPolygon(int32_t npoints)
-{
-    // fix for bad next-point (xb1) values...
-    for (int z=0; z<npoints; z++)
-        if ((unsigned)xb1[z] >= (unsigned)npoints)
-            xb1[z] = 0;
-
-    polymost_fillpolygon(npoints);
-}
-
 static inline int32_t addscaleclamp(int32_t a, int32_t b, int32_t s1, int32_t s2)
 {
     // a + scale(b, s1, s1-s2), but without arithmetic exception when the
@@ -8276,6 +8263,20 @@ killsprite:
     videoEndDrawing();   //}}}
 }
 
+
+//
+// fillpolygon (internal)
+//
+static void renderFillPolygon(int32_t npoints)
+{
+    // fix for bad next-point (xb1) values...
+    for (int z = 0; z < npoints; z++)
+        if ((unsigned)xb1[z] >= (unsigned)npoints)
+            xb1[z] = 0;
+
+    polymost_fillpolygon(npoints);
+}
+
 //
 // drawmapview
 //
@@ -8316,19 +8317,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 #endif
             int32_t npoints = 0; i = 0;
             int32_t startwall = sec->wallptr;
-#if 0
-            for (w=sec->wallnum,wal=&wall[startwall]; w>0; w--,wal++)
-            {
-                ox = wal->x - dax; oy = wal->y - day;
-                x = dmulscale16(ox,xvect,-oy,yvect) + (xdim<<11);
-                y = dmulscale16(oy,xvect2,ox,yvect2) + (ydim<<11);
-                i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
-                rx1[npoints] = x;
-                ry1[npoints] = y;
-                xb1[npoints] = wal->point2 - startwall;
-                npoints++;
-            }
-#else
             j = startwall; l = 0;
             uwallptr_t wal;
             int32_t w;
@@ -8349,7 +8337,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 npoints++;
             }
             if (npoints > 0) xb1[npoints-1] = l; //overwrite point2
-#endif
             if ((i&0xf0) != 0xf0) continue;
 
             vec2_t bak = { rx1[0], mulscale16(ry1[0]-(ydim<<11),xyaspect)+(ydim<<11) };
@@ -8391,13 +8378,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             tileUpdatePicnum(&globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
-
-			if (videoGetRenderMode() != REND_POLYMOST)
-			{
-				tileLoad(globalpicnum);
-				// Only load tiles when software rendering.
-				globalbufplc = (intptr_t)tilePtr(globalpicnum);
-			}
 
 			globalshade = max(min<int>(sec->floorshade, numshades - 1), 0);
 			globvis = globalhisibility;
@@ -8523,19 +8503,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
 
-			if (videoGetRenderMode() != REND_POLYMOST)
-			{
-				tileLoad(globalpicnum);
-				// Only load tiles when software rendering.
-				globalbufplc = (intptr_t)tilePtr(globalpicnum);
-				// 'loading' the tile doesn't actually guarantee that it's there afterwards.
-				// This can really happen when drawing the second frame of a floor-aligned
-				// 'storm icon' sprite (4894+1)
-				if (!globalbufplc)
-					continue;
-			}
-			// For Polymost the abovementioned edge case cannot be detected here if the only way is to check the texture's pixel data.
-
             if ((sector[spr->sectnum].ceilingstat&1) > 0)
                 globalshade = ((int32_t)sector[spr->sectnum].ceilingshade);
             else
@@ -8567,14 +8534,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             bak.x = (bak.x>>4)-(xdim<<7); bak.y = (bak.y>>4)-(ydim<<7);
             globalposx = dmulscale28(-bak.y,globalx1,-bak.x,globaly1);
             globalposy = dmulscale28(bak.x,globalx2,-bak.y,globaly2);
-
-            if ((spr->cstat&2) == 0)
-                msethlineshift(ox,oy);
-            else
-            {
-                setup_blend(spr->blend, spr->cstat&512);
-                tsethlineshift(ox,oy);
-            }
 
             if ((spr->cstat&0x4) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalposx = -globalposx;
             asm1 = (globaly1<<2); globalx1 <<= 2; globalposx <<= (20+2);
