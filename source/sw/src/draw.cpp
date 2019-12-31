@@ -57,6 +57,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "config.h"
 #include "menu/menu.h"
 #include "swcvar.h"
+#include "v_2ddrawer.h"
 
 BEGIN_SW_NS
 
@@ -2270,7 +2271,7 @@ drawscreen(PLAYERp pp)
 
         if (dimensionmode == 6)
         {
-            videoClearViewableArea(0L);
+            twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
             renderDrawMapView(tx, ty, zoom, tang);
         }
 

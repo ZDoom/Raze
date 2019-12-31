@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "view.h"
+#include "v_2ddrawer.h"
 
 BEGIN_PS_NS
 
@@ -621,7 +622,7 @@ void DrawMap()
         //drawoverheadmap(initx, inity, lMapZoom, inita);
         if (nMapMode == 2)
         {
-            videoClearViewableArea(blackcol);
+            twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
             RefreshBackground();
             renderDrawMapView(initx, inity, lMapZoom, inita);
         }

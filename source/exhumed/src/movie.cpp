@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "typedefs.h"
 #include "keyboard.h"
 #include "sound.h"
+#include "v_2ddrawer.h"
 
 BEGIN_PS_NS
 
@@ -256,7 +257,7 @@ void PlayMovie(const char* fileName)
                 }
             }
 
-            videoClearViewableArea(blackcol);
+            twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
             rotatesprite(160 << 16, 100 << 16, z, angle, kMovieTile, 0, 1, 2, 0, 0, xdim - 1, ydim - 1);
 
             if (bDoFade) {

@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "mapinfo.h"
 #include "cmdlib.h"
+#include "v_2ddrawer.h"
 
 BEGIN_RR_NS
 
@@ -1906,23 +1907,23 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
         renderFlushPerms();
         videoSetViewableArea(0,0,xdim-1,ydim-1);
-        videoClearViewableArea(0L);
+        twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
         videoNextPage();
 
         int animReturn = Anim_Play("vol41a.anm");
-        videoClearViewableArea(0L);
+        twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
         videoNextPage();
         if (animReturn)
             goto end_vol4a;
 
         animReturn = Anim_Play("vol42a.anm");
-        videoClearViewableArea(0L);
+        twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
         videoNextPage();
         if (animReturn)
             goto end_vol4a;
 
         Anim_Play("vol43a.anm");
-        videoClearViewableArea(0L);
+        twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
         videoNextPage();
 
 end_vol4a:

@@ -1468,7 +1468,7 @@ void LogoLevel(void)
     DSPRINTF(ds,"About to display 3drealms pic...");
     MONO_PRINT(ds);
 
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     rotatesprite(0, 0, RS_SCALE, 0, THREED_REALMS_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
     videoNextPage();
     //FadeIn(0, 3);
@@ -1492,7 +1492,7 @@ void LogoLevel(void)
         }
     }
 
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
     videoSetPalette(0, BASEPAL, 2);
 
@@ -1523,7 +1523,7 @@ void CreditsLevel(void)
     save = gs.BorderNum;
     ClearStartMost();
     gs.BorderNum = save;
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 
     // Lo Wang feel like singing!
@@ -1586,7 +1586,7 @@ void CreditsLevel(void)
     }
 
     // put up a blank screen while loading
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
     ResetKeys();
     Mus_Stop();
@@ -1624,7 +1624,7 @@ TitleLevel(void)
         tempbuf[i] = i;
     palookup[0] = tempbuf;
 
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 
 	ready2send = 0;
@@ -1681,22 +1681,19 @@ TitleLevel(void)
 
 void DrawMenuLevelScreen(void)
 {
-    renderFlushPerms();
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 20, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 }
 
 void DrawStatScreen(void)
 {
-    renderFlushPerms();
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     rotatesprite(0, 0, RS_SCALE, 0, STAT_SCREEN_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 }
 
 void DrawLoadLevelScreen(void)
 {
-    renderFlushPerms();
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 20, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 }
 
@@ -1732,7 +1729,7 @@ void MenuLevel(void)
     DemoMode = FALSE;
     DemoPlaying = FALSE;
 
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 
     //FadeOut(0, 0);
@@ -1843,7 +1840,7 @@ void MenuLevel(void)
 	inputState.ClearKeysDown();
 	M_ClearMenus();
     InMenuLevel = FALSE;
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 }
 
@@ -2068,7 +2065,7 @@ void BonusScreen(PLAYERp pp)
 
     if (Level < 0) Level = 0;
 
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 
     inputState.ClearKeysDown();
@@ -2111,8 +2108,7 @@ void BonusScreen(PLAYERp pp)
 
         gStateControl(&State, &Tics);
 
-        videoClearViewableArea(0L);
-
+        twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
         rotatesprite(0, 0, RS_SCALE, 0, 5120, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 
         if (UserMapName[0])

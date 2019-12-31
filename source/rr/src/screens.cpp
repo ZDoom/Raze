@@ -928,7 +928,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             if (ud.overhead_on == 2)
             {
-                videoClearViewableArea(0L);
+                twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
                 renderDrawMapView(cposx, cposy, pp->zoom, cang);
             }
             G_DrawOverheadMap(cposx, cposy, pp->zoom, cang);
@@ -1148,9 +1148,6 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
     // (end-start)/step + 1 iterations
     do
     {
-#ifdef __ANDROID__ //Needed for N7 2013 to stop corruption while fading video
-        videoClearViewableArea(0);
-#endif
         if (inputState.GetKeyStatus(sc_Space))
         {
             inputState.ClearKeyStatus(sc_Space);

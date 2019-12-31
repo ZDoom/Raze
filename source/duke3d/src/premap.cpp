@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "mapinfo.h"
 #include "cmdlib.h"
+#include "v_2ddrawer.h"
 
 BEGIN_DUKE_NS
 
@@ -1287,25 +1288,25 @@ void G_PlayE4Cutscene(void)
 
     renderFlushPerms();
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 
     if (Anim_Play("vol41a.anm"))
         goto end_vol4a;
 
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 
     if (Anim_Play("vol42a.anm"))
         goto end_vol4a;
 
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 
     Anim_Play("vol43a.anm");
 
 end_vol4a:
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 
     FX_StopAllSounds();

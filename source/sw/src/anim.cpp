@@ -43,7 +43,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "animlib.h"
 #include "anim.h"
 #include "../glbackend/glbackend.h"
-
+#include "v_2ddrawer.h"
 
 #include "common_game.h"
 
@@ -327,7 +327,7 @@ playanm(short anim_num)
 ENDOFANIMLOOP:
 
     GLInterface.EnableNonTransparent255(false);
-    videoClearViewableArea(0L);
+    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 
     videoSetPalette(0, BASEPAL, 2);
