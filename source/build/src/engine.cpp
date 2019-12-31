@@ -8346,15 +8346,9 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 npoints++;
             }
             if (npoints > 0) xb1[npoints-1] = l; //overwrite point2
-            if ((i&0xf0) != 0xf0) continue;
 
             vec2_t bak = { rx1[0], mulscale16(ry1[0]-(ydim<<11),xyaspect)+(ydim<<11) };
 
-            if (i&0x0f)
-            {
-                npoints = clippoly(npoints,i);
-                if (npoints < 3) continue;
-            }
 
             //Collect floor sprites to draw
             for (i=headspritesect[s]; i>=0; i=nextspritesect[i])
@@ -8420,8 +8414,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             }
 
             calc_globalshifts();
-
-            sethlinesizes(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4,globalbufplc);
 
             if ((globalorientation&0x4) > 0)
             {
@@ -8495,15 +8487,9 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[3] = x; ry1[3] = y;
 
-            if ((i&0xf0) != 0xf0) continue;
 
             vec2_t bak = { rx1[0], mulscale16(ry1[0] - (ydim << 11), xyaspect) + (ydim << 11) };
 
-            if (i&0x0f)
-            {
-                npoints = clippoly(npoints,i);
-                if (npoints < 3) continue;
-            }
 
             globalpicnum = spr->picnum;
             globalpal = spr->pal; // GL needs this, software doesn't
