@@ -96,13 +96,7 @@ void PrevCheat(PLAYERp pp, const char *)
 
 void MapCheat(PLAYERp pp, const char *)
 {
-    automapping ^= 1;
-
-    if (automapping)
-        MapSetAll2D(0);
-    else
-        MapSetAll2D(0xFF);
-
+    // Need to do this differently. The code here was completely broken.
     PutStringInfo(pp, GStrings(automapping ? "TXT_AMON" : "TXT_AMOFF"));
 }
 

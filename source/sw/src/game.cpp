@@ -559,6 +559,7 @@ Distance(int x1, int y1, int x2, int y2)
 void
 MapSetAll2D(uint8_t fill)
 {
+#if 0
     int i;
 
     for (i = 0; i < (MAXWALLS >> 3); i++)
@@ -573,6 +574,7 @@ MapSetAll2D(uint8_t fill)
             show2dsector[i>>3] |= (1<<(i&7));
         //show2dsector[i] = fill;
     }
+#endif
 }
 
 void
@@ -2751,6 +2753,7 @@ int32_t GameInterface::app_main()
     int cnt = 0;
     uint32_t TotalMemory;
 
+    automapping = 1;
     BorderAdjust = true;
     SW_ExtInit();
 
