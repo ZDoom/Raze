@@ -134,7 +134,7 @@ void D_PostEvent (const event_t *ev)
 
 	if (ev->type == EV_Mouse && GUICapture == 0 && appactive)
 	{
-		inputState.MouseAddToPos(ev->x / 3, -ev->y / 2);
+		inputState.MouseAddToPos(ev->x, -ev->y);
 		return;
 	}
 

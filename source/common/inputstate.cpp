@@ -15,7 +15,7 @@ void InputState::GetMouseDelta(ControlInfo * info)
 	input = g_mousePos;
 	g_mousePos = {};
 
-    vec2f_t finput = { float(input.x), float(input.y) };
+    vec2f_t finput = { float(input.x) / 3.0f, float(input.y) };
 
     if (in_mousesmoothing)
     {
