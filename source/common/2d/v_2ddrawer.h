@@ -127,7 +127,7 @@ public:
 
 public:
 	void AddTexture(FTexture *img, DrawParms &parms);
-	void AddPoly(FTexture* img, F2DPolygons& poly, int palette, int shade, float alpha);
+	void AddPoly(FTexture* img, F2DPolygons& poly, int palette, int shade, int maskprops);
 	void AddFlatFill(int left, int top, int right, int bottom, FTexture *src, bool local_origin);
 
 	void AddColorOnlyQuad(int left, int top, int width, int height, PalEntry color, FRenderStyle *style = nullptr);

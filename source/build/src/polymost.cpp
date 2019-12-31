@@ -4903,9 +4903,7 @@ void polymost_fillpolygon(int32_t npoints)
     tessectrap((float*)rx1, (float*)ry1, xb1, npoints, &poly);
 
     uint8_t const maskprops = (globalorientation>>7)&DAMETH_MASKPROPS;
-    handle_blend(maskprops > DAMETH_MASK, 0, maskprops == DAMETH_TRANS2);
-    float alpha = (maskprops > DAMETH_MASK) ? float_trans(maskprops, 0) : 1.f;
-    twod->AddPoly(TileFiles.tiles[globalpicnum], poly, globalpal, globalshade, alpha);
+    twod->AddPoly(TileFiles.tiles[globalpicnum], poly, globalpal, globalshade, maskprops);
 }
 
 

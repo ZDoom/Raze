@@ -706,7 +706,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 //
 //==========================================================================
 
-void F2DDrawer::AddPoly(FTexture* img, F2DPolygons& poly, int palette, int shade, float alpha)
+void F2DDrawer::AddPoly(FTexture* img, F2DPolygons& poly, int palette, int shade, int maskprops)
 {
 	RenderCommand dg = {};
 	int method = 0;
@@ -724,7 +724,11 @@ void F2DDrawer::AddPoly(FTexture* img, F2DPolygons& poly, int palette, int shade
 #endif
 
 	PalEntry p = 0xffffffff;
-	p.a = (uint8_t)(alpha * 255);
+	if (maskprops > DAMETH_MASK)
+	{
+		dg.mRenderStyle = GetBlend(0, maskprops == DAMETH_TRANS2);
+		p.a = (uint8_t)(float_trans(maskprops, 0) * 255);
+	}
 	dg.mTexture = img;
 	dg.mRemapIndex = palette | (shade << 16);
 	dg.mVertCount = poly.vertices.Size();
