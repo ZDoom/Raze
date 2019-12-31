@@ -127,7 +127,8 @@ public:
 
 public:
 	void AddTexture(FTexture *img, DrawParms &parms);
-	void AddPoly(FTexture* img, F2DPolygons& poly, int palette, int shade, int maskprops);
+	void AddPoly(FTexture* img, FVector4 *vt, size_t vtcount, unsigned int *ind, size_t idxcount, int palette, int shade, int maskprops);
+	void FillPolygon(int* rx1, int* ry1, int* xb1, int32_t npoints, int picnum, int palette, int shade, int props, const FVector2& xtex, const FVector2& ytex, const FVector2& otex);
 	void AddFlatFill(int left, int top, int right, int bottom, FTexture *src, bool local_origin);
 
 	void AddColorOnlyQuad(int left, int top, int width, int height, PalEntry color, FRenderStyle *style = nullptr);

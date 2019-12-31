@@ -8274,7 +8274,16 @@ static void renderFillPolygon(int32_t npoints)
         if ((unsigned)xb1[z] >= (unsigned)npoints)
             xb1[z] = 0;
 
-    polymost_fillpolygon(npoints);
+    FVector2 xtex, ytex, otex;
+    int x1 = mulscale16(globalx1, xyaspect);
+    int y2 = mulscale16(globaly2, xyaspect);
+    xtex.X = ((float)asm1) * (1.f / 4294967296.f);
+    xtex.Y = ((float)asm2) * (1.f / 4294967296.f);
+    ytex.X = ((float)x1) * (1.f / 4294967296.f);
+    ytex.Y = ((float)y2) * (-1.f / 4294967296.f);
+    otex.X = (fxdim * xtex.X + fydim * ytex.X) * -0.5f + fglobalposx * (1.f / 4294967296.f);
+    otex.Y = (fxdim * xtex.Y + fydim * ytex.Y) * -0.5f - fglobalposy * (1.f / 4294967296.f);
+    twod->FillPolygon(rx1, ry1, xb1, npoints, globalpicnum, globalpal, globalshade, globalorientation, xtex, ytex, otex);
 }
 
 //

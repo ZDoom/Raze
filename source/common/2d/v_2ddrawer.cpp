@@ -32,6 +32,7 @@
 #include "drawparms.h"
 #include "vectors.h"
 #include "gamecvars.h"
+#include "earcut.hpp"
 //#include "doomtype.h"
 #include "templates.h"
 //#include "r_utility.h"
@@ -706,7 +707,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 //
 //==========================================================================
 
-void F2DDrawer::AddPoly(FTexture* img, F2DPolygons& poly, int palette, int shade, int maskprops)
+void F2DDrawer::AddPoly(FTexture* img, FVector4* vt, size_t vtcount, unsigned int* ind, size_t idxcount, int palette, int shade, int maskprops)
 {
 	RenderCommand dg = {};
 	int method = 0;
@@ -731,32 +732,88 @@ void F2DDrawer::AddPoly(FTexture* img, F2DPolygons& poly, int palette, int shade
 	}
 	dg.mTexture = img;
 	dg.mRemapIndex = palette | (shade << 16);
-	dg.mVertCount = poly.vertices.Size();
-	dg.mVertIndex = (int)mVertices.Reserve(dg.mVertCount);
+	dg.mVertCount = vtcount;
+	dg.mVertIndex = (int)mVertices.Reserve(vtcount);
 	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
 	dg.mIndexIndex = mIndices.Size();
 	dg.mFlags |= DTF_Wrap;
 	auto ptr = &mVertices[dg.mVertIndex];
 
-	for (auto& sv : poly.vertices)
+	for (size_t i=0;i<vtcount;i++)
 	{
-		ptr->Set(sv.X, sv.Y, 0.f, sv.Z, sv.W, p);
+		ptr->Set(vt[i].X, vt[i].Y, 0.f, vt[i].Z, vt[i].W, p);
 		ptr++;
 	}
 
-	int start = dg.mVertIndex;
-
-	for (unsigned i = 0; i < poly.indices.Size(); i++)
+	dg.mIndexIndex = mIndices.Size();
+	mIndices.Reserve(idxcount);
+	for (size_t i = 0; i < idxcount; i++)
 	{
-		for (int vv = 2; vv < poly.indices[i]; vv++)
-		{
-			AddIndices(start, 3, 0, vv - 1, vv);
-		}
-		start += poly.indices[i];
+		mIndices[dg.mIndexIndex + i] = ind[i] + dg.mVertIndex;
 	}
-
-	dg.mIndexCount = mIndices.Size() - dg.mIndexIndex;
+	dg.mIndexCount = idxcount;
 	AddCommand(&dg);
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void F2DDrawer::FillPolygon(int *rx1, int *ry1, int *xb1, int32_t npoints, int picnum, int palette, int shade, int props, const FVector2& xtex, const FVector2& ytex, const FVector2 &otex)
+{
+	//Convert int32_t to float (in-place)
+	TArray<FVector4> points(npoints, true);
+	using Point = std::pair<float, float>;
+	std::vector<std::vector<Point>> polygon;
+	std::vector<Point>* curPoly;
+
+	polygon.resize(1);
+	curPoly = &polygon.back();
+
+	for (bssize_t i = 0; i < npoints; ++i)
+	{
+		auto X = ((float)rx1[i]) * (1.0f / 4096.f);
+		auto Y = ((float)ry1[i]) * (1.0f / 4096.f);
+		curPoly->push_back(std::make_pair(X, Y));
+		if (xb1[i] < i && i < npoints - 1)
+		{
+			polygon.resize(polygon.size() + 1);
+			curPoly = &polygon.back();
+		}
+	}
+	// Now make sure that the outer boundary is the first polygon by picking a point that's as much to the outside as possible.
+	int outer = 0;
+	float minx = FLT_MAX;
+	float miny = FLT_MAX;
+	for (size_t a = 0; a < polygon.size(); a++)
+	{
+		for (auto& pt : polygon[a])
+		{
+			if (pt.first < minx || pt.first == minx && pt.second < miny)
+			{
+				minx = pt.first;
+				miny = pt.second;
+				outer = a;
+			}
+		}
+	}
+	if (outer != 0) std::swap(polygon[0], polygon[outer]);
+	auto indices = mapbox::earcut(polygon);
+
+	int p = 0;
+	for (size_t a = 0; a < polygon.size(); a++)
+	{
+		for (auto& pt : polygon[a])
+		{
+			FVector4 point = { pt.first, pt.second, float(pt.first * xtex.X + pt.second * ytex.X + otex.X), float(pt.first * xtex.Y + pt.second * ytex.Y + otex.Y) };
+			points[p++] = point;
+		}
+	}
+
+	AddPoly(TileFiles.tiles[picnum], points.Data(), points.Size(), indices.data(), indices.size(), palette, shade, (props >> 7)& DAMETH_MASKPROPS);
+}
+
 
 
