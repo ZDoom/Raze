@@ -6256,159 +6256,12 @@ static void renderDrawMaskedWall(int16_t damaskwallcnt)
 //
 static void renderFillPolygon(int32_t npoints)
 {
-    int32_t i, z, y, miny, maxy;
-
     // fix for bad next-point (xb1) values...
-    for (z=0; z<npoints; z++)
+    for (int z=0; z<npoints; z++)
         if ((unsigned)xb1[z] >= (unsigned)npoints)
             xb1[z] = 0;
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
-    {
-        polymost_fillpolygon(npoints);
-        return;
-    }
-#endif
-
-    // 1. Calculate y bounds.
-    miny = INT32_MAX; maxy = INT32_MIN;
-    for (z=npoints-1; z>=0; z--)
-    {
-        y = ry1[z];
-        miny = min(miny,y);
-        maxy = max(maxy,y);
-    }
-
-    miny >>= 12;
-    maxy >>= 12;
-
-    if (miny < 0)
-        miny = 0;
-    if (maxy >= ydim)
-        maxy = ydim-1;
-
-    for (i=0, y=miny; y<=maxy; y++, i++)
-    {
-        //They're pointers! - watch how you optimize this thing
-        dotp1[y] = &smost[i*nodesperline];
-        dotp2[y] = &smost[i*nodesperline + (nodesperline>>1)];
-    }
-
-    for (z=npoints-1; z>=0; z--)
-    {
-        const int32_t zz=xb1[z];
-
-        // NOTE: clamp for crash prevention... :-/
-        // r1874 says: "Fix more overheadmap crashes, this time with 'Last
-        // Pissed Time'"
-        const int32_t y1 = clamp(ry1[z], 0, (ydim<<12)-1);
-        const int32_t y2 = clamp(ry1[zz], 0, (ydim<<12)-1);
-
-        const int32_t day1 = y1>>12;
-        const int32_t day2 = y2>>12;
-
-        if (day1 != day2)
-        {
-            int32_t x1=rx1[z], x2=rx1[zz];
-            const int32_t xinc = divscale12(x2-x1, y2-y1);
-
-            if (day2 > day1)
-            {
-                x1 += mulscale12((day1<<12)+4095-y1, xinc);
-                for (y=day1; y<day2; y++)
-                {
-                    Bassert(dotp2[y]);
-                    *(dotp2[y]++) = x1>>12;
-                    x1 += xinc;
-                }
-            }
-            else
-            {
-                x2 += mulscale12((day2<<12)+4095-y2, xinc);
-                for (y=day2; y<day1; y++)
-                {
-                    Bassert(dotp1[y]);
-                    *(dotp1[y]++) = x2>>12;
-                    x2 += xinc;
-                }
-            }
-        }
-    }
-
-    globalx1 = mulscale16(globalx1,xyaspect);
-    globaly2 = mulscale16(globaly2,xyaspect);
-
-    {
-        const int32_t oy = miny+1-(ydim>>1);
-        globalposx += oy*(int64_t)globalx1;
-        globalposy += oy*(int64_t)globaly2;
-    }
-
-    setuphlineasm4(asm1,asm2);
-
-    for (i=0, y=miny; y<=maxy; y++, i++)
-    {
-        int16_t *const xptr = &smost[i*nodesperline];
-        int16_t *const xptr2 = &smost[i*nodesperline + (nodesperline>>1)];
-
-        const bssize_t cnt = dotp1[y]-xptr;
-
-        for (z=cnt-1; z>=0; z--)
-        {
-            int32_t x1, x2;
-            int32_t zz, i1=0, i2=0;  // point indices (like loop z)
-
-            for (zz=z; zz>0; zz--)
-            {
-                if (xptr[zz] < xptr[i1])
-                    i1 = zz;
-                if (xptr2[zz] < xptr2[i2])
-                    i2 = zz;
-            }
-
-            x1 = xptr[i1];
-            xptr[i1] = xptr[z];
-
-            x2 = xptr2[i2]-1;
-            xptr2[i2] = xptr2[z];
-
-            if (x1 > x2)
-                continue;
-
-            if ((unsigned)x1 >= xdim+0u || (unsigned)x2 >= xdim+0u)
-                continue;
-
-            if (globalpolytype < 1)
-            {
-                //maphline
-                const int32_t ox = x2+1-(xdim>>1);
-
-                hlineasm4(x2 - x1, -1L, globalshade << 8,
-                          ox * asm2 - globalposy, ox * asm1 + globalposx,
-                          ylookup[y] + x2 + frameplace);
-            }
-            else
-            {
-                //maphline
-                const int32_t ox = x1+1-(xdim>>1);
-                const int32_t bx = ox*asm1 + globalposx;
-                const int32_t by = ox*asm2 - globalposy;
-
-                const intptr_t p = ylookup[y]+x1+frameplace;
-
-                if (globalpolytype == 1)
-                    mhline(globalbufplc,bx,(x2-x1)<<16,0L,by,p);
-                else
-                    thline(globalbufplc,bx,(x2-x1)<<16,0L,by,p);
-            }
-        }
-
-        globalposx += (int64_t)globalx1;
-        globalposy += (int64_t)globaly2;
-    }
-
-    faketimerhandler();
+    polymost_fillpolygon(npoints);
 }
 
 static inline int32_t addscaleclamp(int32_t a, int32_t b, int32_t s1, int32_t s2)
@@ -8452,8 +8305,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     int32_t sortnum = 0;
 
-    videoBeginDrawing(); //{{{
-
     usectorptr_t sec;
 
     for (s=0,sec=(usectorptr_t)&sector[s]; s<numsectors; s++,sec++)
@@ -8541,7 +8392,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
 
-			if (videoGetRenderMode() == REND_POLYMOST)
+			if (videoGetRenderMode() != REND_POLYMOST)
 			{
 				tileLoad(globalpicnum);
 				// Only load tiles when software rendering.
@@ -8672,7 +8523,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
 
-			if (videoGetRenderMode() == REND_POLYMOST)
+			if (videoGetRenderMode() != REND_POLYMOST)
 			{
 				tileLoad(globalpicnum);
 				// Only load tiles when software rendering.
@@ -8736,8 +8587,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             renderFillPolygon(npoints);
         }
     }
-
-    videoEndDrawing();   //}}}
 
     if (r_usenewaspect)
         renderSetAspect(oviewingrange, oyxaspect);

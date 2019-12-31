@@ -81,6 +81,15 @@ void F2DDrawer::AddIndices(int firstvert, int count, ...)
 	}
 }
 
+void F2DDrawer::AddIndices(int firstvert, TArray<int> &v)
+{
+	int addr = mIndices.Reserve(v.Size());
+	for (unsigned i = 0; i < v.Size(); i++)
+	{
+		mIndices[addr + i] = firstvert + v[i];
+	}
+}
+
 //==========================================================================
 //
 // SetStyle
@@ -300,91 +309,6 @@ void F2DDrawer::AddTexture(FTexture *img, DrawParms &parms)
 	dg.mIndexCount += 6;
 	AddIndices(dg.mVertIndex, 6, 0, 1, 2, 1, 3, 2);
 	AddCommand(&dg);
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-void F2DDrawer::AddPoly(FTexture *texture, FVector2 *points, int npoints,
-		double originx, double originy, double scalex, double scaley,
-		DAngle rotation, int colormap, PalEntry flatcolor, int lightlevel,
-		uint32_t *indices, size_t indexcount)
-{
-	// Use an equation similar to player sprites to determine shade
-
-	// Convert a light level into an unbounded colormap index (shade). 
-	// Why the +12? I wish I knew, but experimentation indicates it
-	// is necessary in order to best reproduce Doom's original lighting.
-	double fadelevel;
-
-	// The hardware renderer's light modes 0, 1 and 4 use a linear light scale which must be used here as well. Otherwise the automap gets too dark.
-	fadelevel = 1. - clamp(lightlevel, 0, 255) / 255.f;
-
-	RenderCommand poly;
-
-	poly.mType = DrawTypeTriangles;
-	poly.mTexture = texture;
-	poly.mRenderStyle = DefaultRenderStyle();
-	poly.mFlags |= DTF_Wrap;
-	poly.mDesaturate = 0;
-
-	PalEntry color0; 
-	double invfade = 1. - fadelevel;
-
-	color0.r = uint8_t(flatcolor.r * invfade);
-	color0.g = uint8_t(flatcolor.g * invfade);
-	color0.b = uint8_t(flatcolor.b * invfade);
-	color0.a = 255;
-
-	poly.mColor1 = 0;
-
-	bool dorotate = rotation != 0;
-
-	float cosrot = (float)cos(rotation.Radians());
-	float sinrot = (float)sin(rotation.Radians());
-
-	float uscale = float(1.f / (texture->GetWidth() * scalex));
-	float vscale = float(1.f / (texture->GetHeight() * scaley));
-	float ox = float(originx);
-	float oy = float(originy);
-
-	poly.mVertCount = npoints;
-	poly.mVertIndex = (int)mVertices.Reserve(npoints);
-	for (int i = 0; i < npoints; ++i)
-	{
-		float u = points[i].X - 0.5f - ox;
-		float v = points[i].Y - 0.5f - oy;
-		if (dorotate)
-		{
-			float t = u;
-			u = t * cosrot - v * sinrot;
-			v = v * cosrot + t * sinrot;
-		}
-		mVertices[poly.mVertIndex+i].Set(points[i].X, points[i].Y, 0, u*uscale, v*vscale, color0);
-	}
-	poly.mIndexIndex = mIndices.Size();
-
-	if (indices == nullptr || indexcount == 0)
-	{
-		poly.mIndexCount += (npoints - 2) * 3;
-		for (int i = 2; i < npoints; ++i)
-		{
-			AddIndices(poly.mVertIndex, 3, 0, i - 1, i);
-		}
-	}
-	else
-	{
-		poly.mIndexCount += (int)indexcount;
-		int addr = mIndices.Reserve(indexcount);
-		for (size_t i = 0; i < indexcount; i++)
-		{
-			mIndices[addr + i] = poly.mVertIndex + indices[i];
-		}
-	}
-
-	AddCommand(&poly);
 }
 
 //==========================================================================
@@ -722,7 +646,6 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	dg.mRemapIndex = dapalnum | (dashade << 16);
 	dg.mVertCount = 4;
 	dg.mVertIndex = (int)mVertices.Reserve(4);
-	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
 	auto ptr = &mVertices[dg.mVertIndex];
 	float drawpoly_alpha = daalpha * (1.0f / 255.0f);
 	float alpha = float_trans(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
@@ -776,3 +699,60 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	AddCommand(&dg);
 
 }
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void F2DDrawer::AddPoly(FTexture* img, F2DPolygons& poly, int palette, int shade, float alpha)
+{
+	RenderCommand dg = {};
+	int method = 0;
+
+	dg.mType = DrawTypeRotateSprite;
+#if 0
+	if (clipx1 > 0 || clipy1 > 0 || clipx2 < xdim - 1 || clipy2 < ydim - 1)
+	{
+		dg.mScissor[0] = clipx1;
+		dg.mScissor[1] = clipy1;
+		dg.mScissor[2] = clipx2 + 1;
+		dg.mScissor[3] = clipy2 + 1;
+		dg.mFlags |= DTF_Scissor;
+	}
+#endif
+
+	PalEntry p = 0xffffffff;
+	p.a = (uint8_t)(alpha * 255);
+	dg.mTexture = img;
+	dg.mRemapIndex = palette | (shade << 16);
+	dg.mVertCount = poly.vertices.Size();
+	dg.mVertIndex = (int)mVertices.Reserve(dg.mVertCount);
+	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
+	dg.mIndexIndex = mIndices.Size();
+	dg.mFlags |= DTF_Wrap;
+	auto ptr = &mVertices[dg.mVertIndex];
+
+	for (auto& sv : poly.vertices)
+	{
+		ptr->Set(sv.X, sv.Y, 0.f, sv.Z, sv.W, p);
+		ptr++;
+	}
+
+	int start = dg.mVertIndex;
+
+	for (unsigned i = 0; i < poly.indices.Size(); i++)
+	{
+		for (int vv = 2; vv < poly.indices[i]; vv++)
+		{
+			AddIndices(start, 3, 0, vv - 1, vv);
+		}
+		start += poly.indices[i];
+	}
+
+	dg.mIndexCount = mIndices.Size() - dg.mIndexIndex;
+	AddCommand(&dg);
+}
+
+

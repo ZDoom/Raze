@@ -4719,33 +4719,30 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     polymost_identityrotmat();
 }
 
-static float trapextx[2];
-static void drawtrap(float x0, float x1, float y0, float x2, float x3, float y1)
+#include "v_2ddrawer.h"
+static void drawtrap(float x0, float x1, float y0, float x2, float x3, float y1, float *trapextx, F2DPolygons *poly)
 {
     if (y0 == y1) return;
 
     float px[4], py[4];
-    int32_t n = 3;
+    int n = 3;
 
     px[0] = x0; py[0] = y0;  py[2] = y1;
     if (x0 == x1) { px[1] = x3; py[1] = y1; px[2] = x2; }
     else if (x2 == x3) { px[1] = x1; py[1] = y0; px[2] = x3; }
     else               { px[1] = x1; py[1] = y0; px[2] = x3; px[3] = x2; py[3] = y1; n = 4; }
 
-	auto data = GLInterface.AllocVertices(n);
-	auto vt = data.second;
-    for (bssize_t i=0; i<n; i++, vt++)
+	auto vt = poly->AllocVertices(n);
+    for (int i=0; i<n; i++)
     {
         px[i] = min(max(px[i],trapextx[0]),trapextx[1]);
-        vt->SetTexCoord(px[i]*xtex.u + py[i]*ytex.u + otex.u,
-                      px[i]*xtex.v + py[i]*ytex.v + otex.v);
-        vt->SetVertex(px[i],py[i]);
+        poly->vertices[vt++] = { px[i], py[i], float(px[i] * xtex.u + py[i] * ytex.u + otex.u), float(px[i] * xtex.v + py[i] * ytex.v + otex.v) };
     }
-	GLInterface.Draw(DT_TRIANGLE_FAN, data.first, n);
 }
 
-static void tessectrap(const float *px, const float *py, const int32_t *point2, int32_t numpoints)
+static void tessectrap(const float *px, const float *py, const int32_t *point2, int32_t numpoints, F2DPolygons* poly)
 {
+    float trapextx[2];
     float x0, x1, m0, m1;
     int32_t i, j, k, z, i0, i1, i2, i3, npoints, gap, numrst;
 
@@ -4785,17 +4782,13 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
     }
     if (z != 3) //Simple polygon... early out
     {
-		auto data = GLInterface.AllocVertices(npoints);
-		auto vt = data.second;
+		auto vt = poly->AllocVertices(npoints);
 
-        for (i=0; i<npoints; i++, vt++)
+        for (i=0; i<npoints; i++)
         {
             j = slist[i];
-            vt->SetTexCoord(px[j]*xtex.u + py[j]*ytex.u + otex.u,
-                          px[j]*xtex.v + py[j]*ytex.v + otex.v);
-            vt->SetVertex(px[j],py[j]);
+            poly->vertices[vt++] = { px[j], py[j], float(px[j] * xtex.u + py[j] * ytex.u + otex.u), float(px[j] * xtex.v + py[j] * ytex.v + otex.v) };
         }
-		GLInterface.Draw(DT_TRIANGLE_FAN, data.first, npoints);
         return;
     }
 
@@ -4836,7 +4829,7 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
 
                 x0 = (py[i1] - rst[j  ].y)*rst[j  ].xi + rst[j  ].x;
                 x1 = (py[i1] - rst[j+1].y)*rst[j+1].xi + rst[j+1].x;
-                drawtrap(rst[j].x,rst[j+1].x,rst[j].y,x0,x1,py[i1]);
+                drawtrap(rst[j].x,rst[j+1].x,rst[j].y,x0,x1,py[i1], trapextx, poly);
                 rst[j  ].x = x0; rst[j  ].y = py[i1];
                 rst[j+3].x = x1; rst[j+3].y = py[i1];
             }
@@ -4861,7 +4854,7 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
                 {
                     x0 = (py[i1] - rst[j  ].y)*rst[j  ].xi + rst[j  ].x;
                     if ((i == j) && (i1 == i2)) x1 = x0; else x1 = (py[i1] - rst[j+1].y)*rst[j+1].xi + rst[j+1].x;
-                    drawtrap(rst[j].x,rst[j+1].x,rst[j].y,x0,x1,py[i1]);
+                    drawtrap(rst[j].x,rst[j+1].x,rst[j].y,x0,x1,py[i1], trapextx, poly);
                     rst[j  ].x = x0; rst[j  ].y = py[i1];
                     rst[j+1].x = x1; rst[j+1].y = py[i1];
                 }
@@ -4871,7 +4864,7 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
             {
                 x0 = (py[i1] - rst[j  ].y)*rst[j  ].xi + rst[j  ].x;
                 x1 = (py[i1] - rst[j+1].y)*rst[j+1].xi + rst[j+1].x;
-                drawtrap(rst[j].x,rst[j+1].x,rst[j].y,x0,x1,py[i1]);
+                drawtrap(rst[j].x,rst[j+1].x,rst[j].y,x0,x1,py[i1], trapextx, poly);
                 rst[j  ].x = x0; rst[j  ].y = py[i1];
                 rst[j+1].x = x1; rst[j+1].y = py[i1];
 
@@ -4883,12 +4876,14 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
     }
 }
 
+static F2DPolygons poly;
 void polymost_fillpolygon(int32_t npoints)
 {
+    poly.vertices.Clear();
+    poly.indices.Clear();
     polymost_outputGLDebugMessage(3, "polymost_fillpolygon(npoints:%d)", npoints);
 
     globvis2 = 0;
-	GLInterface.SetVisibility(globvis2, fviewingrange);
 
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);
@@ -4905,25 +4900,12 @@ void polymost_fillpolygon(int32_t npoints)
         ((float *)rx1)[i] = ((float)rx1[i])*(1.0f/4096.f);
         ((float *)ry1)[i] = ((float)ry1[i])*(1.0f/4096.f);
     }
-
-    if (gloy1 != -1) polymostSet2dView(); //disables blending, texturing, and depth testing
-    GLInterface.EnableAlphaTest(true);
-	GLInterface.SetTexture(globalpicnum, TileFiles.tiles[globalpicnum], globalpal, DAMETH_NOMASK, -1);
+    tessectrap((float*)rx1, (float*)ry1, xb1, npoints, &poly);
 
     uint8_t const maskprops = (globalorientation>>7)&DAMETH_MASKPROPS;
     handle_blend(maskprops > DAMETH_MASK, 0, maskprops == DAMETH_TRANS2);
-    if (maskprops > DAMETH_MASK)
-    {
-        GLInterface.EnableBlend(true);
-        GLInterface.SetColor(1.f, 1.f, 1.f, float_trans(maskprops, 0));
-    }
-    else
-    {
-        GLInterface.EnableBlend(false);
-		GLInterface.SetColor(1.f, 1.f, 1.f);
-    }
-
-    tessectrap((float *)rx1,(float *)ry1,xb1,npoints);
+    float alpha = (maskprops > DAMETH_MASK) ? float_trans(maskprops, 0) : 1.f;
+    twod->AddPoly(TileFiles.tiles[globalpicnum], poly, globalpal, globalshade, alpha);
 }
 
 

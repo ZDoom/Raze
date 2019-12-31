@@ -1092,8 +1092,6 @@ void    renderSetRollAngle(int32_t rolla);
 //       clamping is for sprites, repeating is for walls
 void tileInvalidate(int16_t tilenume, int32_t pal, int32_t how);
 
-void polymostSet2dView(void);   // sets up GL for 2D drawing
-
 void polymost_glreset(void);
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 void PrecacheHardwareTextures(int nTile);

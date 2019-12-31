@@ -164,7 +164,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 				// todo: Set up hictinting. (broken as the feature is...)
 				SetShade(cmd.mRemapIndex >> 16, numshades);
 				SetFadeDisable(false);
-				SetTexture(0, tex, cmd.mRemapIndex & 0xffff, 4/*DAMETH_CLAMPED*/, SamplerClampXY);
+				SetTexture(0, tex, cmd.mRemapIndex & 0xffff, 4/*DAMETH_CLAMPED*/, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
 				EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 			}
 			else

@@ -105,25 +105,3 @@ void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col)
 }
 
 
-
-//
-// setpolymost2dview
-//  Sets OpenGL for 2D drawing
-//
-void polymostSet2dView(void)
-{
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() < REND_POLYMOST) return;
-
-	GLInterface.SetViewport(0, 0, xdim, ydim);
-
-	VSMatrix proj(0);
-	proj.ortho(0, xdim, ydim, 0, -1, 1);
-	GLInterface.SetMatrix(Matrix_Projection, &proj);
-
-    gloy1 = -1;
-
-    GLInterface.EnableDepthTest(false);
-    GLInterface.EnableBlend(false);
-#endif
-}

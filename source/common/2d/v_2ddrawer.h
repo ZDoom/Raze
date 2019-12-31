@@ -9,6 +9,21 @@
 struct DrawParms;
 
 
+struct F2DPolygons
+{
+	TArray<FVector4> vertices;
+	TArray<int>  indices;
+
+	unsigned AllocVertices(int num) // Allocates a triangle fan. There's no code that needs a triangle strip.
+	{
+		auto vindex = vertices.Reserve(num);
+		indices.Push(num);
+		return vindex;
+	}
+
+};
+
+
 
 class F2DDrawer
 {
@@ -86,7 +101,7 @@ public:
 		bool isCompatible(const RenderCommand &other) const
 		{
 			return mTexture == other.mTexture &&
-				mType == other.mType && mType != DrawTypeRotateSprite &&
+				mType == other.mType &&
 				mRemapIndex == other.mRemapIndex &&
 				mSpecialColormap[0].d == other.mSpecialColormap[0].d &&
 				mSpecialColormap[1].d == other.mSpecialColormap[1].d &&
@@ -106,14 +121,13 @@ public:
 	
 	int AddCommand(const RenderCommand *data);
 	void AddIndices(int firstvert, int count, ...);
+	void AddIndices(int firstvert, TArray<int> &v);
 	bool SetStyle(FTexture *tex, DrawParms &parms, PalEntry &color0, RenderCommand &quad);
 	void SetColorOverlay(PalEntry color, float alpha, PalEntry &vertexcolor, PalEntry &overlaycolor);
 
 public:
 	void AddTexture(FTexture *img, DrawParms &parms);
-	void AddPoly(FTexture *texture, FVector2 *points, int npoints,
-		double originx, double originy, double scalex, double scaley,
-		DAngle rotation, int colormap, PalEntry flatcolor, int lightlevel, uint32_t *indices, size_t indexcount);
+	void AddPoly(FTexture* img, F2DPolygons& poly, int palette, int shade, float alpha);
 	void AddFlatFill(int left, int top, int right, int bottom, FTexture *src, bool local_origin);
 
 	void AddColorOnlyQuad(int left, int top, int width, int height, PalEntry color, FRenderStyle *style = nullptr);
