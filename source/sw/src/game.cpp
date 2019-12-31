@@ -3499,6 +3499,9 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     SWBOOL sprisplayer = FALSE;
     short txt_x, txt_y;
 
+    int32_t tmpydim = (xdim * 5) / 8;
+    renderSetAspect(65536, divscale16(tmpydim * 320, xdim * 200));
+
     // draw location text
     if (gs.BorderNum <= BORDER_BAR-1)
     {
@@ -3817,6 +3820,8 @@ SHOWSPRITE:
             renderDrawLine(x1 + (xdim << 11), y1 + (ydim << 11), x2 + (xdim << 11), y2 + (ydim << 11), 24);
         }
     }
+
+    videoSetCorrectedAspect();
 
 }
 
