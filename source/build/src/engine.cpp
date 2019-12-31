@@ -8283,7 +8283,7 @@ static void renderFillPolygon(int32_t npoints)
     ytex.Y = ((float)y2) * (-1.f / 4294967296.f);
     otex.X = (fxdim * xtex.X + fydim * ytex.X) * -0.5f + fglobalposx * (1.f / 4294967296.f);
     otex.Y = (fxdim * xtex.Y + fydim * ytex.Y) * -0.5f - fglobalposy * (1.f / 4294967296.f);
-    twod->FillPolygon(rx1, ry1, xb1, npoints, globalpicnum, globalpal, globalshade, globalorientation, xtex, ytex, otex);
+    twod->FillPolygon(rx1, ry1, xb1, npoints, globalpicnum, globalpal, globalshade, globalorientation, xtex, ytex, otex, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
 }
 
 //

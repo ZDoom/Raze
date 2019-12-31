@@ -716,13 +716,12 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 //
 //==========================================================================
 
-void F2DDrawer::AddPoly(FTexture* img, FVector4* vt, size_t vtcount, unsigned int* ind, size_t idxcount, int palette, int shade, int maskprops)
+void F2DDrawer::AddPoly(FTexture* img, FVector4* vt, size_t vtcount, unsigned int* ind, size_t idxcount, int palette, int shade, int maskprops, int clipx1, int clipy1, int clipx2, int clipy2)
 {
 	RenderCommand dg = {};
 	int method = 0;
 
 	dg.mType = DrawTypeRotateSprite;
-#if 0
 	if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth() - 1 || clipy2 < screen->GetHeight() - 1)
 	{
 		dg.mScissor[0] = clipx1;
@@ -731,7 +730,6 @@ void F2DDrawer::AddPoly(FTexture* img, FVector4* vt, size_t vtcount, unsigned in
 		dg.mScissor[3] = clipy2 + 1;
 		dg.mFlags |= DTF_Scissor;
 	}
-#endif
 
 	PalEntry p = 0xffffffff;
 	if (maskprops > DAMETH_MASK)
@@ -770,7 +768,8 @@ void F2DDrawer::AddPoly(FTexture* img, FVector4* vt, size_t vtcount, unsigned in
 //
 //==========================================================================
 
-void F2DDrawer::FillPolygon(int *rx1, int *ry1, int *xb1, int32_t npoints, int picnum, int palette, int shade, int props, const FVector2& xtex, const FVector2& ytex, const FVector2 &otex)
+void F2DDrawer::FillPolygon(int *rx1, int *ry1, int *xb1, int32_t npoints, int picnum, int palette, int shade, int props, const FVector2& xtex, const FVector2& ytex, const FVector2 &otex,
+	int clipx1, int clipy1, int clipx2, int clipy2)
 {
 	//Convert int32_t to float (in-place)
 	TArray<FVector4> points(npoints, true);
@@ -821,7 +820,7 @@ void F2DDrawer::FillPolygon(int *rx1, int *ry1, int *xb1, int32_t npoints, int p
 		}
 	}
 
-	AddPoly(TileFiles.tiles[picnum], points.Data(), points.Size(), indices.data(), indices.size(), palette, shade, (props >> 7)& DAMETH_MASKPROPS);
+	AddPoly(TileFiles.tiles[picnum], points.Data(), points.Size(), indices.data(), indices.size(), palette, shade, (props >> 7)& DAMETH_MASKPROPS, clipx1, clipy1, clipx2, clipy2);
 }
 
 

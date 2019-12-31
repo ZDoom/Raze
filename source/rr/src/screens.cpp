@@ -929,6 +929,7 @@ void G_DisplayRest(int32_t smoothratio)
             if (ud.overhead_on == 2)
             {
                 twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+                G_DrawBackground();
                 renderDrawMapView(cposx, cposy, pp->zoom, cang);
             }
             G_DrawOverheadMap(cposx, cposy, pp->zoom, cang);

@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "map2d.h"
 #include "trig.h"
 #include "view.h"
+#include "v_2ddrawer.h"
 
 BEGIN_BLD_NS
 
@@ -194,7 +195,8 @@ void CViewMap::sub_25C74(void)
         viewResizeView(3);
         tm = 1;
     }
-    videoClearScreen(0);
+    // only clear the actual window.
+    twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, windowxy2.x - windowxy1.x + 1, windowxy2.y - windowxy1.y - 1, 0xff000000);
     renderDrawMapView(x,y,nZoom>>2,angle);
     sub_2541C(x,y,nZoom>>2,angle);
     const char *pTitle = levelGetTitle();
