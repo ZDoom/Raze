@@ -45,6 +45,7 @@
 #include "v_draw.h"
 #include "i_time.h"
 #include "v_2ddrawer.h"
+#include "build.h"
 /*
 #include "hwrenderer/scene/hw_portal.h"
 #include "hwrenderer/utility/hw_clock.h"
@@ -237,20 +238,8 @@ void DFrameBuffer::SetViewportRects(IntRect *bounds)
 		return;
 	}
 
-#if 0
 	// Special handling so the view with a visible status bar displays properly
-	int height, width;
-	if (screenblocks >= 10)
-	{
-		height = GetHeight();
-		width = GetWidth();
-	}
-	else
-	{
-		height = (screenblocks*GetHeight() / 10) & ~7;
-		width = (screenblocks*GetWidth() / 10);
-	}
-#endif
+	int height = windowxy2.y - windowxy1.y + 1, width = windowxy2.x - windowxy1.x + 1;
 
 	// Back buffer letterbox for the final output
 	int clientWidth = GetClientWidth();
@@ -286,16 +275,11 @@ void DFrameBuffer::SetViewportRects(IntRect *bounds)
 	mScreenViewport.width = screenWidth;
 	mScreenViewport.height = screenHeight;
 
-#if 0
 	// Viewport for the 3D scene
-	mSceneViewport.left = viewwindowx;
-	mSceneViewport.top = screenHeight - (height + viewwindowy - ((height - viewheight) / 2));
-	mSceneViewport.width = viewwidth;
+	mSceneViewport.left = windowxy1.x;
+	mSceneViewport.top = windowxy1.y;
+	mSceneViewport.width = width;
 	mSceneViewport.height = height;
-#else
-	// For now use the full screen. This needs to be done better.
-	mSceneViewport = mScreenViewport;
-#endif
 
 	// Scale viewports to fit letterbox
 	bool notScaled = ((mScreenViewport.width == ViewportScaledWidth(mScreenViewport.width, mScreenViewport.height)) &&

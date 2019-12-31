@@ -259,7 +259,6 @@ public:
 	inline int GetWidth() const { return Width; }
 	inline int GetHeight() const { return Height; }
 
-	// Currently there is no concept of a scene viewport in Build, but let's keep this stuff here to implement it later.
 	FVector2 SceneScale() const
 	{
 		return { mSceneViewport.width / (float)mScreenViewport.width, mSceneViewport.height / (float)mScreenViewport.height };
