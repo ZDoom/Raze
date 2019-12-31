@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "cd.h"
 #include "lighting.h"
+#include "../glbackend/glbackend.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -101,25 +102,11 @@ int LoadPaletteLookups()
         bGreenPal = 0;
 
 #ifdef USE_OPENGL
-		/*
-        // Very rough approximation...
-        palookupfogfactor[kPalNormal] = 1.f;
-        palookupfogfactor[kPalNoDim] = 0.f;
-        palookupfogfactor[kPalTorch] = 0.36f;
-        palookupfogfactor[kPalNoTorch] = 0.15f;
-        palookupfogfactor[kPalBrite] = 2.f;
-        palookupfogfactor[kPalRedBrite] = 0.36f;
-        palookupfog[kPalRedBrite] = { 248, 32, 0, 0 };
-        hicsetpalettetint(kPalRedBrite, 255, 255, 255, 248, 32, 0, 0);
-        palookupfog[kPalGreenBrite] = { 248, 32, 0, 0 };
-        palookupfogfactor[kPalGreenBrite] = 0.f;
-        hicsetpalettetint(kPalGreenBrite, 100, 200, 100, 0, 0, 0, 0);
-        palookupfogfactor[kPalNormal2] = 1.f;
-        palookupfogfactor[kPalNoDim2] = 0.f;
-        palookupfogfactor[kPalTorch2] = 0.36f;
-        palookupfogfactor[kPalNoTorch2] = 0.15f;
-        palookupfogfactor[kPalBrite2] = 2.f;
-		*/
+        // These 3 tables do not have normal gradients. The others work without adjustment.
+        // Other changes than altering the fog gradient are not necessary.
+        shadediv[kPalTorch] = shadediv[kPalTorch2] = 1 / 20.f;
+        shadediv[kPalNoTorch] = shadediv[kPalNoTorch2] = 0.25f;
+        shadediv[kPalBrite] = shadediv[kPalBrite] = 1 / 128.f;
 #endif
 
     }

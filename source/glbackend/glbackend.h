@@ -174,6 +174,7 @@ enum ETexType
 
 struct ImDrawData;
 struct palette_t;
+extern float shadediv[256];
 
 class GLInstance
 {
@@ -334,8 +335,6 @@ public:
 	{
 		renderState.Shade = shade;
 		renderState.NumShades = numshades;
-		renderState.ShadeDiv = 1.f / (numshades-2);
-
 	}
 
 	void SetVisibility(float visibility, float fviewingrange)

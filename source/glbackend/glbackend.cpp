@@ -50,6 +50,7 @@
 #include "gl_renderer.h"
 
 extern int xdim, ydim;
+float shadediv[MAXPALOOKUPS];
 
 FileReader GetResource(const char* fn)
 {
@@ -511,6 +512,7 @@ void GLInstance::SetPalette(int index)
 void GLInstance::SetPalswap(int index)
 {
 	palmanager.BindPalswap(index);
+	renderState.ShadeDiv = shadediv[index] == 0 ? 1.f / (renderState.NumShades) : shadediv[index];
 }
 
 void GLInstance::DrawImGui(ImDrawData* data)
