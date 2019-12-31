@@ -10495,10 +10495,10 @@ void videoSetCorrectedAspect()
 //
 void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
-    windowxy1.x = x1; wx1 = (x1<<12);
-    windowxy1.y = y1; wy1 = (y1<<12);
-    windowxy2.x = x2; wx2 = ((x2+1)<<12);
-    windowxy2.y = y2; wy2 = ((y2+1)<<12);
+    windowxy1.x = x1;
+    windowxy1.y = y1;
+    windowxy2.x = x2;
+    windowxy2.y = y2;
 
     xdimen = (x2-x1)+1; halfxdimen = (xdimen>>1);
     xdimenrecip = divscale32(1L,xdimen);

@@ -1,4 +1,4 @@
-// 
+// scissi
 //---------------------------------------------------------------------------
 //
 // Copyright(C) 2016-2018 Christoph Oelckers
@@ -36,7 +36,7 @@
 //#include "doomtype.h"
 #include "templates.h"
 //#include "r_utility.h"
-//#include "v_video.h"
+#include "v_video.h"
 //#include "g_levellocals.h"
 //#include "vm.h"
 
@@ -391,13 +391,22 @@ void F2DDrawer::AddColorOnlyQuad(int x1, int y1, int w, int h, PalEntry color, F
 //
 //==========================================================================
 
-void F2DDrawer::AddLine(int x1, int y1, int x2, int y2, uint32_t color, uint8_t alpha)
+void F2DDrawer::AddLine(float x1, float y1, float x2, float y2, int clipx1, int clipy1, int clipx2, int clipy2, uint32_t color, uint8_t alpha)
 {
 	PalEntry p = (PalEntry)color;
 	p.a = alpha;
 
 	RenderCommand dg;
 
+	if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth()- 1 || clipy2 < screen->GetHeight() - 1)
+	{
+		dg.mScissor[0] = clipx1;
+		dg.mScissor[1] = clipy1;
+		dg.mScissor[2] = clipx2 + 1;
+		dg.mScissor[3] = clipy2 + 1;
+		dg.mFlags |= DTF_Scissor;
+	}
+	
 	dg.mType = DrawTypeLines;
 	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
 	dg.mVertCount = 2;
@@ -619,7 +628,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	int method = 0;
 
 	dg.mType = DrawTypeRotateSprite;
-	if (clipx1 > 0 || clipy1 > 0 || clipx2 < xdim - 1 || clipy2 < ydim - 1)
+	if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth() - 1 || clipy2 < screen->GetHeight() - 1)
 	{
 		dg.mScissor[0] = clipx1;
 		dg.mScissor[1] = clipy1;
@@ -714,7 +723,7 @@ void F2DDrawer::AddPoly(FTexture* img, FVector4* vt, size_t vtcount, unsigned in
 
 	dg.mType = DrawTypeRotateSprite;
 #if 0
-	if (clipx1 > 0 || clipy1 > 0 || clipx2 < xdim - 1 || clipy2 < ydim - 1)
+	if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth() - 1 || clipy2 < screen->GetHeight() - 1)
 	{
 		dg.mScissor[0] = clipx1;
 		dg.mScissor[1] = clipy1;
@@ -815,5 +824,15 @@ void F2DDrawer::FillPolygon(int *rx1, int *ry1, int *xb1, int32_t npoints, int p
 	AddPoly(TileFiles.tiles[picnum], points.Data(), points.Size(), indices.data(), indices.size(), palette, shade, (props >> 7)& DAMETH_MASKPROPS);
 }
 
+
+void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
+{
+	twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, PalEntry(p.r, p.g, p.b));
+}
+
+void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col)
+{
+	drawlinergb(x1, y1, x2, y2, paletteGetColor(palookup[0][col]));
+}
 
 

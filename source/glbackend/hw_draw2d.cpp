@@ -189,7 +189,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 			break;
 
 		case F2DDrawer::DrawTypeLines:
-			//Draw(DT_LINES, cmd.mVertIndex, cmd.mVertCount);
+			Draw(DT_LINES, cmd.mVertIndex, cmd.mVertCount);
 			break;
 
 		case F2DDrawer::DrawTypePoints:

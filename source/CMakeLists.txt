@@ -681,7 +681,6 @@ set (PCH_SOURCES
 	#thirdparty/imgui/imgui_widgets.cpp
 	
 	# Todo: Split out the license-safe code from this.
-	build/src/2d.cpp
 	build/src/a-c.cpp
 	build/src/animvpx.cpp
 	build/src/baselayer.cpp

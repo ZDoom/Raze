@@ -259,9 +259,13 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 		}
 		glEnd();
 	}
-	else
+	else if (type != DT_LINES)
 	{
 		glDrawElements(primtypes[type], count, GL_UNSIGNED_INT, (void*)(intptr_t)(start * sizeof(uint32_t)));
+	}
+	else
+	{
+		glDrawArrays(primtypes[type], start, count);
 	}
 	if (MatrixChange) RestoreTextureProps();
 }

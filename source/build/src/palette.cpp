@@ -63,66 +63,13 @@ int DetermineTranslucency(const uint8_t *table)
 	if (newcolor2.r == 255)	// if black on white results in white it's either
 							// fully transparent or additive
 	{
-		/*
-		if (developer >= DMSG_NOTIFY)
-		{
-			char lumpname[9];
-			lumpname[8] = 0;
-			Wads.GetLumpName(lumpname, lumpnum);
-			Printf("%s appears to be additive translucency %d (%d%%)\n", lumpname, newcolor.r,
-				newcolor.r * 100 / 255);
-		}
-		*/
 		return -newcolor.r;
 	}
 
-	/*
-	if (developer >= DMSG_NOTIFY)
-	{
-		char lumpname[9];
-		lumpname[8] = 0;
-		Wads.GetLumpName(lumpname, lumpnum);
-		Printf("%s appears to be translucency %d (%d%%)\n", lumpname, newcolor.r,
-			newcolor.r * 100 / 255);
-	}
-	*/
 	return newcolor.r;
 }
 
 void fullscreen_tint_gl(PalEntry pe);
-
-void videoFadeToBlack(int32_t moreopaquep)
-{
-#ifdef USE_OPENGL
-	if (videoGetRenderMode() >= REND_POLYMOST)
-		fullscreen_tint_gl(moreopaquep? PalEntry(168, 0, 0, 0) : PalEntry(84, 0, 0, 0));
-    else
-#endif
-    {
-        Bassert(!offscreenrendering);
-
-        videoBeginDrawing();
-        char *const p = (char *) frameplace;
-        const char *const trans = paletteGetBlendTable(0);
-        const int32_t shiftamnt = ((!!moreopaquep)*8);
-        const int32_t dimprod = xdim*ydim;
-        int32_t i = 0;
-
-#ifdef CLASSIC_SLICE_BY_4
-        for (; i<dimprod-4; i+=4)
-        {
-            p[i] = trans[p[i]<<shiftamnt];
-            p[i+1] = trans[p[i+1]<<shiftamnt];
-            p[i+2] = trans[p[i+2]<<shiftamnt];
-            p[i+3] = trans[p[i+3]<<shiftamnt];
-        }
-#endif
-
-        for (; i<dimprod; i++)
-            p[i] = trans[p[i]<<shiftamnt];
-        videoEndDrawing();
-    }
-}
 
 void setup_blend(int32_t blend, int32_t doreverse)
 {
@@ -845,9 +792,6 @@ static void paletteSetFade(uint8_t offset)
         curpalettefaded[i].f = 0;
     }
 }
-
-//#define DEBUG_PALETTEFADE
-
 
 //
 // setpalettefade

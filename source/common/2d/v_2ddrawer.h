@@ -134,7 +134,8 @@ public:
 	void AddColorOnlyQuad(int left, int top, int width, int height, PalEntry color, FRenderStyle *style = nullptr);
 
 			
-	void AddLine(int x1, int y1, int x2, int y2, uint32_t color, uint8_t alpha = 255);
+	void AddLine(float x1, float y1, float x2, float y2, uint32_t color, uint8_t alpha = 255);
+	void AddLine(float x1, float y1, float x2, float y2, int cx, int cy, int cx2, int cy2, uint32_t color, uint8_t alpha = 255);
 	void AddThickLine(int x1, int y1, int x2, int y2, double thickness, uint32_t color, uint8_t alpha = 255);
 	void AddPixel(int x1, int y1, uint32_t color);
 
