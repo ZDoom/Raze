@@ -18,7 +18,6 @@
 
 extern char appactive;
 extern char modechange;
-extern char nogl;
 
 extern int32_t swapcomplete;
 
@@ -29,7 +28,7 @@ extern int32_t newaspect_enable;
 extern int32_t r_fpgrouscan;
 extern int32_t setaspect_new_use_dimen;
 extern uint32_t r_screenxy;
-extern int32_t xres, yres, bpp, fullscreen, bytesperline, refreshfreq;
+extern int32_t xres, yres, bpp, bytesperline, refreshfreq;
 extern intptr_t frameplace;
 extern char offscreenrendering;
 
@@ -38,7 +37,6 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx);
 int32_t videoCheckMode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced);
 int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs);
 void    videoGetModes(void);
-void    videoResetMode(void);
 void    videoEndDrawing(void);
 void    videoShowFrame(int32_t);
 int32_t videoUpdatePalette(int32_t start, int32_t num);

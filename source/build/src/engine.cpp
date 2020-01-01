@@ -20,7 +20,6 @@
 #include "palette.h"
 #include "pragmas.h"
 #include "scriptfile.h"
-#include "softsurface.h"
 #include "gamecvars.h"
 #include "c_console.h"
 #include "v_2ddrawer.h"
@@ -9158,22 +9157,10 @@ static void videoAllocateBuffers(void)
     ysavecnt = YSAVES;
     nodesperline = tabledivide32_noinline(YSAVES, ydim);
 
-#ifdef RENDERTYPESDL
     if (videoGetRenderMode() == REND_CLASSIC)
     {
-# ifdef USE_OPENGL
-        if (!nogl)
-        {
-            glsurface_initialize({ xdim, ydim });
-        }
-        else
-# endif
-        {
-            softsurface_initialize({ xdim, ydim },
-                                   { xres, yres });
-        }
+        glsurface_initialize({ xdim, ydim });
     }
-#endif
 }
 
 
@@ -9181,7 +9168,6 @@ static void videoAllocateBuffers(void)
 // setgamemode
 //
 // JBF: davidoption now functions as a windowed-mode flag (0 == windowed, 1 == fullscreen)
-extern char videomodereset;
 int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daupscaledydim, int32_t dabpp, int32_t daupscalefactor)
 {
     int32_t j;
@@ -9191,7 +9177,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     daupscaledxdim = max(320, daupscaledxdim);
     daupscaledydim = max(200, daupscaledydim);
 
-    if (in3dmode() && videomodereset == 0 &&
+    if (in3dmode() && 
         (xres == daupscaledxdim) && (yres == daupscaledydim) && (bpp == dabpp))
         return 0;
 
@@ -10440,33 +10426,8 @@ void videoSetCorrectedAspect()
         const int32_t xd = setaspect_new_use_dimen ? xdimen : xdim;
         const int32_t yd = setaspect_new_use_dimen ? ydimen : ydim;
 
-        if (fullscreen && !setaspect_new_use_dimen)
-        {
-            const int32_t screenw = r_screenxy/100;
-            const int32_t screenh = r_screenxy%100;
-
-            if (screenw==0 || screenh==0)
-            {
-                // Assume square pixel aspect.
-                x = xd;
-                y = yd;
-            }
-            else
-            {
-                int32_t pixratio;
-
-                x = screenw;
-                y = screenh;
-
-                pixratio = divscale16(xdim*screenh, ydim*screenw);
-                yx = divscale16(yx, pixratio);
-            }
-        }
-        else
-        {
-            x = xd;
-            y = yd;
-        }
+        x = xd;
+        y = yd;
 
         vr = divscale16(x*3, y*4);
 

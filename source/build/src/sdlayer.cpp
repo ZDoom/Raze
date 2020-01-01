@@ -17,7 +17,6 @@
 #include "osd.h"
 #include "palette.h"
 #include "baselayer.h"
-#include "softsurface.h"
 #include "m_argv.h"
 #include "mmulti.h"
 #include "scriptfile.h"
@@ -37,27 +36,9 @@
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
-
-
-
-#ifndef NETCODE_DISABLE
-#include "enet.h"
-#endif
-#include "../../glbackend/glbackend.h"
-
-#ifdef USE_OPENGL
 # include "glsurface.h"
-#endif
 
-#if defined HAVE_GTK2
-# include "gtkbits.h"
-#endif
 
-#if defined __APPLE__
-# include "osxbits.h"
-# include <mach/mach.h>
-# include <mach/mach_time.h>
-#endif
 
 double g_beforeSwapTime;
 GameInterface* gi;
@@ -92,22 +73,11 @@ void ImGui_Begin_Frame()
 	//ImGui::NewFrame();
 }
 
-int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, refreshfreq=-1;
+int32_t xres=-1, yres=-1, bpp=0, bytesperline, refreshfreq=-1;
 intptr_t frameplace=0;
 int32_t lockcount=0;
 char modechange=1;
 char offscreenrendering=0;
-char videomodereset = 0;
-static uint16_t sysgamma[3][256];
-#ifdef USE_OPENGL
-// OpenGL stuff
-char nogl=0;
-#endif
-static int32_t vsync_renderlayer;
-
-
-// Joystick dead and saturation zones
-uint16_t joydead[9], joysatur[9];
 
 #define MAX_ERRORTEXT 4096
 
@@ -148,14 +118,6 @@ void I_FatalError(const char* error, ...)
 #endif
 
     throw std::runtime_error(errortext);
-}
-
-
-
-
-void videoResetMode(void)
-{
-    videomodereset = 1;
 }
 
 
@@ -245,16 +207,7 @@ void videoBeginDrawing(void)
         return;
     }
     else
-#ifdef USE_OPENGL
-    if (!nogl)
-    {
         frameplace = (intptr_t)glsurface_getBuffer();
-    }
-    else
-#endif
-    {
-        frameplace = (intptr_t)softsurface_getBuffer();
-    }
 
     if (modechange)
     {
@@ -301,14 +254,17 @@ auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need
 void debugprintf(const char* f, ...)
 {
 	va_list va;
-	char buf[1024];
+    va_start(va, f);
 
-	if (!IsDebuggerPresent()) return;
+#ifdef _WIN32
+    if (!IsDebuggerPresent()) return;
 
-	va_start(va, f);
-	Bvsnprintf(buf, 1024, f, va);
-	va_end(va);
-
-	OutputDebugStringA(buf);
+    char buf[1024];
+    vsnprintf(buf, 1024, f, va);
+    va_end(va);
+    OutputDebugStringA(buf);
+#else
+    vprintf(f, va);
+#endif
 }
 

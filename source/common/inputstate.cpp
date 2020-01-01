@@ -147,7 +147,7 @@ int32_t handleevents(void)
 	if (setmodeneeded)
 	{
 		setmodeneeded = false;
-		screen->ToggleFullscreen(fullscreen);
+		screen->ToggleFullscreen(vid_fullscreen);
 		V_OutputResized(screen->GetWidth(), screen->GetHeight());
 	}
 

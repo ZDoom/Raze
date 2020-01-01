@@ -242,7 +242,6 @@ void scrUnInit(void)
 
 void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits)
 {
-    videoResetMode();
     V_Init2();
     videoClearViewableArea(0);
     scrNextPage();
