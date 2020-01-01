@@ -1985,11 +1985,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             if (!(sector[pSprite->sectnum].floorstat & 0x0001))
                 pSprite->z += ClipHigh(sector[pSprite->sectnum].floorz - zBot, 0);
 
-            int curSumm = pSprite->xrepeat + pSprite->yrepeat; int defSumm = pExtra->initVals[0] + pExtra->initVals[1];
-            if (curSumm < defSumm) pSprite->clipdist = ClipLow(curSumm >> 1, 4);
-            else if (curSumm > defSumm) pSprite->clipdist = ClipHigh(curSumm >> 1, 255);
-            else pSprite->clipdist = pExtra->initVals[2];
-            
+            pSprite->clipdist = ClipRange((pSprite->xrepeat + pSprite->yrepeat) >> 1, 4, 120);           
             if (propId) break;
             fallthrough__;
             }

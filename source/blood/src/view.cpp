@@ -305,13 +305,13 @@ void viewUpdatePrediction(GINPUT *pInput)
 
 void sub_158B4(PLAYER *pPlayer)
 {
-    predict.at38 = predict.at58 - gPosture[pPlayer->lifeMode][predict.at48].eyeAboveZ;
-    predict.at40 = predict.at58 - gPosture[pPlayer->lifeMode][predict.at48].weaponAboveZ;
+    predict.at38 = predict.at58 - pPlayer->pPosture[pPlayer->lifeMode][predict.at48].eyeAboveZ;
+    predict.at40 = predict.at58 - pPlayer->pPosture[pPlayer->lifeMode][predict.at48].weaponAboveZ;
 }
 
 void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
 {
-    POSTURE *pPosture = &gPosture[pPlayer->lifeMode][predict.at48];
+    POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
     predict.at70 = pInput->syncFlags.run;
     predict.at70 = 0;
     predict.at71 = pInput->buttonFlags.jump;
@@ -490,7 +490,7 @@ void fakePlayerProcess(PLAYER *pPlayer, GINPUT *pInput)
 {
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
-    POSTURE *pPosture = &gPosture[pPlayer->lifeMode][predict.at48];
+    POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
 
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
@@ -2527,7 +2527,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 if (pPlayer->flashEffect && (gView != pPlayer || gViewPos != VIEWPOS_0)) {
                     auto pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_14);
                     if (pNTSprite) {
-                        POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
+                        POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
                         pNTSprite->x += mulscale28(pPosture->zOffset, Cos(pTSprite->ang));
                         pNTSprite->y += mulscale28(pPosture->zOffset, Sin(pTSprite->ang));
                         pNTSprite->z = pPlayer->pSprite->z-pPosture->xOffset;

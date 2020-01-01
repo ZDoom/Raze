@@ -124,7 +124,7 @@ int Handicap[] = {
     144, 208, 256, 304, 368
 };
 
-int gDefaultAccel[] = {
+/*int gDefaultAccel[] = {
     
     // normal human
     0x4000, 0x1200, 0x2000, // stand (front, side, back)  / swim (front, side, back)  / crouch (front, side, back)
@@ -148,229 +148,37 @@ int gDefaultJumpZ[] = {
     // grown human
     -1014586, -1779173, 0x5b05, 0, 0, 0, // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
 
-};
+};*/
 
 
-POSTURE gPosture[kModeMax][kPostureMax] = {
+POSTURE gPostureDefaults[kModeMax][kPostureMax] = {
     
     // normal human
     {
-        {
-            gDefaultAccel[0],
-            gDefaultAccel[0],
-            gDefaultAccel[0],
-            14,
-            17,
-            24,
-            16,
-            32,
-            80,
-            0x1600,
-            0x1200,
-            0xc00,
-            0x90,
-            gDefaultJumpZ[0],
-            gDefaultJumpZ[1],
-        },
-        {
-            gDefaultAccel[1],
-            gDefaultAccel[1],
-            gDefaultAccel[1],
-            14,
-            17,
-            24,
-            16,
-            32,
-            80,
-            0x1400,
-            0x1000,
-            -0x600,
-            0xb0,
-            gDefaultJumpZ[2],
-            gDefaultJumpZ[3],
-        },
-        {
-            gDefaultAccel[2],
-            gDefaultAccel[2],
-            gDefaultAccel[2],
-            22,
-            28,
-            24,
-            16,
-            16,
-            40,
-            0x800,
-            0x600,
-            -0x600,
-            0xb0,
-            gDefaultJumpZ[4],
-            gDefaultJumpZ[5],
-        },
+        { 0x4000, 0x4000, 0x4000, 14, 17, 24, 16, 32, 80, 0x1600, 0x1200, 0xc00, 0x90, -0xbaaaa, -0x175555 },
+        { 0x1200, 0x1200, 0x1200, 14, 17, 24, 16, 32, 80, 0x1400, 0x1000, -0x600, 0xb0, 0x5b05, 0 },
+        { 0x2000, 0x2000, 0x2000, 22, 28, 24, 16, 16, 40, 0x800, 0x600, -0x600, 0xb0, 0, 0 },
     },
 
     // normal beast
     {
-        {
-            gDefaultAccel[3],
-            gDefaultAccel[3],
-            gDefaultAccel[3],
-            14,
-            17,
-            24,
-            16,
-            32,
-            80,
-            0x1600,
-            0x1200,
-            0xc00,
-            0x90,
-            gDefaultJumpZ[6],
-            gDefaultJumpZ[7],
-        },
-        {
-            gDefaultAccel[4],
-            gDefaultAccel[4],
-            gDefaultAccel[4],
-            14,
-            17,
-            24,
-            16,
-            32,
-            80,
-            0x1400,
-            0x1000,
-            -0x600,
-            0xb0,
-            gDefaultJumpZ[8],
-            gDefaultJumpZ[9],
-        },
-        {
-            gDefaultAccel[5],
-            gDefaultAccel[5],
-            gDefaultAccel[5],
-            22,
-            28,
-            24,
-            16,
-            16,
-            40,
-            0x800,
-            0x600,
-            -0x600,
-            0xb0,
-            gDefaultJumpZ[10],
-            gDefaultJumpZ[11],
-        },
+        { 0x4000, 0x4000, 0x4000, 14, 17, 24, 16, 32, 80, 0x1600, 0x1200, 0xc00, 0x90, -0xbaaaa, -0x175555 },
+        { 0x1200, 0x1200, 0x1200, 14, 17, 24, 16, 32, 80, 0x1400, 0x1000, -0x600, 0xb0, 0x5b05, 0 },
+        { 0x2000, 0x2000, 0x2000, 22, 28, 24, 16, 16, 40, 0x800, 0x600, -0x600, 0xb0, 0, 0 },
     },
 
     // shrink human
     {
-        {
-            gDefaultAccel[6],
-            gDefaultAccel[6],
-            gDefaultAccel[6],
-            14, 
-            17, 
-            24, 
-            16, 
-            32, 
-            80, 
-            5632, 
-            4608, 
-            3072, 
-            144,
-            gDefaultJumpZ[12],
-            gDefaultJumpZ[13],
-        },
-        {
-            gDefaultAccel[7],
-            gDefaultAccel[7],
-            gDefaultAccel[7],
-            14, 
-            17, 
-            24,
-            16, 
-            32, 
-            80, 
-            5120, 
-            4096, 
-            -1536, 
-            176,
-            gDefaultJumpZ[14],
-            gDefaultJumpZ[15],
-        },
-        {
-            gDefaultAccel[8],
-            gDefaultAccel[8],
-            gDefaultAccel[8],
-            22, 
-            28, 
-            24, 
-            16,
-            16,
-            40, 
-            2048, 
-            1536, 
-            -1536,
-            176,
-            gDefaultJumpZ[16],
-            gDefaultJumpZ[17],
-        },
+        { 10384, 10384, 10384, 14, 17, 24, 16, 32, 80, 5632, 4608, 3072, 144, -564586, -1329173 },
+        { 2108, 2108, 2108, 14, 17, 24, 16, 32, 80, 5120, 4096, -1536, 176, 0x5b05, 0 },
+        { 2192, 2192, 2192, 22, 28, 24, 16, 16, 40, 2048, 1536, -1536, 176, 0, 0 },
     },
 
     // grown human
     {
-        {
-            gDefaultAccel[9],
-            gDefaultAccel[9],
-            gDefaultAccel[9],
-            14, 
-            17, 
-            24, 
-            16, 
-            32, 
-            80, 
-            5632, 
-            4608, 
-            3072,
-            144,
-            gDefaultJumpZ[18],
-            gDefaultJumpZ[19],
-        },
-        {
-            gDefaultAccel[10],
-            gDefaultAccel[10],
-            gDefaultAccel[10],
-            14, 
-            17, 
-            24, 
-            16, 
-            32, 
-            80, 
-            5120, 
-            4096, 
-            -1536, 
-            176,
-            gDefaultJumpZ[20],
-            gDefaultJumpZ[21],
-        },
-        {
-            gDefaultAccel[11],
-            gDefaultAccel[11],
-            gDefaultAccel[11],
-            22, 
-            28, 
-            24, 
-            16, 
-            16, 
-            40, 
-            2048, 
-            1536, 
-            -1536, 
-            176,
-            gDefaultJumpZ[22],
-            gDefaultJumpZ[23],
-        },
+        { 19384, 19384, 19384, 14, 17, 24, 16, 32, 80, 5632, 4608, 3072, 144, -1014586, -1779173 },
+        { 5608, 5608, 5608, 14, 17, 24, 16, 32, 80, 5120, 4096, -1536, 176, 0x5b05, 0 },
+        { 11192, 11192, 11192, 22, 28, 24, 16, 16, 40, 2048, 1536, -1536, 176, 0, 0 },
     },
 };
 
@@ -960,7 +768,7 @@ void playerSetGodMode(PLAYER *pPlayer, char bGodMode)
 
 void playerResetInertia(PLAYER *pPlayer)
 {
-    POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
+    POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     pPlayer->zWeapon = pPlayer->pSprite->z-pPosture->weaponAboveZ;
     viewBackupView(pPlayer->nPlayer);
@@ -1027,6 +835,7 @@ void playerStart(int nPlayer)
     DUDEINFO *pDudeInfo = &dudeInfo[kDudePlayer1 + nPlayer - kDudeBase];
     pPlayer->pDudeInfo = pDudeInfo;
     playerSetRace(pPlayer, kModeHuman);
+    playerResetPosture(pPlayer);
     seqSpawn(pDudeInfo->seqStartID, 3, pSprite->extra, -1);
     if (pPlayer == gMe)
         SetBitString(show2dsprite, pSprite->index);
@@ -1105,6 +914,7 @@ void playerStart(int nPlayer)
     pPlayer->weaponTimer = 0;
     pPlayer->weaponState = 0;
     pPlayer->weaponQav = -1;
+    playerResetQavScene(pPlayer); // reset qav scene
     pPlayer->hand = 0;
     pPlayer->nWaterPal = 0;
     playerResetPowerUps(pPlayer);
@@ -1121,18 +931,6 @@ void playerStart(int nPlayer)
         pPlayer->posture = 1;
         pPlayer->pXSprite->medium = kMediumWater;
     }
-
-    ///////////////// 
-    // reset qav scene
-    playerResetQavScene(pPlayer);
-
-    // restore default movement speed
-    playerResetMoveSpeed(pPlayer);
-
-    // restore default jump height
-    playerResetJumpHeight(pPlayer);
-    /////////////////
-
 }
 
 void playerReset(PLAYER *pPlayer)
@@ -1182,30 +980,13 @@ void playerReset(PLAYER *pPlayer)
     // reset qav scene
     playerResetQavScene(pPlayer);
 
-    // restore default movement speed
-    playerResetMoveSpeed(pPlayer);
-
-    // restore default jump height
-    playerResetJumpHeight(pPlayer);
+    // reset posture (mainly required for resetting movement speed and jump height)
+    playerResetPosture(pPlayer);
     /////////////////
 }
 
-void playerResetMoveSpeed(PLAYER* pPlayer) {
-    for (int i = kModeHuman, k = 0; i < kModeMax; i++) {
-        for (int a = kPostureStand; a < kPostureMax; a++, k++)
-            gPosture[i][a].frontAccel = gPosture[i][a].sideAccel = gPosture[i][a].backAccel = gDefaultAccel[k];
-    }
-}
-
-void playerResetJumpHeight(PLAYER* pPlayer) {
-    for (int i = kModeHuman, k = 0; i < kModeMax; i++) {
-        for (int a = kPostureStand; a < kPostureMax; a++) {
-            
-            gPosture[i][a].normalJumpZ = gDefaultJumpZ[k++];
-            gPosture[i][a].pwupJumpZ = gDefaultJumpZ[k++];
-
-        }
-    }
+void playerResetPosture(PLAYER* pPlayer) {
+    memcpy(pPlayer->pPosture, gPostureDefaults, sizeof(gPostureDefaults));
 }
 
 void playerResetQavScene(PLAYER* pPlayer) {
@@ -1230,6 +1011,7 @@ void playerInit(int nPlayer, unsigned int a2)
     memset(dword_21EFB0, 0, sizeof(dword_21EFB0));
     memset(dword_21EFD0, 0, sizeof(dword_21EFD0));
     memset(pPlayer->fragInfo, 0, sizeof(pPlayer->fragInfo));
+
     if (!(a2&1))
         playerReset(pPlayer);
 }
@@ -1656,7 +1438,7 @@ void ProcessInput(PLAYER *pPlayer)
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     int nSprite = pPlayer->nSprite;
-    POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
+    POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     GINPUT *pInput = &pPlayer->input;
     pPlayer->isRunning = pInput->syncFlags.run;
     if (pInput->buttonFlags.byte || pInput->forward || pInput->strafe || pInput->q16turn)
@@ -2017,7 +1799,7 @@ void playerProcess(PLAYER *pPlayer)
     int nSprite = pPlayer->nSprite;
     int nXSprite = pSprite->extra;
     XSPRITE *pXSprite = pPlayer->pXSprite;
-    POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
+    POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     powerupProcess(pPlayer);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);

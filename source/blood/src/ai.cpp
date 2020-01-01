@@ -1058,17 +1058,21 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                     actKillDude(nSource, pSprite, DAMAGE_TYPE_0, 65535);
                 }
             } else if (canWalk(pSprite) && !inDodge(pXSprite->aiState) && !inRecoil(pXSprite->aiState)) {
-                if (inIdle(pXSprite->aiState) ||  Chance(getDodgeChance(pSprite))) {
-                    if (!spriteIsUnderwater(pSprite, false)) {
-                        if (!canDuck(pSprite) || !sub_5BDA8(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
-                        else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
+                if (!dudeIsMelee(pXSprite)) {
+                    if (inIdle(pXSprite->aiState) ||  Chance(getDodgeChance(pSprite))) {
+                        if (!spriteIsUnderwater(pSprite, false)) {
+                            if (!canDuck(pSprite) || !sub_5BDA8(pSprite, 14))  aiGenDudeNewState(pSprite, &genDudeDodgeShortL);
+                            else aiGenDudeNewState(pSprite, &genDudeDodgeShortD);
 
-                        if (Chance(0x0200))
-                            playGenDudeSound(pSprite, kGenDudeSndGotHit);
+                            if (Chance(0x0200))
+                                playGenDudeSound(pSprite, kGenDudeSndGotHit);
 
-                    } else if (sub_5BDA8(pSprite, 13)) {
-                        aiGenDudeNewState(pSprite, &genDudeDodgeShortW);
+                        } else if (sub_5BDA8(pSprite, 13)) {
+                            aiGenDudeNewState(pSprite, &genDudeDodgeShortW);
+                        }
                     }
+                } else if (Chance(0x0200)) {
+                    playGenDudeSound(pSprite, kGenDudeSndGotHit);
                 }
             }
             break;

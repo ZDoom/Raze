@@ -201,7 +201,7 @@ char sub_4B2C8(PLAYER *pPlayer, int a2, int a3)
 
 void SpawnBulletEject(PLAYER *pPlayer, int a2, int a3)
 {
-    POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
+    POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     int dz = pPlayer->zWeapon-(pPlayer->zWeapon-pPlayer->zView)/2;
     fxSpawnEjectingBrass(pPlayer->pSprite, dz, a2, a3);
@@ -209,7 +209,7 @@ void SpawnBulletEject(PLAYER *pPlayer, int a2, int a3)
 
 void SpawnShellEject(PLAYER *pPlayer, int a2, int a3)
 {
-    POSTURE *pPosture = &gPosture[pPlayer->lifeMode][pPlayer->posture];
+    POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
     int t = pPlayer->zWeapon - pPlayer->zView;
     int dz = pPlayer->zWeapon-t+(t>>2);

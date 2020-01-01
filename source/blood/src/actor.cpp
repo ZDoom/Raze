@@ -4515,6 +4515,9 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
             }
         }
 
+        // enough to reset gSpriteHit values
+        if (nHWall != -1 || nHSprite != -1) xvel[nSprite] += 5;
+
     }
 }
 
@@ -7526,7 +7529,7 @@ spritetype* actSpawnCustomDude(spritetype* pSprite, int nDist) {
 }
 
 int getSpriteMassBySize(spritetype* pSprite) {
-    int mass = 0; int seqId = -1; Seq* pSeq = NULL;
+    int mass = 0; int seqId = -1; int clipDist = pSprite->clipdist; Seq* pSeq = NULL;
     if (IsDudeSprite(pSprite)) {
 
         switch (pSprite->type) {
@@ -7535,6 +7538,7 @@ int getSpriteMassBySize(spritetype* pSprite) {
             case kDudeModernCustom:
             case kDudeModernCustomBurning:
                 seqId = xsprite[pSprite->extra].data2;
+                clipDist = gGenDudeExtra[pSprite->index].initVals[2];
                 break;
             default:
                 seqId = dudeInfo[pSprite->type - kDudeBase].seqStartID;
@@ -7549,7 +7553,7 @@ int getSpriteMassBySize(spritetype* pSprite) {
     
     SPRITEMASS* cached = &gSpriteMass[pSprite->extra];
     if (((seqId >= 0 && seqId == cached->seqId) || pSprite->picnum == cached->picnum) && pSprite->xrepeat == cached->xrepeat &&
-        pSprite->yrepeat == cached->yrepeat && pSprite->clipdist == cached->clipdist) {
+        pSprite->yrepeat == cached->yrepeat && clipDist == cached->clipdist) {
         return cached->mass;
     }
 
@@ -7567,7 +7571,7 @@ int getSpriteMassBySize(spritetype* pSprite) {
             picnum = pSprite->picnum;
     }
 
-    int clipDist = ClipRange(pSprite->clipdist, 1, 255);
+    clipDist = ClipLow(pSprite->clipdist, 1);
     short x = tilesiz[picnum].x;        short y = tilesiz[picnum].y;
     short xrepeat = pSprite->xrepeat; 	short yrepeat = pSprite->yrepeat;
 

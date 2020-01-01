@@ -905,36 +905,41 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                         break;
 
                     case kCmdNumberic + 1: // 65
-                        // player movement speed (for all players ATM)
+                        // player movement speed (for all races and postures)
                         if (valueIsBetween(pXSprite->data2, -1, 32767)) {
-                            for (int i = 0, speed = pXSprite->data2 << 1, k = 0; i < kModeMax; i++) {
-                                for (int a = 0; a < kPostureMax; a++, k++) {
-                                    int defSpeed = gDefaultAccel[k];
-                                    if (pXSprite->data1 == 100)
-                                        gPosture[i][a].frontAccel = gPosture[i][a].sideAccel = gPosture[i][a].backAccel = defSpeed;
-                                    else if (speed >= 0)
-                                        gPosture[i][a].frontAccel = gPosture[i][a].sideAccel = gPosture[i][a].backAccel = ClipRange(mulscale8(defSpeed, speed), 0, 65535);
+                            int speed = pXSprite->data2 << 1;
+                            for (int i = 0; i < kModeMax; i++) {
+                                for (int a = 0; a < kPostureMax; a++) {
+                                    POSTURE* curPosture = &pPlayer->pPosture[i][a]; POSTURE defPosture = gPostureDefaults[i][a];
+                                    if (pXSprite->data2 == 100) {
+                                        curPosture->frontAccel  = defPosture.frontAccel;
+                                        curPosture->sideAccel   = defPosture.sideAccel;
+                                        curPosture->backAccel   = defPosture.backAccel;
+                                    } else if (speed >= 0) {
+                                        curPosture->frontAccel  = ClipRange(mulscale8(defPosture.frontAccel, speed), 0, 65535);
+                                        curPosture->sideAccel   = ClipRange(mulscale8(defPosture.sideAccel, speed), 0, 65535);
+                                        curPosture->backAccel   = ClipRange(mulscale8(defPosture.backAccel, speed), 0, 65535);
+                                    }
                                 }
                             }
 
                             //viewSetSystemMessage("MOVEMENT: %d %d %d", pXSprite->rxID,pSprite->index, gPosture[0][0].frontAccel);
                         }
 
-                        // player jump height (for all players ATM)
+                        // player jump height (for all races and stand posture only)
                         if (valueIsBetween(pXSprite->data3, -1, 32767)) {
-                            for (int i = 0, jump = pXSprite->data3 * 3, k = 0; i < kModeMax; i++) {
-                                for (int a = 0; a < kPostureMax; a++) {
-                                    int njmp = gDefaultJumpZ[k++]; int pjmp = gDefaultJumpZ[k++];
-                                    if (a != kPostureStand) continue;
-                                    else if (pXSprite->data3 == 100) {
-                                        gPosture[i][a].normalJumpZ = njmp;
-                                        gPosture[i][a].pwupJumpZ = pjmp;
-                                    } else if (jump >= 0) {
-                                        gPosture[i][a].normalJumpZ = ClipRange(mulscale8(njmp, jump), -0x200000, 0);
-                                        gPosture[i][a].pwupJumpZ = ClipRange(mulscale8(pjmp, jump), -0x200000, 0);
-                                    }
+                            int jump = pXSprite->data3 * 3;
+                            for (int i = 0; i < kModeMax; i++) {
+                                POSTURE* curPosture = &pPlayer->pPosture[i][kPostureStand]; POSTURE defPosture = gPostureDefaults[i][kPostureStand];
+                                if (pXSprite->data3 == 100) {
+                                    curPosture->normalJumpZ     = defPosture.normalJumpZ;
+                                    curPosture->pwupJumpZ       = defPosture.pwupJumpZ;
+                                } else if (jump >= 0) {
+                                    curPosture->normalJumpZ     = ClipRange(mulscale8(defPosture.normalJumpZ, jump), -0x200000, 0);
+                                    curPosture->pwupJumpZ       = ClipRange(mulscale8(defPosture.pwupJumpZ, jump), -0x200000, 0);
                                 }
                             }
+                            
                             //viewSetSystemMessage("JUMPING: %d", gPosture[0][0].normalJumpZ);
                         }
                         break;

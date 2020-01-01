@@ -21,155 +21,44 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
-#include "compat.h"
-#include "build.h"
-#include "fix16.h"
-#include "common_game.h"
 #include "actor.h"
 #include "blood.h"
+#include "build.h"
+#include "common_game.h"
+#include "compat.h"
 #include "config.h"
 #include "controls.h"
 #include "db.h"
 #include "dude.h"
+#include "fix16.h"
 #include "levels.h"
 #include "qav.h"
 
 BEGIN_BLD_NS
 
 // life modes of the player
-enum {
-kModeHuman              = 0,
-kModeBeast              = 1,
-kModeHumanShrink        = 2,
-kModeHumanGrown         = 3,
-kModeMax                = 4,
+enum
+{
+    kModeHuman       = 0,
+    kModeBeast       = 1,
+    kModeHumanShrink = 2,
+    kModeHumanGrown  = 3,
+    kModeMax         = 4,
 };
 
 // postures
-enum {
-kPostureStand           = 0,
-kPostureCrouch          = 1,
-kPostureSwim            = 2,
-kPostureMax             = 3,
+enum
+{
+    kPostureStand  = 0,
+    kPostureCrouch = 1,
+    kPostureSwim   = 2,
+    kPostureMax    = 3,
 };
 
-struct PACKINFO {
+struct PACKINFO
+{
     bool isActive; // is active (0/1)
     int curAmount = 0; // remaining percent
-};
-
-struct PLAYER {
-    spritetype *pSprite;
-    XSPRITE *pXSprite;
-    DUDEINFO *pDudeInfo;
-    GINPUT input;
-    //short input;                      // INPUT
-    //char moveFunc;                        // forward
-    //short at11; // turn
-    //char hearDist; // strafe
-    //int bobV;                         // buttonFlags
-    //unsigned int bobH;                // keyFlags
-    //char swayV;                       // useFlags;
-    //char swayH;                       // newWeapon
-    //char at21; // mlook
-    int used1;                          // something related to game checksum
-    int weaponQav;
-    int qavCallback;
-    bool isRunning;
-    int posture;                        // stand, crouch, swim
-    int sceneQav;                       // by NoOne: used to keep qav id
-    int bobPhase;
-    int bobAmp;
-    int bobHeight;
-    int bobWidth;
-    int swayPhase;
-    int swayAmp;
-    int swayHeight;
-    int swayWidth;
-    int nPlayer;                        // Connect id
-    int nSprite;
-    int lifeMode;
-    int bloodlust;                      // ---> useless
-    int zView;
-    int zViewVel;
-    int zWeapon;
-    int zWeaponVel;
-    fix16_t q16look;
-    int q16horiz; // horiz
-    int q16slopehoriz; // horizoff
-    int slope;
-    bool isUnderwater;
-    bool hasKey[8];
-    char hasFlag;
-    short used2[8];                     // ??
-    int damageControl[7];
-    char curWeapon;
-    char nextWeapon;
-    int weaponTimer;
-    int weaponState;
-    int weaponAmmo; //rename
-    bool hasWeapon[14];
-    int weaponMode[14];
-    int weaponOrder[2][14];
-    //int at149[14];
-    int ammoCount[12];
-    bool qavLoop;
-    int fuseTime;
-    int throwTime;
-    int throwPower;
-    Aim aim;                            // world
-    //int at1c6;
-    Aim relAim;                         // relative
-    //int relAim;
-    //int at1ce;
-    //int at1d2;
-    int aimTarget;                      // aim target sprite
-    int aimTargetsCount;
-    short aimTargets[16];
-    int deathTime;
-    int pwUpTime[kMaxPowerUps];
-    int fragCount;
-    int fragInfo[8];
-    int teamId;
-    int fraggerId;
-    int underwaterTime;
-    int bloodTime;                      // --> useless
-    int gooTime;                        // --> useless
-    int wetTime;                        // --> useless
-    int bubbleTime;
-    int at306;                          // --> useless
-    int restTime;
-    int kickPower;
-    int laughCount;
-    int spin;                           // turning around
-    bool godMode;
-    bool fallScream;
-    bool cantJump;
-    int packItemTime;                   // pack timer
-    int packItemId;                     // pack id 1: diving suit, 2: crystal ball, 3: beast vision 4: jump boots
-    PACKINFO packSlots[5];              // at325 [1]: diving suit, [2]: crystal ball, [3]: beast vision [4]: jump boots
-    int armor[3];                       // armor
-    //int at342;
-    //int at346;
-    int voodooTarget;
-    int voodooTargets;                  // --> useless
-    int voodooVar1;                     // --> useless
-    int vodooVar2;                      // --> useless
-    int flickerEffect;
-    int tiltEffect;
-    int visibility;
-    int painEffect;
-    int blindEffect;
-    int chokeEffect;
-    int handTime;
-    bool hand;                          // if true, there is hand start choking the player
-    int pickupEffect;
-    bool flashEffect;                   // if true, reduce pPlayer->visibility counter
-    int quakeEffect;
-    fix16_t q16ang;
-    int angold;
-    int player_par;
-    int nWaterPal;
 };
 
 // by NoOne: defaut player movement speeds of all move states for gPosture
@@ -177,8 +66,8 @@ extern int gDefaultAccel[12];
 
 // by NoOne: defaut player jump heights of all move states for gPosture
 extern int gDefaultJumpZ[24];
-
-struct POSTURE {
+struct POSTURE
+{
     int frontAccel;
     int sideAccel;
     int backAccel;
@@ -191,25 +80,146 @@ struct POSTURE {
     int weaponAboveZ;
     int xOffset;
     int zOffset;
-    int normalJumpZ; 
-    int pwupJumpZ; 
+    int normalJumpZ;
+    int pwupJumpZ;
 };
 
-extern POSTURE gPosture[kModeMax][kPostureMax];
+extern POSTURE gPostureDefaults[kModeMax][kPostureMax];
 
-struct PROFILE {
+struct PLAYER
+{
+    spritetype*         pSprite;
+    XSPRITE*            pXSprite;
+    DUDEINFO*           pDudeInfo;
+    GINPUT              input;
+    //short             input;                      // INPUT
+    //char              moveFunc;                        // forward
+    //short             at11;                       // turn
+    //char              hearDist;                    // strafe
+    //int               bobV;                         // buttonFlags
+    //unsigned int      bobH;                // keyFlags
+    //char              swayV;                       // useFlags;
+    //char              swayH;                       // newWeapon
+    //char              at21;                        // mlook
+    int                 used1;  // something related to game checksum
+    int                 weaponQav;
+    int                 qavCallback;
+    bool                isRunning;
+    int                 posture;   // stand, crouch, swim
+    int                 sceneQav;  // by NoOne: used to keep qav id
+    int                 bobPhase;
+    int                 bobAmp;
+    int                 bobHeight;
+    int                 bobWidth;
+    int                 swayPhase;
+    int                 swayAmp;
+    int                 swayHeight;
+    int                 swayWidth;
+    int                 nPlayer;  // Connect id
+    int                 nSprite;
+    int                 lifeMode;
+    int                 bloodlust;  // ---> useless
+    int                 zView;
+    int                 zViewVel;
+    int                 zWeapon;
+    int                 zWeaponVel;
+    fix16_t             q16look;
+    int                 q16horiz;       // horiz
+    int                 q16slopehoriz;  // horizoff
+    int                 slope;
+    bool                isUnderwater;
+    bool                hasKey[8];
+    char                hasFlag;
+    short               used2[8];  // ??
+    int                 damageControl[7];
+    char                curWeapon;
+    char                nextWeapon;
+    int                 weaponTimer;
+    int                 weaponState;
+    int                 weaponAmmo;  //rename
+    bool                hasWeapon[14];
+    int                 weaponMode[14];
+    int                 weaponOrder[2][14];
+    //int               at149[14];
+    int                 ammoCount[12];
+    bool                qavLoop;
+    int                 fuseTime;
+    int                 throwTime;
+    int                 throwPower;
+    Aim                 aim;  // world
+    //int               at1c6;
+    Aim                 relAim;  // relative
+    //int               relAim;
+    //int               at1ce;
+    //int               at1d2;
+    int                 aimTarget;  // aim target sprite
+    int                 aimTargetsCount;
+    short               aimTargets[16];
+    int                 deathTime;
+    int                 pwUpTime[kMaxPowerUps];
+    int                 fragCount;
+    int                 fragInfo[8];
+    int                 teamId;
+    int                 fraggerId;
+    int                 underwaterTime;
+    int                 bloodTime;  // --> useless
+    int                 gooTime;    // --> useless
+    int                 wetTime;    // --> useless
+    int                 bubbleTime;
+    int                 at306;  // --> useless
+    int                 restTime;
+    int                 kickPower;
+    int                 laughCount;
+    int                 spin;  // turning around
+    bool                godMode;
+    bool                fallScream;
+    bool                cantJump;
+    int                 packItemTime;  // pack timer
+    int                 packItemId;    // pack id 1: diving suit, 2: crystal ball, 3: beast vision 4: jump boots
+    PACKINFO            packSlots[5];  // at325 [1]: diving suit, [2]: crystal ball, [3]: beast vision [4]: jump boots
+    int                 armor[3];      // armor
+    //int               at342;
+    //int               at346;
+    int                 voodooTarget;
+    int                 voodooTargets;  // --> useless
+    int                 voodooVar1;     // --> useless
+    int                 vodooVar2;      // --> useless
+    int                 flickerEffect;
+    int                 tiltEffect;
+    int                 visibility;
+    int                 painEffect;
+    int                 blindEffect;
+    int                 chokeEffect;
+    int                 handTime;
+    bool                hand;  // if true, there is hand start choking the player
+    int                 pickupEffect;
+    bool                flashEffect;  // if true, reduce pPlayer->visibility counter
+    int                 quakeEffect;
+    fix16_t             q16ang;
+    int                 angold;
+    int                 player_par;
+    int                 nWaterPal;
+    POSTURE             pPosture[kModeMax][kPostureMax];
+};
+
+
+
+struct PROFILE
+{
     int nAutoAim;
     int nWeaponSwitch;
     int skill;
     char name[MAXPLAYERNAME];
 };
 
-struct AMMOINFO {
+struct AMMOINFO
+{
     int max;
     signed char vectorType;
 };
 
-struct POWERUPINFO {
+struct POWERUPINFO
+{
     short picnum;
     bool pickupOnce;
     int bonusTime;
@@ -219,16 +229,18 @@ struct POWERUPINFO {
 
 #define kQavSceneStackSize 16
 // by NoOne: this one stores qavs anims that can be played by trigger
-struct QAVSCENE {
+struct QAVSCENE
+{
     short index = -1; // index of sprite which triggered qav scene
-    QAV* qavResrc = NULL;
+    QAV * qavResrc = NULL;
     short causedBy = -1;
 
     // TO-DO: Stack of animations which allows to pop and push (restoring previous animation instead of weapon once current animation is played)
 };
 
 // by NoOne: this one for controlling the player using triggers (movement speed, jumps and other stuff)
-struct TRPLAYERCTRL {
+struct TRPLAYERCTRL
+{
     QAVSCENE qavScene;
 };
 
@@ -247,7 +259,7 @@ extern ClockTicks dword_21EFD0[kMaxPlayers];
 extern AMMOINFO gAmmoInfo[];
 extern POWERUPINFO gPowerUpInfo[kMaxPowerUps];
 
-inline bool IsTargetTeammate(PLAYER* pSourcePlayer, spritetype* pTargetSprite)
+inline bool IsTargetTeammate(PLAYER *pSourcePlayer, spritetype *pTargetSprite)
 {
     if (pSourcePlayer == NULL)
         return false;
@@ -255,7 +267,7 @@ inline bool IsTargetTeammate(PLAYER* pSourcePlayer, spritetype* pTargetSprite)
         return false;
     if (gGameOptions.nGameType == 1 || gGameOptions.nGameType == 3)
     {
-        PLAYER* pTargetPlayer = &gPlayer[pTargetSprite->type - kDudePlayer1];
+        PLAYER *pTargetPlayer = &gPlayer[pTargetSprite->type - kDudePlayer1];
         if (pSourcePlayer != pTargetPlayer)
         {
             if (gGameOptions.nGameType == 1)
@@ -268,11 +280,11 @@ inline bool IsTargetTeammate(PLAYER* pSourcePlayer, spritetype* pTargetSprite)
     return false;
 }
 
-inline bool IsTargetTeammate(spritetype* pSourceSprite, spritetype* pTargetSprite)
+inline bool IsTargetTeammate(spritetype *pSourceSprite, spritetype *pTargetSprite)
 {
     if (!IsPlayerSprite(pSourceSprite))
         return false;
-    PLAYER* pSourcePlayer = &gPlayer[pSourceSprite->type - kDudePlayer1];
+    PLAYER *pSourcePlayer = &gPlayer[pSourceSprite->type - kDudePlayer1];
     return IsTargetTeammate(pSourcePlayer, pTargetSprite);
 }
 
@@ -291,11 +303,11 @@ char packItemActive(PLAYER *pPlayer, int nPack);
 void packUseItem(PLAYER *pPlayer, int nPack);
 void packPrevItem(PLAYER *pPlayer);
 void packNextItem(PLAYER *pPlayer);
-char playerSeqPlaying(PLAYER * pPlayer, int nSeq);
+char        playerSeqPlaying(PLAYER *pPlayer, int nSeq);
 void playerSetRace(PLAYER *pPlayer, int nLifeMode);
 void playerSetGodMode(PLAYER *pPlayer, char bGodMode);
 void playerResetInertia(PLAYER *pPlayer);
-void playerCorrectInertia(PLAYER* pPlayer, vec3_t const *oldpos);
+void        playerCorrectInertia(PLAYER *pPlayer, vec3_t const *oldpos);
 void playerStart(int nPlayer);
 void playerReset(PLAYER *pPlayer);
 void playerInit(int nPlayer, unsigned int a2);
@@ -320,18 +332,17 @@ void sub_41250(PLAYER *pPlayer);
 void playerLandingSound(PLAYER *pPlayer);
 void PlayerSurvive(int, int nXSprite);
 void PlayerKneelsOver(int, int nXSprite);
-bool isGrown(spritetype* pSprite);
-bool isShrinked(spritetype* pSprite);
-bool shrinkPlayerSize(PLAYER* pPlayer, int divider);
-bool growPlayerSize(PLAYER* pPlayer, int multiplier);
-bool resetPlayerSize(PLAYER* pPlayer);
-void deactivateSizeShrooms(PLAYER* pPlayer);
-PLAYER* getPlayerById(short id);
-QAV* qavSceneLoad(int qavId);
-void qavScenePlay(PLAYER* pPlayer);
-void qavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5);
-void playerResetMoveSpeed(PLAYER* pPlayer);
-void playerResetJumpHeight(PLAYER* pPlayer);
-void playerResetQavScene(PLAYER* pPlayer);
+bool        isGrown(spritetype *pSprite);
+bool        isShrinked(spritetype *pSprite);
+bool        shrinkPlayerSize(PLAYER *pPlayer, int divider);
+bool        growPlayerSize(PLAYER *pPlayer, int multiplier);
+bool        resetPlayerSize(PLAYER *pPlayer);
+void        deactivateSizeShrooms(PLAYER *pPlayer);
+PLAYER *    getPlayerById(short id);
+QAV *       qavSceneLoad(int qavId);
+void        qavScenePlay(PLAYER *pPlayer);
+void        qavSceneDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5);
+void        playerResetPosture(PLAYER* pPlayer);
+void        playerResetQavScene(PLAYER *pPlayer);
 
 END_BLD_NS
