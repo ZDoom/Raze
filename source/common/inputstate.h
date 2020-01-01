@@ -46,9 +46,9 @@ class InputState
 	uint8_t g_keyAsciiPos;
 	uint8_t g_keyAsciiEnd;
 
-	kb_scancode KB_LastScan;
-	
 	vec2_t  g_mousePos;
+
+	void keySetState(int32_t key, int32_t state);
 
 public:
 
@@ -57,21 +57,11 @@ public:
 		return KeyStatus[key];
 	}
 	
-	void SetKeyStatus(int key, int state = 1)
-	{
-		KeyStatus[key] = (uint8_t)state;
-	}
-	
 	void ClearKeyStatus(int key)
 	{
 		KeyStatus[key] = 0;
 	}
 	
-	void ClearAllKeyStatus()
-	{
-		memset(KeyStatus, 0, sizeof(KeyStatus));
-	}
-
 	bool AltPressed()
 	{
 		return KeyStatus[sc_LeftAlt] || KeyStatus[sc_RightAlt];
@@ -111,22 +101,6 @@ public:
 		return ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1)) == g_keyAsciiPos;
 	}
 
-	void keySetState(int32_t key, int32_t state)
-	{
-		if (state && !GetKeyStatus(key))
-		{
-			KB_LastScan = key;
-		}
-
-		SetKeyStatus(key, state);
-		if (state)
-		{
-			g_keyFIFO[g_keyFIFOend] = key;
-			g_keyFIFO[(g_keyFIFOend + 1) & (KEYFIFOSIZ - 1)] = state;
-			g_keyFIFOend = ((g_keyFIFOend + 2) & (KEYFIFOSIZ - 1));
-		}
-	}
-
 	kb_scancode keyGetScan()
 	{
 		if (g_keyFIFOpos == g_keyFIFOend)
@@ -157,12 +131,6 @@ public:
 		return c;
 	}
 	
-	void keySetChar(int key)
-	{
-		g_keyAsciiFIFO[g_keyAsciiEnd] = (char16_t)key;
-		g_keyAsciiEnd = ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1));
-	}
-
 	void keyFlushChars(void)
 	{
 		memset(&g_keyAsciiFIFO, 0, sizeof(g_keyAsciiFIFO));
@@ -174,28 +142,6 @@ public:
 		return (GetKeyStatus(scan) != 0 && Bindings.GetBind(scan) == nullptr);
 	}
 
-
-	kb_scancode GetLastScanCode()
-	{
-		return (KB_LastScan);
-	}
-
-	void SetLastScanCode(kb_scancode scancode)
-    {
-        KB_LastScan = (scancode);  
-    }
-
-	void ClearLastScanCode()
-    {
-        KB_LastScan = sc_None;
-    }
-
-	void ClearKeysDown(void)
-	{
-		ClearLastScanCode();
-		ClearAllKeyStatus();
-	}
-	
 	void AddEvent(const event_t* ev);
 
 	void MouseSetPos(int x, int y)
@@ -217,7 +163,7 @@ public:
 
 	void ClearAllInput()
 	{
-		ClearKeysDown();
+		memset(KeyStatus, 0, sizeof(KeyStatus));
 		keyFlushChars();
 		keyFlushScans();
 		buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.

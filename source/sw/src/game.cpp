@@ -1399,14 +1399,6 @@ void NewLevel(void)
     FinishAnim = 0;
 }
 
-void
-ResetKeys(void)
-{
-    int i;
-
-	inputState.ClearAllKeyStatus();
-}
-
 
 uint8_t* KeyPressedRange(uint8_t* kb, uint8_t* ke)
 {
@@ -1475,7 +1467,7 @@ void LogoLevel(void)
     videoNextPage();
     //FadeIn(0, 3);
 
-    ResetKeys();
+    inputState.ClearAllInput();
     while (TRUE)
     {
         handleevents();
@@ -1555,7 +1547,7 @@ void CreditsLevel(void)
     totalclock = 0;
     ototalclock = 0;
 
-    ResetKeys();
+    inputState.ClearAllInput();
     curpic = CREDITS1_PIC;
 
     while (TRUE)
@@ -1590,7 +1582,7 @@ void CreditsLevel(void)
     // put up a blank screen while loading
     twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
-    ResetKeys();
+    inputState.ClearAllInput();
     Mus_Stop();
 }
 
@@ -1605,7 +1597,7 @@ void SybexScreen(void)
     rotatesprite(0, 0, RS_SCALE, 0, 5261, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
     videoNextPage();
 
-    ResetKeys();
+    inputState.ClearAllInput();
     while (!inputState.CheckAllInput()) handleevents();
 }
 
@@ -1637,7 +1629,7 @@ TitleLevel(void)
     videoNextPage();
     //FadeIn(0, 3);
 
-    ResetKeys();
+    inputState.ClearAllInput();
     while (TRUE)
     {
         handleevents();
@@ -1762,7 +1754,7 @@ void MenuLevel(void)
     // don't allow BorderAdjusting in these menus
     BorderAdjust = FALSE;
 
-    ResetKeys();
+    inputState.ClearAllInput();
 
     if (SW_SHAREWARE)
     {
@@ -1838,8 +1830,7 @@ void MenuLevel(void)
 
     BorderAdjust = TRUE;
     //LoadGameOutsideMoveLoop = FALSE;
-	inputState.ClearKeyStatus(sc_Escape);
-	inputState.ClearKeysDown();
+	inputState.ClearAllInput();
 	M_ClearMenus();
     InMenuLevel = FALSE;
     twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
@@ -2070,7 +2061,7 @@ void BonusScreen(PLAYERp pp)
     twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
     videoNextPage();
 
-    inputState.ClearKeysDown();
+    inputState.ClearAllInput();
 
     totalclock = ototalclock = 0;
     limit = synctics;
@@ -4004,8 +3995,7 @@ void GetMessageInput(PLAYERp pp)
         case -1: // Cancel Input (pressed ESC) or Err
             MessageInputMode = FALSE;
             InputMode = FALSE;
-            inputState.ClearKeysDown();
-            inputState.keyFlushChars();
+            inputState.ClearAllInput();
             break;
         case FALSE: // Input finished (RETURN)
             if (MessageInputString[0] == '\0')
@@ -4013,8 +4003,7 @@ void GetMessageInput(PLAYERp pp)
                 // no input
                 MessageInputMode = FALSE;
                 InputMode = FALSE;
-                inputState.ClearKeysDown();
-                inputState.keyFlushChars();
+                inputState.ClearAllInput();
                 buttonMap.ClearButton(gamefunc_Inventory);
             }
             else
@@ -4041,9 +4030,7 @@ void GetMessageInput(PLAYERp pp)
                 // broadcast message
                 MessageInputMode = FALSE;
                 InputMode = FALSE;
-                inputState.ClearKeysDown();
-                inputState.keyFlushChars();
-                buttonMap.ClearButton(gamefunc_Inventory);
+                inputState.ClearAllInput();
 
                 for (i = 0; i < NUMGAMEFUNCTIONS; i++)
                     buttonMap.ClearButton(i);

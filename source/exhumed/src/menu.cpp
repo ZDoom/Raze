@@ -630,7 +630,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
 
     int startTime = (int)totalclock;
 
-    ClearAllKeys();
+    inputState.ClearAllInput();
     UnMaskStatus();
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 
@@ -1180,7 +1180,7 @@ void ComputeCinemaText(int nLine)
     nCrawlY = 199;
     nHeight = linecount * 10;
 
-    ClearAllKeys();
+    inputState.ClearAllInput();
 }
 
 void ReadyCinemaText(uint16_t nVal)
@@ -1359,7 +1359,7 @@ void GoToTheCinema(int nVal)
     videoNextPage();
 
     CinemaFadeIn();
-    ClearAllKeys();
+    inputState.ClearAllInput();
 
     int ebx = -1;
     int edx = -1;
@@ -1518,11 +1518,7 @@ int FindGString(const char *str)
 
 uint8_t CheckForEscape()
 {
-    if (!inputState.keyBufferWaiting() || (inputState.keyGetChar() != 27)) {
-        return kFalse;
-    }
-
-    return kTrue;
+    return inputState.CheckAllInput();
 }
 
 void DoStatic(int a, int b)
@@ -1681,8 +1677,7 @@ void DoLastLevelCinema()
 
         nString++;
 
-        inputState.keyFlushChars();
-        inputState.ClearAllKeyStatus();
+        inputState.ClearAllInput();
 
         int v11 = (kTimerTicks * (var_1C + 2)) + (int)totalclock;
 

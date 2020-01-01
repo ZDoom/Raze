@@ -1080,7 +1080,7 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
             if (resetFlags & 4)
             {
                 inputState.keyFlushChars();
-                inputState.ClearKeysDown();
+                inputState.ClearAllInput();
                 FX_StopAllSounds();
                 if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
                 {

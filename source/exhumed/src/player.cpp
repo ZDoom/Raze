@@ -2637,7 +2637,7 @@ do_default_b:
                                     FinishLevel();
                                 }
                                 else {
-                                    inputState.keySetState(32, 1);
+                                    //inputState.keySetState(32, 1); // Huh, what?
                                 }
 
                                 DestroyItemAnim(nValB);

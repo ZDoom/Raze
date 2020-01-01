@@ -232,8 +232,7 @@ playanm(short anim_num)
     
     ANIMnum = anim_num;
 
-    inputState.keyFlushChars();
-    inputState.ClearKeysDown();
+    inputState.ClearAllInput();
 
     DSPRINTF(ds,"PlayAnm");
     MONO_PRINT(ds);
@@ -332,8 +331,7 @@ ENDOFANIMLOOP:
 
     videoSetPalette(0, BASEPAL, 2);
 
-    inputState.keyFlushChars();
-    inputState.ClearKeysDown();
+    inputState.ClearAllInput();
     ANIM_FreeAnim();
 }
 END_SW_NS

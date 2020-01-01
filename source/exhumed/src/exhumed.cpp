@@ -2030,8 +2030,7 @@ MENU:
         bInDemo = kTrue;
         bPlayback = kTrue;
 
-        inputState.keyFlushChars();
-        inputState.ClearAllKeyStatus();
+        inputState.ClearAllInput();
         break;
     }
 STARTGAME1:
@@ -2228,8 +2227,7 @@ GAMELOOP:
                 // YELLOW
                 if (((bInDemo && inputState.keyBufferWaiting()) || !ReadPlaybackInputs()) && inputState.keyGetChar())
                 {
-                    inputState.keyFlushChars();
-                    inputState.ClearAllKeyStatus();
+                    inputState.ClearAllInput();
 
                     bPlayback = kFalse;
                     bInDemo = kFalse;
@@ -2277,7 +2275,7 @@ GAMELOOP:
                 // loc_11FBC:
                 while (bPause)
                 {
-                    ClearAllKeys();
+                    inputState.ClearAllInput();
                     if (WaitAnyKey(-1) != sc_Pause)
                     {
                         bPause = kFalse;
@@ -2492,7 +2490,7 @@ void KeyFn1()
 void DoGameOverScene()
 {
     FadeOut(0);
-    ClearAllKeys();
+    inputState.ClearAllInput();
 
     if (LoadCinemaPalette(16) < 0) {
         return;
@@ -2529,7 +2527,7 @@ void DoTitle()
     if (videoGetRenderMode() == REND_CLASSIC)
         FadeIn();
 
-    ClearAllKeys();
+    inputState.ClearAllInput();
 
     WaitAnyKey(2);
 
@@ -2551,7 +2549,7 @@ void DoTitle()
 
     if (videoGetRenderMode() == REND_CLASSIC)
         FadeOut(0);
-    ClearAllKeys();
+    inputState.ClearAllInput();
 
     PlayMovie("book.mov");
 
@@ -2602,7 +2600,7 @@ void DoTitle()
 
     var_18 += theArray[0];
 
-    inputState.ClearAllKeyStatus();
+    inputState.ClearAllInput();
     while (LocalSoundPlaying())
     {
         HandleAsync();

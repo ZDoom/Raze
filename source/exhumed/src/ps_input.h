@@ -52,7 +52,6 @@ struct PlayerInput // TODO consider adjusting this for demo compatibility
 };
 
 void InitInput();
-void ClearAllKeys();
 void WaitNoKey(int nSecs, void (*pFunc) (void));
 int WaitAnyKey(int nSecs);
 

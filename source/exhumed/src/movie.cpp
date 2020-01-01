@@ -213,8 +213,7 @@ void PlayMovie(const char* fileName)
     banktail = 0;
 
     // clear keys
-    inputState.keyFlushChars();
-    inputState.ClearAllKeyStatus();
+    inputState.ClearAllInput();
 
     if (bDoFade) {
         StartFadeIn();

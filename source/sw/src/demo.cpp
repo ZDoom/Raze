@@ -568,7 +568,7 @@ ScenePlayBack(void)
     ready2send = 0;
     DemoDone = FALSE;
 
-    ResetKeys();
+    inputState.ClearAllInput();
 
     while (TRUE)
     {

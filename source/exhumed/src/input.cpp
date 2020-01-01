@@ -163,12 +163,6 @@ ClearSpaceBar_
     faketimerhandler_
 */
 
-void ClearAllKeys()
-{
-    inputState.ClearAllKeyStatus();
-    inputState.keyFlushChars();
-}
-
 void WaitNoKey(int nSecs, void (*pFunc) (void))
 {
     int nTotalTime = (kTimerTicks * nSecs) + (int)totalclock;

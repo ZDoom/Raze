@@ -370,8 +370,7 @@ void M_StartControlPanel (bool makeSound)
 	gi->MenuOpened();
 	if (makeSound) gi->MenuSound(ActivateSound);
 
-	buttonMap.ResetButtonStates ();
-	inputState.ClearAllKeyStatus();
+	inputState.ClearAllInput();
 	for (int i = 0; i < NUM_MKEYS; ++i)
 	{
 		MenuButtons[i].ReleaseKey(0);

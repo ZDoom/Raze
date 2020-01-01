@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "seq.h"
 #include "sound.h"
 #include "view.h"
+#include "menu/menu.h"
 
 extern bool gHaveNetworking;
 
@@ -542,7 +543,10 @@ void netGetPackets(void)
             gStartNewGame = 1;
             break;
         case 255:
-			inputState.SetKeyStatus(sc_Escape);
+            // What are we trying to do here? Opening the menu, maybe?
+			//inputState.SetKeyStatus(sc_Escape);
+            M_StartControlPanel(false);
+            M_SetMenu(NAME_MainMenu);
             break;
         }
     }

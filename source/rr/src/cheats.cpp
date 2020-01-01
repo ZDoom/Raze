@@ -318,7 +318,7 @@ void G_DoCheats(void)
             // cheat string matching logic below.
             Bassert(cheatbuflen < (signed)sizeof(cheatbuf));
             cheatbuf[cheatbuflen] = 0;
-            //            inputState.ClearKeysDown();
+            //            inputState.ClearAllInput();
 
             for (cheatNum=0; cheatNum < NUMCHEATCODES; cheatNum++)
             {

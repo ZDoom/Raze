@@ -1194,9 +1194,7 @@ RESTART:
     gRestartGame = 0;
     if (gGameOptions.nGameType > 0)
     {
-        inputState.ClearKeysDown();
-        inputState.keyFlushChars();
-        inputState.keyFlushScans();
+        inputState.ClearAllInput();
     }
     else if (gDemo.at1 && !bAddUserMap && !bNoDemo)
         gDemo.Playback();
