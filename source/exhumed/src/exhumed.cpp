@@ -3286,6 +3286,11 @@ bool GameInterface::CanSave()
     return !bRecord && !bPlayback && !bPause && !bInDemo && nTotalPlayers == 1;
 }
 
+void GameInterface::UpdateScreenSize()
+{
+    Powerslave::UpdateScreenSize();
+}
+
 
 ::GameInterface* CreateInterface()
 {

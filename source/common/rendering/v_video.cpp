@@ -515,7 +515,7 @@ void V_UpdateModeSize (int width, int height)
 void V_OutputResized (int width, int height)
 {
 	V_UpdateModeSize(width, height);
-//	setsizeneeded = true;
+	setsizeneeded = true;
 	C_NewModeAdjust();
 }
 

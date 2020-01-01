@@ -434,6 +434,8 @@ void ScaleWithAspect(int &w, int &h, int Width, int Height);
 int GetUIScale(int altval);
 int GetConScale(int altval);
 
+extern bool setsizeneeded, setmodeneeded;
+
 EXTERN_CVAR(Int, uiscale);
 EXTERN_CVAR(Int, con_scaletext);
 EXTERN_CVAR(Int, con_scale);

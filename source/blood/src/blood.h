@@ -84,6 +84,7 @@ struct GameInterface : ::GameInterface
 {
 	void faketimerhandler() override;
 	int app_main() override;
+	void UpdateScreenSize() override;
 	void FreeGameData() override;
 	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;

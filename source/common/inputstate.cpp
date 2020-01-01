@@ -67,6 +67,22 @@ void I_StartTic();
 
 int32_t handleevents(void)
 {
+	// fullscreen toggle has been requested
+	if (setmodeneeded)
+	{
+		setmodeneeded = false;
+		screen->ToggleFullscreen(fullscreen);
+		V_OutputResized(screen->GetWidth(), screen->GetHeight());
+	}
+
+	// change the view size if needed
+	if (setsizeneeded)
+	{
+		videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);
+		if (gi) gi->UpdateScreenSize();
+		setsizeneeded = false;
+	}
+
 	timerUpdateClock();
 
 	// The mouse wheel is not a real key so in order to be "pressed" it may only be cleared at the end of the tic (or the start of the next.)

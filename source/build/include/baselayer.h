@@ -105,6 +105,7 @@ struct GameInterface
 	virtual ~GameInterface() {}
 	virtual void faketimerhandler() {} // This is a remnant of older versions, but Blood backend has not updated yet.
 	virtual int app_main() = 0;
+	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}
 	virtual bool validate_hud(int) = 0;
 	virtual void set_hud_layout(int size) = 0;

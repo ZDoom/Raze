@@ -1926,6 +1926,11 @@ void GameInterface::FreeGameData()
     ShutDown();
 }
 
+void GameInterface::UpdateScreenSize()
+{
+    viewResizeView(gViewSize);
+}
+
 
 ::GameInterface* CreateInterface()
 {

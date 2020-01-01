@@ -6441,6 +6441,11 @@ void GameInterface::FreeGameData()
     G_Cleanup();
 }
 
+void GameInterface::UpdateScreenSize()
+{
+    G_UpdateScreenArea();
+}
+
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;

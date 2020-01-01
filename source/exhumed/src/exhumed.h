@@ -273,6 +273,7 @@ void G_DoAutoload(const char* dirname);
 struct GameInterface : ::GameInterface
 {
     int app_main() override;
+    void UpdateScreenSize() override;
     bool validate_hud(int) override { return true;  }
     void set_hud_layout(int size) override {}
     void set_hud_scale(int size) override {}

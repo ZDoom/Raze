@@ -3958,6 +3958,10 @@ void GameInterface::FreeGameData()
     TerminateLevel();
 }
 
+void GameInterface::UpdateScreenSize()
+{
+    SetupAspectRatio();
+}
 
 
 #if 0 // the message input needs to be moved out of the game code!
