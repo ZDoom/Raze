@@ -512,7 +512,7 @@ void GLInstance::SetPalette(int index)
 void GLInstance::SetPalswap(int index)
 {
 	palmanager.BindPalswap(index);
-	renderState.ShadeDiv = shadediv[index] == 0 ? 1.f / (renderState.NumShades) : shadediv[index];
+	renderState.ShadeDiv = shadediv[index] == 0 ? 1.f / (renderState.NumShades - 2) : shadediv[index];
 }
 
 void GLInstance::DrawImGui(ImDrawData* data)
