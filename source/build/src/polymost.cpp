@@ -2,7 +2,6 @@
 "POLYMOST" code originally written by Ken Silverman
 Ken Silverman's official web site: http://www.advsys.net/ken
 
-"POLYMOST2" changes Copyright (c) 2018, Alex Dawson
 **************************************************************************************************/
 
 
