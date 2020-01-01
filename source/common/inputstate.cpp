@@ -36,6 +36,8 @@
 #include "build.h"
 #include "gamecvars.h"
 
+int GUICapture = false;
+
 //==========================================================================
 //
 //

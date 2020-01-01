@@ -7164,8 +7164,6 @@ int GameInterface::app_main()
     S_InitSound();
 
     
-    g_logFlushWindow = 0;
-
     if (RR)
     {
         g_cdTrack = -1;

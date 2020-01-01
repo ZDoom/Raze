@@ -5724,9 +5724,6 @@ int GameInterface::app_main()
     S_InitSound();
 
     
-    g_logFlushWindow = 0;
-
-
     G_SetupCheats();
 
     if (SHAREWARE)

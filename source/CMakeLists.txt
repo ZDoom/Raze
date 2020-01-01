@@ -683,7 +683,6 @@ set (PCH_SOURCES
 	# Todo: Split out the license-safe code from this.
 	build/src/a-c.cpp
 	build/src/animvpx.cpp
-	build/src/baselayer.cpp
 	build/src/clip.cpp
 	build/src/colmatch.cpp
 	build/src/common.cpp
