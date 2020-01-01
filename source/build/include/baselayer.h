@@ -16,7 +16,6 @@
 #include "zstring.h"
 #include "vectors.h"
 
-extern char appactive;
 extern char modechange;
 
 extern int32_t swapcomplete;
@@ -27,7 +26,6 @@ EXTERN_CVAR(Bool, r_usenewaspect)
 extern int32_t newaspect_enable;
 extern int32_t r_fpgrouscan;
 extern int32_t setaspect_new_use_dimen;
-extern uint32_t r_screenxy;
 extern int32_t xres, yres, bpp, bytesperline, refreshfreq;
 extern intptr_t frameplace;
 extern char offscreenrendering;

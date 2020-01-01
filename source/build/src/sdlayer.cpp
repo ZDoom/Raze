@@ -43,23 +43,8 @@
 double g_beforeSwapTime;
 GameInterface* gi;
 
-void buildkeytranslationtable();;
-
 int myconnectindex, numplayers;
 int connecthead, connectpoint2[MAXMULTIPLAYERS];
-unsigned char syncstate;
-
-/// These can be useful for debugging sometimes...
-//#define SDL_WM_GrabInput(x) SDL_WM_GrabInput(SDL_GRAB_OFF)
-//#define SDL_ShowCursor(x) SDL_ShowCursor(SDL_ENABLE)
-
-// undefine to restrict windowed resolutions to conventional sizes
-#define ANY_WINDOWED_SIZE
-
-bool screenshot_requested;
-
-char appactive=1, novideo=0;
-
 
 void ImGui_Init_Backend()
 {

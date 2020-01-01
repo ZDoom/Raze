@@ -47,11 +47,6 @@ int GUICapture = false;
 void InputState::GetMouseDelta(ControlInfo * info)
 {
     vec2_t input;
-    if (!appactive)
-    {
-		input = {0,0};
-        return;
-    }
 
 	input = g_mousePos;
 	g_mousePos = {};

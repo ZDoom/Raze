@@ -853,7 +853,6 @@ InitNetVars(void)
     predictmovefifoplc = 0;
 
     memset(&syncstat, 0, sizeof(syncstat));
-    syncstate = 0;
     memset(sync_first, 0, sizeof(sync_first));
     sync_found = FALSE;
 

@@ -138,7 +138,6 @@ static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 // r_usenewaspect is the cvar, newaspect_enable to trigger the new behaviour in the code
 CVAR(Bool, r_usenewaspect, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 int32_t newaspect_enable=0;
-uint32_t r_screenxy = 0;
 
 int32_t r_fpgrouscan = 1;
 int32_t globalflags;

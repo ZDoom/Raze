@@ -581,12 +581,5 @@ CVAR(String, m_netport, "19014", CVAR_NOSET)
 	}
 	*/
 
-	/* Baselayer CVARs. Some are pointless, some not worth bothering before the backend is swappewd out, the only relevant one was r_voxels.
-	static osdcvardata_t cvars_engine[] =
-	{
-		{ "r_screenaspect","if using r_usenewaspect and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",
-		  (void *) &r_screenxy, SCREENASPECT_CVAR_TYPE, 0, 9999 },
-	};
-	*/
 
 #endif

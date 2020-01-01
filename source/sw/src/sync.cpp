@@ -412,9 +412,6 @@ SyncStatMessage(void)
             }
         }
     }
-
-    if (syncstate != 0)
-        Printf(PRINT_NOTIFY, "Missed Network packet!", 0);
 }
 
 

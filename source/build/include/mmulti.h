@@ -13,7 +13,6 @@
 
 extern int myconnectindex, numplayers;
 extern int connecthead, connectpoint2[MAXMULTIPLAYERS];
-extern unsigned char syncstate;
 
 
 #endif  // mmulti_h_

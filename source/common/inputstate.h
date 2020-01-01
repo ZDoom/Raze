@@ -10,8 +10,6 @@
 #include "m_joy.h"
 #include "gamecvars.h"
 
-extern char appactive;
-
 typedef uint16_t kb_scancode;
 extern int GUICapture;
 

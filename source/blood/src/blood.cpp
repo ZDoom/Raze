@@ -173,8 +173,6 @@ void ShutDown(void)
     sfxTerm();
     scrUnInit();
     // PORT_TODO: Check argument
-    if (syncstate)
-        printf("A packet was lost! (syncstate)\n");
     DO_FREE_AND_NULL(pUserTiles);
 }
 
