@@ -196,6 +196,7 @@ class GLInstance
 	int MatrixChange = 0;
 	bool istrans = false;
 	bool g_nontransparent255 = false;	// Ugh... This is for movie playback and needs to be maintained as global state.
+	int lastState = STF_COLORMASK | STF_DEPTHMASK;
 
 	IVertexBuffer* LastVertexBuffer = nullptr;
 	int LastVB_Offset[2] = {};
@@ -234,7 +235,6 @@ public:
 	std::pair<size_t, BaseVertex *> AllocVertices(size_t num);
 	void Draw(EDrawType type, size_t start, size_t count);
 	
-	int GetTextureID();
 	FHardwareTexture* NewTexture();
 	void BindTexture(int texunit, FHardwareTexture *texid, int sampler = NoSampler);
 	void UnbindTexture(int texunit);

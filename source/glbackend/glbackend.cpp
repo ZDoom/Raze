@@ -193,6 +193,12 @@ void GLInstance::Deinit()
 	palmanager.DeleteAllTextures();
 	lastPalswapIndex = -1;
 }
+
+FHardwareTexture* GLInstance::NewTexture()
+{
+	return new FHardwareTexture;
+}
+
 	
 std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
 {
@@ -227,7 +233,7 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	if (activeShader == polymostShader)
 	{
 		if (istrans) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
-		renderState.Apply(polymostShader);
+		renderState.Apply(polymostShader, lastState);
 		if (renderState.VertexBuffer != LastVertexBuffer || LastVB_Offset[0] != renderState.VB_Offset[0] || LastVB_Offset[1] != renderState.VB_Offset[1])
 		{
 			if (renderState.VertexBuffer)
@@ -270,19 +276,6 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	}
 	if (MatrixChange) RestoreTextureProps();
 }
-
-int GLInstance::GetTextureID()
-{
-	uint32_t id = 0;
-	glGenTextures(1, &id);
-	return id;
-}
-
-FHardwareTexture* GLInstance::NewTexture()
-{
-	return new FHardwareTexture;
-}
-
 
 void GLInstance::BindTexture(int texunit, FHardwareTexture *tex, int sampler)
 {
@@ -540,7 +533,7 @@ void GLInstance::ClearScreen(PalEntry color)
 }
 
 
-void PolymostRenderState::Apply(PolymostShader* shader)
+void PolymostRenderState::Apply(PolymostShader* shader, int &oldstate)
 {
 	// Disable brightmaps if non-black fog is used.
 	if (!(Flags & RF_FogDisabled) && !FogColor.isBlack()) Flags &= ~RF_Brightmapping;

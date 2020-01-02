@@ -63,7 +63,7 @@ unsigned int FHardwareTexture::CreateTexture(int w, int h, int type, bool mipmap
 {
 	static int gltypes[] = { GL_R8, GL_RGBA8, GL_RGB5_A1, GL_RGBA2 };
 	static uint8_t bytes[] = { 1, 4, 2, 1 };
-	glTexID = GLInterface.GetTextureID();
+	glGenTextures(1, &glTexID);
 	glActiveTexture(GL_TEXTURE15);
 	glBindTexture(GL_TEXTURE_2D, glTexID);
 	int size = std::max(w, h);
