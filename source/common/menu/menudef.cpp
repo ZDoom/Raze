@@ -1250,6 +1250,10 @@ static void BuildEpisodeMenu()
 
 			{
 				auto it = new FListMenuItemNativeText(ld->mXpos, y, 0, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i);
+				if ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && i > 0)
+				{
+					it->mEnabled = false;
+				}
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);
 				addedVolumes++;

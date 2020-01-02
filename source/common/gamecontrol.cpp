@@ -363,6 +363,18 @@ int GameMain()
 
 void SetDefaultStrings()
 {
+	if ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE))
+	{
+		// Shareware does not define episodes
+		gVolumeNames[0] = "$L.A. Meltdown";
+		gVolumeNames[1] = "$Lunar Apocalypse";
+		gVolumeNames[2] = "$Shrapnel City";
+		gVolumeNames[3] = "$The Birth";
+		gSkillNames[0] = "$Piece of Cake";
+		gSkillNames[1] = "$Let's Rock";
+		gSkillNames[2] = "$Come get Some";
+		gSkillNames[3] = "$Damn I'm Good";
+	}
 	// Blood hard codes its skill names, so we have to define them manually.
 	if (g_gameType & GAMEFLAG_BLOOD)
 	{
