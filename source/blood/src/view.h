@@ -74,12 +74,14 @@ enum INTERPOLATE_TYPE {
 #define kLoadScreenWideRight 9218
 #define kLoadScreenWideMiddle 9219
 
+#define kFontNum 5
+
 struct FONT {
     int tile, xSize, ySize, space;
 };
 
 extern int gZoom;
-extern FONT gFont[5];
+extern FONT gFont[kFontNum];
 extern int gViewMode;
 extern VIEWPOS gViewPos;
 extern int gViewIndex;

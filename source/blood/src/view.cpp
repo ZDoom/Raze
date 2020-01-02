@@ -184,11 +184,11 @@ void RotateXY(int *pX, int *pY, int *pZ, int ang)
 	*pY = dmulscale30r(oX,angSin,oY,angCos);
 }
 
-FONT gFont[5];
+FONT gFont[kFontNum];
 
 void FontSet(int id, int tile, int space)
 {
-	if (id < 0 || id >= 5 || tile < 0 || tile >= kMaxTiles)
+	if (id < 0 || id >= kFontNum || tile < 0 || tile >= kMaxTiles)
 		return;
 
 	FONT *pFont = &gFont[id];
@@ -209,7 +209,7 @@ void FontSet(int id, int tile, int space)
 
 void viewGetFontInfo(int id, const char *unk1, int *pXSize, int *pYSize)
 {
-	if (id < 0 || id >= 5)
+	if (id < 0 || id >= kFontNum)
 		return;
 	FONT *pFont = &gFont[id];
 	if (!unk1)
@@ -985,7 +985,7 @@ void RestoreInterpolations(void)
 
 void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat, uint8_t alpha)
 {
-    if (nFont < 0 || nFont >= 5 || !pString) return;
+    if (nFont < 0 || nFont >= kFontNum || !pString) return;
     FONT *pFont = &gFont[nFont];
     int nFlags = TEXT_INTERNALSPACE;
     switch (position)

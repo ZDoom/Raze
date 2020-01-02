@@ -305,6 +305,14 @@ void PreloadTiles(void)
 {
     int skyTile = -1;
     memset(gotpic,0,sizeof(gotpic));
+    // Fonts
+    for (int i = 0; i < kFontNum; i++)
+    {
+        for (int j = 0; j < 96; j++)
+        {
+            tilePrecacheTile(gFont[i].tile + j, 0);
+        }
+    }
     for (int i = 0; i < numsectors; i++)
     {
         tilePrecacheTile(sector[i].floorpicnum, 0);
