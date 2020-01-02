@@ -1337,14 +1337,6 @@ OptionMenu SoundOptions //protected
  *
  *=======================================*/
 
-OptionValue OplCores
-{
-	0, "$OPTVAL_MAMEOPL2"
-	1, "$OPTVAL_DOSBOXOPL3"
-	2, "$OPTVAL_JAVAOPL3"
-	3, "$OPTVAL_NUKEDOPL3"
-}
-
 
 OptionMenu AdvSoundOptions //protected
 {
@@ -1441,7 +1433,6 @@ OptionMenu ModReplayerOptions //protected
 	Title "$SNDMNU_MIDIPLAYER"
 	Submenu "$ADVSNDMNU_FLUIDSYNTH", "FluidsynthOptions"//, 0, 1
 	Submenu "$ADVSNDMNU_TIMIDITY", "TimidityOptions"//, 0, 1
-	Submenu "$ADVSNDMNU_OPLSYNTHESIS", "OPLOptions"//, 0, 1
  }
 
  OptionMenu FluidsynthOptions //protected
@@ -1465,19 +1456,9 @@ OptionMenu ModReplayerOptions //protected
 	// other CVARs need to be revieved for usefulness
  }
 
- OptionMenu OPLOptions //protected
- {
- 	Title "$ADVSNDMNU_OPLSYNTHESIS"
-	Option "$ADVSNDMNU_OPLCORES", 			"opl_core", "OplCores"
-	Slider "$ADVSNDMNU_OPLNUMCHIPS", 		"opl_numchips", 1, 8, 1, 0
-	Option "$ADVSNDMNU_OPLFULLPAN",			"opl_fullpan", "OnOff"
- }
-
 /*=======================================
  *
  * Video mode menu
- * Even more than the sound, much of this has no backing
- * and needs replacement of the backend.
  *
  *=======================================*/
 
