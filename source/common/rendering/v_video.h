@@ -49,6 +49,9 @@
 static const int VID_MIN_WIDTH = 640;
 static const int VID_MIN_HEIGHT = 400;
 
+static const int VID_MIN_UI_WIDTH = 640;
+static const int VID_MIN_UI_HEIGHT = 400;
+
 struct sector_t;
 class FTexture;
 struct FPortalSceneState;
