@@ -324,6 +324,21 @@ template<typename T> void GetSpriteExtents(T *pSprite, int *top, int *bottom)
     }
 }
 
+#ifdef POLYMER
+#pragma pack(push, 1)
+struct PolymerLight_t {
+    int16_t lightId, lightmaxrange;
+    _prlight* lightptr;
+    uint8_t lightcount;
+};
+#pragma pack(pop)
+
+extern PolymerLight_t gPolymerLight[kMaxSprites];
+
+void DeleteLight(int32_t s);
+
+#endif
+
 void InsertSpriteSect(int nSprite, int nSector);
 void RemoveSpriteSect(int nSprite);
 void InsertSpriteStat(int nSprite, int nStat);

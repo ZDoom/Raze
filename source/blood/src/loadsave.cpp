@@ -176,6 +176,31 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     gPaused = 0;
     gGameStarted = 1;
     bVanilla = false;
+    
+
+#ifdef USE_STRUCT_TRACKERS
+    Bmemset(sectorchanged, 0, sizeof(sectorchanged));
+    Bmemset(spritechanged, 0, sizeof(spritechanged));
+    Bmemset(wallchanged, 0, sizeof(wallchanged));
+#endif
+
+#ifdef USE_OPENGL
+    Polymost_prepare_loadboard();
+#endif
+
+#ifdef POLYMER
+    if (videoGetRenderMode() == REND_POLYMER)
+        polymer_loadboard();
+
+    // this light pointer nulling needs to be outside the videoGetRenderMode check
+    // because we might be loading the savegame using another renderer but
+    // change to Polymer later
+    for (int i=0; i<kMaxSprites; i++)
+    {
+        gPolymerLight[i].lightptr = NULL;
+        gPolymerLight[i].lightId = -1;
+    }
+#endif
 
 	Mus_ResumeSaved();
 
