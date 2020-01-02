@@ -2436,7 +2436,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         switch (pTSprite->statnum) {
         case kStatDecoration: {
-            switch (pTSprite->hitag) {
+            switch (pTSprite->lotag) {
                 case kDecorationCandle:
                     if (!pTXSprite || pTXSprite->state == 1) {
                         pTSprite->shade = -128;
@@ -2460,7 +2460,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         break;
         case kStatItem: {
-            switch (pTSprite->hitag) {
+            switch (pTSprite->lotag) {
                 case kItemFlagABase:
                     if (pTXSprite && pTXSprite->state > 0 && gGameOptions.nGameType == 3) {
                         auto pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_17);
