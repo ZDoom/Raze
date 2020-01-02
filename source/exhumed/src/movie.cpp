@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <cstring>
 #include "baselayer.h"
 #include "typedefs.h"
-#include "keyboard.h"
+#include "c_bind.h"
 #include "sound.h"
 #include "v_2ddrawer.h"
 

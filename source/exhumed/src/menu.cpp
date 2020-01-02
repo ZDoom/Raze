@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "names.h"
 #include "engine.h"
-#include "keyboard.h"
+#include "c_bind.h"
 #include "status.h"
 #include "random.h"
 #include "sound.h"

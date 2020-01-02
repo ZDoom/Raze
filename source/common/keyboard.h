@@ -35,7 +35,5 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "inputstate.h"
 #include "c_bind.h"
 
-const char *  KB_ScanCodeToString( int scancode ); // convert scancode into a string
-int KB_StringToScanCode( const char * string );  // convert a string into a scancode
 
 #endif
