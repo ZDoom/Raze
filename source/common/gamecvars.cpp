@@ -148,18 +148,6 @@ CUSTOM_CVARD(Int, snd_mixrate, 44100, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "sound mix
 	else if (self > 48000) self = 48000;
 }
 
-CUSTOM_CVARD(Int, snd_numchannels, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "the number of sound channels")
-{
-	if (self < 1) self = 1;
-	else if (self > 2) self = 2;
-}
-
-CUSTOM_CVARD(Int, snd_numvoices, 64, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "the number of concurrent sounds")
-{
-	if (self < 8) self = 8;
-	else if (self > 128) self = 128;
-}
-
 CUSTOM_CVARD(Int, snd_speech, 5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables player speech")
 {
 	if (self < 0) self = 0;
