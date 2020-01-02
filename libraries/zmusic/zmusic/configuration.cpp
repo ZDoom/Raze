@@ -33,7 +33,6 @@
 */
 #include <algorithm>
 #include "timiditypp/timidity.h"
-#include "oplsynth/oplio.h"
 #include "../../libraries/dumb/include/dumb.h"
 
 #include "zmusic.h"
@@ -61,8 +60,6 @@ void ZMusic_SetCallbacks(const Callbacks* cb)
 
 void ZMusic_SetGenMidi(const uint8_t* data)
 {
-	memcpy(oplConfig.OPLinstruments, data, 175 * 36);
-	oplConfig.genmidiset = true;
 }
 
 template<class valtype>
@@ -224,28 +221,6 @@ bool ChangeMusicSetting(ZMusic::EIntConfigKey key, MusInfo *currSong, int value,
 			ChangeAndReturn(fluidConfig.fluid_chorus_type, value, pRealValue);
 			return false;
 			
-		case opl_numchips:
-			if (value <= 0)
-				value = 1;
-			else if (value > MAXOPL2CHIPS)
-				value = MAXOPL2CHIPS;
-
-			if (currSong != NULL)
-				currSong->ChangeSettingInt("opl.numchips", value);
-
-			ChangeAndReturn(oplConfig.numchips, value, pRealValue);
-			return false;
-
-		case opl_core:
-			if (value < 0) value = 0;
-			else if (value > 3) value = 3;
-			ChangeAndReturn(oplConfig.core, value, pRealValue);
-			return devType() == MDEV_OPL;
-
-		case opl_fullpan:
-			ChangeAndReturn(oplConfig.fullpan, value, pRealValue);
-			return false;
-
 		case timidity_modulation_wheel:
 			ChangeVarSync(TimidityPlus::timidity_modulation_wheel, value);
 			if (pRealValue) *pRealValue = value;

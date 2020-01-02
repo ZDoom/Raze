@@ -215,29 +215,6 @@ static MusicIO::SoundFontReaderInterface* mus_openSoundFont(const char* sfname, 
 }
 
 
-//==========================================================================
-//
-// Pass some basic working data to the music backend
-// We do this once at startup for everything available.
-//
-//==========================================================================
-
-static void SetupGenMidi()
-{
-	// The OPL renderer should not care about where this comes from.
-	// Note: No I_Error here - this needs to be consistent with the rest of the music code.
-	auto lump = fileSystem.FindFile("engine/genmidi.op2");
-	if (lump < 0)
-	{
-		Printf("No GENMIDI lump found. OPL playback not available.");
-		return;
-	}
-	auto data = fileSystem.OpenFileReader(lump);
-
-	auto genmidi = data.Read();
-	if (genmidi.Size() < 8 + 175 * 36 || memcmp(genmidi.Data(), "#OPL_II#", 8)) return;
-	ZMusic_SetGenMidi(genmidi.Data()+8);
-}
 
 //==========================================================================
 //
@@ -268,7 +245,6 @@ void Mus_Init(void)
 	//callbacks.DumbVorbisDecode = dumb_decode_vorbis_;
 
 	ZMusic_SetCallbacks(&callbacks);
-	SetupGenMidi();
 	timerSetCallback(S_UpdateMusic);
 }
 

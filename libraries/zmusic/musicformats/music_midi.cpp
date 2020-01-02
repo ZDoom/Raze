@@ -195,21 +195,6 @@ bool MIDIStreamer::IsValid() const
 
 EMidiDevice MIDIStreamer::SelectMIDIDevice(EMidiDevice device)
 {
-	/* MIDI are played as:
-		- OPL: 
-			- if explicitly selected by $mididevice 
-			- when snd_mididevice  is -3 and no midi device is set for the song
-
-		- Timidity: 
-			- if explicitly selected by $mididevice 
-			- when snd_mididevice  is -2 and no midi device is set for the song
-
-		- MMAPI (Win32 only):
-			- if explicitly selected by $mididevice (non-Win32 redirects this to Sound System)
-			- when snd_mididevice  is >= 0 and no midi device is set for the song
-			- as fallback when both OPL and Timidity failed and snd_mididevice is >= 0
-	*/
-
 	// Choose the type of MIDI device we want.
 	if (device != MDEV_DEFAULT)
 	{
@@ -220,7 +205,6 @@ EMidiDevice MIDIStreamer::SelectMIDIDevice(EMidiDevice device)
 	case -1:		return MDEV_SNDSYS;
 	case -4:
 	case -2:		return MDEV_TIMIDITY;
-	case -3:		return MDEV_OPL;
 	case -5:		return MDEV_FLUIDSYNTH;
 	default:
 		#ifdef _WIN32
@@ -267,10 +251,6 @@ MIDIDevice *MIDIStreamer::CreateMIDIDevice(EMidiDevice devtype, int samplerate)
 				break;
 #endif // HAVE_FLUIDSYNTH
 
-			case MDEV_OPL:
-				dev = CreateOplMIDIDevice(Args.c_str());
-				break;
-
 			case MDEV_TIMIDITY:
 				dev = CreateTimidityPPMIDIDevice(Args.c_str(), samplerate);
 				break;
@@ -291,7 +271,6 @@ MIDIDevice *MIDIStreamer::CreateMIDIDevice(EMidiDevice devtype, int samplerate)
 #ifdef _WIN32
 			else if (!checked[MDEV_MMAPI]) devtype = MDEV_MMAPI;
 #endif
-			else if (!checked[MDEV_OPL]) devtype = MDEV_OPL;
 
 			if (devtype == MDEV_DEFAULT)
 			{
@@ -304,7 +283,7 @@ MIDIDevice *MIDIStreamer::CreateMIDIDevice(EMidiDevice devtype, int samplerate)
 	{
 		static const char *devnames[] = {
 			"Windows Default",
-			"OPL",
+			"",
 			"",
 			"Timidity++",
 			"FluidSynth",

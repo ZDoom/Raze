@@ -961,7 +961,6 @@ endif()
 
 if( CMAKE_COMPILER_IS_GNUCXX )
 	# GCC misoptimizes this file
-	#set_source_files_properties( oplsynth/fmopl.cpp PROPERTIES COMPILE_FLAGS "-fno-tree-dominator-opts -fno-tree-fre" )
 endif()
 
 if( APPLE )

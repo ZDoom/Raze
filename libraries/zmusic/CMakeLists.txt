@@ -41,7 +41,7 @@ else()
 endif()
 
 
-include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/../libraries/dumb/include" "${ZLIB_INCLUDE_DIR}" "${TIMIDITYPP_INCLUDE_DIR}" "${OPLSYNTH_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" )
+include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/../libraries/dumb/include" "${ZLIB_INCLUDE_DIR}" "${TIMIDITYPP_INCLUDE_DIR}" "${GME_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 if (WIN32)
 set( PLAT_SOURCES
@@ -65,7 +65,6 @@ add_library( zmusic STATIC
 	${HEADER_FILES}
 	i_module.cpp
 	mididevices/music_base_mididevice.cpp
-	mididevices/music_opl_mididevice.cpp
 	mididevices/music_timiditypp_mididevice.cpp
 	mididevices/music_fluidsynth_mididevice.cpp
 	mididevices/music_softsynth_mididevice.cpp
@@ -78,7 +77,6 @@ add_library( zmusic STATIC
 	streamsources/music_dumb.cpp
 	streamsources/music_gme.cpp
 	streamsources/music_libsndfile.cpp
-	streamsources/music_opl.cpp
 	streamsources/music_xa.cpp
 	musicformats/music_stream.cpp
 	musicformats/music_midi.cpp
@@ -90,7 +88,7 @@ add_library( zmusic STATIC
 	zmusic/zmusic.cpp
 	${PLAT_SOURCES}
 	)
-target_link_libraries( zmusic dumb gme oplsynth timidityplus)
+target_link_libraries( zmusic dumb gme timidityplus)
 
 if( NOT DYN_SNDFILE AND SNDFILE_FOUND )
 	include_directories( "${SNDFILE_INCLUDE_DIRS}" )
