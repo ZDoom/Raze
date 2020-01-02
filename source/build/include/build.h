@@ -568,7 +568,7 @@ EXTERN vec2_t windowxy1, windowxy2;
 EXTERN TArray<int16_t> startumost, startdmost;
 
 // The maximum tile offset ever used in any tiled parallaxed multi-sky.
-#define PSKYOFF_MAX 8
+#define PSKYOFF_MAX 16
 #define DEFAULTPSKY -1
 
 typedef struct {
