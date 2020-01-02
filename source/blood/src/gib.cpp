@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gib.h"
 #include "levels.h"
 #include "sfx.h"
+#include "tile.h"
 #include "trig.h"
 
 BEGIN_BLD_NS
@@ -512,4 +513,18 @@ void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel)
     }
 }
 
-END_BLD_NS
+void gibPrecache(void)
+{
+    for (int i = 0; i < kGibMax; i++)
+    {
+        auto const pThing = gibList[i].at8;
+        if (pThing)
+        {
+            for (int j = 0; j < gibList[i].atc; j++)
+            {
+                if (pThing[j].at4 >= 0)
+                    tilePrecacheTile(pThing[j].at4);
+            }
+        }
+    }
+}

@@ -40,4 +40,5 @@ void WeaponProcess(PLAYER *pPlayer);
 void WeaponUpdateState(PLAYER* pPlayer);
 void sub_51340(spritetype *pMissile, int a2);
 void StartQAV(PLAYER* pPlayer, int nWeaponQAV, int a3 = -1, char a4 = 0);
+void WeaponPrecache(void);
 END_BLD_NS

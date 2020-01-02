@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameutil.h"
 #include "levels.h"
 #include "seq.h"
+#include "tile.h"
 #include "trig.h"
 #include "view.h"
 
@@ -352,6 +353,16 @@ void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4)
         xvel[pShell->index] = mulscale30(nDist, Cos(nAngle));
         yvel[pShell->index] = mulscale30(nDist, Sin(nAngle));
         zvel[pShell->index] = zvel[pSprite->index]-(0x20000+(Random2(20)<<18)/120);
+    }
+}
+
+void fxPrecache(void)
+{
+    for (int i = 0; i < kFXMax; i++)
+    {
+        tilePrecacheTile(gFXData[i].at12, 0);
+        if (gFXData[i].at2)
+            seqPrecacheId(gFXData[i].at2);
     }
 }
 

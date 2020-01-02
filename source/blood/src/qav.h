@@ -82,6 +82,7 @@ struct QAV
     void Draw(int ticks, int stat, int shade, int palnum);
     void Play(int, int, int, void *);
     void Preload(void);
+    void Precache(void);
 
     void PlaySound(int nSound);
     void PlaySound3D(spritetype *pSprite, int nSound, int a3, int a4);

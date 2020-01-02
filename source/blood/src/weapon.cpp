@@ -228,6 +228,15 @@ void WeaponInit(void)
     }
 }
 
+void WeaponPrecache(void)
+{
+    for (int i = 0; i < kQAVEnd; i++)
+    {
+        if (weaponQAV[i])
+            weaponQAV[i]->Precache();
+    }
+}
+
 void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5)
 {
     dassert(pPlayer != NULL);

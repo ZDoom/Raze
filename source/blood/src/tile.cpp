@@ -156,7 +156,7 @@ uint8_t * tileAllocTile(int nTile, int x, int y, int ox, int oy)
 
 void tilePreloadTile(int nTile)
 {
-    int n = 0;
+    int n = 1;
     switch (picanm[nTile].extra&7)
     {
     case 0:
@@ -205,7 +205,7 @@ char precachehightile[2][(MAXTILES+7)>>3];
 
 void tilePrecacheTile(int nTile, int nType)
 {
-    int n = 0;
+    int n = 1;
     switch (picanm[nTile].extra&7)
     {
     case 0:

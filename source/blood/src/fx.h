@@ -102,6 +102,8 @@ void sub_746D4(spritetype *pSprite, int a2);
 void fxSpawnEjectingBrass(spritetype *pSprite, int z, int a3, int a4);
 void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4);
 
+void fxPrecache(void);
+
 extern CFX gFX;
 
 END_BLD_NS
