@@ -411,6 +411,7 @@ void PreloadCache(void)
             if ((++cnt & 7) == 0)
                 gameHandleEvents();
 
+#if 0
             if (videoGetRenderMode() != REND_CLASSIC && totalclock - clock > (kTicRate>>2))
             {
                 int const percentComplete = min(100, tabledivide32_noinline(100 * cnt, nPrecacheCount));
@@ -432,6 +433,7 @@ void PreloadCache(void)
 
                 clock = totalclock;
             }
+#endif
         }
     }
     memset(gotpic,0,sizeof(gotpic));
