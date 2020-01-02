@@ -5428,11 +5428,11 @@ void actExplodeSprite(spritetype *pSprite)
         return;
     sfxKill3DSound(pSprite, -1, -1);
     evKill(pSprite->index, 3);
-    int nType = 1;
+    int nType = kExplosionStandard;
     switch (pSprite->type)
     {
     case kMissileFireballNapam:
-        nType = 7;
+        nType = kExplosionNapalm;
         seqSpawn(4, 3, nXSprite, -1);
         if (Chance(0x8000))
             pSprite->cstat |= 4;
@@ -5440,7 +5440,7 @@ void actExplodeSprite(spritetype *pSprite)
         GibSprite(pSprite, GIBTYPE_5, NULL, NULL);
         break;
     case kMissileFlareAlt:
-        nType = 3;
+        nType = kExplosionFireball;
         seqSpawn(9, 3, nXSprite, -1);
         if (Chance(0x8000))
             pSprite->cstat |= 4;
@@ -5449,13 +5449,13 @@ void actExplodeSprite(spritetype *pSprite)
         break;
     case kMissileFireballCerberus:
     case kMissileFireballTchernobog:
-        nType = 3;
+        nType = kExplosionFireball;
         seqSpawn(5, 3, nXSprite, -1);
         sfxPlay3DSound(pSprite, 304, -1, 0);
         GibSprite(pSprite, GIBTYPE_5, NULL, NULL);
         break;
     case kThingArmedTNTStick:
-        nType = 0;
+        nType = kExplosionSmall;
         if (gSpriteHit[nXSprite].florhit == 0) seqSpawn(4,3,nXSprite,-1);
         else seqSpawn(3,3,nXSprite,-1);
         sfxPlay3DSound(pSprite, 303, -1, 0);
@@ -5465,7 +5465,7 @@ void actExplodeSprite(spritetype *pSprite)
     case kThingArmedRemoteBomb:
     case kThingArmedTNTBundle:
     case kModernThingTNTProx:
-        nType = 1;
+        nType = kExplosionStandard;
         if (gSpriteHit[nXSprite].florhit == 0)
             seqSpawn(4,3,nXSprite,-1);
         else
@@ -5474,7 +5474,7 @@ void actExplodeSprite(spritetype *pSprite)
         GibSprite(pSprite, GIBTYPE_5, NULL, NULL);
         break;
     case kThingArmedSpray:
-        nType = 4;
+        nType = kExplosionSpray;
         seqSpawn(5, 3, nXSprite, -1);
         sfxPlay3DSound(pSprite, 307, -1, 0);
         GibSprite(pSprite, GIBTYPE_5, NULL, NULL);
@@ -5491,7 +5491,7 @@ void actExplodeSprite(spritetype *pSprite)
         }
         else
             actPostSprite(pSprite->index, kStatFree);
-        nType = 2;
+        nType = kExplosionLarge;
         nXSprite = pSprite2->extra;
         seqSpawn(4, 3, nXSprite, -1);
         sfxPlay3DSound(pSprite2, 305, -1, 0);
@@ -5534,14 +5534,14 @@ void actExplodeSprite(spritetype *pSprite)
 	}
         break;
     case kThingPodFireBall:
-        nType = 3;
+        nType = kExplosionFireball;
         seqSpawn(9, 3, nXSprite, -1);
         sfxPlay3DSound(pSprite, 307, -1, 0);
         GibSprite(pSprite, GIBTYPE_5, NULL, NULL);
         sub_746D4(pSprite, 240);
         break;
     default:
-        nType = 1;
+        nType = kExplosionStandard;
         seqSpawn(4, 3, nXSprite, -1);
         if (Chance(0x8000))
             pSprite->cstat |= 4;
@@ -7979,20 +7979,47 @@ void actDoLight(int nSprite)
         if (pr_lighting != 1)
             return;
 
-        switch (pSprite->type)
+        switch (pSprite->statnum)
         {
-        case kMissileTeslaRegular:
+        case kStatProjectile:
+            switch (pSprite->type)
             {
-                int32_t x = ((sintable[(pSprite->ang+512)&2047])>>6);
-                int32_t y = ((sintable[(pSprite->ang)&2047])>>6);
+            case kMissileTeslaRegular:
+                {
+                    int32_t x = ((sintable[(pSprite->ang+512)&2047])>>6);
+                    int32_t y = ((sintable[(pSprite->ang)&2047])>>6);
 
-                pSprite->x -= x;
-                pSprite->y -= y;
+                    pSprite->x -= x;
+                    pSprite->y -= y;
 
-                G_AddGameLight(0, nSprite, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 2048, 80+(252<<8)+(120<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                    G_AddGameLight(0, nSprite, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 2048, 80+(252<<8)+(120<<16),PR_LIGHT_PRIO_HIGH_GAME);
 
-                pSprite->x += x;
-                pSprite->y += y;
+                    pSprite->x += x;
+                    pSprite->y += y;
+                }
+                break;
+            }
+            break;
+        case kStatExplosion:
+            switch (pSprite->type)
+            {
+            default:
+                if (!gPolymerLight[nSprite].lightcount)
+                {
+                    // XXX: This block gets CODEDUP'd too much.
+                    int32_t x = ((sintable[(pSprite->ang+512)&2047])>>6);
+                    int32_t y = ((sintable[(pSprite->ang)&2047])>>6);
+
+                    pSprite->x -= x;
+                    pSprite->y -= y;
+
+                    G_AddGameLight(0, nSprite, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), LIGHTRAD(spriteNum, pSprite), 240+(160<<8)+(80<<16),
+                        pSprite->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
+
+                    pSprite->x += x;
+                    pSprite->y += y;
+                }
+                break;
             }
             break;
         }
