@@ -626,7 +626,7 @@ void V_Init2()
 }
 
 // Helper for ActiveRatio and CheckRatio. Returns the forced ratio type, or -1 if none.
-int ActiveFakeRatio(int width, int height)
+static int ActiveFakeRatio(int width, int height)
 {
 	int fakeratio = -1;
 	if ((vid_aspect >= 1) && (vid_aspect <= 6))
