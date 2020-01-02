@@ -156,3 +156,4 @@ void QAV::Precache(void)
         }
     }
 }
+END_BLD_NS

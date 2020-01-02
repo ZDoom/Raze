@@ -119,7 +119,7 @@ void scrLoadPLUs(void)
     for (int i = kUserPLUStart; i < MAXPALOOKUPS; i++) {
         DICTNODE* pPlu = gSysRes.Lookup(i, "PLU");
         if (!pPlu) continue;
-        else if (pPlu->size / 256 != 64) { consoleSysMsg("Incorrect filesize of PLU#%d", i); }
+        else if (pPlu->Size() / 256 != 64) { consoleSysMsg("Incorrect filesize of PLU#%d", i); }
         else palookup[i] = (char*)gSysRes.Lock(pPlu);
     }
 
