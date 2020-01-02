@@ -1313,10 +1313,10 @@ OptionMenu SoundOptions //protected
 	Option "$SNDMNU_MENUSOUND",		"menu_sounds", "OnOff" // placeholder until the slider can be made to work
 	//Slider "$SNDMNU_MENUVOLUME",		"snd_menuvolume", 0, 1, 0.05, 2
 	StaticText " "
-	Option "$SNDMNU_MIDIDEVICE",		"snd_mididevice", "MidiDevices"
-	StaticText " "
+	//Option "$SNDMNU_MIDIDEVICE",		"snd_mididevice", "MidiDevices"
+	//StaticText " "
 	//Option "$SNDMNU_UNDERWATERREVERB",	"snd_waterreverb", "OnOff"
-	Slider "$SNDMNU_CHANNELS",			"snd_channels", 64, 128, 8, 0
+	Slider "$SNDMNU_	LS",			"snd_numchannels", 64, 128, 8, 0
 	staticText ""
 	ifgame (Blood, ShadowWarrior, Redneck, RedneckRides)
 	{
@@ -1428,16 +1428,17 @@ OptionMenu ModReplayerOptions //protected
 	4, "$ADVSNDMNU_GLOBAL_FREEVERB"
  }
 
-  OptionMenu MidiPlayerOptions //protected
+  OptionMenu _MidiPlayerOptions //protected
  {
 	Title "$SNDMNU_MIDIPLAYER"
 	Submenu "$ADVSNDMNU_FLUIDSYNTH", "FluidsynthOptions"//, 0, 1
 	Submenu "$ADVSNDMNU_TIMIDITY", "TimidityOptions"//, 0, 1
  }
 
- OptionMenu FluidsynthOptions //protected
+ OptionMenu MidiPlayerOptions /*FluidsynthOptions*/ //protected
  {
-	Title "$ADVSNDMNU_FLUIDSYNTH"
+	Title "$SNDMNU_MIDIPLAYER"
+	//Title "$ADVSNDMNU_FLUIDSYNTH"
 	LabeledSubMenu "$ADVSNDMNU_SELCONFIG",		"fluid_patchset", "FluidPatchsetMenu"
 	Slider "$ADVSNDMNU_FLUIDGAIN",			"fluid_gain", 0, 10, 0.5, 1
 	Option "$ADVSNDMNU_REVERB", 			"fluid_reverb", "OnOff"
