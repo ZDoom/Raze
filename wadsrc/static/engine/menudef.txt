@@ -1108,8 +1108,8 @@ OptionValue "WeapSwitch"
 OptionMenu GameplayOptions //protected
 {
 	Title 	"$GMPLYMNU_TITLE"
-	Option "$PLRMNU_AUTOAIM", "cl_autoaim", "AimMode"
-	Option "$PLRMNU_ALWAYSRUN", "cl_autorun", "OnOff"
+	Option "$PLYRMNU_AUTOAIM", "cl_autoaim", "AimMode"
+	Option "$PLYRMNU_ALWAYSRUN", "cl_autorun", "OnOff"
 	Option "$PLRMNU_RUNMODE", "cl_runmode", "RunMode"
 	ifgame(ShadowWarrior)
 	{
@@ -1512,10 +1512,6 @@ OptionMenu VideoModeMenu //protected
 {
 	Title "$VIDMNU_TITLE"
 	
-	StaticText "Caution: This menu is currently"
-	StaticText "not functional!"
-
-	Option "$VIDMNU_RENDERMODE",		"vid_rendermode", "RenderMode"
 	Option "$VIDMNU_FULLSCREEN",		"fullscreen", "YesNo"
 
 	IfOption(Mac)
@@ -1614,9 +1610,9 @@ OptionMenu "MiscOptions" //protected
 	Slider "$MISCMNU_AUTOSAVECOUNT",			"autosavecount", 1, 20, 1, 0
 	//Option "$MISCMNU_QUICKSAVEROTATION",			"quicksaverotation", "OnOff"
 	Slider "$MISCMNU_QUICKSAVECOUNT",			"quicksaverotationcount", 1, 20, 1, 0
-	Option "$MISCMNU_INTERSCROLL",				"nointerscrollabort", "OffOn"
 	ifgame(shadowwarrior)
 	{
+		StaticText " "
 		Option "$MISCMNU_DARTS",				"sw_darts", "OnOff"
 		Option "$MISCMNU_NINJA",				"sw_ninjahack", "OnOff"
 	}

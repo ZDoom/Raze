@@ -262,7 +262,7 @@ Jump,CNTRLMNU_JUMP,,,,Skok,Springen,,Salti,Saltar,,Hyppää,Sauter,Ugrás,Salta,
 Crouch,CNTRLMNU_CROUCH,,,,Kleknutí,Ducken,,Kaŭri,Agacharse,,Kyyristy,S'accroupir (tenir),Guggolás,Abbassati,屈む,숙이기,Hurken,Kucnięcie,Agachar,,,Приседание,Чучни
 Crouch Toggle,CNTRLMNU_TOGGLECROUCH,,,,Zap. / Vyp. kleknutí,Ducken an/aus,,Kaŭrbaskulo,Alternar agachado,,Kyyristymisen vaihtokytkin,S'accroupir (alterner),Guggolási kapcsoló,Toggle abbassamento,屈む切替,숙이기 토글,Hurken Toggle,Włącz / Wyłącz kucnięcie,Agachar (Liga/Desliga),,,Сесть/встать,Чучни (без држања)
 Mouse look,CNTRLMNU_MOUSELOOK,,,,Pohled myší,Maus-Blick,,Musilregardo,Vista con ratón,,Hiirikatselu,Vue à la souris,Egérrel való nézelődés,Modalità vista col mouse,マウス視点上下化,마우스 룩,Muis-look,Rozglądanie się myszką,Vista com o mouse,Vista com o rato,,Обзор мышью,Гледај мишем
-Mouse look toggle,CNTRLMNI_MLOOKTOGGLE,,,,,Maus-Blick umschalten,,,,,,,,,,,,,,,,,
+Mouse look toggle,CNTRLMNU_MLOOKTOGGLE,,,,,Maus-Blick umschalten,,,,,,,,,,,,,,,,,
 Look up,CNTRLMNU_LOOKUP,Look doesn't change the aim! It only alters the view pitch,,,Pohled vzhůru,Nach oben schauen,,Rigardi supre,Mirar arriba,,Katso ylös,Regarder en haut,Felfele nézés,Guarda sopra,視点を上げる,위로 보기,Kijk omhoog,Patrz w górę,Olhar para cima,,,Смотреть вверх,Гледај горе
 Look down,CNTRLMNU_LOOKDOWN,,,,Pohled dolů,Nach unten schauen,,Rigardi malsupre,Mirar abajo,,Katso alas,Regarder en bas,Lefele nézés,Guarda sotto,視点を下げる,아래로 보기,Kijk naar beneden,Patrz w dół,Olhar para baixo,,,Смотреть вниз,Гледај доле
 Aim up,CNTRLMNU_AIMUP,,,,,Nach oben zielen,,,,,,,,,,,,,,,,,
@@ -308,8 +308,7 @@ Proximity Bomb,CNTRLMNU_PROXIMITYBOMBS,,,,,,,,,,,,,,,,,,,,,,
 Remote Bomb,CNTRLMNU_REMOTEBOMBS,,,,,,,,,,,,,,,,,,,,,,
 Smoke Bomb,CNTRLMNU_SMOKEBOMB,,,,,Rauchbombe,,,,,,,,,,,,,,,,,
 Gas Bomb,CNTRLMNU_GASBOMB,,,,,Gasgranate,,,,,,,,,,,,,,,,,
-Flash Bomb,"CNTRLMNU_FLASHBOMB
-",,,,,Blendgranate,,,,,,,,,,,,,,,,,
+Flash Bomb,CNTRLMNU_FLASHBOMB,,,,,Blendgranate,,,,,,,,,,,,,,,,,
 Caltrops,CNTRLMNU_CALTROPS,,,,,Krähenfüße,,,,,,,,,,,,,,,,,
 Holo Duke,CNTRLMNU_HOLODUKE,,,,,,,,,,,,,,,,,,,,,,
 Jetpack,CNTRLMNU_JETPACK,,,,,,,,,,,,,,,,,,,,,,
@@ -341,6 +340,7 @@ Mouse aiming ON,TXT_MOUSEAIMON,,,,,Maus-Blick AN,,,,,,,,,,,,,,,,,
 Mouse aiming OFF,TXT_MOUSEAIMOFF,,,,,Maus-Blick AUS,,,,,,,,,,,,,,,,,
 Rat aimin' ON,TXT_MOUSEAIMON,I don't think this translates well...,Redneck RedneckRides,,,Maus-Blick AN,,,,,,,,,,,,,,,,,
 Rat aimin' OFF,TXT_MOUSEAIMOFF,,Redneck RedneckRides,,,Maus-Blick AUS,,,,,,,,,,,,,,,,,
+Toggle follow,MAPCNTRLMNU_TOGGLEFOLLOW,,,,Následování hráče vyp./zap.,Folgen an/aus,,Aktivigi sekvon,Alternar seguimiento,,Seuraamistilan vaihtokytkin,Alterner suivi,,Abilita/disabilita scorrimento mappa,追従切替,추적모드 조정,Schakelen volgen,Przełącz śledzenie,Ativar seguimento,,,Переключить привязку к игроку,Укључи праћење
 Toggle automap,CNTRLMNU_AUTOMAP,,,,Zap. / Vyp. automapu,Automap an/aus,,Baskuligi aŭtomapo,Alternar automapa,,Kytke automaattikartta päälle/pois,Activer Carte,Térkép ki- bekapcsolása,Toggle automappa,オートマップの切替,오토맵 조정,Automap aan/uit,Włącz mapę,Ativar automapa,,,Открыть автокарту,Прикажи аутомапу
 Chasecam,CNTRLMNU_CHASECAM,,,,Kamera z třetí osoby,Verfolgerkamera,,Ĉaskamerao,Cámara de Seguimiento,,Seurantakamera,Caméra 3ième personne,Külsőnézetű kamera,Telecamera di inseguimento,背後視点,3인칭 카메라,,Kamera Śledzenia,Câmera de terceira-pessoa,Câmera em terceira-pessoa,,Вид от 3-го лица (Chasecam),Чејс-кем
 Screenshot,CNTRLMNU_SCREENSHOT,,,,Pořídit snímek obrazovky,,,Ekranfoto,Captura de pantalla,,Kuvakaappaus,Capture d'écran,Képernyő lefényképezése,Cattura schermo,画面キャプチャ,스크린샷,,Zrzut ekranu,Captura de tela,,,Скриншот,Усликај
@@ -512,8 +512,7 @@ Trilinear,OPTVAL_TRILINEAR,,,,Trilineární,,,Trilinia,Trilineal,,Trilineaarinen
 True Color Textures,POLYMOST_TC,,,True Colour Textures,,True Color Texturen,,,,,,,,,,,,,,,,,
 Pre-load map textures,POLYMOST_CACHE,,,,,Texturen cachen,,,,,,,,,,,,,,,,,
 Detail Textures,POLYMOST_DETAIL,,,,,Detailtexturen,,,,,,,,,,,,,,,,,
-Glow Textures,"POLYMOST_GLOW
-",,,,,Leucht-Texturen,,,,,,,,,,,,,,,,,
+Glow Textures,POLYMOST_GLOW,,,,,Leucht-Texturen,,,,,,,,,,,,,,,,,
 3D-Models,POLYMOST_MODELS,,,,,3D Modelle,,,,,,,,,,,,,,,,,
 "Polymost Options
 ",POLYMOST_OPTIONS,,,,,Polymost-Optionen,,,,,,,,,,,,,,,,,
