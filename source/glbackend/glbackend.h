@@ -239,9 +239,6 @@ public:
 	void BindTexture(int texunit, FHardwareTexture *texid, int sampler = NoSampler);
 	void UnbindTexture(int texunit);
 	void UnbindAllTextures();
-	void EnableBlend(bool on);
-	void EnableDepthTest(bool on);
-	void EnableMultisampling(bool on);
 	void EnableNonTransparent255(bool on)
 	{
 		g_nontransparent255 = on;
@@ -275,11 +272,6 @@ public:
 	{
 		SetMatrix(num, reinterpret_cast<const VSMatrix*>(mat));
 	}
-	void SetCull(int type, int winding = Winding_CCW);
-
-	void EnableStencilWrite(int value);
-	void EnableStencilTest(int value);
-	void DisableStencil();
 	void SetColor(float r, float g, float b, float a = 1.f);
 	void SetColorub(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
 	{
@@ -289,14 +281,11 @@ public:
 	void SetScissor(int x1, int y1, int x2, int y2);
 	void DisableScissor();
 	void SetDepthFunc(int func);
-	void SetColorMask(bool on);
-	void SetDepthMask(bool on);
 	void SetBlendFunc(int src, int dst);
 	void SetBlendOp(int op);
 	void ClearScreen(float r, float g, float b, bool depth);
 	void ClearDepth();
 	void SetViewport(int x, int y, int w, int h);
-	void SetWireframe(bool on);
 	void SetPolymostShader();
 	void SetSurfaceShader();
 	void SetVPXShader();
@@ -341,6 +330,70 @@ public:
 	{
 		renderState.VisFactor = visibility* fviewingrange* (1.f / (64.f * 65536.f));
 	}
+
+	void EnableBlend(bool on)
+	{
+		if (on) renderState.StateFlags |= STF_BLEND;
+		else renderState.StateFlags &= ~STF_BLEND;
+	}
+
+	void EnableDepthTest(bool on)
+	{
+		if (on) renderState.StateFlags |= STF_DEPTHTEST;
+		else renderState.StateFlags &= ~STF_DEPTHTEST;
+	}
+
+	void EnableMultisampling(bool on)
+	{
+		if (on) renderState.StateFlags |= STF_MULTISAMPLE;
+		else renderState.StateFlags &= ~STF_MULTISAMPLE;
+	}
+
+	void EnableStencilWrite(int value)
+	{
+		renderState.StateFlags |= STF_STENCILWRITE;
+		renderState.StateFlags &= ~STF_STENCILTEST;
+	}
+
+	void EnableStencilTest(int value)
+	{
+		renderState.StateFlags &= ~STF_STENCILWRITE;
+		renderState.StateFlags |= STF_STENCILTEST;
+	}
+
+	void DisableStencil()
+	{
+		renderState.StateFlags &= ~(STF_STENCILWRITE | STF_STENCILTEST);
+	}
+
+	void SetCull(int type, int winding = Winding_CW)
+	{
+		renderState.StateFlags &= ~(STF_CULLCCW | STF_CULLCW);
+		if (type != Cull_None)
+		{
+			if (winding == Winding_CW) renderState.StateFlags |= STF_CULLCW;
+			else renderState.StateFlags |= STF_CULLCCW;
+		}
+	}
+
+	void SetColorMask(bool on)
+	{
+		if (on) renderState.StateFlags |= STF_COLORMASK;
+		else renderState.StateFlags &= ~STF_COLORMASK;
+	}
+
+	void SetDepthMask(bool on)
+	{
+		if (on) renderState.StateFlags |= STF_DEPTHMASK;
+		else renderState.StateFlags &= ~STF_DEPTHMASK;
+	}
+
+	void SetWireframe(bool on)
+	{
+		if (on) renderState.StateFlags |= STF_WIREFRAME;
+		else renderState.StateFlags &= ~STF_WIREFRAME;
+	}
+
 
 	void UseColorOnly(bool yes)
 	{

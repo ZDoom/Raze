@@ -307,24 +307,6 @@ void GLInstance::UnbindAllTextures()
 	}
 }
 
-void GLInstance::EnableBlend(bool on)
-{
-	if (on) glEnable (GL_BLEND);
-	else glDisable (GL_BLEND);
-}
-
-void GLInstance::EnableDepthTest(bool on)
-{
-	if (on) glEnable (GL_DEPTH_TEST);
-	else glDisable (GL_DEPTH_TEST);
-}
-
-void GLInstance::EnableMultisampling(bool on)
-{
-	if (on) glEnable(GL_MULTISAMPLE);
-	else glDisable(GL_MULTISAMPLE);
-}
-
 void GLInstance::SetMatrix(int num, const VSMatrix *mat)
 {
 	matrices[num] = *mat;
@@ -355,46 +337,6 @@ void GLInstance::SetMatrix(int num, const VSMatrix *mat)
 	}
 }
 
-void GLInstance::EnableStencilWrite(int value)
-{
-    glEnable(GL_STENCIL_TEST);
-    glClear(GL_STENCIL_BUFFER_BIT);
-    glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-    glStencilFunc(GL_ALWAYS, value, 0xFF);
-}
-
-void GLInstance::EnableStencilTest(int value)
-{
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_EQUAL, value, 0xFF);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-}
-
-void GLInstance::DisableStencil()
-{
-	glDisable(GL_STENCIL_TEST);
-}
-
-void GLInstance::SetCull(int type, int winding)
-{
-	if (type == Cull_None)
-	{
-		glDisable(GL_CULL_FACE);
-	}
-	else if (type == Cull_Front)
-	{
-		glFrontFace(winding == Winding_CW ? GL_CW : GL_CCW);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-	}
-	else if (type == Cull_Back)
-	{
-		glFrontFace(winding == Winding_CW ? GL_CW : GL_CCW);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-	}
-}
-
 void GLInstance::SetScissor(int x1, int y1, int x2, int y2)
 {
 	glScissor(x1, y1, x2, y2);
@@ -417,16 +359,6 @@ void GLInstance::SetDepthFunc(int func)
 {
 	int f[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
 	glDepthFunc(f[func]);
-}
-
-void GLInstance::SetColorMask(bool on)
-{
-	glColorMask(on, on, on, on);
-}
-
-void GLInstance::SetDepthMask(bool on)
-{
-	glDepthMask(on);
 }
 
 static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
@@ -457,11 +389,6 @@ void GLInstance::ClearDepth()
 void GLInstance::SetViewport(int x, int y, int w, int h)
 {
 	glViewport(x, y, w, h);
-}
-
-void GLInstance::SetWireframe(bool on)
-{
-	glPolygonMode(GL_FRONT_AND_BACK,on? GL_LINE : GL_FILL); 
 }
 
 void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
@@ -535,6 +462,73 @@ void GLInstance::ClearScreen(PalEntry color)
 
 void PolymostRenderState::Apply(PolymostShader* shader, int &oldstate)
 {
+	if (StateFlags != oldstate)
+	{
+		if ((StateFlags ^ oldstate) & STF_DEPTHTEST)
+		{
+			if (StateFlags & STF_DEPTHTEST) glEnable(GL_DEPTH_TEST);
+			else glDisable(GL_DEPTH_TEST);
+		}
+		if ((StateFlags ^ oldstate) & STF_BLEND)
+		{
+			if (StateFlags & STF_BLEND) glEnable(GL_BLEND);
+			else glDisable(GL_BLEND);
+		}
+		if ((StateFlags ^ oldstate) & STF_MULTISAMPLE)
+		{
+			if (StateFlags & STF_MULTISAMPLE) glEnable(GL_MULTISAMPLE);
+			else glDisable(GL_MULTISAMPLE);
+		}
+		if ((StateFlags ^ oldstate) & (STF_STENCILTEST|STF_STENCILWRITE))
+		{
+			if (StateFlags & STF_STENCILWRITE)
+			{
+				glEnable(GL_STENCIL_TEST);
+				glClear(GL_STENCIL_BUFFER_BIT);
+				glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+				glStencilFunc(GL_ALWAYS, 1/*value*/, 0xFF);
+			}
+			else if (StateFlags & STF_STENCILTEST)
+			{
+				glEnable(GL_STENCIL_TEST);
+				glStencilFunc(GL_EQUAL, 1/*value*/, 0xFF);
+				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+			}
+			else
+			{
+				glDisable(GL_STENCIL_TEST);
+			}
+		}
+		if ((StateFlags ^ oldstate) & (STF_CULLCW | STF_CULLCCW))
+		{
+			if (StateFlags & (STF_CULLCW | STF_CULLCCW))
+			{
+				glFrontFace(StateFlags & STF_CULLCW ? GL_CW : GL_CCW);
+				glEnable(GL_CULL_FACE);
+				glCullFace(GL_BACK); // Cull_Front is not being used.
+			}
+			else
+			{
+				glDisable(GL_CULL_FACE);
+			}
+		}
+		if ((StateFlags ^ oldstate) & STF_COLORMASK)
+		{
+			if (StateFlags & STF_COLORMASK) glColorMask(1, 1, 1, 1);
+			else glColorMask(0, 0, 0, 0);
+		}
+		if ((StateFlags ^ oldstate) & STF_DEPTHMASK)
+		{
+			if (StateFlags & STF_DEPTHMASK) glDepthMask(1);
+			else glDepthMask(0);
+		}
+		if ((StateFlags ^ oldstate) & STF_WIREFRAME)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, (StateFlags & STF_WIREFRAME) ? GL_LINE : GL_FILL);
+		}
+		oldstate = StateFlags;
+	}
 	// Disable brightmaps if non-black fog is used.
 	if (!(Flags & RF_FogDisabled) && !FogColor.isBlack()) Flags &= ~RF_Brightmapping;
 	shader->Flags.Set(Flags);
