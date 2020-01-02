@@ -3477,7 +3477,7 @@ void viewDrawScreen(void)
         {
             if (cl_crosshair)
             {
-                rotatesprite(160 << 16, defaultHoriz << 16, 65536, 0, kCrosshairTile, 0, CROSSHAIR_PAL, 2, gViewX0, gViewY0, gViewX1, gViewY1);
+                rotatesprite(160<<16, defaultHoriz<<16, 65536, 0, kCrosshairTile, 0, g_isAlterDefaultCrosshair ? CROSSHAIR_PAL : 0, 2, gViewX0, gViewY0, gViewX1, gViewY1);
             }
             cX = (v4c >> 8) + 160;
             cY = (v48 >> 8) + 220 + (zDelta >> 7);
