@@ -310,7 +310,7 @@ static void resizeglcheck(void)
     }
     if (hw_polygonmode) //FUK
     {
-		GLInterface.ClearScreen(1, 1, 1, true);
+		GLInterface.ClearScreen(0xffffff, true);
     }
 
     if ((glox1 != windowxy1.x) || (gloy1 != windowxy1.y) || (glox2 != windowxy2.x) || (gloy2 != windowxy2.y) || (gloxyaspect != gxyaspect) || (gloyxscale != gyxscale) || (glohoriz2 != ghoriz2) || (glohorizcorrect != ghorizcorrect) || (glotang != gtang))

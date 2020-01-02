@@ -18,6 +18,7 @@ class FTexture;
 class GLInstance;
 class F2DDrawer;
 struct palette_t;
+extern int xdim, ydim;
 
 struct PaletteData
 {
@@ -283,8 +284,6 @@ public:
 	void SetDepthFunc(int func);
 	void SetBlendFunc(int src, int dst);
 	void SetBlendOp(int op);
-	void ClearScreen(float r, float g, float b, bool depth);
-	void ClearDepth();
 	void SetViewport(int x, int y, int w, int h);
 	void SetPolymostShader();
 	void SetSurfaceShader();
@@ -292,7 +291,6 @@ public:
 	void SetPalette(int palette);
 	bool ApplyTextureProps(FTexture *tex, int pal);
 	void RestoreTextureProps();
-	void ClearScreen(PalEntry color);
 
 	void ReadPixels(int w, int h, uint8_t* buffer);
 
@@ -394,6 +392,24 @@ public:
 		else renderState.StateFlags &= ~STF_WIREFRAME;
 	}
 
+	void ClearScreen(PalEntry pe, bool depth)
+	{
+		renderState.ClearColor = pe;
+		renderState.StateFlags |= STF_CLEARCOLOR;
+		if (depth) renderState.StateFlags |= STF_CLEARDEPTH;
+	}
+
+	void ClearScreen(PalEntry pe)
+	{
+		//twod->Clear();
+		SetViewport(0, 0, xdim, ydim);
+		ClearScreen(pe, false);
+	}
+
+	void ClearDepth()
+	{
+		renderState.StateFlags |= STF_CLEARDEPTH;
+	}
 
 	void UseColorOnly(bool yes)
 	{

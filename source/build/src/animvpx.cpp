@@ -375,7 +375,7 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
     texuploaded = 0;
     ////////////////////
 
-	GLInterface.ClearScreen(0, 0, 0, true);
+	GLInterface.ClearScreen(0, true);
 }
 
 void animvpx_restore_glstate(void)

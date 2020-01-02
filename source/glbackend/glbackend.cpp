@@ -49,7 +49,6 @@
 #include "v_video.h"
 #include "gl_renderer.h"
 
-extern int xdim, ydim;
 float shadediv[MAXPALOOKUPS];
 
 FileReader GetResource(const char* fn)
@@ -375,17 +374,6 @@ void GLInstance::SetBlendOp(int op)
 	glBlendEquation(renderops[op]);
 }
 
-void GLInstance::ClearScreen(float r, float g, float b, bool depth)
-{
-	glClearColor(r, g, b, 1.f);
-	glClear(depth ? GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT : GL_COLOR_BUFFER_BIT);
-}
-
-void GLInstance::ClearDepth()
-{
-	glClear(GL_DEPTH_BUFFER_BIT);
-}
-
 void GLInstance::SetViewport(int x, int y, int w, int h)
 {
 	glViewport(x, y, w, h);
@@ -441,24 +429,6 @@ void GLInstance::DrawImGui(ImDrawData* data)
 	ImGui_ImplOpenGL3_RenderDrawData(data);
 #endif
 }
-
-void GLInstance::ClearScreen(PalEntry color)
-{
-	twod->Clear(); // Since we clear the entire screen, all previous draw operations become redundant, so delete them.
-#if 1
-
-	SetViewport(0, 0, xdim, ydim);
-	ClearScreen((float)color.r * (1.f / 255.f),
-		(float)color.g * (1.f / 255.f),
-		(float)color.b * (1.f / 255.f),
-		false);
-#else
-		// This must be synchronized with the rest of the 2D operations.
-	twod->AddColorOnlyQuad(0, 0, xdim, ydim, );
-#endif
-
-}
-
 
 void PolymostRenderState::Apply(PolymostShader* shader, int &oldstate)
 {
@@ -527,6 +497,17 @@ void PolymostRenderState::Apply(PolymostShader* shader, int &oldstate)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, (StateFlags & STF_WIREFRAME) ? GL_LINE : GL_FILL);
 		}
+		if (StateFlags & (STF_CLEARCOLOR| STF_CLEARDEPTH))
+		{
+			glClearColor(ClearColor.r / 255.f, ClearColor.g / 255.f, ClearColor.b / 255.f, 1.f);
+			int bit = 0;
+			if (StateFlags & STF_CLEARCOLOR) bit |= GL_COLOR_BUFFER_BIT;
+			if (StateFlags & STF_CLEARDEPTH) bit |= GL_DEPTH_BUFFER_BIT;
+			glClear(bit);
+			StateFlags &= ~(STF_CLEARCOLOR|STF_CLEARDEPTH);
+		}
+
+
 		oldstate = StateFlags;
 	}
 	// Disable brightmaps if non-black fog is used.

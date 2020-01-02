@@ -33,6 +33,8 @@ enum PRSFlags
 	STF_CULLCW = 128,
 	STF_CULLCCW = 256,
 	STF_WIREFRAME = 512,
+	STF_CLEARCOLOR = 1024,
+	STF_CLEARDEPTH = 2048,
 
 
 };
@@ -51,6 +53,7 @@ struct PolymostRenderState
 	bool AlphaTest = true;
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
+	PalEntry ClearColor = 0;
 
 	PalEntry FogColor;
 
