@@ -677,6 +677,11 @@ OptionMenu "CustomizeControls"// protected
 	Submenu    "$CNTRLMNU_INVENTORY"   , "InventoryControlsMenu"
 	Submenu    "$CNTRLMNU_OTHER"       , "OtherControlsMenu"
 	//Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu" // todo after thorough cleanup
+	StaticText ""
+	StaticText "$CTRL_PRESET"
+	SafeCommand		"$CTRL_DEFAULT",		"controlpreset 0" //engine/defbinds.txt
+	SafeCommand		"$CTRL_CLASSIC",		"controlpreset 1" //engine/origbinds.txt
+	SafeCommand		"$CTRL_LEFTHANDED",		"controlpreset 2" //engine/leftbinds.txt
 }
 
 OptionMenu "ActionControlsMenu"// protected
@@ -1509,11 +1514,18 @@ OptionValue MaxFps
 	200, "$OPTVAL_200FPS"
 }
 
+OptionValue GPUSwitch
+{
+	0.0, "$OPTVAL_DEFAULT"
+	1.0, "$OPTVAL_DEDICATED"
+	2.0, "$OPTVAL_INTEGRATED"
+}
+
 OptionMenu VideoModeMenu //protected
 {
 	Title "$VIDMNU_TITLE"
 	
-	Option "$VIDMNU_FULLSCREEN",		"fullscreen", "YesNo"
+	Option "$VIDMNU_FULLSCREEN",		"vid_fullscreen", "YesNo"
 
 	IfOption(Mac)
 	{

@@ -240,7 +240,7 @@ Default,CTRL_DEFAULT,,,,,Standard,,,,,,,,,,,,,,,,,
 Classic,CTRL_CLASSIC,,,,,"Klassisch
 ",,,,,,,,,,,,,,,,,
 Left-handed,CTRL_LEFTHANDED,,,,,Linkshändig,,,,,,,,,,,,,,,,,
-Preferred control preset,CTRL_PRESET,,,,,Bevorzugter Steuerungsstandard,,,,,,,,,,,,,,,,,
+Control presets,CTRL_PRESET,,,,,Voreinstellungen,,,,,,,,,,,,,,,,,
 Customize Controls,CNTRLMNU_TITLE,,,,Nastavení ovládání,Steuerung einstellen,,Agordi Regilojn,Personalizar Controles ,,Ohjausasetukset,Modifier contrôles,Irányítás testreszabása,Personalizza i controlli,キー配置変更,조작 사용자 지정,Instellen van de controle,Ustaw Klawisze,Configurar Controles,Configurar Controlos,,Настройки управления,Подешавања контрола
 "ENTER to change, BACKSPACE to clear",CNTRLMNU_SWITCHTEXT1,,,,"ENTER pro změnu, BACKSPACE pro smazání",ENTER: Editieren BACKSPACE: Löschen,,"ENTER klavo por ŝanĝi, BACKSPACE klavo por viŝi","ENTER para cambiar, BACKSPACE para limpiar",,"Aseta ENTERILLÄ, tyhjennä ASKELPALAUTTIMELLA","ENTREE pour changer, RET. ARRIERE pour effacer.","ENTER a változtatáshoz, BACKSPACE a törléshez","INVIO per modificare, BACKSPACE per ripulire",Enter で決定、BackSpaceで無効化,"바꿀려면 ENTER키, 지울려면 BACKSPACE키를 누르시오","ENTER om te veranderen, BACKSPACE om te wissen.","ENTER by zmienić, BACKSPACE by wyczyścić","ENTER para alterar, BACKSPACE para limpar",,,"ENTER — изменить, BACKSPACE — очистить","ENTER за промену, BACKSPACE за чишћење"
 "Press new key for control, ESC to cancel",CNTRLMNU_SWITCHTEXT2,,,,"Zmáčkni novou klávesu pro nastavení, ESC pro storno",Drücke eine Taste oder ESC um abzubrechen,,"Premi novan klavon por reakiri regilon, ESC por nuligi","Presiona una tecla para el control, ESC para cancelar",,"Valitse näppäin toiminnolle, ESC peruuttaa","Appuyez sur la nouvelle touche pour l'assigner,

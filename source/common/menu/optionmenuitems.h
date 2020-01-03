@@ -158,7 +158,8 @@ public:
 		auto msg = GStrings.localize(mPrompt.IsNotEmpty()? mPrompt.GetChars() : "$SAFEMESSAGE");
 		auto actionLabel = GStrings.localize(mLabel.GetChars());
 
-		FStringf FullString("%s%s%s\n\n%s", TEXTCOLOR_WHITE, actionLabel, TEXTCOLOR_NORMAL, msg);
+		//FStringf FullString("%s%s%s\n\n%s", TEXTCOLOR_WHITE, actionLabel, TEXTCOLOR_NORMAL, msg);
+		FStringf FullString("- %s -\n%s", actionLabel, msg);
 		M_StartMessage(FullString, 0, mScriptId);
 		return true;
 	}

@@ -703,6 +703,19 @@ void C_BindDefaults()
 	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "engine/origbinds.txt" : cl_defaultconfiguration == 2 ? "engine/leftbinds.txt" : "engine/defbinds.txt");
 }
 
+CCMD(controlpreset)
+{
+	if (argv.argc() < 2)
+	{
+		Printf("Usage: Controlpreset {0,1,2}\n");
+		return;
+	}
+	int v = atoi(argv[1]);
+	if (v < 0 || v > 2) return;
+	cl_defaultconfiguration = v;
+	C_BindDefaults();
+}
+
 CCMD(binddefaults)
 {
 	C_BindDefaults();
