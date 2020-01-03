@@ -1313,7 +1313,7 @@ OptionMenu SoundOptions //protected
 	Option "$SNDMNU_MENUSOUND",		"menu_sounds", "OnOff" // placeholder until the slider can be made to work
 	//Slider "$SNDMNU_MENUVOLUME",		"snd_menuvolume", 0, 1, 0.05, 2
 	StaticText " "
-	//Option "$SNDMNU_MIDIDEVICE",		"snd_mididevice", "MidiDevices"
+	Option "$SNDMNU_MIDIDEVICE",		"snd_mididevice", "MidiDevices"
 	//StaticText " "
 	//Option "$SNDMNU_UNDERWATERREVERB",	"snd_waterreverb", "OnOff"
 	Slider "$SNDMNU_	LS",			"snd_numchannels", 64, 128, 8, 0

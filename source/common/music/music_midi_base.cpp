@@ -60,10 +60,12 @@ static void AddDefaultMidiDevices(FOptionValues *opt)
 	FOptionValues::Pair *pair = &opt->mValues[opt->mValues.Reserve(NUM_DEF_DEVICES)];
 	pair[0].Text = "FluidSynth";
 	pair[0].Value = -5.0;
+#if 0
 	pair[1].Text = "TiMidity++";
 	pair[1].Value = -2.0;
 	pair[2].Text = "OPL Synth Emulation";
 	pair[2].Value = -3.0;
+#endif
 
 }
 
@@ -136,13 +138,13 @@ CCMD (snd_listmididevices)
 	MIDIOUTCAPS caps;
 	MMRESULT res;
 
-	PrintMidiDevice(-8, "libOPN", MIDIDEV_FMSYNTH, 0);
-	PrintMidiDevice(-7, "libADL", MIDIDEV_FMSYNTH, 0);
-	PrintMidiDevice (-6, "WildMidi", MIDIDEV_SWSYNTH, 0);
+	//PrintMidiDevice(-8, "libOPN", MIDIDEV_FMSYNTH, 0);
+	//PrintMidiDevice(-7, "libADL", MIDIDEV_FMSYNTH, 0);
+	//PrintMidiDevice (-6, "WildMidi", MIDIDEV_SWSYNTH, 0);
 	PrintMidiDevice (-5, "FluidSynth", MIDIDEV_SWSYNTH, 0);
-	PrintMidiDevice (-4, "Gravis Ultrasound Emulation", MIDIDEV_SWSYNTH, 0);
-	PrintMidiDevice (-3, "Emulated OPL FM Synth", MIDIDEV_FMSYNTH, 0);
-	PrintMidiDevice (-2, "TiMidity++", MIDIDEV_SWSYNTH, 0);
+	//PrintMidiDevice (-4, "Gravis Ultrasound Emulation", MIDIDEV_SWSYNTH, 0);
+	//PrintMidiDevice (-3, "Emulated OPL FM Synth", MIDIDEV_FMSYNTH, 0);
+	//PrintMidiDevice (-2, "TiMidity++", MIDIDEV_SWSYNTH, 0);
 	if (nummididevices != 0)
 	{
 		for (id = 0; id < nummididevices; ++id)
