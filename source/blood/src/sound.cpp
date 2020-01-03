@@ -175,7 +175,9 @@ void sndStartWavID(unsigned int nSound, int nVolume, int nChannel)
 
 void sndStartWavDisk(const char *pzFile, int nVolume, int nChannel)
 {
-    return sndStartSample(pzFile, nVolume, nChannel);
+    FString name = pzFile;
+    FixPathSeperator(name);
+    return sndStartSample(name, nVolume, nChannel);
 }
 
 void sndKillAllSounds(void)

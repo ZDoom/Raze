@@ -234,7 +234,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     else
         nScale = divscale16(200, nHeight);
 
-    if (nWav)
+    if (nWav > 0)
         sndStartWavID(nWav, 255);
     else
     {
