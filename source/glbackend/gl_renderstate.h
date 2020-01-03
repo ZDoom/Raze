@@ -37,6 +37,8 @@ enum PRSFlags
 	STF_WIREFRAME = 512,
 	STF_CLEARCOLOR = 1024,
 	STF_CLEARDEPTH = 2048,
+	STF_VIEWPORTSET = 4096,
+	STF_SCISSORSET = 4096,
 
 
 };
@@ -57,6 +59,8 @@ struct PolymostRenderState
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};
 	PalEntry ClearColor = 0;
+	short vp_x, vp_y, vp_w, vp_h;
+	short sc_x, sc_y, sc_w, sc_h;
 
 	PalEntry FogColor;
 

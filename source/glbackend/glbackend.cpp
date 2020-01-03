@@ -340,18 +340,6 @@ void GLInstance::SetMatrix(int num, const VSMatrix *mat)
 	}
 }
 
-void GLInstance::SetScissor(int x1, int y1, int x2, int y2)
-{
-	glScissor(x1, y1, x2, y2);
-	glEnable(GL_SCISSOR_TEST);
-}
-
-void GLInstance::DisableScissor()
-{
-	glDisable(GL_SCISSOR_TEST);
-}
-
-
 void GLInstance::SetColor(float r, float g, float b, float a)
 {
 	glVertexAttrib4f(2, r, g, b, a);
@@ -362,11 +350,6 @@ void GLInstance::SetDepthFunc(int func)
 {
 	int f[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
 	glDepthFunc(f[func]);
-}
-
-void GLInstance::SetViewport(int x, int y, int w, int h)
-{
-	glViewport(x, y, w, h);
 }
 
 void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
@@ -494,8 +477,23 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 			if (StateFlags & STF_CLEARCOLOR) bit |= GL_COLOR_BUFFER_BIT;
 			if (StateFlags & STF_CLEARDEPTH) bit |= GL_DEPTH_BUFFER_BIT;
 			glClear(bit);
-			StateFlags &= ~(STF_CLEARCOLOR|STF_CLEARDEPTH);
 		}
+		if (StateFlags & STF_VIEWPORTSET)
+		{
+			glViewport(vp_x, vp_y, vp_w, vp_h);
+		}
+		if (StateFlags & STF_SCISSORSET)
+		{
+			if (sc_x >= 0)
+			{
+				glScissor(sc_x, sc_y, sc_w, sc_h);
+				glEnable(GL_SCISSOR_TEST);
+			}
+			else
+				glDisable(GL_SCISSOR_TEST);
+		}
+
+		StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
 		oldState.Flags = StateFlags;
 	}
 	if (Style != oldState.Style)

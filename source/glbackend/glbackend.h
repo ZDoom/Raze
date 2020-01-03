@@ -287,10 +287,7 @@ public:
 		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
 	}
 
-	void SetScissor(int x1, int y1, int x2, int y2);
-	void DisableScissor();
 	void SetDepthFunc(int func);
-	void SetViewport(int x, int y, int w, int h);
 	void SetPolymostShader();
 	void SetSurfaceShader();
 	void SetVPXShader();
@@ -404,6 +401,31 @@ public:
 		renderState.StateFlags |= STF_CLEARCOLOR;
 		if (depth) renderState.StateFlags |= STF_CLEARDEPTH;
 	}
+
+	void SetViewport(int x, int y, int w, int h)
+	{
+		renderState.vp_x = (short)x;
+		renderState.vp_y = (short)y;
+		renderState.vp_w = (short)w;
+		renderState.vp_h = (short)h;
+		renderState.StateFlags |= STF_VIEWPORTSET;
+	}
+
+	void SetScissor(int x1, int y1, int x2, int y2)
+	{
+		renderState.sc_x = (short)x1;
+		renderState.sc_y = (short)y1;
+		renderState.sc_w = (short)x2;
+		renderState.sc_h = (short)y2;
+		renderState.StateFlags |= STF_SCISSORSET;
+	}
+
+	void DisableScissor()
+	{
+		renderState.sc_x = -1;
+		renderState.StateFlags |= STF_SCISSORSET;
+	}
+
 
 	void ClearScreen(PalEntry pe)
 	{
