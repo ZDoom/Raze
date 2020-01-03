@@ -1,3 +1,9 @@
+### Raze programming:
+  * Christoph Oelckers
+
+### Raze special thanks:
+  * Rachael, dpJudas, Enjay, Nash
+  
 ### EDuke32 engine & game programming:
   * TerminX
   * Hendricks266
