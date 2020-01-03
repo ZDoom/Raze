@@ -120,7 +120,7 @@ void InputState::AddEvent(const event_t *ev)
 	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
 	{
 		keySetState(ev->data1, ev->type == EV_KeyDown);
-		if (ev->data2)
+		if (ev->data2 && ev->type == EV_KeyDown)
 		{
 			g_keyAsciiFIFO[g_keyAsciiEnd] = (char16_t)ev->data2;
 			g_keyAsciiEnd = ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1));
