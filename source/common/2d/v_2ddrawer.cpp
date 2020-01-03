@@ -659,6 +659,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	auto ptr = &mVertices[dg.mVertIndex];
 	float drawpoly_alpha = daalpha * (1.0f / 255.0f);
 	float alpha = float_trans(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
+	p.a = (uint8_t)(alpha * 255);
 
 	vec2_16_t const siz = tilesiz[picnum];
 	vec2_16_t ofs = { 0, 0 };
