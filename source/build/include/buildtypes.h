@@ -231,11 +231,22 @@ typedef struct
     union {
         struct
         {
-            int16_t xvel, yvel, zvel;
+            union {
+                int16_t xvel, index;
+            };
+            int16_t yvel;
+            union {
+                int16_t zvel, inittype;
+            };
         };
         vec3_16_t vel;
     };
-    int16_t lotag, hitag;
+    union {
+        int16_t lotag, type;
+    };
+    union {
+        int16_t hitag, flags;
+    };
     int16_t extra;
 } tspritetype;
 #endif
