@@ -51,6 +51,10 @@
 
 float shadediv[MAXPALOOKUPS];
 
+static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
+static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
+
+
 FileReader GetResource(const char* fn)
 {
 	auto fr = fileSystem.OpenFileReader(fn, 0);
@@ -360,20 +364,6 @@ void GLInstance::SetDepthFunc(int func)
 	glDepthFunc(f[func]);
 }
 
-static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
-
-void GLInstance::SetBlendFunc(int src, int dst)
-{
-	glBlendFunc(blendstyles[src], blendstyles[dst]);
-}
-
-static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
-
-void GLInstance::SetBlendOp(int op)
-{
-	glBlendEquation(renderops[op]);
-}
-
 void GLInstance::SetViewport(int x, int y, int w, int h)
 {
 	glViewport(x, y, w, h);
@@ -430,26 +420,26 @@ void GLInstance::DrawImGui(ImDrawData* data)
 #endif
 }
 
-void PolymostRenderState::Apply(PolymostShader* shader, int &oldstate)
+void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 {
-	if (StateFlags != oldstate)
+	if (StateFlags != oldState.Flags)
 	{
-		if ((StateFlags ^ oldstate) & STF_DEPTHTEST)
+		if ((StateFlags ^ oldState.Flags) & STF_DEPTHTEST)
 		{
 			if (StateFlags & STF_DEPTHTEST) glEnable(GL_DEPTH_TEST);
 			else glDisable(GL_DEPTH_TEST);
 		}
-		if ((StateFlags ^ oldstate) & STF_BLEND)
+		if ((StateFlags ^ oldState.Flags) & STF_BLEND)
 		{
 			if (StateFlags & STF_BLEND) glEnable(GL_BLEND);
 			else glDisable(GL_BLEND);
 		}
-		if ((StateFlags ^ oldstate) & STF_MULTISAMPLE)
+		if ((StateFlags ^ oldState.Flags) & STF_MULTISAMPLE)
 		{
 			if (StateFlags & STF_MULTISAMPLE) glEnable(GL_MULTISAMPLE);
 			else glDisable(GL_MULTISAMPLE);
 		}
-		if ((StateFlags ^ oldstate) & (STF_STENCILTEST|STF_STENCILWRITE))
+		if ((StateFlags ^ oldState.Flags) & (STF_STENCILTEST|STF_STENCILWRITE))
 		{
 			if (StateFlags & STF_STENCILWRITE)
 			{
@@ -470,7 +460,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, int &oldstate)
 				glDisable(GL_STENCIL_TEST);
 			}
 		}
-		if ((StateFlags ^ oldstate) & (STF_CULLCW | STF_CULLCCW))
+		if ((StateFlags ^ oldState.Flags) & (STF_CULLCW | STF_CULLCCW))
 		{
 			if (StateFlags & (STF_CULLCW | STF_CULLCCW))
 			{
@@ -483,17 +473,17 @@ void PolymostRenderState::Apply(PolymostShader* shader, int &oldstate)
 				glDisable(GL_CULL_FACE);
 			}
 		}
-		if ((StateFlags ^ oldstate) & STF_COLORMASK)
+		if ((StateFlags ^ oldState.Flags) & STF_COLORMASK)
 		{
 			if (StateFlags & STF_COLORMASK) glColorMask(1, 1, 1, 1);
 			else glColorMask(0, 0, 0, 0);
 		}
-		if ((StateFlags ^ oldstate) & STF_DEPTHMASK)
+		if ((StateFlags ^ oldState.Flags) & STF_DEPTHMASK)
 		{
 			if (StateFlags & STF_DEPTHMASK) glDepthMask(1);
 			else glDepthMask(0);
 		}
-		if ((StateFlags ^ oldstate) & STF_WIREFRAME)
+		if ((StateFlags ^ oldState.Flags) & STF_WIREFRAME)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, (StateFlags & STF_WIREFRAME) ? GL_LINE : GL_FILL);
 		}
@@ -506,9 +496,14 @@ void PolymostRenderState::Apply(PolymostShader* shader, int &oldstate)
 			glClear(bit);
 			StateFlags &= ~(STF_CLEARCOLOR|STF_CLEARDEPTH);
 		}
-
-
-		oldstate = StateFlags;
+		oldState.Flags = StateFlags;
+	}
+	if (Style != oldState.Style)
+	{
+		glBlendFunc(blendstyles[Style.SrcAlpha], blendstyles[Style.DestAlpha]);
+		if (Style.BlendOp != oldState.Style.BlendOp) glBlendEquation(renderops[Style.BlendOp]);
+		oldState.Style = Style;
+		// Flags are not being checked yet, the current shader has no implementation for them.
 	}
 	// Disable brightmaps if non-black fog is used.
 	if (!(Flags & RF_FogDisabled) && !FogColor.isBlack()) Flags &= ~RF_Brightmapping;

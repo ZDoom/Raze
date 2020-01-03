@@ -2,7 +2,9 @@
 
 #include "PalEntry.h"
 #include "gl_buffers.h"
+#include "renderstyle.h"
 class PolymostShader;
+struct GLState;
 
 enum PRSFlags
 {
@@ -53,6 +55,7 @@ struct PolymostRenderState
 	bool AlphaTest = true;
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
+	FRenderStyle Style{};
 	PalEntry ClearColor = 0;
 
 	PalEntry FogColor;
@@ -61,5 +64,5 @@ struct PolymostRenderState
 	int VB_Offset[2] = {};
 	IIndexBuffer* IndexBuffer = nullptr;
  	
-	void Apply(PolymostShader *shader, int &oldstate);
+	void Apply(PolymostShader *shader, GLState &oldstate);
 };

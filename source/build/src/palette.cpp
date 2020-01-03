@@ -550,11 +550,11 @@ void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
 {
     if (!enable)
     {
-		GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
+        GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 		return;
     }
     auto rs = GetBlend(blend, def);
-    GLInterface.SetBlendFunc(rs.SrcAlpha, rs.DestAlpha);
+    GLInterface.SetRenderStyle(rs);
 }
 
 float float_trans(uint32_t maskprops, uint8_t blend)

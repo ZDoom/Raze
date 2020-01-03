@@ -106,7 +106,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	EnableMultisampling(false);
 	EnableBlend(true);
 	EnableAlphaTest(true);
-	SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
+	SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 
 	auto &vertices = drawer->mVertices;
 	auto &indices = drawer->mIndices;
@@ -138,8 +138,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 
 		int gltrans = -1;
 
-		SetBlendFunc(cmd.mRenderStyle.SrcAlpha, cmd.mRenderStyle.DestAlpha);
-		//state.SetRenderStyle(cmd.mRenderStyle);
+		SetRenderStyle(cmd.mRenderStyle);
 		//state.EnableBrightmap(!(cmd.mRenderStyle.Flags & STYLEF_ColorIsFixed));
 		//state.SetTextureMode(cmd.mDrawMode);
 
@@ -243,7 +242,7 @@ void fullscreen_tint_gl(PalEntry pe)
 	GLInterface.EnableDepthTest(false);
 	GLInterface.EnableAlphaTest(false);
 
-	GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
+	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 	GLInterface.EnableBlend(true);
 	GLInterface.SetColorub (pe.r, pe.g, pe.b, pe.a);
 
@@ -275,7 +274,7 @@ void fullscreen_tint_gl_blood(int tint_blood_r, int tint_blood_g, int tint_blood
 	GLInterface.EnableDepthTest(false);
 	GLInterface.EnableAlphaTest(false);
 
-	GLInterface.SetBlendFunc(STYLEALPHA_One, STYLEALPHA_One);
+	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Add]);
 	GLInterface.EnableBlend(true);
 
 	GLInterface.UseColorOnly(true);
@@ -286,7 +285,7 @@ void fullscreen_tint_gl_blood(int tint_blood_r, int tint_blood_g, int tint_blood
 	vt[1].Set(2.5f, 1.f);
 	vt[2].Set(.0f, -2.5f);
 	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
-	GLInterface.SetBlendOp(STYLEOP_RevSub);
+	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Subtract]);
 	GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
 	data = GLInterface.AllocVertices(3);
 	vt = data.second;
@@ -294,9 +293,8 @@ void fullscreen_tint_gl_blood(int tint_blood_r, int tint_blood_g, int tint_blood
 	vt[1].Set(2.5f, 1.f);
 	vt[2].Set(.0f, -2.5f);
 	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
-	GLInterface.SetBlendOp(STYLEOP_Add);
 	GLInterface.SetColorub(255, 255, 255, 255);
-	GLInterface.SetBlendFunc(STYLEALPHA_Src, STYLEALPHA_InvSrc);
+	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 	GLInterface.UseColorOnly(false);
 
 	GLInterface.SetMatrix(Matrix_Projection, &oldproj);

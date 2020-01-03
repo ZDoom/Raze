@@ -177,6 +177,12 @@ struct ImDrawData;
 struct palette_t;
 extern float shadediv[256];
 
+struct GLState
+{
+	int Flags = STF_COLORMASK | STF_DEPTHMASK;
+	FRenderStyle Style{};
+};
+
 class GLInstance
 {
 	enum
@@ -197,7 +203,9 @@ class GLInstance
 	int MatrixChange = 0;
 	bool istrans = false;
 	bool g_nontransparent255 = false;	// Ugh... This is for movie playback and needs to be maintained as global state.
-	int lastState = STF_COLORMASK | STF_DEPTHMASK;
+
+	// Cached GL state.
+	GLState lastState;
 
 	IVertexBuffer* LastVertexBuffer = nullptr;
 	int LastVB_Offset[2] = {};
@@ -282,8 +290,6 @@ public:
 	void SetScissor(int x1, int y1, int x2, int y2);
 	void DisableScissor();
 	void SetDepthFunc(int func);
-	void SetBlendFunc(int src, int dst);
-	void SetBlendOp(int op);
 	void SetViewport(int x, int y, int w, int h);
 	void SetPolymostShader();
 	void SetSurfaceShader();
@@ -411,6 +417,11 @@ public:
 		renderState.StateFlags |= STF_CLEARDEPTH;
 	}
 
+	void SetRenderStyle(FRenderStyle style)
+	{
+		renderState.Style = style;
+	}
+
 	void UseColorOnly(bool yes)
 	{
 		if (yes) renderState.Flags |= RF_ColorOnly;
@@ -493,7 +504,7 @@ public:
 		renderState.AlphaThreshold = al;
 	}
 
-	
+
 	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
 	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);
 	FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
