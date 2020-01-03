@@ -65,6 +65,7 @@ EXTERN_CVAR (Bool, vid_vsync)
 EXTERN_CVAR(Bool, r_drawvoxels)
 EXTERN_CVAR(Int, gl_tonemap)
 EXTERN_CVAR(Bool, gl_texture_usehires)
+EXTERN_CVAR(Int, gl_ssao)
 
 void gl_LoadExtensions();
 void gl_PrintStartupLog();
@@ -431,6 +432,21 @@ void OpenGLFrameBuffer::PostProcessScene(int fixedcm, const std::function<void()
 
 void videoShowFrame(int32_t w)
 {
+    static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+
+    if (gl_ssao)
+    {
+        glDrawBuffers(1, buffers);
+        OpenGLRenderer::GLRenderer->AmbientOccludeScene(GLInterface.GetMatrix(Matrix_Projection).get()[5]);
+		glViewport(screen->mSceneViewport.left, screen->mSceneViewport.top, screen->mSceneViewport.width, screen->mSceneViewport.height);
+        OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(true);
+        glDrawBuffers(3, buffers);
+
+		// To do: the translucent part of the scene should be drawn here
+
+		glDrawBuffers(1, buffers);
+    }
+
 	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
 	screen->PostProcessScene(0, []() {
 		GLInterface.Draw2D(&twodpsp); // draws the weapon sprites
@@ -438,7 +454,15 @@ void videoShowFrame(int32_t w)
 	screen->Update();
 	// After finishing the frame, reset everything for the next frame. This needs to be done better.
 	screen->BeginFrame();
-	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
+    if (gl_ssao)
+	{
+        OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(true);
+        glDrawBuffers(3, buffers);
+    }
+    else
+	{
+        OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
+    }
 	twodpsp.Clear();
 	twodgen.Clear();
 }

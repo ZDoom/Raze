@@ -48,6 +48,7 @@ in float v_distance;
 in vec4 v_texCoord;
 in vec4 v_detailCoord;
 in float v_fogCoord;
+in vec4 v_eyeCoordPosition;
 
 const float c_basepalScale = 255.0/256.0;
 const float c_basepalOffset = 0.5/256.0;
@@ -59,6 +60,8 @@ const vec4 c_vec4_one = vec4(c_one);
 const float c_wrapThreshold = 0.9;
 
 layout(location=0) out vec4 fragColor;
+layout(location=1) out vec4 fragFog;
+layout(location=2) out vec4 fragNormal;
 
 //===========================================================================
 //
@@ -232,4 +235,9 @@ void main()
 	
 	color.rgb = pow(color.rgb, vec3(u_brightness));
 	fragColor = color;
+	fragFog = vec4(0.0, 0.0, 0.0, 1.0); // Does build have colored fog?
+	vec3 normal = normalize(cross(dFdx(v_eyeCoordPosition.xyz), dFdy(v_eyeCoordPosition.xyz)));
+	normal.x = -normal.x;
+	normal.y = -normal.y;
+	fragNormal = vec4(normal * 0.5 + 0.5, 1.0);
 }

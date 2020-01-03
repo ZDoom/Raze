@@ -5,6 +5,7 @@ out float v_distance;
 out vec4 v_texCoord;
 out vec4 v_detailCoord;
 out float v_fogCoord;
+out vec4 v_eyeCoordPosition;
 
 uniform float u_usePalette;
 uniform mat4 u_rotMatrix;
@@ -25,6 +26,7 @@ void main()
 {
    vec4 vertex = u_rotMatrix * i_vertPos;
    vec4 eyeCoordPosition = u_modelMatrix * vertex;
+   v_eyeCoordPosition = eyeCoordPosition;
    gl_Position = u_projectionMatrix * eyeCoordPosition;
 
    eyeCoordPosition.xyz /= eyeCoordPosition.w;

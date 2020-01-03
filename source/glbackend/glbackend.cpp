@@ -172,7 +172,8 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 	// This is a bad place to call this but without deconstructing the entire render loops in all front ends there is no way to have a well defined spot for this stuff.
 	// Before doing that the backend needs to work in some fashion, so we have to make sure everything is set up when the first render call is performed.
 	screen->BeginFrame();	
-	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
+	bool useSSAO = (gl_ssao != 0);
+    OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(useSSAO);
 }
 
 void GLInstance::Deinit()
