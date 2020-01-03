@@ -233,11 +233,8 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 void fullscreen_tint_gl(PalEntry pe)
 {
 	// Todo: reroute to the 2D drawer
-	auto oldproj = GLInterface.GetMatrix(Matrix_Projection);
-	auto oldmv = GLInterface.GetMatrix(Matrix_ModelView);
-	VSMatrix identity(0);
-	GLInterface.SetMatrix(Matrix_Projection, &identity);
-	GLInterface.SetMatrix(Matrix_ModelView, &identity);
+	GLInterface.SetIdentityMatrix(Matrix_Projection);
+	GLInterface.SetIdentityMatrix(Matrix_ModelView);
 
 	GLInterface.EnableDepthTest(false);
 	GLInterface.EnableAlphaTest(false);
@@ -255,21 +252,14 @@ void fullscreen_tint_gl(PalEntry pe)
 	vt[2].Set(.0f, -2.5f);
 	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
 	GLInterface.UseColorOnly(false);
-
-	GLInterface.SetMatrix(Matrix_Projection, &oldproj);
-	GLInterface.SetMatrix(Matrix_ModelView, &oldmv);
 }
 
 void fullscreen_tint_gl_blood(int tint_blood_r, int tint_blood_g, int tint_blood_b)
 {
 	if (!(tint_blood_r | tint_blood_g | tint_blood_b))
 		return;
-	auto oldproj = GLInterface.GetMatrix(Matrix_Projection);
-	auto oldmv = GLInterface.GetMatrix(Matrix_ModelView);
-	VSMatrix identity(0);
-	GLInterface.SetMatrix(Matrix_Projection, &identity);
-	GLInterface.SetMatrix(Matrix_ModelView, &identity);
-
+	GLInterface.SetIdentityMatrix(Matrix_Projection);
+	GLInterface.SetIdentityMatrix(Matrix_ModelView);
 
 	GLInterface.EnableDepthTest(false);
 	GLInterface.EnableAlphaTest(false);
@@ -296,10 +286,6 @@ void fullscreen_tint_gl_blood(int tint_blood_r, int tint_blood_g, int tint_blood
 	GLInterface.SetColorub(255, 255, 255, 255);
 	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 	GLInterface.UseColorOnly(false);
-
-	GLInterface.SetMatrix(Matrix_Projection, &oldproj);
-	GLInterface.SetMatrix(Matrix_ModelView, &oldmv);
-
 }
 
 static int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;

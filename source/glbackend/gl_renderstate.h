@@ -6,6 +6,17 @@
 class PolymostShader;
 struct GLState;
 
+enum EMatrixType
+{
+	Matrix_View,
+	Matrix_Projection,
+	Matrix_ModelView,
+	Matrix_Detail,
+	Matrix_Texture,
+	// These are the only ones being used.
+	NUMMATRICES
+};
+
 enum PRSFlags
 {
 	RF_ColorOnly = 1,
@@ -56,6 +67,7 @@ struct PolymostRenderState
 	float AlphaThreshold = 0.5f;
 	bool AlphaTest = true;
 	float Color[4] = { 1,1,1,1 };
+	short matrixIndex[NUMMATRICES] = { -1,-1,-1,-1,-1 };
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};

@@ -55,6 +55,7 @@ static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALP
 static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
 int depthf[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
 
+static TArray<VSMatrix> matrixArray;
 
 FileReader GetResource(const char* fn)
 {
@@ -211,16 +212,6 @@ std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
 	return std::make_pair((size_t)0, Buffer.data());
 }
 
-void GLInstance::RestoreTextureProps()
-{
-	// todo: reset everything that's needed to ensure proper functionality
-	VSMatrix identity(0);
-	if (MatrixChange & 1) GLInterface.SetMatrix(Matrix_Texture, &identity);
-	if (MatrixChange & 2) GLInterface.SetMatrix(Matrix_Detail, &identity);
-	MatrixChange = 0;
-}
-
-
 static GLint primtypes[] =
 {
 	GL_TRIANGLES,
@@ -279,7 +270,13 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	{
 		glDrawArrays(primtypes[type], start, count);
 	}
-	if (MatrixChange) RestoreTextureProps();
+	if (MatrixChange)
+	{
+		if (MatrixChange & 1) SetIdentityMatrix(Matrix_Texture);
+		if (MatrixChange & 2) SetIdentityMatrix(Matrix_Detail);
+		MatrixChange = 0;
+	}
+	matrixArray.Resize(1);
 }
 
 void GLInstance::BindTexture(int texunit, FHardwareTexture *tex, int sampler)
@@ -320,32 +317,8 @@ void GLInstance::UnbindAllTextures()
 
 void GLInstance::SetMatrix(int num, const VSMatrix *mat)
 {
-	matrices[num] = *mat;
-	switch(num)
-	{
-		default:
-			return;
-
-		case Matrix_View:
-			polymostShader->RotMatrix.Set(mat->get());
-			break;
-
-		case Matrix_Projection:
-			polymostShader->ProjectionMatrix.Set(mat->get());
-			break;
-			
-		case Matrix_ModelView:
-			polymostShader->ModelMatrix.Set(mat->get());
-			break;
-			
-		case Matrix_Detail:
-			polymostShader->DetailMatrix.Set(mat->get());
-			break;
-
-		case Matrix_Texture:
-			polymostShader->TextureMatrix.Set(mat->get());
-			break;
-	}
+	renderState.matrixIndex[num] = matrixArray.Size();
+	matrixArray.Push(*mat);
 }
 
 void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
@@ -517,6 +490,16 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
 	shader->Brightness.Set(Brightness);
 	shader->FogColor.Set(FogColor);
-
+	if (matrixIndex[Matrix_View] != -1)
+		shader->RotMatrix.Set(matrixArray[matrixIndex[Matrix_View]].get());
+	if (matrixIndex[Matrix_Projection] != -1)
+		shader->ProjectionMatrix.Set(matrixArray[matrixIndex[Matrix_Projection]].get());
+	if (matrixIndex[Matrix_ModelView] != -1)
+		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_ModelView]].get());
+	if (matrixIndex[Matrix_Detail] != -1)
+		shader->DetailMatrix.Set(matrixArray[matrixIndex[Matrix_Detail]].get());
+	if (matrixIndex[Matrix_Texture] != -1)
+		shader->TextureMatrix.Set(matrixArray[matrixIndex[Matrix_Texture]].get());
+	memset(matrixIndex, -1, sizeof(matrixIndex));
 }
 

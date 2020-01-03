@@ -131,17 +131,6 @@ enum EDrawType
 	DT_LINES
 };
 
-enum EMatrixType
-{
-	Matrix_View,
-	Matrix_Projection,
-	Matrix_ModelView,
-	Matrix_Detail,
-	Matrix_Texture,
-	// These are the only ones being used.
-	NUMMATRICES
-};
-
 enum ECull
 {
 	Cull_None,
@@ -280,14 +269,16 @@ public:
 	{
 		SetMatrix(num, reinterpret_cast<const VSMatrix*>(mat));
 	}
+	void SetIdentityMatrix(int num)
+	{
+		renderState.matrixIndex[num] = 0;
+	}
 
 	void SetPolymostShader();
 	void SetSurfaceShader();
 	void SetVPXShader();
 	void SetPalette(int palette);
-	bool ApplyTextureProps(FTexture *tex, int pal);
-	void RestoreTextureProps();
-
+	
 	void ReadPixels(int w, int h, uint8_t* buffer);
 
 	void SetPaletteData(int index, const uint8_t* data)

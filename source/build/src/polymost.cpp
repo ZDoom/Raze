@@ -348,7 +348,7 @@ static void resizeglcheck(void)
         m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
 		GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
 		VSMatrix identity(0);
-		GLInterface.SetMatrix(Matrix_ModelView, &identity);
+		GLInterface.SetIdentityMatrix(Matrix_ModelView);
     }
 }
 
@@ -451,11 +451,7 @@ static void polymost_updaterotmat(void)
 
 static void polymost_identityrotmat(void)
 {
-    if (1)
-    {
-		VSMatrix matrix(0);
-		GLInterface.SetMatrix(Matrix_View, &matrix);
-	}
+	GLInterface.SetIdentityMatrix(Matrix_View);
 }
 
 static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesiz);
@@ -4681,7 +4677,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 			
 		GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
 		VSMatrix identity(0);
-		GLInterface.SetMatrix(Matrix_ModelView, &identity);
+		GLInterface.SetIdentityMatrix(Matrix_ModelView);
     }
 
     if (hud->flags & HUDFLAG_NODEPTH)
