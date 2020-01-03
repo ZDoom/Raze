@@ -382,7 +382,7 @@ void UpdateJoystickMenu(IJoystickConfig *selected)
 			{
 				it = new FOptionMenuItemStaticText("$JOYMNU_DISABLED1");
 				opt->mItems.Push(it);
-				it = new FOptionMenuItemStaticText("$JOYMNU_DISABLED1");
+				it = new FOptionMenuItemStaticText("$JOYMNU_DISABLED2");
 				opt->mItems.Push(it);
 			}
 		}

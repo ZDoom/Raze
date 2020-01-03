@@ -103,7 +103,7 @@ private:
 		//char Name[1];	// + length of name
 	};
 
-	FConfigSection *Sections;
+	FConfigSection* Sections = nullptr;
 	FConfigSection **LastSectionPtr;
 	FConfigSection *CurrentSection;
 	FConfigEntry *CurrentEntry;

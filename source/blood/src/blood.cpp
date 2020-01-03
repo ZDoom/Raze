@@ -387,7 +387,6 @@ static void PrecacheSounds(void)
 
 void PreloadCache(void)
 {
-    char tempbuf[128];
     if (gDemo.at1)
         return;
     PrecacheSounds();

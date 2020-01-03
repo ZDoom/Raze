@@ -1088,7 +1088,7 @@ OptionValue "AimMode"
 {
 	0, "$OPTVAL_NEVER"
 	1, "$OPTVAL_ALWAYS"
-	2, "$OPTRAL_HITSCAN"
+	2, "$OPTVAL_HITSCAN"
 }
 
 OptionValue "RunMode"
