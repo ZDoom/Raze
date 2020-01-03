@@ -126,6 +126,17 @@ void DFrameBuffer::DrawRateStuff ()
 	// Draws frame time and cumulative fps
 	if (vid_fps)
 	{
+        FString fpsbuff = gi->statFPS();
+
+		int textScale = active_con_scale();
+		int rate_x = Width / textScale - NewConsoleFont->StringWidth(&fpsbuff[0]);
+		twod->AddColorOnlyQuad(rate_x * textScale, 0, Width, NewConsoleFont->GetHeight() * textScale, MAKEARGB(255,0,0,0));
+		DrawText (twod, NewConsoleFont, CR_WHITE, rate_x, 0, (char *)&fpsbuff[0],
+			DTA_VirtualWidth, screen->GetWidth() / textScale,
+			DTA_VirtualHeight, screen->GetHeight() / textScale,
+			DTA_KeepRatio, true, TAG_DONE);
+
+		#if 0
 		uint64_t ms = screen->FrameTime;
 		uint64_t howlong = ms - LastMS;
 		if ((signed)howlong >= 0)
@@ -154,6 +165,7 @@ void DFrameBuffer::DrawRateStuff ()
 			FrameCount++;
 		}
 		LastMS = ms;
+		#endif
 	}
 }
 

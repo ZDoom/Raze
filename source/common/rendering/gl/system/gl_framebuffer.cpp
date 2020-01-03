@@ -408,6 +408,7 @@ void OpenGLFrameBuffer::Draw2D()
 	{
 		GLRenderer->mBuffers->BindCurrentFB();
 		::DrawFullscreenBlends();
+        DrawRateStuff();
 		GLInterface.Draw2D(&twodgen);
 	}
 }
