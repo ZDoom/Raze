@@ -269,7 +269,7 @@ void sub_557C4(int x, int y, int interpolation)
                         int dy = mirror[j].atc;
                         int dz = mirror[j].at10;
                         tspritetype *pTSprite = &tsprite[spritesortcnt];
-                        memset(pTSprite, 0, sizeof(uspritetype));
+                        memset(pTSprite, 0, sizeof(tspritetype));
                         pTSprite->type = pSprite->type;
                         pTSprite->index = pSprite->index;
                         pTSprite->sectnum = nSector2;

@@ -615,7 +615,7 @@ static void G_OROR_DupeSprites(const spritetype *sp)
 
         if (sprite[k].picnum != SECTOREFFECTOR && sprite[k].z >= sp->z)
         {
-            Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(spritetype));
+            Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(tspritetype));
 
             tsprite[spritesortcnt].x += (refsp->x - sp->x);
             tsprite[spritesortcnt].y += (refsp->y - sp->y);
@@ -4988,9 +4988,9 @@ default_case1:
 #if 0
                 if (spritesortcnt < maxspritesonscreen)
                 {
-                    spritetype *const newt = &tsprite[spritesortcnt++];
+                    auto const newt = &tsprite[spritesortcnt++];
 
-                    Bmemcpy(newt, t, sizeof(spritetype));
+                    *newt = *t;
 
                     newt->cstat |= 2|512;
                     newt->x += (sintable[(newt->ang+512)&2047]>>12);

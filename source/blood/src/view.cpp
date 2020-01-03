@@ -1914,7 +1914,7 @@ template<typename T> tspritetype* viewInsertTSprite(int nSector, int nStatnum, T
         pTSprite->x += Cos(gCameraAng)>>25;
         pTSprite->y += Sin(gCameraAng)>>25;
     }
-    return &tsprite[nTSprite];
+    return pTSprite;
 }
 
 int effectDetail[] = {
