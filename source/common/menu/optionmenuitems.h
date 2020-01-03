@@ -634,13 +634,13 @@ public:
 		if (!mSliderShort)
 		{
 			DrawSliderElement(CR_WHITE, x, cy, "\x10\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x12");
-			DrawSliderElement(CR_ORANGE, x + int((5 + ((ccur * 78) / range)) * CleanXfac_1), cy, "\x13");
+			DrawSliderElement(CR_ORANGE, x + int((5 + ((ccur * 78) / range)) * 2*CleanXfac_1), cy, "\x13");
 		}
 		else
 		{
 			// On 320x200 we need a shorter slider
 			DrawSliderElement(CR_WHITE, x, cy, "\x10\x11\x11\x11\x11\x11\x12");
-			DrawSliderElement(CR_ORANGE, x + int((5 + ((ccur * 38) / range)) * CleanXfac_1), cy, "\x13");
+			DrawSliderElement(CR_ORANGE, x + int((5 + ((ccur * 38) / range)) * 2*CleanXfac_1), cy, "\x13");
 			right -= 5*8*CleanXfac_1;
 		}
 
