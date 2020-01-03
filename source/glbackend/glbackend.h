@@ -181,6 +181,7 @@ struct GLState
 {
 	int Flags = STF_COLORMASK | STF_DEPTHMASK;
 	FRenderStyle Style{};
+	int DepthFunc = -1;
 };
 
 class GLInstance
@@ -201,7 +202,6 @@ class GLInstance
 	FTexture* currentTexture = nullptr;
 	int TextureType;
 	int MatrixChange = 0;
-	bool istrans = false;
 	bool g_nontransparent255 = false;	// Ugh... This is for movie playback and needs to be maintained as global state.
 
 	// Cached GL state.
@@ -281,13 +281,7 @@ public:
 	{
 		SetMatrix(num, reinterpret_cast<const VSMatrix*>(mat));
 	}
-	void SetColor(float r, float g, float b, float a = 1.f);
-	void SetColorub(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
-	{
-		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
-	}
 
-	void SetDepthFunc(int func);
 	void SetPolymostShader();
 	void SetSurfaceShader();
 	void SetVPXShader();
@@ -426,6 +420,11 @@ public:
 		renderState.StateFlags |= STF_SCISSORSET;
 	}
 
+	void SetDepthFunc(int func)
+	{
+		renderState.DepthFunc = func;
+	}
+
 
 	void ClearScreen(PalEntry pe)
 	{
@@ -443,6 +442,19 @@ public:
 	{
 		renderState.Style = style;
 	}
+
+	void SetColor(float r, float g, float b, float a = 1.f)
+	{
+		renderState.Color[0] = r;
+		renderState.Color[1] = g;
+		renderState.Color[2] = b;
+		renderState.Color[3] = a;
+	}
+	void SetColorub(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
+	{
+		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
+	}
+
 
 	void UseColorOnly(bool yes)
 	{

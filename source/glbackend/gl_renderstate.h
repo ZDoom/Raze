@@ -55,9 +55,11 @@ struct PolymostRenderState
     float Brightness = 1.f;
 	float AlphaThreshold = 0.5f;
 	bool AlphaTest = true;
+	float Color[4] = { 1,1,1,1 };
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};
+	int DepthFunc = 1;
 	PalEntry ClearColor = 0;
 	short vp_x, vp_y, vp_w, vp_h;
 	short sc_x, sc_y, sc_w, sc_h;

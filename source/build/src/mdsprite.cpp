@@ -1805,7 +1805,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
 	GLInterface.SetTinting(0, 0, PalEntry(255, 255, 255));
 	GLInterface.SetClamp(prevClamp);
-	GLInterface.SetPolymostShader();
     
     globalnoeffect=0;
     return 1;

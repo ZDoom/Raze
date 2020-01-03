@@ -53,6 +53,7 @@ float shadediv[MAXPALOOKUPS];
 
 static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
 static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
+int depthf[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
 
 
 FileReader GetResource(const char* fn)
@@ -235,7 +236,8 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 
 	if (activeShader == polymostShader)
 	{
-		if (istrans) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
+		glVertexAttrib4fv(2, renderState.Color);
+		if (renderState.Color[3] != 1.f) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
 		renderState.Apply(polymostShader, lastState);
 		if (renderState.VertexBuffer != LastVertexBuffer || LastVB_Offset[0] != renderState.VB_Offset[0] || LastVB_Offset[1] != renderState.VB_Offset[1])
 		{
@@ -338,18 +340,6 @@ void GLInstance::SetMatrix(int num, const VSMatrix *mat)
 			polymostShader->TextureMatrix.Set(mat->get());
 			break;
 	}
-}
-
-void GLInstance::SetColor(float r, float g, float b, float a)
-{
-	glVertexAttrib4f(2, r, g, b, a);
-	istrans = (a != 1);
-}
-
-void GLInstance::SetDepthFunc(int func)
-{
-	int f[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
-	glDepthFunc(f[func]);
 }
 
 void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
@@ -502,6 +492,11 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 		if (Style.BlendOp != oldState.Style.BlendOp) glBlendEquation(renderops[Style.BlendOp]);
 		oldState.Style = Style;
 		// Flags are not being checked yet, the current shader has no implementation for them.
+	}
+	if (DepthFunc != oldState.DepthFunc)
+	{
+		glDepthFunc(depthf[DepthFunc]);
+		oldState.DepthFunc = DepthFunc;
 	}
 	// Disable brightmaps if non-black fog is used.
 	if (!(Flags & RF_FogDisabled) && !FogColor.isBlack()) Flags &= ~RF_Brightmapping;
