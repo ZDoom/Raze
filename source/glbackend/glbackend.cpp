@@ -284,6 +284,12 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 void GLInstance::BindTexture(int texunit, FHardwareTexture *tex, int sampler)
 {
 	if (!tex) return;
+	if (texunit == 0 && tex->isIndexed())
+	{
+		renderState.Flags |= RF_UsePalette;
+	}
+	else renderState.Flags &= ~RF_UsePalette;
+
 	if (texunit != 0) glActiveTexture(GL_TEXTURE0 + texunit);
 	glBindTexture(GL_TEXTURE_2D, tex->GetTextureHandle());
 	mSamplers->Bind(texunit, sampler == NoSampler? tex->GetSampler() : sampler, 0);

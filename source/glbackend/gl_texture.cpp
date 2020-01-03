@@ -189,10 +189,8 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 		auto sampler = (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
 		if (TextureType == TT_INDEXED)
 		{
-			renderState.Flags |= RF_UsePalette;
 			sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
 		}
-		else renderState.Flags &= ~RF_UsePalette;
 		UseDetailMapping(false);
 		UseGlowMapping(false);
 		UseBrightmaps(false);
@@ -326,7 +324,6 @@ bool GLInstance::SetNamedTexture(FTexture* tex, int palette, int sampler)
 	auto mtex = LoadTexture(tex, palette>= 0? TT_TRUECOLOR : TT_HICREPLACE, palette);
 	if (!mtex) return false;
 
-	renderState.Flags &= ~RF_UsePalette;
 	BindTexture(0, mtex, sampler);
 	GLInterface.SetAlphaThreshold(tex->isTranslucent()? 0.f : 0.5f);
 	return true;
