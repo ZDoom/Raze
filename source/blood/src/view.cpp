@@ -1897,7 +1897,7 @@ template<typename T> tspritetype* viewInsertTSprite(int nSector, int nStatnum, T
     pTSprite->yrepeat = 64;
     pTSprite->owner = -1;
     pTSprite->extra = -1;
-    pTSprite->lotag = -spritesortcnt;
+    pTSprite->type = -spritesortcnt;
     pTSprite->statnum = nStatnum;
     pTSprite->sectnum = nSector;
     spritesortcnt++;
@@ -2076,7 +2076,7 @@ tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         int top, bottom;
         GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->z = bottom;
-        if (pTSprite->lotag >= kDudeBase && pTSprite->lotag < kDudeMax)
+        if (pTSprite->type >= kDudeBase && pTSprite->type < kDudeMax)
             pNSprite->picnum = 672;
         else
             pNSprite->picnum = 754;
@@ -2182,8 +2182,8 @@ tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_12:
     {
-        dassert(pTSprite->lotag >= kDudePlayer1 && pTSprite->lotag <= kDudePlayer8);
-        PLAYER *pPlayer = &gPlayer[pTSprite->lotag-kDudePlayer1];
+        dassert(pTSprite->type >= kDudePlayer1 && pTSprite->type <= kDudePlayer8);
+        PLAYER *pPlayer = &gPlayer[pTSprite->type-kDudePlayer1];
         WEAPONICON weaponIcon = gWeaponIcon[pPlayer->curWeapon];
         const int nTile = weaponIcon.nTile;
         if (nTile < 0) break;
@@ -2255,7 +2255,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
 
         int nSprite = pTSprite->owner;
-        if (cl_interpolate && TestBitString(gInterpolateSprite, nSprite) && !(pTSprite->hitag&512))
+        if (cl_interpolate && TestBitString(gInterpolateSprite, nSprite) && !(pTSprite->flags&512))
         {
             LOCATION *pPrevLoc = &gPrevSpriteLoc[nSprite];
             pTSprite->x = interpolate(pPrevLoc->x, pTSprite->x, gInterpolate);
@@ -2268,7 +2268,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             case 0:
                 //dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
                 if (nXSprite <= 0 || nXSprite >= kMaxXSprites) break;
-                switch (pTSprite->lotag) {
+                switch (pTSprite->type) {
                     case kSwitchToggle:
                     case kSwitchOneWay:
                         if (xsprite[nXSprite].state) nAnim = 1;
@@ -2339,7 +2339,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 // Can be overridden by def script
                 if (r_voxels && gDetail >= 4 && videoGetRenderMode() != REND_POLYMER && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1)
                 {
-                    if ((pTSprite->hitag&kHitagRespawn) == 0)
+                    if ((pTSprite->flags&kHitagRespawn) == 0)
                     {
                         pTSprite->cstat |= 48;
                         pTSprite->cstat &= ~(4|8);
@@ -2399,7 +2399,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         nShade += tileShade[pTSprite->picnum];
         pTSprite->shade = ClipRange(nShade, -128, 127);
-        if ((pTSprite->hitag&kHitagRespawn) && sprite[pTSprite->owner].owner == 3)
+        if ((pTSprite->flags&kHitagRespawn) && sprite[pTSprite->owner].owner == 3)
         {
             dassert(pTXSprite != NULL);
             pTSprite->xrepeat = 48;
@@ -2422,21 +2422,21 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         {
             pTSprite->shade = ClipRange(pTSprite->shade-16-QRandom(8), -128, 127);
         }
-        if (pTSprite->hitag&256)
+        if (pTSprite->flags&256)
         {
             viewAddEffect(nTSprite, VIEW_EFFECT_6);
         }
-        if (pTSprite->hitag&1024)
+        if (pTSprite->flags&1024)
         {
             pTSprite->cstat |= 4;
         }
-        if (pTSprite->hitag&2048)
+        if (pTSprite->flags&2048)
         {
             pTSprite->cstat |= 8;
         }
         switch (pTSprite->statnum) {
         case kStatDecoration: {
-            switch (pTSprite->lotag) {
+            switch (pTSprite->type) {
                 case kDecorationCandle:
                     if (!pTXSprite || pTXSprite->state == 1) {
                         pTSprite->shade = -128;
@@ -2460,7 +2460,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         break;
         case kStatItem: {
-            switch (pTSprite->lotag) {
+            switch (pTSprite->type) {
                 case kItemFlagABase:
                     if (pTXSprite && pTXSprite->state > 0 && gGameOptions.nGameType == 3) {
                         auto pNTSprite = viewAddEffect(nTSprite, VIEW_EFFECT_17);
@@ -2482,7 +2482,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     pTSprite->cstat |= 1024;
                     break;
                 default:
-                    if (pTSprite->lotag >= kItemKeySkull && pTSprite->lotag < kItemKeyMax)
+                    if (pTSprite->type >= kItemKeySkull && pTSprite->type < kItemKeyMax)
                         pTSprite->shade = -128;
 
                     viewApplyDefaultPal(pTSprite, pSector);
@@ -2491,7 +2491,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         break;
         case kStatProjectile: {
-            switch (pTSprite->lotag) {
+            switch (pTSprite->type) {
                 case kMissileTeslaAlt:
                     pTSprite->yrepeat = 128;
                     pTSprite->cstat |= 32;
@@ -2513,7 +2513,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     }
                     
                     viewAddEffect(nTSprite, VIEW_EFFECT_1);
-                    if (pTSprite->lotag != kMissileFlareRegular) break;
+                    if (pTSprite->type != kMissileFlareRegular) break;
                     sectortype *pSector = &sector[pTSprite->sectnum];
                     
                     int zDiff = (pTSprite->z - pSector->ceilingz) >> 8;
@@ -2531,7 +2531,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         }
         case kStatDude:
         {
-            if (pTSprite->lotag == kDudeHand && pTXSprite->aiState == &hand13A3B4)
+            if (pTSprite->type == kDudeHand && pTXSprite->aiState == &hand13A3B4)
             {
                 spritetype *pTTarget = &sprite[pTXSprite->target];
                 dassert(pTXSprite != NULL && pTTarget != NULL);
@@ -2546,7 +2546,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             if (powerupCheck(gView, kPwUpBeastVision) > 0) pTSprite->shade = -128;
 
             if (IsPlayerSprite((spritetype *)pTSprite)) {
-                PLAYER *pPlayer = &gPlayer[pTSprite->lotag-kDudePlayer1];
+                PLAYER *pPlayer = &gPlayer[pTSprite->type-kDudePlayer1];
                 if (powerupCheck(pPlayer, kPwUpShadowCloak) && !powerupCheck(gView, kPwUpBeastVision)) {
                     pTSprite->cstat |= 2;
                     pTSprite->pal = 5;
@@ -2604,7 +2604,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             break;
         }
         case kStatTraps: {
-            if (pTSprite->lotag == kTrapSawCircular) {
+            if (pTSprite->type == kTrapSawCircular) {
                 if (pTXSprite->state) {
                     if (pTXSprite->data1) {
                         pTSprite->picnum = 772;
@@ -2621,8 +2621,8 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
         case kStatThing: {
             viewApplyDefaultPal(pTSprite, pSector);
 
-            if (pTSprite->lotag < kThingBase || pTSprite->lotag >= kThingMax || !gSpriteHit[nXSprite].florhit) {
-                if ((pTSprite->hitag & kPhysMove) && getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
+            if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || !gSpriteHit[nXSprite].florhit) {
+                if ((pTSprite->flags & kPhysMove) && getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
                     viewAddEffect(nTSprite, VIEW_EFFECT_0);
             }
         }
