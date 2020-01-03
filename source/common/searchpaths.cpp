@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // Search path management. Scan all directories for potential game content and return a list with all proper matches
 //
 
-#include <filesystem>
 #include "m_crc32.h"
 #include "i_specialpaths.h"
 #include "i_system.h"
@@ -43,33 +42,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static const char* res_exts[] = { ".grp", ".zip", ".pk3", ".pk4", ".7z", ".pk7" };
 
-
-namespace fs = std::filesystem;
 int g_gameType;
 
-
-fs::path AbsolutePath(const char* path)
-{
-	FString dirpath = MakeUTF8(path);	// convert into clean UTF-8 - the input here may easily be 8 bit encoded.
-	fs::path fpath = fs::u8path(dirpath.GetChars());
-	return fs::absolute(fpath);
-}
 
 
 void AddSearchPath(TArray<FString>& searchpaths, const char* path)
 {
-	try
+	auto fpath = M_GetNormalizedPath(path);
+	if (DirExists(fpath))
 	{
-		auto fpath = AbsolutePath(path);
-		if (fs::is_directory(fpath))
-		{
-			FString apath = fpath.u8string().c_str();
-			if (searchpaths.Find(apath) == searchpaths.Size())
-				searchpaths.Push(apath);
-		}
-	}
-	catch (fs::filesystem_error &)
-	{
+		if (searchpaths.Find(fpath) == searchpaths.Size())
+			searchpaths.Push(fpath);
 	}
 }
 
