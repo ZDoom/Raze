@@ -330,6 +330,22 @@ bool CallHook(FInputDevice *device, HWND hWnd, UINT message, WPARAM wParam, LPAR
 	return device->WndProcHook(hWnd, message, wParam, lParam, result);
 }
 
+void GetRefreshRate(HWND hWnd)
+{
+	HMONITOR moni = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+	MONITORINFOEXA moninf;
+	moninf.cbSize = sizeof(moninf);
+	if (GetMonitorInfoA(moni, (LPMONITORINFO)&moninf))
+	{
+		DEVMODEA dm;
+		dm.dmSize = sizeof(DEVMODEA);
+		if (EnumDisplaySettingsA(moninf.szDevice, ENUM_CURRENT_SETTINGS, &dm))
+		{
+			refreshfreq = dm.dmDisplayFrequency;
+		}
+	}
+}
+
 LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT result;
@@ -417,6 +433,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_SETFOCUS:
+		GetRefreshRate(hWnd);
 		I_CheckNativeMouse (false, false);	// This cannot call the event handler. Doing it from here is unsafe.
 		break;
 
@@ -461,6 +478,8 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_DISPLAYCHANGE:
+		GetRefreshRate(hWnd);
+		// fall through
 	case WM_STYLECHANGED:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 
