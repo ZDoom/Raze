@@ -1137,7 +1137,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 	GLInterface.UseDetailMapping(false);
 #endif
 
-	auto data = GLInterface.AllocVertices(m->qcnt * 4);
+	auto data = GLInterface.AllocVertices(m->qcnt * 6);
 	auto vt = data.second;
 
 	int qstart = 0;
@@ -1149,8 +1149,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
             f = 1 /*clut[fi++]*/;
 			if (qdone > 0)
 			{
-				GLInterface.Draw(DT_QUADS, qstart, qdone * 4);
-				qstart += qdone * 4;
+				GLInterface.Draw(DT_TRIANGLES, qstart, qdone * 6);
+				qstart += qdone * 6;
 				qdone = 0;
 			}
             GLInterface.SetColor(pc[0]*f, pc[1]*f, pc[2]*f, pc[3]*f);
@@ -1162,8 +1162,10 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
         const int32_t yy = vptr[0].y + vptr[2].y;
         const int32_t zz = vptr[0].z + vptr[2].z;
 
-        for (bssize_t j=0; j<4; j++, vt++)
+        for (bssize_t jj=0; jj<6; jj++, vt++)
         {
+            static uint8_t trix[] = { 0, 1, 2, 0, 2, 3 };
+            int j = trix[jj];
 #if (VOXBORDWIDTH == 0)
 			vt->SetTexCoord(((float)vptr[j].u)*ru + uhack[vptr[j].u!=vptr[0].u],
                           ((float)vptr[j].v)*rv + vhack[vptr[j].v!=vptr[0].v]);
@@ -1177,7 +1179,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 		qdone++;
     }
 
-	GLInterface.Draw(DT_QUADS, qstart, qdone * 4);
+	GLInterface.Draw(DT_TRIANGLES, qstart, qdone * 6);
 	GLInterface.SetClamp(prevClamp);
     //------------
 	GLInterface.SetCull(Cull_None);

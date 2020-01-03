@@ -225,7 +225,6 @@ static GLint primtypes[] =
 	GL_TRIANGLES,
 	GL_TRIANGLE_STRIP,
 	GL_TRIANGLE_FAN,
-	GL_QUADS,
 	GL_LINES
 };
 	
