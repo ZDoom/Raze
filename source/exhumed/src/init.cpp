@@ -907,10 +907,10 @@ void LoadObjects()
     InitRa();
     InitChunks();
 
-    for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
+    for (int nChannel = 0; nChannel < kMaxChannels; nChannel++)
     {
-        runlist_ChangeChannel(nSprite, 0);
-        runlist_ReadyChannel(nSprite);
+        runlist_ChangeChannel(nChannel, 0);
+        runlist_ReadyChannel(nChannel);
     }
 
     nCamerax = initx;
