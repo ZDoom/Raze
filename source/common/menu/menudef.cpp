@@ -1249,7 +1249,7 @@ static void BuildEpisodeMenu()
 			if (gVolumeNames[i].IsNotEmpty() && !(gVolumeFlags[i] & EF_HIDEFROMSP))
 
 			{
-				auto it = new FListMenuItemNativeText(ld->mXpos, y, 0, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i);
+				auto it = new FListMenuItemNativeText(ld->mXpos, y, ld->mLinespacing, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i);
 				if ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && i > 0)
 				{
 					it->mEnabled = false;
@@ -1272,7 +1272,7 @@ static void BuildEpisodeMenu()
 			//ld->mItems.Push(it);
 
 			y += ld->mLinespacing / 3;
-			auto it = new FListMenuItemNativeText(ld->mXpos, y, 0, 0, "$MNU_USERMAP", NIT_BigFont, NIT_ActiveState, 1, NAME_UsermapMenu);
+			auto it = new FListMenuItemNativeText(ld->mXpos, y, ld->mLineSpacing, 0, "$MNU_USERMAP", NIT_BigFont, NIT_ActiveState, 1, NAME_UsermapMenu);
 			ld->mItems.Push(it);
 			addedVolumes++;
 		}
@@ -1296,7 +1296,7 @@ static void BuildEpisodeMenu()
 		{
 			if (gSkillNames[i].IsNotEmpty())
 			{
-				auto it = new FListMenuItemNativeText(ld->mXpos, y, 0, gSkillNames[i][0], gSkillNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_StartGame, i);
+				auto it = new FListMenuItemNativeText(ld->mXpos, y, ld->mLinespacing, gSkillNames[i][0], gSkillNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_StartGame, i);
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);
 				addedSkills++;
@@ -1305,7 +1305,7 @@ static void BuildEpisodeMenu()
 		if (addedSkills == 0)
 		{
 			// Need to add one item with the default skill so that the menu does not break.
-			auto it = new FListMenuItemNativeText(ld->mXpos, 0, 0, 0, "", NIT_BigFont, NIT_ActiveState, 1, NAME_StartGame, gDefaultSkill);
+			auto it = new FListMenuItemNativeText(ld->mXpos, 0, ld->mLinespacing, 0, "", NIT_BigFont, NIT_ActiveState, 1, NAME_StartGame, gDefaultSkill);
 			ld->mItems.Push(it);
 		}
 		if (addedSkills == 1)
@@ -1340,7 +1340,7 @@ static void BuildEpisodeMenu()
 						if (!subentry.isValid())
 							break;
 
-						auto li = new FListMenuItemNativeText(ld->mXpos, 0, 0, 0, subentry.name, NIT_BigFont, NIT_ActiveColor, 1.f, subentry.flags & MGE_UserContent ? NAME_UsermapMenu : NAME_SkillMenu);
+						auto li = new FListMenuItemNativeText(ld->mXpos, 0, ld->mLinespacing, 0, subentry.name, NIT_BigFont, NIT_ActiveColor, 1.f, subentry.flags & MGE_UserContent ? NAME_UsermapMenu : NAME_SkillMenu);
 
 						if (subentry.flags & MGE_Locked) li->mEnabled = false;
 						if (subentry.flags & MGE_Hidden) li->mHidden = true;
@@ -1350,7 +1350,7 @@ static void BuildEpisodeMenu()
 				}
 				FName link = entry.flags & MGE_UserContent ? NAME_UsermapMenu : s == 0 ? NAME_SkillMenu : NAME_CustomSubMenu1;
 
-				auto li = new FListMenuItemNativeText(ldo->mXpos, 0, 0, 0, entry.name, NIT_BigFont, NIT_ActiveColor, 1.f, link, e);
+				auto li = new FListMenuItemNativeText(ldo->mXpos, 0, ldo->mLinespacing, 0, entry.name, NIT_BigFont, NIT_ActiveColor, 1.f, link, e);
 				if (entry.flags & MGE_Locked) li->mEnabled = false;
 				if (entry.flags & MGE_Hidden) li->mHidden = true;
 				ldo->mItems.Push(li);
