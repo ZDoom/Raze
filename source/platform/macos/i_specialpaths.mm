@@ -220,3 +220,23 @@ FString M_GetDocumentsPath()
 
 	return path;
 }
+
+
+//===========================================================================
+//
+// M_NormalizedPath
+//
+// Normalizes the given path and returns the result.
+//
+//===========================================================================
+
+FString M_GetNormalizedPath(const char* path)
+{
+	NSString *str = [NSString stringWithUTF8String:path];
+	NSString *out;
+	if ([str completePathIntoString:&out caseSensitive:NO matchesIntoArray:nil filterTypes:nil])
+	{
+		return out.UTF8String;
+	}
+	return path;
+}

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <filesystem>
 #include "m_crc32.h"
 #include "i_specialpaths.h"
+#include "i_system.h"
 #include "compat.h"
 #include "gameconfigfile.h"
 #include "cmdlib.h"
@@ -451,27 +452,25 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
 void CollectSubdirectories(TArray<FString> &searchpath, const char *dirmatch)
 {
-	try
+	FString dirpath = MakeUTF8(dirmatch);	// convert into clean UTF-8
+	dirpath.Truncate(dirpath.Len() - 2);	// remove the '/*'
+	FString AbsPath = M_GetNormalizedPath(dirpath);
+	if (DirExists(AbsPath))
 	{
-		FString dirpath = MakeUTF8(dirmatch);	// convert into clean UTF-8
-		dirpath.Truncate(dirpath.Len() - 2);	// remove the '/*'
-		fs::path path = AbsolutePath(dirpath.GetChars());
-		if (fs::exists(path) && fs::is_directory(path))
+		findstate_t findstate;
+		void* handle;
+		if ((handle = I_FindFirst(AbsPath + "/*.*", &findstate)) != (void*)-1)
 		{
-			for (const auto& entry : fs::directory_iterator(path))
+			do
 			{
-				if (fs::is_directory(entry.status()))
+				if (!(I_FindAttr(&findstate) & FA_DIREC))
 				{
-					FString newdir = absolute(entry.path()).u8string().c_str();
-					if (searchpath.Find(newdir) == searchpath.Size())
-						searchpath.Push(newdir);
+					FStringf fullpath("%s/%s", AbsPath.GetChars(), I_FindName(&findstate));
+					searchpath.Push(fullpath);
 				}
-			}
+			} while (I_FindNext(handle, &findstate) == 0);
+			I_FindClose(handle);
 		}
-	}
-	catch (fs::filesystem_error &)
-	{
-		// Just ignore this path if it caused an error.
 	}
 }
 

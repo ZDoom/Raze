@@ -13,6 +13,7 @@ FString M_GetSavegamesPath();
 FString M_GetDocumentsPath();
 FString M_GetDemoPath();
 
+FString M_GetNormalizedPath(const char* path);
 
 #ifdef __APPLE__
 FString M_GetMacAppSupportPath(const bool create = true);

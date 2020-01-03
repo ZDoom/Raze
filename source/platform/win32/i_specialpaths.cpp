@@ -382,3 +382,21 @@ FString M_GetDemoPath()
 	CreatePath(path);
 	return path;
 }
+
+//===========================================================================
+//
+// M_NormalizedPath
+//
+// Normalizes the given path and returns the result.
+//
+//===========================================================================
+
+FString M_GetNormalizedPath(const char* path)
+{
+	std::wstring wpath = WideString(path);
+	wchar_t buffer[MAX_PATH];
+	GetFullPathNameW(wpath.c_str(), MAX_PATH, buffer, nullptr);
+	FString result(buffer);
+	FixPathSeperator(result);
+	return result;
+}
