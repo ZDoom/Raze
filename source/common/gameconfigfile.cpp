@@ -522,6 +522,7 @@ void G_ReadConfig(const char* game)
 
 void G_SaveConfig()
 {
+	if (!GameConfig) return;
 	GameConfig->ArchiveGlobalData();
 	GameConfig->ArchiveGameData(GameName);
 	GameConfig->WriteConfigFile();

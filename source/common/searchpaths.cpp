@@ -463,10 +463,14 @@ void CollectSubdirectories(TArray<FString> &searchpath, const char *dirmatch)
 		{
 			do
 			{
-				if (!(I_FindAttr(&findstate) & FA_DIREC))
+				if (I_FindAttr(&findstate) & FA_DIREC)
 				{
-					FStringf fullpath("%s/%s", AbsPath.GetChars(), I_FindName(&findstate));
-					searchpath.Push(fullpath);
+					auto p = I_FindName(&findstate);
+					if (strcmp(p, ".") && strcmp(p, ".."))
+					{
+						FStringf fullpath("%s/%s", AbsPath.GetChars(), p);
+						searchpath.Push(fullpath);
+					}
 				}
 			} while (I_FindNext(handle, &findstate) == 0);
 			I_FindClose(handle);
@@ -538,8 +542,8 @@ TArray<FString> CollectSearchPaths()
 struct FileEntry
 {
 	FString FileName;
-	uintmax_t FileLength;
-	uint64_t FileTime;
+	size_t FileLength;
+	time_t FileTime;
 	uint32_t CRCValue;
 	uint32_t Index;
 };
@@ -563,20 +567,25 @@ TArray<FileEntry> CollectAllFilesInSearchPath()
 	auto paths = CollectSearchPaths();
 	for(auto &path : paths)
 	{
-		auto fpath = fs::u8path(path.GetChars());
-		if (fs::exists(fpath) && fs::is_directory(fpath))
+		if (DirExists(path))
 		{
-			for (const auto& entry : fs::directory_iterator(fpath))
+			findstate_t findstate;
+			void* handle;
+			if ((handle = I_FindFirst(path + "/*.*", &findstate)) != (void*)-1)
 			{
-				if (fs::is_regular_file(entry.status()))
+				do
 				{
-					filelist.Reserve(1);
-					auto& flentry = filelist.Last();
-					flentry.FileName = absolute(entry.path()).u8string().c_str();
-					flentry.FileLength = entry.file_size();
-					flentry.FileTime = entry.last_write_time().time_since_epoch().count();
-					flentry.Index = index++; // to preserve order when working on the list.
-				}
+					if (!(I_FindAttr(&findstate) & FA_DIREC))
+					{
+						auto p = I_FindName(&findstate);
+						filelist.Reserve(1);
+						auto& flentry = filelist.Last();
+						flentry.FileName.Format("%s/%s", path.GetChars(), p);
+						GetFileInfo(flentry.FileName, &flentry.FileLength, &flentry.FileTime);
+						flentry.Index = index++; // to preserve order when working on the list.
+					}
+				} while (I_FindNext(handle, &findstate) == 0);
+				I_FindClose(handle);
 			}
 		}
 	}
