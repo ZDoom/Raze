@@ -204,14 +204,14 @@ extern short gAffectedXWalls[kMaxXWalls];
 extern 
 #endif
 
-inline bool IsPlayerSprite(spritetype *pSprite)
+inline bool IsPlayerSprite(spritetype const * const pSprite)
 {
     if (pSprite->type >= kDudePlayer1 && pSprite->type <= kDudePlayer8)
         return 1;
     return 0;
 }
 
-template<typename T> bool IsDudeSprite(T *pSprite)
+template<typename T> bool IsDudeSprite(T const * const pSprite)
 {
     if (pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
         return 1;

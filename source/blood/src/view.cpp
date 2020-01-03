@@ -1887,7 +1887,7 @@ void viewDrawInterface(ClockTicks arg)
 
 static fix16_t gCameraAng;
 
-template<typename T> tspritetype* viewInsertTSprite(int nSector, int nStatnum, T *pSprite)
+template<typename T> tspritetype* viewInsertTSprite(int nSector, int nStatnum, T const * const pSprite)
 {
     int nTSprite = spritesortcnt;
     tspritetype *pTSprite = &tsprite[nTSprite];
