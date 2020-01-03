@@ -142,6 +142,11 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 bool DImageScrollerMenu::MouseEvent(int type, int x, int y)
 {
 	// Todo: Implement some form of drag event to switch between pages.
+	if (type == MOUSE_Release)
+	{
+		return MenuEvent(MKEY_Enter, false);
+	}
+
 	return DMenu::MouseEvent(type, x, y);
 }
 
