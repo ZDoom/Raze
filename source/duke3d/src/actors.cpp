@@ -169,7 +169,7 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
         {
             // this is really weird
             int const k = blastRadius/3;
-            int dmgBase, dmgFuzz;
+            int dmgBase = 0, dmgFuzz = 1;
 
             if (spriteDist < k)
                 dmgBase = dmg3, dmgFuzz = dmg4;
