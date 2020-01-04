@@ -199,8 +199,7 @@ class GLInstance
 	int LastVB_Offset[2] = {};
 	IIndexBuffer* LastIndexBuffer = nullptr;
 
-
-	VSMatrix matrices[NUMMATRICES];
+	float mProjectionM5 = 1.0f; // needed by ssao
 	PolymostRenderState renderState;
 	FShader* activeShader;
 	PolymostShader* polymostShader;
@@ -260,10 +259,7 @@ public:
 		LastIndexBuffer = (IIndexBuffer*)~intptr_t(0);
 	}
 
-	const VSMatrix &GetMatrix(int num)
-	{
-		return matrices[num];
-	}
+	float GetProjectionM5() { return mProjectionM5; }
 	void SetMatrix(int num, const VSMatrix *mat );
 	void SetMatrix(int num, const float *mat)
 	{
