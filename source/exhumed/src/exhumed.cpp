@@ -1076,7 +1076,7 @@ void CheckKeys()
                 {
                     char *pToken = strtok(sHollyStr, " ");
 
-                    if (nStringLen == 0) // bjd - added this check. watcom allows passing NULL to strcmp so the below checks will all fail OK on DOS but will cause a crash on Windows
+                    if (nStringLen == 0 || pToken == NULL) // bjd - added this check. watcom allows passing NULL to strcmp so the below checks will all fail OK on DOS but will cause a crash on Windows
                     {
                         bHolly = kFalse;
                         StatusMessage(1, " ");
@@ -1097,7 +1097,12 @@ void CheckKeys()
                     else if (!strcmp(pToken, "LEVEL"))
                     {
                         pToken = strtok(NULL, " ");
-                        levelnew = atoi(pToken);
+                        if (pToken) {
+                            levelnew = atoi(pToken);
+                        }
+                        else {
+                            levelnew = 0; // replicate original DOS EXE behaviour when no level number is specified.
+                        }
                     }
                     else if (!strcmp(pToken, "DOORS"))
                     {
