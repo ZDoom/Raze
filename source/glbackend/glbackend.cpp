@@ -317,6 +317,7 @@ void GLInstance::UnbindAllTextures()
 
 void GLInstance::SetMatrix(int num, const VSMatrix *mat)
 {
+	if (num == Matrix_Projection) mProjectionM5 = mat->get()[5];
 	renderState.matrixIndex[num] = matrixArray.Size();
 	matrixArray.Push(*mat);
 }

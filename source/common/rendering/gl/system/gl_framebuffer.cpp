@@ -432,20 +432,20 @@ void OpenGLFrameBuffer::PostProcessScene(int fixedcm, const std::function<void()
 
 void videoShowFrame(int32_t w)
 {
-    static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 
-    if (gl_ssao)
-    {
-        glDrawBuffers(1, buffers);
-        OpenGLRenderer::GLRenderer->AmbientOccludeScene(GLInterface.GetMatrix(Matrix_Projection).get()[5]);
+	if (gl_ssao)
+	{
+		glDrawBuffers(1, buffers);
+		OpenGLRenderer::GLRenderer->AmbientOccludeScene(GLInterface.GetProjectionM5());
 		glViewport(screen->mSceneViewport.left, screen->mSceneViewport.top, screen->mSceneViewport.width, screen->mSceneViewport.height);
-        OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(true);
-        glDrawBuffers(3, buffers);
+		OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(true);
+		glDrawBuffers(3, buffers);
 
 		// To do: the translucent part of the scene should be drawn here
 
 		glDrawBuffers(1, buffers);
-    }
+	}
 
 	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
 	screen->PostProcessScene(0, []() {
