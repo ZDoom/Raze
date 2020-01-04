@@ -84,7 +84,6 @@ void GLInstance::Init(int ydim)
 	if (!mSamplers)
 	{
 		mSamplers = new FSamplerManager;
-		memset(LastBoundTextures, 0, sizeof(LastBoundTextures));
 	}
 
 	//glinfo.bufferstorage =  !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");
@@ -279,41 +278,6 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	matrixArray.Resize(1);
 }
 
-void GLInstance::BindTexture(int texunit, FHardwareTexture *tex, int sampler)
-{
-	if (!tex) return;
-	if (texunit == 0 && tex->isIndexed())
-	{
-		renderState.Flags |= RF_UsePalette;
-	}
-	else renderState.Flags &= ~RF_UsePalette;
-
-	if (texunit != 0) glActiveTexture(GL_TEXTURE0 + texunit);
-	glBindTexture(GL_TEXTURE_2D, tex->GetTextureHandle());
-	mSamplers->Bind(texunit, sampler == NoSampler? tex->GetSampler() : sampler, 0);
-	if (texunit != 0) glActiveTexture(GL_TEXTURE0);
-	LastBoundTextures[texunit] = tex->GetTextureHandle();
-	if (texunit == 0) texv = tex;
-}
-
-void GLInstance::UnbindTexture(int texunit)
-{
-	if (LastBoundTextures[texunit] != 0)
-	{
-		if (texunit != 0) glActiveTexture(GL_TEXTURE0+texunit);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		if (texunit != 0) glActiveTexture(GL_TEXTURE0);
-		LastBoundTextures[texunit] = 0;
-	}
-}
-
-void GLInstance::UnbindAllTextures()
-{
-	for(int texunit = 0; texunit < MAX_TEXTURES; texunit++)
-	{
-		UnbindTexture(texunit);
-	}
-}
 
 void GLInstance::SetMatrix(int num, const VSMatrix *mat)
 {
@@ -373,8 +337,26 @@ void GLInstance::DrawImGui(ImDrawData* data)
 #endif
 }
 
+
 void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 {
+	bool reset = false;
+	for (int i = 0; i < 5; i++)
+	{
+		if (texIds[i] != oldState.TexId[i] || samplerIds[i] != oldState.SamplerId[i])
+		{
+			if (i != 0)
+			{
+				glActiveTexture(GL_TEXTURE0 + i);
+				reset = true;
+			}
+			glBindTexture(GL_TEXTURE_2D, texIds[i]);
+			glBindSampler(i, samplerIds[i]);
+			oldState.TexId[i] = texIds[i];
+			oldState.SamplerId[i] = samplerIds[i];
+		}
+		if (reset) glActiveTexture(GL_TEXTURE0);
+	}
 	if (StateFlags != oldState.Flags)
 	{
 		if ((StateFlags ^ oldState.Flags) & STF_DEPTHTEST)

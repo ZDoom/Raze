@@ -170,19 +170,16 @@ struct GLState
 	int Flags = STF_COLORMASK | STF_DEPTHMASK;
 	FRenderStyle Style{};
 	int DepthFunc = -1;
+	int TexId[5] = {}, SamplerId[5] = {};
 };
 
 class GLInstance
 {
 	enum
 	{
-		MAX_TEXTURES = 15,	// slot 15 is used internally and not available.
-		THCACHESIZE = 200,
+		MAX_TEXTURES = 5, /*15*/	// slot 15 is used internally and not available. - The renderer uses only 5, though.
 	};
 	std::vector<BaseVertex> Buffer;	// cheap-ass implementation. The primary purpose is to get the GL accesses out of polymost.cpp, not writing something performant right away.
-	unsigned int LastBoundTextures[MAX_TEXTURES];
-	unsigned TextureHandleCache[THCACHESIZE];
-	int currentindex = THCACHESIZE;
 	int maxTextureSize;
 	PaletteManager palmanager;
 	int lastPalswapIndex = -1;
@@ -232,9 +229,6 @@ public:
 	void Draw(EDrawType type, size_t start, size_t count);
 	
 	FHardwareTexture* NewTexture();
-	void BindTexture(int texunit, FHardwareTexture *texid, int sampler = NoSampler);
-	void UnbindTexture(int texunit);
-	void UnbindAllTextures();
 	void EnableNonTransparent255(bool on)
 	{
 		g_nontransparent255 = on;
@@ -441,6 +435,31 @@ public:
 		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
 	}
 
+	void BindTexture(int texunit, FHardwareTexture* tex, int sampler = NoSampler)
+	{
+		if (!tex) return;
+		if (texunit == 0)
+		{
+			if (tex->isIndexed()) renderState.Flags |= RF_UsePalette;
+			else renderState.Flags &= ~RF_UsePalette;
+		}
+		renderState.texIds[texunit] = tex->GetTextureHandle();
+		renderState.samplerIds[texunit] = sampler == NoSampler ? tex->GetSampler() : sampler;
+	}
+
+	void UnbindTexture(int texunit)
+	{
+		renderState.texIds[texunit] = 0;
+		renderState.samplerIds[texunit] = 0;
+	}
+
+	void UnbindAllTextures()
+	{
+		for (int texunit = 0; texunit < MAX_TEXTURES; texunit++)
+		{
+			UnbindTexture(texunit);
+		}
+	}
 
 	void UseColorOnly(bool yes)
 	{
