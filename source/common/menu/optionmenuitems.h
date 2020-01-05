@@ -876,12 +876,14 @@ public:
 
 	FString Represent() override
 	{
-		FString text = mEntering ? mEditName : FString(GetCVarString());
-
-		if ( mEntering )
+		if (mEntering)
+		{
+			FString text;
+			text = mInput->GetText();
 			text += '_';
-
-		return text;
+			return text;
+		}
+		else return FString(GetCVarString());
 	}
 
 	int Draw(FOptionMenuDescriptor*desc, int y, int indent, bool selected) override
@@ -902,10 +904,9 @@ public:
 		if ( mkey == MKEY_Enter )
 		{
 			M_MenuSound(AdvanceSound);
-			mEditName = GetCVarString();
 			mEntering = true;
-			DMenu* input = new DTextEnterMenu(DMenu::CurrentMenu, NewSmallFont, mEditName, 256, fromcontroller );
-			M_ActivateMenu( input );
+			mInput = new DTextEnterMenu(DMenu::CurrentMenu, NewSmallFont, GetCVarString(), 256, fromcontroller );
+			M_ActivateMenu( mInput );
 			return true;
 		}
 		else if ( mkey == MKEY_Input )
@@ -913,16 +914,18 @@ public:
 			if ( mCVar )
 			{
 				UCVarValue vval;
-				vval.String = mEditName;
+				vval.String = mInput->GetText();
 				mCVar->SetGenericRep( vval, CVAR_String );
 			}
 
 			mEntering = false;
+			mInput = nullptr;
 			return true;
 		}
 		else if ( mkey == MKEY_Abort )
 		{
 			mEntering = false;
+			mInput = nullptr;
 			return true;
 		}
 
@@ -931,7 +934,7 @@ public:
 
 private:
 	bool mEntering;
-	FString mEditName;
+	DTextEnterMenu* mInput;
 };
 
 //=============================================================================

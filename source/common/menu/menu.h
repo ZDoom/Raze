@@ -647,6 +647,8 @@ class DOptionMenu : public DMenu
 protected:
 	FOptionMenuDescriptor *mDesc;
 
+	int GetPosition();
+
 public:
 	FOptionMenuItem *GetItem(FName name);
 	DOptionMenu(DMenu *parent = NULL, FOptionMenuDescriptor *desc = NULL);

@@ -74,6 +74,11 @@ void DrawOptionText(int x, int y, int color, const char *text, bool grayed)
 	DrawText (twod, OptionFont(), color, x, y, text, DTA_CleanNoMove_1, true, DTA_ColorOverlay, overlay, TAG_END);
 }
 
+int DOptionMenu::GetPosition()
+{
+	return mDesc->mPosition * screen->GetHeight() / 1080;	// y position uses a 1920x1080 screen as reference but has to adjust to scaled 320x200 content.
+}
+
 //=============================================================================
 //
 //
@@ -210,7 +215,7 @@ bool DOptionMenu::MenuEvent (int mkey, bool fromcontroller)
 			if (mDesc->mSelectedItem < 0) 
 			{
 				// Figure out how many lines of text fit on the menu
-				int y = mDesc->mPosition;
+				int y = GetPosition();
 
 				y *= CleanYfac_1;
 				int	rowheight = OptionSettings.mLinespacing * CleanYfac_1;
@@ -394,7 +399,7 @@ int DOptionMenu::GetIndent()
 
 void DOptionMenu::Drawer ()
 {
-	int y = mDesc->mPosition;
+	int y = GetPosition();
 
 	if (mDesc->mTitle.IsNotEmpty())
 	{
