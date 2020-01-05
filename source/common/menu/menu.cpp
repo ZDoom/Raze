@@ -479,7 +479,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		return false;
 
 	case NAME_CustomSubMenu1:
-		menu = ENamedName(menu + param);
+		menu = ENamedName(menu.GetIndex() + param);
 		break;
 
 #if 0

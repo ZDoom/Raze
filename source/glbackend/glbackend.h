@@ -165,20 +165,21 @@ struct ImDrawData;
 struct palette_t;
 extern float shadediv[256];
 
+enum
+{
+	MAX_TEXTURES = 6, /*15*/	// slot 15 is used internally and not available. - The renderer uses only 5, though.
+};
+
 struct GLState
 {
 	int Flags = STF_COLORMASK | STF_DEPTHMASK;
 	FRenderStyle Style{};
 	int DepthFunc = -1;
-	int TexId[5] = {}, SamplerId[5] = {};
+	int TexId[MAX_TEXTURES] = {}, SamplerId[MAX_TEXTURES] = {};
 };
 
 class GLInstance
 {
-	enum
-	{
-		MAX_TEXTURES = 5, /*15*/	// slot 15 is used internally and not available. - The renderer uses only 5, though.
-	};
 	std::vector<BaseVertex> Buffer;	// cheap-ass implementation. The primary purpose is to get the GL accesses out of polymost.cpp, not writing something performant right away.
 	int maxTextureSize;
 	PaletteManager palmanager;

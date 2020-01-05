@@ -349,7 +349,7 @@ void GLInstance::DrawImGui(ImDrawData* data)
 void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 {
 	bool reset = false;
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < MAX_TEXTURES; i++)
 	{
 		if (texIds[i] != oldState.TexId[i] || samplerIds[i] != oldState.SamplerId[i])
 		{
