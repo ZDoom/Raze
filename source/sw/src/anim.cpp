@@ -326,7 +326,7 @@ playanm(short anim_num)
 ENDOFANIMLOOP:
 
     GLInterface.EnableNonTransparent255(false);
-    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+    twod->ClearScreen();
     videoNextPage();
 
     videoSetPalette(0, BASEPAL, 2);

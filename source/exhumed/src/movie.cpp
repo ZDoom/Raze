@@ -256,7 +256,7 @@ void PlayMovie(const char* fileName)
                 }
             }
 
-            twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+            twod->ClearScreen();
             rotatesprite(160 << 16, 100 << 16, z, angle, kMovieTile, 0, 1, 2, 0, 0, xdim - 1, ydim - 1);
 
             if (bDoFade) {

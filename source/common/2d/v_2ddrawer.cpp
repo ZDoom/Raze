@@ -385,6 +385,11 @@ void F2DDrawer::AddColorOnlyQuad(int x1, int y1, int w, int h, PalEntry color, F
 	AddCommand(&dg);
 }
 
+void F2DDrawer::ClearScreen(PalEntry color)
+{
+	AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), color);
+}
+
 //==========================================================================
 //
 //

@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "light.h"
 #include "cd.h"
 #include "menu/menu.h"
+#include "v_2ddrawer.h"
 #include <string>
 
 #include <assert.h>
@@ -672,6 +673,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
     while (nIdleSeconds < 12)
     {
         HandleAsync();
+        twod->ClearScreen();
 
         if (((int)totalclock - startTime) / kTimerTicks)
         {

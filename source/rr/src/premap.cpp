@@ -1907,23 +1907,23 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
         renderFlushPerms();
         videoSetViewableArea(0,0,xdim-1,ydim-1);
-        twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+        twod->ClearScreen();
         videoNextPage();
 
         int animReturn = Anim_Play("vol41a.anm");
-        twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+        twod->ClearScreen();
         videoNextPage();
         if (animReturn)
             goto end_vol4a;
 
         animReturn = Anim_Play("vol42a.anm");
-        twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+        twod->ClearScreen();
         videoNextPage();
         if (animReturn)
             goto end_vol4a;
 
         Anim_Play("vol43a.anm");
-        twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+        twod->ClearScreen();
         videoNextPage();
 
 end_vol4a:

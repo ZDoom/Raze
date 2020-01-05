@@ -133,7 +133,7 @@ public:
 	void AddFlatFill(int left, int top, int right, int bottom, FTexture *src, bool local_origin);
 
 	void AddColorOnlyQuad(int left, int top, int width, int height, PalEntry color, FRenderStyle *style = nullptr);
-
+	void ClearScreen(PalEntry color = 0xff000000);
 			
 	void AddLine(float x1, float y1, float x2, float y2, uint32_t color, uint8_t alpha = 255);
 	void AddLine(float x1, float y1, float x2, float y2, int cx, int cy, int cx2, int cy2, uint32_t color, uint8_t alpha = 255);

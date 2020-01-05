@@ -898,7 +898,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             if (ud.overhead_on == 2)
             {
-                twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+                twod->ClearScreen();
                 G_DrawBackground(); // Necessary GL fills the entire screen with black
                 renderDrawMapView(cposx, cposy, pp->zoom, cang);
             }

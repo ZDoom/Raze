@@ -227,7 +227,7 @@ void DMessageBoxMenu::Drawer()
 	}
 	else
 	{
-		twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xa0000000);
+		twod->ClearScreen(0xa0000000);
 		gi->DrawCenteredTextScreen(origin, mFullMessage, 100, false);
 	}
 }

@@ -622,7 +622,7 @@ void DrawMap()
         //drawoverheadmap(initx, inity, lMapZoom, inita);
         if (nMapMode == 2)
         {
-            twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+            twod->ClearScreen();
             RefreshBackground();
             renderDrawMapView(initx, inity, lMapZoom, inita);
         }

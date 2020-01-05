@@ -1288,25 +1288,25 @@ void G_PlayE4Cutscene(void)
 
     renderFlushPerms();
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
-    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+    twod->ClearScreen();
     videoNextPage();
 
     if (Anim_Play("vol41a.anm"))
         goto end_vol4a;
 
-    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+    twod->ClearScreen();
     videoNextPage();
 
     if (Anim_Play("vol42a.anm"))
         goto end_vol4a;
 
-    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+    twod->ClearScreen();
     videoNextPage();
 
     Anim_Play("vol43a.anm");
 
 end_vol4a:
-    twod->AddColorOnlyQuad(0, 0, xdim, ydim, 0xff000000);
+    twod->ClearScreen();
     videoNextPage();
 
     FX_StopAllSounds();
