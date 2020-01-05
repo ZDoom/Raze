@@ -204,6 +204,14 @@ FHardwareTexture* GLInstance::NewTexture()
 	return new FHardwareTexture;
 }
 
+void GLInstance::ResetFrame()
+{
+	GLState s;
+	lastState = s; // Back to defaults.
+	lastState.Style.BlendOp = -1;	// invalidate. This forces a reset for the next operation
+
+}
+
 	
 std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
 {

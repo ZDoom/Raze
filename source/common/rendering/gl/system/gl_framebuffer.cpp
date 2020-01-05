@@ -465,5 +465,6 @@ void videoShowFrame(int32_t w)
     }
 	twodpsp.Clear();
 	twodgen.Clear();
+	GLInterface.ResetFrame();
 }
 

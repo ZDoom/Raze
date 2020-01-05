@@ -215,6 +215,7 @@ public:
 	void LoadVPXShader();
 	void Draw2D(F2DDrawer* drawer);
 	void DrawImGui(ImDrawData*);
+	void ResetFrame();
 
 	void Deinit();
 	
