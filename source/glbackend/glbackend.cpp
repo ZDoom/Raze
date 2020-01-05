@@ -359,7 +359,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 				reset = true;
 			}
 			glBindTexture(GL_TEXTURE_2D, texIds[i]);
-			glBindSampler(i, samplerIds[i]);
+			GLInterface.mSamplers->Bind(i, samplerIds[i], -1);
 			oldState.TexId[i] = texIds[i];
 			oldState.SamplerId[i] = samplerIds[i];
 		}
