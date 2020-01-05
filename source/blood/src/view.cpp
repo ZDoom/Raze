@@ -1671,9 +1671,9 @@ void UpdateStatusBar(ClockTicks arg)
             TileHGauge(2208, 44, 190, pPlayer->armor[2], 3200);
             DrawStatNumber("%3d", pPlayer->armor[2]>>4, 2230, 50, 193, 0, 0);
         }
-        FString gTempStr;
-        gTempStr.Format("v%s", GetVersionString());
-        viewDrawText(3, gTempStr, 20, 191, 32, 0, 1, 0);
+        //FString gTempStr;
+        //gTempStr.Format("v%s", GetVersionString());
+        //viewDrawText(3, gTempStr, 20, 191, 32, 0, 1, 0);
 
         for (int i = 0; i < 6; i++)
         {
