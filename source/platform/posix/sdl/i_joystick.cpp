@@ -332,7 +332,7 @@ void I_GetAxes(float axes[NUM_JOYAXIS])
 
 void I_ProcessJoysticks()
 {
-	if (use_joystick && JoystickManager)
+	if (use_joystick)
 		JoystickManager->ProcessInput();
 }
 
