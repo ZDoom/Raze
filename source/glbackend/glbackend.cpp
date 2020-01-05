@@ -444,7 +444,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 		}
 		if (StateFlags & STF_SCISSORSET)
 		{
-			if (sc_x >= 0)
+			if (sc_x > SHRT_MIN)
 			{
 				glScissor(sc_x, sc_y, sc_w, sc_h);
 				glEnable(GL_SCISSOR_TEST);

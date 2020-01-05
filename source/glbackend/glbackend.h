@@ -397,7 +397,7 @@ public:
 
 	void DisableScissor()
 	{
-		renderState.sc_x = -1;
+		renderState.sc_x = SHRT_MIN;
 		renderState.StateFlags |= STF_SCISSORSET;
 	}
 

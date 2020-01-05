@@ -142,20 +142,18 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		//state.EnableBrightmap(!(cmd.mRenderStyle.Flags & STYLEF_ColorIsFixed));
 		//state.SetTextureMode(cmd.mDrawMode);
 
-		int sciX, sciY, sciW, sciH;
 		if (cmd.mFlags & F2DDrawer::DTF_Scissor)
 		{
 			// scissor test doesn't use the current viewport for the coordinates, so use real screen coordinates
 			// Note that the origin here is the lower left corner!
-			sciX = screen->ScreenToWindowX(cmd.mScissor[0]);
-			sciY = screen->ScreenToWindowY(cmd.mScissor[3]);
-			sciW = screen->ScreenToWindowX(cmd.mScissor[2]) - sciX;
-			sciH = screen->ScreenToWindowY(cmd.mScissor[1]) - sciY;
+			int sciX = screen->ScreenToWindowX(cmd.mScissor[0]);
+			int sciY = screen->ScreenToWindowY(cmd.mScissor[3]);
+			int sciW = screen->ScreenToWindowX(cmd.mScissor[2]) - sciX;
+			int sciH = screen->ScreenToWindowY(cmd.mScissor[1]) - sciY;
 			SetScissor(sciX, sciY, sciW, sciH);
 		}
 		else
 		{
-			sciX = sciY = sciW = sciH = -1;
 			DisableScissor();
 		}
 

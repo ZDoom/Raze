@@ -74,7 +74,7 @@ struct PolymostRenderState
 	int DepthFunc = 1;
 	PalEntry ClearColor = 0;
 	short vp_x, vp_y, vp_w, vp_h;
-	short sc_x, sc_y, sc_w, sc_h;
+	short sc_x = SHRT_MIN, sc_y, sc_w, sc_h;
 	int texIds[5], samplerIds[5];
 
 	PalEntry FogColor;
