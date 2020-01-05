@@ -1578,7 +1578,7 @@ void ProcessInput(PLAYER *pPlayer)
         break;
     default:
         if (!pPlayer->cantJump && pInput->buttonFlags.jump && pXSprite->height == 0) {
-            if ((packItemActive(pPlayer, 4) && pPosture->pwupJumpZ > 1000) || pPosture->normalJumpZ > 1000)
+            if ((packItemActive(pPlayer, 4) && pPosture->pwupJumpZ != 0) || pPosture->normalJumpZ != 0)
                 sfxPlay3DSound(pSprite, 700, 0, 0);
 
             if (packItemActive(pPlayer, 4)) zvel[nSprite] = pPosture->pwupJumpZ; //-0x175555;

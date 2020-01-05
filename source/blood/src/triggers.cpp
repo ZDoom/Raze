@@ -1275,7 +1275,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             
             spritetype* pSpawn = NULL;
             // By NoOne: add spawn random dude feature - works only if at least 2 data fields are not empty.
-            if (!VanillaMode()) {
+            if (gModernMap) {
                 if ((pSpawn = spawnRandomDude(pSprite)) == NULL)
                     pSpawn = actSpawnDude(pSprite, pXSprite->data1, -1, 0);
             } else {
