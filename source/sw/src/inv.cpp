@@ -116,7 +116,7 @@ void UpdateMiniBar(PLAYERp pp)
     INVENTORY_DATAp id;
     extern SWBOOL PanelUpdateMode;
 
-#define MINI_BAR_Y 174
+#define MINI_BAR_Y 174  
 
 #define MINI_BAR_HEALTH_BOX_PIC 2437
 #define MINI_BAR_AMMO_BOX_PIC 2437

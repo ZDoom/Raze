@@ -162,7 +162,7 @@ int SaveSymDataInfo(MFILE_WRITE fil, void *ptr)
         fp = fopen("savegame symbols missing.txt", "a");
         if (fp)
         {
-            fprintf(fp,"data %p\n",ptr);
+            fprintf(fp,"data %p - reference variable xdim at %p\n",ptr, &xdim);
             fclose(fp);
         }
         return 1;
@@ -184,7 +184,7 @@ static int SaveSymCodeInfo_raw(MFILE_WRITE fil, void *ptr)
         fp = fopen("savegame symbols missing.txt", "a");
         if (fp)
         {
-            fprintf(fp,"code %p\n",ptr);
+            fprintf(fp,"code %p - reference function SaveSymDataInfo at %p\n",ptr, SaveSymDataInfo);
             fclose(fp);
         }
         return 1;
@@ -295,22 +295,36 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
         //////
 
         saveisshot |= SaveSymDataInfo(fil, pp->remote_sprite);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, pp->remote.sop_control);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, pp->sop_remote);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, pp->sop);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, pp->hi_sectp);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, pp->lo_sectp);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, pp->hi_sp);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, pp->lo_sp);
+        assert(!saveisshot);
 
         saveisshot |= SaveSymDataInfo(fil, pp->last_camera_sp);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, pp->SpriteP);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, pp->UnderSpriteP);
+        assert(!saveisshot);
 
         saveisshot |= SaveSymCodeInfo(fil, pp->DoPlayerAction);
+        assert(!saveisshot);
 
         saveisshot |= SaveSymDataInfo(fil, pp->sop_control);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, pp->sop_riding);
+        assert(!saveisshot);
     }
 
 #if PANEL_SAVE
@@ -334,16 +348,24 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
             MWRITE(psp, sizeof(PANEL_SPRITE),1,fil);
 
             saveisshot |= SaveSymDataInfo(fil, psp->PlayerP);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, psp->State);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, psp->RetractState);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, psp->PresentState);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, psp->ActionState);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, psp->RestState);
+            assert(!saveisshot);
             saveisshot |= SaveSymCodeInfo(fil, psp->PanelSpriteFunc);
+            assert(!saveisshot);
 
             for (j = 0; j < SIZ(psp->over); j++)
             {
                 saveisshot |= SaveSymDataInfo(fil, psp->over[j].State);
+                assert(!saveisshot);
             }
 
             ndx++;
@@ -431,23 +453,41 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
             }
 
             saveisshot |= SaveSymDataInfo(fil, u->WallP);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->State);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->Rot);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->StateStart);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->StateEnd);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->StateFallOverride);
+            assert(!saveisshot);
             saveisshot |= SaveSymCodeInfo(fil, u->ActorActionFunc);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->ActorActionSet);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->Personality);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->Attrib);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->sop_parent);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->hi_sectp);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->lo_sectp);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->hi_sp);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->lo_sp);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->SpriteP);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->PlayerP);
+            assert(!saveisshot);
             saveisshot |= SaveSymDataInfo(fil, u->tgt_sp);
+            assert(!saveisshot);
         }
     }
     ndx = -1;
@@ -464,10 +504,15 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
         sop = &SectorObject[ndx];
 
         saveisshot |= SaveSymCodeInfo(fil, sop->PreMoveAnimator);
+        assert(!saveisshot);
         saveisshot |= SaveSymCodeInfo(fil, sop->PostMoveAnimator);
+        assert(!saveisshot);
         saveisshot |= SaveSymCodeInfo(fil, sop->Animator);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, sop->controller);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, sop->sp_child);
+        assert(!saveisshot);
     }
 
 
@@ -554,10 +599,13 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
         else
         {
             saveisshot |= SaveSymDataInfo(fil, a->ptr);
+            assert(!saveisshot);
         }
 
         saveisshot |= SaveSymCodeInfo(fil, a->callback);
+        assert(!saveisshot);
         saveisshot |= SaveSymDataInfo(fil, a->callbackdata);
+        assert(!saveisshot);
     }
 
 #else
@@ -606,7 +654,10 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     MWRITE(oldipos,sizeof(oldipos),1,fil);
     MWRITE(bakipos,sizeof(bakipos),1,fil);
     for (i = numinterpolations - 1; i >= 0; i--)
+    {
         saveisshot |= SaveSymDataInfo(fil, curipos[i]);
+        assert(!saveisshot);
+    }
 
     // short interpolations
     MWRITE(&short_numinterpolations,sizeof(short_numinterpolations),1,fil);
@@ -614,8 +665,10 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     MWRITE(short_oldipos,sizeof(short_oldipos),1,fil);
     MWRITE(short_bakipos,sizeof(short_bakipos),1,fil);
     for (i = short_numinterpolations - 1; i >= 0; i--)
+    {
         saveisshot |= SaveSymDataInfo(fil, short_curipos[i]);
-
+        assert(!saveisshot);
+    }
 
     // parental lock
     for (i = 0; i < (int)SIZ(otlist); i++)
@@ -681,7 +734,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     MWRITE(BossSpriteNum, sizeof(BossSpriteNum), 1, fil);
     //MWRITE(&Zombies, sizeof(Zombies), 1, fil);
 
-    MCLOSE_WRITE(fil);
 	if (!saveisshot)
 		return FinishSavegameWrite();
 

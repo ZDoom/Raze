@@ -110,6 +110,7 @@ error:
 
 bool CompositeSavegameWriter::WriteToFile()
 {
+	if (subfiles.Size() == 0) return false;
 	TArray<FCompressedBuffer> compressed(subfiles.Size(), 1);
 	for (unsigned i = 0; i < subfiles.Size(); i++)
 	{

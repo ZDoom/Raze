@@ -50,6 +50,7 @@ inline void MCLOSE_WRITE(FileWriter* handle)
 
 inline void MCLOSE_READ(FileReader* handle)
 {
+	handle->Close();
 	FinishSavegameRead();
 }
 

@@ -2634,7 +2634,14 @@ void RunLevel(void)
 		D_ProcessEvents();
 		faketimerhandler();
 
-        MoveLoop();
+        if (M_Active())
+        {
+            ototalclock = (int)totalclock;
+        }
+        else
+        {
+            MoveLoop();
+        }
 
 
         drawscreen(Player + screenpeek);
