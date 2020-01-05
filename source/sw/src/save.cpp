@@ -1276,10 +1276,14 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     DoPlayerNightVisionPalette(Player+myconnectindex);
 
 
-	ExitLevel = TRUE;
-	LoadGameOutsideMoveLoop = TRUE;
+	
 
-	if (!InMenuLevel) ready2send = 1;
+    if (!InMenuLevel)
+    {
+        ready2send = 1;
+        LoadGameOutsideMoveLoop = TRUE;
+    }
+    else ExitLevel = TRUE;
     return true;
 }
 
