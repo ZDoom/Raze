@@ -169,7 +169,10 @@ public:
 
 	bool CheckAllInput()
 	{
-		auto res = keyGetScan();
+		int res;
+		do
+			res = keyGetScan();
+		while (res > KEY_LASTJOYBUTTON && res < KEY_PAD_LTHUMB_RIGHT);	// Controller movement events should not register here.
 		ClearAllInput();
 		return res;
 	}

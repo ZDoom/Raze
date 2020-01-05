@@ -474,6 +474,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		M_ClearMenus();	// must be done before starting the level.
 		if (caller == NAME_MainMenu) GameStartupInfo.Episode = param;
 		STAT_StartNewGame(gVolumeNames[GameStartupInfo.Episode], GameStartupInfo.Skill);
+		inputState.ClearAllInput();
 		gi->StartGame(GameStartupInfo);
 		return false;
 
