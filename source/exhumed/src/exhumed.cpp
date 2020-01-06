@@ -887,13 +887,13 @@ void DoPassword(int nPassword)
 
         case 2: // LOBOCOP
         {
-            lLocalCodes |= 0x20;
+            lLocalCodes |= kButtonCheatGuns;
             break;
         }
 
         case 3: // LOBODEITY
         {
-            lLocalCodes |= 0x40;
+            lLocalCodes |= kButtonCheatGodMode;
             break;
         }
 
@@ -910,7 +910,7 @@ void DoPassword(int nPassword)
 
         case 5:
         {
-            lLocalCodes |= 0x80;
+            lLocalCodes |= kButtonCheatKeys;
             break;
         }
 
@@ -954,7 +954,7 @@ void DoPassword(int nPassword)
 
         case 9:
         {
-            lLocalCodes |= 0x100; // LOBOSWAG?
+            lLocalCodes |= kButtonCheatItems; // LOBOSWAG
             break;
         }
 

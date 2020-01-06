@@ -1415,7 +1415,7 @@ loc_1AB8E:
 
             uint16_t buttons = sPlayerInput[nPlayer].buttons;
 
-            if (buttons & 0x40) // LOBODEITY cheat
+            if (buttons & kButtonCheatGodMode) // LOBODEITY cheat
             {
                 char strDeity[96]; // TODO - reduce in size?
 
@@ -1437,18 +1437,18 @@ loc_1AB8E:
                 sprintf(strDeity, "Deity mode %s for player", strDMode);
                 StatusMessage(150, strDeity);
             }
-            else if (buttons & 0x20) // LOBOCOP cheat
+            else if (buttons & kButtonCheatGuns) // LOBOCOP cheat
             {
                 FillWeapons(nPlayer);
                 StatusMessage(150, "All weapons loaded for player");
             }
-            else if (buttons & 0x80) // LOBOPICK cheat
+            else if (buttons & kButtonCheatKeys) // LOBOPICK cheat
             {
                 PlayerList[nPlayer].keys = 0xFFFF;
                 StatusMessage(150, "All keys loaded for player");
                 RefreshStatus();
             }
-            else if (buttons & 0x100) // LOBOSWAG cheat
+            else if (buttons & kButtonCheatItems) // LOBOSWAG cheat
             {
                 FillItems(nPlayer);
                 StatusMessage(150, "All items loaded for player");
