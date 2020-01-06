@@ -692,8 +692,6 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
             startTime = (int)totalclock;
         }
 
-        int moveTimer = (int)totalclock;
-
         int tileY = curYPos;
 
         // Draw the background screens
@@ -763,7 +761,6 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
         {
             bFadeDone = kTrue;
             FadeIn();
-            moveTimer = (int)totalclock;
         }
 
         if (curYPos == destYPos)
@@ -824,8 +821,6 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
                 curYPos += var_2C;
                 runtimer = (int)totalclock;
             }
-
-            //curYPos += var_2C * (((int)totalclock - moveTimer) / 2);
 
 			if (inputState.CheckAllInput())
 			{
