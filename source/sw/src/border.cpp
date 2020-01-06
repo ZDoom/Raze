@@ -146,7 +146,6 @@ void
 SetConsoleDmost(void)
 {
     int ystart;
-    int xstart;
 
     int i;
     int adj=0;
@@ -289,8 +288,7 @@ void DrawBorderShade(PLAYERp pp, short shade_num, short wx1, short wy1, short wx
 void
 BorderShade(PLAYERp pp, SWBOOL refresh)
 {
-    int i, j, k, l, wx1, wx2, wy1, wy2;
-    PANEL_SPRITEp psp;
+    int wx1, wx2, wy1, wy2;
     uint8_t lines;
 
     wx1 = windowxy1.x - 1;
@@ -457,7 +455,6 @@ static void BorderSetView(PLAYERp, int *Xdim, int *Ydim, int *ScreenSize)
 static void
 BorderRefresh(PLAYERp pp)
 {
-    int i, j;
     int x, x2, y, y2;
     BORDER_INFO *b;
 
@@ -521,9 +518,7 @@ BorderRefresh(PLAYERp pp)
 
 void SetBorder(PLAYERp pp, int value)
 {
-    int diff;
     int Xdim, Ydim, ScreenSize;
-    SWBOOL set_view = TRUE;
 
     if (pp != Player + myconnectindex)
         return;
@@ -566,7 +561,6 @@ void SetBorder(PLAYERp pp, int value)
 void
 SetRedrawScreen(PLAYERp pp)
 {
-    int i, j;
     BORDER_INFO *b;
 
     if (pp != Player + myconnectindex)

@@ -1105,8 +1105,6 @@ enum cutsceneflags {
     CUTSCENE_TEXTUREFILTER = 4,
 };
 
-#ifdef USE_OPENGL
-
 enum {
     TEXFILTER_OFF = 0, // GL_NEAREST
     TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
@@ -1137,7 +1135,6 @@ extern int32_t glrendmode;
 extern int32_t r_rortexture;
 extern int32_t r_rortexturerange;
 extern int32_t r_rorphase;
-#endif
 
 void hicinit(void);
 void hicsetpalettetint(int32_t palnum, char r, char g, char b, char sr, char sg, char sb, polytintflags_t effect);

@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "animlib.h"
 #include "cmdlib.h"
 #include "compat.h"
+#include "build.h"
 #include "../glbackend/glbackend.h"
 
 
@@ -406,9 +407,7 @@ int32_t Anim_Play(const char *fn)
 #endif
 // ANM playback --- v v v ---
 
-#ifdef USE_OPENGL
     int32_t ogltexfiltermode = hw_texfilter;
-#endif
 	TArray<uint8_t> buffer;
 	auto fr = fileSystem.OpenFileReader(fn, 0);
 

@@ -2141,10 +2141,9 @@ OperateTripTrigger(PLAYERp pp)
         if (pp == Player+myconnectindex)
             PlayerSound(DIGI_ANCIENTSECRET, v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
-        sprintf(ds, GStrings("TXTS_SECRET"));
         SECRET_Trigger(pp->cursectnum);
 
-        PutStringInfo(pp, ds);
+        PutStringInfo(pp, GStrings("TXTS_SECRET"));
         // always give to the first player
         Player->SecretsFound++;
         sectp->lotag = 0;

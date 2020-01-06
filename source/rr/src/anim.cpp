@@ -440,9 +440,7 @@ int32_t Anim_Play(const char *fn)
 #endif
 // ANM playback --- v v v ---
 
-#ifdef USE_OPENGL
     int32_t ogltexfiltermode = hw_texfilter;
-#endif
 	auto fr = fileSystem.OpenFileReader(fn, 0);
 
     if (!fr.isOpen())

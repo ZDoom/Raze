@@ -1,8 +1,10 @@
 // SDL interface layer for the Build Engine
 // Use SDL 1.2 or 2.0 from http://www.libsdl.org
 
+#ifdef _WIN32
 #include <Windows.h>
 #include <CommCtrl.h>
+#endif
 #include <signal.h>
 #include <string>
 #include <stdexcept>

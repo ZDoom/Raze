@@ -300,13 +300,13 @@ class FFloatCVar : public FBaseCVar
 public:
 	FFloatCVar (const char *name, float def, uint32_t flags, void (*callback)(FFloatCVar &)=NULL, const char* descr = nullptr);
 
-	virtual ECVarType GetRealType () const;
+	virtual ECVarType GetRealType () const override;
 
-	virtual UCVarValue GetGenericRep (ECVarType type) const;
-	virtual UCVarValue GetFavoriteRep (ECVarType *type) const;
-	virtual UCVarValue GetGenericRepDefault (ECVarType type) const;
-	virtual UCVarValue GetFavoriteRepDefault (ECVarType *type) const;
-	virtual void SetGenericRepDefault (UCVarValue value, ECVarType type);
+	virtual UCVarValue GetGenericRep (ECVarType type) const override ;
+	virtual UCVarValue GetFavoriteRep (ECVarType *type) const override;
+	virtual UCVarValue GetGenericRepDefault (ECVarType type) const override;
+	virtual UCVarValue GetFavoriteRepDefault (ECVarType *type) const override;
+	virtual void SetGenericRepDefault (UCVarValue value, ECVarType type) override;
 	const char *GetHumanString(int precision) const override;
 
 	float operator= (float floatval)
@@ -315,7 +315,7 @@ public:
 	inline float operator *() const { return Value; }
 
 protected:
-	virtual void DoSet (UCVarValue value, ECVarType type);
+	virtual void DoSet (UCVarValue value, ECVarType type) override;
 
 public: // for the menu code which still needs variable references. (Cannot change everything at once.)
 	float Value;

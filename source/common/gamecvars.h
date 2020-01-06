@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 #include "c_cvars.h"
 
 EXTERN_CVAR(Bool, cl_crosshair)

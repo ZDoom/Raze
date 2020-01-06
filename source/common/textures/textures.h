@@ -487,6 +487,7 @@ struct BuildArtFile
 	{
 		filename = std::move(other.filename);
 		RawData = std::move(other.RawData);
+		return *this;
 	}
 };
 

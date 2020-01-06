@@ -52,6 +52,12 @@ int DPrintf (int level, const char *format, ...) ATTRIBUTE((format(printf,2,3)))
 
 void OSD_Printf(const char *format, ...) ATTRIBUTE((format(printf,1,2)));
 
+// Sometimes compilers can be really stupid... (but why do I have to globally silence the warning to make the compiler shut up here...???)
+#if defined(__GNUC__) || defined(__clang__)
+//#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
+
 template<class... Args>
 inline void initprintf(const char *format, Args&&... args) //ATTRIBUTE((format(printf,1,2)))
 {
@@ -65,6 +71,11 @@ inline void buildprintf(const char *format, Args&&... args) //ATTRIBUTE((format(
 	OSD_Printf(format, std::forward<Args>(args)...);
 }
 
+/*
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
+ */
 
 
 inline void initputs(const char *s)

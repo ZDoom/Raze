@@ -269,7 +269,7 @@ void ItemCheat(PLAYERp pp, const char *cheat_string)
     PlayerUpdateKeys(pp);
 }
 
-VOID HealCheat(PLAYERp pp, const char *cheat_string)
+void HealCheat(PLAYERp pp, const char *cheat_string)
 {
     short pnum;
     const char *str = nullptr;
@@ -283,7 +283,7 @@ VOID HealCheat(PLAYERp pp, const char *cheat_string)
     if (str) PutStringInfo(pp, GStrings(str));
 }
 
-VOID SortKeyCheat(PLAYERp pp, const char *sKey)
+void SortKeyCheat(PLAYERp pp, const char *sKey)
 {
     const char *sTemp = "";
 
@@ -341,7 +341,7 @@ VOID SortKeyCheat(PLAYERp pp, const char *sKey)
         KeysCheat(pp, sTemp);
 }
 
-VOID KeysCheat(PLAYERp pp, const char *cheat_string)
+void KeysCheat(PLAYERp pp, const char *cheat_string)
 {
     // Get KEYS
     PLAYERp p;

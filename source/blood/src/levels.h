@@ -35,8 +35,8 @@ BEGIN_BLD_NS
 #pragma pack(push, 1)
 
 struct GAMEOPTIONS {
-    char nGameType;
-    char nDifficulty;
+    unsigned char nGameType;
+    unsigned char nDifficulty;
     int nEpisode;
     int nLevel;
     char zLevelName[BMAX_PATH];

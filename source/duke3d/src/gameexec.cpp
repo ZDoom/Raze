@@ -1261,7 +1261,7 @@ void Screen_Play(void)
 
 #if !defined LUNATIC
 #if defined __GNUC__ || defined __clang__
-# define CON_USE_COMPUTED_GOTO
+// # define CON_USE_COMPUTED_GOTO does not work anymore with some of the changes.
 #endif
 
 #ifdef CON_USE_COMPUTED_GOTO

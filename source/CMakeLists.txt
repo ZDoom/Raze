@@ -23,8 +23,11 @@ if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	endif()
 endif()
 
+# Build does not work with signed chars!
 if (MSVC)
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /J" )
+else()
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funsigned-char -Wno-missing-braces -Wno-char-subscripts" )
 endif()
 
 option( DYN_FLUIDSYNTH "Dynamically load fluidsynth" ON )
@@ -66,12 +69,12 @@ if( WIN32 )
 
 	set( DX_dinput8_LIBRARY dinput8 )
 
-	if( X64 ) 
+	if( X64 )
 		link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../platform/Windows/lib/64)
 	else()
 		link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../platform/Windows/lib/32)
 	endif()
-	
+
 	set( PROJECT_LIBRARIES
 		opengl32
 		wsock32
@@ -85,9 +88,9 @@ if( WIN32 )
 		ws2_32
 		setupapi
 		oleaut32
-		dbghelp 
+		dbghelp
 		legacy_stdio_definitions
-		
+
 		shlwapi
 		version
 		imm32
@@ -104,11 +107,11 @@ if( WIN32 )
 		# this local library crap needs to go away. Sadly there doesn't seem to be anything to get a working libvpx that doesn't force linking with MinGW dependencies.
 		libvpx
 		libcompat-to-msvc
-		
-		)
-		
 
-		
+		)
+
+
+
 
 	if( NOT DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 		set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} DelayImp )
@@ -367,12 +370,12 @@ endif()
 
 # Check for thread_local keyword, it's optional at the moment
 
-CHECK_CXX_SOURCE_COMPILES("thread_local int i; int main() { i = 0; }"
-	HAVE_THREAD_LOCAL)
+#CHECK_CXX_SOURCE_COMPILES("thread_local int i; int main() { i = 0; }"
+#	HAVE_THREAD_LOCAL)
 
-if( NOT HAVE_THREAD_LOCAL )
-	message( SEND_ERROR "C++ compiler doesn't support thread_local storage duration specifier" )
-endif()
+#if( NOT HAVE_THREAD_LOCAL )
+#	message( SEND_ERROR "C++ compiler doesn't support thread_local storage duration specifier" )
+#endif()
 
 # Check for functions that may or may not exist.
 
@@ -560,7 +563,7 @@ endif()
 add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h
 	COMMAND re2c --no-generation-date -s -o ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h ${CMAKE_CURRENT_SOURCE_DIR}/common/utility/sc_man_scanner.re
 	DEPENDS re2c ${CMAKE_CURRENT_SOURCE_DIR}/common/utility/sc_man_scanner.re )
-	
+
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
@@ -657,7 +660,7 @@ set( FASTMATH_SOURCES
 	# The rest is only here because it is C, not C++
 	common/utility/strnatcmp.c
 	common/rendering/gl_load/gl_load.c
-	
+
 	gitinfo.cpp
 )
 
@@ -671,7 +674,7 @@ set (PCH_SOURCES
 	glbackend/gl_palmanager.cpp
 	glbackend/gl_texture.cpp
 	glbackend/hw_draw2d.cpp
-	
+
 	thirdparty/src/base64.cpp
 	thirdparty/src/sjson.cpp
 	thirdparty/src/fix16.cpp
@@ -684,7 +687,7 @@ set (PCH_SOURCES
 	#thirdparty/imgui/imgui_impl_opengl3.cpp
 	#thirdparty/imgui/imgui_impl_sdl.cpp
 	#thirdparty/imgui/imgui_widgets.cpp
-	
+
 	# Todo: Split out the license-safe code from this.
 	build/src/a-c.cpp
 	build/src/animvpx.cpp
@@ -707,7 +710,7 @@ set (PCH_SOURCES
 	build/src/tiles.cpp
 	build/src/timer.cpp
 	build/src/voxmodel.cpp
-	
+
 	common/animlib.cpp
 	common/rts.cpp
 	common/gameconfigfile.cpp
@@ -728,14 +731,14 @@ set (PCH_SOURCES
 	common/2d/v_draw.cpp
 	common/2d/v_drawtext.cpp
 	common/2d/renderstyle.cpp
-	
+
 	common/fonts/font.cpp
 	common/fonts/hexfont.cpp
 	common/fonts/singlelumpfont.cpp
 	common/fonts/v_font.cpp
 	common/fonts/v_text.cpp
 	common/fonts/fontchars.cpp
-	
+
 	common/console/c_cvars.cpp
 	common/console/c_console.cpp
 	common/console/c_consolebuffer.cpp
@@ -745,7 +748,7 @@ set (PCH_SOURCES
 	common/console/c_dispatch.cpp
 	common/console/d_event.cpp
 	common/console/c_con.cpp
-	
+
 	common/utility/i_time.cpp
 	common/utility/name.cpp
 	common/utility/cmdlib.cpp
@@ -795,12 +798,12 @@ set (PCH_SOURCES
 	common/music/music_config.cpp
 	common/music/music_midi_base.cpp
 	common/music/s_advsound.cpp
-	
+
 	common/sound/backend/oalsound.cpp
 	common/sound/backend/i_sound.cpp
 	common/sound/s_sound.cpp
 	common/sound/s_environment.cpp
-	
+
 	common/menu/imagescroller.cpp
 	common/menu/joystickmenu.cpp
 	common/menu/listmenu.cpp
@@ -812,11 +815,11 @@ set (PCH_SOURCES
 	common/menu/messagebox.cpp
 	common/menu/optionmenu.cpp
 	common/menu/resolutionmenu.cpp
-	
+
 	#common/input/i_joystick.cpp
 	#common/input/i_input.cpp
 	common/input/m_joy.cpp
-	
+
 	common/rendering/r_videoscale.cpp
 	common/rendering/v_framebuffer.cpp
 	common/rendering/v_video.cpp
@@ -908,7 +911,7 @@ include_directories(
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 
-	#${SYSTEM_SOURCES_DIR} 
+	#${SYSTEM_SOURCES_DIR}
 )
 
 add_dependencies( ${PROJECT_NAME} revision_check )

@@ -1,7 +1,13 @@
 cmake_minimum_required( VERSION 3.1.0 )
 
+require_stricmp()
+require_strnicmp()
+
+# Build does not work with signed chars!
 if (MSVC)
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /J" )
+else()
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funsigned-char -Wno-missing-braces -Wno-char-subscripts" )
 endif()
 
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/../../build/include" )
@@ -13,6 +19,7 @@ include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCL
 endif()
 
 include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}/../build/include
 	${CMAKE_CURRENT_SOURCE_DIR}/../libsmackerdec/include
 	${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty/include

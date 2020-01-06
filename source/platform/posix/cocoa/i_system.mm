@@ -36,11 +36,6 @@
 #include <fnmatch.h>
 #include <sys/sysctl.h>
 
-#include "d_protocol.h"
-#include "doomdef.h"
-#include "doomerrors.h"
-#include "doomstat.h"
-#include "g_game.h"
 #include "gameconfigfile.h"
 #include "i_sound.h"
 #include "i_system.h"

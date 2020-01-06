@@ -36,7 +36,7 @@ public:
     LoadSave() {
         loadSaves.Push(this);
     }
-    //~LoadSave() { }
+	virtual ~LoadSave() = default;
     virtual void Save(void);
     virtual void Load(void);
     void Read(void *, int);

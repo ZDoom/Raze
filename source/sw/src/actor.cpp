@@ -300,7 +300,6 @@ DoActorDie(short SpriteNum, short weapon)
 void
 DoDebrisCurrent(SPRITEp sp)
 {
-    int xvect, yvect;
     int nx, ny;
     int ret=0;
     USERp u = User[sp - sprite];
@@ -400,9 +399,7 @@ DoActorSectorDamage(short SpriteNum)
 int
 move_debris(short SpriteNum, int xchange, int ychange, int zchange)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    int nx, ny;
 
     u->ret = move_sprite(SpriteNum, xchange, ychange, zchange,
                          u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
@@ -622,7 +619,6 @@ int
 DoActorBeginSlide(short SpriteNum, short ang, short vel, short dec)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     SET(u->Flags, SPR_SLIDING);
 
@@ -642,7 +638,6 @@ int
 DoActorSlide(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
     nx = u->slide_vel * (int) sintable[NORM_ANGLE(u->slide_ang + 512)] >> 14;
@@ -670,7 +665,6 @@ int
 DoActorBeginJump(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);

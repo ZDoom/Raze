@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PalEntry.h"
+#include "palentry.h"
 #include "gl_buffers.h"
 #include "renderstyle.h"
 class PolymostShader;

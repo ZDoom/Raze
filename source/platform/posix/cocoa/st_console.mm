@@ -33,7 +33,6 @@
 
 #include "i_common.h"
 
-#include "d_main.h"
 #include "st_console.h"
 #include "v_text.h"
 #include "version.h"

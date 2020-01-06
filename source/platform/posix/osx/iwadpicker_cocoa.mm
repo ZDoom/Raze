@@ -34,7 +34,6 @@
  */
 
 #include "cmdlib.h"
-#include "d_main.h"
 #include "version.h"
 #include "c_cvars.h"
 #include "m_argv.h"

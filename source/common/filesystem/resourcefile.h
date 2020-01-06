@@ -139,9 +139,9 @@ struct FUncompressedLump : public FResourceLump
 {
 	int				Position;
 
-	virtual FileReader *GetReader();
+	FileReader *GetReader() override;
 	int ValidateCache() override;
-	virtual int GetFileOffset() { return Position; }
+	virtual int GetFileOffset() override { return Position; }
 
 };
 
@@ -188,9 +188,9 @@ struct FClonedLump : public FResourceLump
 	{
 		parent = lump;
 	}
-	void* Lock() { return parent->Lock(); }
+	void* Lock() override { return parent->Lock(); }
 	void Unlock(bool mayfree) override { parent->Unlock(mayfree); }
-	void* Get() { return parent->Get(); }
+	void* Get() override { return parent->Get(); }
 	int ValidateCache() override { return parent->ValidateCache(); }
 };
 

@@ -4,8 +4,6 @@
 
 #ifdef _WIN32
 # include "windows_inc.h"
-#elif defined __APPLE__
-# include "osxbits.h"
 #endif
 
 #include "common.h"
