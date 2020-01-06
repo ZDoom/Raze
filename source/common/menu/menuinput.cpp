@@ -67,7 +67,7 @@ DTextEnterMenu::DTextEnterMenu(DMenu *parent, FFont *dpf, FString textbuffer, in
 : DMenu(parent)
 {
 	mEnterString = textbuffer;
-	mEnterPos = maxlen;
+	mEnterSize = maxlen;
 	mInputGridOkay = (showgrid && (m_showinputgrid == 0)) || (m_showinputgrid >= 1);
 	if (mEnterString.Len() > 0)
 	{
@@ -116,7 +116,7 @@ bool DTextEnterMenu::Responder(event_t *ev)
 		char ch = (char)ev->data1;
 		if ((ev->subtype == EV_GUI_KeyDown || ev->subtype == EV_GUI_KeyRepeat) && ch == '\b')
 		{
-			if (mEnterPos > 0)
+			if (mEnterString.Len() > 0)
 			{
 				mEnterString.DeleteLastCharacter();
 			}
