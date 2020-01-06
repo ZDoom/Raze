@@ -17,9 +17,7 @@ class CompositeSavegameWriter
 public:
 	void Clear()
 	{
-		subfiles.Reset();
-		subfilenames.Reset();
-		isCompressed.Reset();
+		subfiles.DeleteAndClear();
 	}
 	void SetFileName(const char* fn)
 	{
