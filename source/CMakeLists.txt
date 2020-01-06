@@ -460,6 +460,33 @@ if( NOT DYN_FLUIDSYNTH )
 endif()
 
 
+set( PLAT_POSIX_SOURCES
+	platform/posix/i_steam.cpp )
+set( PLAT_SDL_SOURCES
+	platform/posix/sdl/crashcatcher.c
+	platform/posix/sdl/hardware.cpp
+	platform/posix/sdl/i_gui.cpp
+	platform/posix/sdl/i_input.cpp
+	platform/posix/sdl/i_joystick.cpp
+	platform/posix/sdl/i_main.cpp
+	platform/posix/sdl/i_system.cpp
+	platform/posix/sdl/sdlglvideo.cpp
+	platform/posix/sdl/st_start.cpp )
+set( PLAT_UNIX_SOURCES
+	platform/posix/unix/i_specialpaths.cpp
+	platform/posix/unix/gtk_dialogs.cpp )
+set( PLAT_OSX_SOURCES
+	platform/posix/osx/iwadpicker_cocoa.mm
+	platform/posix/osx/i_specialpaths.mm
+	platform/posix/osx/zdoom.icns )
+set( PLAT_COCOA_SOURCES
+	platform/posix/cocoa/i_input.mm
+	platform/posix/cocoa/i_joystick.cpp
+	platform/posix/cocoa/i_main.mm
+	platform/posix/cocoa/i_system.mm
+	platform/posix/cocoa/i_video.mm
+	platform/posix/cocoa/st_console.mm
+	platform/posix/cocoa/st_start.mm )
 
 # Start defining source files
 set( PLAT_WIN32_SOURCES
@@ -483,53 +510,31 @@ set( PLAT_WIN32_SOURCES
 	platform/win32/win32vulkanvideo.cpp
 	)
 
-set( PLAT_POSIX_SOURCES
-	)
-	
-set( PLAT_SDL_SOURCES
-	)
-	
-set( PLAT_UNIX_SOURCES
-#	platform/gtk/dynamicgtk.cpp
-#	platform/gtk/gtkbits.cpp
-#	platform/unix/i_specialpaths.cpp
-	)
-	
-set( PLAT_OSX_SOURCES
-	platform/macos/SDLMain.mm
-	platform/macos/osxbits.mm
-	platform/macos/i_specialpaths.mm
-	)
-	
-set( PLAT_COCOA_SOURCES
-	)
-	
-
 
 if( WIN32 )
-	#set( SYSTEM_SOURCES_DIR win32 )
+	set( SYSTEM_SOURCES_DIR platform/win32 )
 	set( SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} )
 	set( OTHER_SYSTEM_SOURCES ${PLAT_POSIX_SOURCES} ${PLAT_SDL_SOURCES} ${PLAT_OSX_SOURCES} ${PLAT_COCOA_SOURCES} ${PLAT_UNIX_SOURCES} )
 
 	set( SYSTEM_SOURCES ${SYSTEM_SOURCES} platform/win32/gameres.rc )
 elseif( APPLE )
 	if( OSX_COCOA_BACKEND )
-		#set( SYSTEM_SOURCES_DIR posix posix/cocoa )
+		#set( SYSTEM_SOURCES_DIR platform/posix posix/cocoa )
 		set( SYSTEM_SOURCES ${PLAT_COCOA_SOURCES} )
 		set( OTHER_SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} ${PLAT_SDL_SOURCES} ${PLAT_UNIX_SOURCES} )
 	else()
-		#set( SYSTEM_SOURCES_DIR posix posix/sdl )
+		set( SYSTEM_SOURCES_DIR platform/posix platform/posix/sdl )
 		set( SYSTEM_SOURCES ${PLAT_SDL_SOURCES} )
-		##set( PLAT_OSX_SOURCES ${PLAT_OSX_SOURCES} posix/sdl/i_system.mm )
+		set( PLAT_OSX_SOURCES ${PLAT_OSX_SOURCES} platform/posix/sdl/i_system.mm )
 		set( OTHER_SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} ${PLAT_COCOA_SOURCES} ${PLAT_UNIX_SOURCES} )
 	endif()
 
 	set( SYSTEM_SOURCES ${SYSTEM_SOURCES} ${PLAT_POSIX_SOURCES} ${PLAT_OSX_SOURCES} )
 
-	##set_source_files_properties( posix/osx/${PROJECT_NAME}.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
-	##set_source_files_properties( posix/osx/iwadpicker_cocoa.mm PROPERTIES COMPILE_FLAGS -fobjc-exceptions )
+	set_source_files_properties( platform/posix/osx/${PROJECT_NAME}.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
+	set_source_files_properties( platform/posix/osx/iwadpicker_cocoa.mm PROPERTIES COMPILE_FLAGS -fobjc-exceptions )
 else()
-	#set( SYSTEM_SOURCES_DIR posix posix/sdl )
+	set( SYSTEM_SOURCES_DIR platform/posix platform/posix/sdl )
 	set( SYSTEM_SOURCES ${PLAT_POSIX_SOURCES} ${PLAT_SDL_SOURCES} ${PLAT_UNIX_SOURCES} )
 	set( OTHER_SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} ${PLAT_OSX_SOURCES} ${PLAT_COCOA_SOURCES} )
 endif()
