@@ -5248,7 +5248,7 @@ void G_Thunder(void)
             {
                 if (krand2() > 65000)
                 {
-                    g_winderTime = 256;
+                    g_winderTime = 128;
                     g_winderFlash = 1;
                     S_PlaySound(351+(rand()%3));
                 }
