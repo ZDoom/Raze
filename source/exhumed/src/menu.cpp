@@ -684,8 +684,6 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
         HandleAsync();
         twod->ClearScreen();
 
-        videoClearScreen(overscanindex); // fix hall of mirrors when console renders offscreen in widescreen resolutions.
-
         if (((int)totalclock - startTime) / kTimerTicks)
         {
             nIdleSeconds++;
