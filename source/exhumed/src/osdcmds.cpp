@@ -92,14 +92,6 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static inline int osdcmd_quit(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    OSD_ShowDisplay(0);
-    ShutDown();
-    return OSDCMD_OK;
-}
-
 
 int32_t registerosdcommands(void)
 {
