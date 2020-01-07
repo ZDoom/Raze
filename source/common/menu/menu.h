@@ -717,7 +717,6 @@ class DTextEnterMenu : public DMenu
 
 	FString mEnterString;
 	int mEnterSize;
-	int mEnterPos;
 	bool mInputGridOkay;
 	int InputGridX;
 	int InputGridY;
