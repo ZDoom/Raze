@@ -143,6 +143,7 @@ void mysetbrightness(char nBrightness);
 
 void StartFadeIn();
 int DoFadeIn();
+void DoPassword(int nPassword);
 
 void InitSpiritHead();
 
