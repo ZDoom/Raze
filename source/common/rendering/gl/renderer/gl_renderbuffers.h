@@ -193,7 +193,7 @@ private:
 	// Shadow map texture
 	PPGLTexture mShadowMapTexture;
 	PPGLFrameBuffer mShadowMapFB;
-	int mCurrentShadowMapSize = 0;
+	//int mCurrentShadowMapSize = 0;
 
 	PPGLTexture mDitherTexture;
 

@@ -365,7 +365,6 @@ static void DoTimedSound(AmbientSound* amb)
             }
             RestartAmbient(amb);
         }
-		amb->curIndex;
     }
 }
 

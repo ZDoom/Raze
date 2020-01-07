@@ -7,15 +7,15 @@ require_strnicmp()
 if (MSVC)
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /J" )
 else()
-	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funsigned-char -Wno-missing-braces -Wno-char-subscripts" )
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funsigned-char -Wno-missing-braces -Wno-char-subscripts -Wno-unused-variable" )
 endif()
 
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/../../build/include" )
 
 if (WIN32)
-	include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../../platform/windows/include/sdl2")
+	include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../../platform/windows/include/vpx")
 else ()
-include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
+	include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}")
 endif()
 
 include_directories(

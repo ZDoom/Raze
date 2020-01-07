@@ -545,6 +545,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 					if (ndx == menuClasses.Size())
 					{
 						I_Error("Bad menu class %s\n", ld->mClass.GetChars());
+						return true;
 					}
 					else
 					{
@@ -562,7 +563,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		else if ((*desc)->mType == MDESC_OptionsMenu)
 		{
 			FOptionMenuDescriptor *ld = static_cast<FOptionMenuDescriptor*>(*desc);
-			DOptionMenu* newmenu;
+			DOptionMenu* newmenu = nullptr;
 			if (ld->mClass != NAME_None)
 			{
 				auto ndx = menuClasses.FindEx([=](const auto p) { return p->mName == ld->mClass; });
@@ -592,6 +593,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 				if (ndx == menuClasses.Size())
 				{
 					I_Error("Bad menu class %s\n", ld->mClass.GetChars());
+					return true;
 				}
 				else
 				{

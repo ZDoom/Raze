@@ -1096,10 +1096,6 @@ static void sv_create_lua_state(void)
 static void sv_postactordata();
 static void sv_preanimateptrsave();
 static void sv_postanimateptr();
-static void sv_prequoteredef();
-static void sv_quoteredefsave();
-static void sv_quoteredefload();
-static void sv_postquoteredef();
 static void sv_restsave();
 static void sv_restload();
 static void sv_preprojectilesave();

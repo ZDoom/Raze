@@ -61,7 +61,7 @@ static FileWriter *opennextfile(const char *fn)
     return FileWriter::Open(name);
 }
 
-static void getScreen(uint8_t* imgBuf)
+void getScreen(uint8_t* imgBuf)
 {
 	GLInterface.ReadPixels(xdim, ydim, imgBuf);
 }

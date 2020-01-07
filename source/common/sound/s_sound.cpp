@@ -1766,13 +1766,10 @@ FString SoundEngine::NoiseDebug()
 	listener = this->listener.position;
 	int ch = 0;
 
-	FStringf out("*** SOUND DEBUG INFO ***\nListener: %3.2f %2.3f %2.3f\n"
+	FString out;
+	
+	out.Format("*** SOUND DEBUG INFO ***\nListener: %3.2f %2.3f %2.3f\n"
 		"x     y     z     vol   dist  chan  pri   flags       aud   pos   name\n", listener.X, listener.Y, listener.Z);
-
-	if (Channels == nullptr)
-	{
-		return out;
-	}
 
 	for (auto chan = Channels; chan; chan = chan->NextChan)
 	{

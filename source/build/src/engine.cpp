@@ -77,8 +77,6 @@ float debug1, debug2;
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
 
-static int32_t get_mapversion(void);
-
 // Handle nonpow2-ysize walls the old way?
 static FORCE_INLINE int32_t oldnonpow2(void)
 {
@@ -180,7 +178,6 @@ int32_t showheightindicators=1;
 int32_t circlewall=-1;
 
 static void classicScanSector(int16_t startsectnum);
-static void draw_rainbow_background(void);
 
 int16_t editstatus = 0;
 static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
@@ -1120,26 +1117,6 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_
 
 #endif  // defined YAX_ENABLE
 
-// must have writable frame buffer, i.e. done begindrawing()
-static void draw_rainbow_background(void)
-{
-    int32_t y, i;
-    const int32_t N = 240;  // don't use fullbright colors
-    const int32_t numfull=bytesperline/N, numrest=bytesperline%N;
-
-    const char *const src = palookup[0] + 256*18;
-    char *dst = (char *)frameplace;
-
-    for (y=0; y<ydim; y++)
-    {
-        for (i=0; i<numfull; i++)
-            Bmemcpy(&dst[N*i], src, N);
-        if (numrest > 0)
-            Bmemcpy(&dst[N*i], src, numrest);
-
-        dst += bytesperline;
-    }
-}
 
 //
 // setslope
@@ -6249,295 +6226,6 @@ static void renderDrawMaskedWall(int16_t damaskwallcnt)
 }
 
 
-static inline int32_t addscaleclamp(int32_t a, int32_t b, int32_t s1, int32_t s2)
-{
-    // a + scale(b, s1, s1-s2), but without arithmetic exception when the
-    // scale() expression overflows
-
-    int64_t tmp = (int64_t)a + tabledivide64((int64_t)b*s1, s1-s2);
-
-    if (EDUKE32_PREDICT_FALSE(tmp <= INT32_MIN+1))
-        return INT32_MIN+1;
-    if (EDUKE32_PREDICT_FALSE(tmp >= INT32_MAX))
-        return INT32_MAX;
-    return tmp;
-}
-
-//
-// clippoly (internal)
-//
-static int32_t clippoly(int32_t npoints, int32_t clipstat)
-{
-    int32_t z, zz, s1, s2, t, npoints2, start2, z1, z2, z3, z4, splitcnt;
-    int32_t cx1, cy1, cx2, cy2;
-
-    cx1 = windowxy1.x;
-    cy1 = windowxy1.y;
-    cx2 = windowxy2.x+1;
-    cy2 = windowxy2.y+1;
-    cx1 <<= 12; cy1 <<= 12; cx2 <<= 12; cy2 <<= 12;
-
-    if (clipstat&0xa)   //Need to clip top or left
-    {
-        npoints2 = 0; start2 = 0; z = 0; splitcnt = 0;
-        do
-        {
-            s2 = cx1-rx1[z];
-            do
-            {
-                zz = xb1[z]; xb1[z] = -1;
-                s1 = s2; s2 = cx1-rx1[zz];
-                if (s1 < 0)
-                {
-                    rx2[npoints2] = rx1[z]; ry2[npoints2] = ry1[z];
-                    xb2[npoints2] = npoints2+1; npoints2++;
-                }
-                if ((s1^s2) < 0)
-                {
-                    rx2[npoints2] = addscaleclamp(rx1[z], rx1[zz]-rx1[z], s1, s2);
-                    ry2[npoints2] = addscaleclamp(ry1[z], ry1[zz]-ry1[z], s1, s2);
-                    if (s1 < 0) bunchp2[splitcnt++] = npoints2;
-                    xb2[npoints2] = npoints2+1;
-                    npoints2++;
-                }
-                z = zz;
-            }
-            while (xb1[z] >= 0);
-
-            if (npoints2 >= start2+3)
-                xb2[npoints2-1] = start2, start2 = npoints2;
-            else
-                npoints2 = start2;
-
-            z = 1;
-            while ((z < npoints) && (xb1[z] < 0)) z++;
-        }
-        while (z < npoints);
-        if (npoints2 <= 2) return 0;
-
-        for (z=1; z<splitcnt; z++)
-            for (zz=0; zz<z; zz++)
-            {
-                z1 = bunchp2[z]; z2 = xb2[z1]; z3 = bunchp2[zz]; z4 = xb2[z3];
-                s1  = klabs(rx2[z1]-rx2[z2])+klabs(ry2[z1]-ry2[z2]);
-                s1 += klabs(rx2[z3]-rx2[z4])+klabs(ry2[z3]-ry2[z4]);
-                s2  = klabs(rx2[z1]-rx2[z4])+klabs(ry2[z1]-ry2[z4]);
-                s2 += klabs(rx2[z3]-rx2[z2])+klabs(ry2[z3]-ry2[z2]);
-                if (s2 < s1)
-                    { t = xb2[bunchp2[z]]; xb2[bunchp2[z]] = xb2[bunchp2[zz]]; xb2[bunchp2[zz]] = t; }
-            }
-
-
-        npoints = 0; start2 = 0; z = 0; splitcnt = 0;
-        do
-        {
-            s2 = cy1-ry2[z];
-            do
-            {
-                zz = xb2[z]; xb2[z] = -1;
-                s1 = s2; s2 = cy1-ry2[zz];
-                if (s1 < 0)
-                {
-                    rx1[npoints] = rx2[z]; ry1[npoints] = ry2[z];
-                    xb1[npoints] = npoints+1; npoints++;
-                }
-                if ((s1^s2) < 0)
-                {
-                    rx1[npoints] = addscaleclamp(rx2[z], rx2[zz]-rx2[z], s1, s2);
-                    ry1[npoints] = addscaleclamp(ry2[z], ry2[zz]-ry2[z], s1, s2);
-                    if (s1 < 0) bunchp2[splitcnt++] = npoints;
-                    xb1[npoints] = npoints+1;
-                    npoints++;
-                }
-                z = zz;
-            }
-            while (xb2[z] >= 0);
-
-            if (npoints >= start2+3)
-                xb1[npoints-1] = start2, start2 = npoints;
-            else
-                npoints = start2;
-
-            z = 1;
-            while ((z < npoints2) && (xb2[z] < 0)) z++;
-        }
-        while (z < npoints2);
-        if (npoints <= 2) return 0;
-
-        for (z=1; z<splitcnt; z++)
-            for (zz=0; zz<z; zz++)
-            {
-                z1 = bunchp2[z]; z2 = xb1[z1]; z3 = bunchp2[zz]; z4 = xb1[z3];
-                s1  = klabs(rx1[z1]-rx1[z2])+klabs(ry1[z1]-ry1[z2]);
-                s1 += klabs(rx1[z3]-rx1[z4])+klabs(ry1[z3]-ry1[z4]);
-                s2  = klabs(rx1[z1]-rx1[z4])+klabs(ry1[z1]-ry1[z4]);
-                s2 += klabs(rx1[z3]-rx1[z2])+klabs(ry1[z3]-ry1[z2]);
-                if (s2 < s1)
-                    { t = xb1[bunchp2[z]]; xb1[bunchp2[z]] = xb1[bunchp2[zz]]; xb1[bunchp2[zz]] = t; }
-            }
-    }
-    if (clipstat&0x5)   //Need to clip bottom or right
-    {
-        npoints2 = 0; start2 = 0; z = 0; splitcnt = 0;
-        do
-        {
-            s2 = rx1[z]-cx2;
-            do
-            {
-                zz = xb1[z]; xb1[z] = -1;
-                s1 = s2; s2 = rx1[zz]-cx2;
-                if (s1 < 0)
-                {
-                    rx2[npoints2] = rx1[z]; ry2[npoints2] = ry1[z];
-                    xb2[npoints2] = npoints2+1; npoints2++;
-                }
-                if ((s1^s2) < 0)
-                {
-                    rx2[npoints2] = addscaleclamp(rx1[z], rx1[zz]-rx1[z], s1, s2);
-                    ry2[npoints2] = addscaleclamp(ry1[z], ry1[zz]-ry1[z], s1, s2);
-                    if (s1 < 0) bunchp2[splitcnt++] = npoints2;
-                    xb2[npoints2] = npoints2+1;
-                    npoints2++;
-                }
-                z = zz;
-            }
-            while (xb1[z] >= 0);
-
-            if (npoints2 >= start2+3)
-                xb2[npoints2-1] = start2, start2 = npoints2;
-            else
-                npoints2 = start2;
-
-            z = 1;
-            while ((z < npoints) && (xb1[z] < 0)) z++;
-        }
-        while (z < npoints);
-        if (npoints2 <= 2) return 0;
-
-        for (z=1; z<splitcnt; z++)
-            for (zz=0; zz<z; zz++)
-            {
-                z1 = bunchp2[z]; z2 = xb2[z1]; z3 = bunchp2[zz]; z4 = xb2[z3];
-                s1  = klabs(rx2[z1]-rx2[z2])+klabs(ry2[z1]-ry2[z2]);
-                s1 += klabs(rx2[z3]-rx2[z4])+klabs(ry2[z3]-ry2[z4]);
-                s2  = klabs(rx2[z1]-rx2[z4])+klabs(ry2[z1]-ry2[z4]);
-                s2 += klabs(rx2[z3]-rx2[z2])+klabs(ry2[z3]-ry2[z2]);
-                if (s2 < s1)
-                    { t = xb2[bunchp2[z]]; xb2[bunchp2[z]] = xb2[bunchp2[zz]]; xb2[bunchp2[zz]] = t; }
-            }
-
-
-        npoints = 0; start2 = 0; z = 0; splitcnt = 0;
-        do
-        {
-            s2 = ry2[z]-cy2;
-            do
-            {
-                zz = xb2[z]; xb2[z] = -1;
-                s1 = s2; s2 = ry2[zz]-cy2;
-                if (s1 < 0)
-                {
-                    rx1[npoints] = rx2[z]; ry1[npoints] = ry2[z];
-                    xb1[npoints] = npoints+1; npoints++;
-                }
-                if ((s1^s2) < 0)
-                {
-                    rx1[npoints] = addscaleclamp(rx2[z], rx2[zz]-rx2[z], s1, s2);
-                    ry1[npoints] = addscaleclamp(ry2[z], ry2[zz]-ry2[z], s1, s2);
-                    if (s1 < 0) bunchp2[splitcnt++] = npoints;
-                    xb1[npoints] = npoints+1;
-                    npoints++;
-                }
-                z = zz;
-            }
-            while (xb2[z] >= 0);
-
-            if (npoints >= start2+3)
-                xb1[npoints-1] = start2, start2 = npoints;
-            else
-                npoints = start2;
-
-            z = 1;
-            while ((z < npoints2) && (xb2[z] < 0)) z++;
-        }
-        while (z < npoints2);
-        if (npoints <= 2) return 0;
-
-        for (z=1; z<splitcnt; z++)
-            for (zz=0; zz<z; zz++)
-            {
-                z1 = bunchp2[z]; z2 = xb1[z1]; z3 = bunchp2[zz]; z4 = xb1[z3];
-                s1  = klabs(rx1[z1]-rx1[z2])+klabs(ry1[z1]-ry1[z2]);
-                s1 += klabs(rx1[z3]-rx1[z4])+klabs(ry1[z3]-ry1[z4]);
-                s2  = klabs(rx1[z1]-rx1[z4])+klabs(ry1[z1]-ry1[z4]);
-                s2 += klabs(rx1[z3]-rx1[z2])+klabs(ry1[z3]-ry1[z2]);
-                if (s2 < s1)
-                    { t = xb1[bunchp2[z]]; xb1[bunchp2[z]] = xb1[bunchp2[zz]]; xb1[bunchp2[zz]] = t; }
-            }
-    }
-    return npoints;
-}
-
-
-//
-// clippoly4 (internal)
-//
-//Assume npoints=4 with polygon on &nrx1,&nry1
-//JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
-static int32_t clippoly4(int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
-{
-    int32_t n, nn, z, zz, x, x1, x2, y, y1, y2, t;
-
-    nn = 0; z = 0;
-    do
-    {
-        zz = ((z+1)&3);
-        x1 = nrx1[z]; x2 = nrx1[zz]-x1;
-
-        if ((cx1 <= x1) && (x1 <= cx2))
-            nrx2[nn] = x1, nry2[nn] = nry1[z], nn++;
-
-        if (x2 <= 0) x = cx2; else x = cx1;
-        t = x-x1;
-        if (((t-x2)^t) < 0)
-            nrx2[nn] = x, nry2[nn] = nry1[z]+scale(t,nry1[zz]-nry1[z],x2), nn++;
-
-        if (x2 <= 0) x = cx1; else x = cx2;
-        t = x-x1;
-        if (((t-x2)^t) < 0)
-            nrx2[nn] = x, nry2[nn] = nry1[z]+scale(t,nry1[zz]-nry1[z],x2), nn++;
-
-        z = zz;
-    }
-    while (z != 0);
-    if (nn < 3) return 0;
-
-    n = 0; z = 0;
-    do
-    {
-        zz = z+1; if (zz == nn) zz = 0;
-        y1 = nry2[z]; y2 = nry2[zz]-y1;
-
-        if ((cy1 <= y1) && (y1 <= cy2))
-            nry1[n] = y1, nrx1[n] = nrx2[z], n++;
-
-        if (y2 <= 0) y = cy2; else y = cy1;
-        t = y-y1;
-        if (((t-y2)^t) < 0)
-            nry1[n] = y, nrx1[n] = nrx2[z]+scale(t,nrx2[zz]-nrx2[z],y2), n++;
-
-        if (y2 <= 0) y = cy1; else y = cy2;
-        t = y-y1;
-        if (((t-y2)^t) < 0)
-            nry1[n] = y, nrx1[n] = nrx2[z]+scale(t,nrx2[zz]-nrx2[z],y2), n++;
-
-        z = zz;
-    }
-    while (z != 0);
-    return n;
-}
-
-
 static uint32_t msqrtasm(uint32_t c)
 {
     uint32_t a = 0x40000000l, b = 0x20000000l;
@@ -9093,37 +8781,6 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 }
 
 
-#ifdef NEW_MAP_FORMAT
-LUNATIC_CB int32_t (*saveboard_maptext)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
-#endif
-
-// Get map version of external map format (<10: old binary format, ==10: new
-// 'VX' map-text format).
-static int32_t get_mapversion(void)
-{
-#ifdef YAX_ENABLE
-    if (numyaxbunches > 0)
-# ifdef NEW_MAP_FORMAT
-        return 10;
-# else
-        return 9;
-# endif
-#endif
-
-#ifdef NEW_MAP_FORMAT
-    {
-        int32_t i;
-        for (i=0; i<numwalls; i++)
-            if (wall[i].blend != 0)
-                return 10;
-    }
-#endif
-    if (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || Numsprites > MAXSPRITESV7)
-        return 8;
-
-    return 7;
-}
-
 
 #define YSAVES ((xdim*MAXSPRITES)>>7)
 
@@ -11085,33 +10742,6 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
 
     Xfree(tmpwall);
 }
-
-
-static int32_t printext_checkypos(int32_t ypos, int32_t *yminptr, int32_t *ymaxptr)
-{
-    int32_t ymin=0, ymax=7;
-
-    if (ypos < 0)
-    {
-/*
-        ymin = 0-ypos;
-        if (ymin > 7)
-            return 1;
-*/
-    }
-    else if (ypos+7 >= ydim)
-    {
-        ymax = ydim-ypos-1;
-        if (ymax < 0)
-            return 1;
-    }
-
-    *yminptr = ymin;
-    *ymaxptr = ymax;
-
-    return 0;
-}
-
 
 
 

@@ -1018,7 +1018,7 @@ void DrawWeapons(int smooth)
             {
                 nSeqOffset = var_30 + 3;
             }
-            else if (nClip > 25)
+            else //if (nClip > 25)
             {
                 nSeqOffset = var_30 + 4;
             }

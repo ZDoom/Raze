@@ -792,7 +792,7 @@ void InitWallFace()
     WallFaceCount = kMaxWallFace;
 }
 
-int BuildWallFace(short nChannel, short nWall, short nCount, ...)
+int BuildWallFace(short nChannel, short nWall, int nCount, ...)
 {
     if (WallFaceCount <= 0) {
         I_Error("Too many wall faces!\n");
@@ -1968,7 +1968,7 @@ void FuncObject(int a, int b, int nRun)
             if (ObjectList[nObject].nHealth > 0 && sprite[nSprite].cstat & 0x101
                 && (nStat != kStatExplodeTarget
                     || sprite[nRadialSpr].statnum == 201
-                    || nRadialBullet != 3 && nRadialBullet > -1
+                    || (nRadialBullet != 3 && nRadialBullet > -1)
                     || sprite[nRadialSpr].statnum == kStatExplodeTrigger))
             {
                 int nDamage = runlist_CheckRadialDamage(nSprite);

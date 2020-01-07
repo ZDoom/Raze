@@ -637,8 +637,7 @@ void G_HandleMemErr(int32_t lineNum, const char* fileName, const char* funcName)
 
 void G_FatalEngineError(void)
 {
-	I_FatalError("Fatal Engine Initialization Error",
-		"There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
+	I_FatalError("There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
 }
 
 

@@ -54,7 +54,7 @@ class FPNGTexture : public FImageSource
 public:
 	FPNGTexture (FileReader &lump, int width, int height, uint8_t bitdepth, uint8_t colortype, uint8_t interlace);
 
-	void CreatePalettedPixels(uint8_t* buffer);
+	void CreatePalettedPixels(uint8_t* buffer) override;
 	int CopyPixels(FBitmap *bmp, int conversion) override;
 
 protected:

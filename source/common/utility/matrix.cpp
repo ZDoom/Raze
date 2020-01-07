@@ -392,13 +392,6 @@ VSMatrix::length(const FLOATTYPE *a) {
 }
 
 
-static inline int 
-M3(int i, int j)
-{ 
-   return (i*3+j); 
-};
-
-
 
 // computes the derived normal matrix for the view matrix
 void

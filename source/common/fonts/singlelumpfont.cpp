@@ -121,7 +121,7 @@ protected:
 
 FSingleLumpFont::FSingleLumpFont (const char *name, const char * lump)
 {
-	assert(lump >= 0);
+	assert(lump != nullptr);
 
 	FontName = name;
 

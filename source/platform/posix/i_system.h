@@ -8,9 +8,10 @@
 #define __solaris__ 1
 #endif
 
-#include "doomtype.h"
 #include <thread>
 #include <algorithm>
+#include "tarray.h"
+#include "zstring.h"
 
 struct ticcmd_t;
 struct WadStuff;
@@ -25,7 +26,7 @@ void I_Init (void);
 
 // Return a seed value for the RNG.
 unsigned int I_MakeRNGSeed();
-
+void I_ShowFatalError(const char* msg);
 
 void I_StartFrame (void);
 

@@ -48,15 +48,14 @@
 #include "i_system.h"
 #include "m_argv.h"
 #include "m_png.h"
-#include "swrenderer/r_swrenderer.h"
 #include "st_console.h"
 #include "v_text.h"
 #include "version.h"
-#include "doomerrors.h"
+#include "printf.h"
 
 #include "gl/system/gl_framebuffer.h"
-#include "vulkan/system/vk_framebuffer.h"
-#include "rendering/polyrenderer/backend/poly_framebuffer.h"
+//#include "vulkan/system/vk_framebuffer.h"
+//#include "rendering/polyrenderer/backend/poly_framebuffer.h"
 
 
 @implementation NSWindow(ExitAppOnClose)

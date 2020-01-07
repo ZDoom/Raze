@@ -45,6 +45,7 @@
 #include "version.h"
 #include "printf.h"
 #include "s_music.h"
+#include "gamecontrol.h"
 
 
 #define ZD_UNUSED(VARIABLE) ((void)(VARIABLE))
@@ -170,7 +171,7 @@ int DoMain(int argc, char** argv)
 	progdir = [[exePath stringByDeletingLastPathComponent] UTF8String];
 	progdir += "/";
 
-	auto ret = D_DoomMain();
+	auto ret = GameMain();
 	FConsoleWindow::DeleteInstance();
 	return ret;
 }
@@ -347,7 +348,7 @@ extern bool AppActive;
 
 - (void)sendExitEvent:(id)sender
 {
-	throw CExitEvent(0);
+	throw ExitEvent(0);
 }
 
 @end

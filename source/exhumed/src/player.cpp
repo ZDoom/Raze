@@ -336,7 +336,7 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
                     {
                         int theSqrt = ksqrt(xDiff * xDiff + yDiff * yDiff);
 
-                        if (theSqrt < nVal3 && (nStat != 950 && nStat != 949 || !(var_14 & 1)) && (nStat != 912 && nStat != 913 || !(var_20 & 2)))
+                        if (theSqrt < nVal3 && ((nStat != 950 && nStat != 949) || !(var_14 & 1)) && ((nStat != 912 && nStat != 913) || !(var_20 & 2)))
                         {
                             nVal3 = theSqrt;
                             *nSprite = i;
@@ -1652,7 +1652,7 @@ do_default:
                                 // loc_1B3C7
 
                                 // CHECKME - is order of evaluation correct?
-                                if (levelnum <= 20 || var_70 >= 25 && (var_70 <= 25 || var_70 == 50))
+                                if (levelnum <= 20 || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
                                 {
                                     DestroyItemAnim(nValB);
                                     mydeletesprite(nValB);

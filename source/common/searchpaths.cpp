@@ -606,7 +606,7 @@ static TArray<FileEntry> LoadCRCCache(void)
 	catch (std::runtime_error &err)
 	{
 		// If there's a parsing error, return what we got and discard the rest.
-		OutputDebugStringA(err.what());
+		debugprintf("%s\n", err.what());
 	}
 	return crclist;
 }

@@ -1631,6 +1631,8 @@ static void Net_Disconnect(void)
         {
             switch (event.type)
             {
+				default:
+					break;
             case ENET_EVENT_TYPE_CONNECT:
             case ENET_EVENT_TYPE_NONE:
             case ENET_EVENT_TYPE_RECEIVE:
@@ -1666,6 +1668,8 @@ static void Net_Disconnect(void)
         {
             switch (event.type)
             {
+				default:
+					break;
             case ENET_EVENT_TYPE_CONNECT:
             case ENET_EVENT_TYPE_NONE:
             case ENET_EVENT_TYPE_RECEIVE:

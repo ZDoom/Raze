@@ -45,7 +45,7 @@ int RandomBit()
     randA = (randA >> 1) | (((randA ^ ((randA >> 1) ^ (randA >> 2) ^ (randA >> 31) ^ (randA >> 6) ^ (randA >> 4))) & 1) << 31);
     randB = (randB >> 1) | ((((randB >> 2) ^ (randB >> 30)) & 1) << 30);
     randC = (randC >> 1) | ((((randC >> 1) ^ (randC >> 28)) & 1) << 28);
-    return ((randA == 0) & randC | (randB & randA)) & 1;
+    return (((randA == 0) & randC) | (randB & randA)) & 1;
 }
 
 char RandomByte()

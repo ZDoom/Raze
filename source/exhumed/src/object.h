@@ -81,7 +81,7 @@ int BuildEnergyBlock(short nSector);
 int BuildElevC(int arg1, int nChannel, int nSector, int nWallSprite, int arg5, int arg6, int nCount, ...);
 int BuildElevF(int nChannel, int nSector, int nWallSprite, int arg_4, int arg_5, int nCount, ...);
 
-int BuildWallFace(short nChannel, short nWall, short nCount, ...);
+int BuildWallFace(short nChannel, short nWall, int nCount, ...);
 
 int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int arg3);
 

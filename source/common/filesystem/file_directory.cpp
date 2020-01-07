@@ -44,7 +44,7 @@
 #include "resourcefile.h"
 #include "cmdlib.h"
 #include "printf.h"
-//#include "doomtype.h"
+#include "i_system.h"
 
 
 
@@ -56,7 +56,7 @@
 
 struct FDirectoryLump : public FResourceLump
 {
-	virtual FileReader NewReader();
+	virtual FileReader NewReader() override;
 	int ValidateCache() override;
 
 	FString mFullPath;
@@ -111,7 +111,6 @@ FDirectory::FDirectory(const char * directory, bool nosubdirflag)
 }
 
 
-#ifdef _WIN32
 //==========================================================================
 //
 // Windows version
@@ -120,14 +119,15 @@ FDirectory::FDirectory(const char * directory, bool nosubdirflag)
 
 int FDirectory::AddDirectory(const char *dirpath)
 {
-	auto dirmatch = WideString(dirpath);
-	struct _wfinddata_t fileinfo;
-	intptr_t handle;
+	void * handle;
 	int count = 0;
 
+	FString dirmatch = dirpath;
+	findstate_t find;
 	dirmatch += '*';
 	
-	if ((handle = _wfindfirst(dirmatch.c_str(), &fileinfo)) == -1)
+	handle = I_FindFirst(dirmatch.GetChars(), &find);
+	if (handle == ((void *)(-1)))
 	{
 		Printf("Could not scan '%s': %s\n", dirpath, strerror(errno));
 	}
@@ -135,19 +135,20 @@ int FDirectory::AddDirectory(const char *dirpath)
 	{
 		do
 		{
-			if (fileinfo.attrib & _A_HIDDEN)
+			// I_FindName only returns the file's name and not its full path
+			auto attr = I_FindAttr(&find);
+			if (attr & FA_HIDDEN)
 			{
 				// Skip hidden files and directories. (Prevents SVN bookkeeping
 				// info from being included.)
 				continue;
 			}
-			FString fi = FString(fileinfo.name);
-			if (fileinfo.attrib & _A_SUBDIR)
+			FString fi = I_FindName(&find);
+			if (attr &  FA_DIREC)
 			{
-
 				if (nosubdir || (fi[0] == '.' &&
-					(fi[1] == '\0' ||
-					 (fi[1] == '.' && fi[2] == '\0'))))
+								 (fi[1] == '\0' ||
+								  (fi[1] == '.' && fi[2] == '\0'))))
 				{
 					// Movie and music subdirectories must always pass.
 					if (fi.CompareNoCase("movie") && fi.CompareNoCase("music"))
@@ -162,88 +163,23 @@ int FDirectory::AddDirectory(const char *dirpath)
 			{
 				if (strstr(fi, ".orig") || strstr(fi, ".bak"))
 				{
-					// We shouldn't add backup files to the lump directory
+					// We shouldn't add backup files to the file system
 					continue;
 				}
-
-				AddEntry(FString(dirpath) + fi, fileinfo.size);
-				count++;
+				size_t size = 0;
+				FString fn = FString(dirpath) + fi;
+				if (GetFileInfo(fn, &size, nullptr))
+				{
+					AddEntry(fn, size);
+					count++;
+				}
 			}
-		} while (_wfindnext(handle, &fileinfo) == 0);
-		_findclose(handle);
+
+		} while (I_FindNext (handle, &find) == 0);
+		I_FindClose (handle);
 	}
 	return count;
 }
-
-#else
-
-//==========================================================================
-//
-// add_dirs
-// 4.4BSD version
-//
-//==========================================================================
-
-int FDirectory::AddDirectory(const char *dirpath)
-{
-	char *argv [2] = { NULL, NULL };
-	argv[0] = new char[strlen(dirpath)+1];
-	strcpy(argv[0], dirpath);
-	FTS *fts;
-	FTSENT *ent;
-	int count = 0;
-
-	fts = fts_open(argv, FTS_LOGICAL, NULL);
-	if (fts == NULL)
-	{
-		Printf("Failed to start directory traversal: %s\n", strerror(errno));
-		return 0;
-	}
-
-	const size_t namepos = strlen(FileName);
-	FString pathfix;
-
-	while ((ent = fts_read(fts)) != NULL)
-	{
-		if (ent->fts_info == FTS_D && ent->fts_name[0] == '.')
-		{
-			// Skip hidden directories. (Prevents SVN bookkeeping
-			// info from being included.)
-			fts_set(fts, ent, FTS_SKIP);
-		}
-		if (ent->fts_info == FTS_D && ent->fts_level == 0)
-		{
-			continue;
-		}
-		if (ent->fts_info != FTS_F)
-		{
-			// We're only interested in remembering files.
-			continue;
-		}
-
-		// Some implementations add an extra separator between
-		// root of the hierarchy and entity's path.
-		// It needs to be removed in order to resolve
-		// lumps' relative paths properly.
-		const char* path = ent->fts_path;
-
-		if ('/' == path[namepos])
-		{
-			pathfix = FString(path, namepos);
-			pathfix.AppendCStrPart(&path[namepos + 1], ent->fts_pathlen - namepos - 1);
-
-			path = pathfix.GetChars();
-		}
-
-		AddEntry(path, ent->fts_statp->st_size);
-		count++;
-	}
-	fts_close(fts);
-	delete[] argv[0];
-	return count;
-}
-#endif
-
 
 //==========================================================================
 //

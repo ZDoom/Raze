@@ -678,11 +678,11 @@ void FConsoleAlias::PrintAlias ()
 {
 	if (m_Command[0].IsNotEmpty())
 	{
-		Printf (TEXTCOLOR_YELLOW "%s : %s\n", m_Name, m_Command[0].GetChars());
+		Printf (TEXTCOLOR_YELLOW "%s : %s\n", m_Name.GetChars(), m_Command[0].GetChars());
 	}
 	if (m_Command[1].IsNotEmpty())
 	{
-		Printf (TEXTCOLOR_ORANGE "%s : %s\n", m_Name, m_Command[1].GetChars());
+		Printf (TEXTCOLOR_ORANGE "%s : %s\n", m_Name.GetChars(), m_Command[1].GetChars());
 	}
 }
 
@@ -779,7 +779,7 @@ CCMD (alias)
 				}
 				else
 				{
-					Printf ("%s is a normal command\n", alias->m_Name);
+					Printf ("%s is a normal command\n", alias->m_Name.GetChars());
 				}
 			}
 		}
@@ -795,7 +795,7 @@ CCMD (alias)
 				}
 				else
 				{
-					Printf ("%s is a normal command\n", alias->m_Name);
+					Printf ("%s is a normal command\n", alias->m_Name.GetChars());
 					alias = NULL;
 				}
 			}
@@ -884,7 +884,7 @@ void FConsoleAlias::Run (FCommandLine &args, void *who, int key)
 {
 	if (bRunning)
 	{
-		Printf ("Alias %s tried to recurse.\n", m_Name);
+		Printf ("Alias %s tried to recurse.\n", m_Name.GetChars());
 		return;
 	}
 
@@ -1080,8 +1080,8 @@ void execLogfile(const char* fn, bool append)
 {
 	if ((Logfile = fopen(fn, append ? "a" : "w")))
 	{
-		//const char* timestr = myasctime();
-		Printf("Log started\n");// , timestr);
+		const char* timestr = myasctime();
+		Printf("Log started: %s\n", timestr);
 	}
 	else
 	{
@@ -1094,8 +1094,8 @@ CCMD(logfile)
 
 	if (Logfile)
 	{
-		//const char* timestr = myasctime();
-		Printf("Log stopped: %s\n");// , timestr);
+		const char* timestr = myasctime();
+		Printf("Log stopped: %s\n", timestr);
 		fclose(Logfile);
 		Logfile = NULL;
 	}

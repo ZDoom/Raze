@@ -400,28 +400,6 @@ UCVarValue FBaseCVar::FromFloat (float value, ECVarType type)
 	return ret;
 }
 
-static uint8_t HexToByte (const char *hex)
-{
-	uint8_t v = 0;
-	for (int i = 0; i < 2; ++i)
-	{
-		v <<= 4;
-		if (hex[i] >= '0' && hex[i] <= '9')
-		{
-			v += hex[i] - '0';
-		}
-		else if (hex[i] >= 'A' && hex[i] <= 'F')
-		{
-			v += hex[i] - 'A';
-		}
-		else // The string is already verified to contain valid hexits
-		{
-			v += hex[i] - 'a';
-		}
-	}
-	return v;
-}
-
 UCVarValue FBaseCVar::FromString (const char *value, ECVarType type)
 {
 	UCVarValue ret;

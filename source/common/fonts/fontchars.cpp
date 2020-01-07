@@ -206,7 +206,7 @@ void FFontChar2::Create8BitPixels(uint8_t *Pixels)
 	{
 		for (int y = GetHeight(); y != 0; --y)
 		{
-			for (int x = GetWidth(); x != 0; )
+			for (int x = GetWidth(); x != 0; --x)
 			{
 				uint8_t color = lump.ReadUInt8();
 				if (color > max)

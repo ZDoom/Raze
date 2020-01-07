@@ -92,7 +92,7 @@ class PSMainMenu : public DListMenu
 		PlayLocalSound(StaticSound[kSound31], 0);
 	}
 
-	void Ticker()
+	void Ticker() override
 	{
 		// handle the menu zoom-in
 		if (zoomsize < 0x10000)

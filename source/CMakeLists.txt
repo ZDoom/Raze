@@ -27,7 +27,7 @@ endif()
 if (MSVC)
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /J" )
 else()
-	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funsigned-char -Wno-missing-braces -Wno-char-subscripts" )
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funsigned-char -Wno-missing-braces -Wno-char-subscripts -Wno-unused-variable" )
 endif()
 
 option( DYN_FLUIDSYNTH "Dynamically load fluidsynth" ON )
@@ -435,7 +435,7 @@ endif()
 
 # Ugh... These precompiled dependencies need to go.
 if (WIN32)
-	include_directories( "platform/win32" "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/sdl2")
+	include_directories( "platform/win32" "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx")
 else ()
 	include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
 endif()
@@ -522,11 +522,11 @@ if( WIN32 )
 	set( SYSTEM_SOURCES ${SYSTEM_SOURCES} platform/win32/gameres.rc )
 elseif( APPLE )
 	if( OSX_COCOA_BACKEND )
-		#set( SYSTEM_SOURCES_DIR platform/posix posix/cocoa )
+		set( SYSTEM_SOURCES_DIR posix/cocoa )
 		set( SYSTEM_SOURCES ${PLAT_COCOA_SOURCES} )
 		set( OTHER_SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} ${PLAT_SDL_SOURCES} ${PLAT_UNIX_SOURCES} )
 	else()
-		set( SYSTEM_SOURCES_DIR platform/posix platform/posix/sdl )
+		set( SYSTEM_SOURCES_DIR platform/posix/sdl )
 		set( SYSTEM_SOURCES ${PLAT_SDL_SOURCES} )
 		set( PLAT_OSX_SOURCES ${PLAT_OSX_SOURCES} platform/posix/sdl/i_system.mm )
 		set( OTHER_SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} ${PLAT_COCOA_SOURCES} ${PLAT_UNIX_SOURCES} )
@@ -911,8 +911,12 @@ include_directories(
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 
-	#${SYSTEM_SOURCES_DIR}
+	${SYSTEM_SOURCES_DIR}
 )
+
+if (NOT WIN32)
+	include_directories(platform/posix)
+endif()
 
 add_dependencies( ${PROJECT_NAME} revision_check )
 

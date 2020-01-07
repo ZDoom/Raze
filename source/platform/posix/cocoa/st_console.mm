@@ -37,7 +37,9 @@
 #include "v_text.h"
 #include "version.h"
 #include "i_time.h"
-
+#include "palentry.h"
+#include "v_video.h"
+#include "v_font.h"
 
 static NSColor* RGB(const uint8_t red, const uint8_t green, const uint8_t blue)
 {
@@ -47,14 +49,9 @@ static NSColor* RGB(const uint8_t red, const uint8_t green, const uint8_t blue)
 									 alpha:1.0f];
 }
 
-static NSColor* RGB(const PalEntry& color)
+static NSColor* RGB(PalEntry color)
 {
 	return RGB(color.r, color.g, color.b);
-}
-
-static NSColor* RGB(const uint32_t color)
-{
-	return RGB(PalEntry(color));
 }
 
 
@@ -100,7 +97,7 @@ FConsoleWindow::FConsoleWindow()
 	[m_scrollView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 	[m_scrollView setDocumentView:m_textView];
 
-	NSString* const title = [NSString stringWithFormat:@"%s %s - Console", GAMESIG, GetVersionString()];
+	NSString* const title = [NSString stringWithFormat:@"%s %s - Console", GAMENAME, GetVersionString()];
 
 	[m_window initWithContentRect:initialRect
 						styleMask:NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask
@@ -334,6 +331,7 @@ void FConsoleWindow::SetTitleText()
 		textViewFrame.size.width,
 		TITLE_TEXT_HEIGHT);
 
+#if 0
 	// Temporary solution for the same foreground and background colors
 	// It's used in graphical startup screen, with Hexen style in particular
 	// Native OS X backend doesn't implement this yet
@@ -353,8 +351,9 @@ void FConsoleWindow::SetTitleText()
 	[titleText setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
 	[titleText setSelectable:NO];
 	[titleText setBordered:NO];
-
 	[[m_window contentView] addSubview:titleText];
+	#endif
+
 }
 
 void FConsoleWindow::SetProgressBar(const bool visible)

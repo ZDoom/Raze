@@ -41,21 +41,8 @@
 #include "i_system.h"
 #include "st_console.h"
 #include "v_text.h"
-#include "x86.h"
 #include "cmdlib.h"
-
-
-void I_Tactile(int /*on*/, int /*off*/, int /*total*/)
-{
-}
-
-
-ticcmd_t* I_BaseTiccmd()
-{
-	static ticcmd_t emptycmd;
-	return &emptycmd;
-}
-
+#include "printf.h"
 
 
 double PerfToSec, PerfToMillisec;
@@ -70,7 +57,7 @@ static void CalculateCPUSpeed()
 		PerfToSec = 1.0 / frequency;
 		PerfToMillisec = 1000.0 / frequency;
 
-		if (!batchrun)
+		//if (!batchrun)
 		{
 			Printf("CPU speed: %.0f MHz\n", 0.001 / PerfToMillisec);
 		}
@@ -79,9 +66,7 @@ static void CalculateCPUSpeed()
 
 void I_Init(void)
 {
-	CheckCPUID(&CPU);
 	CalculateCPUSpeed();
-	DumpCPUInfo(&CPU);
 }
 
 void I_SetIWADInfo()

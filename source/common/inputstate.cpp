@@ -195,7 +195,7 @@ void CONTROL_GetInput(ControlInfo* info)
 	if (in_mouse >= 0)
 		inputState.GetMouseDelta(info);
 
-	if (in_joystick >= 0)
+	if (in_joystick)
 	{
 		// Handle joysticks/game controllers.
 		float joyaxes[NUM_JOYAXIS];

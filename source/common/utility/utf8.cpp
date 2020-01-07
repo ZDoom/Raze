@@ -248,7 +248,7 @@ const char *MakeUTF8(const char *outline, int *numchars = nullptr)
 				UTF8String.Push(encode[i]);
 			}
 		}
-		if (numchars) *numchars++;
+		if (numchars) (*numchars)++;
 	}
 	UTF8String.Push(0);
 	return UTF8String.Data();

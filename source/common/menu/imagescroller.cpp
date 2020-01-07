@@ -54,7 +54,7 @@ void ImageScreen::Drawer()
 	if (mDesc->type == 0)
 	{
 		auto tileindexp = NameToTileIndex.CheckKey(FName(mDesc->text, true));
-		int tileindex;
+		int tileindex = 0;
 		if (tileindexp == nullptr)
 		{
 			// If this isn't a name, try a literal tile index;

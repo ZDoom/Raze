@@ -364,7 +364,7 @@ void STAT_StartNewGame(const char *episode, int skill)
 
 void STAT_NewLevel(const char* mapname)
 {
-	if (!strncmp(mapname, "file://", 7) == 0)
+	if (strncmp(mapname, "file://", 7) == 0)
 	{
 		STAT_StartNewGame("", 0);	// reset and deactivate for user maps
 	}

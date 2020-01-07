@@ -34,12 +34,6 @@
 
 #include <sys/stat.h>
 
-#ifdef __APPLE__
-#include "m_misc.h"
-#endif // __APPLE__
-
-#include "doomerrors.h"
-#include "d_main.h"
 #include "sc_man.h"
 #include "cmdlib.h"
 
@@ -122,7 +116,8 @@ static TArray<FString> ParseSteamRegistry(const char* path)
 
 	// Read registry data
 	FScanner sc;
-	if (sc.OpenFile(path))
+	sc.OpenFile(path);
+	//if (sc.Sc)
 	{
 		sc.SetCMode(true);
 
@@ -178,7 +173,7 @@ TArray<FString> I_GetSteamPath()
 	{
 		SteamInstallFolders = ParseSteamRegistry(regPath);
 	}
-	catch(class CRecoverableError &error)
+	catch(class std::runtime_error &error)
 	{
 		// If we can't parse for some reason just pretend we can't find anything.
 		return result;

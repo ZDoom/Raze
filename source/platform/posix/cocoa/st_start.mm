@@ -38,7 +38,7 @@
 #include "c_cvars.h"
 #include "st_console.h"
 #include "st_start.h"
-#include "doomerrors.h"
+#include "printf.h"
 
 
 FStartupScreen *StartScreen;
@@ -165,11 +165,3 @@ FStartupScreen *FStartupScreen::CreateInstance(const int maxProgress)
 	return new FBasicStartupScreen(maxProgress, true);
 }
 
-
-// ---------------------------------------------------------------------------
-
-
-void ST_Endoom()
-{
-	throw CExitEvent(0);
-}

@@ -52,7 +52,7 @@ class FArtTexture : public FImageSource
 
 public:
 	FArtTexture (int width, int height, int p);
-	void CreatePalettedPixels(uint8_t* buffer);
+	void CreatePalettedPixels(uint8_t* buffer) override;
 	int CopyPixels(FBitmap *bmp, int conversion) override;
 	int32_t picanmdisk;	// Todo: Get this out again on the other side.
 };

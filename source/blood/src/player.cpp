@@ -1960,7 +1960,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         int nSound = gSuicide[nMessage].at4;
         if (pVictim == gMe && gMe->handTime <= 0)
         {
-			sprintf(buffer, GStrings("TXTB_KILLSELF"));
+			strcpy(buffer, GStrings("TXTB_KILLSELF"));
             if (gGameOptions.nGameType > 0 && nSound >= 0)
                 sndStartSample(nSound, 255, 2, 0);
         }

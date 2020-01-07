@@ -175,7 +175,7 @@ int seq_ReadSequence(const char *seqName)
 
     short tag;
     hFile.Read(&tag, sizeof(tag));
-    if (tag < 'HI' || tag > 'HI' && tag != 'SD')
+    if (tag < 'HI' || (tag > 'HI' && tag != 'SD'))
     {
         initprintf("Unsupported sequence version!\n");
         return 0;

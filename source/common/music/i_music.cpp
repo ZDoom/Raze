@@ -66,6 +66,7 @@ void S_ParseSndInfo();
 
 EXTERN_CVAR (Int, snd_samplerate)
 EXTERN_CVAR (Int, snd_mididevice)
+EXTERN_CVAR(Float, snd_mastervolume)
 
 float relative_volume = 1.f, saved_relative_volume = 1.f;
 
@@ -83,7 +84,7 @@ void I_InitMusicWin32();
 //
 //==========================================================================
 EXTERN_CVAR(Bool, cd_enabled); 
-EXTERN_CVAR(Float, snd_mastervolume)
+
 
 CUSTOM_CVAR(String, cd_drive, "", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 {
@@ -242,7 +243,7 @@ void Mus_Init(void)
 	callbacks.NicePath = mus_NicePath;
 	callbacks.PathForSoundfont = mus_pathToSoundFont;
 	callbacks.OpenSoundFont = mus_openSoundFont;
-	//callbacks.DumbVorbisDecode = dumb_decode_vorbis_;
+	callbacks.DumbVorbisDecode = dumb_decode_vorbis_;
 
 	ZMusic_SetCallbacks(&callbacks);
 	timerSetCallback(S_UpdateMusic);

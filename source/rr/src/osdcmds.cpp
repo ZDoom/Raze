@@ -435,7 +435,7 @@ static int osdcmd_listplayers(osdcmdptr_t parm)
             continue;
 
         enet_address_get_host_ip(&currentPeer->address, ipaddr, sizeof(ipaddr));
-        initprintf("%x %s %s\n", currentPeer->address.host, ipaddr,
+        initprintf("%s %s\n", ipaddr,
                    g_player[(intptr_t)currentPeer->data].user_name);
     }
 

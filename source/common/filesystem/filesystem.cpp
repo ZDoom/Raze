@@ -475,7 +475,7 @@ void FileSystem::AddLump(FResourceLump *lump)
 
 	for (int l = 0; l < NumLookupModes; l++)
 	{
-		int hash;
+		int hash = 0;
 		if (l != (int)ELookupMode::IdWithType && lump->LumpName[l] != NAME_None)
 		{
 			hash = int(lump->LumpName[l]) % NumEntries;

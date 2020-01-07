@@ -458,15 +458,6 @@ int32_t md_undefinemodel(int32_t modelid)
     return 0;
 }
 
-static inline int32_t hicfxmask(size_t pal)
-{
-    return globalnoeffect ? 0 : (hictinting[pal].f & HICTINT_IN_MEMORY);
-}
-static inline int32_t hicfxid(size_t pal)
-{
-    return globalnoeffect ? 0 : ((hictinting[pal].f & (HICTINT_GRAYSCALE|HICTINT_INVERT|HICTINT_COLORIZE)) | ((hictinting[pal].f & HICTINT_BLENDMASK)<<3));
-}
-
 
 //Note: even though it says md2model, it works for both md2model&md3model
 FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bool *exact)

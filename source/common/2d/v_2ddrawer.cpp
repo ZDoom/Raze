@@ -805,7 +805,7 @@ void F2DDrawer::FillPolygon(int *rx1, int *ry1, int *xb1, int32_t npoints, int p
 	{
 		for (auto& pt : polygon[a])
 		{
-			if (pt.first < minx || pt.first == minx && pt.second < miny)
+			if (pt.first < minx || (pt.first == minx && pt.second < miny))
 			{
 				minx = pt.first;
 				miny = pt.second;

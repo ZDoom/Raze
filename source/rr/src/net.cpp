@@ -1651,7 +1651,7 @@ void Net_DisplaySyncMsg(void)
             }
             else
             {
-                Printf(PRINT_NOTIFY, "%s\n", g_szfirstSyncMsg[i],0);
+                Printf(PRINT_NOTIFY, "%s\n", g_szfirstSyncMsg[i]);
             }
         }
     }

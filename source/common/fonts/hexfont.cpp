@@ -308,7 +308,7 @@ public:
 
 	FHexFont2(const char *fontname, const char *lump)
 	{
-		assert(lump >= 0);
+		assert(lump != nullptr);
 
 		FontName = fontname;
 
@@ -331,7 +331,7 @@ public:
 	//
 	//==========================================================================
 
-	void LoadTranslations()
+	void LoadTranslations() override
 	{
 		const int spacing = 9;
 		double luminosity[256];

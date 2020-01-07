@@ -101,7 +101,7 @@ protected:
 		savegameManager.ReadSaveStrings();
 	}
 
-	void Init(DMenu* parent, FListMenuDescriptor* desc)
+	void Init(DMenu* parent, FListMenuDescriptor* desc) override
 	{
 		Super::Init(parent, desc);
 		int Width43 = screen->GetHeight() * 4 / 3;

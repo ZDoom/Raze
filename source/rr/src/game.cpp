@@ -1,4 +1,4 @@
-﻿//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -371,7 +371,7 @@ void G_GameExit(const char *msg)
 	{
 		if (!(msg[0] == ' ' && msg[1] == 0))
 		{
-			I_Error(msg);
+			I_Error("%s", msg);
 		}
 	}
 	throw ExitEvent(0);

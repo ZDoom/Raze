@@ -1395,23 +1395,6 @@ RESTART:
     return 0;
 }
 
-static int32_t S_DefineAudioIfSupported(char *fn, const char *name)
-{
-#if !defined HAVE_FLAC || !defined HAVE_VORBIS
-    const char *extension = Bstrrchr(name, '.');
-# if !defined HAVE_FLAC
-    if (extension && !Bstrcasecmp(extension, ".flac"))
-        return -2;
-# endif
-# if !defined HAVE_VORBIS
-    if (extension && !Bstrcasecmp(extension, ".ogg"))
-        return -2;
-# endif
-#endif
-    Bstrncpy(fn, name, BMAX_PATH);
-    return 0;
-}
-
 // Returns:
 //   0: all OK
 //  -1: ID declaration was invalid:

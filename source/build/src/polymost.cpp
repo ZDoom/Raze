@@ -210,32 +210,6 @@ float* multiplyMatrix4f(float m0[4*4], const float m1[4*4])
 #undef multMatrix4RowCol
 }
 
-static void calcmat(vec3f_t a0, const vec2f_t *offset, float f, float mat[16], int16_t angle)
-{
-    float g;
-    float k0, k1, k2, k3, k4, k5, k6, k7;
-
-    k0 = a0.y;
-    k1 = a0.x;
-    a0.x += offset->x;
-    a0.z += offset->y;
-    f = gcosang2*gshang;
-    g = gsinang2*gshang;
-    k4 = (float)sintable[(angle+1024)&2047] * (1.f/16384.f);
-    k5 = (float)sintable[(angle+512)&2047] * (1.f/16384.f);
-    k2 = k0*(1-k4)+k1*k5;
-    k3 = k1*(1-k4)-k0*k5;
-    k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
-    mat[0] = k4*k6 + k5*k7; mat[4] = gchang*gstang; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
-    k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
-    mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
-    k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
-    mat[2] = k4*k6 + k5*k7; mat[6] =-gshang;        mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
-
-    mat[12] = (mat[12] + a0.y*mat[0]) + (a0.z*mat[4] + a0.x*mat[ 8]);
-    mat[13] = (mat[13] + a0.y*mat[1]) + (a0.z*mat[5] + a0.x*mat[ 9]);
-    mat[14] = (mat[14] + a0.y*mat[2]) + (a0.z*mat[6] + a0.x*mat[10]);
-}
 
 void polymost_glreset()
 {
@@ -1478,7 +1452,7 @@ skip: ;
     {
         int const ni = yax_vsp[yaxbunch][i].n;
 
-        if ((yax_vsp[yaxbunch][i].ctag == yax_vsp[yaxbunch][ni].ctag))
+        if (yax_vsp[yaxbunch][i].ctag == yax_vsp[yaxbunch][ni].ctag)
         {
             yax_vsp[yaxbunch][i].cy[1] = yax_vsp[yaxbunch][ni].cy[1];
             yax_vsdel(yaxbunch, ni);

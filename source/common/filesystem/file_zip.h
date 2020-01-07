@@ -22,13 +22,13 @@ struct FZipLump : public FResourceLump
 	int		Position;
 	unsigned CRC32;
 
-	virtual FileReader *GetReader();
+	virtual FileReader *GetReader() override;
 	virtual int ValidateCache() override;
 
 private:
 	void SetLumpAddress();
-	virtual int GetFileOffset();
-	FCompressedBuffer GetRawData();
+	virtual int GetFileOffset() override;
+	FCompressedBuffer GetRawData() override;
 };
 
 
