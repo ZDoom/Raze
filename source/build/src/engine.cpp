@@ -207,7 +207,8 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
         return;
     }
 
-    i = tabledivide64((i << 15), j) << 15;
+    i = ((i << 15) / j) << 15;
+    //i = tabledivide64((i << 15), j) << 15;
 
     *closest = { (int32_t)(w.x + ((d.x * i) >> 30)), (int32_t)(w.y + ((d.y * i) >> 30)) };
 }
