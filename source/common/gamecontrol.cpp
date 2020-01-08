@@ -92,7 +92,7 @@ CVAR(Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALC
 //
 //==========================================================================
 
-static bool grab_mouse;
+bool grab_mouse;
 
 void mouseGrabInput(bool grab)
 {
