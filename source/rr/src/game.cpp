@@ -7107,7 +7107,6 @@ static int G_EndOfLevel(void)
 
     if (G_EnterLevel(g_player[myconnectindex].ps->gm))
     {
-        G_BackToMenu();
         return 2;
     }
 

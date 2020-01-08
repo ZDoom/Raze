@@ -5682,7 +5682,6 @@ static int G_EndOfLevel(void)
 
     if (G_EnterLevel(p.gm))
     {
-        G_BackToMenu();
         return 2;
     }
 
