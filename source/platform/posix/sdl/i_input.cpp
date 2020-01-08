@@ -31,23 +31,15 @@
 **
 */
 #include <SDL.h>
-#include "doomtype.h"
-#include "doomdef.h"
-#include "doomstat.h"
 #include "m_argv.h"
 #include "v_video.h"
 
-#include "d_main.h"
 #include "d_event.h"
 #include "d_gui.h"
 #include "c_console.h"
 #include "c_dispatch.h"
 #include "dikeys.h"
-#include "events.h"
-#include "g_game.h"
-#include "g_levellocals.h"
 #include "utf8.h"
-#include "doomerrors.h"
 
 
 static void I_CheckGUICapture ();

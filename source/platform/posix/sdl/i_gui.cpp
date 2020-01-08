@@ -36,7 +36,6 @@
 #include <SDL.h>
 
 #include "bitmap.h"
-#include "v_palette.h"
 #include "textures.h"
 
 bool I_SetCursor(FTexture *cursorpic)
@@ -44,7 +43,7 @@ bool I_SetCursor(FTexture *cursorpic)
 	static SDL_Cursor *cursor;
 	static SDL_Surface *cursorSurface;
 
-	if (cursorpic != NULL && cursorpic->isValid())
+	if (cursorpic != NULL)
 	{
 		auto src = cursorpic->GetBgraBitmap(nullptr);
 		// Must be no larger than 32x32.
