@@ -135,9 +135,15 @@ void InputState::AddEvent(const event_t *ev)
 //==========================================================================
 
 void I_StartTic();
+bool ToggleFullscreen;
 
 int32_t handleevents(void)
 {
+	if (ToggleFullscreen)
+	{
+		vid_fullscreen = !vid_fullscreen;
+		ToggleFullscreen = false;
+	}
 	// fullscreen toggle has been requested
 	if (setmodeneeded)
 	{
@@ -192,8 +198,7 @@ void CONTROL_GetInput(ControlInfo* info)
 {
 	memset(info, 0, sizeof(ControlInfo));
 
-	if (in_mouse >= 0)
-		inputState.GetMouseDelta(info);
+	inputState.GetMouseDelta(info);
 
 	if (in_joystick)
 	{

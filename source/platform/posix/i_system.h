@@ -27,6 +27,7 @@ void I_Init (void);
 // Return a seed value for the RNG.
 unsigned int I_MakeRNGSeed();
 void I_ShowFatalError(const char* msg);
+void I_DetectOS (void);
 
 void I_StartFrame (void);
 

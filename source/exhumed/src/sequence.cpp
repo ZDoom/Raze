@@ -175,7 +175,7 @@ int seq_ReadSequence(const char *seqName)
 
     short tag;
     hFile.Read(&tag, sizeof(tag));
-    if (tag < 'HI' || (tag > 'HI' && tag != 'SD'))
+    if (tag < MAKE_ID('I', 'H', 0, 0) || (tag > MAKE_ID('I', 'H', 0, 0) && tag != MAKE_ID('D', 'S', 0, 0)))
     {
         initprintf("Unsupported sequence version!\n");
         return 0;
@@ -267,7 +267,7 @@ int seq_ReadSequence(const char *seqName)
     SeqBase[sequences] = frames;
     chunks += nChunks;
 
-    if (tag == 'SD')
+    if (tag == MAKE_ID('D', 'S', 0, 0))
     {
         short var_20;
         hFile.Read(&var_20, sizeof(var_20));

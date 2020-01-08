@@ -51,7 +51,7 @@ public:
 	void Swap();
 	bool IsHWGammaActive() const { return HWGammaActive; }
 
-	void SetVSync(bool vsync);
+	void SetVSync(bool vsync) override;
 
 	//void Draw2D() override;
 	void PostProcessScene(int fixedcm, const std::function<void()> &afterBloomDrawEndScene2D) override;

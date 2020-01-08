@@ -37,6 +37,7 @@
 
 #include "cmdlib.h"
 #include "version.h"	// for GAMENAME
+#include "i_specialpaths.h"
 
 FString M_GetMacAppSupportPath(const bool create);
 
@@ -177,7 +178,7 @@ FString M_GetScreenshotsPath()
 	{
 		path += "/" GAME_DIR "/Screenshots/";
 	}
-
+	CreatePath(path);
 	return path;
 }
 
@@ -198,6 +199,7 @@ FString M_GetSavegamesPath()
 		path += "/" GAME_DIR "/Savegames/";
 	}
 
+	CreatePath(path);
 	return path;
 }
 
@@ -218,9 +220,29 @@ FString M_GetDocumentsPath()
 		path += "/" GAME_DIR "/";
 	}
 
+	CreatePath(path);
 	return path;
 }
 
+//===========================================================================
+//
+// M_GetDemoPath													macOS
+//
+// Returns the path to the default demo directory.
+//
+//===========================================================================
+
+FString M_GetDemoPath()
+{
+	FString path = GetSpecialPath(NSDocumentDirectory);
+	
+	if (path.IsNotEmpty())
+	{
+		path += "/" GAME_DIR "/Demos/";
+	}
+	CreatePath(path);
+	return path;
+}
 
 //===========================================================================
 //

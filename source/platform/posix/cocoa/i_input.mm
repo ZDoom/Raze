@@ -69,6 +69,7 @@ CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 
 extern int paused, chatmodeon;
 extern constate_e ConsoleState;
+extern bool ToggleFullscreen;
 
 namespace
 {
@@ -165,7 +166,7 @@ void CheckNativeMouse()
 		else
 		{
 			wantNative = (!m_use_mouse || MENU_WaitKey != menuactive)
-				&& (!IsInGame() || GUICapture || paused);
+				&& (!IsInGame() || GUICapture /*|| paused*/);
 		}
 	}
 	else

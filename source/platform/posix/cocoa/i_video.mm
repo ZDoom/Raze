@@ -57,6 +57,7 @@
 //#include "vulkan/system/vk_framebuffer.h"
 //#include "rendering/polyrenderer/backend/poly_framebuffer.h"
 
+extern bool ToggleFullscreen;
 
 @implementation NSWindow(ExitAppOnClose)
 
@@ -150,7 +151,7 @@ namespace
 {
 	if (nil == m_title)
 	{
-		m_title = [NSString stringWithFormat:@"%s %s", GAMESIG, GetVersionString()];
+		m_title = [NSString stringWithFormat:@"%s %s", GAMENAME, GetVersionString()];
 	}
 
 	[super setTitle:m_title];
@@ -432,35 +433,40 @@ public:
 		}
 		else
 #endif
+			
+#if 0
 		if (vid_preferbackend == 2)
 		{
 			SetupOpenGLView(ms_window, OpenGLProfile::Legacy);
 
-			fb = new PolyFrameBuffer(nullptr, fullscreen);
+			fb = new PolyFrameBuffer(nullptr, vid_fullscreen);
 		}
 		else
+#endif
 		{
 			SetupOpenGLView(ms_window, OpenGLProfile::Core);
 		}
 
 		if (fb == nullptr)
 		{
-			fb = new OpenGLRenderer::OpenGLFrameBuffer(0, fullscreen);
+			fb = new OpenGLRenderer::OpenGLFrameBuffer(0, vid_fullscreen);
 		}
 
 		fb->SetWindow(ms_window);
-		fb->SetMode(fullscreen, vid_hidpi);
+		fb->SetMode(vid_fullscreen, vid_hidpi);
 		fb->SetSize(fb->GetClientWidth(), fb->GetClientHeight());
 
+#ifdef HAVE_VULKAN
 		// This lame hack is a temporary workaround for strange performance issues
 		// with fullscreen window and Core Animation's Metal layer
 		// It is somehow related to initial window level and flags
 		// Toggling fullscreen -> window -> fullscreen mysteriously solves the problem
-		if (ms_isVulkanEnabled && fullscreen)
+		if (ms_isVulkanEnabled && vid_fullscreen)
 		{
 			fb->SetMode(false, vid_hidpi);
 			fb->SetMode(true, vid_hidpi);
 		}
+#endif
 
 		return fb;
 	}
@@ -471,8 +477,9 @@ public:
 	}
 
 private:
+#ifdef HAVE_VULKAN
 	VulkanDevice *m_vulkanDevice = nullptr;
-
+#endif
 	static CocoaWindow* ms_window;
 
 	static bool ms_isVulkanEnabled;
@@ -533,10 +540,10 @@ void SystemBaseFrameBuffer::SetWindowSize(int width, int height)
 		return;
 	}
 
-	if (fullscreen)
+	if (vid_fullscreen)
 	{
 		// Enter windowed mode in order to calculate title bar height
-		fullscreen = false;
+		vid_fullscreen = false;
 		SetMode(false, m_hiDPI);
 	}
 
@@ -794,7 +801,7 @@ bool I_SetCursor(FTexture *cursorpic)
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	NSCursor* cursor = nil;
 
-	if (NULL != cursorpic && cursorpic->isValid())
+	if (NULL != cursorpic)
 	{
 		// Create bitmap image representation
 		

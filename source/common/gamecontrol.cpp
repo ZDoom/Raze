@@ -64,6 +64,7 @@ MapRecord userMapRecord;	// stand-in for the user map.
 
 FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
+FString progdir;
 
 void C_CON_SetAliases();
 InputState inputState;
@@ -71,7 +72,7 @@ void SetClipshapes();
 int ShowStartupWindow(TArray<GrpEntry> &);
 void InitFileSystem(TArray<GrpEntry>&);
 bool gHaveNetworking;
-
+bool AppActive;
 
 FString currentGame;
 FString LumpFilter;
@@ -84,6 +85,27 @@ CVAR(String, defaultiwad, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 CVAR(Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 //CVAR(Bool, autoloadbrightmaps, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)	// hopefully this is an option for later
 //CVAR(Bool, autoloadlights, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+static bool grab_mouse;
+
+void mouseGrabInput(bool grab)
+{
+	grab_mouse = grab;
+	if (grab) GUICapture &= ~1;
+	else GUICapture |= 1;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
 UserConfig userConfig;
 

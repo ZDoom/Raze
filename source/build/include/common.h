@@ -119,7 +119,4 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows);
 int Paths_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, DWORD * OutputSize);
 #endif
 
-using SteamPathParseFunc = void(*)(const char *);
-void Paths_ParseSteamKeyValuesForPaths(const char *vdf, SteamPathParseFunc func);
-
 #endif

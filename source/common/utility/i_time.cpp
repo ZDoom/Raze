@@ -53,11 +53,6 @@ static uint64_t GetClockTimeNS()
 	return (uint64_t)((duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count()) * (uint64_t)(TimeScale * 1000));
 }
 
-static uint64_t MSToNS(unsigned int ms)
-{
-	return static_cast<uint64_t>(ms) * 1'000'000;
-}
-
 static uint64_t NSToMS(uint64_t ns)
 {
 	return static_cast<uint64_t>(ns / 1'000'000);

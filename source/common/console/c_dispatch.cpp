@@ -166,7 +166,6 @@ void C_ClearDelayedCommands()
 
 // PRIVATE FUNCTION PROTOTYPES ---------------------------------------------
 
-static long ParseCommandLine (const char *args, int *argc, char **argv, bool no_escapes);
 static FConsoleCommand *FindNameInHashTable (FConsoleCommand **table, const char *name, size_t namelen);
 static FConsoleCommand *ScanChainForName (FConsoleCommand *start, const char *name, size_t namelen, FConsoleCommand **prev);
 

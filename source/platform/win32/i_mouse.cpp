@@ -275,14 +275,7 @@ static bool CaptureMode_InGame()
 //
 //==========================================================================
 
-static bool grab_mouse;
-
-void mouseGrabInput(bool grab)
-{
-	grab_mouse = grab;
-	if (grab) GUICapture &= ~1;
-	else GUICapture |= 1;
-}
+extern bool grab_mouse;
 
 void I_CheckNativeMouse(bool preferNative, bool eventhandlerresult)
 {

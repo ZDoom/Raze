@@ -185,3 +185,18 @@ FString M_GetDocumentsPath()
 {
 	return NicePath("$HOME/" GAME_DIR);
 }
+
+//===========================================================================
+//
+// M_GetDemoPath													Unix
+//
+// Returns the path to the default demo directory.
+//
+//===========================================================================
+
+FString M_GetDemoPath()
+{
+	return M_GetDocumentsPath() + "/demo/";
+}
+
+

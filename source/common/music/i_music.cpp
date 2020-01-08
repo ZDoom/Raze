@@ -180,11 +180,13 @@ static void tim_printfunc(int type, int verbosity_level, const char* fmt, ...)
 	}
 }
 
+#if 0
 static void wm_printfunc(const char* wmfmt, va_list args)
 {
 	Printf(TEXTCOLOR_RED);
 	VPrintf(PRINT_HIGH, wmfmt, args);
 }
+#endif
 
 //==========================================================================
 //

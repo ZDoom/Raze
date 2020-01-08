@@ -1,28 +1,36 @@
-//-------------------------------------------------------------------------
 /*
-Copyright (C) 2010-2019 EDuke32 developers and contributors
-Copyright (C) 2019 Nuke.YKT
-Copyright (C) 2019 Christoph Oelckers
-
-
-This is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+** searchpaths.cpp
+**
+**---------------------------------------------------------------------------
+** Copyright 2019 Christoph Oelckers
+** All rights reserved.
+**
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+**    notice, this list of conditions and the following disclaimer.
+** 2. Redistributions in binary form must reproduce the above copyright
+**    notice, this list of conditions and the following disclaimer in the
+**    documentation and/or other materials provided with the distribution.
+** 3. The name of the author may not be used to endorse or promote products
+**    derived from this software without specific prior written permission.
+**
+** THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+** OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+** IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+** INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+** NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**---------------------------------------------------------------------------
+**
+**
 */
-//-------------------------------------------------------------------------
-//
-// Search path management. Scan all directories for potential game content and return a list with all proper matches
-//
 
 #include "m_crc32.h"
 #include "i_specialpaths.h"
@@ -57,161 +65,14 @@ void AddSearchPath(TArray<FString>& searchpaths, const char* path)
 }
 
 #ifndef _WIN32
-//-------------------------------------------------------------------------
-//
-//
-//
-//-------------------------------------------------------------------------
-
-static void G_AddSteamPaths(TArray<FString> &searchpaths, const char *basepath)
-{
-	FString path;
-
-    // Duke Nukem 3D: Megaton Edition (Steam)
-    path.Format("%s/steamapps/common/Duke Nukem 3D/gameroot", basepath);
-	AddSearchPath(searchpaths, path);
-    path.Format("%s/steamapps/common/Duke Nukem 3D/gameroot/addons/dc", basepath);
-	AddSearchPath(searchpaths, path);
-    path.Format("%s/steamapps/common/Duke Nukem 3D/gameroot/addons/nw", basepath);
-	AddSearchPath(searchpaths, path);
-    path.Format("%s/steamapps/common/Duke Nukem 3D/gameroot/addons/vacation", basepath);
-	AddSearchPath(searchpaths, path);
-
-    // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
-#ifdef __APPLE__
-    path.Format("%s/steamapps/common/Duke Nukem 3D/Duke Nukem 3D.app/drive_c/Program Files/Duke Nukem 3D", basepath);
-	AddSearchPath(searchpaths, path);
-#endif
-
-    // NAM (Steam)
-#ifdef __APPLE__
-    path.Format("%s/steamapps/common/Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM", basepath);
-#else
-    path.Format("%s/steamapps/common/Nam/NAM", basepath);
-#endif
-	AddSearchPath(searchpaths, path);
-
-    // WWII GI (Steam)
-    path.Format("%s/steamapps/common/World War II GI/WW2GI", basepath);
-	AddSearchPath(searchpaths, path);
-
-	// Shadow Warrior Classic Redux - Steam
-	static char const s_SWCR_Steam[] = "steamapps/common/Shadow Warrior Classic/gameroot";
-	path.Format("%s/%s", basepath, s_SWCR_Steam);
-	AddSearchPath(searchpaths, path);
-	//path.Format("%s/%s/addons", basepath, s_SWCR_Steam);
-	//AddSearchPath(searchpaths, path);
-	//path.Format("%s/%s/classic/MUSIC", basepath, s_SWCR_Steam);
-	//AddSearchPath(searchpaths, path);
-
-	// Shadow Warrior Classic (1997) - Steam
-	static char const s_SWC_Steam[] = "steamapps/common/Shadow Warrior Original/gameroot";
-	path.Format("%s/%s", basepath, s_SWC_Steam);
-	AddSearchPath(searchpaths, path);
-	//path.Format("%s/%s/MUSIC", basepath, s_SWC_Steam);
-	//AddSearchPath(searchpaths, path);
-
-	// Shadow Warrior (Classic) - 3D Realms Anthology - Steam
-#if defined EDUKE32_OSX
-	path.Format("%s/steamapps/common/Shadow Warrior DOS/Shadow Warrior.app/Contents/Resources/sw", basepath);
-	AddSearchPath(searchpaths, path);
-#endif
-
-	path.Format("%s/steamapps/common/Blood", basepath);
-	AddSearchPath(searchpaths, path);
-
-	// Blood: One Unit Whole Blood
-	path.Format("%s/steamapps/common/One Unit Whole Blood", basepath);
-	AddSearchPath(searchpaths, path);
-
-
-}
-
-
-static TArray<FString>* g_searchpaths;
-
-static void AddAnItem(const char* item)
-{
-	AddSearchPath(*g_searchpaths, item);
-}
-
-
-
-#ifndef __APPLE__
-
-//-------------------------------------------------------------------------
-//
-//
-//
-//-------------------------------------------------------------------------
 
 void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 {
-	FString path;
-    char *homepath = getenv("HOME");
-
-    path.Format("%s/.steam/steam", homepath);
-    G_AddSteamPaths(searchpaths, buf);
-
-    path.Format("%s/.steam/steam/steamapps/libraryfolders.vdf", homepath);
-	g_searchpaths = &searchpaths;
-    G_ParseSteamKeyValuesForPaths(searchpaths, buf, AddAnItem);
+	searchpaths.Append(I_GetSteamPath());
+	searchpaths.Append(I_GetGogPaths());
 }
 
-#else
 
-//-------------------------------------------------------------------------
-//
-//
-//
-//-------------------------------------------------------------------------
-void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
-{
-    char *applications[] = { osx_getapplicationsdir(0), osx_getapplicationsdir(1) };
-    char *support[] = { osx_getsupportdir(0), osx_getsupportdir(1) };
-
-	FString path;
-
-    char buf[BMAX_PATH];
-    int32_t i;
-
-	g_searchpaths = &searchpaths;
-    for (i = 0; i < 2; i++)
-    {
-        path.Format("%s/Steam", support[i]);
-        G_AddSteamPaths(searchpaths, buf);
-
-        path.Format("%s/Steam/steamapps/libraryfolders.vdf", support[i]);
-        G_ParseSteamKeyValuesForPaths(searchpaths, buf, AddAnItem);
-
-        // Duke Nukem 3D: Atomic Edition (GOG.com)
-        path.Format("%s/Duke Nukem 3D.app/Contents/Resources/Duke Nukem 3D.boxer/C.harddisk", applications[i]);
-		AddSearchPath(searchpaths, path);
-
-		// Shadow Warrior Classic Complete - GOG.com
-		static char const s_SWC_GOG[] = "Shadow Warrior Complete/Shadow Warrior.app/Contents/Resources/Shadow Warrior.boxer/C swarrior_files.harddisk";
-		path.Format("%s/%s", applications[i], s_SWC_GOG);
-		AddSearchPath(searchpaths, path);
-		//path.Format("%s/%s/MUSIC", applications[i], s_SWC_GOG);
-		//addsearchpath(buf);
-
-		// Shadow Warrior Classic Redux - GOG.com
-		static char const s_SWCR_GOG[] = "Shadow Warrior Classic Redux/Shadow Warrior Classic Redux.app/Contents/Resources/gameroot";
-		path.Format("%s/%s", applications[i], s_SWCR_GOG);
-		AddSearchPath(searchpaths, path);
-		//path.Format("%s/%s/music", applications[i], s_SWCR_GOG);
-		//addsearchpath(buf);
-
-    }
-
-    for (i = 0; i < 2; i++)
-    {
-        Xfree(applications[i]);
-        Xfree(support[i]);
-    }
-}
-
-#endif
 #else
 //-------------------------------------------------------------------------
 //
@@ -219,211 +80,69 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 //
 //-------------------------------------------------------------------------
 
+struct RegistryPathInfo
+{
+	const char *regPath;
+	const char *regKey;
+	const char **subpaths;
+};
+
+static const char * gameroot[] = { "/gameroot", nullptr};
+static const char * dukeaddons[] = { "/gameroot", "/gameroot/addons/dc", "/gameroot/addons/nw", "/gameroot/addons/vacation", nullptr};
+static const char * dn3d[] = { "/Duke Nukem 3D", nullptr};
+static const char * nam[] = { "/NAM", nullptr};
+static const char * ww2gi[] = { "/WW2GI", nullptr};
+static const char * bloodfs[] = { "", R"(\addons\Cryptic Passage)", nullptr};
+static const char * sw[] = { "/Shadow Warrior", nullptr};
+
+static const RegistryPathInfo paths[] = {
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 434050)", "InstallLocation", nullptr },
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225140)", "InstallLocation", dukeaddons },
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 359850)", "InstallLocation", dn3d },
+	{ "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", nullptr },
+	{ "SOFTWARE\\3DRealms\\Duke Nukem 3D", nullptr, dn3d },
+	{ "SOFTWARE\\3DRealms\\Anthology", nullptr, dn3d },
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 329650)", "InstallLocation", nam },
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 376750)", "InstallLocation", ww2gi },
+	{ "SOFTWARE\\GOG.com\\GOGREDNECKRAMPAGE", "PATH", nullptr },
+	{ "SOFTWARE\\GOG.com\\GOGCREDNECKRIDESAGAIN", "PATH", nullptr },
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 299030)", "InstallLocation", nullptr }, // Blood: One Unit Whole Blood (Steam)
+	{ "SOFTWARE\\GOG.com\\GOGONEUNITONEBLOOD", "PATH", nullptr},
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1010750)", "InstallLocation", bloodfs},
+	{ R"(SOFTWARE\Wow6432Node\GOG.com\Games\1374469660)", "path", bloodfs},
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225160)", "InstallLocation", gameroot },
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 238070)", "InstallLocation", gameroot}, // Shadow Warrior Classic (1997) - Steam
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 358400)", "InstallLocation", sw},
+	{ "SOFTWARE\\GOG.com\\GOGSHADOWARRIOR", "PATH", nullptr},
+	{ "SOFTWARE\\3DRealms\\Shadow Warrior", nullptr, sw},
+	{ "SOFTWARE\\3DRealms\\Anthology", nullptr, sw},
+	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 562860)", "InstallLocation", nullptr}, // Ion Fury (Steam)
+	{ R"(SOFTWARE\GOG.com\Games\1740836875)", "path", nullptr},
+	{ nullptr}
+};
+
+
 void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 {
-
-    char buf[BMAX_PATH] = {0};
-    DWORD bufsize;
-
-    // Duke Nukem 3D: 20th Anniversary World Tour (Steam)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 434050)", "InstallLocation", buf, &bufsize))
-    {
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // Duke Nukem 3D: Megaton Edition (Steam)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225140)", "InstallLocation", buf, &bufsize))
-    {
-        char * const suffix = buf + bufsize - 1;
-        size_t const remaining = sizeof(buf) - bufsize;
-
-        strncpy(suffix, "/gameroot", remaining);
-		AddSearchPath(searchpaths, buf);
-        strncpy(suffix, "/gameroot/addons/dc", remaining);
-		AddSearchPath(searchpaths, buf);
-        strncpy(suffix, "/gameroot/addons/nw", remaining);
-		AddSearchPath(searchpaths, buf);
-        strncpy(suffix, "/gameroot/addons/vacation", remaining);
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 359850)", "InstallLocation", buf, &bufsize))
-    {
-        char * const suffix = buf + bufsize - 1;
-        size_t const remaining = sizeof(buf) - bufsize;
-
-        strncpy(suffix, "/Duke Nukem 3D", remaining);
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // Duke Nukem 3D: Atomic Edition (GOG.com)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", buf, &bufsize))
-    {
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // Duke Nukem 3D (3D Realms Anthology)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue("SOFTWARE\\3DRealms\\Duke Nukem 3D", NULL, buf, &bufsize))
-    {
-        char * const suffix = buf + bufsize - 1;
-        size_t const remaining = sizeof(buf) - bufsize;
-
-        strncpy(suffix, "/Duke Nukem 3D", remaining);
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // 3D Realms Anthology
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue("SOFTWARE\\3DRealms\\Anthology", NULL, buf, &bufsize))
-    {
-        char * const suffix = buf + bufsize - 1;
-        size_t const remaining = sizeof(buf) - bufsize;
-
-        strncpy(suffix, "/Duke Nukem 3D", remaining);
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // NAM (Steam)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 329650)", "InstallLocation", buf, &bufsize))
-    {
-        char * const suffix = buf + bufsize - 1;
-        size_t const remaining = sizeof(buf) - bufsize;
-
-        strncpy(suffix, "/NAM", remaining);
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // WWII GI (Steam)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 376750)", "InstallLocation", buf, &bufsize))
-    {
-        char * const suffix = buf + bufsize - 1;
-        size_t const remaining = sizeof(buf) - bufsize;
-
-        strncpy(suffix, "/WW2GI", remaining);
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // Redneck Rampage (GOG.com)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGREDNECKRAMPAGE", "PATH", buf, &bufsize))
-    {
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // Redneck Rampage Rides Again (GOG.com)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGCREDNECKRIDESAGAIN", "PATH", buf, &bufsize))
-    {
-		AddSearchPath(searchpaths, buf);
-    }
-	
-    // Blood: One Unit Whole Blood (Steam)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 299030)", "InstallLocation", buf, &bufsize))
-    {
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // Blood: One Unit Whole Blood (GOG.com)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGONEUNITONEBLOOD", "PATH", buf, &bufsize))
-    {
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // Blood: Fresh Supply (Steam)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1010750)", "InstallLocation", buf, &bufsize))
-    {
-		AddSearchPath(searchpaths, buf);
-        strncat(buf, R"(\addons\Cryptic Passage)", 23);
-		AddSearchPath(searchpaths, buf);
-    }
-
-    // Blood: Fresh Supply (GOG.com)
-    bufsize = sizeof(buf);
-    if (Paths_ReadRegistryValue(R"(SOFTWARE\Wow6432Node\GOG.com\Games\1374469660)", "path", buf, &bufsize))
-    {
-		AddSearchPath(searchpaths, buf);
-        strncat(buf, R"(\addons\Cryptic Passage)", 23);
-		AddSearchPath(searchpaths, buf);
-    }
-
-	bufsize = sizeof(buf);
-	if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225160)", "InstallLocation", buf, &bufsize))
+	for (auto &entry : paths)
 	{
-		char* const suffix = buf + bufsize - 1;
-		size_t const remaining = sizeof(buf) - bufsize;
-
-		strncpy(suffix, "/gameroot", remaining);
-		AddSearchPath(searchpaths, buf);
-		//strncpy(suffix, "/gameroot/addons", remaining);
-		//addsearchpath_user(buf, SEARCHPATH_REMOVE);
-		//strncpy(suffix, "/gameroot/classic/MUSIC", remaining);
-		//addsearchpath(buf);
+		// 3D Realms Anthology
+		char buf[PATH_MAX];
+		bufsize = sizeof(buf);
+		if (Paths_ReadRegistryValue(entry.regPath, entry.regKey, buf, &bufsize))
+		{
+			if (!entry.subpaths) AddSearchPath(buf);
+			else
+			{
+				FString path;
+				for (int i = 0; entry.subpaths[i]; i++)
+				{
+					path.Format("%s%s", buf, entry.subpaths[i]);
+					AddSearchPath(searchpaths, path);
+				}
+			}
+		}
 	}
-
-	// Shadow Warrior Classic (1997) - Steam
-	bufsize = sizeof(buf);
-	if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 238070)", "InstallLocation", buf, &bufsize))
-	{
-		char* const suffix = buf + bufsize - 1;
-		DWORD const remaining = sizeof(buf) - bufsize;
-
-		strncpy(suffix, "/gameroot", remaining);
-		AddSearchPath(searchpaths, buf);
-		//strncpy(suffix, "/gameroot/MUSIC", remaining);
-		//addsearchpath(buf);
-	}
-
-	// Shadow Warrior (Classic) - 3D Realms Anthology - Steam
-	bufsize = sizeof(buf);
-	if (Paths_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 358400)", "InstallLocation", buf, &bufsize))
-	{
-		char* const suffix = buf + bufsize - 1;
-		DWORD const remaining = sizeof(buf) - bufsize;
-
-		strncpy(suffix, "/Shadow Warrior", remaining);
-		AddSearchPath(searchpaths, buf);
-	}
-
-	// Shadow Warrior Classic Complete - GOG.com
-	bufsize = sizeof(buf);
-	if (Paths_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGSHADOWARRIOR", "PATH", buf, &bufsize))
-	{
-		AddSearchPath(searchpaths, buf);
-	}
-
-	// Shadow Warrior - 3D Realms Anthology
-	bufsize = sizeof(buf);
-	if (Paths_ReadRegistryValue("SOFTWARE\\3DRealms\\Shadow Warrior", NULL, buf, &bufsize))
-	{
-		char* const suffix = buf + bufsize - 1;
-		DWORD const remaining = sizeof(buf) - bufsize;
-
-		strncpy(suffix, "/Shadow Warrior", remaining);
-		AddSearchPath(searchpaths, buf);
-	}
-
-	// 3D Realms Anthology
-	bufsize = sizeof(buf);
-	if (Paths_ReadRegistryValue("SOFTWARE\\3DRealms\\Anthology", NULL, buf, &bufsize))
-	{
-		char* const suffix = buf + bufsize - 1;
-		DWORD const remaining = sizeof(buf) - bufsize;
-
-		strncpy(suffix, "/Shadow Warrior", remaining);
-		AddSearchPath(searchpaths, buf);
-	}
-
 }
 #endif
 

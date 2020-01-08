@@ -110,7 +110,7 @@ static HMODULE DInputDLL;
 
 extern FMouse *Mouse;
 extern FKeyboard *Keyboard;
-bool ToggleFullscreen;
+extern bool ToggleFullscreen;
 
 bool VidResizing;
 
@@ -131,7 +131,7 @@ static bool noidle = false;
 LPDIRECTINPUT8			g_pdi;
 LPDIRECTINPUT			g_pdi3;
 
-bool AppActive;
+extern bool AppActive;
 
 int SessionState = 0;
 int BlockMouseMove; 

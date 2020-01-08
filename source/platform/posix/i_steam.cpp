@@ -36,6 +36,7 @@
 
 #include "sc_man.h"
 #include "cmdlib.h"
+#include "i_specialpaths.h"
 
 static void PSR_FindEndBlock(FScanner &sc)
 {
@@ -142,20 +143,28 @@ static TArray<FString> ParseSteamRegistry(const char* path)
 	return dirs;
 }
 
-static struct SteamAppInfo
+
+const char *AppInfo[] =
 {
-	const char* const BasePath;
-	const int AppID;
-} AppInfo[] =
-{
-	{"Doom 2/base", 2300},
-	{"Final Doom/base", 2290},
-	{"Heretic Shadow of the Serpent Riders/base", 2390},
-	{"Hexen/base", 2360},
-	{"Hexen Deathkings of the Dark Citadel/base", 2370},
-	{"Ultimate Doom/base", 2280},
-	{"DOOM 3 BFG Edition/base/wads", 208200},
-	{"Strife", 317040}
+	"Duke Nukem 3D/gameroot",
+	"Duke Nukem 3D/gameroot/addons/dc",
+	"Duke Nukem 3D/gameroot/addons/nw",
+	"Duke Nukem 3D/gameroot/addons/vacation",
+	"World War II GI/WW2GI",
+	"Shadow Warrior Classic/gameroot",
+	"Shadow Warrior Original/gameroot",
+	"Ion Fury",
+	
+#ifdef __APPLE
+	"Duke Nukem 3D/Duke Nukem 3D.app/drive_c/Program Files/Duke Nukem 3D",
+	"Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM",
+	"Shadow Warrior DOS/Shadow Warrior.app/Contents/Resources/sw",
+	"Blood",
+	"One Unit Whole Blood",
+#else
+	"Nam/NAM",
+#endif
+	
 };
 
 TArray<FString> I_GetSteamPath()
@@ -212,7 +221,7 @@ TArray<FString> I_GetSteamPath()
 		for(unsigned int app = 0;app < countof(AppInfo);++app)
 		{
 			struct stat st;
-			FString candidate(SteamInstallFolders[i] + "/" + AppInfo[app].BasePath);
+			FString candidate(SteamInstallFolders[i] + "/" + AppInfo[app]);
 			if(DirExists(candidate))
 				result.Push(candidate);
 		}
@@ -220,3 +229,4 @@ TArray<FString> I_GetSteamPath()
 
 	return result;
 }
+

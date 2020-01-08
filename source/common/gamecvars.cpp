@@ -532,7 +532,7 @@ CUSTOM_CVAR(Int, playergender, 0, CVAR_USERINFO|CVAR_ARCHIVE)
 }
 
 // Internal settings for demo recording and the multiplayer menu. These won't get saved and only are CVARs so that the menu code can use them.
-CVAR(Bool, m_recstat, false, CVAR_NOSET)
+CVAR(Int, m_recstat, false, CVAR_NOSET)
 CVAR(Int, m_coop, 0, CVAR_NOSET)
 CVAR(Int, m_ffire, 1, CVAR_NOSET)
 CVAR(Int, m_monsters, 1, CVAR_NOSET)
