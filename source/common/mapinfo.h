@@ -70,7 +70,7 @@ inline void InitRREndMap()
 {
 	// RR defines its end map ad-hoc so give it a proper entry to reference (the last one in episode 2 because it needs to be in Ep. 2.)
 	mapList[127].SetName("$TXT_CLOSEENCOUNTERS");
-	mapList[127].SetFileName("endmap.map");
+	mapList[127].SetFileName("endgame.map");
 }
 
 enum
