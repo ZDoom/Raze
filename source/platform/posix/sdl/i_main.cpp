@@ -41,21 +41,11 @@
 #include <sys/param.h>
 #include <locale.h>
 
-#include "doomerrors.h"
 #include "m_argv.h"
-#include "d_main.h"
 #include "c_console.h"
 #include "version.h"
-#include "w_wad.h"
-#include "g_level.h"
-#include "g_levellocals.h"
 #include "cmdlib.h"
-#include "r_utility.h"
-#include "doomstat.h"
-#include "vm.h"
-#include "doomerrors.h"
 #include "i_system.h"
-#include "g_game.h"
 
 // MACROS ------------------------------------------------------------------
 

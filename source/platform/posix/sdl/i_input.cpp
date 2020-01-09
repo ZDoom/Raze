@@ -40,12 +40,11 @@
 #include "c_dispatch.h"
 #include "dikeys.h"
 #include "utf8.h"
+#include "common/console/keydef.h"
+#include "menu/menu.h"
 
-
-static void I_CheckGUICapture ();
 static void I_CheckNativeMouse ();
 
-bool GUICapture;
 static bool NativeMouse = true;
 
 extern int paused;
@@ -162,30 +161,6 @@ static TMap<SDL_Scancode, uint8_t> InitKeyScanMap ()
 }
 static const TMap<SDL_Scancode, uint8_t> KeyScanToDIK(InitKeyScanMap());
 
-static void I_CheckGUICapture ()
-{
-	bool wantCapt;
-
-	if (menuactive == MENU_Off)
-	{
-		wantCapt = ConsoleState == c_down || ConsoleState == c_falling || chatmodeon;
-	}
-	else
-	{
-		wantCapt = (menuactive == MENU_On || menuactive == MENU_OnNoPause);
-	}
-
-	// [ZZ] check active event handlers that want the UI processing
-	if (!wantCapt && primaryLevel->localEventManager->CheckUiProcessors())
-		wantCapt = true;
-
-	if (wantCapt != GUICapture)
-	{
-		GUICapture = wantCapt;
-		ResetButtonStates();
-	}
-}
-
 void I_SetMouseCapture()
 {
 	// Clear out any mouse movement.
@@ -251,15 +226,13 @@ CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
 
 static bool inGame()
 {
-	switch (mouse_capturemode)
+	if (mouse_capturemode == 2)
 	{
-	default:
-	case 0:
-		return gamestate == GS_LEVEL;
-	case 1:
-		return gamestate == GS_LEVEL || gamestate == GS_INTERMISSION || gamestate == GS_FINALE;
-	case 2:
 		return true;
+	}
+	else
+	{
+		return gi->CanSave();
 	}
 }
 
@@ -267,8 +240,9 @@ static void I_CheckNativeMouse ()
 {
 	bool focus = SDL_GetKeyboardFocus() != NULL;
 	bool fs = screen->IsFullscreen();
-	
-	bool wantNative = !focus || (!use_mouse || GUICapture || paused || demoplayback || !inGame());
+
+	// TODO: We want this to check for demo playback, as well.
+	bool wantNative = !focus || (!use_mouse || GUICapture || paused || !inGame());
 
 	if (wantNative != NativeMouse)
 	{
@@ -290,7 +264,7 @@ void MessagePump (const SDL_Event &sev)
 	switch (sev.type)
 	{
 	case SDL_QUIT:
-		throw CExitEvent(0);
+		throw ExitEvent(0);
 
 	case SDL_WINDOWEVENT:
 		extern void ProcessSDLWindowEvent(const SDL_WindowEvent &);
@@ -548,7 +522,6 @@ void I_GetEvent ()
 
 void I_StartTic ()
 {
-	I_CheckGUICapture ();
 	I_CheckNativeMouse ();
 	I_GetEvent ();
 }
