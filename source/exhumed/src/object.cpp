@@ -1568,22 +1568,23 @@ void DoFinale()
 int BuildEnergyBlock(short nSector)
 {
     short startwall = sector[nSector].wallptr;
+    short nWalls = sector[nSector].wallnum;
 
     int x = 0;
     int y = 0;
 
-    for (int i = 0; i < sector[nSector].wallnum; i++)
+    for (int i = 0; i < nWalls; i++)
     {
         x += wall[startwall + i].x;
         y += wall[startwall + i].y;
 
- //       wall[startwall + i].picnum = kTile3621;
+        wall[startwall + i].picnum = kTile3621;
         wall[startwall + i].pal = 0;
         wall[startwall + i].shade = 50;
     }
 
-    int xAvg = x / 2;
-    int yAvg = y / 2;
+    int xAvg = x / nWalls;
+    int yAvg = y / nWalls;
 
     int nSprite = insertsprite(nSector, 406);
 
