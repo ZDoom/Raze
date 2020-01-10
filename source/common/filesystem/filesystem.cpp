@@ -151,19 +151,27 @@ void FileSystem::DeleteStuff(const TArray<FString>& deletelumps, int numgamefile
 {
 	// This must account for the game directory being inserted at index 2.
 	// Deletion may only occur in the main game file, the directory and the add-on, there are no secondary dependencies, i.e. more than two game files.
-	numgamefiles++; 
-	if (deletelumps.Size())
-	for (uint32_t i = 0; i < FileInfo.Size(); i++)
+	numgamefiles++;
+	for (auto str : deletelumps)
 	{
-		if (FileInfo[i].rfnum >= 1 && FileInfo[i].rfnum <= numgamefiles)
-		{ 
-			auto cmp = FileInfo[i].lump->LumpName[FResourceLump::FullNameType].GetChars();
-			for (auto &str : deletelumps)
+		FString renameTo;
+		auto ndx = str.IndexOf("*");
+		if (ndx >= 0)
+		{
+			renameTo = FName(str.Mid(ndx + 1));
+			str.Truncate(ndx);
+		}
+		FName check = FName(str);
+
+		for (uint32_t i = 0; i < FileInfo.Size(); i++)
+		{
+			if (FileInfo[i].rfnum >= 1 && FileInfo[i].rfnum <= numgamefiles && check == FileInfo[i].lump->LumpName[FResourceLump::FullNameType])
 			{
-				if (!str.CompareNoCase(cmp))
+				if (renameTo.IsEmpty())
 				{
 					for (auto& n : FileInfo[i].lump->LumpName) n = NAME_None;
 				}
+				else FileInfo[i].lump->LumpNameSetup(renameTo);
 			}
 		}
 	}

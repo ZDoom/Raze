@@ -1509,8 +1509,8 @@ static void G_BonusCutscenes(void)
                 videoClearScreen(0L);
                 videoNextPage();
             }
-            ud.level_number = 0;
-            ud.volume_number = 1;
+            m_level_number = ud.level_number = 0;
+            ud.m_volume_number = ud.volume_number = 1;
             ud.eog = 0;
             fadepal(0, 0, 0, 0, 252, 4);
             inputState.ClearAllInput();

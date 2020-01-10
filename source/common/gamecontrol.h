@@ -63,6 +63,7 @@ struct UserConfig
 	std::unique_ptr<FArgs> AddFiles;
 	std::unique_ptr<FArgs> AddFilesPre;	//To be added before the main directory. Only for legacy options.
 	std::unique_ptr<FArgs> AddArt;
+	TArray<FString> toBeDeleted;
 
 	bool nomonsters = false;
 	bool nosound = false;
@@ -109,7 +110,7 @@ enum
 	GAMEFLAG_EXHUMED	= 0x00002000,
 	GAMEFLAG_PSEXHUMED  = 0x00003000,	// the two games really are the same, except for the name and the publisher.
 	GAMEFLAG_STANDALONE = 0x00004000,
-	GAMEFLAGMASK        = 0x00000FFF, // flags allowed from grpinfo
+	GAMEFLAGMASK        = 0x00003FFF, // flags allowed from grpinfo
 
 };
 

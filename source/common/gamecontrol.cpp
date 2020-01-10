@@ -156,6 +156,10 @@ void UserConfig::ProcessOptions()
 		DefaultCon = "GAME66.CON";
 		const char* argv[] = { "tilesa66.art" , "tilesb66.art" };
 		AddArt.reset(new FArgs(2, argv));
+		toBeDeleted.Push("turd66.anm*turdmov.anm");
+		toBeDeleted.Push("turd66.voc*turdmov.voc");
+		toBeDeleted.Push("end66.anm*rr_outro.anm");
+		toBeDeleted.Push("end66.voc*rr_outro.voc");
 	}
 	else if (Args->CheckParm("-cryptic"))
 	{
@@ -191,9 +195,13 @@ void UserConfig::ProcessOptions()
 	Args->CollectFiles("-def", defs, ".def");
 	DefaultDef = Args->CheckValue("-def");
 
-	static const char* cons[] = { "-con", "-x", nullptr };
-	Args->CollectFiles("-con", cons, ".con");
-	DefaultCon = Args->CheckValue("-con");
+	if (DefaultCon.IsEmpty())
+	{
+		static const char* cons[] = { "-con", "-x", nullptr };
+		Args->CollectFiles("-con", cons, ".con");
+		DefaultCon = Args->CheckValue("-con");
+		if (DefaultCon.IsEmpty()) DefaultCon = Args->CheckValue("-ini");
+	}
 
 	static const char* demos[] = { "-playback", "-d", "-demo", nullptr };
 	Args->CollectFiles("-demo", demos, ".dmo");
@@ -217,8 +225,6 @@ void UserConfig::ProcessOptions()
 
 	Args->CollectFiles("-art", ".art");
 	AddArt.reset(Args->GatherFiles("-art"));
-
-	CommandIni = Args->CheckValue("-ini");
 
 	nologo = Args->CheckParm("-nologo") || Args->CheckParm("-quick");
 	nomusic = Args->CheckParm("-nomusic");

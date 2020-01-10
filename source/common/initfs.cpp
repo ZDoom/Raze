@@ -383,6 +383,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	{
 		todelete.Append(g.FileInfo.tobedeleted);
 	}
+	todelete.Append(userConfig.toBeDeleted);
 	fileSystem.InitMultipleFiles(Files, todelete, groups.Size());
 
 	FILE* f = fopen("filesystem.dir", "wb");
