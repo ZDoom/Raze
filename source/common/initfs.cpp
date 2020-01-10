@@ -386,11 +386,14 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	todelete.Append(userConfig.toBeDeleted);
 	fileSystem.InitMultipleFiles(Files, todelete, groups.Size());
 
-	FILE* f = fopen("filesystem.dir", "wb");
-	for (int i = 0; i < fileSystem.GetNumEntries(); i++)
+	if (Args->CheckParm("-dumpfs"))
 	{
-		auto fd = fileSystem.GetFileAt(i);
-		fprintf(f, "%.50s   %60s  %d\n", fd->FullName(), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(i)), fd->Size());
+		FILE* f = fopen("filesystem.dir", "wb");
+		for (int i = 0; i < fileSystem.GetNumEntries(); i++)
+		{
+			auto fd = fileSystem.GetFileAt(i);
+			fprintf(f, "%.50s   %60s  %d\n", fd->FullName(), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(i)), fd->Size());
+		}
+		fclose(f);
 	}
-	fclose(f);
 }
