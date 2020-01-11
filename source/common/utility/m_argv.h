@@ -102,6 +102,7 @@ public:
 	FString TakeValue(const char *check);
 	int NumArgs() const;
 	void FlushArgs();
+	TArray<FString>& Array() { return Argv; }
 
 private:
 	TArray<FString> Argv;

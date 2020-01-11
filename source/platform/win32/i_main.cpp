@@ -426,6 +426,57 @@ LRESULT CALLBACK LConProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		return 0;
 
+	case WM_DRAWITEM:
+		// Draw title banner.
+		if (wParam == IDC_STATIC_TITLE && RazeStartupInfo.Name.IsNotEmpty())
+		{
+			const PalEntry *c;
+
+			// Draw the game title strip at the top of the window.
+			auto drawitem = (LPDRAWITEMSTRUCT)lParam;
+			SIZE size;
+
+			// Draw the background.
+			auto rect = drawitem->rcItem;
+			rect.bottom -= 1;
+			c = (const PalEntry *)&RazeStartupInfo.BkColor;
+			auto hbr = CreateSolidBrush (RGB(c->r,c->g,c->b));
+			FillRect (drawitem->hDC, &drawitem->rcItem, hbr);
+			DeleteObject (hbr);
+
+			// Calculate width of the title string.
+			SetTextAlign (drawitem->hDC, TA_TOP);
+			oldfont = SelectObject (drawitem->hDC, GameTitleFont != NULL ? GameTitleFont : (HFONT)GetStockObject (DEFAULT_GUI_FONT));
+			auto widename = RazeStartupInfo.Name.WideString();
+			GetTextExtentPoint32W (drawitem->hDC, widename.c_str(), (int)widename.length(), &size);
+
+			// Draw the title.
+			c = (const PalEntry *)&RazeStartupInfo.FgColor;
+			SetTextColor (drawitem->hDC, RGB(c->r,c->g,c->b));
+			SetBkMode (drawitem->hDC, TRANSPARENT);
+			TextOutW (drawitem->hDC, rect.left + (rect.right - rect.left - size.cx) / 2, 2, widename.c_str(), (int)widename.length());
+			SelectObject (drawitem->hDC, oldfont);
+			return TRUE;
+		}
+		// Draw stop icon.
+		else if (wParam == IDC_ICONPIC)
+		{
+			HICON icon;
+			POINTL char_pos;
+			auto drawitem = (LPDRAWITEMSTRUCT)lParam;
+
+			// This background color should match the edit control's.
+			auto hbr = CreateSolidBrush (RGB(70,70,70));
+			FillRect (drawitem->hDC, &drawitem->rcItem, hbr);
+			DeleteObject (hbr);
+
+			// Draw the icon aligned with the first line of error text.
+			SendMessage (ConWindow, EM_POSFROMCHAR, (WPARAM)&char_pos, ErrorIconChar);
+			icon = (HICON)LoadImage (0, IDI_ERROR, IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
+			DrawIcon (drawitem->hDC, 6, char_pos.y, icon);
+			return TRUE;
+		}
+		return FALSE;
 
 	case WM_COMMAND:
 		if (ErrorIcon != NULL && (HWND)lParam == ConWindow && HIWORD(wParam) == EN_UPDATE)

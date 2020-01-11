@@ -42,6 +42,9 @@
 #include "printf.h"
 #include "m_argv.h"
 #include "version.h"
+#include "sc_man.h"
+#include "v_video.h"
+#include "v_text.h"
 #include "../platform/win32/i_findfile.h"	// This is a temporary direct path. Needs to be fixed when stuff gets cleaned up.
 
 #ifndef PATH_MAX
@@ -268,7 +271,7 @@ static void D_AddDirectory (TArray<FString> &wadfiles, const char *dir)
 		{
 			skindir[stuffstart++] = '/';
 			int savedstart = stuffstart;
-			static const char* validexts[] = { "*.grp", "*.zip", "*.pk3", "*.pk4", "*.7z", "*.pk7", "*.dat" };
+			static const char* validexts[] = { "*.grp", "*.zip", "*.pk3", "*.pk4", "*.7z", "*.pk7", "*.dat", "*.rff" };
 			for (auto ext : validexts)
 			{
 				stuffstart = savedstart;
@@ -290,6 +293,186 @@ static void D_AddDirectory (TArray<FString> &wadfiles, const char *dir)
 	}
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+static FString ParseGameInfo(TArray<FString>& pwads, const char* fn, const char* data, int size)
+{
+	FScanner sc;
+	FString iwad;
+	int pos = 0;
+
+	const char* lastSlash = strrchr(fn, '/');
+
+	sc.OpenMem("GAMEINFO", data, size);
+	sc.SetCMode(true);
+	while (sc.GetToken())
+	{
+		sc.TokenMustBe(TK_Identifier);
+		FString nextKey = sc.String;
+		sc.MustGetToken('=');
+		if (!nextKey.CompareNoCase("GAME"))
+		{
+			sc.MustGetString();
+			iwad = sc.String;
+		}
+		else if (!nextKey.CompareNoCase("LOAD"))
+		{
+			do
+			{
+				sc.MustGetString();
+
+				// Try looking for the wad in the same directory as the .wad
+				// before looking for it in the current directory.
+
+				FString checkpath;
+				if (lastSlash != NULL)
+				{
+					checkpath = FString(fn, (lastSlash - fn) + 1);
+					checkpath += sc.String;
+				}
+				else
+				{
+					checkpath = sc.String;
+				}
+				if (!FileExists(checkpath))
+				{
+					pos += D_AddFile(pwads, sc.String, true, pos);
+				}
+				else
+				{
+					pos += D_AddFile(pwads, checkpath, true, pos);
+				}
+			} while (sc.CheckToken(','));
+		}
+		else if (!nextKey.CompareNoCase("STARTUPTITLE"))
+		{
+			sc.MustGetString();
+			RazeStartupInfo.Name = sc.String;
+		}
+		else if (!nextKey.CompareNoCase("STARTUPCOLORS"))
+		{
+			sc.MustGetString();
+			RazeStartupInfo.FgColor = V_GetColor(NULL, sc);
+			sc.MustGetStringName(",");
+			sc.MustGetString();
+			RazeStartupInfo.BkColor = V_GetColor(NULL, sc);
+		}
+		else
+		{
+			// Silently ignore unknown properties
+			do
+			{
+				sc.MustGetAnyToken();
+			} while (sc.CheckToken(','));
+		}
+	}
+	return iwad;
+}
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+static FString CheckGameInfo(TArray<FString>& pwads)
+{
+	// scan the list of WADs backwards to find the last one that contains a GAMEINFO lump
+	for (int i = pwads.Size() - 1; i >= 0; i--)
+	{
+		bool isdir = false;
+		FResourceFile* resfile;
+		const char* filename = pwads[i];
+
+		// Does this exist? If so, is it a directory?
+		if (!DirEntryExists(pwads[i], &isdir))
+		{
+			Printf(TEXTCOLOR_RED "Could not find %s\n", filename);
+			continue;
+		}
+
+		if (!isdir)
+		{
+			FileReader fr;
+			if (!fr.OpenFile(filename))
+			{
+				// Didn't find file
+				continue;
+			}
+			resfile = FResourceFile::OpenResourceFile(filename, fr, true);
+		}
+		else
+			resfile = FResourceFile::OpenDirectory(filename, true);
+
+		FName gameinfo = "GAMEINFO.TXT";
+		if (resfile != NULL)
+		{
+			uint32_t cnt = resfile->LumpCount();
+			for (int i = cnt - 1; i >= 0; i--)
+			{
+				FResourceLump* lmp = resfile->GetLump(i);
+
+				if (lmp->LumpName[0] == gameinfo)
+				{
+					// Found one!
+					FString iwad = ParseGameInfo(pwads, resfile->FileName, (const char*)lmp->Lock(), lmp->LumpSize);
+					delete resfile;
+					return iwad;
+				}
+			}
+			delete resfile;
+		}
+	}
+	return "";
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+FString GetGameFronUserFiles()
+{
+	TArray<FString> Files;
+
+	if (userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
+	{
+		D_AddFile(Files, file);
+	}
+	if (userConfig.AddFiles)
+	{
+		for (auto& file : *userConfig.AddFiles)
+		{
+			D_AddFile(Files, file);
+		}
+
+		// Finally, if the last entry in the chain is a directory, it's being considered the mod directory, and all GRPs inside need to be loaded, too.
+		if (userConfig.AddFiles->NumArgs() > 0)
+		{
+			auto fn = (*userConfig.AddFiles)[userConfig.AddFiles->NumArgs() - 1];
+			bool isdir = false;
+			if (DirEntryExists(fn, &isdir) && isdir)
+			{
+				// Insert the GRPs before this entry itself.
+				FString lastfn;
+				Files.Pop(lastfn);
+				D_AddDirectory(Files, fn);
+				Files.Push(lastfn);
+			}
+		}
+	}
+	return CheckGameInfo(Files);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
 void InitFileSystem(TArray<GrpEntry>& groups)
 {
@@ -338,6 +521,20 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		i--;
 	}
 
+	const char* key;
+	const char* value;
+	if (GameConfig->SetSection("global.Autoload"))
+	{
+		while (GameConfig->NextInSection(key, value))
+		{
+			if (stricmp(key, "Path") == 0)
+			{
+				FString nice = NicePath(value);
+				D_AddFile(Files, nice);
+			}
+		}
+	}
+	
 	if (!insertdirectoriesafter && userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
 	{
 		D_AddFile(Files, file);
@@ -364,19 +561,7 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 			}
 		}
 	}
-	const char* key;
-	const char* value;
-	if (GameConfig->SetSection("global.Autoload"))
-	{
-		while (GameConfig->NextInSection(key, value))
-		{
-			if (stricmp(key, "Path") == 0)
-			{
-				FString nice = NicePath(value);
-				D_AddFile(Files, nice);
-			}
-		}
-	}
+
 
 	TArray<FString> todelete;
 	for (auto& g : groups)
