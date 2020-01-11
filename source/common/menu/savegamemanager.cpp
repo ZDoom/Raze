@@ -146,8 +146,9 @@ int FSavegameManager::InsertSaveNode(FSaveGameNode *node)
 	}
 	else
 	{	// Add node at top of list
-		unsigned int i;
-		for (i = 0; i < SaveGames.Size(); i++)
+		unsigned int i = 0;
+		if (SaveGames[0] == &NewSaveNode) i++; // To not insert above the "new savegame" dummy entry.
+		for (; i < SaveGames.Size(); i++)
 		{
 			if (SaveGames[i]->bOldVersion || node->SaveTitle.CompareNoCase(SaveGames[i]->SaveTitle) <= 0)
 			{
