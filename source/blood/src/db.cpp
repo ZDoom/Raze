@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "common_game.h"
 #include "m_crc32.h"
+#include "md4.h"
 
 //#include "actor.h"
 #include "globals.h"
@@ -1108,6 +1109,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 #if B_BIG_ENDIAN == 1
     nCRC = B_LITTLE32(nCRC);
 #endif
+    md4once((unsigned char*)pData, nSize, g_loadedMapHack.md4);
     if (Bcrc32(pData, nSize-4, 0) != nCRC)
     {
         initprintf("Map File does not match CRC");
