@@ -379,8 +379,8 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 			FString comment = sjson_get_string(root, "Creation Time", "");
 			FString fcomment = sjson_get_string(root, "Map Label", "");
 			FString ncomment = sjson_get_string(root, "Map Name", "");
-			FStringf pcomment("%s - %s\n", fcomment.GetChars(), ncomment.GetChars());
-			comment += pcomment;
+			FString mtime = sjson_get_string(root, "Map Time", "");
+			comment.AppendFormat("\n%s - %s\n%s", fcomment.GetChars(), ncomment.GetChars(), mtime.GetChars());
 			SaveCommentString = comment;
 
 			// Extract pic (todo: let the renderer write a proper PNG file instead of a raw canvas dunp of the software renderer - and make it work for all games.)

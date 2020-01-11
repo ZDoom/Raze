@@ -143,9 +143,13 @@ void G_WriteSaveHeader(const char *name)
 	sjson_put_string(ctx, root, "Engine", savesig.savesig);
 	sjson_put_string(ctx, root, "Game Resource", fileSystem.GetResourceFileName(1));
 	sjson_put_string(ctx, root, "Map Name", currentLevel->DisplayName());
+	sjson_put_string(ctx, root, "Creation Time", myasctime());
 	sjson_put_string(ctx, root, "Title", name);
 	sjson_put_string(ctx, root, "Map File", currentLevel->fileName);
 	sjson_put_string(ctx, root, "Map Label", currentLevel->labelName);
+	auto gs = gi->getStats();
+	FStringf timeStr("%02d:%02d", gs.timesecnd / 60, gs.timesecnd % 60);
+	sjson_put_string(ctx, root, "Map Time", timeStr);
 	const char *fn = currentLevel->fileName;
 	if (*fn == '/') fn++;
 	if (strncmp(fn, "file://", 7) != 0) // this only has meaning for non-usermaps
