@@ -351,7 +351,7 @@ char evGetSourceState(int nType, int nIndex)
     return 0;
 }
 
-void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy)
+void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 {
     
 
@@ -370,7 +370,6 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy)
     event.index = nIndex;
     event.type = nType;
     event.cmd = command;
-    event.causedBy = causedBy;
 
     switch (rxId) {
     case kChannelTextOver:
@@ -452,9 +451,6 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy)
                 if ((pPlayer = getPlayerById(i)) != NULL)
                     trMessageSprite(pPlayer->nSprite, event);
             }
-        // send command on sprite which create the event sequence
-        } else if (rxId == kChannelEventCauser && spriRangeIsFine(event.causedBy)) {
-            trMessageSprite(event.causedBy, event);
         }
 
     }
@@ -488,7 +484,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command, short causedBy)
     }
 }
 
-void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command, short causedBy) {
+void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command) {
     dassert(command != kCmdCallback);
     if (command == kCmdState) command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
     else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex) ? kCmdOff : kCmdOn;
@@ -496,17 +492,15 @@ void evPost(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command, shor
     evn.index = nIndex;
     evn.type = nType;
     evn.cmd = command;
-    evn.causedBy = causedBy;
     eventQ.PQueue->Insert((int)gFrameClock+nDelta, evn);
 }
 
-void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback, short causedBy) {
+void evPost(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback) {
     EVENT evn = {};
     evn.index = nIndex;
     evn.type = nType;
     evn.cmd = kCmdCallback;
     evn.funcID = callback;
-    evn.causedBy = causedBy;
     eventQ.PQueue->Insert((int)gFrameClock+nDelta, evn);
 }
 
