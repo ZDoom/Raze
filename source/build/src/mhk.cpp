@@ -46,12 +46,12 @@ int32_t engineLoadMHK(const char *filename)
         T_NOANIM,
         T_PITCH,
         T_ROLL,
-        T_PIVOTXOFF,
-        T_PIVOTYOFF,
-        T_PIVOTZOFF,
-        T_POSITIONXOFF,
-        T_POSITIONYOFF,
-        T_POSITIONZOFF,
+        T_MDPIVOTXOFF,
+        T_MDPIVOTYOFF,
+        T_MDPIVOTZOFF,
+        T_MDPOSITIONXOFF,
+        T_MDPOSITIONYOFF,
+        T_MDPOSITIONZOFF,
         T_AWAY1,
         T_AWAY2,
         T_LIGHT,
@@ -70,21 +70,21 @@ int32_t engineLoadMHK(const char *filename)
         { "nomdanim", T_NOANIM },
         { "pitch", T_PITCH },
         { "roll", T_ROLL },
-        { "mdxoff", T_PIVOTXOFF },
-        { "mdyoff", T_PIVOTYOFF },
-        { "mdzoff", T_PIVOTZOFF },
-        { "pivxoff", T_PIVOTXOFF },
-        { "pivyoff", T_PIVOTYOFF },
-        { "pivzoff", T_PIVOTZOFF },
-        { "pivotxoff", T_PIVOTXOFF },
-        { "pivotyoff", T_PIVOTYOFF },
-        { "pivotzoff", T_PIVOTZOFF },
-        { "posxoff", T_POSITIONXOFF },
-        { "posyoff", T_POSITIONYOFF },
-        { "poszoff", T_POSITIONZOFF },
-        { "positionxoff", T_POSITIONXOFF },
-        { "positionyoff", T_POSITIONYOFF },
-        { "positionzoff", T_POSITIONZOFF },
+        { "mdxoff", T_MDPIVOTXOFF },
+        { "mdyoff", T_MDPIVOTYOFF },
+        { "mdzoff", T_MDPIVOTZOFF },
+        { "mdpivxoff", T_MDPIVOTXOFF },
+        { "mdpivyoff", T_MDPIVOTYOFF },
+        { "mdpivzoff", T_MDPIVOTZOFF },
+        { "mdpivotxoff", T_MDPIVOTXOFF },
+        { "mdpivotyoff", T_MDPIVOTYOFF },
+        { "mdpivotzoff", T_MDPIVOTZOFF },
+        { "mdposxoff", T_MDPOSITIONXOFF },
+        { "mdposyoff", T_MDPOSITIONYOFF },
+        { "mdposzoff", T_MDPOSITIONZOFF },
+        { "mdpositionxoff", T_MDPOSITIONXOFF },
+        { "mdpositionyoff", T_MDPOSITIONYOFF },
+        { "mdpositionzoff", T_MDPOSITIONZOFF },
         { "away1", T_AWAY1 },
         { "away2", T_AWAY2 },
         { "light", T_LIGHT },
@@ -212,7 +212,7 @@ int32_t engineLoadMHK(const char *filename)
             spriteext[whichsprite].roll = (int16_t) roll;
         }
         break;
-        case T_PIVOTXOFF:     // pivxoff <xx>
+        case T_MDPIVOTXOFF:     // mdpivxoff <xx>
         {
             int32_t i;
             if (scriptfile_getnumber(script, &i)) break;
@@ -220,14 +220,14 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring mdxoff/pivxoff directive because of absent/invalid sprite number on line %s:%d\n",
+                initprintf("Ignoring mdxoff/mdpivxoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
             spriteext[whichsprite].pivot_offset.x = i;
         }
         break;
-        case T_PIVOTYOFF:     // pivyoff <xx>
+        case T_MDPIVOTYOFF:     // mdpivyoff <xx>
         {
             int32_t i;
             if (scriptfile_getnumber(script, &i)) break;
@@ -235,14 +235,14 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring mdyoff/pivyoff directive because of absent/invalid sprite number on line %s:%d\n",
+                initprintf("Ignoring mdyoff/mdpivyoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
             spriteext[whichsprite].pivot_offset.y = i;
         }
         break;
-        case T_PIVOTZOFF:     // pivzoff <xx>
+        case T_MDPIVOTZOFF:     // mdpivzoff <xx>
         {
             int32_t i;
             if (scriptfile_getnumber(script, &i)) break;
@@ -250,14 +250,14 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring mdzoff/pivzoff directive because of absent/invalid sprite number on line %s:%d\n",
+                initprintf("Ignoring mdzoff/mdpivzoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
             spriteext[whichsprite].pivot_offset.z = i;
         }
         break;
-        case T_POSITIONXOFF:     // posxoff <xx>
+        case T_MDPOSITIONXOFF:     // mdposxoff <xx>
         {
             int32_t i;
             if (scriptfile_getnumber(script, &i)) break;
@@ -265,14 +265,14 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring posxoff directive because of absent/invalid sprite number on line %s:%d\n",
+                initprintf("Ignoring mdposxoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
             spriteext[whichsprite].position_offset.x = i;
         }
         break;
-        case T_POSITIONYOFF:     // posyoff <xx>
+        case T_MDPOSITIONYOFF:     // mdposyoff <xx>
         {
             int32_t i;
             if (scriptfile_getnumber(script, &i)) break;
@@ -280,14 +280,14 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring posyoff directive because of absent/invalid sprite number on line %s:%d\n",
+                initprintf("Ignoring mdposyoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
             spriteext[whichsprite].position_offset.y = i;
         }
         break;
-        case T_POSITIONZOFF:     // poszoff <xx>
+        case T_MDPOSITIONZOFF:     // mdposzoff <xx>
         {
             int32_t i;
             if (scriptfile_getnumber(script, &i)) break;
@@ -295,7 +295,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring poszoff directive because of absent/invalid sprite number on line %s:%d\n",
+                initprintf("Ignoring mdposzoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
