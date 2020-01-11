@@ -520,14 +520,16 @@ public:
 		renderState.Brightness = 8.f / (brightness + 8.f);
 	}
 
-	void SetTinting(int flags, PalEntry color, PalEntry modulateColor)
+	void SetTinting(int flags, PalEntry color, PalEntry overlayColor)
 	{
-		// not yet implemented.
+		renderState.hictint = color;
+		renderState.hictint_overlay = overlayColor;
+		renderState.hictint_flags = flags;
 	}
 
 	void SetBasepalTint(PalEntry color)
 	{
-		// not yet implemented - only relevant for hires replacements.
+		renderState.fullscreenTint = color;
 	}
 
 	int GetPaletteIndex(PalEntry* palette)

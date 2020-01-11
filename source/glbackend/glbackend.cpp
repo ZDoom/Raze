@@ -481,6 +481,9 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
 	shader->Brightness.Set(Brightness);
 	shader->FogColor.Set(FogColor);
+	shader->TintFlags.Set(hictint_flags);
+	shader->TintModulate.Set(hictint);
+	shader->TintOverlay.Set(hictint_overlay);
 	if (matrixIndex[Matrix_View] != -1)
 		shader->RotMatrix.Set(matrixArray[matrixIndex[Matrix_View]].get());
 	if (matrixIndex[Matrix_Projection] != -1)

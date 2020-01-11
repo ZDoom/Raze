@@ -2877,29 +2877,29 @@ void UpdateDacs(int nPalette, bool bNoTint)
         {
         case 0:
         default:
-            tint->r = 255;
-            tint->g = 255;
-            tint->b = 255;
+            tint->tint.r = 255;
+            tint->tint.g = 255;
+            tint->tint.b = 255;
             break;
         case 1:
-            tint->r = 132;
-            tint->g = 164;
-            tint->b = 255;
+            tint->tint.r = 132;
+            tint->tint.g = 164;
+            tint->tint.b = 255;
             break;
         case 2:
-            tint->r = 255;
-            tint->g = 126;
-            tint->b = 105;
+            tint->tint.r = 255;
+            tint->tint.g = 126;
+            tint->tint.b = 105;
             break;
         case 3:
-            tint->r = 162;
-            tint->g = 186;
-            tint->b = 15;
+            tint->tint.r = 162;
+            tint->tint.g = 186;
+            tint->tint.b = 15;
             break;
         case 4:
-            tint->r = 255;
-            tint->g = 255;
-            tint->b = 255;
+            tint->tint.r = 255;
+            tint->tint.g = 255;
+            tint->tint.b = 255;
             break;
         }
         if (!bNoTint)
@@ -3709,9 +3709,9 @@ void viewSetCrosshairColor(int32_t r, int32_t g, int32_t b)
 #ifdef USE_OPENGL
     // XXX: this makes us also load all hightile textures tinted with the crosshair color!
     polytint_t & crosshairtint = hictinting[CROSSHAIR_PAL];
-    crosshairtint.r = CrosshairColors.r;
-    crosshairtint.g = CrosshairColors.g;
-    crosshairtint.b = CrosshairColors.b;
+    crosshairtint.tint.r = CrosshairColors.r;
+    crosshairtint.tint.g = CrosshairColors.g;
+    crosshairtint.tint.b = CrosshairColors.b;
     crosshairtint.f = HICTINT_USEONART | HICTINT_GRAYSCALE;
 #endif
     tileInvalidate(kCrosshairTile, -1, -1);

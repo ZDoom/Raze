@@ -166,9 +166,9 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
 #ifdef USE_OPENGL
     // XXX: this makes us also load all hightile textures tinted with the crosshair color!
     polytint_t & crosshairtint = hictinting[CROSSHAIR_PAL];
-    crosshairtint.r = CrosshairColors.r;
-    crosshairtint.g = CrosshairColors.g;
-    crosshairtint.b = CrosshairColors.b;
+    crosshairtint.tint.r = CrosshairColors.r;
+    crosshairtint.tint.g = CrosshairColors.g;
+    crosshairtint.tint.b = CrosshairColors.b;
     crosshairtint.f = HICTINT_USEONART | HICTINT_GRAYSCALE;
 #endif
     tileInvalidate(CROSSHAIR, -1, -1);
@@ -761,23 +761,23 @@ void G_DisplayRest(int32_t smoothratio)
 
         if (pp->palette == WATERPAL)
         {
-            fstint.r = 224;
-            fstint.g = 192;
-            fstint.b = 255;
+            fstint.tint.r = 224;
+            fstint.tint.g = 192;
+            fstint.tint.b = 255;
             fstint.f = 0;
         }
         else if (pp->palette == SLIMEPAL)
         {
-            fstint.r = 208;
-            fstint.g = 255;
-            fstint.b = 192;
+            fstint.tint.r = 208;
+            fstint.tint.g = 255;
+            fstint.tint.b = 192;
             fstint.f = 0;
         }
         else
         {
-            fstint.r = 255;
-            fstint.g = 255;
-            fstint.b = 255;
+            fstint.tint.r = 255;
+            fstint.tint.g = 255;
+            fstint.tint.b = 255;
             fstint.f = 0;
         }
     }

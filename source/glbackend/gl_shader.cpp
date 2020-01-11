@@ -144,6 +144,9 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
     Brightness.Init(hShader, "u_brightness");
 	FogColor.Init(hShader, "u_fogColor");
 	AlphaThreshold.Init(hShader, "u_alphaThreshold");
+	TintModulate.Init(hShader, "u_tintModulate");
+	TintOverlay.Init(hShader, "u_tintOverlay");
+	TintFlags.Init(hShader, "u_tintFlags");
 
     RotMatrix.Init(hShader, "u_rotMatrix");
 	ModelMatrix.Init(hShader, "u_modelMatrix");

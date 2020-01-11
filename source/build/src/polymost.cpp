@@ -532,7 +532,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 	else if (drawpoly_trepeat) sampleroverride = SamplerClampX;
 	else sampleroverride = SamplerClampXY;
 
-
 	bool success = GLInterface.SetTexture(globalpicnum, TileFiles.tiles[globalpicnum], globalpal, method, sampleroverride);
 	if (!success)
 	{
@@ -560,16 +559,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 		GLInterface.SetNpotEmulation(false, 1.f, 0.f);
     }
 
-    vec2f_t hacksc = { 1.f, 1.f };
-
-#if 0
-    if (pth->flags & PTH_HIGHTILE)
-    {
-        hacksc = pth->scale;
-        tsiz = pth->siz;
-    }
-#endif
-
     vec2_t tsiz2 = tsiz;
 
 
@@ -580,28 +569,18 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     float pc[4];
 
-	polytint_t const& tint = hictinting[globalpal];
-    // This makes no sense.
-    pc[0] = 1.f;// (1.f - (tint.sr * (1.f / 255.f))) + (tint.sr * (1.f / 255.f));
-	pc[1] = 1.f;// (1.f - (tint.sg * (1.f / 255.f))) + (tint.sg * (1.f / 255.f));
-	pc[2] = 1.f;// (1.f - (tint.sb * (1.f / 255.f))) + (tint.sb * (1.f / 255.f));
-
-    // spriteext full alpha control
-    pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
-
-    // tinting
-	auto& h = hictinting[globalpal];
-
-	GLInterface.SetTinting(h.f, PalEntry(h.sr, h.sg, h.sb), PalEntry(h.r, h.g, h.b));
-
-    globaltinting_apply(pc);
+    // The shade rgb from the tint is ignored here.
+    pc[0] = (float)globalr * (1.f / 255.f);
+    pc[1] = (float)globalg * (1.f / 255.f);
+    pc[2] = (float)globalb * (1.f / 255.f);
+  	pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
 
     if (skyzbufferhack_pass)
         pc[3] = 0.01f;
 
     GLInterface.SetColor(pc[0], pc[1], pc[2], pc[3]);
 
-    vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
+    vec2f_t const scale = { 1.f / tsiz2.x, 1.f / tsiz2.y };
 	auto data = GLInterface.AllocVertices(npoints);
 	auto vt = data.second;
 	for (bssize_t i = 0; i < npoints; ++i, vt++)
@@ -3237,7 +3216,7 @@ void polymost_drawrooms()
 	// This is a global setting for the entire scene, so let's do it here, right at the start.
 	auto& hh = hictinting[MAXPALOOKUPS - 1];
 	// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
-	GLInterface.SetBasepalTint(PalEntry(hh.r, hh.g, hh.b));
+	GLInterface.SetBasepalTint(hh.tint);
 
 
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");

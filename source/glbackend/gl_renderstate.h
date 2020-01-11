@@ -35,6 +35,7 @@ enum PRSFlags
 	RF_HICTINT_BLEND_Overlay = 0x100000,
 	RF_HICTINT_BLEND_Hardlight = 0x200000,
 	RF_HICTINT_BLENDMASK = RF_HICTINT_BLEND_Screen | RF_HICTINT_BLEND_Overlay | RF_HICTINT_BLEND_Hardlight,
+	RF_HICTINT_MASK = 0x3f0000,
 
 	STF_BLEND = 1,
 	STF_COLORMASK = 2,
@@ -68,6 +69,8 @@ struct PolymostRenderState
 	bool AlphaTest = true;
 	float Color[4] = { 1,1,1,1 };
 	short matrixIndex[NUMMATRICES] = { -1,-1,-1,-1,-1 };
+	PalEntry fullscreenTint = 0xffffff, hictint = 0, hictint_overlay = 0xffffff;
+	int hictint_flags = 0;
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};
