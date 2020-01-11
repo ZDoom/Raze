@@ -336,17 +336,17 @@ void FConsoleWindow::SetTitleText()
 	// It's used in graphical startup screen, with Hexen style in particular
 	// Native OS X backend doesn't implement this yet
 
-	if (DoomStartupInfo.FgColor == DoomStartupInfo.BkColor)
+	if (RazeStartupInfo.FgColor == RazeStartupInfo.BkColor)
 	{
-		DoomStartupInfo.FgColor = ~DoomStartupInfo.FgColor;
+		RazeStartupInfo.FgColor = ~RazeStartupInfo.FgColor;
 	}
 
 	NSTextField* titleText = [[NSTextField alloc] initWithFrame:titleTextRect];
-	[titleText setStringValue:[NSString stringWithCString:DoomStartupInfo.Name
+	[titleText setStringValue:[NSString stringWithCString:RazeStartupInfo.Name
 												 encoding:NSISOLatin1StringEncoding]];
 	[titleText setAlignment:NSCenterTextAlignment];
-	[titleText setTextColor:RGB(DoomStartupInfo.FgColor)];
-	[titleText setBackgroundColor:RGB(DoomStartupInfo.BkColor)];
+	[titleText setTextColor:RGB(RazeStartupInfo.FgColor)];
+	[titleText setBackgroundColor:RGB(RazeStartupInfo.BkColor)];
 	[titleText setFont:[NSFont fontWithName:@"Trebuchet MS Bold" size:18.0f]];
 	[titleText setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
 	[titleText setSelectable:NO];

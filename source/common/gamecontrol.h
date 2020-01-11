@@ -157,3 +157,17 @@ void S_SetSoundPaused(int state);
 
 void G_HandleMemErr(int32_t lineNum, const char* fileName, const char* funcName);
 void G_FatalEngineError(void);
+
+
+struct FStartupInfo
+{
+	FString Name;
+	uint32_t FgColor;			// Foreground color for title banner
+	uint32_t BkColor;			// Background color for title banner
+	//FString Song;
+	//int Type;
+	//int LoadLights = -1;
+	//int LoadBrightmaps = -1;
+};
+
+extern FStartupInfo RazeStartupInfo;	

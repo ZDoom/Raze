@@ -51,6 +51,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "st_start.h"
 #include "s_music.h"
 #include "i_video.h"
+#include "v_text.h"
+#include "resourcefile.h"
 #include "c_dispatch.h"
 #include "glbackend/glbackend.h"
 #ifndef NETCODE_DISABLE
@@ -62,6 +64,7 @@ MapRecord *currentLevel;	// level that is currently played. (The real level, not
 MapRecord* lastLevel;		// Same here, for the last level.
 MapRecord userMapRecord;	// stand-in for the user map.
 
+FStartupInfo RazeStartupInfo;
 FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
 FString progdir;
@@ -70,7 +73,9 @@ void C_CON_SetAliases();
 InputState inputState;
 void SetClipshapes();
 int ShowStartupWindow(TArray<GrpEntry> &);
+FString GetGameFronUserFiles();
 void InitFileSystem(TArray<GrpEntry>&);
+void I_SetWindowTitle(const char* caption);
 bool gHaveNetworking;
 bool AppActive;
 
@@ -85,6 +90,7 @@ CVAR(String, defaultiwad, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 CVAR(Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 //CVAR(Bool, autoloadbrightmaps, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)	// hopefully this is an option for later
 //CVAR(Bool, autoloadlights, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
+
 
 //==========================================================================
 //
@@ -443,6 +449,12 @@ static TArray<GrpEntry> SetupGame()
 
 	// If the user has specified a file name, let's see if we know it.
 	//
+	FString game = GetGameFronUserFiles();
+	if (userConfig.gamegrp.IsEmpty())
+	{
+		userConfig.gamegrp = game;
+	}
+
 	if (userConfig.gamegrp.Len())
 	{
 		FString gamegrplower = "/" + userConfig.gamegrp.MakeLower();
@@ -460,7 +472,6 @@ static TArray<GrpEntry> SetupGame()
 			g++;
 		}
 	}
-
 
 	if (groupno == -1)
 	{
@@ -509,6 +520,9 @@ static TArray<GrpEntry> SetupGame()
 
 	if (groupno == -1) return TArray<GrpEntry>();
 	auto& group = groups[groupno];
+
+	if (RazeStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(RazeStartupInfo.Name);
+	else I_SetWindowTitle(group.FileInfo.name);
 
 	// Now filter out the data we actually need and delete the rest.
 
