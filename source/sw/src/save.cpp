@@ -1278,10 +1278,10 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
 	
 
+    LoadGameOutsideMoveLoop = TRUE;
     if (!InMenuLevel)
     {
         ready2send = 1;
-        LoadGameOutsideMoveLoop = TRUE;
     }
     else ExitLevel = TRUE;
     return true;
