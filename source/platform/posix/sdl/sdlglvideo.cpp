@@ -31,9 +31,9 @@
 **
 */
 
-// HEADER FILES ------------------------------------------------------------
+// TODO: Softpoly is temporarily #if 0'd out in 5 places.
 
-#include "doomtype.h"
+// HEADER FILES ------------------------------------------------------------
 
 #include "i_module.h"
 #include "i_system.h"
@@ -43,22 +43,24 @@
 #include "version.h"
 #include "c_console.h"
 #include "c_dispatch.h"
-#include "s_sound.h"
+#include "printf.h"
+#include "gamecontrol.h"
 
 #include "hardware.h"
 #include "gl_sysfb.h"
 #include "gl_load/gl_system.h"
-#include "r_defs.h"
 
 #include "gl/renderer/gl_renderer.h"
 #include "gl/system/gl_framebuffer.h"
-#include "gl/shaders/gl_shader.h"
+#include "glbackend/gl_shader.h"
 
 #ifdef HAVE_VULKAN
 #include "rendering/vulkan/system/vk_framebuffer.h"
 #endif
 
+#if 0 // softpoly
 #include "rendering/polyrenderer/backend/poly_framebuffer.h"
+#endif
 
 // MACROS ------------------------------------------------------------------
 
@@ -149,7 +151,7 @@ namespace Priv
 		}
 
 		FString caption;
-		caption.Format(GAMESIG " %s (%s)", GetVersionString(), GetGitTime());
+		caption.Format(GAMENAME " %s (%s)", GetVersionString(), GetGitTime());
 
 		const uint32_t windowFlags = (win_maximized ? SDL_WINDOW_MAXIMIZED : 0) | SDL_WINDOW_RESIZABLE | extraFlags;
 		Priv::window = SDL_CreateWindow(caption,
@@ -249,6 +251,7 @@ bool I_CreateVulkanSurface(VkInstance instance, VkSurfaceKHR *surface)
 }
 #endif
 
+#if 0 // softpoly stuff
 namespace
 {
 	SDL_Renderer* polyrendertarget = nullptr;
@@ -397,7 +400,7 @@ void I_PolyPresentDeinit()
 		polyrendertarget = nullptr;
 	}
 }
-
+#endif
 
 
 SDLVideo::SDLVideo ()
@@ -454,7 +457,7 @@ DFrameBuffer *SDLVideo::CreateFrameBuffer ()
 		{
 			assert(device == nullptr);
 			device = new VulkanDevice();
-			fb = new VulkanFrameBuffer(nullptr, fullscreen, device);
+			fb = new VulkanFrameBuffer(nullptr, vid_fullscreen, device);
 		}
 		catch (CVulkanError const&)
 		{
@@ -468,17 +471,19 @@ DFrameBuffer *SDLVideo::CreateFrameBuffer ()
 	}
 #endif
 
+#if 0 // softpoly is not yet implemented
 	if (Priv::softpolyEnabled)
 	{
-		fb = new PolyFrameBuffer(nullptr, fullscreen);
+		fb = new PolyFrameBuffer(nullptr, vid_fullscreen);
 	}
 
 	if (fb == nullptr)
 	{
-		fb = new OpenGLRenderer::OpenGLFrameBuffer(0, fullscreen);
+		fb = new OpenGLRenderer::OpenGLFrameBuffer(0, vid_fullscreen);
 	}
 
 	return fb;
+#endif
 }
 
 
@@ -490,12 +495,12 @@ IVideo *gl_CreateVideo()
 
 // FrameBuffer Implementation -----------------------------------------------
 
-SystemBaseFrameBuffer::SystemBaseFrameBuffer (void *, bool fullscreen)
+SystemBaseFrameBuffer::SystemBaseFrameBuffer (void *, bool vid_fullscreen)
 : DFrameBuffer (vid_defwidth, vid_defheight)
 {
 	if (Priv::window != nullptr)
 	{
-		SDL_SetWindowFullscreen(Priv::window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+		SDL_SetWindowFullscreen(Priv::window, vid_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 		SDL_ShowWindow(Priv::window);
 	}
 }
@@ -504,6 +509,7 @@ int SystemBaseFrameBuffer::GetClientWidth()
 {
 	int width = 0;
 
+#if 0 // softpoly
 	if (Priv::softpolyEnabled)
 	{
 		if (polyrendertarget)
@@ -512,6 +518,7 @@ int SystemBaseFrameBuffer::GetClientWidth()
 			SDL_GetWindowSize(Priv::window, &width, nullptr);
 		return width;
 	}
+#endif
 	
 #ifdef HAVE_VULKAN
 	assert(Priv::vulkanEnabled);
@@ -524,7 +531,8 @@ int SystemBaseFrameBuffer::GetClientWidth()
 int SystemBaseFrameBuffer::GetClientHeight()
 {
 	int height = 0;
-	
+
+#if 0 // softpoly	
 	if (Priv::softpolyEnabled)
 	{
 		if (polyrendertarget)
@@ -533,6 +541,7 @@ int SystemBaseFrameBuffer::GetClientHeight()
 			SDL_GetWindowSize(Priv::window, nullptr, &height);
 		return height;
 	}
+#endif
 
 #ifdef HAVE_VULKAN
 	assert(Priv::vulkanEnabled);
@@ -555,7 +564,7 @@ void SystemBaseFrameBuffer::ToggleFullscreen(bool yes)
 		if ( !Priv::fullscreenSwitch )
 		{
 			Priv::fullscreenSwitch = true;
-			fullscreen = false;
+			vid_fullscreen = false;
 		}
 		else
 		{
@@ -574,9 +583,9 @@ void SystemBaseFrameBuffer::SetWindowSize(int w, int h)
 	}
 	win_w = w;
 	win_h = h;
-	if ( fullscreen )
+	if ( vid_fullscreen )
 	{
-		fullscreen = false;
+		vid_fullscreen = false;
 	}
 	else
 	{
@@ -592,8 +601,8 @@ void SystemBaseFrameBuffer::SetWindowSize(int w, int h)
 }
 
 
-SystemGLFrameBuffer::SystemGLFrameBuffer(void *hMonitor, bool fullscreen)
-: SystemBaseFrameBuffer(hMonitor, fullscreen)
+SystemGLFrameBuffer::SystemGLFrameBuffer(void *hMonitor, bool vid_fullscreen)
+: SystemBaseFrameBuffer(hMonitor, vid_fullscreen)
 {
 	// NOTE: Core profiles were added with GL 3.2, so there's no sense trying
 	// to set core 3.1 or 3.0. We could try a forward-compatible context
@@ -628,7 +637,7 @@ SystemGLFrameBuffer::SystemGLFrameBuffer(void *hMonitor, bool fullscreen)
 	for ( ; glvers[glveridx][0] > 0; ++glveridx)
 	{
 		Priv::SetupPixelFormat(0, glvers[glveridx]);
-		Priv::CreateWindow(SDL_WINDOW_OPENGL | (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
+		Priv::CreateWindow(SDL_WINDOW_OPENGL | (vid_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
 
 		if (Priv::window == nullptr)
 		{
@@ -715,7 +724,7 @@ void ProcessSDLWindowEvent(const SDL_WindowEvent &event)
 		break;
 
 	case SDL_WINDOWEVENT_MOVED:
-		if (!fullscreen && Priv::GetWindowBordersSize)
+		if (!vid_fullscreen && Priv::GetWindowBordersSize)
 		{
 			int top = 0, left = 0;
 			Priv::GetWindowBordersSize(Priv::window, &top, &left, nullptr, nullptr);
@@ -725,7 +734,7 @@ void ProcessSDLWindowEvent(const SDL_WindowEvent &event)
 		break;
 
 	case SDL_WINDOWEVENT_RESIZED:
-		if (!fullscreen && !Priv::fullscreenSwitch)
+		if (!vid_fullscreen && !Priv::fullscreenSwitch)
 		{
 			win_w = event.data1;
 			win_h = event.data2;
@@ -753,7 +762,7 @@ void I_SetWindowTitle(const char* caption)
 	else
 	{
 		FString default_caption;
-		default_caption.Format(GAMESIG " %s (%s)", GetVersionString(), GetGitTime());
+		default_caption.Format(GAMENAME " %s (%s)", GetVersionString(), GetGitTime());
 		SDL_SetWindowTitle(Priv::window, default_caption);
 	}
 }

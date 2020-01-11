@@ -39,10 +39,9 @@
 #include <termios.h>
 
 #include "st_start.h"
-#include "doomdef.h"
 #include "i_system.h"
 #include "c_cvars.h"
-#include "doomerrors.h"
+#include "compat.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -327,5 +326,5 @@ bool FTTYStartupScreen::NetLoop(bool (*timer_callback)(void *), void *userdata)
 
 void ST_Endoom()
 {
-	throw CExitEvent(0);
+	throw ExitEvent(0);
 }
