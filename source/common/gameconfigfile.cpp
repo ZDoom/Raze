@@ -48,7 +48,7 @@
 #define LASTRUNVERSION "1"
 
 #if !defined _MSC_VER && !defined __APPLE__
-//#include "i_system.h"  // for SHARE_DIR
+#include "i_system.h"  // for SHARE_DIR
 #endif // !_MSC_VER && !__APPLE__
 
 FGameConfigFile::FGameConfigFile ()
