@@ -236,9 +236,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     Saveable_Init();
 	
 	
-	OpenSaveGameForWrite(sv->Filename);
     // workaround until the level info here has been transitioned.
-    G_WriteSaveHeader(sv->SaveTitle);
 	fil = WriteSavegameChunk("snapshot.sw");
 
     MWRITE(&GameVersion,sizeof(GameVersion),1,fil);

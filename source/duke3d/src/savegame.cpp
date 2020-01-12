@@ -536,10 +536,6 @@ static void G_RestoreTimers(void)
 
 bool G_SavePlayer(FSaveGameNode *sv)
 {
-#ifdef __ANDROID__
-    G_SavePalette();
-#endif
-
     G_SaveTimers();
 
     Net_WaitForServer();
@@ -550,7 +546,6 @@ bool G_SavePlayer(FSaveGameNode *sv)
 	errno = 0;
 	FileWriter *fil;
 
-	OpenSaveGameForWrite(sv->Filename);
 	fil = WriteSavegameChunk("snapshot.dat");
 	// The above call cannot fail.
 	{
@@ -564,7 +559,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
         portableBackupSave(sv->Filename, sv->SaveTitle, ud.last_stateless_volume, ud.last_stateless_level);
 
         // SAVE!
-        sv_saveandmakesnapshot(fw, sv->SaveTitle, 0);
+        sv_saveandmakesnapshot(fw, 0);
 
 
 		fw.Close();
@@ -620,9 +615,6 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
     else
     {
 		videoNextPage();	// no idea if this is needed here.
-		g_screenCapture = 1;
-		//G_DrawRooms(myconnectindex, 65536);
-		g_screenCapture = 0;
 
         return G_SavePlayer(sv);
     }
@@ -1361,7 +1353,7 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot)
+int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot)
 {
     savehead_t h;
 
@@ -1400,8 +1392,6 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot)
         // savegame
 		auto fw = WriteSavegameChunk("header.dat");
 		fw->Write(&h, sizeof(savehead_t));
-		
-        G_WriteSaveHeader(name);
 	}
     else
     {

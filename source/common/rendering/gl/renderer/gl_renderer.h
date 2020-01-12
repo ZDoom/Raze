@@ -81,9 +81,7 @@ public:
 	void DrawPresentTexture(const IntRect &box, bool applyGamma);
 	void Flush();
 	//void Draw2D(F2DDrawer *data);
-#if 0
-	void WriteSavePic(player_t *player, FileWriter *file, int width, int height);
-#endif
+	void WriteSavePic(FileWriter *file, int width, int height);
 	void BeginFrame();
     
 

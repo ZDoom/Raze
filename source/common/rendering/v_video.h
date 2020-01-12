@@ -339,6 +339,7 @@ public:
 	virtual int Backend() { return 0; }
 	virtual const char* DeviceName() const { return "Unknown"; }
 	virtual void Draw2D() {}
+	virtual void WriteSavePic(FileWriter *file, int width, int height);
 
 	// Screen wiping
 	virtual FTexture *WipeStartScreen();

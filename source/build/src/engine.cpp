@@ -10787,5 +10787,3 @@ void renderSetRollAngle(int32_t rolla)
     gtang = (float)rolla * (fPI * (1.f/1024.f));
 }
 #endif
-
-

@@ -46,6 +46,7 @@
 #include "s_music.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
+#include "v_video.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -63,12 +64,6 @@ static FResourceFile *savereader;
 //
 //=============================================================================
 
-
-void OpenSaveGameForWrite(const char *name)
-{
-	savewriter.Clear();
-	savewriter.SetFileName(name);
-}
 
 bool OpenSaveGameForRead(const char *name)
 {
@@ -126,16 +121,20 @@ void FinishSavegameRead()
 
 //=============================================================================
 //
-// Writes the header which is used to display the savegame in the menu.
+// Creates the savegame and writes all cross-game content.
 //
 //=============================================================================
 
-void G_WriteSaveHeader(const char *name)
+bool OpenSaveGameForWrite(const char* filename, const char *name)
 {
+	savewriter.Clear();
+	savewriter.SetFileName(filename);
+
 	sjson_context* ctx = sjson_create_context(0, 0, NULL);
 	if (!ctx)
 	{
-		return;
+		savewriter.Clear();
+		return false;
 	}
 	sjson_node* root = sjson_mkobject(ctx);
 	auto savesig = gi->GetSaveSig();
@@ -158,7 +157,11 @@ void G_WriteSaveHeader(const char *name)
 		auto mapfile = fileSystem.GetFileContainer(fileno);
 		auto mapcname = fileSystem.GetResourceFileName(mapfile);
 		if (mapcname) sjson_put_string(ctx, root, "Map Resource", mapcname);
-		else return; // this should never happen. Saving on a map that isn't present is impossible.
+		else
+		{
+			savewriter.Clear();
+			return false; // this should never happen. Saving on a map that isn't present is impossible.
+		}
 	}
 
 	char* encoded = sjson_stringify(ctx, root, "  ");
@@ -167,7 +170,8 @@ void G_WriteSaveHeader(const char *name)
 	if (!fil)
 	{
 		sjson_destroy_context(ctx);
-		return;
+		savewriter.Clear();
+		return false;
 	}
 
 	fil->Write(encoded, strlen(encoded));
@@ -180,6 +184,9 @@ void G_WriteSaveHeader(const char *name)
 	SECRET_Save();
 	MUS_Save();
 	quoteMgr.WriteToSavegame();
+	auto picfile = WriteSavegameChunk("savepic.png");
+	screen->WriteSavePic(picfile, 240, 180);
+	return true;
 }
 
 //=============================================================================

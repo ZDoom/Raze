@@ -147,7 +147,6 @@ G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 
 G_EXTERN int32_t g_noEnemies;
 G_EXTERN int32_t g_restorePalette;
-G_EXTERN int32_t g_screenCapture;
 G_EXTERN projectile_t SpriteProjectile[MAXSPRITES];
 G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;

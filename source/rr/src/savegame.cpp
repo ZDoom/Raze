@@ -300,7 +300,6 @@ bool G_SavePlayer(FSaveGameNode *sv)
 	errno = 0;
 	FileWriter *fil;
 
-	OpenSaveGameForWrite(sv->Filename);
 	fil = WriteSavegameChunk("snapshot.dat");
 	// The above call cannot fail.
 	{
@@ -311,7 +310,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 
 
         // SAVE!
-        sv_saveandmakesnapshot(fw, sv->SaveTitle, 0, 0);
+        sv_saveandmakesnapshot(fw, 0, 0);
 
 
 		fw.Close();
@@ -1068,7 +1067,7 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, bool isAutoSave)
+int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot, bool isAutoSave)
 {
     savehead_t h;
 
@@ -1105,7 +1104,6 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, char const *name, int8_t spot, b
         // savegame
 		auto fw = WriteSavegameChunk("header.dat");
 		fw->Write(&h, sizeof(savehead_t));
-		G_WriteSaveHeader(name);
 	}
     else
     {

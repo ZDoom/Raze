@@ -64,13 +64,15 @@ void FSavegameManager::LoadGame(FSaveGameNode* node)
 
 void FSavegameManager::SaveGame(FSaveGameNode* node, bool ok4q, bool forceq)
 {
-	if (gi->SaveGame(node))
+	if (OpenSaveGameForWrite(node->Filename, node->SaveTitle))
 	{
-		FString fn = node->Filename;
-		FString desc = node->SaveTitle;
-		NotifyNewSave(fn, desc, ok4q, forceq);
+		if (gi->SaveGame(node))
+		{
+			FString fn = node->Filename;
+			FString desc = node->SaveTitle;
+			NotifyNewSave(fn, desc, ok4q, forceq);
+		}
 	}
-
 }
 
 //=============================================================================

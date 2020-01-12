@@ -27,6 +27,7 @@ public:
 
 	void CleanForRestart() override;
 	const char* DeviceName() const override;
+	void WriteSavePic(FileWriter* file, int width, int height);
 #ifdef IMPLEMENT_IT
 	void SetTextureFilterMode() override;
 	IHardwareTexture *CreateHardwareTexture() override;

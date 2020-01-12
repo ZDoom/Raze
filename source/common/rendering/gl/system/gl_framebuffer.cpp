@@ -209,6 +209,17 @@ void OpenGLFrameBuffer::Update()
 	Super::Update();
 }
 
+//===========================================================================
+//
+// Render the view to a savegame picture
+//
+//===========================================================================
+
+void OpenGLFrameBuffer::WriteSavePic(FileWriter *file, int width, int height)
+{
+	GLRenderer->WriteSavePic(file, width, height);
+}
+
 
 const char* OpenGLFrameBuffer::DeviceName() const 
 {
@@ -468,4 +479,3 @@ void videoShowFrame(int32_t w)
 	twodgen.Clear();
 	GLInterface.ResetFrame();
 }
-

@@ -39,6 +39,7 @@
 #include "filesystem.h"
 #include "i_time.h"
 #include "cmdlib.h"
+#include "m_png.h"
 //#include "swrenderer/r_swscene.h"
 //#include "hwrenderer/utility/hw_clock.h"
 
@@ -58,13 +59,12 @@
 //#include "r_data/models/models.h"
 #include "gl/renderer/gl_postprocessstate.h"
 #include "gl/system/gl_buffers.h"
+#include "build.h"
 
 EXTERN_CVAR(Int, screenblocks)
 EXTERN_CVAR(Bool, cl_capfps)
 
 extern bool NoInterpolateView;
-
-void DoWriteSavePic(FileWriter *file, ESSType ssformat, uint8_t *scr, int width, int height, sector_t *viewsector, bool upsidedown);
 
 namespace OpenGLRenderer
 {
@@ -190,8 +190,7 @@ void FGLRenderer::BindToFrameBuffer(FMaterial *mat)
 //
 //===========================================================================
 
-#if 0
-void FGLRenderer::WriteSavePic (player_t *player, FileWriter *file, int width, int height)
+void FGLRenderer::WriteSavePic ( FileWriter *file, int width, int height)
 {
     IntRect bounds;
     bounds.left = 0;
@@ -204,35 +203,52 @@ void FGLRenderer::WriteSavePic (player_t *player, FileWriter *file, int width, i
     
     // Switch to render buffers dimensioned for the savepic
     mBuffers = mSaveBuffers;
-    
-	hw_ClearFakeFlat();
-	gl_RenderState.SetVertexBuffer(screen->mVertexData);
-	screen->mVertexData->Reset();
-    screen->mLights->Clear();
-	screen->mViewpoints->Clear();
+	mBuffers->BindSceneFB(false);
+	screen->SetViewportRects(&bounds);
 
-    // This shouldn't overwrite the global viewpoint even for a short time.
-    FRenderViewpoint savevp;
-    sector_t *viewsector = RenderViewpoint(savevp, players[consoleplayer].camera, &bounds, r_viewpoint.FieldOfView.Degrees, 1.6f, 1.6f, true, false);
-    glDisable(GL_STENCIL_TEST);
-    gl_RenderState.SetNoSoftLightLevel();
-    CopyToBackbuffer(&bounds, false);
+
+	int oldx = xdim;
+	int oldy = ydim;
+	auto oldwindowxy1 = windowxy1;
+	auto oldwindowxy2 = windowxy2;
+
+	xdim = width;
+	ydim = height;
+	videoSetViewableArea(0, 0, width - 1, height - 1);
+	renderSetAspect(65536, 65536);
+	calc_ylookup(width, height);
+	bool didit = gi->GenerateSavePic();
+
+	xdim = oldx;
+	ydim = oldy;
+	videoSetViewableArea(oldwindowxy1.x, oldwindowxy1.y, oldwindowxy2.x, oldwindowxy2.y);
+	calc_ylookup(bytesperline, ydim);
+	modechange = 1;
+
+	// The 2D drawers can contain some garbage from the dirty render setup. Get rid of that first.
+	twodgen.Clear();
+	twodpsp.Clear();
+	CopyToBackbuffer(&bounds, false);
     
     // strictly speaking not needed as the glReadPixels should block until the scene is rendered, but this is to safeguard against shitty drivers
     glFinish();
     
-	int numpixels = width * height;
-    uint8_t * scr = (uint8_t *)M_Malloc(numpixels * 3);
-    glReadPixels(0,0,width, height,GL_RGB,GL_UNSIGNED_BYTE,scr);
-
-	DoWriteSavePic(file, SS_RGB, scr, width, height, viewsector, true);
-    M_Free(scr);
+	if (didit)
+	{
+		int numpixels = width * height;
+		uint8_t* scr = (uint8_t*)Xmalloc(numpixels * 3);
+		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, scr);
+		M_CreatePNG(file, scr + ((height - 1) * width), nullptr, SS_RGB, width, height, -width, vid_gamma);
+		Xfree(scr);
+	}
     
     // Switch back the screen render buffers
     screen->SetViewportRects(nullptr);
     mBuffers = mScreenBuffers;
+	bool useSSAO = (gl_ssao != 0);
+	mBuffers->BindSceneFB(useSSAO);
 }
-#endif
+
 
 //===========================================================================
 //
@@ -243,7 +259,7 @@ void FGLRenderer::WriteSavePic (player_t *player, FileWriter *file, int width, i
 void FGLRenderer::BeginFrame()
 {
 	mScreenBuffers->Setup(screen->mScreenViewport.width, screen->mScreenViewport.height, screen->mSceneViewport.width, screen->mSceneViewport.height);
-	//mSaveBuffers->Setup(SAVEPICWIDTH, SAVEPICHEIGHT, SAVEPICWIDTH, SAVEPICHEIGHT);
+	mSaveBuffers->Setup(240, 180, 240, 180);
 }
 
 }

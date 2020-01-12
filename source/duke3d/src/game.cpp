@@ -762,14 +762,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         else
             renderSetAspect(mulscale16(vr, viewingrange), yxaspect);
 
-        if (g_screenCapture)
-        {
-			TileFiles.tileCreate(TILE_SAVESHOT, 200, 320);
-
-            //if (videoGetRenderMode() == REND_CLASSIC)
-                renderSetTarget(TILE_SAVESHOT, 200, 320);
-        }
-        else if (screenTilting)
+        if (screenTilting)
         {
             int32_t oviewingrange = viewingrange;  // save it from renderSetAspect()
             const int16_t tang = (ud.screen_tilting) ? pPlayer->rotscrnang : 0;
@@ -850,23 +843,15 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         }
         else if (videoGetRenderMode() >= REND_POLYMOST)
         {
-            if (ud.screen_tilting
-#ifdef SPLITSCREEN_MOD_HACKS
-        && !g_fakeMultiMode
-#endif
-            )
+            if (ud.screen_tilting)
             {
-#ifdef USE_OPENGL
                 renderSetRollAngle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
-#endif
                 pPlayer->orotscrnang = pPlayer->rotscrnang;
             }
-#ifdef USE_OPENGL
             else
             {
                 renderSetRollAngle(0);
             }
-#endif
         }
 
         if (pPlayer->newowner < 0)
@@ -1016,22 +1001,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             screen->FinishScene();
         }
 
-        if (g_screenCapture)
-        {
-            g_screenCapture = 0;
-
-            tileInvalidate(TILE_SAVESHOT, 0, 255);
-
-            //if (videoGetRenderMode() == REND_CLASSIC)
-            {
-                renderRestoreTarget();
-            }
-#ifdef USE_OPENGL
-            //else
-              //  G_ReadGLFrame();
-#endif
-        }
-        else if (screenTilting)
+        if (screenTilting)
         {
             const int16_t tang = (ud.screen_tilting) ? pPlayer->rotscrnang : 0;
 
@@ -1114,6 +1084,14 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     VM_OnEvent(EVENT_DISPLAYROOMSEND, g_player[screenpeek].ps->i, screenpeek);
 }
+
+
+bool GameInterface::GenerateSavePic()
+{
+    G_DrawRooms(myconnectindex, 65536);
+    return true;
+}
+
 
 void G_DumpDebugInfo(void)
 {

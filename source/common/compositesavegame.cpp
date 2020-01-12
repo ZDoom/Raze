@@ -37,6 +37,8 @@
 #include "compositesaveame.h"
 #include "file_zip.h"
 #include "resourcefile.h"
+#include "m_png.h"
+#include "gamecontrol.h"
 
 
 bool WriteZip(const char *filename, TArray<FString> &filenames, TArray<FCompressedBuffer> &content);
