@@ -78,7 +78,7 @@ class FDirectory : public FResourceFile
 	void AddEntry(const char *fullpath, int size);
 
 public:
-	FDirectory(const char * dirname, bool nosubdirflag);
+	FDirectory(const char * dirname, bool nosubdirflag = false);
 	bool Open(bool quiet);
 	virtual FResourceLump *GetLump(int no) { return ((unsigned)no < NumLumps)? &Lumps[no] : NULL; }
 };
