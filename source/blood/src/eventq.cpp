@@ -353,8 +353,6 @@ char evGetSourceState(int nType, int nIndex)
 
 void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
 {
-    
-
     switch (command) {
         case kCmdState:
             command = evGetSourceState(nType, nIndex) ? kCmdOn : kCmdOff;
