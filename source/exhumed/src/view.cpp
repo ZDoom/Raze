@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "trigdat.h"
 #include "runlist.h"
+#include "v_video.h"
 #include <string.h>
 
 BEGIN_PS_NS
@@ -530,9 +531,11 @@ void DrawView(int smoothRatio)
             }
         }
 
+        screen->BeginScene();
         renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa, nCamerapan, nSector);
         analyzesprites();
         renderDrawMasks();
+        screen->FinishScene();
 
         if (HavePLURemap())
         {

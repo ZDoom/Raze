@@ -49,8 +49,8 @@
 /*
 #include "hwrenderer/scene/hw_portal.h"
 #include "hwrenderer/utility/hw_clock.h"
-#include "hwrenderer/data/flatvertices.h"
 */
+#include "hwrenderer/data/flatvertices.h"
 
 #include <chrono>
 #include <thread>
@@ -189,7 +189,7 @@ void DFrameBuffer::Update()
 	{
 		SetVirtualSize(clientWidth, clientHeight);
 		V_OutputResized(clientWidth, clientHeight);
-		//mVertexData->OutputResized(clientWidth, clientHeight);
+		mVertexData->OutputResized(clientWidth, clientHeight);
 	}
 }
 
@@ -363,4 +363,22 @@ void DFrameBuffer::FPSLimit()
 		}
 	}
 #endif
+}
+
+void DFrameBuffer::BeginScene()
+{
+	if (videoGetRenderMode() < REND_POLYMOST) return;
+	assert(BufferLock >= 0);
+	if (BufferLock++ == 0)
+	{
+		mVertexData->Map();
+	}
+}
+
+void DFrameBuffer::FinishScene()
+{
+	if (videoGetRenderMode() < REND_POLYMOST) return;
+	assert(BufferLock > 0);
+	if (--BufferLock == 0)
+		mVertexData->Unmap();
 }

@@ -45,6 +45,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "lists.h"
 #include "pal.h"
 #include "parent.h"
+#include "v_video.h"
 
 BEGIN_SW_NS
 
@@ -472,10 +473,12 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 	TileFiles.tileCreate(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
     renderSetTarget(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
+    screen->BeginScene();
 
     drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
     analyzesprites(daposx, daposy, daposz, FALSE);
     renderDrawMasks();
+    screen->FinishScene();
 
     renderRestoreTarget();
 

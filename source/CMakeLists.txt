@@ -832,6 +832,7 @@ set (PCH_SOURCES
 	common/rendering/gl/system/gl_debug.cpp
 	common/rendering/gl/system/gl_framebuffer.cpp
 	common/rendering/gl_load/gl_interface.cpp
+	common/rendering/hwrenderer/data/flatvertices.cpp
 	common/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
 	common/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
 	common/rendering/hwrenderer/utility/hw_shaderpatcher.cpp

@@ -37,10 +37,8 @@ public:
 	void BeginFrame() override;
 	//void SetViewportRects(IntRect *bounds) override;
 	void BlurScene(float amount) override;
-#ifdef IMPLEMENT_IT
 	IVertexBuffer *CreateVertexBuffer() override;
 	IIndexBuffer *CreateIndexBuffer() override;
-#endif
 	IDataBuffer *CreateDataBuffer(int bindingpoint, bool ssbo, bool needsresize) override;
 
 	// Retrieves a buffer containing image data for a screenshot.

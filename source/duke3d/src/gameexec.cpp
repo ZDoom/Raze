@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "quotemgr.h"
 #include "mapinfo.h"
 #include "version.h"
+#include "v_video.h"
 
 #include "debugbreak.h"
 
@@ -1214,6 +1215,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, i
     renderSetAspect(viewingRange, yxAspect);
     int const smoothratio = calc_smoothratio(totalclock, ototalclock);
     G_DoInterpolations(smoothratio);
+    screen->BeginScene();
     if (!display_mirror)
         G_HandleMirror(vec.x, vec.y, vec.z, a, horiz, smoothratio);
 #ifdef POLYMER
@@ -1228,6 +1230,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, i
     G_DoSpriteAnimations(vec.x, vec.y, vec.z, fix16_to_int(a), smoothratio);
     display_mirror = 0;
     renderDrawMasks();
+    screen->FinishScene();
     G_RestoreInterpolations();
     G_UpdateScreenArea();
     renderSetAspect(viewingRange, yxAspect);
