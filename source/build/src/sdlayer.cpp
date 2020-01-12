@@ -1,45 +1,16 @@
 // SDL interface layer for the Build Engine
 // Use SDL 1.2 or 2.0 from http://www.libsdl.org
 
-#ifdef _WIN32
-#include <Windows.h>
-#include <CommCtrl.h>
-#endif
-#include <signal.h>
-#include <string>
-#include <stdexcept>
-# include "gl_load.h"
-
 #include "a.h"
 #include "build.h"
 
 #include "common.h"
 #include "compat.h"
 #include "engine_priv.h"
-#include "osd.h"
 #include "palette.h"
 #include "baselayer.h"
-#include "m_argv.h"
 #include "mmulti.h"
-#include "scriptfile.h"
-#include "zstring.h"
-#include "gameconfigfile.h"
-#include "gamecontrol.h"
-#include "resourcefile.h"
-#include "sc_man.h"
-#include "i_specialpaths.h"
-#include "inputstate.h"
-#include "c_cvars.h"
-#include "i_time.h"
-#include "c_dispatch.h"
-#include "d_gui.h"
-#include "menu.h"
-#include "utf8.h"
-#include "imgui.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_opengl3.h"
-# include "glsurface.h"
-
+#include "glsurface.h"
 
 
 double g_beforeSwapTime;
@@ -65,47 +36,6 @@ intptr_t frameplace=0;
 int32_t lockcount=0;
 char modechange=1;
 char offscreenrendering=0;
-
-#define MAX_ERRORTEXT 4096
-
-//==========================================================================
-//
-// I_Error
-//
-// Throw an error that will send us to the console if we are far enough
-// along in the startup process.
-//
-//==========================================================================
-
-void I_Error(const char *error, ...)
-{
-	va_list argptr;
-	char errortext[MAX_ERRORTEXT];
-
-	va_start(argptr, error);
-	vsnprintf(errortext, MAX_ERRORTEXT, error, argptr);
-	va_end(argptr);
-	#ifdef _WIN32
-	OutputDebugStringA(errortext);
-	#endif
-
-	throw std::runtime_error(errortext);
-}
-
-void I_FatalError(const char* error, ...)
-{
-    va_list argptr;
-    char errortext[MAX_ERRORTEXT];
-
-    va_start(argptr, error);
-    vsnprintf(errortext, MAX_ERRORTEXT, error, argptr);
-    va_end(argptr);
-#ifdef _WIN32
-    OutputDebugStringA(errortext);
-#endif
-
-    throw std::runtime_error(errortext);
-}
 
 
 // Calculate ylookup[] and call setvlinebpl()
@@ -223,35 +153,5 @@ void videoEndDrawing(void)
     lockcount = 0;
 }
 
-//
-//
-// ---------------------------------------
-//
-// Miscellany
-//
-// ---------------------------------------
-//
-//
-
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
-
-//
-// debugprintf() -- sends a debug string to the debugger
-//
-void debugprintf(const char* f, ...)
-{
-	va_list va;
-    va_start(va, f);
-
-#ifdef _WIN32
-    if (!IsDebuggerPresent()) return;
-
-    char buf[1024];
-    vsnprintf(buf, 1024, f, va);
-    va_end(va);
-    OutputDebugStringA(buf);
-#else
-    vprintf(f, va);
-#endif
-}
 

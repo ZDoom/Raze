@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include <stdexcept>
 #include "gamecontrol.h"
 #include "tarray.h"
 #include "zstring.h"
@@ -807,3 +808,57 @@ void S_SetSoundPaused(int state)
 	}
 #endif
 }
+
+#define MAX_ERRORTEXT 4096
+
+//==========================================================================
+//
+// I_Error
+//
+// Throw an error that will send us to the console if we are far enough
+// along in the startup process.
+//
+//==========================================================================
+
+void I_Error(const char* error, ...)
+{
+	va_list argptr;
+	char errortext[MAX_ERRORTEXT];
+
+	va_start(argptr, error);
+	vsnprintf(errortext, MAX_ERRORTEXT, error, argptr);
+	va_end(argptr);
+#ifdef _WIN32
+	OutputDebugStringA(errortext);
+#endif
+
+	throw std::runtime_error(errortext);
+}
+
+void I_FatalError(const char* error, ...)
+{
+	va_list argptr;
+	char errortext[MAX_ERRORTEXT];
+
+	va_start(argptr, error);
+	vsnprintf(errortext, MAX_ERRORTEXT, error, argptr);
+	va_end(argptr);
+#ifdef _WIN32
+	OutputDebugStringA(errortext);
+#endif
+
+	throw std::runtime_error(errortext);
+}
+
+//
+// debugprintf() -- sends a debug string to the debugger
+//
+void debugprintf(const char* f, ...)
+{
+	va_list va;
+	va_start(va, f);
+	FString out;
+	out.VFormat(f, va);
+	I_DebugPrint(out);
+}
+
