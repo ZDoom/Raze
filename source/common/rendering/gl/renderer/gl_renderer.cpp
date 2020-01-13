@@ -238,7 +238,7 @@ void FGLRenderer::WriteSavePic ( FileWriter *file, int width, int height)
 		int numpixels = width * height;
 		uint8_t* scr = (uint8_t*)Xmalloc(numpixels * 3);
 		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, scr);
-		M_CreatePNG(file, scr + ((height - 1) * width), nullptr, SS_RGB, width, height, -width, vid_gamma);
+		M_CreatePNG(file, scr + ((height - 1) * width * 3), nullptr, SS_RGB, width, height, -width * 3, vid_gamma);
 		Xfree(scr);
 	}
     
