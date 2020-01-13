@@ -2712,14 +2712,14 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                 if (lastmapname)
                     menutext(80, 16, lastmapname);
 
-                menutext(15, 192, GStrings("TXT_PRESSKEY"));
+                menutext(15, 192, GStrings("PRESSKEY"));
 
                 const int yystep = 16;
                 if (totalclock > (60*3))
                 {
                     yy = zz = 48;
 
-                    menutext(30, yy, "Yer Time:");
+                    menutext(30, yy, GStrings("TXT_YERTIME"));
 
                     yy+= yystep;
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
@@ -2762,7 +2762,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                             //    menutext(191 + 30 + (clockpad*24), yy, "New record!");
                         }
                         else
-                            menutext(191, yy, "Cheated!");
+                            menutext(191, yy, GStrings("TXT_Cheated"));
                         yy+=yystep;
 
                         if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
