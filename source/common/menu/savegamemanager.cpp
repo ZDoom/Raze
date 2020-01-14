@@ -403,7 +403,7 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 				PNGHandle *png = M_VerifyPNG(picreader);
 				if (png != nullptr)
 				{
-					SavePic = nullptr; // not yet implemented: PNGTexture_CreateFromFile(png, node->Filename);
+					SavePic = PNGTexture_CreateFromFile(png, node->Filename);
 					delete png;
 					if (SavePic && SavePic->GetWidth() == 1 && SavePic->GetHeight() == 1)
 					{

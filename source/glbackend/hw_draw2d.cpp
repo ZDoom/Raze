@@ -164,6 +164,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		if (cmd.mTexture != nullptr)
 		{
 			auto tex = cmd.mTexture;
+
 			if (cmd.mType == F2DDrawer::DrawTypeRotateSprite)
 			{
 				// todo: Set up hictinting. (broken as the feature is...)
