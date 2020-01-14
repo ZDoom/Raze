@@ -2446,8 +2446,6 @@ DrawCompass(PLAYERp pp)
 
 bool GameInterface::GenerateSavePic()
 {
-    short i;
-
     ScreenSavePic = TRUE;
     drawscreen(Player + myconnectindex);
     ScreenSavePic = FALSE;

@@ -144,7 +144,7 @@ void viewDisplayMessage(void);
 void viewSetErrorMessage(const char *pMessage);
 void DoLensEffect(void);
 void UpdateDacs(int nPalette, bool bNoTint = false);
-void viewDrawScreen(void);
+void viewDrawScreen(bool sceneonly = false);
 void viewLoadingScreenWide(void);
 void viewLoadingScreenUpdate(const char *pzText4 = NULL, int nPercent = -1);
 void viewLoadingScreen(int nTile, const char *pText, const char *pText2, const char *pText3);

@@ -3064,7 +3064,7 @@ int gLastPal = 0;
 
 int32_t g_frameRate;
 
-void viewDrawScreen(void)
+void viewDrawScreen(bool sceneonly)
 {
     int nPalette = 0;
     static ClockTicks lastUpdate;
@@ -3406,6 +3406,7 @@ void viewDrawScreen(void)
         renderDrawMasks();
         gView->pSprite->cstat = bakCstat;
         screen->FinishScene();
+        if (sceneonly) return;
 
         if (v78 || bDelirium)
         {
@@ -3592,6 +3593,14 @@ void viewDrawScreen(void)
     }
     UpdateDacs(nPalette);
 }
+
+bool GameInterface::GenerateSavePic()
+{
+    viewDrawScreen(true);
+    return true;
+}
+
+
 
 int nLoadingScreenTile;
 char pzLoadingScreenText1[256], pzLoadingScreenText2[256], pzLoadingScreenText3[256];
