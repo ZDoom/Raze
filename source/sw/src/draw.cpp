@@ -2049,7 +2049,7 @@ drawscreen(PLAYERp pp)
     DrawScreen = TRUE;
     PreDraw();
     // part of new border refresh method
-    if (RedrawScreen)
+    if (RedrawScreen && !ScreenSavePic)
     {
         RedrawCompass = TRUE;
         RedrawScreen = FALSE;
@@ -2189,7 +2189,7 @@ drawscreen(PLAYERp pp)
     DrawOverlapRoom(tx, ty, tz, tang, thoriz, tsectnum);
     OverlapDraw = FALSE;
 
-    if (dimensionmode != 6 && !ScreenSavePic)
+    if (dimensionmode != 6)// && !ScreenSavePic)
     {
         // TEST this! Changed to camerapp
         //JS_DrawMirrors(camerapp, tx, ty, tz, tang, thoriz);
@@ -2444,27 +2444,15 @@ DrawCompass(PLAYERp pp)
 
 
 
-#if 0
-int
-ScreenSaveSetup(PLAYERp pp)
+bool GameInterface::GenerateSavePic()
 {
     short i;
-
-    ScreenLoadSaveSetup(Player + myconnectindex);
-
-    renderSetTarget(SAVE_SCREEN_TILE, SAVE_SCREEN_YSIZE, SAVE_SCREEN_XSIZE);
 
     ScreenSavePic = TRUE;
     drawscreen(Player + myconnectindex);
     ScreenSavePic = FALSE;
-
-    renderRestoreTarget();
-
-    return SAVE_SCREEN_TILE;
+    return true;
 }
-#endif
-
-
 
 
 END_SW_NS
