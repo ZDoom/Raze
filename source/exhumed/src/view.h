@@ -35,7 +35,7 @@ extern short bCamera;
 void InitView();
 void SetView1();
 void RefreshBackground();
-void DrawView(int smoothRatio);
+void DrawView(int smoothRatio, bool sceneonly = false);
 void MySetView(int x1, int y1, int x2, int y2);
 void ResetView();
 void NoClip();

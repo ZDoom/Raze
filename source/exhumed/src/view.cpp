@@ -357,7 +357,7 @@ static inline fix16_t q16angle_interpolate16(fix16_t a, fix16_t b, int smooth)
     return a + mulscale16(((b+F16(1024)-a)&0x7FFFFFF)-F16(1024), smooth);
 }
 
-void DrawView(int smoothRatio)
+void DrawView(int smoothRatio, bool sceneonly)
 {
     int playerX;
     int playerY;
@@ -366,27 +366,14 @@ void DrawView(int smoothRatio)
     fix16_t nAngle;
     fix16_t pan;
 
-#if 0
-    if (bgpages <= 0)
-    {
-        if (textpages > 0)
-        {
-            textpages--;
-            FlushMessageLine();
-        }
-    }
-    else
+
+    if (!sceneonly)
     {
         RefreshBackground();
-        bgpages--;
-    }
-#else
-    //FlushMessageLine();
-    RefreshBackground();
-#endif
 
-    if (!bFullScreen) {
-        MaskStatus();
+        if (!bFullScreen) {
+            MaskStatus();
+        }
     }
 
     zbob = Sin(2 * bobangle) >> 3;
@@ -395,7 +382,7 @@ void DrawView(int smoothRatio)
     int nPlayerOldCstat = sprite[nPlayerSprite].cstat;
     int nDoppleOldCstat = sprite[nDoppleSprite[nLocalPlayer]].cstat;
 
-    if (nSnakeCam >= 0)
+    if (nSnakeCam >= 0 && !sceneonly)
     {
         int nSprite = SnakeList[nSnakeCam].nSprites[0];
 
@@ -438,9 +425,9 @@ void DrawView(int smoothRatio)
 
     nCameraa = nAngle;
 
-    if (!bCamera || nFreeze)
+    if (!bCamera || nFreeze || sceneonly)
     {
-        if (nSnakeCam >= 0)
+        if (nSnakeCam >= 0 && !sceneonly)
         {
             pan = F16(92);
             viewz = playerZ;
@@ -602,7 +589,7 @@ void DrawView(int smoothRatio)
                 }
             }
         }
-        else
+        else if (!sceneonly)
         {
             if (nSnakeCam < 0)
             {
@@ -636,6 +623,14 @@ void DrawView(int smoothRatio)
 
     flash = 0;
 }
+
+bool GameInterface::GenerateSavePic()
+{
+    DrawView(65536, true);
+    return true;
+}
+
+
 
 void NoClip()
 {
