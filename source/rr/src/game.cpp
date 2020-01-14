@@ -1510,6 +1510,13 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     }
 }
 
+bool GameInterface::GenerateSavePic()
+{
+    G_DrawRooms(myconnectindex, 65536);
+    return true;
+}
+
+
 void G_DumpDebugInfo(void)
 {
     int32_t j,x;
