@@ -88,8 +88,8 @@ FGLRenderer::FGLRenderer(OpenGLFrameBuffer *fb)
 
 void FGLRenderer::Initialize(int width, int height)
 {
-	mScreenBuffers = new FGLRenderBuffers();
-	mSaveBuffers = new FGLRenderBuffers();
+	mScreenBuffers = new FGLRenderBuffers(gl_multisample);
+	mSaveBuffers = new FGLRenderBuffers(0);
 	mBuffers = mScreenBuffers;
 	mPresentShader = new FPresentShader();
 	mPresent3dCheckerShader = new FPresent3DCheckerShader();

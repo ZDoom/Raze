@@ -101,8 +101,9 @@ private:
 
 class FGLRenderBuffers
 {
+	int gl_multisample = 0;	// intentionally overload the global CVAR
 public:
-	FGLRenderBuffers();
+	FGLRenderBuffers(int ms);
 	~FGLRenderBuffers();
 
 	void Setup(int width, int height, int sceneWidth, int sceneHeight);
