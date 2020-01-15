@@ -615,7 +615,6 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
     else
     {
 		videoNextPage();	// no idea if this is needed here.
-
         return G_SavePlayer(sv);
     }
 }
