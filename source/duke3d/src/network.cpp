@@ -457,12 +457,12 @@ static uint32_t g_cl_InterpolatedRevision = 0;
 
 static netmapstate_t g_mapStartState;
 
-static netmapstate_t g_cl_InterpolatedMapStateHistory[NET_REVISIONS];
+static TArray<netmapstate_t> g_cl_InterpolatedMapStateHistory;
 
 // note that the map state number is not an index into here,
 // to get the index into this array out of a map state number, do <Map state number> % NET_REVISONS
-static netmapstate_t g_mapStateHistory[NET_REVISIONS];
-static uint8_t       tempnetbuf[MAX_WORLDBUFFER];
+static TArray<netmapstate_t> g_mapStateHistory;
+static TArray<uint8_t> tempnetbuf;
 
 // Remember that this constant needs to be one bit longer than a struct index, so it can't be mistaken for a valid wall, sprite, or sector index
 static const int32_t cSTOP_PARSING_CODE = ((1 << NETINDEX_BITS) - 1);
@@ -4211,8 +4211,8 @@ static void Net_SendWorldUpdate(uint32_t fromRevisionNumber, uint32_t toRevision
         return;
     }
 
-    Bassert(MAX_WORLDBUFFER == ARRAY_SIZE(tempnetbuf));
-    Bassert(NET_REVISIONS == ARRAY_SIZE(g_mapStateHistory));
+    //Bassert(MAX_WORLDBUFFER == ARRAY_SIZE(tempnetbuf));
+    //Bassert(NET_REVISIONS == ARRAY_SIZE(g_mapStateHistory));
 
     uint32_t        playerRevisionIsTooOld = (toRevisionNumber - fromRevisionNumber) > NET_REVISIONS;
 
@@ -4950,7 +4950,7 @@ void Net_SendServerUpdates(void)
     serverupdate.pause_on = ud.pause_on;
 
     serverupdate.numplayers = 0;
-    updatebuf               = tempnetbuf + sizeof(serverupdate_t);
+    updatebuf               = tempnetbuf.Data() + sizeof(serverupdate_t);
 
     for (TRAVERSE_CONNECT(i))
     {
@@ -4988,7 +4988,7 @@ void Net_SendServerUpdates(void)
         return;
     }
 
-    Bmemcpy(tempnetbuf, &serverupdate, sizeof(serverupdate_t));
+    Bmemcpy(tempnetbuf.Data(), &serverupdate, sizeof(serverupdate_t));
 
     enet_host_broadcast(
     g_netServer, CHAN_MOVE,
@@ -5155,6 +5155,9 @@ void Net_InitMapStateHistory()
 
 void Net_StartNewGame()
 {
+    g_mapStateHistory.Resize(NET_REVISIONS);
+    g_cl_InterpolatedMapStateHistory.Resize(NET_REVISIONS);
+    tempnetbuf.Resize(MAX_WORLDBUFFER);
     Net_ResetPlayers();
 
     Net_ExtractNewGame(&pendingnewgame, 0);
