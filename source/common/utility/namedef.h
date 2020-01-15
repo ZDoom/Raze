@@ -50,4 +50,6 @@ xx(Alresamplers)
 xx(AdvSoundOptions)
 xx(JoystickConfigMenu)
 xx(JoystickOptions)
+xx(EngineCredits)
+xx(EngineCredits2)
 

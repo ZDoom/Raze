@@ -466,6 +466,16 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	case NAME_SkillMenu:
 		GameStartupInfo.Skill = param;
 		break;
+
+	case NAME_EngineCredits:
+	case NAME_EngineCredits2:
+	{
+		auto m = DMenu::CurrentMenu;
+		DMenu::CurrentMenu = m->mParentMenu;
+		m->mParentMenu = nullptr;
+		toDelete.Push(m);
+		break;
+	}
 	}
 
 	switch (menu)

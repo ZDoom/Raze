@@ -656,9 +656,10 @@ OptionMenu "OptionsMenu"
 	Submenu "$OPTMNU_GAMEPLAY",			"GameplayOptions"
 	Submenu "$OPTMNU_MISCELLANEOUS",	"MiscOptions"
 	StaticText " "
+	Submenu "$MNU_ENGINECREDITS",		"EngineCredits"
 	SafeCommand "$OPTMNU_DEFAULTS",	"reset2defaults"
 	SafeCommand	"$OPTMNU_RESETTOSAVED",	"reset2saved"
-	Command "$OPTMNU_CONSOLE",			"menuconsole"
+	//Command "$OPTMNU_CONSOLE",			"menuconsole"
 }	
 	
 //-------------------------------------------------------------------------------------------
@@ -1726,3 +1727,46 @@ OptionMenu "MultiOptionsMenu"
 	Option "$NETMNU_FFIRE", "m_ffire", "OnOff"
 	SafeCommand "$NETMNU_ACCEPT", "MultiAccept"
 }
+
+OptionMenu "EngineCredits"
+{
+	title "$MNU_CREDITS"
+	Submenu " ---->", "EngineCredits2"
+	StaticText "Developer"
+	StaticText "Christoph Oelckers", 0
+	StaticText " "
+	StaticText "Special thanks to"
+	StaticText "Rachael Alexanderson", 0
+	StaticText "Magnus Norddahl", 0
+	StaticText "Nigel Rowand", 0
+	StaticText "Martin Howe", 0
+	StaticText "Nash Muhandes", 0
+	StaticText " "
+	
+}
+
+OptionMenu "EngineCredits2"
+{
+	title "$MNU_CREDITS"
+	Submenu " <----", "EngineCredits"
+	StaticText "EDuke32 / VoidSW"
+	StaticText "Richard \"TerminX\" Gobeille", 0
+	StaticText "Evan \"Hendricks266\" Ramos", 0
+	StaticText "Alex \"pogokeen\" Dawson", 0
+	StaticText ""
+	StaticText "Retired developers"
+	StaticText "Pierre-Loup \"Plagman\" Griffais", 0
+	StaticText "Philipp \"Helixhorned\" Kutin", 0
+	StaticText ""
+	StaticText "RedNukem / NBlood"
+	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
+	StaticText ""
+	StaticText "PCExhumed"
+	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
+	StaticText "sirlemonhead", 0
+	StaticText ""
+	StaticText "Special thanks to"
+    StaticText "Jonathon \"JonoF\" Fowler", 0
+}
+	
+	
