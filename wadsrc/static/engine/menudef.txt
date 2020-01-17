@@ -1491,8 +1491,8 @@ OptionValue Ratios
 }
 OptionValue ScaleModes
 {
-	0, "$OPTVAL_SCALENEAREST"
-	1, "$OPTVAL_SCALELINEAR"
+	0, "$OPTVAL_SCALENORMAL"
+	1, "$OPTVAL_SCALEMINIMAL"
 	2, "640x400"
 	3, "960x600"
 	4, "1280x800"
@@ -1550,7 +1550,7 @@ OptionMenu VideoModeMenu //protected
 	StaticText "$VIDMNU_CUSTOMRES"
 	TextField "$VIDMNU_CUSTOMX", menu_resolution_custom_width
 	TextField "$VIDMNU_CUSTOMY", menu_resolution_custom_height
-	Option "$VIDMNU_USELINEAR", "vid_scale_customlinear", "YesNo"
+	Option "$VIDMNU_USELINEAR", "vid_scale_linear", "YesNo"
 	StaticText ""
 	Command "$VIDMNU_APPLYW", "menu_resolution_commit_changes 0"
 	Command "$VIDMNU_APPLYFS", "menu_resolution_commit_changes 1"
