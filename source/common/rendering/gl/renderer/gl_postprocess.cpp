@@ -32,8 +32,9 @@
 #include "gl/shaders/gl_shaderprogram.h"
 #include "hwrenderer/postprocessing/hw_postprocess.h"
 #include "hwrenderer/postprocessing/hw_postprocess_cvars.h"
-//#include "hwrenderer/data/flatvertices.h"
+#include "hwrenderer/data/flatvertices.h"
 #include "r_videoscale.h"
+#include "v_video.h"
 
 extern bool vid_hdr_active;
 
@@ -45,23 +46,9 @@ namespace OpenGLRenderer
 
 void FGLRenderer::RenderScreenQuad()
 {
-	// The buffer here needs to be enabled later again, of course.
-#if 0
 	auto buffer = static_cast<GLVertexBuffer *>(screen->mVertexData->GetBufferObjects().first);
 	buffer->Bind(nullptr);
 	glDrawArrays(GL_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
-#else
-	glBegin(GL_TRIANGLE_STRIP);
-    glVertexAttrib2f(1, 0, 0);
-	glVertexAttrib2f(0, -1, -1);
-    glVertexAttrib2f(1, 0, 1);
-	glVertexAttrib2f(0, -1, 1);
-    glVertexAttrib2f(1, 1, 0);
-	glVertexAttrib2f(0, 1, -1);
-    glVertexAttrib2f(1, 1, 1);
-	glVertexAttrib2f(0, 1,1);
-	glEnd();
-#endif
 }
 
 void FGLRenderer::PostProcessScene(int fixedcm, const std::function<void()> &afterBloomDrawEndScene2D)
