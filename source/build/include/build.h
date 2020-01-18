@@ -331,7 +331,7 @@ typedef struct {
     int16_t angoff, pitch, roll;
     vec3_t pivot_offset, position_offset;
     uint8_t flags;
-    uint8_t xpanning, ypanning;
+    uint8_t xpanning, ypanning; // EDuke script hacks.
     uint8_t filler;
     uint32_t filler2;
     float alpha;

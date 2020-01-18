@@ -46,6 +46,7 @@
 #include "i_time.h"
 #include "v_2ddrawer.h"
 #include "build.h"
+#include "../glbackend/glbackend.h"
 /*
 #include "hwrenderer/scene/hw_portal.h"
 #include "hwrenderer/utility/hw_clock.h"
@@ -390,5 +391,8 @@ void DFrameBuffer::FinishScene()
 	if (videoGetRenderMode() < REND_POLYMOST) return;
 	assert(BufferLock > 0);
 	if (--BufferLock == 0)
+	{
 		mVertexData->Unmap();
+		GLInterface.DoDraw();
+	}
 }

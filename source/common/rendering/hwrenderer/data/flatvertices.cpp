@@ -36,6 +36,7 @@
 #include "flatvertices.h"
 #include "v_video.h"
 #include "cmdlib.h"
+#include "printf.h"
 #include "hwrenderer/data/buffers.h"
 
 //==========================================================================
@@ -89,7 +90,7 @@ FFlatVertexBuffer::FFlatVertexBuffer(int width, int height)
 	};
 	mVertexBuffer->SetFormat(1, 2, sizeof(FFlatVertex), format);
 
-	mIndex = mCurIndex = 0;
+	mIndex = mCurIndex = NUM_RESERVED;
 	mNumReserved = NUM_RESERVED;
 	Copy(0, NUM_RESERVED);
 }
@@ -121,6 +122,25 @@ void FFlatVertexBuffer::OutputResized(int width, int height)
 	vbo_shadowdata[6].Set((float)width, 0, 0, 1, 0);
 	vbo_shadowdata[7].Set((float)width, (float)height, 0, 1, 1);
 	Copy(4, 4);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+std::pair<FFlatVertex *, unsigned int> FFlatVertexBuffer::AllocVertices(unsigned int count)
+{
+	FFlatVertex *p = GetBuffer();
+	auto index = mCurIndex.fetch_add(count);
+	auto offset = index;
+	if (index + count >= BUFFER_SIZE_TO_USE)
+	{
+		// If a single scene needs 2'000'000 vertices there must be something very wrong. 
+		I_FatalError("Out of vertex memory. Tried to allocate more than %u vertices for a single frame", index + count);
+	}
+	return std::make_pair(p, index);
 }
 
 //==========================================================================

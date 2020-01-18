@@ -14,7 +14,7 @@ struct F2DPolygons
 	TArray<FVector4> vertices;
 	TArray<int>  indices;
 
-	unsigned AllocVertices(int num) // Allocates a triangle fan. There's no code that needs a triangle strip.
+	unsigned AllocVertices(int num)
 	{
 		auto vindex = vertices.Reserve(num);
 		indices.Push(num);

@@ -10,6 +10,8 @@
 #include "hightile.h"
 #include "polymost.h"
 #include "mdsprite.h"
+#include "v_video.h"
+#include "flatvertices.h"
 
 #include "palette.h"
 #include "../../glbackend/glbackend.h"
@@ -1140,10 +1142,10 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 	GLInterface.UseDetailMapping(false);
 #endif
 
-	auto data = GLInterface.AllocVertices(m->qcnt * 6);
-	auto vt = data.second;
+	auto data = screen->mVertexData->AllocVertices(m->qcnt * 6);
+	auto vt = data.first;
 
-	int qstart = 0;
+	int qstart = data.second;
 	int qdone = 0;
     for (bssize_t i=0, fi=0; i<m->qcnt; i++)
     {
@@ -1152,7 +1154,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
             f = 1 /*clut[fi++]*/;
 			if (qdone > 0)
 			{
-				GLInterface.DrawIm(DT_TRIANGLES, qstart, qdone * 6);
+				GLInterface.Draw(DT_TRIANGLES, qstart, qdone * 6);
 				qstart += qdone * 6;
 				qdone = 0;
 			}
@@ -1182,7 +1184,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 		qdone++;
     }
 
-	GLInterface.DrawIm(DT_TRIANGLES, qstart, qdone * 6);
+	GLInterface.Draw(DT_TRIANGLES, qstart, qdone * 6);
 	GLInterface.SetClamp(prevClamp);
     //------------
 	GLInterface.SetCull(Cull_None);

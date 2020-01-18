@@ -95,34 +95,6 @@ struct glinfo_t {
 	float maxanisotropy;
 };
 
-struct BaseVertex
-{
-	float x, y, z;
-	float u, v;
-	
-	void SetVertex(float _x, float _y, float _z = 0)
-	{
-		x = _x;
-		y = _y;
-		z = _z;
-	}
-	
-	void SetTexCoord(float _u = 0, float _v = 0)
-	{
-		u = _u;
-		v = _v;
-	}
-
-	void Set(float _x, float _y, float _z = 0, float _u = 0, float _v = 0)
-	{
-		x = _x;
-		y = _y;
-		z = _z;
-		u = _u;
-		v = _v;
-	}
-};
-
 enum EDrawType
 {
 	DT_TRIANGLES,
@@ -180,7 +152,7 @@ struct GLState
 
 class GLInstance
 {
-	std::vector<BaseVertex> Buffer;	// cheap-ass implementation. The primary purpose is to get the GL accesses out of polymost.cpp, not writing something performant right away.
+	TArray<PolymostRenderState> rendercommands;
 	int maxTextureSize;
 	PaletteManager palmanager;
 	int lastPalswapIndex = -1;
@@ -192,10 +164,6 @@ class GLInstance
 
 	// Cached GL state.
 	GLState lastState;
-
-	IVertexBuffer* LastVertexBuffer = nullptr;
-	int LastVB_Offset[2] = {};
-	IIndexBuffer* LastIndexBuffer = nullptr;
 
 	float mProjectionM5 = 1.0f; // needed by ssao
 	PolymostRenderState renderState;
@@ -225,26 +193,18 @@ public:
 	}
 
 	GLInstance();
-	std::pair<size_t, BaseVertex *> AllocVertices(size_t num);
-	void DrawIm(EDrawType type, size_t start, size_t count);
 	void Draw(EDrawType type, size_t start, size_t count);
-	
+	void DoDraw();
+	void DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState& renderState);
+
 	FHardwareTexture* NewTexture();
 	void EnableNonTransparent255(bool on)
 	{
 		g_nontransparent255 = on;
 	}
 
-	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2)
-	{
-		renderState.VertexBuffer = vb;
-		renderState.VB_Offset[0] = offset1;
-		renderState.VB_Offset[1] = offset2;
-	}
-	void SetIndexBuffer(IIndexBuffer* vb)
-	{
-		renderState.IndexBuffer = vb;
-	}
+	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2);
+	void SetIndexBuffer(IIndexBuffer* vb);
 	void ClearBufferState();
 
 	float GetProjectionM5() { return mProjectionM5; }
@@ -542,18 +502,18 @@ public:
 	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
 	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);
 	FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
-	bool SetTextureInternal(int globalpicnum, FTexture* tex, int palette, int method, int sampleroverride, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow);
+	bool SetTextureInternal(int globalpicnum, FTexture* tex, int palette, int method, int sampleroverride,  FTexture *det, float detscale, FTexture *glow);
 
 	bool SetNamedTexture(FTexture* tex, int palette, int sampleroverride);
 
 	bool SetTexture(int globalpicnum, FTexture* tex, int palette, int method, int sampleroverride)
 	{
-		return SetTextureInternal(globalpicnum, tex, palette, method, sampleroverride, 0, 0, nullptr, 1, nullptr);
+		return SetTextureInternal(globalpicnum, tex, palette, method, sampleroverride, nullptr, 1, nullptr);
 	}
 
-	bool SetModelTexture(FTexture *tex, int palette, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow)
+	bool SetModelTexture(FTexture *tex, int palette, FTexture *det, float detscale, FTexture *glow)
 	{
-		return SetTextureInternal(-1, tex, palette, 8/*DAMETH_MODEL*/, -1, xpanning, ypanning, det, detscale, glow);
+		return SetTextureInternal(-1, tex, palette, 8/*DAMETH_MODEL*/, -1, det, detscale, glow);
 	}
 };
 

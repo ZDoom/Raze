@@ -10,6 +10,7 @@
 #include "baselayer.h"
 #include "build.h"
 #include "tarray.h"
+#include "flatvertices.h"
 #include "../../glbackend/glbackend.h"
 
 static TArray<uint8_t> buffer;
@@ -75,13 +76,5 @@ void glsurface_blitBuffer()
 
 	bufferTexture->LoadTexture(buffer.Data());
 	GLInterface.BindTexture(0, bufferTexture, SamplerNoFilterClampXY);
-
-	auto data = GLInterface.AllocVertices(4);
-	auto vt = data.second;
-
-	vt[0].Set(-1.0f, 1.0f, 0.0f, 0.0f, 0.0f); //top-left
-	vt[1].Set(-1.0f, -1.0f, 0.0f, 0.0f, 1.0f); //bottom-left
-	vt[2].Set(1.0f, 1.0f, 0.0f, 1.0f, 0.0f); //top-right
-	vt[3].Set(1.0f, -1.0f, 0.0f, 1.0f, 1.0f);  //bottom-right
-	GLInterface.DrawIm(DT_TRIANGLE_STRIP, data.first, 4);
+	GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
 }

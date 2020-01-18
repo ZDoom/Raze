@@ -150,7 +150,7 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 //
 //===========================================================================
 
-bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int method, int sampleroverride, float xpanning, float ypanning, FTexture *det, float detscale, FTexture *glow)
+bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int method, int sampleroverride, FTexture *det, float detscale, FTexture *glow)
 {
 	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return false;
 	int usepalette = fixpalette >= 1 ? fixpalette - 1 : curbasepal;
@@ -158,6 +158,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	GLInterface.SetPalette(usepalette);
 	GLInterface.SetPalswap(usepalswap);
 	bool texbound[3] = {};
+	int MatrixChange = 0;
 
 	TextureType = hw_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
 
@@ -209,13 +210,12 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 		UseBrightmaps(false);
 
 		BindTexture(0, mtex, sampler);
-		if (rep && (rep->scale.x != 1.0f || rep->scale.y != 1.0f || xpanning != 0 || ypanning != 0))
+		// Needs a) testing and b) verification for correctness. This doesn't look like it makes sense.
+		if (rep && (rep->scale.x != 1.0f || rep->scale.y != 1.0f))
 		{
-			texmat.loadIdentity();
-			texmat.translate(xpanning, ypanning, 0);
-			texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
-			GLInterface.SetMatrix(Matrix_Texture, &texmat);
-			MatrixChange |= 1;
+			//texmat.loadIdentity();
+			//texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
+			//GLInterface.SetMatrix(Matrix_Texture, &texmat);
 		}
 
 		// Also load additional layers needed for this texture.
@@ -239,16 +239,17 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				BindTexture(3, htex, SamplerRepeat);
 				texbound[0] = true;
 
-				// Q: Pass the scale factor as a separate uniform to get rid of the additional matrix?
+
+				/* todo: instead of a matrix, just pass a two-component uniform. Using a full matrix here is problematic.
 				if (MatrixChange & 1) MatrixChange |= 2;
 				else texmat.loadIdentity();
-
 				if ((detscalex != 1.0f) || (detscaley != 1.0f))
 				{
 					texmat.scale(detscalex, detscaley, 1.0f);
 					MatrixChange |= 2;
 				}
 				if (MatrixChange & 2) GLInterface.SetMatrix(Matrix_Detail, &texmat);
+				*/
 			}
 		}
 		if (hw_glowmapping && hw_hightile)

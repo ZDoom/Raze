@@ -15,6 +15,8 @@
 #include "palette.h"
 #include "textures.h"
 #include "bitmap.h"
+#include "v_video.h"
+#include "flatvertices.h"
 #include "../../glbackend/glbackend.h"
 
 static int32_t curextra=MAXTILES;
@@ -1454,8 +1456,8 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
     int32_t i;
 
 
-	auto data = GLInterface.AllocVertices(s->numtris * 3);
-	auto vt = data.second;
+	auto data = screen->mVertexData->AllocVertices(s->numtris * 3);
+	auto vt = data.first;
     for (i=s->numtris-1; i>=0; i--)
     {
         uint16_t tri = M ? M->indexes[i] : i;
@@ -1470,7 +1472,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
             vt->SetVertex(vertlist[k].x, vertlist[k].y);
         }
     }
-	GLInterface.DrawIm(DT_TRIANGLES, data.first, s->numtris *3);
+	GLInterface.Draw(DT_TRIANGLES, data.second, s->numtris *3);
 
 #ifndef USE_GLEXT
     UNREFERENCED_PARAMETER(texunits);
@@ -1638,9 +1640,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         k3 = (float)sintable[sext->roll&2047] * (1.f/16384.f);
     }
 
-    float const xpanning = (float)sext->xpanning * (1.f/256.f);
-    float const ypanning = (float)sext->ypanning * (1.f/256.f);
-
     int prevClamp = GLInterface.GetClamp();
 	GLInterface.SetClamp(0);
 
@@ -1720,10 +1719,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 			}
 			glow = hw_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi, nullptr) : 0;
 		}
-		GLInterface.SetModelTexture(tex, globalpal, xpanning, ypanning, det, detscale, glow);
-
-		VSMatrix texmat(0);
-		texmat.translate(xpanning, ypanning, 1.0f);
+		GLInterface.SetModelTexture(tex, globalpal, det, detscale, glow);
 
         if (tspr->clipdist & TSPR_FLAGS_MDHACK)
         {

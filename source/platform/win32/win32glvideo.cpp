@@ -405,7 +405,7 @@ bool Win32GLVideo::InitHardware(HWND Window, int multisample)
 	int prof = WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
 	const char *version = Args->CheckValue("-glversion");
 
-	prof = WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB; // At the moment the renderer still needs the compatibility profile.
+	//prof = WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB; // At the moment the renderer still needs the compatibility profile.
 
 	for (; prof <= WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB; prof++)
 	{

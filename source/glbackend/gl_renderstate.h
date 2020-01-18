@@ -50,13 +50,14 @@ enum PRSFlags
 	STF_CLEARCOLOR = 1024,
 	STF_CLEARDEPTH = 2048,
 	STF_VIEWPORTSET = 4096,
-	STF_SCISSORSET = 4096,
+	STF_SCISSORSET = 8192,
 
 
 };
 
 struct PolymostRenderState
 {
+	int vindex, vcount, primtype;
     float Shade;
     float NumShades = 64.f;
 	float ShadeDiv = 62.f;
@@ -70,7 +71,7 @@ struct PolymostRenderState
 	float Color[4] = { 1,1,1,1 };
 	short matrixIndex[NUMMATRICES] = { -1,-1,-1,-1,-1 };
 	PalEntry fullscreenTint = 0xffffff, hictint = 0xffffff, hictint_overlay = 0xffffff;
-	int hictint_flags = 0;
+	int hictint_flags = -1;
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};
@@ -82,9 +83,5 @@ struct PolymostRenderState
 
 	PalEntry FogColor;
 
-	IVertexBuffer* VertexBuffer = nullptr;
-	int VB_Offset[2] = {};
-	IIndexBuffer* IndexBuffer = nullptr;
- 	
 	void Apply(PolymostShader *shader, GLState &oldstate);
 };

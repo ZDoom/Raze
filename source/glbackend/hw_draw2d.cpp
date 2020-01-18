@@ -191,11 +191,11 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		{
 		case F2DDrawer::DrawTypeTriangles:
 		case F2DDrawer::DrawTypeRotateSprite:
-			Draw(DT_TRIANGLES, cmd.mIndexIndex, cmd.mIndexCount);
+			DrawElement(DT_TRIANGLES, cmd.mIndexIndex, cmd.mIndexCount, renderState);
 			break;
 
 		case F2DDrawer::DrawTypeLines:
-			Draw(DT_LINES, cmd.mVertIndex, cmd.mVertCount);
+			DrawElement(DT_LINES, cmd.mVertIndex, cmd.mVertCount, renderState);
 			break;
 
 		case F2DDrawer::DrawTypePoints:

@@ -207,6 +207,7 @@ void OpenGLFrameBuffer::Update()
 
 	Swap();
 	Super::Update();
+	screen->mVertexData->Reset();
 }
 
 //===========================================================================

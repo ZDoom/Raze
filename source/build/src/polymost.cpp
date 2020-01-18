@@ -16,6 +16,8 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "../../glbackend/glbackend.h"
 #include "c_cvars.h"
 #include "gamecvars.h"
+#include "v_video.h"
+#include "flatvertices.h"
 
 CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -581,8 +583,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     GLInterface.SetColor(pc[0], pc[1], pc[2], pc[3]);
 
     vec2f_t const scale = { 1.f / tsiz2.x, 1.f / tsiz2.y };
-	auto data = GLInterface.AllocVertices(npoints);
-	auto vt = data.second;
+	auto data = screen->mVertexData->AllocVertices(npoints);
+	auto vt = data.first;
 	for (bssize_t i = 0; i < npoints; ++i, vt++)
     {
         float const r = 1.f / dd[i];
@@ -599,7 +601,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 			r * (1.f / 1024.f));
 
     }
-	GLInterface.DrawIm(DT_TRIANGLE_FAN, data.first, npoints);
+	GLInterface.Draw(DT_TRIANGLE_FAN, data.second, npoints);
 
     GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
     GLInterface.UseDetailMapping(false);

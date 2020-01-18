@@ -198,24 +198,25 @@ void GLInstance::ResetFrame()
 
 }
 
+void GLInstance::SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2)
+{
+	int o[] = { offset1, offset2 };
+	static_cast<OpenGLRenderer::GLVertexBuffer*>(vb)->Bind(o);
+}
+
+void GLInstance::SetIndexBuffer(IIndexBuffer* vb)
+{
+	if (vb) static_cast<OpenGLRenderer::GLIndexBuffer*>(vb)->Bind();
+	else glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
 void GLInstance::ClearBufferState()
 {
-	auto buffer = (screen->mVertexData->GetBufferObjects().first);
-
-	SetVertexBuffer(buffer, 0, 0);
+	SetVertexBuffer(screen->mVertexData->GetBufferObjects().first, 0, 0);
 	SetIndexBuffer(nullptr);
-	// Invalidate the pointers as well to make sure that if another buffer with the same address is used it actually gets bound.
-	LastVertexBuffer = (IVertexBuffer*)~intptr_t(0);
-	LastIndexBuffer = (IIndexBuffer*)~intptr_t(0);
 }
 
 	
-std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
-{
-	Buffer.resize(num);
-	return std::make_pair((size_t)0, Buffer.data());
-}
-
 static GLint primtypes[] =
 {
 	GL_TRIANGLES,
@@ -224,38 +225,20 @@ static GLint primtypes[] =
 	GL_LINES
 };
 	
-void GLInstance::DrawIm(EDrawType type, size_t start, size_t count)
-{
-	// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
-	bool applied = false;
-
-	if (activeShader == polymostShader)
-	{
-		glVertexAttrib4fv(2, renderState.Color);
-		if (renderState.Color[3] != 1.f) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
-		renderState.Apply(polymostShader, lastState);
-	}
-	glBegin(primtypes[type]);
-	auto p = &Buffer[start];
-	for (size_t i = 0; i < count; i++, p++)
-	{
-		glVertexAttrib2f(1, p->u, p->v);
-		glVertexAttrib3f(0, p->x, p->y, p->z);
-	}
-	glEnd();
-
-	if (MatrixChange)
-	{
-		if (MatrixChange & 1) SetIdentityMatrix(Matrix_Texture);
-		if (MatrixChange & 2) SetIdentityMatrix(Matrix_Detail);
-		MatrixChange = 0;
-	}
-	matrixArray.Resize(1);
-}
-
 
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
+	renderState.vindex = start;
+	renderState.vcount = count;
+	renderState.primtype = type;
+	rendercommands.Push(renderState);
+	SetIdentityMatrix(Matrix_Texture);
+	SetIdentityMatrix(Matrix_Detail);
+	renderState.StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
+}
+
+void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState &renderState)
+{
 	// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
 	bool applied = false;
 
@@ -264,28 +247,8 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 		glVertexAttrib4fv(2, renderState.Color);
 		if (renderState.Color[3] != 1.f) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
 		renderState.Apply(polymostShader, lastState);
-		if (renderState.VertexBuffer != LastVertexBuffer || LastVB_Offset[0] != renderState.VB_Offset[0] || LastVB_Offset[1] != renderState.VB_Offset[1])
-		{
-			if (renderState.VertexBuffer)
-			{
-				static_cast<OpenGLRenderer::GLVertexBuffer*>(renderState.VertexBuffer)->Bind(renderState.VB_Offset);
-			}
-			else glBindBuffer(GL_ARRAY_BUFFER, 0);
-			LastVertexBuffer = renderState.VertexBuffer;
-			LastVB_Offset[0] = renderState.VB_Offset[0];
-			LastVB_Offset[1] = renderState.VB_Offset[1];
-		}
-		if (renderState.IndexBuffer != LastIndexBuffer)
-		{
-			if (renderState.IndexBuffer)
-			{
-				static_cast<OpenGLRenderer::GLIndexBuffer*>(renderState.IndexBuffer)->Bind();
-			}
-			else glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-			LastIndexBuffer = renderState.IndexBuffer;
-		}
 	}
-	if (type != DT_LINES && renderState.IndexBuffer)
+	if (type != DT_LINES)
 	{
 		glDrawElements(primtypes[type], count, GL_UNSIGNED_INT, (void*)(intptr_t)(start * sizeof(uint32_t)));
 	}
@@ -293,13 +256,22 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	{
 		glDrawArrays(primtypes[type], start, count);
 	}
-	if (MatrixChange)
+}
+
+void GLInstance::DoDraw()
+{
+	for (auto& rs : rendercommands)
 	{
-		if (MatrixChange & 1) SetIdentityMatrix(Matrix_Texture);
-		if (MatrixChange & 2) SetIdentityMatrix(Matrix_Detail);
-		MatrixChange = 0;
+		// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
+		bool applied = false;
+
+		glVertexAttrib4fv(2, rs.Color);
+		if (rs.Color[3] != 1.f) rs.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
+		rs.Apply(polymostShader, lastState);
+		glDrawArrays(primtypes[rs.primtype], rs.vindex, rs.vcount);
 	}
-	matrixArray.Resize(1);
+	rendercommands.Clear();
+	matrixArray.Clear();
 }
 
 

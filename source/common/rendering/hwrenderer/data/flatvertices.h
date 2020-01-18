@@ -24,6 +24,20 @@ struct FFlatVertex
 		u = uu;
 		v = vv;
 	}
+
+	void SetVertex(float _x, float _y, float _z = 0)
+	{
+		x = _x;
+		z = _y;
+		y = _z;
+	}
+
+	void SetTexCoord(float _u = 0, float _v = 0)
+	{
+		u = _u;
+		v = _v;
+	}
+
 };
 
 class FFlatVertexBuffer
