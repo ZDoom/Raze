@@ -228,6 +228,7 @@ public:
 
 	GLInstance();
 	std::pair<size_t, BaseVertex *> AllocVertices(size_t num);
+	void DrawIm(EDrawType type, size_t start, size_t count);
 	void Draw(EDrawType type, size_t start, size_t count);
 	
 	FHardwareTexture* NewTexture();
@@ -246,14 +247,7 @@ public:
 	{
 		renderState.IndexBuffer = vb;
 	}
-	void ClearBufferState()
-	{
-		SetVertexBuffer(nullptr, 0, 0);
-		SetIndexBuffer(nullptr);
-		// Invalidate the pointers as well to make sure that if another buffer with the same address is used it actually gets bound.
-		LastVertexBuffer = (IVertexBuffer*)~intptr_t(0);
-		LastIndexBuffer = (IIndexBuffer*)~intptr_t(0);
-	}
+	void ClearBufferState();
 
 	float GetProjectionM5() { return mProjectionM5; }
 	void SetMatrix(int num, const VSMatrix *mat );

@@ -47,6 +47,7 @@
 #include "gl_interface.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
+#include "flatvertices.h"
 #include "gl_renderer.h"
 
 float shadediv[MAXPALOOKUPS];
@@ -174,6 +175,7 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 	screen->BeginFrame();	
 	bool useSSAO = (gl_ssao != 0);
     OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(useSSAO);
+	ClearBufferState();
 }
 
 void GLInstance::Deinit()
@@ -212,6 +214,17 @@ void GLInstance::ResetFrame()
 
 }
 
+void GLInstance::ClearBufferState()
+{
+	auto buffer = (screen->mVertexData->GetBufferObjects().first);
+
+	SetVertexBuffer(buffer, 0, 0);
+	SetIndexBuffer(nullptr);
+	// Invalidate the pointers as well to make sure that if another buffer with the same address is used it actually gets bound.
+	LastVertexBuffer = (IVertexBuffer*)~intptr_t(0);
+	LastIndexBuffer = (IIndexBuffer*)~intptr_t(0);
+}
+
 	
 std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
 {
@@ -227,6 +240,36 @@ static GLint primtypes[] =
 	GL_LINES
 };
 	
+void GLInstance::DrawIm(EDrawType type, size_t start, size_t count)
+{
+	// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
+	bool applied = false;
+
+	if (activeShader == polymostShader)
+	{
+		glVertexAttrib4fv(2, renderState.Color);
+		if (renderState.Color[3] != 1.f) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
+		renderState.Apply(polymostShader, lastState);
+	}
+	glBegin(primtypes[type]);
+	auto p = &Buffer[start];
+	for (size_t i = 0; i < count; i++, p++)
+	{
+		glVertexAttrib2f(1, p->u, p->v);
+		glVertexAttrib3f(0, p->x, p->y, p->z);
+	}
+	glEnd();
+
+	if (MatrixChange)
+	{
+		if (MatrixChange & 1) SetIdentityMatrix(Matrix_Texture);
+		if (MatrixChange & 2) SetIdentityMatrix(Matrix_Detail);
+		MatrixChange = 0;
+	}
+	matrixArray.Resize(1);
+}
+
+
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
 	// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
@@ -258,18 +301,7 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 			LastIndexBuffer = renderState.IndexBuffer;
 		}
 	}
-	if (!LastVertexBuffer)
-	{
-		glBegin(primtypes[type]);
-		auto p = &Buffer[start];
-		for (size_t i = 0; i < count; i++, p++)
-		{
-			glVertexAttrib2f(1, p->u, p->v);
-			glVertexAttrib3f(0, p->x, p->y, p->z);
-		}
-		glEnd();
-	}
-	else if (type != DT_LINES)
+	if (type != DT_LINES && renderState.IndexBuffer)
 	{
 		glDrawElements(primtypes[type], count, GL_UNSIGNED_INT, (void*)(intptr_t)(start * sizeof(uint32_t)));
 	}

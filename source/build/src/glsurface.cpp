@@ -83,5 +83,5 @@ void glsurface_blitBuffer()
 	vt[1].Set(-1.0f, -1.0f, 0.0f, 0.0f, 1.0f); //bottom-left
 	vt[2].Set(1.0f, 1.0f, 0.0f, 1.0f, 0.0f); //top-right
 	vt[3].Set(1.0f, -1.0f, 0.0f, 1.0f, 1.0f);  //bottom-right
-	GLInterface.Draw(DT_TRIANGLE_STRIP, data.first, 4);
+	GLInterface.DrawIm(DT_TRIANGLE_STRIP, data.first, 4);
 }

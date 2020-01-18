@@ -1470,7 +1470,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
             vt->SetVertex(vertlist[k].x, vertlist[k].y);
         }
     }
-	GLInterface.Draw(DT_TRIANGLES, data.first, s->numtris *3);
+	GLInterface.DrawIm(DT_TRIANGLES, data.first, s->numtris *3);
 
 #ifndef USE_GLEXT
     UNREFERENCED_PARAMETER(texunits);

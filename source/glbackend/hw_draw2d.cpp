@@ -40,6 +40,7 @@
 #include "glbackend.h"
 #include "v_draw.h"
 #include "palette.h"
+#include "flatvertices.h"
 
 extern int16_t numshades;
 //===========================================================================
@@ -244,12 +245,7 @@ void fullscreen_tint_gl(PalEntry pe)
 
 	GLInterface.UseColorOnly(true);
 
-	auto data = GLInterface.AllocVertices(3);
-	auto vt = data.second;
-	vt[0].Set(-2.5f, 1.f);
-	vt[1].Set(2.5f, 1.f);
-	vt[2].Set(.0f, -2.5f);
-	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
+	GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
 	GLInterface.UseColorOnly(false);
 }
 
@@ -268,20 +264,12 @@ void fullscreen_tint_gl_blood(int tint_blood_r, int tint_blood_g, int tint_blood
 
 	GLInterface.UseColorOnly(true);
 	GLInterface.SetColorub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
-	auto data = GLInterface.AllocVertices(3);
-	auto vt = data.second;
-	vt[0].Set(-2.5f, 1.f);
-	vt[1].Set(2.5f, 1.f);
-	vt[2].Set(.0f, -2.5f);
-	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
+	GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+
 	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Subtract]);
 	GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
-	data = GLInterface.AllocVertices(3);
-	vt = data.second;
-	vt[0].Set(-2.5f, 1.f);
-	vt[1].Set(2.5f, 1.f);
-	vt[2].Set(.0f, -2.5f);
-	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
+	GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+
 	GLInterface.SetColorub(255, 255, 255, 255);
 	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 	GLInterface.UseColorOnly(false);

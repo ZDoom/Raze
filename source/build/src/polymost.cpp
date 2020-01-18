@@ -599,7 +599,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 			r * (1.f / 1024.f));
 
     }
-	GLInterface.Draw(DT_TRIANGLE_FAN, data.first, npoints);
+	GLInterface.DrawIm(DT_TRIANGLE_FAN, data.first, npoints);
 
 	GLInterface.SetTinting(0, 0, PalEntry(255, 255, 255));
 	GLInterface.UseDetailMapping(false);

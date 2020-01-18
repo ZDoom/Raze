@@ -437,7 +437,7 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
 	vt[3].SetTexCoord(1.0,1.0);
 	vt[3].SetVertex(x, -y, 0.0);
 
-	GLInterface.Draw(DT_TRIANGLE_FAN, data.first, 4);
+	GLInterface.DrawIm(DT_TRIANGLE_FAN, data.first, 4);
 
     t = timerGetTicks()-t;
     codec->sumtimes[2] += t;
