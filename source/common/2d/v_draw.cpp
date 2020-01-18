@@ -655,14 +655,16 @@ bool ParseDrawTextureTags(FTexture *img, double x, double y, uint32_t tag, Va_Li
 				parms->style = STYLE_Stencil;
 			}
 		}
-		else if (parms->Alpha < 1.f)
+		else //if (parms->Alpha < 1.f)
 		{
 			parms->style = STYLE_Translucent;
 		}
+		/*
 		else
 		{
 			parms->style = STYLE_Normal;
 		}
+		*/
 	}
 	return true;
 }

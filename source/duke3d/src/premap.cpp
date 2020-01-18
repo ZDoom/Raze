@@ -534,9 +534,6 @@ void G_UpdateScreenArea(void)
 
     videoSetViewableArea(v1.x, v1.y, v2.x-1, v2.y-1);
 
-    G_GetCrosshairColor();
-    G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
-
     pub = NUMPAGES;
     pus = NUMPAGES;
 }

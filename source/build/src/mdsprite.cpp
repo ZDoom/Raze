@@ -1792,8 +1792,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 	VSMatrix identity(0);
 	GLInterface.SetIdentityMatrix(Matrix_ModelView);
 
-	GLInterface.SetTinting(0, 0, PalEntry(255, 255, 255));
-	GLInterface.SetClamp(prevClamp);
+    GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
+    GLInterface.SetClamp(prevClamp);
     
     globalnoeffect=0;
     return 1;

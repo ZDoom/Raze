@@ -274,25 +274,6 @@ static int osdcmd_spawn(osdcmdptr_t parm)
 }
 
 
-static int osdcmd_crosshaircolor(osdcmdptr_t parm)
-{
-    if (parm->numparms != 3)
-    {
-        OSD_Printf("crosshaircolor: r:%d g:%d b:%d\n",CrosshairColors.r,CrosshairColors.g,CrosshairColors.b);
-        return OSDCMD_SHOWHELP;
-    }
-
-    uint8_t const r = Batol(parm->parms[0]);
-    uint8_t const g = Batol(parm->parms[1]);
-    uint8_t const b = Batol(parm->parms[2]);
-
-    G_SetCrosshairColor(r,g,b);
-
-	OSD_Printf("%s\n", parm->raw);
-
-    return OSDCMD_OK;
-}
-
 static int osdcmd_give(osdcmdptr_t parm)
 {
     int32_t i;
@@ -576,8 +557,6 @@ int32_t registerosdcommands(void)
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
-
-    OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
 
 #if !defined NETCODE_DISABLE
     OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);

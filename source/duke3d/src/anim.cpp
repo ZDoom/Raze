@@ -305,9 +305,6 @@ int32_t Anim_Play(const char *fn)
 
         GLInterface.EnableNonTransparent255(true);
 
-        // Dummy rotatesprite call. Without this the movie won't render. Apparently some state isn't initialized properly and gets reset by this.
-        // Needs to be investigated. Leave this in as a workaround for now...
-        rotatesprite_fs(int(160 * 65536), int(100 * 65536) + ((28) << 16), 65536L, 0, 2499, 0, 0, 10);
         do
         {
             nextframetime += msecsperframe;

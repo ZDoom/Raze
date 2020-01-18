@@ -7332,12 +7332,6 @@ MAIN_LOOP_RESTART:
     for (int & q : user_quote_time)
         q = 0;
 
-    //if (g_networkMode != NET_DEDICATED_SERVER)
-    {
-        G_GetCrosshairColor();
-        G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
-    }
-
     if (ud.warp_on == 1)
     {
         G_NewGame_EnterLevel();

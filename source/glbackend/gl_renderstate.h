@@ -69,7 +69,7 @@ struct PolymostRenderState
 	bool AlphaTest = true;
 	float Color[4] = { 1,1,1,1 };
 	short matrixIndex[NUMMATRICES] = { -1,-1,-1,-1,-1 };
-	PalEntry fullscreenTint = 0xffffff, hictint = 0, hictint_overlay = 0xffffff;
+	PalEntry fullscreenTint = 0xffffff, hictint = 0xffffff, hictint_overlay = 0xffffff;
 	int hictint_flags = 0;
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;

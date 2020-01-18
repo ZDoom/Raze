@@ -601,8 +601,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
 	GLInterface.DrawIm(DT_TRIANGLE_FAN, data.first, npoints);
 
-	GLInterface.SetTinting(0, 0, PalEntry(255, 255, 255));
-	GLInterface.UseDetailMapping(false);
+    GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
+    GLInterface.UseDetailMapping(false);
 	GLInterface.UseGlowMapping(false);
 	GLInterface.SetNpotEmulation(false, 1.f, 0.f);
 
