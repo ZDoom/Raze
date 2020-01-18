@@ -10,12 +10,83 @@
 
 #include "matrix.h"
 #include "../../glbackend/glbackend.h"
+#include "textures.h"
+#include "bitmap.h"
+#include "v_draw.h"
 
 #undef UNUSED
 #define VPX_CODEC_DISABLE_COMPAT 1
 #include <vpx/vpx_decoder.h>
 #include <vpx/vp8dx.h>
 #include "animvpx.h"
+
+
+class VPXTexture : public FTexture
+{
+public:
+    VPXTexture();
+    void SetFrame(const void* data, int width, int height);
+    virtual FBitmap GetBgraBitmap(const PalEntry* remap, int* trans) override;
+
+protected:
+
+    const void* data;
+
+public:
+
+};
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+VPXTexture::VPXTexture() {}
+
+void VPXTexture::SetFrame(const void *data_, int width, int height)
+{
+    Size.x = width;
+    Size.y = height;
+    data = data_;
+    DeleteHardwareTextures();
+}
+
+//===========================================================================
+//
+// FPNGTexture::CopyPixels
+//
+//===========================================================================
+
+FBitmap VPXTexture::GetBgraBitmap(const PalEntry* remap, int* trans)
+{
+    FBitmap bmp;
+
+    bmp.Create(Size.x, Size.y);
+
+    auto spix = (uint8_t*)data;
+    auto dpix = bmp.GetPixels();
+    for (int i = 0; i < Size.x * Size.y; i++)
+    {
+        int p = i * 4;
+        float y = spix[p] * (1/255.f);
+        float u = spix[p+1] * (1 / 255.f) - 0.5f;
+        float v = spix[p+2] * (1 / 255.f) - 0.5f;
+
+        y = 1.1643f * (y - 0.0625f);
+
+        float r = y + 1.5958f * v;
+        float g = y - 0.39173f * u - 0.81290f * v;
+        float b = y + 2.017f * u;
+
+        dpix[p + 0] =  (uint8_t)(clamp(b, 0, 1.f) * 255);
+        dpix[p + 1] =  (uint8_t)(clamp(g, 0, 1.f) * 255);
+        dpix[p + 2] =  (uint8_t)(clamp(r, 0, 1.f) * 255);
+        dpix[p + 3] = 255;
+    }
+    return bmp;
+}
+
 
 const char *animvpx_read_ivf_header_errmsg[] = {
     "All OK",
@@ -339,28 +410,13 @@ read_ivf_frame:
 
 
 /////////////// DRAWING! ///////////////
-static FHardwareTexture* texture;
 static int sampler;
-static int32_t texuploaded;
+static VPXTexture* vpxtex;
 
 void animvpx_setup_glstate(int32_t animvpx_flags)
 {
-    static char logbuf[512];
-
-	GLInterface.SetVPXShader();
-
-
     ////////// GL STATE //////////
-
-    //Force fullscreen (glox1=-1 forces it to restore afterwards)
-	GLInterface.SetViewport(0,0,xdim,ydim); glox1 = -1;
-
-    GLInterface.EnableAlphaTest(false);
-    GLInterface.EnableDepthTest(false);
-    GLInterface.EnableBlend(false);
-	GLInterface.SetCull(Cull_None);
-
-	texture = GLInterface.NewTexture();
+    vpxtex = new VPXTexture;
 
     if ((animvpx_flags & CUTSCENE_TEXTUREFILTER && hw_texfilter == TEXFILTER_ON) || animvpx_flags & CUTSCENE_FORCEFILTER ||
     (!(animvpx_flags & CUTSCENE_TEXTUREFILTER) && !(animvpx_flags & CUTSCENE_FORCENOFILTER))) // if no flags, then use filter for IVFs
@@ -372,18 +428,14 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
 		sampler = SamplerNoFilterClampXY;
     }
 
-    texuploaded = 0;
-    ////////////////////
 
 	GLInterface.ClearScreen(0, true);
 }
 
 void animvpx_restore_glstate(void)
 {
-	GLInterface.SetPolymostShader();
-	delete texture;
-	texture = nullptr;
-    texuploaded = 0;
+	delete vpxtex;
+	vpxtex = nullptr;
 }
 
 int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
@@ -396,13 +448,7 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
     if (codec->pic == NULL)
         return 2;  // shouldn't happen
 
-    if (!texuploaded)
-    {
-		texture->CreateTexture(codec->width, codec->height, FHardwareTexture::TrueColor, false);
-        texuploaded = 1;
-    }
-	texture->LoadTexture(codec->pic);
-	GLInterface.BindTexture(0, texture, sampler);
+    vpxtex->SetFrame(codec->pic, codec->width, codec->height);
 
     float vid_wbyh = ((float)codec->width)/codec->height;
     if (animvpx_aspect > 0)
@@ -422,22 +468,9 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
     }
 #endif
 
-	auto data = GLInterface.AllocVertices(4);
-	auto vt = data.second;
-	
-	vt[0].SetTexCoord(0.0,1.0);
-    vt[0].SetVertex(-x, -y, 0.0);
-
-	vt[1].SetTexCoord(0.0,0.0);
-	vt[1].SetVertex(-x, y, 0.0);
-
-	vt[2].SetTexCoord(1.0,0.0);
-	vt[2].SetVertex(x, y, 0.0);
-
-	vt[3].SetTexCoord(1.0,1.0);
-	vt[3].SetVertex(x, -y, 0.0);
-
-	GLInterface.DrawIm(DT_TRIANGLE_FAN, data.first, 4);
+    x *= screen->GetWidth() / 2;
+    y *= screen->GetHeight() / 2;
+    DrawTexture(twod, vpxtex, screen->GetWidth() / 2 - int(x), screen->GetHeight()/2 - int(y), DTA_DestWidth, 2*int(x), DTA_DestHeight, 2*int(y), DTA_Masked, false, DTA_KeepRatio, true, TAG_DONE);
 
     t = timerGetTicks()-t;
     codec->sumtimes[2] += t;

@@ -172,15 +172,14 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 				SetShade(cmd.mRemapIndex >> 16, numshades);
 				SetFadeDisable(false);
 				SetTexture(0, tex, cmd.mRemapIndex & 0xffff, 4/*DAMETH_CLAMPED*/, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
-				EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 			}
 			else
 			{
 				SetFadeDisable(true);
 				SetShade(0, numshades);
 				SetNamedTexture(cmd.mTexture, cmd.mRemapIndex, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
-				EnableBlend(true);
 			}
+			EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 			UseColorOnly(false);
 		}
 		else

@@ -202,7 +202,6 @@ class GLInstance
 	FShader* activeShader;
 	PolymostShader* polymostShader;
 	SurfaceShader* surfaceShader;
-	FShader* vpxShader;
 	
 	
 public:
@@ -213,7 +212,6 @@ public:
 	void InitGLState(int fogmode, int multisample);
 	void LoadPolymostShader();
 	void LoadSurfaceShader();
-	void LoadVPXShader();
 	void Draw2D(F2DDrawer* drawer);
 	void DrawImGui(ImDrawData*);
 	void ResetFrame();
@@ -262,7 +260,6 @@ public:
 
 	void SetPolymostShader();
 	void SetSurfaceShader();
-	void SetVPXShader();
 	void SetPalette(int palette);
 	
 	void ReadPixels(int w, int h, uint8_t* buffer);

@@ -92,7 +92,6 @@ void GLInstance::Init(int ydim)
 
 	new(&renderState) PolymostRenderState;	// reset to defaults.
 	LoadSurfaceShader();
-	LoadVPXShader();
 	LoadPolymostShader();
 #if 0
 	IMGUI_CHECKVERSION();
@@ -126,19 +125,6 @@ void GLInstance::LoadPolymostShader()
 	polymostShader = new PolymostShader();
 	polymostShader->Load("PolymostShader", (const char*)Vert.Data(), (const char*)Frag.Data());
 	SetPolymostShader();
-}
-
-void GLInstance::LoadVPXShader()
-{
-	auto fr1 = GetResource("engine/shaders/glsl/animvpx.vp");
-	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetResource("engine/shaders/glsl/animvpx.fp");
-	TArray<uint8_t> Frag = fr1.Read();
-	// Zero-terminate both strings.
-	Vert.Push(0);
-	Frag.Push(0);
-	vpxShader = new FShader();
-	vpxShader->Load("VPXShader", (const char*)Vert.Data(), (const char*)Frag.Data());
 }
 
 void GLInstance::LoadSurfaceShader()
@@ -194,8 +180,6 @@ void GLInstance::Deinit()
 	polymostShader = nullptr;
 	if (surfaceShader) delete surfaceShader;
 	surfaceShader = nullptr;
-	if (vpxShader) delete vpxShader;
-	vpxShader = nullptr;
 	activeShader = nullptr;
 	palmanager.DeleteAllTextures();
 	lastPalswapIndex = -1;
@@ -346,15 +330,6 @@ void GLInstance::SetSurfaceShader()
 	{
 		surfaceShader->Bind();
 		activeShader = surfaceShader;
-	}
-}
-
-void GLInstance::SetVPXShader()
-{
-	if (activeShader != vpxShader)
-	{
-		vpxShader->Bind();
-		activeShader = vpxShader;
 	}
 }
 
