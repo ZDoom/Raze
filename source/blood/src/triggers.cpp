@@ -1045,7 +1045,6 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                             case 4:
                                 for (int i = 0; i < 8; i++) pPlayer->hasKey[i] = false;
                                 if (pXSprite->data2) break;
-                                break;
                         }
                         break;
 
