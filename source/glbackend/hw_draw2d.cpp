@@ -98,7 +98,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 {
 	VSMatrix mat(0);
 	SetIdentityMatrix(Matrix_View);
-	SetIdentityMatrix(Matrix_ModelView);
+	SetIdentityMatrix(Matrix_Model);
 	SetIdentityMatrix(Matrix_Detail);
 	mat.ortho(0, xdim, ydim, 0, -1, 1);
 	SetMatrix(Matrix_Projection, mat.get());
@@ -226,53 +226,9 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	//drawer->mIsFirstPass = false;
 	EnableBlend(true);
 	EnableMultisampling(true);
+	SetIdentityMatrix(Matrix_Projection);
 }
 
-
-void fullscreen_tint_gl(PalEntry pe)
-{
-	// Todo: reroute to the 2D drawer
-	GLInterface.SetIdentityMatrix(Matrix_Projection);
-	GLInterface.SetIdentityMatrix(Matrix_ModelView);
-
-	GLInterface.EnableDepthTest(false);
-	GLInterface.EnableAlphaTest(false);
-
-	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
-	GLInterface.EnableBlend(true);
-	GLInterface.SetColorub (pe.r, pe.g, pe.b, pe.a);
-
-	GLInterface.UseColorOnly(true);
-
-	GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
-	GLInterface.UseColorOnly(false);
-}
-
-void fullscreen_tint_gl_blood(int tint_blood_r, int tint_blood_g, int tint_blood_b)
-{
-	if (!(tint_blood_r | tint_blood_g | tint_blood_b))
-		return;
-	GLInterface.SetIdentityMatrix(Matrix_Projection);
-	GLInterface.SetIdentityMatrix(Matrix_ModelView);
-
-	GLInterface.EnableDepthTest(false);
-	GLInterface.EnableAlphaTest(false);
-
-	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Add]);
-	GLInterface.EnableBlend(true);
-
-	GLInterface.UseColorOnly(true);
-	GLInterface.SetColorub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
-	GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
-
-	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Subtract]);
-	GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
-	GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
-
-	GLInterface.SetColorub(255, 255, 255, 255);
-	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
-	GLInterface.UseColorOnly(false);
-}
 
 static int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
 extern palette_t palfadergb;
@@ -280,8 +236,38 @@ extern char palfadedelta ;
 
 void DrawFullscreenBlends()
 {
-	if (palfadedelta)	fullscreen_tint_gl(PalEntry(palfadedelta, palfadergb.r, palfadergb.g, palfadergb.b));
-	fullscreen_tint_gl_blood(tint_blood_r, tint_blood_g, tint_blood_b);
+	GLInterface.SetIdentityMatrix(Matrix_Projection);
+	GLInterface.SetIdentityMatrix(Matrix_Model);
+	GLInterface.SetIdentityMatrix(Matrix_View);
+
+	GLInterface.EnableDepthTest(false);
+	GLInterface.EnableAlphaTest(false);
+	GLInterface.EnableBlend(true);
+	GLInterface.UseColorOnly(true);
+
+	if (palfadedelta)
+	{
+		// Todo: reroute to the 2D drawer
+		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
+		GLInterface.SetColorub(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
+		GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+	}
+	if (tint_blood_r | tint_blood_g | tint_blood_b)
+	{
+		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Add]);
+
+		GLInterface.SetColorub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
+		GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+
+		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Subtract]);
+		GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
+		GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+
+		GLInterface.SetColorub(255, 255, 255, 255);
+		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
+	}
+	GLInterface.UseColorOnly(false);
+
 }
 
 

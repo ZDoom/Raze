@@ -1427,23 +1427,26 @@ int      md3postload_polymer(md3model_t *m)
 
 void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16])
 {
-    float g;
     float k0, k1, k2, k3, k4, k5, k6, k7;
 
     k0 = ((float)(tspr->x+spriteext[tspr->owner].position_offset.x-globalposx))*f*(1.f/1024.f);
     k1 = ((float)(tspr->y+spriteext[tspr->owner].position_offset.y-globalposy))*f*(1.f/1024.f);
-    f = gcosang2*gshang/gvrcorrection;
-    g = gsinang2*gshang/gvrcorrection;
     k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] * (1.f/16384.f);
     k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] * (1.f/16384.f);
     k2 = k0*(1-k4)+k1*k5;
     k3 = k1*(1-k4)-k0*k5;
-    k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
-    mat[0] = k4*k6 + k5*k7; mat[4] = gchang*gstang; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
-    k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
-    mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
-    k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
-    mat[2] = k4*k6 + k5*k7; mat[6] =-gshang*gvrcorrection; mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
+    k6 = - gsinang; 
+    k7 = gcosang;
+    mat[0] = k4*k6 + k5*k7; mat[4] = 0; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
+
+    mat[1] = 0; mat[5] = 1; mat[ 9] = 0; mat[13] = 0;
+    
+    k6 = gcosang2; 
+    k7 = gsinang2;
+    mat[2] = k4*k6 + k5*k7; 
+    mat[6] =0; 
+    mat[10] = k4*k7 - k5*k6; 
+    mat[14] = k2*k6 + k3*k7;
 
     mat[12] = (mat[12] + a0->y*mat[0]) + (a0->z*mat[4] + a0->x*mat[ 8]);
     mat[13] = (mat[13] + a0->y*mat[1]) + (a0->z*mat[5] + a0->x*mat[ 9]);
@@ -1642,6 +1645,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     int prevClamp = GLInterface.GetClamp();
 	GLInterface.SetClamp(0);
+    auto matrixindex = GLInterface.SetIdentityMatrix(Matrix_Model);
 
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
@@ -1696,7 +1700,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
         //Let OpenGL (and perhaps hardware :) handle the matrix rotation
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
-		GLInterface.SetMatrix(Matrix_ModelView, mat);
+		GLInterface.SetMatrix(Matrix_Model, mat);
         // PLAG: End
 
 		bool exact = false;
@@ -1786,7 +1790,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 	GLInterface.SetCull(Cull_None);
 
 	VSMatrix identity(0);
-	GLInterface.SetIdentityMatrix(Matrix_ModelView);
+	GLInterface.RestoreMatrix(Matrix_Model, matrixindex);
 
     GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
     GLInterface.SetClamp(prevClamp);

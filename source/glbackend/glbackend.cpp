@@ -464,8 +464,8 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 		shader->RotMatrix.Set(matrixArray[matrixIndex[Matrix_View]].get());
 	if (matrixIndex[Matrix_Projection] != -1)
 		shader->ProjectionMatrix.Set(matrixArray[matrixIndex[Matrix_Projection]].get());
-	if (matrixIndex[Matrix_ModelView] != -1)
-		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_ModelView]].get());
+	if (matrixIndex[Matrix_Model] != -1)
+		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_Model]].get());
 	if (matrixIndex[Matrix_Detail] != -1)
 		shader->DetailMatrix.Set(matrixArray[matrixIndex[Matrix_Detail]].get());
 	if (matrixIndex[Matrix_Texture] != -1)

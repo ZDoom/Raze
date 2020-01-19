@@ -302,7 +302,7 @@ static void resizeglcheck(void)
         m[2][3] = 1.f;
         m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
 		GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
-		GLInterface.SetIdentityMatrix(Matrix_ModelView);
+		GLInterface.SetIdentityMatrix(Matrix_Model);
     }
 }
 
@@ -389,11 +389,6 @@ static void polymost_updaterotmat(void)
     };
     multiplyMatrix4f(matrix, tiltmatrix);
 	GLInterface.SetMatrix(Matrix_View, matrix);
-}
-
-static void polymost_identityrotmat(void)
-{
-	GLInterface.SetIdentityMatrix(Matrix_View);
 }
 
 static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesiz);
@@ -3232,7 +3227,7 @@ void polymost_drawrooms()
     gctang = cosf(gtang);
     gstang = sinf(gtang);
 
-    if (Bfabsf(gstang) < .001f)  // This hack avoids nasty precision bugs in domost()
+    if (Bfabsf(gstang) < .001f)  // This avoids nasty precision bugs in domost()
     {
         gstang = 0.f;
         gctang = (gctang > 0.f) ? 1.f : -1.f;
@@ -3257,10 +3252,9 @@ void polymost_drawrooms()
         v = { o2.x, o2.y * gchang + o2.z * gshang, o2.z * gchang - o2.y * gshang };
     }
 
-#if !SOFTROTMAT
     if (inpreparemirror)
         gstang = -gstang;
-#endif
+    polymost_updaterotmat();
 
     //Clip to SCISDIST plane
     int n = 0;
@@ -3354,8 +3348,6 @@ void polymost_drawrooms()
     //else if (!g_nodraw) { videoEndDrawing(); return; }
 #endif
 
-    polymost_updaterotmat();
-
     numscans = numbunches = 0;
 
     // MASKWALL_BAD_ACCESS
@@ -3418,7 +3410,6 @@ void polymost_drawrooms()
     }
 
 	GLInterface.SetDepthFunc(Depth_LessEqual);
-	polymost_identityrotmat();
 
     videoEndDrawing();
 }
@@ -3626,9 +3617,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     pow2xsplit = 0;
     skyclamphack = 0;
 
-    polymost_updaterotmat();
     polymost_drawpoly(dpxy, n, method, tilesiz[globalpicnum]);
-    polymost_identityrotmat();
 }
 
 void polymost_drawmaskwall(int32_t damaskwallcnt)
@@ -3692,6 +3681,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
         gstang = 0.f;
         gctang = (gctang > 0.f) ? 1.f : -1.f;
     }
+    polymost_updaterotmat();
     grhalfxdown10x = grhalfxdown10;
 
     //POGO: write the mirror region to the stencil buffer to allow showing mirrors & skyboxes at the same time
@@ -3898,8 +3888,6 @@ void polymost_drawsprite(int32_t snum)
 
     if (tsiz.x <= 0 || tsiz.y <= 0)
         return;
-
-    polymost_updaterotmat();
 
     vec2f_t const ftsiz = { (float) tsiz.x, (float) tsiz.y };
 
@@ -4421,7 +4409,7 @@ void polymost_drawsprite(int32_t snum)
         show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
 
 _drawsprite_return:
-    polymost_identityrotmat();
+    ;
 }
 
 EDUKE32_STATIC_ASSERT((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
@@ -4462,18 +4450,19 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     polymost_outputGLDebugMessage(3, "polymost_dorotatespritemodel(sx:%d, sy:%d, z:%d, a:%hd, picnum:%hd, dashade:%hhd, dapalnum:%hhu, dastat:%d, daalpha:%hhu, dablend:%hhu, uniqid:%d)",
                                   sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, uniqid);
 
-    float const ogchang = gchang; gchang = 1.f;
-    float const ogshang = gshang; gshang = 0.f; d = (float) z*(1.0f/(65536.f*16384.f));
-    float const ogctang = gctang; gctang = (float) sintable[(a+512)&2047]*d;
-    float const ogstang = gstang; gstang = (float) sintable[a&2047]*d;
+    gchang = 1.f;
+    gshang = 0.f; d = (float) z*(1.0f/(65536.f*16384.f));
+    gctang = (float) sintable[(a+512)&2047]*d;
+    gstang = (float) sintable[a&2047]*d;
+    gvrcorrection = 1.f;
+    polymost_updaterotmat();
+
     int const ogshade  = globalshade;  globalshade  = dashade;
     int const ogpal    = globalpal;    globalpal    = (int32_t) ((uint8_t) dapalnum);
     double const ogxyaspect = gxyaspect; gxyaspect = 1.f;
     int const oldviewingrange = viewingrange; viewingrange = 65536;
     float const oldfviewingrange = fviewingrange; fviewingrange = 65536.f;
-    float const ogvrcorrection = gvrcorrection; gvrcorrection = 1.f;
 
-    polymost_updaterotmat();
 
     vec1 = hud->add;
 
@@ -4572,7 +4561,6 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 			
 		GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
 		VSMatrix identity(0);
-		GLInterface.SetIdentityMatrix(Matrix_ModelView);
     }
 
     if (hud->flags & HUDFLAG_NODEPTH)
@@ -4596,17 +4584,11 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     if (videoGetRenderMode() == REND_POLYMOST)
         polymost_mddraw(&tspr);
 
-    gvrcorrection = ogvrcorrection;
     viewingrange = oldviewingrange;
     fviewingrange = oldfviewingrange;
     gxyaspect = ogxyaspect;
     globalshade  = ogshade;
     globalpal    = ogpal;
-    gchang = ogchang;
-    gshang = ogshang;
-    gctang = ogctang;
-    gstang = ogstang;
-    polymost_identityrotmat();
 }
 
 

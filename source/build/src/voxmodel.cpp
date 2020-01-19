@@ -1120,7 +1120,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     //Let OpenGL (and perhaps hardware :) handle the matrix rotation
     mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
 
-	GLInterface.SetMatrix(Matrix_ModelView, mat);
+	int matrixindex = GLInterface.SetMatrix(Matrix_Model, mat);
 
     const float ru = 1.f/((float)m->mytexx);
     const float rv = 1.f/((float)m->mytexy);
@@ -1195,7 +1195,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 		GLInterface.SetDepthFunc(Depth_Less);
 	}
 	VSMatrix identity(0);
-	GLInterface.SetIdentityMatrix(Matrix_ModelView);
+	GLInterface.RestoreMatrix(Matrix_Model, matrixindex);
 	GLInterface.SetFadeDisable(false);
     GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
     return 1;
