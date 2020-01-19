@@ -19,13 +19,11 @@ in vec4 i_texCoord;
 in vec4 i_color;
 
 
-const float c_zero = 0.0;
-const float c_one  = 1.0;
 
 void main()
 {
-   vec4 vertex = u_rotMatrix * i_vertPos;
-   vec4 eyeCoordPosition = u_modelMatrix * vertex;
+   vec4 vertex = u_modelMatrix * i_vertPos;
+   vec4 eyeCoordPosition = u_rotMatrix * vertex;
    v_eyeCoordPosition = eyeCoordPosition;
    gl_Position = u_projectionMatrix * eyeCoordPosition;
 
