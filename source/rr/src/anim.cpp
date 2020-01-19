@@ -423,7 +423,9 @@ int32_t Anim_Play(const char *fn)
         } while (running);
         GLInterface.EnableNonTransparent255(false);
 
-        animvpx_print_stats(&codec);
+		#ifdef DEBUGGINGAIDS
+				animvpx_print_stats(&codec);
+		#endif
 
         //
         animvpx_restore_glstate();
