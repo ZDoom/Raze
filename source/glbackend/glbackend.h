@@ -208,14 +208,20 @@ public:
 	void ClearBufferState();
 
 	float GetProjectionM5() { return mProjectionM5; }
-	void SetMatrix(int num, const VSMatrix *mat );
-	void SetMatrix(int num, const float *mat)
+	int SetMatrix(int num, const VSMatrix *mat );
+	int SetMatrix(int num, const float *mat)
 	{
-		SetMatrix(num, reinterpret_cast<const VSMatrix*>(mat));
+		return SetMatrix(num, reinterpret_cast<const VSMatrix*>(mat));
 	}
-	void SetIdentityMatrix(int num)
+	int SetIdentityMatrix(int num)
 	{
+		auto r = renderState.matrixIndex[num];
 		renderState.matrixIndex[num] = 0;
+		return r;
+	}
+	void RestoreMatrix(int num, int index)
+	{
+		renderState.matrixIndex[num] = index;
 	}
 
 	void SetPolymostShader();

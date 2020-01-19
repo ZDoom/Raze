@@ -73,7 +73,8 @@ GLInstance GLInterface;
 GLInstance::GLInstance()
 	:palmanager(this)
 {
-
+	VSMatrix mat(0);
+	matrixArray.Push(mat);
 }
 
 void ImGui_Init_Backend();
@@ -239,9 +240,6 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 
 void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState &renderState)
 {
-	// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
-	bool applied = false;
-
 	if (activeShader == polymostShader)
 	{
 		glVertexAttrib4fv(2, renderState.Color);
@@ -262,24 +260,23 @@ void GLInstance::DoDraw()
 {
 	for (auto& rs : rendercommands)
 	{
-		// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
-		bool applied = false;
-
 		glVertexAttrib4fv(2, rs.Color);
 		if (rs.Color[3] != 1.f) rs.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
 		rs.Apply(polymostShader, lastState);
 		glDrawArrays(primtypes[rs.primtype], rs.vindex, rs.vcount);
 	}
 	rendercommands.Clear();
-	matrixArray.Clear();
+	matrixArray.Resize(1);
 }
 
 
-void GLInstance::SetMatrix(int num, const VSMatrix *mat)
+int GLInstance::SetMatrix(int num, const VSMatrix *mat)
 {
+	int r = renderState.matrixIndex[num];
 	if (num == Matrix_Projection) mProjectionM5 = mat->get()[5];
 	renderState.matrixIndex[num] = matrixArray.Size();
 	matrixArray.Push(*mat);
+	return r;
 }
 
 void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)

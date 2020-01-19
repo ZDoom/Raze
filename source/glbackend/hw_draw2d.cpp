@@ -97,9 +97,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 void GLInstance::Draw2D(F2DDrawer *drawer)
 {
 	VSMatrix mat(0);
-	SetMatrix(Matrix_View, mat.get());
-	SetMatrix(Matrix_ModelView, mat.get());
-	SetMatrix(Matrix_Detail, mat.get());
+	SetIdentityMatrix(Matrix_View);
+	SetIdentityMatrix(Matrix_ModelView);
+	SetIdentityMatrix(Matrix_Detail);
 	mat.ortho(0, xdim, ydim, 0, -1, 1);
 	SetMatrix(Matrix_Projection, mat.get());
 	SetViewport(0, 0, xdim, ydim);
