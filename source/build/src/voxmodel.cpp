@@ -1177,9 +1177,10 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 #else
             vt->SetTexCoord(((float)vptr[j].u)*ru, ((float)vptr[j].v)*rv);
 #endif
-            vt->x = ((float)vptr[j].x) - phack[xx>vptr[j].x*2] + phack[xx<vptr[j].x*2];
-            vt->y = ((float)vptr[j].y) - phack[yy>vptr[j].y*2] + phack[yy<vptr[j].y*2];
-            vt->z = ((float)vptr[j].z) - phack[zz>vptr[j].z*2] + phack[zz<vptr[j].z*2];
+            vt->SetVertex(
+                ((float)vptr[j].x) - phack[xx > vptr[j].x * 2] + phack[xx < vptr[j].x * 2],
+                ((float)vptr[j].y) - phack[yy > vptr[j].y * 2] + phack[yy < vptr[j].y * 2],
+                ((float)vptr[j].z) - phack[zz > vptr[j].z * 2] + phack[zz < vptr[j].z * 2]);
         }
 		qdone++;
     }
