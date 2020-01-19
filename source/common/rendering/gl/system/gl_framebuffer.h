@@ -8,7 +8,6 @@
 namespace OpenGLRenderer
 {
 
-class FHardwareTexture;
 class FGLDebug;
 
 class OpenGLFrameBuffer : public SystemGLFrameBuffer

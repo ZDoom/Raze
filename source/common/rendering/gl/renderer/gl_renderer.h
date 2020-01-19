@@ -88,20 +88,12 @@ public:
 	bool StartOffscreen();
 	void EndOffscreen();
 
-	void BindToFrameBuffer(FMaterial *mat);
+	void BindToFrameBuffer(FTexture* tex);
 
 private:
 
 	void DrawScene(HWDrawInfo *di, int drawmode);
-	bool QuadStereoCheckInitialRenderContextState();
-	void PresentAnaglyph(bool r, bool g, bool b);
-	void PresentSideBySide();
-	void PresentTopBottom();
-	void prepareInterleavedPresent(FPresentShaderBase& shader);
-	void PresentColumnInterleaved();
-	void PresentRowInterleaved();
-	void PresentCheckerInterleaved();
-	void PresentQuadStereo();
+
 
 };
 

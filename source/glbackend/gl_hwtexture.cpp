@@ -39,6 +39,7 @@
 #include "bitmap.h"
 #include "c_dispatch.h"
 #include "printf.h"
+#include "gl_interface.h"
 //#include "compat.h"
 
 // Workaround to avoid including the dirty 'compat.h' header. This will hopefully not be needed anymore once the texture format uses something better.
@@ -145,12 +146,53 @@ FHardwareTexture::~FHardwareTexture()
 { 
 	alltexturesize -= allocated;
 	if (glTexID != 0) glDeleteTextures(1, &glTexID);
+	if (glBufferID != 0) glDeleteBuffers(1, &glBufferID);
 }
 
 
 unsigned int FHardwareTexture::GetTextureHandle()
 {
 	return glTexID;
+}
+
+static int GetTexDimension(int value)
+{
+	if (value > gl.max_texturesize) return gl.max_texturesize;
+	return value;
+}
+
+//===========================================================================
+// 
+//	Creates a depth buffer for this texture
+//
+//===========================================================================
+
+int FHardwareTexture::GetDepthBuffer(int width, int height)
+{
+	if (glDepthID == 0)
+	{
+		glGenRenderbuffers(1, &glDepthID);
+		glBindRenderbuffer(GL_RENDERBUFFER, glDepthID);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	}
+	return glDepthID;
+}
+
+
+//===========================================================================
+// 
+//	Binds this texture's surfaces to the current framrbuffer
+//
+//===========================================================================
+
+void FHardwareTexture::BindToFrameBuffer(int width, int height)
+{
+	width = GetTexDimension(width);
+	height = GetTexDimension(height);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glTexID, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, GetDepthBuffer(width, height));
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, GetDepthBuffer(width, height));
 }
 
 

@@ -59,6 +59,7 @@
 //#include "r_data/models/models.h"
 #include "gl/renderer/gl_postprocessstate.h"
 #include "gl/system/gl_buffers.h"
+#include "../glbackend/gl_hwtexture.h"
 #include "build.h"
 
 EXTERN_CVAR(Int, screenblocks)
@@ -168,20 +169,17 @@ void FGLRenderer::EndOffscreen()
 //
 //===========================================================================
 
-void FGLRenderer::BindToFrameBuffer(FMaterial *mat)
+void FGLRenderer::BindToFrameBuffer(FTexture *mat)
 {
-#if 0
-	auto BaseLayer = static_cast<FHardwareTexture*>(mat->GetLayer(0, 0));
+	auto pBaseLayer = mat->GetHardwareTexture(0);
+	auto BaseLayer = pBaseLayer ? *pBaseLayer : nullptr;
 
 	if (BaseLayer == nullptr)
 	{
 		// must create the hardware texture first
-		BaseLayer->BindOrCreate(mat->sourcetex, 0, 0, 0, 0);
-		FHardwareTexture::Unbind(0);
-		gl_RenderState.ClearLastMaterial();
+		BaseLayer->CreateTexture(mat->GetWidth(), mat->GetHeight(), FHardwareTexture::TrueColor, false);
 	}
 	BaseLayer->BindToFrameBuffer(mat->GetWidth(), mat->GetHeight());
-#endif
 }
 
 //===========================================================================
