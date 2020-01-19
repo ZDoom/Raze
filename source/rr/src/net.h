@@ -398,6 +398,13 @@ void Net_SendRTS(int ridiculeNum);
 #define Net_SendTaunt(...) ((void)0)
 #define Net_SendRTS(...) ((void)0)
 
+#define Net_WaitForEverybody(...) ((void)0)
+#define initsynccrc(...) ((void)0)
+#define Net_GetSyncStat(...) ((void)0)
+#define Net_DisplaySyncMsg(...) ((void)0)
+#define Net_ClearFIFO(...) ((void)0)
+#define Net_GetInput(...) ((void)0)
+
 #endif
 
 END_RR_NS

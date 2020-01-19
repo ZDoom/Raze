@@ -1,4 +1,4 @@
-//-------------------------------------------------------------------------
+﻿//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -7428,22 +7428,22 @@ MAIN_LOOP_RESTART:
         {
             do
             {
-	            //if (g_networkMode != NET_DEDICATED_SERVER)
-	            //{
-	            //    if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
-	            //        P_GetInputMotorcycle(myconnectindex);
-	            //    else if (RRRA && g_player[myconnectindex].ps->on_boat)
-	            //        P_GetInputBoat(myconnectindex);
-	            //    else
-	            //        P_GetInput(myconnectindex);
-	            //}
-
-	            //Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
-
 	            if (!frameJustDrawn)
 	                break;
 
 	            frameJustDrawn = false;
+
+#ifdef NETCODE_DISABLE
+                if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+                    P_GetInputMotorcycle(myconnectindex);
+                else if (RRRA && g_player[myconnectindex].ps->on_boat)
+                    P_GetInputBoat(myconnectindex);
+                else
+                    P_GetInput(myconnectindex);
+
+                inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex] = localInput;
+                g_player[myconnectindex].movefifoend++;
+#endif
 
 	            do
 	            {
