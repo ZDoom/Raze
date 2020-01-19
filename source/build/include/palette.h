@@ -51,7 +51,7 @@ typedef struct {
 } rgb24_t;
 extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
 
-extern char palfadedelta;
+extern unsigned char palfadedelta;
 void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
 void paletteSetColorTable(int32_t id, uint8_t const *table, bool transient = false);
 void paletteFreeColorTable(int32_t id);

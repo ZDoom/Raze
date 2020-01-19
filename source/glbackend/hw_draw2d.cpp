@@ -232,7 +232,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 
 static int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
 extern palette_t palfadergb;
-extern char palfadedelta ;
+extern unsigned char palfadedelta ;
 
 void DrawFullscreenBlends()
 {
@@ -245,7 +245,7 @@ void DrawFullscreenBlends()
 	GLInterface.EnableBlend(true);
 	GLInterface.UseColorOnly(true);
 
-	if (palfadedelta)
+	if (palfadedelta > 0)
 	{
 		// Todo: reroute to the 2D drawer
 		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
