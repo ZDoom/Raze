@@ -269,6 +269,7 @@ void DrawFullscreenBlends()
 		GLInterface.SetColorub(255, 255, 255, 255);
 		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 	}
+	GLInterface.DoDraw();
 	GLInterface.UseColorOnly(false);
 
 }
