@@ -1111,7 +1111,6 @@ enum {
     TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
 };
 
-extern int32_t glprojectionhacks;
 extern int32_t gltexmaxsize;
 void gltexapplyprops (void);
 void texcache_invalidate(void);

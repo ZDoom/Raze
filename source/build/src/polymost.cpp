@@ -26,7 +26,6 @@ CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/di
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
 CVARD(Bool, hw_models, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
 CVARD(Bool, hw_parallaxskypanning, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky")
-//{ "r_projectionhack", "enable/disable projection hack", (void*)&glprojectionhacks, CVAR_INT, 0, 2 }, What is this?
 CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable shade interpolation")
 CVARD(Float, hw_shadescale, 1.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "multiplier for shading")
 CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
@@ -102,8 +101,9 @@ static float ghorizcorrect;
 double gxyaspect;
 float gyxscale, ghalfx, grhalfxdown10, grhalfxdown10x, ghalfy;
 float gcosang, gsinang, gcosang2, gsinang2;
-float gchang, gshang, gctang, gstang;
 float gtang = 0.f;
+
+float gchang = 0, gshang = 0, gctang = 0, gstang = 0;
 float gvrcorrection = 1.f;
 
 static vec3d_t xtex, ytex, otex, xtex2, ytex2, otex2;
@@ -119,7 +119,6 @@ static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 
 static int32_t lastglpolygonmode = 0; //FUK
 
-int32_t glprojectionhacks = 2;
 static FHardwareTexture *polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;
 
@@ -256,26 +255,6 @@ void polymost_glinit()
 }
 
 
-static float get_projhack_ratio(void)
-{
-    if ((glprojectionhacks == 1) && !r_yshearing)
-    {
-        // calculates the extend of the zenith glitch
-        float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
-        float verticalfov = atanf(verticalfovtan) * (2.f / fPI);
-        static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
-        float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
-        if (zenglitch <= 0.f)
-            return 1.f;
-        float const zenglitchtan = tanf((verticalfov - zenglitch) * (fPI / 2.f));
-        static constexpr float const maxcoshoriz = 0.54097117f; // 128/sqrt(128^2+199^2) = cos of an horiz diff of 199
-        return 1.f + (((verticalfovtan / zenglitchtan) - 1.f) * ((1.f - Bfabsf(gchang)) / maxcoshoriz ));
-    }
-
-    // No projection hacks (legacy or new-aspect)
-    return 1.f;
-}
-
 static void resizeglcheck(void)
 {
     //FUK
@@ -292,7 +271,7 @@ static void resizeglcheck(void)
     if ((glox1 != windowxy1.x) || (gloy1 != windowxy1.y) || (glox2 != windowxy2.x) || (gloy2 != windowxy2.y) || (gloxyaspect != gxyaspect) || (gloyxscale != gyxscale) || (glohoriz2 != ghoriz2) || (glohorizcorrect != ghorizcorrect) || (glotang != gtang))
     {
         const int32_t ourxdimen = (windowxy2.x-windowxy1.x+1);
-        float ratio = get_projhack_ratio();
+        float ratio = 1;
         const int32_t fovcorrect = (int32_t)(ourxdimen*ratio - ourxdimen);
 
         ratio = 1.f/ratio;
@@ -323,7 +302,6 @@ static void resizeglcheck(void)
         m[2][3] = 1.f;
         m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
 		GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
-		VSMatrix identity(0);
 		GLInterface.SetIdentityMatrix(Matrix_ModelView);
     }
 }
@@ -395,34 +373,22 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
 
 static void polymost_updaterotmat(void)
 {
-    if (1)
-    {
-        float matrix[16] = {
-            1.f, 0.f, 0.f, 0.f,
-            0.f, 1.f, 0.f, 0.f,
-            0.f, 0.f, 1.f, 0.f,
-            0.f, 0.f, 0.f, 1.f,
-        };
-#if !SOFTROTMAT
-        //Up/down rotation
-        float udmatrix[16] = {
-            1.f, 0.f, 0.f, 0.f,
-            0.f, gchang, -gshang*gvrcorrection, 0.f,
-            0.f, gshang/gvrcorrection, gchang, 0.f,
-            0.f, 0.f, 0.f, 1.f,
-        };
-        // Tilt rotation
-        float tiltmatrix[16] = {
-            gctang, -gstang, 0.f, 0.f,
-            gstang, gctang, 0.f, 0.f,
-            0.f, 0.f, 1.f, 0.f,
-            0.f, 0.f, 0.f, 1.f,
-        };
-        multiplyMatrix4f(matrix, udmatrix);
-        multiplyMatrix4f(matrix, tiltmatrix);
-#endif
-		GLInterface.SetMatrix(Matrix_View, matrix);
-    }
+    //Up/down rotation
+    float matrix[16] = {
+        1.f, 0.f, 0.f, 0.f,
+        0.f, gchang, -gshang*gvrcorrection, 0.f,
+        0.f, gshang/gvrcorrection, gchang, 0.f,
+        0.f, 0.f, 0.f, 1.f,
+    };
+    // Tilt rotation
+    float tiltmatrix[16] = {
+        gctang, -gstang, 0.f, 0.f,
+        gstang, gctang, 0.f, 0.f,
+        0.f, 0.f, 1.f, 0.f,
+        0.f, 0.f, 0.f, 1.f,
+    };
+    multiplyMatrix4f(matrix, tiltmatrix);
+	GLInterface.SetMatrix(Matrix_View, matrix);
 }
 
 static void polymost_identityrotmat(void)
@@ -476,34 +442,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int j = 0;
     float px[8], py[8], dd[8], uu[8], vv[8];
-#if SOFTROTMAT
-    float const ozgs = (ghalfx / gvrcorrection) * gshang,
-                ozgc = (ghalfx / gvrcorrection) * gchang;
-#endif
 
     for (bssize_t i=0; i<n; ++i)
     {
-#if SOFTROTMAT
-        //Up/down rotation
-        vec3f_t const orot = { dpxy[i].x - ghalfx,
-                              (dpxy[i].y - ghoriz) * gchang - ozgs,
-                              (dpxy[i].y - ghoriz) * gshang + ozgc };
-
-        // Tilt rotation
-        float const r = (ghalfx / gvrcorrection) / orot.z;
-
-        px[j] = ghalfx + (((orot.x * gctang) - (orot.y * gstang)) * r);
-        py[j] = ghoriz + (((orot.x * gstang) + (orot.y * gctang)) * r);
-
-        dd[j] = (dpxy[i].x * xtex.d + dpxy[i].y * ytex.d + otex.d) * r;
-        if (dd[j] <= 0.f) // invalid polygon
-            return;
-        uu[j] = (dpxy[i].x * xtex.u + dpxy[i].y * ytex.u + otex.u) * r;
-        vv[j] = (dpxy[i].x * xtex.v + dpxy[i].y * ytex.v + otex.v) * r;
-
-        if ((!j) || (px[j] != px[j-1]) || (py[j] != py[j-1]))
-            j++;
-#else
         px[j] = dpxy[i].x;
         py[j] = dpxy[i].y;
 
@@ -513,7 +454,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         uu[j] = (dpxy[i].x * xtex.u + dpxy[i].y * ytex.u + otex.u);
         vv[j] = (dpxy[i].x * xtex.v + dpxy[i].y * ytex.v + otex.v);
         j++;
-#endif
     }
 
     while ((j >= 3) && (px[j-1] == px[0]) && (py[j-1] == py[0])) j--;
@@ -3240,7 +3180,7 @@ void polymost_drawrooms()
 	GLInterface.SetBrightness(r_scenebrightness);
 
     gvrcorrection = viewingrange*(1.f/65536.f);
-    if (glprojectionhacks == 2)
+    //if (glprojectionhacks == 2)
     {
         // calculates the extend of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
@@ -3286,7 +3226,7 @@ void polymost_drawrooms()
     ghoriz = (float)(ydimen>>1);
 
     resizeglcheck();
-    float const ratio = 1.f/get_projhack_ratio();
+    float const ratio = 1.f;
 
     //global cos/sin tilt angle
     gctang = cosf(gtang);
@@ -3703,7 +3643,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
 
     //POGO: prepare necessary globals for drawing, as we intend to call this outside of drawrooms
     gvrcorrection = viewingrange*(1.f/65536.f);
-    if (glprojectionhacks == 2)
+    //if (glprojectionhacks == 2)
     {
         // calculates the extend of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
