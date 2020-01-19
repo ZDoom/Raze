@@ -56,7 +56,7 @@ static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALP
 static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
 int depthf[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
 
-static TArray<VSMatrix> matrixArray;
+TArray<VSMatrix> matrixArray;
 
 FileReader GetResource(const char* fn)
 {

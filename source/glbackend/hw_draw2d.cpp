@@ -43,6 +43,8 @@
 #include "flatvertices.h"
 
 extern int16_t numshades;
+extern TArray<VSMatrix> matrixArray;
+
 //===========================================================================
 // 
 // Vertex buffer for 2D drawer
@@ -227,6 +229,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	EnableBlend(true);
 	EnableMultisampling(true);
 	SetIdentityMatrix(Matrix_Projection);
+	matrixArray.Resize(1);
 }
 
 
