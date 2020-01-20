@@ -40,8 +40,11 @@
 #include "glbackend.h"
 #include "v_draw.h"
 #include "palette.h"
+#include "flatvertices.h"
 
 extern int16_t numshades;
+extern TArray<VSMatrix> matrixArray;
+
 //===========================================================================
 // 
 // Vertex buffer for 2D drawer
@@ -96,9 +99,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 void GLInstance::Draw2D(F2DDrawer *drawer)
 {
 	VSMatrix mat(0);
-	SetMatrix(Matrix_View, mat.get());
-	SetMatrix(Matrix_ModelView, mat.get());
-	SetMatrix(Matrix_Detail, mat.get());
+	SetIdentityMatrix(Matrix_View);
+	SetIdentityMatrix(Matrix_Model);
+	SetIdentityMatrix(Matrix_Detail);
 	mat.ortho(0, xdim, ydim, 0, -1, 1);
 	SetMatrix(Matrix_Projection, mat.get());
 	SetViewport(0, 0, xdim, ydim);
@@ -164,21 +167,21 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		if (cmd.mTexture != nullptr)
 		{
 			auto tex = cmd.mTexture;
+
 			if (cmd.mType == F2DDrawer::DrawTypeRotateSprite)
 			{
 				// todo: Set up hictinting. (broken as the feature is...)
 				SetShade(cmd.mRemapIndex >> 16, numshades);
 				SetFadeDisable(false);
 				SetTexture(0, tex, cmd.mRemapIndex & 0xffff, 4/*DAMETH_CLAMPED*/, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
-				EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 			}
 			else
 			{
 				SetFadeDisable(true);
 				SetShade(0, numshades);
 				SetNamedTexture(cmd.mTexture, cmd.mRemapIndex, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
-				EnableBlend(true);
 			}
+			EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 			UseColorOnly(false);
 		}
 		else
@@ -190,11 +193,11 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		{
 		case F2DDrawer::DrawTypeTriangles:
 		case F2DDrawer::DrawTypeRotateSprite:
-			Draw(DT_TRIANGLES, cmd.mIndexIndex, cmd.mIndexCount);
+			DrawElement(DT_TRIANGLES, cmd.mIndexIndex, cmd.mIndexCount, renderState);
 			break;
 
 		case F2DDrawer::DrawTypeLines:
-			Draw(DT_LINES, cmd.mVertIndex, cmd.mVertCount);
+			DrawElement(DT_LINES, cmd.mVertIndex, cmd.mVertCount, renderState);
 			break;
 
 		case F2DDrawer::DrawTypePoints:
@@ -225,75 +228,50 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	//drawer->mIsFirstPass = false;
 	EnableBlend(true);
 	EnableMultisampling(true);
+	SetIdentityMatrix(Matrix_Projection);
+	matrixArray.Resize(1);
 }
 
-
-void fullscreen_tint_gl(PalEntry pe)
-{
-	// Todo: reroute to the 2D drawer
-	GLInterface.SetIdentityMatrix(Matrix_Projection);
-	GLInterface.SetIdentityMatrix(Matrix_ModelView);
-
-	GLInterface.EnableDepthTest(false);
-	GLInterface.EnableAlphaTest(false);
-
-	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
-	GLInterface.EnableBlend(true);
-	GLInterface.SetColorub (pe.r, pe.g, pe.b, pe.a);
-
-	GLInterface.UseColorOnly(true);
-
-	auto data = GLInterface.AllocVertices(3);
-	auto vt = data.second;
-	vt[0].Set(-2.5f, 1.f);
-	vt[1].Set(2.5f, 1.f);
-	vt[2].Set(.0f, -2.5f);
-	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
-	GLInterface.UseColorOnly(false);
-}
-
-void fullscreen_tint_gl_blood(int tint_blood_r, int tint_blood_g, int tint_blood_b)
-{
-	if (!(tint_blood_r | tint_blood_g | tint_blood_b))
-		return;
-	GLInterface.SetIdentityMatrix(Matrix_Projection);
-	GLInterface.SetIdentityMatrix(Matrix_ModelView);
-
-	GLInterface.EnableDepthTest(false);
-	GLInterface.EnableAlphaTest(false);
-
-	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Add]);
-	GLInterface.EnableBlend(true);
-
-	GLInterface.UseColorOnly(true);
-	GLInterface.SetColorub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
-	auto data = GLInterface.AllocVertices(3);
-	auto vt = data.second;
-	vt[0].Set(-2.5f, 1.f);
-	vt[1].Set(2.5f, 1.f);
-	vt[2].Set(.0f, -2.5f);
-	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
-	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Subtract]);
-	GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
-	data = GLInterface.AllocVertices(3);
-	vt = data.second;
-	vt[0].Set(-2.5f, 1.f);
-	vt[1].Set(2.5f, 1.f);
-	vt[2].Set(.0f, -2.5f);
-	GLInterface.Draw(DT_TRIANGLES, data.first, 3);
-	GLInterface.SetColorub(255, 255, 255, 255);
-	GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
-	GLInterface.UseColorOnly(false);
-}
 
 static int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
 extern palette_t palfadergb;
-extern char palfadedelta ;
+extern unsigned char palfadedelta ;
 
 void DrawFullscreenBlends()
 {
-	if (palfadedelta)	fullscreen_tint_gl(PalEntry(palfadedelta, palfadergb.r, palfadergb.g, palfadergb.b));
-	fullscreen_tint_gl_blood(tint_blood_r, tint_blood_g, tint_blood_b);
+	GLInterface.SetIdentityMatrix(Matrix_Projection);
+	GLInterface.SetIdentityMatrix(Matrix_Model);
+	GLInterface.SetIdentityMatrix(Matrix_View);
+
+	GLInterface.EnableDepthTest(false);
+	GLInterface.EnableAlphaTest(false);
+	GLInterface.EnableBlend(true);
+	GLInterface.UseColorOnly(true);
+
+	if (palfadedelta > 0)
+	{
+		// Todo: reroute to the 2D drawer
+		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
+		GLInterface.SetColorub(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
+		GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+	}
+	if (tint_blood_r | tint_blood_g | tint_blood_b)
+	{
+		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Add]);
+
+		GLInterface.SetColorub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
+		GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+
+		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Subtract]);
+		GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
+		GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+
+		GLInterface.SetColorub(255, 255, 255, 255);
+		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
+	}
+	GLInterface.DoDraw();
+	GLInterface.UseColorOnly(false);
+
 }
 
 

@@ -402,9 +402,13 @@ static netField_t ActorFields[] =
     { ACTF(ext_pitch),          16 },
     { ACTF(ext_roll),           16 },
 
-    { ACTF(ext_offset_x),                   32 },
-    { ACTF(ext_offset_y),                   32 },
-    { ACTF(ext_offset_z),                   32 },
+    { ACTF(ext_pivot_offset_x),                   32 },
+    { ACTF(ext_pivot_offset_y),                   32 },
+    { ACTF(ext_pivot_offset_z),                   32 },
+
+    { ACTF(ext_position_offset_x),                   32 },
+    { ACTF(ext_position_offset_y),                   32 },
+    { ACTF(ext_position_offset_z),                   32 },
 
     { ACTF(ext_flags),      8 },
     { ACTF(ext_xpanning),   8 },
@@ -453,12 +457,12 @@ static uint32_t g_cl_InterpolatedRevision = 0;
 
 static netmapstate_t g_mapStartState;
 
-static netmapstate_t g_cl_InterpolatedMapStateHistory[NET_REVISIONS];
+static TArray<netmapstate_t> g_cl_InterpolatedMapStateHistory;
 
 // note that the map state number is not an index into here,
 // to get the index into this array out of a map state number, do <Map state number> % NET_REVISONS
-static netmapstate_t g_mapStateHistory[NET_REVISIONS];
-static uint8_t       tempnetbuf[MAX_WORLDBUFFER];
+static TArray<netmapstate_t> g_mapStateHistory;
+static TArray<uint8_t> tempnetbuf;
 
 // Remember that this constant needs to be one bit longer than a struct index, so it can't be mistaken for a valid wall, sprite, or sector index
 static const int32_t cSTOP_PARSING_CODE = ((1 << NETINDEX_BITS) - 1);
@@ -1020,9 +1024,13 @@ static void Net_CopySpriteExtFromNet(const netactor_t* netActor, spriteext_t* ga
     gameSprExt->pitch = netActor->ext_pitch;
     gameSprExt->roll = netActor->ext_roll;
 
-    gameSprExt->offset.x = netActor->ext_offset_x;
-    gameSprExt->offset.y = netActor->ext_offset_y;
-    gameSprExt->offset.z = netActor->ext_offset_z;
+    gameSprExt->pivot_offset.x = netActor->ext_pivot_offset_x;
+    gameSprExt->pivot_offset.y = netActor->ext_pivot_offset_y;
+    gameSprExt->pivot_offset.z = netActor->ext_pivot_offset_z;
+
+    gameSprExt->position_offset.x = netActor->ext_position_offset_x;
+    gameSprExt->position_offset.y = netActor->ext_position_offset_y;
+    gameSprExt->position_offset.z = netActor->ext_position_offset_z;
 
     gameSprExt->flags = netActor->ext_flags;
     gameSprExt->xpanning = netActor->ext_xpanning;
@@ -1375,9 +1383,13 @@ static void Net_CopySpriteExtToNet(const spriteext_t* gameSpriteExt, netactor_t*
     netActor->ext_pitch = gameSpriteExt->pitch;
     netActor->ext_roll = gameSpriteExt->roll;
 
-    netActor->ext_offset_x = gameSpriteExt->offset.x;
-    netActor->ext_offset_y = gameSpriteExt->offset.y;
-    netActor->ext_offset_z = gameSpriteExt->offset.z;
+    netActor->ext_pivot_offset_x = gameSpriteExt->pivot_offset.x;
+    netActor->ext_pivot_offset_y = gameSpriteExt->pivot_offset.y;
+    netActor->ext_pivot_offset_z = gameSpriteExt->pivot_offset.z;
+
+    netActor->ext_position_offset_x = gameSpriteExt->position_offset.x;
+    netActor->ext_position_offset_y = gameSpriteExt->position_offset.y;
+    netActor->ext_position_offset_z = gameSpriteExt->position_offset.z;
 
     netActor->ext_flags = gameSpriteExt->flags;
     netActor->ext_xpanning = gameSpriteExt->xpanning;
@@ -4199,8 +4211,8 @@ static void Net_SendWorldUpdate(uint32_t fromRevisionNumber, uint32_t toRevision
         return;
     }
 
-    Bassert(MAX_WORLDBUFFER == ARRAY_SIZE(tempnetbuf));
-    Bassert(NET_REVISIONS == ARRAY_SIZE(g_mapStateHistory));
+    //Bassert(MAX_WORLDBUFFER == ARRAY_SIZE(tempnetbuf));
+    //Bassert(NET_REVISIONS == ARRAY_SIZE(g_mapStateHistory));
 
     uint32_t        playerRevisionIsTooOld = (toRevisionNumber - fromRevisionNumber) > NET_REVISIONS;
 
@@ -4938,7 +4950,7 @@ void Net_SendServerUpdates(void)
     serverupdate.pause_on = ud.pause_on;
 
     serverupdate.numplayers = 0;
-    updatebuf               = tempnetbuf + sizeof(serverupdate_t);
+    updatebuf               = tempnetbuf.Data() + sizeof(serverupdate_t);
 
     for (TRAVERSE_CONNECT(i))
     {
@@ -4976,7 +4988,7 @@ void Net_SendServerUpdates(void)
         return;
     }
 
-    Bmemcpy(tempnetbuf, &serverupdate, sizeof(serverupdate_t));
+    Bmemcpy(tempnetbuf.Data(), &serverupdate, sizeof(serverupdate_t));
 
     enet_host_broadcast(
     g_netServer, CHAN_MOVE,
@@ -5143,6 +5155,9 @@ void Net_InitMapStateHistory()
 
 void Net_StartNewGame()
 {
+    g_mapStateHistory.Resize(NET_REVISIONS);
+    g_cl_InterpolatedMapStateHistory.Resize(NET_REVISIONS);
+    tempnetbuf.Resize(MAX_WORLDBUFFER);
     Net_ResetPlayers();
 
     Net_ExtractNewGame(&pendingnewgame, 0);

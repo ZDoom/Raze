@@ -1223,7 +1223,6 @@ RESTART:
     UpdateNetworkMenus();
     if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo)
         gDemo.SetupPlayback(NULL);
-    viewSetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
     gQuitGame = 0;
     gRestartGame = 0;
     if (gGameOptions.nGameType > 0)

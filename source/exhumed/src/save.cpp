@@ -40,10 +40,6 @@ static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
 
 bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
-    OpenSaveGameForWrite(sv->Filename);
-    // workaround until the level info here has been transitioned.
-    G_WriteSaveHeader(sv->SaveTitle);
-
     auto fw = WriteSavegameChunk("engine");
     fw->Write(&numsectors, sizeof(numsectors));
     fw->Write(sector, sizeof(sectortype) * numsectors);

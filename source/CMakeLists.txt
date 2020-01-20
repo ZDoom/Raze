@@ -832,6 +832,7 @@ set (PCH_SOURCES
 	common/rendering/gl/system/gl_debug.cpp
 	common/rendering/gl/system/gl_framebuffer.cpp
 	common/rendering/gl_load/gl_interface.cpp
+	common/rendering/hwrenderer/data/flatvertices.cpp
 	common/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
 	common/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
 	common/rendering/hwrenderer/utility/hw_shaderpatcher.cpp
@@ -984,7 +985,7 @@ if( APPLE )
 
 	set_target_properties(${PROJECT_NAME} PROPERTIES
 		LINK_FLAGS "${LINK_FRAMEWORKS}"
-		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/posix/osx/${PROJECT_NAME}-info.plist" )
+		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/osx/${PROJECT_NAME}-info.plist" )
 
 	# Dymanic libraries like libvulkan.dylib or libMoltenVK.dylib will be loaded by dlopen()
 	# if placed in the directory with the main executable

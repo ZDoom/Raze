@@ -210,7 +210,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
 
 bool GameInterface::SaveGame(FSaveGameNode* node)
 {
-	OpenSaveGameForWrite(node->Filename);
 	LoadSave::hSFile = WriteSavegameChunk("snapshot.bld");
 
 	try
@@ -231,7 +230,6 @@ bool GameInterface::SaveGame(FSaveGameNode* node)
 		Printf(TEXTCOLOR_RED "%s\n", err.what());
 		return false;
 	}
-	G_WriteSaveHeader(node->SaveTitle);
 	LoadSave::hSFile = NULL;
 
 	return FinishSavegameWrite();

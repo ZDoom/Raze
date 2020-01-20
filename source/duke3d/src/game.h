@@ -236,11 +236,6 @@ extern int32_t voting;
 
 //extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
-#define CROSSHAIR_PAL (MAXPALOOKUPS-RESERVEDPALS-1)
-
-extern palette_t CrosshairColors;
-extern palette_t DefaultCrosshairColors;
-
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,
                        uint8_t s_yr, int16_t s_a, int16_t s_ve, int16_t s_zv, int16_t s_ow, int16_t s_ss);
@@ -282,12 +277,10 @@ void G_DrawRooms(int32_t playerNum,int32_t smoothratio);
 void G_DrawTXDigiNumZ(int32_t starttile,int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,int32_t cs,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
 void G_GameExit(const char *msg) ATTRIBUTE((noreturn));
 void G_GameQuit(void);
-void G_GetCrosshairColor(void);
 void G_HandleLocalKeys(void);
 void G_HandleSpecialKeys(void);
 void G_PrintGameQuotes(int32_t snum);
 //void G_SE40(int32_t smoothratio);
-void G_SetCrosshairColor(int32_t r,int32_t g,int32_t b);
 void G_Shutdown(void);
 void G_UpdatePlayerFromMenu(void);
 void P_DoQuote(int32_t q,DukePlayer_t *p);

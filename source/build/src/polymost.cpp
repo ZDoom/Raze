@@ -16,6 +16,8 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "../../glbackend/glbackend.h"
 #include "c_cvars.h"
 #include "gamecvars.h"
+#include "v_video.h"
+#include "flatvertices.h"
 
 CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -24,7 +26,6 @@ CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/di
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
 CVARD(Bool, hw_models, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
 CVARD(Bool, hw_parallaxskypanning, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky")
-//{ "r_projectionhack", "enable/disable projection hack", (void*)&glprojectionhacks, CVAR_INT, 0, 2 }, What is this?
 CVARD(Bool, hw_shadeinterpolate, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable shade interpolation")
 CVARD(Float, hw_shadescale, 1.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "multiplier for shading")
 CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable indexed color texture rendering")
@@ -100,8 +101,9 @@ static float ghorizcorrect;
 double gxyaspect;
 float gyxscale, ghalfx, grhalfxdown10, grhalfxdown10x, ghalfy;
 float gcosang, gsinang, gcosang2, gsinang2;
-float gchang, gshang, gctang, gstang;
 float gtang = 0.f;
+
+float gchang = 0, gshang = 0, gctang = 0, gstang = 0;
 float gvrcorrection = 1.f;
 
 static vec3d_t xtex, ytex, otex, xtex2, ytex2, otex2;
@@ -117,7 +119,6 @@ static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 
 static int32_t lastglpolygonmode = 0; //FUK
 
-int32_t glprojectionhacks = 2;
 static FHardwareTexture *polymosttext = 0;
 int32_t glrendmode = REND_POLYMOST;
 
@@ -254,26 +255,6 @@ void polymost_glinit()
 }
 
 
-static float get_projhack_ratio(void)
-{
-    if ((glprojectionhacks == 1) && !r_yshearing)
-    {
-        // calculates the extend of the zenith glitch
-        float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
-        float verticalfov = atanf(verticalfovtan) * (2.f / fPI);
-        static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
-        float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
-        if (zenglitch <= 0.f)
-            return 1.f;
-        float const zenglitchtan = tanf((verticalfov - zenglitch) * (fPI / 2.f));
-        static constexpr float const maxcoshoriz = 0.54097117f; // 128/sqrt(128^2+199^2) = cos of an horiz diff of 199
-        return 1.f + (((verticalfovtan / zenglitchtan) - 1.f) * ((1.f - Bfabsf(gchang)) / maxcoshoriz ));
-    }
-
-    // No projection hacks (legacy or new-aspect)
-    return 1.f;
-}
-
 static void resizeglcheck(void)
 {
     //FUK
@@ -290,7 +271,7 @@ static void resizeglcheck(void)
     if ((glox1 != windowxy1.x) || (gloy1 != windowxy1.y) || (glox2 != windowxy2.x) || (gloy2 != windowxy2.y) || (gloxyaspect != gxyaspect) || (gloyxscale != gyxscale) || (glohoriz2 != ghoriz2) || (glohorizcorrect != ghorizcorrect) || (glotang != gtang))
     {
         const int32_t ourxdimen = (windowxy2.x-windowxy1.x+1);
-        float ratio = get_projhack_ratio();
+        float ratio = 1;
         const int32_t fovcorrect = (int32_t)(ourxdimen*ratio - ourxdimen);
 
         ratio = 1.f/ratio;
@@ -321,8 +302,7 @@ static void resizeglcheck(void)
         m[2][3] = 1.f;
         m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
 		GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
-		VSMatrix identity(0);
-		GLInterface.SetIdentityMatrix(Matrix_ModelView);
+		GLInterface.SetIdentityMatrix(Matrix_Model);
     }
 }
 
@@ -393,39 +373,22 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
 
 static void polymost_updaterotmat(void)
 {
-    if (1)
-    {
-        float matrix[16] = {
-            1.f, 0.f, 0.f, 0.f,
-            0.f, 1.f, 0.f, 0.f,
-            0.f, 0.f, 1.f, 0.f,
-            0.f, 0.f, 0.f, 1.f,
-        };
-#if !SOFTROTMAT
-        //Up/down rotation
-        float udmatrix[16] = {
-            1.f, 0.f, 0.f, 0.f,
-            0.f, gchang, -gshang*gvrcorrection, 0.f,
-            0.f, gshang/gvrcorrection, gchang, 0.f,
-            0.f, 0.f, 0.f, 1.f,
-        };
-        // Tilt rotation
-        float tiltmatrix[16] = {
-            gctang, -gstang, 0.f, 0.f,
-            gstang, gctang, 0.f, 0.f,
-            0.f, 0.f, 1.f, 0.f,
-            0.f, 0.f, 0.f, 1.f,
-        };
-        multiplyMatrix4f(matrix, udmatrix);
-        multiplyMatrix4f(matrix, tiltmatrix);
-#endif
-		GLInterface.SetMatrix(Matrix_View, matrix);
-    }
-}
-
-static void polymost_identityrotmat(void)
-{
-	GLInterface.SetIdentityMatrix(Matrix_View);
+    //Up/down rotation
+    float matrix[16] = {
+        1.f, 0.f, 0.f, 0.f,
+        0.f, gchang, -gshang*gvrcorrection, 0.f,
+        0.f, gshang/gvrcorrection, gchang, 0.f,
+        0.f, 0.f, 0.f, 1.f,
+    };
+    // Tilt rotation
+    float tiltmatrix[16] = {
+        gctang, -gstang, 0.f, 0.f,
+        gstang, gctang, 0.f, 0.f,
+        0.f, 0.f, 1.f, 0.f,
+        0.f, 0.f, 0.f, 1.f,
+    };
+    multiplyMatrix4f(matrix, tiltmatrix);
+	GLInterface.SetMatrix(Matrix_View, matrix);
 }
 
 static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesiz);
@@ -474,34 +437,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int j = 0;
     float px[8], py[8], dd[8], uu[8], vv[8];
-#if SOFTROTMAT
-    float const ozgs = (ghalfx / gvrcorrection) * gshang,
-                ozgc = (ghalfx / gvrcorrection) * gchang;
-#endif
 
     for (bssize_t i=0; i<n; ++i)
     {
-#if SOFTROTMAT
-        //Up/down rotation
-        vec3f_t const orot = { dpxy[i].x - ghalfx,
-                              (dpxy[i].y - ghoriz) * gchang - ozgs,
-                              (dpxy[i].y - ghoriz) * gshang + ozgc };
-
-        // Tilt rotation
-        float const r = (ghalfx / gvrcorrection) / orot.z;
-
-        px[j] = ghalfx + (((orot.x * gctang) - (orot.y * gstang)) * r);
-        py[j] = ghoriz + (((orot.x * gstang) + (orot.y * gctang)) * r);
-
-        dd[j] = (dpxy[i].x * xtex.d + dpxy[i].y * ytex.d + otex.d) * r;
-        if (dd[j] <= 0.f) // invalid polygon
-            return;
-        uu[j] = (dpxy[i].x * xtex.u + dpxy[i].y * ytex.u + otex.u) * r;
-        vv[j] = (dpxy[i].x * xtex.v + dpxy[i].y * ytex.v + otex.v) * r;
-
-        if ((!j) || (px[j] != px[j-1]) || (py[j] != py[j-1]))
-            j++;
-#else
         px[j] = dpxy[i].x;
         py[j] = dpxy[i].y;
 
@@ -511,7 +449,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         uu[j] = (dpxy[i].x * xtex.u + dpxy[i].y * ytex.u + otex.u);
         vv[j] = (dpxy[i].x * xtex.v + dpxy[i].y * ytex.v + otex.v);
         j++;
-#endif
     }
 
     while ((j >= 3) && (px[j-1] == px[0]) && (py[j-1] == py[0])) j--;
@@ -531,7 +468,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 	else if (drawpoly_srepeat) sampleroverride = SamplerClampY;
 	else if (drawpoly_trepeat) sampleroverride = SamplerClampX;
 	else sampleroverride = SamplerClampXY;
-
 
 	bool success = GLInterface.SetTexture(globalpicnum, TileFiles.tiles[globalpicnum], globalpal, method, sampleroverride);
 	if (!success)
@@ -560,16 +496,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 		GLInterface.SetNpotEmulation(false, 1.f, 0.f);
     }
 
-    vec2f_t hacksc = { 1.f, 1.f };
-
-#if 0
-    if (pth->flags & PTH_HIGHTILE)
-    {
-        hacksc = pth->scale;
-        tsiz = pth->siz;
-    }
-#endif
-
     vec2_t tsiz2 = tsiz;
 
 
@@ -580,30 +506,20 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     float pc[4];
 
-	polytint_t const& tint = hictinting[globalpal];
-    // This makes no sense.
-    pc[0] = 1.f;// (1.f - (tint.sr * (1.f / 255.f))) + (tint.sr * (1.f / 255.f));
-	pc[1] = 1.f;// (1.f - (tint.sg * (1.f / 255.f))) + (tint.sg * (1.f / 255.f));
-	pc[2] = 1.f;// (1.f - (tint.sb * (1.f / 255.f))) + (tint.sb * (1.f / 255.f));
-
-    // spriteext full alpha control
-    pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
-
-    // tinting
-	auto& h = hictinting[globalpal];
-
-	GLInterface.SetTinting(h.f, PalEntry(h.sr, h.sg, h.sb), PalEntry(h.r, h.g, h.b));
-
-    globaltinting_apply(pc);
+    // The shade rgb from the tint is ignored here.
+    pc[0] = (float)globalr * (1.f / 255.f);
+    pc[1] = (float)globalg * (1.f / 255.f);
+    pc[2] = (float)globalb * (1.f / 255.f);
+  	pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
 
     if (skyzbufferhack_pass)
         pc[3] = 0.01f;
 
     GLInterface.SetColor(pc[0], pc[1], pc[2], pc[3]);
 
-    vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
-	auto data = GLInterface.AllocVertices(npoints);
-	auto vt = data.second;
+    vec2f_t const scale = { 1.f / tsiz2.x, 1.f / tsiz2.y };
+	auto data = screen->mVertexData->AllocVertices(npoints);
+	auto vt = data.first;
 	for (bssize_t i = 0; i < npoints; ++i, vt++)
     {
         float const r = 1.f / dd[i];
@@ -620,10 +536,10 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 			r * (1.f / 1024.f));
 
     }
-	GLInterface.Draw(DT_TRIANGLE_FAN, data.first, npoints);
+	GLInterface.Draw(DT_TRIANGLE_FAN, data.second, npoints);
 
-	GLInterface.SetTinting(0, 0, PalEntry(255, 255, 255));
-	GLInterface.UseDetailMapping(false);
+    GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
+    GLInterface.UseDetailMapping(false);
 	GLInterface.UseGlowMapping(false);
 	GLInterface.SetNpotEmulation(false, 1.f, 0.f);
 
@@ -3237,7 +3153,7 @@ void polymost_drawrooms()
 	// This is a global setting for the entire scene, so let's do it here, right at the start.
 	auto& hh = hictinting[MAXPALOOKUPS - 1];
 	// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
-	GLInterface.SetBasepalTint(PalEntry(hh.r, hh.g, hh.b));
+	GLInterface.SetBasepalTint(hh.tint);
 
 
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");
@@ -3259,7 +3175,7 @@ void polymost_drawrooms()
 	GLInterface.SetBrightness(r_scenebrightness);
 
     gvrcorrection = viewingrange*(1.f/65536.f);
-    if (glprojectionhacks == 2)
+    //if (glprojectionhacks == 2)
     {
         // calculates the extend of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
@@ -3305,13 +3221,13 @@ void polymost_drawrooms()
     ghoriz = (float)(ydimen>>1);
 
     resizeglcheck();
-    float const ratio = 1.f/get_projhack_ratio();
+    float const ratio = 1.f;
 
     //global cos/sin tilt angle
     gctang = cosf(gtang);
     gstang = sinf(gtang);
 
-    if (Bfabsf(gstang) < .001f)  // This hack avoids nasty precision bugs in domost()
+    if (Bfabsf(gstang) < .001f)  // This avoids nasty precision bugs in domost()
     {
         gstang = 0.f;
         gctang = (gctang > 0.f) ? 1.f : -1.f;
@@ -3336,10 +3252,9 @@ void polymost_drawrooms()
         v = { o2.x, o2.y * gchang + o2.z * gshang, o2.z * gchang - o2.y * gshang };
     }
 
-#if !SOFTROTMAT
     if (inpreparemirror)
         gstang = -gstang;
-#endif
+    polymost_updaterotmat();
 
     //Clip to SCISDIST plane
     int n = 0;
@@ -3433,8 +3348,6 @@ void polymost_drawrooms()
     //else if (!g_nodraw) { videoEndDrawing(); return; }
 #endif
 
-    polymost_updaterotmat();
-
     numscans = numbunches = 0;
 
     // MASKWALL_BAD_ACCESS
@@ -3497,7 +3410,6 @@ void polymost_drawrooms()
     }
 
 	GLInterface.SetDepthFunc(Depth_LessEqual);
-	polymost_identityrotmat();
 
     videoEndDrawing();
 }
@@ -3705,9 +3617,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     pow2xsplit = 0;
     skyclamphack = 0;
 
-    polymost_updaterotmat();
     polymost_drawpoly(dpxy, n, method, tilesiz[globalpicnum]);
-    polymost_identityrotmat();
 }
 
 void polymost_drawmaskwall(int32_t damaskwallcnt)
@@ -3722,7 +3632,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
 
     //POGO: prepare necessary globals for drawing, as we intend to call this outside of drawrooms
     gvrcorrection = viewingrange*(1.f/65536.f);
-    if (glprojectionhacks == 2)
+    //if (glprojectionhacks == 2)
     {
         // calculates the extend of the zenith glitch
         float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.x-windowxy1.x) * 4.f);
@@ -3771,6 +3681,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
         gstang = 0.f;
         gctang = (gctang > 0.f) ? 1.f : -1.f;
     }
+    polymost_updaterotmat();
     grhalfxdown10x = grhalfxdown10;
 
     //POGO: write the mirror region to the stencil buffer to allow showing mirrors & skyboxes at the same time
@@ -3977,8 +3888,6 @@ void polymost_drawsprite(int32_t snum)
 
     if (tsiz.x <= 0 || tsiz.y <= 0)
         return;
-
-    polymost_updaterotmat();
 
     vec2f_t const ftsiz = { (float) tsiz.x, (float) tsiz.y };
 
@@ -4500,7 +4409,7 @@ void polymost_drawsprite(int32_t snum)
         show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
 
 _drawsprite_return:
-    polymost_identityrotmat();
+    ;
 }
 
 EDUKE32_STATIC_ASSERT((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
@@ -4541,18 +4450,19 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     polymost_outputGLDebugMessage(3, "polymost_dorotatespritemodel(sx:%d, sy:%d, z:%d, a:%hd, picnum:%hd, dashade:%hhd, dapalnum:%hhu, dastat:%d, daalpha:%hhu, dablend:%hhu, uniqid:%d)",
                                   sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, uniqid);
 
-    float const ogchang = gchang; gchang = 1.f;
-    float const ogshang = gshang; gshang = 0.f; d = (float) z*(1.0f/(65536.f*16384.f));
-    float const ogctang = gctang; gctang = (float) sintable[(a+512)&2047]*d;
-    float const ogstang = gstang; gstang = (float) sintable[a&2047]*d;
+    gchang = 1.f;
+    gshang = 0.f; d = (float) z*(1.0f/(65536.f*16384.f));
+    gctang = (float) sintable[(a+512)&2047]*d;
+    gstang = (float) sintable[a&2047]*d;
+    gvrcorrection = 1.f;
+    polymost_updaterotmat();
+
     int const ogshade  = globalshade;  globalshade  = dashade;
     int const ogpal    = globalpal;    globalpal    = (int32_t) ((uint8_t) dapalnum);
     double const ogxyaspect = gxyaspect; gxyaspect = 1.f;
     int const oldviewingrange = viewingrange; viewingrange = 65536;
     float const oldfviewingrange = fviewingrange; fviewingrange = 65536.f;
-    float const ogvrcorrection = gvrcorrection; gvrcorrection = 1.f;
 
-    polymost_updaterotmat();
 
     vec1 = hud->add;
 
@@ -4651,7 +4561,6 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 			
 		GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
 		VSMatrix identity(0);
-		GLInterface.SetIdentityMatrix(Matrix_ModelView);
     }
 
     if (hud->flags & HUDFLAG_NODEPTH)
@@ -4675,17 +4584,11 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     if (videoGetRenderMode() == REND_POLYMOST)
         polymost_mddraw(&tspr);
 
-    gvrcorrection = ogvrcorrection;
     viewingrange = oldviewingrange;
     fviewingrange = oldfviewingrange;
     gxyaspect = ogxyaspect;
     globalshade  = ogshade;
     globalpal    = ogpal;
-    gchang = ogchang;
-    gshang = ogshang;
-    gctang = ogctang;
-    gstang = ogstang;
-    polymost_identityrotmat();
 }
 
 

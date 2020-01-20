@@ -114,6 +114,7 @@ float S_ConvertPitch(int lpitch)
 
 int S_GetUserFlags(int num)
 {
+    if (!soundEngine->isValidSoundId(num+1)) return 0;
     auto const* snd = (sound_t*)soundEngine->GetUserData(num + 1);
     if (!snd) return 0;
     return snd->flags;

@@ -1,7 +1,4 @@
-
-#ifndef __GLTEXTURE_H
-#define __GLTEXTURE_H
-
+#pragma once
 class FBitmap;
 class FTexture;
 
@@ -22,11 +19,15 @@ private:
 
 	int mSampler = 0;
 	unsigned int glTexID = 0;
+	unsigned int glDepthID = 0;	// only used by camera textures
+	unsigned int glBufferID = 0;
 	int internalType = TrueColor;
 	bool mipmapped = true;
 	int mWidth = 0, mHeight = 0;
 	int colorId = 0;
 	uint32_t allocated = 0;
+
+	int GetDepthBuffer(int w, int h);
 
 public:
 
@@ -43,9 +44,9 @@ public:
 	int GetSampler() { return mSampler; }
 	void SetSampler(int sampler) { mSampler = sampler;  }
 	bool isIndexed() const { return internalType == Indexed; }
+	void BindToFrameBuffer(int w, int h);
 
 	friend class FGameTexture;
 };
 
 
-#endif

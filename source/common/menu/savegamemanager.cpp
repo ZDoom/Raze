@@ -64,13 +64,15 @@ void FSavegameManager::LoadGame(FSaveGameNode* node)
 
 void FSavegameManager::SaveGame(FSaveGameNode* node, bool ok4q, bool forceq)
 {
-	if (gi->SaveGame(node))
+	if (OpenSaveGameForWrite(node->Filename, node->SaveTitle))
 	{
-		FString fn = node->Filename;
-		FString desc = node->SaveTitle;
-		NotifyNewSave(fn, desc, ok4q, forceq);
+		if (gi->SaveGame(node))
+		{
+			FString fn = node->Filename;
+			FString desc = node->SaveTitle;
+			NotifyNewSave(fn, desc, ok4q, forceq);
+		}
 	}
-
 }
 
 //=============================================================================
@@ -146,8 +148,9 @@ int FSavegameManager::InsertSaveNode(FSaveGameNode *node)
 	}
 	else
 	{	// Add node at top of list
-		unsigned int i;
-		for (i = 0; i < SaveGames.Size(); i++)
+		unsigned int i = 0;
+		if (SaveGames[0] == &NewSaveNode) i++; // To not insert above the "new savegame" dummy entry.
+		for (; i < SaveGames.Size(); i++)
 		{
 			if (SaveGames[i]->bOldVersion || node->SaveTitle.CompareNoCase(SaveGames[i]->SaveTitle) <= 0)
 			{
@@ -379,8 +382,8 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 			FString comment = sjson_get_string(root, "Creation Time", "");
 			FString fcomment = sjson_get_string(root, "Map Label", "");
 			FString ncomment = sjson_get_string(root, "Map Name", "");
-			FStringf pcomment("%s - %s\n", fcomment.GetChars(), ncomment.GetChars());
-			comment += pcomment;
+			FString mtime = sjson_get_string(root, "Map Time", "");
+			comment.AppendFormat("\n%s - %s\n%s", fcomment.GetChars(), ncomment.GetChars(), mtime.GetChars());
 			SaveCommentString = comment;
 
 			// Extract pic (todo: let the renderer write a proper PNG file instead of a raw canvas dunp of the software renderer - and make it work for all games.)
@@ -400,7 +403,7 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 				PNGHandle *png = M_VerifyPNG(picreader);
 				if (png != nullptr)
 				{
-					SavePic = nullptr; // not yet implemented: PNGTexture_CreateFromFile(png, node->Filename);
+					SavePic = PNGTexture_CreateFromFile(png, node->Filename);
 					delete png;
 					if (SavePic && SavePic->GetWidth() == 1 && SavePic->GetHeight() == 1)
 					{

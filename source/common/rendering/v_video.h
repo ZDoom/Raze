@@ -178,6 +178,7 @@ class FFont;
 struct FRemapTable;
 class player_t;
 typedef uint32_t angle_t;
+struct RenderScene;
 
 
 //
@@ -219,6 +220,7 @@ protected:
 private:
 	int Width = 0;
 	int Height = 0;
+	int BufferLock = 0;
 protected:
 	int clipleft = 0, cliptop = 0, clipwidth = -1, clipheight = -1;
 
@@ -233,7 +235,7 @@ public:
 	const char *vendorstring;					// We have to account for some issues with particular vendors.
 	//FPortalSceneState *mPortalState;			// global portal state.
 	//FSkyVertexBuffer *mSkyData = nullptr;		// the sky vertex buffer
-	//FFlatVertexBuffer *mVertexData = nullptr;	// Global vertex data
+	FFlatVertexBuffer *mVertexData = nullptr;	// Global vertex data
 	//HWViewpointBuffer *mViewpoints = nullptr;	// Viewpoint render data.
 	//FLightBuffer *mLights = nullptr;			// Dynamic lights
 	//IShadowMap mShadowMap;
@@ -313,6 +315,9 @@ public:
 	void Begin2D() { isIn2D = true; }
 	void End2D() { isIn2D = false; }
 
+	void BeginScene();
+	void FinishScene();
+
 	void End2DAndUpdate()
 	{
 		DrawRateStuff();
@@ -334,6 +339,7 @@ public:
 	virtual int Backend() { return 0; }
 	virtual const char* DeviceName() const { return "Unknown"; }
 	virtual void Draw2D() {}
+	virtual void WriteSavePic(FileWriter *file, int width, int height);
 
 	// Screen wiping
 	virtual FTexture *WipeStartScreen();

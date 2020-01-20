@@ -35,11 +35,11 @@ BEGIN_BLD_NS
 #define kPlayerCtrlSigStart "<<<<TRPLAYERCTRL{" // save game TRPLAYERCTRL block start
 #define kPlayerCtrlSigEnd "}TRPLAYERCTRL>>>>"   // save game TRPLAYERCTRL block end
 
-void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command, short causedBy);
+void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command);
 void trMessageSector(unsigned int nSector, EVENT event);
-void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command, short causedBy);
+void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command);
 void trMessageWall(unsigned int nWall, EVENT event);
-void trTriggerSprite(unsigned int nSprite, XSPRITE *pXSprite, int command, short causedBy);
+void trTriggerSprite(unsigned int nSprite, XSPRITE *pXSprite, int command);
 void trMessageSprite(unsigned int nSprite, EVENT event);
 void trProcessBusy(void);
 void trInit(void);
@@ -69,7 +69,7 @@ void freeTargets(int nSprite);
 void freeAllTargets(XSPRITE* pXSource);
 bool affectedByTargetChg(XSPRITE* pXDude);
 int getDataFieldOfObject(int objType, int objIndex, int dataIndex);
-bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value, int causedBy);
+bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value);
 bool goalValueIsReached(XSPRITE* pXSprite);
 bool getDudesForTargetChg(XSPRITE* pXSprite);
 void stopWindOnSectors(XSPRITE* pXSource);
@@ -84,7 +84,7 @@ void TeleFrag(int nKiller, int nSector);
 bool valueIsBetween(int val, int min, int max);
 
 void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, int causedBy);
+void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlStopScene(XSPRITE* pXSource, PLAYER* pPlayer);
 // -------------------------------------------------------
 

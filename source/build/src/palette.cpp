@@ -27,7 +27,7 @@ uint32_t g_lastpalettesum = 0;
 palette_t curpalette[256];			// the current palette, unadjusted for brightness or tint
 palette_t curpalettefaded[256];		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
 palette_t palfadergb = { 0, 0, 0, 0 };
-char palfadedelta = 0;
+unsigned char palfadedelta = 0;
 
 int32_t realmaxshade;
 float frealmaxshade;

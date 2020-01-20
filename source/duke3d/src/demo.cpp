@@ -172,7 +172,7 @@ void G_OpenDemoWrite(void)
     if (g_demo_filePtr == NULL)
         return;
 
-    i=sv_saveandmakesnapshot(*g_demo_filePtr, nullptr, -1);
+    i=sv_saveandmakesnapshot(*g_demo_filePtr, -1);
     if (i)
     {
         delete g_demo_filePtr;

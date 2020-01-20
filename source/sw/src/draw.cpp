@@ -58,6 +58,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "menu/menu.h"
 #include "swcvar.h"
 #include "v_2ddrawer.h"
+#include "v_video.h"
 
 BEGIN_SW_NS
 
@@ -2048,7 +2049,7 @@ drawscreen(PLAYERp pp)
     DrawScreen = TRUE;
     PreDraw();
     // part of new border refresh method
-    if (RedrawScreen)
+    if (RedrawScreen && !ScreenSavePic)
     {
         RedrawCompass = TRUE;
         RedrawScreen = FALSE;
@@ -2183,11 +2184,12 @@ drawscreen(PLAYERp pp)
     if (FAF_DebugView)
         videoClearViewableArea(255L);
 
+    screen->BeginScene();
     OverlapDraw = TRUE;
     DrawOverlapRoom(tx, ty, tz, tang, thoriz, tsectnum);
     OverlapDraw = FALSE;
 
-    if (dimensionmode != 6 && !ScreenSavePic)
+    if (dimensionmode != 6)// && !ScreenSavePic)
     {
         // TEST this! Changed to camerapp
         //JS_DrawMirrors(camerapp, tx, ty, tz, tang, thoriz);
@@ -2203,6 +2205,7 @@ drawscreen(PLAYERp pp)
     analyzesprites(tx, ty, tz, FALSE);
     post_analyzesprites();
     renderDrawMasks();
+    screen->FinishScene();
 
     if (r_usenewaspect)
     {
@@ -2439,48 +2442,15 @@ DrawCompass(PLAYERp pp)
 }
 
 
-void ScreenTileLock(void)
+
+
+bool GameInterface::GenerateSavePic()
 {
-}
-
-void ScreenTileUnLock(void)
-{
-}
-
-int
-ScreenLoadSaveSetup(PLAYERp pp)
-{
-    int tx, ty, tz,thoriz,pp_siz;
-    short tang,tsectnum;
-    short i;
-
-    // lock and allocate memory
-
-    ScreenTileLock();
-
-	TileFiles.tileCreate(SAVE_SCREEN_TILE, SAVE_SCREEN_XSIZE, SAVE_SCREEN_YSIZE);
-    return SAVE_SCREEN_TILE;
-}
-
-int
-ScreenSaveSetup(PLAYERp pp)
-{
-    short i;
-
-    ScreenLoadSaveSetup(Player + myconnectindex);
-
-    renderSetTarget(SAVE_SCREEN_TILE, SAVE_SCREEN_YSIZE, SAVE_SCREEN_XSIZE);
-
     ScreenSavePic = TRUE;
     drawscreen(Player + myconnectindex);
     ScreenSavePic = FALSE;
-
-    renderRestoreTarget();
-
-    return SAVE_SCREEN_TILE;
+    return true;
 }
-
-
 
 
 END_SW_NS

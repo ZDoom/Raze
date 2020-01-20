@@ -202,8 +202,6 @@ struct PLAYER
     POSTURE             pPosture[kModeMax][kPostureMax];
 };
 
-
-
 struct PROFILE
 {
     int nAutoAim;
@@ -226,21 +224,15 @@ struct POWERUPINFO
     int maxTime;
 };
 
-
-#define kQavSceneStackSize 16
 // by NoOne: this one stores qavs anims that can be played by trigger
-struct QAVSCENE
-{
-    short index = -1; // index of sprite which triggered qav scene
+struct QAVSCENE {
+    short index     = -1;  // index of sprite which triggered qav scene
     QAV * qavResrc = NULL;
-    short causedBy = -1;
-
-    // TO-DO: Stack of animations which allows to pop and push (restoring previous animation instead of weapon once current animation is played)
+    short dummy     = -1;
 };
 
 // by NoOne: this one for controlling the player using triggers (movement speed, jumps and other stuff)
-struct TRPLAYERCTRL
-{
+struct TRPLAYERCTRL {
     QAVSCENE qavScene;
 };
 

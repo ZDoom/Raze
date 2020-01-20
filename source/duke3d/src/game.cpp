@@ -725,6 +725,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                            "other values are reserved.\n");
 #endif
 
+            screen->BeginScene();
 #ifdef LEGACY_ROR
             G_SE40(smoothRatio);
 #endif
@@ -737,6 +738,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             yax_drawrooms(G_DoSpriteAnimations, pSprite->sectnum, 0, smoothRatio);
             G_DoSpriteAnimations(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, fix16_to_int(CAMERA(q16ang)), smoothRatio);
             renderDrawMasks();
+            screen->FinishScene();
         }
     }
     else
@@ -760,14 +762,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         else
             renderSetAspect(mulscale16(vr, viewingrange), yxaspect);
 
-        if (g_screenCapture)
-        {
-			TileFiles.tileCreate(TILE_SAVESHOT, 200, 320);
-
-            //if (videoGetRenderMode() == REND_CLASSIC)
-                renderSetTarget(TILE_SAVESHOT, 200, 320);
-        }
-        else if (screenTilting)
+        if (screenTilting)
         {
             int32_t oviewingrange = viewingrange;  // save it from renderSetAspect()
             const int16_t tang = (ud.screen_tilting) ? pPlayer->rotscrnang : 0;
@@ -848,23 +843,15 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         }
         else if (videoGetRenderMode() >= REND_POLYMOST)
         {
-            if (ud.screen_tilting
-#ifdef SPLITSCREEN_MOD_HACKS
-        && !g_fakeMultiMode
-#endif
-            )
+            if (ud.screen_tilting)
             {
-#ifdef USE_OPENGL
                 renderSetRollAngle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
-#endif
                 pPlayer->orotscrnang = pPlayer->rotscrnang;
             }
-#ifdef USE_OPENGL
             else
             {
                 renderSetRollAngle(0);
             }
-#endif
         }
 
         if (pPlayer->newowner < 0)
@@ -981,6 +968,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
                            "other values are reserved.\n");
 #endif
+            screen->BeginScene();
 
             G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
             G_ClearGotMirror();
@@ -1010,24 +998,10 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
             renderDrawMasks();
 #endif
+            screen->FinishScene();
         }
 
-        if (g_screenCapture)
-        {
-            g_screenCapture = 0;
-
-            tileInvalidate(TILE_SAVESHOT, 0, 255);
-
-            //if (videoGetRenderMode() == REND_CLASSIC)
-            {
-                renderRestoreTarget();
-            }
-#ifdef USE_OPENGL
-            //else
-              //  G_ReadGLFrame();
-#endif
-        }
-        else if (screenTilting)
+        if (screenTilting)
         {
             const int16_t tang = (ud.screen_tilting) ? pPlayer->rotscrnang : 0;
 
@@ -1110,6 +1084,14 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     VM_OnEvent(EVENT_DISPLAYROOMSEND, g_player[screenpeek].ps->i, screenpeek);
 }
+
+
+bool GameInterface::GenerateSavePic()
+{
+    G_DrawRooms(myconnectindex, 65536);
+    return true;
+}
+
 
 void G_DumpDebugInfo(void)
 {
@@ -5896,12 +5878,6 @@ MAIN_LOOP_RESTART:
         Net_WaitForInitialSnapshot();
 
 
-    }
-
-    if (g_networkMode != NET_DEDICATED_SERVER)
-    {
-        G_GetCrosshairColor();
-        G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
     }
 
     if (ud.warp_on == 1)

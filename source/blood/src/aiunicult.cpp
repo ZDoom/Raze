@@ -400,7 +400,7 @@ static void ThrowThing(int nXIndex, bool impact) {
     if (impact == true && dist <= 7680) xsprite[pThing->extra].Impact = true;
     else {
         xsprite[pThing->extra].Impact = false;
-        evPost(pThing->xvel, 3, 120 * Random(2) + 120, kCmdOn, pXSprite->reference);
+        evPost(pThing->xvel, 3, 120 * Random(2) + 120, kCmdOn);
     }
 }
 
@@ -1987,7 +1987,6 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
 
             pSprite->clipdist = ClipRange((pSprite->xrepeat + pSprite->yrepeat) >> 1, 4, 120);           
             if (propId) break;
-            break;
             }
         }
 

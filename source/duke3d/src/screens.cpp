@@ -43,8 +43,6 @@ BEGIN_DUKE_NS
 
 #define quotepulseshade (sintable[((uint32_t)totalclock<<5)&2047]>>11)
 
-palette_t CrosshairColors = { 255, 255, 255, 0 };
-palette_t DefaultCrosshairColors = { 0, 0, 0, 0 };
 int32_t g_crosshairSum = -1;
 // yxaspect and viewingrange just before the 'main' drawrooms call
 int32_t dr_yxaspect, dr_viewingrange;
@@ -93,86 +91,6 @@ void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set)
     videoSetPalette(0, palid, set);
 }
 
-void G_GetCrosshairColor(void)
-{
-    if (FURY)
-        return;
-
-    if (DefaultCrosshairColors.f)
-        return;
-
-    tileLoad(CROSSHAIR);
-
-	auto ptr = tilePtr(CROSSHAIR);
-    if (!ptr) return;
-
-    // find the brightest color in the original 8-bit tile
-    int32_t ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
-    int32_t bri = 0, j = 0, i;
-
-    Bassert(ii > 0);
-
-    do
-    {
-        if (*ptr != 255)
-        {
-            i = curpalette[(int32_t) *ptr].r+curpalette[(int32_t) *ptr].g+curpalette[(int32_t) *ptr].b;
-            if (i > j) { j = i; bri = *ptr; }
-        }
-        ptr++;
-    } while (--ii);
-
-    Bmemcpy(&CrosshairColors, &curpalette[bri], sizeof(palette_t));
-    Bmemcpy(&DefaultCrosshairColors, &curpalette[bri], sizeof(palette_t));
-    DefaultCrosshairColors.f = 1; // this flag signifies that the color has been detected
-}
-
-void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
-{
-    if (FURY)
-        return;
-
-    if (g_crosshairSum == r+(g<<8)+(b<<16))
-        return;
-
-	auto ptr = TileFiles.tileMakeWritable(CROSSHAIR);
-	if (!ptr) return;
-
-    if (!DefaultCrosshairColors.f)
-        G_GetCrosshairColor();
-
-    g_crosshairSum = r+(g<<8)+(b<<16);
-    CrosshairColors.r = r;
-    CrosshairColors.g = g;
-    CrosshairColors.b = b;
-
-    int32_t ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
-
-    Bassert(ii > 0);
-
-    int32_t i = (videoGetRenderMode() == REND_CLASSIC)
-                ? paletteGetClosestColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b)
-                : paletteGetClosestColor(255, 255, 255);  // use white in GL so we can tint it to the right color
-
-    do
-    {
-        if (*ptr != 255)
-            *ptr = i;
-        ptr++;
-    } while (--ii);
-
-    paletteMakeLookupTable(CROSSHAIR_PAL, NULL, CrosshairColors.r, CrosshairColors.g, CrosshairColors.b, 1);
-
-#ifdef USE_OPENGL
-    // XXX: this makes us also load all hightile textures tinted with the crosshair color!
-    polytint_t & crosshairtint = hictinting[CROSSHAIR_PAL];
-    crosshairtint.r = CrosshairColors.r;
-    crosshairtint.g = CrosshairColors.g;
-    crosshairtint.b = CrosshairColors.b;
-    crosshairtint.f = HICTINT_USEONART | HICTINT_GRAYSCALE;
-#endif
-    tileInvalidate(CROSSHAIR, -1, -1);
-}
 
 #define SCORESHEETOFFSET -20
 static void G_ShowScores(void)
@@ -761,23 +679,23 @@ void G_DisplayRest(int32_t smoothratio)
 
         if (pp->palette == WATERPAL)
         {
-            fstint.r = 224;
-            fstint.g = 192;
-            fstint.b = 255;
+            fstint.tint.r = 224;
+            fstint.tint.g = 192;
+            fstint.tint.b = 255;
             fstint.f = 0;
         }
         else if (pp->palette == SLIMEPAL)
         {
-            fstint.r = 208;
-            fstint.g = 255;
-            fstint.b = 192;
+            fstint.tint.r = 208;
+            fstint.tint.g = 255;
+            fstint.tint.b = 192;
             fstint.f = 0;
         }
         else
         {
-            fstint.r = 255;
-            fstint.g = 255;
-            fstint.b = 255;
+            fstint.tint.r = 255;
+            fstint.tint.g = 255;
+            fstint.tint.b = 255;
             fstint.f = 0;
         }
     }
@@ -956,7 +874,6 @@ void G_DisplayRest(int32_t smoothratio)
         if ((unsigned) a < MAXTILES)
         {
             vec2_t crosshairpos = { ud.returnvar[0], ud.returnvar[1] };
-            uint8_t crosshair_pal = CROSSHAIR_PAL;
             uint32_t crosshair_o = 1|2;
             uint32_t crosshair_scale = divscale16(cl_crosshairscale, 100);
 
@@ -966,12 +883,11 @@ void G_DisplayRest(int32_t smoothratio)
                 crosshairpos.x = scale(crosshairpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
                 crosshairpos.y = scale(crosshairpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15);
                 crosshair_scale = scale(crosshair_scale, ydim << 2, xdim * 3) >> 1;
-                crosshair_pal = 0;
                 crosshair_o |= 1024;
                 renderSetAspect(viewingrange, 65536);
             }
 
-            rotatesprite_win(crosshairpos.x, crosshairpos.y, crosshair_scale, 0, a, 0, crosshair_pal, crosshair_o);
+            rotatesprite_win(crosshairpos.x, crosshairpos.y, crosshair_scale, 0, a, 0, 0, crosshair_o);
 
             if (FURY)
                 renderSetAspect(viewingrange, oyxaspect);

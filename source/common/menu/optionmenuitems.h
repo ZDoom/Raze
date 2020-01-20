@@ -67,7 +67,7 @@ public:
 	bool Activate(FName caller) override
 	{
 		M_MenuSound(CursorSound);
-		M_SetMenu(mAction, mParam);
+		M_SetMenu(mAction, mParam, static_cast<DOptionMenu*>(DMenu::CurrentMenu)->GetDescriptor()->mMenuName);
 		return true;
 	}
 };

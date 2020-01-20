@@ -90,15 +90,6 @@ extern SWBOOL sumowasseen;
 extern SWBOOL zillawasseen;
 extern short BossSpriteNum[3];
 
-void ScreenTileLock(void);
-void ScreenTileUnLock(void);
-
-int ScreenSaveSetup(PLAYERp pp);
-void ScreenSave(MFILE_WRITE fout);
-
-int ScreenLoadSaveSetup(PLAYERp pp);
-void ScreenLoad(MFILE_READ fin);
-
 #define PANEL_SAVE 1
 #define ANIM_SAVE 1
 
@@ -245,21 +236,13 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     Saveable_Init();
 	
 	
-	OpenSaveGameForWrite(sv->Filename);
     // workaround until the level info here has been transitioned.
-    G_WriteSaveHeader(sv->SaveTitle);
 	fil = WriteSavegameChunk("snapshot.sw");
 
     MWRITE(&GameVersion,sizeof(GameVersion),1,fil);
 
     MWRITE(&Level,sizeof(Level),1,fil);
     MWRITE(&Skill,sizeof(Skill),1,fil);
-
-    ScreenSaveSetup(&Player[myconnectindex]);
-
-    ScreenSave(fil);
-
-    ScreenTileUnLock();
 
     MWRITE(&numplayers,sizeof(numplayers),1,fil);
     MWRITE(&myconnectindex,sizeof(myconnectindex),1,fil);
@@ -794,10 +777,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     MREAD(&Level,sizeof(Level),1,fil);
     MREAD(&Skill,sizeof(Skill),1,fil);
 
-    ScreenLoadSaveSetup(Player + myconnectindex);
-    ScreenLoad(fil);
-    ScreenTileUnLock();
-
     MREAD(&numplayers, sizeof(numplayers),1,fil);
     MREAD(&myconnectindex,sizeof(myconnectindex),1,fil);
     MREAD(&connecthead,sizeof(connecthead),1,fil);
@@ -1278,33 +1257,13 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
 	
 
+    LoadGameOutsideMoveLoop = TRUE;
     if (!InMenuLevel)
     {
         ready2send = 1;
-        LoadGameOutsideMoveLoop = TRUE;
     }
     else ExitLevel = TRUE;
     return true;
-}
-
-void
-ScreenSave(MFILE_WRITE fout)
-{
-    // int num;
-    MWRITE((void *)tileData(SAVE_SCREEN_TILE), SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, 1, fout);
-    // ASSERT(num == 1);
-}
-
-void
-ScreenLoad(MFILE_READ fin)
-{
-    int num;
-
-    renderSetTarget(SAVE_SCREEN_TILE, SAVE_SCREEN_YSIZE, SAVE_SCREEN_XSIZE);
-
-    num = MREAD(tileData(SAVE_SCREEN_TILE), SAVE_SCREEN_XSIZE * SAVE_SCREEN_YSIZE, 1, fin);
-
-    renderRestoreTarget();
 }
 
 END_SW_NS

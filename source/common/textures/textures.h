@@ -139,7 +139,6 @@ class FSerializer;
 namespace OpenGLRenderer
 {
 	class FGLRenderState;
-	class FHardwareTexture;
 }
 
 union FContentIdBuilder

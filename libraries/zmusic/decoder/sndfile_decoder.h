@@ -31,7 +31,7 @@ private:
     SNDFILE *SndFile;
     SF_INFO SndInfo;
 
-	MusicIO::FileInterface* Reader;
+	MusicIO::FileInterface* Reader = nullptr;
     static sf_count_t file_get_filelen(void *user_data);
     static sf_count_t file_seek(sf_count_t offset, int whence, void *user_data);
     static sf_count_t file_read(void *ptr, sf_count_t count, void *user_data);

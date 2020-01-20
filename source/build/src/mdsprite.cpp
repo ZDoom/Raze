@@ -15,6 +15,8 @@
 #include "palette.h"
 #include "textures.h"
 #include "bitmap.h"
+#include "v_video.h"
+#include "flatvertices.h"
 #include "../../glbackend/glbackend.h"
 
 static int32_t curextra=MAXTILES;
@@ -1425,23 +1427,26 @@ int      md3postload_polymer(md3model_t *m)
 
 void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16])
 {
-    float g;
     float k0, k1, k2, k3, k4, k5, k6, k7;
 
-    k0 = ((float)(tspr->x-globalposx))*f*(1.f/1024.f);
-    k1 = ((float)(tspr->y-globalposy))*f*(1.f/1024.f);
-    f = gcosang2*gshang/gvrcorrection;
-    g = gsinang2*gshang/gvrcorrection;
+    k0 = ((float)(tspr->x+spriteext[tspr->owner].position_offset.x-globalposx))*f*(1.f/1024.f);
+    k1 = ((float)(tspr->y+spriteext[tspr->owner].position_offset.y-globalposy))*f*(1.f/1024.f);
     k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] * (1.f/16384.f);
     k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] * (1.f/16384.f);
     k2 = k0*(1-k4)+k1*k5;
     k3 = k1*(1-k4)-k0*k5;
-    k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
-    mat[0] = k4*k6 + k5*k7; mat[4] = gchang*gstang; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
-    k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
-    mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
-    k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
-    mat[2] = k4*k6 + k5*k7; mat[6] =-gshang*gvrcorrection; mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
+    k6 = - gsinang; 
+    k7 = gcosang;
+    mat[0] = k4*k6 + k5*k7; mat[4] = 0; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
+
+    mat[1] = 0; mat[5] = 1; mat[ 9] = 0; mat[13] = 0;
+    
+    k6 = gcosang2; 
+    k7 = gsinang2;
+    mat[2] = k4*k6 + k5*k7; 
+    mat[6] =0; 
+    mat[10] = k4*k7 - k5*k6; 
+    mat[14] = k2*k6 + k3*k7;
 
     mat[12] = (mat[12] + a0->y*mat[0]) + (a0->z*mat[4] + a0->x*mat[ 8]);
     mat[13] = (mat[13] + a0->y*mat[1]) + (a0->z*mat[5] + a0->x*mat[ 9]);
@@ -1454,8 +1459,8 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
     int32_t i;
 
 
-	auto data = GLInterface.AllocVertices(s->numtris * 3);
-	auto vt = data.second;
+	auto data = screen->mVertexData->AllocVertices(s->numtris * 3);
+	auto vt = data.first;
     for (i=s->numtris-1; i>=0; i--)
     {
         uint16_t tri = M ? M->indexes[i] : i;
@@ -1470,7 +1475,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
             vt->SetVertex(vertlist[k].x, vertlist[k].y);
         }
     }
-	GLInterface.Draw(DT_TRIANGLES, data.first, s->numtris *3);
+	GLInterface.Draw(DT_TRIANGLES, data.second, s->numtris *3);
 
 #ifndef USE_GLEXT
     UNREFERENCED_PARAMETER(texunits);
@@ -1521,7 +1526,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     a0.z = m->zadd * m->scale;
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
-    k0 = (float)tspr->z;
+    k0 = (float)tspr->z+spriteext[tspr->owner].position_offset.z;
     if ((globalorientation&128) && !((globalorientation&48)==32))
         k0 += (float)(sizyrep<<1);
 
@@ -1544,7 +1549,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     m0.z *= f; m1.z *= f; a0.z *= f;
 
     // floor aligned
-    k1 = (float)tspr->y;
+    k1 = (float)tspr->y+spriteext[tspr->owner].position_offset.y;
     if ((globalorientation&48)==32)
     {
         m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
@@ -1557,7 +1562,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // calculations below again, but are needed for the base offsets.
     f = (65536.f*512.f)/(fxdimen*fviewingrange);
     g = 32.f/(fxdimen*gxyaspect);
-    m0.y *= f; m1.y *= f; a0.y = (((float)(tspr->x-globalposx))*  (1.f/1024.f) + a0.y)*f;
+    m0.y *= f; m1.y *= f; a0.y = (((float)(tspr->x+spriteext[tspr->owner].position_offset.x-globalposx))*  (1.f/1024.f) + a0.y)*f;
     m0.x *=-f; m1.x *=-f; a0.x = ((k1     -fglobalposy) * -(1.f/1024.f) + a0.x)*-f;
     m0.z *= g; m1.z *= g; a0.z = ((k0     -fglobalposz) * -(1.f/16384.f) + a0.z)*g;
 
@@ -1591,8 +1596,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     // tinting
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * hw_shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
-	auto h = hictinting[globalpal];
-	GLInterface.SetTinting(h.f, PalEntry(h.sr, h.sg, h.sb), PalEntry(h.r, h.g, h.b));
 
     pc[3] = (tspr->cstat&2) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;
     pc[3] *= 1.0f - sext->alpha;
@@ -1625,14 +1628,14 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         float f = 1.f/(fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.x+m1.x);
         Bmemset(&a0, 0, sizeof(a0));
 
-        if (sext->offset.x)
-            a0.x = (float) sext->offset.x * f;
+        if (sext->pivot_offset.x)
+            a0.x = (float) sext->pivot_offset.x * f;
 
-        if (sext->offset.y)  // Compare with SCREEN_FACTORS above
-            a0.y = (float) sext->offset.y * f;
+        if (sext->pivot_offset.y)  // Compare with SCREEN_FACTORS above
+            a0.y = (float) sext->pivot_offset.y * f;
 
-        if ((sext->offset.z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
-            a0.z = (float)sext->offset.z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.z+m1.z));
+        if ((sext->pivot_offset.z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
+            a0.z = (float)sext->pivot_offset.z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.z+m1.z));
 
         k0 = (float)sintable[(sext->pitch+512)&2047] * (1.f/16384.f);
         k1 = (float)sintable[sext->pitch&2047] * (1.f/16384.f);
@@ -1640,11 +1643,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         k3 = (float)sintable[sext->roll&2047] * (1.f/16384.f);
     }
 
-    float const xpanning = (float)sext->xpanning * (1.f/256.f);
-    float const ypanning = (float)sext->ypanning * (1.f/256.f);
-
     int prevClamp = GLInterface.GetClamp();
 	GLInterface.SetClamp(0);
+    auto matrixindex = GLInterface.SetIdentityMatrix(Matrix_Model);
 
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
@@ -1699,7 +1700,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
         //Let OpenGL (and perhaps hardware :) handle the matrix rotation
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
-		GLInterface.SetMatrix(Matrix_ModelView, mat);
+		GLInterface.SetMatrix(Matrix_Model, mat);
         // PLAG: End
 
 		bool exact = false;
@@ -1722,10 +1723,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 			}
 			glow = hw_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi, nullptr) : 0;
 		}
-		GLInterface.SetModelTexture(tex, globalpal, xpanning, ypanning, det, detscale, glow);
-
-		VSMatrix texmat(0);
-		texmat.translate(xpanning, ypanning, 1.0f);
+		GLInterface.SetModelTexture(tex, globalpal, det, detscale, glow);
 
         if (tspr->clipdist & TSPR_FLAGS_MDHACK)
         {
@@ -1792,10 +1790,10 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 	GLInterface.SetCull(Cull_None);
 
 	VSMatrix identity(0);
-	GLInterface.SetIdentityMatrix(Matrix_ModelView);
+	GLInterface.RestoreMatrix(Matrix_Model, matrixindex);
 
-	GLInterface.SetTinting(0, 0, PalEntry(255, 255, 255));
-	GLInterface.SetClamp(prevClamp);
+    GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
+    GLInterface.SetClamp(prevClamp);
     
     globalnoeffect=0;
     return 1;

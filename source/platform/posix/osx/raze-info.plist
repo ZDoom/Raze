@@ -9,11 +9,11 @@
 	<key>CFBundleIconFile</key>
 	<string>zdoom.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.drdteam.gzdoom</string>
+	<string>org.drdteam.raze</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>GZDoom</string>
+	<string>Raze</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -28,19 +28,16 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Doom Resource File</string>
+			<string>Build Engine Resource File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>wad</string>
+				<string>grp</string>
 				<string>pk3</string>
 				<string>zip</string>
 				<string>pk7</string>
 				<string>7z</string>
-				<string>iwad</string>
-				<string>ipk3</string>
-				<string>ipk7</string>
 			</array>
 		</dict>
 	</array>

@@ -10,6 +10,8 @@
 #include "hightile.h"
 #include "polymost.h"
 #include "mdsprite.h"
+#include "v_video.h"
+#include "flatvertices.h"
 
 #include "palette.h"
 #include "../../glbackend/glbackend.h"
@@ -1035,7 +1037,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     f = (float) tspr->yrepeat * k0;
     m0.z *= f; a0.z *= f;
 
-    k0 = (float) tspr->z;
+    k0 = (float) (tspr->z+spriteext[tspr->owner].position_offset.z);
     f = ((globalorientation&8) && (sprite[tspr->owner].cstat&48)!=0) ? -4.f : 4.f;
     k0 -= (tspr->yoffset*tspr->yrepeat)*f*m->bscale;
     zoff = m->siz.z*.5f;
@@ -1053,8 +1055,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     int const shadowHack = !!(tspr->clipdist & TSPR_FLAGS_MDHACK);
 
-    m0.y *= f; a0.y = (((float)(tspr->x-globalposx)) * (1.f/1024.f) + a0.y) * f;
-    m0.x *=-f; a0.x = (((float)(tspr->y-globalposy)) * -(1.f/1024.f) + a0.x) * -f;
+    m0.y *= f; a0.y = (((float)(tspr->x+spriteext[tspr->owner].position_offset.x-globalposx)) * (1.f/1024.f) + a0.y) * f;
+    m0.x *=-f; a0.x = (((float)(tspr->y+spriteext[tspr->owner].position_offset.y-globalposy)) * -(1.f/1024.f) + a0.x) * -f;
     m0.z *= g; a0.z = (((float)(k0     -globalposz - shadowHack)) * -(1.f/16384.f) + a0.z) * g;
 
     float mat[16];
@@ -1083,7 +1085,10 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * hw_shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
 
 	auto& h = hictinting[globalpal];
-	GLInterface.SetTinting(h.f, PalEntry(h.sr, h.sg, h.sb), PalEntry(h.r, h.g, h.b));
+	if (h.f & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
+		GLInterface.SetTinting(h.f, h.tint, h.tint);
+	else
+		GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
 
     if (!shadowHack)
     {
@@ -1115,7 +1120,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     //Let OpenGL (and perhaps hardware :) handle the matrix rotation
     mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
 
-	GLInterface.SetMatrix(Matrix_ModelView, mat);
+	int matrixindex = GLInterface.SetMatrix(Matrix_Model, mat);
 
     const float ru = 1.f/((float)m->mytexx);
     const float rv = 1.f/((float)m->mytexy);
@@ -1137,10 +1142,10 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 	GLInterface.UseDetailMapping(false);
 #endif
 
-	auto data = GLInterface.AllocVertices(m->qcnt * 6);
-	auto vt = data.second;
+	auto data = screen->mVertexData->AllocVertices(m->qcnt * 6);
+	auto vt = data.first;
 
-	int qstart = 0;
+	int qstart = data.second;
 	int qdone = 0;
     for (bssize_t i=0, fi=0; i<m->qcnt; i++)
     {
@@ -1172,9 +1177,10 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 #else
             vt->SetTexCoord(((float)vptr[j].u)*ru, ((float)vptr[j].v)*rv);
 #endif
-            vt->x = ((float)vptr[j].x) - phack[xx>vptr[j].x*2] + phack[xx<vptr[j].x*2];
-            vt->y = ((float)vptr[j].y) - phack[yy>vptr[j].y*2] + phack[yy<vptr[j].y*2];
-            vt->z = ((float)vptr[j].z) - phack[zz>vptr[j].z*2] + phack[zz<vptr[j].z*2];
+            vt->SetVertex(
+                ((float)vptr[j].x) - phack[xx > vptr[j].x * 2] + phack[xx < vptr[j].x * 2],
+                ((float)vptr[j].y) - phack[yy > vptr[j].y * 2] + phack[yy < vptr[j].y * 2],
+                ((float)vptr[j].z) - phack[zz > vptr[j].z * 2] + phack[zz < vptr[j].z * 2]);
         }
 		qdone++;
     }
@@ -1189,10 +1195,10 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 		GLInterface.SetDepthFunc(Depth_Less);
 	}
 	VSMatrix identity(0);
-	GLInterface.SetIdentityMatrix(Matrix_ModelView);
+	GLInterface.RestoreMatrix(Matrix_Model, matrixindex);
 	GLInterface.SetFadeDisable(false);
-	GLInterface.SetTinting(0, 0, PalEntry(255, 255, 255));
-	return 1;
+    GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
+    return 1;
 }
 #endif
 

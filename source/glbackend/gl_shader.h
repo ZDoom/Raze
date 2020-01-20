@@ -45,6 +45,10 @@ public:
     FBufferedUniform1f Brightness;
 	FBufferedUniform1f AlphaThreshold;
 	FBufferedUniformPalEntry FogColor;
+	FBufferedUniformPalEntry TintModulate;
+	FBufferedUniformPalEntry TintOverlay;
+	FBufferedUniform1i TintFlags;
+
 
 	FUniformMatrix4f   RotMatrix;
 	FUniformMatrix4f   ModelMatrix;

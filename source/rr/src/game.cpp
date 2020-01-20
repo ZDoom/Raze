@@ -1,4 +1,4 @@
-//-------------------------------------------------------------------------
+﻿//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -1280,6 +1280,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         CAMERA(q16horiz) = fix16_clamp(CAMERA(q16horiz), F16(HORIZ_MIN), F16(HORIZ_MAX));
 
+        screen->BeginScene();
         G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
 #ifdef LEGACY_ROR
         if (!RR)
@@ -1409,6 +1410,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
         renderDrawMasks();
 #endif
+        screen->FinishScene();
 
         if (g_screenCapture)
         {
@@ -1507,6 +1509,13 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         renderSetAspect(viewingRange, yxAspect);
     }
 }
+
+bool GameInterface::GenerateSavePic()
+{
+    G_DrawRooms(myconnectindex, 65536);
+    return true;
+}
+
 
 void G_DumpDebugInfo(void)
 {
@@ -7323,12 +7332,6 @@ MAIN_LOOP_RESTART:
     for (int & q : user_quote_time)
         q = 0;
 
-    //if (g_networkMode != NET_DEDICATED_SERVER)
-    {
-        G_GetCrosshairColor();
-        G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
-    }
-
     if (ud.warp_on == 1)
     {
         G_NewGame_EnterLevel();
@@ -7425,22 +7428,22 @@ MAIN_LOOP_RESTART:
         {
             do
             {
-	            //if (g_networkMode != NET_DEDICATED_SERVER)
-	            //{
-	            //    if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
-	            //        P_GetInputMotorcycle(myconnectindex);
-	            //    else if (RRRA && g_player[myconnectindex].ps->on_boat)
-	            //        P_GetInputBoat(myconnectindex);
-	            //    else
-	            //        P_GetInput(myconnectindex);
-	            //}
-
-	            //Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
-
 	            if (!frameJustDrawn)
 	                break;
 
 	            frameJustDrawn = false;
+
+#ifdef NETCODE_DISABLE
+                if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+                    P_GetInputMotorcycle(myconnectindex);
+                else if (RRRA && g_player[myconnectindex].ps->on_boat)
+                    P_GetInputBoat(myconnectindex);
+                else
+                    P_GetInput(myconnectindex);
+
+                inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex] = localInput;
+                g_player[myconnectindex].movefifoend++;
+#endif
 
 	            do
 	            {

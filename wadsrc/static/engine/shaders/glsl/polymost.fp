@@ -9,12 +9,12 @@ const int RF_NPOTEmulation = 32;
 const int RF_ShadeInterpolate = 64;
 const int RF_FogDisabled = 128;
 
-const int RF_HICTINT_Grayscale = 0x10000;
-const int RF_HICTINT_Invert = 0x20000;
-const int RF_HICTINT_Colorize = 0x40000;
-const int RF_HICTINT_BLEND_Screen = 0x80000;
-const int RF_HICTINT_BLEND_Overlay = 0x100000;
-const int RF_HICTINT_BLEND_Hardlight = 0x200000;
+const int RF_HICTINT_Grayscale = 0x1;
+const int RF_HICTINT_Invert = 0x2;
+const int RF_HICTINT_Colorize = 0x4;
+const int RF_HICTINT_BLEND_Screen = 64;
+const int RF_HICTINT_BLEND_Overlay = 128;
+const int RF_HICTINT_BLEND_Hardlight = 192;
 const int RF_HICTINT_BLENDMASK = RF_HICTINT_BLEND_Screen | RF_HICTINT_BLEND_Overlay | RF_HICTINT_BLEND_Hardlight;
 
 
@@ -35,6 +35,9 @@ uniform float u_shadeDiv;
 uniform float u_visFactor;
 uniform int u_flags;
 uniform float u_alphaThreshold;
+
+uniform vec4 u_tintOverlay, u_tintModulate;
+uniform int u_tintFlags;
 
 uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
@@ -81,51 +84,56 @@ float grayscale(vec4 color)
 //
 //===========================================================================
 
-vec4 convertColor(vec4 color, int effect, vec3 tint)
+vec4 convertColor(vec4 color)
 {
-#if 0
-
-	if (effect & RF_HICTINT_Grayscale)
+	int effect = u_tintFlags;
+	if ((effect & RF_HICTINT_Grayscale) != 0)
 	{
 		float g = grayscale(color);
 		color = vec4(g, g, g, color.a);
 	}
 
-	if (effect & RF_HICTINT_Invert)
+	if ((effect & RF_HICTINT_Invert) != 0)
 	{
-		color = vec4(1.0 - color.r, 1.0 - color.g, 1.0 - color.b);
+		color = vec4(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, color.a);
 	}
 	
 	vec3 tcol = color.rgb * 255.0;	// * 255.0 to make it easier to reuse the integer math.
-	tint *= 255.0;
 
-	if (effect & RF_HICTINT_Colorize)
+	// Much of this looks quite broken by design. Why is this effectively multplied by 4 if the flag is set...? :(
+	if ((effect & RF_HICTINT_Colorize) != 0)
 	{
-		tcol.b = min(((tcol.b) * tint.r) / 64.0, 255.0);
-		tcol.g = min(((tcol.g) * tint.g) / 64.0, 255.0);
-		tcol.r = min(((tcol.r) * tint.b) / 64.0, 255.0);
+		tcol.b = min(((tcol.b) * u_tintModulate.r)* 4, 255.0);
+		tcol.g = min(((tcol.g) * u_tintModulate.g)* 4, 255.0);
+		tcol.r = min(((tcol.r) * u_tintModulate.b)* 4, 255.0);
+	}
+	else
+	{
+		tcol.b = min(((tcol.b) * u_tintModulate.r), 255.0);
+		tcol.g = min(((tcol.g) * u_tintModulate.g), 255.0);
+		tcol.r = min(((tcol.r) * u_tintModulate.b), 255.0);
 	}
 
+	vec4 ov = u_tintOverlay * 255.0;
 	switch (effect & RF_HICTINT_BLENDMASK)
 	{
 		case RF_HICTINT_BLEND_Screen:
-			tcol.b = 255.0 - (((255.0 - tcol.b) * (255.0 - tint.r)) / 256.0);
-			tcol.g = 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 256.0);
-			tcol.r = 255.0 - (((255.0 - tcol.r) * (255.0 - tint.b)) / 256.0);
+			tcol.b = 255.0 - (((255.0 - tcol.b) * (255.0 - ov.r)) / 256.0);
+			tcol.g = 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 256.0);
+			tcol.r = 255.0 - (((255.0 - tcol.r) * (255.0 - ov.b)) / 256.0);
 			break;
 		case RF_HICTINT_BLEND_Overlay:
-			tcol.b = tcol.b < 128.0? (tcol.b * tint.r) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - tint.r)) / 128.0);
-			tcol.g = tcol.g < 128.0? (tcol.g * tint.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 128.0);
-			tcol.r = tcol.r < 128.0? (tcol.r * tint.b) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - tint.b)) / 128.0);
+			tcol.b = tcol.b < 128.0? (tcol.b * ov.r) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - ov.r)) / 128.0);
+			tcol.g = tcol.g < 128.0? (tcol.g * ov.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 128.0);
+			tcol.r = tcol.r < 128.0? (tcol.r * ov.b) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - ov.b)) / 128.0);
 			break;
 		case RF_HICTINT_BLEND_Hardlight:
-			tcol.b = tint.r < 128.0 ? (tcol.b * tint.r) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - r)) / 128.0);
-			tcol.g = tint.g < 128.0 ? (tcol.g * tint.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - g)) / 128.0);
-			tcol.r = tint.b < 128.0 ? (tcol.r * tint.b) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - b)) / 128.0);
+			tcol.b = ov.r < 128.0 ? (tcol.b * ov.r) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - ov.r)) / 128.0);
+			tcol.g = ov.g < 128.0 ? (tcol.g * ov.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 128.0);
+			tcol.r = ov.b < 128.0 ? (tcol.r * ov.b) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - ov.b)) / 128.0);
 			break;
 	}
 	color.rgb = tcol / 255.0;
-#endif
 	return color;
 }
 
@@ -196,6 +204,7 @@ void main()
 		}
 		else
 		{
+			if (u_tintFlags != -1) color = convertColor(color);
 			color.rgb *= detailColor.rgb;
 			
 			vec3 lightcolor = v_color.rgb;

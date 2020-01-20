@@ -81,29 +81,19 @@ public:
 	void DrawPresentTexture(const IntRect &box, bool applyGamma);
 	void Flush();
 	//void Draw2D(F2DDrawer *data);
-#if 0
-	void WriteSavePic(player_t *player, FileWriter *file, int width, int height);
-#endif
+	void WriteSavePic(FileWriter *file, int width, int height);
 	void BeginFrame();
     
 
 	bool StartOffscreen();
 	void EndOffscreen();
 
-	void BindToFrameBuffer(FMaterial *mat);
+	void BindToFrameBuffer(FTexture* tex);
 
 private:
 
 	void DrawScene(HWDrawInfo *di, int drawmode);
-	bool QuadStereoCheckInitialRenderContextState();
-	void PresentAnaglyph(bool r, bool g, bool b);
-	void PresentSideBySide();
-	void PresentTopBottom();
-	void prepareInterleavedPresent(FPresentShaderBase& shader);
-	void PresentColumnInterleaved();
-	void PresentRowInterleaved();
-	void PresentCheckerInterleaved();
-	void PresentQuadStereo();
+
 
 };
 

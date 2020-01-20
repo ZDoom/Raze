@@ -511,3 +511,129 @@ int FPNGTexture::CopyPixels(FBitmap *bmp, int conversion)
 }
 
 
+//==========================================================================
+//
+// A savegame picture
+// This is essentially a stripped down version of the PNG texture
+// only supporting the features actually present in a savegame
+// that does not use an image source, because image sources are not
+// meant to be transient data like the savegame picture.
+//
+//==========================================================================
+
+class FPNGFileTexture : public FTexture
+{
+public:
+	FPNGFileTexture (FileReader &lump, int width, int height, uint8_t colortype);
+	virtual FBitmap GetBgraBitmap(const PalEntry *remap, int *trans) override;
+
+protected:
+	
+	FileReader fr;
+	uint8_t ColorType;
+	int PaletteSize;
+};
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+FTexture *PNGTexture_CreateFromFile(PNGHandle *png, const FString &filename)
+{
+	if (M_FindPNGChunk(png, MAKE_ID('I','H','D','R')) == 0)
+	{
+		return nullptr;
+	}
+	
+	// Savegame images can only be either 8 bit paletted or 24 bit RGB
+	auto &data = png->File;
+	int width = data.ReadInt32BE();
+	int height = data.ReadInt32BE();
+	uint8_t bitdepth = data.ReadUInt8();
+	uint8_t colortype = data.ReadUInt8();
+	uint8_t compression = data.ReadUInt8();
+	uint8_t filter = data.ReadUInt8();
+	uint8_t interlace = data.ReadUInt8();
+	
+	// Reject anything that cannot be put into a savegame picture by GZDoom itself.
+	if (compression != 0 || filter != 0 || interlace > 0 || bitdepth != 8 || (colortype != 2 && colortype != 3)) return nullptr;
+	else return new FPNGFileTexture (png->File, width, height, colortype);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+FPNGFileTexture::FPNGFileTexture (FileReader &lump, int width, int height, uint8_t colortype)
+: ColorType(colortype)
+{
+	Size.x = width;
+	Size.y = height;
+	fr = std::move(lump);
+}
+
+//===========================================================================
+//
+// FPNGTexture::CopyPixels
+//
+//===========================================================================
+
+FBitmap FPNGFileTexture::GetBgraBitmap(const PalEntry *remap, int *trans)
+{
+	FBitmap bmp;
+	// Parse pre-IDAT chunks. I skip the CRCs. Is that bad?
+	PalEntry pe[256];
+	uint32_t len, id;
+	int pixwidth = Size.x * (ColorType == 2? 3:1);
+	
+	FileReader *lump = &fr;
+	
+	bmp.Create(Size.x, Size.y);
+	lump->Seek(33, FileReader::SeekSet);
+	lump->Read(&len, 4);
+	lump->Read(&id, 4);
+	while (id != MAKE_ID('I','D','A','T') && id != MAKE_ID('I','E','N','D'))
+	{
+		len = BigLong((unsigned int)len);
+		if (id != MAKE_ID('P','L','T','E'))
+			lump->Seek (len, FileReader::SeekCur);
+		else
+		{
+			PaletteSize = std::min<int> (len / 3, 256);
+			for(int i = 0; i < PaletteSize; i++)
+			{
+				pe[i].r = lump->ReadUInt8();
+				pe[i].g = lump->ReadUInt8();
+				pe[i].b = lump->ReadUInt8();
+				pe[i].a = 255;
+			}
+		}
+		lump->Seek(4, FileReader::SeekCur);	// Skip CRC
+		lump->Read(&len, 4);
+		id = MAKE_ID('I','E','N','D');
+		lump->Read(&id, 4);
+	}
+	auto StartOfIDAT = (uint32_t)lump->Tell() - 8;
+
+	TArray<uint8_t> Pixels(pixwidth * Size.y);
+	
+	lump->Seek (StartOfIDAT, FileReader::SeekSet);
+	lump->Read(&len, 4);
+	lump->Read(&id, 4);
+	M_ReadIDAT (*lump, Pixels.Data(), Size.x, Size.y, pixwidth, 8, ColorType, 0, BigLong((unsigned int)len));
+	
+	if (ColorType == 3)
+	{
+		bmp.CopyPixelData(0, 0, Pixels.Data(), Size.x, Size.y, 1, Size.x, 0, pe);
+	}
+	else
+	{
+		bmp.CopyPixelDataRGB(0, 0, Pixels.Data(), Size.x, Size.y, 3, pixwidth, 0, CF_RGB);
+	}
+	return bmp;
+} 

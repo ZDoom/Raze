@@ -44,8 +44,9 @@ namespace OpenGLRenderer
 //
 //==========================================================================
 
-FGLRenderBuffers::FGLRenderBuffers()
+FGLRenderBuffers::FGLRenderBuffers(int ms)
 {
+	gl_multisample = ms;
 	glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples);
 }
 

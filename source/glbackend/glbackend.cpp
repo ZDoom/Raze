@@ -47,6 +47,7 @@
 #include "gl_interface.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
+#include "flatvertices.h"
 #include "gl_renderer.h"
 
 float shadediv[MAXPALOOKUPS];
@@ -55,7 +56,7 @@ static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALP
 static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
 int depthf[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
 
-static TArray<VSMatrix> matrixArray;
+TArray<VSMatrix> matrixArray;
 
 FileReader GetResource(const char* fn)
 {
@@ -72,7 +73,8 @@ GLInstance GLInterface;
 GLInstance::GLInstance()
 	:palmanager(this)
 {
-
+	VSMatrix mat(0);
+	matrixArray.Push(mat);
 }
 
 void ImGui_Init_Backend();
@@ -91,7 +93,6 @@ void GLInstance::Init(int ydim)
 
 	new(&renderState) PolymostRenderState;	// reset to defaults.
 	LoadSurfaceShader();
-	LoadVPXShader();
 	LoadPolymostShader();
 #if 0
 	IMGUI_CHECKVERSION();
@@ -125,19 +126,6 @@ void GLInstance::LoadPolymostShader()
 	polymostShader = new PolymostShader();
 	polymostShader->Load("PolymostShader", (const char*)Vert.Data(), (const char*)Frag.Data());
 	SetPolymostShader();
-}
-
-void GLInstance::LoadVPXShader()
-{
-	auto fr1 = GetResource("engine/shaders/glsl/animvpx.vp");
-	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetResource("engine/shaders/glsl/animvpx.fp");
-	TArray<uint8_t> Frag = fr1.Read();
-	// Zero-terminate both strings.
-	Vert.Push(0);
-	Frag.Push(0);
-	vpxShader = new FShader();
-	vpxShader->Load("VPXShader", (const char*)Vert.Data(), (const char*)Frag.Data());
 }
 
 void GLInstance::LoadSurfaceShader()
@@ -174,6 +162,7 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 	screen->BeginFrame();	
 	bool useSSAO = (gl_ssao != 0);
     OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(useSSAO);
+	ClearBufferState();
 }
 
 void GLInstance::Deinit()
@@ -192,8 +181,6 @@ void GLInstance::Deinit()
 	polymostShader = nullptr;
 	if (surfaceShader) delete surfaceShader;
 	surfaceShader = nullptr;
-	if (vpxShader) delete vpxShader;
-	vpxShader = nullptr;
 	activeShader = nullptr;
 	palmanager.DeleteAllTextures();
 	lastPalswapIndex = -1;
@@ -212,13 +199,25 @@ void GLInstance::ResetFrame()
 
 }
 
-	
-std::pair<size_t, BaseVertex *> GLInstance::AllocVertices(size_t num)
+void GLInstance::SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2)
 {
-	Buffer.resize(num);
-	return std::make_pair((size_t)0, Buffer.data());
+	int o[] = { offset1, offset2 };
+	static_cast<OpenGLRenderer::GLVertexBuffer*>(vb)->Bind(o);
 }
 
+void GLInstance::SetIndexBuffer(IIndexBuffer* vb)
+{
+	if (vb) static_cast<OpenGLRenderer::GLIndexBuffer*>(vb)->Bind();
+	else glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void GLInstance::ClearBufferState()
+{
+	SetVertexBuffer(screen->mVertexData->GetBufferObjects().first, 0, 0);
+	SetIndexBuffer(nullptr);
+}
+
+	
 static GLint primtypes[] =
 {
 	GL_TRIANGLES,
@@ -227,49 +226,27 @@ static GLint primtypes[] =
 	GL_LINES
 };
 	
+
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
-	// Todo: Based on the current tinting flags and the texture type (indexed texture and APPLYOVERPALSWAP not set)  this may have to reset the palette for the draw call / texture creation.
-	bool applied = false;
+	renderState.vindex = start;
+	renderState.vcount = count;
+	renderState.primtype = type;
+	rendercommands.Push(renderState);
+	SetIdentityMatrix(Matrix_Texture);
+	SetIdentityMatrix(Matrix_Detail);
+	renderState.StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
+}
 
+void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState &renderState)
+{
 	if (activeShader == polymostShader)
 	{
 		glVertexAttrib4fv(2, renderState.Color);
 		if (renderState.Color[3] != 1.f) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
 		renderState.Apply(polymostShader, lastState);
-		if (renderState.VertexBuffer != LastVertexBuffer || LastVB_Offset[0] != renderState.VB_Offset[0] || LastVB_Offset[1] != renderState.VB_Offset[1])
-		{
-			if (renderState.VertexBuffer)
-			{
-				static_cast<OpenGLRenderer::GLVertexBuffer*>(renderState.VertexBuffer)->Bind(renderState.VB_Offset);
-			}
-			else glBindBuffer(GL_ARRAY_BUFFER, 0);
-			LastVertexBuffer = renderState.VertexBuffer;
-			LastVB_Offset[0] = renderState.VB_Offset[0];
-			LastVB_Offset[1] = renderState.VB_Offset[1];
-		}
-		if (renderState.IndexBuffer != LastIndexBuffer)
-		{
-			if (renderState.IndexBuffer)
-			{
-				static_cast<OpenGLRenderer::GLIndexBuffer*>(renderState.IndexBuffer)->Bind();
-			}
-			else glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-			LastIndexBuffer = renderState.IndexBuffer;
-		}
 	}
-	if (!LastVertexBuffer)
-	{
-		glBegin(primtypes[type]);
-		auto p = &Buffer[start];
-		for (size_t i = 0; i < count; i++, p++)
-		{
-			glVertexAttrib2f(1, p->u, p->v);
-			glVertexAttrib3f(0, p->x, p->y, p->z);
-		}
-		glEnd();
-	}
-	else if (type != DT_LINES)
+	if (type != DT_LINES)
 	{
 		glDrawElements(primtypes[type], count, GL_UNSIGNED_INT, (void*)(intptr_t)(start * sizeof(uint32_t)));
 	}
@@ -277,21 +254,29 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	{
 		glDrawArrays(primtypes[type], start, count);
 	}
-	if (MatrixChange)
+}
+
+void GLInstance::DoDraw()
+{
+	for (auto& rs : rendercommands)
 	{
-		if (MatrixChange & 1) SetIdentityMatrix(Matrix_Texture);
-		if (MatrixChange & 2) SetIdentityMatrix(Matrix_Detail);
-		MatrixChange = 0;
+		glVertexAttrib4fv(2, rs.Color);
+		if (rs.Color[3] != 1.f) rs.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
+		rs.Apply(polymostShader, lastState);
+		glDrawArrays(primtypes[rs.primtype], rs.vindex, rs.vcount);
 	}
+	rendercommands.Clear();
 	matrixArray.Resize(1);
 }
 
 
-void GLInstance::SetMatrix(int num, const VSMatrix *mat)
+int GLInstance::SetMatrix(int num, const VSMatrix *mat)
 {
+	int r = renderState.matrixIndex[num];
 	if (num == Matrix_Projection) mProjectionM5 = mat->get()[5];
 	renderState.matrixIndex[num] = matrixArray.Size();
 	matrixArray.Push(*mat);
+	return r;
 }
 
 void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
@@ -314,15 +299,6 @@ void GLInstance::SetSurfaceShader()
 	{
 		surfaceShader->Bind();
 		activeShader = surfaceShader;
-	}
-}
-
-void GLInstance::SetVPXShader()
-{
-	if (activeShader != vpxShader)
-	{
-		vpxShader->Bind();
-		activeShader = vpxShader;
 	}
 }
 
@@ -481,12 +457,15 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
 	shader->Brightness.Set(Brightness);
 	shader->FogColor.Set(FogColor);
+	shader->TintFlags.Set(hictint_flags);
+	shader->TintModulate.Set(hictint);
+	shader->TintOverlay.Set(hictint_overlay);
 	if (matrixIndex[Matrix_View] != -1)
 		shader->RotMatrix.Set(matrixArray[matrixIndex[Matrix_View]].get());
 	if (matrixIndex[Matrix_Projection] != -1)
 		shader->ProjectionMatrix.Set(matrixArray[matrixIndex[Matrix_Projection]].get());
-	if (matrixIndex[Matrix_ModelView] != -1)
-		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_ModelView]].get());
+	if (matrixIndex[Matrix_Model] != -1)
+		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_Model]].get());
 	if (matrixIndex[Matrix_Detail] != -1)
 		shader->DetailMatrix.Set(matrixArray[matrixIndex[Matrix_Detail]].get());
 	if (matrixIndex[Matrix_Texture] != -1)

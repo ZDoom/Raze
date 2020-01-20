@@ -102,35 +102,6 @@ static int osdcmd_demo(osdcmdptr_t parm)
 }
 
 
-static int osdcmd_crosshaircolor(osdcmdptr_t parm)
-{
-    if (parm->numparms != 3)
-    {
-        OSD_Printf("crosshaircolor: r:%d g:%d b:%d\n",CrosshairColors.r,CrosshairColors.g,CrosshairColors.b);
-        return OSDCMD_SHOWHELP;
-    }
-
-    uint8_t const r = Batol(parm->parms[0]);
-    uint8_t const g = Batol(parm->parms[1]);
-    uint8_t const b = Batol(parm->parms[2]);
-
-    g_isAlterDefaultCrosshair = true;
-    viewSetCrosshairColor(r,g,b);
-
-	OSD_Printf("%s\n", parm->raw);
-
-    return OSDCMD_OK;
-}
-
-static int osdcmd_resetcrosshair(osdcmdptr_t UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    g_isAlterDefaultCrosshair = false;
-    viewResetCrosshairToDefault();
-
-    return OSDCMD_OK;
-}
-
 static int osdcmd_give(osdcmdptr_t parm)
 {
     if (numplayers != 1 || !gGameStarted || gMe->pXSprite->health == 0)
@@ -236,8 +207,6 @@ int32_t registerosdcommands(void)
 {
     OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
     OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
-    OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
-    OSD_RegisterFunction("crosshairreset", "crosshairreset: restores the original crosshair", osdcmd_resetcrosshair);
 
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);

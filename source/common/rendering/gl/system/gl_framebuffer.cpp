@@ -45,6 +45,7 @@
 #include "gl/system/gl_framebuffer.h"
 #include "gl/renderer/gl_renderer.h"
 #include "gl/renderer/gl_renderbuffers.h"
+#include "hwrenderer/data/flatvertices.h"
 /*
 #include "gl/textures/gl_samplers.h"
 #include "hwrenderer/utility/hw_clock.h"
@@ -105,8 +106,8 @@ OpenGLFrameBuffer::~OpenGLFrameBuffer()
 {
 	PPResource::ResetAll();
 
-#ifdef IMPLEMENT_IT
 	if (mVertexData != nullptr) delete mVertexData;
+#ifdef IMPLEMENT_IT
 	if (mSkyData != nullptr) delete mSkyData;
 	if (mViewpoints != nullptr) delete mViewpoints;
 	if (mLights != nullptr) delete mLights;
@@ -171,8 +172,8 @@ void OpenGLFrameBuffer::InitializeState()
 
 	SetViewportRects(nullptr);
 
-#ifdef IMPLEMENT_IT
 	mVertexData = new FFlatVertexBuffer(GetWidth(), GetHeight());
+#ifdef IMPLEMENT_IT
 	mSkyData = new FSkyVertexBuffer;
 	mViewpoints = new HWViewpointBuffer;
 	mLights = new FLightBuffer();
@@ -206,6 +207,18 @@ void OpenGLFrameBuffer::Update()
 
 	Swap();
 	Super::Update();
+	screen->mVertexData->Reset();
+}
+
+//===========================================================================
+//
+// Render the view to a savegame picture
+//
+//===========================================================================
+
+void OpenGLFrameBuffer::WriteSavePic(FileWriter *file, int width, int height)
+{
+	GLRenderer->WriteSavePic(file, width, height);
 }
 
 
@@ -305,6 +318,7 @@ FModelRenderer *OpenGLFrameBuffer::CreateModelRenderer(int mli)
 {
 	return new FHWModelRenderer(nullptr, gl_RenderState, mli);
 }
+#endif
 
 IVertexBuffer *OpenGLFrameBuffer::CreateVertexBuffer()
 { 
@@ -315,7 +329,6 @@ IIndexBuffer *OpenGLFrameBuffer::CreateIndexBuffer()
 { 
 	return new GLIndexBuffer; 
 }
-#endif
 
 IDataBuffer *OpenGLFrameBuffer::CreateDataBuffer(int bindingpoint, bool ssbo, bool needsresize)
 {
@@ -467,4 +480,3 @@ void videoShowFrame(int32_t w)
 	twodgen.Clear();
 	GLInterface.ResetFrame();
 }
-

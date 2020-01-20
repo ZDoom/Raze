@@ -64,6 +64,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "gstrings.h"
 #include "v_2ddrawer.h"
+#include "v_video.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable displaying the remaining seconds for power-ups")
 
@@ -1856,7 +1857,6 @@ void viewResizeView(int size)
     }
     videoSetViewableArea(gViewX0, gViewY0, gViewX1, gViewY1);
     gGameMessageMgr.SetCoordinates(gViewX0S + 1, gViewY0S + 1);
-    viewSetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
     viewUpdatePages();
 }
 
@@ -2337,7 +2337,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     break;
 #endif
                 // Can be overridden by def script
-                if (r_voxels && gDetail >= 4 && videoGetRenderMode() != REND_POLYMER && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1)
+                if (r_voxels && gDetail >= 4 && videoGetRenderMode() != REND_POLYMER && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1 && !(spriteext[nSprite].flags&SPREXT_NOTMD))
                 {
                     if ((pTSprite->flags&kHitagRespawn) == 0)
                     {
@@ -2362,7 +2362,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             nAnim--;
         }
 
-        if ((pTSprite->cstat&48) != 48 && r_voxels && videoGetRenderMode() != REND_POLYMER)
+        if ((pTSprite->cstat&48) != 48 && r_voxels && videoGetRenderMode() != REND_POLYMER && !(spriteext[nSprite].flags&SPREXT_NOTMD))
         {
             int nAnimTile = pTSprite->picnum + animateoffs_replace(pTSprite->picnum, 32768+pTSprite->owner);
 
@@ -2877,29 +2877,29 @@ void UpdateDacs(int nPalette, bool bNoTint)
         {
         case 0:
         default:
-            tint->r = 255;
-            tint->g = 255;
-            tint->b = 255;
+            tint->tint.r = 255;
+            tint->tint.g = 255;
+            tint->tint.b = 255;
             break;
         case 1:
-            tint->r = 132;
-            tint->g = 164;
-            tint->b = 255;
+            tint->tint.r = 132;
+            tint->tint.g = 164;
+            tint->tint.b = 255;
             break;
         case 2:
-            tint->r = 255;
-            tint->g = 126;
-            tint->b = 105;
+            tint->tint.r = 255;
+            tint->tint.g = 126;
+            tint->tint.b = 105;
             break;
         case 3:
-            tint->r = 162;
-            tint->g = 186;
-            tint->b = 15;
+            tint->tint.r = 162;
+            tint->tint.g = 186;
+            tint->tint.b = 15;
             break;
         case 4:
-            tint->r = 255;
-            tint->g = 255;
-            tint->b = 255;
+            tint->tint.r = 255;
+            tint->tint.g = 255;
+            tint->tint.b = 255;
             break;
         }
         if (!bNoTint)
@@ -3063,7 +3063,7 @@ int gLastPal = 0;
 
 int32_t g_frameRate;
 
-void viewDrawScreen(void)
+void viewDrawScreen(bool sceneonly)
 {
     int nPalette = 0;
     static ClockTicks lastUpdate;
@@ -3226,6 +3226,7 @@ void viewDrawScreen(void)
         }
         else if (v4 && gNetPlayers > 1)
         {
+
             int tmp = ((int)totalclock / 240) % (gNetPlayers - 1);
             int i = connecthead;
             while (1)
@@ -3245,6 +3246,7 @@ void viewDrawScreen(void)
             }
             renderSetTarget(4079, 128, 128);
             renderSetAspect(65536, 78643);
+            screen->BeginScene();
             int vd8 = pOther->pSprite->x;
             int vd4 = pOther->pSprite->y;
             int vd0 = pOther->zView;
@@ -3307,6 +3309,7 @@ void viewDrawScreen(void)
             memcpy(gotpic + 510, bakMirrorGotpic, 2);
             viewProcessSprites(vd8, vd4, vd0, v50, gInterpolate);
             renderDrawMasks();
+            screen->FinishScene();
             renderRestoreTarget();
         }
         else
@@ -3347,6 +3350,7 @@ void viewDrawScreen(void)
             }
             nSprite = nextspritestat[nSprite];
         }
+        screen->BeginScene();
         g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - unk, 0) * (numplayers > 1 ? 1.f : r_ambientlightrecip));
         cA = (cA + interpolateangfix16(fix16_from_int(deliriumTurnO), fix16_from_int(deliriumTurn), gInterpolate)) & 0x7ffffff;
         int vfc, vf8;
@@ -3400,6 +3404,8 @@ void viewDrawScreen(void)
         sub_557C4(cX, cY, gInterpolate);
         renderDrawMasks();
         gView->pSprite->cstat = bakCstat;
+        screen->FinishScene();
+        if (sceneonly) return;
 
         if (v78 || bDelirium)
         {
@@ -3477,7 +3483,7 @@ void viewDrawScreen(void)
         {
             if (cl_crosshair)
             {
-                rotatesprite(160<<16, defaultHoriz<<16, 65536, 0, kCrosshairTile, 0, g_isAlterDefaultCrosshair ? CROSSHAIR_PAL : 0, 2, gViewX0, gViewY0, gViewX1, gViewY1);
+                rotatesprite(160<<16, defaultHoriz<<16, 65536, 0, kCrosshairTile, 0,  0, 2, gViewX0, gViewY0, gViewX1, gViewY1);
             }
             cX = (v4c >> 8) + 160;
             cY = (v48 >> 8) + 220 + (zDelta >> 7);
@@ -3587,6 +3593,14 @@ void viewDrawScreen(void)
     UpdateDacs(nPalette);
 }
 
+bool GameInterface::GenerateSavePic()
+{
+    viewDrawScreen(true);
+    return true;
+}
+
+
+
 int nLoadingScreenTile;
 char pzLoadingScreenText1[256], pzLoadingScreenText2[256], pzLoadingScreenText3[256];
 
@@ -3672,55 +3686,6 @@ void viewLoadingScreen(int nTile, const char *pText, const char *pText2, const c
     else
         pzLoadingScreenText3[0] = 0;
     viewLoadingScreenUpdate(NULL, -1);
-}
-
-palette_t CrosshairColors = { 255, 255, 255, 0 };
-bool g_isAlterDefaultCrosshair = false;
-
-void viewSetCrosshairColor(int32_t r, int32_t g, int32_t b)
-{
-    if (!g_isAlterDefaultCrosshair)
-        return;
-
-    CrosshairColors.r = r;
-    CrosshairColors.g = g;
-    CrosshairColors.b = b;
-
-	auto ptr = TileFiles.tileMakeWritable(kCrosshairTile);
-    if (!ptr) return;
-
-    int32_t ii = tilesiz[kCrosshairTile].x * tilesiz[kCrosshairTile].y;
-
-    dassert(ii > 0);
-
-    int32_t i = (videoGetRenderMode() == REND_CLASSIC)
-        ? paletteGetClosestColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b)
-        : paletteGetClosestColor(255, 255, 255);  // use white in GL so we can tint it to the right color
-
-    do
-    {
-        if (*ptr != 255)
-            *ptr = i;
-        ptr++;
-    } while (--ii);
-
-    paletteMakeLookupTable(CROSSHAIR_PAL, NULL, CrosshairColors.r, CrosshairColors.g, CrosshairColors.b, 1);
-
-#ifdef USE_OPENGL
-    // XXX: this makes us also load all hightile textures tinted with the crosshair color!
-    polytint_t & crosshairtint = hictinting[CROSSHAIR_PAL];
-    crosshairtint.r = CrosshairColors.r;
-    crosshairtint.g = CrosshairColors.g;
-    crosshairtint.b = CrosshairColors.b;
-    crosshairtint.f = HICTINT_USEONART | HICTINT_GRAYSCALE;
-#endif
-    tileInvalidate(kCrosshairTile, -1, -1);
-}
-
-void viewResetCrosshairToDefault(void)
-{
-    paletteFreeLookupTable(CROSSHAIR_PAL);
-    tileLoad(kCrosshairTile);
 }
 
 #define COLOR_RED redcol

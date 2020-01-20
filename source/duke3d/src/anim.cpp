@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdlib.h"
 #include "compat.h"
 #include "build.h"
+#include "v_2ddrawer.h"
 #include "../glbackend/glbackend.h"
 
 
@@ -303,6 +304,7 @@ int32_t Anim_Play(const char *fn)
         //        OSD_Printf("msecs per frame: %d\n", msecsperframe);
 
         GLInterface.EnableNonTransparent255(true);
+
         do
         {
             nextframetime += msecsperframe;
@@ -325,7 +327,7 @@ int32_t Anim_Play(const char *fn)
 
             VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, framenum);
 
-            videoClearScreen(0);
+            twod->ClearScreen();
 
             ototalclock = totalclock + 1; // pause game like ANMs
 
@@ -376,12 +378,7 @@ int32_t Anim_Play(const char *fn)
                 }
             }
 
-            // this and showframe() instead of nextpage() are so that
-            // nobody tramples on our carefully set up GL state!
-            palfadedelta = 0;
-            videoShowFrame(0);
-
-            //            inputState.ClearAllInput();
+            videoNextPage();
 
             do
             {
@@ -395,8 +392,9 @@ int32_t Anim_Play(const char *fn)
             } while (timerGetTicks() < nextframetime);
         } while (running);
         GLInterface.EnableNonTransparent255(false);
-
+#ifdef DEBUGGINGAIDS
         animvpx_print_stats(&codec);
+#endif
 
         //
         animvpx_restore_glstate();

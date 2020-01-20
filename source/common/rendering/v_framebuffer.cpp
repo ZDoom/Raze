@@ -46,11 +46,12 @@
 #include "i_time.h"
 #include "v_2ddrawer.h"
 #include "build.h"
+#include "../glbackend/glbackend.h"
 /*
 #include "hwrenderer/scene/hw_portal.h"
 #include "hwrenderer/utility/hw_clock.h"
-#include "hwrenderer/data/flatvertices.h"
 */
+#include "hwrenderer/data/flatvertices.h"
 
 #include <chrono>
 #include <thread>
@@ -189,7 +190,7 @@ void DFrameBuffer::Update()
 	{
 		SetVirtualSize(clientWidth, clientHeight);
 		V_OutputResized(clientWidth, clientHeight);
-		//mVertexData->OutputResized(clientWidth, clientHeight);
+		mVertexData->OutputResized(clientWidth, clientHeight);
 	}
 }
 
@@ -233,6 +234,16 @@ FTexture *DFrameBuffer::WipeEndScreen()
 {
     return nullptr;
 }
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+void DFrameBuffer::WriteSavePic(FileWriter *file, int width, int height)
+{
+}
+
 
 //==========================================================================
 //
@@ -363,4 +374,25 @@ void DFrameBuffer::FPSLimit()
 		}
 	}
 #endif
+}
+
+void DFrameBuffer::BeginScene()
+{
+	if (videoGetRenderMode() < REND_POLYMOST) return;
+	assert(BufferLock >= 0);
+	if (BufferLock++ == 0)
+	{
+		mVertexData->Map();
+	}
+}
+
+void DFrameBuffer::FinishScene()
+{
+	if (videoGetRenderMode() < REND_POLYMOST) return;
+	assert(BufferLock > 0);
+	if (--BufferLock == 0)
+	{
+		mVertexData->Unmap();
+		GLInterface.DoDraw();
+	}
 }

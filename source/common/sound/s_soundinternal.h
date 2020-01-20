@@ -358,7 +358,7 @@ public:
 	{
 		return id == 0 ? "" : S_sfx[id].name.GetChars();
 	}
-	TArray<sfxinfo_t> &GetSounds()	//Thio should only be used for constructing the sound list or for diagnostics code prinring information about the sound list.
+	TArray<sfxinfo_t> &GetSounds()	//Thio should only be used for constructing the sound list or for diagnostics code printing information about the sound list.
 	{
 		return S_sfx;
 	}

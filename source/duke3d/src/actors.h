@@ -315,9 +315,13 @@ typedef struct netactor_s
         ext_pitch,
         ext_roll,
 
-        ext_offset_x,
-        ext_offset_y,
-        ext_offset_z,
+        ext_pivot_offset_x,
+        ext_pivot_offset_y,
+        ext_pivot_offset_z,
+
+        ext_position_offset_x,
+        ext_position_offset_y,
+        ext_position_offset_z,
 
         ext_flags,
         ext_xpanning,
