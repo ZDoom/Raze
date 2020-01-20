@@ -45,7 +45,7 @@
 #include "sc_man.h"
 #include "v_video.h"
 #include "v_text.h"
-#include "../platform/win32/i_findfile.h"	// This is a temporary direct path. Needs to be fixed when stuff gets cleaned up.
+#include "i_system.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX 260

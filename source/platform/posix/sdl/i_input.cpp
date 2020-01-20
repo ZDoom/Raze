@@ -47,8 +47,6 @@ static void I_CheckNativeMouse ();
 
 static bool NativeMouse = true;
 
-extern int paused;
-
 CVAR (Bool,  use_mouse,				true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Bool,  m_noprescale,			false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Bool,	 m_filter,				false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -241,8 +239,8 @@ static void I_CheckNativeMouse ()
 	bool focus = SDL_GetKeyboardFocus() != NULL;
 	bool fs = screen->IsFullscreen();
 
-	// TODO: We want this to check for demo playback, as well.
-	bool wantNative = !focus || (!use_mouse || GUICapture || paused || !inGame());
+	// TODO: We want this to check for demo playback, as well. And paused state
+	bool wantNative = !focus || (!use_mouse || GUICapture || !inGame());
 
 	if (wantNative != NativeMouse)
 	{

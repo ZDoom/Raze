@@ -199,4 +199,21 @@ FString M_GetDemoPath()
 	return M_GetDocumentsPath() + "/demo/";
 }
 
+//===========================================================================
+//
+// M_NormalizedPath
+//
+// Normalizes the given path and returns the result.
+//
+//===========================================================================
+
+FString M_GetNormalizedPath(const char* path)
+{
+	char *actualpath;
+	actualpath = realpath(path, NULL);
+	if (!actualpath) // error ?
+		return nullptr;
+	FString fullpath = actualpath;
+	return fullpath;
+}
 

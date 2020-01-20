@@ -47,6 +47,7 @@
 #include "gamecontrol.h"
 #include "m_argv.h"
 #include "filesystem/filesystem.h"
+#include "filesystem/resourcefile.h"
 
 static const char* res_exts[] = { ".grp", ".zip", ".pk3", ".pk4", ".7z", ".pk7" };
 
