@@ -5802,8 +5802,8 @@ badindex:
                     auto &array1 = aGameArrays[*insptr++];
                     auto &array2 = aGameArrays[*insptr++];
 
-                    swap(&array1.size, &array2.size);
-                    swap(&array1.pValues, &array2.pValues);
+                    swapptr(&array1.size, &array2.size);
+                    swapptr(&array1.pValues, &array2.pValues);
 
                     dispatch();
                 }
