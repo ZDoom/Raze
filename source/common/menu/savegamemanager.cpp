@@ -51,12 +51,14 @@
 #include "i_specialpaths.h"
 #include "c_dispatch.h"
 #include "i_system.h"
+#include "build.h"
 
 
 FSavegameManager savegameManager;
 
 void FSavegameManager::LoadGame(FSaveGameNode* node)
 {
+	yax_update(1);	// make sure it's all reset before loading a new map.
 	if (gi->LoadGame(node))
 	{
 	}

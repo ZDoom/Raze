@@ -268,7 +268,7 @@ void DrawStatusAnims()
     {
         int nSequence = nStatusSeqOffset + StatusAnim[i].s1;
 
-        seq_DrawStatusSequence(nSequence, StatusAnim[i].s2, 0);
+        //seq_DrawStatusSequence(nSequence, StatusAnim[i].s2, 0);
 
 /*
         if (StatusAnim[nAnim].s2 >= (SeqSize[nSequence] - 1))
