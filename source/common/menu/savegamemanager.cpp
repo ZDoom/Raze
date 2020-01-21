@@ -58,11 +58,14 @@ FSavegameManager savegameManager;
 
 void FSavegameManager::LoadGame(FSaveGameNode* node)
 {
-	if (OpenSaveGameForRead(node->Filename))
+	if (gi->CleanupForLoad())
 	{
-		if (gi->LoadGame(node))
+		if (OpenSaveGameForRead(node->Filename))
 		{
-			// do something here?
+			if (gi->LoadGame(node))
+			{
+				// do something here?
+			}
 		}
 	}
 }

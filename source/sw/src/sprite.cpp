@@ -745,7 +745,7 @@ KillSprite(int16_t SpriteNum)
                 {
                     mu = User[i];
 
-                    if (mu->WpnGoal == SpriteNum)
+                    if (mu && mu->WpnGoal == SpriteNum)
                     {
                         mu->WpnGoal = -1;
                     }

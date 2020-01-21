@@ -687,6 +687,20 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 extern SWBOOL LoadGameOutsideMoveLoop;
 extern SWBOOL InMenuLevel;
 
+ bool GameInterface::CleanupForLoad() 
+ {
+     // Don't terminate until you've made sure conditions are valid for loading.
+     if (InMenuLevel)
+         Mus_Stop();
+     else
+     {
+         PauseAction();
+         TerminateLevel();
+     }
+     Terminate3DSounds();
+     return true;
+ }
+
 bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
     MFILE_READ fil;
@@ -710,8 +724,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     int StateNdx;
     int StateEndNdx;
 
-	if (!InMenuLevel) PauseAction();
-
     Saveable_Init();
 
 	auto filr = ReadSavegameChunk("snapshot.sw");
@@ -724,13 +736,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
         MCLOSE_READ(fil);
         return false;
     }
-
-    // Don't terminate until you've made sure conditions are valid for loading.
-    if (InMenuLevel)
-        Mus_Stop();
-    else
-        TerminateLevel();
-    Terminate3DSounds();
 
     MREAD(&Level,sizeof(Level),1,fil);
     MREAD(&Skill,sizeof(Skill),1,fil);

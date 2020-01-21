@@ -2444,7 +2444,8 @@ struct GameInterface : ::GameInterface
 	FSavegameInfo GetSaveSig() override;
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
-	bool LoadGame(FSaveGameNode* sv) override;
+    bool CleanupForLoad() override;
+    bool LoadGame(FSaveGameNode* sv) override;
 	bool SaveGame(FSaveGameNode* sv) override;
 	void DoPrintMessage(int prio, const char* text) override;
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
