@@ -539,12 +539,6 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 				}
 				else sc.ScriptError(nullptr);
 			}
-#ifndef _DEBUG // Exhumed is not yet ready for prime time, so it will remain hidden for the uninitiated.
-			if ((grp.flags & GAMEFLAG_PSEXHUMED) && !Args->CheckParm("-experimental"))
-			{
-				groups.Pop();
-			}
-#endif
 		}
 		else sc.ScriptError(nullptr);
 	}
