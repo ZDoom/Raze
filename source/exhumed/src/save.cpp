@@ -40,37 +40,7 @@ static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
 
 bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
-    auto fw = WriteSavegameChunk("engine");
-    fw->Write(&numsectors, sizeof(numsectors));
-    fw->Write(sector, sizeof(sectortype) * numsectors);
-    fw->Write(&numwalls, sizeof(numwalls));
-    fw->Write(wall, sizeof(walltype) * numwalls);
-    fw->Write(sprite, sizeof(spritetype) * kMaxSprites);
-    fw->Write(headspritesect, sizeof(headspritesect));
-    fw->Write(prevspritesect, sizeof(prevspritesect));
-    fw->Write(nextspritesect, sizeof(nextspritesect));
-    fw->Write(headspritestat, sizeof(headspritestat));
-    fw->Write(prevspritestat, sizeof(prevspritestat));
-    fw->Write(nextspritestat, sizeof(nextspritestat));
-
-    fw->Write(&tailspritefree, sizeof(tailspritefree));
-    fw->Write(&myconnectindex, sizeof(myconnectindex));
-    fw->Write(&connecthead, sizeof(connecthead));
-    fw->Write(connectpoint2, sizeof(connectpoint2));
-    fw->Write(&numframes, sizeof(numframes));
-    fw->Write(&randomseed, sizeof(randomseed));
-    fw->Write(&numshades, sizeof(numshades));
-
-    fw->Write(&g_visibility, sizeof(g_visibility));
-    fw->Write(&parallaxtype, sizeof(parallaxtype));
-    fw->Write(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
-    fw->Write(&parallaxyscale_override, sizeof(parallaxyscale_override));
-    fw->Write(&pskybits_override, sizeof(pskybits_override));
-
-    fw->Write(show2dwall, sizeof(show2dwall));
-    fw->Write(show2dsprite, sizeof(show2dsprite));
-    fw->Write(show2dsector, sizeof(show2dsector));
-
+    SaveEngineState();
     for (auto sgh : sghelpers) sgh->Save();
     SaveTextureState();
     FinishSavegameWrite();
@@ -80,40 +50,7 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
 bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
     OpenSaveGameForRead(sv->Filename);
-    auto fr = ReadSavegameChunk("engine");
-    if (fr.isOpen())
-    {
-        fr.Read(&numsectors, sizeof(numsectors));
-        fr.Read(sector, sizeof(sectortype) * numsectors);
-        fr.Read(&numwalls, sizeof(numwalls));
-        fr.Read(wall, sizeof(walltype) * numwalls);
-        fr.Read(sprite, sizeof(spritetype) * kMaxSprites);
-        fr.Read(headspritesect, sizeof(headspritesect));
-        fr.Read(prevspritesect, sizeof(prevspritesect));
-        fr.Read(nextspritesect, sizeof(nextspritesect));
-        fr.Read(headspritestat, sizeof(headspritestat));
-        fr.Read(prevspritestat, sizeof(prevspritestat));
-        fr.Read(nextspritestat, sizeof(nextspritestat));
-
-        fr.Read(&tailspritefree, sizeof(tailspritefree));
-        fr.Read(&myconnectindex, sizeof(myconnectindex));
-        fr.Read(&connecthead, sizeof(connecthead));
-        fr.Read(connectpoint2, sizeof(connectpoint2));
-        fr.Read(&numframes, sizeof(numframes));
-        fr.Read(&randomseed, sizeof(randomseed));
-        fr.Read(&numshades, sizeof(numshades));
-
-        fr.Read(&g_visibility, sizeof(g_visibility));
-        fr.Read(&parallaxtype, sizeof(parallaxtype));
-        fr.Read(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
-        fr.Read(&parallaxyscale_override, sizeof(parallaxyscale_override));
-        fr.Read(&pskybits_override, sizeof(pskybits_override));
-
-        fr.Read(show2dwall, sizeof(show2dwall));
-        fr.Read(show2dsprite, sizeof(show2dsprite));
-        fr.Read(show2dsector, sizeof(show2dsector));
-        fr.Close();
-    }
+    LoadEngineState();
 
     for (auto sgh : sghelpers) sgh->Load();
     LoadTextureState();

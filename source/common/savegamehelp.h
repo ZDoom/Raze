@@ -17,5 +17,8 @@ class FileReader;
 FString G_BuildSaveName (const char *prefix);
 int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu);
 
+void SaveEngineState();
+void LoadEngineState();
+
 #define SAVEGAME_EXT ".dsave"
 
