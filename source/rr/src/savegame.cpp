@@ -138,12 +138,8 @@ void G_ResetInterpolations(void)
 }
 
 
-static FileReader *OpenSavegame(const char *fn)
+static FileReader *OpenSavegame()
 {
-	if (!OpenSaveGameForRead(fn))
-	{
-		return nullptr;
-	}
 	auto file = ReadSavegameChunk("snapshot.dat");
 	if (!file.isOpen())
 	{
@@ -154,39 +150,13 @@ static FileReader *OpenSavegame(const char *fn)
 }
 
 
-void ReadSaveGameHeaders(void)
-{
-}
-
-int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
-{
-	FileReader ssfil;
-    auto fil = OpenSavegame(fn);
-    if (!fil)
-        return -1;
-
-    int32_t i = sv_loadheader(*fil, 0, saveh);
-    if (i < 0)
-        goto corrupt;
-
-	delete fil;
-	FinishSavegameRead();
-	return 0;
-
-corrupt:
-	delete fil;
-	FinishSavegameRead();
-    return 1;
-}
-
-
 static void sv_postudload();
 
 
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(const char *path)
 {
-    auto fil = OpenSavegame(path);
+    auto fil = OpenSavegame();
 
     if (!fil)
         return -1;
@@ -875,37 +845,6 @@ static char svgm_secwsp_string [] = "blK:swsp";
 static const dataspec_t svgm_secwsp[] =
 {
     { DS_STRING, (void *)svgm_secwsp_string, 0, 1 },
-    { DS_NOCHK, &numwalls, sizeof(numwalls), 1 },
-    { DS_MAINAR|DS_CNT(numwalls), &wall, sizeof(walltype), (intptr_t)&numwalls },
-    { DS_NOCHK, &numsectors, sizeof(numsectors), 1 },
-    { DS_MAINAR|DS_CNT(numsectors), &sector, sizeof(sectortype), (intptr_t)&numsectors },
-    { DS_MAINAR, &sprite, sizeof(spritetype), MAXSPRITES },
-#ifdef YAX_ENABLE
-    { DS_NOCHK, &numyaxbunches, sizeof(numyaxbunches), 1 },
-# if !defined NEW_MAP_FORMAT
-    { DS_CNT(numsectors), yax_bunchnum, sizeof(yax_bunchnum[0]), (intptr_t)&numsectors },
-    { DS_CNT(numwalls), yax_nextwall, sizeof(yax_nextwall[0]), (intptr_t)&numwalls },
-# endif
-    { DS_LOADFN|DS_PROTECTFN, (void *)&sv_postyaxload, 0, 1 },
-#endif
-    { 0, &Numsprites, sizeof(Numsprites), 1 },
-    { 0, &tailspritefree, sizeof(tailspritefree), 1 },
-    { 0, &headspritesect[0], sizeof(headspritesect[0]), MAXSECTORS+1 },
-    { 0, &prevspritesect[0], sizeof(prevspritesect[0]), MAXSPRITES },
-    { 0, &nextspritesect[0], sizeof(nextspritesect[0]), MAXSPRITES },
-    { 0, &headspritestat[0], sizeof(headspritestat[0]), MAXSTATUS+1 },
-    { 0, &prevspritestat[0], sizeof(prevspritestat[0]), MAXSPRITES },
-    { 0, &nextspritestat[0], sizeof(nextspritestat[0]), MAXSPRITES },
-#ifdef USE_OPENGL
-    { DS_SAVEFN, (void *)&sv_prespriteextsave, 0, 1 },
-#endif
-    { DS_MAINAR, &spriteext, sizeof(spriteext_t), MAXSPRITES },
-#ifndef NEW_MAP_FORMAT
-    { DS_MAINAR, &wallext, sizeof(wallext_t), MAXWALLS },
-#endif
-#ifdef USE_OPENGL
-    { DS_SAVEFN|DS_LOADFN, (void *)&sv_postspriteext, 0, 1 },
-#endif
     { DS_NOCHK, &g_cyclerCnt, sizeof(g_cyclerCnt), 1 },
     { DS_CNT(g_cyclerCnt), &g_cyclers[0][0], sizeof(g_cyclers[0]), (intptr_t)&g_cyclerCnt },
     { DS_NOCHK, &g_animWallCnt, sizeof(g_animWallCnt), 1 },
@@ -1349,31 +1288,6 @@ static void sv_postudload()
 }
 //static int32_t lockclock_dummy;
 
-#ifdef USE_OPENGL
-static void sv_prespriteextsave()
-{
-    for (int i=0; i<MAXSPRITES; i++)
-        if (spriteext[i].mdanimtims)
-        {
-            spriteext[i].mdanimtims -= mdtims;
-            if (spriteext[i].mdanimtims==0)
-                spriteext[i].mdanimtims++;
-        }
-}
-static void sv_postspriteext()
-{
-    for (int i=0; i<MAXSPRITES; i++)
-        if (spriteext[i].mdanimtims)
-            spriteext[i].mdanimtims += mdtims;
-}
-#endif
-
-#ifdef YAX_ENABLE
-void sv_postyaxload(void)
-{
-    yax_update(numyaxbunches>0 ? 2 : 1);
-}
-#endif
 
 static void sv_postactordata()
 {

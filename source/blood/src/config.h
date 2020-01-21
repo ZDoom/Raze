@@ -40,7 +40,6 @@ extern int32_t gRotateMap;
 extern int32_t gMessageCount;
 extern int32_t gMessageTime;
 extern int32_t gMessageFont;
-extern int32_t gbAdultContent;
 extern int32_t gMouseSensitivity;
 extern bool gNoClip;
 extern bool gInfiniteAmmo;

@@ -114,10 +114,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     if (!gGameStarted)
     {
         memset(xsprite, 0, sizeof(xsprite));
-        memset(sprite, 0, sizeof(spritetype)*kMaxSprites);
-        automapping = 1;
     }
-	OpenSaveGameForRead(node->Filename);
     LoadSave::hLFile = ReadSavegameChunk("snapshot.bld");
 	if (!LoadSave::hLFile.isOpen())
 		return false;
@@ -137,9 +134,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
         sfxSetReverb(0);
     ambInit();
-#ifdef YAX_ENABLE
-    yax_update(numyaxbunches > 0 ? 2 : 1);
-#endif
     memset(myMinLag, 0, sizeof(myMinLag));
     otherMinLag = 0;
     myMaxLag = 0;
@@ -254,40 +248,17 @@ void MyLoadSave::Load(void)
     if (version != BYTEVERSION)
         ThrowError("Incompatible version of saved game found!");
     Read(&gGameOptions, sizeof(gGameOptions));
-    Read(&numsectors, sizeof(numsectors));
-    Read(&numwalls, sizeof(numwalls));
-    Read(&numsectors, sizeof(numsectors));
+    
     int nNumSprites;
     Read(&nNumSprites, sizeof(nNumSprites));
-    memset(sector, 0, sizeof(sector[0])*kMaxSectors);
-    memset(wall, 0, sizeof(wall[0])*kMaxWalls);
-    memset(sprite, 0, sizeof(sprite[0])*kMaxSprites);
-    Read(sector, sizeof(sector[0])*numsectors);
-    Read(wall, sizeof(wall[0])*numwalls);
-    Read(sprite, sizeof(sprite[0])*kMaxSprites);
     Read(qsector_filler, sizeof(qsector_filler[0])*numsectors);
     Read(qsprite_filler, sizeof(qsprite_filler[0])*kMaxSprites);
-    Read(&randomseed, sizeof(randomseed));
-    Read(&parallaxtype, sizeof(parallaxtype));
-    Read(&showinvisibility, sizeof(showinvisibility));
     Read(&pSky->horizfrac, sizeof(pSky->horizfrac));
     Read(&pSky->yoffs, sizeof(pSky->yoffs));
     Read(&pSky->yscale, sizeof(pSky->yscale));
     Read(&gVisibility, sizeof(gVisibility));
-    Read(&g_visibility, sizeof(g_visibility));
-    Read(&parallaxvisibility, sizeof(parallaxvisibility));
     Read(pSky->tileofs, sizeof(pSky->tileofs));
     Read(&pSky->lognumtiles, sizeof(pSky->lognumtiles));
-    Read(headspritesect, sizeof(headspritesect));
-    Read(headspritestat, sizeof(headspritestat));
-    Read(prevspritesect, sizeof(prevspritesect));
-    Read(prevspritestat, sizeof(prevspritestat));
-    Read(nextspritesect, sizeof(nextspritesect));
-    Read(nextspritestat, sizeof(nextspritestat));
-    Read(show2dsector, sizeof(show2dsector));
-    Read(show2dwall, sizeof(show2dwall));
-    Read(show2dsprite, sizeof(show2dsprite));
-    Read(&automapping, sizeof(automapping));
     Read(gotpic, sizeof(gotpic));
     Read(gotsector, sizeof(gotsector));
     Read(&gFrameClock, sizeof(gFrameClock));
@@ -298,7 +269,6 @@ void MyLoadSave::Load(void)
     totalclock = nGameClock;
     Read(&gLevelTime, sizeof(gLevelTime));
     Read(&gPaused, sizeof(gPaused));
-    Read(&gbAdultContent, sizeof(gbAdultContent));
     Read(baseWall, sizeof(baseWall[0])*numwalls);
     Read(baseSprite, sizeof(baseSprite[0])*nNumSprites);
     Read(baseFloor, sizeof(baseFloor[0])*numsectors);
@@ -345,9 +315,6 @@ void MyLoadSave::Load(void)
     Read(&gSongId, sizeof(gSkyCount));
     Read(&gFogMode, sizeof(gFogMode));
     Read(&gModernMap, sizeof(gModernMap));
-#ifdef YAX_ENABLE
-    Read(&numyaxbunches, sizeof(numyaxbunches));
-#endif
     gCheatMgr.sub_5BCF4();
 
 }
@@ -368,36 +335,15 @@ void MyLoadSave::Save(void)
     //nNumSprites += 2;
     nNumSprites++;
     Write(&gGameOptions, sizeof(gGameOptions));
-    Write(&numsectors, sizeof(numsectors));
-    Write(&numwalls, sizeof(numwalls));
-    Write(&numsectors, sizeof(numsectors));
     Write(&nNumSprites, sizeof(nNumSprites));
-    Write(sector, sizeof(sector[0])*numsectors);
-    Write(wall, sizeof(wall[0])*numwalls);
-    Write(sprite, sizeof(sprite[0])*kMaxSprites);
     Write(qsector_filler, sizeof(qsector_filler[0])*numsectors);
     Write(qsprite_filler, sizeof(qsprite_filler[0])*kMaxSprites);
-    Write(&randomseed, sizeof(randomseed));
-    Write(&parallaxtype, sizeof(parallaxtype));
-    Write(&showinvisibility, sizeof(showinvisibility));
     Write(&pSky->horizfrac, sizeof(pSky->horizfrac));
     Write(&pSky->yoffs, sizeof(pSky->yoffs));
     Write(&pSky->yscale, sizeof(pSky->yscale));
     Write(&gVisibility, sizeof(gVisibility));
-    Write(&g_visibility, sizeof(g_visibility));
-    Write(&parallaxvisibility, sizeof(parallaxvisibility));
     Write(pSky->tileofs, sizeof(pSky->tileofs));
     Write(&pSky->lognumtiles, sizeof(pSky->lognumtiles));
-    Write(headspritesect, sizeof(headspritesect));
-    Write(headspritestat, sizeof(headspritestat));
-    Write(prevspritesect, sizeof(prevspritesect));
-    Write(prevspritestat, sizeof(prevspritestat));
-    Write(nextspritesect, sizeof(nextspritesect));
-    Write(nextspritestat, sizeof(nextspritestat));
-    Write(show2dsector, sizeof(show2dsector));
-    Write(show2dwall, sizeof(show2dwall));
-    Write(show2dsprite, sizeof(show2dsprite));
-    Write(&automapping, sizeof(automapping));
     Write(gotpic, sizeof(gotpic));
     Write(gotsector, sizeof(gotsector));
     Write(&gFrameClock, sizeof(gFrameClock));
@@ -407,7 +353,6 @@ void MyLoadSave::Save(void)
     Write(&nGameClock, sizeof(nGameClock));
     Write(&gLevelTime, sizeof(gLevelTime));
     Write(&gPaused, sizeof(gPaused));
-    Write(&gbAdultContent, sizeof(gbAdultContent));
     Write(baseWall, sizeof(baseWall[0])*numwalls);
     Write(baseSprite, sizeof(baseSprite[0])*nNumSprites);
     Write(baseFloor, sizeof(baseFloor[0])*numsectors);
@@ -451,9 +396,6 @@ void MyLoadSave::Save(void)
     Write(&gSongId, sizeof(gSkyCount));
     Write(&gFogMode, sizeof(gFogMode));
     Write(&gModernMap, sizeof(gModernMap));
-#ifdef YAX_ENABLE
-    Write(&numyaxbunches, sizeof(numyaxbunches));
-#endif
 }
 
 void LoadSavedInfo(void)

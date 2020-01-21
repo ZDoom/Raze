@@ -6708,8 +6708,6 @@ static void G_FreeHashAnim(const char * /*string*/, intptr_t key)
 
 static void G_Cleanup(void)
 {
-    ReadSaveGameHeaders(); // for culling
-
     int32_t i;
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
@@ -7310,8 +7308,6 @@ int GameInterface::app_main()
     {
         Menu_Init();
     }
-
-    ReadSaveGameHeaders();
 
     FX_StopAllSounds();
     S_ClearSoundLocks();

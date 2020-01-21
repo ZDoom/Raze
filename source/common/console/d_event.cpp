@@ -100,9 +100,10 @@ bool G_Responder (event_t *ev)
 void D_ProcessEvents (void)
 {
 	event_t *ev;
-	for (; eventtail != eventhead ; eventtail = (eventtail+1)&(NUM_EVENTS-1))
+	while (eventtail != eventhead)
 	{
 		ev = &events[eventtail];
+		eventtail = (eventtail + 1) & (NUM_EVENTS - 1);
 		if (ev->type == EV_None)
 			continue;
 		/*if (ev->type == EV_DeviceChange)

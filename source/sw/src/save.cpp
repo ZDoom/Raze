@@ -360,9 +360,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     }
 #endif
 
-    MWRITE(&numsectors,sizeof(numsectors),1,fil);
-    MWRITE(sector,sizeof(SECTOR), numsectors, fil);
-
     //Sector User information
     for (i = 0; i < numsectors; i++)
     {
@@ -382,29 +379,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
             MWRITE(&ndx,sizeof(ndx),1,fil);
         }
     }
-
-    MWRITE(&numwalls,sizeof(numwalls),1,fil);
-    MWRITE(wall,sizeof(WALL),numwalls,fil);
-
-    for (i = 0; i < MAXSPRITES; i++)
-    {
-        if (sprite[i].statnum != MAXSTATUS)
-        {
-            MWRITE(&i,sizeof(i),1,fil);
-
-            MWRITE(&sprite[i],sizeof(SPRITE),1,fil);
-        }
-    }
-    i = -1;
-    MWRITE(&i,sizeof(i),1,fil);
-
-    MWRITE(headspritesect,sizeof(headspritesect),1,fil);
-    MWRITE(prevspritesect,sizeof(prevspritesect),1,fil);
-    MWRITE(nextspritesect,sizeof(nextspritesect),1,fil);
-    MWRITE(headspritestat,sizeof(headspritestat),1,fil);
-    MWRITE(prevspritestat,sizeof(prevspritestat),1,fil);
-    MWRITE(nextspritestat,sizeof(nextspritestat),1,fil);
-    MWRITE(&tailspritefree,sizeof(tailspritefree),1,fil);
 
     //User information
     for (i = 0; i < MAXSPRITES; i++)
@@ -615,17 +589,8 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 #endif
 
     MWRITE(&totalclock,sizeof(totalclock),1,fil);
-    MWRITE(&numframes,sizeof(numframes),1,fil);
-    MWRITE(&randomseed,sizeof(randomseed),1,fil);
-    MWRITE(&numshades,sizeof(numshades),1,fil);
-
+    
     MWRITE(&NormalVisibility,sizeof(NormalVisibility),1,fil);
-    MWRITE(&g_visibility,sizeof(g_visibility),1,fil);
-    MWRITE(&parallaxtype,sizeof(parallaxtype),1,fil);
-    MWRITE(&parallaxyoffs_override,sizeof(parallaxyoffs_override),1,fil);
-    MWRITE(&parallaxyscale_override,sizeof(parallaxyscale_override),1,fil);
-    MWRITE(&pskybits_override,sizeof(pskybits_override),1,fil);
-
     MWRITE(&BorderInfo,sizeof(BorderInfo),1,fil);
     MWRITE(&MoveSkip2,sizeof(MoveSkip2),1,fil);
     MWRITE(&MoveSkip4,sizeof(MoveSkip4),1,fil);
@@ -692,7 +657,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     // game settings
     MWRITE(&gNet,sizeof(gNet),1,fil);
 
-    MWRITE(palette,sizeof(palette),1,fil);
     MWRITE(palette_data,sizeof(palette_data),1,fil);
     MWRITE(&gs,sizeof(gs),1,fil);
 	for (int i = 0; i < MAXTILES; i++)
@@ -701,10 +665,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 	}
 
     MWRITE(&LevelSecrets,sizeof(LevelSecrets),1,fil);
-
-    MWRITE(show2dwall,sizeof(show2dwall),1,fil);
-    MWRITE(show2dsprite,sizeof(show2dsprite),1,fil);
-    MWRITE(show2dsector,sizeof(show2dsector),1,fil);
 
     MWRITE(&Bunny_Count,sizeof(Bunny_Count),1,fil);
 
@@ -753,8 +713,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 	if (!InMenuLevel) PauseAction();
 
     Saveable_Init();
-
-	OpenSaveGameForRead(sv->Filename);
 
 	auto filr = ReadSavegameChunk("snapshot.sw");
 	if (!filr.isOpen()) return false;
@@ -853,9 +811,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     }
 #endif
 
-    MREAD(&numsectors,sizeof(numsectors),1,fil);
-    MREAD(sector,sizeof(SECTOR),numsectors,fil);
-
     //Sector User information
     for (i = 0; i < numsectors; i++)
     {
@@ -866,25 +821,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
             MREAD(sectu,sizeof(SECT_USER),1,fil);
         }
     }
-
-    MREAD(&numwalls,sizeof(numwalls),1,fil);
-    MREAD(wall,sizeof(WALL),numwalls,fil);
-
-    //Store all sprites to preserve indeces
-    MREAD(&i, sizeof(i),1,fil);
-    while (i != -1)
-    {
-        MREAD(&sprite[i], sizeof(SPRITE),1,fil);
-        MREAD(&i, sizeof(i),1,fil);
-    }
-
-    MREAD(headspritesect,sizeof(headspritesect),1,fil);
-    MREAD(prevspritesect,sizeof(prevspritesect),1,fil);
-    MREAD(nextspritesect,sizeof(nextspritesect),1,fil);
-    MREAD(headspritestat,sizeof(headspritestat),1,fil);
-    MREAD(prevspritestat,sizeof(prevspritestat),1,fil);
-    MREAD(nextspritestat,sizeof(nextspritestat),1,fil);
-    MREAD(&tailspritefree,sizeof(tailspritefree),1,fil);
 
     //User information
     memset(User, 0, sizeof(User));
@@ -1047,16 +983,8 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 #endif
 
     MREAD(&totalclock,sizeof(totalclock),1,fil);
-    MREAD(&numframes,sizeof(numframes),1,fil);
-    MREAD(&randomseed,sizeof(randomseed),1,fil);
-    MREAD(&numshades,sizeof(numshades),1,fil);
 
     MREAD(&NormalVisibility,sizeof(NormalVisibility),1,fil);
-    MREAD(&g_visibility,sizeof(g_visibility),1,fil);
-    MREAD(&parallaxtype,sizeof(parallaxtype),1,fil);
-    MREAD(&parallaxyoffs_override,sizeof(parallaxyoffs_override),1,fil);
-    MREAD(&parallaxyscale_override,sizeof(parallaxyscale_override),1,fil);
-    MREAD(&pskybits_override,sizeof(pskybits_override),1,fil);
 
     MREAD(&BorderInfo,sizeof(BorderInfo),1,fil);
     MREAD(&MoveSkip2,sizeof(MoveSkip2),1,fil);
@@ -1127,7 +1055,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     // game settings
     MREAD(&gNet,sizeof(gNet),1,fil);
 
-    MREAD(palette,sizeof(palette),1,fil);
     MREAD(palette_data,sizeof(palette_data),1,fil);
 
 	MREAD(&gs,sizeof(gs),1,fil);
@@ -1138,10 +1065,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 	}
 
     MREAD(&LevelSecrets,sizeof(LevelSecrets),1,fil);
-
-    MREAD(show2dwall,sizeof(show2dwall),1,fil);
-    MREAD(show2dsprite,sizeof(show2dsprite),1,fil);
-    MREAD(show2dsector,sizeof(show2dsector),1,fil);
 
     MREAD(&Bunny_Count,sizeof(Bunny_Count),1,fil);
 

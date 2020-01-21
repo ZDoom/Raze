@@ -50,6 +50,8 @@
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
+void LoadEngineState();
+void SaveEngineState();
 
 //=============================================================================
 //
@@ -77,6 +79,7 @@ bool OpenSaveGameForRead(const char *name)
 		SECRET_Load();
 		MUS_Restore();
 		quoteMgr.ReadFromSavegame();
+		LoadEngineState();
 
 		auto file = ReadSavegameChunk("info.json");
 		if (!file.isOpen())
@@ -184,6 +187,7 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	SECRET_Save();
 	MUS_Save();
 	quoteMgr.WriteToSavegame();
+	SaveEngineState();
 	auto picfile = WriteSavegameChunk("savepic.png");
 	screen->WriteSavePic(picfile, 240, 180);
 	return true;
@@ -353,20 +357,59 @@ FString G_BuildSaveName (const char *prefix)
 
 #include "build.h"
 #include "mmulti.h"
+
+static void sv_prespriteextsave()
+{
+	for (int i = 0; i < MAXSPRITES; i++)
+		if (spriteext[i].mdanimtims)
+		{
+			spriteext[i].mdanimtims -= mdtims;
+			if (spriteext[i].mdanimtims == 0)
+				spriteext[i].mdanimtims++;
+		}
+}
+static void sv_postspriteext()
+{
+	for (int i = 0; i < MAXSPRITES; i++)
+		if (spriteext[i].mdanimtims)
+			spriteext[i].mdanimtims += mdtims;
+}
+
+
+static const int magic = 0xbeefcafe;
+void WriteMagic(FileWriter *fw)
+{
+	fw->Write(&magic, 4);
+}
+
+void CheckMagic(FileReader& fr)
+{
+	int m = 0;
+	fr.Read(&m, 4);
+	assert(m == magic);
+#ifndef _DEBUG
+	if (m != magic)  I_Error("Savegame corrupt");
+#endif
+}
+
 void SaveEngineState()
 {
 	auto fw = WriteSavegameChunk("engine.bin");
 	fw->Write(&numsectors, sizeof(numsectors));
 	fw->Write(sector, sizeof(sectortype) * numsectors);
+	WriteMagic(fw);
 	fw->Write(&numwalls, sizeof(numwalls));
 	fw->Write(wall, sizeof(walltype) * numwalls);
+	WriteMagic(fw);
 	fw->Write(sprite, sizeof(spritetype) * MAXSPRITES);
+	WriteMagic(fw);
 	fw->Write(headspritesect, sizeof(headspritesect));
 	fw->Write(prevspritesect, sizeof(prevspritesect));
 	fw->Write(nextspritesect, sizeof(nextspritesect));
 	fw->Write(headspritestat, sizeof(headspritestat));
 	fw->Write(prevspritestat, sizeof(prevspritestat));
 	fw->Write(nextspritestat, sizeof(nextspritestat));
+	WriteMagic(fw);
 
 	fw->Write(&tailspritefree, sizeof(tailspritefree));
 	fw->Write(&myconnectindex, sizeof(myconnectindex));
@@ -375,16 +418,35 @@ void SaveEngineState()
 	fw->Write(&numframes, sizeof(numframes));
 	fw->Write(&randomseed, sizeof(randomseed));
 	fw->Write(&numshades, sizeof(numshades));
+	fw->Write(&automapping, sizeof(automapping));
+	fw->Write(&showinvisibility, sizeof(showinvisibility));
+	WriteMagic(fw);
 
 	fw->Write(&g_visibility, sizeof(g_visibility));
 	fw->Write(&parallaxtype, sizeof(parallaxtype));
+	fw->Write(&parallaxvisibility, sizeof(parallaxvisibility));
 	fw->Write(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
 	fw->Write(&parallaxyscale_override, sizeof(parallaxyscale_override));
 	fw->Write(&pskybits_override, sizeof(pskybits_override));
+	WriteMagic(fw);
 
 	fw->Write(show2dwall, sizeof(show2dwall));
 	fw->Write(show2dsprite, sizeof(show2dsprite));
 	fw->Write(show2dsector, sizeof(show2dsector));
+	WriteMagic(fw);
+
+	fw->Write(&numyaxbunches, sizeof(numyaxbunches));
+	fw->Write(yax_bunchnum, sizeof(yax_bunchnum));
+	fw->Write(yax_nextwall, sizeof(yax_nextwall));
+	WriteMagic(fw);
+
+	fw->Write(&Numsprites, sizeof(Numsprites));
+	sv_prespriteextsave();
+	fw->Write(spriteext, sizeof(spriteext_t) * MAXSPRITES);
+	fw->Write(wallext, sizeof(wallext_t) * MAXWALLS);
+	sv_postspriteext();
+	WriteMagic(fw);
+
 }
 
 void LoadEngineState()
@@ -392,17 +454,25 @@ void LoadEngineState()
 	auto fr = ReadSavegameChunk("engine.bin");
 	if (fr.isOpen())
 	{
+		memset(sector, 0, sizeof(sector[0]) * MAXSECTORS);
+		memset(wall, 0, sizeof(wall[0]) * MAXWALLS);
+		memset(sprite, 0, sizeof(sprite[0]) * MAXSPRITES);
+
 		fr.Read(&numsectors, sizeof(numsectors));
 		fr.Read(sector, sizeof(sectortype) * numsectors);
+		CheckMagic(fr);
 		fr.Read(&numwalls, sizeof(numwalls));
 		fr.Read(wall, sizeof(walltype) * numwalls);
+		CheckMagic(fr);
 		fr.Read(sprite, sizeof(spritetype) * MAXSPRITES);
+		CheckMagic(fr);
 		fr.Read(headspritesect, sizeof(headspritesect));
 		fr.Read(prevspritesect, sizeof(prevspritesect));
 		fr.Read(nextspritesect, sizeof(nextspritesect));
 		fr.Read(headspritestat, sizeof(headspritestat));
 		fr.Read(prevspritestat, sizeof(prevspritestat));
 		fr.Read(nextspritestat, sizeof(nextspritestat));
+		CheckMagic(fr);
 
 		fr.Read(&tailspritefree, sizeof(tailspritefree));
 		fr.Read(&myconnectindex, sizeof(myconnectindex));
@@ -411,16 +481,35 @@ void LoadEngineState()
 		fr.Read(&numframes, sizeof(numframes));
 		fr.Read(&randomseed, sizeof(randomseed));
 		fr.Read(&numshades, sizeof(numshades));
+		fr.Read(&automapping, sizeof(automapping));
+		fr.Read(&showinvisibility, sizeof(showinvisibility));
+		CheckMagic(fr);
 
 		fr.Read(&g_visibility, sizeof(g_visibility));
 		fr.Read(&parallaxtype, sizeof(parallaxtype));
+		fr.Read(&parallaxvisibility, sizeof(parallaxvisibility));
 		fr.Read(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
 		fr.Read(&parallaxyscale_override, sizeof(parallaxyscale_override));
 		fr.Read(&pskybits_override, sizeof(pskybits_override));
+		CheckMagic(fr);
 
 		fr.Read(show2dwall, sizeof(show2dwall));
 		fr.Read(show2dsprite, sizeof(show2dsprite));
 		fr.Read(show2dsector, sizeof(show2dsector));
+		CheckMagic(fr);
+
+		fr.Read(&numyaxbunches, sizeof(numyaxbunches));
+		fr.Read(yax_bunchnum, sizeof(yax_bunchnum));
+		fr.Read(yax_nextwall, sizeof(yax_nextwall));
+		yax_update(numyaxbunches > 0 ? 2 : 1);
+		CheckMagic(fr);
+
+		fr.Read(&Numsprites, sizeof(Numsprites));
+		fr.Read(spriteext, sizeof(spriteext_t) * MAXSPRITES);
+		fr.Read(wallext, sizeof(wallext_t) * MAXWALLS);
+		sv_postspriteext();
+	CheckMagic(fr);
+
 		fr.Close();
 	}
 }

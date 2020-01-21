@@ -148,7 +148,7 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
     int nSector2 = nSector;
     if (!FindSector(x, y, z, &nSector2))
         return NULL;
-    if (gbAdultContent && gGameOptions.nGameType <= 0)
+    if (adult_lockout && gGameOptions.nGameType <= 0)
     {
         switch (nFx)
         {
@@ -280,7 +280,7 @@ void fxSpawnBlood(spritetype *pSprite, int a2)
     int nSector = pSprite->sectnum;
     if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector))
         return;
-    if (gbAdultContent && gGameOptions.nGameType <= 0)
+    if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
     spritetype *pBlood = gFX.fxSpawn(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pBlood)
@@ -301,7 +301,7 @@ void sub_746D4(spritetype *pSprite, int a2)
     int nSector = pSprite->sectnum;
     if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector))
         return;
-    if (gbAdultContent && gGameOptions.nGameType <= 0)
+    if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
     spritetype *pSpawn;
     if (pSprite->type == kDudePodGreen)

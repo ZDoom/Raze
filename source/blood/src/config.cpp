@@ -54,7 +54,6 @@ int32_t gRotateMap = 0;
 int32_t gMessageCount = 4;
 int32_t gMessageTime = 5;
 int32_t gMessageFont = 0;
-int32_t gbAdultContent = 0;
 int32_t gMouseSensitivity;
 bool gNoClip;
 bool gInfiniteAmmo;

@@ -40,7 +40,6 @@ static TArray<SavegameHelper*> sghelpers(TArray<SavegameHelper*>::NoInit);
 
 bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
-    SaveEngineState();
     for (auto sgh : sghelpers) sgh->Save();
     SaveTextureState();
     FinishSavegameWrite();
@@ -49,8 +48,6 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
 
 bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
-    OpenSaveGameForRead(sv->Filename);
-    LoadEngineState();
 
     for (auto sgh : sghelpers) sgh->Load();
     LoadTextureState();

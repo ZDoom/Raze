@@ -58,9 +58,12 @@ FSavegameManager savegameManager;
 
 void FSavegameManager::LoadGame(FSaveGameNode* node)
 {
-	yax_update(1);	// make sure it's all reset before loading a new map.
-	if (gi->LoadGame(node))
+	if (OpenSaveGameForRead(node->Filename))
 	{
+		if (gi->LoadGame(node))
+		{
+			// do something here?
+		}
 	}
 }
 

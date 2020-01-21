@@ -6715,7 +6715,7 @@ void G_RestoreMapState(void)
 #endif
 #endif
 #ifdef YAX_ENABLE
-        sv_postyaxload();
+        yax_update(numyaxbunches > 0 ? 2 : 1);
 #endif
         G_ResetInterpolations();
 
