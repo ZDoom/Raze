@@ -2988,7 +2988,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
     int dist;
     short i;
 
-    if (sop->max_damage != -9999 && sop->max_damage <= 0)
+    if ((sop->max_damage != -9999 && sop->max_damage <= 0) || !u)
         return;
 
 

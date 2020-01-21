@@ -127,7 +127,7 @@ void UpdateMiniBar(PLAYERp pp)
 #define MINI_BAR_INVENTORY_BOX_X 64
 #define MINI_BAR_INVENTORY_BOX_Y MINI_BAR_Y
 
-    if (!PanelUpdateMode)
+    if (!PanelUpdateMode || !u)
         return;
 
     if (gs.BorderNum != BORDER_MINI_BAR)
