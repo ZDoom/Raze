@@ -150,6 +150,7 @@ int SaveSymDataInfo(MFILE_WRITE fil, void *ptr)
     {
         FILE *fp;
 
+        assert(false);
         fp = fopen("savegame symbols missing.txt", "a");
         if (fp)
         {
@@ -172,6 +173,7 @@ static int SaveSymCodeInfo_raw(MFILE_WRITE fil, void *ptr)
     {
         FILE *fp;
 
+        assert(false);
         fp = fopen("savegame symbols missing.txt", "a");
         if (fp)
         {
