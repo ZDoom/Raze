@@ -1125,17 +1125,17 @@ void ClockStrobe()
     //gGameClock++;
 }
 
+void ReadAllRFS();
+
 int GameInterface::app_main()
 {
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = !userConfig.nomonsters;
 	bQuickStart = userConfig.nologo;
-    
+    ReadAllRFS();
 #ifdef USE_QHEAP
     Resource::heap = new QHeap(nMaxAlloc);
 #endif
-    //gSysRes.Init(pUserRFF ? pUserRFF : "BLOOD.RFF");
-    //gGuiRes.Init("GUI.RFF");
 
     HookReplaceFunctions();
 

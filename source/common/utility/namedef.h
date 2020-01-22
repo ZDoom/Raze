@@ -18,6 +18,7 @@ xx(WAV)
 xx(OGG)
 xx(FLAC)
 xx(VOC)
+xx(RFS)
 xx(Controlmessage)
 
 xx(MainMenu)

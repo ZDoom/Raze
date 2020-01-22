@@ -83,6 +83,7 @@ public:
 
 	int InitMultipleFiles (TArray<FString> &filenames, const TArray<FString> &todelete, int maingamefiles);
 	void DeleteStuff(const TArray<FString>& deletelumps, int numgamefiles);
+	void Rehash();
 
 	void AddFile (const char *filename, FileReader *wadinfo = NULL, bool nosubdirflag = false);
 	void AddAdditionalFile(const char* filename, FileReader* wadinfo = NULL) {}

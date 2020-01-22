@@ -152,7 +152,7 @@ private:
     char _fileName[BMAX_PATH]; // [30]
 
 public:
-    int Open(const char *fileName);
+    int Open(int lumpnum);
     void Close();
     void Increment();
     void SkipBeyondValue(char value);
@@ -162,13 +162,11 @@ public:
     void UnsetMark();
 };
 
-int RFS::Open(const char *fileName)
+int RFS::Open(int lumpnum)
 {
-    strcpy(_fileName, fileName);
-
-    auto hFile = fileSystem.OpenFileReader(fileName, 0);
+    auto hFile = fileSystem.OpenFileReader(lumpnum);
     if (!hFile.isOpen()) {
-        initprintf("BARF: Error opening file %s", _fileName);
+        initprintf("BARF: Error opening file %d", lumpnum);
         return 1;
     }
 
@@ -176,7 +174,7 @@ int RFS::Open(const char *fileName)
 	buffer.Resize(fileSize);
     _ptr = buffer.Data();
     if (_ptr == NULL) {
-        initprintf("BARF: Not enough memory to read %s", _fileName);
+        initprintf("BARF: Not enough memory to read %d", lumpnum);
         return 1;
     }
 
@@ -235,30 +233,32 @@ void RFS::UnsetMark()
 void RFS::ScriptError(const char *message)
 {
     // TODO
+    TArray<char> msg;
 
     char *p = _pStartLine;
     while (*p != '\n')
     {
         if (isprint(*p))
-            putchar(*p);
+            msg.Push(*p);
         else
-            putchar(' ');
+            msg.Push(' ');
         p++;
     }
 
-    putchar('\n');
+    msg.Push('\n');
 
     p = _pStartLine;
 
     while (p < _pMark)
     {
-        putchar(' ');
+        msg.Push(' ');
         p++;
     }
 
-    puts("^");
+    msg.Push('^');
+    msg.Push(0);
 
-    initprintf("Error in %s line %d: %s\n\n", _fileName, _curLine, message);
+    initprintf("Error in %s line %d: %s\n\n%s", _fileName, _curLine, message, msg.Data());
 }
 
 uint8_t RFS::GetNextTag()
@@ -447,21 +447,21 @@ uint8_t RFS::GetNextTag()
     //	qAssert(1==0); // TODO - what to return here
 }
 
-void ParseScript(const char *scriptFileName)
+void ParseScript(int lumpnum)
 {
     char text[256];
     char char256_1[256];
     char char256_2[256];
     char fileName[BMAX_PATH];
     char inp[BMAX_PATH];
-    char zScriptDirectory[BMAX_PATH], zTemp1[BMAX_PATH], zTemp2[BMAX_PATH];
+    //char zScriptDirectory[BMAX_PATH], zTemp1[BMAX_PATH], zTemp2[BMAX_PATH];
 
-    SplitPath(scriptFileName, zScriptDirectory, zTemp1, zTemp2);
+    //SplitPath(scriptFileName, zScriptDirectory, zTemp1, zTemp2);
 
     RFS rfs;
 
     // AddExtension(name, ".RFS");
-    if (rfs.Open(scriptFileName))
+    if (rfs.Open(lumpnum))
     {
         return;
     }
@@ -706,7 +706,9 @@ void ParseScript(const char *scriptFileName)
                     }
                     else
                     {
-                        ParseScript(scriptBuffer);
+                        // too dangerous if we want to cumulatively collect all RFS files
+                        //fileSystem.Rehash();
+                        //ParseScript(scriptBuffer);
                     }
                 }
                 break;
@@ -801,32 +803,32 @@ void ParseScript(const char *scriptFileName)
                 // loc_12471:
                 if (tag != kTagColon) // marked orange in IDA
                 {
-                    while (1)
+                while (1)
+                {
+                    if (tag == kTagPreload)
                     {
-                        if (tag == kTagPreload)
-                        {
-                            nFlags |= DICT_LOAD;
-                            tag = rfs.GetNextTag();
+                        nFlags |= DICT_LOAD;
+                        tag = rfs.GetNextTag();
 
-                            if (tag == kTagColon) {
-                                break;
-                            }
-                        }
-                        else if (tag == kTagPrelock)
-                        {
-                            nFlags |= DICT_LOCK;
-                            tag = rfs.GetNextTag();
-
-                            if (tag == kTagColon) {
-                                break;
-                            }
-                        }
-                        else {
-                            rfs.ScriptError("':' expected");
-                            rfs.SkipBeyondValue(';');
-                            goto START; // FIXME
+                        if (tag == kTagColon) {
+                            break;
                         }
                     }
+                    else if (tag == kTagPrelock)
+                    {
+                        nFlags |= DICT_LOCK;
+                        tag = rfs.GetNextTag();
+
+                        if (tag == kTagColon) {
+                            break;
+                        }
+                    }
+                    else {
+                        rfs.ScriptError("':' expected");
+                        rfs.SkipBeyondValue(';');
+                        goto START; // FIXME
+                    }
+                }
                 }
 
                 nBytes = 0;
@@ -838,24 +840,24 @@ void ParseScript(const char *scriptFileName)
 
                     switch (tag)
                     {
-                        case kTagString:
-                        {
-                            memcpy(&buffer[nBytes], scriptBuffer, strlen(scriptBuffer) + 1);
-                            nBytes += strlen(scriptBuffer) + 1;
-                            break;
-                        }
-                        case kTagConstant:
-                        {
-                            memcpy(&buffer[nBytes], &scriptValue, sizeof(scriptValue));
-                            nBytes += sizeof(scriptValue);
-                            break;
-                        }
-                        default:
-                        {
-                            rfs.ScriptError("Constant expected");
-                            rfs.SkipBeyondValue(';');
-                            goto START; // FIXME
-                        }
+                    case kTagString:
+                    {
+                        memcpy(&buffer[nBytes], scriptBuffer, strlen(scriptBuffer) + 1);
+                        nBytes += strlen(scriptBuffer) + 1;
+                        break;
+                    }
+                    case kTagConstant:
+                    {
+                        memcpy(&buffer[nBytes], &scriptValue, sizeof(scriptValue));
+                        nBytes += sizeof(scriptValue);
+                        break;
+                    }
+                    default:
+                    {
+                        rfs.ScriptError("Constant expected");
+                        rfs.SkipBeyondValue(';');
+                        goto START; // FIXME
+                    }
                     }
 
                     tag = rfs.GetNextTag();
@@ -884,9 +886,9 @@ void ParseScript(const char *scriptFileName)
     rfs.Close();
 }
 
-void addMemoryResource(char *filePath, char flags, int ID)
+void addMemoryResource(char* filePath, char flags, int ID)
 {
-	char zDirectory[BMAX_PATH];
+    char zDirectory[BMAX_PATH];
     char zFilename[BMAX_PATH];
     char zType[BMAX_PATH];
 
@@ -895,4 +897,20 @@ void addMemoryResource(char *filePath, char flags, int ID)
     fileSystem.AddFromBuffer(zFilename, zType, buffer, nBytes, ID, flags);
 }
 
+
+void ReadAllRFS()
+{
+    bool found = false;
+    auto numf = fileSystem.GetNumEntries();
+    for (int i = 0; i < numf; i++)
+    {
+        auto rl = fileSystem.GetResourceType(i);
+        if (rl == NAME_RFS)
+        {
+            ParseScript(i);
+            found = true;
+        }
+    }
+    if (found) fileSystem.Rehash();
+}
 END_BLD_NS

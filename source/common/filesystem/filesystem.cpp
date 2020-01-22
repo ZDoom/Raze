@@ -100,7 +100,7 @@ void FileSystem::DeleteAll ()
 //
 //==========================================================================
 
-int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FString> &deletelumps, int maingamefiles)
+int FileSystem::InitMultipleFiles(TArray<FString>& filenames, const TArray<FString>& deletelumps, int maingamefiles)
 {
 	int numfiles;
 
@@ -108,7 +108,7 @@ int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FStr
 	DeleteAll();
 	numfiles = 0;
 
-	for(unsigned i=0;i<filenames.Size(); i++)
+	for (unsigned i = 0; i < filenames.Size(); i++)
 	{
 		int baselump = NumEntries;
 		bool nosubdirflag = false;
@@ -118,16 +118,21 @@ int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FStr
 			fn++;
 			nosubdirflag = true;
 		}
-		AddFile (filenames[i], nullptr, nosubdirflag);
+		AddFile(filenames[i], nullptr, nosubdirflag);
 	}
-	
+
 	NumEntries = FileInfo.Size();
 	if (NumEntries == 0)
 	{
 		return 0;
 	}
 	DeleteStuff(deletelumps, maingamefiles);
+	Rehash();
+	return NumEntries;
+}
 
+void FileSystem::Rehash()
+{
 	// [RH] Set up hash table
 	Hashes.Resize(NumLookupModes * 2 * NumEntries);
 	for (int i = 0; i < NumLookupModes; i++)
@@ -138,7 +143,6 @@ int FileSystem::InitMultipleFiles (TArray<FString> &filenames, const TArray<FStr
 	InitHashChains ();
 	FileInfo.ShrinkToFit();
 	Files.ShrinkToFit();
-	return NumEntries;
 }
 
 //==========================================================================
@@ -480,22 +484,7 @@ void FileSystem::AddLump(FResourceLump *lump)
 {
 	FileRecord rec = { -1, lump};
 	FileInfo.Push(rec);
-
-	for (int l = 0; l < NumLookupModes; l++)
-	{
-		int hash = 0;
-		if (l != (int)ELookupMode::IdWithType && lump->LumpName[l] != NAME_None)
-		{
-			hash = int(lump->LumpName[l]) % NumEntries;
-		}
-		else if (lump->ResourceId >= 0)
-		{
-			hash = int(lump->ResourceId) % NumEntries;
-		}
-		auto nh = FileInfo.Size() - 1;
-		NextFileIndex[l][nh] = FirstFileIndex[l][hash];
-		FirstFileIndex[l][hash] = nh;
-	}
+	NumEntries++;
 }
 
 //==========================================================================
@@ -995,11 +984,6 @@ bool FileSystem::CreatePathlessCopy(const char *name, int id, int flags)
 		else if (flags & DICT_LOAD) oldlump->Get();
 		return true;
 	}
-	
-	// Check if a lump with this name already exists.
-	// Blood does not allow re-replacing external resources.
-	auto prevlump = FindFile(filename);
-	if (prevlump >= 0 && FileInfo[prevlump].rfnum == -1) return true;
 	
 	// Create a clone of the resource to give it new lookup properties.
 	auto newlump = new FClonedLump(FileInfo[lump].lump);

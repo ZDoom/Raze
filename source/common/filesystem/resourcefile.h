@@ -171,6 +171,7 @@ struct FMemoryLump : public FResourceLump
 {
 	FMemoryLump(const void* data, int length)
 	{
+		LumpSize = length;
 		Cache.Resize(length);
 		memcpy(Cache.Data(), data, length);
 	}
