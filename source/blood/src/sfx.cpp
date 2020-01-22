@@ -131,14 +131,15 @@ void sfxUpdate3DSounds(void)
     soundEngine->UpdateSounds((int)totalclock);
 }
 
-FSoundID getSfx(FSoundID soundId, float &attenuation, int &pitch, int relvol)
+FSoundID getSfx(FSoundID soundId, float &attenuation, int &pitch, int &relvol)
 {
     auto udata = (int*)soundEngine->GetUserData(soundId);
     if (pitch < 0) pitch = udata ? udata[0] : 0x10000;
 
     if (relvol < 0) relvol = udata && udata[2] ? udata[2] : 80;
     if (relvol > 255) relvol = 255;
-    attenuation = relvol > 0 ? 80.f / relvol : 1.f;
+    // Limit the attenuation. More than 2.0 is simply too much.
+    attenuation = relvol > 0 ? clamp(80.f / relvol, 0.f, 2.f) : 1.f;
     return soundId;
 }
 
@@ -153,9 +154,10 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
 
     float attenuation;
     int pitch = -1;
-    sid = getSfx(sid, attenuation, pitch, -1);
+    int relvol = -1;
+    sid = getSfx(sid, attenuation, pitch, relvol);
   
-    soundEngine->StartSound(SOURCE_Unattached, nullptr, &svec, -1, CHANF_OVERLAP, sid, 0.8f, attenuation, nullptr, pitch / 65536.f);
+    soundEngine->StartSound(SOURCE_Unattached, nullptr, &svec, -1, CHANF_OVERLAP, sid, (0.8f / 80.f) * relvol, attenuation, nullptr, pitch / 65536.f);
 
 }
 
@@ -176,6 +178,7 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
 
     float attenuation;
     sid = getSfx(sid, attenuation, pitch, volume);
+    if (volume == -1) volume = 80;
 
     if (a3 >= 0)
     {
@@ -197,7 +200,7 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3, int a4, int pitc
 
     }
 
-    soundEngine->StartSound(SOURCE_Actor, pSprite, &svec, a3, a3 == -1? CHANF_OVERLAP : CHANF_NONE , sid, 0.8f, attenuation, nullptr, pitch / 65536.f);
+    soundEngine->StartSound(SOURCE_Actor, pSprite, &svec, a3, a3 == -1? CHANF_OVERLAP : CHANF_NONE , sid, volume * (0.8f / 80.f), attenuation, nullptr, pitch / 65536.f);
 }
 
 void sfxPlay3DSound(spritetype* pSprite, int soundId, int a3, int a4)
