@@ -476,14 +476,13 @@ DFrameBuffer *SDLVideo::CreateFrameBuffer ()
 	{
 		fb = new PolyFrameBuffer(nullptr, vid_fullscreen);
 	}
-
+#endif
 	if (fb == nullptr)
 	{
 		fb = new OpenGLRenderer::OpenGLFrameBuffer(0, vid_fullscreen);
 	}
 
 	return fb;
-#endif
 }
 
 
