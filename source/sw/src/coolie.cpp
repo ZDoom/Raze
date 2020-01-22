@@ -734,6 +734,7 @@ static saveable_data saveable_coolie_data[] =
     SAVE_DATA(sg_CoolieDead),
 
     SAVE_DATA(CoolieActionSet),
+    SAVE_DATA(s_CoolieDeadHead),
 };
 
 saveable_module saveable_coolie =

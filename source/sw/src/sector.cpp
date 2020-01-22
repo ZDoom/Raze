@@ -2598,7 +2598,7 @@ PlayerOperateEnv(PLAYERp pp)
 {
     SWBOOL found;
 
-    if (Prediction)
+    if (Prediction || !pp->SpriteP)
         return;
 
     ////DSPRINTF(ds,"dist %d sectnum %d wallnum %d spritenum %d",nti[nt_ndx].dist, nti[nt_ndx].sectnum, nti[nt_ndx].wallnum, nti[nt_ndx].spritenum);

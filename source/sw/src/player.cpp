@@ -2154,6 +2154,7 @@ void
 UpdatePlayerSprite(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP;
+    if (!sp) return;
 
     // Update sprite representation of player
 
@@ -2248,6 +2249,7 @@ DoPlayerZrange(PLAYERp pp)
     int ceilhit, florhit;
     short bakcstat;
 
+    if (!pp->SpriteP) return;
     // Don't let you fall if you're just slightly over a cliff
     // This function returns the highest and lowest z's
     // for an entire box, NOT just a point.  -Useful for clipping
@@ -8044,7 +8046,7 @@ domovethings(void)
         ChopsCheck(pp);
 
         //if (!ScrollMode2D)
-        (*pp->DoPlayerAction)(pp);
+        if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 
         UpdatePlayerSprite(pp);
 

@@ -483,4 +483,21 @@ void pMenuClearTextLine(PLAYERp pp)
 #define TEXT_PLAYER_INFO_TIME (3)
 #define TEXT_PLAYER_INFO_Y (200 - 40)
 
+#include "saveable.h"
+
+static saveable_code saveable_text_code[] =
+{
+    SAVE_CODE(StringTimer),
+};
+
+saveable_module saveable_text =
+{
+    // code
+    saveable_text_code,
+    SIZ(saveable_text_code),
+
+    // data
+    NULL,0
+};
+
 END_SW_NS

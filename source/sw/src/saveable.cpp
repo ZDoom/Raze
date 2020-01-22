@@ -24,25 +24,22 @@
 #include "ns.h"
 
 #include "compat.h"
+#include "tarray.h"
 BEGIN_SW_NS
 
 #include "saveable.h"
 
-
-#define maxModules 35
-
-static saveable_module *saveablemodules[maxModules];
-static unsigned nummodules = 0;
+static TArray<saveable_module*> saveablemodules;
 
 void Saveable_Init(void)
 {
-    if (nummodules > 0) return;
+    if (saveablemodules.Size() > 0) return;
 
     Saveable_Init_Dynamic();
 
 #define MODULE(x) { \
         extern saveable_module saveable_ ## x; \
-        saveablemodules[nummodules++] = &saveable_ ## x; \
+        saveablemodules.Push(&saveable_ ## x); \
 }
 
     MODULE(actor)
@@ -81,6 +78,7 @@ void Saveable_Init(void)
     MODULE(zombie)
 
     MODULE(sector)
+    MODULE(text)
 }
 
 int Saveable_FindCodeSym(void *ptr, savedcodesym *sym)
@@ -94,7 +92,7 @@ int Saveable_FindCodeSym(void *ptr, savedcodesym *sym)
         return 0;
     }
 
-    for (m=0; m<nummodules; m++)
+    for (m=0; m<saveablemodules.Size(); m++)
     {
         for (i=0; i<saveablemodules[m]->numcode; i++)
         {
@@ -122,7 +120,7 @@ int Saveable_FindDataSym(void *ptr, saveddatasym *sym)
         return 0;
     }
 
-    for (m=0; m<nummodules; m++)
+    for (m = 0; m < saveablemodules.Size(); m++)
     {
         for (i=0; i<saveablemodules[m]->numdata; i++)
         {
@@ -148,7 +146,7 @@ int Saveable_RestoreCodeSym(savedcodesym *sym, void **ptr)
         return 0;
     }
 
-    if (sym->module > nummodules) return -1;
+    if (sym->module > saveablemodules.Size()) return -1;
     if (sym->index  >= saveablemodules[sym->module-1]->numcode) return -1;
 
     *ptr = saveablemodules[sym->module-1]->code[sym->index];
@@ -164,7 +162,7 @@ int Saveable_RestoreDataSym(saveddatasym *sym, void **ptr)
         return 0;
     }
 
-    if (sym->module > nummodules) return -1;
+    if (sym->module > saveablemodules.Size()) return -1;
     if (sym->index  >= saveablemodules[sym->module-1]->numdata) return -1;
     if (sym->offset >= saveablemodules[sym->module-1]->data[sym->index].size) return -1;
 
