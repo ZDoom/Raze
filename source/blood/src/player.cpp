@@ -1557,7 +1557,7 @@ void ProcessInput(PLAYER *pPlayer)
             speed = 64;
         else
             speed = 128;
-        pPlayer->spin = ClipLow(pPlayer->spin+speed, 0);
+        pPlayer->spin = min(pPlayer->spin+speed, 0);
         pPlayer->q16ang += fix16_from_int(speed);
     }
     pPlayer->q16ang = (pPlayer->q16ang+fix16_from_int(pSprite->ang-pPlayer->angold))&0x7ffffff;

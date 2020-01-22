@@ -380,7 +380,7 @@ void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
         else
             speed = 128;
 
-        predict.at4c = ClipLow(predict.at4c+speed, 0);
+        predict.at4c = min(predict.at4c+speed, 0);
         predict.at30 += fix16_from_int(speed);
     }
 
