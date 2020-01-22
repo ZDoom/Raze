@@ -611,6 +611,7 @@ int RunGame()
 	InitFileSystem(usedgroups);
 	if (usedgroups.Size() == 0) return 0;
 
+	// Handle CVARs with game specific defaults here.
 	if (g_gameType & GAMEFLAG_BLOOD)
 	{
 		mus_redbook.SetGenericRepDefault(false, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
@@ -621,6 +622,11 @@ int RunGame()
 	{
 		hud_size.SetGenericRepDefault(8, CVAR_Int);
 		hud_size_max = 9;
+	}
+	if (g_gameType & GAMEFLAG_PSEXHUMED)
+	{
+		hud_size.SetGenericRepDefault(7, CVAR_Int);
+		hud_size_max = 8;
 	}
 
 	G_ReadConfig(currentGame);

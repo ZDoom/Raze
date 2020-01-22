@@ -986,44 +986,38 @@ static const char *safeStrtok(char *s, const char *d)
     return r ? r : "";
 }
 
+
+void GameInterface::set_hud_layout(int layout)
+{
+    if (layout == 8)
+    {
+        if (!bFullScreen)
+        {
+            bFullScreen = true;
+            screensize = 0;
+            UnMaskStatus();
+        }
+    }
+    else
+    {
+        screensize = (7 - clamp(layout, 0, 7)) * 2;
+        bFullScreen = false;
+        UpdateScreenSize();
+    }
+}
+
 void CheckKeys()
 {
     if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
     {
-        if (screensize == 0)
-        {
-            if (!bFullScreen)
-            {
-                bFullScreen = kTrue;
-                UnMaskStatus();
-            }
-        }
-        else
-        {
-            screensize--;
-            if (screensize < 0) {
-                screensize = 0;
-            }
-
-            UpdateScreenSize();
-        }
         buttonMap.ClearButton(gamefunc_Enlarge_Screen);
+        G_ChangeHudLayout(1);
     }
 
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
     {
-        if (bFullScreen)
-        {
-            bFullScreen = kFalse;
-        }
-        else
-        {
-            if ((screensize + 1) < 15)
-                screensize++;
-        }
-
-        UpdateScreenSize();
         buttonMap.ClearButton(gamefunc_Shrink_Screen);
+        G_ChangeHudLayout(-1);
     }
 
     // go to 3rd person view?

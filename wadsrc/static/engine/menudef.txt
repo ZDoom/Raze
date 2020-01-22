@@ -1210,6 +1210,10 @@ OptionMenu "HUDOptions" //protected
 	{
 		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 9.0, 1.0, -1
 	}
+	ifgame(exhumed)
+	{
+		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 8.0, 1.0, -1
+	}
 	
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
 	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury)
