@@ -6483,7 +6483,7 @@ DoPlayerBeginDie(PLAYERp pp)
     {
         bak = GlobInfoStringTime;
         GlobInfoStringTime = 999;
-        PutStringInfo(pp, GStrings("TXT_PRESSSPACE"));
+        PutStringInfo(pp, GStrings("TXTS_PRESSSPACE"));
         GlobInfoStringTime = bak;
     }
 
