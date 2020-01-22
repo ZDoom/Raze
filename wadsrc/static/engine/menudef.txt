@@ -1206,6 +1206,10 @@ OptionMenu "HUDOptions" //protected
 	{
 		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 7.0, 1.0, -1
 	}
+	ifgame(shadowwarrior)
+	{
+		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 9.0, 1.0, -1
+	}
 	
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
 	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury)

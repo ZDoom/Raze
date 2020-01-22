@@ -614,8 +614,13 @@ int RunGame()
 	if (g_gameType & GAMEFLAG_BLOOD)
 	{
 		mus_redbook.SetGenericRepDefault(false, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
-		hud_size.SetGenericRepDefault(6, CVAR_Int);			// HUD is different for everything.
+		hud_size.SetGenericRepDefault(6, CVAR_Int);
 		hud_size_max = 7;
+	}
+	if (g_gameType & GAMEFLAG_SW)
+	{
+		hud_size.SetGenericRepDefault(8, CVAR_Int);
+		hud_size_max = 9;
 	}
 
 	G_ReadConfig(currentGame);
