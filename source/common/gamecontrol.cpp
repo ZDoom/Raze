@@ -92,6 +92,8 @@ CVAR(Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALC
 //CVAR(Bool, autoloadbrightmaps, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)	// hopefully this is an option for later
 //CVAR(Bool, autoloadlights, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 
+extern int hud_size_max;
+
 
 //==========================================================================
 //
@@ -611,9 +613,9 @@ int RunGame()
 
 	if (g_gameType & GAMEFLAG_BLOOD)
 	{
-		UCVarValue v;
-		v.Bool = false;
-		mus_redbook.SetGenericRepDefault(v, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
+		mus_redbook.SetGenericRepDefault(false, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
+		hud_size.SetGenericRepDefault(6, CVAR_Int);			// HUD is different for everything.
+		hud_size_max = 7;
 	}
 
 	G_ReadConfig(currentGame);

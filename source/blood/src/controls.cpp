@@ -55,22 +55,10 @@ int32_t mouseyaxismode = -1;
 
 
 
-// This is mainly here to account for the different implementation between Blood and the other games
-// and to allow unified handling and the same value range in the CVAR code.
-// Unlike EDuke's version, NBlood's was actually fine, it just had a too small value range to be chosen as the unified version.
-bool GameInterface::validate_hud(int layout)
-{
-	return layout > 3 && layout != 8;	// 8 is the status bar overlay which NBlood did not implement.
-}
-
 void GameInterface::set_hud_layout(int layout)
 {
-	static const uint8_t screen_size_vals[] = { 7, 7, 7, 7, 6, 5, 4, 3, 3, 2, 1, 0 };
-
-	if (validate_hud(layout))
-	{
-		viewResizeView(screen_size_vals[layout]);
-	}
+    layout = clamp(7 - layout, 0, 7);   // need to reverse the order because menu sliders always have low values to the left.
+	viewResizeView(layout);
 }
 
 void GameInterface::set_hud_scale(int scale)

@@ -1197,11 +1197,16 @@ OptionMenu "HUDOptions" //protected
 {
 	Title "$OPTMNU_HUD"
 
-	Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 11.0, 1.0, -1
-	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury) // Fixme: The scaling really needs to be taken out of the game code.
+	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury)
 	{
+		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 11.0, 1.0, -1
 		Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				0.3, 1.0, 0.1, 2
 	}
+	ifgame(blood)
+	{
+		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 7.0, 1.0, -1
+	}
+	
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
 	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury)
 	{

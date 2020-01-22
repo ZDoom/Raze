@@ -160,10 +160,13 @@ CUSTOM_CVARD(Int, snd_speech, 5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disabl
 // This was particularly messy. EDuke and Rednukem had no consistent setting for this but a complex combination of 4 CVARs and lots of mod flags controlling the HUD layout
 // NBlood had this differently with an inverted scale of 0-7 with 0 having no HUD.
 // For consistency all frontends now use the same scale, with 0 being the smallest and 11 being the largest, which get converted to the internal settings by the set_hud_layout callback.
+
+int hud_size_max = 11;	// 11 is for Duke Nukem and its offspring games.
+
 CUSTOM_CVARD(Int, hud_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD size and style")
 {
 	if (self < 0) self = 0;
-	else if (self > 11) self = 11;
+	else if (self > hud_size_max) self = hud_size_max;
 	else
 	{
 		if (gi->validate_hud(self))

@@ -104,9 +104,9 @@ struct GameInterface
 	virtual int app_main() = 0;
 	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}
-	virtual bool validate_hud(int) = 0;
+	virtual bool validate_hud(int) { return true; }
 	virtual void set_hud_layout(int size) = 0;
-	virtual void set_hud_scale(int size) = 0;
+	virtual void set_hud_scale(int size) {}
 	virtual FString statFPS() { return "FPS display not available"; }
 	virtual GameStats getStats() { return {}; }
 	virtual void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) {}

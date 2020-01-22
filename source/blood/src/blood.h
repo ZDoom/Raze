@@ -87,7 +87,6 @@ struct GameInterface : ::GameInterface
 	void UpdateScreenSize() override;
 	bool GenerateSavePic() override;
 	void FreeGameData() override;
-	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
 	void set_hud_scale(int size) override;
 	FString statFPS() override;
