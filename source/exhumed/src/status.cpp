@@ -495,6 +495,16 @@ void MoveStatus()
         }
     }
 
+    nHealthFrame++;
+    if (nHealthFrame >= nHealthFrames) {
+        nHealthFrame = 0;
+    }
+
+    nMagicFrame++;
+    if (nMagicFrame >= nMagicFrames) {
+        nMagicFrame = 0;
+    }
+
     MoveStatusAnims();
 
     if (nCounter == nCounterDest)
@@ -683,17 +693,6 @@ void DrawStatus()
         seq_DrawStatusSequence(nStatusSeqOffset + 127, 0, 0);
         seq_DrawStatusSequence(nStatusSeqOffset + 1, nHealthFrame, nHealthLevel);
         seq_DrawStatusSequence(nStatusSeqOffset + 129, nMagicFrame, nMagicLevel);
-
-        nHealthFrame++;
-        if (nHealthFrame >= nHealthFrames) {
-            nHealthFrame = 0;
-        }
-
-        nMagicFrame++;
-        if (nMagicFrame >= nMagicFrames) {
-            nMagicFrame = 0;
-        }
-
         seq_DrawStatusSequence(nStatusSeqOffset + 125, 0, 0); // draw ankh on health pool
         seq_DrawStatusSequence(nStatusSeqOffset + 130, 0, 0); // draw health pool frame (top)
         seq_DrawStatusSequence(nStatusSeqOffset + 131, 0, 0); // magic pool frame (bottom)
