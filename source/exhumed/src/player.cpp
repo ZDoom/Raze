@@ -1177,7 +1177,10 @@ void FuncPlayer(int pA, int nDamage, int nRun)
                 if (nTotalPlayers <= 1)
                 {
                     PlayerList[nPlayer].q16angle = fix16_from_int(GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask);
+                    PlayerList[nPlayer].q16oangle = PlayerList[nPlayer].q16angle;
                     sprite[nPlayerSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
+
+                    PlayerList[nPlayer].q16ohoriz = PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
 
                     lPlayerXVel = 0;
                     lPlayerYVel = 0;
