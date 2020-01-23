@@ -52,6 +52,7 @@
 #include "filereadermusicinterface.h"
 #include "savegamehelp.h"
 #include "sjson.h"
+#include "v_text.h"
 
 MusPlayingInfo mus_playing;
 MusicAliasMap MusicAliases;
@@ -62,6 +63,7 @@ bool MusicPaused;
 static bool mus_blocked;
 static FString lastStartedMusic;
 EXTERN_CVAR(Float, mus_volume)
+CVAR(Bool, printmusicinfo, false, 0)
 
 //==========================================================================
 //
@@ -307,19 +309,25 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		}
 
 		FileReader reader;
-		if (!FileExists(musicname))
+		if (FileExists(musicname))
+		{
+			// Load an external file.
+			reader.OpenFile(musicname);
+		}
+		if (!reader.isOpen())
 		{
 			if ((lumpnum = fileSystem.FindFile(musicname)) == -1)
 			{
 				// Always look in the 'music' subfolder as well.
 				FStringf aliasMusicname("music/%s", musicname);
-				if ((lumpnum = fileSystem.FindFile(aliasMusicname)) == -1)
+				if ((lumpnum = fileSystem.FindFile(musicname)) == -1 && (g_gameType & GAMEFLAG_SW))
 				{
-					Printf("Music \"%s\" not found\n", musicname);
-					return false;
+					// Some Shadow Warrioe distributions have the music in a subfolder named 'classic'. Check that, too.
+					FStringf aliasMusicname("classic/music/%s", musicname);
+					lumpnum = fileSystem.FindFile(aliasMusicname);
 				}
 			}
-			if (handle == nullptr)
+			if (handle == nullptr && lumpnum > -1)
 			{
 				if (fileSystem.FileLength(lumpnum) == 0)
 				{
@@ -327,15 +335,15 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 				}
 				reader = fileSystem.ReopenFileReader(lumpnum);
 			}
-		}
-		else
-		{
-			// Load an external file.
-			if (!reader.OpenFile(musicname))
+			if (!reader.isOpen())
 			{
-				return false;
+				Printf(TEXTCOLOR_RED "Unable to play music " TEXTCOLOR_WHITE "\"%s\"\n", musicname);
 			}
+			else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), musicname);
 		}
+		else if (printmusicinfo) Printf("Playing music from external file %s\n", musicname);
+
+
 
 		// shutdown old music
 		S_StopMusic (true);
