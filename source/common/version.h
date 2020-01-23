@@ -44,13 +44,13 @@ const char *GetVersionString();
 #define VERSIONSTR "0.1.0"
 
 // The version as seen in the Windows resource
-#define RC_FILEVERSION 0,1,0,0
-#define RC_PRODUCTVERSION 0,1,0,0
+#define RC_FILEVERSION 0,3,0,0
+#define RC_PRODUCTVERSION 0,3,0,0
 #define RC_PRODUCTVERSION2 VERSIONSTR
 // These are for content versioning.
 #define VER_MAJOR 0
-#define VER_MINOR 0
-#define VER_REVISION 1
+#define VER_MINOR 3
+#define VER_REVISION 0
 
 // More stuff that needs to be different for derivatives.
 #define GAMENAME "Raze"
