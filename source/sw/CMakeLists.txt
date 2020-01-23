@@ -85,6 +85,7 @@ set( PCH_SOURCES
 	src/morph.cpp
 	src/network.cpp
 	src/ninja.cpp
+	src/osdcmds.cpp
 	src/panel.cpp
 	src/player.cpp
 	src/predict.cpp

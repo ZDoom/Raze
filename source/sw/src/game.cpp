@@ -99,6 +99,8 @@ Things required to make savegames work:
 #include "rendering/v_video.h"
 #include "sound/s_soundinternal.h"
 
+#include "osdcmds.h"
+
 //#include "crc32.h"
 
 BEGIN_SW_NS
@@ -2778,6 +2780,8 @@ int32_t GameInterface::app_main()
     buildputs("Copyright (c) 1997 3D Realms Entertainment\n");
 
     UserMapName[0] = '\0';
+
+    registerosdcommands();
 
     Control();
 

@@ -1204,6 +1204,9 @@ int GameInterface::app_main()
     if (!bQuickStart)
         credLogosDos();
     scrSetDac();
+
+    registerosdcommands();
+
 RESTART:
     sub_79760();
     gViewIndex = myconnectindex;
