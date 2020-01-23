@@ -175,6 +175,35 @@ void WeaponCheat(PLAYERp pp, const char *)
             p->WpnAmmo[i] = DamageData[i].max_ammo;
         }
 
+        p->WpnShotgunAuto = 50;
+        p->WpnRocketHeat = 5;
+        p->WpnRocketNuke = 1;
+
+        PlayerUpdateWeapon(p, u->WeaponNum);
+    }
+}
+
+void AmmoCheat(PLAYERp pp, const char *)
+{
+    PLAYERp p;
+    short pnum;
+    unsigned int i;
+    USERp u;
+
+    TRAVERSE_CONNECT(pnum)
+    {
+        p = &Player[pnum];
+        u = User[p->PlayerSprite];
+
+        p->WpnShotgunAuto = 50;
+        p->WpnRocketHeat = 5;
+        p->WpnRocketNuke = 1;
+
+        for (i = 0; i < SIZ(p->WpnAmmo); i++)
+        {
+            p->WpnAmmo[i] = DamageData[i].max_ammo;
+        }
+
         PlayerUpdateWeapon(p, u->WeaponNum);
     }
 }
@@ -267,6 +296,55 @@ void ItemCheat(PLAYERp pp, const char *cheat_string)
 
     WeaponCheat(pp, cheat_string);
     PlayerUpdateKeys(pp);
+}
+
+void InventoryCheat(PLAYERp pp, const char *cheat_string)
+{
+    //
+    // Get all ITEMS
+    //
+    PLAYERp p;
+    short pnum;
+    short inv;
+    int i;
+
+    PutStringInfo(pp, "INVENTORY");
+
+    TRAVERSE_CONNECT(pnum)
+    {
+        p = &Player[pnum];
+
+        p->WpnShotgunAuto = 50;
+        p->WpnRocketHeat = 5;
+        p->WpnRocketNuke = 1;
+        p->Armor = 100;
+
+        for (inv = 0; inv < MAX_INVENTORY; inv++)
+        {
+            p->InventoryPercent[inv] = 100;
+            //p->InventoryAmount[inv] = 1;
+            p->InventoryAmount[inv] = InventoryData[inv].MaxInv;
+            //PlayerUpdateInventory(p, inv);
+        }
+
+        PlayerUpdateInventory(p, p->InventoryNum);
+        //p->InventoryNum = 0;
+    }
+
+}
+
+void ArmorCheat(PLAYERp pp, const char *cheat_string)
+{
+    short pnum;
+    const char *str = nullptr;
+
+    TRAVERSE_CONNECT(pnum)
+    {
+        if (User[Player[pnum].PlayerSprite]->Health < pp->MaxHealth)
+            str = "ARMOR";
+        Player[pnum].Armor = 100;
+    }
+    if (str) PutStringInfo(pp, GStrings(str));
 }
 
 void HealCheat(PLAYERp pp, const char *cheat_string)
