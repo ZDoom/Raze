@@ -320,10 +320,10 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 			{
 				// Always look in the 'music' subfolder as well.
 				FStringf aliasMusicname("music/%s", musicname);
-				if ((lumpnum = fileSystem.FindFile(musicname)) == -1 && (g_gameType & GAMEFLAG_SW))
+				if ((lumpnum = fileSystem.FindFile(aliasMusicname)) == -1 && (g_gameType & GAMEFLAG_SW))
 				{
 					// Some Shadow Warrioe distributions have the music in a subfolder named 'classic'. Check that, too.
-					FStringf aliasMusicname("classic/music/%s", musicname);
+					aliasMusicname.Format("classic/music/%s", musicname);
 					lumpnum = fileSystem.FindFile(aliasMusicname);
 				}
 			}
@@ -339,7 +339,7 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 			{
 				Printf(TEXTCOLOR_RED "Unable to play music " TEXTCOLOR_WHITE "\"%s\"\n", musicname);
 			}
-			else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), musicname);
+			else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), fileSystem.GetFileFullPath(lumpnum));
 		}
 		else if (printmusicinfo) Printf("Playing music from external file %s\n", musicname);
 

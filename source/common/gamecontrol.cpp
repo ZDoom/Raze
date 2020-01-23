@@ -681,6 +681,10 @@ int RunGame()
 	}
 
 	mouseGrabInput(true);	// the intros require the mouse to be grabbed.
+
+	auto exec = C_ParseCmdLineParams(nullptr);
+	if (exec) exec->ExecCommands();
+
 	return gi->app_main();
 }
 
