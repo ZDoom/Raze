@@ -339,7 +339,7 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 			{
 				Printf(TEXTCOLOR_RED "Unable to play music " TEXTCOLOR_WHITE "\"%s\"\n", musicname);
 			}
-			else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), fileSystem.GetFileFullPath(lumpnum));
+			else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), fileSystem.GetFileFullPath(lumpnum).GetChars());
 		}
 		else if (printmusicinfo) Printf("Playing music from external file %s\n", musicname);
 
