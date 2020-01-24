@@ -5763,7 +5763,9 @@ KeyMain:
                 {
                     int cookie = (adult_lockout || Global_PLock)? STD_RANDOM_RANGE(10) : STD_RANDOM_RANGE(MAX_FORTUNES);
                     // print to the console, and if active to the generic notify display.
-                    Printf(PRINT_NOTIFY, TEXTCOLOR_SAPPHIRE "%s: %s\n", GStrings("TXTS_FORTUNE"), quoteMgr.GetQuote(QUOTE_COOKIE + cookie)); 
+                    FStringf msg(TEXTCOLOR_SAPPHIRE "%s: %s", GStrings("TXTS_FORTUNE"), quoteMgr.GetQuote(QUOTE_COOKIE + cookie));
+                    Printf("%s\n", msg.GetChars());
+                    adduserquote(msg.GetChars());
                 }
 
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup

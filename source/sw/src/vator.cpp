@@ -200,7 +200,7 @@ short DoVatorOperate(PLAYERp pp, short sectnum)
                 else
 #endif
                 {
-                    PutStringInfo(pp, quoteMgr.GetExQuote(QUOTE_DOORMSG + key_num - 1));
+                    PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
                     return FALSE;
                 }
             }
@@ -268,7 +268,7 @@ DoVatorMatch(PLAYERp pp, short match)
                 else
 #endif
                 {
-                    PutStringInfo(pp, quoteMgr.GetExQuote(QUOTE_DOORMSG + key_num - 1));
+                    PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
                     return -1;
                 }
             }

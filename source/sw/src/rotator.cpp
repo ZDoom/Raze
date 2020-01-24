@@ -218,7 +218,7 @@ DoRotatorMatch(PLAYERp pp, short match, SWBOOL manual)
                 else
 #endif
                 {
-                    PutStringInfo(pp, quoteMgr.GetExQuote(QUOTE_DOORMSG + key_num - 1));
+                    PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
                     return -1;
                 }
             }
