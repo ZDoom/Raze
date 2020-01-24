@@ -1521,6 +1521,7 @@ void CreditsLevel(void)
     gs.BorderNum = save;
     twod->ClearScreen();
     videoNextPage();
+    inputState.ClearAllInput();
 
     // Lo Wang feel like singing!
     PlaySound(DIGI_JG95012, v3df_none, CHAN_VOICE);
@@ -1528,21 +1529,16 @@ void CreditsLevel(void)
     {
         DoUpdateSounds();
         handleevents();
+        if (inputState.CheckAllInput())
+            break;
+        videoNextPage();
     }
+    StopSound();
 
     // try 14 then 2 then quit
     if (!PlaySong(nullptr, ThemeSongs[5], ThemeTrack[5], true))
     {
-        if (!PlaySong(nullptr, nullptr, 2, true))
-        {
-            PlaySound(DIGI_NOLIKEMUSIC, v3df_none, CHAN_VOICE);
-            while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
-            {
-                DoUpdateSounds();
-                handleevents();
-            }
-            return;
-        }
+        PlaySong(nullptr, nullptr, 2, true);
     }
 
     ready2send = 0;
@@ -1577,7 +1573,7 @@ void CreditsLevel(void)
             curpic = CREDITS1_PIC;
         }
 
-        if (inputState.GetKeyStatus(KEYSC_ESC))
+        if (inputState.CheckAllInput())
             break;
     }
 
