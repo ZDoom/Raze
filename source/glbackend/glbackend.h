@@ -202,6 +202,10 @@ public:
 	{
 		g_nontransparent255 = on;
 	}
+	bool  NonTransparent255Enabled()
+	{
+		return g_nontransparent255;
+	}
 
 	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2);
 	void SetIndexBuffer(IIndexBuffer* vb);

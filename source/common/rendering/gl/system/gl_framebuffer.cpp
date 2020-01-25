@@ -39,6 +39,7 @@
 #include "m_png.h"
 #include "printf.h"
 #include "templates.h"
+#include "palette.h"
 #include "glbackend/glbackend.h"
 
 #include "gl_load/gl_interface.h"
@@ -431,7 +432,10 @@ void OpenGLFrameBuffer::Draw2D()
 		GLRenderer->mBuffers->BindCurrentFB();
 		::DrawFullscreenBlends();
         DrawRateStuff();
+		auto savepal = curbasepal;
+		if (!GLInterface.NonTransparent255Enabled()) curbasepal = 0;
 		GLInterface.Draw2D(&twodgen);
+		curbasepal = savepal;
 	}
 }
 
