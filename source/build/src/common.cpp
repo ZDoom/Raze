@@ -69,7 +69,7 @@ int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char
     Bassert((intptr_t)wbuf != (intptr_t)fn);  // no aliasing
 
     // If 'fn' has no extension suffixed, append one.
-    return (Bsnprintf(wbuf, wbufsiz, "%s%s", fn, haveext ? "" : ext) >= wbufsiz);
+    return (snprintf(wbuf, wbufsiz, "%s%s", fn, haveext ? "" : ext) >= wbufsiz);
 }
 
 

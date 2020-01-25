@@ -400,7 +400,7 @@ void CDemo::LoadDemoInfo(void)
     auto pDemo = &pFirstDemo;
     at59ef = 0;
     char zFN[BMAX_PATH];
-    Bsnprintf(zFN, BMAX_PATH, "%s%s*.dem", M_GetDemoPath().GetChars(), BloodIniPre);
+    snprintf(zFN, BMAX_PATH, "%s%s*.dem", M_GetDemoPath().GetChars(), BloodIniPre);
 	TArray<FString> demos;
 	D_AddWildFile(demos, zFN);
 	for (auto &filename : demos)

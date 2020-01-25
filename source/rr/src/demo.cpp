@@ -375,7 +375,7 @@ static void Demo_DisplayProfStatus(void)
     lastpercent = percent;
 
     videoClearScreen(0);
-    Bsnprintf(buf, sizeof(buf), "timing... %d/%d game tics (%d %%)",
+    snprintf(buf, sizeof(buf), "timing... %d/%d game tics (%d %%)",
               g_demo_cnt, g_demo_totalCnt, percent);
     gametext_center(60, buf);
     videoNextPage();

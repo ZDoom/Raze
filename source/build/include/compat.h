@@ -447,28 +447,6 @@ typedef int32_t ssize_t;
 typedef size_t bsize_t;
 typedef ssize_t bssize_t;
 
-typedef FILE BFILE;
-
-#define BO_BINARY O_BINARY
-#define BO_TEXT   O_TEXT
-#define BO_RDONLY O_RDONLY
-#define BO_WRONLY O_WRONLY
-#define BO_RDWR   O_RDWR
-#define BO_APPEND O_APPEND
-#define BO_CREAT  O_CREAT
-#define BO_TRUNC  O_TRUNC
-#define BS_IRGRP  S_IRGRP
-#define BS_IWGRP  S_IWGRP
-#define BS_IEXEC  S_IEXEC
-#define BS_IFIFO  S_IFIFO
-#define BS_IFCHR  S_IFCHR
-#define BS_IFBLK  S_IFBLK
-#define BS_IFDIR  S_IFDIR
-#define BS_IFREG  S_IFREG
-#define BSEEK_SET SEEK_SET
-#define BSEEK_CUR SEEK_CUR
-#define BSEEK_END SEEK_END
-
 #define BMAX_PATH 256
 
 #define Bassert assert
@@ -498,44 +476,12 @@ typedef FILE BFILE;
 #define Btoupper toupper
 #define Btolower tolower
 #define Bmemcpy memcpy
-#define Bmemmove memmove
-#define Bmemchr memchr
 #define Bmemset memset
 #define Bmemcmp memcmp
-#define Bscanf scanf
-#define Bprintf printf
-#define Bsscanf sscanf
 #define Bsprintf sprintf
-#define Bvfprintf vfprintf
-#define Bgetenv getenv
-#define Butime utime
 
 
 ////////// Standard library wrappers //////////
-
-#ifdef __ANDROID__
-# define BS_IWRITE S_IWUSR
-# define BS_IREAD  S_IRUSR
-#else
-# define BS_IWRITE S_IWRITE
-# define BS_IREAD  S_IREAD
-#endif
-
-#if defined(__cplusplus) && defined(_MSC_VER)
-# define Bstrdup _strdup
-# define Bchdir _chdir
-# define Bgetcwd _getcwd
-#else
-# define Bstrdup strdup
-# define Bchdir chdir
-# define Bgetcwd getcwd
-#endif
-
-#if defined(__GNUC__)
-# define Btell(h) lseek(h,0,SEEK_CUR)
-#else
-# define Btell tell
-#endif
 
 #if defined(_MSC_VER)
 # define Bstrcasecmp _stricmp
@@ -548,65 +494,20 @@ typedef FILE BFILE;
 # define Bstrncasecmp strncasecmp
 #endif
 
-#ifdef _MSC_VER
-# define Bsnprintf _snprintf
-# define Bvsnprintf _vsnprintf
-#else
-# define Bsnprintf snprintf
-# define Bvsnprintf vsnprintf
-#endif
-
-#define Btime() time(NULL)
-
-#if defined(_WIN32)
-# define Bmkdir(s,x) mkdir(s)
-#else
-# define Bmkdir mkdir
-#endif
-
-// XXX: different across 32- and 64-bit archs (e.g.
-// parsing the decimal representation of 0xffffffff,
-// 4294967295 -- long is signed, so strtol would
-// return LONG_MAX (== 0x7fffffff on 32-bit archs))
-
-static FORCE_INLINE int32_t atoi_safe(const char *str) { return (int32_t)Bstrtol(str, NULL, 10); }
+static inline int32_t atoi_safe(const char *str) { return (int32_t)strtoll(str, NULL, 10); }
 
 #define Batoi(x) atoi_safe(x)
 #define Batol(str) (strtol(str, NULL, 10))
-#define Batof(str) (strtod(str, NULL))
 
-#if defined BITNESS64 && (defined __SSE2__ || defined _MSC_VER)
-#include <emmintrin.h>
-static FORCE_INLINE int32_t Blrintf(const float x)
+static constexpr inline int Blrintf(const double x)
 {
-    __m128 xx = _mm_load_ss(&x);
-    return _mm_cvtss_si32(xx);
+    return int(x);
 }
-#elif defined (_MSC_VER)
-static FORCE_INLINE int32_t Blrintf(const float x)
-{
-    int n;
-    __asm fld x;
-    __asm fistp n;
-    return n;
-}
-#else
-#define Blrintf(x) ((int32_t)lrintf(x))
-#endif
 
 #if defined(__arm__)
-# define Bsqrt __builtin_sqrt
 # define Bsqrtf __builtin_sqrtf
 #else
-# define Bsqrt sqrt
 # define Bsqrtf sqrtf
-#endif
-
-// redefined for apple/ppc, which chokes on stderr when linking...
-#if defined EDUKE32_OSX && defined __BIG_ENDIAN__
-# define ERRprintf(fmt, ...) printf(fmt, ## __VA_ARGS__)
-#else
-# define ERRprintf(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__)
 #endif
 
 class ExitEvent : public std::exception
@@ -714,15 +615,6 @@ struct integers_of_size<sizeof(int64_t)>
 
 
 ////////// Typedefs //////////
-
-#ifdef __cplusplus
-// for use in SFINAE constructs in place of the pointer trick (to which 0 can unintentionally be implicitly cast)
-struct Dummy FINAL
-{
-    FORCE_INLINE CONSTEXPR Dummy() : dummy(0) { }
-    char dummy;
-};
-#endif
 
 #if defined(__x86_64__)
 // for 32-bit pointers in x86_64 code, such as `gcc -mx32`
@@ -1118,7 +1010,7 @@ void *handle_memerr(void *);
 
 static FORCE_INLINE char *xstrdup(const char *s)
 {
-    char *ptr = Bstrdup(s);
+    char *ptr = strdup(s);
     return (EDUKE32_PREDICT_TRUE(ptr != NULL)) ? ptr : (char *)handle_memerr(ptr);
 }
 

@@ -6848,63 +6848,6 @@ psky_t * tileSetupSky(int32_t const tilenum)
 }
 
 //
-// Exported Engine Functions
-//
-
-#if !defined _WIN32 && defined DEBUGGINGAIDS && !defined GEKKO
-#ifdef GEKKO
-#define __rtems__
-#define _POSIX_REALTIME_SIGNALS
-#endif
-#include <signal.h>
-static void sighandler(int sig, siginfo_t *info, void *ctx)
-{
-    const char *s;
-    UNREFERENCED_PARAMETER(ctx);
-    switch (sig)
-    {
-    case SIGFPE:
-        switch (info->si_code)
-        {
-        case FPE_INTDIV:
-            s = "FPE_INTDIV (integer divide by zero)"; break;
-        case FPE_INTOVF:
-            s = "FPE_INTOVF (integer overflow)"; break;
-        case FPE_FLTDIV:
-            s = "FPE_FLTDIV (floating-point divide by zero)"; break;
-        case FPE_FLTOVF:
-            s = "FPE_FLTOVF (floating-point overflow)"; break;
-        case FPE_FLTUND:
-            s = "FPE_FLTUND (floating-point underflow)"; break;
-        case FPE_FLTRES:
-            s = "FPE_FLTRES (floating-point inexact result)"; break;
-        case FPE_FLTINV:
-            s = "FPE_FLTINV (floating-point invalid operation)"; break;
-        case FPE_FLTSUB:
-            s = "FPE_FLTSUB (floating-point subscript out of range)"; break;
-        default:
-            s = "?! (unknown)"; break;
-        }
-        ERRprintf("Caught SIGFPE at address %p, code %s. Aborting.\n", info->si_addr, s);
-        break;
-    default:
-        break;
-    }
-    abort();
-}
-#endif
-
-//
-// E_FatalError
-//
-int32_t engineFatalError(char const * const msg)
-{
-    engineerrstr = msg;
-    initprintf("ERROR: %s\n", engineerrstr);
-    return -1;
-}
-
-//
 // preinitengine
 //
 static int32_t preinitcalled = 0;
@@ -7002,18 +6945,6 @@ int32_t engineInit(void)
     if (!mdinited) mdinit();
 #endif
 
-#ifdef LUNATIC
-    if (L_CreateState(&g_engState, "eng", NULL))
-        return engineFatalError("Failed creating engine Lua state!");
-
-    {
-        static char const * const luastr = "_LUNATIC_AUX=true; decl=require('ffi').cdef; require'defs_common'";
-
-        if (L_RunString(&g_engState, luastr, -1, "eng"))
-            return engineFatalError("Failed setting up engine Lua state");
-    }
-#endif
-
     return 0;
 }
 
@@ -7023,11 +6954,11 @@ int32_t engineInit(void)
 int32_t enginePostInit(void)
 {
     if (!(paletteloaded & PALETTE_MAIN))
-        return engineFatalError("No palette found.");
+        I_FatalError("No palette found.");
     if (!(paletteloaded & PALETTE_SHADE))
-        return engineFatalError("No shade table found.");
+        I_FatalError("No shade table found.");
     if (!(paletteloaded & PALETTE_TRANSLUC))
-        return engineFatalError("No translucency table found.");
+        I_FatalError("No translucency table found.");
 
     palettePostLoadTables();
 

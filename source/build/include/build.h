@@ -829,7 +829,6 @@ int32_t    engineInit(void);
 int32_t enginePostInit(void);
 void   engineUnInit(void);
 void   initspritelists(void);
-int32_t engineFatalError(char const * msg);
 
 int32_t   engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 int32_t   engineLoadMHK(const char *filename);

@@ -45,7 +45,7 @@ static void G_AddDemo(const char* param)
         // -d<filename>:<num>[,<num>]
         // profiling options
         *(colon++) = 0;
-        Bsscanf(colon, "%d,%d", &framespertic, &numrepeats);
+        sscanf(colon, "%d,%d", &framespertic, &numrepeats);
     }
 
     Demo_SetFirst(tempbuf);
