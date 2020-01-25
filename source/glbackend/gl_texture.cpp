@@ -43,8 +43,8 @@
 #include "../../glbackend/glbackend.h"
 
 // Test CVARs.
-CVAR(Int, fixpalette, 0, 0)
-CVAR(Int, fixpalswap, 0, 0)
+CVAR(Int, fixpalette, -1, 0)
+CVAR(Int, fixpalswap, -1, 0)
 
 template<class T>
 void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
@@ -153,8 +153,8 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int method, int sampleroverride, FTexture *det, float detscale, FTexture *glow)
 {
 	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return false;
-	int usepalette = fixpalette >= 1 ? fixpalette - 1 : curbasepal;
-	int usepalswap = fixpalswap >= 1 ? fixpalswap - 1 : palette;
+	int usepalette = fixpalette >= 0 ? fixpalette : curbasepal;
+	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
 	GLInterface.SetPalette(usepalette);
 	GLInterface.SetPalswap(usepalswap);
 	bool texbound[3] = {};
