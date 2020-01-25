@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-extern CCheatMgr gCheatMgr;
+void LevelWarp(int nEpisode, int nLevel);
 
 static int osdcmd_map(osdcmdptr_t parm)
 {
@@ -221,7 +221,20 @@ static int osdcmd_activatecheat(osdcmdptr_t parm)
     }
 }
 
-
+static int osdcmd_levelwarp(osdcmdptr_t parm)
+{
+    if (parm->numparms != 2)
+        return OSDCMD_SHOWHELP;
+    int e = atoi(parm->parms[0]);
+    int m = atoi(parm->parms[1]);
+    if (e == 0 || m == 0)
+    {
+        Printf("Invalid level!: E%sM%s\n", parm->parms[0], parm->parms[1]);
+        return OSDCMD_OK;
+    }
+    LevelWarp(e - 1, m - 1);
+    return OSDCMD_OK;
+}
 
 int32_t registerosdcommands(void)
 {
@@ -233,6 +246,8 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
     OSD_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);
+
+    OSD_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
 
     return 0;
 }
