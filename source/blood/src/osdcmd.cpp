@@ -44,6 +44,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+extern CCheatMgr gCheatMgr;
+
 static int osdcmd_map(osdcmdptr_t parm)
 {
     char filename[BMAX_PATH];
@@ -201,6 +203,24 @@ void onvideomodechange(int32_t newmode)
     UpdateDacs(gLastPal, false);
 }
 
+static int osdcmd_activatecheat(osdcmdptr_t parm)
+{
+    FString CheatEntry;
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    CheatEntry = (char*)(parm->parms[0]);
+    CheatEntry.ToUpper();
+
+    if (gCheatMgr.Check((char*)(CheatEntry.GetChars())))
+	    return OSDCMD_OK;
+    else
+    {
+        Printf("Unrecognized cheat!: %s\n", parm->parms[0]);
+        return OSDCMD_OK;
+    }
+}
+
 
 
 int32_t registerosdcommands(void)
@@ -212,6 +232,7 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
+    OSD_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);
 
     return 0;
 }

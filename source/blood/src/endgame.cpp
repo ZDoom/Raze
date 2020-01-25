@@ -62,7 +62,7 @@ void CEndGameMgr::Draw(void)
         viewDrawText(1, GStrings("TXTB_LEVELSTATS"), 160, nY, -128, 0, 1, 0);
         if (CCheatMgr::m_bPlayerCheated)
         {
-            viewDrawText(3, GStrings("TXTB_CHESTED"), 160, 32, -128, 0, 1, 1);
+            viewDrawText(3, GStrings("TXTB_CHEATED"), 160, 32, -128, 0, 1, 1);
         }
         gKillMgr.Draw();
         gSecretMgr.Draw();
