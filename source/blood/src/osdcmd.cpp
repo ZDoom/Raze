@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "sfx.h"
 #include "view.h"
+#include "mapinfo.h"
 
 BEGIN_BLD_NS
 
@@ -48,6 +49,9 @@ void LevelWarp(int nEpisode, int nLevel);
 
 static int osdcmd_map(osdcmdptr_t parm)
 {
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
     char filename[BMAX_PATH];
 
     strcpy(filename, parm->parms[0]);
@@ -58,6 +62,18 @@ static int osdcmd_map(osdcmdptr_t parm)
         OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;
     }
+
+    for (int i = 0; i < 512; i++)
+    {
+        if (mapList[i].labelName.CompareNoCase(filename) == 0)
+        {
+            int e = i / kMaxLevels;
+            int m = i % kMaxLevels;
+            LevelWarp(e, m);
+            return OSDCMD_OK;
+        }
+    }
+    // Map has not been defined. Treat as user map.
 
     if (gDemo.at1)
         gDemo.StopPlayback();
