@@ -506,6 +506,7 @@ void SaveStatistics()
 	{
 		sjson_node* levj = sjson_mkobject(ctx);
 		SaveOneLevel(ctx, levj, lev);
+		sjson_append_element(levels, levj);
 	}
 	sjson_append_member(ctx, root, "levels", levels);
 

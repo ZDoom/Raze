@@ -975,6 +975,7 @@ void ProcessFrame(void)
         seqKillAll();
         if (gGameOptions.uGameFlags&2)
         {
+            STAT_Update(true);
             if (gGameOptions.nGameType == 0)
             {
                 if (gGameOptions.uGameFlags&8)

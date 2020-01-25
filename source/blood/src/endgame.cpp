@@ -104,7 +104,7 @@ void CEndGameMgr::Setup(void)
     at1 = gInputMode;
     gInputMode = kInputEndGame;
     at0 = 1;
-	STAT_Update(true);
+	STAT_Update(false);
     EndLevel();
     sndStartSample(268, 128, -1, 1);
     inputState.keyFlushScans();
