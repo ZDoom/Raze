@@ -11,6 +11,8 @@
 # include "windows_inc.h"
 #endif
 
+#include "xs_Float.h"
+
 ////////// Compiler detection //////////
 
 #ifdef __GNUC__
@@ -499,9 +501,9 @@ static inline int32_t atoi_safe(const char *str) { return (int32_t)strtoll(str, 
 #define Batoi(x) atoi_safe(x)
 #define Batol(str) (strtol(str, NULL, 10))
 
-static constexpr inline int Blrintf(const double x)
+static inline int Blrintf(const double x)
 {
-    return int(x);
+    return xs_CRoundToInt(x);
 }
 
 #if defined(__arm__)

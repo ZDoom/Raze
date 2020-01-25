@@ -755,7 +755,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
                                   )));
 
-        vr = Blrintf(float(vr) * tanf(r_fov * (fPI/360.f)));
+        vr = Blrintf(double(vr) * tan(r_fov * (PI/360.)));
 
         if (!r_usenewaspect)
             renderSetAspect(vr, yxaspect);

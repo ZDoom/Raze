@@ -10062,6 +10062,7 @@ void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 //
 void renderSetAspect(int32_t daxrange, int32_t daaspect)
 {
+    if (daxrange == 65536) daxrange--;  // This doesn't work correctly with 65536. All other values are fine. No idea where this is evaluated wrong.
     viewingrange = daxrange;
     viewingrangerecip = divscale32(1,daxrange);
 #ifdef USE_OPENGL

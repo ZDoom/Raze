@@ -3103,7 +3103,10 @@ void viewDrawScreen(bool sceneonly)
             newaspect_enable = 1;
             videoSetCorrectedAspect();
         }
-        renderSetAspect(Blrintf(float(viewingrange) * tanf(r_fov * (PI / 360.f))), yxaspect);
+
+        int v1 = Blrintf(double(viewingrange) * tan(r_fov * (PI / 360.)));
+
+        renderSetAspect(v1, yxaspect);
         int cX = gView->pSprite->x;
         int cY = gView->pSprite->y;
         int cZ = gView->zView;
