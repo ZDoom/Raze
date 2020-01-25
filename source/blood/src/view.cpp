@@ -3408,9 +3408,8 @@ void viewDrawScreen(bool sceneonly)
         renderDrawMasks();
         gView->pSprite->cstat = bakCstat;
         screen->FinishScene();
-        if (sceneonly) return;
 
-        if (v78 || bDelirium)
+        if ((v78 || bDelirium) && !sceneonly)
         {
             if (videoGetRenderMode() == REND_CLASSIC)
             {
@@ -3461,6 +3460,7 @@ void viewDrawScreen(bool sceneonly)
         int nClipDist = gView->pSprite->clipdist << 2;
         int ve8, vec, vf0, vf4;
         GetZRange(gView->pSprite, &vf4, &vf0, &vec, &ve8, nClipDist, 0);
+        if (sceneonly) return;
 #if 0
         int tmpSect = nSectnum;
         if ((vf0 & 0xc000) == 0x4000)
@@ -3481,7 +3481,7 @@ void viewDrawScreen(bool sceneonly)
             }
         }
 #endif
-        //PspTwoDSetter set;
+
         if (gViewPos == 0)
         {
             if (cl_crosshair)
