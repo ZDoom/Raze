@@ -1995,4 +1995,5 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
     return true;
 }
 
-#endifEND_BLD_NS
+#endif
+END_BLD_NS

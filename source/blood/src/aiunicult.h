@@ -221,4 +221,5 @@ bool genDudePrepare(spritetype* pSprite, int propId = kGenDudePropertyAll);
 void genDudeUpdate(spritetype* pSprite);
 void genDudeProcess(spritetype* pSprite, XSPRITE* pXSprite);
 bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int weaponType, int by = 64);
-#endifEND_BLD_NS
+#endif
+END_BLD_NS
