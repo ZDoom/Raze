@@ -67,6 +67,8 @@ void I_BuildMIDIMenuList(FOptionValues* opt);
 void I_BuildALDeviceList(FOptionValues *opt);
 void I_BuildALResamplersList(FOptionValues* opt);
 
+bool IsOpenALPresent();
+
 void M_DeinitMenus()
 {
 	{
@@ -220,6 +222,12 @@ static bool CheckSkipOptionBlock(FScanner &sc)
 			#ifdef __APPLE__
 				filter = true;
 			#endif
+		}
+
+		if (sc.Compare("openal"))
+		{
+			if (IsOpenALPresent())
+				filter = true;
 		}
 	}
 	while (sc.CheckString(","));
