@@ -150,7 +150,7 @@ bool IsInGame()
 
 void CheckNativeMouse()
 {
-	const bool windowed = (NULL == screen) || !screen->IsFullscreen();
+	const bool windowed = !vid_fullscreen;
 	bool wantNative;
 
 	if (windowed)
