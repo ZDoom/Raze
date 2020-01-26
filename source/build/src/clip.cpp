@@ -1562,6 +1562,8 @@ int pushmove(vec3_t *const vect, int16_t *const sectnum,
 
         if (clear)
         {
+            if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE && *sectnum < 0)
+                return 0;
             clipsectorlist[0] = *sectnum;
             clipsectnum = 1;
 
