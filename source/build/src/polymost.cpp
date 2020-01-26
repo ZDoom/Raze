@@ -458,7 +458,38 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int const npoints = j;
 
-    if (skyclamphack) method |= DAMETH_CLAMPED;
+    float usub = 0;
+    float vsub = 0;
+    if (skyclamphack)
+    {
+        drawpoly_srepeat = false;
+        drawpoly_trepeat = false;
+        method = DAMETH_CLAMPED;
+
+        vec2f_t const scale = { 1.f / tsiz.x, 1.f / tsiz.y };
+
+#if 0
+        usub = FLT_MAX;
+        vsub = FLT_MAX;
+        for (int i = 0; i < npoints; i++)
+        {
+            float const r = 1.f / dd[i];
+            float u = floor(uu[i] * r * scale.x);
+            float v = floor(vv[i] * r * scale.y);
+            if (u < usub) usub = u;
+            if (v < vsub) vsub = v;
+        }
+#endif
+
+        for (int i = 0; i < npoints; i++)
+        {
+            float const r = 1.f / dd[i];
+            float u = uu[i] * r * scale.x - usub;
+            float v = vv[i] * r * scale.y - vsub;
+            if (u < -FLT_EPSILON || u > 1 + FLT_EPSILON) drawpoly_srepeat = true;
+            if (v < -FLT_EPSILON || v > 1 + FLT_EPSILON) drawpoly_trepeat = true;
+        }
+    }
 
     polymost_outputGLDebugMessage(3, "polymost_drawpoly(dpxy:%p, n:%d, method_:%X), method: %X", dpxy, n, method_, method);
 
@@ -526,8 +557,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
 		//update texcoords
 		vt->SetTexCoord(
-			uu[i] * r * scale.x,
-			vv[i] * r * scale.y);
+			uu[i] * r * scale.x - usub,
+			vv[i] * r * scale.y - vsub);
 
         //update verts
 		vt->SetVertex(
@@ -547,12 +578,10 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
         vec3d_t const bxtex = xtex, bytex = ytex, botex = otex;
         xtex = xtex2, ytex = ytex2, otex = otex2;
-        skyzbufferhack_pass++;
 		GLInterface.SetColorMask(false);
-		polymost_drawpoly(dpxy, n, DAMETH_MASK, tilesize);
-		GLInterface.SetColorMask(true);
+        GLInterface.Draw(DT_TRIANGLE_FAN, data.second, npoints);
+        GLInterface.SetColorMask(true);
 		xtex = bxtex, ytex = bytex, otex = botex;
-        skyzbufferhack_pass--;
     }
 
 	if (!success)
@@ -1921,7 +1950,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
     float fx = x0;
 
-	if (playing_blood) method |= DAMETH_CLAMPED;	// Hack to make Blood's skies show properly.
+	skyclamphack = true;	// Hack to make Blood's skies show properly.
     do
     {
         globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+ti;
@@ -2047,6 +2076,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
         otex = otexbak, xtex = xtexbak, ytex = ytexbak;
     }
     while (ti >= 0);
+    skyclamphack = false;
 
     globalpicnum = picnumbak;
 
