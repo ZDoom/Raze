@@ -433,7 +433,7 @@ void OpenGLFrameBuffer::Draw2D()
 		::DrawFullscreenBlends();
         DrawRateStuff();
 		auto savepal = curbasepal;
-		if (!GLInterface.NonTransparent255Enabled()) curbasepal = 0;
+		if (!(curpaletteflags & (Pal_Fullscreen|Pal_2D))) curbasepal = 0;
 		GLInterface.Draw2D(&twodgen);
 		curbasepal = savepal;
 	}

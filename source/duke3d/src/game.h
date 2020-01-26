@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "network.h"
 #include "menu/menu.h"
+#include "palette.h"
 
 BEGIN_DUKE_NS
 
@@ -284,7 +285,7 @@ void G_PrintGameQuotes(int32_t snum);
 void G_Shutdown(void);
 void G_UpdatePlayerFromMenu(void);
 void P_DoQuote(int32_t q,DukePlayer_t *p);
-void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set);
+void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, ESetPalFlags flags);
 
 #define NEG_ALPHA_TO_BLEND(alpha, blend, orientation) do { \
     if (alpha < 0) { blend = -alpha; alpha = 0; orientation |= RS_TRANS1; } \

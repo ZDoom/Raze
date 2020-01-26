@@ -22,9 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
-#ifndef game_h_
-#define game_h_
-
 #ifndef ONLY_USERDEFS
 #include "premap.h" // XXX
 #endif
@@ -34,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamedef.h"
 #include "net.h"
 #include "mmulti.h"
+#include "palette.h"
 
 BEGIN_RR_NS
 
@@ -282,7 +280,7 @@ void G_PrintGameQuotes(int32_t snum);
 void G_Shutdown(void);
 void G_UpdatePlayerFromMenu(void);
 void P_DoQuote(int32_t q,DukePlayer_t *p);
-void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set);
+void P_SetGamePalette(DukePlayer_t* player, uint32_t palid, ESetPalFlags flags);
 void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum);
 void G_OffMotorcycle(DukePlayer_t *pPlayer);
 void G_OnBoat(DukePlayer_t *pPlayer, int spriteNum);
@@ -490,8 +488,6 @@ EXTERN_INLINE void SetIfGreater(int32_t *variable, int32_t potentialValue)
     if (potentialValue > *variable)
         *variable = potentialValue;
 }
-
-#endif
 
 #endif
 

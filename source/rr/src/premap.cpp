@@ -481,7 +481,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         int32_t i = 0;
 
         //g_player[myconnectindex].ps->palette = palette;
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
 
         if (!statustext)
         {

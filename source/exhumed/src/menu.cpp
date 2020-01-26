@@ -1147,7 +1147,7 @@ void CinemaFadeIn()
     BlackOut();
 
     paletteSetColorTable(ANIMPAL, cinemapal);
-    videoSetPalette(0, ANIMPAL, 2+8);
+    videoSetPalette(0, ANIMPAL, Pal_Fullscreen);
 
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)

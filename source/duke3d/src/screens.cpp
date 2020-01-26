@@ -78,7 +78,7 @@ static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
 #endif
 //////////
 
-void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set)
+void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, ESetPalFlags set)
 {
     if (palid >= MAXBASEPALS)
         palid = 0;
@@ -717,7 +717,7 @@ void G_DisplayRest(int32_t smoothratio)
             int32_t pal = pp->palette;
 
             // g_restorePalette < 0: reset tinting, too (e.g. when loading new game)
-            P_SetGamePalette(pp, pal, 2 + (g_restorePalette>0)*16);
+            P_SetGamePalette(pp, pal, (g_restorePalette > 0) ? Pal_DontResetFade : ESetPalFlags::FromInt(0));
             g_restorePalette = 0;
         }
         else
@@ -1096,7 +1096,7 @@ void gameDisplayTENScreen()
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
     renderFlushPerms();
     // g_player[myconnectindex].ps->palette = palette;
-    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);  // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);  // JBF 20040308
     fadepal(0, 0, 0, 0, 252, 28);
     inputState.ClearAllInput();
     totalclock = 0;
@@ -1120,7 +1120,7 @@ void gameDisplaySharewareScreens()
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
     renderFlushPerms();
     // g_player[myconnectindex].ps->palette = palette;
-    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);  // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);  // JBF 20040308
     fadepal(0, 0, 0, 0, 252, 28);
     inputState.ClearAllInput();
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 3291, 0, 0, 2 + 8 + 64 + BGSTRETCH);
@@ -1168,7 +1168,7 @@ void gameDisplay3DRScreen()
         {
             videoClearScreen(0);
 
-            P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8 + 2 + 1);  // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, Pal_Fullscreen);  // JBF 20040308
             fadepal(0, 0, 0, 0, 252, 28);
             renderFlushPerms();
             rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
@@ -1206,7 +1206,7 @@ void gameDisplayTitleScreen(void)
     videoClearScreen(0);
 
     // g_player[myconnectindex].ps->palette = titlepal;
-    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8 + 2 + 1);  // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, Pal_Fullscreen);  // JBF 20040308
     renderFlushPerms();
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, BETASCREEN, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     inputState.keyFlushChars();
@@ -1399,7 +1399,7 @@ void G_DisplayLogo(void)
 void G_DoOrderScreen(void)
 {
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
-    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
 
     for (int i=0; i<4; i++)
     {
@@ -1440,7 +1440,7 @@ static void G_BonusCutscenes(void)
                 350, 380, VICTORY1+8, 86, 59 // duplicate row to alleviate overflow in the for loop below "boss"
             };
 
-            P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, 8+2+1); // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, Pal_2D); // JBF 20040308
             videoClearScreen(0L);
             rotatesprite_fs(0, 50<<16, 65536L, 0, VICTORY1, 0, 0, 2+8+16+64+128+BGSTRETCH);
             videoNextPage();
@@ -1516,7 +1516,7 @@ static void G_BonusCutscenes(void)
             goto VOL1_END;
 
         inputState.ClearAllInput();
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);   // JBF 20040308
 
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3292, 0, 0, 2+8+64+BGSTRETCH);
         fadepal(0, 0, 0, 252, 0, -4);
@@ -1555,7 +1555,7 @@ static void G_BonusCutscenes(void)
             return;
 
         inputState.ClearAllInput();
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);   // JBF 20040308
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3293, 0, 0, 2+8+64+BGSTRETCH);
         fadepal(0, 0, 0, 252, 0, -4);
         G_HandleEventsWhileNoInput();
@@ -1608,7 +1608,7 @@ static void G_BonusCutscenes(void)
             goto VOL4_DUKETEAM;
 
         G_FadePalette(0, 0, 0, 0);
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);   // JBF 20040308
                                                                          //        G_FadePalette(0,0,0,252);
         videoClearScreen(0L);
         menutext_center(60, GStrings("Thanks to all our"));
@@ -1892,7 +1892,7 @@ void G_BonusScreen(int32_t bonusonly)
         G_BonusCutscenes();
 #endif
 
-    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);   // JBF 20040308
     G_FadePalette(0, 0, 0, 252);   // JBF 20031228
     inputState.keyFlushChars();
     totalclock = 0;

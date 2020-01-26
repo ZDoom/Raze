@@ -355,7 +355,7 @@ static void G_DoLoadScreen(const char *statustext, int percent)
 
     int const screenSize = ud.screen_size;
 
-    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
 
     if (statustext == NULL)
     {

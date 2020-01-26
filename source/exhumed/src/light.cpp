@@ -198,7 +198,7 @@ void GrabPalette()
 {
     SetOverscan(BASEPAL);
 
-    videoSetPalette(0, BASEPAL, 2+8);
+    videoSetPalette(0, BASEPAL, 0);
 
     nPalDiff  = 0;
     nPalDelay = 0;
@@ -206,32 +206,19 @@ void GrabPalette()
     btint = 0;
     gtint = 0;
     rtint = 0;
-#ifdef USE_OPENGL
     videoTintBlood(0, 0, 0);
-#endif
 }
 
 void BlackOut()
 {
-    for (int i = 0; i < 256; i++)
-    {
-        curpalettefaded[i].r = 0;
-        curpalettefaded[i].g = 0;
-        curpalettefaded[i].b = 0;
-    }
-    //videoUpdatePalette(0, 256);
     g_lastpalettesum = -1;
-#ifdef USE_OPENGL
     videoTintBlood(0, 0, 0);
-#endif
 }
 
 void RestorePalette()
 {
-    videoSetPalette(0, BASEPAL, 2+8);
-#ifdef USE_OPENGL
+    videoSetPalette(0, BASEPAL, 0);
     videoTintBlood(0, 0, 0);
-#endif
 }
 
 void WaitTicks(int nTicks)
@@ -419,7 +406,7 @@ int DoFadeIn()
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
         paletteSetColorTable(curbasepal, basepaltable[BASEPAL]);
-        videoSetPalette(0, curbasepal, 2+8);
+        videoSetPalette(0, curbasepal, 0);
         videoNextPage();
         return 0;
     }
@@ -468,7 +455,7 @@ void FadeIn()
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        videoSetPalette(0, BASEPAL, 2+8);
+        videoSetPalette(0, BASEPAL, 0);
         videoNextPage();
         return;
     }
@@ -500,53 +487,6 @@ void FixPalette()
     }
 
     nPalDelay = 5;
-
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_CLASSIC)
-#endif
-    for (int i = 0; i < 256; i++)
-    {
-        short nVal;
-
-        nVal = curpalettefaded[i].r - curpalette[i].r;
-        if (nVal > 0)
-        {
-            if (nVal > 20)
-            {
-                curpalettefaded[i].r -= 20;
-            }
-            else
-            {
-                curpalettefaded[i].r = curpalette[i].r;
-            }
-        }
-
-        nVal = curpalettefaded[i].g - curpalette[i].g;
-        if (nVal > 0)
-        {
-            if (nVal > 20)
-            {
-                curpalettefaded[i].g -= 20;
-            }
-            else
-            {
-                curpalettefaded[i].g = curpalette[i].g;
-            }
-        }
-
-        nVal = curpalettefaded[i].b - curpalette[i].b;
-        if (nVal > 0)
-        {
-            if (nVal > 20)
-            {
-                curpalettefaded[i].b -= 20;
-            }
-            else
-            {
-                curpalettefaded[i].b = curpalette[i].b;
-            }
-        }
-    }
 
     nPalDiff -= 20;
     gtint -= 20;

@@ -339,7 +339,6 @@ int32_t Anim_Play(const char *fn)
 
         //        OSD_Printf("msecs per frame: %d\n", msecsperframe);
 
-        GLInterface.EnableNonTransparent255(true);
         do
         {
             nextframetime += msecsperframe;
@@ -421,7 +420,6 @@ int32_t Anim_Play(const char *fn)
                 }
             } while (timerGetTicks() < nextframetime);
         } while (running);
-        GLInterface.EnableNonTransparent255(false);
 
 		#ifdef DEBUGGINGAIDS
 				animvpx_print_stats(&codec);
@@ -478,9 +476,7 @@ int32_t Anim_Play(const char *fn)
 
     paletteSetColorTable(ANIMPAL, ANIM_GetPalette(), true);
 
-    // setpalette(0L,256L,tempbuf);
-    GLInterface.EnableNonTransparent255(true);
-    P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 8 + 2);
+    P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, Pal_Fullscreen);
 
     ototalclock = totalclock;
 
@@ -564,7 +560,6 @@ int32_t Anim_Play(const char *fn)
     } while (i < numframes);
 
 end_anim_restore_gl:
-    GLInterface.EnableNonTransparent255(false);
     hw_texfilter = ogltexfiltermode;
     gltexapplyprops();
 end_anim:

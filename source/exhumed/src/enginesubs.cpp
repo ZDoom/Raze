@@ -78,7 +78,7 @@ void kensetpalette(unsigned char *vgapal)
     Bmemcpy(palette, vgapal, 768);
     for (auto &i : palette)
         i <<= 2;
-    videoSetPalette(0, 0, /*4 | */2);
+    videoSetPalette(0, 0, 0);
 #if 0
     char vesapal[1024];
 

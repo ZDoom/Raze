@@ -439,7 +439,7 @@ void SetPaletteToVESA(unsigned char *pal)
     VBE_setPalette(0, 256, pal_buff);
     */
     paletteSetColorTable(BASEPAL, pal);
-    videoSetPalette(0, BASEPAL, 4|2);
+    videoSetPalette(0, BASEPAL, 0);
     //  fprintf(stderr,"SetPaletteToVESA() called\n");
 }
 

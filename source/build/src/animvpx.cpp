@@ -470,7 +470,8 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
 
     x *= screen->GetWidth() / 2;
     y *= screen->GetHeight() / 2;
-    DrawTexture(twod, vpxtex, screen->GetWidth() / 2 - int(x), screen->GetHeight()/2 - int(y), DTA_DestWidth, 2*int(x), DTA_DestHeight, 2*int(y), DTA_Masked, false, DTA_KeepRatio, true, TAG_DONE);
+    DrawTexture(twod, vpxtex, screen->GetWidth() / 2 - int(x), screen->GetHeight()/2 - int(y), DTA_DestWidth, 2*int(x), DTA_DestHeight, 2*int(y), 
+        DTA_Masked, false, DTA_KeepRatio, true, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
     t = timerGetTicks()-t;
     codec->sumtimes[2] += t;

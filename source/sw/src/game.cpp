@@ -1451,7 +1451,7 @@ void LogoLevel(void)
             c <<= 2;
 
         paletteSetColorTable(DREALMSPAL, pal.Data());
-        videoSetPalette(0, DREALMSPAL, 2);
+        videoSetPalette(0, DREALMSPAL, Pal_Fullscreen);
     }
     DSPRINTF(ds,"Just read in 3drealms.pal...");
     MONO_PRINT(ds);
@@ -1490,7 +1490,7 @@ void LogoLevel(void)
 
     twod->ClearScreen();
     videoNextPage();
-    videoSetPalette(0, BASEPAL, 2);
+    videoSetPalette(0, BASEPAL, 0);
 
     // put up a blank screen while loading
 

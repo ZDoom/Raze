@@ -224,8 +224,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
     Smacker_GetPalette(hSMK, palette);
     paletteSetColorTable(kSMKPal, palette, true);
-    GLInterface.EnableNonTransparent255(true);
-    videoSetPalette(0, kSMKPal, 8+2);
+    videoSetPalette(0, kSMKPal, Pal_Fullscreen);
 
     int nScale;
 
@@ -279,8 +278,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     Smacker_Close(hSMK);
     inputState.ClearAllInput();
     soundEngine->StopAllChannels();
-    GLInterface.EnableNonTransparent255(false);
-    videoSetPalette(0, 0, 8+2);
+    videoSetPalette(0, 0, 0);
 	tileDelete(kSMKTile);
 }
 

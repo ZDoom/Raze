@@ -934,7 +934,7 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
                 ps.gotweapon &= ~(1 << lParm2);
             break;
 
-        case PLAYER_PALETTE: P_SetGamePalette(&ps, newValue, 2 + 16); break;
+        case PLAYER_PALETTE: P_SetGamePalette(&ps, newValue, Pal_DontResetFade); break;
 
         case PLAYER_PALS:
             switch (lParm2)

@@ -485,7 +485,7 @@ RECHECK:
         }
 
         fadepal(0,0,0, 0,252,28);
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
         G_DrawBackground();
         //M_DisplayMenus();
         videoNextPage();

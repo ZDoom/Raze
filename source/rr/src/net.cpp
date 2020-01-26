@@ -164,7 +164,7 @@ void Net_WaitForEverybody(void)
     }
 
 
-    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);
+    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, Pal_Fullscreen);
 
     do
     {
@@ -199,7 +199,7 @@ void Net_WaitForEverybody(void)
                 if (i != myconnectindex) Net_SendPacket(i, packbuf, 1);
             }
 
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
             return;
         }
     }

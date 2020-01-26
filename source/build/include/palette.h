@@ -60,7 +60,22 @@ void paletteSetBlendTable(int32_t blend, const char *tab);
 void paletteFreeBlendTable(int32_t blend);
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab);
 void paletteFreeLookupTable(int32_t palnum);
-void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags);
+
+#include "tflags.h"
+enum ESetPalFlag
+{
+    Pal_DontResetFade = 1,
+    Pal_SceneBrightness = 2,
+    Pal_Fullscreen = 4,
+    Pal_2D = 8,
+};
+
+typedef TFlags<ESetPalFlag> ESetPalFlags;
+    DEFINE_TFLAGS_OPERATORS(ESetPalFlags)
+
+extern ESetPalFlags curpaletteflags;
+
+void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags);
 void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset);
 #ifdef USE_OPENGL
 void videoTintBlood(int32_t r, int32_t g, int32_t b);

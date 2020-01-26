@@ -160,7 +160,6 @@ class GLInstance
 	FTexture* currentTexture = nullptr;
 	int TextureType;
 	int MatrixChange = 0;
-	bool g_nontransparent255 = false;	// Ugh... This is for movie playback and needs to be maintained as global state.
 
 	// Cached GL state.
 	GLState lastState;
@@ -198,14 +197,6 @@ public:
 	void DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState& renderState);
 
 	FHardwareTexture* NewTexture();
-	void EnableNonTransparent255(bool on)
-	{
-		g_nontransparent255 = on;
-	}
-	bool  NonTransparent255Enabled()
-	{
-		return g_nontransparent255;
-	}
 
 	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2);
 	void SetIndexBuffer(IIndexBuffer* vb);

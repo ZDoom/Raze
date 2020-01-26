@@ -28,6 +28,7 @@ palette_t curpalette[256];			// the current palette, unadjusted for brightness o
 palette_t curpalettefaded[256];		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
 palette_t palfadergb = { 0, 0, 0, 0 };
 unsigned char palfadedelta = 0;
+ESetPalFlags curpaletteflags;
 
 int32_t realmaxshade;
 float frealmaxshade;
@@ -715,7 +716,7 @@ void paletteFreeColorTables()
 //  8: don't gltexinvalidate8()
 // 16: don't reset palfade*
 // 32: apply brightness to scene in OpenGL
-void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
+void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
 {
 	int32_t i, j;
 	const uint8_t* dapal;
@@ -734,14 +735,9 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 	dapal = basepaltable[curbasepal];
 
 	// In-scene brightness mode for RR's thunderstorm. This shouldn't affect the global gamma ramp.
-	if ((videoGetRenderMode() >= REND_POLYMOST) && (flags & 32))
+	if ((videoGetRenderMode() >= REND_POLYMOST) && (flags & Pal_SceneBrightness))
 	{
-		if (!(flags & 4))
-		{
-			curbrightness = clamp(dabrightness, 0, 15);
-		}
-
-		r_scenebrightness = curbrightness;
+    	r_scenebrightness = clamp(dabrightness, 0, 15);
 	}
 	else
 	{
@@ -764,15 +760,17 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 		curpalettefaded[i].f = 0;
 	}
 
-	if ((flags & 16) && palfadedelta)  // keep the fade
+	if ((flags & Pal_DontResetFade) && palfadedelta)  // keep the fade
 		paletteSetFade(palfadedelta >> 2);
 
 
-	if ((flags & 16) == 0)
+	if ((flags & Pal_DontResetFade) == 0)
 	{
 		palfadergb.r = palfadergb.g = palfadergb.b = 0;
 		palfadedelta = 0;
 	}
+
+    curpaletteflags = flags;
 }
 
 palette_t paletteGetColor(int32_t col)

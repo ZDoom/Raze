@@ -260,7 +260,7 @@ playanm(short anim_num)
     videoClearViewableArea(0L);
 
     paletteSetColorTable(ANIMPAL, ANIM_GetPalette());
-    videoSetPalette(0, ANIMPAL, 2);
+    videoSetPalette(0, ANIMPAL, Pal_Fullscreen);
     if (ANIMnum == 1)
     {
         // draw the first frame
@@ -273,7 +273,6 @@ playanm(short anim_num)
     //ototalclock = totalclock + 120*2;
     ototalclock = (int32_t) totalclock;
 
-    GLInterface.EnableNonTransparent255(true);
     for (i = 1; i < numframes; i++)
     {
         while (totalclock < ototalclock)
@@ -325,11 +324,10 @@ playanm(short anim_num)
 
 ENDOFANIMLOOP:
 
-    GLInterface.EnableNonTransparent255(false);
     twod->ClearScreen();
     videoNextPage();
 
-    videoSetPalette(0, BASEPAL, 2);
+    videoSetPalette(0, BASEPAL, 0);
 
     inputState.ClearAllInput();
     ANIM_FreeAnim();

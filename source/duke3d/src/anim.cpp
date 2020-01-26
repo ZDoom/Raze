@@ -236,17 +236,17 @@ int32_t Anim_Play(const char *fn)
     uint16_t framenum = 0;
     while (videoGetRenderMode() >= REND_POLYMOST)  // if, really
     {
-        char const * dot = Bstrrchr(fn, '.');
+        char const* dot = Bstrrchr(fn, '.');
         if (!dot)
             break;
 
-        dukeanim_t const * origanim = anim;
-		FileReader handle;
-		if (!Bstrcmp(dot, ".ivf"))
+        dukeanim_t const* origanim = anim;
+        FileReader handle;
+        if (!Bstrcmp(dot, ".ivf"))
         {
-			handle = fileSystem.OpenFileReader(fn, 0);
-			if (!handle.isOpen())
-				break;
+            handle = fileSystem.OpenFileReader(fn, 0);
+            if (!handle.isOpen())
+                break;
         }
         else
         {
@@ -257,15 +257,15 @@ int32_t Anim_Play(const char *fn)
             if (dotpos + 4 >= BMAX_PATH)
                 break;
 
-            char *vpxfndot = vpxfn + dotpos;
+            char* vpxfndot = vpxfn + dotpos;
             vpxfndot[1] = 'i';
             vpxfndot[2] = 'v';
             vpxfndot[3] = 'f';
             vpxfndot[4] = '\0';
 
-			handle = fileSystem.OpenFileReader(vpxfn, 0);
-			if (!handle.isOpen())
-				break;
+            handle = fileSystem.OpenFileReader(vpxfn, 0);
+            if (!handle.isOpen())
+                break;
 
             anim = Anim_Find(vpxfn);
         }
@@ -299,11 +299,9 @@ int32_t Anim_Play(const char *fn)
 
         uint32_t const msecsperframe = scale(info.fpsdenom, 1000, info.fpsnumer);
         uint32_t nextframetime = timerGetTicks();
-        uint8_t *pic;
+        uint8_t* pic;
 
         //        OSD_Printf("msecs per frame: %d\n", msecsperframe);
-
-        GLInterface.EnableNonTransparent255(true);
 
         do
         {
@@ -391,7 +389,6 @@ int32_t Anim_Play(const char *fn)
                 }
             } while (timerGetTicks() < nextframetime);
         } while (running);
-        GLInterface.EnableNonTransparent255(false);
 #ifdef DEBUGGINGAIDS
         animvpx_print_stats(&codec);
 #endif
@@ -439,9 +436,7 @@ int32_t Anim_Play(const char *fn)
 
     paletteSetColorTable(ANIMPAL, ANIM_GetPalette(), true);
 
-    // setpalette(0L,256L,tempbuf);
-    GLInterface.EnableNonTransparent255(true);
-    P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 8 + 2);
+    P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, Pal_Fullscreen);
 
 #ifdef USE_OPENGL
     if ((anim->frameflags & CUTSCENE_TEXTUREFILTER && hw_texfilter == TEXFILTER_ON) || anim->frameflags & CUTSCENE_FORCEFILTER)
@@ -532,7 +527,6 @@ int32_t Anim_Play(const char *fn)
     } while (i < numframes);
 
 end_anim_restore_gl:
-    GLInterface.EnableNonTransparent255(false);
     hw_texfilter = ogltexfiltermode;
     gltexapplyprops();
 end_anim:

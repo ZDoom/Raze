@@ -422,39 +422,6 @@ static int osdcmd_give(osdcmdptr_t parm)
     return OSDCMD_SHOWHELP;
 }
 
-void onvideomodechange(int32_t newmode)
-{
-    uint8_t palid;
-
-    // XXX?
-    if (!newmode || g_player[screenpeek].ps->palette < BASEPALCOUNT)
-        palid = g_player[screenpeek].ps->palette;
-    else
-        palid = BASEPAL;
-
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-    {
-        int32_t i = 0;
-
-        while (i < MAXSPRITES)
-        {
-            if (actor[i].lightptr)
-            {
-                polymer_deletelight(actor[i].lightId);
-                actor[i].lightptr = NULL;
-                actor[i].lightId = -1;
-            }
-            i++;
-        }
-    }
-#endif
-
-    videoSetPalette(0, palid, 0);
-    g_restorePalette = -1;
-    g_crosshairSum = -1;
-}
-
 
 static int osdcmd_dumpmapstate(osdfuncparm_t const * const)
 {

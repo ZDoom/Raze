@@ -4147,7 +4147,7 @@ badindex:
                     tw = vm.pPlayer->palette;
                     inputState.ClearAllInput();
                     Anim_Play(quoteMgr.GetQuote(nQuote));
-                    P_SetGamePalette(vm.pPlayer, tw, 2 + 16);
+                    P_SetGamePalette(vm.pPlayer, tw, Pal_DontResetFade);
                     dispatch();
                 }
 
@@ -6034,7 +6034,7 @@ badindex:
 
             vInstruction(CON_SETGAMEPALETTE):
                 insptr++;
-                P_SetGamePalette(vm.pPlayer, Gv_GetVar(*(insptr++)), 2 + 16);
+                P_SetGamePalette(vm.pPlayer, Gv_GetVar(*(insptr++)), Pal_DontResetFade);
                 dispatch();
 
             vInstruction(CON_GETTEXTURECEILING):
