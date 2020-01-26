@@ -113,9 +113,10 @@ CUSTOM_CVARD(Int, cl_autovote, 0, CVAR_ARCHIVE, "enable/disable automatic voting
 	if (self < 0 || self > 2) self = 0;
 }
 
+
 // Demos
 
-CVARD_NAMED(Bool, demorec_diffcompress, demorec_diffcompress_cvar, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "Compression for diffs")
+CVAR(Bool, demo_playloop, true, CVAR_ARCHIVE)	// only active in Blood, because none of the other games can play demos right now.
 CVARD_NAMED(Bool, demorec_seeds, demorec_seeds_cvar, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable recording of random seed for later sync checking")
 CVARD_NAMED(Bool, demorec_diffs, demorec_diffs_cvar, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable diff recording in demos")
 CVARD_NAMED(Bool, demorec_force, demorec_force_cvar, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable forced demo recording")
@@ -533,6 +534,7 @@ CUSTOM_CVAR(Int, playergender, 0, CVAR_USERINFO|CVAR_ARCHIVE)
 {
 	if (self < 0 || self > 3) self = 0;
 }
+
 
 // Internal settings for demo recording and the multiplayer menu. These won't get saved and only are CVARs so that the menu code can use them.
 CVAR(Int, m_recstat, false, CVAR_NOSET)

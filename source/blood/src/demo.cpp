@@ -309,6 +309,7 @@ _DEMOPLAYBACK:
     while (at1 && !gQuitGame)
     {
         handleevents();
+        D_ProcessEvents();
         while (totalclock >= gNetFifoClock && !gQuitGame)
         {
             if (!v4)
@@ -403,6 +404,16 @@ void CDemo::LoadDemoInfo(void)
     snprintf(zFN, BMAX_PATH, "%s%s*.dem", M_GetDemoPath().GetChars(), BloodIniPre);
 	TArray<FString> demos;
 	D_AddWildFile(demos, zFN);
+
+    FStringf ini("%s.ini", BloodIniPre);
+    int lump = fileSystem.FindFile(ini);
+    if (lump >= 0)
+    {
+        auto path = fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lump));
+        ini.Format("%s*.dem", path);
+        D_AddWildFile(demos, ini);
+    }
+
 	for (auto &filename : demos)
     {
         FileReader hFile;

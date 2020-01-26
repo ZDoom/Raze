@@ -362,8 +362,8 @@ FString M_GetDemoPath()
 	FString path;
 
 	// A portable INI means that this storage location should also be portable.
-	path.Format("%s" GAMENAME "_portable.ini", progdir.GetChars());
-	if (FileExists(path) || !UseKnownFolders())
+	FStringf inipath("%s" GAMENAME "_portable.ini", progdir.GetChars());
+	if (FileExists(inipath) || !UseKnownFolders())
 	{
 		path << progdir << "Demos/" << LumpFilter << '/';
 	}

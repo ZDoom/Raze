@@ -1229,7 +1229,7 @@ RESTART:
         goto RESTART;
     }
     UpdateNetworkMenus();
-    if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo)
+    if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo && demo_playloop)
         gDemo.SetupPlayback(NULL);
     gQuitGame = 0;
     gRestartGame = 0;
@@ -1237,7 +1237,7 @@ RESTART:
     {
         inputState.ClearAllInput();
     }
-    else if (gDemo.at1 && !bAddUserMap && !bNoDemo)
+    else if (gDemo.at1 && !bAddUserMap && !bNoDemo && demo_playloop)
         gDemo.Playback();
     if (gDemo.at59ef > 0)
         M_ClearMenus();
@@ -1388,7 +1388,7 @@ RESTART:
 #endif
         if (gGameOptions.nGameType != 0)
         {
-            if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo)
+            if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo && demo_playloop)
                 gDemo.NextDemo();
             videoSetViewableArea(0,0,xdim-1,ydim-1);
             if (!bQuickStart)
