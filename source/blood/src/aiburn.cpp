@@ -128,9 +128,11 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
         case kDudeBurningTinyCaleb:
             aiNewState(pSprite, pXSprite, &tinycalebBurnSearch);
             break;
+        #ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
             aiNewState(pSprite, pXSprite, &genDudeBurnSearch);
             break;
+        #endif
         }
     }
     aiThinkTarget(pSprite, pXSprite);
@@ -160,9 +162,11 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         case kDudeBurningTinyCaleb:
             aiNewState(pSprite, pXSprite, &tinycalebBurnGoto);
             break;
+        #ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
             aiNewState(pSprite, pXSprite, &genDudeBurnGoto);
             break;
+        #endif
         }
         return;
     }
@@ -196,9 +200,11 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         case kDudeBurningTinyCaleb:
             aiNewState(pSprite, pXSprite, &tinycalebBurnSearch);
             break;
+        #ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
             aiNewState(pSprite, pXSprite, &genDudeBurnSearch);
             break;
+        #endif
         }
         return;
     }
@@ -234,9 +240,11 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                     case kDudeBurningTinyCaleb:
                         aiNewState(pSprite, pXSprite, &tinycalebBurnAttack);
                         break;
+                    #ifdef NOONE_EXTENSIONS
                     case kDudeModernCustomBurning:
                         aiNewState(pSprite, pXSprite, &genDudeBurnSearch);
                         break;
+                    #endif
                     }
                 }
                 return;
@@ -264,9 +272,11 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
     case kDudeBurningTinyCaleb:
         aiNewState(pSprite, pXSprite, &tinycalebBurnGoto);
         break;
+    #ifdef NOONE_EXTENSIONS
     case kDudeModernCustomBurning:
         aiNewState(pSprite, pXSprite, &genDudeBurnSearch);
         break;
+    #endif
     }
     pXSprite->target = -1;
 }

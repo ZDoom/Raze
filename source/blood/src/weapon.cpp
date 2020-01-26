@@ -1936,7 +1936,7 @@ char sub_4F484(PLAYER *pPlayer)
 void WeaponProcess(PLAYER *pPlayer) {
 
     pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
-    
+    #ifdef NOONE_EXTENSIONS
     if (gPlayerCtrl[pPlayer->nPlayer].qavScene.index >= 0 && pPlayer->pXSprite->health > 0) {
         
         QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
@@ -1960,6 +1960,7 @@ void WeaponProcess(PLAYER *pPlayer) {
 
         return;
     }
+    #endif
 
     if (pPlayer->pXSprite->health == 0)
     {

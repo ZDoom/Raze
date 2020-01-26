@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
+#ifdef NOONE_EXTENSIONS
 #include "ai.h"
 #include "eventq.h"
 
@@ -220,4 +221,4 @@ bool genDudePrepare(spritetype* pSprite, int propId = kGenDudePropertyAll);
 void genDudeUpdate(spritetype* pSprite);
 void genDudeProcess(spritetype* pSprite, XSPRITE* pXSprite);
 bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int weaponType, int by = 64);
-END_BLD_NS
+#endifEND_BLD_NS

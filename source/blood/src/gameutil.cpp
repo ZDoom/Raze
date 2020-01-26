@@ -917,12 +917,14 @@ int picHeight(short nPic, short repeat) {
     return ClipLow((tilesiz[nPic].y * repeat) << 2, 0);
 }
 
-// by NoOne: used for better randomness in single player
+#ifdef NOONE_EXTENSIONS
+// used for better randomness in single player
 int STD_Random(int a, int b) {
     std::default_random_engine stdRandom;
     stdRandom.seed(std::random_device()());
     std::uniform_int_distribution<int> dist_a_b(a, b);
     return dist_a_b(stdRandom);
 }
+#endif
 
 END_BLD_NS

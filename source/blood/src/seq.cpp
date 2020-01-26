@@ -302,10 +302,11 @@ void SEQINST::Update(ACTIVE *pActive)
             sfxPlay3DSound(&sprite[xsprite[pActive->xindex].reference], sound, -1, 0);
         }
 
+        
+        // by NoOne: add surfaceSound trigger feature
         spritetype* pSprite = &sprite[xsprite[pActive->xindex].reference];
         if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && zvel[pSprite->xvel] == 0 && xvel[pSprite->xvel] != 0) {
-
-            // by NoOne: add surfaceSound trigger feature
+            
             if (gUpperLink[pSprite->sectnum] >= 0) break; // don't play surface sound for stacked sectors
             int surf = tileGetSurfType(pSprite->sectnum + 0x4000); if (!surf) break;
             static int surfSfxMove[15][4] = {
@@ -336,8 +337,6 @@ void SEQINST::Update(ACTIVE *pActive)
                 sfxPlay3DSoundCP(pSprite, sndId, -1, 0, 0, (surfSfxMove[surf][2] != relVol) ? relVol : surfSfxMove[surf][3]);
             }
         }
-        
-
         break;
     }
     case 4:

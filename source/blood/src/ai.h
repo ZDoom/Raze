@@ -106,8 +106,9 @@ void aiInit(void);
 void aiInitSprite(spritetype *pSprite);
 bool CanMove(spritetype* pSprite, int a2, int nAngle, int nRange);
 void RecoilDude(spritetype* pSprite, XSPRITE* pXSprite);
-
-// By NoOne: this function required for kModernDudeTargetChanger
+#ifdef NOONE_EXTENSIONS
+// this function required for kModernDudeTargetChanger
 void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite);
+#endif
 
 END_BLD_NS

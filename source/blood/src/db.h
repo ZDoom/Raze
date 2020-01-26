@@ -28,8 +28,12 @@ BEGIN_BLD_NS
 #define kMaxXWalls 512
 #define kMaxXSectors 512
 
-// by NoOne additional non-thing proximity, sight and physics sprites 
+
+#ifdef NOONE_EXTENSIONS
+// additional non-thing proximity, sight and physics sprites 
 #define kMaxSuperXSprites 128
+extern bool gModernMap;
+#endif
 
 // by NoOne: functions to quckly check range of specifical arrays
 inline bool xspriRangeIsFine(int nXindex) {
@@ -43,9 +47,6 @@ inline bool xsectRangeIsFine(int nXindex) {
 inline bool xwallRangeIsFine(int nXindex) {
     return (nXindex >= 0 && nXindex < kMaxXWalls);
 }
-
-extern bool gModernMap;
-
 #pragma pack(push, 1)
 
 struct AISTATE;
@@ -115,9 +116,12 @@ struct XSPRITE {
     unsigned int height : 16;
     unsigned int stateTimer : 16;       // ai timer
     AISTATE* aiState;                   // ai
+    #ifdef NOONE_EXTENSIONS
     signed int sysData1 : 16;           // used to keep here various system data, so user can't change it in map editor
     unsigned int physAttr : 12;         // currently used by additional physics sprites to keep it's attributes.
+    #endif
     signed int scale;                   // used for scaling SEQ size on sprites
+
 };
 
 struct XSECTOR {
@@ -189,7 +193,11 @@ struct XSECTOR {
     unsigned int floorpal : 4;          // Floor pal2
     unsigned int floorYPanFrac : 8;     // Floor y panning frac
     unsigned int locked : 1;            // Locked
-    unsigned int windVel : 32;          // Wind vel (by NoOne: changed from 10 bit to use higher velocity values)
+    #ifdef NOONE_EXTENSIONS
+    unsigned int windVel : 32;          // Wind vel (changed from 10 bit to use higher velocity values)
+    #else
+    unsigned int windVel : 10;
+    #endif
     unsigned int windAng : 11;          // Wind ang
     unsigned int windAlways : 1;        // Wind always
     unsigned int dudeLockout : 1;

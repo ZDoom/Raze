@@ -124,33 +124,6 @@ int Handicap[] = {
     144, 208, 256, 304, 368
 };
 
-/*int gDefaultAccel[] = {
-    
-    // normal human
-    0x4000, 0x1200, 0x2000, // stand (front, side, back)  / swim (front, side, back)  / crouch (front, side, back)
-    // normal beast
-    0x4000, 0x1200, 0x2000, // stand (front, side, back)  / swim (front, side, back)  / crouch (front, side, back)
-    // shrink human
-    10384,  2108,  2192,    // stand (front, side, back)  / swim (front, side, back)  / crouch (front, side, back)
-    // grown human
-    19384,  5608,  11192,    // stand (front, side, back)  / swim (front, side, back) / crouch (front, side, back) 
-
-};
-
-int gDefaultJumpZ[] = {
-
-    // normal human
-    -0xbaaaa, -0x175555, 0x5b05, 0, 0, 0, // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
-    // normal beast
-    -0xbaaaa, -0x175555, 0x5b05, 0, 0, 0, // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
-    // shrink human
-    -564586, -1329173, 0x5b05, 0, 0, 0, // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
-    // grown human
-    -1014586, -1779173, 0x5b05, 0, 0, 0, // stand (normal jump, pwup jump) / swim (normal jump, pwup jump) / crouch (normal jump, pwup jump)
-
-};*/
-
-
 POSTURE gPostureDefaults[kModeMax][kPostureMax] = {
     
     // normal human
@@ -281,6 +254,7 @@ DAMAGEINFO damageInfo[7] = {
     { 0, 0, 0, 0, 0, 0, 0 }
 };
 
+#ifdef NOONE_EXTENSIONS
 TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
 
 QAV* qavSceneLoad(int qavId) {
@@ -291,8 +265,6 @@ QAV* qavSceneLoad(int qavId) {
 
     return pQav;
 }
-
-
 
 void qavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5) {
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
@@ -347,16 +319,6 @@ void qavScenePlay(PLAYER* pPlayer) {
     }
 }
 
-int powerupCheck(PLAYER *pPlayer, int nPowerUp)
-{
-    dassert(pPlayer != NULL);
-    dassert(nPowerUp >= 0 && nPowerUp < kMaxPowerUps);
-    int nPack = powerupToPackItem(nPowerUp);
-    if (nPack >= 0 && !packItemActive(pPlayer, nPack))
-        return 0;
-    return pPlayer->pwUpTime[nPowerUp];
-}
-
 bool isGrown(spritetype* pSprite) {
     if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpGrowShroom) > 0) return true;
     else if (pSprite->extra >= 0 && xsprite[pSprite->extra].scale >= 512) return true;
@@ -386,6 +348,7 @@ bool resetPlayerSize(PLAYER* pPlayer) {
     pPlayer->pXSprite->scale = 0;
     return true;
 }
+#endif
 
 void deactivateSizeShrooms(PLAYER* pPlayer) {
     powerupDeactivate(pPlayer, kPwUpGrowShroom);
@@ -418,6 +381,16 @@ PLAYER* getPlayerById(short id) {
     return NULL;
 }
 
+int powerupCheck(PLAYER *pPlayer, int nPowerUp)
+{
+    dassert(pPlayer != NULL);
+    dassert(nPowerUp >= 0 && nPowerUp < kMaxPowerUps);
+    int nPack = powerupToPackItem(nPowerUp);
+    if (nPack >= 0 && !packItemActive(pPlayer, nPack))
+        return 0;
+    return pPlayer->pwUpTime[nPowerUp];
+}
+
 
 char powerupActivate(PLAYER *pPlayer, int nPowerUp)
 {
@@ -430,6 +403,7 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
         pPlayer->packSlots[nPack].isActive = 1;
     
     switch (nPowerUp + kItemBase) {
+        #ifdef NOONE_EXTENSIONS
         case kItemModernMapLevel:
             if (gModernMap) gFullMap = true;
             break;
@@ -452,6 +426,7 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
                     actDamageSprite(pPlayer->pSprite->xvel, pPlayer->pSprite, DAMAGE_TYPE_3, 65535);
             }
             break;
+        #endif
         case kItemFeatherFall:
         case kItemJumpBoots:
             pPlayer->damageControl[0]++;
@@ -491,6 +466,7 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
         pPlayer->packSlots[nPack].isActive = 0;
     
     switch (nPowerUp + kItemBase) {
+        #ifdef NOONE_EXTENSIONS
         case kItemShroomShrink:
             if (gModernMap) {
                 resetPlayerSize(pPlayer);
@@ -501,6 +477,7 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
         case kItemShroomGrow:
             if (gModernMap) resetPlayerSize(pPlayer);
             break;
+        #endif
         case kItemFeatherFall:
         case kItemJumpBoots:
             pPlayer->damageControl[0]--;
@@ -800,7 +777,8 @@ void playerStart(int nPlayer)
     if (gGameOptions.nGameType <= 1)
         pStartZone = &gStartZone[nPlayer];
     
-    // By NoOne: let's check if there is positions of teams is specified
+    #ifdef NOONE_EXTENSIONS
+    // let's check if there is positions of teams is specified
     // if no, pick position randomly, just like it works in vanilla.
     else if (gModernMap && gGameOptions.nGameType == 3 && gTeamsSpawnUsed == true) {
         int maxRetries = 5;
@@ -822,7 +800,10 @@ void playerStart(int nPlayer)
             if (pStartZone != NULL)
                 break;
         }
-    } else {
+    
+    }
+    #endif
+    else {
         pStartZone = &gStartZone[Random(8)];
     }
 
@@ -914,7 +895,9 @@ void playerStart(int nPlayer)
     pPlayer->weaponTimer = 0;
     pPlayer->weaponState = 0;
     pPlayer->weaponQav = -1;
+    #ifdef NOONE_EXTENSIONS
     playerResetQavScene(pPlayer); // reset qav scene
+    #endif
     pPlayer->hand = 0;
     pPlayer->nWaterPal = 0;
     playerResetPowerUps(pPlayer);
@@ -975,25 +958,29 @@ void playerReset(PLAYER *pPlayer)
         pPlayer->packSlots[i].isActive = 0;
         pPlayer->packSlots[i].curAmount = 0;
     }
-
+#ifdef NOONE_EXTENSIONS
     ///////////////// 
     // reset qav scene
     playerResetQavScene(pPlayer);
-
+#endif
     // reset posture (mainly required for resetting movement speed and jump height)
     playerResetPosture(pPlayer);
     /////////////////
+
 }
+
 
 void playerResetPosture(PLAYER* pPlayer) {
     memcpy(pPlayer->pPosture, gPostureDefaults, sizeof(gPostureDefaults));
 }
 
-void playerResetQavScene(PLAYER* pPlayer) {
-    QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
-    pQavScene->index = pQavScene->dummy = pPlayer->sceneQav = -1;
-    pQavScene->qavResrc = NULL;
-}
+#ifdef NOONE_EXTENSIONS
+    void playerResetQavScene(PLAYER* pPlayer) {
+        QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
+        pQavScene->index = pQavScene->dummy = pPlayer->sceneQav = -1;
+        pQavScene->qavResrc = NULL;
+    }
+#endif
 
 int dword_21EFB0[8];
 ClockTicks dword_21EFD0[8];
@@ -1036,10 +1023,16 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
 
     switch (pItem->type) {
         case kItemShadowCloak:
+            #ifdef NOONE_EXTENSIONS
             if (isGrown(pPlayer->pSprite) || !powerupActivate(pPlayer, nType)) return false;
+            #else
+            if (!powerupActivate(pPlayer, nType)) return false;
+            #endif
             break;
+        #ifdef NOONE_EXTENSIONS
         case kItemShroomShrink:
         case kItemShroomGrow:
+            
             if (gModernMap) {
                 switch (pItem->type) {
                     case kItemShroomShrink:
@@ -1052,7 +1045,9 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
 
                 powerupActivate(pPlayer, nType);
             }
+            
             break;
+        #endif
         case kItemFlagABase:
         case kItemFlagBBase: {
             if (gGameOptions.nGameType != 3 || pItem->extra <= 0) return 0;
@@ -1203,9 +1198,11 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
         case kItemHealthLifeSeed:
         case kItemHealthRedPotion:  {
             int addPower = gPowerUpInfo[nType].bonusTime;
-            // by NoOne: allow custom amount for item
+            #ifdef NOONE_EXTENSIONS
+            // allow custom amount for item
             if (gModernMap && sprite[pItem->xvel].extra >= 0 && xsprite[sprite[pItem->xvel].extra].data1 > 0)
                 addPower = xsprite[sprite[pItem->xvel].extra].data1;
+            #endif
         
             if (!actHealDude(pXSprite, addPower, gPowerUpInfo[nType].maxTime)) return 0;
             return 1;
@@ -1230,11 +1227,12 @@ char PickupAmmo(PLAYER* pPlayer, spritetype* pAmmo) {
     int nAmmoType = pAmmoItemData->type;
 
     if (pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
-    else if (!gModernMap || pAmmo->extra < 0 || xsprite[pAmmo->extra].data1 <= 0)
-        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType]+pAmmoItemData->count, gAmmoInfo[nAmmoType].max);
-    // by NoOne: allow custom amount for item
-    else
+    #ifdef NOONE_EXTENSIONS
+    else if (gModernMap && pAmmo->extra >= 0 && xsprite[pAmmo->extra].data1 > 0) // allow custom amount for item
         pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + xsprite[pAmmo->extra].data1, gAmmoInfo[nAmmoType].max);
+    #endif
+    else
+        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType]+pAmmoItemData->count, gAmmoInfo[nAmmoType].max);
 
     if (pAmmoItemData->weaponType)  pPlayer->hasWeapon[pAmmoItemData->weaponType] = 1;
     sfxPlay3DSound(pPlayer->pSprite, 782, -1, 0);
@@ -1250,11 +1248,13 @@ char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) {
             return 0;
         pPlayer->hasWeapon[nWeaponType] = 1;
         if (nAmmoType == -1) return 0;
-        // By NoOne: allow to set custom ammo count for weapon pickups
-        if (!gModernMap || pWeapon->extra < 0 || xsprite[pWeapon->extra].data1 <= 0)
-            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
-        else
+        // allow to set custom ammo count for weapon pickups
+        #ifdef NOONE_EXTENSIONS
+        else if (gModernMap && pWeapon->extra >= 0 && xsprite[pWeapon->extra].data1 > 0)
             pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].max);
+        #endif
+        else
+            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
 
         int nNewWeapon = WeaponUpgrade(pPlayer, nWeaponType);
         if (nNewWeapon != pPlayer->curWeapon) {
@@ -1266,10 +1266,12 @@ char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) {
     }
     
     if (!actGetRespawnTime(pWeapon) || nAmmoType == -1 || pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;    
-    else if (!gModernMap || pWeapon->extra < 0 || xsprite[pWeapon->extra].data1 <= 0)
-        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType]+pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
+    #ifdef NOONE_EXTENSIONS
+        else if (gModernMap && pWeapon->extra >= 0 && xsprite[pWeapon->extra].data1 > 0)
+            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].max);
+    #endif
     else
-        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + xsprite[pWeapon->extra].data1, gAmmoInfo[nAmmoType].max);
+        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType]+pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
 
     sfxPlay3DSound(pPlayer->pSprite, 777, -1, 0);
     return 1;
@@ -1281,12 +1283,13 @@ void PickUp(PLAYER *pPlayer, spritetype *pSprite)
     int nType = pSprite->type;
     char pickedUp = 0;
     int customMsg = -1;
-
-    if (gModernMap) { // by NoOne: allow custom INI message instead "Picked up"
-        XSPRITE* pXSprite = (pSprite->extra >= 0) ? &xsprite[pSprite->extra] : NULL;
-        if (pXSprite != NULL && pXSprite->txID != 3 && pXSprite->lockMsg > 0)
-            customMsg = pXSprite->lockMsg;
-    }
+    #ifdef NOONE_EXTENSIONS
+        if (gModernMap) { // allow custom INI message instead "Picked up"
+            XSPRITE* pXSprite = (pSprite->extra >= 0) ? &xsprite[pSprite->extra] : NULL;
+            if (pXSprite != NULL && pXSprite->txID != 3 && pXSprite->lockMsg > 0)
+                customMsg = pXSprite->lockMsg;
+        }
+    #endif
 
     if (nType >= kItemBase && nType <= kItemMax) {
         pickedUp = PickupItem(pPlayer, pSprite);
@@ -1578,7 +1581,9 @@ void ProcessInput(PLAYER *pPlayer)
         break;
     default:
         if (!pPlayer->cantJump && pInput->buttonFlags.jump && pXSprite->height == 0) {
+            #ifdef NOONE_EXTENSIONS
             if ((packItemActive(pPlayer, 4) && pPosture->pwupJumpZ != 0) || pPosture->normalJumpZ != 0)
+            #endif
                 sfxPlay3DSound(pSprite, 700, 0, 0);
 
             if (packItemActive(pPlayer, 4)) zvel[nSprite] = pPosture->pwupJumpZ; //-0x175555;
@@ -2332,17 +2337,18 @@ void PlayerLoadSave::Load(void)
     Read(&gNetPlayers, sizeof(gNetPlayers));
     Read(&gProfile, sizeof(gProfile));
     Read(&gPlayer, sizeof(gPlayer));
-    
-    Read((void*)&buffer, sizeof(kPlayerCtrlSigStart));
-    Read(&gPlayerCtrl, sizeof(gPlayerCtrl));
-    Read((void*)&buffer, sizeof(kPlayerCtrlSigEnd));
-
+    #ifdef NOONE_EXTENSIONS
+        Read((void*)&buffer, sizeof(kPlayerCtrlSigStart));
+        Read(&gPlayerCtrl, sizeof(gPlayerCtrl));
+        Read((void*)&buffer, sizeof(kPlayerCtrlSigEnd));
+    #endif
     for (int i = 0; i < gNetPlayers; i++) {
         gPlayer[i].pSprite = &sprite[gPlayer[i].nSprite];
         gPlayer[i].pXSprite = &xsprite[gPlayer[i].pSprite->extra];
         gPlayer[i].pDudeInfo = &dudeInfo[gPlayer[i].pSprite->type-kDudeBase];
         
-        // by NoOne: load qav scene
+    #ifdef NOONE_EXTENSIONS
+        // load qav scene
         if (gPlayer[i].sceneQav != -1) {
             if (gPlayerCtrl[i].qavScene.qavResrc == NULL) 
                 gPlayer[i].sceneQav = -1;
@@ -2356,13 +2362,8 @@ void PlayerLoadSave::Load(void)
                 }
             }
         }
-        
-        // by NoOne: load posture info
-        /*for (int a = 0; a < kModeMax; a++) {
-            for (int b = 0; b < kPostureMax; b++) {
-                gPosture[a][b] = gPlayerCtrl[i].posture[a][b];
-            }
-        }*/
+    #endif
+
     }
 }
 
@@ -2373,19 +2374,11 @@ void PlayerLoadSave::Save(void)
     Write(&gProfile, sizeof(gProfile));
     Write(&gPlayer, sizeof(gPlayer));
     
-
-    ////// by NoOne: copy posture to TRPLAYERCTRL before saving the game
-    /*for (int i = 0; i < gNetPlayers; i++) {
-        for (int a = 0; a < kModeMax; a++) {
-            for (int b = 0; b < kPostureMax; b++) {
-                gPlayerCtrl[i].posture[a][b] = gPosture[a][b];
-            }
-        }
-    }*/
+    #ifdef NOONE_EXTENSIONS
     Write((void*)kPlayerCtrlSigStart, sizeof(kPlayerCtrlSigStart));
     Write(&gPlayerCtrl, sizeof(gPlayerCtrl));
     Write((void*)kPlayerCtrlSigEnd, sizeof(kPlayerCtrlSigEnd));
-    //////
+    #endif
 }
 
 static PlayerLoadSave *myLoadSave;

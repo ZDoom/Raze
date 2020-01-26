@@ -24,11 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
+#include "common_game.h"
+#ifdef NOONE_EXTENSIONS
 #include "compat.h"
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
+
 #include "actor.h"
 #include "ai.h"
 #include "aiunicult.h"
@@ -222,7 +224,7 @@ static void punchCallback(int, int nXIndex) {
         if (!playGenDudeSound(pSprite, kGenDudeSndAttackMelee))
             sfxPlay3DSound(pSprite, 530, 1, 0);
 
-        actFireVector(pSprite, 0, 0, dx, dy, dz,VECTOR_TYPE_22);
+        actFireVector(pSprite, 0, 0, dx, dy, dz,kVectorGenDudePunch);
     }
 }
 
@@ -315,7 +317,7 @@ static void ThrowThing(int nXIndex, bool impact) {
     if (weaponType != kGenDudeWeaponThrow) return;
 
     const THINGINFO* pThinkInfo = &thingInfo[curWeapon - kThingBase];
-    if (!pThinkInfo->allowThrow) return;
+    if (!gThingInfoExtra[curWeapon - kThingBase].allowThrow) return;
     else if (!playGenDudeSound(pSprite, kGenDudeSndAttackThrow))
         sfxPlay3DSound(pSprite, 455, -1, 0);
             
@@ -521,7 +523,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
         spritetype* pLeech = leechIsDropped(pSprite); VECTORDATA* meleeVector = &gVectorData[22];
         if (weaponType == kGenDudeWeaponThrow) {
             if (klabs(losAngle) < kAng15) {
-                if (!thingInfo[curWeapon - kThingBase].allowThrow) {
+                if (!gThingInfoExtra[curWeapon - kThingBase].allowThrow) {
                     if (spriteIsUnderwater(pSprite)) aiGenDudeNewState(pSprite, &genDudeChaseW);
                     else aiGenDudeNewState(pSprite, &genDudeChaseL);
                     return;
@@ -870,7 +872,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                                     else if (hit == 3 && (failed = (pHSprite->statnum != kStatThing || pXHSprite == NULL || pXHSprite->locked)) == false) {
                                         // check also for damage resistance (all possible damages missile can use)
                                         for (int i = 0; i < kDmgMax; i++) {
-                                            if (missileInfo[curWeapon - kMissileBase].dmgType[i] && (failed = isImmune(pHSprite, i)) == false)
+                                            if (gMissileInfoExtra[curWeapon - kMissileBase].dmgType[i] && (failed = isImmune(pHSprite, i)) == false)
                                                 break;
                                         }
                                     }
@@ -1993,4 +1995,4 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
     return true;
 }
 
-END_BLD_NS
+#endifEND_BLD_NS

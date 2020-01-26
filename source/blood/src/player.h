@@ -61,11 +61,6 @@ struct PACKINFO
     int curAmount = 0; // remaining percent
 };
 
-// by NoOne: defaut player movement speeds of all move states for gPosture
-extern int gDefaultAccel[12];
-
-// by NoOne: defaut player jump heights of all move states for gPosture
-extern int gDefaultJumpZ[24];
 struct POSTURE
 {
     int frontAccel;
@@ -224,19 +219,34 @@ struct POWERUPINFO
     int maxTime;
 };
 
-// by NoOne: this one stores qavs anims that can be played by trigger
-struct QAVSCENE {
+#ifdef NOONE_EXTENSIONS
+    // this one stores qavs anims that can be played by trigger
+    struct QAVSCENE
+    {
     short index     = -1;  // index of sprite which triggered qav scene
     QAV * qavResrc = NULL;
     short dummy     = -1;
-};
+    };
 
-// by NoOne: this one for controlling the player using triggers (movement speed, jumps and other stuff)
+    // this one for controlling the player using triggers (movement speed, jumps and other stuff)
 struct TRPLAYERCTRL {
     QAVSCENE qavScene;
-};
+    };
 
-extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
+    extern TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
+    bool        isGrown(spritetype *pSprite);
+    bool        isShrinked(spritetype *pSprite);
+    bool        shrinkPlayerSize(PLAYER *pPlayer, int divider);
+    bool        growPlayerSize(PLAYER *pPlayer, int multiplier);
+    bool        resetPlayerSize(PLAYER *pPlayer);
+    void        deactivateSizeShrooms(PLAYER *pPlayer);
+    PLAYER *    getPlayerById(short id);
+    QAV *       qavSceneLoad(int qavId);
+    void        qavScenePlay(PLAYER *pPlayer);
+    void        qavSceneDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5);
+    void        playerResetQavScene(PLAYER *pPlayer);
+#endif
+void playerResetPosture(PLAYER* pPlayer);
 
 extern PLAYER gPlayer[kMaxPlayers];
 extern PLAYER *gMe, *gView;
@@ -324,17 +334,5 @@ void sub_41250(PLAYER *pPlayer);
 void playerLandingSound(PLAYER *pPlayer);
 void PlayerSurvive(int, int nXSprite);
 void PlayerKneelsOver(int, int nXSprite);
-bool        isGrown(spritetype *pSprite);
-bool        isShrinked(spritetype *pSprite);
-bool        shrinkPlayerSize(PLAYER *pPlayer, int divider);
-bool        growPlayerSize(PLAYER *pPlayer, int multiplier);
-bool        resetPlayerSize(PLAYER *pPlayer);
-void        deactivateSizeShrooms(PLAYER *pPlayer);
-PLAYER *    getPlayerById(short id);
-QAV *       qavSceneLoad(int qavId);
-void        qavScenePlay(PLAYER *pPlayer);
-void        qavSceneDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5);
-void        playerResetPosture(PLAYER* pPlayer);
-void        playerResetQavScene(PLAYER *pPlayer);
 
 END_BLD_NS

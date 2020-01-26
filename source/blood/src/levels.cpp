@@ -358,7 +358,8 @@ void levelEndLevel(int arg)
     }
 }
 
-// By NoOne: this function can be called via sending numbered command to TX kChannelModernEndLevelCustom
+#ifdef NOONE_EXTENSIONS
+// this function can be called via sending numbered command to TX kChannelModernEndLevelCustom
 // This allows to set custom next level instead of taking it from INI file.
 void levelEndLevelCustom(int nLevel) {
 
@@ -374,6 +375,7 @@ void levelEndLevelCustom(int nLevel) {
 
     gNextLevel = nLevel;
 }
+#endif
 
 void levelRestart(void)
 {

@@ -3498,12 +3498,17 @@ void viewDrawScreen(bool sceneonly)
                     nPalette = pSector->floorpal;
             }
 
+            #ifdef NOONE_EXTENSIONS
             if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette);
             else if (gView->pXSprite->health > 0) qavSceneDraw(gView, nShade, cX, cY, nPalette);
             else {
                 gView->sceneQav = gView->weaponQav = -1;
                 gView->weaponTimer = gView->curWeapon = 0;
             }
+            #else
+                WeaponDraw(gView, nShade, cX, cY, nPalette);
+            #endif
+           
 
 
         }

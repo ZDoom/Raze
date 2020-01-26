@@ -32,9 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 
 BEGIN_BLD_NS
-#define kPlayerCtrlSigStart "<<<<TRPLAYERCTRL{" // save game TRPLAYERCTRL block start
-#define kPlayerCtrlSigEnd "}TRPLAYERCTRL>>>>"   // save game TRPLAYERCTRL block end
-
 void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command);
 void trMessageSector(unsigned int nSector, EVENT event);
 void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command);
@@ -45,8 +42,12 @@ void trProcessBusy(void);
 void trInit(void);
 void trTextOver(int nId);
 
-// By NoOne: functions required for new features
+#ifdef NOONE_EXTENSIONS
+// functions required for new features
 // -------------------------------------------------------
+#define kPlayerCtrlSigStart "<<<<TRPLAYERCTRL{" // save game TRPLAYERCTRL block start
+#define kPlayerCtrlSigEnd "}TRPLAYERCTRL>>>>"   // save game TRPLAYERCTRL block end
+
 void pastePropertiesInObj(int type, int nDest, EVENT event);
 spritetype* getTargetInRange(spritetype* pSprite, int minDist, int maxDist, short data, short teamMode);
 bool isMateOf(XSPRITE* pXDude, XSPRITE* pXSprite);
@@ -86,6 +87,8 @@ bool valueIsBetween(int val, int min, int max);
 void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlStopScene(XSPRITE* pXSource, PLAYER* pPlayer);
+char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState);
 // -------------------------------------------------------
+#endif// -------------------------------------------------------
 
 END_BLD_NS

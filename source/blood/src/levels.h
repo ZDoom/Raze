@@ -118,8 +118,10 @@ void levelGetNextLevels(int nEpisode, int nLevel, int *pnEndingA, int *pnEndingB
 // arg: 0 is normal exit, 1 is secret level
 void levelEndLevel(int arg);
 
-// By NoOne: custom level selection via numbered command which sent to TX ID 6.
+#ifdef NOONE_EXTENSIONS
+// custom level selection via numbered command which sent to TX ID 6.
 void levelEndLevelCustom(int nLevel);
+#endif
 
 void levelRestart(void);
 int levelGetMusicIdx(const char *str);

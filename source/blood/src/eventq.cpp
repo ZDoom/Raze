@@ -380,11 +380,13 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
     case kChannelLevelExitSecret:
         levelEndLevel(1);
         return;
-        // By NoOne: finished level and load custom level ¹ via numbered command.
+    #ifdef NOONE_EXTENSIONS
+    // finished level and load custom level ¹ via numbered command.
     case kChannelModernEndLevelCustom:
         if (command >= kCmdNumberic) levelEndLevelCustom(command - kCmdNumberic);
         else viewSetSystemMessage("Invalid Level-Exit# command by xobject #%d (object type %d)", nIndex, nType);
         return;
+    #endif
     case kChannelSetTotalSecrets:
         if (command >= kCmdNumberic) levelSetupSecret(command - kCmdNumberic);
         else viewSetSystemMessage("Invalid Total-Secrets command by xobject #%d (object type %d)", nIndex, nType);
@@ -436,7 +438,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
         break;
     }
 
-    
+    #ifdef NOONE_EXTENSIONS
     if (gModernMap) {
         
         // allow to send commands on player sprites
@@ -452,7 +454,7 @@ void evSend(int nIndex, int nType, int rxId, COMMAND_ID command)
         }
 
     }
-
+    #endif
     for (int i = bucketHead[rxId]; i < bucketHead[rxId+1]; i++) {
         if (event.type != rxBucket[i].type || event.index != rxBucket[i].index) {
             switch (rxBucket[i].type) {

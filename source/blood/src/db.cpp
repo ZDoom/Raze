@@ -54,7 +54,9 @@ PolymerLight_t gPolymerLight[kMaxSprites];
 char qsprite_filler[kMaxSprites], qsector_filler[kMaxSectors];
 
 int gVisibility;
+#ifdef NOONE_EXTENSIONS
 bool gModernMap = false;
+#endif
 
 void dbCrypt(char *pPtr, int nLength, int nKey)
 {
@@ -639,8 +641,9 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     memset(show2dsector, 0, sizeof(show2dsector));
     memset(show2dwall, 0, sizeof(show2dwall));
     memset(show2dsprite, 0, sizeof(show2dsprite));
-
+    #ifdef NOONE_EXTENSIONS
     gModernMap = false;
+    #endif
 
 #ifdef USE_OPENGL
     Polymost_prepare_loadboard();
@@ -680,10 +683,12 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     if ((header.version & 0xff00) == 0x700) {
         byte_1A76C8 = 1;
         
-        // by NoOne: indicate if the map requires modern features to work properly
+        #ifdef NOONE_EXTENSIONS
+        // indicate if the map requires modern features to work properly
         // for maps wich created in PMAPEDIT BETA13 or higher versions. Since only minor version changed,
         // the map is still can be loaded with vanilla BLOOD / MAPEDIT and should work in other ports too.
         if ((header.version & 0x00ff) == 0x001) gModernMap = true;
+        #endif
 
     } else {
         initprintf("Map file is wrong version");
@@ -1094,10 +1099,12 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
                 xsprite[sprite[i].extra].lT |= xsprite[sprite[i].extra].lB;
             }
 
-            // by NoOne: indicate if the map requires modern features to work properly
+            #ifdef NOONE_EXTENSIONS
+            // indicate if the map requires modern features to work properly
             // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
             if (!gModernMap && pXSprite->rxID == kChannelMapModernize && pXSprite->rxID == pXSprite->txID && pXSprite->command == kCmdModernFeaturesEnable)
                 gModernMap = true;
+            #endif
         }
         if ((sprite[i].cstat & 0x30) == 0x30)
         {

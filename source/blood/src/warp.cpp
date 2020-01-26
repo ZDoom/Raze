@@ -36,11 +36,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 ZONE gStartZone[8];
-ZONE gStartZoneTeam1[8];
-ZONE gStartZoneTeam2[8];
-
-bool gTeamsSpawnUsed = false;
-
+#ifdef NOONE_EXTENSIONS
+    ZONE gStartZoneTeam1[8];
+    ZONE gStartZoneTeam2[8];
+    bool gTeamsSpawnUsed = false;
+#endif
 void warpInit(void)
 {
     for (int i = 0; i < kMaxSectors; i++)
@@ -48,7 +48,9 @@ void warpInit(void)
         gUpperLink[i] = -1;
         gLowerLink[i] = -1;
     }
+    #ifdef NOONE_EXTENSIONS
     int team1 = 0; int team2 = 0; gTeamsSpawnUsed = false; // increment if team start positions specified.
+    #endif
     for (int nSprite = 0; nSprite < kMaxSprites; nSprite++)
     {
         if (sprite[nSprite].statnum < kMaxStatus) {
@@ -79,27 +81,30 @@ void warpInit(void)
                                 pZone->sectnum = pSprite->sectnum;
                                 pZone->ang = pSprite->ang;
                             
-                                // By NoOne: fill player spawn position according team of player in TEAMS mode.
-                                if (gModernMap && gGameOptions.nGameType == 3) {
-                                    if (pXSprite->data2 == 1) {
-                                        pZone = &gStartZoneTeam1[team1];
-                                        pZone->x = pSprite->x;
-                                        pZone->y = pSprite->y;
-                                        pZone->z = pSprite->z;
-                                        pZone->sectnum = pSprite->sectnum;
-                                        pZone->ang = pSprite->ang;
-                                        team1++;
+                                #ifdef NOONE_EXTENSIONS
+                                    // fill player spawn position according team of player in TEAMS mode.
+                                    if (gModernMap && gGameOptions.nGameType == 3) {
+                                        if (pXSprite->data2 == 1) {
+                                            pZone = &gStartZoneTeam1[team1];
+                                            pZone->x = pSprite->x;
+                                            pZone->y = pSprite->y;
+                                            pZone->z = pSprite->z;
+                                            pZone->sectnum = pSprite->sectnum;
+                                            pZone->ang = pSprite->ang;
+                                            team1++;
 
-                                    } else if (pXSprite->data2 == 2) {
-                                        pZone = &gStartZoneTeam2[team2];
-                                        pZone->x = pSprite->x;
-                                        pZone->y = pSprite->y;
-                                        pZone->z = pSprite->z;
-                                        pZone->sectnum = pSprite->sectnum;
-                                        pZone->ang = pSprite->ang;
-                                        team2++;
+                                        } else if (pXSprite->data2 == 2) {
+                                            pZone = &gStartZoneTeam2[team2];
+                                            pZone->x = pSprite->x;
+                                            pZone->y = pSprite->y;
+                                            pZone->z = pSprite->z;
+                                            pZone->sectnum = pSprite->sectnum;
+                                            pZone->ang = pSprite->ang;
+                                            team2++;
+                                        }
                                     }
-                                }
+                                #endif
+
                             }
                             DeleteSprite(nSprite);
                         }
@@ -135,6 +140,7 @@ void warpInit(void)
         }
     }
     
+    #ifdef NOONE_EXTENSIONS
     // check if there is enough start positions for teams, if any used
     if (team1 > 0 || team2 > 0) {
         gTeamsSpawnUsed = true;
@@ -143,6 +149,7 @@ void warpInit(void)
             viewSetSystemMessage("Team A positions: %d, Team B positions: %d.", team1, team2);
         }
     }
+    #endif
 
     for (int i = 0; i < kMaxSectors; i++)
     {

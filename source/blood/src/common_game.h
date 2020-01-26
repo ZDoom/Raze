@@ -85,9 +85,12 @@ void _consoleSysMsg(const char* pMessage, ...);
 
 // defined by NoOne:
 // -------------------------------
-#define kMaxPAL 5
-#define kFreeQAVEntry 108
 
+/////////////////////////////////////////////////////////////
+#define NOONE_EXTENSIONS 1
+////////////////////////////////////////////////////////////
+
+#define kMaxPAL 5
 #define kUserPLUStart  15
 
 #define kDmgFall 0
@@ -126,10 +129,8 @@ kStatSpares                     = 13,
 kStatFlare                      = 14,
 kStatDebris                     = 15,
 kStatPathMarker                 = 16,
-kStatModernDudeTargetChanger    = 20, // gModernMap only
 kStatFree                       = 1024,
 };
-
 
 // POWERUPS /////////////////////////////////////////////////////
 enum {
@@ -196,30 +197,12 @@ enum {
     kSwitchPadlock = 23,
     kSwitchMax = 24,
 
-    // modern types (gModernMap only)
-    kModernCustomDudeSpawn = 24,
-    kModernRandomTX = 25,
-    kModernSequentialTX = 26,
-    kModernSeqSpawner = 27,
-    kModernObjPropertiesChanger = 28,
-    kModernObjPicnumChanger = 29,
-    kModernObjSizeChanger = 31,
-    kModernDudeTargetChanger = 33,
-    kModernSectorFXChanger = 34,
-    kModernObjDataChanger = 35,
-    kModernSpriteDamager = 36,
-    kModernObjDataAccumulator = 37,
-    kModernEffectSpawner = 38,
-    kModernWindGenerator = 39,
-    kModernPlayerControl = 500, /// WIP
-
     // decorations
     kDecorationTorch = 30,
     kDecorationCandle = 32,
 
     // (weapons)
     kItemWeaponBase = 40,
-    kModernRandom = 40, // gModernMap only
     kItemWeaponSawedoff = 41,
     kItemWeaponTommygun = 42,
     kItemWeaponVoodooDoll = 44,
@@ -231,7 +214,6 @@ enum {
     kItemAmmoSawedoffFew = 67,
     kItemAmmoTommygunFew = 69,
     kAmmoItemVoodooDoll = 70,
-    kModernRandom2 = 80, // gModernMap Only
     kItemAmmoMax = 81,
 
     kItemBase = 100,
@@ -266,8 +248,6 @@ enum {
     kItemReflectShots = 124,
     kItemBeastVision = 125,
     kItemShroomDelirium = 128,
-    kItemShroomGrow = 129, // gModernMap only
-    kItemShroomShrink = 130, // gModernMap only
 
     kItemArmorAsbest = 139,
     kItemArmorBasic = 140,
@@ -280,7 +260,6 @@ enum {
     kItemFlagBBase = 146,
     kItemFlagA = 147,
     kItemFlagB = 148,
-    kItemModernMapLevel = 150,  // once picked up, draws whole minimap
     kItemMax = 151,
 
     // dudes
@@ -339,8 +318,6 @@ enum {
     kDudeBurningTinyCaleb = 252,
     kDudeBurningBeast = 253,
     kDudeVanillaMax = 254,
-    kDudeModernCustom = kDudeVanillaMax, // gModern map only
-    kDudeModernCustomBurning = 255, // gModern map only
     kDudeMax = 256,
     
     kMissileBase = 300,
@@ -394,9 +371,6 @@ enum {
     kThingPodGreenBall = 430,
     kThingDroppedLifeLeech = 431,
     kThingVoodooHead = 432, // unused
-    kModernThingTNTProx = 433, // gModernMap only - detects only players
-    kModernThingThrowableRock = 434, // gModernMap only - does small damage if hits target
-    kModernThingEnemyLifeLeech = 435, // gModernMap only - the same as normal, except it aims in specified target only
     kThingMax = 436,
 
     // traps
@@ -410,8 +384,7 @@ enum {
     kGenDripWater = 701,
     kGenDripBlood = 702,
     kGenMissileFireball = 703,
-    kGenMissileEctoSkull = 704, // does not work in vanilla
-    kGenModernMissileUniversal = 704, // gModernMap only
+    kGenMissileEctoSkull = 704,
     kGenDart = 705,
     kGenBubble = 706,
     kGenBubbleMulti = 707,
@@ -422,6 +395,54 @@ enum {
     kSoundPlayer = 711,
 };
 
+#ifdef NOONE_EXTENSIONS
+// modern types (gModernMap only)
+enum {
+kModernCustomDudeSpawn          = 24,
+kModernRandomTX                 = 25,
+kModernSequentialTX             = 26,
+kModernSeqSpawner               = 27,
+kModernObjPropertiesChanger     = 28,
+kModernObjPicnumChanger         = 29,
+kModernObjSizeChanger           = 31,
+kModernDudeTargetChanger        = 33,
+kModernSectorFXChanger          = 34,
+kModernObjDataChanger           = 35,
+kModernSpriteDamager            = 36,
+kModernObjDataAccumulator       = 37,
+kModernEffectSpawner            = 38,
+kModernWindGenerator            = 39,
+kModernRandom                   = 40,
+kModernRandom2                  = 80,
+kItemShroomGrow                 = 129,
+kItemShroomShrink               = 130,
+kItemModernMapLevel             = 150,  // once picked up, draws whole minimap
+kDudeModernCustom               = kDudeVanillaMax,
+kDudeModernCustomBurning        = 255,
+kModernThingTNTProx             = 433, // detects only players
+kModernThingThrowableRock       = 434, // does small damage if hits target
+kModernThingEnemyLifeLeech      = 435, // the same as normal, except it aims in specified target only
+kModernPlayerControl            = 500, /// WIP
+kGenModernMissileUniversal      = 704,
+};
+
+// modern statnums (gModernMap only)
+enum {
+kStatModernDudeTargetChanger    = 20,
+};
+
+// additional physics attributes for debris sprites
+#define kPhysDebrisFly 0x0008 // *debris* affected by negative gravity (fly instead of falling, DO NOT mess with kHitagAutoAim)
+#define kPhysDebrisSwim 0x0016 // *debris* can swim underwater (instead of drowning)
+#define kPhysDebrisVector 0x0400 // *debris* can be affected by vector weapons
+#define kPhysDebrisExplode 0x0800 // *debris* can be affected by explosions
+
+// *modern types only hitag*
+#define kModernTypeFlag0 0x0
+#define kModernTypeFlag1 0x1
+#define kModernTypeFlag2 0x2
+#define kModernTypeFlag3 0x3
+#endif
 
 // WALL TYPES /////////////////////////////////////////////////
 enum {
@@ -471,18 +492,6 @@ kAiStateAttack          =  6,
 #define kPhysMove 0x0001 // affected by movement physics
 #define kPhysGravity 0x0002 // affected by gravity
 #define kPhysFalling 0x0004 // currently in z-motion
-// additional physics attributes for debris sprites
-#define kPhysDebrisFly 0x0008 // *debris* affected by negative gravity (fly instead of falling, DO NOT mess with kHitagAutoAim)
-#define kPhysDebrisSwim 0x0016 // *debris* can swim underwater (instead of drowning)
-#define kPhysDebrisVector 0x0400 // *debris* can be affected by vector weapons
-#define kPhysDebrisExplode 0x0800 // *debris* can be affected by explosions
-
-// *modern types only hitag*
-#define kModernTypeFlag0 0x0
-#define kModernTypeFlag1 0x1
-#define kModernTypeFlag2 0x2
-#define kModernTypeFlag3 0x3
-
 
 // sector cstat
 #define kSecCParallax 0x01
@@ -494,7 +503,6 @@ kAiStateAttack          =  6,
 #define kSecCFlipMask 0x34
 #define kSecCRelAlign 0x40
 #define kSecCFloorShade 0x8000
-
 
 #define kAng5 28
 #define kAng15 85

@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aitchern.h"
 #include "aizomba.h"
 #include "aizombf.h"
-#include "aiunicult.h" // By NoOne: add custom dude
+#include "aiunicult.h"
 #include "blood.h"
 #include "db.h"
 #include "dude.h"
@@ -77,7 +77,7 @@ AISTATE genIdle = {kAiStateGenIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
 AISTATE genRecoil = {kAiStateRecoil, 5, -1, 20, NULL, NULL, NULL, &genIdle };
 
 int dword_138BB0[5] = {0x2000, 0x4000, 0x8000, 0xa000, 0xe000};
-
+#ifdef NOONE_EXTENSIONS
 void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite) {
     switch (pSprite->type) {
         case kDudeModernCustom:
@@ -89,6 +89,7 @@ void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite) {
             break;
     }
 }
+#endif
 
 bool sub_5BDA8(spritetype *pSprite, int nSeq)
 {
@@ -166,7 +167,8 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
         if (pXSector->Depth)
             Depth = 1;
         if (sector[nSector].type == kSectorDamage || pXSector->damageType > 0) {
-            // By NoOne: a quick fix for Cerberus spinning in E3M7-like maps, where damage sectors is used.
+            #ifdef NOONE_EXTENSIONS
+            // a quick fix for Cerberus spinning in E3M7-like maps, where damage sectors is used.
             // It makes ignore danger if enemy immune to N damageType. As result Cerberus start acting like
             // in Blood 1.0 so it can move normally to player. It's up to you for adding rest of enemies here as
             // i don't think it will broke something in game.
@@ -180,6 +182,9 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
                     Crusher = 1;
                     break;
             }
+            #else
+                Crusher = 1;
+            #endif
         }
     }
     int nUpper = gUpperLink[nSector];
@@ -233,11 +238,13 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
         if (floorZ - bottom > 0x2000)
             return false;
         break;
+    #ifdef NOONE_EXTENSIONS
     case kDudeModernCustom:
     case kDudeModernCustomBurning:
         if ((Crusher && !isImmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(pSprite))) return false;
         return true;
         fallthrough__;
+    #endif
     case kDudeZombieAxeNormal:
     case kDudePhantasm:
     case kDudeGillBeast:
@@ -407,7 +414,7 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         }
         break;
     }
-
+#ifdef NOONE_EXTENSIONS
     case kDudeModernCustom:
     {
         DUDEEXTRA_at6_u1* pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
@@ -427,6 +434,7 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
         if (pXSprite->target == -1) aiGenDudeNewState(pSprite, &genDudeBurnSearch);
         else aiGenDudeNewState(pSprite, &genDudeBurnChase);
     break;
+#endif
     case kDudeCultistTommyProne: {
         DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
         pDudeExtraE->at8 = 1; pDudeExtraE->at0 = 0;
@@ -679,7 +687,9 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
     }
     case kDudeGargoyleStatueFlesh:
     case kDudeGargoyleStatueStone:
-        // By NoOne: play gargoyle statue breaking animation if data1 = 1.
+        
+        #ifdef NOONE_EXTENSIONS
+        // play gargoyle statue breaking animation if data1 = 1.
         if (gModernMap && pXSprite->data1 == 1) {
             if (pSprite->type == kDudeGargoyleStatueFlesh) aiNewState(pSprite, pXSprite, &statueFBreakSEQ);
             else aiNewState(pSprite, pXSprite, &statueSBreakSEQ);
@@ -690,6 +700,13 @@ void aiActivateDude(spritetype *pSprite, XSPRITE *pXSprite)
             if (pSprite->type == kDudeGargoyleStatueFlesh) aiNewState(pSprite, pXSprite, &gargoyleFMorph);
             else aiNewState(pSprite, pXSprite, &gargoyleSMorph);
         }
+        #else
+        if (Chance(0x4000)) aiPlay3DSound(pSprite, 1401, AI_SFX_PRIORITY_1, -1);
+        else aiPlay3DSound(pSprite, 1400, AI_SFX_PRIORITY_1, -1);
+
+        if (pSprite->type == kDudeGargoyleStatueFlesh) aiNewState(pSprite, pXSprite, &gargoyleFMorph);
+        else aiNewState(pSprite, pXSprite, &gargoyleSMorph);
+        #endif
         break;
     case kDudeCerberusTwoHead:
         if (pXSprite->target == -1)
@@ -1006,6 +1023,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
             break;
+#ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
             if (Chance(0x2000) && gDudeExtra[pSprite->extra].at0 < (int)gFrameClock) {
                 playGenDudeSound(pSprite, kGenDudeSndBurning);
@@ -1077,6 +1095,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
             }
             break;
         }
+#endif
         case kDudeCultistBeast:
             if (pXSprite->health <= (unsigned int)pDudeInfo->fleeHealth)
             {
@@ -1110,6 +1129,7 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
     if (pSprite->statnum == kStatDude && (pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
         switch (pSprite->type) {
+#ifdef NOONE_EXTENSIONS
         case kDudeModernCustom: {
             GENDUDEEXTRA* pExtra = genDudeExtra(pSprite); int rChance = getRecoilChance(pSprite);
             if (pExtra->canElectrocute && pDudeExtra->at4 && !spriteIsUnderwater(pSprite, false)) {
@@ -1156,6 +1176,7 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
             pDudeExtra->at4 = 0;
             break;
         }
+#endif
         case kDudeCultistTommy:
         case kDudeCultistShotgun:
         case kDudeCultistTesla:
@@ -1186,9 +1207,11 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
         case kDudeBurningCultist:
             aiNewState(pSprite, pXSprite, &cultistBurnGoto);
             break;
+#ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
             aiGenDudeNewState(pSprite, &genDudeBurnGoto);
             break;
+#endif
         case kDudeZombieButcher:
             aiPlay3DSound(pSprite, 1202, AI_SFX_PRIORITY_2, -1);
             if (pDudeExtra->at4)
@@ -1454,31 +1477,33 @@ void aiProcessDudes(void) {
         int nXSprite = pSprite->extra;
         XSPRITE *pXSprite = &xsprite[nXSprite]; DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
         if (IsPlayerSprite(pSprite) || pXSprite->health == 0) continue;
-
         pXSprite->stateTimer = ClipLow(pXSprite->stateTimer-4, 0);
-        if (pSprite->type >= kDudeVanillaMax && pSprite->type < kDudeMax) 
-            genDudeProcess(pSprite, pXSprite);
+        switch (pSprite->type){
+            #ifdef NOONE_EXTENSIONS
+            case kDudeModernCustom:
+            case kDudeModernCustomBurning:
+                genDudeProcess(pSprite, pXSprite);
+                break;
+            #endif
+            default:
+                if (pXSprite->aiState->moveFunc)
+                    pXSprite->aiState->moveFunc(pSprite, pXSprite);
 
-        else {
-            
-            if (pXSprite->aiState->moveFunc)
-                pXSprite->aiState->moveFunc(pSprite, pXSprite);
+                if (pXSprite->aiState->thinkFunc && (gFrame & 3) == (nSprite & 3))
+                    pXSprite->aiState->thinkFunc(pSprite, pXSprite);
 
-            if (pXSprite->aiState->thinkFunc && (gFrame & 3) == (nSprite & 3))
-                pXSprite->aiState->thinkFunc(pSprite, pXSprite);
+                if (pXSprite->stateTimer == 0 && pXSprite->aiState->nextState) {
+                    if (pXSprite->aiState->stateTicks > 0)
+                        aiNewState(pSprite, pXSprite, pXSprite->aiState->nextState);
+                    else if (seqGetStatus(3, nXSprite) < 0)
+                        aiNewState(pSprite, pXSprite, pXSprite->aiState->nextState);
+                }
 
-            if (pXSprite->stateTimer == 0 && pXSprite->aiState->nextState) {
-                if (pXSprite->aiState->stateTicks > 0)
-                    aiNewState(pSprite, pXSprite, pXSprite->aiState->nextState);
-                else if (seqGetStatus(3, nXSprite) < 0)
-                    aiNewState(pSprite, pXSprite, pXSprite->aiState->nextState);
-            }
-
-            if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= cumulDamage[nXSprite])) {
-                pXSprite->data3 = cumulDamage[nXSprite];
-                RecoilDude(pSprite, pXSprite);
-            }
-
+                if (pXSprite->health > 0 && ((pDudeInfo->hinderDamage << 4) <= cumulDamage[nXSprite])) {
+                    pXSprite->data3 = cumulDamage[nXSprite];
+                    RecoilDude(pSprite, pXSprite);
+                }
+                break;
         }
     }
     memset(cumulDamage, 0, sizeof(cumulDamage));
@@ -1505,6 +1530,7 @@ void aiInitSprite(spritetype *pSprite)
     pDudeExtra->at4 = 0;
     pDudeExtra->at0 = 0;
     switch (pSprite->type) {
+#ifdef NOONE_EXTENSIONS
     case kDudeModernCustom: {
         DUDEEXTRA_at6_u1* pDudeExtraE = &gDudeExtra[nXSprite].at6.u1;
         pDudeExtraE->at8 = pDudeExtraE->at0 = 0;
@@ -1516,6 +1542,7 @@ void aiInitSprite(spritetype *pSprite)
         aiGenDudeNewState(pSprite, &genDudeBurnGoto);
         pXSprite->burnTime = 1200;
         break;
+#endif
     case kDudeCultistTommy:
     case kDudeCultistShotgun:
     case kDudeCultistTesla:
@@ -1707,10 +1734,11 @@ void aiInitSprite(spritetype *pSprite)
     case kDudeZombieAxeLaying:
         pSprite->flags = 7;
         break;
-    case kDudePodMother: // by NoOne: FakeDude type
+    #ifdef NOONE_EXTENSIONS
+    case kDudePodMother: // FakeDude type
         if (gModernMap) break;
         fallthrough__;
-    // By NoOne: Allow put pods and tentacles on ceilings if sprite is y-flipped.
+    // Allow put pods and tentacles on ceilings if sprite is y-flipped.
     case kDudePodGreen:
     case kDudeTentacleGreen:
     case kDudePodFire:
@@ -1723,6 +1751,7 @@ void aiInitSprite(spritetype *pSprite)
         }
         fallthrough__;
     // go default
+    #endif
     default:
         pSprite->flags = 15;
         break;
