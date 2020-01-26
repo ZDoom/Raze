@@ -161,17 +161,18 @@ void credReset(void)
     DoUnFade(1);
 }
 
-FileReader credKOpen4Load(FString pzFile)
+bool credKOpen4Load(FString &pzFile)
 {
     int nLen = strlen(pzFile);
     FixPathSeperator(pzFile);
-    auto nHandle = fileSystem.OpenFileReader(pzFile, 0);
-    if (!nHandle.isOpen())
+    auto nHandle = fileSystem.FindFile(pzFile);
+    if (nHandle < 0)
     {
-        // Hack
+        // Strip the drive letter and retry.
         if (nLen >= 3 && isalpha(pzFile[0]) && pzFile[1] == ':' && pzFile[2] == '/')
         {
-            nHandle = fileSystem.OpenFileReader(pzFile.GetChars()+3, 0);
+            pzFile = pzFile.Mid(3);
+            nHandle = fileSystem.FindFile(pzFile);
         }
     }
     return nHandle;
@@ -200,7 +201,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     FString pzSMK = _pzSMK;
     FString pzWAV = _pzWAV;
     auto nHandleSMK = credKOpen4Load(pzSMK);
-    if (!nHandleSMK.isOpen())
+    if (!nHandleSMK)
     {
         return;
     }
@@ -238,7 +239,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     else
     {
         auto nHandleWAV = credKOpen4Load(pzWAV);
-        if (nHandleWAV.isOpen())
+        if (nHandleWAV)
         {
             sndStartWavDisk(pzWAV, 255);
         }
