@@ -8819,7 +8819,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 
     videoSetViewableArea(0L,0L,xdim-1,ydim-1);
     videoClearScreen(0L);
-    videoSetPalette(curbrightness,0,0);
 
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
