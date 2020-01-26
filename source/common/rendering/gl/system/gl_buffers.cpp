@@ -37,6 +37,7 @@
 #include "gl_load.h"
 //#include "glbackend.h"
 #include "gl_buffers.h"
+#include "v_video.h"
 
 namespace OpenGLRenderer
 {
@@ -79,7 +80,7 @@ void GLBuffer::SetData(size_t size, const void *data, bool staticdata)
 	}
 	else
 	{
-		mPersistent = /*screen->BuffersArePersistent() &&*/ !staticdata;
+		mPersistent = screen->BuffersArePersistent() && !staticdata;
 		if (mPersistent)
 		{
 			glBufferStorage(mUseType, size, nullptr, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
