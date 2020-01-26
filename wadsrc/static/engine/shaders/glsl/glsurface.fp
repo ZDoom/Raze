@@ -13,9 +13,9 @@ const float c_paletteOffset = 0.5/256.0;
 
 void main()
 {
- vec4 color = texture2D(s_texture, v_texCoord.xy);
+ vec4 color = texture(s_texture, v_texCoord.xy);
  color.r = c_paletteOffset + c_paletteScale*color.r;
- color.rgb = texture2D(s_palette, color.rg).rgb;
+ color.rgb = texture(s_palette, color.rg).rgb;
  
  FragColor = color;
 }

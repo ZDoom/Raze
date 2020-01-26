@@ -163,13 +163,13 @@ void main()
 		newCoord = vec2(coordX, coordY);
 
 		// Paletted textures are stored in column major order rather than row major so coordinates need to be swapped here.
-		color = texture2D(s_texture, newCoord);
+		color = texture(s_texture, newCoord);
 
 		// This was further down but it really should be done before applying any kind of depth fading, not afterward.
 		vec4 detailColor = vec4(1.0);
 		if ((u_flags & RF_DetailMapping) != 0)
 		{
-			detailColor = texture2D(s_detail, v_detailCoord.xy);
+			detailColor = texture(s_detail, v_detailCoord.xy);
 			detailColor = mix(vec4(1.0), 2.0 * detailColor, detailColor.a);
 			// Application of this differs based on render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
 		}
@@ -212,7 +212,7 @@ void main()
 			// The lighting model here does not really allow more than a simple on/off brightmap because anything more complex inteferes with the shade ramp... :(
 			if ((u_flags & RF_Brightmapping) != 0)
 			{
-				vec4 brightcolor = texture2D(s_brightmap, v_texCoord.xy);
+				vec4 brightcolor = texture(s_brightmap, v_texCoord.xy);
 				if (grayscale(brightcolor) > 0.5)
 				{
 					shadeIt = false;
@@ -238,7 +238,7 @@ void main()
 
 	if ((u_flags & (RF_ColorOnly|RF_GlowMapping)) == RF_GlowMapping)
 	{
-		vec4 glowColor = texture2D(s_glow, v_texCoord.xy);
+		vec4 glowColor = texture(s_glow, v_texCoord.xy);
 		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a);
 	}
 	
