@@ -1206,7 +1206,7 @@ void gameDisplayTitleScreen(void)
     videoClearScreen(0);
 
     // g_player[myconnectindex].ps->palette = titlepal;
-    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, Pal_Fullscreen);  // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, Pal_2D);  // JBF 20040308
     renderFlushPerms();
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, BETASCREEN, 0, 0, 2 + 8 + 64 + BGSTRETCH);
     inputState.keyFlushChars();

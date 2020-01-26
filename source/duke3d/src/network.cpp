@@ -4694,7 +4694,7 @@ void Net_WaitForServer(void)
     if (numplayers < 2 || g_netServer)
         return;
 
-    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, Pal_Fullscreen);
+    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, Pal_2D);
 
     do
     {
