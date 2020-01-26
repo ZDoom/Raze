@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${MACOSX_BUNDLE_EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>zdoom.icns</string>
+	<string>raze.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.drdteam.raze</string>
 	<key>CFBundleInfoDictionaryVersion</key>

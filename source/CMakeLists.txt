@@ -481,7 +481,7 @@ set( PLAT_UNIX_SOURCES
 set( PLAT_OSX_SOURCES
 	platform/posix/osx/iwadpicker_cocoa.mm
 	platform/posix/osx/i_specialpaths.mm
-	platform/posix/osx/zdoom.icns )
+	platform/posix/osx/raze.icns )
 set( PLAT_COCOA_SOURCES
 	platform/posix/cocoa/i_input.mm
 	platform/posix/cocoa/i_joystick.cpp
