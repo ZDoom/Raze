@@ -839,14 +839,18 @@ set (PCH_SOURCES
 	common/rendering/hwrenderer/utility/hw_shaderpatcher.cpp
 )
 
-if( MSVC )
-	enable_precompiled_headers( g_pch.h PCH_SOURCES )
-	# The original Build code was written with unsigned chars and unfortunately they still haven't been eliminated entirely.
-	# All other code should stay with signed chars. What a mess... :(
-else()
-	# Temporary solution for compilers other than MSVC
-	set_source_files_properties( ${PCH_SOURCES} PROPERTIES COMPILE_FLAGS "-include g_pch.h" )
-endif()
+macro( use_precompiled_header )
+	if( MSVC )
+		enable_precompiled_headers( "${ARGV0}/g_pch.h" PCH_SOURCES )
+		# The original Build code was written with unsigned chars and unfortunately they still haven't been eliminated entirely.
+		# All other code should stay with signed chars. What a mess... :(
+	else()
+		# Temporary solution for compilers other than MSVC
+		set_source_files_properties( ${PCH_SOURCES} PROPERTIES COMPILE_FLAGS "-include g_pch.h" )
+	endif()
+endmacro()
+
+use_precompiled_header(".")
 
 add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 	${HEADER_FILES}
@@ -1036,3 +1040,29 @@ source_group("OpenGL Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/g
 source_group("Build Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/.+")
 source_group("Build Engine\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/include/.+")
 source_group("Build Engine\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/src/.+")
+
+macro( add_game_library )
+	file( GLOB HEADER_FILES src/*.h )
+	if( NOT_COMPILED_SOURCE_FILES )
+		set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
+	endif()
+	use_precompiled_header("..")
+	add_library( ${ARGV0} STATIC
+		${PCH_SOURCES}
+		${HEADER_FILES}
+		${NOT_COMPILED_SOURCE_FILES}
+	)
+endmacro()
+
+require_stricmp()
+require_strnicmp()
+
+unset( PCH_SOURCES )
+unset( HEADER_FILES )
+unset( NOT_COMPILED_SOURCE_FILES )
+
+add_subdirectory( duke3d )
+add_subdirectory( blood )
+add_subdirectory( rr )
+add_subdirectory( sw )
+add_subdirectory( exhumed )
