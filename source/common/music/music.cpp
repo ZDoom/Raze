@@ -104,13 +104,10 @@ static FName knownMusicExts[] = {
 	NAME_VOC,
 };
 
-FString G_SetupFilenameBasedMusic(const char* fileName, const char* defmusic)
-{
-	FString name = fileName;
-	char* p;
 
-	int index = name.LastIndexOf(".");
-	if (index >= 0) name.Truncate(index);
+FString G_SetupFilenameBasedMusic(const char* fn, const char* defmusic)
+{
+	FString name = StripExtension(fn);
 
 	// Test if a real file with this name exists with all known extensions for music.
 	for (auto& ext : knownMusicExts)
@@ -130,6 +127,72 @@ FString MusicFileExists(const char* fn)
 	if (mus_extendedlookup) return G_SetupFilenameBasedMusic(fn, nullptr);
 	if (FileExists(fn)) return fn;
 	return FString();
+}
+
+int LookupMusicLump(const char* fn)
+{
+	if (mus_extendedlookup)
+	{
+		FString name = StripExtension(fn);
+		int l = fileSystem.FindFileWithExtensions(name, knownMusicExts, countof(knownMusicExts));
+		if (l >= 0) return l;
+	}
+	return fileSystem.FindFile(fn);
+}
+
+//==========================================================================
+//
+// Music lookup in various places.
+//
+//==========================================================================
+
+FileReader LookupMusic(const char* musicname)
+{
+	FileReader reader;
+	FString mus = MusicFileExists(musicname);
+	if (mus.IsNotEmpty())
+	{
+		// Load an external file.
+		reader.OpenFile(mus);
+	}
+	if (!reader.isOpen())
+	{
+		int lumpnum = LookupMusicLump(musicname);
+		if (mus_extendedlookup && lumpnum >= 0)
+		{
+			// EDuke also looks in a subfolder named after the main game resource. Do this as well if extended lookup is active.
+			auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
+			auto rfbase = ExtractFileBase(rfn);
+			FStringf aliasMusicname("music/%s/%s", rfbase.GetChars(), musicname);
+			lumpnum = LookupMusicLump(aliasMusicname);
+		}
+		if (lumpnum == -1)
+		{
+			// Always look in the 'music' subfolder as well. This gets used by multiple setups to store ripped CD tracks.
+			FStringf aliasMusicname("music/%s", musicname);
+			lumpnum = LookupMusicLump(aliasMusicname);
+		}
+		if (lumpnum == -1 && (g_gameType & GAMEFLAG_SW))
+		{
+			// Some Shadow Warrioe distributions have the music in a subfolder named 'classic'. Check that, too.
+			FStringf aliasMusicname("classic/music/%s", musicname);
+			lumpnum = fileSystem.FindFile(aliasMusicname);
+		}
+		if (lumpnum > -1)
+		{
+			if (fileSystem.FileLength(lumpnum) >= 0)
+			{
+				reader = fileSystem.ReopenFileReader(lumpnum);
+				if (!reader.isOpen())
+				{
+					Printf(TEXTCOLOR_RED "Unable to play music " TEXTCOLOR_WHITE "\"%s\"\n", musicname);
+				}
+				else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), fileSystem.GetFileFullPath(lumpnum).GetChars());
+			}
+		}
+	}
+	else if (printmusicinfo) Printf("Playing music from external file %s\n", musicname);
+	return reader;
 }
 
 //==========================================================================
@@ -375,43 +438,8 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 			musicname += 7;
 		}
 
-		FileReader reader;
-		FString mus = MusicFileExists(musicname);
-		if (mus.IsNotEmpty())
-		{
-			// Load an external file.
-			reader.OpenFile(mus);
-		}
-		if (!reader.isOpen())
-		{
-			if ((lumpnum = fileSystem.FindFile(musicname)) == -1)
-			{
-				// Always look in the 'music' subfolder as well.
-				FStringf aliasMusicname("music/%s", musicname);
-				if ((lumpnum = fileSystem.FindFile(aliasMusicname)) == -1 && (g_gameType & GAMEFLAG_SW))
-				{
-					// Some Shadow Warrioe distributions have the music in a subfolder named 'classic'. Check that, too.
-					aliasMusicname.Format("classic/music/%s", musicname);
-					lumpnum = fileSystem.FindFile(aliasMusicname);
-				}
-			}
-			if (handle == nullptr && lumpnum > -1)
-			{
-				if (fileSystem.FileLength(lumpnum) == 0)
-				{
-					return false;
-				}
-				reader = fileSystem.ReopenFileReader(lumpnum);
-			}
-			if (!reader.isOpen())
-			{
-				Printf(TEXTCOLOR_RED "Unable to play music " TEXTCOLOR_WHITE "\"%s\"\n", musicname);
-			}
-			else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), fileSystem.GetFileFullPath(lumpnum).GetChars());
-		}
-		else if (printmusicinfo) Printf("Playing music from external file %s\n", musicname);
-
-
+		FileReader reader = LookupMusic(musicname);
+		if (!reader.isOpen()) return false;
 
 		// shutdown old music
 		S_StopMusic (true);

@@ -45,6 +45,7 @@ void NormalizeFileName(FString &str);
 
 FString	ExtractFilePath (const char *path);
 FString	ExtractFileBase (const char *path, bool keep_extension=false);
+FString StripExtension(const char* path);
 
 struct FScriptPosition;
 bool	IsNum (const char *str);		// [RH] added

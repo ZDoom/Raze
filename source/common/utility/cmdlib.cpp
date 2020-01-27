@@ -1,6 +1,6 @@
 /*
 ** cmdlib.cpp
-** Misc utilities (mostly file handling stuff
+** Misc utilities (mostly file handling stuff)
 **
 **---------------------------------------------------------------------------
 ** Copyright 1999-2016 Randy Heit
@@ -255,6 +255,32 @@ FString ExtractFileBase (const char *path, bool include_extension)
 	return FString();
 }
 
+//==========================================================================
+//
+// StripExtension
+//
+// Returns the path with the extension removed
+//
+//==========================================================================
+
+FString StripExtension(const char* path)
+{
+	const char* src;
+
+	src = path + strlen(path) - 1;
+
+	//
+	// back up until a . and abort on a \
+	//
+	while (src != path && !IsSeperator(*(src - 1)))
+	{
+		if (*src == '.') return FString(path, src - path);
+		src--;
+	}
+
+	return path;
+
+}
 
 //==========================================================================
 //
