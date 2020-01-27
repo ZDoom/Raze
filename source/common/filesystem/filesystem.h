@@ -97,6 +97,7 @@ public:
     int GetEntryCount(int filenum) const noexcept;
 
 	int FindFile (const char *name, ELookupMode lookupmode = ELookupMode::FullName, int filenum = -1) const noexcept;
+	int FindFileWithExtensions(const char* name, const FName* exts, int count);
 	int GetFile (const char *name, ELookupMode lookupmode = ELookupMode::FullName, int filenum = -1) const;	// Like FindFile, but throws an exception when it cannot find what it looks for.
 	bool FileExists(const char* name)
 	{

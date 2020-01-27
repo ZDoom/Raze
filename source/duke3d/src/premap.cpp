@@ -1673,67 +1673,6 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
     }
 }
 
-// levnamebuf should have at least size BMAX_PATH
-void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
-{
-    char *p;
-    char const *exts[] = {
-        "flac",
-        "ogg",
-        "mp3",
-        "xm",
-        "mod",
-        "it",
-        "s3m",
-        "mtm",
-        "mid",
-        "hmp",
-        "hmi",
-        "xmi"
-    };
-
-    Bstrncpy(nameBuf, fileName, BMAX_PATH);
-
-    Bcorrectfilename(nameBuf, 0);
-
-    if (NULL == (p = Bstrrchr(nameBuf, '.')))
-    {
-        p = nameBuf + Bstrlen(nameBuf);
-        p[0] = '.';
-    }
-
-    // Test if a real file with this name exists with all known extensions for music.
-    for (auto & ext : exts)
-    {
-        Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
-
-		if (FileExists(nameBuf))
-		{
-            userMapRecord.music = nameBuf;
-            return;
-        }
-    }
-
-    auto &usermapMusic = mapList[MUS_USERMAP].music;
-    if (usermapMusic.IsNotEmpty())
-    {
-        userMapRecord.music = usermapMusic;
-        return;
-    }
-
-#ifndef EDUKE32_STANDALONE
-    if (!FURY)
-    {
-        auto &e1l8 = mapList[7].music;
-        if (e1l8.IsNotEmpty())
-        {
-            userMapRecord.music = e1l8;
-            return;
-        }
-    }
-#endif
-}
-
 static void G_CheckIfStateless()
 {
     for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
@@ -1842,7 +1781,8 @@ int G_EnterLevel(int gameMode)
         currentLevel = &userMapRecord;
         STAT_NewLevel(boardfilename);
         G_LoadMapHack(levelName, boardfilename);
-        G_SetupFilenameBasedMusic(levelName, boardfilename);
+
+        userMapRecord.music = G_SetupFilenameBasedMusic(boardfilename, mapList[MUS_USERMAP].music.IsNotEmpty()? mapList[MUS_USERMAP].music.GetChars() :(!FURY? mapList[7].music.GetChars() : nullptr));
     }
     else if (engineLoadBoard(mm.fileName, VOLUMEONE, &p0.pos, &playerAngle, &p0.cursectnum) < 0)
     {

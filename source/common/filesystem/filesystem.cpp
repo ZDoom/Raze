@@ -340,6 +340,44 @@ int FileSystem::GetFile (const char *name, ELookupMode lookupmode, int filenum) 
 
 //==========================================================================
 //
+// FindFile
+//
+// Looks up a file by name, either eith or without path and extension
+//
+//==========================================================================
+
+int FileSystem::FindFileWithExtensions(const char* name, const FName *exts, int count)
+{
+	uint32_t i;
+
+	if (name == NULL)
+	{
+		return -1;
+	}
+	if (*name == '/') name++;	// maps get a '/' prepended to their name. No idea what's the point, but this must be removed here.
+	FName lname(name, true);
+	if (lname == NAME_None) return -1;
+
+	const int lookupindex = FResourceLump::FullNameNoExtType;
+	uint32_t* fli = FirstFileIndex[lookupindex];
+	uint32_t* nli = NextFileIndex[lookupindex];
+
+	for (i = fli[int(lname) % NumEntries]; i != NULL_INDEX; i = nli[i])
+	{
+		auto lump = FileInfo[i].lump;
+		if (lump->LumpName[lookupindex] == lname)
+		{
+			for (int c = 0; c < count; c++)
+			{
+				if (lump->LumpName[FResourceLump::ExtensionType] == exts[c]) return i;
+			}
+		}
+	}
+	return -1;
+}
+
+//==========================================================================
+//
 // FindResource
 //
 // Looks for content based on Blood resource IDs.

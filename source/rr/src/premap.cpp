@@ -2231,49 +2231,6 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
     }
 }
 
-// levnamebuf should have at least size BMAX_PATH
-void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName)
-{
-    char *p;
-    char const *exts[] = {
-        "flac",
-        "ogg",
-        "mp3",
-        "xm",
-        "mod",
-        "it",
-        "s3m",
-        "mtm",
-        "mid",
-        "hmp",
-        "hmi",
-        "xmi"
-    };
-
-    Bstrncpy(nameBuf, fileName, BMAX_PATH);
-
-    Bcorrectfilename(nameBuf, 0);
-
-    if (NULL == (p = Bstrrchr(nameBuf, '.')))
-    {
-        p = nameBuf + Bstrlen(nameBuf);
-        p[0] = '.';
-    }
-
-    for (auto & ext : exts)
-    {
-        Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
-
-        if (FileExists(nameBuf))
-		{
-            userMapRecord.music = nameBuf;
-            return;
-        }
-    }
-
-    if (!RR) userMapRecord.music = "dethtoll.mid";
-}
-
 int G_EnterLevel(int gameMode)
 {
     int32_t i, mii;
@@ -2359,7 +2316,7 @@ int G_EnterLevel(int gameMode)
         currentLevel = &userMapRecord;
         STAT_NewLevel(boardfilename);
 		G_LoadMapHack(levelName, boardfilename);
-        G_SetupFilenameBasedMusic(levelName, boardfilename);
+        userMapRecord.music = G_SetupFilenameBasedMusic(boardfilename, !RR? "dethtoll.mid" : nullptr);
     }
     else if (engineLoadBoard(mi.fileName, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
     {
