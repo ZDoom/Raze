@@ -1548,7 +1548,7 @@ void CreditsLevel(void)
     inputState.ClearAllInput();
     curpic = CREDITS1_PIC;
 
-    while (TRUE)
+    while (!inputState.CheckAllInput())
     {
         // taken from top of faketimerhandler
         // limits checks to max of 40 times a second
@@ -1572,9 +1572,7 @@ void CreditsLevel(void)
             timer = 0;
             curpic = CREDITS1_PIC;
         }
-
-        if (inputState.CheckAllInput())
-            break;
+		handleevents();
     }
 
     // put up a blank screen while loading
