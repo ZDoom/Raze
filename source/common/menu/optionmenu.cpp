@@ -76,7 +76,7 @@ void DrawOptionText(int x, int y, int color, const char *text, bool grayed)
 
 int DOptionMenu::GetPosition()
 {
-	return mDesc->mPosition * screen->GetHeight() / 1080;	// y position uses a 1920x1080 screen as reference but has to adjust to scaled 320x200 content.
+	return mDesc->mPosition * screen->GetHeight() * 2 / CleanYfac_1 / 1080;	// y position uses a 1920x1080 screen as reference but has to adjust to scaled 320x200 content.
 }
 
 //=============================================================================
