@@ -720,7 +720,6 @@ set (PCH_SOURCES
 	common/inputstate.cpp
 	common/searchpaths.cpp
 	common/initfs.cpp
-	common/openaudio.cpp
 	common/statistics.cpp
 	common/secrets.cpp
 	common/compositesavegame.cpp

@@ -233,7 +233,7 @@ int LoadSound(const char* name)
     if (sndid > 0) return sndid - 1;
 
     FStringf filename("%s.voc", nname.GetChars());
-    auto lump = fileSystem.FindFile(filename);
+    auto lump = S_LookupSound(filename);
     if (lump > 0)
     {
         auto &S_sfx = soundEngine->GetSounds();

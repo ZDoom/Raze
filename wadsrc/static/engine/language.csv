@@ -562,6 +562,9 @@ Module replayer options,SNDMNU_MODREPLAYER,,,,Nastavení přehrávače modulů,M
 Midi player options,SNDMNU_MIDIPLAYER,,,,Nastavení MIDI přehrávače,MIDI-Spieler-Optionen,,Agordoj por MIDI-ludilo,Opciones de reproductor MIDI,,MIDI-soitinasetukset,Option lecteur MIDI,,Opzioni Midi player,Midi再生のオプション,MIDI 플레이어 설정,Midi speler opties,Opcje Odtwarzacza Midi,Opções de reprodutor MIDI,,,Настройки MIDI-проигрывателя,MIDI плејер подешавања
 Sound in Menus,SNDMNU_MENUSOUND,,,,,Sound in Menüs,,,,,,,,,,,,,,,,,
 Advanced Sound Options,ADVSNDMNU_TITLE,,,,Pokročilá nastavení zvuku,Erweiterte Soundoptionen,,Altnivelaj Son-agordoj,Opciones avanzadas de sonido,,Edistyneet ääniasetukset,Options Sonores Avancées,,Opzioni avanzate dei suoni,高度なサウンドオプション,고급 음향 설정,Geavanceerde geluidsopties,Zaawansowane Opcje Dźwięku,Opções de Áudio Avançadas,,,Расширенные настройки,Напредна подешавања звука
+"Ignore file type for music lookup
+",ADVSNDMNU_LOOKUPMUS,,,,,,,,,,,,,,,,,,,,,,
+Ignore file type for sound lookup,ADVSNDMNU_LOOKUPSND,,,,,,,,,,,,,,,,,,,,,,
 Sample rate,ADVSNDMNU_SAMPLERATE,,,,Vzorkovací frekvence,Samplerate,,Specimenrapideco,Frecuencia de muestreo,,Näytteenottotaajuus,Cadence de Sampling,,,サンプルレート,샘플링레이트,Steekproeftarief,Częstotliwość próbkowania,Taxa de amostragem,,,Частота дискретизации,Фреквенција узорковања
 HRTF,ADVSNDMNU_HRTF,,,,,,,,,,,,,,,머리전달함수,,HRTF,,,,,
 OPL Synthesis,ADVSNDMNU_OPLSYNTHESIS,,,,Emulace OPL,OPL Synthese,,OPL-Sintezo,Síntesis OPL,,OPL-synteesi,Synthèse OPL,,,OPLシンセサイズ,OPL 합성,OPL synthese,Synteza OPL,Síntese OPL,,,Синтез OPL,OPL синтеза

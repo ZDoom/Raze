@@ -480,7 +480,7 @@ void InitFX(void)
     for (size_t i = 1; i < countof(voc); i++)
     {
         auto& entry = voc[i];
-        auto lump = fileSystem.FindFile(entry.name);
+        auto lump = S_LookupSound(entry.name);
         if (lump > 0)
         {
             auto& newsfx = S_sfx[i];

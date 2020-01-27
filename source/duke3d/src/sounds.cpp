@@ -150,7 +150,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
     if (sndinf->flags & SF_LOOP)
         sndinf->flags |= SF_ONEINST_INTERNAL;
 
-    sfx->lumpnum = fileSystem.FindFile(filename);
+    sfx->lumpnum = S_LookupSound(filename);
     sndinf->pitchStart = clamp(minpitch, INT16_MIN, INT16_MAX);
     sndinf->pitchEnd = clamp(maxpitch, INT16_MIN, INT16_MAX);
     sndinf->priority = priority & 255;

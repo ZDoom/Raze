@@ -1360,6 +1360,10 @@ OptionMenu SoundOptions //protected
 OptionMenu AdvSoundOptions //protected
 {
 	Title "$ADVSNDMNU_TITLE"
+	Option "$ADVSNDMNU_LOOKUPMUS",			"mus_extendedlookup", "OnOff"
+	Option "$ADVSNDMNU_LOOKUPSND",			"snd_extendedlookup", "OnOff"
+	StaticText " "
+	
 	Option "$ADVSNDMNU_SAMPLERATE",			"snd_mixrate", "SampleRates"
 	//Option "$ADVSNDMNU_HRTF",				"snd_hrtf", "AutoOffOn"
 	StaticText " "

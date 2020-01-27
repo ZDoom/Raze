@@ -40,6 +40,9 @@
 #include "m_swap.h"
 #include "superfasthash.h"
 #include "c_cvars.h"
+#include "name.h"
+#include "filesystem.h"
+#include "cmdlib.h"
 
 #ifdef _WIN32
 #undef DrawText
@@ -1805,4 +1808,15 @@ ADD_STAT(sounddebug)
 	return soundEngine->NoiseDebug();
 }
 
+CVAR(Bool, snd_extendedlookup, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
+int S_LookupSound(const char* fn)
+{
+	static const FName sndformats[] = { NAME_OGG, NAME_FLAC, NAME_WAV };
+	if (snd_extendedlookup)
+	{
+		int lump = fileSystem.FindFileWithExtensions(StripExtension(fn), sndformats, countof(sndformats));
+		if (lump >= 0) return lump;
+	}
+	return fileSystem.FindFile(fn);
+}
