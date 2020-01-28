@@ -63,12 +63,6 @@ CUSTOM_CVARD(Int, hw_anisotropy, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes t
 // For testing - will be removed later.
 CVAR(Int, skytile, 0, 0)
 
-bool playing_rr;
-bool playing_blood;
-
-
-int32_t rendmode=0;
-
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 2048 //<- careful!
 static vsptyp vsp[VSPMAX];
@@ -120,13 +114,6 @@ static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 static int32_t lastglpolygonmode = 0; //FUK
 
 static FHardwareTexture *polymosttext = 0;
-int32_t glrendmode = REND_POLYMOST;
-
-int32_t r_scenebrightness = 0;
-
-int32_t r_rortexture = 0;
-int32_t r_rortexturerange = 0;
-int32_t r_rorphase = 0;
 
 static int32_t r_yshearing = 0;
 
@@ -144,8 +131,6 @@ static int32_t r_parallaxskyclamping = 1;
 
 #define Bfabsf fabsf
 
-int32_t mdtims, omdtims;
-uint8_t alphahackarray[MAXTILES];
 static int32_t drawingskybox = 0;
 static int32_t hicprecaching = 0;
 
