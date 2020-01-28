@@ -35,7 +35,7 @@ static voxmodel_t *gvox;
 
 
 //pitch must equal xsiz*4
-FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
+static FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
 {
     // Correct for GL's RGB order; also apply gamma here:
     const coltype *const pic = (const coltype *)picbuf;
