@@ -115,7 +115,7 @@ FString G_SetupFilenameBasedMusic(const char* fn, const char* defmusic)
 		FStringf test("%s.%s", name.GetChars(), ext.GetChars());
 		if (FileExists(test)) return test;
 #ifdef __unix__
-		test.Format("%s.%s", name.GetChars(), FString(ext).MakeLower().GetChars());
+		test.Format("%s.%s", name.GetChars(), FString(ext.GetChars()).MakeLower().GetChars());
 		if (FileExists(test)) return test;
 #endif
 	}
