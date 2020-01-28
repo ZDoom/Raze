@@ -73,37 +73,48 @@ static int osdcmd_levelwarp(osdcmdptr_t parm)
 
 static int osdcmd_map(osdcmdptr_t parm)
 {
-    char filename[BMAX_PATH];
+	FString mapname;
 
-    const int32_t wildcardp = parm->numparms==1 &&
-        (Bstrchr(parm->parms[0], '*') != NULL);
-
-    if (parm->numparms != 1 || wildcardp)
+    if (parm->numparms != 1)
     {
         return OSDCMD_SHOWHELP;
     }
-
-    maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
-
-    if (!fileSystem.FileExists(filename))
+	
+    if (!fileSystem.Lookup(mapname, "MAP"))
     {
-        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
+        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
         return OSDCMD_OK;
     }
-
+	
+	// Check if the map is already defined.
+    for (int i = 0; i < 512; i++)
+    {
+        if (mapList[i].labelName.CompareNoCase(mapname) == 0)
+        {
+           ud.m_volume_number = i / MAXLEVELS;
+           m_level_number = i % MAXLEVELS;
+           goto foundone;
+        }
+    }
+	if (VOLUMEONE)
+	{
+		OSD_Printf(OSD_ERROR "Cannot use user maps in shareware.\n");
+		return OSDCMD_OK;
+	}
+	// Treat as user map
     boardfilename[0] = '/';
     boardfilename[1] = 0;
-    strcat(boardfilename, filename);
-
+    ud.m_volume_number = 0;
+    m_level_number = 7;
+	DefaultExtension(mapname, ".map");
+    strcat(boardfilename, mapname);
+foundone:
     if (numplayers > 1)
     {
         return OSDCMD_OK;
     }
 
     osdcmd_cheatsinfo_stat.cheatnum = -1;
-    ud.m_volume_number = 0;
-    m_level_number = 7;
-
     ud.m_monsters_off = ud.monsters_off = 0;
 
     ud.m_respawn_items = 0;
@@ -712,9 +723,9 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("playerinfo", "Prints information about the current player", osdcmd_playerinfo);
 #endif
 
+	OSD_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
     if (!VOLUMEONE)
     {
-        OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
 

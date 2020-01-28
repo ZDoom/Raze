@@ -154,4 +154,6 @@ int I_GetNumaNodeCount();
 int I_GetNumaNodeThreadCount(int numaNode);
 void I_SetThreadNumaNode(std::thread &thread, int numaNode);
 
+int I_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, size_t * OutputSize);
+
 #endif

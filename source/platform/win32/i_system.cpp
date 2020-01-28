@@ -59,6 +59,7 @@
 #include <mmsystem.h>
 #include <richedit.h>
 #include <wincrypt.h>
+#include <shlwapi.h>
 
 #include "hardware.h"
 #include "printf.h"
@@ -1289,3 +1290,35 @@ void I_SetThreadNumaNode(std::thread &thread, int numaNode)
 		SetThreadAffinityMask(handle, (DWORD_PTR)numaNodes[numaNode].affinityMask);
 	}
 }
+
+# ifndef KEY_WOW64_64KEY
+#  define KEY_WOW64_64KEY 0x0100
+# endif
+# ifndef KEY_WOW64_32KEY
+#  define KEY_WOW64_32KEY 0x0200
+# endif
+
+int I_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, size_t * OutputSize)
+{
+    // KEY_WOW64_32KEY gets us around Wow6432Node on 64-bit builds
+    REGSAM const wow64keys[] = { KEY_WOW64_32KEY, KEY_WOW64_64KEY };
+
+    for (auto &wow64key : wow64keys)
+    {
+        HKEY hkey;
+        LONG keygood = RegOpenKeyEx(HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ | wow64key, &hkey);
+
+        if (keygood != ERROR_SUCCESS)
+            continue;
+
+        LONG retval = SHGetValueA(hkey, SubKey, Value, NULL, Output, OutputSize);
+
+        RegCloseKey(hkey);
+
+        if (retval == ERROR_SUCCESS)
+            return 1;
+    }
+
+    return 0;
+}
+#endif

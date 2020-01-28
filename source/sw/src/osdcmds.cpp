@@ -53,57 +53,34 @@ char boardfilename[BMAX_PATH] = {0};
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
 
-#if 0
 static int osdcmd_map(osdcmdptr_t parm)
 {
-    char filename[BMAX_PATH];
+	FString mapname;
 
-    const int32_t wildcardp = parm->numparms==1 &&
-        (Bstrchr(parm->parms[0], '*') != NULL);
-
-    if (parm->numparms != 1 || wildcardp)
+    if (parm->numparms != 1)
     {
         return OSDCMD_SHOWHELP;
     }
-
-    maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
-
-    if (!fileSystem.FileExists(filename))
+	
+    if (!fileSystem.Lookup(mapname, "MAP"))
     {
-        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
+        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
         return OSDCMD_OK;
     }
-
-    boardfilename[0] = '/';
-    boardfilename[1] = 0;
-    strcat(boardfilename, filename);
-
-    if (numplayers > 1)
+	
+	// Check if the map is already defined.
+    for (int i = 0; i < 32; i++)
     {
-        return OSDCMD_OK;
+        if (mapList[i].labelName.CompareNoCase(mapname) == 0)
+        {
+			FStringf cheatcode("swtrek%02d", i+1);
+			WarpCheat(Player, cheatcode);
+			return OSDCMD_OK;
+        }
     }
-
-    osdcmd_cheatsinfo_stat.cheatnum = -1;
-    //ud.m_volume_number = 0;
-    m_level_number = 7;
-
-    //ud.m_monsters_off = ud.monsters_off = 0;
-
-    //ud.m_respawn_items = 0;
-    //ud.m_respawn_inventory = 0;
-
-    //ud.multimode = 1;
-
-    if (g_player[myconnectindex].ps->gm & MODE_GAME)
-    {
-        //G_NewGame(ud.m_volume_number, m_level_number, ud.m_player_skill);
-        g_player[myconnectindex].ps->gm = MODE_RESTART;
-    }
-    else G_NewGame_EnterLevel();
-
     return OSDCMD_OK;
 }
-#endif
+
 
 static int osdcmd_activatecheat(osdcmdptr_t parm)
 {
@@ -299,6 +276,7 @@ static int osdcmd_give(osdcmdptr_t parm)
 
 int32_t registerosdcommands(void)
 {
+    OSD_RegisterFunction("map","map <mapfile>: loads the given map", osdcmd_map);
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     OSD_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);

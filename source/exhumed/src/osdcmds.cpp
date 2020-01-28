@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumed.h"
 #include "osdcmds.h"
 #include "view.h"
+#include "mapinfo.h"
 
 BEGIN_PS_NS
 
@@ -57,6 +58,34 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
         OSD_Printf("noclip: Not in a single-player game.\n");
     }
 
+    return OSDCMD_OK;
+}
+
+static int osdcmd_map(osdcmdptr_t parm)
+{
+	FString mapname;
+
+    if (parm->numparms != 1)
+    {
+        return OSDCMD_SHOWHELP;
+    }
+	
+    if (!fileSystem.Lookup(mapname, "MAP"))
+    {
+        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
+        return OSDCMD_OK;
+    }
+	
+	// Check if the map is already defined.
+    for (int i = 0; i <= ISDEMOVER? 4 : 32; i++)
+    {
+        if (mapList[i].labelName.CompareNoCase(mapname) == 0)
+        {
+			levelnew = i;
+			levelnum = i;
+			return OSDCMD_OK;
+        }
+    }
     return OSDCMD_OK;
 }
 
@@ -97,10 +126,7 @@ int32_t registerosdcommands(void)
 {
     //if (VOLUMEONE)
     OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
-    //else
-    //{
-    //    OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
-    //    OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
+    OSD_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
     //    OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     //}
 

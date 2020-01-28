@@ -46,9 +46,6 @@ extern const char *s_buildTimestamp;
 
 void G_AddDef(const char *buffer);
 void G_AddDefModule(const char *buffer);
-#ifdef HAVE_CLIPSHAPE_FEATURE
-void G_AddClipMap(const char *buffer);
-#endif
 
 // returns a buffer of size BMAX_PATH
 static inline char *dup_filename(const char *fn)
@@ -114,9 +111,5 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows);
 #define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=timerGetTicks();
 #define EDUKE32_TMRTIC t[ti++]=timerGetTicks()
 #define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
-
-#if defined _WIN32 && !defined EDUKE32_STANDALONE
-int Paths_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, DWORD * OutputSize);
-#endif
 
 #endif

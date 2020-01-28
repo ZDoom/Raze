@@ -130,7 +130,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 		// 3D Realms Anthology
 		char buf[PATH_MAX];
 		DWORD bufsize = sizeof(buf);
-		if (Paths_ReadRegistryValue(entry.regPath, entry.regKey, buf, &bufsize))
+		if (I_ReadRegistryValue(entry.regPath, entry.regKey, buf, &bufsize))
 		{
 			if (!entry.subpaths) AddSearchPath(searchpaths, buf);
 			else

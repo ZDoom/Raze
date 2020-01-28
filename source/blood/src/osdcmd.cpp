@@ -58,7 +58,7 @@ static int osdcmd_map(osdcmdptr_t parm)
     strcpy(filename, parm->parms[0]);
     ChangeExtension(filename, "");
 
-    if (!gSysRes.Lookup(filename, "MAP"))
+    if (!fileSystem.Lookup(filename, "MAP"))
     {
         OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;
@@ -255,7 +255,7 @@ static int osdcmd_levelwarp(osdcmdptr_t parm)
 
 int32_t registerosdcommands(void)
 {
-    OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
+    OSD_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
     OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
 
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
