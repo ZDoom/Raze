@@ -87,7 +87,6 @@ static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define SOFTROTMAT 0
 
 static int32_t r_pogoDebug = 0;
-int32_t polymostcenterhoriz = 100;
 
 static float gviewxrange;
 static float ghoriz, ghoriz2;
@@ -101,9 +100,6 @@ static float gchang = 0, gshang = 0, gctang = 0, gstang = 0;
 static float gvrcorrection = 1.f;
 
 static vec3d_t xtex, ytex, otex, xtex2, ytex2, otex2;
-
-float fcosglobalang, fsinglobalang;
-float fxdim, fydim, fydimen, fviewingrange;
 
 static float fsearchx, fsearchy, fsearchz;
 static int psectnum, pwallnum, pbottomwall, pisbottomwall, psearchstat;

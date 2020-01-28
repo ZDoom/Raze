@@ -97,6 +97,10 @@ int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
 int32_t mdtims, omdtims;
 uint8_t alphahackarray[MAXTILES];
+int32_t polymostcenterhoriz = 100;
+
+float fcosglobalang, fsinglobalang;
+float fxdim, fydim, fydimen, fviewingrange;
 
 uint8_t globalr = 255, globalg = 255, globalb = 255;
 
