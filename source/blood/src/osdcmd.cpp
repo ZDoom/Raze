@@ -2,8 +2,9 @@
 /*
 Copyright (C) 2010-2019 EDuke32 developers and contributors
 Copyright (C) 2019 Nuke.YKT
+Copyright (C) 2020 Raze developers and contributors
 
-This file is part of NBlood.
+This file was part of NBlood.
 
 NBlood is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -245,7 +246,7 @@ static int osdcmd_levelwarp(osdcmdptr_t parm)
     int m = atoi(parm->parms[1]);
     if (e == 0 || m == 0)
     {
-        Printf("Invalid level!: E%sM%s\n", parm->parms[0], parm->parms[1]);
+        Printf(OSD_ERROR "Invalid level!: E%sM%s\n", parm->parms[0], parm->parms[1]);
         return OSDCMD_OK;
     }
     LevelWarp(e - 1, m - 1);

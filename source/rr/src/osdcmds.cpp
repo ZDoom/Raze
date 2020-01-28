@@ -1,6 +1,7 @@
 //-------------------------------------------------------------------------
 /*
 Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2020 Raze developers and contributors
 
 This file is part of EDuke32.
 
@@ -34,6 +35,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_RR_NS
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
+
+static int osdcmd_levelwarp(osdcmdptr_t parm)
+{
+    if (parm->numparms != 2)
+        return OSDCMD_SHOWHELP;
+    int e = atoi(parm->parms[0]);
+    int m = atoi(parm->parms[1]);
+    if (e == 0 || m == 0)
+    {
+        Printf(OSD_ERROR "Invalid level!: E%sL%s\n", parm->parms[0], parm->parms[1]);
+        return OSDCMD_OK;
+    }
+
+    osdcmd_cheatsinfo_stat.cheatnum = -1;
+    ud.m_volume_number = e - 1;
+    m_level_number = m - 1;
+
+    ud.m_monsters_off = ud.monsters_off = 0;
+
+    ud.m_respawn_items = 0;
+    ud.m_respawn_inventory = 0;
+
+    ud.multimode = 1;
+
+    if (g_player[myconnectindex].ps->gm & MODE_GAME)
+    {
+        G_NewGame(ud.m_volume_number, m_level_number, ud.m_player_skill);
+        g_player[myconnectindex].ps->gm = MODE_RESTART;
+    }
+    else G_NewGame_EnterLevel();
+
+    return OSDCMD_OK;
+}
 
 static int osdcmd_map(osdcmdptr_t parm)
 {
@@ -523,6 +557,7 @@ int32_t registerosdcommands(void)
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
         OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
+    OSD_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
 
 #if !defined NETCODE_DISABLE
     OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);

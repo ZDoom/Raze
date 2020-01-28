@@ -38,6 +38,39 @@ BEGIN_DUKE_NS
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
 
+static int osdcmd_levelwarp(osdcmdptr_t parm)
+{
+    if (parm->numparms != 2)
+        return OSDCMD_SHOWHELP;
+    int e = atoi(parm->parms[0]);
+    int m = atoi(parm->parms[1]);
+    if (e == 0 || m == 0)
+    {
+        Printf(OSD_ERROR "Invalid level!: E%sL%s\n", parm->parms[0], parm->parms[1]);
+        return OSDCMD_OK;
+    }
+
+    osdcmd_cheatsinfo_stat.cheatnum = -1;
+    ud.m_volume_number = e - 1;
+    m_level_number = m - 1;
+
+    ud.m_monsters_off = ud.monsters_off = 0;
+
+    ud.m_respawn_items = 0;
+    ud.m_respawn_inventory = 0;
+
+    ud.multimode = 1;
+
+    if (g_player[myconnectindex].ps->gm & MODE_GAME)
+    {
+        G_NewGame(ud.m_volume_number, m_level_number, ud.m_player_skill);
+        g_player[myconnectindex].ps->gm = MODE_RESTART;
+    }
+    else G_NewGame_EnterLevel();
+
+    return OSDCMD_OK;
+}
+
 static int osdcmd_map(osdcmdptr_t parm)
 {
     char filename[BMAX_PATH];
@@ -690,6 +723,8 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
 
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
+
+    OSD_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
 
 
     OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
