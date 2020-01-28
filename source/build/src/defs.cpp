@@ -2142,8 +2142,11 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    if (EDUKE32_PREDICT_FALSE(fileSystem.FileExists(fn)))
+                    if (EDUKE32_PREDICT_FALSE(!fileSystem.FileExists(fn)))
+                    {
+                        initprintf("Error: %s not found in replacement for tile %d\n", fn, tile);
                         break;
+                    }
 
                     if (xsiz > 0 && ysiz > 0)
                     {
