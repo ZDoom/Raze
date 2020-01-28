@@ -172,6 +172,7 @@ option( NO_OPENAL "Disable OpenAL sound support" OFF )
 
 find_package( BZip2 )
 find_package( JPEG )
+find_package( VPX )
 find_package( ZLIB )
 
 include( TargetArch )
@@ -228,7 +229,7 @@ if( MSVC )
 	
 	
 	# Most of these need to be cleaned out. The source is currently infested with far too much conditional compilation which is a constant source of problems.
-	set( ALL_C_FLAGS "${ALL_C_FLAGS} /DUSE_OPENGL=1 /DUSE_LIBVPX /DNOASM=1 /DWIN32" )
+	set( ALL_C_FLAGS "${ALL_C_FLAGS} /DUSE_OPENGL=1 /DNOASM=1 /DWIN32" )
 
 	# The CMake configurations set /GR and /MD by default, which conflict with our settings.
 	string(REPLACE "/MD " " " CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} )
@@ -248,7 +249,7 @@ else()
 	else()
 		set( ALL_C_FLAGS "-ffp-contract=off" )
 	endif()
-	set( ALL_C_FLAGS "${ALL_C_FLAGS} -DUSE_OPENGL=1 -DNOASM=1" ) # /DUSE_LIBVPX  fixme: Set up libvpx
+	set( ALL_C_FLAGS "${ALL_C_FLAGS} -DUSE_OPENGL=1 -DNOASM=1" )
 
 	if ( UNIX )
 		include(CheckSymbolExists)

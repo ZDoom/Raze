@@ -69,12 +69,6 @@ if( WIN32 )
 
 	set( DX_dinput8_LIBRARY dinput8 )
 
-	if( X64 )
-		link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../platform/Windows/lib/64)
-	else()
-		link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../platform/Windows/lib/32)
-	endif()
-
 	set( PROJECT_LIBRARIES
 		opengl32
 		wsock32
@@ -433,11 +427,34 @@ if (HAVE_VULKAN)
 	set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "glslang" "SPIRV" "OGLCompiler")
 endif()
 
-# Ugh... These precompiled dependencies need to go.
+# VPX
+
+if( MSVC AND NOT VPX_FOUND )
+	# Use prebuilt library
+	set( VPX_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../platform/Windows" )
+	set( VPX_INCLUDE_DIR ${VPX_ROOT_PATH}/include )
+	set( VPX_LIBRARIES libvpx libcompat-to-msvc )
+	if( X64 )
+		link_directories( ${VPX_ROOT_PATH}/lib/64 )
+	else()
+		link_directories( ${VPX_ROOT_PATH}/lib/32 )
+		# Workaround for "error LNK2026: module unsafe for SAFESEH image."
+		set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO" )
+	endif()
+	set( VPX_FOUND TRUE )
+endif()
+
+if( VPX_FOUND )
+	add_definitions( "-DUSE_LIBVPX=1" )
+	include_directories( "${VPX_INCLUDE_DIR}" )
+	set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} ${VPX_LIBRARIES} )
+endif()
+
+
+include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" )
+
 if (WIN32)
-	include_directories( "platform/win32" "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include" "${CMAKE_CURRENT_SOURCE_DIR}/../platform/windows/include/vpx")
-else ()
-	include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}")
+	include_directories( "platform/win32" )
 endif()
 
 
