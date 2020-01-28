@@ -12,7 +12,7 @@
 #include "baselayer.h"
 #include "build.h"
 
-#include "colmatch.h"
+#include "imagehelpers.h"
 #include "common.h"
 #include "compat.h"
 #include "engine_priv.h"
@@ -219,8 +219,6 @@ int32_t numgraysects = 0;
 uint8_t graysectbitmap[(MAXSECTORS+7)>>3];
 uint8_t graywallbitmap[(MAXWALLS+7)>>3];
 int32_t autogray = 0, showinnergray = 1;
-
-//#define YAX_DEBUG_YMOSTS
 
 #ifdef YAX_DEBUG
 // XXX: This could be replaced with the use of gethiticks().
@@ -1082,34 +1080,6 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_
     engine_screenshot = 0;
 #endif
 
-#ifdef YAX_DEBUG_YMOSTS
-    if (videoGetRenderMode() == REND_CLASSIC && numyaxbunches>0)
-    {
-        char purple = paletteGetClosestColor(255, 0, 255);
-        char yellow = paletteGetClosestColor(255, 255, 0);
-
-        videoBeginDrawing();
-        for (i=0; i<numyaxbunches; i++)
-        {
-            int32_t x, x1;
-
-            if ((haveymost[i>>3]&(1<<i&7))==0)
-                continue;
-
-            x1 = i*xdimen;
-
-            for (x=x1; x<x1+xdimen; x++)
-            {
-                if (yumost[x] >= 0 && yumost[x] < ydim && (x&1))
-                    *((char *)frameplace + yumost[x]*bytesperline + x-x1) = purple;
-
-                if (ydmost[x]-1 >= 0 && ydmost[x]-1 < ydim && !(x&1))
-                    *((char *)frameplace + (ydmost[x]-1)*bytesperline + x-x1) = yellow;
-            }
-        }
-        videoEndDrawing();
-    }
-#endif
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
         yax_polymostclearzbuffer = 1;
@@ -4948,15 +4918,6 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
         }
     }
 
-#if 0
-    for (x=0; x<xdimen; x++)
-    {
-        if (daumost[x]>=0 && daumost[x]<ydimen)
-            *(char *)(frameplace + x + bytesperline*daumost[x]) = editorcolors[13];
-        if (dadmost[x]>=0 && dadmost[x]<ydimen)
-            *(char *)(frameplace + x + bytesperline*dadmost[x]) = editorcolors[14];
-    }
-#endif
 
     videoEndDrawing();   //}}}
 }

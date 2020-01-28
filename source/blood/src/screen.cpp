@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string.h>
 #include "a.h"
 #include "build.h"
-#include "colmatch.h"
 #include "common_game.h"
 
 #include "globals.h"
@@ -148,8 +147,6 @@ void scrLoadPalette(void)
 		x = bloodglblend;
 #endif
 
-    paletteInitClosestColorScale(30, 59, 11);
-    paletteInitClosestColorGrid();
     paletteloaded = 0;
     initprintf("Loading palettes\n");
     for (int i = 0; i < 5; i++)
@@ -172,7 +169,6 @@ void scrLoadPalette(void)
     blendtable[0] = (char*)gSysRes.Lock(pTrans);
     paletteloaded |= PALETTE_TRANSLUC;
 
-    paletteInitClosestColorMap(palette);
     palettePostLoadTables();
 }
 

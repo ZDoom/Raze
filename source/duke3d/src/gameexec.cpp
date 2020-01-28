@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "anim.h"
 #include "cmdline.h"
-#include "colmatch.h"
+#include "imagehelpers.h"
 #include "compat.h"
 #include "duke3d.h"
 
@@ -5828,7 +5828,7 @@ badindex:
                 {
                     tw = *insptr++;
                     int32_t const rgb = Gv_GetVar(*insptr++);
-                    Gv_SetVar(tw, paletteGetClosestColorUpToIndex(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVar(*insptr++)));
+                    Gv_SetVar(tw, ImageHelpers::BestColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVar(*insptr++)));
                 }
                 dispatch();
 

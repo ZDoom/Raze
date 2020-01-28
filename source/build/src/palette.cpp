@@ -10,7 +10,7 @@
 #include "build.h"
 #include "engine_priv.h"
 #include "baselayer.h"
-#include "colmatch.h"
+#include "imagehelpers.h"
 
 #include "palette.h"
 #include "a.h"
@@ -112,8 +112,6 @@ inline bool read_and_test(FileReader& handle, void* buffer, int32_t leng)
 //
 void paletteLoadFromDisk(void)
 {
-    paletteInitClosestColorScale(30, 59, 11);
-    paletteInitClosestColorGrid();
 
 #ifdef USE_OPENGL
     for (auto & x : glblend)
@@ -138,8 +136,6 @@ void paletteLoadFromDisk(void)
 
     for (unsigned char & k : palette)
         k <<= 2;
-
-    paletteInitClosestColorMap(palette);
 
     paletteloaded |= PALETTE_MAIN;
 
@@ -302,9 +298,9 @@ void palettePostLoadTables(void)
         palookup0[i] = palookup0[i+(16<<8)];
 #endif
 
-    blackcol = paletteGetClosestColor(0, 0, 0);
-    whitecol = paletteGetClosestColor(255, 255, 255);
-    redcol = paletteGetClosestColor(255, 0, 0);
+    blackcol = ImageHelpers::BestColor(0, 0, 0);
+    whitecol = ImageHelpers::BestColor(255, 255, 255);
+    redcol = ImageHelpers::BestColor(255, 0, 0);
 
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
     for (bssize_t c = 0; c < 255; ++c) // skipping transparent color
@@ -349,7 +345,7 @@ void palettePostLoadTables(void)
             continue;
 
         palette_t *edcol = (palette_t *) &vgapal16[4*i];
-        editorcolors[i] = paletteGetClosestColorWithBlacklist(edcol->b, edcol->g, edcol->r, 254, PaletteIndexFullbrights);
+        editorcolors[i] = ImageHelpers::BestColor(edcol->b, edcol->g, edcol->r, 254);
     }
 }
 
@@ -658,7 +654,7 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
             for (j=0; j<256; j++)
             {
                 const char *ptr = (const char *) &palette[remapbuf[j]*3];
-                *ptr2++ = paletteGetClosestColor(ptr[0] + mulscale16(r-ptr[0], palscale),
+                *ptr2++ = ImageHelpers::BestColor(ptr[0] + mulscale16(r-ptr[0], palscale),
                     ptr[1] + mulscale16(g-ptr[1], palscale),
                     ptr[2] + mulscale16(b-ptr[2], palscale));
             }

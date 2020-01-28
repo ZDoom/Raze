@@ -36,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "anim.h"
 #include "demo.h"
 
-#include "colmatch.h"
 #include "cheats.h"
 #include "sbar.h"
 #include "screens.h"
@@ -624,42 +623,6 @@ static void G_ClearGotMirror()
     }
 }
 
-#ifdef USE_OPENGL
-static void G_ReadGLFrame(void)
-{
-    // Save OpenGL screenshot with Duke3D palette
-    palette_t *const frame = (palette_t *)Xcalloc(xdim * ydim, sizeof(palette_t));
-
-    int32_t x, y;
-    const int32_t xf = divscale16(ydim*4/3, 320);
-    const int32_t yf = divscale16(ydim, 200);  // (ydim<<16)/200
-
-	auto pic = TileFiles.tileCreate(TILE_SAVESHOT, 200, 320);
-
-    if (!frame)
-    {
-        Bmemset(pic, 0, 320 * 200);
-        return;
-    }
-
-    videoBeginDrawing();
-	getScreen((uint8_t*)frame);
-	videoEndDrawing();
-
-    for (y = 0; y < 200; y++)
-    {
-        const int32_t base = mulscale16(200 - y - 1, yf)*xdim;
-
-        for (x = 0; x < 320; x++)
-        {
-            const palette_t *pix = &frame[base + mulscale16(x, xf) + (xdim-(ydim*4/3))/2];
-            pic[320 * y + x] = paletteGetClosestColor(pix->r, pix->g, pix->b);
-        }
-    }
-
-    Xfree(frame);
-}
-#endif
 
 void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 {

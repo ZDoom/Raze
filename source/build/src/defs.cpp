@@ -13,7 +13,6 @@
 
 #include "common.h"
 #include "mdsprite.h"  // md3model_t
-#include "colmatch.h"
 #include "textures.h"
 #include "bitmap.h"
 #include "m_argv.h"
@@ -2711,8 +2710,6 @@ static int32_t defsparser(scriptfile *script)
 
             if (didLoadPal && id == 0)
             {
-                paletteInitClosestColorMap(palette);
-
                 paletteloaded |= PALETTE_MAIN;
             }
         }
