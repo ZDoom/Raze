@@ -666,6 +666,9 @@ Preset Resolution Modes,VIDMNU_RESPRESETHEAD,,,,Přednastavená rozlišení,Vord
 5:4 Aspect,VIDMNU_ASPECT54,,,,Poměr stran 5:4,5:4 Seitenverhältnis,,5:4 Proporcio,Aspecto 5:4,,5:4-tilat,Rapport 5:4,,Aspetto 5:4,5:4アスペクト比,5:4 비율,,Proporcje 5:4,Proporção 5:4,,,Соотношение сторон 5:4,5:4 гледиште
 16:9 Aspect,VIDMNU_ASPECT169,,,,Poměr stran 16:9,16:9 Seitenverhältnis,,16:9 Proporcio,Aspecto 16:9,,16:9-tilat,Rapport 16:9,,Aspetto 16:9,16:9アスペクト比,16:9 비율,,Proporcje 16:9,Proporção 16:9,,,Соотношение сторон 16:9,16:9 гледиште
 16:10 Aspect,VIDMNU_ASPECT1610,,,,Poměr stran 16:10,16.10 Seitenverhältnis,,16:10 Proporcio,Aspecto 16:10,,16:10-tilat,Rapport 16:10,,Aspetto 16:10,16:10アスペクト比,16:10 비율,,Proporcje 16:10,Proporção 16:10,,,Соотношение сторон 16:10,16:10 гледиште
+Normal,OPTVAL_NORMAL,,,,Normální,,,Normala,,,Normaali,,,Normale,通常,기본형,Normaal,Normalny,Normal,,,Обычный,Нормално
+Lowest Possible Scale,OPTVAL_LOWEST,"This describes vid_scalemode 6, which represents the lowest possible scaling to fill the allocated screen area",,,Nejmenší možná velikost,Kleinstmögliche Auflösung,,Plej Malpli Ebla Skalo,Menor Escala Posible,,,Echelle la plus faible,,,可能な限り最小,,,,Menor Escala Possível,,Cea mai mică scară posibilă,,
+Custom,OPTVAL_CUSTOM,,,,Vlastní,Benutzerdefiniert,,Laŭmenda,Personalizado,,Mukautettu,Modifié,,Personalizzato,カスタム,사용자 지정,Gebruiker gedefinieerd,Niestandardowe,Personalizado,,Personalizat,Польз.,Прилагођ.
 Max FPS,VIDMNU_MAXFPS,,,,,,,,,,,,,,,,,,,,,,
 Unlimited,OPTVAL_UNLIMITED,,,,,Unlimitiert,,,,,,,,,,,,,,,,,
 60 fps,OPTVAL_60FPS,,,,,,,,,,,,,,,,,,,,,,

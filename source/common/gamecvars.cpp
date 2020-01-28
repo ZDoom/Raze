@@ -149,10 +149,10 @@ CUSTOM_CVARD(Int, snd_mixrate, 44100, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "sound mix
 	else if (self > 48000) self = 48000;
 }
 
-CUSTOM_CVARD(Int, snd_speech, 5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables player speech")
+CUSTOM_CVARD(Int, snd_speech, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables player speech")
 {
 	if (self < 0) self = 0;
-	else if (self > 5) self = 5;
+	else if (self > 1) self = 1;
 }
 
 
