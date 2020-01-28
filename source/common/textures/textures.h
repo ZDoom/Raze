@@ -566,6 +566,7 @@ void tileSetAnim(int tile, const picanm_t& anm);
 int tileSetHightileReplacement(int picnum, int palnum, const char *filen, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
 int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags );
 int tileDeleteReplacement(int picnum, int palnum);
+void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int tilenum2, int sx2, int sy2);
 
 extern BuildTiles TileFiles;
 inline bool tileCheck(int num)
