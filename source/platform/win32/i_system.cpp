@@ -1311,7 +1311,9 @@ int I_ReadRegistryValue(char const * const SubKey, char const * const Value, cha
         if (keygood != ERROR_SUCCESS)
             continue;
 
-        LONG retval = SHGetValueA(hkey, SubKey, Value, NULL, Output, OutputSize);
+		DWORD os = 0;
+        LONG retval = SHGetValueA(hkey, SubKey, Value, NULL, Output, &os);
+		*OutputSize = os;
 
         RegCloseKey(hkey);
 
@@ -1321,4 +1323,3 @@ int I_ReadRegistryValue(char const * const SubKey, char const * const Value, cha
 
     return 0;
 }
-#endif
