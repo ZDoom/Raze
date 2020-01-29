@@ -1417,7 +1417,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
     do
     {
-        if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
+        if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && (xvect|yvect)) 
+        {
             for (native_t i=clipnum-1;i>=0;--i)
             {
                 if (!bitmap_test(clipignore, i) && clipinsideboxline(pos->x, pos->y, clipit[i].x1, clipit[i].y1, clipit[i].x2, clipit[i].y2, walldist))
@@ -1429,6 +1430,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                     break;
                 }
             }
+        }
 
         vec2_t vec = goal;
 
