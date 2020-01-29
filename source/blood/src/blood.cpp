@@ -1173,28 +1173,11 @@ RESTART:
     ready2send = 1;
     while (!gQuitGame)
     {
-		handleevents();
-        netUpdate();
-        inputState.SetBindsEnabled(gInputMode == kInputGame);
-        switch (gInputMode)
-        {
-        case kInputGame:
-            LocalKeys();
-            break;
-        default:
-            break;
-        }
-        if (gQuitGame)
-            continue;
-
-        OSD_DispatchQueued();
-        
         bool bDraw;
         if (gGameStarted)
         {
             char gameUpdate = false;
             double const gameUpdateStartTime = timerGetHiTicks();
-            gameHandleEvents();
             while (gPredictTail < gNetFifoHead[myconnectindex] && !gPaused)
             {
                 viewUpdatePrediction(&gFifoInput[gPredictTail&255][myconnectindex]);
@@ -1246,12 +1229,26 @@ RESTART:
                 videoClearScreen(0);
                 rotatesprite(160<<16,100<<16,65536,0,2518,0,0,0x4a,0,0,xdim-1,ydim-1);
             }
-            gameHandleEvents();
             if (gQuitRequest && !gQuitGame)
                 netBroadcastMyLogoff(gQuitRequest == 2);
         }
         if (bDraw)
         {
+            gameHandleEvents();
+            inputState.SetBindsEnabled(gInputMode == kInputGame);
+            switch (gInputMode)
+            {
+            case kInputGame:
+                LocalKeys();
+                break;
+            default:
+                break;
+            }
+            if (gQuitGame)
+                continue;
+
+            OSD_DispatchQueued();
+
             switch (gInputMode)
             {
             case kInputMessage:
@@ -1301,9 +1298,9 @@ RESTART:
         while (gGameMenuMgr.m_bActive)
         {
             gGameMenuMgr.Process();
-            gameHandleEvents();
             if (G_FPSLimit())
             {
+                gameHandleEvents();
                 videoClearScreen(0);
                 gGameMenuMgr.Draw();
                 videoNextPage();
