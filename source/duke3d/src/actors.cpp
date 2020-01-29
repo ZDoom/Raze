@@ -239,7 +239,7 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
     }
 }
 
-#define MAXDAMAGESECTORS 256
+#define MAXDAMAGESECTORS 128
 
 void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, int const dmg2, int const dmg3, int const dmg4)
 {
@@ -262,9 +262,9 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
 
     for (int sectorCount=0; sectorCount < numSectors; ++sectorCount)
     {
-        int const   sectorNum  = sectorList[sectorCount++];
+        int const   sectorNum  = sectorList[sectorCount];
         auto const &listSector = sector[sectorNum];
-        vec2_t closest;
+        vec2_t      closest;
 
         if (getsectordist(pSprite->pos.vec2, sectorNum, &closest) >= blastRadius)
             continue;
@@ -288,19 +288,30 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
             if (getwalldist(pSprite->pos.vec2, w, &closest) >= blastRadius)
                 continue;
 
-            vec3_t const vect = { closest.x, closest.y, pSprite->z };
+            int16_t aSector = sectorNum;
+            vec3_t  vect    = { (((pWall->x + wall[pWall->point2].x) >> 1) + pSprite->x) >> 1,
+                                (((pWall->y + wall[pWall->point2].y) >> 1) + pSprite->y) >> 1, pSprite->z };
 
-            if (cansee(vect.x, vect.y, vect.z, sectorNum, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
+            updatesector(vect.x, vect.y, &aSector);
+
+            if (aSector == -1)
             {
-                A_DamageWall_Internal(spriteNum, w, vect, pSprite->picnum);
+                vect.vec2 = closest;
+                aSector   = sectorNum;
+            }
 
-                int const nextSector = pWall->nextsector;
+            if (cansee(vect.x, vect.y, vect.z, aSector, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
+                A_DamageWall_Internal(spriteNum, w, { closest.x, closest.y, pSprite->z }, pSprite->picnum);
 
-                if (nextSector >= 0)
-                    bfirst_search_try(sectorList, sectorMap, &numSectors, nextSector);
+            int const nextSector = pWall->nextsector;
 
-                if (numSectors == MAXDAMAGESECTORS)
-                    goto SKIPWALLCHECK;
+            if (nextSector >= 0)
+                bfirst_search_try(sectorList, sectorMap, &numSectors, nextSector);
+
+            if (numSectors == MAXDAMAGESECTORS)
+            {
+                OSD_Printf("Sprite %d tried to damage more than %d sectors!\n", spriteNum, MAXDAMAGESECTORS);
+                goto SKIPWALLCHECK;
             }
         }
     }
