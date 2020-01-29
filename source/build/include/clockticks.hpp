@@ -21,19 +21,19 @@ class ClockTicks
 {
 public:
     ClockTicks() : ClockTicks(0, 0) {};
-    ClockTicks(int32_t ticks) : ClockTicks(ticks, 0) {};
-    ClockTicks(int32_t ticks, uint32_t fraction) { set(ticks, fraction); };
+    ClockTicks(int32_t const ticks) : ClockTicks(ticks, 0) {};
+    ClockTicks(int32_t const ticks, uint32_t const fraction) { set(ticks, fraction); };
     ClockTicks(const ClockTicks&) = default;
 
     int64_t getFraction() const
     {
         return (ticksS32 & FRACTION_MASK) >> 16 | ((ticksS32 < 0) ? VALUE_MASK : 0);
     }
-    int64_t setFraction(uint16_t fraction)
+    int64_t setFraction(uint16_t const fraction)
     {
         return ticksS32 = (ticksS32 & WHOLE_MASK) | ((ticksS32 < 0) ? ((int64_t) 0 - fraction) & FRACTION_16_MASK : fraction) << 16;
     }
-    int64_t set(int32_t ticks, uint16_t fraction)
+    int64_t set(int32_t const ticks, uint16_t const fraction)
     {
         ticksS32 = ((uint64_t) ticks) << 32 | ((ticks < 0) ? ((int64_t) 0 - fraction) & FRACTION_16_MASK : fraction) << 16;
         update();
@@ -44,13 +44,13 @@ public:
     {
         return ticksS32 >> 16;
     }
-    ClockTicks& setFromScale16(int64_t ticksScale16)
+    ClockTicks& setFromScale16(int64_t const ticksScale16)
     {
         ticksS32 = ticksScale16 << 16;
         update();
         return *this;
     }
-    static ClockTicks fromScale16(int64_t ticksScale16)
+    static ClockTicks fromScale16(int64_t const ticksScale16)
     {
         ClockTicks ct;
         ct.setFromScale16(ticksScale16);
@@ -58,7 +58,7 @@ public:
     }
 
     // returns 0 if equal, < 0 if a < b, > 0 if a > b
-    static int64_t compareHighPrecision(ClockTicks a, ClockTicks b)
+    static int64_t compareHighPrecision(ClockTicks const a, ClockTicks const b)
     {
         ClockTicks delta = a - b;
         return delta.toScale16();
@@ -70,6 +70,7 @@ public:
         update();
         return *this;
     };
+
     ClockTicks& operator+=(const ClockTicks& rhs)
     {
         ticksS32 += rhs.ticksS32;
@@ -100,13 +101,13 @@ public:
         update();
         return *this;
     };
-    ClockTicks& operator<<=(int32_t rhs)
+    ClockTicks& operator<<=(int32_t const rhs)
     {
         ticksS32 = ticksS32 << rhs;
         update();
         return *this;
     };
-    ClockTicks& operator>>=(int32_t rhs)
+    ClockTicks& operator>>=(int32_t const rhs)
     {
         ticksS32 = ticksS32 >> rhs;
         update();
@@ -115,7 +116,7 @@ public:
 
     friend ClockTicks operator+(ClockTicks lhs, const ClockTicks& rhs) { return lhs += rhs; }
     friend ClockTicks operator-(ClockTicks lhs, const ClockTicks& rhs) { return lhs -= rhs; }
-    friend ClockTicks operator-(ClockTicks val) { return (ClockTicks) 0 -= val; }
+    friend ClockTicks operator-(ClockTicks val) { return ClockTicks(0) -= val; }
     friend ClockTicks operator*(ClockTicks lhs, const ClockTicks& rhs) { return lhs *= rhs; }
     friend ClockTicks operator/(ClockTicks lhs, const ClockTicks& rhs) { return lhs /= rhs; }
     friend ClockTicks operator%(ClockTicks lhs, const ClockTicks& rhs) { return lhs %= rhs; }
@@ -143,10 +144,10 @@ private:
     //      so only promise that much publicly.
     int64_t ticksS32;
 
-    static const uint64_t VALUE_MASK       = 0xFFFFFFFFFFFF0000ull;
-    static const uint64_t WHOLE_MASK       = 0xFFFFFFFF00000000ull;
-    static const uint64_t FRACTION_MASK    = 0x00000000FFFF0000ull;
-    static const uint64_t FRACTION_16_MASK = 0x000000000000FFFFull;
+    static constexpr uint64_t const VALUE_MASK       = 0xFFFFFFFFFFFF0000ull;
+    static constexpr uint64_t const WHOLE_MASK       = 0xFFFFFFFF00000000ull;
+    static constexpr uint64_t const FRACTION_MASK    = 0x00000000FFFF0000ull;
+    static constexpr uint64_t const FRACTION_16_MASK = 0x000000000000FFFFull;
 
     inline void update()
     {
