@@ -282,6 +282,7 @@ void PlayerInterruptKeys()
     // so we convert horiz to 1024 angle units
 
     float horizAngle = atan2f(nVertPan[nLocalPlayer] - F16(92), F16(128)) * (512.f / fPI) + fix16_to_float(q16horz);
+    horizAngle = clamp(horizAngle, -255.f, 255.f);
     nVertPan[nLocalPlayer] = fix16_clamp(F16(92) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f))), F16(0), F16(184));
 
 }
