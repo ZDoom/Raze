@@ -36,7 +36,7 @@ extern int32_t g_mostConcurrentPlayers;
 #define NAM_GRENADE_LIFETIME        120
 #define NAM_GRENADE_LIFETIME_VAR    30
 
-#define HORIZ_MIN                   -99
+#define HORIZ_MIN                   (-99)
 #define HORIZ_MAX                   299
 #define AUTO_AIM_ANGLE              48
 #define PHEIGHT                     (38<<8)
@@ -52,7 +52,7 @@ extern int32_t g_mostConcurrentPlayers;
 #define PIPEBOMB_REMOTE         0x00000001
 #define PIPEBOMB_TIMER          0x00000002
 
-#define WEAPON_POS_LOWER            -9
+#define WEAPON_POS_LOWER            (-9)
 #define WEAPON_POS_RAISE            10
 #define WEAPON_POS_START             6
 
