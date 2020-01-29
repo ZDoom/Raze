@@ -180,6 +180,7 @@ void* I_FindFirst(const char* const filespec, findstate_t* const fileinfo)
 	{
 		pattern = slash+1;
 		dir = FString(filespec, slash - filespec + 1);
+		fileinfo->path = dir;
 	}
 	else
 	{
@@ -234,7 +235,7 @@ int I_FindAttr(findstate_t* const fileinfo)
 	dirent* const ent = fileinfo->namelist[fileinfo->current];
 	bool isdir;
 
-	if (DirEntryExists(ent->d_name, &isdir))
+	if (DirEntryExists(fileinfo->path + ent->d_name, &isdir))
 	{
 		return isdir ? FA_DIREC : 0;
 	}

@@ -162,7 +162,7 @@ void CollectSubdirectories(TArray<FString> &searchpath, const char *dirmatch)
 	{
 		findstate_t findstate;
 		void* handle;
-		if ((handle = I_FindFirst(AbsPath + "/*.*", &findstate)) != (void*)-1)
+		if ((handle = I_FindFirst(AbsPath + "/*", &findstate)) != (void*)-1)
 		{
 			do
 			{
