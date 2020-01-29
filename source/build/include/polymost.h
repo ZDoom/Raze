@@ -14,12 +14,10 @@ typedef struct { float r, g, b, a; } coltypef;
 extern bool playing_rr;
 extern int32_t rendmode;
 extern float gtang;
-extern float glox1, gloy1;
+extern float glox1;
 extern double gxyaspect;
 extern float grhalfxdown10x;
 extern float gcosang, gsinang, gcosang2, gsinang2;
-extern float gchang, gshang, gctang, gstang;
-extern float gvrcorrection;
 
 extern void Polymost_prepare_loadboard(void);
 
@@ -40,9 +38,6 @@ void polymost_completeMirror();
 int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall);
 int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr);
 
-float* multiplyMatrix4f(float m0[4*4], const float m1[4*4]);
-
-void polymost_glinit(void);
 void polymost_glreset(void);
 
 enum {
@@ -117,14 +112,7 @@ enum {
 #define DAMETH_NARROW_MASKPROPS(dameth) (((dameth)&(~DAMETH_TRANS1))|(((dameth)&DAMETH_TRANS1)>>1))
 EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
 
-extern int32_t globalnoeffect;
-extern int32_t drawingskybox;
-extern int32_t hicprecaching;
 extern float fcosglobalang, fsinglobalang;
 extern float fxdim, fydim, fydimen, fviewingrange;
-
-extern char ptempbuf[MAXWALLSB<<1];
-
-extern hitdata_t polymost_hitdata;
 
 #endif

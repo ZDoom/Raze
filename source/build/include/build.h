@@ -1092,7 +1092,6 @@ void    renderSetRollAngle(int32_t rolla);
 void tileInvalidate(int16_t tilenume, int32_t pal, int32_t how);
 
 void polymost_glreset(void);
-void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 void PrecacheHardwareTextures(int nTile);
 void Polymost_Startup();
 
@@ -1125,7 +1124,6 @@ EXTERN_CVAR(Bool, hw_useindexedcolortextures)
 EXTERN_CVAR(Bool, hw_parallaxskypanning)
 EXTERN_CVAR(Bool, r_voxels)
 
-extern int32_t r_parallaxskyclamping;
 extern int32_t r_downsize;
 extern int32_t mdtims, omdtims;
 extern int32_t glrendmode;
