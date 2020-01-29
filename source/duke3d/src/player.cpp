@@ -2889,6 +2889,14 @@ enddisplayweapon:
 
 int32_t mouseyaxismode = -1;
 
+static int P_CheckLockedMovement(int const playerNum)
+{
+    auto const pPlayer = g_player[playerNum].ps;
+    return (pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 || pPlayer->knee_incs > 0
+            || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON && pPlayer->kickback_pic > 1
+                && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)));
+}
+
 void P_GetInput(int const playerNum)
 {
     auto const pPlayer = g_player[playerNum].ps;
@@ -5145,9 +5153,7 @@ void P_ProcessInput(int playerNum)
         }
     }
 
-    if (pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 ||
-        pPlayer->knee_incs > 0 || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON &&
-                                   *weaponFrame > 1 && *weaponFrame < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)))
+    if (P_CheckLockedMovement(playerNum))
     {
         velocityModifier = 0;
         pPlayer->vel.x   = 0;
