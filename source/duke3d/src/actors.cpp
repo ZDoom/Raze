@@ -493,6 +493,9 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
 
     setsprite(spriteNum, &pSprite->pos);
 
+    if (!(change->x|change->y|change->z))
+        return 0;
+
     clipDist = A_GetClipdist(spriteNum, clipDist);
 
     int16_t   newSectnum = pSprite->sectnum;
