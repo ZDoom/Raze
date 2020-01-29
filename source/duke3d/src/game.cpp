@@ -99,8 +99,6 @@ static int32_t nonsharedtimer;
 
 int32_t ticrandomseed;
 
-GAME_STATIC GAME_INLINE int32_t G_MoveLoop(void);
-
 int32_t g_levelTextTime = 0;
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
@@ -5958,7 +5956,8 @@ MAIN_LOOP_RESTART:
                     if (((!GUICapture && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
                         && (myplayer.gm & MODE_GAME))
                     {
-                        G_MoveLoop();
+                        Net_GetPackets();
+                        G_DoMoveThings();
                     }
 
                     if (totalclock - moveClock >= (TICSPERFRAME>>1))
@@ -6027,13 +6026,6 @@ MAIN_LOOP_RESTART:
             goto MAIN_LOOP_RESTART;
     }
     while (1);
-}
-
-GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
-{
-    Net_GetPackets();
-
-    return G_DoMoveThings();
 }
 
 int G_DoMoveThings(void)
