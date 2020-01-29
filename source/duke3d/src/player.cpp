@@ -4423,7 +4423,7 @@ static void P_DoWater(int const playerNum, int const playerBits, int const floor
     pPlayer->jumping_counter = 0;
     pPlayer->pyoff           = sintable[pPlayer->pycount] >> 7;
 
-    if (!A_CheckSoundPlaying(pPlayer->i, DUKE_UNDERWATER))
+    if (!FURY && !A_CheckSoundPlaying(pPlayer->i, DUKE_UNDERWATER))
         A_PlaySound(DUKE_UNDERWATER, pPlayer->i);
 
     if (TEST_SYNC_KEY(playerBits, SK_JUMP))
@@ -4466,7 +4466,7 @@ static void P_DoWater(int const playerNum, int const playerBits, int const floor
         pPlayer->vel.z = 0;
     }
 
-    if (pPlayer->scuba_on && (krand()&255) < 8)
+    if (!FURY && pPlayer->scuba_on && (krand()&255) < 8)
     {
         int const spriteNum = A_Spawn(pPlayer->i, WATERBUBBLE);
         int const q16ang      = fix16_to_int(pPlayer->q16ang);
@@ -4640,7 +4640,8 @@ void P_ProcessInput(int playerNum)
         {
             OSD_Printf(OSD_ERROR "%s: player killed by cursectnum == -1!\n", EDUKE32_FUNCTION);
             P_QuickKill(pPlayer);
-            A_PlaySound(SQUISHED, pPlayer->i);
+            if (!FURY)
+                A_PlaySound(SQUISHED, pPlayer->i);
         }
 
         pPlayer->cursectnum = 0;
