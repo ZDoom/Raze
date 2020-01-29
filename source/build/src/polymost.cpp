@@ -63,18 +63,12 @@ CUSTOM_CVARD(Int, hw_anisotropy, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes t
 // For testing - will be removed later.
 CVAR(Int, skytile, 0, 0)
 
-bool playing_rr;
-bool playing_blood;
-
-
-int32_t rendmode=0;
-
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 2048 //<- careful!
 static vsptyp vsp[VSPMAX];
 static int32_t gtag, viewportNodeCount;
 static float xbl, xbr, xbt, xbb;
-int32_t domost_rejectcount;
+static int32_t domost_rejectcount;
 #ifdef YAX_ENABLE
 typedef struct { float x, cy[2]; int32_t tag; int16_t n, p, ctag; } yax_vsptyp;
 static yax_vsptyp yax_vsp[YAX_MAXBUNCHES*2][VSPMAX];
@@ -92,8 +86,7 @@ static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 
 #define SOFTROTMAT 0
 
-int32_t r_pogoDebug = 0;
-int32_t polymostcenterhoriz = 100;
+static int32_t r_pogoDebug = 0;
 
 static float gviewxrange;
 static float ghoriz, ghoriz2;
@@ -103,16 +96,13 @@ float gyxscale, ghalfx, grhalfxdown10, grhalfxdown10x, ghalfy;
 float gcosang, gsinang, gcosang2, gsinang2;
 float gtang = 0.f;
 
-float gchang = 0, gshang = 0, gctang = 0, gstang = 0;
-float gvrcorrection = 1.f;
+static float gchang = 0, gshang = 0, gctang = 0, gstang = 0;
+static float gvrcorrection = 1.f;
 
 static vec3d_t xtex, ytex, otex, xtex2, ytex2, otex2;
 
-float fcosglobalang, fsinglobalang;
-float fxdim, fydim, fydimen, fviewingrange;
-
-float fsearchx, fsearchy, fsearchz;
-int psectnum, pwallnum, pbottomwall, pisbottomwall, psearchstat;
+static float fsearchx, fsearchy, fsearchz;
+static int psectnum, pwallnum, pbottomwall, pisbottomwall, psearchstat;
 
 static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 #define MAX_DRAWPOLY_VERTS 8
@@ -120,23 +110,16 @@ static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 static int32_t lastglpolygonmode = 0; //FUK
 
 static FHardwareTexture *polymosttext = 0;
-int32_t glrendmode = REND_POLYMOST;
 
-int32_t r_scenebrightness = 0;
-
-int32_t r_rortexture = 0;
-int32_t r_rortexturerange = 0;
-int32_t r_rorphase = 0;
-
-int32_t r_yshearing = 0;
+static int32_t r_yshearing = 0;
 
 // used for fogcalc
 static float fogresult, fogresult2;
 
-char ptempbuf[MAXWALLSB<<1];
+static char ptempbuf[MAXWALLSB<<1];
 
 // polymost ART sky control
-int32_t r_parallaxskyclamping = 1;
+static int32_t r_parallaxskyclamping = 1;
 
 #define MIN_CACHETIME_PRINT 10
 
@@ -144,12 +127,10 @@ int32_t r_parallaxskyclamping = 1;
 
 #define Bfabsf fabsf
 
-int32_t mdtims, omdtims;
-uint8_t alphahackarray[MAXTILES];
-int32_t drawingskybox = 0;
-int32_t hicprecaching = 0;
+static int32_t drawingskybox = 0;
+static int32_t hicprecaching = 0;
 
-hitdata_t polymost_hitdata;
+static hitdata_t polymost_hitdata;
 
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 {
@@ -172,13 +153,14 @@ void gltexapplyprops(void)
 
 //--------------------------------------------------------------------------------------------------
 
-float glox1, gloy1, glox2, gloy2, gloyxscale, gloxyaspect, glohoriz2, glohorizcorrect, glotang;
+float glox1;
+static float gloy1, glox2, gloy2, gloyxscale, gloxyaspect, glohoriz2, glohorizcorrect, glotang;
 
 //Use this for both initialization and uninitialization of OpenGL.
 static int32_t gltexcacnum = -1;
 
 //in-place multiply m0=m0*m1
-float* multiplyMatrix4f(float m0[4*4], const float m1[4*4])
+static float* multiplyMatrix4f(float m0[4*4], const float m1[4*4])
 {
     float mR[4*4];
 
@@ -242,7 +224,7 @@ void polymost_glreset()
 FileReader GetBaseResource(const char* fn);
 
 // one-time initialization of OpenGL for polymost
-void polymost_glinit()
+static void polymost_glinit()
 {
 	for (int basepalnum = 0; basepalnum < MAXBASEPALS; ++basepalnum)
     {
@@ -1831,7 +1813,7 @@ static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32
     return 0;
 }
 
-float fgetceilzofslope(usectorptr_t sec, float dax, float day)
+static float fgetceilzofslope(usectorptr_t sec, float dax, float day)
 {
     if (!(sec->ceilingstat&2))
         return float(sec->ceilingz);
@@ -1849,7 +1831,7 @@ float fgetceilzofslope(usectorptr_t sec, float dax, float day)
     return float(sec->ceilingz) + (sec->ceilingheinum*j)/i;
 }
 
-float fgetflorzofslope(usectorptr_t sec, float dax, float day)
+static float fgetflorzofslope(usectorptr_t sec, float dax, float day)
 {
     if (!(sec->floorstat&2))
         return float(sec->floorz);
@@ -1867,7 +1849,7 @@ float fgetflorzofslope(usectorptr_t sec, float dax, float day)
     return float(sec->floorz) + (sec->floorheinum*j)/i;
 }
 
-void fgetzsofslope(usectorptr_t sec, float dax, float day, float* ceilz, float *florz)
+static void fgetzsofslope(usectorptr_t sec, float dax, float day, float* ceilz, float *florz)
 {
     *ceilz = float(sec->ceilingz); *florz = float(sec->floorz);
 
@@ -3741,7 +3723,7 @@ typedef struct
     int8_t filler;
 } wallspriteinfo_t;
 
-wallspriteinfo_t wsprinfo[MAXSPRITES];
+static wallspriteinfo_t wsprinfo[MAXSPRITES];
 
 void Polymost_prepare_loadboard(void)
 {
@@ -3774,7 +3756,7 @@ static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t c
     return closest;
 }
 
-int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+static int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             int32_t x3, int32_t y3, int32_t x4, int32_t y4)
 {
     // p1 to p2 is a line segment
@@ -4626,7 +4608,7 @@ void polymost_initosdfuncs(void)
 {
 }
 
-void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
+static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 {
     // dapicnum and dapalnum are like you'd expect
     // datype is 0 for a wall/floor/ceiling and 1 for a sprite

@@ -87,6 +87,21 @@ static FORCE_INLINE int32_t oldnonpow2(void)
 #endif
 }
 
+bool playing_rr;
+bool playing_blood;
+int32_t rendmode=0;
+int32_t glrendmode = REND_POLYMOST;
+int32_t r_scenebrightness = 0;
+int32_t r_rortexture = 0;
+int32_t r_rortexturerange = 0;
+int32_t r_rorphase = 0;
+int32_t mdtims, omdtims;
+uint8_t alphahackarray[MAXTILES];
+int32_t polymostcenterhoriz = 100;
+
+float fcosglobalang, fsinglobalang;
+float fxdim, fydim, fydimen, fviewingrange;
+
 uint8_t globalr = 255, globalg = 255, globalb = 255;
 
 int16_t pskybits_override = -1;

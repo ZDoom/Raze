@@ -89,7 +89,7 @@ static int32_t tribufverts = 0;
 
 static mdmodel_t *mdload(const char *);
 static void mdfree(mdmodel_t *);
-int32_t globalnoeffect=0;
+static int32_t globalnoeffect=0;
 
 void freeallmodels()
 {
@@ -507,7 +507,7 @@ FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bo
 }
 
 //Note: even though it says md2model, it works for both md2model&md3model
-void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
+static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
 {
     if (m->numframes < 2)
     {
@@ -904,7 +904,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
 //---------------------------------------- MD2 LIBRARY ENDS ----------------------------------------
 
 // DICHOTOMIC RECURSIVE SORTING - USED BY MD3DRAW
-int32_t partition(uint16_t *indexes, float *depths, int32_t f, int32_t l)
+static int32_t partition(uint16_t *indexes, float *depths, int32_t f, int32_t l)
 {
     int32_t up = f, down = l;
     float piv = depths[f];
@@ -1842,7 +1842,7 @@ static void md3free(md3model_t *m)
 //---------------------------------------- MD3 LIBRARY ENDS ----------------------------------------
 //--------------------------------------- MD LIBRARY BEGINS  ---------------------------------------
 
-mdmodel_t *mdload(const char *filnam)
+static mdmodel_t *mdload(const char *filnam)
 {
     mdmodel_t *vm;
     int32_t i;
@@ -1905,7 +1905,7 @@ int32_t polymost_mddraw(tspriteptr_t tspr)
     return 0;
 }
 
-void mdfree(mdmodel_t *vm)
+static void mdfree(mdmodel_t *vm)
 {
     if (vm->mdnum == 1) { voxfree((voxmodel_t *)vm); return; }
     if (vm->mdnum == 2 || vm->mdnum == 3) { md3free((md3model_t *)vm); return; }

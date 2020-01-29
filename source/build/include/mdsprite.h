@@ -199,7 +199,6 @@ struct voxmodel_t : public mdmodel_t
 
 EXTERN mdmodel_t **models;
 
-void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal);
 FTexture* mdloadskin(idmodel_t* m, int32_t number, int32_t pal, int32_t surf, bool* exact);
 void mdinit(void);
 void freeallmodels(void);
