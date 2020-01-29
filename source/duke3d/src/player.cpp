@@ -4605,9 +4605,18 @@ static void P_HandlePal(DukePlayer_t *const pPlayer)
 #endif
 }
 
-
+// Duke3D needs the player sprite to actually be in the floor when shrunk in order to walk under enemies.
+// This sucks.
 static void P_ClampZ(DukePlayer_t* const pPlayer, int const sectorLotag, int32_t const ceilZ, int32_t const floorZ)
 {
+#ifndef EDUKE32_STANDALONE
+    auto const pSprite      = &sprite[pPlayer->i];
+    int const  playerShrunk = (pSprite->yrepeat < 32);
+
+    if (!FURY && playerShrunk)
+        return;
+#endif
+
     if ((sectorLotag != ST_2_UNDERWATER || ceilZ != pPlayer->truecz) && pPlayer->pos.z < ceilZ + PMINHEIGHT)
         pPlayer->pos.z = ceilZ + PMINHEIGHT;
 
@@ -4648,26 +4657,41 @@ void P_ProcessInput(int playerNum)
     }
 
     // sectorLotag can be set to 0 later on, but the same block sets spritebridge to 1
-    int       sectorLotag     = sector[pPlayer->cursectnum].lotag;
-    int       getZRangeOffset = ((TEST_SYNC_KEY(playerBits, SK_CROUCH) || (sectorLotag == ST_1_ABOVE_WATER && pPlayer->spritebridge != 1))) ? pPlayer->autostep_sbw : pPlayer->autostep;
-    int const stepHeight      = getZRangeOffset;
+    int sectorLotag       = sector[pPlayer->cursectnum].lotag;
+    int getZRangeClipDist = pPlayer->clipdist - GETZRANGECLIPDISTOFFSET;
+    int getZRangeOffset   = ((TEST_SYNC_KEY(playerBits, SK_CROUCH) || (sectorLotag == ST_1_ABOVE_WATER && pPlayer->spritebridge != 1)))
+                          ? pPlayer->autostep_sbw
+                          : pPlayer->autostep;
 
-    // we want to take these into account for getzrange() but not for the clipmove() call below
-    if (!pPlayer->on_ground)
-        getZRangeOffset = pPlayer->autostep_sbw;
+    int32_t floorZ, ceilZ, highZhit, lowZhit;
+    int const stepHeight = getZRangeOffset;
 
-    int32_t floorZ, ceilZ, highZhit, lowZhit, dummy;
-
-    if (sectorLotag != ST_2_UNDERWATER)
+    // if not running Ion Fury, purposely break part of the clipping system
+    // this is what makes Duke step up onto sprite constructions he shouldn't automatically step up onto
+    if (!FURY)
     {
-        if (pPlayer->pos.z + getZRangeOffset > actor[pPlayer->i].floorz - PMINHEIGHT)
-            getZRangeOffset -= klabs((pPlayer->pos.z + getZRangeOffset) - (actor[pPlayer->i].floorz - PMINHEIGHT));
-        else if (pPlayer->pos.z + getZRangeOffset < actor[pPlayer->i].ceilingz + PMINHEIGHT)
-            getZRangeOffset += klabs((actor[pPlayer->i].ceilingz + PMINHEIGHT) - (pPlayer->pos.z + getZRangeOffset));
+        getZRangeOffset   = 0;
+        getZRangeClipDist = 163L;
+    }
+    else 
+    {
+        // we want to take these into account for getzrange() but not for the clipmove() call below
+        // this isn't taken into account when getZRangeOffset is initialized above because we first need
+        // the stepHeight value without this factored in
+        if (!pPlayer->on_ground)
+            getZRangeOffset = pPlayer->autostep_sbw;
+
+        if (sectorLotag != ST_2_UNDERWATER)
+        {
+            if (pPlayer->pos.z + getZRangeOffset > actor[pPlayer->i].floorz - PMINHEIGHT)
+                getZRangeOffset -= klabs((pPlayer->pos.z + getZRangeOffset) - (actor[pPlayer->i].floorz - PMINHEIGHT));
+            else if (pPlayer->pos.z + getZRangeOffset < actor[pPlayer->i].ceilingz + PMINHEIGHT)
+                getZRangeOffset += klabs((actor[pPlayer->i].ceilingz + PMINHEIGHT) - (pPlayer->pos.z + getZRangeOffset));
+        }
     }
 
     pPlayer->pos.z += getZRangeOffset;
-    getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - GETZRANGECLIPDISTOFFSET, CLIPMASK0);
+    getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, getZRangeClipDist, CLIPMASK0);
     pPlayer->pos.z -= getZRangeOffset;
 
     pPlayer->spritebridge = 0;
@@ -4678,6 +4702,7 @@ void P_ProcessInput(int playerNum)
 #else
     getcorrectzsofslope(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y, &pPlayer->truecz, &pPlayer->truefz);
 #endif
+
     int const trueFloorZ    = pPlayer->truefz;
     int const trueFloorDist = klabs(pPlayer->pos.z - trueFloorZ);
 
@@ -4922,25 +4947,25 @@ void P_ProcessInput(int playerNum)
         {
             floorZOffset = 12;
 
-            if (playerShrunk == 0)
+            if (!playerShrunk)
             {
                 floorZOffset      = 34;
                 pPlayer->pycount += 32;
                 pPlayer->pycount &= 2047;
                 pPlayer->pyoff    = sintable[pPlayer->pycount] >> 6;
-            }
 
-            if (playerShrunk == 0 && trueFloorDist <= PHEIGHT)
-            {
-                if (pPlayer->on_ground == 1)
+                if (trueFloorDist <= PHEIGHT)
                 {
-                    if (pPlayer->dummyplayersprite < 0)
-                        pPlayer->dummyplayersprite = A_Spawn(pPlayer->i,PLAYERONWATER);
+                    if (pPlayer->on_ground == 1)
+                    {
+                        if (pPlayer->dummyplayersprite < 0)
+                            pPlayer->dummyplayersprite = A_Spawn(pPlayer->i,PLAYERONWATER);
 
-                    sprite[pPlayer->dummyplayersprite].cstat |= 32768;
-                    sprite[pPlayer->dummyplayersprite].pal = sprite[pPlayer->i].pal;
-                    pPlayer->footprintpal                  = (sector[pPlayer->cursectnum].floorpicnum == FLOORSLIME) ? 8 : 0;
-                    pPlayer->footprintshade                = 0;
+                        sprite[pPlayer->dummyplayersprite].cstat |= 32768;
+                        sprite[pPlayer->dummyplayersprite].pal = sprite[pPlayer->i].pal;
+                        pPlayer->footprintpal                  = (sector[pPlayer->cursectnum].floorpicnum == FLOORSLIME) ? 8 : 0;
+                        pPlayer->footprintshade                = 0;
+                    }
                 }
             }
         }
@@ -5061,7 +5086,9 @@ void P_ProcessInput(int playerNum)
 
                 if (klabs(Zdiff) < 256)
                     Zdiff = 0;
-                else  pPlayer->pos.z += (floorZ - (floorZOffset << 8) - pPlayer->pos.z) >> 1;
+                else if (!playerShrunk)
+                    pPlayer->pos.z += (floorZ - (floorZOffset << 8) - pPlayer->pos.z) >> 1;
+
                 pPlayer->vel.z -= 768;
 
                 if (pPlayer->vel.z < 0)
@@ -5096,8 +5123,9 @@ void P_ProcessInput(int playerNum)
                 pPlayer->jumping_toggle--;
             else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && pPlayer->jumping_toggle == 0)
             {
-                int32_t floorZ2, ceilZ2;
-                getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ2, &dummy, &floorZ2, &dummy, pPlayer->clipdist - GETZRANGECLIPDISTOFFSET, CLIPMASK0);
+                int32_t floorZ2, ceilZ2, dummy;
+
+                getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ2, &dummy, &floorZ2, &dummy, getZRangeClipDist, CLIPMASK0);
 
                 if (klabs(floorZ2-ceilZ2) > (48<<8))
                 {
@@ -5298,8 +5326,9 @@ void P_ProcessInput(int playerNum)
     }
 
     // This makes the player view lower when shrunk. This needs to happen before clipmove().
+    // Why? Because stupid fucking Duke3D puts the player sprite entirely into the floor.
 #ifndef EDUKE32_STANDALONE
-    if (!FURY && pPlayer->jetpack_on == 0 && sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER && playerShrunk)
+    if (!FURY && playerShrunk && pPlayer->jetpack_on == 0 && sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER)
         pPlayer->pos.z += ZOFFSET5 - (sprite[pPlayer->i].yrepeat<<8);
 #endif
 HORIZONLY:;
