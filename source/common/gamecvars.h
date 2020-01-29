@@ -87,7 +87,6 @@ EXTERN_CVAR(Int, gl_ssao)
 
 EXTERN_CVAR(Bool, in_joystick)
 EXTERN_CVAR(Int, in_mousebias)
-EXTERN_CVAR(Int, in_mousedeadzone)
 EXTERN_CVAR(Bool, in_mouseflip)
 EXTERN_CVAR(Bool, in_mousemode)
 EXTERN_CVAR(Bool, in_mousesmoothing)
