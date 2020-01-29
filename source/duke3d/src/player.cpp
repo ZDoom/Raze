@@ -2894,6 +2894,9 @@ int32_t mouseyaxismode = -1;
 static int P_CheckLockedMovement(int const playerNum)
 {
     auto const pPlayer = g_player[playerNum].ps;
+
+    if (pPlayer->on_crane >= 0) return 2;
+
     return (pPlayer->dead_flag || pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 || pPlayer->knee_incs > 0
             || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON && pPlayer->kickback_pic > 1
                 && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)));
@@ -3121,7 +3124,9 @@ void P_GetInput(int const playerNum)
     localInput.extbits |= buttonMap.ButtonDown(gamefunc_Turn_Right)<<5;
     localInput.extbits |= buttonMap.ButtonDown(gamefunc_Alt_Fire)<<6;
 
-    if ((ud.scrollmode && ud.overhead_on) || P_CheckLockedMovement(playerNum))
+    int const movementLocked = P_CheckLockedMovement(playerNum);
+
+    if ((ud.scrollmode && ud.overhead_on) || movementLocked == 1)
     {
         if (ud.scrollmode && ud.overhead_on)
         {
@@ -3137,14 +3142,17 @@ void P_GetInput(int const playerNum)
     }
     else
     {
-        localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+        if (movementLocked != 2)
+        {
+            localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+            localInput.fvel    = clamp(localInput.fvel + input.fvel, -MAXVEL, MAXVEL);
+            localInput.svel    = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
+
+            pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, input.q16avel);
+            pPlayer->q16ang &= 0x7FFFFFF;
+        }
+
         localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
-        localInput.fvel    = clamp(localInput.fvel + input.fvel, -MAXVEL, MAXVEL);
-        localInput.svel    = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
-
-        pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, input.q16avel);
-        pPlayer->q16ang &= 0x7FFFFFF;
-
         pPlayer->q16horiz = fix16_clamp(fix16_sadd(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
     }
 
