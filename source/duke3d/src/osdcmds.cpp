@@ -200,6 +200,25 @@ static int osdcmd_god(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
+static int osdcmd_maxhealth(osdcmdptr_t parm)
+{
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    auto pPlayer = g_player[myconnectindex].ps;
+
+    if (numplayers == 1 && pPlayer->gm & MODE_GAME)
+    {
+        int const newHealth = Batoi(parm->parms[0]);
+        pPlayer->max_player_health = newHealth;
+        sprite[pPlayer->i].extra = newHealth;
+    }
+    else
+        OSD_Printf("maxhealth: Not in a single-player game.\n");
+
+    return OSDCMD_OK;
+}
+
 static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -732,6 +751,7 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     OSD_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
+    OSD_RegisterFunction("maxhealth", "maxhealth <amount>: sets the player's maximum health", osdcmd_maxhealth);
 
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
