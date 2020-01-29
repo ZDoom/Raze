@@ -870,6 +870,7 @@ bool InitGame()
         SW_FatalEngineError();
 
     palettePostLoadLookups();
+    V_Init2();
 
     DemoModeMenuInit = TRUE;
     // precache as much stuff as you can
@@ -890,7 +891,6 @@ bool InitGame()
         DoTheCache();
     }
 
-    V_Init2();
     GraphicsMode = TRUE;
     SetupAspectRatio();
 
