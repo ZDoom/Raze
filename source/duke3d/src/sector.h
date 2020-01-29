@@ -166,11 +166,11 @@ static inline vec3_t G_GetCameraPosition(int32_t const i, int32_t const smoothra
              ca->bpos.z + mulscale16(cs->z - ca->bpos.z, smoothratio) };
 }
 
-EXTERN_INLINE_HEADER int32_t G_CheckPlayerInSector(int32_t const sect);
+EXTERN_INLINE_HEADER int32_t G_GetPlayerInSector(int32_t const sect);
 
 #if defined sector_c_ || !defined DISABLE_INLINING
 
-EXTERN_INLINE int32_t G_CheckPlayerInSector(int32_t const sect)
+EXTERN_INLINE int32_t G_GetPlayerInSector(int32_t const sect)
 {
     for (int TRAVERSE_CONNECT(i))
         if ((unsigned)g_player[i].ps->i < MAXSPRITES && sprite[g_player[i].ps->i].sectnum == sect)

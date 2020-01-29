@@ -1780,7 +1780,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 pSprite->picnum++;
                 if (pSprite->picnum == CRANE+2)
                 {
-                    int32_t p = G_CheckPlayerInSector(pData[1]);
+                    int32_t p = G_GetPlayerInSector(pData[1]);
 
                     if (p >= 0 && g_player[p].ps->on_ground)
                     {
@@ -2391,7 +2391,7 @@ DETONATE:
                             else
                             {
                                 sector[sectNum].floorz += sector[sectNum].extra;
-                                int const playerNum = G_CheckPlayerInSector(sectNum);
+                                int const playerNum = G_GetPlayerInSector(sectNum);
                                 if (playerNum >= 0)
                                     g_player[playerNum].ps->pos.z += sector[sectNum].extra;
                             }
@@ -2407,7 +2407,7 @@ DETONATE:
                             {
                                 int32_t p;
                                 sector[sectNum].floorz -= sector[sectNum].extra;
-                                p = G_CheckPlayerInSector(sectNum);
+                                p = G_GetPlayerInSector(sectNum);
                                 if (p >= 0)
                                     g_player[p].ps->pos.z -= sector[sectNum].extra;
                             }
@@ -2419,7 +2419,7 @@ DETONATE:
                         goto next_sprite;
 
                     {
-                        int32_t p = G_CheckPlayerInSector(sectNum);
+                        int32_t p = G_GetPlayerInSector(sectNum);
 
                         if (p >= 0 && (g_player[p].ps->on_ground || pSprite->ang == 512))
                         {
@@ -3752,8 +3752,8 @@ ACTOR_STATIC void G_MoveTransports(void)
                                         if (onFloor)
                                         {
                                             if (sprite[sectSprite].statnum == STAT_PROJECTILE
-                                                || (G_CheckPlayerInSector(sectNum) == -1
-                                                    && G_CheckPlayerInSector(sprite[OW(spriteNum)].sectnum) == -1))
+                                                || (G_GetPlayerInSector(sectNum) == -1
+                                                    && G_GetPlayerInSector(sprite[OW(spriteNum)].sectnum) == -1))
                                             {
                                                 sprite[sectSprite].x += (sprite[OW(spriteNum)].x - SX(spriteNum));
                                                 sprite[sectSprite].y += (sprite[OW(spriteNum)].y - SY(spriteNum));
