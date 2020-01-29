@@ -316,8 +316,6 @@ void CDemo::Playback(void)
 _DEMOPLAYBACK:
     while (at1 && !gQuitGame)
     {
-        handleevents();
-        D_ProcessEvents();
         while (totalclock >= gNetFifoClock && !gQuitGame)
         {
             if (!v4)
@@ -387,6 +385,8 @@ _DEMOPLAYBACK:
         }
         if (G_FPSLimit())
         {
+            handleevents();
+        	D_ProcessEvents();
             viewDrawScreen();
             videoNextPage();
         }
