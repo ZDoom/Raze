@@ -3182,7 +3182,7 @@ void polymost_drawrooms()
     GLInterface.EnableBlend(false);
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(true);
-	GLInterface.SetDepthFunc(Depth_Always);
+	GLInterface.SetDepthFunc(Depth_LessEqual);
 
 	GLInterface.SetBrightness(r_scenebrightness);
 
