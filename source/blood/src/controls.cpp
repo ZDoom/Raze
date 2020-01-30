@@ -385,7 +385,7 @@ void ctrlGetInput(void)
     gInput.strafe = clamp(gInput.strafe + input.strafe, -2048, 2048);
     gInput.q16turn = fix16_sadd(gInput.q16turn, input.q16turn);
     gInput.q16mlook = fix16_clamp(fix16_sadd(gInput.q16mlook, input.q16mlook), F16(-127)>>2, F16(127)>>2);
-    if (gMe && gMe->pXSprite->health != 0)
+    if (gMe && gMe->pXSprite->health != 0 && !gPaused)
     {
         CONSTEXPR int upAngle = 289;
         CONSTEXPR int downAngle = -347;
