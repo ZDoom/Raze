@@ -888,6 +888,11 @@ const char* G_DefaultConFile(void)
 		if (fileSystem.FindFile("nam.con") >= 0) return "nam.con";
 	}
 
+	if (g_gameType & GAMEFLAG_DUKE)
+	{
+		if (fileSystem.FindFile("eduke.con") >= 0) return "eduke.con";	// No, we're not EDUKE, but several mods expect this to work.
+	}
+
 	// the other games only use game.con.
 	return "game.con";
 }
