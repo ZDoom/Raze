@@ -62,7 +62,6 @@ extern int gCheckTail;
 extern int gInitialNetPlayers;
 extern int gBufferJitter;
 extern int gPlayerReady[8];
-extern int gSyncRate;
 extern bool bNoResend;
 extern bool gRobust;
 extern bool bOutOfSync;

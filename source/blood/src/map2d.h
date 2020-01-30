@@ -32,7 +32,8 @@ public:
     int x, y, nZoom;
     short angle;
     char bFollowMode;
-    int forward, turn, strafe;
+    int forward, strafe;
+    fix16_t turn;
     CViewMap();
     void sub_25C38(int, int, int, short, char);
     void sub_25C74(void);
