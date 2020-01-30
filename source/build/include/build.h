@@ -655,8 +655,6 @@ EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
 EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
-EXTERN char editorcolors[256];
-EXTERN char editorcolorsdef[256];
 
 EXTERN char editwall[(MAXWALLS+7)>>3];
 
@@ -874,6 +872,7 @@ void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnu
                      int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 void   renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col);
 void   drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p);
+void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p);
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
 static FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,

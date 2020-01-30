@@ -229,7 +229,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     int32_t xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
     int32_t xvect, yvect, xvect2, yvect2;
     int16_t p;
-    char col;
+    PalEntry col;
     uwalltype *wal, *wal2;
     spritetype *spr;
 
@@ -262,11 +262,11 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                 if (sector[wal->nextsector].floorz == z2)
                     if (((wal->cstat|wall[wal->nextwall].cstat)&(16+32)) == 0) continue;
 
-            col = editorcolors[1]; //red
-            if ((wal->cstat|wall[wal->nextwall].cstat)&1) col = editorcolors[5]; //magenta
+            col = PalEntry(255, 0, 0);
+            if ((wal->cstat | wall[wal->nextwall].cstat) & 1) col = PalEntry(170, 0, 170);
 
-            if (!(show2dsector[wal->nextsector>>3]&(1<<(wal->nextsector&7))))
-                col = editorcolors[7];
+            if (!(show2dsector[wal->nextsector >> 3] & (1 << (wal->nextsector & 7))))
+                col = PalEntry(170, 170, 170);
             else continue;
 
             ox = wal->x-cposx;
@@ -280,7 +280,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             x2 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
             y2 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
 
-            renderDrawLine(x1, y1, x2, y2, col);
+            drawlinergb(x1, y1, x2, y2, col);
         }
     }
 
@@ -295,8 +295,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
             if (j == k || (spr->cstat&0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
 
-            col = editorcolors[6]; //cyan
-            if (spr->cstat&1) col = editorcolors[5]; //magenta
+            col = PalEntry(0, 170, 170);
+            if (spr->cstat & 1) col = PalEntry(170, 0, 170);
 
             sprx = spr->x;
             spry = spr->y;
@@ -319,11 +319,11 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                 x3 = mulscale16(x2, yxaspect);
                 y3 = mulscale16(y2, yxaspect);
 
-                renderDrawLine(x1-x2+(xdim<<11), y1-y3+(ydim<<11),
+                drawlinergb(x1-x2+(xdim<<11), y1-y3+(ydim<<11),
                     x1+x2+(xdim<<11), y1+y3+(ydim<<11), col);
-                renderDrawLine(x1-y2+(xdim<<11), y1+x3+(ydim<<11),
+                drawlinergb(x1-y2+(xdim<<11), y1+x3+(ydim<<11),
                     x1+x2+(xdim<<11), y1+y3+(ydim<<11), col);
-                renderDrawLine(x1+y2+(xdim<<11), y1-x3+(ydim<<11),
+                drawlinergb(x1+y2+(xdim<<11), y1-x3+(ydim<<11),
                     x1+x2+(xdim<<11), y1+y3+(ydim<<11), col);
                 break;
 
@@ -465,7 +465,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             x2 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
             y2 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
 
-            renderDrawLine(x1, y1, x2, y2, editorcolors[7]);
+            renderDrawLine(x1, y1, x2, y2, PalEntry(170, 170, 170));
         }
     }
 

@@ -40,21 +40,19 @@
 namespace ImageHelpers
 {
 	uint8_t GrayMap[256];
-	PalEntry BaseColors[256];
-	PalEntry BasePalette[256];	// same as above, but with a being a proper alpha channel.
+	PalEntry BasePalette[256];
 	int WhiteIndex, BlackIndex;
 	int alphaThreshold;
 	ColorTable256k RGB256k;
 
 	int BestColor(int r, int g, int b, int first, int num)
 	{
-		const PalEntry* pal = BaseColors;
+		const PalEntry* pal = BasePalette;
 		int bestcolor = first;
 		int bestdist = 257 * 257 + 257 * 257 + 257 * 257;
 
 		for (int color = first; color < num; color++)
 		{
-			if (pal[color].a > 0) continue;	// marks a fullbright color which we should not pick here
 			int x = r - pal[color].r;
 			int y = g - pal[color].g;
 			int z = b - pal[color].b;
@@ -75,7 +73,7 @@ namespace ImageHelpers
 
 	int PTM_BestColor(int r, int g, int b, bool reverselookup, float powtable_val, int first, int num)
 	{
-		const PalEntry* pal = BaseColors;
+		const PalEntry* pal = BasePalette;
 		static double powtable[256];
 		static bool firstTime = true;
 		static float trackpowtable = 0.;
@@ -113,10 +111,10 @@ namespace ImageHelpers
 	{
 		for (int i = 0; i < 255; i++)
 		{
-			BasePalette[i] = BaseColors[i] = colors[i];
+			BasePalette[i] = colors[i];
 			BasePalette[i].a = 255;
 		}
-		BasePalette[255] = BaseColors[255] = 0;	// 255 is always translucent black - whatever color the original data has here
+		BasePalette[255] = 0;	// 255 is always translucent black - whatever color the original data has here
 
 		// Find white and black from the original palette so that they can be
 		// used to make an educated guess of the translucency % for a

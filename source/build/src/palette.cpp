@@ -297,7 +297,9 @@ void palettePostLoadTables(void)
     for (bssize_t i=256; i<512; i++)
         palookup0[i] = palookup0[i+(16<<8)];
 #endif
-
+    PalEntry pe[256];
+    for (int i = 0; i < 256; i++) pe[i] = PalEntry(palette[i * 3], palette[i * 3 + 1], palette[i * 3 + 2]);
+    ImageHelpers::SetPalette(pe);
     blackcol = ImageHelpers::BestColor(0, 0, 0);
     whitecol = ImageHelpers::BestColor(255, 255, 255);
     redcol = ImageHelpers::BestColor(255, 0, 0);
@@ -337,15 +339,6 @@ void palettePostLoadTables(void)
         }
         PostLoad_FoundShade: ;
         frealmaxshade = (float)(realmaxshade = s+1);
-    }
-
-    for (size_t i = 0; i<256; i++)
-    {
-        if (editorcolorsdef[i])
-            continue;
-
-        palette_t *edcol = (palette_t *) &vgapal16[4*i];
-        editorcolors[i] = ImageHelpers::BestColor(edcol->b, edcol->g, edcol->r, 254);
     }
 }
 

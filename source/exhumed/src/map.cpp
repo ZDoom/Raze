@@ -370,8 +370,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
             if (j == k || (spr->cstat&0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
 
-            col = editorcolors[6]; //cyan
-            if (spr->cstat&1) col = editorcolors[5]; //magenta
+            col = PalEntry(0, 170, 170);
+            if (spr->cstat & 1) col = PalEntry(170, 0, 170);
 
             sprx = spr->x;
             spry = spr->y;

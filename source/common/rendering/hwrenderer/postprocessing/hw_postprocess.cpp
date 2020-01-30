@@ -542,7 +542,7 @@ void PPTonemap::UpdateTextures()
 			{
 				for (int b = 0; b < 64; b++)
 				{
-					PalEntry color = ImageHelpers::BaseColors[(uint8_t)ImageHelpers::PTM_BestColor((r << 2) | (r >> 4), (g << 2) | (g >> 4), (b << 2) | (b >> 4),
+					PalEntry color = ImageHelpers::BasePalette[(uint8_t)ImageHelpers::PTM_BestColor((r << 2) | (r >> 4), (g << 2) | (g >> 4), (b << 2) | (b >> 4),
 						gl_paltonemap_reverselookup, gl_paltonemap_powtable, 0, 256)];
 					int index = ((r * 64 + g) * 64 + b) * 4;
 					lut[index] = color.r;

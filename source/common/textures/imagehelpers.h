@@ -51,8 +51,7 @@ namespace ImageHelpers
 	};
 
 	extern uint8_t GrayMap[256];
-	extern PalEntry BaseColors[256];
-	extern PalEntry BasePalette[256];	// same as above, but with a being a proper alpha channel.
+	extern PalEntry BasePalette[256];
 	extern int WhiteIndex, BlackIndex;
 	extern ColorTable256k RGB256k;
 	extern int alphaThreshold;
