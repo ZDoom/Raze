@@ -123,6 +123,8 @@ int pcBackground;
 int gViewMode = 3;
 int gViewSize = 2;
 
+bool gPrediction = true;
+
 VIEW predict, predictOld;
 
 VIEW predictFifo[256];
@@ -289,6 +291,11 @@ void viewInitializePrediction(void)
 	predict.at40 = gMe->zWeapon;
 	predict.at44 = gMe->zWeaponVel;
     predictOld = predict;
+    if (numplayers != 1)
+    {
+        gViewAngle = predict.at30;
+        gViewLook = predict.at20;
+    }
 }
 
 void viewUpdatePrediction(GINPUT *pInput)
@@ -301,6 +308,11 @@ void viewUpdatePrediction(GINPUT *pInput)
     gMe->pSprite->cstat = bakCstat;
     predictFifo[gPredictTail&255] = predict;
     gPredictTail++;
+    if (numplayers != 1)
+    {
+        gViewAngle = predict.at30;
+        gViewLook = predict.at20;
+    }
 }
 
 void sub_158B4(PLAYER *pPlayer)
@@ -312,6 +324,14 @@ void sub_158B4(PLAYER *pPlayer)
 void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
 {
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
+
+    if (numplayers > 1 && gPrediction)
+    {
+        gViewAngleAdjust = 0.f;
+        gViewLookRecenter = false;
+        gViewLookAdjust = 0.f;
+    }
+
     predict.at70 = pInput->syncFlags.run;
     predict.at70 = 0;
     predict.at71 = pInput->buttonFlags.jump;
@@ -381,6 +401,8 @@ void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
 
         predict.at4c = min(predict.at4c+speed, 0);
         predict.at30 += fix16_from_int(speed);
+        if (numplayers > 1 && gPrediction)
+            gViewAngleAdjust += float(speed);
     }
 
     if (!predict.at71)
@@ -453,6 +475,18 @@ void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
             predict.at20 = fix16_min(predict.at20+F16(lookStepUp), F16(upAngle));
         if (pInput->buttonFlags.lookDown)
             predict.at20 = fix16_max(predict.at20-F16(lookStepDown), F16(downAngle));
+    }
+    if (numplayers > 1 && gPrediction)
+    {
+        if (pInput->buttonFlags.lookUp)
+        {
+            gViewLookAdjust += float(lookStepUp);
+        }
+        if (pInput->buttonFlags.lookDown)
+        {
+            gViewLookAdjust -= float(lookStepDown);
+        }
+        gViewLookRecenter = predict.at6e && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown;
     }
     predict.at20 = fix16_clamp(predict.at20+(pInput->q16mlook<<3), F16(downAngle), F16(upAngle));
     predict.at24 = fix16_from_float(100.f*tanf(fix16_to_float(predict.at20)*fPI/1024.f));
@@ -871,7 +905,12 @@ void fakeActProcessSprites(void)
 
 void viewCorrectPrediction(void)
 {
-    if (gGameOptions.nGameType == 0) return;
+    if (numplayers == 1)
+    {
+        gViewLook = gMe->q16look;
+        gViewAngle = gMe->q16ang;
+        return;
+    }
     spritetype *pSprite = gMe->pSprite;
     VIEW *pView = &predictFifo[(gNetFifoTail-1)&255];
     if (gMe->q16ang != pView->at30 || pView->at24 != gMe->q16horiz || pView->at50 != pSprite->x || pView->at54 != pSprite->y || pView->at58 != pSprite->z)
@@ -2970,8 +3009,6 @@ void UpdateDacs(int nPalette, bool bNoTint)
     }
 }
 
-bool gPrediction = true;
-
 char otherMirrorGotpic[2];
 char bakMirrorGotpic[2];
 // int gVisibility;
@@ -3149,6 +3186,15 @@ void viewDrawScreen(bool sceneonly)
                 v4c = interpolate(pView->at1c, v4c, gInterpolate);
                 v48 = interpolate(pView->at18, v48, gInterpolate);
             }
+        }
+        if (gView == gMe && (numplayers <= 1 || gPrediction) && gView->pXSprite->health != 0 && !VanillaMode())
+        {
+            CONSTEXPR int upAngle = 289;
+            CONSTEXPR int downAngle = -347;
+            fix16_t q16look;
+            cA = gViewAngle;
+            q16look = gViewLook;
+            q16horiz = fix16_from_float(100.f * tanf(fix16_to_float(q16look) * fPI / 1024.f));
         }
         viewUpdateShake();
         q16horiz += fix16_from_int(shakeHoriz);

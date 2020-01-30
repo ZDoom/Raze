@@ -106,6 +106,11 @@ struct GINPUT
 extern GINPUT gInput;
 extern bool bSilentAim;
 
+extern fix16_t gViewLook, gViewAngle;
+extern float gViewAngleAdjust;
+extern float gViewLookAdjust;
+extern int gViewLookRecenter;
+
 void ctrlInit();
 void ctrlGetInput();
 

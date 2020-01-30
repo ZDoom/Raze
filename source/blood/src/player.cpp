@@ -783,6 +783,8 @@ void playerStart(int nPlayer, int bNewLevel)
     if (pPlayer == gMe)
     {
         viewInitializePrediction();
+        gViewLook = pPlayer->q16look;
+        gViewAngle = pPlayer->q16ang;
         gViewMap.x = pPlayer->pSprite->x;
         gViewMap.y = pPlayer->pSprite->y;
         gViewMap.angle = pPlayer->pSprite->ang;
@@ -1305,6 +1307,14 @@ void ProcessInput(PLAYER *pPlayer)
     int nSprite = pPlayer->nSprite;
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
     GINPUT *pInput = &pPlayer->input;
+
+    if (pPlayer == gMe && numplayers == 1)
+    {
+        gViewAngleAdjust = 0.f;
+        gViewLookRecenter = false;
+        gViewLookAdjust = 0.f;
+    }
+
     pPlayer->isRunning = pInput->syncFlags.run;
     if (pInput->buttonFlags.byte || pInput->forward || pInput->strafe || pInput->q16turn)
         pPlayer->restTime = 0;
@@ -1424,7 +1434,11 @@ void ProcessInput(PLAYER *pPlayer)
             speed = 128;
         pPlayer->spin = min(pPlayer->spin+speed, 0);
         pPlayer->q16ang += fix16_from_int(speed);
+        if (pPlayer == gMe && numplayers == 1)
+            gViewAngleAdjust += float(speed);
     }
+    if (pPlayer == gMe && numplayers == 1)
+        gViewAngleAdjust += float(pSprite->ang - pPlayer->angold);
     pPlayer->q16ang = (pPlayer->q16ang+fix16_from_int(pSprite->ang-pPlayer->angold))&0x7ffffff;
     pPlayer->angold = pSprite->ang = fix16_to_int(pPlayer->q16ang);
     if (!pInput->buttonFlags.jump)
@@ -1579,6 +1593,18 @@ void ProcessInput(PLAYER *pPlayer)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+F16(lookStepUp), F16(upAngle));
             if (pInput->buttonFlags.lookDown)
                 pPlayer->q16look = fix16_max(pPlayer->q16look-F16(lookStepDown), F16(downAngle));
+        }
+        if (pPlayer == gMe && numplayers == 1)
+        {
+            if (pInput->buttonFlags.lookUp)
+            {
+                gViewLookAdjust += float(lookStepUp);
+            }
+            if (pInput->buttonFlags.lookDown)
+            {
+                gViewLookAdjust -= float(lookStepDown);
+            }
+            gViewLookRecenter = pInput->keyFlags.lookCenter && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown;
         }
         pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16mlook<<3), F16(downAngle), F16(upAngle));
         pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));

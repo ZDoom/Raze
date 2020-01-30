@@ -64,7 +64,6 @@ int gCheckTail = 0;
 int gInitialNetPlayers = 0;
 int gBufferJitter = 1;
 int gPlayerReady[8];
-int gSyncRate = 1;
 bool bNoResend = true;
 bool gRobust = false;
 bool bOutOfSync = false;
@@ -76,21 +75,6 @@ char gNetAddress[32];
 int gNetPort = kNetDefaultPort;
 
 const short word_1328AC = 0x214;
-
-struct struct28E3B0
-{
-    int at0;
-    int at4;
-    int at8;
-    int atc;
-    int at10;
-    int at14;
-    int at18;
-    char at1c;
-    int at1d;
-};
-
-struct28E3B0 byte_28E3B0;
 
 PKT_STARTGAME gPacketStartGame;
 
@@ -255,7 +239,6 @@ void sub_79760(void)
     memset(gCheckHead, 0, sizeof(gCheckHead));
     gSendCheckTail = 0;
     gCheckTail = 0;
-    memset(&byte_28E3B0, 0, sizeof(byte_28E3B0));
     bOutOfSync = 0;
     gBufferJitter = 1;
 }
@@ -485,16 +468,6 @@ void netGetPackets(void)
             if (pInput->syncFlags.mlookChange)
                 pInput->q16mlook = GetPacketDWord(pPacket);
             gNetFifoHead[nPlayer]++;
-            for (int i = gSyncRate; i > 1; i--)
-            {
-                GINPUT *pInput2 = &gFifoInput[gNetFifoHead[nPlayer]&255][nPlayer];
-                memcpy(pInput2, pInput, sizeof(GINPUT));
-                pInput2->keyFlags.word = 0;
-                pInput2->useFlags.byte = 0;
-                pInput2->newWeapon = 0;
-                pInput2->syncFlags.weaponChange = 0;
-                gNetFifoHead[nPlayer]++;
-            }
             while (pPacket < packet+nSize)
             {
                 int checkSum[4];
@@ -687,34 +660,6 @@ void netSendEmptyPackets(void)
     }
 }
 
-void sub_7AD90(GINPUT *pInput)
-{
-    byte_28E3B0.at0 |= pInput->syncFlags.byte;
-    byte_28E3B0.at4 += pInput->forward;
-    byte_28E3B0.at8 += pInput->q16turn;
-    byte_28E3B0.atc += pInput->strafe;
-    byte_28E3B0.at10 |= pInput->buttonFlags.byte;
-    byte_28E3B0.at14 |= pInput->keyFlags.word;
-    byte_28E3B0.at18 |= pInput->useFlags.byte;
-    if (pInput->newWeapon)
-        byte_28E3B0.at1c = pInput->newWeapon;
-    byte_28E3B0.at1d = pInput->q16mlook;
-}
-
-void sub_7AE2C(GINPUT *pInput)
-{
-    pInput->syncFlags.byte = byte_28E3B0.at0;
-    pInput->forward = byte_28E3B0.at4;
-    pInput->q16turn = byte_28E3B0.at8;
-    pInput->strafe = byte_28E3B0.atc;
-    pInput->buttonFlags.byte = byte_28E3B0.at10;
-    pInput->keyFlags.word = byte_28E3B0.at14;
-    pInput->useFlags.byte = byte_28E3B0.at18;
-    pInput->newWeapon = byte_28E3B0.at1c;
-    pInput->q16mlook = byte_28E3B0.at1d;
-    memset(&byte_28E3B0, 0, sizeof(byte_28E3B0));
-}
-
 void netMasterUpdate(void)
 {
     if (myconnectindex != connecthead)
@@ -789,23 +734,9 @@ void netGetInput(void)
     for (int p = connecthead; p >= 0; p = connectpoint2[p])
         if (gNetFifoHead[myconnectindex]-200 > gNetFifoHead[p])
             return;
-    ctrlGetInput();
-    sub_7AD90(&gInput);
-    if (gNetFifoHead[myconnectindex]&(gSyncRate-1))
-    {
-        GINPUT *pInput1 = &gFifoInput[gNetFifoHead[myconnectindex]&255][myconnectindex];
-        GINPUT *pInput2 = &gFifoInput[(gNetFifoHead[myconnectindex]-1)&255][myconnectindex];
-        memcpy(pInput1, pInput2, sizeof(GINPUT));
-        pInput1->keyFlags.word = 0;
-        pInput1->useFlags.byte = 0;
-        pInput1->newWeapon = 0;
-        pInput1->syncFlags.weaponChange = 0;
-        gNetFifoHead[myconnectindex]++;
-        return;
-    }
-    GINPUT *pInput = &gFifoInput[gNetFifoHead[myconnectindex]&255][myconnectindex];
-    sub_7AE2C(pInput);
-    memcpy(&gInput, pInput, sizeof(GINPUT));
+    GINPUT &input = gFifoInput[gNetFifoHead[myconnectindex]&255][myconnectindex];
+    input = gInput;
+    gInput = {};
     gNetFifoHead[myconnectindex]++;
     if (gGameOptions.nGameType == 0 || numplayers == 1)
     {
@@ -871,30 +802,30 @@ void netGetInput(void)
             for (int p = connecthead; p >= 0; p = connectpoint2[p])
                 myMinLag[p] = 0x7fffffff;
         }
-        if (gInput.buttonFlags.byte)
-            gInput.syncFlags.buttonChange = 1;
-        if (gInput.keyFlags.word)
-            gInput.syncFlags.keyChange = 1;
-        if (gInput.useFlags.byte)
-            gInput.syncFlags.useChange = 1;
-        if (gInput.newWeapon)
-            gInput.syncFlags.weaponChange = 1;
-        if (gInput.q16mlook)
-            gInput.syncFlags.mlookChange = 1;
-        PutPacketByte(pPacket, gInput.syncFlags.byte);
-        PutPacketWord(pPacket, gInput.forward);
-        PutPacketDWord(pPacket, gInput.q16turn);
-        PutPacketWord(pPacket, gInput.strafe);
+        if (input.buttonFlags.byte)
+            input.syncFlags.buttonChange = 1;
+        if (input.keyFlags.word)
+            input.syncFlags.keyChange = 1;
+        if (input.useFlags.byte)
+            input.syncFlags.useChange = 1;
+        if (input.newWeapon)
+            input.syncFlags.weaponChange = 1;
+        if (input.q16mlook)
+            input.syncFlags.mlookChange = 1;
+        PutPacketByte(pPacket, input.syncFlags.byte);
+        PutPacketWord(pPacket, input.forward);
+        PutPacketDWord(pPacket, input.q16turn);
+        PutPacketWord(pPacket, input.strafe);
         if (gInput.syncFlags.buttonChange)
-            PutPacketByte(pPacket, gInput.buttonFlags.byte);
+            PutPacketByte(pPacket, input.buttonFlags.byte);
         if (gInput.syncFlags.keyChange)
-            PutPacketWord(pPacket, gInput.keyFlags.word);
+            PutPacketWord(pPacket, input.keyFlags.word);
         if (gInput.syncFlags.useChange)
-            PutPacketByte(pPacket, gInput.useFlags.byte);
+            PutPacketByte(pPacket, input.useFlags.byte);
         if (gInput.syncFlags.weaponChange)
-            PutPacketByte(pPacket, gInput.newWeapon);
+            PutPacketByte(pPacket, input.newWeapon);
         if (gInput.syncFlags.mlookChange)
-            PutPacketDWord(pPacket, gInput.q16mlook);
+            PutPacketDWord(pPacket, input.q16mlook);
         while (gSendCheckTail != gCheckHead[myconnectindex])
         {
             unsigned int *checkSum = gCheckFifo[gSendCheckTail&255][myconnectindex];
@@ -908,30 +839,30 @@ void netGetInput(void)
     {
         char *pPacket = packet;
         PutPacketByte(pPacket, 1);
-        if (gInput.buttonFlags.byte)
-            gInput.syncFlags.buttonChange = 1;
-        if (gInput.keyFlags.word)
-            gInput.syncFlags.keyChange = 1;
-        if (gInput.useFlags.byte)
-            gInput.syncFlags.useChange = 1;
-        if (gInput.newWeapon)
-            gInput.syncFlags.weaponChange = 1;
-        if (gInput.q16mlook)
-            gInput.syncFlags.mlookChange = 1;
-        PutPacketByte(pPacket, gInput.syncFlags.byte);
-        PutPacketWord(pPacket, gInput.forward);
-        PutPacketDWord(pPacket, gInput.q16turn);
-        PutPacketWord(pPacket, gInput.strafe);
-        if (gInput.syncFlags.buttonChange)
-            PutPacketByte(pPacket, gInput.buttonFlags.byte);
-        if (gInput.syncFlags.keyChange)
-            PutPacketWord(pPacket, gInput.keyFlags.word);
-        if (gInput.syncFlags.useChange)
-            PutPacketByte(pPacket, gInput.useFlags.byte);
-        if (gInput.syncFlags.weaponChange)
-            PutPacketByte(pPacket, gInput.newWeapon);
-        if (gInput.syncFlags.mlookChange)
-            PutPacketDWord(pPacket, gInput.q16mlook);
+        if (input.buttonFlags.byte)
+            input.syncFlags.buttonChange = 1;
+        if (input.keyFlags.word)
+            input.syncFlags.keyChange = 1;
+        if (input.useFlags.byte)
+            input.syncFlags.useChange = 1;
+        if (input.newWeapon)
+            input.syncFlags.weaponChange = 1;
+        if (input.q16mlook)
+            input.syncFlags.mlookChange = 1;
+        PutPacketByte(pPacket, input.syncFlags.byte);
+        PutPacketWord(pPacket, input.forward);
+        PutPacketDWord(pPacket, input.q16turn);
+        PutPacketWord(pPacket, input.strafe);
+        if (input.syncFlags.buttonChange)
+            PutPacketByte(pPacket, input.buttonFlags.byte);
+        if (input.syncFlags.keyChange)
+            PutPacketWord(pPacket, input.keyFlags.word);
+        if (input.syncFlags.useChange)
+            PutPacketByte(pPacket, input.useFlags.byte);
+        if (input.syncFlags.weaponChange)
+            PutPacketByte(pPacket, input.newWeapon);
+        if (input.syncFlags.mlookChange)
+            PutPacketDWord(pPacket, input.q16mlook);
         if (((gNetFifoHead[myconnectindex]-1)&15) == 0)
         {
             int t = myMinLag[connecthead]-otherMinLag;

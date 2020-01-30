@@ -495,6 +495,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
 {
 	STAT_Update(0);
     EndLevel();
+    gInput = {};
     gStartNewGame = 0;
     ready2send = 0;
     if (gDemo.at0 && gGameStarted)
@@ -807,12 +808,9 @@ void ProcessFrame(void)
         gPlayer[i].input.q16mlook = gFifoInput[gNetFifoTail&255][i].q16mlook;
     }
     gNetFifoTail++;
-    if (!(gFrame&((gSyncRate<<3)-1)))
-    {
-        CalcGameChecksum();
-        memcpy(gCheckFifo[gCheckHead[myconnectindex]&255][myconnectindex], gChecksum, sizeof(gChecksum));
-        gCheckHead[myconnectindex]++;
-    }
+    CalcGameChecksum();
+    memcpy(gCheckFifo[gCheckHead[myconnectindex]&255][myconnectindex], gChecksum, sizeof(gChecksum));
+    gCheckHead[myconnectindex]++;
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         if (gPlayer[i].input.keyFlags.quit)
@@ -934,7 +932,8 @@ SWITCH switches[] = {
     { "robust", 8, 0 },
     { "skill", 10, 1 },
     { "ini", 13, 1 },
-    { "f", 15, 1 },
+    { "noaim", 14, 0 },
+    //{ "f", 15, 1 },
     { "control", 16, 1 },
     { "vector", 17, 1 },
     { "noresend", 22, 0 },
@@ -974,10 +973,7 @@ void ParseOptions(void)
             bNoDemo = 1;
             break;
         case 3:
-            if (gSyncRate == 1)
-                gPacketMode = PACKETMODE_2;
-            else
-                gPacketMode = PACKETMODE_1;
+            gPacketMode = PACKETMODE_2;
             break;
         case 30:
             if (OptArgc < 1)
@@ -1025,13 +1021,6 @@ void ParseOptions(void)
                 gSkill = 4;
             break;
         case 15:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            gSyncRate = ClipRange(strtoul(OptArgv[0], NULL, 0), 1, 4);
-            if (gPacketMode == PACKETMODE_1)
-                gSyncRate = 1;
-            else if (gPacketMode == PACKETMODE_3)
-                gSyncRate = 1;
             break;
         }
     }
@@ -1248,6 +1237,8 @@ RESTART:
                 continue;
 
             OSD_DispatchQueued();
+
+            ctrlGetInput();
 
             switch (gInputMode)
             {
