@@ -55,13 +55,12 @@ struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
 
 static int osdcmd_map(osdcmdptr_t parm)
 {
-	FString mapname;
-
     if (parm->numparms != 1)
     {
         return OSDCMD_SHOWHELP;
     }
-	
+    FString mapname = parm->parms[0];
+
     if (!fileSystem.Lookup(mapname, "MAP"))
     {
         OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
