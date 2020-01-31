@@ -257,23 +257,6 @@ void SetView1()
 {
 }
 
-void FlushMessageLine()
-{
-    int tileX = tilesiz[nBackgroundPic].x;
-    int nTileOffset = 0;
-
-    int xPos = 0;
-
-    while (xPos < xdim)
-    {
-        overwritesprite(xPos, 0, nBackgroundPic + nTileOffset, -32, 0, kPalNormal);
-
-        nTileOffset = nTileOffset == 0;
-
-        xPos += tileX;
-    }
-}
-
 void RefreshBackground()
 {
     if (screensize <= 0)

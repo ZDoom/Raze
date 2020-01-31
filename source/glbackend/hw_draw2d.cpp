@@ -214,7 +214,6 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		*/
 
 	}
-	//state.SetScissor(-1, -1, -1, -1);
 
 	//state.SetRenderStyle(STYLE_Translucent);
 	ClearBufferState();
@@ -230,6 +229,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	EnableMultisampling(true);
 	SetIdentityMatrix(Matrix_Projection);
 	matrixArray.Resize(1);
+	renderState.Apply(polymostShader, lastState);	// actually set the desired state before returning.
 }
 
 
