@@ -1041,7 +1041,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         if (RRRA && pPlayer->drug_mode > 0)
         {
-            while (pPlayer->drug_timer < totalclock && !(pPlayer->gm & MODE_MENU) && !ud.pause_on)
+            while (pPlayer->drug_timer < totalclock && !(pPlayer->gm & MODE_MENU) && !ud.pause_on && !GUICapture)
             {
                 int aspect;
                 if (pPlayer->drug_stat[0] == 0)
@@ -6001,7 +6001,7 @@ void G_HandleLocalKeys(void)
         }
     }
 
-    if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)))
+    if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)) || GUICapture)
         return;
 
     if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_COOPVIEW) || ud.recstat == 2))
@@ -7406,7 +7406,7 @@ MAIN_LOOP_RESTART:
 
 	            do
 	            {
-	                if (ready2send == 0) break;
+                    if (ready2send == 0) break;
 	                Net_GetInput();
 
 	                ototalclock += TICSPERFRAME;

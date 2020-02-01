@@ -2635,7 +2635,7 @@ void RunLevel(void)
 		faketimerhandler();
         if (LoadGameOutsideMoveLoop)
         {
-            return;
+            return; // Stop the game loop if a savegame was loaded from the menu.
         }
 
         if (M_Active())

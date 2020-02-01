@@ -1775,7 +1775,7 @@ void Net_GetInput(void)
     if (numplayers > 1)
         Net_GetPackets();
 
-    if (g_player[myconnectindex].movefifoend - movefifoplc >= 100)
+    if (g_player[myconnectindex].movefifoend - movefifoplc >= 100 || GUICapture)
         return;
 
     if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
