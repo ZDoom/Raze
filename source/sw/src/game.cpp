@@ -1018,13 +1018,13 @@ InitLevel(void)
 
     // A few IMPORTANT GLOBAL RESETS
     InitLevelGlobals();
-    if (!DemoMode)
-        Mus_Stop();
-
     if (LoadGameOutsideMoveLoop)
     {
         return;
     }
+
+    if (!DemoMode)
+        Mus_Stop();
 
     InitLevelGlobals2();
     if (DemoMode)
@@ -1359,8 +1359,12 @@ void NewLevel(void)
     }
     else
     {
-        InitLevel();
-        RunLevel();
+        do
+        {
+            InitLevel();
+            RunLevel();
+        }
+        while (LoadGameOutsideMoveLoop);
 		STAT_Update(false);
 
         if (!QuitFlag)
@@ -2629,6 +2633,10 @@ void RunLevel(void)
         OSD_DispatchQueued();
 		D_ProcessEvents();
 		faketimerhandler();
+        if (LoadGameOutsideMoveLoop)
+        {
+            return;
+        }
 
         if (M_Active())
         {

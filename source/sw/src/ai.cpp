@@ -258,7 +258,7 @@ DoActorNoise(ANIMATORp Action, short SpriteNum)
         PlaySpriteSound(SpriteNum, attr_attack, v3df_follow);
 //      MONO_PRINT("Attack Sound");
     }
-    if (Action == InitActorPainNoise)
+    else if (Action == InitActorPainNoise)
     {
         PlaySpriteSound(SpriteNum, attr_pain, v3df_follow);
 //      MONO_PRINT("Pain Sound");
@@ -280,15 +280,15 @@ DoActorNoise(ANIMATORp Action, short SpriteNum)
     {
         PlaySpriteSound(SpriteNum, attr_extra3, v3df_follow);
     }
-    if (Action == InitActorExtra4Noise)
+    else if (Action == InitActorExtra4Noise)
     {
         PlaySpriteSound(SpriteNum, attr_extra4, v3df_follow);
     }
-    if (Action == InitActorExtra5Noise)
+    else if (Action == InitActorExtra5Noise)
     {
         PlaySpriteSound(SpriteNum, attr_extra5, v3df_follow);
     }
-    if (Action == InitActorExtra6Noise)
+    else if (Action == InitActorExtra6Noise)
     {
         PlaySpriteSound(SpriteNum, attr_extra6, v3df_follow);
     }
