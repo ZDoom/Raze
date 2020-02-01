@@ -2317,7 +2317,7 @@ GAMELOOP:
         {
             static bool frameJustDrawn;
             bInMove = kTrue;
-            if (!bPause && totalclock >= tclocks + 4)
+            if (!bPause && totalclock >= tclocks + 4 && !GUICapture)
             {
                 do
                 {
@@ -2349,6 +2349,10 @@ GAMELOOP:
                         // timerUpdate();
                     } while (levelnew < 0 && totalclock >= tclocks + 4);
                 } while (0);
+            }
+            else if (GUICapture || bPause)
+            {
+                totalclock = tclocks + 4;
             }
             bInMove = kFalse;
 
