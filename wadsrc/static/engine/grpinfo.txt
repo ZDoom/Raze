@@ -348,6 +348,19 @@ grpinfo
 	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*rr_outro.voc"	// This renames instead of deleting
 }
 
+addon
+{
+	// this is for detecting the files within the game directory.
+	name "Redneck Rampage: Suckin' Grits on Route 66"
+	scriptname "GAME66.CON"
+	mustcontain "TILESA66.ART", "TILESB66.ART", "ROUTE66/CARNIVAL.MAP", "ROUTE66/TRUCKSTP.MAP", "GAME66.CON"
+	flags GAMEFLAG_RR|GAMEFLAG_ADDON
+	dependency RR_CRC
+	loadart "TILESA66.ART", "TILESB66.ART" // replaces TILES009 and TILES023.
+	gamefilter "Redneck.Route66"
+	deletecontent "turd66.anm*turdmov.anm", "turd66.voc*turdmov.voc", "end66.anm*rr_outro.anm", "end66.voc*rr_outro.voc"	// This renames instead of deleting
+}	
+
 grpinfo
 {
 	name "BLOOD: One Unit Whole Blood"
@@ -385,6 +398,43 @@ grpinfo
 	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
+	gamefilter "Blood.Cryptic"
+}
+
+addon
+{
+	// This is for detecting the files inside the Blood folder itself
+	name "BLOOD: Cryptic Passage"
+	scriptname "CRYPTIC.INI"
+	mustcontain "CRYPTIC.INI", "CP01.MAP", "CP02.MAP"
+	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
+	dependency BLOOD_CRC
+	loadart "CPART07.AR_", "CPART15.AR_"
+	gamefilter "Blood.Cryptic"
+}
+
+addon
+{
+	// This is for detecting the files inside a subfolder called 'cryptic'.
+	name "BLOOD: Cryptic Passage"
+	scriptname "CRYPTIC.INI"
+	mustcontain "cryptic/CRYPTIC.INI", "cryptic/CP01.MAP", "cryptic/CP02.MAP"
+	addresource "cryptic"
+	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
+	dependency BLOOD_CRC
+	loadart "CPART07.AR_", "CPART15.AR_"
+	gamefilter "Blood.Cryptic"
+}
+
+addon
+{
+	// This is for detecting the files inside the Fresh Supply distribution, which also has the ART files named properly.
+	name "BLOOD: Cryptic Passage"
+	scriptname "CRYPTIC.INI"
+	mustcontain "addons/Cryptic Passage/CRYPTIC.INI", "addons/Cryptic Passage/CP01.MAP", "addons/Cryptic Passage/CP02.MAP"
+	addresource "addons/Cryptic Passage"
+	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
+	dependency BLOOD_CRC
 	gamefilter "Blood.Cryptic"
 }
 
