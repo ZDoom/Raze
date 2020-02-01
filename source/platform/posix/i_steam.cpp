@@ -154,17 +154,18 @@ const char *AppInfo[] =
 	"Shadow Warrior Classic/gameroot",
 	"Shadow Warrior Original/gameroot",
 	"Ion Fury",
-	
-#ifdef __APPLE
+	"Blood",
+	"One Unit Whole Blood",
+	"Nam/NAM",
+	"Redneck Rampage/Redneck",
+	"Redneck Rampage Rides Again/AGAIN",
+#ifdef __APPLE__
 	"Duke Nukem 3D/Duke Nukem 3D.app/drive_c/Program Files/Duke Nukem 3D",
 	"Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM",
 	"Shadow Warrior DOS/Shadow Warrior.app/Contents/Resources/sw",
-	"Blood",
-	"One Unit Whole Blood",
-#else
-	"Nam/NAM",
+	"Redneck Rampage/Redneck Rampage.app/Contents/Resources/Redneck Rampage.boxer/C Redneck Rampage.harddisk",
+	// macOS version of Redneck Rampage Rides Again is completely broken on Steam
 #endif
-	
 };
 
 TArray<FString> I_GetSteamPath()
