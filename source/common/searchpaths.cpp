@@ -202,6 +202,13 @@ TArray<FString> CollectSearchPaths()
 		{
 			if (stricmp(key, "Path") == 0)
 			{
+				// Checking Steam via a list entry allows easy removal if not wanted.
+				if (stricmp(value, "$STEAM") == 0)
+				{
+					G_AddExternalSearchPaths(searchpaths);
+					continue;
+				}
+
 				FString nice = NicePath(value);
 				if (nice.Len() > 0)
 				{
@@ -212,11 +219,6 @@ TArray<FString> CollectSearchPaths()
 					if (nice[nice.Len()-2] == '/' && nice[nice.Len()-1] == '*')
 					{
 						CollectSubdirectories(searchpaths, nice);
-					}
-					// Checking Steam via a list entry allows easy removal if not wanted.
-					else if (nice.CompareNoCase("$STEAM") == 0)
-					{
-						G_AddExternalSearchPaths(searchpaths);
 					}
 					else
 					{
