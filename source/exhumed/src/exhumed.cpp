@@ -1949,13 +1949,8 @@ int GameInterface::app_main()
     loaddefinitions_game(defsfile, FALSE);
 
 
-    if (enginePostInit())
-        ShutDown();
+    enginePostInit();
 
-    // loc_11745:
-//    FadeOut(0);
-//	InstallEngine();
-    //KB_Startup();
     InitView();
     myloadconfig();
     InitFX();

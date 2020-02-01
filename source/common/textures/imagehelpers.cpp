@@ -40,22 +40,20 @@
 namespace ImageHelpers
 {
 	uint8_t GrayMap[256];
-	PalEntry BasePalette[256];
 	int WhiteIndex, BlackIndex;
 	int alphaThreshold;
 	ColorTable256k RGB256k;
 
 	int BestColor(int r, int g, int b, int first, int num)
 	{
-		const PalEntry* pal = BasePalette;
 		int bestcolor = first;
 		int bestdist = 257 * 257 + 257 * 257 + 257 * 257;
 
 		for (int color = first; color < num; color++)
 		{
-			int x = r - pal[color].r;
-			int y = g - pal[color].g;
-			int z = b - pal[color].b;
+			int x = r - palette[color * 3 + 0];
+			int y = g - palette[color * 3 + 1];
+			int z = b - palette[color * 3 + 2];
 			int dist = x * x + y * y + z * z;
 			if (dist < bestdist)
 			{
@@ -73,7 +71,6 @@ namespace ImageHelpers
 
 	int PTM_BestColor(int r, int g, int b, bool reverselookup, float powtable_val, int first, int num)
 	{
-		const PalEntry* pal = BasePalette;
 		static double powtable[256];
 		static bool firstTime = true;
 		static float trackpowtable = 0.;
@@ -91,9 +88,9 @@ namespace ImageHelpers
 
 		for (int color = first; color < num; color++)
 		{
-			double x = powtable[abs(r - pal[color].r)];
-			double y = powtable[abs(g - pal[color].g)];
-			double z = powtable[abs(b - pal[color].b)];
+			double x = powtable[abs(r - palette[color * 3 + 0])];
+			double y = powtable[abs(g - palette[color * 3 + 1])];
+			double z = powtable[abs(b - palette[color * 3 + 2])];
 			fdist = x + y + z;
 			if (color == first || (reverselookup ? (fdist <= fbestdist) : (fdist < fbestdist)))
 			{
@@ -109,13 +106,6 @@ namespace ImageHelpers
 	
 	void SetPalette(const PalEntry* colors)
 	{
-		for (int i = 0; i < 255; i++)
-		{
-			BasePalette[i] = colors[i];
-			BasePalette[i].a = 255;
-		}
-		BasePalette[255] = 0;	// 255 is always translucent black - whatever color the original data has here
-
 		// Find white and black from the original palette so that they can be
 		// used to make an educated guess of the translucency % for a
 		// translucency map.

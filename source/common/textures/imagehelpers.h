@@ -42,6 +42,9 @@
 #include "palentry.h"
 #include "textures/bitmap.h"
 
+// we do not want to pull in the entirety of build.h here.
+extern uint8_t palette[768];
+
 namespace ImageHelpers
 {
 	union ColorTable256k
@@ -51,7 +54,6 @@ namespace ImageHelpers
 	};
 
 	extern uint8_t GrayMap[256];
-	extern PalEntry BasePalette[256];
 	extern int WhiteIndex, BlackIndex;
 	extern ColorTable256k RGB256k;
 	extern int alphaThreshold;
@@ -142,4 +144,15 @@ namespace ImageHelpers
 		}
 	}
 	
+	struct
+	{
+		PalEntry operator[](int index)
+		{
+			return PalEntry(
+				palette[index * 3 + 0],
+				palette[index * 3 + 1],
+				palette[index * 3 + 2]
+				);
+		}
+	} BasePalette;
 }

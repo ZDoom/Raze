@@ -738,11 +738,6 @@ void COVERsetbrightness(int bright, unsigned char *pal)
 static int firstnet = 0;    // JBF
 
 
-static void SW_FatalEngineError(void)
-{
-    I_Error("There was a problem initialising the Build engine: %s", engineerrstr);
-}
-
 bool InitGame()
 {
     extern int MovesPerPacket;
@@ -752,8 +747,7 @@ bool InitGame()
     DSPRINTF(ds,"InitGame...");
     MONO_PRINT(ds);
 
-    if (engineInit())
-        SW_FatalEngineError();
+    engineInit();
 
     InitAutoNet();
 
@@ -866,8 +860,7 @@ bool InitGame()
 
 	userConfig.AddDefs.reset();
 
-    if (enginePostInit())
-        SW_FatalEngineError();
+    enginePostInit();
 
     palettePostLoadLookups();
     V_Init2();

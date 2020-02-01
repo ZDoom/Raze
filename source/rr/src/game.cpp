@@ -7215,8 +7215,7 @@ int GameInterface::app_main()
 
 	userConfig.AddDefs.reset();
 
-    if (enginePostInit())
-        G_FatalEngineError();
+    enginePostInit();
 
     G_PostLoadPalette();
 
