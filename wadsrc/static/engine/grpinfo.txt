@@ -419,7 +419,7 @@ addon
 	name "BLOOD: Cryptic Passage"
 	scriptname "CRYPTIC.INI"
 	mustcontain "cryptic/CRYPTIC.INI", "cryptic/CP01.MAP", "cryptic/CP02.MAP"
-	addresource "cryptic"
+	loadgrp "cryptic"
 	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
 	dependency BLOOD_CRC
 	loadart "CPART07.AR_", "CPART15.AR_"
@@ -432,7 +432,7 @@ addon
 	name "BLOOD: Cryptic Passage"
 	scriptname "CRYPTIC.INI"
 	mustcontain "addons/Cryptic Passage/CRYPTIC.INI", "addons/Cryptic Passage/CP01.MAP", "addons/Cryptic Passage/CP02.MAP"
-	addresource "addons/Cryptic Passage"
+	loadgrp "addons/Cryptic Passage"
 	flags GAMEFLAG_BLOOD|GAMEFLAG_ADDON
 	dependency BLOOD_CRC
 	gamefilter "Blood.Cryptic"

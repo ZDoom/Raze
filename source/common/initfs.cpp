@@ -486,19 +486,20 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 	bool insertdirectoriesafter = Args->CheckParm("-insertdirafter");
 
 	int i = groups.Size()-1;
+	FString fn;
 	for (auto &grp : groups)
 	{
 		// Add all dependencies, plus the directory of the base dependency.
 		// Directories of addon content are not added if they differ from the main directory. 
 		// Also, the directory is inserted after the base dependency, allowing the addons to override directory content.
 		// This can be overridden via command line switch if needed.
-		if (!grp.FileInfo.loaddirectory)
+		if (!grp.FileInfo.loaddirectory && grp.FileName.IsNotEmpty())
+		{
 			D_AddFile(Files, grp.FileName);
+			fn = ExtractFilePath(grp.FileName);
+			if (fn.Len() > 0 && fn.Back() != '/') fn += '/';
+		}
 
-		auto fn = grp.FileName;
-		fn.Substitute("\\", "/");
-		auto index = fn.LastIndexOf("/");
-		fn.Truncate(index+1);	// right after the last slash.
 		for (auto& fname : grp.FileInfo.loadfiles)
 		{
 			FString newname = fn + fname;

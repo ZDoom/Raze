@@ -127,6 +127,7 @@ struct GrpInfo
 	size_t size = 0;
 	int flags = 0;
 	bool loaddirectory = false;
+	bool isAddon = false;
 	TArray<FString> mustcontain;
 	TArray<FString> tobedeleted;
 	TArray<FString> loadfiles;

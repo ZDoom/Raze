@@ -403,10 +403,11 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 				CRCMap.Insert(key, (uint32_t)sc.BigNumber);
 			}
 		}
-		else if (sc.Compare("grpinfo"))
+		else if (sc.Compare("grpinfo") || sc.Compare("addon"))
 		{
 			groups.Reserve(1);
 			auto& grp = groups.Last();
+			grp.isAddon = sc.Compare("addon");
 			sc.MustGetToken('{');
 			while (!sc.CheckToken('}'))
 			{
@@ -645,6 +646,25 @@ GrpInfo *IdentifyGroup(FileEntry *entry, TArray<GrpInfo *> &groups)
 //
 //==========================================================================
 
+static bool CheckAddon(GrpInfo* addon, GrpInfo* main, const char* filename)
+{
+	if (addon->dependencyCRC != main->CRC) return false;
+	FString path = ExtractFilePath(filename);
+	if (path.Len() > 0 && path.Back() != '/') path += '/';
+	for (auto& fn : addon->mustcontain)
+	{
+		FString check = path + fn;
+		if (!FileExists(check)) return false;
+	}
+	return true;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 TArray<GrpEntry> GrpScan()
 {
 	TArray<GrpEntry> foundGames;
@@ -652,6 +672,7 @@ TArray<GrpEntry> GrpScan()
 	TArray<FileEntry*> sortedFileList;
 	TArray<GrpInfo*> sortedGroupList;
 	TArray<GrpInfo*> contentGroupList;
+	TArray<GrpInfo*> addonList;
 
 	auto allFiles = CollectAllFilesInSearchPath();
 	auto allGroups = ParseAllGrpInfos(allFiles);
@@ -667,7 +688,9 @@ TArray<GrpEntry> GrpScan()
 	for (auto& f : allFiles) sortedFileList.Push(&f);
 	for (auto& g : allGroups)
 	{
-		if (g.CRC == 0 && g.mustcontain.Size() > 0)
+		if (g.isAddon)
+			addonList.Push(&g);
+		else if (g.CRC == 0 && g.mustcontain.Size() > 0)
 			contentGroupList.Push(&g);
 		else
 			sortedGroupList.Push(&g);
@@ -761,6 +784,16 @@ TArray<GrpEntry> GrpScan()
 			fg.FileInfo = *grp;
 			fg.FileName = entry->FileName;
 			fg.FileIndex = entry->Index;
+			for (auto addon : addonList)
+			{
+				if (CheckAddon(addon, grp, entry->FileName))
+				{
+					foundGames.Reserve(1);
+					auto& fga = foundGames.Last();
+					fga.FileInfo = *addon;
+					fga.FileIndex = entry->Index;
+				}
+			}
 		}
 	}
 
@@ -875,8 +908,8 @@ const char* G_DefaultConFile(void)
 		if (fileSystem.FindFile("ww2gi.con") >= 0) return "ww2gi.con";
 	}
 
-	if (g_gameType & GAMEFLAG_SW)
-		return nullptr;	// SW has no scripts of any kind.
+	if (g_gameType & (GAMEFLAG_SW|GAMEFLAG_PSEXHUMED))
+		return nullptr;	// Exhumed and SW have no scripts of any kind.
 
 	if (g_gameType & GAMEFLAG_NAM)
 	{
