@@ -1249,5 +1249,6 @@ enum STAT_ENUMS
 #define SCROLL 516
 #define SCROLL_FIRE 524
 
+#define FLOORBLOOD1 389
 
 #endif

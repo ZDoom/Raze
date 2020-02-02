@@ -20840,7 +20840,6 @@ int QueueHole(short ang, short hit_sect, short hit_wall, int hit_x, int hit_y, i
     return SpriteNum;
 }
 
-#define FLOORBLOOD1 389
 #define FLOORBLOOD_RATE 30
 ANIMATOR DoFloorBlood;
 STATE s_FloorBlood1[] =

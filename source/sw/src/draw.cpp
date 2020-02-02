@@ -750,8 +750,8 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                 }
             }
 
-            // workaround for mines beneath the floor
-            if (tsp->picnum == BETTY_R0)
+            // workaround for mines and floor decals beneath the floor
+            if (tsp->picnum == BETTY_R0 || tsp->picnum == FLOORBLOOD1)
             {
                 auto sp = (uspriteptr_t)&sprite[SpriteNum];
                 int32_t const floorz = getflorzofslope(sp->sectnum, sp->x, sp->y);
