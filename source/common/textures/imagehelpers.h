@@ -144,7 +144,7 @@ namespace ImageHelpers
 		}
 	}
 	
-	struct
+	struct _BasePalette
 	{
 		PalEntry operator[](int index)
 		{
@@ -152,7 +152,9 @@ namespace ImageHelpers
 				palette[index * 3 + 0],
 				palette[index * 3 + 1],
 				palette[index * 3 + 2]
-				);
+			);
 		}
-	} BasePalette;
+	};
+	
+	extern _BasePalette BasePalette;
 }

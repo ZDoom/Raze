@@ -43,6 +43,7 @@ namespace ImageHelpers
 	int WhiteIndex, BlackIndex;
 	int alphaThreshold;
 	ColorTable256k RGB256k;
+	_BasePalette BasePalette;
 
 	int BestColor(int r, int g, int b, int first, int num)
 	{
