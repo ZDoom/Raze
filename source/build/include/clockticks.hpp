@@ -44,6 +44,10 @@ public:
     {
         return ticksS32 >> 16;
     }
+    double toScale16F() const
+    {
+        return ticksS32 * (1/(65536.*65536.));
+    }
     ClockTicks& setFromScale16(int64_t const ticksScale16)
     {
         ticksS32 = ticksScale16 << 16;
