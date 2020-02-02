@@ -53,6 +53,8 @@ static FResourceFile *savereader;
 void LoadEngineState();
 void SaveEngineState();
 
+CVAR(String, save_dir, "", CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
+
 //=============================================================================
 //
 // This is for keeping my sanity while working with the horrible mess
@@ -342,7 +344,9 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 
 FString G_BuildSaveName (const char *prefix)
 {
-	FString name = M_GetSavegamesPath();
+	FString name = *save_dir;
+	if (name.IsEmpty())
+		name = M_GetSavegamesPath();
 	size_t len = name.Len();
 	if (name[0] != '\0' && name[len-1] != '\\' && name[len-1] != '/')
 	{
