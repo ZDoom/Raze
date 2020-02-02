@@ -418,13 +418,13 @@ int32_t Anim_Play(const char *fn)
     Bmemcpy(&firstfour, anim->animbuf, 4);
 
     // "DKIF" (.ivf)
-    if (firstfour == B_LITTLE32(0x46494B44))
+    if (firstfour == B_LITTLE32(0x46494B44u))
         goto end_anim;
 
     int32_t numframes;
 
     // "LPF " (.anm)
-    if (firstfour != B_LITTLE32(0x2046504C) ||
+    if (firstfour != B_LITTLE32(0x2046504Cu) ||
         ANIM_LoadAnim(anim->animbuf, buffer.Size()-1) < 0 ||
         (numframes = ANIM_NumFrames()) <= 0)
     {
