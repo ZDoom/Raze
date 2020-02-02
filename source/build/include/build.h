@@ -477,10 +477,10 @@ static inline tspriteptr_t renderMakeTSpriteFromSprite(tspriteptr_t const tspr, 
     tspr->vel = spr->vel;
     tspr->lotag = spr->lotag;
     tspr->hitag = spr->hitag;
+    tspr->extra = spr->extra;
 
     tspr->clipdist = 0;
     tspr->owner = spritenum;
-    tspr->extra = 0;
 
     return tspr;
 }
