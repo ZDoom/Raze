@@ -562,7 +562,10 @@ BOOL CALLBACK IWADBoxCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 				filepart = WadList[i].Path;
 			else
 				filepart++;
-			FStringf work("%s (%s)", WadList[i].Name.GetChars(), filepart);
+
+			FString work;
+			if (*filepart) work.Format("%s (%s)", WadList[i].Name.GetChars(), filepart);
+			else work = WadList[i].Name.GetChars();
 			std::wstring wide = work.WideString();
 			SendMessage(ctrl, LB_ADDSTRING, 0, (LPARAM)wide.c_str());
 			SendMessage(ctrl, LB_SETITEMDATA, i, (LPARAM)i);
