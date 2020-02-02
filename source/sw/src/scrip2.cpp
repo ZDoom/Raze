@@ -906,7 +906,7 @@ void LoadCustomInfoFromScript(const char *filename)
             {
                 if (ammo)
                 {
-                    quoteMgr.InitializeQuote(QUOTE_AMMOFIST + in, name);
+                    quoteMgr.InitializeQuote(QUOTE_AMMOFIST + in, ammo);
                 }
                 if (pickup >= 0) DamageData[id].ammo_pickup = pickup;
             }
