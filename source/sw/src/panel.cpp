@@ -7592,6 +7592,36 @@ pDisplaySprites(PLAYERp pp)
         }
 #endif
 
+        // temporary hack to fix fist artifacts until a solution is found in the panel system itself
+        switch (picnum)
+        {
+            case FIST_SWING0:
+            case FIST_SWING1:
+            case FIST_SWING2:
+            case FIST2_SWING0:
+            case FIST2_SWING1:
+            case FIST2_SWING2:
+            case FIST3_SWING0:
+            case FIST3_SWING1:
+            case FIST3_SWING2:
+            case BLOODYFIST_SWING0:
+            case BLOODYFIST_SWING1:
+            case BLOODYFIST_SWING2:
+            case BLOODYFIST2_SWING0:
+            case BLOODYFIST2_SWING1:
+            case BLOODYFIST2_SWING2:
+            case BLOODYFIST3_SWING0:
+            case BLOODYFIST3_SWING1:
+            case BLOODYFIST3_SWING2:
+                if (TEST(flags, BIT(2)) && x > 160)
+                    x = 65;
+                else if (!TEST(flags, BIT(2)) && x < 160)
+                    x = 345;
+                break;
+            default:
+                break;
+        }
+
         rotatesprite(x << 16, y << 16,
                      psp->scale, ang,
                      picnum, shade, pal,
