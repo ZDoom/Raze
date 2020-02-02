@@ -101,7 +101,7 @@ void DrawChar (F2DDrawer* drawer, FFont *font, int normalcolor, double x, double
 		{
 			return;
 		}
-		PalEntry color ;
+		PalEntry color = 0xffffffff;
 		parms.remap = font->GetColorTranslation((EColorRange)normalcolor, &color);
 		parms.color = PalEntry((color.a * parms.color.a) / 255, (color.r * parms.color.r) / 255, (color.g * parms.color.g) / 255, (color.b * parms.color.b) / 255);
 		drawer->AddTexture(pic, parms);
