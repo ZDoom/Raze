@@ -71,6 +71,7 @@ void I_Init(void)
 
 void I_SetIWADInfo()
 {
+	FConsoleWindow::GetInstance().SetTitleText();
 }
 
 
