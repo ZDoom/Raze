@@ -88,7 +88,7 @@ add_library( zmusic STATIC
 	zmusic/zmusic.cpp
 	${PLAT_SOURCES}
 	)
-target_link_libraries( zmusic dumb gme timidityplus)
+target_link_libraries( zmusic dumb gme timidityplus "${CMAKE_DL_LIBS}" )
 
 if( NOT DYN_SNDFILE AND SNDFILE_FOUND )
 	include_directories( "${SNDFILE_INCLUDE_DIRS}" )
