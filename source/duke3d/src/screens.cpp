@@ -1153,7 +1153,7 @@ void G_DisplayExtraScreens(void)
 
 void gameDisplay3DRScreen()
 {
-    if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
+    if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
     {
         Net_GetPackets();
 
@@ -1325,7 +1325,7 @@ void G_DisplayLogo(void)
     FX_StopAllSounds(); // JBF 20031228
     S_ClearSoundLocks();  // JBF 20031228
 
-    if (!g_noLogo /* && (!g_netServer && ud.multimode < 2) */ &&
+    if (!g_noLogo && !userConfig.nologo /* && (!g_netServer && ud.multimode < 2) */ &&
         VM_OnEventWithReturn(EVENT_MAINMENUSCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
         (logoflags & LOGO_ENABLED))
     {

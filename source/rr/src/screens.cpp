@@ -1170,7 +1170,7 @@ void G_DisplayLogo(void)
         return;
     if (RR)
     {
-        if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
+        if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
         {
             Net_GetPackets();
             Anim_Play("rr_intro.anm");
@@ -1183,7 +1183,7 @@ void G_DisplayLogo(void)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
+        if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
         {
             Net_GetPackets();
             Anim_Play("redneck.anm");
@@ -1196,7 +1196,7 @@ void G_DisplayLogo(void)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
+        if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
         {
             Net_GetPackets();
             Anim_Play("xatlogo.anm");
@@ -1217,13 +1217,13 @@ void G_DisplayLogo(void)
         videoClearScreen(0L);
         return;
     }
-    if (!g_noLogo /* && (!g_netServer && ud.multimode < 2) */)
+    if (!g_noLogo && !userConfig.nologo /* && (!g_netServer && ud.multimode < 2) */)
     {
 #ifndef EDUKE32_TOUCH_DEVICES
         if (VOLUMEALL)
 #endif
         {
-            if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
+            if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
             {
                 Net_GetPackets();
                 Anim_Play("logo.anm");
@@ -1242,7 +1242,7 @@ void G_DisplayLogo(void)
         //g_player[myconnectindex].ps->palette = drealms;
         //G_FadePalette(0,0,0,252);
 
-        if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
+        if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
         {
             Net_GetPackets();
 

@@ -1438,6 +1438,7 @@ void LogoLevel(void)
     char called;
     int fin;
 
+    if (userConfig.nologo) return;
     DSPRINTF(ds,"LogoLevel...");
     MONO_PRINT(ds);
 
@@ -1690,6 +1691,7 @@ short PlayerQuitMenuLevel = -1;
 
 void IntroAnimLevel(void)
 {
+    if (userConfig.nologo) return;
     DSPRINTF(ds,"IntroAnimLevel");
     MONO_PRINT(ds);
     playanm(0);
