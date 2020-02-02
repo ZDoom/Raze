@@ -476,3 +476,4 @@ struct StringNoCaseHashTraits
 	// Compares two keys, returning zero if they are the same.
 	int Compare(const FString& left, const FString& right) { return left.CompareNoCase(right); }
 };
+

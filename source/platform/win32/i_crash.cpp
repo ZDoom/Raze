@@ -62,6 +62,7 @@
 #include "m_swap.h"
 #include "basics.h"
 #include "zstring.h"
+#include "printf.h"
 
 #include <time.h>
 #include <zlib.h>
@@ -429,7 +430,7 @@ void Writef (HANDLE file, const char *format, ...)
 	DWORD len;
 
 	va_start (args, format);
-	len = snprintf (buffer, sizeof buffer, format, args);
+	len = myvsnprintf (buffer, sizeof buffer, format, args);
 	va_end (args);
 	WriteFile (file, buffer, len, &len, NULL);
 }
@@ -649,16 +650,16 @@ HANDLE WriteTextReport ()
 			break;
 		}
 	}
-	j = snprintf (CrashSummary, countof(CrashSummary), "Code: %08lX", CrashPointers.ExceptionRecord->ExceptionCode);
+	j = mysnprintf (CrashSummary, countof(CrashSummary), "Code: %08lX", CrashPointers.ExceptionRecord->ExceptionCode);
 	if ((size_t)i < sizeof(exceptions)/sizeof(exceptions[0]))
 	{
-		j += snprintf (CrashSummary + j, countof(CrashSummary) - j, " (%s", exceptions[i].Text);
+		j += mysnprintf (CrashSummary + j, countof(CrashSummary) - j, " (%s", exceptions[i].Text);
 		if (CrashPointers.ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
 		{
 			// Pre-NT kernels do not seem to provide this information.
 			if (verinfo.dwPlatformId != VER_PLATFORM_WIN32_WINDOWS)
 			{
-				j += snprintf (CrashSummary + j, countof(CrashSummary) - j,
+				j += mysnprintf (CrashSummary + j, countof(CrashSummary) - j,
 					" - tried to %s address %p",
 					CrashPointers.ExceptionRecord->ExceptionInformation[0] ? "write" : "read",
 					(void *)CrashPointers.ExceptionRecord->ExceptionInformation[1]);
@@ -666,7 +667,7 @@ HANDLE WriteTextReport ()
 		}
 		CrashSummary[j++] = ')';
 	}
-	j += snprintf (CrashSummary + j, countof(CrashSummary) - j, "\r\nAddress: %p", CrashPointers.ExceptionRecord->ExceptionAddress);
+	j += mysnprintf (CrashSummary + j, countof(CrashSummary) - j, "\r\nAddress: %p", CrashPointers.ExceptionRecord->ExceptionAddress);
 	Writef (file, "%s\r\nFlags: %08X\r\n\r\n", CrashSummary, CrashPointers.ExceptionRecord->ExceptionFlags);
 
 	Writef (file, "Windows %s %d.%d Build %d %s\r\n\r\n",
@@ -803,8 +804,8 @@ static void AddToolHelp (HANDLE file)
 	pCreateToolhelp32Snapshot = (CREATESNAPSHOT)GetProcAddress (kernel, "CreateToolhelp32Snapshot");
 	pThread32First = (THREADWALK)GetProcAddress (kernel, "Thread32First");
 	pThread32Next = (THREADWALK)GetProcAddress (kernel, "Thread32Next");
-	pModule32First = (MODULEWALK)GetProcAddress (kernel, "Module32First");
-	pModule32Next = (MODULEWALK)GetProcAddress (kernel, "Module32Next");
+	pModule32First = (MODULEWALK)GetProcAddress (kernel, "Module32FirstW");
+	pModule32Next = (MODULEWALK)GetProcAddress (kernel, "Module32NextW");
 
 	if (!(pCreateToolhelp32Snapshot && pThread32First && pThread32Next &&
 		  pModule32First && pModule32Next))
@@ -849,12 +850,13 @@ static void AddToolHelp (HANDLE file)
 	{
 		do
 		{
+			auto amod = FString(module.szModule);
 			Writef (file, "%p - %p %c%s\r\n",
 				module.modBaseAddr, module.modBaseAddr + module.modBaseSize - 1,
 				module.modBaseAddr <= CrashPointers.ExceptionRecord->ExceptionAddress &&
 				module.modBaseAddr + module.modBaseSize > CrashPointers.ExceptionRecord->ExceptionAddress
 				? '*' : ' ',
-				module.szModule);
+				amod.GetChars());
 		} while (pModule32Next (snapshot, &module));
 	}
 
@@ -1301,15 +1303,15 @@ static void DumpBytes (HANDLE file, uint8_t *address)
 	{
 		if ((i & 15) == 0)
 		{
-			line_p += snprintf (line_p, countof(line) - (line_p - line), "\r\n%p:", address);
+			line_p += mysnprintf (line_p, countof(line) - (line_p - line), "\r\n%p:", address);
 		}
 		if (SafeReadMemory (address, &peek, 1))
 		{
-			line_p += snprintf (line_p, countof(line) - (line_p - line), " %02x", *address);
+			line_p += mysnprintf (line_p, countof(line) - (line_p - line), " %02x", *address);
 		}
 		else
 		{
-			line_p += snprintf (line_p, countof(line) - (line_p - line), " --");
+			line_p += mysnprintf (line_p, countof(line) - (line_p - line), " --");
 		}
 		address++;
 	}
@@ -2065,7 +2067,7 @@ repeat:
 	switch (info->Stage)
 	{
 	case 0:		// Write prologue
-		buff_p += snprintf (buff_p, buff_end - buff_p, "{\\rtf1\\ansi\\deff0"
+		buff_p += mysnprintf (buff_p, buff_end - buff_p, "{\\rtf1\\ansi\\deff0"
 			"{\\colortbl ;\\red0\\green0\\blue80;\\red0\\green0\\blue0;\\red80\\green0\\blue80;}"
 			"\\viewkind4\\pard");
 		info->Stage++;
@@ -2081,7 +2083,7 @@ repeat:
 				goto repeat;
 			}
 			char *linestart = buff_p;
-			buff_p += snprintf (buff_p, buff_end - buff_p, "\\cf1 %08lx:\\cf2 ", info->Pointer);
+			buff_p += mysnprintf (buff_p, buff_end - buff_p, "\\cf1 %08lx:\\cf2 ", info->Pointer);
 			info->Pointer += read;
 
 			for (i = 0; i < read;)
@@ -2090,12 +2092,12 @@ repeat:
 				{
 					DWORD d;
 					memcpy(&d, &buf16[i], sizeof(d));
-					buff_p += snprintf (buff_p, buff_end - buff_p, " %08lx", d);
+					buff_p += mysnprintf (buff_p, buff_end - buff_p, " %08lx", d);
 					i += 4;
 				}
 				else
 				{
-					buff_p += snprintf (buff_p, buff_end - buff_p, " %02x", buf16[i]);
+					buff_p += mysnprintf (buff_p, buff_end - buff_p, " %02x", buf16[i]);
 					i += 1;
 				}
 			}
@@ -2103,7 +2105,7 @@ repeat:
 			{
 				*buff_p++ = ' ';
 			}
-			buff_p += snprintf (buff_p, buff_end - buff_p, "\\cf3 ");
+			buff_p += mysnprintf (buff_p, buff_end - buff_p, "\\cf3 ");
 			for (i = 0; i < read; ++i)
 			{
 				uint8_t code = buf16[i];
@@ -2111,17 +2113,17 @@ repeat:
 				if (code == '\\' || code == '{' || code == '}') *buff_p++ = '\\';
 				*buff_p++ = code;
 			}
-			buff_p += snprintf (buff_p, buff_end - buff_p, "\\par\r\n");
+			buff_p += mysnprintf (buff_p, buff_end - buff_p, "\\par\r\n");
 		}
 		break;
 
 	case 2:		// Write epilogue
-		buff_p += snprintf (buff_p, buff_end - buff_p, "\\cf0 }");
+		buff_p += mysnprintf (buff_p, buff_end - buff_p, "\\cf0 }");
 		info->Stage = 4;
 		break;
 
 	case 3:		// Write epilogue for truncated file
-		buff_p += snprintf (buff_p, buff_end - buff_p, "--- Rest of file truncated ---\\cf0 }");
+		buff_p += mysnprintf (buff_p, buff_end - buff_p, "--- Rest of file truncated ---\\cf0 }");
 		info->Stage = 4;
 		break;
 
@@ -2161,11 +2163,11 @@ static void SetEditControl (HWND edit, HWND sizedisplay, int filenum)
 	size = GetFileSize (TarFiles[filenum].File, NULL);
 	if (size < 1024)
 	{
-		snprintf (sizebuf, countof(sizebuf), "(%lu bytes)", size);
+		mysnprintf (sizebuf, countof(sizebuf), "(%lu bytes)", size);
 	}
 	else
 	{
-		snprintf (sizebuf, countof(sizebuf), "(%lu KB)", size/1024);
+		mysnprintf (sizebuf, countof(sizebuf), "(%lu KB)", size/1024);
 	}
 	SetWindowTextA (sizedisplay, sizebuf);
 
@@ -2289,7 +2291,7 @@ void DisplayCrashLog ()
 			GAMENAME" crashed but was unable to produce\n"
 			"detailed information about the crash.\n"
 			"\nThis is all that is available:\n\nCode=XXXXXXXX\nAddr=XXXXXXXX";
-		snprintf (ohPoo + countof(ohPoo) - 23, 23, "%08lX\nAddr=%p", CrashCode, CrashAddress);
+		mysnprintf (ohPoo + countof(ohPoo) - 23, 23, "%08lX\nAddr=%p", CrashCode, CrashAddress);
 		MessageBoxA (NULL, ohPoo, GAMENAME" Very Fatal Error", MB_OK|MB_ICONSTOP);
 		if (WinHlp32 != NULL)
 		{

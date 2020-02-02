@@ -1,16 +1,19 @@
 #pragma once
 
-// This header collects all things printf.
-// EDuke32 had two totally separate output paths and all the added code from G/ZDoom uses yet another means.
-// Everything goes to the console now, but to avoid changing everything, this redirects all output to the console, with the proper settings.
-// Changing all this would mean altering over 1000 lines of code which would add a needless complication to merging from upstream.
-
-
 #if defined __GNUC__ || defined __clang__
 # define ATTRIBUTE(attrlist) __attribute__(attrlist)
 #else
 # define ATTRIBUTE(attrlist)
 #endif
+
+
+// This header collects all things printf.
+// EDuke32 had two totally separate output paths and all the added code from G/ZDoom uses yet another means.
+// Everything goes to the console now, but to avoid changing everything, this redirects all output to the console, with the proper settings.
+// Changing all this would mean altering over 1000 lines of code which would add a needless complication to merging from upstream.
+
+extern "C" int mysnprintf(char* buffer, size_t count, const char* format, ...) ATTRIBUTE((format(printf, 3, 4)));
+extern "C" int myvsnprintf(char* buffer, size_t count, const char* format, va_list argptr) ATTRIBUTE((format(printf, 3, 0)));
 
 // game print flags
 enum
