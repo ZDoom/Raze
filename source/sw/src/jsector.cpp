@@ -979,7 +979,7 @@ JAnalyzeSprites(tspriteptr_t tspr)
     //if (bVoxelsOn)
     if (r_voxels)
     {
-        if (aVoxelArray[tspr->picnum].Voxel >= 0)
+        if (aVoxelArray[tspr->picnum].Voxel >= 0 && !(spriteext[tspr->owner].flags & SPREXT_NOTMD))
         {
             // Turn on voxels
             tspr->picnum = aVoxelArray[tspr->picnum].Voxel;     // Get the voxel number
@@ -991,6 +991,12 @@ JAnalyzeSprites(tspriteptr_t tspr)
         switch (tspr->picnum)
         {
         case 764: // Gun barrel
+
+            if (!r_voxels || (spriteext[tspr->owner].flags & SPREXT_NOTMD))
+            {
+                tspr->cstat |= 16;
+                break;
+            }
 
             if (aVoxelArray[tspr->picnum].Voxel >= 0)
             {
