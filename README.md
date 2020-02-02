@@ -1,22 +1,31 @@
-# PCExhumed
-A port of the PC version of Exhumed based on EDuke32
+# Welcome to Raze!
 
-## Installing
-1. Extract PCExhumed to a new directory
-2. Copy the following files from the PC retail version of Exhumed or PowerSlave (Exhumed preferred). Beta, demo or pre-release versions not supported.
+(This line is reserved for CI badges)
 
-   STUFF.DAT
-   DEMO.VCR
-   BOOK.MOV
+## Raze is a fork of EDuke32 backed by GZDoom tech and combines EDuke32, PCExhumed, NBlood, and RedNukem in a single package.
 
-CD audio tracks are not yet working.
-The intro movie is not yet working with audio.
-Demo playback is not yet working.
+Copyright (c) 1998-2020 ZDoom + GZDoom teams, and contributors
 
-3. Launch PCExhumed
+Doom Source (c) 1997 id Software, Raven Software, and contributors
 
-## Building PCExhumed
-See: https://wiki.eduke32.com/wiki/Main_Page
+EDuke32 Source (c) 2005-2020 EDuke32 teams, and contributors
 
-## Acknowledgments:
-  See AUTHORS.md
+Duke Nukem 3D Source (c) 1996-2003 3D Realms
+
+Shadow Warrior Source (c) 1997-2005 3D Realms
+
+"Build Engine & Tools" Copyright (c) 1993-1997 Ken Silverman
+Ken Silverman's official web site: http://www.advsys.net/ken
+See the included license file "BUILDLIC.TXT" for license info.
+
+Please see license files for individual contributor licenses
+
+Special thanks to Coraline of the 3DGE team for allowing us to use her README.md as a template for this one.
+
+### Licensed under the GPL v2
+##### https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+---
+
+## How to build Raze
+
+To build Raze, please see the [wiki](https://zdoom.org/wiki/) and see the "Programmer's Corner" on the bottom-right corner of the page to build for your platform - use this repository instead of GZDoom's.
