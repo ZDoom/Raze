@@ -113,6 +113,8 @@ SWBOOL MNU_StartNetGame(void);
 
 extern SWBOOL MultiPlayQuitFlag;
 
+extern int sw_snd_scratch;
+
 
 #if DEBUG
 #define BETA 0
@@ -2772,7 +2774,8 @@ int32_t GameInterface::app_main()
     else
         buildputs("SHADOW WARRIOR(tm) Version 1.2\n");
 
-    buildputs("Copyright (c) 1997 3D Realms Entertainment\n");
+    if (sw_snd_scratch == 0)    // This is always 0 at this point - this check is only here to prevent whole program optimization from eliminating the variable.
+        buildputs("Copyright (c) 1997 3D Realms Entertainment\n");
 
     UserMapName[0] = '\0';
 

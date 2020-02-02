@@ -876,10 +876,17 @@ DoActorDecide(short SpriteNum)
     return 0;
 }
 
+// Important note: The functions below are being checked for as state identifiers.
+// But they are all identical content wise which makes MSVC merge them together into one.
+// Assigning 'sw_snd_scratch' different values makes them different so that merging does not occur.
+int sw_snd_scratch = 0;
+
+
 int
 InitActorAlertNoise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
+    sw_snd_scratch = 1;
     // MONO_PRINT(strcpy(ds,"Init Actor Threat Noise"));
 
     // make some sort of noise here
@@ -895,6 +902,7 @@ int
 InitActorAmbientNoise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
+    sw_snd_scratch = 2;
 
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
@@ -910,6 +918,7 @@ int
 InitActorAttackNoise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
+    sw_snd_scratch = 3;
 
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
@@ -925,6 +934,7 @@ int
 InitActorPainNoise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
+    sw_snd_scratch = 4;
 
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
@@ -940,6 +950,7 @@ int
 InitActorDieNoise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
+    sw_snd_scratch = 5;
 
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
@@ -955,7 +966,7 @@ int
 InitActorExtra1Noise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-
+    sw_snd_scratch = 6;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
     // make some sort of noise here
@@ -970,7 +981,7 @@ int
 InitActorExtra2Noise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-
+    sw_snd_scratch = 7;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
     // make some sort of noise here
@@ -985,7 +996,7 @@ int
 InitActorExtra3Noise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-
+    sw_snd_scratch = 8;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
     // make some sort of noise here
@@ -1000,7 +1011,7 @@ int
 InitActorExtra4Noise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-
+    sw_snd_scratch = 9;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
     // make some sort of noise here
@@ -1015,7 +1026,7 @@ int
 InitActorExtra5Noise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-
+    sw_snd_scratch = 10;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
     // make some sort of noise here
@@ -1030,7 +1041,7 @@ int
 InitActorExtra6Noise(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-
+    sw_snd_scratch = 11;
     // MONO_PRINT(strcpy(ds,"Init Actor Move Noise"));
 
     // make some sort of noise here
