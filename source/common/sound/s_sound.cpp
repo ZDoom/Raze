@@ -1735,16 +1735,34 @@ void SoundEngine::AddRandomSound(int Owner, TArray<uint32_t> list)
 }
 
 extern ReverbContainer* ForcedEnvironment;
+static int LastReverb;
 
-CVAR(Bool, snd_reverb, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+CUSTOM_CVAR(Bool, snd_reverb, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+{
+	FX_SetReverb(-1);
+}
+
+// This is for testing reverb settings.
+CUSTOM_CVAR(Int, snd_reverbtype, -1, 0)
+{
+	FX_SetReverb(-1);
+}
+
 void FX_SetReverb(int strength)
 {
-	if (snd_reverb && strength > 0)
+	if (strength == -1) strength = LastReverb;
+	if (snd_reverbtype > -1) 
+	{
+		strength = snd_reverbtype;
+		ForcedEnvironment = S_FindEnvironment(strength);
+	}
+	else if (snd_reverb && strength > 0)
 	{
 		// todo: optimize environments. The original "reverb" was garbage and not usable as reference.
 		if (strength < 64) strength = 0x1400;
-		else if (strength < 192) strength = 0x1500;
+		else if (strength < 192) strength = 0x1503;
 		else strength = 0x1900;
+		LastReverb = strength;
 		ForcedEnvironment = S_FindEnvironment(strength);
 	}
 	else ForcedEnvironment = nullptr;
