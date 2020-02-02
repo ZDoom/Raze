@@ -318,7 +318,7 @@ public:
 		Next = FirstFont;
 		FirstFont = this;
 		FontHeight = 18;
-		SpaceWidth = 10;
+		SpaceWidth = 9;
 		GlobalKerning = -1;
 		translateUntranslated = true;
 

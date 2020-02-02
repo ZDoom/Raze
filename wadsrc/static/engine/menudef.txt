@@ -1753,9 +1753,12 @@ OptionMenu "EngineCredits"
 	StaticText "Developer"
 	StaticText "Christoph Oelckers", 0
 	StaticText " "
-	StaticText "Special thanks to"
+	StaticText "With contributions by"
 	StaticText "Rachael Alexanderson", 0
 	StaticText "Magnus Norddahl", 0
+	StaticText "Alexey Lysiuk", 0
+	StaticText " "
+	StaticText "Special thanks to"
 	StaticText "Nigel Rowand", 0
 	StaticText "Martin Howe", 0
 	StaticText "Nash Muhandes", 0
@@ -1766,7 +1769,7 @@ OptionMenu "EngineCredits"
 OptionMenu "EngineCredits2"
 {
 	title "$MNU_CREDITS"
-	Submenu " <----", "EngineCredits"
+	Submenu " ---->", "EngineCredits2a"
 	StaticText "EDuke32 / VoidSW"
 	StaticText "Richard \"TerminX\" Gobeille", 0
 	StaticText "Evan \"Hendricks266\" Ramos", 0
@@ -1775,9 +1778,17 @@ OptionMenu "EngineCredits2"
 	StaticText "Retired developers"
 	StaticText "Pierre-Loup \"Plagman\" Griffais", 0
 	StaticText "Philipp \"Helixhorned\" Kutin", 0
-	StaticText ""
+}
+
+OptionMenu "EngineCredits2a"
+{
+	title "$MNU_CREDITS"
+	Submenu " ---->", "EngineCredits3"
 	StaticText "RedNukem / NBlood"
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
+	StaticText ""
+	StaticText "SWP"
+	StaticText "Ben \"ProAsm\" Smit", 0
 	StaticText ""
 	StaticText "PCExhumed"
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
@@ -1787,4 +1798,23 @@ OptionMenu "EngineCredits2"
     StaticText "Jonathon \"JonoF\" Fowler", 0
 }
 	
+OptionMenu "EngineCredits3"
+{
+	title "$MNU_CREDITS"
+	Submenu " ---->", "EngineCredits"
+	StaticText "The EDuke32 team thanks the following people"
+	StaticText "for their contributions:"
+	
+	StaticText "Alexey Skrybykin  Bioman            Brandon Bergren  ", 0
+	StaticText "Charlie Honig     Dan Gaskill       David Koenig     ", 0
+	StaticText "Ed Coolidge       Emile Belanger    Fox              ", 0
+	StaticText "Hunter_rus        James Bentler     Jasper Foreman   ", 0
+	StaticText "Javier Martinez   Jeff Hart         Jonathan Strander", 0
+	StaticText "Jordon Moss       Jose del Castillo Lachlan McDonald ", 0
+	StaticText "LSDNinja          Marcus Herbert    Matthew Palmer   ", 0
+	StaticText "Matt Saettler     NY00123           Ozkan Sezer      ", 0
+	StaticText "Peter Green       Peter Veenstra    Robin Green      ", 0
+	StaticText "Ryan Gordon       Stephen Anthony   tueidj           ", 0
+	StaticText "Pär \"Parkar\" Karlsson", 0
+}
 	
