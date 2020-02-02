@@ -86,10 +86,6 @@ void _consoleSysMsg(const char* pMessage, ...);
 // defined by NoOne:
 // -------------------------------
 
-/////////////////////////////////////////////////////////////
-#define NOONE_EXTENSIONS 1
-////////////////////////////////////////////////////////////
-
 #define kMaxPAL 5
 #define kUserPLUStart  15
 
