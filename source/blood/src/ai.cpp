@@ -167,7 +167,6 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
         if (pXSector->Depth)
             Depth = 1;
         if (sector[nSector].type == kSectorDamage || pXSector->damageType > 0) {
-            #ifdef NOONE_EXTENSIONS
             // a quick fix for Cerberus spinning in E3M7-like maps, where damage sectors is used.
             // It makes ignore danger if enemy immune to N damageType. As result Cerberus start acting like
             // in Blood 1.0 so it can move normally to player. It's up to you for adding rest of enemies here as
@@ -175,16 +174,17 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
             switch (pSprite->type) {
                 case kDudeCerberusTwoHead: // Cerberus
                 case kDudeCerberusOneHead: // 1 Head Cerberus
-                    if (VanillaMode() || !isImmune(pSprite, pXSector->damageType))
+                    if (VanillaMode()
+                        #ifdef NOONE_EXTENSIONS
+                        || !isImmune(pSprite, pXSector->damageType)
+                        #endif
+                       )
                         Crusher = 1;
                     break;
                 default:
                     Crusher = 1;
                     break;
             }
-            #else
-                Crusher = 1;
-            #endif
         }
     }
     int nUpper = gUpperLink[nSector];
