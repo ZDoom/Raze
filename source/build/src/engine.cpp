@@ -7585,7 +7585,7 @@ void renderDrawMasks(void)
         const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
         const int32_t yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
 #ifdef USE_OPENGL
-        const int32_t modelp = (hw_models && tile2model[tspriteptr[i]->picnum].modelid >= 0);
+        const int32_t modelp = polymost_spriteIsModelOrVoxel(tspriteptr[i]);
 #endif
 
         if (yp > (4<<8))
@@ -7657,7 +7657,8 @@ killsprite:
             {
                 if (j < numSprites)
                 {
-                    if (py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang))
+                    if (py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
+                        && !polymost_spriteIsModelOrVoxel(tspriteptr[j]))
                         continue;
                     py = spritesxyz[j].y;
                     pcstat = (tspriteptr[j]->cstat & 48);

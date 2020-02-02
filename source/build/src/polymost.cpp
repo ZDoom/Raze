@@ -352,6 +352,20 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
 	return tex && tex->GetTranslucency();
 }
 
+int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr)
+{
+    if (hw_models && tile2model[Ptile2tile(tspr->picnum, tspr->pal)].modelid >= 0 &&
+        tile2model[Ptile2tile(tspr->picnum, tspr->pal)].framenum >= 0)
+        return true;
+
+    if (r_voxels && (tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
+        return true;
+
+    if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && voxmodels[tspr->picnum])
+        return true;
+
+    return false;
+}
 
 static void polymost_updaterotmat(void)
 {
@@ -3879,7 +3893,7 @@ void polymost_drawsprite(int32_t snum)
         break;
     }
 
-    vec2_t pos = tspr->pos.vec2;
+    vec3_t pos = tspr->pos;
 
     if (spriteext[spritenum].flags & SPREXT_AWAY1)
     {
@@ -3929,7 +3943,7 @@ void polymost_drawsprite(int32_t snum)
                 goto _drawsprite_return;
 
             float const ryp0 = 1.f / p0.y;
-            s0 = { ghalfx * p0.x * ryp0 + ghalfx, ((float)(tspr->z - globalposz)) * gyxscale * ryp0 + ghoriz };
+            s0 = { ghalfx * p0.x * ryp0 + ghalfx, ((float)(pos.z - globalposz)) * gyxscale * ryp0 + ghoriz };
 
             float const f = ryp0 * fxdimen * (1.0f / 160.f);
 
@@ -4129,14 +4143,14 @@ void polymost_drawsprite(int32_t snum)
             const float ryp1 = f * gyxscale;
             float sx1 = ghalfx * p1.x * f + ghalfx;
 
-            tspr->z -= ((off.y * tspr->yrepeat) << 2);
+            pos.z -= ((off.y * tspr->yrepeat) << 2);
 
             if (globalorientation & 128)
             {
-                tspr->z += ((tsiz.y * tspr->yrepeat) << 1);
+                pos.z += ((tsiz.y * tspr->yrepeat) << 1);
 
                 if (tsiz.y & 1)
-                    tspr->z += (tspr->yrepeat << 1);  // Odd yspans
+                    pos.z += (tspr->yrepeat << 1);  // Odd yspans
             }
 
             xtex.d = (ryp0 - ryp1) * gxyaspect / (sx0 - sx1);
@@ -4164,10 +4178,10 @@ void polymost_drawsprite(int32_t snum)
 
             f = ((float) tspr->yrepeat) * ftsiz.y * 4;
 
-            float sc0 = ((float) (tspr->z - globalposz - f)) * ryp0 + ghoriz;
-            float sc1 = ((float) (tspr->z - globalposz - f)) * ryp1 + ghoriz;
-            float sf0 = ((float) (tspr->z - globalposz)) * ryp0 + ghoriz;
-            float sf1 = ((float) (tspr->z - globalposz)) * ryp1 + ghoriz;
+            float sc0 = ((float) (pos.z - globalposz - f)) * ryp0 + ghoriz;
+            float sc1 = ((float) (pos.z - globalposz - f)) * ryp1 + ghoriz;
+            float sf0 = ((float) (pos.z - globalposz)) * ryp0 + ghoriz;
+            float sf1 = ((float) (pos.z - globalposz)) * ryp1 + ghoriz;
 
             // gvx*sx0 + gvy*sc0 + gvo = 0
             // gvx*sx1 + gvy*sc1 + gvo = 0
@@ -4200,7 +4214,7 @@ void polymost_drawsprite(int32_t snum)
             // Clip sprites to ceilings/floors when no parallaxing
             if (!(sector[tspr->sectnum].ceilingstat & 1))
             {
-                if (sector[tspr->sectnum].ceilingz > tspr->z - (float)((tspr->yrepeat * tsiz.y) << 2))
+                if (sector[tspr->sectnum].ceilingz > pos.z - (float)((tspr->yrepeat * tsiz.y) << 2))
                 {
                     sc0 = (float)(sector[tspr->sectnum].ceilingz - globalposz) * ryp0 + ghoriz;
                     sc1 = (float)(sector[tspr->sectnum].ceilingz - globalposz) * ryp1 + ghoriz;
@@ -4208,7 +4222,7 @@ void polymost_drawsprite(int32_t snum)
             }
             if (!(sector[tspr->sectnum].floorstat & 1))
             {
-                if (sector[tspr->sectnum].floorz < tspr->z)
+                if (sector[tspr->sectnum].floorz < pos.z)
                 {
                     sf0 = (float)(sector[tspr->sectnum].floorz - globalposz) * ryp0 + ghoriz;
                     sf1 = (float)(sector[tspr->sectnum].floorz - globalposz) * ryp1 + ghoriz;
@@ -4242,7 +4256,7 @@ void polymost_drawsprite(int32_t snum)
                 globvis2 = mulscale4(globvis2, (uint8_t)(sector[tspr->sectnum].visibility + 16));
 			GLInterface.SetVisibility(globvis2, fviewingrange);
 
-            if ((globalorientation & 64) != 0 && (globalposz > tspr->z) == (!(globalorientation & 8)))
+            if ((globalorientation & 64) != 0 && (globalposz > pos.z) == (!(globalorientation & 8)))
                 goto _drawsprite_return;
             else
             {
@@ -4290,7 +4304,7 @@ void polymost_drawsprite(int32_t snum)
                     pxy[j] = { s0.y * gcosang - s0.x * gsinang, s0.x * gcosang2 + s0.y * gsinang2 };
                 }
 
-                if (tspr->z < globalposz)  // if floor sprite is above you, reverse order of points
+                if (pos.z < globalposz)  // if floor sprite is above you, reverse order of points
                 {
                     EDUKE32_STATIC_ASSERT(sizeof(uint64_t) == sizeof(vec2f_t));
 
@@ -4324,13 +4338,13 @@ void polymost_drawsprite(int32_t snum)
                 int fadjust = 0;
 
                 // unfortunately, offsetting by only 1 isn't enough on most Android devices
-                if (tspr->z == sec->ceilingz || tspr->z == sec->ceilingz + 1)
-                    tspr->z = sec->ceilingz + 2, fadjust = (tspr->owner & 31);
+                if (pos.z == sec->ceilingz || pos.z == sec->ceilingz + 1)
+                    pos.z = sec->ceilingz + 2, fadjust = (tspr->owner & 31);
 
-                if (tspr->z == sec->floorz || tspr->z == sec->floorz - 1)
-                    tspr->z = sec->floorz - 2, fadjust = -((tspr->owner & 31));
+                if (pos.z == sec->floorz || pos.z == sec->floorz - 1)
+                    pos.z = sec->floorz - 2, fadjust = -((tspr->owner & 31));
 
-                float f = (float)(tspr->z - globalposz + fadjust) * gyxscale;
+                float f = (float)(pos.z - globalposz + fadjust) * gyxscale;
 
                 for (bssize_t j = 0; j < npoints; j++)
                 {
@@ -4341,7 +4355,7 @@ void polymost_drawsprite(int32_t snum)
                 // gd? Copied from floor rendering code
 
                 xtex.d = 0;
-                ytex.d = gxyaspect / (double)(tspr->z - globalposz + fadjust);
+                ytex.d = gxyaspect / (double)(pos.z - globalposz + fadjust);
                 otex.d = -ghoriz * ytex.d;
 
                 // copied&modified from relative alignment
