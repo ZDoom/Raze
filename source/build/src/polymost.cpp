@@ -354,6 +354,10 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
 
 int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr)
 {
+    if (spriteext[tspr->owner].flags&SPREXT_NOTMD)
+        return false;
+
+
     if (hw_models && tile2model[Ptile2tile(tspr->picnum, tspr->pal)].modelid >= 0 &&
         tile2model[Ptile2tile(tspr->picnum, tspr->pal)].framenum >= 0)
         return true;
