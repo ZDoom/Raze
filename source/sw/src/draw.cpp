@@ -1994,19 +1994,6 @@ SWBOOL PicInView(short, SWBOOL);
 void DoPlayerDiveMeter(PLAYERp pp);
 void MoveScrollMode2D(PLAYERp pp);
 
-
-static inline int32_t calc_smoothratio_demo(ClockTicks totalclk, ClockTicks ototalclk)
-{
-    const int TICRATE = 120;
-    const int REALGAMETICSPERSEC = TICRATE / synctics;
-
-    int32_t rfreq = (refreshfreq != -1 ? refreshfreq : 60);
-    double elapsedTime = (totalclk - ototalclk).toScale16F();
-    double elapsedFrames = elapsedTime * rfreq * (1. / TICRATE);
-    double ratio = (elapsedFrames * REALGAMETICSPERSEC) / rfreq;
-    return clamp(xs_RoundToInt(ratio * 65536), 0, 65536);
-}
-
 void
 drawscreen(PLAYERp pp)
 {
@@ -2076,7 +2063,7 @@ drawscreen(PLAYERp pp)
     PreUpdatePanel();
 
 
-    smoothratio = calc_smoothratio_demo(totalclock, ototalclock);
+    smoothratio = CalcSmoothRatio(totalclock, ototalclock, 120 / synctics);
 
     if (!ScreenSavePic)
     {

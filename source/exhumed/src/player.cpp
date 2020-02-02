@@ -249,7 +249,7 @@ void PlayerInterruptKeys()
         }
 
         //if ((counter++) % 4 == 0) // what was this for???
-            q16avel += fix16_from_int(turn);
+            q16avel += fix16_from_int(turn*2);
 
     }
 

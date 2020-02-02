@@ -879,3 +879,16 @@ void debugprintf(const char* f, ...)
 	I_DebugPrint(out);
 }
 
+int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int realgameticspersec)
+{
+	const double TICRATE = 120.;
+
+	double rfreq = (refreshfreq != -1 ? refreshfreq : 60);
+	rfreq = rfreq * TICRATE / timerGetClockRate();
+
+	double elapsedTime = (totalclk - ototalclk).toScale16F();
+	double elapsedFrames = elapsedTime * rfreq * (1. / TICRATE);
+	double ratio = (elapsedFrames * realgameticspersec) / rfreq;
+	return clamp(xs_RoundToInt(ratio * 65536), 0, 65536);
+}
+
