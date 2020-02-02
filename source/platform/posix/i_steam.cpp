@@ -152,6 +152,7 @@ const char *AppInfo[] =
 	"Duke Nukem 3D/gameroot/addons/vacation",
 	"World War II GI/WW2GI",
 	"Shadow Warrior Classic/gameroot",
+	"Shadow Warrior Classic/gameroot/addons",
 	"Shadow Warrior Original/gameroot",
 	"Ion Fury",
 	"Blood",
