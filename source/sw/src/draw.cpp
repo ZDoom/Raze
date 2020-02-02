@@ -750,6 +750,15 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                 }
             }
 
+            // workaround for mines beneath the floor
+            if (tsp->picnum == BETTY_R0)
+            {
+                auto sp = (uspriteptr_t)&sprite[SpriteNum];
+                int32_t const floorz = getflorzofslope(sp->sectnum, sp->x, sp->y);
+                if (sp->z > floorz)
+                    tsp->z = floorz;
+            }
+
             if (r_shadows && TEST(tu->Flags, SPR_SHADOW))
             {
                 DoShadows(tsp, viewz);
