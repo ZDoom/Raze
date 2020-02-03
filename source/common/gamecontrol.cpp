@@ -56,9 +56,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resourcefile.h"
 #include "c_dispatch.h"
 #include "glbackend/glbackend.h"
-#ifndef NETCODE_DISABLE
-#include "enet.h"
-#endif
 
 MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
 MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
@@ -77,7 +74,8 @@ int ShowStartupWindow(TArray<GrpEntry> &);
 FString GetGameFronUserFiles();
 void InitFileSystem(TArray<GrpEntry>&);
 void I_SetWindowTitle(const char* caption);
-bool gHaveNetworking;
+void InitENet();
+void ShutdownENet();
 bool AppActive;
 
 FString currentGame;
@@ -381,9 +379,7 @@ int GameMain()
 		delete gi;
 		gi = nullptr;
 	}
-#ifndef NETCODE_DISABLE
-	if (gHaveNetworking) enet_deinitialize();
-#endif
+	InitENet();
 	DeleteStartupScreen();
 	if (Args) delete Args;
 	return r;
@@ -598,13 +594,7 @@ int RunGame()
 	SetClipshapes();
 	userConfig.ProcessOptions();
 	G_LoadConfig();
-
-#ifndef NETCODE_DISABLE
-	gHaveNetworking = !enet_initialize();
-	if (!gHaveNetworking)
-		initprintf("An error occurred while initializing ENet.\n");
-#endif
-
+	ShutdownENet();
 	auto usedgroups = SetupGame();
 
 
