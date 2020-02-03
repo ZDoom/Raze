@@ -457,7 +457,6 @@ typedef ssize_t bssize_t;
 #define Bmalloc malloc
 #define Bcalloc calloc
 #define Brealloc realloc
-#define Bfree free
 
 #define Bstrcpy strcpy
 #define Bstrncpy strncpy
@@ -731,7 +730,7 @@ static FORCE_INLINE void *Baligned_alloc(const size_t alignment, const size_t si
 #if defined _WIN32 && !defined NO_ALIGNED_MALLOC
 # define Baligned_free _aligned_free
 #else
-# define Baligned_free Bfree
+# define Baligned_free free
 #endif
 
 
@@ -1039,17 +1038,8 @@ static FORCE_INLINE void *xrealloc(void * const ptr, const bsize_t size)
     return (EDUKE32_PREDICT_TRUE(newptr != NULL || size == 0)) ? newptr: handle_memerr(ptr);
 }
 
-#if EDUKE32_GCC_PREREQ(6,0)
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wtautological-compare"
-#endif
-// This will throw up when BFree is no longer usable, I do not want to change all code right now that uses it to make future merges easier.
-static_assert(Bfree == free, "BFree must be free");
-#if EDUKE32_GCC_PREREQ(6,0)
-# pragma GCC diagnostic pop
-#endif
 
-static FORCE_INLINE void xfree(void *const ptr) { Bfree(ptr); }
+static FORCE_INLINE void xfree(void *const ptr) { free(ptr); }
 
 static FORCE_INLINE void xaligned_free(void *const ptr) { Baligned_free(ptr); }
 
