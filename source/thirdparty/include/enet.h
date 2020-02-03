@@ -487,11 +487,11 @@ extern "C" {
      * but not for enet_host_create.  Once a server responds to a broadcast, the
      * address is updated from ENET_HOST_BROADCAST to the server's actual IP address.
      */
-    typedef struct _ENetAddress {
+    struct ENetAddress {
         struct in6_addr host;
         enet_uint16 port;
         enet_uint16 sin6_scope_id;
-    } ENetAddress;
+    };
 
     #define in6_equal(in6_addr_a, in6_addr_b) (memcmp(&in6_addr_a, &in6_addr_b, sizeof(struct in6_addr)) == 0)
 
@@ -530,14 +530,14 @@ extern "C" {
      *    ENET_PACKET_FLAG_SENT - whether the packet has been sent from all queues it has been entered into
      * @sa ENetPacketFlag
      */
-    typedef struct _ENetPacket {
+    struct ENetPacket {
         size_t                 referenceCount; /**< internal use only */
         enet_uint32            flags;          /**< bitwise-or of ENetPacketFlag constants */
         enet_uint8 *           data;           /**< allocated data for packet */
         size_t                 dataLength;     /**< length of data */
         ENetPacketFreeCallback freeCallback;   /**< function to be called when the packet is no longer in use */
         void *                 userData;       /**< application private data, may be freely modified */
-    } ENetPacket;
+    };
 
     typedef struct _ENetAcknowledgement {
         ENetListNode acknowledgementList;
@@ -629,9 +629,9 @@ extern "C" {
      *
      * No fields should be modified unless otherwise specified.
      */
-    typedef struct _ENetPeer {
+    struct ENetPeer {
         ENetListNode      dispatchList;
-        struct _ENetHost *host;
+        struct ENetHost *host;
         enet_uint16       outgoingPeerID;
         enet_uint16       incomingPeerID;
         enet_uint32       connectID;
@@ -694,7 +694,7 @@ extern "C" {
         enet_uint32       unsequencedWindow[ENET_PEER_UNSEQUENCED_WINDOW_SIZE / 32];
         enet_uint32       eventData;
         size_t            totalWaitingData;
-    } ENetPeer;
+    };
 
     /** An ENet packet compressor for compressing UDP packets before socket sends or receives. */
     typedef struct _ENetCompressor {
@@ -715,7 +715,7 @@ extern "C" {
     typedef enet_uint32 (ENET_CALLBACK * ENetChecksumCallback)(const ENetBuffer *buffers, size_t bufferCount);
 
     /** Callback for intercepting received raw UDP packets. Should return 1 to intercept, 0 to ignore, or -1 to propagate an error. */
-    typedef int (ENET_CALLBACK * ENetInterceptCallback)(struct _ENetHost *host, void *event);
+    typedef int (ENET_CALLBACK * ENetInterceptCallback)(struct ENetHost *host, void *event);
 
     /** An ENet host for communicating with peers.
      *
@@ -732,7 +732,7 @@ extern "C" {
      *  @sa enet_host_bandwidth_limit()
      *  @sa enet_host_bandwidth_throttle()
      */
-    typedef struct _ENetHost {
+    struct ENetHost {
         ENetSocket            socket;
         ENetAddress           address;           /**< Internet address of the host */
         enet_uint32           incomingBandwidth; /**< downstream bandwidth of the host */
@@ -769,7 +769,7 @@ extern "C" {
         size_t                duplicatePeers;     /**< optional number of allowed peers from duplicate IPs, defaults to ENET_PROTOCOL_MAXIMUM_PEER_ID */
         size_t                maximumPacketSize;  /**< the maximum allowable packet size that may be sent or received on a peer */
         size_t                maximumWaitingData; /**< the maximum aggregate amount of buffer space a peer may use waiting for packets to be delivered */
-    } ENetHost;
+    };
 
     /**
      * An ENet event type, as specified in @ref ENetEvent.
@@ -811,13 +811,13 @@ extern "C" {
      *
      * @sa enet_host_service
      */
-    typedef struct _ENetEvent {
+    struct ENetEvent {
         ENetEventType type;      /**< type of the event */
         ENetPeer *    peer;      /**< peer that generated a connect, disconnect or receive event */
         enet_uint8    channelID; /**< channel on the peer that generated the event, if appropriate */
         enet_uint32   data;      /**< data associated with the event, if appropriate */
         ENetPacket *  packet;    /**< packet associated with the event, if appropriate */
-    } ENetEvent;
+    };
 
 // =======================================================================//
 // !

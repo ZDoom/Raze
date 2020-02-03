@@ -31,7 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define EDUKE32_UNUSED
 #endif
 
-#include "enet.h"
+struct ENetHost;
+struct ENetPeer;
+struct ENetAddress;
 
 BEGIN_DUKE_NS
 
@@ -44,7 +46,7 @@ extern ENetPeer       *g_netClientPeer;
 extern char           g_netPassword[32];
 extern int32_t        g_netDisconnect;
 extern int32_t        g_netPlayersWaiting;
-extern enet_uint16    g_netPort;
+extern uint16_t       g_netPort;
 extern int32_t        g_networkMode;
 extern int32_t        g_netIndex;
 
@@ -298,6 +300,8 @@ void Net_WaitForInitialSnapshot();
 
 void Net_SendTaunt(int ridiculeNum);
 void Net_SendRTS(int ridiculeNum);
+void Net_InitNetwork();
+void Net_PrintLag(FString& output);
 
 #else
 

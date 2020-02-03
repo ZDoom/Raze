@@ -3682,6 +3682,145 @@ void Net_SendRTS(int ridiculeNum)
 	}
 }
 
+void Net_InitNetwork()
+{
+    if (g_networkMode == NET_SERVER/* || g_networkMode == NET_DEDICATED_SERVER*/)
+    {
+        ENetAddress address = { ENET_HOST_ANY, g_netPort };
+        g_netServer = enet_host_create(&address, MAXPLAYERS, CHAN_MAX, 0, 0);
+
+        if (g_netServer == NULL)
+            initprintf("An error occurred while trying to create an ENet server host.\n");
+        else initprintf("Multiplayer server initialized\n");
+    }
+}
+
+void Net_PrintLag(FString& output)
+{
+    // lag meter
+    if (g_netClientPeer)
+    {
+        output.AppendFormat("%d +- %d ms\n", (g_netClientPeer->lastRoundTripTime + g_netClientPeer->roundTripTime) / 2,
+            (g_netClientPeer->lastRoundTripTimeVariance + g_netClientPeer->roundTripTimeVariance) / 2);
+    }
+}
+
+int osdcmd_listplayers(osdcmdptr_t parm)
+{
+    ENetPeer* currentPeer;
+    char ipaddr[32];
+
+    if (parm && parm->numparms != 0)
+        return OSDCMD_SHOWHELP;
+
+    if (!g_netServer)
+    {
+        initprintf("You are not the server.\n");
+        return OSDCMD_OK;
+    }
+
+    initprintf("Connected clients:\n");
+
+    for (currentPeer = g_netServer->peers;
+        currentPeer < &g_netServer->peers[g_netServer->peerCount];
+        ++currentPeer)
+    {
+        if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
+            continue;
+
+        enet_address_get_host_ip(&currentPeer->address, ipaddr, sizeof(ipaddr));
+        initprintf("%s %s\n", ipaddr,
+            g_player[(intptr_t)currentPeer->data].user_name);
+    }
+
+    return OSDCMD_OK;
+}
+
+#if 0
+static int osdcmd_kick(osdcmdptr_t parm)
+{
+    ENetPeer* currentPeer;
+    uint32_t hexaddr;
+
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    if (!g_netServer)
+    {
+        initprintf("You are not the server.\n");
+        return OSDCMD_OK;
+    }
+
+    for (currentPeer = g_netServer->peers;
+        currentPeer < &g_netServer->peers[g_netServer->peerCount];
+        ++currentPeer)
+    {
+        if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
+            continue;
+
+        sscanf(parm->parms[0], "%" SCNx32 "", &hexaddr);
+
+        if (currentPeer->address.host == hexaddr)
+        {
+            initprintf("Kicking %x (%s)\n", currentPeer->address.host,
+                g_player[(intptr_t)currentPeer->data].user_name);
+            enet_peer_disconnect(currentPeer, DISC_KICKED);
+            return OSDCMD_OK;
+        }
+    }
+
+    initprintf("Player %s not found!\n", parm->parms[0]);
+    osdcmd_listplayers(NULL);
+
+    return OSDCMD_OK;
+}
+
+static int osdcmd_kickban(osdcmdptr_t parm)
+{
+    ENetPeer* currentPeer;
+    uint32_t hexaddr;
+
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    if (!g_netServer)
+    {
+        initprintf("You are not the server.\n");
+        return OSDCMD_OK;
+    }
+
+    for (currentPeer = g_netServer->peers;
+        currentPeer < &g_netServer->peers[g_netServer->peerCount];
+        ++currentPeer)
+    {
+        if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
+            continue;
+
+        sscanf(parm->parms[0], "%" SCNx32 "", &hexaddr);
+
+        // TODO: implement banning logic
+
+        if (currentPeer->address.host == hexaddr)
+        {
+            char ipaddr[32];
+
+            enet_address_get_host_ip(&currentPeer->address, ipaddr, sizeof(ipaddr));
+            initprintf("Host %s is now banned.\n", ipaddr);
+            initprintf("Kicking %x (%s)\n", currentPeer->address.host,
+                g_player[(intptr_t)currentPeer->data].user_name);
+            enet_peer_disconnect(currentPeer, DISC_BANNED);
+            return OSDCMD_OK;
+        }
+    }
+
+    initprintf("Player %s not found!\n", parm->parms[0]);
+    osdcmd_listplayers(NULL);
+
+    return OSDCMD_OK;
+}
+#endif
+
+
 #endif  // !defined NETCODE_DISABLE
 
 END_RR_NS

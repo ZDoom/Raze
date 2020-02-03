@@ -7153,15 +7153,7 @@ int GameInterface::app_main()
         initprintf("CON debugging activated (level %d).\n",g_scriptDebug);
 
 #ifndef NETCODE_DISABLE
-    if (g_networkMode == NET_SERVER/* || g_networkMode == NET_DEDICATED_SERVER*/)
-    {
-        ENetAddress address = { ENET_HOST_ANY, g_netPort };
-        g_netServer = enet_host_create(&address, MAXPLAYERS, CHAN_MAX, 0, 0);
-
-        if (g_netServer == NULL)
-            initprintf("An error occurred while trying to create an ENet server host.\n");
-        else initprintf("Multiplayer server initialized\n");
-    }
+    Net_InitNetwork();
 #endif
     numplayers = 1;
     g_mostConcurrentPlayers = ud.multimode;  // Lunatic needs this (player[] bound)

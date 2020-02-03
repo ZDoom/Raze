@@ -619,12 +619,9 @@ FString GameInterface::statFPS(void)
 				output.AppendFormat("G_MoveWorld(): %.3f ms\n", g_moveWorldTime);
             }
 
-            // lag meter
-            if (g_netClientPeer)
-            {
-				output.AppendFormat("%d +- %d ms\n", (g_netClientPeer->lastRoundTripTime + g_netClientPeer->roundTripTime)/2,
-                    (g_netClientPeer->lastRoundTripTimeVariance + g_netClientPeer->roundTripTimeVariance)/2);
-            }
+#ifndef NETCODE_DISABLE
+            Net_PrintLag(output);
+#endif
         }
 
         if (cumulativeFrameDelay >= 1000.0)

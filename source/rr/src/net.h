@@ -23,13 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef netplay_h_
 #define netplay_h_
 
-#ifdef _WIN32
-// include this before enet does
-# define NEED_WINSOCK2_H
-# include "windows_inc.h"
-#endif
-
-#include "enet.h"
+struct ENetHost;
+struct ENetPeer;
+struct ENetEvent;
+struct ENetPacket;
 
 BEGIN_RR_NS
 
@@ -42,7 +39,7 @@ extern ENetPeer       *g_netClientPeer;
 extern char           g_netPassword[32];
 extern int32_t        g_netDisconnect;
 extern int32_t        g_netPlayersWaiting;
-extern enet_uint16    g_netPort;
+extern uint16_t    g_netPort;
 #ifndef NETCODE_DISABLE
 extern int32_t        g_networkMode;
 #else
@@ -308,6 +305,8 @@ void    faketimerhandler(void);
 
 void Net_SendTaunt(int ridiculeNum);
 void Net_SendRTS(int ridiculeNum);
+void Net_InitNetwork();
+void Net_PrintLag(FString& output);
 
 #else
 
