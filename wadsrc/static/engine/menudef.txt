@@ -1749,22 +1749,43 @@ OptionMenu "MultiOptionsMenu"
 OptionMenu "EngineCredits"
 {
 	title "$MNU_CREDITS"
-	Submenu " ---->", "EngineCredits2"
-	StaticText "Developer"
+	Submenu " ---->", "EngineCredits1a"
+	StaticText "Developers"
 	StaticText "Christoph Oelckers", 0
-	StaticText " "
-	StaticText "With contributions by"
 	StaticText "Rachael Alexanderson", 0
 	StaticText "Magnus Norddahl", 0
 	StaticText "Alexey Lysiuk", 0
-	StaticText " "
-	StaticText "Special thanks to"
-	StaticText "Nigel Rowand", 0
-	StaticText "Martin Howe", 0
+	StaticText ""
+	StaticText "The Raze team thanks the following contributors"
 	StaticText "Nash Muhandes", 0
-	StaticText " "
-	
+	StaticText "Dynamo", 0
 }
+
+OptionMenu "EngineCredits1a"
+{
+	title "$MNU_CREDITS"
+	Submenu " ---->", "EngineCredits1b"
+	StaticText "Raze QA"
+	
+	StaticText "Nash Muhandes     Martin Howe       ", 0
+	StaticText "Lowskill.         Dynamo            ", 0
+	StaticText "SanyaWaffles      Nigel Rowand      ", 0
+	StaticText "Major Cooke                         ", 0
+}
+
+OptionMenu "EngineCredits1b"
+{
+	title "$MNU_CREDITS"
+	Submenu " ---->", "EngineCredits2"
+	StaticText "ZDoom / GZDoom"
+	StaticText "Marisa \"Randi\" Heit", 0
+	StaticText "Braden \"Blzut3\" Obrzut", 0
+	StaticText ""
+	StaticText "Sound Engine"
+	StaticText "Chris Robinson", 0
+	StaticText ""
+}
+
 
 OptionMenu "EngineCredits2"
 {
