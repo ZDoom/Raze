@@ -1039,8 +1039,15 @@ static FORCE_INLINE void *xrealloc(void * const ptr, const bsize_t size)
     return (EDUKE32_PREDICT_TRUE(newptr != NULL || size == 0)) ? newptr: handle_memerr(ptr);
 }
 
+#if EDUKE32_GCC_PREREQ(6,0)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wtautological-compare"
+#endif
 // This will throw up when BFree is no longer usable, I do not want to change all code right now that uses it to make future merges easier.
 static_assert(Bfree == free, "BFree must be free");
+#if EDUKE32_GCC_PREREQ(6,0)
+# pragma GCC diagnostic pop
+#endif
 
 static FORCE_INLINE void xfree(void *const ptr) { Bfree(ptr); }
 
