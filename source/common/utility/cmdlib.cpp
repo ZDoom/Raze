@@ -266,6 +266,7 @@ FString ExtractFileBase (const char *path, bool include_extension)
 FString StripExtension(const char* path)
 {
 	const char* src;
+	if (*path == 0) return "";
 
 	src = path + strlen(path) - 1;
 
