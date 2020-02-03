@@ -73,15 +73,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "sound/s_soundinternal.h"
 
-#ifdef _WIN32
-# include <shellapi.h>
-# define UPDATEINTERVAL 604800 // 1w
-#else
-# ifndef GEKKO
-#  include <sys/ioctl.h>
-# endif
-#endif /* _WIN32 */
-
 BEGIN_BLD_NS
 
 

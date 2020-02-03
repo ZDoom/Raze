@@ -7,10 +7,6 @@
 
 #pragma once
 
-#ifdef _WIN32
-# include "windows_inc.h"
-#endif
-
 #include "xs_Float.h"
 
 ////////// Compiler detection //////////

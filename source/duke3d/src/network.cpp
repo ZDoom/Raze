@@ -22,6 +22,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
+#ifndef NETWORK_DISABLE
+#include "enet.h"
+#endif
+
 /// Preprocessor directives:
 ///
 /// ITERATE_ON_UPDATE:  Every time the netcode updates the sprite linked lists, attempt to iterate through all of them.
@@ -39,7 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 #include "mapinfo.h"
 
-#include "enet.h"
 #include "m_crc32.h"
 
 BEGIN_DUKE_NS

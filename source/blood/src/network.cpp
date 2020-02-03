@@ -21,13 +21,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"	// Must come before everything else!
+#ifndef NETCODE_DISABLE
+#include "enet.h"
+#endif
 
 #include "build.h"
 #include "mmulti.h"
 #include "pragmas.h"
-#ifndef NETCODE_DISABLE
-#include "enet.h"
-#endif
 #include "compat.h"
 #include "config.h"
 #include "controls.h"

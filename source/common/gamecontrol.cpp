@@ -835,9 +835,7 @@ void I_Error(const char* error, ...)
 	va_start(argptr, error);
 	vsnprintf(errortext, MAX_ERRORTEXT, error, argptr);
 	va_end(argptr);
-#ifdef _WIN32
-	OutputDebugStringA(errortext);
-#endif
+	I_DebugPrint(errortext);
 
 	throw std::runtime_error(errortext);
 }
@@ -850,9 +848,7 @@ void I_FatalError(const char* error, ...)
 	va_start(argptr, error);
 	vsnprintf(errortext, MAX_ERRORTEXT, error, argptr);
 	va_end(argptr);
-#ifdef _WIN32
-	OutputDebugStringA(errortext);
-#endif
+	I_DebugPrint(errortext);
 
 	throw std::runtime_error(errortext);
 }

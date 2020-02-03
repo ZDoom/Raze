@@ -64,15 +64,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # define GAME_STATIC static
 #endif
 
-#ifdef _WIN32
-# include <shellapi.h>
-# define UPDATEINTERVAL 604800 // 1w
-#else
-# ifndef GEKKO
-#  include <sys/ioctl.h>
-# endif
-#endif /* _WIN32 */
-
 BEGIN_DUKE_NS
 
 int32_t g_quitDeadline = 0;

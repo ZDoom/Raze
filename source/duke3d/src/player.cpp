@@ -21,10 +21,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 
 #include "ns.h"	// Must come before everything else!
+#ifndef NETWORK_DISABLE
+#include "enet.h"
+#endif
 
 #include "duke3d.h"
 #include "demo.h"
-#include "enet.h"
 #include "sjson.h"
 #include "gamecvars.h"
 #include "d_event.h"

@@ -1102,7 +1102,6 @@ FString::FString (ELumpNum lumpnum)
 //#define WIN32_LEAN_AND_MEAN
 //#include <windows.h>
 
-#if 0
 extern "C" {
 __declspec(dllimport) unsigned long __stdcall FormatMessageA(
     unsigned long dwFlags,
@@ -1116,7 +1115,6 @@ __declspec(dllimport) unsigned long __stdcall FormatMessageA(
 __declspec(dllimport) void * __stdcall LocalFree (void *);
 __declspec(dllimport) unsigned long __stdcall GetLastError ();
 }
-#endif
 
 static void PrintLastError ()
 {
@@ -1127,7 +1125,7 @@ static void PrintLastError ()
 		NULL,
 		GetLastError(),
 		1 << 10 /*MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)*/, // Default language
-		(LPSTR)&lpMsgBuf,
+		(char **)&lpMsgBuf,
 		0,
 		NULL 
 	);

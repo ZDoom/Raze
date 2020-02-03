@@ -2,10 +2,6 @@
 
 #include "build.h"
 
-#ifdef _WIN32
-# include "windows_inc.h"
-#endif
-
 #include "common.h"
 #include "common_game.h"
 
