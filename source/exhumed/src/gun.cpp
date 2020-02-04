@@ -700,7 +700,7 @@ loc_flag:
             int theY = sprite[nPlayerSprite].y;
             int theZ = sprite[nPlayerSprite].z;
 
-            int ebp = Sin(nAngle + 512) * (sprite[nPlayerSprite].clipdist << 3);
+            int ebp = Cos(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
             int ebx = Sin(nAngle) * (sprite[nPlayerSprite].clipdist << 3);
 
             if (WeaponInfo[nWeapon].c)
@@ -714,7 +714,7 @@ loc_flag:
                     ecx = theVal;
 
                 int var_44 = (nAngle + 512) & kAngleMask;
-                ebp += ((Sin(var_44 + 512) >> 11) * ecx);
+                ebp += (Cos(var_44) >> 11) * ecx;
                 ebx += (Sin(var_44) >> 11) * ecx;
             }
 
@@ -884,7 +884,7 @@ loc_flag:
                         nDamage *= 2;
                     }
 
-                    runlist_RadialDamageEnemy(nPlayerSprite, nDamage, BulletInfo[kWeaponMummified].field_10);
+                    runlist_RadialDamageEnemy(nPlayerSprite, nDamage, BulletInfo[kWeaponMummified].nRadius);
                     break;
                 }
             }

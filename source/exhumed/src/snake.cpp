@@ -113,7 +113,7 @@ void ExplodeSnakeSprite(int nSprite, short nPlayer)
     short nOwner = sprite[nSprite].owner;
     sprite[nSprite].owner = PlayerList[nPlayer].nSprite;
 
-    runlist_RadialDamageEnemy(nSprite, nDamage, BulletInfo[kWeaponStaff].field_10);
+    runlist_RadialDamageEnemy(nSprite, nDamage, BulletInfo[kWeaponStaff].nRadius);
 
     sprite[nSprite].owner = nOwner;
 

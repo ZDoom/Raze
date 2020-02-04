@@ -16,6 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+#include "aistuff.h"
 #include "fish.h"
 #include "anims.h"
 #include "engine.h"
@@ -161,7 +162,7 @@ void FuncFishLimb(int a, int UNUSED(nDamage), int nRun)
 
     int nSeq = SeqOffsets[kSeqFish] + FishChunk[nFish].field_4;
 
-    int nMessage = a & 0x7F0000;
+    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -328,13 +329,13 @@ void FuncFish(int a, int nDamage, int nRun)
     short nSprite = FishList[nFish].nSprite;
     short nAction = FishList[nFish].nAction;
 
-    int nMessage = a & 0x7F0000;
+    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
         default:
         {
-            Printf("unknown msg %d for Fish\n", a & 0x7F0000);
+            Printf("unknown msg %d for Fish\n", nMessage);
             return;
         }
 

@@ -161,7 +161,6 @@ int ReadFrame(FileReader &fp)
                 }
 
                 tileInvalidate(kMovieTile, -1, -1);
-
                 break;
             }
             case kFrameDone:
@@ -173,7 +172,7 @@ int ReadFrame(FileReader &fp)
     }
 }
 
-void ServeSample(const char** ptr, uint32_t* length)
+static void ServeSample(const char** ptr, uint32_t* length)
 {
     //mutex_lock(&mutex);
 

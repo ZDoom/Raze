@@ -31,7 +31,7 @@ struct bulletInfo
     short nSeq; // 10
     short field_C; // 12
     short nFlags;
-    short field_10; // damage radius?
+    short nRadius; // damage radius
     short xyRepeat;
     char pad[12];
 };

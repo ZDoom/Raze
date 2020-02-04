@@ -150,10 +150,10 @@ struct slideData
     int field_4;
     int field_8;
     int field_C;
-    int field_10;
-    int field_14;
-    int field_18;
-    int field_1C;
+    int x1;
+    int y1;
+    int x2;
+    int y2;
     int field_20;
     int field_24;
     int field_28;
@@ -888,12 +888,8 @@ int IdentifySector(int nVal)
     return -1;
 }
 
-int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int arg3)
+int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int nWall3, int nWall4)
 {
-    int var_1C = edx;
-    int ebp = ebx;
-    int nVal = ecx;
-
     if (SlideCount <= 0) {
         I_Error("Too many slides!\n");
         return -1;
@@ -903,7 +899,7 @@ int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int 
 
     int nSlide = SlideCount;
 
-    short nSector = IdentifySector(var_1C);
+    short nSector = IdentifySector(nStartWall);
 
     SlideData2[nSlide].field_4 = -1;
     SlideData2[nSlide].nChannel = nChannel;
@@ -948,33 +944,35 @@ int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int 
         }
     }
 
-    SlideData[nSlide].field_0 = var_1C;
-    SlideData[nSlide].field_8 = arg1;
-    SlideData[nSlide].field_C = arg2;
-    SlideData[nSlide].field_10 = wall[var_1C].x;
-    SlideData[nSlide].field_14 = wall[var_1C].y;
+    SlideData[nSlide].field_0 = nStartWall;
+    SlideData[nSlide].field_4 = ebx;
+    SlideData[nSlide].field_8 = nWall2;
+    SlideData[nSlide].field_C = nWall3;
 
-    SlideData[nSlide].field_1C = wall[arg1].y;
-    SlideData[nSlide].field_18 = wall[arg1].x;
+    SlideData[nSlide].x1 = wall[nStartWall].x;
+    SlideData[nSlide].y1 = wall[nStartWall].y;
 
-    SlideData[nSlide].field_24 = wall[ebp].y;
-    SlideData[nSlide].field_20 = wall[ebp].x;
+    SlideData[nSlide].x2 = wall[nWall2].x;
+    SlideData[nSlide].y2 = wall[nWall2].y;
 
-    SlideData[nSlide].field_2C = wall[arg2].y;
-    SlideData[nSlide].field_28 = wall[arg2].x;
+    SlideData[nSlide].field_20 = wall[ebx].x;
+    SlideData[nSlide].field_24 = wall[ebx].y;
 
-    SlideData[nSlide].field_34 = wall[nVal].y;
-    SlideData[nSlide].field_4 = ebp;
-    SlideData[nSlide].field_30 = wall[nVal].x;
-    SlideData[nSlide].field_38 = wall[arg3].x;
-    SlideData[nSlide].field_3C = wall[arg3].y;
+    SlideData[nSlide].field_28 = wall[nWall3].x;
+    SlideData[nSlide].field_2C = wall[nWall3].y;
+
+    SlideData[nSlide].field_30 = wall[ecx].x;
+    SlideData[nSlide].field_34 = wall[ecx].y;
+
+    SlideData[nSlide].field_38 = wall[nWall4].x;
+    SlideData[nSlide].field_3C = wall[nWall4].y;
 
     int nSprite = insertsprite(nSector, 899);
 
     SlideData2[nSlide].field_6 = nSprite;
     sprite[nSprite].cstat = 0x8000;
-    sprite[nSprite].x = wall[var_1C].x;
-    sprite[nSprite].y = wall[var_1C].y;
+    sprite[nSprite].x = wall[nStartWall].x;
+    sprite[nSprite].y = wall[nStartWall].y;
     sprite[nSprite].z = sector[nSector].floorz;
 
     SlideData2[nSlide].field_8 = 0;
@@ -1088,11 +1086,11 @@ void FuncSlide(int a, int UNUSED(b), int nRun)
                 int x = wall[nWall].x;
                 int y = wall[nWall].y;
 
-                int nSeekA = LongSeek(&x, SlideData[nSlide].field_10, 20, 20);
+                int nSeekA = LongSeek(&x, SlideData[nSlide].x1, 20, 20);
                 int edi = nSeekA;
                 int var_1C = nSeekA;
 
-                int nSeekB = LongSeek(&y, SlideData[nSlide].field_14, 20, 20);
+                int nSeekB = LongSeek(&y, SlideData[nSlide].y1, 20, 20);
                 int ecx = nSeekB;
                 int var_28 = nSeekB;
 
@@ -1114,11 +1112,11 @@ void FuncSlide(int a, int UNUSED(b), int nRun)
                 x = wall[nWall].x;
                 y = wall[nWall].y;
 
-                int nSeekC = LongSeek(&x, SlideData[nSlide].field_18, 20, 20);
+                int nSeekC = LongSeek(&x, SlideData[nSlide].x2, 20, 20);
                 edi = nSeekC;
                 var_1C = nSeekC;
 
-                int nSeekD = LongSeek(&y, SlideData[nSlide].field_1C, 20, 20);
+                int nSeekD = LongSeek(&y, SlideData[nSlide].y2, 20, 20);
                 ecx = nSeekD;
                 var_28 = nSeekD;
 
@@ -1391,17 +1389,17 @@ int BuildSpark(int nSprite, int nVal)
 
         if (nVal)
         {
-            sprite[var_14].xvel = Sin(nAngle + 512) >> 5;
+            sprite[var_14].xvel = Cos(nAngle) >> 5;
             sprite[var_14].yvel = Sin(nAngle) >> 5;
         }
         else
         {
-            sprite[var_14].xvel = Sin(nAngle + 512) >> 6;
+            sprite[var_14].xvel = Cos(nAngle) >> 6;
             sprite[var_14].yvel = Sin(nAngle) >> 6;
         }
 
         sprite[var_14].zvel = -(RandomSize(4) << 7);
-        sprite[var_14].picnum = nVal + 985;
+        sprite[var_14].picnum = kTile985 + nVal;
     }
 
     sprite[var_14].z = sprite[nSprite].z;
@@ -1436,6 +1434,7 @@ void FuncSpark(int a, int UNUSED(b), int nRun)
     {
         sprite[nSprite].yrepeat -= 2;
 
+        // calling BuildSpark() with 2nd parameter as '1' will set kTile986
         if (sprite[nSprite].picnum == kTile986 && (sprite[nSprite].xrepeat & 2))
         {
             BuildSpark(nSprite, 2);
@@ -1539,7 +1538,7 @@ void DoFinale()
                     StopLocalSound();
                     PlayLocalSound(StaticSound[kSound76], 0);
                     dword_1542FC = (int)totalclock + 120;
-                    ++nFinaleStage;
+                    nFinaleStage++;
                 }
             }
             else if (nFinaleStage <= 2)
@@ -1578,7 +1577,7 @@ int BuildEnergyBlock(short nSector)
         x += wall[startwall + i].x;
         y += wall[startwall + i].y;
 
-        wall[startwall + i].picnum = kTile3621;
+        wall[startwall + i].picnum = kClockSymbol16;
         wall[startwall + i].pal = 0;
         wall[startwall + i].shade = 50;
     }
@@ -1698,8 +1697,7 @@ void ExplodeEnergyBlock(int nSprite)
     for (i = 0; i < 20; i++)
     {
         sprite[nSprite].ang = RandomSize(11);
-
-        BuildSpark(nSprite, 1);
+        BuildSpark(nSprite, 1); // shoot out blue orbs
     }
 
     TintPalette(64, 64, 64);
@@ -1707,7 +1705,6 @@ void ExplodeEnergyBlock(int nSprite)
     if (nEnergyTowers == 1)
     {
         runlist_ChangeChannel(nEnergyChan, nEnergyTowers);
-
         StatusMessage(1000, "TAKE OUT THE CONTROL CENTER!");
     }
     else if (nEnergyTowers != 0)
@@ -1810,13 +1807,12 @@ void FuncEnergyBlock(int a, int nDamage, int nRun)
                 sprite[nSprite2].y = lasthity;
                 sprite[nSprite2].z = lasthitz;
 
-                BuildSpark(nSprite2, 0);
+                BuildSpark(nSprite2, 0); // shoot out blue orb when damaged
                 mydeletesprite(nSprite2);
             }
             else
             {
-                sprite[nSprite].xrepeat = 0;
-
+                sprite[nSprite].xrepeat = 0; // using xrepeat to store health
                 ExplodeEnergyBlock(nSprite);
             }
 
@@ -1893,12 +1889,13 @@ int BuildObject(short nSprite, int nOjectType, int nHitag)
     return nObject | 0x170000;
 }
 
+// in-game destructable wall mounted screen
 void ExplodeScreen(short nSprite)
 {
     sprite[nSprite].z -= GetSpriteHeight(nSprite) / 2;
 
     for (int i = 0; i < 30; i++) {
-        BuildSpark(nSprite, 0);
+        BuildSpark(nSprite, 0); // shoot out blue orbs
     }
 
     sprite[nSprite].cstat = 0x8000;

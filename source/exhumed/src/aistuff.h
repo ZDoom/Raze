@@ -42,6 +42,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 #define KMaxTimeSlots	16
+#define kMessageMask    0x7F0000
+
+#define kAIFish         0x120000
 
 void InitTimeSlot();
 int GrabTimeSlot(int nVal);

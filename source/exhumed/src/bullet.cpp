@@ -518,11 +518,11 @@ HITWALL:
         }
 
         // loc_2A639:
-        if (BulletInfo[nType].field_10)
+        if (BulletInfo[nType].nRadius)
         {
             nRadialBullet = nType;
 
-            runlist_RadialDamageEnemy(nSprite, pBulletInfo->nDamage, pBulletInfo->field_10);
+            runlist_RadialDamageEnemy(nSprite, pBulletInfo->nDamage, pBulletInfo->nRadius);
 
             nRadialBullet = -1;
 

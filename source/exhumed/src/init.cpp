@@ -342,33 +342,29 @@ void InitSectFlag()
     }
 }
 
-void ProcessSpriteTag(short nSprite, short lotag, short hitag)
+void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
 {
-    int nChannel = runlist_AllocChannel(hitag % 1000);
-//	int ebp = nChannel;
+    int nChannel = runlist_AllocChannel(nHitag % 1000);
 
-//    int nHitag2 = hitag / 1000;
-
-    int nLotag2 = lotag / 1000;
-    if (nLotag2 == 0) {
-        nLotag2 = 1;
+    int nSpeed = nLotag / 1000;
+    if (!nSpeed) {
+        nSpeed = 1;
     }
 
-    // this value can change in the below code but we also need to retain the original hitag value
-    int nVal = hitag;
+    int nVal = nHitag;
 
-    if (lotag >= 900 && lotag <= 949)
+    if (nLotag >= 900 && nLotag <= 949)
     {
-        ProcessTrailSprite(nSprite, lotag, hitag);
+        ProcessTrailSprite(nSprite, nLotag, nHitag);
         return;
     }
 
     // handle tags 6 to 60
-    switch (lotag)
+    switch (nLotag)
     {
         case 8: // M-60 ammo belt
         {
-            nVal = 3 * (hitag / 3);
+            nVal = 3 * (nHitag / 3);
             // fall through to 6,7 etc
             fallthrough__;
         }
@@ -420,7 +416,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
         case 60:
         {
             sprite[nSprite].hitag = nVal;
-            changespritestat(nSprite, lotag + 900);
+            changespritestat(nSprite, nLotag + 900);
             sprite[nSprite].cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
@@ -428,7 +424,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
         case 12: // berry twig
         {
             sprite[nSprite].hitag = 40;
-            changespritestat(nSprite, lotag + 900);
+            changespritestat(nSprite, nLotag + 900);
             sprite[nSprite].cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
@@ -436,7 +432,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
         case 13: // blood bowl
         {
             sprite[nSprite].hitag = 160;
-            changespritestat(nSprite, lotag + 900);
+            changespritestat(nSprite, nLotag + 900);
             sprite[nSprite].cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
@@ -444,7 +440,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
         case 14: // venom bowl
         {
             sprite[nSprite].hitag = -200;
-            changespritestat(nSprite, lotag + 900);
+            changespritestat(nSprite, nLotag + 900);
             sprite[nSprite].cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
@@ -467,7 +463,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             else
             {
                 sprite[nSprite].hitag = nVal;
-                changespritestat(nSprite, lotag + 900);
+                changespritestat(nSprite, nLotag + 900);
                 sprite[nSprite].cstat &= 0xFEFE;
                 BuildItemAnim(nSprite);
                 return;
@@ -487,14 +483,14 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             nVal++;
             nVal--; // CHECKME ??
             sprite[nSprite].hitag = nVal;
-            changespritestat(nSprite, lotag + 900);
+            changespritestat(nSprite, nLotag + 900);
             sprite[nSprite].cstat &= 0xFEFE;
             BuildItemAnim(nSprite);
             return;
         }
     }
 
-    int v6 = lotag % 1000;
+    int v6 = nLotag % 1000;
 
     if (!bNoCreatures || v6 < 100 || v6 > 118)
     {
@@ -507,12 +503,12 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
         {
             case 999:
             {
-                AddFlicker(sprite[nSprite].sectnum, nLotag2);
+                AddFlicker(sprite[nSprite].sectnum, nSpeed);
                 break;
             }
             case 998:
             {
-                AddGlow(sprite[nSprite].sectnum, nLotag2);
+                AddGlow(sprite[nSprite].sectnum, nSpeed);
                 break;
             }
             case 118: // Anubis with drum
@@ -658,7 +654,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             case 99: // underwater type 2
             {
                 short nSector = sprite[nSprite].sectnum;
-                SetAbove(nSector, hitag);
+                SetAbove(nSector, nHitag);
                 SectFlag[nSector] |= kSectUnderwater;
 
                 mydeletesprite(nSprite);
@@ -667,29 +663,29 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             case 98:
             {
                 short nSector = sprite[nSprite].sectnum;
-                SetBelow(nSector, hitag);
-                SnapSectors(nSector, hitag, 1);
+                SetBelow(nSector, nHitag);
+                SnapSectors(nSector, nHitag, 1);
 
                 mydeletesprite(nSprite);
                 return;
             }
             case 97:
             {
-                AddSectorBob(sprite[nSprite].sectnum, hitag, 1);
+                AddSectorBob(sprite[nSprite].sectnum, nHitag, 1);
 
                 mydeletesprite(nSprite);
                 return;
             }
             case 96: // Lava sector
             {
-                hitag /= 4; // hitag is damage level?
-                if (hitag == 0) {
-                    hitag = 1;
+                int nDamage = nHitag / 4;
+                if (!nDamage) {
+                    nDamage = 1;
                 }
 
                 short nSector = sprite[nSprite].sectnum;
 
-                SectDamage[nSector] = hitag;
+                SectDamage[nSector] = nDamage;
                 SectFlag[nSector] |= kSectLava;
 
                 mydeletesprite(nSprite);
@@ -697,7 +693,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             }
             case 95:
             {
-                AddSectorBob(sprite[nSprite].sectnum, hitag, 0);
+                AddSectorBob(sprite[nSprite].sectnum, nHitag, 0);
 
                 mydeletesprite(nSprite);
                 return;
@@ -705,7 +701,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             case 94: // water
             {
                 short nSector = sprite[nSprite].sectnum;
-                SectDepth[nSector] = hitag << 8;
+                SectDepth[nSector] = nHitag << 8;
 
                 mydeletesprite(nSprite);
                 return;
@@ -717,7 +713,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             }
             case 90:
             {
-                BuildObject(nSprite, 3, hitag);
+                BuildObject(nSprite, 3, nHitag);
                 return;
             }
             case 79:
@@ -725,7 +721,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             {
                 short nSector = sprite[nSprite].sectnum;
 
-                SectSpeed[nSector] = nLotag2;
+                SectSpeed[nSector] = nSpeed;
                 SectFlag[nSector] |= sprite[nSprite].ang;
 
                 mydeletesprite(nSprite);
@@ -733,7 +729,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             }
             case 88:
             {
-                AddFlow(nSprite, nLotag2, 0);
+                AddFlow(nSprite, nSpeed, 0);
 
                 mydeletesprite(nSprite);
                 return;
@@ -748,7 +744,7 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             }
             case 78:
             {
-                AddFlow(nSprite, nLotag2, 1);
+                AddFlow(nSprite, nSpeed, 1);
 
                 short nSector = sprite[nSprite].sectnum;
                 SectFlag[nSector] |= 0x8000;
@@ -758,24 +754,24 @@ void ProcessSpriteTag(short nSprite, short lotag, short hitag)
             }
             case 77:
             {
-                int nArrow = BuildArrow(nSprite, nLotag2);
+                int nArrow = BuildArrow(nSprite, nSpeed);
 
                 runlist_AddRunRec(sRunChannels[nChannel].a, nArrow);
                 return;
             }
             case 76: // Explosion Trigger (Exploding Fire Cauldron)
             {
-                BuildObject(nSprite, 0, hitag);
+                BuildObject(nSprite, 0, nHitag);
                 return;
             }
             case 75: // Explosion Target (Cauldrons, fireballs and grenades will destroy nearby 75 sprites)
             {
-                BuildObject(nSprite, 1, hitag);
+                BuildObject(nSprite, 1, nHitag);
                 return;
             }
             case 71:
             {
-                int nFireball = BuildFireBall(nSprite, hitag, nLotag2);
+                int nFireball = BuildFireBall(nSprite, nHitag, nSpeed);
 
                 runlist_AddRunRec(sRunChannels[nChannel].a, nFireball);
                 return;

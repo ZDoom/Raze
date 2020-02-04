@@ -82,27 +82,29 @@ static SavegameHelper sgh("move",
 
 signed int lsqrt(int a1)
 {
-    int v1; // edx@1
-    int v2; // ebx@1
-    signed int result; // eax@1
+    int v1;
+    int v2;
+    signed int result;
 
     v1 = a1;
     v2 = a1 - 0x40000000;
+
     result = 0;
+
     if (v2 >= 0)
     {
-        result = 0x8000;
+        result = 32768;
         v1 = v2;
     }
     if (v1 - ((result << 15) + 0x10000000) >= 0)
     {
         v1 -= (result << 15) + 0x10000000;
-        result += 0x4000;
+        result += 16384;
     }
     if (v1 - ((result << 14) + 0x4000000) >= 0)
     {
         v1 -= (result << 14) + 0x4000000;
-        result += 0x2000;
+        result += 8192;
     }
     if (v1 - ((result << 13) + 0x1000000) >= 0)
     {
@@ -165,7 +167,8 @@ signed int lsqrt(int a1)
         result += 2;
     }
     if (v1 - (2 * result + 1) >= 0)
-        ++result;
+        result += 1;
+
     return result;
 }
 
@@ -694,7 +697,7 @@ int PlotCourseToSprite(int nSprite1, int nSprite2)
     return ksqrt(y * y + x * x);
 }
 
-int FindPlayer(int nSprite, int nVal)
+int FindPlayer(int nSprite, int nDistance)
 {
     int var_18 = 0;
     if (nSprite >= 0)
@@ -703,8 +706,8 @@ int FindPlayer(int nSprite, int nVal)
     if (nSprite < 0)
         nSprite = -nSprite;
 
-    if (nVal < 0)
-        nVal = 100;
+    if (nDistance < 0)
+        nDistance = 100;
 
     int x = sprite[nSprite].x;
     int y = sprite[nSprite].y;
@@ -712,7 +715,7 @@ int FindPlayer(int nSprite, int nVal)
 
     int z = sprite[nSprite].z - GetSpriteHeight(nSprite);
 
-    nVal <<= 8;
+    nDistance <<= 8;
 
     short nPlayerSprite;
     int i = 0;
@@ -726,20 +729,13 @@ int FindPlayer(int nSprite, int nVal)
 
         if ((sprite[nPlayerSprite].cstat & 0x101) && (!(sprite[nPlayerSprite].cstat & 0x8000)))
         {
-            int v9 = sprite[nPlayerSprite].x - x;
-            if (v9 < 0) {
-                v9 = -v9;
-            }
+            int v9 = klabs(sprite[nPlayerSprite].x - x);
 
-            int v10 = sprite[nPlayerSprite].y - y;
-
-            if (v9 < nVal)
+            if (v9 < nDistance)
             {
-                if (v10 < 0) {
-                    v10 = -v10;
-                }
+                int v10 = klabs(sprite[nPlayerSprite].y - y);
 
-                if (v10 < nVal && cansee(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z - 7680, sprite[nPlayerSprite].sectnum, x, y, z, nSector))
+                if (v10 < nDistance && cansee(sprite[nPlayerSprite].x, sprite[nPlayerSprite].y, sprite[nPlayerSprite].z - 7680, sprite[nPlayerSprite].sectnum, x, y, z, nSector))
                 {
                     break;
                 }
@@ -756,7 +752,7 @@ int FindPlayer(int nSprite, int nVal)
     return nPlayerSprite;
 }
 
-void CheckSectorFloor(short nSector, int z, int *a, int *b)
+void CheckSectorFloor(short nSector, int z, int *x, int *y)
 {
     short nSpeed = SectSpeed[nSector];
 
@@ -769,13 +765,13 @@ void CheckSectorFloor(short nSector, int z, int *a, int *b)
 
     if (z >= sector[nSector].floorz)
     {
-        *a += (Sin(nAng + 512) << 3) * nSpeed;
-        *b += (sintable[nAng] << 3) * nSpeed;
+        *x += (Cos(nAng) << 3) * nSpeed;
+        *y += (sintable[nAng] << 3) * nSpeed; // no anglemask in original code
     }
     else if (nFlag & 0x800)
     {
-        *a += (Sin(nAng + 512) << 4) * nSpeed;
-        *b += (sintable[nAng] << 4) * nSpeed;
+        *x += (Cos(nAng) << 4) * nSpeed;
+        *y += (sintable[nAng] << 4) * nSpeed; // no anglemask in original code
     }
 }
 
@@ -821,27 +817,27 @@ void CreatePushBlock(int nSector)
     int startwall = sector[nSector].wallptr;
     int nWalls = sector[nSector].wallnum;
 
-    int ecx = 0;
-    int ebx = 0;
+    int xSum = 0;
+    int ySum = 0;
 
     for (i = 0; i < nWalls; i++)
     {
-        ecx += wall[startwall + i].x;
-        ebx += wall[startwall + i].y;
+        xSum += wall[startwall + i].x;
+        ySum += wall[startwall + i].y;
     }
 
-    int avgx = ecx / nWalls;
-    int avgy = ebx / nWalls;
+    int xAvg = xSum / nWalls;
+    int yAvg = ySum / nWalls;
 
-    sBlockInfo[nBlock].x = avgx;
-    sBlockInfo[nBlock].y = avgy;
+    sBlockInfo[nBlock].x = xAvg;
+    sBlockInfo[nBlock].y = yAvg;
 
     int nSprite = insertsprite(nSector, 0);
 
     sBlockInfo[nBlock].nSprite = nSprite;
 
-    sprite[nSprite].x = avgx;
-    sprite[nSprite].y = avgy;
+    sprite[nSprite].x = xAvg;
+    sprite[nSprite].y = yAvg;
     sprite[nSprite].z = sector[nSector].floorz - 256;
     sprite[nSprite].cstat = 0x8000;
 
@@ -849,8 +845,8 @@ void CreatePushBlock(int nSector)
 
     for (i = 0; i < nWalls; i++)
     {
-        int x = avgx - wall[startwall + i].x;
-        int y = avgy - wall[startwall + i].y;
+        int x = xAvg - wall[startwall + i].x;
+        int y = yAvg - wall[startwall + i].y;
 
         int nSqrt = ksqrt(x * x + y * y);
         if (nSqrt > var_28) {
@@ -1095,14 +1091,18 @@ void SetQuake(short nSprite, int nVal)
     int x = sprite[nSprite].x;
     int y = sprite[nSprite].y;
 
+    nVal *= 256;
+
     for (int i = 0; i < nTotalPlayers; i++)
     {
         int nPlayerSprite = PlayerList[i].nSprite;
 
-        int nSqrt = ksqrt(((sprite[nPlayerSprite].x - x) >> 8) * ((sprite[nPlayerSprite].x - x) >> 8) + ((sprite[nPlayerSprite].y - y) >> 8)
-            * ((sprite[nPlayerSprite].y - y) >> 8));
+        int xDiff = sprite[nPlayerSprite].x - x;
+        int yDiff = sprite[nPlayerSprite].y - y;
 
-        int eax = nVal * 256;
+        int nSqrt = ksqrt((xDiff >> 8)* (xDiff >> 8) + (yDiff >> 8)* (yDiff >> 8));
+
+        int eax = nVal;
 
         if (nSqrt)
         {
@@ -1149,48 +1149,30 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
     {
         int nHeight = tilesiz[sprite[nSprite2].picnum].y * sprite[nSprite2].yrepeat * 2;
 
-        int nMyAngle = GetMyAngle(sprite[nSprite2].x - sprite[nSprite].x, sprite[nSprite2].y - sprite[nSprite].y);
+        int xDiff = sprite[nSprite2].x - sprite[nSprite].x;
+        int yDiff = sprite[nSprite2].y - sprite[nSprite].y;
 
-        int nSqrt = ksqrt(
-            (sprite[nSprite2].y - sprite[nSprite].y)
-            *
-            (sprite[nSprite2].y - sprite[nSprite].y)
-            +
-            (sprite[nSprite2].x - sprite[nSprite].x)
-            *
-            (sprite[nSprite2].x - sprite[nSprite].x)
-        );
+        int nMyAngle = GetMyAngle(xDiff, yDiff);
+
+        int nSqrt = ksqrt(xDiff * xDiff + yDiff * yDiff);
 
         int var_18 = GetMyAngle(nSqrt, ((sprite[nSprite2].z - nHeight) - sprite[nSprite].z) >> 8);
 
-//        int edx = nMyAngle;
-
         int nAngDelta = AngleDelta(sprite[nSprite].ang, nMyAngle, 1024);
-        int nAngDelta2 = nAngDelta;
-
-        if (nAngDelta2 < 0)
-            nAngDelta2 = -nAngDelta2;
+        int nAngDelta2 = klabs(nAngDelta);
 
         if (nAngDelta2 > 63)
         {
-            nAngDelta2 = nAngDelta;
-            nAngDelta2 >>= 6;
-
-//            edx = ebx;
-
-            if (nAngDelta2 < 0)
-                nAngDelta2 = -nAngDelta2;
+            nAngDelta2 = klabs(nAngDelta >> 6);
 
             ebx /= nAngDelta2;
 
-            if (ebx < 5)
+            if (ebx < 5) {
                 ebx = 5;
+            }
         }
 
-        int nAngDeltaC = nAngDelta;
-
-        if (nAngDeltaC < 0)
-            nAngDeltaC = -nAngDeltaC;
+        int nAngDeltaC = klabs(nAngDelta);
 
         if (nAngDeltaC > push1)
         {
@@ -1200,32 +1182,23 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
                 nAngDelta = -push1;
         }
 
-        int nAngDeltaD = AngleDelta(sprite[nSprite].zvel, var_18, 24);
         nAngle = (nAngDelta + sprite[nSprite].ang) & kAngleMask;
-
-        // TODO - CHECKME int ebx = 24;
+        int nAngDeltaD = AngleDelta(sprite[nSprite].zvel, var_18, 24);
 
         sprite[nSprite].zvel = (sprite[nSprite].zvel + nAngDeltaD) & kAngleMask;
     }
 
     sprite[nSprite].ang = nAngle;
 
-    int eax = Sin(sprite[nSprite].zvel + 512);
-    int edx = (nAngle + 512) & kAngleMask;
+    int eax = klabs(Cos(sprite[nSprite].zvel));
 
-    if (eax < 0)
-        eax = -eax;
-
-    // rename this var. CHECKME
-    int x = ((sintable[edx] * ebx) >> 14) * eax;
-
-    int ceildist = x >> 8;
-
+    int x = ((Cos(nAngle) * ebx) >> 14)* eax;
     int y = ((Sin(nAngle) * ebx) >> 14) * eax;
 
-    int nVal = y >> 8;
+    int xshift = x >> 8;
+    int yshift = y >> 8;
 
-    int z = Sin(sprite[nSprite].zvel) * ksqrt((nVal * nVal) + (ceildist * ceildist));
+    int z = Sin(sprite[nSprite].zvel) * ksqrt((yshift * yshift) + (xshift * xshift));
 
     return movesprite(nSprite, x >> 2, y >> 2, (z >> 13) + (Sin(ecx) >> 5), 0, 0, nClipType);
 }
@@ -1253,7 +1226,7 @@ void WheresMyMouth(int nPlayer, int *x, int *y, int *z, short *sectnum)
     *sectnum = sprite[nSprite].sectnum;
 
     clipmove_old((int32_t*)x, (int32_t*)y, (int32_t*)z, sectnum,
-        Sin(sprite[nSprite].ang + 512) << 7,
+        Cos(sprite[nSprite].ang) << 7,
         Sin(sprite[nSprite].ang) << 7,
         5120, 1280, 1280, CLIPMASK1);
 }
@@ -1323,8 +1296,7 @@ int GrabBody()
         if (nCurBodyNum >= 50) {
             nCurBodyNum = 0;
         }
-    }
-    while (sprite[nSprite].cstat & 0x101);
+    } while (sprite[nSprite].cstat & 0x101);
 
     if (nBodyTotal < 50) {
         nBodyTotal++;
@@ -1445,9 +1417,9 @@ void FuncCreatureChunk(int a, int, int nRun)
         // re-grab this variable as it may have changed in movesprite(). Note the check above is against the value *before* movesprite so don't change it.
         nSector = sprite[nSprite].sectnum;
 
-        sprite[nSprite].zvel = 0;
-        sprite[nSprite].yvel = 0;
         sprite[nSprite].xvel = 0;
+        sprite[nSprite].yvel = 0;
+        sprite[nSprite].zvel = 0;
         sprite[nSprite].z = sector[nSector].floorz;
     }
     else
@@ -1487,7 +1459,7 @@ void FuncCreatureChunk(int a, int, int nRun)
             int nSqrt = lsqrt(((sprite[nSprite].yvel >> 10) * (sprite[nSprite].yvel >> 10)
                 + (sprite[nSprite].xvel >> 10) * (sprite[nSprite].xvel >> 10)) >> 8);
 
-            sprite[nSprite].xvel = Sin(nAngle + 512) * (nSqrt >> 1);
+            sprite[nSprite].xvel = Cos(nAngle) * (nSqrt >> 1);
             sprite[nSprite].yvel = Sin(nAngle) * (nSqrt >> 1);
             return;
         }

@@ -39,7 +39,6 @@ int GetMyAngle(int x, int y)
     if (ebx >= 0)
     {
         // left path
-
         edx = ebx << 11;
 
         if (y >= 0)

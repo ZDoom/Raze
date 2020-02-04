@@ -42,7 +42,7 @@ enum {
     kSound7,
     kSound8,
     kSound9,
-    kSound10,
+    kSoundItemSpecial,
     kSound11,
     kSoundTorchOn,
     kSound13,
@@ -60,7 +60,7 @@ enum {
     kSound25,
     kSound26,
     kSound27,
-    kSound28,
+    kSoundJonLaugh2,
     kSound29,
     kSound30,
     kSound31,
@@ -87,9 +87,9 @@ enum {
     kSound64,
     kSound65,
     kSound66,
-    kSound67,
-    kSound68,
-    kSound69,
+    kSoundMana1,
+    kSoundMana2,
+    kSoundAmmoPickup,
     kSound70,
     kSound71,
     kSound72,
@@ -135,8 +135,8 @@ void BendAmbientSound();
 void CheckAmbience(short nSector);
 
 short PlayFX2(unsigned short nSound, short nSprite);
-short PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector);
-short D3PlayFX(unsigned short nSound, short nVal);
+short PlayFXAtXYZ(unsigned short nSound, int x, int y, int z, int nSector);
+short D3PlayFX(unsigned short nSound, short nSprite);
 void StopSpriteSound(short nSprite);
 
 void StartSwirlies();

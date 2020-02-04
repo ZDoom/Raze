@@ -55,7 +55,7 @@ void CreatePushBlock(int nSector);
 
 void FuncCreatureChunk(int a, int, int nRun);
 
-int FindPlayer(int nSprite, int nVal);
+int FindPlayer(int nSprite, int nDistance);
 
 int BuildCreatureChunk(int nVal, int nPic);
 
@@ -64,7 +64,7 @@ int BelowNear(short nSprite);
 
 int PlotCourseToSprite(int nSprite1, int nSprite2);
 
-void CheckSectorFloor(short nSector, int z, int *a, int *b);
+void CheckSectorFloor(short nSector, int z, int *x, int *y);
 
 int GetAngleToSprite(int nSprite1, int nSprite2);
 
