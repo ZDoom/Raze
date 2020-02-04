@@ -259,10 +259,12 @@ void I_InitSound ()
 		return;
 	}
 
+#ifndef NO_OPENAL
 	if (IsOpenALPresent())
 	{
 		GSnd = new OpenALSoundRenderer;
 	}
+#endif // !NO_OPENAL
 
 	if (!GSnd || !GSnd->IsValid ())
 	{

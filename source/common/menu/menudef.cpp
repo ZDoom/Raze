@@ -1508,6 +1508,7 @@ void M_CreateMenus()
 	{
 		I_BuildMIDIMenuList(*opt);
 	}
+#ifndef NO_OPENAL
 	opt = OptionValues.CheckKey(NAME_Aldevices);
 	if (opt != nullptr)
 	{
@@ -1518,6 +1519,7 @@ void M_CreateMenus()
 	{
 		I_BuildALResamplersList(*opt);
 	}
+#endif // !NO_OPENAL
 }
 
 //=============================================================================
