@@ -1119,6 +1119,7 @@ EXTERN_CVAR(Bool, hw_models)
 EXTERN_CVAR(Float, hw_shadescale)
 EXTERN_CVAR(Int, hw_anisotropy)
 EXTERN_CVAR(Int, hw_texfilter)
+extern bool hw_int_useindexedcolortextures;
 EXTERN_CVAR(Bool, hw_useindexedcolortextures)
 EXTERN_CVAR(Bool, hw_parallaxskypanning)
 EXTERN_CVAR(Bool, r_voxels)

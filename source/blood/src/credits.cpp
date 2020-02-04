@@ -253,6 +253,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     inputState.ClearAllInput();
     
     int nFrame = 0;
+    hw_int_useindexedcolortextures = false;
     do
     {
         gameHandleEvents();
@@ -275,6 +276,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
         nFrame++;
         Smacker_GetNextFrame(hSMK);
     } while(nFrame < nFrames);
+    hw_int_useindexedcolortextures = hw_useindexedcolortextures;
 
     Smacker_Close(hSMK);
     inputState.ClearAllInput();

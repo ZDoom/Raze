@@ -160,7 +160,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	bool texbound[3] = {};
 	int MatrixChange = 0;
 
-	TextureType = hw_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
+	TextureType = hw_int_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
 
 	int lookuppal = 0;
 	VSMatrix texmat;
