@@ -10,6 +10,10 @@ Doom Source (c) 1997 id Software, Raven Software, and contributors
 
 EDuke32 Source (c) 2005-2020 EDuke32 teams, and contributors
 
+NBlood source (c) 2019 Nuke.YKT
+
+PCExhumed source (c) 2019 sirlemonhead, Nuke.YKT
+
 Duke Nukem 3D Source (c) 1996-2003 3D Realms
 
 Shadow Warrior Source (c) 1997-2005 3D Realms
@@ -22,7 +26,7 @@ Please see license files for individual contributor licenses
 
 Special thanks to Coraline of the 3DGE team for allowing us to use her README.md as a template for this one.
 
-### Licensed under the GPL v2
+### Non-Build code is licensed under the GPL v2
 ##### https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 ---
 
