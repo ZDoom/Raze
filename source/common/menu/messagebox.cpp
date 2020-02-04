@@ -142,27 +142,24 @@ void DMessageBoxMenu::CloseSound()
 
 void DMessageBoxMenu::HandleResult(bool res)
 {
-	if (mParentMenu != NULL)
+	if (mMessageMode == 0)
 	{
-		if (mMessageMode == 0)
+		if (mActionFunc)
 		{
-			if (mActionFunc)
-			{
-				mActionFunc(res);
-				Close();
-			}
-			else if (mAction == NAME_None) 
-			{
-				mParentMenu->MenuEvent(res? MKEY_MBYes : MKEY_MBNo, false);
-				Close();
-			}
-			else 
-			{
-				Close();
-				if (res) M_SetMenu(mAction, -1);
-			}
-			CloseSound();
+			mActionFunc(res);
+			Close();
 		}
+		else if (mAction == NAME_None && mParentMenu)
+		{
+			mParentMenu->MenuEvent(res ? MKEY_MBYes : MKEY_MBNo, false);
+			Close();
+		}
+		else
+		{
+			Close();
+			if (res) M_SetMenu(mAction, -1);
+		}
+		CloseSound();
 	}
 }
 
