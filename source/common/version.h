@@ -41,23 +41,23 @@ const char *GetVersionString();
 
 /** Lots of different version numbers **/
 
-#define VERSIONSTR "0.3.4"
+#define VERSIONSTR "0.4.0 alpha"
 
 // The version as seen in the Windows resource
-#define RC_FILEVERSION 0,3,4,0
-#define RC_PRODUCTVERSION 0,3,4,0
+#define RC_FILEVERSION 0,4,0,0
+#define RC_PRODUCTVERSION 0,4,0,0
 #define RC_PRODUCTVERSION2 VERSIONSTR
 // These are for content versioning.
 #define VER_MAJOR 0
-#define VER_MINOR 3
-#define VER_REVISION 4
+#define VER_MINOR 4
+#define VER_REVISION 0
 
 // More stuff that needs to be different for derivatives.
 #define GAMENAME "Raze"
 #define WGAMENAME L"Raze"
 #define GAMENAMELOWERCASE "raze"
 #define FORUM_URL "http://forum.zdoom.org/"
-#define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=2"	// fixme before release!!!
+#define BUGS_FORUM_URL	"http://forum.zdoom.org/viewforum.php?f=340"
 #define ENGINERES_FILE GAMENAMELOWERCASE ".pk3"
 
 #define SAVESIG_DN3D GAMENAME ".Duke"
