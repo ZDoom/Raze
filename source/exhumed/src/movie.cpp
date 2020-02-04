@@ -31,8 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-void ServeSample(const char** ptr, uint32_t* length);
-
 enum {
     kFramePalette = 0,
     kFrameSound,
