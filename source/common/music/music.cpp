@@ -679,8 +679,7 @@ int Mus_Play(const char *mapname, const char *fn, bool loop)
 			return true;
 	}
 
-	S_ChangeMusic(fn, 0, loop, true);
-	return mus_playing.handle != nullptr;
+	return S_ChangeMusic(fn, 0, loop, true);
 }
 
 bool Mus_IsPlaying()
