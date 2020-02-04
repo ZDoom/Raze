@@ -1,0 +1,90 @@
+name: Continuous Integration
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Visual Studio 64-bit",
+            os: windows-latest,
+            extra_options: "-A x64"
+          }
+        - {
+            name: "Visual Studio 32-bit",
+            os: windows-latest,
+            extra_options: "-A Win32"
+          }
+        - {
+            name: "macOS",
+            os: macos-latest,
+            extra_options: "-DDYN_FLUIDSYNTH=OFF -DDYN_OPENAL=OFF -DDYN_SNDFILE=OFF -DDYN_MPG123=OFF",
+            deps_cmdline: "brew install libvpx fluidsynth mpg123 libsndfile"
+          }
+        - {
+            name: "Linux GCC",
+            os: ubuntu-latest,
+            deps_cmdline: "sudo apt update && sudo apt install libsdl2-dev"
+          }
+        - {
+            name: "Linux Clang",
+            os: ubuntu-latest,
+            extra_options: "-DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+                            -DDYN_FLUIDSYNTH=OFF -DDYN_OPENAL=OFF -DDYN_SNDFILE=OFF -DDYN_MPG123=OFF",
+            deps_cmdline: "sudo apt update && sudo apt install libsdl2-dev libvpx-dev libopenal-dev libfluidsynth-dev libmpg123-dev libsndfile1-dev"
+          }
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        if [[ ! -z "${{ matrix.config.deps_cmdline }}" ]]; then
+          eval ${{ matrix.config.deps_cmdline }}
+        fi
+
+    - name: Configure
+      shell: bash
+      run: |
+        mkdir build
+        cmake -B build -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ${{ matrix.config.extra_options }} .
+
+    - name: Build
+      shell: bash
+      run: |
+        cmake --build build --config ${BUILD_TYPE} --parallel 3
+
+    - name: Create Package
+      shell: bash
+      run: |
+        cd build
+        mkdir package
+        if [[ "${{ runner.os }}" == 'Windows' ]]; then
+          cp ${BUILD_TYPE}/raze.exe ${BUILD_TYPE}/raze.pk3 package
+        elif [[ "${{ runner.os }}" == 'macOS' ]]; then
+          cp -r raze.app package
+        elif [[ "${{ runner.os }}" == 'Linux' ]]; then
+          cp raze raze.pk3 package
+        fi
+
+    - name: Upload Package
+      uses: actions/upload-artifact@v1
+      with:
+        path: build/package
+        name: ${{ matrix.config.name }}
+
+    - name: List Build Directory
+      if: always()
+      shell: bash
+      run: |
+        git status
+        ls -lR build
