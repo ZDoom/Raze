@@ -264,7 +264,7 @@ TArray<FileEntry> CollectAllFilesInSearchPath()
 		FileReader fr;
 		if (fr.OpenFile(userConfig.gamegrp))
 		{
-			FileEntry fe = { userConfig.gamegrp, (uintmax_t)fr.GetLength(), 0, 0, index++ };
+			FileEntry fe = { userConfig.gamegrp, (size_t)fr.GetLength(), 0, 0, index++ };
 			filelist.Push(fe);
 		}
 	}
