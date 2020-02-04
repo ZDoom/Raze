@@ -188,11 +188,10 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			}
 			lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false,fixpalette < 0? !!(curpaletteflags & Pal_Fullscreen) : 0);
 		}
-
 	}
 
 	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
-	if (applytint) GLInterface.SetTinting(h.f, h.tint, h.tint);
+	if (applytint && h.f) GLInterface.SetTinting(h.f, h.tint, h.tint);
 	else GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
 
 
