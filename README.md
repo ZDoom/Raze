@@ -1,6 +1,6 @@
 # Welcome to Raze!
 
-(This line is reserved for CI badges)
+[![Build Status](https://github.com/coelckers/Raze/workflows/Continuous%20Integration/badge.svg)](https://github.com/coelckers/Raze/actions?query=workflow%3A%22Continuous+Integration%22)
 
 ## Raze is a fork of EDuke32 backed by GZDoom tech and combines EDuke32, PCExhumed, NBlood, and RedNukem in a single package.
 
