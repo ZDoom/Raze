@@ -2243,7 +2243,9 @@ void StatScreen(PLAYERp mpp)
 
     //ResetPalette(mpp);
     COVER_SetReverb(0); // Reset reverb
+    mpp->Reverb = 0;
     StopSound();
+    soundEngine->UpdateSounds((int)totalclock);
 
     if (FinishAnim)
     {
