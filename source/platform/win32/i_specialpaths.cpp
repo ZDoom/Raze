@@ -43,7 +43,6 @@
 #include "cmdlib.h"
 #include "i_findfile.h"
 #include "gamecontrol.h"
-#include "m_argv.h"
 #include "version.h"	// for GAMENAME
 
 // Stuff that needs to be set up later.
@@ -267,47 +266,32 @@ FString M_GetScreenshotsPath()
 // Returns the path to the default save games directory.
 //
 //===========================================================================
-CVAR(String, cl_savedir, "", CVAR_ARCHIVE)
 
 FString M_GetSavegamesPath()
 {
 	FString path;
 
-	auto dir = Args->CheckValue("-savedir");
-	if (dir)
+	if (!UseKnownFolders())
 	{
-		path = dir;
-		path.Substitute("\\", "/");
-		if (path[path.Len() - 1] != '/') path << '/';
-	}
-	else if (**cl_savedir)
-	{
-		path = cl_savedir;
-		path.Substitute("\\", "/");
-		if (path[path.Len() - 1] != '/') path << '/';
-		path << LumpFilter << '/';
-	}
-	else if (!UseKnownFolders())
-	{
-		path << progdir << "Save/" << LumpFilter << "/";
+		path << progdir << "Save/";
 	}
 	// Try standard Saved Games folder
 	else if (GetKnownFolder(-1, FOLDERID_SavedGames, true, path))
 	{
-		path << "/" GAMENAME "/" << LumpFilter << "/";
+		path << "/" GAMENAME "/";
 	}
 	// Try defacto My Documents/My Games folder
 	else if (GetKnownFolder(CSIDL_PERSONAL, FOLDERID_Documents, true, path))
 	{
 		// I assume since this isn't a standard folder, it doesn't have
 		// a localized name either.
-		path << "/My Games/" GAMENAME "/" << LumpFilter << "/";
+		path << "/My Games/" GAMENAME "/";
 	}
 	else
 	{
-		path << progdir << "Save/" << LumpFilter << "/";
+		path << progdir << "Save/";
 	}
-	CreatePath(path);
+
 	return path;
 }
 

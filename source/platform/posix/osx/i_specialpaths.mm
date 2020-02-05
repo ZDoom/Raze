@@ -199,7 +199,6 @@ FString M_GetSavegamesPath()
 		path += "/" GAME_DIR "/Savegames/";
 	}
 
-	CreatePath(path);
 	return path;
 }
 
