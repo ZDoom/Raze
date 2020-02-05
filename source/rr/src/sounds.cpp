@@ -315,7 +315,8 @@ void S_Update(void)
     vec3_t* c;
     int32_t ca, cs;
 	
-    if (RR && Mus_IsPlaying())
+    auto& gm = g_player[myconnectindex].ps->gm;
+    if (RR && !Mus_IsPlaying() && (gm && gm & MODE_GAME))
         S_PlayRRMusic(); 
 
     S_GetCamera(&c, &ca, &cs);
@@ -611,7 +612,7 @@ void S_PlayRRMusic(int newTrack)
             g_cdTrack = 2;
 
         FStringf filename("track%02d.ogg", g_cdTrack);
-        if (Mus_Play(nullptr, 0, false)) return;
+        if (Mus_Play(nullptr, filename, false)) return;
     }
     // If none of the tracks managed to start, disable the CD music for this session so that regular music can play if defined.
     cd_disabled = true;

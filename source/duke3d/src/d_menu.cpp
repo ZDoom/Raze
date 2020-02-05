@@ -534,7 +534,7 @@ bool GameInterface::CanSave()
 	auto &myplayer = *g_player[myconnectindex].ps;
 	if (sprite[myplayer.i].extra <= 0)
 	{
-		P_DoQuote(QUOTE_SAVE_DEAD, &myplayer);
+		//P_DoQuote(QUOTE_SAVE_DEAD, &myplayer); // handled by the menu.
 		return false;
 	}
 	return true;

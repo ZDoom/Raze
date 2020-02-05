@@ -159,6 +159,7 @@ bool StreamSong::ServiceStream (void *buff, int len)
 	bool written = m_Source->GetData(buff, len);
 	if (!written)
 	{
+		m_Status = STATE_Stopped;
 		memset((char*)buff, 0, len);
 		return false;
 	}

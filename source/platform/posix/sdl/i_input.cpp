@@ -382,7 +382,7 @@ void MessagePump (const SDL_Event &sev)
 
 			if (sev.wheel.y != 0)
 				event.data1 = sev.wheel.y > 0 ? KEY_MWHEELUP : KEY_MWHEELDOWN;
-			else
+			else 
 				event.data1 = sev.wheel.x > 0 ? KEY_MWHEELRIGHT : KEY_MWHEELLEFT;
 
 			D_PostEvent (&event);
