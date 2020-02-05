@@ -36,17 +36,17 @@ void hicinit(void)
 //   palette shifts on true-colour textures and only true-colour textures.
 //   effect bitset: 1 = greyscale, 2 = invert
 //
-void hicsetpalettetint(int32_t palnum, char r, char g, char b, char sr, char sg, char sb, polytintflags_t effect)
+void hicsetpalettetint(int32_t palnum, int r, int g, int b, int sr, int sg, int sb, polytintflags_t effect)
 {
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return;
 
     polytint_t & tint = hictinting[palnum];
-    tint.tint.r = r;
-    tint.tint.g = g;
-    tint.tint.b = b;
-    tint.shade.r = sr;
-    tint.shade.g = sg;
-    tint.shade.b = sb;
+    tint.tint.r = (uint8_t)r;
+    tint.tint.g = (uint8_t)g;
+    tint.tint.b = (uint8_t)b;
+    tint.shade.r = (uint8_t)sr;
+    tint.shade.g = (uint8_t)sg;
+    tint.shade.b = (uint8_t)sb;
     tint.f = effect;
 }
 

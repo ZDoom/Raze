@@ -103,34 +103,34 @@ vec4 convertColor(vec4 color)
 	// Much of this looks quite broken by design. Why is this effectively multplied by 4 if the flag is set...? :(
 	if ((effect & RF_HICTINT_Colorize) != 0)
 	{
-		tcol.b = min(((tcol.b) * u_tintModulate.r)* 4, 255.0);
+		tcol.r = min(((tcol.b) * u_tintModulate.r)* 4, 255.0);
 		tcol.g = min(((tcol.g) * u_tintModulate.g)* 4, 255.0);
-		tcol.r = min(((tcol.r) * u_tintModulate.b)* 4, 255.0);
+		tcol.b = min(((tcol.r) * u_tintModulate.b)* 4, 255.0);
 	}
 	else
 	{
-		tcol.b = min(((tcol.b) * u_tintModulate.r), 255.0);
+		tcol.r = min(((tcol.b) * u_tintModulate.r), 255.0);
 		tcol.g = min(((tcol.g) * u_tintModulate.g), 255.0);
-		tcol.r = min(((tcol.r) * u_tintModulate.b), 255.0);
+		tcol.b = min(((tcol.r) * u_tintModulate.b), 255.0);
 	}
 
 	vec4 ov = u_tintOverlay * 255.0;
 	switch (effect & RF_HICTINT_BLENDMASK)
 	{
 		case RF_HICTINT_BLEND_Screen:
-			tcol.b = 255.0 - (((255.0 - tcol.b) * (255.0 - ov.r)) / 256.0);
+			tcol.r = 255.0 - (((255.0 - tcol.r) * (255.0 - ov.r)) / 256.0);
 			tcol.g = 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 256.0);
-			tcol.r = 255.0 - (((255.0 - tcol.r) * (255.0 - ov.b)) / 256.0);
+			tcol.b = 255.0 - (((255.0 - tcol.b) * (255.0 - ov.b)) / 256.0);
 			break;
 		case RF_HICTINT_BLEND_Overlay:
-			tcol.b = tcol.b < 128.0? (tcol.b * ov.r) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - ov.r)) / 128.0);
+			tcol.r = tcol.b < 128.0? (tcol.r * ov.r) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - ov.r)) / 128.0);
 			tcol.g = tcol.g < 128.0? (tcol.g * ov.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 128.0);
-			tcol.r = tcol.r < 128.0? (tcol.r * ov.b) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - ov.b)) / 128.0);
+			tcol.b = tcol.r < 128.0? (tcol.b * ov.b) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - ov.b)) / 128.0);
 			break;
 		case RF_HICTINT_BLEND_Hardlight:
-			tcol.b = ov.r < 128.0 ? (tcol.b * ov.r) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - ov.r)) / 128.0);
+			tcol.r = ov.r < 128.0 ? (tcol.r * ov.r) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - ov.r)) / 128.0);
 			tcol.g = ov.g < 128.0 ? (tcol.g * ov.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 128.0);
-			tcol.r = ov.b < 128.0 ? (tcol.r * ov.b) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - ov.b)) / 128.0);
+			tcol.b = ov.b < 128.0 ? (tcol.b * ov.b) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - ov.b)) / 128.0);
 			break;
 	}
 	color.rgb = tcol / 255.0;
