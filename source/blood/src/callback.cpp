@@ -269,10 +269,10 @@ void Respawn(int nSprite) // 9
                 pSprite->y = baseSprite[nSprite].y;
                 pSprite->z = baseSprite[nSprite].z;
                 pSprite->cstat |= 0x1101;
-                pSprite->clipdist = dudeInfo[nType].clipdist;
-                pXSprite->health = dudeInfo[nType].startHealth<<4;
-                if (gSysRes.Lookup(dudeInfo[nType].seqStartID, "SEQ"))
-                    seqSpawn(dudeInfo[nType].seqStartID, 3, pSprite->extra, -1);
+                pSprite->clipdist = getDudeInfo(nType+kDudeBase)->clipdist;
+                pXSprite->health = getDudeInfo(nType+kDudeBase)->startHealth<<4;
+                if (gSysRes.Lookup(getDudeInfo(nType+kDudeBase)->seqStartID, "SEQ"))
+                    seqSpawn(getDudeInfo(nType+kDudeBase)->seqStartID, 3, pSprite->extra, -1);
                 aiInitSprite(pSprite);
                 pXSprite->key = 0;
             } else if (pSprite->type == kThingTNTBarrel) {

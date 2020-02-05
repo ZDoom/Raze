@@ -95,7 +95,7 @@ bool sub_5BDA8(spritetype *pSprite, int nSeq)
 {
     if (pSprite->statnum == kStatDude && pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
     {
-        DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+        DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
         if (seqGetID(3, pSprite->extra) == pDudeInfo->seqStartID + nSeq && seqGetStatus(3, pSprite->extra) >= 0)
             return true;
     }
@@ -118,7 +118,7 @@ void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4)
 
 void aiNewState(spritetype *pSprite, XSPRITE *pXSprite, AISTATE *pAIState)
 {
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     pXSprite->stateTimer = pAIState->stateTicks;
     pXSprite->aiState = pAIState;
     int seqStartId = pDudeInfo->seqStartID;
@@ -305,7 +305,7 @@ void aiMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
@@ -318,7 +318,7 @@ void aiMoveForward(spritetype *pSprite, XSPRITE *pXSprite)
 void aiMoveTurn(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
@@ -328,7 +328,7 @@ void aiMoveDodge(spritetype *pSprite, XSPRITE *pXSprite)
 {
     int nSprite = pSprite->index;
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nAng = ((pXSprite->goalAng+1024-pSprite->ang)&2047)-1024;
     int nTurnRange = (pDudeInfo->angSpeed<<2)>>4;
     pSprite->ang = (pSprite->ang+ClipRange(nAng, -nTurnRange, nTurnRange))&2047;
@@ -910,7 +910,7 @@ void aiSetTarget(XSPRITE *pXSprite, int nTarget)
         if (actSpriteOwnerToSpriteId(&sprite[pXSprite->reference]) != nTarget)
         {
             pXSprite->target = nTarget;
-            DUDEINFO *pDudeInfo = &dudeInfo[pTarget->type-kDudeBase];
+            DUDEINFO *pDudeInfo = getDudeInfo(pTarget->type);
             pXSprite->targetX = pTarget->x;
             pXSprite->targetY = pTarget->y;
             pXSprite->targetZ = pTarget->z-((pDudeInfo->eyeHeight*pTarget->yrepeat)<<2);
@@ -926,7 +926,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
         return 0;
     pXSprite->health = ClipLow(pXSprite->health - nDamage, 0);
     cumulDamage[pSprite->extra] += nDamage;
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nSprite = pXSprite->reference;
     if (nSource >= 0)
     {
@@ -1127,7 +1127,7 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
     char v4 = Chance(0x8000);
     DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
     if (pSprite->statnum == kStatDude && (pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-        DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+        DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
         switch (pSprite->type) {
 #ifdef NOONE_EXTENSIONS
         case kDudeModernCustom: {
@@ -1371,7 +1371,7 @@ void RecoilDude(spritetype *pSprite, XSPRITE *pXSprite)
 void aiThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (Chance(pDudeInfo->alertChance))
     {
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -1410,7 +1410,7 @@ void aiThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     if (Chance(pDudeInfo->alertChance))
     {
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
@@ -1457,7 +1457,7 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
                 int nDist = approxDist(dx, dy);
                 if (pSprite2->type == kDudeInnocent)
                 {
-                    DUDEINFO *pDudeInfo = &dudeInfo[pSprite2->type-kDudeBase];
+                    DUDEINFO *pDudeInfo = getDudeInfo(pSprite2->type);
                     if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
                         continue;
                     int UNUSED(nAngle) = getangle(dx,dy);
@@ -1475,7 +1475,7 @@ void aiProcessDudes(void) {
         spritetype *pSprite = &sprite[nSprite];
         if (pSprite->flags & 32) continue;
         int nXSprite = pSprite->extra;
-        XSPRITE *pXSprite = &xsprite[nXSprite]; DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+        XSPRITE *pXSprite = &xsprite[nXSprite]; DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
         if (IsPlayerSprite(pSprite) || pXSprite->health == 0) continue;
         pXSprite->stateTimer = ClipLow(pXSprite->stateTimer-4, 0);
         switch (pSprite->type){

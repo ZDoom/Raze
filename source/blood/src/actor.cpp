@@ -2787,7 +2787,7 @@ void ConcussSprite(int a1, spritetype *pSprite, int x, int y, int z, int a6)
         int mass = 0;
         if (IsDudeSprite(pSprite)) {
 
-            mass = dudeInfo[pSprite->type - kDudeBase].mass;
+            mass = getDudeInfo(pSprite->type)->mass;
             #ifdef NOONE_EXTENSIONS
             switch (pSprite->type) {
             case kDudeModernCustom:
@@ -3342,7 +3342,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         break;
     }
 
-    if (!gSysRes.Lookup(dudeInfo[nType].seqStartID + nSeq, "SEQ"))
+    if (!gSysRes.Lookup(getDudeInfo(nType+kDudeBase)->seqStartID + nSeq, "SEQ"))
     {
         seqKill(3, nXSprite);
         gKillMgr.AddKill(pSprite);
@@ -3651,13 +3651,13 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         seqSpawn(dudeInfo[nType].seqStartID+12, 3, nXSprite, nDudeToGibClient1);
         break;
     default:
-        seqSpawn(dudeInfo[nType].seqStartID+nSeq, 3, nXSprite, -1);
+        seqSpawn(getDudeInfo(nType+kDudeBase)->seqStartID+nSeq, 3, nXSprite, -1);
         break;
     }
     
     if (damageType == DAMAGE_TYPE_3)
     {
-        DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+        DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
         for (int i = 0; i < 3; i++)
             if (pDudeInfo->nGibType[i] > -1)
                 GibSprite(pSprite, (GIBTYPE)pDudeInfo->nGibType[i], NULL, NULL);
@@ -3695,7 +3695,7 @@ int actDamageSprite(int nSource, spritetype *pSprite, DAMAGE_TYPE damageType, in
                 //ThrowError("Bad Dude Failed: initial=%d type=%d %s\n", (int)pSprite->inittype, (int)pSprite->type, (int)(pSprite->flags & 16) ? "RESPAWN" : "NORMAL");
             }
 
-            int nType = pSprite->type - kDudeBase; int nDamageFactor = dudeInfo[nType].at70[damageType];
+            int nType = pSprite->type - kDudeBase; int nDamageFactor = getDudeInfo(nType+kDudeBase)->at70[damageType];
             #ifdef NOONE_EXTENSIONS
             if (pSprite->type == kDudeModernCustom)
                 nDamageFactor = gGenDudeExtra[pSprite->index].dmgControl[damageType];
@@ -3884,7 +3884,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                 pThingInfo = &thingInfo[pSpriteHit->type - kThingBase];
                 break;
             case kStatDude:
-                pDudeInfo = &dudeInfo[pSpriteHit->type - kDudeBase];
+                pDudeInfo = getDudeInfo(pSpriteHit->type);
                 break;
         }
     }
@@ -3905,7 +3905,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
 
                     if (IsDudeSprite(pSource) && pXSource != NULL && pXSource->health != 0)
 
-                        actHealDude(pXSource, nDamage >> 2, dudeInfo[pSource->type - kDudeBase].startHealth);
+                        actHealDude(pXSource, nDamage >> 2, getDudeInfo(pSource->type)->startHealth);
                 }
             }
         
@@ -4115,7 +4115,7 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
                     XSPRITE *pXOwner = &xsprite[pOwner->extra];
                     int nType = pOwner->type-kDudeBase;
                     if (pXOwner->health > 0)
-                        actHealDude(pXOwner, 10, dudeInfo[nType].startHealth);
+                        actHealDude(pXOwner, 10, getDudeInfo(nType+kDudeBase)->startHealth);
                 }
             }
             break;
@@ -4241,8 +4241,8 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                     // add size shroom abilities
                     if ((IsPlayerSprite(pSprite) && isShrinked(pSprite)) || (IsPlayerSprite(pSprite2) && isGrown(pSprite2))) {
 
-                        int mass1 = dudeInfo[pSprite2->type - kDudeBase].mass;
-                        int mass2 = dudeInfo[pSprite->type - kDudeBase].mass;
+                        int mass1 = getDudeInfo(pSprite2->type)->mass;
+                        int mass2 = getDudeInfo(pSprite->type)->mass;
                         switch (pSprite->type) {
                             case kDudeModernCustom:
                             case kDudeModernCustomBurning:
@@ -4316,8 +4316,8 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
             // add size shroom abilities
             if ((IsPlayerSprite(pSprite2) && isShrinked(pSprite2)) || (IsPlayerSprite(pSprite) && isGrown(pSprite))) {
                 if (xvel[pSprite->xvel] != 0 && IsDudeSprite(pSprite2)) {
-                    int mass1 = dudeInfo[pSprite->type - kDudeBase].mass;
-                    int mass2 = dudeInfo[pSprite2->type - kDudeBase].mass;
+                    int mass1 = getDudeInfo(pSprite->type)->mass;
+                    int mass2 = getDudeInfo(pSprite2->type)->mass;
                     switch (pSprite2->type) {
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
@@ -4373,8 +4373,8 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
             // add size shroom abilities
             if ((IsPlayerSprite(pSprite2) && isShrinked(pSprite2)) || (IsPlayerSprite(pSprite) && isGrown(pSprite))) {
                 
-                int mass1 = dudeInfo[pSprite->type - kDudeBase].mass;
-                int mass2 = dudeInfo[pSprite2->type - kDudeBase].mass;
+                int mass1 = getDudeInfo(pSprite->type)->mass;
+                int mass2 = getDudeInfo(pSprite2->type)->mass;
                 switch (pSprite2->type) {
                     case kDudeModernCustom:
                     case kDudeModernCustomBurning:
@@ -4717,7 +4717,7 @@ void MoveDude(spritetype *pSprite)
         consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     int bz = (bottom-pSprite->z)/4;
@@ -6231,10 +6231,10 @@ void actProcessSprites(void)
                     pXIncarnation->key = pXIncarnation->dropMsg = 0;
 
                     // set hp
-                    if (pXSprite->data4 <= 0) pXSprite->health = dudeInfo[pSprite->type - kDudeBase].startHealth << 4;
+                        if (pXSprite->data4 <= 0) pXSprite->health = getDudeInfo(pSprite->type)->startHealth << 4;
                         else pXSprite->health = ClipRange(pXSprite->data4 << 4, 1, 65535);
 
-                    int seqId = dudeInfo[pSprite->type - kDudeBase].seqStartID;
+                        int seqId = getDudeInfo(pSprite->type)->seqStartID;
                     switch (pSprite->type) {
                         case kDudePodMother: // fake dude
                         case kDudeTentacleMother: // fake dude
@@ -6491,11 +6491,11 @@ spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4)
     vec3_t pos = { x, y, z };
     setsprite(pSprite2->index, &pos);
     pSprite2->cstat |= 0x1101;
-    pSprite2->clipdist = dudeInfo[nDude].clipdist;
-    pXSprite2->health = dudeInfo[nDude].startHealth<<4;
+    pSprite2->clipdist = getDudeInfo(nDude+kDudeBase)->clipdist;
+    pXSprite2->health = getDudeInfo(nDude+kDudeBase)->startHealth<<4;
     pXSprite2->respawn = 1;
-    if (gSysRes.Lookup(dudeInfo[nDude].seqStartID, "SEQ"))
-        seqSpawn(dudeInfo[nDude].seqStartID, 3, pSprite2->extra, -1);
+    if (gSysRes.Lookup(getDudeInfo(nDude+kDudeBase)->seqStartID, "SEQ"))
+        seqSpawn(getDudeInfo(nDude+kDudeBase)->seqStartID, 3, pSprite2->extra, -1);
     
     #ifdef NOONE_EXTENSIONS
     // add a way to inherit some values of spawner type 18 by dude.
@@ -7027,7 +7027,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
             }
             if (pSprite->statnum == kStatDude)
             {
-                int t = pSprite->type == kThingBloodChunks ? 0 : dudeInfo[pSprite->type-kDudeBase].mass;
+                int t = getDudeInfo(pSprite->type)->mass;
                 
                 #ifdef NOONE_EXTENSIONS
                 if (IsDudeSprite(pSprite)) {
@@ -7494,7 +7494,7 @@ spritetype* actSpawnCustomDude(spritetype* pSprite, int nDist) {
 
     pDude->type = nType; pDude->ang = nAngle;
     vec3_t pos = { x, y, z }; setsprite(pDude->index, &pos); 
-    pDude->cstat |= 0x1101; pDude->clipdist = dudeInfo[nType - kDudeBase].clipdist;
+    pDude->cstat |= 0x1101; pDude->clipdist = getDudeInfo(nType)->clipdist;
 
     // inherit weapon, seq and sound settings.
     pXDude->data1 = pXSource->data1;
@@ -7512,7 +7512,7 @@ spritetype* actSpawnCustomDude(spritetype* pSprite, int nDist) {
     if (pSource->clipdist > 0) pDude->clipdist = pSource->clipdist;
 
     // inherit custom hp settings
-    if (pXSource->data4 <= 0) pXDude->health = dudeInfo[nType - kDudeBase].startHealth << 4;
+    if (pXSource->data4 <= 0) pXDude->health = getDudeInfo(nType)->startHealth << 4;
     else pXDude->health = ClipRange(pXSource->data4 << 4, 1, 65535);
 
 
@@ -7566,7 +7566,7 @@ int getSpriteMassBySize(spritetype* pSprite) {
                 clipDist = gGenDudeExtra[pSprite->index].initVals[2];
                 break;
             default:
-                seqId = dudeInfo[pSprite->type - kDudeBase].seqStartID;
+                seqId = getDudeInfo(pSprite->type)->seqStartID;
                 break;
         }
 
@@ -7910,7 +7910,7 @@ bool isImmune(spritetype* pSprite, int dmgType, int minScale) {
         else if (IsDudeSprite(pSprite)) {
             if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType] <= minScale);
             else if (pSprite->type == kDudeModernCustom) return (gGenDudeExtra[pSprite->index].dmgControl[dmgType] <= minScale);
-            else return (dudeInfo[pSprite->type - kDudeBase].at70[dmgType] <= minScale);
+            else return (getDudeInfo(pSprite->type)->at70[dmgType] <= minScale);
         }
     }
 

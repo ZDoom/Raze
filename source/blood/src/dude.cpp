@@ -1731,4 +1731,6 @@ DUDEINFO gPlayerTemplate[4] =
      },
 };
 
+DUDEINFO fakeDudeInfo = {};
+
 END_BLD_NS

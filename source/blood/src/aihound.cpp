@@ -108,7 +108,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     }
     
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
     int nAngle = getangle(dx, dy);
@@ -131,7 +131,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
         consoleSysMsg("pXSprite->target >= 0 && pXSprite->target < kMaxSprites");

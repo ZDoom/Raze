@@ -83,8 +83,8 @@ static void HackSeqCallback(int, int nXSprite)
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
     spritetype *pTarget = &sprite[pXSprite->target];
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
-    DUDEINFO *pDudeInfoT = &dudeInfo[pTarget->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+    DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int tx = pXSprite->targetX-pSprite->x;
     int ty = pXSprite->targetY-pSprite->y;
     int UNUSED(nDist) = approxDist(tx, ty);
@@ -114,7 +114,7 @@ static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
     int nAngle = getangle(dx, dy);
@@ -133,7 +133,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     }
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
@@ -179,7 +179,7 @@ static void thinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     }
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];
@@ -225,7 +225,7 @@ static void thinkPonder(spritetype *pSprite, XSPRITE *pXSprite)
 static void myThinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     for (int p = connecthead; p >= 0; p = connectpoint2[p])
     {
         PLAYER *pPlayer = &gPlayer[p];

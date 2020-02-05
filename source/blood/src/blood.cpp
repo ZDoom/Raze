@@ -171,7 +171,7 @@ void QuitGame(void)
 
 void PrecacheDude(spritetype *pSprite)
 {
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     seqPrecacheId(pDudeInfo->seqStartID);
     seqPrecacheId(pDudeInfo->seqStartID+5);
     seqPrecacheId(pDudeInfo->seqStartID+1);

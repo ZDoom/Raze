@@ -104,7 +104,7 @@ static void BurnSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pDudeInfo->eyeHeight*pSprite->yrepeat;
     ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
@@ -190,7 +190,7 @@ static void BurnSeqCallback2(int, int nXSprite)
         consoleSysMsg("pXSprite->target >= 0 && pXSprite->target < kMaxSprites");
         return;
     }
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = pDudeInfo->eyeHeight*pSprite->yrepeat;
     
     int x = pSprite->x;
@@ -240,7 +240,7 @@ static void BurnSeqCallback2(int, int nXSprite)
             int nDeltaAngle = ((nAngle-pSprite->ang+1024)&2047)-1024;
             if (klabs(nDeltaAngle) <= tt1.at8)
             {
-                DUDEINFO *pDudeInfo2 = &dudeInfo[pSprite2->type - kDudeBase];
+                DUDEINFO *pDudeInfo2 = getDudeInfo(pSprite2->type);
                 int height = (pDudeInfo2->aimHeight*pSprite2->yrepeat)<<2;
                 int tz = (z2-height)-z;
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
@@ -279,7 +279,7 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
         consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
     if (pDudeExtraE->at8 && pDudeExtraE->at4 < 10)
         pDudeExtraE->at4++;
@@ -339,7 +339,7 @@ static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
         consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
     int nAngle = getangle(dx, dy);
@@ -379,7 +379,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     }
 
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
 
     ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {

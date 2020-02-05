@@ -78,9 +78,9 @@ static void HackSeqCallback(int, int nXSprite)
     if (pSprite->type != kDudeZombieButcher)
         return;
     spritetype *pTarget = &sprite[pXSprite->target];
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int height = (pDudeInfo->eyeHeight*pSprite->yrepeat);
-    DUDEINFO *pDudeInfoT = &dudeInfo[pTarget->type-kDudeBase];
+    DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int height2 = (pDudeInfoT->eyeHeight*pTarget->yrepeat);
     actFireVector(pSprite, 0, 0, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, height-height2, VECTOR_TYPE_11);
 }
@@ -91,8 +91,8 @@ static void PukeSeqCallback(int, int nXSprite)
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
     spritetype *pTarget = &sprite[pXSprite->target];
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
-    DUDEINFO *pDudeInfoT = &dudeInfo[pTarget->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+    DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int height = (pDudeInfo->eyeHeight*pSprite->yrepeat);
     int height2 = (pDudeInfoT->eyeHeight*pTarget->yrepeat);
     int tx = pXSprite->targetX-pSprite->x;
@@ -110,7 +110,7 @@ static void ThrowSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    actFireMissile(pSprite, 0, -dudeInfo[pSprite->type-kDudeBase].eyeHeight, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, 0, kMissileButcherKnife);
+    actFireMissile(pSprite, 0, -getDudeInfo(pSprite->type)->eyeHeight, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, 0, kMissileButcherKnife);
 }
 
 static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
@@ -122,7 +122,7 @@ static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)
 static void thinkGoto(spritetype *pSprite, XSPRITE *pXSprite)
 {
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
     int nAngle = getangle(dx, dy);
@@ -141,7 +141,7 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     }
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];
     XSPRITE *pXTarget = &xsprite[pTarget->extra];

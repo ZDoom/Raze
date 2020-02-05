@@ -1394,7 +1394,7 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
             {
                 spritetype *pSprite = &sprite[*a2];
                 XSPRITE *pXSprite = &xsprite[*a3];
-                int nMass = dudeInfo[pSprite->type-kDudeBase].mass;
+                int nMass = getDudeInfo(pSprite->type)->mass;
                 if (nMass)
                 {
                     int t2 = divscale(0xccccc, nMass, 8);
@@ -2095,7 +2095,7 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
     XSPRITE *pXSprite = pPlayer->pXSprite;
     int nXSprite = pSprite->extra;
     int nXSector = sector[pSprite->sectnum].extra;
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nDeathSeqID = -1;
     int nKneelingPlayer = -1;
     int nSprite = pSprite->index;

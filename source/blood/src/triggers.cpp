@@ -289,7 +289,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                     int top, bottom;
                     GetSpriteExtents(pSprite, &top, &bottom);
                     int nType = pTarget->type-kDudeBase;
-                    DUDEINFO *pDudeInfo = &dudeInfo[nType];
+                    DUDEINFO *pDudeInfo = getDudeInfo(nType+kDudeBase);
                     int z1 = (top-pSprite->z)-256;
                     int x = pTarget->x;
                     int y = pTarget->y;
@@ -423,7 +423,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                             case kDudeBurningZombieButcher:
                             case kDudeBurningTinyCaleb:
                             case kDudeBurningBeast: {
-                                pXSpawn->health = dudeInfo[pXSprite->data1 - kDudeBase].startHealth << 4;
+                                pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                                 pXSpawn->burnTime = 10;
                                 pXSpawn->target = -1;
                                 aiActivateDude(pSpawn, pXSpawn);
@@ -1271,7 +1271,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                     case kDudeBurningZombieButcher:
                     case kDudeBurningTinyCaleb:
                     case kDudeBurningBeast: {
-                        pXSpawn->health = dudeInfo[pXSprite->data1 - kDudeBase].startHealth << 4;
+                        pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
                         pXSpawn->target = -1;
                         aiActivateDude(pSpawn, pXSpawn);
@@ -3759,7 +3759,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
 
         spritetype* pSprite = &sprite[nDest]; XSPRITE* pXSprite = &xsprite[pSprite->extra];
         spritetype* pTarget = NULL; XSPRITE* pXTarget = NULL; int receiveHp = 33 + Random(33);
-        DUDEINFO* pDudeInfo = &dudeInfo[pSprite->type - kDudeBase]; int matesPerEnemy = 1;
+        DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); int matesPerEnemy = 1;
 
         // dude is burning?
         if (pXSprite->burnTime > 0 && spriRangeIsFine(pXSprite->burnSource)) {
@@ -3853,7 +3853,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
                 if (pXMate->data4 > 0 && pXMate->health < pXMate->data4)
                     actHealDude(pXMate, receiveHp, pXMate->data4);
                 else {
-                    DUDEINFO* pTDudeInfo = &dudeInfo[pMate->type - kDudeBase];
+                    DUDEINFO* pTDudeInfo = getDudeInfo(pMate->type);
                     if (pXMate->health < pTDudeInfo->startHealth)
                         actHealDude(pXMate, receiveHp, pTDudeInfo->startHealth);
                 }
@@ -4060,7 +4060,7 @@ void pastePropertiesInObj(int type, int nDest, EVENT event) {
 // the following functions required for kModernDudeTargetChanger
 //---------------------------------------
 spritetype* getTargetInRange(spritetype* pSprite, int minDist, int maxDist, short data, short teamMode) {
-    DUDEINFO* pDudeInfo = &dudeInfo[pSprite->type - kDudeBase]; XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); XSPRITE* pXSprite = &xsprite[pSprite->extra];
     spritetype* pTarget = NULL; XSPRITE* pXTarget = NULL; spritetype* cTarget = NULL;
     for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         pTarget = &sprite[nSprite];  pXTarget = &xsprite[pTarget->extra];
@@ -4366,7 +4366,7 @@ bool getDudesForTargetChg(XSPRITE* pXSprite) {
 void disturbDudesInSight(spritetype* pSprite, int max) {
     spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
-    DUDEINFO* pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
     for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         pDude = &sprite[nSprite];
         if (pDude->xvel == pSprite->xvel || !IsDudeSprite(pDude) || pDude->extra < 0)

@@ -107,7 +107,7 @@ static void sub_6FFA0(int, int nXSprite)
         consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int x = pTarget->x-pSprite->x;
     int y = pTarget->y-pSprite->y;
     int dz = pTarget->z-pSprite->z;
@@ -184,7 +184,7 @@ static void sub_70380(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     }
     
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
     int nAngle = getangle(dx, dy);
@@ -225,7 +225,7 @@ static void sub_704D8(spritetype *pSprite, XSPRITE *pXSprite)
         consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
         return;
     }
-    DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     ///dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     if (!(pXSprite->target >= 0 && pXSprite->target < kMaxSprites)) {
         consoleSysMsg("pXSprite->target >= 0 && pXSprite->target < kMaxSprites");

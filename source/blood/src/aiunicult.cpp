@@ -210,12 +210,12 @@ static void punchCallback(int, int nXIndex) {
         int nSprite = pXSprite->reference;
         spritetype* pSprite = &sprite[nSprite];
 
-        int nZOffset1 = dudeInfo[pSprite->type - kDudeBase].eyeHeight * pSprite->yrepeat << 2;
+        int nZOffset1 = getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat << 2;
         int nZOffset2 = 0;
         
         spritetype* pTarget = &sprite[pXSprite->target];
         if(IsDudeSprite(pTarget))
-            nZOffset2 = dudeInfo[pTarget->type - kDudeBase].eyeHeight * pTarget->yrepeat << 2;
+            nZOffset2 = getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat << 2;
 
         int dx = Cos(pSprite->ang) >> 16;
         int dy = Sin(pSprite->ang) >> 16;
@@ -429,7 +429,7 @@ static void thinkGoto(spritetype* pSprite, XSPRITE* pXSprite) {
     aiChooseDirection(pSprite, pXSprite, nAngle);
 
     // if reached target, change to search mode
-    if (approxDist(dx, dy) < 5120 && klabs(pSprite->ang - nAngle) < dudeInfo[pSprite->type - kDudeBase].periphery) {
+    if (approxDist(dx, dy) < 5120 && klabs(pSprite->ang - nAngle) < getDudeInfo(pSprite->type)->periphery) {
         if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeSearchW);
         else aiGenDudeNewState(pSprite, &genDudeSearchL);
     }
@@ -498,7 +498,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
         }
     }
     
-    DUDEINFO* pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
     int losAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
     int eyeAboveZ = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
 
@@ -958,7 +958,7 @@ int checkAttackState(spritetype* pSprite, XSPRITE* pXSprite) {
 
 ///// For gen dude
 int getGenDudeMoveSpeed(spritetype* pSprite,int which, bool mul, bool shift) {
-    DUDEINFO* pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
     int speed = -1; int step = 2500; int maxSpeed = 146603;
     switch(which){
@@ -992,7 +992,7 @@ int getGenDudeMoveSpeed(spritetype* pSprite,int which, bool mul, bool shift) {
 }
     
 void aiGenDudeMoveForward(spritetype* pSprite, XSPRITE* pXSprite ) {
-    DUDEINFO* pDudeInfo = &dudeInfo[pSprite->type - kDudeBase];
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
     GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
     int maxTurn = pDudeInfo->angSpeed * 4 >> 4;
 
@@ -1294,7 +1294,7 @@ void scaleDamage(XSPRITE* pXSprite) {
     short weaponType = gGenDudeExtra[sprite[pXSprite->reference].index].weaponType;
     unsigned short* curScale = gGenDudeExtra[sprite[pXSprite->reference].index].dmgControl;
     for (int i = 0; i < kDmgMax; i++)
-        curScale[i] = dudeInfo[kDudeModernCustom - kDudeBase].startDamage[i];
+        curScale[i] = getDudeInfo(kDudeModernCustom)->startDamage[i];
 
     // all enemies with vector weapons gets extra resistance to bullet damage
     if (weaponType == kGenDudeWeaponHitscan) {
@@ -1305,7 +1305,7 @@ void scaleDamage(XSPRITE* pXSprite) {
     } else if (weaponType == kGenDudeWeaponSummon) {
         
         for (int i = 0; i < kDmgMax; i++)
-            curScale[i] = dudeInfo[curWeapon - kDudeBase].startDamage[i];
+            curScale[i] = getDudeInfo(curWeapon)->startDamage[i];
 
     // these does not like the explosions and burning
     } else if (weaponType == kGenDudeWeaponKamikaze) {
@@ -1856,7 +1856,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
 
             // check the animation
             int seqStartId = -1;
-            if (pXSprite->data2 <= 0) seqStartId = pXSprite->data2 = dudeInfo[pSprite->type - kDudeBase].seqStartID;
+            if (pXSprite->data2 <= 0) seqStartId = pXSprite->data2 = getDudeInfo(pSprite->type)->seqStartID;
             else seqStartId = pXSprite->data2;
 
             for (int i = seqStartId; i < seqStartId + kGenDudeSeqMax; i++) {
@@ -1867,7 +1867,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                     case kGenDudeSeqAttackThrow:
                     case kGenDudeSeqAttackPunch:
                         if (!gSysRes.Lookup(i, "SEQ")) {
-                            pXSprite->data2 = dudeInfo[pSprite->type - kDudeBase].seqStartID;
+                            pXSprite->data2 = getDudeInfo(pSprite->type)->seqStartID;
                             viewSetSystemMessage("No SEQ animation id %d found for custom dude #%d!", i, pSprite->index);
                             viewSetSystemMessage("SEQ base id: %d", seqStartId);
                         } else if ((i - seqStartId) == kGenDudeSeqAttackPunch) {

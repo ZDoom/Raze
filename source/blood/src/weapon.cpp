@@ -373,7 +373,7 @@ void UpdateAimVector(PLAYER * pPlayer)
             int nDist2 = ksqrt(dx*dx+dy*dy+dz*dz);
             if (nDist2 >= nClosest)
                 continue;
-            DUDEINFO *pDudeInfo = &dudeInfo[pSprite->type-kDudeBase];
+            DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
             int center = (pSprite->yrepeat*pDudeInfo->aimHeight)<<2;
             int dzCenter = (z2-center)-z;
             if (cansee(x, y, z, pPSprite->sectnum, x2, y2, z2, pSprite->sectnum))
