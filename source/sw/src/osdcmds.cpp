@@ -72,7 +72,7 @@ static int osdcmd_map(osdcmdptr_t parm)
     {
         if (mapList[i].labelName.CompareNoCase(mapname) == 0)
         {
-			FStringf cheatcode("swtrek%02d", i+1);
+			FStringf cheatcode("swtrek%02d", i);
 			WarpCheat(Player, cheatcode);
 			return OSDCMD_OK;
         }
