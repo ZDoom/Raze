@@ -181,7 +181,7 @@ CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the h
 {
 	if (self < 36) self = 36;
 	else if (self > 100) self = 100;
-	else gi->set_hud_scale(hud_size);
+	else gi->set_hud_scale(hud_scale);
 }
 
 // This is to allow flattening the overly complicated HUD configuration to one single value and keep the complexity safely inside the HUD code.

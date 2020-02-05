@@ -4348,7 +4348,8 @@ void GameInterface::set_hud_layout(int layout)
 
 void GameInterface::set_hud_scale(int scale)
 {
-	G_SetStatusBarScale(scale);
+    ud.statusbarscale = clamp(scale, 36, 100);
+    G_UpdateScreenArea();
 }
 
 void G_HandleLocalKeys(void)
@@ -4388,7 +4389,7 @@ void G_HandleLocalKeys(void)
             }
             else
             {
-                G_SetStatusBarScale(ud.statusbarscale+5);
+                hud_scale = hud_scale + 5;
             }
 
             G_UpdateScreenArea();
@@ -4407,7 +4408,7 @@ void G_HandleLocalKeys(void)
             }
             else
             {
-                G_SetStatusBarScale(ud.statusbarscale-5);
+                hud_scale = hud_scale - 5;
             }
 
             G_UpdateScreenArea();

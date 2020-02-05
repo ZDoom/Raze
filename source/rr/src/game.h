@@ -440,8 +440,6 @@ static inline int G_GetMusicIdx(const char *str)
 
 extern void G_PrintCurrentMusic(void);
 
-EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
-
 EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue);
 
 template <typename T>
@@ -463,12 +461,6 @@ static inline int G_GetViewscreenSizeShift(T const *tspr)
 }
 
 #if defined game_c_ || !defined DISABLE_INLINING
-
-EXTERN_INLINE void G_SetStatusBarScale(int32_t sc)
-{
-    ud.statusbarscale = clamp(sc, 36, 100);
-    G_UpdateScreenArea();
-}
 
 // the point of this is to prevent re-running a function or calculation passed to potentialValue
 // without making a new variable under each individual circumstance
