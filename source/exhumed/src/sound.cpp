@@ -431,7 +431,7 @@ void StartSwirly(int nActiveSound)
     pASound->snd_volume = nVolume;
     if (pASound->snd_channel) soundEngine->StopChannel(pASound->snd_channel);
 
-    pASound->snd_channel = soundEngine->StartSound(SOURCE_Swirly, &fakesources[nActiveSound-1], nullptr, CHAN_BODY, 0, StaticSound[kSound67]+1, nVolume / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
+    pASound->snd_channel = soundEngine->StartSound(SOURCE_Swirly, &fakesources[nActiveSound-1], nullptr, CHAN_BODY, 0, StaticSound[kSoundMana1]+1, nVolume / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
 }
 
 //==========================================================================
@@ -971,17 +971,17 @@ void StopAllSounds(void)
 
 void PlayTitleSound(void)
 {
-    PlayLocalSound(StaticSound[kSound10], 0);
+    PlayLocalSound(StaticSound[kSoundItemSpecial], 0);
 }
 
 void PlayLogoSound(void)
 {
-    PlayLocalSound(StaticSound[kSound28], 7000);
+    PlayLocalSound(StaticSound[kSoundJonLaugh2], 7000);
 }
 
 void PlayGameOverSound(void)
 {
-    PlayLocalSound(StaticSound[kSound28], 0);
+    PlayLocalSound(StaticSound[kSoundJonLaugh2], 0);
 }
 
 END_PS_NS
