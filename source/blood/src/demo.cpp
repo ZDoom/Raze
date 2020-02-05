@@ -302,7 +302,6 @@ void CDemo::Playback(void)
     inputState.SetBindsEnabled(false);
     ready2send = 0;
     int v4 = 0;
-    totalclock = 0;
     gNetFifoClock = totalclock;
     gViewMode = 3;
 _DEMOPLAYBACK:
@@ -310,7 +309,7 @@ _DEMOPLAYBACK:
     {
         handleevents();
         D_ProcessEvents();
-        while (((int)totalclock*16) >= gNetFifoClock && !gQuitGame)
+        while (totalclock >= gNetFifoClock && !gQuitGame)
         {
             if (!v4)
             {
