@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "network.h"
 #include "player.h"
 #include "screen.h"
-#include "i_specialpaths.h"
 #include "view.h"
 #include "gamecontrol.h"
 #include "menu/menu.h"
@@ -127,7 +126,7 @@ bool CDemo::Create(const char *pzFile)
     {
         for (int i = 0; i < 8 && !vc; i++)
         {
-			snprintf(buffer, BMAX_PATH, "%s%s0%02d.dem", M_GetDemoPath().GetChars(), BloodIniPre, i);
+			snprintf(buffer, BMAX_PATH, "%s%s0%02d.dem", G_GetDemoPath().GetChars(), BloodIniPre, i);
             if (access(buffer, 0) != -1)
                 vc = 1;
         }
@@ -140,7 +139,7 @@ bool CDemo::Create(const char *pzFile)
     }
     else
     {
-		snprintf(buffer, BMAX_PATH, "%s%s", M_GetDemoPath().GetChars(), pzFile);
+		snprintf(buffer, BMAX_PATH, "%s%s", G_GetDemoPath().GetChars(), pzFile);
         hRFile = fopen(buffer, "wb");
         if (hRFile == NULL)
             return false;
@@ -401,7 +400,7 @@ void CDemo::LoadDemoInfo(void)
     auto pDemo = &pFirstDemo;
     at59ef = 0;
     char zFN[BMAX_PATH];
-    snprintf(zFN, BMAX_PATH, "%s%s*.dem", M_GetDemoPath().GetChars(), BloodIniPre);
+    snprintf(zFN, BMAX_PATH, "%s%s*.dem", G_GetDemoPath().GetChars(), BloodIniPre);
 	TArray<FString> demos;
 	D_AddWildFile(demos, zFN);
 

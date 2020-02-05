@@ -160,6 +160,8 @@ void G_HandleMemErr(int32_t lineNum, const char* fileName, const char* funcName)
 void G_FatalEngineError(void);
 int CalcSmoothRatio(const ClockTicks& totalclk, const ClockTicks& ototalclk, int realgameticspersec);
 
+FString G_GetDemoPath();
+
 
 struct FStartupInfo
 {

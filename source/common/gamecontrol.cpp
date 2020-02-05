@@ -878,3 +878,13 @@ int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int
 	return clamp(xs_RoundToInt(ratio * 65536), 0, 65536);
 }
 
+
+FString G_GetDemoPath()
+{
+	FString path = M_GetDemoPath();
+
+	path << LumpFilter << '/';
+	CreatePath(path);
+
+	return path;
+}

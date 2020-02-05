@@ -42,7 +42,6 @@
 #include "printf.h"
 #include "cmdlib.h"
 #include "i_findfile.h"
-#include "gamecontrol.h"
 #include "version.h"	// for GAMENAME
 
 // Stuff that needs to be set up later.
@@ -349,7 +348,7 @@ FString M_GetDemoPath()
 	FStringf inipath("%s" GAMENAME "_portable.ini", progdir.GetChars());
 	if (FileExists(inipath) || !UseKnownFolders())
 	{
-		path << progdir << "Demos/" << LumpFilter << '/';
+		path << progdir << "Demos/";
 	}
 	else
 	// Try defacto My Documents/My Games folder
@@ -357,13 +356,13 @@ FString M_GetDemoPath()
 	{
 		// I assume since this isn't a standard folder, it doesn't have
 		// a localized name either.
-		path << "/My Games/" GAMENAME "/" << LumpFilter << '/';
+		path << "/My Games/" GAMENAME "/";
 	}
 	else
 	{
-		path << progdir << "Demos/" << LumpFilter << '/';
+		path << progdir << "Demos/";
 	}
-	CreatePath(path);
+
 	return path;
 }
 
