@@ -3091,7 +3091,7 @@ void viewDrawScreen(bool sceneonly)
 
     if (gViewMode == 3 || gViewMode == 4 || gOverlayMap)
     {
-        //DoSectorLighting();
+        DoSectorLighting();
     }
     if (gViewMode == 3 || gOverlayMap)
     {
