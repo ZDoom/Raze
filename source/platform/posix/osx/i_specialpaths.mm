@@ -239,7 +239,7 @@ FString M_GetDemoPath()
 	{
 		path += "/" GAME_DIR "/Demos/";
 	}
-	CreatePath(path);
+
 	return path;
 }
 

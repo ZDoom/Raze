@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "savegame.h"
 #include "screens.h"
-#include "i_specialpaths.h"
 #include "printf.h"
 #include "menu/menu.h"
 
@@ -152,7 +151,7 @@ void G_OpenDemoWrite(void)
         if (demonum == MAXDEMOS)
             return;
 
-        if (snprintf(demofn, sizeof(demofn), "%s" DEMOFN_FMT, M_GetDemoPath().GetChars(), demonum))
+        if (snprintf(demofn, sizeof(demofn), "%s" DEMOFN_FMT, G_GetDemoPath().GetChars(), demonum))
         {
             initprintf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
             goto error_wopen_demo;
