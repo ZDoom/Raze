@@ -6032,7 +6032,7 @@ int G_DoMoveThings(void)
             if (!i) pub = NUMPAGES;
         }
     }
-
+#ifndef NETCODE_DISABLE
     // Name display when aiming at opponents
     if (cl_idplayers && (g_netServer || ud.multimode > 1)
 #ifdef SPLITSCREEN_MOD_HACKS
@@ -6074,7 +6074,7 @@ int G_DoMoveThings(void)
             }
         }
     }
-
+#endif
     if (g_showShareware > 0)
     {
         g_showShareware--;
