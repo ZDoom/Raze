@@ -4661,7 +4661,7 @@ void P_ProcessInput(int playerNum)
     // sectorLotag can be set to 0 later on, but the same block sets spritebridge to 1
     int sectorLotag       = sector[pPlayer->cursectnum].lotag;
     int getZRangeClipDist = pPlayer->clipdist - GETZRANGECLIPDISTOFFSET;
-    int getZRangeOffset   = ((TEST_SYNC_KEY(playerBits, SK_CROUCH) || (sectorLotag == ST_1_ABOVE_WATER && pPlayer->spritebridge != 1)))
+    int getZRangeOffset   = (((TEST_SYNC_KEY(playerBits, SK_CROUCH) && pPlayer->on_ground && !pPlayer->jumping_toggle) || (sectorLotag == ST_1_ABOVE_WATER && pPlayer->spritebridge != 1)))
                           ? pPlayer->autostep_sbw
                           : pPlayer->autostep;
 
