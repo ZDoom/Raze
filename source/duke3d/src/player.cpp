@@ -4798,9 +4798,6 @@ void P_ProcessInput(int playerNum)
     actor[pPlayer->i].floorz   = floorZ;
     actor[pPlayer->i].ceilingz = ceilZ;
 
-    pPlayer->oq16horiz    = pPlayer->q16horiz;
-    pPlayer->oq16horizoff = pPlayer->q16horizoff;
-
     if ((highZhit & 49152) == 49152)
     {
         int const spriteNum = highZhit & (MAXSPRITES-1);
@@ -4975,7 +4972,6 @@ void P_ProcessInput(int playerNum)
     pPlayer->bobpos  = pPlayer->pos.vec2;
     pPlayer->opos.z  = pPlayer->pos.z;
     pPlayer->opyoff  = pPlayer->pyoff;
-    pPlayer->oq16ang = pPlayer->q16ang;
 
     updatesector(pPlayer->pos.x, pPlayer->pos.y, &pPlayer->cursectnum);
 
