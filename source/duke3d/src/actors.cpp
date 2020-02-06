@@ -1279,6 +1279,23 @@ static int P_Submerge(int, DukePlayer_t *, int, int);
 static int P_Emerge(int, DukePlayer_t *, int, int);
 static void P_FinishWaterChange(int, DukePlayer_t *, int, int, int);
 
+static fix16_t P_GetQ16AngleDeltaForTic(DukePlayer_t const *pPlayer)
+{
+    auto oldAngle = pPlayer->oq16ang;
+    auto newAngle = pPlayer->q16ang;
+
+    if (klabs(fix16_sub(oldAngle, newAngle)) < F16(1024))
+        return fix16_sub(newAngle, oldAngle);
+
+    if (newAngle > F16(1024))
+        newAngle = fix16_sub(newAngle, F16(2048));
+
+    if (oldAngle > F16(1024))
+        oldAngle = fix16_sub(oldAngle, F16(2048));
+
+    return fix16_sub(newAngle, oldAngle);
+}
+
 ACTOR_STATIC void G_MovePlayers(void)
 {
     int spriteNum = headspritestat[STAT_PLAYER];
@@ -1331,6 +1348,11 @@ ACTOR_STATIC void G_MovePlayers(void)
 
                 if (G_HaveActor(sprite[spriteNum].picnum))
                     A_Execute(spriteNum, P_GetP(pSprite), otherPlayerDist);
+
+                pPlayer->q16angvel    = P_GetQ16AngleDeltaForTic(pPlayer);
+                pPlayer->oq16ang      = pPlayer->q16ang;
+                pPlayer->oq16horiz    = pPlayer->q16horiz;
+                pPlayer->oq16horizoff = pPlayer->q16horizoff;
 
                 if (g_netServer || ud.multimode > 1)
                 {
