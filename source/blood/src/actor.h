@@ -179,22 +179,29 @@ extern int gDudeDrag;
 extern short gAffectedSectors[kMaxSectors];
 extern short gAffectedXWalls[kMaxXWalls];
 
-#ifdef POLYMER
-extern 
-#endif
-
-inline bool IsPlayerSprite(spritetype const * const pSprite)
+template<typename T> bool IsPlayerSprite(T const * const pSprite)
 {
-    if (pSprite->type >= kDudePlayer1 && pSprite->type <= kDudePlayer8)
-        return 1;
-    return 0;
+    return pSprite->type >= kDudePlayer1 && pSprite->type <= kDudePlayer8;
 }
 
 template<typename T> bool IsDudeSprite(T const * const pSprite)
 {
-    if (pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
-        return 1;
-    return 0;
+    return pSprite->type >= kDudeBase && pSprite->type < kDudeMax;
+}
+
+template<typename T> bool IsItemSprite(T const * const pSprite)
+{
+    return pSprite->type >= kItemBase && pSprite->type < kItemMax;
+}
+
+template<typename T> bool IsWeaponSprite(T const * const pSprite)
+{
+    return pSprite->type >= kItemWeaponBase && pSprite->type < kItemWeaponMax;
+}
+
+template<typename T> bool IsAmmoSprite(T const * const pSprite)
+{
+    return pSprite->type >= kItemAmmoBase && pSprite->type < kItemAmmoMax;
 }
 
 inline void actBurnSprite(int nSource, XSPRITE *pXSprite, int nTime)
@@ -208,9 +215,6 @@ void actAddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange
 void actDoLight(int spriteNum);
 #endif
 
-bool IsItemSprite(spritetype *pSprite);
-bool IsWeaponSprite(spritetype *pSprite);
-bool IsAmmoSprite(spritetype *pSprite);
 bool IsUnderwaterSector(int nSector);
 int actSpriteOwnerToSpriteId(spritetype *pSprite);
 void actPropagateSpriteOwner(spritetype *pTarget, spritetype *pSource);

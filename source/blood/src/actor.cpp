@@ -2436,21 +2436,6 @@ THINGINFO_EXTRA gThingInfoExtra[] = {
 };
 #endif
 
-bool IsItemSprite(spritetype *pSprite)
-{
-    return pSprite->type >= kItemBase && pSprite->type < kItemMax;
-}
-
-bool IsWeaponSprite(spritetype *pSprite)
-{
-    return pSprite->type >= kItemWeaponBase && pSprite->type < kItemWeaponMax;
-}
-
-bool IsAmmoSprite(spritetype *pSprite)
-{
-    return pSprite->type >= kItemAmmoBase && pSprite->type < kItemAmmoMax;
-}
-
 bool IsUnderwaterSector(int nSector)
 {
     int nXSector = sector[nSector].extra;
@@ -5779,6 +5764,8 @@ void actProcessSprites(void)
                             if (pSprite->type == kThingDroppedLifeLeech && pXSprite->target == -1)  {
                             int nOwner = actOwnerIdToSpriteId(pSprite->owner);
                             spritetype *pOwner = &sprite[nOwner];
+                            if (!IsPlayerSprite(pOwner))
+                                continue;
                             PLAYER *pPlayer = &gPlayer[pOwner->type - kDudePlayer1];
                             PLAYER *pPlayer2 = NULL;
                             if (IsPlayerSprite(pSprite2))

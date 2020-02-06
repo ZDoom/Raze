@@ -2322,7 +2322,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 else
                 {
                     int top, bottom;
-                    GetSpriteExtents((spritetype *)pTSprite, &top, &bottom);
+                    GetSpriteExtents(pTSprite, &top, &bottom);
                     if (getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) > bottom)
                         nAnim = 1;
                 }
@@ -2406,8 +2406,8 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             pTSprite->shade = -128;
             pTSprite->picnum = 2272 + 2*pTXSprite->respawnPending;
             pTSprite->cstat &= ~514;
-            if (((IsItemSprite((spritetype *)pTSprite) || IsAmmoSprite((spritetype *)pTSprite)) && gGameOptions.nItemSettings == 2)
-                || (IsWeaponSprite((spritetype *)pTSprite) && gGameOptions.nWeaponSettings == 3))
+            if (((IsItemSprite(pTSprite) || IsAmmoSprite(pTSprite)) && gGameOptions.nItemSettings == 2)
+                || (IsWeaponSprite(pTSprite) && gGameOptions.nWeaponSettings == 3))
             {
                 pTSprite->xrepeat = pTSprite->yrepeat = 48;
             }
@@ -2544,7 +2544,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             if (pXSector && pXSector->color) pTSprite->pal = pSector->floorpal;
             if (powerupCheck(gView, kPwUpBeastVision) > 0) pTSprite->shade = -128;
 
-            if (IsPlayerSprite((spritetype *)pTSprite)) {
+            if (IsPlayerSprite(pTSprite)) {
                 PLAYER *pPlayer = &gPlayer[pTSprite->type-kDudePlayer1];
                 if (powerupCheck(pPlayer, kPwUpShadowCloak) && !powerupCheck(gView, kPwUpBeastVision)) {
                     pTSprite->cstat |= 2;
@@ -3561,7 +3561,7 @@ void viewDrawScreen(bool sceneonly)
     viewDrawInterface(delta);
     int zn = ((gView->zWeapon-gView->zView-(12<<8))>>7)+220;
     PLAYER *pPSprite = &gPlayer[gMe->pSprite->type-kDudePlayer1];
-    if (pPSprite->hand == 1)
+    if (IsPlayerSprite(gMe->pSprite) && pPSprite->hand == 1)
     {
         //static int lastClock;
         gChoke.sub_84110(160, zn);

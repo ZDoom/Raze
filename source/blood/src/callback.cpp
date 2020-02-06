@@ -374,7 +374,7 @@ void FinishHim(int nSprite) // 13
     spritetype* pSprite = &sprite[nSprite];
     int nXSprite = pSprite->extra;
     XSPRITE* pXSprite = &xsprite[nXSprite];
-    if (playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && pXSprite->target == gMe->nSprite)
+    if (IsPlayerSprite(pSprite) && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && pXSprite->target == gMe->nSprite)
         sndStartSample(3313, -1, 1, 0);
 }
 
