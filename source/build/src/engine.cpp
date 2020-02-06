@@ -7646,6 +7646,7 @@ killsprite:
         GLInterface.EnableBlend(false);
         GLInterface.EnableAlphaTest(true);
 		GLInterface.SetClamp(1+2);
+        GLInterface.SetDepthBias(-2, -256);
 
         if (spritesortcnt < numSprites)
         {
@@ -7714,7 +7715,7 @@ killsprite:
         GLInterface.EnableBlend(true);
         GLInterface.EnableAlphaTest(true);
 		GLInterface.SetDepthMask(false);
-	}
+    }
 #endif
 
     vec2f_t pos;
@@ -7855,6 +7856,7 @@ killsprite:
     {
 		GLInterface.SetDepthMask(true);
 		GLInterface.SetClamp(0);
+        GLInterface.SetDepthBias(0, 0);
     }
 #endif
 

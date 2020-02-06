@@ -428,6 +428,19 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 			else
 				glDisable(GL_SCISSOR_TEST);
 		}
+		if (mBias.mChanged)
+		{
+			if (mBias.mFactor == 0 && mBias.mUnits == 0)
+			{
+				glDisable(GL_POLYGON_OFFSET_FILL);
+			}
+			else
+			{
+				glEnable(GL_POLYGON_OFFSET_FILL);
+			}
+			glPolygonOffset(mBias.mFactor, mBias.mUnits);
+			mBias.mChanged = false;
+		}
 
 		StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
 		oldState.Flags = StateFlags;

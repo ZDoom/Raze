@@ -55,6 +55,21 @@ enum PRSFlags
 
 };
 
+struct FDepthBiasState
+{
+	float mFactor;
+	float mUnits;
+	bool mChanged;
+
+	void Reset()
+	{
+		mFactor = 0;
+		mUnits = 0;
+		mChanged = false;
+	}
+};
+
+
 struct PolymostRenderState
 {
 	int vindex, vcount, primtype;
@@ -72,6 +87,7 @@ struct PolymostRenderState
 	short matrixIndex[NUMMATRICES] = { 0,0,0,0,0 };
 	PalEntry fullscreenTint = 0xffffff, hictint = 0xffffff, hictint_overlay = 0xffffff;
 	int hictint_flags = -1;
+	FDepthBiasState mBias{ };
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};
