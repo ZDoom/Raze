@@ -40,12 +40,16 @@ enum
     LABEL_ACTION = 8,
     LABEL_AI     = 16,
     LABEL_MOVE   = 32,
+    LABEL_EVENT  = 0x40,
 };
 
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
 
+// "magic" number for { and }, overrides line number in compiled code for later detection
+#define VM_IFELSE_MAGIC 31337
 #define VM_INSTMASK 0xfff
+#define VM_DECODE_LINE_NUMBER(xxx) ((int)((xxx) >> 12))
 
 #define C_CUSTOMERROR(Text, ...)                                                                                                           \
     do                                                                                                                                     \
@@ -66,7 +70,18 @@ enum
 extern intptr_t const * insptr;
 extern void VM_ScriptInfo(intptr_t const *ptr, int range);
 
+extern hashtable_t h_gamevars;
 extern hashtable_t h_labels;
+
+extern int32_t g_aimAngleVarID;   // var ID of "AUTOAIMANGLE"
+extern int32_t g_angRangeVarID;   // var ID of "ANGRANGE"
+extern int32_t g_returnVarID;     // var ID of "RETURN"
+extern int32_t g_weaponVarID;     // var ID of "WEAPON"
+extern int32_t g_worksLikeVarID;  // var ID of "WORKSLIKE"
+extern int32_t g_zRangeVarID;     // var ID of "ZRANGE"
+
+#include "events_defs.h"
+extern intptr_t apScriptEvents[MAXEVENTS];
 
 extern char g_scriptFileName[BMAX_PATH];
 
@@ -151,9 +166,15 @@ enum ScriptError_t
     ERROR_FOUNDWITHIN,
     ERROR_ISAKEYWORD,
     ERROR_OPENBRACKET,
+    ERROR_NOTAGAMEVAR,
     ERROR_PARAMUNDEFINED,
     ERROR_SYNTAXERROR,
-    WARNING_LABELSONLY
+    ERROR_VARREADONLY,
+    ERROR_VARTYPEMISMATCH,
+    WARNING_BADGAMEVAR,
+    WARNING_DUPLICATEDEFINITION,
+    WARNING_LABELSONLY,
+    WARNING_VARMASKSKEYWORD,
 };
 
 enum ScriptKeywords_t
@@ -306,6 +327,20 @@ enum ScriptKeywords_t
     CON_MOTOLOOPSND,        // 145
     CON_IFSIZEDOWN,         // 146
     CON_RNDMOVE,            // 147
+    CON_GAMEVAR,            // 148
+    CON_IFVARL,             // 149
+    CON_IFVARG,             // 150
+    CON_SETVARVAR,          // 151
+    CON_SETVAR,             // 152
+    CON_ADDVARVAR,          // 153
+    CON_ADDVAR,             // 154
+    CON_IFVARVARL,          // 155
+    CON_IFVARVARG,          // 156
+    CON_ADDLOGVAR,          // 157
+    CON_ONEVENT,            // 158
+    CON_ENDEVENT,           // 159
+    CON_IFVARE,             // 160
+    CON_IFVARVARE,          // 161
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

@@ -1935,6 +1935,11 @@ end_vol4a:
     pPlayer->gm = 0;
 	M_ClearMenus();
 
+    Gv_ResetVars();
+    Gv_InitWeaponPointers();
+    Gv_RefreshPointers();
+    Gv_ResetSystemDefaults();
+
     //AddLog("Newgame");
 
     for (bssize_t i=0; i<(MAXVOLUMES*MAXLEVELS); i++)

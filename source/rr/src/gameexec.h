@@ -34,9 +34,8 @@ extern int32_t ticrandomseed;
 
 extern vmstate_t vm;
 extern int32_t g_tw;
+extern int32_t g_currentEvent;
 extern int32_t g_errorLineNum;
-
-void A_LoadActor(int32_t spriteNum);
 
 extern uint32_t g_actorCalls[MAXTILES];
 extern double g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];

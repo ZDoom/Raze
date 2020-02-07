@@ -41,6 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
+#define LINE_NUMBER (g_lineNumber << 12)
+
 int32_t g_scriptVersion = 14; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
 char g_scriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
@@ -61,7 +63,11 @@ static int32_t g_numBraces = 0;
 static int32_t C_ParseCommand(int32_t loop);
 static int32_t C_SetScriptSize(int32_t size);
 
+static intptr_t apScriptGameEventEnd[MAXEVENTS];
 static intptr_t g_parsingActorPtr;
+static intptr_t g_scriptEventBreakOffset;
+static intptr_t g_scriptEventChainOffset;
+static intptr_t g_scriptEventOffset;
 static char *textptr;
 
 int32_t g_errorCnt,g_warningCnt;
@@ -99,8 +105,12 @@ static tokenmap_t const vm_keywords[] =
     { "addammo",                CON_ADDAMMO },
     { "addinventory",           CON_ADDINVENTORY },
     { "addkills",               CON_ADDKILLS },
+    { "addlog",                 CON_ADDLOGVAR },
+    { "addlogvar",              CON_ADDLOGVAR },
     { "addphealth",             CON_ADDPHEALTH },
     { "addstrength",            CON_ADDSTRENGTH },
+    { "addvar",                 CON_ADDVAR },
+    { "addvarvar",              CON_ADDVARVAR },
     { "addweapon",              CON_ADDWEAPON },
     { "ai",                     CON_AI },
     { "betaname",               CON_BETANAME },
@@ -121,12 +131,14 @@ static tokenmap_t const vm_keywords[] =
     { "destroyit",              CON_DESTROYIT },
     { "else",                   CON_ELSE },
     { "enda",                   CON_ENDA },
+    { "endevent",               CON_ENDEVENT },
     { "endofgame",              CON_ENDOFGAME },
     { "ends",                   CON_ENDS },
     { "fakebubba",              CON_FAKEBUBBA },
     { "fall",                   CON_FALL },
     { "feathers",               CON_MAIL },
     { "gamestartup",            CON_GAMESTARTUP },
+    { "gamevar",                CON_GAMEVAR },
     { "garybanjo",              CON_GARYBANJO },
     { "getlastpal",             CON_GETLASTPAL },
     { "globalsound",            CON_GLOBALSOUND },
@@ -185,6 +197,12 @@ static tokenmap_t const vm_keywords[] =
     { "ifsquished",             CON_IFSQUISHED },
     { "ifstrength",             CON_IFSTRENGTH },
     { "iftipcow",               CON_IFTIPCOW },
+    { "ifvare",                 CON_IFVARE },
+    { "ifvarg",                 CON_IFVARG },
+    { "ifvarl",                 CON_IFVARL },
+    { "ifvarvare",              CON_IFVARVARE },
+    { "ifvarvarg",              CON_IFVARVARG },
+    { "ifvarvarl",              CON_IFVARVARL },
     { "ifwasweapon",            CON_IFWASWEAPON },
     { "ifwind",                 CON_IFWIND },
     { "include",                CON_INCLUDE },
@@ -205,6 +223,7 @@ static tokenmap_t const vm_keywords[] =
     { "music",                  CON_MUSIC },
     { "newpic",                 CON_NEWPIC },
     { "nullop",                 CON_NULLOP },
+    { "onevent",                CON_ONEVENT },
     { "operate",                CON_OPERATE },
     { "palfrom",                CON_PALFROM },
     { "paper",                  CON_PAPER },
@@ -216,6 +235,8 @@ static tokenmap_t const vm_keywords[] =
     { "resetplayer",            CON_RESETPLAYER },
     { "respawnhitag",           CON_RESPAWNHITAG },
     { "rndmove",                CON_RNDMOVE },
+    { "setvar",                 CON_SETVAR },
+    { "setvarvar",              CON_SETVARVAR },
     { "sizeat",                 CON_SIZEAT },
     { "sizeto",                 CON_SIZETO },
     { "slapplayer",             CON_SLAPPLAYER },
@@ -243,6 +264,22 @@ static tokenmap_t const vm_keywords[] =
     { "}",                      CON_RIGHTBRACE },
 };
 
+static const vec2_t varvartable[] =
+{
+    { CON_IFVARVARE,         CON_IFVARE },
+    { CON_IFVARVARG,         CON_IFVARG },
+    { CON_IFVARVARL,         CON_IFVARL },
+
+    { CON_ADDVARVAR,         CON_ADDVAR },
+    { CON_SETVARVAR,         CON_SETVAR },
+};
+
+static inthashtable_t h_varvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(varvartable)) };
+
+static inthashtable_t *const inttables[] = {
+    &h_varvar,
+};
+
 char const * VM_GetKeywordForID(int32_t id)
 {
     // could be better but this is only called for diagnostics, ayy lmao
@@ -258,12 +295,13 @@ char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_CLEAR(x) (bitptr[(x)>>3] &= ~(1<<((x)&7)))
 #define BITPTR_IS_POINTER(x) (bitptr[(x)>>3] & (1<<((x) &7)))
 
-hashtable_t h_labels      = { 11264>>1, NULL };
+hashtable_t h_gamevars = { MAXGAMEVARS >> 1, NULL };
+hashtable_t h_labels   = { 11264>>1, NULL };
 
 static hashtable_t h_keywords   = { CON_END>>1, NULL };;
 
 static hashtable_t * const tables[] = {
-    &h_labels, &h_keywords
+    &h_labels, &h_keywords, &h_gamevars
 };
 
 static hashtable_t * const tables_free [] = {
@@ -276,8 +314,14 @@ void C_InitHashes()
 {
     uint32_t i;
 
-    for (i=0; i < ARRAY_SIZE(tables); i++)
-        hash_init(tables[i]);
+    for (auto table : tables)
+        hash_init(table);
+
+    for (auto table : inttables)
+        inthash_init(table);
+
+    for (auto &varvar : varvartable)
+        inthash_add(&h_varvar, varvar.x, varvar.y, 0);
 
     //inithashnames();
     initsoundhashnames();
@@ -290,7 +334,7 @@ void C_InitHashes()
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
 #define IFELSE_MAGIC 31337
-static int32_t g_ifElseAborted;
+static int32_t g_skipBranch;
 
 static int32_t C_SetScriptSize(int32_t newsize)
 {
@@ -458,6 +502,9 @@ static int32_t C_SkipComments(void)
     while (1);
 }
 
+static inline int GetDefID(char const *label) { return hash_find(&h_gamevars, label); }
+
+#define LAST_LABEL (label+(g_labelCnt<<6))
 static inline int32_t isaltok(const char c)
 {
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '\\' || c == '*' || c == '-' || c == '_' ||
@@ -500,6 +547,25 @@ static void C_GetNextLabelName(void)
 
     if (!(g_errorCnt|g_warningCnt) && g_scriptDebug > 1)
         initprintf("%s:%d: debug: label `%s'.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+}
+
+static inline void scriptWriteValue(int32_t const value)
+{
+    BITPTR_CLEAR(g_scriptPtr-apScript);
+    *g_scriptPtr++ = value;
+}
+
+// addresses passed to these functions must be within the block of memory pointed to by apScript
+static inline void scriptWriteAtOffset(int32_t const value, intptr_t * const addr)
+{
+    BITPTR_CLEAR(addr-apScript);
+    *(addr) = value;
+}
+
+static inline void scriptWritePointer(intptr_t const value, intptr_t * const addr)
+{
+    BITPTR_SET(addr-apScript);
+    *(addr) = value;
 }
 
 static int32_t C_GetKeyword(void)
@@ -549,12 +615,10 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     if (EDUKE32_PREDICT_TRUE((i = hash_find(&h_keywords,tempbuf)) >= 0))
     {
         if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
-            *g_scriptPtr = i + (IFELSE_MAGIC<<12);
-        else *g_scriptPtr = i + (g_lineNumber<<12);
+            scriptWriteValue(i | (VM_IFELSE_MAGIC<<12));
+        else scriptWriteValue(i | LINE_NUMBER);
 
-        BITPTR_CLEAR(g_scriptPtr-apScript);
         textptr += l;
-        g_scriptPtr++;
 
         if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
             initprintf("%s:%d: debug: keyword `%s'.\n", g_scriptFileName, g_lineNumber, tempbuf);
@@ -619,6 +683,115 @@ static int32_t parse_hex_constant(const char *hexnum)
 
     return x;
 }
+
+static void C_GetNextVarType(int32_t type)
+{
+    int32_t id    = 0;
+    int32_t flags = 0;
+
+    auto varptr = g_scriptPtr;
+
+    C_SkipComments();
+
+    if (!type && !g_labelsOnly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
+    {
+        scriptWriteValue(GV_FLAG_CONSTANT);
+
+        if (tolower(textptr[1])=='x')  // hex constants
+            scriptWriteValue(parse_hex_constant(textptr+2));
+        else
+            scriptWriteValue(parse_decimal_number());
+
+        if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
+            initprintf("%s:%d: debug: constant %ld in place of gamevar.\n", g_scriptFileName, g_lineNumber, (long)(g_scriptPtr[-1]));
+#if 1
+        while (!ispecial(*textptr) && *textptr != ']') textptr++;
+#else
+        C_GetNextLabelName();
+#endif
+        return;
+    }
+    else if (*textptr == '-'/* && !isdigit(*(textptr+1))*/)
+    {
+        if (EDUKE32_PREDICT_FALSE(type))
+        {
+            g_errorCnt++;
+            C_ReportError(ERROR_SYNTAXERROR);
+            C_GetNextLabelName();
+            return;
+        }
+
+        if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
+            initprintf("%s:%d: debug: flagging gamevar as negative.\n", g_scriptFileName, g_lineNumber); //,Batol(textptr));
+
+        flags = GV_FLAG_NEGATIVE;
+        textptr++;
+    }
+
+    C_GetNextLabelName();
+
+    if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,LAST_LABEL)>=0))
+    {
+        g_errorCnt++;
+        C_ReportError(ERROR_ISAKEYWORD);
+        return;
+    }
+
+    C_SkipComments();
+
+    id=GetDefID(LAST_LABEL);
+    if (id<0)   //gamevar not found
+    {
+        if (EDUKE32_PREDICT_TRUE(!type && !g_labelsOnly))
+        {
+            //try looking for a define instead
+            Bstrcpy(tempbuf,LAST_LABEL);
+            id = hash_find(&h_labels,tempbuf);
+
+            if (EDUKE32_PREDICT_TRUE(id>=0 && labeltype[id] & LABEL_DEFINE))
+            {
+                if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
+                    initprintf("%s:%d: debug: label `%s' in place of gamevar.\n",g_scriptFileName,g_lineNumber,label+(id<<6));
+
+                scriptWriteValue(GV_FLAG_CONSTANT);
+                scriptWriteValue(labelcode[id]);
+                return;
+            }
+        }
+
+        g_errorCnt++;
+        C_ReportError(ERROR_NOTAGAMEVAR);
+        return;
+    }
+
+    if (EDUKE32_PREDICT_FALSE(type == GAMEVAR_READONLY && aGameVars[id].flags & GAMEVAR_READONLY))
+    {
+        g_errorCnt++;
+        C_ReportError(ERROR_VARREADONLY);
+        return;
+    }
+    else if (EDUKE32_PREDICT_FALSE(aGameVars[id].flags & type))
+    {
+        g_errorCnt++;
+        C_ReportError(ERROR_VARTYPEMISMATCH);
+        return;
+    }
+
+    if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
+        initprintf("%s:%d: debug: gamevar `%s'.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
+
+    scriptWriteValue(id|flags);
+}
+
+#define C_GetNextVar() C_GetNextVarType(0)
+
+static FORCE_INLINE void C_GetManyVarsType(int32_t type, int num)
+{
+    for (; num>0; --num)
+        C_GetNextVarType(type);
+}
+
+#define C_GetManyVars(num) C_GetManyVarsType(0,num)
 
 // returns:
 //  -1 on EOF or wrong type or error
@@ -742,7 +915,7 @@ static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
     case CON_ENDS:
     case CON_ELSE:
         g_scriptPtr = lastScriptPtr + &apScript[0];
-        g_ifElseAborted = 1;
+        g_skipBranch = 1;
         C_ReportError(-1);
         g_warningCnt++;
         initprintf("%s:%d: warning: malformed `%s' branch\n",g_scriptFileName,g_lineNumber,
@@ -759,14 +932,14 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
             tw == CON_IFRND || tw == CON_IFHITWEAPON || tw == CON_IFCANSEE || tw == CON_IFCANSEETARGET ||
             tw == CON_IFPDISTL || tw == CON_IFPDISTG || tw == CON_IFGOTWEAPONCE)
     {
-        g_ifElseAborted = 0;
+        g_skipBranch = 0;
         return 0;
     }
 
     if ((*(g_scriptPtr) & VM_INSTMASK) != CON_NULLOP || *(g_scriptPtr)>>12 != IFELSE_MAGIC)
-        g_ifElseAborted = 0;
+        g_skipBranch = 0;
 
-    if (EDUKE32_PREDICT_FALSE(g_ifElseAborted))
+    if (EDUKE32_PREDICT_FALSE(g_skipBranch))
     {
         C_ReportError(-1);
         g_warningCnt++;
@@ -942,6 +1115,22 @@ static inline void C_FinishBitOr(int32_t value)
     *g_scriptPtr++ = value;
 }
 
+static void scriptUpdateOpcodeForVariableType(intptr_t *ins)
+{
+    int opcode = -1;
+
+    if (opcode != -1)
+    {
+        if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
+        {
+            initprintf("%s:%d: %s -> %s for var %s\n", g_scriptFileName, g_lineNumber,
+                        VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode), aGameVars[ins[1] & (MAXGAMEVARS-1)].szLabel);
+        }
+
+        scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+    }
+}
+
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw;
@@ -1041,6 +1230,60 @@ static int32_t C_ParseCommand(int32_t loop)
                 Bsprintf(g_szCurrentBlockName,"(none)");
             }
             continue;
+
+        case CON_GAMEVAR:
+        {
+            // syntax: gamevar <var1> <initial value> <flags>
+            // defines var1 and sets initial value.
+            // flags are used to define usage
+            // (see top of this files for flags)
+
+            if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) || (*textptr == '-')))
+            {
+                g_errorCnt++;
+                C_ReportError(ERROR_SYNTAXERROR);
+                C_NextLine();
+                continue;
+            }
+
+            g_scriptPtr--;
+
+            C_GetNextLabelName();
+
+            if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords, LAST_LABEL)>=0))
+            {
+                g_warningCnt++;
+                C_ReportError(WARNING_VARMASKSKEYWORD);
+                hash_delete(&h_keywords, LAST_LABEL);
+            }
+
+            int32_t defaultValue = 0;
+            int32_t varFlags     = 0;
+
+            if (C_GetKeyword() == -1)
+            {
+                C_GetNextValue(LABEL_DEFINE); // get initial value
+                defaultValue = *(--g_scriptPtr);
+
+                j = 0;
+
+                while (C_GetKeyword() == -1)
+                    C_BitOrNextValue(&j);
+
+                C_FinishBitOr(j);
+                varFlags = *(--g_scriptPtr);
+
+                if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr)&GAMEVAR_USER_MASK)==(GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR)))
+                {
+                    g_warningCnt++;
+                    varFlags ^= GAMEVAR_PERPLAYER;
+                    C_ReportError(WARNING_BADGAMEVAR);
+                }
+            }
+
+            Gv_NewVar(LAST_LABEL, defaultValue, varFlags);
+            continue;
+        }
 
         case CON_DEFINE:
             {
@@ -1461,6 +1704,54 @@ static int32_t C_ParseCommand(int32_t loop)
             g_checkingIfElse = 0;
             continue;
 
+        case CON_ONEVENT:
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            {
+                C_ReportError(ERROR_FOUNDWITHIN);
+                g_errorCnt++;
+            }
+
+            g_numBraces = 0;
+            g_scriptPtr--;
+            g_scriptEventOffset = g_parsingActorPtr = g_scriptPtr - apScript;
+
+            C_SkipComments();
+            j = 0;
+            while (isaltok(*(textptr+j)))
+            {
+                g_szCurrentBlockName[j] = textptr[j];
+                j++;
+            }
+            g_szCurrentBlockName[j] = 0;
+            //        g_labelsOnly = 1;
+            C_GetNextValue(LABEL_EVENT);
+            g_labelsOnly = 0;
+            g_scriptPtr--;
+            j= *g_scriptPtr;  // type of event
+            g_currentEvent = j;
+            //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr);
+            //AddLog(g_szBuf);
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXEVENTS-1))
+            {
+                initprintf("%s:%d: error: invalid event ID.\n",g_scriptFileName,g_lineNumber);
+                g_errorCnt++;
+                continue;
+            }
+            // if event has already been declared then store previous script location
+            if (!apScriptEvents[j])
+            {
+                apScriptEvents[j] = g_scriptEventOffset;
+            }
+            else
+            {
+                g_scriptEventChainOffset = apScriptEvents[j];
+                apScriptEvents[j] = g_scriptEventOffset;
+            }
+
+            g_checkingIfElse = 0;
+
+            continue;
+
         case CON_CSTAT:
             C_GetNextValue(LABEL_DEFINE);
 
@@ -1551,7 +1842,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 intptr_t const lastScriptPtr = g_scriptPtr - apScript - 1;
 
-                g_ifElseAborted = 0;
+                g_skipBranch = 0;
                 g_checkingIfElse--;
 
                 if (C_CheckMalformedBranch(lastScriptPtr))
@@ -1570,6 +1861,143 @@ static int32_t C_ParseCommand(int32_t loop)
                 intptr_t *tempscrptr = (intptr_t *) apScript+offset;
                 *tempscrptr = (intptr_t) g_scriptPtr;
                 BITPTR_SET(tempscrptr-apScript);
+
+                continue;
+            }
+        case CON_ADDLOGVAR:
+            g_labelsOnly = 1;
+            C_GetNextVar();
+            g_labelsOnly = 0;
+            continue;
+        case CON_ADDVAR:
+        case CON_SETVAR:
+setvar:
+        {
+            auto ins = &g_scriptPtr[-1];
+
+            C_GetNextVarType(GAMEVAR_READONLY);
+            C_GetNextValue(LABEL_DEFINE);
+            // replace instructions with special versions for specific var types
+            scriptUpdateOpcodeForVariableType(ins);
+            continue;
+        }
+        case CON_ADDVARVAR:
+        case CON_SETVARVAR:
+            {
+setvarvar:
+                auto ins = &g_scriptPtr[-1];
+                auto tptr = textptr;
+                int const lnum = g_lineNumber;
+
+                C_GetNextVarType(GAMEVAR_READONLY);
+                C_GetNextVar();
+
+                int const opcode = inthash_find(&h_varvar, *ins & VM_INSTMASK);
+
+                if (ins[2] == GV_FLAG_CONSTANT && opcode != -1)
+                {
+                    if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
+                    {
+                        initprintf("%s:%d: %s -> %s\n", g_scriptFileName, g_lineNumber,
+                                    VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
+                    }
+
+                    tw = opcode;
+                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+                    g_scriptPtr = &ins[1];
+                    textptr = tptr;
+                    g_lineNumber = lnum;
+                    goto setvar;
+                }
+
+                continue;
+            }
+
+        case CON_IFVARVARE:
+        case CON_IFVARVARG:
+        case CON_IFVARVARL:
+            {
+                auto const ins = &g_scriptPtr[-1];
+                auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
+                auto const lasttextptr = textptr;
+                int const lnum = g_lineNumber;
+
+                g_skipBranch = false;
+
+                C_GetNextVar();
+                auto const var = g_scriptPtr;
+                C_GetNextVar();
+
+                if (*var == GV_FLAG_CONSTANT)
+                {
+                    int const opcode = inthash_find(&h_varvar, tw);
+
+                    if (opcode != -1)
+                    {
+                        if (g_scriptDebug > 1 && !g_errorCnt && !g_warningCnt)
+                        {
+                            initprintf("%s:%d: replacing %s with %s\n", g_scriptFileName, g_lineNumber,
+                                       VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
+                        }
+
+                        scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
+                        tw = opcode;
+                        g_scriptPtr = &ins[1];
+                        textptr = lasttextptr;
+                        g_lineNumber = lnum;
+                        goto ifvar;
+                    }
+                }
+
+                if (C_CheckMalformedBranch(lastScriptPtr))
+                    continue;
+
+                auto const offset = g_scriptPtr - apScript;
+                g_scriptPtr++; // Leave a spot for the fail location
+
+                C_ParseCommand(0);
+
+                if (C_CheckEmptyBranch(tw, lastScriptPtr))
+                    continue;
+
+                auto const tempscrptr = apScript + offset;
+                scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
+                continue;
+            }
+
+        case CON_IFVARE:
+        case CON_IFVARG:
+        case CON_IFVARL:
+            {
+ifvar:
+                auto const ins = &g_scriptPtr[-1];
+                auto const lastScriptPtr = &g_scriptPtr[-1] - apScript;
+
+                g_skipBranch = false;
+
+                C_GetNextVar();
+                C_GetNextValue(LABEL_DEFINE);
+
+                if (C_CheckMalformedBranch(lastScriptPtr))
+                    continue;
+
+                scriptUpdateOpcodeForVariableType(ins);
+
+                auto const offset = g_scriptPtr - apScript;
+                g_scriptPtr++; //Leave a spot for the fail location
+
+                C_ParseCommand(0);
+
+                if (C_CheckEmptyBranch(tw, lastScriptPtr))
+                    continue;
+
+                auto const tempscrptr = apScript + offset;
+                scriptWritePointer((intptr_t)g_scriptPtr, tempscrptr);
+
+                j = C_GetKeyword();
+
+                if (j == CON_ELSE)
+                    g_checkingIfElse++;
 
                 continue;
             }
@@ -1603,7 +2031,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 intptr_t offset;
                 intptr_t lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
 
-                g_ifElseAborted = 0;
+                g_skipBranch = 0;
 
                 switch (tw)
                 {
@@ -1696,7 +2124,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 intptr_t offset;
                 intptr_t lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
 
-                g_ifElseAborted = 0;
+                g_skipBranch = 0;
 
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
@@ -1745,8 +2173,8 @@ static int32_t C_ParseCommand(int32_t loop)
                 g_scriptPtr -= 2;
 
                 if (C_GetKeyword() != CON_ELSE && (*(g_scriptPtr-2) & VM_INSTMASK) != CON_ELSE)
-                    g_ifElseAborted = 1;
-                else g_ifElseAborted = 0;
+                    g_skipBranch = 1;
+                else g_skipBranch = 0;
 
                 j = C_GetKeyword();
 
@@ -2076,7 +2504,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 g_warningCnt++;
                 initprintf("%s:%d: warning: `nullop' found without `else'\n",g_scriptFileName,g_lineNumber);
                 g_scriptPtr--;
-                g_ifElseAborted = 1;
+                g_skipBranch = 1;
             }
             continue;
 
@@ -2190,6 +2618,9 @@ void C_PrintStats(void)
 
 void C_Compile(const char *fileName)
 {
+    Bmemset(apScriptEvents, 0, sizeof(apScriptEvents));
+    Bmemset(apScriptGameEventEnd, 0, sizeof(apScriptGameEventEnd));
+
     for (int i=0; i<MAXTILES; i++)
     {
         Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
@@ -2197,6 +2628,7 @@ void C_Compile(const char *fileName)
     }
 
     C_InitHashes();
+    Gv_Init();
 
     auto kFile = fileSystem.OpenFileReader(fileName,0);
 
@@ -2312,14 +2744,32 @@ void C_ReportError(int32_t iError)
     case ERROR_OPENBRACKET:
         initprintf("%s:%d: error: found more `{' than `}' before `%s'.\n",g_scriptFileName,g_lineNumber,tempbuf);
         break;
+    case ERROR_NOTAGAMEVAR:
+        initprintf("%s:%d: error: symbol `%s' is not a variable.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
+        break;
     case ERROR_PARAMUNDEFINED:
         initprintf("%s:%d: error: parameter `%s' is undefined.\n",g_scriptFileName,g_lineNumber,tempbuf);
         break;
     case ERROR_SYNTAXERROR:
         initprintf("%s:%d: error: syntax error.\n",g_scriptFileName,g_lineNumber);
         break;
+    case ERROR_VARREADONLY:
+        initprintf("%s:%d: error: variable `%s' is read-only.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
+        break;
+    case ERROR_VARTYPEMISMATCH:
+        initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
+        break;
+    case WARNING_BADGAMEVAR:
+        initprintf("%s:%d: warning: variable `%s' should be either per-player OR per-actor, not both.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
+        break;
+    case WARNING_DUPLICATEDEFINITION:
+        initprintf("%s:%d: warning: duplicate definition `%s' ignored.\n",g_scriptFileName,g_lineNumber,LAST_LABEL);
+        break;
     case WARNING_LABELSONLY:
         initprintf("%s:%d: warning: expected a label, found a constant.\n",g_scriptFileName,g_lineNumber);
+        break;
+    case WARNING_VARMASKSKEYWORD:
+        initprintf("%s:%d: warning: variable `%s' masks keyword.\n", g_scriptFileName, g_lineNumber, LAST_LABEL);
         break;
     }
 }

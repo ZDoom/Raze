@@ -57,9 +57,17 @@ enum vmflags_t
 };
 
 int32_t g_tw;
+int32_t g_currentEvent = -1;
 int32_t g_errorLineNum;
 
 intptr_t const *insptr;
+
+int32_t g_returnVarID    = -1;  // var ID of "RETURN"
+int32_t g_weaponVarID    = -1;  // var ID of "WEAPON"
+int32_t g_worksLikeVarID = -1;  // var ID of "WORKSLIKE"
+int32_t g_zRangeVarID    = -1;  // var ID of "ZRANGE"
+int32_t g_angRangeVarID  = -1;  // var ID of "ANGRANGE"
+int32_t g_aimAngleVarID  = -1;  // var ID of "AUTOAIMANGLE"
 
 // for timing events and actors
 uint32_t g_actorCalls[MAXTILES];
@@ -121,6 +129,8 @@ static void VM_DeleteSprite(int const spriteNum, int const playerNum)
 
     A_DeleteSprite(spriteNum);
 }
+
+intptr_t apScriptEvents[MAXEVENTS];
 
 static int32_t VM_CheckSquished(void)
 {
@@ -1188,7 +1198,8 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
         {
             case CON_ENDA:
             case CON_BREAK:
-            case CON_ENDS: return;
+            case CON_ENDS:
+            case CON_ENDEVENT: return;
 
             case CON_IFRND: VM_CONDITIONAL(rnd(*(++insptr))); continue;
 
@@ -2515,6 +2526,128 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 continue;
 
             case CON_IFNOSOUNDS: VM_CONDITIONAL(!A_CheckAnySoundPlaying(vm.spriteNum)); continue;
+                
+
+            case CON_IFVARG:
+                insptr++;
+                tw = Gv_GetVar(*insptr++);
+                VM_CONDITIONAL(tw > *insptr);
+                continue;
+
+            case CON_IFVARL:
+                insptr++;
+                tw = Gv_GetVar(*insptr++);
+                VM_CONDITIONAL(tw < *insptr);
+                continue;
+
+            case CON_SETVARVAR:
+                insptr++;
+                {
+                    tw = *insptr++;
+                    int const nValue = Gv_GetVar(*insptr++);
+
+                    if ((aGameVars[tw].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
+                        aGameVars[tw].global = nValue;
+                    else
+                        Gv_SetVar(tw, nValue);
+                }
+                continue;
+
+            case CON_SETVAR:
+                Gv_SetVar(insptr[1], insptr[2]);
+                insptr += 3;
+                continue;
+
+            case CON_ADDVARVAR:
+                insptr++;
+                tw = *insptr++;
+                Gv_AddVar(tw, Gv_GetVar(*insptr++));
+                continue;
+
+            case CON_ADDVAR:
+                Gv_AddVar(insptr[1], insptr[2]);
+                insptr += 3;
+                continue;
+
+            case CON_IFVARVARL:
+                insptr++;
+                tw = Gv_GetVar(*insptr++);
+                tw = (tw < Gv_GetVar(*insptr++));
+                insptr--;
+                VM_CONDITIONAL(tw);
+                continue;
+
+            case CON_IFVARVARG:
+                insptr++;
+                tw = Gv_GetVar(*insptr++);
+                tw = (tw > Gv_GetVar(*insptr++));
+                insptr--;
+                VM_CONDITIONAL(tw);
+                continue;
+
+            case CON_ADDLOGVAR:
+                insptr++;
+                {
+                    int32_t m = 1;
+                    char    szBuf[256];
+                    int32_t lVarID = *insptr;
+
+                    if ((lVarID >= g_gameVarCount) || lVarID < 0)
+                    {
+                        if (*insptr == MAXGAMEVARS)  // addlogvar for a constant?  Har.
+                            insptr++;
+                        else if (EDUKE32_PREDICT_TRUE(*insptr & GV_FLAG_NEGATIVE))
+                        {
+                            m = -m;
+                            lVarID ^= GV_FLAG_NEGATIVE;
+                        }
+                        else
+                        {
+                            // invalid varID
+                            CON_ERRPRINTF("invalid variable\n");
+                            continue;
+                        }
+                    }
+                    Bsprintf(tempbuf, "CONLOGVAR: L=%d %s ", VM_DECODE_LINE_NUMBER(g_tw), aGameVars[lVarID].szLabel);
+
+                    if (aGameVars[lVarID].flags & GAMEVAR_READONLY)
+                    {
+                        Bsprintf(szBuf, " (read-only)");
+                        Bstrcat(tempbuf, szBuf);
+                    }
+                    if (aGameVars[lVarID].flags & GAMEVAR_PERPLAYER)
+                    {
+                        Bsprintf(szBuf, " (Per Player. Player=%d)", vm.playerNum);
+                    }
+                    else if (aGameVars[lVarID].flags & GAMEVAR_PERACTOR)
+                    {
+                        Bsprintf(szBuf, " (Per Actor. Actor=%d)", vm.spriteNum);
+                    }
+                    else
+                    {
+                        Bsprintf(szBuf, " (Global)");
+                    }
+                    Bstrcat(tempbuf, szBuf);
+                    Bsprintf(szBuf, " =%d\n", Gv_GetVar(lVarID) * m);
+                    Bstrcat(tempbuf, szBuf);
+                    initprintf(OSDTEXT_GREEN "%s", tempbuf);
+                    insptr++;
+                    continue;
+                }
+
+            case CON_IFVARE:
+                insptr++;
+                tw = Gv_GetVar(*insptr++);
+                VM_CONDITIONAL(tw >= *insptr);
+                continue;
+
+            case CON_IFVARVARE:
+                insptr++;
+                tw = Gv_GetVar(*insptr++);
+                tw = (tw == Gv_GetVar(*insptr++));
+                insptr--;
+                VM_CONDITIONAL(tw);
+                continue;
 
             default:  // you aren't supposed to be here!
                 if (RR && ud.recstat == 2)
@@ -2535,37 +2668,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 break;
         }
     }
-}
-
-// NORECURSE
-void A_LoadActor(int32_t spriteNum)
-{
-    vm.spriteNum = spriteNum;           // Sprite ID
-    vm.pSprite   = &sprite[spriteNum];  // Pointer to sprite structure
-    vm.pActor    = &actor[spriteNum];
-
-    if (g_tile[vm.pSprite->picnum].loadPtr == NULL)
-        return;
-
-    vm.pData      = &actor[spriteNum].t_data[0];  // Sprite's 'extra' data
-    vm.playerNum  = -1;                           // Player ID
-    vm.playerDist = -1;                           // Distance
-    vm.pPlayer    = g_player[0].ps;
-
-    vm.flags &= ~(VM_RETURN | VM_KILL | VM_NOEXECUTE);
-
-    if ((unsigned)vm.pSprite->sectnum >= MAXSECTORS)
-    {
-        A_DeleteSprite(vm.spriteNum);
-        return;
-    }
-
-    insptr = g_tile[vm.pSprite->picnum].loadPtr;
-    VM_Execute(1);
-    insptr = NULL;
-
-    if (vm.flags & VM_KILL)
-        A_DeleteSprite(vm.spriteNum);
 }
 
 void VM_UpdateAnim(int spriteNum, int32_t *pData)

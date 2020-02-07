@@ -348,6 +348,19 @@ typedef struct dataspec_
     intptr_t cnt;
 } dataspec_t;
 
+typedef struct dataspec_gv_
+{
+    uint32_t flags;
+    void * ptr;
+    uint32_t size;
+    intptr_t cnt;
+} dataspec_gv_t;
+
+#define SV_DEFAULTCOMPRTHRES 8
+static uint8_t savegame_diffcompress;  // 0:none, 1:Ken's LZW in cache1d.c
+static uint8_t savegame_comprthres;
+
+
 #define DS_DYNAMIC 1  // dereference .ptr one more time
 #define DS_STRING 2
 #define DS_CMP 4
@@ -970,6 +983,7 @@ static const dataspec_t svgm_anmisc[] =
     { DS_END, 0, 0, 0 }
 };
 
+static dataspec_gv_t *svgm_vars=NULL;
 static uint8_t *dosaveplayer2(FileWriter *fil, uint8_t *mem);
 static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr);
 static void postloadplayer(int32_t savegamep);
@@ -982,6 +996,46 @@ static uint32_t svdiffsiz;
 static uint8_t *svdiff;
 
 #include "gamedef.h"
+
+#define SV_SKIPMASK (/*GAMEVAR_SYSTEM|*/ GAMEVAR_READONLY | GAMEVAR_PTR_MASK | /*GAMEVAR_NORESET |*/ GAMEVAR_SPECIAL)
+
+static char svgm_vars_string [] = "blK:vars";
+// setup gamevar data spec for snapshotting and diffing... gamevars must be loaded when called
+static void sv_makevarspec()
+{
+    int vcnt = 0;
+
+    for (int i = 0; i < g_gameVarCount; i++)
+        vcnt += (aGameVars[i].flags & SV_SKIPMASK) ? 0 : 1;
+
+    svgm_vars = (dataspec_gv_t *)Xrealloc(svgm_vars, (vcnt + 2) * sizeof(dataspec_gv_t));
+
+    svgm_vars[0].flags = DS_STRING;
+    svgm_vars[0].ptr   = svgm_vars_string;
+    svgm_vars[0].cnt   = 1;
+
+    vcnt = 1;
+
+    for (int i = 0; i < g_gameVarCount; i++)
+    {
+        if (aGameVars[i].flags & SV_SKIPMASK)
+            continue;
+
+        unsigned const per = aGameVars[i].flags & GAMEVAR_USER_MASK;
+
+        svgm_vars[vcnt].flags = 0;
+        svgm_vars[vcnt].ptr   = (per == 0) ? &aGameVars[i].global : aGameVars[i].pValues;
+        svgm_vars[vcnt].size  = sizeof(intptr_t);
+        svgm_vars[vcnt].cnt   = (per == 0) ? 1 : (per == GAMEVAR_PERPLAYER ? MAXPLAYERS : MAXSPRITES);
+
+        ++vcnt;
+    }
+
+    svgm_vars[vcnt].flags = DS_END;
+    svgm_vars[vcnt].ptr   = NULL;
+    svgm_vars[vcnt].size  = 0;
+    svgm_vars[vcnt].cnt   = 0;
+}
 
 void sv_freemem()
 {
@@ -1007,7 +1061,9 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot, bool isAutoSave)
     savehead_t h;
 
     // calculate total snapshot size
-    svsnapsiz = calcsz(svgm_udnetw) + calcsz(svgm_secwsp) + calcsz(svgm_script) + calcsz(svgm_anmisc);
+    sv_makevarspec();
+    svsnapsiz = calcsz((const dataspec_t *)svgm_vars);
+    svsnapsiz += calcsz(svgm_udnetw) + calcsz(svgm_secwsp) + calcsz(svgm_script) + calcsz(svgm_anmisc);
 
 
     // create header
@@ -1225,6 +1281,7 @@ uint32_t sv_writediff(FileWriter *fil)
     cmpspecdata(svgm_secwsp, &p, &d);
     cmpspecdata(svgm_script, &p, &d);
     cmpspecdata(svgm_anmisc, &p, &d);
+    cmpspecdata((const dataspec_t *)svgm_vars, &p, &d);
 
     if (p != svsnapshot+svsnapsiz)
         OSD_Printf("sv_writediff: dump+siz=%p, p=%p!\n", svsnapshot+svsnapsiz, p);
@@ -1256,6 +1313,7 @@ int32_t sv_readdiff(FileReader &fil)
     if (applydiff(svgm_secwsp, &p, &d)) return -4;
     if (applydiff(svgm_script, &p, &d)) return -5;
     if (applydiff(svgm_anmisc, &p, &d)) return -6;
+    if (applydiff((const dataspec_t *)svgm_vars, &p, &d)) return -7;
 
     int i = 0;
 
@@ -1369,6 +1427,9 @@ static uint8_t *dosaveplayer2(FileWriter *fil, uint8_t *mem)
     PRINTSIZE("script");
     mem=writespecdata(svgm_anmisc, fil, mem);  // animates, quotes & misc.
     PRINTSIZE("animisc");
+    Gv_WriteSave(fil);  // gamevars
+    mem=writespecdata((const dataspec_t *)svgm_vars, 0, mem);
+    PRINTSIZE("vars");
 
     return mem;
 }
@@ -1389,6 +1450,23 @@ static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr)
     if (readspecdata(svgm_anmisc, &fil, &mem)) return -6;
     PRINTSIZE("animisc");
 
+    int i;
+
+    if ((i = Gv_ReadSave(fil))) return i;
+
+    if (mem)
+    {
+        int32_t i;
+
+        sv_makevarspec();
+        for (i=1; svgm_vars[i].flags!=DS_END; i++)
+        {
+            Bmemcpy(mem, svgm_vars[i].ptr, svgm_vars[i].size*svgm_vars[i].cnt);  // careful! works because there are no DS_DYNAMIC's!
+            mem += svgm_vars[i].size*svgm_vars[i].cnt;
+        }
+    }
+    PRINTSIZE("vars");
+
     if (memptr)
         *memptr = mem;
     return 0;
@@ -1405,6 +1483,7 @@ int32_t sv_updatestate(int32_t frominit)
     if (readspecdata(svgm_secwsp, nullptr, &p)) return -4;
     if (readspecdata(svgm_script, nullptr, &p)) return -5;
     if (readspecdata(svgm_anmisc, nullptr, &p)) return -6;
+    if (readspecdata((const dataspec_t *)svgm_vars, -1, &p)) return -8;
 
     if (p != pbeg+svsnapsiz)
     {
@@ -1528,6 +1607,12 @@ static void postloadplayer(int32_t savegamep)
     //8
     // if (savegamep)  ?
     G_ResetTimers(0);
+
+#ifdef USE_STRUCT_TRACKERS
+    Bmemset(sectorchanged, 0, sizeof(sectorchanged));
+    Bmemset(spritechanged, 0, sizeof(spritechanged));
+    Bmemset(wallchanged, 0, sizeof(wallchanged));
+#endif
 
 #ifdef POLYMER
     //9
