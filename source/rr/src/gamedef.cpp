@@ -65,8 +65,6 @@ static int32_t C_SetScriptSize(int32_t size);
 
 static intptr_t apScriptGameEventEnd[MAXEVENTS];
 static intptr_t g_parsingActorPtr;
-static intptr_t g_scriptEventBreakOffset;
-static intptr_t g_scriptEventChainOffset;
 static intptr_t g_scriptEventOffset;
 static char *textptr;
 
@@ -1724,7 +1722,7 @@ static int32_t C_ParseCommand(int32_t loop)
             }
             g_szCurrentBlockName[j] = 0;
             //        g_labelsOnly = 1;
-            C_GetNextValue(LABEL_EVENT);
+            C_GetNextValue(LABEL_DEFINE);
             g_labelsOnly = 0;
             g_scriptPtr--;
             j= *g_scriptPtr;  // type of event
@@ -1738,15 +1736,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 continue;
             }
             // if event has already been declared then store previous script location
-            if (!apScriptEvents[j])
-            {
-                apScriptEvents[j] = g_scriptEventOffset;
-            }
-            else
-            {
-                g_scriptEventChainOffset = apScriptEvents[j];
-                apScriptEvents[j] = g_scriptEventOffset;
-            }
+            apScriptEvents[j] = g_scriptEventOffset;
 
             g_checkingIfElse = 0;
 
@@ -2152,7 +2142,7 @@ ifvar:
             }
 
         case CON_LEFTBRACE:
-            if (EDUKE32_PREDICT_FALSE(!(g_processingState || g_parsingActorPtr)))
+            if (EDUKE32_PREDICT_FALSE(!(g_processingState || g_parsingActorPtr || g_scriptEventOffset)))
             {
                 g_errorCnt++;
                 C_ReportError(ERROR_SYNTAXERROR);
@@ -2443,12 +2433,32 @@ ifvar:
             continue;
         }
 
+        case CON_ENDEVENT:
+
+            if (EDUKE32_PREDICT_FALSE(!g_scriptEventOffset))
+            {
+                C_ReportError(-1);
+                initprintf("%s:%d: error: found `endevent' without open `onevent'.\n",g_scriptFileName,g_lineNumber);
+                g_errorCnt++;
+            }
+            if (EDUKE32_PREDICT_FALSE(g_numBraces != 0))
+            {
+                C_ReportError(g_numBraces > 0 ? ERROR_OPENBRACKET : ERROR_CLOSEBRACKET);
+                g_errorCnt++;
+            }
+
+            g_scriptEventOffset = g_parsingActorPtr = 0;
+            g_currentEvent = -1;
+            Bsprintf(g_szCurrentBlockName,"(none)");
+            continue;
+
         case CON_ENDA:
-            if (EDUKE32_PREDICT_FALSE(!g_parsingActorPtr))
+            if (EDUKE32_PREDICT_FALSE(!g_parsingActorPtr || g_scriptEventOffset))
             {
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `enda' without open `actor'.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
+                g_scriptEventOffset = 0;
             }
             if (EDUKE32_PREDICT_FALSE(g_numBraces != 0))
             {
@@ -2719,8 +2729,8 @@ void C_ReportError(int32_t iError)
 {
     if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
     {
-        if (g_processingState || g_parsingActorPtr)
-            initprintf("%s: In %s `%s':\n",g_scriptFileName,g_parsingActorPtr?"actor":"state",g_szCurrentBlockName);
+        if (g_scriptEventOffset || g_processingState || g_parsingActorPtr)
+            initprintf("%s: In %s `%s':\n",g_scriptFileName,g_scriptEventOffset?"event":g_parsingActorPtr?"actor":"state",g_szCurrentBlockName);
         else initprintf("%s: At top level:\n",g_scriptFileName);
         Bstrcpy(g_szLastBlockName,g_szCurrentBlockName);
     }
