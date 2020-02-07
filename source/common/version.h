@@ -41,11 +41,11 @@ const char *GetVersionString();
 
 /** Lots of different version numbers **/
 
-#define VERSIONSTR "0.4.1 alpha"
+#define VERSIONSTR "0.4.3 alpha"
 
 // The version as seen in the Windows resource
-#define RC_FILEVERSION 0,4,1,0
-#define RC_PRODUCTVERSION 0,4,1,0
+#define RC_FILEVERSION 0,4,3,0
+#define RC_PRODUCTVERSION 0,4,3,0
 #define RC_PRODUCTVERSION2 VERSIONSTR
 // These are for content versioning.
 #define VER_MAJOR 0
@@ -68,13 +68,13 @@ const char *GetVersionString();
 
 #define MINSAVEVER_DN3D 3
 #define MINSAVEVER_BLD 3
-#define MINSAVEVER_RR 2
+#define MINSAVEVER_RR 3
 #define MINSAVEVER_SW 2
 #define MINSAVEVER_PS 2
 
 #define SAVEVER_DN3D 3
 #define SAVEVER_BLD 3
-#define SAVEVER_RR 2
+#define SAVEVER_RR 3
 #define SAVEVER_SW 2
 #define SAVEVER_PS 2
 
