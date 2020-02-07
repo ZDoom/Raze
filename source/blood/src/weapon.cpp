@@ -47,7 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "sound.h"
 #include "trig.h"
-#include "triggers.h"
+#include "nnexts.h"
 #include "view.h"
 
 BEGIN_BLD_NS
@@ -1583,8 +1583,8 @@ void FireNapalm2(int nTrigger, PLAYER *pPlayer)
 
 void AltFireNapalm(int nTrigger, PLAYER *pPlayer)
 {
-    //UNREFERENCED_PARAMETER(nTrigger);
-    //char UNUSED(bAkimbo) = powerupCheck(pPlayer, kPwUpTwoGuns);
+    UNREFERENCED_PARAMETER(nTrigger);
+    char UNUSED(bAkimbo) = powerupCheck(pPlayer, kPwUpTwoGuns);
     int nSpeed = mulscale16(0x8000, 0x177777)+0x66666;
     spritetype *pMissile = playerFireThing(pPlayer, 0, -4730, kThingNapalmBall, nSpeed);
     if (pMissile)
@@ -1936,28 +1936,10 @@ char sub_4F484(PLAYER *pPlayer)
 void WeaponProcess(PLAYER *pPlayer) {
 
     pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
+    
     #ifdef NOONE_EXTENSIONS
     if (gPlayerCtrl[pPlayer->nPlayer].qavScene.index >= 0 && pPlayer->pXSprite->health > 0) {
-        
-        QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
-        
-        int nIndex = pQavScene->index;
-        if (sprite[nIndex].extra >= 0) {
-            XSPRITE* pXSprite = &xsprite[sprite[nIndex].extra];
-            if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) {
-                if (pXSprite->txID > 0)
-                    evSend(nIndex, 3, pXSprite->txID, (COMMAND_ID) pXSprite->command);
-                if (pXSprite->locked) trPlayerCtrlStopScene(pXSprite, pPlayer);
-                else evPost(nIndex, 3, 0, (COMMAND_ID) (kCmdNumberic + 4));
-            } else  {
-                qavScenePlay(pPlayer);
-                pPlayer->weaponTimer = ClipLow(pPlayer->weaponTimer -= 4, 0);
-            }
-        } else {
-            pQavScene->index = pPlayer->sceneQav = -1;
-            pQavScene->qavResrc = NULL;
-        }
-
+        playerQavSceneProcess(pPlayer, &gPlayerCtrl[pPlayer->nPlayer].qavScene);
         return;
     }
     #endif

@@ -29,11 +29,6 @@ BEGIN_BLD_NS
 #define kMaxXSectors 512
 
 
-#ifdef NOONE_EXTENSIONS
-// additional non-thing proximity, sight and physics sprites 
-#define kMaxSuperXSprites 128
-extern bool gModernMap;
-#endif
 
 // by NoOne: functions to quckly check range of specifical arrays
 inline bool xspriRangeIsFine(int nXindex) {

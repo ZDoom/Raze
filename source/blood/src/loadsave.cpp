@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "i_specialpaths.h"
 #include "view.h"
+#include "nnexts.h"
 #include "savegamehelp.h"
 #include "z_music.h"
 #include "mapinfo.h"

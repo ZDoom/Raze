@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trig.h"
 #include "triggers.h"
 #include "view.h"
-#include "aiunicult.h"
+#include "nnexts.h"
 
 BEGIN_BLD_NS
 
@@ -712,72 +712,6 @@ void DropVoodoo(int nSprite) // unused
     }
 }
 
-#ifdef NOONE_EXTENSIONS
-void UniMissileBurst(int nSprite) // 22
-{
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
-    if (sprite[nSprite].statnum != kStatProjectile) return;
-    spritetype * pSprite = &sprite[nSprite];
-    int nAngle = getangle(xvel[nSprite], yvel[nSprite]);
-    int nRadius = 0x55555;
-
-    for (int i = 0; i < 8; i++)
-    {
-        spritetype* pBurst = actSpawnSprite(pSprite, 5);
-
-        pBurst->type = pSprite->type;
-        pBurst->shade = pSprite->shade;
-        pBurst->picnum = pSprite->picnum;
-
-        pBurst->cstat = pSprite->cstat;
-        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) {
-            pBurst->cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
-            evPost(pBurst->xvel, 3, 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
-        }
-
-        pBurst->pal = pSprite->pal;
-        pBurst->clipdist = pSprite->clipdist / 4;
-        pBurst->flags = pSprite->flags;
-        pBurst->xrepeat = pSprite->xrepeat / 2;
-        pBurst->yrepeat = pSprite->yrepeat / 2;
-        pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].angleOfs) & 2047);
-        pBurst->owner = pSprite->owner;
-
-        actBuildMissile(pBurst, pBurst->extra, pSprite->xvel);
-
-        int nAngle2 = (i << 11) / 8;
-        int dx = 0;
-        int dy = mulscale30r(nRadius, Sin(nAngle2));
-        int dz = mulscale30r(nRadius, -Cos(nAngle2));
-        if (i & 1)
-        {
-            dy >>= 1;
-            dz >>= 1;
-        }
-        RotateVector(&dx, &dy, nAngle);
-        xvel[pBurst->index] += dx;
-        yvel[pBurst->index] += dy;
-        zvel[pBurst->index] += dz;
-        evPost(pBurst->index, 3, 960, kCallbackRemove);
-    }
-    evPost(nSprite, 3, 0, kCallbackRemove);
-}
-
-
-void makeMissileBlocking(int nSprite) // 23
-{
-    dassert(nSprite >= 0 && nSprite < kMaxSprites);
-    if (sprite[nSprite].statnum != kStatProjectile) return;
-    sprite[nSprite].cstat |= CSTAT_SPRITE_BLOCK;
-}
-
-
-    void genDudeUpdateCallback(int nSprite) // 24
-    {
-        if (spriRangeIsFine(nSprite))
-            genDudeUpdate(&sprite[nSprite]);
-    }
-#endif
 void(*gCallback[kCallbackMax])(int) =
 {
     fxFlameLick,
@@ -802,11 +736,11 @@ void(*gCallback[kCallbackMax])(int) =
     fxPodBloodSplat,
     LeechStateTimer,
     DropVoodoo, // unused
-#ifdef NOONE_EXTENSIONS
-    UniMissileBurst,
-    makeMissileBlocking,
-    genDudeUpdateCallback,
-#endif
+    #ifdef NOONE_EXTENSIONS
+    callbackUniMissileBurst, // the code is in nnexts.cpp
+    callbackMakeMissileBlocking, // the code is in nnexts.cpp
+    callbackGenDudeUpdate, // the code is in nnexts.cpp
+    #endif
 };
 
 END_BLD_NS

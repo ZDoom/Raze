@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "common_game.h"
+#include "nnexts.h"
 #ifdef NOONE_EXTENSIONS
 #include "compat.h"
 #include "build.h"
@@ -134,7 +135,7 @@ GENDUDESND gCustomDudeSnd[] = {
 
 GENDUDEEXTRA gGenDudeExtra[kMaxSprites];
 
-static void forcePunch(spritetype* pSprite, XSPRITE* pXSprite) {
+static void forcePunch(spritetype* pSprite, XSPRITE*) {
     if (gGenDudeExtra[pSprite->index].forcePunch && seqGetStatus(3, pSprite->extra) == -1)
         punchCallback(0,pSprite->extra);
 }
@@ -172,29 +173,9 @@ bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int we
 
 }
 
-void genDudeProcess(spritetype* pSprite, XSPRITE* pXSprite) {
-    GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index]; 
-    
-    if (pExtra->slaveCount > 0)
-        updateTargetOfSlaves(pSprite);
-    
-    if (pExtra->nLifeLeech >= 0)
-        updateTargetOfLeech(pSprite);
-
-    if (pXSprite->aiState->moveFunc)
-        pXSprite->aiState->moveFunc(pSprite, pXSprite);
-
-    if (pXSprite->aiState->thinkFunc && (gFrame & 3) == (pSprite->index & 3))
-        pXSprite->aiState->thinkFunc(pSprite, pXSprite);
-
-    if (pXSprite->stateTimer == 0 && pXSprite->aiState->nextState && (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0))
-        aiGenDudeNewState(pSprite, pXSprite->aiState->nextState);
-
-    int hinder = ((pExtra->isMelee) ? 25 : 5) << 4;
-    if (pXSprite->health > 0 && hinder <= cumulDamage[pSprite->extra]) {
-        pXSprite->data3 = cumulDamage[pSprite->extra];
-        RecoilDude(pSprite, pXSprite);
-    }
+GENDUDEEXTRA* genDudeExtra(spritetype* pGenDude) {
+    dassert(spriRangeIsFine(pGenDude->index));
+    return &gGenDudeExtra[pGenDude->index];
 }
 
 void genDudeUpdate(spritetype* pSprite) {
@@ -343,7 +324,7 @@ static void ThrowThing(int nXIndex, bool impact) {
     if ((pThing = actFireThing(pSprite, 0, 0, (dz / 128) - zThrow, curWeapon, divscale(dist / 540, 120, 23))) == NULL) return;
     else if (pThinkInfo->picnum < 0 && pThing->type != kModernThingThrowableRock) pThing->picnum = 0;
             
-    pThing->owner = pSprite->xvel;
+    pThing->owner = pSprite->index;
             
     switch (curWeapon) {
         case kThingNapalmBall:
@@ -390,19 +371,19 @@ static void ThrowThing(int nXIndex, bool impact) {
             else pXThing->data3 = Random(10);
             pThing->cstat &= ~CSTAT_SPRITE_BLOCK;
             pThing->pal = 6; 
-            pXThing->target = pTarget->xvel;
+            pXThing->target = pTarget->index;
             pXThing->Proximity = true;
             pXThing->stateTimer = 1;
                 
             gGenDudeExtra[pSprite->index].nLifeLeech = pThing->index;
-            evPost(pThing->xvel, 3, 80, kCallbackLeechStateTimer);
+            evPost(pThing->index, 3, 80, kCallbackLeechStateTimer);
             return;
     }
 
     if (impact == true && dist <= 7680) xsprite[pThing->extra].Impact = true;
     else {
         xsprite[pThing->extra].Impact = false;
-        evPost(pThing->xvel, 3, 120 * Random(2) + 120, kCmdOn);
+        evPost(pThing->index, 3, 120 * Random(2) + 120, kCmdOn);
     }
 }
 
@@ -549,7 +530,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                             }
 
                             XSPRITE* pXLeech = &xsprite[pLeech->extra];
-                            int ldist = getTargetDist(pTarget, pDudeInfo, pLeech);
+                            int ldist = aiFightGetTargetDist(pTarget, pDudeInfo, pLeech);
                             if (ldist > 3 || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum,
                                 pLeech->x, pLeech->y, pLeech->z, pLeech->sectnum) || pXLeech->target == -1) {
 
@@ -672,9 +653,9 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
             } else if (weaponType == kGenDudeWeaponKamikaze) {
                 int nType = curWeapon - kTrapExploder; EXPLOSION* pExpl = &explodeInfo[nType];
                 if (CheckProximity(pSprite, pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pExpl->radius >> 1)) {
-                    xvel[pSprite->xvel] = zvel[pSprite->xvel] = yvel[pSprite->xvel] = 0;
+                    xvel[pSprite->index] = zvel[pSprite->index] = yvel[pSprite->index] = 0;
                     if (doExplosion(pSprite, nType) && pXSprite->health > 0)
-                            actDamageSprite(pSprite->xvel, pSprite, DAMAGE_TYPE_3, 65535);
+                            actDamageSprite(pSprite->index, pSprite, DAMAGE_TYPE_3, 65535);
                 }
                 return;
                 }
@@ -786,7 +767,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                                 VectorScan(pSprite, 0, 0, Cos(pSprite->ang) >> 16, Sin(pSprite->ang) >> 16, gDudeSlope[pSprite->extra], dist, 1);
                                 if (pXSprite->target == gHitInfo.hitsprite) break;
                                 
-                                bool immune = isImmune(pHSprite, gVectorData[curWeapon].dmgType);
+                                bool immune = nnExtIsUmmune(pHSprite, gVectorData[curWeapon].dmgType);
                                 if (!(pXHSprite != NULL && (!immune || (immune && pHSprite->statnum == kStatThing && pXHSprite->Vector)) && !pXHSprite->locked)) {
 
                                     if ((approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) <= 1500 && !blck)
@@ -872,7 +853,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                                     else if (hit == 3 && (failed = (pHSprite->statnum != kStatThing || pXHSprite == NULL || pXHSprite->locked)) == false) {
                                         // check also for damage resistance (all possible damages missile can use)
                                         for (int i = 0; i < kDmgMax; i++) {
-                                            if (gMissileInfoExtra[curWeapon - kMissileBase].dmgType[i] && (failed = isImmune(pHSprite, i)) == false)
+                                            if (gMissileInfoExtra[curWeapon - kMissileBase].dmgType[i] && (failed = nnExtIsUmmune(pHSprite, i)) == false)
                                                 break;
                                         }
                                     }
@@ -1036,8 +1017,8 @@ void aiGenDudeMoveForward(spritetype* pSprite, XSPRITE* pXSprite ) {
     int cos = Cos(pSprite->ang);
 
         int frontSpeed = gGenDudeExtra[pSprite->index].moveSpeed;
-    xvel[pSprite->xvel] += mulscale(cos, frontSpeed, 30);
-    yvel[pSprite->xvel] += mulscale(sin, frontSpeed, 30);
+        xvel[pSprite->index] += mulscale(cos, frontSpeed, 30);
+        yvel[pSprite->index] += mulscale(sin, frontSpeed, 30);
     }
 }
 
@@ -1181,7 +1162,7 @@ bool playGenDudeSound(spritetype* pSprite, int mode) {
         // If no success in getting random snd, get first existing one
         if (gotSnd == false) {
             int maxSndId = sndId + rand;
-            while (sndId++ <= maxSndId) {
+            while (sndId++ < maxSndId) {
                 if (!soundEngine->FindSoundByResID(sndId)) continue;
                 gotSnd = true;
                 break;
@@ -1213,13 +1194,13 @@ spritetype* leechIsDropped(spritetype* pSprite) {
     
 void removeDudeStuff(spritetype* pSprite) {
     for (short nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-        if (sprite[nSprite].owner != pSprite->xvel) continue;
+        if (sprite[nSprite].owner != pSprite->index) continue;
         switch (sprite[nSprite].type) {
             case kThingArmedProxBomb:
             case kThingArmedRemoteBomb:
             case kModernThingTNTProx:
                 sprite[nSprite].type = kSpriteDecoration;
-                actPostSprite(sprite[nSprite].xvel, kStatFree);
+                actPostSprite(sprite[nSprite].index, kStatFree);
                 break;
             case kModernThingEnemyLifeLeech:
                 killDudeLeech(&sprite[nSprite]);
@@ -1228,7 +1209,7 @@ void removeDudeStuff(spritetype* pSprite) {
     }
 
     for (short nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-        if (sprite[nSprite].owner != pSprite->xvel) continue;
+        if (sprite[nSprite].owner != pSprite->index) continue;
         actDamageSprite(sprite[nSprite].owner, &sprite[nSprite], (DAMAGE_TYPE) 0, 65535);
     }
 }
@@ -1558,7 +1539,7 @@ int getDodgeChance(spritetype* pSprite) {
 void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
 {
     if (event.cmd == kCmdOff) {
-        actPostSprite(pSprite->xvel, kStatFree);
+        actPostSprite(pSprite->index, kStatFree);
         return;
     }
 
@@ -1639,6 +1620,198 @@ bool doExplosion(spritetype* pSprite, int nType) {
     sfxPlay3DSound(pExplosion, nSnd, -1, 0);
 
     return true;
+}
+
+// this function allows to spawn new custom dude and inherit spawner settings,
+// so custom dude can have different weapons, hp and so on...
+spritetype* genDudeSpawn(spritetype* pSprite, int nDist) {
+
+    spritetype* pSource = pSprite; XSPRITE* pXSource = &xsprite[pSource->extra];
+    spritetype* pDude = actSpawnSprite(pSprite, 6); XSPRITE* pXDude = &xsprite[pDude->extra];
+
+    int x, y, z = pSprite->z, nAngle = pSprite->ang, nType = kDudeModernCustom;
+
+    if (nDist > 0) {
+        x = pSprite->x + mulscale30r(Cos(nAngle), nDist);
+        y = pSprite->y + mulscale30r(Sin(nAngle), nDist);
+    } else {
+        x = pSprite->x;
+        y = pSprite->y;
+    }
+
+    pDude->type = nType; pDude->ang = nAngle;
+    vec3_t pos = { x, y, z }; setsprite(pDude->index, &pos);
+    pDude->cstat |= 0x1101; pDude->clipdist = dudeInfo[nType - kDudeBase].clipdist;
+
+    // inherit weapon, seq and sound settings.
+    pXDude->data1 = pXSource->data1;
+    pXDude->data2 = pXSource->data2;
+    pXDude->sysData1 = pXSource->data3; // move sndStartId from data3 to sysData1
+    pXDude->data3 = 0;
+
+    // spawn seq
+    seqSpawn(genDudeSeqStartId(pXDude), 3, pDude->extra, -1);
+
+    // inherit movement speed.
+    pXDude->busyTime = pXSource->busyTime;
+
+    // inherit clipdist?
+    if (pSource->clipdist > 0) pDude->clipdist = pSource->clipdist;
+
+    // inherit custom hp settings
+    if (pXSource->data4 <= 0) pXDude->health = dudeInfo[nType - kDudeBase].startHealth << 4;
+    else pXDude->health = ClipRange(pXSource->data4 << 4, 1, 65535);
+
+
+    if (pSource->flags & kModernTypeFlag1) {
+        switch (pSource->type) {
+        case kModernCustomDudeSpawn:
+            //inherit pal?
+            if (pDude->pal <= 0) pDude->pal = pSource->pal;
+
+            // inherit spawn sprite trigger settings, so designer can count monsters.
+            pXDude->txID = pXSource->txID;
+            pXDude->command = pXSource->command;
+            pXDude->triggerOn = pXSource->triggerOn;
+            pXDude->triggerOff = pXSource->triggerOff;
+
+            // inherit drop items
+            pXDude->dropMsg = pXSource->dropMsg;
+
+            // inherit required key so it can be dropped
+            pXDude->key = pXSource->key;
+
+            // inherit dude flags
+            pXDude->dudeDeaf = pXSource->dudeDeaf;
+            pXDude->dudeGuard = pXSource->dudeGuard;
+            pXDude->dudeAmbush = pXSource->dudeAmbush;
+            pXDude->dudeFlag4 = pXSource->dudeFlag4;
+            break;
+        }
+    }
+
+    // inherit sprite size (useful for seqs with zero repeats)
+    if (pSource->flags & kModernTypeFlag2) {
+        pDude->xrepeat = pSource->xrepeat;
+        pDude->yrepeat = pSource->yrepeat;
+    }
+
+    aiInitSprite(pDude);
+    return pDude;
+}
+
+void genDudeTransform(spritetype* pSprite) {
+    
+    if (!(pSprite->extra >= 0 && pSprite->extra < kMaxXSprites)) {
+        consoleSysMsg("pSprite->extra >= 0 && pSprite->extra < kMaxXSprites");
+        return;
+    }
+    
+    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    XSPRITE* pXIncarnation = getNextIncarnation(pXSprite);
+    if (pXIncarnation == NULL) {
+        if (pXSprite->sysData1 == kGenDudeTransformStatus) pXSprite->sysData1 = 0;
+        trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
+        return;
+    }
+    
+    spritetype* pIncarnation = &sprite[pXIncarnation->reference];
+    pXSprite->key = pXSprite->dropMsg = pXSprite->locked = 0;
+
+    // save incarnation's going on and off options
+    bool triggerOn = pXIncarnation->triggerOn;
+    bool triggerOff = pXIncarnation->triggerOff;
+
+    // then remove it from incarnation so it will not send the commands
+    pXIncarnation->triggerOn = false;
+    pXIncarnation->triggerOff = false;
+
+    // trigger dude death before transform
+    trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
+
+    pSprite->type = pIncarnation->type;
+    pSprite->flags = pIncarnation->flags;
+    pSprite->pal = pIncarnation->pal;
+    pSprite->shade = pIncarnation->shade;
+    pSprite->clipdist = pIncarnation->clipdist;
+    pSprite->xrepeat = pIncarnation->xrepeat;
+    pSprite->yrepeat = pIncarnation->yrepeat;
+
+    pXSprite->txID = pXIncarnation->txID;
+    pXSprite->command = pXIncarnation->command;
+    pXSprite->triggerOn = triggerOn;
+    pXSprite->triggerOff = triggerOff;
+    pXSprite->busyTime = pXIncarnation->busyTime;
+    pXSprite->waitTime = pXIncarnation->waitTime;
+
+    pXSprite->burnTime = 0;
+    pXSprite->burnSource = -1;
+
+    pXSprite->data1 = pXIncarnation->data1;
+    pXSprite->data2 = pXIncarnation->data2;
+
+    // if incarnation is active dude, it's sndStartId will be stored in sysData1, otherwise it will be data3
+    if (pIncarnation->statnum == kStatDude && pIncarnation->type == kDudeModernCustom) pXSprite->sysData1 = pXIncarnation->sysData1;
+    else pXSprite->sysData1 = pXIncarnation->data3;
+
+    pXSprite->data4 = pXIncarnation->data4;
+
+    pXSprite->dudeGuard = pXIncarnation->dudeGuard;
+    pXSprite->dudeDeaf = pXIncarnation->dudeDeaf;
+    pXSprite->dudeAmbush = pXIncarnation->dudeAmbush;
+    pXSprite->dudeFlag4 = pXIncarnation->dudeFlag4;
+
+    pXSprite->dropMsg = pXIncarnation->dropMsg;
+    pXSprite->key = pXIncarnation->key;
+
+    pXSprite->locked = pXIncarnation->locked;
+    pXSprite->Decoupled = pXIncarnation->Decoupled;
+
+    // clear drop items of the incarnation
+    pXIncarnation->key = pXIncarnation->dropMsg = 0;
+
+    // set hp
+    if (pXSprite->data4 <= 0) pXSprite->health = dudeInfo[pSprite->type - kDudeBase].startHealth << 4;
+    else pXSprite->health = ClipRange(pXSprite->data4 << 4, 1, 65535);
+
+    int seqId = dudeInfo[pSprite->type - kDudeBase].seqStartID;
+    switch (pSprite->type) {
+        case kDudePodMother: // fake dude
+        case kDudeTentacleMother: // fake dude
+            break;
+        case kDudeModernCustom:
+        case kDudeModernCustomBurning:
+            seqId = genDudeSeqStartId(pXSprite);
+            genDudePrepare(pSprite, kGenDudePropertyMass);
+            fallthrough__; // go below
+        default:
+            seqSpawn(seqId, 3, pSprite->extra, -1);
+
+            // save target
+            int target = pXSprite->target;
+
+            // re-init sprite
+            aiInitSprite(pSprite);
+
+            // try to restore target
+            if (target == -1) aiSetTarget(pXSprite, pSprite->x, pSprite->y, pSprite->z);
+            else aiSetTarget(pXSprite, target);
+
+            // finally activate it
+            aiActivateDude(pSprite, pXSprite);
+
+            break;
+    }
+
+    // remove the incarnation in case if non-locked
+    if (pXIncarnation->locked == 0) {
+        pXIncarnation->txID = pIncarnation->type = 0;
+        actPostSprite(pIncarnation->index, kStatFree);
+        // or restore triggerOn and off options
+    } else {
+        pXIncarnation->triggerOn = triggerOn;
+        pXIncarnation->triggerOff = triggerOff;
+    }
 }
 
 

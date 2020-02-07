@@ -59,6 +59,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "warp.h"
 #include "weapon.h"
+#include "nnexts.h"
 #include "zstring.h"
 #include "menu/menu.h"
 #include "gstrings.h"
@@ -3499,7 +3500,7 @@ void viewDrawScreen(bool sceneonly)
 
             #ifdef NOONE_EXTENSIONS
             if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette);
-            else if (gView->pXSprite->health > 0) qavSceneDraw(gView, nShade, cX, cY, nPalette);
+                else if (gView->pXSprite->health > 0) playerQavSceneDraw(gView, nShade, cX, cY, nPalette);
             else {
                 gView->sceneQav = gView->weaponQav = -1;
                 gView->weaponTimer = gView->curWeapon = 0;

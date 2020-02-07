@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "seq.h"
 #include "sfx.h"
 #include "trig.h"
+#include "nnexts.h"
 
 BEGIN_BLD_NS
 
@@ -82,8 +83,13 @@ static void BiteSeqCallback(int, int nXSprite)
         return;
     }
     spritetype *pTarget = &sprite[pXSprite->target];
-    if (IsPlayerSprite(pTarget) || !VanillaMode()) // allow to hit non-player targets if not a demo
-        actFireVector(pSprite, 0, 0, dx, dy, pTarget->z-pSprite->z, VECTOR_TYPE_15);
+    #ifdef NOONE_EXTENSIONS
+        if (IsPlayerSprite(pTarget) || gModernMap) // allow to hit non-player targets
+            actFireVector(pSprite, 0, 0, dx, dy, pTarget->z - pSprite->z, VECTOR_TYPE_15);
+    #else
+        if (IsPlayerSprite(pTarget))
+            actFireVector(pSprite, 0, 0, dx, dy, pTarget->z - pSprite->z, VECTOR_TYPE_15);
+    #endif
 }
 
 static void BurnSeqCallback(int, int nXSprite)

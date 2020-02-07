@@ -391,55 +391,6 @@ enum {
     kSoundPlayer = 711,
 };
 
-#ifdef NOONE_EXTENSIONS
-// modern types (gModernMap only)
-enum {
-kModernCustomDudeSpawn          = 24,
-kModernRandomTX                 = 25,
-kModernSequentialTX             = 26,
-kModernSeqSpawner               = 27,
-kModernObjPropertiesChanger     = 28,
-kModernObjPicnumChanger         = 29,
-kModernObjSizeChanger           = 31,
-kModernDudeTargetChanger        = 33,
-kModernSectorFXChanger          = 34,
-kModernObjDataChanger           = 35,
-kModernSpriteDamager            = 36,
-kModernObjDataAccumulator       = 37,
-kModernEffectSpawner            = 38,
-kModernWindGenerator            = 39,
-kModernRandom                   = 40,
-kModernRandom2                  = 80,
-kItemShroomGrow                 = 129,
-kItemShroomShrink               = 130,
-kItemModernMapLevel             = 150,  // once picked up, draws whole minimap
-kDudeModernCustom               = kDudeVanillaMax,
-kDudeModernCustomBurning        = 255,
-kModernThingTNTProx             = 433, // detects only players
-kModernThingThrowableRock       = 434, // does small damage if hits target
-kModernThingEnemyLifeLeech      = 435, // the same as normal, except it aims in specified target only
-kModernPlayerControl            = 500, /// WIP
-kGenModernMissileUniversal      = 704,
-};
-
-// modern statnums (gModernMap only)
-enum {
-kStatModernDudeTargetChanger    = 20,
-};
-
-// additional physics attributes for debris sprites
-#define kPhysDebrisFly 0x0008 // *debris* affected by negative gravity (fly instead of falling, DO NOT mess with kHitagAutoAim)
-#define kPhysDebrisSwim 0x0016 // *debris* can swim underwater (instead of drowning)
-#define kPhysDebrisVector 0x0400 // *debris* can be affected by vector weapons
-#define kPhysDebrisExplode 0x0800 // *debris* can be affected by explosions
-
-// *modern types only hitag*
-#define kModernTypeFlag0 0x0
-#define kModernTypeFlag1 0x1
-#define kModernTypeFlag2 0x2
-#define kModernTypeFlag3 0x3
-#endif
-
 // WALL TYPES /////////////////////////////////////////////////
 enum {
     kWallBase = 500,

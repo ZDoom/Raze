@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "iob.h"
 #include "eventq.h"
+#include "nnexts.h"
 
 BEGIN_BLD_NS
 
@@ -54,9 +55,6 @@ PolymerLight_t gPolymerLight[kMaxSprites];
 char qsprite_filler[kMaxSprites], qsector_filler[kMaxSectors];
 
 int gVisibility;
-#ifdef NOONE_EXTENSIONS
-bool gModernMap = false;
-#endif
 
 void dbCrypt(char *pPtr, int nLength, int nKey)
 {

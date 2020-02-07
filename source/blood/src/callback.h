@@ -50,9 +50,9 @@ enum CALLBACK_ID {
     kCallbackLeechStateTimer = 20,
     kCallbackDropVoodoo = 21, // unused
     #ifdef NOONE_EXTENSIONS
-    kCallbackMissileBurst = 22, // by NoOne
-    kCallbackMissileSpriteBlock = 23, // by NoOne
-    kCallbackGenDudeUpdate      = 24, // by NoOne
+    kCallbackMissileBurst = 22,
+    kCallbackMissileSpriteBlock = 23,
+    kCallbackGenDudeUpdate      = 24,
     #endif
     kCallbackMax,
 };

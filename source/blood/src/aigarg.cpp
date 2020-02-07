@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "seq.h"
 #include "sfx.h"
 #include "trig.h"
+#include "nnexts.h"
 
 BEGIN_BLD_NS
 
@@ -209,11 +210,19 @@ static void BlastSSeqCallback(int, int nXSprite)
             }
         }
     }
-    if (IsPlayerSprite(pTarget) || !VanillaMode()) // By NoOne: allow to fire missile in non-player targets
-    {
-        actFireMissile(pSprite, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
-        actFireMissile(pSprite, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
-    }
+    #ifdef NOONE_EXTENSIONS
+        // allow to fire missile in non-player targets
+        if (IsPlayerSprite(pTarget) || gModernMap) {
+            actFireMissile(pSprite, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+            actFireMissile(pSprite, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+        }
+    #else
+        if (IsPlayerSprite(pTarget)) {
+            actFireMissile(pSprite, -120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+            actFireMissile(pSprite, 120, 0, aim.dx, aim.dy, aim.dz, kMissileArcGargoyle);
+        }
+    #endif
+
 }
 
 static void ThrowSSeqCallback(int, int nXSprite)

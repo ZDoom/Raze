@@ -358,25 +358,6 @@ void levelEndLevel(int arg)
     }
 }
 
-#ifdef NOONE_EXTENSIONS
-// this function can be called via sending numbered command to TX kChannelModernEndLevelCustom
-// This allows to set custom next level instead of taking it from INI file.
-void levelEndLevelCustom(int nLevel) {
-
-    gGameOptions.uGameFlags |= 1;
-
-    if (nLevel >= 16  || nLevel < 0)
-    {
-
-        gGameOptions.uGameFlags |= 2;
-        gGameOptions.nLevel = 0;
-        return;
-    }
-
-    gNextLevel = nLevel;
-}
-#endif
-
 void levelRestart(void)
 {
     levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);

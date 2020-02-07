@@ -41,6 +41,8 @@ struct AISTATE {
     AISTATE *nextState;
 };
 extern AISTATE aiState[];
+extern AISTATE genIdle;
+extern AISTATE genRecoil;
 
 enum AI_SFX_PRIORITY {
     AI_SFX_PRIORITY_0 = 0,
@@ -106,9 +108,4 @@ void aiInit(void);
 void aiInitSprite(spritetype *pSprite);
 bool CanMove(spritetype* pSprite, int a2, int nAngle, int nRange);
 void RecoilDude(spritetype* pSprite, XSPRITE* pXSprite);
-#ifdef NOONE_EXTENSIONS
-// this function required for kModernDudeTargetChanger
-void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite);
-#endif
-
 END_BLD_NS

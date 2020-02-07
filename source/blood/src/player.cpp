@@ -53,6 +53,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "weapon.h"
 #include "common_game.h"
 #include "messages.h"
+#include "nnexts.h"
 #include "gstrings.h"
 
 BEGIN_BLD_NS
@@ -254,133 +255,6 @@ DAMAGEINFO damageInfo[7] = {
     { 0, 0, 0, 0, 0, 0, 0 }
 };
 
-#ifdef NOONE_EXTENSIONS
-TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
-
-QAV* qavSceneLoad(int qavId) {
-    QAV* pQav = NULL; DICTNODE* hQav = gSysRes.Lookup(qavId, "QAV");
-   
-    if (hQav) pQav = (QAV*)gSysRes.Lock(hQav);
-    else viewSetSystemMessage("Failed to load QAV animation #%d", qavId);
-
-    return pQav;
-}
-
-void qavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5) {
-    if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
-    
-    QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
-    spritetype* pSprite = &sprite[pQavScene->index];
-
-    if (pQavScene->qavResrc != NULL) {
-
-        QAV* pQAV = pQavScene->qavResrc;
-        int v4 = (pPlayer->weaponTimer == 0) ? (int)totalclock % pQAV->at10 : pQAV->at10 - pPlayer->weaponTimer;
-        
-        int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
-        if (nInv >= 120 * 8 || (nInv != 0 && ((int)totalclock & 32))) {
-            a2 = -128; flags |= 1;
-        }
-        
-        // draw as weapon
-        if (!(pSprite->flags & kModernTypeFlag1)) {
-            
-            pQAV->x = a3; pQAV->y = a4;
-            pQAV->Draw(v4, flags, a2, a5);
-
-        // draw fullscreen (currently 4:3 only)
-        } else {
-            
-            int wx1 = windowxy1.x, wy1 = windowxy1.y, wx2 = windowxy2.x, wy2 = windowxy2.y;
-            
-            windowxy2.x = xdim - 1; windowxy2.y = ydim - 1;
-            windowxy1.x = windowxy1.y = 0;
-
-            pQAV->Draw(v4, flags, a2, a5);
-            
-            windowxy1.x = wx1; windowxy1.y = wy1;
-            windowxy2.x = wx2; windowxy2.y = wy2;
-
-        }
-
-    }
-
-}
-
-void qavScenePlay(PLAYER* pPlayer) {
-    if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
-    
-    QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
-    if (pQavScene->qavResrc != NULL) {
-        QAV* pQAV = pQavScene->qavResrc;
-        pQAV->nSprite = pPlayer->pSprite->index;
-        int nTicks = pQAV->at10 - pPlayer->weaponTimer;
-        pQAV->Play(nTicks - 4, nTicks, pPlayer->qavCallback, pPlayer);
-    }
-}
-
-bool isGrown(spritetype* pSprite) {
-    if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpGrowShroom) > 0) return true;
-    else if (pSprite->extra >= 0 && xsprite[pSprite->extra].scale >= 512) return true;
-    else return false;
-}
-
-bool isShrinked(spritetype* pSprite) {
-    if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpShrinkShroom) > 0) return true;
-    else if (pSprite->extra >= 0 && xsprite[pSprite->extra].scale > 0 && xsprite[pSprite->extra].scale <= 128) return true;
-    else return false;
-}
-
-bool shrinkPlayerSize(PLAYER* pPlayer, int divider) {
-    pPlayer->pXSprite->scale = 256/divider;
-    playerSetRace(pPlayer, kModeHumanShrink);
-    return true;
-}
-
-bool growPlayerSize(PLAYER* pPlayer, int multiplier) {
-    pPlayer->pXSprite->scale = 256*multiplier;
-    playerSetRace(pPlayer, kModeHumanGrown);
-    return true;
-}
-
-bool resetPlayerSize(PLAYER* pPlayer) {
-    playerSetRace(pPlayer, kModeHuman);
-    pPlayer->pXSprite->scale = 0;
-    return true;
-}
-#endif
-
-void deactivateSizeShrooms(PLAYER* pPlayer) {
-    powerupDeactivate(pPlayer, kPwUpGrowShroom);
-    pPlayer->pwUpTime[kPwUpGrowShroom] = 0;
-
-    powerupDeactivate(pPlayer, kPwUpShrinkShroom);
-    pPlayer->pwUpTime[kPwUpShrinkShroom] = 0;
-}
-
-
-PLAYER* getPlayerById(short id) {
-    
-    // relative to connected players
-    if (id >= 1 && id <= kMaxPlayers) {
-        id = id - 1;
-        for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
-            if (id == gPlayer[i].nPlayer)
-                return &gPlayer[i]; 
-        }
-        
-    // absolute sprite type
-    } else if (id >= kDudePlayer1 && id <= kDudePlayer8) {
-        for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
-            if (id == gPlayer[i].pSprite->type)
-                return &gPlayer[i];
-        }
-    }
-    
-    viewSetSystemMessage("There is no player id #%d", id);
-    return NULL;
-}
-
 int powerupCheck(PLAYER *pPlayer, int nPowerUp)
 {
     dassert(pPlayer != NULL);
@@ -409,21 +283,21 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
             break;
         case kItemShroomShrink:
             if (!gModernMap) break;
-            else if (isGrown(pPlayer->pSprite)) deactivateSizeShrooms(pPlayer);
-            else shrinkPlayerSize(pPlayer, 2);
+            else if (isGrown(pPlayer->pSprite)) playerDeactivateShrooms(pPlayer);
+            else playerSizeShrink(pPlayer, 2);
             break;
         case kItemShroomGrow:
             if (!gModernMap) break;
-            else if (isShrinked(pPlayer->pSprite)) deactivateSizeShrooms(pPlayer);
+            else if (isShrinked(pPlayer->pSprite)) playerDeactivateShrooms(pPlayer);
             else {
-                growPlayerSize(pPlayer, 2);
+                playerSizeGrow(pPlayer, 2);
                 if (powerupCheck(&gPlayer[pPlayer->pSprite->type - kDudePlayer1], kPwUpShadowCloak) > 0) {
                     powerupDeactivate(pPlayer, kPwUpShadowCloak);
                     pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 }
 
                 if (ceilIsTooLow(pPlayer->pSprite))
-                    actDamageSprite(pPlayer->pSprite->xvel, pPlayer->pSprite, DAMAGE_TYPE_3, 65535);
+                    actDamageSprite(pPlayer->pSprite->index, pPlayer->pSprite, DAMAGE_TYPE_3, 65535);
             }
             break;
         #endif
@@ -469,13 +343,13 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
         #ifdef NOONE_EXTENSIONS
         case kItemShroomShrink:
             if (gModernMap) {
-                resetPlayerSize(pPlayer);
+                playerSizeReset(pPlayer);
                 if (ceilIsTooLow(pPlayer->pSprite))
-                    actDamageSprite(pPlayer->pSprite->xvel, pPlayer->pSprite, DAMAGE_TYPE_3, 65535);
+                    actDamageSprite(pPlayer->pSprite->index, pPlayer->pSprite, DAMAGE_TYPE_3, 65535);
             }
             break;
         case kItemShroomGrow:
-            if (gModernMap) resetPlayerSize(pPlayer);
+            if (gModernMap) playerSizeReset(pPlayer);
             break;
         #endif
         case kItemFeatherFall:
@@ -767,6 +641,10 @@ void playerResetPowerUps(PLAYER* pPlayer)
     }
 }
 
+void playerResetPosture(PLAYER* pPlayer) {
+    memcpy(pPlayer->pPosture, gPostureDefaults, sizeof(gPostureDefaults));
+}
+
 void playerStart(int nPlayer)
 {
     PLAYER* pPlayer = &gPlayer[nPlayer];
@@ -896,7 +774,7 @@ void playerStart(int nPlayer)
     pPlayer->weaponState = 0;
     pPlayer->weaponQav = -1;
     #ifdef NOONE_EXTENSIONS
-    playerResetQavScene(pPlayer); // reset qav scene
+    playerQavSceneReset(pPlayer); // reset qav scene
     #endif
     pPlayer->hand = 0;
     pPlayer->nWaterPal = 0;
@@ -958,29 +836,13 @@ void playerReset(PLAYER *pPlayer)
         pPlayer->packSlots[i].isActive = 0;
         pPlayer->packSlots[i].curAmount = 0;
     }
-#ifdef NOONE_EXTENSIONS
-    ///////////////// 
-    // reset qav scene
-    playerResetQavScene(pPlayer);
-#endif
+    #ifdef NOONE_EXTENSIONS
+    playerQavSceneReset(pPlayer);
+    #endif
     // reset posture (mainly required for resetting movement speed and jump height)
     playerResetPosture(pPlayer);
-    /////////////////
 
 }
-
-
-void playerResetPosture(PLAYER* pPlayer) {
-    memcpy(pPlayer->pPosture, gPostureDefaults, sizeof(gPostureDefaults));
-}
-
-#ifdef NOONE_EXTENSIONS
-    void playerResetQavScene(PLAYER* pPlayer) {
-        QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
-        pQavScene->index = pQavScene->dummy = pPlayer->sceneQav = -1;
-        pQavScene->qavResrc = NULL;
-    }
-#endif
 
 int dword_21EFB0[8];
 ClockTicks dword_21EFD0[8];
@@ -1200,8 +1062,8 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
             int addPower = gPowerUpInfo[nType].bonusTime;
             #ifdef NOONE_EXTENSIONS
             // allow custom amount for item
-            if (gModernMap && sprite[pItem->xvel].extra >= 0 && xsprite[sprite[pItem->xvel].extra].data1 > 0)
-                addPower = xsprite[sprite[pItem->xvel].extra].data1;
+            if (gModernMap && sprite[pItem->index].extra >= 0 && xsprite[sprite[pItem->index].extra].data1 > 0)
+                addPower = xsprite[sprite[pItem->index].extra].data1;
             #endif
         
             if (!actHealDude(pXSprite, addPower, gPowerUpInfo[nType].maxTime)) return 0;
@@ -2331,16 +2193,13 @@ public:
 
 void PlayerLoadSave::Load(void)
 {
-    
-    const char buffer[2048] = "";
+
     Read(dword_21EFB0, sizeof(dword_21EFB0));
     Read(&gNetPlayers, sizeof(gNetPlayers));
     Read(&gProfile, sizeof(gProfile));
     Read(&gPlayer, sizeof(gPlayer));
     #ifdef NOONE_EXTENSIONS
-        Read((void*)&buffer, sizeof(kPlayerCtrlSigStart));
         Read(&gPlayerCtrl, sizeof(gPlayerCtrl));
-        Read((void*)&buffer, sizeof(kPlayerCtrlSigEnd));
     #endif
     for (int i = 0; i < gNetPlayers; i++) {
         gPlayer[i].pSprite = &sprite[gPlayer[i].nSprite];
@@ -2353,7 +2212,7 @@ void PlayerLoadSave::Load(void)
             if (gPlayerCtrl[i].qavScene.qavResrc == NULL) 
                 gPlayer[i].sceneQav = -1;
             else {
-                QAV* pQav = qavSceneLoad(gPlayer[i].sceneQav);
+                QAV* pQav = playerQavSceneLoad(gPlayer[i].sceneQav);
                 if (pQav) {
                     gPlayerCtrl[i].qavScene.qavResrc = pQav;
                     gPlayerCtrl[i].qavScene.qavResrc->Preload();
@@ -2375,9 +2234,7 @@ void PlayerLoadSave::Save(void)
     Write(&gPlayer, sizeof(gPlayer));
     
     #ifdef NOONE_EXTENSIONS
-    Write((void*)kPlayerCtrlSigStart, sizeof(kPlayerCtrlSigStart));
     Write(&gPlayerCtrl, sizeof(gPlayerCtrl));
-    Write((void*)kPlayerCtrlSigEnd, sizeof(kPlayerCtrlSigEnd));
     #endif
 }
 

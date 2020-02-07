@@ -266,65 +266,6 @@ void actPostProcess(void);
 void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite);
 void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite);
 
-#ifdef NOONE_EXTENSIONS
-spritetype* DropRandomPickupObject(spritetype* pSprite, short prevItem);
-spritetype* spawnRandomDude(spritetype* pSprite);
-int GetDataVal(spritetype* pSprite, int data);
-int GetRandDataVal(XSPRITE* pXSprite, int randType);
-bool sfxPlayMissileSound(spritetype* pSprite, int missileId);
-bool sfxPlayVectorSound(spritetype* pSprite, int vectorId);
-spritetype* actSpawnCustomDude(spritetype* pSprite, int nDist);
-int getSpriteMassBySize(spritetype* pSprite);
-bool ceilIsTooLow(spritetype* pSprite);
-int isDebris(int nSprite);
-int debrisGetFreeIndex(void);
-void debrisMove(int listIndex);
-void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg);
-bool isImmune(spritetype* pSprite, int dmgType, int minScale = 16);
-
-enum {
-    kRandomizeItem          = 0,
-    kRandomizeDude          = 1,
-    kRandomizeTX            = 2,
-};
-
-// sprite mass info for getSpriteMassBySize();
-struct SPRITEMASS {
-    int seqId;
-    short picnum; // mainly needs for moving debris
-    short xrepeat;
-    short yrepeat;
-    short clipdist; // mass multiplier
-    int mass;
-    short airVel; // mainly needs for moving debris
-    int fraction; // mainly needs for moving debris
-};
-
-struct THINGINFO_EXTRA {
-    bool allowThrow; // indicates if kDudeModernCustom can throw it
-};
-
-struct VECTORINFO_EXTRA {
-    int fireSound[2]; // predefined fire sounds. used by kDudeModernCustom, but can be used for something else.
-};
-
-struct MISSILEINFO_EXTRA {
-    int fireSound[2]; // predefined fire sounds. used by kDudeModernCustom, but can be used for something else.
-    bool dmgType[kDamageMax]; // list of damages types missile can use
-};
-
-extern THINGINFO_EXTRA gThingInfoExtra[kThingMax];
-extern VECTORINFO_EXTRA gVectorInfoExtra[kVectorMax];
-extern MISSILEINFO_EXTRA gMissileInfoExtra[kMissileMax];
-extern SPRITEMASS gSpriteMass[kMaxXSprites];
-extern short gProxySpritesList[kMaxSuperXSprites];
-extern short gSightSpritesList[kMaxSuperXSprites];
-extern short gPhysSpritesList[kMaxSuperXSprites];
-extern short gProxySpritesCount;
-extern short gSightSpritesCount;
-extern short gPhysSpritesCount;
-#endif
-
 extern int DudeDifficulty[];
 
 END_BLD_NS

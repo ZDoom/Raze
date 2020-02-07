@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
+#include "nnexts.h"
 #ifdef NOONE_EXTENSIONS
 #include "ai.h"
 #include "eventq.h"
@@ -177,13 +178,9 @@ struct GENDUDEEXTRA {
     bool canFly;
 };
 
-extern GENDUDEEXTRA gGenDudeExtra[];
+extern GENDUDEEXTRA gGenDudeExtra[kMaxSprites];
 
-inline GENDUDEEXTRA* genDudeExtra(spritetype* pGenDude) {
-    dassert(spriRangeIsFine(pGenDude->index));
-    return &gGenDudeExtra[pGenDude->index];
-}
-
+GENDUDEEXTRA* genDudeExtra(spritetype* pGenDude);
 XSPRITE* getNextIncarnation(XSPRITE* pXSprite);
 void killDudeLeech(spritetype* pLeech);
 void removeLeech(spritetype* pLeech, bool delSprite = true);
@@ -197,6 +194,8 @@ void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState);
 int getGenDudeMoveSpeed(spritetype* pSprite, int which, bool mul, bool shift);
 int checkAttackState(spritetype* pSprite, XSPRITE* pXSprite);
 bool doExplosion(spritetype* pSprite, int nType);
+spritetype* genDudeSpawn(spritetype* pSprite, int nDist);
+void genDudeTransform(spritetype* pSprite);
 void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT a3);
 int getDodgeChance(spritetype* pSprite);
 int getRecoilChance(spritetype* pSprite);
@@ -219,7 +218,6 @@ int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp);
 void scaleDamage(XSPRITE* pXSprite);
 bool genDudePrepare(spritetype* pSprite, int propId = kGenDudePropertyAll);
 void genDudeUpdate(spritetype* pSprite);
-void genDudeProcess(spritetype* pSprite, XSPRITE* pXSprite);
 bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int weaponType, int by = 64);
 #endif
 END_BLD_NS

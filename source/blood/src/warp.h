@@ -30,11 +30,6 @@ struct ZONE {
     short sectnum, ang;
 };
 extern ZONE gStartZone[8];
-#ifdef NOONE_EXTENSIONS
-extern ZONE gStartZoneTeam1[8];
-extern ZONE gStartZoneTeam2[8];
-extern bool gTeamsSpawnUsed;
-#endif
 
 void warpInit(void);
 int CheckLink(spritetype *pSprite);

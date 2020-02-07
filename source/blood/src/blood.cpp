@@ -72,6 +72,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statistics.h"
 #include "menu/menu.h"
 #include "sound/s_soundinternal.h"
+#include "nnexts.h"
 
 BEGIN_BLD_NS
 
@@ -569,6 +570,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     gLevelTime = 0;
     automapping = 1;
   
+    int modernTypesErased = 0;
     for (int i = 0; i < kMaxSprites; i++)
     {
         spritetype *pSprite = &sprite[i];
@@ -585,80 +587,17 @@ void StartLevel(GAMEOPTIONS *gameOptions)
 
             
             #ifdef NOONE_EXTENSIONS
-            if (gModernMap) {
-                
-                switch (pSprite->type) {
-                    // add statnum for faster dude searching
-                    case kModernDudeTargetChanger:
-                        changespritestat(i, kStatModernDudeTargetChanger);
-                        break;
-                    // remove kStatItem status from random item generators
-                    case kModernRandom:
-                    case kModernRandom2:
-                        changespritestat(i, kStatDecoration);
-                        break;
-                }
-
-                // very quick fix for floor sprites with Touch trigger flag if their Z is equals sector floorz / ceilgz
-                if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && pSprite->sectnum >= 0 && pSprite->extra >= 0 && xsprite[pSprite->extra].Touch) {
-                    if (pSprite->z == sector[pSprite->sectnum].floorz) pSprite->z--;
-                    else if (pSprite->z == sector[pSprite->sectnum].ceilingz) pSprite->z++;
-                }
-
-            } else {
-                
-                switch (pSprite->type) {
-                    // erase all modern types if the map is not extended
-                    case kModernCustomDudeSpawn:
-                    case kModernRandomTX:
-                    case kModernSequentialTX:
-                    case kModernSeqSpawner:
-                    case kModernObjPropertiesChanger:
-                    case kModernObjPicnumChanger:
-                    case kModernObjSizeChanger:
-                    case kModernDudeTargetChanger:
-                    case kModernSectorFXChanger:
-                    case kModernObjDataChanger:
-                    case kModernSpriteDamager:
-                    case kModernObjDataAccumulator:
-                    case kModernEffectSpawner:
-                    case kModernWindGenerator:
-                    case kModernPlayerControl:
-                        pSprite->type = kSpriteDecoration;
-                        break;
-                    case kItemModernMapLevel:
-                    case kDudeModernCustom:
-                    case kDudeModernCustomBurning:
-                    case kModernThingTNTProx:
-                    case kModernThingEnemyLifeLeech:
-                        pSprite->type = kSpriteDecoration;
-                        changespritestat(pSprite->index, kStatDecoration);
-                        break;
-                    // also erase some modernized vanilla types which was not active
-                    case kMarkerWarpDest:
-                        if (pSprite->statnum != kStatMarker) pSprite->type = kSpriteDecoration;
-                        break;
-                }
-
-                if (pXSprite->Sight) 
-                    pXSprite->Sight = false; // it does not work in vanilla at all
-                
-                if (pXSprite->Proximity) {
-                    // proximity works only for things and dudes in vanilla
-                    switch (pSprite->statnum) {
-                        case kStatThing:
-                        case kStatDude:
-                            break;
-                        default:
-                            pXSprite->Proximity = false;
-                            break;
-
-                    }
-                }
-            }
+            if (!gModernMap && nnExtEraseModernStuff(pSprite, pXSprite))
+               modernTypesErased++;
             #endif
-        }
-    }
+                }
+                }
+                
+    #ifdef NOONE_EXTENSIONS
+    if (!gModernMap)
+        OSD_Printf("> Modern types erased: %d.\n", modernTypesErased);
+    #endif
+
     scrLoadPLUs();
     startpos.z = getflorzofslope(startsectnum,startpos.x,startpos.y);
     for (int i = 0; i < kMaxPlayers; i++) {

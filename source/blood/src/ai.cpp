@@ -66,6 +66,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trig.h"
 #include "triggers.h"
 #include "view.h"
+#include "nnexts.h"
 
 BEGIN_BLD_NS
 
@@ -77,19 +78,6 @@ AISTATE genIdle = {kAiStateGenIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
 AISTATE genRecoil = {kAiStateRecoil, 5, -1, 20, NULL, NULL, NULL, &genIdle };
 
 int dword_138BB0[5] = {0x2000, 0x4000, 0x8000, 0xa000, 0xe000};
-#ifdef NOONE_EXTENSIONS
-void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite) {
-    switch (pSprite->type) {
-        case kDudeModernCustom:
-        case kDudeModernCustomBurning:
-            aiGenDudeNewState(pSprite, &genIdle);
-            break;
-        default:
-            aiNewState(pSprite, pXSprite, &genIdle);
-            break;
-    }
-}
-#endif
 
 bool sub_5BDA8(spritetype *pSprite, int nSeq)
 {
@@ -133,6 +121,20 @@ void aiNewState(spritetype *pSprite, XSPRITE *pXSprite, AISTATE *pAIState)
         pAIState->enterFunc(pSprite, pXSprite);
 }
 
+bool isUmmune(spritetype* pSprite, int dmgType, int minScale) {
+
+    if (dmgType >= kDmgFall && dmgType < kDmgMax && pSprite->extra >= 0 && xsprite[pSprite->extra].locked != 1) {
+        if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
+            return (thingInfo[pSprite->type - kThingBase].dmgControl[dmgType] <= minScale);
+        else if (IsDudeSprite(pSprite)) {
+            if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType] <= minScale);
+            else return (dudeInfo[pSprite->type - kDudeBase].at70[dmgType] <= minScale);
+        }
+    }
+
+    return true;
+}
+
 bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
 {
     int top, bottom;
@@ -166,26 +168,8 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
             Underwater = 1;
         if (pXSector->Depth)
             Depth = 1;
-        if (sector[nSector].type == kSectorDamage || pXSector->damageType > 0) {
-            // a quick fix for Cerberus spinning in E3M7-like maps, where damage sectors is used.
-            // It makes ignore danger if enemy immune to N damageType. As result Cerberus start acting like
-            // in Blood 1.0 so it can move normally to player. It's up to you for adding rest of enemies here as
-            // i don't think it will broke something in game.
-            switch (pSprite->type) {
-                case kDudeCerberusTwoHead: // Cerberus
-                case kDudeCerberusOneHead: // 1 Head Cerberus
-                    if (VanillaMode()
-                        #ifdef NOONE_EXTENSIONS
-                        || !isImmune(pSprite, pXSector->damageType)
-                        #endif
-                       )
-                        Crusher = 1;
-                    break;
-                default:
-                    Crusher = 1;
-                    break;
-            }
-        }
+        if (sector[nSector].type == kSectorDamage || pXSector->damageType > 0)
+            Crusher = 1;
     }
     int nUpper = gUpperLink[nSector];
     int nLower = gLowerLink[nSector];
@@ -222,6 +206,14 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
         if (Underwater)
             return true;
         break;
+    case kDudeCerberusTwoHead:
+    case kDudeCerberusOneHead:
+        // by NoOne: a quick fix for Cerberus spinning in E3M7-like maps, where damage sectors is used.
+        // It makes ignore danger if enemy immune to N damageType. As result Cerberus start acting like
+        // in Blood 1.0 so it can move normally to player. It's up to you for adding rest of enemies here as
+        // i don't think it will broke something in game.
+        if (!VanillaMode() && Crusher && isUmmune(pSprite, pXSector->damageType, 16)) return true;
+        fallthrough__;
     case kDudeZombieButcher:
     case kDudeSpiderBrown:
     case kDudeSpiderRed:
@@ -229,7 +221,6 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
     case kDudeSpiderMother:
     case kDudeHellHound:
     case kDudeRat:
-    case kDudeCerberusTwoHead:
     case kDudeInnocent:
         if (Crusher)
             return false;
@@ -241,7 +232,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
     #ifdef NOONE_EXTENSIONS
     case kDudeModernCustom:
     case kDudeModernCustomBurning:
-        if ((Crusher && !isImmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(pSprite))) return false;
+        if ((Crusher && !nnExtIsUmmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(pSprite))) return false;
         return true;
         fallthrough__;
     #endif
@@ -285,8 +276,8 @@ void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
         pXSprite->goalAng = pSprite->ang;
     else if (CanMove(pSprite, pXSprite->target, pSprite->ang-v8, vsi))
         pXSprite->goalAng = pSprite->ang-v8;
-    else if (pSprite->flags&2)
-        pXSprite->goalAng = pSprite->ang+341;
+    //else if (pSprite->flags&2)
+        //pXSprite->goalAng = pSprite->ang+341;
     else // Weird..
         pXSprite->goalAng = pSprite->ang+341;
     if (Chance(0x8000))
@@ -1478,20 +1469,32 @@ void aiProcessDudes(void) {
         XSPRITE *pXSprite = &xsprite[nXSprite]; DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
         if (IsPlayerSprite(pSprite) || pXSprite->health == 0) continue;
         pXSprite->stateTimer = ClipLow(pXSprite->stateTimer-4, 0);
-        switch (pSprite->type){
+
+        if (pXSprite->aiState->moveFunc)
+            pXSprite->aiState->moveFunc(pSprite, pXSprite);
+
+        if (pXSprite->aiState->thinkFunc && (gFrame & 3) == (nSprite & 3))
+            pXSprite->aiState->thinkFunc(pSprite, pXSprite);
+
+        switch (pSprite->type) {
             #ifdef NOONE_EXTENSIONS
             case kDudeModernCustom:
-            case kDudeModernCustomBurning:
-                genDudeProcess(pSprite, pXSprite);
+            case kDudeModernCustomBurning: {
+                GENDUDEEXTRA* pExtra = &gGenDudeExtra[pSprite->index];
+                if (pExtra->slaveCount > 0) updateTargetOfSlaves(pSprite);
+                if (pExtra->nLifeLeech >= 0) updateTargetOfLeech(pSprite);
+                if (pXSprite->stateTimer == 0 && pXSprite->aiState->nextState
+                    && (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0)) {
+                    aiGenDudeNewState(pSprite, pXSprite->aiState->nextState);
+                }
+                int hinder = ((pExtra->isMelee) ? 25 : 5) << 4;
+                if (pXSprite->health <= 0 || hinder > cumulDamage[pSprite->extra]) break;
+                pXSprite->data3 = cumulDamage[pSprite->extra];
+                RecoilDude(pSprite, pXSprite);
                 break;
+            }
             #endif
             default:
-                if (pXSprite->aiState->moveFunc)
-                    pXSprite->aiState->moveFunc(pSprite, pXSprite);
-
-                if (pXSprite->aiState->thinkFunc && (gFrame & 3) == (nSprite & 3))
-                    pXSprite->aiState->thinkFunc(pSprite, pXSprite);
-
                 if (pXSprite->stateTimer == 0 && pXSprite->aiState->nextState) {
                     if (pXSprite->aiState->stateTicks > 0)
                         aiNewState(pSprite, pXSprite, pXSprite->aiState->nextState);
