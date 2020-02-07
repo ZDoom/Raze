@@ -5790,7 +5790,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     pPlayer->ammo_amount[pPlayer->curr_weapon]--;
 
-                    int pipeBombType;
+                    //int pipeBombType;
                     int pipeBombZvel;
                     int pipeBombFwdVel;
 

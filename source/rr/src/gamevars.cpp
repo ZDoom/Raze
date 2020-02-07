@@ -20,11 +20,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"	// Must come before everything else!
+
 #include "duke3d.h"
 #include "menus.h"
 #include "savegame.h"
+#include "namesdyn.h"
+#include "gamevars.h"
 
-#include "vfs.h"
+//#include "vfs.h"
+
+BEGIN_RR_NS
 
 #define gamevars_c_
 
@@ -84,38 +90,39 @@ void Gv_Clear(void)
         DO_FREE_AND_NULL(gameVar.szLabel);
 }
 
-int Gv_ReadSave(buildvfs_kfd kFile)
+// Note that this entire function is totally architecture dependent and needs to be fixed (which won't be easy...)
+int Gv_ReadSave(FileReader &kFile)
 {
     char tbuf[12];
 
-    if (kread(kFile, tbuf, 12)!=12) goto corrupt;
+    if (kFile.Read(tbuf, 12)!=12) goto corrupt;
     if (Bmemcmp(tbuf, "BEG: EDuke32", 12)) { OSD_Printf("BEG ERR\n"); return 2; }
 
     Gv_Free(); // nuke 'em from orbit, it's the only way to be sure...
 
-    if (kdfread_LZ4(&g_gameVarCount,sizeof(g_gameVarCount),1,kFile) != 1) goto corrupt;
+    if (kFile.Read(&g_gameVarCount,sizeof(g_gameVarCount)) != sizeof(g_gameVarCount)) goto corrupt;
     for (bssize_t i=0; i<g_gameVarCount; i++)
     {
         char *const olabel = aGameVars[i].szLabel;
 
-        if (kdfread_LZ4(&aGameVars[i], sizeof(gamevar_t), 1, kFile) != 1)
+        if (kFile.Read(&aGameVars[i], sizeof(gamevar_t)) != sizeof(gamevar_t))
             goto corrupt;
 
         aGameVars[i].szLabel = (char *)Xrealloc(olabel, MAXVARLABEL * sizeof(uint8_t));
 
-        if (kdfread_LZ4(aGameVars[i].szLabel, MAXVARLABEL, 1, kFile) != 1)
+        if (kFile.Read(aGameVars[i].szLabel, MAXVARLABEL) != MAXVARLABEL)
             goto corrupt;
         hash_add(&h_gamevars, aGameVars[i].szLabel,i, 1);
 
         if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
         {
             aGameVars[i].pValues = (intptr_t*)Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
-            if (kdfread_LZ4(aGameVars[i].pValues,sizeof(intptr_t) * MAXPLAYERS, 1, kFile) != 1) goto corrupt;
+            if (kFile.Read(aGameVars[i].pValues,sizeof(intptr_t) * MAXPLAYERS) != sizeof(intptr_t) * MAXPLAYERS) goto corrupt;
         }
         else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
         {
             aGameVars[i].pValues = (intptr_t*)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-            if (kdfread_LZ4(aGameVars[i].pValues,sizeof(intptr_t) * MAXSPRITES, 1, kFile) != 1) goto corrupt;
+            if (kFile.Read(aGameVars[i].pValues,sizeof(intptr_t) * MAXSPRITES) != sizeof(intptr_t) * MAXSPRITES) goto corrupt;
         }
     }
 
@@ -126,7 +133,7 @@ int Gv_ReadSave(buildvfs_kfd kFile)
     uint8_t savedstate[MAXVOLUMES*MAXLEVELS];
     Bmemset(savedstate, 0, sizeof(savedstate));
 
-    if (kdfread_LZ4(savedstate, sizeof(savedstate), 1, kFile) != 1) goto corrupt;
+    if (kFile.Read(savedstate, sizeof(savedstate)) != sizeof(savedstate)) goto corrupt;
 
     for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
     {
@@ -136,7 +143,7 @@ int Gv_ReadSave(buildvfs_kfd kFile)
             continue;
 
         g_mapInfo[i].savedstate = (mapstate_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, sizeof(mapstate_t));
-        if (kdfread_LZ4(g_mapInfo[i].savedstate, sizeof(mapstate_t), 1, kFile) != 1) return -8;
+        if (kFile.Read(g_mapInfo[i].savedstate, sizeof(mapstate_t)) != sizeof(mapstate_t)) return -8;
 
         mapstate_t &sv = *g_mapInfo[i].savedstate;
 
@@ -146,17 +153,17 @@ int Gv_ReadSave(buildvfs_kfd kFile)
             if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
             {
                 sv.vars[j] = (intptr_t *) Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
-                if (kdfread_LZ4(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS, 1, kFile) != 1) return -9;
+                if (kFile.Read(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS) != sizeof(intptr_t) * MAXPLAYERS) return -9;
             }
             else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
             {
                 sv.vars[j] = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-                if (kdfread_LZ4(sv.vars[j], sizeof(intptr_t) * MAXSPRITES, 1, kFile) != 1) return -10;
+                if (kFile.Read(sv.vars[j], sizeof(intptr_t) * MAXSPRITES) != sizeof(intptr_t) * MAXSPRITES) return -10;
             }
         }
     }
 
-    if (kread(kFile, tbuf, 12) != 12) return -13;
+    if (kFile.Read(tbuf, 12) != 12) return -13;
     if (Bmemcmp(tbuf, "EOF: EDuke32", 12)) { OSD_Printf("EOF ERR\n"); return 2; }
 
     return 0;
@@ -165,22 +172,23 @@ corrupt:
     return -7;
 }
 
-void Gv_WriteSave(buildvfs_FILE fil)
+// Note that this entire function is totally architecture dependent and needs to be fixed (which won't be easy...)
+void Gv_WriteSave(FileWriter &fil)
 {
     //   AddLog("Saving Game Vars to File");
-    buildvfs_fwrite("BEG: EDuke32", 12, 1, fil);
+    fil.Write("BEG: EDuke32", 12);
 
-    dfwrite_LZ4(&g_gameVarCount,sizeof(g_gameVarCount),1,fil);
+	fil.Write(&g_gameVarCount,sizeof(g_gameVarCount));
 
     for (bssize_t i = 0; i < g_gameVarCount; i++)
     {
-        dfwrite_LZ4(&(aGameVars[i]), sizeof(gamevar_t), 1, fil);
-        dfwrite_LZ4(aGameVars[i].szLabel, sizeof(uint8_t) * MAXVARLABEL, 1, fil);
+		fil.Write(&(aGameVars[i]), sizeof(gamevar_t));
+		fil.Write(aGameVars[i].szLabel, sizeof(uint8_t) * MAXVARLABEL);
 
         if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
-            dfwrite_LZ4(aGameVars[i].pValues, sizeof(intptr_t) * MAXPLAYERS, 1, fil);
+			fil.Write(aGameVars[i].pValues, sizeof(intptr_t) * MAXPLAYERS);
         else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
-            dfwrite_LZ4(aGameVars[i].pValues, sizeof(intptr_t) * MAXSPRITES, 1, fil);
+			fil.Write(aGameVars[i].pValues, sizeof(intptr_t) * MAXSPRITES);
     }
 
     uint8_t savedstate[MAXVOLUMES * MAXLEVELS];
@@ -190,7 +198,7 @@ void Gv_WriteSave(buildvfs_FILE fil)
         if (g_mapInfo[i].savedstate != NULL)
             savedstate[i] = 1;
 
-    dfwrite_LZ4(savedstate, sizeof(savedstate), 1, fil);
+	fil.Write(savedstate, sizeof(savedstate));
 
     for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
     {
@@ -198,19 +206,19 @@ void Gv_WriteSave(buildvfs_FILE fil)
 
         mapstate_t &sv = *g_mapInfo[i].savedstate;
 
-        dfwrite_LZ4(g_mapInfo[i].savedstate, sizeof(mapstate_t), 1, fil);
+		fil.Write(g_mapInfo[i].savedstate, sizeof(mapstate_t));
 
         for (bssize_t j = 0; j < g_gameVarCount; j++)
         {
             if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
             if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
-                dfwrite_LZ4(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS, 1, fil);
+				fil.Write(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS);
             else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
-                dfwrite_LZ4(sv.vars[j], sizeof(intptr_t) * MAXSPRITES, 1, fil);
+				fil.Write(sv.vars[j], sizeof(intptr_t) * MAXSPRITES);
         }
     }
 
-    buildvfs_fwrite("EOF: EDuke32", 12, 1, fil);
+    fil.Write("EOF: EDuke32", 12);
 }
 
 void Gv_DumpValues(void)
@@ -657,8 +665,8 @@ static int32_t G_StaticToDynamicSound(int32_t const sound)
 } while (0)
 #else
 # define ADDWEAPONVAR(Weapidx, Membname) do { \
-    Bsprintf(aszBuf, "WEAPON%d_" #Membname, Weapidx); \
-    Bstrupr(aszBuf); \
+    FStringf aszBuf("WEAPON%d_" #Membname, Weapidx); \
+    aszBuf.ToUpper(); \
     Gv_NewVar(aszBuf, weapondefaults[Weapidx].Membname, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM); \
 } while (0)
 #endif
@@ -713,8 +721,6 @@ static int32_t lastvisinc;
 static void Gv_AddSystemVars(void)
 {
     // only call ONCE
-
-    char aszBuf[64];
 
     for (int i=0; i<MAX_WEAPONS; i++)
     {
@@ -798,9 +804,7 @@ void Gv_InitWeaponPointers(void)
 
         if (!aplWeaponClip[i])
         {
-            initprintf("ERROR: NULL weapon!  WTF?! %s\n", aszBuf);
-            // Bexit(EXIT_SUCCESS);
-            G_Shutdown();
+            I_Error("ERROR: NULL weapon!  WTF?! %s\n", aszBuf);
         }
 
         Bsprintf(aszBuf, "WEAPON%d_RELOAD", i);
@@ -850,3 +854,5 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("VOLUME")].global            = (intptr_t)&ud.volume_number;
 }
 #endif
+
+END_RR_NS

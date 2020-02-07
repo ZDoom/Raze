@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef gamevars_h_
 #define gamevars_h_
 
+#include "gamedef.h"
+
+BEGIN_RR_NS
+
 #define MAXGAMEVARS 2048 // must be a power of two
 #define MAXVARLABEL 26
 
@@ -103,8 +107,8 @@ void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
 void Gv_ResetVars(void);
-int Gv_ReadSave(buildvfs_kfd kFile);
-void Gv_WriteSave(buildvfs_FILE fil);
+int Gv_ReadSave(FileReader &kFile);
+void Gv_WriteSave(FileWriter &fil);
 void Gv_Clear(void);
 
 void Gv_ResetSystemDefaults(void);
@@ -143,4 +147,5 @@ VM_GAMEVAR_OPERATOR(Gv_SubVar, -=)
 
 #undef VM_GAMEVAR_OPERATOR
 
+END_RR_NS
 #endif

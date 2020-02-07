@@ -310,8 +310,6 @@ static hashtable_t * const tables_free [] = {
 
 void C_InitHashes()
 {
-    uint32_t i;
-
     for (auto table : tables)
         hash_init(table);
 
@@ -1874,7 +1872,7 @@ setvar:
         case CON_ADDVARVAR:
         case CON_SETVARVAR:
             {
-setvarvar:
+//setvarvar:
                 auto ins = &g_scriptPtr[-1];
                 auto tptr = textptr;
                 int const lnum = g_lineNumber;

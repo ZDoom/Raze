@@ -277,7 +277,6 @@ void G_HandleLocalKeys(void);
 void G_HandleSpecialKeys(void);
 void G_PrintGameQuotes(int32_t snum);
 //void G_SE40(int32_t smoothratio);
-void G_Shutdown(void);
 void G_UpdatePlayerFromMenu(void);
 void P_DoQuote(int32_t q,DukePlayer_t *p);
 void P_SetGamePalette(DukePlayer_t* player, uint32_t palid, ESetPalFlags flags);

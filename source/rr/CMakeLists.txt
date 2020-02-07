@@ -11,6 +11,7 @@ set( PCH_SOURCES
 	src/game.cpp
 	src/gamedef.cpp
 	src/gameexec.cpp
+	src/gamevars.cpp
 	src/global.cpp
 	src/namesdyn.cpp
 	src/net.cpp
