@@ -131,6 +131,87 @@ static void VM_DeleteSprite(int const spriteNum, int const playerNum)
 }
 
 intptr_t apScriptEvents[MAXEVENTS];
+static uspritetype dummy_sprite;
+static actor_t     dummy_actor;
+
+static inline void VM_DummySprite(void)
+{
+    vm.pUSprite = &dummy_sprite;
+    vm.pActor   = &dummy_actor;
+    vm.pData    = &dummy_actor.t_data[0];
+}
+
+// verification that the event actually exists happens elsewhere
+static FORCE_INLINE int32_t VM_EventInlineInternal__(int const eventNum, int const spriteNum, int const playerNum,
+                                                       int const playerDist = -1, int32_t returnValue = 0)
+{
+    vmstate_t const newVMstate = { spriteNum, playerNum, playerDist, 0,
+                                   &sprite[spriteNum&(MAXSPRITES-1)],
+                                   &actor[spriteNum&(MAXSPRITES-1)].t_data[0],
+                                   g_player[playerNum&(MAXPLAYERS-1)].ps,
+                                   &actor[spriteNum&(MAXSPRITES-1)] };
+
+    auto &globalReturn = aGameVars[g_returnVarID].global;
+
+    struct
+    {
+        vmstate_t vm;
+        intptr_t globalReturn;
+        int eventNum;
+        intptr_t const *insptr;
+    } const saved = { vm, globalReturn, g_currentEvent, insptr };
+
+    vm = newVMstate;
+    g_currentEvent = eventNum;
+    insptr = apScript + apScriptEvents[eventNum];
+    globalReturn = returnValue;
+
+    double const t = timerGetHiTicks();
+
+    if ((unsigned)spriteNum >= MAXSPRITES)
+        VM_DummySprite();
+
+    if ((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers)
+        vm.pPlayer = g_player[0].ps;
+
+    VM_Execute(true);
+
+    if (vm.flags & VM_KILL)
+        VM_DeleteSprite(vm.spriteNum, vm.playerNum);
+
+    // restoring these needs to happen after VM_DeleteSprite() due to event recursion
+    returnValue = globalReturn;
+
+    vm             = saved.vm;
+    globalReturn   = saved.globalReturn;
+    g_currentEvent = saved.eventNum;
+    insptr         = saved.insptr;
+
+    return returnValue;
+}
+
+// the idea here is that the compiler inlines the call to VM_EventInlineInternal__() and gives us a set of
+// functions which are optimized further based on distance/return having values known at compile time
+
+int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn)
+{
+    return VM_EventInlineInternal__(nEventID, spriteNum, playerNum, nDist, nReturn);
+}
+
+int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist)
+{
+    return VM_EventInlineInternal__(nEventID, spriteNum, playerNum, nDist);
+}
+
+int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum)
+{
+    return VM_EventInlineInternal__(nEventID, spriteNum, playerNum);
+}
+
+int32_t VM_ExecuteEventWithValue(int const nEventID, int const spriteNum, int const playerNum, int32_t const nReturn)
+{
+    return VM_EventInlineInternal__(nEventID, spriteNum, playerNum, -1, nReturn);
+}
 
 static int32_t VM_CheckSquished(void)
 {

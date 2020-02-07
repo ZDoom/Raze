@@ -1,4 +1,4 @@
-//-------------------------------------------------------------------------
+﻿//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -6730,6 +6730,8 @@ static void G_CompileScripts(void)
     Bmemset(sprite, 0, MAXSPRITES*sizeof(spritetype));
     Bmemset(sector, 0, MAXSECTORS*sizeof(sectortype));
     Bmemset(wall, 0, MAXWALLS*sizeof(walltype));
+
+    VM_OnEvent(EVENT_INIT);
 }
 
 static inline void G_CheckGametype(void)

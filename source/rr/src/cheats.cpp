@@ -216,22 +216,23 @@ void G_SetupCheats(void)
     }
 }
 
-static void doinvcheat(DukePlayer_t * const pPlayer, int32_t invidx, int32_t defaultnum)
+static void doinvcheat(DukePlayer_t * const pPlayer, int32_t invidx, int32_t defaultnum, int event)
 {
+    defaultnum = VM_OnEventWithReturn(event, pPlayer->i, myconnectindex, defaultnum);
     if (defaultnum >= 0)
         pPlayer->inv_amount[invidx] = defaultnum;
 }
 
 static void G_CheatGetInv(DukePlayer_t *pPlayer)
 {
-    doinvcheat(pPlayer, GET_STEROIDS, 400);
-    if (!RR) doinvcheat(pPlayer, GET_HEATS, 1200);
-    doinvcheat(pPlayer, GET_BOOTS, RR ? 2000 : 200);
-    doinvcheat(pPlayer, GET_SHIELD, 100);
-    doinvcheat(pPlayer, GET_SCUBA, 6400);
-    doinvcheat(pPlayer, GET_HOLODUKE, 2400);
-    doinvcheat(pPlayer, GET_JETPACK, RR ? 600 : 1600);
-    doinvcheat(pPlayer, GET_FIRSTAID, pPlayer->max_player_health);
+    doinvcheat(pPlayer, GET_STEROIDS, 400, EVENT_CHEATGETSTEROIDS);
+    if (!RR) doinvcheat(pPlayer, GET_HEATS, 1200, EVENT_CHEATGETHEAT);
+    doinvcheat(pPlayer, GET_BOOTS, RR ? 2000 : 200, EVENT_CHEATGETBOOT);
+    doinvcheat(pPlayer, GET_SHIELD, 100, EVENT_CHEATGETSHIELD);
+    doinvcheat(pPlayer, GET_SCUBA, 6400, EVENT_CHEATGETSCUBA);
+    doinvcheat(pPlayer, GET_HOLODUKE, 2400, EVENT_CHEATGETHOLODUKE);
+    doinvcheat(pPlayer, GET_JETPACK, RR ? 600 : 1600, EVENT_CHEATGETJETPACK);
+    doinvcheat(pPlayer, GET_FIRSTAID, pPlayer->max_player_health, EVENT_CHEATGETFIRSTAID);
 }
 
 static void end_cheat(DukePlayer_t * const pPlayer)

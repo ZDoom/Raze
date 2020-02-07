@@ -492,8 +492,10 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
 
         videoClearScreen(0);
+        
+        int const loadScreenTile = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
 
-        rotatesprite_fs(320<<15,200<<15,65536L,0,LOADSCREEN,0,0,2+8+64+BGSTRETCH);
+        rotatesprite_fs(320<<15,200<<15,65536L,0,loadScreenTile,0,0,2+8+64+BGSTRETCH);
 
         int const textY = RRRA ? 140 : 90;
 
@@ -641,6 +643,7 @@ void G_CacheMapData(void)
 
             while (percentage > lpc)
             {
+                G_HandleAsync();
                 Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", lpc, pc, g_precacheCount);
                 G_DoLoadScreen(tempbuf, lpc);
 
@@ -1048,6 +1051,8 @@ void P_ResetWeapons(int playerNum)
     pPlayer->last_pissed_time           = 0;
     pPlayer->holster_weapon             = 0;
     pPlayer->last_used_weapon           = -1;
+    
+    VM_OnEvent(EVENT_RESETWEAPONS, pPlayer->i, playerNum);
 }
 
 void P_ResetInventory(int playerNum)
@@ -1104,6 +1109,8 @@ void P_ResetInventory(int playerNum)
             g_hulkSpawn = 2;
         }
     }
+
+    VM_OnEvent(EVENT_RESETINVENTORY, pPlayer->i, playerNum);
 }
 
 static void resetprestat(int playerNum, int gameMode)
@@ -2258,6 +2265,8 @@ int G_EnterLevel(int gameMode)
         ud.recstat = m_recstat;
     if ((gameMode & MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;
+
+    VM_OnEvent(EVENT_ENTERLEVEL);
 
     //if (g_networkMode != NET_DEDICATED_SERVER)
     {

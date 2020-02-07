@@ -302,7 +302,11 @@ static int GetAutoAimAng(int spriteNum, int playerNum, int projecTile, int zAdju
 
     Bassert((unsigned)playerNum < MAXPLAYERS);
 
-    int aimang = (g_player[playerNum].ps->auto_aim == 3 && (!RRRA || projecTile != RPG2)) ? AUTO_AIM_ANGLE<<1 : AUTO_AIM_ANGLE;
+    Gv_SetVar(g_aimAngleVarID, (g_player[playerNum].ps->auto_aim == 3 && (!RRRA || projecTile != RPG2)) ? AUTO_AIM_ANGLE<<1 : AUTO_AIM_ANGLE, spriteNum, playerNum);
+
+    VM_OnEvent(EVENT_GETAUTOAIMANGLE, spriteNum, playerNum);
+
+    int aimang = Gv_GetVar(g_aimAngleVarID, spriteNum, playerNum);
     if (aimang > 0)
         returnSprite = A_FindTargetSprite(&sprite[spriteNum], aimang, projecTile);
 
@@ -360,6 +364,14 @@ static void P_PreFireHitscan(int spriteNum, int playerNum, int projecTile, vec3_
     int aimSprite = GetAutoAimAng(spriteNum, playerNum, projecTile, 5 << 8, 0 + 1, srcVect, 256, zvel, shootAng);
 
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    
+    Gv_SetVar(g_angRangeVarID, angRange, spriteNum, playerNum);
+    Gv_SetVar(g_zRangeVarID, zRange, spriteNum, playerNum);
+
+    VM_OnEvent(EVENT_GETSHOTRANGE, spriteNum, playerNum);
+
+    angRange = Gv_GetVar(g_angRangeVarID, spriteNum, playerNum);
+    zRange   = Gv_GetVar(g_zRangeVarID, spriteNum, playerNum);
 
     if (accurateAim)
     {
@@ -689,7 +701,7 @@ growspark_rr:
 
             if (playerNum >= 0)
                 P_PreFireHitscan(spriteNum, playerNum, projecTile, &startPos, &Zvel, &shootAng,
-                    projecTile == SHOTSPARK1, 1);
+                    projecTile == SHOTSPARK1 && !WW2GI, 1);
             else
                 A_PreFireHitscan(pSprite, &startPos, &Zvel, &shootAng, 1);
 
@@ -4125,6 +4137,15 @@ void P_SelectNextInvItem(DukePlayer_t *pPlayer)
         pPlayer->inven_icon = ICON_NONE;
 }
 
+// Set C-CON's WEAPON and WORKSLIKE gamevars.
+void P_SetWeaponGamevars(int playerNum, const DukePlayer_t * const pPlayer)
+{
+    Gv_SetVar(g_weaponVarID, pPlayer->curr_weapon, pPlayer->i, playerNum);
+    Gv_SetVar(g_worksLikeVarID,
+              ((unsigned)pPlayer->curr_weapon < MAX_WEAPONS) ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : -1,
+              pPlayer->i, playerNum);
+}
+
 void P_CheckWeapon(DukePlayer_t *pPlayer)
 {
     int playerNum;
@@ -4179,6 +4200,8 @@ void P_CheckWeapon(DukePlayer_t *pPlayer)
     pPlayer->last_weapon = pPlayer->curr_weapon;
     pPlayer->random_club_frame = 0;
     pPlayer->curr_weapon = weaponNum;
+    P_SetWeaponGamevars(playerNum, pPlayer);
+    VM_OnEvent(EVENT_CHANGEWEAPON, pPlayer->i, playerNum);
     pPlayer->kickback_pic = 0;
     if (pPlayer->holster_weapon == 1)
     {
@@ -4509,18 +4532,42 @@ static void P_ProcessWeapon(int playerNum)
         }
     }
 #define WEAPON2_CLIP 20
-    if (NAM && TEST_SYNC_KEY(playerBits, SK_HOLSTER))
+    if (NAM_WW2GI && TEST_SYNC_KEY(playerBits, SK_HOLSTER))   // 'Holster Weapon
     {
-        if (pPlayer->curr_weapon == PISTOL_WEAPON)
+        if (NAM)
         {
-            if (pPlayer->ammo_amount[PISTOL_WEAPON] > WEAPON2_CLIP)
+            if (pPlayer->curr_weapon == PISTOL_WEAPON)
             {
-                // throw away the remaining clip
-                pPlayer->ammo_amount[PISTOL_WEAPON] -= pPlayer->ammo_amount[PISTOL_WEAPON] % WEAPON2_CLIP;
-                (*weaponFrame) = 3;
-                playerBits &= ~BIT(SK_FIRE);
+                if (pPlayer->ammo_amount[PISTOL_WEAPON] > WEAPON2_CLIP)
+                {
+                    // throw away the remaining clip
+                    pPlayer->ammo_amount[PISTOL_WEAPON] -= pPlayer->ammo_amount[PISTOL_WEAPON] % WEAPON2_CLIP;
+                    (*weaponFrame) = 3;
+                    playerBits &= ~BIT(SK_FIRE);
+                }
+                return;
             }
-            return;
+        }
+        else
+        {
+            P_SetWeaponGamevars(playerNum, pPlayer);
+
+            if (VM_OnEvent(EVENT_HOLSTER, pPlayer->i, playerNum) == 0)
+            {
+                if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_HOLSTER_CLEARS_CLIP)
+                {
+                    int const weap = pPlayer->curr_weapon, clipcnt = PWEAPON(playerNum, weap, Clip);
+
+                    if (pPlayer->ammo_amount[weap] > clipcnt && (pPlayer->ammo_amount[weap] % clipcnt) != 0)
+                    {
+                        pPlayer->ammo_amount[weap] -= pPlayer->ammo_amount[weap] % clipcnt;
+                        *weaponFrame                = PWEAPON(playerNum, weap, TotalTime)+1;
+                        playerBits                 &= ~BIT(SK_FIRE);  // not firing...
+                    }
+
+                    return;
+                }
+            }
         }
     }
 #undef WEAPON2_CLIP
@@ -4577,156 +4624,160 @@ static void P_ProcessWeapon(int playerNum)
         }
         else
         {
-            switch (DYNAMICWEAPONMAP(pPlayer->curr_weapon))
+            P_SetWeaponGamevars(playerNum, pPlayer);
+            if (VM_OnEvent(EVENT_FIRE, pPlayer->i, playerNum) == 0)
             {
-                case HANDBOMB_WEAPON__STATIC:
-                    pPlayer->hbomb_hold_delay = 0;
-                    if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
-                    {
-                        (*weaponFrame) = 1;
-                    }
-                    break;
-
-                case HANDREMOTE_WEAPON__STATIC:
-                    pPlayer->hbomb_hold_delay = 0;
-                    (*weaponFrame)            = 1;
-                    break;
-
-                case PISTOL_WEAPON__STATIC:
-                    if (pPlayer->ammo_amount[PISTOL_WEAPON] > 0)
-                    {
-                        pPlayer->ammo_amount[PISTOL_WEAPON]--;
-                        (*weaponFrame) = 1;
-                    }
-                    break;
-
-                case SHOTGUN_WEAPON__STATIC:
-                    if (pPlayer->ammo_amount[SHOTGUN_WEAPON] > 0 && pPlayer->random_club_frame == 0)
-                    {
-                        (*weaponFrame) = 1;
-                    }
-                    break;
-
-                case TRIPBOMB_WEAPON__STATIC:
-                case BOWLINGBALL_WEAPON__STATIC:
-                    if (RR)
-                    {
+                switch (DYNAMICWEAPONMAP(pPlayer->curr_weapon))
+                {
+                    case HANDBOMB_WEAPON__STATIC:
+                        pPlayer->hbomb_hold_delay = 0;
                         if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
                         {
-                            //pPlayer->ammo_amount[pPlayer->curr_weapon]--;
                             (*weaponFrame) = 1;
                         }
                         break;
-                    }
-                    if (pPlayer->curr_weapon == BOWLINGBALL)
-                        break;
-                    if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
-                    {
-                        hitdata_t hitData;
 
-                        hitscan((const vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047],
-                                sintable[fix16_to_int(pPlayer->q16ang) & 2047], fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 32, &hitData,
-                                CLIPMASK1);
-
-                        if ((hitData.sect < 0 || hitData.sprite >= 0) ||
-                            (hitData.wall >= 0 && sector[hitData.sect].lotag > 2))
-                            break;
-
-                        if (hitData.wall >= 0 && wall[hitData.wall].overpicnum >= 0)
-                            if (wall[hitData.wall].overpicnum == BIGFORCE)
-                                break;
-
-                        int spriteNum = headspritesect[hitData.sect];
-                        while (spriteNum >= 0)
-                        {
-                            if (sprite[spriteNum].picnum == TRIPBOMB && klabs(sprite[spriteNum].z - hitData.pos.z) < ZOFFSET4 &&
-                                ((sprite[spriteNum].x - hitData.pos.x) * (sprite[spriteNum].x - hitData.pos.x) +
-                                    (sprite[spriteNum].y - hitData.pos.y) * (sprite[spriteNum].y - hitData.pos.y)) < (290 * 290))
-                                break;
-                            spriteNum = nextspritesect[spriteNum];
-                        }
-
-                        // ST_2_UNDERWATER
-                        if (spriteNum == -1 && hitData.wall >= 0 && (wall[hitData.wall].cstat & 16) == 0)
-                            if ((wall[hitData.wall].nextsector >= 0 && sector[wall[hitData.wall].nextsector].lotag <= 2) ||
-                                (wall[hitData.wall].nextsector == -1 && sector[hitData.sect].lotag <= 2))
-                                if (((hitData.pos.x - pPlayer->pos.x) * (hitData.pos.x - pPlayer->pos.x) +
-                                        (hitData.pos.y - pPlayer->pos.y) * (hitData.pos.y - pPlayer->pos.y)) < (290 * 290))
-                                {
-                                    pPlayer->pos.z = pPlayer->opos.z;
-                                    pPlayer->vel.z = 0;
-                                    (*weaponFrame) = 1;
-                                }
-                    }
-                    break;
-
-                case SHRINKER_WEAPON__STATIC:
-                    if (pPlayer->ammo_amount[SHRINKER_WEAPON] > 0)
-                    {
-                        (*weaponFrame) = 1;
-                        A_PlaySound(SHRINKER_FIRE, pPlayer->i);
-                    }
-                    break;
-
-                case GROW_WEAPON__STATIC:
-                    if (pPlayer->ammo_amount[GROW_WEAPON] > 0)
-                    {
-                        (*weaponFrame) = 1;
-                        A_PlaySound(RR ? 431 : EXPANDERSHOOT, pPlayer->i);
-                    }
-                    break;
-
-                case FREEZE_WEAPON__STATIC:
-                    if (pPlayer->ammo_amount[FREEZE_WEAPON] > 0)
-                    {
-                        (*weaponFrame) = 1;
-                        if (!RR)
-                            A_PlaySound(CAT_FIRE, pPlayer->i);
-                    }
-                    break;
-
-                case RPG_WEAPON__STATIC:
-                case CHAINGUN_WEAPON__STATIC:
-                    if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
-                    {
-                        (*weaponFrame) = 1;
-                    }
-                    break;
-
-                case DEVISTATOR_WEAPON__STATIC:
-                    if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
-                    {
+                    case HANDREMOTE_WEAPON__STATIC:
+                        pPlayer->hbomb_hold_delay = 0;
                         (*weaponFrame)            = 1;
-                        pPlayer->hbomb_hold_delay = !pPlayer->hbomb_hold_delay;
-                        if (!RR)
-                            A_PlaySound(CAT_FIRE, pPlayer->i);
-                    }
-                    break;
-
-                case KNEE_WEAPON__STATIC:
-                case SLINGBLADE_WEAPON__STATIC:
-                    if (RRRA)
-                    {
-                        if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0 && !pPlayer->quick_kick)
-                            (*weaponFrame) = 1;
                         break;
-                    }
-                    if (RRRA && pPlayer->curr_weapon == SLINGBLADE) break;
-                    if (pPlayer->quick_kick == 0)
-                    {
-                        (*weaponFrame) = 1;
-                    }
-                    break;
 
-                case CHICKEN_WEAPON__STATIC:
-                case MOTORCYCLE_WEAPON__STATIC:
-                case BOAT_WEAPON__STATIC:
-                    if (!RRRA) break;
-                    if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
-                    {
-                        (*weaponFrame) = 1;
-                    }
-                    break;
+                    case PISTOL_WEAPON__STATIC:
+                        if (pPlayer->ammo_amount[PISTOL_WEAPON] > 0)
+                        {
+                            pPlayer->ammo_amount[PISTOL_WEAPON]--;
+                            (*weaponFrame) = 1;
+                        }
+                        break;
+
+                    case SHOTGUN_WEAPON__STATIC:
+                        if (pPlayer->ammo_amount[SHOTGUN_WEAPON] > 0 && pPlayer->random_club_frame == 0)
+                        {
+                            (*weaponFrame) = 1;
+                        }
+                        break;
+
+                    case TRIPBOMB_WEAPON__STATIC:
+                    case BOWLINGBALL_WEAPON__STATIC:
+                        if (RR)
+                        {
+                            if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
+                            {
+                                //pPlayer->ammo_amount[pPlayer->curr_weapon]--;
+                                (*weaponFrame) = 1;
+                            }
+                            break;
+                        }
+                        if (pPlayer->curr_weapon == BOWLINGBALL)
+                            break;
+                        if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
+                        {
+                            hitdata_t hitData;
+
+                            hitscan((const vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047],
+                                    sintable[fix16_to_int(pPlayer->q16ang) & 2047], fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 32, &hitData,
+                                    CLIPMASK1);
+
+                            if ((hitData.sect < 0 || hitData.sprite >= 0) ||
+                                (hitData.wall >= 0 && sector[hitData.sect].lotag > 2))
+                                break;
+
+                            if (hitData.wall >= 0 && wall[hitData.wall].overpicnum >= 0)
+                                if (wall[hitData.wall].overpicnum == BIGFORCE)
+                                    break;
+
+                            int spriteNum = headspritesect[hitData.sect];
+                            while (spriteNum >= 0)
+                            {
+                                if (sprite[spriteNum].picnum == TRIPBOMB && klabs(sprite[spriteNum].z - hitData.pos.z) < ZOFFSET4 &&
+                                    ((sprite[spriteNum].x - hitData.pos.x) * (sprite[spriteNum].x - hitData.pos.x) +
+                                        (sprite[spriteNum].y - hitData.pos.y) * (sprite[spriteNum].y - hitData.pos.y)) < (290 * 290))
+                                    break;
+                                spriteNum = nextspritesect[spriteNum];
+                            }
+
+                            // ST_2_UNDERWATER
+                            if (spriteNum == -1 && hitData.wall >= 0 && (wall[hitData.wall].cstat & 16) == 0)
+                                if ((wall[hitData.wall].nextsector >= 0 && sector[wall[hitData.wall].nextsector].lotag <= 2) ||
+                                    (wall[hitData.wall].nextsector == -1 && sector[hitData.sect].lotag <= 2))
+                                    if (((hitData.pos.x - pPlayer->pos.x) * (hitData.pos.x - pPlayer->pos.x) +
+                                            (hitData.pos.y - pPlayer->pos.y) * (hitData.pos.y - pPlayer->pos.y)) < (290 * 290))
+                                    {
+                                        pPlayer->pos.z = pPlayer->opos.z;
+                                        pPlayer->vel.z = 0;
+                                        (*weaponFrame) = 1;
+                                    }
+                        }
+                        break;
+
+                    case SHRINKER_WEAPON__STATIC:
+                        if (pPlayer->ammo_amount[SHRINKER_WEAPON] > 0)
+                        {
+                            (*weaponFrame) = 1;
+                            A_PlaySound(SHRINKER_FIRE, pPlayer->i);
+                        }
+                        break;
+
+                    case GROW_WEAPON__STATIC:
+                        if (pPlayer->ammo_amount[GROW_WEAPON] > 0)
+                        {
+                            (*weaponFrame) = 1;
+                            A_PlaySound(RR ? 431 : EXPANDERSHOOT, pPlayer->i);
+                        }
+                        break;
+
+                    case FREEZE_WEAPON__STATIC:
+                        if (pPlayer->ammo_amount[FREEZE_WEAPON] > 0)
+                        {
+                            (*weaponFrame) = 1;
+                            if (!RR)
+                                A_PlaySound(CAT_FIRE, pPlayer->i);
+                        }
+                        break;
+
+                    case RPG_WEAPON__STATIC:
+                    case CHAINGUN_WEAPON__STATIC:
+                        if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
+                        {
+                            (*weaponFrame) = 1;
+                        }
+                        break;
+
+                    case DEVISTATOR_WEAPON__STATIC:
+                        if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
+                        {
+                            (*weaponFrame)            = 1;
+                            pPlayer->hbomb_hold_delay = !pPlayer->hbomb_hold_delay;
+                            if (!RR)
+                                A_PlaySound(CAT_FIRE, pPlayer->i);
+                        }
+                        break;
+
+                    case KNEE_WEAPON__STATIC:
+                    case SLINGBLADE_WEAPON__STATIC:
+                        if (RRRA)
+                        {
+                            if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0 && !pPlayer->quick_kick)
+                                (*weaponFrame) = 1;
+                            break;
+                        }
+                        if (RRRA && pPlayer->curr_weapon == SLINGBLADE) break;
+                        if (pPlayer->quick_kick == 0)
+                        {
+                            (*weaponFrame) = 1;
+                        }
+                        break;
+
+                    case CHICKEN_WEAPON__STATIC:
+                    case MOTORCYCLE_WEAPON__STATIC:
+                    case BOAT_WEAPON__STATIC:
+                        if (!RRRA) break;
+                        if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
+                        {
+                            (*weaponFrame) = 1;
+                        }
+                        break;
+                }
             }
         }
     }
@@ -5957,14 +6008,20 @@ static void P_DoJetpack(int const playerNum, int const playerBits, int const pla
 
     if (TEST_SYNC_KEY(playerBits, SK_JUMP))  // jumping, flying up
     {
-        pPlayer->pos.z -= zAdjust;
-        pPlayer->crack_time = 777;
+        if (VM_OnEvent(EVENT_SOARUP, pPlayer->i, playerNum) == 0)
+        {
+            pPlayer->pos.z -= zAdjust;
+            pPlayer->crack_time = 777;
+        }
     }
 
     if (TEST_SYNC_KEY(playerBits, SK_CROUCH))  // crouching, flying down
     {
-        pPlayer->pos.z += zAdjust;
-        pPlayer->crack_time = 777;
+        if (VM_OnEvent(EVENT_SOARDOWN, pPlayer->i, playerNum) == 0)
+        {
+            pPlayer->pos.z += zAdjust;
+            pPlayer->crack_time = 777;
+        }
     }
 
     int const Zdiff = (playerShrunk == 0 && (sectorLotag == 0 || sectorLotag == ST_2_UNDERWATER)) ? 32 : 16;
@@ -6894,15 +6951,21 @@ check_enemy_sprite:
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT) && (!RRRA || !pPlayer->on_motorcycle))
     {
         // look_left
-        pPlayer->look_ang -= 152;
-        pPlayer->rotscrnang += 24;
+        if (VM_OnEvent(EVENT_LOOKLEFT,pPlayer->i,playerNum) == 0)
+        {
+            pPlayer->look_ang -= 152;
+            pPlayer->rotscrnang += 24;
+        }
     }
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT) && (!RRRA || !pPlayer->on_motorcycle))
     {
         // look_right
-        pPlayer->look_ang += 152;
-        pPlayer->rotscrnang -= 24;
+        if (VM_OnEvent(EVENT_LOOKRIGHT,pPlayer->i,playerNum) == 0)
+        {
+            pPlayer->look_ang += 152;
+            pPlayer->rotscrnang -= 24;
+        }
     }
 
     if (RRRA && pPlayer->sea_sick)
@@ -7209,8 +7272,11 @@ check_enemy_sprite:
             if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
             {
                 // crouching
-                pPlayer->pos.z += (2048+768);
-                pPlayer->crack_time = 777;
+                if (VM_OnEvent(EVENT_CROUCH,pPlayer->i,playerNum) == 0)
+                {
+                    pPlayer->pos.z += (2048+768);
+                    pPlayer->crack_time = 777;
+                }
             }
 
             // jumping
@@ -7221,8 +7287,11 @@ check_enemy_sprite:
                 if (pPlayer->jumping_counter == 0)
                     if ((floorZ-ceilZ) > (56<<8))
                     {
-                        pPlayer->jumping_counter = 1;
-                        pPlayer->jumping_toggle = 1;
+                        if (VM_OnEvent(EVENT_JUMP,pPlayer->i,playerNum) == 0)
+                        {
+                            pPlayer->jumping_counter = 1;
+                            pPlayer->jumping_toggle = 1;
+                        }
                     }
             }
 
@@ -7822,29 +7891,42 @@ HORIZONLY:;
     int centerHoriz = 0;
 
     if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
-        pPlayer->return_to_center = 9;
+        if (VM_OnEvent(EVENT_RETURNTOCENTER, pPlayer->i,playerNum) == 0)
+            pPlayer->return_to_center = 9;
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
     {
-        pPlayer->return_to_center = 9;
-        pPlayer->q16horiz += fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-        centerHoriz++;
+        if (VM_OnEvent(EVENT_LOOKUP, pPlayer->i, playerNum) == 0)
+        {
+            pPlayer->return_to_center = 9;
+            pPlayer->q16horiz += fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            centerHoriz++;
+        }
     }
     else if (TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
     {
-        pPlayer->return_to_center = 9;
-        pPlayer->q16horiz -= fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-        centerHoriz++;
+        if (VM_OnEvent(EVENT_LOOKDOWN,pPlayer->i,playerNum) == 0)
+        {
+            pPlayer->return_to_center = 9;
+            pPlayer->q16horiz -= fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            centerHoriz++;
+        }
     }
     else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && (!RRRA || !pPlayer->on_motorcycle))
     {
-        pPlayer->q16horiz += fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-        centerHoriz++;
+        if (VM_OnEvent(EVENT_AIMUP,pPlayer->i,playerNum) == 0)
+        {
+            pPlayer->q16horiz += fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            centerHoriz++;
+        }
     }
     else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && (!RRRA || !pPlayer->on_motorcycle))
     {
-        pPlayer->q16horiz -= fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-        centerHoriz++;
+        if (VM_OnEvent(EVENT_AIMDOWN,pPlayer->i,playerNum) == 0)
+        {
+            pPlayer->q16horiz -= fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            centerHoriz++;
+        }
     }
     if (RR && pPlayer->recoil && *weaponFrame == 0)
     {

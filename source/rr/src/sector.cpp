@@ -3636,9 +3636,12 @@ void P_HandleSharedKeys(int playerNum)
         if (TEST_SYNC_KEY(playerBits, SK_QUICK_KICK) && pPlayer->quick_kick == 0)
             if (pPlayer->curr_weapon != KNEE_WEAPON || pPlayer->kickback_pic == 0)
             {
-                pPlayer->quick_kick = 14;
-                if (pPlayer->fta == 0 || pPlayer->ftq == 80)
-                    P_DoQuote(QUOTE_MIGHTY_FOOT,pPlayer);
+                if (VM_OnEvent(EVENT_QUICKKICK,g_player[playerNum].ps->i,playerNum) == 0)
+                {
+                    pPlayer->quick_kick = 14;
+                    if (pPlayer->fta == 0 || pPlayer->ftq == 80)
+                        P_DoQuote(QUOTE_MIGHTY_FOOT,pPlayer);
+                }
             }
     }
 
@@ -3678,19 +3681,23 @@ void P_HandleSharedKeys(int playerNum)
 
         if (TEST_SYNC_KEY(playerBits, SK_INVENTORY) && pPlayer->newowner == -1)	// inventory button generates event for selected item
         {
-            switch (pPlayer->inven_icon)
+            if (VM_OnEvent(EVENT_INVENTORY,g_player[playerNum].ps->i,playerNum) == 0)
             {
-                case ICON_JETPACK: playerBits |= BIT(SK_JETPACK); break;
-                case ICON_HOLODUKE: playerBits |= BIT(SK_HOLODUKE); break;
-                case ICON_HEATS: playerBits |= BIT(SK_NIGHTVISION); break;
-                case ICON_FIRSTAID: playerBits |= BIT(SK_MEDKIT); break;
-                case ICON_STEROIDS: playerBits |= BIT(SK_STEROIDS); break;
+                switch (pPlayer->inven_icon)
+                {
+                    case ICON_JETPACK: playerBits |= BIT(SK_JETPACK); break;
+                    case ICON_HOLODUKE: playerBits |= BIT(SK_HOLODUKE); break;
+                    case ICON_HEATS: playerBits |= BIT(SK_NIGHTVISION); break;
+                    case ICON_FIRSTAID: playerBits |= BIT(SK_MEDKIT); break;
+                    case ICON_STEROIDS: playerBits |= BIT(SK_STEROIDS); break;
+                }
             }
         }
 
         if (!RR && TEST_SYNC_KEY(playerBits, SK_NIGHTVISION))
         {
-            if (pPlayer->inv_amount[GET_HEATS] > 0)
+            if (VM_OnEvent(EVENT_USENIGHTVISION,g_player[playerNum].ps->i,playerNum) == 0
+                    &&  pPlayer->inv_amount[GET_HEATS] > 0)
             {
                 pPlayer->heat_on = !pPlayer->heat_on;
                 P_UpdateScreenPal(pPlayer);
@@ -3702,14 +3709,17 @@ void P_HandleSharedKeys(int playerNum)
 
         if (TEST_SYNC_KEY(playerBits, SK_STEROIDS))
         {
-            if (pPlayer->inv_amount[GET_STEROIDS] == 400)
+            if (VM_OnEvent(EVENT_USESTEROIDS,g_player[playerNum].ps->i,playerNum) == 0)
             {
-                pPlayer->inv_amount[GET_STEROIDS]--;
-                A_PlaySound(DUKE_TAKEPILLS,pPlayer->i);
-                P_DoQuote(QUOTE_USED_STEROIDS,pPlayer);
+                if (pPlayer->inv_amount[GET_STEROIDS] == 400)
+                {
+                    pPlayer->inv_amount[GET_STEROIDS]--;
+                    A_PlaySound(DUKE_TAKEPILLS,pPlayer->i);
+                    P_DoQuote(QUOTE_USED_STEROIDS,pPlayer);
+                }
+                if (pPlayer->inv_amount[GET_STEROIDS] > 0)
+                    pPlayer->inven_icon = ICON_STEROIDS;
             }
-            if (pPlayer->inv_amount[GET_STEROIDS] > 0)
-                pPlayer->inven_icon = ICON_STEROIDS;
             return;		// is there significance to returning?
         }
         if (pPlayer->refresh_inventory)
@@ -3759,6 +3769,17 @@ CHECKINV1:
                 }
             }
             else inventoryIcon = 0;
+
+            if (TEST_SYNC_KEY(playerBits, SK_INV_LEFT))   // Inventory_Left
+            {
+                /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
+                inventoryIcon = VM_OnEventWithReturn(EVENT_INVENTORYLEFT,g_player[playerNum].ps->i,playerNum, inventoryIcon);
+            }
+            else if (TEST_SYNC_KEY(playerBits, SK_INV_RIGHT))   // Inventory_Right
+            {
+                /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
+                inventoryIcon = VM_OnEventWithReturn(EVENT_INVENTORYRIGHT,g_player[playerNum].ps->i,playerNum, inventoryIcon);
+            }
 
             if (inventoryIcon >= 1)
             {
@@ -4070,29 +4091,35 @@ rrtripbomb_case:
             {
                 if (pPlayer->holoduke_on == -1)
                 {
-                    if (pPlayer->inv_amount[GET_HOLODUKE] > 0)
+                    if (VM_OnEvent(EVENT_HOLODUKEON, g_player[playerNum].ps->i, playerNum) == 0)
                     {
-                        pPlayer->inven_icon = ICON_HOLODUKE;
-
-                        if (pPlayer->cursectnum > -1)
+                        if (pPlayer->inv_amount[GET_HOLODUKE] > 0)
                         {
-                            int const i = A_InsertSprite(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y,
-                                pPlayer->pos.z+(30<<8), APLAYER, -64, 0, 0, fix16_to_int(pPlayer->q16ang), 0, 0, -1, 10);
-                            pPlayer->holoduke_on = i;
-                            T4(i) = T5(i) = 0;
-                            sprite[i].yvel = playerNum;
-                            sprite[i].extra = 0;
-                            P_DoQuote(QUOTE_HOLODUKE_ON,pPlayer);
-                            A_PlaySound(TELEPORTER,pPlayer->holoduke_on);
+                            pPlayer->inven_icon = ICON_HOLODUKE;
+
+                            if (pPlayer->cursectnum > -1)
+                            {
+                                int const i = A_InsertSprite(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y,
+                                    pPlayer->pos.z+(30<<8), APLAYER, -64, 0, 0, fix16_to_int(pPlayer->q16ang), 0, 0, -1, 10);
+                                pPlayer->holoduke_on = i;
+                                T4(i) = T5(i) = 0;
+                                sprite[i].yvel = playerNum;
+                                sprite[i].extra = 0;
+                                P_DoQuote(QUOTE_HOLODUKE_ON,pPlayer);
+                                A_PlaySound(TELEPORTER,pPlayer->holoduke_on);
+                            }
                         }
+                        else P_DoQuote(QUOTE_HOLODUKE_NOT_FOUND,pPlayer);
                     }
-                    else P_DoQuote(QUOTE_HOLODUKE_NOT_FOUND,pPlayer);
                 }
                 else
                 {
-                    A_PlaySound(TELEPORTER,pPlayer->holoduke_on);
-                    pPlayer->holoduke_on = -1;
-                    P_DoQuote(QUOTE_HOLODUKE_OFF,pPlayer);
+                    if (VM_OnEvent(EVENT_HOLODUKEOFF,g_player[playerNum].ps->i,playerNum) == 0)
+                    {
+                        A_PlaySound(TELEPORTER,pPlayer->holoduke_on);
+                        pPlayer->holoduke_on = -1;
+                        P_DoQuote(QUOTE_HOLODUKE_OFF,pPlayer);
+                    }
                 }
             }
         }
@@ -4123,35 +4150,38 @@ rrtripbomb_case:
 
         if (TEST_SYNC_KEY(playerBits, SK_MEDKIT))
         {
-            if (pPlayer->inv_amount[GET_FIRSTAID] > 0 && sprite[pPlayer->i].extra < pPlayer->max_player_health)
+            if (VM_OnEvent(EVENT_USEMEDKIT,g_player[playerNum].ps->i,playerNum) == 0)
             {
-                int healthDiff = pPlayer->max_player_health-sprite[pPlayer->i].extra;
-
-                if (RR) healthDiff = 10;
-
-                if (pPlayer->inv_amount[GET_FIRSTAID] > healthDiff)
+                if (pPlayer->inv_amount[GET_FIRSTAID] > 0 && sprite[pPlayer->i].extra < pPlayer->max_player_health)
                 {
-                    pPlayer->inv_amount[GET_FIRSTAID] -= healthDiff;
+                    int healthDiff = pPlayer->max_player_health-sprite[pPlayer->i].extra;
+
+                    if (RR) healthDiff = 10;
+
+                    if (pPlayer->inv_amount[GET_FIRSTAID] > healthDiff)
+                    {
+                        pPlayer->inv_amount[GET_FIRSTAID] -= healthDiff;
+                        if (RR)
+                            sprite[pPlayer->i].extra += healthDiff;
+                        if (!RR || sprite[pPlayer->i].extra > pPlayer->max_player_health)
+                            sprite[pPlayer->i].extra = pPlayer->max_player_health;
+                        pPlayer->inven_icon = ICON_FIRSTAID;
+                    }
+                    else
+                    {
+                        sprite[pPlayer->i].extra += pPlayer->inv_amount[GET_FIRSTAID];
+                        pPlayer->inv_amount[GET_FIRSTAID] = 0;
+                        P_SelectNextInvItem(pPlayer);
+                    }
                     if (RR)
-                        sprite[pPlayer->i].extra += healthDiff;
-                    if (!RR || sprite[pPlayer->i].extra > pPlayer->max_player_health)
-                        sprite[pPlayer->i].extra = pPlayer->max_player_health;
-                    pPlayer->inven_icon = ICON_FIRSTAID;
+                    {
+                        if (sprite[pPlayer->i].extra > pPlayer->max_player_health)
+                            sprite[pPlayer->i].extra = pPlayer->max_player_health;
+                        pPlayer->drink_amt += 10;
+                    }
+                    if (!RR || (pPlayer->drink_amt <= 100 && !A_CheckSoundPlaying(pPlayer->i, DUKE_USEMEDKIT)))
+                        A_PlaySound(DUKE_USEMEDKIT,pPlayer->i);
                 }
-                else
-                {
-                    sprite[pPlayer->i].extra += pPlayer->inv_amount[GET_FIRSTAID];
-                    pPlayer->inv_amount[GET_FIRSTAID] = 0;
-                    P_SelectNextInvItem(pPlayer);
-                }
-                if (RR)
-                {
-                    if (sprite[pPlayer->i].extra > pPlayer->max_player_health)
-                        sprite[pPlayer->i].extra = pPlayer->max_player_health;
-                    pPlayer->drink_amt += 10;
-                }
-                if (!RR || (pPlayer->drink_amt <= 100 && !A_CheckSoundPlaying(pPlayer->i, DUKE_USEMEDKIT)))
-                    A_PlaySound(DUKE_USEMEDKIT,pPlayer->i);
             }
         }
 
@@ -4159,35 +4189,38 @@ rrtripbomb_case:
         {
             if (RR)
             {
-                if (pPlayer->inv_amount[GET_JETPACK] > 0 && sprite[pPlayer->i].extra < pPlayer->max_player_health)
+                if (VM_OnEvent(EVENT_USEJETPACK,g_player[playerNum].ps->i,playerNum) == 0)
                 {
-                    if (!A_CheckSoundPlaying(pPlayer->i, 429))
-                        A_PlaySound(429, pPlayer->i);
-
-                    pPlayer->inv_amount[GET_JETPACK] -= 100;
-                    if (pPlayer->drink_amt > 0)
+                    if (pPlayer->inv_amount[GET_JETPACK] > 0 && sprite[pPlayer->i].extra < pPlayer->max_player_health)
                     {
-                        pPlayer->drink_amt -= 5;
-                        if (pPlayer->drink_amt < 0)
-                            pPlayer->drink_amt = 0;
+                        if (!A_CheckSoundPlaying(pPlayer->i, 429))
+                            A_PlaySound(429, pPlayer->i);
+
+                        pPlayer->inv_amount[GET_JETPACK] -= 100;
+                        if (pPlayer->drink_amt > 0)
+                        {
+                            pPlayer->drink_amt -= 5;
+                            if (pPlayer->drink_amt < 0)
+                                pPlayer->drink_amt = 0;
+                        }
+
+                        if (pPlayer->eat_amt < 100)
+                        {
+                            pPlayer->eat_amt += 5;
+                            if (pPlayer->eat_amt > 100)
+                                pPlayer->eat_amt = 100;
+                        }
+
+                        sprite[pPlayer->i].extra += 5;
+
+                        pPlayer->inven_icon = 4;
+
+                        if (sprite[pPlayer->i].extra > pPlayer->max_player_health)
+                            sprite[pPlayer->i].extra = pPlayer->max_player_health;
+
+                        if (pPlayer->inv_amount[GET_JETPACK] <= 0)
+                            P_SelectNextInvItem(pPlayer);
                     }
-
-                    if (pPlayer->eat_amt < 100)
-                    {
-                        pPlayer->eat_amt += 5;
-                        if (pPlayer->eat_amt > 100)
-                            pPlayer->eat_amt = 100;
-                    }
-
-                    sprite[pPlayer->i].extra += 5;
-
-                    pPlayer->inven_icon = 4;
-
-                    if (sprite[pPlayer->i].extra > pPlayer->max_player_health)
-                        sprite[pPlayer->i].extra = pPlayer->max_player_health;
-
-                    if (pPlayer->inv_amount[GET_JETPACK] <= 0)
-                        P_SelectNextInvItem(pPlayer);
                 }
             }
             else
@@ -4219,7 +4252,8 @@ rrtripbomb_case:
         }
 
         if (TEST_SYNC_KEY(playerBits, SK_TURNAROUND) && pPlayer->one_eighty_count == 0)
-            pPlayer->one_eighty_count = -1024;
+            if (VM_OnEvent(EVENT_TURNAROUND,pPlayer->i,playerNum) == 0)
+                pPlayer->one_eighty_count = -1024;
     }
 }
 
