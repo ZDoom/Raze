@@ -5805,11 +5805,11 @@ ACTOR_STATIC void G_MoveActors(void)
             }
 
 DETONATEB:
-            if (!NAM)
+            if (!NAM_WW2GI)
                 bBoom = 0;
             if ((detonatePlayer >= 0 && g_player[detonatePlayer].ps->hbomb_on == 0) || pData[3] == 1)
                 bBoom = 1;
-            if (NAM && pSprite->picnum == HEAVYHBOMB)
+            if (NAM_WW2GI && pSprite->picnum == HEAVYHBOMB)
             {
                 pSprite->extra--;
                 if (pSprite->extra <= 0)

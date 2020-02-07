@@ -696,7 +696,7 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_TODD:
-                    if (NAM)
+                    if (NAM_WW2GI)
                     {
                         quoteMgr.InitializeQuote(QUOTE_RESERVED4, g_NAMMattCheatQuote);
                         P_DoQuote(QUOTE_RESERVED4, pPlayer);

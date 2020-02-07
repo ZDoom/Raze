@@ -1345,7 +1345,7 @@ growspark_rr:
 
             if (playerNum >= 0)
             {
-                if (NAM || GetAutoAimAng(spriteNum, playerNum, projecTile, ZOFFSET6, 0, &startPos, 768, &Zvel, &shootAng) < 0)
+                if (NAM_WW2GI || GetAutoAimAng(spriteNum, playerNum, projecTile, ZOFFSET6, 0, &startPos, 768, &Zvel, &shootAng) < 0)
                     Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 98;
             }
             else if (pSprite->statnum != STAT_EFFECTOR)
