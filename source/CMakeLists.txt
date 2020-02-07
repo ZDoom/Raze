@@ -982,14 +982,10 @@ if( NOT WIN32 AND NOT APPLE )
 		COMMAND /bin/sh -c ${CMAKE_CURRENT_BINARY_DIR}/link-make )
 endif()
 
-#add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#	${CMAKE_SOURCE_DIR}/soundfont/${PROJECT_NAME}.sf2 $<TARGET_FILE_DIR:${PROJECT_NAME}>/soundfonts/${PROJECT_NAME}.sf2
-#	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#	${CMAKE_SOURCE_DIR}/fm_banks/GENMIDI.GS.wopl $<TARGET_FILE_DIR:${PROJECT_NAME}>/fm_banks/GENMIDI.GS.wopl
-#	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#	${CMAKE_SOURCE_DIR}/fm_banks/gs-by-papiezak-and-sneakernets.wopn $<TARGET_FILE_DIR:${PROJECT_NAME}>/fm_banks/gs-by-papiezak-and-sneakernets.wopn
-#)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+	${CMAKE_SOURCE_DIR}/soundfont/${PROJECT_NAME}.sf2 $<TARGET_FILE_DIR:${PROJECT_NAME}>/soundfonts/${PROJECT_NAME}.sf2
+)
 
 if( CMAKE_COMPILER_IS_GNUCXX )
 	# GCC misoptimizes this file
