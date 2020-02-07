@@ -1956,13 +1956,14 @@ end_vol4a:
     {
         for (bssize_t weaponNum = 0; weaponNum < MAX_WEAPONS; weaponNum++)
         {
-            if (weaponNum == PISTOL_WEAPON)
+            auto const worksLike = WW2GI ? PWEAPON(0, weaponNum, WorksLike) : weaponNum;
+            if (worksLike == PISTOL_WEAPON)
             {
                 pPlayer->curr_weapon = weaponNum;
                 pPlayer->gotweapon |= (1 << weaponNum);
                 pPlayer->ammo_amount[weaponNum] = min<int16_t>(pPlayer->max_ammo_amount[weaponNum], 48);
             }
-            else if (weaponNum == KNEE_WEAPON || (!RR && weaponNum == HANDREMOTE_WEAPON) || (RRRA && weaponNum == SLINGBLADE_WEAPON))
+            else if (worksLike == KNEE_WEAPON || (!RR && worksLike == HANDREMOTE_WEAPON) || (RRRA && worksLike == SLINGBLADE_WEAPON))
             {
                 pPlayer->gotweapon |= (1 << weaponNum);
                 if (RRRA)

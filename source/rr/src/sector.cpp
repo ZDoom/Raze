@@ -3722,10 +3722,10 @@ void P_HandleSharedKeys(int playerNum)
             }
             return;		// is there significance to returning?
         }
-        if (pPlayer->refresh_inventory)
+        if (WW2GI && pPlayer->refresh_inventory)
             playerBits |= BIT(SK_INV_LEFT);   // emulate move left...
 
-        if (pPlayer->newowner == -1 && (TEST_SYNC_KEY(playerBits, SK_INV_LEFT) || TEST_SYNC_KEY(playerBits, SK_INV_RIGHT)))
+        if (pPlayer->newowner == -1 && (TEST_SYNC_KEY(playerBits, SK_INV_LEFT) || TEST_SYNC_KEY(playerBits, SK_INV_RIGHT)) || (!WW2GI && pPlayer->refresh_inventory))
         {
             pPlayer->invdisptime = GAMETICSPERSEC*2;
 

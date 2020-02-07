@@ -211,8 +211,14 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
 
     int const spriteAng = pSprite->ang;
 
-    int const isShrinker = (!RR && pSprite->picnum == APLAYER && g_player[playerNum].ps->curr_weapon == SHRINKER_WEAPON);
-    int const isFreezer  = (!RR && pSprite->picnum == APLAYER && g_player[playerNum].ps->curr_weapon == FREEZE_WEAPON);
+    int isShrinker = (!RR && pSprite->picnum == APLAYER && g_player[playerNum].ps->curr_weapon == SHRINKER_WEAPON);
+    int isFreezer  = (!RR && pSprite->picnum == APLAYER && g_player[playerNum].ps->curr_weapon == FREEZE_WEAPON);
+
+    if (WW2GI)
+    {
+        isShrinker = (pSprite->picnum == APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == SHRINKER_WEAPON);
+        isFreezer  = (pSprite->picnum == APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
+    }
 
     vec2_t const d1 = { sintable[(spriteAng + 512 - projAng) & 2047], sintable[(spriteAng - projAng) & 2047] };
     vec2_t const d2 = { sintable[(spriteAng + 512 + projAng) & 2047], sintable[(spriteAng + projAng) & 2047] };
@@ -1212,7 +1218,7 @@ growspark_rr:
                     pReturn->extra >>= 2;
                 }
             }
-            else if (g_player[playerNum].ps->curr_weapon == DEVISTATOR_WEAPON)
+            else if ((WW2GI ? PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) : g_player[playerNum].ps->curr_weapon) == DEVISTATOR_WEAPON)
             {
                 pReturn->extra >>= 2;
                 pReturn->ang += 16 - (krand2() & 31);
@@ -1272,8 +1278,17 @@ growspark_rr:
 
             if (placeMine == 1)
             {
+                int const tripBombMode = Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
                 int const spawnedSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, TRIPBOMB, -16, 4, 5,
                                                          shootAng, 0, 0, spriteNum, 6);
+                if (tripBombMode & TRIPBOMB_TIMER)
+                {
+                    int32_t lLifetime = Gv_GetVarByLabel("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, -1, playerNum);
+                    int32_t lLifetimeVar
+                    = Gv_GetVarByLabel("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, playerNum);
+                    // set timer.  blows up when at zero....
+                    sprite[spawnedSprite].extra = lLifetime + mulscale14(krand2(), lLifetimeVar) - lLifetimeVar;
+                }
                 sprite[spawnedSprite].hitag = spawnedSprite;
                 A_PlaySound(LASERTRIP_ONWALL, spawnedSprite);
                 sprite[spawnedSprite].xvel = -20;
@@ -1285,7 +1300,7 @@ growspark_rr:
 
                 actor[spawnedSprite].t_data[5] = sprite[spawnedSprite].ang = wallAng;
 
-                if (playerNum >= 0)
+                if (!WW2GI && playerNum >= 0)
                     pPlayer->ammo_amount[TRIPBOMB_WEAPON]--;
 
                 return spawnedSprite;
@@ -1585,6 +1600,8 @@ static int P_DisplayKnee(int kneeShade)
 
 static int P_DisplayKnuckles(int knuckleShade)
 {
+    if (WW2GI)
+        return 0;
     const DukePlayer_t *const pPlayer = g_player[screenpeek].ps;
 
     if (pPlayer->knuckle_incs == 0)
@@ -1604,6 +1621,99 @@ static int P_DisplayKnuckles(int knuckleShade)
                      knucklePal);
 
     return 1;
+}
+
+// Set C-CON's WEAPON and WORKSLIKE gamevars.
+void P_SetWeaponGamevars(int playerNum, const DukePlayer_t * const pPlayer)
+{
+    if (!WW2GI)
+        return;
+    Gv_SetVar(g_weaponVarID, pPlayer->curr_weapon, pPlayer->i, playerNum);
+    Gv_SetVar(g_worksLikeVarID,
+              ((unsigned)pPlayer->curr_weapon < MAX_WEAPONS) ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : -1,
+              pPlayer->i, playerNum);
+}
+
+static void P_FireWeapon(int playerNum)
+{
+    auto const pPlayer = g_player[playerNum].ps;
+
+    if (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) != KNEE_WEAPON)
+        pPlayer->ammo_amount[pPlayer->curr_weapon]--;
+
+    if (PWEAPON(playerNum, pPlayer->curr_weapon, FireSound) > 0)
+        A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, FireSound), pPlayer->i);
+
+    P_SetWeaponGamevars(playerNum, pPlayer);
+    //        OSD_Printf("doing %d %d %d\n",PWEAPON(snum, p->curr_weapon, Shoots),p->curr_weapon,snum);
+    A_Shoot(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Shoots));
+
+    for (bssize_t burstFire = PWEAPON(playerNum, pPlayer->curr_weapon, ShotsPerBurst) - 1; burstFire > 0; --burstFire)
+    {
+        A_Shoot(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Shoots));
+
+        if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_AMMOPERSHOT)
+        {
+            pPlayer->ammo_amount[pPlayer->curr_weapon]--;
+        }
+    }
+
+    if (!(PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_NOVISIBLE))
+    {
+#ifdef POLYMER
+        spritetype *s = &sprite[pPlayer->i];
+        int32_t     x = ((sintable[(s->ang + 512) & 2047]) >> 7), y = ((sintable[(s->ang) & 2047]) >> 7);
+
+        s->x += x;
+        s->y += y;
+        G_AddGameLight(0, pPlayer->i, PHEIGHT, 8192, PWEAPON(playerNum, pPlayer->curr_weapon, FlashColor),
+                       PR_LIGHT_PRIO_MAX_GAME);
+        actor[pPlayer->i].lightcount = 2;
+        s->x -= x;
+        s->y -= y;
+#endif  // POLYMER
+        pPlayer->visibility = 0;
+    }
+
+    if (/*!(PWEAPON(playerNum, p->curr_weapon, Flags) & WEAPON_CHECKATRELOAD) && */
+            PWEAPON(playerNum, pPlayer->curr_weapon, Reload) > PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime) && pPlayer->ammo_amount[pPlayer->curr_weapon] > 0
+                && (PWEAPON(playerNum, pPlayer->curr_weapon, Clip)) && (((pPlayer->ammo_amount[pPlayer->curr_weapon]%(PWEAPON(playerNum, pPlayer->curr_weapon, Clip)))==0)))
+    {
+        pPlayer->kickback_pic = PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime);
+    }
+
+    if (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) != KNEE_WEAPON)
+        P_CheckWeapon(pPlayer);
+}
+
+static void P_DoWeaponSpawn(int playerNum)
+{
+    auto const pPlayer = g_player[playerNum].ps;
+
+    // NOTE: For the 'Spawn' member, 0 means 'none', too (originally so,
+    // i.e. legacy). The check for <0 was added to the check because mod
+    // authors (rightly) assumed that -1 is the no-op value.
+    if (PWEAPON(playerNum, pPlayer->curr_weapon, Spawn) <= 0)  // <=0 : AMC TC beta/RC2 has WEAPONx_SPAWN -1
+        return;
+
+    int newSprite = A_Spawn(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Spawn));
+    
+    if ((PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_SPAWNTYPE2))
+    {
+        // like shotgun shells
+        sprite[newSprite].ang += 1024;
+        A_SetSprite(newSprite,CLIPMASK0);
+        sprite[newSprite].ang += 1024;
+    }
+    else if ((PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_SPAWNTYPE3))
+    {
+        // like chaingun shells
+        sprite[newSprite].ang += 1024;
+        sprite[newSprite].ang &= 2047;
+        sprite[newSprite].xvel += 32;
+        sprite[newSprite].z += (3<<8);
+        A_SetSprite(newSprite,CLIPMASK0);
+    }
 }
 
 void P_DisplayScuba(void)
@@ -1762,7 +1872,10 @@ void P_DisplayWeapon(void)
     weaponX -= 58 + pPlayer->weapon_ang;
     weaponYOffset -= (pPlayer->hard_landing << 3);
 
-    currentWeapon       = (pPlayer->last_weapon >= 0) ? pPlayer->last_weapon : pPlayer->curr_weapon;
+    if (WW2GI)
+        currentWeapon   = PWEAPON(screenpeek, (pPlayer->last_weapon >= 0) ? pPlayer->last_weapon : pPlayer->curr_weapon, WorksLike);
+    else
+        currentWeapon   = (pPlayer->last_weapon >= 0) ? pPlayer->last_weapon : pPlayer->curr_weapon;
     hudweap.gunposy     = weaponYOffset;
     hudweap.lookhoriz   = weaponY;
     hudweap.cur         = currentWeapon;
@@ -2415,9 +2528,19 @@ void P_DisplayWeapon(void)
 
                 if (*weaponFrame > 0)
                 {
-                    if (*weaponFrame < 8)
+                    int totalTime;
+                    if (*weaponFrame < (WW2GI ? (totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime)) : 8))
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset,
                             RPGGUN + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal);
+                    else if (WW2GI)
+                    {
+                        totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
+                        int const reloadTime = PWEAPON(screenpeek, pPlayer->curr_weapon, Reload);
+
+                        weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
+                                          ? 10 * ((*weaponFrame) - totalTime)   // down
+                                          : 10 * (reloadTime - (*weaponFrame)); // up
+                    }
                 }
 
                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset, RPGGUN, weaponShade,
@@ -2426,6 +2549,41 @@ void P_DisplayWeapon(void)
 
             case SHOTGUN_WEAPON__STATIC:
                 weaponX -= 8;
+
+                if (WW2GI)
+                {
+                    int const totalTime  = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
+                    int const reloadTime = PWEAPON(screenpeek, pPlayer->curr_weapon, Reload);
+
+                    if (*weaponFrame > 0)
+                        weaponYOffset -= sintable[(*weaponFrame)<<7]>>12;
+
+                    if (*weaponFrame > 0 && doAnim)
+                        weaponX += 1-(rand()&3);
+
+                    if (*weaponFrame == 0)
+                    {
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
+                                               SHOTGUN, weaponShade, weaponBits, weaponPal);
+                    }
+                    else if (*weaponFrame <= totalTime)
+                    {
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
+                                               SHOTGUN + 1, weaponShade, weaponBits, weaponPal);
+                    }
+                    // else we are in 'reload time'
+                    else
+                    {
+                        weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
+                                         ? 10 * ((*weaponFrame) - totalTime)    // D
+                                         : 10 * (reloadTime - (*weaponFrame));  // U
+
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
+                                               SHOTGUN, weaponShade, weaponBits, weaponPal);
+                    }
+
+                    break;
+                }
 
                 switch (*weaponFrame)
                 {
@@ -2503,6 +2661,83 @@ void P_DisplayWeapon(void)
 
                     if (doAnim)
                         weaponX += 1-(rand()&3);
+                }
+
+                if (WW2GI)
+                {
+                    int const totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
+                    int const reloadTime = PWEAPON(screenpeek, pPlayer->curr_weapon, Reload);
+
+                    if (*weaponFrame == 0)
+                    {
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - halfLookAng,weaponY+233-weaponYOffset,
+                            CHAINGUN+1,weaponShade,weaponBits,weaponPal);
+                    }
+                    else if (*weaponFrame <= totalTime)
+                    {
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng,weaponY+243-weaponYOffset,
+                            CHAINGUN+2,weaponShade,weaponBits,weaponPal);
+                    }
+                    // else we are in 'reload time'
+                    // divide reload time into fifths..
+                    // 1) move weapon up/right, hand on clip (CHAINGUN - 17)
+                    // 2) move weapon up/right, hand removing clip (CHAINGUN - 18)
+                    // 3) hold weapon up/right, hand removed clip (CHAINGUN - 19)
+                    // 4) hold weapon up/right, hand inserting clip (CHAINGUN - 18)
+                    // 5) move weapon down/left, clip inserted (CHAINGUN - 17)
+                    else
+                    {
+                        int iFifths = (reloadTime - totalTime) / 5;
+                        if (iFifths < 1)
+                            iFifths = 1;
+
+                        if (*weaponFrame < iFifths + totalTime)
+                        {
+                            // first segment
+                            int const weaponOffset = 80 - 10 * (totalTime + iFifths - (*weaponFrame));
+                            weaponYOffset += weaponOffset;
+                            weaponX += weaponOffset;
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 17,
+                                                   weaponShade, weaponBits, weaponPal);
+                        }
+                        else if (*weaponFrame < (iFifths * 2 + totalTime))
+                        {
+                            // second segment
+                            weaponYOffset += 80; // D
+                            weaponX += 80;
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 18,
+                                                   weaponShade, weaponBits, weaponPal);
+                        }
+                        else if (*weaponFrame < (iFifths * 3 + totalTime))
+                        {
+                            // third segment
+                            // up
+                            weaponYOffset += 80;
+                            weaponX += 80;
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 19,
+                                                   weaponShade, weaponBits, weaponPal);
+                        }
+                        else if (*weaponFrame < (iFifths * 4 + totalTime))
+                        {
+                            // fourth segment
+                            // down
+                            weaponYOffset += 80; // D
+                            weaponX += 80;
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 18,
+                                                   weaponShade, weaponBits, weaponPal);
+                        }
+                        else
+                        {
+                            // up and left
+                            int const weaponOffset = 10 * (reloadTime - (*weaponFrame));
+                            weaponYOffset += weaponOffset; // U
+                            weaponX += weaponOffset;
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 17,
+                                                   weaponShade, weaponBits, weaponPal);
+                        }
+                    }
+
+                    break;
                 }
 
                 switch (*weaponFrame)
@@ -2584,21 +2819,21 @@ void P_DisplayWeapon(void)
                                             weaponShade, weaponBits, weaponPal);
                 }
 
-                else if ((*weaponFrame) < (NAM ? 38 : 23))
+                else if ((*weaponFrame) < (WW2GI ? PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 12 : (NAM ? 38 : 23)))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 184 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
                                             FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 210 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
-                else if ((*weaponFrame) < (NAM ? 44 : 25))
+                else if ((*weaponFrame) < (WW2GI ? PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 6 : (NAM ? 44 : 25)))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 164 - (pPlayer->look_ang >> 1), weaponY + 245 - weaponYOffset,
                                             FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
-                else if ((*weaponFrame) < (NAM ? 50 : 27))
+                else if ((*weaponFrame) < (WW2GI ? PWEAPON(screenpeek, PISTOL_WEAPON, Reload) : (NAM ? 50 : 27)))
                     G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
 
@@ -2611,13 +2846,45 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame >= ARRAY_SIZE(pipebombFrames))
                         break;
 
+                    if (WW2GI && *weaponFrame >= PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime))
+                        break;
+
                     if (*weaponFrame)
                     {
-                        if (*weaponFrame < 7)       weaponYOffset -= 10 * (*weaponFrame);  // D
-                        else if (*weaponFrame < 12) weaponYOffset += 20 * ((*weaponFrame) - 10);  // U
-                        else if (*weaponFrame < 20) weaponYOffset -= 9  * ((*weaponFrame) - 14);  // D
+                        if (WW2GI)
+                        {
+                            int const fireDelay = PWEAPON(screenpeek, pPlayer->curr_weapon, FireDelay);
+                            int const totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
 
-                        weaponYOffset += 10;
+                            if (*weaponFrame <= fireDelay)
+                            {
+                                // it holds here
+                                weaponYOffset -= 5 * (*weaponFrame);  // D
+                            }
+                            else if (*weaponFrame < ((totalTime - fireDelay) / 2 + fireDelay))
+                            {
+                                // up and left
+                                int const weaponOffset = (*weaponFrame) - fireDelay;
+                                weaponYOffset += 10 * weaponOffset;  // U
+                                weaponX += 80 * weaponOffset;
+                            }
+                            else if (*weaponFrame < totalTime)
+                            {
+                                // start high
+                                weaponYOffset += 240;
+                                weaponYOffset -= 12 * ((*weaponFrame) - fireDelay);  // D
+                                // move left
+                                weaponX += 90 - 5 * (totalTime - (*weaponFrame));
+                            }
+                        }
+                        else
+                        {
+                            if (*weaponFrame < 7)       weaponYOffset -= 10 * (*weaponFrame);  // D
+                            else if (*weaponFrame < 12) weaponYOffset += 20 * ((*weaponFrame) - 10);  // U
+                            else if (*weaponFrame < 20) weaponYOffset -= 9  * ((*weaponFrame) - 14);  // D
+
+                            weaponYOffset += 10;
+                        }
                     }
 
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 190 - halfLookAng, weaponY + 260 - weaponYOffset,
@@ -2639,6 +2906,55 @@ void P_DisplayWeapon(void)
                 break;
 
             case DEVISTATOR_WEAPON__STATIC:
+                if (WW2GI)
+                {
+                    if (*weaponFrame)
+                    {
+                        int32_t const totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
+                        int32_t const reloadTime = PWEAPON(screenpeek, pPlayer->curr_weapon, Reload);
+
+                        if (*weaponFrame < totalTime)
+                        {
+                            int const tileOffset = ksgn((*weaponFrame) >> 2);
+
+                            if (pPlayer->ammo_amount[pPlayer->curr_weapon] & 1)
+                            {
+                                G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset,
+                                                       DEVISTATOR, weaponShade, weaponBits | 4, weaponPal);
+                                G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset,
+                                                       DEVISTATOR + tileOffset, -32, weaponBits, weaponPal);
+                            }
+                            else
+                            {
+                                G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset,
+                                                       DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal);
+                                G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                                                       weaponShade, weaponBits, weaponPal);
+                            }
+                        }
+                        // else we are in 'reload time'
+                        else
+                        {
+                            weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
+                                             ? 10 * ((*weaponFrame) - totalTime)
+                                             : 10 * (reloadTime - (*weaponFrame));
+
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                                                   weaponShade, weaponBits, weaponPal);
+                            G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
+                                                   weaponShade, weaponBits | 4, weaponPal);
+                        }
+                    }
+                    else
+                    {
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                                               weaponShade, weaponBits, weaponPal);
+                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
+                                               weaponShade, weaponBits | 4, weaponPal);
+                    }
+                    break;
+                }
+
                 if (*weaponFrame > 0)
                 {
                     static uint8_t const devastatorFrames[] = { 0, 4, 12, 24, 12, 4, 0 };
@@ -2705,6 +3021,65 @@ void P_DisplayWeapon(void)
             case SHRINKER_WEAPON__STATIC:
                 weaponX += 28;
                 weaponY += 18;
+
+                if (WW2GI)
+                {
+                    if (*weaponFrame == 0)
+                    {
+                        // the 'at rest' display
+                        if (currentWeapon == GROW_WEAPON)
+                        {
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER - 2,
+                                                   weaponShade, weaponBits, weaponPal);
+                            break;
+                        }
+                        else if (pPlayer->ammo_amount[currentWeapon] > 0)
+                        {
+                            G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER + 2,
+                                                          16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits, 0);
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER,
+                                                   weaponShade, weaponBits, weaponPal);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // the 'active' display.
+                        if (doAnim)
+                        {
+                            weaponX += rand() & 3;
+                            weaponYOffset += rand() & 3;
+                        }
+
+                        int const totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
+                        int const reloadTime = PWEAPON(screenpeek, pPlayer->curr_weapon, Reload);
+
+                        if (*weaponFrame < totalTime)
+                        {
+                            if (*weaponFrame >= PWEAPON(screenpeek, pPlayer->curr_weapon, FireDelay))
+                            {
+                                // after fire time.
+                                // lower weapon to reload cartridge (not clip)
+                                weaponYOffset -= (currentWeapon == GROW_WEAPON ? 15 : 10) * (totalTime - (*weaponFrame));
+                            }
+                        }
+                        // else we are in 'reload time'
+                        else
+                        {
+                            weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
+                                             ? (currentWeapon == GROW_WEAPON ? 5 : 10) * ((*weaponFrame) - totalTime) // D
+                                             : 10 * (reloadTime - (*weaponFrame)); // U
+                        }
+                    }
+
+                    G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
+                                                  SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0);
+
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
+                                           SHRINKER + (currentWeapon == GROW_WEAPON ? -1 : 1), weaponShade, weaponBits, weaponPal);
+
+                    break;
+                }
 
                 if ((*weaponFrame) > 0)
                 {
@@ -3924,16 +4299,18 @@ static int32_t P_DoCounters(int playerNum)
                 }
                 A_PlaySound(soundId, pPlayer->i);
             }
-            else if (totalclock > 1024)
-                if (playerNum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
-                {
-                    if (rand()&1)
-                        A_PlaySound(DUKE_CRACK,pPlayer->i);
-                    else A_PlaySound(DUKE_CRACK2,pPlayer->i);
-                }
+            else if (!WW2GI)
+            {
+                if (totalclock > 1024)
+                    if (playerNum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
+                    {
+                        if (rand()&1)
+                            A_PlaySound(DUKE_CRACK,pPlayer->i);
+                        else A_PlaySound(DUKE_CRACK2,pPlayer->i);
+                    }
 
-            if (!RR)
-                A_PlaySound(DUKE_CRACK_FIRST,pPlayer->i);
+                A_PlaySound(DUKE_CRACK_FIRST, pPlayer->i);
+            }
         }
         else if (pPlayer->knuckle_incs == 22 || TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_FIRE))
             pPlayer->knuckle_incs=0;
@@ -3952,7 +4329,7 @@ int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATI
 void P_DropWeapon(int const playerNum)
 {
     DukePlayer_t *const pPlayer       = g_player[playerNum].ps;
-    int const                 currentWeapon = pPlayer->curr_weapon;
+    int const currentWeapon = WW2GI ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : pPlayer->curr_weapon;
 
     if (RRRA && (g_netServer || numplayers > 1))
     {
@@ -3990,7 +4367,7 @@ void P_DropWeapon(int const playerNum)
         }
     }
 
-    if ((unsigned)currentWeapon >= MAX_WEAPONS)
+    if (currentWeapon == KNEE_WEAPON || (unsigned)currentWeapon >= MAX_WEAPONS)
         return;
 
     if (krand2() & 1)
@@ -4135,15 +4512,6 @@ void P_SelectNextInvItem(DukePlayer_t *pPlayer)
         pPlayer->inven_icon = ICON_BOOTS;
     else
         pPlayer->inven_icon = ICON_NONE;
-}
-
-// Set C-CON's WEAPON and WORKSLIKE gamevars.
-void P_SetWeaponGamevars(int playerNum, const DukePlayer_t * const pPlayer)
-{
-    Gv_SetVar(g_weaponVarID, pPlayer->curr_weapon, pPlayer->i, playerNum);
-    Gv_SetVar(g_worksLikeVarID,
-              ((unsigned)pPlayer->curr_weapon < MAX_WEAPONS) ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : -1,
-              pPlayer->i, playerNum);
 }
 
 void P_CheckWeapon(DukePlayer_t *pPlayer)
@@ -4571,9 +4939,10 @@ static void P_ProcessWeapon(int playerNum)
         }
     }
 #undef WEAPON2_CLIP
-    if (pPlayer->curr_weapon == SHRINKER_WEAPON || pPlayer->curr_weapon == GROW_WEAPON
+    if (WW2GI ? PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_GLOWS :
+        (pPlayer->curr_weapon == SHRINKER_WEAPON || pPlayer->curr_weapon == GROW_WEAPON
         || (RR && (pPlayer->curr_weapon == TRIPBOMB_WEAPON || pPlayer->curr_weapon == BOWLINGBALL_WEAPON))
-        || (RRRA && (pPlayer->curr_weapon == KNEE_WEAPON || pPlayer->curr_weapon == SLINGBLADE_WEAPON)))
+        || (RRRA && (pPlayer->curr_weapon == KNEE_WEAPON || pPlayer->curr_weapon == SLINGBLADE_WEAPON))))
     {
         pPlayer->random_club_frame += 64; // Glowing
 
@@ -4627,19 +4996,23 @@ static void P_ProcessWeapon(int playerNum)
             P_SetWeaponGamevars(playerNum, pPlayer);
             if (VM_OnEvent(EVENT_FIRE, pPlayer->i, playerNum) == 0)
             {
-                switch (DYNAMICWEAPONMAP(pPlayer->curr_weapon))
+                switch (DYNAMICWEAPONMAP(WW2GI ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : pPlayer->curr_weapon))
                 {
                     case HANDBOMB_WEAPON__STATIC:
                         pPlayer->hbomb_hold_delay = 0;
                         if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
                         {
                             (*weaponFrame) = 1;
+                            if (WW2GI && PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                         }
                         break;
 
                     case HANDREMOTE_WEAPON__STATIC:
                         pPlayer->hbomb_hold_delay = 0;
                         (*weaponFrame)            = 1;
+                        if (WW2GI && PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                            A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                         break;
 
                     case PISTOL_WEAPON__STATIC:
@@ -4647,6 +5020,8 @@ static void P_ProcessWeapon(int playerNum)
                         {
                             pPlayer->ammo_amount[PISTOL_WEAPON]--;
                             (*weaponFrame) = 1;
+                            if (WW2GI && PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                         }
                         break;
 
@@ -4654,6 +5029,8 @@ static void P_ProcessWeapon(int playerNum)
                         if (pPlayer->ammo_amount[SHOTGUN_WEAPON] > 0 && pPlayer->random_club_frame == 0)
                         {
                             (*weaponFrame) = 1;
+                            if (WW2GI && PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                         }
                         break;
 
@@ -4706,6 +5083,10 @@ static void P_ProcessWeapon(int playerNum)
                                         pPlayer->pos.z = pPlayer->opos.z;
                                         pPlayer->vel.z = 0;
                                         (*weaponFrame) = 1;
+                                        if (WW2GI && PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                        {
+                                            A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
+                                        }
                                     }
                         }
                         break;
@@ -4714,7 +5095,10 @@ static void P_ProcessWeapon(int playerNum)
                         if (pPlayer->ammo_amount[SHRINKER_WEAPON] > 0)
                         {
                             (*weaponFrame) = 1;
-                            A_PlaySound(SHRINKER_FIRE, pPlayer->i);
+                            if (!WW2GI)
+                                A_PlaySound(SHRINKER_FIRE, pPlayer->i);
+                            else if (PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                         }
                         break;
 
@@ -4722,16 +5106,24 @@ static void P_ProcessWeapon(int playerNum)
                         if (pPlayer->ammo_amount[GROW_WEAPON] > 0)
                         {
                             (*weaponFrame) = 1;
-                            A_PlaySound(RR ? 431 : EXPANDERSHOOT, pPlayer->i);
+                            if (!WW2GI)
+                                A_PlaySound(RR ? 431 : EXPANDERSHOOT, pPlayer->i);
+                            else if (PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                         }
                         break;
 
                     case FREEZE_WEAPON__STATIC:
-                        if (pPlayer->ammo_amount[FREEZE_WEAPON] > 0)
+                        if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
                         {
                             (*weaponFrame) = 1;
                             if (!RR)
-                                A_PlaySound(CAT_FIRE, pPlayer->i);
+                            {
+                                if (!WW2GI)
+                                    A_PlaySound(CAT_FIRE, pPlayer->i);
+                                else if (PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                    A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
+                            }
                         }
                         break;
 
@@ -4740,6 +5132,8 @@ static void P_ProcessWeapon(int playerNum)
                         if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
                         {
                             (*weaponFrame) = 1;
+                            if (WW2GI && PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                         }
                         break;
 
@@ -4749,7 +5143,12 @@ static void P_ProcessWeapon(int playerNum)
                             (*weaponFrame)            = 1;
                             pPlayer->hbomb_hold_delay = !pPlayer->hbomb_hold_delay;
                             if (!RR)
-                                A_PlaySound(CAT_FIRE, pPlayer->i);
+                            {
+                                if (!WW2GI)
+                                    A_PlaySound(CAT_FIRE, pPlayer->i);
+                                else if (PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                    A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
+                            }
                         }
                         break;
 
@@ -4765,6 +5164,8 @@ static void P_ProcessWeapon(int playerNum)
                         if (pPlayer->quick_kick == 0)
                         {
                             (*weaponFrame) = 1;
+                            if (WW2GI && PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                         }
                         break;
 
@@ -5373,6 +5774,186 @@ static void P_ProcessWeapon(int playerNum)
                 else if ((*weaponFrame) == 34)
                     (*weaponFrame) = 0;
                 break;
+            }
+        }
+        else if (WW2GI)
+        {
+            if (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == HANDBOMB_WEAPON)
+            {
+                if (PWEAPON(playerNum, pPlayer->curr_weapon, HoldDelay) && ((*weaponFrame) == PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)) && TEST_SYNC_KEY(playerBits, SK_FIRE))
+                {
+                    pPlayer->rapid_fire_hold = 1;
+                    return;
+                }
+
+                if (++(*weaponFrame) == PWEAPON(playerNum, pPlayer->curr_weapon, HoldDelay))
+                {
+                    pPlayer->ammo_amount[pPlayer->curr_weapon]--;
+
+                    int pipeBombType;
+                    int pipeBombZvel;
+                    int pipeBombFwdVel;
+
+                    if (pPlayer->on_ground && TEST_SYNC_KEY(playerBits, SK_CROUCH))
+                    {
+                        pipeBombFwdVel = 15;
+                        pipeBombZvel   = (fix16_to_int(pPlayer->q16horiz + pPlayer->q16horizoff - F16(100)) * 20);
+                    }
+                    else
+                    {
+                        pipeBombFwdVel = 140;
+                        pipeBombZvel   = -512 - (fix16_to_int(pPlayer->q16horiz + pPlayer->q16horizoff - F16(100)) * 20);
+                    }
+
+                    int pipeSpriteNum = A_InsertSprite(pPlayer->cursectnum,
+                                        pPlayer->pos.x+(sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]>>6),
+                                        pPlayer->pos.y+(sintable[fix16_to_int(pPlayer->q16ang)&2047]>>6),
+                                        pPlayer->pos.z,PWEAPON(playerNum, pPlayer->curr_weapon, Shoots),-16,9,9,
+                                        fix16_to_int(pPlayer->q16ang),(pipeBombFwdVel+(pPlayer->hbomb_hold_delay<<5)),pipeBombZvel,pPlayer->i,1);
+
+                    int pipeLifeTime     = Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, playerNum);
+                    int pipeLifeVariance = Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, playerNum);
+                    sprite[pipeSpriteNum].extra = pipeLifeTime
+                                        + mulscale14(krand2(), pipeLifeVariance)
+                                        - pipeLifeVariance;
+
+                    if (pipeBombFwdVel == 15)
+                    {
+                        sprite[pipeSpriteNum].yvel = 3;
+                        sprite[pipeSpriteNum].z += ZOFFSET3;
+                    }
+
+                    if (A_GetHitscanRange(pPlayer->i) < 512)
+                    {
+                        sprite[pipeSpriteNum].ang += 1024;
+                        sprite[pipeSpriteNum].zvel /= 3;
+                        sprite[pipeSpriteNum].xvel /= 3;
+                    }
+
+                    pPlayer->hbomb_on = 1;
+                }
+                else if ((*weaponFrame) < PWEAPON(playerNum, pPlayer->curr_weapon, HoldDelay) && TEST_SYNC_KEY(playerBits, SK_FIRE))
+                    pPlayer->hbomb_hold_delay++;
+                else if ((*weaponFrame) > PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime))
+                {
+                    (*weaponFrame) = 0;
+                    P_CheckWeapon(pPlayer);
+                }
+            }
+            else if (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
+            {
+                if (++(*weaponFrame) == PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay))
+                {
+                    if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_BOMB_TRIGGER)
+                        pPlayer->hbomb_on = 0;
+
+                    if (PWEAPON(playerNum, pPlayer->curr_weapon, Shoots) != 0)
+                    {
+                        if (!(PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_NOVISIBLE))
+                        {
+                            lastvisinc = (int32_t) totalclock+32;
+                            pPlayer->visibility = 0;
+                        }
+
+                        P_SetWeaponGamevars(playerNum, pPlayer);
+                        A_Shoot(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Shoots));
+                    }
+                }
+
+                if ((*weaponFrame) >= PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime))
+                {
+                    (*weaponFrame) = 0;
+                    if (pPlayer->ammo_amount[HANDBOMB_WEAPON] > 0)
+                        P_AddWeapon(pPlayer, HANDBOMB_WEAPON);
+                    else P_CheckWeapon(pPlayer);
+                }
+            }
+            else
+            {
+                // the basic weapon...
+                (*weaponFrame)++;
+
+                if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_CHECKATRELOAD)
+                {
+                    if (*weaponFrame >= PWEAPON(playerNum, pPlayer->curr_weapon, Reload))
+                        P_CheckWeapon(pPlayer);
+                }
+
+                if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_STANDSTILL
+                        && *weaponFrame < (PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)+1))
+                {
+                    pPlayer->pos.z = pPlayer->opos.z;
+                    pPlayer->vel.z = 0;
+                }
+
+                if (*weaponFrame == PWEAPON(playerNum, pPlayer->curr_weapon, Sound2Time))
+                    if (PWEAPON(playerNum, pPlayer->curr_weapon, Sound2Sound) > 0)
+                        A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, Sound2Sound),pPlayer->i);
+
+                if (*weaponFrame == PWEAPON(playerNum, pPlayer->curr_weapon, SpawnTime))
+                    P_DoWeaponSpawn(playerNum);
+
+                if (*weaponFrame == PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay))
+                    P_FireWeapon(playerNum);
+
+                if (*weaponFrame > PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)
+                         && *weaponFrame < PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime))
+                {
+                    if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_AUTOMATIC)
+                    {
+                        if (TEST_SYNC_KEY(playerBits, SK_FIRE) == 0)
+                            *weaponFrame = PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime);
+                        if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_FIREEVERYTHIRD)
+                        {
+                            if (((*(weaponFrame))%3) == 0)
+                            {
+                                P_FireWeapon(playerNum);
+                                P_DoWeaponSpawn(playerNum);
+                            }
+                        }
+                        if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_FIREEVERYOTHER)
+                        {
+                            P_FireWeapon(playerNum);
+                            P_DoWeaponSpawn(playerNum);
+                        }
+                    }
+                }
+                else if (*weaponFrame >= PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime))
+                {
+                    if (PWEAPON(playerNum, pPlayer->curr_weapon, Reload) > PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime) && pPlayer->ammo_amount[pPlayer->curr_weapon] > 0
+                        && PWEAPON(playerNum, pPlayer->curr_weapon, Clip) && pPlayer->ammo_amount[pPlayer->curr_weapon] % PWEAPON(playerNum, pPlayer->curr_weapon, Clip) == 0)
+                    {
+                        int const weaponReloadTime = PWEAPON(playerNum, pPlayer->curr_weapon, Reload)
+                                                   - PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime);
+
+                        if ((*weaponFrame) == (PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime)+1))
+                        {
+                            A_PlaySound(EJECT_CLIP, pPlayer->i);
+                        }
+                        else if ((*weaponFrame) ==
+                                    (PWEAPON(playerNum, pPlayer->curr_weapon, Reload) - (weaponReloadTime / 3)))
+                        {
+                            A_PlaySound(INSERT_CLIP, pPlayer->i);
+                        }
+                        if ((*weaponFrame) >= (PWEAPON(playerNum, pPlayer->curr_weapon, Reload)))
+                        {
+                            *weaponFrame       = 0;
+                        }
+                    }
+                    else
+                    {
+                        if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_AUTOMATIC)
+                        {
+                            if (TEST_SYNC_KEY(playerBits, SK_FIRE))
+                            {
+                                *weaponFrame =
+                                (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_RANDOMRESTART) ? 1 + (krand2() & 3) : 1;
+                            }
+                            else *weaponFrame = 0;
+                        }
+                        else *weaponFrame = 0;
+                    }
+                }
             }
         }
         else
@@ -6932,7 +7513,7 @@ check_enemy_sprite:
         P_UpdatePosWhenViewingCam(pPlayer);
         P_DoCounters(playerNum);
 
-        if (pPlayer->curr_weapon == HANDREMOTE_WEAPON)
+        if ((WW2GI ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : pPlayer->curr_weapon) == HANDREMOTE_WEAPON)
             P_ProcessWeapon(playerNum);
 
         return;

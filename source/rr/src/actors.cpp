@@ -1184,7 +1184,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                 {
                     pSprite->extra = pPlayer->max_player_health;
                     pSprite->cstat = 257;
-                    if (!RR)
+                    if (!RR && !WW2GI)
                         pPlayer->inv_amount[GET_JETPACK] = 1599;
                 }
 
@@ -1801,6 +1801,20 @@ ACTOR_STATIC void G_MoveStandables(void)
         }
         else if (!RR && pSprite->picnum == TRIPBOMB)
         {
+            int const tripBombMode = Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
+            if(tripBombMode & TRIPBOMB_TIMER)
+			{
+				// we're on a timer....
+				if (pSprite->extra >= 0)
+				{
+					pSprite->extra--;
+					if (pSprite->extra == 0)
+					{
+						T3(spriteNum) = 16;
+						A_PlaySound(LASERTRIP_ARMING,spriteNum);
+					}
+				}
+			}
             if (T3(spriteNum) > 0)
             {
                 T3(spriteNum)--;
@@ -1871,6 +1885,8 @@ ACTOR_STATIC void G_MoveStandables(void)
                 actor[spriteNum].lastv.x = hitDist;
                 pSprite->ang = oldAng;
 
+                if (tripBombMode & TRIPBOMB_TRIPWIRE)
+                {
                 // we're on a trip wire
                 //int16_t cursectnum;
 
@@ -1896,6 +1912,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                     //if (cursectnum < 0)
                     //    break;
                 }
+                }
 
                 T1(spriteNum)++;
 
@@ -1906,7 +1923,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 setsprite(spriteNum,(vec3_t *)pSprite);
                 T4(spriteNum) = T3(spriteNum) = 0;
 
-                if (hitSprite >= 0)
+                if (hitSprite >= 0 && (tripBombMode & TRIPBOMB_TRIPWIRE))
                 {
                     T3(spriteNum) = 13;
                     A_PlaySound(LASERTRIP_ARMING,spriteNum);
@@ -1934,7 +1951,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 setsprite(spriteNum, (vec3_t *) pSprite);
 
                 //                if( Actor[i].lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
-                if (actor[spriteNum].lastv.x != hitDist)
+                if (actor[spriteNum].lastv.x != hitDist && (tripBombMode & TRIPBOMB_TRIPWIRE))
                 {
                     T3(spriteNum) = 13;
                     A_PlaySound(LASERTRIP_ARMING, spriteNum);

@@ -604,8 +604,12 @@ static int32_t G_GetInvOn(const DukePlayer_t *p)
     return 0x80000000;
 }
 
-static inline void rotatesprite_althud(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat)
+static int32_t G_GetMorale(int32_t p_i, int32_t snum)
 {
+    return Gv_GetVarByLabel("PLR_MORALE", -1, p_i, snum);
+}
+
+static inline void rotatesprite_althud(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat){
     if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
         rotatesprite_(sbarx(sx+1), sbary(sy+1), z, a, picnum, 127, 4, dastat + POLYMOSTTRANS2, 0, 0, 0, 0, xdim - 1, ydim - 1);
     rotatesprite_(sbarx(sx), sbary(sy), z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, 0, xdim - 1, ydim - 1);
@@ -808,7 +812,13 @@ void G_DrawStatusBar(int32_t snum)
                 }
 
                 rotatesprite_althud(62, hudoffset-25, sb15h, 0, SHIELD, 0, 0, 10+16+256);
-                G_DrawAltDigiNum(105, -(hudoffset-22), p->inv_amount[GET_SHIELD], -16, 10+16+256);
+
+                {
+                    int32_t lAmount = G_GetMorale(p->i, snum);
+                    if (lAmount == -1)
+                        lAmount = p->inv_amount[GET_SHIELD];
+                    G_DrawAltDigiNum(105, -(hudoffset-22), lAmount, -16, 10+16+256);
+                }
 
                 if (ammo_sprites[p->curr_weapon] >= 0)
                 {
@@ -844,6 +854,8 @@ void G_DrawStatusBar(int32_t snum)
 
                     G_DrawInvNum(-(284-30-o), 0, hudoffset-6-3, (uint8_t) i, 0, 10+permbit+256);
 
+                    if (!WW2GI)
+                    {
                     if (j > 0)
                     {
                         if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
@@ -855,6 +867,7 @@ void G_DrawStatusBar(int32_t snum)
                         if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
                             minitextshade(284-30-o+1, hudoffset-20-3+1, "Off", 127, 4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                         minitext(284-30-o, hudoffset-20-3, "Off", 2, orient+ROTATESPRITE_MAX);
+                    }
                     }
 
                     if (p->inven_icon >= ICON_SCUBA)
@@ -981,10 +994,13 @@ void G_DrawStatusBar(int32_t snum)
 
                     G_DrawInvNum(284-30-o, yofssh, 200-6, (uint8_t) i, 0, orient&~16);
 
+                    if (!WW2GI)
+                    {
                     if (j > 0)
                         minitext(288-30-o, 180, GStrings("OPTVAL_ON"), 0, orient);
                     else if ((uint32_t) j != 0x80000000)
                         minitext(284-30-o, 180, GStrings("OPTVAL_OFF"), 2, orient);
+                    }
 
                     if (p->inven_icon >= ICON_SCUBA)
                     	minitext(284-35-o, 180, GStrings("OPTVAL_AUTO"), 2, orient);
@@ -1024,7 +1040,9 @@ void G_DrawStatusBar(int32_t snum)
     }
 
     {
-        int32_t lAmount = p->inv_amount[GET_SHIELD];
+        int32_t lAmount = G_GetMorale(p->i, snum);
+        if (lAmount == -1)
+            lAmount = p->inv_amount[GET_SHIELD];
         if (sbar.inv_amount[GET_SHIELD] != lAmount)
         {
             sbar.inv_amount[GET_SHIELD] = lAmount;
@@ -1045,6 +1063,8 @@ void G_DrawStatusBar(int32_t snum)
             sbar.ammo_amount[i] = p->ammo_amount[i];
             if (i < 9)
                 u |= ((2<<i)+1024);
+            else if (WW2GI && i == 11)
+                u |= 1024 + 128;
             else
                 u |= 65536L+1024;
         }
@@ -1280,7 +1300,7 @@ void G_DrawStatusBar(int32_t snum)
                 }
             }
 
-            if (u&(2048+4096))
+            if (u&(2048+4096) && !WW2GI)
             {
                 j = G_GetInvOn(p);
 
