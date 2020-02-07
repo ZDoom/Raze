@@ -153,7 +153,6 @@ inline int I_FindAttr(findstate_t *fileinfo)
 int I_GetNumaNodeCount();
 int I_GetNumaNodeThreadCount(int numaNode);
 void I_SetThreadNumaNode(std::thread &thread, int numaNode);
-
-int I_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, size_t * OutputSize);
+bool I_QueryPathKey(const wchar_t* keypath, const wchar_t* valname, FString& value);
 
 #endif

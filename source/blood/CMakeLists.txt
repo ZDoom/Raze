@@ -55,6 +55,7 @@ set( PCH_SOURCES
 	src/mirrors.cpp
 	src/misc.cpp
 	src/network.cpp
+	src/nnexts.cpp
 	src/osdcmd.cpp
 	src/player.cpp
 	src/qav.cpp

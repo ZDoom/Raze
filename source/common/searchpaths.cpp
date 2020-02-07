@@ -58,6 +58,7 @@ int g_gameType;
 void AddSearchPath(TArray<FString>& searchpaths, const char* path)
 {
 	auto fpath = M_GetNormalizedPath(path);
+	if (fpath.Back() == '/') fpath.Truncate(fpath.Len() - 1);
 	if (DirExists(fpath))
 	{
 		if (searchpaths.Find(fpath) == searchpaths.Size())
@@ -83,8 +84,8 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 
 struct RegistryPathInfo
 {
-	const char *regPath;
-	const char *regKey;
+	const wchar_t *regPath;
+	const wchar_t *regKey;
 	const char **subpaths;
 };
 
@@ -96,29 +97,39 @@ static const char * ww2gi[] = { "/WW2GI", nullptr};
 static const char * bloodfs[] = { "", R"(\addons\Cryptic Passage)", nullptr};
 static const char * sw[] = { "/Shadow Warrior", nullptr};
 
+#ifndef _WIN64
+#define WOW64 "\\"
+#else
+#define WOW64 "\\Wow6432Node\\"
+#endif
+
 static const RegistryPathInfo paths[] = {
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 434050)", "InstallLocation", nullptr },
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225140)", "InstallLocation", dukeaddons },
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 359850)", "InstallLocation", dn3d },
-	{ "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", nullptr },
-	{ "SOFTWARE\\3DRealms\\Duke Nukem 3D", nullptr, dn3d },
-	{ "SOFTWARE\\3DRealms\\Anthology", nullptr, dn3d },
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 329650)", "InstallLocation", nam },
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 376750)", "InstallLocation", ww2gi },
-	{ "SOFTWARE\\GOG.com\\GOGREDNECKRAMPAGE", "PATH", nullptr },
-	{ "SOFTWARE\\GOG.com\\GOGCREDNECKRIDESAGAIN", "PATH", nullptr },
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 299030)", "InstallLocation", nullptr }, // Blood: One Unit Whole Blood (Steam)
-	{ "SOFTWARE\\GOG.com\\GOGONEUNITONEBLOOD", "PATH", nullptr},
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1010750)", "InstallLocation", bloodfs},
-	{ R"(SOFTWARE\Wow6432Node\GOG.com\Games\1374469660)", "path", bloodfs},
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225160)", "InstallLocation", gameroot },
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 238070)", "InstallLocation", gameroot}, // Shadow Warrior Classic (1997) - Steam
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 358400)", "InstallLocation", sw},
-	{ "SOFTWARE\\GOG.com\\GOGSHADOWARRIOR", "PATH", nullptr},
-	{ "SOFTWARE\\3DRealms\\Shadow Warrior", nullptr, sw},
-	{ "SOFTWARE\\3DRealms\\Anthology", nullptr, sw},
-	{ R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 562860)", "InstallLocation", nullptr}, // Ion Fury (Steam)
-	{ R"(SOFTWARE\GOG.com\Games\1740836875)", "path", nullptr},
+	{ L"SOFTWARE" WOW64 "GOG.com\\GOGDUKE3D", L"PATH", nullptr },
+	{ L"SOFTWARE" WOW64 "GOG.com\\GOGREDNECKRAMPAGE", L"PATH", nullptr },
+	{ L"SOFTWARE" WOW64 "GOG.com\\GOGCREDNECKRIDESAGAIN", L"PATH", nullptr },
+	{ L"SOFTWARE" WOW64 "GOG.com\\GOGONEUNITONEBLOOD", L"PATH", nullptr},
+	{ L"SOFTWARE" WOW64 "GOG.com\\GOGSHADOWARRIOR", L"PATH", nullptr},
+	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1374469660", L"path", bloodfs},
+	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1740836875", L"path", nullptr},
+
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 434050", L"InstallLocation", nullptr },
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", L"InstallLocation", dukeaddons },
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 359850", L"InstallLocation", dn3d },
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 329650", L"InstallLocation", nam },
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 376750", L"InstallLocation", ww2gi },
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 299030", L"InstallLocation", nullptr }, // Blood: One Unit Whole Blood (Steam)
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 1010750",L"InstallLocation", bloodfs},
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225160", L"InstallLocation", gameroot },
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 238070", L"InstallLocation", gameroot}, // Shadow Warrior Classic (1997) - Steam
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 358400", L"InstallLocation", sw},
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 562860", L"InstallLocation", nullptr}, // Ion Fury (Steam)
+#if 0
+	{ L"SOFTWARE\\3DRealms\\Duke Nukem 3D", nullptr, dn3d },
+	{ L"SOFTWARE\\3DRealms\\Anthology", nullptr, dn3d },
+	{ L"SOFTWARE\\3DRealms\\Shadow Warrior", nullptr, sw},
+	{ L"SOFTWARE\\3DRealms\\Anthology", nullptr, sw},
+#endif
+
 	{ nullptr}
 };
 
@@ -128,10 +139,10 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 	for (auto &entry : paths)
 	{
 		// 3D Realms Anthology
-		char buf[PATH_MAX];
-		size_t bufsize = sizeof(buf);
-		if (I_ReadRegistryValue(entry.regPath, entry.regKey, buf, &bufsize))
+		FString buf;
+		if (I_QueryPathKey(entry.regPath, entry.regKey, buf))
 		{
+			FixPathSeperator(buf);
 			if (!entry.subpaths) AddSearchPath(searchpaths, buf);
 			else
 			{
