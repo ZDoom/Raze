@@ -2719,7 +2719,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case CON_IFVARE:
                 insptr++;
                 tw = Gv_GetVar(*insptr++);
-                VM_CONDITIONAL(tw >= *insptr);
+                VM_CONDITIONAL(tw == *insptr);
                 continue;
 
             case CON_IFVARVARE:
