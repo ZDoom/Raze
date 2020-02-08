@@ -924,19 +924,15 @@ extern short Level;
 
 SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
 {
-    if (mapname == nullptr && song_file_name == nullptr && cdaudio_track == -1)
-    {
-        // Get the music defined for the current level.
-
-    }
     // Play  CD audio if enabled.
-    if (cdaudio_track >= 0 && mus_redbook)
+    if (cdaudio_track >= 0 && (mus_redbook || *song_file_name == 0))
     {
         FStringf trackname("track%02d.ogg", cdaudio_track);
         if (!Mus_Play(mapname, trackname, true))
         {
             buildprintf("Can't find CD track %i!\n", cdaudio_track);
         }
+        else return true;
     }
     if (!Mus_Play(mapname, song_file_name, true))
     {
