@@ -5936,7 +5936,7 @@ MAIN_LOOP_RESTART:
                     input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
                                  mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]);
 
-                    if (FURY)
+                    if (!FURY)
                     {
                         input.fvel += pPlayer->fric.x;
                         input.svel += pPlayer->fric.y;
