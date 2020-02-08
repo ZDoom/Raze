@@ -2031,7 +2031,7 @@ drawscreen(PLAYERp pp)
         rotatesprite(0,0,65536L,0,HelpPagePic[HelpPage],0,0,
                      (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK|ROTATE_SPRITE_IGNORE_START_MOST),
                      0, 0, xdim-1, ydim-1);
-        videoNextPage();
+        videoNextPageWait();
 
         return;
     }
@@ -2047,7 +2047,7 @@ drawscreen(PLAYERp pp)
                      (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK|ROTATE_SPRITE_IGNORE_START_MOST),
                      0, 0, xdim-1, ydim-1);
 
-        videoNextPage();
+        videoNextPageWait();
         return;
     }
 #endif
@@ -2339,7 +2339,7 @@ drawscreen(PLAYERp pp)
 	if (!M_Active())
     SecretInfo(pp);
 
-    videoNextPage();
+    videoNextPageWait();
 
 #if SYNC_TEST
     SyncStatMessage();

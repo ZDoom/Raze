@@ -285,7 +285,16 @@ void MenuLevel(void);
 void StatScreen(PLAYERp mpp);
 void InitRunLevel(void);
 void RunLevel(void);
+void videoNextPageWait(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
+
+void videoNextPageWait(void)
+{
+	videoNextPage();
+	while (!G_FPSLimit()) {
+		handleevents();
+	}
+}
 
 static FILE *debug_fout = NULL;
 
@@ -1385,8 +1394,8 @@ void NewLevel(void)
         {
             PlayTheme();
             MenuLevel();
-			STAT_Update(true);
-    }
+            STAT_Update(true);
+       }
     }
     else
     {
@@ -1394,8 +1403,8 @@ void NewLevel(void)
         {
             PlayTheme();
             MenuLevel();
-			STAT_Update(true);
-    }
+            STAT_Update(true);
+       }
     }
     FinishAnim = 0;
 }
@@ -1466,7 +1475,7 @@ void LogoLevel(void)
 
     twod->ClearScreen();
     rotatesprite(0, 0, RS_SCALE, 0, THREED_REALMS_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-    videoNextPage();
+    videoNextPageWait();
     //FadeIn(0, 3);
 
     inputState.ClearAllInput();
@@ -1489,7 +1498,7 @@ void LogoLevel(void)
     }
 
     twod->ClearScreen();
-    videoNextPage();
+    videoNextPageWait();
     videoSetPalette(0, BASEPAL, 0);
 
     // put up a blank screen while loading
@@ -1520,7 +1529,7 @@ void CreditsLevel(void)
     ClearStartMost();
     gs.BorderNum = save;
     twod->ClearScreen();
-    videoNextPage();
+    videoNextPageWait();
     inputState.ClearAllInput();
 
     // Lo Wang feel like singing!
@@ -1531,7 +1540,7 @@ void CreditsLevel(void)
         handleevents();
         if (inputState.CheckAllInput())
             break;
-        videoNextPage();
+        videoNextPageWait();
     }
     StopSound();
 
@@ -1560,7 +1569,7 @@ void CreditsLevel(void)
 
         rotatesprite(0, 0, RS_SCALE, 0, curpic, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 
-        videoNextPage();
+        videoNextPageWait();
 
         if (timer > 8*120)
         {
@@ -1577,7 +1586,7 @@ void CreditsLevel(void)
 
     // put up a blank screen while loading
     twod->ClearScreen();
-    videoNextPage();
+    videoNextPageWait();
     inputState.ClearAllInput();
     Mus_Stop();
 }
@@ -1591,7 +1600,7 @@ void SybexScreen(void)
         return;
 
     rotatesprite(0, 0, RS_SCALE, 0, 5261, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-    videoNextPage();
+    videoNextPageWait();
 
     inputState.ClearAllInput();
     while (!inputState.CheckAllInput()) handleevents();
@@ -1615,14 +1624,14 @@ TitleLevel(void)
     palookup[0] = tempbuf;
 
     twod->ClearScreen();
-    videoNextPage();
+    videoNextPageWait();
 
 	ready2send = 0;
     totalclock = 0;
     ototalclock = 0;
 
     rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-    videoNextPage();
+    videoNextPageWait();
     //FadeIn(0, 3);
 
     inputState.ClearAllInput();
@@ -1647,7 +1656,7 @@ TitleLevel(void)
         //drawscreen as fast as you can
         rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 
-        videoNextPage();
+        videoNextPageWait();
 
         if (totalclock > 5*120 || inputState.CheckAllInput())
         {
@@ -1721,7 +1730,7 @@ void MenuLevel(void)
     DemoPlaying = FALSE;
 
     twod->ClearScreen();
-    videoNextPage();
+    videoNextPageWait();
 
     //FadeOut(0, 0);
     ready2send = 0;
@@ -1743,7 +1752,7 @@ void MenuLevel(void)
         MNU_DrawString(TEXT_TEST_COL(w), 180, ds, 1, 16);
     }
 
-    videoNextPage();
+    videoNextPageWait();
     //FadeIn(0, 3);
 
     waitforeverybody();
@@ -1822,7 +1831,7 @@ void MenuLevel(void)
         DrawMenuLevelScreen();
         DoUpdateSounds();
 
-        videoNextPage();
+        videoNextPageWait();
     }
 
     BorderAdjust = TRUE;
@@ -1831,7 +1840,7 @@ void MenuLevel(void)
 	M_ClearMenus();
     InMenuLevel = FALSE;
     twod->ClearScreen();
-    videoNextPage();
+    videoNextPageWait();
 }
 
 void SceneLevel(void)
@@ -1883,7 +1892,7 @@ void LoadingLevelScreen(char *level_name)
     MNU_MeasureString(ds, &w, &h);
     MNU_DrawString(TEXT_TEST_COL(w), 180, ds,1,16);
 
-    videoNextPage();
+    videoNextPageWait();
 }
 
 void gNextState(STATEp *State)
@@ -2056,7 +2065,7 @@ void BonusScreen(PLAYERp pp)
     if (Level < 0) Level = 0;
 
     twod->ClearScreen();
-    videoNextPage();
+    videoNextPageWait();
 
     inputState.ClearAllInput();
 
@@ -2071,7 +2080,7 @@ void BonusScreen(PLAYERp pp)
         renderFlushPerms();
         rotatesprite(0, 0, RS_SCALE, 0, 5120, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
         rotatesprite(158<<16, 86<<16, RS_SCALE, 0, State->Pic, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-        videoNextPage();
+        videoNextPageWait();
         //FadeIn(0,0);
     }
 
@@ -2162,7 +2171,7 @@ void BonusScreen(PLAYERp pp)
         MNU_MeasureString(ds, &w, &h);
         MNU_DrawString(TEXT_TEST_COL(w), 185, ds,1,19);
 
-        videoNextPage();
+        videoNextPageWait();
 
         if (State == State->NextState)
             BonusDone = TRUE;
@@ -2368,7 +2377,7 @@ void StatScreen(PLAYERp mpp)
         y += STAT_OFF_Y;
     }
 
-    videoNextPage();
+    videoNextPageWait();
 
     inputState.ClearAllInput();
 
