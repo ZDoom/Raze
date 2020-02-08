@@ -115,7 +115,7 @@ bool nnExtIsUmmune(spritetype* pSprite, int dmgType, int minScale) {
         else if (IsDudeSprite(pSprite)) {
             if (IsPlayerSprite(pSprite)) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType] <= minScale);
             else if (pSprite->type == kDudeModernCustom) return (gGenDudeExtra[pSprite->index].dmgControl[dmgType] <= minScale);
-            else return (getDudeInfo(pSprite->type - kDudeBase)->at70[dmgType] <= minScale);
+            else return (getDudeInfo(pSprite->type)->at70[dmgType] <= minScale);
         }
     }
 
@@ -592,7 +592,7 @@ int getSpriteMassBySize(spritetype* pSprite) {
             clipDist = gGenDudeExtra[pSprite->index].initVals[2];
             break;
         default:
-            seqId = getDudeInfo(pSprite->type - kDudeBase)->seqStartID;
+            seqId = getDudeInfo(pSprite->type)->seqStartID;
             break;
         }
 
@@ -1928,7 +1928,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
 // the following functions required for kModernDudeTargetChanger
 //---------------------------------------
 spritetype* aiFightGetTargetInRange(spritetype* pSprite, int minDist, int maxDist, short data, short teamMode) {
-    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type - kDudeBase); XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); XSPRITE* pXSprite = &xsprite[pSprite->extra];
     spritetype* pTarget = NULL; XSPRITE* pXTarget = NULL; spritetype* cTarget = NULL;
     for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         pTarget = &sprite[nSprite];  pXTarget = &xsprite[pTarget->extra];
@@ -2011,6 +2011,7 @@ bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* p
     spritetype* pDude = &sprite[pXDude->reference];
     int dx = pTarget->x - pDude->x; int dy = pTarget->y - pDude->y;
 
+    //viewSetSystemMessage("zzzz");
     // check target
     if (approxDist(dx, dy) < pDudeInfo->seeDist) {
         int eyeAboveZ = pDudeInfo->eyeHeight * pDude->yrepeat << 2;
@@ -2024,6 +2025,7 @@ bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* p
             if (klabs(losAngle) < 2048) // 360 deg periphery here*/
             return true;
         }
+
     }
 
     return false;
@@ -2094,7 +2096,7 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
 void aiFightAlarmDudesInSight(spritetype* pSprite, int max) {
     spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
     XSPRITE* pXSprite = &xsprite[pSprite->extra];
-    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type - kDudeBase);
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
     for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         pDude = &sprite[nSprite];
         if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || pDude->extra < 0)
@@ -2225,7 +2227,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     case kDudeBurningZombieButcher:
                     case kDudeBurningTinyCaleb:
                     case kDudeBurningBeast:
-                        pXSpawn->health = getDudeInfo(pXSprite->data1 - kDudeBase)->startHealth << 4;
+                        pXSpawn->health = getDudeInfo(pXSprite->data1)->startHealth << 4;
                         pXSpawn->burnTime = 10;
                         pXSpawn->target = -1;
                         aiActivateDude(pSpawn, pXSpawn);
@@ -3018,7 +3020,9 @@ void useSectorLigthChanger(XSPRITE* pXSource, XSECTOR* pXSector) {
 }
 
 void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
-    if (!IsDudeSprite(pSprite) && pSprite->statnum != kStatDude) {
+    
+    
+    if (!IsDudeSprite(pSprite) || pSprite->statnum != kStatDude) {
         switch (pSprite->type) { // can be dead dude turned in gib
             // make current target and all other dudes not attack this dude anymore
         case kThingBloodBits:
@@ -3029,10 +3033,11 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             return;
         }
     }
-
+    
+    
     spritetype* pSource = &sprite[pXSource->reference]; XSPRITE* pXSprite = &xsprite[pSprite->extra];
     spritetype* pTarget = NULL; XSPRITE* pXTarget = NULL; int receiveHp = 33 + Random(33);
-    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type - kDudeBase); int matesPerEnemy = 1;
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); int matesPerEnemy = 1;
 
     // dude is burning?
     if (pXSprite->burnTime > 0 && spriRangeIsFine(pXSprite->burnSource)) {
@@ -3123,7 +3128,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             if (pXMate->data4 > 0 && pXMate->health < pXMate->data4)
                 actHealDude(pXMate, receiveHp, pXMate->data4);
             else {
-                DUDEINFO* pTDudeInfo = getDudeInfo(pMate->type - kDudeBase);
+                DUDEINFO* pTDudeInfo = getDudeInfo(pMate->type);
                 if (pXMate->health < pTDudeInfo->startHealth)
                     actHealDude(pXMate, receiveHp, pTDudeInfo->startHealth);
             }
@@ -3193,6 +3198,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     if ((pXSprite->target < 0 || pPlayer != NULL) && ((int)gFrameClock & 32) != 0) {
         // try find first target that dude can see
         for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+            
             pTarget = &sprite[nSprite]; pXTarget = &xsprite[pTarget->extra];
 
             if (pXTarget->target == pSprite->index) {
@@ -3226,8 +3232,10 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                     if (pXSource->data3 == 2)
                         aiFightAlarmDudesInSight(pTarget, maxAlarmDudes);
                 }
+                
                 return;
             }
+            
             break;
         }
     }
