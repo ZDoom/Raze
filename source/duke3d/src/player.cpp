@@ -2891,15 +2891,32 @@ enddisplayweapon:
 
 int32_t mouseyaxismode = -1;
 
+enum inputlock_t
+{
+    IL_NOANGLE = 0x1,
+    IL_NOHORIZ = 0x2,
+    IL_NOMOVE  = 0x4,
+
+    IL_NOTHING = IL_NOANGLE|IL_NOHORIZ|IL_NOMOVE,
+};
+
 static int P_CheckLockedMovement(int const playerNum)
 {
     auto const pPlayer = g_player[playerNum].ps;
 
-    if (pPlayer->on_crane >= 0) return 2;
+    if (pPlayer->on_crane >= 0)
+        return IL_NOMOVE|IL_NOANGLE;
 
-    return (pPlayer->dead_flag || pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 || pPlayer->knee_incs > 0
-            || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON && pPlayer->kickback_pic > 1
-                && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)));
+    if (pPlayer->newowner != -1)
+        return IL_NOANGLE|IL_NOHORIZ;
+
+    if (pPlayer->dead_flag || pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0
+        || pPlayer->knee_incs > 0
+        || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON && pPlayer->kickback_pic > 1
+            && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)))
+        return IL_NOTHING;
+
+    return 0;
 }
 
 void P_GetInput(int const playerNum)
@@ -3126,7 +3143,7 @@ void P_GetInput(int const playerNum)
 
     int const movementLocked = P_CheckLockedMovement(playerNum);
 
-    if ((ud.scrollmode && ud.overhead_on) || movementLocked == 1)
+    if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
     {
         if (ud.scrollmode && ud.overhead_on)
         {
@@ -3134,26 +3151,28 @@ void P_GetInput(int const playerNum)
             ud.folavel = fix16_to_int(input.q16avel);
         }
 
-        localInput.fvel = 0;
-        localInput.svel = 0;
-
-        localInput.q16avel = 0;
-        localInput.q16horz = 0;
+        localInput.fvel = localInput.svel = 0;
+        localInput.q16avel = localInput.q16horz = 0;
     }
     else
     {
-        if (movementLocked != 2)
+        if (!(movementLocked & IL_NOMOVE))
         {
-            localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
-            localInput.fvel    = clamp(localInput.fvel + input.fvel, -MAXVEL, MAXVEL);
-            localInput.svel    = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
-
-            pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, input.q16avel);
-            pPlayer->q16ang &= 0x7FFFFFF;
+            localInput.fvel = clamp(localInput.fvel + input.fvel, -MAXVEL, MAXVEL);
+            localInput.svel = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
         }
 
-        localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
-        pPlayer->q16horiz = fix16_clamp(fix16_sadd(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
+        if (!(movementLocked & IL_NOANGLE))
+        {
+            localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+            pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
+        }
+
+        if (!(movementLocked & IL_NOHORIZ))
+        {
+            localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
+            pPlayer->q16horiz  = fix16_clamp(fix16_sadd(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
+        }
     }
 
     // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
@@ -5244,7 +5263,7 @@ void P_ProcessInput(int playerNum)
         }
     }
 
-    if (P_CheckLockedMovement(playerNum))
+    if (P_CheckLockedMovement(playerNum) & IL_NOMOVE)
     {
         velocityModifier = 0;
         pPlayer->vel.x   = 0;
