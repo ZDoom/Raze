@@ -285,16 +285,7 @@ void MenuLevel(void);
 void StatScreen(PLAYERp mpp);
 void InitRunLevel(void);
 void RunLevel(void);
-void videoNextPageWait(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
-
-void videoNextPageWait(void)
-{
-	videoNextPage();
-	while (!G_FPSLimit()) {
-		handleevents();
-	}
-}
 
 static FILE *debug_fout = NULL;
 
