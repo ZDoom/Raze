@@ -3643,7 +3643,7 @@ badindex:
 
 					auto bindings = Bindings.GetKeysForCommand(C_CON_GetButtonFunc(gameFunc));
 					if ((unsigned)funcPos >= bindings.Size()) funcPos = 0;
-					quoteMgr.InitializeQuote(quoteIndex, KB_ScanCodeToString(bindings[funcPos]));
+					quoteMgr.InitializeQuote(quoteIndex, funcPos >= bindings.Size()? "???" : KB_ScanCodeToString(bindings[funcPos]));
                     dispatch();
                 }
 
@@ -4281,12 +4281,17 @@ badindex:
                     } v;
                     Gv_FillWithVars(v);
 
-                    int32_t const z = (VM_DECODE_INST(tw) == CON_GAMETEXTZ) ? Gv_GetVar(*insptr++) : 65536;
+                    int32_t z = (VM_DECODE_INST(tw) == CON_GAMETEXTZ) ? Gv_GetVar(*insptr++) : 65536;
 
                     if (EDUKE32_PREDICT_FALSE(v.tilenum < 0 || v.tilenum + 127 >= MAXTILES))
                     {
                         CON_ERRPRINTF("invalid base tilenum %d\n", v.tilenum);
                         abort_after_error();
+                    }
+                    if (z <= 0)
+                    {
+                        CON_ERRPRINTF("Bad text size (<= 0)");
+                        z = 65536;
                     }
 
                     VM_ASSERT((unsigned)v.nQuote < MAXQUOTES, "invalid quote %d\n", v.nQuote);
