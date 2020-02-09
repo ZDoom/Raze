@@ -58,7 +58,7 @@ int g_gameType;
 void AddSearchPath(TArray<FString>& searchpaths, const char* path)
 {
 	auto fpath = M_GetNormalizedPath(path);
-	if (fpath.Back() == '/') fpath.Truncate(fpath.Len() - 1);
+	if (fpath.Len() > 1 && fpath.Back() == '/') fpath.Truncate(fpath.Len() - 1);
 	if (DirExists(fpath))
 	{
 		if (searchpaths.Find(fpath) == searchpaths.Size())
