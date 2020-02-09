@@ -53,8 +53,8 @@ class FFlatVertexBuffer
 	unsigned int mNumReserved;
 
 
-	static const unsigned int BUFFER_SIZE = 2000000;
-	static const unsigned int BUFFER_SIZE_TO_USE = 1999500;
+	static const unsigned int BUFFER_SIZE = 4000000;	// Was upped from 2000000 to account for voxels not being implemented with a separate vertex buffer.
+	static const unsigned int BUFFER_SIZE_TO_USE = BUFFER_SIZE-500;
 
 public:
 	enum
