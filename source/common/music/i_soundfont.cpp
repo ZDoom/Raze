@@ -38,7 +38,7 @@
 #include "cmdlib.h"
 #include "gameconfigfile.h"
 #include "filereadermusicinterface.h"
-#include "zmusic/zmusic.h"
+#include <zmusic.h>
 #include "resourcefile.h"
 #include "version.h"
 #include "i_system.h"
@@ -85,7 +85,7 @@ void FSoundFontReader::AddPath(const char *strp)
 	if (!mAllowAbsolutePaths && IsAbsPath(strp)) return;	// of no use so we may just discard it right away
 	int i = 0;
 	FString str = strp;
-	str.Substitute("\\", "/");
+	FixPathSeperator(str);
 	if (str.Back() != '/') str += '/';	// always let it end with a slash.
 	for (auto &s : mPaths)
 	{
@@ -135,27 +135,14 @@ FileReader FSoundFontReader::Open(const char *name, std::string& filename)
 //
 //==========================================================================
 
-MusicIO::FileInterface* FSoundFontReader::open_interface(const char* name)
+ZMusicCustomReader* FSoundFontReader::open_interface(const char* name)
 {
 	std::string filename;
 	
 	FileReader fr = Open(name, filename);
 	if (!fr.isOpen()) return nullptr;
-	auto fri = new FileReaderMusicInterface(fr);
-	fri->filename = std::move(filename);
+	auto fri = GetMusicReader(fr);
 	return fri;
-}
-
-
-//==========================================================================
-//
-// The file interface for the backend
-//
-//==========================================================================
-
-struct MusicIO::FileInterface* FSoundFontReader::open_file(const char* name)
-{
-	return open_interface(name);
 }
 
 
@@ -273,7 +260,7 @@ FPatchSetReader::FPatchSetReader(const char *filename)
 	}
 	if (mFullPathToConfig.Len() > 0)
 	{
-		mFullPathToConfig.Substitute("\\", "/");
+		FixPathSeperator(mFullPathToConfig);
 		mBasePath = ExtractFilePath(mFullPathToConfig);
 		if (mBasePath.Len() > 0 && mBasePath.Back() != '/') mBasePath += '/';
 	}
@@ -308,7 +295,7 @@ FLumpPatchSetReader::FLumpPatchSetReader(const char *filename)
 	mLumpIndex = fileSystem.FindFile(filename);
 
 	mBasePath = filename;
-	mBasePath.Substitute("\\", "/");
+	FixPathSeperator(mBasePath);
 	mBasePath = ExtractFilePath(mBasePath);
 	if (mBasePath.Len() > 0 && mBasePath.Back() != '/') mBasePath += '/';
 }
@@ -413,7 +400,7 @@ void FSoundFontManager::CollectSoundfonts()
 				FString dir;
 
 				dir = NicePath(value);
-				dir.Substitute("\\", "/");
+				FixPathSeperator(dir);
 				if (dir.IsNotEmpty())
 				{
 					if (dir.Back() != '/') dir += '/';

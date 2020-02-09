@@ -174,6 +174,7 @@ find_package( BZip2 )
 find_package( JPEG )
 find_package( VPX )
 find_package( ZLIB )
+find_package( ZMusic )
 
 include( TargetArch )
 
@@ -382,9 +383,6 @@ endif()
 
 set( LZMA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/lzma/C" )
 set( GDTOA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/gdtoa" ) 
-set( ZMUSIC_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/zmusic" ) 
-set( TIMIDITYPP_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/timidityplus" )
-set( GME_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/game-music-emu" ) 
 
 if( NOT CMAKE_CROSSCOMPILING )
 	if( NOT CROSS_EXPORTS )
@@ -403,10 +401,6 @@ endif()
 #		COMPONENT "Documentation")
 
 add_subdirectory( libraries/lzma )
-add_subdirectory( libraries/dumb )
-add_subdirectory( libraries/game-music-emu)
-add_subdirectory( libraries/timidityplus )
-add_subdirectory( libraries/zmusic )
 add_subdirectory( tools )
 add_subdirectory( libraries/gdtoa )
 add_subdirectory( wadsrc )

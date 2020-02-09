@@ -72,5 +72,9 @@ struct FFileList
 
 bool IsAbsPath(const char*);
 
+inline int32_t Scale(int32_t a, int32_t b, int32_t c)
+{
+	return (int32_t)(((int64_t)a * b) / c);
+}
 
 #endif

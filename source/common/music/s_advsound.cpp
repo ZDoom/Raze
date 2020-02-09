@@ -41,7 +41,7 @@
 #include "v_text.h"
 #include "s_music.h"
 #include "sc_man.h"
-#include "mididevices/mididevice.h"
+#include <zmusic.h>
 
 // MACROS ------------------------------------------------------------------
 
@@ -192,14 +192,19 @@ static void S_AddSNDINFO (int lump)
 				sc.SetCMode(true);
 				sc.MustGetString();
 				MidiDeviceSetting devset;
+				// Important: This needs to handle all the devices not present in ZMusic Lite to be able to load configs made for GZDoom.
+				// Also let the library handle the fallback so this can adjust automatically if the feature set gets extended.
 				if (sc.Compare("timidity")) devset.device = MDEV_TIMIDITY;
 				else if (sc.Compare("fmod") || sc.Compare("sndsys")) devset.device = MDEV_SNDSYS;
-				else if (sc.Compare("standard")) devset.device = MDEV_MMAPI;
+				else if (sc.Compare("standard")) devset.device = MDEV_STANDARD;
 				else if (sc.Compare("opl")) devset.device = MDEV_OPL;
 				else if (sc.Compare("default")) devset.device = MDEV_DEFAULT;
 				else if (sc.Compare("fluidsynth")) devset.device = MDEV_FLUIDSYNTH;
+				else if (sc.Compare("gus")) devset.device = MDEV_GUS;
+				else if (sc.Compare("wildmidi")) devset.device = MDEV_WILDMIDI;
+				else if (sc.Compare("adl")) devset.device = MDEV_ADL;
+				else if (sc.Compare("opn")) devset.device = MDEV_OPN;
 				else sc.ScriptError("Unknown MIDI device %s\n", sc.String);
-
 				if (sc.CheckString(","))
 				{
 					sc.SetCMode(false);

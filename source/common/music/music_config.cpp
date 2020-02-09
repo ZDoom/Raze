@@ -39,7 +39,7 @@
 #include "c_cvars.h"
 #include "s_music.h"
 #include "version.h"
-#include "zmusic/zmusic.h"
+#include <zmusic.h>
 
 //==========================================================================
 //
@@ -49,20 +49,19 @@
 
 #define FORWARD_CVAR(key) \
 	decltype(*self) newval; \
-	auto ret = ChangeMusicSetting(ZMusic::key, mus_playing.handle, *self, &newval); \
+	auto ret = ChangeMusicSetting(zmusic_##key, mus_playing.handle, *self, &newval); \
 	self = (decltype(*self))newval; \
 	if (ret) S_MIDIDeviceChanged(-1);
 
 #define FORWARD_BOOL_CVAR(key) \
 	int newval; \
-	auto ret = ChangeMusicSetting(ZMusic::key, mus_playing.handle,*self, &newval); \
+	auto ret = ChangeMusicSetting(zmusic_##key, mus_playing.handle,*self, &newval); \
 	self = !!newval; \
 	if (ret) S_MIDIDeviceChanged(-1);
 
 #define FORWARD_STRING_CVAR(key) \
-	auto ret = ChangeMusicSetting(ZMusic::key, mus_playing.handle,*self); \
-	if (ret) S_MIDIDeviceChanged(-1); 
-
+	auto ret = ChangeMusicSetting(zmusic_##key, mus_playing.handle,*self); \
+	if (ret) S_MIDIDeviceChanged(-1);  
 
 //==========================================================================
 //
@@ -181,97 +180,6 @@ CUSTOM_CVAR(Int, opl_core, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
 CUSTOM_CVAR(Bool, opl_fullpan, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
 {
 	FORWARD_BOOL_CVAR(opl_fullpan);
-}
-
-//==========================================================================
-//
-// Timidity++ device
-//
-//==========================================================================
-
-CUSTOM_CVAR(Bool, timidity_modulation_wheel, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_BOOL_CVAR(timidity_modulation_wheel);
-}
-
-CUSTOM_CVAR(Bool, timidity_portamento, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_BOOL_CVAR(timidity_portamento);
-}
-
-CUSTOM_CVAR(Int, timidity_reverb, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_CVAR(timidity_reverb);
-}
-
-CUSTOM_CVAR(Int, timidity_reverb_level, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_CVAR(timidity_reverb_level);
-}
-
-CUSTOM_CVAR(Int, timidity_chorus, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_CVAR(timidity_chorus);
-}
-
-CUSTOM_CVAR(Bool, timidity_surround_chorus, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_BOOL_CVAR(timidity_surround_chorus);
-}
-
-CUSTOM_CVAR(Bool, timidity_channel_pressure, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_BOOL_CVAR(timidity_channel_pressure);
-}
-
-CUSTOM_CVAR(Int, timidity_lpf_def, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_CVAR(timidity_lpf_def);
-}
-
-CUSTOM_CVAR(Bool, timidity_temper_control, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_BOOL_CVAR(timidity_temper_control);
-}
-
-CUSTOM_CVAR(Bool, timidity_modulation_envelope, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_BOOL_CVAR(timidity_modulation_envelope);
-}
-
-CUSTOM_CVAR(Bool, timidity_overlap_voice_allow, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_BOOL_CVAR(timidity_overlap_voice_allow);
-}
-
-CUSTOM_CVAR(Bool, timidity_drum_effect, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_BOOL_CVAR(timidity_drum_effect);
-}
-
-CUSTOM_CVAR(Bool, timidity_pan_delay, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_BOOL_CVAR(timidity_pan_delay);
-}
-
-CUSTOM_CVAR(Float, timidity_drum_power, 1.0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL) /* coef. of drum amplitude */
-{
-	FORWARD_CVAR(timidity_drum_power);
-}
-
-CUSTOM_CVAR(Int, timidity_key_adjust, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_CVAR(timidity_key_adjust);
-}
-
-CUSTOM_CVAR(Float, timidity_tempo_adjust, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_CVAR(timidity_tempo_adjust);
-}
-
-CUSTOM_CVAR(Float, min_sustain_time, 5000, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
-{
-	FORWARD_CVAR(min_sustain_time);
 }
 
 CUSTOM_CVAR(String, timidity_config, GAMENAMELOWERCASE, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)

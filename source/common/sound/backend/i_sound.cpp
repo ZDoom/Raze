@@ -39,7 +39,7 @@
 #include "printf.h"
 #include "i_module.h"
 #include "cmdlib.h"
-#include "zmusic/sounddecoder.h"
+#include <zmusic.h>
 
 #include "c_dispatch.h"
 #include "i_music.h"
@@ -50,7 +50,7 @@
 #include "s_music.h"
 #include "z_music.h"
 #include "gamecvars.h"
-#include "zmusic/zmusic.h"
+#include <zmusic.h>
 
 EXTERN_CVAR (Float, snd_sfxvolume)
 EXTERN_CVAR(Float, mus_volume)
@@ -94,7 +94,7 @@ CUSTOM_CVAR(Float, snd_mastervolume, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVA
 	else if (self > 1.f)
 		self = 1.f;
 
-	ChangeMusicSetting(ZMusic::snd_mastervolume, nullptr, self);
+	ChangeMusicSetting(zmusic_snd_mastervolume, nullptr, self);
 	snd_sfxvolume.Callback();
 	mus_volume.Callback();
 }
@@ -130,15 +130,15 @@ public:
 	void SetMusicVolume (float volume)
 	{
 	}
-	std::pair<SoundHandle,bool> LoadSound(uint8_t *sfxdata, int length, bool monoize, FSoundLoadBuffer *pBuffer)
+	SoundHandle LoadSound(uint8_t *sfxdata, int length)
 	{
 		SoundHandle retval = { NULL };
-		return std::make_pair(retval, true);
+		return retval;
 	}
-	std::pair<SoundHandle,bool> LoadSoundRaw(uint8_t *sfxdata, int length, int frequency, int channels, int bits, int loopstart, int loopend, bool monoize)
+	SoundHandle LoadSoundRaw(uint8_t *sfxdata, int length, int frequency, int channels, int bits, int loopstart, int loopend)
 	{
 		SoundHandle retval = { NULL };
-        return std::make_pair(retval, true);
+        return retval;
 	}
 	void UnloadSound (SoundHandle sfx)
 	{
@@ -318,36 +318,6 @@ FString SoundRenderer::GatherStats ()
 	return "No stats for this sound renderer.";
 }
 
-short *SoundRenderer::DecodeSample(int outlen, const void *coded, int sizebytes, ECodecType ctype)
-{
-    short *samples = (short*)calloc(1, outlen);
-    ChannelConfig chans;
-    SampleType type;
-    int srate;
-
-	// The decoder will take ownership of the reader if it succeeds so this may not be a local variable.
-	MusicIO::MemoryReader *reader = new MusicIO::MemoryReader((const uint8_t*)coded, sizebytes);
-
-    SoundDecoder *decoder = SoundDecoder::CreateDecoder(reader);
-	if (!decoder)
-	{
-		reader->close();
-		return samples;
-	}
-
-    decoder->getInfo(&srate, &chans, &type);
-    if(chans != ChannelConfig_Mono || type != SampleType_Int16)
-    {
-        DPrintf(DMSG_WARNING, "Sample is not 16-bit mono\n");
-        delete decoder;
-        return samples;
-    }
-
-    decoder->read((char*)samples, outlen);
-    delete decoder;
-    return samples;
-}
-
 void SoundRenderer::DrawWaveDebug(int mode)
 {
 }
@@ -363,7 +333,7 @@ FString SoundStream::GetStats()
 //
 //==========================================================================
 
-std::pair<SoundHandle,bool> SoundRenderer::LoadSoundVoc(uint8_t *sfxdata, int length, bool monoize)
+SoundHandle SoundRenderer::LoadSoundVoc(uint8_t *sfxdata, int length)
 {
 	uint8_t * data = NULL;
 	int len, frequency, channels, bits, loopstart, loopend;
@@ -508,14 +478,7 @@ std::pair<SoundHandle,bool> SoundRenderer::LoadSoundVoc(uint8_t *sfxdata, int le
 		}
 
 	} while (false);
-	std::pair<SoundHandle,bool> retval = LoadSoundRaw(data, len, frequency, channels, bits, loopstart, loopend, monoize);
+	SoundHandle retval = LoadSoundRaw(data, len, frequency, channels, bits, loopstart, loopend);
 	if (data) delete[] data;
 	return retval;
 }
-
-std::pair<SoundHandle, bool> SoundRenderer::LoadSoundBuffered(FSoundLoadBuffer *buffer, bool monoize)
-{
-	SoundHandle retval = { NULL };
-	return std::make_pair(retval, true);
-}
-

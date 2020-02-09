@@ -47,7 +47,7 @@
 #include "c_cvars.h"
 #include "optionmenuitems.h"
 #include "i_soundfont.h"
-#include "zmusic/zmusic.h"
+#include <zmusic.h>
 
 // Menu-relevant content that gets filled in by scripts. This will get processed after the game has loaded.
 FString gSkillNames[MAXSKILLS];
@@ -1458,7 +1458,6 @@ static void InitMusicMenus()
 	FMenuDescriptor** advmenu = MenuDescriptors.CheckKey(NAME_AdvSoundOptions);
 	auto soundfonts = sfmanager.GetList();
 	std::tuple<const char*, int, const char*> sfmenus[] = { 
-																std::make_tuple("TimidityConfigMenu", SF_SF2 | SF_GUS, "timidity_config"),
 																std::make_tuple("FluidPatchsetMenu", SF_SF2, "fluid_patchset") };
 
 	for (auto& p : sfmenus)

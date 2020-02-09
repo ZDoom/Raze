@@ -1442,22 +1442,6 @@ OptionMenu ModReplayerOptions //protected
  *
  *=======================================*/
 
- OptionValue TimidityReverb
- {
-	0, "$OPTVAL_OFF"
-	1, "$OPTVAL_STANDARD"
-	2, "$ADVSNDMNU_GLOBAL"
-	3, "$ADVSNDMNU_FREEVERB"
-	4, "$ADVSNDMNU_GLOBAL_FREEVERB"
- }
-
-  OptionMenu _MidiPlayerOptions //protected
- {
-	Title "$SNDMNU_MIDIPLAYER"
-	Submenu "$ADVSNDMNU_FLUIDSYNTH", "FluidsynthOptions"//, 0, 1
-	Submenu "$ADVSNDMNU_TIMIDITY", "TimidityOptions"//, 0, 1
- }
-
  OptionMenu MidiPlayerOptions /*FluidsynthOptions*/ //protected
  {
 	Title "$SNDMNU_MIDIPLAYER"
@@ -1470,15 +1454,6 @@ OptionMenu ModReplayerOptions //protected
 	// other CVARs need to be revieved for usefulness
  }
 
- OptionMenu TimidityOptions //protected
- {
-	Title "$ADVSNDMNU_TIMIDITY"
-	LabeledSubMenu "$ADVSNDMNU_SELCONFIG",		"timidity_config", "TimidityConfigMenu"
-	Option "$ADVSNDMNU_REVERB", 			"timidity_reverb", "TimidityReverb"
-	Slider "$ADVSNDMNU_REVERB_LEVEL", 		"timidity_reverb_level", 9, 127, 1, 0
-	Option "$ADVSNDMNU_CHORUS", 			"timidity_chorus", "OnOff"
-	// other CVARs need to be revieved for usefulness
- }
 
 /*=======================================
  *

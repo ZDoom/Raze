@@ -30,10 +30,7 @@ else()
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funsigned-char -Wno-missing-braces -Wno-char-subscripts -Wno-unused-variable" )
 endif()
 
-option( DYN_FLUIDSYNTH "Dynamically load fluidsynth" ON )
 option( DYN_OPENAL "Dynamically load OpenAL" ON )
-option( DYN_SNDFILE "Dynamically load libsndfile" ON )
-option( DYN_MPG123 "Dynamically load libmpg123" ON )
 
 if( APPLE )
     option( OSX_COCOA_BACKEND "Use native Cocoa backend instead of SDL" ON )
@@ -198,26 +195,8 @@ endif()
 
 if( NO_OPENAL )
 	add_definitions( -DNO_OPENAL=1 )
-
-	set(MPG123_FOUND NO)
-	set(SNDFILE_FOUND NO)
-else()
-	# Search for libSndFile
-
-	if ( NOT DYN_SNDFILE )
-		find_package( SndFile )
-	endif()
-
-	# Search for libmpg123
-
-	if ( NOT DYN_MPG123 )
-		find_package( MPG123 )
-	endif()
 endif()
 
-# Search for FluidSynth
-
-find_package( FluidSynth )
 
 # Decide on SSE setup
 
@@ -421,10 +400,24 @@ add_custom_target( revision_check ALL
 
 # required libraries
 
-message( STATUS "Fluid synth libs: ${FLUIDSYNTH_LIBRARIES}" )
-set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${ZLIB_LIBRARIES}" "${JPEG_LIBRARIES}" "${BZIP2_LIBRARIES}" "${GME_LIBRARIES}" "${CMAKE_DL_LIBS}" )
+set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${ZLIB_LIBRARIES}" "${JPEG_LIBRARIES}" "${BZIP2_LIBRARIES}" "${CMAKE_DL_LIBS}" )
 if (HAVE_VULKAN)
 	set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "glslang" "SPIRV" "OGLCompiler")
+endif()
+
+# ZMUSIC
+
+if( MSVC AND NOT ZMUSIC_FOUND )
+	# Use prebuilt library
+	set( ZMUSIC_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/windows/zmusic" )
+	set( ZMUSIC_INCLUDE_DIR ${ZMUSIC_ROOT_PATH}/include )
+	set( ZMUSIC_LIBRARIES zmusiclite )
+	if( X64 )
+		link_directories( ${ZMUSIC_ROOT_PATH}/64bit )
+	else()
+		link_directories( ${ZMUSIC_ROOT_PATH}/32bit )
+	endif()
+	set( ZMUSIC_FOUND TRUE )
 endif()
 
 # VPX
@@ -462,21 +455,6 @@ if( ${HAVE_VM_JIT} )
 	add_definitions( -DHAVE_VM_JIT )
 	include_directories( "${ASMJIT_INCLUDE_DIR}" )
 	set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${ASMJIT_LIBRARIES}")
-endif()
-
-if( SNDFILE_FOUND )
-    set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${SNDFILE_LIBRARIES}" )
-    include_directories( "${SNDFILE_INCLUDE_DIRS}" )
-endif()
-if( MPG123_FOUND )
-    set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${MPG123_LIBRARIES}" )
-    include_directories( "${MPG123_INCLUDE_DIR}" )
-endif()
-if( NOT DYN_FLUIDSYNTH )
-	if( FLUIDSYNTH_FOUND )
-		set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${FLUIDSYNTH_LIBRARIES}" )
-		include_directories( "${FLUIDSYNTH_INCLUDE_DIR}" )
-	endif()
 endif()
 
 
@@ -584,37 +562,11 @@ add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 
-if( DYN_SNDFILE)
-	add_definitions( -DHAVE_SNDFILE -DDYN_SNDFILE )
-elseif( SNDFILE_FOUND )
-	add_definitions( -DHAVE_SNDFILE )
-endif()
-
-if( DYN_MPG123)
-	add_definitions( -DHAVE_MPG123 -DDYN_MPG123 )
-elseif( MPG123_FOUND )
-	add_definitions( -DHAVE_MPG123 )
-endif()
-
-if( DYN_FLUIDSYNTH )
-	add_definitions( -DHAVE_FLUIDSYNTH -DDYN_FLUIDSYNTH )
-elseif( FLUIDSYNTH_FOUND )
-	add_definitions( -DHAVE_FLUIDSYNTH )
-endif()
-
 #option( SEND_ANON_STATS "Enable sending of anonymous hardware statistics" ON )
 
 #if( NOT SEND_ANON_STATS )
 #	add_definitions( -DNO_SEND_STATS )
 #endif()
-
-
-# Disable ADLMIDI's and OPNMIDI's MIDI Sequencer
-add_definitions(-DADLMIDI_DISABLE_MIDI_SEQUENCER)
-add_definitions(-DOPNMIDI_DISABLE_MIDI_SEQUENCER)
-
-# Disable OPNMIDI's experimental yet emulator (using of it has some issues and missing notes in playback)
-add_definitions(-DOPNMIDI_DISABLE_GX_EMULATOR)
 
 # Project files should be aware of the header files. We can GLOB these since
 # there's generally a new cpp for every header so this file will get changed
@@ -764,6 +716,7 @@ set (PCH_SOURCES
 	common/console/d_event.cpp
 	common/console/c_con.cpp
 
+	common/utility/i_module.cpp
 	common/utility/i_time.cpp
 	common/utility/name.cpp
 	common/utility/cmdlib.cpp
@@ -896,7 +849,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} gdtoa lzma duke3d blood rr sw exhumed zmusic )
+target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke3d blood rr sw exhumed )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}

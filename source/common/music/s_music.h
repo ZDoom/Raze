@@ -5,6 +5,7 @@
 #include "zstring.h"
 #include "tarray.h"
 #include "name.h"
+#include <zmusic.h>
 
 void S_CreateStream();
 void S_PauseStream(bool pause);
@@ -57,11 +58,10 @@ extern MusicAliasMap MusicAliases;
 extern MidiDeviceMap MidiDevices;
 extern MusicVolumeMap MusicVolumes;
 
-class MusInfo;
 struct MusPlayingInfo
 {
 	FString name;
-	MusInfo* handle;
+	ZMusic_MusicStream handle;
 	int   baseorder;
 	bool  loop;
 	FString	 LastSong;			// last music that was played

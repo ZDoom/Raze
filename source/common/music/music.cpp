@@ -35,7 +35,7 @@
 **
 */
 
-#include "zmusic/zmusic.h"
+#include <zmusic.h>
 #include "z_music.h"
 #include "zstring.h"
 #include "backend/i_sound.h"
@@ -220,8 +220,9 @@ static bool FillStream(SoundStream* stream, void* buff, int len, void* userdata)
 void S_CreateStream()
 {
 	if (!mus_playing.handle) return;
-	auto fmt = ZMusic_GetStreamInfo(mus_playing.handle);
-	if (fmt.mBufferSize > 0)
+	SoundStreamInfo fmt;
+	ZMusic_GetStreamInfo(mus_playing.handle, &fmt);
+	if (fmt.mBufferSize > 0) // if buffer size is 0 the library will play the song itself (e.g. Windows system synth.)
 	{
 		int flags = fmt.mNumChannels < 0 ? 0 : SoundStream::Float;
 		if (abs(fmt.mNumChannels) < 2) flags |= SoundStream::Mono;
@@ -252,7 +253,7 @@ void S_StopStream()
 //
 //==========================================================================
 
-static void S_StartMusicPlaying(MusInfo* song, bool loop, float rel_vol, int subsong)
+static bool S_StartMusicPlaying(ZMusic_MusicStream song, bool loop, float rel_vol, int subsong)
 {
 	if (rel_vol > 0.f)
 	{
@@ -261,10 +262,14 @@ static void S_StartMusicPlaying(MusInfo* song, bool loop, float rel_vol, int sub
 		I_SetRelativeVolume(saved_relative_volume * factor);
 	}
 	ZMusic_Stop(song);
-	ZMusic_Start(song, subsong, loop);
+	if (!ZMusic_Start(song, subsong, loop))
+	{
+		return false;
+	}
 
 	// Notify the sound system of the changed relative volume
 	mus_volume.Callback();
+	return true;
 }
 
 
@@ -338,11 +343,11 @@ bool S_ChangeCDMusic (int track, unsigned int id, bool looping)
 
 	if (id != 0)
 	{
-		snprintf (temp, countof(temp), ",CD,%d,%x", track, id);
+		mysnprintf (temp, countof(temp), ",CD,%d,%x", track, id);
 	}
 	else
 	{
-		snprintf (temp, countof(temp), ",CD,%d", track);
+		mysnprintf (temp, countof(temp), ",CD,%d", track);
 	}
 	return S_ChangeMusic (temp, 0, looping);
 }
@@ -387,8 +392,8 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 
 	if (!mus_playing.name.IsEmpty() &&
 		mus_playing.handle != nullptr &&
-		stricmp(mus_playing.name, musicname) == 0 &&
-		ZMusic_IsLooping(mus_playing.handle) == looping)
+		stricmp (mus_playing.name, musicname) == 0 &&
+		ZMusic_IsLooping(mus_playing.handle) == zmusic_bool(looping))
 	{
 		if (order != mus_playing.baseorder)
 		{
@@ -399,38 +404,39 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		}
 		else if (!ZMusic_IsPlaying(mus_playing.handle))
 		{
-			try
+			if (!ZMusic_Start(mus_playing.handle, looping, order))
 			{
-				ZMusic_Start(mus_playing.handle, looping, order);
-				S_CreateStream();
+				Printf("Unable to start %s: %s\n", mus_playing.name.GetChars(), ZMusic_GetLastError());
 			}
-			catch (const std::runtime_error & err)
-			{
-				Printf("Unable to start %s: %s\n", mus_playing.name.GetChars(), err.what());
-			}
+			S_CreateStream();
 
 		}
 		return true;
 	}
 
-	if (strnicmp(musicname, ",CD,", 4) == 0)
+	if (strnicmp (musicname, ",CD,", 4) == 0)
 	{
-		int track = strtoul(musicname + 4, nullptr, 0);
-		const char* more = strchr(musicname + 4, ',');
+		int track = strtoul (musicname+4, nullptr, 0);
+		const char *more = strchr (musicname+4, ',');
 		unsigned int id = 0;
 
 		if (more != nullptr)
 		{
-			id = strtoul(more + 1, nullptr, 16);
+			id = strtoul (more+1, nullptr, 16);
 		}
 		S_StopMusic (true);
 		mus_playing.handle = ZMusic_OpenCDSong (track, id);
+		if (mus_playing.handle == nullptr)
+		{
+			Printf("Unable to start CD Audio for track #%d, ID %d\n", track, id);
+		}
 	}
 	else
 	{
 		int lumpnum = -1;
-		MusInfo* handle = nullptr;
-		MidiDeviceSetting* devp = MidiDevices.CheckKey(musicname);
+		int length = 0;
+		ZMusic_MusicStream handle = nullptr;
+		MidiDeviceSetting *devp = MidiDevices.CheckKey(musicname);
 
 		// Strip off any leading file:// component.
 		if (strncmp(musicname, "file://", 7) == 0)
@@ -461,14 +467,11 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		}
 		else
 		{
-			try
+			auto mreader = GetMusicReader(reader);	// this passes the file reader to the newly created wrapper.
+			mus_playing.handle = ZMusic_OpenSong(mreader, devp? (EMidiDevice)devp->device : MDEV_DEFAULT, devp? devp->args.GetChars() : "");
+			if (mus_playing.handle == nullptr)
 			{
-				auto mreader = new FileReaderMusicInterface(reader);
-				mus_playing.handle = ZMusic_OpenSong(mreader, devp ? (EMidiDevice)devp->device : MDEV_DEFAULT, devp ? devp->args.GetChars() : "");
-			}
-			catch (const std::runtime_error & err)
-			{
-				Printf("Unable to load %s: %s\n", mus_playing.name.GetChars(), err.what());
+				Printf("Unable to load %s: %s\n", mus_playing.name.GetChars(), ZMusic_GetLastError());
 			}
 		}
 	}
@@ -480,17 +483,15 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 
 	if (mus_playing.handle != 0)
 	{ // play it
-		try
+		auto volp = MusicVolumes.CheckKey(musicname);
+		float vol = volp ? *volp : 1.f;
+		if (!S_StartMusicPlaying(mus_playing.handle, looping, vol, order))
 		{
-			auto vol = MusicVolumes.CheckKey(musicname);
-			S_StartMusicPlaying(mus_playing.handle, looping, vol? *vol : 1.f, order);
-			S_CreateStream();
-			mus_playing.baseorder = order;
+			Printf("Unable to start %s: %s\n", mus_playing.name.GetChars(), ZMusic_GetLastError());
+			return false;
 		}
-		catch (const std::runtime_error & err)
-		{
-			Printf("Unable to start %s: %s\n", mus_playing.name.GetChars(), err.what());
-		}
+		S_CreateStream();
+		mus_playing.baseorder = order;
 		return true;
 	}
 	return false;
@@ -521,7 +522,7 @@ void S_RestartMusic ()
 
 void S_MIDIDeviceChanged(int newdev)
 {
-	MusInfo* song = mus_playing.handle;
+	auto song = mus_playing.handle;
 	if (song != nullptr && ZMusic_IsMIDI(song) && ZMusic_IsPlaying(song))
 	{
 		// Reload the song to change the device
