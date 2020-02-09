@@ -214,7 +214,7 @@ int hud_statusbarrange;	// will be set by the game's configuration setup.
 CUSTOM_CVARD(Int, hud_custom, 0, CVAR_ARCHIVE|CVAR_NOINITCALL, "change the custom hud") // this has no backing implementation, it seems to be solely for scripted HUDs.
 {
 	if (self < 0) self = 0;
-	else if (self >= hud_statusbarrange) self = hud_statusbarrange - 1;
+	else if (self > 0 && self >= hud_statusbarrange) self = hud_statusbarrange - 1;
 }
 
 CVARD(Bool, hud_stats, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable level statistics display")
