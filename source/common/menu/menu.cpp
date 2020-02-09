@@ -922,6 +922,7 @@ void M_Drawer (void)
 
 void M_ClearMenus (bool final)
 {
+	if (menuactive == MENU_Off) return;
 	M_DemoNoPlay = false;
 	transition.previous = transition.current = nullptr;
 	transition.dir = 0;
@@ -937,8 +938,8 @@ void M_ClearMenus (bool final)
 	menuactive = MENU_Off;
 	if (!final)
 	{
-	mouseGrabInput(true);
-	gi->MenuClosed();
+		mouseGrabInput(true);
+		gi->MenuClosed();
 	}
 }
 
