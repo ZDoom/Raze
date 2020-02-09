@@ -157,9 +157,6 @@ void gltexapplyprops(void)
 
 //--------------------------------------------------------------------------------------------------
 
-float glox1;
-static float gloy1, glox2, gloy2, gloyxscale, gloxyaspect, glohoriz2, glohorizcorrect, glotang;
-
 //Use this for both initialization and uninitialization of OpenGL.
 static int32_t gltexcacnum = -1;
 
@@ -218,8 +215,6 @@ void polymost_glreset()
 		delete polymosttext;
     polymosttext=nullptr;
 
-    glox1 = -1;
-
 #ifdef DEBUGGINGAIDS
     OSD_Printf("polymost_glreset()\n");
 #endif
@@ -254,42 +249,29 @@ static void resizeglcheck(void)
 		GLInterface.ClearScreen(0xffffff, true);
     }
 
-    if ((glox1 != windowxy1.x) || (gloy1 != windowxy1.y) || (glox2 != windowxy2.x) || (gloy2 != windowxy2.y) || (gloxyaspect != gxyaspect) || (gloyxscale != gyxscale) || (glohoriz2 != ghoriz2) || (glohorizcorrect != ghorizcorrect) || (glotang != gtang))
-    {
-        const int32_t ourxdimen = (windowxy2.x-windowxy1.x+1);
-        float ratio = 1;
-        const int32_t fovcorrect = (int32_t)(ourxdimen*ratio - ourxdimen);
+    const int32_t ourxdimen = (windowxy2.x-windowxy1.x+1);
+    float ratio = 1;
+    const int32_t fovcorrect = (int32_t)(ourxdimen*ratio - ourxdimen);
 
-        ratio = 1.f/ratio;
+    ratio = 1.f/ratio;
 
-        glox1 = (float)windowxy1.x; gloy1 = (float)windowxy1.y;
-        glox2 = (float)windowxy2.x; gloy2 = (float)windowxy2.y;
+	GLInterface.SetViewport(windowxy1.x-(fovcorrect/2), ydim-(windowxy2.y+1),
+                ourxdimen+fovcorrect, windowxy2.y-windowxy1.y+1);
 
-		GLInterface.SetViewport(windowxy1.x-(fovcorrect/2), ydim-(windowxy2.y+1),
-                    ourxdimen+fovcorrect, windowxy2.y-windowxy1.y+1);
+    float m[4][4]{};
 
-        float m[4][4];
-        Bmemset(m,0,sizeof(m));
+    float const nearclip = 4.0f / (gxyaspect * gyxscale * 1024.f);
+    float const farclip = 64.f;
 
-        float const nearclip = 4.0f / (gxyaspect * gyxscale * 1024.f);
-        float const farclip = 64.f;
-
-        gloxyaspect = gxyaspect;
-        gloyxscale = gyxscale;
-        glohoriz2 = ghoriz2;
-        glohorizcorrect = ghorizcorrect;
-        glotang = gtang;
-
-        m[0][0] = 1.f;
-        m[1][1] = fxdimen / (fydimen * ratio);
-        m[2][0] = 2.f * ghoriz2 * gstang / fxdimen;
-        m[2][1] = 2.f * (ghoriz2 * gctang + ghorizcorrect) / fydimen;
-        m[2][2] = (farclip + nearclip) / (farclip - nearclip);
-        m[2][3] = 1.f;
-        m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
-		GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
-		GLInterface.SetIdentityMatrix(Matrix_Model);
-    }
+    m[0][0] = 1.f;
+    m[1][1] = fxdimen / (fydimen * ratio);
+    m[2][0] = 2.f * ghoriz2 * gstang / fxdimen;
+    m[2][1] = 2.f * (ghoriz2 * gctang + ghorizcorrect) / fydimen;
+    m[2][2] = (farclip + nearclip) / (farclip - nearclip);
+    m[2][3] = 1.f;
+    m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
+	GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
+	GLInterface.SetIdentityMatrix(Matrix_Model);
 }
 
 void uploadbasepalette(int32_t basepalnum)
@@ -4562,12 +4544,10 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
     {
 		GLInterface.SetViewport(windowxy1.x, ydim-(windowxy2.y+1), windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
-        glox1 = -1;
     }
     else
     {
 		GLInterface.SetViewport(0, 0, xdim, ydim);
-        glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
     }
 
     {

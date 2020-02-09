@@ -10137,8 +10137,6 @@ void videoClearScreen(int32_t dacol)
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        glox1 = -1;
-
         palette_t const p = paletteGetColor(dacol);
         GLInterface.ClearScreen(PalEntry(255, p.r, p.g, p.b));
         return;

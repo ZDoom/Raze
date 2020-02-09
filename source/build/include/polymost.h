@@ -14,7 +14,6 @@ typedef struct { float r, g, b, a; } coltypef;
 extern bool playing_rr;
 extern int32_t rendmode;
 extern float gtang;
-extern float glox1;
 extern double gxyaspect;
 extern float grhalfxdown10x;
 extern float gcosang, gsinang, gcosang2, gsinang2;
