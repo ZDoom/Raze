@@ -5018,7 +5018,8 @@ static void P_ProcessWeapon(int playerNum)
                     case PISTOL_WEAPON__STATIC:
                         if (pPlayer->ammo_amount[PISTOL_WEAPON] > 0)
                         {
-                            pPlayer->ammo_amount[PISTOL_WEAPON]--;
+                            if (!WW2GI)
+                                pPlayer->ammo_amount[PISTOL_WEAPON]--;
                             (*weaponFrame) = 1;
                             if (WW2GI && PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
                                 A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
@@ -5875,7 +5876,7 @@ static void P_ProcessWeapon(int playerNum)
 
                 if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_CHECKATRELOAD)
                 {
-                    if (*weaponFrame >= PWEAPON(playerNum, pPlayer->curr_weapon, Reload))
+                    if (*weaponFrame == PWEAPON(playerNum, pPlayer->curr_weapon, Reload))
                         P_CheckWeapon(pPlayer);
                 }
 
