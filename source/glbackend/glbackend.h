@@ -513,6 +513,12 @@ public:
 		renderState.AlphaThreshold = al;
 	}
 
+	int LookupPalette(int palette, int palswap, bool brightmap, bool nontransparent255 = false)
+	{
+		return palmanager.LookupPalette(palette, palswap, brightmap, nontransparent255);
+	}
+	const PalEntry* GetPaletteData(int palid) const { return palmanager.GetPaletteData(palid); }
+
 
 	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
 	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);

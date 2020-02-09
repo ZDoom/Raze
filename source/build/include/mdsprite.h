@@ -193,8 +193,7 @@ struct voxmodel_t : public mdmodel_t
     vec3_t siz;
     vec3f_t piv;
     int32_t is8bit;
-	FHardwareTexture* texid[256] = { 0 };
-
+    TMap<int, FHardwareTexture*> *texIds;
 };
 
 EXTERN mdmodel_t **models;

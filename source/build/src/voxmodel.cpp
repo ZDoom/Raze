@@ -35,7 +35,7 @@ static voxmodel_t *gvox;
 
 
 //pitch must equal xsiz*4
-static FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
+static FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, const PalEntry *paldata)
 {
     // Correct for GL's RGB order; also apply gamma here:
     const coltype *const pic = (const coltype *)picbuf;
@@ -53,16 +53,13 @@ static FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t y
     }
     else
     {
-        if (palookup[dapal] == NULL)
-            dapal = 0;
-
         for (bssize_t i=xsiz*ysiz-1; i>=0; i--)
         {
-            const int32_t ii = palookup[dapal][pic[i].a];
+            const int32_t ii = pic[i].a;
 
-            pic2[i].r = curpalette[ii].b;
-            pic2[i].g = curpalette[ii].g;
-            pic2[i].b = curpalette[ii].r;
+            pic2[i].r = paldata[ii].b;
+            pic2[i].g = paldata[ii].g;
+            pic2[i].b = paldata[ii].r;
             pic2[i].a = 255;
         }
     }
@@ -844,10 +841,16 @@ void voxfree(voxmodel_t *m)
 
     DO_FREE_AND_NULL(m->mytex);
     DO_FREE_AND_NULL(m->quad);
-    for (auto& tex : m->texid)
+
+    if (m->texIds)
     {
-        if (tex) delete tex;
-        tex = nullptr;
+        TMap<int, FHardwareTexture*>::Iterator it(*m->texIds);
+        TMap<int, FHardwareTexture*>::Pair* pair;
+        while (it.NextPair(pair))
+        {
+            if (pair->Value) delete pair->Value;
+        }
+        delete m->texIds;
     }
 
     Xfree(m);
@@ -1133,10 +1136,22 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     int prevClamp = GLInterface.GetClamp();
 	GLInterface.SetClamp(0);
 #if 1
-    if (!m->texid[globalpal])
-        m->texid[globalpal] = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, globalpal);
+    int palId = GLInterface.LookupPalette(curbasepal, globalpal, false);
+    auto palette = GLInterface.GetPaletteData(palId);
+    if (!m->texIds) m->texIds = new TMap<int, FHardwareTexture*>;
+    auto pTex = m->texIds->CheckKey(palId);
+    FHardwareTexture* htex;
+    if (!pTex)
+    {
+        htex = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, palette);
+        m->texIds->Insert(palId, htex);
+    }
+    else
+    {
+        htex = *pTex;
+    }
 
-	GLInterface.BindTexture(0, m->texid[globalpal], -1);
+	GLInterface.BindTexture(0, htex, -1);
 	GLInterface.UseBrightmaps(false);
 	GLInterface.UseGlowMapping(false);
 	GLInterface.UseDetailMapping(false);
