@@ -174,7 +174,6 @@ find_package( BZip2 )
 find_package( JPEG )
 find_package( VPX )
 find_package( ZLIB )
-find_package( ZMusic )
 
 include( TargetArch )
 
