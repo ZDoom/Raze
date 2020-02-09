@@ -140,7 +140,7 @@ void UserConfig::ProcessOptions()
 	{
 		auto val = strtol(v, nullptr, 0);
 		static const char* const addons[] = { "DUKE3D.GRP", "DUKEDC.GRP", "NWINTER.GRP", "VACATION.GRP" };
-		if (val > 0 && val < 4) gamegrp = addons[val];
+		if (val >= 0 && val < 4) gamegrp = addons[val];
 		else initprintf("%s: Unknown Addon\n", v);
 	}
 	else if (Args->CheckParm("-nam"))
