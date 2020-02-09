@@ -1439,7 +1439,8 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             vec2_t const  clipr  = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
             int64_t const templl = compat_maybe_truncate_to_int32((int64_t)clipr.x * clipr.x + (int64_t)clipr.y * clipr.y);
 
-            if (templl > 0)
+            if (templl > 0 && templl <= INT32_MAX) // without the upper bounds check this code misbehaves and occasionally makes the player move backwards. 
+                                                   // This hints at another overflow problem elsewhere... 
             {
                 int64_t const templl2 = compat_maybe_truncate_to_int32((int64_t)(goal.x-vec.x)*clipr.x + (int64_t)(goal.y-vec.y)*clipr.y);
                 int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (llabs(templl2)>>11) < templl) ?
