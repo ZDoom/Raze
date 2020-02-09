@@ -51,12 +51,20 @@ jobs:
         if [[ ! -z "${{ matrix.config.deps_cmdline }}" ]]; then
           eval ${{ matrix.config.deps_cmdline }}
         fi
+        # Build and install ZMusic
+        mkdir build
+        cd build
+        git clone https://github.com/coelckers/ZMusic.git
+        cd ZMusic
+        git checkout 1.0.0
+        cd ..
+        cmake -B zmusic_build -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=`pwd`/zmusic_install ${{ matrix.config.extra_options }} ZMusic
+        cmake --build zmusic_build --target install --parallel 3
 
     - name: Configure
       shell: bash
       run: |
-        mkdir build
-        cmake -B build -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ${{ matrix.config.extra_options }} .
+        cmake -B build -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_PREFIX_PATH=`pwd`/build/zmusic_install ${{ matrix.config.extra_options }} .
 
     - name: Build
       shell: bash
