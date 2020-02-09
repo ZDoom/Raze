@@ -47,7 +47,7 @@ void hicsetpalettetint(int32_t palnum, int r, int g, int b, int sr, int sg, int 
     tint.shade.r = (uint8_t)sr;
     tint.shade.g = (uint8_t)sg;
     tint.shade.b = (uint8_t)sb;
-    tint.f = effect;
+    tint.f = effect|HICTINT_ENABLE;
 }
 
 
