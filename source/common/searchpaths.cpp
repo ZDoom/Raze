@@ -90,11 +90,11 @@ struct RegistryPathInfo
 };
 
 static const char * gameroot[] = { "/gameroot", nullptr};
-static const char * dukeaddons[] = { "/gameroot", "/gameroot/addons/dc", "/gameroot/addons/nw", "/gameroot/addons/vacation", nullptr};
+//static const char * dukeaddons[] = { "/gameroot", "/gameroot/addons/dc", "/gameroot/addons/nw", "/gameroot/addons/vacation", nullptr};
 static const char * dn3d[] = { "/Duke Nukem 3D", nullptr};
 static const char * nam[] = { "/NAM", nullptr};
 static const char * ww2gi[] = { "/WW2GI", nullptr};
-static const char * bloodfs[] = { "", R"(\addons\Cryptic Passage)", nullptr};
+static const char * bloodfs[] = { "", R"(/addons/Cryptic Passage)", nullptr};
 static const char * sw[] = { "/Shadow Warrior", nullptr};
 
 #ifndef _WIN64
@@ -113,7 +113,7 @@ static const RegistryPathInfo paths[] = {
 	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1740836875", L"path", nullptr},
 
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 434050", L"InstallLocation", nullptr },
-	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", L"InstallLocation", dukeaddons },
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", L"InstallLocation", gameroot },
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 359850", L"InstallLocation", dn3d },
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 329650", L"InstallLocation", nam },
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 376750", L"InstallLocation", ww2gi },
