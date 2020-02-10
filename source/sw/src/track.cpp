@@ -965,7 +965,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 // sector
 
                 // place all sprites on list
-                uint16_t sn;
+                int sn;
                 for (sn = 0; sn < (int)SIZ(sop->sp_num); sn++)
                 {
                     if (sop->sp_num[sn] == -1)

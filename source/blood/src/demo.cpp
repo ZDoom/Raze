@@ -287,7 +287,15 @@ void CDemo::ProcessKeys(void)
                     gViewIndex = connecthead;
                 gView = &gPlayer[gViewIndex];
                 break;
+
+            default:
+                if (!M_Active())
+                {
+                    M_StartControlPanel(true);
+                    M_SetMenu(NAME_MainMenu);
+                }
             }
+
         }
         break;
     default:
