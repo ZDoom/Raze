@@ -283,7 +283,7 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode);
 void playerSetGodMode(PLAYER *pPlayer, char bGodMode);
 void playerResetInertia(PLAYER *pPlayer);
 void        playerCorrectInertia(PLAYER *pPlayer, vec3_t const *oldpos);
-void playerStart(int nPlayer);
+void        playerStart(int nPlayer, int bNewLevel = 0);
 void playerReset(PLAYER *pPlayer);
 void playerInit(int nPlayer, unsigned int a2);
 char sub_3A158(PLAYER *a1, spritetype *a2);

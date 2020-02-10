@@ -640,7 +640,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
             }
             playerInit(i,0);
         }
-        playerStart(i);
+        playerStart(i, 1);
     }
     if (gameOptions->uGameFlags&1)
     {
