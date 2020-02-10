@@ -2772,6 +2772,7 @@ int32_t GameInterface::app_main()
         INITLIST(&Player[i].PanelSpriteList);
 
     DebugOperate = TRUE;
+    enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
 
     if (SW_SHAREWARE)
         buildputs("SHADOW WARRIOR(tm) Version 1.2 (Shareware Version)\n");
