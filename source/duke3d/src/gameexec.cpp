@@ -4175,7 +4175,7 @@ badindex:
                 int32_t nValue = 0;
                 insptr++;
 				FString section = currentGame + ".Gamevars";
-				GameConfig->SetSection(section);
+				GameConfig->SetSection(section, true);
                 switch (VM_DECODE_INST(tw))
                 {
                     case CON_SAVEGAMEVAR:
