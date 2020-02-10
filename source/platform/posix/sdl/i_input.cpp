@@ -237,7 +237,6 @@ static bool inGame()
 static void I_CheckNativeMouse ()
 {
 	bool focus = SDL_GetKeyboardFocus() != NULL;
-	bool fs = screen->IsFullscreen();
 
 	// TODO: We want this to check for demo playback, as well. And paused state
 	bool wantNative = !focus || (!use_mouse || GUICapture || !inGame());
