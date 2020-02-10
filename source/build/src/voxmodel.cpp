@@ -1151,6 +1151,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
         htex = *pTex;
     }
 
+    GLInterface.SetPalswap(globalpal);
 	GLInterface.BindTexture(0, htex, -1);
 	GLInterface.UseBrightmaps(false);
 	GLInterface.UseGlowMapping(false);
