@@ -655,10 +655,9 @@ CCMD(quicksave)
 		return;
 	}
 
-	gi->MenuSound(ActivateSound);
-
 	FString tempstring = GStrings("QSPROMPT");
 	tempstring.Substitute("%s", slot->SaveTitle.GetChars());
+	M_StartControlPanel(true);
 
 	DMenu* newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, tempstring, 0, INT_MAX, false, NAME_None, [](bool res)
 		{
