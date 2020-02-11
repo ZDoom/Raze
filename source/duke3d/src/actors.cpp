@@ -1656,11 +1656,11 @@ ACTOR_STATIC void G_MoveFallers(void)
                 else if (EDUKE32_PREDICT_FALSE(G_CheckForSpaceCeiling(pSprite->sectnum)))
                     spriteGravity = g_spriteGravity / 6;
 
-                if (pSprite->z < (sector[sectNum].floorz-ZOFFSET))
+                if (pSprite->z < (sector[sectNum].floorz-ACTOR_FLOOR_OFFSET))
                 {
                     pSprite->zvel += spriteGravity;
-                    if (pSprite->zvel > 6144)
-                        pSprite->zvel = 6144;
+                    if (pSprite->zvel > ACTOR_MAXFALLINGZVEL)
+                        pSprite->zvel = ACTOR_MAXFALLINGZVEL;
                     pSprite->z += pSprite->zvel;
                 }
 
@@ -2898,7 +2898,7 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
 
             pSprite->zvel -= pProj->drop;
 
-            if (pProj->workslike & PROJECTILE_SPIT && pSprite->zvel < 6144)
+            if (pProj->workslike & PROJECTILE_SPIT && pSprite->zvel < ACTOR_MAXFALLINGZVEL)
                 pSprite->zvel += g_spriteGravity - 112;
 
             A_GetZLimits(spriteNum);
@@ -3227,7 +3227,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     }
                 }
                 else if (pSprite->picnum == SPIT)
-                    if (pSprite->zvel < 6144)
+                    if (pSprite->zvel < ACTOR_MAXFALLINGZVEL)
                         pSprite->zvel += g_spriteGravity - 112;
 
                 if (moveSprite != 0)
@@ -4121,7 +4121,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
             if (pData[3] > 0)
             {
-                if (pSprite->zvel < 6144)
+                if (pSprite->zvel < ACTOR_MAXFALLINGZVEL)
                     pSprite->zvel += 192;
 
                 pSprite->z += pSprite->zvel;
@@ -4815,7 +4815,7 @@ ACTOR_STATIC void G_MoveActors(void)
             {
                 A_Fall(spriteNum);
 
-                if ((sector[sectNum].lotag != ST_1_ABOVE_WATER || actor[spriteNum].floorz != sector[sectNum].floorz) && pSprite->z >= actor[spriteNum].floorz-(ZOFFSET) && pSprite->yvel < 3)
+                if ((sector[sectNum].lotag != ST_1_ABOVE_WATER || actor[spriteNum].floorz != sector[sectNum].floorz) && pSprite->z >= actor[spriteNum].floorz-(ACTOR_FLOOR_OFFSET) && pSprite->yvel < 3)
                 {
                     if (pSprite->yvel > 0 || (pSprite->yvel == 0 && actor[spriteNum].floorz == sector[sectNum].floorz))
                         A_PlaySound(PIPEBOMB_BOUNCE,spriteNum);
@@ -5467,7 +5467,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                         }
                     }
 
-                    if (pSprite->zvel < 6144)
+                    if (pSprite->zvel < ACTOR_MAXFALLINGZVEL)
                     {
                         if (sector[sectNum].lotag == ST_2_UNDERWATER)
                         {
@@ -5648,7 +5648,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 if (sectNum < 0)
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
 
-                if (pSprite->z == actor[spriteNum].floorz-(ZOFFSET) && pData[0] < 3)
+                if (pSprite->z == actor[spriteNum].floorz-(ACTOR_FLOOR_OFFSET) && pData[0] < 3)
                 {
                     pSprite->zvel = -((3-pData[0])<<8)-(krand()&511);
                     if (sector[sectNum].lotag == ST_2_UNDERWATER)

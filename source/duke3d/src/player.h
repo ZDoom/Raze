@@ -40,7 +40,7 @@ extern int32_t g_mostConcurrentPlayers;
 #define HORIZ_MAX                   299
 #define AUTO_AIM_ANGLE              48
 #define PHEIGHT                     (38<<8)
-#define PCROUCHHEIGHT               ZOFFSET2
+#define PCROUCHHEIGHT               (16<<8)
 #define PCROUCHINCREMENT            (2048+768)
 #define PMINHEIGHT                  (2048)
 

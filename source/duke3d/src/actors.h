@@ -30,7 +30,7 @@ BEGIN_DUKE_NS
 
 #define MAXSLEEPDIST        16384
 #define SLEEPTIME           1536
-#define ZOFFSET             (1<<8)
+#define ACTOR_FLOOR_OFFSET  (1<<8)
 #define ZOFFSET2            (16<<8)
 #define ZOFFSET3            (8<<8)
 #define ZOFFSET4            (12<<8)
@@ -56,7 +56,7 @@ BEGIN_DUKE_NS
 #define STAT_FALLER         12
 #define STAT_DUMMYPLAYER    13
 #define STAT_LIGHT          14
-#define STAT_NETALLOC       MAXSTATUS-1
+#define STAT_NETALLOC       (MAXSTATUS-1)
 
 
 // Defines the motion characteristics of an actor

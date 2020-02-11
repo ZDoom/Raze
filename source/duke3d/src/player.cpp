@@ -5076,7 +5076,7 @@ void P_ProcessInput(int playerNum)
             S_StopEnvSound(-1, pPlayer->i, CHAN_VOICE);
 
             if ((sectorLotag != ST_1_ABOVE_WATER && sectorLotag != ST_2_UNDERWATER) &&
-                (pPlayer->on_ground == 0 && pPlayer->vel.z > (6144 >> 1)))
+                (pPlayer->on_ground == 0 && pPlayer->vel.z > (ACTOR_MAXFALLINGZVEL >> 1)))
                 pPlayer->hard_landing = pPlayer->vel.z>>10;
 
             pPlayer->on_ground = 1;
