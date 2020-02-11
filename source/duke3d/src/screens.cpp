@@ -1179,12 +1179,6 @@ void gameDisplay3DRScreen()
                     videoClearScreen(0);
                     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
                     gameHandleEvents();
-
-                    if (g_restorePalette)
-                    {
-                        P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
-                        g_restorePalette = 0;
-                    }
                     videoNextPage();
                 }
             }
@@ -1284,12 +1278,6 @@ void gameDisplayTitleScreen(void)
             g_elEventError = 0;
 #endif
             VM_OnEvent(EVENT_LOGO, -1, screenpeek);
-
-            if (g_restorePalette)
-            {
-                P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
-                g_restorePalette = 0;
-            }
 
             videoNextPage();
 
@@ -1436,7 +1424,7 @@ static void G_BonusCutscenes(void)
                 350, 380, VICTORY1+8, 86, 59 // duplicate row to alleviate overflow in the for loop below "boss"
             };
 
-            P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, Pal_2D); // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, Pal_Fullscreen); // JBF 20040308
             videoClearScreen(0L);
             rotatesprite_fs(0, 50<<16, 65536L, 0, VICTORY1, 0, 0, 2+8+16+64+128+BGSTRETCH);
             videoNextPage();
