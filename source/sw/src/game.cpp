@@ -1249,7 +1249,7 @@ TerminateLevel(void)
     // Clear the tracks
     memset(Track, 0, sizeof(Track));
 
-    StopSound();
+    StopFX();
     
     // Clear all anims and any memory associated with them
     // Clear before killing sprites - save a little time
