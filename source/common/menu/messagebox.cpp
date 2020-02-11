@@ -400,7 +400,8 @@ CCMD (menu_endgame)
 	}
 		
 	M_StartControlPanel (true);
-	FString tempstring = GStrings("ENDGAME");
+	FString tempstring;
+	tempstring << GStrings("ENDGAME") << "\n\n" << GStrings("PRESSYN");
 	DMenu* newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, tempstring, 0, 501, false, NAME_None, [](bool res)
 		{
 			if (res)
@@ -424,8 +425,8 @@ CCMD (menu_quit)
 
 	M_StartControlPanel (true);
 
-	FString EndString = GStrings("CONFIRM_QUITMSG");
-	EndString << "\n[Y/N]";
+	FString EndString;
+	EndString << GStrings("CONFIRM_QUITMSG") << "\n\n" << GStrings("PRESSYN");
 
 	DMenu *newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, EndString, 0, 500, false, NAME_None, [](bool res)
 	{
