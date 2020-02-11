@@ -267,6 +267,7 @@ static tokenmap_t const vm_keywords[] =
     { "getactorvar",            CON_GETACTORVAR },
     { "getangle",               CON_GETANGLE },
     { "getangletotarget",       CON_GETANGLETOTARGET },
+    { "getarraysequence",       CON_GETARRAYSEQUENCE },
     { "getarraysize",           CON_GETARRAYSIZE },
     { "getceilzofslope",        CON_GETCEILZOFSLOPE },
     { "getclosestcol",          CON_GETCLOSESTCOL },
@@ -480,6 +481,7 @@ static tokenmap_t const vm_keywords[] =
     { "setactorsoundpitch",     CON_SETACTORSOUNDPITCH },
     { "setactorvar",            CON_SETACTORVAR },
     { "setarray",               CON_SETARRAY },
+    { "setarraysequence",       CON_SETARRAYSEQUENCE },
     { "setaspect",              CON_SETASPECT },
     { "setcfgname",             CON_SETCFGNAME },
     { "setdefname",             CON_SETDEFNAME },
@@ -621,6 +623,7 @@ static tokenmap_t const vm_keywords[] =
     { "getw",                   CON_GETWALL },
     { "getu",                   CON_GETUSERDEF },
     { "geti",                   CON_GETINPUT },
+    { "getarrayseq",            CON_GETARRAYSEQUENCE },
 
     { "setp",                   CON_SETPLAYER },
     { "setpv",                  CON_SETPLAYERVAR },
@@ -630,6 +633,7 @@ static tokenmap_t const vm_keywords[] =
     { "setw",                   CON_SETWALL },
     { "setu",                   CON_SETUSERDEF },
     { "seti",                   CON_SETINPUT },
+    { "setarrayseq",            CON_SETARRAYSEQUENCE },
 
     { "string",                 CON_DEFINEQUOTE },
     { "print",                  CON_QUOTE },
@@ -3770,6 +3774,28 @@ setvarvar:
             C_SkipComments();
             C_GetNextVarType(GAMEVAR_READONLY);
             continue;
+
+        case CON_GETARRAYSEQUENCE:
+        case CON_SETARRAYSEQUENCE:
+        {
+            i = C_GetNextGameArrayName();
+            if (EDUKE32_PREDICT_FALSE(i < 0))
+                return 1;
+            C_SkipComments();
+
+            auto pSize = g_scriptPtr++;
+
+            for (j = 0; j < MAX_ARRAYRANGE_VALUES; ++j)
+            {
+                if (C_GetKeyword() != -1)
+                    break;
+
+                C_GetNextVarType(tw == CON_GETARRAYSEQUENCE ? GAMEVAR_READONLY : 0);
+            }
+
+            scriptWriteAtOffset(j, pSize);
+            continue;
+        }
 
         case CON_RESIZEARRAY:
             i = C_GetNextGameArrayName();

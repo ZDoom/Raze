@@ -5586,6 +5586,44 @@ badindex:
                     dispatch();
                 }
 
+            vInstruction(CON_GETARRAYSEQUENCE):
+            {
+                insptr++;
+                int32_t const arrayNum = *insptr++;
+                int32_t const arraySize = (aGameArrays[arrayNum].flags & GAMEARRAY_VARSIZE) ? Gv_GetVar(aGameArrays[arrayNum].size) : aGameArrays[arrayNum].size;
+                int32_t const sequenceSize = *insptr++;
+                int32_t const copySize = min(sequenceSize, arraySize); // warning?
+                auto const insptrbak = insptr;
+
+                for (int arrayIndex = 0; arrayIndex < copySize; ++arrayIndex)
+                {
+                    int32_t const gameVar = *insptr++;
+                    int32_t const newValue = Gv_GetArrayValue(arrayNum, arrayIndex);
+                    Gv_SetVar(gameVar, newValue);
+                }
+
+                insptr = insptrbak + sequenceSize;
+                dispatch();
+            }
+
+            vInstruction(CON_SETARRAYSEQUENCE):
+            {
+                insptr++;
+                int32_t const arrayNum = *insptr++;
+                int32_t const sequenceSize = *insptr++;
+
+                ResizeArray(arrayNum, sequenceSize);
+
+                for (int arrayIndex = 0; arrayIndex < sequenceSize; ++arrayIndex)
+                {
+                    int32_t const gameVar = *insptr++;
+                    int32_t const newValue = Gv_GetVar(gameVar);
+                    SetArray(arrayNum, arrayIndex, newValue);
+                }
+
+                dispatch();
+            }
+
             vInstruction(CON_READARRAYFROMFILE):
                 insptr++;
                 {

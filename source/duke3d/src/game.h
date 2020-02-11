@@ -136,6 +136,7 @@ static inline int32_t G_GetLogoFlags(void)
 
 #define MAX_RETURN_VALUES 6
 
+#define MAX_ARRAYRANGE_VALUES 32
 typedef struct {
     vec3_t camerapos;
     int32_t const_visibility,uw_framerate;
