@@ -95,43 +95,7 @@ void Menu_Init(void)
 	if (!minitext_lowercase)
 		MF_Minifont.textflags |= TEXT_UPPERCASE;
 
-#if 0
 
-	// prepare sound setup
-#ifndef EDUKE32_STANDALONE
-	if (WW2GI)
-		ME_SOUND_DUKETALK.name = "GI talk:";
-	else if (NAM)
-		ME_SOUND_DUKETALK.name = "Grunt talk:";
-#endif
-
-
-	// prepare shareware
-	if (VOLUMEONE)
-	{
-		// blue out episodes beyond the first
-		for (i = 1; i < g_volumeCnt; ++i)
-		{
-			if (MEL_EPISODE[i])
-			{
-				ME_EPISODE[i].entry = &MEO_EPISODE_SHAREWARE;
-				ME_EPISODE[i].flags |= MEF_LookDisabled;
-			}
-		}
-		M_EPISODE.numEntries = g_volumeCnt; // remove User Map (and spacer)
-		MEOS_NETOPTIONS_EPISODE.numOptions = 1;
-		MenuEntry_DisableOnCondition(&ME_NETOPTIONS_EPISODE, 1);
-	}
-
-	// prepare pre-Atomic
-	if (!VOLUMEALL || !PLUTOPAK)
-	{
-		// prepare credits
-		M_CREDITS.title = M_CREDITS2.title = M_CREDITS3.title = s_Credits;
-	}
-
-
-#endif
 }
 
 static void Menu_DrawBackground(const DVector2 &origin)
@@ -480,23 +444,26 @@ void GameInterface::MenuSound(EMenuSounds snd)
 {
 	switch (snd)
 	{
-		case CursorSound:
-			S_PlaySound(KICK_HIT, CHAN_AUTO, CHANF_UI);
-			break;
+	case ActivateSound:
+		S_MenuSound();
+		break;
 
-		case AdvanceSound:
-			S_PlaySound(PISTOL_BODYHIT, CHAN_AUTO, CHANF_UI);
-			break;
-			
-		case CloseSound:
-			S_PlaySound(EXITMENUSOUND, CHAN_AUTO, CHANF_UI);
-			break;
+	case CursorSound:
+		S_PlaySound(KICK_HIT, CHAN_AUTO, CHANF_UI);
+		break;
 
-		default:
-			return;
+	case AdvanceSound:
+		S_PlaySound(PISTOL_BODYHIT, CHAN_AUTO, CHANF_UI);
+		break;
+
+	case CloseSound:
+		S_PlaySound(EXITMENUSOUND, CHAN_AUTO, CHANF_UI);
+		break;
+
+	default:
+		return;
 	}
 }
-
 
 void GameInterface::MenuClosed()
 {
@@ -594,7 +561,6 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_DN3D, MINSAVEVER_DN3D, SAVEVER_DN3D };
 }
 
-
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
 	Menu_DrawTopBar(origin);
@@ -623,7 +589,7 @@ static void shadowminitext(int32_t x, int32_t y, const char* t, int32_t p)
 // with custom implementations.
 //
 // This is needed because the credits screens in Duke Nukem
-// are eithrr done by providing an image or by printing text, based on the version used.
+// are either done by providing an image or by printing text, based on the version used.
 //
 //----------------------------------------------------------------------------
 

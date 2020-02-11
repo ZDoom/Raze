@@ -551,7 +551,7 @@ void S_MenuSound(void)
     };
     int s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, FURY ? -1 : menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
     if (s != -1)
-        S_PlaySound(s);
+        S_PlaySound(s, CHAN_AUTO, CHANF_UI);
 }
 
 //==========================================================================

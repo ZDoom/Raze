@@ -550,7 +550,7 @@ void S_MenuSound(void)
     };
     int s = RR ? 390 : menusnds[SoundNum++ % ARRAY_SIZE(menusnds)];
     if (s != -1)
-        S_PlaySound(s);
+        S_PlaySound(s, CHAN_AUTO, CHANF_UI);
 }
 
 //==========================================================================

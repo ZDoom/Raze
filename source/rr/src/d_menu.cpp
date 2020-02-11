@@ -96,25 +96,7 @@ void Menu_Init(void)
 	if (!minitext_lowercase)
 		MF_Minifont.textflags |= TEXT_UPPERCASE;
 
-#if 0
 
-	// prepare sound setup
-#ifndef EDUKE32_STANDALONE
-	if (WW2GI)
-		ME_SOUND_DUKETALK.name = "GI talk:";
-	else if (NAM)
-		ME_SOUND_DUKETALK.name = "Grunt talk:";
-	ME_SOUND_DUKETALK.name = "Leonard Talk:";
-
-#endif
-
-	// prepare pre-Atomic
-	if (!VOLUMEALL || !PLUTOPAK)
-	{
-		// prepare credits
-		M_CREDITS.title = M_CREDITS2.title = M_CREDITS3.title = s_Credits;
-	}
-#endif
 	
     if (RR)
     {
@@ -175,7 +157,8 @@ static void Menu_GetFmt(const MenuFont_t* font, uint8_t const status, int32_t* s
 static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t* font, const char* t, uint8_t status, int32_t ydim_upper, int32_t ydim_lower)
 {
 	int32_t s, p, ybetween = font->between.y;
-	int32_t f = font->textflags | TEXT_RRMENUTEXTHACK;
+	int32_t f = font->textflags;
+	if (RR) f |= TEXT_RRMENUTEXTHACK;
 	if (status & MT_XCenter)
 		f |= TEXT_XCENTER;
 	if (status & MT_XRight)
@@ -287,9 +270,20 @@ class RedneckMainMenu : public RedneckListMenu
 	{
 		RedneckListMenu::PreDraw();
 		if (RRRA)
+		{
 			rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER - 5) << 16), int(origin.Y * 65536) + ((57) << 16), 16592L, 0, THREEDEE, 0, 0, 10);
-		else
+		}
+		else if (RR)
+		{
 			rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER + 5) << 16), int(origin.Y * 65536) + ((24) << 16), 23592L, 0, INGAMEDUKETHREEDEE, 0, 0, 10);
+		}
+		else
+        {
+            rotatesprite_fs(int(origin.X * 65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y * 65536) + ((28)<<16), 65536L,0,INGAMEDUKETHREEDEE,0,0,10);
+            if (PLUTOPAK)   // JBF 20030804
+                rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER+100)<<16), int(origin.Y * 65536) + (36<<16), 65536L,0,PLUTOPAKSPRITE+2,(sintable[((int32_t) totalclock<<4)&2047]>>11),0,2+8);
+        }
+		
 	}
 };
 
@@ -338,7 +332,6 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 
 }
 
-
 void GameInterface::MenuOpened()
 {
 	S_PauseSounds(true);
@@ -360,20 +353,24 @@ void GameInterface::MenuSound(EMenuSounds snd)
 {
 	switch (snd)
 	{
-		case CursorSound:
-			S_PlaySound(RR ? 335 : KICK_HIT, CHAN_AUTO, CHANF_UI);
-			break;
+	case ActivateSound:
+		S_MenuSound();
+		break;
 
-		case AdvanceSound:
-			S_PlaySound(RR? 341 : PISTOL_BODYHIT, CHAN_AUTO, CHANF_UI);
-			break;
-			
-		case CloseSound:
-			S_PlaySound(EXITMENUSOUND, CHAN_AUTO, CHANF_UI);
-			break;
+	case CursorSound:
+		S_PlaySound(RR ? 335 : KICK_HIT, CHAN_AUTO, CHANF_UI);
+		break;
 
-		default:
-			return;
+	case AdvanceSound:
+		S_PlaySound(RR ? 341 : PISTOL_BODYHIT, CHAN_AUTO, CHANF_UI);
+		break;
+
+	case CloseSound:
+		S_PlaySound(EXITMENUSOUND, CHAN_AUTO, CHANF_UI);
+		break;
+
+	default:
+		return;
 	}
 }
 
@@ -426,19 +423,19 @@ void GameInterface::StartGame(FGameStartup& gs)
 	switch (gs.Skill)
 	{
 	case 0:
-		skillsound = 427;
+		skillsound = RR? 427 : JIBBED_ACTOR6;
 		break;
 	case 1:
-		skillsound = 428;
+		skillsound = RR? 428 : BONUS_SPEECH1;
 		break;
 	case 2:
-		skillsound = 196;
+		skillsound = RR? 196 : DUKE_GETWEAPON2;
 		break;
 	case 3:
-		skillsound = 195;
+		skillsound = RR? 195 : JIBBED_ACTOR5;
 		break;
 	case 4:
-		skillsound = 197;
+		skillsound = RR? 197 : JIBBED_ACTOR5; // Does not exist in DN3D.
 		break;
 	}
 
@@ -485,6 +482,7 @@ void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *t
 		for (int i = 0; text[i]; i++) if (text[i] == '\n') lines++;
 		int height = lines * Menu_GetFontHeight(NIT_SmallFont);
 		position -= height >> 17;
+		if (!RR) Menu_DrawCursorLeft(160 << 16, 130 << 16, 65536);
 	}
 	G_ScreenText(MF_Bluefont.tilenum, int((origin.X + 160) * 65536), int((origin.Y + position) * 65536), MF_Bluefont.zoom, 0, 0, text, 0, MF_Bluefont.pal,
 		2 | 8 | 16 | ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y,
