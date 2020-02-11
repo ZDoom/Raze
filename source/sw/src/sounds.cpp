@@ -950,5 +950,10 @@ void StopSound(void)
     Mus_Stop();
 }
 
+void StopFX()
+{
+    if (soundEngine) soundEngine->StopAllChannels();
+}
+
 
 END_SW_NS
