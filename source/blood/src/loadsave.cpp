@@ -565,7 +565,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     }
     gFrameTicks = 0;
     gFrame = 0;
-    gCacheMiss = 0;
     gFrameRate = 0;
     totalclock = 0;
     gPaused = 0;
@@ -835,6 +834,7 @@ void ViewLoadSaveConstruct(void);
 void WarpLoadSaveConstruct(void);
 void WeaponLoadSaveConstruct(void);
 void NNLoadSaveConstruct(void);
+void ASoundLoadSaveConstruct(void);
 
 void LoadSaveSetup(void)
 {
@@ -854,6 +854,7 @@ void LoadSaveSetup(void)
     WarpLoadSaveConstruct();
     WeaponLoadSaveConstruct();
     NNLoadSaveConstruct();
+	ASoundLoadSaveConstruct();
 }
 
 END_BLD_NS

@@ -51,7 +51,6 @@ enum INPUT_MODE {
 };
 
 extern INPUT_MODE gInputMode;
-extern int32_t gNoSetup;
 extern short BloodVersion;
 extern int gNetPlayers;
 extern bool gRestartGame;
@@ -60,14 +59,10 @@ extern double g_gameUpdateTime, g_gameUpdateAndDrawTime;
 extern double g_gameUpdateAvgTime;
 extern int blood_globalflags;
 
-extern int gSaveGameNum;
 extern bool gPaused;
-extern bool gSaveGameActive;
 extern bool gSavingGame;
 extern bool gQuitGame;
 extern int gQuitRequest;
-extern int gCacheMiss;
-extern int gDoQuickSave;
 
 void QuitGame(void);
 void PreloadCache(void);

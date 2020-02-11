@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "resource.h"
 #include "sound.h"
+#include "loadsave.h"
 #include "sound/s_soundinternal.h"
 
 BEGIN_BLD_NS
@@ -150,5 +151,37 @@ void ambInit(void)
         sprite[nSprite].owner = i;
     }
 }
+
+class ASoundLoadSave : public LoadSave
+{
+    virtual void Load(void);
+    virtual void Save(void);
+};
+
+void ASoundLoadSave::Load(void)
+{
+	for (auto &amb : ambChannels)
+	{
+		Read(&amb.check, sizeof(amb.check));
+		amb.soundID = FSoundID(amb.check);
+		amb.distance = 0;
+	}
+}
+
+void ASoundLoadSave::Save(void)
+{
+	for (auto &amb : ambChannels)
+	{
+		Write(&amb.check, sizeof(amb.check));
+	}
+}
+
+static ASoundLoadSave *myLoadSave;
+
+void ASoundLoadSaveConstruct(void)
+{
+    myLoadSave = new ASoundLoadSave();
+}
+
 
 END_BLD_NS

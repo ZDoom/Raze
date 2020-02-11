@@ -77,8 +77,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-int32_t gNoSetup = 0, gCommandSetup = 0;
-
 INPUT_MODE gInputMode;
 
 #ifdef USE_QHEAP
@@ -103,12 +101,9 @@ int gChokeCounter = 0;
 double g_gameUpdateTime, g_gameUpdateAndDrawTime;
 double g_gameUpdateAvgTime = 0.001;
 
-int gSaveGameNum;
 bool gQuitGame;
 int gQuitRequest;
 bool gPaused;
-bool gSaveGameActive;
-int gCacheMiss;
 
 enum gametokens
 {
@@ -669,7 +664,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         sfxSetReverb(0);
     ambInit();
     sub_79760();
-    gCacheMiss = 0;
     gFrame = 0;
     gChokeCounter = 0;
 	if (!gDemo.at1)
@@ -719,7 +713,6 @@ void StartNetworkLevel(void)
     StartLevel(&gGameOptions);
 }
 
-int gDoQuickSave = 0;
 
 void LocalKeys(void)
 {

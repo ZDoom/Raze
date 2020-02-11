@@ -43,9 +43,7 @@ public:
         at14 = 0;
         at18 = 0;
     };
-    void sub_83F54(char *a1, int _x, int _y, void(*a2)(PLAYER*));
     void sub_83ff0(int a1, void(*a2)(PLAYER*));
-    void sub_84080(char *a1, void(*a2)(PLAYER*));
     void sub_84110(int x, int y);
     void sub_84218();
     char *at0;

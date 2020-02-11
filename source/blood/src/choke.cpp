@@ -36,26 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-void CChoke::sub_83F54(char *a1, int _x, int _y, void (*a2)(PLAYER*))
-{
-    at14 = _x;
-    at18 = _y;
-    at0 = a1;
-    at1c = a2;
-    if (!at4 && at0)
-    {
-        at4 = gSysRes.Lookup(at0, "QAV");
-        if (!at4)
-            ThrowError("Could not load QAV %s\n", at0);
-        at8 = (QAV*)gSysRes.Lock(at4);
-        at8->nSprite = -1;
-        at8->x = at14;
-        at8->y = at18;
-        at8->Preload();
-        sub_84218();
-    }
-}
-
 void CChoke::sub_83ff0(int a1, void(*a2)(PLAYER*))
 {
     at0 = NULL;
@@ -65,24 +45,6 @@ void CChoke::sub_83ff0(int a1, void(*a2)(PLAYER*))
         at4 = gSysRes.Lookup(a1, "QAV");
         if (!at4)
             ThrowError("Could not load QAV %d\n", a1);
-        at8 = (QAV*)gSysRes.Lock(at4);
-        at8->nSprite = -1;
-        at8->x = at14;
-        at8->y = at18;
-        at8->Preload();
-        sub_84218();
-    }
-}
-
-void CChoke::sub_84080(char *a1, void(*a2)(PLAYER*))
-{
-    at0 = a1;
-    at1c = a2;
-    if (!at4 && at0)
-    {
-        at4 = gSysRes.Lookup(at0, "QAV");
-        if (!at4)
-            ThrowError("Could not load QAV %s\n", at0);
         at8 = (QAV*)gSysRes.Lock(at4);
         at8->nSprite = -1;
         at8->x = at14;
