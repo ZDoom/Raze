@@ -160,7 +160,7 @@ bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int we
             if (weaponType == kGenDudeWeaponHitscan)
                 gDudeSlope[pSprite->extra] = fStart - ((fStart - fEnd) >> 2);
             else if (weaponType == kGenDudeWeaponMissile) {
-                MissileType* pMissile = &missileInfo[pExtra->curWeapon - kMissileBase];
+                const MissileType* pMissile = &missileInfo[pExtra->curWeapon - kMissileBase];
                 gDudeSlope[pSprite->extra] = (fStart - ((fStart - fEnd) >> 2)) - (pMissile->clipDist << 1);
             }
 
@@ -501,7 +501,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
         gDudeSlope[pSprite->extra] = divscale(pTarget->z - pSprite->z, dist, 10);
 
         short curWeapon = gGenDudeExtra[pSprite->index].curWeapon; short weaponType = gGenDudeExtra[pSprite->index].weaponType;
-        spritetype* pLeech = leechIsDropped(pSprite); VECTORDATA* meleeVector = &gVectorData[22];
+        spritetype* pLeech = leechIsDropped(pSprite); const VECTORDATA* meleeVector = &gVectorData[22];
         if (weaponType == kGenDudeWeaponThrow) {
             if (klabs(losAngle) < kAng15) {
                 if (!gThingInfoExtra[curWeapon - kThingBase].allowThrow) {
@@ -651,7 +651,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                     break;
                 }
             } else if (weaponType == kGenDudeWeaponKamikaze) {
-                int nType = curWeapon - kTrapExploder; EXPLOSION* pExpl = &explodeInfo[nType];
+                int nType = curWeapon - kTrapExploder; const EXPLOSION* pExpl = &explodeInfo[nType];
                 if (CheckProximity(pSprite, pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pExpl->radius >> 1)) {
                     xvel[pSprite->index] = zvel[pSprite->index] = yvel[pSprite->index] = 0;
                     if (doExplosion(pSprite, nType) && pXSprite->health > 0)
@@ -1596,7 +1596,7 @@ bool doExplosion(spritetype* pSprite, int nType) {
     if (pExplosion->extra < 0 || pExplosion->extra >= kMaxXSprites) 
         return false;
 
-    int nSeq = 4; int nSnd = 304; EXPLOSION* pExpl = &explodeInfo[nType];
+    int nSeq = 4; int nSnd = 304; const EXPLOSION* pExpl = &explodeInfo[nType];
     
     pExplosion->type = nType;
     pExplosion->cstat |= CSTAT_SPRITE_INVISIBLE;

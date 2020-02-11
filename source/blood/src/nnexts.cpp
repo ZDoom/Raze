@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "nnexts.h"
 #ifdef NOONE_EXTENSIONS
 #include <random>
+#include "loadsave.h"
 #include "aiunicult.h"
 #include "triggers.h"
 #include "sectorfx.h"
@@ -1179,7 +1180,7 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
             for (int i = 0; i < 12; i++) {
                 if (gWeaponItemData[i].type != pXSource->data3) continue;
 
-                WEAPONITEMDATA* pWeaponData = &gWeaponItemData[i]; int nAmmoType = pWeaponData->ammoType;
+                const WEAPONITEMDATA* pWeaponData = &gWeaponItemData[i]; int nAmmoType = pWeaponData->ammoType;
                 if (pXSource->data2 == 1) {
                     pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponData->count, gAmmoInfo[nAmmoType].max);
                 } else {
@@ -3709,6 +3710,44 @@ void callbackGenDudeUpdate(int nSprite) // 24
         genDudeUpdate(&sprite[nSprite]);
 }
 #endif
+
+
+class NNLoadSave : public LoadSave
+{
+    virtual void Load(void);
+    virtual void Save(void);
+};
+
+void NNLoadSave::Load(void)
+{
+    Read(&gModernMap, sizeof(gModernMap));
+    Read(gSpriteMass, sizeof(gSpriteMass));
+    Read(&gProxySpritesCount, sizeof(gProxySpritesCount));
+    Read(gProxySpritesList, sizeof(gProxySpritesList));
+    Read(&gSightSpritesCount, sizeof(gSightSpritesCount));
+    Read(gSightSpritesList, sizeof(gSightSpritesList));
+    Read(&gPhysSpritesCount, sizeof(gPhysSpritesCount));
+    Read(gPhysSpritesList, sizeof(gPhysSpritesList));
+}
+
+void NNLoadSave::Save(void)
+{
+    Write(&gModernMap, sizeof(gModernMap));
+    Write(gSpriteMass, sizeof(gSpriteMass));
+    Write(&gProxySpritesCount, sizeof(gProxySpritesCount));
+    Write(gProxySpritesList, sizeof(gProxySpritesList));
+    Write(&gSightSpritesCount, sizeof(gSightSpritesCount));
+    Write(gSightSpritesList, sizeof(gSightSpritesList));
+    Write(&gPhysSpritesCount, sizeof(gPhysSpritesCount));
+    Write(gPhysSpritesList, sizeof(gPhysSpritesList));
+}
+
+static NNLoadSave* myLoadSave;
+
+void NNLoadSaveConstruct(void)
+{
+    myLoadSave = new NNLoadSave();
+}
 
 ///////////////////////////////////////////////////////////////////
 // This file provides modern features for mappers.

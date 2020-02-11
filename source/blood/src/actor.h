@@ -167,15 +167,15 @@ struct VECTORDATA {
     SURFHIT surfHit[15];
 };
 
-extern AMMOITEMDATA gAmmoItemData[];
-extern WEAPONITEMDATA gWeaponItemData[];
-extern ITEMDATA gItemData[];
-extern MissileType missileInfo[];
-extern EXPLOSION explodeInfo[];
+extern const AMMOITEMDATA gAmmoItemData[];
+extern const WEAPONITEMDATA gWeaponItemData[];
+extern const ITEMDATA gItemData[];
+extern const MissileType missileInfo[];
+extern const EXPLOSION explodeInfo[];
 extern const THINGINFO thingInfo[];
 extern VECTORDATA gVectorData[];
 
-extern int gDudeDrag;
+const int gDudeDrag = 0x2a00;
 extern short gAffectedSectors[kMaxSectors];
 extern short gAffectedXWalls[kMaxXWalls];
 
@@ -266,6 +266,6 @@ void actPostProcess(void);
 void MakeSplash(spritetype *pSprite, XSPRITE *pXSprite);
 void actBuildMissile(spritetype* pMissile, int nXSprite, int nSprite);
 
-extern int DudeDifficulty[];
+extern const int DudeDifficulty[];
 
 END_BLD_NS

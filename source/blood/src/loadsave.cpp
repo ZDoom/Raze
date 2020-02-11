@@ -427,6 +427,7 @@ void TriggersLoadSaveConstruct(void);
 void ViewLoadSaveConstruct(void);
 void WarpLoadSaveConstruct(void);
 void WeaponLoadSaveConstruct(void);
+void NNLoadSaveConstruct(void);
 
 void LoadSaveSetup(void)
 {
@@ -445,6 +446,7 @@ void LoadSaveSetup(void)
     ViewLoadSaveConstruct();
     WarpLoadSaveConstruct();
     WeaponLoadSaveConstruct();
+    NNLoadSaveConstruct();
 }
 
 END_BLD_NS

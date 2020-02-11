@@ -79,7 +79,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-VECTORDATA gVectorData[] = {
+VECTORDATA gVectorData[] = { // this is constant EXCEPT for [VECTOR_TYPE_20].maxDist. What were they thinking... 
     
     // Tine
     {
@@ -703,7 +703,7 @@ VECTORDATA gVectorData[] = {
     },
 };
 
-ITEMDATA gItemData[] = {
+const ITEMDATA gItemData[] = {
     {
         0,
         2552,
@@ -1147,7 +1147,7 @@ ITEMDATA gItemData[] = {
     }
 };
 
-AMMOITEMDATA gAmmoItemData[] = {
+const AMMOITEMDATA gAmmoItemData[] = {
     {
         0,
         618,
@@ -1381,7 +1381,7 @@ AMMOITEMDATA gAmmoItemData[] = {
     },
 };
 
-WEAPONITEMDATA gWeaponItemData[] = {
+const WEAPONITEMDATA gWeaponItemData[] = {
     {
         0,
         -1,
@@ -1505,7 +1505,7 @@ WEAPONITEMDATA gWeaponItemData[] = {
     }
 };
 
-MissileType missileInfo[] = {
+const MissileType missileInfo[] = {
     // Cleaver
     {
         2138,
@@ -2268,7 +2268,7 @@ const THINGINFO thingInfo[] = {
     },
 };
 
-EXPLOSION explodeInfo[] = {
+const EXPLOSION explodeInfo[] = {
     {
         40,
         10,
@@ -2359,11 +2359,11 @@ EXPLOSION explodeInfo[] = {
     },
 };
 
-int gDudeDrag = 0x2a00;
+
 
 short gAffectedSectors[kMaxSectors];
 short gAffectedXWalls[kMaxXWalls];
-short gPlayerGibThingComments[] = {
+static const short gPlayerGibThingComments[] = {
     734, 735, 736, 737, 738, 739, 740, 741, 3038, 3049
 };
 
@@ -2375,13 +2375,13 @@ void TreeToGibCallback(int, int);
 void DudeToGibCallback1(int, int);
 void DudeToGibCallback2(int, int);
 
-int nFireballClient = seqRegisterClient(FireballSeqCallback);
-int dword_2192D8 = seqRegisterClient(sub_38938); // fireball smoke
-int nNapalmClient = seqRegisterClient(NapalmSeqCallback);
-int dword_2192E0 = seqRegisterClient(sub_3888C); // flame lick
-int nTreeToGibClient = seqRegisterClient(TreeToGibCallback);
-int nDudeToGibClient1 = seqRegisterClient(DudeToGibCallback1);
-int nDudeToGibClient2 = seqRegisterClient(DudeToGibCallback2);
+const int nFireballClient = seqRegisterClient(FireballSeqCallback);
+const int dword_2192D8 = seqRegisterClient(sub_38938); // fireball smoke
+const int nNapalmClient = seqRegisterClient(NapalmSeqCallback);
+const int dword_2192E0 = seqRegisterClient(sub_3888C); // flame lick
+const int nTreeToGibClient = seqRegisterClient(TreeToGibCallback);
+const int nDudeToGibClient1 = seqRegisterClient(DudeToGibCallback1);
+const int nDudeToGibClient2 = seqRegisterClient(DudeToGibCallback2);
 
 int gPostCount = 0;
 
@@ -2454,7 +2454,7 @@ void actAllocateSpares(void)
 {
 }
 
-int DudeDifficulty[5] = {
+const int DudeDifficulty[5] = {
     512, 384, 256, 208, 160
 };
 
@@ -2816,7 +2816,7 @@ spritetype *actDropAmmo(spritetype *pSprite, int nType)
     if (pSprite && pSprite->statnum < kMaxStatus && nType >= kItemAmmoBase && nType < kItemAmmoMax)
     {
         pSprite2 = actSpawnFloor(pSprite);
-        AMMOITEMDATA *pAmmo = &gAmmoItemData[nType - kItemAmmoBase];
+        const AMMOITEMDATA *pAmmo = &gAmmoItemData[nType - kItemAmmoBase];
         pSprite2->type = nType;
         pSprite2->picnum = pAmmo->picnum;
         pSprite2->shade = pAmmo->shade;
@@ -2832,7 +2832,7 @@ spritetype *actDropWeapon(spritetype *pSprite, int nType)
     if (pSprite && pSprite->statnum < kMaxStatus && nType >= kItemWeaponBase && nType < kItemWeaponMax)
     {
         pSprite2 = actSpawnFloor(pSprite);
-        WEAPONITEMDATA *pWeapon = &gWeaponItemData[nType - kItemWeaponBase];
+        const WEAPONITEMDATA *pWeapon = &gWeaponItemData[nType - kItemWeaponBase];
         pSprite2->type = nType;
         pSprite2->picnum = pWeapon->picnum;
         pSprite2->shade = pWeapon->shade;
@@ -2848,7 +2848,7 @@ spritetype *actDropItem(spritetype *pSprite, int nType)
     if (pSprite && pSprite->statnum < kMaxStatus && nType >= kItemBase && nType < kItemMax)
     {
         pSprite2 = actSpawnFloor(pSprite);
-        ITEMDATA *pItem = &gItemData[nType - kItemBase];
+        const ITEMDATA *pItem = &gItemData[nType - kItemBase];
         pSprite2->type = nType;
         pSprite2->picnum = pItem->picnum;
         pSprite2->shade = pItem->shade;
@@ -5383,7 +5383,7 @@ void actExplodeSprite(spritetype *pSprite)
 
     pSprite->flags &= ~3;
     pSprite->type = nType;
-    EXPLOSION *pExplodeInfo = &explodeInfo[nType];
+    const EXPLOSION *pExplodeInfo = &explodeInfo[nType];
     xsprite[nXSprite].target = 0;
     xsprite[nXSprite].data1 = pExplodeInfo->ticks;
     xsprite[nXSprite].data2 = pExplodeInfo->quakeEffect;
@@ -5681,7 +5681,7 @@ void actProcessSprites(void)
         int nOwner = actSpriteOwnerToSpriteId(pSprite);
         int nType = pSprite->type;
         dassert(nType >= 0 && nType < kExplodeMax);
-        EXPLOSION *pExplodeInfo = &explodeInfo[nType];
+        const EXPLOSION *pExplodeInfo = &explodeInfo[nType];
         int nXSprite = pSprite->extra;
         dassert(nXSprite > 0 && nXSprite < kMaxXSprites);
         XSPRITE *pXSprite = &xsprite[nXSprite];
@@ -6278,7 +6278,7 @@ spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, 
     dassert(nType >= kMissileBase && nType < kMissileMax);
     char v4 = 0;
     int nSprite = pSprite->index;
-    MissileType *pMissileInfo = &missileInfo[nType-kMissileBase];
+    const MissileType *pMissileInfo = &missileInfo[nType-kMissileBase];
     int x = pSprite->x+mulscale30(a2, Cos(pSprite->ang+512));
     int y = pSprite->y+mulscale30(a2, Sin(pSprite->ang+512));
     int z = pSprite->z+a3;
@@ -6508,7 +6508,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
 {
     int nShooter = pShooter->index;
     dassert(vectorType >= 0 && vectorType < kVectorMax);
-    VECTORDATA *pVectorData = &gVectorData[vectorType];
+    const VECTORDATA *pVectorData = &gVectorData[vectorType];
     int nRange = pVectorData->maxDist;
     int hit = VectorScan(pShooter, a2, a3, a4, a5, a6, nRange, 1);
     if (hit == 3)
@@ -6678,7 +6678,7 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                                 int y = gHitInfo.hity - mulscale(a5, 16, 14);
                                 int z = gHitInfo.hitz - mulscale(a6, 16<<4, 14);
                                 int nSurf = surfType[wall[nWall].picnum];
-                                VECTORDATA *pVectorData = &gVectorData[19];
+                                const VECTORDATA *pVectorData = &gVectorData[19];
                                 FX_ID t2 = pVectorData->surfHit[nSurf].fx2;
                                 FX_ID t3 = pVectorData->surfHit[nSurf].fx3;
                                 spritetype *pFX = NULL;
@@ -6925,6 +6925,7 @@ class ActorLoadSave : public LoadSave
 
 void ActorLoadSave::Load(void)
 {
+    Read(&gVectorData[VECTOR_TYPE_20].maxDist, sizeof(gVectorData[VECTOR_TYPE_20].maxDist));    // The code messes around with this field so better save it.
     Read(gSpriteHit, sizeof(gSpriteHit));
     Read(gAffectedSectors, sizeof(gAffectedSectors));
     Read(gAffectedXWalls, sizeof(gAffectedXWalls));
@@ -6935,6 +6936,7 @@ void ActorLoadSave::Load(void)
 
 void ActorLoadSave::Save(void)
 {
+    Write(&gVectorData[VECTOR_TYPE_20].maxDist, sizeof(gVectorData[VECTOR_TYPE_20].maxDist));
     Write(gSpriteHit, sizeof(gSpriteHit));
     Write(gAffectedSectors, sizeof(gAffectedSectors));
     Write(gAffectedXWalls, sizeof(gAffectedXWalls));

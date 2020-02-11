@@ -67,13 +67,13 @@ const char *GetVersionString();
 #define SAVESIG_PS GAMENAME ".Exhumed"
 
 #define MINSAVEVER_DN3D 3
-#define MINSAVEVER_BLD 2
+#define MINSAVEVER_BLD 3
 #define MINSAVEVER_RR 2
 #define MINSAVEVER_SW 2
 #define MINSAVEVER_PS 2
 
 #define SAVEVER_DN3D 3
-#define SAVEVER_BLD 2
+#define SAVEVER_BLD 3
 #define SAVEVER_RR 2
 #define SAVEVER_SW 2
 #define SAVEVER_PS 2

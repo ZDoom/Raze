@@ -1085,7 +1085,7 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
 }
 
 char PickupAmmo(PLAYER* pPlayer, spritetype* pAmmo) {
-    AMMOITEMDATA* pAmmoItemData = &gAmmoItemData[pAmmo->type - kItemAmmoBase];
+    const AMMOITEMDATA* pAmmoItemData = &gAmmoItemData[pAmmo->type - kItemAmmoBase];
     int nAmmoType = pAmmoItemData->type;
 
     if (pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
@@ -1102,7 +1102,7 @@ char PickupAmmo(PLAYER* pPlayer, spritetype* pAmmo) {
 }
 
 char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon) {
-    WEAPONITEMDATA *pWeaponItemData = &gWeaponItemData[pWeapon->type - kItemWeaponBase];
+    const WEAPONITEMDATA *pWeaponItemData = &gWeaponItemData[pWeapon->type - kItemWeaponBase];
     int nWeaponType = pWeaponItemData->type;
     int nAmmoType = pWeaponItemData->ammoType;
     if (!pPlayer->hasWeapon[nWeaponType] || gGameOptions.nWeaponSettings == 2 || gGameOptions.nWeaponSettings == 3) {
