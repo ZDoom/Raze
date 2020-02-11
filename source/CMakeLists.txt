@@ -410,7 +410,7 @@ endif()
 if( MSVC )
 	find_package( ZMusic )
 else()
-	find_package( ZMusic REQUIRED )
+	find_package( ZMusic )
 endif()
 
 if( MSVC AND NOT ZMUSIC_FOUND )

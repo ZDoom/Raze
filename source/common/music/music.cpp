@@ -108,11 +108,12 @@ static FName knownMusicExts[] = {
 FString G_SetupFilenameBasedMusic(const char* fn, const char* defmusic)
 {
 	FString name = StripExtension(fn);
+	FString test;
 
 	// Test if a real file with this name exists with all known extensions for music.
 	for (auto& ext : knownMusicExts)
 	{
-		FStringf test("%s.%s", name.GetChars(), ext.GetChars());
+		test.Format("%s.%s", name.GetChars(), ext.GetChars());
 		if (FileExists(test)) return test;
 #ifdef __unix__
 		test.Format("%s.%s", name.GetChars(), FString(ext.GetChars()).MakeLower().GetChars());
