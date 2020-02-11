@@ -46,6 +46,9 @@ extern int32_t g_mostConcurrentPlayers;
 
 #define PCRACKTIME                  777
 
+#define PWATERSPEEDMODIFIER         0x1400
+#define PCROUCHSPEEDMODIFIER        0x2000
+
 #define TRIPBOMB_TRIPWIRE       0x00000001
 #define TRIPBOMB_TIMER          0x00000002
 

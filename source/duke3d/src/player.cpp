@@ -5307,14 +5307,14 @@ void P_ProcessInput(int playerNum)
         int playerSpeedReduction = 0;
 
         if (sectorLotag == ST_2_UNDERWATER)
-            playerSpeedReduction = 0x1400;
+            playerSpeedReduction = PWATERSPEEDMODIFIER;
         else if (((pPlayer->on_ground && TEST_SYNC_KEY(playerBits, SK_CROUCH))
                   || (*weaponFrame > 10 && PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == KNEE_WEAPON)))
-            playerSpeedReduction = 0x2000;
+            playerSpeedReduction = PCROUCHSPEEDMODIFIER;
         else if (pPlayer->on_ground && !pPlayer->jumping_toggle && !TEST_SYNC_KEY(playerBits, SK_CROUCH)
                  && (klabs(pPlayer->truefz - pPlayer->truecz) - (PMINHEIGHT << 1)) < stepHeight)
         {
-            playerSpeedReduction = 0x2000;
+            playerSpeedReduction = PCROUCHSPEEDMODIFIER;
 //            pPlayer->pos.z += PCROUCHINCREMENT;
         }
 
