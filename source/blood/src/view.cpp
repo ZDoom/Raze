@@ -3482,6 +3482,7 @@ void viewDrawScreen(bool sceneonly)
         }
 #endif
 
+        PspTwoDSetter p2set;
         if (gViewPos == 0)
         {
             if (cl_crosshair)
@@ -3533,6 +3534,7 @@ void viewDrawScreen(bool sceneonly)
             rotatesprite(0, 200 << 16, 65536, 0, 2358, 0, 0, 256 + 22, gViewX0, gViewY0, gViewX1, gViewY1);
             rotatesprite(320 << 16, 200 << 16, 65536, 1024, 2358, 0, 0, 512 + 18, gViewX0, gViewY0, gViewX1, gViewY1);
         }
+        p2set.clear();
         if (v4 && gNetPlayers > 1)
         {
             DoLensEffect();

@@ -473,6 +473,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	shader->TintFlags.Set(hictint_flags);
 	shader->TintModulate.Set(hictint);
 	shader->TintOverlay.Set(hictint_overlay);
+	shader->FullscreenTint.Set(fullscreenTint);
 	if (matrixIndex[Matrix_View] != -1)
 		shader->RotMatrix.Set(matrixArray[matrixIndex[Matrix_View]].get());
 	if (matrixIndex[Matrix_Projection] != -1)

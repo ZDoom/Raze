@@ -38,6 +38,7 @@ uniform float u_alphaThreshold;
 
 uniform vec4 u_tintOverlay, u_tintModulate;
 uniform int u_tintFlags;
+uniform vec4 u_fullscreenTint;
 
 uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
@@ -243,6 +244,7 @@ void main()
 	}
 	
 	color.rgb = pow(color.rgb, vec3(u_brightness));
+	color.rgb *= u_fullscreenTint.rgb;	// must be the last thing to be done.
 	fragColor = color;
 	fragFog = vec4(0.0, 0.0, 0.0, 1.0); // Does build have colored fog?
 	vec3 normal = normalize(cross(dFdx(v_eyeCoordPosition.xyz), dFdy(v_eyeCoordPosition.xyz)));

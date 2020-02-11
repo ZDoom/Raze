@@ -165,12 +165,21 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	int lookuppal = 0;
 	VSMatrix texmat;
 
+	GLInterface.SetBasepalTint(0xffffff);
+
 	auto& h = hictinting[palette];
 	bool applytint = false;
 	auto rep = (hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? tex->FindReplacement(palette) : nullptr;
 	if (rep)
 	{
-		// Hightile replacements have only one texture representation and it is always the base.
+		if (usepalette != 0)
+		{
+			// This is a global setting for the entire scene, so let's do it here, right at the start. (Fixme: Store this in a static table instead of reusing the same entry for all palettes.)
+			auto& hh = hictinting[MAXPALOOKUPS - 1];
+			// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
+			GLInterface.SetBasepalTint(hh.tint);
+		}
+
 		tex = rep->faces[0];
 		TextureType = TT_HICREPLACE;
 		if (rep->palnum != palette || (h.f & HICTINT_APPLYOVERALTPAL)) applytint = true;

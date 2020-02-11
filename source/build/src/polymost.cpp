@@ -3166,12 +3166,6 @@ void polymost_drawrooms()
 {
     if (videoGetRenderMode() == REND_CLASSIC) return;
 
-	// This is a global setting for the entire scene, so let's do it here, right at the start.
-	auto& hh = hictinting[MAXPALOOKUPS - 1];
-	// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
-	GLInterface.SetBasepalTint(hh.tint);
-
-
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");
 
     videoBeginDrawing();

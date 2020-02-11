@@ -45,6 +45,7 @@ public:
     FBufferedUniform1f Brightness;
 	FBufferedUniform1f AlphaThreshold;
 	FBufferedUniformPalEntry FogColor;
+	FBufferedUniformPalEntry FullscreenTint;
 	FBufferedUniformPalEntry TintModulate;
 	FBufferedUniformPalEntry TintOverlay;
 	FBufferedUniform1i TintFlags;
