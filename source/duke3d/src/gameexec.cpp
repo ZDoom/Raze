@@ -400,7 +400,7 @@ int A_FurthestVisiblePoint(int const spriteNum, uspriteptr_t const ts, vec2_t * 
 void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const florhit, int const wallDist)
 {
     auto const pSprite = &sprite[spriteNum];
-    int const          ocstat  = pSprite->cstat;
+    int const  ocstat  = pSprite->cstat;
 
     pSprite->cstat = 0;
     pSprite->z -= ZOFFSET;
@@ -415,7 +415,8 @@ void A_GetZLimits(int const spriteNum)
 {
     auto const pSprite = &sprite[spriteNum];
     int32_t    ceilhit, florhit;
-    int const clipDist = A_GetClipdist(spriteNum, -1);
+    int const  clipDist = A_GetClipdist(spriteNum, -1);
+    auto const oceilz   = actor[spriteNum].ceilingz;
 
     VM_GetZRange(spriteNum, &ceilhit, &florhit, pSprite->statnum == STAT_PROJECTILE ? clipDist << 3 : clipDist);
     actor[spriteNum].flags &= ~SFLAG_NOFLOORSHADOW;
@@ -439,6 +440,15 @@ void A_GetZLimits(int const spriteNum)
             actor[spriteNum].ceilingz = sector[pSprite->sectnum].ceilingz;
             actor[spriteNum].floorz   = sector[pSprite->sectnum].floorz;
         }
+    }
+
+    // in E1L1, the dumpster fire sprites break after calling this function because the cardboard boxes
+    // are a few units higher than the fire and are detected as the "ceiling"
+    // unfortunately, this trips the "ifgapzl 16 break" in "state firestate"
+    if ((ceilhit&49152) == 49152 && (sprite[ceilhit&(MAXSPRITES-1)].cstat&48) == 0)
+    {
+        if (pSprite->z >= actor[spriteNum].floorz)
+            actor[spriteNum].ceilingz = oceilz;
     }
 }
 
