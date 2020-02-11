@@ -1464,14 +1464,15 @@ void LogoLevel(void)
     DSPRINTF(ds,"About to display 3drealms pic...");
     MONO_PRINT(ds);
 
-    twod->ClearScreen();
-    rotatesprite(0, 0, RS_SCALE, 0, THREED_REALMS_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-    videoNextPage();
     //FadeIn(0, 3);
 
     inputState.ClearAllInput();
     while (TRUE)
     {
+        twod->ClearScreen();
+        rotatesprite(0, 0, RS_SCALE, 0, THREED_REALMS_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
+        videoNextPage();
+
         handleevents();
 
         // taken from top of faketimerhandler
