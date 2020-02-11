@@ -2485,7 +2485,7 @@ restart_grand:
             // try and see whether this sprite's picnum has sector-like clipping data
             i = pictoidx[spr->picnum];
             // handle sector-like floor sprites separately
-            while ((&clipmapinfo != nullptr) && i>=0 && (cstat&32) != (clipmapinfo.sector[sectq[clipinfo[i].qbeg]].CM_CSTAT&32))
+            while (i>=0 && (cstat&32) != (clipmapinfo.sector[sectq[clipinfo[i].qbeg]].CM_CSTAT&32))
                 i = clipinfo[i].next;
             if (i>=0 && clipspritenum<MAXCLIPNUM)
             {
