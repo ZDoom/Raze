@@ -5311,6 +5311,12 @@ void P_ProcessInput(int playerNum)
         else if (((pPlayer->on_ground && TEST_SYNC_KEY(playerBits, SK_CROUCH))
                   || (*weaponFrame > 10 && PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == KNEE_WEAPON)))
             playerSpeedReduction = 0x2000;
+        else if (pPlayer->on_ground && !pPlayer->jumping_toggle && !TEST_SYNC_KEY(playerBits, SK_CROUCH)
+                 && (klabs(pPlayer->truefz - pPlayer->truecz) - (PMINHEIGHT << 1)) < stepHeight)
+        {
+            playerSpeedReduction = 0x2000;
+//            pPlayer->pos.z += PCROUCHINCREMENT;
+        }
 
         pPlayer->vel.x = mulscale16(pPlayer->vel.x, pPlayer->runspeed - playerSpeedReduction);
         pPlayer->vel.y = mulscale16(pPlayer->vel.y, pPlayer->runspeed - playerSpeedReduction);

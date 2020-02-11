@@ -42,7 +42,7 @@ extern int32_t g_mostConcurrentPlayers;
 #define PHEIGHT                     (38<<8)
 #define PCROUCHHEIGHT               (16<<8)
 #define PCROUCHINCREMENT            (2048+768)
-#define PMINHEIGHT                  (2048)
+#define PMINHEIGHT                  1024 // this is NOT the value I wanted here, but Duke It Out in DC's shitty vents said otherwise
 
 #define PCRACKTIME                  777
 
