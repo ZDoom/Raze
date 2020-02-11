@@ -1262,6 +1262,81 @@ void Screen_Play(void)
     } while (running);
 }
 
+static void SetArray(int const arrayNum, int const arrayIndex, int const newValue)
+{
+    if (EDUKE32_PREDICT_FALSE((unsigned)arrayNum >= (unsigned)g_gameArrayCount || (unsigned)arrayIndex >= (unsigned)aGameArrays[arrayNum].size))
+    {
+        OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array %d or index out of bounds from "
+                             "sprite %d (%d), player %d\n",
+                   (int)arrayNum, vm.spriteNum, vm.pUSprite->picnum, vm.playerNum);
+        vm.flags |= VM_RETURN;
+        return;
+    }
+
+    auto &arr = aGameArrays[arrayNum];
+
+    if (EDUKE32_PREDICT_FALSE(arr.flags & GAMEARRAY_READONLY))
+    {
+        OSD_Printf(OSD_ERROR "Tried to set value in read-only array `%s'", arr.szLabel);
+        vm.flags |= VM_RETURN;
+        return;
+    }
+
+    switch (arr.flags & GAMEARRAY_TYPE_MASK)
+    {
+        case 0: arr.pValues[arrayIndex]                              = newValue; break;
+        case GAMEARRAY_INT16: ((int16_t *)arr.pValues)[arrayIndex]   = newValue; break;
+        case GAMEARRAY_INT8: ((int8_t *)arr.pValues)[arrayIndex]     = newValue; break;
+        case GAMEARRAY_UINT16: ((uint16_t *)arr.pValues)[arrayIndex] = newValue; break;
+        case GAMEARRAY_UINT8: ((int8_t *)arr.pValues)[arrayIndex]    = newValue; break;
+        case GAMEARRAY_BITMAP:
+        {
+            uint32_t const mask  = pow2char[arrayIndex&7];
+            uint8_t &value = ((uint8_t *)arr.pValues)[arrayIndex>>3];
+            value = (value & ~mask) | (-!!newValue & mask);
+            break;
+        }
+    }
+}
+
+static void ResizeArray(int const arrayNum, int const newSize)
+{
+    auto &arr = aGameArrays[arrayNum];
+
+    int const oldSize = arr.size;
+
+    if (newSize == oldSize || newSize < 0)
+        return;
+#if 0
+    OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
+               array.szLabel, array.size, newSize);
+#endif
+    if (newSize == 0)
+    {
+        Xaligned_free(arr.pValues);
+        arr.pValues = nullptr;
+        arr.size = 0;
+        return;
+    }
+
+    size_t const oldBytes = Gv_GetArrayAllocSizeForCount(arrayNum, oldSize);
+    size_t const newBytes = Gv_GetArrayAllocSizeForCount(arrayNum, newSize);
+
+    auto const oldArray = arr.pValues;
+    auto const newArray = (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, newBytes);
+
+    if (oldSize != 0)
+        Bmemcpy(newArray, oldArray, min(oldBytes, newBytes));
+
+    if (newSize > oldSize)
+        Bmemset((char *)newArray + oldBytes, 0, newBytes - oldBytes);
+
+    arr.pValues = newArray;
+    arr.size = newSize;
+
+    Xaligned_free(oldArray);
+}
+
 #if !defined LUNATIC
 #if defined __GNUC__ || defined __clang__
 // # define CON_USE_COMPUTED_GOTO does not work anymore with some of the changes.
@@ -5506,39 +5581,7 @@ badindex:
                     int const arrayIndex = Gv_GetVar(*insptr++);
                     int const newValue   = Gv_GetVar(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)tw >= (unsigned)g_gameArrayCount || (unsigned)arrayIndex >= (unsigned)aGameArrays[tw].size))
-                    {
-                        OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array %d or index out of bounds from "
-                                             "sprite %d (%d), player %d\n",
-                                   (int)tw, vm.spriteNum, vm.pUSprite->picnum, vm.playerNum);
-                        vm.flags |= VM_RETURN;
-                        dispatch();
-                    }
-
-                    auto &arr = aGameArrays[tw];
-
-                    if (EDUKE32_PREDICT_FALSE(arr.flags & GAMEARRAY_READONLY))
-                    {
-                        OSD_Printf(OSD_ERROR "Tried to set value in read-only array `%s'", arr.szLabel);
-                        vm.flags |= VM_RETURN;
-                        dispatch();
-                    }
-
-                    switch (arr.flags & GAMEARRAY_TYPE_MASK)
-                    {
-                        case 0: arr.pValues[arrayIndex]                              = newValue; break;
-                        case GAMEARRAY_INT16: ((int16_t *)arr.pValues)[arrayIndex]   = newValue; break;
-                        case GAMEARRAY_INT8: ((int8_t *)arr.pValues)[arrayIndex]     = newValue; break;
-                        case GAMEARRAY_UINT16: ((uint16_t *)arr.pValues)[arrayIndex] = newValue; break;
-                        case GAMEARRAY_UINT8: ((int8_t *)arr.pValues)[arrayIndex]    = newValue; break;
-                        case GAMEARRAY_BITMAP:
-                        {
-                            uint32_t const mask  = pow2char[arrayIndex&7];
-                            uint8_t &value = ((uint8_t *)arr.pValues)[arrayIndex>>3];
-                            value = (value & ~mask) | (-!!newValue & mask);
-                            break;
-                        }
-                    }
+                    SetArray(tw, arrayIndex, newValue);
 
                     dispatch();
                 }
@@ -5671,42 +5714,8 @@ badindex:
                 insptr++;
                 {
                     tw = *insptr++;
-
-                    auto &arr = aGameArrays[tw];
-
                     int const newSize = Gv_GetVar(*insptr++);
-                    int const oldSize = arr.size;
-
-                    if (newSize == oldSize || newSize < 0)
-                        dispatch();
-#if 0
-                    OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
-                               array.szLabel, array.size, newSize);
-#endif
-                    if (newSize == 0)
-                    {
-                        Xaligned_free(arr.pValues);
-                        arr.pValues = nullptr;
-                        arr.size = 0;
-                        dispatch();
-                    }
-
-                    size_t const oldBytes = Gv_GetArrayAllocSizeForCount(tw, oldSize);
-                    size_t const newBytes = Gv_GetArrayAllocSizeForCount(tw, newSize);
-
-                    auto const oldArray = arr.pValues;
-                    auto const newArray = (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, newBytes);
-
-                    if (oldSize != 0)
-                        Bmemcpy(newArray, oldArray, min(oldBytes, newBytes));
-
-                    if (newSize > oldSize)
-                        Bmemset((char *)newArray + oldBytes, 0, newBytes - oldBytes);
-
-                    arr.pValues = newArray;
-                    arr.size = newSize;
-
-                    Xaligned_free(oldArray);
+                    ResizeArray(tw, newSize);
 
                     dispatch();
                 }
