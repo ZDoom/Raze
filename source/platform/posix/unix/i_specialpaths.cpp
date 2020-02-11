@@ -170,7 +170,7 @@ FString M_GetScreenshotsPath()
 
 FString M_GetSavegamesPath()
 {
-	return NicePath("$HOME/" GAME_DIR);
+	return NicePath("$HOME/" GAME_DIR "/");
 }
 
 //===========================================================================
@@ -183,7 +183,7 @@ FString M_GetSavegamesPath()
 
 FString M_GetDocumentsPath()
 {
-	return NicePath("$HOME/" GAME_DIR);
+	return NicePath("$HOME/" GAME_DIR "/");
 }
 
 //===========================================================================
@@ -196,7 +196,7 @@ FString M_GetDocumentsPath()
 
 FString M_GetDemoPath()
 {
-	return M_GetDocumentsPath() + "/demo/";
+	return M_GetDocumentsPath() + "demo/";
 }
 
 //===========================================================================
