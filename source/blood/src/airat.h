@@ -31,6 +31,6 @@ extern AISTATE ratChase;
 extern AISTATE ratDodge;
 extern AISTATE ratRecoil;
 extern AISTATE ratGoto;
-extern AISTATE ratBit;
+extern AISTATE ratBite;
 
 END_BLD_NS

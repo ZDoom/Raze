@@ -119,7 +119,7 @@ AISTATE genDudeThrow2 = { kAiStateChase, 7, nGenDudeThrow2, 0, NULL, NULL, NULL,
 AISTATE genDudePunch = { kAiStateChase,10, nGenDudePunch, 0, NULL, NULL, forcePunch, &genDudeChaseL };
 // ---------------------
 
-GENDUDESND gCustomDudeSnd[] = {
+const GENDUDESND gCustomDudeSnd[] = {
     { 1003, 2, 0, true, false   },      // spot sound
     { 1013, 2, 2, true, true    },      // pain sound
     { 1018, 2, 4, false, true   },      // death sound
@@ -133,7 +133,7 @@ GENDUDESND gCustomDudeSnd[] = {
     { 9008, 0, 17, false, false },      // transforming in other dude
 };
 
-GENDUDEEXTRA gGenDudeExtra[kMaxSprites];
+GENDUDEEXTRA gGenDudeExtra[kMaxSprites]; // savegame handling in ai.cpp
 
 static void forcePunch(spritetype* pSprite, XSPRITE*) {
     if (gGenDudeExtra[pSprite->index].forcePunch && seqGetStatus(3, pSprite->extra) == -1)
@@ -1118,7 +1118,7 @@ void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState) {
 bool playGenDudeSound(spritetype* pSprite, int mode) {
     
     if (mode < kGenDudeSndTargetSpot || mode >= kGenDudeSndMax) return false;
-    GENDUDESND* sndInfo =& gCustomDudeSnd[mode]; bool gotSnd = false;
+    const GENDUDESND* sndInfo =& gCustomDudeSnd[mode]; bool gotSnd = false;
     short sndStartId = xsprite[pSprite->extra].sysData1; int rand = sndInfo->randomRange;
     int sndId = (sndStartId <= 0) ? sndInfo->defaultSndId : sndStartId + sndInfo->sndIdOffset;
     GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);

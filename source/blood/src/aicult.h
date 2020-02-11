@@ -49,7 +49,7 @@ extern AISTATE cultistSFire;
 extern AISTATE cultistTFire;
 extern AISTATE cultistTsFire;
 extern AISTATE cultistSProneFire;
-extern AISTATE cultistTProneFir;
+extern AISTATE cultistTProneFire;
 extern AISTATE cultistTsProneFire;
 extern AISTATE cultistRecoil;
 extern AISTATE cultistProneRecoil;

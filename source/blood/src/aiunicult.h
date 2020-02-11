@@ -138,6 +138,8 @@ extern AISTATE genDudeSearchNoWalkW;
 extern AISTATE genDudeChaseNoWalkL;
 extern AISTATE genDudeChaseNoWalkD;
 extern AISTATE genDudeChaseNoWalkW;
+extern AISTATE genDudeSearchShortL;
+extern AISTATE genDudeSearchShortW;
 
 struct GENDUDESND
 {
@@ -148,7 +150,7 @@ struct GENDUDESND
     bool interruptable;
 };
 
-extern GENDUDESND gCustomDudeSnd[];
+extern const GENDUDESND gCustomDudeSnd[];
 
 // temporary, until normal DUDEEXTRA gets refactored
 struct GENDUDEEXTRA {

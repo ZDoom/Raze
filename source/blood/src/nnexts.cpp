@@ -3720,7 +3720,6 @@ class NNLoadSave : public LoadSave
 
 void NNLoadSave::Load(void)
 {
-    Read(&gModernMap, sizeof(gModernMap));
     Read(gSpriteMass, sizeof(gSpriteMass));
     Read(&gProxySpritesCount, sizeof(gProxySpritesCount));
     Read(gProxySpritesList, sizeof(gProxySpritesList));
@@ -3732,7 +3731,6 @@ void NNLoadSave::Load(void)
 
 void NNLoadSave::Save(void)
 {
-    Write(&gModernMap, sizeof(gModernMap));
     Write(gSpriteMass, sizeof(gSpriteMass));
     Write(&gProxySpritesCount, sizeof(gProxySpritesCount));
     Write(gProxySpritesList, sizeof(gProxySpritesList));

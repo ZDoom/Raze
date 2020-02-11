@@ -77,7 +77,7 @@ DUDEEXTRA gDudeExtra[kMaxXSprites];
 AISTATE genIdle = {kAiStateGenIdle, 0, -1, 0, NULL, NULL, NULL, NULL };
 AISTATE genRecoil = {kAiStateRecoil, 5, -1, 20, NULL, NULL, NULL, &genIdle };
 
-int dword_138BB0[5] = {0x2000, 0x4000, 0x8000, 0xa000, 0xe000};
+const int dword_138BB0[5] = {0x2000, 0x4000, 0x8000, 0xa000, 0xe000};
 
 bool sub_5BDA8(spritetype *pSprite, int nSeq)
 {
@@ -1771,12 +1771,16 @@ void AILoadSave::Load(void)
 {
     Read(cumulDamage, sizeof(cumulDamage));
     Read(gDudeSlope, sizeof(gDudeSlope));
+    Read(gDudeExtra, sizeof(gDudeExtra));
+    Read(gGenDudeExtra, sizeof(gGenDudeExtra));
 }
 
 void AILoadSave::Save(void)
 {
     Write(cumulDamage, sizeof(cumulDamage));
     Write(gDudeSlope, sizeof(gDudeSlope));
+    Write(gDudeExtra, sizeof(gDudeExtra));
+    Write(gGenDudeExtra, sizeof(gGenDudeExtra));
 }
 
 static AILoadSave *myLoadSave;
