@@ -1441,8 +1441,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             // this works around the overflow issue that affects dukedc2.map
             int32_t const templl = (int32_t)clamp(compat_maybe_truncate_to_int32((int64_t)clipr.x * clipr.x + (int64_t)clipr.y * clipr.y), INT32_MIN, INT32_MAX);
 
-            if (templl > 0 && templl <= INT32_MAX) // without the upper bounds check this code misbehaves and occasionally makes the player move backwards. 
-                                                   // This hints at another overflow problem elsewhere... 
+            if (templl > 0)
             {
                 // I don't know if this one actually overflows or not, but I highly doubt it hurts to check
                 int32_t const templl2
