@@ -228,11 +228,24 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     videoSetPalette(0, kSMKPal, Pal_Fullscreen);
 
     int nScale;
+    int nStat;
 
-    if ((nWidth / (nHeight * 1.2f)) > (1.f * xdim / ydim))
-        nScale = divscale16(320 * xdim * 3, nWidth * ydim * 4);
+    if (nWidth <= 320 && nHeight <= 200)
+    {
+        if ((nWidth / (nHeight * 1.2f)) > (1.f * xdim / ydim))
+            nScale = divscale16(320 * xdim * 3, nWidth * ydim * 4);
+        else
+            nScale = divscale16(200, nHeight);
+        nStat = 2 | 4 | 8 | 64;
+    }
     else
-        nScale = divscale16(200, nHeight);
+    {
+        // DOS Blood v1.11: 320x240, 320x320, 640x400, and 640x480 SMKs all display 1:1 and centered in a 640x480 viewport
+        nScale = tabledivide32(scale(65536, ydim << 2, xdim * 3), ((max(nHeight, 240 + 1u) + 239) / 240));
+        nStat = 2 | 4 | 8 | 64 | 1024;
+        renderSetAspect(viewingrange, 65536);
+    }
+
 
     if (nWav > 0)
         sndStartWavID(nWav, 255);
@@ -269,7 +282,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
         videoSetPalette(0, kSMKPal, Pal_Fullscreen);
         tileInvalidate(kSMKTile, 0, 1 << 4);  // JBF 20031228
         Smacker_GetFrame(hSMK, pFrame);
-        rotatesprite_fs(160<<16, 100<<16, nScale, 512, kSMKTile, 0, 0, 2|4|8|64);
+        rotatesprite_fs(160<<16, 100<<16, nScale, 512, kSMKTile, 0, 0, nStat);
 
         videoNextPage();
 
