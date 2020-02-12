@@ -145,6 +145,7 @@ static inline int32_t G_DefaultActorHealth(int spriteNum)
 
 struct GameInterface : ::GameInterface
 {
+	const char* Name() override { return "Redneck"; }
 	int app_main() override;
 	void UpdateScreenSize() override;
 	void FreeGameData() override;

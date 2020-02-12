@@ -273,6 +273,7 @@ void G_DoAutoload(const char* dirname);
 
 struct GameInterface : ::GameInterface
 {
+    const char* Name() override { return "Exhumed"; }
     int app_main() override;
     void UpdateScreenSize() override;
     bool GenerateSavePic() override;

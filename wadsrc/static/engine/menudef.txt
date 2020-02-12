@@ -7,6 +7,7 @@
 LISTMENU "MainMenu"
 {
 	ScriptId 0
+	class "$.MainMenu"
 	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
 	{
 		ifgame(fury)
@@ -19,14 +20,6 @@ LISTMENU "MainMenu"
 			position 160, 55, 115
 			centermenu
 			animatedtransition
-		}
-		ifgame(Duke, Nam, WW2GI, Fury)
-		{
-			class "Duke.MainMenu"
-		}
-		else
-		{
-			class "Redneck.MainMenu"
 		}
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder.
@@ -47,7 +40,6 @@ LISTMENU "MainMenu"
 	{
 		position 160, 45, 150
 		caption "Blood"
-		class "Blood.ListMenu"
 		centermenu
 		Linespacing 20
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
@@ -62,7 +54,6 @@ LISTMENU "MainMenu"
 	{
 		Position 55, 32
 		Linespacing 17
-		class "ShadowWarrior.MainMenu"
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
@@ -82,7 +73,6 @@ LISTMENU "MainMenu"
 	{
 		Position 160, 65
 		centermenu
-		class "Exhumed.MainMenu"
 		linespacing 22
 		NativeTextItem "3460", "n", "StartGame", 1
 		NativeTextItem "3461", "l", "LoadGameMenu"
@@ -101,6 +91,7 @@ LISTMENU "MainMenu"
 LISTMENU "IngameMenu"
 {
 	ScriptId 50
+	class "$.MainMenu"
 	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
 	{
 		ifgame(fury)
@@ -114,14 +105,6 @@ LISTMENU "IngameMenu"
 			centermenu
 			animatedtransition
 		}
-		ifgame(Duke, Nam, WW2GI, Fury)
-		{
-			class "Duke.MainMenu"
-		}
-		else
-		{
-			class "Redneck.MainMenu"
-		}
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
@@ -134,7 +117,6 @@ LISTMENU "IngameMenu"
 	{
 		position 160, 45, 150
 		caption "Blood"
-		class "Blood.ListMenu"
 		centermenu
 		Linespacing 17
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
@@ -150,7 +132,6 @@ LISTMENU "IngameMenu"
 	{
 		Position 55, 32
 		Linespacing 17
-		class "ShadowWarrior.MainMenu"
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
@@ -169,7 +150,6 @@ LISTMENU "IngameMenu"
 	{
 		Position 160, 65
 		centermenu
-		class "Exhumed.MainMenu"
 		linespacing 22
 		NativeTextItem "3460", "n", "StartGame", 1
 		NativeTextItem "3461", "l", "LoadGameMenu"
@@ -189,25 +169,18 @@ LISTMENU "EpisodeMenu"
 {
 	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides) // Ion Fury does not use this menu.
 	{
+		class "$.ListMenu"
 		caption "$MNU_SELECTEPISODE"
 		position 160, 48, 142
 		centermenu
 		fixedspacing 5
 		animatedtransition
-		ifgame(Duke, Nam, WW2GI, Fury)
-		{
-			class "Duke.ListMenu"
-		}
-		else
-		{
-			class "Redneck.ListMenu"
-		}
 	}
 	ifgame(blood)
 	{
+		class "$.ListMenu"
 		caption "$MNU_EPISODES"
 		position 160, 45, 150
-		class "Blood.ListMenu"
 		centermenu
 		Linespacing 20
 	}
@@ -225,6 +198,7 @@ LISTMENU "SkillMenu"
 {
 	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
 	{
+		class "$.ListMenu"
 		ifgame(fury)
 		{
 			position 160, 55, 115
@@ -238,21 +212,13 @@ LISTMENU "SkillMenu"
 		}
 		caption "$MNU_SELECTSKILL"
 		fixedspacing 5
-		ifgame(Duke, Nam, WW2GI, Fury)
-		{
-			class "Duke.ListMenu"
-		}
-		else
-		{
-			class "Redneck.ListMenu"
-		}
 		animatedtransition
 	}
 	ifgame(blood)
 	{
+		class "$.ListMenu"
 		caption "$MNU_DIFFICULTY"
 		position 160, 60, 150
-		class "Blood.ListMenu"
 		centermenu
 		Linespacing 20
 	}
@@ -285,7 +251,7 @@ LISTMENU "CustomGameMenu"
 		animatedtransition
 	}
 	ScriptId 102
-	class "Duke.ListMenu"
+	class "$.ListMenu"
 	centermenu
 }
 
@@ -304,7 +270,7 @@ LISTMENU "CustomSubMenu1"
 	}
 	centermenu
 	ScriptId 103
-	class "Duke.ListMenu"
+	class "$.ListMenu"
 }
 
 LISTMENU "CustomSubMenu2"
@@ -321,7 +287,7 @@ LISTMENU "CustomSubMenu2"
 	}
 	centermenu
 	ScriptId 103
-	class "Duke.ListMenu"
+	class "$.ListMenu"
 }
 
 LISTMENU "CustomSubMenu3"
@@ -338,7 +304,7 @@ LISTMENU "CustomSubMenu3"
 	}
 	centermenu
 	ScriptId 103
-	class "Duke.ListMenu"
+	class "$.ListMenu"
 }
 
 LISTMENU "CustomSubMenu4"
@@ -355,7 +321,7 @@ LISTMENU "CustomSubMenu4"
 	}
 	centermenu
 	ScriptId 103
-	class "Duke.ListMenu"
+	class "$.ListMenu"
 }
 
 LISTMENU "CustomSubMenu5"
@@ -372,7 +338,7 @@ LISTMENU "CustomSubMenu5"
 	}
 	centermenu
 	ScriptId 103
-	class "Duke.ListMenu"
+	class "$.ListMenu"
 }
 
 LISTMENU "CustomSubMenu6"
@@ -389,7 +355,7 @@ LISTMENU "CustomSubMenu6"
 	}
 	centermenu
 	ScriptId 103
-	class "Duke.ListMenu"
+	class "$.ListMenu"
 }
 
 LISTMENU "CustomSubMenu7"
@@ -406,7 +372,7 @@ LISTMENU "CustomSubMenu7"
 	}
 	centermenu
 	ScriptId 103
-	class "Duke.ListMenu"
+	class "$.ListMenu"
 }
 
 //-------------------------------------------------------------------------------------------
@@ -421,7 +387,7 @@ ImageScroller "HelpMenu"
 	{
 		ImageItem "TEXTSTORY", 400
 		ImageItem "F1HELP", 401
-		class "Duke.ImageScrollerMenu"
+		class "$.ImageScrollerMenu"
 		ifgame(Duke, Nam, WW2GI)
 		{
 			animatedtransition
@@ -439,7 +405,7 @@ ImageScroller "HelpMenu"
 	}
 	ifgame(blood)
 	{
-		class "Blood.ImageScrollerMenu"
+		class "$.ImageScrollerMenu"
 		// The duplication here is to integrate the alternating versions of HELP3
 		QAVAnimationItem "Help4.qav"
 		QAVAnimationItem "Help5.qav"

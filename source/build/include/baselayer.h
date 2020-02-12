@@ -98,6 +98,7 @@ enum EMenuSounds : int;
 
 struct GameInterface
 {
+	virtual const char* Name() { return "$"; }
 	virtual ~GameInterface() {}
 	virtual bool GenerateSavePic() { return false; }
 	virtual void faketimerhandler() {} // This is a remnant of older versions, but Blood backend has not updated yet.

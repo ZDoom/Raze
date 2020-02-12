@@ -303,7 +303,9 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		else if (sc.Compare("Class"))
 		{
 			sc.MustGetString();
-			desc->mClass = sc.String;
+			FString s = sc.String;
+			s.Substitute("$", gi->Name());
+			desc->mClass = s;
 		}
 		else if (sc.Compare("Selector"))
 		{
@@ -633,7 +635,9 @@ static void ParseImageScrollerBody(FScanner &sc, FImageScrollerDescriptor *desc)
 		else if (sc.Compare("Class"))
 		{
 			sc.MustGetString();
-			desc->mClass = sc.String;
+			FString s = sc.String;
+			s.Substitute("$", gi->Name());
+			desc->mClass = s;
 		}
 		else if (sc.Compare("TextItem") || sc.Compare("ImageItem"))
 		{
@@ -850,7 +854,9 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 		else if (sc.Compare("Class"))
 		{
 			sc.MustGetString();
-			desc->mClass = sc.String;
+			FString s = sc.String;
+			s.Substitute("$", gi->Name());
+			desc->mClass = s;
 		}
 		else if (sc.Compare("Title") || sc.Compare("Caption"))
 		{

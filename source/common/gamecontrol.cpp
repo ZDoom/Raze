@@ -305,6 +305,8 @@ namespace Powerslave
 	::GameInterface* CreateInterface();
 }
 
+CVAR(Bool, duke_compatibility_15, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+
 void CheckFrontend(int flags)
 {
 	if (flags & GAMEFLAG_BLOOD)
@@ -323,10 +325,15 @@ void CheckFrontend(int flags)
 	{
 		gi = Powerslave::CreateInterface();
 	}
-	else
+	else if (flags & GAMEFLAG_FURY)
 	{
 		gi = Duke::CreateInterface();
 	}
+	else
+	{
+		gi = *duke_compatibility_15 ? Redneck::CreateInterface() : Duke::CreateInterface();
+	}
+
 }
 
 void I_StartupJoysticks();

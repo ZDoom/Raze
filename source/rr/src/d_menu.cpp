@@ -517,9 +517,11 @@ END_RR_NS
 
 static TMenuClassDescriptor<Redneck::RedneckMainMenu> _mm("Redneck.MainMenu");
 static TMenuClassDescriptor<Redneck::RedneckListMenu> _lm("Redneck.ListMenu");
+static TMenuClassDescriptor<DImageScrollerMenu> _ism("Redneck.ImageScrollerMenu"); // does not implement a new class, we only need the descriptor.
 
 void RegisterRedneckMenus()
 {
 	menuClasses.Push(&_mm);
 	menuClasses.Push(&_lm);
+	menuClasses.Push(&_ism);
 }
