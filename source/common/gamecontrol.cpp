@@ -619,6 +619,8 @@ int RunGame()
 	{
 		hud_size.SetGenericRepDefault(8, CVAR_Int);
 		hud_size_max = 9;
+		cl_weaponswitch.SetGenericRepDefault(1, CVAR_Int);
+		if (cl_weaponswitch > 1) cl_weaponswitch = 1;
 	}
 	if (g_gameType & GAMEFLAG_PSEXHUMED)
 	{
