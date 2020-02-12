@@ -1118,7 +1118,6 @@ int GameInterface::app_main()
     initprintf("Initializing network users\n");
     netInitialize(true);
     scrSetGameMode(0, 0, 0, 0);
-    scrSetGamma(gGamma);
     hud_size.Callback();
     initprintf("Initializing sound system\n");
     sndInit();

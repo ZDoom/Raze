@@ -39,10 +39,6 @@ ClockTicks gFrameTicks;
 int gFrame;
 //int volatile gGameClock;
 int gFrameRate;
-int gGamma;
-
-char *gVersionString;
-char gVersionStringBuf[16];
 
 Resource& gSysRes = fileSystem;
 

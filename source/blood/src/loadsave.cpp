@@ -453,26 +453,17 @@ void UnindexAIState(AISTATE*& state)
 }
 
 
-char *gSaveGamePic[10];
-unsigned int gSavedOffset = 0;
 
 unsigned int dword_27AA38 = 0;
 unsigned int dword_27AA3C = 0;
 unsigned int dword_27AA40 = 0;
-void *dword_27AA44 = NULL;
 
 FileWriter *LoadSave::hSFile = NULL;
 FileReader LoadSave::hLFile;
 TDeletingArray<LoadSave*> LoadSave::loadSaves;
 
-short word_27AA54 = 0;
-
 void sub_76FD4(void)
 {
-#if 0
-    if (!dword_27AA44)
-        dword_27AA44 = Resource::Alloc(0x186a0);
-#endif
 }
 
 void LoadSave::Save(void)
