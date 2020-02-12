@@ -480,6 +480,7 @@ Screen size,DSPLYMNU_SCREENSIZE,,,,Velikost obrazovky,Bildschirmgröße,,Ekrano-
 Vertical Sync,DSPLYMNU_VSYNC,,,,Vertikální synchronizace,Vertikale Synchronisation,,Vertikala-sinkronigo,Sincr. vertical,,Pystytahdistys,Synchronisation Verticale,Függőleges szinkronizálás,Sync verticale,垂直同期,수직 동기화,Verticale Sync,Synchronizacja Pionowa,Sincronização Vertical,,,Вертикальная синхронизация,Вертикална синхорнизација
 Models,DSPLYMNU_MODELS,,,,Modely,Modelle,,Modeloj,Modelos,,Mallit,Modèles,3D modellek,Modelli,モデル,모델,Modellen,Modele,Modelos,,,Модели,Модели
 Voxels,DSPLYMNU_VOXELS,,,,,Voxel,,,,,,,,,,,,,,,,,
+Shadows,DSPLYMNU_SHADOWS,,,,,Schatten,,,,,,,,,,,,,,,,,
 Scale crosshair,DSPLYMNU_CROSSHAIRSCALE,,,,Velikost zaměřovače,Fadenkreuz skalieren,,Skali translinion,Escalar retícula,,Skaalaa tähtäintä,Mise à l'échelle du viseur,,Scala del mirino,照準サイズ,조준점 크기,Dradenkruis schalen,Skala celownika,Escala da mira,,,Масштабирование прицела,Размера нишана
 Brightness,DSPLYMNU_BRIGHTNESS,,,,Jas,Helligkeit,,Brileco,Brillo,,Kirkkaus,Luminosité,Fényerő,Luminosità,明るさ,밝기,Helderheid,Jasność,Brilho,,,Яркость,Осветљење
 Gamma correction,DSPLYMNU_GAMMA,,,,Korekce gama,Gammakorrektur,,Gamaa korektado,Corrección gamma,,Gammakorjaus,Correction Gamma,,Correzione gamma,ガンマ値,감마 조정,Gamma correctie,Korekta gammy,Correção gama,,,Гамма-коррекция,Корекција светлости

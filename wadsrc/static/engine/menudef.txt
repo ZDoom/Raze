@@ -1137,6 +1137,7 @@ OptionMenu "VideoOptions" //protected
 
 	StaticText ""
 	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
+	Option "$DSPLYMNU_SHADOWS",					"r_shadows",					"OnOff"
 	StaticText ""
 	Slider "$DSPLYMNU_FOV",						"r_fov",					60, 130, 10, 1
 
