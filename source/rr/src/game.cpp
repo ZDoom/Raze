@@ -3326,7 +3326,7 @@ rr_badguy:
                     pSprite->cstat |= 257;
 
                     if (pSprite->picnum != SHARK)
-                        if (A_CheckSpriteFlags(newSprite, SFLAG_KILLCOUNT))
+                        if (!RR || A_CheckSpriteFlags(newSprite, SFLAG_KILLCOUNT))
                             g_player[myconnectindex].ps->max_actors_killed++;
                 }
 
