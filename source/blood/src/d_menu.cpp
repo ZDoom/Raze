@@ -320,10 +320,12 @@ END_BLD_NS
 
 
 static TMenuClassDescriptor<Blood::BloodListMenu> _lm("Blood.ListMenu");
+static TMenuClassDescriptor<Blood::BloodListMenu> _mm("Blood.MainMenu");
 static TMenuClassDescriptor<Blood::DBloodImageScrollerMenu> _im("Blood.ImageScrollerMenu");
 
 void RegisterBloodMenus()
 {
 	menuClasses.Push(&_lm);
+	menuClasses.Push(&_mm);
 	menuClasses.Push(&_im);
 }
