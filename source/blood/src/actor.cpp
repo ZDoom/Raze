@@ -6931,7 +6931,11 @@ void ActorLoadSave::Load(void)
     Read(gAffectedXWalls, sizeof(gAffectedXWalls));
     Read(&gPostCount, sizeof(gPostCount));
     Read(gPost, sizeof(gPost));
-    actInit(true);
+    if (gGameOptions.nMonsterSettings != 0) {
+        for (int i = 0; i < kDudeMax - kDudeBase; i++)
+            for (int j = 0; j < 7; j++)
+                dudeInfo[i].at70[j] = mulscale8(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j]);
+    }
 }
 
 void ActorLoadSave::Save(void)
