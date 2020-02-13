@@ -191,17 +191,6 @@ grpinfo
 	gamefilter "Duke.DukeDC"
 }
 
-addon
-{
-	// This is for loading the addon from the megaton edition without setting the path.
-	name "Duke it out in D.C."
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
-	dependency DUKE15_CRC
-	mustcontain "addons/dc/dukedc.grp"
-	loadgrp "addons/dc/dukedc.grp"
-	gamefilter "Duke.DukeDC"
-}
-
 // These are a bit strange but without anything to check I do not know in what way.
 //   { "Duke Caribbean: Life's a Beach (1.3D)", VACA13_CRC,  23559381, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE13_CRC, NULL, process_vaca13},
 //   { "Duke Caribbean: Life's a Beach (PPak)", VACAPP_CRC,  22551333, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKEPP_CRC, NULL, process_vacapp15},
@@ -228,17 +217,6 @@ grpinfo
 	gamefilter "Duke.Vacation"
 }
 
-addon
-{
-	// This is for loading the addon from the megaton edition without setting the path.
-	name "Duke Caribbean: Life's a Beach"
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
-	dependency DUKE15_CRC
-	mustcontain "addons/vacation/vacation.grp"
-	loadgrp "addons/vacation/vacation.grp"
-	gamefilter "Duke.Vacation"
-}
-
 grpinfo
 {
 	name "Duke: Nuclear Winter"
@@ -249,19 +227,6 @@ grpinfo
 	dependency DUKE15_CRC
 	gamefilter "Duke.NWinter"
 }
-
-addon
-{
-	// This is for loading the addon from the megaton edition without setting the path.
-	name "Duke: Nuclear Winter"
-	scriptname "NWINTER.CON"
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
-	dependency DUKE15_CRC
-	mustcontain "addons/nw/nwinter.grp"
-	loadgrp "addons/nw/nwinter.grp"
-	gamefilter "Duke.NWinter"
-}
-
 
 grpinfo
 {
