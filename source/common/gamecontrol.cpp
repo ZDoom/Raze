@@ -309,6 +309,14 @@ CVAR(Bool, duke_compatibility_15, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 void CheckFrontend(int flags)
 {
+	bool duke_compat = duke_compatibility_15;
+	// This point is too early to have cmdline CVAR checkers working so it must be with a switch.
+	auto c = Args->CheckValue("-duke_compatibility_15");
+	if (c)
+	{
+		if (strtol(c, nullptr, 0)) duke_compatibility_15 = true;
+		else duke_compatibility_15 = false;
+	}
 	if (flags & GAMEFLAG_BLOOD)
 	{
 		gi = Blood::CreateInterface();
