@@ -179,7 +179,7 @@ CUSTOM_CVARD(Int, hud_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD 
 
 CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the hud scale")
 {
-	if (self < 36) self = 36;
+	if (self < 35) self = 35;
 	else if (self > 100) self = 100;
 	else gi->set_hud_scale(hud_scale);
 }
