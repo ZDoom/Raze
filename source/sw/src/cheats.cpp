@@ -236,6 +236,7 @@ void WarpCheat(PLAYERp pp, const char *cheat_string)
     //DSPRINTF(ds,"ep %d, lev %d",episode_num, level_num);
     //MONO_PRINT(ds);
 
+	if (!pp) return;
     if (!SW_SHAREWARE)
     {
         if (level_num > 28 || level_num < 1)
@@ -246,6 +247,9 @@ void WarpCheat(PLAYERp pp, const char *cheat_string)
         if (level_num > 4 || level_num < 1)
             return;
     }
+    if (TEST(pp->Flags, PF_DEAD))
+        return;
+
 
     Level = level_num;
     ExitLevel = TRUE;
