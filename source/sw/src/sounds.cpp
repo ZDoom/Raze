@@ -946,12 +946,14 @@ SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_tra
 void StopSound(void)
 {
     // This gets also called on shutdown.
+	StopAmbientSound();
     if (soundEngine) soundEngine->StopAllChannels();
     Mus_Stop();
 }
 
 void StopFX()
 {
+	StopAmbientSound();
     if (soundEngine) soundEngine->StopAllChannels();
 }
 

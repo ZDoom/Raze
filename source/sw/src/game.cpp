@@ -2178,6 +2178,7 @@ void EndGameSequence(void)
 {
     SWBOOL anim_ok = TRUE;
     //FadeOut(0, 5);
+	StopSound();
 
     if ((adult_lockout || Global_PLock) && FinishAnim == ANIM_SUMO)
         anim_ok = FALSE;
