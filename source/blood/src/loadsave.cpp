@@ -451,8 +451,8 @@ void UnindexAIState(AISTATE*& state)
     auto index = intptr_t(state);
     if (index >= 0 && index < countof(allAIStates))
     {
-		Printf("Unindexing %i to state %p\n", int(index), state);
         state = allAIStates[index];
+        Printf("Unindexing %i to state %p\n", int(index), state);
     }
 	else
 	{

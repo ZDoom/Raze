@@ -305,12 +305,10 @@ CanSeePlayer(short SpriteNum)
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
 
-    ASSERT(u->tgt_sp);
-
     //if (FAF_Sector(sp->sectnum))
     //    return(TRUE);
 
-    if (FAFcansee(sp->x, sp->y, look_height, sp->sectnum, u->tgt_sp->x, u->tgt_sp->y, SPRITEp_UPPER(u->tgt_sp), u->tgt_sp->sectnum))
+    if (u->tgt_sp && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, u->tgt_sp->x, u->tgt_sp->y, SPRITEp_UPPER(u->tgt_sp), u->tgt_sp->sectnum))
         return TRUE;
     else
         return FALSE;
@@ -644,6 +642,12 @@ DoActorActionDecide(short SpriteNum)
     u->Dist = 0;
     action = InitActorDecide;
 
+    // target is gone.
+    if (u->tgt_sp == nullptr)
+    {
+        return action;
+    }
+
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         //CON_Message("Jumping or falling");
@@ -657,7 +661,6 @@ DoActorActionDecide(short SpriteNum)
         //CON_Message("On Fire");
         return action;
     }
-
 
     ICanSee = CanSeePlayer(SpriteNum);  // Only need to call once
     // But need the result multiple times
@@ -845,6 +848,9 @@ DoActorDecide(short SpriteNum)
     if (actor_action == InitActorAttack && u->WeaponNum == 0)
         return 0;   // Just let the actor do as it was doing before in this case
 
+    // Target is gone.
+    if (u->tgt_sp == nullptr)
+        return 0;
 
     // zombie is attacking a player
     if (actor_action == InitActorAttack && u->ID == ZOMBIE_RUN_R0 && User[u->tgt_sp-sprite]->PlayerP)

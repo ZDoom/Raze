@@ -812,6 +812,17 @@ KillSprite(int16_t SpriteNum)
     memset(sp, 0xCC, sizeof(SPRITE));
     sp->statnum = statnum;
     sp->sectnum = sectnum;
+
+    // Kill references in all users - slow but unavoidable if we don't want the game to crash on stale pointers.
+    for (auto u : User)
+    {
+        if (u)
+        {
+            if (u->hi_sp == sp) u->hi_sp = nullptr;
+            if (u->lo_sp == sp) u->lo_sp = nullptr;
+            if (u->tgt_sp == sp) u->tgt_sp = nullptr;
+        }
+    }
 }
 
 void ChangeState(short SpriteNum, STATEp statep)
