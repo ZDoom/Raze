@@ -1138,7 +1138,7 @@ OptionMenu "VideoOptions" //protected
 	StaticText ""
 	Option "$DSPLYMNU_VOXELS",					"r_voxels",					"OnOff"
 	Option "$DSPLYMNU_SHADOWS",					"r_shadows",					"OnOff"
-	ifgamne(Blood, ShadowWarrior)
+	ifgame(Blood, ShadowWarrior)
 	{
 		Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
 	}
