@@ -818,9 +818,6 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
         dm1.x = xbr;
     }
 
-    dm0.x -= DOMOST_OFFSET;
-    dm1.x += DOMOST_OFFSET;
-
     drawpoly_alpha = 0.f;
     drawpoly_blend = 0;
 
@@ -893,14 +890,6 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
         vsp[i].tag = vsp[newi].tag = -1;
 
         float const rdx = 1.f/dx;
-
-        for (bssize_t i = 0; i < scnt; i++)
-        {
-            if (spx[i] < x0)
-                spx[i] = x0;
-            else if (spx[i] > x1)
-                spx[i] = x1;
-        }
 
         for (bssize_t z=0, vcnt=0; z<=scnt; z++,i=vcnt)
         {
@@ -1565,7 +1554,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
 {
     int const have_floor = sectnum & MAXSECTORS;
     sectnum &= ~MAXSECTORS;
-    usectortype const * const sec = (usectortype *)&sector[sectnum];
+    auto const sec = (usectorptr_t)&sector[sectnum];
 
     // comments from floor code:
             //(singlobalang/-16384*(sx-ghalfx) + 0*(sy-ghoriz) + (cosviewingrangeglobalang/16384)*ghalfx)*d + globalposx    = u*16
