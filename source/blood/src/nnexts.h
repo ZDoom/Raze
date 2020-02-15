@@ -162,7 +162,7 @@ extern short gPhysSpritesCount;
 bool nnExtEraseModernStuff(spritetype* pSprite, XSPRITE* pXSprite);
 void nnExtInitModernStuff(bool bSaveLoad);
 void nnExtProcessSuperSprites(void);
-bool nnExtIsUmmune(spritetype* pSprite, int dmgType, int minScale = 16);
+bool nnExtIsImmune(spritetype* pSprite, int dmgType, int minScale = 16);
 int nnExtRandom(int a, int b);
 //  -------------------------------------------------------------------------   //
 spritetype* randomDropPickupObject(spritetype* pSprite, short prevItem);

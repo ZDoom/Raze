@@ -767,7 +767,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                                 VectorScan(pSprite, 0, 0, Cos(pSprite->ang) >> 16, Sin(pSprite->ang) >> 16, gDudeSlope[pSprite->extra], dist, 1);
                                 if (pXSprite->target == gHitInfo.hitsprite) break;
                                 
-                                bool immune = nnExtIsUmmune(pHSprite, gVectorData[curWeapon].dmgType);
+                                bool immune = nnExtIsImmune(pHSprite, gVectorData[curWeapon].dmgType);
                                 if (!(pXHSprite != NULL && (!immune || (immune && pHSprite->statnum == kStatThing && pXHSprite->Vector)) && !pXHSprite->locked)) {
 
                                     if ((approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) <= 1500 && !blck)
@@ -853,7 +853,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                                     else if (hit == 3 && (failed = (pHSprite->statnum != kStatThing || pXHSprite == NULL || pXHSprite->locked)) == false) {
                                         // check also for damage resistance (all possible damages missile can use)
                                         for (int i = 0; i < kDmgMax; i++) {
-                                            if (gMissileInfoExtra[curWeapon - kMissileBase].dmgType[i] && (failed = nnExtIsUmmune(pHSprite, i)) == false)
+                                            if (gMissileInfoExtra[curWeapon - kMissileBase].dmgType[i] && (failed = nnExtIsImmune(pHSprite, i)) == false)
                                                 break;
                                         }
                                     }

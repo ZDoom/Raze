@@ -121,7 +121,7 @@ void aiNewState(spritetype *pSprite, XSPRITE *pXSprite, AISTATE *pAIState)
         pAIState->enterFunc(pSprite, pXSprite);
 }
 
-bool isUmmune(spritetype* pSprite, int dmgType, int minScale) {
+bool isImmune(spritetype* pSprite, int dmgType, int minScale) {
 
     if (dmgType >= kDmgFall && dmgType < kDmgMax && pSprite->extra >= 0 && xsprite[pSprite->extra].locked != 1) {
         if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
@@ -212,7 +212,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
         // It makes ignore danger if enemy immune to N damageType. As result Cerberus start acting like
         // in Blood 1.0 so it can move normally to player. It's up to you for adding rest of enemies here as
         // i don't think it will broke something in game.
-        if (!VanillaMode() && Crusher && isUmmune(pSprite, pXSector->damageType, 16)) return true;
+        if (!VanillaMode() && Crusher && isImmune(pSprite, pXSector->damageType, 16)) return true;
         fallthrough__;
     case kDudeZombieButcher:
     case kDudeSpiderBrown:
@@ -232,7 +232,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
     #ifdef NOONE_EXTENSIONS
     case kDudeModernCustom:
     case kDudeModernCustomBurning:
-        if ((Crusher && !nnExtIsUmmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(pSprite))) return false;
+        if ((Crusher && !nnExtIsImmune(pSprite, pXSector->damageType)) || ((Water || Underwater) && !canSwim(pSprite))) return false;
         return true;
         fallthrough__;
     #endif
