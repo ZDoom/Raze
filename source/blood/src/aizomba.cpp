@@ -150,6 +150,10 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
         aiNewState(pSprite, pXSprite, &zombieAGoto);
         return;
     }
+    // If the zombie gets whacked while rising from the grave it never executes this change and if it isn't done here at the very latest, will just aimlessly run around.
+    if (!VanillaMode() && pSprite->type == kDudeZombieAxeBuried) 
+        pSprite->type = kDudeZombieAxeNormal;
+
     int nDist = approxDist(dx, dy);
     if (nDist <= pDudeInfo->seeDist)
     {
