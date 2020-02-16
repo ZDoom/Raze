@@ -3146,6 +3146,14 @@ void P_GetInput(int playerNum)
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
+    if (numplayers == 1)
+    {
+        pPlayer->aim_mode = in_mousemode;
+        pPlayer->auto_aim = cl_autoaim;
+        pPlayer->weaponswitch = cl_weaponswitch;
+    }
+
+
     CONTROL_GetInput(&info);
 
 
@@ -3420,6 +3428,13 @@ void P_GetInputMotorcycle(int playerNum)
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
+    if (numplayers == 1)
+    {
+        pPlayer->aim_mode = in_mousemode;
+        pPlayer->auto_aim = cl_autoaim;
+        pPlayer->weaponswitch = cl_weaponswitch;
+    }
+
     CONTROL_GetInput(&info);
 
     // JBF: Run key behaviour is selectable
@@ -3684,6 +3699,13 @@ void P_GetInputBoat(int playerNum)
     D_ProcessEvents();
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
+
+    if (numplayers == 1)
+    {
+        pPlayer->aim_mode = in_mousemode;
+        pPlayer->auto_aim = cl_autoaim;
+        pPlayer->weaponswitch = cl_weaponswitch;
+    }
 
     CONTROL_GetInput(&info);
 

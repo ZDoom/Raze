@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "baselayer.h"
+#include "mmulti.h"
 #include "gamecontrol.h"
 #include "common_game.h"
 #include "blood.h"
@@ -84,6 +85,12 @@ void ctrlGetInput(void)
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 	if (!mouseaim) gInput.keyFlags.lookCenter = 1;
+
+    if (numplayers == 1)
+    {
+        gProfile[myconnectindex].nAutoAim = cl_autoaim;
+        gProfile[myconnectindex].nWeaponSwitch = cl_weaponswitch;
+    }
 
     CONTROL_GetInput(&info);
 

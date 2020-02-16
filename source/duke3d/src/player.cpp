@@ -2921,6 +2921,14 @@ void P_GetInput(int const playerNum)
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
+    if (numplayers == 1)
+    {
+        pPlayer->aim_mode = in_mousemode;
+        pPlayer->auto_aim = cl_autoaim;
+        pPlayer->weaponswitch = cl_weaponswitch;
+    }
+
+
     CONTROL_GetInput(&info);
 
     // JBF: Run key behaviour is selectable

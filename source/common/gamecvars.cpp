@@ -95,7 +95,6 @@ CUSTOM_CVARD(Int, cl_crosshairscale, 50, CVAR_ARCHIVE, "changes the size of the 
 CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable weapon autoaim")
 {
 	if (self < 0 || self > ((g_gameType & GAMEFLAG_BLOOD)? 2 : 3)) self = 1;	// The Shadow Warrior backend only has a bool for this.
-	//UpdatePlayerFromMenu(); todo: networking (only operational in EDuke32 frontend anyway.)
 };
 
 CUSTOM_CVARD(Int, cl_weaponswitch, 3, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable auto weapon switching")
@@ -104,7 +103,6 @@ CUSTOM_CVARD(Int, cl_weaponswitch, 3, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disabl
 	if (self > 1 && (g_gameType & GAMEFLAG_SW)) self = 1;
 	if (self > 3 && (g_gameType & GAMEFLAG_BLOOD)) self = 3;
 	if (self > 7) self = 7;
-	//UpdatePlayerFromMenu(); todo: networking (only operational in EDuke32 frontend anyway.)
 }
 
 
