@@ -3709,7 +3709,6 @@ void callbackGenDudeUpdate(int nSprite) // 24
     if (spriRangeIsFine(nSprite))
         genDudeUpdate(&sprite[nSprite]);
 }
-#endif
 
 
 class NNLoadSave : public LoadSave
@@ -3752,3 +3751,5 @@ void NNLoadSaveConstruct(void)
 // For full documentation please visit http://cruo.bloodgame.ru/xxsystem
 ///////////////////////////////////////////////////////////////////
 END_BLD_NS
+
+#endif
