@@ -608,7 +608,7 @@ void DoUpdateSounds(void)
 //
 //==========================================================================
 
-int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, int channel)
+int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, int channel, EChanFlags cflags)
 {
     if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(num))
         return -1;
@@ -625,7 +625,7 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
 
     auto vp = &voc[num];
     int sourcetype = SOURCE_None;
-    EChanFlags cflags = channel == 8 ? CHANF_OVERLAP : CHANF_NONE;  // for the default channel we do not want to have sounds stopping each other.
+    cflags |= channel == 8 ? CHANF_OVERLAP : CHANF_NONE;  // for the default channel we do not want to have sounds stopping each other.
     void* source = nullptr;
     // If the sound is not supposd to be positioned, it may not be linked to the launching actor.
     if (!(flags & v3df_follow))

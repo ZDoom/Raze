@@ -169,4 +169,10 @@ extern ReverbContainer *DefaultEnvironments[26];
 
 bool IsOpenALPresent();
 
+enum
+{
+	PAUSESFX_MENU = 1,
+	PAUSESFX_CONSOLE = 2
+};
+
 #endif

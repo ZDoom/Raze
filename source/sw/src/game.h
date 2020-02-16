@@ -45,6 +45,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "settings.h"
 #include "pragmas.h"
 #include "gamecvars.h"
+#include "s_soundinternal.h"
 
 BEGIN_SW_NS
 
@@ -2092,23 +2093,23 @@ enum
 short SoundDist(int x, int y, int z, int basedist);
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
-int _PlaySound(int num, SPRITEp sprite, PLAYERp player, vec3_t *pos, Voc3D_Flags flags, int channel);
+int _PlaySound(int num, SPRITEp sprite, PLAYERp player, vec3_t *pos, Voc3D_Flags flags, int channel, EChanFlags sndflags);
 void InitAmbient(int num, SPRITEp sprite);
-inline void PlaySound(int num, SPRITEp sprite, Voc3D_Flags flags, int channel = 8)
+inline void PlaySound(int num, SPRITEp sprite, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
-    _PlaySound(num, sprite, nullptr, nullptr, flags, channel);
+    _PlaySound(num, sprite, nullptr, nullptr, flags, channel, sndflags);
 }
-inline void PlaySound(int num, PLAYERp player, Voc3D_Flags flags, int channel = 8)
+inline void PlaySound(int num, PLAYERp player, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
-    _PlaySound(num, nullptr, player, nullptr, flags, channel);
+    _PlaySound(num, nullptr, player, nullptr, flags, channel, sndflags);
 }
-inline void PlaySound(int num, Voc3D_Flags flags, int channel = 8)
+inline void PlaySound(int num, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
-    _PlaySound(num, nullptr, nullptr, nullptr, flags, channel);
+    _PlaySound(num, nullptr, nullptr, nullptr, flags, channel, sndflags);
 }
-inline void PlaySound(int num, vec3_t *pos, Voc3D_Flags flags, int channel = 8)
+inline void PlaySound(int num, vec3_t *pos, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
-    _PlaySound(num, nullptr, nullptr, pos, flags, channel);
+    _PlaySound(num, nullptr, nullptr, pos, flags, channel, sndflags);
 }
 
 int _PlayerSound(int num, PLAYERp pp);

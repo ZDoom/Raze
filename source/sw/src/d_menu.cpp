@@ -108,9 +108,9 @@ public:
 			DidOrderSound = true;
 			int choose_snd = STD_RANDOM_RANGE(1000);
 			if (choose_snd > 500)
-				PlaySound(DIGI_WANGORDER1, v3df_dontpan);
+				PlaySound(DIGI_WANGORDER1, v3df_dontpan, CHAN_BODY, CHANF_UI);
 			else 
-				PlaySound(DIGI_WANGORDER2, v3df_dontpan);
+				PlaySound(DIGI_WANGORDER2, v3df_dontpan, CHAN_BODY, CHANF_UI);
 		}
 	}
 };
@@ -178,15 +178,15 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	switch (snd)
 	{
 		case CursorSound:
-            PlaySound(DIGI_STAR, v3df_dontpan);
+            PlaySound(DIGI_STAR, v3df_dontpan, CHAN_BODY, CHANF_UI);
 			break;
 
 		case AdvanceSound:
-			PlaySound(DIGI_SWORDSWOOSH, v3df_dontpan);
+			PlaySound(DIGI_SWORDSWOOSH, v3df_dontpan, CHAN_BODY, CHANF_UI);
 			break;
 			
 		case CloseSound:
-			PlaySound(DIGI_STARCLINK, v3df_dontpan);
+			PlaySound(DIGI_STARCLINK, v3df_dontpan, CHAN_BODY, CHANF_UI);
 			break;
 
 		default:
@@ -237,13 +237,13 @@ void GameInterface::StartGame(FGameStartup& gs)
     //InitNewGame();
 
     if (Skill == 0)
-        PlaySound(DIGI_TAUNTAI3, v3df_none, CHAN_VOICE);
+        PlaySound(DIGI_TAUNTAI3, v3df_none, CHAN_VOICE, CHANF_UI);
     else if (Skill == 1)
-        PlaySound(DIGI_NOFEAR, v3df_none, CHAN_VOICE);
+        PlaySound(DIGI_NOFEAR, v3df_none, CHAN_VOICE, CHANF_UI);
     else if (Skill == 2)
-        PlaySound(DIGI_WHOWANTSWANG, v3df_none, CHAN_VOICE);
+        PlaySound(DIGI_WHOWANTSWANG, v3df_none, CHAN_VOICE, CHANF_UI);
     else if (Skill == 3)
-        PlaySound(DIGI_NOPAIN, v3df_none, CHAN_VOICE);
+        PlaySound(DIGI_NOPAIN, v3df_none, CHAN_VOICE, CHANF_UI);
 
 	while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
 	{

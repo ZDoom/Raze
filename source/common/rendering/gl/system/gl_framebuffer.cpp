@@ -162,7 +162,7 @@ void OpenGLFrameBuffer::InitializeState()
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	glEnable(GL_POLYGON_OFFSET_LINE);
 	glEnable(GL_BLEND);
-	glEnable(GL_DEPTH_CLAMP);
+	//glEnable(GL_DEPTH_CLAMP);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LINE_SMOOTH);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

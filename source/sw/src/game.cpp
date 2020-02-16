@@ -1525,7 +1525,7 @@ void CreditsLevel(void)
     inputState.ClearAllInput();
 
     // Lo Wang feel like singing!
-    PlaySound(DIGI_JG95012, v3df_none, CHAN_VOICE);
+    PlaySound(DIGI_JG95012, v3df_none, CHAN_VOICE, CHANF_UI);
     while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
     {
         DoUpdateSounds();

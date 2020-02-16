@@ -366,7 +366,7 @@ void M_StartControlPanel (bool makeSound)
 		created = true;
 		M_CreateMenus();
 	}
-	soundEngine->StopAllChannels();
+	GSnd->SetSfxPaused(true, PAUSESFX_MENU);
 	gi->MenuOpened();
 	if (makeSound) gi->MenuSound(ActivateSound);
 
@@ -936,6 +936,7 @@ void M_ClearMenus (bool final)
 	}
 	DMenu::CurrentMenu = nullptr;
 	menuactive = MENU_Off;
+	GSnd->SetSfxPaused(false, PAUSESFX_MENU);
 	if (!final)
 	{
 		mouseGrabInput(true);

@@ -57,6 +57,7 @@
 #include "gamecvars.h"
 #include "baselayer.h"
 #include "i_system.h"
+#include "s_soundinternal.h"
 
 
 #define LEFTMARGIN 8
@@ -1028,6 +1029,7 @@ void C_Ticker()
 			ConBottom += (consoletic - lasttic) * (screen->GetHeight() * 2 / 25);
 			if (ConBottom >= screen->GetHeight() / 2)
 			{
+				GSnd->SetSfxPaused(true, PAUSESFX_CONSOLE);
 				ConBottom = screen->GetHeight() / 2;
 				ConsoleState = c_down;
 			}
@@ -1037,6 +1039,7 @@ void C_Ticker()
 			ConBottom -= (consoletic - lasttic) * (screen->GetHeight() * 2 / 25);
 			if (ConBottom <= 0)
 			{
+				GSnd->SetSfxPaused(false, PAUSESFX_CONSOLE);
 				ConsoleState = c_up;
 				ConBottom = 0;
 			}
