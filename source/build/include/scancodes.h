@@ -27,7 +27,7 @@
 #define  sc_F11          0x57
 #define  sc_F12          0x58
 #define  sc_Kpad_Star    0x37
-#define  sc_Pause        0x59
+#define  sc_Pause        0xc5
 #define  sc_ScrollLock   0x46
 #define  sc_NumLock      0x45
 #define  sc_Slash        0x35
