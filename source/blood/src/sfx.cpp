@@ -215,9 +215,10 @@ void sfxKill3DSound(spritetype *pSprite, int a2, int a3)
         return;
 
     if (a2 >= 0) a2++;
+    auto sid = soundEngine->FindSoundByResID(a3);
     soundEngine->EnumerateChannels([=](FSoundChan* channel)
         {
-            if (channel->SourceType == SOURCE_Actor && channel->Source == pSprite && (a2 < 0 || a2 == channel->EntChannel) && (a3 < 0 || a3 == channel->OrgID))
+            if (channel->SourceType == SOURCE_Actor && channel->Source == pSprite && (a2 < 0 || a2 == channel->EntChannel) && (a3 < 0 || sid == channel->OrgID))
             {
                 soundEngine->StopChannel(channel);
             }
