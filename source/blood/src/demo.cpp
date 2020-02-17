@@ -264,6 +264,7 @@ bool CDemo::SetupPlayback(const char *pzFile)
 #endif
     at0 = 0;
     at1 = 1;
+    M_UnpauseSound();
     return 1;
 }
 

@@ -783,6 +783,7 @@ void M_MenuSound(EMenuSounds snd);
 void M_Autosave();
 bool M_Active();
 void M_DeinitMenus();
+void M_UnpauseSound();
 
 
 void I_SetMouseCapture();

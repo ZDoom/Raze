@@ -920,6 +920,11 @@ void M_Drawer (void)
 //
 //=============================================================================
 
+void M_UnpauseSound()
+{
+	GSnd->SetSfxPaused(false, PAUSESFX_MENU);
+}
+
 void M_ClearMenus (bool final)
 {
 	if (menuactive == MENU_Off) return;
@@ -936,7 +941,7 @@ void M_ClearMenus (bool final)
 	}
 	DMenu::CurrentMenu = nullptr;
 	menuactive = MENU_Off;
-	GSnd->SetSfxPaused(false, PAUSESFX_MENU);
+	M_UnpauseSound();
 	if (!final)
 	{
 		mouseGrabInput(true);
