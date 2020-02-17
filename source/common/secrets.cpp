@@ -8,6 +8,7 @@
 #include "v_draw.h"
 #include "sjson.h"
 #include "savegamehelp.h"
+#include "mapinfo.h"
 
 // Unlike in GZDoom we have to maintain this list here, because we got different game frontents that all store this info differently.
 // So the games will have to report the credited secrets so that this code can keep track of how to display them.
@@ -52,8 +53,8 @@ static void PrintSecretString(const char *string, bool thislevel)
 
 CCMD(secret)
 {
-	const char *mapname = argv.argc() < 2? mapfile.GetChars() : argv[1];
-	bool thislevel = !stricmp(mapname, mapfile.GetChars());
+	const char *mapname = argv.argc() < 2? currentLevel->labelName.GetChars() : argv[1];
+	bool thislevel = !stricmp(mapname, currentLevel->labelName.GetChars());
 	bool foundsome = false;
 
 	int lumpno=fileSystem.FindFile("secrets.txt");
@@ -77,7 +78,7 @@ CCMD(secret)
 				if (!foundsome)
 				{
 					FString levelname;
-					if (thislevel) levelname.Format("%s - %s", mapname, maptitle.GetChars());
+					if (thislevel) levelname.Format("%s - %s", mapname, currentLevel->name.GetChars());
 					else levelname = mapname;
 					Printf(TEXTCOLOR_YELLOW "%s\n", levelname.GetChars());
 					size_t llen = levelname.Len();
@@ -135,7 +136,7 @@ void SECRET_Save()
 
 bool SECRET_Load()
 {
-	auto fil = ReadSavegameChunk("statistics.json");
+	auto fil = ReadSavegameChunk("secrets.json");
 	if (!fil.isOpen())
 	{
 		return false;
