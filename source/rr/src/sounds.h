@@ -62,7 +62,6 @@ void S_ContinueLevelMusic(void);
 int S_PlaySound(int num, int channel = CHAN_AUTO, EChanFlags flags = 0);
 int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
 void S_StopEnvSound(int sndNum,int sprNum, int flags = -1);
-void S_StopAllSounds(void);
 void S_Update(void);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 int S_GetUserFlags(int sndnum);

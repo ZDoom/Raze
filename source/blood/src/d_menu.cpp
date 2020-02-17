@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "c_bind.h"
 #include "menu/menu.h"
+#include "sfx.h"
 
 bool ShowOptionMenu();
 
@@ -255,6 +256,7 @@ bool GameInterface::CanSave()
 
 void GameInterface::StartGame(FGameStartup& gs)
 {
+	sfxKillAllSounds();
 	gGameOptions.nDifficulty = gs.Skill;
 	gGameOptions.nEpisode = gs.Episode;
 	gSkill = gs.Skill;

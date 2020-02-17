@@ -420,6 +420,7 @@ void GameInterface::StartGame(FGameStartup& gs)
 {
 	int32_t skillsound = PISTOL_BODYHIT;
 
+	soundEngine->StopAllChannels();
 	switch (gs.Skill)
 	{
 	case 0:

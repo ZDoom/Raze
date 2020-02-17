@@ -485,6 +485,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		if (caller == NAME_MainMenu) GameStartupInfo.Episode = param;
 		STAT_StartNewGame(gVolumeNames[GameStartupInfo.Episode], GameStartupInfo.Skill);
 		inputState.ClearAllInput();
+
 		gi->StartGame(GameStartupInfo);
 		return false;
 

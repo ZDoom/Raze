@@ -233,6 +233,7 @@ void GameInterface::StartGame(FGameStartup& gs)
     DemoMode = FALSE;
     CameraTestMode = FALSE;
 	Skill = gs.Skill;
+	StopFX();
 
     //InitNewGame();
 

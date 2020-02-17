@@ -61,7 +61,7 @@ static void G_HandleEventsWhileNoInput(void)
 
 static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
 {
-    S_PlaySound(soundnum);
+    S_PlaySound(soundnum, CHAN_AUTO, CHANF_UI);
     inputState.ClearAllInput();
     while (S_CheckSoundPlaying(-1, soundnum))
     {
@@ -1209,7 +1209,7 @@ void G_DisplayLogo(void)
 
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-        S_PlaySound(NITEVISION_ONOFF);
+        S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI);
 
         //G_FadePalette(0,0,0,0);
         videoClearScreen(0L);
@@ -1311,7 +1311,7 @@ void G_DisplayLogo(void)
                     if (soundanm == 0)
                     {
                         soundanm++;
-                        S_PlaySound(PIPEBOMB_EXPLODE);
+                        S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
                     }
                     rotatesprite_fs(160<<16, 104<<16, ((int32_t) totalclock-120)<<10, 0, DUKENUKEM, 0, 0, 2+8);
                 }
@@ -1323,7 +1323,7 @@ void G_DisplayLogo(void)
                     if (soundanm == 1)
                     {
                         soundanm++;
-                        S_PlaySound(PIPEBOMB_EXPLODE);
+                        S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
                     }
 
                     rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, DUKENUKEM, 0, 0, 2+8);
@@ -1341,7 +1341,7 @@ void G_DisplayLogo(void)
                         if (soundanm == 2)
                         {
                             soundanm++;
-                            S_PlaySound(FLY_BY);
+                            S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
                         }
                     }
                     else if (totalclock >= 395)
@@ -1349,7 +1349,7 @@ void G_DisplayLogo(void)
                         if (soundanm == 3)
                         {
                             soundanm++;
-                            S_PlaySound(PIPEBOMB_EXPLODE);
+                            S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
                         }
                         rotatesprite_fs(160<<16, (151)<<16, 30<<11, 0, PLUTOPAKSPRITE+1, (sintable[((int32_t) totalclock<<4)&2047]>>11), 0, 2+8);
                     }
@@ -1370,7 +1370,7 @@ void G_DisplayLogo(void)
 
     //g_player[myconnectindex].ps->palette = palette;
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-    S_PlaySound(NITEVISION_ONOFF);
+    S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI);
 
     //G_FadePalette(0,0,0,0);
     videoClearScreen(0L);
@@ -1502,8 +1502,8 @@ static void G_BonusCutscenes(void)
                         {
                             if (t==10 && bonuscnt == 1)
                             {
-                                S_PlaySound(SHOTGUN_FIRE);
-                                S_PlaySound(SQUISHED);
+                                S_PlaySound(SHOTGUN_FIRE, CHAN_AUTO, CHANF_UI);
+                                S_PlaySound(SQUISHED, CHAN_AUTO, CHANF_UI);
                                 bonuscnt++;
                             }
                             rotatesprite_fs(bossmove[t+3]<<16, bossmove[t+4]<<16, 65536L, 0, bossmove[t+2], 0, 0, 2+8+16+64+128+BGSTRETCH);
@@ -1525,7 +1525,7 @@ static void G_BonusCutscenes(void)
                             rotatesprite_fs(86<<16, 59<<16, 65536L, 0, VICTORY1+8, 0, 0, 2+8+16+64+128+BGSTRETCH);
                             if (totalclock >= 750 && bonuscnt == 2)
                             {
-                                S_PlaySound(DUKETALKTOBOSS);
+                                S_PlaySound(DUKETALKTOBOSS, CHAN_AUTO, CHANF_UI);
                                 bonuscnt++;
                             }
 
@@ -1535,7 +1535,7 @@ static void G_BonusCutscenes(void)
                             {
                                 if (t==5 && bonuscnt == 0)
                                 {
-                                    S_PlaySound(BOSSTALKTODUKE);
+                                    S_PlaySound(BOSSTALKTODUKE, CHAN_AUTO, CHANF_UI);
                                     bonuscnt++;
                                 }
                                 rotatesprite_fs(breathe[t+3]<<16, breathe[t+4]<<16, 65536L, 0, breathe[t+2], 0, 0, 2+8+16+64+128+BGSTRETCH);
@@ -1581,7 +1581,7 @@ static void G_BonusCutscenes(void)
             videoClearScreen(0L);
             videoNextPage();
 
-            S_PlaySound(PIPEBOMB_EXPLODE);
+            S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
             fadepal(0, 0, 0, 0, 252, 4);
         }
 
@@ -1626,7 +1626,7 @@ static void G_BonusCutscenes(void)
     end_vol4e:
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        S_PlaySound(ENDSEQVOL3SND4);
+        S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI);
         inputState.ClearAllInput();
 
         G_FadePalette(0, 0, 0, 0);
@@ -1710,7 +1710,7 @@ static void G_BonusCutscenes(void)
         {
             FX_StopAllSounds();
             S_ClearSoundLocks();
-            S_PlaySound(ENDSEQVOL3SND4);
+            S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI);
 
             videoClearScreen(0L);
             videoNextPage();
@@ -1909,7 +1909,7 @@ void G_BonusScreen(int32_t bonusonly)
         G_DisplayMPResultsScreen();
 
         if (MusicEnabled() && mus_enabled)
-            S_PlaySound(BONUSMUSIC);
+            S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
 
         videoNextPage();
         inputState.ClearAllInput();
@@ -1951,7 +1951,7 @@ void G_BonusScreen(int32_t bonusonly)
     gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
 
         if (MusicEnabled() && mus_enabled)
-            S_PlaySound(BONUSMUSIC);
+            S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
     }
     else
     {
@@ -1998,20 +1998,20 @@ void G_BonusScreen(int32_t bonusonly)
                         if (bonuscnt == 6)
                         {
                             bonuscnt++;
-                            S_PlaySound(RR ? 425 : SHOTGUN_COCK);
+                            S_PlaySound(RR ? 425 : SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
                             switch (rand()&3)
                             {
                             case 0:
-                                S_PlaySound(BONUS_SPEECH1);
+                                S_PlaySound(BONUS_SPEECH1, CHAN_AUTO, CHANF_UI);
                                 break;
                             case 1:
-                                S_PlaySound(BONUS_SPEECH2);
+                                S_PlaySound(BONUS_SPEECH2, CHAN_AUTO, CHANF_UI);
                                 break;
                             case 2:
-                                S_PlaySound(BONUS_SPEECH3);
+                                S_PlaySound(BONUS_SPEECH3, CHAN_AUTO, CHANF_UI);
                                 break;
                             case 3:
-                                S_PlaySound(BONUS_SPEECH4);
+                                S_PlaySound(BONUS_SPEECH4, CHAN_AUTO, CHANF_UI);
                                 break;
                             }
                         }
@@ -2112,7 +2112,7 @@ void G_BonusScreen(int32_t bonusonly)
                         if (bonuscnt == 1)
                         {
                             bonuscnt++;
-                            S_PlaySound(RR ? 404 : PIPEBOMB_EXPLODE);
+                            S_PlaySound(RR ? 404 : PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
                         }
 
                         if (g_player[myconnectindex].ps->player_par > 0)
@@ -2189,7 +2189,7 @@ void G_BonusScreen(int32_t bonusonly)
                     {
                         bonuscnt++;
                         if (!RR)
-                            S_PlaySound(FLY_BY);
+                            S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
                     }
 
                     yy = zz;
@@ -2199,7 +2199,7 @@ void G_BonusScreen(int32_t bonusonly)
                         if (bonuscnt == 3)
                         {
                             bonuscnt++;
-                            S_PlaySound(RR ? 422 : PIPEBOMB_EXPLODE);
+                            S_PlaySound(RR ? 422 : PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
                         }
                         Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->actors_killed);
                         if (!RR)
@@ -2250,7 +2250,7 @@ void G_BonusScreen(int32_t bonusonly)
                         if (bonuscnt == 5)
                         {
                             bonuscnt++;
-                            S_PlaySound(RR ? 404 : PIPEBOMB_EXPLODE);
+                            S_PlaySound(RR ? 404 : PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
                         }
                         Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->secret_rooms);
                         if (!RR)
@@ -2488,7 +2488,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         G_DisplayMPResultsScreen();
 
         if (MusicEnabled() && mus_enabled)
-            S_PlaySound(BONUSMUSIC);
+            S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
 
         videoNextPage();
         inputState.ClearAllInput();
@@ -2577,20 +2577,20 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                         if (bonuscnt == 6)
                         {
                             bonuscnt++;
-                            S_PlaySound(425);
+                            S_PlaySound(425, CHAN_AUTO, CHANF_UI);
                             switch (rand()&3)
                             {
                             case 0:
-                                S_PlaySound(BONUS_SPEECH1);
+                                S_PlaySound(BONUS_SPEECH1, CHAN_AUTO, CHANF_UI);
                                 break;
                             case 1:
-                                S_PlaySound(BONUS_SPEECH2);
+                                S_PlaySound(BONUS_SPEECH2, CHAN_AUTO, CHANF_UI);
                                 break;
                             case 2:
-                                S_PlaySound(BONUS_SPEECH3);
+                                S_PlaySound(BONUS_SPEECH3, CHAN_AUTO, CHANF_UI);
                                 break;
                             case 3:
-                                S_PlaySound(BONUS_SPEECH4);
+                                S_PlaySound(BONUS_SPEECH4, CHAN_AUTO, CHANF_UI);
                                 break;
                             }
                         }
@@ -2659,7 +2659,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                         if (bonuscnt == 1)
                         {
                             bonuscnt++;
-                            S_PlaySound(404);
+                            S_PlaySound(404, CHAN_AUTO, CHANF_UI);
                         }
 
                         if (g_player[myconnectindex].ps->player_par > 0)
@@ -2716,7 +2716,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                         if (bonuscnt == 3)
                         {
                             bonuscnt++;
-                            S_PlaySound(422);
+                            S_PlaySound(422, CHAN_AUTO, CHANF_UI);
                         }
                         Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->actors_killed);
                         menutext(231,yy,tempbuf);
@@ -2752,7 +2752,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                         if (bonuscnt == 5)
                         {
                             bonuscnt++;
-                            S_PlaySound(404);
+                            S_PlaySound(404, CHAN_AUTO, CHANF_UI);
                         }
                         Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->secret_rooms);
                         menutext(231, yy, tempbuf);
@@ -2791,7 +2791,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         fadepal(0, 0, 0, 0, 252, 4);
         videoClearScreen(0L);
         videoNextPage();
-        S_PlaySound(35);
+        S_PlaySound(35, CHAN_AUTO, CHANF_UI);
         G_FadePalette(0, 0, 0, 0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
         while (1)

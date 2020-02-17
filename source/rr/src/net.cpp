@@ -3310,7 +3310,7 @@ void Net_ReceiveMessage(uint8_t *pbuf, int32_t packbufleng)
     recbuf[packbufleng-2] = 0;
 
     G_AddUserQuote(recbuf);
-    S_PlaySound(EXITMENUSOUND);
+    S_PlaySound(EXITMENUSOUND, CHAN_AUTO, CHANF_UI);
 
     pus = pub = NUMPAGES;
 }
