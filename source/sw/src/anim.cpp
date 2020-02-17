@@ -76,7 +76,7 @@ void AnimShareIntro(int frame, int numframes)
         ototalclock += 120;
     else if (frame == 1)
     {
-        PlaySound(DIGI_NOMESSWITHWANG, v3df_none);
+        PlaySound(DIGI_NOMESSWITHWANG, v3df_none, CHAN_BODY, CHANF_UI);
         ototalclock += 120*3;
     }
     else
@@ -84,11 +84,11 @@ void AnimShareIntro(int frame, int numframes)
 
     if (frame == 5)
     {
-        PlaySound(DIGI_INTRO_SLASH, v3df_none);
+        PlaySound(DIGI_INTRO_SLASH, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 15)
     {
-        PlaySound(DIGI_INTRO_WHIRL, v3df_none);
+        PlaySound(DIGI_INTRO_WHIRL, v3df_none, CHAN_BODY, CHANF_UI);
     }
 }
 
@@ -102,26 +102,26 @@ void AnimSerp(int frame, int numframes)
 
     if (frame == 1)
     {
-        PlaySound(DIGI_SERPTAUNTWANG, v3df_none);
+        PlaySound(DIGI_SERPTAUNTWANG, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 16)
     {
-        PlaySound(DIGI_SHAREND_TELEPORT, v3df_none);
+        PlaySound(DIGI_SHAREND_TELEPORT, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 35)
     {
         SoundState++;
-        PlaySound(DIGI_WANGTAUNTSERP1, v3df_none);
+        PlaySound(DIGI_WANGTAUNTSERP1, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 51)
     {
         SoundState++;
-        PlaySound(DIGI_SHAREND_UGLY1, v3df_none);
+        PlaySound(DIGI_SHAREND_UGLY1, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 64)
     {
         SoundState++;
-        PlaySound(DIGI_SHAREND_UGLY2, v3df_none);
+        PlaySound(DIGI_SHAREND_UGLY2, v3df_none, CHAN_BODY, CHANF_UI);
     }
 }
 
@@ -139,19 +139,19 @@ void AnimSumo(int frame, int numframes)
     if (frame == 2)
     {
         // hungry
-        PlaySound(DIGI_JG41012, v3df_none);
+        PlaySound(DIGI_JG41012, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 30)
     {
-        PlaySound(DIGI_HOTHEADSWITCH, v3df_none);
+        PlaySound(DIGI_HOTHEADSWITCH, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 42)
     {
-        PlaySound(DIGI_HOTHEADSWITCH, v3df_none);
+        PlaySound(DIGI_HOTHEADSWITCH, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 59)
     {
-        PlaySound(DIGI_JG41028, v3df_none);
+        PlaySound(DIGI_JG41028, v3df_none, CHAN_BODY, CHANF_UI);
     }
 }
 
@@ -165,61 +165,61 @@ void AnimZilla(int frame, int numframes)
 
     if (frame == 1)
     {
-        PlaySound(DIGI_ZC1, v3df_none);
+        PlaySound(DIGI_ZC1, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 5)
     {
-        PlaySound(DIGI_JG94024, v3df_none);
+        PlaySound(DIGI_JG94024, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 14)
     {
-        PlaySound(DIGI_ZC2, v3df_none);
+        PlaySound(DIGI_ZC2, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 30)
     {
-        PlaySound(DIGI_ZC3, v3df_none);
+        PlaySound(DIGI_ZC3, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 32)
     {
-        PlaySound(DIGI_ZC4, v3df_none);
+        PlaySound(DIGI_ZC4, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 37)
     {
-        PlaySound(DIGI_ZC5, v3df_none);
+        PlaySound(DIGI_ZC5, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 63)
     {
-        PlaySound(DIGI_Z16043, v3df_none);
-        PlaySound(DIGI_ZC6, v3df_none);
-        PlaySound(DIGI_ZC7, v3df_none);
+        PlaySound(DIGI_Z16043, v3df_none, CHAN_BODY, CHANF_UI);
+        PlaySound(DIGI_ZC6, v3df_none, CHAN_BODY, CHANF_UI);
+        PlaySound(DIGI_ZC7, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 72)
     {
-        PlaySound(DIGI_ZC7, v3df_none);
+        PlaySound(DIGI_ZC7, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 73)
     {
-        PlaySound(DIGI_ZC4, v3df_none);
+        PlaySound(DIGI_ZC4, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 77)
     {
-        PlaySound(DIGI_ZC5, v3df_none);
+        PlaySound(DIGI_ZC5, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 87)
     {
-        PlaySound(DIGI_ZC8, v3df_none);
+        PlaySound(DIGI_ZC8, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 103)
     {
-        PlaySound(DIGI_ZC7, v3df_none);
+        PlaySound(DIGI_ZC7, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 108)
     {
-        PlaySound(DIGI_ZC9, v3df_none);
+        PlaySound(DIGI_ZC9, v3df_none, CHAN_BODY, CHANF_UI);
     }
     else if (frame == 120)
     {
-        PlaySound(DIGI_JG94039, v3df_none);
+        PlaySound(DIGI_JG94039, v3df_none, CHAN_BODY, CHANF_UI);
     }
 }
 
