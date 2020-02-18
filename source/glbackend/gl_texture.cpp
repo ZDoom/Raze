@@ -96,7 +96,7 @@ FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, b
 {
 	auto palette = palid < 0? nullptr : palmanager.GetPaletteData(palid);
 	if (palid >= 0 && palette == nullptr) return nullptr;
-	auto texbuffer = tex->CreateTexBuffer(palette, CTF_ProcessData);
+	auto texbuffer = tex->CreateTexBuffer(palette, checkfulltransparency? 0: CTF_ProcessData);
 	// Check if the texture is fully transparent. When creating a brightmap such textures can be discarded.
 	if (checkfulltransparency)
 	{

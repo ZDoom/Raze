@@ -205,26 +205,19 @@ void main()
 		}
 		else
 		{
-			if (u_tintFlags != -1) color = convertColor(color);
 			color.rgb *= detailColor.rgb;
-			
-			vec3 lightcolor = v_color.rgb;
-			bool shadeIt = ((u_flags & RF_FogDisabled) == 0);
-			// The lighting model here does not really allow more than a simple on/off brightmap because anything more complex inteferes with the shade ramp... :(
-			if ((u_flags & RF_Brightmapping) != 0)
+			if (u_tintFlags != -1) color = convertColor(color);
+			if ((u_flags & RF_FogDisabled) == 0)
 			{
-				vec4 brightcolor = texture(s_brightmap, v_texCoord.xy);
-				if (grayscale(brightcolor) > 0.5)
-				{
-					shadeIt = false;
-				}
-			}
-			if (shadeIt)
-			{
-				color.rgb *= lightcolor;
 				shade = clamp(shade * u_shadeDiv, 0.0, 1.0);	// u_shadeDiv is really 1/shadeDiv.
-				// Apply the shade as a linear depth fade ramp.
-				color.rgb = mix(color.rgb, u_fogColor.rgb, shade);
+				vec3 lightcolor = v_color.rgb * (1.0 - shade);
+
+				if ((u_flags & RF_Brightmapping) != 0)
+				{
+					lightcolor = texture(s_brightmap, v_texCoord.xy).rgb;
+				}
+				color.rgb *= lightcolor;
+				color.rgb += u_fogColor.rgb * shade;
 			}
 		}
 		if (color.a < u_alphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
