@@ -695,8 +695,8 @@ public:
 			lm->ReleaseFocus();
 		}
 
-		int slide_left = mDrawX+8*CleanXfac_1;
-		int slide_right = slide_left + (10*8*CleanXfac_1 >> mSliderShort);	// 10 char cells with 8 pixels each.
+		int slide_left = mDrawX+16*CleanXfac_1;
+		int slide_right = slide_left + (10*16*CleanXfac_1 >> mSliderShort);	// 10 char cells with 8 pixels each.
 
 		if (type == DMenu::MOUSE_Click)
 		{
