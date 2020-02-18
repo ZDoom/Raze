@@ -1204,7 +1204,10 @@ OptionMenu "HUDOptions" //protected
 	Option "$DSPLYMNU_MESSAGES",				"hud_messages",				"HudMessages"
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
-	Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
+	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury)
+	{
+		Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
+	}
 }
 
 
