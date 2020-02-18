@@ -566,9 +566,10 @@ bool ReadStatistics()
 
 	int numlevels = sjson_child_count(levels);
 	LevelData.Resize(numlevels);
+	int i = 0;
 	for (auto& lev : LevelData)
 	{
-		ReadOneLevel(levels, lev);
+		ReadOneLevel(sjson_find_element(levels, i++), lev);
 	}
 	sjson_destroy_context(ctx);
 	return true;
