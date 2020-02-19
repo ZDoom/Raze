@@ -226,6 +226,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     Smacker_GetPalette(hSMK, palette);
     paletteSetColorTable(kSMKPal, palette, true);
     videoSetPalette(0, kSMKPal, Pal_Fullscreen);
+    Mus_Stop();
 
     int nScale;
     int nStat;
