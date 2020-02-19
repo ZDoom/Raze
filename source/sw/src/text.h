@@ -44,4 +44,6 @@ void PutStringInfoLine(PLAYERp pp, const char *string);
 void PutStringInfoLine2(PLAYERp pp, const char *string);
 void pClearTextLine(PLAYERp pp,int y);
 void pMenuClearTextLine(PLAYERp pp);
+
+void StringTimer(PANEL_SPRITEp psp);
 END_SW_NS
