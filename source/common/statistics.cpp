@@ -368,7 +368,10 @@ void STAT_NewLevel(const char* mapname)
 	{
 		STAT_StartNewGame("", 0);	// reset and deactivate for user maps
 	}
-	else LevelName = mapname;
+	else
+	{
+		LevelName = mapname[0] == '/' ? mapname + 1 : mapname;
+	}
 }
 
 //==========================================================================
@@ -414,16 +417,14 @@ void STAT_Update(bool endofgame)
 
 	if (savestatistics == 1 && endofgame)
 	{
-		if (LevelData.Size() == 0)
+		auto lump = fileSystem.FindFile(LevelName);
+		if (lump >= 0)
 		{
-			auto lump = fileSystem.FindFile(LevelName);
-			if (lump >= 0)
-			{
-				int file = fileSystem.GetFileContainer(lump);
-				fn = fileSystem.GetResourceFileName(file);
-			}
+			int file = fileSystem.GetFileContainer(lump);
+			fn = fileSystem.GetResourceFileName(file);
 		}
-		FString section = ExtractFileBase(fn) + "." + LevelData[0].Levelname;
+
+		FString section = ExtractFileBase(fn) + "." + ExtractFileBase(LevelData[0].Levelname);
 		section.ToUpper();
 		FStatistics* sl = GetStatisticsList(EpisodeStatistics, section, StartEpisode);
 
@@ -444,7 +445,7 @@ void STAT_Update(bool endofgame)
 
 		for (unsigned i = 0; i < LevelData.Size(); i++)
 		{
-			FString lsection = LevelData[i].Levelname;
+			FString lsection = ExtractFileBase(LevelData[i].Levelname);
 			lsection.ToUpper();
 			infostring.Format("%4d/%4d, %3d/%3d", LevelData[i].killcount, LevelData[i].totalkills, LevelData[i].secretcount, LevelData[i].totalsecrets);
 			LevelStatEntry(es, lsection, infostring, LevelData[i].leveltime);
