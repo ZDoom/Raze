@@ -584,7 +584,7 @@ FSoundChan *SoundEngine::StartSound(int type, const void *source,
 		GSnd->MarkStartTime(chan);
 		chanflags |= CHANF_EVICTED;
 	}
-	if (attenuation > 0)
+	if (attenuation > 0 && type != SOURCE_None)
 	{
 		chanflags |= CHANF_IS3D | CHANF_JUSTSTARTED;
 	}
