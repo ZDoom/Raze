@@ -90,6 +90,7 @@ struct RegistryPathInfo
 };
 
 static const char * gameroot[] = { "/gameroot", nullptr};
+static const char * swaddons[] = { "/gameroot", "/gameroot/addons", nullptr};
 static const char * dukeaddons[] = { "/gameroot", "/gameroot/addons/dc", "/gameroot/addons/nw", "/gameroot/addons/vacation", nullptr};
 static const char * dn3d[] = { "/Duke Nukem 3D", nullptr};
 static const char * nam[] = { "/NAM", nullptr};
@@ -120,7 +121,7 @@ static const RegistryPathInfo paths[] = {
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 376750", L"InstallLocation", ww2gi },
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 299030", L"InstallLocation", nullptr }, // Blood: One Unit Whole Blood (Steam)
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 1010750",L"InstallLocation", bloodfs},
-	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225160", L"InstallLocation", gameroot },
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225160", L"InstallLocation", swaddons }, // Shadow Warrior Classic Redux - Steam
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 238070", L"InstallLocation", gameroot}, // Shadow Warrior Classic (1997) - Steam
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 358400", L"InstallLocation", sw},
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 562860", L"InstallLocation", nullptr}, // Ion Fury (Steam)
