@@ -161,6 +161,7 @@ bool SECRET_Load()
 
 void SECRET_SetMapName(const char *filename, const char *_maptitle)
 {
+	discovered_secrets.Clear();
 	mapfile = filename;
 	maptitle = _maptitle;
 }

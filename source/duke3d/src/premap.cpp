@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "cmdlib.h"
 #include "v_2ddrawer.h"
+#include "secrets.h"
 
 BEGIN_DUKE_NS
 
@@ -1779,6 +1780,7 @@ int G_EnterLevel(int gameMode)
         userMapRecord.name = "";
         userMapRecord.SetFileName(boardfilename);
         currentLevel = &userMapRecord;
+        SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
         STAT_NewLevel(boardfilename);
         G_LoadMapHack(levelName, boardfilename);
 
@@ -1792,7 +1794,8 @@ int G_EnterLevel(int gameMode)
     else
     {
         currentLevel = &mm;
-		STAT_NewLevel(mm.fileName);
+        SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
+        STAT_NewLevel(mm.fileName);
         G_LoadMapHack(levelName, mm.fileName);
     }
 

@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "cmdlib.h"
 #include "v_2ddrawer.h"
+#include "secrets.h"
 
 BEGIN_RR_NS
 
@@ -2329,6 +2330,7 @@ int G_EnterLevel(int gameMode)
         userMapRecord.name = "";
         userMapRecord.SetFileName(boardfilename);
         currentLevel = &userMapRecord;
+        SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
         STAT_NewLevel(boardfilename);
 		G_LoadMapHack(levelName, boardfilename);
         userMapRecord.music = G_SetupFilenameBasedMusic(boardfilename, !RR? "dethtoll.mid" : nullptr);
@@ -2341,7 +2343,8 @@ int G_EnterLevel(int gameMode)
     else
     {
         currentLevel = &mi;
-		STAT_NewLevel(mi.fileName);
+        SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
+        STAT_NewLevel(mi.fileName);
 		G_LoadMapHack(levelName, mi.fileName);
     }
 

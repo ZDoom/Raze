@@ -73,6 +73,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "sound/s_soundinternal.h"
 #include "nnexts.h"
+#include"secrets.h"
 
 BEGIN_BLD_NS
 
@@ -557,6 +558,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     }
     char levelName[BMAX_PATH];
     currentLevel = &mapList[gGameOptions.nEpisode * kMaxLevels + gGameOptions.nLevel];
+    SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(gameOptions->zLevelName);
     G_LoadMapHack(levelName, gameOptions->zLevelName);
     wsrand(gameOptions->uMapCRC);

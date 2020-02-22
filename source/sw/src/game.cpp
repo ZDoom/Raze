@@ -98,6 +98,7 @@ Things required to make savegames work:
 #include "mapinfo.h"
 #include "rendering/v_video.h"
 #include "sound/s_soundinternal.h"
+#include "secrets.h"
 
 #include "osdcmds.h"
 
@@ -622,7 +623,8 @@ bool LoadLevel(const char *filename)
 		return false;
         }
 	currentLevel = &mapList[Level];
-	STAT_NewLevel(currentLevel->labelName);
+    SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
+    STAT_NewLevel(currentLevel->labelName);
 	return true;
 }
 
