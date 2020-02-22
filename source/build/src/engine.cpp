@@ -7798,7 +7798,7 @@ killsprite:
 
                             get_wallspr_points(tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
 
-                            if (!playing_blood?  ((tspr->cstat & 48) == 0) : ((tspr->cstat & 48) != 16))
+                            if ((tspr->cstat & 48) != 16)
                                 tspriteptr[i]->ang = oang;
                         }
 
