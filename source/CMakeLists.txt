@@ -586,6 +586,7 @@ file( GLOB HEADER_FILES
 	common/2d/*.h
 	common/fonts/*.h
 	common/utility/*.h
+	common/utility/rapidjson/*.h
 	common/console/*.h
 	common/filesystem/*.h
 	common/music/*.h
@@ -699,6 +700,7 @@ set (PCH_SOURCES
 	common/savegamehelp.cpp
 	common/quotes.cpp
 	common/screenshot.cpp
+	common/serializer.cpp
 
 	common/2d/v_2ddrawer.cpp
 	common/2d/v_draw.cpp
@@ -1005,6 +1007,7 @@ source_group("Utility\\XMP-Lite Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SO
 source_group("Utility\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/.+")
 source_group("Utility\\Third Party Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/include/.+")
 source_group("Utility\\Third Party Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/src/.+")
+source_group("Utility\\RapidJSON" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/utility/rapidjson/.+")
 source_group("OpenGL Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glbackend/.+")
 source_group("Build Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/.+")
 source_group("Build Engine\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/include/.+")
