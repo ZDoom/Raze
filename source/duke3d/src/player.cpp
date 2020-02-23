@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "demo.h"
-#include "sjson.h"
+//#include "sjson.h"
 #include "gamecvars.h"
 #include "d_event.h"
 #include "i_specialpaths.h"
@@ -5637,7 +5637,7 @@ RECHECK:
 }
 
 
-
+#if 0 // Once the save format has been transitioned to something more robust, this won't be needed anymore.
 int portableBackupSave(const char * path, const char * name, int volume, int level)
 {
     if (!FURY)
@@ -5747,4 +5747,5 @@ int portableBackupSave(const char * path, const char * name, int volume, int lev
 
     return 0;
 }
+#endif
 END_DUKE_NS

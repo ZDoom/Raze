@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "premap.h"
 #include "prlights.h"
 #include "savegame.h"
-#include "sjson.h"
+//#include "sjson.h"
 #include "i_specialpaths.h"
 #include "gamecontrol.h"
 #include "version.h"
@@ -161,6 +161,7 @@ int32_t G_LoadPlayer(FSaveGameNode *sv)
 {
 	char workbuffer[BMAX_PATH];
 	
+#if 0
     if (sv->bIsExt)
     {
         int volume = -1;
@@ -395,6 +396,7 @@ int32_t G_LoadPlayer(FSaveGameNode *sv)
 		FinishSavegameRead();
 		return 0;
     }
+#endif
 
     auto fil = OpenSavegame();
 
@@ -530,7 +532,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 
 		VM_OnEvent(EVENT_SAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
 
-        portableBackupSave(sv->Filename, sv->SaveTitle, ud.last_stateless_volume, ud.last_stateless_level);
+        //portableBackupSave(sv->Filename, sv->SaveTitle, ud.last_stateless_volume, ud.last_stateless_level);
 
         // SAVE!
         sv_saveandmakesnapshot(fw, 0);
