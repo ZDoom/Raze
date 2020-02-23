@@ -74,6 +74,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 #include "savegamehelp.h"
 #include "c_dispatch.h"
+#include "s_soundinternal.h"
 
 BEGIN_PS_NS
 
@@ -1339,7 +1340,7 @@ void FinishLevel()
     if (levelnum != kMap20)
     {
         EraseScreen(4);
-        PlayLocalSound(StaticSound[59], 0, true);
+        PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
         videoNextPage();
         WaitTicks(12);
         WaitVBL();
@@ -2538,7 +2539,7 @@ void DoTitle()
     SetOverscan(BASEPAL);
     GrabPalette();
 
-    PlayLocalSound(StaticSound[59], 0, true);
+    PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
 
     EraseScreen(4);
 
@@ -2567,7 +2568,7 @@ void DoTitle()
         PlayGameOverSound();
     }
     else {
-        PlayLocalSound(StaticSound[61], 0);
+        PlayLocalSound(StaticSound[61], 0, false, CHANF_UI);
     }
 
     int nStartTime = (int)totalclock;

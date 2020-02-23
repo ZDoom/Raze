@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "names.h"
 #include "version.h"
+#include "s_soundinternal.h"
 
 
 #include "menu/menu.h"
@@ -89,7 +90,7 @@ class PSMainMenu : public DListMenu
 	void Init(DMenu* parent, FListMenuDescriptor* desc) override
 	{
 		DListMenu::Init(parent, desc);
-		PlayLocalSound(StaticSound[kSound31], 0);
+		PlayLocalSound(StaticSound[kSound31], 0, false, CHANF_UI);
 	}
 
 	void Ticker() override
@@ -163,12 +164,12 @@ void GameInterface::MenuSound(EMenuSounds snd)
 	switch (snd)
 	{
 		case CursorSound:
-			PlayLocalSound(StaticSound[kSound35], 0);
+			PlayLocalSound(StaticSound[kSound35], 0, false, CHANF_UI);
 			break;
 
 		case AdvanceSound:
 		case BackSound:
-			PlayLocalSound(StaticSound[kSound33], 0);
+			PlayLocalSound(StaticSound[kSound33], 0, false, CHANF_UI);
 			break;
 
 		default:

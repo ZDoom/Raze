@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __sound_h__
 #define __sound_h__
 
+#include "s_soundinternal.h"
+
 BEGIN_PS_NS
 
 
@@ -119,24 +121,24 @@ void UpdateSounds();
 void UpdateCreepySounds();
 
 void InitFX();
-void UnInitFX();
 void FadeSong();
 int fadecdaudio();
 int LocalSoundPlaying();
 void LoadFX();
 void StopAllSounds();
-int GetLocalSound();
-void UpdateLocalSound();
 void StopLocalSound();
-void PlayLocalSound(short nSound, short val, bool unattached = false);
+void PlayLocalSound(short nSound, short val, bool unattached = false, EChanFlags cflags = CHANF_NONE);
 int LoadSound(const char* sound);
 
 void BendAmbientSound();
 void CheckAmbience(short nSector);
 
-short PlayFX2(unsigned short nSound, short nSprite);
-short PlayFXAtXYZ(unsigned short nSound, int x, int y, int z, int nSector);
-short D3PlayFX(unsigned short nSound, short nSprite);
+void PlayFX2(unsigned short nSound, short nSprite);
+void PlayFXAtXYZ(unsigned short nSound, int x, int y, int z, int nSector);
+inline void D3PlayFX(unsigned short nSound, short nVal)
+{
+    PlayFX2(nSound, nVal);
+}
 void StopSpriteSound(short nSprite);
 
 void StartSwirlies();

@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "object.h"
 #include "light.h"
 #include "cd.h"
+#include "s_soundinternal.h"
 #include "menu/menu.h"
 #include "v_2ddrawer.h"
 #include <string>
@@ -844,100 +845,6 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
     return nLevelNew + 1;
 }
 
-void menu_AdjustVolume()
-{
-    int nOption = 1;
-    int var_8 = 0;
-
-    while (1)
-    {
-        HandleAsync();
-
-        menu_DoPlasma();
-
-        overwritesprite(80, 50, kMenuMusicTile, (Sin((int)totalclock << 4) >> 9) * (nOption == 0), 2, kPalNormal);
-        overwritesprite(55, 75, kMenuBlankTitleTile, 0, 2, kPalNormal);
-
-        /*
-        seq_DrawGunSequence(
-            SeqOffsets[kSeqSlider], // eax
-            gMusicVolume % 3, // pick one of 3 frames?
-            (gMusicVolume >> 1) - 93, // ebx. must be x???
-            -22,
-            0,
-            0);*/
-
-        overwritesprite(80, 110, kMenuSoundFxTile, (Sin((int)totalclock << 4) >> 9) * (nOption == 1), 2, kPalNormal);
-        overwritesprite(55, 135, kMenuBlankTitleTile, 0, 2, kPalNormal);
-
-        seq_DrawGunSequence(
-            SeqOffsets[kSeqSlider],
-            snd_fxvolume % 3,
-            (snd_fxvolume / 2) - 93,
-            38,
-            0,
-            0);
-
-        int y = (60 * nOption) + 38;
-
-        overwritesprite(60,  y, kMenuCursorTile, 0, 2, kPalNormal);
-        overwritesprite(206, y, kMenuCursorTile, 0, 10, kPalNormal);
-
-        videoNextPage();
-
-        if (inputState.CheckAllInput())
-        {
-            PlayLocalSound(StaticSound[kSound33], 0);
-            return;
-        }
-
-#if 0
-        if (I_MenuUp())
-        {
-			I_MenuUpClear();
-            if (nOption > 0)
-            {
-                nOption--;
-                PlayLocalSound(StaticSound[kSound35], 0);
-            }
-        }
-
-		if (I_MenuDown())
-		{
-			I_MenuDownClear();
-			if (nOption < 1)
-            {
-                nOption++;
-                PlayLocalSound(StaticSound[kSound35], 0);
-            }
-        }
-
-        if ((int)totalclock <= var_8) {
-            continue;
-        }
-
-        var_8 = (int)totalclock + 5;
-
-		if (I_MenuLeft())
-		{
-			I_MenuLeftClear();
-        }
-
-		if (I_MenuRight())
-		{
-			I_MenuRightClear();
-        }
-#endif
-
-        if (GetLocalSound() != 23) {
-            continue;
-        }
-        else {
-            StopLocalSound();
-        }
-    }
-}
-
 int menu_NewGameMenu()
 {
 
@@ -1580,7 +1487,7 @@ void DoLastLevelCinema()
 
     int nString = FindGString("LASTLEVEL");
 
-    PlayLocalSound(StaticSound[kSound75], 0);
+    PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
 
 	auto pixels = TileFiles.tileMakeWritable(kTileLoboLaptop);
 	// uh, what?
@@ -1662,7 +1569,7 @@ void DoLastLevelCinema()
                 HandleAsync();
 
                 if (*nChar != ' ') {
-                    PlayLocalSound(StaticSound[kSound71], 0);
+                    PlayLocalSound(StaticSound[kSound71], 0, false, CHANF_UI);
                 }
 
                 xPos += CopyCharToBitmap(*nChar, kTileLoboLaptop, xPos, ebp);
@@ -1701,7 +1608,7 @@ void DoLastLevelCinema()
     while (inputState.keyGetChar() != 27);
 
 LABEL_28:
-    PlayLocalSound(StaticSound[kSound75], 0);
+    PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
 
     nEndTime = (int)totalclock + 240;
 

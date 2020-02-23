@@ -777,7 +777,7 @@ void SetTorch(int nPlayer, int bTorchOnOff)
     }
 
     if (bTorch) {
-        PlayLocalSound(kSoundTorchOn, 0);
+        PlayLocalSound(StaticSound[kSoundTorchOn], 0);
     }
 
     strcpy(buf, "TORCH IS ");
