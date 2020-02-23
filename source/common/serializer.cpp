@@ -1479,7 +1479,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FSoundID &sid, FSoundI
 {
 #if 1
 	int id = sid;
-	Serialize(arc, key, sid, def);
+	Serialize(arc, key, id, nullptr);
 	if (arc.isReading()) sid = FSoundID(id);
 #else
 	if (arc.isWriting())

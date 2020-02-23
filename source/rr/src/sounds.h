@@ -39,11 +39,15 @@ BEGIN_RR_NS
 #define MAXSOUNDS           4096
 #define LOUDESTVOLUME       111
 
-typedef struct
+enum esound_t
 {
-    int pitchStart, pitchEnd, volAdjust;
-    int priority, flags;
-} sound_t;
+    kPitchStart,
+    kPitchEnd,
+    kVolAdjust,
+    kPriority,
+    kFlags,
+    kMaxUserData
+};
 
 int A_CheckSoundPlaying(int spriteNum, int soundNum, int channel = 0);
 int A_PlaySound(int soundNum, int spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0);

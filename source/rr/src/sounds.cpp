@@ -99,11 +99,10 @@ void cacheAllSounds(void)
 
 static inline int S_GetPitch(int num)
 {
-    auto const* snd = (sound_t*)soundEngine->GetUserData(num+1);
+    auto const* snd = soundEngine->GetUserData(num+1);
     if (!snd) return 0;
-    int const   range = abs(snd->pitchEnd - snd->pitchStart);
-
-    return (range == 0) ? snd->pitchStart : min(snd->pitchStart, snd->pitchEnd) + rand() % range;
+    int const   range = abs(snd[kPitchEnd] - snd[kPitchStart]);
+    return (range == 0) ? snd[kPitchStart] : min(snd[kPitchStart], snd[kPitchEnd]) + rand() % range;
 }
 
 float S_ConvertPitch(int lpitch)
@@ -114,9 +113,9 @@ float S_ConvertPitch(int lpitch)
 int S_GetUserFlags(int num)
 {
     if (!soundEngine->isValidSoundId(num+1)) return 0;
-    auto const* snd = (sound_t*)soundEngine->GetUserData(num + 1);
+    auto const* snd = soundEngine->GetUserData(num + 1);
     if (!snd) return 0;
-    return snd->flags;
+    return snd[kFlags];
 }
 
 //==========================================================================
@@ -143,17 +142,17 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
     }
     auto sfx = &S_sfx[index];
     bool alreadydefined = !sfx->bTentative;
-    sfx->UserData.Resize(sizeof(sound_t));
-    auto sndinf = (sound_t*)sfx->UserData.Data();
-    sndinf->flags = type & ~SF_ONEINST_INTERNAL;
-    if (sndinf->flags & SF_LOOP)
-        sndinf->flags |= SF_ONEINST_INTERNAL;
+    sfx->UserData.Resize(kMaxUserData);
+    auto sndinf = sfx->UserData.Data();
+    sndinf[kFlags] = type & ~SF_ONEINST_INTERNAL;
+    if (sndinf[kFlags] & SF_LOOP)
+        sndinf[kFlags] |= SF_ONEINST_INTERNAL;
 
     sfx->lumpnum = S_LookupSound(filename);
-    sndinf->pitchStart = clamp(minpitch, INT16_MIN, INT16_MAX);
-    sndinf->pitchEnd = clamp(maxpitch, INT16_MIN, INT16_MAX);
-    sndinf->priority = priority & 255;
-    sndinf->volAdjust = clamp(distance, INT16_MIN, INT16_MAX);
+    sndinf[kPitchStart] = clamp(minpitch, INT16_MIN, INT16_MAX);
+    sndinf[kPitchEnd] = clamp(maxpitch, INT16_MIN, INT16_MAX);
+    sndinf[kPriority] = priority & 255;
+    sndinf[kVolAdjust] = clamp(distance, INT16_MIN, INT16_MAX);
     sfx->Volume = volume;
     sfx->NearLimit = 6;
     sfx->bTentative = false;
@@ -175,9 +174,9 @@ static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum,
     // However, ultimately rolloff would also just reposition the sound source so this can remain as it is.
 
     int orgsndist = 0, sndang = 0, sndist = 0, explosion = 0;
-    auto const* snd = (sound_t*)soundEngine->GetUserData(soundNum + 1);
-    int userflags = snd ? snd->flags : 0;
-    int dist_adjust = snd ? snd->volAdjust : 0;
+    auto const* snd = soundEngine->GetUserData(soundNum + 1);
+    int userflags = snd ? snd[kFlags] : 0;
+    int dist_adjust = snd ? snd[kVolAdjust] : 0;
 
     if (PN(spriteNum) != APLAYER || P_Get(spriteNum) != screenpeek)
     {

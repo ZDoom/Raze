@@ -37,7 +37,7 @@ struct sfxinfo_t
 	unsigned		bSingular:1;
 
 	unsigned		bTentative:1;
-	TArray<uint8_t> UserData;
+	TArray<int> UserData;
 
 	int		RawRate;				// Sample rate to use when bLoadRAW is true
 
@@ -369,7 +369,7 @@ public:
 	{
 		S_rnd.Clear();
 	}
-	void *GetUserData(int snd)
+	int *GetUserData(int snd)
 	{
 		return S_sfx[snd].UserData.Data();
 	}

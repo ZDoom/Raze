@@ -332,7 +332,7 @@ void SEQINST::Update(ACTIVE *pActive)
             auto snd = soundEngine->FindSoundByResID(sndId);
             if (snd > 0)
             {
-                auto udata = (int*)soundEngine->GetUserData(snd);
+                auto udata = soundEngine->GetUserData(snd);
                 int relVol = udata ? udata[2] : 255;
                 sfxPlay3DSoundCP(pSprite, sndId, -1, 0, 0, (surfSfxMove[surf][2] != relVol) ? relVol : surfSfxMove[surf][3]);
             }

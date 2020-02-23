@@ -836,7 +836,6 @@ void WeaponLoadSaveConstruct(void);
 #ifdef NOONE_EXTENSIONS
 void NNLoadSaveConstruct(void);
 #endif
-void ASoundLoadSaveConstruct(void);
 
 void LoadSaveSetup(void)
 {
@@ -858,7 +857,6 @@ void LoadSaveSetup(void)
 #ifdef NOONE_EXTENSIONS
     NNLoadSaveConstruct();
 #endif
-	ASoundLoadSaveConstruct();
 }
 
 END_BLD_NS

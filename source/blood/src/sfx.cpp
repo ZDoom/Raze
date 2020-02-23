@@ -133,7 +133,7 @@ void sfxUpdate3DSounds(void)
 
 FSoundID getSfx(FSoundID soundId, float &attenuation, int &pitch, int &relvol)
 {
-    auto udata = (int*)soundEngine->GetUserData(soundId);
+    auto udata = soundEngine->GetUserData(soundId);
     if (pitch < 0) pitch = udata ? udata[0] : 0x10000;
 
     if (relvol < 0) relvol = udata && udata[2] ? udata[2] : 80;

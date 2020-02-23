@@ -94,7 +94,7 @@ void ambProcess(void)
         else if (pChannel->distance > 0)
         {
             FVector3 pt{};
-            soundEngine->StartSound(SOURCE_Ambient, pChannel, &pt, CHAN_BODY, CHANF_LOOP, pChannel->soundID, pChannel->distance / 255.f, ATTN_NONE);
+            soundEngine->StartSound(SOURCE_Ambient, pChannel, &pt, CHAN_BODY, CHANF_LOOP|CHANF_TRANSIENT, pChannel->soundID, pChannel->distance / 255.f, ATTN_NONE);
         }
         pChannel->distance = 0;
     }
