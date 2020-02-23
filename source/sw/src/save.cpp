@@ -699,7 +699,7 @@ extern SWBOOL InMenuLevel;
          PauseAction();
          TerminateLevel();
      }
-     Terminate3DSounds();
+     StopFX();
      return true;
  }
 
@@ -726,7 +726,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     int StateNdx;
     int StateEndNdx;
 
-    StopFX();
     Saveable_Init();
 
 	auto filr = ReadSavegameChunk("snapshot.sw");

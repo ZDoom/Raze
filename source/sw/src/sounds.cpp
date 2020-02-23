@@ -52,6 +52,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "z_music.h"
 #include "sound/s_soundinternal.h"
 #include "filesystem/filesystem.h"
+#include "serializer.h"
 
 BEGIN_SW_NS
 
@@ -216,7 +217,6 @@ struct AmbientSound
 
 static TArray<AmbientSound*> ambients;
 
-
 //==========================================================================
 //
 //
@@ -228,6 +228,7 @@ void StopAmbientSound(void)
     for (auto amb : ambients)
     {
         soundEngine->StopSound(SOURCE_Ambient, amb, -1);
+        delete amb;
     }
     ambients.Clear();
 }
@@ -267,7 +268,7 @@ void InitAmbient(int num, SPRITEp sp)
     amb->sp = sp;
     amb->ambIndex = num;
     amb->vocIndex = vnum;
-    amb->ChanFlags = 0;
+    amb->ChanFlags = CHANF_TRANSIENT;
     if (ambarray[num].ambient_flags & v3df_dontpan) amb->ChanFlags |= EChanFlags::FromInt(CHANEXF_DONTPAN);
     if (voc[vnum].voc_flags & vf_loop) amb->ChanFlags |= CHANF_LOOP; 
     amb->maxIndex = ambarray[num].maxtics * 8;
