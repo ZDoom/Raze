@@ -43,6 +43,7 @@
 #include "name.h"
 #include "filesystem.h"
 #include "cmdlib.h"
+#include "gamecontrol.h"
 
 
 enum
@@ -382,7 +383,7 @@ FSoundChan *SoundEngine::StartSound(int type, const void *source,
 	FVector3 pos, vel;
 	FRolloffInfo *rolloff;
 
-	if (sound_id <= 0 || volume <= 0 || nosfx || nosound )
+	if (sound_id <= 0 || volume <= 0 || userConfig.nosound )
 		return NULL;
 
 	// prevent crashes.

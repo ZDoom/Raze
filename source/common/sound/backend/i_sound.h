@@ -159,8 +159,6 @@ public:
 };
 
 extern SoundRenderer *GSnd;
-extern bool nosfx;
-extern bool nosound;
 
 void I_InitSound ();
 void I_CloseSound();

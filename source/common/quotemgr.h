@@ -12,6 +12,8 @@ enum
 	MAXQUOTES = 16384,
 };
 
+class FSerializer;
+
 class Quotes
 {
 	FString quotes[MAXQUOTES];
@@ -55,11 +57,9 @@ public:
 	}
 
 	void AppendQuote(int dst, int src, int len = -1);
-	void AppendExQuote(int dst, int src, int len = -1);
 	void FormatQuote(int dst, const char* fmt, ...);
 	void Substitute(int num, const char* text, const char* replc);
-	void ReadFromSavegame();
-	void WriteToSavegame();
+	void Serialize(FSerializer &arc);
 };
 
 extern Quotes quoteMgr;

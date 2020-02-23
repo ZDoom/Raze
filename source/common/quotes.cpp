@@ -37,7 +37,8 @@
 
 #include "quotemgr.h"
 #include "savegamehelp.h"
-#include "sjson.h"
+#include "serializer.h"
+#include "printf.h"
 
 
 void Quotes::MakeStringLabel(FString &quote)
@@ -72,15 +73,6 @@ void Quotes::AppendQuote(int dst, int src, int len)
 	else quotes[dst] += FString(GStrings.localize(quotes[src]), len);
 }
 
-void Quotes::AppendExQuote(int dst, int src, int len)
-{
-	// This needs to apply the localization because the combined string is not localizable anymore.
-	if (quotes[dst][0] == '$') quotes[dst] = GStrings.localize(quotes[dst]);
-	if (len < 0) quotes[dst] << GStrings.localize(exquotes[src]);
-	else quotes[dst] += FString(GStrings.localize(exquotes[src]), len);
-}
-
-
 void Quotes::FormatQuote(int dst, const char* fmt, ...)
 {
 	va_list ap;
@@ -95,88 +87,20 @@ void Quotes::Substitute(int dst, const char* text, const char* replc)
 }
 
 
-void Quotes::ReadFromSavegame()
+void Quotes::Serialize(FSerializer &arc)
 {
-	for (auto& q : quotes) q = "";
-	for (auto& q : exquotes) q = "";
-
-	auto fil = ReadSavegameChunk("quotes.json");
-	if (!fil.isOpen())
+	// This only saves the regular quotes. The ExQuotes array is immutable once initialized.
+	if (arc.BeginObject("quotes"))
 	{
-		return;
-	}
-
-	auto text = fil.ReadPadded(1);
-	fil.Close();
-
-	if (text.Size() == 0)
-	{
-		return;
-	}
-
-	sjson_context* ctx = sjson_create_context(0, 0, NULL);
-	sjson_node* root = sjson_decode(ctx, (const char*)text.Data());
-
-	auto qs = sjson_find_member(root, "quotes");
-	auto xs = sjson_find_member(root, "exquotes");
-
-	sjson_node* q;
-	sjson_foreach(q, qs)
-	{
-		int index = (int)strtoll(q->key, nullptr, 10);
-		quotes[index] = q->string_;
-	}
-	sjson_foreach(q, xs)
-	{
-		int index = (int)strtoll(q->key, nullptr, 10);
-		exquotes[index] = q->string_;
-	}
-	sjson_destroy_context(ctx);
-}
-
-void Quotes::WriteToSavegame()
-{
-	sjson_context* ctx = sjson_create_context(0, 0, NULL);
-	if (!ctx)
-	{
-		return;
-	}
-	sjson_node* root = sjson_mkobject(ctx);
-	sjson_node* qs = sjson_mkobject(ctx);
-	sjson_node* xs = sjson_mkobject(ctx);
-
-	for (unsigned i = 0; i < MAXQUOTES; i++)
-	{
-		if (quotes[i].IsNotEmpty())
+		for (int i = 0; i < MAXQUOTES; i++)
 		{
-			char buff[10];
-			snprintf(buff, 10, "%d", i);			
-			sjson_append_member(ctx, qs, buff, sjson_mkstring(ctx, quotes[i]));
+			char buf[10];
+			mysnprintf(buf, 10, "%d", i);
+			FString nulstr;
+			arc(buf, quotes[i], nulstr);
 		}
-		if (exquotes[i].IsNotEmpty())
-		{
-			char buff[10];
-			snprintf(buff, 10, "%d", i);
-			sjson_append_member(ctx, xs, buff, sjson_mkstring(ctx, exquotes[i]));
-		}
+		arc.EndObject();
 	}
-	sjson_append_member(ctx, root, "quotes", qs);
-	sjson_append_member(ctx, root, "exquotes", xs);
-
-	char* encoded = sjson_stringify(ctx, root, "  ");
-	FileWriter* fil = WriteSavegameChunk("quotes.json");
-	if (!fil)
-	{
-		sjson_destroy_context(ctx);
-		return;
-	}
-
-	fil->Write(encoded, strlen(encoded));
-
-	sjson_free_string(ctx, encoded);
-	sjson_destroy_context(ctx);
-	return;
-
 }
 
 Quotes quoteMgr;

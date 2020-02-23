@@ -50,10 +50,9 @@
 #include "c_dispatch.h"
 #include "gamecontrol.h"
 #include "filereadermusicinterface.h"
-#include "savegamehelp.h"
-#include "sjson.h"
 #include "v_text.h"
 #include "mapinfo.h"
+#include "serializer.h"
 
 MusPlayingInfo mus_playing;
 MusicAliasMap MusicAliases;
@@ -707,61 +706,27 @@ void Mus_SetPaused(bool on)
 	else S_ResumeMusic();
 }
 
-void MUS_Save()
+void Mus_Serialize(FSerializer &arc)
 {
-	FString music = mus_playing.name;
-	if (music.IsEmpty()) music = mus_playing.LastSong;
-	
-	sjson_context* ctx = sjson_create_context(0, 0, NULL);
-	if (!ctx)
+	if (arc.BeginObject("music"))
 	{
-		return;
+		if (arc.isWriting())
+		{
+			FString music = mus_playing.name;
+			if (music.IsEmpty()) music = mus_playing.LastSong;
+
+			arc.AddString("music", music);
+		}
+		else arc("music", mus_playing.LastSong);
+
+		arc("baseorder", mus_playing.baseorder)
+			("loop", mus_playing.loop)
+			.EndObject();
+
+		// this is to prevent scripts from resetting the music after it has been loaded from the savegame.
+		if (arc.isReading()) mus_blocked = true;
+		// Actual music resuming cannot be performed here, it must be done in the game code.
 	}
-	sjson_node* root = sjson_mkobject(ctx);
-	sjson_put_string(ctx, root, "music", music);
-	sjson_put_int(ctx, root, "baseorder", mus_playing.baseorder);
-	sjson_put_bool(ctx, root, "loop", mus_playing.loop);
-
-	char* encoded = sjson_stringify(ctx, root, "  ");
-	
-	FileWriter* fil = WriteSavegameChunk("music.json");
-	if (!fil)
-	{
-		sjson_destroy_context(ctx);
-		return;
-	}
-	
-	fil->Write(encoded, strlen(encoded));
-	
-	sjson_free_string(ctx, encoded);
-	sjson_destroy_context(ctx);
-}
-
-bool MUS_Restore()
-{
-	auto fil = ReadSavegameChunk("music.json");
-	if (!fil.isOpen())
-	{
-		return false;
-	}
-
-	auto text = fil.ReadPadded(1);
-	fil.Close();
-
-	if (text.Size() == 0)
-	{
-		return false;
-	}
-
-	sjson_context* ctx = sjson_create_context(0, 0, NULL);
-	sjson_node* root = sjson_decode(ctx, (const char*)text.Data());
-	mus_playing.LastSong = sjson_get_string(root, "music", "");
-	mus_playing.baseorder = sjson_get_int(root, "baseorder", 0);
-	mus_playing.loop = sjson_get_bool(root, "loop", true);
-	sjson_destroy_context(ctx);
-	mus_blocked = true; // this is to prevent scripts from resetting the music after it has been loaded from the savegame.
-	
-	return true;
 }
 
 void Mus_ResumeSaved()

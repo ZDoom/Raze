@@ -35,7 +35,6 @@
 
 #include "compositesaveame.h"
 #include "savegamehelp.h"
-#include "sjson.h"
 #include "baselayer.h"
 #include "gstrings.h"
 #include "i_specialpaths.h"
@@ -43,7 +42,6 @@
 #include "filesystem/filesystem.h"
 #include "statistics.h"
 #include "secrets.h"
-#include "s_music.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
 #include "v_video.h"
@@ -51,6 +49,7 @@
 #include "m_argv.h"
 #include "serializer.h"
 #include "version.h"
+#include "z_music.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -58,6 +57,20 @@ void LoadEngineState();
 void SaveEngineState();
 
 CVAR(String, cl_savedir, "", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+static void SerializeSession(FSerializer& arc)
+{
+	SerializeStatistics(arc);
+	SECRET_Serialize(arc);
+	Mus_Serialize(arc);
+	quoteMgr.Serialize(arc);
+}
 
 //=============================================================================
 //
@@ -80,12 +93,21 @@ bool OpenSaveGameForRead(const char *name)
 
 	if (savereader != nullptr)
 	{
+		FResourceLump* info = savereader->FindLump("session.json");
+		if (info == nullptr)
+		{
+			return false;
+		}
+
+		FSerializer arc;
+		void* data = info->Get();
+		if (!arc.OpenReader((const char*)data, info->LumpSize))
+		{
+			return false;
+		}
 
 		// Load system-side data from savegames.
-		ReadStatistics();
-		SECRET_Load();
-		MUS_Restore();
-		quoteMgr.ReadFromSavegame();
+		SerializeSession(arc);
 		LoadEngineState();
 
 		auto file = ReadSavegameChunk("info.json");
@@ -152,7 +174,6 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	FSerializer savegameengine;		// saved play state.
 
 	savegameinfo.OpenWriter(true);
-	savegamesession.OpenWriter(save_formatted);
 	savegameengine.OpenWriter(save_formatted);
 
 	char buf[100];
@@ -192,10 +213,11 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 
 
 	// Handle system-side modules that need to persist data in savegames here, in a central place.
-	SaveStatistics();
-	SECRET_Save();
-	MUS_Save();
-	quoteMgr.WriteToSavegame();
+	savegamesession.OpenWriter(save_formatted);
+	SerializeSession(savegamesession);
+	buff = savegamesession.GetCompressedOutput();
+	AddCompressedSavegameChunk("session.json", buff);
+
 	SaveEngineState();
 	auto picfile = WriteSavegameChunk("savepic.png");
 	screen->WriteSavePic(picfile, 240, 180);
@@ -270,83 +292,74 @@ static bool G_CheckSaveGameWads (const char *gamegrp, const char *mapgrp, bool p
 
 int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 {
-#if 0
-	FSerializer arc(nullptr);
-	if (!arc.OpenReader((const char*)data, info->LumpSize))
+	auto data = fr.Read();
+	FSerializer arc;
+	if (!arc.OpenReader((const char*)data.Data(), data.Size()))
 	{
-		LoadGameError("TXT_FAILEDTOREADSG");
-		return;
+		return -2;
 	}
-#endif
 
-	auto data = fr.ReadPadded(1);
-	
-	sjson_context* ctx = sjson_create_context(0, 0, NULL);
-	if (ctx)
+	int savever;
+	FString engine, gamegrp, mapgrp, title, filename;
+
+	arc("Save Version", savever)
+		("Engine", engine)
+		("Game Resource", gamegrp)
+		("Map Resource", mapgrp)
+		("Title", title)
+		("Map File", filename);
+
+	auto savesig = gi->GetSaveSig();
+
+	if (savetitle) *savetitle = title;
+	if (engine.Compare(savesig.savesig) != 0 || savever > savesig.currentsavever)
 	{
-		sjson_node* root = sjson_decode(ctx, (const char*)data.Data());
-		
-		
-		int savever = sjson_get_int(root, "Save Version", -1);
-		FString engine = sjson_get_string(root, "Engine", "");
-		FString gamegrp = sjson_get_string(root, "Game Resource", "");
-		FString mapgrp = sjson_get_string(root, "Map Resource", "");
-		FString title = sjson_get_string(root, "Title", "");
-		FString filename = sjson_get_string(root, "Map File", "");
-		auto savesig = gi->GetSaveSig();
-		
-		sjson_destroy_context(ctx);
-		
-		if (savetitle) *savetitle = title;
-		if (engine.Compare(savesig.savesig) != 0 || savever > savesig.currentsavever)
+		// different engine or newer version:
+		// not our business. Leave it alone.
+		return 0;
+	}
+
+	MapRecord *curLevel = nullptr;
+
+	if (strncmp(filename, "file://", 7) != 0)
+	{
+		for (auto& mr : mapList)
 		{
-			// different engine or newer version:
-			// not our business. Leave it alone.
+			if (mr.fileName.Compare(filename) == 0)
+			{
+				curLevel = &mr;
+			}
+		}
+	}
+	else
+	{
+		curLevel = &userMapRecord;
+		if (!formenu)
+		{
+			userMapRecord.name = "";
+			userMapRecord.SetFileName(filename);
+		}
+	}
+	if (!curLevel) return 0;
+	if (!formenu) currentLevel = curLevel;
+		
+
+	if (savever < savesig.minsavever)
+	{
+		// old, incompatible savegame. List as not usable.
+		return -1;
+	}
+	else
+	{
+		auto ggfn = ExtractFileBase(fileSystem.GetResourceFileName(1), true);
+		if (gamegrp.CompareNoCase(ggfn) == 0)
+		{
+			return G_CheckSaveGameWads(gamegrp, mapgrp, false) ? 1 : -2;
+		}
+		else
+		{
+			// different game. Skip this.
 			return 0;
-		}
-
-		MapRecord *curLevel = nullptr;
-
-		if (strncmp(filename, "file://", 7) != 0)
-		{
-			for (auto& mr : mapList)
-			{
-				if (mr.fileName.Compare(filename) == 0)
-				{
-					curLevel = &mr;
-				}
-			}
-		}
-		else
-		{
-			curLevel = &userMapRecord;
-			if (!formenu)
-			{
-				userMapRecord.name = "";
-				userMapRecord.SetFileName(filename);
-			}
-		}
-		if (!curLevel) return 0;
-		if (!formenu) currentLevel = curLevel;
-		
-
-		if (savever < savesig.minsavever)
-		{
-			// old, incompatible savegame. List as not usable.
-			return -1;
-		}
-		else
-		{
-			auto ggfn = ExtractFileBase(fileSystem.GetResourceFileName(1), true);
-			if (gamegrp.CompareNoCase(ggfn) == 0)
-			{
-				return G_CheckSaveGameWads(gamegrp, mapgrp, false) ? 1 : -2;
-			}
-			else
-			{
-				// different game. Skip this.
-				return 0;
-			}
 		}
 	}
 	return 0;

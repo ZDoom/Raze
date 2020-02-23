@@ -61,6 +61,7 @@ void CompositeSavegameWriter::AddCompressedElement(const char* filename, FCompre
 	subbuffers.Push(buffer);
 	buffer = {};
 	subfiles.Push(nullptr);
+	isCompressed.Push(true);
 }
 
 FCompressedBuffer CompositeSavegameWriter::CompressElement(BufferWriter *bw, bool compress)

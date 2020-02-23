@@ -44,7 +44,6 @@
 #include "v_draw.h"
 #include "files.h"
 #include "resourcefile.h"
-#include "sjson.h"
 #include "cmdlib.h"
 #include "files.h"
 #include "savegamehelp.h"
@@ -52,6 +51,7 @@
 #include "c_dispatch.h"
 #include "i_system.h"
 #include "build.h"
+#include "serializer.h"
 
 
 FSavegameManager savegameManager;
@@ -378,50 +378,49 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 			// this should not happen because the file has already been verified.
 			return index;
 		}
-		auto fr = info->NewReader();
-		auto data = fr.ReadPadded(1);
-		fr.Close();
-		sjson_context* ctx = sjson_create_context(0, 0, NULL);
-		if (ctx)
+
+		void* data = info->Get();
+		FSerializer arc;
+		if (!arc.OpenReader((const char*)data, info->LumpSize))
 		{
-			sjson_node* root = sjson_decode(ctx, (const char*)data.Data());
+			return index;
+		}
 
+		FString comment, fcomment, ncomment, mtime;
 
-			FString comment = sjson_get_string(root, "Creation Time", "");
-			FString fcomment = sjson_get_string(root, "Map Label", "");
-			FString ncomment = sjson_get_string(root, "Map Name", "");
-			FString mtime = sjson_get_string(root, "Map Time", "");
-			comment.AppendFormat("\n%s - %s\n%s", fcomment.GetChars(), ncomment.GetChars(), mtime.GetChars());
-			SaveCommentString = comment;
+		arc("Creation Time", comment)
+			("Map Label", fcomment)
+			("Map Name", ncomment)
+			("Map Time", mtime);
 
-			// Extract pic (todo: let the renderer write a proper PNG file instead of a raw canvas dunp of the software renderer - and make it work for all games.)
-			FResourceLump *pic = resf->FindLump("savepic.png");
-			if (pic != nullptr)
+		comment.AppendFormat("\n%s - %s\n%s", fcomment.GetChars(), ncomment.GetChars(), mtime.GetChars());
+		SaveCommentString = comment;
+
+		FResourceLump *pic = resf->FindLump("savepic.png");
+		if (pic != nullptr)
+		{
+			FileReader picreader;
+
+			picreader.OpenMemoryArray([=](TArray<uint8_t> &array)
 			{
-				FileReader picreader;
-
-				picreader.OpenMemoryArray([=](TArray<uint8_t> &array)
+				auto cache = pic->Lock();
+				array.Resize(pic->LumpSize);
+				memcpy(&array[0], cache, pic->LumpSize);
+				pic->Unlock();
+				return true;
+			});
+			PNGHandle *png = M_VerifyPNG(picreader);
+			if (png != nullptr)
+			{
+				SavePic = PNGTexture_CreateFromFile(png, node->Filename);
+				delete png;
+				if (SavePic && SavePic->GetWidth() == 1 && SavePic->GetHeight() == 1)
 				{
-					auto cache = pic->Lock();
-					array.Resize(pic->LumpSize);
-					memcpy(&array[0], cache, pic->LumpSize);
-					pic->Unlock();
-					return true;
-				});
-				PNGHandle *png = M_VerifyPNG(picreader);
-				if (png != nullptr)
-				{
-					SavePic = PNGTexture_CreateFromFile(png, node->Filename);
-					delete png;
-					if (SavePic && SavePic->GetWidth() == 1 && SavePic->GetHeight() == 1)
-					{
-						delete SavePic;
-						SavePic = nullptr;
-						SavePicData.Clear();
-					}
+					delete SavePic;
+					SavePic = nullptr;
+					SavePicData.Clear();
 				}
 			}
-			sjson_destroy_context(ctx);
 		}
 		delete resf;
 	}

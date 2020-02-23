@@ -45,8 +45,7 @@
 #include "c_cvars.h"
 #include "sc_man.h"
 #include "baselayer.h"
-#include "savegamehelp.h"
-#include "sjson.h"
+#include "serializer.h"
 #include "gstrings.h"
 #include "version.h"
 
@@ -468,112 +467,31 @@ void STAT_Cancel()
 //
 //==========================================================================
 
-void SaveOneLevel(sjson_context *ctx, sjson_node *lev, OneLevel& l)
+FSerializer& Serialize(FSerializer& arc, const char* key, OneLevel& l, OneLevel* def)
 {
-	sjson_put_int(ctx, lev, "totalkills", l.totalkills);
-	sjson_put_int(ctx, lev, "kills", l.killcount);
-	sjson_put_int(ctx, lev, "totalsecrets", l.totalsecrets);
-	sjson_put_int(ctx, lev, "secrets", l.secretcount);
-	sjson_put_int(ctx, lev, "leveltime", l.leveltime);
-	sjson_put_string(ctx, lev, "levelname", l.Levelname);
+	if (arc.BeginObject(key))
+	{
+		arc("totalkills", l.totalkills)
+			("killcount", l.killcount)
+			("totalsecrets", l.totalsecrets)
+			("secretcount", l.secretcount)
+			("leveltime", l.leveltime)
+			("levelname", l.Levelname)
+			.EndObject();
+	}
+	return arc;
 }
 
-void ReadOneLevel(sjson_node *lev, OneLevel& l)
+void SerializeStatistics(FSerializer &arc)
 {
-
-	l.totalkills = sjson_get_int(lev, "totalkills", 0);
-	l.killcount = sjson_get_int(lev, "kills", 0);
-	l.totalsecrets = sjson_get_int(lev, "totalsecrets", 0);
-	l.secretcount = sjson_get_int(lev, "secrets", 0);
-	l.leveltime = sjson_get_int(lev, "leveltime", 0);
-	l.Levelname = sjson_get_string(lev, "levelname", "");
-}
-
-void SaveStatistics()
-{
-	sjson_context* ctx = sjson_create_context(0, 0, NULL);
-	if (!ctx)
+	if (arc.BeginObject("statistics"))
 	{
-		return;
+		arc("levelname", LevelName)
+			("episode", StartEpisode)
+			("skill", StartSkill)
+			("levels", LevelData)
+			.EndObject();
 	}
-	sjson_node* root = sjson_mkobject(ctx);
-
-	sjson_put_string(ctx, root, "levelname", LevelName);
-	sjson_put_string(ctx, root, "episode", StartEpisode);
-	sjson_put_int(ctx, root, "skill", StartSkill);
-
-	sjson_node* levels = sjson_mkarray(ctx);
-	for (auto& lev : LevelData)
-	{
-		sjson_node* levj = sjson_mkobject(ctx);
-		SaveOneLevel(ctx, levj, lev);
-		sjson_append_element(levels, levj);
-	}
-	sjson_append_member(ctx, root, "levels", levels);
-
-	char errmsg[256];
-	if (!sjson_check(root, errmsg))
-	{
-		buildprint(errmsg, "\n");
-		sjson_destroy_context(ctx);
-		return;
-	}
-
-	char* encoded = sjson_stringify(ctx, root, "  ");
-
-	FileWriter* fil = WriteSavegameChunk("statistics.json");
-	if (!fil)
-	{
-		sjson_destroy_context(ctx);
-		return;
-	}
-
-	fil->Write(encoded, strlen(encoded));
-
-	sjson_free_string(ctx, encoded);
-	sjson_destroy_context(ctx);
-	return;
-}
-
-bool ReadStatistics()
-{
-	auto fil = ReadSavegameChunk("statistics.json");
-	if (!fil.isOpen())
-	{
-		return false;
-	}
-
-	auto text = fil.ReadPadded(1);
-	fil.Close();
-
-	if (text.Size() == 0)
-	{
-		return false;
-	}
-
-	sjson_context* ctx = sjson_create_context(0, 0, NULL);
-	sjson_node* root = sjson_decode(ctx, (const char*)text.Data());
-
-	LevelName = sjson_get_string(root, "levelname", "");
-	StartEpisode = sjson_get_string(root, "episode", "");
-	StartSkill = sjson_get_int(root, "skill", -1);
-	sjson_node* levels = sjson_find_member(root, "levels");
-
-	if (LevelName.Len() == 0 || StartEpisode.Len() == 0 || StartSkill == -1 || levels == nullptr)
-	{
-		sjson_destroy_context(ctx);
-		return true;	// do not error out on this.
-	}
-
-	int numlevels = sjson_child_count(levels);
-	LevelData.Resize(numlevels);
-	int i = 0;
-	for (auto& lev : LevelData)
-	{
-		ReadOneLevel(sjson_find_element(levels, i++), lev);
-	}
-	sjson_destroy_context(ctx);
-	return true;
 }
 
 

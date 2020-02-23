@@ -66,17 +66,17 @@ const char *GetVersionString();
 #define SAVESIG_SW GAMENAME ".ShadowWarrior"
 #define SAVESIG_PS GAMENAME ".Exhumed"
 
-#define MINSAVEVER_DN3D 3
-#define MINSAVEVER_BLD 3
-#define MINSAVEVER_RR 3
-#define MINSAVEVER_SW 2
-#define MINSAVEVER_PS 2
+#define MINSAVEVER_DN3D 4
+#define MINSAVEVER_BLD 4
+#define MINSAVEVER_RR 4
+#define MINSAVEVER_SW 3
+#define MINSAVEVER_PS 3
 
-#define SAVEVER_DN3D 3
-#define SAVEVER_BLD 3
-#define SAVEVER_RR 3
-#define SAVEVER_SW 2
-#define SAVEVER_PS 2
+#define SAVEVER_DN3D 4
+#define SAVEVER_BLD 4
+#define SAVEVER_RR 4
+#define SAVEVER_SW 3
+#define SAVEVER_PS 3
 
 #if defined(__APPLE__) || defined(_WIN32)
 #define GAME_DIR GAMENAME

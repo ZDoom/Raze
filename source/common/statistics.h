@@ -6,6 +6,6 @@ void STAT_NewLevel(const char* mapname);
 void STAT_Update(bool endofgame);
 void STAT_Cancel();
 
+class FSerializer;
 void InitStatistics();
-void SaveStatistics();
-bool ReadStatistics();
+void SerializeStatistics(FSerializer &);

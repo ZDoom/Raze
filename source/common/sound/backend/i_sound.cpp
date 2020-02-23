@@ -50,6 +50,7 @@
 #include "s_music.h"
 #include "z_music.h"
 #include "gamecvars.h"
+#include "gamecontrol.h"
 #include <zmusic.h>
 
 EXTERN_CVAR (Float, snd_sfxvolume)
@@ -70,8 +71,6 @@ CVAR(String, snd_backend, DEF_BACKEND, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR (Bool, snd_pitched, false, CVAR_ARCHIVE)
 
 SoundRenderer *GSnd;
-bool nosound;
-bool nosfx;
 
 void I_CloseSound ();
 
@@ -248,12 +247,9 @@ public:
 void I_InitSound ()
 {
 	FModule_SetProgDir(progdir);
-	/* Get command line options: */
-	nosound = !!Args->CheckParm ("-nosound");
-	nosfx = !!Args->CheckParm ("-nosfx");
 
 	GSnd = NULL;
-	if (nosound)
+	if (userConfig.nosound)
 	{
 		GSnd = new NullSoundRenderer;
 		return;

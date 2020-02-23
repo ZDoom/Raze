@@ -51,6 +51,8 @@
 #include "printf.h"
 #include "s_soundinternal.h"
 
+bool save_full = false;
+
 //==========================================================================
 //
 // This will double-encode already existing UTF-8 content.
