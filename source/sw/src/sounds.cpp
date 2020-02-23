@@ -206,7 +206,6 @@ FRolloffInfo GetRolloff(int basedist)
 struct AmbientSound
 {
     SPRITEp sp;
-    FSoundChan* sndChan;
     int ambIndex;
     int vocIndex;
     int ChanFlags;
@@ -226,12 +225,9 @@ static TArray<AmbientSound*> ambients;
 
 void StopAmbientSound(void)
 {
-    for (auto& amb : ambients)
+    for (auto amb : ambients)
     {
-        if (amb->sndChan)
-        {
-            soundEngine->StopChannel(amb->sndChan);
-        }
+        soundEngine->StopSound(SOURCE_Ambient, amb, -1);
     }
     ambients.Clear();
 }
@@ -271,7 +267,6 @@ void InitAmbient(int num, SPRITEp sp)
     amb->sp = sp;
     amb->ambIndex = num;
     amb->vocIndex = vnum;
-    amb->sndChan = nullptr;
     amb->ChanFlags = 0;
     if (ambarray[num].ambient_flags & v3df_dontpan) amb->ChanFlags |= EChanFlags::FromInt(CHANEXF_DONTPAN);
     if (voc[vnum].voc_flags & vf_loop) amb->ChanFlags |= CHANF_LOOP; 
@@ -354,7 +349,10 @@ static void DoTimedSound(AmbientSound* amb)
     amb->curIndex += synctics;
     if (amb->curIndex >= amb->maxIndex)
     {
-        if (amb->sndChan == nullptr || (amb->sndChan->ChanFlags & CHANF_FORGETTABLE))
+        if (soundEngine->EnumerateChannels([=](FSoundChan* tchan)
+            {
+                return (tchan->Source == amb && !(tchan->ChanFlags & CHANF_FORGETTABLE));
+            }))
         {
             // Check for special case ambient sounds. Since the sound is stopped and doesn't occupy a real channel at this time we can just swap out the sound ID before restarting it.
             int ambid = RandomizeAmbientSpecials(amb->vocIndex);
@@ -397,11 +395,7 @@ static void UpdateAmbients()
         }
         else
         {
-            if (amb->sndChan)
-            {
-                soundEngine->StopChannel(amb->sndChan);
-                amb->sndChan = nullptr;
-            }
+            soundEngine->StopSound(SOURCE_Ambient, amb, -1);
         }
 
     }
@@ -427,7 +421,6 @@ class SWSoundEngine : public SoundEngine
     // client specific parts of the sound engine go in this class.
     void CalcPosVel(int type, const void* source, const float pt[3], int channum, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan* chan) override;
     TArray<uint8_t> ReadSound(int lumpnum) override;
-    void ChannelEnded(FISoundChannel* chan) override;
 
 public:
     SWSoundEngine()
@@ -448,19 +441,6 @@ TArray<uint8_t> SWSoundEngine::ReadSound(int lumpnum)
 {
     auto wlump = fileSystem.OpenFileReader(lumpnum);
     return wlump.Read();
-}
-
-void SWSoundEngine::ChannelEnded(FISoundChannel* chan)
-{
-    // if this channel belongs to an ambient sound we have to delete the reference to it.
-    for (auto amb : ambients)
-    {
-        if (amb->sndChan == chan)
-        {
-            amb->sndChan = nullptr;
-        }
-    }
-    SoundEngine::ChannelEnded(chan);
 }
 
 //==========================================================================
