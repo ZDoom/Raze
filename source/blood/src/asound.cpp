@@ -152,36 +152,4 @@ void ambInit(void)
     }
 }
 
-class ASoundLoadSave : public LoadSave
-{
-    virtual void Load(void);
-    virtual void Save(void);
-};
-
-void ASoundLoadSave::Load(void)
-{
-	for (auto &amb : ambChannels)
-	{
-		Read(&amb.check, sizeof(amb.check));
-		amb.soundID = FSoundID(amb.check);
-		amb.distance = 0;
-	}
-}
-
-void ASoundLoadSave::Save(void)
-{
-	for (auto &amb : ambChannels)
-	{
-		Write(&amb.check, sizeof(amb.check));
-	}
-}
-
-static ASoundLoadSave *myLoadSave;
-
-void ASoundLoadSaveConstruct(void)
-{
-    myLoadSave = new ASoundLoadSave();
-}
-
-
 END_BLD_NS
