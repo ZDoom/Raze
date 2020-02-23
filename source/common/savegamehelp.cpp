@@ -49,6 +49,8 @@
 #include "v_video.h"
 #include "gamecontrol.h"
 #include "m_argv.h"
+#include "serializer.h"
+#include "version.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -78,6 +80,7 @@ bool OpenSaveGameForRead(const char *name)
 
 	if (savereader != nullptr)
 	{
+
 		// Load system-side data from savegames.
 		ReadStatistics();
 		SECRET_Load();
@@ -107,6 +110,11 @@ FileWriter *WriteSavegameChunk(const char *name)
 	return &savewriter.NewElement(name);
 }
 
+void AddCompressedSavegameChunk(const char* name, FCompressedBuffer& buffer)
+{
+	savewriter.AddCompressedElement(name, buffer);
+}
+
 FileReader ReadSavegameChunk(const char *name)
 {
 	if (!savereader) return FileReader();
@@ -126,6 +134,8 @@ void FinishSavegameRead()
 	savereader = nullptr;
 }
 
+CVAR(Bool, save_formatted, true, 0)	// should be set to false once the conversion is done
+
 //=============================================================================
 //
 // Creates the savegame and writes all cross-game content.
@@ -137,25 +147,31 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	savewriter.Clear();
 	savewriter.SetFileName(filename);
 
-	sjson_context* ctx = sjson_create_context(0, 0, NULL);
-	if (!ctx)
-	{
-		savewriter.Clear();
-		return false;
-	}
-	sjson_node* root = sjson_mkobject(ctx);
+	FSerializer savegameinfo;		// this is for displayable info about the savegame.
+	FSerializer savegamesession;	// saved game session settings.
+	FSerializer savegameengine;		// saved play state.
+
+	savegameinfo.OpenWriter(true);
+	savegamesession.OpenWriter(save_formatted);
+	savegameengine.OpenWriter(save_formatted);
+
+	char buf[100];
+	mysnprintf(buf, countof(buf), GAMENAME " %s", GetVersionString());
 	auto savesig = gi->GetSaveSig();
-	sjson_put_int(ctx, root, "Save Version", savesig.currentsavever);
-	sjson_put_string(ctx, root, "Engine", savesig.savesig);
-	sjson_put_string(ctx, root, "Game Resource", fileSystem.GetResourceFileName(1));
-	sjson_put_string(ctx, root, "Map Name", currentLevel->DisplayName());
-	sjson_put_string(ctx, root, "Creation Time", myasctime());
-	sjson_put_string(ctx, root, "Title", name);
-	sjson_put_string(ctx, root, "Map File", currentLevel->fileName);
-	sjson_put_string(ctx, root, "Map Label", currentLevel->labelName);
 	auto gs = gi->getStats();
 	FStringf timeStr("%02d:%02d", gs.timesecnd / 60, gs.timesecnd % 60);
-	sjson_put_string(ctx, root, "Map Time", timeStr);
+
+	savegameinfo.AddString("Software", buf)
+		("Save Version", savesig.currentsavever)
+		.AddString("Engine", savesig.savesig)
+		.AddString("Game Resource", fileSystem.GetResourceFileName(1))
+		.AddString("Map Name", currentLevel->DisplayName())
+		.AddString("Creation Time", myasctime())
+		.AddString("Title", name)
+		.AddString("Map File", currentLevel->fileName)
+		.AddString("Map Label", currentLevel->labelName)
+		.AddString("Map Time", timeStr);
+
 	const char *fn = currentLevel->fileName;
 	if (*fn == '/') fn++;
 	if (strncmp(fn, "file://", 7) != 0) // this only has meaning for non-usermaps
@@ -163,7 +179,7 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 		auto fileno = fileSystem.FindFile(fn);
 		auto mapfile = fileSystem.GetFileContainer(fileno);
 		auto mapcname = fileSystem.GetResourceFileName(mapfile);
-		if (mapcname) sjson_put_string(ctx, root, "Map Resource", mapcname);
+		if (mapcname) savegameinfo.AddString("Map Resource", mapcname);
 		else
 		{
 			savewriter.Clear();
@@ -171,20 +187,9 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 		}
 	}
 
-	char* encoded = sjson_stringify(ctx, root, "  ");
+	auto buff = savegameinfo.GetCompressedOutput();
+	AddCompressedSavegameChunk("info.json", buff);
 
-	FileWriter* fil = WriteSavegameChunk("info.json");
-	if (!fil)
-	{
-		sjson_destroy_context(ctx);
-		savewriter.Clear();
-		return false;
-	}
-
-	fil->Write(encoded, strlen(encoded));
-
-	sjson_free_string(ctx, encoded);
-	sjson_destroy_context(ctx);
 
 	// Handle system-side modules that need to persist data in savegames here, in a central place.
 	SaveStatistics();
@@ -265,6 +270,15 @@ static bool G_CheckSaveGameWads (const char *gamegrp, const char *mapgrp, bool p
 
 int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 {
+#if 0
+	FSerializer arc(nullptr);
+	if (!arc.OpenReader((const char*)data, info->LumpSize))
+	{
+		LoadGameError("TXT_FAILEDTOREADSG");
+		return;
+	}
+#endif
+
 	auto data = fr.ReadPadded(1);
 	
 	sjson_context* ctx = sjson_create_context(0, 0, NULL);

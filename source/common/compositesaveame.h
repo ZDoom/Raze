@@ -10,6 +10,7 @@ class CompositeSavegameWriter
 {
 	FString filename;
 	TDeletingArray<BufferWriter*> subfiles;
+	TArray<FCompressedBuffer> subbuffers;
 	TArray<FString> subfilenames;
 	TArray<bool> isCompressed;
 
@@ -17,9 +18,11 @@ class CompositeSavegameWriter
 public:
 	void Clear()
 	{
+		for (auto& b : subbuffers) b.Clean();
 		isCompressed.Clear();
 		subfilenames.Clear();
 		subfiles.DeleteAndClear();
+		subbuffers.Clear();
 		filename = "";
 	}
 	void SetFileName(const char* fn)
@@ -35,6 +38,7 @@ public:
 		assert(subfiles.Size() == 0);	// must be written out.
 	}
 	FileWriter& NewElement(const char* filename, bool compress = true);
+	void AddCompressedElement(const char* filename, FCompressedBuffer& buffer);
 	bool WriteToFile();
 };
 

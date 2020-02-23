@@ -21,7 +21,7 @@ enum ELumpFlags
 
 class FResourceFile;
 
-// This holds a compresed Zip entry with all needed info to decompress it.
+// This holds a compressed Zip entry with all needed info to decompress it.
 struct FCompressedBuffer
 {
 	unsigned mSize;

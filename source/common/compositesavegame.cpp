@@ -46,16 +46,27 @@ bool WriteZip(const char *filename, TArray<FString> &filenames, TArray<FCompress
 
 FileWriter &CompositeSavegameWriter::NewElement(const char *filename, bool compress)
 {
+	FCompressedBuffer b{};
 	subfilenames.Push(filename);
+	subbuffers.Push(b);
 	isCompressed.Push(compress);
 	auto bwr = new BufferWriter;
 	subfiles.Push(bwr);
 	return *bwr;
 }
 
+void CompositeSavegameWriter::AddCompressedElement(const char* filename, FCompressedBuffer& buffer)
+{
+	subfilenames.Push(filename);
+	subbuffers.Push(buffer);
+	buffer = {};
+	subfiles.Push(nullptr);
+}
+
 FCompressedBuffer CompositeSavegameWriter::CompressElement(BufferWriter *bw, bool compress)
 {
 	FCompressedBuffer buff;
+
 	auto buffer =bw->GetBuffer();
 	buff.mSize = buffer->Size();
 	buff.mZipFlags = 0;
@@ -116,7 +127,13 @@ bool CompositeSavegameWriter::WriteToFile()
 	TArray<FCompressedBuffer> compressed(subfiles.Size(), 1);
 	for (unsigned i = 0; i < subfiles.Size(); i++)
 	{
-		compressed[i] = CompressElement(subfiles[i], isCompressed[i]);
+		if (subfiles[i])
+			compressed[i] = CompressElement(subfiles[i], isCompressed[i]);
+		else
+		{
+			compressed[i] = subbuffers[i];
+			subbuffers[i] = {};
+		}
 	}
 	
 	if (WriteZip(filename, subfilenames, compressed))
