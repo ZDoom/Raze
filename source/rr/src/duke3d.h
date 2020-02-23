@@ -129,6 +129,7 @@ END_RR_NS
 #include "sector.h"
 #include "sounds.h"
 #include "soundsdyn.h"
+#include "rrdh.h"
 
 BEGIN_RR_NS
 

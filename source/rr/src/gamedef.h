@@ -341,6 +341,11 @@ enum ScriptKeywords_t
     CON_ENDEVENT,           // 159
     CON_IFVARE,             // 160
     CON_IFVARVARE,          // 161
+    CON_IFFINDNEWSPOT,      // 162
+    CON_LEAVETRAX,          // 163
+    CON_LEAVEDROPPINGS,     // 164
+    CON_DEPLOYBIAS,         // 165
+    CON_IFPUPWIND,          // 166
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

@@ -6769,7 +6769,15 @@ static void G_PostLoadPalette(void)
 // Has to be after setting the dynamic names (e.g. SHARK).
 static void A_InitEnemyFlags(void)
 {
-    if (RRRA)
+    if (DEER)
+    {
+        int DukeEnemies[] = {
+            DOGRUN, PIG, VIXEN, CHEER };
+
+        for (bssize_t i = ARRAY_SIZE(DukeEnemies) - 1; i >= 0; i--)
+            SETFLAG(DukeEnemies[i], SFLAG_HARDCODED_BADGUY|SFLAG_BADGUY_TILE|SFLAG_KILLCOUNT);
+    }
+    else if (RRRA)
     {
         int DukeEnemies[] = {
             BOULDER, BOULDER1, EGG, RAT, TORNADO, BILLYCOCK, BILLYRAY, BILLYRAYSTAYPUT,

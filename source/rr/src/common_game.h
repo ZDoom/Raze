@@ -20,6 +20,7 @@ BEGIN_RR_NS
 #define WW2GI               (g_gameType & GAMEFLAG_WW2GI)
 #define NAM_WW2GI           (g_gameType & (GAMEFLAG_NAM|GAMEFLAG_WW2GI))
 #define SHAREWARE           (g_gameType & GAMEFLAG_SHAREWARE)
+#define DEER                (g_gameType & GAMEFLAG_DEER)
 //#define DUKEBETA            ((g_gameType & GAMEFLAG_DUKEBETA) == GAMEFLAG_DUKEBETA)
 //#define IONMAIDEN           (g_gameType & GAMEFLAG_IONMAIDEN)
 

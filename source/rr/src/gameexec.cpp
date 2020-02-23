@@ -269,6 +269,12 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 int32_t A_Dodge(spritetype * const);
 int32_t A_Dodge(spritetype * const pSprite)
 {
+    if (DEER)
+    {
+        pSprite->ang += ((rrdh_random() & 255) - 127) * 2;
+        pSprite->ang &= 2047;
+        return 0;
+    }
     vec2_t const msin = { sintable[(pSprite->ang + 512) & 2047], sintable[pSprite->ang & 2047] };
 
     for (native_t nexti, SPRITES_OF_STAT_SAFE(STAT_PROJECTILE, i, nexti)) //weapons list
@@ -653,7 +659,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     if ((movflags&jumptoplayer_bits) == jumptoplayer_bits)
     {
         if (AC_COUNT(vm.pData) < 16)
-            vm.pSprite->zvel -= (RRRA && vm.pSprite->picnum == CHEER) ? (sintable[(512+(AC_COUNT(vm.pData)<<4))&2047]/40)
+            vm.pSprite->zvel -= (!DEER && RRRA && vm.pSprite->picnum == CHEER) ? (sintable[(512+(AC_COUNT(vm.pData)<<4))&2047]/40)
             : (sintable[(512+(AC_COUNT(vm.pData)<<4))&2047]>>5);
     }
 
@@ -866,6 +872,28 @@ GAMEEXEC_STATIC void VM_Move(void)
         = { (spriteXvel * (sintable[(angDiff + 512) & 2047])) >> 14, (spriteXvel * (sintable[angDiff & 2047])) >> 14, vm.pSprite->zvel };
 
         vm.pActor->movflag = A_MoveSprite(vm.spriteNum, &vect, CLIPMASK0);
+        if (DEER && vm.pSprite->picnum != DOGRUN)
+        {
+            if ((vm.pActor->movflag & 49152) == 32768)
+            {
+                int const wallnum = vm.pActor->movflag & (MAXWALLS-1);
+                if (ghcons_isanimalescapewall(wallnum))
+                {
+                    vm.pSprite->z = sector[vm.pSprite->sectnum].ceilingz;
+                    A_MoveSprite(vm.spriteNum, &vect, CLIPMASK0);
+                    vm.pSprite->z = sector[vm.pSprite->sectnum].floorz;
+                }
+            }
+            else if ((vm.pActor->movflag & 49152) == 16384)
+            {
+                int sectnum = vm.pActor->movflag & (MAXSECTORS-1);
+                if (ghcons_isanimalescapesect(sectnum))
+                {
+                    A_MoveSprite(vm.spriteNum, &vect, CLIPMASK0);
+                    vm.pSprite->z = sector[vm.pSprite->sectnum].floorz;
+                }
+            }
+        }
     }
 
     if (!badguyp)
@@ -1133,7 +1161,8 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
             if ((unsigned)newsect < MAXSECTORS)
                 changespritesect(spriteNum, newsect);
 
-            A_PlaySound(THUD, spriteNum);
+            if (!DEER)
+                A_PlaySound(THUD, spriteNum);
         }
     }
 
@@ -1366,6 +1395,18 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             {
                 uspritetype *pSprite = (uspritetype *)&sprite[pPlayer->i];
 
+                if (DEER)
+                {
+                    if (sintable[vm.pSprite->ang&2047] * (pSprite->y - vm.pSprite->y) + sintable[(vm.pSprite->ang+512)&2047] * (pSprite->x - vm.pSprite->x) >= 0)
+                        tw = cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - (krand2() % 13312), vm.pSprite->sectnum,
+                            pSprite->x, pSprite->y, pPlayer->opos.z-(krand2() % 8192), pPlayer->cursectnum);
+                    else
+                        tw = 0;
+
+                    VM_CONDITIONAL(tw);
+                    continue;
+                }
+
 // select sprite for monster to target
 // if holoduke is on, let them target holoduke first.
 //
@@ -1411,7 +1452,16 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 continue;
             }
 
-            case CON_IFHITWEAPON: VM_CONDITIONAL(A_IncurDamage(vm.spriteNum) >= 0); continue;
+            case CON_IFHITWEAPON:
+                if (DEER)
+                {
+                    VM_CONDITIONAL(ghtrophy_isakill(vm.spriteNum));
+                }
+                else
+                {
+                    VM_CONDITIONAL(A_IncurDamage(vm.spriteNum) >= 0);
+                }
+                continue;
 
             case CON_IFSQUISHED: VM_CONDITIONAL(VM_CheckSquished()); continue;
 
@@ -1442,7 +1492,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 continue;
 
             case CON_IFPDISTL:
-                VM_CONDITIONAL(vm.playerDist < *(++insptr));
+                VM_CONDITIONAL(!(DEER && sub_535EC()) && vm.playerDist < *(++insptr));
                 if (vm.playerDist > MAXSLEEPDIST && vm.pActor->timetosleep == 0)
                     vm.pActor->timetosleep = SLEEPTIME;
                 continue;
@@ -1728,6 +1778,11 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 }
                 continue;
 
+            case CON_DEPLOYBIAS:
+                insptr++;
+                ghdeploy_bias(vm.spriteNum);
+                continue;
+
             case CON_MAMAEND:
                 insptr++;
                 g_player[myconnectindex].ps->level_end_timer = 150;
@@ -1776,6 +1831,15 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 }
                 else
                     VM_CONDITIONAL(0);
+                continue;
+
+            case CON_IFFINDNEWSPOT:
+                VM_CONDITIONAL(ghcons_findnewspot(vm.spriteNum));
+                continue;
+
+            case CON_LEAVEDROPPINGS:
+                insptr++;
+                ghtrax_leavedroppings(vm.spriteNum);
                 continue;
 
             case CON_TEARITUP:
@@ -1829,6 +1893,13 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 continue;
 
             case CON_ADDKILLS:
+                if (DEER)
+                {
+                    // no op
+                    insptr++;
+                    insptr++;
+                    continue;
+                }
                 insptr++;
                 if (g_gameType & GAMEFLAG_RR)
                 {
@@ -1929,6 +2000,11 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 insptr++;
                 pPlayer->pos.z = sector[sprite[pPlayer->i].sectnum].ceilingz;
                 sprite[pPlayer->i].z = pPlayer->pos.z;
+                continue;
+                
+            case CON_LEAVETRAX:
+                insptr++;
+                ghtrax_leavetrax(vm.spriteNum);
                 continue;
 
             case CON_DESTROYIT:
@@ -2244,6 +2320,11 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 continue;
 
             case CON_IFONWATER:
+                if (DEER)
+                {
+                    VM_CONDITIONAL(sector[vm.pSprite->sectnum].hitag == 2003);
+                    continue;
+                }
                 VM_CONDITIONAL(sector[vm.pSprite->sectnum].lotag == ST_1_ABOVE_WATER
                                && klabs(vm.pSprite->z - sector[vm.pSprite->sectnum].floorz) < ZOFFSET5);
                 continue;
@@ -2270,7 +2351,18 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 VM_CONDITIONAL(g_windTime > 0);
                 continue;
 
-            case CON_IFINWATER: VM_CONDITIONAL(sector[vm.pSprite->sectnum].lotag == ST_2_UNDERWATER); continue;
+            case CON_IFPUPWIND:
+                VM_CONDITIONAL(ghtrax_isplrupwind(vm.spriteNum, vm.playerNum));
+                continue;
+
+            case CON_IFINWATER:
+                if (DEER)
+                {
+                    VM_CONDITIONAL(sector[vm.pSprite->sectnum].hitag == 2003 && klabs(vm.pSprite->z - sector[vm.pSprite->sectnum].floorz) < ZOFFSET5);
+                    continue;
+                }
+                VM_CONDITIONAL(sector[vm.pSprite->sectnum].lotag == ST_2_UNDERWATER);
+                continue;
 
             case CON_IFCOUNT:
                 insptr++;
@@ -2317,12 +2409,13 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     || ((moveFlags & pwalkingback) && playerXVel <= -8 && !TEST_SYNC_KEY(syncBits, SK_RUN))
                     || ((moveFlags & prunningback) && playerXVel <= -8 && TEST_SYNC_KEY(syncBits, SK_RUN))
                     || ((moveFlags & pkicking)
-                        && (pPlayer->quick_kick > 0
-                            || (pPlayer->curr_weapon == KNEE_WEAPON && pPlayer->kickback_pic > 0)))
-                    || ((moveFlags & pshrunk) && sprite[pPlayer->i].xrepeat < (RR ? 8 : 32))
+                        && (DEER ? ghsound_pfiredgunnear(vm.pSprite, vm.playerNum) :(pPlayer->quick_kick > 0
+                            || (pPlayer->curr_weapon == KNEE_WEAPON && pPlayer->kickback_pic > 0))))
+                    || ((moveFlags & pshrunk) && (DEER ? pPlayer->dhat60f && !sub_535EC() : sprite[pPlayer->i].xrepeat < (RR ? 8 : 32)))
                     || ((moveFlags & pjetpack) && pPlayer->jetpack_on)
-                    || ((moveFlags & ponsteroids) && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
-                    || ((moveFlags & ponground) && pPlayer->on_ground)
+                    || ((moveFlags & ponsteroids) && (DEER ? ghsound_pmadesound(vm.pSprite, vm.playerNum) :
+                        pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400))
+                    || ((moveFlags & ponground) && (DEER ? ghsound_pmadecall(vm.pSprite, vm.playerNum) : pPlayer->on_ground))
                     || ((moveFlags & palive) && sprite[pPlayer->i].xrepeat > (RR ? 8 : 32) && sprite[pPlayer->i].extra > 0 && pPlayer->timebeforeexit == 0)
                     || ((moveFlags & pdead) && sprite[pPlayer->i].extra <= 0))
                     nResult = 1;
@@ -2377,7 +2470,14 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case CON_IFHITSPACE: VM_CONDITIONAL(TEST_SYNC_KEY(g_player[vm.playerNum].inputBits->bits, SK_OPEN)); continue;
 
-            case CON_IFOUTSIDE: VM_CONDITIONAL(sector[vm.pSprite->sectnum].ceilingstat & 1); continue;
+            case CON_IFOUTSIDE:
+                if (DEER)
+                {
+                    VM_CONDITIONAL(sector[vm.pSprite->sectnum].hitag = 2000);
+                    continue;
+                }
+                VM_CONDITIONAL(sector[vm.pSprite->sectnum].ceilingstat & 1);
+                continue;
 
             case CON_IFMULTIPLAYER: VM_CONDITIONAL((g_netServer || g_netClient || ud.multimode > 1)); continue;
 
@@ -2830,7 +2930,7 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
 
     VM_Move();
 
-    if (vm.pSprite->statnum != STAT_ACTOR)
+    if (DEER || vm.pSprite->statnum != STAT_ACTOR)
     {
         if (vm.pSprite->statnum == STAT_STANDABLE)
         {
