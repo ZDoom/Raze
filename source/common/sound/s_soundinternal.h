@@ -380,10 +380,13 @@ public:
 
 	template<class func> bool EnumerateChannels(func callback)
 	{
-		for (FSoundChan* chan = Channels; chan; chan = chan->NextChan)
+		FSoundChan* chan = Channels;
+		while (chan)
 		{
+			auto next = chan = chan->NextChan;
 			int res = callback(chan);
 			if (res) return res > 0;
+			chan = next;
 		}
 		return false;
 	}
