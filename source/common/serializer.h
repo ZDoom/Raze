@@ -270,4 +270,39 @@ FSerializer &Serialize(FSerializer &arc, const char *key, TFlags<T, TT> &flags, 
 	return Serialize(arc, key, flags.Value, def? &def->Value : nullptr);
 }
 
+// Automatic save record registration
+
+struct SaveRecord
+{
+	const char* GameModule;
+	void (*Handler)(FSerializer& arc);
+
+	SaveRecord(const char* nm, void (*handler)(FSerializer& arc));
+};
+
+struct SaveRecords
+{
+	TArray<SaveRecord*> records;
+
+	void RunHandlers(const char* gameModule, FSerializer& arc)
+	{
+		for (auto record : records)
+		{
+			if (!strcmp(gameModule, record->GameModule))
+			{
+				record->Handler(arc);
+			}
+		}
+	}
+};
+
+extern SaveRecords saveRecords;
+
+inline SaveRecord::SaveRecord(const char* nm, void (*handler)(FSerializer& arc))
+{
+	GameModule = nm;
+	Handler = handler;
+	saveRecords.records.Push(this);
+}
+
 #endif

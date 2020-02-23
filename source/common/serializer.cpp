@@ -1470,12 +1470,18 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FName &value, FName *d
 
 //==========================================================================
 //
-//
+// Note that the sound name here is not reliable because it's a file name, not a unique alias.
+// Currently the index is the only means to retrieve the sound on loading.
 //
 //==========================================================================
 
 FSerializer &Serialize(FSerializer &arc, const char *key, FSoundID &sid, FSoundID *def)
 {
+#if 1
+	int id = sid;
+	Serialize(arc, key, sid, def);
+	if (arc.isReading()) sid = FSoundID(id);
+#else
 	if (arc.isWriting())
 	{
 		if (!arc.w->inObject() || def == nullptr || sid != *def)
@@ -1508,6 +1514,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FSoundID &sid, FSoundI
 			}
 		}
 	}
+#endif
 	return arc;
 
 }
@@ -1610,3 +1617,5 @@ FSerializer &Serialize(FSerializer &arc, const char *key, NumericValue &value, N
 	}
 	return arc;
 }
+
+SaveRecords saveRecords;
