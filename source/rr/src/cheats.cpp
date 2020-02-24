@@ -287,6 +287,9 @@ void G_DoCheats(void)
     int consoleCheat = 0;
     int cheatNum;
 
+    if (DEER)
+        return;
+
     if (osdcmd_cheatsinfo_stat.cheatnum != -1)
     {
         cheatNum = osdcmd_cheatsinfo_stat.cheatnum;

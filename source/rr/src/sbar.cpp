@@ -1378,7 +1378,7 @@ void G_DrawBackground(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) == 0 && ud.recstat != 2)
     {
-        const int32_t MENUTILE = MENUSCREEN;//(videoGetRenderMode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
+        const int32_t MENUTILE = DEER ? 7040 : MENUSCREEN;//(videoGetRenderMode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
         const int32_t fstilep = tilesiz[MENUTILE].x>=320 && tilesiz[MENUTILE].y==200;
         int32_t bgtile = (fstilep ? MENUTILE : (RRRA ? RRTILE7629 : BIGHOLE));
 
@@ -1396,7 +1396,7 @@ void G_DrawBackground(void)
                     for (x=0; x<xdim; x+=tilesiz[bgtile].x)
                         rotatesprite_fs(x<<16, y<<16, tileScale, 0, bgtile, tileShade, 0, 8+16+64);
         }
-        else rotatesprite_fs(160<<16, 100<<16, 65536L, 0, bgtile, 16, 0, 2+8+64+BGSTRETCH);
+        else rotatesprite_fs(160<<16, 100<<16, 65536L, 0, bgtile, DEER ? 0 : 16, 0, 2+8+64+BGSTRETCH);
 
         return;
     }

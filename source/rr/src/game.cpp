@@ -1700,7 +1700,11 @@ int A_Spawn(int spriteNum, int tileNum)
         pSprite->picnum = BOLT1;
     else if (!RR && pSprite->picnum >= SIDEBOLT1 && pSprite->picnum <= SIDEBOLT1 + 3)
         pSprite->picnum = SIDEBOLT1;
-    if (RRRA && pSprite->picnum == PIG+11)
+    if (DEER && pSprite->picnum != APLAYER)
+    {
+        goto default_case;
+    }
+    else if (RRRA && pSprite->picnum == PIG+11)
     {
         pSprite->xrepeat = 16;
         pSprite->yrepeat = 16;
@@ -4674,6 +4678,24 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
         if (t->picnum < GREENSLIME || t->picnum > GREENSLIME+7)
             switch (DYNAMICTILEMAP(t->picnum))
             {
+            case PIG__STATICRR:
+            case DOGRUN__STATICRR:
+            case VIXEN__STATICRR:
+            case CHEER__STATICRR:
+                if (DEER)
+                {
+                    if ((t->cstat & 32768) == 0 && (t->cstat & 257) != 0)
+                    {
+                        if (klabs(ourx - t->x) + klabs(oury - t->y) < 46080)
+                        {
+                            if (klabs(oura - (getangle(t->x - ourx, t->y - oury) & 2047)) < 128)
+                                sub_5A250(32);
+                            else
+                                sub_5A250(64);
+                        }
+                    }
+                }
+                goto default_case1;
             case PUKE__STATIC:
                 if (RR) goto default_case1;
                 fallthrough__;
@@ -5556,8 +5578,9 @@ skip:
 #endif
                     )
                 {
+                    if (DEER && klabs(sector[sect].ceilingheinum - sector[sect].floorheinum) > 576) continue;
                     if (RRRA && sector[sect].lotag == 160) continue;
-                    int const shadowZ = ((sector[sect].lotag & 0xff) > 2 || pSprite->statnum == STAT_PROJECTILE ||
+                    int const shadowZ = (DEER || (sector[sect].lotag & 0xff) > 2 || pSprite->statnum == STAT_PROJECTILE ||
                                    pSprite->statnum == STAT_MISC || pSprite->picnum == DRONE || (!RR && pSprite->picnum == COMMANDER))
                                   ? sector[sect].floorz
                                   : actor[i].floorz;
@@ -5604,8 +5627,13 @@ skip:
                     }
                 }
             }
-
-        switch (DYNAMICTILEMAP(pSprite->picnum))
+        
+        if (DEER)
+        {
+            if (pSprite->picnum == 806)
+                t->picnum = 1023;
+        }
+        else switch (DYNAMICTILEMAP(pSprite->picnum))
         {
         case LASERLINE__STATIC:
             if (RR) break;
@@ -5934,6 +5962,12 @@ void GameInterface::set_hud_scale(int scale)
 void G_HandleLocalKeys(void)
 {
 //    CONTROL_ProcessBinds();
+
+    if (DEER)
+    {
+        sub_53304();
+        return;
+    }
 
     if (ud.recstat == 2)
     {
@@ -6976,6 +7010,9 @@ static void G_Startup(void)
 //    initprintf("Loading palette/lookups...\n");
     G_LoadLookups();
 
+    if (DEER)
+        sub_54DE0();
+
     screenpeek = myconnectindex;
 }
 
@@ -7278,6 +7315,9 @@ void app_loop()
 {
 	auto &myplayer = g_player[myconnectindex].ps;
 
+    if (DEER)
+        ghtrophy_loadbestscores();
+
 MAIN_LOOP_RESTART:
     totalclock = 0;
     ototalclock = 0;
@@ -7464,6 +7504,9 @@ MAIN_LOOP_RESTART:
             }
 
             frameJustDrawn = true;
+
+            if (DEER)
+                sub_5A02C();
         }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)
@@ -7498,6 +7541,8 @@ GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
 
 int G_DoMoveThings(void)
 {
+    if (DEER)
+        sub_579A0();
     ud.camerasprite = -1;
     lockclock += TICSPERFRAME;
 
@@ -7630,11 +7675,13 @@ int G_DoMoveThings(void)
         if (sprite[g_player[i].ps->i].pal != 1)
             sprite[g_player[i].ps->i].pal = g_player[i].pcolor;
 
+        if (!DEER)
         P_HandleSharedKeys(i);
 
         if (ud.pause_on == 0)
         {
             P_ProcessInput(i);
+            if (!DEER)
             P_CheckSectors(i);
         }
     }
@@ -7649,8 +7696,15 @@ int G_DoMoveThings(void)
 
     if ((everyothertime&1) == 0)
     {
+        if (DEER)
+        {
+            ghsound_ambientlooppoll();
+        }
+        else
+        {
         G_AnimateWalls();
         A_MoveCyclers();
+        }
 
         //if (g_netServer && (everyothertime % 10) == 0)
         //{

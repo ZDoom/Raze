@@ -71,6 +71,23 @@ int ghcons_findnewspot(short a1)
     return 0;
 }
 
+int dword_AA260;
+
+int sub_51B68(void)
+{
+    int r;
+    if ((int)totalclock - dword_AA260 < 200)
+        return 0;
+    if ((rrdh_random() & 127) != 64)
+        return 0;
+
+    dword_AA260 = (int)totalclock;
+
+    r = 60 + (rrdh_random() % 15);
+    S_PlaySound(r);
+    return r;
+}
+
 int ghsound_pmadecall(spritetype *a1, short a2)
 {
     switch (DYNAMICTILEMAP(a1->picnum))
@@ -194,6 +211,16 @@ int ghsound_pfiredgunnear(spritetype *a1, short a2)
     return 0;
 }
 
+void ghsound_ambientlooppoll(void)
+{
+    // TODO
+}
+
+void sub_53304(void)
+{
+    // TODO
+}
+
 int dword_AA2F4;
 
 void sub_535DC(void)
@@ -219,6 +246,11 @@ struct struct2B80E0 {
 
 struct2B80E0 f2B80E0[20];
 
+void ghtrophy_loadbestscores(void)
+{
+    // TODO
+}
+
 int ghtrophy_isakill(short a1)
 {
     spritetype *spr = &sprite[a1];
@@ -229,6 +261,17 @@ int ghtrophy_isakill(short a1)
     }
     return 0;
 }
+
+void sub_54DE0(void)
+{
+    // TODO
+}
+
+void sub_579A0(void)
+{
+    // TODO
+}
+
 int ghtrax_isplrupwind(short a1, short a2)
 {
     // TODO
@@ -245,6 +288,16 @@ void ghtrax_leavedroppings(short a1)
 }
 
 void ghdeploy_bias(short a1)
+{
+    // TODO
+}
+
+void sub_5A02C(void)
+{
+    // TODO
+}
+
+void sub_5A250(int a1)
 {
     // TODO
 }

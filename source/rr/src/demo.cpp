@@ -83,6 +83,9 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     char demofn[14];
     const char *demofnptr;
 
+    if (DEER)
+        return 0;
+
     if (g_whichDemo == 1 && g_firstDemoFile[0])
     {
         demofnptr = g_firstDemoFile;
