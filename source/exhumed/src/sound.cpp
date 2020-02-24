@@ -540,7 +540,7 @@ void UpdateSounds()
             if (!(chan->ChanFlags & (CHANF_UI|CHANF_FORGETTABLE)))
             {
                 int nVolume = 255;
-                int nPitch = int(chan->Pitch * (128.f * 11025.f)) - 11025;
+                int nPitch = int(chan->Pitch * (11025.f / 128.f)) - 11025;
                 GetSpriteSoundPitch(&nVolume, &nPitch);
                 soundEngine->SetPitch(chan, (11025 + nPitch) / 11025.f);
                 soundEngine->SetVolume(chan, nVolume / 255.f);
@@ -597,7 +597,7 @@ void PlayFX2(unsigned short nSound, short nSprite)
 
     if (nSprite)
     {
-        soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, CHANF_NONE, nSound+1, nVolume / 255.f, ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
+        soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f, ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
     }
     else
     {
