@@ -129,7 +129,7 @@ bool looped[kMaxSounds];
 
 short StaticSound[kMaxSounds];
 int fakesources[] = { 0, 1, 2, 3 };
-int swirlysources[4];
+int swirlysources[4]= { 0, 1, 2, 3 };
 
 int nLocalChan = 0;
 
@@ -455,20 +455,20 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             int which = *(int*)source;
             float phase = ((int)totalclock << (4 + which)) * (M_PI / 1024);
             pos->X = fcampos.X + 256 * cos(phase);
-            pos->Y = fcampos.Y + 256 * sin(phase);
+            pos->Z = fcampos.Z + 256 * sin(phase);
         }
         else  if (type == SOURCE_EXBoss)
         {
             int which = *(int*)source;
             *pos = fcampos;
-            // Should be positioned in 90° intervals.
+            // Should be positioned in 90¡ intervals.
             switch (which)
             {
             default:
             case 0: pos->X -= 256; break;
-            case 1: pos->Y -= 256; break;
+            case 1: pos->Z -= 256; break;
             case 2: pos->X += 256; break;
-            case 3: pos->Y += 256; break;
+            case 3: pos->Z += 256; break;
             }
         }
         else if (type == SOURCE_Actor)
@@ -492,12 +492,6 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 //
 //
 //==========================================================================
-
-int GetDistFromDXDY(int dx, int dy)
-{
-    int nSqr = dx*dx+dy*dy;
-    return (nSqr>>3)-(nSqr>>5);
-}
 
 void UpdateSounds()
 {
@@ -574,19 +568,7 @@ void PlayFX2(unsigned short nSound, short nSprite)
         soundz = sprite[nSprite].z;
     }
 
-    int dx = (initx-soundx) >> 8;
-    int dy = (inity-soundy) >> 8;
-
-    int nDist = GetDistFromDXDY(dx, dy);
-    if (nDist >= 255)
-    {
-        if ((int16_t)nSound > -1)
-            StopSpriteSound(nSound);
-        return;
-    }
-
     int nVolume = 255;
-
     short v10 = (nSound&0xe00)>>9;
     nSound &= 0x1ff;
 
@@ -622,7 +604,7 @@ void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector)
     soundx = x;
     soundy = y;
     soundz = z;
-    soundsect = nSector&0xfff;
+    soundsect = nSector&0x3fff;
     PlayFX2(ax, -1);
 }
 
