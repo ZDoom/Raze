@@ -166,7 +166,7 @@ int seq_ReadSequence(const char *seqName)
     strcat(buffer, seqName);
     strcat(buffer, ".seq");
 
-    auto hFile = fileSystem.OpenFileReader(buffer, 1);
+    auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(buffer), true);
     if (!hFile.isOpen())
     {
         initprintf("Unable to open '%s'!\n", buffer);
@@ -288,6 +288,7 @@ int seq_ReadSequence(const char *seqName)
 
             int hSound = LoadSound(&buffer[(var_2C&0x1FF)*10]);
 
+            assert(vdi + var_28 < 18000);
             FrameSound[vdi + var_28] = hSound | (var_2C & 0xFE00);
         }
     }
@@ -317,6 +318,23 @@ void seq_LoadSequences()
             initprintf("Error loading '%s'\n", SeqNames[i]);
         }
     }
+
+    FILE* f = fopen("seq.dump", "wb");
+
+    fwrite(SeqBase, 1, sizeof(SeqBase), f);
+    fwrite(SeqSize, 1, sizeof(SeqSize), f);
+    fwrite(SeqFlag, 1, sizeof(SeqFlag), f);
+    fwrite("++++++++++++++++", 1, 16, f);
+    fwrite(FrameSound, 1, sizeof(FrameSound), f);
+    fwrite("++++++++++++++++", 1, 16, f);
+    fwrite(FrameSize, 1, sizeof(FrameSize), f);
+    fwrite(FrameBase, 1, sizeof(FrameBase), f);
+    fwrite(FrameFlag, 1, sizeof(FrameFlag), f);
+    fwrite(ChunkYpos, 1, sizeof(ChunkYpos), f);
+    fwrite(ChunkXpos, 1, sizeof(ChunkXpos), f);
+    fwrite(ChunkPict, 1, sizeof(ChunkPict), f);
+    fwrite(ChunkFlag, 1, sizeof(ChunkFlag), f);
+    fclose(f);
 
     nShadowPic = seq_GetFirstSeqPicnum(kSeqShadow);
     nShadowWidth = tilesiz[nShadowPic].x;
