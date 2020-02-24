@@ -1300,7 +1300,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             // Fall through to case 62
             fallthrough__;
         }
-        case 62:
+        case 63: // Ceiling door, kill trigger (Enemy death triggers door)
         {
             if (nLotag == 63) {
                 nEnergyChan = nChannel;
@@ -1358,7 +1358,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             return;
         }
 
-        case 63:
+        case 62:
         {
             zListA[0] = sector[nSector].floorz;
             int var_20 = 1;
