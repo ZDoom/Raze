@@ -28,7 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
-short bShowTowers = kFalse;int ldMapZoom;
+short bShowTowers = kFalse;
+int ldMapZoom;
 int lMapZoom;
 
 void MarkSectorSeen(short nSector);

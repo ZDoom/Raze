@@ -383,7 +383,7 @@ public:
 		FSoundChan* chan = Channels;
 		while (chan)
 		{
-			auto next = chan = chan->NextChan;
+			auto next = chan->NextChan;
 			int res = callback(chan);
 			if (res) return res > 0;
 			chan = next;
