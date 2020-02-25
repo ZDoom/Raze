@@ -600,7 +600,7 @@ void S_PlaySpecialMusicOrNothing(unsigned int m)
 
 void S_PlayRRMusic(int newTrack)
 {
-    if (!RR || !mus_redbook || cd_disabled)
+    if (!RR || !mus_redbook || cd_disabled || currentLevel->music.IsNotEmpty())
         return;
     Mus_Stop();
 
