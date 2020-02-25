@@ -148,27 +148,9 @@ class EXSoundEngine : public SoundEngine
 public:
     EXSoundEngine()
     {
-        int eax = 260;
-        TArray<uint8_t> disttable(256, 1);
-
-        for (int i = 0; i < 256; i++)
-        {
-            if (eax > 65280)
-            {
-                disttable[i] = 0;
-            }
-            else
-            {
-                disttable[i] = 255 - (eax >> 8);
-
-                eax = (eax * eax) >> 8;
-            }
-        }
-
-        S_Rolloff.RolloffType = ROLLOFF_Custom;
+        S_Rolloff.RolloffType = ROLLOFF_Doom;
         S_Rolloff.MinDistance = 0;
-        S_Rolloff.MaxDistance = 4096; // It's really this big
-        Init(disttable, 255);
+        S_Rolloff.MaxDistance = 1536;
     }
 };
 
