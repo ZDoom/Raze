@@ -511,6 +511,10 @@ void S_RestartMusic ()
 		mus_playing.LastSong = "";
 		S_ChangeMusic (song, mus_playing.baseorder, mus_playing.loop, true);
 	}
+	else
+	{
+		S_StopMusic(true);
+	}
 }
 
 //==========================================================================
