@@ -141,8 +141,6 @@ int minigametext(int x,int y,const char *t,char s,short dabits)
             if (*t == 32) {newx+=4; t++; continue; }
             else ac = *t - '!' + 2930;
 
-            if ((ac < 2930 || ac > 3023) && *t != asc_Space) break;
-
             if (*t > asc_Space && *t < 127)
             {
                 newx += tilesiz[ac].x;
@@ -161,8 +159,6 @@ int minigametext(int x,int y,const char *t,char s,short dabits)
     {
         if (*t == 32) {x+=4; t++; continue; }
         else ac = *t - '!' + 2930;
-
-        if ((ac < 2930 || ac > 3023) && *t != asc_Space) break;
 
         if (*t > asc_Space && *t < 127)
         {

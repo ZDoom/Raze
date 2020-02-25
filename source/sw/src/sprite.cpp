@@ -5773,9 +5773,9 @@ KeyMain:
                 if (pp == Player+myconnectindex && hud_messages)
                 {
                     int cookie = (adult_lockout || Global_PLock)? STD_RANDOM_RANGE(10) : STD_RANDOM_RANGE(MAX_FORTUNES);
-                    // print to the console, and if active to the generic notify display.
-                    FStringf msg(TEXTCOLOR_SAPPHIRE "%s: %s", GStrings("TXTS_FORTUNE"), quoteMgr.GetQuote(QUOTE_COOKIE + cookie));
-                    Printf("%s\n", msg.GetChars());
+                    // print to the console, and the user quote display.
+                    FStringf msg("%s %s", GStrings("TXTS_FORTUNE"), quoteMgr.GetQuote(QUOTE_COOKIE + cookie));
+                    Printf(TEXTCOLOR_SAPPHIRE "%s\n", msg.GetChars());
                     adduserquote(msg.GetChars());
                 }
 
