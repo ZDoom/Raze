@@ -559,7 +559,7 @@ void PlayFX2(unsigned short nSound, short nSprite)
 
     GetSpriteSoundPitch(&nVolume, &nPitch);
 
-    if (nSprite)
+    if (nSprite >= 0)
     {
         soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f, ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
     }
