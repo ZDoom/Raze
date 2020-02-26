@@ -1012,13 +1012,13 @@ void CheckKeys()
     if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
     {
         buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-        G_ChangeHudLayout(1);
+        if (nMapMode) G_ChangeHudLayout(1);
     }
 
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
     {
         buttonMap.ClearButton(gamefunc_Shrink_Screen);
-        G_ChangeHudLayout(-1);
+        if (nMapMode) G_ChangeHudLayout(-1);
     }
 
     // go to 3rd person view?
