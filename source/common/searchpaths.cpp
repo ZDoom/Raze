@@ -559,7 +559,7 @@ static TArray<GrpInfo> ParseGrpInfo(const char *fn, FileReader &fr, TMap<FString
 				}
 				else sc.ScriptError(nullptr);
 			}
-			if (grp.dependencyCRC == 0 && (grp.flags & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI | GAMEFLAG_FURY | GAMEFLAG_RR | GAMEFLAG_RRRA | GAMEFLAG_BLOOD | GAMEFLAG_SW | GAMEFLAG_PSEXHUMED)) == 0)
+			if (grp.dependencyCRC == 0 && (grp.flags & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI | GAMEFLAG_FURY | GAMEFLAG_RRALL | GAMEFLAG_BLOOD | GAMEFLAG_SW | GAMEFLAG_PSEXHUMED)) == 0)
 			{
 				sc.ScriptMessage("Warning: GRP without game defined. Ignoring");
 				groups.Pop();
@@ -888,6 +888,9 @@ const char* G_DefaultDefFile(void)
 
 	if (g_gameType & GAMEFLAG_RR)
 		return "rr.def";
+
+	if (g_gameType & GAMEFLAG_DEER)
+		return "rrdeer.def";
 
 	if (g_gameType & GAMEFLAG_WW2GI)
 		return "ww2gi.def";

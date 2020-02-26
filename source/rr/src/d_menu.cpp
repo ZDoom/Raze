@@ -213,6 +213,111 @@ static int Menu_GetFontHeight(int fontnum)
 	return font.get_yline();
 }
 
+int dword_A99A0, dword_A99A4, dword_A99A8, dword_A99AC;
+short word_A99B0, word_A99B2;
+int dword_A99B4, dword_A99B8, dword_A99BC, dword_A99C0, dword_A99C4, dword_A99C8;
+
+void Menu_DHLeaonardHeadReset(void)
+{
+	dword_A99A0 = 0;
+	dword_A99A4 = 0;
+	dword_A99A8 = 0;
+	dword_A99AC = 0;
+	word_A99B2 = 0;
+	dword_A99B4 = 0;
+	word_A99B0 = 0;
+}
+
+void Menu_DHLeaonardHeadDisplay(vec2_t pos)
+{
+	if (sub_51B68() && !dword_A99C0)
+	{
+		dword_A99C0 = (int)totalclock;
+	}
+	if (dword_A99C0 && (int)totalclock - dword_A99C0 > 40)
+	{
+		dword_A99C0 = 0;
+		dword_A99C4 = 1;
+	}
+	switch (dword_A99A0)
+	{
+	case 0:
+		if ((int)totalclock - dword_A99B8 >= 240 && dword_A99C4 && (rrdh_random() & 63) < 32)
+		{
+			dword_A99A0 = 1;
+			dword_A99A4 = 160 - ((rrdh_random() & 255) - 128);
+			word_A99B0 = ((rrdh_random() & 127) + 1984) & 2047;
+			dword_A99AC = (rrdh_random() & 4095) - 4090;
+			word_A99B2 = SPINNINGNUKEICON + (rrdh_random() & 15);
+		}
+		break;
+	case 1:
+		if (dword_A99A8 < 54)
+		{
+			if ((int)totalclock - dword_A99B4 > 2)
+			{
+				dword_A99B4 = (int)totalclock;
+				dword_A99A8 += 2;
+			}
+		}
+		else
+		{
+			dword_A99A0 = 2;
+			dword_A99BC = (int)totalclock;
+		}
+		pos.x += dword_A99A4 << 16;
+		pos.y += (240 - dword_A99A8) << 16;
+		rotatesprite(pos.x, pos.y, 32768 - dword_A99AC, word_A99B0, word_A99B2, 0, 0, 10, 0, 0, xdim - 1, ydim - 1);
+		break;
+	case 2:
+		if (dword_A99C4 == 1)
+		{
+			if ((rrdh_random() & 63) > 32)
+				word_A99B2--;
+			else
+				word_A99B2++;
+		}
+		else
+		{
+			if ((rrdh_random() & 127) == 48)
+			{
+				if ((int)totalclock - dword_A99BC > 240)
+					dword_A99A0 = 3;
+			}
+		}
+		if (word_A99B2 < SPINNINGNUKEICON)
+			word_A99B2 = SPINNINGNUKEICON + 15;
+		if (word_A99B2 > SPINNINGNUKEICON + 15)
+			word_A99B2 = SPINNINGNUKEICON;
+		pos.x += dword_A99A4 << 16;
+		pos.y += (240 - dword_A99A8) << 16;
+		rotatesprite(pos.x, pos.y, 32768 - dword_A99AC, word_A99B0, word_A99B2, 0, 0, 10, 0, 0, xdim - 1, ydim - 1);
+		if ((int)totalclock - dword_A99BC > 960)
+			dword_A99A0 = 3;
+		break;
+	case 3:
+		if (dword_A99A8 > 0)
+		{
+			if ((int)totalclock - dword_A99B4 > 2)
+			{
+				dword_A99B4 = (int)totalclock;
+				dword_A99A8 -= 2;
+			}
+			pos.x += dword_A99A4 << 16;
+			pos.y += (240 - dword_A99A8) << 16;
+			rotatesprite(pos.x, pos.y, 32768 - dword_A99AC, word_A99B0, word_A99B2, 0, 0, 10, 0, 0, xdim - 1, ydim - 1);
+		}
+		else
+		{
+			dword_A99B8 = (int)totalclock;
+			dword_A99A0 = 0;
+		}
+		break;
+	}
+	dword_A99C4 = 0;
+}
+
+
 //----------------------------------------------------------------------------
 //
 // Implements the native looking menu used for the main menu
@@ -266,10 +371,22 @@ protected:
 
 class RedneckMainMenu : public RedneckListMenu
 {
+	virtual void Init(DMenu* parent = NULL, FListMenuDescriptor* desc = NULL)
+	{
+		RedneckListMenu::Init(parent, desc);
+		Menu_DHLeaonardHeadReset();
+	}
+
 	void PreDraw() override
 	{
 		RedneckListMenu::PreDraw();
-		if (RRRA)
+		if (DEER)
+		{
+			vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
+			Menu_DHLeaonardHeadDisplay(forigin);
+			rotatesprite_fs(forigin.x + (MENU_MARGIN_CENTER << 16), forigin.y + ((32) << 16), 20480L, 0, DUKENUKEM, 0, 0, 10);
+		}
+		else if (RRRA)
 		{
 			rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER - 5) << 16), int(origin.Y * 65536) + ((57) << 16), 16592L, 0, THREEDEE, 0, 0, 10);
 		}
@@ -285,6 +402,110 @@ class RedneckMainMenu : public RedneckListMenu
         }
 		
 	}
+};
+
+
+class RedneckHuntMenu : public RedneckListMenu
+{
+	void PreDraw() override
+	{
+		RedneckListMenu::PreDraw();
+		vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
+		int t1, t2;
+		short ang;
+		switch (mDesc->mSelectedItem)
+		{
+		case 0:
+		default:
+			t1 = 7098;
+			t2 = 7041;
+			ang = 16;
+			break;
+		case 1:
+			t1 = 7099;
+			t2 = 7042;
+			ang = 2032;
+			break;
+		case 2:
+			t1 = 7100;
+			t2 = 7043;
+			ang = 16;
+			break;
+		case 3:
+			t1 = 7101;
+			t2 = 7044;
+			ang = 2032;
+			break;
+		}
+		rotatesprite_fs(forigin.x + (240 << 16), forigin.y + (56 << 16), 24576L, ang, t1, 2, 0, 64 + 10);
+		rotatesprite_fs(forigin.x + (240 << 16), forigin.y + (42 << 16), 24576L, ang, 7104, 2, 0, 10);
+		rotatesprite_fs(forigin.x + (20 << 16), forigin.y + (10 << 16), 32768L, 0, t2, -64, 0, 128 + 16 + 10);
+	}
+};
+
+class RedneckTargetMenu : public RedneckListMenu
+{
+	void PreDraw() override
+	{
+		RedneckListMenu::PreDraw();
+		vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
+		int t1, t2;
+		short ang;
+		switch (mDesc->mSelectedItem)
+		{
+		case 0:
+		default:
+			t1 = 7102;
+			t2 = 7045;
+			ang = 16;
+			break;
+		case 1:
+			t1 = 7103;
+			t2 = 7046;
+			ang = 2032;
+			break;
+			break;
+		}
+		rotatesprite_fs(forigin.x + (240 << 16), forigin.y + (56 << 16), 24576L, ang, t1, 2, 0, 64 + 10);
+		rotatesprite_fs(forigin.x + (240 << 16), forigin.y + (42 << 16), 24576L, ang, 7104, 2, 0, 10);
+		rotatesprite_fs(forigin.x + (20 << 16), forigin.y + (10 << 16), 32768L, 0, t2, -64, 0, 128 + 16 + 10);
+	}
+};
+
+class RedneckWeaponMenu : public RedneckListMenu
+{
+	void PreDraw() override
+	{
+		RedneckListMenu::PreDraw();
+		vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
+		int t1, t2;
+		switch (mDesc->mSelectedItem)
+		{
+		case 0:
+		default:
+			t1 = 7124;
+			t2 = 7066;
+			break;
+		case 1:
+			t1 = 7125;
+			t2 = 7067;
+			break;
+		case 2:
+			t1 = 7126;
+			t2 = 7068;
+			break;
+		case 3:
+			t1 = 7127;
+			t2 = 7069;
+			break;
+		case 4:
+			t1 = 7128;
+			t2 = 7070;
+			break;
+			}
+			rotatesprite_fs(forigin.x + (240 << 16), forigin.y + (56 << 16), 32768L, 0, t1, 2, 0, 64 + 10);
+			rotatesprite_fs(forigin.x + (8 << 16), forigin.y + (4 << 16), 32768L, 0, t2, -64, 0, 128 + 16 + 10);
+		}
 };
 
 //----------------------------------------------------------------------------
@@ -518,6 +739,9 @@ END_RR_NS
 
 static TMenuClassDescriptor<Redneck::RedneckMainMenu> _mm("Redneck.MainMenu");
 static TMenuClassDescriptor<Redneck::RedneckListMenu> _lm("Redneck.ListMenu");
+static TMenuClassDescriptor<Redneck::RedneckListMenu> _dhm("Redneck.HuntMenu");
+static TMenuClassDescriptor<Redneck::RedneckListMenu> _dtm("Redneck.TargetMenu");
+static TMenuClassDescriptor<Redneck::RedneckListMenu> _dwm("Redneck.WeaponMenu");
 static TMenuClassDescriptor<DImageScrollerMenu> _ism("Redneck.ImageScrollerMenu"); // does not implement a new class, we only need the descriptor.
 
 void RegisterRedneckMenus()
@@ -525,4 +749,7 @@ void RegisterRedneckMenus()
 	menuClasses.Push(&_mm);
 	menuClasses.Push(&_lm);
 	menuClasses.Push(&_ism);
+	menuClasses.Push(&_dhm);
+	menuClasses.Push(&_dtm);
+	menuClasses.Push(&_dwm);
 }

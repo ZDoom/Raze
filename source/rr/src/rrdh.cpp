@@ -21,9 +21,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
+
+
 #include "compat.h"
 #include "baselayer.h"
 #include "duke3d.h"
+#include "i_time.h"
+
+BEGIN_RR_NS
 
 int rrdh_randseed = 1;
 
@@ -32,7 +38,7 @@ int rrdh_random(void)
     static int seedinit = 0;
     if (!seedinit)
     {
-        rrdh_randseed = (int)timerGetPerformanceCounter();
+        rrdh_randseed = (int)I_nsTime();
         seedinit = 1;
     }
     rrdh_randseed = (rrdh_randseed*1103515245)+12345;
@@ -301,3 +307,4 @@ void sub_5A250(int a1)
 {
     // TODO
 }
+END_RR_NS

@@ -13,7 +13,7 @@ BEGIN_RR_NS
 
 
 #define DUKE                (g_gameType & GAMEFLAG_DUKE)
-#define RR                  (g_gameType & GAMEFLAG_RR)
+#define RR                  (g_gameType & GAMEFLAG_RRALL)
 #define RRRA                (g_gameType & GAMEFLAG_RRRA)
 #define NAM                 (g_gameType & GAMEFLAG_NAM)
 #define NAPALM              (g_gameType & GAMEFLAG_NAPALM)

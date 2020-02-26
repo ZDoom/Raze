@@ -332,7 +332,7 @@ grpinfo
 	size 191798609
 	crc RRRA_CRC
 	defname "rrra.def"
-	flags GAMEFLAG_RRRA|GAMEFLAG_RR
+	flags GAMEFLAG_RRRA
 	dependency 0
 	gamefilter "Redneck.RidesAgain"
 }
@@ -343,7 +343,7 @@ grpinfo
 	size 58061576
 	crc RRDEER_CRC
 	defname "rrdeer.def"
-	flags GAMEFLAG_RR|GAMEFLAG_DEER
+	flags GAMEFLAG_DEER
 	dependency 0
 	gamefilter "Redneck.Deer"
 }

@@ -36,6 +36,18 @@ LISTMENU "MainMenu"
 		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
+	ifgame(Deer)
+	{
+		position 160, 72, 115
+		centermenu
+		animatedtransition
+		NativeTextItem "Go Huntin'!", "g", "HuntMenu"
+		NativeTextItem "Target Range", "r", "TargetMenu"
+		NativeTextItem "Trophies", "t", "TrophiesMenu"
+		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
+		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+	}
 	ifgame(Blood)
 	{
 		position 160, 45, 150
@@ -111,6 +123,18 @@ LISTMENU "IngameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
+		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
+	}
+	ifgame(Deer)
+	{
+		position 160, 72, 108
+		centermenu
+		animatedtransition
+		NativeTextItem "Go Huntin'!", "g", "HuntMenu"
+		NativeTextItem "Target Range", "r", "TargetMenu"
+		NativeTextItem "Trophies", "t", "TrophiesMenu"
+		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
+		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
@@ -192,6 +216,54 @@ LISTMENU "EpisodeMenu"
 	}
 	
 	ScriptId 100
+}
+
+LISTMENU "HuntMenu"
+{
+	ifgame(Deer)
+	{
+		class "$.HuntMenu"
+		position 160, 102, 78
+		centermenu
+		animatedtransition
+		NativeTextItem "LAKE SWAMPY", "q", "WeaponsMenu"
+		NativeTextItem "SAGEBRUSH FLATS", "q", "WeaponsMenu"
+		NativeTextItem "OZARK FOREST", "q", "WeaponsMenu"
+		NativeTextItem "SNOWBUSH RIDGE", "q", "WeaponsMenu"
+	}
+}
+
+LISTMENU "TargetMenu"
+{
+	ifgame(Deer)
+	{
+		class "$.TargetMenu"
+		position 160, 102, 78
+		centermenu
+		animatedtransition
+		NativeTextItem "NORTH RANGE", "q", "WeaponsMenu"
+		NativeTextItem "SOUTH RANGE", "q", "WeaponsMenu"
+	}
+}
+
+LISTMENU "TrophiesMenu"
+{
+}
+
+LISTMENU "WeaponsMenu"
+{
+	ifgame(Deer)
+	{
+		class "$.WeaponMenu"
+		position 160, 102, 98
+		centermenu
+		animatedtransition
+		NativeTextItem "Pistol", "q", "QuitMenu"
+		NativeTextItem "Rifle", "q", "QuitMenu"
+		NativeTextItem "Rifle With Scope", "q", "QuitMenu"
+		NativeTextItem "Shotgun", "q", "QuitMenu"
+		NativeTextItem "Crossbow", "q", "QuitMenu"
+	}
 }
 
 LISTMENU "SkillMenu"
@@ -685,7 +757,7 @@ OptionMenu "ActionControlsMenu"// protected
 	StaticText ""
 	Control    "$CNTRLMNU_JUMP"             , "+jump"
 	Control    "$CNTRLMNU_CROUCH"           , "+crouch"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, Deer)
 	{
 		// Fixme: Make this work in all games
 		Control    "$CNTRLMNU_TOGGLECROUCH"     , "+toggle_crouch"
@@ -699,7 +771,7 @@ OptionMenu "ActionControlsMenu"// protected
 	Control    "$CNTRLMNU_AIMDOWN"         , "+aim_down"
 	Control    "$CNTRLMNU_LOOKUP"           , "+look_up"
 	Control    "$CNTRLMNU_LOOKDOWN"         , "+look_down"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, Deer)
 	{
 		Control    "$CNTRLMNU_LOOKLEFT"           , "+look_left"
 		Control    "$CNTRLMNU_LOOKRIGHT"         , "+look_right"
@@ -1142,7 +1214,7 @@ OptionMenu "VideoOptions" //protected
 	{
 		Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
 	}
-	ifgame (Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame (Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, Deer)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"OnOff"
 	}
@@ -1196,7 +1268,7 @@ OptionMenu "HUDOptions" //protected
 	}
 	
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
-	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury)
+	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury, Deer)
 	{
 		Slider "$DSPLYMNU_TEXTSCALE",				"hud_textscale",			100, 400, 20, 2
 	}
@@ -1204,7 +1276,7 @@ OptionMenu "HUDOptions" //protected
 	Option "$DSPLYMNU_MESSAGES",				"hud_messages",				"HudMessages"
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
-	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury)
+	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury, deer)
 	{
 		Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
 	}

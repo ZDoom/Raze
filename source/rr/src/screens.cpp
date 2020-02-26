@@ -1168,7 +1168,7 @@ void G_DisplayLogo(void)
     {
         if (!g_noLogo /* && (!g_netServer && ud.multimode < 2) */)
         {
-            if (!I_CheckAllInput() && g_noLogoAnim == 0)
+            if (!inputState.CheckAllInput() && g_noLogoAnim == 0)
             {
                 videoClearScreen(0);
 
@@ -1180,7 +1180,7 @@ void G_DisplayLogo(void)
                 fadepaltile(0, 0, 0, 252, 0, -4, 7106);
                 totalclock = 0;
 
-                while (totalclock < (120 * 3) && !I_CheckAllInput())
+                while (totalclock < (120 * 3) && !inputState.CheckAllInput())
                 {
                     if (G_FPSLimit())
                     {
@@ -1217,7 +1217,7 @@ void G_DisplayLogo(void)
             {
                 videoClearScreen(0);
 
-                P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8 + 2 + 1);    // JBF 20040308
+                P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
                 fadepal(0, 0, 0, 0, 252, 28);
                 renderFlushPerms();
                 rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 7107, 0, 0, 2 + 8 + 64 + BGSTRETCH);
@@ -1225,7 +1225,7 @@ void G_DisplayLogo(void)
                 fadepaltile(0, 0, 0, 252, 0, -4, 7107);
                 totalclock = 0;
 
-                while (totalclock < (120 * 3) && !I_CheckAllInput())
+                while (totalclock < (120 * 3) && !inputState.CheckAllInput())
                 {
                     if (G_FPSLimit())
                     {

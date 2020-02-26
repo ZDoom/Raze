@@ -321,7 +321,7 @@ void CheckFrontend(int flags)
 	{
 		gi = Blood::CreateInterface();
 	}
-	else if (flags & GAMEFLAG_RR)
+	else if (flags & GAMEFLAG_RRALL)
 	{
 		gi = Redneck::CreateInterface();
 	}
@@ -678,7 +678,7 @@ int RunGame()
 	InitStatistics();
 	M_Init();
 	SetDefaultStrings();
-	if (g_gameType & GAMEFLAG_RR) InitRREndMap();	// this needs to be done better later
+	if (g_gameType & (GAMEFLAG_RR|GAMEFLAG_RRRA)) InitRREndMap();	// this needs to be done better later
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
 

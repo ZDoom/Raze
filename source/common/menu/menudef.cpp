@@ -152,7 +152,7 @@ static const gamefilter games[] = {
 	{ "Fury", GAMEFLAG_FURY},
 	{ "Redneck", GAMEFLAG_RR},
 	{ "RedneckRides", GAMEFLAG_RRRA},
-	{ "RedneckDeer", GAMEFLAG_DEER},
+	{ "Deer", GAMEFLAG_DEER},
 	{ "Blood", GAMEFLAG_BLOOD},
 	{ "ShadowWarrior", GAMEFLAG_SW},
 	{ "Exhumed", GAMEFLAG_POWERSLAVE|GAMEFLAG_EXHUMED},
@@ -1144,7 +1144,7 @@ void M_ParseMenuDefs()
 		OptionSettings.mFontColorHighlight = CR_ORANGE;
 		OptionSettings.mFontColorSelection = CR_GOLD;
 	}
-	else if (g_gameType & (GAMEFLAG_RR|GAMEFLAG_RRRA))
+	else if (g_gameType & GAMEFLAG_RRALL)
 	{
 		OptionSettings.mFontColor = CR_BROWN;
 		OptionSettings.mFontColorHeader = CR_DARKBROWN;

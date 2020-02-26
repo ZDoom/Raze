@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
+BEGIN_RR_NS
+
 int rrdh_random(void);
 int ghcons_isanimalescapewall(short w);
 int ghcons_isanimalescapesect(short s);
@@ -44,3 +46,5 @@ void sub_5A02C(void);
 void sub_579A0(void);
 void ghsound_ambientlooppoll(void);
 int sub_51B68(void);
+
+END_RR_NS
