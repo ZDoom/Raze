@@ -27,6 +27,8 @@ CRC
 	PLATOONL_CRC 0xD1ED8C0C
 	RR_CRC 0x19D9BC79
 	RRRA_CRC 0x958018C6
+	RRDEER_CRC 0xA6BE8B16
+
 	BLOOD_CRC 0xA8FDDA84
 	SWREG12_CRC 0x7545319F
 	SWWD_CRC 0xA9AAA7B7
@@ -333,6 +335,17 @@ grpinfo
 	flags GAMEFLAG_RRRA|GAMEFLAG_RR
 	dependency 0
 	gamefilter "Redneck.RidesAgain"
+}
+
+grpinfo
+{
+	name "Redneck Deer Huntin'"
+	size 58061576
+	crc RRDEER_CRC
+	defname "rrdeer.def"
+	flags GAMEFLAG_RR|GAMEFLAG_DEER
+	dependency 0
+	gamefilter "Redneck.Deer"
 }
 
 grpinfo

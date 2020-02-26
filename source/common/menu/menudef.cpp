@@ -152,6 +152,7 @@ static const gamefilter games[] = {
 	{ "Fury", GAMEFLAG_FURY},
 	{ "Redneck", GAMEFLAG_RR},
 	{ "RedneckRides", GAMEFLAG_RRRA},
+	{ "RedneckDeer", GAMEFLAG_DEER},
 	{ "Blood", GAMEFLAG_BLOOD},
 	{ "ShadowWarrior", GAMEFLAG_SW},
 	{ "Exhumed", GAMEFLAG_POWERSLAVE|GAMEFLAG_EXHUMED},

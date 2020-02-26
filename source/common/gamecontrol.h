@@ -109,8 +109,9 @@ enum
 	GAMEFLAG_POWERSLAVE	= 0x00001000,
 	GAMEFLAG_EXHUMED	= 0x00002000,
 	GAMEFLAG_PSEXHUMED  = 0x00003000,	// the two games really are the same, except for the name and the publisher.
-	GAMEFLAG_STANDALONE = 0x00004000,
-	GAMEFLAGMASK        = 0x00003FFF, // flags allowed from grpinfo
+	GAMEFLAG_DEER		= 0x00004000,
+	GAMEFLAG_STANDALONE = 0x00008000,
+	GAMEFLAGMASK        = 0x00007FFF, // flags allowed from grpinfo
 
 };
 
