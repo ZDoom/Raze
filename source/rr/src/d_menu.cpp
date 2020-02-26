@@ -739,9 +739,9 @@ END_RR_NS
 
 static TMenuClassDescriptor<Redneck::RedneckMainMenu> _mm("Redneck.MainMenu");
 static TMenuClassDescriptor<Redneck::RedneckListMenu> _lm("Redneck.ListMenu");
-static TMenuClassDescriptor<Redneck::RedneckListMenu> _dhm("Redneck.HuntMenu");
-static TMenuClassDescriptor<Redneck::RedneckListMenu> _dtm("Redneck.TargetMenu");
-static TMenuClassDescriptor<Redneck::RedneckListMenu> _dwm("Redneck.WeaponMenu");
+static TMenuClassDescriptor<Redneck::RedneckHuntMenu> _dhm("Redneck.HuntMenu");
+static TMenuClassDescriptor<Redneck::RedneckTargetMenu> _dtm("Redneck.TargetMenu");
+static TMenuClassDescriptor<Redneck::RedneckWeaponMenu> _dwm("Redneck.WeaponMenu");
 static TMenuClassDescriptor<DImageScrollerMenu> _ism("Redneck.ImageScrollerMenu"); // does not implement a new class, we only need the descriptor.
 
 void RegisterRedneckMenus()
