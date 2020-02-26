@@ -280,7 +280,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			}
 		}
 #if 1
-		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap])
+		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap] && !(curpaletteflags & (Pal_Fullscreen|Pal_2D)))
 		{
 			if (TextureType == TT_HICREPLACE)
 			{
