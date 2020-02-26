@@ -345,7 +345,7 @@ void StartSwirly(int nActiveSound)
         nVolume = 220;
 
     soundEngine->StopSound(SOURCE_Swirly, &swirly, -1);
-    soundEngine->StartSound(SOURCE_Swirly, &fakesources[nActiveSound-1], nullptr, CHAN_BODY, 0, StaticSound[kSoundMana1]+1, nVolume / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
+    soundEngine->StartSound(SOURCE_Swirly, &swirly, nullptr, CHAN_BODY, 0, StaticSound[kSoundMana1]+1, nVolume / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
 }
 
 //==========================================================================

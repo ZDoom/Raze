@@ -775,9 +775,6 @@ void PlayerUpdatePanelInfo(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (M_Active())
-        return;
-
     PlayerUpdateHealth(pp, 0);
     PlayerUpdateInventory(pp, pp->InventoryNum);
     PlayerUpdateAmmo(pp, u->WeaponNum, 0);
