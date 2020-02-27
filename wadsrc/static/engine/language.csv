@@ -482,7 +482,7 @@ Models,DSPLYMNU_MODELS,,,,Modely,Modelle,,Modeloj,Modelos,,Mallit,Modèles,3D mo
 Voxels,DSPLYMNU_VOXELS,,,,,Voxel,,,,,,,,,,,,,,,,,
 Shadows,DSPLYMNU_SHADOWS,,,,,Schatten,,,,,,,,,,,,,,,,,
 Slope Tilting,DSPLYMNU_SLOPETILT,,,,,,,,,,,,,,,,,,,,,,
-View Bobbing,DSPLYMENU_VIEWBOB,,,,,,,,,,,,,,,,,,,,,,
+View Bobbing,DSPLYMNU_VIEWBOB,,,,,,,,,,,,,,,,,,,,,,
 View Sway,DSPLYMNU_VIEWSWAY,,,,,,,,,,,,,,,,,,,,,,
 Scale crosshair,DSPLYMNU_CROSSHAIRSCALE,,,,Velikost zaměřovače,Fadenkreuz skalieren,,Skali translinion,Escalar retícula,,Skaalaa tähtäintä,Mise à l'échelle du viseur,,Scala del mirino,照準サイズ,조준점 크기,Dradenkruis schalen,Skala celownika,Escala da mira,,,Масштабирование прицела,Размера нишана
 Brightness,DSPLYMNU_BRIGHTNESS,,,,Jas,Helligkeit,,Brileco,Brillo,,Kirkkaus,Luminosité,Fényerő,Luminosità,明るさ,밝기,Helderheid,Jasność,Brilho,,,Яркость,Осветљење
