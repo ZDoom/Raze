@@ -311,7 +311,8 @@ static void RestartAmbient(AmbientSound* amb)
     if (vp.pitch_hi <= vp.pitch_lo) pitch = vp.pitch_lo;
     else pitch = vp.pitch_lo + (STD_RANDOM_RANGE(vp.pitch_hi - vp.pitch_lo));
 
-    soundEngine->StartSound(SOURCE_Ambient, amb, nullptr, CHAN_BODY, EChanFlags::FromInt(amb->ChanFlags), amb->vocIndex, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
+    if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, amb, CHAN_BODY, amb->vocIndex))
+        soundEngine->StartSound(SOURCE_Ambient, amb, nullptr, CHAN_BODY, EChanFlags::FromInt(amb->ChanFlags), amb->vocIndex, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
 }
 //==========================================================================
 //
@@ -524,7 +525,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Ambient)
         {
             auto sp = ((AmbientSound*)source)->sp;
-            vec3_t* vpos = type == SOURCE_Actor ? &((SPRITEp)source)->pos : (vec3_t*)&((PLAYERp)source)->posx;
+            vec3_t* vpos = &sp->pos;
             FVector3 npos = GetSoundPos(vpos);
 
             // Can the ambient sound see the player?  If not, tone it down some.
