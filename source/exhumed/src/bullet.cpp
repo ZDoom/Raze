@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gun.h"
 #include "names.h"
 #include "lighting.h"
+#include "object.h"
 #include <string.h>
 #include <assert.h>
 #ifndef __WATCOMC__
@@ -150,7 +151,7 @@ void IgniteSprite(int nSprite)
 {
     sprite[nSprite].hitag += 2;
 
-    int nAnim = BuildAnim(-1, 38, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, 40, 20);//276);
+    int nAnim = BuildAnim(-1, 38, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, 40, 20);
     short nAnimSprite = GetAnimSprite(nAnim);
 
     sprite[nAnimSprite].hitag = nSprite;
@@ -175,7 +176,7 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
     {
         case 3:
         {
-            if (nStat > 107 || nStat == 98) {
+            if (nStat > 107 || nStat == kStatAnubisDrum) {
                 return;
             }
 
@@ -193,7 +194,7 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
         }
         case 14:
         {
-            if (nStat > 107 || nStat == 98) {
+            if (nStat > 107 || nStat == kStatAnubisDrum) {
                 return;
             }
             // else - fall through to below cases
@@ -217,7 +218,15 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
             spritetype *pSprite = &sprite[nSprite];
             spritetype *pHitSprite = &sprite[nHitSprite];
 
-            if (nStat != 98)
+            if (nStat == kStatAnubisDrum)
+            {
+                short nAngle = (pSprite->ang + 256) - RandomSize(9);
+
+                pHitSprite->xvel = Cos(nAngle) << 1;
+                pHitSprite->yvel = Sin(nAngle) << 1;
+                pHitSprite->zvel = (-(RandomSize(3) + 1)) << 8;
+            }
+            else
             {
                 int xVel = pHitSprite->xvel;
                 int yVel = pHitSprite->yvel;
@@ -229,14 +238,6 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
 
                 pHitSprite->xvel = xVel;
                 pHitSprite->yvel = yVel;
-            }
-            else
-            {
-                short nAngle = pSprite->ang - (RandomSize(9) - 256);
-
-                pHitSprite->xvel = Cos(nAngle) << 1;
-                pHitSprite->yvel = Sin(nAngle) << 1;
-                pHitSprite->zvel = (-(RandomSize(3) + 1)) << 8;
             }
 
             break;
@@ -263,22 +264,21 @@ void BulletHitsSprite(Bullet *pBullet, short nBulletSprite, short nHitSprite, in
 
     switch (nStat)
     {
-    case 97:
-        break;
-    case 0:
-    case 98:
-    case 102:
-    case 141:
-    case 152:
-        BuildAnim(-1, 12, 0, x, y, z, nSector, 40, 0);
-        break;
-    default:
-        BuildAnim(-1, 39, 0, x, y, z, nSector, 40, 0);
-        if (pBullet->nType > 2)
-        {
-            BuildAnim(-1, pBulletInfo->field_C, 0, x, y, z, nSector, 40, pBulletInfo->nFlags);
-        }
-        break;
+        case kStatDestructibleSprite:
+            break;
+        case kStatAnubisDrum:
+        case 102:
+        case kStatExplodeTrigger:
+        case kStatExplodeTarget:
+            BuildAnim(-1, 12, 0, x, y, z, nSector, 40, 0);
+            break;
+        default:
+            BuildAnim(-1, 39, 0, x, y, z, nSector, 40, 0);
+            if (pBullet->nType > 2)
+            {
+                BuildAnim(-1, pBulletInfo->field_C, 0, x, y, z, nSector, 40, pBulletInfo->nFlags);
+            }
+            break;
     }
 }
 

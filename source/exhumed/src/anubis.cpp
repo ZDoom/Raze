@@ -447,16 +447,16 @@ void FuncAnubis(int a, int nDamage, int nRun)
                     {
                         if (nAction >= 6 && nAction <= 10)
                         {
-                            int nThisSprite = insertsprite(sprite[nSprite].sectnum, 98);
+                            int nDrumSprite = insertsprite(sprite[nSprite].sectnum, kStatAnubisDrum);
 
-                            sprite[nThisSprite].x = sprite[nSprite].x;
-                            sprite[nThisSprite].y = sprite[nSprite].y;
-                            sprite[nThisSprite].z = sector[sprite[nThisSprite].sectnum].floorz;
-                            sprite[nThisSprite].xrepeat = 40;
-                            sprite[nThisSprite].yrepeat = 40;
-                            sprite[nThisSprite].shade = -64;
+                            sprite[nDrumSprite].x = sprite[nSprite].x;
+                            sprite[nDrumSprite].y = sprite[nSprite].y;
+                            sprite[nDrumSprite].z = sector[sprite[nDrumSprite].sectnum].floorz;
+                            sprite[nDrumSprite].xrepeat = 40;
+                            sprite[nDrumSprite].yrepeat = 40;
+                            sprite[nDrumSprite].shade = -64;
 
-                            BuildObject(nThisSprite, 2, 0);
+                            BuildObject(nDrumSprite, 2, 0);
                         }
 
                         AnubisList[nAnubis].nAction = 4;

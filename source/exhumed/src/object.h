@@ -28,7 +28,7 @@ BEGIN_PS_NS
 enum kStatus
 {
     kStatDestructibleSprite = 97,
-    kStat98,
+    kStatAnubisDrum,
     kStatExplodeTrigger = 141,
     kStatExplodeTarget = 152
 };
