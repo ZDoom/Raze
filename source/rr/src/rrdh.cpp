@@ -32,6 +32,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "files.h"
 #include "i_specialpaths.h"
 
+// Shut up the compiler.
+#ifdef _MSC_VER
+#pragma warning(disable:4101)
+#endif
 BEGIN_RR_NS
 
 inline bool KB_KeyPressed(int code)
