@@ -720,6 +720,10 @@ void MyLoadSave::Load(void)
 #ifdef NOONE_EXTENSIONS
     Read(&gModernMap, sizeof(gModernMap));
 #endif
+    psky_t skyInfo;
+    Read(&skyInfo, sizeof(skyInfo));
+
+    *tileSetupSky(0) = skyInfo;
     gCheatMgr.sub_5BCF4();
 
 }
@@ -807,6 +811,8 @@ void MyLoadSave::Save(void)
 #ifdef NOONE_EXTENSIONS
     Write(&gModernMap, sizeof(gModernMap));
 #endif
+    psky_t skyInfo = *tileSetupSky(0);
+    Write(&skyInfo, sizeof(skyInfo));
 }
 
 void LoadSavedInfo(void)
