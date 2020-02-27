@@ -214,7 +214,7 @@ void main()
 
 				if ((u_flags & RF_Brightmapping) != 0)
 				{
-					lightcolor += texture(s_brightmap, v_texCoord.xy).rgb;
+					lightcolor = clamp(lightcolor + texture(s_brightmap, v_texCoord.xy).rgb, 0.0, 1.0);
 				}
 				color.rgb *= lightcolor;
 				color.rgb += u_fogColor.rgb * shade;
