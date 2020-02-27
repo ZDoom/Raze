@@ -222,12 +222,18 @@ void ghsound_ambientlooppoll(void)
     // TODO
 }
 
+int dword_AA2F0, dword_AA2F4, dword_AA2F8, dword_AA2FC;
+
+void sub_53160(int a1)
+{
+    dword_AA2FC = a1;
+    dword_AA2F8 = 1;
+}
+
 void sub_53304(void)
 {
     // TODO
 }
-
-int dword_AA2F4;
 
 void sub_535DC(void)
 {
@@ -240,6 +246,8 @@ int sub_535EC(void)
 }
 
 int dword_AA300;
+int dword_AA304 = 1731;
+int dword_AA308, dword_AA30C;
 
 struct struct2B80E0 {
     short f_0;
@@ -252,9 +260,91 @@ struct struct2B80E0 {
 
 struct2B80E0 f2B80E0[20];
 
+#pragma pack(push, 1)
+typedef struct _scoretype2 {
+    int f_0;
+    char f_4;
+    char f_5;
+    char f_6;
+    int f_7;
+    int f_b;
+} scoretype2;
+
+typedef struct _scoretype {
+    int f_0;
+    int f_4;
+    int f_8;
+    int f_c;
+    scoretype2 f_10[5];
+} scoretype;
+#pragma pack(pop)
+
+
+scoretype bestscore = {
+    0, 0, 0, 0,
+    0, 65, 65, 65, 0, 0,
+    0, 65, 65, 65, 0, 0,
+    0, 65, 65, 65, 0, 0,
+    0, 65, 65, 65, 0, 0,
+    0, 65, 65, 65, 0, 0,
+};
+
+unsigned int dword_AA36C, dword_AA370, dword_AA374, dword_AA378, dword_AA37C, dword_AA380;
+int dword_AA384;
+char byte_AA388 = 65, byte_AA389 = 65, byte_AA38A = 65;
+unsigned int dword_AA38C;
+
+char dword_AA390[43] = "                                          ";
+
+void ghtrophy_savebestscores(void)
+{
+    FILE *handle;
+
+    handle = Bfopen("scores", "rb");
+    if (!handle)
+    {
+        initprintf("ghtrophy_savebestscores cant open scores\n");
+        return;
+    }
+    Bfseek(handle, 0, SEEK_SET);
+    if (dword_AA36C > bestscore.f_0)
+        bestscore.f_0 = dword_AA36C;
+    if (dword_AA370 > bestscore.f_4)
+        bestscore.f_4 = dword_AA370;
+    if (dword_AA374 > bestscore.f_8)
+        bestscore.f_8 = dword_AA374;
+    if (dword_AA378 > bestscore.f_c)
+        bestscore.f_c = dword_AA378;
+
+    Bfseek(handle, 0, SEEK_SET);
+
+    if (Bfwrite(&bestscore, sizeof(bestscore), 1, handle) != 1)
+    {
+        initprintf("ghtrophy_savebestscores err write scores\n");
+        Bfclose(handle);
+        return;
+    }
+    Bfclose(handle);
+    dword_AA380 = 0;
+}
+
 void ghtrophy_loadbestscores(void)
 {
-    // TODO
+    FILE *handle;
+    handle = fopen("scores", "wb");
+    if (!handle)
+    {
+        initprintf("ghtrophy_loadbestscores cant open scores\n");
+        return;
+    }
+    Bfseek(handle, 0, SEEK_SET);
+    if (Bfread(&bestscore, sizeof(bestscore), 1, handle) != 1)
+    {
+        initprintf("ghtrophy_loadbestscores err read scores\n");
+        Bfclose(handle);
+        return;
+    }
+    Bfclose(handle);
 }
 
 int ghtrophy_isakill(short a1)
@@ -264,6 +354,553 @@ int ghtrophy_isakill(short a1)
     {
         if (f2B80E0[i].f_0 == a1)
             return 1;
+    }
+    return 0;
+}
+
+int sub_537A8(short a1, int a2)
+{
+    char va = rrdh_random() & 255;
+    switch (DYNAMICTILEMAP(a1))
+    {
+    case PIG__STATICRR:
+        if (a2 == 0 && va > 64)
+            break;
+        if (a2 == 6 && va > 80)
+            break;
+        if (a2 == 2 && va > 128)
+            break;
+        return 1;
+    case VIXEN__STATICRR:
+        if (a2 == 6 && va > 128)
+            break;
+        return 1;
+    case CHEER__STATICRR:
+        return 1;
+    case DOGRUN__STATICRR:
+        return 1;
+    }
+    return 0;
+}
+
+int sub_5381C(int a1, int a2)
+{
+    int vbx = (a1 * a2) / 100;
+    return rrdh_random() % vbx;
+}
+
+void sub_53848(int a1)
+{
+    dword_AA37C = a1;
+}
+
+void ghtrophy_addkill(int a1)
+{
+    int v18 = 0, vdi = 0;
+    spritetype *spr = &sprite[a1];
+
+    if (ud.level_number > 3)
+        return;
+
+    if (sprite[a1].cstat & 32768)
+        return;
+
+    switch (DYNAMICTILEMAP(sprite[a1].picnum))
+    {
+    default:
+        sub_5A250(4);
+        break;
+    case PIG__STATICRR:
+    case DOGRUN__STATICRR:
+    case VIXEN__STATICRR:
+    case CHEER__STATICRR:
+        if (!ghtrophy_isakill(a1) && sub_537A8(sprite[a1].picnum, v18))
+        {
+            if (dword_AA300 < 20)
+            {
+                f2B80E0[dword_AA300].f_0 = a1;
+                f2B80E0[dword_AA300].f_2 = sprite[a1].picnum;
+                switch (DYNAMICTILEMAP(sprite[a1].picnum))
+                {
+                case VIXEN__STATICRR:
+                    f2B80E0[dword_AA300].f_4 = (sprite[a1].xrepeat * sprite[a1].yrepeat) / 40;
+                    f2B80E0[dword_AA300].f_4 -= 2;
+                    if (f2B80E0[dword_AA300].f_4 < 2)
+                        f2B80E0[dword_AA300].f_4 = 2;
+                    f2B80E0[dword_AA300].f_4 += 2;
+                    if (f2B80E0[dword_AA300].f_4 > dword_AA36C)
+                        dword_AA36C = f2B80E0[dword_AA300].f_4;
+                    dword_AA308++;
+                    vdi = dword_AA308;
+                    break;
+                case PIG__STATICRR:
+                    f2B80E0[dword_AA300].f_4 = sprite[a1].xrepeat * sprite[a1].yrepeat;
+                    f2B80E0[dword_AA300].f_4 += sub_5381C(30, 125);
+                    f2B80E0[dword_AA300].f_4 += sub_5381C(10, 100);
+                    if (f2B80E0[dword_AA300].f_4 > 350)
+                        f2B80E0[dword_AA300].f_4 = 350;
+                    if (f2B80E0[dword_AA300].f_4 > dword_AA370)
+                        dword_AA370 = f2B80E0[dword_AA300].f_4;
+                    dword_AA30C++;
+                    vdi = dword_AA30C;
+                    break;
+                case DOGRUN__STATICRR:
+                    f2B80E0[dword_AA300].f_4 = (sprite[a1].xrepeat * sprite[a1].yrepeat) / 40;
+                    f2B80E0[dword_AA300].f_4 += sub_5381C(4, 125);
+                    f2B80E0[dword_AA300].f_4 -= 3;
+                    if (f2B80E0[dword_AA300].f_4 < 2)
+                        f2B80E0[dword_AA300].f_4 = 2;
+                    dword_AA378++;
+                    vdi = dword_AA378;
+                    break;
+                case CHEER__STATICRR:
+                    f2B80E0[dword_AA300].f_4 = (sprite[a1].xrepeat * sprite[a1].yrepeat) / 16;
+                    f2B80E0[dword_AA300].f_4 += sub_5381C(10, 125);
+                    if (f2B80E0[dword_AA300].f_4 < 8)
+                        f2B80E0[dword_AA300].f_4 = 8;
+                    dword_AA374++;
+                    vdi = dword_AA374;
+                    break;
+                }
+                ghstatbr_registerkillinfo(f2B80E0[dword_AA300].f_2, f2B80E0[dword_AA300].f_4, vdi);
+                dword_AA300++;
+            }
+            sub_5A250(8);
+        }
+        break;
+    }
+}
+
+void ghtrophy_rscopysrcdest(scoretype2 *a1, scoretype2 *a2)
+{
+    if (!a1 || !a2)
+    {
+        initprintf("ghtrophy_rscopysrcdest null ptr\n");
+        return;
+    }
+    a2->f_0 = a1->f_0;
+    a2->f_4 = a1->f_4;
+    a2->f_5 = a1->f_5;
+    a2->f_6 = a1->f_6;
+}
+
+void sub_53C04(void)
+{
+    scoretype2 v60, v50, v40, v30, v20;
+    dword_AA380 = 0;
+    dword_AA384 = 0;
+    dword_AA38C = (int)totalclock;
+    if (dword_AA37C > bestscore.f_10[0].f_0)
+    {
+        v20.f_0 = dword_AA37C;
+        ghtrophy_rscopysrcdest(&bestscore.f_10[0], &v50);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[1], &v30);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[2], &v40);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[3], &v60);
+        dword_AA380 = 1;
+    }
+    else if (dword_AA37C > bestscore.f_10[1].f_0)
+    {
+        ghtrophy_rscopysrcdest(&bestscore.f_10[0], &v20);
+        v50.f_0 = dword_AA37C;
+        ghtrophy_rscopysrcdest(&bestscore.f_10[1], &v30);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[2], &v40);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[3], &v60);
+        dword_AA380 = 2;
+    }
+    else if (dword_AA37C > bestscore.f_10[2].f_0)
+    {
+        ghtrophy_rscopysrcdest(&bestscore.f_10[0], &v20);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[1], &v50);
+        v30.f_0 = dword_AA37C;
+        ghtrophy_rscopysrcdest(&bestscore.f_10[2], &v40);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[3], &v60);
+        dword_AA380 = 3;
+    }
+    else if (dword_AA37C > bestscore.f_10[3].f_0)
+    {
+        ghtrophy_rscopysrcdest(&bestscore.f_10[0], &v20);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[1], &v50);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[2], &v30);
+        v40.f_0 = dword_AA37C;
+        ghtrophy_rscopysrcdest(&bestscore.f_10[3], &v60);
+        dword_AA380 = 4;
+    }
+    else if (dword_AA37C > bestscore.f_10[4].f_0)
+    {
+        ghtrophy_rscopysrcdest(&bestscore.f_10[0], &v20);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[1], &v50);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[2], &v30);
+        ghtrophy_rscopysrcdest(&bestscore.f_10[3], &v40);
+        v60.f_0 = dword_AA37C;
+        dword_AA380 = 5;
+    }
+    if (dword_AA380)
+    {
+        ghtrophy_rscopysrcdest(&v20, &bestscore.f_10[0]);
+        ghtrophy_rscopysrcdest(&v50, &bestscore.f_10[1]);
+        ghtrophy_rscopysrcdest(&v30, &bestscore.f_10[2]);
+        ghtrophy_rscopysrcdest(&v40, &bestscore.f_10[3]);
+        ghtrophy_rscopysrcdest(&v60, &bestscore.f_10[4]);
+    }
+}
+
+void sub_53E18(void)
+{
+    sub_53C04();
+    if (dword_AA380)
+    {
+        sub_53160(300);
+    }
+}
+
+void sub_53E4C(vec2_t const origin)
+{
+    int v20 = 0, v1c, v18, vsi, vdi;
+    char val;
+    val = sub_54B80();
+    if (val & 32)
+    {
+        v20 = 1;
+        switch (dword_AA384)
+        {
+        case 0:
+            byte_AA388 = val;
+            break;
+        case 1:
+            byte_AA389 = val;
+            break;
+        case 2:
+            byte_AA38A = val;
+            break;
+        }
+    }
+
+    v1c = 0;
+    if (totalclock - dword_AA38C > 30)
+    {
+        v1c = 1;
+        dword_AA38C = (int)totalclock;
+    }
+
+    v18 = 18;
+    vsi = 100;
+    vdi = 44;
+
+    menutext_(origin.x+(160<<16), origin.y+(22<<16), 0, "TOP FIVE", 10|16, TEXT_XCENTER);
+
+    if (dword_AA380)
+    {
+        if (!v1c || dword_AA384 != 0)
+        {
+            sprintf(dword_AA390, "%c", byte_AA388);
+            gametext_simple(origin.x+(vsi<<16), origin.y+((vdi+v18*(dword_AA380-1))<<16), dword_AA390);
+        }
+        if (!v1c || dword_AA384 != 1)
+        {
+            sprintf(dword_AA390, "%c", byte_AA389);
+            gametext_simple(origin.x+((vsi+14)<<16), origin.y+((vdi+v18*(dword_AA380-1))<<16), dword_AA390);
+        }
+        if (!v1c || dword_AA384 != 2)
+        {
+            sprintf(dword_AA390, "%c", byte_AA38A);
+            gametext_simple(origin.x+((vsi+28)<<16), origin.y+((vdi+v18*(dword_AA380-1))<<16), dword_AA390);
+        }
+        switch (dword_AA380)
+        {
+        case 1:
+            bestscore.f_10[0].f_4 = byte_AA388;
+            bestscore.f_10[0].f_5 = byte_AA389;
+            bestscore.f_10[0].f_6 = byte_AA38A;
+            break;
+        case 2:
+            bestscore.f_10[1].f_4 = byte_AA388;
+            bestscore.f_10[1].f_5 = byte_AA389;
+            bestscore.f_10[1].f_6 = byte_AA38A;
+            break;
+        case 3:
+            bestscore.f_10[2].f_4 = byte_AA388;
+            bestscore.f_10[2].f_5 = byte_AA389;
+            bestscore.f_10[2].f_6 = byte_AA38A;
+            break;
+        case 4:
+            bestscore.f_10[3].f_4 = byte_AA388;
+            bestscore.f_10[3].f_5 = byte_AA389;
+            bestscore.f_10[3].f_6 = byte_AA38A;
+            break;
+        case 5:
+            bestscore.f_10[4].f_4 = byte_AA388;
+            bestscore.f_10[4].f_5 = byte_AA389;
+            bestscore.f_10[4].f_6 = byte_AA38A;
+            break;
+        }
+    }
+    if (dword_AA380 != 1)
+    {
+        sprintf(dword_AA390, "%c", bestscore.f_10[0].f_4);
+        gametext_simple(origin.x+(vsi<<16), origin.y+(vdi<<16), dword_AA390);
+        sprintf(dword_AA390, "%c", bestscore.f_10[0].f_5);
+        gametext_simple(origin.x+((vsi+14)<<16), origin.y+(vdi<<16), dword_AA390);
+        sprintf(dword_AA390, "%c", bestscore.f_10[0].f_6);
+        gametext_simple(origin.x+((vsi+28)<<16), origin.y+(vdi<<16), dword_AA390);
+    }
+    sprintf(dword_AA390, "%5d", bestscore.f_10[0].f_0);
+    gametext_simple(origin.x+((vsi+74)<<16), origin.y+(vdi<<16), dword_AA390);
+    if (dword_AA380 != 2)
+    {
+        sprintf(dword_AA390, "%c", bestscore.f_10[1].f_4);
+        gametext_simple(origin.x+(vsi<<16), origin.y+((vdi+v18)<<16), dword_AA390);
+        sprintf(dword_AA390, "%c", bestscore.f_10[1].f_5);
+        gametext_simple(origin.x+((vsi+14)<<16), origin.y+((vdi+v18)<<16), dword_AA390);
+        sprintf(dword_AA390, "%c", bestscore.f_10[1].f_6);
+        gametext_simple(origin.x+((vsi+28)<<16), origin.y+((vdi+v18)<<16), dword_AA390);
+    }
+    sprintf(dword_AA390, "%5d", bestscore.f_10[1].f_0);
+    gametext_simple(origin.x+((vsi+74)<<16), origin.y+((vdi+v18)<<16), dword_AA390);
+    if (dword_AA380 != 3)
+    {
+        sprintf(dword_AA390, "%c", bestscore.f_10[2].f_4);
+        gametext_simple(origin.x+(vsi<<16), origin.y+((vdi+v18*2)<<16), dword_AA390);
+        sprintf(dword_AA390, "%c", bestscore.f_10[2].f_5);
+        gametext_simple(origin.x+((vsi+14)<<16), origin.y+((vdi+v18*2)<<16), dword_AA390);
+        sprintf(dword_AA390, "%c", bestscore.f_10[2].f_6);
+        gametext_simple(origin.x+((vsi+28)<<16), origin.y+((vdi+v18*2)<<16), dword_AA390);
+    }
+    sprintf(dword_AA390, "%5d", bestscore.f_10[2].f_0);
+    gametext_simple(origin.x+((vsi+74)<<16), origin.y+((vdi+v18*2)<<16), dword_AA390);
+    if (dword_AA380 != 4)
+    {
+        sprintf(dword_AA390, "%c", bestscore.f_10[3].f_4);
+        gametext_simple(origin.x+(vsi<<16), origin.y+((vdi+v18*3)<<16), dword_AA390);
+        sprintf(dword_AA390, "%c", bestscore.f_10[3].f_5);
+        gametext_simple(origin.x+((vsi+14)<<16), origin.y+((vdi+v18*3)<<16), dword_AA390);
+        sprintf(dword_AA390, "%c", bestscore.f_10[3].f_6);
+        gametext_simple(origin.x+((vsi+28)<<16), origin.y+((vdi+v18*3)<<16), dword_AA390);
+    }
+    sprintf(dword_AA390, "%5d", bestscore.f_10[3].f_0);
+    gametext_simple(origin.x+((vsi+74)<<16), origin.y+((vdi+v18*3)<<16), dword_AA390);
+    if (dword_AA380 != 5)
+    {
+        sprintf(dword_AA390, "%c", bestscore.f_10[4].f_4);
+        gametext_simple(origin.x+(vsi<<16), origin.y+((vdi+v18*4)<<16), dword_AA390);
+        sprintf(dword_AA390, "%c", bestscore.f_10[4].f_5);
+        gametext_simple(origin.x+((vsi+14)<<16), origin.y+((vdi+v18*4)<<16), dword_AA390);
+        sprintf(dword_AA390, "%c", bestscore.f_10[4].f_6);
+        gametext_simple(origin.x+((vsi+28)<<16), origin.y+((vdi+v18*4)<<16), dword_AA390);
+    }
+    sprintf(dword_AA390, "%5d", bestscore.f_10[4].f_0);
+    gametext_simple(origin.x+((vsi+74)<<16), origin.y+((vdi+v18*4)<<16), dword_AA390);
+
+    if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4))
+    {
+        KB_ClearKeyDown(sc_LeftArrow);
+        KB_ClearKeyDown(sc_kpad_4);
+        dword_AA384--;
+    }
+    else if (v20 || KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6))
+    {
+        KB_ClearKeyDown(sc_RightArrow);
+        KB_ClearKeyDown(sc_kpad_6);
+        dword_AA384++;
+    }
+    if (dword_AA384 < 0)
+        dword_AA384 = 0;
+    if (dword_AA384 > 2)
+        dword_AA384 = 0;
+    if (dword_AA380)
+    {
+        gametext_simple(origin.x+(86<<16), origin.y+(146<<16), "PRESS ESC WHEN DONE");
+    }
+}
+
+void sub_5469C(vec2_t const origin, int a1)
+{
+    unsigned int v20, v1c, v18, v24, vdi, t;
+    if (a1 == 2)
+    {
+        sub_53E4C(origin);
+        return;
+    }
+    rotatesprite_fs(origin.x+(160<<16), origin.y, 65536, 0, dword_AA304, 0, 0, 64+16+10);
+    if (a1 == 1)
+    {
+        v20 = bestscore.f_0;
+        v1c = bestscore.f_4;
+        v18 = bestscore.f_c;
+        v24 = bestscore.f_10[0].f_0;
+        vdi = bestscore.f_8;
+    }
+    else
+    {
+        v20 = dword_AA36C;
+        v1c = dword_AA370;
+        v18 = dword_AA378;
+        v24 = dword_AA37C;
+        vdi = dword_AA374;
+    }
+    if (v20 > 0)
+    {
+        rotatesprite_fs(origin.x+(4<<16), origin.y, 36864, 0, 1741, 0, 0, 16+10);
+    }
+    if (v1c > 0)
+    {
+        rotatesprite_fs(origin.x+(98<<16), origin.y+(6<<16), 36864, 0, 1740, 0, 0, 16+10);
+    }
+    if (vdi > 0)
+    {
+        rotatesprite_fs(origin.x+(172<<16), origin.y+(128<<16), 28576, 0, 1743, 0, 0, 16+10);
+    }
+    if (v18 > 0)
+    {
+        rotatesprite_fs(origin.x+(232<<16), origin.y+(128<<16), 28576, 0, 1742, 0, 0, 16+10);
+    }
+    if (a1 == 0)
+        gametext_simple(origin.x+(4<<16), origin.y+(104<<16), "SO FAR IN THIS HUNTIN' TRIP...");
+    else
+        gametext_simple(origin.x+(4<<16), origin.y+(104<<16), "YOUR BEST TOTALS TO DATE...");
+
+    sprintf(dword_AA390, "BEST DEER:    %2d PTS", v20);
+    gametext_simple(origin.x+(8<<16), origin.y+(122<<16), dword_AA390);
+    sprintf(dword_AA390, "BEST BOAR:    %3d  LB", v1c);
+    gametext_simple(origin.x+(8<<16), origin.y+(136<<16), dword_AA390);
+    sprintf(dword_AA390, "MOST TURKEYS: %2d    ", vdi);
+    gametext_simple(origin.x+(8<<16), origin.y+(150<<16), dword_AA390);
+    sprintf(dword_AA390, "MOST DUCKS:   %2d    ", v18);
+    gametext_simple(origin.x+(8<<16), origin.y+(164<<16), dword_AA390);
+    if (a1 == 0)
+    {
+        t = dword_AA308 + dword_AA30C + v18;
+        if (t > 6)
+            gametext_simple(origin.x+(8<<16), origin.y+(182<<16), "YEAH BABY !");
+        else if (t > 4)
+            gametext_simple(origin.x+(8<<16), origin.y+(182<<16), "NICE WORK !");
+        else if (t > 1)
+            gametext_simple(origin.x+(8<<16), origin.y+(182<<16), "GOOD JOB !");
+        else
+            gametext_simple(origin.x+(8<<16), origin.y+(182<<16), "KEEP TRYIN' !");
+    }
+    else
+    {
+        sprintf(dword_AA390, "BEST RANGE SCORE: %5d", v24);
+        gametext_simple(origin.x+(8<<16), origin.y+(182<<16), dword_AA390);
+    }
+}
+
+void sub_54A2C(void)
+{
+    int i;
+    dword_AA300 = 0;
+    dword_AA304 = 1731+(rrdh_random()%6);
+    dword_AA308 = 0;
+    dword_AA30C = 0;
+    for (i = 0; i < 20; i++)
+    {
+        f2B80E0[i].f_0 = -1;
+        f2B80E0[i].f_2 = 0;
+        f2B80E0[i].f_4 = 0;
+        f2B80E0[i].f_8 = 0;
+        f2B80E0[i].f_c = 0;
+        f2B80E0[i].f_10 = 0;
+    }
+    dword_AA36C = 0;
+    dword_AA370 = 0;
+    dword_AA374 = 0;
+    dword_AA378 = 0;
+    dword_AA37C = 0;
+    dword_AA380 = 0;
+    dword_AA384 = 0;
+    byte_AA388 = 65;
+    byte_AA389 = 65;
+    byte_AA38A = 65;
+    dword_AA38C = 0;
+    ghtrophy_loadbestscores();
+}
+
+char sub_54B80(void)
+{
+    switch (KB_GetLastScanCode())
+    {
+    case sc_A:
+        KB_SetLastScanCode(sc_None);
+        return 'A';
+    case sc_B:
+        KB_SetLastScanCode(sc_None);
+        return 'B';
+    case sc_C:
+        KB_SetLastScanCode(sc_None);
+        return 'C';
+    case sc_D:
+        KB_SetLastScanCode(sc_None);
+        return 'D';
+    case sc_E:
+        KB_SetLastScanCode(sc_None);
+        return 'E';
+    case sc_F:
+        KB_SetLastScanCode(sc_None);
+        return 'F';
+    case sc_G:
+        KB_SetLastScanCode(sc_None);
+        return 'G';
+    case sc_H:
+        KB_SetLastScanCode(sc_None);
+        return 'H';
+    case sc_I:
+        KB_SetLastScanCode(sc_None);
+        return 'I';
+    case sc_J:
+        KB_SetLastScanCode(sc_None);
+        return 'J';
+    case sc_K:
+        KB_SetLastScanCode(sc_None);
+        return 'K';
+    case sc_L:
+        KB_SetLastScanCode(sc_None);
+        return 'L';
+    case sc_M:
+        KB_SetLastScanCode(sc_None);
+        return 'M';
+    case sc_N:
+        KB_SetLastScanCode(sc_None);
+        return 'N';
+    case sc_O:
+        KB_SetLastScanCode(sc_None);
+        return 'O';
+    case sc_P:
+        KB_SetLastScanCode(sc_None);
+        return 'P';
+    case sc_Q:
+        KB_SetLastScanCode(sc_None);
+        return 'Q';
+    case sc_R:
+        KB_SetLastScanCode(sc_None);
+        return 'R';
+    case sc_S:
+        KB_SetLastScanCode(sc_None);
+        return 'S';
+    case sc_T:
+        KB_SetLastScanCode(sc_None);
+        return 'T';
+    case sc_U:
+        KB_SetLastScanCode(sc_None);
+        return 'U';
+    case sc_V:
+        KB_SetLastScanCode(sc_None);
+        return 'V';
+    case sc_W:
+        KB_SetLastScanCode(sc_None);
+        return 'W';
+    case sc_X:
+        KB_SetLastScanCode(sc_None);
+        return 'X';
+    case sc_Y:
+        KB_SetLastScanCode(sc_None);
+        return 'Y';
+    case sc_Z:
+        KB_SetLastScanCode(sc_None);
+        return 'Z';
+    default:
+        KB_SetLastScanCode(sc_None);
+        return ' ';
     }
     return 0;
 }
@@ -294,6 +931,11 @@ void ghtrax_leavedroppings(short a1)
 }
 
 void ghdeploy_bias(short a1)
+{
+    // TODO
+}
+
+void ghstatbr_registerkillinfo(short a1, int a2, int a3)
 {
     // TODO
 }

@@ -46,5 +46,8 @@ void sub_5A02C(void);
 void sub_579A0(void);
 void ghsound_ambientlooppoll(void);
 int sub_51B68(void);
+void sub_5469C(vec2_t const origin, int a1);
+void ghstatbr_registerkillinfo(short a1, int a2, int a3);
+char sub_54B80(void);
 
 END_RR_NS

@@ -221,7 +221,7 @@ typedef struct {
     int32_t sea_sick;
     uint8_t hurt_delay2, nocheat;
 
-    int32_t dhat60f;
+    int32_t dhat60f, dhat61f;
 
     int8_t crouch_toggle;
     int8_t padding_[3];
