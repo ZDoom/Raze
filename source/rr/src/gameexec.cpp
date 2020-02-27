@@ -1916,14 +1916,8 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     continue;
                 }
                 insptr++;
-                if (RR)
-                {
-                    // This check does not exist in Duke Nukem.
-                    if ((g_spriteExtra[vm.spriteNum] < 1 || g_spriteExtra[vm.spriteNum] == 128)
-                    && (!RR || A_CheckSpriteFlags(vm.spriteNum, SFLAG_KILLCOUNT)))
+                if (!RR || ((g_spriteExtra[vm.spriteNum] < 1 || g_spriteExtra[vm.spriteNum] == 128) && A_CheckSpriteFlags(vm.spriteNum, SFLAG_KILLCOUNT)))
                         P_AddKills(pPlayer, *insptr);
-                }
-                else P_AddKills(pPlayer, *insptr);
                 insptr++;
                 vm.pActor->actorstayput = -1;
                 continue;
