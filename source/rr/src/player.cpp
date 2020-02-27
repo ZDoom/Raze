@@ -4140,12 +4140,12 @@ void P_DHGetInput(int const playerNum)
     pPlayer->dhat613 = buttonMap.ButtonDown(gamefunc_Move_Forward) | buttonMap.ButtonDown(gamefunc_Move_Backward);
     if (pPlayer->dhat60f)
         sub_5A250(256);
-    dword_A99D4++;
-    if (dword_A99D4 == 2)
-    {
-        sub_53304();
-        dword_A99D4 = 0;
-    }
+    //dword_A99D4++;
+    //if (dword_A99D4 == 2)
+    //{
+    //    sub_53304();
+    //    dword_A99D4 = 0;
+    //}
 }
 
 void P_MadeNoise(int playerNum)

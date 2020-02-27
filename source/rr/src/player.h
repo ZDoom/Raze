@@ -324,6 +324,7 @@ int32_t A_GetHitscanRange(int spriteNum);
 void    P_GetInput(int playerNum);
 void    P_GetInputMotorcycle(int playerNum);
 void    P_GetInputBoat(int playerNum);
+void    sub_299C0(void);
 void    P_DHGetInput(int const playerNum);
 void P_AddAmmo(DukePlayer_t * pPlayer, int weaponNum, int addAmount);
 void    P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum);
