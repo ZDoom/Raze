@@ -1203,8 +1203,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     }
 
 #ifdef YAX_ENABLE
-    // NUKE-TODO: Should be updated for new map format only
-    yax_update(0);
+    yax_update((header.version & 0xff00) > 0x700 ? 0 : 1);
 #endif
 
     g_loadedMapVersion = 7;
