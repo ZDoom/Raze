@@ -28,8 +28,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "baselayer.h"
 #include "duke3d.h"
 #include "i_time.h"
+#include "files.h"
+#include "i_specialpaths.h"
 
 BEGIN_RR_NS
+
+inline bool KB_KeyPressed(int code)
+{
+    return inputState.GetKeyStatus(code);
+}
+
+inline void KB_ClearKeyDown(int key)
+{
+    inputState.ClearKeyStatus(key);
+}
 
 int rrdh_randseed = 1;
 
@@ -298,15 +310,16 @@ char dword_AA390[43] = "                                          ";
 
 void ghtrophy_savebestscores(void)
 {
-    FILE *handle;
+    FileWriter *handle;
 
-    handle = Bfopen("scores", "rb");
+    FString filename = M_GetDocumentsPath() + "scores";
+
+    handle = FileWriter::Open(filename);
     if (!handle)
     {
-        initprintf("ghtrophy_savebestscores cant open scores\n");
+        Printf("ghtrophy_savebestscores: cannot open scores\n"); // this is not an error!
         return;
     }
-    Bfseek(handle, 0, SEEK_SET);
     if (dword_AA36C > bestscore.f_0)
         bestscore.f_0 = dword_AA36C;
     if (dword_AA370 > bestscore.f_4)
@@ -316,35 +329,30 @@ void ghtrophy_savebestscores(void)
     if (dword_AA378 > bestscore.f_c)
         bestscore.f_c = dword_AA378;
 
-    Bfseek(handle, 0, SEEK_SET);
-
-    if (Bfwrite(&bestscore, sizeof(bestscore), 1, handle) != 1)
+    if (handle->Write(&bestscore, sizeof(bestscore)) != sizeof(bestscore))
     {
-        initprintf("ghtrophy_savebestscores err write scores\n");
-        Bfclose(handle);
+        initprintf("ghtrophy_savebestscores: error writing scores\n");
+        delete handle;
         return;
     }
-    Bfclose(handle);
+    delete handle;
     dword_AA380 = 0;
 }
 
 void ghtrophy_loadbestscores(void)
 {
-    FILE *handle;
-    handle = fopen("scores", "wb");
-    if (!handle)
+    FileReader handle;
+    FString filename = M_GetDocumentsPath() + "scores";
+    if (!handle.OpenFile(filename))
     {
-        initprintf("ghtrophy_loadbestscores cant open scores\n");
+        // This is not an error.
         return;
     }
-    Bfseek(handle, 0, SEEK_SET);
-    if (Bfread(&bestscore, sizeof(bestscore), 1, handle) != 1)
+    if (handle.Read(&bestscore, sizeof(bestscore)) != sizeof(bestscore))
     {
         initprintf("ghtrophy_loadbestscores err read scores\n");
-        Bfclose(handle);
-        return;
+        memset(&bestscore, 0, sizeof(bestscore));
     }
-    Bfclose(handle);
 }
 
 int ghtrophy_isakill(short a1)
@@ -818,6 +826,7 @@ void sub_54A2C(void)
 
 char sub_54B80(void)
 {
+#if 0
     switch (KB_GetLastScanCode())
     {
     case sc_A:
@@ -902,6 +911,7 @@ char sub_54B80(void)
         KB_SetLastScanCode(sc_None);
         return ' ';
     }
+#endif
     return 0;
 }
 

@@ -130,11 +130,11 @@ LISTMENU "IngameMenu"
 		position 160, 72, 108
 		centermenu
 		animatedtransition
-		NativeTextItem "Go Huntin'!", "g", "HuntMenu"
-		NativeTextItem "Target Range", "r", "TargetMenu"
+		NativeTextItem "Keep Huntin'!", "k", "HuntMenu"
 		NativeTextItem "Trophies", "t", "TrophiesMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
+		NativeTextItem "Leave Area", "l", "EndgameMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
@@ -226,10 +226,10 @@ LISTMENU "HuntMenu"
 		position 160, 102, 78
 		centermenu
 		animatedtransition
-		NativeTextItem "LAKE SWAMPY", "q", "WeaponsMenu"
-		NativeTextItem "SAGEBRUSH FLATS", "q", "WeaponsMenu"
-		NativeTextItem "OZARK FOREST", "q", "WeaponsMenu"
-		NativeTextItem "SNOWBUSH RIDGE", "q", "WeaponsMenu"
+		NativeTextItem "LAKE SWAMPY", "q", "WeaponsMenu", 0
+		NativeTextItem "SAGEBRUSH FLATS", "q", "WeaponsMenu", 1
+		NativeTextItem "OZARK FOREST", "q", "WeaponsMenu", 2
+		NativeTextItem "SNOWBUSH RIDGE", "q", "WeaponsMenu", 3
 	}
 }
 
@@ -241,13 +241,17 @@ LISTMENU "TargetMenu"
 		position 160, 102, 78
 		centermenu
 		animatedtransition
-		NativeTextItem "NORTH RANGE", "q", "WeaponsMenu"
-		NativeTextItem "SOUTH RANGE", "q", "WeaponsMenu"
+		NativeTextItem "NORTH RANGE", "q", "WeaponsMenu", 4
+		NativeTextItem "SOUTH RANGE", "q", "WeaponsMenu", 5
 	}
 }
 
 LISTMENU "TrophiesMenu"
 {
+		class "$.TrophiesMenu"
+		position 160, 102, 78
+		centermenu
+		animatedtransition
 }
 
 LISTMENU "WeaponsMenu"
@@ -258,11 +262,11 @@ LISTMENU "WeaponsMenu"
 		position 160, 102, 98
 		centermenu
 		animatedtransition
-		NativeTextItem "Pistol", "q", "QuitMenu"
-		NativeTextItem "Rifle", "q", "QuitMenu"
-		NativeTextItem "Rifle With Scope", "q", "QuitMenu"
-		NativeTextItem "Shotgun", "q", "QuitMenu"
-		NativeTextItem "Crossbow", "q", "QuitMenu"
+		NativeTextItem "Pistol", "q", "StartGame", 0
+		NativeTextItem "Rifle", "q", "StartGame", 1
+		NativeTextItem "Rifle With Scope", "q", "StartGame", 2
+		NativeTextItem "Shotgun", "q", "StartGame", 3
+		NativeTextItem "Crossbow", "q", "StartGame", 4
 	}
 }
 

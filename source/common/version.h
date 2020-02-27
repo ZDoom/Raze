@@ -68,13 +68,13 @@ const char *GetVersionString();
 
 #define MINSAVEVER_DN3D 4
 #define MINSAVEVER_BLD 4
-#define MINSAVEVER_RR 4
+#define MINSAVEVER_RR 5
 #define MINSAVEVER_SW 3
 #define MINSAVEVER_PS 3
 
 #define SAVEVER_DN3D 4
 #define SAVEVER_BLD 4
-#define SAVEVER_RR 4
+#define SAVEVER_RR 5
 #define SAVEVER_SW 3
 #define SAVEVER_PS 3
 

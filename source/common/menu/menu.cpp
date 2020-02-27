@@ -436,11 +436,17 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	switch (caller)
 	{
 	case NAME_EpisodeMenu:
+	case NAME_HuntMenu:
+	case NAME_TargetMenu:
 		// sent from the episode menu
 		GameStartupInfo.Episode = param;
 		GameStartupInfo.Level = 0;
 		GameStartupInfo.CustomLevel1 = GameStartupInfo.CustomLevel2 = -1;
 		GameStartupInfo.Skill = gDefaultSkill;
+		break;
+
+	case NAME_WeaponMenu:
+		GameStartupInfo.Skill = param;
 		break;
 
 	case NAME_CustomGameMenu:

@@ -508,6 +508,31 @@ class RedneckWeaponMenu : public RedneckListMenu
 		}
 };
 
+class RedneckTrophiesMenu : public RedneckListMenu
+{
+	void PreDraw() override
+	{
+		RedneckListMenu::PreDraw();
+		vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
+		if (g_player[myconnectindex].ps->gm & MODE_GAME)
+		{
+			if (ud.level_number < 4)
+			{
+				rotatesprite_fs(forigin.x + (160 << 16), forigin.y + (100 << 16), 65536, 0, 1730, 0, 0, 10);
+				sub_5469C(forigin, 0);
+			}
+			else
+				sub_5469C(forigin, 2);
+		}
+		else
+		{
+			rotatesprite_fs(forigin.x + (160 << 16), forigin.y + (100 << 16), 65536, 0, 1730, 0, 0, 10);
+			sub_5469C(forigin, 1);
+		}
+	}
+};
+
+
 //----------------------------------------------------------------------------
 //
 // Menu related game interface functions
@@ -642,43 +667,56 @@ void GameInterface::StartGame(FGameStartup& gs)
 	int32_t skillsound = PISTOL_BODYHIT;
 
 	soundEngine->StopAllChannels();
-	switch (gs.Skill)
-	{
-	case 0:
-		skillsound = RR? 427 : JIBBED_ACTOR6;
-		break;
-	case 1:
-		skillsound = RR? 428 : BONUS_SPEECH1;
-		break;
-	case 2:
-		skillsound = RR? 196 : DUKE_GETWEAPON2;
-		break;
-	case 3:
-		skillsound = RR? 195 : JIBBED_ACTOR5;
-		break;
-	case 4:
-		skillsound = RR? 197 : JIBBED_ACTOR5; // Does not exist in DN3D.
-		break;
-	}
 
-	ud.m_player_skill = gs.Skill + 1;
-	if (menu_sounds && skillsound >= 0 && SoundEnabled())
+	if (!DEER)
 	{
-		S_PlaySound(skillsound, CHAN_AUTO, CHANF_UI);
 
-		while (S_CheckSoundPlaying(skillsound))
+		switch (gs.Skill)
 		{
-			S_Update();
-			G_HandleAsync();
+		case 0:
+			skillsound = RR ? 427 : JIBBED_ACTOR6;
+			break;
+		case 1:
+			skillsound = RR ? 428 : BONUS_SPEECH1;
+			break;
+		case 2:
+			skillsound = RR ? 196 : DUKE_GETWEAPON2;
+			break;
+		case 3:
+			skillsound = RR ? 195 : JIBBED_ACTOR5;
+			break;
+		case 4:
+			skillsound = RR ? 197 : JIBBED_ACTOR5; // Does not exist in DN3D.
+			break;
 		}
+		ud.m_player_skill = gs.Skill + 1;
+		if (menu_sounds && skillsound >= 0 && SoundEnabled())
+		{
+			S_PlaySound(skillsound, CHAN_AUTO, CHANF_UI);
+
+			while (S_CheckSoundPlaying(skillsound))
+			{
+				S_Update();
+				G_HandleAsync();
+			}
+		}
+		ud.m_respawn_monsters = (gs.Skill == 3);
+		ud.m_volume_number = gs.Episode;
+		m_level_number = gs.Level;
 	}
-	ud.m_respawn_monsters = (gs.Skill == 3);
+	else
+	{
+		ud.m_player_skill = 1;
+		ud.m_respawn_monsters = 0;
+		ud.m_volume_number = 0;
+		m_level_number = gs.Episode; 
+		g_player[myconnectindex].ps->dhat61f = gs.Skill;
+	}
+
 	ud.m_monsters_off = ud.monsters_off = 0;
 	ud.m_respawn_items = 0;
 	ud.m_respawn_inventory = 0;
 	ud.multimode = 1;
-	ud.m_volume_number = gs.Episode;
-	m_level_number = gs.Level;
 	G_NewGame_EnterLevel();
 
 }
@@ -742,6 +780,7 @@ static TMenuClassDescriptor<Redneck::RedneckListMenu> _lm("Redneck.ListMenu");
 static TMenuClassDescriptor<Redneck::RedneckHuntMenu> _dhm("Redneck.HuntMenu");
 static TMenuClassDescriptor<Redneck::RedneckTargetMenu> _dtm("Redneck.TargetMenu");
 static TMenuClassDescriptor<Redneck::RedneckWeaponMenu> _dwm("Redneck.WeaponMenu");
+static TMenuClassDescriptor<Redneck::RedneckTrophiesMenu> _dttm("Redneck.TrophiesMenu");
 static TMenuClassDescriptor<DImageScrollerMenu> _ism("Redneck.ImageScrollerMenu"); // does not implement a new class, we only need the descriptor.
 
 void RegisterRedneckMenus()
@@ -752,4 +791,5 @@ void RegisterRedneckMenus()
 	menuClasses.Push(&_dhm);
 	menuClasses.Push(&_dtm);
 	menuClasses.Push(&_dwm);
+	menuClasses.Push(&_dttm);
 }
