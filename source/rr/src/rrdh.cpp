@@ -837,7 +837,7 @@ void sub_52BA8(void)
     {
         sprite[i].cstat = 0;
         sprite[i].pal = 0;
-        sprite[i].statnum = 0;
+        changespritestat(i, 0);
         sect = sprite[i].sectnum;
         if (sub_52AF0(i))
         {
@@ -1024,8 +1024,8 @@ void sub_53194(void)
 
 void sub_53304(void)
 {
-    ControlInfo info;
-    CONTROL_GetInput(&info);
+    //ControlInfo info;
+    //CONTROL_GetInput(&info);
 
     if (KB_KeyPressed(sc_RightAlt) || KB_KeyPressed(sc_LeftAlt) || KB_KeyPressed(sc_RightShift) || KB_KeyPressed(sc_LeftShift))
         return;
@@ -1860,6 +1860,7 @@ void sub_54FA4(int a1, int a2)
     ptr1 = (char*)waloff[7050];
     if (!ptr1)
         return;
+    videoBeginDrawing();
     ptr2 = (char*)frameplace;
     if (!ptr2)
         return;
@@ -1874,6 +1875,7 @@ void sub_54FA4(int a1, int a2)
             ptr1++;
         }
     }
+    videoEndDrawing();
     rotatesprite(a1<<16, a2<<16, 57344, 512, 7050, 0, 0, 4+2, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
     rotatesprite(a1<<16, a2<<16, 57344, 512, 7050, -8, 0, 4+2+1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
     rotatesprite(a1<<16, a2<<16, 32768, 0, 7063, -24, 0, 32+2+1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
@@ -2254,8 +2256,8 @@ void ghshtgn_render(short snum)
     }
     sub_54D90();
     rotatesprite_win((fAA3D0[dword_AA3BC].f_8+dword_AA4FC[dword_AA540])<<16,
-        (fAA3D0[dword_AA3BC].f_c+dword_AA51C[dword_AA540])<<16, 40960,
-        0, fAA3D0[dword_AA3BC].f_4, 0, 0, 10);
+        (fAA3D0[dword_AA3BC].f_c+dword_AA51C[dword_AA540]+17)<<16, 40960,
+        0, fAA3D0[dword_AA3BC].f_4, 0, 0, 2);
     if (dword_AA3BC == 5 && p->dhat617)
         ghshtgn_setmode(3);
     else
@@ -2504,13 +2506,13 @@ void ghrifle_render(short snum, int a2)
     if (a2 == 1)
     {
         x = fAA558[dword_AA544].f_8 + dword_AA800[dword_AA844];
-        y = fAA558[dword_AA544].f_c + dword_AA820[dword_AA844];
+        y = fAA558[dword_AA544].f_c + dword_AA820[dword_AA844] + 17;
         tile = fAA558[dword_AA544].f_4;
     }
     else
     {
         x = fAA6AC[dword_AA544].f_8 + dword_AA800[dword_AA844];
-        y = fAA6AC[dword_AA544].f_c + dword_AA820[dword_AA844];
+        y = fAA6AC[dword_AA544].f_c + dword_AA820[dword_AA844] + 17;
         tile = fAA6AC[dword_AA544].f_4;
     }
 
@@ -2519,7 +2521,7 @@ void ghrifle_render(short snum, int a2)
     else
         sub_54D90();
 
-    rotatesprite_win(x<<16, y<<16, 32768, 0, tile, 0, 0, 10);
+    rotatesprite_win(x<<16, y<<16, 32768, 0, tile, 0, 0, 2);
 
     if (a2 == 1 && dword_AA544 == 5 && (p->dhat613 || p->dhat617))
     {
@@ -2750,8 +2752,8 @@ void ghpistol_render(short snum)
     }
     sub_54D90();
     rotatesprite_win((fAA858[dword_AA848].f_8+dword_AA984[dword_AA9C8])<<16,
-        (fAA858[dword_AA848].f_c+dword_AA9A4[dword_AA9C8])<<16, 40960,
-        0, fAA858[dword_AA848].f_4, 0, 0, 10);
+        (fAA858[dword_AA848].f_c+dword_AA9A4[dword_AA9C8]+17)<<16, 40960,
+        0, fAA858[dword_AA848].f_4, 0, 0, 2);
     ghpistol_setmode(fAA858[dword_AA848].f_10);
 }
 
@@ -2904,8 +2906,8 @@ void ghbow_render(short snum)
     }
     sub_54D90();
     rotatesprite_win((fAA9DC[dword_AA9CC].f_8+dword_AAA68[dword_AAAAC])<<16,
-        (fAA9DC[dword_AA9CC].f_c+dword_AAA88[dword_AAAAC])<<16, 40960,
-        0, fAA9DC[dword_AA9CC].f_4, 0, 0, 10);
+        (fAA9DC[dword_AA9CC].f_c+dword_AAA88[dword_AAAAC]+17)<<16, 40960,
+        0, fAA9DC[dword_AA9CC].f_4, 0, 0, 2);
     ghbow_setmode(fAA9DC[dword_AA9CC].f_10);
 }
 

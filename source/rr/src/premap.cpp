@@ -493,7 +493,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
 
         videoClearScreen(0);
         
-        int const loadScreenTile = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
+        int const loadScreenTile = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, DEER ? 7040 : LOADSCREEN);
 
         rotatesprite_fs(320<<15,200<<15,65536L,0,loadScreenTile,0,0,2+8+64+BGSTRETCH);
 
@@ -1279,19 +1279,22 @@ static void prelevel(char g)
         g_mamaSpawnCnt = 15;
         g_banjoSong = 0;
         g_RAendLevel = 0;
-        for (bssize_t TRAVERSE_CONNECT(playerNum))
+        if (!DEER)
         {
-            DukePlayer_t *ps = g_player[playerNum].ps;
-            ps->sea_sick_stat = 0;
-            if (ud.level_number == 4 && ud.volume_number == 1)
-                ps->inv_amount[GET_STEROIDS] = 0;
+            for (bssize_t TRAVERSE_CONNECT(playerNum))
+            {
+                DukePlayer_t *ps = g_player[playerNum].ps;
+                ps->sea_sick_stat = 0;
+                if (ud.level_number == 4 && ud.volume_number == 1)
+                    ps->inv_amount[GET_STEROIDS] = 0;
+            }
+            if (ud.level_number == 3 && ud.volume_number == 0)
+                g_mamaSpawnCnt = 5;
+            else if (ud.level_number == 2 && ud.volume_number == 1)
+                g_mamaSpawnCnt = 10;
+            else if (ud.level_number == 6 && ud.volume_number == 1)
+                g_mamaSpawnCnt = 15;
         }
-        if (ud.level_number == 3 && ud.volume_number == 0)
-            g_mamaSpawnCnt = 5;
-        else if (ud.level_number == 2 && ud.volume_number == 1)
-            g_mamaSpawnCnt = 10;
-        else if (ud.level_number == 6 && ud.volume_number == 1)
-            g_mamaSpawnCnt = 15;
     }
 
     Bmemset(g_spriteExtra, 0, sizeof(g_spriteExtra));
@@ -1575,7 +1578,7 @@ static void prelevel(char g)
             //    break;
             }
     }
-    if (RR)
+    if (RR && !DEER)
     {
         for (bssize_t i = 0; i < MAXSPRITES; i++)
         {

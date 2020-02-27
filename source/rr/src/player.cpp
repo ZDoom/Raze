@@ -1863,6 +1863,29 @@ void P_DisplayWeapon(void)
     g_snum = screenpeek;
 #endif
 
+    if (DEER)
+    {
+        switch (pPlayer->dhat61f)
+        {
+        case 0:
+            ghpistol_render(screenpeek);
+            break;
+        case 1:
+            ghrifle_render(screenpeek, 0);
+            break;
+        case 2:
+            ghrifle_render(screenpeek, 1);
+            break;
+        case 3:
+            ghshtgn_render(screenpeek);
+            break;
+        case 4:
+            ghbow_render(screenpeek);
+            break;
+        }
+        return;
+    }
+
     if (pPlayer->newowner >= 0 || ud.camerasprite >= 0 || (!RR && pPlayer->over_shoulder_on > 0)
         || (sprite[pPlayer->i].pal != 1 && sprite[pPlayer->i].extra <= 0))
         return;
@@ -4081,6 +4104,9 @@ void P_DHGetInput(int const playerNum)
 
     input.fvel = clamp(input.fvel, -MAXVEL, MAXVEL);
     input.svel = clamp(input.svel, -MAXSVEL, MAXSVEL);
+    
+    if (playerRunning && sub_535EC())
+        input.fvel <<= 3;
 
     input.q16avel = fix16_clamp(input.q16avel, F16(-MAXANGVEL), F16(MAXANGVEL));
     input.q16horz = fix16_clamp(input.q16horz, F16(-MAXHORIZ), F16(MAXHORIZ));

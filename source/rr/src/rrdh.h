@@ -94,5 +94,17 @@ void sub_58A30(int a1);
 int sub_59B44(void);
 void ghtarget_setanimal(short a1);
 
+void ghpistol_render(short);
+void ghrifle_render(short, int);
+void ghshtgn_render(short);
+void ghbow_render(short);
+void sub_56EA8(void);
+void ghtarget_move(void);
+void gharrow_move(void);
+void ghdeploy_move(void);
+void sub_5524C(void);
+void sub_519E8(int a1);
+void sub_57B38(long cposx, long cposy, long czoom, short cang);
+
 
 END_RR_NS

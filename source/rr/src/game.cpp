@@ -1700,7 +1700,7 @@ int A_Spawn(int spriteNum, int tileNum)
         pSprite->picnum = BOLT1;
     else if (!RR && pSprite->picnum >= SIDEBOLT1 && pSprite->picnum <= SIDEBOLT1 + 3)
         pSprite->picnum = SIDEBOLT1;
-    if (DEER && pSprite->picnum != APLAYER)
+    if (DEER && pSprite->picnum != APLAYER && pSprite->picnum != RRTILE7936)
     {
         goto default_case;
     }

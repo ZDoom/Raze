@@ -804,6 +804,9 @@ void G_DisplayRest(int32_t smoothratio)
                 G_MoveClouds();
         }
 
+        if (DEER)
+            sub_57B38(pp->opos.x, pp->opos.y, 20, 1536);
+
         if (ud.overhead_on > 0)
         {
             // smoothratio = min(max(smoothratio,0),65536);

@@ -1492,7 +1492,8 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 continue;
 
             case CON_IFPDISTL:
-                VM_CONDITIONAL(!(DEER && sub_535EC()) && vm.playerDist < *(++insptr));
+                insptr++;
+                VM_CONDITIONAL(!(DEER && sub_535EC()) && vm.playerDist < *(insptr));
                 if (vm.playerDist > MAXSLEEPDIST && vm.pActor->timetosleep == 0)
                     vm.pActor->timetosleep = SLEEPTIME;
                 continue;

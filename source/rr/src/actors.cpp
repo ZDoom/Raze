@@ -9710,6 +9710,16 @@ void G_MoveWorld(void)
 
     g_moveActorsTime = (1-0.033)*g_moveActorsTime + 0.033*(timerGetHiTicks()-actorsTime);
 
+    if (DEER)
+    {
+        sub_56EA8();
+        ghtarget_move();
+        gharrow_move();
+        ghdeploy_move();
+        sub_519E8(ud.level_number);
+        sub_5524C();
+    }
+
     // XXX: Has to be before effectors, in particular movers?
     // TODO: lights in moving sectors ought to be interpolated
     G_DoEffectorLights();
