@@ -221,7 +221,7 @@ typedef struct {
     int32_t sea_sick;
     uint8_t hurt_delay2, nocheat;
 
-    int32_t dhat60f, dhat61f;
+    int32_t dhat60f, dhat613, dhat617, dhat61b, dhat61f;
 
     int8_t crouch_toggle;
     int8_t padding_[3];
@@ -324,6 +324,7 @@ int32_t A_GetHitscanRange(int spriteNum);
 void    P_GetInput(int playerNum);
 void    P_GetInputMotorcycle(int playerNum);
 void    P_GetInputBoat(int playerNum);
+void    P_DHGetInput(int const playerNum);
 void P_AddAmmo(DukePlayer_t * pPlayer, int weaponNum, int addAmount);
 void    P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum);
 void    P_CheckWeapon(DukePlayer_t *pPlayer);
@@ -337,6 +338,7 @@ void getzsofslope_player(int sectNum, int playerX, int playerY, int32_t *pCeilZ,
 #endif
 void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
 void    P_ProcessInput(int playerNum);
+void    P_DHProcessInput(int playerNum);
 void    P_QuickKill(DukePlayer_t *pPlayer);
 void    P_SelectNextInvItem(DukePlayer_t *pPlayer);
 void    P_UpdateScreenPal(DukePlayer_t *pPlayer);

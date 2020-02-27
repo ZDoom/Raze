@@ -1370,6 +1370,26 @@ growspark_rr:
     return -1;
 }
 
+void A_DHShoot(int const playerNum)
+{
+    switch (g_player[playerNum].ps->dhat61f)
+    {
+    case 0:
+        ghpistol_fire(playerNum);
+        break;
+    case 1:
+    case 2:
+        ghrifle_fire(playerNum);
+        break;
+    case 3:
+        ghshtgn_fire(playerNum);
+        break;
+    case 4:
+        ghbow_fire(playerNum);
+        break;
+    }
+}
+
 
 //////////////////// HUD WEAPON / MISC. DISPLAY CODE ////////////////////
 
@@ -3935,6 +3955,197 @@ void P_GetInputBoat(int playerNum)
 
     localInput.q16avel = input.q16avel;
     localInput.q16horz = input.q16horz;
+}
+
+int dword_A99D4, dword_A99D8, dword_A99DC, dword_A99E0;
+int dword_164620, dword_164624;
+
+void sub_299C0(void)
+{
+    dword_A99D8 = 0;
+    dword_A99DC = 0;
+}
+
+int sub_299D8(void)
+{
+    if ((int)totalclock - dword_A99D8 >= 30 && buttonMap.ButtonDown(gamefunc_Crouch))
+    {
+        dword_A99D8 = (int)totalclock;
+        dword_A99DC ^= 1;
+    }
+    return dword_A99DC;
+}
+
+void P_DHGetInput(int const playerNum)
+{
+    auto const pPlayer = g_player[playerNum].ps;
+    ControlInfo info;
+
+    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
+    {
+        if (!(pPlayer->gm&MODE_MENU))
+            CONTROL_GetInput(&info);
+
+        Bmemset(&localInput, 0, sizeof(input_t));
+
+        localInput.bits    = (((int32_t)g_gameQuit) << SK_GAMEQUIT);
+        localInput.extbits |= (1 << 7);
+
+        return;
+    }
+
+    D_ProcessEvents();
+
+    bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
+
+    CONTROL_GetInput(&info);
+
+    // JBF: Run key behaviour is selectable
+    int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+    int const playerCrouch = sub_299D8();
+    int const playerJump = buttonMap.ButtonDown(gamefunc_Jump) && !(pPlayer->cursectnum >= 0 && sector[pPlayer->cursectnum].hitag == 2003);
+    int const turnAmount = playerCrouch ? 2 : (playerRunning ? 16 : 8);
+    constexpr int const analogTurnAmount = 16;
+    int const keyMove    = playerCrouch ? 3 : (playerRunning ? 24 : 12);
+    constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
+
+    input_t input {};
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe))
+    {
+        static int strafeyaw;
+
+        input.svel = -(info.mousex + strafeyaw) >> 3;
+        strafeyaw  = (info.mousex + strafeyaw) % 8;
+
+        input.svel -= info.dyaw * keyMove / analogExtent;
+    }
+    else
+    {
+        input.q16avel = fix16_div(fix16_from_int(info.mousex), F16(32));
+        input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
+    }
+
+    if (mouseaim)
+        input.q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
+    else
+        input.fvel = -(info.mousey >> 6);
+
+    if (!in_mouseflip) input.q16horz = -input.q16horz;
+
+    input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
+    input.svel -= info.dx * keyMove / analogExtent;
+    input.fvel -= info.dz * keyMove / analogExtent;
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe))
+    {
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left) && !(pPlayer->movement_lock&4))
+            input.svel -= -keyMove;
+
+        if (buttonMap.ButtonDown(gamefunc_Turn_Right) && !(pPlayer->movement_lock&8))
+            input.svel -= keyMove;
+    }
+    else
+    {
+        static int32_t turnHeldTime   = 0;
+        static int32_t lastInputClock = 0;  // MED
+        int32_t const  elapsedTics    = (int32_t) totalclock - lastInputClock;
+
+        lastInputClock = (int32_t) totalclock;
+
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+        {
+            turnHeldTime += elapsedTics;
+            input.q16avel -= fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
+        }
+        else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+        {
+            turnHeldTime += elapsedTics;
+            input.q16avel += fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
+        }
+        else
+            turnHeldTime=0;
+    }
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !(pPlayer->movement_lock & 4))
+        input.svel += keyMove;
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !(pPlayer->movement_lock & 8))
+        input.svel += -keyMove;
+
+    if (buttonMap.ButtonDown(gamefunc_Move_Forward) && !(pPlayer->movement_lock & 1))
+        input.fvel += keyMove;
+
+    if (buttonMap.ButtonDown(gamefunc_Move_Backward) && !(pPlayer->movement_lock & 2))
+        input.fvel += -(keyMove >> 1);
+
+    input.fvel = clamp(input.fvel, -MAXVEL, MAXVEL);
+    input.svel = clamp(input.svel, -MAXSVEL, MAXSVEL);
+
+    input.q16avel = fix16_clamp(input.q16avel, F16(-MAXANGVEL), F16(MAXANGVEL));
+    input.q16horz = fix16_clamp(input.q16horz, F16(-MAXHORIZ), F16(MAXHORIZ));
+
+    localInput.bits = (buttonMap.ButtonDown(gamefunc_Fire) << SK_FIRE);
+
+    localInput.bits |= (playerJump << SK_JUMP) | (playerCrouch << SK_CROUCH);
+
+    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && input.fvel > 0)) << SK_AIM_UP;
+    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && input.fvel < 0)) << SK_AIM_DOWN;
+    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Center_View) << SK_CENTER_VIEW);
+
+    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Look_Left) << SK_LOOK_LEFT) | (buttonMap.ButtonDown(gamefunc_Look_Right) << SK_LOOK_RIGHT);
+    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Look_Up) << SK_LOOK_UP) | (buttonMap.ButtonDown(gamefunc_Look_Down) << SK_LOOK_DOWN);
+
+    localInput.bits |= (playerRunning << SK_RUN);
+
+    localInput.bits |= buttonMap.ButtonDown(gamefunc_TurnAround) << SK_TURNAROUND;
+
+    localInput.bits |= (mouseaim << SK_AIMMODE);
+    localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
+    localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
+    localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE;
+
+    if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
+        input.fvel = 0;
+
+    localInput.extbits = (buttonMap.ButtonDown(gamefunc_Move_Forward) || (input.fvel > 0));
+    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Move_Backward) || (input.fvel < 0)) << 1;
+    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
+    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
+    localInput.extbits |= buttonMap.ButtonDown(gamefunc_Turn_Left)<<4;
+    localInput.extbits |= buttonMap.ButtonDown(gamefunc_Turn_Right)<<5;
+
+    if (pPlayer->cursectnum >= 0 && sector[pPlayer->cursectnum].hitag == 2003)
+        input.fvel >>= 1;
+
+    int16_t const q16ang = fix16_to_int(pPlayer->q16ang);
+
+    localInput.fvel = mulscale9(input.fvel, sintable[(q16ang + 2560) & 2047]) +
+                      mulscale9(input.svel, sintable[(q16ang + 2048) & 2047]) +
+                      pPlayer->fric.x;
+
+    localInput.svel = mulscale9(input.fvel, sintable[(q16ang + 2048) & 2047]) +
+                      mulscale9(input.svel, sintable[(q16ang + 1536) & 2047]) +
+                      pPlayer->fric.y;
+
+    localInput.q16avel = input.q16avel;
+    localInput.q16horz = input.q16horz;
+
+    if (input.fvel || input.svel || input.q16avel || TEST_SYNC_KEY(input.bits, SK_FIRE) || dword_A99E0 != pPlayer->pos.z)
+        pPlayer->dhat60f = 1;
+    dword_A99E0 = pPlayer->pos.z;
+    pPlayer->dhat617 = playerRunning;
+    if (!input.fvel)
+        pPlayer->dhat617 = 0;
+    pPlayer->dhat613 = buttonMap.ButtonDown(gamefunc_Move_Forward) | buttonMap.ButtonDown(gamefunc_Move_Backward);
+    if (pPlayer->dhat60f)
+        sub_5A250(256);
+    dword_A99D4++;
+    if (dword_A99D4 == 2)
+    {
+        sub_53304();
+        dword_A99D4 = 0;
+    }
 }
 
 void P_MadeNoise(int playerNum)
@@ -6694,6 +6905,11 @@ static void P_HandlePal(DukePlayer_t *const pPlayer)
 
 void P_ProcessInput(int playerNum)
 {
+    if (DEER)
+    {
+        P_DHProcessInput(playerNum);
+        return;
+    }
     if (g_player[playerNum].playerquitflag == 0)
         return;
 
@@ -8665,6 +8881,561 @@ HORIZONLY:;
     }
 
     P_ProcessWeapon(playerNum);
+}
+
+void P_DHProcessInput(int playerNum)
+{
+    if (g_player[playerNum].playerquitflag == 0)
+        return;
+
+    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    spritetype *const   pSprite = &sprite[pPlayer->i];
+
+    ++pPlayer->player_par;
+
+    uint32_t playerBits = g_player[playerNum].inputBits->bits;
+
+    pSprite->cstat = 0;
+
+    if (pPlayer->cheat_phase > 0)
+        playerBits = 0;
+
+    if (pPlayer->cursectnum == -1)
+    {
+        return;
+    }
+
+    int sectorLotag       = sector[pPlayer->cursectnum].lotag;
+
+    pSprite->clipdist = 64;
+
+    pPlayer->spritebridge = 0;
+    //pPlayer->sbs          = 0;
+
+    int32_t floorZ, ceilZ, highZhit, lowZhit;
+    getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, 163, CLIPMASK0);
+
+#ifdef YAX_ENABLE
+    getzsofslope_player(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y, &pPlayer->truecz, &pPlayer->truefz);
+#else
+    getzsofslope(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y, &pPlayer->truecz, &pPlayer->truefz);
+#endif
+    int const trueFloorZ    = pPlayer->truefz;
+    int const trueFloorDist = klabs(pPlayer->pos.z - trueFloorZ);
+
+    if ((lowZhit & 49152) == 16384 && sectorLotag == 1 && trueFloorDist > PHEIGHT + ZOFFSET2)
+        sectorLotag = 0;
+
+    actor[pPlayer->i].floorz   = floorZ;
+    actor[pPlayer->i].ceilingz = ceilZ;
+
+    pPlayer->oq16horiz            = pPlayer->q16horiz;
+    pPlayer->oq16horizoff         = pPlayer->q16horizoff;
+
+    if (pPlayer->q16horizoff > 0)
+    {
+        pPlayer->q16horizoff -= ((pPlayer->q16horizoff >> 3) + fix16_one);
+        pPlayer->q16horizoff = max(pPlayer->q16horizoff, 0);
+    }
+    else if (pPlayer->q16horizoff < 0)
+    {
+        pPlayer->q16horizoff += (((-pPlayer->q16horizoff) >> 3) + fix16_one);
+        pPlayer->q16horizoff = min(pPlayer->q16horizoff, 0);
+    }
+
+    if (highZhit >= 0 && (highZhit&49152) == 49152)
+    {
+        highZhit &= (MAXSPRITES-1);
+
+        if (sprite[highZhit].statnum == STAT_ACTOR && sprite[highZhit].extra >= 0)
+        {
+            highZhit = 0;
+            ceilZ    = pPlayer->truecz;
+        }
+    }
+
+    if (lowZhit >= 0 && (lowZhit&49152) == 49152)
+    {
+        int spriteNum = lowZhit&(MAXSPRITES-1);
+
+        if ((sprite[spriteNum].cstat&33) == 33)
+        {
+            sectorLotag             = 0;
+            pPlayer->footprintcount = 0;
+            pPlayer->spritebridge   = 1;
+            //pPlayer->sbs            = spriteNum;
+        }
+        if (A_CheckEnemySprite(&sprite[spriteNum]) && sprite[spriteNum].xrepeat > 24
+                && klabs(pSprite->z - sprite[spriteNum].z) < (84 << 8))
+        {
+            // TX: I think this is what makes the player slide off enemies... might
+            // be a good sprite flag to add later.
+            // Helix: there's also SLIDE_ABOVE_ENEMY.
+            int spriteAng = getangle(sprite[spriteNum].x - pPlayer->pos.x,
+                                        sprite[spriteNum].y - pPlayer->pos.y);
+            pPlayer->vel.x -= sintable[(spriteAng + 512) & 2047] << 4;
+            pPlayer->vel.y -= sintable[spriteAng & 2047] << 4;
+        }
+    }
+
+    pSprite->extra                  = 32;
+    pPlayer->inv_amount[GET_SHIELD] = 0;
+
+    pPlayer->last_extra = pSprite->extra;
+    pPlayer->loogcnt    = (pPlayer->loogcnt > 0) ? pPlayer->loogcnt - 1 : 0;
+
+    if (pPlayer->timebeforeexit > 1 && pPlayer->last_extra > 0)
+    {
+        if (--pPlayer->timebeforeexit == GAMETICSPERSEC*5)
+        {
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
+
+            if (pPlayer->customexitsound >= 0)
+            {
+                S_PlaySound(pPlayer->customexitsound);
+                P_DoQuote(QUOTE_WEREGONNAFRYYOURASS,pPlayer);
+            }
+        }
+        else if (pPlayer->timebeforeexit == 1)
+        {
+            for (bssize_t TRAVERSE_CONNECT(playerNum))
+                g_player[playerNum].ps->gm = MODE_EOL;
+
+            ud.level_number   = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
+            ud.m_level_number = ud.level_number;
+            return;
+        }
+    }
+
+    if (pPlayer->pals.f > 0)
+        P_HandlePal(pPlayer);
+
+    if (pPlayer->fta > 0 && --pPlayer->fta == 0)
+    {
+        pub = pus = NUMPAGES;
+        pPlayer->ftq = 0;
+    }
+
+    if (g_levelTextTime > 0)
+        g_levelTextTime--;
+
+    if (pPlayer->newowner >= 0)
+    {
+        P_UpdatePosWhenViewingCam(pPlayer);
+        P_DoCounters(playerNum);
+
+        return;
+    }
+
+    pPlayer->rotscrnang -= (pPlayer->rotscrnang >> 1);
+
+    if (pPlayer->rotscrnang && !(pPlayer->rotscrnang >> 1))
+        pPlayer->rotscrnang -= ksgn(pPlayer->rotscrnang);
+
+    pPlayer->look_ang -= (pPlayer->look_ang >> 2);
+
+    if (pPlayer->look_ang && !(pPlayer->look_ang >> 2))
+        pPlayer->look_ang -= ksgn(pPlayer->look_ang);
+
+    if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT) && !pPlayer->on_motorcycle)
+    {
+        // look_left
+        pPlayer->look_ang -= 152;
+        pPlayer->rotscrnang += 24;
+    }
+
+    if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT) && !pPlayer->on_motorcycle)
+    {
+        // look_right
+        pPlayer->look_ang += 152;
+        pPlayer->rotscrnang -= 24;
+    }
+
+    int                  velocityModifier = TICSPERFRAME;
+    const uint8_t *const weaponFrame      = &pPlayer->kickback_pic;
+    int                  floorZOffset     = 40;
+    int const            playerShrunk     = (pSprite->yrepeat < 8);
+
+    pPlayer->weapon_sway = (pSprite->xvel < 32 || pPlayer->on_ground == 0 || pPlayer->bobcounter == 1024)
+                           ? (((pPlayer->weapon_sway & 2047) > (1024 + 96))
+                           ? (pPlayer->weapon_sway - 96)
+                           : (((pPlayer->weapon_sway & 2047) < (1024 - 96)))
+                           ? (pPlayer->weapon_sway + 96)
+                           : 1024)
+                           : pPlayer->bobcounter;
+
+    // NOTE: This silently wraps if the difference is too great, e.g. used to do
+    // that when teleported by silent SE7s.
+    pSprite->xvel = ksqrt(uhypsq(pPlayer->pos.x - pPlayer->bobpos.x, pPlayer->pos.y - pPlayer->bobpos.y));
+
+    if (pPlayer->on_ground)
+        pPlayer->bobcounter += sprite[pPlayer->i].xvel>>1;
+
+    if (ud.noclip == 0 && ((uint16_t)pPlayer->cursectnum >= MAXSECTORS || sector[pPlayer->cursectnum].floorpicnum == MIRROR))
+    {
+        pPlayer->pos.x = pPlayer->opos.x;
+        pPlayer->pos.y = pPlayer->opos.y;
+    }
+    else
+    {
+        pPlayer->opos.x = pPlayer->pos.x;
+        pPlayer->opos.y = pPlayer->pos.y;
+    }
+
+    pPlayer->bobpos.x = pPlayer->pos.x;
+    pPlayer->bobpos.y = pPlayer->pos.y;
+    pPlayer->opos.z   = pPlayer->pos.z;
+    pPlayer->opyoff   = pPlayer->pyoff;
+    pPlayer->oq16ang    = pPlayer->q16ang;
+
+    if (pPlayer->one_eighty_count < 0)
+    {
+        pPlayer->one_eighty_count += 128;
+        pPlayer->q16ang += F16(128);
+    }
+
+    // Shrinking code
+
+    if (sectorLotag == ST_2_UNDERWATER)
+    {
+    }
+    else
+    {
+        pPlayer->scuba_on = 0;
+
+        if (pPlayer->pos.z < (floorZ-(floorZOffset<<8)))  //falling
+        {
+            // not jumping or crouching
+
+            if ((!TEST_SYNC_KEY(playerBits, SK_JUMP) && !TEST_SYNC_KEY(playerBits, SK_CROUCH)) && pPlayer->on_ground &&
+                (sector[pPlayer->cursectnum].floorstat & 2) && pPlayer->pos.z >= (floorZ - (floorZOffset << 8) - ZOFFSET2))
+                pPlayer->pos.z = floorZ - (floorZOffset << 8);
+            else
+            {
+                pPlayer->on_ground = 0;
+                pPlayer->vel.z    += (g_spriteGravity + 80);  // (TICSPERFRAME<<6);
+
+                if (pPlayer->vel.z >= (4096 + 2048))
+                    pPlayer->vel.z = (4096 + 2048);
+
+                if (pPlayer->vel.z > 2400 && pPlayer->falling_counter < 255)
+                {
+                    pPlayer->falling_counter++;
+                    if (pPlayer->falling_counter >= 38 && !A_CheckSoundPlaying(pPlayer->i, -1, CHAN_VOICE))
+                    {
+                        int32_t voice = A_PlaySound(DUKE_SCREAM,pPlayer->i);
+                        if (voice <= 127)  // XXX: p->scream_voice is an int8_t
+                            pPlayer->scream_voice = voice;
+                    }
+                }
+
+                if ((pPlayer->pos.z + pPlayer->vel.z) >= (floorZ - (floorZOffset << 8)) && pPlayer->cursectnum >= 0)  // hit the ground
+                {
+                    ghsound_footstepsound(playerNum, 1);
+                }
+            }
+        }
+        else
+        {
+            pPlayer->falling_counter = 0;
+
+            if ((sectorLotag != ST_1_ABOVE_WATER && sectorLotag != ST_2_UNDERWATER) &&
+                (pPlayer->on_ground == 0 && pPlayer->vel.z > (6144 >> 1)))
+                pPlayer->hard_landing = pPlayer->vel.z>>10;
+
+            pPlayer->on_ground = 1;
+
+            if (floorZOffset==40)
+            {
+                //Smooth on the ground
+                int Zdiff = ((floorZ - (floorZOffset << 8)) - pPlayer->pos.z) >> 1;
+
+                if (klabs(Zdiff) < 256)
+                    Zdiff = 0;
+
+                pPlayer->pos.z += ((klabs(Zdiff) >= 256) ? (((floorZ - (floorZOffset << 8)) - pPlayer->pos.z) >> 1) : 0);
+                pPlayer->vel.z -= 768;
+
+                if (pPlayer->vel.z < 0)
+                    pPlayer->vel.z = 0;
+            }
+            else if (pPlayer->jumping_counter == 0)
+            {
+                pPlayer->pos.z += ((floorZ - (floorZOffset << 7)) - pPlayer->pos.z) >> 1;  // Smooth on the water
+
+                if (pPlayer->on_warping_sector == 0 && pPlayer->pos.z > floorZ - ZOFFSET2)
+                {
+                    pPlayer->pos.z = floorZ - ZOFFSET2;
+                    pPlayer->vel.z >>= 1;
+                }
+            }
+
+            pPlayer->on_warping_sector = 0;
+
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && !pPlayer->on_motorcycle)
+            {
+                // crouching
+                pPlayer->pos.z += (2048+768);
+                pPlayer->crack_time = 777;
+            }
+
+            // jumping
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && !pPlayer->on_motorcycle && pPlayer->jumping_toggle == 1)
+                pPlayer->jumping_toggle = 0;
+            else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && !pPlayer->on_motorcycle && pPlayer->jumping_toggle == 0)
+            {
+                if (pPlayer->jumping_counter == 0)
+                    if ((floorZ-ceilZ) > (56<<8))
+                    {
+                        pPlayer->jumping_counter = 1;
+                        pPlayer->jumping_toggle = 1;
+                    }
+            }
+        }
+
+        if (pPlayer->jumping_counter)
+        {
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && !pPlayer->on_motorcycle && pPlayer->jumping_toggle == 1)
+                pPlayer->jumping_toggle = 0;
+
+            if (pPlayer->jumping_counter < 768)
+            {
+                if (sectorLotag == ST_1_ABOVE_WATER && pPlayer->jumping_counter > 768)
+                {
+                    pPlayer->jumping_counter = 0;
+                    pPlayer->vel.z = -512;
+                }
+                else
+                {
+                    pPlayer->vel.z -= (sintable[(2048-128+pPlayer->jumping_counter)&2047])/12;
+                    pPlayer->jumping_counter += 180;
+                    pPlayer->on_ground = 0;
+                }
+            }
+            else
+            {
+                pPlayer->jumping_counter = 0;
+                pPlayer->vel.z = 0;
+            }
+        }
+
+        pPlayer->pos.z += pPlayer->vel.z;
+
+        if (pPlayer->pos.z < (ceilZ+ZOFFSET6))
+        {
+            pPlayer->jumping_counter = 0;
+            if (pPlayer->vel.z < 0)
+                pPlayer->vel.x = pPlayer->vel.y = 0;
+            pPlayer->vel.z = 128;
+            pPlayer->pos.z = ceilZ+ZOFFSET6;
+        }
+    }
+
+    if (pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 ||
+        pPlayer->knee_incs > 0 || (!RR && pPlayer->curr_weapon == TRIPBOMB_WEAPON &&
+                                   *weaponFrame > 1 && *weaponFrame < 4))
+    {
+        velocityModifier = 0;
+        pPlayer->vel.x   = 0;
+        pPlayer->vel.y   = 0;
+    }
+    else if (g_player[playerNum].inputBits->q16avel)            //p->ang += syncangvel * constant
+    {
+        fix16_t const inputAng  = g_player[playerNum].inputBits->q16avel;
+
+        pPlayer->q16angvel = (sectorLotag == ST_2_UNDERWATER) ? fix16_mul(inputAng - (inputAng >> 3), fix16_from_int(ksgn(velocityModifier)))
+                                                            : fix16_mul(inputAng, fix16_from_int(ksgn(velocityModifier)));
+        pPlayer->q16ang       += pPlayer->q16angvel;
+        pPlayer->q16ang       &= 0x7FFFFFF;
+        pPlayer->crack_time = 777;
+    }
+
+    if (pPlayer->vel.x || pPlayer->vel.y || g_player[playerNum].inputBits->fvel || g_player[playerNum].inputBits->svel)
+    {
+        pPlayer->crack_time = 777;
+
+        pPlayer->not_on_water = 1;
+
+        pPlayer->vel.x += (((g_player[playerNum].inputBits->fvel) * velocityModifier) << 6);
+        pPlayer->vel.y += (((g_player[playerNum].inputBits->svel) * velocityModifier) << 6);
+
+        pPlayer->vel.x = mulscale16(pPlayer->vel.x, pPlayer->runspeed);
+        pPlayer->vel.y = mulscale16(pPlayer->vel.y, pPlayer->runspeed);
+
+        if (klabs(pPlayer->vel.x) < 2048 && klabs(pPlayer->vel.y) < 2048)
+            pPlayer->vel.x = pPlayer->vel.y = 0;
+    }
+
+    int stepHeight = (sectorLotag == ST_1_ABOVE_WATER || pPlayer->spritebridge == 1) ? pPlayer->autostep_sbw : pPlayer->autostep;
+
+#ifdef EDUKE32_TOUCH_DEVICES
+    if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
+        stepHeight = pPlayer->autostep_sbw;
+#endif
+
+    int spriteNum;
+
+    if (ud.noclip)
+    {
+        spriteNum = 0;
+        pPlayer->pos.x += pPlayer->vel.x >> 14;
+        pPlayer->pos.y += pPlayer->vel.y >> 14;
+        updatesector(pPlayer->pos.x, pPlayer->pos.y, &pPlayer->cursectnum);
+        changespritesect(pPlayer->i, pPlayer->cursectnum);
+    }
+    else
+    {
+#ifdef YAX_ENABLE
+        int const playerSectNum = pPlayer->cursectnum;
+        int16_t   ceilingBunch, floorBunch;
+
+        if (playerSectNum >= 0)
+            yax_getbunches(playerSectNum, &ceilingBunch, &floorBunch);
+
+        // This updatesectorz conflicts with Duke3D's way of teleporting through water,
+        // so make it a bit conditional... OTOH, this way we have an ugly z jump when
+        // changing from above water to underwater
+
+        if ((playerSectNum >= 0 && !(sector[playerSectNum].lotag == ST_1_ABOVE_WATER && pPlayer->on_ground && floorBunch >= 0))
+            && ((floorBunch >= 0 && !(sector[playerSectNum].floorstat & 512))
+                || (ceilingBunch >= 0 && !(sector[playerSectNum].ceilingstat & 512))))
+        {
+            pPlayer->cursectnum += MAXSECTORS;  // skip initial z check, restored by updatesectorz
+            updatesectorz(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z, &pPlayer->cursectnum);
+        }
+#endif
+        int const oldSector = pPlayer->cursectnum;
+        spriteNum = clipmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->vel.x, pPlayer->vel.y, 164,
+                                 (4L << 8), stepHeight, CLIPMASK0);
+
+        if (pPlayer->cursectnum >= 0 && pPlayer->cursectnum < numsectors && sector[pPlayer->cursectnum].hitag == 2002)
+        {
+            pPlayer->pos = pPlayer->opos;
+            pPlayer->cursectnum = oldSector;
+            P_DoQuote(152, pPlayer);
+            clipmove((vec3_t*)pPlayer, &pPlayer->cursectnum, 0, 0, 164, (4L << 8), stepHeight, CLIPMASK0);
+        }
+    }
+
+    int waterSector = (sector[pPlayer->cursectnum].hitag == 2003);
+
+    if (waterSector)
+        pPlayer->pos.z += 2048;
+
+    if ((spriteNum & 49152) == 32768)
+    {
+    }
+    else if ((spriteNum & 49152) == 49152)
+    {
+        spriteNum &= (MAXSPRITES-1);
+
+        ghsound_plrtouchedsprite(spriteNum, playerNum);
+        ghdeploy_plrtouchedsprite(spriteNum, playerNum);
+    }
+
+    if (pPlayer->jetpack_on == 0)
+    {
+        if (g_player[playerNum].inputBits->fvel && pPlayer->on_ground)
+        {
+            pPlayer->pycount += 64;
+            pPlayer->pycount &= 2047;
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
+            {
+                pPlayer->pyoff = klabs(sintable[pPlayer->pycount]) >> 6;
+                ghsound_footstepsound(playerNum, 2);
+            }
+            else if (TEST_SYNC_KEY(playerBits, SK_RUN))
+            {
+                pPlayer->pyoff = klabs(sintable[pPlayer->pycount]) >> 5;
+                pPlayer->pyoff += 256;
+                if (waterSector)
+                    pPlayer->pyoff += 512;
+                ghsound_footstepsound(playerNum, 1);
+            }
+            else
+            {
+                pPlayer->pyoff = klabs(sintable[pPlayer->pycount]) >> 6;
+                pPlayer->pyoff += 16;
+                if (waterSector)
+                    pPlayer->pyoff += 512;
+                ghsound_footstepsound(playerNum, 0);
+            }
+        }
+        else
+            pPlayer->pyoff = 0;
+    }
+
+    pPlayer->pos.z += PHEIGHT;
+    setsprite(pPlayer->i, &pPlayer->pos);
+    pPlayer->pos.z -= PHEIGHT;
+
+    if (pPlayer->cursectnum >= 0 && pPlayer->cursectnum != pSprite->sectnum)
+        changespritesect(pPlayer->i, pPlayer->cursectnum);
+
+    if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
+    {
+        int const squishPlayer = (pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, (!RR || pSprite->clipdist == 64) ? 164 : 16, (4L << 8), (4L << 8), CLIPMASK0) < 0 &&
+                                 A_GetFurthestAngle(pPlayer->i, 8) < 512);
+    }
+
+    int centerHoriz = 0;
+
+    if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
+        pPlayer->return_to_center = 9;
+
+    if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
+    {
+        pPlayer->return_to_center = 9;
+        pPlayer->q16horiz += fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        centerHoriz++;
+    }
+    else if (TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
+    {
+        pPlayer->return_to_center = 9;
+        pPlayer->q16horiz -= fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        centerHoriz++;
+    }
+    else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && !pPlayer->on_motorcycle)
+    {
+        pPlayer->q16horiz += fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        centerHoriz++;
+    }
+    else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && !pPlayer->on_motorcycle)
+    {
+        pPlayer->q16horiz -= fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        centerHoriz++;
+    }
+    if (RR && pPlayer->recoil && *weaponFrame == 0)
+    {
+        int delta = pPlayer->recoil >> 1;
+        if (!delta) delta++;
+        pPlayer->recoil -= delta;
+        pPlayer->q16horiz -= F16(delta);
+    }
+    else if (pPlayer->return_to_center > 0 && !TEST_SYNC_KEY(playerBits, SK_LOOK_UP) && !TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
+    {
+        pPlayer->return_to_center--;
+        pPlayer->q16horiz += F16(33)-fix16_div(pPlayer->q16horiz, F16(3));
+        centerHoriz++;
+    }
+
+    if (pPlayer->hard_landing > 0)
+    {
+        pPlayer->hard_landing--;
+        pPlayer->q16horiz -= fix16_from_int(pPlayer->hard_landing<<4);
+    }
+
+    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz? 0 : g_player[playerNum].inputBits->q16horz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+
+    if (centerHoriz && (!RR || !pPlayer->recoil))
+    {
+        if (pPlayer->q16horiz > F16(95) && pPlayer->q16horiz < F16(105)) pPlayer->q16horiz = F16(100);
+        if (pPlayer->q16horizoff > F16(-5) && pPlayer->q16horizoff < F16(5)) pPlayer->q16horizoff = 0;
+    }
+
+    if (TEST_SYNC_KEY(playerBits, SK_FIRE))
+        A_DHShoot(playerNum);
 }
 
 int P_HasKey(int sectNum, int playerNum)

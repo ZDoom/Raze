@@ -58,6 +58,101 @@ int rrdh_random(void)
 }
 
 
+int sub_5151C(short a1)
+{
+    switch (a1)
+    {
+    case 26:
+    case 27:
+    case 29:
+    case 30:
+    case 31:
+    case 32:
+    case 33:
+    case 34:
+    case 35:
+    case 73:
+    case 74: 
+    case 92:
+    case 93:
+    case 96:
+    case 97:
+    case 98:
+    case 103:
+    case 141:
+    case 142:
+    case 143:
+    case 144:
+    case 145:
+    case 146:
+    case 147:
+    case 148:
+    case 149:
+    case 150:
+    case 151:
+    case 152:
+    case 153:
+    case 154:
+    case 155:
+    case 156:
+    case 157:
+    case 158:
+    case 159:
+    case 160:
+    case 161:
+    case 162:
+    case 163:
+    case 164:
+    case 165:
+        return 1;
+    }
+    return 0;
+}
+
+int rrgh_isatree(short s)
+{
+    switch (sprite[s].picnum)
+    {
+    case 984:
+    case 985:
+    case 986:
+    case 988:
+    case 989:
+    case 990:
+    case 991:
+    case 1028:
+    case 1029:
+    case 1030:
+    case 1040:
+    case 1041:
+    case 1050:
+    case 1051:
+    case 1052:
+    case 1053:
+    case 1054:
+    case 1055:
+    case 1056:
+    case 1057:
+    case 1058:
+    case 1059:
+    case 1093:
+    case 1094:
+    case 1095:
+    case 1096:
+    case 1097:
+    case 1098:
+    case 1099:
+    case 1100:
+    case 1113:
+    case 1114:
+    case 1115:
+    case 1116:
+    case 1117:
+        return 1;
+    }
+    return 0;
+}
+
 int ghcons_isanimalescapewall(short w)
 {
     walltype *wl = &wall[w];
@@ -227,6 +322,179 @@ int ghsound_pfiredgunnear(spritetype *a1, short a2)
     if (A_CheckSoundPlaying(-1, 8) && klabs(g_player[a2].ps->pos.x - a1->x) + klabs(g_player[a2].ps->pos.y - a1->y) < 23040)
         return 1;
     return 0;
+}
+
+int sub_5228C(short a1)
+{
+    switch (a1)
+    {
+    case 998:
+    case 999:
+    case 1007:
+    case 1008:
+        return 1;
+    }
+    return 0;
+}
+
+int sub_522B8(short a1)
+{
+    switch (a1)
+    {
+    case 981:
+    case 982:
+        return 1;
+    }
+    return 0;
+}
+
+int dword_AA264;
+
+void ghsound_footstepsound(short a1, int a2)
+{
+    DukePlayer_t *p;
+    int i, nexti, d;
+    spritetype *s;
+    if (sub_535EC())
+        return;
+
+    p = g_player[a1].ps;
+    if (sector[p->cursectnum].hitag == 2003)
+    {
+        if (a2 == 0)
+        {
+            if (sub_57A40(5) == 1)
+                A_PlaySound(81, p->i);
+        }
+        else if (a2 == 1)
+        {
+            if (sub_57A40(5) == 1)
+                A_PlaySound(80, p->i);
+        }
+        else
+        {
+            if (sub_57A40(5) == 1)
+                A_PlaySound(82, p->i);
+        }
+    }
+    else
+    {
+        if (a2 == 0)
+        {
+            if (sub_57A40(5) == 1)
+            {
+                switch (ud.level_number)
+                {
+                case 0:
+                    A_PlaySound(9, p->i);
+                    break;
+                case 1:
+                    A_PlaySound(13, p->i);
+                    break;
+                case 2:
+                    A_PlaySound(17, p->i);
+                    break;
+                case 3:
+                    A_PlaySound(21, p->i);
+                    break;
+                }
+            }
+        }
+        else if (a2 == 1)
+        {
+            if (sub_57A40(5) == 1)
+            {
+                switch (ud.level_number)
+                {
+                case 0:
+                    A_PlaySound(10, p->i);
+                    break;
+                case 1:
+                    A_PlaySound(14, p->i);
+                    break;
+                case 2:
+                    A_PlaySound(18, p->i);
+                    break;
+                case 3:
+                    A_PlaySound(22, p->i);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            if (sub_57A40(5) == 1)
+            {
+                switch (ud.level_number)
+                {
+                case 0:
+                    A_PlaySound(11, p->i);
+                    break;
+                case 1:
+                    A_PlaySound(15, p->i);
+                    break;
+                case 2:
+                    A_PlaySound(19, p->i);
+                    break;
+                case 3:
+                    A_PlaySound(23, p->i);
+                    break;
+                }
+            }
+        }
+    }
+    i = headspritesect[p->cursectnum];
+    while (i >= 0)
+    {
+        nexti = nextspritesect[i];
+        s = &sprite[i];
+        if (sub_5228C(s->picnum) && klabs(p->pos.x - s->x) + klabs(p->pos.y - s->y) < s->clipdist)
+        {
+            if (i != dword_AA264)
+            {
+                A_PlaySound(25, p->i);
+                sub_5A250(4096);
+                dword_AA264 = i;
+            }
+            return;
+        }
+        else if (sub_522B8(s->picnum) && klabs(p->pos.x - s->x) + klabs(p->pos.y - s->y) < 124)
+        {
+            sub_5A250(2048);
+        }
+        i = nexti;
+    }
+}
+
+void ghsound_plrtouchedsprite(short a1, short a2)
+{
+    DukePlayer_t *p;
+    spritetype *s;
+    p = g_player[a2].ps;
+
+    s = &sprite[a1];
+    if (rrgh_isatree(a1))
+    {
+        switch (ud.level_number)
+        {
+        case 0:
+            if (!A_CheckSoundPlaying(-1, 12))
+                A_PlaySound(12, p->i);
+            break;
+        case 1:
+            if (!A_CheckSoundPlaying(-1, 16))
+                A_PlaySound(16, p->i);
+            break;
+        case 2:
+            if (!A_CheckSoundPlaying(-1, 20))
+                A_PlaySound(20, p->i);
+            break;
+        case 3:
+            if (!A_CheckSoundPlaying(-1, 24))
+                A_PlaySound(24, p->i);
+            break;
+        }
+    }
 }
 
 void ghsound_ambientlooppoll(void)
@@ -920,9 +1188,83 @@ void sub_54DE0(void)
     // TODO
 }
 
-void sub_579A0(void)
+void ghshtgn_fire(short snum)
 {
     // TODO
+}
+
+void ghrifle_fire(short snum)
+{
+    // TODO
+}
+
+void ghpistol_fire(short snum)
+{
+    // TODO
+}
+
+void ghbow_fire(short snum)
+{
+    // TODO
+}
+
+int dword_AAAD0, dword_AAAD4, dword_AAAD8, dword_AAACC;
+unsigned int dword_AAADC, dword_AAAE0, dword_AAAE4, dword_AAAE8;
+
+void sub_579A0(void)
+{
+    dword_AAAD0++;
+    dword_AAACC++;
+    if (dword_AAAD0 == 4)
+    {
+        if (dword_AAADC > 0)
+            dword_AAADC--;
+        if (dword_AAAE0 > 0)
+            dword_AAAE0--;
+        if (dword_AAAE4 > 0)
+            dword_AAAE4--;
+        if (dword_AAAE8 > 0)
+            dword_AAAE8--;
+        dword_AAAD0 = 0;
+        dword_AAAD4++;
+        if (dword_AAAD4 == 10)
+        {
+            dword_AAAD8++;
+            dword_AAAD4 = 0;
+        }
+    }
+}
+
+int sub_57A40(int a1)
+{
+    if (dword_AAADC)
+        return 0;
+    dword_AAADC = a1;
+    return 1;
+}
+
+int sub_57A60(int a2)
+{
+    if (dword_AAAE0)
+        return 0;
+    dword_AAAE0 = a2;
+    return 1;
+}
+
+int sub_57A80(int a2)
+{
+    if (dword_AAAE4)
+        return 0;
+    dword_AAAE4 = a2;
+    return 1;
+}
+
+int sub_57AA0(int a2)
+{
+    if (dword_AAAE8)
+        return 0;
+    dword_AAAE8 = a2;
+    return 1;
 }
 
 int ghtrax_isplrupwind(short a1, short a2)
@@ -941,6 +1283,11 @@ void ghtrax_leavedroppings(short a1)
 }
 
 void ghdeploy_bias(short a1)
+{
+    // TODO
+}
+
+void ghdeploy_plrtouchedsprite(short a1, short a2)
 {
     // TODO
 }

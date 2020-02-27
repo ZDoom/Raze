@@ -49,5 +49,14 @@ int sub_51B68(void);
 void sub_5469C(vec2_t const origin, int a1);
 void ghstatbr_registerkillinfo(short a1, int a2, int a3);
 char sub_54B80(void);
+void ghpistol_fire(short snum);
+void ghbow_fire(short snum);
+void ghrifle_fire(short snum);
+void ghshtgn_fire(short snum);
+void ghsound_footstepsound(short a1, int a2);
+void ghsound_plrtouchedsprite(short a1, short a2);
+void ghdeploy_plrtouchedsprite(short a1, short a2);
+int sub_57A40(int a1);
+
 
 END_RR_NS
