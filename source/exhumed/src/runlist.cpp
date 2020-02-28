@@ -1577,21 +1577,15 @@ int runlist_CheckRadialDamage(short nSprite)
     int y = (sprite[nSprite].y - sprite[nRadialSpr].y) >> 8;
     int z = (sprite[nSprite].z - sprite[nRadialSpr].z) >> 12;
 
-    x = klabs(x);
-
-    if (x > nDamageRadius) {
+    if (klabs(x) > nDamageRadius) {
         return 0;
     }
 
-    y = klabs(y);
-
-    if (y > nDamageRadius) {
+    if (klabs(y) > nDamageRadius) {
         return 0;
     }
 
-    z = klabs(z);
-
-    if (z > nDamageRadius) {
+    if (klabs(z) > nDamageRadius) {
         return 0;
     }
 
@@ -1622,6 +1616,7 @@ int runlist_CheckRadialDamage(short nSprite)
             else if (edi > 20)
             {
                 int nAngle = GetMyAngle(x, y);
+
                 sprite[nSprite].xvel += (edi * Cos(nAngle)) >> 3;
                 sprite[nSprite].yvel += (edi * Sin(nAngle)) >> 3;
                 sprite[nSprite].zvel -= edi * 24;
