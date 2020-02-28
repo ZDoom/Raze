@@ -130,6 +130,7 @@ bool looped[kMaxSounds];
 short StaticSound[kMaxSounds];
 int fakesources[] = { 0, 1, 2, 3 };
 int swirlysources[4]= { 0, 1, 2, 3 };
+FVector3 amb, creepy;
 
 int nLocalChan = 0;
 
@@ -425,7 +426,11 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         auto fcampos = GetSoundPos(&campos);
 
-        if (type == SOURCE_Unattached || type == SOURCE_Ambient)
+        if (type == SOURCE_Ambient)
+        {
+            *pos = *(FVector3*)source;
+        }
+        else if (type == SOURCE_Unattached)
         {
             pos->X = pt[0];
             pos->Y = pt[1];
@@ -602,31 +607,27 @@ void CheckAmbience(short nSector)
     {
         short nSector2 = SectSoundSect[nSector];
         walltype* pWall = &wall[sector[nSector2].wallptr];
-        if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, nullptr, -1))
+        if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, &amb, -1))
         {
             vec3_t v = { pWall->x, pWall->y, sector[nSector2].floorz };
-            FVector3 vv = GetSoundPos(&v);
-            soundEngine->StartSound(SOURCE_Ambient, nullptr, &vv, CHAN_BODY, CHANF_NONE, SectSound[nSector], 1.f, ATTN_NORM);
+            amb = GetSoundPos(&v);
+            soundEngine->StartSound(SOURCE_Ambient, &amb, nullptr, CHAN_BODY, CHANF_NONE, SectSound[nSector] + 1, 1.f, ATTN_NORM);
             return;
         }
         soundEngine->EnumerateChannels([=](FSoundChan* chan)
             {
                 if (chan->SourceType == SOURCE_Ambient)
                 {
-                    FVector3 vv;
                     if (nSector == nSector2)
                     {
                         spritetype* pSprite = &sprite[PlayerList[0].nSprite];
-                        vv = GetSoundPos(&pSprite->pos);
+                        amb = GetSoundPos(&pSprite->pos);
                     }
                     else
                     {
                         vec3_t v = { pWall->x, pWall->y, sector[nSector2].floorz };
-                        vv = GetSoundPos(&v);
+                        amb = GetSoundPos(&v);
                     }
-                    chan->Point[0] = vv.X;
-                    chan->Point[1] = vv.Y;
-                    chan->Point[2] = vv.Z;
                     return 1;
                 }
                 return 0;
@@ -635,7 +636,7 @@ void CheckAmbience(short nSector)
     }
     else
     {
-        soundEngine->StopSound(SOURCE_Ambient, nullptr, -1);
+        soundEngine->StopSound(SOURCE_Ambient, &amb, -1);
     }
 }
 
@@ -666,7 +667,25 @@ void UpdateCreepySounds()
                 if (totalmoves & 2)
                     vax = -vax;
 
-                PlayFXAtXYZ(vsi, pSprite->x + vdx, pSprite->y + vax, pSprite->z, pSprite->sectnum);
+                vec3_t sp = { pSprite->x + vdx, pSprite->y + vax, pSprite->z };
+                creepy = GetSoundPos(&sp);
+
+                if ((vsi & 0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((vsi & 0x1ff) + 1))
+                {
+                    initprintf("PlayFX2: Invalid creepy sound nSound == %i, nSprite == %i\n", vsi);
+                    return;
+                }
+
+                int nVolume = 255;
+                short v10 = (vsi & 0xe00) >> 9;
+                vsi &= 0x1ff;
+
+                int nPitch = 0;
+                if (v10) nPitch = -(totalmoves & ((1 << v10) - 1)) * 16;
+
+                GetSpriteSoundPitch(&nVolume, &nPitch);
+                soundEngine->StopSound(SOURCE_Ambient, &creepy, CHAN_BODY);
+                soundEngine->StartSound(SOURCE_Ambient, &creepy, nullptr, CHAN_BODY, CHANF_NONE, vsi + 1, nVolume / 255.f, ATTN_NONE, nullptr, (11025 + nPitch) / 11025.f);
             }
         }
         nCreepyTimer = kCreepyCount;
