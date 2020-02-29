@@ -190,6 +190,9 @@ static void ServeSample(const char** ptr, uint32_t* length)
 
 void PlayMovie(const char* fileName)
 {
+    CurFrame = TileFiles.tileCreate(kMovieTile, 320, 200);
+    if (CurFrame == nullptr) return;
+
     int bDoFade = kTrue;
     int hFx = -1;
 	auto fp = fileSystem.OpenFileReader(fileName, 0);
@@ -198,10 +201,6 @@ void PlayMovie(const char* fileName)
 		Printf("Unable to open %s\n", fileName);
 		return;
 	}
-
-	tileLoad(kMovieTile);
-	CurFrame = TileFiles.tileMakeWritable(kMovieTile);
-
 
     fp.Read(lh, sizeof(lh));
 

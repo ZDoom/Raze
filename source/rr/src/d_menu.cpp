@@ -652,7 +652,7 @@ void GameInterface::MenuClosed()
 
 bool GameInterface::CanSave()
 {
-	if (ud.recstat == 2) return false;
+	if (ud.recstat == 2 || DEER) return false;
 	auto &myplayer = *g_player[myconnectindex].ps;
 	if (sprite[myplayer.i].extra <= 0)
 	{

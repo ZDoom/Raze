@@ -75,6 +75,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegamehelp.h"
 #include "c_dispatch.h"
 #include "s_soundinternal.h"
+#include "common/menu/menu.h"
 
 BEGIN_PS_NS
 
@@ -1835,6 +1836,7 @@ int GameInterface::app_main()
     int stopTitle = kFalse;
     levelnew = 1;
 
+    help_disabled = true;
     // Create the global level table. Parts of the engine need it, even though the game itself does not.
     for (int i = 0; i <= 32; i++)
     {

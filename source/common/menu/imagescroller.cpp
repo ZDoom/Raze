@@ -51,7 +51,11 @@
 
 void ImageScreen::Drawer()
 {
-	if (mDesc->type == 0)
+	if (mDesc == nullptr)
+	{
+		// don't let bogus definitions crash this.
+	}
+	else if (mDesc->type == 0)
 	{
 		auto tileindexp = NameToTileIndex.CheckKey(FName(mDesc->text, true));
 		int tileindex = 0;

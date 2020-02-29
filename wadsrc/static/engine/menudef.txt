@@ -469,7 +469,7 @@ ImageScroller "HelpMenu"
 			animatedtransition
 		}
 	}
-	ifgame(Redneck, RedneckRides)
+	ifgame(Redneck, RedneckRides, Deer)
 	{
 		ImageItem "TEXTSTORY"
 		ImageItem "F1HELP"
