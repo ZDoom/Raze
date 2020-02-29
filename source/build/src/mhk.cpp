@@ -54,6 +54,7 @@ int32_t engineLoadMHK(const char *filename)
         T_MDPOSITIONZOFF,
         T_AWAY1,
         T_AWAY2,
+        T_MHKRESET,
         T_LIGHT,
     };
 
@@ -87,6 +88,7 @@ int32_t engineLoadMHK(const char *filename)
         { "mdpositionzoff", T_MDPOSITIONZOFF },
         { "away1", T_AWAY1 },
         { "away2", T_AWAY2 },
+        { "mhkreset", T_MHKRESET },
         { "light", T_LIGHT },
         { NULL, -1 }
     };
@@ -322,6 +324,24 @@ int32_t engineLoadMHK(const char *filename)
             }
             spriteext[whichsprite].flags |= SPREXT_AWAY2;
             break;
+        case T_MHKRESET:   // mhkreset
+        {
+            if (whichsprite < 0)
+            {
+                // no sprite directive preceeding
+                initprintf("Ignoring mhkreset directive because of absent/invalid sprite number on line %s:%d\n",
+                    script->filename, scriptfile_getlinum(script, cmdtokptr));
+                break;
+            }
+            auto pSpriteExt = &spriteext[whichsprite];
+            pSpriteExt->angoff = 0;
+            pSpriteExt->flags &= ~(SPREXT_NOTMD|SPREXT_NOMDANIM|SPREXT_AWAY1|SPREXT_AWAY2);
+            pSpriteExt->pitch = 0;
+            pSpriteExt->roll = 0;
+            pSpriteExt->pivot_offset = {};
+            pSpriteExt->position_offset = {};
+            break;
+        }
 #ifdef POLYMER
         case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
         {
