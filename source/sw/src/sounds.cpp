@@ -795,6 +795,12 @@ int _PlayerSound(int num, PLAYERp pp)
     if (vp->priority != PRI_PLAYERVOICE && vp->priority != PRI_PLAYERDEATH)
         return 0;
 
+    // The surfacing sound should not block other player speech.
+    if (soundEngine->IsSourcePlayingSomething(SOURCE_Player, pp, CHAN_VOICE, DIGI_SURFACE))
+    {
+        soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE);
+    }
+
     // He wasn't talking, but he will be now.
     if (!soundEngine->IsSourcePlayingSomething(SOURCE_Player, pp, CHAN_VOICE))
     {
