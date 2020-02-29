@@ -275,6 +275,10 @@ public:
 	}
 	void EvictAllChannels();
 
+	// For handling special sound types. Source types None, Unattached and Actor never get here.
+	virtual int SoundSourceIndex(FSoundChan* chan) { return 0; }
+	virtual void SetSource(FSoundChan* chan, int index) {}
+
 	void StopChannel(FSoundChan* chan);
 	sfxinfo_t* LoadSound(sfxinfo_t* sfx);
 
@@ -451,3 +455,5 @@ inline int S_FindSound(const char* name)
 }
 
 int S_LookupSound(const char* fn);
+class FSerializer;
+void S_SerializeSounds(FSerializer& arc);

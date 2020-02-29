@@ -431,6 +431,23 @@ public:
         S_Rolloff.MinDistance = 0;            // These are the default values, SW uses a few different rolloff settings.
         S_Rolloff.MaxDistance = 1187;
     }
+
+    int SoundSourceIndex(FSoundChan* chan) override
+    {
+        if (chan->SourceType == SOURCE_Player) return int(PLAYERp(chan->Source) - Player);
+        return 0;
+    }
+
+    void SetSource(FSoundChan* chan, int index) override
+    {
+        if (chan->SourceType == SOURCE_Player)
+        {
+            if (index < 0 || index >= MAX_SW_PLAYERS_REG) index = 0;
+            chan->Source = &Player[index];
+        }
+        else chan->Source = nullptr;
+    }
+
 };
 
 //==========================================================================

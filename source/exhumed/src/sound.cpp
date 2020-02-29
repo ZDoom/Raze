@@ -258,7 +258,7 @@ void BendAmbientSound(void)
 {
     soundEngine->EnumerateChannels([](FSoundChan* chan)
         {
-            if (chan->SourceType == SOURCE_Ambient)
+            if (chan->SourceType == SOURCE_Ambient && chan->Source == &amb)
             {
                 soundEngine->SetPitch(chan, (nDronePitch + 11800) / 11025.f);
             }
@@ -346,7 +346,7 @@ void StartSwirly(int nActiveSound)
         nVolume = 220;
 
     soundEngine->StopSound(SOURCE_Swirly, &swirly, -1);
-    soundEngine->StartSound(SOURCE_Swirly, &swirly, nullptr, CHAN_BODY, 0, StaticSound[kSoundMana1]+1, nVolume / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
+    soundEngine->StartSound(SOURCE_Swirly, &swirly, nullptr, CHAN_BODY, CHANF_TRANSIENT, StaticSound[kSoundMana1]+1, nVolume / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
 }
 
 //==========================================================================
@@ -396,7 +396,7 @@ void SoundBigEntrance(void)
         short nPitch = i * 512 - 1200;
         //pASound->snd_pitch = nPitch;
         soundEngine->StopSound(SOURCE_EXBoss, &fakesources[i], -1);
-        soundEngine->StartSound(SOURCE_EXBoss, &fakesources[i], nullptr, CHAN_BODY, 0, StaticSound[kSoundTorchOn]+1, 200 / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
+        soundEngine->StartSound(SOURCE_EXBoss, &fakesources[i], nullptr, CHAN_BODY, CHANF_TRANSIENT, StaticSound[kSoundTorchOn]+1, 200 / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
     }
 }
 
@@ -611,7 +611,7 @@ void CheckAmbience(short nSector)
         {
             vec3_t v = { pWall->x, pWall->y, sector[nSector2].floorz };
             amb = GetSoundPos(&v);
-            soundEngine->StartSound(SOURCE_Ambient, &amb, nullptr, CHAN_BODY, CHANF_NONE, SectSound[nSector] + 1, 1.f, ATTN_NORM);
+            soundEngine->StartSound(SOURCE_Ambient, &amb, nullptr, CHAN_BODY, CHANF_TRANSIENT, SectSound[nSector] + 1, 1.f, ATTN_NORM);
             return;
         }
         soundEngine->EnumerateChannels([=](FSoundChan* chan)
@@ -685,7 +685,7 @@ void UpdateCreepySounds()
 
                 GetSpriteSoundPitch(&nVolume, &nPitch);
                 soundEngine->StopSound(SOURCE_Ambient, &creepy, CHAN_BODY);
-                soundEngine->StartSound(SOURCE_Ambient, &creepy, nullptr, CHAN_BODY, CHANF_NONE, vsi + 1, nVolume / 255.f, ATTN_NONE, nullptr, (11025 + nPitch) / 11025.f);
+                soundEngine->StartSound(SOURCE_Ambient, &creepy, nullptr, CHAN_BODY, CHANF_TRANSIENT, vsi + 1, nVolume / 255.f, ATTN_NONE, nullptr, (11025 + nPitch) / 11025.f);
             }
         }
         nCreepyTimer = kCreepyCount;

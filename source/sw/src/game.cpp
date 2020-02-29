@@ -1009,16 +1009,18 @@ void InitLevelGlobals2(void)
 void
 InitLevel(void)
 {
+    if (LoadGameOutsideMoveLoop)
+    {
+        InitLevelGlobals();
+        return;
+    }
+
     static int DemoNumber = 0;
 
     Terminate3DSounds();
 
     // A few IMPORTANT GLOBAL RESETS
     InitLevelGlobals();
-    if (LoadGameOutsideMoveLoop)
-    {
-        return;
-    }
 
     if (!DemoMode)
         Mus_Stop();

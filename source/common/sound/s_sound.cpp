@@ -44,6 +44,8 @@
 #include "filesystem.h"
 #include "cmdlib.h"
 #include "gamecontrol.h"
+#include "serializer.h"
+#include "build.h"
 
 
 enum
@@ -280,7 +282,7 @@ TArray<FSoundChan*> SoundEngine::AllActiveChannels()
 		// If the sound is forgettable, this is as good a time as
 		// any to forget about it. And if it's a UI sound, it shouldn't
 		// be stored in the savegame.
-		if (!(chan->ChanFlags & (CHANF_FORGETTABLE | CHANF_UI)))
+		if (!(chan->ChanFlags & (CHANF_FORGETTABLE | CHANF_UI | CHANF_TRANSIENT)))
 		{
 			chans.Push(chan);
 		}
@@ -1764,3 +1766,105 @@ int S_LookupSound(const char* fn)
 	}
 	return fileSystem.FindFile(fn);
 }
+
+//==========================================================================
+//
+// Although saving the sound system's state is supposed to be an engine
+// feature, the specifics cannot be set up there, this needs to be on the client side.
+//
+//==========================================================================
+
+static FSerializer& Serialize(FSerializer& arc, const char* key, FSoundChan& chan, FSoundChan* def)
+{
+	if (arc.BeginObject(key))
+	{
+		arc("sourcetype", chan.SourceType)
+			("soundid", chan.SoundID)
+			("orgid", chan.OrgID)
+			("volume", chan.Volume)
+			("distancescale", chan.DistanceScale)
+			("pitch", chan.Pitch)
+			("chanflags", chan.ChanFlags)
+			("entchannel", chan.EntChannel)
+			("priority", chan.Priority)
+			("nearlimit", chan.NearLimit)
+			("starttime", chan.StartTime)
+			("rolloftype", chan.Rolloff.RolloffType)
+			("rolloffmin", chan.Rolloff.MinDistance)
+			("rolloffmax", chan.Rolloff.MaxDistance)
+			("limitrange", chan.LimitRange)
+			.Array("point", chan.Point, 3);
+
+		int SourceIndex = 0;
+		if (arc.isWriting())
+		{
+			if (chan.SourceType == SOURCE_Actor) SourceIndex = int((spritetype*)(chan.Source) - sprite);
+			else SourceIndex = soundEngine->SoundSourceIndex(&chan);
+		}
+		arc("Source", SourceIndex);
+		if (arc.isReading())
+		{
+			if (chan.SourceType == SOURCE_Actor) chan.Source = &sprite[SourceIndex];
+			else soundEngine->SetSource(&chan, SourceIndex);
+		}
+		arc.EndObject();
+	}
+	return arc;
+}
+
+//==========================================================================
+//
+// S_SerializeSounds
+//
+//==========================================================================
+
+void S_SerializeSounds(FSerializer& arc)
+{
+	FSoundChan* chan;
+
+	GSnd->Sync(true);
+
+	if (arc.isWriting())
+	{
+		// Count channels and accumulate them so we can store them in
+		// reverse order. That way, they will be in the same order when
+		// reloaded later as they are now.
+		TArray<FSoundChan*> chans = soundEngine->AllActiveChannels();
+
+		if (chans.Size() > 0 && arc.BeginArray("sounds"))
+		{
+			for (unsigned int i = chans.Size(); i-- != 0; )
+			{
+				// Replace start time with sample position.
+				uint64_t start = chans[i]->StartTime;
+				chans[i]->StartTime = GSnd ? GSnd->GetPosition(chans[i]) : 0;
+				arc(nullptr, *chans[i]);
+				chans[i]->StartTime = start;
+			}
+			arc.EndArray();
+		}
+	}
+	else
+	{
+		unsigned int count;
+
+		soundEngine->StopAllChannels();
+		if (arc.BeginArray("sounds"))
+		{
+			count = arc.ArraySize();
+			for (unsigned int i = 0; i < count; ++i)
+			{
+				chan = (FSoundChan*)soundEngine->GetChannel(nullptr);
+				arc(nullptr, *chan);
+				// Sounds always start out evicted when restored from a save.
+				chan->ChanFlags |= CHANF_EVICTED | CHANF_ABSTIME;
+			}
+			arc.EndArray();
+		}
+		// totalclock runs on 120 fps, we need to allow a small delay here.
+		soundEngine->SetRestartTime((int)totalclock + 6);
+	}
+	GSnd->Sync(false);
+	GSnd->UpdateSounds();
+}
+

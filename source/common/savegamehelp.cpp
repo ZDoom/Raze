@@ -50,6 +50,7 @@
 #include "serializer.h"
 #include "version.h"
 #include "z_music.h"
+#include "s_soundinternal.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -70,6 +71,7 @@ static void SerializeSession(FSerializer& arc)
 	SECRET_Serialize(arc);
 	Mus_Serialize(arc);
 	quoteMgr.Serialize(arc);
+	S_SerializeSounds(arc);
 }
 
 //=============================================================================
