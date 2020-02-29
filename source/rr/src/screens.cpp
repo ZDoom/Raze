@@ -897,7 +897,7 @@ void G_DisplayRest(int32_t smoothratio)
         menutext_(160<<16, (90+16+8)<<16, -g_levelTextTime+22/*quotepulseshade*/, currentLevel->DisplayName(), o, TEXT_XCENTER);
     }
 
-    if (!DEER && g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
+    if (!DEER && g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         int32_t a = CROSSHAIR;
         if ((unsigned) a < MAXTILES)
