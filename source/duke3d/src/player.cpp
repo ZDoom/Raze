@@ -3014,9 +3014,10 @@ void P_GetInput(int const playerNum)
     input.q16avel = fix16_clamp(input.q16avel, F16(-MAXANGVEL), F16(MAXANGVEL));
     input.q16horz = fix16_clamp(input.q16horz, F16(-MAXHORIZ), F16(MAXHORIZ));
 
-    int weaponSelection;
+    // Ion Fury does not use the tenth slot and misbehaves if it gets selected.
+    int weaponSelection = FURY? gamefunc_Weapon_9 : gamefunc_Weapon_10;
 
-    for (weaponSelection = gamefunc_Weapon_10; weaponSelection >= gamefunc_Weapon_1; --weaponSelection)
+    for (; weaponSelection >= gamefunc_Weapon_1; --weaponSelection)
     {
         if (buttonMap.ButtonDown(weaponSelection))
         {
