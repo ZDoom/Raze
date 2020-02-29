@@ -271,7 +271,7 @@ void InitAmbient(int num, SPRITEp sp)
     amb->ChanFlags = CHANF_TRANSIENT;
     if (ambarray[num].ambient_flags & v3df_dontpan) amb->ChanFlags |= EChanFlags::FromInt(CHANEXF_DONTPAN);
     if (voc[vnum].voc_flags & vf_loop) amb->ChanFlags |= CHANF_LOOP; 
-    amb->maxIndex = ambarray[num].maxtics * 8;
+    amb->maxIndex = ambarray[num].maxtics;
     amb->curIndex = 0;
     amb->intermit = !!(ambarray[num].ambient_flags & v3df_intermit);
     ambients.Push(amb);
@@ -310,6 +310,7 @@ static void RestartAmbient(AmbientSound* amb)
     int pitch = 0;
     if (vp.pitch_hi <= vp.pitch_lo) pitch = vp.pitch_lo;
     else pitch = vp.pitch_lo + (STD_RANDOM_RANGE(vp.pitch_hi - vp.pitch_lo));
+    amb->curIndex = (int)totalclock;
 
     if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, amb, CHAN_BODY, amb->vocIndex))
         soundEngine->StartSound(SOURCE_Ambient, amb, nullptr, CHAN_BODY, EChanFlags::FromInt(amb->ChanFlags), amb->vocIndex, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
@@ -323,7 +324,7 @@ static void RestartAmbient(AmbientSound* amb)
 static int RandomizeAmbientSpecials(int handle)
 {
 #define MAXRNDAMB 12
-    int ambrand[] =
+    static int ambrand[] =
     {
         56,57,58,59,60,61,62,63,64,65,66,67
     };
@@ -332,7 +333,7 @@ static int RandomizeAmbientSpecials(int handle)
     // If ambient sound is found in the array, randomly pick a new sound
     for (i = 0; i < MAXRNDAMB; i++)
     {
-        if (handle == ambarray[ambrand[i]].diginame)
+        if (handle == ambrand[i])
             return ambrand[STD_RANDOM_RANGE(MAXRNDAMB - 1)];
     }
 
@@ -348,19 +349,15 @@ static int RandomizeAmbientSpecials(int handle)
 
 static void DoTimedSound(AmbientSound* amb)
 {
-    amb->curIndex += synctics;
-    if (amb->curIndex >= amb->maxIndex)
+    if ((int)totalclock >=  amb->curIndex + amb->maxIndex)
     {
-        if (soundEngine->EnumerateChannels([=](FSoundChan* tchan)
-            {
-                return (tchan->Source == amb && !(tchan->ChanFlags & CHANF_FORGETTABLE));
-            }))
+        if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, amb, CHAN_BODY))
         {
             // Check for special case ambient sounds. Since the sound is stopped and doesn't occupy a real channel at this time we can just swap out the sound ID before restarting it.
-            int ambid = RandomizeAmbientSpecials(amb->vocIndex);
+            int ambid = RandomizeAmbientSpecials(amb->ambIndex);
             if (ambid != -1)
             {
-                amb->vocIndex = ambid;
+                amb->vocIndex = ambarray[ambid].diginame;
                 amb->maxIndex = STD_RANDOM_RANGE(ambarray[ambid].maxtics);
             }
             RestartAmbient(amb);
