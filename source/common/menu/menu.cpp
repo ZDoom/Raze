@@ -838,8 +838,18 @@ bool M_DoResponder (event_t *ev)
 
 bool M_Responder(event_t* ev)
 {
+	bool res = false;
 	// delayed deletion, so that self-deleting menus don't crash if they are getting accessed after being closed.
-	auto res = M_DoResponder(ev);
+	try
+	{
+		res = M_DoResponder(ev);
+	}
+	catch (...)
+	{
+		for (auto p : toDelete) delete p;
+		toDelete.Clear();
+		throw;
+	}
 	for (auto p : toDelete) delete p;
 	toDelete.Clear();
 	return res;

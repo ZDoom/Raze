@@ -42,11 +42,9 @@ int handle1;
 
 
 int MenuExitCondition;
-int MenuStartCondition;
 
 int menu_Menu(int nVal)
 {
-	MenuStartCondition = nVal;
 	MenuExitCondition = -2;
 	M_StartControlPanel(false);
 	M_SetMenu(NAME_MainMenu);
@@ -70,7 +68,9 @@ int menu_Menu(int nVal)
 		videoNextPage();
 
 	}
-	return MenuExitCondition;
+	int me = MenuExitCondition;
+	MenuExitCondition = -2;
+	return me;
 }
 
 
@@ -107,7 +107,13 @@ class PSMainMenu : public DListMenu
 
 	void PreDraw() override
 	{
-		menu_DoPlasma();
+		if (mDesc->mMenuName == NAME_MainMenu)
+			menu_DoPlasma();
+		else
+		{
+			auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
+			overwritesprite(160, 40, nLogoTile, 32, 3, kPalNormal);
+		}
 	}
 };
 

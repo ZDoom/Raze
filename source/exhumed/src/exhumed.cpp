@@ -822,9 +822,12 @@ void timerhandler()
     }
 }
 
+extern int MenuExitCondition;
 void HandleAsync()
 {
+    MenuExitCondition = -2;
     handleevents();
+
 }
 
 int MyGetStringWidth(const char *str)
@@ -2357,12 +2360,12 @@ GAMELOOP:
         }
         if (!bInDemo)
         {
-            if (inputState.GetKeyStatus(sc_Escape))
+            nMenu = MenuExitCondition;
+            if (nMenu != -2)
             {
-				inputState.ClearKeyStatus(sc_Escape);
+                MenuExitCondition = -2;
 // MENU2:
                 bInMove = kTrue;
-                nMenu = menu_Menu(1);
 
                 switch (nMenu)
                 {
@@ -2379,6 +2382,7 @@ GAMELOOP:
                         goto LOOP2;
 
                     case 3:
+                        forcelevel = 0;
                         goto STARTGAME2;
                     case 6:
                         goto GAMELOOP;
