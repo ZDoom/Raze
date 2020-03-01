@@ -563,7 +563,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
 
 
-        if ((chanflags & CHANF_LISTENERZ) && campos != nullptr && type != SOURCE_None)
+        if ((chanflags & CHANF_LISTENERZ) && type != SOURCE_None)
         {
             pos->Y = campos.Y;
         }

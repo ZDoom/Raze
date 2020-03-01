@@ -312,6 +312,8 @@ struct TVector3
 	{
 	}
 
+	TVector3(nullptr_t) = delete;
+
 	TVector3(const TVector3 &other) = default;
 
 	TVector3 (const Vector2 &xy, vec_t z)
