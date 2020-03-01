@@ -678,9 +678,9 @@ static bool CheckAddon(GrpInfo* addon, GrpInfo* main, const char* filename)
 		FString check = path + fn;
 		if (FileExists(check)) continue;
 #if !defined _WIN32 
-		check = check.MakeLower();
+		check = path + fn.MakeLower();
 		if (FileExists(check)) continue;
-		check = check.MakeUpper();
+		check = path + fn.MakeUpper();
 		if (FileExists(check)) continue;
 #endif
 		return false;
