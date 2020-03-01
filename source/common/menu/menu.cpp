@@ -488,7 +488,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	{
 	case NAME_StartGame:
 		M_ClearMenus();	// must be done before starting the level.
-		if (caller == NAME_MainMenu) GameStartupInfo.Episode = param;
+		if (caller == NAME_MainMenu || caller == NAME_IngameMenu) GameStartupInfo.Episode = param;
 		STAT_StartNewGame(gVolumeNames[GameStartupInfo.Episode], GameStartupInfo.Skill);
 		inputState.ClearAllInput();
 
