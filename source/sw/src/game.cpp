@@ -111,6 +111,7 @@ signed char MNU_InputSmallString(char*, short);
 signed char MNU_InputString(char*, short);
 SWBOOL IsCommand(const char* str);
 SWBOOL MNU_StartNetGame(void);
+extern SWBOOL mapcheat;
 
 extern SWBOOL MultiPlayQuitFlag;
 
@@ -3558,10 +3559,13 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
             if ((unsigned)k >= MAXWALLS)
                 continue;
 
-            if ((show2dwall[j >> 3] & (1 << (j & 7))) == 0)
-                continue;
-            if ((k > j) && ((show2dwall[k >> 3] & (1 << (k & 7))) > 0))
-                continue;
+            if (!mapcheat)
+            {
+                if ((show2dwall[j >> 3] & (1 << (j & 7))) == 0)
+                    continue;
+                if ((k > j) && ((show2dwall[k >> 3] & (1 << (k & 7))) > 0))
+                    continue;
+            }
 
             if (sector[wal->nextsector].ceilingz == z1)
                 if (sector[wal->nextsector].floorz == z2)
@@ -3616,7 +3620,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
                     goto SHOWSPRITE;
                 }
             }
-            if ((show2dsprite[j >> 3] & (1 << (j & 7))) > 0)
+            if (mapcheat || (show2dsprite[j >> 3] & (1 << (j & 7))) > 0)
             {
 SHOWSPRITE:
                 spr = &sprite[j];
@@ -3811,7 +3815,7 @@ SHOWSPRITE:
             if ((uint16_t)wal->nextwall < MAXWALLS)
                 continue;
 
-            if ((show2dwall[j >> 3] & (1 << (j & 7))) == 0)
+            if (!mapcheat && (show2dwall[j >> 3] & (1 << (j & 7))) == 0)
                 continue;
 
             if (tilesiz[wal->picnum].x == 0)

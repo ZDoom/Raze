@@ -52,6 +52,7 @@ BEGIN_SW_NS
 SWBOOL CheatInputMode = FALSE;
 SWBOOL EveryCheat = FALSE;
 SWBOOL ResCheat = FALSE;
+SWBOOL mapcheat = false;
 
 const char *CheatKeyType;
 void KeysCheat(PLAYERp pp, const char *cheat_string);
@@ -96,8 +97,9 @@ void PrevCheat(PLAYERp pp, const char *)
 
 void MapCheat(PLAYERp pp, const char *)
 {
+    mapcheat = !mapcheat;
     // Need to do this differently. The code here was completely broken.
-    PutStringInfo(pp, GStrings(automapping ? "TXT_AMON" : "TXT_AMOFF"));
+    PutStringInfo(pp, GStrings(mapcheat ? "TXT_AMON" : "TXT_AMOFF"));
 }
 
 void LocCheat(PLAYERp pp, const char *)
