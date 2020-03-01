@@ -2148,7 +2148,9 @@ void trInit(void)
             case kModernRandom:
             case kModernRandom2:
                 if (!gModernMap || pXSprite->state == pXSprite->restState) break;
-                else evPost(i, 3, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
+                evPost(i, 3, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
+                if (pXSprite->waitTime > 0)
+                    evPost(i, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
                 break;
             case kModernSeqSpawner:
             case kModernObjDataAccumulator:
@@ -2156,7 +2158,9 @@ void trInit(void)
             case kModernEffectSpawner:
             case kModernWindGenerator:
                 if (pXSprite->state == pXSprite->restState) break;
-                else evPost(i, 3, 0, kCmdRepeat);
+                evPost(i, 3, 0, kCmdRepeat);
+                if (pXSprite->waitTime > 0)
+                    evPost(i, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
                 break;
             #endif
             case kGenTrigger:

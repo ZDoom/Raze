@@ -179,9 +179,9 @@ GENDUDEEXTRA* genDudeExtra(spritetype* pGenDude) {
 }
 
 void genDudeUpdate(spritetype* pSprite) {
+    GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
     for (int i = 0; i < kGenDudePropertyMax; i++) {
-        if (gGenDudeExtra[pSprite->index].updReq[i])
-            genDudePrepare(pSprite, i);
+        if (pExtra->updReq[i]) genDudePrepare(pSprite, i);
     }
 }
 
@@ -1273,83 +1273,82 @@ void scaleDamage(XSPRITE* pXSprite) {
 
     short curWeapon = gGenDudeExtra[sprite[pXSprite->reference].index].curWeapon;
     short weaponType = gGenDudeExtra[sprite[pXSprite->reference].index].weaponType;
-    unsigned short* curScale = gGenDudeExtra[sprite[pXSprite->reference].index].dmgControl;
+    signed short* curScale = gGenDudeExtra[sprite[pXSprite->reference].index].dmgControl;
     for (int i = 0; i < kDmgMax; i++)
         curScale[i] = getDudeInfo(kDudeModernCustom)->startDamage[i];
 
-    // all enemies with vector weapons gets extra resistance to bullet damage
-    if (weaponType == kGenDudeWeaponHitscan) {
-        
-        curScale[kDmgBullet] -= 10;
-
-    // just copy damage resistance of dude that should be summoned
-    } else if (weaponType == kGenDudeWeaponSummon) {
-        
-        for (int i = 0; i < kDmgMax; i++)
-            curScale[i] = getDudeInfo(curWeapon)->startDamage[i];
-
-    // these does not like the explosions and burning
-    } else if (weaponType == kGenDudeWeaponKamikaze) {
-
-        curScale[kDmgBurn] = curScale[kDmgExplode] = 512;
-
-    } else if (weaponType == kGenDudeWeaponMissile || weaponType == kGenDudeWeaponThrow) {
-
-        switch (curWeapon) {
-            case kMissileButcherKnife:
-                curScale[kDmgBullet] = 100;
-                fallthrough__;
-            case kMissileEctoSkull:
-                curScale[kDmgSpirit] = 32;
-                break;
-            case kMissileLifeLeechAltNormal:
-            case kMissileLifeLeechAltSmall:
-            case kMissileArcGargoyle:
-                curScale[kDmgSpirit] = 32;
-                curScale[kDmgElectric] = 52;
-                break;
-            case kMissileFlareRegular:
-            case kMissileFlareAlt:
-            case kMissileFlameSpray:
-            case kMissileFlameHound:
-            case kThingArmedSpray:
-            case kThingPodFireBall:
-            case kThingNapalmBall:
-                curScale[kDmgBurn] = 32;
-                curScale[kDmgExplode] -= 20;
-                break;
-            case kMissileLifeLeechRegular:
-            case kThingDroppedLifeLeech:
-            case kModernThingEnemyLifeLeech:
-                curScale[kDmgSpirit] = 32 + Random(18);
-                curScale[kDmgBurn] = 60 + Random(4);
-                for (int i = 2; i < kDmgMax; i++) {
-                    if (Chance(0x1000) && i != kDmgSpirit)
-                        curScale[i] = 48 + Random(32);
-                }
-                break;
-            case kMissileFireball:
-            case kMissileFireballNapam:
-            case kMissileFireballCerberus:
-            case kMissileFireballTchernobog:
-                curScale[kDmgBurn] = 50;
-                curScale[kDmgExplode] = 32;
-                curScale[kDmgFall] = 65 + Random(15);
-                break;
-            case kThingTNTBarrel:
-            case kThingArmedProxBomb:
-            case kThingArmedRemoteBomb:
-            case kThingArmedTNTBundle:
-            case kThingArmedTNTStick:
-            case kModernThingTNTProx:
-                curScale[kDmgExplode] = 32;
-                curScale[kDmgFall] = 65 + Random(15);
-                break;
-            case kMissileTeslaAlt:
-            case kMissileTeslaRegular:
-                curScale[kDmgElectric] = 32 + Random(8);
-                break;
-        }
+    switch (weaponType) {
+        // all enemies with vector weapons gets extra resistance to bullet damage
+        case kGenDudeWeaponHitscan:
+            curScale[kDmgBullet] -= 10;
+            break;
+        // just copy damage resistance of dude that should be summoned
+        case kGenDudeWeaponSummon:
+            for (int i = 0; i < kDmgMax; i++)
+                curScale[i] = getDudeInfo(curWeapon)->startDamage[i];
+            break;
+        // these does not like the explosions and burning
+        case kGenDudeWeaponKamikaze:
+            curScale[kDmgBurn] = curScale[kDmgExplode] = curScale[kDmgElectric] = 1024;
+            break;
+        case kGenDudeWeaponMissile:
+        case kGenDudeWeaponThrow:
+            switch (curWeapon) {
+                case kMissileButcherKnife:
+                    curScale[kDmgBullet] = 100;
+                    fallthrough__;
+                case kMissileEctoSkull:
+                    curScale[kDmgSpirit] = 32;
+                    break;
+                case kMissileLifeLeechAltNormal:
+                case kMissileLifeLeechAltSmall:
+                case kMissileArcGargoyle:
+                    curScale[kDmgSpirit] = 32;
+                    curScale[kDmgElectric] = 52;
+                    break;
+                case kMissileFlareRegular:
+                case kMissileFlareAlt:
+                case kMissileFlameSpray:
+                case kMissileFlameHound:
+                case kThingArmedSpray:
+                case kThingPodFireBall:
+                case kThingNapalmBall:
+                    curScale[kDmgBurn] = 32;
+                    curScale[kDmgExplode] -= 20;
+                    break;
+                case kMissileLifeLeechRegular:
+                case kThingDroppedLifeLeech:
+                case kModernThingEnemyLifeLeech:
+                    curScale[kDmgSpirit] = 32 + Random(18);
+                    curScale[kDmgBurn] = 60 + Random(4);
+                    for (int i = 2; i < kDmgMax; i++) {
+                        if (Chance(0x1000) && i != kDmgSpirit)
+                            curScale[i] = 48 + Random(32);
+                    }
+                    break;
+                case kMissileFireball:
+                case kMissileFireballNapam:
+                case kMissileFireballCerberus:
+                case kMissileFireballTchernobog:
+                    curScale[kDmgBurn] = 50;
+                    curScale[kDmgExplode] = 32;
+                    curScale[kDmgFall] = 65 + Random(15);
+                    break;
+                case kThingTNTBarrel:
+                case kThingArmedProxBomb:
+                case kThingArmedRemoteBomb:
+                case kThingArmedTNTBundle:
+                case kThingArmedTNTStick:
+                case kModernThingTNTProx:
+                    curScale[kDmgExplode] = 32;
+                    curScale[kDmgFall] = 65 + Random(15);
+                    break;
+                case kMissileTeslaAlt:
+                case kMissileTeslaRegular:
+                    curScale[kDmgElectric] = 32 + Random(8);
+                    break;
+            }
+            break;
 
     }
 
@@ -1395,7 +1394,6 @@ void scaleDamage(XSPRITE* pXSprite) {
 
     // take surface type into account
     int surfType = tileGetSurfType(sprite[pXSprite->reference].index + 0xc000);
-    //int surfType = 4;
     switch (surfType) {
         case 1:  // stone
             curScale[kDmgFall] = 0;
@@ -1944,11 +1942,11 @@ int genDudeSeqStartId(XSPRITE* pXSprite) {
 }
 
 bool genDudePrepare(spritetype* pSprite, int propId) {
-    if (!(pSprite->index >= 0 && pSprite->index < kMaxSprites)) {
-        consoleSysMsg("pSprite->index >= 0 && pSprite->index < kMaxSprites");
+    if (!spriRangeIsFine(pSprite->index)) {
+        consoleSysMsg("!spriRangeIsFine(pSprite->index)");
         return false;
-    } else if (!(pSprite->extra >= 0 && pSprite->extra < kMaxXSprites)) {
-        consoleSysMsg("pSprite->extra >= 0 && pSprite->extra < kMaxXSprites");
+    } else if (!xspriRangeIsFine(pSprite->extra)) {
+        consoleSysMsg("!xspriRangeIsFine(pSprite->extra)");
         return false;
     } else if (pSprite->type != kDudeModernCustom) {
         consoleSysMsg("pSprite->type != kDudeModernCustom");
@@ -1974,8 +1972,8 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
         case kGenDudePropertyWeapon: {
             pExtra->curWeapon = pXSprite->data1;
             switch (pXSprite->data1) {
-                case 19: pExtra->curWeapon = 2; break;
-                case 310: pExtra->curWeapon = kMissileArcGargoyle; break;
+                case VECTOR_TYPE_19: pExtra->curWeapon = VECTOR_TYPE_2; break;
+                case kMissileUnused: pExtra->curWeapon = kMissileArcGargoyle; break;
                 case kThingDroppedLifeLeech: pExtra->curWeapon = kModernThingEnemyLifeLeech; break;
             }
 

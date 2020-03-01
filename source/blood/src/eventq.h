@@ -124,6 +124,10 @@ inline bool playerRXRngIsFine(int rx) {
     return (rx >= kChannelPlayer0 && rx < kChannelPlayer7);
 }
 
+inline bool channelRangeIsFine(int channel) {
+    return (channel >= kChannelUser && channel < kChannelUserMax);
+}
+
 struct EVENT {
     unsigned int index:     14; // index
     unsigned int type:      3; // type

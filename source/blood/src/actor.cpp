@@ -2461,11 +2461,13 @@ const int DudeDifficulty[5] = {
 void actInit(bool bSaveLoad) {
     
     #ifdef NOONE_EXTENSIONS
-        if (!gModernMap) initprintf("> This map *does not* provides modern features.\n");
-                        else {
-            initprintf("> This map provides modern features.\n");
+    if (!gModernMap) {
+        //initprintf("> This map *does not* provides modern features.\n");
+        nnExtResetGlobals();
+    } else {
+            //initprintf("> This map provides modern features.\n");
             nnExtInitModernStuff(bSaveLoad);
-                        }
+    }
     #endif
     
     for (int nSprite = headspritestat[kStatItem]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
@@ -3979,6 +3981,11 @@ void actImpactMissile(spritetype *pMissile, int hitCode)
             }
             break;
     }
+    
+    #ifdef NOONE_EXTENSIONS
+    if (gModernMap && pXSpriteHit && pXSpriteHit->state != pXSpriteHit->restState && pXSpriteHit->Impact)
+        trTriggerSprite(nSpriteHit, pXSpriteHit, kCmdSpriteImpact);
+    #endif
     pMissile->cstat &= ~257;
 }
 
@@ -5768,21 +5775,6 @@ void actProcessSprites(void)
             }
         }
         
-        #ifdef NOONE_EXTENSIONS
-        // add impulse for sprites from physics list
-        if (gPhysSpritesCount > 0 && pExplodeInfo->dmgType != 0 && pXSprite->data1 != 0) {
-            for (int i = 0; i < gPhysSpritesCount; i++) {
-                if (gPhysSpritesList[i] == -1) continue;
-
-                else if (sprite[gPhysSpritesList[i]].sectnum < 0 || (sprite[gPhysSpritesList[i]].flags & kHitagFree) != 0)
-                    continue;
-
-                spritetype* pDebris = &sprite[gPhysSpritesList[i]];
-                if (!TestBitString(v24c, pDebris->sectnum) || !CheckProximity(pDebris, x, y, z, nSector, radius)) continue;
-                else debrisConcuss(nOwner, i, x, y, z, pExplodeInfo->dmgType);
-            }
-        }
-        #endif
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {
             spritetype *pSprite2 = gPlayer[p].pSprite;
@@ -5793,7 +5785,40 @@ void actProcessSprites(void)
             int t = divscale16(pXSprite->data2, nDist);
             gPlayer[p].flickerEffect += t;
         }
+
         #ifdef NOONE_EXTENSIONS
+        if (pXSprite->data1 != 0) {
+            
+        // add impulse for sprites from physics list
+            if (gPhysSpritesCount > 0 && pExplodeInfo->dmgType != 0) {
+            for (int i = 0; i < gPhysSpritesCount; i++) {
+                if (gPhysSpritesList[i] == -1) continue;
+                else if (sprite[gPhysSpritesList[i]].sectnum < 0 || (sprite[gPhysSpritesList[i]].flags & kHitagFree) != 0)
+                    continue;
+
+                spritetype* pDebris = &sprite[gPhysSpritesList[i]];
+                if (!TestBitString(v24c, pDebris->sectnum) || !CheckProximity(pDebris, x, y, z, nSector, radius)) continue;
+                else debrisConcuss(nOwner, i, x, y, z, pExplodeInfo->dmgType);
+            }
+        }
+
+            // trigger sprites from impact list
+            if (gImpactSpritesCount > 0) {
+                for (int i = 0; i < gImpactSpritesCount; i++) {
+                    if (gImpactSpritesList[i] == -1) continue;
+                    else if (sprite[gImpactSpritesList[i]].sectnum < 0 || (sprite[gImpactSpritesList[i]].flags & kHitagFree) != 0)
+                        continue;
+
+                    spritetype* pImpact = &sprite[gImpactSpritesList[i]]; XSPRITE* pXImpact = &xsprite[pImpact->extra];
+                    if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(v24c, pImpact->sectnum) || !CheckProximity(pImpact, x, y, z, nSector, radius))
+                        continue;
+                    
+                    trTriggerSprite(pImpact->index, pXImpact, kCmdSpriteImpact);
+        }
+            }
+
+        }
+        
         if (!gModernMap || !(pSprite->flags & kModernTypeFlag1)) {
             // if data4 > 0, do not remove explosion. This can be useful when designer wants put explosion generator in map manually
 	    // via sprite statnum 2.
