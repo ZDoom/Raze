@@ -124,10 +124,6 @@ enum rendmode_t {
 #  define YAX_NEXTWALLBIT(Cf) (1<<(10+Cf))
 #  define YAX_NEXTWALLBITS (YAX_NEXTWALLBIT(0)|YAX_NEXTWALLBIT(1))
 
-
-int32_t get_alwaysshowgray(void);  // editor only
-void yax_updategrays(int32_t posze);
-
 #ifdef YAX_ENABLE
 
    // More user tag hijacking: lotag/extra. :/
@@ -174,13 +170,9 @@ static FORCE_INLINE CONSTEXPR int32_t yax_waltosecmask(int32_t const walclipmask
 void yax_preparedrawrooms(void);
 void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_t),
                    int16_t sectnum, int32_t didmirror, int32_t smoothr);
-# define YAX_SKIPSECTOR(i) if (graysectbitmap[(i)>>3]&pow2char[(i)&7]) continue
-# define YAX_SKIPWALL(i) if (graywallbitmap[(i)>>3]&pow2char[(i)&7]) continue
 #else
 # define yax_preparedrawrooms()
 # define yax_drawrooms(SpriteAnimFunc, sectnum, didmirror, smoothr)
-# define YAX_SKIPSECTOR(i) (i)=(i)
-# define YAX_SKIPWALL(i) (i)=(i)
 #endif
 
 #define CLIPMASK0 (((1L)<<16)+1L)

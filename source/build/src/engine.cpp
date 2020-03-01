@@ -230,11 +230,6 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
 
 ////////// YAX //////////
 
-int32_t numgraysects = 0;
-uint8_t graysectbitmap[(MAXSECTORS+7)>>3];
-uint8_t graywallbitmap[(MAXWALLS+7)>>3];
-int32_t autogray = 0, showinnergray = 1;
-
 #ifdef YAX_DEBUG
 // XXX: This could be replaced with the use of gethiticks().
 double u64tickspersec;
@@ -247,66 +242,6 @@ void faketimerhandler()
 {
 }
 
-int32_t get_alwaysshowgray(void)
-{
-    return showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT32_MAX);
-}
-
-void yax_updategrays(int32_t posze)
-{
-    int32_t i, j;
-#ifdef YAX_ENABLE
-    int32_t mingoodz=INT32_MAX, maxgoodz=INT32_MIN;
-#else
-    UNREFERENCED_PARAMETER(posze);
-#endif
-
-    Bmemset(graysectbitmap, 0, sizeof(graysectbitmap));
-    Bmemset(graywallbitmap, 0, sizeof(graywallbitmap));
-
-    for (i=0; i<numsectors; i++)
-    {
-#ifdef YAX_ENABLE
-        int16_t cb, fb;
-        yax_getbunches(i, &cb, &fb);
-
-        // Update grayouts due to TROR, has to be --v--       half-open      --v--
-        // because only one level should ever be    v                          v
-        // active.                                  v                          v
-        int32_t keep = ((cb<0 || sector[i].ceilingz < posze) && (fb<0 || posze <= sector[i].floorz));
-        if (autogray && (cb>=0 || fb>=0) && (sector[i].ceilingz <= posze && posze <= sector[i].floorz))
-        {
-            mingoodz = min(mingoodz, TrackerCast(sector[i].ceilingz));
-            maxgoodz = max(maxgoodz, TrackerCast(sector[i].floorz));
-        }
-#endif
-        // update grayouts due to editorzrange
-        keep &= (sector[i].ceilingz >= editorzrange[0] && sector[i].floorz <= editorzrange[1]);
-
-        if (!keep)  // outside bounds, gray out!
-            graysectbitmap[i>>3] |= pow2char[i&7];
-    }
-
-#ifdef YAX_ENABLE
-    if (autogray && mingoodz<=maxgoodz)
-    {
-        for (i=0; i<numsectors; i++)
-            if (!(mingoodz <= sector[i].ceilingz && sector[i].floorz <= maxgoodz))
-                graysectbitmap[i>>3] |= pow2char[i&7];
-    }
-#endif
-
-    numgraysects = 0;
-    for (i=0; i<numsectors; i++)
-    {
-        if (graysectbitmap[i>>3]&pow2char[i&7])
-        {
-            numgraysects++;
-            for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
-                graywallbitmap[j>>3] |= pow2char[j&7];
-        }
-    }
-}
 
 
 #if !defined YAX_ENABLE
@@ -1211,8 +1146,6 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
     {
         if (j == sectnum)
             continue;
-
-        YAX_SKIPSECTOR(j);
 
         startwall = sector[j].wallptr;
         endwall = startwall + sector[j].wallnum;
@@ -8486,8 +8419,6 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
     g_loadedMapVersion = mapversion;
 #ifdef YAX_ENABLE
     yax_update(mapversion<9);
-    if (editstatus)
-        yax_updategrays(dapos->z);
 #endif
 
     if ((myflags&8)==0)
