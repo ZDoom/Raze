@@ -396,7 +396,7 @@ bool levelTryPlayMusic(int nEpisode, int nLevel, bool bSetLevelSong)
 void levelTryPlayMusicOrNothing(int nEpisode, int nLevel)
 {
     if (!levelTryPlayMusic(nEpisode, nLevel, true))
-        Mus_Stop();
+        Mus_Play("", "", true);
 }
 
 class LevelsLoadSave : public LoadSave
