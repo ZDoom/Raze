@@ -104,8 +104,8 @@ int ReadFrame(FileReader &fp)
 
                 if (lSoundBytesRead - lSoundBytesUsed >= kSampleRate)
                 {
-                    DebugOut("SOUND BUF FULL!\n");
-                fp.Seek(nSize, FileReader::SeekCur);
+                    //DebugOut("ReadFrame() - Sound buffer full\n");
+                    fp.Seek(nSize, FileReader::SeekCur);
                 }
                 else
                 {
@@ -130,7 +130,7 @@ int ReadFrame(FileReader &fp)
             }
             case kFrameImage:
             {
-                Printf("Reading image block size %d...\n", nSize);
+                //Printf("Reading image block size %d...\n", nSize);
                 if (nSize == 0) {
                     continue;
                 }
