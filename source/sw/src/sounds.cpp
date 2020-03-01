@@ -432,6 +432,7 @@ public:
     int SoundSourceIndex(FSoundChan* chan) override
     {
         if (chan->SourceType == SOURCE_Player) return int(PLAYERp(chan->Source) - Player);
+        if (chan->SourceType == SOURCE_Unattached && chan->Source) return int(SPRITEp(chan->Source) - sprite);
         return 0;
     }
 
@@ -441,6 +442,10 @@ public:
         {
             if (index < 0 || index >= MAX_SW_PLAYERS_REG) index = 0;
             chan->Source = &Player[index];
+        }
+        else if (chan->SourceType == SOURCE_Unattached && chan->Source >= 0)
+        {
+            chan->Source = &sprite[index];
         }
         else chan->Source = nullptr;
     }
@@ -609,6 +614,7 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
     if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(num))
         return -1;
 
+    SPRITEp sps = sp;
     // Weed out parental lock sounds if PLock is active
     if (adult_lockout || Global_PLock)
     {
@@ -664,7 +670,8 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
 
     auto rolloff = GetRolloff(vp->voc_distance);
     FVector3 spos = pos ? GetSoundPos(pos) : FVector3(0, 0, 0);
-    soundEngine->StartSound(sourcetype, source, &spos, channel, cflags, num, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
+    auto chan = soundEngine->StartSound(sourcetype, source, &spos, channel, cflags, num, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
+    if (sourcetype == SOURCE_Unattached) chan->Source = sps; // needed for sound termination.
     return 1;
 }
 
