@@ -158,7 +158,6 @@ int ReadFrame(FileReader &fp)
                     }
                 }
 
-                tileInvalidate(kMovieTile, -1, -1);
                 break;
             }
             case kFrameDone:
@@ -190,8 +189,8 @@ static void ServeSample(const char** ptr, uint32_t* length)
 
 void PlayMovie(const char* fileName)
 {
-    CurFrame = TileFiles.tileCreate(kMovieTile, 320, 200);
-    if (CurFrame == nullptr) return;
+    TArray<uint8_t> f(64000, true);
+    CurFrame = f.Data();
 
     int bDoFade = kTrue;
     int hFx = -1;
@@ -230,6 +229,7 @@ void PlayMovie(const char* fileName)
         hFx = -1;
 #endif
 
+        int fn = 0;
         while (!inputState.keyBufferWaiting())
         {
             HandleAsync();
@@ -252,8 +252,12 @@ void PlayMovie(const char* fileName)
                 }
             }
 
+            // I have no idea why this needs double buffering now.
+            fn ^= 1;
+            TileFiles.tileSetExternal(10000 + fn, 320, 200, CurFrame);
+            tileInvalidate(10000 + fn, -1, -1);
             twod->ClearScreen();
-            rotatesprite(160 << 16, 100 << 16, z, angle, kMovieTile, 0, 1, 2, 0, 0, xdim - 1, ydim - 1);
+            rotatesprite(160 << 16, 100 << 16, z, angle, 10000+fn, 0, 1, 2, 0, 0, xdim - 1, ydim - 1);
 
             if (bDoFade) {
                 bDoFade = DoFadeIn();
@@ -267,6 +271,8 @@ void PlayMovie(const char* fileName)
         }
     }
 
+    tileInvalidate(10000, -1, -1);
+    tileInvalidate(10001, -1, -1);
     if (hFx > 0) {
         //FX_StopSound(hFx);
     }
