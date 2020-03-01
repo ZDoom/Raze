@@ -676,7 +676,14 @@ static bool CheckAddon(GrpInfo* addon, GrpInfo* main, const char* filename)
 	for (auto& fn : addon->mustcontain)
 	{
 		FString check = path + fn;
-		if (!FileExists(check)) return false;
+		if (FileExists(check)) continue;
+#if !defined _WIN32 
+		check = check.MakeLower();
+		if (FileExists(check)) continue;
+		check = check.MakeUpper();
+		if (FileExists(check)) continue;
+#endif
+		return false;
 	}
 	return true;
 }
