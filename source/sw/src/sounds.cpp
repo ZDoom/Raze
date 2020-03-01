@@ -671,7 +671,7 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
     auto rolloff = GetRolloff(vp->voc_distance);
     FVector3 spos = pos ? GetSoundPos(pos) : FVector3(0, 0, 0);
     auto chan = soundEngine->StartSound(sourcetype, source, &spos, channel, cflags, num, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
-    if (sourcetype == SOURCE_Unattached) chan->Source = sps; // needed for sound termination.
+    if (chan && sourcetype == SOURCE_Unattached) chan->Source = sps; // needed for sound termination.
     return 1;
 }
 
