@@ -66,7 +66,7 @@ private:
 	void ReadCVars (unsigned flags);
 
 	bool bModSetup;
-	bool isInitialized;
+	bool isInitialized = false;
 
 	char section[64];
 	char *subsection;

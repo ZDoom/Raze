@@ -51,6 +51,7 @@ struct MapRecord
 	void SetFileName(const char* n)
 	{
 		fileName = n;
+		FixPathSeperator(fileName);
 		labelName = ExtractFileBase(n);
 	}
 	const char* GetMessage(int num)
