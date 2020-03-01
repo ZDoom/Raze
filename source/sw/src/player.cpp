@@ -3728,7 +3728,7 @@ DoPlayerFall(PLAYERp pp)
                     PlaySound(DIGI_HITGROUND, pp, v3df_follow|v3df_dontpan);
             }
 
-            StopPlayerSound(pp);
+            StopPlayerSound(pp, DIGI_FALLSCREAM);
 
             // i any kind of crawl key get rid of recoil
             if (DoPlayerTestCrawl(pp) || TEST_SYNC_KEY(pp, SK_CRAWL))

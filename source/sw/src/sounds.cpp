@@ -824,9 +824,9 @@ int _PlayerSound(int num, PLAYERp pp)
     return 0;
 }
 
-void StopPlayerSound(PLAYERp pp)
+void StopPlayerSound(PLAYERp pp, int which)
 {
-    soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE);
+    soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE, which);
 }
 
 bool SoundValidAndActive(SPRITEp spr, int channel)

@@ -2114,7 +2114,7 @@ inline void PlaySound(int num, vec3_t *pos, Voc3D_Flags flags, int channel = 8, 
 
 int _PlayerSound(int num, PLAYERp pp);
 inline int PlayerSound(int num, int flags, PLAYERp pp) { return _PlayerSound(num, pp); }
-void StopPlayerSound(PLAYERp pp);
+void StopPlayerSound(PLAYERp pp, int which = -1);
 bool SoundValidAndActive(SPRITEp spr, int channel);
 
 
