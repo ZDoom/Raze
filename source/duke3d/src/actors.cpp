@@ -4639,7 +4639,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
                             // JBF 20041129: a slimer eating another enemy really ought
                             // to decrease the maximum kill count by one.
-                            if (sprite[pData[5]].extra > 0)
+                            if (sprite[pData[5]].extra > 0 && g_player[myconnectindex].ps->max_actors_killed > 0)
                                 g_player[myconnectindex].ps->max_actors_killed--;
                         }
                     }
