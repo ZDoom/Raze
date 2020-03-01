@@ -443,7 +443,7 @@ public:
             if (index < 0 || index >= MAX_SW_PLAYERS_REG) index = 0;
             chan->Source = &Player[index];
         }
-        else if (chan->SourceType == SOURCE_Unattached && chan->Source >= 0)
+        else if (chan->SourceType == SOURCE_Unattached && index >= 0)
         {
             chan->Source = &sprite[index];
         }
