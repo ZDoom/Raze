@@ -851,7 +851,7 @@ void sub_52BA8(void)
                 {
                     if (klabs(sprite[i].z - sector[sect].floorz) > 1024 && sprite[i].z < sector[sect].floorz)
                     {
-                        initprintf("NOTICE: deleting floating sprite %i: x=%i, y=%i, z=%i, sect=%i\n", i, sprite[i].x, sprite[i].y, sprite[i].z, sect);
+                        initprintf("NOTICE: deleting floating sprite %i: x=%i, y=%i, z=%i, sect=%i\n", i, sprite[i].pos.x, sprite[i].pos.y, sprite[i].pos.z, sect);
                         deletesprite(i);
                         sprite[i].picnum = 0;
                         sprite[i].cstat = 0;
@@ -2136,7 +2136,7 @@ void ghshtgn_fire(short snum)
             sub_51678(v18, v1c, v20, v44, v48, v4c);
             if (v1c >= 0)
             {
-                if (sprite[v1c].cstat == (short)32768)
+                if (sprite[v1c].cstat == 32768)
                 {
                     initprintf("ERROR: hit spr with cstat 32768\n");
                     return;
@@ -2385,7 +2385,7 @@ void ghrifle_fire(short snum)
         sub_51678(v18, v1c, v20, v44, v48, v4c);
         if (v1c >= 0)
         {
-            if (sprite[v1c].cstat == (short)32768)
+            if (sprite[v1c].cstat == 32768)
             {
                 initprintf("ERROR: hit spr with cstat 32768\n");
                 return;
@@ -2657,7 +2657,7 @@ void ghpistol_fire(short snum)
         sub_51678(v28, v1c, v18, v38, v3c, v40);
         if (v1c >= 0)
         {
-            if (sprite[v1c].cstat == (short)32768)
+            if (sprite[v1c].cstat == 32768)
             {
                 initprintf("ERROR: hit spr with cstat 32768\n");
                 return;
@@ -3013,7 +3013,7 @@ short ghtrax_getoldestdeertrax(void)
         }
         if (sprite[i].extra > dword_AAAB8)
         {
-            initprintf("ghtrax_getoldestdeertrax: oldest trax at %i\n", sprite[i].extra);
+            initprintf("ghtrax_getoldestdeertrax: oldest trax at %i\n", sprite[i].extra.cast());
         }
         i = nexti;
     }
@@ -3105,7 +3105,7 @@ short ghtrax_getoldestboartrax(void)
         }
         if (sprite[i].extra > dword_AAAC4)
         {
-            initprintf("ghtrax_getoldestdeertrax: oldest trax at %i\n", sprite[i].extra);
+            initprintf("ghtrax_getoldestdeertrax: oldest trax at %i\n", sprite[i].extra.cast());
         }
         i = nexti;
     }
@@ -3130,7 +3130,7 @@ void ghtrax_boartrax(short a1)
         {
             initprintf("ghtrax_boartrax: insertsprite failed\n");
             dword_AAAC4 = dword_AAABC;
-            initprintf("                 set maxtraxboar to\n", dword_AAAC4);
+            initprintf("                 set maxtraxboar to %d\n", dword_AAAC4);
         }
         else
             dword_AAABC++;
@@ -4167,7 +4167,7 @@ void ghdeploy_move(void)
         s = &sprite[i];
         if (s->sectnum < 0 || s->sectnum >= numsectors)
         {
-            initprintf("ghdeploy_move DEPLOYED bad sect %i\n", s->sectnum);
+            initprintf("ghdeploy_move DEPLOYED bad sect %i\n", s->sectnum.cast());
             deletesprite(i);
         }
         else if (sector[s->sectnum].hitag == 2003)
@@ -4193,7 +4193,7 @@ void ghdeploy_move(void)
         s = &sprite[i];
         if (s->sectnum < 0 || s->sectnum >= numsectors)
         {
-            initprintf("ghdeploy_move TOSS bad sect %i\n", s->sectnum);
+            initprintf("ghdeploy_move TOSS bad sect %i\n", s->sectnum.cast());
             deletesprite(i);
         }
         vec3_t vec = { s->xvel, s->yvel, 0 };
