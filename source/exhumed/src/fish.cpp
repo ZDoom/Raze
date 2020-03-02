@@ -77,7 +77,6 @@ Fish FishList[kMaxFishes];
 Chunk FishChunk[kMaxChunks];
 
 static SavegameHelper sgh("fish",
-    SV(FishSprite),
     SV(FishCount),
     SV(nChunksFree),
     SA(nFreeChunk),

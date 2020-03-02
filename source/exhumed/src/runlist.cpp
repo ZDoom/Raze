@@ -1698,7 +1698,6 @@ static SavegameHelper sgh("runlist",
     SA(RunFree),
     SA(sRunChannels),
     SA(RunData),
-    SV(word_96760),
     nullptr);
 
 END_PS_NS

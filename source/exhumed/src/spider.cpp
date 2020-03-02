@@ -56,7 +56,6 @@ static actionSeq ActionSeq[] = {
 };
 
 static SavegameHelper sgh("spider",
-    SV(SpiderSprite),
     SV(SpiderCount),
     SA(SpiderList),
     nullptr);
