@@ -24,6 +24,7 @@ BEGIN_PS_NS
 #define kAngleMask	0x7FF
 
 int GetMyAngle(int x, int y);
+
 int AngleDiff(short a, short b);
 int AngleDelta(int a, int b, int c);
 

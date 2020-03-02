@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __snake_h__
 #define __snake_h__
 
+#include "aistuff.h"
+
 BEGIN_PS_NS
 
 #define kSnakeSprites	8 // or rename to kSnakeParts?

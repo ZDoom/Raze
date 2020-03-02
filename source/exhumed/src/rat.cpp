@@ -16,8 +16,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "engine.h"
 #include "rat.h"
+#include "engine.h"
 #include "sequence.h"
 #include "runlist.h"
 #include "random.h"
@@ -38,19 +38,24 @@ short nMaxChunk;
 
 struct Rat
 {
-    short a;
+    short nFrame;
     short nAction;
     short nSprite;
-    short d;
+    short nRun;
     short nTarget;
     short f;
     short g;
-//  short _pad;
 };
 
 Rat RatList[kMaxRats];
 
-static actionSeq ActionSeq[] = {{0, 1}, {1, 0}, {1, 0}, {9, 1}, {0, 1}};
+static actionSeq ActionSeq[] = {
+    {0, 1},
+    {1, 0},
+    {1, 0},
+    {9, 1},
+    {0, 1}
+};
 
 
 static SavegameHelper sgh("rat",
@@ -120,8 +125,8 @@ int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
     sprite[nSprite].ang = nAngle;
     sprite[nSprite].xrepeat = 50;
     sprite[nSprite].yrepeat = 50;
-    sprite[nSprite].yvel = 0;
     sprite[nSprite].xvel = 0;
+    sprite[nSprite].yvel = 0;
     sprite[nSprite].zvel = 0;
     sprite[nSprite].lotag = runlist_HeadRun() + 1;
     sprite[nSprite].hitag = 0;
@@ -134,7 +139,7 @@ int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
         RatList[nRat].nAction = 4;
     }
 
-    RatList[nRat].a = 0;
+    RatList[nRat].nFrame = 0;
     RatList[nRat].nSprite = nSprite;
     RatList[nRat].nTarget = -1;
     RatList[nRat].f = RandomSize(5);
@@ -142,7 +147,7 @@ int BuildRat(short nSprite, int x, int y, int z, short nSector, int nAngle)
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nRat | 0x240000);
 
-    RatList[nRat].d = runlist_AddRunRec(NewRun, nRat | 0x240000);
+    RatList[nRat].nRun = runlist_AddRunRec(NewRun, nRat | 0x240000);
     return 0;
 }
 
@@ -190,9 +195,9 @@ void FuncRat(int a, int nDamage, int nRun)
     short nSprite = RatList[nRat].nSprite;
     short nAction = RatList[nRat].nAction;
 
-    bool var_20 = false;
+    bool bVal = false;
 
-    int nMessage = a & 0x7F0000;
+    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -216,29 +221,29 @@ void FuncRat(int a, int nDamage, int nRun)
                 sprite[nSprite].xvel = 0;
                 sprite[nSprite].yvel = 0;
                 RatList[nRat].nAction = 3;
-                RatList[nRat].a = 0;
+                RatList[nRat].nFrame = 0;
             }
             return;
         }
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqRat] + ActionSeq[nAction].a, RatList[nRat].a, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqRat] + ActionSeq[nAction].a, RatList[nRat].nFrame, ActionSeq[nAction].b);
             return;
         }
 
         case 0x20000:
         {
             int nSeq = SeqOffsets[kSeqRat] + ActionSeq[nAction].a;
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, RatList[nRat].a);
+            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, RatList[nRat].nFrame);
 
-            seq_MoveSequence(nSprite, nSeq, RatList[nRat].a);
+            seq_MoveSequence(nSprite, nSeq, RatList[nRat].nFrame);
 
-            RatList[nRat].a++;
-            if (RatList[nRat].a >= SeqSize[nSeq])
+            RatList[nRat].nFrame++;
+            if (RatList[nRat].nFrame >= SeqSize[nSeq])
             {
-                var_20 = true;
-                RatList[nRat].a = 0;
+                bVal = true;
+                RatList[nRat].nFrame = 0;
             }
 
             short nTarget = RatList[nRat].nTarget;
@@ -263,7 +268,7 @@ void FuncRat(int a, int nDamage, int nRun)
                     if (xVal > 50 || yVal > 50)
                     {
                         RatList[nRat].nAction = 2;
-                        RatList[nRat].a = 0;
+                        RatList[nRat].nFrame  = 0;
                         RatList[nRat].nTarget = -1;
 
                         sprite[nSprite].xvel = 0;
@@ -271,7 +276,7 @@ void FuncRat(int a, int nDamage, int nRun)
                         return;
                     }
 
-                    RatList[nRat].a ^= 1;
+                    RatList[nRat].nFrame ^= 1;
                     RatList[nRat].f = RandomSize(5) + 4;
                     RatList[nRat].g--;
 
@@ -289,7 +294,7 @@ void FuncRat(int a, int nDamage, int nRun)
 
                         RatList[nRat].nAction = 1;
                         RatList[nRat].g = 900;
-                        RatList[nRat].a = 0;
+                        RatList[nRat].nFrame = 0;
                     }
 
                     return;
@@ -301,7 +306,7 @@ void FuncRat(int a, int nDamage, int nRun)
                     if (RatList[nRat].g <= 0)
                     {
                         RatList[nRat].nAction = 2;
-                        RatList[nRat].a = 0;
+                        RatList[nRat].nFrame = 0;
                         RatList[nRat].nTarget = -1;
 
                         sprite[nSprite].xvel = 0;
@@ -328,7 +333,7 @@ void FuncRat(int a, int nDamage, int nRun)
                     }
 
                     RatList[nRat].nAction = 0;
-                    RatList[nRat].a = 0;
+                    RatList[nRat].nFrame  = 0;
                     RatList[nRat].g = RandomSize(3);
 
                     sprite[nSprite].xvel = 0;
@@ -366,7 +371,7 @@ void FuncRat(int a, int nDamage, int nRun)
                             SetRatVel(nSprite);
                             RatList[nRat].nAction = 1;
                             RatList[nRat].g = 900;
-                            RatList[nRat].a = 0;
+                            RatList[nRat].nFrame = 0;
                             return;
                         }
                     }
@@ -375,11 +380,11 @@ void FuncRat(int a, int nDamage, int nRun)
                 }
                 case 3:
                 {
-                    if (var_20)
+                    if (bVal)
                     {
                         runlist_DoSubRunRec(sprite[nSprite].owner);
                         runlist_FreeRun(sprite[nSprite].lotag - 1);
-                        runlist_SubRunRec(RatList[nRat].d);
+                        runlist_SubRunRec(RatList[nRat].nRun);
 
                         sprite[nSprite].cstat = 0x8000;
                         mydeletesprite(nSprite);

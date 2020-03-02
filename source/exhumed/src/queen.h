@@ -19,12 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __queen_h__
 #define __queen_h__
 
+#include "aistuff.h"
+
 BEGIN_PS_NS
 
 void InitQueens();
-
 int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nVal);
-
 void FuncQueenEgg(int, int, int);
 void FuncQueenHead(int, int, int);
 void FuncQueen(int, int, int);

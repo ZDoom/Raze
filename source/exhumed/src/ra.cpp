@@ -32,13 +32,14 @@ BEGIN_PS_NS
 
 /* bjd - the content of the ra.* files originally resided in gun.c I think... */
 
-//#define kMaxRA		8
-
 RA Ra[kMaxPlayers]; // one Ra for each player
 short RaCount;
 
 static actionSeq ActionSeq[] = {
-    {2, 1}, {0, 0}, {1, 0}, {2, 0}
+    {2, 1},
+    {0, 0},
+    {1, 0},
+    {2, 0}
 };
 
 static SavegameHelper sgh("ra",
@@ -49,7 +50,7 @@ static SavegameHelper sgh("ra",
 
 void FreeRa(short nPlayer)
 {
-    int nRun = Ra[nPlayer].field_4;
+    int nRun = Ra[nPlayer].nRun;
     int nSprite = Ra[nPlayer].nSprite;
 
     runlist_SubRunRec(nRun);
@@ -84,12 +85,12 @@ int BuildRa(short nPlayer)
 
     Ra[nPlayer].nSprite = nSprite;
 
-    Ra[nPlayer].field_4 = runlist_AddRunRec(NewRun, nPlayer | 0x210000);
+    Ra[nPlayer].nRun = runlist_AddRunRec(NewRun, nPlayer | 0x210000);
     Ra[nPlayer].nTarget = -1;
-    Ra[nPlayer].field_2 = 0;
-    Ra[nPlayer].field_0 = 0;
+    Ra[nPlayer].nFrame  = 0;
+    Ra[nPlayer].nAction = 0;
     Ra[nPlayer].field_C = 0;
-    Ra[nPlayer].field_E = nPlayer;
+    Ra[nPlayer].nPlayer = nPlayer;
 
     return nPlayer | 0x210000;
 }
@@ -104,19 +105,19 @@ void MoveRaToEnemy(short nPlayer)
 {
     short nTarget = Ra[nPlayer].nTarget;
     short nSprite = Ra[nPlayer].nSprite;
-    short field_0 = Ra[nPlayer].field_0;
+    short nAction = Ra[nPlayer].nAction;
 
     if (nTarget != -1)
     {
         if (!(sprite[nTarget].cstat & 0x101) || sprite[nTarget].sectnum == MAXSECTORS)
         {
             Ra[nPlayer].nTarget = -1;
-            if (!field_0 || field_0 == 3) {
+            if (nAction == 0 || nAction == 3) {
                 return;
             }
 
-            Ra[nPlayer].field_0 = 3;
-            Ra[nPlayer].field_2 = 0;
+            Ra[nPlayer].nAction = 3;
+            Ra[nPlayer].nFrame  = 0;
             return;
         }
         else
@@ -128,14 +129,14 @@ void MoveRaToEnemy(short nPlayer)
     }
     else
     {
-        if (field_0 == 1 || field_0 == 2)
+        if (nAction == 1 || nAction == 2)
         {
-            Ra[nPlayer].field_0 = 3;
-            Ra[nPlayer].field_2 = 0;
+            Ra[nPlayer].nAction = 3;
+            Ra[nPlayer].nFrame  = 0;
             return;
         }
 
-        if (field_0) {
+        if (nAction) {
             return;
         }
 
@@ -157,18 +158,18 @@ void FuncRa(int a, int UNUSED(nDamage), int nRun)
     short nPlayer = RunData[nRun].nVal;
     short nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
-    int var_14 = 0;
-
-    short edx = SeqOffsets[kSeqEyeHit] + ActionSeq[Ra[nPlayer].field_0].a;
+    short nSeq = SeqOffsets[kSeqEyeHit] + ActionSeq[Ra[nPlayer].nAction].a;
     short nSprite = Ra[nPlayer].nSprite;
 
-    int nMessage = a & 0x7F0000;
+    bool bVal = false;
+
+    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
         default:
         {
-            Printf("unknown msg %d for Ra\n", a & 0x7F0000);
+            Printf("unknown msg %d for Ra\n", nMessage);
             return;
         }
 
@@ -179,21 +180,21 @@ void FuncRa(int a, int UNUSED(nDamage), int nRun)
         case 0x20000:
         {
             Ra[nPlayer].nTarget = sPlayerInput[nPlayer].nTarget;
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(edx, Ra[nPlayer].field_2);
+            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
 
-            if (Ra[nPlayer].field_0)
+            if (Ra[nPlayer].nAction)
             {
-                seq_MoveSequence(nSprite, edx, Ra[nPlayer].field_2);
+                seq_MoveSequence(nSprite, nSeq, Ra[nPlayer].nFrame);
 
-                Ra[nPlayer].field_2++;
-                if (Ra[nPlayer].field_2 >= SeqSize[edx])
+                Ra[nPlayer].nFrame++;
+                if (Ra[nPlayer].nFrame >= SeqSize[nSeq])
                 {
-                    Ra[nPlayer].field_2 = 0;
-                    var_14 = 1;
+                    Ra[nPlayer].nFrame = 0;
+                    bVal = true;
                 }
             }
 
-            switch (Ra[nPlayer].field_0)
+            switch (Ra[nPlayer].nAction)
             {
                 case 0:
                 {
@@ -206,8 +207,8 @@ void FuncRa(int a, int UNUSED(nDamage), int nRun)
                     else
                     {
                         sprite[nSprite].cstat &= 0x7FFF;
-                        Ra[nPlayer].field_0 = 1;
-                        Ra[nPlayer].field_2 = 0;
+                        Ra[nPlayer].nAction = 1;
+                        Ra[nPlayer].nFrame  = 0;
                     }
 
                     return;
@@ -217,13 +218,13 @@ void FuncRa(int a, int UNUSED(nDamage), int nRun)
                 {
                     if (!Ra[nPlayer].field_C)
                     {
-                        Ra[nPlayer].field_0 = 3;
-                        Ra[nPlayer].field_2 = 0;
+                        Ra[nPlayer].nAction = 3;
+                        Ra[nPlayer].nFrame  = 0;
                     }
                     else
                     {
-                        if (var_14) {
-                            Ra[nPlayer].field_0 = 2;
+                        if (bVal) {
+                            Ra[nPlayer].nAction = 2;
                         }
 
                         MoveRaToEnemy(nPlayer);
@@ -238,32 +239,32 @@ void FuncRa(int a, int UNUSED(nDamage), int nRun)
 
                     if (nCurrentWeapon != kWeaponRing)
                     {
-                        Ra[nPlayer].field_0 = 3;
-                        Ra[nPlayer].field_2 = 0;
+                        Ra[nPlayer].nAction = 3;
+                        Ra[nPlayer].nFrame  = 0;
                     }
                     else
                     {
-                        if (Ra[nPlayer].field_2 || Ra[nPlayer].nTarget <= -1)
+                        if (Ra[nPlayer].nFrame || Ra[nPlayer].nTarget <= -1)
                         {
-                            if (!var_14) {
+                            if (!bVal) {
                                 return;
                             }
 
-                            Ra[nPlayer].field_0 = 3;
-                            Ra[nPlayer].field_2 = 0;
+                            Ra[nPlayer].nAction = 3;
+                            Ra[nPlayer].nFrame  = 0;
                         }
                         else
                         {
                             if (PlayerList[nPlayer].nAmmo[kWeaponRing] > 0)
                             {
-                                runlist_DamageEnemy(Ra[nPlayer].nTarget, PlayerList[Ra[nPlayer].field_E].nSprite, BulletInfo[kWeaponRing].nDamage);
+                                runlist_DamageEnemy(Ra[nPlayer].nTarget, PlayerList[Ra[nPlayer].nPlayer].nSprite, BulletInfo[kWeaponRing].nDamage);
                                 AddAmmo(nPlayer, kWeaponRing, -WeaponInfo[kWeaponRing].d);
                                 SetQuake(nSprite, 100);
                             }
                             else
                             {
-                                Ra[nPlayer].field_0 = 3;
-                                Ra[nPlayer].field_2 = 0;
+                                Ra[nPlayer].nAction = 3;
+                                Ra[nPlayer].nFrame  = 0;
                                 SelectNewWeapon(nPlayer);
                             }
                         }
@@ -274,11 +275,11 @@ void FuncRa(int a, int UNUSED(nDamage), int nRun)
 
                 case 3:
                 {
-                    if (var_14)
+                    if (bVal)
                     {
                         sprite[nSprite].cstat |= 0x8000;
-                        Ra[nPlayer].field_0 = 0;
-                        Ra[nPlayer].field_2 = 0;
+                        Ra[nPlayer].nAction = 0;
+                        Ra[nPlayer].nFrame  = 0;
                         Ra[nPlayer].field_C = 0;
                     }
 
@@ -293,7 +294,7 @@ void FuncRa(int a, int UNUSED(nDamage), int nRun)
         case 0x90000:
         {
             short nSprite2 = a & 0xFFFF;
-            seq_PlotSequence(nSprite2, edx, Ra[nPlayer].field_2, 1);
+            seq_PlotSequence(nSprite2, nSeq, Ra[nPlayer].nFrame, 1);
             tsprite[nSprite2].owner = -1;
             return;
         }

@@ -308,7 +308,7 @@ int FindSnakeEnemy(short nSnake)
 
 void FuncSnake(int a, int UNUSED(nDamage), int nRun)
 {
-    int nMessage = a & 0x7F0000;
+    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
@@ -426,7 +426,7 @@ SEARCH_ENEMY:
 
         default:
         {
-            Printf("unknown msg %x for bullet\n", a & 0x7F0000);
+            Printf("unknown msg %x for bullet\n", nMessage);
             break;
         }
     }

@@ -51,15 +51,11 @@ extern fix16_t nDestVertPan[];
 extern short dVertPan[];
 extern fix16_t nVertPan[];
 extern short nQuake[];
-
 extern int nCamerax;
 extern int nCameray;
 extern int nCameraz;
-
 extern short bTouchFloor;
-
 extern short nChunkTotal;
-
 extern int gFov;
 
 static inline int angle_interpolate16(int a, int b, int smooth)

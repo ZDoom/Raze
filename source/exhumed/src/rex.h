@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 void InitRexs();
-int BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, int nVal);
+int BuildRex(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
 void FuncRex(int, int, int);
 
 END_PS_NS

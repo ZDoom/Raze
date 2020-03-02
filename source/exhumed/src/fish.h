@@ -19,11 +19,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __fish_h__
 #define __fish_h__
 
+#include "aistuff.h"
+
 BEGIN_PS_NS
 
 void InitFishes();
 int BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle);
-
 void FuncFish(int, int, int);
 void FuncFishLimb(int a, int b, int c);
 

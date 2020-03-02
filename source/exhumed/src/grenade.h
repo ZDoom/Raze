@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __grenade_h__
 #define __grenade_h__
 
+#include "aistuff.h"
+
 BEGIN_PS_NS
 
 #define kMaxGrenades	50

@@ -19,13 +19,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __bubbles_h__
 #define __bubbles_h__
 
+#include "aistuff.h"
+
 BEGIN_PS_NS
 
 void InitBubbles();
-
 void BuildBubbleMachine(int nSprite);
 void DoBubbleMachines();
-
 void DoBubbles(int nPlayer);
 void FuncBubble(int, int, int);
 

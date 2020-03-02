@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __lion_h__
 #define __lion_h__
 
+#include "aistuff.h"
+
 BEGIN_PS_NS
 
 void InitLion();

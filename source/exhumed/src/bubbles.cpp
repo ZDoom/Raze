@@ -37,10 +37,10 @@ BEGIN_PS_NS
 
 struct Bubble
 {
-    short _0;
-    short _2;
+    short nFrame;
+    short nSeq;
     short nSprite;
-    short _6;
+    short nRun;
 };
 
 struct machine
@@ -86,7 +86,7 @@ void DestroyBubble(short nBubble)
 
     runlist_DoSubRunRec(sprite[nSprite].lotag - 1);
     runlist_DoSubRunRec(sprite[nSprite].owner);
-    runlist_SubRunRec(BubbleList[nBubble]._6);
+    runlist_SubRunRec(BubbleList[nBubble].nRun);
 
     mydeletesprite(nSprite);
 
@@ -141,12 +141,12 @@ int BuildBubble(int x, int y, int z, short nSector)
 //	GrabTimeSlot(3);
 
     BubbleList[nBubble].nSprite = nSprite;
-    BubbleList[nBubble]._0 = 0;
-    BubbleList[nBubble]._2 = SeqOffsets[kSeqBubble] + nSize;
+    BubbleList[nBubble].nFrame = 0;
+    BubbleList[nBubble].nSeq = SeqOffsets[kSeqBubble] + nSize;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nBubble | 0x140000);
 
-    BubbleList[nBubble]._6 = runlist_AddRunRec(NewRun, nBubble | 0x140000);
+    BubbleList[nBubble].nRun = runlist_AddRunRec(NewRun, nBubble | 0x140000);
     return nBubble | 0x140000;
 }
 
@@ -156,20 +156,20 @@ void FuncBubble(int a, int UNUSED(b), int nRun)
     assert(nBubble >= 0 && nBubble < kMaxBubbles);
 
     short nSprite = BubbleList[nBubble].nSprite;
-    short dx = BubbleList[nBubble]._2;
+    short nSeq = BubbleList[nBubble].nSeq;
 
-    int nMessage = a & 0x7F0000;
+    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
         case 0x20000:
         {
-            seq_MoveSequence(nSprite, dx, BubbleList[nBubble]._0);
+            seq_MoveSequence(nSprite, nSeq, BubbleList[nBubble].nFrame);
 
-            BubbleList[nBubble]._0++;
+            BubbleList[nBubble].nFrame++;
 
-            if (BubbleList[nBubble]._0 >= SeqSize[dx]) {
-                BubbleList[nBubble]._0 = 0;
+            if (BubbleList[nBubble].nFrame >= SeqSize[nSeq]) {
+                BubbleList[nBubble].nFrame = 0;
             }
 
             sprite[nSprite].z += sprite[nSprite].zvel;
@@ -192,7 +192,7 @@ void FuncBubble(int a, int UNUSED(b), int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, dx, BubbleList[nBubble]._0, 1);
+            seq_PlotSequence(a & 0xFFFF, nSeq, BubbleList[nBubble].nFrame, 1);
             tsprite[a & 0xFFFF].owner = -1;
             return;
         }
@@ -227,6 +227,7 @@ void BuildBubbleMachine(int nSprite)
 {
     if (nMachineCount >= kMaxMachines) {
         I_Error("too many bubble machines in level %d\n", levelnew);
+        exit(-1);
     }
 
     Machine[nMachineCount]._4 = 75;
@@ -234,7 +235,7 @@ void BuildBubbleMachine(int nSprite)
     Machine[nMachineCount]._0 = Machine[nMachineCount]._4;
     nMachineCount++;
 
-    sprite[nSprite].cstat = 0x8000u;
+    sprite[nSprite].cstat = 0x8000;
 }
 
 void DoBubbles(int nPlayer)

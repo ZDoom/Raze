@@ -50,9 +50,9 @@ short BulletFree[kMaxBullets];
 // 32 bytes
 struct Bullet
 {
-    short nSeq; // 0
-    short field_2; // 2
-    short nSprite; // 4
+    short nSeq;
+    short nFrame;
+    short nSprite;
     short field_6;
     short field_8;
     short nType;
@@ -340,7 +340,7 @@ int MoveBullet(short nBullet)
                 if (pBullet->field_E == 3)
                 {
                     pBullet->nSeq = 45;
-                    pBullet->field_2 = 0;
+                    pBullet->nFrame = 0;
                     pSprite->xrepeat = 40;
                     pSprite->yrepeat = 40;
                     pSprite->shade = 0;
@@ -650,7 +650,7 @@ int BuildBullet(short nSprite, int nType, int UNUSED(ebx), int UNUSED(ecx), int 
 
     pBullet->field_10 = 0;
     pBullet->field_E = pBulletInfo->field_2;
-    pBullet->field_2 = 0;
+    pBullet->nFrame  = 0;
 
     short nSeq;
 
@@ -801,23 +801,23 @@ void FuncBullet(int a, int UNUSED(b), int nRun)
     short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
     short nSprite = BulletList[nBullet].nSprite;
 
-    int nMessage = a & 0x7F0000;
+    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
         case 0x20000:
         {
-            short nFlag = FrameFlag[SeqBase[nSeq] + BulletList[nBullet].field_2];
+            short nFlag = FrameFlag[SeqBase[nSeq] + BulletList[nBullet].nFrame];
 
-            seq_MoveSequence(nSprite, nSeq, BulletList[nBullet].field_2);
+            seq_MoveSequence(nSprite, nSeq, BulletList[nBullet].nFrame);
 
             if (nFlag & 0x80)
             {
                 BuildAnim(-1, 45, 0, sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z, sprite[nSprite].sectnum, sprite[nSprite].xrepeat, 0);
             }
 
-            BulletList[nBullet].field_2++;
-            if (BulletList[nBullet].field_2 >= SeqSize[nSeq])
+            BulletList[nBullet].nFrame++;
+            if (BulletList[nBullet].nFrame >= SeqSize[nSeq])
             {
                 if (!BulletList[nBullet].field_12)
                 {
@@ -825,7 +825,7 @@ void FuncBullet(int a, int UNUSED(b), int nRun)
                     BulletList[nBullet].field_12++;
                 }
 
-                BulletList[nBullet].field_2 = 0;
+                BulletList[nBullet].nFrame = 0;
             }
 
             if (BulletList[nBullet].field_E != -1 && --BulletList[nBullet].field_E == 0)
@@ -846,11 +846,11 @@ void FuncBullet(int a, int UNUSED(b), int nRun)
 
             if (BulletList[nBullet].nType == 15)
             {
-                seq_PlotArrowSequence(nSprite2, nSeq, BulletList[nBullet].field_2);
+                seq_PlotArrowSequence(nSprite2, nSeq, BulletList[nBullet].nFrame);
             }
             else
             {
-                seq_PlotSequence(nSprite2, nSeq, BulletList[nBullet].field_2, 0);
+                seq_PlotSequence(nSprite2, nSeq, BulletList[nBullet].nFrame, 0);
                 tsprite[nSprite2].owner = -1;
             }
             break;
@@ -861,7 +861,7 @@ void FuncBullet(int a, int UNUSED(b), int nRun)
 
         default:
         {
-            Printf("unknown msg %x for bullet\n", a & 0x7F0000);
+            Printf("unknown msg %d for bullet\n", nMessage);
             return;
         }
     }

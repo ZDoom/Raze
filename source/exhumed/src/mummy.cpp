@@ -16,7 +16,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "aistuff.h"
 #include "mummy.h"
 #include "sequence.h"
 #include "move.h"
@@ -182,6 +181,12 @@ void FuncMummy(int a, int nDamage, int nRun)
 
     switch (nMessage)
     {
+        default:
+        {
+            DebugOut("unknown msg %d for Mummy\n", nMessage);
+            break;
+        }
+
         case 0x20000:
         {
             Gravity(nSprite);
@@ -195,7 +200,7 @@ void FuncMummy(int a, int nDamage, int nRun)
 
             seq_MoveSequence(nSprite, nSeq, MummyList[nMummy].B);
 
-            bool bVal = 0;
+            bool bVal = false;
 
             MummyList[nMummy].B++;
             if (MummyList[nMummy].B >= SeqSize[nSeq])
@@ -427,10 +432,12 @@ void FuncMummy(int a, int nDamage, int nRun)
                 {
                     if (bVal)
                     {
-                        MummyList[nMummy].nAction = 0;
                         sprite[nSprite].cstat = 0x101;
+
+                        MummyList[nMummy].nAction = 0;
                         MummyList[nMummy].nHealth = 300;
                         MummyList[nMummy].nTarget = -1;
+
                         nCreaturesLeft++;
                     }
                     return;
@@ -518,12 +525,6 @@ void FuncMummy(int a, int nDamage, int nRun)
 
             return;
         }
-
-        default:
-        {
-            Printf("unknown msg %d for Mummy\n", a & 0x7F0000);
-            break;
         }
-    }
 }
 END_PS_NS

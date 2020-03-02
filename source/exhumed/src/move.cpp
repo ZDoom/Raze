@@ -1192,13 +1192,13 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
     int eax = klabs(Cos(sprite[nSprite].zvel));
 
-    int x = ((Cos(nAngle) * ebx) >> 14)* eax;
+    int x = ((Cos(nAngle) * ebx) >> 14) * eax;
     int y = ((Sin(nAngle) * ebx) >> 14) * eax;
 
     int xshift = x >> 8;
     int yshift = y >> 8;
 
-    int z = Sin(sprite[nSprite].zvel) * ksqrt((yshift * yshift) + (xshift * xshift));
+    int z = Sin(sprite[nSprite].zvel) * ksqrt((xshift * xshift) + (yshift * yshift));
 
     return movesprite(nSprite, x >> 2, y >> 2, (z >> 13) + (Sin(ecx) >> 5), 0, 0, nClipType);
 }

@@ -20,27 +20,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __scorp_h__
 
 #include "compat.h"
+#include "aistuff.h"
 
 BEGIN_PS_NS
 
 /*
     Selkis Boss AI code
 */
-
-#define kMaxScorpions	5
-
-struct Scorpion
-{
-    short nHealth;
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nTarget;
-    short f;
-    short g;
-    int8_t h;
-    int8_t i;
-};
 
 void InitScorp();
 int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);

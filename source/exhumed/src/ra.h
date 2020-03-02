@@ -19,18 +19,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __ra_h__
 #define __ra_h__
 
+#include "aistuff.h"
+
 BEGIN_PS_NS
 
 struct RA
 {
-    short field_0;
-    short field_2;
-    short field_4;
+    short nAction;
+    short nFrame;
+    short nRun;
     short nSprite;
     short nTarget;
     short field_A;
     short field_C;
-    short field_E;
+    short nPlayer;
 };
 
 extern RA Ra[];

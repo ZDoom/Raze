@@ -16,8 +16,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "exhumed.h"
 #include "spider.h"
+#include "exhumed.h"
 #include "engine.h"
 #include "runlist.h"
 #include "move.h"
@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-short SpiderSprite = -1;
 short SpiderCount = 0;
 
 #define kMaxSpiders		100
@@ -37,18 +36,24 @@ short SpiderCount = 0;
 struct Spider
 {
     short nHealth;
-    short b;
+    short nFrame;
     short nAction;
     short nSprite;
     short nTarget;
-    short f;
-    short g;
-    short h;
+    short nRun;
 };
 
 Spider SpiderList[kMaxSpiders];
 
-static actionSeq ActionSeq[] = { {16, 0}, {8, 0}, {32, 0}, {24, 0}, {0, 0}, {40, 1}, {41, 1} };
+static actionSeq ActionSeq[] = {
+    {16, 0},
+    {8,  0},
+    {32, 0},
+    {24, 0},
+    {0,  0},
+    {40, 1},
+    {41, 1}
+};
 
 static SavegameHelper sgh("spider",
     SV(SpiderSprite),
@@ -59,7 +64,6 @@ static SavegameHelper sgh("spider",
 void InitSpider()
 {
     SpiderCount = 0;
-    SpiderSprite = 1;
 }
 
 int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
@@ -107,14 +111,14 @@ int BuildSpider(int nSprite, int x, int y, int z, short nSector, int nAngle)
     //	GrabTimeSlot(3);
 
     SpiderList[nSpider].nAction = 0;
-    SpiderList[nSpider].b = 0;
+    SpiderList[nSpider].nFrame = 0;
     SpiderList[nSpider].nSprite = nSprite;
     SpiderList[nSpider].nTarget = -1;
     SpiderList[nSpider].nHealth = 160;
 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nSpider | 0xC0000);
 
-    SpiderList[nSpider].h = runlist_AddRunRec(NewRun, nSpider | 0xC0000);
+    SpiderList[nSpider].nRun = runlist_AddRunRec(NewRun, nSpider | 0xC0000);
 
     nCreaturesLeft++;
 
@@ -126,18 +130,24 @@ void FuncSpider(int a, int nDamage, int nRun)
     short nSpider = RunData[nRun].nVal;
     assert(nSpider >= 0 && nSpider < kMaxSpiders);
 
-    int var_14;
+    int nVel = 0;
 
     short nSprite = SpiderList[nSpider].nSprite;
     short nAction = SpiderList[nSpider].nAction;
 
-    int nMessage = a & 0x7F0000;
+    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
+        default:
+        {
+            DebugOut("unknown msg %d for Spider\n", nMessage);
+            break;
+        }
+
         case 0x20000:
         {
-            var_14 = 6;
+            nVel = 6;
 
             if (SpiderList[nSpider].nHealth)
             {
@@ -153,15 +163,15 @@ void FuncSpider(int a, int nDamage, int nRun)
 
             int nSeq = SeqOffsets[kSeqSpider] + ActionSeq[nAction].a;
 
-            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, SpiderList[nSpider].b);
+            sprite[nSprite].picnum = seq_GetSeqPicnum2(nSeq, SpiderList[nSpider].nFrame);
 
-            seq_MoveSequence(nSprite, nSeq, SpiderList[nSpider].b);
+            seq_MoveSequence(nSprite, nSeq, SpiderList[nSpider].nFrame);
 
-            int nFrameFlag = FrameFlag[SeqBase[nSeq] + SpiderList[nSpider].b];
+            int nFrameFlag = FrameFlag[SeqBase[nSeq] + SpiderList[nSpider].nFrame];
 
-            SpiderList[nSpider].b++;
-            if (SpiderList[nSpider].b >= SeqSize[nSeq]) {
-                SpiderList[nSpider].b = 0;
+            SpiderList[nSpider].nFrame++;
+            if (SpiderList[nSpider].nFrame >= SeqSize[nSeq]) {
+                SpiderList[nSpider].nFrame = 0;
             }
 
             short nTarget = SpiderList[nSpider].nTarget;
@@ -184,7 +194,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                         if (nTarget >= 0)
                         {
                             SpiderList[nSpider].nAction = 1;
-                            SpiderList[nSpider].b = 0;
+                                SpiderList[nSpider].nFrame = 0;
                             SpiderList[nSpider].nTarget = nTarget;
 
                             sprite[nSprite].xvel = Cos(sprite[nSprite].ang);
@@ -198,19 +208,18 @@ void FuncSpider(int a, int nDamage, int nRun)
                 case 1:
                 {
                     if (nTarget >= 0) {
-                        var_14++;
+                            nVel++;
                     }
     goto case_3;
                     break;
                 }
                 case 4:
                 {
-                    if (!SpiderList[nSpider].b)
+                        if (!SpiderList[nSpider].nFrame)
                     {
-                        SpiderList[nSpider].b = 0;
+                            SpiderList[nSpider].nFrame  = 0;
                         SpiderList[nSpider].nAction = 1;
                     }
-                    //break; // fall through
                     fallthrough__;
                 }
                 case 3:
@@ -229,7 +238,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                             sprite[nSprite].zvel = 1;
 
                             SpiderList[nSpider].nAction = 3;
-                            SpiderList[nSpider].b = 0;
+                                SpiderList[nSpider].nFrame  = 0;
                         }
                     }
 
@@ -252,7 +261,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                         {
                             if (sprite[nSprite].cstat & 8)
                             {
-                                sprite[nSprite].cstat ^= 8u;
+                                    sprite[nSprite].cstat ^= 8;
                                 sprite[nSprite].zvel = 1;
                                 sprite[nSprite].z = sector[nSector].ceilingz + GetSpriteHeight(nSprite);
                             }
@@ -262,7 +271,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                             }
 
                             SpiderList[nSpider].nAction = 3;
-                            SpiderList[nSpider].b = 0;
+                                SpiderList[nSpider].nFrame = 0;
 
                             if (!RandomSize(3)) {
                                 D3PlayFX(StaticSound[kSound29], nSprite);
@@ -273,11 +282,11 @@ void FuncSpider(int a, int nDamage, int nRun)
                 }
                 case 5:
                 {
-                    if (!SpiderList[nSpider].b)
+                        if (!SpiderList[nSpider].nFrame)
                     {
                         runlist_DoSubRunRec(sprite[nSprite].owner);
                         runlist_FreeRun(sprite[nSprite].lotag - 1);
-                        runlist_SubRunRec(SpiderList[nSpider].h);
+                            runlist_SubRunRec(SpiderList[nSpider].nRun);
                         sprite[nSprite].cstat = 0x8000;
                         mydeletesprite(nSprite);
                     }
@@ -306,7 +315,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                         sprite[nSprite].yvel = 0;
                     }
 
-                    SpiderList[nSpider].b = 0;
+                        SpiderList[nSpider].nFrame = 0;
                     break;
                 }
                 }
@@ -315,13 +324,13 @@ void FuncSpider(int a, int nDamage, int nRun)
             {
                 SpiderList[nSpider].nTarget = -1;
                 SpiderList[nSpider].nAction = 0;
-                SpiderList[nSpider].b = 0;
+                SpiderList[nSpider].nFrame = 0;
 
                 sprite[nSprite].xvel = 0;
                 sprite[nSprite].yvel = 0;
             }
 
-            int nMov = movesprite(nSprite, sprite[nSprite].xvel << var_14, sprite[nSprite].yvel << var_14, sprite[nSprite].zvel, 1280, -1280, CLIPMASK0);
+            int nMov = movesprite(nSprite, sprite[nSprite].xvel << nVel, sprite[nSprite].yvel << nVel, sprite[nSprite].zvel, 1280, -1280, CLIPMASK0);
 
             if (!nMov)
                 return;
@@ -336,7 +345,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                 sprite[nSprite].zvel = 0;
 
                 SpiderList[nSpider].nAction = 1;
-                SpiderList[nSpider].b = 0;
+                SpiderList[nSpider].nFrame = 0;
                 return;
             }
             else
@@ -358,7 +367,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                         if (AngleDiff(sprite[nSprite].ang, nAng) < 64)
                         {
                             SpiderList[nSpider].nAction = 2;
-                            SpiderList[nSpider].b = 0;
+                                SpiderList[nSpider].nFrame = 0;
                         }
                     }
                     return;
@@ -370,7 +379,7 @@ void FuncSpider(int a, int nDamage, int nRun)
                 if (SpiderList[nSpider].nAction == 3)
                 {
                     SpiderList[nSpider].nAction = 1;
-                    SpiderList[nSpider].b = 0;
+                    SpiderList[nSpider].nFrame = 0;
                 }
                 return;
             }
@@ -380,7 +389,7 @@ void FuncSpider(int a, int nDamage, int nRun)
 
         case 0x90000:
         {
-            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqSpider] + ActionSeq[nAction].a, SpiderList[nSpider].b, ActionSeq[nAction].b);
+            seq_PlotSequence(a & 0xFFFF, SeqOffsets[kSeqSpider] + ActionSeq[nAction].a, SpiderList[nSpider].nFrame, ActionSeq[nAction].b);
             break;
         }
 
@@ -405,7 +414,8 @@ void FuncSpider(int a, int nDamage, int nRun)
             if (SpiderList[nSpider].nHealth > 0)
             {
                 /*
-                    TODO - nTarget check was added, but should we return if it's invalid instead
+                NOTE:
+                    nTarget check was added, but should we return if it's invalid instead
                     or should code below (action set, b set) happen?
                     Other AI doesn't show consistency in this regard (see Scorpion code)
                 */
@@ -415,14 +425,14 @@ void FuncSpider(int a, int nDamage, int nRun)
                 }
 
                 SpiderList[nSpider].nAction = 4;
-                SpiderList[nSpider].b = 0;
+                SpiderList[nSpider].nFrame  = 0;
             }
             else
             {
                 // creature is dead, make some chunks
                 SpiderList[nSpider].nHealth = 0;
                 SpiderList[nSpider].nAction = 5;
-                SpiderList[nSpider].b = 0;
+                SpiderList[nSpider].nFrame  = 0;
 
                 sprite[nSprite].cstat &= 0xFEFE;
 
@@ -436,12 +446,6 @@ void FuncSpider(int a, int nDamage, int nRun)
 
             return;
         }
-
-        default:
-        {
-            Printf("unknown msg %d for Spider\n", a & 0x7F0000);
-            break;
         }
-    }
 }
 END_PS_NS

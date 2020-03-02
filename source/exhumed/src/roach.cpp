@@ -16,10 +16,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+#include "roach.h"
 #include "exhumed.h"
 #include "engine.h"
 #include "runlist.h"
-#include "roach.h"
 #include "typedefs.h"
 #include "sequence.h"
 #include "move.h"
@@ -33,10 +33,17 @@ BEGIN_PS_NS
 
 #define kMaxRoach	100
 
-int16_t RoachSprite = -1;
 int16_t RoachCount = -1;
 
-static actionSeq ActionSeq[] = {{ 24, 0 }, { 0, 0 }, { 0, 0 }, { 16, 0 }, { 8, 0 }, { 32, 1 }, { 42, 1 }};
+static actionSeq ActionSeq[] = {
+    {24, 0},
+    {0,  0},
+    {0,  0},
+    {16, 0},
+    {8,  0},
+    {32, 1},
+    {42, 1}
+};
 
 struct Roach
 {
@@ -64,7 +71,6 @@ static SavegameHelper sgh("roach",
 void InitRoachs()
 {
     RoachCount = kMaxRoach;
-    RoachSprite = 1;
 }
 
 // TODO - make nType a bool?
@@ -137,7 +143,7 @@ int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int a
 
 void GoRoach(short nSprite)
 {
-    sprite[nSprite].xvel = (Sin(sprite[nSprite].ang + 512) >> 1) - (Sin(sprite[nSprite].ang + 512) >> 3);
+    sprite[nSprite].xvel = (Cos(sprite[nSprite].ang) >> 1) - (Cos(sprite[nSprite].ang) >> 3);
     sprite[nSprite].yvel = (Sin(sprite[nSprite].ang) >> 1) - (Sin(sprite[nSprite].ang) >> 3);
 }
 
@@ -145,18 +151,19 @@ void FuncRoach(int a, int nDamage, int nRun)
 {
     short nRoach = RunData[nRun].nVal;
     assert(nRoach >= 0 && nRoach < kMaxRoach);
-
-    bool bVar_24 = false;
+    
     short nSprite = RoachList[nRoach].nSprite;
     short nAction = RoachList[nRoach].nAction;
 
-    int nMessage = a & 0x7F0000;
+    bool bVal = false;
+
+    int nMessage = a & kMessageMask;
 
     switch (nMessage)
     {
         default:
         {
-            Printf("unknown msg %d for Roach\n", a & 0x7F0000);
+            Printf("unknown msg %d for Roach\n", nMessage);
             return;
         }
 
@@ -185,9 +192,9 @@ void FuncRoach(int a, int nDamage, int nRun)
                     sprite[nSprite].xvel = 0;
                     sprite[nSprite].yvel = 0;
                     sprite[nSprite].zvel = 0;
-                    RoachList[nRoach].nHealth = 0;
                     sprite[nSprite].cstat &= 0xFEFE;
-                    nCreaturesLeft++; // This seems to be incorrect in original exe? should be decrementing?
+
+                    RoachList[nRoach].nHealth = 0;
 
                     if (nAction < 5)
                     {
@@ -195,6 +202,8 @@ void FuncRoach(int a, int nDamage, int nRun)
                         RoachList[nRoach].nAction = 5;
                         RoachList[nRoach].field_2 = 0;
                     }
+
+                    nCreaturesLeft--; // NOTE: This was incrementing in original code. Bug?
                 }
                 else
                 {
@@ -238,7 +247,7 @@ void FuncRoach(int a, int nDamage, int nRun)
             RoachList[nRoach].field_2++;
             if (RoachList[nRoach].field_2 >= SeqSize[nSeq])
             {
-                bVar_24 = true;
+                bVal = true;
                 RoachList[nRoach].field_2 = 0;
             }
 
@@ -283,7 +292,7 @@ void FuncRoach(int a, int nDamage, int nRun)
 
                 case 1:
                 {
-                    // parltly the same as case 0...
+                    // partly the same as case 0.
                     if (((nRoach & 0xF) == (totalmoves & 0xF)) && nTarget < 0)
                     {
                         short nTarget = FindPlayer(nSprite, 100);
@@ -307,11 +316,11 @@ void FuncRoach(int a, int nDamage, int nRun)
                         GoRoach(nSprite);
                     }
 
-                    int nVal = MoveCreatureWithCaution(nSprite);
+                    int nMov = MoveCreatureWithCaution(nSprite);
 
-                    if ((nVal & 0xC000) == 49152)
+                    if ((nMov & 0xC000) == 0xC000)
                     {
-                        if ((nVal & 0x3FFF) == nTarget)
+                        if ((nMov & 0x3FFF) == nTarget)
                         {
                             // repeated below
                             RoachList[nRoach].field_E = RandomSize(2) + 1;
@@ -329,12 +338,11 @@ void FuncRoach(int a, int nDamage, int nRun)
                             GoRoach(nSprite);
                         }
                     }
-                    else if ((nVal & 0xC000) == 32768)
+                    else if ((nMov & 0xC000) == 0x8000)
                     {
                         sprite[nSprite].ang = (sprite[nSprite].ang + 256) & kAngleMask;
                         GoRoach(nSprite);
                     }
-                    //else if ((nVal & 0xC000) < 32768)
                     else
                     {
                         if (RoachList[nRoach].field_C != 0)
@@ -370,7 +378,7 @@ void FuncRoach(int a, int nDamage, int nRun)
 
                 case 3:
                 {
-                    if (bVar_24)
+                    if (bVal)
                     {
                         RoachList[nRoach].field_E--;
                         if (RoachList[nRoach].field_E <= 0)
@@ -394,7 +402,7 @@ void FuncRoach(int a, int nDamage, int nRun)
 
                 case 4:
                 {
-                    if (bVar_24)
+                    if (bVal)
                     {
                         RoachList[nRoach].nAction = 2;
                         RoachList[nRoach].field_2 = 0;
@@ -405,7 +413,7 @@ void FuncRoach(int a, int nDamage, int nRun)
 
                 case 5:
                 {
-                    if (bVar_24)
+                    if (bVal)
                     {
                         sprite[nSprite].cstat = 0;
                         RoachList[nRoach].nAction = 6;
