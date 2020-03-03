@@ -450,7 +450,7 @@ void MoveWeapons(short nPlayer)
                                     BuildGrenade(nPlayer);
                                     AddAmmo(nPlayer, 4, -1);
                                 }
-                                else if (nWeapon == kWeaponStaff)
+                                else if (nWeapon == kWeaponMummified)
                                 {
                                     ShootStaff(nPlayer);
                                 }
