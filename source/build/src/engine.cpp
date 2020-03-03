@@ -9020,6 +9020,8 @@ int32_t LUNATIC_FASTCALL getangle(int32_t xvect, int32_t yvect)
 //
 int32_t ksqrt(uint32_t num)
 {
+    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
+        return ksqrtasm_old(num);
     return nsqrtasm(num);
 }
 
