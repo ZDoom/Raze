@@ -672,7 +672,6 @@ void UpdateCreepySounds()
 
                 if ((vsi & 0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((vsi & 0x1ff) + 1))
                 {
-                    initprintf("PlayFX2: Invalid creepy sound nSound == %i, nSprite == %i\n", vsi);
                     return;
                 }
 
