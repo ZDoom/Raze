@@ -420,7 +420,7 @@ int32_t A_MoveSprite(int32_t spriteNum, vec3_t const * const change, uint32_t cl
     {
         // Handle potential stayput condition (map-provided or hard-coded).
         if (newSectnum < 0
-            || ((actor[spriteNum].actorstayput >= 0 && actor[spriteNum].actorstayput != newSectnum)
+            || ((actor[spriteNum].stayput >= 0 && actor[spriteNum].stayput != newSectnum)
                 || (!RR && ((pSprite->picnum == BOSS2 && pSprite->pal == 0 && sector[newSectnum].lotag != ST_3)
                 || ((pSprite->picnum == BOSS1 || pSprite->picnum == BOSS2) && sector[newSectnum].lotag == ST_1_ABOVE_WATER)
                 || (sector[newSectnum].lotag == ST_1_ABOVE_WATER

@@ -292,7 +292,11 @@ extern intptr_t         *aplWeaponSelectSound[MAX_WEAPONS];     // Sound for wea
 extern intptr_t         *aplWeaponFlashColor[MAX_WEAPONS];      // Color for polymer muzzle flash
 #endif
 
-typedef struct {
+// is referenced by shared code so it needs to be in the shared namespace.
+END_DUKE_NS
+BEGIN_DUKERR_NS
+struct projectile_t
+{
     int32_t workslike, cstat; // 8b
     int32_t hitradius, range, flashcolor; // 12b
     int16_t spawns, sound, isound, vel; // 8b
@@ -306,7 +310,10 @@ typedef struct {
     uint8_t clipdist; // 1b
     int8_t filler[2]; // 2b
     int32_t userdata; // 4b
-} projectile_t;
+};
+
+END_DUKERR_NS
+BEGIN_DUKE_NS
 
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {

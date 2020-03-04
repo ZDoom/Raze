@@ -1549,7 +1549,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
         actor[i].ceilingz = actor[s_ow].ceilingz;
     }
 
-    actor[i].actorstayput = actor[i].extra = -1;
+    actor[i].stayput = actor[i].extra = -1;
 #ifdef POLYMER
     actor[i].lightId = -1;
 #endif
@@ -1632,7 +1632,7 @@ int A_Spawn(int spriteNum, int tileNum)
         pActor->floorz   = sector[pSprite->sectnum].floorz;
         pActor->ceilingz = sector[pSprite->sectnum].ceilingz;
 
-        pActor->actorstayput = pActor->extra = -1;
+        pActor->stayput = pActor->extra = -1;
 
 #ifdef POLYMER
         pActor->lightId = -1;
@@ -1743,7 +1743,7 @@ default_case:
                     A_Fall(newSprite);
 
                     if (A_CheckSpriteFlags(newSprite, SFLAG_BADGUYSTAYPUT))
-                        pActor->actorstayput = pSprite->sectnum;
+                        pActor->stayput = pSprite->sectnum;
 
                     if (!RR || A_CheckSpriteFlags(newSprite, SFLAG_KILLCOUNT))
                         g_player[myconnectindex].ps->max_actors_killed++;
@@ -2896,7 +2896,7 @@ rrbloodpool_fallthrough:
         case COMMANDERSTAYPUT__STATIC:
         case BOSS4STAYPUT__STATIC:
             if (RR) goto default_case;
-            pActor->actorstayput = pSprite->sectnum;
+            pActor->stayput = pSprite->sectnum;
             fallthrough__;
         case BOSS1__STATIC:
         case BOSS2__STATIC:
@@ -3058,7 +3058,7 @@ rrbloodpool_fallthrough:
         case CHEERSTAYPUT__STATICRR:
         case SBMOVE__STATICRR:
             if ((RRRA && pSprite->picnum == SBMOVE) || (!RRRA && (pSprite->picnum == SBSWIPE || pSprite->picnum == CHEERSTAYPUT))) goto default_case;
-            pActor->actorstayput = pSprite->sectnum;
+            pActor->stayput = pSprite->sectnum;
             fallthrough__;
         case BOULDER__STATICRR:
         case BOULDER1__STATICRR:
