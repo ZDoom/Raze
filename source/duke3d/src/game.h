@@ -43,16 +43,7 @@ BEGIN_DUKE_NS
 // Compile game-side legacy Room over Room code?
 #define LEGACY_ROR 1
 
-#define USERQUOTE_LEFTOFFSET    5
-#define USERQUOTE_RIGHTOFFSET   14
-
-#if defined(GEKKO) || defined(__OPENDINGUX__)
-# define VIEWSCREENFACTOR 0
-#elif defined(__ANDROID__)
-# define VIEWSCREENFACTOR 1
-#else
 # define VIEWSCREENFACTOR 2
-#endif
 
 enum GametypeFlags_t {
     GAMETYPE_COOP                   = 0x00000001,
@@ -288,10 +279,6 @@ void G_UpdatePlayerFromMenu(void);
 void P_DoQuote(int32_t q,DukePlayer_t *p);
 void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, ESetPalFlags flags);
 
-#define NEG_ALPHA_TO_BLEND(alpha, blend, orientation) do { \
-    if (alpha < 0) { blend = -alpha; alpha = 0; orientation |= RS_TRANS1; } \
-} while (0)
-
 // Cstat protection mask for (currently) spawned MASKWALL* sprites.
 // TODO: look at more cases of cstat=(cstat&PROTECTED)|ADDED in A_Spawn()?
 // 2048+(32+16)+8+4
@@ -447,8 +434,6 @@ static inline int G_GetMusicIdx(const char *str)
 }
 
 
-EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue);
-
 #endif
 
 
@@ -473,14 +458,6 @@ static inline int G_GetViewscreenSizeShift(T const * spr)
 }
 
 #if defined game_c_ || !defined DISABLE_INLINING
-
-// the point of this is to prevent re-running a function or calculation passed to potentialValue
-// without making a new variable under each individual circumstance
-EXTERN_INLINE void SetIfGreater(int32_t *variable, int32_t potentialValue)
-{
-    if (potentialValue > *variable)
-        *variable = potentialValue;
-}
 
 #endif
 

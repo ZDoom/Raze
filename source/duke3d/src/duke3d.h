@@ -122,10 +122,10 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "player.h"
 #include "quotes.h"
 #include "rts.h"
-#include "screentext.h"
 #include "sector.h"
 #include "sounds.h"
 #include "soundsdyn.h"
+#include "text.h"
 
 BEGIN_DUKE_NS
 
@@ -171,6 +171,7 @@ struct GameInterface : ::GameInterface
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
+	int GetStringTile(int font, const char* t, int f) override;
 
 };
 

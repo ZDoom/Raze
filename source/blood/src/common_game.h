@@ -478,10 +478,6 @@ enum searchpathtypes_t {
     SEARCHPATH_REMOVE = 1<<0,
 };
 
-#define NEG_ALPHA_TO_BLEND(alpha, blend, orientation) do { \
-    if (alpha < 0) { blend = -alpha; alpha = 0; orientation |= RS_TRANS1; } \
-} while (0)
-
 extern int loaddefinitions_game(const char *fn, int32_t preload);
 
 extern void G_ExtInit(void);

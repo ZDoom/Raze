@@ -1,8 +1,9 @@
 //-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
+Copyright (C) 2019 Christoph Oelckers
 
-This file is part of EDuke32.
+This file is part of Raze.
 
 EDuke32 is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -18,16 +19,16 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
-//-------------------------------------------------------------------------
-#include "ns.h"	// Must come before everything else!
+//------------------------------------------------------------------------- 
 
-#include "duke3d.h"
-#include "compat.h"
-#include "sbar.h"
-#include "menus.h"
-#include "gstrings.h"
+#include "screentext.h"
+#include "build.h"
 
-BEGIN_RR_NS
+static inline void SetIfGreater(int32_t *variable, int32_t potentialValue)
+{
+    if (potentialValue > *variable)
+        *variable = potentialValue;
+}
 
 // get the string length until the next '\n'
 int32_t G_GetStringLineLength(const char *text, const char *end, const int32_t iter)
@@ -59,7 +60,7 @@ int32_t G_GetStringNumLines(const char *text, const char *end, const int32_t ite
 }
 // Note: Neither of these care about TEXT_LINEWRAP. This is intended.
 
-// This function requires you to Bfree() the returned char*.
+// This function requires you to Xfree() the returned char*.
 char* G_GetSubString(const char *text, const char *end, const int32_t iter, const int32_t length)
 {
     char *line = (char*) Xmalloc((length+1) * sizeof(char));
@@ -78,73 +79,10 @@ char* G_GetSubString(const char *text, const char *end, const int32_t iter, cons
     return line;
 }
 
-// assign the character's tilenum
-int32_t G_GetStringTile(int32_t font, char *t, int32_t f)
-{
-    if (f & TEXT_DIGITALNUMBER)
-        return *t - '0' + font; // copied from digitalnumber
-    else if (f & (TEXT_BIGALPHANUM|TEXT_GRAYFONT))
-    {
-        int32_t offset = (f & TEXT_GRAYFONT) ? 26 : 0;
-
-        if (*t >= '0' && *t <= '9')
-            return *t - '0' + font + ((f & TEXT_GRAYFONT) ? 26 : -10);
-        else if (*t >= 'a' && *t <= 'z')
-            return *t - 'a' + font + ((f & TEXT_GRAYFONT) ? -26 : 26);
-        else if (*t >= 'A' && *t <= 'Z')
-            return *t - 'A' + font;
-        else switch (*t)
-        {
-        case '_':
-        case '-':
-            return font - (11 + offset);
-            break;
-        case '.':
-            return font + (BIGPERIOD - (BIGALPHANUM + offset));
-            break;
-        case ',':
-            return font + (BIGCOMMA - (BIGALPHANUM + offset));
-            break;
-        case '!':
-            return font + (BIGX_ - (BIGALPHANUM + offset));
-            break;
-        case '?':
-            return font + (BIGQ - (BIGALPHANUM + offset));
-            break;
-        case ';':
-            return font + (BIGSEMI - (BIGALPHANUM + offset));
-            break;
-        case ':':
-            return font + (BIGCOLIN - (BIGALPHANUM + offset));
-            break;
-        case '\\':
-        case '/':
-            return font + (68 - offset); // 3008-2940
-            break;
-        case '%':
-            return font + (69 - offset); // 3009-2940
-            break;
-        case '`':
-        case '\"': // could be better hacked in
-        case '\'':
-            return font + (BIGAPPOS - (BIGALPHANUM + offset));
-            break;
-        default: // unknown character
-            *t = ' '; // whitespace-ize
-            fallthrough__;
-        case '\t':
-        case ' ':
-        case '\n':
-        case '\x7F':
-            return font;
-            break;
-        }
-    }
-    else
-        return *t - '!' + font; // uses ASCII order
-}
-
 #define NUMHACKACTIVE ((f & TEXT_GAMETEXTNUMHACK) && t >= '0' && t <= '9')
+
+#define USERQUOTE_RIGHTOFFSET 14
+
 
 // qstrdim
 vec2_t G_ScreenTextSize(const int32_t font,
@@ -233,7 +171,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
         }
 
         // translate the character to a tilenum
-        tile = G_GetStringTile(font, &t, f);
+        tile = gi->GetStringTile(font, &t, f);
 
         // reset this here because we haven't printed anything yet this loop
         extent.x = 0;
@@ -254,7 +192,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                 char space = '.'; // this is subject to change as an implementation detail
                 if (f & TEXT_TILESPACE)
                     space = '\x7F'; // tile after '~'
-                tile = G_GetStringTile(font, &space, f);
+                tile = gi->GetStringTile(font, &space, f);
 
                 extent.x += (tilesiz[tile].x * z);
             }
@@ -268,7 +206,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                     char line = 'A'; // this is subject to change as an implementation detail
                     if (f & TEXT_TILELINE)
                         line = '\x7F'; // tile after '~'
-                    tile = G_GetStringTile(font, &line, f);
+                    tile = gi->GetStringTile(font, &line, f);
 
                     tempyextent += tilesiz[tile].y * z;
                 }
@@ -301,7 +239,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                     char line = 'A'; // this is subject to change as an implementation detail
                     if (f & TEXT_TILELINE)
                         line = '\x7F'; // tile after '~'
-                    tile = G_GetStringTile(font, &line, f);
+                    tile = gi->GetStringTile(font, &line, f);
 
                     tempyextent += tilesiz[tile].y * z;
                 }
@@ -326,11 +264,10 @@ vec2_t G_ScreenTextSize(const int32_t font,
             // width
             extent.x = tilesiz[tile].x * z;
 
-            // obnoxious hardcoded functionality from gametext
             if (NUMHACKACTIVE)
             {
                 char numeral = '0'; // this is subject to change as an implementation detail
-                extent.x = (tilesiz[G_GetStringTile(font, &numeral, f)].x-1) * z;
+                extent.x = (tilesiz[gi->GetStringTile(font, &numeral, f)].x-1) * z;
             }
 
             // height
@@ -347,7 +284,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
             offset.x += extent.x;
 
         // account for text spacing
-        if (!NUMHACKACTIVE // this "if" line ONLY == replicating hardcoded stuff
+        if (!NUMHACKACTIVE
             && t != '\n'
             && !(f & TEXT_XJUSTIFY)) // to prevent overflow
             offset.x += xbetween;
@@ -391,7 +328,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                         char line = 'A'; // this is subject to change as an implementation detail
                         if (f & TEXT_TILELINE)
                             line = '\x7F'; // tile after '~'
-                        tile = G_GetStringTile(font, &line, f);
+                        tile = gi->GetStringTile(font, &line, f);
 
                         tempyextent += tilesiz[tile].y * z;
                     }
@@ -468,13 +405,13 @@ vec2_t G_ScreenText(const int32_t font,
     int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f,
     const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2)
 {
-	vec2_t size = { 0, 0, }; // eventually the return value
+    vec2_t size = { 0, 0, }; // eventually the return value
     vec2_t origin = { 0, 0, }; // where to start, depending on the alignment
     vec2_t pos = { 0, 0, }; // holds the coordinate position as we draw each character tile of the string
     vec2_t extent = { 0, 0, }; // holds the x-width of each character and the greatest y-height of each line
     const vec2_t Xdirection = { sintable[(blockangle+512)&2047], sintable[blockangle&2047], };
     const vec2_t Ydirection = { sintable[(blockangle+1024)&2047], sintable[(blockangle+512)&2047], };
-    const int32_t z2 = (RR && (f & TEXT_RRMENUTEXTHACK) != 0) ? 26214 : z;
+    const int32_t z2 = (f & TEXT_RRMENUTEXTHACK) ? 26214 : z;
 
     int32_t blendidx=0, tile;
     char t;
@@ -554,9 +491,9 @@ vec2_t G_ScreenText(const int32_t font,
             }
 
             if (f & TEXT_XRIGHT)
-                origin.x = -linewidth;
+                origin.x = -(linewidth/z*z);
             else if (f & TEXT_XCENTER)
-                origin.x = -(linewidth / 2);
+                origin.x = -(linewidth/2/z*z);
         }
 
         if (f & TEXT_YJUSTIFY)
@@ -567,9 +504,9 @@ vec2_t G_ScreenText(const int32_t font,
         }
 
         if (f & TEXT_YBOTTOM)
-            origin.y = -size.y;
+            origin.y = -(size.y/z*z);
         else if (f & TEXT_YCENTER)
-            origin.y = -(size.y / 2);
+            origin.y = -(size.y/2/z*z);
     }
 
     // loop through the string
@@ -622,7 +559,7 @@ vec2_t G_ScreenText(const int32_t font,
         }
 
         // translate the character to a tilenum
-        tile = G_GetStringTile(font, &t, f);
+        tile = gi->GetStringTile(font, &t, f);
 
         switch (t)
         {
@@ -664,7 +601,7 @@ vec2_t G_ScreenText(const int32_t font,
                 char space = '.'; // this is subject to change as an implementation detail
                 if (f & TEXT_TILESPACE)
                     space = '\x7F'; // tile after '~'
-                tile = G_GetStringTile(font, &space, f);
+                tile = gi->GetStringTile(font, &space, f);
 
                 extent.x += (tilesiz[tile].x * z);
             }
@@ -678,7 +615,7 @@ vec2_t G_ScreenText(const int32_t font,
                     char line = 'A'; // this is subject to change as an implementation detail
                     if (f & TEXT_TILELINE)
                         line = '\x7F'; // tile after '~'
-                    tile = G_GetStringTile(font, &line, f);
+                    tile = gi->GetStringTile(font, &line, f);
 
                     tempyextent += tilesiz[tile].y * z;
                 }
@@ -706,7 +643,7 @@ vec2_t G_ScreenText(const int32_t font,
                     char line = 'A'; // this is subject to change as an implementation detail
                     if (f & TEXT_TILELINE)
                         line = '\x7F'; // tile after '~'
-                    tile = G_GetStringTile(font, &line, f);
+                    tile = gi->GetStringTile(font, &line, f);
 
                     tempyextent += tilesiz[tile].y * z;
                 }
@@ -754,11 +691,10 @@ vec2_t G_ScreenText(const int32_t font,
             // width
             extent.x = tilesiz[tile].x * z;
 
-            // obnoxious hardcoded functionality from gametext
             if (NUMHACKACTIVE)
             {
                 char numeral = '0'; // this is subject to change as an implementation detail
-                extent.x = (tilesiz[G_GetStringTile(font, &numeral, f)].x-1) * z;
+                extent.x = (tilesiz[gi->GetStringTile(font, &numeral, f)].x-1) * z;
             }
 
             // height
@@ -776,7 +712,7 @@ vec2_t G_ScreenText(const int32_t font,
                 xoffset += extent.x;
 
             // account for text spacing
-            if (!NUMHACKACTIVE // this "if" line ONLY == replicating hardcoded stuff
+            if (!NUMHACKACTIVE
                 && t != '\n')
                 xoffset += xbetween;
 
@@ -816,7 +752,7 @@ vec2_t G_ScreenText(const int32_t font,
                             char line = 'A'; // this is subject to change as an implementation detail
                             if (f & TEXT_TILELINE)
                                 line = '\x7F'; // tile after '~'
-                            tile = G_GetStringTile(font, &line, f);
+                            tile = gi->GetStringTile(font, &line, f);
 
                             tempyextent += tilesiz[tile].y * z;
                         }
@@ -889,305 +825,3 @@ vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy,
 
     return size;
 }
-
-void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
-                     int32_t s, int32_t p, int32_t o,
-                     int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                     int32_t z, int32_t a)
-{
-    int32_t f = TEXT_GAMETEXTNUMHACK;
-
-    if (t == NULL)
-        return;
-
-    if (!(o & ROTATESPRITE_FULL16))
-    {
-        x <<= 16;
-        y <<= 16;
-    }
-
-    if (x == (160<<16))
-        f |= TEXT_XCENTER;
-
-    G_ScreenText(tile, x, y, z, 0, 0, t, s, p, 2|o|ROTATESPRITE_FULL16, a, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f, x1, y1, x2, y2);
-}
-
-vec2_t gametext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t o, int32_t a, int32_t f)
-{
-    return G_ScreenText(MF_Bluefont.tilenum, x, y, MF_Bluefont.zoom, 0, 0, t, s, p, o|2|8|16|ROTATESPRITE_FULL16, a, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f, 0, 0, xdim-1, ydim-1);
-}
-void gametext_simple(int32_t x, int32_t y, const char *t)
-{
-    G_ScreenText(MF_Bluefont.tilenum, x, y, MF_Bluefont.zoom, 0, 0, t, 0, MF_Bluefont.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags, 0, 0, xdim-1, ydim-1);
-}
-vec2_t mpgametext(int32_t x, int32_t y, const char *t, int32_t s, int32_t o, int32_t a, int32_t f)
-{
-    return G_ScreenText(MF_Bluefont.tilenum, x, y, textsc(MF_Bluefont.zoom), 0, 0, t, s, MF_Bluefont.pal, o|2|8|16|ROTATESPRITE_FULL16, a, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f, 0, 0, xdim-1, ydim-1);
-}
-vec2_t mpgametextsize(const char *t, int32_t f)
-{
-    return G_ScreenTextSize(MF_Bluefont.tilenum, 0, 0, textsc(MF_Bluefont.zoom), 0, t, 2|8|16|ROTATESPRITE_FULL16, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f, 0, 0, xdim-1, ydim-1);
-}
-
-// minitext_yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords,
-// (sb&ROTATESPRITE_MAX) only.
-int32_t minitext_yofs = 0;
-int32_t minitext_lowercase = 0;
-int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t sb)
-{
-    vec2_t dim;
-    int32_t z = MF_Minifont.zoom;
-
-    if (t == NULL)
-    {
-        OSD_Printf("minitext: NULL text!\n");
-        return 0;
-    }
-
-    if (!(sb & ROTATESPRITE_FULL16))
-    {
-        x<<=16;
-        y<<=16;
-    }
-
-    if (sb & ROTATESPRITE_MAX)
-    {
-        if (sb & RS_ALIGN_R)
-            x = sbarxr16(x);
-        else
-            x = sbarx16(x);
-        y = minitext_yofs+sbary16(y);
-        z = sbarsc(z);
-    }
-
-    sb &= (ROTATESPRITE_MAX-1)|RS_CENTERORIGIN;
-
-    dim = G_ScreenText(MF_Minifont.tilenum, x, y, z, 0, 0, t, s, p, sb|ROTATESPRITE_FULL16, 0, MF_Minifont.emptychar.x, MF_Minifont.emptychar.y, MF_Minifont.between.x, MF_Minifont.between.y, MF_Minifont.textflags, 0, 0, xdim-1, ydim-1);
-
-    x += dim.x;
-
-    if (!(sb & ROTATESPRITE_FULL16))
-        x >>= 16;
-
-    return x;
-}
-
-void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_t f)
-{
-    G_ScreenText(MF_Redfont.tilenum, x, y - (12<<16), MF_Redfont.zoom, 0, 0, t, s, MF_Redfont.pal, o|ROTATESPRITE_FULL16, 0, MF_Redfont.emptychar.x, MF_Redfont.emptychar.y, MF_Redfont.between.x, MF_Redfont.between.y, f|MF_Redfont.textflags|TEXT_LITERALESCAPE|TEXT_RRMENUTEXTHACK, 0, 0, xdim-1, ydim-1);
-}
-
-void captionmenutext(int32_t x, int32_t y, char const *t)
-{
-    G_ScreenText(MF_Redfont.tilenum, x, y - (12<<16), MF_Redfont.zoom, 0, 0, t, 0, ud.menutitle_pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Redfont.emptychar.x, MF_Redfont.emptychar.y, MF_Redfont.between.x, MF_Redfont.between.y, MF_Redfont.textflags|TEXT_LITERALESCAPE|TEXT_XCENTER|TEXT_YCENTER, 0, 0, xdim-1, ydim-1);
-}
-
-
-int32_t user_quote_time[MAXUSERQUOTES];
-static char user_quote[MAXUSERQUOTES][178];
-
-void G_AddUserQuote(const char* daquote)
-{
-	int32_t i;
-
-	if (hud_messages == 0) return;
-	Printf(PRINT_MEDIUM | PRINT_NOTIFY, "%s\n", daquote);
-	if (hud_messages == 1)
-	{
-		for (i = MAXUSERQUOTES - 1; i > 0; i--)
-		{
-			Bstrcpy(user_quote[i], user_quote[i - 1]);
-			user_quote_time[i] = user_quote_time[i - 1];
-		}
-		Bstrcpy(user_quote[0], daquote);
-
-		user_quote_time[0] = hud_messagetime;
-		pub = NUMPAGES;
-	}
-}
-
-int32_t textsc(int32_t sc)
-{
-    return scale(sc, hud_textscale, 400);
-}
-
-#define FTAOPAQUETIME 30
-
-// alpha increments of 8 --> 256 / 8 = 32 --> round up to power of 2 --> 32 --> divide by 2 --> 16 alphatabs required
-static inline int32_t textsh(uint32_t t)
-{
-    return (hud_glowingquotes && ((videoGetRenderMode() == REND_CLASSIC && numalphatabs < 15) || t >= FTAOPAQUETIME))
-        ? sintable[(t << 7) & 2047] >> 11
-        : (sintable[(FTAOPAQUETIME << 7) & 2047] >> 11);
-}
-
-// orientation flags depending on time that a quote has still to be displayed
-static inline int32_t texto(int32_t t)
-{
-    if (videoGetRenderMode() != REND_CLASSIC || numalphatabs >= 15 || t > 4)
-        return 0;
-
-    if (t > 2)
-        return 1;
-
-    return 1|32;
-}
-
-static inline int32_t texta(int32_t t)
-{
-    if (videoGetRenderMode() == REND_CLASSIC && numalphatabs < 15)
-        return 0;
-
-    return 255 - clamp(t<<3, 0, 255);
-}
-
-static FORCE_INLINE int32_t text_ypos(void)
-{
-    if (hud_position == 1 && ud.screen_size == 4 && ud.althud == 1)
-        return 32<<16;
-
-#ifdef GEKKO
-    return 16<<16;
-#elif defined EDUKE32_TOUCH_DEVICES
-    return 24<<16;
-#else
-    return 1<<16;
-#endif
-}
-
-static FString text_quote;	// To put text into the quote display that does not come from the quote array. (Is it really necessary to implement everything as a hack??? :( )
-
-// this handles both multiplayer and item pickup message type text
-// both are passed on to gametext
-void G_PrintGameQuotes(int32_t snum)
-{
-    const DukePlayer_t *const ps = g_player[snum].ps;
-    const int32_t reserved_quote = (ps->ftq >= QUOTE_RESERVED && ps->ftq <= QUOTE_RESERVED3);
-    // NOTE: QUOTE_RESERVED4 is not included.
-
-    int32_t const ybase = (fragbarheight()<<16) + text_ypos();
-    int32_t height = 0;
-    int32_t k = ps->fta;
-
-
-    // primary quote
-
-    do
-    {
-        if (k <= 1)
-            break;
-
-        int32_t y = ybase;
-        if (reserved_quote)
-        {
-#ifdef SPLITSCREEN_MOD_HACKS
-            if (!g_fakeMultiMode)
-                y = 140<<16;
-            else
-                y = 70<<16;
-#else
-            y = 140<<16;
-#endif
-        }
-
-        int32_t pal = 0;
-        int32_t x = 160<<16;
-
-#ifdef SPLITSCREEN_MOD_HACKS
-        if (g_fakeMultiMode)
-        {
-            pal = g_player[snum].pcolor;
-            const int32_t sidebyside = ud.screen_size != 0;
-
-            if (sidebyside)
-                x = snum == 1 ? 240<<16 : 80<<16;
-            else if (snum == 1)
-                y += 100<<16;
-        }
-#endif
-
-		if (text_quote.IsNotEmpty() && ps->ftq == -32768) height = gametext_(x, y, text_quote, textsh(k), pal, texto(k), texta(k), TEXT_XCENTER).y + (1 << 16);
-		else height = gametext_(x, y, quoteMgr.GetQuote(ps->ftq), textsh(k), pal, texto(k), texta(k), TEXT_XCENTER).y + (1 << 16);
-	}
-    while (0);
-
-
-    // userquotes
-
-    int32_t y = ybase;
-
-    if (k > 1 && !reserved_quote)
-        y += k <= 8 ? (height * (k-1))>>3 : height;
-
-    for (size_t i = MAXUSERQUOTES-1; i < MAXUSERQUOTES; --i)
-    {
-        k = user_quote_time[i];
-
-        if (k <= 0)
-            continue;
-
-        // int32_t const sh = hud_glowingquotes ? sintable[((totalclock+(i<<2))<<5)&2047]>>11 : 0;
-
-        height = mpgametext(mpgametext_x, y, user_quote[i], textsh(k), texto(k), texta(k), TEXT_LINEWRAP).y + textsc(1<<16);
-        y += k <= 4 ? (height * (k-1))>>2 : height;
-    }
-}
-
-void P_DoQuote(int32_t q, DukePlayer_t *p)
-{
-    int32_t cq = 0;
-
-    if (hud_messages == 0 || q < 0 || !(p->gm & MODE_GAME))
-        return;
-
-    if (q & MAXQUOTES)
-    {
-        cq = 1;
-        q &= ~MAXQUOTES;
-    }
-
-    if (p->fta > 0 && q != QUOTE_RESERVED && q != QUOTE_RESERVED2)
-        if (p->ftq == QUOTE_RESERVED || p->ftq == QUOTE_RESERVED2) return;
-
-    if (p->ftq != q)
-    {
-		auto qu = quoteMgr.GetQuote(q);
-        if (p == g_player[screenpeek].ps && qu[0] != '\0')
-			Printf((cq ? PRINT_LOW : PRINT_MEDIUM) | PRINT_NOTIFY, "%s\n", qu);
-
-    }
-
-	if (hud_messages == 1)
-	{
-		p->ftq = q;
-		p->fta = 100;
-		pub = NUMPAGES;
-		pus = NUMPAGES;
-	}
-}
-
-void GameInterface::DoPrintMessage(int prio, const char* t)
-{
-	auto p = g_player[myconnectindex].ps; // text quotes always belong to the local player.
-	int32_t cq = 0;
-
-	if (hud_messages == 0 || !(p->gm & MODE_GAME))
-		return;
-
-	if (p->fta > 0)
-		if (p->ftq == QUOTE_RESERVED || p->ftq == QUOTE_RESERVED2) return;
-
-	if (p == g_player[screenpeek].ps)
-		Printf(prio|PRINT_NOTIFY, cq ? OSDTEXT_DEFAULT "%s\n" : "%s\n", t);
-
-	if (hud_messages == 1)
-	{
-		p->fta = 100;
-		p->ftq = -32768;
-		text_quote = t;
-		pub = NUMPAGES;
-		pus = NUMPAGES;
-	}
-}
-
-END_RR_NS

@@ -705,6 +705,7 @@ set (PCH_SOURCES
 	common/2d/v_draw.cpp
 	common/2d/v_drawtext.cpp
 	common/2d/renderstyle.cpp
+	common/2d/screentext.cpp
 
 	common/fonts/font.cpp
 	common/fonts/hexfont.cpp

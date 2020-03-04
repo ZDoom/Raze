@@ -40,16 +40,7 @@ BEGIN_RR_NS
 // Compile game-side legacy Room over Room code?
 #define LEGACY_ROR 1
 
-#define USERQUOTE_LEFTOFFSET    5
-#define USERQUOTE_RIGHTOFFSET   14
-
-#if defined(GEKKO) || defined(__OPENDINGUX__)
-# define VIEWSCREENFACTOR 0
-#elif defined(__ANDROID__)
-# define VIEWSCREENFACTOR 1
-#else
 # define VIEWSCREENFACTOR 2
-#endif
 
 enum GametypeFlags_t {
     GAMETYPE_COOP                   = 0x00000001,
@@ -284,10 +275,6 @@ void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum);
 void G_OffMotorcycle(DukePlayer_t *pPlayer);
 void G_OnBoat(DukePlayer_t *pPlayer, int spriteNum);
 void G_OffBoat(DukePlayer_t *pPlayer);
-
-#define NEG_ALPHA_TO_BLEND(alpha, blend, orientation) do { \
-    if (alpha < 0) { blend = -alpha; alpha = 0; orientation |= RS_TRANS1; } \
-} while (0)
 
 // Cstat protection mask for (currently) spawned MASKWALL* sprites.
 // TODO: look at more cases of cstat=(cstat&PROTECTED)|ADDED in A_Spawn()?

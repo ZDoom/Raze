@@ -358,6 +358,10 @@ typedef struct {
 #define SPREXT_TSPRACCESS 16
 #define SPREXT_TEMPINVISIBLE 32
 
+#define NEG_ALPHA_TO_BLEND(alpha, blend, orientation) do { \
+    if ((alpha) < 0) { (blend) = -(alpha); (alpha) = 0; (orientation) |= RS_TRANS1; } \
+} while (0)
+
 // using the clipdist field
 enum
 {

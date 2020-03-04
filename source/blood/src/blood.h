@@ -99,6 +99,7 @@ struct GameInterface : ::GameInterface
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
+	int GetStringTile(int font, const char* t, int f) override;
 
 	GameStats getStats() override;
 };

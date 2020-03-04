@@ -138,6 +138,7 @@ struct GameInterface
 	virtual void QuitToTitle() {}
 	virtual void SetAmbience(bool on) {}
 	virtual FString GetCoordString() { return "'stat coord' not implemented"; }
+	virtual int GetStringTile(int font, const char* t, int f) { return -1; }
 
 };
 

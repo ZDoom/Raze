@@ -24,7 +24,7 @@ set( PCH_SOURCES
 	src/savegame.cpp
 	src/sbar.cpp
 	src/screens.cpp
-	src/screentext.cpp
+	src/text.cpp
 	src/sector.cpp
 	src/sounds.cpp
 	src/soundsdyn.cpp

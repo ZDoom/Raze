@@ -125,7 +125,7 @@ END_RR_NS
 #include "player.h"
 #include "quotes.h"
 #include "rts.h"
-#include "screentext.h"
+#include "text.h"
 #include "sector.h"
 #include "sounds.h"
 #include "soundsdyn.h"
@@ -171,6 +171,7 @@ struct GameInterface : ::GameInterface
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
+	int GetStringTile(int font, const char* t, int f) override;
 };
 
 END_RR_NS

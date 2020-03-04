@@ -63,7 +63,7 @@ set( PCH_SOURCES
 	src/replace.cpp
 	src/resource.cpp
 	src/screen.cpp
-	src/screentext.cpp
+	src/text.cpp
 	src/sectorfx.cpp
 	src/seq.cpp
 	src/sfx.cpp
