@@ -371,7 +371,7 @@ protected:
 
 class RedneckMainMenu : public RedneckListMenu
 {
-	virtual void Init(DMenu* parent = NULL, FListMenuDescriptor* desc = NULL)
+	virtual void Init(DMenu* parent = NULL, FListMenuDescriptor* desc = NULL) override
 	{
 		RedneckListMenu::Init(parent, desc);
 		Menu_DHLeaonardHeadReset();

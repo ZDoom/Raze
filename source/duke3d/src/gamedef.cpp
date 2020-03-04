@@ -2094,11 +2094,6 @@ void C_UndefineLevel(int32_t vol, int32_t lev)
     gmap.designerTime = 0;
 }
 
-LUNATIC_EXTERN int32_t C_SetDefName(const char *name)
-{
-	return 0;
-}
-
 defaultprojectile_t DefaultProjectile;
 
 EDUKE32_STATIC_ASSERT(sizeof(projectile_t) == sizeof(DefaultProjectile));

@@ -794,10 +794,6 @@ static uint32_t calcsz(const dataspec_t *spec)
     return dasiz;
 }
 
-#ifdef USE_OPENGL
-static void sv_prespriteextsave();
-static void sv_postspriteext();
-#endif
 static void sv_postactordata();
 static void sv_preanimateptrsave();
 static void sv_postanimateptr();

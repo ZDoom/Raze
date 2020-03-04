@@ -881,7 +881,7 @@ growspark_rr:
                 vel = 300;
                 startPos.z -= (15<<8);
             }
-            else if (projecTile == UWHIP)
+            else //if (projecTile == UWHIP)
             {
                 vel = 300;
                 startPos.z += (4<<8);
@@ -7213,7 +7213,7 @@ void P_ProcessInput(int playerNum)
             }
             else if (pPlayer->moto_speed >= 20 && pPlayer->on_ground == 1 && (pPlayer->moto_on_mud || pPlayer->moto_on_oil))
             {
-                short var9c, vara0, vara4;
+                short var9c, vara0, vara4 = 0;
                 var9c = pPlayer->moto_speed;
                 vara0 = fix16_to_int(pPlayer->q16ang);
                 var84 = krand2()&1;

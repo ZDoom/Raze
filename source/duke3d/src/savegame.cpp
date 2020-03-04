@@ -1045,20 +1045,7 @@ static uint32_t calcsz(const dataspec_t *spec)
     return dasiz;
 }
 
-#ifdef USE_OPENGL
-static void sv_prespriteextsave();
-static void sv_postspriteext();
-#endif
-#if defined LUNATIC
-// Recreate Lua state.
-// XXX: It may matter a great deal when this is run from if the Lua code refers
-// to C-side data at file scope. Such usage is strongly discouraged though.
-static void sv_create_lua_state(void)
-{
-    El_CreateGameState();
-    G_PostCreateGameState();
-}
-#endif
+
 static void sv_postactordata();
 static void sv_preanimateptrsave();
 static void sv_postanimateptr();

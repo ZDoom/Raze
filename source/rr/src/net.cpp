@@ -2445,6 +2445,9 @@ void Net_Disconnect(void)
                 myconnectindex = screenpeek = 0;
                 G_BackToMenu();
                 break;
+					
+			default:
+				break;
             }
         }
 
@@ -2474,6 +2477,8 @@ void Net_Disconnect(void)
                 if (event.packet)
                     enet_packet_destroy(event.packet);
                 break;
+			default:
+				break;
             }
         }
         enet_host_destroy(g_netServer);

@@ -326,7 +326,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
 
             // the following trigger flags are sensless to have together
             if ((pXSprite->Touch && (pXSprite->Proximity || pXSprite->Sight) && pXSprite->DudeLockout)
-                    || pXSprite->Touch && pXSprite->Proximity && !pXSprite->Sight) pXSprite->Touch = false;
+                    || (pXSprite->Touch && pXSprite->Proximity && !pXSprite->Sight)) pXSprite->Touch = false;
 
             if (pXSprite->Proximity && pXSprite->Sight && pXSprite->DudeLockout)
                 pXSprite->Proximity = false;
@@ -1734,7 +1734,7 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
                 break;
             case 3:
             case 4:
-                if (!sectRangeIsFine(pSprite->sectnum)) fallthrough__;
+                // if (!sectRangeIsFine(pSprite->sectnum)) fallthrough__; Code is wrong
                 pos = (pXSource->data4 == 3) ? sector[pSprite->sectnum].floorz : sector[pSprite->sectnum].ceilingz;
                 break;
             default:

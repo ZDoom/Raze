@@ -34,9 +34,6 @@ extern int32_t user_quote_time[MAXUSERQUOTES];
 extern int32_t minitext_lowercase;
 extern int32_t minitext_yofs;
 
-enum {
-};
-
 extern int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t sb);
 extern void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_t f);
 extern void captionmenutext(int32_t x, int32_t y, char const *t);
