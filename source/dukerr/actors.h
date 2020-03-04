@@ -23,9 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __actors_h_
 #define __actors_h_
 
-#include "player.h"
-# include "namesdyn.h"
-
 BEGIN_DUKERR_NS
 
 #define MAXSLEEPDIST        16384
