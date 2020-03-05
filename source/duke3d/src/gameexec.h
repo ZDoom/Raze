@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "events_defs.h"
 #include "gamedef.h"  // vmstate_t
 #include "sector.h"  // mapstate_t
+#include "zstring.h"
 
 BEGIN_DUKE_NS
 
