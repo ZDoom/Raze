@@ -315,11 +315,12 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                         pXSprite->Sight = pXSprite->Impact = pXSprite->Touch = false;
                         pXSprite->Proximity = pXSprite->Push = pXSprite->Vector = false;
                         pXSprite->triggerOff = true; pXSprite->triggerOn = false;
-                        //if (pXSprite->waitTime <= 0) pXSprite->waitTime = 1;
                         pXSprite->restState = 0;
                         changespritestat(pSprite->index, kStatModernCondition);
                         pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
                         pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+                    } else {
+                        actPostSprite(pSprite->index, kStatFree);
                     }
                     break;
             }
@@ -1947,6 +1948,19 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
     }
 }
 
+bool condOrw(XSPRITE* pXSprite, int objType, int objIndex) {
+    pXSprite->targetX = objType;
+    pXSprite->targetY = objIndex;
+
+    // means that obj was overwritten and no more allowed!
+    return false;
+}
+
+bool condCmp(int val, int min, int max = 0, bool rvrs = false) {
+    bool retn = (max == 0) ? (val == min) : (val >= min && val <= max);
+    return (!rvrs) ? retn : !retn;
+}
+
 bool valueIsBetween(int val, int min, int max) {
     return (val > min && val < max);
 }
@@ -1981,10 +1995,6 @@ void modernTypeSendCommand(int nSprite, int destChannel, COMMAND_ID command) {
         evSend(nSprite, 3, destChannel, command); // then send normal command
         return;
     }
-}
-
-bool pointingAt(XSPRITE* pXSource, int destType) {
-    return true;
 }
 
 // this function used by various new modern types.
@@ -2426,6 +2436,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 break;
             case kCmdOn:
                 if (!pXSprite->state) SetSpriteState(nSprite, pXSprite, 1);
+                if (IsPlayerSprite(pSprite)) break;
                 switch (pXSprite->aiState->stateType) {
                     case kAiStateIdle:
                     case kAiStateGenIdle:
@@ -2446,115 +2457,200 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         default:
             return false; // no modern type found to work with, go normal OperateSprite();
         case kModernCondition: {
+            //////// WIP /////////////////////////////////////////
             if (pXSprite->isTriggered) return true;
             
             int objType = event.type; int objIndex = event.index;
-            
-            // this condition works as callback
-            //if (pSprite->flags & kModernTypeFlag2) {
-                
-            //}
-            
             if (pXSprite->state == 0) {
                 pXSprite->targetX = objType; pXSprite->targetY = objIndex;
-                if (pXSprite->waitTime > 0 && (objType != OBJ_SPRITE || (objType == OBJ_SPRITE && sprite[objIndex].type != kModernCondition))) {
-                    viewSetSystemMessage("POST IT!");
+                if (pXSprite->waitTime > 0 && (objType != OBJ_SPRITE || sprite[objIndex].type != kModernCondition)) {
+                    //viewSetSystemMessage("POST IT!");
                     pXSprite->state = 1;
                     evPost(nSprite, 3, (pXSprite->waitTime <= 0) ? 0 : (pXSprite->waitTime * 120) / 10, kCmdRepeat);
                     return true;
                 } else {
-                    viewSetSystemMessage(">> SUB-CONDITION!");
+                    //viewSetSystemMessage(">> SUB-CONDITION!");
                 }
             } else if (event.cmd != kCmdRepeat) {
-                viewSetSystemMessage(">> TIMEOUT!");
+                //viewSetSystemMessage(">> TIMEOUT!");
+                if (pXSprite->Interrutable) {
+                    evKill(nSprite, 3);
+                    pXSprite->state = 0;
+                }
                 return true;
             } else {
                 evKill(nSprite, 3);
                 pXSprite->state = 0;
             }
-            
+
             if (objType == OBJ_SPRITE && sprite[objIndex].type == kModernCondition) {
                 objType = xsprite[sprite[objIndex].extra].targetX;
                 objIndex = xsprite[sprite[objIndex].extra].targetY;
             }
             
-            bool ok = false;
+            int cond = pXSprite->data1; bool rvrs = ((pSprite->flags & kModernTypeFlag1));
+            bool ok = false; bool orw = (pXSprite->command == kCmdNumberic); int var = -1;
             spritetype* pSpr = NULL;  sectortype* pSect = NULL;  walltype* pWall = NULL;
             XSPRITE* pXSpr = NULL;    XSECTOR* pXSect = NULL;    XWALL* pXWall = NULL;
-            
-            viewSetSystemMessage("CHECK IT (CONDITION: %d)!", pXSprite->data1);
-            switch (pXSprite->data1) {
-                case 9:   // is required type?
-                case 253: // is a sector?
-                case 254: // is a wall?
-                case 255: // is a sprite?
-                    if ((objType == OBJ_SPRITE) && ((pXSprite->data1 == 255) ^ (sprite[objIndex].type == pXSprite->data2))) ok = true;
-                    else if ((objType == OBJ_SECTOR) && ((pXSprite->data1 == 253) ^ (sector[objIndex].type == pXSprite->data2))) ok = true;
-                    else if ((objType == OBJ_WALL) && ((pXSprite->data1 == 254) ^ (wall[objIndex].type == pXSprite->data2))) ok = true;
+            int arg1 = pXSprite->data2; int arg2 = pXSprite->data3; int arg3 = pXSprite->data4;
+            //viewSetSystemMessage("CHECK IT (CONDITION: %d)!", pXSprite->data1);
+
+            // 100 - 200: universal conditions              // 200 - 300: wall specific conditions
+            // 300 - 400: sector specific conditions        // 500 - 600: sprite specific conditions
+            switch (cond) {
+                case 100: // type is in range?
+                    switch (objType) {
+                        case OBJ_SECTOR:
+                            ok = condCmp(sector[objIndex].type, arg1, arg2, rvrs);
+                            break;
+                        case OBJ_SPRITE:
+                            ok = condCmp((sprite[objIndex].type != kThingBloodChunks) ? sprite[objIndex].type : sprite[objIndex].inittype, arg1, arg2, rvrs);
+                            break;
+                        case OBJ_WALL:
+                            ok = condCmp(wall[objIndex].type, arg1, arg2, rvrs);
+                            break;
+                    }
                     break;
+                case 101: ok = condCmp(event.cmd, arg1, arg2, rvrs); break; // this codition received specified command?
+                case 110: ok = (objType == OBJ_SECTOR); break; // is a sector?
+                case 120: ok = (objType == OBJ_WALL); break; // is a wall?
+                case 130: ok = (objType == OBJ_SPRITE); break; // is a sprite?
                 default:
                     switch (objType) {
+                        case OBJ_WALL:
+                            if (!condCmp(cond, 200, 300, false)) break;
+                            pWall = &wall[objIndex]; pXWall = (xwallRangeIsFine(pWall->extra)) ? &xwall[pWall->extra] : NULL;
+                            switch (cond) {
+                                case 200: ok = condCmp(objIndex, arg1, arg2, rvrs); break;
+                                case 211: ok = condCmp(sectorofwall(objIndex), arg1, arg2, rvrs); break;
+                            }
+                            break;
+                        case OBJ_SECTOR:
+                            if (!condCmp(cond, 300, 400, false)) break;
+                            pSect = &sector[objIndex]; pXSect = (xsectRangeIsFine(pSect->extra)) ? &xsector[pSect->extra] : NULL;
+                            switch (cond) {
+                                case 300: ok = (condCmp(objIndex, arg1, arg2, rvrs)); break;
+                                case 310: // required sprite type is in current sector?
+                                    for (var = headspritesect[objIndex]; var >= 0; var = nextspritesect[var]) {
+                                        if ((ok = condCmp(sprite[var].type, arg1, arg2, rvrs)) != false) {
+                                            if (orw) orw = condOrw(pXSprite, OBJ_SPRITE, var);
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                case 311: ok = ((pXSect && pXSect->Underwater) ^ rvrs); break;
+                            }
+                            break;
                         case OBJ_SPRITE:
-                        pSpr = &sprite[objIndex]; if (xspriRangeIsFine(pSpr->extra)) pXSpr = &xsprite[pSpr->extra];
-                        switch (pXSprite->data1) {
-                                case 4: ok = (pSpr->sectnum == pXSprite->data2); break; // stays in required sector?
-                                case 10: ok = (IsDudeSprite(pSpr) || (pSpr->inittype >= kDudeBase && pSpr->inittype < kDudeMax)); break; // is dude?
-                                case 20: ok = (IsPlayerSprite(pSpr) || (pSpr->inittype >= kDudePlayer1 && pSpr->inittype <= kDudePlayer8)); break; // is player?
-                                case 30: ok = (pSpr->type >= kThingBase && pSpr->type < kThingMax); break; // is a thing?
-                                case 45: ok = (pSpr->xrepeat == pXSprite->data2); break;
-                                case 46: ok = (pSpr->yrepeat == pXSprite->data2); break;
-                            default:
-                                if (!pXSpr) {
-                                    switch (pXSprite->data1) {
-                                        case 2: ok = true; break;
+                            if (!condCmp(cond, 500, 600, false)) break;
+                            pSpr = &sprite[objIndex]; pXSpr = (xspriRangeIsFine(pSpr->extra)) ? &xsprite[pSpr->extra] : NULL;
+                            switch (cond) {
+                                case 500: ok = condCmp(objIndex, arg1, arg2, rvrs); break; // index in range?
+                                case 501: ok = condCmp(pSpr->statnum, arg1, arg2, rvrs); break;
+                                case 502: ok = condCmp((!arg3) ? pSpr->xrepeat : pSpr->xoffset, arg1, arg2, rvrs); break;
+                                case 503: ok = condCmp((!arg3) ? pSpr->yrepeat : pSpr->yoffset, arg1, arg2, rvrs); break;
+                                case 504: ok = condCmp(pSpr->pal, arg1, arg2, rvrs); break;
+                                case 505: ok = condCmp(pSpr->ang, arg1, arg2, rvrs); break;
+                                case 506: ok = condCmp(pSpr->flags, arg1, arg2, rvrs); break;
+                                case 507: ok = condCmp(pSpr->cstat, arg1, arg2, rvrs); break;
+                                case 508:
+                                    if ((ok = condCmp(pSpr->owner, arg1, arg2, rvrs)) != false && orw)
+                                        orw = condOrw(pXSprite, OBJ_SPRITE, pSpr->owner);
+                                    break;
+                                case 509: ok = condCmp(pSpr->shade, arg1, arg2, rvrs); break;
+                                case 510: // stays in required sector?
+                                    if ((ok = condCmp(pSpr->sectnum, arg1, arg2, rvrs)) != false && orw)
+                                        orw = condOrw(pXSprite, OBJ_SECTOR, pSpr->sectnum);
+                                    break;
+                                case 511: ok = condCmp(pSpr->clipdist, arg1, arg2, rvrs); break;
+                                case 512: ok = (xvel[pSpr->index] || yvel[pSpr->index] || zvel[pSpr->index]); break;
+                                case 513: ok = xvel[pSpr->index]; break;
+                                case 514: ok = yvel[pSpr->index]; break;
+                                case 515: ok = zvel[pSpr->index]; break;
+                                // 516
+                                // 517
+                                // 518
+                                case 519:
+                                    if ((ok = spriteIsUnderwater(pSpr)) != false && orw)
+                                        orw = condOrw(pXSprite, OBJ_SECTOR, pSpr->sectnum);
+                                    break;
+                                default:
+                                    if (pXSpr) {
+                                        switch (cond) {
+                                            case 520: // hp in a range?
+                                                ok = (arg1 <= 0 && arg2 <= 0 && pSpr->type == kThingBloodChunks) ? true : condCmp(pXSpr->health, arg1, arg2, rvrs);
+                                                break;
+                                            case 521: ok = condCmp(pXSpr->data1, arg1, arg2, rvrs); break;
+                                            case 522: ok = condCmp(pXSpr->data2, arg1, arg2, rvrs); break;
+                                            case 523: ok = condCmp(pXSpr->data3, arg1, arg2, rvrs); break;
+                                            case 524: ok = condCmp(pXSpr->data4, arg1, arg2, rvrs); break;
+                                            // 525
+                                            // 526
+                                            // 527
+                                            // 528
+                                            // 529
+                                            case 530: // touching floor of sector?
+                                                if ((ok = ((gSpriteHit[pSpr->extra].florhit & 0xc000) == 0x4000)) != false && orw)
+                                                    orw = condOrw(pXSprite, OBJ_SECTOR, gSpriteHit[pSpr->extra].florhit & 0x3fff);
+                                                break;
+                                            case 531: // touching ceil of sector?
+                                                if ((ok = ((gSpriteHit[pSpr->extra].ceilhit & 0xc000) == 0x4000)) != false && orw)
+                                                    orw = condOrw(pXSprite, OBJ_SECTOR, gSpriteHit[pSpr->extra].florhit & 0x3fff);
+                                                break;
+                                            case 532: // touching walls of sector?
+                                                if ((ok = ((gSpriteHit[pSpr->extra].hit & 0xc000) == 0x8000)) != false && orw)
+                                                    orw = condOrw(pXSprite, OBJ_WALL, gSpriteHit[pSpr->extra].hit & 0x3fff);
+                                                break;
+                                            case 533: // touching another sprite?
+                                                if ((ok = ((gSpriteHit[pSpr->extra].florhit & 0xc000) == 0xc000)) != false) var = gSpriteHit[pSpr->extra].florhit & 0x3fff;
+                                                else if ((ok = ((gSpriteHit[pSpr->extra].hit & 0xc000) == 0xc000)) != false) var = gSpriteHit[pSpr->extra].hit & 0x3fff;
+                                                else if ((ok = ((gSpriteHit[pSpr->extra].ceilhit & 0xc000) == 0xc000)) != false) var = gSpriteHit[pSpr->extra].ceilhit & 0x3fff;
+                                                if (!ok) {
+                                                    // check if some sprite touching current
+                                                    for (int i = headspritestat[kStatDude]; i >= 0; i = nextspritestat[i]) {
+                                                        if (!spriRangeIsFine(xsprite[i].reference)) continue;
+                                                        
+                                                        int extra = sprite[xsprite[i].reference].extra;
+                                                        if ((ok = ((gSpriteHit[extra].florhit & 0xc000) == 0xc000)) != false) var = gSpriteHit[extra].florhit & 0x3fff;
+                                                        else if ((ok = ((gSpriteHit[extra].hit & 0xc000) == 0xc000)) != false) var = gSpriteHit[extra].hit & 0x3fff;
+                                                        else if ((ok = ((gSpriteHit[extra].ceilhit & 0xc000) == 0xc000)) != false) var = gSpriteHit[extra].ceilhit & 0x3fff;
+
+                                                        if (ok && var == pSpr->index) break;
+                                                    }
+                                                }
+                                                if (ok && orw) orw = condOrw(pXSprite, OBJ_SPRITE, var);
+                                                break;
+                                            // 560 - 580: player specific conditions
+                                            // 590 - 599: misc
+                                            case 596:
+                                                if ((ok = condCmp(pXSpr->burnTime, arg1, (arg2 > 0) ? arg2 : 32767, rvrs)) != false && orw)
+                                                    orw = condOrw(pXSprite, OBJ_SPRITE, pXSpr->burnSource);
+                                                break;
+                                            //case 597: hitscan
+                                                // arg1 = objType
+                                                // arg2 = index range
+                                                // arg3 = approxDist
+                                            case 598: ok = pXSpr->locked;
+                                            case 599: ok = condCmp(getSpriteMassBySize(pSpr), arg1, arg2, rvrs); break; // mass of the sprite in a range?
+                                        }
+                                    } else {
+                                        switch (cond) {
+                                            case 520: case 599: ok = (arg1 <= 0 && arg2 <= 0); break;
+                                        }
                                     }
-                                } else {
-                                    switch (pXSprite->data1) {
-                                        case 1: ok = (pXSpr->health > 0 && pSpr->type != kThingBloodChunks); break; // is alive?
-                                        case 2: ok = (pXSpr->health <= 0 || pSpr->type == kThingBloodChunks); break; // is dead?
-                                        case 3: ok = (pXSpr->health >= pXSprite->data2 && pXSpr->health <= pXSprite->data3); break; // is hp in a range?
-                                        case 51: ok = (pXSpr->data1 == pXSprite->data2); break;
-                                        case 52: ok = (pXSpr->data2 == pXSprite->data2); break;
-                                        case 53: ok = (pXSpr->data3 == pXSprite->data2); break;
-                                        case 54: ok = (pXSpr->data4 == pXSprite->data2); break;
-                                    }
-                                }
-                                break;
-                        }
-                        break;
-                    case OBJ_SECTOR:
-                        if (!xsectRangeIsFine(sector[objIndex].extra)) return true;
-                        pSect = &sector[objIndex]; pXSect = &xsector[pSect->extra];
-                        switch (pXSprite->data1) {
-                            case 51: ok = (pXSect->data == pXSprite->data2); break;
-                            case 40: // required sprite type and quantity is in current sector?
-                                for (int nSprite = headspritesect[objIndex], cnt = 0; nSprite >= 0; nSprite = nextspritesect[nSprite]) {
-                                    if ((sprite[nSprite].type == pXSprite->data2) 
-                                        && ((ok = (++cnt >= ClipLow(pXSprite->data3, 1))) != false)) break;
-                                }
-                                break;
-                            case 41: break; // slope angle of ceil
-                            case 42: break; // slope angle of floor
-                            case 43: break; // parallaxed ceil?
-                            case 44: break; // parallaxed floor?
-                        }
-                        /// WIP
-                        break;
-                    case OBJ_WALL:
-                        if (!xwallRangeIsFine(wall[objIndex].extra)) return true;
-                        pWall = &wall[objIndex]; pXWall = &xwall[pWall->extra];
-                        /// WIP
-                        break;
-                }
-                break;
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
             }
 
-            if (ok ^ (pSprite->flags & kModernTypeFlag1)) {
-                viewSetSystemMessage("TRIGGER IT!");
-                if (pXSprite->triggerOnce) pXSprite->isTriggered;
-                evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                
-            }
+            
+            if (!ok) return true;
+            //viewSetSystemMessage("TRIGGER IT! (%d)", cond);
+            if (orw) orw = condOrw(pXSprite, objType, objIndex);
+            if (pXSprite->triggerOnce) pXSprite->isTriggered;
+            evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
             return true;
         }
         // add linking for path markers and stacks
@@ -2734,7 +2830,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         break;
                     }
 
-                    if (pXSprite->txID > 0 && pXSprite->data1 > 0 && pXSprite->data1 <= 4) {
+                    if (pXSprite->txID > 0 /*&& pXSprite->data1 > 0 && pXSprite->data1 <= 4*/) {
                         modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                         if (pXSprite->busyTime > 0) evPost(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
                     }
@@ -3247,62 +3343,63 @@ void useSoundGen(spritetype* pSource, XSPRITE* pXSource) {
 }
 
 void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
-    int data = getDataFieldOfObject(objType, objIndex, pXSource->data1);
-    if (data == -65535) return;
+    char buffer[5]; int data = -65535; short tmp = 0; int dataIndex = 0;
+    sprintf(buffer, "%d", abs(pXSource->data1)); int len = strlen(buffer);
     
-    spritetype* pSource = &sprite[pXSource->reference];
-    if (pXSource->data2 < pXSource->data3) {
+    for (int i = 0; i < len; i++) {
+        dataIndex = (buffer[i] - 52) + 4;
+        if ((data = getDataFieldOfObject(objType, objIndex, dataIndex)) == -65535) {
+            consoleSysMsg("\nWrong index of data (%c) for IncDec Gen #%d! Only 1, 2, 3 and 4 indexes allowed!\n", buffer[i], objIndex);
+            continue;
+        }
+        spritetype* pSource = &sprite[pXSource->reference];
+        if (pXSource->data2 < pXSource->data3) {
 
-        if (data < pXSource->data2) data = pXSource->data2;
-        if (data > pXSource->data3) data = pXSource->data3;
-
-        if ((data += pXSource->data4) >= pXSource->data3) {
-            switch (pSource->flags) {
+            data = ClipRange(data, pXSource->data2, pXSource->data3);
+            if ((data += pXSource->data4) >= pXSource->data3) {
+                switch (pSource->flags) {
                 case kModernTypeFlag0:
                 case kModernTypeFlag1:
                     if (data > pXSource->data3) data = pXSource->data3;
                     break;
-                case kModernTypeFlag2: {
+                case kModernTypeFlag2:
                     if (data > pXSource->data3) data = pXSource->data3;
                     if (!incDecGoalValueIsReached(pXSource)) break;
-                    short tmp = pXSource->data3;
+                    tmp = pXSource->data3;
                     pXSource->data3 = pXSource->data2;
                     pXSource->data2 = tmp;
-                }
                     break;
                 case kModernTypeFlag3:
                     if (data > pXSource->data3) data = pXSource->data2;
                     break;
+                }
             }
-        }
 
-    } else if (pXSource->data2 > pXSource->data3) {
+        } else if (pXSource->data2 > pXSource->data3) {
 
-        if (data > pXSource->data2) data = pXSource->data2;
-        if (data < pXSource->data3) data = pXSource->data3;
-
-        if ((data -= pXSource->data4) <= pXSource->data3) {
-            switch (pSource->flags) {
+            data = ClipRange(data, pXSource->data3, pXSource->data2);
+            if ((data -= pXSource->data4) <= pXSource->data3) {
+                switch (pSource->flags) {
                 case kModernTypeFlag0:
                 case kModernTypeFlag1:
                     if (data < pXSource->data3) data = pXSource->data3;
                     break;
-                case kModernTypeFlag2: {
+                case kModernTypeFlag2:
                     if (data < pXSource->data3) data = pXSource->data3;
                     if (!incDecGoalValueIsReached(pXSource)) break;
-                    short tmp = pXSource->data3;
+                    tmp = pXSource->data3;
                     pXSource->data3 = pXSource->data2;
                     pXSource->data2 = tmp;
-                }
                     break;
                 case kModernTypeFlag3:
                     if (data < pXSource->data3) data = pXSource->data2;
                     break;
+                }
             }
         }
-    }
 
-    setDataValueOfObject(objType, objIndex, pXSource->data1, data);
+        setDataValueOfObject(objType, objIndex, dataIndex, data);
+    }
 
 }
 
@@ -3962,27 +4059,34 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
 
 // this function checks if all TX objects have the same value
 bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
+    
+    char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = strlen(buffer); int rx = 0;
+    XSPRITE* pXRedir = (gEventRedirectsUsed) ? eventRedirected(OBJ_SPRITE, sprite[pXSprite->reference].extra, false) : NULL;
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
-        if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, pXSprite->data1) != pXSprite->data3)
-            return false;
+        if (pXRedir && sprite[pXRedir->reference].index == rxBucket[i].index) continue;
+        for (int a = 0; a < len; a++) {
+            if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, (buffer[a] - 52) + 4) != pXSprite->data3)
+                return false;
+        }
     }
 
-    if (gEventRedirectsUsed) {
-        int rx = 0; XSPRITE* pXRedir = eventRedirected(OBJ_SPRITE, sprite[pXSprite->reference].extra, false);
-        if (pXRedir == NULL) return true;
-        else if (txIsRanged(pXRedir)) {
-            if (!channelRangeIsFine(pXRedir->data4 - pXRedir->data1)) return false;
-            for (rx = pXRedir->data1; rx <= pXRedir->data4; rx++) {
-                for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-                    if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, pXSprite->data1) != pXSprite->data3)
+    if (pXRedir == NULL) return true;
+    else if (txIsRanged(pXRedir)) {
+        if (!channelRangeIsFine(pXRedir->data4 - pXRedir->data1)) return false;
+        for (rx = pXRedir->data1; rx <= pXRedir->data4; rx++) {
+            for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+                for (int a = 0; a < len; i++) {
+                    if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, (buffer[a] - 52) + 4) != pXSprite->data3)
                         return false;
                 }
             }
-        } else {
-            for (int i = 0; i <= 3; i++) {
-                if (!channelRangeIsFine((rx = GetDataVal(&sprite[pXRedir->reference], i)))) continue;
-                for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-                    if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, pXSprite->data1) != pXSprite->data3)
+        }
+    } else {
+        for (int i = 0; i <= 3; i++) {
+            if (!channelRangeIsFine((rx = GetDataVal(&sprite[pXRedir->reference], i)))) continue;
+            for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+                for (int a = 0; a < len; a++) {
+                    if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, (buffer[a] - 52) + 4) != pXSprite->data3)
                         return false;
                 }
             }

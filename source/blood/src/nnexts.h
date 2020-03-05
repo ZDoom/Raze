@@ -287,7 +287,6 @@ int getSpriteMassBySize(spritetype* pSprite);
 bool ceilIsTooLow(spritetype* pSprite);
 void levelEndLevelCustom(int nLevel);
 XSPRITE* eventRedirected(int objType, int objXIndex, bool byRx);
-bool pointingAt(XSPRITE* pXSource, int destType);
 #endif
 
 ////////////////////////////////////////////////////////////////////////
