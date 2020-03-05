@@ -1734,8 +1734,8 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
                 break;
             case 3:
             case 4:
-                // if (!sectRangeIsFine(pSprite->sectnum)) f allthrough__; Code is wrong
-                pos = (pXSource->data4 == 3) ? sector[pSprite->sectnum].floorz : sector[pSprite->sectnum].ceilingz;
+                if (!sectRangeIsFine(pSprite->sectnum)) pos = top;
+                else pos = (pXSource->data4 == 3) ? sector[pSprite->sectnum].floorz : sector[pSprite->sectnum].ceilingz;
                 break;
             default:
                 pos = top;
