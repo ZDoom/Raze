@@ -411,12 +411,14 @@ read_ivf_frame:
 
 /////////////// DRAWING! ///////////////
 static int sampler;
-static VPXTexture* vpxtex;
+static VPXTexture* vpxtex[2];
+static int which;
 
 void animvpx_setup_glstate(int32_t animvpx_flags)
 {
     ////////// GL STATE //////////
-    vpxtex = new VPXTexture;
+    vpxtex[0] = new VPXTexture;
+    vpxtex[1] = new VPXTexture;
 
     if ((animvpx_flags & CUTSCENE_TEXTUREFILTER && hw_texfilter == TEXFILTER_ON) || animvpx_flags & CUTSCENE_FORCEFILTER ||
     (!(animvpx_flags & CUTSCENE_TEXTUREFILTER) && !(animvpx_flags & CUTSCENE_FORCENOFILTER))) // if no flags, then use filter for IVFs
@@ -434,8 +436,10 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
 
 void animvpx_restore_glstate(void)
 {
-	delete vpxtex;
-	vpxtex = nullptr;
+	delete vpxtex[0];
+	vpxtex[0] = nullptr;
+    delete vpxtex[1];
+    vpxtex[1] = nullptr;
 }
 
 int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
@@ -448,7 +452,8 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
     if (codec->pic == NULL)
         return 2;  // shouldn't happen
 
-    vpxtex->SetFrame(codec->pic, codec->width, codec->height);
+    which ^= 1;
+    vpxtex[which]->SetFrame(codec->pic, codec->width, codec->height);
 
     float vid_wbyh = ((float)codec->width)/codec->height;
     if (animvpx_aspect > 0)
@@ -470,7 +475,7 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
 
     x *= screen->GetWidth() / 2;
     y *= screen->GetHeight() / 2;
-    DrawTexture(twod, vpxtex, screen->GetWidth() / 2 - int(x), screen->GetHeight()/2 - int(y), DTA_DestWidth, 2*int(x), DTA_DestHeight, 2*int(y), 
+    DrawTexture(twod, vpxtex[which], screen->GetWidth() / 2 - int(x), screen->GetHeight()/2 - int(y), DTA_DestWidth, 2*int(x), DTA_DestHeight, 2*int(y), 
         DTA_Masked, false, DTA_KeepRatio, true, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
     t = timerGetTicks()-t;
