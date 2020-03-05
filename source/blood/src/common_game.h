@@ -763,14 +763,6 @@ inline int approxDist(int dx, int dy)
     return dx+dy;
 }
 
-// the point of this is to prevent re-running a function or calculation passed to potentialValue
-// without making a new variable under each individual circumstance
-inline void SetIfGreater(int32_t* variable, int32_t potentialValue)
-{
-    if (potentialValue > * variable)
-        * variable = potentialValue;
-}
-
 class Rect {
 public:
     int x0, y0, x1, y1;

@@ -426,8 +426,6 @@ static inline int G_GetMusicIdx(const char *str)
 
 extern void G_PrintCurrentMusic(void);
 
-EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue);
-
 template <typename T>
 static inline int G_GetViewscreenSizeShift(T const *tspr)
 {
@@ -446,17 +444,6 @@ static inline int G_GetViewscreenSizeShift(T const *tspr)
 #endif
 }
 
-#if defined game_c_ || !defined DISABLE_INLINING
-
-// the point of this is to prevent re-running a function or calculation passed to potentialValue
-// without making a new variable under each individual circumstance
-EXTERN_INLINE void SetIfGreater(int32_t *variable, int32_t potentialValue)
-{
-    if (potentialValue > *variable)
-        *variable = potentialValue;
-}
-
-#endif
 
 #endif
 

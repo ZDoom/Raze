@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screentext.h"
 #include "build.h"
 
-static inline void SetIfGreater(int32_t *variable, int32_t potentialValue)
+inline void SetIfGreater(int32_t *variable, int32_t potentialValue)
 {
     if (potentialValue > *variable)
         *variable = potentialValue;
