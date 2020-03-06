@@ -26,7 +26,6 @@ set( PCH_SOURCES
 	src/text.cpp
 	src/sector.cpp
 	src/sounds.cpp
-	src/soundsdyn.cpp
 	src/d_menu.cpp
 )
 

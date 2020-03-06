@@ -815,6 +815,7 @@ set (PCH_SOURCES
 	common/rendering/hwrenderer/utility/hw_shaderpatcher.cpp
 	
 	dukerr/namesdyn.cpp
+	dukerr/soundsdyn.cpp
 )
 
 macro( use_precompiled_header )

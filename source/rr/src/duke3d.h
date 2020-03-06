@@ -128,7 +128,7 @@ END_RR_NS
 #include "text.h"
 #include "sector.h"
 #include "sounds.h"
-#include "soundsdyn.h"
+#include "dukerr/soundsdyn.h"
 #include "rrdh.h"
 
 BEGIN_RR_NS

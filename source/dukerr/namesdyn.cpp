@@ -2909,7 +2909,6 @@ int32_t MAMA = 0;
 int32_t MAMAJIBA = 0;
 int32_t MAMAJIBB = 0;
 
-#if 0
 static hashtable_t h_names = {512, NULL};
 
 void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue)
@@ -2923,10 +2922,6 @@ void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue)
     if (i>=0)
     {
         struct dynitem *di = &g_dynTileList[i];
-#ifdef DEBUGGINGAIDS
-        if (g_scriptDebug && di->staticval != lValue)
-            OSD_Printf("REMAP %s (%d) --> %d\n", di->str, di->staticval, lValue);
-#endif
         *di->dynvalptr = lValue;
     }
 }
@@ -2945,7 +2940,6 @@ void freehashnames(void)
 {
     hash_free(&h_names);
 }
-#endif
 
 
 static struct dynitem g_dynWeaponList[] =

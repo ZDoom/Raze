@@ -124,7 +124,7 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "rts.h"
 #include "sector.h"
 #include "sounds.h"
-#include "soundsdyn.h"
+#include "dukerr/soundsdyn.h"
 #include "text.h"
 
 BEGIN_DUKE_NS

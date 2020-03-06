@@ -23,7 +23,6 @@ set( PCH_SOURCES
 	src/text.cpp
 	src/sector.cpp
 	src/sounds.cpp
-	src/soundsdyn.cpp
 	src/rrdh.cpp)
 
 add_game_library( rr )
