@@ -811,7 +811,6 @@ int PachinkoCheckWin(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    short rnd;
 
     u->WaitTics = 0;  // Can operate it again now
 
@@ -820,7 +819,7 @@ int PachinkoCheckWin(short SpriteNum)
     if (TEST_BOOL1(sp)) return 0;
 
     // Well? Did I win????!
-    rnd = RANDOM_RANGE(1000);
+    /*short rnd = */RANDOM_RANGE(1000);
     if (RANDOM_RANGE(1000) > 900 || Pachinko_Win_Cheat)
     {
         short i, nexti;

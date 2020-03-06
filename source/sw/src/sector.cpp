@@ -1080,7 +1080,6 @@ DoExplodeSector(short match)
 {
     short orig_ang;
     int zh;
-    USERp u;
     short cf,nextcf;
 
     SPRITEp esp;
@@ -1096,7 +1095,7 @@ DoExplodeSector(short match)
             continue;
 
         if (!User[cf])
-            u = SpawnUser(cf, 0, NULL);
+            /*u = */SpawnUser(cf, 0, NULL);
 
         sectp = &sector[esp->sectnum];
 
