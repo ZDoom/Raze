@@ -86,13 +86,9 @@ typedef struct {
 #ifndef NEW_MAP_FORMAT
     wallext_t wallext[MAXWALLS];
 #endif
-#if !defined LUNATIC
     intptr_t *vars[MAXGAMEVARS];
     intptr_t *arrays[MAXGAMEARRAYS];
     int32_t arraysiz[MAXGAMEARRAYS];
-#else
-    char *savecode;
-#endif
 #ifdef YAX_ENABLE
     int32_t numyaxbunches;
 # if !defined NEW_MAP_FORMAT
