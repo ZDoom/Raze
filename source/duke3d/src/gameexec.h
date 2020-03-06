@@ -106,13 +106,13 @@ void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int3
 
 
 #define CON_ERRPRINTF(Text, ...) do { \
-    FStringf str(Text, __VA_ARGS__); \
+    FStringf str(Text, ## __VA_ARGS__); \
     vm.flags |= VM_RETURN; \
     OSD_Printf("Line %d, %s: %s", VM_DECODE_LINE_NUMBER(g_tw), VM_GetKeywordForID(VM_DECODE_INST(g_tw)), str.GetChars()); \
 } while (0)
 
 #define CON_CRITICALERRPRINTF(Text, ...) do { \
-    FStringf str(Text, __VA_ARGS__); \
+    FStringf str(Text, ## __VA_ARGS__); \
     vm.flags |= VM_RETURN; \
     I_Error("Line %d, %s: %s", VM_DECODE_LINE_NUMBER(g_tw), VM_GetKeywordForID(VM_DECODE_INST(g_tw)), str.GetChars()); \
 } while (0)
