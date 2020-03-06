@@ -148,9 +148,6 @@ PLAYER Player[MAX_SW_PLAYERS_REG + 1];
 
 short NormalVisibility;
 
-static short oldmousebstatus = 0;
-static short mousx, mousy, mousz, bstatus;
-
 int InitBloodSpray(int16_t SpriteNum, SWBOOL dogib, short velocity);
 
 SPRITEp FindNearSprite(SPRITEp sp, short stat);
