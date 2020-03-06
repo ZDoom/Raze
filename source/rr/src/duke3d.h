@@ -120,7 +120,7 @@ END_RR_NS
 #include "global.h"
 #include "inv.h"
 #include "macros.h"
-#include "namesdyn.h"
+#include "dukerr/namesdyn.h"
 #include "net.h"
 #include "player.h"
 #include "quotes.h"
@@ -128,7 +128,7 @@ END_RR_NS
 #include "text.h"
 #include "sector.h"
 #include "sounds.h"
-#include "soundsdyn.h"
+#include "dukerr/soundsdyn.h"
 #include "rrdh.h"
 
 BEGIN_RR_NS

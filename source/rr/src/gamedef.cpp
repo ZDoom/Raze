@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "duke3d.h"
-#include "namesdyn.h"
+#include "dukerr/namesdyn.h"
 #include "gamedef.h"
 #include "gameexec.h"
 #include "savegame.h"
@@ -324,7 +324,6 @@ void C_InitHashes()
     for (auto &varvar : varvartable)
         inthash_add(&h_varvar, varvar.x, varvar.y, 0);
 
-    //inithashnames();
     initsoundhashnames();
 
     for (tokenmap_t const & keyword : vm_keywords)
@@ -1316,8 +1315,6 @@ static int32_t C_ParseCommand(int32_t loop)
                     hash_add(&h_labels,label+(g_labelCnt<<6),g_labelCnt,0);
                     labeltype[g_labelCnt] = LABEL_DEFINE;
                     labelcode[g_labelCnt++] = *(g_scriptPtr-1);
-                    //if (*(g_scriptPtr-1) >= 0 && *(g_scriptPtr-1) < MAXTILES && g_dynamicTileMapping)
-                    //    G_ProcessDynamicTileMapping(label+((g_labelCnt-1)<<6),*(g_scriptPtr-1));
                 }
                 g_scriptPtr -= 2;
                 continue;
@@ -2724,7 +2721,6 @@ void C_Compile(const char *fileName)
     for (auto *i : tables_free)
         hash_free(i);
 
-    //freehashnames();
     freesoundhashnames();
 
     if (g_scriptDebug)

@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "gstrings.h"
 #include "version.h"
-#include "namesdyn.h"
+#include "dukerr/namesdyn.h"
 #include "menus.h"
 #include "../../glbackend/glbackend.h"
 
@@ -603,7 +603,7 @@ bool GameInterface::DrawSpecialScreen(const DVector2 &origin, int tilenum)
 	int32_t m, l;
 	if (!haveCredits)
 	{
-		if (tilenum == CREDITSTEXT1)
+		if (tilenum == 2504)
 		{
 			Menu_DrawBackground(origin);
 			m = int(origin.X * 65536) + (20 << 16);
@@ -663,7 +663,7 @@ bool GameInterface::DrawSpecialScreen(const DVector2 &origin, int tilenum)
 			shadowminitext(m, l, "Michael Hadwin", 12); l += 7 << 16;
 			return true;
 		}
-		else if (tilenum == CREDITSTEXT2__STATIC)
+		else if (tilenum == 2505)
 		{
 			Menu_DrawBackground(origin);
 			m = int(origin.X * 65536) + (20 << 16);
@@ -705,7 +705,7 @@ bool GameInterface::DrawSpecialScreen(const DVector2 &origin, int tilenum)
 			shadowminitext(m, l, "Thanks for the hardware, guys.", 12); l += 7 << 16;
 			return true;
 		}
-		else if (tilenum == CREDITSTEXT3)
+		else if (tilenum == 2506)
 		{
 			Menu_DrawBackground(origin);
 			mgametextcenter(int(origin.X * 65536), int(origin.Y * 65536) + (50 << 16), "Duke Nukem 3D is a trademark of\n"

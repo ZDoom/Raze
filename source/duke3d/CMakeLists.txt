@@ -16,7 +16,6 @@ set( PCH_SOURCES
 	src/gameexec.cpp
 	src/gamevars.cpp
 	src/global.cpp
-	src/namesdyn.cpp
 	src/network.cpp
 	src/osdcmds.cpp
 	src/player.cpp
@@ -27,7 +26,6 @@ set( PCH_SOURCES
 	src/text.cpp
 	src/sector.cpp
 	src/sounds.cpp
-	src/soundsdyn.cpp
 	src/d_menu.cpp
 )
 

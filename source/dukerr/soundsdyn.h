@@ -20,10 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-BEGIN_RR_NS
+BEGIN_DUKERR_NS
 
 #define DYNSOUNDREMAP_ENABLE
 
+#define MAXSOUNDS           4096
 
 #define KICK_HIT__STATIC 0
 #define PISTOL_RICOCHET__STATIC 1

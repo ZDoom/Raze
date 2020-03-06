@@ -25,11 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 
 #include "namesdyn.h"
-#include "sounds.h"
 #include "soundsdyn.h"
-#include "global.h"
 
-BEGIN_RR_NS
+BEGIN_DUKERR_NS
 
 #ifdef DYNSOUNDREMAP_ENABLE
 # define DVPTR(x) &x
@@ -334,12 +332,10 @@ static hashtable_t h_names = {512, NULL};
 
 void G_ProcessDynamicSoundMapping(const char *szLabel, int32_t lValue)
 {
-    int32_t i;
-
     if ((unsigned)lValue >= MAXSOUNDS || !szLabel)
         return;
 
-    i = hash_find(&h_names,szLabel);
+    int i = hash_find(&h_names,szLabel);
     if (i>=0)
     {
         struct sdynitem *di = &g_dynSoundList[i];
@@ -353,11 +349,10 @@ void G_ProcessDynamicSoundMapping(const char *szLabel, int32_t lValue)
 
 void initsoundhashnames(void)
 {
-    int32_t i;
 
     hash_init(&h_names);
 
-    for (i=0; g_dynSoundList[i].staticval >= 0; i++)
+    for (int i=0; g_dynSoundList[i].staticval >= 0; i++)
         hash_add(&h_names, g_dynSoundList[i].str, i, 0);
 }
 
@@ -371,15 +366,14 @@ void freesoundhashnames(void)
 // dynamic->static sound mapping.
 void G_InitDynamicSounds(void)
 {
-    int32_t i;
 
     Bmemset(DynamicSoundMap, 0, sizeof(DynamicSoundMap));
 
-    for (i=0; g_dynSoundList[i].staticval >= 0; i++)
+    for (auto & i : g_dynSoundList)
 #ifdef DYNSOUNDREMAP_ENABLE
-        DynamicSoundMap[*(g_dynSoundList[i].dynvalptr)] = g_dynSoundList[i].staticval;
+        DynamicSoundMap[*(i.dynvalptr)] = i.staticval;
 #else
-        DynamicSoundMap[g_dynSoundList[i].staticval] = g_dynSoundList[i].staticval;
+        DynamicSoundMap[i.staticval] = i.staticval;
 #endif
 
 }
