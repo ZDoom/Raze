@@ -40,6 +40,7 @@
 #include "m_swap.h"
 #include "s_soundinternal.h"
 
+const char* G_DefaultRtsFile(void);
 
 struct WadInfo
 {
@@ -67,6 +68,7 @@ struct LumpInfoInternal
 static FString RTSName;
 static TArray<uint8_t> RTSFile;
 static TArray<LumpInfoInternal> LumpInfo;
+static bool checked;
 
 
 void RTS_Init(const char *filename)
@@ -80,6 +82,11 @@ void RTS_Init(const char *filename)
 bool RTS_IsInitialized()
 {
 	if (LumpInfo.Size() > 0) return true;
+	if (RTSName.IsEmpty() && !checked)
+	{
+		RTSName = G_DefaultRtsFile();
+		checked = true;
+	}
 	if (RTSName.IsEmpty()) return false;
 	auto fr = fileSystem.OpenFileReader(RTSName, 0);
 	RTSName = "";	// don't try ever again.

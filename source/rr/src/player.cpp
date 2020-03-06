@@ -8765,7 +8765,7 @@ HORIZONLY:;
     }
     else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && (!RRRA || !pPlayer->on_motorcycle))
     {
-        if (VM_OnEvent(EVENT_AIMDOWN,pPlayer->i,playerNum) == 0)
+        if (VM_OnEvent(/*EVENT_AIMDOWN*/EVENT_AIMUP,pPlayer->i,playerNum) == 0) // changed to allow the constant to be reused in EDuke.
         {
             pPlayer->q16horiz -= fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             centerHoriz++;

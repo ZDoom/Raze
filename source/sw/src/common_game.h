@@ -78,38 +78,6 @@ BEGIN_SW_NS
 
 #define DEFAULTSOCKETNUMBER 0x8849
 
-// Default RTS file
-
-#define DEFAULTRTSFILE "sw.rts"
-
-// Default RTS path
-
-#define DEFAULTRTSPATH ".\\"
-
-// Default UserLevel path
-
-#define DEFAULTLEVELPATH ".\\"
-
-// Default External Control file
-
-#define DEFAULTCONTROLFILE "EXTERNAL.EXE"
-
-// Default Help file
-
-#define DEFAULTHELPFILE "SWHELP.EXE"
-
-// RTS extension
-
-#define RTSEXTENSION "RTS"
-
-// MAP extension
-
-#define MAPEXTENSION "MAP"
-
-// Default Player name
-
-#define DEFAULTPLAYERNAME "KATO"
-
 // Default Macros
 
 #define MACRO1  "Burn baby burn..."

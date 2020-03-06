@@ -2,7 +2,7 @@
 #ifndef EDUKE32_EVENTS_DEFS_H_
 #define EDUKE32_EVENTS_DEFS_H_
 
-BEGIN_DUKE_NS
+BEGIN_DUKERR_NS
 
 // the order of these can't be changed or else compatibility with EDuke 2.0 mods will break
 // KEEPINSYNC with EventNames[] and lunatic/con_lang.lua
@@ -46,6 +46,7 @@ enum GameEvent_t {
     EVENT_USEMEDKIT,
     EVENT_USEJETPACK,
     EVENT_TURNAROUND,
+	// The following are EDuke32 only.
     EVENT_DISPLAYWEAPON,
     EVENT_FIREWEAPON,  // 40
     EVENT_SELECTWEAPON,
@@ -167,9 +168,10 @@ enum GameEvent_t {
 #ifdef LUNATIC
     EVENT_ANIMATEALLSPRITES,
 #endif
-    MAXEVENTS
+    MAXEVENTS,
+	MAXEVENTS_RR = EVENT_DISPLAYWEAPON
 };
 
-END_DUKE_NS
+END_DUKERR_NS
 
 #endif

@@ -369,11 +369,11 @@ void G_InitDynamicSounds(void)
 
     Bmemset(DynamicSoundMap, 0, sizeof(DynamicSoundMap));
 
-    for (auto & i : g_dynSoundList)
+    for (int i = 0; g_dynSoundList[i].staticval >= 0; i++)
 #ifdef DYNSOUNDREMAP_ENABLE
-        DynamicSoundMap[*(i.dynvalptr)] = i.staticval;
+        DynamicSoundMap[*(g_dynSoundList[i].dynvalptr)] = g_dynSoundList[i].staticval;
 #else
-        DynamicSoundMap[i.staticval] = i.staticval;
+        DynamicSoundMap[g_dynSoundList[i].staticval] = g_dynSoundList[i].staticval;
 #endif
 
 }

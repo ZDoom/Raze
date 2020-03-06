@@ -63,6 +63,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
+extern void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN);
+extern void G_LoadLookups(void);
+
 
 int32_t g_quitDeadline = 0;
 
@@ -75,8 +78,6 @@ int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
 
 int32_t g_Debug = 0;
-
-const char *defaultrtsfilename[GAMECOUNT] = { "DUKE.RTS", "REDNECK.RTS", "REDNECK.RTS", "NAM.RTS", "NAPALM.RTS" };
 
 int32_t g_Shareware = 0;
 
@@ -93,30 +94,6 @@ int32_t g_levelTextTime = 0;
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
 #endif
-
-const char *G_DefaultRtsFile(void)
-{
-    if (DUKE)
-        return defaultrtsfilename[GAME_DUKE];
-    else if (NAPALM)
-    {
-        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAM]))
-            return defaultrtsfilename[GAME_NAM]; // NAM/NAPALM Sharing
-        else
-            return defaultrtsfilename[GAME_NAPALM];
-    }
-    else if (NAM)
-    {
-        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]))
-            return defaultrtsfilename[GAME_NAPALM]; // NAM/NAPALM Sharing
-        else
-            return defaultrtsfilename[GAME_NAM];
-    }
-    else if (RR)
-        return defaultrtsfilename[GAME_RR];
-
-    return defaultrtsfilename[0];
-}
 
 enum gametokens
 {

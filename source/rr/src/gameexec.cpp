@@ -130,7 +130,7 @@ static void VM_DeleteSprite(int const spriteNum, int const playerNum)
     A_DeleteSprite(spriteNum);
 }
 
-intptr_t apScriptEvents[MAXEVENTS];
+intptr_t apScriptEvents[MAXEVENTS_RR];
 static uspritetype dummy_sprite;
 static actor_t     dummy_actor;
 

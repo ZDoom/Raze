@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define gameexec_h_
 
 #include "build.h"
-#include "events_defs.h"
+#include "dukerr/events_defs.h"
 #include "gamedef.h"  // vmstate_t
 #include "sector.h"  // mapstate_t
 #include "zstring.h"

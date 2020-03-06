@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "cheats.h"
 #include "common.h"
-#include "common_game.h"
+#include "dukerr/common_game.h"
 #include "m_crc32.h"
 #include "duke3d.h"
 #include "gameexec.h"

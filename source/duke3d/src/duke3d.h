@@ -107,7 +107,7 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 //#define DEBUG_VALGRIND_NO_SMC
 
 #include "actors.h"
-#include "common_game.h"
+#include "dukerr/common_game.h"
 #include "config.h"
 #include "gamecontrol.h"
 #include "game.h"
@@ -116,11 +116,11 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "gamevars.h"
 #include "global.h"
 #include "inv.h"
-#include "macros.h"
+#include "dukerr/macros.h"
 #include "dukerr/namesdyn.h"
 #include "network.h"
 #include "player.h"
-#include "quotes.h"
+#include "dukerr/quotes.h"
 #include "rts.h"
 #include "sector.h"
 #include "sounds.h"

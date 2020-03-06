@@ -14,7 +14,7 @@
 
 
 #include "common.h"
-#include "common_game.h"
+#include "dukerr/common_game.h"
 
 BEGIN_RR_NS
 
