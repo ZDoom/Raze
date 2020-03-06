@@ -131,7 +131,6 @@ EnemySync(void)
     unsigned short crc = 0;
     short j, nextj;
     SPRITEp spr;
-    extern char DemoTmpName[];
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], j, nextj)
     {
@@ -143,6 +142,7 @@ EnemySync(void)
     }
 
 #if 0
+    extern char DemoTmpName[];
     //DSPRINTF(ds, "Demo Tmp Name %s", DemoTmpName);
     MONO_PRINT(ds);
 

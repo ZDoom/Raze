@@ -258,7 +258,6 @@ JS_SpriteSetup(void)
     for (i = 0; i < numwalls; i++)
     {
         short picnum;
-        short sndnum;
 
 
         picnum = wall[i].picnum;
@@ -282,6 +281,7 @@ JS_SpriteSetup(void)
         }
 
 #if 0
+        short sndnum;
         if ((sndnum = CheckTileSound(picnum)) != -1)
         {
             SpawnWallSound(sndnum, i);
@@ -535,7 +535,6 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
     int tposx, tposy; // Camera
     int *longptr;
     fix16_t tang;
-    char tvisibility;
 
 //    int tx, ty, tz, tpang;             // Interpolate so mirror doesn't
     // drift!
@@ -622,6 +621,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 
                     ASSERT(sp);
 
+                    // char tvisibility;
                     // tvisibility = g_visibility;
 //                  g_visibility <<= 1;       // Make mirror darker
 

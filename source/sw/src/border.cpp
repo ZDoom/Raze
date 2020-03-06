@@ -84,7 +84,6 @@ PANEL_SPRITEp
 pSpawnFullScreenSpriteBox(PLAYERp pp, short id, short pic, short pri, int x, int y, short x1, short y1, short x2, short y2)
 {
     PANEL_SPRITEp psp;
-    extern SWBOOL DrawBeforeView;
 
     psp = pSpawnSprite(pp, NULL, pri, x, y);
 
@@ -104,6 +103,7 @@ pSpawnFullScreenSpriteBox(PLAYERp pp, short id, short pic, short pri, int x, int
 
     //SET(psp->flags, PANF_STATUS_AREA | PANF_KILL_AFTER_SHOW | PANF_IGNORE_START_MOST  | PANF_DRAW_BEFORE_VIEW | PANF_NOT_ALL_PAGES);
     SET(psp->flags, PANF_STATUS_AREA | PANF_KILL_AFTER_SHOW | PANF_IGNORE_START_MOST | PANF_DRAW_BEFORE_VIEW);
+    //extern SWBOOL DrawBeforeView;
     //DrawBeforeView = TRUE;
 
     //SET(psp->flags, PANF_SCREEN_CLIP | PANF_KILL_AFTER_SHOW | PANF_IGNORE_START_MOST);

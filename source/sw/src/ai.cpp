@@ -383,7 +383,6 @@ DoActorPickClosePlayer(short SpriteNum)
     PLAYERp pp;
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
-    SWBOOL ICanSee = FALSE;
     SWBOOL found = FALSE;
     int i,nexti;
 
@@ -460,7 +459,7 @@ DoActorPickClosePlayer(short SpriteNum)
 
         DISTANCE(sp->x, sp->y, pp->posx, pp->posy, dist, a, b, c);
 
-        //ICanSee = FAFcansee(sp->x, sp->y, look_height, sp->sectnum, pp->SpriteP->x, pp->SpriteP->y, SPRITEp_UPPER(pp->SpriteP), pp->SpriteP->sectnum);
+        //SWBOOL ICanSee = FAFcansee(sp->x, sp->y, look_height, sp->sectnum, pp->SpriteP->x, pp->SpriteP->y, SPRITEp_UPPER(pp->SpriteP), pp->SpriteP->sectnum);
         if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, pp->SpriteP->x, pp->SpriteP->y, SPRITEp_UPPER(pp->SpriteP), pp->SpriteP->sectnum))
         {
             near_dist = dist;

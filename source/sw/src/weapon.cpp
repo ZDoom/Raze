@@ -3476,13 +3476,13 @@ AutoShrap:
                 short spnum;
                 short size;
                 SPRITEp ep;
-                USERp eu;
+//                USERp eu;
 
                 spnum = SpawnLargeExp(ParentNum);
                 ASSERT(spnum >= 0);
                 //spnum = SpawnSectorExp(ParentNum);
                 ep = &sprite[spnum];
-                eu = User[spnum];
+//                eu = User[spnum];
 
                 //eu->xchange = MOVEx(92, ep->ang);
                 //eu->ychange = MOVEy(92, ep->ang);
@@ -3498,13 +3498,13 @@ AutoShrap:
                 short spnum;
                 short size;
                 SPRITEp ep;
-                USERp eu;
+//                USERp eu;
 
                 //spnum = SpawnSectorExp(ParentNum);
                 spnum = SpawnLargeExp(ParentNum);
                 ASSERT(spnum >= 0);
                 ep = &sprite[spnum];
-                eu = User[spnum];
+//                eu = User[spnum];
 
                 //eu->xchange = MOVEx(92, ep->ang);
                 //eu->ychange = MOVEy(92, ep->ang);
@@ -11540,7 +11540,6 @@ SpawnGrenadeExp(int16_t Weapon)
     SPRITEp exp;
     USERp eu;
     short explosion;
-	short ang;
     int dx,dy,dz;
 
     ASSERT(u);
@@ -11598,6 +11597,7 @@ SpawnGrenadeExp(int16_t Weapon)
     SpawnVis(-1, exp->sectnum, exp->x, exp->y, exp->z, 0);
 
 #if 0
+    short ang;
     ang = RANDOM_P2(2048);
     SpawnGrenadeSecondaryExp(explosion, ang);
     ang = ang + 512 + RANDOM_P2(256);
@@ -12578,13 +12578,13 @@ DoMirv(int16_t Weapon)
     SPRITEp sp = &sprite[Weapon], np;
     USERp u = User[Weapon], nu;
     short New;
-    int ox, oy, oz;
+//    int ox, oy, oz;
 
     u = User[Weapon];
 
-    ox = sp->x;
-    oy = sp->y;
-    oz = sp->z;
+//    ox = sp->x;
+//    oy = sp->y;
+//    oz = sp->z;
 
     u->ret = move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -16602,7 +16602,8 @@ InitEnemyRail(short SpriteNum)
     SPRITEp wp;
     int nx, ny, nz, dist, nang;
     short w;
-    short oclipdist,pnum=0;
+    short pnum=0;
+//    short oclipdist;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
@@ -17350,8 +17351,9 @@ int
 InitSpearTrap(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], wp;
-    USERp u = User[SpriteNum], wu;
-    int nx, ny, nz, dist;
+    USERp wu;
+    //USERp u = User[SpriteNum];
+    int nx, ny, nz;
     short w;
     //short nang;
 
@@ -17386,7 +17388,7 @@ InitSpearTrap(short SpriteNum)
     //MissileSetPos(w, DoStar, 400);
 
     // find the distance to the target (player)
-    //dist = Distance(wp->x, wp->y, u->tgt_sp->x, u->tgt_sp->y);
+    //int dist = Distance(wp->x, wp->y, u->tgt_sp->x, u->tgt_sp->y);
 
     //if (dist != 0)
     //wu->zchange = wp->zvel = (wp->xvel * (SPRITEp_UPPER(u->tgt_sp) - wp->z)) / dist;
@@ -17610,7 +17612,7 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, short hit_sect, short hit_wall, in
     SPRITEp hsp = &sprite[hit_sprite];
     USERp hu = User[hit_sprite];
     SPRITEp wp;
-    USERp wu;
+//    USERp wu;
     short New;
     short id;
 
@@ -17631,7 +17633,7 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, short hit_sect, short hit_wall, in
 
         New = SpawnSprite(STAT_MISSILE, id, s_UziSmoke, 0, hit_x, hit_y, hit_z, sp->ang, 0);
         wp = &sprite[New];
-        wu = User[New];
+//        wu = User[New];
         wp->shade = -40;
 
         if (hu->PlayerP)
@@ -17695,7 +17697,6 @@ int SpawnWallHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_
 {
     short w,nw,wall_ang;
     short SpriteNum;
-    int nx,ny;
     SPRITEp sp;
 
     SpriteNum = COVERinsertsprite(hit_sect, STAT_DEFAULT);
@@ -17718,6 +17719,7 @@ int SpawnWallHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_
 
     sp->ang = NORM_ANGLE(wall_ang + 1024);
 
+//    int nx,ny;
     //nx = (sintable[(512 + Player[0].pang) & 2047] >> 7);
     //ny = (sintable[Player[0].pang] >> 7);
     //sp->x -= nx;
@@ -19247,7 +19249,6 @@ InitGrenade(PLAYERp pp)
     int nx, ny, nz;
     short w;
     short oclipdist;
-    int dist;
     int zvel;
     SWBOOL auto_aim = FALSE;
 
@@ -19322,6 +19323,7 @@ InitGrenade(PLAYERp pp)
 
     pp->SpriteP->clipdist = oclipdist;
 
+//    int dist;
     //dist = FindDistance2D(pp->xvect, pp->yvect)>>12;
     //dist = dist - (dist/2);
 

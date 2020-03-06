@@ -1601,9 +1601,6 @@ void SybexScreen(void)
 void
 TitleLevel(void)
 {
-    int fin;
-    unsigned char backup_pal[256*3];
-    unsigned char pal[PAL_SIZE];
     char tempbuf[256];
     char *palook_bak = palookup[0];
     int i;

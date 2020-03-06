@@ -729,13 +729,13 @@ void InventoryKeys(PLAYERp pp)
 
 void InvBorderRefresh(PLAYERp pp)
 {
-    int x,y;
+//    int x,y;
 
     if (pp != Player + myconnectindex)
         return;
 
-    x = InventoryBarXpos[gs.BorderNum];
-    y = InventoryBarYpos[gs.BorderNum];
+//    x = InventoryBarXpos[gs.BorderNum];
+//    y = InventoryBarYpos[gs.BorderNum];
 
     SetRedrawScreen(pp);
     //BorderRefreshClip(pp, x-5, y-5, x + (MAX_INVENTORY * INVENTORY_ICON_WIDTH), y + 24);

@@ -1508,7 +1508,6 @@ void CheatResChange(void)
 void DrawCheckKeys(PLAYERp pp)
 {
     extern SWBOOL ResCheat;
-    extern SWBOOL PauseKeySet;
 
     if (ResCheat)
     {
@@ -1710,8 +1709,6 @@ void
 PostDraw(void)
 {
     short i, nexti;
-    short sectnum,statnum;
-    SPRITEp sp;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_FLOOR_SLOPE_DONT_DRAW], i, nexti)
     {
@@ -1727,9 +1724,9 @@ PostDraw(void)
         }
 
 #if DEBUG
-        sp = &sprite[i];
-        statnum = sp->statnum;
-        sectnum = sp->sectnum;
+        SPRITEp sp = &sprite[i];
+        short statnum = sp->statnum;
+        short sectnum = sp->sectnum;
         memset(sp, 0xCC, sizeof(SPRITE));
         sp->statnum = statnum;
         sp->sectnum = sectnum;

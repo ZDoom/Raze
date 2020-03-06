@@ -229,12 +229,12 @@ void ClipCheat(PLAYERp pp, const char *)
 void WarpCheat(PLAYERp pp, const char *cheat_string)
 {
     const char *cp = cheat_string;
-    int episode_num;
     int level_num;
 
     cp += sizeof("swtrek")-1;
     level_num = atol(cp);
 
+    //int episode_num;
     //DSPRINTF(ds,"ep %d, lev %d",episode_num, level_num);
     //MONO_PRINT(ds);
 

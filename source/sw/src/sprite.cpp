@@ -1018,9 +1018,7 @@ SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int
 void
 PicAnimOff(short picnum)
 {
-    int i;
     short anim_type = TEST(picanm[picnum].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT;
-    short num;
 
     ASSERT(picnum >= 0 && picnum < MAXTILES);
 
@@ -1028,6 +1026,8 @@ PicAnimOff(short picnum)
         return;
 
     /*
+    int i;
+    short num;
     num = picanm[picnum].num;
     ASSERT(num < 20);
 
@@ -7444,7 +7444,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int 
 
     if (retval)  // ran into a white wall
     {
-        int new_loz,new_hiz;
+        //int new_loz,new_hiz;
 
         // back up and try to clip UP
         //dasectnum = lastsectnum = sp->sectnum;

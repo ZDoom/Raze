@@ -2988,7 +2988,6 @@ void
 SpawnShotgunShell(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
-    PANEL_SPRITEp shell;
 
 
     SpawnShell(pp->PlayerSprite,-4);
@@ -3001,6 +3000,7 @@ SpawnShotgunShell(PANEL_SPRITEp psp)
         PANEL_STATEp state[2];
     } PANEL_SHRAP, *PANEL_SHRAPp;
 
+    PANEL_SPRITEp shell;
 
     static PANEL_SHRAP ShellShrap[] =
     {
@@ -5613,7 +5613,7 @@ InitWeaponGrenade(PLAYERp pp)
 void
 pGrenadeRecoilDown(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+//    short picnum = psp->picndx;
 
     int x = FIXED(psp->x, psp->xfract);
     int y = FIXED(psp->y, psp->yfract);
@@ -6611,7 +6611,8 @@ pFistPresent(PANEL_SPRITEp psp)
 void
 pFistSlide(PANEL_SPRITEp psp)
 {
-    int nx, ny;
+//    int nx;
+    int ny;
     short vel_adj;
 
     //nx = FIXED(psp->x, psp->xfract);
@@ -6741,7 +6742,8 @@ pFistSlideDown(PANEL_SPRITEp psp)
 void
 pFistSlideR(PANEL_SPRITEp psp)
 {
-    int nx, ny;
+//    int nx
+    int ny;
     short vel_adj;
 
     //nx = FIXED(psp->x, psp->xfract);

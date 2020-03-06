@@ -1052,10 +1052,10 @@ SWBOOL NullActor(USERp u)
 
 int HitBreakSprite(short BreakSprite, short type)
 {
-    SPRITEp sp;
     SPRITEp bp = &sprite[BreakSprite];
     USERp bu = User[BreakSprite];
 
+    //SPRITEp sp;
     // ignore as a breakable if true
     //if (sp->lotag == TAG_SPRITE_HIT_MATCH)
     //    return(FALSE);
@@ -1107,14 +1107,14 @@ void DoWallBreakMatch(short match)
     short i,sectnum;
     int x,y,z;
     WALLp wp;
-    short nw,wall_ang;
+    short wall_ang;
 
     for (i=0; i<=numwalls; i++)
     {
         if (wall[i].hitag == match)
         {
             WallBreakPosition(i, &sectnum, &x, &y, &z, &wall_ang);
-            //nw = wall[i].point2;
+            //short nw = wall[i].point2;
             //wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[i].x, wall[nw].y - wall[i].y)+512);
             wp = &wall[i];
             wp->hitag = 0; // Reset the hitag

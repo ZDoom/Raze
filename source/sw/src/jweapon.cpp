@@ -1819,7 +1819,7 @@ PlayerInitCaltrops(PLAYERp pp)
     SPRITEp wp;
     int nx, ny, nz;
     short w;
-    short oclipdist, i;
+    short oclipdist;
 
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
@@ -1832,7 +1832,7 @@ PlayerInitCaltrops(PLAYERp pp)
     nz = pp->posz + pp->bob_z + Z(8);
 
     // Throw out several caltrops
-//  for(i=0;i<3;i++)
+//  for(short i=0;i<3;i++)
 //  {
     // Spawn a shot
     // Inserting and setting up variables
