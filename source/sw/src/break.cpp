@@ -764,7 +764,6 @@ int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, sh
     WALLp wp;
     int nx,ny;
     short wall_ang;
-    int ret=0;
 
     w = hit_wall;
     wp = &wall[w];
@@ -827,7 +826,6 @@ int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, sh
 // If the tough parameter is not set, then it can't break tough walls and sprites
 SWBOOL HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short type)
 {
-    short SpriteNum;
     short match = wp->hitag;
 
     if (match > 0)
@@ -854,7 +852,6 @@ int KillBreakSprite(short BreakSprite)
 {
     SPRITEp bp = &sprite[BreakSprite];
     USERp bu = User[BreakSprite];
-    short i;
 
     // Does not actually kill the sprite so it will be valid for the rest
     // of the loop traversal.
@@ -1058,10 +1055,6 @@ int HitBreakSprite(short BreakSprite, short type)
     SPRITEp sp;
     SPRITEp bp = &sprite[BreakSprite];
     USERp bu = User[BreakSprite];
-    short match = bp->lotag;
-    short match_extra;
-    short SpriteNum;
-    BREAK_INFOp break_info;
 
     // ignore as a breakable if true
     //if (sp->lotag == TAG_SPRITE_HIT_MATCH)

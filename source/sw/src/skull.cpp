@@ -448,7 +448,6 @@ int DoSkullBob(short SpriteNum)
 
 int DoSkullSpawnShrap(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     int SpawnShrap(short, short);
 
     SpawnShrap(SpriteNum, -1);

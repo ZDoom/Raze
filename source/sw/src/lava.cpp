@@ -489,7 +489,6 @@ SetupLava(short SpriteNum)
 
 int NullLava(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     if (TEST(u->Flags,SPR_SLIDING))
@@ -503,7 +502,6 @@ int NullLava(short SpriteNum)
 
 int DoLavaMove(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     if (TEST(u->Flags,SPR_SLIDING))

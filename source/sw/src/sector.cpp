@@ -267,7 +267,7 @@ WallSetup(void)
         case TAG_WALL_SINE_Y_BEGIN:
         case TAG_WALL_SINE_X_BEGIN:
         {
-            short wall_num, cnt, last_wall, num_points, type, tag_end;
+            short wall_num, cnt, num_points, type, tag_end;
             SINE_WALLp sw;
             short range = 250, speed = 3, peak = 0;
 
@@ -385,10 +385,10 @@ SectorLiquidSet(short i)
 void
 SectorSetup(void)
 {
-    short i = 0, k, tag;
-    short NextSineWave = 0, rotcnt = 0, swingcnt = 0;
+    short i = 0, tag;
+    short NextSineWave = 0;
 
-    short startwall, endwall, j, ndx, door_sector;
+    short ndx;
 
     WallSetup();
 
@@ -848,8 +848,8 @@ SectorDistanceByMid(short sect1, int sect2)
 short
 DoSpawnActorTrigger(short match)
 {
-    int i, nexti, pnum;
-    short spawn_count = 0, hidden;
+    int i, nexti;
+    short spawn_count = 0;
     SPRITEp sp;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_SPAWN_TRIGGER], i, nexti)
@@ -879,7 +879,6 @@ OperateSector(short sectnum, short player_is_operating)
     if (!player_is_operating)
     {
         SPRITEp fsp;
-        short match;
         short i,nexti;
 
 
@@ -1040,8 +1039,6 @@ SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    SECT_USERp sectu = SectUser[sectnum];
-    SECTORp sectp = &sector[sectnum];
     short explosion;
     SPRITEp exp;
     USERp eu;
@@ -1085,11 +1082,6 @@ DoExplodeSector(short match)
     int zh;
     USERp u;
     short cf,nextcf;
-    short ed,nexted;
-
-    int ss, nextss;
-    SECTORp dsectp, ssectp;
-    SPRITEp src_sp, dest_sp;
 
     SPRITEp esp;
     SECTORp sectp;
@@ -1136,7 +1128,6 @@ DoExplodeSector(short match)
 int DoSpawnSpot(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = u->SpriteP;
 
     if ((u->WaitTics -= synctics) < 0)
     {
@@ -1916,7 +1907,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
     case TAG_LEVEL_EXIT_SWITCH:
     {
         extern short Level;
-        extern SWBOOL QuitFlag, ExitLevel, FinishedLevel;
+        extern SWBOOL ExitLevel, FinishedLevel;
 
         AnimateSwitch(sp, -1);
 
@@ -2126,7 +2117,7 @@ OperateTripTrigger(PLAYERp pp)
     case TAG_LEVEL_EXIT_SWITCH:
     {
         extern short Level;
-        extern SWBOOL QuitFlag, ExitLevel, FinishedLevel;
+        extern SWBOOL ExitLevel, FinishedLevel;
 
         if (sectp->hitag)
             Level = sectp->hitag;
@@ -2337,9 +2328,6 @@ short PlayerTakeSectorDamage(PLAYERp pp)
 #define PLAYER_SOUNDEVENT_TAG 900
 SWBOOL NearThings(PLAYERp pp)
 {
-    short sectnum;
-    short rndnum;
-    int daz;
     short neartagsect, neartagwall, neartagsprite;
     int neartaghitdist;
 
@@ -2675,12 +2663,11 @@ PlayerOperateEnv(PLAYERp pp)
 
             {
                 int neartaghitdist;
-                short neartagsector, neartagsprite, neartagwall;
+                short neartagsector, neartagwall;
 
                 neartaghitdist = nti[0].dist;
                 neartagsector = nti[0].sectnum;
                 neartagwall = nti[0].wallnum;
-                neartagsprite = nti[0].spritenum;
 
                 if (neartagsector >= 0 && neartaghitdist < 1024)
                 {
@@ -2940,7 +2927,7 @@ DoAnim(int numtics)
 void
 AnimClear(void)
 {
-    int i, animval;
+    int i;
 
 #if 1
     AnimCnt = 0;
@@ -3290,7 +3277,6 @@ DoPanning(void)
 void
 DoSector(void)
 {
-    short i;
     SECTOR_OBJECTp sop;
     SWBOOL riding;
     extern SWBOOL DebugActorFreeze;

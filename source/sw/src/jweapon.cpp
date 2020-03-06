@@ -379,7 +379,6 @@ DoBloodSpray(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    int32_t dax, day, daz;
     int cz,fz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -428,10 +427,9 @@ DoBloodSpray(int16_t Weapon)
             return TRUE;
         case HIT_SPRITE:
         {
-            short wall_ang, dang;
+            short wall_ang;
             short hit_sprite = NORM_SPRITE(u->ret);
             SPRITEp hsp = &sprite[hit_sprite];
-            USERp hu = User[hit_sprite];
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -456,7 +454,7 @@ DoBloodSpray(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hit_wall, nw, wall_ang, dang;
+            short hit_wall, nw, wall_ang;
             WALLp wph;
             short wb;
 
@@ -610,7 +608,6 @@ DoPhosphorus(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    int32_t dax, day, daz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -642,7 +639,7 @@ DoPhosphorus(int16_t Weapon)
             return TRUE;
         case HIT_SPRITE:
         {
-            short wall_ang, dang;
+            short wall_ang;
             short hit_sprite = -2;
             SPRITEp hsp;
             USERp hu;
@@ -680,7 +677,7 @@ DoPhosphorus(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hit_wall, nw, wall_ang, dang;
+            short hit_wall, nw, wall_ang;
             WALLp wph;
 
             hit_wall = NORM_WALL(u->ret);
@@ -837,7 +834,6 @@ DoChemBomb(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    int32_t dax, day, daz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -869,7 +865,7 @@ DoChemBomb(int16_t Weapon)
             return TRUE;
         case HIT_SPRITE:
         {
-            short wall_ang, dang;
+            short wall_ang;
             short hit_sprite;
             SPRITEp hsp;
 
@@ -907,7 +903,7 @@ DoChemBomb(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hit_wall, nw, wall_ang, dang;
+            short hit_wall, nw, wall_ang;
             WALLp wph;
 
             hit_wall = NORM_WALL(u->ret);
@@ -1099,7 +1095,6 @@ DoCaltrops(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    int32_t dax, day, daz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -1128,7 +1123,7 @@ DoCaltrops(int16_t Weapon)
             return TRUE;
         case HIT_SPRITE:
         {
-            short wall_ang, dang;
+            short wall_ang;
             short hit_sprite;
             SPRITEp hsp;
 
@@ -1155,7 +1150,7 @@ DoCaltrops(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hit_wall, nw, wall_ang, dang;
+            short hit_wall, nw, wall_ang;
             WALLp wph;
 
             hit_wall = NORM_WALL(u->ret);
@@ -1382,9 +1377,8 @@ PlayerInitChemBomb(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hit_sprite;
+    short w;
     short oclipdist;
-    int dist;
 
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
@@ -1469,9 +1463,7 @@ InitSpriteChemBomb(int16_t SpriteNum)
     USERp wu;
     SPRITEp sp = &sprite[SpriteNum], wp;
     int nx, ny, nz;
-    short w, hit_sprite;
-    short oclipdist;
-    int dist;
+    short w;
 
 
     PlaySound(DIGI_THROW, sp, v3df_dontpan | v3df_doppler);
@@ -1525,9 +1517,7 @@ InitChemBomb(short SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hit_sprite;
-    short oclipdist;
-    int dist;
+    short w;
 
 
 // Need to make it take away from inventory weapon list
@@ -1599,12 +1589,12 @@ InitChemBomb(short SpriteNum)
 int
 PlayerInitFlashBomb(PLAYERp pp)
 {
-    short pnum, i, nexti;
+    short i, nexti;
     unsigned int stat;
     int dist, tx, ty, tmin;
     short damage;
     SPRITEp sp = pp->SpriteP, hp;
-    USERp u = User[pp->PlayerSprite], hu;
+    USERp hu;
 
     PlaySound(DIGI_GASPOP, pp, v3df_dontpan | v3df_doppler);
 
@@ -1668,12 +1658,12 @@ PlayerInitFlashBomb(PLAYERp pp)
 int
 InitFlashBomb(int16_t SpriteNum)
 {
-    short pnum, i, nexti;
+    short i, nexti;
     unsigned int stat;
     int dist, tx, ty, tmin;
     short damage;
     SPRITEp sp = &sprite[SpriteNum], hp;
-    USERp u = User[SpriteNum], hu;
+    USERp hu;
     PLAYERp pp = Player + screenpeek;
 
     PlaySound(DIGI_GASPOP, sp, v3df_dontpan | v3df_doppler);
@@ -1828,9 +1818,8 @@ PlayerInitCaltrops(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hit_sprite;
+    short w;
     short oclipdist, i;
-    int dist;
 
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
@@ -1913,9 +1902,7 @@ InitCaltrops(int16_t SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hit_sprite;
-    short oclipdist, i;
-    int dist;
+    short w;
 
 
     PlaySound(DIGI_THROW, sp, v3df_dontpan | v3df_doppler);
@@ -1966,9 +1953,8 @@ InitPhosphorus(int16_t SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hit_sprite;
-    short oclipdist, i, daang;
-    int dist;
+    short w;
+    short daang;
 
 
     PlaySound(DIGI_FIREBALL1, sp, v3df_follow);
@@ -2026,9 +2012,8 @@ InitBloodSpray(int16_t SpriteNum, SWBOOL dogib, short velocity)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hit_sprite;
-    short oclipdist, i, cnt, ang, vel, rnd;
-    int dist;
+    short w;
+    short i, cnt, ang, vel, rnd;
 
 
     if (dogib)
@@ -2112,7 +2097,6 @@ int
 BloodSprayFall(int16_t SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
 
     sp->z += 1500;
 
@@ -2155,9 +2139,7 @@ int
 DoFlagRangeTest(short Weapon, short range)
 {
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
 
-    USERp u;
     SPRITEp sp;
     short i, nexti;
     unsigned int stat;
@@ -2169,7 +2151,6 @@ DoFlagRangeTest(short Weapon, short range)
         TRAVERSE_SPRITE_STAT(headspritestat[StatDamageList[stat]], i, nexti)
         {
             sp = &sprite[i];
-            u = User[i];
 
 
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
@@ -2483,10 +2464,8 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     int nx, ny, nz;
     short w;
-    short oclipdist,id=0,velocity=0;
-    int dist;
+    short id=0,velocity=0;
     STATEp p=NULL;
-    int zvel;
     extern STATE s_UziShellShrap[];
     extern STATE s_ShotgunShellShrap[];
 

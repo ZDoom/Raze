@@ -54,7 +54,6 @@ BEGIN_SW_NS
 void SectorLightShade(SPRITEp sp, short intensity)
 {
     short w, startwall, endwall;
-    void *void_ptr;
     int8_t* wall_shade;
     short base_shade;
     short wallcount;
@@ -286,7 +285,6 @@ void DoLighting(void)
 {
     short i,nexti;
     SPRITEp sp;
-    short count;
 
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_LIGHTING],i,nexti)

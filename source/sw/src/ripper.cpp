@@ -884,7 +884,6 @@ GetJumpHeight(short jump_speed, short jump_grav)
 int
 PickJumpSpeed(short SpriteNum, int pix_height)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     //ASSERT(pix_height < 128);
@@ -945,7 +944,6 @@ InitRipperHang(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     int dist;
-    short ang2;
 
     hitdata_t hitinfo = { { 0, 0, 0 }, -2, 0, -2 };
 
@@ -1005,7 +1003,6 @@ InitRipperHang(short SpriteNum)
 int
 DoRipperHang(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
@@ -1060,9 +1057,7 @@ DoRipperMoveHang(short SpriteNum)
 int
 DoRipperHangJF(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    int nx, ny;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1096,7 +1091,6 @@ DoRipperBeginJumpAttack(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     SPRITEp psp = User[SpriteNum]->tgt_sp;
-    int dist;
     int CanSeePlayer(short SpriteNum);
     short tang;
 
@@ -1132,7 +1126,6 @@ DoRipperBeginJumpAttack(short SpriteNum)
 int
 DoRipperMoveJump(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -1162,7 +1155,6 @@ DoRipperMoveJump(short SpriteNum)
 int
 DoRipperQuickJump(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     // Tests to see if ripper is on top of a player/enemy and then immediatly
@@ -1188,7 +1180,6 @@ DoRipperQuickJump(short SpriteNum)
 int
 NullRipper(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     if (TEST(u->Flags,SPR_SLIDING))
@@ -1202,7 +1193,6 @@ NullRipper(short SpriteNum)
 
 int DoRipperPain(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullRipper(SpriteNum);
@@ -1236,7 +1226,6 @@ int DoRipperRipHeart(short SpriteNum)
 int DoRipperStandHeart(short SpriteNum)
 // CTW MODIFICATION END
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullRipper(SpriteNum);
@@ -1300,7 +1289,6 @@ void RipperHatch(short Weapon)
 int
 DoRipperMove(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     if (u->scale_speed)

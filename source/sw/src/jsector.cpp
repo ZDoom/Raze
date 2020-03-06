@@ -57,8 +57,6 @@ short mirrorcnt; //, floormirrorcnt;
 //short floormirrorsector[MAXMIRRORS];
 SWBOOL mirrorinview;
 
-static char tempbuf[/*max(576, */ MAXXDIM /*)*/];
-
 SWBOOL MirrorMoveSkip16 = 0;
 
 // Voxel stuff
@@ -174,15 +172,14 @@ void
 JS_SpriteSetup(void)
 {
     SPRITEp sp;
-    short SpriteNum = 0, NextSprite, ndx;
+    short SpriteNum = 0, NextSprite;
     USERp u;
-    short i, num;
+    short i;
 
 
     TRAVERSE_SPRITE_STAT(headspritestat[0], SpriteNum, NextSprite)
     {
         short tag;
-        short bit;
 
         sp = &sprite[SpriteNum];
         tag = sp->hitag;
@@ -304,11 +301,9 @@ JS_SpriteSetup(void)
 /////////////////////////////////////////////////////
 void JS_InitMirrors(void)
 {
-    short startwall, endwall, dasector;
-    int i, j, k, s, dax, day, daz, dax2, day2;
+    short startwall, endwall;
+    int i, j, s;
     short SpriteNum = 0, NextSprite;
-    SPRITEp sp;
-    static short on_cam = 0;
     SWBOOL Found_Cam = FALSE;
 
 
@@ -351,7 +346,6 @@ void JS_InitMirrors(void)
                 {
                     short ii, nextii;
                     SPRITEp sp;
-                    USERp u;
 
                     mirror[mirrorcnt].ismagic = TRUE;
                     Found_Cam = FALSE;
@@ -536,14 +530,12 @@ short camplayerview = 1;                // Don't show yourself!
 void
 JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 {
-    int j, dx, dy, top, bot, cnt;
-    int x1, y1, x2, y2, ox1, oy1, ox2, oy2, dist, maxdist;
-    int tposx, tposy, thoriz;
-    int tcx, tcy, tcz;                 // Camera
-    int tiltlock, *longptr;
+    int j, cnt;
+    int dist;
+    int tposx, tposy; // Camera
+    int *longptr;
     fix16_t tang;
-    char ch, *ptr, *ptr2, *ptr3, *ptr4;
-    char tvisibility, palok;
+    char tvisibility;
 
 //    int tx, ty, tz, tpang;             // Interpolate so mirror doesn't
     // drift!
@@ -620,7 +612,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                 {
                     SPRITEp sp=NULL;
                     int camhoriz;
-                    short wall_ang, w, nw, da, tda;
+                    short w;
                     int dx, dy, dz, tdx, tdy, tdz, midx, midy;
 
 
@@ -639,7 +631,6 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 
                     // Calculate the angle of the mirror wall
                     w = mirror[cnt].mirrorwall;
-                    nw = wall[w].point2;
 
                     // Get wall midpoint for offset in mirror view
                     midx = (wall[w].x + wall[wall[w].point2].x) / 2;
@@ -811,8 +802,6 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 void
 DoAutoSize(tspriteptr_t tspr)
 {
-    short i;
-
     if (!bAutoSize)
         return;
 
@@ -963,8 +952,6 @@ short rotang = 0;
 void
 JAnalyzeSprites(tspriteptr_t tspr)
 {
-    int i, currsprite;
-
     rotang += 4;
     if (rotang > 2047)
         rotang = 0;
@@ -1024,8 +1011,6 @@ OrgTileList orgsectorfloorlist;         // The list containing orginal sector
 void
 InsertOrgTile(OrgTileP tp, OrgTileListP thelist)
 {
-    OrgTileP cur, nxt;
-
     ASSERT(tp);
     ASSERT(ValidPtr(tp));
 
@@ -1045,7 +1030,6 @@ InsertOrgTile(OrgTileP tp, OrgTileListP thelist)
 OrgTileP
 InitOrgTile(OrgTileListP thelist)
 {
-    int i;
     OrgTileP tp;
 
 
@@ -1158,8 +1142,7 @@ JS_PlockError(short wall_num, short t)
 void
 JS_InitLockouts(void)
 {
-    SPRITEp sp;
-    short i, num;
+    short i;
     OrgTileP tp;
 
     INITLIST(&orgwalllist);             // The list containing orginal wall
@@ -1249,8 +1232,7 @@ JS_InitLockouts(void)
 void
 JS_ToggleLockouts(void)
 {
-    SPRITEp sp;
-    short i, num;
+    short i;
     OrgTileP tp;
 
 

@@ -227,7 +227,7 @@ void
 playanm(short anim_num)
 {
     unsigned char *animbuf;
-    int i, j, k, length = 0, numframes = 0;
+    int i, length = 0, numframes = 0;
     int32_t handle = -1;
     
     ANIMnum = anim_num;

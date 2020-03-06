@@ -827,7 +827,6 @@ GetBunnyJumpHeight(short jump_speed, short jump_grav)
 int
 PickBunnyJumpSpeed(short SpriteNum, int pix_height)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     ASSERT(pix_height < 128);
@@ -858,7 +857,6 @@ DoBunnyBeginJumpAttack(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     SPRITEp psp = User[SpriteNum]->tgt_sp;
-    int dist;
     int CanSeePlayer(short SpriteNum);
     short tang;
 
@@ -1110,7 +1108,6 @@ DoBunnyQuickJump(short SpriteNum)
 int
 NullBunny(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
 
@@ -1137,7 +1134,6 @@ NullBunny(short SpriteNum)
 
 int DoBunnyPain(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullBunny(SpriteNum);
@@ -1257,9 +1253,8 @@ void BunnyHatch(short Weapon)
 int BunnyHatch2(short Weapon)
 {
     SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon];
 
-    short New,i;
+    short New;
     SPRITEp np;
     USERp nu;
 
@@ -1466,7 +1461,6 @@ DoBunnyScrew(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    int dist;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {

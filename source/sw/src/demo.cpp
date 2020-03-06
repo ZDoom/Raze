@@ -382,7 +382,6 @@ DemoPlayBack(void)
     static int buf_ndx;
     PLAYERp pp;
     ControlInfo info;
-    int Xdim, Ydim, ScreenSize;
 
     // Initialize Game part of network code (When ready2send != 0)
     InitNetVars();

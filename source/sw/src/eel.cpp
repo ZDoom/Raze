@@ -448,7 +448,6 @@ NewEel(short SpriteNum)
 int NullEel(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -604,7 +603,6 @@ DoEelDeath(short SpriteNum)
 
 int DoEelMove(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     ASSERT(u->Rot != NULL);

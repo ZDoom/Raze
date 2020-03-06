@@ -499,8 +499,8 @@ DoFireFly(short SpriteNum)
 int
 DoGenerateSewerDebris(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum], np;
-    USERp u = User[SpriteNum], nu;
+    SPRITEp sp = &sprite[SpriteNum];
+    USERp u = User[SpriteNum];
     short n;
 
     static STATEp Debris[] =
@@ -518,8 +518,6 @@ DoGenerateSewerDebris(short SpriteNum)
         u->Tics = u->WaitTics;
 
         n = SpawnSprite(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 200);
-        np = &sprite[n];
-        nu = User[n];
 
         SetOwner(SpriteNum, n);
     }
@@ -805,8 +803,6 @@ DoActorStopFall(short SpriteNum)
     // don't stand on face or wall sprites - jump again
     if (u->lo_sp && !TEST(u->lo_sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
-        USERp tu = User[u->lo_sp - sprite];
-
         //sp->ang = NORM_ANGLE(sp->ang + (RANDOM_P2(64<<8)>>8) - 32);
         sp->ang = NORM_ANGLE(sp->ang + 1024 + (RANDOM_P2(512<<8)>>8));
         u->jump_speed = -350;
@@ -878,7 +874,6 @@ int
 DoBeginJump(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);

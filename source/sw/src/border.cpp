@@ -561,7 +561,6 @@ void SetBorder(PLAYERp pp, int value)
 void
 SetRedrawScreen(PLAYERp pp)
 {
-    BORDER_INFO *b;
 
     if (pp != Player + myconnectindex)
         return;
@@ -574,8 +573,6 @@ SetRedrawScreen(PLAYERp pp)
 
     // Redraw the BORDER_TILE only if getting smaller
     BorderInfo = BorderInfoValues[gs.BorderNum];
-
-    b = &BorderInfo;
 
     // test at redrawing the whole screen
     RedrawScreen = TRUE;

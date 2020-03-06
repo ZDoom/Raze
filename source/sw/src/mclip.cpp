@@ -282,8 +282,6 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
 {
     int i;
     int ox[MAX_CLIPBOX],oy[MAX_CLIPBOX];
-    SPRITEp sp = pp->sop->sp_child;
-    USERp u = User[sp - sprite];
     SECTOR_OBJECTp sop = pp->sop;
     short ang;
     short min_ndx = 0;
@@ -446,13 +444,8 @@ int testquadinsect(int *point_num, vec2_t const * q, short sectnum)
 //Ken gives the tank clippin' a try...
 int RectClipMove(PLAYERp pp, int *qx, int *qy)
 {
-    SECTORp *sectp;
-    SECTOR_OBJECTp sop = pp->sop;
-    WALLp wp;
-    int count=0;
     int i;
     vec2_t xy[4];
-    short startwall,endwall;
     int point_num;
 
     for (i = 0; i < 4; i++)
@@ -533,8 +526,6 @@ short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy
     int i;
     vec2_t xy[4];
     SECTOR_OBJECTp sop = pp->sop;
-    int ret;
-    short ang;
     short rot_ang;
     int point_num;
 

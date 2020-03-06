@@ -535,7 +535,7 @@ void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
 #define MAXFADETICS     5
 void DoPaletteFlash(PLAYERp pp)
 {
-    int i, palreg, tmpreg1 = 0, tmpreg2 = 0;
+    int palreg, tmpreg1 = 0, tmpreg2 = 0;
 	unsigned char* pal_ptr = &ppalette[screenpeek][0];
 
 

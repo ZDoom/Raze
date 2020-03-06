@@ -285,7 +285,7 @@ void addconquote(const char *daquote)
 #define CON_ROT_FLAGS (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
 void operateconfta(void)
 {
-    int i, j, k;
+    int i, j;
 
     if (!ConPanel) return; // If panel isn't up, don't draw anything
 
@@ -422,7 +422,6 @@ void computergetinput(int snum, SW_PACKET *syn)
     walltype *wal;
     int myx, myy, myz, myang, mycursectnum;
     USERp u;
-    short weap;
     //extern SWBOOL Pachinko_Win_Cheat;
 
     if (!MoveSkip4) return; // Make it so the bots don't slow the game down so bad!

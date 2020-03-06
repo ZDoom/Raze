@@ -87,7 +87,6 @@ void DisplaySummaryString(PLAYERp pp, short xs, short ys, short color, short sha
 
 PANEL_SPRITEp pClearTextLineID(PLAYERp pp, short id, int y, short pri)
 {
-    PANEL_SPRITEp nsp=NULL;
     PANEL_SPRITEp psp=NULL, next;
 
     TRAVERSE(&pp->PanelSpriteList, psp, next)
@@ -110,7 +109,6 @@ PANEL_SPRITEp pClearTextLineID(PLAYERp pp, short id, int y, short pri)
 // only call this from menu code - it does a pKillSprite
 PANEL_SPRITEp pMenuClearTextLineID(PLAYERp pp, short id, int y, short pri)
 {
-    PANEL_SPRITEp nsp=NULL;
     PANEL_SPRITEp psp=NULL, next;
 
     TRAVERSE(&pp->PanelSpriteList, psp, next)
@@ -153,7 +151,6 @@ void PutStringTimer(PLAYERp pp, short x, short y, const char *string, short seco
     int ndx, offset;
     char c;
     PANEL_SPRITEp nsp;
-    extern unsigned short xlatfont[];
     long kill_tics;
     short id, ac;
     PANEL_SPRITE_FUNCp func;
@@ -202,7 +199,6 @@ void KillString(PLAYERp pp, short y)
 
 PANEL_SPRITEp pClearSpriteXY(PLAYERp pp, short x, short y)
 {
-    PANEL_SPRITEp nsp=NULL;
     PANEL_SPRITEp psp=NULL, next;
 
     TRAVERSE(&pp->PanelSpriteList, psp, next)
@@ -216,7 +212,6 @@ PANEL_SPRITEp pClearSpriteXY(PLAYERp pp, short x, short y)
 
 PANEL_SPRITEp pClearSpriteID(PLAYERp pp, short id)
 {
-    PANEL_SPRITEp nsp=NULL;
     PANEL_SPRITEp psp=NULL, next;
 
     TRAVERSE(&pp->PanelSpriteList, psp, next)
@@ -283,7 +278,6 @@ void DisplayMiniBarSmString(PLAYERp pp, short xs, short ys, short pal, const cha
 {
     short size=4,x;
     const char *ptr;
-    PANEL_SPRITEp nsp;
     short pic;
 
 #define FRAG_FIRST_ASCII ('!') //exclamation point
@@ -361,8 +355,7 @@ void DisplayFragString(PLAYERp pp, short xs, short ys, const char *buffer)
 void DisplayFragNumbers(PLAYERp pp)
 {
     char buffer[32];
-    char *ptr;
-    short x, xs, ys, size;
+    short xs, ys;
     short frag_bar;
     short pnum = pp - Player;
 
@@ -399,8 +392,7 @@ void DisplayFragNumbers(PLAYERp pp)
 
 void DisplayFragNames(PLAYERp pp)
 {
-    char *ptr;
-    short x, xs, ys, size;
+    short xs, ys;
     short frag_bar;
     short pnum = pp - Player;
 

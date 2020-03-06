@@ -756,7 +756,6 @@ SetupZombie(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     ANIMATOR DoActorDecide;
-    short pic = sp->picnum;
 
     u->Health = 100;
     u->StateEnd = &s_ZombiePain[0][0];
@@ -779,9 +778,9 @@ SetupZombie(short SpriteNum)
 int
 SpawnZombie(PLAYERp pp, short Weapon)
 {
-    short New,i,nexti;
-    SPRITEp np,sp;
-    USERp nu,u;
+    short New;
+    SPRITEp np;
+    USERp nu;
     short owner;
 
     owner = sprite[Weapon].owner;
@@ -823,8 +822,7 @@ int
 SpawnZombie2(short Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon];
-    short New,i,nexti;
+    short New;
     SPRITEp np;
     USERp nu;
     short owner;
@@ -887,7 +885,6 @@ int
 DoZombieMove(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
@@ -938,7 +935,6 @@ int
 NullZombie(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
@@ -969,7 +965,6 @@ NullZombie(short SpriteNum)
 
 int DoZombiePain(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullZombie(SpriteNum);

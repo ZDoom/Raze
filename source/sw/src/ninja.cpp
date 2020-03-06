@@ -1981,7 +1981,6 @@ DoNinjaGrabThroat(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    short cnt,i;
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
     {
@@ -2021,7 +2020,6 @@ int
 DoNinjaMove(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (TEST(u->Flags2, SPR2_DYING))
     {
@@ -2101,7 +2099,6 @@ int
 NullNinja(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (u->WaitTics > 0) u->WaitTics -= ACTORMOVETICS;
 
@@ -2119,7 +2116,6 @@ NullNinja(short SpriteNum)
 
 int DoNinjaPain(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullNinja(SpriteNum);
@@ -2181,8 +2177,7 @@ DoNinjaCeiling(short SpriteNum)
 void
 InitAllPlayerSprites(void)
 {
-    short i, sp_num;
-    USERp u;
+    short i;
 
     TRAVERSE_CONNECT(i)
     {
@@ -2393,7 +2388,6 @@ void
 PlayerSpriteLoadLevel(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     ChangeState(SpriteNum, s_NinjaRun[0]);
     u->Rot = sg_NinjaRun;
@@ -2403,7 +2397,7 @@ PlayerSpriteLoadLevel(short SpriteNum)
 void
 InitPlayerSprite(PLAYERp pp)
 {
-    short i, sp_num;
+    short sp_num;
     SPRITE *sp;
     USERp u;
     int pnum = pp - Player;

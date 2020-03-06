@@ -599,9 +599,6 @@ setup2dscreen(void)
 
 void TerminateGame(void)
 {
-    int i,j;
-    int oldtotalclock;
-
     DemoTerm();
 
     ErrorCorrectionQuit();
@@ -944,9 +941,7 @@ void InitNewGame(void)
 
 void FindLevelInfo(char *map_name, short *level)
 {
-    char *ptr;
-    char buff[16];
-    short i,j;
+    short j;
 
     for (j = 1; j <= MAX_LEVELS; j++)
     {
@@ -1440,7 +1435,6 @@ void PlayTheme()
 
 void LogoLevel(void)
 {
-    char called;
     int fin;
 
     if (userConfig.nologo) return;
@@ -1507,9 +1501,6 @@ void LogoLevel(void)
 
 void CreditsLevel(void)
 {
-    char called;
-    int fin;
-    int i;
     int curpic;
     int handle;
     uint32_t timer = 0;
@@ -1610,7 +1601,6 @@ void SybexScreen(void)
 void
 TitleLevel(void)
 {
-    char called;
     int fin;
     unsigned char backup_pal[256*3];
     unsigned char pal[PAL_SIZE];
@@ -1707,8 +1697,6 @@ void IntroAnimLevel(void)
 
 void MenuLevel(void)
 {
-    char called;
-    int fin;
     short w,h;
 
     M_StartControlPanel(false);
@@ -1795,7 +1783,6 @@ void MenuLevel(void)
         {
             if (MultiPlayQuitFlag)
             {
-                short pnum;
                 uint8_t pbuf[1];
                 QuitFlag = TRUE;
                 pbuf[0] = PACKET_TYPE_MENU_LEVEL_QUIT;
@@ -1876,7 +1863,6 @@ void LoadingLevelScreen(char *level_name)
 {
     short w,h;
     extern SWBOOL DemoMode;
-    extern char *MNU_LevelName[28];
     DrawLoadLevelScreen();
 
     if (DemoMode)
@@ -1955,10 +1941,7 @@ void BonusScreen(PLAYERp pp)
     int minutes,seconds,second_tics;
 
     short w,h;
-    short pic,limit;
-    int zero=0;
-    int handle = 0;
-    short LI_Num;
+    short limit;
 
 
 #define BONUS_SCREEN_PIC 5120
@@ -2221,14 +2204,8 @@ void EndGameSequence(void)
 
 void StatScreen(PLAYERp mpp)
 {
-    int minutes,seconds,second_tics;
     extern SWBOOL FinishedLevel;
-    extern int PlayClock;
-    extern short LevelSecrets;
-    extern short TotalKillable;
     short w,h;
-    int zero=0;
-    int handle=0;
 
     short rows,cols,i,j;
     PLAYERp pp = NULL;
@@ -2542,7 +2519,6 @@ void InitPlayerGameSettings(void)
 
 void InitRunLevel(void)
 {
-    int i;
     if (DemoEdit)
         return;
 
@@ -2627,7 +2603,6 @@ void faketimerhandler();
 
 void RunLevel(void)
 {
-    int i;
     InitRunLevel();
 
 #if 0
@@ -2755,13 +2730,10 @@ void CommandLineHelp(char const * const * argv)
 int32_t GameInterface::app_main()
 {
     int i;
-    int stat, nexti;
-    char type;
     extern int MovesPerPacket;
     void DoSector(void);
     void gameinput(void);
     int cnt = 0;
-    uint32_t TotalMemory;
 
     automapping = 1;
     BorderAdjust = true;
@@ -2803,7 +2775,6 @@ int32_t GameInterface::app_main()
 void ManualPlayerInsert(PLAYERp pp)
 {
     PLAYERp npp = Player + numplayers;
-    int i;
 
     if (numplayers < MAX_SW_PLAYERS)
     {
@@ -2834,7 +2805,6 @@ void ManualPlayerInsert(PLAYERp pp)
 void BotPlayerInsert(PLAYERp pp)
 {
     PLAYERp npp = Player + numplayers;
-    int i;
 
     if (numplayers < MAX_SW_PLAYERS)
     {
@@ -2867,7 +2837,6 @@ void ManualPlayerDelete(PLAYERp cur_pp)
 {
     short i, nexti;
     USERp u;
-    short save_myconnectindex;
     PLAYERp pp;
 
     if (numplayers > 1)
@@ -2903,7 +2872,6 @@ char WangBangMacro[10][64];
 void
 FunctionKeys(PLAYERp pp)
 {
-    extern SWBOOL GamePaused;
     static int rts_delay = 0;
     int fn_key = 0;
 
@@ -3002,7 +2970,6 @@ FunctionKeys(PLAYERp pp)
 void PauseKey(PLAYERp pp)
 {
     extern SWBOOL GamePaused,CheatInputMode;
-    extern SWBOOL enabled;
 
     if (inputState.GetKeyStatus(sc_Pause) && !CommEnabled && !InputMode && !M_Active() && !CheatInputMode && !ConPanel)
     {
@@ -3051,11 +3018,9 @@ short MirrorDelay;
 
 void getinput(SW_PACKET *loc)
 {
-    SWBOOL found = FALSE;
     int i;
     PLAYERp pp = Player + myconnectindex;
     PLAYERp newpp = Player + myconnectindex;
-    int pnum = myconnectindex;
     int inv_hotkey = 0;
 
 #define TURBOTURNTIME (120/8)

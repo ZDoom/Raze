@@ -156,8 +156,6 @@ int DoToiletGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    short rnd_range = 0;
-    static int handle=0;
     SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
@@ -247,7 +245,6 @@ int NullToiletGirl(short SpriteNum)
 int ToiletGirlUzi(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -264,7 +261,6 @@ int ToiletGirlUzi(short SpriteNum)
 
 int ToiletGirlPain(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullToiletGirl(SpriteNum);
@@ -399,7 +395,6 @@ int DoWashGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    short rnd_range = 0;
     SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
@@ -495,7 +490,6 @@ int NullWashGirl(short SpriteNum)
 int WashGirlUzi(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -512,7 +506,6 @@ int WashGirlUzi(short SpriteNum)
 
 int WashGirlPain(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullWashGirl(SpriteNum);
@@ -611,8 +604,6 @@ int DoTrashCan(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    short rnd_range = 0;
-    static int handle=0;
 
     //(*u->ActorActionFunc) (SpriteNum);
 
@@ -633,7 +624,6 @@ int DoTrashCan(short SpriteNum)
 int TrashCanPain(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(SpriteNum);
@@ -885,9 +875,7 @@ int PachinkoCheckWin(short SpriteNum)
 int Pachinko1Operate(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum];
     short rnd;
-    PLAYERp pp = Player + myconnectindex;
 
     rnd = RANDOM_RANGE(1000);
     if (rnd > 900)
@@ -1279,8 +1267,6 @@ int DoCarGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    short rnd_range = 0;
-    static int handle=0;
     SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
@@ -1368,7 +1354,6 @@ int NullCarGirl(short SpriteNum)
 int CarGirlUzi(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -1385,7 +1370,6 @@ int CarGirlUzi(short SpriteNum)
 
 int CarGirlPain(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullCarGirl(SpriteNum);
@@ -1502,8 +1486,6 @@ int DoMechanicGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    short rnd_range = 0;
-    static int handle=0;
     SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
@@ -1591,7 +1573,6 @@ int NullMechanicGirl(short SpriteNum)
 int MechanicGirlDrill(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -1608,7 +1589,6 @@ int MechanicGirlDrill(short SpriteNum)
 
 int MechanicGirlPain(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullMechanicGirl(SpriteNum);
@@ -1726,8 +1706,6 @@ int DoSailorGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    short rnd_range = 0;
-    static int handle=0;
     SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
@@ -1824,7 +1802,6 @@ int NullSailorGirl(short SpriteNum)
 int SailorGirlThrow(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -1841,7 +1818,6 @@ int SailorGirlThrow(short SpriteNum)
 
 int SailorGirlPain(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullSailorGirl(SpriteNum);
@@ -1942,7 +1918,6 @@ int DoPruneGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    short rnd_range = 0;
     SWBOOL ICanSee = FALSE;
 
     DoActorPickClosePlayer(SpriteNum);
@@ -2045,7 +2020,6 @@ int NullPruneGirl(short SpriteNum)
 int PruneGirlUzi(short SpriteNum)
 {
     USERp u = User[SpriteNum];
-    SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
@@ -2062,7 +2036,6 @@ int PruneGirlUzi(short SpriteNum)
 
 int PruneGirlPain(short SpriteNum)
 {
-    SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
     NullPruneGirl(SpriteNum);

@@ -785,7 +785,7 @@ void LoadCustomInfoFromScript(const char *filename)
         }
         case CM_INVENTORY:
         {
-            char *invtokptr = script->ltextptr, *invnumptr;
+            char *invnumptr;
             int in;
             char *name = NULL;
             int amt = -1;
@@ -835,7 +835,7 @@ void LoadCustomInfoFromScript(const char *filename)
         }
         case CM_WEAPON:
         {
-            char *wpntokptr = script->ltextptr, *wpnnumptr;
+            char *wpnnumptr;
             char *name = NULL, *ammo = NULL;
             int maxammo = -1, damagemin = -1, damagemax = -1, pickup = -1, wpickup = -1;
             int in,id;
