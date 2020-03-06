@@ -5497,17 +5497,8 @@ void
 DoPlayerWade(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
-    int dot;
-    int wadedir = 0;
 
     DoPlayerFireOutWater(pp);
-
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->pang+512)], sintable[pp->pang]);
-
-    if (dot < 0)
-        wadedir = -2;
-    else if (dot > 0)
-        wadedir = 2;
 
     if (DebugOperate)
     {
@@ -7057,19 +7048,10 @@ void DoPlayerDeathBounce(PLAYERp pp)
 
     if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_SINK))
     {
-        int loz;
-
         RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         NewStateGroup(pp->PlayerSprite, sg_PlayerHead);
         u->slide_vel = 0;
         SET(u->Flags, SPR_BOUNCE);
-
-        if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_SINK))
-        {
-            loz = pp->lo_sectp->floorz - Z(SectUser[pp->lo_sectp - sector]->depth);
-        }
-        else
-            loz = pp->loz;
 
 
         return;
