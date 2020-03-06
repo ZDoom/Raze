@@ -117,7 +117,7 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "global.h"
 #include "inv.h"
 #include "macros.h"
-#include "namesdyn.h"
+#include "dukerr/namesdyn.h"
 #include "network.h"
 #include "player.h"
 #include "quotes.h"

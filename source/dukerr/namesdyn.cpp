@@ -25,10 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 
 #include "namesdyn.h"
-#include "global.h"
 #include "gamecontrol.h"
 
-BEGIN_RR_NS
+BEGIN_DUKERR_NS
 
 #define DVPTR(x) &x
 
@@ -42,6 +41,31 @@ struct dynitem
     const int16_t staticval;
     const int16_t staticval_rr;
 };
+
+int16_t g_blimpSpawnItems[15] =
+{
+    RPGSPRITE__STATIC,
+    CHAINGUNSPRITE__STATIC,
+    DEVISTATORAMMO__STATIC,
+    RPGAMMO__STATIC,
+    RPGAMMO__STATIC,
+    JETPACK__STATIC,
+    SHIELD__STATIC,
+    FIRSTAID__STATIC,
+    STEROIDS__STATIC,
+    RPGAMMO__STATIC,
+    RPGAMMO__STATIC,
+    RPGSPRITE__STATIC,
+    RPGAMMO__STATIC,
+    FREEZESPRITE__STATIC,
+    FREEZEAMMO__STATIC
+};
+
+int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOTGUNSPRITE__STATIC,
+        CHAINGUNSPRITE__STATIC, RPGSPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC, DEVISTATORSPRITE__STATIC,
+        TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC
+                                           };
+
 
 static struct dynitem g_dynTileList[] =
 {
@@ -645,6 +669,7 @@ static struct dynitem g_dynTileList[] =
     { "FOOTPRINT", DVPTR(FOOTPRINT), FOOTPRINT__STATIC, FOOTPRINT__STATICRR },
     { "POOP", DVPTR(POOP), POOP__STATIC, POOP__STATICRR },
     { "FRAMEEFFECT1", DVPTR(FRAMEEFFECT1), FRAMEEFFECT1__STATIC, FRAMEEFFECT1__STATICRR },
+    { "FRAMEEFFECT1_13", DVPTR(FRAMEEFFECT1_13), FRAMEEFFECT1_13__STATIC, FRAMEEFFECT1_13__STATICRR },
     { "PANNEL3", DVPTR(PANNEL3), PANNEL3__STATIC, PANNEL3__STATICRR },
     { "SCREENBREAK14", DVPTR(SCREENBREAK14), SCREENBREAK14__STATIC, SCREENBREAK14__STATICRR },
     { "SCREENBREAK15", DVPTR(SCREENBREAK15), SCREENBREAK15__STATIC, SCREENBREAK15__STATICRR },
@@ -2065,6 +2090,7 @@ int32_t FEM9 = FEM9__STATIC;
 int32_t FOOTPRINT = FOOTPRINT__STATIC;
 int32_t POOP = POOP__STATIC;
 int32_t FRAMEEFFECT1 = FRAMEEFFECT1__STATIC;
+int32_t FRAMEEFFECT1_13 = FRAMEEFFECT1_13__STATIC;
 int32_t PANNEL3 = PANNEL3__STATIC;
 int32_t SCREENBREAK14 = SCREENBREAK14__STATIC;
 int32_t SCREENBREAK15 = SCREENBREAK15__STATIC;
@@ -2970,18 +2996,17 @@ void G_InitDynamicTiles(void)
 
     Bmemset(DynamicTileMap, 0, sizeof(DynamicTileMap));
 
-    if (RR)
+    if (g_gameType & GAMEFLAG_RR)
     {
         for (i = 0; g_dynTileList[i].staticval >= 0; i++) {
             *(g_dynTileList[i].dynvalptr) = -g_dynTileList[i].staticval_rr;
-            if (RRRA && *(g_dynTileList[i].dynvalptr) == -UFO1__STATICRR) *(g_dynTileList[i].dynvalptr) = -UFO1__STATICRRRA;
+            if ((g_gameType & GAMEFLAG_RRRA) && *(g_dynTileList[i].dynvalptr) == -UFO1__STATICRR) *(g_dynTileList[i].dynvalptr) = -UFO1__STATICRRRA;
             DynamicTileMap[*(g_dynTileList[i].dynvalptr)] = g_dynTileList[i].staticval_rr;
 			NameToTileIndex.Insert(g_dynTileList[i].str, *(g_dynTileList[i].dynvalptr));
         }
         for (i = 0; g_dynWeaponList[i].staticval >= 0; i++)
             *(g_dynWeaponList[i].dynvalptr) = g_dynWeaponList[i].staticval_rr;
 
-        PHEIGHT = PHEIGHT_RR;
     }
 
     for (i=0; g_dynTileList[i].staticval >= 0; i++)
@@ -3012,7 +3037,7 @@ void G_InitDynamicTiles(void)
     g_blimpSpawnItems[13] = FREEZESPRITE;
     g_blimpSpawnItems[14] = FREEZEAMMO;
 
-    if (RR)
+    if (g_gameType & GAMEFLAG_RR)
     {
         WeaponPickupSprites[0] = KNEE;
         WeaponPickupSprites[1] = FIRSTGUNSPRITE;
@@ -3042,10 +3067,5 @@ void G_InitDynamicTiles(void)
         WeaponPickupSprites[10] = HEAVYHBOMB;
         WeaponPickupSprites[11] = SHRINKERSPRITE;
     }
-
-    // ouch... the big background image takes up a fuckload of memory and takes a second to load!
-#ifdef EDUKE32_GLES
-    MENUSCREEN = LOADSCREEN = BETASCREEN;
-#endif
 }
-END_RR_NS
+END_DUKERR_NS

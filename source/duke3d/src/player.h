@@ -131,7 +131,7 @@ typedef struct {
     uint8_t extbits;
 } input_t;
 
-#pragma pack(push,1)
+//#pragma pack(push,1)
 // XXX: r1625 changed a lot types here, among others
 //  * int32_t --> int16_t
 //  * int16_t --> int8_t
@@ -152,13 +152,7 @@ typedef struct {
     int32_t autostep, autostep_sbw;
 
     uint32_t interface_toggle;
-#ifdef LUNATIC
-    int32_t pipebombControl, pipebombLifetime, pipebombLifetimeVar;
-    int32_t tripbombControl, tripbombLifetime, tripbombLifetimeVar;
 
-    int32_t zrange;
-    int16_t angrange, autoaimang;
-#endif
     uint16_t max_actors_killed, actors_killed;
     uint16_t gotweapon, zoom;
 
@@ -210,16 +204,7 @@ typedef struct {
 
     int8_t last_used_weapon;
 
-#ifdef LUNATIC
-    int8_t palsfadespeed, palsfadenext, palsfadeprio, padding2_;
-
-    // The player index. Always valid since we have no loose DukePlayer_t's
-    // anywhere (like with spritetype_t): g_player[i].ps->wa.idx == i.
-    struct { int32_t idx; } wa;
-#endif
-
     int8_t crouch_toggle;
-    int8_t padding_[1];
 } DukePlayer_t;
 
 // KEEPINSYNC lunatic/_defs_game.lua
@@ -239,7 +224,7 @@ typedef struct {
     char user_name[32];
     uint32_t revision;
 } playerdata_t;
-#pragma pack(pop)
+//#pragma pack(pop)
 
 // KEEPINSYNC lunatic/con_lang.lua
 typedef struct
@@ -326,7 +311,6 @@ typedef struct {
 extern input_t          inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
 extern playerdata_t     *const g_player;
-extern int16_t          WeaponPickupSprites[MAX_WEAPONS];
 extern hudweapon_t      hudweap;
 extern int32_t          g_levelTextTime;
 extern int32_t          g_numObituaries;

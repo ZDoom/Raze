@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_crc32.h"
 #include "duke3d.h"
 #include "gameexec.h"
-#include "namesdyn.h"
+#include "dukerr/namesdyn.h"
 #include "osd.h"
 #include "savegame.h"
 #include "printf.h"

@@ -397,30 +397,6 @@ void PreloadCache(void)
 
             if ((++cnt & 7) == 0)
                 gameHandleEvents();
-
-#if 0
-            if (videoGetRenderMode() != REND_CLASSIC && totalclock - clock > (kTicRate>>2))
-            {
-                int const percentComplete = min(100, tabledivide32_noinline(100 * cnt, nPrecacheCount));
-
-                // this just prevents the loading screen percentage bar from making large jumps
-                while (percentDisplayed < percentComplete)
-                {
-                    gameHandleEvents();
-                    Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", percentDisplayed, cnt, nPrecacheCount);
-                    viewLoadingScreenUpdate(tempbuf, percentDisplayed);
-                    videoNextPage();
-
-                    if (totalclock - clock >= 1)
-                    {
-                        clock = totalclock;
-                        percentDisplayed++;
-                    }
-                }
-
-                clock = totalclock;
-            }
-#endif
         }
     }
     memset(gotpic,0,sizeof(gotpic));
@@ -1296,20 +1272,6 @@ RESTART:
         gRestartGame = 0;
         gGameStarted = 0;
         levelSetupOptions(0,0);
-#if 0
-		// What's this loop for? Needs checking
-        while (gGameMenuMgr.m_bActive)
-        {
-            gGameMenuMgr.Process();
-            gameHandleEvents();
-            if (G_FPSLimit())
-            {
-                videoClearScreen(0);
-                gGameMenuMgr.Draw();
-                videoNextPage();
-            }
-        }
-#endif
         if (gGameOptions.nGameType != 0)
         {
             if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo && demo_playloop)

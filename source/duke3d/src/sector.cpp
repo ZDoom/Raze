@@ -2793,9 +2793,9 @@ CHECKINV1:
                     {
                         // this accounts for the expander when handling next/previous
 
-                        switch (currentWeapon)
+                        switch (DYNAMICWEAPONMAP(currentWeapon))
                         {
-                            case DEVISTATOR_WEAPON:
+                            case DEVISTATOR_WEAPON__STATIC:
                                 if ((int32_t) weaponNum == -1)
                                 {
                                     if (PLUTOPAK)
@@ -2807,11 +2807,11 @@ CHECKINV1:
                                     currentWeapon++;
                                 break;
 
-                            case GROW_WEAPON:
+                            case GROW_WEAPON__STATIC:
                                 currentWeapon = ((int32_t) weaponNum == -1) ? SHRINKER_WEAPON : DEVISTATOR_WEAPON;
                                 break;
 
-                            case SHRINKER_WEAPON:
+                            case SHRINKER_WEAPON__STATIC:
                                 if ((int32_t)weaponNum == 1)
                                 {
                                     if (PLUTOPAK)
@@ -2823,7 +2823,7 @@ CHECKINV1:
                                     currentWeapon--;
                                 break;
 
-                            case HANDREMOTE_WEAPON:
+                            case HANDREMOTE_WEAPON__STATIC:
                                 i = currentWeapon = HANDBOMB_WEAPON;
                                 fallthrough__;
                             default:
@@ -2857,12 +2857,12 @@ CHECKINV1:
                 if (weaponNum >= 12) // alt weapon, last used weapon
                 {
                     uint32_t const weaponNumSwitch = weaponNum == 13 ? pPlayer->last_used_weapon : pPlayer->curr_weapon;
-                    switch (weaponNumSwitch)
+                    switch (DYNAMICWEAPONMAP(weaponNumSwitch))
                     {
-                        case HANDREMOTE_WEAPON:
+                        case HANDREMOTE_WEAPON__STATIC:
                             weaponNum = HANDBOMB_WEAPON;
                             break;
-                        case GROW_WEAPON:
+                        case GROW_WEAPON__STATIC:
                             weaponNum = SHRINKER_WEAPON;
                             break;
                         default:
@@ -2918,28 +2918,28 @@ CHECKINV1:
                         pPlayer->weapon_pos = WEAPON_POS_LOWER;
                     }
                     else if ((uint32_t)weaponNum < MAX_WEAPONS && (pPlayer->gotweapon & (1<<weaponNum)) && (uint32_t)pPlayer->curr_weapon != weaponNum)
-                        switch (weaponNum)
+                        switch (DYNAMICWEAPONMAP(weaponNum))
                         {
-                        case PISTOL_WEAPON:
-                        case SHOTGUN_WEAPON:
-                        case CHAINGUN_WEAPON:
-                        case RPG_WEAPON:
-                        case DEVISTATOR_WEAPON:
-                        case FREEZE_WEAPON:
-                        case GROW_WEAPON:
-                        case SHRINKER_WEAPON:
+                        case PISTOL_WEAPON__STATIC:
+                        case SHOTGUN_WEAPON__STATIC:
+                        case CHAINGUN_WEAPON__STATIC:
+                        case RPG_WEAPON__STATIC:
+                        case DEVISTATOR_WEAPON__STATIC:
+                        case FREEZE_WEAPON__STATIC:
+                        case GROW_WEAPON__STATIC:
+                        case SHRINKER_WEAPON__STATIC:
                             if (pPlayer->ammo_amount[weaponNum] == 0 && pPlayer->show_empty_weapon == 0)
                             {
                                 pPlayer->last_full_weapon = pPlayer->curr_weapon;
                                 pPlayer->show_empty_weapon = 32;
                             }
                             fallthrough__;
-                        case KNEE_WEAPON:
-                        case HANDREMOTE_WEAPON:
+                        case KNEE_WEAPON__STATIC:
+                        case HANDREMOTE_WEAPON__STATIC:
                             P_AddWeapon(pPlayer, weaponNum, 1);
                             break;
-                        case HANDBOMB_WEAPON:
-                        case TRIPBOMB_WEAPON:
+                        case HANDBOMB_WEAPON__STATIC:
+                        case TRIPBOMB_WEAPON__STATIC:
                             if (pPlayer->ammo_amount[weaponNum] > 0 && (pPlayer->gotweapon & (1<<weaponNum)))
                                 P_AddWeapon(pPlayer, weaponNum, 1);
                             break;

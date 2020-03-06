@@ -1,4 +1,4 @@
-﻿//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -6957,6 +6957,8 @@ static void G_Startup(void)
         G_FatalEngineError();
 
     G_InitDynamicTiles();
+	if (RR) PHEIGHT = PHEIGHT_RR;
+
     G_InitDynamicSounds();
 
     // These depend on having the dynamic tile and/or sound mappings set up:
