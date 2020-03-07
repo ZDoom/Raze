@@ -3045,11 +3045,13 @@ SpawnShrap(short ParentNum, short Secondary)
         {NULL,0,0,0,0,0,0,0,0,0},
     };
 
+#if 0
     static SHRAP LowerGore[] =
     {
         {s_GoreLeg, GORE_Leg, 4, Z_BOT, 300, 500, 100, 200, TRUE, 2048},
         {NULL,0,0,0,0,0,0,0,0,0},
     };
+#endif
 
     static SHRAP SmallGore[] =
     {
@@ -3066,6 +3068,7 @@ SpawnShrap(short ParentNum, short Secondary)
         {NULL,0,0,0,0,0,0,0,0,0},
     };
 
+#if 0
     static SHRAP BoltExpShrap[] =
     {
         {s_GoreFlame, GORE_Drip, 4, Z_MID, 300, 700, 300, 600, TRUE, 2048},
@@ -3096,6 +3099,7 @@ SpawnShrap(short ParentNum, short Secondary)
         FireballExpShrap1,
         FireballExpShrap2
     };
+#endif
 
     // state, id, num, zlevel, min_jspeed, max_jspeed, min_vel, max_vel,
     // random_disperse, ang_range;
@@ -3131,11 +3135,13 @@ SpawnShrap(short ParentNum, short Secondary)
         {NULL,0,0,0,0,0,0,0,0,0},
     };
 
+#if 0
     static SHRAP SectorSquishGore[] =
     {
         {s_FastGoreDrip,    GORE_Drip,   24, Z_MID, -400, -200, 600, 800, FALSE, 2048},
         {NULL,0,0,0,0,0,0,0,0,0},
     };
+#endif
 
 
 
@@ -3184,11 +3190,13 @@ SpawnShrap(short ParentNum, short Secondary)
 
 #define WALL_FLOOR_SHRAP 4097
     ANIMATOR DoShrapWallFloor;
+#if 0
     static SHRAP SectorExpShrap[] =
     {
         {NULL, WALL_FLOOR_SHRAP, 1, Z_BOT, 550, 800, 200, 400, TRUE, 512},
         {NULL,0,0,0,0,0,0,0,0,0},
     };
+#endif
 
     int hz[3];
     short dang = 0;
@@ -4150,11 +4158,13 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
         {NULL,0,0,0,0,0,0,0,0,0},
     };
 
+#if 0
     static SHRAP MoreBlood[] =
     {
         {s_GoreDrip, GORE_Drip, 2, Z_TOP, 100, 250, 10, 20, TRUE, 512},
         {NULL,0,0,0,0,0,0,0,0,0},
     };
+#endif
 
     static SHRAP ExtraBlood[] =
     {
@@ -4168,11 +4178,13 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
         {NULL,0,0,0,0,0,0,0,0,0},
     };
 
+#if 0
     static SHRAP SwordPowerup[] =
     {
         {s_ElectroShrap, ELECTRO_SHARD, 16, Z_TOP, 75, 200, 70, 150, TRUE, 512},
         {NULL,0,0,0,0,0,0,0,0,0},
     };
+#endif
 
     short dang = 0;
 
