@@ -120,12 +120,13 @@ int ChangeWeapon(PLAYERp);
 
 ANIMATOR InitFire;
 
-int NullAnimator(short SpriteNum)
+int
+NullAnimator(short UNUSED(SpriteNum))
 {
     return 0;
 }
 
-void pNullAnimator(PANEL_SPRITEp psp)
+void pNullAnimator(PANEL_SPRITEp UNUSED(psp))
 {
     return;
 }

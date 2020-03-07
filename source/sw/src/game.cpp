@@ -1876,21 +1876,21 @@ void gStateControl(STATEp *State, int *tics)
         (*(*State)->Animator)(0);
 }
 
-int BonusPunchSound(short SpriteNum)
+int BonusPunchSound(short UNUSED(SpriteNum))
 {
     PLAYERp pp = Player + myconnectindex;
     PlaySound(DIGI_PLAYERYELL3, pp, v3df_none);
     return 0;
 }
 
-int BonusKickSound(short SpriteNum)
+int BonusKickSound(short UNUSED(SpriteNum))
 {
     PLAYERp pp = Player + myconnectindex;
     PlaySound(DIGI_PLAYERYELL2, pp, v3df_none);
     return 0;
 }
 
-int BonusGrabSound(short SpriteNum)
+int BonusGrabSound(short UNUSED(SpriteNum))
 {
     PLAYERp pp = Player + myconnectindex;
     PlaySound(DIGI_BONUS_GRAB, pp, v3df_none);
