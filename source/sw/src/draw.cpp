@@ -1521,7 +1521,7 @@ void DrawCheckKeys(PLAYERp pp)
         ResizeView(pp);
 }
 
-void DrawMessageInput(PLAYERp pp)
+void DrawMessageInput(void)
 {
     short w,h;
     static SWBOOL cur_show;
@@ -1537,12 +1537,12 @@ void DrawMessageInput(PLAYERp pp)
         cur_show ^= 1;
         if (cur_show)
         {
-            minigametext(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,0,ROTATE_SPRITE_SCREEN_CLIP);
+            minigametext(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,ROTATE_SPRITE_SCREEN_CLIP);
             rotatesprite((TEXT_XCENTER(w)+w+2)<<16,(MESSAGE_LINE+1)<<16,20000,0,COINCURSOR+(((int32_t) totalclock>>3)%7),c,0,ROTATE_SPRITE_SCREEN_CLIP,0,0,xdim-1,ydim-1);
         }
         else
         {
-            minigametext(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,0,ROTATE_SPRITE_SCREEN_CLIP);
+            minigametext(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,ROTATE_SPRITE_SCREEN_CLIP);
             rotatesprite((TEXT_XCENTER(w)+w+2)<<16,(MESSAGE_LINE+1)<<16,20000,0,COINCURSOR+(((int32_t) totalclock>>3)%7),c,0,ROTATE_SPRITE_SCREEN_CLIP,0,0,xdim-1,ydim-1);
         }
     }
@@ -2247,7 +2247,7 @@ drawscreen(PLAYERp pp)
     // Boss Health Meter, if Boss present
     BossHealthMeter();
 
-	DrawMessageInput(pp);   // This is only used for non-multiplayer input now
+    DrawMessageInput();   // This is only used for non-multiplayer input now
 
     DrawCompass(pp);
     UpdateMiniBar(pp);

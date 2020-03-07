@@ -124,7 +124,7 @@ int gametext(int x,int y,char *t,char s,short dabits)
     return x;
 }
 
-int minigametext(int x,int y,const char *t,char s,short dabits)
+int minigametext(int x,int y,const char *t,short dabits)
 {
     short ac,newx;
     char centre;
@@ -251,16 +251,16 @@ void operatefta(void)
         {
             // dont fade out
             if (k > 4)
-                minigametext(320>>1,j,user_quote[i],0,2+8);
+                minigametext(320>>1,j,user_quote[i],2+8);
             else if (k > 2)
-                minigametext(320>>1,j,user_quote[i],0,2+8+1);
+                minigametext(320>>1,j,user_quote[i],2+8+1);
             else
-                minigametext(320>>1,j,user_quote[i],0,2+8+1+32);
+                minigametext(320>>1,j,user_quote[i],2+8+1+32);
         }
         else
         {
             // dont fade out
-            minigametext(320>>1,j,user_quote[i],0,2+8);
+            minigametext(320>>1,j,user_quote[i],2+8);
         }
 
         j -= 6;

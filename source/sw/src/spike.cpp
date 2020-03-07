@@ -35,7 +35,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-short DoSpikeMatch(PLAYERp pp, short match);
+short DoSpikeMatch(short match);
 SWBOOL TestSpikeMatchActive(short match);
 int DoVatorMove(short SpriteNum, int *lptr);
 void InterpSectorSprites(short sectnum, SWBOOL state);
@@ -141,7 +141,7 @@ void SetSpikeInactive(short SpriteNum)
 }
 
 // called for operation from the space bar
-short DoSpikeOperate(PLAYERp pp, short sectnum)
+short DoSpikeOperate(short sectnum)
 {
     SPRITEp fsp;
     short match;
@@ -161,7 +161,7 @@ short DoSpikeOperate(PLAYERp pp, short sectnum)
                 if (TestSpikeMatchActive(match))
                     return -1;
                 else
-                    return DoSpikeMatch(pp, match);
+                    return DoSpikeMatch(match);
             }
 
             SetSpikeActive(i);
@@ -175,7 +175,7 @@ short DoSpikeOperate(PLAYERp pp, short sectnum)
 // called from switches and triggers
 // returns first spike found
 short
-DoSpikeMatch(PLAYERp pp, short match)
+DoSpikeMatch(short match)
 {
     USERp fu;
     SPRITEp fsp;

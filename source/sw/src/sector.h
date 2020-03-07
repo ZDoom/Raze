@@ -71,7 +71,7 @@ SWBOOL ComboSwitchTest(short combo_type,short match);
 void DoSoundSpotStopSound(short match);
 void DoSector(void);
 short AnimateSwitch(SPRITEp sp,short tgt_value);
-void ShootableSwitch(short SpriteNum,short Weapon);
+void ShootableSwitch(short SpriteNum);
 SWBOOL TestKillSectorObject(SECTOR_OBJECTp sop);
 void WeaponExplodeSectorInRange(short weapon);
 

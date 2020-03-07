@@ -69,7 +69,7 @@ void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt);
 SECTOR_OBJECTp DetectSectorObject(SECTORp);
 SECTOR_OBJECTp DetectSectorObjectByWall(WALLp);
 void ScaleSpriteVector(short SpriteNum, int scale);
-int QueueHole(short ang, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z);
+int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z);
 int QueueWallBlood(short hit_sprite, short ang);
 SWBOOL SlopeBounce(short SpriteNum, SWBOOL *hit_wall);
 SWBOOL HitscanSpriteAdjust(short SpriteNum, short hit_wall);

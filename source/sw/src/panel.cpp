@@ -242,7 +242,7 @@ void pSetSuicide(PANEL_SPRITEp psp)
     psp->PanelSpriteFunc = pSuicide;
 }
 
-void pToggleCrosshair(PLAYERp pp)
+void pToggleCrosshair(void)
 {
 	cl_crosshair = !cl_crosshair;
 }
@@ -7806,7 +7806,7 @@ PreUpdatePanel(void)
     DrawBeforeView = FALSE;
 }
 
-void rotatespritetile(int thex, int they, short tilenum,
+void rotatespritetile(short tilenum,
                       signed char shade, int cx1, int cy1,
                       int cx2, int cy2, char dapalnum)
 {

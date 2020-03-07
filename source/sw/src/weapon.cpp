@@ -53,7 +53,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 int SpawnZombie2(short);
-int move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
+int move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 void DoPlayerBeginDie(PLAYERp);
 void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator);
 ANIMATOR DoBettyBeginDeath;
@@ -128,7 +128,7 @@ int SpawnDemonFist(short Weapon);
 int SpawnTankShellExp(int16_t Weapon);
 int SpawnMicroExp(int16_t Weapon);
 void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize);
-int BulletHitSprite(SPRITEp sp,short hit_sprite,short hit_sect,short hit_wall,int hit_x,int hit_y,int hit_z,short ID);
+int BulletHitSprite(SPRITEp sp,short hit_sprite,int hit_x,int hit_y,int hit_z,short ID);
 int SpawnSplashXY(int hit_x,int hit_y,int hit_z,short);
 int SpawnBoatSparks(PLAYERp pp,short hit_sect,short hit_wall,int hit_x,int hit_y,int hit_z,short hit_ang);
 
@@ -4653,7 +4653,7 @@ WeaponMoveHit(short SpriteNum)
         {
             if (hsp->lotag || hsp->hitag)
             {
-                ShootableSwitch(hit_sprite, SpriteNum);
+                ShootableSwitch(hit_sprite);
                 return TRUE;
             }
         }
@@ -4714,7 +4714,7 @@ WeaponMoveHit(short SpriteNum)
             {
                 if (hsp->lotag || hsp->hitag)
                 {
-                    ShootableSwitch(hitinfo.sprite,SpriteNum);
+                    ShootableSwitch(hitinfo.sprite);
                     return TRUE;
                 }
             }
@@ -12273,7 +12273,7 @@ DoBloodWorm(int16_t Weapon)
 
     u = User[Weapon];
 
-    u->ret = move_ground_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
+    u->ret = move_ground_missile(Weapon, u->xchange, u->ychange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     if (u->ret)
     {
@@ -13834,7 +13834,7 @@ InitSwordAttack(PLAYERp pp)
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(hitinfo.sprite,-1);
+                    ShootableSwitch(hitinfo.sprite);
                 }
 
             }
@@ -14024,7 +14024,7 @@ InitFistAttack(PLAYERp pp)
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(hitinfo.sprite,-1);
+                    ShootableSwitch(hitinfo.sprite);
                 }
 
                 switch (hsp->picnum)
@@ -14904,7 +14904,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
             return 0;
         }
 
-        QueueHole(ang,hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
+        QueueHole(hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
     }
 
     // hit a sprite?
@@ -14924,13 +14924,13 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
             return 0;
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitinfo.sprite,-1);
+            ShootableSwitch(hitinfo.sprite);
         }
     }
 
@@ -15065,7 +15065,7 @@ InitShotgun(PLAYERp pp)
                 continue;
             }
 
-            QueueHole(ndaang,hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
+            QueueHole(hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
         }
 
         // hit a sprite?
@@ -15098,13 +15098,13 @@ InitShotgun(PLAYERp pp)
                 continue;
             }
 
-            if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, SHOTGUN_SMOKE))
+            if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, SHOTGUN_SMOKE))
                 continue;
 
             // hit a switch?
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
             {
-                ShootableSwitch(hitinfo.sprite,-1);
+                ShootableSwitch(hitinfo.sprite);
             }
         }
 
@@ -17612,7 +17612,7 @@ InitTracerAutoTurret(short SpriteNum, short Operator, int xchange, int ychange, 
 #endif
 
 int
-BulletHitSprite(SPRITEp sp, short hit_sprite, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short ID)
+BulletHitSprite(SPRITEp sp, short hit_sprite, int hit_x, int hit_y, int hit_z, short ID)
 {
     vec3_t hit_pos = { hit_x, hit_y, hit_z };
     SPRITEp hsp = &sprite[hit_sprite];
@@ -17909,7 +17909,7 @@ InitUzi(PLAYERp pp)
             return 0;
         }
 
-        QueueHole(daang,hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
+        QueueHole(hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
     }
 
     // hit a sprite?
@@ -17942,13 +17942,13 @@ InitUzi(PLAYERp pp)
             return 0;
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitinfo.sprite,-1);
+            ShootableSwitch(hitinfo.sprite);
         }
     }
 
@@ -18119,13 +18119,13 @@ InitEMP(PLAYERp pp)
             //return(0);
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z,0))
+        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z,0))
             //return(0);
 
             // hit a switch?
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
             {
-                ShootableSwitch(hitinfo.sprite,-1);
+                ShootableSwitch(hitinfo.sprite);
             }
 
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -18631,13 +18631,13 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
             return 0;
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitinfo.sprite,-1);
+            ShootableSwitch(hitinfo.sprite);
         }
     }
 
@@ -19046,7 +19046,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
                     continue;
                 }
 
-                QueueHole(daang,hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
+                QueueHole(hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
             }
 
             // hit a sprite?
@@ -19066,13 +19066,13 @@ InitTurretMgun(SECTOR_OBJECTp sop)
                     continue;
                 }
 
-                if (BulletHitSprite(sp, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+                if (BulletHitSprite(sp, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
                     continue;
 
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(hitinfo.sprite,-1);
+                    ShootableSwitch(hitinfo.sprite);
                 }
             }
 
@@ -19183,12 +19183,12 @@ InitEnemyUzi(short SpriteNum)
             return 0;
         }
 
-        QueueHole(daang,hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
+        QueueHole(hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
     }
 
     if (hitinfo.sprite >= 0)
     {
-        if (BulletHitSprite(sp, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(sp, hitinfo.sprite, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
     }
 
@@ -20503,7 +20503,7 @@ void QueueReset(void)
         LoWangsQueue[i] = -1;
 }
 
-SWBOOL TestDontStick(short SpriteNum, short hit_sect, short hit_wall, int hit_z)
+SWBOOL TestDontStick(short SpriteNum, short hit_wall)
 {
     WALLp wp;
 
@@ -20539,7 +20539,7 @@ int QueueStar(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     SPRITEp osp;
 
-    if (TestDontStick(SpriteNum, -1, -1, sp->z))
+    if (TestDontStick(SpriteNum, -1))
     {
         KillSprite(SpriteNum);
         return -1;
@@ -20575,7 +20575,7 @@ int QueueStar(short SpriteNum)
     return SpriteNum;
 }
 
-int QueueHole(short ang, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
+int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
 {
     short w,nw,wall_ang;
     short SpriteNum;
@@ -20584,7 +20584,7 @@ int QueueHole(short ang, short hit_sect, short hit_wall, int hit_x, int hit_y, i
     short sectnum;
 
 
-    if (TestDontStick(-1,hit_sect,hit_wall,hit_z))
+    if (TestDontStick(-1,hit_wall))
         return -1;
 
     if (HoleQueue[HoleQueueHead] == -1)
@@ -20878,7 +20878,7 @@ int QueueWallBlood(short hit_sprite, short ang)
 
     if (hitinfo.wall >= 0)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
     {
-        if (TestDontStick(-1, hitinfo.sect, hitinfo.wall, hitinfo.pos.z))
+        if (TestDontStick(-1, hitinfo.wall))
             return -1;
     }
     else

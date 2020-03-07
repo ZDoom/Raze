@@ -237,7 +237,7 @@ SWBOOL DebugActor = FALSE;
 SWBOOL DebugAnim = FALSE;
 SWBOOL DebugOperate = FALSE;
 SWBOOL DebugActorFreeze = FALSE;
-void LoadingLevelScreen(char *level_name);
+void LoadingLevelScreen(void);
 
 uint8_t FakeMultiNumPlayers;
 
@@ -1062,7 +1062,7 @@ InitLevel(void)
     if (NewGame)
         InitNewGame();
 
-    LoadingLevelScreen(LevelName);
+    LoadingLevelScreen();
     MONO_PRINT("LoadintLevelScreen");
     if (!DemoMode && !DemoInitOnce)
         DemoPlaySetup();
@@ -1824,7 +1824,8 @@ void SceneLevel(void)
     DemoPlaying = dp_bak;
 }
 
-void LoadingLevelScreen(char *level_name)
+void
+LoadingLevelScreen(void)
 {
     short w,h;
     extern SWBOOL DemoMode;
@@ -1901,7 +1902,7 @@ extern int PlayClock;
 extern short LevelSecrets;
 extern short TotalKillable;
 
-void BonusScreen(PLAYERp pp)
+void BonusScreen()
 {
     int minutes,seconds,second_tics;
 
@@ -2139,7 +2140,7 @@ void EndGameSequence(void)
     if (anim_ok)
         playanm(FinishAnim);
 
-    BonusScreen(Player + myconnectindex);
+    BonusScreen();
 
     ExitLevel = FALSE;
     QuitFlag = FALSE;
@@ -2208,7 +2209,7 @@ void StatScreen(PLAYERp mpp)
     {
         if (!FinishedLevel)
             return;
-        BonusScreen(mpp);
+        BonusScreen();
         return;
     }
 
@@ -2798,7 +2799,8 @@ void BotPlayerInsert(PLAYERp pp)
 //    SetFragBar(pp);
 }
 
-void ManualPlayerDelete(PLAYERp cur_pp)
+void
+ManualPlayerDelete(void)
 {
     short i, nexti;
     USERp u;
@@ -3416,7 +3418,7 @@ void getinput(SW_PACKET *loc)
     if (buttonMap.ButtonDown(gamefunc_Toggle_Crosshair))
     {
         buttonMap.ClearButton(gamefunc_Toggle_Crosshair);
-        pToggleCrosshair(pp);
+        pToggleCrosshair();
     }
 }
 
@@ -3460,12 +3462,12 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 
     if (ScrollMode2D)
     {
-        minigametext(txt_x,txt_y-7,"Follow Mode",0,2+8);
+        minigametext(txt_x,txt_y-7,"Follow Mode",2+8);
     }
 
     sprintf(ds,"%s",currentLevel->DisplayName());
 
-    minigametext(txt_x,txt_y,ds,0,2+8);
+    minigametext(txt_x,txt_y,ds,2+8);
 
     //////////////////////////////////
 

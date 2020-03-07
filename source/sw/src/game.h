@@ -2361,7 +2361,7 @@ void post_analyzesprites(void); // draw.c
 int COVERsetgamemode(int mode, int xdim, int ydim, int bpp);    // draw.c
 void ScreenCaptureKeys(void);   // draw.c
 
-int minigametext(int x,int y,const char *t,char s,short dabits);  // jplayer.c
+int minigametext(int x,int y,const char *t,short dabits);  // jplayer.c
 void computergetinput(int snum,SW_PACKET *syn); // jplayer.c
 
 void DrawOverlapRoom(int tx,int ty,int tz,short tang,int thoriz,short tsectnum);    // rooms.c
@@ -2394,7 +2394,7 @@ SWBOOL VatorSwitch(short match, short setting); // vator.c
 void MoveSpritesWithSector(short sectnum,int z_amt,SWBOOL type);  // vator.c
 void SetVatorActive(short SpriteNum);   // vator.c
 
-short DoSpikeMatch(PLAYERp pp,short match); // spike.c
+short DoSpikeMatch(short match); // spike.c
 void SpikeAlign(short SpriteNum);   // spike.c
 
 short DoSectorObjectSetScale(short match);  // morph.c
@@ -2412,7 +2412,7 @@ int DoWallMoveMatch(short match);   // wallmove.c
 int DoWallMove(SPRITEp sp); // wallmove.c
 SWBOOL CanSeeWallMove(SPRITEp wp,short match);    // wallmove.c
 
-short DoSpikeOperate(PLAYERp pp,short sectnum); // spike.c
+short DoSpikeOperate(short sectnum); // spike.c
 void SetSpikeActive(short SpriteNum);   // spike.c
 
 #define NTAG_SEARCH_LO 1

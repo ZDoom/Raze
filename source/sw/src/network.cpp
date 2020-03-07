@@ -565,7 +565,7 @@ Connect(void)
         x2 = x1 + screensize - 1;
         y1 = ((ydim) >> 1) - (((screensize * (ydim)) / xdim) >> 1);
         y2 = y1 + ((screensize * (ydim)) / xdim) - 1;
-        rotatespritetile(0L, 0L, BorderTest[gs.BorderTile], 0, x1, y1, x2, y2, 0);
+        rotatespritetile(BorderTest[gs.BorderTile], 0, x1, y1, x2, y2, 0);
         nextpage();
 #endif
 

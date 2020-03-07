@@ -7373,7 +7373,7 @@ move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildis
 
 
 int
-move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     int daz;
     int retval=0;
