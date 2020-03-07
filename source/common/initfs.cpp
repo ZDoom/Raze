@@ -361,6 +361,11 @@ static FString ParseGameInfo(TArray<FString>& pwads, const char* fn, const char*
 			sc.MustGetString();
 			RazeStartupInfo.BkColor = V_GetColor(NULL, sc);
 		}
+		else if (!nextKey.CompareNoCase("MODERN"))
+		{
+			sc.MustGetNumber();
+			RazeStartupInfo.modern = sc.Number ? 1 : -1;
+		}
 		else
 		{
 			// Silently ignore unknown properties

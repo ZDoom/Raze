@@ -333,9 +333,13 @@ void CheckFrontend(int flags)
 	{
 		gi = Powerslave::CreateInterface();
 	}
-	else if (flags & GAMEFLAG_FURY)
+	else if ((flags & GAMEFLAG_FURY) || RazeStartupInfo.modern > 0)
 	{
 		gi = Duke::CreateInterface();
+	}
+	else if (RazeStartupInfo.modern < 0)
+	{
+		gi = Redneck::CreateInterface();
 	}
 	else
 	{
