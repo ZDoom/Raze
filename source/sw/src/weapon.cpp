@@ -8281,7 +8281,7 @@ int PickEnemyTarget(SPRITEp sp, short aware_range)
 }
 
 int
-MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range, int16_t dang_shift, int16_t turn_limit, int16_t z_limit)
+MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -8364,7 +8364,7 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range, int16_t dan
 
 // combination of vector manipulation
 int
-ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range, int16_t dang_shift, int16_t turn_limit, int16_t z_limit)
+ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
@@ -8700,8 +8700,8 @@ DoPlasma(int16_t Weapon)
     oy = sp->y;
     oz = sp->z;
 
-//MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range, int16_t dang_shift, int16_t turn_limit, int16_t z_limit)
-    //MissileSeek(Weapon, 20, 1024, 6, 80, 6);
+//MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
+    //MissileSeek(Weapon, 20, 1024/*, 6, 80, 6*/);
     DoBlurExtend(Weapon, 0, 4);
 
     dax = MOVEx(sp->xvel, sp->ang);
@@ -10194,7 +10194,7 @@ DoRocket(int16_t Weapon)
 
     if (TEST(u->Flags, SPR_FIND_PLAYER))
     {
-        //MissileSeek(Weapon, 10, 768, 3, 48, 6);
+        //MissileSeek(Weapon, 10, 768/*, 3, 48, 6*/);
         VectorMissileSeek(Weapon, 30, 16, 128, 768);
     }
 
@@ -10486,7 +10486,7 @@ DoBoltSeeker(int16_t Weapon)
     USERp u = User[Weapon];
     int32_t dax, day, daz;
 
-    MissileSeek(Weapon, 30, 768, 4, 48, 6);
+    MissileSeek(Weapon, 30, 768/*, 4, 48, 6*/);
     DoBlurExtend(Weapon, 0, 4);
 
     dax = MOVEx(sp->xvel, sp->ang);
@@ -10537,7 +10537,7 @@ DoElectro(int16_t Weapon)
 
     // only seek on Electro's after a hit on an actor
     if (u->Counter > 0)
-        MissileSeek(Weapon, 30, 512, 3, 52, 2);
+        MissileSeek(Weapon, 30, 512/*, 3, 52, 2*/);
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
