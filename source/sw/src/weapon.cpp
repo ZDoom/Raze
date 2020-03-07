@@ -11719,7 +11719,7 @@ int
 InitMineShrap(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
-    SPRITEp wp, hsp;
+    SPRITEp wp;
     short ang, w, i;
     hitdata_t hitinfo;
     int daz;
@@ -11748,12 +11748,6 @@ InitMineShrap(short SpriteNum)
 #define MINE_SHRAP_DIST_MAX 20000
         if (Distance(hitinfo.pos.x, hitinfo.pos.y, sp->x, sp->y) > MINE_SHRAP_DIST_MAX)
             continue;
-
-        // hit a sprite?
-        if (hitinfo.sprite >= 0)
-        {
-            hsp = &sprite[hitinfo.sprite];
-        }
 
         w = SpawnSprite(STAT_MISSILE, MINE_SHRAP, s_MineSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
         wp = &sprite[w];
@@ -20516,7 +20510,6 @@ SWBOOL TestDontStick(short SpriteNum, short hit_sect, short hit_wall, int hit_z)
     if (hit_wall < 0)
     {
         ASSERT(SpriteNum>=0);
-        SPRITEp sp = &sprite[SpriteNum];
         USERp u = User[SpriteNum];
         hit_wall = NORM_WALL(u->ret);
     }
