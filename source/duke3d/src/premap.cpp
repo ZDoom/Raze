@@ -670,7 +670,7 @@ void P_ResetPlayer(int playerNum)
 {
     auto &p = *g_player[playerNum].ps;
 
-    ud.showallmap = 0;
+    gFullMap = 0;
 
     p.access_spritenum   = -1;
     p.actorsqu           = -1;
@@ -1205,7 +1205,7 @@ static void G_DeleteTempEffectors()
 
 static void prelevel(int g)
 {
-    Bmemset(show2dsector, 0, sizeof(show2dsector));
+    show2dsector.Zero();
 #ifdef LEGACY_ROR
     Bmemset(ror_protectedsectors, 0, MAXSECTORS);
 #endif

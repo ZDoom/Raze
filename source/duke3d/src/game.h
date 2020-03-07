@@ -173,7 +173,7 @@ typedef struct {
     } config;
 
     char overhead_on,last_overhead,showweapons;
-    char god,warp_on,cashman,eog,showallmap;
+    char god,warp_on,cashman,eog;
     char scrollmode,noclip;
     char display_bonus_screen;
     char show_level_text;

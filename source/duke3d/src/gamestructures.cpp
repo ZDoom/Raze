@@ -1385,7 +1385,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_WARP_ON:                labelNum = ud.warp_on;                      break;
         case USERDEFS_CASHMAN:                labelNum = ud.cashman;                      break;
         case USERDEFS_EOG:                    labelNum = ud.eog;                          break;
-        case USERDEFS_SHOWALLMAP:             labelNum = ud.showallmap;                   break;
+        case USERDEFS_SHOWALLMAP:             labelNum = gFullMap;                   break;
         case USERDEFS_SHOW_HELP:              labelNum = 0;                    break;
         case USERDEFS_SCROLLMODE:             labelNum = ud.scrollmode;                   break;
         case USERDEFS_CLIPPING:               labelNum = ud.noclip;                       break;
@@ -1573,7 +1573,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_WARP_ON:                      ud.warp_on                       = iSet; break;
         case USERDEFS_CASHMAN:                      ud.cashman                       = iSet; break;
         case USERDEFS_EOG:                          ud.eog                           = iSet; break;
-        case USERDEFS_SHOWALLMAP:                   ud.showallmap                    = iSet; break;
+        case USERDEFS_SHOWALLMAP:                   gFullMap                    = iSet; break;
         case USERDEFS_SHOW_HELP:                    break;
         case USERDEFS_SCROLLMODE:                   ud.scrollmode                    = iSet; break;
         case USERDEFS_CLIPPING:                     ud.noclip                        = iSet; break;

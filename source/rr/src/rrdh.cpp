@@ -3406,8 +3406,7 @@ int dword_AAAEC;
 void sub_57AC0(void)
 {
     int i;
-    for (i = 0; i < MAXSECTORS; i++)
-        show2dsector[i>>3] |= 1<<(i&7);
+    show2dsector.SetAll(1);
     for (i = 0; i < MAXWALLS; i++)
         show2dwall[i>>3] |= 1<<(i&7);
     dword_AAAEC ^= 1;
@@ -3444,7 +3443,7 @@ void sub_57B38(long cposx, long cposy, long czoom, short cang)
                 //Draw white lines
         for(i=0;i<numsectors;i++)
         {
-                if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
+                if (!gFullMap && !show2dsector[i]) continue;
 
                 startwall = sector[i].wallptr;
                 endwall = sector[i].wallptr + sector[i].wallnum;

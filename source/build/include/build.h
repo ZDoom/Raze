@@ -643,7 +643,9 @@ static CONSTEXPR const int32_t pow2long[32] =
     //   show2dsprite[spritenum>>3] &= ~(1<<(spritenum&7));
 
 EXTERN int automapping;
-EXTERN char show2dsector[(MAXSECTORS+7)>>3];
+EXTERN FixedBitArray<MAXSECTORS> show2dsector;
+EXTERN bool gFullMap;
+
 EXTERN char show2dwall[(MAXWALLS+7)>>3];
 EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
 

@@ -410,7 +410,7 @@ static int goalx[MAX_SW_PLAYERS_REG], goaly[MAX_SW_PLAYERS_REG], goalz[MAX_SW_PL
 static int goalsect[MAX_SW_PLAYERS_REG], goalwall[MAX_SW_PLAYERS_REG], goalsprite[MAX_SW_PLAYERS_REG];
 static int goalplayer[MAX_SW_PLAYERS_REG], clipmovecount[MAX_SW_PLAYERS_REG];
 short searchsect[MAXSECTORS], searchparent[MAXSECTORS];
-char dashow2dsector[(MAXSECTORS+7)>>3];
+uint8_t dashow2dsector[(MAXSECTORS+7)>>3];
 
 void computergetinput(int snum, SW_PACKET *syn)
 {

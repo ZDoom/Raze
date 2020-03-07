@@ -563,33 +563,6 @@ Distance(int x1, int y1, int x2, int y2)
 }
 
 void
-MapSetAll2D(uint8_t fill)
-{
-#if 0
-    int i;
-
-    for (i = 0; i < (MAXWALLS >> 3); i++)
-        show2dwall[i] = fill;
-    for (i = 0; i < (MAXSPRITES >> 3); i++)
-        show2dsprite[i] = fill;
-
-    //for (i = 0; i < (MAXSECTORS >> 3); i++)
-    for (i = 0; i < MAXSECTORS; i++)
-    {
-        if (sector[i].ceilingpicnum != 342 && sector[i].floorpicnum != 342)
-            show2dsector[i>>3] |= (1<<(i&7));
-        //show2dsector[i] = fill;
-    }
-#endif
-}
-
-void
-MapSetup(void)
-{
-    MapSetAll2D(0xFF);
-}
-
-void
 setup2dscreen(void)
 {
     // qsetmode640350();
@@ -969,10 +942,6 @@ void InitLevelGlobals(void)
     extern SWBOOL zillawasseen;
     extern short BossSpriteNum[3];
 
-    // A few IMPORTANT GLOBAL RESETS
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-    MapSetup();
-    //Zombies = 0;
     ChopTics = 0;
     dimensionmode = 3;
     zoom = 768;
@@ -1176,7 +1145,6 @@ InitLevel(void)
     TrackSetup();
 
     PlayerPanelSetup();
-    MapSetup();
     SectorSetup();
     JS_InitMirrors();
     JS_InitLockouts();   // Setup the lockout linked lists

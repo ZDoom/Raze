@@ -1498,6 +1498,11 @@ public:
 	{
 		memset(&bytes[0], 0, sizeof(bytes));
 	}
+
+	void SetAll(bool on)
+	{
+		memset(&bytes[0], on ? -1 : 0, sizeof(bytes));
+	}
 };
 
 // A wrapper to externally stored data.

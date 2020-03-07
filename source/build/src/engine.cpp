@@ -1504,7 +1504,7 @@ static void classicScanSector(int16_t startsectnum)
         return;
 
     if (automapping)
-        show2dsector[startsectnum>>3] |= pow2char[startsectnum&7];
+        show2dsector.Set(startsectnum);
 
     sectorborder[0] = startsectnum;
     int32_t sectorbordercnt = 1;
@@ -7852,7 +7852,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     usectorptr_t sec;
 
     for (s=0,sec=(usectorptr_t)&sector[s]; s<numsectors; s++,sec++)
-        if (show2dsector[s>>3]&pow2char[s&7])
+        if (gFullMap || show2dsector[s])
         {
 #ifdef YAX_ENABLE
             if (yax_getbunch(s, YAX_FLOOR) >= 0 && (sector[s].floorstat&(256+128))==0)
@@ -8093,7 +8093,7 @@ static void enginePrepareLoadBoard(FileReader & fr, vec3_t *dapos, int16_t *daan
 {
     initspritelists();
 
-    Bmemset(show2dsector, 0, sizeof(show2dsector));
+    show2dsector.Zero();
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
     Bmemset(show2dwall, 0, sizeof(show2dwall));
     Bmemset(editwall, 0, sizeof(editwall));

@@ -844,7 +844,7 @@ void P_ResetStatus(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
-    ud.showallmap              = 0;
+    gFullMap              = 0;
     pPlayer->dead_flag         = 0;
     pPlayer->wackedbyactor     = -1;
     pPlayer->falling_counter   = 0;
@@ -1306,7 +1306,7 @@ static void prelevel(char g)
     Bmemset(g_geoSectorWarp2, -1, sizeof(g_geoSectorWarp2));
     Bmemset(g_ambientHitag, -1, sizeof(g_ambientHitag));
     Bmemset(g_ambientLotag, -1, sizeof(g_ambientLotag));
-    Bmemset(show2dsector, 0, sizeof(show2dsector));
+    show2dsector.Zero();
 #ifdef LEGACY_ROR
     Bmemset(ror_protectedsectors, 0, MAXSECTORS);
 #endif

@@ -638,13 +638,9 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_SHOWMAP: // SHOW ALL OF THE MAP TOGGLE;
-                    ud.showallmap = !ud.showallmap;
+                    gFullMap = !gFullMap;
 
-                    for (char & i : show2dsector)
-                        i = ud.showallmap*255;
-
-                    P_DoQuote(ud.showallmap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_OFF,
-                        pPlayer);
+                    P_DoQuote(gFullMap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_OFF, pPlayer);
 
                     end_cheat(pPlayer);
                     return;

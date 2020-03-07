@@ -37,7 +37,7 @@ void MarkSectorSeen(short nSector);
 
 void InitMap()
 {
-    memset(show2dsector, 0, sizeof(show2dsector));
+    show2dsector.Zero();
     memset(show2dwall,   0, sizeof(show2dwall));
     memset(show2dsprite, 0, sizeof(show2dsprite));
 
@@ -54,9 +54,9 @@ void GrabMap()
 
 void MarkSectorSeen(short nSector)
 {
-    if (!((1 << (nSector & 7)) & show2dsector[nSector >> 3]))
+    if (!show2dsector[nSector])
     {
-        show2dsector[nSector >> 3] |= 1 << (nSector & 7);
+        show2dsector.Set(nSector);
 
         short startwall = sector[nSector].wallptr;
         short nWalls = sector[nSector].wallnum;
@@ -321,7 +321,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     //Draw red lines
     for (i=numsectors-1; i>=0; i--)
     {
-        if (!(show2dsector[i>>3]&pow2char[i&7])) continue;
+        if (!gFullMap && !show2dsector[i]) continue;
 
         startwall = sector[i].wallptr;
         endwall = sector[i].wallptr + sector[i].wallnum;
@@ -357,161 +357,10 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         }
     }
 
-#if 0
-    renderEnableFog();
-
-    //Draw sprites
-    k = PlayerList[nLocalPlayer].nSprite;
-    if (!FURY) for (i=numsectors-1; i>=0; i--)
-    {
-        if (!(show2dsector[i>>3]&pow2char[i&7])) continue;
-        for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
-        {
-            spr = &sprite[j];
-
-            if (j == k || (spr->cstat&0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
-
-            col = PalEntry(0, 170, 170);
-            if (spr->cstat & 1) col = PalEntry(170, 0, 170);
-
-            sprx = spr->x;
-            spry = spr->y;
-
-            if ((spr->cstat&257) != 0) switch (spr->cstat&48)
-            {
-            case 0:
-                //                    break;
-
-                ox = sprx-cposx;
-                oy = spry-cposy;
-                x1 = dmulscale16(ox, xvect, -oy, yvect);
-                y1 = dmulscale16(oy, xvect2, ox, yvect2);
-
-                ox = (sintable[(spr->ang+512)&2047]>>7);
-                oy = (sintable[(spr->ang)&2047]>>7);
-                x2 = dmulscale16(ox, xvect, -oy, yvect);
-                y2 = dmulscale16(oy, xvect, ox, yvect);
-
-                x3 = mulscale16(x2, yxaspect);
-                y3 = mulscale16(y2, yxaspect);
-
-                renderDrawLine(x1-x2+(xdim<<11), y1-y3+(ydim<<11),
-                    x1+x2+(xdim<<11), y1+y3+(ydim<<11), col);
-                renderDrawLine(x1-y2+(xdim<<11), y1+x3+(ydim<<11),
-                    x1+x2+(xdim<<11), y1+y3+(ydim<<11), col);
-                renderDrawLine(x1+y2+(xdim<<11), y1-x3+(ydim<<11),
-                    x1+x2+(xdim<<11), y1+y3+(ydim<<11), col);
-                break;
-
-            case 16:
-                if (spr->picnum == LASERLINE)
-                {
-                    x1 = sprx;
-                    y1 = spry;
-                    tilenum = spr->picnum;
-                    xoff = picanm[tilenum].xofs + spr->xoffset;
-                    if ((spr->cstat&4) > 0) xoff = -xoff;
-                    k = spr->ang;
-                    l = spr->xrepeat;
-                    dax = sintable[k&2047]*l;
-                    day = sintable[(k+1536)&2047]*l;
-                    l = tilesiz[tilenum].x;
-                    k = (l>>1)+xoff;
-                    x1 -= mulscale16(dax, k);
-                    x2 = x1+mulscale16(dax, l);
-                    y1 -= mulscale16(day, k);
-                    y2 = y1+mulscale16(day, l);
-
-                    ox = x1-cposx;
-                    oy = y1-cposy;
-                    x1 = dmulscale16(ox, xvect, -oy, yvect);
-                    y1 = dmulscale16(oy, xvect2, ox, yvect2);
-
-                    ox = x2-cposx;
-                    oy = y2-cposy;
-                    x2 = dmulscale16(ox, xvect, -oy, yvect);
-                    y2 = dmulscale16(oy, xvect2, ox, yvect2);
-
-                    renderDrawLine(x1+(xdim<<11), y1+(ydim<<11),
-                        x2+(xdim<<11), y2+(ydim<<11), col);
-                }
-
-                break;
-
-            case 32:
-                tilenum = spr->picnum;
-                xoff = picanm[tilenum].xofs + spr->xoffset;
-                yoff = picanm[tilenum].yofs + spr->yoffset;
-                if ((spr->cstat&4) > 0) xoff = -xoff;
-                if ((spr->cstat&8) > 0) yoff = -yoff;
-
-                k = spr->ang;
-                cosang = sintable[(k+512)&2047];
-                sinang = sintable[k&2047];
-                xspan = tilesiz[tilenum].x;
-                xrepeat = spr->xrepeat;
-                yspan = tilesiz[tilenum].y;
-                yrepeat = spr->yrepeat;
-
-                dax = ((xspan>>1)+xoff)*xrepeat;
-                day = ((yspan>>1)+yoff)*yrepeat;
-                x1 = sprx + dmulscale16(sinang, dax, cosang, day);
-                y1 = spry + dmulscale16(sinang, day, -cosang, dax);
-                l = xspan*xrepeat;
-                x2 = x1 - mulscale16(sinang, l);
-                y2 = y1 + mulscale16(cosang, l);
-                l = yspan*yrepeat;
-                k = -mulscale16(cosang, l);
-                x3 = x2+k;
-                x4 = x1+k;
-                k = -mulscale16(sinang, l);
-                y3 = y2+k;
-                y4 = y1+k;
-
-                ox = x1-cposx;
-                oy = y1-cposy;
-                x1 = dmulscale16(ox, xvect, -oy, yvect);
-                y1 = dmulscale16(oy, xvect2, ox, yvect2);
-
-                ox = x2-cposx;
-                oy = y2-cposy;
-                x2 = dmulscale16(ox, xvect, -oy, yvect);
-                y2 = dmulscale16(oy, xvect2, ox, yvect2);
-
-                ox = x3-cposx;
-                oy = y3-cposy;
-                x3 = dmulscale16(ox, xvect, -oy, yvect);
-                y3 = dmulscale16(oy, xvect2, ox, yvect2);
-
-                ox = x4-cposx;
-                oy = y4-cposy;
-                x4 = dmulscale16(ox, xvect, -oy, yvect);
-                y4 = dmulscale16(oy, xvect2, ox, yvect2);
-
-                renderDrawLine(x1+(xdim<<11), y1+(ydim<<11),
-                    x2+(xdim<<11), y2+(ydim<<11), col);
-
-                renderDrawLine(x2+(xdim<<11), y2+(ydim<<11),
-                    x3+(xdim<<11), y3+(ydim<<11), col);
-
-                renderDrawLine(x3+(xdim<<11), y3+(ydim<<11),
-                    x4+(xdim<<11), y4+(ydim<<11), col);
-
-                renderDrawLine(x4+(xdim<<11), y4+(ydim<<11),
-                    x1+(xdim<<11), y1+(ydim<<11), col);
-
-                break;
-            }
-        }
-    }
-
-    renderDisableFog();
-#endif
-
     //Draw white lines
     for (i=numsectors-1; i>=0; i--)
     {
-        if (!(show2dsector[i>>3]&pow2char[i&7])) continue;
+        if (!gFullMap && !show2dsector[i]) continue;
 
         startwall = sector[i].wallptr;
         endwall = sector[i].wallptr + sector[i].wallnum;

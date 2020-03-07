@@ -118,7 +118,8 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     g_demo_cnt = 1;
     ud.reccnt = 0;
 
-    ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
+    gFullMap = false;
+    ud.god = ud.cashman = ud.eog = 0;
     ud.noclip = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
 
     totalclock = ototalclock = lockclock = 0;
@@ -577,9 +578,6 @@ RECHECK:
 
                         g_demo_cnt = 1;
                         ud.reccnt = 0;
-
-                        //                        ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
-                        //                        ud.noclip = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
 
                         totalclock = ototalclock = lockclock = 0;
                     }

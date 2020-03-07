@@ -2164,7 +2164,7 @@ drawscreen(PLAYERp pp)
 
     if (i >= 0)
     {
-        show2dsector[i>>3] |= (1<<(i&7));
+        show2dsector.Set(i);
         walltype *wal = &wall[sector[i].wallptr];
         for (j=sector[i].wallnum; j>0; j--,wal++)
         {
@@ -2175,7 +2175,7 @@ drawscreen(PLAYERp pp)
             if (nextwall < MAXWALLS && wall[nextwall].cstat&0x0071) continue;
             if (sector[i].lotag == 32767) continue;
             if (sector[i].ceilingz >= sector[i].floorz) continue;
-            show2dsector[i>>3] |= (1<<(i&7));
+            show2dsector.Set(i);
         }
     }
 

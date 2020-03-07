@@ -183,6 +183,9 @@ static int32_t gtextsc(int32_t sc)
 
 static void G_DrawCameraText(int16_t i)
 {
+    //if (VM_OnEvent(EVENT_DISPLAYCAMERAOSD, i, screenpeek) != 0)
+    //    return;
+
     if (!T1(i))
     {
         rotatesprite_win(24<<16, 33<<16, 65536L, 0, CAMCORNER, 0, 0, 2);
@@ -245,7 +248,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     //Draw red lines
     for (i=numsectors-1; i>=0; i--)
     {
-        if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
+        if (!gFullMap && !show2dsector[i]) continue;
 
         startwall = sector[i].wallptr;
         endwall = sector[i].wallptr + sector[i].wallnum;
@@ -258,37 +261,34 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             k = wal->nextwall;
             if (k < 0) continue;
 
-            if (sector[wal->nextsector].ceilingz == z1)
-                if (sector[wal->nextsector].floorz == z2)
+            if (sector[wal->nextsector].ceilingz == z1 && sector[wal->nextsector].floorz == z2)
                     if (((wal->cstat|wall[wal->nextwall].cstat)&(16+32)) == 0) continue;
 
-            col = PalEntry(255, 0, 0);
-            if ((wal->cstat | wall[wal->nextwall].cstat) & 1) col = PalEntry(170, 0, 170);
+            if (!gFullMap && !show2dsector[wal->nextsector])
+            {
 
-            if (!(show2dsector[wal->nextsector >> 3] & (1 << (wal->nextsector & 7))))
                 col = PalEntry(170, 170, 170);
-            else continue;
+                ox = wal->x-cposx;
+                oy = wal->y-cposy;
+                x1 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
+                y1 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
 
-            ox = wal->x-cposx;
-            oy = wal->y-cposy;
-            x1 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
-            y1 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
+                wal2 = (uwalltype *)&wall[wal->point2];
+                ox = wal2->x-cposx;
+                oy = wal2->y-cposy;
+                x2 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
+                y2 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
 
-            wal2 = (uwalltype *)&wall[wal->point2];
-            ox = wal2->x-cposx;
-            oy = wal2->y-cposy;
-            x2 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
-            y2 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
-
-            drawlinergb(x1, y1, x2, y2, col);
+                drawlinergb(x1, y1, x2, y2, col);
+            }
         }
     }
 
     //Draw sprites
     k = g_player[screenpeek].ps->i;
-    for (i=numsectors-1; i>=0; i--)
+    /*if (!FURY)*/ for (i=numsectors-1; i>=0; i--) // todo - make a switchable flag.
     {
-        if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
+        if (!gFullMap || !show2dsector[i]) continue;
         for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
         {
             spr = &sprite[j];
@@ -432,7 +432,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     //Draw white lines
     for (i=numsectors-1; i>=0; i--)
     {
-        if (!(show2dsector[i>>3]&(1<<(i&7)))) continue;
+        if (!gFullMap && !show2dsector[i]) continue;
 
         startwall = sector[i].wallptr;
         endwall = sector[i].wallptr + sector[i].wallnum;
@@ -465,7 +465,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             x2 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
             y2 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
 
-            renderDrawLine(x1, y1, x2, y2, PalEntry(170, 170, 170));
+            drawlinergb(x1, y1, x2, y2, PalEntry(170, 170, 170));
         }
     }
 
@@ -496,6 +496,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                 i = APLAYERTOP+(((int32_t) totalclock>>4)&3);
             else
                 i = APLAYERTOP;
+
+            //i = VM_OnEventWithReturn(EVENT_DISPLAYOVERHEADMAPPLAYER, pPlayer->i, p, i);
 
             if (i < 0)
                 continue;
@@ -568,17 +570,6 @@ FString GameInterface::GetCoordString()
     return G_PrintCoords(screenpeek);
 }
 
-
-#define LOW_FPS 30
-#define SLOW_FRAME_TIME 33
-
-#if defined GEKKO
-# define FPS_YOFFSET 16
-#else
-# define FPS_YOFFSET 0
-#endif
-
-#define FPS_COLOR(x) ((x) ? COLOR_RED : COLOR_WHITE)
 
 FString GameInterface::statFPS()
 {
@@ -667,12 +658,8 @@ void G_DisplayRest(int32_t smoothratio)
     palaccum_t tint = PALACCUM_INITIALIZER;
 
     DukePlayer_t *const pp = g_player[screenpeek].ps;
-#ifdef SPLITSCREEN_MOD_HACKS
-    DukePlayer_t *const pp2 = g_fakeMultiMode==2 ? g_player[1].ps : NULL;
-#endif
     int32_t cposx, cposy, cang;
 
-#ifdef USE_OPENGL
     // this takes care of fullscreen tint for OpenGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
@@ -700,22 +687,12 @@ void G_DisplayRest(int32_t smoothratio)
             fstint.f = 0;
         }
     }
-#endif  // USE_OPENGL
-
     palaccum_add(&tint, &pp->pals, pp->pals.f);
-#ifdef SPLITSCREEN_MOD_HACKS
-    if (pp2)
-        palaccum_add(&tint, &pp2->pals, pp2->pals.f);
-#endif
     if (!RR)
     {
         static const palette_t loogiepal = { 0, 63, 0, 0 };
 
         palaccum_add(&tint, &loogiepal, pp->loogcnt>>1);
-#ifdef SPLITSCREEN_MOD_HACKS
-        if (pp2)
-            palaccum_add(&tint, &loogiepal, pp2->loogcnt>>1);
-#endif
     }
 
     if (g_restorePalette)
@@ -726,21 +703,9 @@ void G_DisplayRest(int32_t smoothratio)
         if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
         {
             int32_t pal = pp->palette;
-#ifdef SPLITSCREEN_MOD_HACKS
-            const int32_t opal = pal;
-
-            if (pp2)  // splitscreen HACK: BASEPAL trumps all, then it's arbitrary.
-                pal = min(pal, pp2->palette);
-#endif
 
             // g_restorePalette < 0: reset tinting, too (e.g. when loading new game)
-            P_SetGamePalette(pp, pal, (g_restorePalette>0)? Pal_DontResetFade : ESetPalFlags::FromInt(0));
-
-#ifdef SPLITSCREEN_MOD_HACKS
-            if (pp2)  // keep first player's pal as its member!
-                pp->palette = opal;
-#endif
-
+            P_SetGamePalette(pp, pal, (g_restorePalette > 0) ? Pal_DontResetFade : ESetPalFlags::FromInt(0));
             g_restorePalette = 0;
         }
         else
@@ -755,7 +720,7 @@ void G_DisplayRest(int32_t smoothratio)
     {
         const walltype *wal = &wall[sector[i].wallptr];
 
-        show2dsector[i>>3] |= (1<<(i&7));
+        show2dsector.Set(i);
         for (j=sector[i].wallnum; j>0; j--, wal++)
         {
             i = wal->nextsector;
@@ -764,7 +729,7 @@ void G_DisplayRest(int32_t smoothratio)
             if (wall[wal->nextwall].cstat&0x0071) continue;
             if (sector[i].lotag == 32767) continue;
             if (sector[i].ceilingz >= sector[i].floorz) continue;
-            show2dsector[i>>3] |= (1<<(i&7));
+            show2dsector.Set(i);
         }
     }
 
@@ -778,27 +743,9 @@ void G_DisplayRest(int32_t smoothratio)
             {
                 PspTwoDSetter set;
                 P_DisplayWeapon();
-#ifdef SPLITSCREEN_MOD_HACKS
-                if (pp2)  // HACK
-                {
-                    const int32_t oscreenpeek = screenpeek;
-                    screenpeek = 1;
-                    P_DisplayWeapon();
-                    screenpeek = oscreenpeek;
-                }
-#endif
 
                 if (pp->over_shoulder_on == 0)
                     P_DisplayScuba();
-#ifdef SPLITSCREEN_MOD_HACKS
-                if (pp2 && pp2->over_shoulder_on == 0)  // HACK
-                {
-                    const int32_t oscreenpeek = screenpeek;
-                    screenpeek = 1;
-                    P_DisplayScuba();
-                    screenpeek = oscreenpeek;
-                }
-#endif
     }
             if (!RR)
                 G_MoveClouds();
@@ -860,10 +807,12 @@ void G_DisplayRest(int32_t smoothratio)
 
             G_RestoreInterpolations();
 
-            if (ud.overhead_on == 2)
+            //int32_t const textret = VM_OnEvent(EVENT_DISPLAYOVERHEADMAPTEXT, g_player[screenpeek].ps->i, screenpeek);
+            if (/*textret == 0 &&*/ ud.overhead_on == 2)
             {
                 const int32_t a = RR ? 0 : ((ud.screen_size > 0) ? 147 : 179);
-                if (!G_HaveUserMap())
+
+                if (!G_HaveUserMap()) // && !(G_GetLogoFlags() & LOGO_HIDEEPISODE))
                     minitext(5, a+6, GStrings.localize(gVolumeNames[ud.volume_number]), 0, 2+8+16+256);
                 minitext(5, a+6+6, currentLevel->DisplayName(), 0, 2+8+16+256);
             }
@@ -872,16 +821,8 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (pp->invdisptime > 0) G_DrawInventory(pp);
 
-    G_DrawStatusBar(screenpeek);
-
-#ifdef SPLITSCREEN_MOD_HACKS
-    // HACK
-    if (g_fakeMultiMode==2)
-    {
-        G_DrawStatusBar(1);
-        G_PrintGameQuotes(1);
-    }
-#endif
+    //if (VM_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek) == 0)
+        G_DrawStatusBar(screenpeek);
 
     G_PrintGameQuotes(screenpeek);
 
@@ -900,9 +841,13 @@ void G_DisplayRest(int32_t smoothratio)
     if (!DEER && g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         int32_t a = CROSSHAIR;
+        //ud.returnvar[0] = (160<<16) - (g_player[myconnectindex].ps->look_ang<<15);
+        //ud.returnvar[1] = 100<<16;
+        //int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
         if ((unsigned) a < MAXTILES)
         {
             vec2_t crosshairpos = { (160<<16) - (g_player[myconnectindex].ps->look_ang<<15), 100<<16 };
+            //vec2_t crosshairpos = { ud.returnvar[0], ud.returnvar[1] };
             uint32_t crosshair_o = 1|2;
             uint32_t crosshair_scale = divscale16(cl_crosshairscale, 100);
             if (RR)
@@ -912,20 +857,22 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
+	/*
+    if (VM_HaveEvent(EVENT_DISPLAYREST))
+    {
+        int32_t vr=viewingrange, asp=yxaspect;
+        VM_ExecuteEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek);
+        renderSetAspect(vr, asp);
+    }
+	*/
 
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
         menutext_center(100, GStrings("Game Paused"));
 
-#ifdef YAX_DEBUG
-    M32_drawdebug();
-#endif
-
-#ifdef USE_OPENGL
     mdpause = (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
-#endif
 
     // JBF 20040124: display level stats in screen corner
-    if (ud.overhead_on != 2 && hud_stats)
+    if (ud.overhead_on != 2 && hud_stats) // && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[screenpeek].ps->i, screenpeek) == 0)
     {
         DukePlayer_t const * const myps = g_player[myconnectindex].ps;
         int const sbarshift = RR ? 15 : 16;
@@ -1085,10 +1032,6 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
     } while (start != end+step);
 }
 
-#ifdef __ANDROID__
-int inExtraScreens = 0;
-#endif
-
 void G_DisplayExtraScreens(void)
 {
     Mus_Stop();
@@ -1098,9 +1041,6 @@ void G_DisplayExtraScreens(void)
 
     if (!VOLUMEALL)
     {
-#ifdef __ANDROID__
-        inExtraScreens = 1;
-#endif
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
         renderFlushPerms();
         //g_player[myconnectindex].ps->palette = palette;
@@ -1118,16 +1058,10 @@ void G_DisplayExtraScreens(void)
         while (!inputState.CheckAllInput())
             G_HandleAsync();
 
-#ifdef __ANDROID__
-        inExtraScreens = 0;
-#endif
     }
 
     if (0)
     {
-#ifdef __ANDROID__
-        inExtraScreens = 1;
-#endif
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
         renderFlushPerms();
         //g_player[myconnectindex].ps->palette = palette;
@@ -1142,9 +1076,6 @@ void G_DisplayExtraScreens(void)
 
         fadepaltile(0, 0, 0, 0, 252, 28, TENSCREEN);
         inputState.ClearAllInput();
-#ifdef __ANDROID__
-        inExtraScreens = 0;
-#endif
     }
 }
 
@@ -1317,9 +1248,7 @@ void G_DisplayLogo(void)
     }
     if (!g_noLogo && !userConfig.nologo /* && (!g_netServer && ud.multimode < 2) */)
     {
-#ifndef EDUKE32_TOUCH_DEVICES
         if (VOLUMEALL)
-#endif
         {
             if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
             {
@@ -1396,9 +1325,7 @@ void G_DisplayLogo(void)
         totalclock = 0;
 
         while (
-#ifndef EDUKE32_SIMPLE_MENU
             totalclock < (860+120) &&
-#endif
             !inputState.CheckAllInput())
         {
             if (G_FPSLimit())
@@ -2358,11 +2285,6 @@ void G_BonusScreen(int32_t bonusonly)
                         else
                             menutext(231, yy, tempbuf);
                         yy += yystep;
-#if 0
-                        // Always overwritten.
-                        if (g_player[myconnectindex].ps->secret_rooms > 0)
-                            Bsprintf(tempbuf, "%-3d%%", (100*g_player[myconnectindex].ps->secret_rooms/g_player[myconnectindex].ps->max_secret_rooms));
-#endif
                         Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->max_secret_rooms-g_player[myconnectindex].ps->secret_rooms);
                         if (!RR)
                             gametext_number((320>>2)+70, yy+9, tempbuf);
@@ -2857,11 +2779,6 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                         Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->secret_rooms);
                         menutext(231, yy, tempbuf);
                         yy += yystep;
-#if 0
-                        // Always overwritten.
-                        if (g_player[myconnectindex].ps->secret_rooms > 0)
-                            Bsprintf(tempbuf, "%-3d%%", (100*g_player[myconnectindex].ps->secret_rooms/g_player[myconnectindex].ps->max_secret_rooms));
-#endif
                         Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->max_secret_rooms-g_player[myconnectindex].ps->secret_rooms);
                         menutext(231, yy, tempbuf);
                         yy += yystep;

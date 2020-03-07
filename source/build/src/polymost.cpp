@@ -2912,7 +2912,7 @@ void polymost_scansector(int32_t sectnum)
     if (sectnum < 0) return;
 
     if (automapping)
-        show2dsector[sectnum>>3] |= pow2char[sectnum&7];
+        show2dsector.Set(sectnum);
 
     sectorborder[0] = sectnum;
     int sectorbordercnt = 1;

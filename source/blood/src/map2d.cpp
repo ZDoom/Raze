@@ -43,7 +43,7 @@ void sub_2541C(int x, int y, int z, short a)
     int nSin2 = mulscale16(nSin, yxaspect);
     for (int i = 0; i < numsectors; i++)
     {
-        if (gFullMap || (show2dsector[i>>3]&(1<<(i&7))))
+        if (gFullMap || show2dsector[i])
         {
             int nStartWall = sector[i].wallptr;
             int nEndWall = nStartWall+sector[i].wallnum;
@@ -58,9 +58,7 @@ void sub_2541C(int x, int y, int z, short a)
                 if (sector[pWall->nextsector].ceilingz == nZCeil && sector[pWall->nextsector].floorz == nZFloor
                     && ((wall[nNextWall].cstat | pWall->cstat) & 0x30) == 0)
                     continue;
-                if (gFullMap)
-                    continue;
-                if (show2dsector[pWall->nextsector>>3]&(1<<(pWall->nextsector&7)))
+                if (gFullMap || show2dsector[pWall->nextsector])
                     continue;
                 int wx = pWall->x-x;
                 int wy = pWall->y-y;
@@ -80,7 +78,7 @@ void sub_2541C(int x, int y, int z, short a)
     int nPSprite = gView->pSprite->index;
     for (int i = 0; i < numsectors; i++)
     {
-        if (gFullMap || (show2dsector[i>>3]&(1<<(i&7))))
+        if (gFullMap || show2dsector[i])
         {
             for (int nSprite = headspritesect[i]; nSprite >= 0; nSprite = nextspritesect[nSprite])
             {
@@ -94,7 +92,7 @@ void sub_2541C(int x, int y, int z, short a)
     }
     for (int i = 0; i < numsectors; i++)
     {
-        if (gFullMap || (show2dsector[i>>3]&(1<<(i&7))))
+        if (gFullMap || show2dsector[i])
         {
             int nStartWall = sector[i].wallptr;
             int nEndWall = nStartWall+sector[i].wallnum;

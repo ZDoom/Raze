@@ -249,7 +249,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     //Draw red lines
     for (i=numsectors-1; i>=0; i--)
     {
-        if (!(show2dsector[i>>3]&pow2char[i&7])) continue;
+        if (!gFullMap && !show2dsector[i]) continue;
 
         startwall = sector[i].wallptr;
         endwall = sector[i].wallptr + sector[i].wallnum;
@@ -265,7 +265,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             if (sector[wal->nextsector].ceilingz == z1 && sector[wal->nextsector].floorz == z2)
                     if (((wal->cstat|wall[wal->nextwall].cstat)&(16+32)) == 0) continue;
 
-            if (!(show2dsector[wal->nextsector >> 3] & pow2char[wal->nextsector & 7]))
+            if (!gFullMap && !show2dsector[wal->nextsector])
                 col = PalEntry(170, 170, 170);
             else continue;
 
@@ -288,7 +288,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     k = g_player[screenpeek].ps->i;
     if (!FURY) for (i=numsectors-1; i>=0; i--)
     {
-        if (!(show2dsector[i>>3]&pow2char[i&7])) continue;
+        if (!gFullMap && !show2dsector[i]) continue;
         for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
         {
             spr = &sprite[j];
@@ -432,7 +432,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     //Draw white lines
     for (i=numsectors-1; i>=0; i--)
     {
-        if (!(show2dsector[i>>3]&pow2char[i&7])) continue;
+        if (!gFullMap && !show2dsector[i]) continue;
 
         startwall = sector[i].wallptr;
         endwall = sector[i].wallptr + sector[i].wallnum;
@@ -728,7 +728,7 @@ void G_DisplayRest(int32_t smoothratio)
     {
         const walltype *wal = &wall[sector[i].wallptr];
 
-        show2dsector[i>>3] |= pow2char[i&7];
+        show2dsector.Set(i);
         for (j=sector[i].wallnum; j>0; j--, wal++)
         {
             i = wal->nextsector;
@@ -737,7 +737,7 @@ void G_DisplayRest(int32_t smoothratio)
             if (wall[wal->nextwall].cstat&0x0071) continue;
             if (sector[i].lotag == 32767) continue;
             if (sector[i].ceilingz >= sector[i].floorz) continue;
-            show2dsector[i>>3] |= pow2char[i&7];
+            show2dsector.Set(i);
         }
     }
 
@@ -901,13 +901,7 @@ void G_DisplayRest(int32_t smoothratio)
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
         menutext_center(100, GStrings("Game Paused"));
 
-#ifdef YAX_DEBUG
-    M32_drawdebug();
-#endif
-
-#ifdef USE_OPENGL
     mdpause = (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
-#endif
 
     // JBF 20040124: display level stats in screen corner
     if (ud.overhead_on != 2 && hud_stats && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[screenpeek].ps->i, screenpeek) == 0)

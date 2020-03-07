@@ -486,7 +486,7 @@ void SaveEngineState()
 
 	fw->Write(show2dwall, sizeof(show2dwall));
 	fw->Write(show2dsprite, sizeof(show2dsprite));
-	fw->Write(show2dsector, sizeof(show2dsector));
+	fw->Write(&show2dsector, sizeof(show2dsector));
 	WriteMagic(fw);
 
 	fw->Write(&numyaxbunches, sizeof(numyaxbunches));
@@ -549,7 +549,7 @@ void LoadEngineState()
 
 		fr.Read(show2dwall, sizeof(show2dwall));
 		fr.Read(show2dsprite, sizeof(show2dsprite));
-		fr.Read(show2dsector, sizeof(show2dsector));
+		fr.Read(&show2dsector, sizeof(show2dsector));
 		CheckMagic(fr);
 
 		fr.Read(&numyaxbunches, sizeof(numyaxbunches));

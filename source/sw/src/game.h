@@ -2337,7 +2337,6 @@ int BunnyHatch2(short Weapon);  // bunny.c
 int DoSkullBeginDeath(int16_t SpriteNum); // skull.c
 
 void AnimateCacheCursor(void);  // game.c
-void MapSetAll2D(uint8_t fill);    // game.c
 void TerminateGame(void);   // game.c
 void TerminateLevel(void);  // game.c
 void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c

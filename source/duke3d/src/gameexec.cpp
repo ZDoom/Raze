@@ -6535,7 +6535,7 @@ void G_SaveMapState(void)
     Bmemcpy(&save->g_mirrorWall[0],&g_mirrorWall[0],sizeof(g_mirrorWall));
     Bmemcpy(&save->g_mirrorSector[0],&g_mirrorSector[0],sizeof(g_mirrorSector));
     save->g_mirrorCount = g_mirrorCount;
-    Bmemcpy(&save->show2dsector[0],&show2dsector[0],sizeof(show2dsector));
+    save->show2dsector = show2dsector;
     save->g_cloudCnt = g_cloudCnt;
     Bmemcpy(&save->g_cloudSect[0],&g_cloudSect[0],sizeof(g_cloudSect));
     save->g_cloudX = g_cloudX;
@@ -6672,7 +6672,7 @@ void G_RestoreMapState(void)
         Bmemcpy(&g_mirrorWall[0],&pSavedState->g_mirrorWall[0],sizeof(g_mirrorWall));
         Bmemcpy(&g_mirrorSector[0],&pSavedState->g_mirrorSector[0],sizeof(g_mirrorSector));
         g_mirrorCount = pSavedState->g_mirrorCount;
-        Bmemcpy(&show2dsector[0],&pSavedState->show2dsector[0],sizeof(show2dsector));
+        show2dsector = pSavedState->show2dsector;
         g_cloudCnt = pSavedState->g_cloudCnt;
         Bmemcpy(&g_cloudSect[0],&pSavedState->g_cloudSect[0],sizeof(g_cloudSect));
         g_cloudX = pSavedState->g_cloudX;

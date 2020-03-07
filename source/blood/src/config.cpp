@@ -57,7 +57,6 @@ int32_t gMessageFont = 0;
 int32_t gMouseSensitivity;
 bool gNoClip;
 bool gInfiniteAmmo;
-bool gFullMap;
 int32_t gDeliriumBlur = 1;
 
 //////////

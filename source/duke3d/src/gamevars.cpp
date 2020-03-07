@@ -1339,7 +1339,7 @@ static void Gv_AddSystemVars(void)
     // SYSTEM_GAMEARRAY
     Gv_NewArray("gotpic",            (void *)&gotpic[0],              MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
     Gv_NewArray("radiusdmgstatnums", (void *)&g_radiusDmgStatnums[0], MAXSTATUS,  GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
-    Gv_NewArray("show2dsector",      (void *)&show2dsector[0],        MAXSECTORS, GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
+    Gv_NewArray("show2dsector",      (void *)&show2dsector,        MAXSECTORS, GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
     Gv_NewArray("tilesizx",          (void *)tileWidth,               MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_FUNC | GAMEARRAY_READONLY);
     Gv_NewArray("tilesizy",          (void *)tileHeight,              MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_FUNC | GAMEARRAY_READONLY);
 #endif
