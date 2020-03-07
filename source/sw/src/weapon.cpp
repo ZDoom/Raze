@@ -18842,7 +18842,7 @@ SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_
 }
 
 int
-SpawnTurretSparks(SPRITEp sp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
     //USERp u = User[sp - sprite];
     short j;
@@ -19077,7 +19077,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
             }
 
 
-            j = SpawnTurretSparks(sp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+            j = SpawnTurretSparks(/*sp, */hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
             DoHitscanDamage(j, hitinfo.sprite);
         }
     }

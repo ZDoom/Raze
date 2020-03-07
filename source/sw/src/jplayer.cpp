@@ -342,7 +342,7 @@ void BOT_ChooseWeapon(PLAYERp p, USERp u, SW_PACKET *syn)
         }
 }
 
-int getspritescore(int snum, int dapicnum)
+int getspritescore(/*int snum, */int dapicnum)
 {
 
     switch (dapicnum)
@@ -794,7 +794,7 @@ void computergetinput(int snum, SW_PACKET *syn)
                 for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
                 {
                     if ((sprite[j].xrepeat <= 0) || (sprite[j].yrepeat <= 0)) continue;
-                    if (getspritescore(snum,sprite[j].picnum) <= 0) continue;
+                    if (getspritescore(/*snum,*/sprite[j].picnum) <= 0) continue;
                     if (FAFcansee(x1,y1,z1-(32<<8),damysect,sprite[j].x,sprite[j].y,sprite[j].z-(4<<8),i))
                     { goalx[snum] = sprite[j].x; goaly[snum] = sprite[j].y; goalz[snum] = sprite[j].z; goalsprite[snum] = j; break; }
                 }
