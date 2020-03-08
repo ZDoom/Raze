@@ -467,9 +467,7 @@ int32_t G_LoadPlayer(FSaveGameNode *sv)
 		engineLoadMHK(workbuffer);
 	}
 
-    if (status == 2)
-        G_NewGame_EnterLevel();
-    else if ((status = sv_loadsnapshot(*fil, 0, &h)))  // read the rest...
+    if ((status = sv_loadsnapshot(*fil, 0, &h)))  // read the rest...
     {
         // in theory, we could load into an initial dump first and trivially
         // recover if things go wrong...

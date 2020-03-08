@@ -909,3 +909,8 @@ FString G_GetDemoPath()
 
 	return path;
 }
+
+CCMD(printinterface)
+{
+	Printf("Current interface is %s\n", gi->Name());
+}

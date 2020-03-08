@@ -1097,7 +1097,6 @@ void G_DisplayLogo(void)
 
     Mus_Stop();
     FX_StopAllSounds(); // JBF 20031228
-    S_ClearSoundLocks();  // JBF 20031228
     if (DEER)
     {
         if (!g_noLogo /* && (!g_netServer && ud.multimode < 2) */)
