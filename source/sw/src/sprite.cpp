@@ -50,6 +50,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "swcvar.h"
 #include "quotemgr.h"
 #include "v_text.h"
+#include "gamecontrol.h"
 
 BEGIN_SW_NS
 
@@ -1101,6 +1102,19 @@ ActorTestSpawn(SPRITEp sp)
                         "activates something\n", c, TrackerCast(sp->x), TrackerCast(sp->y), TrackerCast(sp->z));
             return TRUE;
         }
+        //always spawn girls in addons
+        if ((sp->picnum == TOILETGIRL_R0 ||
+            sp->picnum == WASHGIRL_R0 ||
+            sp->picnum == MECHANICGIRL_R0 ||
+            sp->picnum == CARGIRL_R0 ||
+            sp->picnum == PRUNEGIRL_R0 ||
+            sp->picnum == SAILORGIRL_R0) && (g_gameType & GAMEFLAG_ADDON)) return TRUE;
+
+        // spawn Bouncing Betty (mine) in TD Level 09 Warehouse 
+#if 0   // needs to be done smarter.
+        if (sp->picnum == 817 && swGetAddon() == 2 && Level == 9)
+            return TRUE;
+#endif
 
         return FALSE;
     }
