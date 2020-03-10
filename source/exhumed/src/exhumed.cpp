@@ -1233,7 +1233,7 @@ void DoCredits()
 
     playCDtrack(19, false);
 
-    int var_20 = 0;
+    int nSecretSkipKeyCount = 0;
 
     if (videoGetRenderMode() == REND_CLASSIC)
     FadeOut(0);
@@ -1271,14 +1271,14 @@ void DoCredits()
 
         while ((int)totalclock <= nDuration)
         {
-            handleevents();
+            HandleAsync();
 			if(inputState.GetKeyStatus(sc_F12))
             {
-                var_20++;
+                nSecretSkipKeyCount++;
 
 				inputState.ClearKeyStatus(sc_F12);
 
-                if (var_20 > 5) {
+                if (nSecretSkipKeyCount > 5) {
                     return;
                 }
             }
@@ -1290,6 +1290,7 @@ void DoCredits()
 
     while (CDplaying())
     {
+		HandleAsync();
 		inputState.keyGetChar();
     }
 

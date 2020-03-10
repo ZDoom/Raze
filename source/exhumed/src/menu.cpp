@@ -1119,26 +1119,26 @@ void ReadyCinemaText(uint16_t nVal)
     ComputeCinemaText(line);
 }
 
-uint8_t AdvanceCinemaText()
+bool AdvanceCinemaText()
 {
-    int tmp = nHeight + nCrawlY > 0;
+    bool bDoText = nHeight + nCrawlY > 0;
 
-    if (tmp || CDplaying())
+    if (bDoText || CDplaying())
     {
-        nextclock = (int)totalclock + 14;
+        nextclock = (int)totalclock + 15; // NOTE: Value was 14 in original code but seems a touch too fast now
 
-        if (tmp > 0)
+        if (bDoText)
         {
             short y = nCrawlY;
-            int edi = 0;
+            int i = 0;
 
-            while (edi < linecount && y <= 199)
+            while (i < linecount && y <= 199)
             {
                 if (y >= -10) {
-                    myprintext(nLeft[edi], y, gString[line + edi], 0);
+                    myprintext(nLeft[i], y, gString[line + i], 0);
                 }
 
-                edi++;
+                i++;
                 y += 10;
             }
 
@@ -1154,44 +1154,29 @@ uint8_t AdvanceCinemaText()
                 break;
             }
 
-            if (CDplaying())
-            {
-                if (nextclock <= (int)totalclock) {
-                    return kTrue;
-                }
-            }
-            else
-            {
-                return kTrue;
+            if (nextclock <= (int)totalclock) {
+                return true;
             }
         }
     }
 
-    return kFalse;
+    return false;
 }
 
 void DoCinemaText(short nVal)
 {
     ReadyCinemaText(nVal);
 
-    while (1)
+    bool bContinue = true;
+
+    while (bContinue)
     {
         overwritesprite(0, 0, cinematile, 0, 2, kPalNormal);
 
-        uint8_t bContinue = AdvanceCinemaText();
+        bContinue = AdvanceCinemaText();
 
         WaitVBL();
         videoNextPage();
-
-        // TEMP
-        int time = (int)totalclock + 4;
-        while ((int)totalclock < time) {
-            HandleAsync();
-        }
-
-        if (!bContinue) {
-            return;
-        }
     }
 }
 
