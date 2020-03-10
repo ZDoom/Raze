@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_dispatch.h"
 #include "mapinfo.h"
 #include "rendering/v_video.h"
+#include "playmve.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
@@ -7184,6 +7185,9 @@ int GameInterface::app_main()
 
     for (bssize_t i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
         minitext_lowercase &= (int)tileCheck(i);
+
+    /*if (RRRA)
+        playmve("REDINT.MVE"); still needs work on the audio side*/
 
     //if (g_networkMode != NET_DEDICATED_SERVER)
     {
