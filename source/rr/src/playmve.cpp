@@ -133,21 +133,21 @@ private:
     uint8_t* GetPreviousFrame();
     void SwapFrames();
     void CopyBlock(uint8_t* pDest, uint8_t* pSrc);
-    void DecodeBlock0(uint32_t offset);
-    void DecodeBlock1(uint32_t offset);
-    void DecodeBlock2(uint32_t offset);
-    void DecodeBlock3(uint32_t offset);
-    void DecodeBlock4(uint32_t offset);
-    void DecodeBlock5(uint32_t offset);
-    void DecodeBlock7(uint32_t offset);
-    void DecodeBlock8(uint32_t offset);
-    void DecodeBlock9(uint32_t offset);
-    void DecodeBlock10(uint32_t offset);
-    void DecodeBlock11(uint32_t offset);
-    void DecodeBlock12(uint32_t offset);
-    void DecodeBlock13(uint32_t offset);
-    void DecodeBlock14(uint32_t offset);
-    void DecodeBlock15(uint32_t offset);
+    void DecodeBlock0(int32_t offset);
+    void DecodeBlock1(int32_t offset);
+    void DecodeBlock2(int32_t offset);
+    void DecodeBlock3(int32_t offset);
+    void DecodeBlock4(int32_t offset);
+    void DecodeBlock5(int32_t offset);
+    void DecodeBlock7(int32_t offset);
+    void DecodeBlock8(int32_t offset);
+    void DecodeBlock9(int32_t offset);
+    void DecodeBlock10(int32_t offset);
+    void DecodeBlock11(int32_t offset);
+    void DecodeBlock12(int32_t offset);
+    void DecodeBlock13(int32_t offset);
+    void DecodeBlock14(int32_t offset);
+    void DecodeBlock15(int32_t offset);
 
     RedNukem::FileStream file;
 
@@ -160,7 +160,7 @@ private:
 
     uint8_t* pVideoBuffers[2];
     uint32_t nCurrentVideoBuffer, nPreviousVideoBuffer;
-    uint32_t videoStride;
+    int32_t videoStride;
 
     DecodeMap decodeMap;
 
@@ -217,6 +217,8 @@ InterplayDecoder::InterplayDecoder()
 
     nFps = 0.0;
     nFrameDuration = 0;
+    nTimerRate = 0;
+    nTimerDiv  = 0;
 
     audio.nChannels   = 0;
     audio.nSampleRate = 0;
@@ -644,11 +646,11 @@ bool InterplayDecoder::Run()
                 {
                     int i = 0;
     
-                    for (int y = 0; y < nHeight; y += 8)
+                    for (uint32_t y = 0; y < nHeight; y += 8)
                     {
-                        for (int x = 0; x < nWidth; x += 8)
+                        for (uint32_t x = 0; x < nWidth; x += 8)
                         {
-                            int opcode;
+                            uint32_t opcode;
 
                             // alternate between getting low and high 4 bits
                             if (i & 1) {
@@ -659,7 +661,7 @@ bool InterplayDecoder::Run()
                             }
                             i++;
 
-                            uint32_t offset = x + (y * videoStride);
+                            int32_t offset = x + (y * videoStride);
 
                             switch (opcode)
                             {
@@ -746,26 +748,26 @@ void InterplayDecoder::CopyBlock(uint8_t* pDest, uint8_t* pSrc)
     for (int y = 0; y < 8; y++)
     {
         memcpy(pDest, pSrc, 8);
-        pSrc  += videoStride;
-        pDest += videoStride;
+        pSrc  += (intptr_t)videoStride;
+        pDest += (intptr_t)videoStride;
     }
 }
 
-void InterplayDecoder::DecodeBlock0(uint32_t offset)
+void InterplayDecoder::DecodeBlock0(int32_t offset)
 {
     // copy from the same offset but from the previous frame
-    uint8_t* pDest = GetCurrentFrame() + offset;
-    uint8_t* pSrc = GetPreviousFrame() + offset;
+    uint8_t* pDest = GetCurrentFrame() + (intptr_t)offset;
+    uint8_t* pSrc = GetPreviousFrame() + (intptr_t)offset;
 
     CopyBlock(pDest, pSrc);
 }
 
-void InterplayDecoder::DecodeBlock1(uint32_t offset)
+void InterplayDecoder::DecodeBlock1(int32_t offset)
 {
     // nothing to do for this.
 }
 
-void InterplayDecoder::DecodeBlock2(uint32_t offset)
+void InterplayDecoder::DecodeBlock2(int32_t offset)
 {
     // copy block from 2 frames ago using a motion vector; need 1 more byte
     uint8_t B = file.ReadByte();
@@ -781,13 +783,13 @@ void InterplayDecoder::DecodeBlock2(uint32_t offset)
         y = 8 + ((B - 56) / 29);
     }
 
-    uint8_t* pDest = GetCurrentFrame() + offset;
-    uint8_t* pSrc  = GetCurrentFrame() + (intptr_t)(offset + x + (y * videoStride));
+    uint8_t* pDest = GetCurrentFrame() + (intptr_t)offset;
+    uint8_t* pSrc  = GetCurrentFrame() + (intptr_t)(int64_t)offset + (int64_t)x + (int64_t(y) * (int64_t)videoStride);
 
     CopyBlock(pDest, pSrc);
 }
 
-void InterplayDecoder::DecodeBlock3(uint32_t offset)
+void InterplayDecoder::DecodeBlock3(int32_t offset)
 {
     // copy 8x8 block from current frame from an up/left block
     uint8_t B = file.ReadByte();
@@ -804,13 +806,13 @@ void InterplayDecoder::DecodeBlock3(uint32_t offset)
         y = -(8 + ((B - 56) / 29));
     }
 
-    uint8_t* pDest = GetCurrentFrame() + offset;
-    uint8_t* pSrc  = GetCurrentFrame() + (intptr_t)(offset + x + (y * videoStride));
+    uint8_t* pDest = GetCurrentFrame() + (intptr_t)offset;
+    uint8_t* pSrc  = GetCurrentFrame() + (intptr_t)(int64_t)offset + (int64_t)x + (int64_t(y) * (int64_t)videoStride);
 
     CopyBlock(pDest, pSrc);
 }
 
-void InterplayDecoder::DecodeBlock4(uint32_t offset)
+void InterplayDecoder::DecodeBlock4(int32_t offset)
 {
     // copy a block from the previous frame; need 1 more byte
     int x, y;
@@ -823,30 +825,30 @@ void InterplayDecoder::DecodeBlock4(uint32_t offset)
     x = -8 + BL;
     y = -8 + BH;
 
-    uint8_t* pDest = GetCurrentFrame() + offset;
-    uint8_t* pSrc = GetPreviousFrame() + (intptr_t)(offset + x + (y * videoStride));
+    uint8_t* pDest = GetCurrentFrame() + (intptr_t)offset;
+    uint8_t* pSrc = GetPreviousFrame() + (intptr_t)(int64_t)offset + (int64_t)x + (int64_t(y) * (int64_t)videoStride);
 
     CopyBlock(pDest, pSrc);
 }
 
-void InterplayDecoder::DecodeBlock5(uint32_t offset)
+void InterplayDecoder::DecodeBlock5(int32_t offset)
 {
     // copy a block from the previous frame using an expanded range; need 2 more bytes
     int8_t x = file.ReadByte();
     int8_t y = file.ReadByte();
 
-    uint8_t* pDest = GetCurrentFrame() + offset;
-    uint8_t* pSrc = GetPreviousFrame() + (intptr_t)(offset + x + (y * videoStride));
+    uint8_t* pDest = GetCurrentFrame() + (intptr_t)offset;
+    uint8_t* pSrc = GetPreviousFrame() + (intptr_t)(int64_t)offset + (int64_t)x + (int64_t(y) * (int64_t)videoStride);
 
     CopyBlock(pDest, pSrc);
 }
 
 // Block6 is unknown and skipped
 
-void InterplayDecoder::DecodeBlock7(uint32_t offset)
+void InterplayDecoder::DecodeBlock7(int32_t offset)
 {
-    uint8_t* pBuffer = GetCurrentFrame() + offset;
-    uint32_t flags;
+    uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
+    uint32_t flags = 0;
 
     uint8_t P[2];
     P[0] = file.ReadByte();
@@ -884,10 +886,10 @@ void InterplayDecoder::DecodeBlock7(uint32_t offset)
     }
 }
 
-void InterplayDecoder::DecodeBlock8(uint32_t offset)
+void InterplayDecoder::DecodeBlock8(int32_t offset)
 {
-    uint8_t* pBuffer = GetCurrentFrame() + offset;
-    uint32_t flags;
+    uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
+    uint32_t flags = 0;
     uint8_t P[4];
 
     // 2-color encoding for each 4x4 quadrant, or 2-color encoding on either top and bottom or left and right halves
@@ -963,9 +965,9 @@ void InterplayDecoder::DecodeBlock8(uint32_t offset)
     }
 }
 
-void InterplayDecoder::DecodeBlock9(uint32_t offset)
+void InterplayDecoder::DecodeBlock9(int32_t offset)
 {
-    uint8_t* pBuffer = GetCurrentFrame() + offset;
+    uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
     uint8_t P[4];
 
     file.ReadBytes(P, 4);
@@ -1039,9 +1041,9 @@ void InterplayDecoder::DecodeBlock9(uint32_t offset)
     }
 }
 
-void InterplayDecoder::DecodeBlock10(uint32_t offset)
+void InterplayDecoder::DecodeBlock10(int32_t offset)
 {
-    uint8_t* pBuffer = GetCurrentFrame() + offset;
+    uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
     uint8_t P[8];
 
     file.ReadBytes(P, 4);
@@ -1101,22 +1103,22 @@ void InterplayDecoder::DecodeBlock10(uint32_t offset)
     }
 }
 
-void InterplayDecoder::DecodeBlock11(uint32_t offset)
+void InterplayDecoder::DecodeBlock11(int32_t offset)
 {
     // 64-color encoding (each pixel in block is a different color)
-    uint8_t* pBuffer = GetCurrentFrame() + offset;
+    uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
 
     for (int y = 0; y < 8; y++)
     {
-        assert(file.ReadBytes(pBuffer, 8) == 8);
+        file.ReadBytes(pBuffer, 8);
         pBuffer += videoStride;
     }
 }
 
-void InterplayDecoder::DecodeBlock12(uint32_t offset)
+void InterplayDecoder::DecodeBlock12(int32_t offset)
 {
     // 16-color block encoding: each 2x2 block is a different color
-    uint8_t* pBuffer = GetCurrentFrame() + offset;
+    uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
 
     for (int y = 0; y < 8; y += 2)
     {
@@ -1131,10 +1133,10 @@ void InterplayDecoder::DecodeBlock12(uint32_t offset)
     }
 }
 
-void InterplayDecoder::DecodeBlock13(uint32_t offset)
+void InterplayDecoder::DecodeBlock13(int32_t offset)
 {
     // 4-color block encoding: each 4x4 block is a different color
-    uint8_t* pBuffer = GetCurrentFrame() + offset;
+    uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
     uint8_t P[2];
 
     for (int y = 0; y < 8; y++)
@@ -1145,16 +1147,16 @@ void InterplayDecoder::DecodeBlock13(uint32_t offset)
             P[1] = file.ReadByte();
         }
 
-        memset(pBuffer, P[0], 4);
+        memset(pBuffer,     P[0], 4);
         memset(pBuffer + 4, P[1], 4);
         pBuffer += videoStride;
     }
 }
 
-void InterplayDecoder::DecodeBlock14(uint32_t offset)
+void InterplayDecoder::DecodeBlock14(int32_t offset)
 {
     // 1-color encoding : the whole block is 1 solid color
-    uint8_t* pBuffer = GetCurrentFrame() + offset;
+    uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
     uint8_t pix = file.ReadByte();
 
     for (int y = 0; y < 8; y++)
@@ -1164,10 +1166,10 @@ void InterplayDecoder::DecodeBlock14(uint32_t offset)
     }
 }
 
-void InterplayDecoder::DecodeBlock15(uint32_t offset)
+void InterplayDecoder::DecodeBlock15(int32_t offset)
 {
     // dithered encoding
-    uint8_t* pBuffer = GetCurrentFrame() + offset;
+    uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
     uint8_t P[2];
 
     P[0] = file.ReadByte();
