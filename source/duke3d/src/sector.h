@@ -110,7 +110,7 @@ typedef struct {
 void G_ActivateBySector(int sect,int spriteNum);
 int S_FindMusicSFX(int sectNum, int *sndptr);
 int A_CallSound(int sectNum,int spriteNum);
-int A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
+int32_t A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
 void A_DamageObject_Duke3D(int spriteNum, int dmgSrc);
 void A_DamageObject_Generic(int spriteNum, int dmgSrc);
 void A_DamageObject(int spriteNum,int dmgSrc);
