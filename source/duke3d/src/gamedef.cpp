@@ -840,14 +840,31 @@ const tokenmap_t iter_tokens [] =
     { "walofsec",         ITER_WALLSOFSECTOR },
 };
 
-char const * VM_GetKeywordForID(int32_t id)
+// some keywords generate different opcodes depending on the context the keyword is used in
+// keywords_for_private_opcodes[] resolves those opcodes to the publicly facing keyword that can generate them
+static const tokenmap_t keywords_for_private_opcodes[] =
 {
-    // could be better but this is only called for diagnostics, ayy lmao
+    { "getactor", CON_GETSPRITEEXT },
+    { "getactor", CON_GETACTORSTRUCT },
+    { "getactor", CON_GETSPRITESTRUCT },
+
+    { "setactor", CON_SETSPRITEEXT },
+    { "setactor", CON_SETACTORSTRUCT },
+    { "setactor", CON_SETSPRITESTRUCT },
+};
+
+char const *VM_GetKeywordForID(int32_t id)
+{
+    // could be better, but this is used strictly for diagnostic warning and error messages
     for (tokenmap_t const & keyword : vm_keywords)
         if (keyword.val == id)
             return keyword.token;
 
-    return "<unknown>";
+    for (tokenmap_t const & keyword : keywords_for_private_opcodes)
+        if (keyword.val == id)
+            return keyword.token;
+
+    return "<unknown instruction>";
 }
 #endif
 
@@ -3277,11 +3294,11 @@ DO_DEFSTATE:
                 if (label.offset != -1 && (label.flags & (LABEL_WRITEFUNC|LABEL_HASPARM2)) == 0)
                 {
                     if (labelNum >= ACTOR_SPRITEEXT_BEGIN)
-                        *ins = CON_SETSPRITEEXT;
+                        *ins = CON_SETSPRITEEXT | LINE_NUMBER;
                     else if (labelNum >= ACTOR_STRUCT_BEGIN)
-                        *ins = CON_SETACTORSTRUCT;
+                        *ins = CON_SETACTORSTRUCT | LINE_NUMBER;
                     else
-                        *ins = CON_SETSPRITESTRUCT;
+                        *ins = CON_SETSPRITESTRUCT | LINE_NUMBER;
                 }
 
                 scriptWriteValue(label.lId);
@@ -3308,11 +3325,11 @@ DO_DEFSTATE:
                 if (label.offset != -1 && (label.flags & (LABEL_READFUNC|LABEL_HASPARM2)) == 0)
                 {
                     if (labelNum >= ACTOR_SPRITEEXT_BEGIN)
-                        *ins = CON_GETSPRITEEXT;
+                        *ins = CON_GETSPRITEEXT | LINE_NUMBER;
                     else if (labelNum >= ACTOR_STRUCT_BEGIN)
-                        *ins = CON_GETACTORSTRUCT;
+                        *ins = CON_GETACTORSTRUCT | LINE_NUMBER;
                     else
-                        *ins = CON_GETSPRITESTRUCT;
+                        *ins = CON_GETSPRITESTRUCT | LINE_NUMBER;
                 }
 
                 scriptWriteValue(label.lId);
