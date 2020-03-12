@@ -671,31 +671,30 @@ GAMEEXEC_STATIC void VM_Move(void)
         return;
     }
 
-    if (deadflag)
-        goto dead;
-
-    if (movflags&face_player)
-        VM_FacePlayer(2);
-
-    if (movflags&spin)
-        vm.pSprite->ang += sintable[((AC_COUNT(vm.pData)<<3)&2047)]>>6;
-
-    if (movflags&face_player_slow)
-        VM_FacePlayer(4);
-
-    if ((movflags&jumptoplayer_bits) == jumptoplayer_bits)
+    if (!deadflag)
     {
-        if (AC_COUNT(vm.pData) < 16)
-            vm.pSprite->zvel -= (sintable[(512+(AC_COUNT(vm.pData)<<4))&2047]>>5);
+        if (movflags & face_player)
+            VM_FacePlayer(2);
+
+        if (movflags & spin)
+            vm.pSprite->ang += sintable[((AC_COUNT(vm.pData) << 3) & 2047)] >> 6;
+
+        if (movflags & face_player_slow)
+            VM_FacePlayer(4);
+
+        if ((movflags & jumptoplayer_bits) == jumptoplayer_bits)
+        {
+            if (AC_COUNT(vm.pData) < 16)
+                vm.pSprite->zvel -= (sintable[(512 + (AC_COUNT(vm.pData) << 4)) & 2047] >> 5);
+        }
+
+        if (movflags & face_player_smart)
+        {
+            vec2_t const vect = { vm.pPlayer->pos.x + (vm.pPlayer->vel.x / 768), vm.pPlayer->pos.y + (vm.pPlayer->vel.y / 768) };
+            VM_AddAngle(2, getangle(vect.x - vm.pSprite->x, vect.y - vm.pSprite->y));
+        }
     }
 
-    if (movflags&face_player_smart)
-    {
-        vec2_t const vect = { vm.pPlayer->pos.x + (vm.pPlayer->vel.x / 768), vm.pPlayer->pos.y + (vm.pPlayer->vel.y / 768) };
-        VM_AddAngle(2, getangle(vect.x - vm.pSprite->x, vect.y - vm.pSprite->y));
-    }
-
-dead:
 #if !defined LUNATIC
     if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
     {
