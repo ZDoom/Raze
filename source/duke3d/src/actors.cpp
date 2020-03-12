@@ -6958,6 +6958,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     }
                 }
 
+                for (int SPRITES_OF_SECT(pSprite->sectnum, p))
+                    if (sprite[p].statnum >= STAT_DEFAULT && sprite[p].statnum <= STAT_ZOMBIEACTOR)
+                        A_GetZLimits(p);
+
                 if (++pData[2] > 256)
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
             }
