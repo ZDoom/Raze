@@ -25,9 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "anim.h"
 #include "cmdline.h"
 #include "imagehelpers.h"
+#include "communityapi.h"
 #include "compat.h"
 #include "duke3d.h"
-
+#include "gamestructures.h"
+#include "input.h"
 #include "menus.h"
 #include "osdcmds.h"
 #include "savegame.h"
@@ -87,7 +89,6 @@ double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILE
 
 GAMEEXEC_STATIC void VM_Execute(int const loop = false);
 
-# include "gamestructures.cpp"
 #endif
 
 #if !defined LUNATIC

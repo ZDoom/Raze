@@ -20,30 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-// this is all the crap for accessing the game's structs through the CON VM
-// I got a 3-4 fps gain by inlining these...
+#include "gamestructures.h"
 
-#ifndef gamevars_c_
-int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2);
-void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t const newValue);
-int32_t __fastcall VM_GetActiveProjectile(int const spriteNum, int32_t labelNum);
-void __fastcall VM_SetActiveProjectile(int const spriteNum, int const labelNum, int32_t const newValue);
-int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const lParm2);
-void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const lParm2, int32_t const newValue);
-int32_t __fastcall VM_GetPlayerInput(int const playerNum, int32_t labelNum);
-void __fastcall VM_SetPlayerInput(int const playerNum, int const labelNum, int32_t const newValue);
-int32_t __fastcall VM_GetWall(int const wallNum, int32_t labelNum);
-void __fastcall VM_SetWall(int const wallNum, int const labelNum, int32_t const newValue);
-int32_t __fastcall VM_GetSector(int const sectNum, int32_t labelNum);
-void __fastcall VM_SetSector(int const sectNum, int const labelNum, int32_t newValue);
-int32_t __fastcall VM_GetSprite(int const spriteNum, int32_t labelNum, int const lParm2);
-void __fastcall VM_SetSprite(int const spriteNum, int const labelNum, int const lParm2, int32_t const newValue);
-int32_t __fastcall VM_GetProjectile(int const tileNum, int32_t labelNum);
-void __fastcall VM_SetProjectile(int const tileNum, int const labelNum, int32_t const newValue);
-int32_t __fastcall VM_GetTileData(int const tileNum, int32_t labelNum);
-void __fastcall VM_SetTileData(int const tileNum, int const labelNum, int32_t const newValue);
-int32_t __fastcall VM_GetPalData(int const palNum, int32_t labelNum);
-#else
+#include "compat.h"
+#include "gamedef.h"
+#include "sector.h"
+#include "gameexec.h"
+#include "global.h"
+
 #define LABEL_SETUP_UNMATCHED(struct, memb, name, idx)                                                              \
     {                                                                                                               \
         name, idx, sizeof(struct[0].memb) | (is_unsigned<decltype(struct[0].memb)>::value ? LABEL_UNSIGNED : 0), 0, \
@@ -52,7 +36,7 @@ int32_t __fastcall VM_GetPalData(int const palNum, int32_t labelNum);
 
 #define LABEL_SETUP(struct, memb, idx) LABEL_SETUP_UNMATCHED(struct, memb, #memb, idx)
 
-const memberlabel_t SectorLabels[] = {
+memberlabel_t const SectorLabels[] = {
     { "wallptr",                         SECTOR_WALLPTR, sizeof(sector[0].wallptr) | LABEL_WRITEFUNC, 0, offsetof(usectortype, wallptr) },
     LABEL_SETUP(sector, wallnum,         SECTOR_WALLNUM),
 
@@ -176,7 +160,7 @@ void __fastcall VM_SetSector(int const sectNum, int const labelNum, int32_t newV
     }
 }
 
-const memberlabel_t WallLabels[]=
+memberlabel_t const WallLabels[]=
 {
     LABEL_SETUP(wall, x,          WALL_X),
     LABEL_SETUP(wall, y,          WALL_Y),
@@ -247,7 +231,7 @@ void __fastcall VM_SetWall(int const wallNum, int const labelNum, int32_t const 
 
 }
 
-const memberlabel_t ActorLabels[]=
+memberlabel_t const ActorLabels[]=
 {
     LABEL_SETUP(sprite, x,        ACTOR_X),
     LABEL_SETUP(sprite, y,        ACTOR_Y),
@@ -357,7 +341,7 @@ int32_t __fastcall VM_GetSprite(int const spriteNum, int32_t labelNum, int const
     return labelNum;
 }
 
-const memberlabel_t TsprLabels[] =
+memberlabel_t const TsprLabels[] =
 {
     // tsprite access
 
@@ -386,7 +370,7 @@ const memberlabel_t TsprLabels[] =
     LABEL_SETUP_UNMATCHED(sprite, extra,    "tsprextra",    ACTOR_EXTRA),
 };
 
-const memberlabel_t PlayerLabels[]=
+memberlabel_t const PlayerLabels[]=
 {
     { "zoom",                  PLAYER_ZOOM,                  0, 0, -1 },
     { "loogiex",               PLAYER_LOOGIEX,               LABEL_HASPARM2, 64, -1 },
@@ -963,7 +947,7 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
     }
 }
 
-const memberlabel_t ProjectileLabels[]=
+memberlabel_t const ProjectileLabels[]=
 {
     { "workslike",  PROJ_WORKSLIKE,   0, 0, -1 },
     { "spawns",     PROJ_SPAWNS,      0, 0, -1 },
@@ -1185,7 +1169,7 @@ void __fastcall VM_SetActiveProjectile(int const spriteNum, int const labelNum, 
     }
 }
 
-const memberlabel_t UserdefsLabels[]=
+memberlabel_t const UserdefsLabels[]=
 {
     { "god",                    USERDEFS_GOD,                    0, 0, -1 },
     { "warp_on",                USERDEFS_WARP_ON,                0, 0, -1 },
@@ -1759,7 +1743,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
     }
 }
 
-const memberlabel_t InputLabels[]=
+memberlabel_t const InputLabels[]=
 {
     { "avel",    INPUT_AVEL,    0, 0, -1 },
     { "q16avel", INPUT_Q16AVEL, 0, 0, -1 },
@@ -1829,7 +1813,7 @@ void __fastcall VM_SetPlayerInput(int const playerNum, int const labelNum, int32
     }
 }
 
-const memberlabel_t TileDataLabels[]=
+memberlabel_t const TileDataLabels[]=
 {
     // tilesiz[]
     { "xsize",      TILEDATA_XSIZE,      0, 0, -1 },
@@ -1902,7 +1886,7 @@ void __fastcall VM_SetTileData(int const tileNum, int const labelNum, int32_t ne
     }
 }
 
-const memberlabel_t PalDataLabels[]=
+memberlabel_t const PalDataLabels[]=
 {
     // g_noFloorPal[]
     { "nofloorpal", PALDATA_NOFLOORPAL, 0, 0, -1 },
@@ -1938,10 +1922,6 @@ hashtable_t h_tsprite    = { ACTOR_END>>1, NULL };
 hashtable_t h_userdef    = { USERDEFS_END>>1, NULL };
 hashtable_t h_wall       = { WALL_END>>1, NULL };
 
-static hashtable_t *const struct_tables[] = {
-    &h_actor, &h_input, &h_paldata, &h_player, &h_projectile, &h_sector, &h_tiledata, &h_tsprite, &h_userdef, &h_wall,
-};
-
 #define STRUCT_HASH_SETUP(table, labels)                 \
     do                                                   \
     {                                                    \
@@ -1950,9 +1930,9 @@ static hashtable_t *const struct_tables[] = {
         EDUKE32_STATIC_ASSERT(ARRAY_SSIZE(labels) != 0); \
     } while (0)
 
-void scriptInitStructTables(void)
+void VM_InitHashTables(void)
 {
-    for (auto table : struct_tables)
+    for (auto table : vmStructHashTablePtrs)
         hash_init(table);
 
     inithashnames();
@@ -1971,4 +1951,3 @@ void scriptInitStructTables(void)
 }
 #undef STRUCT_HASH_SETUP
 
-#endif

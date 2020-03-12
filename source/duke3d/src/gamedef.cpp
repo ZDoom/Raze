@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "stringtable.h"
 #include "mapinfo.h"
+#include "gamestructures.h"
 
 void C_CON_SetButtonAlias(int num, const char* text);
 void C_CON_ClearButtonAlias(int num);
@@ -1197,7 +1198,7 @@ static inline bool C_IsLabelChar(const char c, int32_t const i)
     return (isalnum(c) || c == '_' || c == '*' || c == '?' || (i > 0 && (c == '+' || c == '-')));
 }
 
-static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t const * const table, const char *psz)
+static inline int32_t C_GetLabelNameID(memberlabel_t const *pLabel, hashtable_t const * const table, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the ID for the label, or -1
@@ -5929,7 +5930,7 @@ void C_Compile(const char *fileName)
         actorMinMs = 1e308;
 
     scriptInitTables();
-    scriptInitStructTables();
+    VM_InitHashTables();
 
     Gv_Init();
     C_InitProjectiles();

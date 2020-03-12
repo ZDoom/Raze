@@ -143,38 +143,6 @@ extern const char *EventNames[MAXEVENTS];
 
 #if !defined LUNATIC
 extern intptr_t *g_scriptPtr;
-
- typedef struct
- {
-     const char *name;
-
-     int32_t  lId;
-     uint32_t flags;
-     int16_t  maxParm2;
-     int16_t  offset;
- } memberlabel_t;
-
-extern const memberlabel_t ActorLabels[];
-extern const memberlabel_t InputLabels[];
-extern const memberlabel_t PalDataLabels[];
-extern const memberlabel_t PlayerLabels[];
-extern const memberlabel_t ProjectileLabels[];
-extern const memberlabel_t SectorLabels[];
-extern const memberlabel_t TileDataLabels[];
-extern const memberlabel_t TsprLabels[];
-extern const memberlabel_t UserdefsLabels[];
-extern const memberlabel_t WallLabels[];
-
-extern hashtable_t h_actor;
-extern hashtable_t h_input;
-extern hashtable_t h_paldata;
-extern hashtable_t h_player;
-extern hashtable_t h_projectile;
-extern hashtable_t h_sector;
-extern hashtable_t h_tiledata;
-extern hashtable_t h_tsprite;
-extern hashtable_t h_userdef;
-extern hashtable_t h_wall;
 #endif
 
 typedef projectile_t defaultprojectile_t;
