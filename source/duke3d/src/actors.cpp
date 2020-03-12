@@ -2060,28 +2060,26 @@ ACTOR_STATIC void G_MoveStandables(void)
                 pSprite->y += sintable[(T6(spriteNum))&2047]>>9;
                 pSprite->z -= (3<<8);
 
-                setsprite(spriteNum,&pSprite->pos);
+                int16_t const oldSectNum = pSprite->sectnum;
+                int16_t       curSectNum = pSprite->sectnum;
+
+                updatesectorneighbor(pSprite->x, pSprite->y, &curSectNum, 1024, 2048);
+                changespritesect(spriteNum, curSectNum);
 
                 int hitDist = A_CheckHitSprite(spriteNum, &hitSprite);
 
                 actor[spriteNum].lastv.x = hitDist;
                 pSprite->ang = oldAng;
 
-                //                if(lTripBombControl & TRIPBOMB_TRIPWIRE)
+                // we're on a trip wire
                 if (actor[spriteNum].t_data[6] != 1)
                 {
-                    // we're on a trip wire
-                    int16_t cursectnum;
-
                     while (hitDist > 0)
                     {
-                        j = A_Spawn(spriteNum,LASERLINE);
-                        setsprite(j,&sprite[j].pos);
+                        j = A_Spawn(spriteNum, LASERLINE);
+
                         sprite[j].hitag = pSprite->hitag;
                         actor[j].t_data[1] = sprite[j].z;
-
-                        pSprite->x += sintable[(T6(spriteNum)+512)&2047]>>4;
-                        pSprite->y += sintable[(T6(spriteNum))&2047]>>4;
 
                         if (hitDist < 1024)
                         {
@@ -2090,20 +2088,27 @@ ACTOR_STATIC void G_MoveStandables(void)
                         }
                         hitDist -= 1024;
 
-                        cursectnum = pSprite->sectnum;
-                        updatesector(pSprite->x, pSprite->y, &cursectnum);
-                        if (cursectnum < 0)
+                        pSprite->x += sintable[(T6(spriteNum)+512)&2047]>>4;
+                        pSprite->y += sintable[(T6(spriteNum))&2047]>>4;
+
+                        updatesectorneighbor(pSprite->x, pSprite->y, &curSectNum, 1024, 2048);
+
+                        if (curSectNum == -1)
                             break;
+
+                        changespritesect(spriteNum, curSectNum);
+
+                        // this is a hack to work around the LASERLINE sprite's art tile offset
+                        changespritesect(j, curSectNum);
                     }
                 }
 
                 T1(spriteNum)++;
 
-                pSprite->x = T4(spriteNum);
-                pSprite->y = T5(spriteNum);
+                pSprite->pos.vec2 = { T4(spriteNum), T5(spriteNum) };
                 pSprite->z += (3<<8);
 
-                setsprite(spriteNum,&pSprite->pos);
+                changespritesect(spriteNum, oldSectNum);
                 T4(spriteNum) = T3(spriteNum) = 0;
 
                 if (hitSprite >= 0 && actor[spriteNum].t_data[6] != 1)
@@ -2130,8 +2135,7 @@ ACTOR_STATIC void G_MoveStandables(void)
 
                 int hitDist = A_CheckHitSprite(spriteNum, NULL);
 
-                pSprite->x = T4(spriteNum);
-                pSprite->y = T5(spriteNum);
+                pSprite->pos.vec2 = { T4(spriteNum), T5(spriteNum) };
                 pSprite->z += (3<<8);
                 setsprite(spriteNum, &pSprite->pos);
 
