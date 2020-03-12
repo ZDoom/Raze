@@ -4737,7 +4737,7 @@ static void P_ClampZ(DukePlayer_t* const pPlayer, int const sectorLotag, int32_t
         pPlayer->pos.z = floorZ - PMINHEIGHT;
 }
 
-#define GETZRANGECLIPDISTOFFSET 8
+#define GETZRANGECLIPDISTOFFSET 16
 
 void P_ProcessInput(int playerNum)
 {
@@ -4777,7 +4777,7 @@ void P_ProcessInput(int playerNum)
     // sectorLotag can be set to 0 later on, but the same block sets spritebridge to 1
     int sectorLotag       = sector[pPlayer->cursectnum].lotag;
     int getZRangeClipDist = pPlayer->clipdist - GETZRANGECLIPDISTOFFSET;
-    int getZRangeOffset   = (((TEST_SYNC_KEY(playerBits, SK_CROUCH) && pPlayer->on_ground && !pPlayer->jumping_toggle) || (sectorLotag == ST_1_ABOVE_WATER && pPlayer->spritebridge != 1)))
+    int getZRangeOffset   = (((TEST_SYNC_KEY(playerBits, SK_CROUCH) && (FURY || (pPlayer->on_ground && !pPlayer->jumping_toggle))) || (sectorLotag == ST_1_ABOVE_WATER && pPlayer->spritebridge != 1)))
                           ? pPlayer->autostep_sbw
                           : pPlayer->autostep;
 
@@ -4791,14 +4791,11 @@ void P_ProcessInput(int playerNum)
         getZRangeOffset   = 0;
         getZRangeClipDist = 163L;
     }
-    else 
+    else
     {
         // we want to take these into account for getzrange() but not for the clipmove() call below
         // this isn't taken into account when getZRangeOffset is initialized above because we first need
         // the stepHeight value without this factored in
-        if (!pPlayer->on_ground)
-            getZRangeOffset = pPlayer->autostep_sbw;
-
         if (sectorLotag != ST_2_UNDERWATER)
         {
             if (pPlayer->pos.z + getZRangeOffset > actor[pPlayer->i].floorz - PMINHEIGHT)
@@ -4827,19 +4824,20 @@ void P_ProcessInput(int playerNum)
     if ((lowZhit & 49152) == 16384 && sectorLotag == 1 && trueFloorDist > PHEIGHT + ZOFFSET2)
         sectorLotag = 0;
 
-    actor[pPlayer->i].floorz   = floorZ;
-    actor[pPlayer->i].ceilingz = ceilZ;
-
     if ((highZhit & 49152) == 49152)
     {
         int const spriteNum = highZhit & (MAXSPRITES-1);
 
-        if (sprite[spriteNum].statnum == STAT_ACTOR && sprite[spriteNum].extra >= 0)
+        if ((sprite[spriteNum].z + PMINHEIGHT > pPlayer->pos.z)
+            || (sprite[spriteNum].statnum == STAT_ACTOR && sprite[spriteNum].extra >= 0))
         {
             highZhit = 0;
             ceilZ    = pPlayer->truecz;
         }
     }
+
+    actor[pPlayer->i].floorz   = floorZ;
+    actor[pPlayer->i].ceilingz = ceilZ;
 
     if ((lowZhit & 49152) == 49152)
     {
