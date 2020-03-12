@@ -8581,6 +8581,24 @@ void G_RefreshLights(void)
 #endif
 }
 
+static void G_RecordOldSpritePos(void)
+{
+    int statNum = 0;
+    do
+    {
+        int spriteNum = headspritestat[statNum++];
+
+        while (spriteNum >= 0)
+        {
+            int const nextSprite = nextspritestat[spriteNum];
+            actor[spriteNum].bpos = sprite[spriteNum].pos;
+
+            spriteNum = nextSprite;
+        }
+    }
+    while (statNum < MAXSTATUS);
+}
+
 static void G_DoEventGame(int const nEventID)
 {
     if (VM_HaveEvent(nEventID))
@@ -8620,6 +8638,8 @@ void G_MoveWorld(void)
     VM_OnEvent(EVENT_PREWORLD);
 
     G_DoEventGame(EVENT_PREGAME);
+
+    G_RecordOldSpritePos();
 
     G_MoveZombieActors();     //ST 2
     G_MoveWeapons();          //ST 4

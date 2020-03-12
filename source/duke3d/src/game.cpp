@@ -3586,8 +3586,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
             t->z += mulscale16(smoothratio,ps->pos.z-ps->opos.z) -
                 (ps->dead_flag ? 0 : PHEIGHT) + PHEIGHT;
         }
-        else if ((pSprite->statnum == STAT_DEFAULT && pSprite->picnum != CRANEPOLE) || pSprite->statnum == STAT_PLAYER ||
-                 pSprite->statnum == STAT_STANDABLE || pSprite->statnum == STAT_PROJECTILE || pSprite->statnum == STAT_MISC || pSprite->statnum == STAT_ACTOR)
+        else if (pSprite->picnum != CRANEPOLE)
         {
             t->x -= mulscale16(65536-smoothratio,pSprite->x-actor[i].bpos.x);
             t->y -= mulscale16(65536-smoothratio,pSprite->y-actor[i].bpos.y);
