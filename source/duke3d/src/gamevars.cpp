@@ -1178,13 +1178,7 @@ static void Gv_AddSystemVars(void)
 
         weapondefaults[GROW_WEAPON].TotalTime = 30;
 
-        if (NAM)
-        {
-            weapondefaults[GROW_WEAPON].SpawnTime = 2;
-            weapondefaults[GROW_WEAPON].Spawn     = SHELL;
-            weapondefaults[GROW_WEAPON].FireSound = 0;
-        }
-        else if (WW2GI)
+        if (WW2GI)
         {
             weapondefaults[KNEE_WEAPON].HoldDelay = 14;
             weapondefaults[KNEE_WEAPON].Reload    = 30;

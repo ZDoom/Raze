@@ -1550,7 +1550,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
 
             if (playerNum >= 0)
             {
-                if (GetAutoAimAng(spriteNum, playerNum, projecTile, ZOFFSET6, 0, &startPos, 768, &Zvel, &shootAng) < 0)
+                if (NAM_WW2GI || GetAutoAimAng(spriteNum, playerNum, projecTile, ZOFFSET6, 0, &startPos, 768, &Zvel, &shootAng) < 0)
                     Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 98;
             }
             else if (pSprite->statnum != STAT_EFFECTOR)
@@ -4256,13 +4256,18 @@ static void P_ProcessWeapon(int playerNum)
             else if ((*weaponFrame) > PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime))
             {
                 (*weaponFrame) = 0;
-                pPlayer->weapon_pos = WEAPON_POS_RAISE;
                 if (PIPEBOMB_CONTROL(playerNum) == PIPEBOMB_REMOTE)
                 {
+                    pPlayer->weapon_pos = WEAPON_POS_RAISE;
                     pPlayer->curr_weapon = HANDREMOTE_WEAPON;
                     pPlayer->last_weapon = -1;
                 }
-                else P_CheckWeapon(pPlayer);
+                else
+                {
+                    if (!NAM_WW2GI)
+                        pPlayer->weapon_pos = WEAPON_POS_RAISE;
+                    P_CheckWeapon(pPlayer);
+                }
             }
         }
         else if (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == HANDREMOTE_WEAPON)
