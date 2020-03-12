@@ -55,8 +55,8 @@ int32_t __fastcall VM_GetPalData(int const palNum, int32_t labelNum);
  {
      const char *name;
 
-     int32_t  lId;
-     uint32_t flags;
+     int16_t  lId;
+     uint16_t flags;
      int16_t  maxParm2;
      int16_t  offset;
  } memberlabel_t;
