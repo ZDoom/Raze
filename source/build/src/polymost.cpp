@@ -340,7 +340,7 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
 
 int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr)
 {
-    if (spriteext[tspr->owner].flags&SPREXT_NOTMD)
+    if ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].flags&SPREXT_NOTMD)
         return false;
 
 
