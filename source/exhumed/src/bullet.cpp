@@ -92,23 +92,23 @@ static SavegameHelper sgh("bullet",
 
 
 bulletInfo BulletInfo[] = {
-    { 25,   1,    20, -1, -1, 13, 0,  0, -1, 0 },
-    { 25,  -1, 65000, -1, 31, 73, 0,  0, -1, 0 },
-    { 15,  -1, 60000, -1, 31, 73, 0,  0, -1, 0 },
-    { 5,   15,  2000, -1, 14, 38, 4,  5,  3, 0 },
-    { 250, 100, 2000, -1, 33, 34, 4, 20, -1, 0 },
-    { 200, -1,  2000, -1, 20, 23, 4, 10, -1, 0 },
-    { 200, -1, 60000, 68, 68, -1, -1, 0, -1, 0 },
-    { 300,  1,     0, -1, -1, -1, 0, 50, -1, 0 },
-    { 18,  -1,  2000, -1, 18, 29, 4,  0, -1, 0 },
-    { 20,  -1,  2000, 37, 11, 30, 4,  0, -1, 0 },
-    { 25,  -1,  3000, -1, 44, 36, 4, 15, 90, 0 },
-    { 30,  -1,  1000, -1, 52, 53, 4, 20, 48, 0 },
-    { 20,  -1,  3500, -1, 54, 55, 4, 30, -1, 0 },
-    { 10,  -1,  5000, -1, 57, 76, 4,  0, -1, 0 },
-    { 40,  -1,  1500, -1, 63, 38, 4, 10, 40, 0 },
-    { 20,  -1,  2000, -1, 60, 12, 0,  0, -1, 0 },
-    { 5,   -1, 60000, -1, 31, 76, 0,  0, -1, 0 }
+    { 25,   1,    20, -1, -1, 13, 0,  0, -1 },
+    { 25,  -1, 65000, -1, 31, 73, 0,  0, -1 },
+    { 15,  -1, 60000, -1, 31, 73, 0,  0, -1 },
+    { 5,   15,  2000, -1, 14, 38, 4,  5,  3 },
+    { 250, 100, 2000, -1, 33, 34, 4, 20, -1 },
+    { 200, -1,  2000, -1, 20, 23, 4, 10, -1 },
+    { 200, -1, 60000, 68, 68, -1, -1, 0, -1 },
+    { 300,  1,     0, -1, -1, -1, 0, 50, -1 },
+    { 18,  -1,  2000, -1, 18, 29, 4,  0, -1 },
+    { 20,  -1,  2000, 37, 11, 30, 4,  0, -1 },
+    { 25,  -1,  3000, -1, 44, 36, 4, 15, 90 },
+    { 30,  -1,  1000, -1, 52, 53, 4, 20, 48 },
+    { 20,  -1,  3500, -1, 54, 55, 4, 30, -1 },
+    { 10,  -1,  5000, -1, 57, 76, 4,  0, -1 },
+    { 40,  -1,  1500, -1, 63, 38, 4, 10, 40 },
+    { 20,  -1,  2000, -1, 60, 12, 0,  0, -1 },
+    { 5,   -1, 60000, -1, 31, 76, 0,  0, -1 }
 };
 
 
@@ -354,7 +354,6 @@ int MoveBullet(short nBullet)
             }
         }
 
-        // loc_2A1DD
         nVal = movesprite(nSprite, pBullet->x, pBullet->y, pBullet->z, pSprite->clipdist >> 1, pSprite->clipdist >> 1, CLIPMASK1);
 
 MOVEEND:
@@ -452,8 +451,6 @@ HITSPRITE:
             }
             else
             {
-//				assert(hitsect <= kMaxSectors);
-
                 BulletHitsSprite(pBullet, pSprite->owner, hitsprite, x2, y2, z2, hitsect);
             }
         }
@@ -477,56 +474,60 @@ HITWALL:
             }
         }
 
-        // loc_2A4F5:?
-        if (hitsprite < 0 && hitwall < 0)
+        if (hitsect > -1) // NOTE: hitsect can be -1. this check wasn't in original code. TODO: demo compatiblity?
         {
-            if ((SectBelow[hitsect] >= 0 && (SectFlag[SectBelow[hitsect]] & kSectUnderwater)) || SectDepth[hitsect])
+            if (hitsprite < 0 && hitwall < 0)
             {
-                pSprite->x = x2;
-                pSprite->y = y2;
-                pSprite->z = z2;
-                BuildSplash(nSprite, hitsect);
+                if ((SectBelow[hitsect] >= 0 && (SectFlag[SectBelow[hitsect]] & kSectUnderwater)) || SectDepth[hitsect])
+                {
+                    pSprite->x = x2;
+                    pSprite->y = y2;
+                    pSprite->z = z2;
+                    BuildSplash(nSprite, hitsect);
+                }
+                else
+                {
+                    BuildAnim(-1, pBulletInfo->field_C, 0, x2, y2, z2, hitsect, 40, pBulletInfo->nFlags);
+                }
             }
             else
             {
-                BuildAnim(-1, pBulletInfo->field_C, 0, x2, y2, z2, hitsect, 40, pBulletInfo->nFlags);
-            }
-        }
-        else if (hitwall >= 0)
-        {
-            BackUpBullet(&x2, &y2, pSprite->ang);
+                if (hitwall >= 0)
+                {
+                    BackUpBullet(&x2, &y2, pSprite->ang);
 
-            if (nType != 3 || RandomSize(2) == 0)
-            {
-                int zOffset = RandomSize(8) << 3;
+                    if (nType != 3 || RandomSize(2) == 0)
+                    {
+                        int zOffset = RandomSize(8) << 3;
 
-                if (!RandomBit()) {
-                    zOffset = -zOffset;
+                        if (!RandomBit()) {
+                            zOffset = -zOffset;
+                        }
+
+                        // draws bullet puff on walls when they're shot
+                        BuildAnim(-1, pBulletInfo->field_C, 0, x2, y2, z2 + zOffset, hitsect, 40, pBulletInfo->nFlags);
+                    }
+                }
+                else
+                {
+                    pSprite->x = x2;
+                    pSprite->y = y2;
+                    pSprite->z = z2;
+
+                    mychangespritesect(nSprite, hitsect);
                 }
 
-                // draws bullet puff on walls when they're shot
-                BuildAnim(-1, pBulletInfo->field_C, 0, x2, y2, z2 + zOffset, hitsect, 40, pBulletInfo->nFlags);
+                if (BulletInfo[nType].nRadius)
+                {
+                    nRadialBullet = nType;
+
+                    runlist_RadialDamageEnemy(nSprite, pBulletInfo->nDamage, pBulletInfo->nRadius);
+
+                    nRadialBullet = -1;
+
+                    AddFlash(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 128);
+                }
             }
-        }
-        else
-        {
-            pSprite->x = x2;
-            pSprite->y = y2;
-            pSprite->z = z2;
-
-            mychangespritesect(nSprite, hitsect);
-        }
-
-        // loc_2A639:
-        if (BulletInfo[nType].nRadius)
-        {
-            nRadialBullet = nType;
-
-            runlist_RadialDamageEnemy(nSprite, pBulletInfo->nDamage, pBulletInfo->nRadius);
-
-            nRadialBullet = -1;
-
-            AddFlash(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 128);
         }
 
         DestroyBullet(nBullet);

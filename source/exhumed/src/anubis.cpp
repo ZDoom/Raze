@@ -280,15 +280,18 @@ void FuncAnubis(int a, int nDamage, int nRun)
                             {
                                 AnubisList[nAnubis].g = 60;
 
-                                if (cansee(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - GetSpriteHeight(nSprite), sprite[nSprite].sectnum,
-                                    sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
-                                { 
-                                    sprite[nSprite].xvel = 0;
-                                    sprite[nSprite].yvel = 0;
-                                    sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
+                                if (nTarget > -1) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
+                                {
+                                    if (cansee(sprite[nSprite].x, sprite[nSprite].y, sprite[nSprite].z - GetSpriteHeight(nSprite), sprite[nSprite].sectnum,
+                                        sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z - GetSpriteHeight(nTarget), sprite[nTarget].sectnum))
+                                    {
+                                        sprite[nSprite].xvel = 0;
+                                        sprite[nSprite].yvel = 0;
+                                        sprite[nSprite].ang = GetMyAngle(sprite[nTarget].x - sprite[nSprite].x, sprite[nTarget].y - sprite[nSprite].y);
 
-                                    AnubisList[nAnubis].nAction = 3;
-                                    AnubisList[nAnubis].nFrame = 0;
+                                        AnubisList[nAnubis].nAction = 3;
+                                        AnubisList[nAnubis].nFrame = 0;
+                                    }
                                 }
                             }
                             break;

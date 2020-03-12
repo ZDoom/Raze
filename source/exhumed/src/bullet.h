@@ -35,7 +35,6 @@ struct bulletInfo
     short nFlags;
     short nRadius; // damage radius
     short xyRepeat;
-    char pad[12];
 };
 
 extern bulletInfo BulletInfo[];
