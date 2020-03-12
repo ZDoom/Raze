@@ -925,11 +925,15 @@ REDODOOR:
 
             if (j >= 0)
             {
+                for (SPRITES_OF(STAT_EFFECTOR, i))
+                    if (tag == (sector[SECT(i)].lotag & 0x8000u) && SLT(i) == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT(i) && T5(i))
+                        return;
+
                 int soundPlayed = 0;
 
                 for (SPRITES_OF(STAT_EFFECTOR, i))
                 {
-                    if (tag == (sector[SECT(i)].lotag & 0x8000u) && SLT(i) == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT(i) && !T5(i))
+                    if (tag == (sector[SECT(i)].lotag & 0x8000u) && SLT(i) == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT(i))
                     {
                         if (sector[SECT(i)].lotag & 0x8000u) sector[SECT(i)].lotag &= 0x7fff;
                         else sector[SECT(i)].lotag |= 0x8000u;
