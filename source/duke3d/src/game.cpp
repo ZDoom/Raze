@@ -801,11 +801,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                      pPlayer->opos.z + mulscale16(pPlayer->pos.z - pPlayer->opos.z, smoothRatio) };
 
             CAMERA(pos)      = camVect;
-            CAMERA(q16ang)   = pPlayer->oq16ang
-                             + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio)
-                             + fix16_from_int(pPlayer->look_ang);
-            CAMERA(q16horiz) = pPlayer->oq16horiz + pPlayer->oq16horizoff
-                             + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
+            CAMERA(q16ang)   = pPlayer->q16ang + fix16_from_int(pPlayer->look_ang);
+            CAMERA(q16horiz) = pPlayer->q16horiz + pPlayer->q16horizoff;
 
             if (cl_viewbob)
             {
@@ -5880,22 +5877,6 @@ MAIN_LOOP_RESTART:
 
     do //main loop
     {
-		gameHandleEvents();
-		if (myplayer.gm == MODE_DEMO)
-		{
-			M_ClearMenus();
-			goto MAIN_LOOP_RESTART;
-		}
-
-        // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
-        inputState.SetBindsEnabled(!!(myplayer.gm & (MODE_GAME|MODE_DEMO)));
-
-
-        if (g_networkMode != NET_DEDICATED_SERVER)
-            G_HandleLocalKeys();
-
-        OSD_DispatchQueued();
-
         static bool frameJustDrawn;
         bool gameUpdate = false;
         double gameUpdateStartTime = timerGetHiTicks();
@@ -5914,7 +5895,25 @@ MAIN_LOOP_RESTART:
                     frameJustDrawn = false;
 
                     P_GetInput(myconnectindex);
-                    inputfifo[0][myconnectindex] = localInput;
+
+                    // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
+                    auto const pPlayer = g_player[myconnectindex].ps;
+                    auto const q16ang  = fix16_to_int(pPlayer->q16ang);
+                    auto &     input   = inputfifo[0][myconnectindex];
+
+                    input = localInput;
+                    input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
+                                 mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]);
+                    input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
+                                 mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]);
+
+                    if (!FURY)
+                    {
+                        input.fvel += pPlayer->fric.x;
+                        input.svel += pPlayer->fric.y;
+                    }
+
+                    localInput = {};
                 }
 
                 do
@@ -5968,6 +5967,27 @@ MAIN_LOOP_RESTART:
         }
         else if (G_FPSLimit() || g_saveRequested)
         {
+            if (!g_saveRequested)
+            {
+                gameHandleEvents();
+                if (myplayer.gm == MODE_DEMO)
+                {
+                    M_ClearMenus();
+                    goto MAIN_LOOP_RESTART;
+                }
+
+                // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
+                inputState.SetBindsEnabled(!!(myplayer.gm & (MODE_GAME|MODE_DEMO)));
+
+                if (g_networkMode != NET_DEDICATED_SERVER)
+                    G_HandleLocalKeys();
+
+                OSD_DispatchQueued();
+
+                P_GetInput(myconnectindex);
+
+            }
+
             int const smoothRatio = calc_smoothratio(totalclock, ototalclock);
 
             G_DrawRooms(screenpeek, smoothRatio);
