@@ -1940,6 +1940,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     #ifdef NOONE_EXTENSIONS
     if (gPlayerCtrl[pPlayer->nPlayer].qavScene.index >= 0 && pPlayer->pXSprite->health > 0) {
         playerQavSceneProcess(pPlayer, &gPlayerCtrl[pPlayer->nPlayer].qavScene);
+        UpdateAimVector(pPlayer);
         return;
     }
     #endif

@@ -53,6 +53,7 @@ enum CALLBACK_ID {
     kCallbackMissileBurst = 22,
     kCallbackMissileSpriteBlock = 23,
     kCallbackGenDudeUpdate      = 24,
+    kCallbackCondition          = 25,
     #endif
     kCallbackMax,
 };

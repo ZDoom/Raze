@@ -2167,6 +2167,10 @@ void trInit(void)
                 if (pXSprite->waitTime > 0)
                     evPost(i, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
                 break;
+            case kModernCondition:
+                if (pXSprite->busyTime <= 0) break;
+                evPost(i, 3, ClipLow(pXSprite->busyTime, 5), kCallbackCondition);
+                break;
             #endif
             case kGenTrigger:
             case kGenDripWater:

@@ -712,6 +712,22 @@ void DropVoodoo(int nSprite) // unused
     }
 }
 
+void callbackCondition(int nSprite) {
+    
+    spritetype* pSprite = &sprite[nSprite]; XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    if (pXSprite->state || pXSprite->locked || pXSprite->isTriggered) return;
+
+    TRCONDITION* pCond = &gCondition[pXSprite->sysData1];
+    for (int i = 0; i < pCond->length; i++) {
+        EVENT evn;  evn.index = pCond->obj[i].index;   evn.type = pCond->obj[i].type;
+        evn.cmd = pCond->obj[i].cmd; evn.funcID = kCallbackCondition;
+        useCondition(pXSprite, evn);
+    }
+
+    evPost(nSprite, OBJ_SPRITE, pXSprite->busyTime, kCallbackCondition);
+    return;
+}
+
 void(*gCallback[kCallbackMax])(int) =
 {
     fxFlameLick,
@@ -740,6 +756,7 @@ void(*gCallback[kCallbackMax])(int) =
     callbackUniMissileBurst, // the code is in nnexts.cpp
     callbackMakeMissileBlocking, // the code is in nnexts.cpp
     callbackGenDudeUpdate, // the code is in nnexts.cpp
+    callbackCondition,
     #endif
 };
 
