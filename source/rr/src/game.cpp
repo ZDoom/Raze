@@ -3181,7 +3181,8 @@ rr_badguy:
                 }
                 else changespritestat(newSprite, STAT_ZOMBIEACTOR);
 
-                pSprite->shade = sprite[spriteNum].shade;
+                if (RR && spriteNum >= 0)
+                    pSprite->shade = sprite[spriteNum].shade;
             }
 
             break;
