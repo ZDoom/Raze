@@ -5897,15 +5897,22 @@ MAIN_LOOP_RESTART:
                     P_GetInput(myconnectindex);
  
                     // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
-                    auto const    pPlayer = g_player[myconnectindex].ps;
-                    int16_t const q16ang  = fix16_to_int(pPlayer->q16ang);
-                    auto &        input   = inputfifo[0][myconnectindex];
+                    auto const pPlayer = g_player[myconnectindex].ps;
+                    auto const q16ang  = fix16_to_int(pPlayer->q16ang);
+                    auto &     input   = inputfifo[0][myconnectindex];
  
                     input = localInput;
-                    input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047])
-                                 + mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]) + (FURY ? 0 : pPlayer->fric.x);
-                    input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047])
-                                 + mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]) + (FURY ? 0 : pPlayer->fric.y);
+                    input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
+                                 mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]);
+                    input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
+                                 mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]);
+ 
+                    if (FURY)
+                    {
+                        input.fvel += pPlayer->fric.x;
+                        input.svel += pPlayer->fric.y;
+                    }
+ 
                     localInput = {};
                 }
 
