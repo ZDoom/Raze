@@ -5877,6 +5877,22 @@ MAIN_LOOP_RESTART:
 
     do //main loop
     {
+        gameHandleEvents();
+        if (myplayer.gm == MODE_DEMO)
+        {
+            M_ClearMenus();
+            goto MAIN_LOOP_RESTART;
+        }
+
+        // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
+        inputState.SetBindsEnabled(!!(myplayer.gm & (MODE_GAME|MODE_DEMO)));
+
+
+        if (g_networkMode != NET_DEDICATED_SERVER)
+            G_HandleLocalKeys();
+
+        OSD_DispatchQueued();
+
         static bool frameJustDrawn;
         bool gameUpdate = false;
         double gameUpdateStartTime = timerGetHiTicks();
@@ -5969,22 +5985,6 @@ MAIN_LOOP_RESTART:
         {
             if (!g_saveRequested)
             {
-                gameHandleEvents();
-                if (myplayer.gm == MODE_DEMO)
-                {
-                    M_ClearMenus();
-                    goto MAIN_LOOP_RESTART;
-                }
-
-                // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
-                inputState.SetBindsEnabled(!!(myplayer.gm & (MODE_GAME|MODE_DEMO)));
-
-
-                if (g_networkMode != NET_DEDICATED_SERVER)
-                    G_HandleLocalKeys();
-
-                OSD_DispatchQueued();
-
                 P_GetInput(myconnectindex);
             }
 
