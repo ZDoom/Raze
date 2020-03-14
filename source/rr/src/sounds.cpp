@@ -568,8 +568,8 @@ static void S_SetMusicIndex(unsigned int m)
 
 void S_PlayLevelMusicOrNothing(unsigned int m)
 {
-    if (RR && mus_redbook && !cd_disabled) return;
     auto& mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
+    if (RR && mr.music.IsEmpty() && mus_redbook && !cd_disabled) return;
     Mus_Play(mr.labelName, mr.music, true);
     S_SetMusicIndex(m);
 }
