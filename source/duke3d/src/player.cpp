@@ -3211,7 +3211,7 @@ void P_GetInput(int const playerNum)
         {
             int const slopeZ = getflorzofslope(pPlayer->cursectnum, adjustedPosition.x, adjustedPosition.y);
             if ((pPlayer->cursectnum == currentSector) || (klabs(getflorzofslope(currentSector, adjustedPosition.x, adjustedPosition.y) - slopeZ) <= ZOFFSET6))
-                pPlayer->q16horizoff += fix16_from_float(scaleAdjustmentToInterval(mulscale16(pPlayer->truefz - slopeZ, 160)));
+                pPlayer->q16horizoff = fix16_sadd(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(mulscale16(pPlayer->truefz - slopeZ, 160))));
         }
     }
  
@@ -3222,7 +3222,7 @@ void P_GetInput(int const playerNum)
     }
     else if (pPlayer->q16horizoff < 0)
     {
-        pPlayer->q16horizoff += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_sadd(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one))));
         pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
     }
  
