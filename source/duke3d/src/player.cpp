@@ -2881,23 +2881,27 @@ enddisplayweapon:
 }
 
 #define TURBOTURNTIME (TICRATE/8) // 7
-#define NORMALTURN   15
-#define PREAMBLETURN 5
+#define NORMALTURN    15
+#define PREAMBLETURN  5
 #define NORMALKEYMOVE 40
-#define MAXVEL       ((NORMALKEYMOVE*2)+10)
-#define MAXSVEL      ((NORMALKEYMOVE*2)+10)
-#define MAXANGVEL    1024
-#define MAXHORIZ     256
+#define MAXVEL        ((NORMALKEYMOVE*2)+10)
+#define MAXSVEL       ((NORMALKEYMOVE*2)+10)
+#define MAXANGVEL     1024
+#define MAXHORIZVEL   256
 
 int32_t mouseyaxismode = -1;
 
 static int P_CheckLockedMovement(int const playerNum)
 {
     auto const pPlayer = g_player[playerNum].ps;
-    return (pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 || pPlayer->knee_incs > 0
+    return (pPlayer->dead_flag || pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 || pPlayer->knee_incs > 0
             || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON && pPlayer->kickback_pic > 1
                 && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)));
 }
+
+static bool g_horizRecenter;
+static float g_horizAngleAdjust;
+static fix16_t g_horizSkew;
 
 void P_GetInput(int const playerNum)
 {
@@ -2909,8 +2913,7 @@ void P_GetInput(int const playerNum)
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
 
-        Bmemset(&localInput, 0, sizeof(input_t));
-
+        localInput = {};
         localInput.bits    = (((int32_t)g_gameQuit) << SK_GAMEQUIT);
         localInput.extbits |= (1<<7);
 
@@ -2932,11 +2935,11 @@ void P_GetInput(int const playerNum)
     CONTROL_GetInput(&info);
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    int const turnAmount = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
-    constexpr int const analogTurnAmount = (NORMALTURN << 1);
-    int const keyMove    = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
-    constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
+    int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+    int const     turnAmount       = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
+    constexpr int analogTurnAmount = (NORMALTURN << 1);
+    int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
+    constexpr int analogExtent     = 32767; // KEEPINSYNC sdlayer.cpp
 
     input_t input {};
 
@@ -2951,12 +2954,12 @@ void P_GetInput(int const playerNum)
     }
     else
     {
-        input.q16avel = fix16_div(fix16_from_int(info.mousex), F16(32));
+        input.q16avel += fix16_div(fix16_from_int(info.mousex), F16(32));
         input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
     }
 
     if (mouseaim)
-        input.q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
+        input.q16horz += fix16_div(fix16_from_int(info.mousey), F16(64));
     else
         input.fvel = -(info.mousey >> 3);
 
@@ -2966,53 +2969,64 @@ void P_GetInput(int const playerNum)
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
+    static double lastInputTicks;
+    auto const    currentHiTicks    = timerGetHiTicks();
+    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+ 
+    lastInputTicks = currentHiTicks;
+ 
+    auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
+
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left) && !(pPlayer->movement_lock&4))
-            input.svel -= -keyMove;
+        if (!localInput.svel)
+        {
+            if (buttonMap.ButtonDown(gamefunc_Turn_Left) && !(pPlayer->movement_lock&4) && !localInput.svel)
+                input.svel = -keyMove;
 
-        if (buttonMap.ButtonDown(gamefunc_Turn_Right) && !(pPlayer->movement_lock&8))
-            input.svel -= keyMove;
+            if (buttonMap.ButtonDown(gamefunc_Turn_Right) && !(pPlayer->movement_lock&8) && !localInput.svel)
+                input.svel = keyMove;
+        }
     }
     else
     {
-        static int32_t turnHeldTime   = 0;
-        static int32_t lastInputClock = 0;  // MED
-        int32_t const  elapsedTics    = (int32_t) totalclock - lastInputClock;
+        static int32_t turnHeldTime;
+        static int32_t lastInputClock;  // MED
+        int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
 
         lastInputClock = (int32_t) totalclock;
 
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
             turnHeldTime += elapsedTics;
-            input.q16avel -= fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
+            input.q16avel -= fix16_from_float(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1)));
         }
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
             turnHeldTime += elapsedTics;
-            input.q16avel += fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
+            input.q16avel += fix16_from_float(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1)));
         }
         else
-            turnHeldTime=0;
+            turnHeldTime = 0;
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !(pPlayer->movement_lock & 4))
-        input.svel += keyMove;
+    if (localInput.svel < keyMove && localInput.svel > -keyMove)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !(pPlayer->movement_lock & 4))
+            input.svel += keyMove;
 
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !(pPlayer->movement_lock & 8))
-        input.svel += -keyMove;
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !(pPlayer->movement_lock & 8))
+            input.svel += -keyMove;
+    }
 
-    if (buttonMap.ButtonDown(gamefunc_Move_Forward) && !(pPlayer->movement_lock & 1))
-        input.fvel += keyMove;
+    if (localInput.fvel < keyMove && localInput.fvel > -keyMove)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Move_Forward) && !(pPlayer->movement_lock & 1))
+            input.fvel += keyMove;
 
-    if (buttonMap.ButtonDown(gamefunc_Move_Backward) && !(pPlayer->movement_lock & 2))
-        input.fvel += -keyMove;
-
-    input.fvel = clamp(input.fvel, -MAXVEL, MAXVEL);
-    input.svel = clamp(input.svel, -MAXSVEL, MAXSVEL);
-
-    input.q16avel = fix16_clamp(input.q16avel, F16(-MAXANGVEL), F16(MAXANGVEL));
-    input.q16horz = fix16_clamp(input.q16horz, F16(-MAXHORIZ), F16(MAXHORIZ));
+        if (buttonMap.ButtonDown(gamefunc_Move_Backward) && !(pPlayer->movement_lock & 2))
+            input.fvel += -keyMove;
+    }
 
     // Ion Fury does not use the tenth slot and misbehaves if it gets selected.
     int weaponSelection = FURY? gamefunc_Weapon_9 : gamefunc_Weapon_10;
@@ -3037,7 +3051,10 @@ void P_GetInput(int const playerNum)
     else if (weaponSelection == gamefunc_Weapon_1-1)
         weaponSelection = 0;
 
-    localInput.bits = (weaponSelection << SK_WEAPON_BITS) | (buttonMap.ButtonDown(gamefunc_Fire) << SK_FIRE);
+    if ((localInput.bits & 0xf00) == 0)
+        localInput.bits |= (weaponSelection << SK_WEAPON_BITS);
+
+    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Fire) << SK_FIRE);
     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Open) << SK_OPEN);
 
     int const sectorLotag = pPlayer->cursectnum != -1 ? sector[pPlayer->cursectnum].lotag : 0;
@@ -3099,7 +3116,7 @@ void P_GetInput(int const playerNum)
     if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_SEMIAUTO && buttonMap.ButtonDown(gamefunc_Fire))
         buttonMap.ClearButton(gamefunc_Fire);
 
-    localInput.extbits = (buttonMap.ButtonDown(gamefunc_Move_Forward) || (input.fvel > 0));
+    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Move_Forward) || (input.fvel > 0));
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Move_Backward) || (input.fvel < 0)) << 1;
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
@@ -3107,32 +3124,89 @@ void P_GetInput(int const playerNum)
     localInput.extbits |= buttonMap.ButtonDown(gamefunc_Turn_Right)<<5;
     localInput.extbits |= buttonMap.ButtonDown(gamefunc_Alt_Fire)<<6;
 
-    if (ud.scrollmode && ud.overhead_on)
+    if ((ud.scrollmode && ud.overhead_on) || P_CheckLockedMovement(playerNum))
     {
-        ud.folfvel = input.fvel;
-        ud.folavel = fix16_to_int(input.q16avel);
+        if (ud.scrollmode && ud.overhead_on)
+        {
+            ud.folfvel = input.fvel;
+            ud.folavel = fix16_to_int(input.q16avel);
+        }
 
         localInput.fvel = 0;
         localInput.svel = 0;
 
         localInput.q16avel = 0;
         localInput.q16horz = 0;
-
-        return;
+    }
+    else
+    {
+        localInput.q16avel = fix16_add(localInput.q16avel, input.q16avel);
+        localInput.q16horz = fix16_clamp(fix16_add(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
+        localInput.fvel    = clamp(localInput.fvel + input.fvel, -MAXVEL, MAXVEL);
+        localInput.svel    = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
+ 
+        pPlayer->q16ang = fix16_add(pPlayer->q16ang, input.q16avel);
+        pPlayer->q16ang &= 0x7FFFFFF;
+ 
+        pPlayer->q16horiz = fix16_clamp(fix16_add(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
     }
 
-    int16_t const q16ang = fix16_to_int(pPlayer->q16ang);
+    // A horiz diff of 128 equal 45 degrees,
+    // so we convert horiz to 1024 angle units
 
-    localInput.fvel = mulscale9(input.fvel, sintable[(q16ang + 2560) & 2047]) +
-                      mulscale9(input.svel, sintable[(q16ang + 2048) & 2047]) +
-                      (FURY ? 0 : pPlayer->fric.x);
+    if (g_horizAngleAdjust)
+    {
+        float const horizAngle
+        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(g_horizAngleAdjust);
+        pPlayer->q16horiz = F16(100) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f)));
+    }
+    else if (pPlayer->return_to_center > 0 || g_horizRecenter)
+    {
+        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(33) - fix16_div(pPlayer->q16horiz, F16(3)))));
 
-    localInput.svel = mulscale9(input.fvel, sintable[(q16ang + 2048) & 2047]) +
-                      mulscale9(input.svel, sintable[(q16ang + 1536) & 2047]) +
-                      (FURY ? 0 : pPlayer->fric.y);
+        if (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1))
+        {
+            pPlayer->q16horiz = F16(100);
+            g_horizRecenter   = 0;
+        }
 
-    localInput.q16avel = input.q16avel;
-    localInput.q16horz = input.q16horz;
+        if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
+            pPlayer->q16horizoff = 0;
+    }
+ 
+    // calculates automatic view angle for playing without a mouse
+    if (!pPlayer->aim_mode && pPlayer->on_ground && sectorLotag != ST_2_UNDERWATER && (sector[pPlayer->cursectnum].floorstat & 2))
+    {
+        // this is some kind of horse shit approximation of where the player is looking, I guess?
+        vec2_t const adjustedPosition = { pPlayer->pos.x + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 5),
+                                          pPlayer->pos.y + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 5) };
+        int16_t currentSector = pPlayer->cursectnum;
+ 
+        updatesector(adjustedPosition.x, adjustedPosition.y, &currentSector);
+ 
+        if (currentSector >= 0)
+        {
+            int const slopeZ = getflorzofslope(pPlayer->cursectnum, adjustedPosition.x, adjustedPosition.y);
+            if ((pPlayer->cursectnum == currentSector) || (klabs(getflorzofslope(currentSector, adjustedPosition.x, adjustedPosition.y) - slopeZ) <= ZOFFSET6))
+                pPlayer->q16horizoff += fix16_from_float(scaleAdjustmentToInterval(mulscale16(pPlayer->truefz - slopeZ, 160)));
+        }
+    }
+ 
+    if (pPlayer->q16horizoff > 0)
+    {
+        pPlayer->q16horizoff -= fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_max(pPlayer->q16horizoff, 0);
+    }
+    else if (pPlayer->q16horizoff < 0)
+    {
+        pPlayer->q16horizoff += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
+    }
+ 
+    if (g_horizSkew)
+        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew)));
+ 
+    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
 
 static int32_t P_DoCounters(int playerNum)
@@ -3336,7 +3410,7 @@ access_incs:
 void P_DropWeapon(int const playerNum)
 {
     auto const pPlayer       = g_player[playerNum].ps;
-    int const                 currentWeapon = PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike);
+    int const  currentWeapon = PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike);
 
     if ((unsigned)currentWeapon >= MAX_WEAPONS)
         return;
@@ -4631,6 +4705,9 @@ static void P_ClampZ(DukePlayer_t* const pPlayer, int const sectorLotag, int32_t
 
 void P_ProcessInput(int playerNum)
 {
+    g_horizAngleAdjust = 0;
+    g_horizSkew = 0;
+ 
     if (g_player[playerNum].playerquitflag == 0)
         return;
 
@@ -4717,36 +4794,6 @@ void P_ProcessInput(int playerNum)
 
     pPlayer->oq16horiz    = pPlayer->q16horiz;
     pPlayer->oq16horizoff = pPlayer->q16horizoff;
-
-    // calculates automatic view angle for playing without a mouse
-    if (pPlayer->aim_mode == 0 && pPlayer->on_ground && sectorLotag != ST_2_UNDERWATER
-        && (sector[pPlayer->cursectnum].floorstat & 2))
-    {
-        vec2_t const adjustedPlayer = { pPlayer->pos.x + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 5),
-                                        pPlayer->pos.y + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 5) };
-        int16_t curSectNum = pPlayer->cursectnum;
-
-        updatesector(adjustedPlayer.x, adjustedPlayer.y, &curSectNum);
-
-        if (curSectNum >= 0)
-        {
-            int const slopeZ = getflorzofslope(pPlayer->cursectnum, adjustedPlayer.x, adjustedPlayer.y);
-            if ((pPlayer->cursectnum == curSectNum) ||
-                (klabs(getflorzofslope(curSectNum, adjustedPlayer.x, adjustedPlayer.y) - slopeZ) <= ZOFFSET6))
-                pPlayer->q16horizoff += fix16_from_int(mulscale16(trueFloorZ - slopeZ, 160));
-        }
-    }
-
-    if (pPlayer->q16horizoff > 0)
-    {
-        pPlayer->q16horizoff -= ((pPlayer->q16horizoff >> 3) + fix16_one);
-        pPlayer->q16horizoff = max(pPlayer->q16horizoff, 0);
-    }
-    else if (pPlayer->q16horizoff < 0)
-    {
-        pPlayer->q16horizoff += (((-pPlayer->q16horizoff) >> 3) + fix16_one);
-        pPlayer->q16horizoff = min(pPlayer->q16horizoff, 0);
-    }
 
     if ((highZhit & 49152) == 49152)
     {
@@ -5064,7 +5111,6 @@ void P_ProcessInput(int playerNum)
                             A_PlaySound(DUKE_LAND, pPlayer->i);
 #endif
                     }
-                    pPlayer->on_ground = 1;
                 }
                 else
                     pPlayer->on_ground = 0;
@@ -5078,7 +5124,10 @@ void P_ProcessInput(int playerNum)
 
             if ((sectorLotag != ST_1_ABOVE_WATER && sectorLotag != ST_2_UNDERWATER) &&
                 (pPlayer->on_ground == 0 && pPlayer->vel.z > (ACTOR_MAXFALLINGZVEL >> 1)))
-                pPlayer->hard_landing = pPlayer->vel.z>>10;
+            {
+                pPlayer->hard_landing = pPlayer->vel.z >> 10;
+            }
+
 
             pPlayer->on_ground = 1;
 
@@ -5191,16 +5240,8 @@ void P_ProcessInput(int playerNum)
         pPlayer->vel.x   = 0;
         pPlayer->vel.y   = 0;
     }
-    else if (g_player[playerNum].input->q16avel)            //p->ang += syncangvel * constant
-    {
-        fix16_t const inputAng  = g_player[playerNum].input->q16avel;
-
-        pPlayer->q16angvel     = (sectorLotag == ST_2_UNDERWATER) ? fix16_mul(inputAng - (inputAng >> 3), fix16_from_int(ksgn(velocityModifier)))
-                                                               : fix16_mul(inputAng, fix16_from_int(ksgn(velocityModifier)));
-        pPlayer->q16ang       += pPlayer->q16angvel;
-        pPlayer->q16ang       &= 0x7FFFFFF;
+    else if (g_player[playerNum].input->q16avel)
         pPlayer->crack_time = PCRACKTIME;
-    }
 
     if (pPlayer->spritebridge == 0)
     {
@@ -5467,24 +5508,22 @@ RECHECK:
             G_ActivateBySector(pPlayer->cursectnum, pPlayer->i);
     }
 
-    int centerHoriz = 0;
+    if (pPlayer->return_to_center > 0)
+    {
+        pPlayer->return_to_center--;
+        g_horizRecenter = true;
+    }
 
     if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
-        if (VM_OnEvent(EVENT_RETURNTOCENTER,pPlayer->i,playerNum) == 0)
+        if (VM_OnEvent(EVENT_RETURNTOCENTER, pPlayer->i,playerNum) == 0)
             pPlayer->return_to_center = 9;
-
-    // A horiz diff of 128 equal 45 degrees,
-    // so we convert horiz to 1024 angle units
-
-    float horizAngle = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + fix16_to_float(g_player[playerNum].input->q16horz);
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
     {
         if (VM_OnEvent(EVENT_LOOKUP,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            horizAngle += float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-            centerHoriz++;
+            g_horizAngleAdjust = float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         }
     }
 
@@ -5493,8 +5532,7 @@ RECHECK:
         if (VM_OnEvent(EVENT_LOOKDOWN,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            horizAngle -= float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-            centerHoriz++;
+            g_horizAngleAdjust = -float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         }
     }
 
@@ -5502,8 +5540,8 @@ RECHECK:
     {
         if (VM_OnEvent(EVENT_AIMUP,pPlayer->i,playerNum) == 0)
         {
-            horizAngle += float(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-            centerHoriz++;
+            g_horizAngleAdjust = float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            g_horizRecenter    = false;
         }
     }
 
@@ -5511,34 +5549,16 @@ RECHECK:
     {
         if (VM_OnEvent(EVENT_AIMDOWN,pPlayer->i,playerNum) == 0)
         {
-            horizAngle -= float(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-            centerHoriz++;
+            g_horizAngleAdjust = -float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            g_horizRecenter    = false;
         }
-    }
-
-    horizAngle = clamp(horizAngle, -255.f, 255.f);  // keep the angle within ]-90°..90°[
-    pPlayer->q16horiz = F16(100) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f)));
-
-    if (pPlayer->return_to_center > 0 && !TEST_SYNC_KEY(playerBits, SK_LOOK_UP) && !TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
-    {
-        pPlayer->return_to_center--;
-        pPlayer->q16horiz += F16(33)-fix16_div(pPlayer->q16horiz, F16(3));
-        centerHoriz++;
     }
 
     if (pPlayer->hard_landing > 0)
     {
+        g_horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
         pPlayer->hard_landing--;
-        pPlayer->q16horiz -= fix16_from_int(pPlayer->hard_landing<<4);
     }
-
-    if (centerHoriz)
-    {
-        if (pPlayer->q16horiz > F16(95) && pPlayer->q16horiz < F16(105)) pPlayer->q16horiz = F16(100);
-        if (pPlayer->q16horizoff > F16(-5) && pPlayer->q16horizoff < F16(5)) pPlayer->q16horizoff = 0;
-    }
-
-    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
     //Shooting code/changes
 
@@ -5565,7 +5585,7 @@ RECHECK:
 #ifndef EDUKE32_STANDALONE
     if (!FURY && pPlayer->knee_incs > 0)
     {
-        pPlayer->q16horiz -= F16(48);
+        g_horizSkew = F16(-48);
         pPlayer->return_to_center = 9;
 
         if (++pPlayer->knee_incs > 15)
