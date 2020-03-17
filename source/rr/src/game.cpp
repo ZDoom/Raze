@@ -7409,8 +7409,8 @@ MAIN_LOOP_RESTART:
                     P_GetInput(myconnectindex);
 
                 // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
-                auto const    pPlayer = g_player[myconnectindex].ps;
-                int16_t const q16ang  = fix16_to_int(pPlayer->q16ang);
+                auto const pPlayer = g_player[myconnectindex].ps;
+                auto const q16ang  = fix16_to_int(pPlayer->q16ang);
                 auto &     input   = inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex];
 
                 input = localInput;
