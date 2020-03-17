@@ -228,9 +228,14 @@ typedef struct {
 } DukePlayer_t;
 
 // KEEPINSYNC lunatic/_defs_game.lua
-typedef struct {
+typedef struct
+{
     DukePlayer_t *ps;
     input_t *input;
+
+    bool    horizRecenter;
+    float   horizAngleAdjust;
+    fix16_t horizSkew;
 
     int32_t movefifoend, syncvalhead, myminlag;
     int32_t pcolor, pteam;
