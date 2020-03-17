@@ -3574,7 +3574,7 @@ void P_HandleSharedKeys(int playerNum)
 
     if (pPlayer->cheat_phase == 1) return;
 
-    uint32_t playerBits = g_player[playerNum].inputBits->bits;
+    uint32_t playerBits = g_player[playerNum].input->bits;
     int32_t weaponNum;
 
     // 1<<0  =  jump
@@ -4375,7 +4375,7 @@ void P_CheckSectors(int playerNum)
     if (pPlayer->gm &MODE_TYPE || sprite[pPlayer->i].extra <= 0)
         return;
 
-    if (ud.cashman && TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_OPEN))
+    if (ud.cashman && TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_OPEN))
     {
         if (RR && !RRRA)
             g_canSeePlayer = -1;
@@ -4384,14 +4384,14 @@ void P_CheckSectors(int playerNum)
 
     if (!RR && pPlayer->newowner >= 0)
     {
-        if (klabs(g_player[playerNum].inputBits->svel) > 768 || klabs(g_player[playerNum].inputBits->fvel) > 768)
+        if (klabs(g_player[playerNum].input->svel) > 768 || klabs(g_player[playerNum].input->fvel) > 768)
         {
             G_ClearCameras(pPlayer);
             return;
         }
     }
 
-    if (!TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_OPEN) && !TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_ESCAPE))
+    if (!TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_OPEN) && !TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_ESCAPE))
         pPlayer->toggle_key_flag = 0;
     else if (!pPlayer->toggle_key_flag)
     {
@@ -4400,7 +4400,7 @@ void P_CheckSectors(int playerNum)
         int16_t nearSector, nearWall, nearSprite;
         int32_t nearDist;
 
-        if (!RR && TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_ESCAPE))
+        if (!RR && TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_ESCAPE))
         {
             if (pPlayer->newowner >= 0)
                 G_ClearCameras(pPlayer);
@@ -4729,7 +4729,7 @@ void P_CheckSectors(int playerNum)
             }  // switch
         }
 
-        if (TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_OPEN) == 0)
+        if (TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_OPEN) == 0)
             return;
 
         if (!RR && pPlayer->newowner >= 0)

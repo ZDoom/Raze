@@ -2398,7 +2398,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 int const moveFlags  = *(++insptr);
                 int       nResult    = 0;
                 int const playerXVel = sprite[pPlayer->i].xvel;
-                int const syncBits   = g_player[vm.playerNum].inputBits->bits;
+                int const syncBits   = g_player[vm.playerNum].input->bits;
 
                 if (((moveFlags & pducking) && pPlayer->on_ground && (TEST_SYNC_KEY(syncBits, SK_CROUCH) ^ vm.pPlayer->crouch_toggle))
                     || ((moveFlags & pfalling) && pPlayer->jumping_counter == 0 && !pPlayer->on_ground && pPlayer->vel.z > 2048)
@@ -2469,7 +2469,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 VM_CONDITIONAL(((vm.pActor->floorz - vm.pActor->ceilingz) >> 8) < *insptr);
                 continue;
 
-            case CON_IFHITSPACE: VM_CONDITIONAL(TEST_SYNC_KEY(g_player[vm.playerNum].inputBits->bits, SK_OPEN)); continue;
+            case CON_IFHITSPACE: VM_CONDITIONAL(TEST_SYNC_KEY(g_player[vm.playerNum].input->bits, SK_OPEN)); continue;
 
             case CON_IFOUTSIDE:
                 if (DEER)
