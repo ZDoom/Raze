@@ -3175,13 +3175,10 @@ static int P_CheckLockedMovement(int const playerNum)
                 && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)));
 }
 
-static bool g_horizRecenter;
-static float g_horizAngleAdjust;
-static fix16_t g_horizSkew;
-
 void P_GetInput(int const playerNum)
 {
-    auto const pPlayer = g_player[playerNum].ps;
+    auto      &thisPlayer = g_player[playerNum];
+    auto const pPlayer    = thisPlayer.ps;
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -3473,23 +3470,22 @@ void P_GetInput(int const playerNum)
         pPlayer->q16horiz = fix16_clamp(fix16_add(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
     }
 
-    // A horiz diff of 128 equal 45 degrees,
-    // so we convert horiz to 1024 angle units
+    // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
 
-    if (g_horizAngleAdjust)
+    if (thisPlayer.horizAngleAdjust)
     {
         float const horizAngle
-        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(g_horizAngleAdjust);
+        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(thisPlayer.horizAngleAdjust);
         pPlayer->q16horiz = F16(100) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f)));
     }
-    else if (pPlayer->return_to_center > 0 || g_horizRecenter)
+    else if (pPlayer->return_to_center > 0 || thisPlayer.horizRecenter)
     {
         pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
 
-        if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
+        if ((!pPlayer->return_to_center && thisPlayer.horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
             pPlayer->q16horiz = F16(100);
-            g_horizRecenter   = false;
+            thisPlayer.horizRecenter = false;
         }
 
         if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
@@ -3525,15 +3521,16 @@ void P_GetInput(int const playerNum)
         pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
     }
  
-    if (g_horizSkew)
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew))));
+    if (thisPlayer.horizSkew)
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(thisPlayer.horizSkew))));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
 
 void P_GetInputMotorcycle(int playerNum)
 {
-    auto const pPlayer = g_player[playerNum].ps;
+    auto      &thisPlayer = g_player[playerNum];
+    auto const pPlayer    = thisPlayer.ps;
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -3796,23 +3793,22 @@ void P_GetInputMotorcycle(int playerNum)
         pPlayer->q16horiz = fix16_clamp(fix16_add(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
     }
 
-    // A horiz diff of 128 equal 45 degrees,
-    // so we convert horiz to 1024 angle units
+    // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
 
-    if (g_horizAngleAdjust)
+    if (thisPlayer.horizAngleAdjust)
     {
         float const horizAngle
-        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(g_horizAngleAdjust);
+        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(thisPlayer.horizAngleAdjust);
         pPlayer->q16horiz = F16(100) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f)));
     }
-    else if (pPlayer->return_to_center > 0 || g_horizRecenter)
+    else if (pPlayer->return_to_center > 0 || thisPlayer.horizRecenter)
     {
         pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
 
-        if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
+        if ((!pPlayer->return_to_center && thisPlayer.horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
             pPlayer->q16horiz = F16(100);
-            g_horizRecenter   = false;
+            thisPlayer.horizRecenter = false;
         }
 
         if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
@@ -3830,8 +3826,8 @@ void P_GetInputMotorcycle(int playerNum)
         pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
     }
  
-    if (g_horizSkew)
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew))));
+    if (thisPlayer.horizSkew)
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(thisPlayer.horizSkew))));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
@@ -3843,7 +3839,8 @@ void P_GetInputMotorcycle(int playerNum)
 
 void P_GetInputBoat(int playerNum)
 {
-    auto const pPlayer = g_player[playerNum].ps;
+    auto      &thisPlayer = g_player[playerNum];
+    auto const pPlayer    = thisPlayer.ps;
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -4101,20 +4098,20 @@ void P_GetInputBoat(int playerNum)
     // A horiz diff of 128 equal 45 degrees,
     // so we convert horiz to 1024 angle units
 
-    if (g_horizAngleAdjust)
+    if (thisPlayer.horizAngleAdjust)
     {
         float const horizAngle
-        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(g_horizAngleAdjust);
+        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(thisPlayer.horizAngleAdjust);
         pPlayer->q16horiz = F16(100) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f)));
     }
-    else if (pPlayer->return_to_center > 0 || g_horizRecenter)
+    else if (pPlayer->return_to_center > 0 || thisPlayer.horizRecenter)
     {
         pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
 
-        if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
+        if ((!pPlayer->return_to_center && thisPlayer.horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
             pPlayer->q16horiz = F16(100);
-            g_horizRecenter   = false;
+            thisPlayer.horizRecenter = false;
         }
 
         if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
@@ -4132,8 +4129,8 @@ void P_GetInputBoat(int playerNum)
         pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
     }
  
-    if (g_horizSkew)
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew))));
+    if (thisPlayer.horizSkew)
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(thisPlayer.horizSkew))));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
@@ -4159,7 +4156,8 @@ int sub_299D8(void)
 
 void P_DHGetInput(int const playerNum)
 {
-    auto const pPlayer = g_player[playerNum].ps;
+    auto      &thisPlayer = g_player[playerNum];
+    auto const pPlayer    = thisPlayer.ps;
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -4312,23 +4310,22 @@ void P_DHGetInput(int const playerNum)
     if (pPlayer->cursectnum >= 0 && sector[pPlayer->cursectnum].hitag == 2003)
         input.fvel >>= 1;
 
-    // A horiz diff of 128 equal 45 degrees,
-    // so we convert horiz to 1024 angle units
+    // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
 
-    if (g_horizAngleAdjust)
+    if (thisPlayer.horizAngleAdjust)
     {
         float const horizAngle
-        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(g_horizAngleAdjust);
+        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(thisPlayer.horizAngleAdjust);
         pPlayer->q16horiz = F16(100) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f)));
     }
-    else if (pPlayer->return_to_center > 0 || g_horizRecenter)
+    else if (pPlayer->return_to_center > 0 || thisPlayer.horizRecenter)
     {
         pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
 
-        if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
+        if ((!pPlayer->return_to_center && thisPlayer.horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
             pPlayer->q16horiz = F16(100);
-            g_horizRecenter   = false;
+            thisPlayer.horizRecenter = false;
         }
 
         if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
@@ -4346,8 +4343,8 @@ void P_DHGetInput(int const playerNum)
         pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
     }
  
-    if (g_horizSkew)
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew))));
+    if (thisPlayer.horizSkew)
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(thisPlayer.horizSkew))));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
  
@@ -7122,23 +7119,25 @@ static void P_HandlePal(DukePlayer_t *const pPlayer)
 
 void P_ProcessInput(int playerNum)
 {
-    g_horizAngleAdjust = 0;
-    g_horizSkew = 0;
+    auto &thisPlayer = g_player[playerNum];
+
+    thisPlayer.horizAngleAdjust = 0;
+    thisPlayer.horizSkew = 0;
 
     if (DEER)
     {
         P_DHProcessInput(playerNum);
         return;
     }
-    if (g_player[playerNum].playerquitflag == 0)
+    if (thisPlayer.playerquitflag == 0)
         return;
 
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-    spritetype *const   pSprite = &sprite[pPlayer->i];
+    auto const pPlayer = thisPlayer.ps;
+    auto const pSprite = &sprite[pPlayer->i];
 
     ++pPlayer->player_par;
 
-    uint32_t playerBits = g_player[playerNum].input->bits;
+    uint32_t playerBits = thisPlayer.input->bits;
 
     if (RR)
     {
@@ -8353,7 +8352,7 @@ check_enemy_sprite:
         pPlayer->vel.x   = 0;
         pPlayer->vel.y   = 0;
     }
-    else if (g_player[playerNum].input->q16avel)
+    else if (thisPlayer.input->q16avel)
         pPlayer->crack_time = 777;
 
     if (pPlayer->spritebridge == 0)
@@ -8466,8 +8465,8 @@ check_enemy_sprite:
         if (pPlayer->jetpack_on == 0 && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
             velocityModifier <<= 1;
 
-        pPlayer->vel.x += (((g_player[playerNum].input->fvel) * velocityModifier) << 6);
-        pPlayer->vel.y += (((g_player[playerNum].input->svel) * velocityModifier) << 6);
+        pPlayer->vel.x += (((thisPlayer.input->fvel) * velocityModifier) << 6);
+        pPlayer->vel.y += (((thisPlayer.input->svel) * velocityModifier) << 6);
 
         int playerSpeedReduction = 0;
         
@@ -8900,7 +8899,8 @@ HORIZONLY:;
         if (VM_OnEvent(EVENT_LOOKUP, pPlayer->i, playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            g_horizAngleAdjust = float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            thisPlayer.horizRecenter = true;
+            thisPlayer.horizAngleAdjust = float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         }
     }
     else if (TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
@@ -8908,23 +8908,24 @@ HORIZONLY:;
         if (VM_OnEvent(EVENT_LOOKDOWN,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            g_horizAngleAdjust = -float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            thisPlayer.horizRecenter = true;
+            thisPlayer.horizAngleAdjust = -float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         }
     }
     else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && (!RRRA || !pPlayer->on_motorcycle))
     {
         if (VM_OnEvent(EVENT_AIMUP,pPlayer->i,playerNum) == 0)
         {
-            g_horizAngleAdjust = float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-            g_horizRecenter    = false;
+            thisPlayer.horizAngleAdjust = float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            thisPlayer.horizRecenter    = false;
         }
     }
     else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && (!RRRA || !pPlayer->on_motorcycle))
     {
         if (VM_OnEvent(/*EVENT_AIMDOWN*/EVENT_AIMUP,pPlayer->i,playerNum) == 0) // changed to allow the constant to be reused in EDuke.
         {
-            g_horizAngleAdjust = -float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-            g_horizRecenter    = false;
+            thisPlayer.horizAngleAdjust = -float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            thisPlayer.horizRecenter    = false;
         }
     }
     if (RR && pPlayer->recoil && *weaponFrame == 0)
@@ -8937,7 +8938,7 @@ HORIZONLY:;
 
     if (pPlayer->hard_landing > 0)
     {
-        g_horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
+        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
         pPlayer->hard_landing--;
     }
 
@@ -8967,8 +8968,8 @@ HORIZONLY:;
 
     if (pPlayer->knee_incs > 0)
     {
-        g_horizSkew = F16(-48);
-        g_horizRecenter = true;
+        thisPlayer.horizSkew = F16(-48);
+        thisPlayer.horizRecenter = true;
         pPlayer->return_to_center = 9;
 
         if (++pPlayer->knee_incs > 15)
@@ -9051,18 +9052,20 @@ HORIZONLY:;
 
 void P_DHProcessInput(int playerNum)
 {
-    g_horizAngleAdjust = 0;
-    g_horizSkew = 0;
+    auto &thisPlayer = g_player[playerNum];
 
-    if (g_player[playerNum].playerquitflag == 0)
+    thisPlayer.horizAngleAdjust = 0;
+    thisPlayer.horizSkew = 0;
+
+    if (thisPlayer.playerquitflag == 0)
         return;
 
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-    spritetype *const   pSprite = &sprite[pPlayer->i];
+    auto const pPlayer = thisPlayer.ps;
+    auto const pSprite = &sprite[pPlayer->i];
 
     ++pPlayer->player_par;
 
-    uint32_t playerBits = g_player[playerNum].input->bits;
+    uint32_t playerBits = thisPlayer.input->bits;
 
     pSprite->cstat = 0;
 
@@ -9407,7 +9410,7 @@ void P_DHProcessInput(int playerNum)
         pPlayer->vel.x   = 0;
         pPlayer->vel.y   = 0;
     }
-    else if (g_player[playerNum].input->q16avel)
+    else if (thisPlayer.input->q16avel)
         pPlayer->crack_time = 777;
 
     if (pPlayer->vel.x || pPlayer->vel.y || g_player[playerNum].input->fvel || g_player[playerNum].input->svel)
@@ -9416,8 +9419,8 @@ void P_DHProcessInput(int playerNum)
 
         pPlayer->not_on_water = 1;
 
-        pPlayer->vel.x += (((g_player[playerNum].input->fvel) * velocityModifier) << 6);
-        pPlayer->vel.y += (((g_player[playerNum].input->svel) * velocityModifier) << 6);
+        pPlayer->vel.x += (((thisPlayer.input->fvel) * velocityModifier) << 6);
+        pPlayer->vel.y += (((thisPlayer.input->svel) * velocityModifier) << 6);
 
         pPlayer->vel.x = mulscale16(pPlayer->vel.x, pPlayer->runspeed);
         pPlayer->vel.y = mulscale16(pPlayer->vel.y, pPlayer->runspeed);
@@ -9547,24 +9550,24 @@ void P_DHProcessInput(int playerNum)
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
     {
         pPlayer->return_to_center = 9;
-        g_horizRecenter = true;
-        g_horizAngleAdjust = float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        thisPlayer.horizRecenter = true;
+        thisPlayer.horizAngleAdjust = float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
     }
     else if (TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
     {
         pPlayer->return_to_center = 9;
-        g_horizRecenter = true;
-        g_horizAngleAdjust = -float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        thisPlayer.horizRecenter = true;
+        thisPlayer.horizAngleAdjust = -float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
     }
     else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && !pPlayer->on_motorcycle)
     {
-        g_horizAngleAdjust = float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-        g_horizRecenter    = false;
+        thisPlayer.horizAngleAdjust = float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        thisPlayer.horizRecenter    = false;
     }
     else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && !pPlayer->on_motorcycle)
     {
-        g_horizAngleAdjust = -float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
-        g_horizRecenter    = false;
+        thisPlayer.horizAngleAdjust = -float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+        thisPlayer.horizRecenter    = false;
     }
     if (RR && pPlayer->recoil && *weaponFrame == 0)
     {
@@ -9576,7 +9579,7 @@ void P_DHProcessInput(int playerNum)
 
     if (pPlayer->hard_landing > 0)
     {
-        g_horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
+        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
         pPlayer->hard_landing--;
     }
 
