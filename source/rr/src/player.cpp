@@ -3484,12 +3484,12 @@ void P_GetInput(int const playerNum)
     }
     else if (pPlayer->return_to_center > 0 || g_horizRecenter)
     {
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(33) - fix16_div(pPlayer->q16horiz, F16(3)))));
+        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_div(pPlayer->q16horiz, F16(1.5)))));
 
-        if (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1))
+        if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
             pPlayer->q16horiz = F16(100);
-            g_horizRecenter   = 0;
+            g_horizRecenter   = false;
         }
 
         if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
@@ -3807,12 +3807,12 @@ void P_GetInputMotorcycle(int playerNum)
     }
     else if (pPlayer->return_to_center > 0 || g_horizRecenter)
     {
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(33) - fix16_div(pPlayer->q16horiz, F16(3)))));
+        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_div(pPlayer->q16horiz, F16(1.5)))));
 
-        if (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1))
+        if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
             pPlayer->q16horiz = F16(100);
-            g_horizRecenter   = 0;
+            g_horizRecenter   = false;
         }
 
         if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
@@ -4109,12 +4109,12 @@ void P_GetInputBoat(int playerNum)
     }
     else if (pPlayer->return_to_center > 0 || g_horizRecenter)
     {
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(33) - fix16_div(pPlayer->q16horiz, F16(3)))));
+        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_div(pPlayer->q16horiz, F16(1.5)))));
 
-        if (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1))
+        if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
             pPlayer->q16horiz = F16(100);
-            g_horizRecenter   = 0;
+            g_horizRecenter   = false;
         }
 
         if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
@@ -4323,12 +4323,12 @@ void P_DHGetInput(int const playerNum)
     }
     else if (pPlayer->return_to_center > 0 || g_horizRecenter)
     {
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(33) - fix16_div(pPlayer->q16horiz, F16(3)))));
+        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_div(pPlayer->q16horiz, F16(1.5)))));
 
-        if (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1))
+        if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
             pPlayer->q16horiz = F16(100);
-            g_horizRecenter   = 0;
+            g_horizRecenter   = false;
         }
 
         if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
@@ -8892,10 +8892,7 @@ HORIZONLY:;
     }
 
     if (pPlayer->return_to_center > 0)
-    {
         pPlayer->return_to_center--;
-        g_horizRecenter = true;
-    }
 
     if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
         if (VM_OnEvent(EVENT_RETURNTOCENTER, pPlayer->i,playerNum) == 0)
@@ -8974,6 +8971,7 @@ HORIZONLY:;
     if (pPlayer->knee_incs > 0)
     {
         g_horizSkew = F16(-48);
+        g_horizRecenter = true;
         pPlayer->return_to_center = 9;
 
         if (++pPlayer->knee_incs > 15)
@@ -9544,10 +9542,7 @@ void P_DHProcessInput(int playerNum)
     }
 
     if (pPlayer->return_to_center > 0)
-    {
         pPlayer->return_to_center--;
-        g_horizRecenter = true;
-    }
 
     if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
         pPlayer->return_to_center = 9;
@@ -9555,11 +9550,13 @@ void P_DHProcessInput(int playerNum)
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
     {
         pPlayer->return_to_center = 9;
+        g_horizRecenter = true;
         g_horizAngleAdjust = float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
     }
     else if (TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
     {
         pPlayer->return_to_center = 9;
+        g_horizRecenter = true;
         g_horizAngleAdjust = -float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
     }
     else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && !pPlayer->on_motorcycle)
