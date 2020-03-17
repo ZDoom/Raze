@@ -3232,18 +3232,18 @@ void P_GetInput(int const playerNum)
     }
     else
     {
-        input.q16avel += fix16_div(fix16_from_int(info.mousex), F16(32));
-        input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
+        input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
     }
 
     if (mouseaim)
-        input.q16horz += fix16_div(fix16_from_int(info.mousey), F16(64));
+        input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), F16(64)));
     else
         input.fvel = -(info.mousey >> 3);
 
     if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-    input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
@@ -3277,12 +3277,12 @@ void P_GetInput(int const playerNum)
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
             turnHeldTime += elapsedTics;
-            input.q16avel -= fix16_from_float(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1)));
+            input.q16avel = fix16_ssub(input.q16avel, fix16_from_float(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1))));
         }
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
             turnHeldTime += elapsedTics;
-            input.q16avel += fix16_from_float(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1)));
+            input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1))));
         }
         else
             turnHeldTime = 0;
@@ -3462,12 +3462,12 @@ void P_GetInput(int const playerNum)
     }
     else
     {
-        localInput.q16avel = fix16_add(localInput.q16avel, input.q16avel);
-        localInput.q16horz = fix16_clamp(fix16_add(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
+        localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+        localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
         localInput.fvel    = clamp(localInput.fvel + input.fvel, -MAXVEL, MAXVEL);
         localInput.svel    = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
 
-        pPlayer->q16ang = fix16_add(pPlayer->q16ang, input.q16avel);
+        pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, input.q16avel);
         pPlayer->q16ang &= 0x7FFFFFF;
 
         pPlayer->q16horiz = fix16_clamp(fix16_add(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
@@ -3484,7 +3484,7 @@ void P_GetInput(int const playerNum)
     }
     else if (pPlayer->return_to_center > 0 || g_horizRecenter)
     {
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_div(pPlayer->q16horiz, F16(1.5)))));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
 
         if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
@@ -3510,23 +3510,23 @@ void P_GetInput(int const playerNum)
         {
             int const slopeZ = getflorzofslope(pPlayer->cursectnum, adjustedPosition.x, adjustedPosition.y);
             if ((pPlayer->cursectnum == currentSector) || (klabs(getflorzofslope(currentSector, adjustedPosition.x, adjustedPosition.y) - slopeZ) <= ZOFFSET6))
-                pPlayer->q16horizoff += fix16_from_float(scaleAdjustmentToInterval(mulscale16(pPlayer->truefz - slopeZ, 160)));
+                pPlayer->q16horizoff = fix16_sadd(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(mulscale16(pPlayer->truefz - slopeZ, 160))));
         }
     }
  
     if (pPlayer->q16horizoff > 0)
     {
-        pPlayer->q16horizoff -= fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_ssub(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pPlayer->q16horizoff >> 3) + fix16_one))));
         pPlayer->q16horizoff = fix16_max(pPlayer->q16horizoff, 0);
     }
     else if (pPlayer->q16horizoff < 0)
     {
-        pPlayer->q16horizoff += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_sadd(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one))));
         pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
     }
  
     if (g_horizSkew)
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew)));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew))));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
@@ -3569,14 +3569,14 @@ void P_GetInputMotorcycle(int playerNum)
 
     input_t input {};
 
-    input.q16avel += fix16_div(fix16_from_int(info.mousex), F16(32));
-    input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
+    input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
 
-    input.q16horz += fix16_div(fix16_from_int(info.mousey), F16(64));
+    input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), F16(64)));
 
     if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-    input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
@@ -3785,12 +3785,12 @@ void P_GetInputMotorcycle(int playerNum)
     }
     else
     {
-        localInput.q16avel = fix16_add(localInput.q16avel, input.q16avel);
-        localInput.q16horz = fix16_clamp(fix16_add(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
+        localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+        localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
         localInput.fvel    = clamp(localInput.fvel + input.fvel, -15, 120);
         localInput.svel    = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
 
-        pPlayer->q16ang = fix16_add(pPlayer->q16ang, input.q16avel);
+        pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, input.q16avel);
         pPlayer->q16ang &= 0x7FFFFFF;
 
         pPlayer->q16horiz = fix16_clamp(fix16_add(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
@@ -3807,7 +3807,7 @@ void P_GetInputMotorcycle(int playerNum)
     }
     else if (pPlayer->return_to_center > 0 || g_horizRecenter)
     {
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_div(pPlayer->q16horiz, F16(1.5)))));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
 
         if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
@@ -3821,17 +3821,17 @@ void P_GetInputMotorcycle(int playerNum)
  
     if (pPlayer->q16horizoff > 0)
     {
-        pPlayer->q16horizoff -= fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_ssub(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pPlayer->q16horizoff >> 3) + fix16_one))));
         pPlayer->q16horizoff = fix16_max(pPlayer->q16horizoff, 0);
     }
     else if (pPlayer->q16horizoff < 0)
     {
-        pPlayer->q16horizoff += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_sadd(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one))));
         pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
     }
  
     if (g_horizSkew)
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew)));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew))));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
@@ -3879,14 +3879,14 @@ void P_GetInputBoat(int playerNum)
 
     input_t input {};
 
-    input.q16avel += fix16_div(fix16_from_int(info.mousex), F16(32));
-    input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
+    input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
 
-    input.q16horz += fix16_div(fix16_from_int(info.mousey), F16(64));
+    input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), F16(64)));
 
     if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-    input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
@@ -4087,12 +4087,12 @@ void P_GetInputBoat(int playerNum)
     }
     else
     {
-        localInput.q16avel = fix16_add(localInput.q16avel, input.q16avel);
-        localInput.q16horz = fix16_clamp(fix16_add(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
+        localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+        localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
         localInput.fvel    = clamp(localInput.fvel + input.fvel, -15, 120);
         localInput.svel    = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
 
-        pPlayer->q16ang = fix16_add(pPlayer->q16ang, input.q16avel);
+        pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, input.q16avel);
         pPlayer->q16ang &= 0x7FFFFFF;
 
         pPlayer->q16horiz = fix16_clamp(fix16_add(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
@@ -4109,7 +4109,7 @@ void P_GetInputBoat(int playerNum)
     }
     else if (pPlayer->return_to_center > 0 || g_horizRecenter)
     {
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_div(pPlayer->q16horiz, F16(1.5)))));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
 
         if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
@@ -4123,17 +4123,17 @@ void P_GetInputBoat(int playerNum)
  
     if (pPlayer->q16horizoff > 0)
     {
-        pPlayer->q16horizoff -= fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_ssub(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pPlayer->q16horizoff >> 3) + fix16_one))));
         pPlayer->q16horizoff = fix16_max(pPlayer->q16horizoff, 0);
     }
     else if (pPlayer->q16horizoff < 0)
     {
-        pPlayer->q16horizoff += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_sadd(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one))));
         pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
     }
  
     if (g_horizSkew)
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew)));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew))));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
@@ -4202,18 +4202,18 @@ void P_DHGetInput(int const playerNum)
     }
     else
     {
-        input.q16avel += fix16_div(fix16_from_int(info.mousex), F16(32));
-        input.q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
+        input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
     }
 
     if (mouseaim)
-        input.q16horz += fix16_div(fix16_from_int(info.mousey), F16(64));
+        input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), F16(64)));
     else
         input.fvel = -(info.mousey >> 3);
 
     if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-    input.q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
@@ -4247,12 +4247,12 @@ void P_DHGetInput(int const playerNum)
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
             turnHeldTime += elapsedTics;
-            input.q16avel -= fix16_from_float(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1)));
+            input.q16avel = fix16_ssub(input.q16avel, fix16_from_float(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1))));
         }
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
             turnHeldTime += elapsedTics;
-            input.q16avel += fix16_from_float(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1)));
+            input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1))));
         }
         else
             turnHeldTime = 0;
@@ -4323,7 +4323,7 @@ void P_DHGetInput(int const playerNum)
     }
     else if (pPlayer->return_to_center > 0 || g_horizRecenter)
     {
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_div(pPlayer->q16horiz, F16(1.5)))));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
 
         if ((!pPlayer->return_to_center && g_horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
@@ -4337,17 +4337,17 @@ void P_DHGetInput(int const playerNum)
 
     if (pPlayer->q16horizoff > 0)
     {
-        pPlayer->q16horizoff -= fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_ssub(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pPlayer->q16horizoff >> 3) + fix16_one))));
         pPlayer->q16horizoff = fix16_max(pPlayer->q16horizoff, 0);
     }
     else if (pPlayer->q16horizoff < 0)
     {
-        pPlayer->q16horizoff += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one)));
+        pPlayer->q16horizoff = fix16_sadd(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one))));
         pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
     }
  
     if (g_horizSkew)
-        pPlayer->q16horiz += fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew)));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(g_horizSkew))));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
  
