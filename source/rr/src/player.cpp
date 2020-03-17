@@ -8163,7 +8163,6 @@ check_enemy_sprite:
                 pPlayer->pos.z = floorZ - (floorZOffset << 8);
             else
             {
-                pPlayer->on_ground = 0;
                 if (RRRA && (pPlayer->on_motorcycle || pPlayer->on_boat) && floorZ - (floorZOffset << 9) > pPlayer->pos.z)
                 {
                     if (pPlayer->moto_on_ground)
@@ -8239,7 +8238,10 @@ check_enemy_sprite:
                             pPlayer->moto_turb = 12;
                         }
                     }
+                    pPlayer->on_ground = 1;
                 }
+                else
+                    pPlayer->on_ground = 0;
             }
         }
         else
