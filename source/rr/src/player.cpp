@@ -3260,10 +3260,10 @@ void P_GetInput(int const playerNum)
         if (!localInput.svel)
         {
             if (buttonMap.ButtonDown(gamefunc_Turn_Left) && !(pPlayer->movement_lock & 4) && !localInput.svel)
-                input.svel = -keyMove;
+                input.svel = keyMove;
 
             if (buttonMap.ButtonDown(gamefunc_Turn_Right) && !(pPlayer->movement_lock & 8) && !localInput.svel)
-                input.svel = keyMove;
+                input.svel = -keyMove;
         }
     }
     else
@@ -4246,10 +4246,10 @@ void P_DHGetInput(int const playerNum)
         if (!localInput.svel)
         {
             if (buttonMap.ButtonDown(gamefunc_Turn_Left) && !(pPlayer->movement_lock & 4) && !localInput.svel)
-                input.svel = -keyMove;
+                input.svel = keyMove;
 
             if (buttonMap.ButtonDown(gamefunc_Turn_Right) && !(pPlayer->movement_lock & 8) && !localInput.svel)
-                input.svel = keyMove;
+                input.svel = -keyMove;
         }
     }
     else
