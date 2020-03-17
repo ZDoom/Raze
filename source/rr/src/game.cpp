@@ -1100,11 +1100,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                          omypos.z + mulscale16(mypos.z - omypos.z, smoothRatio) };
 
                 CAMERA(pos)      = camVect;
-                CAMERA(q16ang)   = omyang
-                                 + mulscale16(((myang + F16(1024) - omyang) & 0x7FFFFFF) - F16(1024), smoothRatio)
-                                 + fix16_from_int(pPlayer->look_ang);
-                CAMERA(q16horiz) = omyhoriz + omyhorizoff
-                                 + mulscale16((myhoriz + myhorizoff - omyhoriz - omyhorizoff), smoothRatio);
+                CAMERA(q16ang)   = myang + fix16_from_int(pPlayer->look_ang);
+                CAMERA(q16horiz) = myhoriz + myhorizoff;
                 CAMERA(sect)     = mycursectnum;
             }
             else
@@ -1114,11 +1111,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                          pPlayer->opos.z + mulscale16(pPlayer->pos.z - pPlayer->opos.z, smoothRatio) };
 
                 CAMERA(pos)      = camVect;
-                CAMERA(q16ang)   = pPlayer->oq16ang
-                                 + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio)
-                                 + fix16_from_int(pPlayer->look_ang);
-                CAMERA(q16horiz) = pPlayer->oq16horiz + pPlayer->oq16horizoff
-                                 + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
+                CAMERA(q16ang)   = pPlayer->q16ang + fix16_from_int(pPlayer->look_ang);
+                CAMERA(q16horiz) = pPlayer->q16horiz + pPlayer->q16horizoff;
             }
 
             if (cl_viewbob)
@@ -7407,7 +7401,6 @@ MAIN_LOOP_RESTART:
 
 	            frameJustDrawn = false;
 
-#ifdef NETCODE_DISABLE
                 if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
                     P_GetInputMotorcycle(myconnectindex);
                 else if (RRRA && g_player[myconnectindex].ps->on_boat)
@@ -7415,14 +7408,25 @@ MAIN_LOOP_RESTART:
                 else
                     P_GetInput(myconnectindex);
 
-                inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex] = localInput;
+                // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
+                auto const    pPlayer = g_player[myconnectindex].ps;
+                int16_t const q16ang  = fix16_to_int(pPlayer->q16ang);
+                auto &     input   = inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex];
+
+                input = localInput;
+                input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
+                             mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]) +
+                             pPlayer->fric.x;
+                input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
+                             mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]) +
+                             pPlayer->fric.y;
+                localInput = {};
+
                 g_player[myconnectindex].movefifoend++;
-#endif
 
 	            do
 	            {
                     if (ready2send == 0) break;
-	                Net_GetInput();
 
 	                ototalclock += TICSPERFRAME;
 
@@ -7469,6 +7473,13 @@ MAIN_LOOP_RESTART:
         }
         else */if (G_FPSLimit())
         {
+            if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+                P_GetInputMotorcycle(myconnectindex);
+            else if (RRRA && g_player[myconnectindex].ps->on_boat)
+                P_GetInputBoat(myconnectindex);
+            else
+                P_GetInput(myconnectindex);
+
             int const smoothRatio = calc_smoothratio(totalclock, ototalclock);
 
             G_DrawRooms(screenpeek, smoothRatio);
