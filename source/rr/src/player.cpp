@@ -7113,7 +7113,6 @@ static void P_Dead(int const playerNum, int const sectorLotag, int const floorZ,
     }
 
     Bmemcpy(&pPlayer->opos, &pPlayer->pos, sizeof(vec3_t));
-    pPlayer->oq16ang = pPlayer->q16ang;
     pPlayer->opyoff = pPlayer->pyoff;
 
     pPlayer->q16horiz = F16(100);
@@ -7769,9 +7768,6 @@ void P_ProcessInput(int playerNum)
     actor[pPlayer->i].floorz   = floorZ;
     actor[pPlayer->i].ceilingz = ceilZ;
 
-    pPlayer->oq16horiz            = pPlayer->q16horiz;
-    pPlayer->oq16horizoff         = pPlayer->q16horizoff;
-
     if (highZhit >= 0 && (highZhit&49152) == 49152)
     {
         highZhit &= (MAXSPRITES-1);
@@ -8050,7 +8046,6 @@ check_enemy_sprite:
     pPlayer->bobpos.y = pPlayer->pos.y;
     pPlayer->opos.z   = pPlayer->pos.z;
     pPlayer->opyoff   = pPlayer->pyoff;
-    pPlayer->oq16ang    = pPlayer->q16ang;
 
     if (pPlayer->one_eighty_count < 0)
     {
@@ -9121,9 +9116,6 @@ void P_DHProcessInput(int playerNum)
     actor[pPlayer->i].floorz   = floorZ;
     actor[pPlayer->i].ceilingz = ceilZ;
 
-    pPlayer->oq16horiz            = pPlayer->q16horiz;
-    pPlayer->oq16horizoff         = pPlayer->q16horizoff;
-
     if (pPlayer->q16horizoff > 0)
     {
         pPlayer->q16horizoff -= ((pPlayer->q16horizoff >> 3) + fix16_one);
@@ -9279,7 +9271,6 @@ void P_DHProcessInput(int playerNum)
     pPlayer->bobpos.y = pPlayer->pos.y;
     pPlayer->opos.z   = pPlayer->pos.z;
     pPlayer->opyoff   = pPlayer->pyoff;
-    pPlayer->oq16ang    = pPlayer->q16ang;
 
     if (pPlayer->one_eighty_count < 0)
     {
