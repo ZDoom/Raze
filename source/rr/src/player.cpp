@@ -3167,6 +3167,14 @@ enddisplayweapon:
 int32_t g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
 
+static int P_CheckLockedMovement(int const playerNum)
+{
+    auto const pPlayer = g_player[playerNum].ps;
+    return (pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 || pPlayer->knee_incs > 0
+            || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON && pPlayer->kickback_pic > 1
+                && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)));
+}
+
 void P_GetInput(int playerNum)
 {
     auto const pPlayer = g_player[playerNum].ps;
@@ -8183,9 +8191,7 @@ check_enemy_sprite:
         }
     }
 
-    if (pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 ||
-        pPlayer->knee_incs > 0 || (!RR && pPlayer->curr_weapon == TRIPBOMB_WEAPON &&
-                                   *weaponFrame > 1 && *weaponFrame < 4))
+    if (P_CheckLockedMovement(playerNum))
     {
         velocityModifier = 0;
         pPlayer->vel.x   = 0;
@@ -9258,9 +9264,7 @@ void P_DHProcessInput(int playerNum)
         }
     }
 
-    if (pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 ||
-        pPlayer->knee_incs > 0 || (!RR && pPlayer->curr_weapon == TRIPBOMB_WEAPON &&
-                                   *weaponFrame > 1 && *weaponFrame < 4))
+    if (P_CheckLockedMovement(playerNum))
     {
         velocityModifier = 0;
         pPlayer->vel.x   = 0;
