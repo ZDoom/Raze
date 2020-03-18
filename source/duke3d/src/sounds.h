@@ -29,13 +29,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef sounds_public_h_
 #define sounds_public_h_
 
-#include "dukerr/sounds_common.h"
+#include "sounds_common.h"
 #include "sound/s_soundinternal.h"
 #include "z_music.h"
 
 BEGIN_DUKE_NS
 
 // KEEPINSYNC lunatic/con_lang.lua
+#define MAXSOUNDS           4096
 #define LOUDESTVOLUME       111
 
 enum esound_t

@@ -602,7 +602,6 @@ file( GLOB HEADER_FILES
 	common/rendering/hwrenderer/data/*.h
 	common/rendering/hwrenderer/postprocessing/*.h
 	common/rendering/hwrenderer/utility/*.h
-	dukerr/*.h
 
 	build/src/*.h
 	platform/win32/*.h
@@ -813,9 +812,6 @@ set (PCH_SOURCES
 	common/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
 	common/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
 	common/rendering/hwrenderer/utility/hw_shaderpatcher.cpp
-	
-	dukerr/namesdyn.cpp
-	dukerr/soundsdyn.cpp
 )
 
 macro( use_precompiled_header )
@@ -982,7 +978,6 @@ install(TARGETS ${PROJECT_NAME}
 		DESTINATION ${INSTALL_PATH}
 		COMPONENT "Game executable")
 
-source_group("DukeRR" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/dukerr/.+")
 source_group("Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
 source_group("Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/.+")
 source_group("Core\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")

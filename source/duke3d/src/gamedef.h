@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheats.h"
 #include "common.h"  // tokenlist
 #include "player.h"  // projectile_t
-#include "dukerr/events_defs.h"
+#include "events_defs.h"
 
 
 BEGIN_DUKE_NS

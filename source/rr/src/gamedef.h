@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheats.h"
 #include "common.h"  // tokenlist
 #include "player.h"  // projectile_t
-#include "dukerr/events_defs.h"
 
 BEGIN_RR_NS
 
@@ -81,7 +80,8 @@ extern int32_t g_weaponVarID;     // var ID of "WEAPON"
 extern int32_t g_worksLikeVarID;  // var ID of "WORKSLIKE"
 extern int32_t g_zRangeVarID;     // var ID of "ZRANGE"
 
-extern intptr_t apScriptEvents[MAXEVENTS_RR];
+#include "events_defs.h"
+extern intptr_t apScriptEvents[MAXEVENTS];
 
 extern char g_scriptFileName[BMAX_PATH];
 

@@ -1,4 +1,4 @@
-//-------------------------------------------------------------------------
+﻿//-------------------------------------------------------------------------
 /*
 Copyright (C) 2016 EDuke32 developers and contributors
 
@@ -63,9 +63,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
-extern void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN);
-extern void G_LoadLookups(void);
-
 
 int32_t g_quitDeadline = 0;
 
@@ -78,6 +75,8 @@ int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
 
 int32_t g_Debug = 0;
+
+const char *defaultrtsfilename[GAMECOUNT] = { "DUKE.RTS", "REDNECK.RTS", "REDNECK.RTS", "NAM.RTS", "NAPALM.RTS" };
 
 int32_t g_Shareware = 0;
 
@@ -94,6 +93,30 @@ int32_t g_levelTextTime = 0;
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
 #endif
+
+const char *G_DefaultRtsFile(void)
+{
+    if (DUKE)
+        return defaultrtsfilename[GAME_DUKE];
+    else if (NAPALM)
+    {
+        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAM]))
+            return defaultrtsfilename[GAME_NAM]; // NAM/NAPALM Sharing
+        else
+            return defaultrtsfilename[GAME_NAPALM];
+    }
+    else if (NAM)
+    {
+        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]))
+            return defaultrtsfilename[GAME_NAPALM]; // NAM/NAPALM Sharing
+        else
+            return defaultrtsfilename[GAME_NAM];
+    }
+    else if (RR)
+        return defaultrtsfilename[GAME_RR];
+
+    return defaultrtsfilename[0];
+}
 
 enum gametokens
 {
@@ -1526,7 +1549,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
         actor[i].ceilingz = actor[s_ow].ceilingz;
     }
 
-    actor[i].stayput = actor[i].extra = -1;
+    actor[i].actorstayput = actor[i].extra = -1;
 #ifdef POLYMER
     actor[i].lightId = -1;
 #endif
@@ -1609,7 +1632,7 @@ int A_Spawn(int spriteNum, int tileNum)
         pActor->floorz   = sector[pSprite->sectnum].floorz;
         pActor->ceilingz = sector[pSprite->sectnum].ceilingz;
 
-        pActor->stayput = pActor->extra = -1;
+        pActor->actorstayput = pActor->extra = -1;
 
 #ifdef POLYMER
         pActor->lightId = -1;
@@ -1720,7 +1743,7 @@ default_case:
                     A_Fall(newSprite);
 
                     if (A_CheckSpriteFlags(newSprite, SFLAG_BADGUYSTAYPUT))
-                        pActor->stayput = pSprite->sectnum;
+                        pActor->actorstayput = pSprite->sectnum;
 
                     if (!RR || A_CheckSpriteFlags(newSprite, SFLAG_KILLCOUNT))
                         g_player[myconnectindex].ps->max_actors_killed++;
@@ -2873,7 +2896,7 @@ rrbloodpool_fallthrough:
         case COMMANDERSTAYPUT__STATIC:
         case BOSS4STAYPUT__STATIC:
             if (RR) goto default_case;
-            pActor->stayput = pSprite->sectnum;
+            pActor->actorstayput = pSprite->sectnum;
             fallthrough__;
         case BOSS1__STATIC:
         case BOSS2__STATIC:
@@ -3035,7 +3058,7 @@ rrbloodpool_fallthrough:
         case CHEERSTAYPUT__STATICRR:
         case SBMOVE__STATICRR:
             if ((RRRA && pSprite->picnum == SBMOVE) || (!RRRA && (pSprite->picnum == SBSWIPE || pSprite->picnum == CHEERSTAYPUT))) goto default_case;
-            pActor->stayput = pSprite->sectnum;
+            pActor->actorstayput = pSprite->sectnum;
             fallthrough__;
         case BOULDER__STATICRR:
         case BOULDER1__STATICRR:
@@ -6934,8 +6957,6 @@ static void G_Startup(void)
         G_FatalEngineError();
 
     G_InitDynamicTiles();
-	if (RR) PHEIGHT = PHEIGHT_RR;
-
     G_InitDynamicSounds();
 
     // These depend on having the dynamic tile and/or sound mappings set up:

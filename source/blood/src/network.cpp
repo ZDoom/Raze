@@ -1011,7 +1011,13 @@ void netInitialize(bool bConsole)
         while (numplayers < gNetPlayers)
         {
             handleevents();
-
+#if 0
+            if (quitevent)
+            {
+                netServerDisconnect();
+                QuitGame();
+            }
+#endif
             if (!bConsole && inputState.GetKeyStatus(sc_Escape))
             {
                 netServerDisconnect();
@@ -1168,7 +1174,13 @@ void netInitialize(bool bConsole)
         while (bWaitServer)
         {
             handleevents();
-
+#if 0
+            if (quitevent)
+            {
+                netClientDisconnect();
+                QuitGame();
+            }
+#endif
             if (!bConsole && inputState.GetKeyStatus(sc_Escape))
             {
                 netClientDisconnect();

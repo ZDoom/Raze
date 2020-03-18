@@ -2,13 +2,10 @@
 
 #ifndef NO_NAMESPACE
 
-#define BEGIN_DUKERR_NS namespace DukeRR {
-#define END_DUKERR_NS }
-
-#define BEGIN_DUKE_NS namespace DukeRR{} namespace Duke { using namespace DukeRR;
+#define BEGIN_DUKE_NS namespace Duke {
 #define END_DUKE_NS }
 
-#define BEGIN_RR_NS namespace DukeRR{} namespace Redneck { using namespace DukeRR;
+#define BEGIN_RR_NS namespace Redneck {
 #define END_RR_NS }
 
 #define BEGIN_BLD_NS namespace Blood {
@@ -21,10 +18,7 @@
 #define END_PS_NS }
 
 #else
-
-#define BEGIN_DUKERR_NS
-#define END_DUKERR_NS
-
+	
 #define BEGIN_DUKE_NS
 #define END_DUKE_NS
 

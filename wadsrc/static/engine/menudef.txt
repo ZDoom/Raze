@@ -516,9 +516,9 @@ ImageScroller "CreditsMenu"
 {
 	ifgame(Duke, Nam, WW2GI)
 	{
-		ImageItem "#2504", 990
-		ImageItem "#2505", 991
-		ImageItem "#2506", 992
+		ImageItem "CREDITSTEXT1", 990
+		ImageItem "CREDITSTEXT2", 991
+		ImageItem "CREDITSTEXT3", 992
 		animatedtransition
 		class "Duke.ImageScrollerMenu"
 	}

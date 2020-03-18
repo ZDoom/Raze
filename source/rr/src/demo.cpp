@@ -727,6 +727,8 @@ nextdemo_nomenu:
                     // if fast-forwarding, we must update totalclock
                     totalclock += TICSPERFRAME;
 
+//                    OSD_Printf("t:%d, l+T:%d; cnt:%d, goal:%d%s", totalclock, (lockclock+TICSPERFRAME),
+//                               g_demo_cnt, g_demo_goalCnt, g_demo_cnt>=g_demo_goalCnt?" ":"\n");
                     if (g_demo_cnt>=g_demo_goalCnt)
                     {
                         g_demo_goalCnt = 0;
@@ -812,6 +814,16 @@ nextdemo_nomenu:
 
                     if (g_demo_showStats)
                     {
+    #if 0
+                        if (g_demo_cnt<tmpdifftime)
+                            gametext_center(100, "DIFF");
+
+                        {
+                            char buf[32];
+                            Bsprintf(buf, "RC:%4d  TC:%5d", ud.reccnt, g_demo_cnt);
+                            gametext_center_number(100, buf);
+                        }
+    #endif
                         j=g_demo_cnt/REALGAMETICSPERSEC;
                         Bsprintf(buf, "%02d:%02d", j/60, j%60);
                         gametext_widenumber(18, 16, buf);
@@ -900,6 +912,9 @@ nextdemo_nomenu:
 
             if (foundemo)
             {
+#if KRANDDEBUG
+                krd_print("krandplay.log");
+#endif
 				g_demo_recFilePtr.Close();
             }
 
@@ -915,6 +930,11 @@ nextdemo_nomenu:
     // if we're in the menu, try next demo immediately
     if (g_player[myconnectindex].ps->gm&MODE_MENU)
         goto RECHECK;
+
+#if KRANDDEBUG
+    if (foundemo)
+        krd_print("krandplay.log");
+#endif
 
     // finished playing a demo and not in menu:
     // return so that e.g. the title can be shown

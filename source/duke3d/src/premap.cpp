@@ -37,8 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-extern void G_SetupGlobalPsky(void);
-
 static uint8_t precachehightile[2][(MAXTILES+7)>>3];
 static int32_t g_precacheCount;
 

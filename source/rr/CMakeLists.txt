@@ -13,6 +13,7 @@ set( PCH_SOURCES
 	src/gameexec.cpp
 	src/gamevars.cpp
 	src/global.cpp
+	src/namesdyn.cpp
 	src/net.cpp
 	src/osdcmds.cpp
 	src/player.cpp
@@ -23,6 +24,7 @@ set( PCH_SOURCES
 	src/text.cpp
 	src/sector.cpp
 	src/sounds.cpp
+	src/soundsdyn.cpp
 	src/rrdh.cpp)
 
 add_game_library( rr )

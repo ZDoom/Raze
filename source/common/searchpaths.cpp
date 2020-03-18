@@ -971,35 +971,6 @@ const char* G_ConFile(void)
 	return userConfig.DefaultCon.IsNotEmpty() ? userConfig.DefaultCon.GetChars() : G_DefaultConFile();
 }
 
-const char* G_DefaultRtsFile(void)
-{
-	if (g_gameType & GAMEFLAG_DUKE)
-		return "DUKE.RTS";
-	else if (g_gameType & GAMEFLAG_WW2GI)
-		return "WW2GI.RTS";
-	else if (g_gameType & GAMEFLAG_NAPALM)
-	{
-		if (!fileSystem.FileExists("NAPALM.RTS") && fileSystem.FileExists("NAM.RTS"))
-			return "NAM.RTS";
-		else
-			return "NAPALM.RTS";
-	}
-	else if (g_gameType & GAMEFLAG_NAM)
-	{
-		if (!fileSystem.FileExists("NAM.RTS") && fileSystem.FileExists("NAPALM.RTS"))
-			return "NAPALM.RTS";
-		else
-			return "NAM.RTS";
-	}
-	else if (g_gameType & GAMEFLAG_RRALL)
-		return "REDNECK.RTS";
-	else if (g_gameType & GAMEFLAG_SW)
-		return "SW.RTS";
-
-	return "";
-}
-
-
 
 #if 0
 // Should this be added to the game data collector?

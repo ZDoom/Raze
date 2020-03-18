@@ -15,7 +15,7 @@
 
 
 #include "common.h"
-#include "dukerr/common_game.h"
+#include "common_game.h"
 
 BEGIN_DUKE_NS
 

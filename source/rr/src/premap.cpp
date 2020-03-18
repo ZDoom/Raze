@@ -36,8 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
-extern void G_SetupGlobalPsky(void);
-
 static int32_t g_whichPalForPlayer = 9;
 
 static uint8_t precachehightile[2][MAXTILES>>3];
@@ -828,7 +826,7 @@ void P_ResetPlayer(int playerNum)
     actor[pPlayer->i].cgg          = 0;
     actor[pPlayer->i].movflag      = 0;
     actor[pPlayer->i].tempang      = 0;
-    actor[pPlayer->i].stayput = -1;
+    actor[pPlayer->i].actorstayput = -1;
     actor[pPlayer->i].dispicnum    = 0;
     actor[pPlayer->i].owner        = pPlayer->i;
     actor[pPlayer->i].t_data[4]    = 0;

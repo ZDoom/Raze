@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef namesdyn_h__
 #define namesdyn_h__
 
-BEGIN_DUKERR_NS
+BEGIN_RR_NS
 
 
 #define SECTOREFFECTOR__STATIC 1
@@ -625,7 +625,6 @@ BEGIN_DUKERR_NS
 #define FEM9__STATIC 3450
 #define FOOTPRINT__STATIC 3701
 #define POOP__STATIC 4094
-#define FRAMEEFFECT1_13__STATIC 3999
 #define FRAMEEFFECT1__STATIC 4095
 #define PANNEL3__STATIC 4099
 #define SCREENBREAK14__STATIC 4120
@@ -1312,7 +1311,6 @@ BEGIN_DUKERR_NS
 #define FOOTPRINT__STATICRR -1160
 #define POOP__STATICRR -2998
 #define FRAMEEFFECT1__STATICRR -2999
-#define FRAMEEFFECT1_13__STATICRR -3000
 #define PANNEL3__STATICRR -3005
 #define SCREENBREAK14__STATICRR -3008
 #define SCREENBREAK15__STATICRR -3009
@@ -2731,7 +2729,6 @@ extern int32_t FEM9;
 extern int32_t FOOTPRINT;
 extern int32_t POOP;
 extern int32_t FRAMEEFFECT1;
-extern int32_t FRAMEEFFECT1_13;
 extern int32_t PANNEL3;
 extern int32_t SCREENBREAK14;
 extern int32_t SCREENBREAK15;
@@ -3596,9 +3593,6 @@ extern int32_t CHICKEN_WEAPON;
 
 #define DYNAMICWEAPONMAP(Weaponnum) (DynamicWeaponMap[Weaponnum])
 
-extern int16_t g_blimpSpawnItems[15];
-extern int16_t WeaponPickupSprites[MAX_WEAPONS];
-
-END_DUKERR_NS
+END_RR_NS
 
 #endif // namesdyn_h__

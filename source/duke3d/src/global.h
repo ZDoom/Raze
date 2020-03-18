@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "duke3d.h"
 #include "mmulti.h"
-#include "dukerr/quotes.h"
+#include "quotes.h"
 #include "sector.h"
 #include "sounds.h"
 #include "menu/menu.h"
@@ -177,6 +177,7 @@ extern int32_t g_timerTicsPerSecond;
 extern int32_t g_tripbombRadius;
 extern int32_t g_volumeCnt;
 
+extern int16_t g_blimpSpawnItems[15];
 extern int32_t g_gametypeFlags[MAXGAMETYPES];
 
 

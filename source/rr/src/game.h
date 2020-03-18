@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #include "fix16.h"
+#include "gamedefs.h"
 #include "gamedef.h"
 #include "net.h"
 #include "mmulti.h"
@@ -198,6 +199,9 @@ static inline int Menu_HaveUserMap(void)
 {
     return (boardfilename[0] != 0 && m_level_number == 7 && ud.m_volume_number == 0);
 }
+
+extern const char *defaultrtsfilename[GAMECOUNT];
+extern const char *G_DefaultRtsFile(void);
 
 #ifdef LEGACY_ROR
 extern char ror_protectedsectors[MAXSECTORS];

@@ -66,13 +66,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-extern void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN);
-extern void G_LoadLookups(void);
-
-//////////
-
-
-
 int32_t g_quitDeadline = 0;
 
 int32_t g_cameraDistance = 0, g_cameraClock = 0;
@@ -84,6 +77,10 @@ int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
 
 int32_t g_Debug = 0;
+
+#ifndef EDUKE32_STANDALONE
+static const char *defaultrtsfilename[GAMECOUNT] = { "DUKE.RTS", "NAM.RTS", "NAPALM.RTS", "WW2GI.RTS" };
+#endif
 
 int32_t g_Shareware = 0;
 
@@ -98,6 +95,32 @@ int32_t g_levelTextTime = 0;
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
 #endif
+
+const char *G_DefaultRtsFile(void)
+{
+#ifndef EDUKE32_STANDALONE
+    if (DUKE)
+        return defaultrtsfilename[GAME_DUKE];
+    else if (WW2GI)
+        return defaultrtsfilename[GAME_WW2GI];
+    else if (NAPALM)
+    {
+        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAM]))
+            return defaultrtsfilename[GAME_NAM]; // NAM/NAPALM Sharing
+        else
+            return defaultrtsfilename[GAME_NAPALM];
+    }
+    else if (NAM)
+    {
+        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]))
+            return defaultrtsfilename[GAME_NAPALM]; // NAM/NAPALM Sharing
+        else
+            return defaultrtsfilename[GAME_NAM];
+    }
+#endif
+
+    return "";
+}
 
 enum gametokens
 {
@@ -195,16 +218,6 @@ int32_t A_CheckInventorySprite(spritetype *s)
     }
 }
 
-
-static inline void Duke_ApplySpritePropertiesToTSprite(tspriteptr_t tspr, uspriteptr_t spr)
-{
-    EDUKE32_STATIC_ASSERT(CSTAT_SPRITE_RESERVED1 >> 9 == TSPR_FLAGS_DRAW_LAST);
-    EDUKE32_STATIC_ASSERT(CSTAT_SPRITE_RESERVED4 >> 11 == TSPR_FLAGS_NO_SHADOW);
-    EDUKE32_STATIC_ASSERT(CSTAT_SPRITE_RESERVED5 >> 11 == TSPR_FLAGS_INVISIBLE_WITH_SHADOW);
-
-    auto const cstat = spr->cstat;
-    tspr->clipdist |= ((cstat & CSTAT_SPRITE_RESERVED1) >> 9) | ((cstat & (CSTAT_SPRITE_RESERVED4 | CSTAT_SPRITE_RESERVED5)) >> 11);
-}
 
 
 void G_GameExit(const char *msg)

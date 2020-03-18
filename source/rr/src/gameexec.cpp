@@ -130,7 +130,7 @@ static void VM_DeleteSprite(int const spriteNum, int const playerNum)
     A_DeleteSprite(spriteNum);
 }
 
-intptr_t apScriptEvents[MAXEVENTS_RR];
+intptr_t apScriptEvents[MAXEVENTS];
 static uspritetype dummy_sprite;
 static actor_t     dummy_actor;
 
@@ -1389,7 +1389,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     vm.pActor->timetosleep = SLEEPTIME;
                 continue;
 
-            case CON_IFACTORNOTSTAYPUT: VM_CONDITIONAL(vm.pActor->stayput == -1); continue;
+            case CON_IFACTORNOTSTAYPUT: VM_CONDITIONAL(vm.pActor->actorstayput == -1); continue;
 
             case CON_IFCANSEE:
             {
@@ -1911,7 +1911,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 }
                 else P_AddKills(pPlayer, *insptr);
                 insptr++;
-                vm.pActor->stayput = -1;
+                vm.pActor->actorstayput = -1;
                 continue;
 
             case CON_LOTSOFGLASS:

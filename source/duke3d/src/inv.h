@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
-#include "dukerr/namesdyn.h"
-
 BEGIN_DUKE_NS
 
 enum dukeinv_t
@@ -59,5 +57,22 @@ enum dukeinvicon_t
 extern int const icon_to_inv[ICON_MAX];
 
 extern int const inv_to_icon[GET_MAX];
+
+enum dukeweapon_t
+{
+    KNEE_WEAPON,  // 0
+    PISTOL_WEAPON,
+    SHOTGUN_WEAPON,
+    CHAINGUN_WEAPON,
+    RPG_WEAPON,
+    HANDBOMB_WEAPON,  // 5
+    SHRINKER_WEAPON,
+    DEVISTATOR_WEAPON,
+    TRIPBOMB_WEAPON,
+    FREEZE_WEAPON,
+    HANDREMOTE_WEAPON,  // 10
+    GROW_WEAPON,
+    MAX_WEAPONS
+};
 
 END_DUKE_NS

@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define player_h_
 
 #include "inv.h"
-#include "dukerr/namesdyn.h"
+#include "namesdyn.h"
 #include "fix16.h"
 #include "net.h"
 
@@ -299,6 +299,7 @@ typedef struct {
 extern input_t          inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
 extern playerdata_t     *const g_player;
+extern int16_t          WeaponPickupSprites[MAX_WEAPONS];
 extern hudweapon_t      hudweap;
 extern int32_t          g_levelTextTime;
 extern int32_t          g_numObituaries;
