@@ -2126,11 +2126,8 @@ drawscreen(PLAYERp pp)
         JS_DrawMirrors(pp, tx, ty, tz, tang, thoriz);
     }
 
-    if (!FAF_DebugView)
-    {
+    if (dimensionmode != 6 && !FAF_DebugView)
         FAF_DrawRooms(tx, ty, tz, tang, thoriz, tsectnum);
-        PicInView(FAF_MIRROR_PIC, FALSE);
-    }
 
     analyzesprites(tx, ty, tz, FALSE);
     post_analyzesprites();
