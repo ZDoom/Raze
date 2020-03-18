@@ -8441,7 +8441,7 @@ check_enemy_sprite:
         }
     }
 
-    if (pPlayer->vel.x || pPlayer->vel.y || g_player[playerNum].input->fvel || g_player[playerNum].input->svel)
+    if (pPlayer->vel.x || pPlayer->vel.y || thisPlayer.input->fvel || thisPlayer.input->svel)
     {
         pPlayer->crack_time = 777;
 
@@ -9450,7 +9450,7 @@ void P_DHProcessInput(int playerNum)
     else if (thisPlayer.input->q16avel)
         pPlayer->crack_time = 777;
 
-    if (pPlayer->vel.x || pPlayer->vel.y || g_player[playerNum].input->fvel || g_player[playerNum].input->svel)
+    if (pPlayer->vel.x || pPlayer->vel.y || thisPlayer.input->fvel || thisPlayer.input->svel)
     {
         pPlayer->crack_time = 777;
 
@@ -9535,7 +9535,7 @@ void P_DHProcessInput(int playerNum)
 
     if (pPlayer->jetpack_on == 0)
     {
-        if (g_player[playerNum].input->fvel && pPlayer->on_ground)
+        if (thisPlayer.input->fvel && pPlayer->on_ground)
         {
             pPlayer->pycount += 64;
             pPlayer->pycount &= 2047;
