@@ -123,6 +123,8 @@ kCondWallBase                       = 200,
 kCondWallMax                        = 299,
 kCondSectorBase                     = 300,
 kCondSectorMax                      = 399,
+kCondDudeBase                       = 400,
+kCondDudeMax                        = 499,
 kCondSpriteBase                     = 500,
 kCondSpriteMax                      = 599,
 };

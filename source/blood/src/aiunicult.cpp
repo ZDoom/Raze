@@ -1278,10 +1278,6 @@ void scaleDamage(XSPRITE* pXSprite) {
         curScale[i] = getDudeInfo(kDudeModernCustom)->startDamage[i];
 
     switch (weaponType) {
-        // all enemies with vector weapons gets extra resistance to bullet damage
-        case kGenDudeWeaponHitscan:
-            curScale[kDmgBullet] -= 10;
-            break;
         // just copy damage resistance of dude that should be summoned
         case kGenDudeWeaponSummon:
             for (int i = 0; i < kDmgMax; i++)
@@ -1303,7 +1299,7 @@ void scaleDamage(XSPRITE* pXSprite) {
                 case kMissileLifeLeechAltNormal:
                 case kMissileLifeLeechAltSmall:
                 case kMissileArcGargoyle:
-                    curScale[kDmgSpirit] = 32;
+                    curScale[kDmgSpirit] -= 32;
                     curScale[kDmgElectric] = 52;
                     break;
                 case kMissileFlareRegular:
@@ -1317,14 +1313,11 @@ void scaleDamage(XSPRITE* pXSprite) {
                     curScale[kDmgExplode] -= 20;
                     break;
                 case kMissileLifeLeechRegular:
+                    curScale[kDmgBurn] = 60 + Random(4);
+                    fallthrough__;
                 case kThingDroppedLifeLeech:
                 case kModernThingEnemyLifeLeech:
                     curScale[kDmgSpirit] = 32 + Random(18);
-                    curScale[kDmgBurn] = 60 + Random(4);
-                    for (int i = 2; i < kDmgMax; i++) {
-                        if (Chance(0x1000) && i != kDmgSpirit)
-                            curScale[i] = 48 + Random(32);
-                    }
                     break;
                 case kMissileFireball:
                 case kMissileFireballNapam:
@@ -1389,7 +1382,7 @@ void scaleDamage(XSPRITE* pXSprite) {
     if (yrepeat < 64) {
         for (int i = 0; i < kDmgMax; i++) curScale[i] += (64 - yrepeat);
     } else if (yrepeat > 64) {
-        for (int i = 0; i < kDmgMax; i++) curScale[i] -= ((yrepeat - 64) / 2);
+        for (int i = 0; i < kDmgMax; i++) curScale[i] -= ((yrepeat - 64) >> 2);
     }
 
     // take surface type into account

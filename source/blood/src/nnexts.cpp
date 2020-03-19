@@ -2062,6 +2062,30 @@ bool condPush(XSPRITE* pXSprite, int objType, int objIndex) {
     return true;
 }
 
+bool condRestore(XSPRITE* pXSprite) {
+    pXSprite->targetX = pXSprite->target;
+    pXSprite->targetY = pXSprite->targetZ;
+
+    return true;
+}
+
+bool condCmp(int val, int arg1, int arg2, int arg3) {
+    switch (arg3) {
+        case 0: condCmpr(val, arg1, arg2);
+        case 1: return (val == arg1);
+        case 2: return (val >= arg1);
+        case 3: return (val > arg1);
+        case 4: return (val <= arg1);
+        case 5: return (val < arg1);
+        case 6: return (val & arg1);
+        default:
+            ThrowError("\nSpecify compare operation!");
+            break;
+    }
+
+    return false;
+}
+
 bool condCmpr(int val, int min, int max) {
     return (max == 0) ? (val == min) : (val >= min && val <= max);
 }
@@ -2107,6 +2131,8 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, bool PUSH, bool RVRS) {
         case 53:
         case 54:
         case 56:
+        case 57:
+        case 58:
             switch (objType) {
                 case OBJ_WALL: {
                     XWALL* pXObj = (xwallRangeIsFine(wall[objIndex].extra)) ? &xwall[wall[objIndex].extra] : NULL;
@@ -2176,6 +2202,7 @@ bool condCheckSector(XSPRITE* pXCond, bool PUSH, bool RVRS) {
 
     if (cond < (kCondRange >> 1)) {
         switch (cond) {
+            default: return false;
             case 0: return condCmpr(pSect->floorpicnum, arg1, arg2);
             case 1: return condCmpr(pSect->ceilingpicnum, arg1, arg2);
             case 2: return condCmpr((!arg3) ? pSect->floorxpanning : pSect->floorypanning, arg1, arg2);
@@ -2205,27 +2232,21 @@ bool condCheckSector(XSPRITE* pXCond, bool PUSH, bool RVRS) {
                 }
                 return false;
         }
-
-        return false;
-
     } else if (pXSect) {
         switch (cond) {
+            default: return false;
             case 50: return pXSect->Underwater;
             case 51: return condCmpr(pXSect->data, arg1, arg2);
             // 52
             // 53
             // 54
         }
-
-        return false;
-
     } else {
         switch (cond) {
+            default: return false;
             case 51:
                 return (!arg1 && !arg2);
         }
-
-        return false;
     }
     
     ThrowError("\nSector conditions: Unexpected condition id (%d)!", cond);
@@ -2249,6 +2270,7 @@ bool condCheckWall(XSPRITE* pXCond, bool PUSH, bool RVRS) {
     
     if (cond < (kCondRange >> 1)) {
         switch (cond) {
+            default: return false;
             case 0: return condCmpr(pWall->picnum, arg1, arg2);
             case 1: return condCmpr(pWall->overpicnum, arg1, arg2);
             case 2: return condCmpr((!arg3) ? pWall->xrepeat : pWall->xpanning, arg1, arg2);
@@ -2269,25 +2291,105 @@ bool condCheckWall(XSPRITE* pXCond, bool PUSH, bool RVRS) {
                 if (!condCmpr((var = sectorofwall(objIndex)), arg1, arg2)) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, var);
                 return true;
+            case 12: // this wall is a mirror?                              // must be as constants here
+                return (pWall->type != kWallStack && condCmpr(pWall->picnum, 4080, (4080 + 16) - 1));
+            case 13: // next wall belongs to sector?
+                if (!sectRangeIsFine(var = sectorofwall(pWall->nextwall))) return false;
+                else if (PUSH) condPush(pXCond, OBJ_SECTOR, var);
+                return true;
         }
-        return false;
     } else if (pXWall) {
         switch (cond) {
+            default: return false;
             case 51: return condCmpr(pXWall->data, arg1, arg2);
             // 52
             // 53
             // 54
         }
-        return false;
     } else {
         switch (cond) {
+            default: return false;
             case 51:
                 return (!arg1 && !arg2);
         }
-        return false;
     }
 
     ThrowError("\nWall conditions: Unexpected condition id (%d)!", cond);
+    return false;
+}
+
+bool condCheckDude(XSPRITE* pXCond, bool PUSH, bool RVRS) {
+    
+    int var = -1; PLAYER* pPlayer = NULL;
+    int cond = pXCond->data1 - kCondDudeBase; int arg1 = pXCond->data2;
+    int arg2 = pXCond->data3; int arg3 = pXCond->data4;
+    int objType = pXCond->targetX; int objIndex = pXCond->targetY;
+
+    if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex))
+        ThrowError("\nDude conditions:\nObject #%d (objType: %d) is not a dude!", objType, objIndex);
+    
+    spritetype* pSpr = &sprite[objIndex]; XSPRITE* pXSpr = NULL;
+    if (xspriRangeIsFine(pSpr->extra)) pXSpr = &xsprite[pSpr->extra];
+    else ThrowError("\nDude conditions:\nObject #%d (objType: %d) is not a dude! (extra out of range)", objType, objIndex);
+    
+    if (pXSpr->health <= 0 || pSpr->type == kThingBloodChunks) return false;
+    else if (cond < (kCondRange >> 1)) {
+        if ((pPlayer = getPlayerById(pSpr->type)) == NULL)
+            ThrowError("\nDude conditions:\nObject #%d (objType: %d) is not a player!", objType, objIndex);
+        
+        pSpr = pPlayer->pSprite; pXSpr = pPlayer->pXSprite;
+        switch (cond) {
+            default: break;
+            case 0: return (pPlayer->lifeMode == arg1);
+            case 1: return (pPlayer->posture == arg1);
+            case 2: return (arg1 > 0 && arg1 < 8 && pPlayer->hasKey[arg1 - 1]);
+            case 3: return (arg1 > 0 && arg1 < 15 && pPlayer->hasWeapon[arg1 - 1]);
+            case 4: return (pPlayer->curWeapon == arg1);
+            case 5: return (arg1 > 0 && arg1 < 6 && pPlayer->packSlots[arg1 - 1].curAmount > 0);
+            case 6: return (arg1 > 0 && arg1 < 6 && pPlayer->packSlots[arg1 - 1].isActive);
+            case 7: return (pPlayer->packItemId == arg1);
+            // 8
+            // 9
+            case 10: // check keys pressed
+                switch (arg1) {
+                    case 1:  return (pPlayer->input.forward > 0);            // forward
+                    case 2:  return (pPlayer->input.forward < 0);            // backward
+                    case 3:  return (pPlayer->input.strafe > 0);             // left
+                    case 4:  return (pPlayer->input.strafe < 0);             // right
+                    case 5:  return (pPlayer->input.buttonFlags.jump);       // jump
+                    case 6:  return (pPlayer->input.buttonFlags.crouch);     // crouch
+                    case 7:  return (pPlayer->input.buttonFlags.shoot);      // normal fire weapon
+                    case 8:  return (pPlayer->input.buttonFlags.shoot2);     // alt fire weapon
+                    default:
+                        ThrowError("\nDude conditions:\nSpecify a key!");
+                        break;
+                }
+                return false;
+            case 11: return (pPlayer->isRunning);
+            case 12: return (pPlayer->fallScream); // falling in abyss?
+            // ......
+            case 46: return condCmpr(pPlayer->sceneQav >= 0, arg1, arg2);
+            case 47: return pPlayer->godMode;
+            case 48: return isShrinked(pSpr);
+            case 49: return isGrown(pSpr);
+
+        }
+    } else if (IsDudeSprite(pSpr)) {
+        switch (cond) {
+            default: break;
+            case 50: // dude have any targets?
+                if (!spriRangeIsFine(pXSpr->target)) return false;
+                else if (PUSH) condPush(pXCond, OBJ_SPRITE, pXSpr->target);
+                return true;
+            case 51: return aiFightDudeIsAffected(pXSpr); // dude affected by ai fight?
+        }
+    } else {
+        
+        ThrowError("\nDude conditions:\nObject #%d (objType: %d) is not an enemy!", objType, objIndex);
+
+    }
+
+    ThrowError("\nDude conditions:\nUnexpected condition #%d!", cond);
     return false;
 }
 
@@ -2305,8 +2407,8 @@ bool condCheckSprite(XSPRITE* pXCond, bool PUSH, bool RVRS) {
     XSPRITE* pXSpr = (xspriRangeIsFine(pSpr->extra)) ? &xsprite[pSpr->extra] : NULL;
     
     if (cond < (kCondRange >> 1)) {
-
         switch (cond) {
+            default: return false;
             case 0: return condCmpr(pSpr->picnum, arg1, arg2);
             case 1: return condCmpr(pSpr->statnum, arg1, arg2);
             case 2: return condCmpr(pSpr->xrepeat, arg1, arg2);
@@ -2316,12 +2418,12 @@ bool condCheckSprite(XSPRITE* pXCond, bool PUSH, bool RVRS) {
             case 6: return (pSpr->flags & arg1);
             case 7: return (pSpr->cstat & arg1);
             case 8:
-                if (!condCmpr(pSpr->owner, arg1, arg2)) return false;
+                if (!spriRangeIsFine(pSpr->owner)) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SPRITE, pSpr->owner);
-                return false;
+                return true;
             case 9: return condCmpr(pSpr->shade, arg1, arg2);
-            case 10: // stays in required sector?
-                if (!condCmpr(pSpr->sectnum, arg1, arg2)) return false;
+            case 10: // stays in a sector?
+                if (!sectRangeIsFine(pSpr->sectnum)) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, pSpr->sectnum);
                 return true;
             case 11: return condCmpr(pSpr->clipdist, arg1, arg2);
@@ -2333,13 +2435,8 @@ bool condCheckSprite(XSPRITE* pXCond, bool PUSH, bool RVRS) {
             // 17
             // 18
             case 19:
-                if (!spriteIsUnderwater(pSpr)) return false;
+                if (!spriteIsUnderwater(pSpr) && !spriteIsUnderwater(pSpr, true)) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, pSpr->sectnum);
-                return true;
-            case 20: // sprite is in water sector, but not underwater?
-                if (spriteIsUnderwater(pSpr)) return false;
-                // .....
-                // .....
                 return true;
             case 34: // hitscan: ceil?
             case 35: // hitscan: floor?
@@ -2360,41 +2457,49 @@ bool condCheckSprite(XSPRITE* pXCond, bool PUSH, bool RVRS) {
                 else
                     var = HitScan(pSpr, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, 0, arg1, arg3 << 1);
                 
-                if (var >= 0 && var <= 4) {
-                    if (((cond == 34) ^ RVRS) && var == 1) {
-                        if (PUSH) condPush(pXCond, OBJ_SECTOR, gHitInfo.hitsect);
+                switch (cond) {
+                    case 34:
+                        if (var != 1) return false;
+                        else if (PUSH) condPush(pXCond, OBJ_SECTOR, gHitInfo.hitsect);
                         return true;
-                    } else if (((cond == 35) ^ RVRS) && var == 2) {
-                        if (PUSH) condPush(pXCond, OBJ_SECTOR, gHitInfo.hitsect);
+                    case 35:
+                        if (var != 2) return false;
+                        else if (PUSH) condPush(pXCond, OBJ_SECTOR, gHitInfo.hitsect);
                         return true;
-                    } else if (((cond == 36) ^ RVRS) && (var == 0 || var == 4)) {
-                        if (PUSH) condPush(pXCond, OBJ_WALL, gHitInfo.hitwall);
+                    case 36:
+                        if (var != 0 && var != 4) return false;
+                        else if (PUSH) condPush(pXCond, OBJ_WALL, gHitInfo.hitwall);
                         return true;
-                    } else if (((cond == 37) ^ RVRS) && var == 3) {
-                        if (PUSH) condPush(pXCond, OBJ_SPRITE, gHitInfo.hitsprite);
+                    case 37:
+                        if (var != 3) return false;
+                        else if (PUSH) condPush(pXCond, OBJ_SPRITE, gHitInfo.hitsprite);
                         return true;
-                    }
                 }
                 return false;
-            case 38:
+            case 38: // check for proximity
                 arg3 = ClipRange(arg3, 48, 512);
                 for (int i = 0, num = 0; i < kMaxSprites; i++) {
                     if (sprite[i].statnum == kStatFree || (sprite[i].flags & kHitagFree) || !condCmpr(sprite[i].type, arg1, arg2)) continue;
-                    else if (CheckProximity(&sprite[i], pSpr->x, pSpr->y, pSpr->z, pSpr->sectnum, arg3)) {
-                        if (PUSH) condPush(pXCond, OBJ_SPRITE, i);
-                        return true;
-                    }
+                    else if (num++ > Numsprites) break;
 
-                    if (num++ >= Numsprites) break;
+                    int oX = klabs(pSpr->x - sprite[i].x) >> 4;
+                    if (oX > arg3) continue;
+
+                    int oY = klabs(pSpr->y - sprite[i].y) >> 4;
+                    if (oY > arg3) continue;
+
+                    int oZ = klabs(pSpr->z - sprite[i].z) >> 8;
+                    if (oZ > arg3) continue;
+
+                    if (approxDist(oX, oY) > arg3) continue;
+                    else if (PUSH) condPush(pXCond, OBJ_SPRITE, i);
+                    return true;
                 }
                 return false;
         }
-
-        return false;
-
     } else if (pXSpr) {
-        
         switch (cond) {
+            default: return false;
             case 50: return ((!arg1 && !arg2 && pSpr->type == kThingBloodChunks) ? true : condCmpr(pXSpr->health, arg1, arg2));
             case 51: return condCmpr(pXSpr->data1, arg1, arg2);
             case 52: return condCmpr(pXSpr->data2, arg1, arg2);
@@ -2459,22 +2564,16 @@ bool condCheckSprite(XSPRITE* pXCond, bool PUSH, bool RVRS) {
                     return true;
                 }
                 return false;
-            case 75: return aiFightDudeIsAffected(pXSpr); // dude affected by ai fight?
             case 76: // sprite is set on fire?
                 if (!condCmpr(pXSpr->burnTime, arg1, arg2)) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SPRITE, pXSpr->burnSource);
                 return true;
-            case 77: // target of sprite equals to ....?
-                if (pXSpr->target < 0) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SPRITE, pXSpr->target);
-                return true;
-            case 79: return condCmpr(getSpriteMassBySize(pSpr), arg1, arg2); // mass of the sprite in a range?
+            case 79:
+                return condCmpr(getSpriteMassBySize(pSpr), arg1, arg2); // mass of the sprite in a range?
         }
-
-        return false;
-
     } else {
         switch (cond) {
+            default: return false;
             case 50:
             case 51:
             case 52:
@@ -2483,8 +2582,6 @@ bool condCheckSprite(XSPRITE* pXCond, bool PUSH, bool RVRS) {
             case 76:
                 return (!arg1 && !arg2);
         }
-
-        return false;
     }
 
     ThrowError("\nSprite conditions: Unexpected condition id (%d)!", cond);
@@ -2966,7 +3063,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 break;
             case kCmdOn:
                 if (!pXSprite->state) SetSpriteState(nSprite, pXSprite, 1);
-                if (IsPlayerSprite(pSprite)) break;
+                if (IsPlayerSprite(pSprite) || pXSprite->health <= 0) break;
                 switch (pXSprite->aiState->stateType) {
                     case kAiStateIdle:
                     case kAiStateGenIdle:
@@ -3639,16 +3736,18 @@ void useCondition(XSPRITE* pXSource, EVENT event) {
 
     int cond = pXSource->data1; bool ok = false;
     bool PUSH = (pXSource->command == kCmdNumberic); bool RVRS = (pSource->yvel == kModernConditionFalse);
-
-    if (cond == 0) ok = true;
-    else if (condCmpr(cond, kCondMixedBase, kCondMixedMax)) ok = condCheckMixed(pXSource, event, PUSH, RVRS);
+    bool RSTR = (pXSource->command == kCmdNumberic + 26);
+    
+    if (condCmpr(cond, kCondMixedBase, kCondMixedMax)) ok = condCheckMixed(pXSource, event, PUSH, RVRS);
     else if (condCmpr(cond, kCondWallBase, kCondWallMax)) ok = condCheckWall(pXSource, PUSH, RVRS);
     else if (condCmpr(cond, kCondSectorBase, kCondSectorMax)) ok = condCheckSector(pXSource, PUSH, RVRS);
+    else if (condCmpr(cond, kCondDudeBase, kCondDudeMax)) ok = condCheckDude(pXSource, PUSH, RVRS);
     else if (condCmpr(cond, kCondSpriteBase, kCondSpriteMax)) ok = condCheckSprite(pXSource, PUSH, RVRS);
     else ThrowError("\nUnexpected condition id %d!\n Condition RX ID: %d, SPRITE #%d", cond, pXSource->rxID, pSource->index);
 
     if (ok ^ RVRS) {
         //viewSetSystemMessage("TRIGGER COND: %d, RVRS: %d", cond, RVRS);
+        if (RSTR) condRestore(pXSource);
         if (pXSource->triggerOnce) pXSource->isTriggered = true;
         if (pSource->flags & kModernTypeFlag1) evPost(chkObjIndex, chkObjType, 0, (COMMAND_ID)pXSource->command); // send it only for object that pass condition
         else evSend(pXSource->reference, OBJ_SPRITE, pXSource->txID, (COMMAND_ID)pXSource->command); // send it for whole rx bucket
