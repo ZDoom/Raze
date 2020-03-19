@@ -3644,35 +3644,32 @@ void P_GetInputMotorcycle(int playerNum)
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Move_Backward) || (input.fvel < 0)) << 1;
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
+    
+    static int32_t turnHeldTime;
+    static int32_t lastInputClock;  // MED
+    int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
 
+    static int turnAmount;
     int const turn = input.q16avel / 32;
     int turnLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
     int turnRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
     int avelScale = F16((turnLeft || turnRight) ? 1 : 0);
     if (turn)
     {
+        turnAmount = (turnHeldTime >= TURBOTURNTIME) ? (20 << 1) : (10 << 1);
         avelScale = fix16_max(avelScale, fix16_clamp(fix16_mul(turn, turn),0,F16(1)));
         if (turn < 0)
             turnLeft = 1;
         else if (turn > 0)
             turnRight = 1;
     }
-
-    input.svel = input.fvel = input.q16avel = input.q16horz = 0;
-    
-    if (!pPlayer->moto_underwater)
-    {
-        localInput.bits |= (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) << SK_JUMP;
-        localInput.bits |= buttonMap.ButtonDown(gamefunc_Move_Backward) << SK_AIM_UP;
-        localInput.bits |= buttonMap.ButtonDown(gamefunc_Run) << SK_CROUCH;
-    }
+    else
+        turnAmount = (turnHeldTime >= TURBOTURNTIME) ? (10 << 1) : (5 << 1);
 
     localInput.bits |= turnLeft << SK_AIM_DOWN;
     localInput.bits |= turnRight << SK_LOOK_LEFT;
 
-    static int32_t turnHeldTime;
-    static int32_t lastInputClock;  // MED
-    int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
+    input.svel = input.fvel = input.q16avel = input.q16horz = 0;
 
     int const moveBack = buttonMap.ButtonDown(gamefunc_Move_Backward) && pPlayer->moto_speed <= 0;
 
@@ -3699,40 +3696,10 @@ void P_GetInputMotorcycle(int playerNum)
             pPlayer->tilt_status--;
             if (pPlayer->tilt_status < -10)
                 pPlayer->tilt_status = -10;
-            if (turnHeldTime >= TURBOTURNTIME && pPlayer->moto_speed > 0)
-            {
-                if (moveBack)
-                {
-                    if (turn)
-                        input.q16avel += fix16_from_int(20*2);
-                    else
-                        input.q16avel += fix16_from_int(10*2);
-                }
-                else
-                {
-                    if (turn)
-                        input.q16avel -= fix16_from_int(20*2);
-                    else
-                        input.q16avel -= fix16_from_int(10*2);
-                }
-            }
+            if (moveBack)
+                input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(scaleAdjustmentToInterval(turnAmount)));
             else
-            {
-                if (moveBack)
-                {
-                    if (turn)
-                        input.q16avel += fix16_from_int(10*2);
-                    else
-                        input.q16avel += fix16_from_int(3*2);
-                }
-                else
-                {
-                    if (turn)
-                        input.q16avel -= fix16_from_int(10*2);
-                    else
-                        input.q16avel -= fix16_from_int(3*2);
-                }
-            }
+                input.q16avel = fix16_ssub(input.q16avel, fix16_from_float(scaleAdjustmentToInterval(turnAmount)));
         }
         else if (turnRight || pPlayer->moto_drink > 0)
         {
@@ -3740,40 +3707,10 @@ void P_GetInputMotorcycle(int playerNum)
             pPlayer->tilt_status++;
             if (pPlayer->tilt_status > 10)
                 pPlayer->tilt_status = 10;
-            if (turnHeldTime >= TURBOTURNTIME && pPlayer->moto_speed > 0)
-            {
-                if (moveBack)
-                {
-                    if (turn)
-                        input.q16avel -= fix16_from_int(20*2);
-                    else
-                        input.q16avel -= fix16_from_int(10*2);
-                }
-                else
-                {
-                    if (turn)
-                        input.q16avel += fix16_from_int(20*2);
-                    else
-                        input.q16avel += fix16_from_int(10*2);
-                }
-            }
+            if (moveBack)
+                input.q16avel = fix16_ssub(input.q16avel, fix16_from_float(scaleAdjustmentToInterval(turnAmount)));
             else
-            {
-                if (moveBack)
-                {
-                    if (turn)
-                        input.q16avel -= fix16_from_int(10*2);
-                    else
-                        input.q16avel -= fix16_from_int(3*2);
-                }
-                else
-                {
-                    if (turn)
-                        input.q16avel += fix16_from_int(10*2);
-                    else
-                        input.q16avel += fix16_from_int(3*2);
-                }
-            }
+                input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(scaleAdjustmentToInterval(turnAmount)));
         }
         else
         {
@@ -3787,83 +3724,20 @@ void P_GetInputMotorcycle(int playerNum)
     }
 
     if (pPlayer->moto_underwater)
-        pPlayer->moto_speed = 0;
-
-    input.q16avel = fix16_mul(input.q16avel, avelScale);
-
-    input.fvel += pPlayer->moto_speed;
-
-    int const movementLocked = P_CheckLockedMovement(playerNum);
-
-    if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
     {
-        if (ud.scrollmode && ud.overhead_on)
-        {
-            ud.folfvel = input.fvel;
-            ud.folavel = fix16_to_int(input.q16avel);
-        }
-
-        localInput.fvel = localInput.svel = 0;
-        localInput.q16avel = localInput.q16horz = 0;
+        pPlayer->moto_speed = 0;
     }
     else
     {
-        if (!(movementLocked & IL_NOMOVE))
-        {
-            localInput.fvel = clamp(localInput.fvel + input.fvel, -15, 120);
-            localInput.svel = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
-        }
-
-        if (!(movementLocked & IL_NOANGLE))
-        {
-            localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
-            pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-        }
-
-        if (!(movementLocked & IL_NOHORIZ))
-        {
-            localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
-            pPlayer->q16horiz  = fix16_clamp(fix16_sadd(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
-        }
+        localInput.bits |= (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) << SK_JUMP;
+        localInput.bits |= buttonMap.ButtonDown(gamefunc_Move_Backward) << SK_AIM_UP;
+        localInput.bits |= buttonMap.ButtonDown(gamefunc_Run) << SK_CROUCH;
     }
 
-    // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
-
-    if (thisPlayer.horizAngleAdjust)
-    {
-        float const horizAngle
-        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(thisPlayer.horizAngleAdjust);
-        pPlayer->q16horiz = F16(100) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f)));
-    }
-    else if (pPlayer->return_to_center > 0 || thisPlayer.horizRecenter)
-    {
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(F16(66.666) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
-
-        if ((!pPlayer->return_to_center && thisPlayer.horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
-        {
-            pPlayer->q16horiz = F16(100);
-            thisPlayer.horizRecenter = false;
-        }
-
-        if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
-            pPlayer->q16horizoff = 0;
-    }
- 
-    if (pPlayer->q16horizoff > 0)
-    {
-        pPlayer->q16horizoff = fix16_ssub(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pPlayer->q16horizoff >> 3) + fix16_one))));
-        pPlayer->q16horizoff = fix16_max(pPlayer->q16horizoff, 0);
-    }
-    else if (pPlayer->q16horizoff < 0)
-    {
-        pPlayer->q16horizoff = fix16_sadd(pPlayer->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pPlayer->q16horizoff >> 3) + fix16_one))));
-        pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
-    }
- 
-    if (thisPlayer.horizSkew)
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(thisPlayer.horizSkew))));
- 
-    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+    input.q16avel      = fix16_mul(input.q16avel, avelScale);
+    localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+    pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
+    localInput.fvel    = clamp(localInput.fvel + (input.fvel += pPlayer->moto_speed), -15, 120);
 
     if (TEST_SYNC_KEY(localInput.bits, SK_JUMP))
     {
