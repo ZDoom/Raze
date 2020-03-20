@@ -3596,11 +3596,6 @@ void P_GetInputMotorcycle(int playerNum)
     input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
     input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
 
-    input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), F16(64)));
-
-    if (!in_mouseflip) input.q16horz = -input.q16horz;
-
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
@@ -3645,10 +3640,6 @@ void P_GetInputMotorcycle(int playerNum)
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
     
-    static int32_t turnHeldTime;
-    static int32_t lastInputClock;  // MED
-    int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
-
     static int turnAmount;
     int const turn = input.q16avel / 32;
     int turnLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
@@ -3656,7 +3647,7 @@ void P_GetInputMotorcycle(int playerNum)
     int avelScale = F16((turnLeft || turnRight) ? 1 : 0);
     if (turn)
     {
-        turnAmount = (turnHeldTime >= TURBOTURNTIME) ? (20 << 1) : (10 << 1);
+        turnAmount = (NORMALTURN * 2.5);
         avelScale = fix16_max(avelScale, fix16_clamp(fix16_mul(turn, turn),0,F16(1)));
         if (turn < 0)
             turnLeft = 1;
@@ -3664,12 +3655,12 @@ void P_GetInputMotorcycle(int playerNum)
             turnRight = 1;
     }
     else
-        turnAmount = (turnHeldTime >= TURBOTURNTIME) ? (10 << 1) : (5 << 1);
+        turnAmount = (NORMALTURN * 1.25);
 
     localInput.bits |= turnLeft << SK_AIM_DOWN;
     localInput.bits |= turnRight << SK_LOOK_LEFT;
 
-    input.svel = input.fvel = input.q16avel = input.q16horz = 0;
+    input.svel = input.fvel = input.q16avel = 0;
 
     int const moveBack = buttonMap.ButtonDown(gamefunc_Move_Backward) && pPlayer->moto_speed <= 0;
 
@@ -3692,7 +3683,6 @@ void P_GetInputMotorcycle(int playerNum)
     {
         if (turnLeft || pPlayer->moto_drink < 0)
         {
-            turnHeldTime += elapsedTics;
             pPlayer->tilt_status--;
             if (pPlayer->tilt_status < -10)
                 pPlayer->tilt_status = -10;
@@ -3703,7 +3693,6 @@ void P_GetInputMotorcycle(int playerNum)
         }
         else if (turnRight || pPlayer->moto_drink > 0)
         {
-            turnHeldTime += elapsedTics;
             pPlayer->tilt_status++;
             if (pPlayer->tilt_status > 10)
                 pPlayer->tilt_status = 10;
@@ -3714,8 +3703,6 @@ void P_GetInputMotorcycle(int playerNum)
         }
         else
         {
-            turnHeldTime = 0;
-
             if (pPlayer->tilt_status > 0)
                 pPlayer->tilt_status--;
             else if (pPlayer->tilt_status < 0)
@@ -3787,11 +3774,6 @@ void P_GetInputBoat(int playerNum)
     input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
     input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
 
-    input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), F16(64)));
-
-    if (!in_mouseflip) input.q16horz = -input.q16horz;
-
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
@@ -3840,10 +3822,6 @@ void P_GetInputBoat(int playerNum)
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Move_Backward) << SK_AIM_UP;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Run) << SK_CROUCH;
 
-    static int32_t turnHeldTime;
-    static int32_t lastInputClock;  // MED
-    int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
-
     static int turnAmount;
     int const turn = input.q16avel / 32;
     int turnLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
@@ -3851,7 +3829,7 @@ void P_GetInputBoat(int playerNum)
     int avelScale = F16((turnLeft || turnRight) ? 1 : 0);
     if (turn)
     {
-        turnAmount = (turnHeldTime >= TURBOTURNTIME) ? (24 << 1) : (12 << 1);
+        turnAmount = (NORMALTURN * 3.5);
         avelScale = fix16_max(avelScale, fix16_clamp(fix16_mul(turn, turn),0,F16(1)));
         if (turn < 0)
             turnLeft = 1;
@@ -3859,18 +3837,17 @@ void P_GetInputBoat(int playerNum)
             turnRight = 1;
     }
     else
-        turnAmount = (turnHeldTime >= TURBOTURNTIME) ? (12 << 1) : (6 << 1);
+        turnAmount = (NORMALTURN * 1.75);
 
     localInput.bits |= turnLeft << SK_AIM_DOWN;
     localInput.bits |= turnRight << SK_LOOK_LEFT;
 
-    input.svel = input.fvel = input.q16avel = input.q16horz = 0;
+    input.svel = input.fvel = input.q16avel = 0;
 
     if (pPlayer->moto_speed != 0)
     {
         if (turnLeft || pPlayer->moto_drink < 0)
         {
-            turnHeldTime += elapsedTics;
             if (!pPlayer->not_on_water)
             {
                 pPlayer->tilt_status--;
@@ -3879,11 +3856,10 @@ void P_GetInputBoat(int playerNum)
                 input.q16avel = fix16_ssub(input.q16avel, fix16_from_float(scaleAdjustmentToInterval(turnAmount)));
             }
             else
-                input.q16avel = fix16_ssub(input.q16avel, fix16_from_float(scaleAdjustmentToInterval((turnAmount / 3.333))));
+                input.q16avel = fix16_ssub(input.q16avel, fix16_from_float(scaleAdjustmentToInterval((turnAmount / 3.1667))));
         }
         else if (turnRight || pPlayer->moto_drink > 0)
         {
-            turnHeldTime += elapsedTics;
             if (!pPlayer->not_on_water)
             {
                 pPlayer->tilt_status++;
@@ -3892,12 +3868,10 @@ void P_GetInputBoat(int playerNum)
                 input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(scaleAdjustmentToInterval(turnAmount)));
             }
             else
-                input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(scaleAdjustmentToInterval((turnAmount / 3.333))));
+                input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(scaleAdjustmentToInterval((turnAmount / 3.1667))));
         }
         else if (!pPlayer->not_on_water)
         {
-            turnHeldTime = 0;
-
             if (pPlayer->tilt_status > 0)
                 pPlayer->tilt_status--;
             else if (pPlayer->tilt_status < 0)
@@ -3906,8 +3880,6 @@ void P_GetInputBoat(int playerNum)
     }
     else if (!pPlayer->not_on_water)
     {
-        turnHeldTime = 0;
-
         if (pPlayer->tilt_status > 0)
             pPlayer->tilt_status--;
         else if (pPlayer->tilt_status < 0)
