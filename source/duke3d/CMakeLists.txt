@@ -1,8 +1,4 @@
 
-set( NOT_COMPILED_SOURCE_FILES
-	src/gamestructures.cpp
-)
-
 set( PCH_SOURCES
 	src/actors.cpp
 	src/anim.cpp
@@ -14,6 +10,7 @@ set( PCH_SOURCES
 	src/game.cpp
 	src/gamedef.cpp
 	src/gameexec.cpp
+	src/gamestructures.cpp
 	src/gamevars.cpp
 	src/global.cpp
 	src/namesdyn.cpp

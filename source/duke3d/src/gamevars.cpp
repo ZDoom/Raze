@@ -27,9 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "gamecvars.h"
 #include "menu/menu.h"
+#include "gamestructures.h"
 
 BEGIN_DUKE_NS
-#include "gamestructures.h"
 
 #ifdef LUNATIC
 int32_t g_noResetVars;

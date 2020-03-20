@@ -654,7 +654,6 @@ set (PCH_SOURCES
 
 	thirdparty/src/base64.cpp
 	thirdparty/src/fix16.cpp
-	thirdparty/src/fix16_str.cpp
 	thirdparty/src/md4.cpp
 	thirdparty/src/enet.cpp
 	#thirdparty/imgui/imgui.cpp

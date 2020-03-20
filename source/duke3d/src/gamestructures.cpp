@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
+#include "ns.h"
 #include "gamestructures.h"
 
 #include "compat.h"
@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sector.h"
 #include "gameexec.h"
 #include "global.h"
+
+BEGIN_DUKE_NS
 
 #define LABEL_SETUP_UNMATCHED(struct, memb, name, idx)                                                              \
     {                                                                                                               \
@@ -1949,5 +1951,6 @@ void VM_InitHashTables(void)
     STRUCT_HASH_SETUP(h_userdef,    UserdefsLabels);
     STRUCT_HASH_SETUP(h_wall,       WallLabels);
 }
-#undef STRUCT_HASH_SETUP
+//#undef STRUCT_HASH_SETUP
 
+END_DUKE_NS
