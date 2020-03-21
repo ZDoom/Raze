@@ -3164,6 +3164,9 @@ enddisplayweapon:
 #define MAXANGVEL     1024
 #define MAXHORIZVEL   256
 
+#define MOTOTURN      20
+#define MAXVELMOTO    120
+
 int32_t g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
 
@@ -3647,7 +3650,7 @@ void P_GetInputMotorcycle(int playerNum)
     int avelScale = F16((turnLeft || turnRight) ? 1 : 0);
     if (turn)
     {
-        turnAmount = 40;
+        turnAmount = (MOTOTURN << 1);
         avelScale = fix16_max(avelScale, fix16_clamp(fix16_mul(turn, turn),0,F16(1)));
         if (turn < 0)
             turnLeft = 1;
@@ -3655,7 +3658,7 @@ void P_GetInputMotorcycle(int playerNum)
             turnRight = 1;
     }
     else
-        turnAmount = 20;
+        turnAmount = MOTOTURN;
 
     input.svel = input.fvel = input.q16avel = 0;
 
@@ -3752,7 +3755,7 @@ void P_GetInputMotorcycle(int playerNum)
     input.q16avel      = fix16_mul(input.q16avel, avelScale);
     localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
     pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-    localInput.fvel    = clamp(localInput.fvel + (input.fvel += pPlayer->moto_speed), -(MAXVEL / 8), (MAXVEL * 1.333));
+    localInput.fvel    = clamp((input.fvel += pPlayer->moto_speed), -(MAXVELMOTO / 8), MAXVELMOTO);
 
     if (TEST_SYNC_KEY(localInput.bits, SK_JUMP))
     {
@@ -3853,7 +3856,7 @@ void P_GetInputBoat(int playerNum)
     int avelScale = F16((turnLeft || turnRight) ? 1 : 0);
     if (turn)
     {
-        turnAmount = 48;
+        turnAmount = (MOTOTURN << 1);
         avelScale = fix16_max(avelScale, fix16_clamp(fix16_mul(turn, turn),0,F16(1)));
         if (turn < 0)
             turnLeft = 1;
@@ -3861,7 +3864,7 @@ void P_GetInputBoat(int playerNum)
             turnRight = 1;
     }
     else
-        turnAmount = 24;
+        turnAmount = MOTOTURN;
 
     input.svel = input.fvel = input.q16avel = 0;
 
@@ -3939,7 +3942,7 @@ void P_GetInputBoat(int playerNum)
     input.q16avel      = fix16_mul(input.q16avel, avelScale);
     localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
     pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-    localInput.fvel    = clamp(localInput.fvel + (input.fvel += pPlayer->moto_speed), -15, 120);
+    localInput.fvel    = clamp((input.fvel += pPlayer->moto_speed), -(MAXVELMOTO / 8), MAXVELMOTO);
 }
 
 int dword_A99D4, dword_A99D8, dword_A99DC, dword_A99E0;
