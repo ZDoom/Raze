@@ -97,8 +97,7 @@ static const char * nam[] = { "/NAM", nullptr};
 static const char * ww2gi[] = { "/WW2GI", nullptr};
 static const char * bloodfs[] = { "", R"(/addons/Cryptic Passage)", nullptr};
 static const char * sw[] = { "/Shadow Warrior", nullptr};
-static const char * redneck[] = { "/Redneck", "/AGAIN", nullptr };
-static const char * rrdh[] = { "/HUNTIN", nullptr };
+static const char * redneck[] = { "/Redneck", "/AGAIN", "/HUNTIN", nullptr };
 
 #ifndef _WIN64
 #define WOW64 "\\"
@@ -129,7 +128,7 @@ static const RegistryPathInfo paths[] = {
 
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 565550", L"InstallLocation", redneck},
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 580940", L"InstallLocation", redneck},
-	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 580930", L"InstallLocation", rrdh},
+	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 580930", L"InstallLocation", redneck},
 #if 0
 	{ L"SOFTWARE\\3DRealms\\Duke Nukem 3D", nullptr, dn3d },
 	{ L"SOFTWARE\\3DRealms\\Anthology", nullptr, dn3d },
