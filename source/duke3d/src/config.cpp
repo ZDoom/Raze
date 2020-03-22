@@ -54,7 +54,6 @@ int CONFIG_ReadSetup(void)
     ud.slidebar_paldisabled = 1;
     ud.statusbarflags = 0;//STATUSBAR_NOSHRINK;
     ud.statusbarmode = 1;
-    ud.statusbarscale = 100;
 
     ud.god = 0;
     ud.m_respawn_items = 0;

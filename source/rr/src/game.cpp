@@ -7163,6 +7163,7 @@ int GameInterface::app_main()
 
 
     hud_size.Callback();
+    hud_scale.Callback();
     S_InitSound();
 
     
