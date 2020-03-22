@@ -5650,6 +5650,7 @@ int GameInterface::app_main()
     CONFIG_ReadSetup();
 
     hud_size.Callback();
+    hud_scale.Callback();
     S_InitSound();
 
     

@@ -43,7 +43,6 @@ int32_t CONFIG_ReadSetup(void)
 
     ud.screen_tilting = 1;
     ud.statusbarflags = STATUSBAR_NOSHRINK;
-    ud.statusbarscale = 100;
     playerteam = 0;
     ud.angleinterpolation = 0;
 
