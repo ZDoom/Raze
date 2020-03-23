@@ -144,13 +144,13 @@ void ctrlGetInput(void)
         cl_crosshair = !cl_crosshair;
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Next_Weapon))
+    if (buttonMap.ButtonPressed(gamefunc_Next_Weapon))
     {
         buttonMap.ClearButton(gamefunc_Next_Weapon);
         gInput.keyFlags.nextWeapon = 1;
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Previous_Weapon))
+    if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon))
     {
         buttonMap.ClearButton(gamefunc_Previous_Weapon);
         gInput.keyFlags.prevWeapon = 1;
