@@ -3256,7 +3256,7 @@ void getinput(SW_PACKET *loc)
         }
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Next_Weapon))
+    if (buttonMap.ButtonPressed(gamefunc_Next_Weapon))
     {
         USERp u = User[pp->PlayerSprite];
         short next_weapon = u->WeaponNum + 1;
@@ -3296,7 +3296,7 @@ void getinput(SW_PACKET *loc)
     }
 
 
-    if (buttonMap.ButtonDown(gamefunc_Previous_Weapon))
+    if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon))
     {
         USERp u = User[pp->PlayerSprite];
         short prev_weapon = u->WeaponNum - 1;
