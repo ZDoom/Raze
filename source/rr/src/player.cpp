@@ -3383,10 +3383,16 @@ void P_GetInput(int const playerNum)
         weaponSelection = 14;
     else if (buttonMap.ButtonDown(gamefunc_Alt_Weapon))
         weaponSelection = 13;
-    else if (buttonMap.ButtonDown(gamefunc_Next_Weapon) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel > 0))
+    else if (buttonMap.ButtonPressed(gamefunc_Next_Weapon) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel > 0))
+    {
         weaponSelection = 12;
-    else if (buttonMap.ButtonDown(gamefunc_Previous_Weapon) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0))
+        buttonMap.ClearButton(gamefunc_Next_Weapon);
+    }
+    else if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0))
+    {
         weaponSelection = 11;
+        buttonMap.ClearButton(gamefunc_Previous_Weapon);
+    }
     else if (weaponSelection == gamefunc_Weapon_1-1)
         weaponSelection = 0;
 
