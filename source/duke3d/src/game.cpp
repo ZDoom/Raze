@@ -5906,77 +5906,53 @@ MAIN_LOOP_RESTART:
 
         OSD_DispatchQueued();
 
-        static bool frameJustDrawn;
         bool gameUpdate = false;
         double gameUpdateStartTime = timerGetHiTicks();
-
-		auto beforeMoveClock = ototalclock;
 
         if (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU|MODE_DEMO)) == 0) && totalclock >= ototalclock+TICSPERFRAME)
         {
             do 
             {
-                if (g_networkMode != NET_DEDICATED_SERVER)
+                ototalclock += TICSPERFRAME;
+
+                P_GetInput(myconnectindex);
+
+                // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
+                auto const pPlayer = g_player[myconnectindex].ps;
+                auto const q16ang  = fix16_to_int(pPlayer->q16ang);
+                auto &     input   = inputfifo[0][myconnectindex];
+
+                input = localInput;
+                input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
+                             mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]);
+                input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
+                             mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]);
+
+                if (!FURY)
                 {
-                    if (!frameJustDrawn)
-                        break;
-
-                    frameJustDrawn = false;
-
-                    P_GetInput(myconnectindex);
-
-                    // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
-                    auto const pPlayer = g_player[myconnectindex].ps;
-                    auto const q16ang  = fix16_to_int(pPlayer->q16ang);
-                    auto &     input   = inputfifo[0][myconnectindex];
-
-                    input = localInput;
-                    input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
-                                 mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]);
-                    input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
-                                 mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]);
-
-                    if (!FURY)
-                    {
-                        input.fvel += pPlayer->fric.x;
-                        input.svel += pPlayer->fric.y;
-                    }
-
-                    localInput = {};
+                    input.fvel += pPlayer->fric.x;
+                    input.svel += pPlayer->fric.y;
                 }
 
-                do
+                localInput = {};
+
+                if (((!GUICapture && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
+                    && (myplayer.gm & MODE_GAME))
                 {
-                    if (ready2send == 0)
-                        break;
-
-                    ototalclock += TICSPERFRAME;
-
-                    auto const moveClock = totalclock;
-
-                    if (((!GUICapture && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
-                        && (myplayer.gm & MODE_GAME))
-                    {
-                        Net_GetPackets();
-                        G_DoMoveThings();
-                    }
-
-                    // computing a tic is taking too long.
-                    // rather than tightly spinning here, go draw a frame since we're fucked anyway
-                    if ((int)(totalclock - moveClock) >= (TICSPERFRAME >> 1))
-                        break;
+                    Net_GetPackets();
+                    G_DoMoveThings();
                 }
-                while (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU | MODE_DEMO)) == 0) && (int)(totalclock - ototalclock) >= TICSPERFRAME);
+            }
+            while (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU | MODE_DEMO)) == 0) && (int)(totalclock - ototalclock) >= TICSPERFRAME);
 
-                gameUpdate = true;
-                g_gameUpdateTime = timerGetHiTicks() - gameUpdateStartTime;
+            gameUpdate = true;
+            g_gameUpdateTime = timerGetHiTicks() - gameUpdateStartTime;
 
-                if (g_gameUpdateAvgTime <= 0.0)
-                    g_gameUpdateAvgTime = g_gameUpdateTime;
+            if (g_gameUpdateAvgTime <= 0.0)
+                g_gameUpdateAvgTime = g_gameUpdateTime;
 
-                g_gameUpdateAvgTime
-                = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
-            } while (0);
+            g_gameUpdateAvgTime
+            = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
         }
 
         G_DoCheats();
@@ -6011,8 +5987,6 @@ MAIN_LOOP_RESTART:
 
             if (gameUpdate)
                 g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
-
-            frameJustDrawn = true;
         }
 
         // handle CON_SAVE and CON_SAVENN

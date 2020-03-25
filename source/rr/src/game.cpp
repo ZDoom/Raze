@@ -7411,17 +7411,13 @@ MAIN_LOOP_RESTART:
 
         OSD_DispatchQueued();
 
-        static bool frameJustDrawn;
         char gameUpdate = false;
         double const gameUpdateStartTime = timerGetHiTicks();
         if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
         {
             do
             {
-	            if (!frameJustDrawn)
-	                break;
-
-	            frameJustDrawn = false;
+                ototalclock += TICSPERFRAME;
 
                 if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
                     P_GetInputMotorcycle(myconnectindex);
@@ -7446,36 +7442,19 @@ MAIN_LOOP_RESTART:
 
                 g_player[myconnectindex].movefifoend++;
 
-	            do
-	            {
-                    if (ready2send == 0) break;
+                if (((!GUICapture && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
+                        (g_player[myconnectindex].ps->gm&MODE_GAME))
+                {
+                    G_MoveLoop();
+                }
+            }
+            while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME);
 
-	                ototalclock += TICSPERFRAME;
-
-	                int const moveClock = (int) totalclock;
-
-	                if (((!GUICapture && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
-	                        (g_player[myconnectindex].ps->gm&MODE_GAME))
-	                {
-	                    G_MoveLoop();
-	                }
-
-	                if (totalclock - moveClock >= TICSPERFRAME)
-	                {
-	                    // computing a tic takes longer than a tic, so we're slowing
-	                    // the game down. rather than tightly spinning here, go draw
-	                    // a frame since we're fucked anyway
-	                    break;
-	                }
-	            }
-	            while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
-
-	            gameUpdate = true;
-	            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
-	            if (g_gameUpdateAvgTime < 0.f)
-	                g_gameUpdateAvgTime = g_gameUpdateTime;
-	            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
-            } while(0);
+            gameUpdate = true;
+            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
+            if (g_gameUpdateAvgTime < 0.f)
+                g_gameUpdateAvgTime = g_gameUpdateTime;
+            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
         }
 
         G_DoCheats();
@@ -7514,8 +7493,6 @@ MAIN_LOOP_RESTART:
             {
                 g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
             }
-
-            frameJustDrawn = true;
 
             if (DEER)
                 sub_5A02C();
