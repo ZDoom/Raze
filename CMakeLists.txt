@@ -231,6 +231,16 @@ if( MSVC )
 	# Most of these need to be cleaned out. The source is currently infested with far too much conditional compilation which is a constant source of problems.
 	set( ALL_C_FLAGS "${ALL_C_FLAGS} /DUSE_OPENGL=1 /DNOASM=1 /DWIN32" )
 
+	# Enable Whole Program Optimisation for release builds. This is the default for new retail programs in VS 2019.
+	# https://docs.microsoft.com/en-us/cpp/build/reference/gl-whole-program-optimization?view=vs-2019
+	# https://devblogs.microsoft.com/cppblog/quick-tips-on-using-whole-program-optimization/
+	set( CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /GL" )
+	set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GL" )
+
+	# Enable Link-time Code Generation as required by Whole Program Optimisation.
+	# https://docs.microsoft.com/en-us/cpp/build/reference/ltcg-link-time-code-generation?view=vs-2019
+	set( CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG" )
+
 	# The CMake configurations set /GR and /MD by default, which conflict with our settings.
 	string(REPLACE "/MD " " " CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} )
 	string(REPLACE "/MD " " " CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_CXX_FLAGS_MINSIZEREL} )
