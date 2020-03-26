@@ -635,8 +635,13 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
         }
         break;
     case kSoundPlayer:
-        if ((gGameOptions.nGameType != 0 && gGameOptions.nGameType != 1 && gGameOptions.nGameType != 2) || gMe->pXSprite->health <= 0) break;
-        gMe->restTime = 0; sndStartSample(pXSprite->data1, -1, 1, 0);
+        if (gGameOptions.nGameType == 0)
+        {
+            if (gMe->pXSprite->health <= 0)
+                break;
+            gMe->restTime = 0;
+        }
+        sndStartSample(pXSprite->data1, -1, 1, 0);
         break;
     case kThingObjectGib:
     case kThingObjectExplode:
