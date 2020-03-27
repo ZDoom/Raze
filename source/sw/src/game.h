@@ -2230,7 +2230,6 @@ extern int lockspeed,totalsynctics;
 #define synctics 3
 #define ACTORMOVETICS (synctics<<1)
 #define TICSPERMOVEMENT synctics
-#define FAKETIMERHANDLER()  if (totalclock >= ototalclock + synctics) faketimerhandler()
 
 // subtract value from clipdist on getzrange calls
 #define GETZRANGE_CLIP_ADJ 8

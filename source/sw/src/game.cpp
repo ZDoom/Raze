@@ -2410,48 +2410,6 @@ void dsprintf_null(char *str, const char *format, ...)
     va_list arglist;
 }
 
-void MoveLoop(void)
-{
-    int pnum;
-
-    getpackets();
-
-    if (PredictionOn && CommEnabled)
-    {
-        while (predictmovefifoplc < Player[myconnectindex].movefifoend)
-        {
-            DoPrediction(ppp);
-        }
-    }
-
-    //While you have new input packets to process...
-    if (!CommEnabled)
-        bufferjitter = 0;
-
-    while (Player[myconnectindex].movefifoend - movefifoplc > bufferjitter)
-    {
-        //Make sure you have at least 1 packet from everyone else
-        for (pnum=connecthead; pnum>=0; pnum=connectpoint2[pnum])
-        {
-            if (movefifoplc == Player[pnum].movefifoend)
-            {
-                break;
-            }
-        }
-
-        //Pnum is >= 0 only if last loop was broken, meaning a player wasn't caught up
-        if (pnum >= 0)
-            break;
-
-        domovethings();
-
-#if DEBUG
-        //if (DemoSyncRecord)
-        //    demosync_record();
-#endif
-    }
-}
-
 
 void InitPlayerGameSettings(void)
 {
@@ -2565,7 +2523,7 @@ void InitRunLevel(void)
         StartAmbientSound();
 }
 
-void faketimerhandler();
+void getinput(SW_PACKET*);
 
 void RunLevel(void)
 {
@@ -2574,6 +2532,7 @@ void RunLevel(void)
 #if 0
     waitforeverybody();
 #endif
+    PLAYERp pp = Player + myconnectindex;
     ready2send = 1;
 
     while (TRUE)
@@ -2581,7 +2540,6 @@ void RunLevel(void)
         handleevents();
         OSD_DispatchQueued();
 		D_ProcessEvents();
-		faketimerhandler();
         if (LoadGameOutsideMoveLoop)
         {
             return; // Stop the game loop if a savegame was loaded from the menu.
@@ -2593,7 +2551,18 @@ void RunLevel(void)
         }
         else
         {
-            MoveLoop();
+            while ((totalclock - ototalclock) >= synctics)
+            {
+                ototalclock += synctics;
+
+                getinput(&loc);
+                pp->inputfifo[Player[myconnectindex].movefifoend & (MOVEFIFOSIZ - 1)] = loc;
+                pp->movefifoend++;
+
+                domovethings();
+
+                timerUpdate();
+            }
         }
 
 
