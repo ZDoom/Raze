@@ -7413,49 +7413,46 @@ MAIN_LOOP_RESTART:
 
         char gameUpdate = false;
         double const gameUpdateStartTime = timerGetHiTicks();
-        if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
+        
+        while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
         {
-            do
+            ototalclock += TICSPERFRAME;
+
+            if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+                P_GetInputMotorcycle(myconnectindex);
+            else if (RRRA && g_player[myconnectindex].ps->on_boat)
+                P_GetInputBoat(myconnectindex);
+            else
+                P_GetInput(myconnectindex);
+
+            // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
+            auto const pPlayer = g_player[myconnectindex].ps;
+            auto const q16ang  = fix16_to_int(pPlayer->q16ang);
+            auto &     input   = inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex];
+
+            input = localInput;
+            input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
+                         mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]) +
+                         pPlayer->fric.x;
+            input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
+                         mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]) +
+                         pPlayer->fric.y;
+            localInput = {};
+
+            g_player[myconnectindex].movefifoend++;
+
+            if (((!GUICapture && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
+                    (g_player[myconnectindex].ps->gm&MODE_GAME))
             {
-                ototalclock += TICSPERFRAME;
-
-                if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
-                    P_GetInputMotorcycle(myconnectindex);
-                else if (RRRA && g_player[myconnectindex].ps->on_boat)
-                    P_GetInputBoat(myconnectindex);
-                else
-                    P_GetInput(myconnectindex);
-
-                // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
-                auto const pPlayer = g_player[myconnectindex].ps;
-                auto const q16ang  = fix16_to_int(pPlayer->q16ang);
-                auto &     input   = inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex];
-
-                input = localInput;
-                input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
-                             mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]) +
-                             pPlayer->fric.x;
-                input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
-                             mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]) +
-                             pPlayer->fric.y;
-                localInput = {};
-
-                g_player[myconnectindex].movefifoend++;
-
-                if (((!GUICapture && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
-                        (g_player[myconnectindex].ps->gm&MODE_GAME))
-                {
-                    G_MoveLoop();
-                }
+                G_MoveLoop();
             }
-            while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME);
-
-            gameUpdate = true;
-            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
-            if (g_gameUpdateAvgTime < 0.f)
-                g_gameUpdateAvgTime = g_gameUpdateTime;
-            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
         }
+
+        gameUpdate = true;
+        g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
+        if (g_gameUpdateAvgTime < 0.f)
+            g_gameUpdateAvgTime = g_gameUpdateTime;
+        g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
 
         G_DoCheats();
 
