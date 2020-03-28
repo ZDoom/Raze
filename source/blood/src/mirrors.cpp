@@ -488,6 +488,14 @@ static MirrorLoadSave *myLoadSave;
 
 void MirrorLoadSave::Load(void)
 {
+#ifdef USE_OPENGL
+    r_rortexture = 4080;
+    r_rortexturerange = 16;
+#ifdef  POLYMER
+    polymer_setrorcallback(PolymerRORCallback);
+#endif //  POLYMER
+
+#endif
     Read(&mirrorcnt,sizeof(mirrorcnt));
     Read(&mirrorsector,sizeof(mirrorsector));
     Read(mirror, sizeof(mirror));
@@ -502,10 +510,10 @@ void MirrorLoadSave::Load(void)
     {
         wall[mirrorwall[i]].picnum = 504;
         wall[mirrorwall[i]].overpicnum = 504;
-        wall[mirrorwall[i]].point2 = numwalls;
         wall[mirrorwall[i]].cstat = 0;
         wall[mirrorwall[i]].nextsector = -1;
         wall[mirrorwall[i]].nextwall = -1;
+        wall[mirrorwall[i]].point2 = numwalls+i+1;
     }
     wall[mirrorwall[3]].point2 = mirrorwall[0];
     sector[mirrorsector].ceilingpicnum = 504;
