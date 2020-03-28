@@ -1829,7 +1829,7 @@ PlayerAutoLook(PLAYERp pp)
                 if ((pp->cursectnum == tempsect) ||
                     (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
                 {
-                    pp->horizoff += (((j - k) * 160) >> 16);
+                    pp->q16horizoff += fix16_from_int((((j - k) * 160) >> 16));
                 }
             }
         }
@@ -1838,17 +1838,17 @@ PlayerAutoLook(PLAYERp pp)
     if (TEST(pp->Flags, PF_CLIMBING))
     {
         // tilt when climbing but you can't even really tell it
-        if (pp->horizoff < 100)
-            pp->horizoff += (((100 - pp->horizoff) >> 3) + 1);
+        if (pp->q16horizoff < fix16_from_int(100))
+            pp->q16horizoff += fix16_from_int((((100 - fix16_to_int(pp->q16horizoff)) >> 3) + 1));
     }
     else
     {
-        // Make horizoff grow towards 0 since horizoff is not modified when
+        // Make q16horizoff grow towards 0 since q16horizoff is not modified when
         // you're not on a slope
-        if (pp->horizoff > 0)
-            pp->horizoff -= ((pp->horizoff >> 3) + 1);
-        if (pp->horizoff < 0)
-            pp->horizoff += (((-pp->horizoff) >> 3) + 1);
+        if (pp->q16horizoff > 0)
+            pp->q16horizoff -= fix16_from_int(((fix16_to_int(pp->q16horizoff) >> 3) + 1));
+        if (pp->q16horizoff < 0)
+            pp->q16horizoff += fix16_from_int((((fix16_to_int(-pp->q16horizoff)) >> 3) + 1));
     }
 }
 
@@ -1859,23 +1859,23 @@ DoPlayerHorizon(PLAYERp pp)
     int i;
 #define HORIZ_SPEED (16)
 
-//    //DSPRINTF(ds,"pp->horizoff, %d", pp->horizoff);
+//    //DSPRINTF(ds,"fix16_to_int(pp->q16horizoff), %d", fix16_to_int(pp->q16horizoff));
 //    MONO_PRINT(ds);
 
 	// Fixme: This should probably be made optional.
 	if (cl_slopetilting)
 		PlayerAutoLook(pp);
 
-    if (pp->input.aimvel)
+    if (pp->input.q16horz)
     {
-        pp->horizbase += pp->input.aimvel;
+        pp->q16horizbase += pp->input.q16horz;
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
     }
 
     if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
     {
-        pp->horiz = pp->horizbase = 100;
-        pp->horizoff = 0;
+        pp->q16horiz = pp->q16horizbase = fix16_from_int(100);
+        pp->q16horizoff = 0;
     }
 
     // this is the locked type
@@ -1884,13 +1884,13 @@ DoPlayerHorizon(PLAYERp pp)
         // set looking because player is manually looking
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
 
-        // adjust pp->horizon negative
+        // adjust pp->q16horiz negative
         if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
-            pp->horizbase -= (HORIZ_SPEED/2);
+            pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
 
-        // adjust pp->horizon positive
+        // adjust pp->q16horiz positive
         if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
-            pp->horizbase += (HORIZ_SPEED/2);
+            pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
     }
 
 
@@ -1900,13 +1900,13 @@ DoPlayerHorizon(PLAYERp pp)
         RESET(pp->Flags, PF_LOCK_HORIZ);
         SET(pp->Flags, PF_LOOKING);
 
-        // adjust pp->horizon negative
+        // adjust pp->q16horiz negative
         if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
-            pp->horizbase -= HORIZ_SPEED;
+            pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
 
-        // adjust pp->horizon positive
+        // adjust pp->q16horiz positive
         if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
-            pp->horizbase += HORIZ_SPEED;
+            pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
     }
 
 
@@ -1914,20 +1914,20 @@ DoPlayerHorizon(PLAYERp pp)
     {
         if (!(TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN)))
         {
-            // not pressing the pp->horiz keys
-            if (pp->horizbase != 100)
+            // not pressing the pp->q16horiz keys
+            if (pp->q16horizbase != fix16_from_int(100))
             {
 
-                // move pp->horiz back to 100
+                // move pp->q16horiz back to 100
                 for (i = 1; i; i--)
                 {
-                    // this formula does not work for pp->horiz = 101-103
-                    pp->horizbase += 25 - (pp->horizbase >> 2);
+                    // this formula does not work for pp->q16horiz = 101-103
+                    pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
                 }
             }
             else
             {
-                // not looking anymore because pp->horiz is back at 100
+                // not looking anymore because pp->q16horiz is back at 100
                 RESET(pp->Flags, PF_LOOKING);
             }
         }
@@ -1935,27 +1935,27 @@ DoPlayerHorizon(PLAYERp pp)
 
 #if 1
     // bound the base
-    pp->horizbase = max(pp->horizbase, PLAYER_HORIZ_MIN);
-    pp->horizbase = min(pp->horizbase, PLAYER_HORIZ_MAX);
+    pp->q16horizbase = fix16_max(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MIN));
+    pp->q16horizbase = fix16_min(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MAX));
 
-    // bound adjust horizoff
-    if (pp->horizbase + pp->horizoff < PLAYER_HORIZ_MIN)
-        pp->horizoff = PLAYER_HORIZ_MIN - pp->horizbase;
-    else if (pp->horizbase + pp->horizoff > PLAYER_HORIZ_MAX)
-        pp->horizoff = PLAYER_HORIZ_MAX - pp->horizbase;
+    // bound adjust q16horizoff
+    if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
+        pp->q16horizoff = fix16_from_int(PLAYER_HORIZ_MIN) - pp->q16horizbase;
+    else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
+        pp->q16horizoff = fix16_from_int(PLAYER_HORIZ_MAX) - pp->q16horizbase;
 
-    ////DSPRINTF(ds,"base %d, off %d, base + off %d",pp->horizbase, pp->horizoff, pp->horizbase + pp->horizoff);
+    ////DSPRINTF(ds,"base %d, off %d, base + off %d",fix16_to_int(pp->q16horizbase), fix16_to_int(pp->q16horizoff), fix16_to_int(pp->q16horizbase + pp->q16horizoff));
     //MONO_PRINT(ds);
 
     // add base and offsets
-    pp->horiz = pp->horizbase + pp->horizoff;
+    pp->q16horiz = pp->q16horizbase + pp->q16horizoff;
 #else
-    if (pp->horizbase + pp->horizoff < PLAYER_HORIZ_MIN)
-        pp->horizbase += HORIZ_SPEED;
-    else if (pp->horizbase + pp->horizoff > PLAYER_HORIZ_MAX)
-        pp->horizbase -= HORIZ_SPEED;
+    if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
+        pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
+    else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
+        pp->q16horizbase -= HORIZ_SPEED;
 
-    pp->horiz = pp->horizbase + pp->horizoff;
+    pp->q16horiz = pp->q16horizbase + pp->q16horizoff;
 #endif
 
 }
@@ -1987,7 +1987,7 @@ DoPlayerBob(PLAYERp pp)
         // wrap bcnt
         pp->bcnt &= 2047;
 
-        // move pp->horiz up and down from 100 using sintable
+        // move pp->q16horiz up and down from 100 using sintable
         //pp->bob_z = Z((8 * sintable[pp->bcnt]) >> 14);
         pp->bob_z = mulscale14(Z(amt),sintable[pp->bcnt]);
     }
@@ -2003,7 +2003,7 @@ DoPlayerBob(PLAYERp pp)
         // wrap bcnt
         pp->bcnt &= 2047;
 
-        // move pp->horiz up and down from 100 using sintable
+        // move pp->q16horiz up and down from 100 using sintable
         //pp->bob_z = Z((4 * sintable[pp->bcnt]) >> 14);
         pp->bob_z = mulscale14(Z(amt),sintable[pp->bcnt]);
     }
@@ -2037,7 +2037,7 @@ DoPlayerRecoil(PLAYERp pp)
         return;
     }
 
-    // move pp->horiz up and down
+    // move pp->q16horiz up and down
     pp->recoil_horizoff = ((pp->recoil_amt * sintable[pp->recoil_ndx]) >> 14);
 }
 
@@ -6599,21 +6599,21 @@ DoPlayerBeginDie(PLAYERp pp)
 int
 DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
 {
-    if (pp->horiz > target)
+    if (pp->q16horiz > fix16_from_int(target))
     {
-        pp->horiz -= speed;
-        if (pp->horiz <= target)
-            pp->horiz = target;
+        pp->q16horiz -= fix16_from_int(speed);
+        if (pp->q16horiz <= fix16_from_int(target))
+            pp->q16horiz = fix16_from_int(target);
     }
 
-    if (pp->horiz < target)
+    if (pp->q16horiz < fix16_from_int(target))
     {
-        pp->horiz += speed;
-        if (pp->horiz >= target)
-            pp->horiz = target;
+        pp->q16horiz += fix16_from_int(speed);
+        if (pp->q16horiz >= fix16_from_int(target))
+            pp->q16horiz = fix16_from_int(target);
     }
 
-    return pp->horiz == target;
+    return pp->q16horiz == fix16_from_int(target);
 }
 
 int
@@ -6769,7 +6769,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         sp->yrepeat = PLAYER_NINJA_YREPEAT;
 
         //pp->tilt = 0;
-        pp->horiz = pp->horizbase = 100;
+        pp->q16horiz = pp->q16horizbase = fix16_from_int(100);
         DoPlayerResetMovement(pp);
         u->ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
@@ -7452,7 +7452,7 @@ MoveSkipSavePos(void)
         pp->oposy = pp->posy;
         pp->oposz = pp->posz;
         pp->oang = pp->pang;
-        pp->ohoriz = pp->horiz;
+        pp->oq16horiz = pp->q16horiz;
     }
 
     // save off stats for skip4
@@ -7519,7 +7519,7 @@ void ChopsCheck(PLAYERp pp)
 
     if (!M_Active() && !HelpInputMode && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.angvel|pp->input.aimvel) ||
+        if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.angvel|pp->input.q16horz) ||
             TEST(pp->Flags, PF_CLIMBING|PF_FALLING|PF_DIVING))
         {
             // Hit a input key or other reason to stop chops
@@ -7993,7 +7993,7 @@ InitAllPlayers(void)
 
     //getzsofslope(pfirst->cursectnum, pfirst->posx, pfirst->posy, &cz, &fz);
     //pfirst->posz = fz - PLAYER_HEIGHT;
-    pfirst->horiz = pfirst->horizbase = 100;
+    pfirst->q16horiz = pfirst->q16horizbase = fix16_from_int(100);
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
@@ -8002,14 +8002,14 @@ InitAllPlayers(void)
         pp->posy = pp->oposy = pfirst->posy;
         pp->posz = pp->oposz = pfirst->posz;
         pp->pang = pp->oang = pfirst->pang;
-        pp->horiz = pp->ohoriz = pfirst->horiz;
+        pp->q16horiz = pp->oq16horiz = pfirst->q16horiz;
         pp->cursectnum = pfirst->cursectnum;
         // set like this so that player can trigger something on start of the level
         pp->lastcursectnum = pfirst->cursectnum+1;
 
         //pp->MaxHealth = 100;
 
-        pp->horizbase = pfirst->horizbase;
+        pp->q16horizbase = pfirst->q16horizbase;
         pp->oldposx = 0;
         pp->oldposy = 0;
         pp->climb_ndx = 10;
@@ -8041,7 +8041,7 @@ InitAllPlayers(void)
         pp->FadeAmt = 0;
         pp->FadeTics = 0;
         pp->StartColor = 0;
-        pp->horizoff = 0;
+        pp->q16horizoff = 0;
         memcpy(&pp->temp_pal[0],&palette_data[0][0],768);
 
         INITLIST(&pp->PanelSpriteList);

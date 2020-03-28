@@ -33,7 +33,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void FAF_DrawRooms(int posx, int posy, int posz, short ang, int horiz, short cursectnum);
+void FAF_DrawRooms(int posx, int posy, int posz, short ang, fix16_t q16horiz, short cursectnum);
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -1089,7 +1089,7 @@ ViewSectorInScene(short cursectnum, short level)
 }
 
 void
-DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
+DrawOverlapRoom(int tx, int ty, int tz, short tang, fix16_t tq16horiz, short tsectnum)
 {
     short i;
     short match;
@@ -1104,8 +1104,8 @@ DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
         if (tsectnum < 0)
             return;
 
-        drawrooms(tx, ty, tz, tang, thoriz, tsectnum);
-        //FAF_DrawRooms(tx, ty, tz, tang, thoriz, tsectnum);
+        renderDrawRoomsQ16(tx, ty, tz, fix16_from_int(tang), tq16horiz, tsectnum);
+        //FAF_DrawRooms(tx, ty, tz, tang, tq16horiz, tsectnum);
 
         // reset Z's
         for (i = 0; i < save.zcount; i++)
@@ -1130,8 +1130,8 @@ DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
             if (tsectnum < 0)
                 return;
 
-            drawrooms(tx, ty, tz, tang, thoriz, tsectnum);
-            //FAF_DrawRooms(tx, ty, tz, tang, thoriz, tsectnum);
+            renderDrawRoomsQ16(tx, ty, tz, fix16_from_int(tang), tq16horiz, tsectnum);
+            //FAF_DrawRooms(tx, ty, tz, ftang, tq16horiz, tsectnum);
 
             // reset Z's
             for (i = 0; i < save.zcount; i++)

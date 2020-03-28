@@ -996,7 +996,7 @@ typedef struct
     int16_t vel;
     int16_t svel;
     int8_t angvel;
-    int8_t aimvel;
+    fix16_t q16horz;
     int32_t bits;
 } SW_PACKET;
 
@@ -1031,7 +1031,7 @@ struct PLAYERstruct
     int
         oposx, oposy, oposz;
     short oang;
-    short ohoriz;
+    fix16_t oq16horiz;
 
     // holds last valid move position
     short lv_sectnum;
@@ -1081,7 +1081,8 @@ struct PLAYERstruct
     short turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure
-    int horizbase,horiz,horizoff,hvel,tilt,tilt_dest;
+    int hvel,tilt,tilt_dest;
+    fix16_t q16horiz, q16horizbase, q16horizoff;
     short recoil_amt;
     short recoil_speed;
     short recoil_ndx;
@@ -2363,7 +2364,7 @@ void ScreenCaptureKeys(void);   // draw.c
 int minigametext(int x,int y,const char *t,short dabits);  // jplayer.c
 void computergetinput(int snum,SW_PACKET *syn); // jplayer.c
 
-void DrawOverlapRoom(int tx,int ty,int tz,short tang,int thoriz,short tsectnum);    // rooms.c
+void DrawOverlapRoom(int tx,int ty,int tz,short tang,fix16_t tq16horiz,short tsectnum);    // rooms.c
 void SetupMirrorTiles(void);    // rooms.c
 SWBOOL FAF_Sector(short sectnum); // rooms.c
 int GetZadjustment(short sectnum,short hitag);  // rooms.c
