@@ -105,7 +105,7 @@ typedef struct
     int32_t vel;
     int32_t svel;
     int32_t angvel;
-    int32_t aimvel;
+    fix16_t q16horz;
     int32_t bits;
 } SW_AVERAGE_PACKET;
 
@@ -303,10 +303,10 @@ int EncodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
         SET(*base_ptr, BIT(2));
     }
 
-    if (pak->aimvel != old_pak->aimvel)
+    if (pak->q16horz != old_pak->q16horz)
     {
-        *((char *)buf) = pak->aimvel;
-        buf += sizeof(pak->aimvel);
+        *((char *)buf) = fix16_to_int(pak->q16horz);
+        buf += sizeof(fix16_to_int(pak->q16horz));
         SET(*base_ptr, BIT(3));
     }
 
@@ -354,8 +354,8 @@ int DecodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
 
     if (TEST(*base_ptr, BIT(3)))
     {
-        pak->aimvel = *(char *)buf;
-        buf += sizeof(pak->aimvel);
+        pak->q16horz = fix16_from_int(*(char *)buf);
+        buf += sizeof(fix16_to_int(pak->q16horz));
     }
 
     //won't work if > 4 bytes
@@ -938,7 +938,7 @@ faketimerhandler(void)
     AveragePacket.vel += loc.vel;
     AveragePacket.svel += loc.svel;
     AveragePacket.angvel += loc.angvel;
-    AveragePacket.aimvel += loc.aimvel;
+    AveragePacket.q16horz += loc.q16horz;
     SET(AveragePacket.bits, loc.bits);
 
     pp = Player + myconnectindex;
@@ -956,7 +956,7 @@ faketimerhandler(void)
     loc.vel = AveragePacket.vel / MovesPerPacket;
     loc.svel = AveragePacket.svel / MovesPerPacket;
     loc.angvel = AveragePacket.angvel / MovesPerPacket;
-    loc.aimvel = AveragePacket.aimvel / MovesPerPacket;
+    loc.q16horz = AveragePacket.q16horz / MovesPerPacket;
     loc.bits = AveragePacket.bits;
 
     memset(&AveragePacket, 0, sizeof(AveragePacket));

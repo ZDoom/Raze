@@ -45,7 +45,8 @@ PLAYERp ppp = &PredictPlayer;
 
 typedef struct
 {
-    int x,y,z,horiz;
+    int x,y,z;
+    fix16_t q16horiz;
     short ang,filler;
 } PREDICT, *PREDICTp;
 
@@ -160,7 +161,7 @@ DoPrediction(PLAYERp ppp)
     ppp->oposx = ppp->posx;
     ppp->oposy = ppp->posy;
     ppp->oposz = ppp->posz;
-    ppp->ohoriz = ppp->horiz;
+    ppp->oq16horiz = ppp->q16horiz;
 
 #if PREDICT_DEBUG
     PredictDebug(ppp);
@@ -182,7 +183,7 @@ DoPrediction(PLAYERp ppp)
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].x = ppp->posx;
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].y = ppp->posy;
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].z = ppp->posz;
-    Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].horiz = ppp->horiz;
+    Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].q16horiz = ppp->q16horiz;
     predictmovefifoplc++;
 }
 
@@ -202,13 +203,13 @@ CorrectPrediction(int actualfifoplc)
         predict->x == Player[myconnectindex].posx &&
         predict->y == Player[myconnectindex].posy &&
         predict->z == Player[myconnectindex].posz &&
-        predict->horiz == Player[myconnectindex].horiz
+        predict->q16horiz == Player[myconnectindex].q16horiz
         )
     {
         return;
     }
 
-//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", predict->ang,  Player[myconnectindex].pang, predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  predict->horiz,Player[myconnectindex].horiz);
+//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", predict->ang,  Player[myconnectindex].pang, predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  fix16_to_int(predict->q16horiz),fix16_to_int(Player[myconnectindex].q16horiz));
 //    MONO_PRINT(ds);
 
     InitPrediction(&Player[myconnectindex]);

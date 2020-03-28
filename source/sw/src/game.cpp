@@ -2966,7 +2966,7 @@ void getinput(SW_PACKET *loc)
 #define MAXVEL       ((NORMALKEYMOVE*2)+10)
 #define MAXSVEL      ((NORMALKEYMOVE*2)+10)
 #define MAXANGVEL    100
-#define MAXAIMVEL    128
+#define MAXHORIZVEL  128
 #define SET_LOC_KEY(loc, sync_num, key_test) SET(loc, ((!!(key_test)) << (sync_num)))
 
     static int32_t turnheldtime;
@@ -3000,9 +3000,9 @@ void getinput(SW_PACKET *loc)
 
 		if (cl_autoaim)
 			SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-			else
+		else
 			RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-			}
+		}
 
     ControlInfo info;
     CONTROL_GetInput(&info);
@@ -3090,7 +3090,8 @@ void getinput(SW_PACKET *loc)
     info.dz = (info.dz * move_scale)>>8;
     info.dyaw = (info.dyaw * turn_scale)>>8;
 
-    int32_t svel = 0, vel = 0, angvel = 0, aimvel = 0;
+    int32_t svel = 0, vel = 0, angvel = 0;
+    fix16_t q16horz = 0;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
@@ -3104,14 +3105,14 @@ void getinput(SW_PACKET *loc)
     }
 
     if (mouseaim)
-        aimvel = -info.mousey / 64;
+        q16horz = -fix16_div(fix16_from_int(info.mousey), fix16_from_int(64));
     else
         vel = -(info.mousey >> 6);
 
     if (in_mouseflip)
-        aimvel = -aimvel;
+        q16horz = -q16horz;
 
-    aimvel -= info.dpitch * turnamount / analogExtent;
+    q16horz -= fix16_from_int(info.dpitch) * turnamount / analogExtent;
     svel -= info.dx * keymove / analogExtent;
     vel -= info.dz * keymove / analogExtent;
 
@@ -3171,7 +3172,7 @@ void getinput(SW_PACKET *loc)
     svel = clamp(svel, -MAXSVEL, MAXSVEL);
 
     angvel = clamp(angvel, -MAXANGVEL, MAXANGVEL);
-    aimvel = clamp(aimvel, -MAXAIMVEL, MAXAIMVEL);
+    q16horz = fix16_clamp(q16horz, -fix16_from_int(MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
 
     momx = mulscale9(vel, sintable[NORM_ANGLE(newpp->pang + 512)]);
     momy = mulscale9(vel, sintable[NORM_ANGLE(newpp->pang)]);
@@ -3182,7 +3183,7 @@ void getinput(SW_PACKET *loc)
     loc->vel = momx;
     loc->svel = momy;
     loc->angvel = angvel;
-    loc->aimvel = aimvel;
+    loc->q16horz = q16horz;
 
     if (!CommEnabled)
     {

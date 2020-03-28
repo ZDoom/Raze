@@ -1865,7 +1865,7 @@ void PreDrawStackedWater(void)
 }
 
 
-void FAF_DrawRooms(int x, int y, int z, short ang, int horiz, short sectnum)
+void FAF_DrawRooms(int x, int y, int z, short ang, fix16_t q16horiz, short sectnum)
 {
     short i,nexti;
 
@@ -1892,7 +1892,7 @@ void FAF_DrawRooms(int x, int y, int z, short ang, int horiz, short sectnum)
         }
     }
 
-    drawrooms(x,y,z,ang,horiz,sectnum);
+    renderDrawRoomsQ16(x,y,z,fix16_from_int(ang),q16horiz,sectnum);
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_CEILING_FLOOR_PIC_OVERRIDE], i, nexti)
     {
@@ -1930,7 +1930,8 @@ void
 drawscreen(PLAYERp pp)
 {
     extern SWBOOL DemoMode,CameraTestMode;
-    int tx, ty, tz,thoriz;
+    int tx, ty, tz,tinthoriz;
+    fix16_t tq16horiz;
     short tang,tsectnum;
     short i,j;
     int bob_amt = 0;
@@ -2013,7 +2014,7 @@ drawscreen(PLAYERp pp)
     ty = camerapp->oposy + mulscale16(camerapp->posy - camerapp->oposy, smoothratio);
     tz = camerapp->oposz + mulscale16(camerapp->posz - camerapp->oposz, smoothratio);
     tang = camerapp->oang + mulscale16(((camerapp->pang + 1024 - camerapp->oang) & 2047) - 1024, smoothratio);
-    thoriz = camerapp->ohoriz + mulscale16(camerapp->horiz - camerapp->ohoriz, smoothratio);
+    tq16horiz = camerapp->oq16horiz + mulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio);
     tsectnum = camerapp->cursectnum;
 
     //ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
@@ -2069,7 +2070,7 @@ drawscreen(PLAYERp pp)
     tz = tz + quake_z;
     tx = tx + quake_x;
     ty = ty + quake_y;
-    //thoriz = thoriz + quake_x;
+    //tq16horiz = tq16horiz + fix16_from_int(quake_x);
     tang = NORM_ANGLE(tang + quake_ang);
 
     if (pp->sop_remote)
@@ -2083,14 +2084,17 @@ drawscreen(PLAYERp pp)
     //if (TEST(camerapp->Flags, PF_VIEW_FROM_OUTSIDE))
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
-        BackView(&tx, &ty, &tz, &tsectnum, &tang, thoriz);
+        BackView(&tx, &ty, &tz, &tsectnum, &tang, fix16_to_int(tq16horiz));
     }
     else
     {
         bob_amt = camerapp->bob_amt;
 
         if (DemoMode || CameraTestMode)
-            CameraView(camerapp, &tx, &ty, &tz, &tsectnum, &tang, &thoriz);
+        {
+            tinthoriz = fix16_to_int(tq16horiz);
+            CameraView(camerapp, &tx, &ty, &tz, &tsectnum, &tang, &tinthoriz);
+        }
     }
 
     if (!TEST(pp->Flags, PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE))
@@ -2099,10 +2103,10 @@ drawscreen(PLAYERp pp)
         tz += camerapp->bob_z;
 
         // recoil only when not in camera
-        //thoriz = thoriz + camerapp->recoil_horizoff;
-        thoriz = thoriz + pp->recoil_horizoff;
-        thoriz = max(thoriz, PLAYER_HORIZ_MIN);
-        thoriz = min(thoriz, PLAYER_HORIZ_MAX);
+        //tq16horiz = tq16horiz + fix16_from_int(camerapp->recoil_horizoff);
+        tq16horiz = tq16horiz + fix16_from_int(pp->recoil_horizoff);
+        tq16horiz = fix16_max(tq16horiz, fix16_from_int(PLAYER_HORIZ_MIN));
+        tq16horiz = fix16_min(tq16horiz, fix16_from_int(PLAYER_HORIZ_MAX));
     }
 
     if (r_usenewaspect)
@@ -2122,18 +2126,18 @@ drawscreen(PLAYERp pp)
 
     screen->BeginScene();
     OverlapDraw = TRUE;
-    DrawOverlapRoom(tx, ty, tz, tang, thoriz, tsectnum);
+    DrawOverlapRoom(tx, ty, tz, tang, tq16horiz, tsectnum);
     OverlapDraw = FALSE;
 
     if (dimensionmode != 6)// && !ScreenSavePic)
     {
         // TEST this! Changed to camerapp
-        //JS_DrawMirrors(camerapp, tx, ty, tz, tang, thoriz);
-        JS_DrawMirrors(pp, tx, ty, tz, tang, thoriz);
+        //JS_DrawMirrors(camerapp, tx, ty, tz, tang, tq16horiz);
+        JS_DrawMirrors(pp, tx, ty, tz, tang, tq16horiz);
     }
 
     if (dimensionmode != 6 && !FAF_DebugView)
-        FAF_DrawRooms(tx, ty, tz, tang, thoriz, tsectnum);
+        FAF_DrawRooms(tx, ty, tz, tang, tq16horiz, tsectnum);
 
     analyzesprites(tx, ty, tz, FALSE);
     post_analyzesprites();

@@ -444,7 +444,7 @@ void computergetinput(int snum, SW_PACKET *syn)
     syn->vel = 0;
     syn->svel = 0;
     syn->angvel = 0;
-    syn->aimvel = 0;
+    syn->q16horz = 0;
     syn->bits = 0;
 
     x1 = p->posx;
@@ -596,7 +596,7 @@ void computergetinput(int snum, SW_PACKET *syn)
         {
             vec3_t hit_pos = { x1, y1, z1-PLAYER_HEIGHT };
             hitscan(&hit_pos,damysect,sintable[(damyang+512)&2047],sintable[damyang&2047],
-                    (100-p->horiz-p->horizoff)*32,&hitinfo,CLIPMASK1);
+                    (100-fix16_to_int(p->q16horiz)-fix16_to_int(p->q16horizoff))*32,&hitinfo,CLIPMASK1);
             if ((hitinfo.pos.x-x1)*(hitinfo.pos.x-x1)+(hitinfo.pos.y-y1)*(hitinfo.pos.y-y1) < 2560*2560) syn->bits &= ~(1<<SK_SHOOT);
         }
 
@@ -650,7 +650,7 @@ void computergetinput(int snum, SW_PACKET *syn)
         // Below formula fails in certain cases
         //syn->angvel = min(max((((daang+1024-damyang)&2047)-1024)>>1,-MAXANGVEL),MAXANGVEL); //was 127
         p->pang = daang;
-        syn->aimvel = min(max((zang-p->horiz)>>1,-PLAYER_HORIZ_MAX),PLAYER_HORIZ_MAX);
+        syn->q16horz = min(max((zang-fix16_to_int(p->q16horiz))>>1,-PLAYER_HORIZ_MAX),PLAYER_HORIZ_MAX);
         // Sets type of aiming, auto aim for bots
         syn->bits |= (1<<SK_AUTO_AIM);
         return;
