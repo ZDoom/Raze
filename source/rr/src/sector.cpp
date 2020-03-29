@@ -519,8 +519,6 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     screen->FinishScene();
 
     renderRestoreTarget();
-    squarerotatetile(tileNum);
-    tileInvalidate(tileNum, -1, 255);
 }
 
 void G_AnimateCamSprite(int smoothRatio)
@@ -543,11 +541,8 @@ void G_AnimateCamSprite(int smoothRatio)
 
         if (OW(spriteNum) >= 0 && dist(&sprite[pPlayer->i], &sprite[spriteNum]) < VIEWSCREEN_ACTIVE_DISTANCE)
         {
-            int const viewscrShift = G_GetViewscreenSizeShift((const uspritetype *)&sprite[spriteNum]);
-            int const viewscrTile  = TILE_VIEWSCR - viewscrShift;
-
-            if (tileData(viewscrTile) == nullptr)
-				TileFiles.tileCreate(viewscrTile, tilesiz[PN(spriteNum)].x << viewscrShift, tilesiz[PN(spriteNum)].y << viewscrShift);
+            int const viewscrTile  = TILE_VIEWSCR;
+			TileFiles.MakeCanvas(viewscrTile, tilesiz[PN(spriteNum)].x, tilesiz[PN(spriteNum)].y);
 
             G_SetupCamTile(OW(spriteNum), viewscrTile, smoothRatio);
 #ifdef POLYMER

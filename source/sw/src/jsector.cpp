@@ -57,8 +57,6 @@ short mirrorcnt; //, floormirrorcnt;
 //short floormirrorsector[MAXMIRRORS];
 SWBOOL mirrorinview;
 
-SWBOOL MirrorMoveSkip16 = 0;
-
 // Voxel stuff
 //SWBOOL bVoxelsOn = TRUE;                  // Turn voxels on by default
 SWBOOL bSpinBobVoxels = FALSE;            // Do twizzly stuff to voxels, but
@@ -464,7 +462,7 @@ void JS_InitMirrors(void)
 void drawroomstotile(int daposx, int daposy, int daposz,
                      short daang, int dahoriz, short dacursectnum, short tilenume)
 {
-	TileFiles.tileCreate(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
+	TileFiles.MakeCanvas(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
     renderSetTarget(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
     screen->BeginScene();
@@ -475,10 +473,6 @@ void drawroomstotile(int daposx, int daposy, int daposz,
     screen->FinishScene();
 
     renderRestoreTarget();
-
-    squarerotatetile(tilenume);
-
-    tileInvalidate(tilenume, -1, -1);
 }
 
 void
@@ -527,8 +521,203 @@ int camloopcnt = 0;                    // Timer to cycle through player
 // views
 short camplayerview = 1;                // Don't show yourself!
 
-void
-JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
+// Hack job alert!
+// Mirrors and cameras are maintained in the same data structure, but for hardware rendering they cannot be interleaved.
+// So this function replicates JS_DrawMirrors to only process the camera textures but not change any global state.
+void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
+{
+    int j, cnt;
+    int dist;
+    int tposx, tposy; // Camera
+    int* longptr;
+    fix16_t tang;
+
+    //    int tx, ty, tz, tpang;             // Interpolate so mirror doesn't
+        // drift!
+    SWBOOL bIsWallMirror = FALSE;
+
+    camloopcnt += (int32_t)(totalclock - ototalclock);
+    if (camloopcnt > (60 * 5))          // 5 seconds per player view
+    {
+        camloopcnt = 0;
+        camplayerview++;
+        if (camplayerview >= numplayers)
+            camplayerview = 1;
+    }
+
+    // WARNING!  Assuming (MIRRORLABEL&31) = 0 and MAXMIRRORS = 64 <-- JBF: wrong
+    longptr = (int*)&gotpic[MIRRORLABEL >> 3];
+    if (longptr && (longptr[0] || longptr[1]))
+    {
+        for (cnt = MAXMIRRORS - 1; cnt >= 0; cnt--) 
+        {
+            if (!mirror[cnt].ismagic) continue; // these are definitely not camera textures.
+
+            //if (TEST_GOTPIC(cnt + MIRRORLABEL) || TEST_GOTPIC(cnt + CAMSPRITE))
+            if (TEST_GOTPIC(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic)))
+            {
+                // Do not change any global state here!
+                bIsWallMirror = (TEST_GOTPIC(cnt + MIRRORLABEL));
+                dist = 0x7fffffff;
+
+                if (bIsWallMirror)
+                {
+                    j = klabs(wall[mirror[cnt].mirrorwall].x - tx);
+                    j += klabs(wall[mirror[cnt].mirrorwall].y - ty);
+                    if (j < dist)
+                        dist = j;
+                }
+                else
+                {
+                    SPRITEp tp;
+
+                    tp = &sprite[mirror[cnt].camsprite];
+
+                    j = klabs(tp->x - tx);
+                    j += klabs(tp->y - ty);
+                    if (j < dist)
+                        dist = j;
+                }
+
+
+                SPRITEp sp = NULL;
+                int camhoriz;
+                short w;
+                int dx, dy, dz, tdx, tdy, tdz, midx, midy;
+
+
+                ASSERT(mirror[cnt].camera != -1);
+
+                sp = &sprite[mirror[cnt].camera];
+
+                ASSERT(sp);
+
+                // Calculate the angle of the mirror wall
+                w = mirror[cnt].mirrorwall;
+
+                // Get wall midpoint for offset in mirror view
+                midx = (wall[w].x + wall[wall[w].point2].x) / 2;
+                midy = (wall[w].y + wall[wall[w].point2].y) / 2;
+
+                // Finish finding offsets
+                tdx = klabs(midx - tx);
+                tdy = klabs(midy - ty);
+
+                if (midx >= tx)
+                    dx = sp->x - tdx;
+                else
+                    dx = sp->x + tdx;
+
+                if (midy >= ty)
+                    dy = sp->y - tdy;
+                else
+                    dy = sp->y + tdy;
+
+                tdz = klabs(tz - sp->z);
+                if (tz >= sp->z)
+                    dz = sp->z + tdz;
+                else
+                    dz = sp->z - tdz;
+
+
+                // Is it a TV cam or a teleporter that shows destination?
+                // TRUE = It's a TV cam
+                mirror[cnt].mstate = m_normal;
+                if (TEST_BOOL1(sp))
+                    mirror[cnt].mstate = m_viewon;
+
+                // Show teleport destination
+                // NOTE: Adding MAXSECTORS lets you draw a room, even if
+                // you are outside of it!
+                if (mirror[cnt].mstate == m_viewon)
+                {
+                    SWBOOL DoCam = FALSE;
+
+                    if (mirror[cnt].campic == -1)
+                    {
+                        Printf("Missing campic for mirror %d. Map Coordinates: x = %d, y = %d\n", cnt, midx, midy);
+                        return;
+                    }
+
+                    // BOOL2 = Oscilate camera
+                    if (TEST_BOOL2(sp) && MoveSkip2 == 0)
+                    {
+                        if (TEST_BOOL3(sp)) // If true add increment to
+                        // angle else subtract
+                        {
+                            // Store current angle in TAG5
+                            SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + 4));
+
+                            // TAG6 = Turn radius
+                            if (klabs(GetDeltaAngle(SP_TAG5(sp), sp->ang)) >= SP_TAG6(sp))
+                            {
+                                RESET_BOOL3(sp);    // Reverse turn
+                                // direction.
+                            }
+                        }
+                        else
+                        {
+                            // Store current angle in TAG5
+                            SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - 4));
+
+                            // TAG6 = Turn radius
+                            if (klabs(GetDeltaAngle(SP_TAG5(sp), sp->ang)) >= SP_TAG6(sp))
+                            {
+                                SET_BOOL3(sp);      // Reverse turn
+                                // direction.
+                            }
+                        }
+                    }
+                    else if (!TEST_BOOL2(sp))
+                    {
+                        SP_TAG5(sp) = sp->ang;      // Copy sprite angle to
+                        // tag5
+                    }
+
+                    // See if there is a horizon value.  0 defaults to
+                    // 100!
+                    if (SP_TAG7(sp) != 0)
+                    {
+                        camhoriz = SP_TAG7(sp);
+                        if (camhoriz > PLAYER_HORIZ_MAX)
+                            camhoriz = PLAYER_HORIZ_MAX;
+                        else if (camhoriz < PLAYER_HORIZ_MIN)
+                            camhoriz = PLAYER_HORIZ_MIN;
+                    }
+                    else
+                        camhoriz = 100;     // Default
+
+                    // If player is dead still then update at MoveSkip4
+                    // rate.
+                    if (pp->posx == pp->oposx && pp->posy == pp->oposy && pp->posz == pp->oposz)
+                        DoCam = TRUE;
+
+
+                    // Set up the tile for drawing
+                    TileFiles.MakeCanvas(mirror[cnt].campic, 128, 128);
+
+                    {
+                        if (dist < MAXCAMDIST)
+                        {
+                            PLAYERp cp = Player + camplayerview;
+
+                            if (TEST_BOOL11(sp) && numplayers > 1)
+                            {
+                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->pang, cp->horiz, cp->cursectnum, mirror[cnt].campic);
+                            }
+                            else
+                            {
+                                drawroomstotile(sp->x, sp->y, sp->z, SP_TAG5(sp), camhoriz, sp->sectnum, mirror[cnt].campic);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 {
     int j, cnt;
     int dist;
@@ -539,17 +728,6 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 //    int tx, ty, tz, tpang;             // Interpolate so mirror doesn't
     // drift!
     SWBOOL bIsWallMirror = FALSE;
-
-    MirrorMoveSkip16 = (MirrorMoveSkip16 + 1) & 15;
-
-    camloopcnt += (int32_t) (totalclock - ototalclock);
-    if (camloopcnt > (60 * 5))          // 5 seconds per player view
-    {
-        camloopcnt = 0;
-        camplayerview++;
-        if (camplayerview >= numplayers)
-            camplayerview = 1;
-    }
 
     // WARNING!  Assuming (MIRRORLABEL&31) = 0 and MAXMIRRORS = 64 <-- JBF: wrong
     longptr = (int *)&gotpic[MIRRORLABEL >> 3];
@@ -677,90 +855,6 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                         drawrooms(dx, dy, dz, tpang, tphoriz, sp->sectnum + MAXSECTORS);
                         analyzesprites(dx, dy, dz, FALSE);
                         renderDrawMasks();
-                    }
-                    else
-                    {
-                        SWBOOL DoCam = FALSE;
-
-                        if (mirror[cnt].campic == -1)
-                        {
-                            Printf("Missing campic for mirror %d. Map Coordinates: x = %d, y = %d\n", cnt,midx,midy);
-                            return;
-                        }
-
-                        // BOOL2 = Oscilate camera
-                        if (TEST_BOOL2(sp) && MoveSkip2 == 0)
-                        {
-                            if (TEST_BOOL3(sp)) // If true add increment to
-                            // angle else subtract
-                            {
-                                // Store current angle in TAG5
-                                SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + 4));
-
-                                // TAG6 = Turn radius
-                                if (klabs(GetDeltaAngle(SP_TAG5(sp), sp->ang)) >= SP_TAG6(sp))
-                                {
-                                    RESET_BOOL3(sp);    // Reverse turn
-                                    // direction.
-                                }
-                            }
-                            else
-                            {
-                                // Store current angle in TAG5
-                                SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - 4));
-
-                                // TAG6 = Turn radius
-                                if (klabs(GetDeltaAngle(SP_TAG5(sp), sp->ang)) >= SP_TAG6(sp))
-                                {
-                                    SET_BOOL3(sp);      // Reverse turn
-                                    // direction.
-                                }
-                            }
-                        }
-                        else if (!TEST_BOOL2(sp))
-                        {
-                            SP_TAG5(sp) = sp->ang;      // Copy sprite angle to
-                            // tag5
-                        }
-
-                        // See if there is a horizon value.  0 defaults to
-                        // 100!
-                        if (SP_TAG7(sp) != 0)
-                        {
-                            camhoriz = SP_TAG7(sp);
-                            if (camhoriz > PLAYER_HORIZ_MAX)
-                                camhoriz = PLAYER_HORIZ_MAX;
-                            else if (camhoriz < PLAYER_HORIZ_MIN)
-                                camhoriz = PLAYER_HORIZ_MIN;
-                        }
-                        else
-                            camhoriz = 100;     // Default
-
-                        // If player is dead still then update at MoveSkip4
-                        // rate.
-                        if (pp->posx == pp->oposx && pp->posy == pp->oposy && pp->posz == pp->oposz)
-                            DoCam = TRUE;
-
-
-                        // Set up the tile for drawing
-						TileFiles.tileCreate(mirror[cnt].campic, 128, 128);
-
-                        if (MirrorMoveSkip16 == 0 || (DoCam && (MoveSkip4 == 0)))
-                        {
-                            if (dist < MAXCAMDIST)
-                            {
-                                PLAYERp cp = Player + camplayerview;
-
-                                if (TEST_BOOL11(sp) && numplayers > 1)
-                                {
-                                    drawroomstotile(cp->posx, cp->posy, cp->posz, cp->pang, cp->horiz, cp->cursectnum, mirror[cnt].campic);
-                                }
-                                else
-                                {
-                                    drawroomstotile(sp->x, sp->y, sp->z, SP_TAG5(sp), camhoriz, sp->sectnum, mirror[cnt].campic);
-                                }
-                            }
-                        }
                     }
                 }
                 else

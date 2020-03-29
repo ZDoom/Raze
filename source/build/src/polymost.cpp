@@ -537,14 +537,24 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     vec2f_t const scale = { 1.f / tsiz2.x, 1.f / tsiz2.y };
 	auto data = screen->mVertexData->AllocVertices(npoints);
 	auto vt = data.first;
-	for (bssize_t i = 0; i < npoints; ++i, vt++)
+    for (bssize_t i = 0; i < npoints; ++i, vt++)
     {
         float const r = 1.f / dd[i];
 
-		//update texcoords
-		vt->SetTexCoord(
-			uu[i] * r * scale.x - usub,
-			vv[i] * r * scale.y - vsub);
+        if (TileFiles.tiles[globalpicnum]->GetUseType() == FTexture::Canvas)
+        {
+            //update texcoords, canvas textures are upside down!
+            vt->SetTexCoord(
+                uu[i] * r * scale.x - usub,
+                1.f - (vv[i] * r * scale.y - vsub));
+        }
+        else
+        {
+            //update texcoords
+            vt->SetTexCoord(
+                uu[i] * r * scale.x - usub,
+                vv[i] * r * scale.y - vsub);
+        }
 
         //update verts
 		vt->SetVertex(

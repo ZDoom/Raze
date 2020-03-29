@@ -40,8 +40,6 @@ BEGIN_RR_NS
 // Compile game-side legacy Room over Room code?
 #define LEGACY_ROR 1
 
-# define VIEWSCREENFACTOR 2
-
 enum GametypeFlags_t {
     GAMETYPE_COOP                   = 0x00000001,
     GAMETYPE_WEAPSTAY               = 0x00000002,
@@ -425,24 +423,6 @@ static inline int G_GetMusicIdx(const char *str)
 }
 
 extern void G_PrintCurrentMusic(void);
-
-template <typename T>
-static inline int G_GetViewscreenSizeShift(T const *tspr)
-{
-#if VIEWSCREENFACTOR == 0
-    UNREFERENCED_PARAMETER(tspr);
-    return VIEWSCREENFACTOR;
-#else
-    static const int mask = (1<<VIEWSCREENFACTOR)-1;
-    const int rem = (tspr->xrepeat & mask) | (tspr->yrepeat & mask);
-
-    for (bssize_t i=0; i < VIEWSCREENFACTOR; i++)
-        if (rem & (1<<i))
-            return i;
-
-    return VIEWSCREENFACTOR;
-#endif
-}
 
 
 #endif

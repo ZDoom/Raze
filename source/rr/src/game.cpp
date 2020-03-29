@@ -1262,22 +1262,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         renderDrawMasks();
 #endif
         screen->FinishScene();
-
-        if (g_screenCapture)
-        {
-            g_screenCapture = 0;
-
-            tileInvalidate(TILE_SAVESHOT, 0, 255);
-
-            //if (videoGetRenderMode() == REND_CLASSIC)
-            {
-                renderRestoreTarget();
-            }
-#ifdef USE_OPENGL
-            //else
-              //  G_ReadGLFrame();
-#endif
-        }
     }
 
     G_RestoreInterpolations();
@@ -4808,8 +4792,7 @@ default_case1:
         case VIEWSCREEN2__STATIC:
         {
             if (RR) goto default_case2;
-            int const viewscrShift = G_GetViewscreenSizeShift(t);
-            int const viewscrTile = TILE_VIEWSCR-viewscrShift;
+            int const viewscrTile = TILE_VIEWSCR;
 
             if (g_curViewscreen >= 0 && actor[OW(i)].t_data[0] == 1)
             {
@@ -4818,27 +4801,11 @@ default_case1:
                 t->xrepeat += 10;
                 t->yrepeat += 9;
             }
-            else if (g_curViewscreen == i && display_mirror != 3 && tileData(viewscrTile))
+            else if (g_curViewscreen == i && display_mirror != 3)
             {
                 // this exposes a sprite sorting issue which needs to be debugged further...
-#if 0
-                if (spritesortcnt < maxspritesonscreen)
-                {
-                    auto const newt = &tsprite[spritesortcnt++];
 
-                    *newt = *t;
-
-                    newt->cstat |= 2|512;
-                    newt->x += (sintable[(newt->ang+512)&2047]>>12);
-                    newt->y += (sintable[newt->ang&2047]>>12);
-                    updatesector(newt->x, newt->y, &newt->sectnum);
-                }
-#endif
                 t->picnum = viewscrTile;
-#if VIEWSCREENFACTOR > 0
-                t->xrepeat >>= viewscrShift;
-                t->yrepeat >>= viewscrShift;
-#endif
             }
 
             break;

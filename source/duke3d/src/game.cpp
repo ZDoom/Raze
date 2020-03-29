@@ -3547,8 +3547,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
         {
-            int const viewscrShift = G_GetViewscreenSizeShift(t);
-            int const viewscrTile = TILE_VIEWSCR-viewscrShift;
+            int const viewscrTile = TILE_VIEWSCR;
 
             if (g_curViewscreen >= 0 && actor[OW(i)].t_data[0] == 1)
             {
@@ -3559,25 +3558,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
             }
             else if (g_curViewscreen == i && display_mirror != 3 && tileData(viewscrTile))
             {
-                // this exposes a sprite sorting issue which needs to be debugged further...
-#if 0
-                if (spritesortcnt < maxspritesonscreen)
-                {
-                    auto const newt = &tsprite[spritesortcnt++];
-
-                    *newt = *t;
-
-                    newt->cstat |= 2|512;
-                    newt->x += (sintable[(newt->ang+512)&2047]>>12);
-                    newt->y += (sintable[newt->ang&2047]>>12);
-                    updatesector(newt->x, newt->y, &newt->sectnum);
-                }
-#endif
                 t->picnum = viewscrTile;
-#if VIEWSCREENFACTOR > 0
-                t->xrepeat >>= viewscrShift;
-                t->yrepeat >>= viewscrShift;
-#endif
             }
 
             break;

@@ -254,6 +254,11 @@ void BuildTiles::ClearTextureCache(bool artonly)
 	}
 }
 
+//===========================================================================
+//
+// InvalidateTile
+//
+//===========================================================================
 
 void BuildTiles::InvalidateTile(int num)
 {
@@ -269,6 +274,21 @@ void BuildTiles::InvalidateTile(int num)
 			}
 		}
 	}
+}
+
+//===========================================================================
+//
+// MakeCanvas
+//
+// Turns texture into a canvas (i.e. camera texture)
+//
+//===========================================================================
+
+void BuildTiles::MakeCanvas(int tilenum, int width, int height)
+{
+	auto canvas = ValidateCustomTile(tilenum, FTexture::Canvas);
+	canvas->Size.x = width;
+	canvas->Size.y = height;
 }
 
 //===========================================================================
@@ -387,6 +407,10 @@ FTexture* BuildTiles::ValidateCustomTile(int tilenum, int type)
 		if (tile->GetWidth() == 0 || tile->GetHeight() == 0) return nullptr;	// The base must have a size for this to work.
 		// todo: invalidate hardware textures for tile.
 		replacement = new FRestorableTile(tile);
+	}
+	else if (type == FTexture::Canvas)
+	{
+		replacement = new FCanvasTexture("camera", 0, 0);
 	}
 	else return nullptr;
 	AddTile(tilenum, replacement);
@@ -683,7 +707,6 @@ int BuildTiles::tileCreateRotated(int tileNum)
 	auto src = buffer.Data();
 	auto dst = dbuffer.Data();
 
-	// the engine has a squarerotatetile() we could call, but it mirrors at the same time
 	auto siz = tex->GetSize();
 	for (int x = 0; x < siz.x; ++x)
 	{

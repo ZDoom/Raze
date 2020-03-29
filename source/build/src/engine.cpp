@@ -8,6 +8,7 @@
 
 #define engine_c_
 
+#include "gl_load.h"
 #include "a.h"
 #include "baselayer.h"
 #include "build.h"
@@ -36,6 +37,7 @@
 # include "polymost.h"
 #include "v_video.h"
 #include "../../glbackend/glbackend.h"
+#include "gl_renderer.h"
 #endif
 
 //////////
@@ -1323,14 +1325,6 @@ static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
 
 #define MAXSETVIEW 4
 
-static int32_t setviewcnt = 0; // interface layers use this now
-static intptr_t bakframeplace[MAXSETVIEW];
-static int32_t bakxsiz[MAXSETVIEW], bakysiz[MAXSETVIEW];
-static vec2_t bakwindowxy1[MAXSETVIEW], bakwindowxy2[MAXSETVIEW];
-#ifdef USE_OPENGL
-static int32_t bakrendmode;
-#endif
-static int32_t baktile;
 
 #ifdef GAMENAME
 char apptitle[256] = GAMENAME;
@@ -10087,44 +10081,35 @@ void videoClearScreen(int32_t dacol)
 
 //MUST USE RESTOREFORDRAWROOMS AFTER DRAWING
 
+static int32_t setviewcnt = 0; // interface layers use this now
+static int32_t bakxsiz, bakysiz;
+static vec2_t bakwindowxy1, bakwindowxy2;
+
 //
 // setviewtotile
 //
 void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
-    if (setviewcnt >= MAXSETVIEW-1)
+    if (setviewcnt > 0)
         return;
     if (xsiz <= 0 ||
         ysiz <= 0)
         return;
 
+    OpenGLRenderer::GLRenderer->StartOffscreen();
+    OpenGLRenderer::GLRenderer->BindToFrameBuffer(TileFiles.tiles[tilenume]);
+
     //DRAWROOMS TO TILE BACKUP&SET CODE
-	TileFiles.tileCreate(tilenume, xsiz, ysiz);
-    bakxsiz[setviewcnt] = xdim; bakysiz[setviewcnt] = ydim;
-    bakframeplace[setviewcnt] = frameplace; frameplace = (intptr_t)tilePtr(tilenume);
-    bakwindowxy1[setviewcnt] = windowxy1;
-    bakwindowxy2[setviewcnt] = windowxy2;
+    bakxsiz = xdim; bakysiz = ydim;
+    bakwindowxy1 = windowxy1;
+    bakwindowxy2 = windowxy2;
 
-    if (setviewcnt == 0)
-    {
-#ifdef USE_OPENGL
-        bakrendmode = rendmode;
-#endif
-        baktile = tilenume;
-    }
-
-#ifdef USE_OPENGL
-    rendmode = REND_CLASSIC;
-#endif
-
-    copybufbyte(&startumost[windowxy1.x],&bakumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakumost[0]));
-    copybufbyte(&startdmost[windowxy1.x],&bakdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(bakdmost[0]));
     setviewcnt++;
 
     offscreenrendering = 1;
-    xdim = ysiz;
-    ydim = xsiz;
-    videoSetViewableArea(0,0,ysiz-1,xsiz-1);
+    xdim = ysiz*4;
+    ydim = xsiz*4;
+    videoSetViewableArea(0,0,ysiz*4-1,xsiz*4-1);
     renderSetAspect(65536,65536);
 
     calc_ylookup(ysiz, xsiz);
@@ -10134,72 +10119,25 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 //
 // setviewback
 //
-void renderRestoreTarget(void)
+void renderRestoreTarget()
 {
     if (setviewcnt <= 0) return;
     setviewcnt--;
 
     offscreenrendering = (setviewcnt>0);
-#ifdef USE_OPENGL
-    if (setviewcnt == 0)
-    {
-        rendmode = bakrendmode;
-        tileInvalidate(baktile,-1,-1);
-    }
-#endif
+    OpenGLRenderer::GLRenderer->EndOffscreen();
 
-    xdim = bakxsiz[setviewcnt];
-    ydim = bakysiz[setviewcnt];
-    videoSetViewableArea(bakwindowxy1[setviewcnt].x,bakwindowxy1[setviewcnt].y,
-            bakwindowxy2[setviewcnt].x,bakwindowxy2[setviewcnt].y);
-    copybufbyte(&bakumost[windowxy1.x],&startumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startumost[0]));
-    copybufbyte(&bakdmost[windowxy1.x],&startdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startdmost[0]));
-    frameplace = bakframeplace[setviewcnt];
+    xdim = bakxsiz;
+    ydim = bakysiz;
+    videoSetViewableArea(bakwindowxy1.x,bakwindowxy1.y,
+            bakwindowxy2.x,bakwindowxy2.y);
 
-    calc_ylookup((setviewcnt == 0) ? bytesperline : bakxsiz[setviewcnt],
-                 bakysiz[setviewcnt]);
+    calc_ylookup((setviewcnt == 0) ? bytesperline : bakxsiz,
+                 bakysiz);
 
     modechange=1;
 }
 
-
-//
-// squarerotatetile
-//
-void squarerotatetile(int16_t tilenume)
-{
-    int const siz = tilesiz[tilenume].x;
-
-    if (siz != tilesiz[tilenume].y)
-        return;
-
-    uint8_t *ptr1, *ptr2;
-	auto p = tileData(tilenume);
-	if (!p) return;	// safety precaution, this may only be called on writable tiles for camera textures.
-
-    for (bssize_t i=siz-1, j; i>=3; i-=4)
-    {
-        ptr2 = ptr1 = (p+i*(siz+1));
-        swapchar(--ptr1, (ptr2 -= siz));
-        for (j=(i>>1)-1; j>=0; --j)
-            swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
-
-        ptr2 = ptr1 = (p+(i-1)*(siz+1));
-        for (j=((i-1)>>1)-1; j>=0; --j)
-            swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
-
-        ptr2 = ptr1 = (p+(i-2)*(siz+1));
-        swapchar(--ptr1, (ptr2 -= siz));
-
-        for (j=((i-2)>>1)-1; j>=0; --j)
-            swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
-
-        ptr2 = ptr1 = (p+(i-3)*(siz+1));
-
-        for (j=((i-3)>>1)-1; j>=0; --j)
-            swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
-    }
-}
 
 //
 // preparemirror

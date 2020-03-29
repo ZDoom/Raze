@@ -201,6 +201,7 @@ public:
 		Art,	// from an ART file, readonly
 		Writable,	// A writable texture
 		Restorable,	// a writable copy of something else
+		Canvas,		// camera texture
 		User		// A texture with user-provided image content
 	};
 
@@ -311,6 +312,33 @@ protected:
 	friend struct BuildTiles;
 };
 
+class FCanvasTexture : public FTexture
+{
+public:
+	FCanvasTexture(const char* name, int width, int height)
+	{
+		Name = name;
+		Size.x = width;
+		Size.y = height;
+
+		bMasked = false;
+		bTranslucent = false;
+		//bNoExpand = true;
+		useType = FTexture::Canvas;
+	}
+
+	void NeedUpdate() { bNeedsUpdate = true; }
+	void SetUpdated(bool rendertype) { bNeedsUpdate = false; bFirstUpdate = false; bLastUpdateType = rendertype; }
+
+protected:
+
+	bool bLastUpdateType = false;
+	bool bNeedsUpdate = true;
+public:
+	bool bFirstUpdate = true;
+
+	friend struct FCanvasTextureInfo;
+};
 class FTileTexture : public FTexture
 {
 public:
@@ -551,6 +579,7 @@ struct BuildTiles
 	int tileCreateRotated(int owner);
 	void ClearTextureCache(bool artonly = false);
 	void InvalidateTile(int num);
+	void MakeCanvas(int tilenum, int width, int height);
 };
 
 int tileGetCRC32(int tileNum);

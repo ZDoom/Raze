@@ -2114,6 +2114,12 @@ drawscreen(PLAYERp pp)
     if (FAF_DebugView)
         videoClearViewableArea(255L);
 
+    if (dimensionmode != 6)// && !ScreenSavePic)
+    {
+        // Cameras must be done before the main loop.
+        JS_DrawCameras(pp, tx, ty, tz, tang, thoriz);
+    }
+
     screen->BeginScene();
     OverlapDraw = TRUE;
     DrawOverlapRoom(tx, ty, tz, tang, thoriz, tsectnum);

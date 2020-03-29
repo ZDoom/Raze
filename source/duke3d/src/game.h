@@ -43,8 +43,6 @@ BEGIN_DUKE_NS
 // Compile game-side legacy Room over Room code?
 #define LEGACY_ROR 1
 
-# define VIEWSCREENFACTOR 2
-
 enum GametypeFlags_t {
     GAMETYPE_COOP                   = 0x00000001,
     GAMETYPE_WEAPSTAY               = 0x00000002,
@@ -436,32 +434,6 @@ static inline int G_GetMusicIdx(const char *str)
 
 #endif
 
-
-#ifndef ONLY_USERDEFS
-
-template <typename T>
-static inline int G_GetViewscreenSizeShift(T const * spr)
-{
-#if VIEWSCREENFACTOR == 0
-    UNREFERENCED_PARAMETER(spr);
-    return VIEWSCREENFACTOR;
-#else
-    static CONSTEXPR int const mask = (1<<VIEWSCREENFACTOR)-1;
-    const int rem = (spr->xrepeat & mask) | (spr->yrepeat & mask);
-
-    for (int i=0; i < VIEWSCREENFACTOR; i++)
-        if (rem & (1<<i))
-            return i;
-
-    return VIEWSCREENFACTOR;
-#endif
-}
-
-#if defined game_c_ || !defined DISABLE_INLINING
-
-#endif
-
-#endif
 
 END_DUKE_NS
 

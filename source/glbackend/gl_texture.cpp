@@ -134,11 +134,13 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 	auto phwtex = tex->GetHardwareTexture(palid);
 	if (phwtex) return *phwtex;
 
-	FHardwareTexture *hwtex;
+	FHardwareTexture *hwtex = nullptr;
 	if (textype == TT_INDEXED)
 		hwtex = CreateIndexedTexture(tex);
-	else
+	else if (tex->GetUseType() != FTexture::Canvas)
 		hwtex = CreateTrueColorTexture(tex, textype == TT_HICREPLACE? -1 : palid, textype == TT_BRIGHTMAP, textype == TT_BRIGHTMAP);
+	else
+		hwtex = nullptr;
 	
 	if (hwtex) tex->SetHardwareTexture(palid, hwtex);
 	return hwtex;
@@ -169,8 +171,9 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 
 	auto& h = hictinting[palette];
 	bool applytint = false;
+	// Canvas textures must be treated like hightile replacements in the following code.
 	auto rep = (hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? tex->FindReplacement(palette) : nullptr;
-	if (rep)
+	if (rep || tex->GetUseType() == FTexture::Canvas)
 	{
 		if (usepalette != 0)
 		{
@@ -180,9 +183,12 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			GLInterface.SetBasepalTint(hh.tint);
 		}
 
-		tex = rep->faces[0];
+		if (rep)
+		{
+			tex = rep->faces[0];
+		}
+		if (!rep || rep->palnum != palette || (h.f & HICTINT_APPLYOVERALTPAL)) applytint = true;
 		TextureType = TT_HICREPLACE;
-		if (rep->palnum != palette || (h.f & HICTINT_APPLYOVERALTPAL)) applytint = true;
 	}
 	else
 	{
