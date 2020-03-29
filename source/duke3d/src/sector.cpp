@@ -1939,7 +1939,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         PN(spriteNum) = BGRATE1;
         CS(spriteNum) &= (65535-256-1);
         A_PlaySound(VENT_BUST, spriteNum);
-        break;
+        return;
 
     case FANSPRITE__STATIC:
         PN(spriteNum) = FANSPRITEBROKE;
@@ -1955,7 +1955,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
             auto const pSprite = &sprite[spriteNum];
             RANDOMSCRAP(pSprite, spriteNum);
         }
-        break;
+        return;
 
     case OCEANSPRITE1__STATIC:
     case OCEANSPRITE2__STATIC:
@@ -1964,7 +1964,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
     case OCEANSPRITE5__STATIC:
         A_Spawn(spriteNum,SMALLSMOKE);
         A_DeleteSprite(spriteNum);
-        break;
+        return;
 
     case QUEBALL__STATIC:
     case STRIPEBALL__STATIC:
@@ -1989,7 +1989,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
                 A_DeleteSprite(spriteNum);
             }
         }
-        break;
+        return;
 
     case TREE1__STATIC:
     case TREE2__STATIC:
@@ -2015,7 +2015,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
                 T1(spriteNum) = 1;
                 A_Spawn(spriteNum,BURNING);
             }
-        break;
+        return;
     }
 
     case CACTUS__STATIC:
@@ -2045,7 +2045,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
                 PN(spriteNum) = CACTUSBROKE;
             CS(spriteNum) &= ~257;
         }
-        break;
+        return;
     }
 
     case HANGLIGHT__STATIC:
@@ -2054,14 +2054,14 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
             A_InsertSprite(SECT(spriteNum),SX(spriteNum),SY(spriteNum),SZ(spriteNum)-ZOFFSET3,SCRAP1+(krand()&15),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[spriteNum].zvel>>2),spriteNum,5);
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         A_DeleteSprite(spriteNum);
-        break;
+        return;
 
     case WATERFOUNTAIN__STATIC:
         //    case WATERFOUNTAIN+1:
         //    case WATERFOUNTAIN+2:
         PN(spriteNum) = WATERFOUNTAINBROKE;
         A_Spawn(spriteNum,TOILETWATER);
-        break;
+        return;
 
     case SATELITE__STATIC:
     case FUELPOD__STATIC:
@@ -2075,7 +2075,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
             A_Spawn(spriteNum,EXPLOSION2);
             A_DeleteSprite(spriteNum);
         }
-        break;
+        return;
 
     case BOTTLE1__STATIC:
     case BOTTLE2__STATIC:
@@ -2119,13 +2119,13 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         SA(spriteNum) = krand()&2047;
         A_SpawnWallGlass(spriteNum,-1,8);
         A_DeleteSprite(spriteNum);
-        break;
+        return;
 
     case FETUS__STATIC:
         PN(spriteNum) = FETUSBROKE;
         A_PlaySound(GLASS_BREAKING,spriteNum);
         A_SpawnWallGlass(spriteNum,-1,10);
-        break;
+        return;
 
     case FETUSBROKE__STATIC:
         for (bssize_t j=48; j>0; j--)
@@ -2140,13 +2140,13 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         A_PlaySound(GLASS_BREAKING,spriteNum);
         A_SpawnWallGlass(spriteNum,-1,10);
         A_DeleteSprite(spriteNum);
-        break;
+        return;
 
     case HYDROPLANT__STATIC:
         PN(spriteNum) = BROKEHYDROPLANT;
         A_PlaySound(GLASS_BREAKING,spriteNum);
         A_SpawnWallGlass(spriteNum,-1,10);
-        break;
+        return;
 
     case FORCESPHERE__STATIC:
         sprite[spriteNum].xrepeat = 0;
@@ -2154,13 +2154,13 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         actor[OW(spriteNum)].t_data[1] = !actor[OW(spriteNum)].t_data[1];
         actor[OW(spriteNum)].t_data[2] ++;
         A_Spawn(spriteNum,EXPLOSION2);
-        break;
+        return;
 
     case BROKEHYDROPLANT__STATIC:
         A_PlaySound(GLASS_BREAKING,spriteNum);
         A_SpawnWallGlass(spriteNum,-1,5);
         A_DeleteSprite(spriteNum);
-        break;
+        return;
 
     case TOILET__STATIC:
         PN(spriteNum) = TOILETBROKE;
@@ -2168,7 +2168,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         CS(spriteNum) &= ~257;
         A_Spawn(spriteNum,TOILETWATER);
         A_PlaySound(GLASS_BREAKING,spriteNum);
-        break;
+        return;
 
     case STALL__STATIC:
         PN(spriteNum) = STALLBROKE;
@@ -2176,7 +2176,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         CS(spriteNum) &= ~257;
         A_Spawn(spriteNum,TOILETWATER);
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
-        break;
+        return;
 
     case HYDRENT__STATIC:
         PN(spriteNum) = BROKEFIREHYDRENT;
@@ -2188,26 +2188,26 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         //          sprite[j].pal = 2;
         //    }
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
-        break;
+        return;
 
     case CIRCLEPANNEL__STATIC:
         PN(spriteNum) = CIRCLEPANNELBROKE;
         CS(spriteNum) &= (65535-256-1);
         A_PlaySound(VENT_BUST,spriteNum);
-        break;
+        return;
 
     case PANNEL1__STATIC:
     case PANNEL2__STATIC:
         PN(spriteNum) = BPANNEL1;
         CS(spriteNum) &= (65535-256-1);
         A_PlaySound(VENT_BUST,spriteNum);
-        break;
+        return;
 
     case PANNEL3__STATIC:
         PN(spriteNum) = BPANNEL3;
         CS(spriteNum) &= (65535-256-1);
         A_PlaySound(VENT_BUST,spriteNum);
-        break;
+        return;
 
     case PIPE1__STATIC:
     case PIPE2__STATIC:
@@ -2240,7 +2240,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
 
         int newSprite = A_Spawn(spriteNum, STEAM);
         sprite[newSprite].z = sector[SECT(spriteNum)].floorz-ZOFFSET5;
-        break;
+        return;
     }
 
     case MONK__STATIC:
@@ -2252,7 +2252,8 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         fallthrough__;
     case SPACEMARINE__STATIC:
         sprite[spriteNum].extra -= sprite[dmgSrc].extra;
-        if (sprite[spriteNum].extra > 0) break;
+        if (sprite[spriteNum].extra > 0)
+            return;
         SA(spriteNum) = krand()&2047;
         A_Shoot(spriteNum,BLOODSPLAT1);
         SA(spriteNum) = krand()&2047;
@@ -2277,13 +2278,13 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         A_DoGuts(spriteNum,JIBS3,6);
         S_PlaySound(SQUISHED);
         A_DeleteSprite(spriteNum);
-        break;
+        return;
 
     case CHAIR1__STATIC:
     case CHAIR2__STATIC:
         PN(spriteNum) = BROKENCHAIR;
         CS(spriteNum) = 0;
-        break;
+        return;
 
     case CHAIR3__STATIC:
     case MOVIECAMERA__STATIC:
@@ -2302,101 +2303,104 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
             RANDOMSCRAP(pSprite, spriteNum);
         }
         A_DeleteSprite(spriteNum);
-        break;
+        return;
 
     case PLAYERONWATER__STATIC:
         spriteNum = OW(spriteNum);
         fallthrough__;
     default:
-        if ((sprite[spriteNum].cstat&16) && SHT(spriteNum) == 0 && SLT(spriteNum) == 0 && sprite[spriteNum].statnum == STAT_DEFAULT)
-            break;
+        break; // NOT return
+    }
 
-        if ((sprite[dmgSrc].picnum == FREEZEBLAST || sprite[dmgSrc].owner != spriteNum) && sprite[spriteNum].statnum != STAT_PROJECTILE)
+    // implementation of the default case
+
+    if ((sprite[spriteNum].cstat&16) && SHT(spriteNum) == 0 && SLT(spriteNum) == 0 && sprite[spriteNum].statnum == STAT_DEFAULT)
+        return;
+
+    if ((sprite[dmgSrc].picnum == FREEZEBLAST || sprite[dmgSrc].owner != spriteNum) && sprite[spriteNum].statnum != STAT_PROJECTILE)
+    {
+        if (A_CheckEnemySprite(&sprite[spriteNum]) == 1)
         {
-            if (A_CheckEnemySprite(&sprite[spriteNum]) == 1)
-            {
-                if (sprite[dmgSrc].picnum == RPG)
-                    sprite[dmgSrc].extra <<= 1;
+            if (sprite[dmgSrc].picnum == RPG)
+                sprite[dmgSrc].extra <<= 1;
 
-                if ((PN(spriteNum) != DRONE) && (PN(spriteNum) != ROTATEGUN) && (PN(spriteNum) != COMMANDER)
-                    && (PN(spriteNum) < GREENSLIME || PN(spriteNum) > GREENSLIME + 7))
-                    if (sprite[dmgSrc].picnum != FREEZEBLAST)
-                        if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
-                        {
-                            int const newSprite = A_Spawn(dmgSrc, JIBS6);
-                            sprite[newSprite].z += ZOFFSET6;
-                            if (sprite[dmgSrc].pal == 6)
-                                sprite[newSprite].pal = 6;
-                            sprite[newSprite].xvel    = 16;
-                            sprite[newSprite].xrepeat = sprite[newSprite].yrepeat = 24;
-                            sprite[newSprite].ang += 32 - (krand() & 63);
-                        }
-
-                int const damageOwner = sprite[dmgSrc].owner;
-
-                if (damageOwner >= 0 && sprite[damageOwner].picnum == APLAYER && PN(spriteNum) != ROTATEGUN && PN(spriteNum) != DRONE)
-                    if (g_player[P_Get(damageOwner)].ps->curr_weapon == SHOTGUN_WEAPON)
-                        if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
-                        {
-                            A_Shoot(spriteNum, BLOODSPLAT3);
-                            A_Shoot(spriteNum, BLOODSPLAT1);
-                            A_Shoot(spriteNum, BLOODSPLAT2);
-                            A_Shoot(spriteNum, BLOODSPLAT4);
-                        }
-
-                if (!A_CheckSpriteFlags(spriteNum, SFLAG_NODAMAGEPUSH))
-                {
-                    if (sprite[spriteNum].extra > 0)
+            if ((PN(spriteNum) != DRONE) && (PN(spriteNum) != ROTATEGUN) && (PN(spriteNum) != COMMANDER)
+                && (PN(spriteNum) < GREENSLIME || PN(spriteNum) > GREENSLIME + 7))
+                if (sprite[dmgSrc].picnum != FREEZEBLAST)
+                    if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
                     {
-                        if ((sprite[spriteNum].cstat & 48) == 0)
-                            SA(spriteNum)          = (sprite[dmgSrc].ang + 1024) & 2047;
-                        sprite[spriteNum].xvel  = -(sprite[dmgSrc].extra << 2);
-                        int16_t sectNum = SECT(spriteNum);
-                        pushmove(&sprite[spriteNum].pos, &sectNum, 128L, (4L << 8), (4L << 8), CLIPMASK0);
-                        if (sectNum != SECT(spriteNum) && (unsigned)sectNum < MAXSECTORS)
-                            changespritesect(spriteNum, sectNum);
+                        int const newSprite = A_Spawn(dmgSrc, JIBS6);
+                        sprite[newSprite].z += ZOFFSET6;
+                        if (sprite[dmgSrc].pal == 6)
+                            sprite[newSprite].pal = 6;
+                        sprite[newSprite].xvel    = 16;
+                        sprite[newSprite].xrepeat = sprite[newSprite].yrepeat = 24;
+                        sprite[newSprite].ang += 32 - (krand() & 63);
                     }
-                }
 
-                if (sprite[spriteNum].statnum == STAT_ZOMBIEACTOR)
+            int const damageOwner = sprite[dmgSrc].owner;
+
+            if (damageOwner >= 0 && sprite[damageOwner].picnum == APLAYER && PN(spriteNum) != ROTATEGUN && PN(spriteNum) != DRONE)
+                if (g_player[P_Get(damageOwner)].ps->curr_weapon == SHOTGUN_WEAPON)
+                    if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
+                    {
+                        A_Shoot(spriteNum, BLOODSPLAT3);
+                        A_Shoot(spriteNum, BLOODSPLAT1);
+                        A_Shoot(spriteNum, BLOODSPLAT2);
+                        A_Shoot(spriteNum, BLOODSPLAT4);
+                    }
+
+            if (!A_CheckSpriteFlags(spriteNum, SFLAG_NODAMAGEPUSH))
+            {
+                if (sprite[spriteNum].extra > 0)
                 {
-                    changespritestat(spriteNum, STAT_ACTOR);
-                    actor[spriteNum].timetosleep = SLEEPTIME;
+                    if ((sprite[spriteNum].cstat & 48) == 0)
+                        SA(spriteNum)          = (sprite[dmgSrc].ang + 1024) & 2047;
+                    sprite[spriteNum].xvel  = -(sprite[dmgSrc].extra << 2);
+                    int16_t sectNum = SECT(spriteNum);
+                    pushmove(&sprite[spriteNum].pos, &sectNum, 128L, (4L << 8), (4L << 8), CLIPMASK0);
+                    if (sectNum != SECT(spriteNum) && (unsigned)sectNum < MAXSECTORS)
+                        changespritesect(spriteNum, sectNum);
                 }
-                if ((sprite[spriteNum].xrepeat < 24 || PN(spriteNum) == SHARK) && sprite[dmgSrc].picnum == SHRINKSPARK)
-                    return;
             }
 
-            if (sprite[spriteNum].statnum != STAT_ZOMBIEACTOR)
+            if (sprite[spriteNum].statnum == STAT_ZOMBIEACTOR)
             {
-                if (sprite[dmgSrc].picnum == FREEZEBLAST && ((PN(spriteNum) == APLAYER && sprite[spriteNum].pal == 1) || (g_freezerSelfDamage == 0 && sprite[dmgSrc].owner == spriteNum)))
-                    return;
-                actor[spriteNum].picnum = sprite[dmgSrc].picnum;
-                actor[spriteNum].extra += sprite[dmgSrc].extra;
-                actor[spriteNum].ang    = sprite[dmgSrc].ang;
-                actor[spriteNum].owner  = sprite[dmgSrc].owner;
-
-                if(A_CheckSpriteFlags(spriteNum, SFLAG_DAMAGEEVENT))
-                    VM_OnEventWithReturn(EVENT_POSTDAMAGESPRITE, dmgSrc, -1, spriteNum);
+                changespritestat(spriteNum, STAT_ACTOR);
+                actor[spriteNum].timetosleep = SLEEPTIME;
             }
-
-            if (sprite[spriteNum].statnum == STAT_PLAYER)
-            {
-                auto ps = g_player[P_Get(spriteNum)].ps;
-
-                if (ps->newowner >= 0)
-                    G_ClearCameraView(ps);
-
-                if (sprite[spriteNum].xrepeat < 24 && sprite[dmgSrc].picnum == SHRINKSPARK)
-                    return;
-
-                if (sprite[actor[spriteNum].owner].picnum != APLAYER)
-                    if (ud.player_skill >= 3)
-                        sprite[dmgSrc].extra += (sprite[dmgSrc].extra>>1);
-            }
+            if ((sprite[spriteNum].xrepeat < 24 || PN(spriteNum) == SHARK) && sprite[dmgSrc].picnum == SHRINKSPARK)
+                return;
         }
 
-        break;
+        if (sprite[spriteNum].statnum != STAT_ZOMBIEACTOR)
+        {
+            if (sprite[dmgSrc].picnum == FREEZEBLAST && ((PN(spriteNum) == APLAYER && sprite[spriteNum].pal == 1) || (g_freezerSelfDamage == 0 && sprite[dmgSrc].owner == spriteNum)))
+                return;
+
+            actor[spriteNum].picnum = sprite[dmgSrc].picnum;
+            actor[spriteNum].extra += sprite[dmgSrc].extra;
+            actor[spriteNum].ang    = sprite[dmgSrc].ang;
+            actor[spriteNum].owner  = sprite[dmgSrc].owner;
+
+            if(A_CheckSpriteFlags(spriteNum, SFLAG_DAMAGEEVENT))
+                VM_OnEventWithReturn(EVENT_POSTDAMAGESPRITE, dmgSrc, -1, spriteNum);
+        }
+
+        if (sprite[spriteNum].statnum == STAT_PLAYER)
+        {
+            auto ps = g_player[P_Get(spriteNum)].ps;
+
+            if (ps->newowner >= 0)
+                G_ClearCameraView(ps);
+
+            if (sprite[spriteNum].xrepeat < 24 && sprite[dmgSrc].picnum == SHRINKSPARK)
+                return;
+
+            if (sprite[actor[spriteNum].owner].picnum != APLAYER)
+                if (ud.player_skill >= 3)
+                    sprite[dmgSrc].extra += (sprite[dmgSrc].extra>>1);
+        }
     }
 }
 #endif

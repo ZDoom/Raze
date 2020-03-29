@@ -412,9 +412,9 @@ void G_DoCheats(void)
                 {
                 case CHEAT_WEAPONS:
                 {
-                    int const weaponLimit = (VOLUMEONE) ? 6 : 0;
+                    int const weaponLimit = (VOLUMEONE) ? SHRINKER_WEAPON : MAX_WEAPONS;
 
-                    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
+                    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < weaponLimit; weaponNum++)
                     {
                         P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
                         pPlayer->gotweapon |= (1<<weaponNum);
@@ -533,12 +533,12 @@ void G_DoCheats(void)
 
                 case CHEAT_STUFF:
                 {
-                    int const weaponLimit = (VOLUMEONE) ? 6 : 0;
+                    int const weaponLimit = (VOLUMEONE) ? SHRINKER_WEAPON : MAX_WEAPONS;
 
-                    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
+                    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < weaponLimit; weaponNum++)
                         pPlayer->gotweapon |= (1<<weaponNum);
 
-                    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
+                    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < weaponLimit; weaponNum++)
                         P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
 
                     G_CheatGetInv(pPlayer);

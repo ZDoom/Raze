@@ -107,8 +107,13 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
     auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
     auto const pOther  = &sprite[otherSprite];
 
+
     // DEFAULT, ZOMBIEACTOR, MISC
-    if (pOther->statnum == STAT_DEFAULT || pOther->statnum == STAT_ZOMBIEACTOR || pOther->statnum == STAT_MISC || AFLAMABLE(pOther->picnum))
+    if (pOther->statnum == STAT_DEFAULT || pOther->statnum == STAT_ZOMBIEACTOR || pOther->statnum == STAT_MISC
+#ifndef EDUKE32_STANDALONE
+        || (!FURY && AFLAMABLE(pOther->picnum))
+#endif
+        )
     {
 #ifndef EDUKE32_STANDALONE
         if (pSprite->picnum != SHRINKSPARK || (pOther->cstat&257))
@@ -161,7 +166,8 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
 #endif
             )
             dmgActor.picnum = pSprite->picnum;
-        else dmgActor.picnum = RADIUSEXPLOSION;
+        else
+            dmgActor.picnum = RADIUSEXPLOSION;
 
 #ifndef EDUKE32_STANDALONE
         if (pSprite->picnum != SHRINKSPARK)
@@ -1055,11 +1061,12 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                                                      : sector[pSprite->sectnum].floorshade;
                                     actor[spriteNum].timetosleep = 0;
                                     changespritestat(spriteNum, STAT_STANDABLE);
+                                    break;
                                 }
-                                break;
+                                fallthrough__;
 
                             case RECON__STATIC:
-                                if (!FURY)
+                                if (!FURY && pSprite->picnum == RECON)
                                     CS(spriteNum) |= 257;
                                 fallthrough__;
 #endif
@@ -3357,7 +3364,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
                         case SPIT__STATIC:
                         case COOLEXPLOSION1__STATIC:
                         case FREEZEBLAST__STATIC:
-                        case FIRELASER__STATIC: break;
+                        case FIRELASER__STATIC:
+                            break;
 
                         case RPG__STATIC:
                         {
