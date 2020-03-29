@@ -2211,10 +2211,6 @@ void engineUnInit(void)
         }
     Bmemset(palookup, 0, sizeof(palookup));
 
-    for (bssize_t i=0; i<MAXBLENDTABS; i++)
-        Xfree(blendtable[i]);
-    Bmemset(blendtable, 0, sizeof(blendtable));
-
     for (bssize_t i=1; i<MAXBASEPALS; i++)
         Xfree(basepaltable[i]);
     Bmemset(basepaltable, 0, sizeof(basepaltable));

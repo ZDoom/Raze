@@ -165,7 +165,6 @@ void scrLoadPalette(void)
     DICTNODE *pTrans = gSysRes.Lookup("TRANS", "TLU");
     if (!pTrans)
         ThrowError("TRANS.TLU not found");
-    blendtable[0] = (char*)gSysRes.Lock(pTrans);
     paletteloaded |= PALETTE_TRANSLUC;
 
     palettePostLoadTables();
@@ -241,7 +240,6 @@ void scrInit(void)
 void scrUnInit(void)
 {
     memset(palookup, 0, sizeof(palookup));
-    memset(blendtable, 0, sizeof(blendtable));
 }
 
 

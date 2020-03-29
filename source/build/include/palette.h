@@ -27,8 +27,6 @@
 
 extern uint8_t curbasepal;
 
-#define paletteGetBlendTable(blend) (blendtable[blend])
-
 extern uint8_t PaletteIndexFullbrights[32];
 
 
@@ -56,8 +54,6 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
 void paletteSetColorTable(int32_t id, uint8_t const *table, bool transient = false);
 void paletteFreeColorTable(int32_t id);
 void paletteFreeColorTables();
-void paletteSetBlendTable(int32_t blend, const char *tab);
-void paletteFreeBlendTable(int32_t blend);
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab);
 void paletteFreeLookupTable(int32_t palnum);
 

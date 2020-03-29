@@ -174,37 +174,6 @@ void paletteLoadFromDisk(void)
         return;
 
     paletteloaded |= PALETTE_SHADE;
-
-
-    // PALETTE_TRANSLUC
-
-    char * const transluc = blendtable[0] = (char *) Xcalloc(256, 256);
-
-    // Read translucency (blending) table.
-    if (lamedukep)
-    {
-        for (bssize_t i=0; i<255; i++)
-        {
-            // NOTE: LameDuke's table doesn't have the last row or column (i==255).
-
-            // Read the entries above and on the diagonal, if the table is
-            // thought as being row-major.
-            if (read_and_test(fil, &transluc[256*i + i + 1], 255-i))
-                return;
-
-            // Duplicate the entries below the diagonal.
-            for (bssize_t j=i+1; j<256; j++)
-                transluc[256*j + i] = transluc[256*i + j];
-        }
-        for (bssize_t i=0; i<256; i++)
-            transluc[256*i + i] = i;
-    }
-    else
-    {
-        if (read_and_test(fil, transluc, 65536))
-            return;
-    }
-
     paletteloaded |= PALETTE_TRANSLUC;
 
 
@@ -231,9 +200,6 @@ void paletteLoadFromDisk(void)
                 return;
             }
 
-            if (paletteGetBlendTable(blendnum) != NULL)
-                initprintf("Warning: duplicate blending table index %3d encountered\n", blendnum);
-
             if (read_and_test(fil, tab, 256*256))
             {
                 initprintf("Warning: failed reading additional blending table\n");
@@ -241,7 +207,6 @@ void paletteLoadFromDisk(void)
                 return;
             }
 
-            paletteSetBlendTable(blendnum, tab);
 			setBlendFactor(blendnum, DetermineTranslucency((const uint8_t*)tab));
 
         }
@@ -266,9 +231,6 @@ void palettePostLoadTables(void)
     globalpal = 0;
 
     globalpalwritten = palookup[0];
-    // Do we still need these?
-    //setpalookupaddress(globalpalwritten);
-    //fixtransluscence(FP_OFF(blendtable[0]));
 
     char const * const palookup0 = palookup[0];
 
@@ -331,21 +293,6 @@ void paletteFixTranslucencyMask(void)
 
         for (bssize_t j=0; j<numshades; j++)
             thispalookup[(j<<8) + 255] = 255;
-    }
-
-    // fix up translucency table so that transluc(255,x)
-    // and transluc(x,255) is black instead of purple.
-    for (auto transluc : blendtable)
-    {
-        if (transluc == NULL)
-            continue;
-
-        for (bssize_t j=0; j<255; j++)
-        {
-            transluc[(255<<8) + j] = transluc[(blackcol<<8) + j];
-            transluc[255 + (j<<8)] = transluc[blackcol + (j<<8)];
-        }
-        transluc[(255<<8) + 255] = transluc[(blackcol<<8) + blackcol];
     }
 }
 
@@ -431,26 +378,6 @@ static void maybe_alloc_palookup(int32_t palnum)
             Bexit(1);
     }
 }
-
-void paletteSetBlendTable(int32_t blend, const char *tab)
-{
-    if (blendtable[blend] == NULL)
-        blendtable[blend] = (char *) Xmalloc(256*256);
-
-    Bmemcpy(blendtable[blend], tab, 256*256);
-}
-
-void paletteFreeBlendTable(int32_t const blend)
-{
-    DO_FREE_AND_NULL(blendtable[blend]);
-}
-
-#ifdef LUNATIC
-const char *(paletteGetBlendTable) (int32_t blend)
-{
-    return blendtable[blend];
-}
-#endif
 
 #ifdef USE_OPENGL
 glblend_t const nullglblend =
@@ -687,21 +614,14 @@ void paletteFreeColorTables()
 // 32: apply brightness to scene in OpenGL
 void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
 {
-	int32_t i, j;
-	const uint8_t* dapal;
-
-	int32_t paldidchange;
-	//    uint32_t lastbright = curbrightness;
-
-    // Bassert((flags&4)==0); // What is so bad about this flag?
+	int32_t i;
 
 	if (/*(unsigned)dapalid >= MAXBASEPALS ||*/ basepaltable[dapalid] == NULL)
 		dapalid = 0;
-	paldidchange = (curbasepal != dapalid || basepalreset);
 	curbasepal = dapalid;
 	basepalreset = 0;
 
-	dapal = basepaltable[curbasepal];
+	auto dapal = basepaltable[curbasepal];
 
 	// In-scene brightness mode for RR's thunderstorm. This shouldn't affect the global gamma ramp.
 	if ((videoGetRenderMode() >= REND_POLYMOST) && (flags & Pal_SceneBrightness))
@@ -712,7 +632,6 @@ void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
 	{
 		r_scenebrightness = 0;
 	}
-	j = 0;	// Assume that the backend can do it.
 
 	for (i = 0; i < 256; i++)
 	{

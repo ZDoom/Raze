@@ -541,7 +541,6 @@ EXTERN int16_t numshades;
 EXTERN char *palookup[MAXPALOOKUPS];
 extern uint8_t *basepaltable[MAXBASEPALS];
 EXTERN uint8_t paletteloaded;
-EXTERN char *blendtable[MAXBLENDTABS];
 EXTERN uint8_t whitecol, redcol, blackcol;
 
 EXTERN int32_t maxspritesonscreen;

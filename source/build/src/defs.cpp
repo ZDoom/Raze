@@ -3116,7 +3116,6 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    paletteSetBlendTable(id, (char*)blendbuf.Data());
                     didLoadTransluc = 1;
                     break;
                 }
@@ -3132,15 +3131,6 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    char const * const sourcetable = blendtable[source];
-                    if (EDUKE32_PREDICT_FALSE(sourcetable == NULL))
-                    {
-                        initprintf("Error: blendtable: Source blendtable does not exist on line %s:%d\n",
-                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        break;
-                    }
-
-                    paletteSetBlendTable(id, sourcetable);
                     didLoadTransluc = 1;
 
 #ifdef USE_OPENGL
@@ -3150,8 +3140,6 @@ static int32_t defsparser(scriptfile *script)
                 }
                 case T_UNDEF:
                 {
-                    paletteFreeBlendTable(id);
-
                     didLoadTransluc = 0;
                     if (id == 0)
                         paletteloaded &= ~PALETTE_TRANSLUC;
@@ -3381,9 +3369,6 @@ static int32_t defsparser(scriptfile *script)
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
-
-            for (bssize_t i = id0; i <= id1; i++)
-                paletteFreeBlendTable(i);
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_TRANSLUC;
