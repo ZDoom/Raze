@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "menus.h"
 #include "savegame.h"
+#include "sbar.h"
 #include "statistics.h"
 #include "menu/menu.h"
 #include "mapinfo.h"
@@ -179,15 +180,22 @@ static void cacheTilesForSprite(int spriteNum)
         for (int j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1);
         break;
     case RPGSPRITE__STATIC:
-        for (int j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1);
+        tloadtile(WT_WIDE(RPGGUN), 1);
+        for (int j=RPGGUN+1; j<=RPGGUN+2; j++) tloadtile(j,1);
         break;
     case FREEZESPRITE__STATIC:
-        for (int j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1);
+        tloadtile(WT_WIDE(FREEZE), 1);
+        tloadtile(WORLDTOUR ? FREEZEFIREWIDE : FREEZE+2, 1);
+        for (int j=FREEZE+3; j<=FREEZE+5; j++) tloadtile(j,1);
         break;
     case GROWSPRITEICON__STATIC:
     case SHRINKERSPRITE__STATIC:
-        for (int j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1);
+    {
+        int32_t const tile = WT_WIDE(SHRINKER);
+        for (int j=tile-2; j<=tile+1; j++) tloadtile(j,1);
+        for (int j=SHRINKER+2; j<=SHRINKER+5; j++) tloadtile(j,1);
         break;
+    }
     case HBOMBAMMO__STATIC:
     case HEAVYHBOMB__STATIC:
         for (int j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1);
@@ -212,7 +220,7 @@ static void cacheTilesForSprite(int spriteNum)
 #ifndef EDUKE32_STANDALONE
 static void cacheDukeTiles(void)
 {
-    tloadtile(BOTTOMSTATUSBAR, 1);
+    tloadtile(sbartile(), 1);
 
     if ((g_netServer || ud.multimode > 1))
         tloadtile(FRAGBAR, 1);
@@ -239,7 +247,11 @@ static void cacheDukeTiles(void)
 
     for (int i = FIRSTGUN; i < FIRSTGUN+3; i++)
         tloadtile(i, 1);
-    for (int i = FIRSTGUNRELOAD; i < FIRSTGUNRELOAD+8; i++)
+    tloadtile(FIRSTGUNRELOAD, 1);
+    tloadtile(WORLDTOUR ? FIRSTGUNRELOADWIDE : FIRSTGUNRELOAD+1, 1);
+    tloadtile(FIRSTGUNRELOAD+2, 1);
+    tloadtile(FIRSTGUNRELOAD+4, 1);
+    for (int i = SHELL; i < SHELL+2; i++)
         tloadtile(i, 1);
 
     for (int i = EXPLOSION2; i < EXPLOSION2+21; i++)
@@ -508,7 +520,7 @@ void G_UpdateScreenArea(void)
         renderFlushPerms();
 
     int const screenSize    = max(ud.screen_size - 8, 0);
-    int const bottomStatusY = tilesiz[BOTTOMSTATUSBAR].y;
+    int const bottomStatusY = tilesiz[sbartile()].y;
 
     vec2_t v1 = { scale(screenSize, xdim, 160),
                   scale(screenSize, (200 * 100) - (bottomStatusY * ud.statusbarscale), 200 - bottomStatusY) };

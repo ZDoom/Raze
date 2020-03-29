@@ -2408,7 +2408,7 @@ void P_DisplayWeapon(void)
                 weaponX -= sintable[(768 + ((*weaponFrame) << 7)) & 2047] >> 11;
                 weaponYOffset += sintable[(768 + ((*weaponFrame) << 7)) & 2047] >> 11;
 
-                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
+                if (!WORLDTOUR && !(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
                     weaponBits |= 512;
 
                 if (*weaponFrame > 0)
@@ -2428,7 +2428,7 @@ void P_DisplayWeapon(void)
                     }
                 }
 
-                G_DrawWeaponTileWithID(currentWeapon, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset, RPGGUN, weaponShade,
+                G_DrawWeaponTileWithID(currentWeapon, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset, WT_WIDE(RPGGUN), weaponShade,
                                        weaponBits, weaponPal);
                 break;
 
@@ -2667,6 +2667,7 @@ void P_DisplayWeapon(void)
                 break;
 
             case PISTOL_WEAPON:
+            {
                 if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, TotalTime)+1)
                 {
                     static uint8_t pistolFrames[] = { 0, 1, 2 };
@@ -2682,8 +2683,10 @@ void P_DisplayWeapon(void)
                     break;
                 }
 
-                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING) && DUKE)
+                if (!WORLDTOUR && !(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING) && DUKE)
                     weaponBits |= 512;
+
+                int32_t const FIRSTGUN_5 = WORLDTOUR ? FIRSTGUNRELOADWIDE : FIRSTGUN + 5;
 
                 if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (NAM_WW2GI ? 40 : 17))
                     G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 230 - weaponYOffset, FIRSTGUN + 4,
@@ -2693,7 +2696,7 @@ void P_DisplayWeapon(void)
                     G_DrawWeaponTileWithID(currentWeapon << 1, 244 - ((*weaponFrame) << 3) - (pPlayer->look_ang >> 1),
                                            weaponY + 130 - weaponYOffset + ((*weaponFrame) << 4), FIRSTGUN + 6, weaponShade,
                                            weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN_5,
                                            weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (NAM_WW2GI ? 30 : 7))
@@ -2701,7 +2704,7 @@ void P_DisplayWeapon(void)
                     G_DrawWeaponTileWithID(currentWeapon << 1, 124 + ((*weaponFrame) << 1) - (pPlayer->look_ang >> 1),
                                            weaponY + 430 - weaponYOffset - ((*weaponFrame) << 3), FIRSTGUN + 6, weaponShade,
                                            weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN_5,
                                            weaponShade, weaponBits, weaponPal);
                 }
 
@@ -2709,21 +2712,22 @@ void P_DisplayWeapon(void)
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 184 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
                                            FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 210 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 210 - weaponYOffset, FIRSTGUN_5,
                                            weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (NAM_WW2GI ? 6 : 2))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 164 - (pPlayer->look_ang >> 1), weaponY + 245 - weaponYOffset,
                                            FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN_5,
                                            weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload))
-                    G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset, FIRSTGUN_5,
                                            weaponShade, weaponBits, weaponPal);
 
                 break;
+            }
 
             case HANDBOMB_WEAPON:
                 {
@@ -2874,7 +2878,7 @@ void P_DisplayWeapon(void)
                 break;
 
             case FREEZE_WEAPON:
-                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING) && DUKE)
+                if (!WORLDTOUR && !(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING) && DUKE)
                     weaponBits |= 512;
 
                 if ((*weaponFrame) < (PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime) + 1) && (*weaponFrame) > 0)
@@ -2888,13 +2892,13 @@ void P_DisplayWeapon(void)
                     }
                     weaponYOffset -= 16;
                     G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
-                                           FREEZE + 2, -32, weaponBits, weaponPal);
+                                           WORLDTOUR ? FREEZEFIREWIDE : FREEZE + 2, -32, weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
                                            FREEZE + 3 + freezerFrames[*weaponFrame % 6], -32, weaponBits, weaponPal);
                 }
                 else
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
-                                           FREEZE, weaponShade, weaponBits, weaponPal);
+                                           WT_WIDE(FREEZE), weaponShade, weaponBits, weaponPal);
                 break;
 
             case FLAMETHROWER_WEAPON:
@@ -2997,7 +3001,7 @@ void P_DisplayWeapon(void)
                     G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
                                                   SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0);
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                           currentWeapon == GROW_WEAPON ? SHRINKER - 1 : SHRINKER + 1, weaponShade, weaponBits, weaponPal);
+                                           WT_WIDE(SHRINKER) + (currentWeapon == GROW_WEAPON ? -1 : 1), weaponShade, weaponBits, weaponPal);
                 }
                 else
                 {
@@ -3005,7 +3009,7 @@ void P_DisplayWeapon(void)
                                                   SHRINKER + 2, 16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits,
                                                   currentWeapon == GROW_WEAPON ? 2 : 0);
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                           currentWeapon == GROW_WEAPON ? SHRINKER - 2 : SHRINKER, weaponShade, weaponBits, weaponPal);
+                                           WT_WIDE(SHRINKER) + (currentWeapon == GROW_WEAPON ? -2 : 0), weaponShade, weaponBits, weaponPal);
                 }
                 break;
             }

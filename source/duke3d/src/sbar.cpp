@@ -67,15 +67,16 @@ int32_t sbary16(int32_t y)
 
 static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
+    int32_t const statusTile = sbartile();
     int32_t const scl = sbarsc(65536);
-    int32_t const tx = sbarx16((160<<16) - (tilesiz[BOTTOMSTATUSBAR].x<<15)); // centered
-    int32_t const ty = sbary(200-tilesiz[BOTTOMSTATUSBAR].y);
+    int32_t const tx = sbarx16((160<<16) - (tilesiz[statusTile].x<<15)); // centered
+    int32_t const ty = sbary(200-tilesiz[statusTile].y);
 
     int32_t const clx1 = sbarsc(scale(x1, xdim, 320)), cly1 = sbarsc(scale(y1, ydim, 200));
     int32_t const clx2 = sbarsc(scale(x2, xdim, 320)), cly2 = sbarsc(scale(y2, ydim, 200));
     int32_t const clofx = (xdim - sbarsc(xdim)) >> 1, clofy = (ydim - sbarsc(ydim));
 
-    rotatesprite(tx, ty, scl, 0, BOTTOMSTATUSBAR, 4, 0, 10+16+64, clx1+clofx, cly1+clofy, clx2+clofx-1, cly2+clofy-1);
+    rotatesprite(tx, ty, scl, 0, statusTile, 4, 0, 10+16+64, clx1+clofx, cly1+clofy, clx2+clofx-1, cly2+clofy-1);
 }
 
 #define POLYMOSTTRANS (1)
@@ -409,10 +410,12 @@ void G_DrawInventory(const DukePlayer_t *p)
     }
     else // full HUD
     {
-        y = (200<<16) - (sbarsc(tilesiz[BOTTOMSTATUSBAR].y<<16) + (12<<16) + (tilesiz[BOTTOMSTATUSBAR].y<<(16-1)));
+        int32_t const statusTile = sbartile();
+
+        y = (200<<16) - (sbarsc(tilesiz[statusTile].y<<16) + (12<<16) + (tilesiz[statusTile].y<<(16-1)));
 
         if (!ud.statusbarmode) // original non-overlay mode
-            y += sbarsc(tilesiz[BOTTOMSTATUSBAR].y<<16)>>1; // account for the viewport y-size as the HUD scales
+            y += sbarsc(tilesiz[statusTile].y<<16)>>1; // account for the viewport y-size as the HUD scales
     }
 
     if (ud.screen_size == 4 && !ud.althud) // classic mini-HUD
@@ -558,7 +561,7 @@ void G_DrawStatusBar(int32_t snum)
     const int32_t althud = ud.althud;
 #endif
 
-    const int32_t SBY = (200-tilesiz[BOTTOMSTATUSBAR].y);
+    const int32_t SBY = (200-tilesiz[sbartile()].y);
 
     const int32_t sb15 = sbarsc(32768), sb15h = sbarsc(49152);
     const int32_t sb16 = sbarsc(65536);

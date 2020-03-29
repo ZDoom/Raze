@@ -916,7 +916,7 @@ void G_DisplayRest(int32_t smoothratio)
                 i -= sbarsc(ud.althud ? (tilesiz[BIGALPHANUM].y+8)<<16 : tilesiz[INVENTORYBOX].y<<16);
         }
         else if (ud.screen_size > 2)
-            i -= sbarsc(tilesiz[BOTTOMSTATUSBAR].y<<16);
+            i -= sbarsc(tilesiz[sbartile()].y<<16);
 
         int32_t const xbetween = (tilesiz[MF_Bluefont.tilenum + 'A' - '!'].x<<16) + MF_Bluefont.between.x;
 

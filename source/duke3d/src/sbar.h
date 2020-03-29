@@ -34,4 +34,9 @@ int32_t sbary16(int32_t y);
 void G_DrawInventory(const DukePlayer_t *p);
 void G_DrawStatusBar(int32_t snum);
 
+static FORCE_INLINE int32_t sbartile(void)
+{
+    return WORLDTOUR ? WIDESCREENSTATUSBAR : BOTTOMSTATUSBAR;
+}
+
 END_DUKE_NS

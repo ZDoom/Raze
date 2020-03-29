@@ -103,6 +103,8 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 // JBF 20040604: sync is a function on some platforms
 #define sync                dsync
 
+#define WT_WIDE(x) (WORLDTOUR ? (x ## WIDE) : (x))
+
 // Uncomment the following to remove calls to a.nasm functions with the GL renderers
 // so that debugging with valgrind --smc-check=none is possible:
 //#define DEBUG_VALGRIND_NO_SMC
