@@ -2120,7 +2120,7 @@ drawscreen(PLAYERp pp)
     if (dimensionmode != 6)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.
-        JS_DrawCameras(pp, tx, ty, tz, tang, thoriz);
+        JS_DrawCameras(pp, tx, ty, tz);
     }
 
     screen->BeginScene();
