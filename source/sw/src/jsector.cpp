@@ -714,7 +714,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
     }
 }
 
-void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, fix16_t tpq16horiz)
+void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16_t tpq16horiz)
 {
     int j, cnt;
     int dist;
@@ -752,7 +752,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, fix16_t tpq
 //                tx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
 //                ty = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
 //                tz = pp->oposz + mulscale16(pp->posz - pp->oposz, smoothratio);
-//                tpang = pp->oang + mulscale16(((pp->pang + 1024 - pp->oang) & 2047) - 1024, smoothratio);
+//                tpq16ang = pp->oq16ang + mulscale16(((pp->q16ang + fix16_from_int(1024) - pp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
 
 
                 dist = 0x7fffffff;
@@ -849,7 +849,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, fix16_t tpq
 
                         if (mirror[cnt].campic != -1)
 							tileDelete(mirror[cnt].campic);
-                        renderDrawRoomsQ16(dx, dy, dz, fix16_from_int(tpang), tpq16horiz, sp->sectnum + MAXSECTORS);
+                        renderDrawRoomsQ16(dx, dy, dz, tpq16ang, tpq16horiz, sp->sectnum + MAXSECTORS);
                         analyzesprites(dx, dy, dz, FALSE);
                         renderDrawMasks();
                     }
@@ -863,7 +863,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, fix16_t tpq
                     // Must call preparemirror before drawrooms and
                     // completemirror after drawrooms
 
-                    renderPrepareMirror(tx, ty, tz, fix16_from_int(tpang), tpq16horiz,
+                    renderPrepareMirror(tx, ty, tz, tpq16ang, tpq16horiz,
                                   mirror[cnt].mirrorwall, /*mirror[cnt].mirrorsector,*/ &tposx, &tposy, &tang);
 
                     renderDrawRoomsQ16(tposx, tposy, tz, (tang), tpq16horiz, mirror[cnt].mirrorsector + MAXSECTORS);
@@ -879,7 +879,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, fix16_t tpq
                 // g_visibility = tvisibility;
                 // g_visibility = NormalVisibility;
 
-                // renderDrawRoomsQ16(tx, ty, tz, fix16_from_int(tpang), tpq16horiz, pp->cursectnum);
+                // renderDrawRoomsQ16(tx, ty, tz, tpq16ang, tpq16horiz, pp->cursectnum);
                 // Clean up anything that the camera view might have done
                 SetFragBar(pp);
 				tileDelete(MIRROR);
