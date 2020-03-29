@@ -46,8 +46,8 @@ PLAYERp ppp = &PredictPlayer;
 typedef struct
 {
     int x,y,z;
-    fix16_t q16horiz;
-    short ang,filler;
+    fix16_t q16horiz, q16ang;
+    short filler;
 } PREDICT, *PREDICTp;
 
 PREDICT Predict[MOVEFIFOSIZ];
@@ -157,7 +157,7 @@ DoPrediction(PLAYERp ppp)
     u = User[ppp->PlayerSprite];
     User[ppp->PlayerSprite] = &PredictUser;
 
-    ppp->oang = ppp->pang;
+    ppp->oq16ang = ppp->q16ang;
     ppp->oposx = ppp->posx;
     ppp->oposy = ppp->posy;
     ppp->oposz = ppp->posz;
@@ -179,7 +179,7 @@ DoPrediction(PLAYERp ppp)
     sprite[Player[myconnectindex].PlayerSprite] = spr;
     randomseed = bakrandomseed;
 
-    Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].ang = ppp->pang;
+    Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].q16ang = ppp->q16ang;
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].x = ppp->posx;
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].y = ppp->posy;
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].z = ppp->posz;
@@ -199,7 +199,7 @@ CorrectPrediction(int actualfifoplc)
         return;
 
     // see if player position is predicted position
-    if (predict->ang == Player[myconnectindex].pang &&
+    if (predict->q16ang == Player[myconnectindex].q16ang &&
         predict->x == Player[myconnectindex].posx &&
         predict->y == Player[myconnectindex].posy &&
         predict->z == Player[myconnectindex].posz &&
@@ -209,7 +209,7 @@ CorrectPrediction(int actualfifoplc)
         return;
     }
 
-//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", predict->ang,  Player[myconnectindex].pang, predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  fix16_to_int(predict->q16horiz),fix16_to_int(Player[myconnectindex].q16horiz));
+//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", fix16_to_int(predict->q16ang),  fix16_to_int(Player[myconnectindex].q16ang), predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  fix16_to_int(predict->q16horiz),fix16_to_int(Player[myconnectindex].q16horiz));
 //    MONO_PRINT(ds);
 
     InitPrediction(&Player[myconnectindex]);

@@ -1228,7 +1228,7 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, SWBOOL skip_targets)
             angle2 = NORM_ANGLE(getangle(ep->x - sp->x, ep->y - sp->y));
 
             // Get the angle difference
-            // delta_ang = labs(pp->pang - angle2);
+            // delta_ang = labs(fix16_to_int(pp->q16ang) - angle2);
 
             delta_ang = labs(GetDeltaAngle(sp->ang, angle2));
 
@@ -1332,7 +1332,7 @@ DoPlayerTeleportPause(PLAYERp pp)
 void
 DoPlayerTeleportToSprite(PLAYERp pp, SPRITEp sp)
 {
-    pp->pang = pp->oang = sp->ang;
+    pp->q16ang = pp->q16ang = fix16_from_int(sp->ang);
     pp->posx = pp->oposx = pp->oldposx = sp->x;
     pp->posy = pp->oposy = pp->oldposy = sp->y;
 
@@ -1552,12 +1552,12 @@ DoPlayerTurn(PLAYERp pp)
 
                 FLAG_KEY_RELEASE(pp, SK_TURN_180);
 
-                pp->turn180_target = NORM_ANGLE(pp->pang + 1024);
+                pp->turn180_target = NORM_ANGLE(fix16_to_int(pp->q16ang) + 1024);
 
                 // make the first turn in the clockwise direction
                 // the rest will follow
-                delta_ang = GetDeltaAngle(pp->turn180_target, pp->pang);
-                pp->pang = NORM_ANGLE(pp->pang + (labs(delta_ang) >> TURN_SHIFT));
+                delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
+                pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang) + (labs(delta_ang) >> TURN_SHIFT)));
 
                 SET(pp->Flags, PF_TURN_180);
             }
@@ -1572,47 +1572,47 @@ DoPlayerTurn(PLAYERp pp)
     {
         short delta_ang;
 
-        delta_ang = GetDeltaAngle(pp->turn180_target, pp->pang);
-        pp->pang = NORM_ANGLE(pp->pang + (delta_ang >> TURN_SHIFT));
+        delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
+        pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang) + (delta_ang >> TURN_SHIFT)));
 
-        sprite[pp->PlayerSprite].ang = pp->pang;
+        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
         if (!Prediction)
         {
             if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = pp->pang;
+                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
         }
 
         // get new delta to see how close we are
-        delta_ang = GetDeltaAngle(pp->turn180_target, pp->pang);
+        delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
 
         if (labs(delta_ang) < (3<<TURN_SHIFT))
         {
-            pp->pang = pp->turn180_target;
+            pp->q16ang = fix16_from_int(pp->turn180_target);
             RESET(pp->Flags, PF_TURN_180);
         }
         else
             return;
     }
 
-    angvel = pp->input.angvel * PLAYER_TURN_SCALE;
+    angvel = fix16_to_int(pp->input.q16avel) * PLAYER_TURN_SCALE;
 
     if (angvel != 0)
     {
         // running is not handled here now
         angvel += DIV4(angvel);
 
-        pp->pang += DIV32(angvel * synctics);
-        pp->pang = NORM_ANGLE(pp->pang);
+        pp->q16ang += fix16_from_int(DIV32(angvel * synctics));
+        pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang)));
 
         // update players sprite angle
         // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
         // here to cover
         // all cases.
-        sprite[pp->PlayerSprite].ang = pp->pang;
+        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
         if (!Prediction)
         {
             if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = pp->pang;
+                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
         }
 
     }
@@ -1628,7 +1628,7 @@ DoPlayerTurnBoat(PLAYERp pp)
     if (sop->drive_angspeed)
     {
         pp->drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(pp->input.angvel, sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
@@ -1637,15 +1637,15 @@ DoPlayerTurnBoat(PLAYERp pp)
     }
     else
     {
-        angvel = pp->input.angvel * PLAYER_TURN_SCALE;
+        angvel = fix16_to_int(pp->input.q16avel) * PLAYER_TURN_SCALE;
         angvel += angvel - DIV4(angvel);
         angvel = DIV32(angvel * synctics);
     }
 
     if (angvel != 0)
     {
-        pp->pang = NORM_ANGLE(pp->pang + angvel);
-        sprite[pp->PlayerSprite].ang = pp->pang;
+        pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang) + angvel));
+        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
     }
 }
 
@@ -1660,7 +1660,7 @@ DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
         int angslide;
 
         pp->drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(pp->input.angvel, sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
@@ -1669,15 +1669,15 @@ DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
     }
     else
     {
-        angvel = DIV8(pp->input.angvel * synctics);
+        angvel = DIV8(fix16_to_int(pp->input.q16avel) * synctics);
     }
 
     if (angvel != 0)
     {
-        if (MultiClipTurn(pp, NORM_ANGLE(pp->pang + angvel), z, floor_dist))
+        if (MultiClipTurn(pp, NORM_ANGLE(fix16_to_int(pp->q16ang) + angvel), z, floor_dist))
         {
-            pp->pang = NORM_ANGLE(pp->pang + angvel);
-            sprite[pp->PlayerSprite].ang = pp->pang;
+            pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang) + angvel));
+            sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
         }
     }
 }
@@ -1693,7 +1693,7 @@ DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
         int angslide;
 
         pp->drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(pp->input.angvel, sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
@@ -1702,15 +1702,15 @@ DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
     }
     else
     {
-        angvel = DIV8(pp->input.angvel * synctics);
+        angvel = DIV8(fix16_to_int(pp->input.q16avel) * synctics);
     }
 
     if (angvel != 0)
     {
-        if (RectClipTurn(pp, NORM_ANGLE(pp->pang + angvel), x, y, ox, oy))
+        if (RectClipTurn(pp, NORM_ANGLE(fix16_to_int(pp->q16ang) + angvel), x, y, ox, oy))
         {
-            pp->pang = NORM_ANGLE(pp->pang + angvel);
-            sprite[pp->PlayerSprite].ang = pp->pang;
+            pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang) + angvel));
+            sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
         }
     }
 }
@@ -1731,9 +1731,9 @@ DoPlayerTurnTurret(PLAYERp pp)
         fifo_ndx = (movefifoplc-2) & (MOVEFIFOSIZ - 1);
         last_input = pp->inputfifo[fifo_ndx];
 
-        if (pp->input.angvel && !last_input.angvel)
+        if (pp->input.q16avel && !last_input.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else if (!pp->input.angvel && last_input.angvel)
+        else if (!pp->input.q16avel && last_input.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
@@ -1742,7 +1742,7 @@ DoPlayerTurnTurret(PLAYERp pp)
         int angslide;
 
         pp->drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(pp->input.angvel, sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
@@ -1751,12 +1751,12 @@ DoPlayerTurnTurret(PLAYERp pp)
     }
     else
     {
-        angvel = DIV4(pp->input.angvel * synctics);
+        angvel = DIV4(fix16_to_int(pp->input.q16avel) * synctics);
     }
 
     if (angvel != 0)
     {
-        new_ang = NORM_ANGLE(pp->pang + angvel);
+        new_ang = NORM_ANGLE(fix16_to_int(pp->q16ang) + angvel);
 
         if (sop->limit_ang_center >= 0)
         {
@@ -1772,8 +1772,8 @@ DoPlayerTurnTurret(PLAYERp pp)
             }
         }
 
-        pp->pang = new_ang;
-        sprite[pp->PlayerSprite].ang = pp->pang;
+        pp->q16ang = fix16_from_int(new_ang);
+        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
     }
 }
 
@@ -1807,8 +1807,8 @@ PlayerAutoLook(PLAYERp pp)
         if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
         {
             // Get a point, 512 units ahead of player's position
-            x = pp->posx + (sintable[(pp->pang + 512) & 2047] >> 5);
-            y = pp->posy + (sintable[pp->pang & 2047] >> 5);
+            x = pp->posx + (sintable[(fix16_to_int(pp->q16ang) + 512) & 2047] >> 5);
+            y = pp->posy + (sintable[fix16_to_int(pp->q16ang) & 2047] >> 5);
             tempsect = pp->cursectnum;
             COVERupdatesector(x, y, &tempsect);
 
@@ -2146,7 +2146,7 @@ UpdatePlayerSprite(PLAYERp pp)
     if (TEST(pp->Flags, PF_DEAD))
     {
         changespritesect(pp->PlayerSprite, pp->cursectnum);
-        sprite[pp->PlayerSprite].ang = pp->pang;
+        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
         UpdatePlayerUnderSprite(pp);
         return;
     }
@@ -2221,7 +2221,7 @@ UpdatePlayerSprite(PLAYERp pp)
 
     UpdatePlayerUnderSprite(pp);
 
-    sprite[pp->PlayerSprite].ang = pp->pang;
+    sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
 }
 
 void
@@ -2480,11 +2480,11 @@ MoveScrollMode2D(PLAYERp pp)
     if (mfsvel > MAXSVEL)
         mfsvel = MAXSVEL;
 
-    momx = mulscale9(mfvel, sintable[NORM_ANGLE(pp->pang + 512)]);
-    momy = mulscale9(mfvel, sintable[NORM_ANGLE(pp->pang)]);
+    momx = mulscale9(mfvel, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + 512)]);
+    momy = mulscale9(mfvel, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang))]);
 
-    momx += mulscale9(mfsvel, sintable[NORM_ANGLE(pp->pang)]);
-    momy += mulscale9(mfsvel, sintable[NORM_ANGLE(pp->pang + 1536)]);
+    momx += mulscale9(mfsvel, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang))]);
+    momy += mulscale9(mfsvel, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + 1536)]);
 
     //mfvel = momx;
     //mfsvel = momy;
@@ -2844,13 +2844,13 @@ DoPlayerMoveBoat(PLAYERp pp)
     z = pp->posz + Z(10);
 
     save_sectnum = pp->cursectnum;
-    OperateSectorObject(pp->sop, pp->pang, MAXSO, MAXSO);
+    OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), MAXSO, MAXSO);
     pp->cursectnum = pp->sop->op_main_sector; // for speed
 
     floor_dist = labs(z - pp->sop->floor_loz);
     clipmove_old(&pp->posx, &pp->posy, &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
 
-    OperateSectorObject(pp->sop, pp->pang, pp->posx, pp->posy);
+    OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
     DoPlayerHorizon(pp);
@@ -2883,7 +2883,7 @@ void DoTankTreads(PLAYERp pp)
         return;
 
     vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->pang+512)], sintable[pp->pang]);
+    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang)+512)], sintable[fix16_to_int(pp->q16ang)]);
     if (dot < 0)
         reverse = TRUE;
 
@@ -3023,7 +3023,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
         return;
 
     // not moving - don't crush
-    if ((pp->xvect|pp->yvect) == 0 && pp->input.angvel == 0)
+    if ((pp->xvect|pp->yvect) == 0 && pp->input.q16avel == 0)
         return;
 
     // main sector
@@ -3129,7 +3129,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
                 continue;
 
             damage = -(u->Health + 100);
-            PlayerDamageSlide(u->PlayerP, damage, pp->pang);
+            PlayerDamageSlide(u->PlayerP, damage, fix16_to_int(pp->q16ang));
             PlayerUpdateHealth(u->PlayerP, damage);
             //PlayerCheckDeath(u->PlayerP, -1);
             PlayerCheckDeath(u->PlayerP, pp->PlayerSprite);
@@ -3264,7 +3264,7 @@ DoPlayerMoveTank(PLAYERp pp)
     }
 
     save_sectnum = pp->cursectnum;
-    OperateSectorObject(pp->sop, pp->pang, MAXSO, MAXSO);
+    OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), MAXSO, MAXSO);
     pp->cursectnum = pp->sop->op_main_sector; // for speed
 
     floor_dist = labs(z - pp->sop->floor_loz);
@@ -3294,7 +3294,7 @@ DoPlayerMoveTank(PLAYERp pp)
 
                 hitscan(&hit_pos, pp->cursectnum,
                         //pp->xvect, pp->yvect, 0,
-                        MOVEx(256, pp->pang), MOVEy(256, pp->pang), 0,
+                        MOVEx(256, fix16_to_int(pp->q16ang)), MOVEy(256, fix16_to_int(pp->q16ang)), 0,
                         &hitinfo, CLIPMASK_PLAYER);
 
                 ////DSPRINTF(ds,"hitinfo.sect %d, hitinfo.wall %d, hitinfo.pos.x %d, hitinfo.pos.y %d, hitinfo.pos.z %d",hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
@@ -3361,7 +3361,7 @@ DoPlayerMoveTank(PLAYERp pp)
         }
     }
 
-    OperateSectorObject(pp->sop, pp->pang, pp->posx, pp->posy);
+    OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
     DoPlayerHorizon(pp);
@@ -3379,7 +3379,7 @@ DoPlayerMoveTurret(PLAYERp pp)
     else
         SET(pp->Flags, PF_PLAYER_MOVED);
 
-    OperateSectorObject(pp->sop, pp->pang, pp->sop->xmid, pp->sop->ymid);
+    OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
 
     DoPlayerHorizon(pp);
 }
@@ -3808,7 +3808,7 @@ DoPlayerClimb(PLAYERp pp)
         pp->xvect = pp->yvect = 0;
 
     climbvel = FindDistance2D(pp->xvect, pp->yvect)>>9;
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->pang+512)], sintable[pp->pang]);
+    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang)+512)], sintable[fix16_to_int(pp->q16ang)]);
     if (dot < 0)
         climbvel = -climbvel;
 
@@ -3978,7 +3978,7 @@ DoPlayerClimb(PLAYERp pp)
 
         // constantly look for new ladder sector because of warping at any time
         neartag(pp->posx, pp->posy, pp->posz,
-                pp->cursectnum, pp->pang,
+                pp->cursectnum, fix16_to_int(pp->q16ang),
                 &sec, &wal, &spr,
                 &dist, 800L, NTAG_SEARCH_LO_HI, NULL);
 
@@ -4003,7 +4003,7 @@ DoPlayerClimb(PLAYERp pp)
             pp->lx = lsp->x + nx * 5;
             pp->ly = lsp->y + ny * 5;
 
-            pp->pang = pp->LadderAngle;
+            pp->q16ang = fix16_from_int(pp->LadderAngle);
         }
     }
 }
@@ -4023,8 +4023,8 @@ DoPlayerWadeSuperJump(PLAYERp pp)
     for (i = 0; i < SIZ(angs); i++)
     {
         FAFhitscan(pp->posx, pp->posy, zh, pp->cursectnum,    // Start position
-                   sintable[NORM_ANGLE(pp->pang + angs[i] + 512)],       // X vector of 3D ang
-                   sintable[NORM_ANGLE(pp->pang + angs[i])],         // Y vector of 3D ang
+                   sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + angs[i] + 512)],       // X vector of 3D ang
+                   sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + angs[i])],         // Y vector of 3D ang
                    0,                          // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
@@ -4462,11 +4462,11 @@ PlayerOnLadder(PLAYERp pp)
     if (Prediction)
         return 0;
 
-    neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, pp->pang,
+    neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, fix16_to_int(pp->q16ang),
             &neartagsector, &neartagwall, &neartagsprite,
             &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI, NULL);
 
-    dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->pang+512)], sintable[pp->pang]);
+    dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang)+512)], sintable[fix16_to_int(pp->q16ang)]);
 
     if (dir < 0)
         return FALSE;
@@ -4476,7 +4476,7 @@ PlayerOnLadder(PLAYERp pp)
 
     for (i = 0; i < SIZ(angles); i++)
     {
-        neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, NORM_ANGLE(pp->pang + angles[i]),
+        neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, NORM_ANGLE(fix16_to_int(pp->q16ang) + angles[i]),
                 &sec, &wal, &spr,
                 &dist, 600L, NTAG_SEARCH_LO_HI, NULL);
 
@@ -4484,8 +4484,8 @@ PlayerOnLadder(PLAYERp pp)
             return FALSE;
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,
-                   sintable[NORM_ANGLE(pp->pang  + angles[i] + 512)],
-                   sintable[NORM_ANGLE(pp->pang + angles[i])],
+                   sintable[NORM_ANGLE(fix16_to_int(pp->q16ang)  + angles[i] + 512)],
+                   sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + angles[i])],
                    0,
                    &hitinfo, CLIPMASK_MISSILE);
 
@@ -4540,7 +4540,7 @@ PlayerOnLadder(PLAYERp pp)
     pp->lx = lsp->x + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
-    pp->pang = pp->LadderAngle;
+    pp->q16ang = fix16_from_int(pp->LadderAngle);
 
     return TRUE;
 }
@@ -5793,7 +5793,7 @@ DoPlayerBeginOperate(PLAYERp pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->SpriteP;
 
-    pp->pang = sop->ang;
+    pp->q16ang = fix16_from_int(sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5828,7 +5828,7 @@ DoPlayerBeginOperate(PLAYERp pp)
         break;
     case SO_TURRET_MGUN:
     case SO_TURRET:
-        if (pp->input.angvel)
+        if (pp->input.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5878,7 +5878,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
     save_sectnum = pp->cursectnum;
 
-    pp->pang = sop->ang;
+    pp->q16ang = fix16_from_int(sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5916,7 +5916,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         break;
     case SO_TURRET_MGUN:
     case SO_TURRET:
-        if (pp->input.angvel)
+        if (pp->input.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -6007,9 +6007,9 @@ DoPlayerStopOperate(PLAYERp pp)
     if (pp->sop_remote)
     {
         if (TEST_BOOL1(pp->remote_sprite))
-            pp->pang = pp->oang = pp->remote_sprite->ang;
+            pp->q16ang = pp->oq16ang = fix16_from_int(pp->remote_sprite->ang);
         else
-            pp->pang = pp->oang = getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy);
+            pp->q16ang = pp->oq16ang = fix16_from_int(getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
     }
 
     if (pp->sop_control)
@@ -6684,7 +6684,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     //DoPlayerDeathTilt(pp, pp->tilt_dest, 4 * synctics);
 
     // allow turning
-    if ((TEST(pp->Flags, PF_DEAD_HEAD) && pp->input.angvel != 0) || TEST(pp->Flags, PF_HEAD_CONTROL))
+    if ((TEST(pp->Flags, PF_DEAD_HEAD) && pp->input.q16avel != 0) || TEST(pp->Flags, PF_HEAD_CONTROL))
     {
         DoPlayerTurn(pp);
         return;
@@ -6701,8 +6701,8 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
         {
             ang2 = getangle(kp->x - pp->posx, kp->y - pp->posy);
 
-            delta_ang = GetDeltaAngle(ang2, pp->pang);
-            pp->pang = NORM_ANGLE(pp->pang + (delta_ang >> 4));
+            delta_ang = GetDeltaAngle(ang2, fix16_to_int(pp->q16ang));
+            pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang) + (delta_ang >> 4)));
         }
     }
 }
@@ -6742,7 +6742,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         pp->SpriteP->x = pp->posx;
         pp->SpriteP->y = pp->posy;
         pp->SpriteP->z = pp->posz+PLAYER_HEIGHT;
-        pp->SpriteP->ang = pp->pang;
+        pp->SpriteP->ang = fix16_to_int(pp->q16ang);
 
         DoSpawnTeleporterEffect(pp->SpriteP);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
@@ -7440,7 +7440,7 @@ MoveSkipSavePos(void)
         pp->oposx = pp->posx;
         pp->oposy = pp->posy;
         pp->oposz = pp->posz;
-        pp->oang = pp->pang;
+        pp->oq16ang = pp->q16ang;
         pp->oq16horiz = pp->q16horiz;
     }
 
@@ -7508,7 +7508,7 @@ void ChopsCheck(PLAYERp pp)
 
     if (!M_Active() && !HelpInputMode && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.angvel|pp->input.q16horz) ||
+        if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.q16avel|pp->input.q16horz) ||
             TEST(pp->Flags, PF_CLIMBING|PF_FALLING|PF_DIVING))
         {
             // Hit a input key or other reason to stop chops
@@ -7908,7 +7908,7 @@ domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].pang = getangle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy);
+            Player[screenpeek].q16ang = fix16_from_int(getangle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy));
         }
 
         if (!TEST(pp->Flags, PF_DEAD))
@@ -7988,7 +7988,7 @@ InitAllPlayers(void)
         pp->posx = pp->oposx = pfirst->posx;
         pp->posy = pp->oposy = pfirst->posy;
         pp->posz = pp->oposz = pfirst->posz;
-        pp->pang = pp->oang = pfirst->pang;
+        pp->q16ang = pp->oq16ang = pfirst->q16ang;
         pp->q16horiz = pp->oq16horiz = pfirst->q16horiz;
         pp->cursectnum = pfirst->cursectnum;
         // set like this so that player can trigger something on start of the level
@@ -8139,7 +8139,7 @@ PlayerSpawnPosition(PLAYERp pp)
     pp->posx = pp->oposx = sp->x;
     pp->posy = pp->oposy = sp->y;
     pp->posz = pp->oposz = sp->z;
-    pp->pang = pp->oang = sp->ang;
+    pp->q16ang = pp->oq16ang = fix16_from_int(sp->ang);
     pp->cursectnum = sp->sectnum;
 
     getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
@@ -8198,7 +8198,7 @@ InitMultiPlayerInfo(void)
                 continue;
         }
 
-        start0 = SpawnSprite(MultiStatList[stat], ST1, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->pang, 0);
+        start0 = SpawnSprite(MultiStatList[stat], ST1, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, fix16_to_int(pp->q16ang), 0);
         ASSERT(start0 >= 0);
         if (User[start0])
         {

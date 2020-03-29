@@ -104,7 +104,7 @@ typedef struct
 {
     int32_t vel;
     int32_t svel;
-    int32_t angvel;
+    fix16_t q16avel;
     fix16_t q16horz;
     int32_t bits;
 } SW_AVERAGE_PACKET;
@@ -296,17 +296,17 @@ int EncodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
         SET(*base_ptr, BIT(1));
     }
 
-    if (pak->angvel != old_pak->angvel)
+    if (pak->q16avel != old_pak->q16avel)
     {
-        *((char *)buf) = pak->angvel;
-        buf += sizeof(pak->angvel);
+        *((char *)buf) = pak->q16avel;
+        buf += sizeof(pak->q16avel);
         SET(*base_ptr, BIT(2));
     }
 
     if (pak->q16horz != old_pak->q16horz)
     {
-        *((char *)buf) = fix16_to_int(pak->q16horz);
-        buf += sizeof(fix16_to_int(pak->q16horz));
+        *((char *)buf) = pak->q16horz;
+        buf += sizeof(pak->q16horz);
         SET(*base_ptr, BIT(3));
     }
 
@@ -348,14 +348,14 @@ int DecodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
 
     if (TEST(*base_ptr, BIT(2)))
     {
-        pak->angvel = *(char *)buf;
-        buf += sizeof(pak->angvel);
+        pak->q16avel = *(char *)buf;
+        buf += sizeof(pak->q16avel);
     }
 
     if (TEST(*base_ptr, BIT(3)))
     {
-        pak->q16horz = fix16_from_int(*(char *)buf);
-        buf += sizeof(fix16_to_int(pak->q16horz));
+        pak->q16horz = *(char *)buf;
+        buf += sizeof(pak->q16horz);
     }
 
     //won't work if > 4 bytes
@@ -937,7 +937,7 @@ faketimerhandler(void)
 
     AveragePacket.vel += loc.vel;
     AveragePacket.svel += loc.svel;
-    AveragePacket.angvel += loc.angvel;
+    AveragePacket.q16avel += loc.q16avel;
     AveragePacket.q16horz += loc.q16horz;
     SET(AveragePacket.bits, loc.bits);
 
@@ -955,8 +955,8 @@ faketimerhandler(void)
 
     loc.vel = AveragePacket.vel / MovesPerPacket;
     loc.svel = AveragePacket.svel / MovesPerPacket;
-    loc.angvel = AveragePacket.angvel / MovesPerPacket;
-    loc.q16horz = AveragePacket.q16horz / MovesPerPacket;
+    loc.q16avel = AveragePacket.q16avel / fix16_from_int(MovesPerPacket);
+    loc.q16horz = AveragePacket.q16horz / fix16_from_int(MovesPerPacket);
     loc.bits = AveragePacket.bits;
 
     memset(&AveragePacket, 0, sizeof(AveragePacket));
