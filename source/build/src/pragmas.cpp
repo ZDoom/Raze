@@ -53,50 +53,6 @@ void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t 
 }
 #endif
 
-#ifndef pragmas_have_clearbuf
-void clearbuf(void *d, int32_t c, int32_t a)
-{
-    auto p = (int32_t *)d;
-
-#if 0
-    if (a == 0)
-    {
-        clearbufbyte(d, c<<2, 0);
-        return;
-    }
-#endif
-
-    while (c--)
-        *p++ = a;
-}
-#endif
-
-#ifndef pragmas_have_copybuf
-void copybuf(const void *s, void *d, int32_t c)
-{
-    auto p = (const int32_t *) s;
-    auto q = (int32_t *) d;
-
-    while (c--)
-        *q++ = *p++;
-}
-#endif
-
-#ifndef pragmas_have_swaps
-void swapbuf4(void *a, void *b, int32_t c)
-{
-    auto p = (int32_t *) a;
-    auto q = (int32_t *) b;
-
-    while ((c--) > 0)
-    {
-        int x = *q, y = *p;
-        *(q++) = y;
-        *(p++) = x;
-    }
-}
-#endif
-
 #ifndef pragmas_have_clearbufbyte
 void clearbufbyte(void *D, int32_t c, int32_t a)
 {
@@ -125,17 +81,3 @@ void copybufbyte(const void *s, void *d, int32_t c)
 #endif
 
 
-// copybufreverse() is a special case: use the assembly version for GCC on x86
-// *and* x86_64, and the C version otherwise.
-// XXX: we don't honor NOASM in the x86_64 case.
-
-#if !defined pragmas_have_copybufreverse
-void copybufreverse(const void *s, void *d, int32_t c)
-{
-    auto src = (const char *)s;
-    auto dst = (char *)d;
-
-    while (c--)
-        *dst++ = *src--;
-}
-#endif

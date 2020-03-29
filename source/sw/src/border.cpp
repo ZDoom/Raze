@@ -162,24 +162,6 @@ SetConsoleDmost(void)
 
     if (ydim == 480 && gs.BorderNum == 2)
         adj = 1;
-
-    //for (i = FIXED(0, 0); i < f_320; i += x_pix_size)
-    for (i = 0; i < xdim; i++)
-    // define picture
-    // boundaries
-    {
-        startdmost[i] = MSW(ystart) + adj;
-    }
-}
-
-void ClearStartMost(void)
-{
-    int i;
-
-    for (i = 0; i < xdim; i++)
-        startdmost[i] = ydim;
-
-    memset(startumost.Data(), 0, xdim * sizeof(int16_t));
 }
 
 void
@@ -207,9 +189,6 @@ SetFragBar(PLAYERp pp)
     {
         y = (tilesiz[FRAG_BAR].y * num_frag_bars) - (2 * (num_frag_bars-1));
         y = y * (ydim/200.0);
-
-        if (windowxy1.y < y)
-            startumost[i] = y;
     }
 
     for (i = 0, y = 0; i < num_frag_bars; i++)

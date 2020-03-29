@@ -20,7 +20,7 @@
     EDUKE32_SCALER_PRAGMA(25) EDUKE32_SCALER_PRAGMA(26) EDUKE32_SCALER_PRAGMA(27) EDUKE32_SCALER_PRAGMA(28) \
     EDUKE32_SCALER_PRAGMA(29) EDUKE32_SCALER_PRAGMA(30) EDUKE32_SCALER_PRAGMA(31)
 
-extern int32_t reciptable[2048], fpuasm;
+extern int32_t reciptable[2048];
 
 // break the C version of divscale out from the others
 // because asm version overflows in drawmapview()
@@ -154,19 +154,8 @@ static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
 }
 #endif
 
-static FORCE_INLINE CONSTEXPR char readpixel(void *s) { return *(char *)s; }
-
-
 #ifndef pragmas_have_klabs
-#if 0
-static FORCE_INLINE int32_t klabs(int32_t const a)
-{
-    uint32_t const m = a >> (sizeof(uint32_t) * CHAR_BIT - 1);
-    return (a ^ m) - m;
-}
-#else
 #define klabs(x) abs(x)
-#endif
 #endif
 #ifndef pragmas_have_ksgn
 static FORCE_INLINE CONSTEXPR int ksgn(int32_t a) { return (a > 0) - (a < 0); }
@@ -185,24 +174,11 @@ void qinterpolatedown16(intptr_t bufptr, int32_t num, int32_t val, int32_t add);
 void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t add);
 #endif
 
-#ifndef pragmas_have_clearbuf
-void clearbuf(void *d, int32_t c, int32_t a);
-#endif
-#ifndef pragmas_have_copybuf
-void copybuf(const void *s, void *d, int32_t c);
-#endif
-#ifndef pragmas_have_swaps
-void swapbuf4(void *a, void *b, int32_t c);
-#endif
-
 #ifndef pragmas_have_clearbufbyte
 void clearbufbyte(void *D, int32_t c, int32_t a);
 #endif
 #ifndef pragmas_have_copybufbyte
 void copybufbyte(const void *S, void *D, int32_t c);
-#endif
-#ifndef pragmas_have_copybufreverse
-void copybufreverse(const void *S, void *D, int32_t c);
 #endif
 
 #ifndef pragmas_have_krecipasm
@@ -220,24 +196,5 @@ static inline int32_t krecipasm(int32_t i)
 #undef dw
 #undef wo
 #undef by
-
-static inline void swapbufreverse(void *s, void *d, int32_t c)
-{
-    uint8_t *src = (uint8_t *)s, *dst = (uint8_t *)d;
-    Bassert(c >= 4);
-
-    do
-    {
-        swapchar(dst, src);
-        swapchar(dst + 1, src - 1);
-        swapchar(dst + 2, src - 2);
-        swapchar(dst + 3, src - 3);
-        dst += 4, src -= 4;
-    } while ((c -= 4) > 4);
-
-    while (c--)
-        swapchar(dst++, src--);
-}
-
 
 #endif  // pragmas_h_

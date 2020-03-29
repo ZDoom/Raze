@@ -2347,7 +2347,6 @@ void ManualPlayerInsert(PLAYERp pp);    // game.c
 
 void SetRedrawScreen(PLAYERp pp);   // border.c
 void SetupAspectRatio(void);    // border.c
-void ClearStartMost(void);  // border.c
 void SetCrosshair(void);    // border.c
 
 void initsynccrc(void);     // sync.c

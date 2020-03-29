@@ -3161,7 +3161,7 @@ void movelava(char *dapic)
     offs2 = (LAVASIZ + 2) + 1 + ((intptr_t) lavabakpic);
     for (x = 0; x < LAVASIZ; x++)
     {
-        copybuf(offs, offs2, LAVASIZ >> 2);
+        memcpy(offs2, offs, LAVASIZ);
         offs += LAVASIZ;
         offs2 += LAVASIZ + 2;
     }

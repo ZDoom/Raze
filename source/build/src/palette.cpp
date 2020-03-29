@@ -24,7 +24,6 @@ int32_t globalblend;
 
 uint32_t g_lastpalettesum = 0;
 palette_t curpalette[256];			// the current palette, unadjusted for brightness or tint
-palette_t curpalettefaded[256];		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
 palette_t palfadergb = { 0, 0, 0, 0 };
 unsigned char palfadedelta = 0;
 ESetPalFlags curpaletteflags;
@@ -43,7 +42,6 @@ int8_t g_noFloorPal[MAXPALOOKUPS];
 
 int32_t curbrightness = 0;
 
-static void paletteSetFade(uint8_t offset);
 void setBlendFactor(int index, int alpha);
 
 
@@ -723,17 +721,7 @@ void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
 		curpalette[i].g = dapal[i * 3 + 1];
 		curpalette[i].b = dapal[i * 3 + 2];
 		curpalette[i].f = 0;
-
-		// brightness adjust the palette
-		curpalettefaded[i].b = britable[j][curpalette[i].b];
-		curpalettefaded[i].g = britable[j][curpalette[i].g];
-		curpalettefaded[i].r = britable[j][curpalette[i].r];
-		curpalettefaded[i].f = 0;
 	}
-
-	if ((flags & Pal_DontResetFade) && palfadedelta)  // keep the fade
-		paletteSetFade(palfadedelta >> 2);
-
 
 	if ((flags & Pal_DontResetFade) == 0)
 	{
@@ -749,19 +737,6 @@ palette_t paletteGetColor(int32_t col)
     return curpalette[col];
 }
 
-static void paletteSetFade(uint8_t offset)
-{
-    for (native_t i=0; i<256; i++)
-    {
-        palette_t const p = paletteGetColor(i);
-
-        curpalettefaded[i].b = p.b + (((palfadergb.b - p.b) * offset) >> 8);
-        curpalettefaded[i].g = p.g + (((palfadergb.g - p.g) * offset) >> 8);
-        curpalettefaded[i].r = p.r + (((palfadergb.r - p.r) * offset) >> 8);
-        curpalettefaded[i].f = 0;
-    }
-}
-
 //
 // setpalettefade
 //
@@ -770,11 +745,5 @@ void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
     palfadergb.r = r;
     palfadergb.g = g;
     palfadergb.b = b;
-#ifdef DEBUG_PALETTEFADE
-    if (offset)
-        offset = max(offset, 128);
-#endif
     palfadedelta = offset;
-
-    paletteSetFade(offset);
 }

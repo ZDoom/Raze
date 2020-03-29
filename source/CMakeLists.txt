@@ -664,7 +664,6 @@ set (PCH_SOURCES
 	build/src/compat.cpp
 	build/src/defs.cpp
 	build/src/engine.cpp
-	build/src/glsurface.cpp
 	build/src/hash.cpp
 	build/src/hightile.cpp
 	build/src/mdsprite.cpp

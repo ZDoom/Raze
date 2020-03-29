@@ -240,89 +240,16 @@ void WaitTicks(int nTicks)
 // unused
 void DoFadeToRed()
 {
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        videoTintBlood(-255, -255, -255);
-        videoNextPage();
-        return;
-    }
-#endif
-    for (int i = 0; i < 256; i++)
-    {
-        if (curpalettefaded[i].g > 0)
-        {
-            curpalettefaded[i].g -= 4;
-            if (curpalettefaded[i].g < 0)
-                curpalettefaded[i].g = 0;
-        }
-
-        if (curpalettefaded[i].b > 0)
-        {
-            curpalettefaded[i].b -= 4;
-            if (curpalettefaded[i].b < 0)
-                curpalettefaded[i].b = 0;
-        }
-    }
-
-    //videoUpdatePalette(0, 256);
-    g_lastpalettesum = -1;
+    // fixme
+    videoTintBlood(-255, -255, -255);
+    videoNextPage();
 }
 
 void FadeToWhite()
 {
-    int ebx = 0;
-
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        videoTintBlood(255, 255, 255);
-        videoNextPage();
-        return;
-    }
-#endif
-
-    for (int i = 0; i < 64; i++)
-    {
-        palette_t *pPal = curpalettefaded;
-
-        for (int j = 0; j < 256; j++)
-        {
-            if (pPal->r < 255)
-            {
-                pPal->r += 4;
-                if (pPal->r > 255)
-                    pPal->r = 255;
-                ebx++;
-            }
-            if (pPal->g < 255)
-            {
-                pPal->g += 4;
-                if (pPal->g > 255)
-                    pPal->g = 255;
-                ebx++;
-            }
-            if (pPal->b < 255)
-            {
-                pPal->b += 4;
-                if (pPal->b > 255)
-                    pPal->b = 255;
-                ebx++;
-            }
-            pPal++;
-        }
-
-        //videoUpdatePalette(0, 256);
-        g_lastpalettesum = -1;
-        WaitTicks(2);
-
-        // need to page flip in each iteration of the loop for non DOS version
-        videoNextPage();
-
-        if (!ebx) {
-            return;
-        }
-    }
+    // fixme
+    videoTintBlood(255, 255, 255);
+    videoNextPage();
 }
 
 void FadeOut(int bFadeMusic)
@@ -332,60 +259,8 @@ void FadeOut(int bFadeMusic)
     }
 
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        videoTintBlood(-255, -255, -255);
-        videoNextPage();
-    }
-    else
-#endif
-    for (int i = 64; i > 0; i--)
-    {
-        int v4 = 0;
-        palette_t *pPal = curpalettefaded;
-
-        for (int j = 0; j < 256; j++)
-        {
-            if (pPal->r > 0)
-            {
-                pPal->r -= 4;
-                if (pPal->r < 0)
-                    pPal->r = 0;
-                v4++;
-            }
-            if (pPal->g > 0)
-            {
-                pPal->g -= 4;
-                if (pPal->g < 0)
-                    pPal->g = 0;
-                v4++;
-            }
-            if (pPal->b > 0)
-            {
-                pPal->b -= 4;
-                if (pPal->b < 0)
-                    pPal->b = 0;
-                v4++;
-            }
-            pPal++;
-        }
-
-        //videoUpdatePalette(0, 256);
-        g_lastpalettesum = -1;
-        WaitTicks(2);
-
-        // need to page flip in each iteration of the loop for non DOS version
-        videoNextPage();
-
-        if (v4 == 0) {
-            break;
-        }
-
-        if (bFadeMusic) {
-            StepFadeCDaudio();
-        }
-    }
+    videoTintBlood(-255, -255, -255);
+    videoNextPage();
 
     if (bFadeMusic) {
         while (StepFadeCDaudio() != 0) {}
@@ -402,76 +277,17 @@ void StartFadeIn()
 
 int DoFadeIn()
 {
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        paletteSetColorTable(curbasepal, basepaltable[BASEPAL]);
-        videoSetPalette(0, curbasepal, 0);
-        videoNextPage();
-        return 0;
-    }
-#endif
-    int v2 = 0;
-
-    for (int i = 0; i < 256; i++)
-    {
-        if (curpalettefaded[i].r != curpalette[i].r)
-        {
-            v2++;
-            int diff = curpalette[i].r - curpalettefaded[i].r;
-            if (klabs(diff) < 4)
-                curpalettefaded[i].r = curpalette[i].r;
-            else
-                curpalettefaded[i].r += 4 * ksgn(diff);
-        }
-        if (curpalettefaded[i].g != curpalette[i].g)
-        {
-            v2++;
-            int diff = curpalette[i].g - curpalettefaded[i].g;
-            if (klabs(diff) < 4)
-                curpalettefaded[i].g = curpalette[i].g;
-            else
-                curpalettefaded[i].g += 4 * ksgn(diff);
-        }
-        if (curpalettefaded[i].b != curpalette[i].b)
-        {
-            v2++;
-            int diff = curpalette[i].b - curpalettefaded[i].b;
-            if (klabs(diff) < 4)
-                curpalettefaded[i].b = curpalette[i].b;
-            else
-                curpalettefaded[i].b += 4 * ksgn(diff);
-        }
-    }
-
-    //videoUpdatePalette(0, 256);
-    g_lastpalettesum = -1;
-
-    return v2;
+    paletteSetColorTable(curbasepal, basepaltable[BASEPAL]);
+    videoSetPalette(0, curbasepal, 0);
+    videoNextPage();
+    return 0;
 }
 
 void FadeIn()
 {
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        videoSetPalette(0, BASEPAL, 0);
-        videoNextPage();
-        return;
-    }
-#endif
-    StartFadeIn();
+    videoSetPalette(0, BASEPAL, 0);
+    videoNextPage();
 
-    int val;
-
-    do
-    {
-        val = DoFadeIn();
-        WaitTicks(2);
-
-        // need to page flip in each iteration of the loop for non DOS version
-        videoNextPage();
-    } while (val);
 }
 
 void FixPalette()
@@ -522,8 +338,6 @@ void FixPalette()
 
 void TintPalette(int r, int g, int b)
 {
-    palette_t *pPal = curpalettefaded;
-
     if (bCamera) {
         return;
     }
@@ -596,48 +410,13 @@ void TintPalette(int r, int g, int b)
 
     nPalDiff += nVal;
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST) videoTintBlood(rtint, gtint, btint);
-    else
-#endif
-    for (int i = 0; i < 256; i++)
-    {
-        nVal = pPal->r + r;
-        if (nVal > 255) {
-            nVal = 255;
-        }
-        pPal->r = nVal;
-
-        nVal = pPal->g + g;
-        if (nVal > 255) {
-            nVal = 255;
-        }
-        pPal->g = nVal;
-
-        nVal = pPal->b + b;
-        if (nVal > 255) {
-            nVal = 255;
-        }
-        pPal->b = nVal;
-
-        pPal++;
-    }
+    videoTintBlood(rtint, gtint, btint);
 
     nPalDelay = 0;
 }
 
 void DoOverscanSet(short someval)
 {
-#ifdef __WATCOMC__
-    union REGS regs;
-
-    regs.h.al = 1;
-    regs.h.ah = 0x10;
-    regs.h.ch = someval;
-
-    int386(0x10, &regs, &regs);
-
-#endif
 }
 
 // unused
@@ -648,30 +427,5 @@ void SetWhiteOverscan()
 
 void SetOverscan(int id)
 {
-    if (basepaltable[id] == NULL)
-        return;
-    uint8_t *palette = basepaltable[id];
-    int edi = 1000;
-    overscanindex = 0;
-
-    for (int i = 0; i < 256; i++)
-    {
-        int ebx = 0;
-
-        for (int j = 0; j < 3; j++)
-        {
-            uint8_t cl = *palette;
-            palette++;
-            ebx += cl;
-        }
-
-        if (ebx < edi)
-        {
-            edi = ebx;
-            overscanindex = i;
-        }
-    }
-
-    DoOverscanSet(overscanindex);
 }
 END_PS_NS

@@ -11,7 +11,6 @@
 #ifndef ENGINE_PRIV_H
 #define ENGINE_PRIV_H
 
-#define MAXPERMS 512
 #define MAXARTFILES_BASE 200
 #define MAXARTFILES_TOTAL 220
 #define MAXCLIPDIST 1024
@@ -24,7 +23,7 @@
 # define YAX_MAXDRAWS 8
 #endif
 
-    extern intptr_t asm1, asm2, asm3, asm4;
+    extern intptr_t asm1, asm2, asm3;
     extern int32_t globalx1, globaly2;
 
 
@@ -64,11 +63,6 @@ extern uint16_t sqrtable[4096], shlookup[4096+256],sqrtable_old[2048];
         return (((d<<4)^0xf0)|d);
     }
 
-    inline int32_t getkensmessagecrc(int32_t b)
-    {
-        UNREFERENCED_PARAMETER(b);
-        return 0x56c764d4l;
-    }
 
 
 inline int32_t ksqrtasm_old(int32_t n)
@@ -92,7 +86,6 @@ extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
 extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
-extern TArray<uint8_t> mirrorBuffer;
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern int32_t globalposx, globalposy, globalposz, globalhoriz;

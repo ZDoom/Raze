@@ -560,7 +560,6 @@ EXTERN int32_t g_visibility, parallaxvisibility;
 EXTERN uint8_t numalphatabs;
 
 EXTERN vec2_t windowxy1, windowxy2;
-EXTERN TArray<int16_t> startumost, startdmost;
 
 // The maximum tile offset ever used in any tiled parallaxed multi-sky.
 #define PSKYOFF_MAX 16
@@ -616,7 +615,6 @@ EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
-extern const char pow2char_[];
 static CONSTEXPR const int32_t pow2long[32] =
 {
     1, 2, 4, 8,

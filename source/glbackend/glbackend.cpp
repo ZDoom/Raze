@@ -92,7 +92,6 @@ void GLInstance::Init(int ydim)
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
 
 	new(&renderState) PolymostRenderState;	// reset to defaults.
-	LoadSurfaceShader();
 	LoadPolymostShader();
 }
 
@@ -109,20 +108,6 @@ void GLInstance::LoadPolymostShader()
 	polymostShader->Load("PolymostShader", (const char*)Vert.Data(), (const char*)Frag.Data());
 	SetPolymostShader();
 }
-
-void GLInstance::LoadSurfaceShader()
-{
-	auto fr1 = GetResource("engine/shaders/glsl/glsurface.vp");
-	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetResource("engine/shaders/glsl/glsurface.fp");
-	TArray<uint8_t> Frag = fr1.Read();
-	// Zero-terminate both strings.
-	Vert.Push(0);
-	Frag.Push(0);
-	surfaceShader = new SurfaceShader();
-	surfaceShader->Load("SurfaceShader", (const char*)Vert.Data(), (const char*)Frag.Data());
-}
-
 
 void GLInstance::InitGLState(int fogmode, int multisample)
 {

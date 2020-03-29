@@ -30,7 +30,6 @@
 #include "version.h"
 
 #ifdef USE_OPENGL
-# include "glsurface.h"
 # include "hightile.h"
 # include "mdsprite.h"
 # include "polymost.h"
@@ -103,27 +102,9 @@ int32_t novoxmips = 1;
 #define MAXXSIZ 256
 #define MAXYSIZ 256
 #define MAXZSIZ 255
-#ifdef EDUKE32_TOUCH_DEVICES
-# define DISTRECIPSIZ (65536+256)
-#else
-# define DISTRECIPSIZ 131072
-#endif
 
 int32_t voxscale[MAXVOXELS];
 
-static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
-static int32_t lowrecip[1024], nytooclose;
-static const int32_t nytoofar = DISTRECIPSIZ*16384ull - 1048576;
-static uint32_t *distrecip;
-#define DISTRECIPCACHESIZE 3
-static struct {
-    uint32_t *distrecip;
-    int32_t xdimen;
-    int32_t age;
-} distrecipcache[DISTRECIPCACHESIZE];
-static int32_t distrecipagecnt = 0;
-
-static TArray<int32_t> lookups;
 static int32_t beforedrawrooms = 1;
 
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
@@ -135,30 +116,16 @@ int32_t newaspect_enable=0;
 int32_t r_fpgrouscan = 1;
 int32_t globalflags;
 
-//Textured Map variables
-static char globalpolytype;
-static TArray<int16_t *>dotp1, dotp2;
-
 static int8_t tempbuf[MAXWALLS];
 
 // referenced from asm
-int32_t ebpbak, espbak;
-int32_t reciptable[2048], fpuasm;
-intptr_t asm1, asm2, asm3, asm4, palookupoffse[4];
-uint32_t vplce[4];
-int32_t vince[4];
-intptr_t bufplce[4];
-int32_t globaltilesizy;
+int32_t reciptable[2048];
+intptr_t asm1, asm2, asm3;
 int32_t globalx1, globaly2, globalx3, globaly3;
-
-#define SLOPALOOKUPSIZ 16384
-static intptr_t slopalookup[SLOPALOOKUPSIZ];    // was 2048
 
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
 static int32_t qradarang[10240];
-static TArray<int32_t> radarang2;
-const char ATTRIBUTE((used)) pow2char_[8] = {1,2,4,8,16,32,64,128};
 
 uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256], ATTRIBUTE((used)) sqrtable_old[2048];
 
@@ -205,15 +172,6 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
     *closest = { (int32_t)(w.x + ((d.x * i) >> 30)), (int32_t)(w.y + ((d.y * i) >> 30)) };
 }
 
-////////// YAX //////////
-
-#ifdef YAX_DEBUG
-// XXX: This could be replaced with the use of gethiticks().
-double u64tickspersec;
-#endif
-#ifdef ENGINE_SCREENSHOT_DEBUG
-int32_t engine_screenshot = 0;
-#endif
 
 void faketimerhandler()
 {
@@ -271,16 +229,6 @@ int16_t yax_getbunch(int16_t i, int16_t cf)
 
     return (*(&sector[i].ceilingstat + cf) & YAX_BIT) ? YAX_BUNCHNUM(i, cf) : -1;
 }
-# else
-#  define YAX_PTRBUNCHNUM(Ptr, Sect, Cf) (*((Cf) ? &(Ptr)[Sect].floorbunch : &(Ptr)[Sect].ceilingbunch))
-#  define YAX_BUNCHNUM(Sect, Cf) YAX_PTRBUNCHNUM(sector, Sect, Cf)
-
-#  if !defined NEW_MAP_FORMAT
-static FORCE_INLINE int32_t yax_islockededge(int32_t line, int32_t cf)
-{
-    return (yax_getnextwall(line, cf) >= 0);
-}
-#  endif
 # endif
 
 // bunchnum: -1: also clear yax-nextwalls (forward and reverse)
@@ -290,11 +238,7 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
 {
     if (editstatus==0)
     {
-#ifdef NEW_MAP_FORMAT
-        YAX_BUNCHNUM(i, cf) = bunchnum;
-#else
         yax_bunchnum[i][cf] = bunchnum;
-#endif
         return;
     }
 
@@ -721,8 +665,8 @@ void yax_preparedrawrooms(void)
         return;
 
     g_nodraw = 1;
-    Bmemset(yax_spritesortcnt, 0, sizeof(yax_spritesortcnt));
-    Bmemset(haveymost, 0, (numyaxbunches+7)>>3);
+    memset(yax_spritesortcnt, 0, sizeof(yax_spritesortcnt));
+    memset(haveymost, 0, (numyaxbunches+7)>>3);
 
 }
 
@@ -1142,8 +1086,6 @@ int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
 int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
 
-TArray<uint8_t> mirrorBuffer;
-
 static vec3_t spritesxyz[MAXSPRITESONSCREEN+1];
 
 int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
@@ -1154,8 +1096,7 @@ static int32_t nrx1[8], nry1[8], nrx2[8], nry2[8]; // JBF 20031206: Thanks Ken
 
 int32_t rxi[8], ryi[8];
 static int32_t rzi[8], rxi2[8], ryi2[8], rzi2[8];
-static int32_t xsi[8], ysi[8], horizycent;
-static int32_t *horizlookup=0, *horizlookup2=0;
+static int32_t xsi[8], ysi[8];
 
 int32_t globalposx, globalposy, globalposz, globalhoriz;
 fix16_t qglobalhoriz;
@@ -1194,7 +1135,6 @@ static int32_t globaly1, globalx2;
 int16_t sectorborder[256];
 int32_t ydim16, qsetmode = 0;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
-static TArray<int32_t> lastx;
 
 int32_t halfxdim16, midydim16;
 
@@ -1664,20 +1604,6 @@ static void dosetaspect(void)
     {
         oxyaspect = xyaspect;
         j = xyaspect*320;
-        horizycent = (ydim*4)>>1;
-        horizlookup2[horizycent-1] = divscale32(131072,j);
-
-        for (i=0; i < horizycent-1; i++)
-        {
-            horizlookup[i] = divscale28(1, i-(horizycent-1));
-            horizlookup2[i] = divscale20(klabs(horizlookup[i]), j);
-        }
-
-        for (i=horizycent; i < ydim*4-1; i++)
-        {
-            horizlookup[i] = divscale28(1, i-(horizycent-1));
-            horizlookup2[i] = divscale20(klabs(horizlookup[i]), j);
-        }
     }
 
     if (xdimen != oxdimen || viewingrange != oviewingrange)
@@ -1697,55 +1623,11 @@ static void dosetaspect(void)
             if (k < 0 || k >= (int32_t)ARRAY_SIZE(qradarang)-1)
             {
                 no_radarang2 = 1;
-#ifdef DEBUGGINGAIDS
-                if (editstatus)
-                    initprintf("no rad2\n");
-#endif
                 break;
             }
 
             if (j != 0)
                 j = mulscale16(qradarang[k+1]-qradarang[k], j);
-            radarang2[i] = ((qradarang[k]+j)>>6);
-        }
-
-        if (xdimen != oxdimen && (voxoff[0][0] || playing_blood))
-        {
-            distrecip = NULL;
-            for (i = 0; i < DISTRECIPCACHESIZE; i++)
-            {
-                if (distrecipcache[i].xdimen == xdimen)
-                    distrecip = distrecipcache[i].distrecip;
-            }
-            if (distrecip == NULL)
-            {
-                int32_t minAge = 0;
-                for (i = 1; i < DISTRECIPCACHESIZE; i++)
-                {
-                    if (distrecipcache[i].age < distrecipcache[minAge].age)
-                        minAge = i;
-                }
-                if (distrecipcache[minAge].distrecip == NULL)
-                    distrecipcache[minAge].distrecip = (uint32_t *)Xaligned_alloc(16, DISTRECIPSIZ * sizeof(uint32_t));
-
-                distrecipcache[minAge].age = ++distrecipagecnt;
-                distrecipcache[minAge].xdimen = xdimen;
-
-                distrecip = distrecipcache[minAge].distrecip;
-
-                if (xdimen < 1 << 11)
-                {
-                    for (i = 1; i < DISTRECIPSIZ; i++)
-                        distrecip[i] = tabledivide32(xdimen << 20, i);
-                }
-                else
-                {
-                    for (i = 1; i < DISTRECIPSIZ; i++)
-                        distrecip[i] = tabledivide64((uint64_t)xdimen << 20, i);
-                }
-            }
-
-            nytooclose = xdimen*2100;
         }
 
         oxdimen = xdimen;
@@ -2083,13 +1965,6 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 
     int64_t t = tabledivide64(((int64_t) originDiffCrossLineVec) << 24L, rayCrossLineVec);
     // For sake of completeness/readability, alternative to the above approach for an early out & avoidance of an extra division:
-#if 0
-    int64_t u = tabledivide64(((int64_t) originDiffCrossRay) << 24L, rayCrossLineVec);
-    if (u < 0 || u > 1 << 24 || t < 0 || t > 1 << 24)
-    {
-        return 0;
-    }
-#endif
 
     *intersectionX = originX + mulscale24(ray.x, t);
     *intersectionY = originY + mulscale24(ray.y, t);
@@ -2257,12 +2132,6 @@ int32_t engineInit(void)
         if (i) return i;
     }
 
-#ifdef YAX_DEBUG
-    u64tickspersec = (double)timerGetFreqU64();
-    if (u64tickspersec==0.0)
-        u64tickspersec = 1.0;
-#endif
-
     if (engineLoadTables())
         return 1;
 
@@ -2273,15 +2142,12 @@ int32_t engineInit(void)
 
     showinvisibility = 0;
 
-    for (i=1; i<1024; i++)
-        lowrecip[i] = ((1<<24)-1)/i;
-
 	voxelmemory.Reset();
 
     for (i=0; i<MAXTILES; i++)
         tiletovox[i] = -1;
-    clearbuf(voxscale, sizeof(voxscale)>>2, 65536);
-    clearbufbyte(voxrotate, sizeof(voxrotate), 0);
+    for (auto& v : voxscale) v = 65536;
+    memset(voxrotate, 0, sizeof(voxrotate));
 
     paletteloaded = 0;
 
@@ -2334,10 +2200,6 @@ void engineUnInit(void)
 #endif
 
 	TileFiles.CloseAll();
-
-    for (bssize_t i=0; i<DISTRECIPCACHESIZE; i++)
-        ALIGNED_FREE_AND_NULL(distrecipcache[i].distrecip);
-    Bmemset(distrecipcache, 0, sizeof(distrecipcache));
 
     paletteloaded = 0;
 
@@ -2457,7 +2319,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
                            fix16_t daang, fix16_t dahoriz, int16_t dacursectnum)
 {
     int32_t i;
-    int16_t *shortptr1, *shortptr2;
 
     beforedrawrooms = 0;
 
@@ -2501,8 +2362,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 #endif
         )
     {
-        shortptr1 = (int16_t *)&startumost[windowxy1.x];
-        shortptr2 = (int16_t *)&startdmost[windowxy1.x];
         i = xdimen-1;
     }
 
@@ -3199,7 +3058,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 			globalshade = max(min<int>(sec->floorshade, numshades - 1), 0);
 			globvis = globalhisibility;
             if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
-            globalpolytype = 0;
             if ((globalorientation&64) == 0)
             {
                 set_globalpos(dax, day, globalposz);
@@ -3320,7 +3178,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             asm3 = FP_OFF(palookup[spr->pal]+(globalshade<<8));
             globvis = globalhisibility;
             if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
-            globalpolytype = ((spr->cstat&2)>>1)+1;
 
             //relative alignment stuff
             ox = v2.x-v1.x; oy = v2.y-v1.y;
@@ -3910,26 +3767,6 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 
 #define YSAVES ((xdim*MAXSPRITES)>>7)
 
-static void videoAllocateBuffers(void)
-{
-    // Needed for the game's TILT_SETVIEWTOTILE_320.
-    const int32_t clamped_ydim = max(ydim, 320);
-
-      startumost.Resize(xdim);
-      startdmost.Resize(xdim);
-      radarang2.Resize(xdim);
-      dotp1.Resize(clamped_ydim);
-      dotp2.Resize(clamped_ydim);
-      lastx.Resize(clamped_ydim);
-      mirrorBuffer.Resize(xdim * ydim);
-
-    if (videoGetRenderMode() == REND_CLASSIC)
-    {
-        glsurface_initialize({ xdim, ydim });
-    }
-}
-
-
 //
 // setgamemode
 //
@@ -3967,14 +3804,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     fydim = (float) ydim;
 #endif
 
-    videoAllocateBuffers();
-
     j = ydim*4;  //Leave room for horizlookup&horizlookup2
-    lookups.Resize(2 * j);
-
-    horizlookup = lookups.Data();
-    horizlookup2 = lookups.Data() + j;
-    horizycent = ((ydim*4)>>1);
 
     //Force drawrooms to call dosetaspect & recalculate stuff
     oxyaspect = oxdimen = oviewingrange = -1;
@@ -4014,8 +3844,6 @@ void videoNextPage(void)
 
 		videoShowFrame(0);
     }
-
-    faketimerhandler();
 
 #ifdef USE_OPENGL
     omdtims = mdtims;
@@ -5211,12 +5039,6 @@ void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     fydimen = (float) ydimen;
 #endif
     videoSetCorrectedAspect();
-
-    for (bssize_t i=0; i<windowxy1.x; i++) { startumost[i] = 1, startdmost[i] = 0; }
-    Bassert(windowxy2.x < xdim);  // xdim is the number of alloc'd elements in start*most[].
-    for (bssize_t i=windowxy1.x; i<=windowxy2.x; i++)
-        { startumost[i] = windowxy1.y, startdmost[i] = windowxy2.y+1; }
-    for (bssize_t i=windowxy2.x+1; i<xdim; i++) { startumost[i] = 1, startdmost[i] = 0; }
 }
 
 

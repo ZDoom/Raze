@@ -1482,7 +1482,6 @@ void CreditsLevel(void)
     // get rid of all PERM sprites!
     renderFlushPerms();
     save = gs.BorderNum;
-    ClearStartMost();
     gs.BorderNum = save;
     twod->ClearScreen();
     videoNextPage();

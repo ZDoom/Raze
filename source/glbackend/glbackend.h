@@ -178,7 +178,6 @@ public:
 	void Init(int y);
 	void InitGLState(int fogmode, int multisample);
 	void LoadPolymostShader();
-	void LoadSurfaceShader();
 	void Draw2D(F2DDrawer* drawer);
 	void DrawImGui(ImDrawData*);
 	void ResetFrame();

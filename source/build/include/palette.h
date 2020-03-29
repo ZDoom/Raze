@@ -49,7 +49,7 @@ struct palette_t
 typedef struct {
     uint8_t r, g, b;
 } rgb24_t;
-extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
+extern palette_t curpalette[256], palfadergb;
 
 extern unsigned char palfadedelta;
 void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);

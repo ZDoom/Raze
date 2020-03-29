@@ -244,7 +244,6 @@ void ResetView()
     //videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, 0);
     DoOverscanSet(overscanindex);
     EraseScreen(overscanindex);
-    memcpy(curpalettefaded, curpalette, sizeof(curpalette));
     //videoUpdatePalette(0, 256);
 #ifdef USE_OPENGL
     videoTintBlood(0, 0, 0);
