@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define duke3d_h_
 
 // JBF
-#include "a.h"
 #include "baselayer.h"
 #include "build.h"
 

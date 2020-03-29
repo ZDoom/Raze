@@ -6,7 +6,6 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 // by the EDuke32 team (development@voidpoint.com)
 
-#include "a.h"
 #include "build.h"
 #include "baselayer.h"
 #include "clip.h"

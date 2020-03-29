@@ -216,13 +216,11 @@ void FGLRenderer::WriteSavePic ( FileWriter *file, int width, int height)
 	ydim = height;
 	videoSetViewableArea(0, 0, width - 1, height - 1);
 	renderSetAspect(65536, 65536);
-	calc_ylookup(width, height);
 	bool didit = gi->GenerateSavePic();
 
 	xdim = oldx;
 	ydim = oldy;
 	videoSetViewableArea(oldwindowxy1.x, oldwindowxy1.y, oldwindowxy2.x, oldwindowxy2.y);
-	calc_ylookup(bytesperline, ydim);
 	modechange = 1;
 
 	// The 2D drawers can contain some garbage from the dirty render setup. Get rid of that first.

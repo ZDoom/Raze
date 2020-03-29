@@ -13,7 +13,6 @@
 #include "imagehelpers.h"
 
 #include "palette.h"
-#include "a.h"
 #include "superfasthash.h"
 #include "common.h"
 #include "../../glbackend/glbackend.h"
@@ -71,23 +70,6 @@ int DetermineTranslucency(const uint8_t *table)
 }
 
 void fullscreen_tint_gl(PalEntry pe);
-
-void setup_blend(int32_t blend, int32_t doreverse)
-{
-    if (blendtable[blend] == NULL)
-        blend = 0;
-
-    if (globalblend != blend)
-    {
-        globalblend = blend;
-        fixtransluscence(FP_OFF(paletteGetBlendTable(blend)));
-    }
-
-    if (doreverse)
-        settransreverse();
-    else
-        settransnormal();
-}
 
 static void alloc_palookup(int32_t pal)
 {
@@ -286,9 +268,9 @@ void palettePostLoadTables(void)
     globalpal = 0;
 
     globalpalwritten = palookup[0];
-    setpalookupaddress(globalpalwritten);
-
-    fixtransluscence(FP_OFF(blendtable[0]));
+    // Do we still need these?
+    //setpalookupaddress(globalpalwritten);
+    //fixtransluscence(FP_OFF(blendtable[0]));
 
     char const * const palookup0 = palookup[0];
 

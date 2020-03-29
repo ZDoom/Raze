@@ -10,7 +10,6 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 // by the EDuke32 team (development@voidpoint.com)
 
-#include "a.h"
 #include "pragmas.h"
 
 #ifdef ENGINE_USING_A_C

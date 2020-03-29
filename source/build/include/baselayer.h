@@ -30,8 +30,6 @@ extern int32_t xres, yres, bpp, bytesperline, refreshfreq;
 extern intptr_t frameplace;
 extern char offscreenrendering;
 
-void calc_ylookup(int32_t bpl, int32_t lastyidx);
-
 int32_t videoCheckMode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced);
 int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs);
 void    videoGetModes(void);

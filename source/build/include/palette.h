@@ -90,7 +90,6 @@ extern uint32_t g_lastpalettesum;
 extern palette_t paletteGetColor(int32_t col);
 extern void paletteLoadFromDisk(void);
 extern void palettePostLoadTables(void);
-extern void setup_blend(int32_t blend, int32_t doreverse);
 extern uint8_t basepalreset;
 extern int32_t curbrightness;
 

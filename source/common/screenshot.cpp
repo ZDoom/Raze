@@ -141,18 +141,6 @@ static int SaveScreenshot()
             memcpy(imgBuf.Data() + (ydim - i - 1) * bytesPerLine, rowBuf.Data(), bytesPerLine);
         }
     }
-    else
-    {
-		for (int i = 0; i < 256; ++i)
-		{
-			Palette[i].r = curpalettefaded[i].r;
-			Palette[i].g = curpalettefaded[i].g;
-			Palette[i].b = curpalettefaded[i].b;
-		}
-
-        for (int i = 0; i < ydim; ++i)
-            memcpy(imgBuf.Data() + i * xdim, (uint8_t *)frameplace + ylookup[i], xdim);
-    }
 
     videoEndDrawing();
 

@@ -29,6 +29,8 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 #include "textures.h"
 #include "c_cvars.h"
 
+typedef int64_t coord_t;
+
 enum rendmode_t {
     REND_CLASSIC,
     REND_POLYMOST = 3,
@@ -494,7 +496,6 @@ EXTERN tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 EXTERN int32_t wx1, wy1, wx2, wy2;
 EXTERN int32_t xdim, ydim, numpages, upscalefactor;
 EXTERN int32_t yxaspect, viewingrange;
-EXTERN TArray<intptr_t> ylookup;
 
 EXTERN int32_t rotatesprite_y_offset;
 EXTERN int32_t rotatesprite_yxaspect;

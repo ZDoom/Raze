@@ -1,7 +1,6 @@
 // SDL interface layer for the Build Engine
 // Use SDL 1.2 or 2.0 from http://www.libsdl.org
 
-#include "a.h"
 #include "build.h"
 
 #include "common.h"
@@ -37,40 +36,6 @@ int32_t lockcount=0;
 char modechange=1;
 char offscreenrendering=0;
 
-
-// Calculate ylookup[] and call setvlinebpl()
-void calc_ylookup(int32_t bpl, int32_t lastyidx)
-{
-    int32_t i, j = 0;
-    static int32_t ylookupsiz;
-
-    Bassert(lastyidx <= MAXYDIM);
-
-    lastyidx++;
-
-    if (lastyidx > ylookupsiz)
-    {
-        ylookup.Resize(lastyidx);
-        ylookupsiz = lastyidx;
-    }
-
-    for (i = 0; i <= lastyidx - 4; i += 4)
-    {
-        ylookup[i] = j;
-        ylookup[i + 1] = j + bpl;
-        ylookup[i + 2] = j + (bpl << 1);
-        ylookup[i + 3] = j + (bpl * 3);
-        j += (bpl << 2);
-    }
-
-    for (; i < lastyidx; i++)
-    {
-        ylookup[i] = j;
-        j += bpl;
-    }
-
-    setvlinebpl(bpl);
-}
 
 //
 // begindrawing() -- locks the framebuffer for drawing
@@ -129,7 +94,6 @@ void videoBeginDrawing(void)
     if (modechange)
     {
         bytesperline = xdim;
-        calc_ylookup(bytesperline, ydim);
         modechange=0;
     }
 }
