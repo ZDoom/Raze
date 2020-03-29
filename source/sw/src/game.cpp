@@ -588,7 +588,7 @@ void TerminateGame(void)
 
 bool LoadLevel(const char *filename)
 {
-    int16_t q16ang = fix16_to_int(Player[0].q16ang);
+    int16_t q16ang;
     if (engineLoadBoard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &q16ang, &Player[0].cursectnum) == -1)
     {
 		Printf("Level not found: %s", filename);
@@ -597,6 +597,7 @@ bool LoadLevel(const char *filename)
 	currentLevel = &mapList[Level];
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->labelName);
+    Player[0].q16ang = fix16_from_int(q16ang);
 	return true;
 }
 
