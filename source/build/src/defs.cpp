@@ -442,13 +442,6 @@ static int32_t defsparser(scriptfile *script)
 
             if ((unsigned)col < 256)
             {
-                r = clamp(r, 0, 63);
-                g = clamp(g, 0, 63);
-                b = clamp(b, 0, 63);
-
-                vgapal16[col*4+0] = b<<2; // blue
-                vgapal16[col*4+1] = g<<2; // green
-                vgapal16[col*4+2] = r<<2; // red
             }
         }
         break;

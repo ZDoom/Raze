@@ -241,9 +241,6 @@ static inline int32_t texto(int32_t t)
 
 static inline int32_t texta(int32_t t)
 {
-    if (videoGetRenderMode() == REND_CLASSIC && numalphatabs < 15)
-        return 0;
-
     return 255 - clamp(t<<3, 0, 255);
 }
 
@@ -252,13 +249,7 @@ static FORCE_INLINE int32_t text_ypos(void)
     if (hud_position == 1 && ud.screen_size == 4 && ud.althud == 1)
         return 32<<16;
 
-#ifdef GEKKO
-    return 16<<16;
-#elif defined EDUKE32_TOUCH_DEVICES
-    return 24<<16;
-#else
     return 1<<16;
-#endif
 }
 
 static FString text_quote;	// To put text into the quote display that does not come from the quote array. (Is it really necessary to implement everything as a hack??? :( )
@@ -286,31 +277,11 @@ void G_PrintGameQuotes(int32_t snum)
         int32_t y = ybase;
         if (reserved_quote)
         {
-#ifdef SPLITSCREEN_MOD_HACKS
-            if (!g_fakeMultiMode)
-                y = 140<<16;
-            else
-                y = 70<<16;
-#else
             y = 140<<16;
-#endif
         }
 
         int32_t pal = 0;
         int32_t x = 160<<16;
-
-#ifdef SPLITSCREEN_MOD_HACKS
-        if (g_fakeMultiMode)
-        {
-            pal = g_player[snum].pcolor;
-            const int32_t sidebyside = ud.screen_size != 0;
-
-            if (sidebyside)
-                x = snum == 1 ? 240<<16 : 80<<16;
-            else if (snum == 1)
-                y += 100<<16;
-        }
-#endif
 
 		if (text_quote.IsNotEmpty() && ps->ftq == -32768) height = gametext_(x, y, text_quote, textsh(k), pal, texto(k), texta(k), TEXT_XCENTER).y + (1 << 16);
         else height = gametext_(x, y, quoteMgr.GetQuote(ps->ftq), textsh(k), pal, texto(k), texta(k), TEXT_XCENTER).y + (1<<16);

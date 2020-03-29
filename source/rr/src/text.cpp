@@ -219,9 +219,6 @@ static inline int32_t texto(int32_t t)
 
 static inline int32_t texta(int32_t t)
 {
-    if (videoGetRenderMode() == REND_CLASSIC && numalphatabs < 15)
-        return 0;
-
     return 255 - clamp(t<<3, 0, 255);
 }
 

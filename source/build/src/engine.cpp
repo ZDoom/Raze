@@ -315,20 +315,13 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
             }
         }
 
-#if !defined NEW_MAP_FORMAT
         *(&sector[i].ceilingstat + cf) &= ~YAX_BIT;
         // NOTE: Don't reset xpanning-as-index, since we can be called from
         // e.g. Mapster32's "Inner loop made into new sector" functionality.
-//        YAX_BUNCHNUM(i, cf) = 0;
-#else
-        YAX_BUNCHNUM(i, cf) = -1;
-#endif
         return;
     }
 
-#if !defined NEW_MAP_FORMAT
     *(&sector[i].ceilingstat + cf) |= YAX_BIT;
-#endif
     YAX_BUNCHNUM(i, cf) = bunchnum;
 }
 
@@ -555,8 +548,6 @@ static int16_t bunches[2][YAX_MAXBUNCHES];
 // indexed with bunchnums directly:
 static int16_t bunchsec[YAX_MAXBUNCHES], bunchdist[YAX_MAXBUNCHES];
 
-static int32_t ymostallocsize = 0;  // numyaxbunches*xdimen (no sizeof(int16_t) here!)
-static int16_t *yumost=NULL, *ydmost=NULL;  // used as if [numyaxbunches][xdimen]
 uint8_t haveymost[(YAX_MAXBUNCHES+7)>>3];
 
 static inline int32_t yax_walldist(int32_t w)
@@ -649,13 +640,6 @@ void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
 
     int32_t i, dastat;
     static int16_t opicnum[2][MAXSECTORS];
-#ifdef DEBUGGINGAIDS
-    static uint8_t expect_restore[2][YAX_MAXBUNCHES];
-
-    // must call this with restore == 0, 1,  0, 1,  0, 1,  ...
-    Bassert(expect_restore[cf][bunchnum] == restore);
-    expect_restore[cf][bunchnum] = !expect_restore[cf][bunchnum];
-#endif
 
     for (SECTORS_OF_BUNCH(bunchnum, cf, i))
     {
@@ -676,23 +660,6 @@ void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
             {
                 SECTORFLD(i,picnum, cf) = opicnum[cf][i];
             }
-#ifdef POLYMER
-            // will be called only in editor
-            if (videoGetRenderMode() == REND_POLYMER)
-            {
-                if (!restore)
-                {
-                    SECTORFLD(i,stat, cf) |= 128;
-                    opicnum[cf][i] |= 0x8000;
-                }
-                else
-                {
-                    SECTORFLD(i,stat, cf) &= ~128;
-                    SECTORFLD(i,picnum, cf) &= 0x7fff;
-                    opicnum[cf][i] = 0;
-                }
-            }
-#endif
         }
     }
 }
@@ -757,12 +724,6 @@ void yax_preparedrawrooms(void)
     Bmemset(yax_spritesortcnt, 0, sizeof(yax_spritesortcnt));
     Bmemset(haveymost, 0, (numyaxbunches+7)>>3);
 
-    if (videoGetRenderMode() == REND_CLASSIC && ymostallocsize < xdimen*numyaxbunches)
-    {
-        ymostallocsize = xdimen*numyaxbunches;
-        yumost = (int16_t *)Xrealloc(yumost, ymostallocsize*sizeof(int16_t));
-        ydmost = (int16_t *)Xrealloc(ydmost, ymostallocsize*sizeof(int16_t));
-    }
 }
 
 void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_t),
@@ -823,12 +784,6 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_
                 j = yax_getbunch(i, cf);
                 if (j >= 0 && !(havebunch[j>>3]&pow2char[j&7]))
                 {
-                    if (videoGetRenderMode() == REND_CLASSIC && (haveymost[j>>3]&pow2char[j&7])==0)
-                    {
-                        yaxdebug("%s, l %d: skipped bunch %d (no *most)", cf?"v":"^", lev, j);
-                        continue;
-                    }
-
                     if ((SECTORFLD(i,stat, cf)&2) ||
                             (cf==0 && globalposz >= sector[i].ceilingz) ||
                             (cf==1 && globalposz <= sector[i].floorz))
@@ -1060,17 +1015,6 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
     int16_t cb[2], fb[2];
 #endif
 
-#if 0
-    if (checksectorpointer_warn && (i<0 || i>=max(numwalls,newnumwalls)))
-    {
-        char buf[128];
-        Bsprintf(buf, "WARN: checksectorpointer called with i=%d but (new)numwalls=%d", i, max(numwalls,newnumwalls));
-        OSD_Printf("%s\n", buf);
-        printmessage16("%s", buf);
-        return 0;
-    }
-#endif
-
     x1 = wall[i].x;
     y1 = wall[i].y;
     x2 = (wall[wall[i].point2]).x;
@@ -1197,20 +1141,8 @@ int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
 
 int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
-static int32_t nodesperline, ysavecnt;
-static TArray<int16_t> smost, umost, dmost, bakumost, bakdmost;
-static TArray<int16_t> uplc, dplc, uwall, dwall;
-static TArray<int32_t> swplc, lplc, swall, lwall;
-#ifdef HIGH_PRECISION_SPRITE
-static TArray<float> swallf;
-#endif
 
 TArray<uint8_t> mirrorBuffer;
-
-static int32_t smostcnt;
-static int32_t smoststart[MAXWALLSB];
-static char smostwalltype[MAXWALLSB];
-static int32_t smostwall[MAXWALLSB], smostwallcnt = -1;
 
 static vec3_t spritesxyz[MAXSPRITESONSCREEN+1];
 
@@ -1269,14 +1201,6 @@ int32_t halfxdim16, midydim16;
 EDUKE32_STATIC_ASSERT(MAXWALLSB < INT16_MAX);
 int16_t numscans, numbunches;
 static int16_t numhits;
-
-uint8_t vgapal16[4*256] =
-{
-    0,0,0,0, 170,0,0,0, 0,170,0,0, 170,170,0,0, 0,0,170,0,
-    170,0,170,0, 0,85,170,0, 170,170,170,0, 85,85,85,0, 255,85,85,0,
-    85,255,85,0, 255,255,85,0, 85,85,255,0, 255,85,255,0, 85,255,255,0,
-    255,255,255,0
-};
 
 int16_t searchit;
 int32_t searchx = -1, searchy;                          //search input
@@ -1556,98 +1480,6 @@ static inline int32_t bunchfront(int32_t b1, int32_t b2)
 
     for (; xb2[b1f] < x1b2; b1f = bunchp2[b1f]) { }
     return wallfront(b1f, b2f);
-}
-
-
-//
-// prepwall (internal)
-//
-static void prepwall(int32_t z, uwallptr_t wal)
-{
-    int32_t l=0, ol=0, x;
-
-    int32_t walxrepeat = (wal->xrepeat<<3);
-
-    //lwall calculation
-    int32_t tmpx = xb1[z]-halfxdimen;
-
-    const int32_t topinc = -(ry1[z]>>2);
-    const int32_t botinc = (ry2[z]-ry1[z])>>8;
-    int32_t top = mulscale5(rx1[z],xdimen) + mulscale2(topinc,tmpx);
-    int32_t bot = mulscale11(rx1[z]-rx2[z],xdimen) + mulscale2(botinc,tmpx);
-
-    const int32_t splc = mulscale19(ry1[z],xdimscale);
-    const int32_t sinc = mulscale16(ry2[z]-ry1[z],xdimscale);
-
-    x = xb1[z];
-    if (bot != 0)
-    {
-        l = divscale12(top,bot);
-        swall[x] = mulscale21(l,sinc)+splc;
-        l *= walxrepeat;
-        lwall[x] = (l>>18);
-    }
-    while (x+4 <= xb2[z])
-    {
-        int32_t i;
-
-        top += topinc; bot += botinc;
-        if (bot != 0)
-        {
-            ol = l; l = divscale12(top,bot);
-            swall[x+4] = mulscale21(l,sinc)+splc;
-            l *= walxrepeat;
-            lwall[x+4] = (l>>18);
-        }
-
-        i = (ol+l)>>1;
-
-        lwall[x+2] = i>>18;
-        lwall[x+1] = (ol+i)>>19;
-        lwall[x+3] = (l+i)>>19;
-
-        swall[x+2] = (swall[x]+swall[x+4])>>1;
-        swall[x+1] = (swall[x]+swall[x+2])>>1;
-        swall[x+3] = (swall[x+4]+swall[x+2])>>1;
-
-        x += 4;
-    }
-    if (x+2 <= xb2[z])
-    {
-        top += (topinc>>1); bot += (botinc>>1);
-        if (bot != 0)
-        {
-            ol = l; l = divscale12(top,bot);
-            swall[x+2] = mulscale21(l,sinc)+splc;
-            l *= walxrepeat;
-            lwall[x+2] = (l>>18);
-        }
-        lwall[x+1] = (l+ol)>>19;
-        swall[x+1] = (swall[x]+swall[x+2])>>1;
-        x += 2;
-    }
-    if (x+1 <= xb2[z])
-    {
-        bot += (botinc>>2);
-        if (bot != 0)
-        {
-            l = divscale12(top+(topinc>>2),bot);
-            swall[x+1] = mulscale21(l,sinc)+splc;
-            lwall[x+1] = mulscale18(l,walxrepeat);
-        }
-    }
-
-    if (lwall[xb1[z]] < 0)
-        lwall[xb1[z]] = 0;
-    if (lwall[xb2[z]] >= walxrepeat && walxrepeat)
-        lwall[xb2[z]] = walxrepeat-1;
-
-    if (wal->cstat&8)
-    {
-        walxrepeat--;
-        for (x=xb1[z]; x<=xb2[z]; x++)
-            lwall[x] = walxrepeat-lwall[x];
-    }
 }
 
 
@@ -2644,19 +2476,8 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     i = mulscale16(xdimenscale,viewingrangerecip);
     globalpisibility = mulscale16(parallaxvisibility,i);
-    switch (videoGetRenderMode())
-    {
-        // switch on renderers to make fog look almost the same everywhere
-
-    case REND_CLASSIC:
-        globalvisibility = mulscale16(g_visibility,i);
-        break;
-    case REND_POLYMOST:
-        // NOTE: In Polymost, the fragment depth depends on the x screen size!
-        globalvisibility = g_visibility * xdimen;
-        globalvisibility2 = mulscale16(g_visibility, i);
-        break;
-    }
+    globalvisibility = g_visibility * xdimen;
+    globalvisibility2 = mulscale16(g_visibility, i);
 
     globalhisibility = mulscale16(globalvisibility,xyaspect);
     globalcisibility = mulscale8(globalhisibility,320);
@@ -2683,14 +2504,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
         shortptr1 = (int16_t *)&startumost[windowxy1.x];
         shortptr2 = (int16_t *)&startdmost[windowxy1.x];
         i = xdimen-1;
-        do
-        {
-            umost[i] = shortptr1[i]-windowxy1.y;
-            dmost[i] = shortptr2[i]-windowxy1.y;
-        }
-        while (i--);  // xdimen == 1 is OK!
-        umost[0] = shortptr1[0]-windowxy1.y;
-        dmost[0] = shortptr2[0]-windowxy1.y;
     }
 
     for (int i = 0; i < numwalls; ++i)
@@ -2955,23 +2768,7 @@ static void sortsprites(int const start, int const end)
 //
 void renderDrawMasks(void)
 {
-#ifdef DEBUG_MASK_DRAWING
-        static struct {
-            int16_t di;  // &32768: &32767 is tspriteptr[], else thewall[] index
-            int16_t i;   // sprite[] or wall[] index
-        } debugmask[MAXWALLSB + MAXSPRITESONSCREEN + 1];
-
-        int32_t dmasknum = 0;
-
-# define debugmask_add(dispidx, idx) do { \
-        if (g_maskDrawMode && videoGetRenderMode()==REND_CLASSIC) { \
-            debugmask[dmasknum].di = dispidx; \
-            debugmask[dmasknum++].i = idx; \
-        } \
-    } while (0)
-#else
 # define debugmask_add(dispidx, idx) do {} while (0)
-#endif
     int32_t i = spritesortcnt-1;
     int32_t numSprites = spritesortcnt;
 
@@ -4118,29 +3915,13 @@ static void videoAllocateBuffers(void)
     // Needed for the game's TILT_SETVIEWTOTILE_320.
     const int32_t clamped_ydim = max(ydim, 320);
 
-    smost.Resize(YSAVES);
-    umost.Resize(xdim);
-      dmost.Resize(xdim);
       startumost.Resize(xdim);
       startdmost.Resize(xdim);
-      bakumost.Resize(xdim);
-      bakdmost.Resize(xdim);
-      uplc.Resize(xdim);
-      dplc.Resize(xdim);
-      uwall.Resize(xdim);
-      dwall.Resize(xdim);
-      swplc.Resize(xdim);
-      lplc.Resize(xdim);
-      swall.Resize(xdim);
-      lwall.Resize((xdim + 4));
       radarang2.Resize(xdim);
       dotp1.Resize(clamped_ydim);
       dotp2.Resize(clamped_ydim);
       lastx.Resize(clamped_ydim);
       mirrorBuffer.Resize(xdim * ydim);
-
-    ysavecnt = YSAVES;
-    nodesperline = tabledivide32_noinline(YSAVES, ydim);
 
     if (videoGetRenderMode() == REND_CLASSIC)
     {
@@ -4187,10 +3968,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 #endif
 
     videoAllocateBuffers();
-
-#ifdef HIGH_PRECISION_SPRITE
-    swallf.Resize(xdim);
-#endif
 
     j = ydim*4;  //Leave room for horizlookup&horizlookup2
     lookups.Resize(2 * j);

@@ -3196,10 +3196,7 @@ void viewDrawScreen(bool sceneonly)
 #endif
         if (v78 || bDelirium)
         {
-            if (videoGetRenderMode() != REND_CLASSIC)
-            {
-                renderSetRollAngle(v78);
-            }
+            renderSetRollAngle(v78);
         }
         else if (v4 && gNetPlayers > 1)
         {
@@ -3386,31 +3383,23 @@ void viewDrawScreen(bool sceneonly)
 
         if ((v78 || bDelirium) && !sceneonly)
         {
-            if (videoGetRenderMode() == REND_CLASSIC)
+            if (videoGetRenderMode() == REND_POLYMOST && gDeliriumBlur)
             {
-            }
-#ifdef USE_OPENGL
-            else
-            {
-                if (videoGetRenderMode() == REND_POLYMOST && gDeliriumBlur)
+                // todo: Implement using modern techniques instead of relying on deprecated old stuff that isn't well supported anymore.
+                /* names broken up so that searching for GL keywords won't find them anymore
+                if (!bDeliriumOld)
                 {
-                    // todo: Implement using modern techniques instead of relying on deprecated old stuff that isn't well supported anymore.
-                    /* names broken up so that searching for GL keywords won't find them anymore
-                    if (!bDeliriumOld)
-                    {
-                        g lAccum(GL_LOAD, 1.f);
-                    }
-                    else
-                    {
-                        const float fBlur = pow(1.f/3.f, 30.f/g_frameRate);
-                        g lAccum(GL _MULT, fBlur);
-                        g lAccum(GL _ACCUM, 1.f-fBlur);
-                        g lAccum(GL _RETURN, 1.f);
-                    }
-                    */
+                    g lAccum(GL_LOAD, 1.f);
                 }
+                else
+                {
+                    const float fBlur = pow(1.f/3.f, 30.f/g_frameRate);
+                    g lAccum(GL _MULT, fBlur);
+                    g lAccum(GL _ACCUM, 1.f-fBlur);
+                    g lAccum(GL _RETURN, 1.f);
+                }
+                */
             }
-#endif
         }
 
         bDeliriumOld = bDelirium && gDeliriumBlur;

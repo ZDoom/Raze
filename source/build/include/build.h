@@ -654,8 +654,6 @@ EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char editwall[(MAXWALLS+7)>>3];
 
-extern uint8_t vgapal16[4*256];
-
 extern uint32_t drawlinepat;
 
 extern void faketimerhandler(void);

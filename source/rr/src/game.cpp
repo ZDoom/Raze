@@ -793,19 +793,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             int32_t j = g_visibility;
             g_visibility = (j>>1) + (j>>2);
 
-            if (videoGetRenderMode() == REND_CLASSIC)
-            {
-                int32_t didmirror;
-
-                yax_preparedrawrooms();
-                didmirror = renderDrawRoomsQ16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
-                yax_drawrooms(G_DoSpriteAnimations, g_mirrorSector[i], didmirror, smoothratio);
-            }
-#ifdef USE_OPENGL
-            else
-                renderDrawRoomsQ16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
-            // XXX: Sprites don't get drawn with TROR/Polymost
-#endif
+            renderDrawRoomsQ16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
             display_mirror = 1;
             G_DoSpriteAnimations(tposx,tposy,z,fix16_to_int(tang),smoothratio);
             display_mirror = 0;

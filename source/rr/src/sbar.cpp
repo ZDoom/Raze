@@ -1378,7 +1378,7 @@ void G_DrawBackground(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) == 0 && ud.recstat != 2)
     {
-        const int32_t MENUTILE = DEER ? 7040 : MENUSCREEN;//(videoGetRenderMode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
+        const int32_t MENUTILE = DEER ? 7040 : MENUSCREEN;
         const int32_t fstilep = tilesiz[MENUTILE].x>=320 && tilesiz[MENUTILE].y==200;
         int32_t bgtile = (fstilep ? MENUTILE : (RRRA ? RRTILE7629 : BIGHOLE));
 
