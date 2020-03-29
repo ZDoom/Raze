@@ -78,7 +78,7 @@ void G_CheckCommandLine()
 	auto val = Args->CheckValue("-skill");
 	if (val)
 	{
-		ud.m_player_skill = ud.player_skill = std::clamp((int)strtol(val, nullptr, 0), 0, 5);
+		ud.m_player_skill = ud.player_skill = clamp((int)strtol(val, nullptr, 0), 0, 5);
 		if (ud.m_player_skill == 4) ud.m_respawn_monsters = ud.respawn_monsters = 1;
 	}
 	val = Args->CheckValue("-respawn");

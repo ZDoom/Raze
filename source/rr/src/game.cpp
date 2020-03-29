@@ -904,14 +904,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     else
     {
         int32_t floorZ, ceilZ;
-        int32_t tiltcx, tiltcy, tiltcs=0;    // JBF 20030807
 
         int const vr            = divscale22(1, RR ? 64 : (sprite[pPlayer->i].yrepeat + 28));
-        int       screenTilting = (videoGetRenderMode() == REND_CLASSIC && (((ud.screen_tilting && pPlayer->rotscrnang) || (RR && pPlayer->drink_amt > 89)
-#ifdef SPLITSCREEN_MOD_HACKS
-                                                                  && !g_fakeMultiMode
-#endif
-                                                                  )));
 
         viewingRange = Blrintf(float(vr) * tanf(r_fov * (PI/360.f)));
 
@@ -927,98 +921,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             }
         }
 
-        if (g_screenCapture)
-        {
-			TileFiles.tileCreate(TILE_SAVESHOT, 200, 320);
-
-            //if (videoGetRenderMode() == REND_CLASSIC)
-                renderSetTarget(TILE_SAVESHOT, 200, 320);
-        }
-        else if (screenTilting)
-        {
-            int32_t oviewingrange = viewingrange;  // save it from setaspect()
-            const int16_t tang = (ud.screen_tilting) ? pPlayer->rotscrnang : 0;
-
-            if (tang == 1024)
-                screenTilting = 2;
-            else
-            {
-                // Maximum possible allocation size passed to allocache() below
-                // since there is no equivalent of free() for allocache().
-#if MAXYDIM >= 640
-                int const maxTiltSize = 640*640;
-#else
-                int const maxTiltSize = 320*320;
-#endif
-                // To render a tilted screen in high quality, we need at least
-                // 640 pixels of *Y* dimension.
-#if MAXYDIM >= 640
-                // We also need
-                //  * xdim >= 640 since tiltcx will be passed as setview()'s x2
-                //    which must be less than xdim.
-                //  * ydim >= 640 (sic!) since the tile-to-draw-to will be set
-                //    up with dimension 400x640, but the engine's arrays like
-                //    lastx[] are alloc'd with *xdim* elements! (This point is
-                //    the dynamic counterpart of the #if above since we now
-                //    allocate these engine arrays tightly.)
-                // XXX: The engine should be in charge of setting up everything
-                // so that no oob access occur.
-                if (xdim >= 640 && ydim >= 640 && (!RRRA || pPlayer->drink_amt <= 89))
-                {
-                    tiltcs = 2;
-                    tiltcx = 640;
-                    tiltcy = 400;
-                }
-                else
-#endif
-                {
-                    // JBF 20030807: Increased tilted-screen quality
-                    tiltcs = 1;
-
-                    // NOTE: The same reflections as above apply here, too.
-                    // TILT_SETVIEWTOTILE_320.
-                    tiltcx = 320;
-                    tiltcy = 200;
-                }
-
-                // If the view is rotated (not 0 or 180 degrees modulo 360 degrees),
-                // we render onto a square tile and display a portion of that
-                // rotated on-screen later on.
-                const int32_t viewtilexsiz = (tang&1023) ? tiltcx : tiltcy;
-                const int32_t viewtileysiz = tiltcx;
-
-				TileFiles.tileCreate(TILE_TILT, tiltcx, tiltcx);
-
-				renderSetTarget(TILE_TILT, viewtilexsiz, viewtileysiz);
-
-                if ((tang&1023) == 512)
-                {
-                    //Block off unscreen section of 90ø tilted screen
-                    int const j = tiltcx-(60*tiltcs);
-                    for (bssize_t i=(60*tiltcs)-1; i>=0; i--)
-                    {
-                        startumost[i] = 1;
-                        startumost[i+j] = 1;
-                        startdmost[i] = 0;
-                        startdmost[i+j] = 0;
-                    }
-                }
-
-                int vRange = (tang & 511);
-
-                if (vRange > 256)
-                    vRange = 512 - vRange;
-
-                vRange = sintable[vRange + 512] * 8 + sintable[vRange] * 5;
-
-                //                setaspect(i>>1, yxaspect);
-                renderSetAspect(mulscale16(oviewingrange, vRange >> 1), yxaspect);
-
-                viewingRange = vRange >> 1;
-                yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
-            }
-        }
-        else if (videoGetRenderMode() >= REND_POLYMOST && (ud.screen_tilting
+        if (videoGetRenderMode() >= REND_POLYMOST && (ud.screen_tilting
 #ifdef SPLITSCREEN_MOD_HACKS
         && !g_fakeMultiMode
 #endif
@@ -1374,49 +1277,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             //else
               //  G_ReadGLFrame();
 #endif
-        }
-        else if (screenTilting)
-        {
-            const int16_t tang = (ud.screen_tilting) ? pPlayer->rotscrnang : 0;
-
-            if (screenTilting == 2)  // tang == 1024
-            {
-                videoBeginDrawing();
-                {
-                    const int32_t height = windowxy2.y-windowxy1.y+1;
-                    const int32_t width = windowxy2.x-windowxy1.x+1;
-
-                    uint8_t *f = (uint8_t *)(frameplace + ylookup[windowxy1.y]);
-                    int32_t x, y;
-
-                    for (y=0; y < (height>>1); y++)
-                        swapbufreverse(f + y*bytesperline + windowxy2.x,
-                                       f + (height-1-y)*bytesperline + windowxy1.x,
-                                       width);
-
-                    f += (height>>1)*bytesperline + windowxy1.x;
-
-                    if (height&1)
-                        for (x=0; x<(width>>1); x++)
-                            swapchar(&f[x], &f[width-1-x]);
-                }
-                videoEndDrawing();
-            }
-            else
-            {
-                renderRestoreTarget();
-                picanm[TILE_TILT].xofs = picanm[TILE_TILT].yofs = 0;
-
-                int tiltZoom = (tang&511);
-
-                if (tiltZoom > 256)
-                    tiltZoom = 512 - tiltZoom;
-
-                tiltZoom = sintable[tiltZoom + 512] * 8 + sintable[tiltZoom] * 5;
-                tiltZoom >>= tiltcs;  // JBF 20030807
-
-                rotatesprite_win(160 << 16, 100 << 16, tiltZoom, tang + 512, TILE_TILT, 0, 0, 4 + 2 + 64 + 1024);
-            }
         }
     }
 

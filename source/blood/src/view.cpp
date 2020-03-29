@@ -3190,46 +3190,21 @@ void viewDrawScreen(bool sceneonly)
         char v10 = 0;
         bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
         static bool bDeliriumOld = false;
-        int tiltcs, tiltdim;
+        //int tiltcs, tiltdim;
         char v4 = powerupCheck(gView, kPwUpCrystalBall) > 0;
 #ifdef USE_OPENGL
         renderSetRollAngle(0);
 #endif
         if (v78 || bDelirium)
         {
-            if (videoGetRenderMode() == REND_CLASSIC)
+            if (videoGetRenderMode() != REND_CLASSIC)
             {
-                int vr = viewingrange;
-                if (!tileData(TILTBUFFER))
-                {
-                    tileAllocTile(TILTBUFFER, 640, 640, 0, 0);
-                }
-                if (xdim >= 640 && ydim >= 640)
-                {
-                    tiltcs = 1;
-                    tiltdim = 640;
-                }
-                else
-                {
-                    tiltcs = 0;
-                    tiltdim = 320;
-                }
-                renderSetTarget(TILTBUFFER, tiltdim, tiltdim);
-                int nAng = v78 & 511;
-                if (nAng > 256)
-                {
-                    nAng = 512 - nAng;
-                }
-                renderSetAspect(mulscale16(vr, dmulscale32(Cos(nAng), 262144, Sin(nAng), 163840)), yxaspect);
-            }
-#ifdef USE_OPENGL
-            else
                 renderSetRollAngle(v78);
-#endif
+            }
         }
         else if (v4 && gNetPlayers > 1)
         {
-
+#if 0       // needs to be redone for pure hardware rendering.
             int tmp = ((int)totalclock / 240) % (gNetPlayers - 1);
             int i = connecthead;
             while (1)
@@ -3247,7 +3222,7 @@ void viewDrawScreen(bool sceneonly)
             {
                 tileAllocTile(4079, 128, 128, 0, 0);
             }
-            renderSetTarget(4079, 128, 128);
+            r enderSetTarget(4079, 128, 128);
             renderSetAspect(65536, 78643);
             screen->BeginScene();
             int vd8 = pOther->pSprite->x;
@@ -3314,6 +3289,7 @@ void viewDrawScreen(bool sceneonly)
             renderDrawMasks();
             screen->FinishScene();
             renderRestoreTarget();
+#endif
         }
         else
         {
@@ -3413,20 +3389,6 @@ void viewDrawScreen(bool sceneonly)
         {
             if (videoGetRenderMode() == REND_CLASSIC)
             {
-                dassert(tileData(TILTBUFFER) != 0);
-                renderRestoreTarget();
-                int vrc = 64 + 4 + 2 + 1024;
-                if (bDelirium)
-                {
-                    vrc = 64 + 32 + 4 + 2 + 1 + 1024;
-                }
-                int nAng = v78 & 511;
-                if (nAng > 256)
-                {
-                    nAng = 512 - nAng;
-                }
-                int nScale = dmulscale32(Cos(nAng), 262144, Sin(nAng), 163840) >> tiltcs;
-                rotatesprite(160 << 16, 100 << 16, nScale, v78 + 512, TILTBUFFER, 0, 0, vrc, gViewX0, gViewY0, gViewX1, gViewY1);
             }
 #ifdef USE_OPENGL
             else

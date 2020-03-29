@@ -34,6 +34,7 @@
 
 #include <windows.h>
 #include <GL/gl.h>
+#include <vector>
 #include "wglext.h"
 
 #include "gl_sysfb.h"
