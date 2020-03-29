@@ -586,7 +586,7 @@ void DoUpdateSounds(void)
     PLAYERp pp = Player + screenpeek;
     SoundListener listener;
 
-    listener.angle = -(float)pp->pang * pi::pi() / 1024; // Build uses a period of 2048.
+    listener.angle = -fix16_to_float(pp-q16ang) * pi::pi() / 1024; // Build uses a period of 2048.
     listener.velocity.Zero();
     listener.position = GetSoundPos((vec3_t*)&pp->posx);
     listener.underwater = false;

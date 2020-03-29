@@ -586,7 +586,8 @@ void TerminateGame(void)
 
 bool LoadLevel(const char *filename)
 {
-    if (engineLoadBoard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &Player[0].pang, &Player[0].cursectnum) == -1)
+    int16_t q16ang = fix16_to_int(Player[0].q16ang);
+    if (engineLoadBoard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &q16ang, &Player[0].cursectnum) == -1)
     {
 		Printf("Level not found: %s", filename);
 		return false;
@@ -3165,8 +3166,8 @@ void getinput(SW_PACKET *loc)
     info.dz = (info.dz * move_scale)>>8;
     info.dyaw = (info.dyaw * turn_scale)>>8;
 
-    int32_t svel = 0, vel = 0, angvel = 0;
-    fix16_t q16horz = 0;
+    int32_t svel = 0, vel = 0;
+    fix16_t q16horz = 0, q16avel = 0;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
@@ -3175,8 +3176,8 @@ void getinput(SW_PACKET *loc)
     }
     else
     {
-        angvel = info.mousex / 32;
-        angvel += info.dyaw * (turnamount << 1) / analogExtent;
+        q16avel = fix16_div(fix16_from_int(info.mousex), fix16_from_int(32));
+        q16avel += fix16_from_int(info.dyaw) / analogExtent * (turnamount << 1);
     }
 
     if (mouseaim)
@@ -3204,17 +3205,17 @@ void getinput(SW_PACKET *loc)
         {
             turnheldtime += synctics;
             if (turnheldtime >= TURBOTURNTIME)
-                angvel -= turnamount;
+                q16avel -= fix16_from_int(turnamount);
             else
-                angvel -= PREAMBLETURN;
+                q16avel -= fix16_from_int(PREAMBLETURN);
         }
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
             turnheldtime += synctics;
             if (turnheldtime >= TURBOTURNTIME)
-                angvel += turnamount;
+                q16avel += fix16_from_int(turnamount);
             else
-                angvel += PREAMBLETURN;
+                q16avel += fix16_from_int(PREAMBLETURN);
         }
         else
         {
@@ -3246,18 +3247,18 @@ void getinput(SW_PACKET *loc)
     vel = clamp(vel, -MAXVEL, MAXVEL);
     svel = clamp(svel, -MAXSVEL, MAXSVEL);
 
-    angvel = clamp(angvel, -MAXANGVEL, MAXANGVEL);
+    q16avel = fix16_clamp(q16avel, -fix16_from_int(MAXANGVEL), fix16_from_int(MAXANGVEL));
     q16horz = fix16_clamp(q16horz, -fix16_from_int(MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
 
-    momx = mulscale9(vel, sintable[NORM_ANGLE(newpp->pang + 512)]);
-    momy = mulscale9(vel, sintable[NORM_ANGLE(newpp->pang)]);
+    momx = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 512)]);
+    momy = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang))]);
 
-    momx += mulscale9(svel, sintable[NORM_ANGLE(newpp->pang)]);
-    momy += mulscale9(svel, sintable[NORM_ANGLE(newpp->pang + 1536)]);
+    momx += mulscale9(svel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang))]);
+    momy += mulscale9(svel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 1536)]);
 
     loc->vel = momx;
     loc->svel = momy;
-    loc->angvel = angvel;
+    loc->q16avel = q16avel;
     loc->q16horz = q16horz;
 
     if (!CommEnabled)
