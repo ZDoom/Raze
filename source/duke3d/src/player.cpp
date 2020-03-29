@@ -1606,7 +1606,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                 break;
 
             if (pSprite->extra >= 0) pSprite->shade = -96;
-            vel = 1024;
+            vel = 400;
             int j, underwater;
             if (playerNum >= 0)
             {
@@ -1616,7 +1616,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                 {
                     int ang = getangle(startPos.x-pPlayer->opos.x,startPos.y-pPlayer->opos.y);
                     ang = 512-(1024-klabs(klabs(ang-shootAng)-1024));
-                    vel = 1024+int(float(ang)*(1.f/512.f)*float(xv));
+                    vel = 400+int(float(ang)*(1.f/512.f)*float(xv));
                 }
                 underwater = sector[pPlayer->cursectnum].lotag == ST_2_UNDERWATER;
             }
