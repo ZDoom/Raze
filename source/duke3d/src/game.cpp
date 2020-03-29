@@ -3814,15 +3814,14 @@ PALONLY:
             if ((unsigned)scrofs_action + ACTION_PARAM_COUNT > (unsigned)g_scriptSize)
                 goto skip;
 
-            l = apScript[scrofs_action + ACTION_VIEWTYPE];
+            int32_t viewtype = apScript[scrofs_action + ACTION_VIEWTYPE];
             uint16_t const action_flags = apScript[scrofs_action + ACTION_FLAGS];
 #else
-            l = viewtype;
             uint16_t const action_flags = actor[i].ac.flags;
 #endif
 
-            int const invertp = l < 0;
-            l = klabs(l);
+            int const invertp = viewtype < 0;
+            l = klabs(viewtype);
 
             if (tilehasmodelorvoxel(pSprite->picnum,t->pal) && !(spriteext[i].flags&SPREXT_NOTMD))
             {
@@ -3873,13 +3872,13 @@ PALONLY:
             }
 
 #if !defined LUNATIC
-            t->picnum += frameOffset + apScript[scrofs_action + ACTION_STARTFRAME] + l*curframe;
+            t->picnum += frameOffset + apScript[scrofs_action + ACTION_STARTFRAME] + viewtype*curframe;
 #else
-            t->picnum += frameOffset + startframe + l*curframe;
+            t->picnum += frameOffset + startframe + viewtype*curframe;
 #endif
             // XXX: t->picnum can be out-of-bounds by bad user code.
 
-            if (l > 0)
+            if (viewtype > 0)
                 while (tilesiz[t->picnum].x == 0 && t->picnum > 0)
                     t->picnum -= l;       //Hack, for actors
 
