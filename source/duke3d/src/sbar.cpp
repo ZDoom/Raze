@@ -614,7 +614,7 @@ void G_DrawStatusBar(int32_t snum)
 
                 int32_t asprites[MAX_WEAPONS] = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO,
                     RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO,
-                    TRIPBOMBSPRITE, FREEZEAMMO+1, HBOMBAMMO, GROWAMMO
+                    TRIPBOMBSPRITE, FREEZEAMMO+1, HBOMBAMMO, GROWAMMO, FLAMETHROWERAMMO+1,
                 };
                 Bmemcpy(ammo_sprites, asprites, sizeof(ammo_sprites));
             }

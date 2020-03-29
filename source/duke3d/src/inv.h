@@ -72,6 +72,7 @@ enum dukeweapon_t
     FREEZE_WEAPON,
     HANDREMOTE_WEAPON,  // 10
     GROW_WEAPON,
+    FLAMETHROWER_WEAPON,
     MAX_WEAPONS
 };
 

@@ -38,10 +38,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef EDUKE32_STANDALONE
     #define VOLUMEALL           (1)
     #define PLUTOPAK            (1)
+    #define WORLDTOUR           (0)
     #define VOLUMEONE           (0)
 #else
     #define VOLUMEALL           (g_Shareware == 0)
     #define PLUTOPAK            (g_scriptVersion >= 14)
+    #define WORLDTOUR           (DUKE && g_scriptVersion >= 16)
     #define VOLUMEONE           (g_Shareware == 1)
 #endif
 

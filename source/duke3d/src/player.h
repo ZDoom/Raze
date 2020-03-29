@@ -219,7 +219,7 @@ typedef struct {
 #endif
 
     int8_t crouch_toggle;
-    int8_t padding_[1];
+    int8_t padding_[3];
 } DukePlayer_t;
 
 // KEEPINSYNC lunatic/_defs_game.lua

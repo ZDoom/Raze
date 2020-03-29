@@ -1256,6 +1256,10 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
         }
         break;
 
+        case FIREBALL__STATIC:
+            if (!WORLDTOUR)
+                break;
+            fallthrough__;
         case FIRELASER__STATIC:
         case SPIT__STATIC:
         case COOLEXPLOSION1__STATIC:
@@ -1270,6 +1274,14 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                     vel = (pSprite->picnum == BOSS2) ? 644 : 348;
                     startPos.z -= (4 << 7);
                     break;
+                case FIREBALL__STATIC:
+                    if (pSprite->picnum == BOSS5 || pSprite->picnum == BOSS5STAYPUT)
+                    {
+                        vel = 968;
+                        startPos.z += 0x1800;
+                        break;
+                    }
+                    fallthrough__;
                 case FIRELASER__STATIC:
                 default:
                     vel = 840;
@@ -1279,7 +1291,14 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
 
             if (playerNum >= 0)
             {
-                if (GetAutoAimAng(spriteNum, playerNum, projecTile, -ZOFFSET4, 0, &startPos, vel, &Zvel, &shootAng) < 0)
+                if (projecTile == FIREBALL)
+                {
+                    Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 98;
+                    startPos.x += sintable[(348+shootAng+512)&2047]/448;
+                    startPos.y += sintable[(348+shootAng)&2047]/448;
+                    startPos.z += 0x300;
+                }
+                else if (GetAutoAimAng(spriteNum, playerNum, projecTile, -ZOFFSET4, 0, &startPos, vel, &Zvel, &shootAng) < 0)
                     Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 98;
             }
             else
@@ -1317,6 +1336,16 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                     sprite[returnSprite].xvel = saveXvel;
                     sprite[returnSprite].ang += 128 - (krand() & 255);
                 }
+            }
+            else if (projecTile == FIREBALL)
+            {
+                if (PN(spriteNum) == BOSS5 || PN(spriteNum) == BOSS5STAYPUT || playerNum >= 0)
+                {
+                    sprite[returnSprite].xrepeat = 40;
+                    sprite[returnSprite].yrepeat = 40;
+                }
+                sprite[returnSprite].yvel = playerNum;
+                //sprite[returnSprite].cstat |= 0x4000;
             }
 
             sprite[returnSprite].cstat    = 128;
@@ -1570,6 +1599,86 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
             sprite[returnSprite].clipdist = 32;
 
             return returnSprite;
+        }
+        case FLAMETHROWERFLAME__STATIC:
+        {
+            if (!WORLDTOUR)
+                break;
+
+            if (pSprite->extra >= 0) pSprite->shade = -96;
+            vel = 1024;
+            int j, underwater;
+            if (playerNum >= 0)
+            {
+                Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 81;
+                int xv = sprite[pPlayer->i].xvel;
+                if (xv)
+                {
+                    int ang = getangle(startPos.x-pPlayer->opos.x,startPos.y-pPlayer->opos.y);
+                    ang = 512-(1024-klabs(klabs(ang-shootAng)-1024));
+                    vel = 1024+int(float(ang)*(1.f/512.f)*float(xv));
+                }
+                underwater = sector[pPlayer->cursectnum].lotag == ST_2_UNDERWATER;
+            }
+            else
+            {
+                // NOTE: j is a player index
+                j          = A_FindPlayer(pSprite, NULL);
+                shootAng = getangle(g_player[j].ps->opos.x - startPos.x, g_player[j].ps->opos.y - startPos.y);
+                if (PN(spriteNum) == BOSS3 || PN(spriteNum) == BOSS3STAYPUT)
+                    startPos.z -= MinibossScale(spriteNum, ZOFFSET5);
+                else if (PN(spriteNum) == BOSS5 || PN(spriteNum) == BOSS5STAYPUT)
+                {
+                    vel += 128;
+                    startPos.z += MinibossScale(spriteNum, 24 << 8);
+                }
+
+                Zvel = tabledivide32_noinline((g_player[j].ps->opos.z - startPos.z) * vel, safeldist(g_player[j].ps->i, pSprite));
+
+                if (A_CheckEnemySprite(pSprite) && (AC_MOVFLAGS(pSprite, &actor[spriteNum]) & face_player_smart))
+                    shootAng = pSprite->ang + (krand() & 31) - 16;
+                underwater = sector[pSprite->sectnum].lotag == 2;
+            }
+            if (underwater)
+            {
+                if ((krand() % 5) != 0)
+                    return -1;
+                j = A_Spawn(spriteNum, WATERBUBBLE);
+            }
+            else
+            {
+                j = A_Spawn(spriteNum, projecTile);
+                sprite[j].zvel = Zvel;
+                sprite[j].xvel = vel;
+            }
+            sprite[j].x = startPos.x+sintable[(shootAng+630)&2047]/448;
+            sprite[j].y = startPos.y+sintable[(shootAng+112)&2047]/448;
+            sprite[j].z = startPos.z-0x100;
+            sprite[j].cstat = 128;
+            sprite[j].ang = shootAng;
+            sprite[j].xrepeat = sprite[j].xrepeat = 2;
+            sprite[j].clipdist = 40;
+            sprite[j].owner = spriteNum;
+            sprite[j].yvel = playerNum;
+            if (playerNum == -1 && (sprite[spriteNum].picnum == BOSS5 || sprite[spriteNum].picnum == BOSS5))
+            {
+                sprite[j].xrepeat = sprite[j].yrepeat = 10;
+                sprite[j].x -= sintable[shootAng&2047]/56;
+                sprite[j].y -= sintable[(shootAng-512)&2047]/56;
+            }
+            return j;
+        }
+        case FIREFLY__STATIC:
+        {
+            if (!WORLDTOUR)
+                break;
+
+            int j = A_Spawn(spriteNum, projecTile);
+            sprite[j].pos = startPos;
+            sprite[j].ang = shootAng;
+            sprite[j].xvel = 500;
+            sprite[j].zvel = 0;
+            return j;
         }
     }
 
@@ -1952,6 +2061,9 @@ static void P_FireWeapon(int playerNum)
 
     if (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) != KNEE_WEAPON)
         pPlayer->ammo_amount[pPlayer->curr_weapon]--;
+
+    if (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == FLAMETHROWER_WEAPON && sector[pPlayer->cursectnum].lotag == ST_2_UNDERWATER)
+        return;
 
     if (PWEAPON(playerNum, pPlayer->curr_weapon, FireSound) > 0)
         A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, FireSound), pPlayer->i);
@@ -2785,6 +2897,31 @@ void P_DisplayWeapon(void)
                                            FREEZE, weaponShade, weaponBits, weaponPal);
                 break;
 
+            case FLAMETHROWER_WEAPON:
+                if ((*weaponFrame) < (PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime) + 1) && (*weaponFrame) >= 1 && sector[pPlayer->cursectnum].lotag != ST_2_UNDERWATER)
+                {
+                    static uint8_t freezerFrames[] = { 0, 0, 1, 1, 2, 2 };
+
+                    if (doAnim)
+                    {
+                        weaponX += rand() & 1;
+                        weaponY += rand() & 1;
+                    }
+                    weaponYOffset -= 16;
+                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
+                                           FLAMETHROWERFIRE, -32, weaponBits, weaponPal);
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
+                                           FLAMETHROWERFIRE + 1 + freezerFrames[*weaponFrame % 6], -32, weaponBits, weaponPal);
+                }
+                else
+                {
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
+                                           FLAMETHROWER, weaponShade, weaponBits, weaponPal);
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
+                                           FLAMETHROWERPILOT, weaponShade, weaponBits, weaponPal);
+                }
+                break;
+
             case GROW_WEAPON:
             case SHRINKER_WEAPON:
                 weaponX += 28;
@@ -3431,7 +3568,7 @@ access_incs:
 
 int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOTGUNSPRITE__STATIC,
         CHAINGUNSPRITE__STATIC, RPGSPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC, DEVISTATORSPRITE__STATIC,
-        TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC
+        TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC, FLAMETHROWERSPRITE__STATIC
                                            };
 // this is used for player deaths
 void P_DropWeapon(int const playerNum)
@@ -4153,6 +4290,15 @@ static void P_ProcessWeapon(int playerNum)
                         {
                             (*weaponFrame) = 1;
                             if (PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
+                                A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
+                        }
+                        break;
+
+                    case FLAMETHROWER_WEAPON:
+                        if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
+                        {
+                            (*weaponFrame) = 1;
+                            if (PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0 && sector[pPlayer->cursectnum].lotag != ST_2_UNDERWATER)
                                 A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                         }
                         break;

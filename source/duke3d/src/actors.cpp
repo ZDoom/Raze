@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define actors_c_
 
+#ifndef EDUKE32_STANDALONE
+#include <map>
+#endif
+
 #include "duke3d.h"
 #include "sounds.h"
 
@@ -107,6 +111,15 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
     auto const pSprite = (uspriteptr_t)&sprite[spriteNum];
     auto const pOther  = &sprite[otherSprite];
 
+#ifndef EDUKE32_STANDALONE
+    if (WORLDTOUR && pSprite->picnum == FLAMETHROWERFLAME)
+    {
+        if (sprite[pSprite->owner].picnum == FIREFLY && pOther->picnum == FIREFLY)
+            return;
+        if (sprite[pSprite->owner].picnum == BOSS5 && pOther->picnum == BOSS5)
+            return;
+    }
+#endif
 
     // DEFAULT, ZOMBIEACTOR, MISC
     if (pOther->statnum == STAT_DEFAULT || pOther->statnum == STAT_ZOMBIEACTOR || pOther->statnum == STAT_MISC
@@ -166,11 +179,16 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
 #endif
             )
             dmgActor.picnum = pSprite->picnum;
+#ifndef EDUKE32_STANDALONE
+        else if (WORLDTOUR && (pSprite->picnum == FLAMETHROWERFLAME || pSprite->picnum == LAVAPOOL
+                 || (pSprite->picnum == FIREBALL && sprite[pSprite->owner].picnum == APLAYER)))
+            dmgActor.picnum = FLAMETHROWERFLAME;
+#endif
         else
             dmgActor.picnum = RADIUSEXPLOSION;
 
 #ifndef EDUKE32_STANDALONE
-        if (pSprite->picnum != SHRINKSPARK)
+        if (pSprite->picnum != SHRINKSPARK && (!WORLDTOUR || pSprite->picnum != LAVAPOOL))
 #endif
         {
             // this is really weird
@@ -3143,6 +3161,17 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
     }
 }
 
+#ifndef EDUKE32_STANDALONE
+struct SpriteTracerData
+{
+    int32_t x, y, z;
+    int32_t xVel, yVel, zVel;
+    SpriteTracerData() : x(0), y(0), z(0), xVel(0), yVel(0), zVel(0) { }
+};
+
+std::map<int, SpriteTracerData> tracerData;
+#endif
+
 ACTOR_STATIC void G_MoveWeapons(void)
 {
     int spriteNum = headspritestat[STAT_PROJECTILE];
@@ -3194,6 +3223,10 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
                 }
                 fallthrough__;
+            case FIREBALL__STATIC:
+                if (!WORLDTOUR && pSprite->picnum == FIREBALL)
+                    break;
+                fallthrough__;
             case SHRINKSPARK__STATIC:
             case RPG__STATIC:
             case FIRELASER__STATIC:
@@ -3220,12 +3253,56 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
                 A_GetZLimits(spriteNum);
 
+                int const fireball = (WORLDTOUR && pSprite->picnum == FIREBALL && sprite[pSprite->owner].picnum != FIREBALL);
+
                 if (pSprite->picnum == RPG && actor[spriteNum].picnum != BOSS2 && pSprite->xrepeat >= 10
                     && sector[pSprite->sectnum].lotag != ST_2_UNDERWATER
                     && g_scriptVersion >= 13)
                 {
                     int const newSprite = A_Spawn(spriteNum, SMALLSMOKE);
                     sprite[newSprite].z += (1 << 8);
+                }
+                if (pSprite->picnum == FIREBALL)
+                {
+                    if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER) { DELETE_SPRITE_AND_CONTINUE(spriteNum); }
+                    if (fireball)
+                    {
+                        if (actor[spriteNum].t_data[0] >= 1 && actor[spriteNum].t_data[0] < 6)
+                        {
+                            float t = 1.f - 0.2 * actor[spriteNum].t_data[0];
+                            int j = A_Spawn(spriteNum, FIREBALL);
+                            spritetype* sj = &sprite[j];
+                            sj->xvel = pSprite->xvel;
+                            sj->yvel = pSprite->yvel;
+                            sj->zvel = pSprite->zvel;
+                            if (actor[spriteNum].t_data[0] > 1)
+                            {
+                                SpriteTracerData t = tracerData[actor[spriteNum].t_data[1]];
+                                sj->x = t.x;
+                                sj->y = t.y;
+                                sj->z = t.z;
+                                sj->xvel = t.xVel;
+                                sj->yvel = t.yVel;
+                                sj->zvel = t.zVel;
+                            }
+                            sj->xrepeat = sj->yrepeat = t * pSprite->xrepeat;
+                            sj->cstat = pSprite->cstat;
+                            sj->extra = 0;
+                            actor[spriteNum].t_data[1] = j;
+                            SpriteTracerData tt;
+                            tt.x = sj->x;
+                            tt.y = sj->y;
+                            tt.z = sj->z;
+                            tt.xVel = sj->xvel;
+                            tt.yVel = sj->yvel;
+                            tt.zVel = sj->zvel;
+                            tracerData[actor[spriteNum].t_data[1]] = tt;
+                            changespritestat(j, 4);
+                        }
+                        actor[spriteNum].t_data[0]++;
+                    }
+                    if (pSprite->zvel < 15000)
+                        pSprite->zvel += 200;
                 }
 
                 vec3_t const tmpvect = { (spriteXvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14 >> (int)!projectileMoved,
@@ -3289,7 +3366,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
                                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
                                 }
 
-                            A_DamageObject(moveSprite, spriteNum);
+                            if (!WORLDTOUR || pSprite->picnum != FIREBALL || fireball)
+                                A_DamageObject(moveSprite, spriteNum);
 
                             if (sprite[moveSprite].picnum == APLAYER)
                             {
@@ -3305,6 +3383,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             moveSprite &= (MAXWALLS - 1);
 
                             if (pSprite->picnum != RPG && pSprite->picnum != FREEZEBLAST && pSprite->picnum != SPIT
+                                && (!WORLDTOUR || pSprite->picnum != FIREBALL)
                                 && (wall[moveSprite].overpicnum == MIRROR || wall[moveSprite].picnum == MIRROR))
                             {
                                 Proj_BounceOffWall(pSprite, moveSprite);
@@ -3354,6 +3433,15 @@ ACTOR_STATIC void G_MoveWeapons(void)
                                 }
 
                                 goto next_sprite;
+                            }
+
+                            if (pSprite->zvel >= 0 && fireball)
+                            {
+                                int lp = A_Spawn(spriteNum, LAVAPOOL);
+                                sprite[lp].owner = sprite[spriteNum].owner;
+                                sprite[lp].yvel = sprite[spriteNum].yvel;
+                                actor[lp].owner = sprite[spriteNum].owner;
+                                DELETE_SPRITE_AND_CONTINUE(spriteNum);
                             }
                             break;
                         default: break;
@@ -3408,6 +3496,10 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             A_RadiusDamage(spriteNum, g_shrinkerRadius, 0, 0, 0, 0);
                             break;
 
+                        case FIREBALL__STATIC:
+                            if (WORLDTOUR)
+                                break;
+                            fallthrough__;
                         default:
                         {
                             int const newSprite       = A_Spawn(spriteNum, EXPLOSION2);
@@ -3422,6 +3514,12 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             }
                             break;
                         }
+                    }
+
+                    if (fireball)
+                    {
+                        int ex = A_Spawn(spriteNum, EXPLOSION2);
+                        sprite[ex].xrepeat = sprite[ex].yrepeat = pSprite->xrepeat >> 1;
                     }
 
                     if (pSprite->picnum != COOLEXPLOSION1)
@@ -3945,6 +4043,108 @@ ACTOR_STATIC void G_MoveActors(void)
 #ifndef EDUKE32_STANDALONE
         switch (DYNAMICTILEMAP(switchPic))
         {
+        case FLAMETHROWERFLAME__STATIC:
+        {
+            if (!WORLDTOUR)
+                goto next_sprite;
+
+            if (G_HaveActor(sprite[spriteNum].picnum))
+            {
+                int32_t playerDist;
+                int const playerNum = A_FindPlayer(pSprite, &playerDist);
+                A_Execute(spriteNum, playerNum, playerDist);
+            }
+
+            actor[spriteNum].t_data[0]++;
+            if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER)
+            {
+                int const newSprite = A_Spawn(spriteNum, EXPLOSION2);
+                sprite[newSprite].shade = 127;
+                DELETE_SPRITE_AND_CONTINUE(spriteNum);
+            }
+            int spriteXvel = pSprite->xvel;
+            int spriteZvel = pSprite->zvel;
+
+            vec3_t davect = pSprite->pos;
+
+            A_GetZLimits(spriteNum);
+
+            if (pSprite->xrepeat < 80)
+            {
+                pSprite->xrepeat += actor[spriteNum].t_data[0] / 6;
+                pSprite->yrepeat += actor[spriteNum].t_data[0] / 6;
+            }
+            pSprite->clipdist += actor[spriteNum].t_data[0] / 6;
+            if (actor[spriteNum].t_data[0] < 2)
+                actor[spriteNum].t_data[3] = krand() % 10;
+            if (actor[spriteNum].t_data[0] > 30)
+            {
+                int const newSprite = A_Spawn(spriteNum, EXPLOSION2);
+                sprite[newSprite].shade = 127;
+                DELETE_SPRITE_AND_CONTINUE(spriteNum);
+            }
+
+            vec3_t const tmpvect = { (spriteXvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14,
+                                        (spriteXvel * (sintable[pSprite->ang & 2047])) >> 14, spriteZvel };
+
+            int moveSprite = A_MoveSprite(spriteNum, &tmpvect, CLIPMASK1);
+
+            actor[spriteNum].movflag = moveSprite;
+
+            if (pSprite->sectnum < 0)
+                DELETE_SPRITE_AND_CONTINUE(spriteNum);
+
+            if ((moveSprite & 49152) != 49152 && pSprite->picnum != FREEZEBLAST)
+                G_WeaponHitCeilingOrFloor(spriteNum, pSprite, &moveSprite);
+
+            if (moveSprite != 0)
+            {
+                switch (moveSprite & 49152)
+                {
+                case 49152:
+                    moveSprite &= (MAXSPRITES - 1);
+
+                    A_DamageObject(moveSprite, spriteNum);
+
+                    if (sprite[moveSprite].picnum == APLAYER)
+                    {
+                        A_PlaySound(PISTOL_BODYHIT, moveSprite);
+                    }
+                    break;
+
+                case 32768:
+                    moveSprite &= (MAXWALLS - 1);
+
+                    setsprite(spriteNum, &davect);
+                    A_DamageWall(spriteNum, moveSprite, pSprite->pos, pSprite->picnum);
+
+                    break;
+
+                case 16384:
+                    setsprite(spriteNum, &davect);
+
+                    if (pSprite->zvel < 0)
+                        Sect_DamageCeiling(spriteNum, pSprite->sectnum);
+                    else if (pSprite->zvel > 0)
+                        Sect_DamageFloor(spriteNum, pSprite->sectnum);
+                    break;
+                default: break;
+                }
+            }
+
+            if (pSprite->xrepeat >= 10)
+            {
+                int const x = pSprite->extra;
+                A_RadiusDamage(spriteNum, g_rpgRadius, x >> 2, x >> 1, x - (x >> 2), x);
+            }
+            else
+            {
+                int const x = pSprite->extra + (g_globalRandom & 3);
+                A_RadiusDamage(spriteNum, (g_rpgRadius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+            }
+
+            goto next_sprite;
+        }
         case DUCK__STATIC:
         case TARGET__STATIC:
             if (pSprite->cstat&32)
@@ -5247,6 +5447,17 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     }
                     goto next_sprite;
 
+#ifndef EDUKE32_STANDALONE
+                case ONFIRESMOKE__STATIC:
+                case ONFIRE__STATIC:
+                case BURNEDCORPSE__STATIC:
+                case LAVAPOOLBUBBLE__STATIC:
+                case WHISPYSMOKE__STATIC:
+                case LAVAPOOL__STATIC:
+                    if (!WORLDTOUR)
+                        goto next_sprite;
+                    fallthrough__;
+#endif
                 case EXPLOSION2__STATIC:
                 case EXPLOSION2BOT__STATIC:
                 case FORCERIPPLE__STATIC:
@@ -5705,6 +5916,34 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 
                 A_SetSprite(spriteNum,CLIPMASK0);
 
+                goto next_sprite;
+
+            case FIREFLYFLYINGEFFECT__STATIC:
+                if (WORLDTOUR && G_HaveActor(sprite[spriteNum].picnum))
+                {
+                    int playerDist;
+                    int const playerNum = A_FindPlayer(pSprite, &playerDist);
+                    A_Execute(spriteNum, playerNum, playerDist);
+                    spritetype *pPlayer = &sprite[g_player[playerNum].ps->i];
+                    spritetype* pOwner = &sprite[pSprite->owner];
+                    if (pOwner->picnum != FIREFLY) DELETE_SPRITE_AND_CONTINUE(spriteNum);
+                    if (pOwner->xrepeat < 24 && pOwner->pal != 1)
+                        pSprite->cstat &= ~32768;
+                    else
+                        pSprite->cstat |= 32768;
+                    float dx = pOwner->x-pPlayer->x;
+                    float dy = pOwner->y-pPlayer->y;
+                    float dn = sqrt(dx*dx+dy*dy);
+                    if (dn > 0.f)
+                    {
+                        dx /= dn;
+                        dy /= dn;
+                    }
+                    pSprite->x = pOwner->x-int(dx*-10.f);
+                    pSprite->y = pOwner->y-int(dy*-10.f);
+                    pSprite->z = pOwner->z+0x800;
+                    if (pOwner->extra <= 0) DELETE_SPRITE_AND_CONTINUE(spriteNum);
+                }
                 goto next_sprite;
             }
 #endif

@@ -1999,6 +1999,11 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
     {
         switch (DYNAMICTILEMAP(sprite[dmgSrc].picnum))
         {
+        case FLAMETHROWERFLAME__STATIC:
+        case FIREBALL__STATIC:
+            if (!WORLDTOUR)
+                break;
+            fallthrough__;
         case RADIUSEXPLOSION__STATIC:
         case RPG__STATIC:
         case FIRELASER__STATIC:
@@ -2142,6 +2147,15 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         A_DeleteSprite(spriteNum);
         return;
 
+    case E32_TILE5736__STATIC:
+    case E32_TILE5737__STATIC:
+        if (!WORLDTOUR)
+            break;
+        A_PlaySound(GLASS_BREAKING,spriteNum);
+        A_SpawnWallGlass(spriteNum,-1,10);
+        A_DeleteSprite(spriteNum);
+        return;
+
     case HYDROPLANT__STATIC:
         PN(spriteNum) = BROKEHYDROPLANT;
         A_PlaySound(GLASS_BREAKING,spriteNum);
@@ -2250,6 +2264,10 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
         A_PlaySound(SLT(spriteNum),spriteNum);
         A_Spawn(spriteNum,SHT(spriteNum));
         fallthrough__;
+    case E32_TILE5846__STATIC:
+        if (!WORLDTOUR && PN(spriteNum) == E32_TILE5846)
+            break;
+        fallthrough__;
     case SPACEMARINE__STATIC:
         sprite[spriteNum].extra -= sprite[dmgSrc].extra;
         if (sprite[spriteNum].extra > 0)
@@ -2321,6 +2339,9 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
     {
         if (A_CheckEnemySprite(&sprite[spriteNum]) == 1)
         {
+            if (WORLDTOUR && sprite[spriteNum].picnum == FIREFLY && sprite[spriteNum].xrepeat < 48)
+                return;
+
             if (sprite[dmgSrc].picnum == RPG)
                 sprite[dmgSrc].extra <<= 1;
 
@@ -2378,7 +2399,11 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
             if (sprite[dmgSrc].picnum == FREEZEBLAST && ((PN(spriteNum) == APLAYER && sprite[spriteNum].pal == 1) || (g_freezerSelfDamage == 0 && sprite[dmgSrc].owner == spriteNum)))
                 return;
 
-            actor[spriteNum].picnum = sprite[dmgSrc].picnum;
+            if (WORLDTOUR && sprite[dmgSrc].picnum == FIREBALL && sprite[sprite[spriteNum].owner].picnum != FIREBALL)
+                actor[spriteNum].picnum = FLAMETHROWERFLAME;
+            else
+                actor[spriteNum].picnum = sprite[dmgSrc].picnum;
+
             actor[spriteNum].extra += sprite[dmgSrc].extra;
             actor[spriteNum].ang    = sprite[dmgSrc].ang;
             actor[spriteNum].owner  = sprite[dmgSrc].owner;
@@ -2785,6 +2810,8 @@ CHECKINV1:
         {
             //            if(  ( p->weapon_pos == 0 || ( p->holster_weapon && p->weapon_pos == WEAPON_POS_LOWER ) ))
             {
+                if (weaponNum >= 12) // hack
+                    weaponNum++;
                 if (weaponNum == 10 || weaponNum == 11)
                 {
                     int currentWeapon = pPlayer->curr_weapon;
@@ -2792,7 +2819,7 @@ CHECKINV1:
                     weaponNum = (weaponNum == 10 ? -1 : 1);  // JBF: prev (-1) or next (1) weapon choice
                     int i = currentWeapon;
 
-                    while ((currentWeapon >= 0 && currentWeapon < 11) || (PLUTOPAK && currentWeapon == GROW_WEAPON))
+                    while ((currentWeapon >= 0 && currentWeapon < 11) || (PLUTOPAK && currentWeapon == GROW_WEAPON) || (WORLDTOUR && currentWeapon == FLAMETHROWER_WEAPON))
                     {
                         // this accounts for the expander when handling next/previous
 
@@ -2826,6 +2853,34 @@ CHECKINV1:
                                     currentWeapon--;
                                 break;
 
+                            case KNEE_WEAPON:
+                                if ((int32_t) weaponNum == -1)
+                                {
+                                    if (WORLDTOUR)
+                                        currentWeapon = FLAMETHROWER_WEAPON;
+                                    else
+                                        currentWeapon = FREEZE_WEAPON;
+                                }
+                                else
+                                    currentWeapon++;
+                                break;
+
+                            case FLAMETHROWER_WEAPON:
+                                currentWeapon = ((int32_t) weaponNum == -1) ? FREEZE_WEAPON : KNEE_WEAPON;
+                                break;
+
+                            case FREEZE_WEAPON:
+                                if ((int32_t)weaponNum == 1)
+                                {
+                                    if (WORLDTOUR)
+                                        currentWeapon = FLAMETHROWER_WEAPON;
+                                    else
+                                        currentWeapon = KNEE_WEAPON;
+                                }
+                                else
+                                    currentWeapon--;
+                                break;
+
                             case HANDREMOTE_WEAPON:
                                 i = currentWeapon = HANDBOMB_WEAPON;
                                 fallthrough__;
@@ -2833,9 +2888,6 @@ CHECKINV1:
                                 currentWeapon += weaponNum;
                                 break;
                         }
-
-                        if (currentWeapon == -1) currentWeapon = FREEZE_WEAPON;
-                        else if (currentWeapon == 10) currentWeapon = KNEE_WEAPON;
 
                         if (((pPlayer->gotweapon & (1<<currentWeapon)) && pPlayer->ammo_amount[currentWeapon] > 0) || P_CheckDetonatorSpecialCase(pPlayer, currentWeapon))
                         {
@@ -2854,12 +2906,16 @@ CHECKINV1:
                         pPlayer->subweapon &= ~(1 << GROW_WEAPON);
                     else if (weaponNum == GROW_WEAPON)
                         pPlayer->subweapon |= (1<<GROW_WEAPON);
+                    else if (weaponNum == FREEZE_WEAPON)
+                        pPlayer->subweapon &= ~(1 << FLAMETHROWER_WEAPON);
+                    else if (weaponNum == FLAMETHROWER_WEAPON)
+                        pPlayer->subweapon |= (1<<FLAMETHROWER_WEAPON);
                 }
 
                 // last used weapon will depend on subweapon
-                if (weaponNum >= 12) // alt weapon, last used weapon
+                if (weaponNum >= 13) // alt weapon, last used weapon
                 {
-                    uint32_t const weaponNumSwitch = weaponNum == 13 ? pPlayer->last_used_weapon : pPlayer->curr_weapon;
+                    uint32_t const weaponNumSwitch = weaponNum == 14 ? pPlayer->last_used_weapon : pPlayer->curr_weapon;
                     switch (weaponNumSwitch)
                     {
                         case HANDREMOTE_WEAPON:
@@ -2867,6 +2923,9 @@ CHECKINV1:
                             break;
                         case GROW_WEAPON:
                             weaponNum = SHRINKER_WEAPON;
+                            break;
+                        case FLAMETHROWER_WEAPON:
+                            weaponNum = FREEZE_WEAPON;
                             break;
                         default:
                             weaponNum = weaponNumSwitch;
@@ -2915,6 +2974,34 @@ CHECKINV1:
                             pPlayer->subweapon &= ~(1<<GROW_WEAPON);
                     }
 
+                    if (weaponNum == FREEZE_WEAPON && WORLDTOUR)
+                    {
+                        if (screenpeek == playerNum) pus = NUMPAGES;
+
+                        if (pPlayer->curr_weapon != FLAMETHROWER_WEAPON && pPlayer->curr_weapon != FREEZE_WEAPON)
+                        {
+                            if (pPlayer->ammo_amount[FLAMETHROWER_WEAPON] > 0)
+                            {
+                                if ((pPlayer->subweapon&(1<<FLAMETHROWER_WEAPON)) == (1<<FLAMETHROWER_WEAPON))
+                                    weaponNum = FLAMETHROWER_WEAPON;
+                                else if (pPlayer->ammo_amount[FREEZE_WEAPON] == 0)
+                                {
+                                    weaponNum = FLAMETHROWER_WEAPON;
+                                    pPlayer->subweapon |= (1<<FLAMETHROWER_WEAPON);
+                                }
+                            }
+                            else if (pPlayer->ammo_amount[FREEZE_WEAPON] > 0)
+                                pPlayer->subweapon &= ~(1<<FLAMETHROWER_WEAPON);
+                        }
+                        else if (pPlayer->curr_weapon == FREEZE_WEAPON)
+                        {
+                            pPlayer->subweapon |= (1<<FLAMETHROWER_WEAPON);
+                            weaponNum = FLAMETHROWER_WEAPON;
+                        }
+                        else
+                            pPlayer->subweapon &= ~(1<<FLAMETHROWER_WEAPON);
+                    }
+
                     if (pPlayer->holster_weapon)
                     {
                         playerBits |= BIT(SK_HOLSTER);
@@ -2931,6 +3018,7 @@ CHECKINV1:
                         case FREEZE_WEAPON:
                         case GROW_WEAPON:
                         case SHRINKER_WEAPON:
+                        case FLAMETHROWER_WEAPON:
                             if (pPlayer->ammo_amount[weaponNum] == 0 && pPlayer->show_empty_weapon == 0)
                             {
                                 pPlayer->last_full_weapon = pPlayer->curr_weapon;
