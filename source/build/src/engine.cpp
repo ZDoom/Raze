@@ -1217,7 +1217,6 @@ static vec3_t spritesxyz[MAXSPRITESONSCREEN+1];
 int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
 float fxdimen = -1.f;
 int32_t ydimen;
-intptr_t frameoffset;
 
 static int32_t nrx1[8], nry1[8], nrx2[8], nry2[8]; // JBF 20031206: Thanks Ken
 
@@ -3060,8 +3059,6 @@ killsprite:
     sortsprites(0, spritesortcnt);
     sortsprites(spritesortcnt, numSprites);
 
-    videoBeginDrawing(); //{{{
-
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
     {
@@ -3281,9 +3278,6 @@ killsprite:
         GLInterface.SetDepthBias(0, 0);
     }
 #endif
-
-
-    videoEndDrawing();   //}}}
 }
 
 
@@ -4174,12 +4168,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 
     Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
            "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
-    //  if (getkensmessagecrc(FP_OFF(kensmessage)) != 0x56c764d4)
-    //      { OSD_Printf("Nice try.\n"); Bexit(EXIT_SUCCESS); }
-
-    //if (checkvideomode(&daxdim, &daydim, dabpp, davidoption)<0) return -1;
-
-    //bytesperline is set in this function
 
     j = bpp;
 
@@ -5532,23 +5520,9 @@ void videoClearViewableArea(int32_t dacol)
 void videoClearScreen(int32_t dacol)
 {
     if (!in3dmode()) return;
-    //dacol += (dacol<<8); dacol += (dacol<<16);
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        palette_t const p = paletteGetColor(dacol);
-        GLInterface.ClearScreen(PalEntry(255, p.r, p.g, p.b));
-        return;
-    }
-#endif
-
-    videoBeginDrawing(); //{{{
-    Bmemset((void *)frameplace,dacol,bytesperline*ydim);
-    videoEndDrawing();   //}}}
-    //nextpage();
-
-    faketimerhandler();
+    palette_t const p = paletteGetColor(dacol);
+    GLInterface.ClearScreen(PalEntry(255, p.r, p.g, p.b));
 }
 
 
@@ -5579,7 +5553,6 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 
     setviewcnt++;
 
-    offscreenrendering = 1;
     xdim = ysiz*4;
     ydim = xsiz*4;
     videoSetViewableArea(0,0,ysiz*4-1,xsiz*4-1);
@@ -5595,7 +5568,6 @@ void renderRestoreTarget()
     if (setviewcnt <= 0) return;
     setviewcnt--;
 
-    offscreenrendering = (setviewcnt>0);
     OpenGLRenderer::GLRenderer->EndOffscreen();
 
     xdim = bakxsiz;
@@ -5603,7 +5575,6 @@ void renderRestoreTarget()
     videoSetViewableArea(bakwindowxy1.x,bakwindowxy1.y,
             bakwindowxy2.x,bakwindowxy2.y);
 
-    modechange=1;
 }
 
 

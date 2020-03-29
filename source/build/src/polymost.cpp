@@ -3164,9 +3164,6 @@ void polymost_drawrooms()
 
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");
 
-    videoBeginDrawing();
-    frameoffset = frameplace + windowxy1.y*bytesperline + windowxy1.x;
-
 #ifdef YAX_ENABLE
 	if (yax_polymostclearzbuffer)
 #endif
@@ -3284,7 +3281,6 @@ void polymost_drawrooms()
     if (n < 3) 
 	{
 		GLInterface.SetDepthFunc(Depth_LessEqual);
-		videoEndDrawing(); 
 		return; 
 	}
 
@@ -3350,7 +3346,6 @@ void polymost_drawrooms()
         while (i);
 #endif
     }
-    //else if (!g_nodraw) { videoEndDrawing(); return; }
 #endif
 
     numscans = numbunches = 0;
@@ -3415,8 +3410,6 @@ void polymost_drawrooms()
     }
 
 	GLInterface.SetDepthFunc(Depth_LessEqual);
-
-    videoEndDrawing();
 }
 
 static void polymost_drawmaskwallinternal(int32_t wallIndex)

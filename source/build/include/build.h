@@ -98,9 +98,6 @@ enum rendmode_t {
 #define SPRITES_OF_STAT_SAFE(Statnum, Iter, Next)  Iter=headspritestat[Statnum]; \
     Iter>=0 && (Next=nextspritestat[Iter], 1); Iter=Next
 
-#define CLEARLINES2D(Startline, Numlines, Color) \
-    clearbuf((char *)(frameplace + ((Startline)*bytesperline)), (bytesperline*(Numlines))>>2, (Color))
-
 
 ////////// True Room over Room (YAX == rot -17 of "PRO") //////////
 #define YAX_ENABLE

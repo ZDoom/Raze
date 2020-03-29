@@ -656,12 +656,6 @@ set (PCH_SOURCES
 	thirdparty/src/fix16.cpp
 	thirdparty/src/md4.cpp
 	thirdparty/src/enet.cpp
-	#thirdparty/imgui/imgui.cpp
-	#thirdparty/imgui/imgui_demo.cpp
-	#thirdparty/imgui/imgui_draw.cpp
-	#thirdparty/imgui/imgui_impl_opengl3.cpp
-	#thirdparty/imgui/imgui_impl_sdl.cpp
-	#thirdparty/imgui/imgui_widgets.cpp
 
 	# Todo: Split out the license-safe code from this.
 	build/src/animvpx.cpp
@@ -679,7 +673,6 @@ set (PCH_SOURCES
 	build/src/polymost.cpp
 	build/src/pragmas.cpp
 	build/src/scriptfile.cpp
-	build/src/sdlayer.cpp
 	build/src/timer.cpp
 	build/src/voxmodel.cpp
 

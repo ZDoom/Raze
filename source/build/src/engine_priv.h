@@ -95,7 +95,6 @@ extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 extern TArray<uint8_t> mirrorBuffer;
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
-extern intptr_t frameoffset;
 extern int32_t globalposx, globalposy, globalposz, globalhoriz;
 extern fix16_t qglobalhoriz, qglobalang;
 extern float fglobalposx, fglobalposy, fglobalposz;

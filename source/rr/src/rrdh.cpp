@@ -1864,7 +1864,6 @@ void sub_54FA4(int a1, int a2)
     ptr1 = (char*)waloff[7050];
     if (!ptr1)
         return;
-    videoBeginDrawing();
     ptr2 = (char*)frameplace;
     if (!ptr2)
         return;
@@ -1879,7 +1878,6 @@ void sub_54FA4(int a1, int a2)
             ptr1++;
         }
     }
-    videoEndDrawing();
     rotatesprite(a1<<16, a2<<16, 57344, 512, 7050, 0, 0, 4+2, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
     rotatesprite(a1<<16, a2<<16, 57344, 512, 7050, -8, 0, 4+2+1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
     rotatesprite(a1<<16, a2<<16, 32768, 0, 7063, -24, 0, 32+2+1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);

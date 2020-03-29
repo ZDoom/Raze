@@ -94,24 +94,6 @@ void GLInstance::Init(int ydim)
 	new(&renderState) PolymostRenderState;	// reset to defaults.
 	LoadSurfaceShader();
 	LoadPolymostShader();
-#if 0
-	IMGUI_CHECKVERSION();
-	im_ctx = ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	ImGui_Init_Backend();
-	ImGui_ImplOpenGL3_Init();
-	if (!ttf.Size())
-	{
-		//ttf = fileSystem.LoadFile("engine/Capsmall_clean.ttf", 0);
-		ttf = fileSystem.LoadFile("engine/Roboto-Regular.ttf", 0);
-	}
-	if (ttf.Size()) io.Fonts->AddFontFromMemoryTTF(ttf.Data(), ttf.Size(), std::clamp(ydim / 40, 10, 30));
-#endif
 }
 
 void GLInstance::LoadPolymostShader()

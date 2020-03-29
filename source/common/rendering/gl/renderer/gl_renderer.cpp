@@ -221,7 +221,6 @@ void FGLRenderer::WriteSavePic ( FileWriter *file, int width, int height)
 	xdim = oldx;
 	ydim = oldy;
 	videoSetViewableArea(oldwindowxy1.x, oldwindowxy1.y, oldwindowxy2.x, oldwindowxy2.y);
-	modechange = 1;
 
 	// The 2D drawers can contain some garbage from the dirty render setup. Get rid of that first.
 	twodgen.Clear();

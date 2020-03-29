@@ -125,8 +125,6 @@ static int SaveScreenshot()
 	auto truecolor = videoGetRenderMode() >= REND_POLYMOST;
 	TArray<uint8_t> imgBuf(xdim * ydim * (truecolor ? 3 : 1), true);
 
-    videoBeginDrawing();
-
     if (truecolor)
     {
         getScreen(imgBuf.Data());
@@ -141,8 +139,6 @@ static int SaveScreenshot()
             memcpy(imgBuf.Data() + (ydim - i - 1) * bytesPerLine, rowBuf.Data(), bytesPerLine);
         }
     }
-
-    videoEndDrawing();
 
 	WritePNGfile(fil, imgBuf.Data(), Palette, truecolor ? SS_RGB : SS_PAL, xdim, ydim, truecolor? xdim*3 : xdim, png_gamma);
 	delete fil;

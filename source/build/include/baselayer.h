@@ -16,8 +16,6 @@
 #include "zstring.h"
 #include "vectors.h"
 
-extern char modechange;
-
 extern int32_t swapcomplete;
 
 EXTERN_CVAR(Bool, r_usenewaspect)
@@ -26,18 +24,13 @@ EXTERN_CVAR(Bool, r_usenewaspect)
 extern int32_t newaspect_enable;
 extern int32_t r_fpgrouscan;
 extern int32_t setaspect_new_use_dimen;
-extern int32_t xres, yres, bpp, bytesperline, refreshfreq;
-extern intptr_t frameplace;
-extern char offscreenrendering;
+extern int32_t xres, yres, bpp, refreshfreq;
 
 int32_t videoCheckMode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced);
 int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs);
 void    videoGetModes(void);
-void    videoEndDrawing(void);
 void    videoShowFrame(int32_t);
 int32_t videoUpdatePalette(int32_t start, int32_t num);
-
-void videoBeginDrawing(void);
 
 extern int32_t qsetmode;
 
