@@ -278,6 +278,8 @@ uint8_t DebugPrintColor = 255;
 
 int krandcount;
 
+SW_PACKET localInput;
+
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
 void BOT_DeleteAllBots(void);
 void BotPlayerInsert(PLAYERp pp);
@@ -2524,7 +2526,7 @@ void InitRunLevel(void)
         StartAmbientSound();
 }
 
-void getinput(SW_PACKET*);
+void getinput(int playerNum);
 
 void RunLevel(void)
 {
@@ -2533,7 +2535,6 @@ void RunLevel(void)
 #if 0
     waitforeverybody();
 #endif
-    PLAYERp pp = Player + myconnectindex;
     ready2send = 1;
 
     while (TRUE)
@@ -2556,9 +2557,20 @@ void RunLevel(void)
             {
                 ototalclock += synctics;
 
-                getinput(&loc);
-                pp->inputfifo[Player[myconnectindex].movefifoend & (MOVEFIFOSIZ - 1)] = loc;
+                getinput(myconnectindex);
+
+                PLAYERp const pp     = Player + myconnectindex;
+                auto    const q16ang = fix16_to_int(pp->q16ang);
+                auto &        input  = pp->inputfifo[Player[myconnectindex].movefifoend & (MOVEFIFOSIZ - 1)];
+
+                input = localInput;
+                input.vel =  mulscale9(localInput.vel,  sintable[NORM_ANGLE(q16ang + 512)]) +
+                             mulscale9(localInput.svel, sintable[NORM_ANGLE(q16ang)]);
+                input.svel = mulscale9(localInput.vel,  sintable[NORM_ANGLE(q16ang)]) + 
+                             mulscale9(localInput.svel, sintable[NORM_ANGLE(q16ang + 1536)]);
+
                 pp->movefifoend++;
+                localInput = {};
 
                 domovethings();
 
@@ -2567,6 +2579,7 @@ void RunLevel(void)
         }
 
 
+        getinput(myconnectindex);
         drawscreen(Player + screenpeek);
 
         if (QuitFlag)
@@ -2953,11 +2966,10 @@ void PauseKey(PLAYERp pp)
 
 short MirrorDelay;
 
-void getinput(SW_PACKET *loc)
+void getinput(int const playerNum)
 {
     int i;
-    PLAYERp pp = Player + myconnectindex;
-    PLAYERp newpp = Player + myconnectindex;
+    PLAYERp pp = Player + playerNum;
     int inv_hotkey = 0;
 
 #define TURBOTURNTIME (120/8)
@@ -2969,24 +2981,24 @@ void getinput(SW_PACKET *loc)
 #define MAXSVEL      ((NORMALKEYMOVE*2)+10)
 #define MAXANGVEL    100
 #define MAXHORIZVEL  128
-#define SET_LOC_KEY(loc, sync_num, key_test) SET(loc, ((!!(key_test)) << (sync_num)))
+#define HORIZ_SPEED  (16)
+#define SET_LOC_KEY(bits, sync_num, key_test) SET(bits, ((!!(key_test)) << (sync_num)))
 
     static int32_t turnheldtime;
-    int32_t momx, momy;
 
-    extern SWBOOL MenuButtonAutoRun;
+    // reset localInput
+    localInput = {};
+    localInput.bits = 0;
+
     extern SWBOOL MenuButtonAutoAim;
 
     if (Prediction && CommEnabled)
     {
-        newpp = ppp;
+        pp = ppp;
     }
 
-    // reset all syncbits
-    loc->bits = 0;
-
     // MAKE SURE THIS WILL GET SET
-    SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
+    SET_LOC_KEY(localInput.bits, SK_QUIT_GAME, MultiPlayQuitFlag);
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
@@ -2996,14 +3008,14 @@ void getinput(SW_PACKET *loc)
 		// this needs to be fixed properly - as it is this can never be compatible with demo playback.
 
 		if (mouseaim)
-			SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+			SET(Player[playerNum].Flags, PF_MOUSE_AIMING_ON);
 		else
-			RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+			RESET(Player[playerNum].Flags, PF_MOUSE_AIMING_ON);
 
 		if (cl_autoaim)
-			SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+			SET(Player[playerNum].Flags, PF_AUTO_AIM);
 		else
-			RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+			RESET(Player[playerNum].Flags, PF_AUTO_AIM);
 		}
 
     ControlInfo info;
@@ -3056,14 +3068,14 @@ void getinput(SW_PACKET *loc)
     // If in 2D follow mode, scroll around using glob vars
     // Tried calling this in domovethings, but key response it too poor, skips key presses
     // Note: ScrollMode2D = Follow mode, so this get called only during follow mode
-    if (ScrollMode2D && pp == Player + myconnectindex && !Prediction)
-        MoveScrollMode2D(Player + myconnectindex);
+    if (ScrollMode2D && pp == Player + playerNum && !Prediction)
+        MoveScrollMode2D(Player + playerNum);
 
     // !JIM! Added M_Active() so that you don't move at all while using menus
     if (M_Active() || ScrollMode2D || InputMode)
         return;
 
-    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
+    SET_LOC_KEY(localInput.bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
 
     int const running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int32_t turnamount;
@@ -3092,56 +3104,60 @@ void getinput(SW_PACKET *loc)
     info.dz = (info.dz * move_scale)>>8;
     info.dyaw = (info.dyaw * turn_scale)>>8;
 
-    int32_t svel = 0, vel = 0;
-    fix16_t q16horz, q16avel = 0;
+    SW_PACKET input {};
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
-        svel = -info.mousex;
-        svel -= info.dyaw * keymove / analogExtent;
+        input.svel = -info.mousex;
+        input.svel -= info.dyaw * keymove / analogExtent;
     }
     else
     {
-        q16avel = fix16_div(fix16_from_int(info.mousex), fix16_from_int(32));
-        q16avel += fix16_from_int(info.dyaw) / analogExtent * (turnamount << 1);
+        input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (turnamount << 1)));
     }
 
     if (mouseaim)
-        q16horz = -fix16_div(fix16_from_int(info.mousey), fix16_from_int(64));
+        input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), fix16_from_int(64)));
     else
-        vel = -(info.mousey >> 6);
+        input.vel = -(info.mousey >> 6);
 
-    if (in_mouseflip)
-        q16horz = -q16horz;
+    if (!in_mouseflip)
+        input.q16horz = -input.q16horz;
 
-    q16horz -= fix16_from_int(info.dpitch) * turnamount / analogExtent;
-    svel -= info.dx * keymove / analogExtent;
-    vel -= info.dz * keymove / analogExtent;
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * turnamount / analogExtent));
+    input.svel -= info.dx * keymove / analogExtent;
+    input.vel -= info.dz * keymove / analogExtent;
+
+    static double lastInputTicks;
+    auto const    currentHiTicks    = timerGetHiTicks();
+    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+
+    lastInputTicks = currentHiTicks;
+
+    auto scaleAdjustmentToInterval = [=](double x) { return x * 30 / (1000.0 / elapsedInputTicks); };
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-            svel -= -keymove;
-        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-            svel -= keymove;
+        if (!localInput.svel)
+        {
+            if (buttonMap.ButtonDown(gamefunc_Turn_Left) && !localInput.svel)
+                input.svel = keymove;
+            if (buttonMap.ButtonDown(gamefunc_Turn_Right) && !localInput.svel)
+                input.svel = -keymove;
+        }
     }
     else
     {
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
             turnheldtime += synctics;
-            if (turnheldtime >= TURBOTURNTIME)
-                q16avel -= fix16_from_int(turnamount);
-            else
-                q16avel -= fix16_from_int(PREAMBLETURN);
+            input.q16avel = fix16_ssub(input.q16avel, fix16_from_float(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
         }
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
             turnheldtime += synctics;
-            if (turnheldtime >= TURBOTURNTIME)
-                q16avel += fix16_from_int(turnamount);
-            else
-                q16avel += fix16_from_int(PREAMBLETURN);
+            input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
         }
         else
         {
@@ -3149,43 +3165,181 @@ void getinput(SW_PACKET *loc)
         }
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
-        svel += keymove;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
-        svel += -keymove;
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+    if (localInput.svel < keymove && localInput.svel > -keymove)
     {
-        vel += keymove;
-        //DSPRINTF(ds,"vel key %d",vel);
-        //DebugWriteString(ds);
-    }
-    else
-    {
-        //DSPRINTF(ds,"vel %d",vel);
-        //DebugWriteString(ds);
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
+            input.svel += keymove;
+
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
+            input.svel += -keymove;
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-        vel += -keymove;
+    if (localInput.vel < keymove && localInput.vel > -keymove)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+            input.vel += keymove;
 
-    vel = clamp(vel, -MAXVEL, MAXVEL);
-    svel = clamp(svel, -MAXSVEL, MAXSVEL);
+        if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+            input.vel += -keymove;
+    }
 
-    q16avel = fix16_clamp(q16avel, -fix16_from_int(MAXANGVEL), fix16_from_int(MAXANGVEL));
-    q16horz = fix16_clamp(q16horz, -fix16_from_int(MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
+    localInput.vel  = clamp(localInput.vel + input.vel, -MAXVEL, MAXVEL);
+    localInput.svel = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
 
-    momx = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 512)]);
-    momy = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang))]);
+    localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+    pp->q16ang         = fix16_sadd(pp->q16ang, input.q16avel) & 0x7FFFFFF;
 
-    momx += mulscale9(svel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang))]);
-    momy += mulscale9(svel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 1536)]);
+    localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), fix16_from_int(-MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
+    pp->q16horiz       = fix16_clamp(fix16_sadd(pp->q16horiz, input.q16horz), fix16_from_int(PLAYER_HORIZ_MAX), fix16_from_int(PLAYER_HORIZ_MAX));
 
-    loc->vel = momx;
-    loc->svel = momy;
-    loc->q16avel = q16avel;
-    loc->q16horz = q16horz;
+    if (pp->horizAdjust)
+    {
+        int i;
+
+        // Fixme: This should probably be made optional.
+        if (cl_slopetilting)
+        {
+            int x,y,k,j;
+            short tempsect;
+
+            if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
+            {
+                if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
+                {
+                    // Get a point, 512 units ahead of player's position
+                    x = pp->posx + (sintable[(fix16_to_int(pp->q16ang) + 512) & 2047] >> 5);
+                    y = pp->posy + (sintable[fix16_to_int(pp->q16ang) & 2047] >> 5);
+                    tempsect = pp->cursectnum;
+                    COVERupdatesector(x, y, &tempsect);
+
+                    if (tempsect >= 0)              // If the new point is inside a valid
+                    // sector...
+                    {
+                        // Get the floorz as if the new (x,y) point was still in
+                        // your sector
+                        j = getflorzofslope(pp->cursectnum, pp->posx, pp->posy);
+                        k = getflorzofslope(pp->cursectnum, x, y);
+
+                        // If extended point is in same sector as you or the slopes
+                        // of the sector of the extended point and your sector match
+                        // closely (to avoid accidently looking straight out when
+                        // you're at the edge of a sector line) then adjust horizon
+                        // accordingly
+                        if ((pp->cursectnum == tempsect) ||
+                            (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
+                        {
+                            pp->q16horizoff += fix16_from_int((((j - k) * 160) >> 16));
+                        }
+                    }
+                }
+            }
+
+            if (TEST(pp->Flags, PF_CLIMBING))
+            {
+                // tilt when climbing but you can't even really tell it
+                if (pp->q16horizoff < fix16_from_int(100))
+                    pp->q16horizoff += fix16_from_int((((100 - fix16_to_int(pp->q16horizoff)) >> 3) + 1));
+            }
+            else
+            {
+                // Make q16horizoff grow towards 0 since q16horizoff is not modified when
+                // you're not on a slope
+                if (pp->q16horizoff > 0)
+                    pp->q16horizoff -= fix16_from_int(((fix16_to_int(pp->q16horizoff) >> 3) + 1));
+                if (pp->q16horizoff < 0)
+                    pp->q16horizoff += fix16_from_int((((fix16_to_int(-pp->q16horizoff)) >> 3) + 1));
+            }
+        }
+
+        if (input.q16horz)
+        {
+            pp->q16horizbase += input.q16horz;
+            SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
+        }
+
+        if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
+        {
+            pp->q16horiz = pp->q16horizbase = fix16_from_int(100);
+            pp->q16horizoff = 0;
+        }
+
+        // this is the locked type
+        if (TEST_SYNC_KEY(pp, SK_SNAP_UP) || TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
+        {
+            // set looking because player is manually looking
+            SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
+
+            // adjust pp->q16horiz negative
+            if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
+                pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
+
+            // adjust pp->q16horiz positive
+            if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
+                pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
+        }
+
+
+        // this is the unlocked type
+        if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
+        {
+            RESET(pp->Flags, PF_LOCK_HORIZ);
+            SET(pp->Flags, PF_LOOKING);
+
+            // adjust pp->q16horiz negative
+            if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
+                pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
+
+            // adjust pp->q16horiz positive
+            if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
+                pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
+        }
+
+
+        if (!TEST(pp->Flags, PF_LOCK_HORIZ))
+        {
+            if (!(TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN)))
+            {
+                // not pressing the pp->q16horiz keys
+                if (pp->q16horizbase != fix16_from_int(100))
+                {
+
+                    // move pp->q16horiz back to 100
+                    for (i = 1; i; i--)
+                    {
+                        // this formula does not work for pp->q16horiz = 101-103
+                        pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
+                    }
+                }
+                else
+                {
+                    // not looking anymore because pp->q16horiz is back at 100
+                    RESET(pp->Flags, PF_LOOKING);
+                }
+            }
+        }
+
+        // bound the base
+        pp->q16horizbase = fix16_max(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MIN));
+        pp->q16horizbase = fix16_min(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MAX));
+
+        // bound adjust q16horizoff
+        if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
+            pp->q16horizoff = fix16_from_int(PLAYER_HORIZ_MIN) - pp->q16horizbase;
+        else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
+            pp->q16horizoff = fix16_from_int(PLAYER_HORIZ_MAX) - pp->q16horizbase;
+
+        // add base and offsets
+        pp->q16horiz = fix16_clamp((pp->q16horizbase + pp->q16horizoff), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
+#if 0
+        if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
+            pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
+        else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
+            pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
+
+        pp->q16horiz = fix16_clamp((pp->q16horizbase + pp->q16horizoff), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
+#endif
+
+    }
 
     if (!CommEnabled)
     {
@@ -3195,34 +3349,34 @@ void getinput(SW_PACKET *loc)
         {
             MenuButtonAutoAim = FALSE;
             if ((!!TEST(pp->Flags, PF_AUTO_AIM)) != !!cl_autoaim)
-                SET_LOC_KEY(loc->bits, SK_AUTO_AIM, TRUE);
+                SET_LOC_KEY(localInput.bits, SK_AUTO_AIM, TRUE);
         }
 #endif
     }
     else if (inputState.GetKeyStatus(sc_Pause))
     {
-        SET_LOC_KEY(loc->bits, SK_PAUSE, inputState.GetKeyStatus(sc_Pause));
+        SET_LOC_KEY(localInput.bits, SK_PAUSE, inputState.GetKeyStatus(sc_Pause));
 		inputState.ClearKeyStatus(sc_Pause);
 	}
 
-    SET_LOC_KEY(loc->bits, SK_CENTER_VIEW, buttonMap.ButtonDown(gamefunc_Center_View));
+    SET_LOC_KEY(localInput.bits, SK_CENTER_VIEW, buttonMap.ButtonDown(gamefunc_Center_View));
 
-    SET_LOC_KEY(loc->bits, SK_RUN, buttonMap.ButtonDown(gamefunc_Run));
-    SET_LOC_KEY(loc->bits, SK_SHOOT, buttonMap.ButtonDown(gamefunc_Fire));
+    SET_LOC_KEY(localInput.bits, SK_RUN, buttonMap.ButtonDown(gamefunc_Run));
+    SET_LOC_KEY(localInput.bits, SK_SHOOT, buttonMap.ButtonDown(gamefunc_Fire));
 
     // actually snap
-    SET_LOC_KEY(loc->bits, SK_SNAP_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
-    SET_LOC_KEY(loc->bits, SK_SNAP_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
+    SET_LOC_KEY(localInput.bits, SK_SNAP_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
+    SET_LOC_KEY(localInput.bits, SK_SNAP_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
 
     // actually just look
-    SET_LOC_KEY(loc->bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
-    SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
+    SET_LOC_KEY(localInput.bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
+    SET_LOC_KEY(localInput.bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
 
     for (i = 0; i < MAX_WEAPONS_KEYS; i++)
     {
         if (buttonMap.ButtonDown(gamefunc_Weapon_1 + i))
         {
-            SET(loc->bits, i + 1);
+            SET(localInput.bits, i + 1);
             break;
         }
     }
@@ -3263,7 +3417,7 @@ void getinput(SW_PACKET *loc)
             }
         }
 
-        SET(loc->bits, next_weapon + 1);
+        SET(localInput.bits, next_weapon + 1);
     }
 
 
@@ -3301,7 +3455,7 @@ void getinput(SW_PACKET *loc)
             }
         }
 
-        SET(loc->bits, prev_weapon + 1);
+        SET(localInput.bits, prev_weapon + 1);
     }
 
     if (buttonMap.ButtonDown(gamefunc_Alt_Weapon))
@@ -3309,7 +3463,7 @@ void getinput(SW_PACKET *loc)
         buttonMap.ClearButton(gamefunc_Alt_Weapon);
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
-        SET(loc->bits, which_weapon);
+        SET(localInput.bits, which_weapon);
     }
 
 
@@ -3327,23 +3481,23 @@ void getinput(SW_PACKET *loc)
     if (buttonMap.ButtonDown(gamefunc_Caltrops))
         inv_hotkey = INVENTORY_CALTROPS+1;
 
-    SET(loc->bits, inv_hotkey<<SK_INV_HOTKEY_BIT0);
+    SET(localInput.bits, inv_hotkey<<SK_INV_HOTKEY_BIT0);
 
-    SET_LOC_KEY(loc->bits, SK_INV_USE, buttonMap.ButtonDown(gamefunc_Inventory));
+    SET_LOC_KEY(localInput.bits, SK_INV_USE, buttonMap.ButtonDown(gamefunc_Inventory));
 
-    SET_LOC_KEY(loc->bits, SK_OPERATE, buttonMap.ButtonDown(gamefunc_Open));
-    SET_LOC_KEY(loc->bits, SK_JUMP, buttonMap.ButtonDown(gamefunc_Jump));
-    SET_LOC_KEY(loc->bits, SK_CRAWL, buttonMap.ButtonDown(gamefunc_Crouch));
+    SET_LOC_KEY(localInput.bits, SK_OPERATE, buttonMap.ButtonDown(gamefunc_Open));
+    SET_LOC_KEY(localInput.bits, SK_JUMP, buttonMap.ButtonDown(gamefunc_Jump));
+    SET_LOC_KEY(localInput.bits, SK_CRAWL, buttonMap.ButtonDown(gamefunc_Crouch));
 
-    SET_LOC_KEY(loc->bits, SK_TURN_180, buttonMap.ButtonDown(gamefunc_TurnAround));
+    SET_LOC_KEY(localInput.bits, SK_TURN_180, buttonMap.ButtonDown(gamefunc_TurnAround));
 
-    SET_LOC_KEY(loc->bits, SK_INV_LEFT, buttonMap.ButtonDown(gamefunc_Inventory_Left));
-    SET_LOC_KEY(loc->bits, SK_INV_RIGHT, buttonMap.ButtonDown(gamefunc_Inventory_Right));
+    SET_LOC_KEY(localInput.bits, SK_INV_LEFT, buttonMap.ButtonDown(gamefunc_Inventory_Left));
+    SET_LOC_KEY(localInput.bits, SK_INV_RIGHT, buttonMap.ButtonDown(gamefunc_Inventory_Right));
 
-    SET_LOC_KEY(loc->bits, SK_HIDE_WEAPON, buttonMap.ButtonDown(gamefunc_Holster_Weapon));
+    SET_LOC_KEY(localInput.bits, SK_HIDE_WEAPON, buttonMap.ButtonDown(gamefunc_Holster_Weapon));
 
     // need BUTTON
-    SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, inputState.GetKeyStatus(KEYSC_NUM));
+    SET_LOC_KEY(localInput.bits, SK_CRAWL_LOCK, inputState.GetKeyStatus(KEYSC_NUM));
 
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
     {
@@ -3356,7 +3510,7 @@ void getinput(SW_PACKET *loc)
             if (screenpeek < 0)
                 screenpeek = connecthead;
 
-            if (dimensionmode != 2 && screenpeek == myconnectindex)
+            if (dimensionmode != 2 && screenpeek == playerNum)
             {
                 // JBF: figure out what's going on here
                 memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
