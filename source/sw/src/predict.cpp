@@ -157,11 +157,9 @@ DoPrediction(PLAYERp ppp)
     u = User[ppp->PlayerSprite];
     User[ppp->PlayerSprite] = &PredictUser;
 
-    ppp->oq16ang = ppp->q16ang;
     ppp->oposx = ppp->posx;
     ppp->oposy = ppp->posy;
     ppp->oposz = ppp->posz;
-    ppp->oq16horiz = ppp->q16horiz;
 
 #if PREDICT_DEBUG
     PredictDebug(ppp);

@@ -1796,169 +1796,7 @@ void SlipSlope(PLAYERp pp)
     pp->yvect += mulscale(sintable[ang], sector[pp->cursectnum].floorheinum, sectu->speed);
 }
 
-void
-PlayerAutoLook(PLAYERp pp)
-{
-    int x,y,k,j;
-    short tempsect;
-
-
-    if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
-    {
-        if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
-        {
-            // Get a point, 512 units ahead of player's position
-            x = pp->posx + (sintable[(fix16_to_int(pp->q16ang) + 512) & 2047] >> 5);
-            y = pp->posy + (sintable[fix16_to_int(pp->q16ang) & 2047] >> 5);
-            tempsect = pp->cursectnum;
-            COVERupdatesector(x, y, &tempsect);
-
-            if (tempsect >= 0)              // If the new point is inside a valid
-            // sector...
-            {
-                // Get the floorz as if the new (x,y) point was still in
-                // your sector
-                j = getflorzofslope(pp->cursectnum, pp->posx, pp->posy);
-                k = getflorzofslope(pp->cursectnum, x, y);
-
-                // If extended point is in same sector as you or the slopes
-                // of the sector of the extended point and your sector match
-                // closely (to avoid accidently looking straight out when
-                // you're at the edge of a sector line) then adjust horizon
-                // accordingly
-                if ((pp->cursectnum == tempsect) ||
-                    (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
-                {
-                    pp->q16horizoff += fix16_from_int((((j - k) * 160) >> 16));
-                }
-            }
-        }
-    }
-
-    if (TEST(pp->Flags, PF_CLIMBING))
-    {
-        // tilt when climbing but you can't even really tell it
-        if (pp->q16horizoff < fix16_from_int(100))
-            pp->q16horizoff += fix16_from_int((((100 - fix16_to_int(pp->q16horizoff)) >> 3) + 1));
-    }
-    else
-    {
-        // Make q16horizoff grow towards 0 since q16horizoff is not modified when
-        // you're not on a slope
-        if (pp->q16horizoff > 0)
-            pp->q16horizoff -= fix16_from_int(((fix16_to_int(pp->q16horizoff) >> 3) + 1));
-        if (pp->q16horizoff < 0)
-            pp->q16horizoff += fix16_from_int((((fix16_to_int(-pp->q16horizoff)) >> 3) + 1));
-    }
-}
-
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
-void
-DoPlayerHorizon(PLAYERp pp)
-{
-    int i;
-#define HORIZ_SPEED (16)
-
-//    //DSPRINTF(ds,"fix16_to_int(pp->q16horizoff), %d", fix16_to_int(pp->q16horizoff));
-//    MONO_PRINT(ds);
-
-	// Fixme: This should probably be made optional.
-	if (cl_slopetilting)
-		PlayerAutoLook(pp);
-
-    if (pp->input.q16horz)
-    {
-        pp->q16horizbase += pp->input.q16horz;
-        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-    }
-
-    if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
-    {
-        pp->q16horiz = pp->q16horizbase = fix16_from_int(100);
-        pp->q16horizoff = 0;
-    }
-
-    // this is the locked type
-    if (TEST_SYNC_KEY(pp, SK_SNAP_UP) || TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
-    {
-        // set looking because player is manually looking
-        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-
-        // adjust pp->q16horiz negative
-        if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
-            pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
-
-        // adjust pp->q16horiz positive
-        if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
-            pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
-    }
-
-
-    // this is the unlocked type
-    if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
-    {
-        RESET(pp->Flags, PF_LOCK_HORIZ);
-        SET(pp->Flags, PF_LOOKING);
-
-        // adjust pp->q16horiz negative
-        if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
-            pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
-
-        // adjust pp->q16horiz positive
-        if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
-            pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
-    }
-
-
-    if (!TEST(pp->Flags, PF_LOCK_HORIZ))
-    {
-        if (!(TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN)))
-        {
-            // not pressing the pp->q16horiz keys
-            if (pp->q16horizbase != fix16_from_int(100))
-            {
-
-                // move pp->q16horiz back to 100
-                for (i = 1; i; i--)
-                {
-                    // this formula does not work for pp->q16horiz = 101-103
-                    pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
-                }
-            }
-            else
-            {
-                // not looking anymore because pp->q16horiz is back at 100
-                RESET(pp->Flags, PF_LOOKING);
-            }
-        }
-    }
-
-#if 1
-    // bound the base
-    pp->q16horizbase = fix16_max(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MIN));
-    pp->q16horizbase = fix16_min(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MAX));
-
-    // bound adjust q16horizoff
-    if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
-        pp->q16horizoff = fix16_from_int(PLAYER_HORIZ_MIN) - pp->q16horizbase;
-    else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
-        pp->q16horizoff = fix16_from_int(PLAYER_HORIZ_MAX) - pp->q16horizbase;
-
-    ////DSPRINTF(ds,"base %d, off %d, base + off %d",fix16_to_int(pp->q16horizbase), fix16_to_int(pp->q16horizoff), fix16_to_int(pp->q16horizbase + pp->q16horizoff));
-    //MONO_PRINT(ds);
-
-    // add base and offsets
-    pp->q16horiz = pp->q16horizbase + pp->q16horizoff;
-#else
-    if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
-        pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
-    else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
-        pp->q16horizbase -= HORIZ_SPEED;
-
-    pp->q16horiz = pp->q16horizbase + pp->q16horizoff;
-#endif
-
-}
 
 void
 DoPlayerBob(PLAYERp pp)
@@ -2646,7 +2484,7 @@ DoPlayerMove(PLAYERp pp)
 
     DoPlayerSetWadeDepth(pp);
 
-    DoPlayerHorizon(pp);
+    pp->horizAdjust = TRUE;
 
     if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
@@ -2854,7 +2692,7 @@ DoPlayerMoveBoat(PLAYERp pp)
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    DoPlayerHorizon(pp);
+    pp->horizAdjust = TRUE;
 }
 
 #if 0
@@ -3365,7 +3203,7 @@ DoPlayerMoveTank(PLAYERp pp)
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    DoPlayerHorizon(pp);
+    pp->horizAdjust = TRUE;
 
     DoTankTreads(pp);
 }
@@ -3382,7 +3220,7 @@ DoPlayerMoveTurret(PLAYERp pp)
 
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
 
-    DoPlayerHorizon(pp);
+    pp->horizAdjust = TRUE;
 }
 
 void
@@ -3958,7 +3796,7 @@ DoPlayerClimb(PLAYERp pp)
     sp->z = pp->posz + PLAYER_HEIGHT;
     changespritesect(pp->PlayerSprite, pp->cursectnum);
 
-    DoPlayerHorizon(pp);
+    pp->horizAdjust = TRUE;
 
     if (FAF_ConnectArea(pp->cursectnum))
     {
@@ -6013,9 +5851,9 @@ DoPlayerStopOperate(PLAYERp pp)
     if (pp->sop_remote)
     {
         if (TEST_BOOL1(pp->remote_sprite))
-            pp->q16ang = pp->oq16ang = fix16_from_int(pp->remote_sprite->ang);
+            pp->q16ang = fix16_from_int(pp->remote_sprite->ang);
         else
-            pp->q16ang = pp->oq16ang = fix16_from_int(getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
+            pp->q16ang = fix16_from_int(getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
     }
 
     if (pp->sop_control)
@@ -7451,8 +7289,6 @@ MoveSkipSavePos(void)
         pp->oposx = pp->posx;
         pp->oposy = pp->posy;
         pp->oposz = pp->posz;
-        pp->oq16ang = pp->q16ang;
-        pp->oq16horiz = pp->q16horiz;
     }
 
     // save off stats for skip4
@@ -8001,8 +7837,8 @@ InitAllPlayers(void)
         pp->posx = pp->oposx = pfirst->posx;
         pp->posy = pp->oposy = pfirst->posy;
         pp->posz = pp->oposz = pfirst->posz;
-        pp->q16ang = pp->oq16ang = pfirst->q16ang;
-        pp->q16horiz = pp->oq16horiz = pfirst->q16horiz;
+        pp->q16ang = pfirst->q16ang;
+        pp->q16horiz = pfirst->q16horiz;
         pp->cursectnum = pfirst->cursectnum;
         // set like this so that player can trigger something on start of the level
         pp->lastcursectnum = pfirst->cursectnum+1;
@@ -8153,7 +7989,7 @@ PlayerSpawnPosition(PLAYERp pp)
     pp->posx = pp->oposx = sp->x;
     pp->posy = pp->oposy = sp->y;
     pp->posz = pp->oposz = sp->z;
-    pp->q16ang = pp->oq16ang = fix16_from_int(sp->ang);
+    pp->q16ang = fix16_from_int(sp->ang);
     pp->cursectnum = sp->sectnum;
 
     getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);

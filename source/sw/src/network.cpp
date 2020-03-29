@@ -44,7 +44,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void getinput(SW_PACKET*);
+// getinput() calls will require redoing with regard to local input changes.
+// void getinput(int playerNum);
 
 /*
 SYNC BUG NOTES:
@@ -932,7 +933,8 @@ faketimerhandler(void)
     if (Player[myconnectindex].movefifoend - movefifoplc >= 100)
         return;
 
-    getinput(&loc);
+    // getinput() calls will require redoing with regard to local input changes.
+    // getinput(&loc);
 
     AveragePacket.vel += loc.vel;
     AveragePacket.svel += loc.svel;

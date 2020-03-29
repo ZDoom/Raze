@@ -1029,7 +1029,6 @@ struct PLAYERstruct
     // interpolation
     int
         oposx, oposy, oposz;
-    fix16_t oq16horiz, oq16ang;
 
     // holds last valid move position
     short lv_sectnum;
@@ -1065,6 +1064,7 @@ struct PLAYERstruct
     int drive_oangvel;
 
 
+    bool horizAdjust;
 
     // scroll 2D mode stuff
     int scr_x, scr_y, oscr_x, oscr_y;
