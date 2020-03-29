@@ -460,7 +460,7 @@ void JS_InitMirrors(void)
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
 void drawroomstotile(int daposx, int daposy, int daposz,
-                     short daq16ang, fix16_t daq16horiz, short dacursectnum, short tilenume)
+                     fix16_t daq16ang, fix16_t daq16horiz, short dacursectnum, short tilenume)
 {
 	TileFiles.MakeCanvas(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
