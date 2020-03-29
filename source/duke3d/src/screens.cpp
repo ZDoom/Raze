@@ -1703,6 +1703,49 @@ static void G_BonusCutscenes(void)
         videoClearScreen(0L);
 
         break;
+
+    case 4:
+        if (!WORLDTOUR)
+            return;
+
+        if (ud.lockout == 0)
+        {
+            S_StopMusic();
+            totalclocklock = totalclock = 0;
+
+            videoClearScreen(0L);
+            rotatesprite_fs(160<<16, 100<<16, 65536L, 0, FIREFLYGROWEFFECT, 0, 0, 2+8+64+BGSTRETCH);
+            videoNextPage();
+
+            fadepal(0, 0, 0, 252, 0, -4);
+
+            I_ClearAllInput();
+
+            S_PlaySound(E5L7_DUKE_QUIT_YOU);
+
+            do
+            {
+                if (engineFPSLimit())
+                {
+                    totalclocklock = totalclock;
+
+                    videoClearScreen(0L);
+                    rotatesprite_fs(160<<16, 100<<16, 65536L, 0, FIREFLYGROWEFFECT, 0, 0, 2+8+64+BGSTRETCH);
+                    videoNextPage();
+                }
+
+                gameHandleEvents();
+
+                if (I_GeneralTrigger()) break;
+            } while (1);
+
+            fadepal(0, 0, 0, 0, 252, 4);
+        }
+
+        S_StopMusic();
+        FX_StopAllSounds();
+        S_ClearSoundLocks();
+        break;
     }
 }
 #endif
