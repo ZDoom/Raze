@@ -289,6 +289,7 @@ void MenuLevel(void);
 void StatScreen(PLAYERp mpp);
 void InitRunLevel(void);
 void RunLevel(void);
+void getinput(int playerNum);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 static FILE *debug_fout = NULL;
@@ -2526,8 +2527,6 @@ void InitRunLevel(void)
         StartAmbientSound();
 }
 
-void getinput(int playerNum);
-
 void RunLevel(void)
 {
     InitRunLevel();
@@ -2573,8 +2572,6 @@ void RunLevel(void)
                 localInput = {};
 
                 domovethings();
-
-                timerUpdate();
             }
         }
 
@@ -2979,8 +2976,8 @@ void getinput(int const playerNum)
 #define NORMALKEYMOVE 35
 #define MAXVEL       ((NORMALKEYMOVE*2)+10)
 #define MAXSVEL      ((NORMALKEYMOVE*2)+10)
-#define MAXANGVEL    100
-#define MAXHORIZVEL  128
+#define MAXANGVEL    1024
+#define MAXHORIZVEL  256
 #define HORIZ_SPEED  (16)
 #define SET_LOC_KEY(bits, sync_num, key_test) SET(bits, ((!!(key_test)) << (sync_num)))
 
@@ -3080,6 +3077,7 @@ void getinput(int const playerNum)
     int const running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int32_t turnamount;
     int32_t keymove;
+    constexpr int analogTurnAmount   = (NORMALTURN << 1);
     constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
 
     if (running)
@@ -3114,7 +3112,7 @@ void getinput(int const playerNum)
     else
     {
         input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (turnamount << 1)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
     }
 
     if (mouseaim)
@@ -3125,7 +3123,7 @@ void getinput(int const playerNum)
     if (!in_mouseflip)
         input.q16horz = -input.q16horz;
 
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * turnamount / analogExtent));
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
     input.svel -= info.dx * keymove / analogExtent;
     input.vel -= info.dz * keymove / analogExtent;
 
@@ -3228,7 +3226,7 @@ void getinput(int const playerNum)
                         if ((pp->cursectnum == tempsect) ||
                             (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
                         {
-                            pp->q16horizoff += fix16_from_int((((j - k) * 160) >> 16));
+                            pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(mulscale16((j - k), 160))));
                         }
                     }
                 }
@@ -3238,22 +3236,28 @@ void getinput(int const playerNum)
             {
                 // tilt when climbing but you can't even really tell it
                 if (pp->q16horizoff < fix16_from_int(100))
-                    pp->q16horizoff += fix16_from_int((((100 - fix16_to_int(pp->q16horizoff)) >> 3) + 1));
+                    pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(((fix16_from_int(100) - pp->q16horizoff) >> 3) + fix16_one))));
             }
             else
             {
                 // Make q16horizoff grow towards 0 since q16horizoff is not modified when
                 // you're not on a slope
                 if (pp->q16horizoff > 0)
-                    pp->q16horizoff -= fix16_from_int(((fix16_to_int(pp->q16horizoff) >> 3) + 1));
-                if (pp->q16horizoff < 0)
-                    pp->q16horizoff += fix16_from_int((((fix16_to_int(-pp->q16horizoff)) >> 3) + 1));
+                {
+                    pp->q16horizoff = fix16_ssub(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pp->q16horizoff >> 3) + fix16_one))));
+                    pp->q16horizoff = fix16_max(pp->q16horizoff, 0);
+                }
+                else if (pp->q16horizoff < 0)
+                {
+                    pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pp->q16horizoff >> 3) + fix16_one))));
+                    pp->q16horizoff = fix16_min(pp->q16horizoff, 0);
+                }
             }
         }
 
         if (input.q16horz)
         {
-            pp->q16horizbase += input.q16horz;
+            pp->q16horizbase = fix16_sadd(pp->q16horizbase, input.q16horz);
             SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
         }
 
@@ -3271,11 +3275,11 @@ void getinput(int const playerNum)
 
             // adjust pp->q16horiz negative
             if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
-                pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
+                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_int((HORIZ_SPEED/2)));
 
             // adjust pp->q16horiz positive
             if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
-                pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
+                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_int((HORIZ_SPEED/2)));
         }
 
 
@@ -3287,11 +3291,11 @@ void getinput(int const playerNum)
 
             // adjust pp->q16horiz negative
             if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
-                pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
+                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_int(HORIZ_SPEED));
 
             // adjust pp->q16horiz positive
             if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
-                pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
+                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_int(HORIZ_SPEED));
         }
 
 
@@ -3307,7 +3311,7 @@ void getinput(int const playerNum)
                     for (i = 1; i; i--)
                     {
                         // this formula does not work for pp->q16horiz = 101-103
-                        pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
+                        pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_ssub(fix16_from_int(25), fix16_sdiv(pp->q16horizbase, fix16_from_int(4))));
                     }
                 }
                 else
@@ -3324,9 +3328,9 @@ void getinput(int const playerNum)
 
         // bound adjust q16horizoff
         if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
-            pp->q16horizoff = fix16_from_int(PLAYER_HORIZ_MIN) - pp->q16horizbase;
+            pp->q16horizoff = fix16_ssub(fix16_from_int(PLAYER_HORIZ_MIN), pp->q16horizbase);
         else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
-            pp->q16horizoff = fix16_from_int(PLAYER_HORIZ_MAX) - pp->q16horizbase;
+            pp->q16horizoff = fix16_ssub(fix16_from_int(PLAYER_HORIZ_MAX), pp->q16horizbase);
 
         // add base and offsets
         pp->q16horiz = fix16_clamp((pp->q16horizbase + pp->q16horizoff), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));

@@ -752,7 +752,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
 //                tx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
 //                ty = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
 //                tz = pp->oposz + mulscale16(pp->posz - pp->oposz, smoothratio);
-//                tpq16ang = pp->oq16ang + mulscale16(((pp->q16ang + fix16_from_int(1024) - pp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
+//                tpq16ang = pp->q16ang
 
 
                 dist = 0x7fffffff;
