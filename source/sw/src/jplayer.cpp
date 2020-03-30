@@ -650,7 +650,7 @@ void computergetinput(int snum, SW_PACKET *syn)
         // Below formula fails in certain cases
         //syn->q16avel = fix16_from_int(min(max((((daang+1024-damyang)&2047)-1024)>>1,-MAXANGVEL),MAXANGVEL)); //was 127
         p->q16ang = fix16_from_int(daang);
-        syn->q16horz = fix16_from_int(min(max((zang-fix16_to_int(p->q16horiz))>>1,-PLAYER_HORIZ_MAX),PLAYER_HORIZ_MAX));
+        syn->q16horz = fix16_clamp(fix16_sdiv(fix16_ssub(fix16_from_int(zang), p->q16horiz), fix16_from_int(2)), -fix16_from_int(PLAYER_HORIZ_MAX), fix16_from_int(PLAYER_HORIZ_MAX));
         // Sets type of aiming, auto aim for bots
         syn->bits |= (1<<SK_AUTO_AIM);
         return;

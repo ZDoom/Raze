@@ -2071,7 +2071,7 @@ drawscreen(PLAYERp pp)
     tx = tx + quake_x;
     ty = ty + quake_y;
     //tq16horiz = tq16horiz + fix16_from_int(quake_x);
-    tq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(tq16ang) + quake_ang));
+    tq16ang = fix16_sadd(tq16ang, fix16_from_int(quake_ang)) & 0x7FFFFFF;
 
     if (pp->sop_remote)
     {
@@ -2263,8 +2263,6 @@ drawscreen(PLAYERp pp)
 	if (!M_Active())
     SecretInfo(pp);
 
-    videoNextPage();
-
 #if SYNC_TEST
     SyncStatMessage();
 #endif
@@ -2276,6 +2274,9 @@ drawscreen(PLAYERp pp)
     short_restoreinterpolations();                 // Stick at end of drawscreen
 
     PostDraw();
+
+    videoNextPage();
+
     DrawScreen = FALSE;
 }
 
