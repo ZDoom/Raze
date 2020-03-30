@@ -331,6 +331,10 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
 {
     spritetype *pSprite = &sprite[nSprite];
     
+    #ifdef NOONE_EXTENSIONS
+        if (gModernMap && modernTypeOperateSprite(nSprite, pSprite, pXSprite, event))
+            return;
+    #else
     switch (event.cmd) {
         case kCmdLock:
             pXSprite->locked = 1;
@@ -342,10 +346,6 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             pXSprite->locked = pXSprite->locked ^ 1;
             return;
     }
-
-    #ifdef NOONE_EXTENSIONS
-    if (gModernMap && modernTypeOperateSprite(nSprite, pSprite, pXSprite, event))
-        return;
     #endif
 
     if (pSprite->statnum == kStatDude && pSprite->type >= kDudeBase && pSprite->type < kDudeMax) {
@@ -2168,7 +2168,7 @@ void trInit(void)
                     evPost(i, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
                 break;
             case kModernCondition:
-                if (pXSprite->busyTime <= 0) break;
+                if (pXSprite->busyTime <= 0 || pXSprite->locked) break;
                 evPost(i, 3, ClipLow(pXSprite->busyTime, 5), kCallbackCondition);
                 break;
             #endif

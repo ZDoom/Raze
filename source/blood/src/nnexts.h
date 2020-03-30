@@ -118,15 +118,22 @@ OBJ_SECTOR                          = 6,
 
 enum {
 kCondMixedBase                      = 100,
-kCondMixedMax                       = 199,
+kCondMixedMax                       = 200,
 kCondWallBase                       = 200,
-kCondWallMax                        = 299,
+kCondWallMax                        = 300,
 kCondSectorBase                     = 300,
-kCondSectorMax                      = 399,
+kCondSectorMax                      = 400,
 kCondDudeBase                       = 400,
-kCondDudeMax                        = 499,
+kCondDudeMax                        = 500,
 kCondSpriteBase                     = 500,
-kCondSpriteMax                      = 599,
+kCondSpriteMax                      = 600,
+};
+
+enum {
+kCondSerialSector                   = 100000,
+kCondSerialWall                     = 200000,
+kCondSerialSprite                   = 300000,
+kCondSerialMax                      = 400000,
 };
 
 // - STRUCTS ------------------------------------------------------------------
@@ -214,6 +221,7 @@ void nnExtProcessSuperSprites(void);
 bool nnExtIsImmune(spritetype* pSprite, int dmgType, int minScale = 16);
 int nnExtRandom(int a, int b);
 void nnExtResetGlobals();
+void nnExtTriggerObject(int objType, int objIndex, int command);
 //  -------------------------------------------------------------------------   //
 spritetype* randomDropPickupObject(spritetype* pSprite, short prevItem);
 spritetype* randomSpawnDude(spritetype* pSprite);
@@ -318,13 +326,16 @@ int getSpriteMassBySize(spritetype* pSprite);
 bool ceilIsTooLow(spritetype* pSprite);
 void levelEndLevelCustom(int nLevel);
 XSPRITE* eventRedirected(int objType, int objXIndex, bool byRx);
-void useCondition(XSPRITE* pXSource, EVENT event);
+bool useCondition(XSPRITE* pXSource, EVENT event);
 bool condPush(XSPRITE* pXSprite, int objType, int objIndex);
-bool condCmpr(int val, int min, int max);
-bool condCheckMixed(XSPRITE* pXCond, EVENT event, bool PUSH, bool RVRS);
-bool condCheckSector(XSPRITE* pXCond, bool PUSH, bool RVRS);
-bool condCheckWall(XSPRITE* pXCond, bool PUSH, bool RVRS);
-bool condCheckSprite(XSPRITE* pXCond, bool PUSH, bool RVRS);
+bool condRestore(XSPRITE* pXSprite);
+bool condCmp(int val, int arg1, int arg2, int comOp);
+bool condCmpne(int arg1, int arg2, int comOp);
+/*bool condCmpr(int val, int min, int max, int cmpOp);*/
+bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH, bool RVRS);
+bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
+bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
+bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
 #endif
 
 ////////////////////////////////////////////////////////////////////////
