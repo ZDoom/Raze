@@ -300,9 +300,9 @@ void ctrlGetInput(void)
 
     if (gInput.strafe < keyMove && gInput.strafe > -keyMove)
     {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
             input.strafe += keyMove;
-        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
             input.strafe -= keyMove;
     }
 
