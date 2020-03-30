@@ -3136,7 +3136,7 @@ void getinput(int const playerNum)
 
     lastInputTicks = currentHiTicks;
 
-    auto scaleAdjustmentToInterval = [=](double x) { return x * 30 / (1000.0 / elapsedInputTicks); };
+    auto scaleAdjustmentToInterval = [=](double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); };
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
@@ -3187,7 +3187,7 @@ void getinput(int const playerNum)
     localInput.vel  = clamp(localInput.vel + input.vel, -MAXVEL, MAXVEL);
     localInput.svel = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
 
-    localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+    localInput.q16avel = fix16_clamp(fix16_sadd(localInput.q16avel, input.q16avel), fix16_from_int(-MAXANGVEL), fix16_from_int(MAXANGVEL));
     pp->q16ang         = fix16_sadd(pp->q16ang, input.q16avel) & 0x7FFFFFF;
 
     localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), fix16_from_int(-MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
