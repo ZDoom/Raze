@@ -1791,6 +1791,7 @@ OptionMenu "EngineCredits"
 	StaticText "Alexey Lysiuk", 0
 	StaticText ""
 	StaticText "The Raze team thanks the following contributors"
+	StaticText "Mitchell Richters", 0
 	StaticText "Nash Muhandes", 0
 	StaticText "Dynamo", 0
 }
