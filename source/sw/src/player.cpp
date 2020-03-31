@@ -98,7 +98,7 @@ SWBOOL NightVision = FALSE;
 extern SWBOOL FinishedLevel;
 
 //#define PLAYER_TURN_SCALE (8)
-#define PLAYER_TURN_SCALE (3)
+#define PLAYER_TURN_SCALE (2)
 
 // the smaller the number the slower the going
 #define PLAYER_RUN_FRICTION (50000L)
