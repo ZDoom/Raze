@@ -349,7 +349,7 @@ void ctrlGetInput(void)
     if (buttonMap.ButtonDown(gamefunc_Strafe))
         input.strafe -= info.mousex;
     else
-        input.q16turn = fix16_sadd(input.q16turn, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
+        input.q16turn = fix16_sadd(input.q16turn, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
 
     input.strafe -= -(info.dx<<5);
 
@@ -360,7 +360,7 @@ void ctrlGetInput(void)
         gInput.mlook = ClipRange(info.dz>>7, -127, 127);
 #endif
     if (mouseaim)
-        input.q16mlook = fix16_sadd(input.q16mlook, fix16_sdiv(fix16_from_int(info.mousey), F16(128)));
+        input.q16mlook = fix16_sadd(input.q16mlook, fix16_sdiv(fix16_from_int(info.mousey), fix16_from_int(208)));
     else
         input.forward -= info.mousey;
     if (!in_mouseflip)
@@ -384,26 +384,26 @@ void ctrlGetInput(void)
     gInput.forward = clamp(gInput.forward + input.forward, -2048, 2048);
     gInput.strafe = clamp(gInput.strafe + input.strafe, -2048, 2048);
     gInput.q16turn = fix16_sadd(gInput.q16turn, input.q16turn);
-    gInput.q16mlook = fix16_clamp(fix16_sadd(gInput.q16mlook, input.q16mlook), F16(-127)>>2, F16(127)>>2);
+    gInput.q16mlook = fix16_clamp(fix16_sadd(gInput.q16mlook, input.q16mlook), fix16_from_int(-127)>>2, fix16_from_int(127)>>2);
     if (gMe && gMe->pXSprite->health != 0 && !gPaused)
     {
-        CONSTEXPR int upAngle = 289;
-        CONSTEXPR int downAngle = -347;
-        CONSTEXPR double lookStepUp = 4.0*upAngle/60.0;
-        CONSTEXPR double lookStepDown = -4.0*downAngle/60.0;
+        constexpr int upAngle = 289;
+        constexpr int downAngle = -347;
+        constexpr double lookStepUp = 4.0*upAngle/60.0;
+        constexpr double lookStepDown = -4.0*downAngle/60.0;
         gViewAngle = (gViewAngle + input.q16turn + fix16_from_float(scaleAdjustmentToInterval(gViewAngleAdjust))) & 0x7ffffff;
         if (gViewLookRecenter)
         {
             if (gViewLook < 0)
-                gViewLook = fix16_min(gViewLook+fix16_from_float(scaleAdjustmentToInterval(lookStepDown)), F16(0));
+                gViewLook = fix16_min(gViewLook+fix16_from_float(scaleAdjustmentToInterval(lookStepDown)), fix16_from_int(0));
             if (gViewLook > 0)
-                gViewLook = fix16_max(gViewLook-fix16_from_float(scaleAdjustmentToInterval(lookStepUp)), F16(0));
+                gViewLook = fix16_max(gViewLook-fix16_from_float(scaleAdjustmentToInterval(lookStepUp)), fix16_from_int(0));
         }
         else
         {
-            gViewLook = fix16_clamp(gViewLook+fix16_from_float(scaleAdjustmentToInterval(gViewLookAdjust)), F16(downAngle), F16(upAngle));
+            gViewLook = fix16_clamp(gViewLook+fix16_from_float(scaleAdjustmentToInterval(gViewLookAdjust)), fix16_from_int(downAngle), fix16_from_int(upAngle));
         }
-        gViewLook = fix16_clamp(gViewLook+(input.q16mlook << 3), F16(downAngle), F16(upAngle));
+        gViewLook = fix16_clamp(gViewLook+(input.q16mlook << 3), fix16_from_int(downAngle), fix16_from_int(upAngle));
     }
 }
 
