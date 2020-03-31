@@ -434,47 +434,47 @@ void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     if (predict.at6e && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
     {
         if (predict.at20 < 0)
-            predict.at20 = fix16_min(predict.at20+F16(4), F16(0));
+            predict.at20 = fix16_min(predict.at20+fix16_from_int(4), fix16_from_int(0));
         if (predict.at20 > 0)
-            predict.at20 = fix16_max(predict.at20-F16(4), F16(0));
+            predict.at20 = fix16_max(predict.at20-fix16_from_int(4), fix16_from_int(0));
         if (predict.at20 == 0)
             predict.at6e = 0;
     }
     else
     {
         if (pInput->buttonFlags.lookUp)
-            predict.at20 = fix16_min(predict.at20+F16(4), F16(60));
+            predict.at20 = fix16_min(predict.at20+fix16_from_int(4), fix16_from_int(60));
         if (pInput->buttonFlags.lookDown)
-            predict.at20 = fix16_max(predict.at20-F16(4), F16(-60));
+            predict.at20 = fix16_max(predict.at20-fix16_from_int(4), fix16_from_int(-60));
     }
-    predict.at20 = fix16_clamp(predict.at20+pInput->q16mlook, F16(-60), F16(60));
+    predict.at20 = fix16_clamp(predict.at20+pInput->q16mlook, fix16_from_int(-60), fix16_from_int(60));
 
     if (predict.at20 > 0)
-        predict.at24 = mulscale30(F16(120), Sin(fix16_to_int(predict.at20<<3)));
+        predict.at24 = mulscale30(fix16_from_int(120), Sin(fix16_to_int(predict.at20<<3)));
     else if (predict.at20 < 0)
-        predict.at24 = mulscale30(F16(180), Sin(fix16_to_int(predict.at20<<3)));
+        predict.at24 = mulscale30(fix16_from_int(180), Sin(fix16_to_int(predict.at20<<3)));
     else
         predict.at24 = 0;
 #endif
-    CONSTEXPR int upAngle = 289;
-    CONSTEXPR int downAngle = -347;
-    CONSTEXPR double lookStepUp = 4.0*upAngle/60.0;
-    CONSTEXPR double lookStepDown = -4.0*downAngle/60.0;
+    constexpr int upAngle = 289;
+    constexpr int downAngle = -347;
+    constexpr double lookStepUp = 4.0*upAngle/60.0;
+    constexpr double lookStepDown = -4.0*downAngle/60.0;
     if (predict.at6e && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
     {
         if (predict.at20 < 0)
-            predict.at20 = fix16_min(predict.at20+F16(lookStepDown), F16(0));
+            predict.at20 = fix16_min(predict.at20+fix16_from_dbl(lookStepDown), fix16_from_int(0));
         if (predict.at20 > 0)
-            predict.at20 = fix16_max(predict.at20-F16(lookStepUp), F16(0));
+            predict.at20 = fix16_max(predict.at20-fix16_from_dbl(lookStepUp), fix16_from_int(0));
         if (predict.at20 == 0)
             predict.at6e = 0;
     }
     else
     {
         if (pInput->buttonFlags.lookUp)
-            predict.at20 = fix16_min(predict.at20+F16(lookStepUp), F16(upAngle));
+            predict.at20 = fix16_min(predict.at20+fix16_from_dbl(lookStepUp), fix16_from_int(upAngle));
         if (pInput->buttonFlags.lookDown)
-            predict.at20 = fix16_max(predict.at20-F16(lookStepDown), F16(downAngle));
+            predict.at20 = fix16_max(predict.at20-fix16_from_dbl(lookStepDown), fix16_from_int(downAngle));
     }
     if (numplayers > 1 && gPrediction)
     {
@@ -488,7 +488,7 @@ void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
         }
         gViewLookRecenter = predict.at6e && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown;
     }
-    predict.at20 = fix16_clamp(predict.at20+(pInput->q16mlook<<3), F16(downAngle), F16(upAngle));
+    predict.at20 = fix16_clamp(predict.at20+(pInput->q16mlook<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
     predict.at24 = fix16_from_float(100.f*tanf(fix16_to_float(predict.at20)*fPI/1024.f));
 
     int nSector = predict.at68;
@@ -3189,8 +3189,8 @@ void viewDrawScreen(bool sceneonly)
         }
         if (gView == gMe && (numplayers <= 1 || gPrediction) && gView->pXSprite->health != 0 && !VanillaMode())
         {
-            CONSTEXPR int upAngle = 289;
-            CONSTEXPR int downAngle = -347;
+            constexpr int upAngle = 289;
+            constexpr int downAngle = -347;
             fix16_t q16look;
             cA = gViewAngle;
             q16look = gViewLook;
@@ -3383,7 +3383,7 @@ void viewDrawScreen(bool sceneonly)
         {
             cZ = vfc + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
         }
-        q16horiz = ClipRange(q16horiz, F16(-200), F16(200));
+        q16horiz = ClipRange(q16horiz, fix16_from_int(-200), fix16_from_int(200));
     RORHACK:
         int ror_status[16];
         for (int i = 0; i < 16; i++)

@@ -1335,7 +1335,7 @@ void ProcessInput(PLAYER *pPlayer)
             if (bVanilla)
                 pPlayer->q16horiz = fix16_from_int(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), 120));
             else
-                pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), F16(120));
+                pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), fix16_from_int(120));
         }
         if (pPlayer->curWeapon)
             pInput->newWeapon = pPlayer->curWeapon;
@@ -1551,20 +1551,20 @@ void ProcessInput(PLAYER *pPlayer)
         if (pInput->keyFlags.lookCenter && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
         {
             if (pPlayer->q16look < 0)
-                pPlayer->q16look = fix16_min(pPlayer->q16look+F16(4), F16(0));
+                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(0));
             if (pPlayer->q16look > 0)
-                pPlayer->q16look = fix16_max(pPlayer->q16look-F16(4), F16(0));
+                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(0));
             if (!pPlayer->q16look)
                 pInput->keyFlags.lookCenter = 0;
         }
         else
         {
             if (pInput->buttonFlags.lookUp)
-                pPlayer->q16look = fix16_min(pPlayer->q16look+F16(4), F16(60));
+                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(60));
             if (pInput->buttonFlags.lookDown)
-                pPlayer->q16look = fix16_max(pPlayer->q16look-F16(4), F16(-60));
+                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(-60));
         }
-        pPlayer->q16look = fix16_clamp(pPlayer->q16look+pInput->q16mlook, F16(-60), F16(60));
+        pPlayer->q16look = fix16_clamp(pPlayer->q16look+pInput->q16mlook, fix16_from_int(-60), fix16_from_int(60));
         if (pPlayer->q16look > 0)
             pPlayer->q16horiz = fix16_from_int(mulscale30(120, Sin(fix16_to_int(pPlayer->q16look)<<3)));
         else if (pPlayer->q16look < 0)
@@ -1574,25 +1574,25 @@ void ProcessInput(PLAYER *pPlayer)
     }
     else
     {
-        CONSTEXPR int upAngle = 289;
-        CONSTEXPR int downAngle = -347;
-        CONSTEXPR double lookStepUp = 4.0*upAngle/60.0;
-        CONSTEXPR double lookStepDown = -4.0*downAngle/60.0;
+        constexpr int upAngle = 289;
+        constexpr int downAngle = -347;
+        constexpr double lookStepUp = 4.0*upAngle/60.0;
+        constexpr double lookStepDown = -4.0*downAngle/60.0;
         if (pInput->keyFlags.lookCenter && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
         {
             if (pPlayer->q16look < 0)
-                pPlayer->q16look = fix16_min(pPlayer->q16look+F16(lookStepDown), F16(0));
+                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepDown), fix16_from_int(0));
             if (pPlayer->q16look > 0)
-                pPlayer->q16look = fix16_max(pPlayer->q16look-F16(lookStepUp), F16(0));
+                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepUp), fix16_from_int(0));
             if (!pPlayer->q16look)
                 pInput->keyFlags.lookCenter = 0;
         }
         else
         {
             if (pInput->buttonFlags.lookUp)
-                pPlayer->q16look = fix16_min(pPlayer->q16look+F16(lookStepUp), F16(upAngle));
+                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepUp), fix16_from_int(upAngle));
             if (pInput->buttonFlags.lookDown)
-                pPlayer->q16look = fix16_max(pPlayer->q16look-F16(lookStepDown), F16(downAngle));
+                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepDown), fix16_from_int(downAngle));
         }
         if (pPlayer == gMe && numplayers == 1)
         {
@@ -1606,7 +1606,7 @@ void ProcessInput(PLAYER *pPlayer)
             }
             gViewLookRecenter = pInput->keyFlags.lookCenter && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown;
         }
-        pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16mlook<<3), F16(downAngle), F16(upAngle));
+        pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16mlook<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
         pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));
     }
     int nSector = pSprite->sectnum;
@@ -1631,7 +1631,7 @@ void ProcessInput(PLAYER *pPlayer)
     }
     else
     {
-        pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, F16(0), 0x4000);
+        pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, fix16_from_int(0), 0x4000);
         if (klabs(pPlayer->q16slopehoriz) < 4)
             pPlayer->q16slopehoriz = 0;
     }
