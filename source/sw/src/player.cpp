@@ -98,7 +98,7 @@ SWBOOL NightVision = FALSE;
 extern SWBOOL FinishedLevel;
 
 //#define PLAYER_TURN_SCALE (8)
-#define PLAYER_TURN_SCALE (2)
+#define PLAYER_TURN_SCALE 2.4f
 
 // the smaller the number the slower the going
 #define PLAYER_RUN_FRICTION (50000L)
@@ -1595,7 +1595,7 @@ DoPlayerTurn(PLAYERp pp)
             return;
     }
 
-    angvel = fix16_smul(pp->input.q16avel, fix16_from_int(PLAYER_TURN_SCALE));
+    angvel = fix16_smul(pp->input.q16avel, fix16_from_float(PLAYER_TURN_SCALE));
 
     if (angvel != 0)
     {
@@ -1637,7 +1637,7 @@ DoPlayerTurnBoat(PLAYERp pp)
     }
     else
     {
-        angvel = fix16_smul(pp->input.q16avel, fix16_from_int(PLAYER_TURN_SCALE));
+        angvel = fix16_smul(pp->input.q16avel, fix16_from_float(PLAYER_TURN_SCALE));
         angvel = fix16_sadd(angvel, fix16_ssub(angvel, fix16_sdiv(angvel, fix16_from_int(4))));
         angvel = fix16_sdiv(fix16_smul(angvel, fix16_from_int(synctics)), fix16_from_int(32));
     }
