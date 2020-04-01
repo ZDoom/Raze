@@ -1030,6 +1030,9 @@ struct PLAYERstruct
     int
         oposx, oposy, oposz;
 
+    // Map follow mode pos values.
+    int32_t mfposx, mfposy;
+
     // holds last valid move position
     short lv_sectnum;
     int lv_x,lv_y,lv_z;
@@ -1843,7 +1846,6 @@ typedef struct
 
 extern SPIN Spin[17];
 extern DOOR_AUTO_CLOSE DoorAutoClose[MAX_DOOR_AUTO_CLOSE];
-extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
 #define MAXANIM 256
 typedef void ANIM_CALLBACK (ANIMp, void *);
