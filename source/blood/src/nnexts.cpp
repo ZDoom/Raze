@@ -1204,9 +1204,9 @@ void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer) {
 
 void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer) {
     
-    constexpr int upAngle = 289; constexpr int downAngle = -347;
-    constexpr double lookStepUp = 4.0 * upAngle / 60.0;
-    constexpr double lookStepDown = -4.0 * downAngle / 60.0;
+    int upAngle = 289; int downAngle = -347;
+    double lookStepUp = 4.0 * upAngle / 60.0;
+    double lookStepDown = -4.0 * downAngle / 60.0;
 
     int look = pXSource->data2 << 5;
     if (look > 0) pPlayer->q16look = fix16_min(mulscale8(fix16_from_dbl(lookStepUp), look), fix16_from_int(upAngle));
