@@ -75,7 +75,6 @@ extern short HelpPagePic[];
 extern ParentalStruct aVoxelArray[MAXTILES];
 extern SWBOOL RedrawScreen;
 SWBOOL RedrawCompass=FALSE;
-extern int Follow_posx,Follow_posy;
 
 int ConnectCopySprite(uspritetype const * tsp);
 void PreDrawStackedWater(void);
@@ -1924,7 +1923,6 @@ short ScreenSavePic = FALSE;
 
 SWBOOL PicInView(short, SWBOOL);
 void DoPlayerDiveMeter(PLAYERp pp);
-void MoveScrollMode2D(PLAYERp pp);
 
 void
 drawscreen(PLAYERp pp)
@@ -2193,8 +2191,8 @@ drawscreen(PLAYERp pp)
 
         if (ScrollMode2D)
         {
-            tx = Follow_posx;
-            ty = Follow_posy;
+            tx = pp->mfposx;
+            ty = pp->mfposy;
         }
 
         for (j = 0; j < MAXSPRITES; j++)

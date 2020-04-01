@@ -146,7 +146,6 @@ char DemoText[3][64];
 int DemoTextYstart = 0;
 
 SWBOOL DoubleInitAWE32 = FALSE;
-int Follow_posx=0,Follow_posy=0;
 
 SWBOOL NoMeters = FALSE;
 short IntroAnimCount = 0;
@@ -2983,7 +2982,8 @@ void getinput(int const playerNum)
 
     static int32_t turnheldtime;
 
-    // reset localInput
+    // reset objects.
+    SW_PACKET input {};
     localInput = {};
     localInput.bits = 0;
 
@@ -3018,62 +3018,6 @@ void getinput(int const playerNum)
     ControlInfo info;
     CONTROL_GetInput(&info);
 
-
-    //info.dz = (info.dz * move_scale)>>8;
-    //info.dyaw = (info.dyaw * turn_scale)>>8;
-
-    PauseKey(pp);
-
-    if (PauseKeySet)
-        return;
-
-    // MAP KEY
-    if (buttonMap.ButtonDown(gamefunc_Map))
-    {
-        buttonMap.ClearButton(gamefunc_Map);
-
-        // Init follow coords
-        Follow_posx = pp->posx;
-        Follow_posy = pp->posy;
-
-        if (dimensionmode == 3)
-            dimensionmode = 5;
-        else if (dimensionmode == 5)
-            dimensionmode = 6;
-        else
-        {
-            MirrorDelay = 1;
-            dimensionmode = 3;
-            SetFragBar(pp);
-            ScrollMode2D = FALSE;
-            SetRedrawScreen(pp);
-        }
-    }
-
-    // Toggle follow map mode on/off
-    if (dimensionmode == 5 || dimensionmode == 6)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
-        {
-			buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-            ScrollMode2D = !ScrollMode2D;
-            Follow_posx = pp->posx;
-            Follow_posy = pp->posy;
-        }
-    }
-
-    // If in 2D follow mode, scroll around using glob vars
-    // Tried calling this in domovethings, but key response it too poor, skips key presses
-    // Note: ScrollMode2D = Follow mode, so this get called only during follow mode
-    if (ScrollMode2D && pp == Player + playerNum && !Prediction)
-        MoveScrollMode2D(Player + playerNum);
-
-    // !JIM! Added M_Active() so that you don't move at all while using menus
-    if (M_Active() || ScrollMode2D || InputMode)
-        return;
-
-    SET_LOC_KEY(localInput.bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
-
     int const running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int32_t turnamount;
     int32_t keymove;
@@ -3099,10 +3043,127 @@ void getinput(int const playerNum)
         keymove = NORMALKEYMOVE;
     }
 
+    PauseKey(pp);
+
+    if (PauseKeySet)
+        return;
+
+    // MAP KEY
+    if (buttonMap.ButtonDown(gamefunc_Map))
+    {
+        buttonMap.ClearButton(gamefunc_Map);
+
+        // Init follow coords
+        pp->mfposx = pp->posx;
+        pp->mfposy = pp->posy;
+
+        if (dimensionmode == 3)
+            dimensionmode = 5;
+        else if (dimensionmode == 5)
+            dimensionmode = 6;
+        else
+        {
+            MirrorDelay = 1;
+            dimensionmode = 3;
+            SetFragBar(pp);
+            ScrollMode2D = FALSE;
+            SetRedrawScreen(pp);
+        }
+    }
+
+    // Toggle follow map mode on/off
+    if (dimensionmode == 5 || dimensionmode == 6)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
+        {
+			buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
+            ScrollMode2D = !ScrollMode2D;
+            pp->mfposx = pp->posx;
+            pp->mfposy = pp->posy;
+        }
+    }
+
+    // If in 2D follow mode, scroll around.
+    if (ScrollMode2D && !Prediction)
+    {
+        extern SWBOOL HelpInputMode, ScrollMode2D;
+        keymove = keymove / 6;
+
+        if (M_Active())
+            return;
+
+        // Recenter view if told
+        if (buttonMap.ButtonDown(gamefunc_Center_View))
+        {
+            pp->mfposx = pp->posx;
+            pp->mfposy = pp->posy;
+        }
+
+        // Toggle follow map mode on/off
+        if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
+        {
+            buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
+            ScrollMode2D = !ScrollMode2D;
+            // Reset coords
+            pp->mfposx = pp->posx;
+            pp->mfposy = pp->posy;
+        }
+
+        if (buttonMap.ButtonDown(gamefunc_Strafe))
+            input.svel -= info.dyaw>>2;
+
+        input.svel -= info.dx>>2;
+        input.vel = -info.dz>>2;
+
+        if (!ConPanel)
+        {
+            if (!HelpInputMode)
+            {
+                if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+                    input.svel += keymove;
+
+                if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+                    input.svel += -keymove;
+
+                if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+                    input.vel += keymove;
+
+                if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+                    input.vel += -keymove;
+            }
+
+            if (!InputMode)
+            {
+                if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
+                    input.svel += keymove;
+
+                if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
+                    input.svel += -keymove;
+            }
+        }
+
+        input.vel  = clamp(input.vel, -MAXVEL, MAXVEL);
+        input.svel = clamp(input.svel, -MAXSVEL, MAXSVEL);
+
+        pp->mfposx += mulscale9(input.vel,  sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + 512)]) +
+                      mulscale9(input.svel, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang))]);
+        pp->mfposy += mulscale9(input.vel,  sintable[NORM_ANGLE(fix16_to_int(pp->q16ang))]) +
+                      mulscale9(input.svel, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + 1536)]);
+
+        pp->mfposx = max(pp->mfposx, x_min_bound);
+        pp->mfposy = max(pp->mfposy, y_min_bound);
+        pp->mfposx = min(pp->mfposx, x_max_bound);
+        pp->mfposy = min(pp->mfposy, y_max_bound);
+    }
+
+    // !JIM! Added M_Active() so that you don't move at all while using menus
+    if (M_Active() || ScrollMode2D || InputMode)
+        return;
+
+    SET_LOC_KEY(localInput.bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
+
     info.dz = (info.dz * move_scale)>>8;
     info.dyaw = (info.dyaw * turn_scale)>>8;
-
-    SW_PACKET input {};
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
