@@ -1203,7 +1203,7 @@ void viewDrawStats(PLAYER *pPlayer, int x, int y)
 
 GameStats GameInterface::getStats()
 {
-	return { gKillMgr.at4, gKillMgr.at0, gSecretMgr.at8, gSecretMgr.at0, gLevelTime / kTicsPerSec, gPlayer[myconnectindex].fragCount };
+	return { gKillMgr.at4, gKillMgr.at0, gSecretMgr.at4, gSecretMgr.at0, gLevelTime / kTicsPerSec, gPlayer[myconnectindex].fragCount };
 }
 
 #define kSBarNumberHealth 9220

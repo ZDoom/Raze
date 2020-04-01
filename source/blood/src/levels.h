@@ -100,7 +100,6 @@ void levelInitINI(const char *pzIni);
 void levelOverrideINI(const char *pzIni);
 void levelPlayIntroScene(int nEpisode);
 void levelPlayEndScene(int nEpisode);
-void levelClearSecrets(void);
 void levelSetupSecret(int nCount);
 void levelTriggerSecret(int nSecret);
 void CheckSectionAbend(const char *pzSection);

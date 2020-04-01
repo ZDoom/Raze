@@ -560,7 +560,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     char levelName[BMAX_PATH];
     currentLevel = &mapList[gGameOptions.nEpisode * kMaxLevels + gGameOptions.nLevel];
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
-	STAT_NewLevel(gameOptions->zLevelName);
+	STAT_NewLevel(currentLevel->fileName);
     G_LoadMapHack(levelName, gameOptions->zLevelName);
     wsrand(gameOptions->uMapCRC);
     gKillMgr.Clear();
