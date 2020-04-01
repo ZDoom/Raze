@@ -719,6 +719,28 @@ void callbackCondition(int nSprite) {
 
     TRCONDITION* pCond = &gCondition[pXSprite->sysData1];
     for (int i = 0; i < pCond->length; i++) {
+        /*if (pCond->obj[i].type == OBJ_SPRITE) {
+            spritetype* pObj = &sprite[pCond->obj[i].index];
+            XSPRITE* pXObj = (xspriRangeIsFine(pObj->extra)) ? &xsprite[pObj->extra] : NULL;
+            if (gGameOptions.nGameType != 0) {
+                if (pObj->type != pObj->inittype && pObj->inittype >= kDudePlayer1 && pObj->inittype <= kDudePlayer8) {
+                    PLAYER* pPlayer = getPlayerById(pObj->inittype);
+                    if (pPlayer) {
+                        pCond->obj[i].index = pPlayer->pSprite->index;
+                        viewSetSystemMessage("RESET INDEX");
+                    } else {
+                        viewSetSystemMessage("FAILED %d", pCond->obj[i].index);
+                        continue;
+                    }
+                }
+            }
+            //if (pObj->flags & kHitagRespawn)
+                //viewSetSystemMessage("TYPE: %d ON RESPAWN", pObj->type);
+            //if (pObj->flags & kHitagFree) {
+               // viewSetSystemMessage("TYPE: %d IS FREE", pObj->type);
+           // }
+            
+        }*/
         EVENT evn;  evn.index = pCond->obj[i].index;   evn.type = pCond->obj[i].type;
         evn.cmd = pCond->obj[i].cmd; evn.funcID = kCallbackCondition;
         useCondition(pXSprite, evn);

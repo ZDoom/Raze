@@ -414,7 +414,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     break;
                 case kModernCondition:
                     if (pXSprite->waitTime > 0 && pXSprite->busyTime > 0) {
-                        pXSprite->busyTime += ((pXSprite->waitTime * 60) / 10);
+                        pXSprite->busyTime += ((pXSprite->waitTime * 60) / 10); pXSprite->waitTime = 0;
                         consoleSysMsg("Summing busyTime and waitTime for tracking condition #d%, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
                     }
 
@@ -2151,32 +2151,89 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH, bool RVR
     
     //int var = -1;
     int cond = pXCond->data1 - kCondMixedBase; int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
+    int arg2 = pXCond->data3; int arg3 = pXCond->data4;
     
     int objType = -1; int objIndex = -1;
     condUnserialize(pXCond->targetX, &objType, &objIndex);
 
     switch (cond) {
         case 0: return (objType == OBJ_SECTOR && sectRangeIsFine(objIndex)); // is a sector?
-        case 1: return (objType == OBJ_WALL && wallRangeIsFine(objIndex));   // is a wall?
-        case 2: return (objType == OBJ_SPRITE && spriRangeIsFine(objIndex)); // is a sprite?
-        case 10: // x-index is fine?
+        case 5: return (objType == OBJ_WALL && wallRangeIsFine(objIndex));   // is a wall?
+        case 10: return (objType == OBJ_SPRITE && spriRangeIsFine(objIndex)); // is a sprite?
+        case 15: // x-index is fine?
+            switch (objType) {
+                case OBJ_WALL: return xwallRangeIsFine(wall[objIndex].extra);
+                case OBJ_SPRITE: return xspriRangeIsFine(sprite[objIndex].extra);
+                case OBJ_SECTOR: return xsectRangeIsFine(sector[objIndex].extra);
+            }
+            break;
         case 20: // type in a range?
             switch (objType) {
                 case OBJ_WALL:
-                    if (cond == 10) return xwallRangeIsFine(wall[objIndex].extra);
-                    else return condCmp(wall[objIndex].type, arg1, arg2, cmpOp);
-                    break;
+                    return condCmp(wall[objIndex].type, arg1, arg2, cmpOp);
                 case OBJ_SPRITE:
-                    if (cond == 10) return xspriRangeIsFine(sprite[objIndex].extra);
-                    else return condCmp((sprite[objIndex].type != kThingBloodChunks) ? sprite[objIndex].type : sprite[objIndex].inittype, arg1, arg2, cmpOp);
-                    break;
+                    return condCmp((sprite[objIndex].type != kThingBloodChunks) ? sprite[objIndex].type : sprite[objIndex].inittype, arg1, arg2, cmpOp);
                 case OBJ_SECTOR:
-                    if (cond == 10) return xsectRangeIsFine(sector[objIndex].extra);
-                    else return condCmp(sector[objIndex].type, arg1, arg2, cmpOp);
-                    break;
+                    return condCmp(sector[objIndex].type, arg1, arg2, cmpOp);
             }
             break;
+        case 25: // cmp pic
+        case 26: // cmp pal
+        case 27: // cmp shade
+        case 28: // cmp cstat
+        case 29: // cmp hitag
+        case 30: // cmp xrepeat / xpanning
+        case 31: // cmp yrepeat / ypanning
+        case 32: // cmp xoffset / xpanning
+        case 33: // cmp yoffset / ypanning
+            arg3 = (arg3 > 0);
+            switch (objType) {
+                case OBJ_WALL: {
+                    walltype* pObj = &wall[objIndex];
+                    switch (cond) {
+                        case 25: return condCmp(pObj->picnum, arg1, arg2, cmpOp);
+                        case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
+                        case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
+                        case 28: return (pObj->cstat & arg1);
+                        case 29: return (pObj->hitag & arg1);
+                        case 30: return condCmp(pObj->xrepeat, arg1, arg2, cmpOp);
+                        case 31: return condCmp(pObj->xpanning, arg1, arg2, cmpOp);
+                        case 32: return condCmp(pObj->yrepeat, arg1, arg2, cmpOp);
+                        case 33: return condCmp(pObj->ypanning, arg1, arg2, cmpOp);
+                    }
+                    break;
+                }
+                case OBJ_SPRITE: {
+                    spritetype* pObj = &sprite[objIndex];
+                    switch (cond) {
+                        case 25: return condCmp(pObj->picnum, arg1, arg2, cmpOp);
+                        case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
+                        case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
+                        case 28: return (pObj->cstat & arg1);
+                        case 29: return (pObj->hitag & arg1);
+                        case 30: return condCmp(pObj->xrepeat, arg1, arg2, cmpOp);
+                        case 31: return condCmp(pObj->xoffset, arg1, arg2, cmpOp);
+                        case 32: return condCmp(pObj->yrepeat, arg1, arg2, cmpOp);
+                        case 33: return condCmp(pObj->yoffset, arg1, arg2, cmpOp);
+                    }
+                    break;
+                }
+                case OBJ_SECTOR: {
+                    sectortype* pObj = &sector[objIndex];
+                    switch (cond) {
+                        case 25: return condCmp((arg3) ? pObj->ceilingpicnum : pObj->floorpicnum, arg1, arg2, cmpOp);
+                        case 26: return condCmp((arg3) ? pObj->ceilingpal : pObj->floorpal, arg1, arg2, cmpOp);
+                        case 27: return condCmp((arg3) ? pObj->ceilingshade : pObj->floorshade, arg1, arg2, cmpOp);
+                        case 28: return (((arg3) ? pObj->ceilingstat : pObj->floorstat) & arg1);
+                        case 29: return (pObj->hitag & arg1);
+                        case 30: return condCmp(pObj->floorxpanning, arg1, arg2, cmpOp);
+                        case 31: return condCmp(pObj->ceilingxpanning, arg1, arg2, cmpOp);
+                        case 32: return condCmp(pObj->floorypanning, arg1, arg2, cmpOp);
+                        case 33: return condCmp(pObj->ceilingypanning, arg1, arg2, cmpOp);
+                    }
+                    break;
+                }
+            }
         case 41:
         case 42:
         case 43:
@@ -2267,35 +2324,24 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
 
     if (cond < (kCondRange >> 1)) {
         switch (cond) {
-            default: break;
-            case 0: return condCmp(pSect->floorpicnum, arg1, arg2, cmpOp);
-            case 1: return condCmp(pSect->ceilingpicnum, arg1, arg2, cmpOp);
-            case 2: return condCmp((!arg3) ? pSect->floorxpanning : pSect->floorypanning, arg1, arg2, cmpOp);
-            case 3: return condCmp((!arg3) ? pSect->ceilingxpanning : pSect->ceilingypanning, arg1, arg2, cmpOp);
-            case 4: return condCmp(pSect->floorpal, arg1, arg2, cmpOp);
-            case 5: return condCmp(pSect->ceilingpal, arg1, arg2, cmpOp);
-            case 6: return condCmp(pSect->floorheinum, arg1, arg2, cmpOp);
-            case 7: return condCmp(pSect->ceilingheinum, arg1, arg2, cmpOp);
-            case 8: return condCmp(pSect->floorshade, arg1, arg2, cmpOp);
-            case 9: return condCmp(pSect->ceilingshade, arg1, arg2, cmpOp);
-            case 10: return (pSect->floorstat & arg1);
-            case 11: return (pSect->ceilingstat & arg1);
-            case 25: return (pSect->hitag & arg1);
-            case 27: return condCmp(pSect->visibility, arg1, arg2, cmpOp);
-            case 30: // required sprite type is in current sector?
-                for (var = headspritesect[objIndex]; var >= 0; var = nextspritesect[var]) {
-                    if (!condCmp(sprite[var].type, arg1, arg2, cmpOp)) continue;
-                    else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
-                    return true;
-                }
-                return false;
+        default: break;
+        case 0: return condCmp(pSect->visibility, arg1, arg2, cmpOp);
+        case 5: return condCmp(pSect->floorheinum, arg1, arg2, cmpOp);
+        case 6: return condCmp(pSect->ceilingheinum, arg1, arg2, cmpOp);
+        case 10: // required sprite type is in current sector?
+            for (var = headspritesect[objIndex]; var >= 0; var = nextspritesect[var]) {
+                if (!condCmp(sprite[var].type, arg1, arg2, cmpOp)) continue;
+                else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
+                return true;
+            }
+            return false;
         }
     } else if (pXSect) {
         switch (cond) {
             default: break;
             case 50: return pXSect->Underwater;
-            case 60: // compare floor height (in %)
-            case 61: { // compare ceil height (in %)
+            case 55: // compare floor height (in %)
+            case 56: { // compare ceil height (in %)
                 int h = 0; int curH = 0;
                 switch (pSect->type) {
                 case kSectorZMotion:
@@ -2348,29 +2394,23 @@ bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
     if (cond < (kCondRange >> 1)) {
         switch (cond) {
             default: break;
-            case 0: return condCmp(pWall->picnum, arg1, arg2, cmpOp);
-            case 1: return condCmp(pWall->overpicnum, arg1, arg2, cmpOp);
-            case 2: return condCmp((!arg3) ? pWall->xrepeat : pWall->xpanning, arg1, arg2, cmpOp);
-            case 3: return condCmp((!arg3) ? pWall->yrepeat : pWall->ypanning, arg1, arg2, cmpOp);
-            case 4: return condCmp(pWall->pal, arg1, arg2, cmpOp);
+            case 0:
+                return condCmp(pWall->overpicnum, arg1, arg2, cmpOp);
             case 5:
-                if (!wallRangeIsFine(pWall->nextwall)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_WALL, pWall->nextwall);
-                return true;
-            case 6: return (pWall->hitag & arg1);
-            case 7: return (pWall->cstat & arg1);
-            case 9: return condCmp(pWall->shade, arg1, arg2, cmpOp);
-            case 10:
-                if (!sectRangeIsFine(pWall->nextsector)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, pWall->nextsector);
-                return true;
-            case 11:
                 if (!sectRangeIsFine((var = sectorofwall(objIndex)))) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, var);
                 return true;
-            case 12: // this wall is a mirror?                          // must be as constants here
+            case 10: // this wall is a mirror?                          // must be as constants here
                 return (pWall->type != kWallStack && condCmp(pWall->picnum, 4080, (4080 + 16) - 1, 0));
-            case 13: // next wall belongs to sector?
+            case 15:
+                if (!sectRangeIsFine(pWall->nextsector)) return false;
+                else if (PUSH) condPush(pXCond, OBJ_SECTOR, pWall->nextsector);
+                return true;
+            case 20:
+                if (!wallRangeIsFine(pWall->nextwall)) return false;
+                else if (PUSH) condPush(pXCond, OBJ_WALL, pWall->nextwall);
+                return true;
+            case 25: // next wall belongs to sector?
                 if (!sectRangeIsFine(var = sectorofwall(pWall->nextwall))) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, var);
                 return true;
@@ -2390,11 +2430,17 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
     int objType = -1; int objIndex = -1;
     condUnserialize(pXCond->targetX, &objType, &objIndex);
 
-    if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex) || !xspriRangeIsFine(sprite[objIndex].extra))
+    if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex))
         ThrowError("\nDude conditions:\nObject #%d (objType: %d) is not a dude!", objIndex, objType);
     
-    spritetype* pSpr = &sprite[objIndex]; XSPRITE* pXSpr = &xsprite[pSpr->extra];
-
+    spritetype* pSpr = &sprite[objIndex];
+    if (!xspriRangeIsFine(sprite[objIndex].extra)) {
+        // TO-DO: must search for respawned player / enemy
+        // there is currently serials for old sprite
+        return false;
+    }
+    
+    XSPRITE* pXSpr = &xsprite[pSpr->extra];
     if (pXSpr->health <= 0 || pSpr->type == kThingBloodChunks) return false;
     else if (cond < (kCondRange >> 1)) {
         if ((pPlayer = getPlayerById(pSpr->type)) == NULL)
@@ -2412,9 +2458,9 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
             case 6: return (arg1 >= 0 && arg1 < 5 && pPlayer->packSlots[arg1].isActive);
             case 7: return condCmp(pPlayer->packItemId, arg1, arg2, cmpOp);
             case 8: // check for powerup amount in %
-                if (arg1 >= 0 && arg1 < 29) var = 12 + arg1; // allowable powerups
-                else ThrowError("Unexpected powerup #%d", arg1);
-                return condCmp((100 * pPlayer->pwUpTime[var]) / gPowerUpInfo[var].bonusTime, arg2, arg3, cmpOp);
+                if (arg3 >= 0 && arg3 < 29) var = 12 + arg3; // allowable powerups
+                else ThrowError("Unexpected powerup #%d", arg3);
+                return condCmp((100 * pPlayer->pwUpTime[var]) / gPowerUpInfo[var].bonusTime, arg1, arg2, cmpOp);
             // 9
             case 10: // check keys pressed
                 switch (arg1) {
@@ -2477,40 +2523,33 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
     if (cond < (kCondRange >> 1)) {
         switch (cond) {
             default: break;
-            case 0: return condCmp(pSpr->picnum, arg1, arg2, cmpOp);
-            case 1: return condCmp(pSpr->statnum, arg1, arg2, cmpOp);
-            case 2: return condCmp((!arg3) ? pSpr->xrepeat : pSpr->xoffset, arg1, arg2, cmpOp);
-            case 3: return condCmp((!arg3) ? pSpr->yrepeat : pSpr->yoffset, arg1, arg2, cmpOp);
-            case 4: return condCmp(pSpr->pal, arg1, arg2, cmpOp);
-            case 5: return condCmp((pSpr->ang & 2047), arg1, arg2, cmpOp);
-            case 6: return (pSpr->flags & arg1);
-            case 7: return (pSpr->cstat & arg1);
-            case 8:
+            case 0: return condCmp((pSpr->ang & 2047), arg1, arg2, cmpOp);
+            case 5: return condCmp(pSpr->statnum, arg1, arg2, cmpOp);
+            case 10: return condCmp(pSpr->clipdist, arg1, arg2, cmpOp);
+            case 15:
                 if (!spriRangeIsFine(pSpr->owner)) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SPRITE, pSpr->owner);
                 return true;
-            case 9: return condCmp(pSpr->shade, arg1, arg2, cmpOp);
-            case 10: // stays in a sector?
+            case 20: // stays in a sector?
                 if (!sectRangeIsFine(pSpr->sectnum)) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, pSpr->sectnum);
                 return true;
-            case 11: return condCmp(pSpr->clipdist, arg1, arg2, cmpOp);
-            case 12:
+            case 25:
                 switch (arg1) {
-                    default: return (xvel[pSpr->index] || yvel[pSpr->index] || zvel[pSpr->index]);
+                    case 0: return (xvel[pSpr->index] || yvel[pSpr->index] || zvel[pSpr->index]);
                     case 1: return (xvel[pSpr->index]);
                     case 2: return (yvel[pSpr->index]);
                     case 3: return (zvel[pSpr->index]);
                 }
                 break;
-            case 19:
+            case 30:
                 if (!spriteIsUnderwater(pSpr) && !spriteIsUnderwater(pSpr, true)) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, pSpr->sectnum);
                 return true;
-            case 34: // hitscan: ceil?
-            case 35: // hitscan: floor?
-            case 36: // hitscan: wall?
-            case 37: // hitscan: sprite?
+            case 35: // hitscan: ceil?
+            case 36: // hitscan: floor?
+            case 37: // hitscan: wall?
+            case 38: // hitscan: sprite?
                 switch (arg1) {
                     case  0: arg1 = CLIPMASK0 | CLIPMASK1; break;
                     case  1: arg1 = CLIPMASK0; break;
@@ -2526,10 +2565,10 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
 
                 if (var >= 0) {
                     switch (cond) {
-                        case 34: retn = (var == 1); break;
-                        case 35: retn = (var == 2); break;
-                        case 36: retn = (var == 0 || var == 4); break;
-                        case 37: retn = (var == 3); break;
+                        case 35: retn = (var == 1); break;
+                        case 36: retn = (var == 2); break;
+                        case 37: retn = (var == 0 || var == 4); break;
+                        case 38: retn = (var == 3); break;
                     }
 
                     if (PUSH) {
@@ -2547,30 +2586,43 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
                     }
                 }
                 return retn;
+            case 45: // this sprite is a target of some dude?
+                for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+                    if (pSpr->index == nSprite) continue;
+
+                    spritetype* pDude = &sprite[nSprite];
+                    if (IsDudeSprite(pDude) && xspriRangeIsFine(pDude->extra)) {
+                        XSPRITE* pXDude = &xsprite[pDude->extra];
+                        if (pXDude->health <= 0 || pXDude->target != pSpr->index) continue;
+                        else if (PUSH) condPush(pXCond, OBJ_SPRITE, nSprite);
+                        return true;
+                    }
+                }
+                return false;
         }
     } else if (pXSpr) {
         switch (cond) {
             default: break;
             case 50: // compare hp (in %)
-                if (IsDudeSprite(pSpr)) var = ((pXSpr->data4 <= 0) ? getDudeInfo(pSpr->type)->startHealth  : pXSpr->data4) << 4;
+                if (IsDudeSprite(pSpr)) var = ((pXSpr->data4 <= 0) ? getDudeInfo(pSpr->type)->startHealth : pXSpr->data4) << 4;
                 else if (condCmpne(arg1, arg2, cmpOp) && pSpr->type == kThingBloodChunks) return true;
                 else if (pSpr->type >= kThingBase && pSpr->type < kThingMax)
                     var = thingInfo[pSpr->type - kThingBase].startHealth << 4;
 
                 return condCmp((100 * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
-            case 70: // touching ceil of sector?
+            case 55: // touching ceil of sector?
                 if ((gSpriteHit[pSpr->extra].ceilhit & 0xc000) != 0x4000) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, gSpriteHit[pSpr->extra].ceilhit & 0x3fff);
                 return true;
-            case 71: // touching floor of sector?
+            case 56: // touching floor of sector?
                 if ((gSpriteHit[pSpr->extra].florhit & 0xc000) != 0x4000) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, gSpriteHit[pSpr->extra].florhit & 0x3fff);
                 return true;
-            case 72: // touching walls of sector?
+            case 57: // touching walls of sector?
                 if ((gSpriteHit[pSpr->extra].hit & 0xc000) != 0x8000) return false;
                 else if (PUSH) condPush(pXCond, OBJ_WALL, gSpriteHit[pSpr->extra].hit & 0x3fff);
                 return true;
-            case 73: // touching another sprite?
+            case 58: // touching another sprite?
                 switch (arg3) {
                     case 0:
                     case 1:
@@ -2588,12 +2640,12 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
                 if (var < 0) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
                 return true;
-            case 76: // compare burn time (in %)
+            case 65: // compare burn time (in %)
                 var = (IsDudeSprite(pSpr)) ? 2400 : 1200;
                 if (!condCmp((100 * pXSpr->burnTime) / var, arg1, arg2, cmpOp)) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SPRITE, pXSpr->burnSource);
                 return true;
-            case 79:
+            case 70:
                 return condCmp(getSpriteMassBySize(pSpr), arg1, arg2, cmpOp); // mass of the sprite in a range?
         }
     } else {
@@ -3082,7 +3134,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         switch (event.cmd) {
         case kCmdLock:
             pXSprite->locked = 1;
-            return true;
+            break;
         case kCmdUnlock:
             pXSprite->locked = 0;
             break;
@@ -3090,14 +3142,19 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             pXSprite->locked = pXSprite->locked ^ 1;
             break;
         }
-        
-        if (!pXSprite->locked) {
-            switch (pSprite->type) {
-            case kModernCondition:
-                if (pXSprite->busyTime > 0) evPost(pSprite->index, OBJ_SPRITE, 0, kCallbackCondition);
+
+        switch (pSprite->type) {
+                case kModernCondition:
+                if (!pXSprite->locked) {
+                    if (pXSprite->busyTime > 0) evPost(pSprite->index, OBJ_SPRITE, 0, kCallbackCondition);
+                    //if (pXSprite->busyTime > 0) evPost(pSprite->index, OBJ_SPRITE, 0, (COMMAND_ID)event.cmd);
+                } else {
+                    pXSprite->state = 0;
+                    evKill(pSprite->index, OBJ_SPRITE);
+                }
                 break;
-            }
         }
+       
         return true;
     }
 
@@ -3741,7 +3798,7 @@ bool useCondition(XSPRITE* pXSource, EVENT event) {
     spritetype* pSource = &sprite[pXSource->reference];
     int objType = event.type; int objIndex = event.index;
     bool srcIsCondition = (objType == OBJ_SPRITE && sprite[objIndex].type == kModernCondition && objIndex != pSource->index);
-
+    
     if (pXSource->state == 0) {
 
         // if it's a tracking condition, it must ignore all the commands sent from objects
@@ -3783,7 +3840,8 @@ bool useCondition(XSPRITE* pXSource, EVENT event) {
     bool RSET = (pXSource->command == kCmdNumberic + 36);
     
     condUnserialize(pXSource->targetX, &objType, &objIndex);
-    if (cond >= kCondMixedBase && cond < kCondMixedMax) ok = condCheckMixed(pXSource, event, cmpOp, PUSH, RVRS);
+    if (cond == 0) ok = true; // dummy
+    else if (cond >= kCondMixedBase && cond < kCondMixedMax) ok = condCheckMixed(pXSource, event, cmpOp, PUSH, RVRS);
     else if (cond >= kCondWallBase && cond < kCondWallMax) ok = condCheckWall(pXSource, cmpOp, PUSH, RVRS);
     else if (cond >= kCondSectorBase && cond < kCondSectorMax) ok = condCheckSector(pXSource, cmpOp, PUSH, RVRS);
     else if (cond >= kCondDudeBase && cond < kCondDudeMax) ok = condCheckDude(pXSource, cmpOp, PUSH, RVRS);

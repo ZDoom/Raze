@@ -910,7 +910,7 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pSector
 }
 
 int picWidth(short nPic, short repeat) {
-    return ClipLow((tilesiz[nPic].y * repeat) >> 2, 0);
+    return ClipLow((tilesiz[nPic].x * repeat) >> 2, 0);
 }
 
 int picHeight(short nPic, short repeat) {
