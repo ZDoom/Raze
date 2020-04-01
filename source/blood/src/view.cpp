@@ -456,10 +456,10 @@ void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     else
         predict.at24 = 0;
 #endif
-    constexpr int upAngle = 289;
-    constexpr int downAngle = -347;
-    constexpr double lookStepUp = 4.0*upAngle/60.0;
-    constexpr double lookStepDown = -4.0*downAngle/60.0;
+    int upAngle = 289;
+    int downAngle = -347;
+    double lookStepUp = 4.0*upAngle/60.0;
+    double lookStepDown = -4.0*downAngle/60.0;
     if (predict.at6e && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
     {
         if (predict.at20 < 0)
@@ -3189,8 +3189,8 @@ void viewDrawScreen(bool sceneonly)
         }
         if (gView == gMe && (numplayers <= 1 || gPrediction) && gView->pXSprite->health != 0 && !VanillaMode())
         {
-            constexpr int upAngle = 289;
-            constexpr int downAngle = -347;
+            int upAngle = 289;
+            int downAngle = -347;
             fix16_t q16look;
             cA = gViewAngle;
             q16look = gViewLook;

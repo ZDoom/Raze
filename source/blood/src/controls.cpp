@@ -387,10 +387,10 @@ void ctrlGetInput(void)
     gInput.q16mlook = fix16_clamp(fix16_sadd(gInput.q16mlook, input.q16mlook), fix16_from_int(-127)>>2, fix16_from_int(127)>>2);
     if (gMe && gMe->pXSprite->health != 0 && !gPaused)
     {
-        constexpr int upAngle = 289;
-        constexpr int downAngle = -347;
-        constexpr double lookStepUp = 4.0*upAngle/60.0;
-        constexpr double lookStepDown = -4.0*downAngle/60.0;
+        int upAngle = 289;
+        int downAngle = -347;
+        double lookStepUp = 4.0*upAngle/60.0;
+        double lookStepDown = -4.0*downAngle/60.0;
         gViewAngle = (gViewAngle + input.q16turn + fix16_from_float(scaleAdjustmentToInterval(gViewAngleAdjust))) & 0x7ffffff;
         if (gViewLookRecenter)
         {
