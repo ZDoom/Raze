@@ -1054,6 +1054,8 @@ enum
 
 };
 
+// TODO: Support compatible read/write of struct for big-endian
+#pragma pack(push,1)
 typedef struct
 {
     int16_t vel;
@@ -1062,6 +1064,7 @@ typedef struct
     int8_t aimvel;
     int32_t bits;
 } SW_PACKET;
+#pragma pack(pop)
 
 extern SW_PACKET loc;
 
