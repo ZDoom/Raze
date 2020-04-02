@@ -3086,7 +3086,6 @@ void getinput(int const playerNum)
     // If in 2D follow mode, scroll around.
     if (ScrollMode2D && !Prediction)
     {
-        extern SWBOOL HelpInputMode, ScrollMode2D;
         keymove = keymove / 6;
 
         if (M_Active())
