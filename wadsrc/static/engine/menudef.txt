@@ -997,7 +997,7 @@ OptionMenu "MouseOptions" //protected
 	Option "$MOUSEMNU_SHOWBACKBUTTON",	"m_show_backbutton", "Corners", "use_mouse"
 	// todo Option "$MOUSEMNU_CURSOR",			"vid_cursor", "Cursors"
 	StaticText 	""
-	Slider "$MOUSEMNU_SENSITIVITY",		"mouse_sensitivity", 0.5, 2.5, 0.1
+	Slider "$MOUSEMNU_SENSITIVITY",		"in_mousesensitivity", 0.5, 2.5, 0.1
 	Option "$MOUSEMNU_NOPRESCALE",		"m_noprescale", "NoYes"
 	Option "$MOUSEMNU_SMOOTHMOUSE",		"in_mousesmoothing", "YesNo"
 	StaticText 	""
