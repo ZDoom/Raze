@@ -282,6 +282,7 @@ int EncodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
     *buf = 0;
     buf++;
 
+    // TODO: Properly copy the values in a cross-platform manner
     if (pak->vel != old_pak->vel)
     {
         *((short *)buf) = pak->vel;
@@ -298,14 +299,14 @@ int EncodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
 
     if (pak->q16avel != old_pak->q16avel)
     {
-        *((char *)buf) = pak->q16avel;
+        *((fix16_t *)buf) = pak->q16avel;
         buf += sizeof(pak->q16avel);
         SET(*base_ptr, BIT(2));
     }
 
     if (pak->q16horz != old_pak->q16horz)
     {
-        *((char *)buf) = pak->q16horz;
+        *((fix16_t *)buf) = pak->q16horz;
         buf += sizeof(pak->q16horz);
         SET(*base_ptr, BIT(3));
     }
@@ -334,6 +335,7 @@ int DecodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
 
     *pak = *old_pak;
 
+    // TODO: Properly copy the values in a cross-platform manner
     if (TEST(*base_ptr, BIT(0)))
     {
         pak->vel = *(short *)buf;
@@ -348,13 +350,13 @@ int DecodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
 
     if (TEST(*base_ptr, BIT(2)))
     {
-        pak->q16avel = *(char *)buf;
+        pak->q16avel = *(fix16_t *)buf;
         buf += sizeof(pak->q16avel);
     }
 
     if (TEST(*base_ptr, BIT(3)))
     {
-        pak->q16horz = *(char *)buf;
+        pak->q16horz = *(fix16_t *)buf;
         buf += sizeof(pak->q16horz);
     }
 
