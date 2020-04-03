@@ -2043,11 +2043,6 @@ drawscreen(PLAYERp pp)
     // with "last valid" code this should never happen
     // ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
 
-    pp->six = tx;
-    pp->siy = ty;
-    pp->siz = tz - pp->posz;
-    pp->siang = tq16ang;
-
     if (pp->sop_riding || pp->sop_control)
     {
         tx = pp->posx;
@@ -2056,12 +2051,12 @@ drawscreen(PLAYERp pp)
         tq16ang = pp->q16ang;
         tsectnum = pp->cursectnum;
         updatesectorz(tx, ty, tz, &tsectnum);
-
-        pp->six = tx;
-        pp->siy = ty;
-        pp->siz = tz - pp->posz;
-        pp->siang = tq16ang;
     }
+
+    pp->six = tx;
+    pp->siy = ty;
+    pp->siz = tz - pp->posz;
+    pp->siang = tq16ang;
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);
     VisViewChange(camerapp, &g_visibility);
