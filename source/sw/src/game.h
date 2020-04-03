@@ -445,6 +445,7 @@ extern char MessageOutputString[256];
 
 #define NORM_ANGLE(ang) ((ang) & 2047)
 #define ANGLE_2_PLAYER(pp,x,y) (NORM_ANGLE(getangle(pp->posx-(x), pp->posy-(y))))
+#define NORM_Q16ANGLE(ang) ((ang) & 0x7FFFFFF)
 
 
 int StdRandomRange(int range);
