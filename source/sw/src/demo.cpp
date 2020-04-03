@@ -194,7 +194,8 @@ DemoWriteHeader(void)
         dsp.z = pp->posz;
         fwrite(&dsp, sizeof(dsp), 1, DemoFileOut);
         fwrite(&pp->Flags, sizeof(pp->Flags), 1, DemoFileOut);
-        fwrite(&pp->q16ang, sizeof(pp->q16ang), 1, DemoFileOut);
+        int16_t ang = fix16_to_int(pp->q16ang);
+        fwrite(&ang, sizeof(ang), 1, DemoFileOut);
     }
 
     fwrite(&Skill, sizeof(Skill), 1, DemoFileOut);
@@ -252,25 +253,56 @@ DemoReadHeader(void)
         //pp->cursectnum = 0;
         //updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
         DREAD(&pp->Flags, sizeof(pp->Flags), 1, DemoFileIn);
-        DREAD(&pp->q16ang, sizeof(pp->q16ang), 1, DemoFileIn);
+        int16_t ang;
+        DREAD(&ang, sizeof(ang), 1, DemoFileIn);
+        pp->q16ang = fix16_from_int(ang);
     }
 
     DREAD(&Skill, sizeof(Skill), 1, DemoFileIn);
     DREAD(&gNet, sizeof(gNet), 1, DemoFileIn);
 }
 
+// TODO: Write all data at once
+static void
+DemoWritePackets(const SW_PACKET *buffer, int32_t count, FILE *f)
+{
+    OLD_SW_PACKET packet;
+    for (; count > 0; ++buffer, --count)
+    {
+        packet.vel = B_LITTLE16(buffer->vel);
+        packet.svel = B_LITTLE16(buffer->svel);
+        packet.angvel = fix16_to_int(buffer->q16avel);
+        packet.aimvel = fix16_to_int(buffer->q16horz);
+        packet.bits = B_LITTLE32(buffer->bits);
+        fwrite(&packet, sizeof(packet), 1, f);
+    }
+}
+
+// TODO: Read all data at once
+static void
+DemoReadPackets(SW_PACKET *buffer, int32_t count, DFILE f)
+{
+    OLD_SW_PACKET packet;
+    for (; count > 0; ++buffer, --count)
+    {
+        DREAD(&packet, sizeof(packet), 1, f);
+        buffer->vel = B_LITTLE16(packet.vel);
+        buffer->svel = B_LITTLE16(packet.svel);
+        buffer->q16avel = fix16_from_int(packet.angvel);
+        buffer->q16horz = fix16_from_int(packet.aimvel);
+        buffer->bits = B_LITTLE32(packet.bits);
+    }
+}
+
 void
 DemoDebugWrite(void)
 {
-    int size;
-
     DemoFileOut = fopen(DemoFileName, "ab");
 
     ASSERT(DemoFileOut);
 
-    size = sizeof(SW_PACKET) * DemoDebugBufferMax;
-    fwrite(&DemoBuffer, size, 1, DemoFileOut);
-    memset(&DemoBuffer, -1, size);
+    DemoWritePackets(DemoBuffer, DemoDebugBufferMax, DemoFileOut);
+    memset(DemoBuffer, -1, sizeof(SW_PACKET) * DemoDebugBufferMax);
 
     fclose(DemoFileOut);
 }
@@ -278,7 +310,7 @@ DemoDebugWrite(void)
 void
 DemoWriteBuffer(void)
 {
-    fwrite(&DemoBuffer, sizeof(DemoBuffer), 1, DemoFileOut);
+    DemoWritePackets(DemoBuffer, sizeof(DemoBuffer)/sizeof(*DemoBuffer), DemoFileOut);
     memset(&DemoBuffer, -1, sizeof(DemoBuffer));
 }
 
@@ -286,7 +318,7 @@ void
 DemoReadBuffer(void)
 {
     memset(&DemoBuffer, -1, sizeof(DemoBuffer));
-    DREAD(&DemoBuffer, sizeof(DemoBuffer), 1, DemoFileIn);
+    DemoReadPackets(DemoBuffer, sizeof(DemoBuffer)/sizeof(*DemoBuffer), DemoFileIn);
 }
 
 void
@@ -300,7 +332,7 @@ DemoBackupBuffer(void)
     char NewDemoFileName[16] = "!";
 
     // seek backwards to beginning of last buffer
-    fseek(OldDemoFile, -sizeof(DemoBuffer), SEEK_CUR);
+    fseek(OldDemoFile, -sizeof(DemoBuffer)/sizeof(*DemoBuffer)*sizeof(OLD_SW_PACKET), SEEK_CUR);
     pos = ftell(OldDemoFile);
 
     // open a new edit file
@@ -347,7 +379,7 @@ DemoTerm(void)
         // write at least 1 record at the end filled with -1
         // just for good measure
         memset(&DemoBuffer[0], -1, sizeof(DemoBuffer[0]));
-        fwrite(&DemoBuffer[0], sizeof(DemoBuffer[0]), 1, DemoFileOut);
+        DemoWritePackets(DemoBuffer, 1, DemoFileOut);
 
         fclose(DemoFileOut);
         DemoFileOut = NULL;
