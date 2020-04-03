@@ -1538,7 +1538,7 @@ DoPlayerCrawlHeight(PLAYERp pp)
 void
 DoPlayerTurn(PLAYERp pp)
 {
-    short angvel;
+    fix16_t q16avel;
 
 #define TURN_SHIFT 2
 
@@ -1594,15 +1594,15 @@ DoPlayerTurn(PLAYERp pp)
             return;
     }
 
-    angvel = fix16_to_int(pp->input.q16avel) * PLAYER_TURN_SCALE;
+    q16avel = fix16_smul(pp->input.q16avel, fix16_from_int(PLAYER_TURN_SCALE));
 
-    if (angvel != 0)
+    if (q16avel != 0)
     {
         // running is not handled here now
-        angvel += DIV4(angvel);
+        q16avel += fix16_sdiv(q16avel, fix16_from_int(4));
 
-        pp->q16ang += fix16_from_int(DIV32(angvel * synctics));
-        pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang)));
+        pp->q16ang += fix16_sdiv(fix16_mul(q16avel, fix16_from_int(synctics)), fix16_from_int(32));
+        pp->q16ang = NORM_Q16ANGLE(pp->q16ang);
 
         // update players sprite angle
         // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
