@@ -1332,7 +1332,7 @@ DoPlayerTeleportPause(PLAYERp pp)
 void
 DoPlayerTeleportToSprite(PLAYERp pp, SPRITEp sp)
 {
-    pp->q16ang = pp->q16ang = fix16_from_int(sp->ang);
+    pp->q16ang = pp->oq16ang = fix16_from_int(sp->ang);
     pp->posx = pp->oposx = pp->oldposx = sp->x;
     pp->posy = pp->oposy = pp->oldposy = sp->y;
 
