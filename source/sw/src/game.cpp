@@ -3250,6 +3250,11 @@ void getinput(SW_PACKET *loc)
 
     q16avel = fix16_clamp(q16avel, -fix16_from_int(MAXANGVEL), fix16_from_int(MAXANGVEL));
     q16horz = fix16_clamp(q16horz, -fix16_from_int(MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
+    if (PEDANTIC_MODE)
+    {
+        q16avel = fix16_floor(q16avel);
+        q16horz = fix16_floor(q16horz);
+    }
 
     momx = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 512)]);
     momy = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang))]);

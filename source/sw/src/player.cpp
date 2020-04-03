@@ -1603,6 +1603,8 @@ DoPlayerTurn(PLAYERp pp)
 
         pp->q16ang += fix16_sdiv(fix16_mul(q16avel, fix16_from_int(synctics)), fix16_from_int(32));
         pp->q16ang = NORM_Q16ANGLE(pp->q16ang);
+        if (PEDANTIC_MODE)
+            pp->q16ang = fix16_floor(pp->q16ang);
 
         // update players sprite angle
         // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
