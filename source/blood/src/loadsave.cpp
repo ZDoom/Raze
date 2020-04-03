@@ -437,12 +437,10 @@ void IndexAIState(AISTATE*& state)
         if (state == cstate)
         {
             state = (AISTATE*)(intptr_t)i;
-			Printf("Indexing state %p as %d. State really is %p\n", savestate, i, state);
             return;
         }
         i++;
     }
-	Printf("Unable to index state %p. Not found in list\n", savestate);
     state = nullptr;
 }
 
@@ -452,11 +450,9 @@ void UnindexAIState(AISTATE*& state)
     if (index >= 0 && index < countof(allAIStates))
     {
         state = allAIStates[index];
-        Printf("Unindexing %i to state %p\n", int(index), state);
     }
 	else
 	{
-		Printf("Unable to unindex state %d\n", int(index));
 		state = nullptr;
 	}
 }
