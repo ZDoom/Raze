@@ -1425,7 +1425,7 @@ PlayerInitChemBomb(PLAYERp pp)
 
     wp->zvel = ((100 - fix16_to_int(pp->q16horiz)) * HORIZ_MULT);
 
-    // //DSPRINTF(ds,"q16horiz %d, ho %d, ho+ho %d",fix16_to_int(pp->q16horiz), fix16_to_int(pp->q16horizoff),
+    // //DSPRINTF(ds,"horiz %d, ho %d, ho+ho %d",fix16_to_int(pp->q16horiz), fix16_to_int(pp->q16horizoff),
     // fix16_to_int(pp->q16horizoff + pp->q16horiz));
     // MONO_PRINT(ds);
 
