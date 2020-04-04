@@ -47,7 +47,6 @@ int zbob;
 
 fix16_t nDestVertPan[kMaxPlayers] = { 0 };
 short dVertPan[kMaxPlayers];
-fix16_t nVertPan[kMaxPlayers];
 int nCamerax;
 int nCameray;
 int nCameraz;
@@ -414,7 +413,6 @@ void DrawView(int smoothRatio, bool sceneonly)
             viewz = playerZ + nQuake[nLocalPlayer];
             int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
 
-            // pan = nVertPan[nLocalPlayer];
             pan = PlayerList[nLocalPlayer].q16horiz;
 
             if (viewz > floorZ)
@@ -648,7 +646,6 @@ static SavegameHelper sgh("view",
     SV(nEnemyPal),
     SA(nDestVertPan),
     SA(dVertPan),
-    SA(nVertPan),
     SA(nQuake),
     SV(g_interpolationCnt),
     SA(oldipos),
