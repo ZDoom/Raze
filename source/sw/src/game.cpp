@@ -606,11 +606,13 @@ void LoadDemoRun(void)
     if (fin)
     {
         memset(DemoName,'\0',sizeof(DemoName));
-        for (i = 0; TRUE; i++)
+        for (i = 0; i < ARRAY_SSIZE(DemoName); i++)
         {
             if (fscanf(fin, "%s", DemoName[i]) == EOF)
                 break;
         }
+        if (i == ARRAY_SSIZE(DemoName))
+            initputs("WARNING: demos.run is too long, ignoring remaining files\n");
 
         fclose(fin);
     }
@@ -621,11 +623,13 @@ void LoadDemoRun(void)
     {
         fgets(ds, 6, fin);
         sscanf(ds,"%d",&DemoTextYstart);
-        for (i = 0; TRUE; i++)
+        for (i = 0; i < ARRAY_SSIZE(DemoText); i++)
         {
             if (fgets(DemoText[i], SIZ(DemoText[0])-1, fin) == NULL)
                 break;
         }
+        if (i == ARRAY_SSIZE(DemoText))
+            initputs("WARNING: demotxt.run is too long, trimming the text\n");
 
         fclose(fin);
     }
