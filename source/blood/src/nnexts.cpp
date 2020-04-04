@@ -380,6 +380,33 @@ void nnExtInitModernStuff(bool bSaveLoad) {
 
         } else {
             
+            /*// copy custom start health to avoid overwrite by kThingBloodChunks
+            if (IsDudeSprite(pSprite))
+                pXSprite->sysData2 = pXSprite->data4;
+            
+            bool sysStat = false;
+            switch (pSprite->statnum) {
+                case kStatModernDudeTargetChanger:
+                    if (pSprite->type != kModernDudeTargetChanger) sysStat = true;
+                    break;
+                case kStatModernCondition:
+                    if (pSprite->type != kModernCondition && pSprite->type != kModernConditionFalse) sysStat = true;
+                    break;
+                case kStatModernEventRedirector:
+                    if (pSprite->type != kModernRandomTX && pSprite->type != kModernSequentialTX) sysStat = true;
+                    break;
+                case kStatModernPlayerLinker:
+                    if (pSprite->type != kModernPlayerControl) sysStat = true;
+                    break;
+                default:
+                    if (pSprite->statnum < kStatModernBase || pSprite->statnum >= kStatModernMax) break;
+                    ThrowError("Sprite status list number %d on sprite #%d is in a range of system reserved (%d - %d)!", pSprite->index, pSprite->statnum, kStatModernBase, kStatModernMax);
+                    break;
+            }
+
+            if (sysStat)
+                ThrowError("Sprite #%d: System status list number %d detected!", pSprite->index, pSprite->statnum);
+            */
             switch (pSprite->type) {
                 case kModernRandomTX:
                 case kModernSequentialTX:
@@ -412,10 +439,43 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 case kModernThingTNTProx:
                     pXSprite->Proximity = true;
                     break;
+                case kDudeModernCustom: 
+                    if (pXSprite->txID <= 0) break;
+                    for (int nSprite = headspritestat[kStatDude], found = 0; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+                        XSPRITE* pXSpr = &xsprite[sprite[nSprite].extra];
+                        if (pXSpr->rxID != pXSprite->txID) continue;
+                        else if (found) ThrowError("\nCustom dude (TX ID %d):\nOnly one incarnation allowed per channel!", pXSprite->txID);
+                        changespritestat(nSprite, kStatInactive);
+                        nSprite = headspritestat[kStatDude];
+                        found++;
+                    }
+                    break;
+                case kModernPlayerControl:
+                    if (pXSprite->command != kCmdLink) break;
+                    else if (pXSprite->data1 < 1 || pXSprite->data1 >= kMaxPlayers)
+                        ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", pSprite->index, pXSprite->data1);
+                    if (pXSprite->rxID && pXSprite->rxID != kChannelLevelStart)
+                        ThrowError("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", pSprite->index, pXSprite->data1);
+                    
+                    if (pXSprite->txID && pXSprite->txID < kChannelUser)
+                        ThrowError("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", pSprite->index, kChannelUser, kChannelMax);
+
+                    // only one linker per player allowed
+                    for (int nSprite = headspritestat[kStatModernPlayerLinker]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
+                        XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
+                        if (pXSprite->data1 == pXCtrl->data1)
+                            ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", pSprite->index, pXSprite->data1, nSprite);
+                    }
+                    
+                    pXSprite->rxID = kChannelLevelStart;
+                    pXSprite->triggerOnce = true;
+                    pXSprite->state = pXSprite->restState = pXSprite->waitTime = 0;
+                    changespritestat(pSprite->index, kStatModernPlayerLinker);
+                    break;
                 case kModernCondition:
                     if (pXSprite->waitTime > 0 && pXSprite->busyTime > 0) {
                         pXSprite->busyTime += ((pXSprite->waitTime * 60) / 10); pXSprite->waitTime = 0;
-                        consoleSysMsg("Summing busyTime and waitTime for tracking condition #d%, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
+                        consoleSysMsg("Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
                     }
 
                     pXSprite->Decoupled = false; // must go through operateSprite always
@@ -430,7 +490,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     break;
             }
 
-            // the following trigger flags are sensless to have together
+            // the following trigger flags are senseless to have together
             if ((pXSprite->Touch && (pXSprite->Proximity || pXSprite->Sight) && pXSprite->DudeLockout)
                     || (pXSprite->Touch && pXSprite->Proximity && !pXSprite->Sight)) pXSprite->Touch = false;
 
@@ -1194,8 +1254,11 @@ void trPlayerCtrlStopScene(XSPRITE* pXSource, PLAYER* pPlayer) {
 
 }
 
-void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer) {
+void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
 
+    // save player's sprite index to use it later with conditions
+    pXSource->sysData1                  = pPlayer->nSprite;
+    
     pPlayer->pXSprite->txID             = pXSource->txID;
     pPlayer->pXSprite->command          = kCmdToggle;
     pPlayer->pXSprite->triggerOn        = pXSource->triggerOn;
@@ -1224,17 +1287,19 @@ void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer) {
     pPlayer->pXSprite->dropMsg          = pXSource->dropMsg;
 
     // let's check if there is tracking condition expecting objects with this TX id
-    for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) {
-        if (sprite[rxBucket[i].index].type == kModernCondition) {
+    if (checkCondition && pXSource->txID >= kChannelUser) {
+        for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) {
+            if (sprite[rxBucket[i].index].type != kModernCondition) continue;
+            
             XSPRITE* pXCond = &xsprite[sprite[rxBucket[i].index].extra];
             if (pXCond->busyTime <= 0) continue;
-            
-            // search for player control sprite and replace it with actual player sprite
+
             TRCONDITION* pCond = &gCondition[pXCond->sysData1];
+            // search for player control sprite and replace it with actual player sprite
             for (int k = 0; k < pCond->length; k++) {
-                if (pCond->obj[k].index != pXSource->reference) continue;
+                if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].index != pXSource->reference) continue;
                 pCond->obj[k].index = pPlayer->nSprite;
-                pCond->obj[k].cmd = kCmdToggle;
+                pCond->obj[k].cmd = pPlayer->pXSprite->command;
                 break;
             }
         }
@@ -2434,12 +2499,9 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
         ThrowError("\nDude conditions:\nObject #%d (objType: %d) is not a dude!", objIndex, objType);
     
     spritetype* pSpr = &sprite[objIndex];
-    if (!xspriRangeIsFine(sprite[objIndex].extra)) {
-        // TO-DO: must search for respawned player / enemy
-        // there is currently serials for old sprite
+    if (!xspriRangeIsFine(sprite[objIndex].extra))
         return false;
-    }
-    
+
     XSPRITE* pXSpr = &xsprite[pSpr->extra];
     if (pXSpr->health <= 0 || pSpr->type == kThingBloodChunks) return false;
     else if (cond < (kCondRange >> 1)) {
@@ -2604,11 +2666,11 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
         switch (cond) {
             default: break;
             case 50: // compare hp (in %)
-                if (IsDudeSprite(pSpr)) var = ((pXSpr->data4 <= 0) ? getDudeInfo(pSpr->type)->startHealth : pXSpr->data4) << 4;
+                if (IsDudeSprite(pSpr)) var = dudeGetStartHp(pSpr);
                 else if (condCmpne(arg1, arg2, cmpOp) && pSpr->type == kThingBloodChunks) return true;
                 else if (pSpr->type >= kThingBase && pSpr->type < kThingMax)
                     var = thingInfo[pSpr->type - kThingBase].startHealth << 4;
-
+                
                 return condCmp((100 * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
                 if ((gSpriteHit[pSpr->extra].ceilhit & 0xc000) != 0x4000) return false;
@@ -2649,6 +2711,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
                 return condCmp(getSpriteMassBySize(pSpr), arg1, arg2, cmpOp); // mass of the sprite in a range?
         }
     } else {
+        viewSetSystemMessage("!!!!!!!! %d", pSpr->type);
         switch (cond) {
             default: return false;
             case 50:
@@ -2660,6 +2723,20 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
 
     ThrowError("\nSprite conditions: Unexpected condition id (%d)!", cond);
     return false;
+}
+
+// this updates index of object in all tracking conditions
+void condUpdateObjectIndex(int objType, int oldIndex, int newIndex) {
+    for (int i = 0; i <= gTrackingCondsCount; i++) {
+        TRCONDITION* pCond = &gCondition[i];
+        for (int k = 0; k < pCond->length; k++) {
+            if (pCond->obj[k].type != objType || pCond->obj[k].index != oldIndex) continue;
+            pCond->obj[k].index = newIndex;
+            break;
+        }
+    }
+
+    return;
 }
 
 bool valueIsBetween(int val, int min, int max) {
@@ -3451,7 +3528,9 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             /// !!! COMMANDS OF THE CURRENT SPRITE, NOT OF THE EVENT !!! ///
             switch (pXSprite->command) {
                 case kCmdLink: // copy properties of sprite to player
-                    trPlayerCtrlLink(pXSprite, pPlayer);
+                    if (pXSprite->isTriggered) break;
+                    trPlayerCtrlLink(pXSprite, pPlayer, true);
+                    pXSprite->isTriggered = true;
                     break;
                 case kCmdNumberic: // player life form
                     if (pXSprite->data2 < kModeHuman || pXSprite->data2 > kModeHumanShrink) break;
@@ -4119,10 +4198,9 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
                     pXSprite->burnTime = 0;
 
                     // heal dude a bit in case of friendly fire
-                    if (pXSprite->data4 > 0 && pXSprite->health < pXSprite->data4)
-                        actHealDude(pXSprite, receiveHp, pXSprite->data4);
-                    else if (pXSprite->health < pDudeInfo->startHealth)
-                        actHealDude(pXSprite, receiveHp, pDudeInfo->startHealth);
+                    int startHp = dudeGetStartHp(pSprite);
+                    if (pXSprite->health < startHp) actHealDude(pXSprite, receiveHp, startHp);
+
                 } else if (xsprite[pBurnSource->extra].health <= 0) {
                     pXSprite->burnTime = 0;
                 }
@@ -4188,19 +4266,12 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             spritetype* pMate = pTarget; XSPRITE* pXMate = pXTarget;
 
             // heal dude
-            if (pXSprite->data4 > 0 && pXSprite->health < pXSprite->data4)
-                actHealDude(pXSprite, receiveHp, pXSprite->data4);
-            else if (pXSprite->health < pDudeInfo->startHealth)
-                actHealDude(pXSprite, receiveHp, pDudeInfo->startHealth);
+            int startHp = dudeGetStartHp(pSprite);
+            if (pXSprite->health < startHp) actHealDude(pXSprite, receiveHp, startHp);
 
             // heal mate
-            if (pXMate->data4 > 0 && pXMate->health < pXMate->data4)
-                actHealDude(pXMate, receiveHp, pXMate->data4);
-            else {
-                DUDEINFO* pTDudeInfo = getDudeInfo(pMate->type);
-                if (pXMate->health < pTDudeInfo->startHealth)
-                    actHealDude(pXMate, receiveHp, pTDudeInfo->startHealth);
-            }
+            startHp = dudeGetStartHp(pMate);
+            if (pXMate->health < startHp) actHealDude(pXMate, receiveHp, startHp);
 
             if (pXMate->target > -1 && sprite[pXMate->target].extra >= 0) {
                 pTarget = &sprite[pXMate->target];

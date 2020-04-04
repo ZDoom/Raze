@@ -53,6 +53,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tile.h"
 #include "sound/s_soundinternal.h"
 
+#include "gib.h"
+#include "aiburn.h"
+
 BEGIN_BLD_NS
 static void genDudeAttack1(int, int);
 static void punchCallback(int, int);
@@ -174,7 +177,6 @@ bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int we
 }
 
 GENDUDEEXTRA* genDudeExtra(spritetype* pGenDude) {
-    dassert(spriRangeIsFine(pGenDude->index));
     return &gGenDudeExtra[pGenDude->index];
 }
 
@@ -1254,14 +1256,9 @@ XSPRITE* getNextIncarnation(XSPRITE* pXSprite) {
         if (rxBucket[i].type != 3 || rxBucket[i].index == pXSprite->reference)
             continue;
         
-        switch (sprite[rxBucket[i].index].statnum) {
-            case kStatDude:
-            case kStatInactive: // inactive (ambush) dudes
-                if (xsprite[sprite[rxBucket[i].index].extra].health > 0)
+        if (sprite[rxBucket[i].index].statnum == kStatInactive)
                     return &xsprite[sprite[rxBucket[i].index].extra];
         }
-
-    }
     return NULL;
 }
 
@@ -1650,9 +1647,7 @@ spritetype* genDudeSpawn(spritetype* pSprite, int nDist) {
     if (pSource->clipdist > 0) pDude->clipdist = pSource->clipdist;
 
     // inherit custom hp settings
-    if (pXSource->data4 <= 0) pXDude->health = dudeInfo[nType - kDudeBase].startHealth << 4;
-    else pXDude->health = ClipRange(pXSource->data4 << 4, 1, 65535);
-
+    pXDude->health = dudeGetStartHp(pDude);
 
     if (pSource->flags & kModernTypeFlag1) {
         switch (pSource->type) {
@@ -1720,7 +1715,7 @@ void genDudeTransform(spritetype* pSprite) {
     // trigger dude death before transform
     trTriggerSprite(pSprite->index, pXSprite, kCmdOff);
 
-    pSprite->type = pIncarnation->type;
+    pSprite->type = pSprite->inittype = pIncarnation->type;
     pSprite->flags = pIncarnation->flags;
     pSprite->pal = pIncarnation->pal;
     pSprite->shade = pIncarnation->shade;
@@ -1735,17 +1730,18 @@ void genDudeTransform(spritetype* pSprite) {
     pXSprite->busyTime = pXIncarnation->busyTime;
     pXSprite->waitTime = pXIncarnation->waitTime;
 
+    // inherit respawn properties
+    pXSprite->respawn = pXIncarnation->respawn;
+    pXSprite->respawnPending = pXIncarnation->respawnPending;
+
     pXSprite->burnTime = 0;
     pXSprite->burnSource = -1;
 
     pXSprite->data1 = pXIncarnation->data1;
     pXSprite->data2 = pXIncarnation->data2;
 
-    // if incarnation is active dude, it's sndStartId will be stored in sysData1, otherwise it will be data3
-    if (pIncarnation->statnum == kStatDude && pIncarnation->type == kDudeModernCustom) pXSprite->sysData1 = pXIncarnation->sysData1;
-    else pXSprite->sysData1 = pXIncarnation->data3;
-
-    pXSprite->data4 = pXIncarnation->data4;
+    pXSprite->sysData1 = pXIncarnation->data3;
+    pXSprite->sysData2 = pXIncarnation->data4;
 
     pXSprite->dudeGuard = pXIncarnation->dudeGuard;
     pXSprite->dudeDeaf = pXIncarnation->dudeDeaf;
@@ -1762,8 +1758,7 @@ void genDudeTransform(spritetype* pSprite) {
     pXIncarnation->key = pXIncarnation->dropMsg = 0;
 
     // set hp
-    if (pXSprite->data4 <= 0) pXSprite->health = dudeInfo[pSprite->type - kDudeBase].startHealth << 4;
-    else pXSprite->health = ClipRange(pXSprite->data4 << 4, 1, 65535);
+    pXSprite->health = dudeGetStartHp(pSprite);
 
     int seqId = dudeInfo[pSprite->type - kDudeBase].seqStartID;
     switch (pSprite->type) {
@@ -1793,8 +1788,10 @@ void genDudeTransform(spritetype* pSprite) {
 
             break;
     }
+    pXIncarnation->triggerOn = triggerOn;
+    pXIncarnation->triggerOff = triggerOff;
 
-    // remove the incarnation in case if non-locked
+    /*// remove the incarnation in case if non-locked
     if (pXIncarnation->locked == 0) {
         pXIncarnation->txID = pIncarnation->type = 0;
         actPostSprite(pIncarnation->index, kStatFree);
@@ -1802,7 +1799,7 @@ void genDudeTransform(spritetype* pSprite) {
     } else {
         pXIncarnation->triggerOn = triggerOn;
         pXIncarnation->triggerOff = triggerOff;
-    }
+    }*/
 }
 
 
@@ -2157,6 +2154,41 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
         }
 
     return true;
+}
+
+void genDudePostDeath(spritetype* pSprite, DAMAGE_TYPE damageType, int damage) {
+    if (damageType == DAMAGE_TYPE_3) {
+        DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+        for (int i = 0; i < 3; i++)
+            if (pDudeInfo->nGibType[i] > -1)
+                GibSprite(pSprite, (GIBTYPE)pDudeInfo->nGibType[i], NULL, NULL);
+
+        for (int i = 0; i < 4; i++)
+            fxSpawnBlood(pSprite, damage);
+    }
+    
+    gKillMgr.AddKill(pSprite);
+
+    pSprite->type = kThingBloodChunks;
+    actPostSprite(pSprite->index, kStatThing);
+}
+
+void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite) {
+    switch (pSprite->type) {
+        case kDudeModernCustom: {
+            DUDEEXTRA_at6_u1* pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
+            pDudeExtraE->at8 = pDudeExtraE->at0 = 0;
+            aiGenDudeNewState(pSprite, &genDudeIdleL);
+            break;
+        }
+        case kDudeModernCustomBurning:
+            aiGenDudeNewState(pSprite, &genDudeBurnGoto);
+            pXSprite->burnTime = 1200;
+            break;
+    }
+    
+    pSprite->flags = 15;
+    return;
 }
 
 #endif

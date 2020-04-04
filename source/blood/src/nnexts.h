@@ -64,9 +64,12 @@ BEGIN_BLD_NS
 #define kCondRange 100
 // modern statnums
 enum {
+kStatModernBase                     = 20,
 kStatModernDudeTargetChanger        = 20,
 kStatModernCondition                = 21,
 kStatModernEventRedirector          = 22,
+kStatModernPlayerLinker             = 23,
+kStatModernMax                      = 64,
 };
 
 // modern sprite types
@@ -277,7 +280,7 @@ void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState);
 bool txIsRanged(XSPRITE* pXSource);
 void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernSend);
 //  -------------------------------------------------------------------------   //
-void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer);
+void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition);
 void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlStopScene(XSPRITE* pXSource, PLAYER* pPlayer);
@@ -331,11 +334,11 @@ bool condPush(XSPRITE* pXSprite, int objType, int objIndex);
 bool condRestore(XSPRITE* pXSprite);
 bool condCmp(int val, int arg1, int arg2, int comOp);
 bool condCmpne(int arg1, int arg2, int comOp);
-/*bool condCmpr(int val, int min, int max, int cmpOp);*/
 bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH, bool RVRS);
 bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
 bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
 bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
+void condUpdateObjectIndex(int objType, int oldIndex, int newIndex);
 #endif
 
 ////////////////////////////////////////////////////////////////////////

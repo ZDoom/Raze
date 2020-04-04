@@ -66,4 +66,6 @@ inline DUDEINFO *getDudeInfo(int const nType)
     return &fakeDudeInfo;
 }
 
+int dudeGetStartHp(spritetype* pDude);
+
 END_BLD_NS

@@ -112,8 +112,9 @@ struct XSPRITE {
     unsigned int stateTimer : 16;       // ai timer
     AISTATE* aiState;                   // ai
     #ifdef NOONE_EXTENSIONS
-    signed int sysData1 : 16;           // used to keep here various system data, so user can't change it in map editor
-    unsigned int physAttr : 12;         // currently used by additional physics sprites to keep it's attributes.
+    signed int sysData1: 32;            // used to keep here various system data, so user can't change it in map editor
+    signed int sysData2: 32;            //
+    unsigned int physAttr : 32;         // currently used by additional physics sprites to keep it's attributes.
     #endif
     signed int scale;                   // used for scaling SEQ size on sprites
 

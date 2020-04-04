@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "triggers.h"
 #include "view.h"
 #include "nnexts.h"
+#include "aiunicult.h"
 
 BEGIN_BLD_NS
 
@@ -269,10 +270,17 @@ void Respawn(int nSprite) // 9
                 pSprite->y = baseSprite[nSprite].y;
                 pSprite->z = baseSprite[nSprite].z;
                 pSprite->cstat |= 0x1101;
-                pSprite->clipdist = getDudeInfo(nType+kDudeBase)->clipdist;
-                pXSprite->health = getDudeInfo(nType+kDudeBase)->startHealth<<4;
-                if (gSysRes.Lookup(getDudeInfo(nType+kDudeBase)->seqStartID, "SEQ"))
-                    seqSpawn(getDudeInfo(nType+kDudeBase)->seqStartID, 3, pSprite->extra, -1);
+                pXSprite->health = dudeGetStartHp(pSprite);
+                switch (pSprite->type) {
+                    default:
+                        pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
+                        if (gSysRes.Lookup(getDudeInfo(nType + kDudeBase)->seqStartID, "SEQ"))
+                            seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
+                        break;
+                    case kDudeModernCustom:
+                        seqSpawn(genDudeSeqStartId(pXSprite), 3, pSprite->extra, -1);
+                        break;
+                }
                 aiInitSprite(pSprite);
                 pXSprite->key = 0;
             } else if (pSprite->type == kThingTNTBarrel) {
@@ -719,28 +727,6 @@ void callbackCondition(int nSprite) {
 
     TRCONDITION* pCond = &gCondition[pXSprite->sysData1];
     for (int i = 0; i < pCond->length; i++) {
-        /*if (pCond->obj[i].type == OBJ_SPRITE) {
-            spritetype* pObj = &sprite[pCond->obj[i].index];
-            XSPRITE* pXObj = (xspriRangeIsFine(pObj->extra)) ? &xsprite[pObj->extra] : NULL;
-            if (gGameOptions.nGameType != 0) {
-                if (pObj->type != pObj->inittype && pObj->inittype >= kDudePlayer1 && pObj->inittype <= kDudePlayer8) {
-                    PLAYER* pPlayer = getPlayerById(pObj->inittype);
-                    if (pPlayer) {
-                        pCond->obj[i].index = pPlayer->pSprite->index;
-                        viewSetSystemMessage("RESET INDEX");
-                    } else {
-                        viewSetSystemMessage("FAILED %d", pCond->obj[i].index);
-                        continue;
-                    }
-                }
-            }
-            //if (pObj->flags & kHitagRespawn)
-                //viewSetSystemMessage("TYPE: %d ON RESPAWN", pObj->type);
-            //if (pObj->flags & kHitagFree) {
-               // viewSetSystemMessage("TYPE: %d IS FREE", pObj->type);
-           // }
-            
-        }*/
         EVENT evn;  evn.index = pCond->obj[i].index;   evn.type = pCond->obj[i].type;
         evn.cmd = pCond->obj[i].cmd; evn.funcID = kCallbackCondition;
         useCondition(pXSprite, evn);

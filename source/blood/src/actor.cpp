@@ -2469,7 +2469,7 @@ void actInit(bool bSaveLoad) {
             nnExtInitModernStuff(bSaveLoad);
     }
     #endif
-    
+
     for (int nSprite = headspritestat[kStatItem]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         switch (sprite[nSprite].type) {
             case kItemWeaponVoodooDoll:
@@ -2587,15 +2587,7 @@ void actInit(bool bSaveLoad) {
                 #endif
 
                 xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
-                
-                #ifdef NOONE_EXTENSIONS
-                    // add a way to set custom hp for every enemy - should work only if map just started and not loaded.
-                if (!gModernMap || pXSprite->data4 <= 0) pXSprite->health = dudeInfo[nType].startHealth << 4;
-                else pXSprite->health = ClipRange(pXSprite->data4 << 4, 1, 65535);
-                #else
-                    pXSprite->health = dudeInfo[nType].startHealth << 4;
-                #endif
-                    
+                pXSprite->health = dudeGetStartHp(pSprite);
             }
 
             if (gSysRes.Lookup(seqStartId, "SEQ")) seqSpawn(seqStartId, 3, pSprite->extra);
@@ -3239,26 +3231,28 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             seqSpawn(dudeInfo[nType].seqStartID+15, 3, nXSprite, nDudeToGibClient2);
         break;
 #ifdef NOONE_EXTENSIONS
-    case kDudeModernCustom:
+    case kDudeModernCustom: {
         playGenDudeSound(pSprite, kGenDudeSndDeathNormal);
+        int dudeToGib = (actCheckRespawn(pSprite)) ? -1 : ((nSeq == 3) ? nDudeToGibClient2 : nDudeToGibClient1);
         if (nSeq == 3) {
-            
+
             GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
-            if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
-            else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
-            else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
-            else if (gSysRes.Lookup(pXSprite->data2 + nSeq, "SEQ"))seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
-            else seqSpawn(1 + pXSprite->data2, 3, nXSprite, nDudeToGibClient2);
+            if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, 3, nXSprite, dudeToGib);
+            else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, 3, nXSprite, dudeToGib);
+            else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, 3, nXSprite, dudeToGib);
+            else if (gSysRes.Lookup(pXSprite->data2 + nSeq, "SEQ"))seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, dudeToGib);
+            else seqSpawn(1 + pXSprite->data2, 3, nXSprite, dudeToGib);
 
          } else {
-            seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, nDudeToGibClient1);
+            seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, dudeToGib);
          }
+        genDudePostDeath(pSprite, damageType, damage);
+        return;
 
-        pXSprite->txID = 0; // to avoid second trigger.
-        break;
-
+    }
     case kDudeModernCustomBurning: {
         playGenDudeSound(pSprite, kGenDudeSndDeathExplode);
+        int dudeToGib = (actCheckRespawn(pSprite)) ? -1 : nDudeToGibClient1;
         damageType = DAMAGE_TYPE_3;
 
         if (Chance(0x4000)) {
@@ -3270,11 +3264,12 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         }
 
         GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
-        if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, 3, nXSprite, nDudeToGibClient1);
-        else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, 3, nXSprite, nDudeToGibClient1);
-        else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, 3, nXSprite, nDudeToGibClient1);
-        else seqSpawn(1 + pXSprite->data2, 3, nXSprite, nDudeToGibClient1);
-        break;
+        if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, 3, nXSprite, dudeToGib);
+        else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, 3, nXSprite, dudeToGib);
+        else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, 3, nXSprite, dudeToGib);
+        else seqSpawn(1 + pXSprite->data2, 3, nXSprite, dudeToGib);
+        genDudePostDeath(pSprite, damageType, damage);
+        return;
     }
 #endif
     case kDudeBurningZombieAxe:
