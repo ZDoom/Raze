@@ -276,65 +276,43 @@ void PlayerInterruptKeys()
 
     localInput.yVel   = clamp(localInput.yVel + input.yVel, -12, 12);
     localInput.xVel   = clamp(localInput.xVel + input.xVel, -12, 12);
-    localInput.nAngle = fix16_sadd(localInput.nAngle, input.nAngle);
 
+    localInput.nAngle                 = fix16_sadd(localInput.nAngle, input.nAngle);
     PlayerList[nLocalPlayer].q16angle = fix16_sadd(PlayerList[nLocalPlayer].q16angle, input.nAngle) & 0x7FFFFFF;
-    PlayerList[nLocalPlayer].q16horiz = fix16_clamp(fix16_sadd(PlayerList[nLocalPlayer].q16horiz, input.horizon), fix16_from_int(0), fix16_from_int(184));
 
     // A horiz diff of 128 equal 45 degrees,
     // so we convert horiz to 1024 angle units
 
-    float horizAngle = atan2f(nVertPan[nLocalPlayer] - fix16_from_int(92), fix16_from_int(128)) * (512.f / fPI) + scaleAdjustmentToInterval(fix16_to_float(input.horizon));
-    horizAngle = clamp(horizAngle, -255.f, 255.f);
-    nVertPan[nLocalPlayer] = fix16_clamp(fix16_from_int(92) + Blrintf(fix16_from_int(128) * tanf(horizAngle * (fPI / 512.f))), fix16_from_int(0), fix16_from_int(184));
+    float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - fix16_from_int(92), fix16_from_int(128)) * (512.f / fPI) + fix16_to_float(input.horizon), -255.f, 255.f);
+    PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92) + Blrintf(fix16_from_int(128) * tanf(horizAngle * (fPI / 512.f)));
 
-    // TODO - tidy / consolidate repeating blocks of code here?
-    if (buttonMap.ButtonDown(gamefunc_Look_Up))
+    // Look/aim up/down functions.
+    if (buttonMap.ButtonDown(gamefunc_Look_Up) || buttonMap.ButtonDown(gamefunc_Aim_Up))
     {
         bLockPan = kFalse;
-        if (nVertPan[nLocalPlayer] < fix16_from_int(180)) {
-            nVertPan[nLocalPlayer] = fix16_sadd(nVertPan[nLocalPlayer], fix16_from_float(scaleAdjustmentToInterval(4)));
+        if (PlayerList[nLocalPlayer].q16horiz < fix16_from_int(180)) {
+            PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_float(scaleAdjustmentToInterval(4)));
         }
 
         bPlayerPan = kTrue;
-        nDestVertPan[nLocalPlayer] = nVertPan[nLocalPlayer];
+        nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
     }
-    else if (buttonMap.ButtonDown(gamefunc_Look_Down))
+    else if (buttonMap.ButtonDown(gamefunc_Look_Down) || buttonMap.ButtonDown(gamefunc_Aim_Down))
     {
         bLockPan = kFalse;
-        if (nVertPan[nLocalPlayer] > fix16_from_int(4)) {
-            nVertPan[nLocalPlayer] = fix16_ssub(nVertPan[nLocalPlayer], fix16_from_float(scaleAdjustmentToInterval(4)));
+        if (PlayerList[nLocalPlayer].q16horiz > fix16_from_int(4)) {
+            PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_float(scaleAdjustmentToInterval(4)));
         }
 
         bPlayerPan = kTrue;
-        nDestVertPan[nLocalPlayer] = nVertPan[nLocalPlayer];
+        nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
     }
     else if (buttonMap.ButtonDown(gamefunc_Look_Straight))
     {
         bLockPan = kFalse;
         bPlayerPan = kFalse;
-        nVertPan[nLocalPlayer] = fix16_from_int(92);
+        PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
         nDestVertPan[nLocalPlayer] = fix16_from_int(92);
-    }
-    else if (buttonMap.ButtonDown(gamefunc_Aim_Up))
-    {
-        bLockPan = kTrue;
-        if (nVertPan[nLocalPlayer] < fix16_from_int(180)) {
-            nVertPan[nLocalPlayer] = fix16_sadd(nVertPan[nLocalPlayer], fix16_from_float(scaleAdjustmentToInterval(4)));
-        }
-
-        bPlayerPan = kTrue;
-        nDestVertPan[nLocalPlayer] = nVertPan[nLocalPlayer];
-    }
-    else if (buttonMap.ButtonDown(gamefunc_Aim_Down))
-    {
-        bLockPan = kTrue;
-        if (nVertPan[nLocalPlayer] > fix16_from_int(4)) {
-            nVertPan[nLocalPlayer] = fix16_ssub(nVertPan[nLocalPlayer], fix16_from_float(scaleAdjustmentToInterval(4)));
-        }
-
-        bPlayerPan = kTrue;
-        nDestVertPan[nLocalPlayer] = nVertPan[nLocalPlayer];
     }
 
     // loc_1C048:
@@ -346,7 +324,7 @@ void PlayerInterruptKeys()
         bLockPan = kTrue;
 
     // loc_1C05E
-    fix16_t ecx = fix16_ssub(nDestVertPan[nLocalPlayer], PlayerList[nLocalPlayer].q16horiz);
+    fix16_t ecx = nDestVertPan[nLocalPlayer] - PlayerList[nLocalPlayer].q16horiz;
 
     if (g_MyAimMode)
     {
@@ -379,9 +357,10 @@ void PlayerInterruptKeys()
             }
         }
 
-        nVertPan[nLocalPlayer] = fix16_sadd(nVertPan[nLocalPlayer], ecx);
-        PlayerList[nLocalPlayer].q16horiz = fix16_clamp(nVertPan[nLocalPlayer], fix16_from_int(0), fix16_from_int(184));
+        PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, ecx);
     }
+
+    PlayerList[nLocalPlayer].q16horiz = fix16_clamp(PlayerList[nLocalPlayer].q16horiz, fix16_from_int(0), fix16_from_int(184));
 }
 
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle)
@@ -583,7 +562,6 @@ void RestartPlayer(short nPlayer)
     }
 
     PlayerList[nPlayer].opos = sprite[nSprite].pos;
-    PlayerList[nPlayer].q16oangle = PlayerList[nPlayer].q16angle;
 
     nPlayerFloorSprite[nPlayer] = floorspr;
 
@@ -683,7 +661,7 @@ void RestartPlayer(short nPlayer)
     nYDamage[nPlayer] = 0;
     nXDamage[nPlayer] = 0;
 
-    PlayerList[nPlayer].q16ohoriz = PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
+    PlayerList[nPlayer].q16horiz = F16(92);
     nDestVertPan[nPlayer] = F16(92);
     nBreathTimer[nPlayer] = 90;
 
@@ -785,7 +763,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].q16ohoriz = PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
+    PlayerList[nPlayer].q16horiz = F16(92);
     oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
     nPlayerInvisible[nPlayer] = 0;
     dVertPan[nPlayer] = 15;
@@ -962,8 +940,6 @@ void FuncPlayer(int a, int nDamage, int nRun)
     short nSprite2;
 
     PlayerList[nPlayer].opos = sprite[nPlayerSprite].pos;
-    PlayerList[nPlayer].q16oangle = PlayerList[nPlayer].q16angle;
-    PlayerList[nPlayer].q16ohoriz = PlayerList[nPlayer].q16horiz;
     oeyelevel[nPlayer] = eyelevel[nPlayer];
 
     switch (nMessage)
@@ -1273,10 +1249,9 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 if (nTotalPlayers <= 1)
                 {
                     PlayerList[nPlayer].q16angle = fix16_from_int(GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask);
-                    PlayerList[nPlayer].q16oangle = PlayerList[nPlayer].q16angle;
                     sprite[nPlayerSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
 
-                    PlayerList[nPlayer].q16ohoriz = PlayerList[nPlayer].q16horiz = nVertPan[nPlayer] = F16(92);
+                    PlayerList[nPlayer].q16horiz = F16(92);
 
                     lPlayerXVel = 0;
                     lPlayerYVel = 0;
@@ -3068,19 +3043,19 @@ loc_1BD2E:
                 }
                 else
                 {
-                    if (nVertPan[nPlayer] < F16(92))
+                    if (PlayerList[nPlayer].q16horiz < fix16_from_int(92))
                     {
-                        nVertPan[nPlayer] = F16(91);
+                        PlayerList[nPlayer].q16horiz = fix16_from_int(91);
                         eyelevel[nPlayer] -= (dVertPan[nPlayer] << 8);
                     }
                     else
                     {
-                        nVertPan[nPlayer] += fix16_from_int(dVertPan[nPlayer]);
-                        if (nVertPan[nPlayer] >= F16(200))
+                        PlayerList[nPlayer].q16horiz = fix16_sadd(PlayerList[nPlayer].q16horiz, fix16_from_int(dVertPan[nPlayer]));
+                        if (PlayerList[nPlayer].q16horiz >= fix16_from_int(200))
                         {
-                            nVertPan[nPlayer] = F16(199);
+                            PlayerList[nPlayer].q16horiz = fix16_from_int(199);
                         }
-                        else if (nVertPan[nPlayer] <= F16(92))
+                        else if (PlayerList[nPlayer].q16horiz <= fix16_from_int(92))
                         {
                             if (!(SectFlag[sprite[nPlayerSprite].sectnum] & kSectUnderwater))
                             {

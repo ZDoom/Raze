@@ -2227,7 +2227,7 @@ GAMELOOP:
                 lLocalCodes = 0;
                 nPlayerDAng = 0;
 
-                sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
+                sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
             }
 
             // loc_11F72:
@@ -2334,7 +2334,7 @@ GAMELOOP:
                     lLocalCodes = 0;
                     nPlayerDAng = 0;
 
-                    sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
+                    sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
 
                     while (levelnew < 0 && totalclock >= tclocks + 4)
                     {
@@ -2882,7 +2882,7 @@ int DoSpiritHead()
 {
     static short word_964E6 = 0;
 
-    nVertPan[0] += (nDestVertPan[0] - nVertPan[0]) / 4;
+    PlayerList[0].q16horiz = fix16_sadd(PlayerList[0].q16horiz, fix16_sdiv(fix16_ssub(nDestVertPan[0], PlayerList[0].q16horiz), fix16_from_int(4)));
 
     tileInvalidate(kTileRamsesWorkTile, -1, -1);
 

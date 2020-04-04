@@ -49,7 +49,6 @@ void viewRestoreInterpolations(void);
 
 extern fix16_t nDestVertPan[];
 extern short dVertPan[];
-extern fix16_t nVertPan[];
 extern short nQuake[];
 extern int nCamerax;
 extern int nCameray;
