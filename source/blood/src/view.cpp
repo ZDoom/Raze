@@ -2402,6 +2402,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
 
         if ((pTSprite->cstat&48) != 48 && r_voxels && videoGetRenderMode() != REND_POLYMER && !(spriteext[nSprite].flags&SPREXT_NOTMD))
         {
+            int const nRootTile = pTSprite->picnum;
             int nAnimTile = pTSprite->picnum + animateoffs_replace(pTSprite->picnum, 32768+pTSprite->owner);
 
             if (tiletovox[nAnimTile] != -1)
@@ -2412,12 +2413,13 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
 
             int const nVoxel = tiletovox[pTSprite->picnum];
 
-            if (nVoxel != -1 && (voxrotate[nVoxel>>3]&pow2char[nVoxel&7]) != 0)
+            if (nVoxel != -1 && ((voxrotate[nVoxel>>3]&pow2char[nVoxel&7]) != 0 || (picanm[nRootTile].extra&7) == 7))
                 pTSprite->ang = (pTSprite->ang+((int)totalclock<<3))&2047;
         }
 
         if ((pTSprite->cstat&48) != 48 && usemodels && !(spriteext[nSprite].flags&SPREXT_NOTMD))
         {
+            int const nRootTile = pTSprite->picnum;
             int nAnimTile = pTSprite->picnum + animateoffs_replace(pTSprite->picnum, 32768+pTSprite->owner);
 
             if (usemodels && tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].modelid >= 0 &&
@@ -2425,6 +2427,9 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             {
                 pTSprite->yoffset += picanm[nAnimTile].yofs;
                 pTSprite->xoffset += picanm[nAnimTile].xofs;
+
+                if ((picanm[nRootTile].extra&7) == 7)
+                    pTSprite->ang = (pTSprite->ang+((int)totalclock<<3))&2047;
             }
         }
 
