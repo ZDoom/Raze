@@ -1667,14 +1667,14 @@ static int32_t engineLoadTables(void)
             reciptable[i] = divscale30(2048, i+2048);
 
         for (i=0; i<=512; i++)
-            sintable[i] = (int16_t)(16384.f * sinf((float)i * BANG2RAD));
+            sintable[i] = (int16_t)(16384.f * sinf((float)i * BANG2RAD) + 0.0001f);
         for (i=513; i<1024; i++)
             sintable[i] = sintable[1024-i];
         for (i=1024; i<2048; i++)
             sintable[i] = -sintable[i-1024];
 
         for (i=0; i<640; i++)
-            radarang[i] = (int16_t)(atanf(((float)(640-i)-0.5f) * (1.f/160.f)) * (-64.f * (1.f/BANG2RAD)));
+            radarang[i] = (int16_t)(atanf(((float)(640-i)-0.5f) * (1.f/160.f)) * (-64.f * (1.f/BANG2RAD)) + 0.0001f);
         for (i=0; i<640; i++)
             radarang[1279-i] = -radarang[i];
 
