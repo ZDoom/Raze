@@ -772,7 +772,7 @@ static int32_t defsparser(scriptfile *script)
                 if (haveextra)
                     picanm[tile].extra = extra;
 
-                if (EDUKE32_PREDICT_FALSE(flags == 0 && !havexoffset && !haveyoffset))
+                if (EDUKE32_PREDICT_FALSE(flags == 0 && !havexoffset && !haveyoffset && !haveextra))
                     Printf("\nError: missing 'file name' for tilefromtexture definition near line %s:%d",
                                script->filename, scriptfile_getlinum(script,texturetokptr));
                 break;
