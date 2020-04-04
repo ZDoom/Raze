@@ -334,11 +334,6 @@ static inline int interpolate16(int a, int b, int smooth)
     return a + mulscale16(b - a, smooth);
 }
 
-static inline fix16_t q16angle_interpolate16(fix16_t a, fix16_t b, int smooth)
-{
-    return a + mulscale16(((b+F16(1024)-a)&0x7FFFFFF)-F16(1024), smooth);
-}
-
 void DrawView(int smoothRatio, bool sceneonly)
 {
     int playerX;
@@ -396,7 +391,7 @@ void DrawView(int smoothRatio, bool sceneonly)
         playerZ = interpolate16(PlayerList[nLocalPlayer].opos.z, sprite[nPlayerSprite].z, smoothRatio)
                 + interpolate16(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
         nSector = nPlayerViewSect[nLocalPlayer];
-        nAngle = q16angle_interpolate16(PlayerList[nLocalPlayer].q16oangle, PlayerList[nLocalPlayer].q16angle, smoothRatio);
+        nAngle  = PlayerList[nLocalPlayer].q16angle;
 
         if (!bCamera)
         {
@@ -420,7 +415,7 @@ void DrawView(int smoothRatio, bool sceneonly)
             int floorZ = sector[sprite[nPlayerSprite].sectnum].floorz;
 
             // pan = nVertPan[nLocalPlayer];
-            pan = interpolate16(PlayerList[nLocalPlayer].q16ohoriz, PlayerList[nLocalPlayer].q16horiz, smoothRatio);
+            pan = PlayerList[nLocalPlayer].q16horiz;
 
             if (viewz > floorZ)
                 viewz = floorZ;

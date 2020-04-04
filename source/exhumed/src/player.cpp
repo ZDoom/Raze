@@ -161,6 +161,9 @@ void PlayerInterruptKeys()
     CONTROL_GetInput(&info);
 	D_ProcessEvents();
 
+    localInput = {};
+    PlayerInput input {};
+
     if (PlayerList[nLocalPlayer].nHealth == 0)
     {
         lPlayerYVel = 0;
@@ -175,44 +178,50 @@ void PlayerInterruptKeys()
     int const keyMove    = playerRunning ? 12 : 6;
     constexpr int const analogTurnAmount = 12;
     constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
-    int fvel = 0, svel = 0;
-    fix16_t q16avel = 0, q16horz = 0;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
         static int strafeyaw;
 
-        svel = -(info.mousex + strafeyaw) >> 6;
+        input.xVel = -(info.mousex + strafeyaw) >> 6;
         strafeyaw  = (info.mousex + strafeyaw) % 64;
 
-        svel -= info.dyaw * keyMove / analogExtent;
+        input.xVel -= info.dyaw * keyMove / analogExtent;
     }
     else
     {
-        q16avel = fix16_div(fix16_from_int(info.mousex), F16(32));
-        q16avel += fix16_from_int(info.dyaw) / analogExtent * (analogTurnAmount << 1);
+        input.nAngle = fix16_sadd(input.nAngle, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
+        input.nAngle = fix16_sadd(input.nAngle, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
     }
 
     g_MyAimMode = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
     if (g_MyAimMode)
-        q16horz = fix16_div(fix16_from_int(info.mousey), F16(64));
+        input.horizon = fix16_sadd(input.horizon, fix16_sdiv(fix16_from_int(info.mousey), fix16_from_int(64)));
     else
-        fvel = -(info.mousey >> 6);
+        input.yVel = -(info.mousey >> 6);
 
-    if (!in_mouseflip) q16horz = -q16horz;
+    if (!in_mouseflip) input.horizon = -input.horizon;
 
-    q16horz -= fix16_from_int(info.dpitch) / analogExtent * analogTurnAmount;
-    svel -= info.dx * keyMove / analogExtent;
-    fvel -= info.dz * keyMove / analogExtent;
+    input.horizon = fix16_ssub(input.horizon, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
+    input.xVel -= info.dx * keyMove / analogExtent;
+    input.yVel -= info.dz * keyMove / analogExtent;
+
+    static double lastInputTicks;
+    auto const    currentHiTicks    = timerGetHiTicks();
+    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+
+    lastInputTicks = currentHiTicks;
+
+    auto scaleAdjustmentToInterval = [=](double x) { return x * 120 / (1000.0 / elapsedInputTicks); };
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-            svel -= -keyMove;
+            input.xVel -= -keyMove;
 
         if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-            svel -= keyMove;
+            input.xVel -= keyMove;
     }
     else
     {
@@ -249,42 +258,130 @@ void PlayerInterruptKeys()
         }
 
         //if ((counter++) % 4 == 0) // what was this for???
-            q16avel += fix16_from_int(turn*2);
+            input.nAngle = fix16_sadd(input.nAngle, fix16_from_float(scaleAdjustmentToInterval(turn * 2)));
 
     }
 
     if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-        svel += keyMove;
+        input.xVel += keyMove;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-        svel += -keyMove;
+        input.xVel += -keyMove;
 
     if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-        fvel += keyMove;
+        input.yVel += keyMove;
 
     if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-        fvel += -keyMove;
+        input.yVel += -keyMove;
 
-    fvel = clamp(fvel, -12, 12);
-    svel = clamp(svel, -12, 12);
+    localInput.yVel   = clamp(localInput.yVel + input.yVel, -12, 12);
+    localInput.xVel   = clamp(localInput.xVel + input.xVel, -12, 12);
+    localInput.nAngle = fix16_sadd(localInput.nAngle, input.nAngle);
 
-    nPlayerDAng += q16avel;
-
-    inita &= kAngleMask;
-
-    lPlayerXVel += fvel * Cos(inita) + svel * Sin(inita);
-    lPlayerYVel += fvel * Sin(inita) - svel * Cos(inita);
-
-    lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
-    lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
+    PlayerList[nLocalPlayer].q16angle = fix16_sadd(PlayerList[nLocalPlayer].q16angle, input.nAngle) & 0x7FFFFFF;
+    PlayerList[nLocalPlayer].q16horiz = fix16_clamp(fix16_sadd(PlayerList[nLocalPlayer].q16horiz, input.horizon), fix16_from_int(0), fix16_from_int(184));
 
     // A horiz diff of 128 equal 45 degrees,
     // so we convert horiz to 1024 angle units
 
-    float horizAngle = atan2f(nVertPan[nLocalPlayer] - F16(92), F16(128)) * (512.f / fPI) + fix16_to_float(q16horz);
+    float horizAngle = atan2f(nVertPan[nLocalPlayer] - fix16_from_int(92), fix16_from_int(128)) * (512.f / fPI) + scaleAdjustmentToInterval(fix16_to_float(input.horizon));
     horizAngle = clamp(horizAngle, -255.f, 255.f);
-    nVertPan[nLocalPlayer] = fix16_clamp(F16(92) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f))), F16(0), F16(184));
+    nVertPan[nLocalPlayer] = fix16_clamp(fix16_from_int(92) + Blrintf(fix16_from_int(128) * tanf(horizAngle * (fPI / 512.f))), fix16_from_int(0), fix16_from_int(184));
 
+    // TODO - tidy / consolidate repeating blocks of code here?
+    if (buttonMap.ButtonDown(gamefunc_Look_Up))
+    {
+        bLockPan = kFalse;
+        if (nVertPan[nLocalPlayer] < fix16_from_int(180)) {
+            nVertPan[nLocalPlayer] = fix16_sadd(nVertPan[nLocalPlayer], fix16_from_float(scaleAdjustmentToInterval(4)));
+        }
+
+        bPlayerPan = kTrue;
+        nDestVertPan[nLocalPlayer] = nVertPan[nLocalPlayer];
+    }
+    else if (buttonMap.ButtonDown(gamefunc_Look_Down))
+    {
+        bLockPan = kFalse;
+        if (nVertPan[nLocalPlayer] > fix16_from_int(4)) {
+            nVertPan[nLocalPlayer] = fix16_ssub(nVertPan[nLocalPlayer], fix16_from_float(scaleAdjustmentToInterval(4)));
+        }
+
+        bPlayerPan = kTrue;
+        nDestVertPan[nLocalPlayer] = nVertPan[nLocalPlayer];
+    }
+    else if (buttonMap.ButtonDown(gamefunc_Look_Straight))
+    {
+        bLockPan = kFalse;
+        bPlayerPan = kFalse;
+        nVertPan[nLocalPlayer] = fix16_from_int(92);
+        nDestVertPan[nLocalPlayer] = fix16_from_int(92);
+    }
+    else if (buttonMap.ButtonDown(gamefunc_Aim_Up))
+    {
+        bLockPan = kTrue;
+        if (nVertPan[nLocalPlayer] < fix16_from_int(180)) {
+            nVertPan[nLocalPlayer] = fix16_sadd(nVertPan[nLocalPlayer], fix16_from_float(scaleAdjustmentToInterval(4)));
+        }
+
+        bPlayerPan = kTrue;
+        nDestVertPan[nLocalPlayer] = nVertPan[nLocalPlayer];
+    }
+    else if (buttonMap.ButtonDown(gamefunc_Aim_Down))
+    {
+        bLockPan = kTrue;
+        if (nVertPan[nLocalPlayer] > fix16_from_int(4)) {
+            nVertPan[nLocalPlayer] = fix16_ssub(nVertPan[nLocalPlayer], fix16_from_float(scaleAdjustmentToInterval(4)));
+        }
+
+        bPlayerPan = kTrue;
+        nDestVertPan[nLocalPlayer] = nVertPan[nLocalPlayer];
+    }
+
+    // loc_1C048:
+    if (totalvel[nLocalPlayer] > 20) {
+        bPlayerPan = kFalse;
+    }
+
+    if (g_MyAimMode)
+        bLockPan = kTrue;
+
+    // loc_1C05E
+    fix16_t ecx = fix16_ssub(nDestVertPan[nLocalPlayer], PlayerList[nLocalPlayer].q16horiz);
+
+    if (g_MyAimMode)
+    {
+        ecx = 0;
+    }
+
+    if (ecx)
+    {
+        if (ecx / 4 == 0)
+        {
+            if (ecx >= 0) {
+                ecx = 1;
+            }
+            else
+            {
+                ecx = -1;
+            }
+        }
+        else
+        {
+            ecx /= 4;
+
+            if (ecx > fix16_from_int(4))
+            {
+                ecx = fix16_from_int(4);
+            }
+            else if (ecx < -fix16_from_int(4))
+            {
+                ecx = -fix16_from_int(4);
+            }
+        }
+
+        nVertPan[nLocalPlayer] = fix16_sadd(nVertPan[nLocalPlayer], ecx);
+        PlayerList[nLocalPlayer].q16horiz = fix16_clamp(nVertPan[nLocalPlayer], fix16_from_int(0), fix16_from_int(184));
+    }
 }
 
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle)
@@ -1080,8 +1177,6 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
             // loc_1A494:
-            PlayerList[nPlayer].q16angle = (PlayerList[nPlayer].q16angle + sPlayerInput[nPlayer].nAngle) & 0x7FFFFFF;
-            PlayerList[nPlayer].q16horiz = sPlayerInput[nPlayer].horizon;
             sprite[nPlayerSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
 
             // sprite[nPlayerSprite].zvel is modified within Gravity()
@@ -2844,103 +2939,6 @@ loc_1BD2E:
                     nAction = nActionB;
                     PlayerList[nPlayer].nAction = nActionB;
                     PlayerList[nPlayer].field_2 = 0;
-                }
-
-                if (nPlayer == nLocalPlayer)
-                {
-                    // TODO - tidy / consolidate repeating blocks of code here?
-                    if (buttonMap.ButtonDown(gamefunc_Look_Up))
-                    {
-                        bLockPan = kFalse;
-                        if (nVertPan[nPlayer] < F16(180)) {
-                            nVertPan[nPlayer] += F16(4);
-                        }
-
-                        bPlayerPan = kTrue;
-                        nDestVertPan[nPlayer] = nVertPan[nPlayer];
-                    }
-                    else if (buttonMap.ButtonDown(gamefunc_Look_Down))
-                    {
-                        bLockPan = kFalse;
-                        if (nVertPan[nPlayer] > F16(4)) {
-                            nVertPan[nPlayer] -= F16(4);
-                        }
-
-                        bPlayerPan = kTrue;
-                        nDestVertPan[nPlayer] = nVertPan[nPlayer];
-                    }
-                    else if (buttonMap.ButtonDown(gamefunc_Look_Straight))
-                    {
-                        bLockPan = kFalse;
-                        bPlayerPan = kFalse;
-                        nVertPan[nPlayer] = F16(92);
-                        nDestVertPan[nPlayer] = F16(92);
-                    }
-                    else if (buttonMap.ButtonDown(gamefunc_Aim_Up))
-                    {
-                        bLockPan = kTrue;
-                        if (nVertPan[nPlayer] < F16(180)) {
-                            nVertPan[nPlayer] += F16(4);
-                        }
-
-                        bPlayerPan = kTrue;
-                        nDestVertPan[nPlayer] = nVertPan[nPlayer];
-                    }
-                    else if (buttonMap.ButtonDown(gamefunc_Aim_Down))
-                    {
-                        bLockPan = kTrue;
-                        if (nVertPan[nPlayer] > F16(4)) {
-                            nVertPan[nPlayer] -= F16(4);
-                        }
-
-                        bPlayerPan = kTrue;
-                        nDestVertPan[nPlayer] = nVertPan[nPlayer];
-                    }
-
-                    // loc_1C048:
-                    if (totalvel[nPlayer] > 20) {
-                        bPlayerPan = kFalse;
-                    }
-
-                    if (g_MyAimMode)
-                        bLockPan = kTrue;
-
-                    // loc_1C05E
-                    fix16_t ecx = nDestVertPan[nPlayer] - nVertPan[nPlayer];
-
-                    if (g_MyAimMode)
-                    {
-                        ecx = 0;
-                    }
-
-                    if (ecx)
-                    {
-                        if (ecx / 4 == 0)
-                        {
-                            if (ecx >= 0) {
-                                ecx = 1;
-                            }
-                            else
-                            {
-                                ecx = -1;
-                            }
-                        }
-                        else
-                        {
-                            ecx /= 4;
-
-                            if (ecx > F16(4))
-                            {
-                                ecx = F16(4);
-                            }
-                            else if (ecx < -F16(4))
-                            {
-                                ecx = -F16(4);
-                            }
-                        }
-
-                        nVertPan[nPlayer] += ecx;
-                    }
                 }
             }
             else // else, player's health is less than 0

@@ -62,6 +62,7 @@ void ClearSpaceBar(short nPlayer);
 void GetLocalInput();
 
 extern PlayerInput sPlayerInput[];
+extern PlayerInput localInput;
 extern int nNetMoves;
 
 END_PS_NS
