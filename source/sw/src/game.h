@@ -452,6 +452,15 @@ int StdRandomRange(int range);
 #define STD_RANDOM_RANGE(range) (StdRandomRange(range))
 #define STD_RANDOM() (rand())
 
+#if 0
+// TODO: PedanticMode
+#define RANDOM_NEG(x,y) (PedanticMode \
+                        ? ((RANDOM_P2(((x)<<(y))<<1) -  (x))<<(y)) \
+                        :  (RANDOM_P2(((x)<<(y))<<1) - ((x) <<(y))))
+#else
+#define RANDOM_NEG(x,y) ((RANDOM_P2(((x)<<(y))<<1) - (x))<<(y))
+#endif
+
 #define MOVEx(vel,ang) (((int)(vel) * (int)sintable[NORM_ANGLE((ang) + 512)]) >> 14)
 #define MOVEy(vel,ang) (((int)(vel) * (int)sintable[NORM_ANGLE((ang))]) >> 14)
 
