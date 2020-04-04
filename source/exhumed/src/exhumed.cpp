@@ -480,6 +480,7 @@ enum gametokens
 };
 
 int exhumed_globalflags;
+PlayerInput localInput;
 
 static int parsedefinitions_game(scriptfile *, int);
 
@@ -792,18 +793,6 @@ void I_Error(const char *fmt, ...)
     va_end(args);
 
     throw std::runtime_error(buf);
-}
-
-void faketimerhandler()
-{
-    if ((totalclock < ototalclock + 1) || bInMove)
-        return;
-    ototalclock = ototalclock + 1;
-
-    if (!((int)ototalclock&3) && moveframes < 4)
-        moveframes++;
-
-    PlayerInterruptKeys();
 }
 
 void timerhandler()
@@ -1549,7 +1538,6 @@ static void GameDisplay(void)
     // End Section B
 
     SetView1();
-    faketimerhandler();
 
     if (levelnum == kMap20)
     {
@@ -2309,18 +2297,31 @@ GAMELOOP:
         }
         else
         {
-            static bool frameJustDrawn;
             bInMove = kTrue;
-            if (!bPause && totalclock >= tclocks + 4 && !GUICapture)
-            {
-                do
-                {
-                    if (!frameJustDrawn)
-                        break;
 
-                    frameJustDrawn = false;
+            if (GUICapture || bPause)
+            {
+                totalclock = tclocks + 4;
+            }
+            else
+            {
+                while ((totalclock - ototalclock) >= 1 || !bInMove)
+                {
+                    ototalclock = ototalclock + 1;
+
+                    if (!((int)ototalclock&3) && moveframes < 4)
+                        moveframes++;
 
                     GetLocalInput();
+                    PlayerInterruptKeys();
+
+                    nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.nAngle);
+                    inita &= kAngleMask;
+
+                    lPlayerXVel += localInput.yVel * Cos(inita) + localInput.xVel * Sin(inita);
+                    lPlayerYVel += localInput.yVel * Sin(inita) - localInput.xVel * Cos(inita);
+                    lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
+                    lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
 
                     sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
                     sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
@@ -2335,27 +2336,22 @@ GAMELOOP:
 
                     sPlayerInput[nLocalPlayer].horizon = nVertPan[nLocalPlayer];
 
-                    do
+                    while (levelnew < 0 && totalclock >= tclocks + 4)
                     {
                         // timerUpdate();
                         tclocks += 4;
                         GameMove();
                         // timerUpdate();
-                    } while (levelnew < 0 && totalclock >= tclocks + 4);
-                } while (0);
-            }
-            else if (GUICapture || bPause)
-            {
-                totalclock = tclocks + 4;
+                    }
+                }
             }
             bInMove = kFalse;
 
-            faketimerhandler();
+            PlayerInterruptKeys();
 
             if (G_FPSLimit())
             {
                 GameDisplay();
-                frameJustDrawn = true;
             }
         }
         if (!bInDemo)
