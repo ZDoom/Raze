@@ -860,16 +860,13 @@ DoBunnyBeginJumpAttack(short SpriteNum)
     int CanSeePlayer(short SpriteNum);
     short tang;
 
-
-#define RANDOM_NEG(x) (RANDOM_P2((x)<<1) - (x))
-
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
 
     if (move_sprite(SpriteNum, sintable[NORM_ANGLE(tang+512)] >> 7, sintable[tang] >> 7,
                     0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS))
-        sp->ang = NORM_ANGLE(sp->ang + 1024) + (RANDOM_NEG(256 << 6) >> 6);
+        sp->ang = NORM_ANGLE(sp->ang + 1024) + (RANDOM_NEG(256, 6) >> 6);
     else
-        sp->ang = NORM_ANGLE(tang + (RANDOM_NEG(256 << 6) >> 6));
+        sp->ang = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
 
     DoActorSetSpeed(SpriteNum, FAST_SPEED);
 
