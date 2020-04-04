@@ -2416,6 +2416,18 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                 pTSprite->ang = (pTSprite->ang+((int)totalclock<<3))&2047;
         }
 
+        if ((pTSprite->cstat&48) != 48 && usemodels && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+        {
+            int nAnimTile = pTSprite->picnum + animateoffs_replace(pTSprite->picnum, 32768+pTSprite->owner);
+
+            if (usemodels && tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].modelid >= 0 &&
+                tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].framenum >= 0)
+            {
+                pTSprite->yoffset += picanm[nAnimTile].yofs;
+                pTSprite->xoffset += picanm[nAnimTile].xofs;
+            }
+        }
+
         sectortype *pSector = &sector[pTSprite->sectnum];
         XSECTOR *pXSector;
         int nShade = pTSprite->shade;
