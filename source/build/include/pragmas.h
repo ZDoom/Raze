@@ -79,7 +79,6 @@ skip:
 
 extern uint32_t divideu32_noinline(uint32_t n, uint32_t d);
 extern int32_t tabledivide32_noinline(int32_t n, int32_t d);
-extern int64_t tabledivide64_noinline(int64_t n, int64_t d);
 
 
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return dw(tabledivide64(qw(eax) << by(ecx), ebx)); }
@@ -167,18 +166,6 @@ static FORCE_INLINE CONSTEXPR int32_t dmulscale(int32_t eax, int32_t edx, int32_
 {
     return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(ecx));
 }
-#endif
-
-#ifndef pragmas_have_qinterpolatedown16
-void qinterpolatedown16(intptr_t bufptr, int32_t num, int32_t val, int32_t add);
-void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t add);
-#endif
-
-#ifndef pragmas_have_clearbufbyte
-void clearbufbyte(void *D, int32_t c, int32_t a);
-#endif
-#ifndef pragmas_have_copybufbyte
-void copybufbyte(const void *S, void *D, int32_t c);
 #endif
 
 #ifndef pragmas_have_krecipasm
