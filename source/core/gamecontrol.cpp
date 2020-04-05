@@ -737,6 +737,8 @@ int RunGame()
 	if (exec) exec->ExecCommands();
 
 	gamestate = GS_LEVEL;
+	TexMan.Init([]() {}, nullptr);
+	TileFiles.Init();
 	return gi->app_main();
 }
 

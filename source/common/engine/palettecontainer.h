@@ -84,9 +84,10 @@ public:
 	FRemapTable IceMap;				// This is used by the texture compositor so it must be globally accessible.
 	uint8_t GrayMap[256];
 
+	TArray<FRemapTable*> uniqueRemaps;
+
 private:
 	FMemArena remapArena;
-	TArray<FRemapTable*> uniqueRemaps;
 	TArray<TAutoGrowArray<FRemapTablePtr, FRemapTable*>> TranslationTables;
 public:
 	void Init(int numslots);	// This cannot be a constructor!!!

@@ -171,7 +171,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 
 			if (cmd.mType == F2DDrawer::DrawTypeRotateSprite)
 			{
-				// todo: Set up hictinting. (broken as the feature is...)
+					// todo: Set up hictinting. (broken as the feature is...)
 				SetShade(cmd.mRemapIndex >> 16, numshades);
 				SetFadeDisable(false);
 				auto saved = curbasepal;	// screw Build's dependencies on global state variables. We only need to change this for the following SetTexture call.

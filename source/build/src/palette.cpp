@@ -51,10 +51,11 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency,
     if (id == 0)
     {
         GPalette.SetPalette(table, 255);
+        GPalette.BaseColors[255] = 0;
         BuildTransTable(GPalette.BaseColors);
     }
     FRemapTable remap;
-    remap.AddColors(0, 256, table);
+    remap.AddColors(0, 256, table, 255);
     if (!notransparency)
     {
         remap.Palette[255] = 0;
@@ -270,7 +271,29 @@ void palettePostLoadLookups(void)
             }
         }
     }
-    // todo: at this point we should swap colors 0 and 255 so that paletted images being created here have their transparent color at index 0.
+
+    // Swap colors 0 and 255 in all tables so that all paletted images have their transparent color at index 0.
+    // This means: 
+    // - Swap palette and remap entries in all stored remap tables
+    // - change all remap entries of 255 to 0 and vice versa
+
+    auto colorswap = [](FRemapTable* remap)
+    {
+        std::swap(remap->Palette[0], remap->Palette[255]);
+        std::swap(remap->Remap[0], remap->Remap[255]);
+        for (auto& c : remap->Remap)
+        {
+            if (c == 0) c = 255;
+            else if (c == 255) c = 0;
+        }
+    };
+
+    for (auto remap : GPalette.uniqueRemaps)
+    {
+        colorswap(remap);
+    }
+    colorswap(&GPalette.GlobalBrightmap);
+    std::swap(GPalette.BaseColors[0], GPalette.BaseColors[255]);
 }
 
 //==========================================================================

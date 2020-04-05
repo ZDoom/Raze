@@ -912,7 +912,7 @@ void G_DrawStatusBar(int32_t snum)
 
             if (RR)
             {
-                rotatesprite_fs(sbarx(2), yofssh+sbary(200-28), sb15, 0, HEALTHBOX, 0, 21, orient);
+                //rotatesprite_fs(sbarx(2), yofssh+sbary(200-28), sb15, 0, HEALTHBOX, 0, 21, orient);
                 if (p->inven_icon)
                     rotatesprite_fs(sbarx(77), yofssh+sbary(200-30), sb15, 0, INVENTORYBOX, 0, 21, orient);
 

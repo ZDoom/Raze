@@ -86,7 +86,7 @@ FBitmap FTileTexture::GetBgraBitmap(const PalEntry* remap, int* ptrans)
 	TArray<uint8_t> buffer;
 	bmp.Create(Width, Height);
 	auto ppix = GetRawData();
-	if (ppix) bmp.CopyPixelData(0, 0, ppix, Width, Height, Height, 1, 0, remap);
+	if (ppix) bmp.CopyPixelData(0, 0, ppix, Width, Height, Height, 1, 0, remap? remap : GPalette.BaseColors);
 	return bmp;
 }
 
@@ -124,7 +124,7 @@ FArtTile* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, 
 }
 
 
-BuildTiles::BuildTiles()
+void BuildTiles::Init()
 {
 	auto Placeholder = TexMan.ByIndex(0);
 	for (auto& tile : tiledata)
