@@ -9,7 +9,7 @@ class AnimTexture : public FTexture
 	TArray<uint8_t> Image;
 public:
     AnimTexture() = default;
-	void SetSize(int width, int height);
+	void SetFrameSize(int width, int height);
     void SetFrame(const uint8_t *palette, const void* data);
     virtual FBitmap GetBgraBitmap(const PalEntry* remap, int* trans) override;
 };

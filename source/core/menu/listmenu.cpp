@@ -416,13 +416,13 @@ void FListMenuItemStaticPatch::Drawer(DListMenu* menu, const DVector2& origin, b
 	FTexture *tex = mTexture;
 	if (mYpos >= 0)
 	{
-		if (mCentered) x -= tex->GetWidth()/2;
+		if (mCentered) x -= tex->GetDisplayWidth()/2;
 		DrawTexture (twod, tex, x, mYpos, DTA_Clean, true, TAG_DONE);
 	}
 	else
 	{
 		int x = (mXpos - 160) * CleanXfac + (screen->GetWidth()>>1);
-		if (mCentered) x -= (tex->GetWidth()*CleanXfac)/2;
+		if (mCentered) x -= (tex->GetDisplayWidth()*CleanXfac)/2;
 		DrawTexture (twod, tex, x, -mYpos*CleanYfac, DTA_CleanNoMove, true, TAG_DONE);
 	}
 }
@@ -645,7 +645,7 @@ void FListMenuItemPatch::Drawer(DListMenu* menu, const DVector2& origin, bool se
 int FListMenuItemPatch::GetWidth() 
 {
 	return mTexture
-		?  mTexture->GetWidth() 
+		?  mTexture->GetDisplayWidth() 
 		: 0;
 }
 

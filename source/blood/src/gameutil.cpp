@@ -571,9 +571,6 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
             if (!nSizX || !nSizY)
                 return 0;
 
-            int potX = nSizX == (1<<(picsiz[nPicnum]&15));
-            int potY = nSizY == (1<<(picsiz[nPicnum]>>4));
-
             nOffset = (nOffset*pWall->yrepeat) / 8;
             nOffset += (nSizY*pWall->ypanning) / 256;
             int nLength = approxDist(pWall->x - wall[pWall->point2].x, pWall->y - wall[pWall->point2].y);
@@ -584,20 +581,11 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 nHOffset = approxDist(gHitInfo.hitx - pWall->x, gHitInfo.hity - pWall->y);
 
             nHOffset = pWall->xpanning + ((nHOffset*pWall->xrepeat) << 3) / nLength;
-            if (potX)
-                nHOffset &= nSizX - 1;
-            else
-                nHOffset %= nSizX;
-            if (potY)
-                nOffset &= nSizY - 1;
-            else
-                nOffset %= nSizY;
+            nHOffset %= nSizX;
+            nOffset %= nSizY;
             auto pData = tileLoadTile(nPicnum);
             int nPixel;
-            if (potY)
-                nPixel = (nHOffset<<(picsiz[nPicnum]>>4)) + nOffset;
-            else
-                nPixel = nHOffset*nSizY + nOffset;
+            nPixel = nHOffset*nSizY + nOffset;
 
             if (pData[nPixel] == TRANSPARENT_INDEX)
             {

@@ -28,6 +28,7 @@
 #include "hwrenderer/postprocessing/hw_postprocess_cvars.h"
 #include "palutil.h"
 #include "palettecontainer.h"
+#include "vectors.h"
 #include <random>
 
 Postprocess hw_postprocess;
@@ -272,7 +273,7 @@ void PPBloom::BlurStep(PPRenderState *renderstate, const BlurUniforms &blurUnifo
 
 float PPBloom::ComputeBlurGaussian(float n, float theta) // theta = Blur Amount
 {
-	return (float)((1.0f / sqrtf(2 * (float)M_PI * theta)) * expf(-(n * n) / (2.0f * theta * theta)));
+	return (float)((1.0f / sqrtf(2 * pi::pif() * theta)) * expf(-(n * n) / (2.0f * theta * theta)));
 }
 
 void PPBloom::ComputeBlurSamples(int sampleCount, float blurAmount, float *sampleWeights)
@@ -610,7 +611,7 @@ PPAmbientOcclusion::PPAmbientOcclusion()
 
 		for (int i = 0; i < 16; i++)
 		{
-			double angle = 2.0 * M_PI * distribution(generator) / numDirections[quality];
+			double angle = 2.0 * pi::pi() * distribution(generator) / numDirections[quality];
 			double x = cos(angle);
 			double y = sin(angle);
 			double z = distribution(generator);

@@ -116,23 +116,23 @@ bool SetTextureParms(DrawParms *parms, FTexture *img, double xx, double yy)
 	{
 		parms->x = xx;
 		parms->y = yy;
-		parms->texwidth = img->GetWidth();
-		parms->texheight = img->GetHeight();
+		parms->texwidth = img->GetDisplayWidth();
+		parms->texheight = img->GetDisplayHeight();
 		if (parms->top == INT_MAX || parms->fortext)
 		{
-			parms->top = img->GetTopOffset();
+			parms->top = img->GetDisplayTopOffset();
 		}
 		if (parms->left == INT_MAX || parms->fortext)
 		{
-			parms->left = img->GetLeftOffset();
+			parms->left = img->GetDisplayLeftOffset();
 		}
 		if (parms->destwidth == INT_MAX || parms->fortext)
 		{
-			parms->destwidth = img->GetWidth();
+			parms->destwidth = img->GetDisplayWidth();
 		}
 		if (parms->destheight == INT_MAX || parms->fortext)
 		{
-			parms->destheight = img->GetHeight();
+			parms->destheight = img->GetDisplayHeight();
 		}
 
 		switch (parms->cleanmode)
@@ -390,8 +390,8 @@ bool ParseDrawTextureTags(FTexture *img, double x, double y, uint32_t tag, Va_Li
 				assert(fortext == false);
 				if (img == NULL) return false;
 				parms->cleanmode = DTA_Fullscreen;
-				parms->virtWidth = img->GetWidth();
-				parms->virtHeight = img->GetHeight();
+				parms->virtWidth = img->GetDisplayWidth();
+				parms->virtHeight = img->GetDisplayHeight();
 			}
 			break;
 
@@ -432,19 +432,19 @@ bool ParseDrawTextureTags(FTexture *img, double x, double y, uint32_t tag, Va_Li
 			break;
 
 		case DTA_SrcX:
-			parms->srcx = ListGetDouble(tags) / img->GetWidth();
+			parms->srcx = ListGetDouble(tags) / img->GetDisplayWidth();
 			break;
 
 		case DTA_SrcY:
-			parms->srcy = ListGetDouble(tags) / img->GetHeight();
+			parms->srcy = ListGetDouble(tags) / img->GetDisplayHeight();
 			break;
 
 		case DTA_SrcWidth:
-			parms->srcwidth = ListGetDouble(tags) / img->GetWidth();
+			parms->srcwidth = ListGetDouble(tags) / img->GetDisplayWidth();
 			break;
 
 		case DTA_SrcHeight:
-			parms->srcheight = ListGetDouble(tags) / img->GetHeight();
+			parms->srcheight = ListGetDouble(tags) / img->GetDisplayHeight();
 			break;
 
 		case DTA_TopOffset:
@@ -476,8 +476,8 @@ bool ParseDrawTextureTags(FTexture *img, double x, double y, uint32_t tag, Va_Li
 			if (fortext) return false;
 			if (ListGetInt(tags))
 			{
-				parms->left = img->GetWidth() * 0.5;
-				parms->top = img->GetHeight() * 0.5;
+				parms->left = img->GetDisplayWidth() * 0.5;
+				parms->top = img->GetDisplayHeight() * 0.5;
 			}
 			break;
 
@@ -486,8 +486,8 @@ bool ParseDrawTextureTags(FTexture *img, double x, double y, uint32_t tag, Va_Li
 			if (fortext) return false;
 			if (ListGetInt(tags))
 			{
-				parms->left = img->GetWidth() * 0.5;
-				parms->top = img->GetHeight();
+				parms->left = img->GetDisplayWidth() * 0.5;
+				parms->top = img->GetDisplayHeight();
 			}
 			break;
 

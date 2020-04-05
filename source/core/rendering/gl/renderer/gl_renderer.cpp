@@ -171,17 +171,17 @@ void FGLRenderer::EndOffscreen()
 
 void FGLRenderer::BindToFrameBuffer(FTexture *mat)
 {
-	auto pBaseLayer = mat->GetHardwareTexture(0);
-	auto BaseLayer = pBaseLayer ? *pBaseLayer : nullptr;
+	::FHardwareTexture *pBaseLayer = static_cast<::FHardwareTexture*>(mat->SystemTextures.GetHardwareTexture(0, false));
+	auto BaseLayer = pBaseLayer ? pBaseLayer : nullptr;
 
 	if (BaseLayer == nullptr)
 	{
 		// must create the hardware texture first
-		BaseLayer = new FHardwareTexture();
-		BaseLayer->CreateTexture(mat->GetWidth()*4, mat->GetHeight()*4, FHardwareTexture::TrueColor, false);
-		mat->SetHardwareTexture(0, BaseLayer);
+		BaseLayer = new ::FHardwareTexture;
+		BaseLayer->CreateTexture(mat->GetTexelWidth()*4, mat->GetTexelHeight()*4, ::FHardwareTexture::TrueColor, false);
+		mat->SystemTextures.AddHardwareTexture(0, false, BaseLayer);
 	}
-	BaseLayer->BindToFrameBuffer(mat->GetWidth()*4, mat->GetHeight()*4);
+	BaseLayer->BindToFrameBuffer(mat->GetTexelWidth()*4, mat->GetTexelHeight()*4);
 }
 
 //===========================================================================

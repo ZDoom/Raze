@@ -543,6 +543,24 @@ else()
 	set( OTHER_SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} ${PLAT_OSX_SOURCES} ${PLAT_COCOA_SOURCES} )
 endif()
 
+if( HAVE_MMX )
+	add_definitions( -DHAVE_MMX=1 )
+
+	set( SYSTEM_SOURCES ${SYSTEM_SOURCES}
+		common/textures/hires/hqnx_asm/hq2x_asm.cpp
+		common/textures/hires/hqnx_asm/hq3x_asm.cpp
+		common/textures/hires/hqnx_asm/hq4x_asm.cpp
+		common/textures/hires/hqnx_asm/hqnx_asm_Image.cpp)
+
+	if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+		set_source_files_properties(
+			common/textures/hires/hqnx_asm/hq2x_asm.cpp
+			common/textures/hires/hqnx_asm/hq3x_asm.cpp
+			common/textures/hires/hqnx_asm/hq4x_asm.cpp
+			common/textures/hires/hqresize.cpp
+			PROPERTIES COMPILE_FLAGS "-mmmx" )
+	endif( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+endif( HAVE_MMX )
 
 if( HAVE_PARALLEL_FOR )
 	add_definitions( -DHAVE_PARALLEL_FOR=1 )
@@ -608,6 +626,9 @@ file( GLOB HEADER_FILES
 	common/engine/*.h
 	common/filesystem/*.h
 	common/textures/*.h
+	common/textures/hires/hqnx/*.h
+	common/textures/hires/hqnx_asm/*.h
+	common/textures/hires/xbr/*.h
 	common/thirdparty/*.h
 	common/thirdparty/rapidjson/*.h
 	common/thirdparty/math./*h
@@ -636,6 +657,12 @@ set( NOT_COMPILED_SOURCE_FILES
 # Enable fast math for some sources where performance matters (or where the PCH must not be used.) (This would be good for rendering code, but unfortunately that is hopelessly intermingled with the playsim code in engine.cpp.)
 set( FASTMATH_SOURCES
 
+	common/textures/hires/hqnx/init.cpp
+	common/textures/hires/hqnx/hq2x.cpp
+	common/textures/hires/hqnx/hq3x.cpp
+	common/textures/hires/hqnx/hq4x.cpp
+	common/textures/hires/xbr/xbrz.cpp
+	common/textures/hires/xbr/xbrz_old.cpp
 	# This should better be made a library subproject later, once things are working.
 	libsmackerdec/src/BitReader.cpp
 	libsmackerdec/src/FileStream.cpp
@@ -712,7 +739,6 @@ set (PCH_SOURCES
 	core/fonts/singlelumpfont.cpp
 	core/fonts/v_font.cpp
 	core/fonts/v_text.cpp
-	core/fonts/fontchars.cpp
 
 	core/console/c_console.cpp
 	core/console/d_event.cpp
@@ -728,8 +754,35 @@ set (PCH_SOURCES
 	common/audio/music/music_config.cpp
 	common/thirdparty/sfmt/SFMT.cpp
 	common/textures/animtexture.cpp
+	common/textures/hw_ihwtexture.cpp
+	common/textures/hw_material.cpp
 	common/textures/bitmap.cpp
 	common/textures/m_png.cpp
+	common/textures/texture.cpp
+	common/textures/image.cpp
+	common/textures/imagetexture.cpp
+	common/textures/texturemanager.cpp
+	common/textures/multipatchtexturebuilder.cpp
+	common/textures/skyboxtexture.cpp
+	common/textures/formats/automaptexture.cpp
+	common/textures/formats/brightmaptexture.cpp
+	common/textures/formats/buildtexture.cpp
+	common/textures/formats/ddstexture.cpp
+	common/textures/formats/flattexture.cpp
+	common/textures/formats/fontchars.cpp
+	common/textures/formats/imgztexture.cpp
+	common/textures/formats/jpegtexture.cpp
+	common/textures/formats/md5check.cpp
+	common/textures/formats/multipatchtexture.cpp
+	common/textures/formats/patchtexture.cpp
+	common/textures/formats/pcxtexture.cpp
+	common/textures/formats/pngtexture.cpp
+	common/textures/formats/rawpagetexture.cpp
+	common/textures/formats/emptytexture.cpp
+	common/textures/formats/shadertexture.cpp
+	common/textures/formats/tgatexture.cpp
+	common/textures/formats/stbtexture.cpp
+	common/textures/hires/hqresize.cpp
 	common/console/c_commandline.cpp
 	common/console/c_buttons.cpp
 	common/console/c_bind.cpp
@@ -777,17 +830,7 @@ set (PCH_SOURCES
 	core/utility/stats.cpp
 	
 	core/textures/buildtiles.cpp
-	core/textures/texture.cpp
-	core/textures/image.cpp
-	core/textures/imagetexture.cpp
-	core/textures/imagehelpers.cpp
-	core/textures/formats/ddstexture.cpp
-	core/textures/formats/jpegtexture.cpp
-	core/textures/formats/pcxtexture.cpp
-	core/textures/formats/pngtexture.cpp
-	core/textures/formats/tgatexture.cpp
-	core/textures/formats/stbtexture.cpp
-	core/textures/formats/arttexture.cpp
+	#core/textures/texture.cpp
 
 	core/music/s_advsound.cpp
 
@@ -920,6 +963,8 @@ include_directories(
 	common/audio/music
 	common/thirdparty
 	common/textures
+	common/textures/formats
+	common/textures/hires
 	common/filesystem
 	common/utility
 	common/console
@@ -1038,6 +1083,11 @@ source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/
 source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/engine/.+")
 source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
+source_group("Common\\Textures\\Hires" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/.+")
+source_group("Common\\Textures\\Hires\\HQ Resize" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/hqnx/.+")
+source_group("Common\\Textures\\Hires\\HQ Resize MMX version" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/hqnx_asm/.+")
+source_group("Common\\Textures\\Hires\\XBRZ" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/xbr/.+")
+source_group("Common\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/formats/.+")
 source_group("Common\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/.+")
 source_group("Common\\Third Party\\Math" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/math/.+")
 source_group("Common\\Third Party\\RapidJSON" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/rapidjson/.+")

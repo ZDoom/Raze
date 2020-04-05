@@ -17,6 +17,7 @@
 #include "bitmap.h"
 #include "v_video.h"
 #include "flatvertices.h"
+#include "texturemanager.h"
 #include "../../glbackend/glbackend.h"
 
 static int32_t curextra=MAXTILES;
@@ -395,8 +396,8 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     sk->param = param;
     sk->specpower = specpower;
     sk->specfactor = specfactor;
-	sk->texture = TileFiles.GetTexture(skinfn);
-	if (!sk->texture)
+	sk->texture = TexMan.CheckForTexture(skinfn, ETextureType::Any);
+	if (!sk->texture.isValid())
 	{
 		Printf("Unable to load %s as model skin\n", skinfn);
 	}
@@ -481,7 +482,7 @@ FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bo
         {
 			if (exact) *exact = true;
             //Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
-            return sk->texture;
+            return TexMan.GetTexture(sk->texture);
         }
         //If no match, give highest priority to number, then pal.. (Parkar's request, 02/27/2005)
         else if ((sk->palette ==   0) && (sk->skinnum == number) && (sk->surfnum == surf) && (i < 5)) { i = 5; skzero = sk; }
@@ -500,7 +501,7 @@ FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bo
 	{
 		//Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
 		if (exact) *exact = false;
-		return skzero->texture;
+        return TexMan.GetTexture(skzero->texture);
 	}
 	else
 		return nullptr;
@@ -883,8 +884,8 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
         if (m->numskins > 0)
         {
 			FStringf fn("%s%s", m->basepath, m->skinfn);
-			sk->texture = TileFiles.GetTexture(fn);
-			if (!sk->texture)
+			sk->texture = TexMan.CheckForTexture(fn, ETextureType::Any);
+			if (!sk->texture.isValid())
 			{
 				Printf("Unable to load %s as model skin\n", m->skinfn);
 			}

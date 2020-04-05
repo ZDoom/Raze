@@ -35,6 +35,7 @@
 #include "hwrenderer/data/flatvertices.h"
 #include "r_videoscale.h"
 #include "v_video.h"
+#include "templates.h"
 
 extern bool vid_hdr_active;
 

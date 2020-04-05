@@ -41,6 +41,7 @@
 #include "v_draw.h"
 #include "glbackend/glbackend.h"
 #include "palettecontainer.h"
+#include "texturemanager.h"
 
 #include "fontinternals.h"
 
@@ -89,12 +90,12 @@ struct HexDataSource
 static HexDataSource hexdata;
 
 // This is a font character that reads RLE compressed data.
-class FHexFontChar : public FTileTexture
+class FHexFontChar : public FImageSource
 {
 public:
 	FHexFontChar(uint8_t *sourcedata, int swidth, int width, int height);
 
-	void Create8BitPixels(uint8_t *buffer) override;
+	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
 
 protected:
 	int SourceWidth;
@@ -114,10 +115,10 @@ FHexFontChar::FHexFontChar (uint8_t *sourcedata, int swidth, int width, int heig
 : SourceData (sourcedata)
 {
 	SourceWidth = swidth;
-	Size.x = width;
-	Size.y = height;
-	PicAnim.xofs = 0;
-	PicAnim.yofs = 0;
+	Width = width;
+	Height = height;
+	LeftOffset = 0;
+	TopOffset = 0;
 }
 
 //==========================================================================
@@ -128,33 +129,35 @@ FHexFontChar::FHexFontChar (uint8_t *sourcedata, int swidth, int width, int heig
 //
 //==========================================================================
 
-void FHexFontChar::Create8BitPixels(uint8_t *Pixels)
+TArray<uint8_t> FHexFontChar::CreatePalettedPixels(int)
 {
-	int destSize = Size.x * Size.y;
-	uint8_t *dest_p = Pixels;
+	int destSize = Width * Height;
+	TArray<uint8_t> Pixels(destSize, true);
+	uint8_t *dest_p = Pixels.Data();
 	const uint8_t *src_p = SourceData;
 
 	memset(dest_p, 0, destSize);
-	for (int y = 0; y < Size.y; y++)
+	for (int y = 0; y < Height; y++)
 	{
 		for (int x = 0; x < SourceWidth; x++)
 		{
 			int byte = *src_p++;
-			uint8_t *pixelstart = dest_p + 8 * x * Size.y + y;
+			uint8_t *pixelstart = dest_p + 8 * x * Height + y;
 			for (int bit = 0; bit < 8; bit++)
 			{
 				if (byte & (128 >> bit))
 				{
-					pixelstart[bit*Size.y] = y+2;
+					pixelstart[bit*Height] = y+2;
 					// Add a shadow at the bottom right, similar to the old console font.
-					if (y != Size.y - 1)
+					if (y != Height - 1)
 					{
-						pixelstart[bit*Size.y + Size.y + 1] = 1;
+						pixelstart[bit*Height + Height + 1] = 1;
 					}
 				}
 			}
 		}
 	}
+	return Pixels;
 }
 
 class FHexFontChar2 : public FHexFontChar
@@ -162,7 +165,7 @@ class FHexFontChar2 : public FHexFontChar
 public:
 	FHexFontChar2(uint8_t *sourcedata, int swidth, int width, int height);
 
-	void Create8BitPixels(uint8_t* buffer) override;
+	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
 };
 
 
@@ -187,10 +190,11 @@ FHexFontChar2::FHexFontChar2(uint8_t *sourcedata, int swidth, int width, int hei
 //
 //==========================================================================
 
-void FHexFontChar2::Create8BitPixels(uint8_t* Pixels)
+TArray<uint8_t> FHexFontChar2::CreatePalettedPixels(int)
 {
-	int destSize = Size.x * Size.y;
-	uint8_t *dest_p = Pixels;
+	int destSize = Width * Height;
+	TArray<uint8_t> Pixels(destSize, true);
+	uint8_t *dest_p = Pixels.Data();
 
 	assert(SourceData);
 	if (SourceData)
@@ -198,17 +202,17 @@ void FHexFontChar2::Create8BitPixels(uint8_t* Pixels)
 		auto drawLayer = [&](int ix, int iy, int color)
 		{
 			const uint8_t *src_p = SourceData;
-			for (int y = 0; y < Size.y - 2; y++)
+			for (int y = 0; y < Height - 2; y++)
 			{
 				for (int x = 0; x < SourceWidth; x++)
 				{
 					int byte = *src_p++;
-					uint8_t *pixelstart = dest_p + (ix + 8 * x) * Size.y + (iy + y);
+					uint8_t *pixelstart = dest_p + (ix + 8 * x) * Height + (iy + y);
 					for (int bit = 0; bit < 8; bit++)
 					{
 						if (byte & (128 >> bit))
 						{
-							pixelstart[bit*Size.y] = color;
+							pixelstart[bit*Height] = color;
 						}
 					}
 				}
@@ -222,6 +226,7 @@ void FHexFontChar2::Create8BitPixels(uint8_t* Pixels)
 			drawLayer(xx, yy, darkcolor);
 		drawLayer(1, 1, brightcolor);
 	}
+	return Pixels;
 }
 
 
@@ -282,9 +287,10 @@ public:
 			{
 				auto offset = hexdata.glyphmap[i];
 				int size = hexdata.glyphdata[offset] / 16;
-				Chars[i - FirstChar].TranslatedPic = new FHexFontChar (&hexdata.glyphdata[offset+1], size, size * 9, 16);
+				Chars[i - FirstChar].TranslatedPic = new FImageTexture(new FHexFontChar (&hexdata.glyphdata[offset+1], size, size * 9, 16));
+				Chars[i - FirstChar].TranslatedPic->SetUseType(ETextureType::FontChar);
 				Chars[i - FirstChar].XMove = size * spacing;
-				TileFiles.AllTiles.Push(Chars[i - FirstChar].TranslatedPic);	// store it in the tile list for automatic deletion.
+				TexMan.AddTexture(Chars[i - FirstChar].TranslatedPic);
 			}
 			else Chars[i - FirstChar].XMove = spacing;
 
@@ -353,9 +359,10 @@ public:
 			{
 				auto offset = hexdata.glyphmap[i];
 				int size = hexdata.glyphdata[offset] / 16;
-				Chars[i - FirstChar].TranslatedPic = new FHexFontChar2(&hexdata.glyphdata[offset + 1], size, 2 + size * 8, 18);
+				Chars[i - FirstChar].TranslatedPic = new FImageTexture(new FHexFontChar2(&hexdata.glyphdata[offset + 1], size, 2 + size * 8, 18));
+				Chars[i - FirstChar].TranslatedPic->SetUseType(ETextureType::FontChar);
 				Chars[i - FirstChar].XMove = size * spacing;
-				TileFiles.AllTiles.Push(Chars[i - FirstChar].TranslatedPic);	// store it in the tile list for automatic deletion.
+				TexMan.AddTexture(Chars[i - FirstChar].TranslatedPic);
 			}
 			else Chars[i - FirstChar].XMove = spacing;
 
@@ -378,7 +385,8 @@ public:
 
 		SimpleTranslation(colors, othertranslation, otherreverse, otherluminosity);
 
-		FRemapTable remap;
+		FRemapTable remap(ActiveColors);
+		remap.Remap[0] = 0;
 		remap.Palette[0] = 0;
 
 		for (unsigned l = 1; l < 18; l++)
@@ -401,6 +409,7 @@ public:
 					r = clamp(r, 0, 255);
 					g = clamp(g, 0, 255);
 					b = clamp(b, 0, 255);
+					remap.Remap[l] = ColorMatcher.Pick(r, g, b);
 					remap.Palette[l] = PalEntry(255, r, g, b);
 					break;
 				}

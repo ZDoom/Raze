@@ -68,21 +68,13 @@ void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
 
 FHardwareTexture* GLInstance::CreateIndexedTexture(FTexture* tex)
 {
-	auto siz = tex->GetSize();
-
-	const uint8_t* p = tex->Get8BitPixels();
-	TArray<uint8_t> store(siz.x * siz.y, true);
-	if (!p)
-	{
-		tex->Create8BitPixels(store.Data());
-		p = store.Data();
-	}
+	TArray<uint8_t> store = tex->Get8BitPixels(false);
 
 	auto glpic = GLInterface.NewTexture();
-	glpic->CreateTexture(siz.x, siz.y, FHardwareTexture::Indexed, false);
+	glpic->CreateTexture(tex->GetTexelWidth(), tex->GetTexelHeight(), FHardwareTexture::Indexed, false);
 
-	TArray<uint8_t> flipped(siz.x * siz.y, true);
-	FlipNonSquareBlock(flipped.Data(), p, siz.y, siz.x, siz.y);
+	TArray<uint8_t> flipped(store.Size(), true);
+	FlipNonSquareBlock(flipped.Data(), store.Data(), tex->GetTexelHeight(), tex->GetTexelWidth(), tex->GetTexelHeight());
 	glpic->LoadTexture(flipped.Data());
 	return glpic;
 }
@@ -95,9 +87,7 @@ FHardwareTexture* GLInstance::CreateIndexedTexture(FTexture* tex)
 
 FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency, bool rgb8bit)
 {
-	auto palette = palid < 0? nullptr : palmanager.GetPaletteData(palid);
-	if (palid >= 0 && palette == nullptr) return nullptr;
-	auto texbuffer = tex->CreateTexBuffer(palette, checkfulltransparency? 0: CTF_ProcessData);
+	auto texbuffer = tex->CreateTexBuffer(palid, checkfulltransparency? 0: CTF_ProcessData);
 	// Check if the texture is fully transparent. When creating a brightmap such textures can be discarded.
 	if (checkfulltransparency)
 	{
@@ -132,18 +122,18 @@ FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, b
 FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 {
 	if (textype == TT_INDEXED) palid = -1;
-	auto phwtex = tex->GetHardwareTexture(palid);
-	if (phwtex) return *phwtex;
+	auto phwtex = tex->SystemTextures.GetHardwareTexture(palid, false);
+	if (phwtex) return static_cast<FHardwareTexture*>(phwtex);
 
 	FHardwareTexture *hwtex = nullptr;
 	if (textype == TT_INDEXED)
 		hwtex = CreateIndexedTexture(tex);
-	else if (tex->GetUseType() != FTexture::Canvas)
+	else if (!tex->isCanvas())
 		hwtex = CreateTrueColorTexture(tex, textype == TT_HICREPLACE? -1 : palid, textype == TT_BRIGHTMAP, textype == TT_BRIGHTMAP);
 	else
 		hwtex = nullptr;
 	
-	if (hwtex) tex->SetHardwareTexture(palid, hwtex);
+	if (hwtex) tex->SystemTextures.AddHardwareTexture(palid, false, hwtex);
 	return hwtex;
 }
 
@@ -162,6 +152,7 @@ struct TexturePick
 	PalEntry basepalTint;	// can the base palette be done with a global tint effect?
 };
 
+#if 0
 TexturePick PickTexture(int tilenum, int basepal, int palette)
 {
 	TexturePick pick = { nullptr, 0, -1, 0xffffff, 0xffffff };
@@ -207,10 +198,11 @@ TexturePick PickTexture(int tilenum, int basepal, int palette)
 	}
 	return pick;
 }
+#endif
 
 bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int method, int sampleroverride, FTexture *det, float detscale, FTexture *glow)
 {
-	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return false;
+	if (tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
 	int usepalette = fixpalette >= 0 ? fixpalette : curbasepal;
 	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
 	GLInterface.SetPalette(usepalette);
@@ -228,8 +220,8 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	auto& h = hictinting[palette];
 	bool applytint = false;
 	// Canvas textures must be treated like hightile replacements in the following code.
-	auto rep = (hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? tex->FindReplacement(palette) : nullptr;
-	if (rep || tex->GetUseType() == FTexture::Canvas)
+	auto rep = (hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, palette) : nullptr;
+	if (rep || tex->isCanvas())
 	{
 		if (usepalette != 0)
 		{
@@ -257,8 +249,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				applytint = true;
 				if (!(h.f & HICTINT_APPLYOVERPALSWAP)) usepalswap = 0;
 			}
-#pragma message("fix color 255")
-			lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false, 0);// fixpalette < 0 ? !!(curpaletteflags & Pal_Fullscreen) : 0);
+			lookuppal = TRANSLATION(usepalette + 1, usepalswap);
 		}
 	}
 
@@ -290,6 +281,8 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			//GLInterface.SetMatrix(Matrix_Texture, &texmat);
 		}
 
+		// This needs to be redone as material properties. The implementation here wasn't good anyway.
+#if 0
 		// Also load additional layers needed for this texture.
 		if (hw_detailmapping && hw_hightile)
 		{
@@ -342,7 +335,6 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				texbound[1] = true;
 			}
 		}
-#if 1
 		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap])
 		{
 			if (TextureType == TT_HICREPLACE)
@@ -388,11 +380,13 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	else return false;
 
 	float al = 0.5f;
+#if 0
 	if (TextureType == TT_HICREPLACE)
 	{
 		al = ((unsigned)picnum < MAXTILES && alphahackarray[picnum] != 0) ? alphahackarray[picnum] * (1.f / 255.f) :
 			(tex->alphaThreshold >= 0 ? tex->alphaThreshold * (1.f / 255.f) : 0.f);
 	}
+#endif
 	GLInterface.SetAlphaThreshold(al);
 	return true;
 }
@@ -411,8 +405,30 @@ bool GLInstance::SetNamedTexture(FTexture* tex, int palette, int sampler)
 	if (!mtex) return false;
 
 	BindTexture(0, mtex, sampler);
-	GLInterface.SetAlphaThreshold(tex->isTranslucent()? 0.f : 0.5f);
+	GLInterface.SetAlphaThreshold(tex->GetTranslucency()? 0.f : 0.5f);
 	return true;
 }
 
+// stand-ins for the texture system. Nothing of this is used right now, but needs to be present to satisfy the linker
 
+int PalCheck(int tex)
+{
+	return tex;
+}
+
+IHardwareTexture* CreateHardwareTexture()
+{
+	return GLInterface.NewTexture();
+}
+
+void DeleteSoftwareTexture(FSoftwareTexture *)
+{
+
+}
+
+void InitBuildTiles()
+{
+
+}
+
+TArray<UserShaderDesc> usershaders;

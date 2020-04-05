@@ -416,7 +416,7 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 			{
 				SavePic = PNGTexture_CreateFromFile(png, node->Filename);
 				delete png;
-				if (SavePic && SavePic->GetWidth() == 1 && SavePic->GetHeight() == 1)
+				if (SavePic && SavePic->GetDisplayWidth() == 1 && SavePic->GetDisplayHeight() == 1)
 				{
 					delete SavePic;
 					SavePic = nullptr;

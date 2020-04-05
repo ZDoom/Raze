@@ -29,12 +29,6 @@ struct PaletteData
 	FHardwareTexture* paltexture;
 };
 
-struct PalShade
-{
-	int palindex;
-	float mulshade, addshade;
-};
-
 struct PalswapData
 {
 	int32_t crc32;
@@ -55,8 +49,6 @@ class PaletteManager
 	// The current engine limit is 256 palettes and 256 palswaps.
 	uint32_t palettemap[256] = {};
 	uint32_t palswapmap[256] = {};
-	float addshade[256] = {};
-	float mulshade[256] = {};
 	uint32_t lastindex = ~0u;
 	uint32_t lastsindex = ~0u;
 	int numshades = 1;

@@ -3,8 +3,9 @@ class FBitmap;
 class FTexture;
 
 #include "tarray.h"
+#include "hw_ihwtexture.h"
 
-class FHardwareTexture //: public IHardwareTexture
+class FHardwareTexture : public IHardwareTexture
 {
 public:
 	enum
@@ -47,6 +48,12 @@ public:
 	void BindToFrameBuffer(int w, int h);
 
 	friend class FGameTexture;
+
+	// currently unused
+	virtual void AllocateBuffer(int w, int h, int texelsize) {}
+	virtual uint8_t* MapBuffer() { return nullptr;  }
+	virtual unsigned int CreateTexture(unsigned char* buffer, int w, int h, int texunit, bool mipmap, const char* name) { return 0; }
+
 };
 
 

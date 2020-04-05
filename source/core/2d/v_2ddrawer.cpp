@@ -335,17 +335,17 @@ void F2DDrawer::AddFlatFill(int left, int top, int right, int bottom, FTexture *
 	// scaling is not used here.
 	if (!local_origin)
 	{
-		fU1 = float(left) / src->GetWidth();
-		fV1 = float(top) / src->GetHeight();
-		fU2 = float(right) / src->GetWidth();
-		fV2 = float(bottom) / src->GetHeight();
+		fU1 = float(left) / src->GetDisplayWidth();
+		fV1 = float(top) / src->GetDisplayHeight();
+		fU2 = float(right) / src->GetDisplayWidth();
+		fV2 = float(bottom) / src->GetDisplayHeight();
 	}
 	else
 	{
 		fU1 = 0;
 		fV1 = 0;
-		fU2 = float(right - left) / src->GetWidth();
-		fV2 = float(bottom - top) / src->GetHeight();
+		fU2 = float(right - left) / src->GetDisplayWidth();
+		fV2 = float(bottom - top) / src->GetDisplayHeight();
 	}
 	dg.mVertIndex = (int)mVertices.Reserve(4);
 	auto ptr = &mVertices[dg.mVertIndex];
@@ -667,7 +667,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	float alpha = GetAlphaFromBlend(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
 	p.a = (uint8_t)(alpha * 255);
 
-	vec2_16_t const siz = dg.mTexture->GetSize();
+	vec2_t const siz = { dg.mTexture->GetDisplayWidth(), dg.mTexture->GetDisplayHeight() };
 	vec2_16_t ofs = { 0, 0 };
 
 	if (!(dastat & RS_TOPLEFT))
