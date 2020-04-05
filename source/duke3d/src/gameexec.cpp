@@ -990,7 +990,7 @@ static int32_t A_GetWaterZOffset(int const spriteNum)
             return 0;
 
         // fix for flying/jumping monsters getting stuck in water
-        if ((AC_MOVFLAGS(pSprite, pActor) & jumptoplayer_only) || (G_HaveActor(pSprite->picnum) && A_GetVerticalVel(pActor) != 0))
+        if ((AC_MOVFLAGS(pSprite, pActor) & jumptoplayer_only) || (G_TileHasActor(pSprite->picnum) && A_GetVerticalVel(pActor) != 0))
             return 0;
 
         return ACTOR_ONWATER_ADDZ;
@@ -3954,7 +3954,7 @@ badindex:
                         pActor->flags       = 0;
                         pSprite->hitag      = 0;
 
-                        if (G_HaveActor(pSprite->picnum))
+                        if (G_TileHasActor(pSprite->picnum))
                         {
                             auto actorptr = g_tile[pSprite->picnum].execPtr;
                             // offsets

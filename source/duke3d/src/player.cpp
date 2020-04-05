@@ -1210,14 +1210,14 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
 
             if (playerNum >= 0)
             {
-                spawnedSprite = Proj_InsertShotspark(&hitData, spriteNum, projecTile, 10, shootAng, G_DefaultActorHealth(projecTile) + (krand() % 6));
+                spawnedSprite = Proj_InsertShotspark(&hitData, spriteNum, projecTile, 10, shootAng, G_DefaultActorHealthForTile(projecTile) + (krand() % 6));
 
                 if (P_PostFireHitscan(playerNum, spawnedSprite, &hitData, spriteNum, projecTile, Zvel, -SMALLSMOKE, BULLETHOLE, SHOTSPARK1, 0) < 0)
                     return -1;
             }
             else
             {
-                spawnedSprite = A_PostFireHitscan(&hitData, spriteNum, projecTile, Zvel, shootAng, G_DefaultActorHealth(projecTile), -SMALLSMOKE,
+                spawnedSprite = A_PostFireHitscan(&hitData, spriteNum, projecTile, Zvel, shootAng, G_DefaultActorHealthForTile(projecTile), -SMALLSMOKE,
                     SHOTSPARK1);
             }
 

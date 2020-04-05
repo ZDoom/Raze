@@ -3171,7 +3171,7 @@ int A_Spawn(int spriteNum, int tileNum)
         }
 
     // implementation of the default case
-    if (G_HaveActor(pSprite->picnum))
+    if (G_TileHasActor(pSprite->picnum))
     {
         if (spriteNum == -1 && pSprite->lotag > ud.player_skill)
         {
@@ -3880,7 +3880,7 @@ PALONLY:
             break;
         }
 
-        if (G_HaveActor(pSprite->picnum))
+        if (G_TileHasActor(pSprite->picnum))
         {
 #if !defined LUNATIC
             if ((unsigned)scrofs_action + ACTION_PARAM_COUNT > (unsigned)g_scriptSize)

@@ -1371,7 +1371,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                     otherPlayerDist = 0;
                 }
 
-                if (G_HaveActor(sprite[spriteNum].picnum))
+                if (G_TileHasActor(sprite[spriteNum].picnum))
                     A_Execute(spriteNum, P_GetP(pSprite), otherPlayerDist);
 
                 pPlayer->q16angvel    = P_GetQ16AngleDeltaForTic(pPlayer);
@@ -2737,7 +2737,7 @@ DETONATE:
                 case STEAM__STATIC:
                 case CEILINGSTEAM__STATIC:
                 case WATERBUBBLEMAKER__STATIC:
-                    if (!G_HaveActor(sprite[spriteNum].picnum))
+                    if (!G_TileHasActor(sprite[spriteNum].picnum))
                         goto next_sprite;
                     {
                         int32_t playerDist;
@@ -2911,7 +2911,7 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
     {
         case PROJECTILE_HITSCAN:
         {
-            if (!G_HaveActor(sprite[spriteNum].picnum))
+            if (!G_TileHasActor(sprite[spriteNum].picnum))
                 return;
             int32_t   playerDist;
             int const playerNum = A_FindPlayer(pSprite, &playerDist);
@@ -3198,7 +3198,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
         {
             case SHOTSPARK1__STATIC:
             {
-                if (!G_HaveActor(sprite[spriteNum].picnum))
+                if (!G_TileHasActor(sprite[spriteNum].picnum))
                     goto next_sprite;
                 int32_t   playerDist;
                 int const playerNum = A_FindPlayer(pSprite, &playerDist);
@@ -4048,7 +4048,7 @@ ACTOR_STATIC void G_MoveActors(void)
             if (!WORLDTOUR)
                 goto next_sprite;
 
-            if (G_HaveActor(sprite[spriteNum].picnum))
+            if (G_TileHasActor(sprite[spriteNum].picnum))
             {
                 int32_t playerDist;
                 int const playerNum = A_FindPlayer(pSprite, &playerDist);
@@ -5375,7 +5375,7 @@ DETONATEB:
             }
         }
 
-        if (G_HaveActor(sprite[spriteNum].picnum))
+        if (G_TileHasActor(sprite[spriteNum].picnum))
         {
             int32_t playerDist;
             int const playerNum = A_FindPlayer(pSprite, &playerDist);
@@ -5474,7 +5474,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 case LASERSITE__STATIC:
 #endif
                 {
-                    if (!G_HaveActor(sprite[spriteNum].picnum))
+                    if (!G_TileHasActor(sprite[spriteNum].picnum))
                         goto next_sprite;
                     int const playerNum = A_FindPlayer(pSprite, &playerDist);
                     A_Execute(spriteNum, playerNum, playerDist);
@@ -5919,7 +5919,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 goto next_sprite;
 
             case FIREFLYFLYINGEFFECT__STATIC:
-                if (WORLDTOUR && G_HaveActor(sprite[spriteNum].picnum))
+                if (WORLDTOUR && G_TileHasActor(sprite[spriteNum].picnum))
                 {
                     int playerDist;
                     int const playerNum = A_FindPlayer(pSprite, &playerDist);

@@ -2072,7 +2072,7 @@ void A_DamageObject_Duke3D(int spriteNum, int const dmgSrc)
     case FUELPOD__STATIC:
     case SOLARPANNEL__STATIC:
     case ANTENNA__STATIC:
-        if (sprite[dmgSrc].extra != G_DefaultActorHealth(SHOTSPARK1))
+        if (sprite[dmgSrc].extra != G_DefaultActorHealthForTile(SHOTSPARK1))
         {
             for (bssize_t j=15; j>0; j--)
                 A_InsertSprite(SECT(spriteNum),SX(spriteNum),SY(spriteNum),sector[SECT(spriteNum)].floorz-ZOFFSET4-(j<<9),SCRAP1+(krand()&15),-8,64,64,

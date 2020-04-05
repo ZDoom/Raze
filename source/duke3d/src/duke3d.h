@@ -132,14 +132,14 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 
 BEGIN_DUKE_NS
 
-static inline int32_t G_HaveActor(int spriteNum)
+static inline int32_t G_TileHasActor(int const tileNum)
 {
-    return g_tile[spriteNum].execPtr!=NULL;
+    return g_tile[tileNum].execPtr!=NULL;
 }
 
-static inline int32_t G_DefaultActorHealth(int spriteNum)
+static inline int32_t G_DefaultActorHealthForTile(int const tileNum)
 {
-    return G_HaveActor(spriteNum) ? g_tile[spriteNum].execPtr[0] : 0;
+    return G_TileHasActor(tileNum) ? g_tile[tileNum].execPtr[0] : 0;
 }
 
 

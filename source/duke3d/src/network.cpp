@@ -918,7 +918,7 @@ static void Net_CopyActorFromNet(const netactor_t* netActor, actor_t *gameActor)
     bool aiIDChanged = (gameActor->t_data[5] != netActor->t_data_5);
 
     // If the sprite is a CON sprite, don't overwrite AC_Action_Count
-    bool isActor = G_HaveActor(netActor->spr_picnum);
+    bool isActor = G_TileHasActor(netActor->spr_picnum);
 
     // Fixes ambient sound infinite sound replay glitch (stand in the outdoor area of E1L1, the "airplane noise" will get very loud and loop endlessly.
     bool isSoundActor = (DYNAMICTILEMAP(netActor->picnum) == MUSICANDSFX);
