@@ -97,7 +97,7 @@ SWBOOL NightVision = FALSE;
 extern SWBOOL FinishedLevel;
 
 //#define PLAYER_TURN_SCALE (8)
-#define PLAYER_TURN_SCALE 2.4f
+#define PLAYER_TURN_SCALE (12)
 
 // the smaller the number the slower the going
 #define PLAYER_RUN_FRICTION (50000L)
@@ -1332,7 +1332,7 @@ DoPlayerTeleportPause(PLAYERp pp)
 void
 DoPlayerTeleportToSprite(PLAYERp pp, SPRITEp sp)
 {
-    pp->q16ang = pp->q16ang = fix16_from_int(sp->ang);
+    pp->q16ang = fix16_from_int(sp->ang);
     pp->posx = pp->oposx = pp->oldposx = sp->x;
     pp->posy = pp->oposy = pp->oldposy = sp->y;
 
@@ -1538,8 +1538,6 @@ DoPlayerCrawlHeight(PLAYERp pp)
 void
 DoPlayerTurn(PLAYERp pp)
 {
-    fix16_t angvel;
-
 #define TURN_SHIFT 2
 
     if (!TEST(pp->Flags, PF_TURN_180))
@@ -1594,14 +1592,9 @@ DoPlayerTurn(PLAYERp pp)
             return;
     }
 
-    angvel = fix16_smul(pp->input.q16avel, fix16_from_float(PLAYER_TURN_SCALE));
-
-    if (angvel != 0)
+    if (pp->input.q16avel != 0)
     {
-        // running is not handled here now
-        angvel = fix16_sdiv(angvel, fix16_from_int(4));
-
-        pp->q16ang = fix16_sadd(pp->q16ang, fix16_sdiv(fix16_smul(angvel, fix16_from_int(synctics)), fix16_from_int(32))) & 0x7FFFFFF;
+        pp->q16ang = fix16_sadd(pp->q16ang, fix16_sdiv(fix16_smul(pp->input.q16avel, fix16_from_int(synctics)), fix16_from_int(32))) & 0x7FFFFFF;
 
         // update players sprite angle
         // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
