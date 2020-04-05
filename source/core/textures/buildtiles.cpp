@@ -933,10 +933,10 @@ int tileDeleteReplacement(int picnum, int palnum)
 
 void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int tilenum2, int sx2, int sy2)
 {
-	int xsiz1 = tilesiz[tilenum1].x;
-	int ysiz1 = tilesiz[tilenum1].y;
-	int xsiz2 = tilesiz[tilenum2].x;
-	int ysiz2 = tilesiz[tilenum2].y;
+	int xsiz1 = tileWidth(tilenum1);
+	int ysiz1 = tileHeight(tilenum1);
+	int xsiz2 = tileWidth(tilenum2);
+	int ysiz2 = tileHeight(tilenum2);
 	if (xsiz1 > 0 && ysiz1 > 0 && xsiz2 > 0 && ysiz2 > 0)
 	{
 		auto p1 = tilePtr(tilenum1);
