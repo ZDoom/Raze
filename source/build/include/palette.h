@@ -49,7 +49,7 @@ inline void paletteClearLookupTable(int num)
 
 enum
 {
-    Translation_BasePalettes,
+    Translation_BasePalettes = 1,
     Translation_Remap,
 };
 

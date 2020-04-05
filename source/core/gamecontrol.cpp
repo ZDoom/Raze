@@ -712,6 +712,7 @@ int RunGame()
 	{
 		playername = userConfig.CommandName;
 	}
+	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
 	TexMan.Init([]() {}, [](BuildInfo &) {});
 	V_InitFonts();
 	TileFiles.Init();

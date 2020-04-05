@@ -432,7 +432,7 @@ protected:
 	uint16_t Width, Height;
 	int16_t _LeftOffset[2], _TopOffset[2];
 
-	FTexture(const char *name = NULL, int lumpnum = -1);
+	FTexture (const char *name = NULL, int lumpnum = -1);
 
 public:
 	FTextureBuffer CreateTexBuffer(int translation, int flags = 0);

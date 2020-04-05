@@ -32,15 +32,13 @@
 **
 */
 
+#include "engineerrors.h"
 #include "textures.h"
 #include "image.h"
 #include "v_font.h"
+#include "filesystem.h"
 #include "utf8.h"
 #include "sc_man.h"
-#include "imagehelpers.h"
-#include "v_draw.h"
-#include "glbackend/glbackend.h"
-#include "palettecontainer.h"
 #include "texturemanager.h"
 
 #include "fontinternals.h"
@@ -58,10 +56,11 @@ struct HexDataSource
 	//
 	//==========================================================================
 
-	void ParseDefinition(const char *fname)
+	void ParseDefinition(int lumpnum)
 	{
 		FScanner sc;
-		sc.Open(fname);
+
+		sc.OpenLumpNum(lumpnum);
 		sc.SetCMode(true);
 		glyphdata.Push(0);	// ensure that index 0 can be used as 'not present'.
 		while (sc.GetString())
@@ -243,8 +242,11 @@ public:
 	//
 	//==========================================================================
 
-	FHexFont (const char *fontname, const char *lump)
+	FHexFont (const char *fontname, int lump)
+		: FFont(lump)
 	{
+		assert(lump >= 0);
+
 		FontName = fontname;
 		
 		FirstChar = hexdata.FirstChar;
@@ -313,9 +315,10 @@ public:
 	//
 	//==========================================================================
 
-	FHexFont2(const char *fontname, const char *lump)
+	FHexFont2(const char *fontname, int lump)
+		: FFont(lump)
 	{
-		assert(lump != nullptr);
+		assert(lump >= 0);
 
 		FontName = fontname;
 
@@ -388,6 +391,7 @@ public:
 		FRemapTable remap(ActiveColors);
 		remap.Remap[0] = 0;
 		remap.Palette[0] = 0;
+		remap.ForFont = true;
 
 		for (unsigned l = 1; l < 18; l++)
 		{
@@ -415,8 +419,8 @@ public:
 				}
 			}
 		}
+		Translations[CR_UNTRANSLATED] = GPalette.StoreTranslation(TRANSLATION_Internal, &remap);
 		forceremap = true;
-		Ranges[CR_UNTRANSLATED] = GLInterface.GetPaletteIndex(remap.Palette);
 
 	}
 
@@ -429,7 +433,7 @@ public:
 //
 //==========================================================================
 
-FFont *CreateHexLumpFont (const char *fontname, const char * lump)
+FFont *CreateHexLumpFont (const char *fontname, int lump)
 {
 	if (hexdata.FirstChar == INT_MAX) hexdata.ParseDefinition(lump);
 	return new FHexFont(fontname, lump);
@@ -441,7 +445,7 @@ FFont *CreateHexLumpFont (const char *fontname, const char * lump)
 //
 //==========================================================================
 
-FFont *CreateHexLumpFont2(const char *fontname, const char* lump)
+FFont *CreateHexLumpFont2(const char *fontname, int lump)
 {
 	if (hexdata.FirstChar == INT_MAX) hexdata.ParseDefinition(lump);
 	return new FHexFont2(fontname, lump);

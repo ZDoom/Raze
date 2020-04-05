@@ -255,7 +255,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				applytint = true;
 				if (!(h.f & HICTINT_APPLYOVERPALSWAP)) usepalswap = 0;
 			}
-			lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false, 0);
+			lookuppal = TRANSLATION(usepalette + Translation_Remap, usepalswap);
 		}
 	}
 

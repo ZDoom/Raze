@@ -605,7 +605,6 @@ file( GLOB HEADER_FILES
 	libxmp-lite/src/*.h
 	core/*.h
 	core/2d/*.h
-	core/fonts/*.h
 	core/utility/*.h
 	core/utility/rapidjson/*.h
 	core/console/*.h
@@ -626,6 +625,7 @@ file( GLOB HEADER_FILES
 	common/console/*.h
 	common/utility/*.h
 	common/engine/*.h
+	common/fonts/*.h
 	common/objects/*.h
 	common/filesystem/*.h
 	common/textures/*.h
@@ -756,11 +756,6 @@ set (PCH_SOURCES
 	core/2d/v_drawtext.cpp
 	core/2d/screentext.cpp
 
-	core/fonts/font.cpp
-	core/fonts/hexfont.cpp
-	core/fonts/singlelumpfont.cpp
-	core/fonts/v_font.cpp
-
 	core/console/c_console.cpp
 	core/console/d_event.cpp
 
@@ -774,8 +769,12 @@ set (PCH_SOURCES
 	common/audio/music/i_soundfont.cpp
 	common/audio/music/music_config.cpp
 	common/thirdparty/sfmt/SFMT.cpp
-	common/textures/texture.cpp
-	common/textures/animtexture.cpp
+	common/fonts/singlelumpfont.cpp
+	common/fonts/singlepicfont.cpp
+	common/fonts/specialfont.cpp
+	common/fonts/font.cpp
+	common/fonts/hexfont.cpp
+	common/fonts/v_font.cpp
 	common/textures/hw_ihwtexture.cpp
 	common/textures/hw_material.cpp
 	common/fonts/v_text.cpp
@@ -787,6 +786,7 @@ set (PCH_SOURCES
 	common/textures/texturemanager.cpp
 	common/textures/multipatchtexturebuilder.cpp
 	common/textures/skyboxtexture.cpp
+	common/textures/animtexture.cpp
 	common/textures/formats/automaptexture.cpp
 	common/textures/formats/brightmaptexture.cpp
 	common/textures/formats/buildtexture.cpp
@@ -1019,6 +1019,7 @@ include_directories(
 	common/utility
 	common/console
 	common/engine
+	common/fonts
 	common/objects
 	common/rendering
 	common/rendering/gl_load
@@ -1123,7 +1124,6 @@ source_group("Core\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOUR
 source_group("Core\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/utility/.+")
 source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d/.+")
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
-source_group("Core\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/fonts/.+")
 source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/dobject/.+")
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
 source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
