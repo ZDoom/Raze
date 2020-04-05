@@ -125,8 +125,6 @@ public:
 		tmanips.Remove(cname);
 	}
 
-	
-
 private:
 
 	// texture counting

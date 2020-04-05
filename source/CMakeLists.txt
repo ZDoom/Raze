@@ -602,7 +602,6 @@ file( GLOB HEADER_FILES
 	libxmp-lite/src/*.h
 	core/*.h
 	core/2d/*.h
-	core/fonts/*.h
 	core/utility/*.h
 	core/utility/rapidjson/*.h
 	core/console/*.h
@@ -624,6 +623,7 @@ file( GLOB HEADER_FILES
 	common/console/*.h
 	common/utility/*.h
 	common/engine/*.h
+	common/fonts/*.h
 	common/filesystem/*.h
 	common/textures/*.h
 	common/textures/hires/hqnx/*.h
@@ -734,12 +734,7 @@ set (PCH_SOURCES
 	core/2d/v_drawtext.cpp
 	core/2d/screentext.cpp
 
-	core/fonts/font.cpp
-	core/fonts/hexfont.cpp
-	core/fonts/singlelumpfont.cpp
-	core/fonts/v_font.cpp
 	core/fonts/v_text.cpp
-
 	core/console/c_console.cpp
 	core/console/d_event.cpp
 
@@ -753,7 +748,12 @@ set (PCH_SOURCES
 	common/audio/music/i_soundfont.cpp
 	common/audio/music/music_config.cpp
 	common/thirdparty/sfmt/SFMT.cpp
-	common/textures/animtexture.cpp
+	common/fonts/singlelumpfont.cpp
+	common/fonts/singlepicfont.cpp
+	common/fonts/specialfont.cpp
+	common/fonts/font.cpp
+	common/fonts/hexfont.cpp
+	common/fonts/v_font.cpp
 	common/textures/hw_ihwtexture.cpp
 	common/textures/hw_material.cpp
 	common/textures/bitmap.cpp
@@ -764,6 +764,7 @@ set (PCH_SOURCES
 	common/textures/texturemanager.cpp
 	common/textures/multipatchtexturebuilder.cpp
 	common/textures/skyboxtexture.cpp
+	common/textures/animtexture.cpp
 	common/textures/formats/automaptexture.cpp
 	common/textures/formats/brightmaptexture.cpp
 	common/textures/formats/buildtexture.cpp
@@ -969,6 +970,7 @@ include_directories(
 	common/utility
 	common/console
 	common/engine
+	common/fonts
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 
 	${SYSTEM_SOURCES_DIR}
@@ -1064,7 +1066,6 @@ source_group("Core\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOUR
 source_group("Core\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/utility/.+")
 source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d/.+")
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
-source_group("Core\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/fonts/.+")
 source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/dobject/.+")
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
 source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
@@ -1081,6 +1082,7 @@ source_group("Common\\Audio\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_
 source_group("Common\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/console/.+")
 source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
 source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/engine/.+")
+source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Textures\\Hires" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/.+")

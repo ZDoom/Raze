@@ -202,13 +202,13 @@ public:
 		if (scale == 1)
 		{
 			DrawChar(twod, CurrentConsoleFont, CR_ORANGE, x, y, '\x1c', TAG_DONE);
-			DrawText(twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->CharWidth(0x1c), y,
+			DrawText(twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->GetCharWidth(0x1c), y,
 				&Text[StartPos], TAG_DONE);
 
 			if (cursor)
 			{
 				DrawChar(twod, CurrentConsoleFont, CR_YELLOW,
-					x + CurrentConsoleFont->CharWidth(0x1c) + (CursorPosCells - StartPosCells) * CurrentConsoleFont->CharWidth(0xb),
+					x + CurrentConsoleFont->GetCharWidth(0x1c) + (CursorPosCells - StartPosCells) * CurrentConsoleFont->GetCharWidth(0xb),
 					y, '\xb', TAG_DONE);
 			}
 		}
@@ -219,7 +219,7 @@ public:
 				DTA_VirtualHeight, screen->GetHeight() / scale,
 				DTA_KeepRatio, true, TAG_DONE);
 
-			DrawText(twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->CharWidth(0x1c), y,
+			DrawText(twod, CurrentConsoleFont, CR_ORANGE, x + CurrentConsoleFont->GetCharWidth(0x1c), y,
 				&Text[StartPos],
 				DTA_VirtualWidth, screen->GetWidth() / scale,
 				DTA_VirtualHeight, screen->GetHeight() / scale,
@@ -228,7 +228,7 @@ public:
 			if (cursor)
 			{
 				DrawChar(twod, CurrentConsoleFont, CR_YELLOW,
-					x + CurrentConsoleFont->CharWidth(0x1c) + (CursorPosCells - StartPosCells) * CurrentConsoleFont->CharWidth(0xb),
+					x + CurrentConsoleFont->GetCharWidth(0x1c) + (CursorPosCells - StartPosCells) * CurrentConsoleFont->GetCharWidth(0xb),
 					y, '\xb',
 					DTA_VirtualWidth, screen->GetWidth() / scale,
 					DTA_VirtualHeight, screen->GetHeight() / scale,
@@ -612,7 +612,7 @@ void C_InitConsole (int width, int height, bool ingame)
 	vidactive = ingame;
 	if (CurrentConsoleFont != NULL)
 	{
-		cwidth = CurrentConsoleFont->CharWidth ('M');
+		cwidth = CurrentConsoleFont->GetCharWidth ('M');
 		cheight = CurrentConsoleFont->GetHeight();
 	}
 	else

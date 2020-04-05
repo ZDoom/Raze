@@ -32,7 +32,7 @@ extern FString LookupTables[MAXPALOOKUPS];
 
 enum
 {
-    Translation_BasePalettes,
+    Translation_BasePalettes = 1,
     Translation_Remap,
 };
 

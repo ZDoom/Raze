@@ -712,6 +712,7 @@ int RunGame()
 	{
 		playername = userConfig.CommandName;
 	}
+	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
 	V_InitFonts();
 	C_CON_SetAliases();
 	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.

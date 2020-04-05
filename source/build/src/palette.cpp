@@ -21,6 +21,7 @@
 #include "colormatcher.h"
 #include "m_swap.h"
 #include "v_colortables.h"
+#include "v_font.h"
 #include "../../glbackend/glbackend.h"
 
 // FString is a nice and convenient way to have automatically managed shared storage.
@@ -39,6 +40,7 @@ palette_t palookupfog[MAXPALOOKUPS];
 // floor pal.
 // NOTE: g_noFloorPal[0] is irrelevant as it's never checked.
 int8_t g_noFloorPal[MAXPALOOKUPS];
+
 
 //==========================================================================
 //
@@ -78,8 +80,6 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency,
 
 void paletteLoadFromDisk(void)
 {
-    GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
-
     for (auto & x : glblend)
         x = defaultglblend;
 
@@ -265,7 +265,7 @@ void palettePostLoadLookups(void)
                         remap.Palette[j] = palette->Palette[remap.Remap[j]];
                     }
                     remap.NumEntries = 256;
-                    GPalette.UpdateTranslation(TRANSLATION(i + 1, l), &remap);
+                    GPalette.UpdateTranslation(TRANSLATION(i + Translation_Remap, l), &remap);
                 }
                 if (palette != basepalette) palette->Inactive = false;  // clear the marker flag
             }
@@ -290,10 +290,12 @@ void palettePostLoadLookups(void)
 
     for (auto remap : GPalette.uniqueRemaps)
     {
-        colorswap(remap);
+        if (!remap->ForFont) colorswap(remap);
     }
     colorswap(&GPalette.GlobalBrightmap);
     std::swap(GPalette.BaseColors[0], GPalette.BaseColors[255]);
+    // This is the earliest point where the fonts can be set up because they also add to the translation table list.
+    V_InitFonts();
 }
 
 //==========================================================================

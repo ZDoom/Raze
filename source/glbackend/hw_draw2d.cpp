@@ -177,7 +177,8 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 				auto saved = curbasepal;	// screw Build's dependencies on global state variables. We only need to change this for the following SetTexture call.
 				curbasepal = (cmd.mRemapIndex >> 8) & 0xff;
 				auto savedf = globalflags;
-				if (curbasepal > 0) globalflags |= GLOBAL_NO_GL_FULLBRIGHT;	// temp. hack to disable brightmaps.
+				if (curbasepal > 0) 
+					globalflags |= GLOBAL_NO_GL_FULLBRIGHT;	// temp. hack to disable brightmaps.
 				SetTexture(0, tex, cmd.mRemapIndex & 0xff, 4/*DAMETH_CLAMPED*/, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
 				curbasepal = saved;
 				globalflags = savedf;

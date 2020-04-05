@@ -33,16 +33,14 @@
 **
 */
 
+#include "engineerrors.h"
 #include "textures.h"
 #include "image.h"
 #include "v_font.h"
+#include "filesystem.h"
 #include "utf8.h"
 #include "fontchars.h"
 #include "texturemanager.h"
-#include "printf.h"
-#include "imagehelpers.h"
-#include "filesystem.h"
-#include "colormatcher.h"
 
 #include "fontinternals.h"
 
@@ -88,7 +86,7 @@ The FON2 header is followed by variable length data:
 class FSingleLumpFont : public FFont
 {
 public:
-	FSingleLumpFont (const char *fontname, const char * lump);
+	FSingleLumpFont (const char *fontname, int lump);
 
 protected:
 	void CheckFON1Chars (double *luminosity);
@@ -96,9 +94,10 @@ protected:
 	void FixupPalette (uint8_t *identity, double *luminosity, const uint8_t *palette,
 		bool rescale, PalEntry *out_palette);
 	void LoadTranslations ();
-	void LoadFON1 (const char * lump, const uint8_t *data);
-	void LoadFON2 (const char* lump, const uint8_t *data);
-	void LoadBMF (const char* lump, const uint8_t *data);
+	void LoadFON1 (int lump, const uint8_t *data);
+	void LoadFON2 (int lump, const uint8_t *data);
+	void LoadBMF (int lump, const uint8_t *data);
+	void CreateFontFromPic (FTextureID picnum);
 
 	static int BMFCompare(const void *a, const void *b);
 
@@ -121,18 +120,18 @@ protected:
 //
 //==========================================================================
 
-FSingleLumpFont::FSingleLumpFont (const char *name, const char * lump)
+FSingleLumpFont::FSingleLumpFont (const char *name, int lump) : FFont(lump)
 {
-	assert(lump != nullptr);
+	assert(lump >= 0);
 
 	FontName = name;
 
-	rawData = fileSystem.LoadFile(lump, 0);
-	auto& data = rawData;
+	FileData data1 = fileSystem.ReadFile (lump);
+	const uint8_t *data = (const uint8_t *)data1.GetMem();
 
 	if (data[0] == 0xE1 && data[1] == 0xE6 && data[2] == 0xD5 && data[3] == 0x1A)
 	{
-		LoadBMF(name, data.Data());
+		LoadBMF(lump, data);
 		Type = BMF;
 	}
 	else if (data[0] != 'F' || data[1] != 'O' || data[2] != 'N' ||
@@ -145,12 +144,12 @@ FSingleLumpFont::FSingleLumpFont (const char *name, const char * lump)
 		switch (data[3])
 		{
 		case '1':
-			LoadFON1 (name, data.Data());
+			LoadFON1 (lump, data);
 			Type = Fon1;
 			break;
 
 		case '2':
-			LoadFON2 (name, data.Data());
+			LoadFON2 (lump, data);
 			Type = Fon2;
 			break;
 		}
@@ -158,6 +157,28 @@ FSingleLumpFont::FSingleLumpFont (const char *name, const char * lump)
 
 	Next = FirstFont;
 	FirstFont = this;
+}
+
+//==========================================================================
+//
+// FSingleLumpFont :: CreateFontFromPic
+//
+//==========================================================================
+
+void FSingleLumpFont::CreateFontFromPic (FTextureID picnum)
+{
+	FTexture *pic = TexMan.GetTexture(picnum);
+
+	FontHeight = pic->GetDisplayHeight ();
+	SpaceWidth = pic->GetDisplayWidth ();
+	GlobalKerning = 0;
+
+	FirstChar = LastChar = 'A';
+	Chars.Resize(1);
+	Chars[0].TranslatedPic = pic;
+
+	// Only one color range. Don't bother with the others.
+	ActiveColors = 0;
 }
 
 //==========================================================================
@@ -215,7 +236,7 @@ void FSingleLumpFont::LoadTranslations()
 //
 //==========================================================================
 
-void FSingleLumpFont::LoadFON1 (const char * lump, const uint8_t *data)
+void FSingleLumpFont::LoadFON1 (int lump, const uint8_t *data)
 {
 	int w, h;
 
@@ -256,7 +277,7 @@ void FSingleLumpFont::LoadFON1 (const char * lump, const uint8_t *data)
 //
 //==========================================================================
 
-void FSingleLumpFont::LoadFON2 (const char * lump, const uint8_t *data)
+void FSingleLumpFont::LoadFON2 (int lump, const uint8_t *data)
 {
 	int count, i, totalwidth;
 	uint16_t *widths;
@@ -332,7 +353,7 @@ void FSingleLumpFont::LoadFON2 (const char * lump, const uint8_t *data)
 		}
 		else
 		{
-			Chars[i].TranslatedPic = new FImageTexture(new FFontChar2 (fileSystem.FindFile(lump), int(data_p - data), widths2[i], FontHeight));
+			Chars[i].TranslatedPic = new FImageTexture(new FFontChar2 (lump, int(data_p - data), widths2[i], FontHeight));
 			Chars[i].TranslatedPic->SetUseType(ETextureType::FontChar);
 			TexMan.AddTexture(Chars[i].TranslatedPic);
 			do
@@ -369,7 +390,7 @@ void FSingleLumpFont::LoadFON2 (const char * lump, const uint8_t *data)
 //
 //==========================================================================
 
-void FSingleLumpFont::LoadBMF(const char *lump, const uint8_t *data)
+void FSingleLumpFont::LoadBMF(int lump, const uint8_t *data)
 {
 	const uint8_t *chardata;
 	int numchars, count, totalwidth, nwidth;
@@ -462,7 +483,7 @@ void FSingleLumpFont::LoadBMF(const char *lump, const uint8_t *data)
 		{ // Empty character: skip it.
 			continue;
 		}
-		auto tex = new FImageTexture(new FFontChar2(fileSystem.FindFile(lump), int(chardata + chari + 6 - data),
+		auto tex = new FImageTexture(new FFontChar2(lump, int(chardata + chari + 6 - data),
 			chardata[chari+1],	// width
 			chardata[chari+2],	// height
 			-(int8_t)chardata[chari+3],	// x offset
@@ -519,15 +540,15 @@ int FSingleLumpFont::BMFCompare(const void *a, const void *b)
 
 void FSingleLumpFont::CheckFON1Chars (double *luminosity)
 {
-	auto &data = rawData;
-	if (data.Size() < 8) return;
+	FileData memLump = fileSystem.ReadFile(Lump);
+	const uint8_t* data = (const uint8_t*) memLump.GetMem();
 
 	uint8_t used[256], reverse[256];
 	const uint8_t *data_p;
 	int i, j;
 
 	memset (used, 0, 256);
-	data_p = data.Data() + 8;
+	data_p = data + 8;
 
 	for (i = 0; i < 256; ++i)
 	{
@@ -535,7 +556,7 @@ void FSingleLumpFont::CheckFON1Chars (double *luminosity)
 
 		if(!Chars[i].TranslatedPic)
 		{
-			Chars[i].TranslatedPic = new FImageTexture(new FFontChar2 (0, int(data_p - data.Data()), SpaceWidth, FontHeight));
+			Chars[i].TranslatedPic = new FImageTexture(new FFontChar2 (Lump, int(data_p - data), SpaceWidth, FontHeight));
 			Chars[i].TranslatedPic->SetUseType(ETextureType::FontChar);
 			Chars[i].XMove = SpaceWidth;
 			TexMan.AddTexture(Chars[i].TranslatedPic);
@@ -630,7 +651,7 @@ void FSingleLumpFont::FixupPalette (uint8_t *identity, double *luminosity, const
 	}
 }
 
-FFont *CreateSingleLumpFont (const char *fontname, const char * lump)
+FFont *CreateSingleLumpFont (const char *fontname, int lump)
 {
 	return new FSingleLumpFont(fontname, lump);
 }
