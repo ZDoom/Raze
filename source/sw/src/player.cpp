@@ -1536,81 +1536,6 @@ DoPlayerCrawlHeight(PLAYERp pp)
 }
 
 void
-DoPlayerTurn(PLAYERp pp)
-{
-#define TURN_SHIFT 2
-
-    if (!TEST(pp->Flags, PF_TURN_180))
-    {
-        if (TEST_SYNC_KEY(pp, SK_TURN_180))
-        {
-            if (FLAG_KEY_PRESSED(pp, SK_TURN_180))
-            {
-                short delta_ang;
-
-                FLAG_KEY_RELEASE(pp, SK_TURN_180);
-
-                pp->turn180_target = NORM_ANGLE(fix16_to_int(pp->q16ang) + 1024);
-
-                // make the first turn in the clockwise direction
-                // the rest will follow
-                delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
-                pp->q16ang = fix16_sadd(pp->q16ang, fix16_from_int((labs(delta_ang) >> TURN_SHIFT))) & 0x7FFFFFF;
-
-                SET(pp->Flags, PF_TURN_180);
-            }
-        }
-        else
-        {
-            FLAG_KEY_RESET(pp, SK_TURN_180);
-        }
-    }
-
-    if (TEST(pp->Flags, PF_TURN_180))
-    {
-        short delta_ang;
-
-        delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
-        pp->q16ang = fix16_sadd(pp->q16ang, fix16_from_int((delta_ang >> TURN_SHIFT))) & 0x7FFFFFF;
-
-        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
-        if (!Prediction)
-        {
-            if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
-        }
-
-        // get new delta to see how close we are
-        delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
-
-        if (labs(delta_ang) < (3<<TURN_SHIFT))
-        {
-            pp->q16ang = fix16_from_int(pp->turn180_target);
-            RESET(pp->Flags, PF_TURN_180);
-        }
-        else
-            return;
-    }
-
-    if (pp->input.q16avel != 0)
-    {
-        pp->q16ang = fix16_sadd(pp->q16ang, fix16_sdiv(fix16_smul(pp->input.q16avel, fix16_from_int(synctics)), fix16_from_int(32))) & 0x7FFFFFF;
-
-        // update players sprite angle
-        // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
-        // here to cover
-        // all cases.
-        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
-        if (!Prediction)
-        {
-            if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
-        }
-
-    }
-}
-
-void
 DoPlayerTurnBoat(PLAYERp pp)
 {
     fix16_t angvel;
@@ -2244,8 +2169,6 @@ DoPlayerMove(PLAYERp pp)
     void SlipSlope(PLAYERp pp);
 
     SlipSlope(pp);
-	
-    DoPlayerTurn(pp);
 
     pp->oldposx = pp->posx;
     pp->oldposy = pp->posy;
@@ -2348,8 +2271,6 @@ DoPlayerMove(PLAYERp pp)
     //PlayerSectorBound(pp, Z(1));
 
     DoPlayerSetWadeDepth(pp);
-
-    pp->horizAdjust = TRUE;
 
     if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
@@ -2556,8 +2477,6 @@ DoPlayerMoveBoat(PLAYERp pp)
 
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
-
-    pp->horizAdjust = TRUE;
 }
 
 #if 0
@@ -3068,8 +2987,6 @@ DoPlayerMoveTank(PLAYERp pp)
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    pp->horizAdjust = TRUE;
-
     DoTankTreads(pp);
 }
 
@@ -3084,8 +3001,6 @@ DoPlayerMoveTurret(PLAYERp pp)
         SET(pp->Flags, PF_PLAYER_MOVED);
 
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
-
-    pp->horizAdjust = TRUE;
 }
 
 void
@@ -3660,8 +3575,6 @@ DoPlayerClimb(PLAYERp pp)
     // setsprite to players location
     sp->z = pp->posz + PLAYER_HEIGHT;
     changespritesect(pp->PlayerSprite, pp->cursectnum);
-
-    pp->horizAdjust = TRUE;
 
     if (FAF_ConnectArea(pp->cursectnum))
     {
@@ -6391,13 +6304,6 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     // continue on to it
     DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 4);
     //DoPlayerDeathTilt(pp, pp->tilt_dest, 4 * synctics);
-
-    // allow turning
-    if ((TEST(pp->Flags, PF_DEAD_HEAD) && pp->input.q16avel != 0) || TEST(pp->Flags, PF_HEAD_CONTROL))
-    {
-        DoPlayerTurn(pp);
-        return;
-    }
 
     // follow what killed you if its available
     if (pp->Killer > -1)

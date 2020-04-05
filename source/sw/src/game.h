@@ -1065,9 +1065,6 @@ struct PLAYERstruct
     int drive_angvel;
     int drive_oangvel;
 
-
-    bool horizAdjust;
-
     // scroll 2D mode stuff
     int scr_x, scr_y, oscr_x, oscr_y;
     int scr_xvect, scr_yvect;
