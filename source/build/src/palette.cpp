@@ -242,27 +242,36 @@ void palettePostLoadLookups(void)
     if (numpalettes == 0) return;
     auto basepalette = GPalette.GetTranslation(Translation_BasePalettes, 0);
 
-    for (int l = 0; l < MAXPALOOKUPS; l++)
+    for (int i = 0; i < numpalettes; i++)
     {
-        if (!LookupTables[l].IsEmpty())
+        auto palette = GPalette.GetTranslation(Translation_BasePalettes, i);
+        if (!palette) continue;
+
+        if (palette->Inactive)
         {
-            const uint8_t* lookup = (uint8_t*)LookupTables[l].GetChars();
-            FRemapTable remap;
-            for (int i = 0; i < numpalettes; i++)
+            palette->Inactive = false;
+            GPalette.CopyTranslation(TRANSLATION(Translation_Remap + i, 0), TRANSLATION(Translation_BasePalettes, i));
+        }
+        else
+        {
+            for (int l = 0; l < MAXPALOOKUPS; l++)
             {
-                auto palette = GPalette.GetTranslation(Translation_BasePalettes, i);
-                if (!palette) continue;
-                if (i == 0 || (palette != basepalette && !palette->Inactive))
+                if (!LookupTables[l].IsEmpty())
                 {
-                    memcpy(remap.Remap, lookup, 256);
-                    for (int j = 0; j < 256; j++)
+                    const uint8_t* lookup = (uint8_t*)LookupTables[l].GetChars();
+                    FRemapTable remap;
+                    if (i == 0 || (palette != basepalette && !palette->Inactive))
                     {
-                        remap.Palette[j] = palette->Palette[remap.Remap[j]];
+                        memcpy(remap.Remap, lookup, 256);
+                        for (int j = 0; j < 256; j++)
+                        {
+                            remap.Palette[j] = palette->Palette[remap.Remap[j]];
+                        }
+                        remap.NumEntries = 256;
+                        GPalette.UpdateTranslation(TRANSLATION(i + Translation_Remap, l), &remap);
                     }
-                    remap.NumEntries = 256;
-                    GPalette.UpdateTranslation(TRANSLATION(i + Translation_Remap, l), &remap);
+                    if (palette != basepalette) palette->Inactive = false;  // clear the marker flag
                 }
-                if (palette != basepalette) palette->Inactive = false;  // clear the marker flag
             }
         }
     }
@@ -289,8 +298,6 @@ void palettePostLoadLookups(void)
     }
     colorswap(&GPalette.GlobalBrightmap);
     std::swap(GPalette.BaseColors[0], GPalette.BaseColors[255]);
-    // This is the earliest point where the fonts can be set up because they also add to the translation table list.
-    V_InitFonts();
 }
 
 //==========================================================================
