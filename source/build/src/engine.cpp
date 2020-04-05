@@ -1432,21 +1432,6 @@ int32_t animateoffs(int const tilenum, int fakevar)
 }
 
 
-static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
-                                    int32_t ix1, int32_t iy1, int32_t ix2, int32_t iy2)
-{
-    const int32_t y = scale(z1, xdimenscale, iy1)<<4;
-
-    // PK 20110423: a bit consistency checking is a good thing:
-    int32_t const tmp = (ix2 - ix1 >= 0) ? (ix2 - ix1 + 1) : 1;
-    int32_t const yinc = tabledivide32((scale(z2, xdimenscale, iy2) << 4) - y, tmp);
-
-    qinterpolatedown16short((intptr_t)&mostbuf[ix1], tmp, y + (globalhoriz << 16), yinc);
-
-    mostbuf[ix1] = clamp(mostbuf[ix1], 0, ydimen);
-    mostbuf[ix2] = clamp(mostbuf[ix2], 0, ydimen);
-}
-
 // globalpicnum --> globalxshift, globalyshift
 static void calc_globalshifts(void)
 {
@@ -1985,12 +1970,12 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     else if (bot < 0 && (topt > 0 || topu > 0 || topu <= bot))
         return -1;
 
-    int64_t t = tabledivide64_noinline(topt<<16, bot);
+    int64_t t = (topt<<16) / bot;
     *intx = x1 + ((vx*t)>>16);
     *inty = y1 + ((vy*t)>>16);
     *intz = z1 + ((vz*t)>>16);
 
-    t = tabledivide64_noinline(topu<<16, bot);
+    t = (topu<<16) / bot;
 
     Bassert((unsigned)t < 65536);
 

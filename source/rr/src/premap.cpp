@@ -2181,8 +2181,8 @@ void G_ClearFIFO(void)
 {
     Net_ClearFIFO();
 
-    clearbufbyte(&localInput, sizeof(input_t), 0L);
-    clearbufbyte(&inputfifo, sizeof(input_t) * MOVEFIFOSIZ * MAXPLAYERS, 0L);
+    memset(&localInput, 0, sizeof(input_t));
+    memset(&inputfifo, 0, sizeof(input_t) * MOVEFIFOSIZ * MAXPLAYERS);
 
     for (bsize_t p = 0; p <= MAXPLAYERS - 1; ++p)
     {
@@ -2375,8 +2375,6 @@ int G_EnterLevel(int gameMode)
     g_precacheCount = 0;
     Bmemset(gotpic, 0, sizeof(gotpic));
     Bmemset(precachehightile, 0, sizeof(precachehightile));
-
-    //clearbufbyte(Actor,sizeof(Actor),0l); // JBF 20040531: yes? no?
 
     prelevel(gameMode);
 

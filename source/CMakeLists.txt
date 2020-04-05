@@ -671,7 +671,6 @@ set (PCH_SOURCES
 	build/src/animvpx.cpp
 	build/src/clip.cpp
 	build/src/common.cpp
-	build/src/compat.cpp
 	build/src/defs.cpp
 	build/src/engine.cpp
 	build/src/hash.cpp

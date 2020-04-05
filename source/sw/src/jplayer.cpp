@@ -665,7 +665,7 @@ void computergetinput(int snum, SW_PACKET *syn)
         startsect = sprite[p->PlayerSprite].sectnum;
         endsect = sprite[Player[goalplayer[snum]].PlayerSprite].sectnum;
 
-        clearbufbyte(dashow2dsector,(MAXSECTORS+7)>>3,0L);
+        memset(dashow2dsector, 0, (MAXSECTORS + 7) >> 3);
         searchsect[0] = startsect;
         searchparent[0] = -1;
         dashow2dsector[startsect>>3] |= (1<<(startsect&7));
@@ -691,7 +691,7 @@ void computergetinput(int snum, SW_PACKET *syn)
                     send++;
                     if (j == endsect)
                     {
-                        clearbufbyte(dashow2dsector,(MAXSECTORS+7)>>3,0L);
+                        memset(dashow2dsector, 0, (MAXSECTORS + 7) >> 3);
                         for (k=send-1; k>=0; k=searchparent[k])
                             dashow2dsector[searchsect[k]>>3] |= (1<<(searchsect[k]&7));
 
@@ -751,7 +751,7 @@ void computergetinput(int snum, SW_PACKET *syn)
                         send++;
                         if (j == endsect)
                         {
-                            clearbufbyte(dashow2dsector,(MAXSECTORS+7)>>3,0L);
+                            memset(dashow2dsector, 0, (MAXSECTORS + 7) >> 3);
                             for (k=send-1; k>=0; k=searchparent[k])
                                 dashow2dsector[searchsect[k]>>3] |= (1<<(searchsect[k]&7));
 

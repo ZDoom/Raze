@@ -1,4 +1,5 @@
 
+#define LIBDIVIDE_BODY
 #include "compat.h"
 #include "build.h"
 #include "scriptfile.h"
