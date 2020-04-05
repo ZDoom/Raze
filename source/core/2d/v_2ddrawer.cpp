@@ -658,7 +658,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	}
 
 	PalEntry p = 0xffffffff;
-	dg.mTexture = pic? pic : TileFiles.tiles[picnum];
+	dg.mTexture = pic? pic : TileFiles.GetTile(picnum);
 	dg.mRemapIndex = dapalnum | (basepal << 8) | (dashade << 16);
 	dg.mVertCount = 4;
 	dg.mVertIndex = (int)mVertices.Reserve(4);
@@ -835,7 +835,7 @@ void F2DDrawer::FillPolygon(int *rx1, int *ry1, int *xb1, int32_t npoints, int p
 		}
 	}
 
-	AddPoly(TileFiles.tiles[picnum], points.Data(), points.Size(), indices.data(), indices.size(), palette, shade, (props >> 7)& DAMETH_MASKPROPS, clipx1, clipy1, clipx2, clipy2);
+	AddPoly(TileFiles.GetTile(picnum), points.Data(), points.Size(), indices.data(), indices.size(), palette, shade, (props >> 7)& DAMETH_MASKPROPS, clipx1, clipy1, clipx2, clipy2);
 }
 
 void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p)

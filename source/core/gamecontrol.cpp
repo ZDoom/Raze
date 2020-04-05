@@ -60,6 +60,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "gamestate.h"
 #include "gstrings.h"
+#include "texturemanager.h"
 
 CUSTOM_CVAR(String, language, "auto", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 {
@@ -423,8 +424,8 @@ int GameMain()
 	C_DeinitConsole();
 	V_ClearFonts();
 	vox_deinit();
-	TileFiles.ClearTextureCache();
-	TileFiles.CloseAll();	// do this before shutting down graphics.
+	TexMan.DeleteAll();
+	TileFiles.CloseAll();	// delete the texture data before shutting down graphics.
 	GLInterface.Deinit();
 	I_ShutdownGraphics();
 	M_DeinitMenus();
