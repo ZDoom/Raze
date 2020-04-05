@@ -685,7 +685,6 @@ set (PCH_SOURCES
 	glbackend/gl_samplers.cpp
 	glbackend/gl_shader.cpp
 	glbackend/glbackend.cpp
-	glbackend/gl_palmanager.cpp
 	glbackend/gl_texture.cpp
 	glbackend/hw_draw2d.cpp
 

@@ -1136,8 +1136,9 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     int prevClamp = GLInterface.GetClamp();
 	GLInterface.SetClamp(0);
 #if 1
-    int palId = GLInterface.LookupPalette(curbasepal, globalpal, false);
-    auto palette = GLInterface.GetPaletteData(palId);
+    auto remap = GPalette.TranslationToTable(TRANSLATION(Translation_Remap + curbasepal, globalpal));
+    auto palId = remap->Index;
+    auto palette = remap->Palette;
     if (!m->texIds) m->texIds = new TMap<int, FHardwareTexture*>;
     auto pTex = m->texIds->CheckKey(palId);
     FHardwareTexture* htex;

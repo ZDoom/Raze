@@ -225,20 +225,6 @@ void polymost_glreset()
 
 FileReader GetBaseResource(const char* fn);
 
-// one-time initialization of OpenGL for polymost
-static void polymost_glinit()
-{
-	for (int basepalnum = 0; basepalnum < MAXBASEPALS; ++basepalnum)
-    {
-        uploadbasepalette(basepalnum);
-    }
-    for (int palookupnum = 0; palookupnum < MAXPALOOKUPS; ++palookupnum)
-    {
-		GLInterface.SetPalswapData(palookupnum, (uint8_t*)LookupTables[palookupnum].GetChars(), numshades+1, palookupfog[palookupnum]);
-	}
-}
-
-
 static void resizeglcheck(void)
 {
     //FUK
@@ -275,26 +261,6 @@ static void resizeglcheck(void)
     m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
 	GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
 	GLInterface.SetIdentityMatrix(Matrix_Model);
-}
-
-void uploadbasepalette(int32_t basepalnum)
-{
-    auto remap = GPalette.GetTranslation(Translation_BasePalettes, basepalnum);
-    if (!remap)
-    {
-        return;
-    }
-
-    uint8_t basepalWFullBrightInfo[4*256];
-    for (int i = 0; i < 256; ++i)
-    {
-        basepalWFullBrightInfo[i*4+0] = remap->Palette[i].b;
-        basepalWFullBrightInfo[i*4+1] = remap->Palette[i].g;
-        basepalWFullBrightInfo[i*4+2] = remap->Palette[i].r;
-        basepalWFullBrightInfo[i * 4 + 3] = GPalette.GlobalBrightmap.Palette[i].r;  // todo: get rid of this.
-    }
-
-	GLInterface.SetPaletteData(basepalnum, basepalWFullBrightInfo);
 }
 
 //(dpx,dpy) specifies an n-sided polygon. The polygon must be a convex clockwise loop.
@@ -4655,6 +4621,5 @@ static void PolymostProcessVoxels(void)
 
 void Polymost_Startup()
 {
-    polymost_glinit();
     PolymostProcessVoxels();
 }

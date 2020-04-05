@@ -39,50 +39,6 @@ struct PalswapData
 	uint8_t brightcolors[255];
 };
 
-enum
-{
-	PALSWAP_TEXTURE_SIZE = 2048
-};
-
-class PaletteManager
-{
-	// The current engine limit is 256 palettes and 256 palswaps.
-	uint32_t palettemap[256] = {};
-	uint32_t palswapmap[256] = {};
-	uint32_t lastindex = ~0u;
-	uint32_t lastsindex = ~0u;
-	int numshades = 1;
-
-	// All data is being stored in contiguous blocks that can be used as uniform buffers as-is.
-	TArray<PaletteData> palettes;
-	TArray<PalswapData> palswaps;
-	TMap<int, int> swappedpalmap;
-	FHardwareTexture* palswapTexture = nullptr;
-	GLInstance* const inst;
-
-	//OpenGLRenderer::GLDataBuffer* palswapBuffer = nullptr;
-
-	unsigned FindPalswap(const uint8_t* paldata, palette_t& fadecolor);
-
-public:
-	PaletteManager(GLInstance *inst_) : inst(inst_)
-	{}
-	~PaletteManager();
-	void DeleteAll();
-	void DeleteAllTextures();
-	void SetPalette(int index, const uint8_t *data);
-	void SetPalswapData(int index, const uint8_t* data, int numshades, palette_t &fadecolor);
-
-	void BindPalette(int index);
-	void BindPalswap(int index);
-	int ActivePalswap() const { return lastsindex; }
-	int LookupPalette(int palette, int palswap, bool brightmap, bool nontransparent255 = false);
-	const PalEntry *GetPaletteData(int palid) const { return palettes[palid].colors; }
-	unsigned FindPalette(const uint8_t* paldata);
-
-};
-
-
 struct glinfo_t {
 	float maxanisotropy;
 };
@@ -146,7 +102,6 @@ class GLInstance
 {
 	TArray<PolymostRenderState> rendercommands;
 	int maxTextureSize;
-	PaletteManager palmanager;
 	int lastPalswapIndex = -1;
 	FHardwareTexture* texv;
 	FTexture* currentTexture = nullptr;
@@ -228,16 +183,6 @@ public:
 		renderState.mBias.mFactor = 0;
 		renderState.mBias.mUnits = 0;
 		renderState.mBias.mChanged = true;
-	}
-
-	void SetPaletteData(int index, const uint8_t* data)
-	{
-		palmanager.SetPalette(index, data);
-	}
-
-	void SetPalswapData(int index, const uint8_t* data, int numshades, palette_t& fadecolor)
-	{
-		palmanager.SetPalswapData(index, data, numshades, fadecolor);
 	}
 
 	void SetPalswap(int index);
@@ -508,11 +453,6 @@ public:
 		renderState.fullscreenTint = color;
 	}
 
-	int GetPaletteIndex(PalEntry* palette)
-	{
-		return palmanager.FindPalette((uint8_t*)palette);
-	}
-
 	void EnableAlphaTest(bool on)
 	{
 		renderState.AlphaTest = on;
@@ -522,13 +462,6 @@ public:
 	{
 		renderState.AlphaThreshold = al;
 	}
-
-	int LookupPalette(int palette, int palswap, bool brightmap, bool nontransparent255 = false)
-	{
-		return palmanager.LookupPalette(palette, palswap, brightmap, nontransparent255);
-	}
-	const PalEntry* GetPaletteData(int palid) const { return palmanager.GetPaletteData(palid); }
-
 
 	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
 	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);

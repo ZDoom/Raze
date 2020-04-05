@@ -71,7 +71,6 @@ FileReader GetResource(const char* fn)
 GLInstance GLInterface;
 
 GLInstance::GLInstance()
-	:palmanager(this)
 {
 	VSMatrix mat(0);
 	matrixArray.Push(mat);
@@ -149,7 +148,6 @@ void GLInstance::Deinit()
 	if (surfaceShader) delete surfaceShader;
 	surfaceShader = nullptr;
 	activeShader = nullptr;
-	palmanager.DeleteAllTextures();
 	lastPalswapIndex = -1;
 }
 
@@ -274,13 +272,17 @@ void GLInstance::SetSurfaceShader()
 
 void GLInstance::SetPalette(int index)
 {
+#if 0
 	palmanager.BindPalette(index);
+#endif
 }
 
 
 void GLInstance::SetPalswap(int index)
 {
+#if 0
 	palmanager.BindPalswap(index);
+#endif
 	renderState.ShadeDiv = shadediv[index] == 0 ? 1.f / (renderState.NumShades - 2) : shadediv[index];
 }
 
