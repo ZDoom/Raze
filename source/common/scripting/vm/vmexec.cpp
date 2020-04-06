@@ -46,6 +46,9 @@
 extern cycle_t VMCycles[10];
 extern int VMCalls[10];
 
+// THe sprite ID to string cast is game specific so let's do it with a callback to remove the dependency and allow easier reuse.
+void (*VM_CastSpriteIDToString)(FString* a, unsigned int b) = [](FString* a, unsigned int b) { a->Format("%d", b); };
+
 // intentionally implemented in a different source file to prevent inlining.
 #if 0
 void ThrowVMException(VMException *x);
