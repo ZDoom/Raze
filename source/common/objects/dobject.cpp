@@ -38,6 +38,8 @@
 #include "cmdlib.h"
 #include "c_dispatch.h"
 #include "serializer.h"
+#include "vm.h"
+#include "types.h"
 #include "i_time.h"
 #include "printf.h"
 
@@ -59,6 +61,9 @@ ClassReg DObject::RegistrationInfo =
 	sizeof(DObject),						// SizeOf
 };
 _DECLARE_TI(DObject)
+
+// This bit is needed in the playsim - but give it a less crappy name.
+DEFINE_FIELD_BIT(DObject,ObjectFlags, bDestroyed, OF_EuthanizeMe)
 
 
 //==========================================================================
@@ -314,26 +319,22 @@ void DObject:: Destroy ()
 	// We cannot call the VM during shutdown because all the needed data has been or is in the process of being deleted.
 	if (PClass::bVMOperational)
 	{
-#if 0
 		IFVIRTUAL(DObject, OnDestroy)
 		{
 			VMValue params[1] = { (DObject*)this };
 			VMCall(func, params, 1, nullptr, 0);
 		}
-#endif
 	}
 	OnDestroy();
 	ObjectFlags = (ObjectFlags & ~OF_Fixed) | OF_EuthanizeMe;
 }
 
-#if 0
 DEFINE_ACTION_FUNCTION(DObject, Destroy)
 {
 	PARAM_SELF_PROLOGUE(DObject);
 	self->Destroy();
 	return 0;	
 }
-#endif
 
 //==========================================================================
 //
@@ -487,7 +488,6 @@ void DObject::CheckIfSerialized () const
 }
 
 
-#if 0
 DEFINE_ACTION_FUNCTION(DObject, MSTime)
 {
 	ACTION_RETURN_INT((uint32_t)I_msTime());
@@ -512,4 +512,3 @@ void *DObject::ScriptVar(FName field, PType *type)
 	I_Error("Variable %s not found in %s\n", field.GetChars(), cls->TypeName.GetChars());
 	return nullptr;
 }
-#endif

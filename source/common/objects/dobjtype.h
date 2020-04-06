@@ -42,9 +42,7 @@ public:
 	void WriteAllFields(FSerializer &ar, const void *addr) const;
 	bool ReadAllFields(FSerializer &ar, void *addr) const;
 	void InitializeDefaults();
-#if 0
 	int FindVirtualIndex(FName name, PFunction::Variant *variant, PFunction *parentfunc);
-#endif
 	PSymbol *FindSymbol(FName symname, bool searchparents) const;
 	PField *AddField(FName name, PType *type, uint32_t flags);
 

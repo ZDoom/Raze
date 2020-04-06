@@ -35,7 +35,6 @@
 
 #include "vmintern.h"
 #include "s_soundinternal.h"
-//#include "dthinker.h"
 #include "types.h"
 #include "printf.h"
 #include "textureid.h"
@@ -56,6 +55,8 @@ PName *TypeName;
 PSound *TypeSound;
 PColor *TypeColor;
 PTextureID *TypeTextureID;
+PSpriteID *TypeSpriteID;
+PStatePointer *TypeState;
 PPointer *TypeFont;
 PStateLabel *TypeStateLabel;
 PStruct *TypeVector2;
@@ -300,8 +301,10 @@ void PType::StaticInit()
 	TypeTable.AddType(TypeName = new PName, NAME_Name);
 	TypeTable.AddType(TypeSound = new PSound, NAME_Sound);
 	TypeTable.AddType(TypeColor = new PColor, NAME_Color);
+	TypeTable.AddType(TypeState = new PStatePointer, NAME_Pointer);
 	TypeTable.AddType(TypeStateLabel = new PStateLabel, NAME_Label);
 	TypeTable.AddType(TypeNullPtr = new PPointer, NAME_Pointer);
+	TypeTable.AddType(TypeSpriteID = new PSpriteID, NAME_SpriteID);
 	TypeTable.AddType(TypeTextureID = new PTextureID, NAME_TextureID);
 
 	TypeVoidPtr = NewPointer(TypeVoid, false);
@@ -360,6 +363,7 @@ void PType::StaticInit()
 	Namespaces.GlobalNamespace->Symbols.AddSymbol(Create<PSymbolType>(NAME_Name, TypeName));
 	Namespaces.GlobalNamespace->Symbols.AddSymbol(Create<PSymbolType>(NAME_Sound, TypeSound));
 	Namespaces.GlobalNamespace->Symbols.AddSymbol(Create<PSymbolType>(NAME_Color, TypeColor));
+	Namespaces.GlobalNamespace->Symbols.AddSymbol(Create<PSymbolType>(NAME_State, TypeState));
 	Namespaces.GlobalNamespace->Symbols.AddSymbol(Create<PSymbolType>(NAME_Vector2, TypeVector2));
 	Namespaces.GlobalNamespace->Symbols.AddSymbol(Create<PSymbolType>(NAME_Vector3, TypeVector3));
 }
@@ -1074,6 +1078,51 @@ bool PName::ReadValue(FSerializer &ar, const char *key, void *addr) const
 	}
 }
 
+/* PSpriteID ******************************************************************/
+
+//==========================================================================
+//
+// PName Default Constructor
+//
+//==========================================================================
+
+PSpriteID::PSpriteID()
+	: PInt(sizeof(int), true, true)
+{
+	Flags |= TYPE_IntNotInt;
+	mDescriptiveName = "SpriteID";
+}
+
+//==========================================================================
+//
+// PName :: WriteValue
+//
+//==========================================================================
+
+void PSpriteID::WriteValue(FSerializer &ar, const char *key, const void *addr) const
+{
+	int32_t val = *(int*)addr;
+#ifdef GZDOOM
+	ar.Sprite(key, val, nullptr);
+#endif
+}
+
+//==========================================================================
+//
+// PName :: ReadValue
+//
+//==========================================================================
+
+bool PSpriteID::ReadValue(FSerializer &ar, const char *key, void *addr) const
+{
+	int32_t val = 0;
+#ifdef GZDOOM
+	ar.Sprite(key, val, nullptr);
+#endif
+	*(int*)addr = val;
+	return true;
+}
+
 /* PTextureID ******************************************************************/
 
 //==========================================================================
@@ -1314,7 +1363,7 @@ PObjectPointer::PObjectPointer(PClass *cls, bool isconst)
 	loadOp = OP_LO;
 	Flags |= TYPE_ObjectPointer;
 	// Non-destroyed thinkers are always guaranteed to be linked into the thinker chain so we don't need the write barrier for them.
-	//if (cls && !cls->IsDescendantOf(RUNTIME_CLASS(DThinker))) storeOp = OP_SO;
+	if (cls && !cls->IsDescendantOf(NAME_Thinker)) storeOp = OP_SO;
 }
 
 //==========================================================================
@@ -1389,6 +1438,49 @@ PPointer *NewPointer(PClass *cls, bool isconst)
 		TypeTable.AddType(ptype, NAME_Pointer, (intptr_t)type, isconst ? 1 : 0, bucket);
 	}
 	return static_cast<PPointer *>(ptype);
+}
+
+/* PStatePointer **********************************************************/
+
+//==========================================================================
+//
+// PStatePointer Default Constructor
+//
+//==========================================================================
+
+PStatePointer::PStatePointer()
+{
+	mDescriptiveName = "Pointer<State>";
+	PointedType = NewStruct(NAME_State, nullptr, true);
+	IsConst = true;
+}
+
+//==========================================================================
+//
+// PStatePointer :: WriteValue
+//
+//==========================================================================
+
+void PStatePointer::WriteValue(FSerializer &ar, const char *key, const void *addr) const
+{
+#ifdef GZDOOM
+	ar(key, *(FState **)addr);
+#endif
+}
+
+//==========================================================================
+//
+// PStatePointer :: ReadValue
+//
+//==========================================================================
+
+bool PStatePointer::ReadValue(FSerializer &ar, const char *key, void *addr) const
+{
+	bool res = false;
+#ifdef GZDOOM
+	::Serialize(ar, key, *(FState **)addr, nullptr, &res);
+#endif
+	return res;
 }
 
 
