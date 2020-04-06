@@ -611,7 +611,11 @@ file( GLOB HEADER_FILES
 	common/textures/*.h
 	common/thirdparty/*.h
 	common/thirdparty/rapidjson/*.h
-	common/thirdparty/math./*h
+	common/thirdparty/math/*h
+	common/scripting/core/*h
+	common/scripting/vm/*h
+	common/scripting/jit/*h
+	common/scripting/interface/*.h
 
 	build/src/*.h
 	platform/win32/*.h
@@ -775,6 +779,21 @@ set (PCH_SOURCES
 	common/objects/dobject.cpp
 	common/objects/dobjgc.cpp
 	common/objects/dobjtype.cpp
+	common/scripting/core/symbols.cpp
+	common/scripting/core/types.cpp
+	common/scripting/core/scopebarrier.cpp
+	common/scripting/core/vmdisasm.cpp
+	common/scripting/vm/vmexec.cpp
+	common/scripting/vm/vmframe.cpp
+	common/scripting/jit/jit.cpp
+	common/scripting/jit/jit_call.cpp
+	common/scripting/jit/jit_flow.cpp
+	common/scripting/jit/jit_load.cpp
+	common/scripting/jit/jit_math.cpp
+	common/scripting/jit/jit_move.cpp
+	common/scripting/jit/jit_runtime.cpp
+	common/scripting/jit/jit_store.cpp
+	common/scripting/interface/stringformat.cpp
 
 	core/utility/stats.cpp
 	
@@ -927,6 +946,11 @@ include_directories(
 	common/utility
 	common/console
 	common/engine
+	common/objects
+	common/scripting/interface
+	common/scripting/core
+	common/scripting/vm
+	common/scripting/jit
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 
 	${SYSTEM_SOURCES_DIR}
@@ -1042,7 +1066,11 @@ source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/c
 source_group("Common\\Objects" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/objects/.+")
 source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
-source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
+source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
+source_group("Common\\Scripting" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/.+")
+source_group("Common\\Scripting\\Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/core/.+")
+source_group("Common\\Scripting\\VM" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/vm/.+")
+source_group("Common\\Scripting\\JIT" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/jit/.+")
 source_group("Common\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/.+")
 source_group("Common\\Third Party\\Math" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/math/.+")
 source_group("Common\\Third Party\\RapidJSON" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/rapidjson/.+")

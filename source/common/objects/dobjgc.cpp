@@ -264,7 +264,7 @@ void MarkArray(DObject **obj, size_t count)
 
 static void MarkRoot()
 {
-	int i;
+	//int i;
 
 	Gray = NULL;
 	// Time to propagate the marks.

@@ -14,9 +14,12 @@ extern bool save_full;
 
 struct FWriter;
 struct FReader;
+class PClass;
 class FFont;
 class FSoundID;
 struct FRenderStyle;
+class DObject;
+class FTextureID;
 
 inline bool nullcmp(const void *buffer, size_t length)
 {
@@ -181,13 +184,14 @@ FSerializer &Serialize(FSerializer &arc, const char *key, int16_t &value, int16_
 FSerializer &Serialize(FSerializer &arc, const char *key, uint16_t &value, uint16_t *defval);
 FSerializer &Serialize(FSerializer &arc, const char *key, double &value, double *defval);
 FSerializer &Serialize(FSerializer &arc, const char *key, float &value, float *defval);
+FSerializer &Serialize(FSerializer &arc, const char *key, FTextureID &value, FTextureID *defval);
+FSerializer &Serialize(FSerializer &arc, const char *key, DObject *&value, DObject ** /*defval*/, bool *retcode = nullptr);
 FSerializer &Serialize(FSerializer &arc, const char *key, FName &value, FName *defval);
 FSerializer &Serialize(FSerializer &arc, const char *key, FSoundID &sid, FSoundID *def);
 FSerializer &Serialize(FSerializer &arc, const char *key, FString &sid, FString *def);
 FSerializer &Serialize(FSerializer &arc, const char *key, NumericValue &sid, NumericValue *def);
 
 
-#if 0
 template<class T>
 FSerializer &Serialize(FSerializer &arc, const char *key, T *&value, T **)
 {
@@ -197,20 +201,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, T *&value, T **)
 	return arc;
 }
 
-template<class T>
-FSerializer &Serialize(FSerializer &arc, const char *key, TObjPtr<T> &value, TObjPtr<T> *)
-{
-	Serialize(arc, key, value.o, nullptr);
-	return arc; 
-}
-
-template<class T>
-FSerializer &Serialize(FSerializer &arc, const char *key, TObjPtr<T> &value, T *)
-{
-	Serialize(arc, key, value.o, nullptr);
-	return arc;
-}
-#endif
 
 template<class T, class TT>
 FSerializer &Serialize(FSerializer &arc, const char *key, TArray<T, TT> &value, TArray<T, TT> *def)
@@ -237,6 +227,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, TArray<T, TT> &value, 
 	return arc;
 }
 
+template<> FSerializer& Serialize(FSerializer& arc, const char* key, PClass*& clst, PClass** def);
+template<> FSerializer& Serialize(FSerializer& arc, const char* key, FFont*& font, FFont** def);
 
 inline FSerializer &Serialize(FSerializer &arc, const char *key, DVector3 &p, DVector3 *def)
 {
