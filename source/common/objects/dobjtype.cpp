@@ -42,6 +42,7 @@
 #include "autosegs.h"
 #include "v_text.h"
 #include "c_cvars.h"
+#include "vm.h"
 #include "symbols.h"
 #include "types.h"
 
@@ -71,8 +72,8 @@ bool PClass::bVMOperational;
 // that does not work anymore. WP_NOCHANGE needs to point to a vaild object to work as intended.
 // This Object does not need to be garbage collected, though, but it needs to provide the proper structure so that the
 // GC can process it.
-AActor *WP_NOCHANGE;
-//DEFINE_GLOBAL(WP_NOCHANGE);
+DObject *WP_NOCHANGE;
+DEFINE_GLOBAL(WP_NOCHANGE);
 
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
@@ -202,9 +203,7 @@ static int cregcmp (const void *a, const void *b) NO_SANITIZE
 
 void PClass::StaticInit ()
 {
-#if 0
 	Namespaces.GlobalNamespace = Namespaces.NewNamespace(0);
-#endif
 
 	FAutoSegIterator probe(CRegHead, CRegTail);
 
@@ -227,12 +226,10 @@ void PClass::StaticInit ()
 	// I'm not sure if this is really necessary to maintain any sort of sync.
 	qsort(&AllClasses[0], AllClasses.Size(), sizeof(AllClasses[0]), cregcmp);
 
-#if 0
 	// WP_NOCHANGE must point to a valid object, although it does not need to be a weapon.
 	// A simple DObject is enough to give the GC the ability to deal with it, if subjected to it.
-	WP_NOCHANGE = (AActor*)Create<DObject>();
+	WP_NOCHANGE = Create<DObject>();
 	WP_NOCHANGE->Release();
-#endif
 }
 
 //==========================================================================
@@ -245,12 +242,10 @@ void PClass::StaticInit ()
 
 void PClass::StaticShutdown ()
 {
-#if 0
 	if (WP_NOCHANGE != nullptr)
 	{
 		delete WP_NOCHANGE;
 	}
-#endif
 
 	// delete all variables containing pointers to script functions.
 	for (auto p : FunctionPtrList)
@@ -259,7 +254,7 @@ void PClass::StaticShutdown ()
 	}
 	//ScriptUtil::Clear();
 	FunctionPtrList.Clear();
-	//VMFunction::DeleteAll();
+	VMFunction::DeleteAll();
 
 	// Make a full garbage collection here so that all destroyed but uncollected higher level objects 
 	// that still exist are properly taken down before the low level data is deleted.
@@ -701,7 +696,7 @@ PClass *PClass::FindClassTentative(FName name)
 // and returns an index if something matching is found.
 //
 //==========================================================================
-#if 0
+
 int PClass::FindVirtualIndex(FName name, PFunction::Variant *variant, PFunction *parentfunc)
 {
 	auto proto = variant->Proto;
@@ -760,7 +755,6 @@ int PClass::FindVirtualIndex(FName name, PFunction::Variant *variant, PFunction 
 	}
 	return -1;
 }
-#endif
 
 PSymbol *PClass::FindSymbol(FName symname, bool searchparents) const
 {
@@ -951,7 +945,6 @@ void PClass::FindFunction(VMFunction **pptr, FName clsname, FName funcname)
 	FunctionPtrList.Push(pptr);
 }
 
-#if 0
 unsigned GetVirtualIndex(PClass *cls, const char *funcname)
 {
 	// Look up the virtual function index in the defining class because this may have gotten overloaded in subclasses with something different than a virtual override.
@@ -960,6 +953,4 @@ unsigned GetVirtualIndex(PClass *cls, const char *funcname)
 	auto VIndex = sym->Variants[0].Implementation->VirtualIndex;
 	return VIndex;
 }
-#endif
-
 

@@ -264,9 +264,21 @@ void MarkArray(DObject **obj, size_t count)
 
 static void MarkRoot()
 {
-	//int i;
-
 	Gray = NULL;
+	// Mark soft roots.
+	if (SoftRoots != NULL)
+	{
+		DObject **probe = &SoftRoots->ObjNext;
+		while (*probe != NULL)
+		{
+			DObject *soft = *probe;
+			probe = &soft->ObjNext;
+			if ((soft->ObjectFlags & (OF_Rooted | OF_EuthanizeMe)) == OF_Rooted)
+			{
+				Mark(soft);
+			}
+		}
+	}
 	// Time to propagate the marks.
 	State = GCS_Propagate;
 	StepCount = 0;

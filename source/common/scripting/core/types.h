@@ -356,6 +356,15 @@ public:
 	bool ReadValue(FSerializer &ar, const char *key,void *addr) const override;
 };
 
+class PSpriteID : public PInt
+{
+public:
+	PSpriteID();
+
+	void WriteValue(FSerializer &ar, const char *key, const void *addr) const override;
+	bool ReadValue(FSerializer &ar, const char *key, void *addr) const override;
+};
+
 class PTextureID : public PInt
 {
 public:
@@ -410,6 +419,16 @@ public:
 protected:
 	void SetOps();
 };
+
+class PStatePointer : public PPointer
+{
+public:
+	PStatePointer();
+
+	void WriteValue(FSerializer &ar, const char *key, const void *addr) const override;
+	bool ReadValue(FSerializer &ar, const char *key, void *addr) const override;
+};
+
 
 class PObjectPointer : public PPointer
 {
@@ -590,10 +609,12 @@ extern PName *TypeName;
 extern PSound *TypeSound;
 extern PColor *TypeColor;
 extern PTextureID *TypeTextureID;
+extern PSpriteID *TypeSpriteID;
 extern PStruct *TypeVector2;
 extern PStruct *TypeVector3;
 extern PStruct *TypeColorStruct;
 extern PStruct *TypeStringStruct;
+extern PStatePointer *TypeState;
 extern PPointer *TypeFont;
 extern PStateLabel *TypeStateLabel;
 extern PPointer *TypeNullPtr;

@@ -658,6 +658,16 @@ set( NOT_COMPILED_SOURCE_FILES
 	platform/win32/zutil.natvis
 )
 
+set( VM_JIT_SOURCES
+	common/scripting/jit/jit.cpp
+	common/scripting/jit/jit_runtime.cpp
+	common/scripting/jit/jit_call.cpp
+	common/scripting/jit/jit_flow.cpp
+	common/scripting/jit/jit_load.cpp
+	common/scripting/jit/jit_math.cpp
+	common/scripting/jit/jit_move.cpp
+	common/scripting/jit/jit_store.cpp
+)
 
 # Enable fast math for some sources where performance matters (or where the PCH must not be used.) (This would be good for rendering code, but unfortunately that is hopelessly intermingled with the playsim code in engine.cpp.)
 set( FASTMATH_SOURCES
@@ -840,14 +850,6 @@ set (PCH_SOURCES
 	common/scripting/core/vmdisasm.cpp
 	common/scripting/vm/vmexec.cpp
 	common/scripting/vm/vmframe.cpp
-	common/scripting/jit/jit.cpp
-	common/scripting/jit/jit_call.cpp
-	common/scripting/jit/jit_flow.cpp
-	common/scripting/jit/jit_load.cpp
-	common/scripting/jit/jit_math.cpp
-	common/scripting/jit/jit_move.cpp
-	common/scripting/jit/jit_runtime.cpp
-	common/scripting/jit/jit_store.cpp
 	common/scripting/interface/stringformat.cpp
 
 	core/utility/stats.cpp
@@ -890,6 +892,12 @@ set (PCH_SOURCES
 	core/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
 	core/rendering/hwrenderer/utility/hw_shaderpatcher.cpp
 )
+
+if( ${HAVE_VM_JIT} )
+	set( PCH_SOURCES ${PCH_SOURCES} ${VM_JIT_SOURCES} )
+else()
+	set( NOT_COMPILED_SOURCE_FILES ${NOT_COMPILED_SOURCE_FILES} ${VM_JIT_SOURCES} )
+endif()
 
 macro( use_precompiled_header )
 	if( MSVC )
