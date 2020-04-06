@@ -56,6 +56,8 @@ extern FMemArena ClassDataAllocator;
 
 void JitRelease();
 
+extern void (*VM_CastSpriteIDToString)(FString* a, unsigned int b);
+
 
 typedef unsigned char		VM_UBYTE;
 typedef signed char			VM_SBYTE;

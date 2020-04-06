@@ -1711,7 +1711,6 @@ static int ExecScriptFunc(VMFrameStack *stack, VMReturn *ret, int numret)
 	return 0;
 }
 
-
 static double DoFLOP(int flop, double v)
 {
 	switch(flop)
@@ -1843,7 +1842,7 @@ static void DoCast(const VMRegisters &reg, const VMFrame *f, int a, int b, int c
 
 	case CAST_SID2S:
 		ASSERTS(a); ASSERTD(b);
-		reg.s[a] = "";// unsigned(reg.d[b]) >= sprites.Size() ? "TNT1" : sprites[reg.d[b]].name;
+		VM_CastSpriteIDToString(&reg.s[a], reg.d[b]);
 		break;
 
 	case CAST_TID2S:
