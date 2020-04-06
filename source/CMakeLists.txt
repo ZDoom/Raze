@@ -606,6 +606,7 @@ file( GLOB HEADER_FILES
 	common/console/*.h
 	common/utility/*.h
 	common/engine/*.h
+	common/objects/*.h
 	common/filesystem/*.h
 	common/textures/*.h
 	common/thirdparty/*.h
@@ -771,6 +772,9 @@ set (PCH_SOURCES
 	common/engine/sc_man.cpp
 	common/engine/palettecontainer.cpp
 	common/engine/stringtable.cpp
+	common/objects/dobject.cpp
+	common/objects/dobjgc.cpp
+	common/objects/dobjtype.cpp
 
 	core/utility/stats.cpp
 	
@@ -839,7 +843,7 @@ use_precompiled_header(".")
 add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 	${HEADER_FILES}
 	${NOT_COMPILED_SOURCE_FILES}
-	#__autostart.cpp
+	common/objects/__autostart.cpp
 	${SYSTEM_SOURCES}
 	${FASTMATH_SOURCES}
 	${PCH_SOURCES}
@@ -865,6 +869,7 @@ add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 	common/thirdparty/math/tan.c
 	common/thirdparty/math/tanh.c
 	common/thirdparty/math/fastsin.cpp
+	common/objects/zzautozend.cpp
 )
 
 #set_source_files_properties( ${FASTMATH_SOURCES} PROPERTIES COMPILE_FLAGS ${DEM_FASTMATH_FLAG} )
@@ -1034,6 +1039,8 @@ source_group("Common\\Audio\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_
 source_group("Common\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/console/.+")
 source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
 source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/engine/.+")
+source_group("Common\\Objects" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/objects/.+")
+source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/.+")
