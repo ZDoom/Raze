@@ -42,6 +42,8 @@
 #include "autosegs.h"
 #include "v_text.h"
 #include "c_cvars.h"
+#include "symbols.h"
+#include "types.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -89,7 +91,6 @@ static const size_t TheEnd = ~(size_t)0;
 
 static void RecurseWriteFields(const PClass *type, FSerializer &ar, const void *addr)
 {
-#if 0
 	if (type != nullptr)
 	{
 		RecurseWriteFields(type->ParentClass, ar, addr);
@@ -113,7 +114,6 @@ static void RecurseWriteFields(const PClass *type, FSerializer &ar, const void *
 			}
 		}
 	}
-#endif
 }
 
 // Same as WriteValue, but does not create a new object in the serializer
@@ -133,7 +133,6 @@ bool PClass::ReadAllFields(FSerializer &ar, void *addr) const
 {
 	bool readsomething = false;
 	bool foundsomething = false;
-#if 0
 	const char *key;
 	key = ar.GetKey();
 	if (strcmp(key, "classtype"))
@@ -175,7 +174,6 @@ bool PClass::ReadAllFields(FSerializer &ar, void *addr) const
 				key+6, TypeName.GetChars());
 		}
 	}
-#endif
 	return readsomething || !foundsomething;
 }
 
@@ -285,7 +283,7 @@ void PClass::StaticShutdown ()
 	for (auto cls : AllClasses)	delete cls;
 	// Unless something went wrong, anything left here should be class and type objects only, which do not own any scripts.
 	bShutdown = true;
-	//TypeTable.Clear();
+	TypeTable.Clear();
 	ClassDataAllocator.FreeAllBlocks();
 	AllClasses.Clear();
 	//PClassActor::AllActorClasses.Clear();
@@ -492,12 +490,10 @@ void PClass::InitializeSpecials(void *addr, void *defaults, TArray<FTypeAndOffse
 		return;
 	}
 	ParentClass->InitializeSpecials(addr, defaults, Inits);
-#if 0
 	for (auto tao : (this->*Inits))
 	{
 		tao.first->InitializeValue((char*)addr + tao.second, defaults == nullptr? nullptr : ((char*)defaults) + tao.second);
 	}
-#endif
 }
 
 //==========================================================================
@@ -517,12 +513,10 @@ void PClass::DestroySpecials(void *addr)
 	}
 	assert(ParentClass != nullptr);
 	ParentClass->DestroySpecials(addr);
-#if 0
 	for (auto tao : SpecialInits)
 	{
 		tao.first->DestroyValue((uint8_t *)addr + tao.second);
 	}
-#endif
 }
 
 //==========================================================================
@@ -536,12 +530,10 @@ void PClass::DestroySpecials(void *addr)
 void PClass::DestroyMeta(void *addr)
 {
 	if (ParentClass != nullptr) ParentClass->DestroyMeta(addr);
-#if 0
 	for (auto tao : MetaInits)
 	{
 		tao.first->DestroyValue((uint8_t *)addr + tao.second);
 	}
-#endif
 }
 
 //==========================================================================
@@ -619,9 +611,7 @@ PClass *PClass::CreateDerivedClass(FName name, unsigned int size)
 	type->Size = size;
 	if (size != TentativeClass)
 	{
-#if 0
 		NewClassType(type);
-#endif
 		type->InitializeDefaults();
 		type->Virtuals = Virtuals;
 	}
@@ -635,7 +625,6 @@ PClass *PClass::CreateDerivedClass(FName name, unsigned int size)
 	return type;
 }
 
-#if 0
 //==========================================================================
 //
 // PClass :: AddField
@@ -674,7 +663,6 @@ PField *PClass::AddField(FName name, PType *type, uint32_t flags)
 	if (field != nullptr) Fields.Push(field);
 	return field;
 }
-#endif
 
 //==========================================================================
 //
@@ -772,13 +760,13 @@ int PClass::FindVirtualIndex(FName name, PFunction::Variant *variant, PFunction 
 	}
 	return -1;
 }
+#endif
 
 PSymbol *PClass::FindSymbol(FName symname, bool searchparents) const
 {
 	if (VMType == nullptr) return nullptr;
 	return VMType->Symbols.FindSymbol(symname, searchparents);
 }
-#endif
 
 //==========================================================================
 //
@@ -814,7 +802,6 @@ void PClass::BuildFlatPointers ()
 
 		TArray<size_t> ScriptPointers;
 
-#if 0
 		// Collect all pointers in scripted fields. These are not part of the Pointers list.
 		for (auto field : Fields)
 		{
@@ -823,7 +810,6 @@ void PClass::BuildFlatPointers ()
 				field->Type->SetPointer(Defaults, unsigned(field->Offset), &ScriptPointers);
 			}
 		}
-#endif
 
 		if (Pointers == nullptr && ScriptPointers.Size() == 0)
 		{ // No new pointers: Just use the same FlatPointers as the parent.
@@ -891,7 +877,6 @@ void PClass::BuildArrayPointers()
 		TArray<size_t> ScriptPointers;
 
 		// Collect all arrays to pointers in scripted fields.
-#if 0
 		for (auto field : Fields)
 		{
 			if (!(field->Flags & VARF_Native))
@@ -899,7 +884,6 @@ void PClass::BuildArrayPointers()
 				field->Type->SetPointerArray(Defaults, unsigned(field->Offset), &ScriptPointers);
 			}
 		}
-#endif
 
 		if (ScriptPointers.Size() == 0)
 		{ // No new pointers: Just use the same ArrayPointers as the parent.
@@ -948,7 +932,6 @@ const PClass *PClass::NativeClass() const
 	return cls;
 }
 
-#if 0
 VMFunction *PClass::FindFunction(FName clsname, FName funcname)
 {
 	auto cls = PClass::FindClass(clsname);
@@ -968,6 +951,7 @@ void PClass::FindFunction(VMFunction **pptr, FName clsname, FName funcname)
 	FunctionPtrList.Push(pptr);
 }
 
+#if 0
 unsigned GetVirtualIndex(PClass *cls, const char *funcname)
 {
 	// Look up the virtual function index in the defining class because this may have gotten overloaded in subclasses with something different than a virtual override.

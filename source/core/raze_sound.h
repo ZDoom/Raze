@@ -22,16 +22,6 @@ inline void FX_SetReverbDelay(int delay)
 { 
 }
 
-inline int S_FindSoundByResID(int ndx)
-{
-	return soundEngine->FindSoundByResID(ndx);
-}
-
-inline int S_FindSound(const char* name)
-{
-	return soundEngine->FindSound(name);
-}
-
 int S_LookupSound(const char* fn);
 class FSerializer;
 void S_SerializeSounds(FSerializer& arc);

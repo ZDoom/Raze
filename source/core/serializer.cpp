@@ -43,6 +43,7 @@
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/document.h"
 #include "serializer.h"
+#include "dobject.h"
 #include "filesystem.h"
 #include "v_font.h"
 #include "v_text.h"
@@ -50,6 +51,9 @@
 #include "utf8.h"
 #include "printf.h"
 #include "raze_sound.h"
+#include "engineerrors.h"
+#include "textures.h"
+#include "texturemanager.h"
 
 bool save_full = false;
 
@@ -145,10 +149,8 @@ struct FWriter
 	PrettyWriter *mWriter2;
 	TArray<bool> mInObject;
 	rapidjson::StringBuffer mOutString;
-#if 0
 	TArray<DObject *> mDObjects;
 	TMap<DObject *, int> mObjectMap;
-#endif
 	
 	FWriter(bool pretty)
 	{
@@ -287,9 +289,7 @@ struct FReader
 {
 	TArray<FJSONObject> mObjects;
 	rapidjson::Document mDoc;
-#if 0
 	TArray<DObject *> mDObjects;
-#endif
 	rapidjson::Value *mKeyValue = nullptr;
 	bool mObjectsRead = false;
 
@@ -740,7 +740,6 @@ const char *FSerializer::GetKey()
 	return (it++)->name.GetString();
 }
 
-#if 0
 //==========================================================================
 //
 // Writes out all collected objects
@@ -805,7 +804,7 @@ void FSerializer::ReadObjects(bool hubtravel)
 					{
 						Printf(TEXTCOLOR_RED "Unknown object class '%s' in savegame\n", clsname.GetChars());
 						founderrors = true;
-						r->mDObjects[i] = RUNTIME_CLASS(AActor)->CreateNew();	// make sure we got at least a valid pointer for the duration of the loading process.
+						r->mDObjects[i] = RUNTIME_CLASS(DObject)->CreateNew();	// make sure we got at least a valid pointer for the duration of the loading process.
 						r->mDObjects[i]->Destroy();								// but we do not want to keep this around, so destroy it right away.
 					}
 					else
@@ -836,7 +835,7 @@ void FSerializer::ReadObjects(bool hubtravel)
 								obj->SerializeUserVars(*this);
 								obj->Serialize(*this);
 							}
-							catch (CRecoverableError &err)
+							catch (CEngineError &err)
 							{
 								// In case something in here throws an error, let's continue and deal with it later.
 								Printf(TEXTCOLOR_RED "'%s'\n while restoring %s\n", err.GetMessage(), obj ? obj->GetClass()->TypeName.GetChars() : "invalid object");
@@ -870,7 +869,6 @@ void FSerializer::ReadObjects(bool hubtravel)
 		}
 	}
 }
-#endif
 
 //==========================================================================
 //
@@ -881,9 +879,7 @@ void FSerializer::ReadObjects(bool hubtravel)
 const char *FSerializer::GetOutput(unsigned *len)
 {
 	if (isReading()) return nullptr;
-#if 0
 	WriteObjects();
-#endif
 	EndObject();
 	if (len != nullptr)
 	{
@@ -902,9 +898,7 @@ FCompressedBuffer FSerializer::GetCompressedOutput()
 {
 	if (isReading()) return{ 0,0,0,0,0,nullptr };
 	FCompressedBuffer buff;
-#if 0
 	WriteObjects();
-#endif
 	EndObject();
 	buff.mSize = (unsigned)w->mOutString.GetSize();
 	buff.mZipFlags = 0;
@@ -1248,7 +1242,6 @@ FSerializer &SerializePointer(FSerializer &arc, const char *key, T *&value, T **
 	return arc;
 }
 
-#if 0
 //==========================================================================
 //
 //
@@ -1279,9 +1272,9 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FTextureID &value, FTe
 			FTexture *pic = TexMan.GetTexture(chk);
 			const char *name;
 
-			if (Wads.GetLinkedTexture(pic->SourceLump) == pic)
+			if (fileSystem.GetLinkedTexture(pic->SourceLump) == pic)
 			{
-				name = Wads.GetLumpFullName(pic->SourceLump);
+				name = fileSystem.GetFileFullName(pic->SourceLump);
 			}
 			else
 			{
@@ -1290,7 +1283,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FTextureID &value, FTe
 			arc.WriteKey(key);
 			arc.w->StartArray();
 			arc.w->String(name);
-			arc.w->Int(static_cast<int>(pic->UseType));
+			int ut = static_cast<int>(pic->GetUseType());
+			arc.w->Int(ut);
 			arc.w->EndArray();
 		}
 	}
@@ -1334,9 +1328,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FTextureID &value, FTe
 	}
 	return arc;
 }
-#endif
 
-#if 0
 //==========================================================================
 //
 // This never uses defval and instead uses 'null' as default
@@ -1352,11 +1344,13 @@ FSerializer &Serialize(FSerializer &arc, const char *key, DObject *&value, DObje
 		if (value != nullptr && !(value->ObjectFlags & (OF_EuthanizeMe | OF_Transient)))
 		{
 			int ndx;
+			/*
 			if (value == WP_NOCHANGE)
 			{
 				ndx = -1;
 			}
 			else
+			*/
 			{
 				int *pndx = arc.w->mObjectMap.CheckKey(value);
 				if (pndx != nullptr)
@@ -1397,7 +1391,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, DObject *&value, DObje
 				int index = val->GetInt();
 				if (index == -1)
 				{
-					value = WP_NOCHANGE;
+					value = nullptr;// WP_NOCHANGE;
 				}
 				else
 				{
@@ -1429,7 +1423,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, DObject *&value, DObje
 	}
 	return arc;
 }
-#endif
 
 //==========================================================================
 //
@@ -1521,6 +1514,54 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FSoundID &sid, FSoundI
 
 //==========================================================================
 //
+// almost, but not quite the same as the above.
+//
+//==========================================================================
+
+template<> FSerializer &Serialize(FSerializer &arc, const char *key, PClass *&clst, PClass **def)
+{
+	if (arc.isWriting())
+	{
+		if (!arc.w->inObject() || def == nullptr || clst != *def)
+		{
+			arc.WriteKey(key);
+			if (clst == nullptr)
+			{
+				arc.w->Null();
+			}
+			else
+			{
+				arc.w->String(clst->TypeName.GetChars());
+			}
+		}
+	}
+	else
+	{
+		auto val = arc.r->FindKey(key);
+		if (val != nullptr)
+		{
+			if (val->IsString())
+			{
+				clst = PClass::FindClass(UnicodeToString(val->GetString()));
+			}
+			else if (val->IsNull())
+			{
+				clst = nullptr;
+			}
+			else
+			{
+				Printf(TEXTCOLOR_RED "string type expected for '%s'\n", key);
+				clst = nullptr;
+				arc.mErrors++;
+			}
+		}
+	}
+	return arc;
+
+}
+
+//==========================================================================
+//
 //
 //
 //==========================================================================
@@ -1558,6 +1599,29 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FString &pstr, FString
 		}
 	}
 	return arc;
+
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+template<> FSerializer &Serialize(FSerializer &arc, const char *key, FFont *&font, FFont **def)
+{
+	if (arc.isWriting())
+	{
+		FName n = font? font->GetName() : NAME_None;
+		return arc(key, n);
+	}
+	else
+	{
+		FName n = NAME_None;
+		arc(key, n);
+		font = n == NAME_None? nullptr : V_GetFont(n.GetChars());
+		return arc;
+	}
 
 }
 
@@ -1616,6 +1680,12 @@ FSerializer &Serialize(FSerializer &arc, const char *key, NumericValue &value, N
 		}
 	}
 	return arc;
+}
+
+#include "renderstyle.h"
+FSerializer& Serialize(FSerializer& arc, const char* key, FRenderStyle& style, FRenderStyle* def)
+{
+	return arc.Array(key, &style.BlendOp, def ? &def->BlendOp : nullptr, 4);
 }
 
 SaveRecords saveRecords;

@@ -17,14 +17,14 @@ class VMException : public DObject
 
 // An action function -------------------------------------------------------
 
-struct FState;
-struct StateCallData;
 class VMFrameStack;
 struct VMValue;
 struct VMReturn;
 class VMFunction;
 class PClassType;
 struct FNamespaceManager;
+class PSymbol;
+class PField;
 
 enum
 {
@@ -44,9 +44,9 @@ public:
 	void InitializeDefaults();
 #if 0
 	int FindVirtualIndex(FName name, PFunction::Variant *variant, PFunction *parentfunc);
+#endif
 	PSymbol *FindSymbol(FName symname, bool searchparents) const;
 	PField *AddField(FName name, PType *type, uint32_t flags);
-#endif
 
 	static void StaticInit();
 	static void StaticShutdown();
@@ -69,9 +69,7 @@ public:
 	TArray<VMFunction*>	 Virtuals;	// virtual function table
 	TArray<FTypeAndOffset> MetaInits;
 	TArray<FTypeAndOffset> SpecialInits;
-#if 0
 	TArray<PField *> Fields;
-#endif
 	PClassType			*VMType = nullptr;
 
 	void (*ConstructNative)(void *);
