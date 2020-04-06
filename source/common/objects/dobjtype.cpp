@@ -212,15 +212,6 @@ void PClass::StaticInit ()
 		((ClassReg *)*probe)->RegisterClass ();
 	}
 	probe.Reset();
-#if 0
-	for(auto cls : AllClasses)
-	{
-		if (cls->IsDescendantOf(RUNTIME_CLASS(AActor)))
-		{
-			PClassActor::AllActorClasses.Push(static_cast<PClassActor*>(cls));
-		}
-	}
-#endif
 
 	// Keep built-in classes in consistant order. I did this before, though
 	// I'm not sure if this is really necessary to maintain any sort of sync.
@@ -252,7 +243,6 @@ void PClass::StaticShutdown ()
 	{
 		*p = nullptr;
 	}
-	//ScriptUtil::Clear();
 	FunctionPtrList.Clear();
 	VMFunction::DeleteAll();
 
@@ -264,13 +254,7 @@ void PClass::StaticShutdown ()
 	// This flags DObject::Destroy not to call any scripted OnDestroy methods anymore.
 	bVMOperational = false;
 
-#if 0
-	for (auto &p : players)
-	{
-		p.PendingWeapon = nullptr;
-	}
 	Namespaces.ReleaseSymbols();
-#endif
 
 	// This must be done in two steps because the native classes are not ordered by inheritance,
 	// so all meta data must be gone before deleting the actual class objects.
@@ -281,7 +265,6 @@ void PClass::StaticShutdown ()
 	TypeTable.Clear();
 	ClassDataAllocator.FreeAllBlocks();
 	AllClasses.Clear();
-	//PClassActor::AllActorClasses.Clear();
 	ClassMap.Clear();
 
 	FAutoSegIterator probe(CRegHead, CRegTail);
@@ -392,12 +375,6 @@ void PClass::InsertIntoHash (bool native)
 	{
 		ClassMap[TypeName] = this;
 	}
-#if 0
-	if (!native && IsDescendantOf(RUNTIME_CLASS(AActor)))
-	{
-		PClassActor::AllActorClasses.Push(static_cast<PClassActor*>(this));
-	}
-#endif
 }
 
 //==========================================================================
@@ -551,23 +528,13 @@ void PClass::Derive(PClass *newclass, FName name)
 
 //==========================================================================
 //
-// PClassActor :: InitializeNativeDefaults
-//
-//==========================================================================
-
-void PClass::InitializeDefaults()
-{
-}
-
-//==========================================================================
-//
 // PClass :: CreateDerivedClass
 //
 // Create a new class based on an existing class
 //
 //==========================================================================
 
-PClass *PClass::CreateDerivedClass(FName name, unsigned int size)
+PClass *PClass::CreateDerivedClass(FName name, unsigned int size, bool *newlycreated)
 {
 	assert(size >= Size);
 	PClass *type;
@@ -575,6 +542,7 @@ PClass *PClass::CreateDerivedClass(FName name, unsigned int size)
 
 	const PClass *existclass = FindClass(name);
 
+	if (newlycreated) *newlycreated = false;
 	if (existclass != nullptr)
 	{
 		// This is a placeholder so fill it in
@@ -607,7 +575,7 @@ PClass *PClass::CreateDerivedClass(FName name, unsigned int size)
 	if (size != TentativeClass)
 	{
 		NewClassType(type);
-		type->InitializeDefaults();
+		if (newlycreated) *newlycreated = true;
 		type->Virtuals = Virtuals;
 	}
 	else

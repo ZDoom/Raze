@@ -100,8 +100,6 @@
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
-//extern DThinker *NextToThink;
-
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 
 namespace GC
@@ -262,9 +260,19 @@ void MarkArray(DObject **obj, size_t count)
 //
 //==========================================================================
 
+TArray<GCMarkerFunc> markers;
+void AddMarkerFunc(GCMarkerFunc func)
+{
+	if (markers.Find(func) == markers.Size())
+		markers.Push(func);
+}
+
 static void MarkRoot()
 {
 	Gray = NULL;
+
+	for (auto func : markers) func();
+
 	// Mark soft roots.
 	if (SoftRoots != NULL)
 	{
