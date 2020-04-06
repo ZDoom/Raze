@@ -18,7 +18,6 @@ set( PCH_SOURCES
 	src/light.cpp
 	src/lighting.cpp
 	src/lion.cpp
-	src/main.cpp
 	src/map.cpp
 	src/menu.cpp
 	src/mono.cpp
@@ -28,7 +27,6 @@ set( PCH_SOURCES
 	src/network.cpp
 	src/object.cpp
 	src/osdcmds.cpp
-	src/paul.cpp
 	src/player.cpp
 	src/queen.cpp
 	src/ra.cpp
@@ -47,9 +45,7 @@ set( PCH_SOURCES
 	src/sound.cpp
 	src/spider.cpp
 	src/status.cpp
-	src/stream.cpp
 	src/switch.cpp
-	src/text2.cpp
 	src/timer.cpp
 	src/trigdat.cpp
 	src/view.cpp
