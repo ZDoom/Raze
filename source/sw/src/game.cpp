@@ -2574,8 +2574,9 @@ void RunLevel(void)
             }
         }
 
+        if (!ScrollMode2D)
+            getinput(myconnectindex);
 
-        getinput(myconnectindex);
         drawscreen(Player + screenpeek);
 
         if (QuitFlag)
@@ -3087,7 +3088,7 @@ void getinput(int const playerNum)
     // If in 2D follow mode, scroll around.
     if (ScrollMode2D && !Prediction)
     {
-        keymove = keymove / 6;
+        keymove = keymove / 2;
 
         if (M_Active())
             return;
