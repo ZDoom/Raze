@@ -270,7 +270,9 @@ void Respawn(int nSprite) // 9
                 pSprite->y = baseSprite[nSprite].y;
                 pSprite->z = baseSprite[nSprite].z;
                 pSprite->cstat |= 0x1101;
-                pXSprite->health = dudeGetStartHp(pSprite);
+                #ifdef NOONE_EXTENSIONS
+                if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[pSprite->type - kDudeBase].startHealth << 4;
+                else pXSprite->health = ClipRange(pXSprite->sysData2 << 4, 1, 65535);
                 switch (pSprite->type) {
                     default:
                         pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
@@ -281,6 +283,12 @@ void Respawn(int nSprite) // 9
                         seqSpawn(genDudeSeqStartId(pXSprite), 3, pSprite->extra, -1);
                         break;
                 }
+                #else
+                pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
+                pXSprite->health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
+                if (gSysRes.Lookup(getDudeInfo(nType + kDudeBase)->seqStartID, "SEQ"))
+                    seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
+                #endif
                 aiInitSprite(pSprite);
                 pXSprite->key = 0;
             } else if (pSprite->type == kThingTNTBarrel) {

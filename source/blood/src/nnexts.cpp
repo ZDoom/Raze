@@ -407,6 +407,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
             if (sysStat)
                 ThrowError("Sprite #%d: System status list number %d detected!", pSprite->index, pSprite->statnum);
             */
+
             switch (pSprite->type) {
                 case kModernRandomTX:
                 case kModernSequentialTX:
@@ -729,7 +730,6 @@ void nnExtProcessSuperSprites() {
 
     // process Debris sprites for movement
     if (gPhysSpritesCount > 0) {
-        //viewSetSystemMessage("PHYS COUNT: %d", gPhysSpritesCount);
         for (int i = 0; i < gPhysSpritesCount; i++) {
             if (gPhysSpritesList[i] == -1) continue;
             else if (sprite[gPhysSpritesList[i]].statnum == kStatFree || (sprite[gPhysSpritesList[i]].flags & kHitagFree) != 0) {
@@ -1174,30 +1174,15 @@ void windGenStopWindOnSectors(XSPRITE* pXSource) {
                 pXSector->windVel = 0;
         }
     }
-
-    if (gEventRedirectsUsed) {
-        int rx = 0; XSPRITE* pXRedir = eventRedirected(OBJ_SPRITE, pSource->extra, false);
-        if (pXRedir == NULL) return;
-        else if (txIsRanged(pXRedir)) {
-            if (!channelRangeIsFine(pXRedir->data4 - pXRedir->data1)) return;
-            for (rx = pXRedir->data1; rx <= pXRedir->data4; rx++) {
-                for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-                    if (rxBucket[i].type != OBJ_SECTOR) continue;
-                    XSECTOR* pXSector = &xsector[sector[rxBucket[i].index].extra];
-                    if ((pXSector->state == 1 && !pXSector->windAlways) || (pSource->flags & kModernTypeFlag2))
-                        pXSector->windVel = 0;
-                }
-            }
-        } else {
-            for (int i = 0; i <= 3; i++) {
-                if (!channelRangeIsFine((rx = GetDataVal(&sprite[pXRedir->reference], i)))) continue;
-                for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-                    if (rxBucket[i].type != OBJ_SECTOR) continue;
-                    XSECTOR* pXSector = &xsector[sector[rxBucket[i].index].extra];
-                    if ((pXSector->state == 1 && !pXSector->windAlways) || (pSource->flags & kModernTypeFlag2))
-                        pXSector->windVel = 0;
-                }
-            }
+    
+    // check redirected TX buckets
+    int rx = -1; XSPRITE* pXRedir = NULL;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSource->reference].extra, pXRedir, &rx)) != NULL) {
+        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+            if (rxBucket[i].type != OBJ_SECTOR) continue;
+            XSECTOR* pXSector = &xsector[sector[rxBucket[i].index].extra];
+            if ((pXSector->state == 1 && !pXSector->windAlways) || (pSource->flags & kModernTypeFlag2))
+                pXSector->windVel = 0;
         }
     }
 }
@@ -1238,7 +1223,6 @@ void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer) {
 void trPlayerCtrlStopScene(XSPRITE* pXSource, PLAYER* pPlayer) {
 
     TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
-    //viewSetSystemMessage("OFF %d", pCtrl->qavScene.index);
 
     pXSource->sysData1 = 0;
     pCtrl->qavScene.index = -1;
@@ -2204,6 +2188,9 @@ bool condCmp(int val, int arg1, int arg2, int comOp) {
 
 // no extra comparison (val always = 0)?
 bool condCmpne(int arg1, int arg2, int comOp) {
+    
+    UNREFERENCED_PARAMETER(arg2);
+
     if (comOp & 0x2000) return (comOp & CSTAT_SPRITE_BLOCK) ? false : (!arg1); // blue sprite
     else if (comOp & 0x4000) return (comOp & CSTAT_SPRITE_BLOCK) ? false : (!arg1); // green sprite
     else return (!arg1);
@@ -2299,6 +2286,7 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH, bool RVR
                     break;
                 }
             }
+            break;
         case 41:
         case 42:
         case 43:
@@ -2376,7 +2364,7 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
 
     int var = -1;
     int cond = pXCond->data1 - kCondSectorBase; int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; int arg3 = pXCond->data4;
+    int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
     
     int objType = -1; int objIndex = -1;
     condUnserialize(pXCond->targetX, &objType, &objIndex);
@@ -2445,7 +2433,7 @@ bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
     
     int var = -1;
     int cond = pXCond->data1 - kCondWallBase; int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; int arg3 = pXCond->data4;
+    int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
     
     int objType = -1; int objIndex = -1;
     condUnserialize(pXCond->targetX, &objType, &objIndex);
@@ -2454,7 +2442,7 @@ bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
         ThrowError("\nWall conditions:\nObject #%d (objType: %d) is not a wall!", objIndex, objType);
         
     walltype* pWall = &wall[objIndex];
-    XWALL* pXWall = (xwallRangeIsFine(pWall->extra)) ? &xwall[pWall->extra] : NULL;
+    //XWALL* pXWall = (xwallRangeIsFine(pWall->extra)) ? &xwall[pWall->extra] : NULL;
     
     if (cond < (kCondRange >> 1)) {
         switch (cond) {
@@ -2487,6 +2475,8 @@ bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
 }
 
 bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
+    
+    UNREFERENCED_PARAMETER(RVRS);
     
     int var = -1; PLAYER* pPlayer = NULL;
     int cond = pXCond->data1 - kCondDudeBase; int arg1 = pXCond->data2;
@@ -2568,6 +2558,8 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
 }
 
 bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
+    
+    UNREFERENCED_PARAMETER(RVRS);
     
     int var = -1; PLAYER* pPlayer = NULL; bool retn = false;
     int cond = pXCond->data1 - kCondSpriteBase; int arg1 = pXCond->data2;
@@ -2666,7 +2658,7 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
         switch (cond) {
             default: break;
             case 50: // compare hp (in %)
-                if (IsDudeSprite(pSpr)) var = dudeGetStartHp(pSpr);
+                if (IsDudeSprite(pSpr)) var = (pXSpr->sysData2 > 0) ? ClipRange(pXSpr->sysData2 << 4, 1, 65535) : getDudeInfo(pSpr->type)->startHealth << 4;
                 else if (condCmpne(arg1, arg2, cmpOp) && pSpr->type == kThingBloodChunks) return true;
                 else if (pSpr->type >= kThingBase && pSpr->type < kThingMax)
                     var = thingInfo[pSpr->type - kThingBase].startHealth << 4;
@@ -2711,7 +2703,6 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
                 return condCmp(getSpriteMassBySize(pSpr), arg1, arg2, cmpOp); // mass of the sprite in a range?
         }
     } else {
-        viewSetSystemMessage("!!!!!!!! %d", pSpr->type);
         switch (cond) {
             default: return false;
             case 50:
@@ -2832,6 +2823,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
                             modernTypeSendCommand(pSource->index, pXSpr->txID, (COMMAND_ID)pXSource->command);
                         return;
                     }
+                    break;
             }
             break;
         default:
@@ -2895,55 +2887,6 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
             break;
     }
 }
-
-XSPRITE* eventRedirected(int objType, int objXIndex, bool byRx) {
-    unsigned short id = 0;
-    switch (objType) {
-        case OBJ_SECTOR:
-            if (!xsectRangeIsFine(objXIndex)) return NULL;
-            id = (byRx) ? xsector[objXIndex].rxID : xsector[objXIndex].txID;
-            break;
-        case OBJ_SPRITE:
-            if (!xspriRangeIsFine(objXIndex)) return NULL;
-            id = (byRx) ? xsprite[objXIndex].rxID : xsprite[objXIndex].txID;
-            break;
-        case OBJ_WALL:
-            if (!xwallRangeIsFine(objXIndex)) return NULL;
-            id = (byRx) ? xwall[objXIndex].rxID : xwall[objXIndex].txID;
-            break;
-        default:
-            return NULL;
-    }
-
-    if (!byRx) {
-        for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) {
-            if (rxBucket[i].type != OBJ_SPRITE) continue;
-            spritetype* pSpr = &sprite[rxBucket[i].index];
-            if (!xspriRangeIsFine(pSpr->extra)) continue;
-            switch (pSpr->type) {
-                case kModernRandomTX:
-                case kModernSequentialTX:
-                    XSPRITE* pXSpr = &xsprite[pSpr->extra];
-                    if (!(pSpr->flags & kModernTypeFlag2) || pXSpr->locked) continue;
-                    return pXSpr;
-            }
-        }
-    } else {
-        for (int nSprite = headspritestat[kStatModernEventRedirector]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-            if (xspriRangeIsFine(sprite[nSprite].extra)) {
-                XSPRITE* pXRedir = &xsprite[sprite[nSprite].extra];
-                if (txIsRanged(pXRedir)) {
-                    if (id >= pXRedir->data1 && id <= pXRedir->data4) return pXRedir;
-                } else {
-                    for (int i = 0; i <= 3; i++)
-                        if (id == GetDataVal(&sprite[pXRedir->reference], i)) return pXRedir;
-                }
-            }
-        }
-    }
-    return NULL;
-}
-
 
 // the following functions required for kModernDudeTargetChanger
 //---------------------------------------
@@ -3031,7 +2974,6 @@ bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* p
     spritetype* pDude = &sprite[pXDude->reference];
     int dx = pTarget->x - pDude->x; int dy = pTarget->y - pDude->y;
 
-    //viewSetSystemMessage("zzzz");
     // check target
     if (approxDist(dx, dy) < pDudeInfo->seeDist) {
         int eyeAboveZ = pDudeInfo->eyeHeight * pDude->yrepeat << 2;
@@ -3116,27 +3058,13 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
             xsprite[sprite[rxBucket[i].index].extra].health > 0) return true;
     }
 
-    if (gEventRedirectsUsed) {
-        int rx = 0; XSPRITE* pXRedir = eventRedirected(OBJ_SPRITE, sprite[pXSprite->reference].extra, false);
-        if (pXRedir == NULL) return false;
-        else if (txIsRanged(pXRedir)) {
-            if (!channelRangeIsFine(pXRedir->data4 - pXRedir->data1)) return false;
-            for (rx = pXRedir->data1; rx <= pXRedir->data4; rx++) {
-                for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-                    if (rxBucket[i].type != OBJ_SPRITE) continue;
-                    else if (IsDudeSprite(&sprite[rxBucket[i].index]) &&
-                        xsprite[sprite[rxBucket[i].index].extra].health > 0) return true;
-                }
-            }
-        } else {
-            for (int i = 0; i <= 3; i++) {
-                if (!channelRangeIsFine((rx = GetDataVal(&sprite[pXRedir->reference], i)))) continue;
-                for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-                    if (rxBucket[i].type != OBJ_SPRITE) continue;
-                    else if (IsDudeSprite(&sprite[rxBucket[i].index]) &&
-                        xsprite[sprite[rxBucket[i].index].extra].health > 0) return true;
-                }
-            }
+    // check redirected TX buckets
+    int rx = -1; XSPRITE* pXRedir = NULL;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
+        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+            if (rxBucket[i].type != OBJ_SPRITE) continue;
+            else if (IsDudeSprite(&sprite[rxBucket[i].index]) &&
+                xsprite[sprite[rxBucket[i].index].extra].health > 0) return true;
         }
     }
     return false;
@@ -3442,11 +3370,9 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         evPost(nSprite, 3, 0, kCmdOff);
                         break;
                     }
-
-                    if (pXSprite->txID > 0 /*&& pXSprite->data1 > 0 && pXSprite->data1 <= 4*/) {
-                        modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                        if (pXSprite->busyTime > 0) evPost(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
-                    }
+                    
+                    modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    if (pXSprite->busyTime > 0) evPost(nSprite, 3, pXSprite->busyTime, kCmdRepeat);
                     break;
                 default:
                     if (pXSprite->state == 0) evPost(nSprite, 3, 0, kCmdOn);
@@ -4099,6 +4025,7 @@ void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
             }
         }
 
+        pXSource->sysData1 = data;
         setDataValueOfObject(objType, objIndex, dataIndex, data);
     }
 
@@ -4196,11 +4123,10 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             if (pBurnSource->extra >= 0) {
                 if (pXSource->data2 == 1 && aiFightIsMateOf(pXSprite, &xsprite[pBurnSource->extra])) {
                     pXSprite->burnTime = 0;
-
+                    
                     // heal dude a bit in case of friendly fire
-                    int startHp = dudeGetStartHp(pSprite);
+                    int startHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
                     if (pXSprite->health < startHp) actHealDude(pXSprite, receiveHp, startHp);
-
                 } else if (xsprite[pBurnSource->extra].health <= 0) {
                     pXSprite->burnTime = 0;
                 }
@@ -4266,11 +4192,11 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             spritetype* pMate = pTarget; XSPRITE* pXMate = pXTarget;
 
             // heal dude
-            int startHp = dudeGetStartHp(pSprite);
+            int startHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
             if (pXSprite->health < startHp) actHealDude(pXSprite, receiveHp, startHp);
 
             // heal mate
-            startHp = dudeGetStartHp(pMate);
+            startHp = (pXMate->sysData2 > 0) ? ClipRange(pXMate->sysData2 << 4, 1, 65535) : getDudeInfo(pMate->type)->startHealth << 4;
             if (pXMate->health < startHp) actHealDude(pXMate, receiveHp, startHp);
 
             if (pXMate->target > -1 && sprite[pXMate->target].extra >= 0) {
@@ -4750,43 +4676,113 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
     }
 }
 
+int listTx(XSPRITE* pXRedir, int tx) {
+    if (txIsRanged(pXRedir)) {
+        if (tx == -1) tx = pXRedir->data1;
+        else if (tx < pXRedir->data4) tx++;
+        else tx = -1;
+    } else {
+        if (tx == -1) {
+            for (int i = 0; i <= 3; i++) {
+                if ((tx = GetDataVal(&sprite[pXRedir->reference], i)) <= 0) continue;
+                else return tx;
+            }
+        } else {
+            int saved = tx; bool savedFound = false;
+            for (int i = 0; i <= 3; i++) {
+                tx = GetDataVal(&sprite[pXRedir->reference], i);
+                if (savedFound && tx > 0) return tx;
+                else if (tx != saved) continue;
+                else savedFound = true;
+            }
+        }
+        
+        tx = -1;
+    }
+
+    return tx;
+}
+
+XSPRITE* evrIsRedirector(int nSprite) {
+    if (spriRangeIsFine(nSprite)) {
+        switch (sprite[nSprite].type) {
+        case kModernRandomTX:
+        case kModernSequentialTX:
+            if ((sprite[nSprite].flags & kModernTypeFlag2)
+                && xspriRangeIsFine(sprite[nSprite].extra) && !xsprite[sprite[nSprite].extra].locked) {
+                return &xsprite[sprite[nSprite].extra];
+            }
+            break;
+        }
+    }
+
+    return NULL;
+}
+
+XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* tx) {
+    if (!gEventRedirectsUsed) return NULL;
+    else if (pXRedir && (*tx = listTx(pXRedir, *tx)) != -1)
+        return pXRedir;
+
+    int id = 0;
+    switch (objType) {
+        case OBJ_SECTOR:
+            if (!xsectRangeIsFine(objXIndex)) return NULL;
+            id = xsector[objXIndex].txID;
+            break;
+        case OBJ_SPRITE:
+            if (!xspriRangeIsFine(objXIndex)) return NULL;
+            id = xsprite[objXIndex].txID;
+            break;
+        case OBJ_WALL:
+            if (!xwallRangeIsFine(objXIndex)) return NULL;
+            id = xwall[objXIndex].txID;
+            break;
+        default:
+            return NULL;
+    }
+
+    int nIndex = (pXRedir) ? pXRedir->reference : -1; bool prevFound = false;
+    for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) {
+        if (rxBucket[i].type != OBJ_SPRITE) continue;
+        XSPRITE* pXSpr = evrIsRedirector(rxBucket[i].index);
+        if (!pXSpr) continue;
+        else if (prevFound || nIndex == -1) { *tx = listTx(pXSpr, *tx); return pXSpr; }
+        else if (nIndex != pXSpr->reference) continue;
+        else prevFound = true;
+    }
+
+    *tx = -1;
+    return NULL;
+}
+
 // this function checks if all TX objects have the same value
 bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     
-    char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = strlen(buffer); int rx = 0;
-    XSPRITE* pXRedir = (gEventRedirectsUsed) ? eventRedirected(OBJ_SPRITE, sprite[pXSprite->reference].extra, false) : NULL;
+    if (pXSprite->data3 != pXSprite->sysData1) return false;
+    char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = strlen(buffer); int rx = -1;
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
-        if (pXRedir && sprite[pXRedir->reference].index == (int) rxBucket[i].index) continue;
+        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].index)) continue;
         for (int a = 0; a < len; a++) {
             if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, (buffer[a] - 52) + 4) != pXSprite->data3)
                 return false;
         }
     }
 
-    if (pXRedir == NULL) return true;
-    else if (txIsRanged(pXRedir)) {
-        if (!channelRangeIsFine(pXRedir->data4 - pXRedir->data1)) return false;
-        for (rx = pXRedir->data1; rx <= pXRedir->data4; rx++) {
-            for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-                for (int a = 0; a < len; i++) {
-                    if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, (buffer[a] - 52) + 4) != pXSprite->data3)
-                        return false;
-                }
-            }
-        }
-    } else {
-        for (int i = 0; i <= 3; i++) {
-            if (!channelRangeIsFine((rx = GetDataVal(&sprite[pXRedir->reference], i)))) continue;
-            for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-                for (int a = 0; a < len; a++) {
-                    if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, (buffer[a] - 52) + 4) != pXSprite->data3)
-                        return false;
-                }
+    XSPRITE* pXRedir = NULL; // check redirected TX buckets
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
+        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+            for (int a = 0; a < len; a++) {
+                if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].index, (buffer[a] - 52) + 4) != pXSprite->data3)
+                    return false;
             }
         }
     }
+    
     return true;
 }
+
+
 
 // this function can be called via sending numbered command to TX kChannelModernEndLevelCustom
 // it allows to set custom next level instead of taking it from INI file.

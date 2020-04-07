@@ -328,7 +328,6 @@ void windGenStopWindOnSectors(XSPRITE* pXSource);
 int getSpriteMassBySize(spritetype* pSprite);
 bool ceilIsTooLow(spritetype* pSprite);
 void levelEndLevelCustom(int nLevel);
-XSPRITE* eventRedirected(int objType, int objXIndex, bool byRx);
 bool useCondition(XSPRITE* pXSource, EVENT event);
 bool condPush(XSPRITE* pXSprite, int objType, int objIndex);
 bool condRestore(XSPRITE* pXSprite);
@@ -339,6 +338,9 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
 bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
 bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
 void condUpdateObjectIndex(int objType, int oldIndex, int newIndex);
+XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* tx);
+XSPRITE* evrIsRedirector(int nSprite);
+int listTx(XSPRITE* pXRedir, int tx);
 #endif
 
 ////////////////////////////////////////////////////////////////////////

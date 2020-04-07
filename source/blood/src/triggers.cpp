@@ -332,8 +332,19 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
     spritetype *pSprite = &sprite[nSprite];
     
     #ifdef NOONE_EXTENSIONS
-        if (gModernMap && modernTypeOperateSprite(nSprite, pSprite, pXSprite, event))
+    if (gModernMap && modernTypeOperateSprite(nSprite, pSprite, pXSprite, event))
+        return;
+    switch (event.cmd) {
+        case kCmdLock:
+            pXSprite->locked = 1;
             return;
+        case kCmdUnlock:
+            pXSprite->locked = 0;
+            return;
+        case kCmdToggleLock:
+            pXSprite->locked = pXSprite->locked ^ 1;
+            return;
+    }
     #else
     switch (event.cmd) {
         case kCmdLock:

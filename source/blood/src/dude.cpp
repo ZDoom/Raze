@@ -1570,7 +1570,7 @@ DUDEINFO dudeInfo[kDudeMax-kDudeBase] =
         256,		                        // angSpeed
         //			    0,
         7,	-1, 18,	                        // nGibType
-        64, 256, 256, 256, 256, 256, 256,
+        128, 150, 128, 256, 128, 128, 128,
         0, 0, 0, 0, 0, 0, 0,
         0,
         0
@@ -1732,20 +1732,4 @@ DUDEINFO gPlayerTemplate[4] =
 };
 
 DUDEINFO fakeDudeInfo = {};
-
-int dudeGetStartHp(spritetype* pDude) {
-   
-    int hp = getDudeInfo(pDude->type)->startHealth << 4;
-    if (!hp) {
-        consoleSysMsg("Sprite #%d (type %d) is not a dude!", pDude->index, pDude->type);
-        return hp;
-    }
-    #ifdef NOONE_EXTENSIONS
-    // add a way to set custom hp for every enemy (data4 moved to sysData2)
-    else if (gModernMap && xsprite[pDude->extra].sysData2 > 0)
-        hp = ClipRange(xsprite[pDude->extra].sysData2 << 4, 1, 65535);
-    #endif
-    return hp;
-}
-
 END_BLD_NS

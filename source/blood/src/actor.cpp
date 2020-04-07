@@ -2469,7 +2469,7 @@ void actInit(bool bSaveLoad) {
             nnExtInitModernStuff(bSaveLoad);
     }
     #endif
-
+    
     for (int nSprite = headspritestat[kStatItem]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
         switch (sprite[nSprite].type) {
             case kItemWeaponVoodooDoll:
@@ -2587,7 +2587,15 @@ void actInit(bool bSaveLoad) {
                 #endif
 
                 xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
-                pXSprite->health = dudeGetStartHp(pSprite);
+                
+                #ifdef NOONE_EXTENSIONS
+                    // add a way to set custom hp for every enemy - should work only if map just started and not loaded.
+                    if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[nType].startHealth << 4;
+                    else pXSprite->health = ClipRange(pXSprite->sysData2 << 4, 1, 65535);
+                #else
+                    pXSprite->health = dudeInfo[nType].startHealth << 4;
+                #endif
+                    
             }
 
             if (gSysRes.Lookup(seqStartId, "SEQ")) seqSpawn(seqStartId, 3, pSprite->extra);
