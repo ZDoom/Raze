@@ -197,7 +197,6 @@ if( NO_OPENAL )
 	add_definitions( -DNO_OPENAL=1 )
 endif()
 
-
 # Decide on SSE setup
 
 # SSE only matters on 32-bit targets. We check compiler flags to know if we can do it.
@@ -561,6 +560,10 @@ else()
 	endif( NOT NO_OPENMP )
 endif()
 
+add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/zcc-parse.c ${CMAKE_CURRENT_BINARY_DIR}/zcc-parse.h
+	COMMAND lemon -C${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/frontend/zcc-parse.lemon
+	DEPENDS lemon ${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/frontend/zcc-parse.lemon )
+
 add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h
 	COMMAND re2c --no-generation-date -s -o ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h ${CMAKE_CURRENT_SOURCE_DIR}/common/engine/sc_man_scanner.re
 	DEPENDS re2c ${CMAKE_CURRENT_SOURCE_DIR}/common/engine/sc_man_scanner.re )
@@ -617,6 +620,7 @@ file( GLOB HEADER_FILES
 	common/scripting/jit/*h
 	common/scripting/interface/*.h
 	common/scripting/backend/*.h
+	common/scripting/frontend/*.h
 
 	build/src/*.h
 	platform/win32/*.h
@@ -635,6 +639,9 @@ set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
 	sc_man_scanner.h
 	common/engine/sc_man_scanner.re
+	common/scripting/frontend/zcc-parse.lemon
+	zcc-parse.c
+	zcc-parse.h
 	platform/win32/zutil.natvis
 )
 
@@ -797,9 +804,14 @@ set (PCH_SOURCES
 	common/scripting/core/types.cpp
 	common/scripting/core/scopebarrier.cpp
 	common/scripting/core/vmdisasm.cpp
+	common/scripting/core/imports.cpp
 	common/scripting/vm/vmexec.cpp
 	common/scripting/vm/vmframe.cpp
 	common/scripting/interface/stringformat.cpp
+	#common/scripting/interface/exports.cpp
+	common/scripting/frontend/ast.cpp
+	common/scripting/frontend/zcc_compile.cpp
+	common/scripting/frontend/zcc_parser.cpp
 	common/scripting/backend/vmbuilder.cpp
 	common/scripting/backend/codegen.cpp
 
@@ -965,6 +977,7 @@ include_directories(
 	common/scripting/jit
 	common/scripting/core
 	common/scripting/interface
+	common/scripting/frontend
 	common/scripting/backend
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 
@@ -1083,6 +1096,7 @@ source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/co
 source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Common\\Scripting" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/.+")
 source_group("Common\\Scripting\\Interface" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/interface/.+")
+source_group("Common\\Scripting\\Frontend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/frontend/.+" FILES ${CMAKE_CURRENT_BINARY_DIR}/zcc-parse.c ${CMAKE_CURRENT_BINARY_DIR}/zcc-parse.h)
 source_group("Common\\Scripting\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/backend/.+")
 source_group("Common\\Scripting\\Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/core/.+")
 source_group("Common\\Scripting\\JIT" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/jit/.+")
