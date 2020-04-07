@@ -50,12 +50,15 @@
 #include "cmdlib.h"
 #include "utf8.h"
 #include "printf.h"
-#include "raze_sound.h"
+#include "s_soundinternal.h"
 #include "engineerrors.h"
 #include "textures.h"
 #include "texturemanager.h"
 
-bool save_full = false;
+extern DObject *WP_NOCHANGE;
+bool save_full = false;	// for testing. Should be removed afterward.
+
+#include "serializer_internal.h"
 
 //==========================================================================
 //
@@ -66,7 +69,7 @@ bool save_full = false;
 //==========================================================================
 
 static TArray<char> out;
-static const char *StringToUnicode(const char *cc, int size = -1)
+const char *StringToUnicode(const char *cc, int size)
 {
 	int ch;
 	const uint8_t *c = (const uint8_t*)cc;
@@ -94,7 +97,7 @@ static const char *StringToUnicode(const char *cc, int size = -1)
 	return &out[0];
 }
 
-static const char *UnicodeToString(const char *cc)
+const char *UnicodeToString(const char *cc)
 {
 	out.Resize((unsigned)strlen(cc) + 1);
 	int ndx = 0;
@@ -109,225 +112,6 @@ static const char *UnicodeToString(const char *cc)
 	out[ndx] = 0;
 	return &out[0];
 }
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-struct FJSONObject
-{
-	rapidjson::Value *mObject;
-	rapidjson::Value::MemberIterator mIterator;
-	int mIndex;
-
-	FJSONObject(rapidjson::Value *v)
-	{
-		mObject = v;
-		if (v->IsObject()) mIterator = v->MemberBegin();
-		else if (v->IsArray())
-		{
-			mIndex = 0;
-		}
-	}
-};
-
-//==========================================================================
-//
-// some wrapper stuff to keep the RapidJSON dependencies out of the global headers.
-// FSerializer should not expose any of this.
-//
-//==========================================================================
-
-struct FWriter
-{
-	typedef rapidjson::Writer<rapidjson::StringBuffer, rapidjson::UTF8<> > Writer;
-	typedef rapidjson::PrettyWriter<rapidjson::StringBuffer, rapidjson::UTF8<> > PrettyWriter;
-
-	Writer *mWriter1;
-	PrettyWriter *mWriter2;
-	TArray<bool> mInObject;
-	rapidjson::StringBuffer mOutString;
-	TArray<DObject *> mDObjects;
-	TMap<DObject *, int> mObjectMap;
-	
-	FWriter(bool pretty)
-	{
-		if (!pretty)
-		{
-			mWriter1 = new Writer(mOutString);
-			mWriter2 = nullptr;
-		}
-		else
-		{
-			mWriter1 = nullptr;
-			mWriter2 = new PrettyWriter(mOutString);
-		}
-	}
-
-	~FWriter()
-	{
-		if (mWriter1) delete mWriter1;
-		if (mWriter2) delete mWriter2;
-	}
-
-
-	bool inObject() const
-	{
-		return mInObject.Size() > 0 && mInObject.Last();
-	}
-
-	void StartObject()
-	{
-		if (mWriter1) mWriter1->StartObject();
-		else if (mWriter2) mWriter2->StartObject();
-	}
-
-	void EndObject()
-	{
-		if (mWriter1) mWriter1->EndObject();
-		else if (mWriter2) mWriter2->EndObject();
-	}
-
-	void StartArray()
-	{
-		if (mWriter1) mWriter1->StartArray();
-		else if (mWriter2) mWriter2->StartArray();
-	}
-
-	void EndArray()
-	{
-		if (mWriter1) mWriter1->EndArray();
-		else if (mWriter2) mWriter2->EndArray();
-	}
-
-	void Key(const char *k)
-	{
-		if (mWriter1) mWriter1->Key(k);
-		else if (mWriter2) mWriter2->Key(k);
-	}
-
-	void Null()
-	{
-		if (mWriter1) mWriter1->Null();
-		else if (mWriter2) mWriter2->Null();
-	}
-
-	void StringU(const char *k, bool encode)
-	{
-		if (encode) k = StringToUnicode(k);
-		if (mWriter1) mWriter1->String(k);
-		else if (mWriter2) mWriter2->String(k);
-	}
-
-	void String(const char *k)
-	{
-		k = StringToUnicode(k);
-		if (mWriter1) mWriter1->String(k);
-		else if (mWriter2) mWriter2->String(k);
-	}
-
-	void String(const char *k, int size)
-	{
-		k = StringToUnicode(k, size);
-		if (mWriter1) mWriter1->String(k);
-		else if (mWriter2) mWriter2->String(k);
-	}
-
-	void Bool(bool k)
-	{
-		if (mWriter1) mWriter1->Bool(k);
-		else if (mWriter2) mWriter2->Bool(k);
-	}
-
-	void Int(int32_t k)
-	{
-		if (mWriter1) mWriter1->Int(k);
-		else if (mWriter2) mWriter2->Int(k);
-	}
-
-	void Int64(int64_t k)
-	{
-		if (mWriter1) mWriter1->Int64(k);
-		else if (mWriter2) mWriter2->Int64(k);
-	}
-
-	void Uint(uint32_t k)
-	{
-		if (mWriter1) mWriter1->Uint(k);
-		else if (mWriter2) mWriter2->Uint(k);
-	}
-
-	void Uint64(int64_t k)
-	{
-		if (mWriter1) mWriter1->Uint64(k);
-		else if (mWriter2) mWriter2->Uint64(k);
-	}
-
-	void Double(double k)
-	{
-		if (mWriter1)
-		{
-			mWriter1->Double(k);
-		}
-		else if (mWriter2)
-		{
-			mWriter2->Double(k);
-		}
-	}
-
-};
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-struct FReader
-{
-	TArray<FJSONObject> mObjects;
-	rapidjson::Document mDoc;
-	TArray<DObject *> mDObjects;
-	rapidjson::Value *mKeyValue = nullptr;
-	bool mObjectsRead = false;
-
-	FReader(const char *buffer, size_t length)
-	{
-		mDoc.Parse(buffer, length);
-		mObjects.Push(FJSONObject(&mDoc));
-	}
-
-	rapidjson::Value *FindKey(const char *key)
-	{
-		FJSONObject &obj = mObjects.Last();
-		
-		if (obj.mObject->IsObject())
-		{
-			if (key == nullptr)
-			{
-				// we are performing an iteration of the object through GetKey.
-				auto p = mKeyValue;
-				mKeyValue = nullptr;
-				return p;
-			}
-			else
-			{
-				// Find the given key by name;
-				auto it = obj.mObject->FindMember(key);
-				if (it == obj.mObject->MemberEnd()) return nullptr;
-				return &it->value;
-			}
-		}
-		else if (obj.mObject->IsArray() && (unsigned)obj.mIndex < obj.mObject->Size())
-		{
-			return &(*obj.mObject)[obj.mIndex++];
-		}
-		return nullptr;
-	}
-};
-
 
 //==========================================================================
 //
@@ -402,6 +186,7 @@ void FSerializer::Close()
 	}
 	if (r != nullptr)
 	{
+		CloseReaderCustom();
 		delete r;
 		r = nullptr;
 	}
@@ -637,6 +422,43 @@ FSerializer &FSerializer::ScriptNum(const char *key, int &num)
 
 //==========================================================================
 //
+// this is merely a placeholder to satisfy the VM's spriteid type.
+//
+//==========================================================================
+
+FSerializer &FSerializer::Sprite(const char *key, int32_t &spritenum, int32_t *def)
+{
+	if (isWriting())
+	{
+		if (w->inObject() && def != nullptr && *def == spritenum) return *this;
+		WriteKey(key);
+		w->Int(spritenum);
+	}
+	else
+	{
+		auto val = r->FindKey(key);
+		if (val != nullptr && val->IsInt())
+		{
+			spritenum = val->GetInt();
+		}
+	}
+	return *this;
+}
+
+//==========================================================================
+//
+// only here so that it can be virtually overridden. Without reference this cannot save anything.
+//
+//==========================================================================
+
+FSerializer& FSerializer::StatePointer(const char* key, void* ptraddr, bool *res)
+{
+	if (res) *res = false;
+	return *this;
+}
+
+//==========================================================================
+//
 //
 //
 //==========================================================================
@@ -835,7 +657,7 @@ void FSerializer::ReadObjects(bool hubtravel)
 								obj->SerializeUserVars(*this);
 								obj->Serialize(*this);
 							}
-							catch (CEngineError &err)
+							catch (CRecoverableError &err)
 							{
 								// In case something in here throws an error, let's continue and deal with it later.
 								Printf(TEXTCOLOR_RED "'%s'\n while restoring %s\n", err.GetMessage(), obj ? obj->GetClass()->TypeName.GetChars() : "invalid object");
@@ -1136,6 +958,15 @@ FSerializer &Serialize(FSerializer &arc, const char *key, uint32_t &value, uint3
 //
 //==========================================================================
 
+FSerializer& Serialize(FSerializer& arc, const char* key, char& value, char* defval)
+{
+	int32_t vv = value;
+	int32_t vvd = defval ? *defval : value - 1;
+	Serialize(arc, key, vv, &vvd);
+	value = (int8_t)vv;
+	return arc;
+}
+
 FSerializer &Serialize(FSerializer &arc, const char *key, int8_t &value, int8_t *defval)
 {
 	int32_t vv = value;
@@ -1220,25 +1051,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, float &value, float *d
 	double vvd = defval ? *defval : value - 1;
 	Serialize(arc, key, vv, &vvd);
 	value = (float)vv;
-	return arc;
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-template<class T>
-FSerializer &SerializePointer(FSerializer &arc, const char *key, T *&value, T **defval, T *base)
-{
-	assert(base != nullptr);
-	if (arc.isReading() || !arc.w->inObject() || defval == nullptr || value != *defval)
-	{
-		int64_t vv = value == nullptr ? -1 : value - base;
-		Serialize(arc, key, vv, nullptr);
-		value = vv < 0 ? nullptr : base + vv;
-	}
 	return arc;
 }
 
@@ -1344,13 +1156,11 @@ FSerializer &Serialize(FSerializer &arc, const char *key, DObject *&value, DObje
 		if (value != nullptr && !(value->ObjectFlags & (OF_EuthanizeMe | OF_Transient)))
 		{
 			int ndx;
-			/*
 			if (value == WP_NOCHANGE)
 			{
 				ndx = -1;
 			}
 			else
-			*/
 			{
 				int *pndx = arc.w->mObjectMap.CheckKey(value);
 				if (pndx != nullptr)
@@ -1391,7 +1201,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, DObject *&value, DObje
 				int index = val->GetInt();
 				if (index == -1)
 				{
-					value = nullptr;// WP_NOCHANGE;
+					value = WP_NOCHANGE;
 				}
 				else
 				{
@@ -1463,19 +1273,20 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FName &value, FName *d
 
 //==========================================================================
 //
-// Note that the sound name here is not reliable because it's a file name, not a unique alias.
-// Currently the index is the only means to retrieve the sound on loading.
+//
 //
 //==========================================================================
 
 FSerializer &Serialize(FSerializer &arc, const char *key, FSoundID &sid, FSoundID *def)
 {
-#if 1
-	int id = sid;
-	Serialize(arc, key, id, nullptr);
-	if (arc.isReading()) sid = FSoundID(id);
-#else
-	if (arc.isWriting())
+	if (!arc.soundNamesAreUnique)
+	{
+		//If sound name here is not reliable, we need to save by index instead.
+		int id = sid;
+		Serialize(arc, key, id, nullptr);
+		if (arc.isReading()) sid = FSoundID(id);
+	}
+	else if (arc.isWriting())
 	{
 		if (!arc.w->inObject() || def == nullptr || sid != *def)
 		{
@@ -1507,7 +1318,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FSoundID &sid, FSoundI
 			}
 		}
 	}
-#endif
 	return arc;
 
 }
@@ -1623,6 +1433,86 @@ template<> FSerializer &Serialize(FSerializer &arc, const char *key, FFont *&fon
 		return arc;
 	}
 
+}
+
+//==========================================================================
+//
+// Dictionary
+//
+//==========================================================================
+
+FString DictionaryToString(const Dictionary &dict)
+{
+	Dictionary::ConstPair *pair;
+	Dictionary::ConstIterator i { dict.Map };
+
+	rapidjson::StringBuffer buffer;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+	writer.StartObject();
+
+	while (i.NextPair(pair))
+	{
+		writer.Key(pair->Key);
+		writer.String(pair->Value);
+	}
+
+	writer.EndObject();
+
+	FString contents { buffer.GetString(), buffer.GetSize() };
+	return contents;
+}
+
+Dictionary *DictionaryFromString(const FString &string)
+{
+	if (string.Compare("null") == 0)
+	{
+		return nullptr;
+	}
+
+	Dictionary *const dict = Create<Dictionary>();
+
+	if (string.IsEmpty())
+	{
+		return dict;
+	}
+
+	rapidjson::Document doc;
+	doc.Parse(string.GetChars(), string.Len());
+
+	if (doc.GetType() != rapidjson::Type::kObjectType)
+	{
+		I_Error("Dictionary is expected to be a JSON object.");
+		return dict;
+	}
+
+	for (auto i = doc.MemberBegin(); i != doc.MemberEnd(); ++i)
+	{
+		if (i->value.GetType() != rapidjson::Type::kStringType)
+		{
+			I_Error("Dictionary value is expected to be a JSON string.");
+			return dict;
+		}
+
+		dict->Map.Insert(i->name.GetString(), i->value.GetString());
+	}
+
+	return dict;
+}
+
+template<> FSerializer &Serialize(FSerializer &arc, const char *key, Dictionary *&dict, Dictionary **)
+{
+	if (arc.isWriting())
+	{
+		FString contents { dict ? DictionaryToString(*dict) : "null" };
+		return arc(key, contents);
+	}
+	else
+	{
+		FString contents;
+		arc(key, contents);
+		dict = DictionaryFromString(contents);
+		return arc;
+	}
 }
 
 //==========================================================================

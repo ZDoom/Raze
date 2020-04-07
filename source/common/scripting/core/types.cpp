@@ -1078,6 +1078,46 @@ bool PName::ReadValue(FSerializer &ar, const char *key, void *addr) const
 	}
 }
 
+/* PStatePointer **********************************************************/
+
+//==========================================================================
+//
+// PStatePointer Default Constructor
+//
+//==========================================================================
+
+PStatePointer::PStatePointer()
+{
+	mDescriptiveName = "Pointer<State>";
+	PointedType = NewStruct(NAME_State, nullptr, true);
+	IsConst = true;
+}
+
+//==========================================================================
+//
+// PStatePointer :: WriteValue
+//
+//==========================================================================
+
+void PStatePointer::WriteValue(FSerializer& ar, const char* key, const void* addr) const
+{
+	ar.StatePointer(key, const_cast<void*>(addr), nullptr);
+}
+
+//==========================================================================
+//
+// PStatePointer :: ReadValue
+//
+//==========================================================================
+
+bool PStatePointer::ReadValue(FSerializer& ar, const char* key, void* addr) const
+{
+	bool res = false;
+	ar.StatePointer(key, addr, &res);
+	return res;
+}
+
+
 /* PSpriteID ******************************************************************/
 
 //==========================================================================
@@ -1102,9 +1142,7 @@ PSpriteID::PSpriteID()
 void PSpriteID::WriteValue(FSerializer &ar, const char *key, const void *addr) const
 {
 	int32_t val = *(int*)addr;
-#ifdef GZDOOM
 	ar.Sprite(key, val, nullptr);
-#endif
 }
 
 //==========================================================================
@@ -1116,9 +1154,7 @@ void PSpriteID::WriteValue(FSerializer &ar, const char *key, const void *addr) c
 bool PSpriteID::ReadValue(FSerializer &ar, const char *key, void *addr) const
 {
 	int32_t val = 0;
-#ifdef GZDOOM
 	ar.Sprite(key, val, nullptr);
-#endif
 	*(int*)addr = val;
 	return true;
 }
@@ -1438,49 +1474,6 @@ PPointer *NewPointer(PClass *cls, bool isconst)
 		TypeTable.AddType(ptype, NAME_Pointer, (intptr_t)type, isconst ? 1 : 0, bucket);
 	}
 	return static_cast<PPointer *>(ptype);
-}
-
-/* PStatePointer **********************************************************/
-
-//==========================================================================
-//
-// PStatePointer Default Constructor
-//
-//==========================================================================
-
-PStatePointer::PStatePointer()
-{
-	mDescriptiveName = "Pointer<State>";
-	PointedType = NewStruct(NAME_State, nullptr, true);
-	IsConst = true;
-}
-
-//==========================================================================
-//
-// PStatePointer :: WriteValue
-//
-//==========================================================================
-
-void PStatePointer::WriteValue(FSerializer &ar, const char *key, const void *addr) const
-{
-#ifdef GZDOOM
-	ar(key, *(FState **)addr);
-#endif
-}
-
-//==========================================================================
-//
-// PStatePointer :: ReadValue
-//
-//==========================================================================
-
-bool PStatePointer::ReadValue(FSerializer &ar, const char *key, void *addr) const
-{
-	bool res = false;
-#ifdef GZDOOM
-	::Serialize(ar, key, *(FState **)addr, nullptr, &res);
-#endif
-	return res;
 }
 
 
