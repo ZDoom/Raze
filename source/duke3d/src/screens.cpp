@@ -1708,9 +1708,9 @@ static void G_BonusCutscenes(void)
         if (!WORLDTOUR)
             return;
 
-        if (ud.lockout == 0)
+        if (adult_lockout == 0)
         {
-            S_StopMusic();
+            Mus_Stop();
             totalclocklock = totalclock = 0;
 
             videoClearScreen(0L);
@@ -1719,13 +1719,13 @@ static void G_BonusCutscenes(void)
 
             fadepal(0, 0, 0, 252, 0, -4);
 
-            I_ClearAllInput();
+            inputState.ClearAllInput();
 
             S_PlaySound(E5L7_DUKE_QUIT_YOU);
 
             do
             {
-                if (engineFPSLimit())
+                if (G_FPSLimit())
                 {
                     totalclocklock = totalclock;
 
@@ -1736,13 +1736,13 @@ static void G_BonusCutscenes(void)
 
                 gameHandleEvents();
 
-                if (I_GeneralTrigger()) break;
+                if (inputState.CheckAllInput()) break;
             } while (1);
 
             fadepal(0, 0, 0, 0, 252, 4);
         }
 
-        S_StopMusic();
+        Mus_Stop();
         FX_StopAllSounds();
         S_ClearSoundLocks();
         break;
