@@ -616,6 +616,7 @@ file( GLOB HEADER_FILES
 	common/scripting/vm/*h
 	common/scripting/jit/*h
 	common/scripting/interface/*.h
+	common/scripting/backend/*.h
 
 	build/src/*.h
 	platform/win32/*.h
@@ -786,10 +787,12 @@ set (PCH_SOURCES
 	common/engine/palettecontainer.cpp
 	common/engine/stringtable.cpp
 	common/engine/serializer.cpp
+	common/engine/m_random.cpp
 	common/objects/dobject.cpp
 	common/objects/dobjgc.cpp
 	common/objects/dobjtype.cpp
 	common/scripting/core/dictionary.cpp
+	common/scripting/core/dynarrays.cpp
 	common/scripting/core/symbols.cpp
 	common/scripting/core/types.cpp
 	common/scripting/core/scopebarrier.cpp
@@ -797,6 +800,8 @@ set (PCH_SOURCES
 	common/scripting/vm/vmexec.cpp
 	common/scripting/vm/vmframe.cpp
 	common/scripting/interface/stringformat.cpp
+	common/scripting/backend/vmbuilder.cpp
+	common/scripting/backend/codegen.cpp
 
 	core/utility/stats.cpp
 	
@@ -959,6 +964,8 @@ include_directories(
 	common/scripting/vm
 	common/scripting/jit
 	common/scripting/core
+	common/scripting/interface
+	common/scripting/backend
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 
 	${SYSTEM_SOURCES_DIR}
@@ -1075,6 +1082,8 @@ source_group("Common\\Objects" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/
 source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Common\\Scripting" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/.+")
+source_group("Common\\Scripting\\Interface" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/interface/.+")
+source_group("Common\\Scripting\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/backend/.+")
 source_group("Common\\Scripting\\Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/core/.+")
 source_group("Common\\Scripting\\JIT" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/jit/.+")
 source_group("Common\\Scripting\\VM" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/vm/.+")
