@@ -50,17 +50,15 @@
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
-#if 0
 EXTERN_CVAR(Bool, joy_ps2raw)
 EXTERN_CVAR(Bool, joy_dinput)
 EXTERN_CVAR(Bool, joy_xinput)
-#endif
 
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 
-CUSTOM_CVAR(Bool, use_joystick, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL)
+CUSTOM_CVARD(Bool, use_joystick, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL, "enables input from the joystick if it is present") 
 {
-#if 0//def _WIN32
+#ifdef _WIN32
 	joy_ps2raw.Callback();
 	joy_dinput.Callback();
 	joy_xinput.Callback();

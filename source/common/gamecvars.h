@@ -85,7 +85,7 @@ EXTERN_CVAR(Float, vid_brightness)
 EXTERN_CVAR(Int, gl_multisample)
 EXTERN_CVAR(Int, gl_ssao)
 
-EXTERN_CVAR(Bool, in_joystick)
+EXTERN_CVAR(Bool, use_joystick)
 EXTERN_CVAR(Int, in_mousebias)
 EXTERN_CVAR(Bool, in_mouseflip)
 EXTERN_CVAR(Bool, in_mousemode)
