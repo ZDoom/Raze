@@ -713,7 +713,6 @@ set (PCH_SOURCES
 	core/savegamehelp.cpp
 	core/quotes.cpp
 	core/screenshot.cpp
-	core/serializer.cpp
 	core/raze_music.cpp
 	core/raze_sound.cpp
 
@@ -786,9 +785,11 @@ set (PCH_SOURCES
 	common/engine/sc_man.cpp
 	common/engine/palettecontainer.cpp
 	common/engine/stringtable.cpp
+	common/engine/serializer.cpp
 	common/objects/dobject.cpp
 	common/objects/dobjgc.cpp
 	common/objects/dobjtype.cpp
+	common/scripting/core/dictionary.cpp
 	common/scripting/core/symbols.cpp
 	common/scripting/core/types.cpp
 	common/scripting/core/scopebarrier.cpp
@@ -955,10 +956,9 @@ include_directories(
 	common/console
 	common/engine
 	common/objects
-	common/scripting/interface
-	common/scripting/core
 	common/scripting/vm
 	common/scripting/jit
+	common/scripting/core
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 
 	${SYSTEM_SOURCES_DIR}
@@ -1074,11 +1074,11 @@ source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/c
 source_group("Common\\Objects" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/objects/.+")
 source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
-source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Common\\Scripting" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/.+")
 source_group("Common\\Scripting\\Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/core/.+")
-source_group("Common\\Scripting\\VM" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/vm/.+")
 source_group("Common\\Scripting\\JIT" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/jit/.+")
+source_group("Common\\Scripting\\VM" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/vm/.+")
+source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/.+")
 source_group("Common\\Third Party\\Math" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/math/.+")
 source_group("Common\\Third Party\\RapidJSON" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/rapidjson/.+")

@@ -9,6 +9,7 @@
 #include "vectors.h"
 #include "palentry.h"
 #include "name.h"
+#include "dictionary.h"
 
 extern bool save_full;
 
@@ -61,11 +62,14 @@ class FSerializer
 public:
 	FWriter *w = nullptr;
 	FReader *r = nullptr;
+	bool soundNamesAreUnique = false; // While in GZDoom, sound names are unique, that isn't universally true - let the serializer handle both cases with a flag.
 
 	unsigned ArraySize();
 	void WriteKey(const char *key);
 	void WriteObjects();
 
+private:
+	virtual void CloseReaderCustom() {}
 public:
 
 	~FSerializer()
@@ -73,6 +77,7 @@ public:
 		mErrors = 0;	// The destructor may not throw an exception so silence the error checker.
 		Close();
 	}
+	void SetUniqueSoundNames() { soundNamesAreUnique = true; }
 	bool OpenWriter(bool pretty = true);
 	bool OpenReader(const char *buffer, size_t length);
 	bool OpenReader(FCompressedBuffer *input);
@@ -86,6 +91,11 @@ public:
 	const char *GetKey();
 	const char *GetOutput(unsigned *len = nullptr);
 	FCompressedBuffer GetCompressedOutput();
+	// The sprite serializer is a special case because it is needed by the VM to handle its 'spriteid' type.
+	virtual FSerializer &Sprite(const char *key, int32_t &spritenum, int32_t *def);
+	// This is only needed by the type system.
+	virtual FSerializer& StatePointer(const char* key, void* ptraddr, bool *res);
+
 	FSerializer &StringPtr(const char *key, const char *&charptr);	// This only retrieves the address but creates no permanent copy of the string unlike the regular char* serializer.
 	FSerializer &AddString(const char *key, const char *charptr);
 	const char *GetString(const char *key);
@@ -173,6 +183,8 @@ public:
 	int mErrors = 0;
 };
 
+FSerializer& Serialize(FSerializer& arc, const char* key, char& value, char* defval);
+
 FSerializer &Serialize(FSerializer &arc, const char *key, bool &value, bool *defval);
 FSerializer &Serialize(FSerializer &arc, const char *key, int64_t &value, int64_t *defval);
 FSerializer &Serialize(FSerializer &arc, const char *key, uint64_t &value, uint64_t *defval);
@@ -190,7 +202,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FName &value, FName *d
 FSerializer &Serialize(FSerializer &arc, const char *key, FSoundID &sid, FSoundID *def);
 FSerializer &Serialize(FSerializer &arc, const char *key, FString &sid, FString *def);
 FSerializer &Serialize(FSerializer &arc, const char *key, NumericValue &sid, NumericValue *def);
-
 
 template<class T>
 FSerializer &Serialize(FSerializer &arc, const char *key, T *&value, T **)
@@ -229,6 +240,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, TArray<T, TT> &value, 
 
 template<> FSerializer& Serialize(FSerializer& arc, const char* key, PClass*& clst, PClass** def);
 template<> FSerializer& Serialize(FSerializer& arc, const char* key, FFont*& font, FFont** def);
+template<> FSerializer &Serialize(FSerializer &arc, const char *key, Dictionary *&dict, Dictionary **def);
 
 inline FSerializer &Serialize(FSerializer &arc, const char *key, DVector3 &p, DVector3 *def)
 {
@@ -297,5 +309,8 @@ inline SaveRecord::SaveRecord(const char* nm, void (*handler)(FSerializer& arc))
 	Handler = handler;
 	saveRecords.records.Push(this);
 }
+
+FString DictionaryToString(const Dictionary &dict);
+Dictionary *DictionaryFromString(const FString &string);
 
 #endif
