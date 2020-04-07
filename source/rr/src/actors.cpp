@@ -1228,7 +1228,7 @@ ACTOR_STATIC void G_MovePlayers(void)
 
                     if (pPlayer->wackedbyactor >= 0 && sprite[pPlayer->wackedbyactor].statnum < MAXSTATUS)
                     {
-                        pPlayer->q16ang += fix16_to_int(G_GetAngleDelta(pPlayer->q16ang,
+                        pPlayer->q16ang += fix16_from_int(G_GetAngleDelta(fix16_to_int(pPlayer->q16ang),
                                                                       getangle(sprite[pPlayer->wackedbyactor].x - pPlayer->pos.x,
                                                                                sprite[pPlayer->wackedbyactor].y - pPlayer->pos.y))
                                                       >> 1);
