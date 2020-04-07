@@ -49,18 +49,9 @@
 #include "v_font.h"
 #include "templates.h"
 
-/*
-#include "actor.h"
-#include "a_pickups.h"
-#include "thingdef.h"
-#include "p_lnspec.h"
-#include "doomstat.h"
-#include "g_levellocals.h"
-*/
-
-
 extern FRandom pr_exrandom;
 FMemArena FxAlloc(65536);
+CompileEnvironment compileEnvironment;
 
 struct FLOP
 {
@@ -235,12 +226,6 @@ static PClass *FindClassType(FName name, FCompileContext &ctx)
 	return nullptr;
 }
 
-bool isActor(PContainerType *type)
-{
-	auto cls = PType::toClass(type);
-	return cls ? cls->Descriptor->IsDescendantOf(NAME_Actor) : false;
-}
-
 //==========================================================================
 //
 // ExpEmit
@@ -279,7 +264,7 @@ void ExpEmit::Reuse(VMFunctionBuilder *build)
 //
 //==========================================================================
 
-static PFunction *FindBuiltinFunction(FName funcname)
+PFunction *FindBuiltinFunction(FName funcname)
 {
 	return dyn_cast<PFunction>(RUNTIME_CLASS(DObject)->FindSymbol(funcname, true));
 }
@@ -1566,6 +1551,12 @@ FxExpression *FxTypeCast::Resolve(FCompileContext &ctx)
 	CHECKRESOLVED();
 	SAFE_RESOLVE(basex, ctx);
 
+	if (compileEnvironment.SpecialTypeCast)
+	{
+		auto result = compileEnvironment.SpecialTypeCast(this, ctx);
+		if (result != this) return result;
+	}
+
 	// first deal with the simple types
 	if (ValueType == TypeError || basex->ValueType == TypeError || basex->ValueType == nullptr)
 	{
@@ -2761,7 +2752,17 @@ FxExpression *FxAddSub::Resolve(FCompileContext& ctx)
 		delete this;
 		return nullptr;
 	}
-
+	
+	if (compileEnvironment.CheckForCustomAddition)
+	{
+		auto result = compileEnvironment.CheckForCustomAddition(this, ctx);
+		if (result)
+		{
+			ABORT(right);
+			goto goon;
+		}
+	}
+	
 	if (left->ValueType == TypeTextureID && right->IsInteger())
 	{
 		ValueType = TypeTextureID;
@@ -2787,7 +2788,7 @@ FxExpression *FxAddSub::Resolve(FCompileContext& ctx)
 		// To check: It may be that this could pass in DECORATE, although setting TypeVoid here would pretty much prevent that.
 		goto error;
 	}
-
+goon:
 	if (left->isConstant() && right->isConstant())
 	{
 		if (IsFloat())
@@ -5086,11 +5087,9 @@ FxExpression *FxNew::Resolve(FCompileContext &ctx)
 
 //==========================================================================
 //
-// The CVAR is for finding places where thinkers are created.
-// Those will require code changes in ZScript 4.0.
+//
 //
 //==========================================================================
-CVAR(Bool, vm_warnthinkercreation, false, 0)
 
 static DObject *BuiltinNew(PClass *cls, int outerside, int backwardscompatible)
 {
@@ -5109,21 +5108,9 @@ static DObject *BuiltinNew(PClass *cls, int outerside, int backwardscompatible)
 		ThrowAbortException(X_OTHER, "Cannot instantiate abstract class %s", cls->TypeName.GetChars());
 		return nullptr;
 	}
-	// Creating actors here must be outright prohibited,
-	if (cls->IsDescendantOf(NAME_Actor))
-	{
-		ThrowAbortException(X_OTHER, "Cannot create actors with 'new'");
-		return nullptr;
-	}
-	if ((vm_warnthinkercreation || !backwardscompatible) && cls->IsDescendantOf(NAME_Thinker))
-	{
-		// This must output a diagnostic warning
-		Printf("Using 'new' to create thinkers is deprecated.");
-	}
 	// [ZZ] validate readonly and between scope construction
 	if (outerside) FScopeBarrier::ValidateNew(cls, outerside - 1);
-	DObject *object;
-	object = cls->CreateNew();
+	DObject *object = cls->CreateNew();
 	return object;
 }
 
@@ -5142,7 +5129,7 @@ ExpEmit FxNew::Emit(VMFunctionBuilder *build)
 
 	// Call DecoRandom to generate a random number.
 	VMFunction *callfunc;
-	auto sym = FindBuiltinFunction(NAME_BuiltinNew);
+	auto sym = FindBuiltinFunction(compileEnvironment.CustomBuiltinNew != NAME_None? compileEnvironment.CustomBuiltinNew : NAME_BuiltinNew);
 	
 	assert(sym);
 	callfunc = sym->Variants[0].Implementation;
@@ -5907,7 +5894,6 @@ FxExpression *FxIdentifier::Resolve(FCompileContext& ctx)
 {
 	PSymbol * sym;
 	FxExpression *newex = nullptr;
-	//int num;
 	
 	CHECKRESOLVED();
 
@@ -5935,31 +5921,12 @@ FxExpression *FxIdentifier::Resolve(FCompileContext& ctx)
 		}
 	}
 
-	if (Identifier == NAME_Default)
+	if (compileEnvironment.CheckSpecialIdentifier)
 	{
-		if (ctx.Function == nullptr)
-		{
-			ScriptPosition.Message(MSG_ERROR, "Unable to access class defaults from constant declaration");
-			delete this;
-			return nullptr;
-		}
-		if (ctx.Function->Variants[0].SelfClass == nullptr)
-		{
-			ScriptPosition.Message(MSG_ERROR, "Unable to access class defaults from static function");
-			delete this;
-			return nullptr;
-		}
-		if (!isActor(ctx.Function->Variants[0].SelfClass))
-		{
-			ScriptPosition.Message(MSG_ERROR, "'Default' requires an actor type.");
-			delete this;
-			return nullptr;
-		}
-
-		FxExpression * x = new FxClassDefaults(new FxSelf(ScriptPosition), ScriptPosition);
-		delete this;
-		return x->Resolve(ctx);
+		auto result = compileEnvironment.CheckSpecialIdentifier(this, ctx);
+		if (result != this) return result;
 	}
+
 
 	// Ugh, the horror. Constants need to be taken from the owning class, but members from the self class to catch invalid accesses here...
 	// see if the current class (if valid) defines something with this name.
@@ -6125,21 +6092,12 @@ FxExpression *FxIdentifier::ResolveMember(FCompileContext &ctx, PContainerType *
 	PSymbolTable *symtbl;
 	bool isclass = objtype->isClass();
 
-	if (Identifier == NAME_Default)
+	if (compileEnvironment.ResolveSpecialIdentifier)
 	{
-		if (!isActor(objtype))
-		{
-			ScriptPosition.Message(MSG_ERROR, "'Default' requires an actor type.");
-			delete object;
-			object = nullptr;
-			return nullptr;
-		}
-
-		FxExpression * x = new FxClassDefaults(object, ScriptPosition);
-		object = nullptr;
-		delete this;
-		return x->Resolve(ctx);
+		auto result = compileEnvironment.ResolveSpecialIdentifier(this, object, objtype, ctx);
+		if (result != this) return result;
 	}
+
 
 	if (objtype != nullptr && (sym = objtype->Symbols.FindSymbolInTable(Identifier, symtbl)) != nullptr)
 	{
@@ -6588,56 +6546,6 @@ FxExpression *FxSuper::Resolve(FCompileContext& ctx)
 //
 //==========================================================================
 
-FxClassDefaults::FxClassDefaults(FxExpression *X, const FScriptPosition &pos)
-	: FxExpression(EFX_ClassDefaults, pos)
-{
-	obj = X;
-}
-
-FxClassDefaults::~FxClassDefaults()
-{
-	SAFE_DELETE(obj);
-}
-
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-FxExpression *FxClassDefaults::Resolve(FCompileContext& ctx)
-{
-	CHECKRESOLVED();
-	SAFE_RESOLVE(obj, ctx);
-	assert(obj->ValueType->isRealPointer());
-	ValueType = NewPointer(obj->ValueType->toPointer()->PointedType, true);
-	return this;
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-ExpEmit FxClassDefaults::Emit(VMFunctionBuilder *build)
-{
-	ExpEmit ob = obj->Emit(build);
-	ob.Free(build);
-	ExpEmit meta(build, REGT_POINTER);
-	build->Emit(OP_CLSS, meta.RegNum, ob.RegNum);
-	build->Emit(OP_LP, meta.RegNum, meta.RegNum, build->GetConstantInt(myoffsetof(PClass, Defaults)));
-	return meta;
-
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
 FxGlobalVariable::FxGlobalVariable(PField* mem, const FScriptPosition &pos)
 	: FxMemberBase(EFX_GlobalVariable, mem, pos)
 {
@@ -6980,19 +6888,10 @@ FxExpression *FxStructMember::Resolve(FCompileContext &ctx)
 	CHECKRESOLVED();
 	SAFE_RESOLVE(classx, ctx);
 
-	if (membervar->SymbolName == NAME_Default)
+	if (compileEnvironment.CheckSpecialMember)
 	{
-		if (!classx->ValueType->isObjectPointer()
-			|| !static_cast<PObjectPointer *>(classx->ValueType)->PointedClass()->IsDescendantOf(NAME_Actor))
-		{
-			ScriptPosition.Message(MSG_ERROR, "'Default' requires an actor type");
-			delete this;
-			return nullptr;
-		}
-		FxExpression * x = new FxClassDefaults(classx, ScriptPosition);
-		classx = nullptr;
-		delete this;
-		return x->Resolve(ctx);
+		auto result = compileEnvironment.CheckSpecialMember(this, ctx);
+		if (result != this) return result;
 	}
 
 	// [ZZ] support magic
@@ -7630,7 +7529,7 @@ FxFunctionCall::~FxFunctionCall()
 //
 //==========================================================================
 
-static bool CheckArgSize(FName fname, FArgumentList &args, int min, int max, FScriptPosition &sc)
+bool CheckArgSize(FName fname, FArgumentList &args, int min, int max, FScriptPosition &sc)
 {
 	int s = args.Size();
 	if (s < min)
@@ -7771,6 +7670,12 @@ FxExpression *FxFunctionCall::Resolve(FCompileContext& ctx)
 			delete this;
 			return x->Resolve(ctx);
 		}
+	}
+	
+	if (compileEnvironment.CheckCustomGlobalFunctions)
+	{
+		auto result = compileEnvironment.CheckCustomGlobalFunctions(this, ctx);
+		if (result != this) return result;
 	}
 
 	PClass *cls = FindClassType(MethodName, ctx);
@@ -8489,6 +8394,16 @@ isresolved:
 				return nullptr;
 			}
 		}
+		else
+		{
+			// Functions with no Actor usage may not be called through a pointer because they will lose their context.
+			if (!(afd->Variants[0].UseFlags & SUF_ACTOR))
+			{
+				ScriptPosition.Message(MSG_ERROR, "Function %s cannot be used with a non-self object", afd->SymbolName.GetChars());
+				delete this;
+				return nullptr;
+			}
+		}
 	}
 
 	// do not pass the self pointer to static functions.
@@ -8622,6 +8537,13 @@ FxExpression *FxVMFunctionCall::Resolve(FCompileContext& ctx)
 		delete this;
 		return nullptr;
 	}
+
+	if (compileEnvironment.ResolveSpecialFunction)
+	{
+		auto result = compileEnvironment.ResolveSpecialFunction(this, ctx);
+		if (!result) return nullptr;
+	}
+
 
 	CallingFunction = ctx.Function;
 	if (ArgList.Size() > 0)

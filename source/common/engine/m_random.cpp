@@ -79,7 +79,7 @@
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
-FRandom pr_exrandom;
+FRandom pr_exrandom("EX_Random");
 
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 

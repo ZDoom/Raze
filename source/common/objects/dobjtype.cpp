@@ -57,6 +57,7 @@
 // PRIVATE FUNCTION PROTOTYPES ---------------------------------------------
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
+EXTERN_CVAR(Bool, strictdecorate);
 
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 FMemArena ClassDataAllocator(32768);	// use this for all static class data that can be released in bulk when the type system is shut down.
