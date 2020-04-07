@@ -1374,7 +1374,5 @@ void G_InitDynamicTiles(void)
     WeaponPickupSprites[10] = HEAVYHBOMB;
     WeaponPickupSprites[11] = SHRINKERSPRITE;
     WeaponPickupSprites[12] = FLAMETHROWERSPRITE;
-
-#endif
 }
 END_DUKE_NS

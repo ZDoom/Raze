@@ -41,16 +41,16 @@ const char *GetVersionString();
 
 /** Lots of different version numbers **/
 
-#define VERSIONSTR "0.5.1 alpha"
+#define VERSIONSTR "0.6.0 alpha"
 
 // The version as seen in the Windows resource
-#define RC_FILEVERSION 0,5,1,0
-#define RC_PRODUCTVERSION 0,5,1,0
+#define RC_FILEVERSION 0,6,0,0
+#define RC_PRODUCTVERSION 0,6,0,0
 #define RC_PRODUCTVERSION2 VERSIONSTR
 // These are for content versioning.
 #define VER_MAJOR 0
-#define VER_MINOR 5
-#define VER_REVISION 1
+#define VER_MINOR 6
+#define VER_REVISION 0
 
 // More stuff that needs to be different for derivatives.
 #define GAMENAME "Raze"
@@ -66,13 +66,13 @@ const char *GetVersionString();
 #define SAVESIG_SW GAMENAME ".ShadowWarrior"
 #define SAVESIG_PS GAMENAME ".Exhumed"
 
-#define MINSAVEVER_DN3D 6
+#define MINSAVEVER_DN3D 7
 #define MINSAVEVER_BLD 6
 #define MINSAVEVER_RR 6
 #define MINSAVEVER_SW 6
 #define MINSAVEVER_PS 6
 
-#define SAVEVER_DN3D 6
+#define SAVEVER_DN3D 7
 #define SAVEVER_BLD 6
 #define SAVEVER_RR 6
 #define SAVEVER_SW 6

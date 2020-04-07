@@ -5163,7 +5163,7 @@ static void G_Cleanup(void)
 #if !defined LUNATIC
     if (label != (char *)&sprite[0]) Xfree(label);
     if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
-    if (labeltype != (int32_t*)&wall[0]) Xfree(labeltype);
+    if (labeltype != (uint8_t*)&wall[0]) Xfree(labeltype);
     Xfree(apScript);
     Xfree(bitptr);
 
