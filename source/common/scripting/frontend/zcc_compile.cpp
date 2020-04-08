@@ -39,19 +39,18 @@
 #include "zcc_compile.h"
 #include "printf.h"
 #include "symbols.h"
-//#include "v_video.h"
 
 FSharedStringArena VMStringConstants;
 
 
-static int GetIntConst(FxExpression *ex, FCompileContext &ctx)
+int GetIntConst(FxExpression *ex, FCompileContext &ctx)
 {
 	ex = new FxIntCast(ex, false);
 	ex = ex->Resolve(ctx);
 	return ex ? static_cast<FxConstant*>(ex)->GetValue().GetInt() : 0;
 }
 
-static double GetFloatConst(FxExpression *ex, FCompileContext &ctx)
+double GetFloatConst(FxExpression *ex, FCompileContext &ctx)
 {
 	ex = new FxFloatCast(ex);
 	ex = ex->Resolve(ctx);
@@ -641,6 +640,7 @@ void ZCCCompiler::MessageV(ZCC_TreeNode *node, const char *txtcolor, const char 
 // ZCCCompiler :: Compile
 //
 // Compile everything defined at this level.
+// This can be overridden to add custom content.
 //
 //==========================================================================
 
@@ -1347,15 +1347,13 @@ void ZCCCompiler::CompileAllFields()
 					type->Size = Classes[i]->ClassType()->ParentClass->Size;
 				}
 			}
-			/*if (type->TypeName == NAME_Actor)
+			if (!PrepareMetaData(type))
 			{
-				assert(type->MetaSize == 0);
-				AddActorInfo(type);	// AActor needs the actor info manually added to its meta data before adding any scripted fields.
+				if (Classes[i]->ClassType()->ParentClass)
+					type->MetaSize = Classes[i]->ClassType()->ParentClass->MetaSize;
+				else
+					type->MetaSize = 0;
 			}
-			else*/ if (Classes[i]->ClassType()->ParentClass)
-				type->MetaSize = Classes[i]->ClassType()->ParentClass->MetaSize;
-			else
-				type->MetaSize = 0;
 
 			if (CompileFields(type->VMType, Classes[i]->Fields, nullptr, &Classes[i]->TreeNodes, false, !!HasNativeChildren.CheckKey(type->TypeName)))
 			{
@@ -1922,11 +1920,33 @@ PType *ZCCCompiler::ResolveArraySize(PType *baseType, ZCC_Expression *arraysize,
 
 //==========================================================================
 //
+// SetImplicitArgs
 //
+// Adds the parameters implied by the function flags.
 //
 //==========================================================================
 
+void ZCCCompiler::SetImplicitArgs(TArray<PType*>* args, TArray<uint32_t>* argflags, TArray<FName>* argnames, PContainerType* cls, uint32_t funcflags, int useflags)
+{
+	// Must be called before adding any other arguments.
+	assert(args == nullptr || args->Size() == 0);
+	assert(argflags == nullptr || argflags->Size() == 0);
 
+	if (funcflags & VARF_Method)
+	{
+		// implied self pointer
+		if (args != nullptr)		args->Push(NewPointer(cls, !!(funcflags & VARF_ReadOnly)));
+		if (argflags != nullptr)	argflags->Push(VARF_Implicit | VARF_ReadOnly);
+		if (argnames != nullptr)	argnames->Push(NAME_self);
+	}
+}
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
 void ZCCCompiler::CompileFunction(ZCC_StructWork *c, ZCC_FuncDeclarator *f, bool forclass)
 {
@@ -2041,14 +2061,14 @@ void ZCCCompiler::CompileFunction(ZCC_StructWork *c, ZCC_FuncDeclarator *f, bool
 		}
 		if (f->Flags & ZCC_Action)
 		{
-			/*
-			if (compileEnvironment.processActionFunc)
+			implicitargs = CheckActionKeyword(f,varflags, useflags, c);
+			if (implicitargs < 0)
 			{
-
+				Error(f, "'Action' not allowed as a function qualifier");
+				// Set state to allow continued compilation to find more errors.
+				varflags &= ~VARF_ReadOnly;
+				implicitargs = 1;
 			}
-			else
-			*/
-			Error(f, "'Action' not allowed as a function qualifier");
 		}
 		if (f->Flags & ZCC_Static) varflags = (varflags & ~VARF_Method) | VARF_Final, implicitargs = 0;	// Static implies Final.
 
