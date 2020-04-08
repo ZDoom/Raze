@@ -228,26 +228,3 @@ void InitImports()
 	}
 }
 
-//==========================================================================
-//
-// SetImplicitArgs
-//
-// Adds the parameters implied by the function flags.
-//
-//==========================================================================
-
-void SetImplicitArgs(TArray<PType *> *args, TArray<uint32_t> *argflags, TArray<FName> *argnames, PContainerType *cls, uint32_t funcflags, int useflags)
-{
-	// Must be called before adding any other arguments.
-	assert(args == nullptr || args->Size() == 0);
-	assert(argflags == nullptr || argflags->Size() == 0);
-
-	if (funcflags & VARF_Method)
-	{
-		// implied self pointer
-		if (args != nullptr)		args->Push(NewPointer(cls, !!(funcflags & VARF_ReadOnly))); 
-		if (argflags != nullptr)	argflags->Push(VARF_Implicit | VARF_ReadOnly);
-		if (argnames != nullptr)	argnames->Push(NAME_self);
-	}
-}
-
