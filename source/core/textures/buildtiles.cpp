@@ -189,6 +189,7 @@ void BuildTiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, const char *
 
 		FString texname;
 		if (mapname) texname.Format("maptile_%s_%05d", mapname, i);
+		else texname.Format("#%05d", i);
 		auto tex = GetTileTexture(texname, RawData, uint32_t(tiledata - tiles), width, height);
 		AddTile(i, tex);
 		this->tiledata[i].picanm = tileConvertAnimFormat(anm);
