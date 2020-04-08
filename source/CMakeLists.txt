@@ -755,7 +755,6 @@ set (PCH_SOURCES
 	core/2d/v_drawtext.cpp
 	core/2d/screentext.cpp
 
-	core/fonts/v_text.cpp
 	core/console/c_console.cpp
 	core/console/d_event.cpp
 
@@ -775,6 +774,7 @@ set (PCH_SOURCES
 	common/fonts/font.cpp
 	common/fonts/hexfont.cpp
 	common/fonts/v_font.cpp
+	common/fonts/v_text.cpp
 	common/textures/hw_ihwtexture.cpp
 	common/textures/hw_material.cpp
 	common/textures/bitmap.cpp
