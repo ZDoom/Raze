@@ -109,6 +109,8 @@ enum
 	DTA_Burn,				// activates the burn shader for this element
 	DTA_Spacing,			// Strings only: Additional spacing between characters
 	DTA_Monospace,			// Fonts only: Use a fixed distance between characters.
+
+	DTA_FullscreenEx,
 };
 
 enum EMonospacing : int

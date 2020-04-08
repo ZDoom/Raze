@@ -97,6 +97,7 @@ private:
 #else
 
 // Windows and macOS
+#include "x86.h"
 
 extern double PerfToSec, PerfToMillisec;
 
@@ -184,13 +185,27 @@ private:
 
 #endif
 
+class glcycle_t : public cycle_t
+{
+public:
+	static bool active;
+	void Clock()
+	{
+		if (active) cycle_t::Clock();		
+	}
+
+	void Unclock()
+	{
+		if (active) cycle_t::Unclock();
+	}
+};
 
 // Helper for code that uses a timer and has multiple exit points.
 class Clocker
 {
 public:
 
-	Clocker(cycle_t& clck)
+	explicit Clocker(glcycle_t& clck)
 		: clock(clck)
 	{
 		clock.Clock();
@@ -204,7 +219,7 @@ public:
 	Clocker(const Clocker&) = delete;
 	Clocker& operator=(const Clocker&) = delete;
 private:
-	cycle_t & clock;
+	glcycle_t & clock;
 };
 
 
