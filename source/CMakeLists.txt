@@ -733,7 +733,6 @@ set (PCH_SOURCES
 	core/fonts/hexfont.cpp
 	core/fonts/singlelumpfont.cpp
 	core/fonts/v_font.cpp
-	core/fonts/v_text.cpp
 
 	core/console/c_console.cpp
 	core/console/d_event.cpp
@@ -750,6 +749,7 @@ set (PCH_SOURCES
 	common/thirdparty/sfmt/SFMT.cpp
 	common/textures/texture.cpp
 	common/textures/animtexture.cpp
+	common/fonts/v_text.cpp
 	common/textures/bitmap.cpp
 	common/textures/m_png.cpp
 	common/textures/image.cpp

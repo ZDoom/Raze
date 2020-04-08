@@ -774,7 +774,8 @@ FTexture* BuildTiles::GetTexture(const char* path)
 	// let this go away.
 	auto res = textures.CheckKey(path);
 	if (res) return *res;
-	auto tex = FTexture::CreateTexture(path, -1, ETextureType::Override);
+	auto lump = fileSystem.FindFile(path);
+	auto tex = FTexture::CreateTexture(path, lump, ETextureType::Override);
 	if (tex) textures.Insert(path, tex);
 	return tex;
 }

@@ -41,6 +41,11 @@
 #include "v_font.h"
 #include "utf8.h"
 
+#include "filesystem.h"
+
+#include "gstrings.h"
+#include "vm.h"
+#include "serializer.h"
 
 //==========================================================================
 //
@@ -168,4 +173,70 @@ TArray<FBrokenLines> V_BreakLines (FFont *font, int maxwidth, const uint8_t *str
 		}
 	}
 	return Lines;
+}
+
+FSerializer &Serialize(FSerializer &arc, const char *key, FBrokenLines& g, FBrokenLines *def)
+{
+	if (arc.BeginObject(key))
+	{
+		arc("text", g.Text)
+			("width", g.Width)
+			.EndObject();
+	}
+	return arc;
+}
+
+
+
+class DBrokenLines : public DObject
+{
+	DECLARE_CLASS(DBrokenLines, DObject)
+
+public:
+	TArray<FBrokenLines> mBroken;
+
+	DBrokenLines() = default;
+
+	DBrokenLines(TArray<FBrokenLines> &broken)
+	{
+		mBroken = std::move(broken);
+	}
+
+	void Serialize(FSerializer &arc) override
+	{
+		arc("lines", mBroken);
+	}
+};
+
+IMPLEMENT_CLASS(DBrokenLines, false, false);
+
+DEFINE_ACTION_FUNCTION(DBrokenLines, Count)
+{
+	PARAM_SELF_PROLOGUE(DBrokenLines);
+	ACTION_RETURN_INT(self->mBroken.Size());
+}
+
+DEFINE_ACTION_FUNCTION(DBrokenLines, StringWidth)
+{
+	PARAM_SELF_PROLOGUE(DBrokenLines);
+	PARAM_INT(index);
+	ACTION_RETURN_INT((unsigned)index >= self->mBroken.Size()? -1 : self->mBroken[index].Width);
+}
+
+DEFINE_ACTION_FUNCTION(DBrokenLines, StringAt)
+{
+
+	PARAM_SELF_PROLOGUE(DBrokenLines);
+	PARAM_INT(index);
+	ACTION_RETURN_STRING((unsigned)index >= self->mBroken.Size() ? -1 : self->mBroken[index].Text);
+}
+
+DEFINE_ACTION_FUNCTION(FFont, BreakLines)
+{
+	PARAM_SELF_STRUCT_PROLOGUE(FFont);
+	PARAM_STRING(text);
+	PARAM_INT(maxwidth);
+
+	auto broken = V_BreakLines(self, maxwidth, text, true);
+	ACTION_RETURN_OBJECT(Create<DBrokenLines>(broken));
 }

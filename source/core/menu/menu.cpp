@@ -322,6 +322,7 @@ void DMenu::Drawer ()
 	if (this == DMenu::CurrentMenu && BackbuttonAlpha > 0 && m_show_backbutton >= 0 && m_use_mouse)
 	{
 		FTexture* tex = TileFiles.GetTexture("engine/graphics/m_back.png");
+		if (tex)
 		{
 			int w = tex->GetDisplayWidth() * CleanXfac;
 			int h = tex->GetDisplayHeight() * CleanYfac;
