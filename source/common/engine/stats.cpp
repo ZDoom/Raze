@@ -33,7 +33,8 @@
 */
 
 #include "stats.h"
-#include "v_draw.h"
+#include "v_2ddrawer.h"
+#include "drawparms.h"
 #include "v_text.h"
 #include "v_font.h"
 #include "c_console.h"

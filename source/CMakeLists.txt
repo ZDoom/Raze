@@ -808,6 +808,7 @@ set (PCH_SOURCES
 	common/filesystem/file_whres.cpp
 	common/filesystem/file_directory.cpp
 	common/filesystem/resourcefile.cpp
+	common/engine/stats.cpp
 	common/engine/sc_man.cpp
 	common/engine/palettecontainer.cpp
 	common/engine/stringtable.cpp
@@ -836,8 +837,7 @@ set (PCH_SOURCES
 	common/scripting/backend/vmbuilder.cpp
 	common/scripting/backend/codegen.cpp
 
-	core/utility/stats.cpp
-	
+
 	core/textures/buildtiles.cpp
 	core/textures/texture.cpp
 	core/textures/imagetexture.cpp
