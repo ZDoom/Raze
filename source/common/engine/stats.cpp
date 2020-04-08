@@ -33,6 +33,7 @@
 */
 
 #include "stats.h"
+#include "v_video.h"
 #include "v_2ddrawer.h"
 #include "drawparms.h"
 #include "v_text.h"
