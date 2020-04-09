@@ -2205,7 +2205,7 @@ drawscreen(PLAYERp pp)
         if (dimensionmode == 6)
         {
             // only clear the actual window.
-            twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, windowxy2.x - windowxy1.x, windowxy2.y - windowxy1.y, 0xff000000);
+            twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);
             renderDrawMapView(tx, ty, zoom, fix16_to_int(tq16ang));
         }
 
