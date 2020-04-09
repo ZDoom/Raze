@@ -611,6 +611,7 @@ file( GLOB HEADER_FILES
 	core/music/*.h
 	core/menu/*.h
 	core/input/*.h
+	core/statusbar/*.h
 	core/rendering/*.h
 	core/rendering/gl_load/*.h
 	core/rendering/gl/system/*.h
@@ -876,7 +877,7 @@ set (PCH_SOURCES
 	#core/textures/texture.cpp
 
 	core/music/s_advsound.cpp
-
+	core/statusbar/statusbar.cpp
 	core/menu/imagescroller.cpp
 	core/menu/joystickmenu.cpp
 	core/menu/listmenu.cpp
@@ -1000,6 +1001,7 @@ include_directories(
 	core/dobject
 	core/menu
 	core/input
+	core/statusbar
 	core/rendering/gl_load
 	core/rendering/gl/system
 	core/rendering/gl/renderer
@@ -1122,7 +1124,7 @@ source_group("Core\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOUR
 source_group("Core\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/utility/.+")
 source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d/.+")
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
-source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/dobject/.+")
+source_group("Core\\Status Bar" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/statusbar/.+")
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
 source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
 source_group("Core\\Rendering\\GL_Load" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/gl_load/.+")

@@ -78,6 +78,7 @@ enum EColorRange : int
 
 extern int NumTextColors;
 
+using GlyphSet = TMap<int, FTexture*>;
 
 class FFont
 {
@@ -94,7 +95,7 @@ public:
 		Custom
 	};
 
-	FFont (const char *fontname, const char *nametemplate, const char *filetemplate, int first, int count, int base, int fdlump, int spacewidth=-1, bool notranslate = false, bool iwadonly = false, bool doomtemplate = false);
+	FFont (const char *fontname, const char *nametemplate, const char *filetemplate, int first, int count, int base, int fdlump, int spacewidth=-1, bool notranslate = false, bool iwadonly = false, bool doomtemplate = false, GlyphSet *baseGlpyphs = nullptr);
 	virtual ~FFont ();
 
 	virtual FTexture *GetChar (int code, int translation, int *const width, bool *redirected = nullptr) const;
