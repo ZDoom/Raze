@@ -295,14 +295,17 @@ void nnExtInitModernStuff(bool bSaveLoad) {
             case kModernCondition:
             case kModernConditionFalse:
                 if (!bSaveLoad) {
+                    
+                    pSprite->yvel = pSprite->type; // store it here, because inittype gets cleared later.
+                    pSprite->type = kModernCondition;
+                    
                     if (!pXSprite->rxID) {
                         ThrowError("\nThe condition must have RX ID!\nSPRITE #%d", pSprite->index);
                     } else if (!pXSprite->txID && !pSprite->hitag) {
                         consoleSysMsg("Inactive condition: RX ID %d, SPRITE #%d", pXSprite->rxID, pSprite->index);
+                        break;
                     }
-                    
-                    pSprite->yvel = pSprite->type; // store it here, because inittype gets cleared later.
-                    pSprite->type = kModernCondition;
+
                 }
 
                 // collect objects for tracking conditions
@@ -380,33 +383,31 @@ void nnExtInitModernStuff(bool bSaveLoad) {
 
         } else {
             
-            /*// copy custom start health to avoid overwrite by kThingBloodChunks
+            // copy custom start health to avoid overwrite by kThingBloodChunks
             if (IsDudeSprite(pSprite))
                 pXSprite->sysData2 = pXSprite->data4;
             
-            bool sysStat = false;
-            switch (pSprite->statnum) {
-                case kStatModernDudeTargetChanger:
-                    if (pSprite->type != kModernDudeTargetChanger) sysStat = true;
-                    break;
-                case kStatModernCondition:
-                    if (pSprite->type != kModernCondition && pSprite->type != kModernConditionFalse) sysStat = true;
-                    break;
-                case kStatModernEventRedirector:
-                    if (pSprite->type != kModernRandomTX && pSprite->type != kModernSequentialTX) sysStat = true;
-                    break;
-                case kStatModernPlayerLinker:
-                    if (pSprite->type != kModernPlayerControl) sysStat = true;
-                    break;
-                default:
-                    if (pSprite->statnum < kStatModernBase || pSprite->statnum >= kStatModernMax) break;
-                    ThrowError("Sprite status list number %d on sprite #%d is in a range of system reserved (%d - %d)!", pSprite->index, pSprite->statnum, kStatModernBase, kStatModernMax);
-                    break;
-            }
+            // check reserved statnums
+            if (pSprite->statnum >= kStatModernBase && pSprite->statnum < kStatModernMax) {
+                bool sysStat = true;
+                switch (pSprite->statnum) {
+                    case kStatModernDudeTargetChanger:
+                        if (pSprite->type == kModernDudeTargetChanger) sysStat = false;
+                        break;
+                    case kStatModernCondition:
+                        if (pSprite->type == kModernCondition || pSprite->type == kModernConditionFalse) sysStat = false;
+                        break;
+                    case kStatModernEventRedirector:
+                        if (pSprite->type == kModernRandomTX || pSprite->type == kModernSequentialTX) sysStat = false;
+                        break;
+                    case kStatModernPlayerLinker:
+                        if (pSprite->type == kModernPlayerControl) sysStat = false;
+                        break;
+                }
 
-            if (sysStat)
-                ThrowError("Sprite #%d: System status list number %d detected!", pSprite->index, pSprite->statnum);
-            */
+                if (sysStat)
+                    ThrowError("Sprite status list number %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->index, pSprite->statnum, kStatModernBase, kStatModernMax);
+            }
 
             switch (pSprite->type) {
                 case kModernRandomTX:
@@ -475,7 +476,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     break;
                 case kModernCondition:
                     if (pXSprite->waitTime > 0 && pXSprite->busyTime > 0) {
-                        pXSprite->busyTime += ((pXSprite->waitTime * 60) / 10); pXSprite->waitTime = 0;
+                        pXSprite->busyTime += ClipHigh(((pXSprite->waitTime * 60) / 10), 4095); pXSprite->waitTime = 0;
                         consoleSysMsg("Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
                     }
 
@@ -2008,7 +2009,7 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
         pXSector->panVel = pXSector->windVel;
 
         // add to panList if panVel was set to 0 previously
-        if (oldPan == 0 && pXSector->panVel != 0 && panCount < kMaxXSprites) {
+        if (oldPan == 0 && pXSector->panVel != 0 && panCount < kMaxXSectors) {
 
             int i;
             for (i = 0; i < panCount; i++) {
@@ -2662,7 +2663,6 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS) {
                 else if (condCmpne(arg1, arg2, cmpOp) && pSpr->type == kThingBloodChunks) return true;
                 else if (pSpr->type >= kThingBase && pSpr->type < kThingMax)
                     var = thingInfo[pSpr->type - kThingBase].startHealth << 4;
-                
                 return condCmp((100 * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
                 if ((gSpriteHit[pSpr->extra].ceilhit & 0xc000) != 0x4000) return false;
@@ -3817,15 +3817,15 @@ bool useCondition(XSPRITE* pXSource, EVENT event) {
         // only first condition in sequence can use waitTime?
         if (pXSource->waitTime > 0 && !srcIsCondition) {
             pXSource->state = 1;
-            if (pXSource->busyTime > 0) evKill(pSource->index, OBJ_SPRITE, kCallbackCondition);
             evPost(pSource->index, OBJ_SPRITE, (pXSource->waitTime * 60) / 10, kCmdRepeat);
             return false;
         }
 
     } else if (event.cmd == kCmdRepeat || pXSource->Interrutable) {
-        pXSource->state = 0; evKill(pSource->index, OBJ_SPRITE);
-        if (pXSource->busyTime > 0)
-            evPost(pSource->index, OBJ_SPRITE, 0, kCallbackCondition);
+        
+        pXSource->state = 0;
+        if (pXSource->busyTime <= 0) evKill(pSource->index, OBJ_SPRITE);
+
     } else {
 
         return false;
