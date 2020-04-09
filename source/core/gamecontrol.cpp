@@ -713,7 +713,6 @@ int RunGame()
 		playername = userConfig.CommandName;
 	}
 	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
-	V_InitFonts();
 	C_CON_SetAliases();
 	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
 	I_InitSound();
@@ -721,6 +720,8 @@ int RunGame()
 	timerSetCallback(Mus_UpdateMusic);
 	S_ParseSndInfo();
 	InitStatistics();
+	TexMan.Init([]() {}, nullptr);
+	V_InitFonts();
 	M_Init();
 	SetDefaultStrings();
 	if (g_gameType & (GAMEFLAG_RR)) InitRREndMap();	// this needs to be done better later
@@ -738,7 +739,6 @@ int RunGame()
 	if (exec) exec->ExecCommands();
 
 	gamestate = GS_LEVEL;
-	TexMan.Init([]() {}, nullptr);
 	TileFiles.Init();
 	return gi->app_main();
 }

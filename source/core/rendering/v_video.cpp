@@ -370,6 +370,7 @@ void V_InitScreen()
 void V_Init2()
 {
 	palettePostLoadLookups();
+	//V_InitFonts();
 
 	float gamma = static_cast<DDummyFrameBuffer *>(screen)->Gamma;
 
