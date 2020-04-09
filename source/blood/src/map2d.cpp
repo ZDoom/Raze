@@ -194,7 +194,7 @@ void CViewMap::sub_25C74(void)
         tm = 1;
     }
     // only clear the actual window.
-    twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, windowxy2.x - windowxy1.x + 1, windowxy2.y - windowxy1.y - 1, 0xff000000);
+    twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);
     renderDrawMapView(x,y,nZoom>>2,angle);
     sub_2541C(x,y,nZoom>>2,angle);
     const char *pTitle = levelGetTitle();
