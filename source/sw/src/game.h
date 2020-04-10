@@ -1086,6 +1086,8 @@ typedef struct
     int16_t svel;
     fix16_t q16avel;
     fix16_t q16horz;
+    fix16_t q16ang;
+    fix16_t q16horiz;
     int32_t bits;
 } SW_PACKET;
 #pragma pack(pop)
