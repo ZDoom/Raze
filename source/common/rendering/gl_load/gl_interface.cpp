@@ -32,14 +32,14 @@
 **
 */
 
-#include "gl_load/gl_system.h"
+#include "gl_system.h"
 #include "tarray.h"
 #include "basics.h"
 #include "m_argv.h"
 #include "version.h"
 #include "v_video.h"
 #include "printf.h"
-#include "gl_load/gl_interface.h"
+#include "gl_interface.h"
 #include "gamecvars.h"
 
 static TArray<FString>  m_Extensions;
