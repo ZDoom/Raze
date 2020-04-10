@@ -3747,8 +3747,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
 
                 if (g_player[playerNum].input->extbits & (1 << 7) && !ud.pause_on && spritesortcnt < maxspritesonscreen)
                 {
-                    auto const playerTyping = t;
+                    auto const playerTyping = &tsprite[spritesortcnt];
 
+                    *playerTyping = *t;
                     playerTyping->statnum = TSPR_TEMP;
                     playerTyping->cstat   = 0;
                     playerTyping->picnum  = RESPAWNMARKERGREEN;
