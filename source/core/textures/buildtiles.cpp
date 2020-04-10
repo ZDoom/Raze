@@ -80,17 +80,16 @@ picanm_t tileConvertAnimFormat(int32_t const picanimraw)
 //
 //==========================================================================
 
-FBitmap FTileTexture::GetBgraBitmap(const PalEntry* remap, int* ptrans)
+int FTileTexture::CopyPixels(FBitmap* bmp, int conversion)
 {
-	FBitmap bmp;
 	TArray<uint8_t> buffer;
-	bmp.Create(Width, Height);
+	bmp->Create(Width, Height);
 	auto ppix = GetRawData();
-	if (ppix) bmp.CopyPixelData(0, 0, ppix, Width, Height, Height, 1, 0, remap? remap : GPalette.BaseColors);
-	return bmp;
+	if (ppix) bmp->CopyPixelData(0, 0, ppix, Width, Height, Height, 1, 0, GPalette.BaseColors);
+	return 0;
 }
 
-TArray<uint8_t> FTileTexture::Get8BitPixels(bool alphatex)
+TArray<uint8_t> FTileTexture::CreatePalettedPixels(int conversion)
 {
 	TArray<uint8_t> buffer(Width * Height, true);
 	auto p = GetRawData();
@@ -101,11 +100,11 @@ TArray<uint8_t> FTileTexture::Get8BitPixels(bool alphatex)
 
 //==========================================================================
 //
-// Tile textures are owned by their containing file object.
+// 
 //
 //==========================================================================
 
-FArtTile* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height)
+static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height)
 {
 	auto tex = new FArtTile(backingstore, offset, width, height);
 	auto p = &backingstore[offset];
@@ -118,9 +117,9 @@ FArtTile* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, 
 	}
 	if (tex)
 	{
-		tex->SetName(name);
+		return new FImageTexture(tex, name);
 	}
-	return tex;
+	return nullptr;
 }
 
 
@@ -416,7 +415,7 @@ FTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 		// view tilting in the software renderer (this should just use a local buffer instead of relying on the texture manager.)
 		// Movie playback (like thumbnails this should bypass the texture manager entirely.)
 		// Blood's 'lens' effect (apparently MP only) - combination of a camera texture with a distortion map - should be made a shader effect to be applied to the camera texture.
-		replacement = new FWritableTile;
+		replacement = new FImageTexture(new FWritableTile);
 	}
 	else if (type == ReplacementType::Restorable)
 	{
@@ -428,7 +427,7 @@ FTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 		// All of these effects should probably be redone without actual texture hacking...
 		if (tile->GetTexelWidth() == 0 || tile->GetTexelHeight() == 0) return nullptr;	// The base must have a size for this to work.
 		// todo: invalidate hardware textures for tile.
-		replacement = new FRestorableTile(tile);
+		replacement = new FImageTexture(new FRestorableTile(tile->GetImage()));
 	}
 	else if (type == ReplacementType::Canvas)
 	{
@@ -463,8 +462,9 @@ uint8_t* BuildTiles::tileCreate(int tilenum, int width, int height)
 	if (width <= 0 || height <= 0) return nullptr;
 	auto tex = ValidateCustomTile(tilenum, ReplacementType::Writable);
 	if (tex == nullptr) return nullptr;
-	auto wtex = static_cast<FWritableTile*>(tex);
-	if (!wtex->Resize(width, height)) return nullptr;
+	auto wtex = static_cast<FWritableTile*>(tex->GetImage());
+	if (!wtex->ResizeImage(width, height)) return nullptr;
+	tex->SetSize(width, height);
 	return wtex->GetRawData();
 }
 
@@ -478,7 +478,7 @@ uint8_t* BuildTiles::tileCreate(int tilenum, int width, int height)
 uint8_t * BuildTiles::tileMakeWritable(int num)
 {
 	auto tex = ValidateCustomTile(num, ReplacementType::Restorable);
-	auto wtex = static_cast<FWritableTile*>(tex);
+	auto wtex = static_cast<FWritableTile*>(tex->GetImage());
 	return wtex ? wtex->GetRawData() : nullptr;
 }
 
@@ -491,12 +491,12 @@ uint8_t * BuildTiles::tileMakeWritable(int num)
 int32_t tileGetCRC32(int tileNum)
 {
 	if ((unsigned)tileNum >= (unsigned)MAXTILES) return 0;
-	auto tile = dynamic_cast<FArtTile*>(TileFiles.tiledata[tileNum].texture);	// only consider original ART tiles.
+	auto tile = dynamic_cast<FArtTile*>(TileFiles.tiledata[tileNum].texture->GetImage());	// only consider original ART tiles.
 	if (!tile) return 0;
 	auto pixels = tile->GetRawData();
 	if (!pixels) return 0;
 
-	auto size = tile->GetTexelWidth() * tile->GetTexelHeight();
+	auto size = tile->GetWidth() * tile->GetHeight();
 	if (size == 0) return 0;
 
 	// Temporarily revert the data to its original form with 255 being transparent. Otherwise the CRC won't match.
@@ -590,7 +590,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 				pixel = remap[pixel];
 			}
 		}
-		tex = new FLooseTile(buffer, tex->GetTexelWidth(), tex->GetTexelHeight());
+		tex = new FImageTexture(new FLooseTile(buffer, tex->GetTexelWidth(), tex->GetTexelHeight()));
 		picanm = &TileFiles.tiledata[tile].picanm;
 		TileFiles.AddTile(tile, tex);
 	}
@@ -701,7 +701,7 @@ void tileSetDummy(int tile, int width, int height)
 	}
 	else if (width > 0 && height > 0)
 	{
-		auto dtile = new FDummyTile(width, height);
+		auto dtile = new FImageTexture(new FDummyTile(width, height));
 		TileFiles.AddTile(tile, dtile);
 	}
 }
@@ -723,6 +723,15 @@ int BuildTiles::findUnusedTile(void)
 	}
 	return -1;
 }
+
+//==========================================================================
+//
+// fixme: This *really* needs to be done by rotating the texture coordinates,
+// not by creating an entirely new texture.
+// Unfortunately it's in all the wrong place in the rendering code so it
+// has to wait for later.
+//
+//==========================================================================
 
 int BuildTiles::tileCreateRotated(int tileNum)
 {
@@ -746,7 +755,7 @@ int BuildTiles::tileCreateRotated(int tileNum)
 			*(dst + y * width + xofs) = *(src + y + yofs);
 	}
 
-	auto dtex = new FLooseTile(dbuffer, tex->GetTexelHeight(), tex->GetTexelWidth());
+	auto dtex = new FImageTexture(new FLooseTile(dbuffer, tex->GetTexelHeight(), tex->GetTexelWidth()));
 	int index = findUnusedTile();
 	bool mapart = TileFiles.tiledata[tileNum].texture != TileFiles.tiledata[tileNum].backup;
 	TileFiles.AddTile(index, dtex, mapart);
