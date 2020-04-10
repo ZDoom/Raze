@@ -33,6 +33,7 @@
 */
 
 #include "gl_system.h"
+#include "engineerrors.h"
 #include "tarray.h"
 #include "basics.h"
 #include "m_argv.h"
@@ -40,7 +41,6 @@
 #include "v_video.h"
 #include "printf.h"
 #include "gl_interface.h"
-#include "gamecvars.h"
 
 static TArray<FString>  m_Extensions;
 RenderContext gl;
