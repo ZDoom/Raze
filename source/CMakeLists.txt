@@ -613,7 +613,6 @@ file( GLOB HEADER_FILES
 	core/input/*.h
 	core/statusbar/*.h
 	core/rendering/*.h
-	core/rendering/gl_load/*.h
 	core/rendering/gl/system/*.h
 	core/rendering/gl/renderer/*.h
 	core/rendering/gl/shaders/*.h
@@ -638,6 +637,7 @@ file( GLOB HEADER_FILES
 	common/thirdparty/*.h
 	common/thirdparty/rapidjson/*.h
 	common/thirdparty/math/*h
+	common/rendering/gl_load/*.h
 	common/scripting/core/*h
 	common/scripting/vm/*h
 	common/scripting/jit/*h
@@ -688,6 +688,7 @@ set( FASTMATH_SOURCES
 	common/textures/hires/hqnx/hq4x.cpp
 	common/textures/hires/xbr/xbrz.cpp
 	common/textures/hires/xbr/xbrz_old.cpp
+	common/rendering/gl_load/gl_load.c
 	# This should better be made a library subproject later, once things are working.
 	libsmackerdec/src/BitReader.cpp
 	libsmackerdec/src/FileStream.cpp
@@ -698,7 +699,6 @@ set( FASTMATH_SOURCES
 	common/utility/matrix.cpp
 
 	# The rest is only here because it is C, not C++
-	core/rendering/gl_load/gl_load.c
 
 	gitinfo.cpp
 )
@@ -856,6 +856,7 @@ set (PCH_SOURCES
 	common/objects/dobject.cpp
 	common/objects/dobjgc.cpp
 	common/objects/dobjtype.cpp
+	common/rendering/gl_load/gl_interface.cpp
 	common/scripting/core/dictionary.cpp
 	common/scripting/core/dynarrays.cpp
 	common/scripting/core/symbols.cpp
@@ -906,7 +907,6 @@ set (PCH_SOURCES
 	core/rendering/gl/system/gl_buffers.cpp
 	core/rendering/gl/system/gl_debug.cpp
 	core/rendering/gl/system/gl_framebuffer.cpp
-	core/rendering/gl_load/gl_interface.cpp
 	core/rendering/hwrenderer/data/flatvertices.cpp
 	core/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
 	core/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
@@ -1003,7 +1003,6 @@ include_directories(
 	core/menu
 	core/input
 	core/statusbar
-	core/rendering/gl_load
 	core/rendering/gl/system
 	core/rendering/gl/renderer
 	core/rendering/gl/shaders
@@ -1025,6 +1024,8 @@ include_directories(
 	common/engine
 	common/fonts
 	common/objects
+	common/rendering
+	common/rendering/gl_load
 	common/scripting/vm
 	common/scripting/jit
 	common/scripting/core
@@ -1129,7 +1130,6 @@ source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/co
 source_group("Core\\Status Bar" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/statusbar/.+")
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
 source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
-source_group("Core\\Rendering\\GL_Load" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/gl_load/.+")
 source_group("Core\\Rendering\\GL\\System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/gl/system.+")
 source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
@@ -1153,6 +1153,8 @@ source_group("Common\\Scripting\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_S
 source_group("Common\\Scripting\\Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/core/.+")
 source_group("Common\\Scripting\\JIT" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/jit/.+")
 source_group("Common\\Scripting\\VM" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/vm/.+")
+source_group("Common\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/rendering/.+")
+source_group("Common\\Rendering\\OpenGL Loader" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/rendering/gl_load/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Textures\\Hires" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/.+")
 source_group("Common\\Textures\\Hires\\HQ Resize" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/hqnx/.+")
