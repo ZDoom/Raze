@@ -1535,6 +1535,8 @@ DoPlayerCrawlHeight(PLAYERp pp)
     pp->posz = pp->posz - (DIV4(diff) + DIV8(diff));
 }
 
+double scaleAdjustmentToInterval(double x);
+
 void
 DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel)
 {
@@ -1555,7 +1557,10 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel)
                 // make the first turn in the clockwise direction
                 // the rest will follow
                 delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(*pq16ang));
-                *pq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(*pq16ang) + (labs(delta_ang) >> TURN_SHIFT)));
+                if (PEDANTIC_MODE)
+                    *pq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(*pq16ang) + (labs(delta_ang) >> TURN_SHIFT)));
+                else
+                    *pq16ang = NORM_Q16ANGLE(fix16_sadd(*pq16ang, fix16_from_float(scaleAdjustmentToInterval(labs(delta_ang) >> TURN_SHIFT))));
 
                 SET(pp->Flags, PF_TURN_180);
             }
@@ -1571,7 +1576,10 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel)
         short delta_ang;
 
         delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(*pq16ang));
-        *pq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(*pq16ang) + (delta_ang >> TURN_SHIFT)));
+        if (PEDANTIC_MODE)
+            *pq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(*pq16ang) + (delta_ang >> TURN_SHIFT)));
+        else
+            *pq16ang = NORM_Q16ANGLE(fix16_sadd(*pq16ang, fix16_from_float(scaleAdjustmentToInterval(delta_ang >> TURN_SHIFT))));
 
         sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
         if (!Prediction)
@@ -1828,8 +1836,11 @@ PlayerAutoLook(PLAYERp pp)
                 if ((pp->cursectnum == tempsect) ||
                     (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
                 {
-                    pp->q16horizoff += fix16_from_int((((j - k) * 160) >> 16));
-                }
+                    if (PEDANTIC_MODE)
+                        pp->q16horizoff += fix16_from_int((((j - k) * 160) >> 16));
+                    else
+                        pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(mulscale16((j - k), 160))));
+		}
             }
         }
     }
@@ -1838,16 +1849,37 @@ PlayerAutoLook(PLAYERp pp)
     {
         // tilt when climbing but you can't even really tell it
         if (pp->q16horizoff < fix16_from_int(100))
-            pp->q16horizoff += fix16_from_int((((100 - fix16_to_int(pp->q16horizoff)) >> 3) + 1));
+        {
+            if (PEDANTIC_MODE)
+                pp->q16horizoff += fix16_from_int((((100 - fix16_to_int(pp->q16horizoff)) >> 3) + 1));
+            else
+                pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(((fix16_from_int(100) - pp->q16horizoff) >> 3) + fix16_one))));
+	}
     }
     else
     {
         // Make q16horizoff grow towards 0 since q16horizoff is not modified when
         // you're not on a slope
         if (pp->q16horizoff > 0)
-            pp->q16horizoff -= fix16_from_int(((fix16_to_int(pp->q16horizoff) >> 3) + 1));
+        {
+            if (PEDANTIC_MODE)
+                pp->q16horizoff -= fix16_from_int(((fix16_to_int(pp->q16horizoff) >> 3) + 1));
+            else
+            {
+                pp->q16horizoff = fix16_ssub(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pp->q16horizoff >> 3) + fix16_one))));
+                pp->q16horizoff = fix16_max(pp->q16horizoff, 0);
+	    }
+	}
         if (pp->q16horizoff < 0)
-            pp->q16horizoff += fix16_from_int((((fix16_to_int(-pp->q16horizoff)) >> 3) + 1));
+        {
+            if (PEDANTIC_MODE)
+                pp->q16horizoff += fix16_from_int((((fix16_to_int(-pp->q16horizoff)) >> 3) + 1));
+            else
+            {
+                pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pp->q16horizoff >> 3) + fix16_one))));
+                pp->q16horizoff = fix16_min(pp->q16horizoff, 0);
+	    }
+	}
     }
 }
 
@@ -1885,11 +1917,21 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
 
         // adjust *pq16horiz negative
         if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
-            pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
+        {
+            if (PEDANTIC_MODE)
+		pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
+            else
+                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
+	}
 
         // adjust *pq16horiz positive
         if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
-            pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
+        {
+            if (PEDANTIC_MODE)
+                pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
+        }
+            else
+                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
     }
 
 
@@ -1901,11 +1943,21 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
 
         // adjust *pq16horiz negative
         if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
-            pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
+        {
+            if (PEDANTIC_MODE)
+		pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
+            else
+                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
+	}
 
         // adjust *pq16horiz positive
         if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
-            pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
+        {
+            if (PEDANTIC_MODE)
+                pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
+            else
+                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
+	}
     }
 
 
@@ -1921,8 +1973,11 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
                 for (i = 1; i; i--)
                 {
                     // this formula does not work for *pq16horiz = 101-103
-                    pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
-                }
+                    if (PEDANTIC_MODE)
+                        pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
+                    else
+                        pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(fix16_ssub(fix16_from_int(25), fix16_sdiv(pp->q16horizbase, fix16_from_int(4)))))));
+		}
             }
             else
             {

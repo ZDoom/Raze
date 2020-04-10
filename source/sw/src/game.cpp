@@ -3028,7 +3028,11 @@ void PauseKey(PLAYERp pp)
 
 short MirrorDelay;
 
-void getinput(SW_PACKET *loc)
+double elapsedInputTicks;
+double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); }
+
+void
+getinput(SW_PACKET *loc)
 {
     int i;
     PLAYERp pp = Player + myconnectindex;
