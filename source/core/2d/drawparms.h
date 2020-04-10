@@ -149,7 +149,7 @@ struct DrawParms
 	double top;
 	double left;
 	float Alpha;
-	int remap;
+	int TranslationId;
 	PalEntry fillcolor;
 	PalEntry colorOverlay;
 	PalEntry color;

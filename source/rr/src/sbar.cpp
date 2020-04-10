@@ -686,7 +686,12 @@ static int32_t* ammo_sprites[MAX_WEAPONS] = { nullptr, &AMMO, &SHOTGUNAMMO, &BAT
 
 class DukeStatusBar : public DBaseStatusBar
 {
+    DHUDFont numberFont;
 public:
+    DukeStatusBar()
+        : numberFont(BigFont, 1, Off, 1, 1)
+    {
+    }
     void DrawDukeMiniBar(int32_t snum)
     {
         const int32_t ss = ud.screen_size;
@@ -820,6 +825,7 @@ public:
 
         DrawGraphic(TileFiles.GetTile(COLA), 2, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
 
+        FString format;
         if (!althud_flashing || p->last_extra > (p->max_player_health >> 2) || ((int32_t)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
         {
             int s = -8;
@@ -827,23 +833,11 @@ public:
                 s += (sintable[((int)totalclock << 5) & 2047] >> 10);
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
-            char buffer[5];
-            mysnprintf(buffer, 5, "%d", p->last_extra);
-            DrawString(BigFont, buffer, 40, -2, DI_ITEM_CENTER_BOTTOM, 1., CR_UNTRANSLATED, 0, CellCenter, 1, 1, 1, 1);
-
-                //G_DrawAltDigiNum(40, -(hudoffset - 22), p->last_extra, s, 10 + 16 + 256);
+            format.Format("%d", p->last_extra);
+            SBar_DrawString(this, &numberFont, format, 40, - BigFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER | DI_SCREEN_BOTTOM, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
 
 #if 0
-        if (sprite[p->i].pal == 1 && p->last_extra < 2)
-            G_DrawAltDigiNum(40, -(hudoffset - 22), 1, -16, 10 + 16 + 256);
-        else if (!althud_flashing || p->last_extra > (p->max_player_health >> 2) || (int32_t)totalclock & 32)
-        {
-            int32_t s = -8;
-            if (althud_flashing && p->last_extra > p->max_player_health)
-                s += (sintable[((int32_t)totalclock << 5) & 2047] >> 10);
-            G_DrawAltDigiNum(40, -(hudoffset - 22), p->last_extra, s, 10 + 16 + 256);
-        }
 
         rotatesprite_althud(62, hudoffset - 25, sb15h, 0, SHIELD, 0, 0, 10 + 16 + 256);
 

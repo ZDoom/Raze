@@ -102,7 +102,7 @@ void DrawChar (F2DDrawer* drawer, FFont *font, int normalcolor, double x, double
 			return;
 		}
 		PalEntry color = 0xffffffff;
-		parms.remap = font->GetColorTranslation((EColorRange)normalcolor, &color);
+		parms.TranslationId = redirected? -1 : font->GetColorTranslation((EColorRange)normalcolor, &color);
 		parms.color = PalEntry((color.a * parms.color.a) / 255, (color.r * parms.color.r) / 255, (color.g * parms.color.g) / 255, (color.b * parms.color.b) / 255);
 		drawer->AddTexture(pic, parms);
 	}
@@ -140,7 +140,7 @@ void DrawTextCommon(F2DDrawer* drawer, FFont *font, int normalcolor, double x, d
 
 	PalEntry colorparm = parms.color;
 	PalEntry color = 0xffffffff;
-	parms.remap = font->GetColorTranslation((EColorRange)normalcolor, &color);
+	parms.TranslationId = font->GetColorTranslation((EColorRange)normalcolor, &color);
 	parms.color = PalEntry(colorparm.a, (color.r * colorparm.r) / 255, (color.g * colorparm.g) / 255, (color.b * colorparm.b) / 255);
 
 	kerning = font->GetDefaultKerning();
@@ -167,7 +167,7 @@ void DrawTextCommon(F2DDrawer* drawer, FFont *font, int normalcolor, double x, d
 			EColorRange newcolor = V_ParseFontColor(ch, normalcolor, boldcolor);
 			if (newcolor != CR_UNDEFINED)
 			{
-				parms.remap = font->GetColorTranslation(newcolor, &color);
+				parms.TranslationId = font->GetColorTranslation(newcolor, &color);
 				parms.color = PalEntry(colorparm.a, (color.r * colorparm.r) / 255, (color.g * colorparm.g) / 255, (color.b * colorparm.b) / 255);
 				currentcolor = newcolor;
 			}

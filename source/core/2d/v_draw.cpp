@@ -262,7 +262,7 @@ bool ParseDrawTextureTags(FTexture *img, double x, double y, uint32_t tag, Va_Li
 	parms->burn = false;
 	parms->monospace = EMonospacing::Off;
 	parms->spacing = 0;
-	parms->remap = -1;
+	parms->TranslationId = -1;
 
 	// Parse the tag list for attributes. (For floating point attributes,
 	// consider that the C ABI dictates that all floats be promoted to
@@ -412,7 +412,7 @@ bool ParseDrawTextureTags(FTexture *img, double x, double y, uint32_t tag, Va_Li
 			break;
 
 		case DTA_TranslationIndex:
-			parms->remap = ListGetInt(tags);
+			parms->TranslationId = ListGetInt(tags);
 			break;
 
 		case DTA_ColorOverlay:
