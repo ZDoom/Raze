@@ -112,6 +112,8 @@ void DFrameBuffer::SetSize(int width, int height)
 {
 	Width = ViewportScaledWidth(width, height);
 	Height = ViewportScaledHeight(width, height);
+	twodgen.SetSize(Width, Height);
+	twodpsp.SetSize(Width, Height);
 }
 
 //==========================================================================

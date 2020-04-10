@@ -71,7 +71,7 @@ public:
 			{ 0, VATTR_TEXCOORD, VFmt_Float2, (int)myoffsetof(F2DDrawer::TwoDVertex, u) },
 			{ 0, VATTR_COLOR, VFmt_Byte4, (int)myoffsetof(F2DDrawer::TwoDVertex, color0) }
 		};
-		mVertexBuffer->SetFormat(1, 2, sizeof(F2DDrawer::TwoDVertex), format);
+		mVertexBuffer->SetFormat(1, 3, sizeof(F2DDrawer::TwoDVertex), format);
 	}
 	~F2DVertexBuffer()
 	{
@@ -136,7 +136,6 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	SetVertexBuffer(vb.GetBufferObjects().first, 0, 0);
 	SetIndexBuffer(vb.GetBufferObjects().second);
 	SetFadeDisable(true);
-	SetColor(1, 0, 0);
 
 	for(auto &cmd : commands)
 	{
