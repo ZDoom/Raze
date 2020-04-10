@@ -1,6 +1,7 @@
 #pragma once
 
 #include "textures.h"
+#include "image.h"
 #include "i_time.h"
 #include "compat.h"
 
@@ -67,16 +68,17 @@ struct HightileReplacement
 	uint16_t palnum, flags;
 };
 
-class FTileTexture : public FTexture
+class FTileTexture : public FImageSource
 {
 public:
 	FTileTexture()
-	{}
+	{
+		bUseGamePalette = true;
+		bTranslucent = false;
+	}
 	virtual uint8_t* GetRawData() = 0;
-	void SetName(const char* name) { Name = name; }
-	TArray<uint8_t> Get8BitPixels(bool alphatex) override;
-	FBitmap GetBgraBitmap(const PalEntry* remap, int* trans = nullptr) override;
-	//bool GetTranslucency() override { return false; }
+	virtual TArray<uint8_t> CreatePalettedPixels(int conversion);
+	virtual int CopyPixels(FBitmap* bmp, int conversion);			// This will always ignore 'luminance'.
 };
 
 //==========================================================================
@@ -93,7 +95,8 @@ public:
 	FArtTile(const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height)
 		: RawPixels(backingstore), Offset(offset)
 	{
-		SetSize(width, height);
+		Width = width;
+		Height = height;
 	}
 	uint8_t* GetRawData() override final
 	{
@@ -114,7 +117,8 @@ public:
 	FLooseTile(TArray<uint8_t>& store, int width, int height)
 	{
 		RawPixels = std::move(store);
-		SetSize(width, height);
+		Width = width;
+		Height = height;
 	}
 
 	uint8_t* GetRawData() override
@@ -135,7 +139,8 @@ class FDummyTile : public FTileTexture
 public:
 	FDummyTile(int width, int height)
 	{
-		SetSize(width, height);
+		Width = width;
+		Height = height;
 	}
 
 	uint8_t* GetRawData() override
@@ -166,7 +171,7 @@ public:
 		return buffer.Data();
 	}
 
-	bool Resize(int w, int h)
+	bool ResizeImage(int w, int h)
 	{
 		if (w <= 0 || h <= 0)
 		{
@@ -175,7 +180,8 @@ public:
 		}
 		else
 		{
-			SetSize(w, h);
+			Width = w;
+			Height = h;
 			buffer.Resize(w * h);
 			return true;
 		}
@@ -191,20 +197,21 @@ public:
 
 class FRestorableTile : public FWritableTile
 {
-	FTexture* Base;
+	FImageSource* Base;
 
 public:
-	FRestorableTile(FTexture* base)
+	FRestorableTile(FImageSource* base)
 	{
 		Base = base;
-		CopySize(base);
-		Resize(GetTexelWidth(), GetTexelHeight());
+		
+		CopySize(*base);
+		ResizeImage(Width, Height);
 		Reload();
 	}
 
 	void Reload()
 	{
-		buffer = std::move(Base->Get8BitPixels(false));
+		buffer = std::move(Base->GetPalettedPixels(0));
 	}
 };
 
@@ -274,7 +281,7 @@ struct BuildTiles
 
 	BuildTiles()
 	{
-		Placeholder = new FDummyTile(0, 0);
+		Placeholder = new FImageTexture(new FDummyTile(0, 0));
 		for (auto& tile : tiledata)
 		{
 			tile.backup = tile.texture = Placeholder;
