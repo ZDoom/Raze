@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "sbar.h"
 #include "statusbar.h"
+#include "drawparms.h"
 
 BEGIN_RR_NS
 
@@ -793,6 +794,131 @@ public:
         if (p->got_access & 4) rotatesprite_althudr(34, hudoffset - 41, sb15, 0, ACCESSCARD, 0, 23, 10 + 16 + 512);
         if (p->got_access & 2) rotatesprite_althudr(29, hudoffset - 39, sb15, 0, ACCESSCARD, 0, 21, 10 + 16 + 512);
     }
+
+    void DrawDukeMiniBar_new(int32_t snum)
+    {
+        const int32_t ss = ud.screen_size;
+        const int32_t althud = ud.althud;
+
+        const int32_t SBY = (200 - (tilesiz[BOTTOMSTATUSBAR].y >> (RR ? 1 : 0)));
+
+        const int32_t sb15 = sbarsc(32768), sb15h = sbarsc(49152);
+        const int32_t sb16 = sbarsc(65536);
+
+
+        BeginHUD(320, 200, 1.f, false);
+
+
+        DukePlayer_t* const p = g_player[snum].ps;
+        int32_t hudoffset = hud_position == 1 ? 32 : 200;
+        // Hardcoded for now
+        const int althud_numbertile = BIGALPHANUM - 10;
+        int i, j;
+
+        //            rotatesprite_fs(sbarx(5+1),sbary(200-25+1),sb15h,0,SIXPAK,0,4,10+16+1+32);
+        //            rotatesprite_fs(sbarx(5),sbary(200-25),sb15h,0,SIXPAK,0,0,10+16);
+
+        DrawGraphic(TileFiles.GetTile(COLA), 2, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
+
+        if (!althud_flashing || p->last_extra > (p->max_player_health >> 2) || ((int32_t)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
+        {
+            int s = -8;
+            if (althud_flashing && p->last_extra > p->max_player_health)
+                s += (sintable[((int)totalclock << 5) & 2047] >> 10);
+            int intens = clamp(255 - 4 * s, 0, 255);
+            auto pe = PalEntry(255, intens, intens, intens);
+            char buffer[5];
+            mysnprintf(buffer, 5, "%d", p->last_extra);
+            DrawString(BigFont, buffer, 40, -2, DI_ITEM_CENTER_BOTTOM, 1., CR_UNTRANSLATED, 0, CellCenter, 1, 1, 1, 1);
+
+                //G_DrawAltDigiNum(40, -(hudoffset - 22), p->last_extra, s, 10 + 16 + 256);
+        }
+
+#if 0
+        if (sprite[p->i].pal == 1 && p->last_extra < 2)
+            G_DrawAltDigiNum(40, -(hudoffset - 22), 1, -16, 10 + 16 + 256);
+        else if (!althud_flashing || p->last_extra > (p->max_player_health >> 2) || (int32_t)totalclock & 32)
+        {
+            int32_t s = -8;
+            if (althud_flashing && p->last_extra > p->max_player_health)
+                s += (sintable[((int32_t)totalclock << 5) & 2047] >> 10);
+            G_DrawAltDigiNum(40, -(hudoffset - 22), p->last_extra, s, 10 + 16 + 256);
+        }
+
+        rotatesprite_althud(62, hudoffset - 25, sb15h, 0, SHIELD, 0, 0, 10 + 16 + 256);
+
+        {
+            int32_t lAmount = G_GetMorale(p->i, snum);
+            if (lAmount == -1)
+                lAmount = p->inv_amount[GET_SHIELD];
+            G_DrawAltDigiNum(105, -(hudoffset - 22), lAmount, -16, 10 + 16 + 256);
+        }
+
+        if (ammo_sprites[p->curr_weapon] >= 0)
+        {
+            i = (tilesiz[*ammo_sprites[p->curr_weapon]].y >= 50) ? 16384 : 32768;
+            rotatesprite_althudr(57, hudoffset - 15, sbarsc(i), 0, *ammo_sprites[p->curr_weapon], 0, 0, 10 + 512);
+        }
+
+        if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
+        else i = p->curr_weapon;
+
+        if (p->curr_weapon != KNEE_WEAPON &&
+            (!althud_flashing || (int32_t)totalclock & 32 || p->ammo_amount[i] > (p->max_ammo_amount[i] / 10)))
+            G_DrawAltDigiNum(-20, -(hudoffset - 22), p->ammo_amount[i], -16, 10 + 16 + 512);
+
+        int o = 102;
+
+        if (p->inven_icon)
+        {
+            const int32_t orient = 10 + 16 + 256;
+
+            i = ((unsigned)p->inven_icon < ICON_MAX) ? *item_icons[p->inven_icon] : -1;
+
+            if (i >= 0)
+                rotatesprite_althud(231 - o, hudoffset - 21 - 2, sb16, 0, i, 0, 0, orient);
+
+            if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
+                minitextshade(292 - 30 - o + 1, hudoffset - 10 - 3 + 1, "%", 127, 4, POLYMOSTTRANS + orient + ROTATESPRITE_MAX);
+            minitext(292 - 30 - o, hudoffset - 10 - 3, "%", 6, orient + ROTATESPRITE_MAX);
+
+            i = G_GetInvAmount(p);
+            j = G_GetInvOn(p);
+
+            G_DrawInvNum(-(284 - 30 - o), 0, hudoffset - 6 - 3, (uint8_t)i, 0, 10 + 256);
+
+            if (!WW2GI)
+            {
+                if (j > 0)
+                {
+                    if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
+                        minitextshade(288 - 30 - o + 1, hudoffset - 20 - 3 + 1, "On", 127, 4, POLYMOSTTRANS + orient + ROTATESPRITE_MAX);
+                    minitext(288 - 30 - o, hudoffset - 20 - 3, "On", 0, orient + ROTATESPRITE_MAX);
+                }
+                else if ((uint32_t)j != 0x80000000)
+                {
+                    if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
+                        minitextshade(284 - 30 - o + 1, hudoffset - 20 - 3 + 1, "Off", 127, 4, POLYMOSTTRANS + orient + ROTATESPRITE_MAX);
+                    minitext(284 - 30 - o, hudoffset - 20 - 3, "Off", 2, orient + ROTATESPRITE_MAX);
+                }
+            }
+
+            if (p->inven_icon >= ICON_SCUBA)
+            {
+                if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
+                    minitextshade(284 - 35 - o + 1, hudoffset - 20 - 3 + 1, "Auto", 127, 4, POLYMOSTTRANS + orient + ROTATESPRITE_MAX);
+                minitext(284 - 35 - o, hudoffset - 20 - 3, "Auto", 2, orient + ROTATESPRITE_MAX);
+            }
+        }
+
+        if (hud_position == 1)
+            hudoffset += 40;
+
+        if (p->got_access & 1) rotatesprite_althudr(39, hudoffset - 43, sb15, 0, ACCESSCARD, 0, 0, 10 + 16 + 512);
+        if (p->got_access & 4) rotatesprite_althudr(34, hudoffset - 41, sb15, 0, ACCESSCARD, 0, 23, 10 + 16 + 512);
+        if (p->got_access & 2) rotatesprite_althudr(29, hudoffset - 39, sb15, 0, ACCESSCARD, 0, 21, 10 + 16 + 512);
+#endif
+    }
 };
 
 void G_DrawStatusBar(int32_t snum)
@@ -928,6 +1054,7 @@ void G_DrawStatusBar(int32_t snum)
             else
             {
                 dsb.DrawDukeMiniBar(snum);
+                dsb.DrawDukeMiniBar_new(snum);
             }
         }
         else

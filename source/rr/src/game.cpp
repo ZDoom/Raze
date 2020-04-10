@@ -6738,6 +6738,8 @@ void G_PostCreateGameState(void)
     A_InitEnemyFlags();
 }
 
+void InitFonts();
+
 static void G_Startup(void)
 {
     int32_t i;
@@ -6798,6 +6800,8 @@ static void G_Startup(void)
 
     if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
         G_GameExit("Failed loading art.");
+
+    InitFonts();
 
     // Make the fullscreen nuke logo background non-fullbright.  Has to be
     // after dynamic tile remapping (from C_Compile) and loading tiles.
@@ -7005,6 +7009,7 @@ static const char* actions[] = {
     "Show_DukeMatch_Scores",
     "Toggle_Crouch",	// This is the last one used by EDuke32.
 };
+
 
 int GameInterface::app_main()
 {

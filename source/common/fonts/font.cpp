@@ -192,10 +192,13 @@ FFont::FFont (const char *name, const char *nametemplate, const char *filetempla
 			GlyphSet::Pair* pair;
 			while (it.NextPair(pair))
 			{
-				auto position = pair->Key;
-				if (position < minchar) minchar = position;
-				if (position > maxchar) maxchar = position;
-				charMap.Insert(position, pair->Value);
+				if (pair->Value && pair->Value->GetTexelWidth() > 0 && pair->Value->GetTexelHeight() > 0)
+				{
+					auto position = pair->Key;
+					if (position < minchar) minchar = position;
+					if (position > maxchar) maxchar = position;
+					charMap.Insert(position, pair->Value);
+				}
 			}
 		}
 		if (nametemplate != nullptr)
