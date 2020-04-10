@@ -155,11 +155,12 @@ public:
 
 	bool Activate(FName caller) override
 	{
-		auto msg = GStrings.localize(mPrompt.IsNotEmpty()? mPrompt.GetChars() : "$SAFEMESSAGE");
+		FString msg;
+		msg << GStrings.localize(mPrompt.IsNotEmpty()? mPrompt.GetChars() : "$SAFEMESSAGE") << "\n\n" << GStrings.localize("$PRESSYN");
 		auto actionLabel = GStrings.localize(mLabel.GetChars());
 
 		//FStringf FullString("%s%s%s\n\n%s", TEXTCOLOR_WHITE, actionLabel, TEXTCOLOR_NORMAL, msg);
-		FStringf FullString("- %s -\n%s", actionLabel, msg);
+		FStringf FullString("- %s -\n%s", actionLabel, msg.GetChars());
 		M_StartMessage(FullString, 0, mScriptId);
 		return true;
 	}
