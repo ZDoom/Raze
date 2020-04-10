@@ -1536,10 +1536,8 @@ DoPlayerCrawlHeight(PLAYERp pp)
 }
 
 void
-DoPlayerTurn(PLAYERp pp)
+DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel)
 {
-    fix16_t q16avel;
-
 #define TURN_SHIFT 2
 
     if (!TEST(pp->Flags, PF_TURN_180))
@@ -1552,12 +1550,12 @@ DoPlayerTurn(PLAYERp pp)
 
                 FLAG_KEY_RELEASE(pp, SK_TURN_180);
 
-                pp->turn180_target = NORM_ANGLE(fix16_to_int(pp->q16ang) + 1024);
+                pp->turn180_target = NORM_ANGLE(fix16_to_int(*pq16ang) + 1024);
 
                 // make the first turn in the clockwise direction
                 // the rest will follow
-                delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
-                pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang) + (labs(delta_ang) >> TURN_SHIFT)));
+                delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(*pq16ang));
+                *pq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(*pq16ang) + (labs(delta_ang) >> TURN_SHIFT)));
 
                 SET(pp->Flags, PF_TURN_180);
             }
@@ -1572,49 +1570,49 @@ DoPlayerTurn(PLAYERp pp)
     {
         short delta_ang;
 
-        delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
-        pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang) + (delta_ang >> TURN_SHIFT)));
+        delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(*pq16ang));
+        *pq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(*pq16ang) + (delta_ang >> TURN_SHIFT)));
 
-        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
+        sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
         if (!Prediction)
         {
             if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
+                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(*pq16ang);
         }
 
         // get new delta to see how close we are
-        delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
+        delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(*pq16ang));
 
         if (labs(delta_ang) < (3<<TURN_SHIFT))
         {
-            pp->q16ang = fix16_from_int(pp->turn180_target);
+            *pq16ang = fix16_from_int(pp->turn180_target);
             RESET(pp->Flags, PF_TURN_180);
         }
         else
             return;
     }
 
-    q16avel = fix16_smul(pp->input.q16avel, fix16_from_int(PLAYER_TURN_SCALE));
+    q16avel = fix16_smul(q16avel, fix16_from_int(PLAYER_TURN_SCALE));
 
     if (q16avel != 0)
     {
         // running is not handled here now
         q16avel += fix16_sdiv(q16avel, fix16_from_int(4));
 
-        pp->q16ang += fix16_sdiv(fix16_mul(q16avel, fix16_from_int(synctics)), fix16_from_int(32));
-        pp->q16ang = NORM_Q16ANGLE(pp->q16ang);
+        *pq16ang += fix16_sdiv(fix16_mul(q16avel, fix16_from_int(synctics)), fix16_from_int(32));
+        *pq16ang = NORM_Q16ANGLE(*pq16ang);
         if (PEDANTIC_MODE)
-            pp->q16ang = fix16_floor(pp->q16ang);
+            *pq16ang = fix16_floor(*pq16ang);
 
         // update players sprite angle
         // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
         // here to cover
         // all cases.
-        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
+        sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
         if (!Prediction)
         {
             if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
+                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(*pq16ang);
         }
 
     }
@@ -1855,7 +1853,7 @@ PlayerAutoLook(PLAYERp pp)
 
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 void
-DoPlayerHorizon(PLAYERp pp)
+DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
 {
     int i;
 #define HORIZ_SPEED (16)
@@ -1867,15 +1865,15 @@ DoPlayerHorizon(PLAYERp pp)
 	if (cl_slopetilting)
 		PlayerAutoLook(pp);
 
-    if (pp->input.q16horz)
+    if (q16horz)
     {
-        pp->q16horizbase += pp->input.q16horz;
+        pp->q16horizbase += q16horz;
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
     }
 
     if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
     {
-        pp->q16horiz = pp->q16horizbase = fix16_from_int(100);
+        *pq16horiz = pp->q16horizbase = fix16_from_int(100);
         pp->q16horizoff = 0;
     }
 
@@ -1885,11 +1883,11 @@ DoPlayerHorizon(PLAYERp pp)
         // set looking because player is manually looking
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
 
-        // adjust pp->q16horiz negative
+        // adjust *pq16horiz negative
         if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
             pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
 
-        // adjust pp->q16horiz positive
+        // adjust *pq16horiz positive
         if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
             pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
     }
@@ -1901,11 +1899,11 @@ DoPlayerHorizon(PLAYERp pp)
         RESET(pp->Flags, PF_LOCK_HORIZ);
         SET(pp->Flags, PF_LOOKING);
 
-        // adjust pp->q16horiz negative
+        // adjust *pq16horiz negative
         if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
             pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
 
-        // adjust pp->q16horiz positive
+        // adjust *pq16horiz positive
         if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
             pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
     }
@@ -1915,20 +1913,20 @@ DoPlayerHorizon(PLAYERp pp)
     {
         if (!(TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN)))
         {
-            // not pressing the pp->q16horiz keys
+            // not pressing the *pq16horiz keys
             if (pp->q16horizbase != fix16_from_int(100))
             {
 
-                // move pp->q16horiz back to 100
+                // move *pq16horiz back to 100
                 for (i = 1; i; i--)
                 {
-                    // this formula does not work for pp->q16horiz = 101-103
+                    // this formula does not work for *pq16horiz = 101-103
                     pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
                 }
             }
             else
             {
-                // not looking anymore because pp->q16horiz is back at 100
+                // not looking anymore because *pq16horiz is back at 100
                 RESET(pp->Flags, PF_LOOKING);
             }
         }
@@ -1949,14 +1947,14 @@ DoPlayerHorizon(PLAYERp pp)
     //MONO_PRINT(ds);
 
     // add base and offsets
-    pp->q16horiz = pp->q16horizbase + pp->q16horizoff;
+    *pq16horiz = pp->q16horizbase + pp->q16horizoff;
 #else
     if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
         pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
     else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
         pp->q16horizbase -= HORIZ_SPEED;
 
-    pp->q16horiz = pp->q16horizbase + pp->q16horizoff;
+    *pq16horiz = pp->q16horizbase + pp->q16horizoff;
 #endif
 
 }
@@ -2542,8 +2540,8 @@ DoPlayerMove(PLAYERp pp)
     void SlipSlope(PLAYERp pp);
 
     SlipSlope(pp);
-	
-    DoPlayerTurn(pp);
+
+    DoPlayerTurn(pp, &pp->q16ang, pp->input.q16avel);
 
     pp->oldposx = pp->posx;
     pp->oldposy = pp->posy;
@@ -2647,7 +2645,7 @@ DoPlayerMove(PLAYERp pp)
 
     DoPlayerSetWadeDepth(pp);
 
-    DoPlayerHorizon(pp);
+    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
 
     if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
@@ -2855,7 +2853,7 @@ DoPlayerMoveBoat(PLAYERp pp)
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    DoPlayerHorizon(pp);
+    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
 }
 
 #if 0
@@ -3366,7 +3364,7 @@ DoPlayerMoveTank(PLAYERp pp)
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    DoPlayerHorizon(pp);
+    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
 
     DoTankTreads(pp);
 }
@@ -3383,7 +3381,7 @@ DoPlayerMoveTurret(PLAYERp pp)
 
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
 
-    DoPlayerHorizon(pp);
+    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
 }
 
 void
@@ -3959,7 +3957,7 @@ DoPlayerClimb(PLAYERp pp)
     sp->z = pp->posz + PLAYER_HEIGHT;
     changespritesect(pp->PlayerSprite, pp->cursectnum);
 
-    DoPlayerHorizon(pp);
+    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
 
     if (FAF_ConnectArea(pp->cursectnum))
     {
@@ -6689,7 +6687,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     // allow turning
     if ((TEST(pp->Flags, PF_DEAD_HEAD) && pp->input.q16avel != 0) || TEST(pp->Flags, PF_HEAD_CONTROL))
     {
-        DoPlayerTurn(pp);
+        DoPlayerTurn(pp, &pp->q16ang, pp->input.q16avel);
         return;
     }
 
