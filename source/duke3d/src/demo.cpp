@@ -101,7 +101,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     i = sv_loadsnapshot(g_demo_recFilePtr, -g_whichDemo, &saveh);
     if (i)
     {
-        Printf(OSD_ERROR "There were errors opening demo %d (code: %d).\n", g_whichDemo, i);
+        Printf(TEXTCOLOR_RED "There were errors opening demo %d (code: %d).\n", g_whichDemo, i);
         g_demo_recFilePtr.Close();
         return 0;
     }
@@ -656,7 +656,7 @@ RECHECK:
                     if (0)
                     {
 corrupt:
-                        Printf(OSD_ERROR "Demo %d is corrupt (code %d).\n", g_whichDemo-1, corruptcode);
+                        Printf(TEXTCOLOR_RED "Demo %d is corrupt (code %d).\n", g_whichDemo-1, corruptcode);
 nextdemo:
                         M_StartControlPanel(false);
 nextdemo_nomenu:

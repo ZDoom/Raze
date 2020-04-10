@@ -4,12 +4,13 @@
 
 
 
-#include "c_cvars.h"
 #include "v_font.h"
+#include "c_cvars.h"
 #include "version.h"
 #include "textures.h"
 #include "zstring.h"
 #include "baselayer.h"
+#include "v_draw.h"
 
 EXTERN_CVAR(Float, snd_menuvolume)
 EXTERN_CVAR(Int, m_use_mouse);
@@ -217,28 +218,7 @@ struct FListMenuDescriptor : public FMenuDescriptor
 		Reset();
 	}
 
-	void Reset()
-	{
-		// Reset the default settings (ignore all other values in the struct)
-		mSelectOfsX = 0;
-		mSelectOfsY = 0;
-		mSelector = nullptr;
-		mDisplayTop = 0;
-		mXpos = 0;
-		mYpos = 0;
-		mLinespacing = 0;
-		mNetgameMessage = "";
-		mFont = NULL;
-		mFontColor = CR_UNTRANSLATED;
-		mFontColor2 = CR_UNTRANSLATED;
-		mScriptId = -1;
-		mSecondaryId = 0;
-		mNativeFontNum = NIT_BigFont;
-		mNativePalNum = NIT_ActiveColor;
-		mNativeFontScale = 1.f;
-		mFlags = 0;
-		mSpacing = 0;
-	}
+	void Reset();
 };
 
 struct FOptionMenuSettings

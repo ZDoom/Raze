@@ -42,6 +42,7 @@
 #include "palette.h"
 #include "flatvertices.h"
 #include "build.h"
+#include "v_video.h"
 
 extern int16_t numshades;
 extern TArray<VSMatrix> matrixArray;
@@ -70,7 +71,7 @@ public:
 			{ 0, VATTR_TEXCOORD, VFmt_Float2, (int)myoffsetof(F2DDrawer::TwoDVertex, u) },
 			{ 0, VATTR_COLOR, VFmt_Byte4, (int)myoffsetof(F2DDrawer::TwoDVertex, color0) }
 		};
-		mVertexBuffer->SetFormat(1, 3, sizeof(F2DDrawer::TwoDVertex), format);
+		mVertexBuffer->SetFormat(1, 2, sizeof(F2DDrawer::TwoDVertex), format);
 	}
 	~F2DVertexBuffer()
 	{
@@ -135,6 +136,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	SetVertexBuffer(vb.GetBufferObjects().first, 0, 0);
 	SetIndexBuffer(vb.GetBufferObjects().second);
 	SetFadeDisable(true);
+	SetColor(1, 0, 0);
 
 	for(auto &cmd : commands)
 	{
@@ -161,34 +163,13 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 			DisableScissor();
 		}
 
-		//state.SetFog(cmd.mColor1, 0);
-		SetColor(1, 1, 1);
-		//state.SetColor(1, 1, 1, 1, cmd.mDesaturate); 
-
 		if (cmd.mTexture != nullptr)
 		{
 			auto tex = cmd.mTexture;
 
-			if (cmd.mType == F2DDrawer::DrawTypeRotateSprite)
-			{
-					// todo: Set up hictinting. (broken as the feature is...)
-				SetShade(cmd.mRemapIndex >> 16, numshades);
-				SetFadeDisable(false);
-				auto saved = curbasepal;	// screw Build's dependencies on global state variables. We only need to change this for the following SetTexture call.
-				curbasepal = (cmd.mRemapIndex >> 8) & 0xff;
-				auto savedf = globalflags;
-				if (curbasepal > 0) 
-					globalflags |= GLOBAL_NO_GL_FULLBRIGHT;	// temp. hack to disable brightmaps.
-				SetTexture(0, tex, cmd.mRemapIndex & 0xff, 4/*DAMETH_CLAMPED*/, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
-				curbasepal = saved;
-				globalflags = savedf;
-			}
-			else
-			{
-				SetFadeDisable(true);
-				SetShade(0, numshades);
-				SetNamedTexture(cmd.mTexture, cmd.mRemapIndex, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
-			}
+			SetFadeDisable(true);
+			SetShade(0, numshades);
+			SetNamedTexture(cmd.mTexture, cmd.mTranslationId, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
 			EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 			UseColorOnly(false);
 		}

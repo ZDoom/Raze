@@ -1,49 +1,183 @@
-// scissi
-//---------------------------------------------------------------------------
-//
-// Copyright(C) 2016-2018 Christoph Oelckers
-// All rights reserved.
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with this program.  If not, see http://www.gnu.org/licenses/
-//
-//--------------------------------------------------------------------------
-//
 /*
 ** v_2ddrawer.h
 ** Device independent 2D draw list
 **
-**/
+**---------------------------------------------------------------------------
+** Copyright 2016-2020 Christoph Oelckers
+** All rights reserved.
+**
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+**    notice, this list of conditions and the following disclaimer.
+** 2. Redistributions in binary form must reproduce the above copyright
+**    notice, this list of conditions and the following disclaimer in the
+**    documentation and/or other materials provided with the distribution.
+** 3. The name of the author may not be used to endorse or promote products
+**    derived from this software without specific prior written permission.
+**
+** THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+** OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+** IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+** INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+** NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**---------------------------------------------------------------------------
+**
+*/
 
 #include <stdarg.h>
-#include "c_cvars.h"
-#include "v_2ddrawer.h"
-#include "renderstyle.h"
-#include "drawparms.h"
-#include "vectors.h"
-#include "gamecvars.h"
-#include "earcut.hpp"
-#include "palettecontainer.h"
-//#include "doomtype.h"
 #include "templates.h"
-//#include "r_utility.h"
-#include "v_video.h"
-//#include "g_levellocals.h"
-//#include "vm.h"
+#include "vm.h"
+#include "c_cvars.h"
+#include "v_draw.h"
+#include "fcolormap.h"
 
-F2DDrawer twodpsp;
-F2DDrawer twodgen;
-F2DDrawer *twod = &twodgen;
+F2DDrawer* twod;
+
+EXTERN_CVAR(Float, transsouls)
+
+IMPLEMENT_CLASS(DShape2DTransform, false, false)
+
+static void Shape2DTransform_Clear(DShape2DTransform* self)
+{
+	self->transform.Identity();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DShape2DTransform, Clear, Shape2DTransform_Clear)
+{
+	PARAM_SELF_PROLOGUE(DShape2DTransform);
+	Shape2DTransform_Clear(self);
+	return 0;
+}
+
+static void Shape2DTransform_Rotate(DShape2DTransform* self, double angle)
+{
+	self->transform = DMatrix3x3::Rotate2D(DEG2RAD(angle)) * self->transform;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DShape2DTransform, Rotate, Shape2DTransform_Rotate)
+{
+	PARAM_SELF_PROLOGUE(DShape2DTransform);
+	PARAM_FLOAT(angle);
+	Shape2DTransform_Rotate(self, angle);
+	return 0;
+}
+
+static void Shape2DTransform_Scale(DShape2DTransform* self, double x, double y)
+{
+	self->transform = DMatrix3x3::Scale2D(DVector2(x, y)) * self->transform;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DShape2DTransform, Scale, Shape2DTransform_Scale)
+{
+	PARAM_SELF_PROLOGUE(DShape2DTransform);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	Shape2DTransform_Scale(self, x, y);
+	return 0;
+}
+
+static void Shape2DTransform_Translate(DShape2DTransform* self, double x, double y)
+{
+	self->transform = DMatrix3x3::Translate2D(DVector2(x, y)) * self->transform;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DShape2DTransform, Translate, Shape2DTransform_Translate)
+{
+	PARAM_SELF_PROLOGUE(DShape2DTransform);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	Shape2DTransform_Translate(self, x, y);
+	return 0;
+}
+
+IMPLEMENT_CLASS(DShape2D, false, false)
+
+static void Shape2D_SetTransform(DShape2D* self, DShape2DTransform *transform)
+{
+	self->transform = transform->transform;
+	self->dirty = true;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DShape2D, SetTransform, Shape2D_SetTransform)
+{
+	PARAM_SELF_PROLOGUE(DShape2D);
+	PARAM_OBJECT(transform, DShape2DTransform);
+	Shape2D_SetTransform(self, transform);
+	return 0;
+}
+
+static void Shape2D_Clear(DShape2D* self, int which)
+{
+	if (which & C_Verts)
+	{
+		self->mVertices.Clear();
+		self->dirty = true;
+	}
+	if (which & C_Coords) self->mCoords.Clear();
+	if (which & C_Indices) self->mIndices.Clear();
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DShape2D, Clear, Shape2D_Clear)
+{
+	PARAM_SELF_PROLOGUE(DShape2D);
+	PARAM_INT(which);
+	Shape2D_Clear(self, which);
+	return 0;
+}
+
+static void Shape2D_PushVertex(DShape2D* self, double x, double y)
+{
+	self->mVertices.Push(DVector2(x, y));
+	self->dirty = true;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DShape2D, PushVertex, Shape2D_PushVertex)
+{
+	PARAM_SELF_PROLOGUE(DShape2D);
+	PARAM_FLOAT(x);
+	PARAM_FLOAT(y);
+	Shape2D_PushVertex(self, x, y);
+	return 0;
+}
+
+static void Shape2D_PushCoord(DShape2D* self, double u, double v)
+{
+	self->mCoords.Push(DVector2(u, v));
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DShape2D, PushCoord, Shape2D_PushCoord)
+{
+	PARAM_SELF_PROLOGUE(DShape2D);
+	PARAM_FLOAT(u);
+	PARAM_FLOAT(v);
+	Shape2D_PushCoord(self, u, v);
+	return 0;
+}
+
+static void Shape2D_PushTriangle(DShape2D* self, int a, int b, int c)
+{
+	self->mIndices.Push(a);
+	self->mIndices.Push(b);
+	self->mIndices.Push(c);
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DShape2D, PushTriangle, Shape2D_PushTriangle)
+{
+	PARAM_SELF_PROLOGUE(DShape2D);
+	PARAM_INT(a);
+	PARAM_INT(b);
+	PARAM_INT(c);
+	Shape2D_PushTriangle(self, a, b, c);
+	return 0;
+}
 
 //==========================================================================
 //
@@ -106,7 +240,11 @@ bool F2DDrawer::SetStyle(FTexture *tex, DrawParms &parms, PalEntry &vertexcolor,
 	float alpha;
 	bool stencilling;
 
-	if (style.Flags & STYLEF_Alpha1)
+	if (style.Flags & STYLEF_TransSoulsAlpha)
+	{
+		alpha = transsouls;
+	}
+	else if (style.Flags & STYLEF_Alpha1)
 	{
 		alpha = 1;
 	}
@@ -192,6 +330,16 @@ bool F2DDrawer::SetStyle(FTexture *tex, DrawParms &parms, PalEntry &vertexcolor,
 		{
 			quad.mDrawMode = TM_INVERSE;
 		}
+
+		if (parms.specialcolormap != nullptr)
+		{ // draw with an invulnerability or similar colormap.
+
+			auto scm = parms.specialcolormap;
+
+			quad.mSpecialColormap[0] = PalEntry(255, int(scm->ColorizeStart[0] * 127.5f), int(scm->ColorizeStart[1] * 127.5f), int(scm->ColorizeStart[2] * 127.5f));
+			quad.mSpecialColormap[1] = PalEntry(255, int(scm->ColorizeEnd[0] * 127.5f), int(scm->ColorizeEnd[1] * 127.5f), int(scm->ColorizeEnd[2] * 127.5f));
+			quad.mColor1 = 0;	// this disables the color overlay.
+		}
 		quad.mDesaturate = parms.desaturate;
 	}
 	// apply the element's own color. This is being blended with anything that came before.
@@ -260,10 +408,15 @@ void F2DDrawer::AddTexture(FTexture *img, DrawParms &parms)
 	dg.mType = DrawTypeTriangles;
 	dg.mVertCount = 4;
 	dg.mTexture = img;
+	if (img->isWarped()) dg.mFlags |= DTF_Wrap;
 
-	dg.mRemapIndex = parms.TranslationId;
+	dg.mTranslationId = 0;
 	SetStyle(img, parms, vertexcolor, dg);
 
+	if (!img->isHardwareCanvas() && parms.TranslationId != -1)
+	{
+		dg.mTranslationId = parms.TranslationId;
+	}
 	u1 = parms.srcx;
 	v1 = parms.srcy;
 	u2 = parms.srcx + parms.srcwidth;
@@ -310,6 +463,211 @@ void F2DDrawer::AddTexture(FTexture *img, DrawParms &parms)
 	dg.mIndexIndex = mIndices.Size();
 	dg.mIndexCount += 6;
 	AddIndices(dg.mVertIndex, 6, 0, 1, 2, 1, 3, 2);
+	AddCommand(&dg);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void F2DDrawer::AddShape( FTexture *img, DShape2D *shape, DrawParms &parms )
+{
+	// [MK] bail out if vertex/coord array sizes are mismatched
+	if ( shape->mVertices.Size() != shape->mCoords.Size() )
+		ThrowAbortException(X_OTHER, "Mismatch in vertex/coord count: %u != %u", shape->mVertices.Size(), shape->mCoords.Size());
+
+	if (parms.style.BlendOp == STYLEOP_None) return;	// not supposed to be drawn.
+
+	PalEntry vertexcolor;
+
+	RenderCommand dg;
+
+	dg.mType = DrawTypeTriangles;
+	dg.mVertCount = shape->mVertices.Size();
+	dg.mFlags |= DTF_Wrap;
+	dg.mTexture = img;
+
+	dg.mTranslationId = 0;
+	SetStyle(img, parms, vertexcolor, dg);
+
+	if (!img->isHardwareCanvas() && parms.TranslationId != -1)
+		dg.mTranslationId = parms.TranslationId;
+
+	if (shape->dirty) {
+		if (shape->mVertices.Size() != shape->mTransformedVertices.Size())
+			shape->mTransformedVertices.Resize(shape->mVertices.Size());
+		for (int i = 0; i < dg.mVertCount; i++) {
+			shape->mTransformedVertices[i] = (shape->transform * DVector3(shape->mVertices[i], 1.0)).XY();
+		}
+		shape->dirty = false;
+	}
+
+	double minx = 16383, miny = 16383, maxx = -16384, maxy = -16384;
+	for ( int i=0; i<dg.mVertCount; i++ )
+	{
+		if ( shape->mTransformedVertices[i].X < minx ) minx = shape->mTransformedVertices[i].X;
+		if ( shape->mTransformedVertices[i].Y < miny ) miny = shape->mTransformedVertices[i].Y;
+		if ( shape->mTransformedVertices[i].X > maxx ) maxx = shape->mTransformedVertices[i].X;
+		if ( shape->mTransformedVertices[i].Y > maxy ) maxy = shape->mTransformedVertices[i].Y;
+	}
+	if (minx < (double)parms.lclip || miny < (double)parms.uclip || maxx >(double)parms.rclip || maxy >(double)parms.dclip)
+	{
+		dg.mScissor[0] = parms.lclip;
+		dg.mScissor[1] = parms.uclip;
+		dg.mScissor[2] = parms.rclip;
+		dg.mScissor[3] = parms.dclip;
+		dg.mFlags |= DTF_Scissor;
+	}
+	else
+		memset(dg.mScissor, 0, sizeof(dg.mScissor));
+
+	dg.mVertIndex = (int)mVertices.Reserve(dg.mVertCount);
+	TwoDVertex *ptr = &mVertices[dg.mVertIndex];
+	for ( int i=0; i<dg.mVertCount; i++ )
+		ptr[i].Set(shape->mTransformedVertices[i].X, shape->mTransformedVertices[i].Y, 0, shape->mCoords[i].X, shape->mCoords[i].Y, vertexcolor);
+	dg.mIndexIndex = mIndices.Size();
+	dg.mIndexCount += shape->mIndices.Size();
+	for ( int i=0; i<int(shape->mIndices.Size()); i+=3 )
+	{
+		// [MK] bail out if any indices are out of bounds
+		for ( int j=0; j<3; j++ )
+		{
+			if ( shape->mIndices[i+j] < 0 )
+				ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Triangle %u index %u is negative: %i\n", i/3, j, shape->mIndices[i+j]);
+			if ( shape->mIndices[i+j] >= dg.mVertCount )
+				ThrowAbortException(X_ARRAY_OUT_OF_BOUNDS, "Triangle %u index %u: %u, max: %u\n", i/3, j, shape->mIndices[i+j], dg.mVertCount-1);
+		}
+		AddIndices(dg.mVertIndex, 3, shape->mIndices[i], shape->mIndices[i+1], shape->mIndices[i+2]);
+	}
+	AddCommand(&dg);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void F2DDrawer::AddPoly(FTexture *texture, FVector2 *points, int npoints,
+		double originx, double originy, double scalex, double scaley,
+		DAngle rotation, const FColormap &colormap, PalEntry flatcolor, double fadelevel,
+		uint32_t *indices, size_t indexcount)
+{
+
+	RenderCommand poly;
+
+	poly.mType = DrawTypeTriangles;
+	poly.mTexture = texture;
+	poly.mRenderStyle = DefaultRenderStyle();
+	poly.mFlags |= DTF_Wrap;
+	poly.mDesaturate = colormap.Desaturation;
+
+	PalEntry color0; 
+	double invfade = 1. - fadelevel;
+
+	color0.r = uint8_t(colormap.LightColor.r * invfade);
+	color0.g = uint8_t(colormap.LightColor.g * invfade);
+	color0.b = uint8_t(colormap.LightColor.b * invfade);
+	color0.a = 255;
+
+	poly.mColor1.a = 0;
+	poly.mColor1.r = uint8_t(colormap.FadeColor.r * fadelevel);
+	poly.mColor1.g = uint8_t(colormap.FadeColor.g * fadelevel);
+	poly.mColor1.b = uint8_t(colormap.FadeColor.b * fadelevel);
+
+	bool dorotate = rotation != 0;
+
+	float cosrot = (float)cos(rotation.Radians());
+	float sinrot = (float)sin(rotation.Radians());
+
+	float uscale = float(1.f / (texture->GetDisplayWidth() * scalex));
+	float vscale = float(1.f / (texture->GetDisplayHeight() * scaley));
+	float ox = float(originx);
+	float oy = float(originy);
+
+	poly.mVertCount = npoints;
+	poly.mVertIndex = (int)mVertices.Reserve(npoints);
+	for (int i = 0; i < npoints; ++i)
+	{
+		float u = points[i].X - 0.5f - ox;
+		float v = points[i].Y - 0.5f - oy;
+		if (dorotate)
+		{
+			float t = u;
+			u = t * cosrot - v * sinrot;
+			v = v * cosrot + t * sinrot;
+		}
+		mVertices[poly.mVertIndex+i].Set(points[i].X, points[i].Y, 0, u*uscale, v*vscale, color0);
+	}
+	poly.mIndexIndex = mIndices.Size();
+
+	if (indices == nullptr || indexcount == 0)
+	{
+		poly.mIndexCount += (npoints - 2) * 3;
+		for (int i = 2; i < npoints; ++i)
+		{
+			AddIndices(poly.mVertIndex, 3, 0, i - 1, i);
+		}
+	}
+	else
+	{
+		poly.mIndexCount += (int)indexcount;
+		int addr = mIndices.Reserve(indexcount);
+		for (size_t i = 0; i < indexcount; i++)
+		{
+			mIndices[addr + i] = poly.mVertIndex + indices[i];
+		}
+	}
+
+	AddCommand(&poly);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void F2DDrawer::AddPoly(FTexture* img, FVector4* vt, size_t vtcount, unsigned int* ind, size_t idxcount, int translation, PalEntry color, FRenderStyle style, int clipx1, int clipy1, int clipx2, int clipy2)
+{
+	RenderCommand dg = {};
+	int method = 0;
+
+	dg.mType = DrawTypeTriangles;
+	if (clipx1 > 0 || clipy1 > 0 || clipx2 < GetWidth() - 1 || clipy2 < GetHeight() - 1)
+	{
+		dg.mScissor[0] = clipx1;
+		dg.mScissor[1] = clipy1;
+		dg.mScissor[2] = clipx2 + 1;
+		dg.mScissor[3] = clipy2 + 1;
+		dg.mFlags |= DTF_Scissor;
+	}
+
+	dg.mTexture = img;
+	dg.mTranslationId = translation;
+	dg.mColor1 = color;
+	dg.mVertCount = (int)vtcount;
+	dg.mVertIndex = (int)mVertices.Reserve(vtcount);
+	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
+	dg.mIndexIndex = mIndices.Size();
+	dg.mFlags |= DTF_Wrap;
+	auto ptr = &mVertices[dg.mVertIndex];
+
+	for (size_t i=0;i<vtcount;i++)
+	{
+		ptr->Set(vt[i].X, vt[i].Y, 0.f, vt[i].Z, vt[i].W, color);
+		ptr++;
+	}
+
+	dg.mIndexIndex = mIndices.Size();
+	mIndices.Reserve(idxcount);
+	for (size_t i = 0; i < idxcount; i++)
+	{
+		mIndices[dg.mIndexIndex + i] = ind[i] + dg.mVertIndex;
+	}
+	dg.mIndexCount = (int)idxcount;
 	AddCommand(&dg);
 }
 
@@ -388,7 +746,7 @@ void F2DDrawer::AddColorOnlyQuad(int x1, int y1, int w, int h, PalEntry color, F
 
 void F2DDrawer::ClearScreen(PalEntry color)
 {
-	AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), color);
+	AddColorOnlyQuad(0, 0, GetWidth(), GetHeight(), color);
 }
 
 //==========================================================================
@@ -404,7 +762,7 @@ void F2DDrawer::AddLine(float x1, float y1, float x2, float y2, int clipx1, int 
 
 	RenderCommand dg;
 
-	if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth()- 1 || clipy2 < screen->GetHeight() - 1)
+	if (clipx1 > 0 || clipy1 > 0 || clipx2 < GetWidth()- 1 || clipy2 < GetHeight() - 1)
 	{
 		dg.mScissor[0] = clipx1;
 		dg.mScissor[1] = clipy1;
@@ -497,360 +855,3 @@ void F2DDrawer::Clear()
 	mData.Clear();
 	mIsFirstPass = true;
 }
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-
-#include "build.h"
-#include "../src/engine_priv.h"
-
-//sx,sy       center of sprite; screen coords*65536
-//z           zoom*65536. > is zoomed in
-//a           angle (0 is default)
-//dastat&1    1:translucence
-//dastat&2    1:auto-scale mode (use 320*200 coordinates)
-//dastat&4    1:y-flip
-//dastat&8    1:don't clip to startumost/startdmost
-//dastat&16   1:force point passed to be top-left corner, 0:Editart center
-//dastat&32   1:reverse translucence
-//dastat&64   1:non-masked, 0:masked
-//dastat&128  1:draw all pages (permanent - no longer used)
-//cx1,...     clip window (actual screen coords)
-
-//==========================================================================
-//
-// INTERNAL helper function for classic/polymost dorotatesprite
-//  sxptr, sxptr, z: in/out
-//  ret_yxaspect, ret_xyaspect: out
-//
-//==========================================================================
-
-static int32_t dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, int32_t dastat, int32_t cx1_plus_cx2, int32_t cy1_plus_cy2)
-{
-	if ((dastat & RS_AUTO) == 0)
-	{
-		if (!(dastat & RS_STRETCH) && 4 * ydim <= 3 * xdim)
-		{
-			return (10 << 16) / 12;
-		}
-		else
-		{
-			return xyaspect;
-		}
-	}
-	else
-	{
-		// dastat&2: Auto window size scaling
-		const int32_t oxdim = xdim;
-		const int32_t oydim = ydim;
-		int32_t xdim = oxdim;  // SHADOWS global
-		int32_t ydim = oydim;
-
-		int32_t zoomsc, sx = *sxptr, sy = *syptr;
-		int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
-
-		sy += rotatesprite_y_offset;
-
-		if (!(dastat & RS_STRETCH) && 4 * ydim <= 3 * xdim)
-		{
-			if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
-				sx += NEGATE_ON_CONDITION(scale(120 << 16, xdim, ydim) - (160 << 16), !(dastat & RS_ALIGN_R));
-
-			if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
-				ydim = scale(xdim, 3, 4);
-			else
-				xdim = scale(ydim, 4, 3);
-
-			ouryxaspect = (12 << 16) / 10;
-			ourxyaspect = (10 << 16) / 12;
-		}
-
-		ouryxaspect = mulscale16(ouryxaspect, rotatesprite_yxaspect);
-		ourxyaspect = divscale16(ourxyaspect, rotatesprite_yxaspect);
-
-		// screen center to s[xy], 320<<16 coords.
-		const int32_t normxofs = sx - (320 << 15), normyofs = sy - (200 << 15);
-
-		// nasty hacks go here
-		if (!(dastat & RS_NOCLIP))
-		{
-			const int32_t twice_midcx = cx1_plus_cx2 + 2;
-
-			// screen x center to sx1, scaled to viewport
-			const int32_t scaledxofs = scale(normxofs, scale(xdimen, xdim, oxdim), 320);
-
-			sx = ((twice_midcx) << 15) + scaledxofs;
-
-			zoomsc = xdimenscale;   //= scale(xdimen,yxaspect,320);
-			zoomsc = mulscale16(zoomsc, rotatesprite_yxaspect);
-
-			if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
-				zoomsc = scale(zoomsc, ydim, oydim);
-
-			sy = ((cy1_plus_cy2 + 2) << 15) + mulscale16(normyofs, zoomsc);
-		}
-		else
-		{
-			//If not clipping to startmosts, & auto-scaling on, as a
-			//hard-coded bonus, scale to full screen instead
-
-			sx = (xdim << 15) + 32768 + scale(normxofs, xdim, 320);
-
-			zoomsc = scale(xdim, ouryxaspect, 320);
-			sy = (ydim << 15) + 32768 + mulscale16(normyofs, zoomsc);
-
-			if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
-				sy += (oydim - ydim) << 15;
-			else
-				sx += (oxdim - xdim) << 15;
-
-			if (dastat & RS_CENTERORIGIN)
-				sx += oxdim << 15;
-		}
-
-		*sxptr = sx;
-		*syptr = sy;
-		*z = mulscale16(*z, zoomsc);
-
-		return ourxyaspect;
-	}
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-	int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-	int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2, FTexture *pic, int basepal)
-{
-	RenderCommand dg = {};
-	int method = 0;
-
-	dg.mType = pic? DrawTypeTriangles : DrawTypeRotateSprite;
-	if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth() - 1 || clipy2 < screen->GetHeight() - 1)
-	{
-		dg.mScissor[0] = clipx1;
-		dg.mScissor[1] = clipy1;
-		dg.mScissor[2] = clipx2 + 1;
-		dg.mScissor[3] = clipy2 + 1;
-		dg.mFlags |= DTF_Scissor;
-	}
-
-	if (!(dastat & RS_NOMASK))
-	{
-		if (dastat & RS_TRANS1)
-			method |= (dastat & RS_TRANS2) ? DAMETH_TRANS2 : DAMETH_TRANS1;
-		else
-			method |= DAMETH_MASK;
-
-		dg.mRenderStyle = GetRenderStyle(dablend, (dastat & RS_TRANS2) ? 1 : 0);
-	}
-	else
-	{
-		dg.mRenderStyle = LegacyRenderStyles[STYLE_Normal];
-	}
-
-	PalEntry p = 0xffffffff;
-	dg.mTexture = pic? pic : TileFiles.GetTile(picnum);
-	dg.mRemapIndex = dapalnum | (basepal << 8) | (dashade << 16);
-	dg.mVertCount = 4;
-	dg.mVertIndex = (int)mVertices.Reserve(4);
-	auto ptr = &mVertices[dg.mVertIndex];
-	float drawpoly_alpha = daalpha * (1.0f / 255.0f);
-	float alpha = GetAlphaFromBlend(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
-	p.a = (uint8_t)(alpha * 255);
-
-	vec2_t const siz = { dg.mTexture->GetDisplayWidth(), dg.mTexture->GetDisplayHeight() };
-	vec2_16_t ofs = { 0, 0 };
-
-	if (!(dastat & RS_TOPLEFT))
-	{
-		if (!pic)
-		{
-			ofs = { int16_t(picanm[picnum].xofs + (siz.x >> 1)),
-					int16_t(picanm[picnum].yofs + (siz.y >> 1)) };
-		}
-		else
-		{
-			ofs = { int16_t((siz.x >> 1)),
-					int16_t((siz.y >> 1)) };
-		}
-	}
-
-	if (dastat & RS_YFLIP)
-		ofs.y = siz.y - ofs.y;
-
-	int32_t aspectcorrect = dorotspr_handle_bit2(&sx, &sy, &z, dastat, clipx1 + clipx2, clipy1 + clipy2);
-
-	int32_t cosang = mulscale14(sintable[(a + 512) & 2047], z);
-	int32_t cosang2 = cosang;
-	int32_t sinang = mulscale14(sintable[a & 2047], z);
-	int32_t sinang2 = sinang;
-
-	if ((dastat & RS_AUTO) || (!(dastat & RS_NOCLIP)))  // Don't aspect unscaled perms
-	{
-		cosang2 = mulscale16(cosang2, aspectcorrect);
-		sinang2 = mulscale16(sinang2, aspectcorrect);
-	}
-
-	int cx0 = sx - ofs.x * cosang2 + ofs.y * sinang2;
-	int cy0 = sy - ofs.x * sinang - ofs.y * cosang;
-
-	int cx1 = cx0 + siz.x * cosang2;
-	int cy1 = cy0 + siz.x * sinang;
-
-	int cx3 = cx0 - siz.y * sinang2;
-	int cy3 = cy0 + siz.y * cosang;
-
-	int cx2 = cx1 + cx3 - cx0;
-	int cy2 = cy1 + cy3 - cy0;
-
-	float y = (dastat & RS_YFLIP) ? 1.f : 0.f;
-
-	ptr->Set(cx0 / 65536.f, cy0 / 65536.f, 0.f, 0.f, y, p); ptr++;
-	ptr->Set(cx1 / 65536.f, cy1 / 65536.f, 0.f, 1.f, y, p); ptr++;
-	ptr->Set(cx2 / 65536.f, cy2 / 65536.f, 0.f, 1.f, 1.f-y, p); ptr++;
-	ptr->Set(cx3 / 65536.f, cy3 / 65536.f, 0.f, 0.f, 1.f-y, p); ptr++;
-	dg.mIndexIndex = mIndices.Size();
-	dg.mIndexCount += 6;
-	AddIndices(dg.mVertIndex, 6, 0, 1, 2, 0, 2, 3);
-	AddCommand(&dg);
-
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void F2DDrawer::AddPoly(FTexture* img, FVector4* vt, size_t vtcount, unsigned int* ind, size_t idxcount, int palette, int shade, int maskprops, int clipx1, int clipy1, int clipx2, int clipy2)
-{
-	RenderCommand dg = {};
-	int method = 0;
-
-	dg.mType = DrawTypeRotateSprite;
-	if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth() - 1 || clipy2 < screen->GetHeight() - 1)
-	{
-		dg.mScissor[0] = clipx1;
-		dg.mScissor[1] = clipy1;
-		dg.mScissor[2] = clipx2 + 1;
-		dg.mScissor[3] = clipy2 + 1;
-		dg.mFlags |= DTF_Scissor;
-	}
-
-	PalEntry p = 0xffffffff;
-	if (maskprops > DAMETH_MASK)
-	{
-		dg.mRenderStyle = GetRenderStyle(0, maskprops == DAMETH_TRANS2);
-		p.a = (uint8_t)(GetAlphaFromBlend(maskprops, 0) * 255);
-	}
-	dg.mTexture = img;
-	dg.mRemapIndex = palette | (shade << 16);
-	dg.mVertCount = vtcount;
-	dg.mVertIndex = (int)mVertices.Reserve(vtcount);
-	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
-	dg.mIndexIndex = mIndices.Size();
-	dg.mFlags |= DTF_Wrap;
-	auto ptr = &mVertices[dg.mVertIndex];
-
-	for (size_t i=0;i<vtcount;i++)
-	{
-		ptr->Set(vt[i].X, vt[i].Y, 0.f, vt[i].Z, vt[i].W, p);
-		ptr++;
-	}
-
-	dg.mIndexIndex = mIndices.Size();
-	mIndices.Reserve(idxcount);
-	for (size_t i = 0; i < idxcount; i++)
-	{
-		mIndices[dg.mIndexIndex + i] = ind[i] + dg.mVertIndex;
-	}
-	dg.mIndexCount = idxcount;
-	AddCommand(&dg);
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-void F2DDrawer::FillPolygon(int *rx1, int *ry1, int *xb1, int32_t npoints, int picnum, int palette, int shade, int props, const FVector2& xtex, const FVector2& ytex, const FVector2 &otex,
-	int clipx1, int clipy1, int clipx2, int clipy2)
-{
-	//Convert int32_t to float (in-place)
-	TArray<FVector4> points(npoints, true);
-	using Point = std::pair<float, float>;
-	std::vector<std::vector<Point>> polygon;
-	std::vector<Point>* curPoly;
-
-	polygon.resize(1);
-	curPoly = &polygon.back();
-
-	for (bssize_t i = 0; i < npoints; ++i)
-	{
-		auto X = ((float)rx1[i]) * (1.0f / 4096.f);
-		auto Y = ((float)ry1[i]) * (1.0f / 4096.f);
-		curPoly->push_back(std::make_pair(X, Y));
-		if (xb1[i] < i && i < npoints - 1)
-		{
-			polygon.resize(polygon.size() + 1);
-			curPoly = &polygon.back();
-		}
-	}
-	// Now make sure that the outer boundary is the first polygon by picking a point that's as much to the outside as possible.
-	int outer = 0;
-	float minx = FLT_MAX;
-	float miny = FLT_MAX;
-	for (size_t a = 0; a < polygon.size(); a++)
-	{
-		for (auto& pt : polygon[a])
-		{
-			if (pt.first < minx || (pt.first == minx && pt.second < miny))
-			{
-				minx = pt.first;
-				miny = pt.second;
-				outer = a;
-			}
-		}
-	}
-	if (outer != 0) std::swap(polygon[0], polygon[outer]);
-	auto indices = mapbox::earcut(polygon);
-
-	int p = 0;
-	for (size_t a = 0; a < polygon.size(); a++)
-	{
-		for (auto& pt : polygon[a])
-		{
-			FVector4 point = { pt.first, pt.second, float(pt.first * xtex.X + pt.second * ytex.X + otex.X), float(pt.first * xtex.Y + pt.second * ytex.Y + otex.Y) };
-			points[p++] = point;
-		}
-	}
-
-	AddPoly(TileFiles.GetTile(picnum), points.Data(), points.Size(), indices.data(), indices.size(), palette, shade, (props >> 7)& DAMETH_MASKPROPS, clipx1, clipy1, clipx2, clipy2);
-}
-
-void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p)
-{
-	twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, p);
-}
-
-void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
-{
-	drawlinergb(x1, y1, x2, y2, PalEntry(p.r, p.g, p.b));
-}
-
-void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col)
-{
-	drawlinergb(x1, y1, x2, y2, GPalette.BaseColors[GPalette.Remap[col]]);
-}
-
-

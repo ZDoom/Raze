@@ -55,6 +55,7 @@
 #include "input/m_joy.h"
 #include "raze_sound.h"
 #include "texturemanager.h"
+#include "v_video.h"
 
 void RegisterDukeMenus();
 void RegisterRedneckMenus();

@@ -355,7 +355,7 @@ void GameInterface::DoPrintMessage(int prio, const char* t)
 		if (p->ftq == QUOTE_RESERVED || p->ftq == QUOTE_RESERVED2) return;
 
 	if (p == g_player[screenpeek].ps)
-		Printf(prio | PRINT_NOTIFY, cq ? OSDTEXT_DEFAULT "%s\n" : "%s\n", t);
+		Printf(prio | PRINT_NOTIFY, cq ? TEXTCOLOR_TAN "%s\n" : "%s\n", t);
 
 	if (hud_messages == 1)
 	{

@@ -210,7 +210,6 @@ void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, Polymos
 	if (activeShader == polymostShader)
 	{
 		glVertexAttrib4fv(2, renderState.Color);
-		glVertexAttrib4fv(2, renderState.Color);
 		if (renderState.Color[3] != 1.f) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
 		renderState.Apply(polymostShader, lastState);
 	}

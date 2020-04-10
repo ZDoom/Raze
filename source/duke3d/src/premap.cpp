@@ -1267,7 +1267,7 @@ static void prelevel(int g)
     }
 
     if (missedCloudSectors > 0)
-        Printf(OSDTEXT_RED "Map warning: have %d unhandled CLOUDYSKIES ceilings.\n", missedCloudSectors);
+        Printf(TEXTCOLOR_RED "Map warning: have %d unhandled CLOUDYSKIES ceilings.\n", missedCloudSectors);
 
     // NOTE: must be safe loop because callbacks could delete sprites.
     for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
@@ -1759,7 +1759,7 @@ int G_EnterLevel(int gameMode)
     {
         if (mm.fileName.IsEmpty())
         {
-            Printf(OSDTEXT_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
+            Printf(TEXTCOLOR_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
             return 1;
         }
     }
@@ -1784,7 +1784,7 @@ int G_EnterLevel(int gameMode)
     {
         if (engineLoadBoard(boardfilename, 0, &p0.pos, &playerAngle, &p0.cursectnum) < 0)
         {
-            Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
+            Printf(TEXTCOLOR_RED "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
         }
         userMapRecord.name = "";
@@ -1798,7 +1798,7 @@ int G_EnterLevel(int gameMode)
     }
     else if (engineLoadBoard(mm.fileName, VOLUMEONE, &p0.pos, &playerAngle, &p0.cursectnum) < 0)
     {
-        Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", mm.fileName.GetChars());
+        Printf(TEXTCOLOR_RED "Map \"%s\" not found or invalid map version!\n", mm.fileName.GetChars());
         return 1;
     }
     else
@@ -1890,11 +1890,11 @@ int G_EnterLevel(int gameMode)
     }
 
     if (G_HaveUserMap())
-        Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
+        Printf(TEXTCOLOR_GOLD "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
     else if (FURY)
-        Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_ENTERING"), mm.DisplayName());
+        Printf(TEXTCOLOR_GOLD "%s: %s\n", GStrings("TXT_ENTERING"), mm.DisplayName());
     else
-        Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number + 1, ud.level_number + 1, mm.DisplayName());
+        Printf(TEXTCOLOR_GOLD "E%dL%d: %s\n", ud.volume_number + 1, ud.level_number + 1, mm.DisplayName());
 
     g_restorePalette = -1;
 

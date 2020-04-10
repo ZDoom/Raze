@@ -51,7 +51,7 @@
 #include "utf8.h"
 #include "texturemanager.h"
 #include "cmdlib.h"
-#include "drawparms.h"
+#include "v_draw.h"
 #include "v_font.h"
 #include "v_draw.h"
 
@@ -278,7 +278,7 @@ void DBaseStatusBar::SetScale ()
 		// Since status bars and HUDs can be designed for non 320x200 screens this needs to be factored in here.
 		// The global scaling factors are for resources at 320x200, so if the actual ones are higher resolution
 		// the resulting scaling factor needs to be reduced accordingly.
-		int realscale = clamp((320 * GetUIScale(st_scale)) / HorizontalResolution, 1, w / HorizontalResolution);
+		int realscale = clamp((320 * GetUIScale(twod, st_scale)) / HorizontalResolution, 1, w / HorizontalResolution);
 
 		double realscaley = realscale * (hud_aspectscale ? 1.2 : 1.);
 
@@ -311,7 +311,7 @@ DVector2 DBaseStatusBar::GetHUDScale() const
 	{
 		return defaultScale;
 	}
-	scale = GetUIScale(newhud_scale);
+	scale = GetUIScale(twod, newhud_scale);
 
 	int hres = HorizontalResolution;
 	int vres = VerticalResolution;
@@ -388,7 +388,7 @@ void DBaseStatusBar::StatusbarToRealCoords(double &x, double &y, double &w, doub
 		int vres = VerticalResolution;
 		ValidateResolution(hres, vres);
 
-		VirtualToRealCoords(x, y, w, h, hres, vres, true, true);
+		VirtualToRealCoords(twod, x, y, w, h, hres, vres, true, true);
 	}
 	else
 	{

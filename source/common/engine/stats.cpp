@@ -33,9 +33,7 @@
 */
 
 #include "stats.h"
-#include "v_video.h"
-#include "v_2ddrawer.h"
-#include "drawparms.h"
+#include "v_draw.h"
 #include "v_text.h"
 #include "v_font.h"
 #include "c_console.h"
@@ -96,12 +94,12 @@ void FStat::ToggleStat ()
 	m_Active = !m_Active;
 }
 
-void FStat::PrintStat ()
+void FStat::PrintStat (F2DDrawer *drawer)
 {
-	int textScale = active_con_scale();
+	int textScale = active_con_scale(drawer);
 
 	int fontheight = NewConsoleFont->GetHeight() + 1;
-	int y = screen->GetHeight() / textScale;
+	int y = drawer->GetHeight() / textScale;
 	int count = 0;
 
 	for (FStat *stat = FirstStat; stat != NULL; stat = stat->m_Next)
@@ -118,9 +116,9 @@ void FStat::PrintStat ()
 					// Count number of linefeeds but ignore terminating ones.
 					if (stattext[i] == '\n') y -= fontheight;
 				}
-				DrawText(twod, NewConsoleFont, CR_GREEN, 5 / textScale, y, stattext,
-					DTA_VirtualWidth, screen->GetWidth() / textScale,
-					DTA_VirtualHeight, screen->GetHeight() / textScale,
+				DrawText(drawer, NewConsoleFont, CR_GREEN, 5 / textScale, y, stattext,
+					DTA_VirtualWidth, twod->GetWidth() / textScale,
+					DTA_VirtualHeight, twod->GetHeight() / textScale,
 					DTA_KeepRatio, true, TAG_DONE);
 				count++;
 			}

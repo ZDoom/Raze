@@ -674,7 +674,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         {
 #ifdef DEBUGGINGAIDS
             if (EDUKE32_PREDICT_FALSE(noDraw != 0))
-                Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMSCAMERA return value must be 0 or 1, "
+                Printf(TEXTCOLOR_RED "ERROR: EVENT_DISPLAYROOMSCAMERA return value must be 0 or 1, "
                            "other values are reserved.\n");
 #endif
 
@@ -828,7 +828,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         {
 #ifdef DEBUGGINGAIDS
             if (EDUKE32_PREDICT_FALSE(noDraw != 0))
-                Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
+                Printf(TEXTCOLOR_RED "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
                            "other values are reserved.\n");
 #endif
             screen->BeginScene();
@@ -2465,7 +2465,7 @@ int A_Spawn(int spriteNum, int tileNum)
             if (EDUKE32_PREDICT_FALSE(pSprite->hitag && pSprite->picnum == WATERBUBBLEMAKER))
             {
                 // JBF 20030913: Pisses off X_Move(), eg. in bobsp2
-                Printf(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
+                Printf(TEXTCOLOR_RED "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
                            newSprite,TrackerCast(pSprite->x),TrackerCast(pSprite->y));
                 pSprite->hitag = 0;
             }
@@ -2723,7 +2723,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     // use elevator sector's ceiling as heuristic
                     T4(newSprite) = sector[sectNum].ceilingz;
 
-                    Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector's ceilingz to "
+                    Printf(TEXTCOLOR_RED "WARNING: SE17 sprite %d using own sector's ceilingz to "
                                          "determine when to warp. Sector %d adjacent to a door?\n",
                                newSprite, sectNum);
                 }
@@ -2737,7 +2737,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     // heuristic
                     T5(newSprite) = sector[sectNum].floorz;
 
-                    Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector %d's floorz.\n",
+                    Printf(TEXTCOLOR_RED "WARNING: SE17 sprite %d using own sector %d's floorz.\n",
                                newSprite, sectNum);
                 }
 
@@ -2944,7 +2944,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     }
                     if (EDUKE32_PREDICT_FALSE(spriteNum == -1))
                     {
-                        Printf(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
+                        Printf(TEXTCOLOR_RED "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
                             TrackerCast(pSprite->x),TrackerCast(pSprite->y));
                         changespritestat(newSprite, STAT_ACTOR);
                         goto SPAWN_END;
@@ -3985,7 +3985,7 @@ skip:
 #ifdef DEBUGGINGAIDS
                     // A negative actor[i].dispicnum used to mean 'no floor shadow please', but
                     // that was a bad hack since the value could propagate to sprite[].picnum.
-                    Printf(OSD_ERROR "actor[%d].dispicnum = %d\n", i, actor[i].dispicnum);
+                    Printf(TEXTCOLOR_RED "actor[%d].dispicnum = %d\n", i, actor[i].dispicnum);
 #endif
                     actor[i].dispicnum=0;
                     continue;

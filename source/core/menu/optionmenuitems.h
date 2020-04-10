@@ -223,7 +223,7 @@ public:
 	{
 		if (mCenter)
 		{
-			indent = (screen->GetWidth() / 2);
+			indent = (twod->GetWidth() / 2);
 		}
 		drawLabel(indent, y, selected? OptionSettings.mFontColorSelection : OptionSettings.mFontColor, isGrayed());
 
@@ -543,7 +543,7 @@ public:
 	{
 		const char *txt = GStrings.localize(mCurrent? mAltText.GetChars() : mLabel.GetChars());
 		int w = OptionWidth(txt) * CleanXfac_1;
-		int x = (screen->GetWidth() - w) / 2;
+		int x = (twod->GetWidth() - w) / 2;
 		drawText(x, y, mColor, txt);
 		return -1;
 	}
@@ -631,7 +631,7 @@ public:
 			maxlen = NewSmallFont->StringWidth(textbuf) * CleanXfac_1;
 		}
 
-		mSliderShort = right + maxlen > screen->GetWidth();
+		mSliderShort = right + maxlen > twod->GetWidth();
 
 		if (!mSliderShort)
 		{
@@ -646,7 +646,7 @@ public:
 			right -= 5*8*CleanXfac_1;
 		}
 
-		if (fracdigits >= 0 && right + maxlen <= screen->GetWidth())
+		if (fracdigits >= 0 && right + maxlen <= twod->GetWidth())
 		{
 			snprintf(textbuf, countof(textbuf), "%.*f", fracdigits, cur);
 			drawText(right, y, CR_DARKGRAY, textbuf);
@@ -895,7 +895,7 @@ public:
 			// reposition the text so that the cursor is visible when in entering mode.
 			FString text = Represent();
 			int tlen = NewSmallFont->StringWidth(text) * CleanXfac_1;
-			int newindent = screen->GetWidth() - tlen - CursorSpace();
+			int newindent = twod->GetWidth() - tlen - CursorSpace();
 			if (newindent < indent) indent = newindent;
 		}
 		return FOptionMenuFieldBase::Draw(desc, y, indent, selected);

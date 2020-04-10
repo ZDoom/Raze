@@ -501,7 +501,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
 
     {
         AC_MOVE_ID(vm.pData) = 0;
-        Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.spriteNum, vm.pUSprite->picnum);
+        Printf(TEXTCOLOR_RED "bad moveptr for actor %d (%d)!\n", vm.spriteNum, vm.pUSprite->picnum);
         return;
     }
 
@@ -708,7 +708,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
     {
         AC_MOVE_ID(vm.pData) = 0;
-        Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
+        Printf(TEXTCOLOR_RED "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
         return;
     }
 
@@ -2817,7 +2817,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     Bstrcat(tempbuf, szBuf);
                     Bsprintf(szBuf, " =%d\n", Gv_GetVar(lVarID) * m);
                     Bstrcat(tempbuf, szBuf);
-                    Printf(OSDTEXT_GREEN "%s", tempbuf);
+                    Printf(TEXTCOLOR_GREEN "%s", tempbuf);
                     insptr++;
                     continue;
                 }

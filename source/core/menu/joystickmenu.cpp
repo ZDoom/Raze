@@ -43,6 +43,7 @@
 #include "d_event.h"
 #include "d_gui.h"
 #include "input/m_joy.h"
+#include "v_video.h"
 
 #define NO_IMP
 #include "optionmenuitems.h"

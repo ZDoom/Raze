@@ -45,6 +45,7 @@
 #include "menu/menu.h"
 #include "v_draw.h"
 #include "v_2ddrawer.h"
+#include "v_video.h"
 
 //=============================================================================
 //

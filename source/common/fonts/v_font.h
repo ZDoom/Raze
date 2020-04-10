@@ -1,3 +1,4 @@
+#pragma once
 /*
 ** v_font.h
 **
@@ -31,8 +32,6 @@
 **
 */
 
-#ifndef __V_FONT_H__
-#define __V_FONT_H__
 
 #include "filesystem.h"
 #include "vectors.h"
@@ -195,4 +194,3 @@ void V_InitFontColors();
 char* CleanseString(char* str);
 
 
-#endif //__V_FONT_H__
