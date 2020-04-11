@@ -437,9 +437,7 @@ void FXInputController::SetDefaultConfig()
 
 FString FXInputController::GetIdentifier()
 {
-	char id[16];
-	snprintf(id, countof(id), "XI:%d", Index);
-	return id;
+	return FStringf("XI:%d", Index);
 }
 
 //==========================================================================

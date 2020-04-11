@@ -34,27 +34,24 @@
 */
 
 
-#ifdef _WIN32
-#include <direct.h>
-#include <io.h>
-#else
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
-#if !defined(__sun)
-#include <fts.h>
-#endif
-#endif
 #include "cmdlib.h"
-#include "compat.h"
+#include "i_system.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
 
+/*
+progdir will hold the path up to the game directory, including the slash
 
-extern FString progdir;
+  f:\quake\
+  /raid/quake/
+
+gamedir will hold progdir + the game directory (id1, id2, etc)
+
+  */
+
+FString progdir;
 
 //==========================================================================
 //
@@ -75,7 +72,78 @@ static inline bool IsSeperator (int c)
 	return false;
 }
 
- //==========================================================================
+//==========================================================================
+//
+// FixPathSeperator
+//
+// Convert backslashes to forward slashes.
+//
+//==========================================================================
+
+void FixPathSeperator (char *path)
+{
+	while (*path)
+	{
+		if (*path == '\\')
+			*path = '/';
+		path++;
+	}
+}
+
+//==========================================================================
+//
+// copystring
+//
+// Replacement for strdup that uses new instead of malloc.
+//
+//==========================================================================
+
+char *copystring (const char *s)
+{
+	char *b;
+	if (s)
+	{
+		size_t len = strlen (s) + 1;
+		b = new char[len];
+		memcpy (b, s, len);
+	}
+	else
+	{
+		b = new char[1];
+		b[0] = '\0';
+	}
+	return b;
+}
+
+//==========================================================================
+//
+// ReplaceString
+//
+// Do not use in new code.
+//
+//==========================================================================
+
+void ReplaceString (char **ptr, const char *str)
+{
+	if (*ptr)
+	{
+		if (*ptr == str)
+			return;
+		delete[] *ptr;
+	}
+	*ptr = copystring (str);
+}
+
+/*
+=============================================================================
+
+						MISC FUNCTIONS
+
+=============================================================================
+*/
+
+
+//==========================================================================
 //
 // FileExists
 //
@@ -823,6 +891,68 @@ FString NicePath(const char *path)
 
 //==========================================================================
 //
+// ScanDirectory
+//
+//==========================================================================
+
+bool ScanDirectory(TArray<FFileList> &list, const char *dirpath)
+{
+	findstate_t find;
+	FString dirmatch;
+
+	dirmatch << dirpath << "*";
+
+	auto handle = I_FindFirst(dirmatch.GetChars(), &find);
+	if (handle == ((void*)(-1)))
+	{
+		return false;
+	}
+	else
+	{
+		do
+		{
+			auto attr = I_FindAttr(&find);
+			if (attr & FA_HIDDEN)
+			{
+				// Skip hidden files and directories. (Prevents SVN bookkeeping
+				// info from being included.)
+				continue;
+			}
+			auto fn = I_FindName(&find);
+
+			if (attr & FA_DIREC)
+			{
+				if (fn[0] == '.' &&
+					(fn[1] == '\0' ||
+					(fn[1] == '.' && fn[2] == '\0')))
+				{
+					// Do not record . and .. directories.
+					continue;
+				}
+
+				FFileList* fl = &list[list.Reserve(1)];
+				fl->Filename << dirpath << fn;
+				fl->isDirectory = true;
+				FString newdir = fl->Filename;
+				newdir << "/";
+				ScanDirectory(list, newdir);
+			}
+			else
+			{
+				FFileList* fl = &list[list.Reserve(1)];
+				fl->Filename << dirpath << fn;
+				fl->isDirectory = false;
+			}
+		} 
+		while (I_FindNext(handle, &find) == 0);
+		I_FindClose(handle);
+	}
+	return true;
+}
+
+
+//==========================================================================
+//
 //
 //
 //==========================================================================
@@ -843,10 +973,62 @@ bool IsAbsPath(const char *name)
 //
 //==========================================================================
 
-void NormalizeFileName(FString &str)
+void NormalizeFileName(FString& str)
 {
-	auto strp = str.LockBuffer();
-	Bcorrectfilename(strp, false);
-	str.UnlockBuffer();
+	FixPathSeperator(str);
+	auto splits = str.Split("/");
+	for (unsigned i = 1; i < splits.Size(); i++)
+	{
+		if (splits[i].Compare(".") == 0)
+		{
+			splits.Delete(i);
+			i--;
+		}
+
+		if (splits[i].Compare("..") == 0 && splits[i - 1].Compare("..") != 0)
+		{
+			splits.Delete(i);
+			splits.Delete(i - 1);
+			i -= 2;
+			if (i < 1) i = 1;
+		}
+	}
+	str = splits[0];
+	for (unsigned i = 1; i < splits.Size(); i++)
+	{
+		str << "/" << splits[i];
+	}
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+FString M_ZLibError(int zerr)
+{
+	if (zerr >= 0)
+	{
+		return "OK";
+	}
+	else if (zerr < -6)
+	{
+		FString out;
+		out.Format("%d", zerr);
+		return out;
+	}
+	else
+	{
+		static const char* errs[6] =
+		{
+			"Errno",
+			"Stream Error",
+			"Data Error",
+			"Memory Error",
+			"Buffer Error",
+			"Version Error"
+		};
+		return errs[-zerr - 1];
+	}
+}

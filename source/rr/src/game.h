@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "net.h"
 #include "mmulti.h"
 #include "palette.h"
+#include "cmdlib.h"
 
 BEGIN_RR_NS
 

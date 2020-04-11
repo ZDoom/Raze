@@ -47,6 +47,7 @@
 #include "m_argv.h"
 #include "s_music.h"
 #include "printf.h"
+#include "cmdlib.h"
 
 // MACROS ------------------------------------------------------------------
 

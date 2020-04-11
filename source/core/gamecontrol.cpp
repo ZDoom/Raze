@@ -75,8 +75,6 @@ MapRecord userMapRecord;	// stand-in for the user map.
 FStartupInfo RazeStartupInfo;
 FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
-FString progdir;
-
 void C_CON_SetAliases();
 InputState inputState;
 void SetClipshapes();

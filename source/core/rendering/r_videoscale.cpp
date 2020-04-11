@@ -36,6 +36,7 @@
 #include "v_video.h"
 #include "templates.h"
 #include "r_videoscale.h"
+#include "cmdlib.h"
 
 #include "console/c_console.h"
 #include "menu/menu.h"

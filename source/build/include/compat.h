@@ -984,11 +984,8 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
 
 ////////// Paths //////////
 
-int32_t Bcorrectfilename(char *filename, int32_t removefn);
-
 ////////// String manipulation //////////
 
-char *Bstrtoken(char *s, const char *delim, char **ptrptr, int chop);
 char *Bstrtolower(char *str);
 
 

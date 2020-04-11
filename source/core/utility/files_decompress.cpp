@@ -43,6 +43,7 @@
 #include "files.h"
 #include "templates.h"
 #include "zstring.h"
+#include "cmdlib.h"
 
 //==========================================================================
 //
@@ -87,36 +88,6 @@ void DecompressorBase::SetOwnsReader()
 {
 	OwnedFile = std::move(*File);
 	File = &OwnedFile;
-}
-
-//
-// M_ZlibError
-//
-FString M_ZLibError(int zerr)
-{
-	if (zerr >= 0)
-	{
-		return "OK";
-	}
-	else if (zerr < -6)
-	{
-		FString out;
-		out.Format("%d", zerr);
-		return out;
-	}
-	else
-	{
-		static const char* errs[6] =
-		{
-			"Errno",
-			"Stream Error",
-			"Data Error",
-			"Memory Error",
-			"Buffer Error",
-			"Version Error"
-		};
-		return errs[-zerr - 1];
-	}
 }
 
 //==========================================================================

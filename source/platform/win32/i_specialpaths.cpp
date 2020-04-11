@@ -45,7 +45,6 @@
 #include "version.h"	// for GAMENAME
 
 // Stuff that needs to be set up later.
-extern FString progdir;
 static bool batchrun;
 
 // Vanilla MinGW does not have folder ids

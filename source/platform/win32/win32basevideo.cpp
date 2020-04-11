@@ -48,6 +48,7 @@
 #include "m_argv.h"
 #include "printf.h"
 #include "win32basevideo.h"
+#include "cmdlib.h"
 
 #include "gl/system/gl_framebuffer.h"
 

@@ -1731,8 +1731,6 @@ int G_EnterLevel(int gameMode)
 
     if (Menu_HaveUserMap())
     {
-        Bcorrectfilename(boardfilename, 0);
-
         int levelNum = G_FindLevelByFile(boardfilename);
 
         if (levelNum != -1)

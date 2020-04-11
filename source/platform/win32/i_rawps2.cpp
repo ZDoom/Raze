@@ -42,6 +42,7 @@
 #include "gameconfigfile.h"
 #include "m_argv.h"
 #include "keydef.h"
+#include "cmdlib.h"
 
 // MACROS ------------------------------------------------------------------
 

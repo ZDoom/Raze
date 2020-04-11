@@ -35,6 +35,7 @@
 #include <stdint.h>
 
 //#include "doomtype.h"
+#include "cmdlib.h"
 #include "keydef.h"
 #include "c_commandline.h"
 #include "c_bind.h"

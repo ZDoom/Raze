@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <time.h>
 #include "zstring.h"
 
 #if !defined(GUID_DEFINED)
@@ -38,6 +39,7 @@ bool GetFileInfo(const char* pathname, size_t* size, time_t* time);
 
 extern	FString progdir;
 
+void	FixPathSeperator (char *path);
 static void	inline FixPathSeperator (FString &path) { path.ReplaceChars('\\', '/'); }
 
 void 	DefaultExtension (FString &path, const char *extension);
@@ -49,6 +51,9 @@ FString StripExtension(const char* path);
 
 struct FScriptPosition;
 bool	IsNum (const char *str);		// [RH] added
+
+char	*copystring(const char *s);
+void	ReplaceString (char **ptr, const char *str);
 
 bool CheckWildcards (const char *pattern, const char *text);
 
@@ -70,7 +75,9 @@ struct FFileList
 	bool isDirectory;
 };
 
+bool ScanDirectory(TArray<FFileList> &list, const char *dirpath);
 bool IsAbsPath(const char*);
+FString M_ZLibError(int zerrnum);
 
 inline int32_t Scale(int32_t a, int32_t b, int32_t c)
 {

@@ -2293,8 +2293,6 @@ ifvar:
             }
             tempbuf[i+1] = '\0';
 
-            Bcorrectfilename(tempbuf,0);
-
 			mapList[j *MAXLEVELS+k].SetFileName(tempbuf);
 
             C_SkipComments();

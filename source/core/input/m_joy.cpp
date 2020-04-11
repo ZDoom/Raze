@@ -37,6 +37,7 @@
 #include "m_joy.h"
 #include "gameconfigfile.h"
 #include "d_event.h"
+#include "cmdlib.h"
 
 // MACROS ------------------------------------------------------------------
 

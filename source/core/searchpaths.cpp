@@ -581,7 +581,6 @@ TArray<GrpInfo> ParseAllGrpInfos(TArray<FileEntry>& filelist)
 {
 	TArray<GrpInfo> groups;
 	TMap<FString, uint32_t> CRCMap;
-	extern FString progdir;
 	// This opens the base resource only for reading the grpinfo from it which we need before setting up the game state.
 	std::unique_ptr<FResourceFile> engine_res;
 	FString baseres = progdir + ENGINERES_FILE;

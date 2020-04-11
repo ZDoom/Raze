@@ -63,6 +63,7 @@
 #include "basics.h"
 #include "zstring.h"
 #include "printf.h"
+#include "cmdlib.h"
 
 #include <time.h>
 #include <zlib.h>

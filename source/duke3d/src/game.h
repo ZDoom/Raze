@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "network.h"
 #include "menu/menu.h"
 #include "palette.h"
+#include "cmdlib.h"
 
 BEGIN_DUKE_NS
 

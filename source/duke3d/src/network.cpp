@@ -2003,7 +2003,6 @@ static void Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng)
 
     Bstrcpy(boardfilename, (char *)pbuf + 1);
     boardfilename[packbufleng - 1] = 0;
-    Bcorrectfilename(boardfilename, 0);
     if (boardfilename[0] != 0)
     {
         if (fileSystem.FileExists(boardfilename))
@@ -4853,8 +4852,6 @@ void Net_SendUserMapName(void)
         return;
 
     packbuf[0] = PACKET_USER_MAP;
-
-    Bcorrectfilename(boardfilename, 0);
 
     // user map name is sent with a NUL at the end
 

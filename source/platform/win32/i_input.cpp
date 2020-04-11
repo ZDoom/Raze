@@ -86,6 +86,7 @@
 #include "menu.h"
 #include "c_buttons.h"
 #include "gamecontrol.h"
+#include "cmdlib.h"
 
 // Compensate for w32api's lack
 #ifndef GET_XBUTTON_WPARAM

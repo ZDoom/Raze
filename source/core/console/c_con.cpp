@@ -38,6 +38,7 @@
 #include "zstring.h"
 #include "c_bind.h"
 #include "gamecontrol.h"
+#include "cmdlib.h"
 
 //=============================================================================
 //

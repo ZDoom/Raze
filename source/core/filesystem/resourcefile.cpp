@@ -39,6 +39,7 @@
 #include "name.h"
 #include "m_swap.h"
 #include "gamecontrol.h"
+#include "cmdlib.h"
 
 //==========================================================================
 //
