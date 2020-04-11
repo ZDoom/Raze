@@ -4,7 +4,7 @@
 #include "files.h"
 #include "zstring.h"
 #include "tarray.h"
-#include "filesystem/resourcefile.h"
+#include "resourcefile.h"
 
 class CompositeSavegameWriter
 {

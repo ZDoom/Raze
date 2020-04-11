@@ -3,11 +3,6 @@
 
 #include "resourcefile.h"
 
-enum
-{
-	LUMPFZIP_NEEDFILESTART = 128
-};
-
 //==========================================================================
 //
 // Zip Lump
@@ -18,17 +13,18 @@ struct FZipLump : public FResourceLump
 {
 	uint16_t	GPFlags;
 	uint8_t	Method;
+	bool	NeedFileStart;
 	int		CompressedSize;
 	int		Position;
 	unsigned CRC32;
 
-	virtual FileReader *GetReader() override;
-	virtual int ValidateCache() override;
+	virtual FileReader *GetReader();
+	virtual int FillCache();
 
 private:
 	void SetLumpAddress();
-	virtual int GetFileOffset() override;
-	FCompressedBuffer GetRawData() override;
+	virtual int GetFileOffset();
+	FCompressedBuffer GetRawData();
 };
 
 
@@ -45,7 +41,7 @@ class FZipFile : public FResourceFile
 public:
 	FZipFile(const char * filename, FileReader &file);
 	virtual ~FZipFile();
-	bool Open(bool quiet);
+	bool Open(bool quiet, LumpFilterInfo* filter);
 	virtual FResourceLump *GetLump(int no) { return ((unsigned)no < NumLumps)? &Lumps[no] : NULL; }
 };
 

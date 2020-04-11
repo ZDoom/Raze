@@ -1795,6 +1795,7 @@ void viewPrecacheTiles(void)
     }
 }
 
+static TArray<uint8_t> lensdata;
 int *lensTable;
 
 int gZoom = 1024;
@@ -1811,11 +1812,10 @@ void viewInit(void)
     FontSet(3, 4384, 1);
     FontSet(4, 4480, 0);
 
-    DICTNODE *hLens = gSysRes.Lookup("LENS", "DAT");
-    dassert(hLens != NULL);
-    dassert(hLens->Size() == kLensSize * kLensSize * sizeof(int));
+    lensdata = fileSystem.LoadFile("lens.dat");
+    dassert(lensdata.Size() == kLensSize * kLensSize * sizeof(int));
 
-    lensTable = (int*)gSysRes.Lock(hLens);
+    lensTable = (int*)lensdata.Data();
 #if B_BIG_ENDIAN == 1
     for (int i = 0; i < kLensSize*kLensSize; i++)
     {

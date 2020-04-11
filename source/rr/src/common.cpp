@@ -105,7 +105,7 @@ void G_LoadLookups(void)
 {
     int32_t j;
 
-	auto fr = fileSystem.OpenFileReader("lookup.dat", 0);
+	auto fr = fileSystem.OpenFileReader("lookup.dat");
 	if (!fr.isOpen())
            return;
 

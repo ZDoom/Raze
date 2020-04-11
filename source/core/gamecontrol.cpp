@@ -73,6 +73,8 @@ MapRecord *currentLevel;	// level that is currently played. (The real level, not
 MapRecord* lastLevel;		// Same here, for the last level.
 MapRecord userMapRecord;	// stand-in for the user map.
 
+FILE* hashfile;
+
 FStartupInfo RazeStartupInfo;
 FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 

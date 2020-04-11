@@ -61,13 +61,13 @@ void FStringTable::LoadStrings ()
 	int lastlump, lump;
 
 	lastlump = 0;
-	while ((lump = fileSystem.Iterate("engine/lmacros", &lastlump, ELookupMode::NoExtension)) != -1)
+	while ((lump = fileSystem.FindLumpFullName("engine/lmacros", &lastlump, true)) != -1)
 	{
 		readMacros(lump);
 	}
 
 	lastlump = 0;
-	while ((lump = fileSystem.Iterate ("engine/language", &lastlump, ELookupMode::NoExtension)) != -1)
+	while ((lump = fileSystem.FindLumpFullName("engine/language", &lastlump, true)) != -1)
 	{
 		auto lumpdata = fileSystem.GetFileData(lump);
 

@@ -24,7 +24,6 @@
 #include "c_console.h"
 #include "v_2ddrawer.h"
 #include "v_draw.h"
-#include "imgui.h"
 #include "stats.h"
 #include "menu.h"
 #include "version.h"
@@ -3405,7 +3404,7 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
 
     flags &= 3;
 
-	FileReader fr = fileSystem.OpenFileReader(filename, 0);
+	FileReader fr = fileSystem.OpenFileReader(filename);
 	if (!fr.isOpen())
         { mapversion = 7; return -1; }
 
@@ -3593,7 +3592,7 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
     struct walltypev6   v6wall;
     struct spritetypev6 v6spr;
 
-	FileReader fr = fileSystem.OpenFileReader(filename, fromwhere);
+	FileReader fr = fileSystem.OpenFileReader(filename);
     if (!fr.isOpen())
         { mapversion = 5L; return -1; }
 
@@ -3865,7 +3864,7 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
     if ((unsigned)voxindex >= MAXVOXELS)
         return -1;
 
-    auto fil = fileSystem.OpenFileReader(filename, 0);
+    auto fil = fileSystem.OpenFileReader(filename);
     if (!fil.isOpen())
         return -1;
 

@@ -18,7 +18,7 @@
  */
 
 #include "FileStream.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 #include <stdlib.h>
 #include "cmdlib.h"
 
@@ -28,7 +28,7 @@ bool FileStream::Open(const char *fileName)
 {
 	FString fixedname = fileName;
 	FixPathSeperator(fixedname);
-    file = fileSystem.OpenFileReader(fixedname, 0);
+    file = fileSystem.OpenFileReader(fixedname);
 	if (!file.isOpen())
 	{
 		// log error

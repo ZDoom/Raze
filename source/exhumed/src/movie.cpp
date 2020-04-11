@@ -194,7 +194,7 @@ void PlayMovie(const char* fileName)
 
     int bDoFade = kTrue;
     int hFx = -1;
-	auto fp = fileSystem.OpenFileReader(fileName, 0);
+	auto fp = fileSystem.OpenFileReader(fileName);
 	if (!fp.isOpen())
 	{
 		Printf("Unable to open %s\n", fileName);

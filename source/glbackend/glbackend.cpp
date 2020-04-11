@@ -39,10 +39,10 @@
 #include "gl_shader.h"
 #include "textures.h"
 #include "palette.h"
-#include "imgui.h"
+//#include "imgui.h"
 #include "gamecontrol.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_opengl3.h"
+//#include "imgui_impl_sdl.h"
+//#include "imgui_impl_opengl3.h"
 #include "baselayer.h"
 #include "gl_interface.h"
 #include "v_2ddrawer.h"
@@ -60,7 +60,7 @@ TArray<VSMatrix> matrixArray;
 
 FileReader GetResource(const char* fn)
 {
-	auto fr = fileSystem.OpenFileReader(fn, 0);
+	auto fr = fileSystem.OpenFileReader(fn);
 	if (!fr.isOpen())
 	{
 		I_Error("Fatal: '%s' not found", fn);
@@ -77,8 +77,8 @@ GLInstance::GLInstance()
 	matrixArray.Push(mat);
 }
 
-void ImGui_Init_Backend();
-ImGuiContext* im_ctx;
+//void ImGui_Init_Backend();
+//ImGuiContext* im_ctx;
 TArray<uint8_t> ttf;
 
 void GLInstance::Init(int ydim)

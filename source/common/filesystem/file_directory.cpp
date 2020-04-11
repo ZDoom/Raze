@@ -35,11 +35,6 @@
 
 
 #include <sys/stat.h>
-#ifdef _WIN32
-#include <io.h>
-#else
-#include <fts.h>
-#endif
 
 #include "resourcefile.h"
 #include "cmdlib.h"
@@ -56,8 +51,8 @@
 
 struct FDirectoryLump : public FResourceLump
 {
-	virtual FileReader NewReader() override;
-	int ValidateCache() override;
+	FileReader NewReader() override;
+	int FillCache() override;
 
 	FString mFullPath;
 };
@@ -79,7 +74,7 @@ class FDirectory : public FResourceFile
 
 public:
 	FDirectory(const char * dirname, bool nosubdirflag = false);
-	bool Open(bool quiet);
+	bool Open(bool quiet, LumpFilterInfo* filter);
 	virtual FResourceLump *GetLump(int no) { return ((unsigned)no < NumLumps)? &Lumps[no] : NULL; }
 };
 
@@ -150,10 +145,8 @@ int FDirectory::AddDirectory(const char *dirpath)
 								 (fi[1] == '\0' ||
 								  (fi[1] == '.' && fi[2] == '\0'))))
 				{
-					// Movie and music subdirectories must always pass.
-					if (fi.CompareNoCase("movie") && fi.CompareNoCase("music"))
-						// Skip if requested and do not record . and .. directories.
-						continue;
+					// Do not record . and .. directories.
+					continue;
 				}
 				FString newdir = dirpath;
 				newdir << fi << '/';
@@ -170,7 +163,7 @@ int FDirectory::AddDirectory(const char *dirpath)
 				FString fn = FString(dirpath) + fi;
 				if (GetFileInfo(fn, &size, nullptr))
 				{
-					AddEntry(fn, size);
+					AddEntry(fn, (int)size);
 					count++;
 				}
 			}
@@ -187,11 +180,10 @@ int FDirectory::AddDirectory(const char *dirpath)
 //
 //==========================================================================
 
-bool FDirectory::Open(bool quiet)
+bool FDirectory::Open(bool quiet, LumpFilterInfo* filter)
 {
 	NumLumps = AddDirectory(FileName);
-	if (!quiet) Printf(", %d lumps\n", NumLumps);
-	PostProcessArchive(&Lumps[0], sizeof(FDirectoryLump));
+	PostProcessArchive(&Lumps[0], sizeof(FDirectoryLump), filter);
 	return true;
 }
 
@@ -217,6 +209,7 @@ void FDirectory::AddEntry(const char *fullpath, int size)
 	lump_p->LumpSize = size;
 	lump_p->Owner = this;
 	lump_p->Flags = 0;
+	lump_p->CheckEmbedded();
 }
 
 
@@ -239,17 +232,17 @@ FileReader FDirectoryLump::NewReader()
 //
 //==========================================================================
 
-int FDirectoryLump::ValidateCache()
+int FDirectoryLump::FillCache()
 {
 	FileReader fr;
+	Cache = new char[LumpSize];
 	if (!fr.OpenFile(mFullPath))
 	{
-		memset(Cache.Data(), 0, LumpSize);
+		memset(Cache, 0, LumpSize);
 		return 0;
 	}
-	LumpSize = fr.GetLength();	// keep this updated
-	Cache.Resize(LumpSize);
-	fr.Read(Cache.Data(), LumpSize);
+	fr.Read(Cache, LumpSize);
+	RefCount = 1;
 	return 1;
 }
 
@@ -259,10 +252,10 @@ int FDirectoryLump::ValidateCache()
 //
 //==========================================================================
 
-FResourceFile *CheckDir(const char *filename, bool quiet, bool nosubdirflag)
+FResourceFile *CheckDir(const char *filename, bool quiet, bool nosubdirflag, LumpFilterInfo* filter)
 {
 	FResourceFile *rf = new FDirectory(filename, nosubdirflag);
-	if (rf->Open(quiet)) return rf;
+	if (rf->Open(quiet, filter)) return rf;
 	delete rf;
 	return NULL;
 }

@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define demo_h_
 
 #include "compat.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 
 BEGIN_DUKE_NS
 

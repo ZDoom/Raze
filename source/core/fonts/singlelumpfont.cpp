@@ -40,7 +40,7 @@
 #include "fontchars.h"
 #include "printf.h"
 #include "imagehelpers.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 
 #include "fontinternals.h"
 

@@ -1078,7 +1078,7 @@ int GameInterface::app_main()
     loaddefinitions_game(defsfile, FALSE);
     powerupInit();
     Printf("Loading cosine table\n");
-    trigInit(gSysRes);
+    trigInit();
     Printf("Initializing view subsystem\n");
     viewInit();
     Printf("Initializing dynamic fire\n");

@@ -83,9 +83,8 @@ void seqPrecacheId(int id)
     DICTNODE *hSeq = gSysRes.Lookup(id, "SEQ");
     if (!hSeq)
         return;
-    Seq *pSeq = (Seq*)gSysRes.Lock(hSeq);
+    Seq *pSeq = (Seq*)gSysRes.Load(hSeq);
     pSeq->Precache();
-    gSysRes.Unlock(hSeq);
 }
 
 SEQINST siWall[kMaxXWalls];
@@ -375,7 +374,6 @@ void UnlockInstance(SEQINST *pInst)
     dassert(pInst != NULL);
     dassert(pInst->hSeq != NULL);
     dassert(pInst->pSequence != NULL);
-    gSysRes.Unlock(pInst->hSeq);
     pInst->hSeq = NULL;
     pInst->pSequence = NULL;
     pInst->at13 = 0;
@@ -403,7 +401,7 @@ void seqSpawn(int a1, int a2, int a3, int a4)
         }
         dassert(i < activeCount);
     }
-    Seq *pSeq = (Seq*)gSysRes.Lock(hSeq);
+    Seq *pSeq = (Seq*)gSysRes.Load(hSeq);
     if (memcmp(pSeq->signature, "SEQ\x1a", 4) != 0)
         ThrowError("Invalid sequence %d", a1);
     if ((pSeq->version & 0xff00) != 0x300)
@@ -588,7 +586,7 @@ void SeqLoadSave::Load(void)
                 ThrowError("Missing sequence #%d", nSeq);
                 continue;
             }
-            Seq *pSeq = (Seq*)gSysRes.Lock(hSeq);
+            Seq *pSeq = (Seq*)gSysRes.Load(hSeq);
             if (memcmp(pSeq->signature, "SEQ\x1a", 4) != 0)
                 ThrowError("Invalid sequence %d", nSeq);
             if ((pSeq->version & 0xff00) != 0x300)

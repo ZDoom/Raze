@@ -39,7 +39,7 @@
 #include "gstrings.h"
 #include "i_specialpaths.h"
 #include "cmdlib.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 #include "statistics.h"
 #include "secrets.h"
 #include "quotemgr.h"
@@ -101,12 +101,14 @@ bool OpenSaveGameForRead(const char *name)
 			return false;
 		}
 
+		void* data = info->Lock();
 		FSerializer arc;
-		void* data = info->Get();
 		if (!arc.OpenReader((const char*)data, info->LumpSize))
 		{
+			info->Unlock();
 			return false;
 		}
+		info->Unlock();
 
 		// Load system-side data from savegames.
 		SerializeSession(arc);

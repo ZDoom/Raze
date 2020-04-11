@@ -104,7 +104,7 @@ void paletteLoadFromDisk(void)
         return;
     }
 
-	auto fil = fileSystem.OpenFileReader("palette.dat", 0);
+	auto fil = fileSystem.OpenFileReader("palette.dat");
 	if (!fil.isOpen())
         return;
 

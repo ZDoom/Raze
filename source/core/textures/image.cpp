@@ -38,7 +38,7 @@
 #include "bitmap.h"
 #include "image.h"
 #include "files.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 #include "imagehelpers.h"
 
 int FImageSource::NextID;
@@ -79,7 +79,7 @@ FImageSource * FImageSource::GetImage(const char *name)
 		{ nullptr }
 	};
 
-	auto data = fileSystem.OpenFileReader(name, 0);
+	auto data = fileSystem.OpenFileReader(name);
 	if (!data.isOpen())  return nullptr;
 
 	for (size_t i = 0; CreateInfo[i].TryCreate; i++)

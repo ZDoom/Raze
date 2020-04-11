@@ -12,7 +12,7 @@
 #define palette_h_
 
 #include "renderstyle.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 
 #define MAXBASEPALS 256
 #define MAXPALOOKUPS 256

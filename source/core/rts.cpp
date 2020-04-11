@@ -35,7 +35,7 @@
 #include <stdint.h>
 #include "zstring.h"
 #include "tarray.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 #include "rts.h"
 #include "m_swap.h"
 #include "s_soundinternal.h"
@@ -81,7 +81,7 @@ bool RTS_IsInitialized()
 {
 	if (LumpInfo.Size() > 0) return true;
 	if (RTSName.IsEmpty()) return false;
-	auto fr = fileSystem.OpenFileReader(RTSName, 0);
+	auto fr = fileSystem.OpenFileReader(RTSName);
 	RTSName = "";	// don't try ever again.
 	if (!fr.isOpen()) return false;
 	RTSFile = fr.Read();

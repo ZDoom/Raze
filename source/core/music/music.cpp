@@ -67,40 +67,12 @@ CVAR(Bool, printmusicinfo, false, 0)
 CVAR(Bool, mus_extendedlookup, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 // Order is: streaming formats, module formats, emulated formats and MIDI formats - for external files the first one found wins so ambiguous names should be avoided
-static FName knownMusicExts[] = {
-	NAME_OGG,
-	NAME_FLAC,
-	NAME_MP3,
-	NAME_MP2,
-	NAME_XA,
-	NAME_XM,
-	NAME_MOD,
-	NAME_IT,
-	NAME_S3M,
-	NAME_MTM,
-	NAME_STM,
-	NAME_669,
-	NAME_PTM,
-	NAME_AMF,
-	NAME_OKT,
-	NAME_DSM,
-	NAME_AMFF,
-	NAME_SPC,
-	NAME_VGM,
-	NAME_VGZ,
-	NAME_AY,
-	NAME_GBS,
-	NAME_GYM,
-	NAME_HES,
-	NAME_KSS,
-	NAME_NSF,
-	NAME_NSFE,
-	NAME_SAP,
-	NAME_MID,
-	NAME_HMP,
-	NAME_HMI,
-	NAME_XMI,
-	NAME_VOC,
+static const char* knownMusicExts[] = {
+	"OGG",	"FLAC",	"MP3",	"MP2",	"XA",	"XM",	"MOD",
+	"IT",	"S3M",	"MTM",	"STM",	"669",	"PTM",	"AMF",
+	"OKT",	"DSM",	"AMFF",	"SPC",	"VGM",	"VGZ",	"AY",
+	"GBS",	"GYM",	"HES",	"KSS",	"NSF",	"NSFE",	"SAP",
+	"MID",	"HMP",	"HMI",	"XMI",	"VOC"
 };
 
 
@@ -112,7 +84,7 @@ FString G_SetupFilenameBasedMusic(const char* fn, const char* defmusic)
 	// Test if a real file with this name exists with all known extensions for music.
 	for (auto& ext : knownMusicExts)
 	{
-		test.Format("%s.%s", name.GetChars(), ext.GetChars());
+		test.Format("%s.%s", name.GetChars(), ext);
 		if (FileExists(test)) return test;
 #ifdef __unix__
 		test.Format("%s.%s", name.GetChars(), FString(ext.GetChars()).MakeLower().GetChars());

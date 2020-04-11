@@ -59,14 +59,12 @@ void RotatePoint(int *x, int *y, int nAngle, int ox, int oy)
     *y = oy+dmulscale30r(dx, Sin(nAngle), dy, Cos(nAngle));
 }
 
-void trigInit(Resource &Res)
+void trigInit()
 {
-    DICTNODE *pTable = Res.Lookup("cosine","dat");
-    if (!pTable)
-        ThrowError("Cosine table not found");
-    if (pTable->Size() != 2048)
+    auto fr = fileSystem.OpenFileReader("cosine.dat");
+    auto len = fr.Read(costable, 2048);
+    if (len != 2048)
         ThrowError("Cosine table incorrect size");
-    memcpy(costable, Res.Load(pTable), pTable->Size());
 #if B_BIG_ENDIAN == 1
     for (int i = 0; i < 512; i++)
     {

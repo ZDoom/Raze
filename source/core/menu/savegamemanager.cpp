@@ -379,12 +379,14 @@ unsigned FSavegameManager::ExtractSaveData(int index)
 			return index;
 		}
 
-		void* data = info->Get();
+		void* data = info->Lock();
 		FSerializer arc;
 		if (!arc.OpenReader((const char*)data, info->LumpSize))
 		{
+			info->Unlock();
 			return index;
 		}
+		info->Unlock();
 
 		FString comment, fcomment, ncomment, mtime;
 

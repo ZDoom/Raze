@@ -1758,7 +1758,7 @@ CVAR(Bool, snd_extendedlookup, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 int S_LookupSound(const char* fn)
 {
-	static const FName sndformats[] = { NAME_OGG, NAME_FLAC, NAME_WAV };
+	static const char * const sndformats[] = { "OGG", "FLAC", "WAV" };
 	if (snd_extendedlookup)
 	{
 		int lump = fileSystem.FindFileWithExtensions(StripExtension(fn), sndformats, countof(sndformats));

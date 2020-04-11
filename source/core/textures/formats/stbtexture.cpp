@@ -49,7 +49,7 @@
 #include "bitmap.h"
 #include "imagehelpers.h"
 #include "image.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 
 //==========================================================================
 //
@@ -154,7 +154,7 @@ void FStbTexture::CreatePalettedPixels(uint8_t *buffer)
 
 int FStbTexture::CopyPixels(FBitmap *bmp, int conversion)
 {
-	auto lump = fileSystem.OpenFileReader(Name, 0);
+	auto lump = fileSystem.OpenFileReader(Name);
 	if (!lump.isOpen()) return -1;	// Just leave the texture blank.
 	int x, y, chan;
 	auto image = stbi_load_from_callbacks(&callbacks, &lump, &x, &y, &chan, STBI_rgb_alpha); 	

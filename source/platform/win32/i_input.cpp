@@ -136,6 +136,7 @@ extern bool AppActive;
 
 int SessionState = 0;
 int BlockMouseMove; 
+int refreshfreq;
 
 static bool EventHandlerResultForNativeMouse;
 

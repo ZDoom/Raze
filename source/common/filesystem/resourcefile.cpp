@@ -36,10 +36,9 @@
 
 #include <zlib.h>
 #include "resourcefile.h"
-#include "name.h"
-#include "m_swap.h"
-#include "gamecontrol.h"
 #include "cmdlib.h"
+#include "md5.h"
+
 
 //==========================================================================
 //
@@ -55,13 +54,13 @@ public:
 	FLumpReader(FResourceLump *src)
 		: MemoryReader(NULL, src->LumpSize), source(src)
 	{
-		bufptr = (const char*)src->Lock();
-		src->Cache.Data();
+		src->Lock();
+		bufptr = src->Cache;
 	}
 
 	~FLumpReader()
 	{
-		source->Unlock(true);
+		source->Unlock();
 	}
 };
 
@@ -74,33 +73,81 @@ public:
 
 FResourceLump::~FResourceLump()
 {
+	if (Cache != NULL && RefCount >= 0)
+	{
+		delete [] Cache;
+		Cache = NULL;
+	}
 	Owner = NULL;
 }
 
 
 //==========================================================================
 //
-// Sets up the file name information
-// This is stored as FNames for various formats.
+// Sets up the lump name information for anything not coming from a WAD file.
 //
 //==========================================================================
 
 void FResourceLump::LumpNameSetup(FString iname)
 {
-	auto pathLen = iname.LastIndexOf('/') + 1;
-	LumpName[FullNameType] = iname.GetChars();
-	LumpName[BaseNameType] = iname.GetChars() + pathLen;
-	
-	auto extStart = iname.LastIndexOf('.');
-	if (extStart <= pathLen) extStart = -1;
-	if (extStart > 0)
+	// this causes interference with real Dehacked lumps.
+	if (!iname.CompareNoCase("dehacked.exe"))
 	{
-		LumpName[ExtensionType] = iname.GetChars() + extStart + 1;
-		iname.Truncate(extStart);
+		iname = "";
 	}
-	LumpName[FullNameNoExtType] = iname.GetChars();
-	LumpName[BaseNameNoExtType] = iname.GetChars() + pathLen;
+
+	FullName = iname;
 }
+
+//==========================================================================
+//
+// Checks for embedded resource files
+//
+//==========================================================================
+
+static bool IsWadInFolder(const FResourceFile* const archive, const char* const resPath)
+{
+	// Checks a special case when <somefile.wad> was put in
+	// <myproject> directory inside <myproject.zip>
+
+	if (NULL == archive)
+	{
+		return false;
+	}
+
+    const FString dirName = ExtractFileBase(archive->FileName);
+	const FString fileName = ExtractFileBase(resPath, true);
+	const FString filePath = dirName + '/' + fileName;
+
+	return 0 == filePath.CompareNoCase(resPath);
+}
+
+void FResourceLump::CheckEmbedded()
+{
+	// Checks for embedded archives
+	const char *c = strstr(FullName, ".wad");
+	if (c && strlen(c) == 4 && (!strchr(FullName, '/') || IsWadInFolder(Owner, FullName)))
+	{
+		Flags |= LUMPF_EMBEDDED;
+	}
+	/* later
+	else
+	{
+		if (c==NULL) c = strstr(Name, ".zip");
+		if (c==NULL) c = strstr(Name, ".pk3");
+		if (c==NULL) c = strstr(Name, ".7z");
+		if (c==NULL) c = strstr(Name, ".pak");
+		if (c && strlen(c) <= 4)
+		{
+			// Mark all embedded archives in any directory
+			Flags |= LUMPF_EMBEDDED;
+			memset(Name, 0, 8);
+		}
+	}
+	*/
+
+}
+
 
 //==========================================================================
 //
@@ -113,8 +160,8 @@ FCompressedBuffer FResourceLump::GetRawData()
 {
 	FCompressedBuffer cbuf = { (unsigned)LumpSize, (unsigned)LumpSize, METHOD_STORED, 0, 0, new char[LumpSize] };
 	memcpy(cbuf.mBuffer, Lock(), LumpSize);
+	Unlock();
 	cbuf.mCRC32 = crc32(0, (uint8_t*)cbuf.mBuffer, LumpSize);
-	Unlock(true);
 	return cbuf;
 }
 
@@ -149,33 +196,15 @@ FileReader FResourceLump::NewReader()
 
 void *FResourceLump::Lock()
 {
-	if (Cache.Size())
+	if (Cache != NULL)
 	{
 		if (RefCount > 0) RefCount++;
 	}
 	else if (LumpSize > 0)
 	{
-		ValidateCache();
-		// NBlood has some endian conversion right in here which is extremely dangerous and needs to be handled differently.
-		// Fortunately Big Endian platforms are mostly irrelevant so this is something to be sorted out later (if ever)
-		RefCount++;
+		FillCache();
 	}
-	return Cache.Data();
-}
-
-//==========================================================================
-//
-// Caches a lump's content without increasing the reference counter
-//
-//==========================================================================
-
-void *FResourceLump::Get()
-{
-	if (Cache.Size() == 0)
-	{
-		ValidateCache();
-	}
-	return Cache.Data();
+	return Cache;
 }
 
 //==========================================================================
@@ -184,15 +213,17 @@ void *FResourceLump::Get()
 //
 //==========================================================================
 
-void FResourceLump::Unlock(bool mayfree)
+int FResourceLump::Unlock()
 {
 	if (LumpSize > 0 && RefCount > 0)
 	{
 		if (--RefCount == 0)
 		{
-			if (mayfree) Cache.Reset();
+			delete [] Cache;
+			Cache = NULL;
 		}
 	}
+	return RefCount;
 }
 
 //==========================================================================
@@ -201,53 +232,45 @@ void FResourceLump::Unlock(bool mayfree)
 //
 //==========================================================================
 
-typedef FResourceFile * (*CheckFunc)(const char *filename, FileReader &file, bool quiet);
+typedef FResourceFile * (*CheckFunc)(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter);
 
-FResourceFile *CheckWad(const char *filename, FileReader &file, bool quiet);
-FResourceFile *CheckGRP(const char *filename, FileReader &file, bool quiet);
-FResourceFile *CheckRFF(const char *filename, FileReader &file, bool quiet);
-FResourceFile *CheckPak(const char *filename, FileReader &file, bool quiet);
-FResourceFile *CheckZip(const char *filename, FileReader &file, bool quiet);
-FResourceFile *Check7Z(const char *filename,  FileReader &file, bool quiet);
-FResourceFile *CheckLump(const char *filename,FileReader &file, bool quiet);
-FResourceFile *CheckDir(const char *filename, bool quiet, bool nosubdirflag);
+FResourceFile *CheckWad(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter);
+FResourceFile *CheckGRP(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter);
+FResourceFile *CheckRFF(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter);
+FResourceFile *CheckPak(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter);
+FResourceFile *CheckZip(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter);
+FResourceFile *Check7Z(const char *filename,  FileReader &file, bool quiet, LumpFilterInfo* filter);
+FResourceFile *CheckLump(const char *filename,FileReader &file, bool quiet, LumpFilterInfo* filter);
+FResourceFile *CheckDir(const char *filename, bool quiet, bool nosub, LumpFilterInfo* filter);
 
-static CheckFunc funcs[] = { CheckGRP, CheckRFF, CheckZip, Check7Z, CheckPak, CheckLump };
+static CheckFunc funcs[] = { CheckWad, CheckZip, Check7Z, CheckPak, CheckGRP, CheckRFF, CheckLump };
 
-FResourceFile *FResourceFile::DoOpenResourceFile(const char *filename, FileReader &file, bool quiet, bool containeronly)
+FResourceFile *FResourceFile::DoOpenResourceFile(const char *filename, FileReader &file, bool quiet, bool containeronly, LumpFilterInfo* filter)
 {
 	for(size_t i = 0; i < countof(funcs) - containeronly; i++)
 	{
-		FResourceFile *resfile = funcs[i](filename, file, quiet);
+		FResourceFile *resfile = funcs[i](filename, file, quiet, filter);
 		if (resfile != NULL) return resfile;
 	}
 	return NULL;
 }
 
-FResourceFile *FResourceFile::OpenResourceFile(const char *filename, FileReader &file, bool quiet, bool containeronly)
+FResourceFile *FResourceFile::OpenResourceFile(const char *filename, FileReader &file, bool quiet, bool containeronly, LumpFilterInfo* filter)
 {
-	return DoOpenResourceFile(filename, file, quiet, containeronly);
+	return DoOpenResourceFile(filename, file, quiet, containeronly, filter);
 }
 
 
-FResourceFile *FResourceFile::OpenResourceFile(const char *filename, bool quiet, bool containeronly)
+FResourceFile *FResourceFile::OpenResourceFile(const char *filename, bool quiet, bool containeronly, LumpFilterInfo* filter)
 {
 	FileReader file;
 	if (!file.OpenFile(filename)) return nullptr;
-	return DoOpenResourceFile(filename, file, quiet, containeronly);
+	return DoOpenResourceFile(filename, file, quiet, containeronly, filter);
 }
 
-/*
-FResourceFile *FResourceFile::OpenResourceFileFromLump(int lumpnum, bool quiet, bool containeronly)
+FResourceFile *FResourceFile::OpenDirectory(const char *filename, bool quiet, LumpFilterInfo* filter)
 {
-	FileReader file = Wads.ReopenLumpReader(lumpnum);
-	return DoOpenResourceFile("internal", file, quiet, containeronly);
-}
-*/
-
-FResourceFile *FResourceFile::OpenDirectory(const char *filename, bool quiet, bool nosubdirflag)
-{
-	return CheckDir(filename, quiet, nosubdirflag);
+	return CheckDir(filename, quiet, false, filter);
 }
 
 //==========================================================================
@@ -275,7 +298,39 @@ int lumpcmp(const void * a, const void * b)
 {
 	FResourceLump * rec1 = (FResourceLump *)a;
 	FResourceLump * rec2 = (FResourceLump *)b;
-	return stricmp(rec1->LumpName[FResourceLump::FullNameType].GetChars(), rec2->LumpName[FResourceLump::FullNameType].GetChars());
+	return stricmp(rec1->getName(), rec2->getName());
+}
+
+//==========================================================================
+//
+// FResourceFile :: GenerateHash
+//
+// Generates a hash identifier for use in file identification.
+// Potential uses are mod-wide compatibility settings or localization add-ons.
+// This only hashes the lump directory but not the actual content
+//
+//==========================================================================
+
+void FResourceFile::GenerateHash()
+{
+	// hash the lump directory after sorting
+	
+	Hash.Format(("%08X-%04X-"), (unsigned)Reader.GetLength(), NumLumps);
+	
+	MD5Context md5;
+	
+	uint8_t digest[16];
+	for(uint32_t i = 0; i < NumLumps; i++)
+	{
+		auto lump = GetLump(i);
+		md5.Update((const uint8_t*)lump->FullName.GetChars(), (unsigned)lump->FullName.Len() + 1);
+		md5.Update((const uint8_t*)&lump->LumpSize, 4);
+	}
+	md5.Final(digest);
+	for (auto c : digest)
+	{
+		Hash.AppendFormat("%02X", c);
+	}
 }
 
 //==========================================================================
@@ -289,28 +344,30 @@ int lumpcmp(const void * a, const void * b)
 //
 //==========================================================================
 
-void FResourceFile::PostProcessArchive(void *lumps, size_t lumpsize)
+void FResourceFile::PostProcessArchive(void *lumps, size_t lumpsize, LumpFilterInfo *filter)
 {
 	// Entries in archives are sorted alphabetically
 	qsort(lumps, NumLumps, lumpsize, lumpcmp);
-	
+	if (!filter) return;
 
 	// Filter out lumps using the same names as the Autoload.* sections
 	// in the ini file use. We reduce the maximum lump concidered after
 	// each one so that we don't risk refiltering already filtered lumps.
 	uint32_t max = NumLumps;
+	max -= FilterLumpsByGameType(filter, lumps, lumpsize, max);
 
+	long len;
 	int lastpos = -1;
 	FString file;
-
-	auto segments = LumpFilter.Split(".");
-	FString build;
-
-	for (auto& segment : segments)
+	FString LumpFilter = filter->dotFilter;
+	if (LumpFilter.IndexOf('.') < 0)
 	{
-		if (build.IsEmpty()) build = segment;
-		else build << "." << segment;
-		max -= FilterLumps(build, lumps, lumpsize, max);
+		max -= FilterLumps(LumpFilter, lumps, lumpsize, max);
+	}
+	else while ((len = LumpFilter.IndexOf('.', lastpos+1)) > 0)
+	{
+		max -= FilterLumps(LumpFilter.Left(len), lumps, lumpsize, max);
+		lastpos = len;
 	}
 	JunkLeftoverFilters(lumps, lumpsize, max);
 }
@@ -338,6 +395,13 @@ int FResourceFile::FilterLumps(FString filtername, void *lumps, size_t lumpsize,
 	
 	bool found = FindPrefixRange(filter, lumps, lumpsize, max, start, end);
 	
+	// Workaround for old Doom filter names.
+	if (!found && filtername.IndexOf("doom.id.doom") == 0)
+	{
+		filter.Substitute("doom.id.doom", "doom.doom");
+		found = FindPrefixRange(filter, lumps, lumpsize, max, start, end);
+	}
+
 	if (found)
 	{
 		void *from = (uint8_t *)lumps + start * lumpsize;
@@ -347,8 +411,8 @@ int FResourceFile::FilterLumps(FString filtername, void *lumps, size_t lumpsize,
 		for (uint32_t i = start; i < end; ++i, lump_p = (uint8_t *)lump_p + lumpsize)
 		{
 			FResourceLump *lump = (FResourceLump *)lump_p;
-			assert(filter.CompareNoCase(lump->FullName(), (int)filter.Len()) == 0);
-			lump->LumpNameSetup(lump->FullName() + filter.Len());
+			assert(lump->FullName.CompareNoCase(filter, (int)filter.Len()) == 0);
+			lump->LumpNameSetup(lump->FullName.Mid(filter.Len()));
 		}
 
 		// Move filtered lumps to the end of the lump list.
@@ -376,6 +440,29 @@ int FResourceFile::FilterLumps(FString filtername, void *lumps, size_t lumpsize,
 
 //==========================================================================
 //
+// FResourceFile :: FilterLumpsByGameType
+//
+// Matches any lumps that match "filter/game-<gametype>/*". Includes
+// inclusive gametypes like Raven.
+//
+//==========================================================================
+
+int FResourceFile::FilterLumpsByGameType(LumpFilterInfo *filter, void *lumps, size_t lumpsize, uint32_t max)
+{
+	if (filter == nullptr)
+	{
+		return 0;
+	}
+	int count = 0;
+	for (auto &fstring : filter->gameTypeFilter)
+	{
+		count += FilterLumps(fstring, lumps, lumpsize, max);
+	}
+	return count;
+}
+
+//==========================================================================
+//
 // FResourceFile :: JunkLeftoverFilters
 //
 // Deletes any lumps beginning with "filter/" that were not matched.
@@ -394,8 +481,7 @@ void FResourceFile::JunkLeftoverFilters(void *lumps, size_t lumpsize, uint32_t m
 		for (void *p = (uint8_t *)lumps + start * lumpsize; p < stop; p = (uint8_t *)p + lumpsize)
 		{
 			FResourceLump *lump = (FResourceLump *)p;
-			for (auto &ln : lump->LumpName)
-				ln = NAME_None;
+			lump->FullName = "";
 		}
 	}
 }
@@ -428,11 +514,10 @@ bool FResourceFile::FindPrefixRange(FString filter, void *lumps, size_t lumpsize
 	{
 		mid = min + (max - min) / 2;
 		lump = (FResourceLump *)((uint8_t *)lumps + mid * lumpsize);
-		cmp = filter.CompareNoCase(lump->FullName(), (int)filter.Len());
-
+		cmp = lump->FullName.CompareNoCase(filter, (int)filter.Len());
 		if (cmp == 0)
 			break;
-		else if (cmp > 0)
+		else if (cmp < 0)
 			min = mid + 1;
 		else		
 			max = mid - 1;
@@ -449,7 +534,7 @@ bool FResourceFile::FindPrefixRange(FString filter, void *lumps, size_t lumpsize
 	{
 		mid = min + (max - min) / 2;
 		lump = (FResourceLump *)((uint8_t *)lumps + mid * lumpsize);
-		cmp = filter.CompareNoCase(lump->FullName(), (int)filter.Len());
+		cmp = lump->FullName.CompareNoCase(filter, (int)filter.Len());
 		// Go left on matches and right on misses.
 		if (cmp == 0)
 			max = mid - 1;
@@ -464,7 +549,7 @@ bool FResourceFile::FindPrefixRange(FString filter, void *lumps, size_t lumpsize
 	{
 		mid = min + (max - min) / 2;
 		lump = (FResourceLump *)((uint8_t *)lumps + mid * lumpsize);
-		cmp = filter.CompareNoCase(lump->FullName(), (int)filter.Len());
+		cmp = lump->FullName.CompareNoCase(filter, (int)filter.Len());
 		// Go right on matches and left on misses.
 		if (cmp == 0)
 			min = mid + 1;
@@ -483,12 +568,10 @@ bool FResourceFile::FindPrefixRange(FString filter, void *lumps, size_t lumpsize
 
 FResourceLump *FResourceFile::FindLump(const char *name)
 {
-	FName lname(name, true);
-	if (lname == NAME_None) return nullptr;
 	for (unsigned i = 0; i < NumLumps; i++)
 	{
 		FResourceLump *lump = GetLump(i);
-		if (lump->LumpName[FResourceLump::FullNameType] == lname)
+		if (!stricmp(name, lump->FullName))
 		{
 			return lump;
 		}
@@ -514,11 +597,22 @@ FileReader *FUncompressedLump::GetReader()
 //
 //==========================================================================
 
-int FUncompressedLump::ValidateCache()
+int FUncompressedLump::FillCache()
 {
+	const char * buffer = Owner->Reader.GetBuffer();
+
+	if (buffer != NULL)
+	{
+		// This is an in-memory file so the cache can point directly to the file's data.
+		Cache = const_cast<char*>(buffer) + Position;
+		RefCount = -1;
+		return -1;
+	}
+
 	Owner->Reader.Seek(Position, FileReader::SeekSet);
-	Cache.Resize(LumpSize);
-	Owner->Reader.Read(Cache.Data(), LumpSize);
+	Cache = new char[LumpSize];
+	Owner->Reader.Read(Cache, LumpSize);
+	RefCount = 1;
 	return 1;
 }
 
@@ -573,18 +667,22 @@ FExternalLump::FExternalLump(const char *_filename, int filesize)
 //
 //==========================================================================
 
-int FExternalLump::ValidateCache()
+int FExternalLump::FillCache()
 {
-	Cache.Resize(LumpSize);
+	Cache = new char[LumpSize];
 	FileReader f;
 
 	if (f.OpenFile(Filename))
 	{
-		f.Read(Cache.Data(), LumpSize);
+		f.Read(Cache, LumpSize);
 	}
 	else
 	{
-		memset(Cache.Data(), 0, LumpSize);
+		memset(Cache, 0, LumpSize);
 	}
+	RefCount = 1;
 	return 1;
 }
+
+
+

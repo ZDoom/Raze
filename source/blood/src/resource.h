@@ -23,9 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 
 #include "common.h"
-#include "filesystem/resourcefile.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 
 using Resource = FileSystem;
 // Map NBlood's resource system to our own.
-using DICTNODE = FResourceEntry;
+using DICTNODE = FResourceLump;

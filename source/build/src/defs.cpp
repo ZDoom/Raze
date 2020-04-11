@@ -2628,7 +2628,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    FileReader fil = fileSystem.OpenFileReader(fn, 0);
+                    FileReader fil = fileSystem.OpenFileReader(fn);
                     if (!fil.isOpen())
                     {
                         Printf("Error: basepalette: Failed opening \"%s\" on line %s:%d\n", fn,
@@ -2800,7 +2800,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    FileReader fil = fileSystem.OpenFileReader(fn, 0);
+                    FileReader fil = fileSystem.OpenFileReader(fn);
                     if (!fil.isOpen())
                     {
                         Printf("Error: palookup: Failed opening \"%s\" on line %s:%d\n", fn,
@@ -3093,7 +3093,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    FileReader fil = fileSystem.OpenFileReader(fn, 0);
+                    FileReader fil = fileSystem.OpenFileReader(fn);
                     if (!fil.isOpen())
                     {
                         Printf("Error: blendtable: Failed opening \"%s\" on line %s:%d\n", fn,

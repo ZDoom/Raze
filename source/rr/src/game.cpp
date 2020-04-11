@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameconfigfile.h"
 #include "printf.h"
 #include "m_argv.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 #include "statistics.h"
 #include "c_dispatch.h"
 #include "mapinfo.h"

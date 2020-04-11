@@ -45,7 +45,6 @@
 #include "version.h"	// for GAMENAME
 
 // Stuff that needs to be set up later.
-static bool batchrun;
 
 // Vanilla MinGW does not have folder ids
 #if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)

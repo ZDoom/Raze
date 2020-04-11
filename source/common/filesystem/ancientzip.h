@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include "files.h"
 #include "engineerrors.h"
 
@@ -42,7 +41,7 @@ public:
 	int Explode(unsigned char *out, unsigned int outsize, FileReader &in, unsigned int insize, int flags);
 };
 
-class CExplosionError : public CRecoverableError
+class CExplosionError : CRecoverableError
 {
 public:
 	CExplosionError(const char *message) : CRecoverableError(message) {}

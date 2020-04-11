@@ -93,7 +93,7 @@ FFont *V_GetFont(const char *name, const char *fontlumpname)
 	FFont *font = FFont::FindFont (name);
 	if (font == nullptr)
 	{
-		auto lumpy = fileSystem.OpenFileReader(fontlumpname, 0);
+		auto lumpy = fileSystem.OpenFileReader(fontlumpname);
 		if (!lumpy.isOpen()) return nullptr;
 		uint32_t head;
 		lumpy.Read (&head, 4);
@@ -404,7 +404,7 @@ void V_InitFontColors ()
 	TranslationLookup.Clear();
 	TranslationColors.Clear();
 
-	while ((lump = fileSystem.Iterate("engine/textcolors.txt", &lastlump)) != -1)
+	while ((lump = fileSystem.FindLumpFullName("engine/textcolors.txt", &lastlump)) != -1)
 	{
 		FScanner sc(lump);
 		while (sc.GetString())

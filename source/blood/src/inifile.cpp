@@ -130,7 +130,7 @@ void IniFile::Load()
 
     curNode = &head;
 
-    auto fp = fileSystem.OpenFileReader(fileName, 0);
+    auto fp = fileSystem.OpenFileReader(fileName);
     if (fp.isOpen())
     {
         int nSize = fp.GetLength();

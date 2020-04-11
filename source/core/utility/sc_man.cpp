@@ -48,7 +48,7 @@
 #include "templates.h"
 #include "zstring.h"
 #include "name.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -171,7 +171,7 @@ FScanner &FScanner::operator=(const FScanner &other)
 
 void FScanner::Open (const char *name)
 {
-	auto fr = fileSystem.OpenFileReader(name, 0);
+	auto fr = fileSystem.OpenFileReader(name);
 	if (!fr.isOpen())
 	{
 		I_Error("Could not find script lump '%s'\n", name);
@@ -199,7 +199,7 @@ FScanner::FScanner(int lump)
 	Close();
 	auto data = fileSystem.GetFileData(lump, 1);
 	ScriptBuffer = data;
-	ScriptName = fileSystem.GetFileName(lump);
+	ScriptName = fileSystem.GetFileFullName(lump);
 	LumpNum = lump;
 	PrepareScript();
 }

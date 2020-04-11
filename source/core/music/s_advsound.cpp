@@ -97,7 +97,7 @@ void S_ParseSndInfo ()
 {
 	int lump, lastlump = 0;
 
-	while ((lump = fileSystem.Iterate("engine/mussetting.txt", &lastlump)) >= 0)
+	while ((lump = fileSystem.FindLumpFullName("engine/mussetting.txt", &lastlump)) >= 0)
 	{
 		S_AddSNDINFO (lump);
 	}

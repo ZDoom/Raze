@@ -33,8 +33,7 @@
 **
 */  
 
-#include "filesystem/filesystem.h"
-#include "filesystem/resourcefile.h"
+#include "filesystem.h"
 #include "cmdlib.h"
 #include "zstring.h"
 #include "gamecontrol.h"
@@ -420,7 +419,7 @@ static FString CheckGameInfo(TArray<FString>& pwads)
 			{
 				FResourceLump* lmp = resfile->GetLump(i);
 
-				if (lmp->LumpName[0] == gameinfo)
+				if (FName(lmp->getName(), true) == gameinfo)
 				{
 					// Found one!
 					FString iwad = ParseGameInfo(pwads, resfile->FileName, (const char*)lmp->Lock(), lmp->LumpSize);
@@ -473,6 +472,38 @@ FString GetGameFronUserFiles()
 	return CheckGameInfo(Files);
 }
 
+//==========================================================================
+//
+// Deletes unwanted content from the main game files
+//
+//==========================================================================
+
+static void DeleteStuff(FileSystem &fileSystem, const TArray<FString>& deletelumps, int numgamefiles)
+{
+	// This must account for the game directory being inserted at index 2.
+	// Deletion may only occur in the main game file, the directory and the add-on, there are no secondary dependencies, i.e. more than two game files.
+	numgamefiles++;
+	for (auto str : deletelumps)
+	{
+		FString renameTo;
+		auto ndx = str.IndexOf("*");
+		if (ndx >= 0)
+		{
+			renameTo = FName(str.Mid(ndx + 1)).GetChars();
+			str.Truncate(ndx);
+		}
+
+		for (uint32_t i = 0; i < fileSystem.GetNumEntries(); i++)
+		{
+			int cf = fileSystem.GetFileContainer(i);
+			auto fname = fileSystem.GetFileFullName(i, false);
+			if (cf >= 1 && cf <= numgamefiles && !str.CompareNoCase(fname))
+			{
+				fileSystem.RenameFile(i, renameTo);
+			}
+		}
+	}
+}
 //==========================================================================
 //
 //
@@ -575,15 +606,21 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		todelete.Append(g.FileInfo.tobedeleted);
 	}
 	todelete.Append(userConfig.toBeDeleted);
-	fileSystem.InitMultipleFiles(Files, todelete, groups.Size());
+	LumpFilterInfo lfi;
 
+	lfi.dotFilter = LumpFilter;
+	lfi.postprocessFunc = [&]()
+	{
+		DeleteStuff(fileSystem, todelete, groups.Size());
+	};
+	fileSystem.InitMultipleFiles(Files, false, &lfi);
 	if (Args->CheckParm("-dumpfs"))
 	{
 		FILE* f = fopen("filesystem.dir", "wb");
 		for (int i = 0; i < fileSystem.GetNumEntries(); i++)
 		{
 			auto fd = fileSystem.GetFileAt(i);
-			fprintf(f, "%.50s   %60s  %d\n", fd->FullName(), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(i)), fd->Size());
+			fprintf(f, "%.50s   %60s  %d\n", fd->getName(), fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(i)), fd->Size());
 		}
 		fclose(f);
 	}

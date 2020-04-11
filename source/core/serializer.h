@@ -4,10 +4,11 @@
 #include <stdint.h>
 #include <type_traits>
 #include "tarray.h"
-#include "filesystem/file_zip.h"
+#include "file_zip.h"
 #include "tflags.h"
 #include "vectors.h"
 #include "palentry.h"
+#include "name.h"
 
 extern bool save_full;
 

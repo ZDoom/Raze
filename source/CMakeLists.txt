@@ -588,7 +588,6 @@ file( GLOB HEADER_FILES
 	core/utility/*.h
 	core/utility/rapidjson/*.h
 	core/console/*.h
-	core/filesystem/*.h
 	core/music/*.h
 	core/sound/*.h
 	core/sound/backend/*.h
@@ -604,6 +603,7 @@ file( GLOB HEADER_FILES
 	core/rendering/hwrenderer/utility/*.h
 
 	common/utility/*.h
+	common/filesystem/*.h
 	common/thirdparty/*.h
 	common/thirdparty/rapidjson/*.h
 	common/thirdparty/math./*h
@@ -737,6 +737,18 @@ set (PCH_SOURCES
 	common/utility/zstrformat.cpp
 	common/thirdparty/md5.cpp
  	common/thirdparty/superfasthash.cpp
+	common/filesystem/filesystem.cpp
+	common/filesystem/ancientzip.cpp
+	common/filesystem/file_7z.cpp
+	common/filesystem/file_grp.cpp
+	common/filesystem/file_lump.cpp
+	common/filesystem/file_rff.cpp
+	common/filesystem/file_wad.cpp
+	common/filesystem/file_zip.cpp
+	common/filesystem/file_pak.cpp
+	common/filesystem/file_whres.cpp
+	common/filesystem/file_directory.cpp
+	common/filesystem/resourcefile.cpp
 
 	core/utility/name.cpp
 	core/utility/m_png.cpp
@@ -744,17 +756,6 @@ set (PCH_SOURCES
 	core/utility/stringtable.cpp
 	core/utility/stats.cpp
 	
-	core/filesystem/filesystem.cpp
-	core/filesystem/ancientzip.cpp
-	core/filesystem/file_zip.cpp
-	core/filesystem/file_7z.cpp
-	core/filesystem/file_grp.cpp
-	core/filesystem/file_rff.cpp
-	core/filesystem/file_pak.cpp
-	core/filesystem/file_lump.cpp
-	core/filesystem/file_directory.cpp
-	core/filesystem/resourcefile.cpp
-
 	core/textures/bitmap.cpp
 	core/textures/buildtiles.cpp
 	core/textures/texture.cpp
@@ -893,7 +894,6 @@ include_directories(
 	core/utility
 	core/console
 	core/textures
-	core/filesystem
 	core/music
 	core/sound
 	core/sound/backend
@@ -910,6 +910,7 @@ include_directories(
 	core/rendering
 	platform
 	common/thirdparty
+	common/filesystem
 	common/utility
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
@@ -1008,7 +1009,6 @@ source_group("Core\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/co
 source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d/.+")
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
 source_group("Core\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/fonts/.+")
-source_group("Core\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/filesystem/.+")
 source_group("Core\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/music/.+")
 source_group("Core\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/sound/.+")
 source_group("Core\\Sound\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/sound/backend/.+")
@@ -1021,6 +1021,7 @@ source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platfor
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("Platform\\POSIX" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/.+")
 source_group("Common" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/.+")
+source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/filesystem/.+")
 source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/utility/.+")
 source_group("Common\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/.+")
 source_group("Common\\Third Party\\Math" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/math/.+")

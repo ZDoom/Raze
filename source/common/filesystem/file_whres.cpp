@@ -1,8 +1,10 @@
 /*
-** file_pak.cpp
+** file_whres.cpp
+**
+** reads a Witchaven/TekWar sound resource file
 **
 **---------------------------------------------------------------------------
-** Copyright 2009 Christoph Oelckers
+** Copyright 2009-2019 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -34,8 +36,7 @@
 
 #include "resourcefile.h"
 #include "printf.h"
-//#include "w_wad.h"
-//#include "doomtype.h"
+#include "cmdlib.h"
 
 //==========================================================================
 //
@@ -43,10 +44,9 @@
 //
 //==========================================================================
 
-struct dpackfile_t
+struct whresentry
 {
-	char	name[56];
-	int		filepos, filelen;
+	int		filepospage, filelen, priority;
 } ;
 
 struct dpackheader_t
@@ -63,11 +63,12 @@ struct dpackheader_t
 //
 //==========================================================================
 
-class FPakFile : public FUncompressedFile
+class FWHResFile : public FUncompressedFile
 {
+	FString basename;
 public:
-	FPakFile(const char * filename, FileReader &file);
-	bool Open(bool quiet);
+	FWHResFile(const char * filename, FileReader &file);
+	bool Open(bool quiet, LumpFilterInfo* filter);
 };
 
 
@@ -79,9 +80,10 @@ public:
 //
 //==========================================================================
 
-FPakFile::FPakFile(const char *filename, FileReader &file) 
+FWHResFile::FWHResFile(const char *filename, FileReader &file) 
 	: FUncompressedFile(filename, file)
 {
+	basename = ExtractFileBase(filename, false);
 }
 
 //==========================================================================
@@ -90,29 +92,33 @@ FPakFile::FPakFile(const char *filename, FileReader &file)
 //
 //==========================================================================
 
-bool FPakFile::Open(bool quiet)
+bool FWHResFile::Open(bool quiet, LumpFilterInfo*)
 {
-	dpackheader_t header;
-
-	Reader.Read(&header, sizeof(header));
-	NumLumps = LittleLong(header.dirlen) / sizeof(dpackfile_t);
-	header.dirofs = LittleLong(header.dirofs);
+	int directory[1024];
 	
-	TArray<dpackfile_t> fileinfo(NumLumps, true);
-	Reader.Seek (header.dirofs, FileReader::SeekSet);
-	Reader.Read (fileinfo.Data(), NumLumps * sizeof(dpackfile_t));
+	Reader.Seek(-4096, FileReader::SeekEnd);
+	Reader.Read(directory, 4096);
+	
+	int nl =1024/3;
+	Lumps.Resize(nl);
 
-	Lumps.Resize(NumLumps);
 
-	if (!quiet) Printf(", %d lumps\n", NumLumps);
-
-	for(uint32_t i = 0; i < NumLumps; i++)
+	int i = 0;
+	for(int k = 0; k < nl; k++)
 	{
-		Lumps[i].LumpNameSetup(fileinfo[i].name);
+		int offset = LittleLong(directory[k*3]) * 4096;
+		int length = LittleLong(directory[k*3+1]);
+		if (length <= 0) break;
+		FStringf synthname("%s/%04d", basename.GetChars(), k);
+		Lumps[i].LumpNameSetup(synthname);
 		Lumps[i].Owner = this;
-		Lumps[i].Position = LittleLong(fileinfo[i].filepos);
-		Lumps[i].LumpSize = LittleLong(fileinfo[i].filelen);
+		Lumps[i].Position = offset;
+		Lumps[i].LumpSize = length;
+		i++;
 	}
+	NumLumps = i;
+	Lumps.Clamp(NumLumps);
+	Lumps.ShrinkToFit();
 	return true;
 }
 
@@ -123,24 +129,30 @@ bool FPakFile::Open(bool quiet)
 //
 //==========================================================================
 
-FResourceFile *CheckPak(const char *filename, FileReader &file, bool quiet)
+FResourceFile *CheckWHRes(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter)
 {
-	char head[4];
-
-	if (file.GetLength() >= 12)
+	if (file.GetLength() >= 8192) // needs to be at least 8192 to contain one file and the directory.
 	{
-		file.Seek(0, FileReader::SeekSet);
-		file.Read(&head, 4);
-		file.Seek(0, FileReader::SeekSet);
-		if (!memcmp(head, "PACK", 4))
+		int directory[1024];
+		int nl =1024/3;
+		
+		file.Seek(-4096, FileReader::SeekEnd);
+		file.Read(directory, 4096);
+		
+		int checkpos = 0;
+		for(int k = 0; k < nl; k++)
 		{
-			FResourceFile *rf = new FPakFile(filename, file);
-			if (rf->Open(quiet)) return rf;
-
-			file = std::move(rf->Reader); // to avoid destruction of reader
-			delete rf;
+			int offset = LittleLong(directory[k*3]);
+			int length = LittleLong(directory[k*3+1]);
+			if (length <= 0 && offset == 0) break;
+			if (offset != checkpos || length <= 0) return nullptr;
+			checkpos += (length+4095) / 4096;
 		}
+		FResourceFile *rf = new FWHResFile(filename, file);
+		if (rf->Open(quiet, filter)) return rf;
+		file = std::move(rf->Reader); // to avoid destruction of reader
+		delete rf;
 	}
 	return NULL;
 }
-
+ 

@@ -118,7 +118,7 @@ FArtTexture::FArtTexture(int width, int height, int p)
 
 void FArtTexture::CreatePalettedPixels(uint8_t* buffer)
 {
-	FileReader fr = fileSystem.OpenFileReader(Name, 0);
+	FileReader fr = fileSystem.OpenFileReader(Name);
 	if (!fr.isOpen()) return;
 	int numpixels = Width * Height;
 	fr.Read(buffer, numpixels);
@@ -139,7 +139,7 @@ int FArtTexture::CopyPixels(FBitmap *bmp, int conversion)
 	// Both Src and Dst are ordered the same with no padding.
 	int numpixels = Width * Height;
 	bool hasalpha = false;
-	FileReader fr = fileSystem.OpenFileReader(Name, 0);
+	FileReader fr = fileSystem.OpenFileReader(Name);
 	if (!fr.isOpen()) return 0;
 	TArray<uint8_t> source(numpixels, true);
 	fr.Read(source.Data(), numpixels);

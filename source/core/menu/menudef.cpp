@@ -1162,7 +1162,7 @@ void M_ParseMenuDefs()
 	DefaultOptionMenuSettings.Reset();
 
 	M_DeinitMenus();
-	while ((lump = fileSystem.Iterate("engine/menudef.txt", &lastlump)) != -1)
+	while ((lump = fileSystem.FindLumpFullName("engine/menudef.txt", &lastlump)) != -1)
 	{
 		FScanner sc(lump);
 

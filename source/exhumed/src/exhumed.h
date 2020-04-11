@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tarray.h"
 #include "save.h"
 #include "zstring.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 
 BEGIN_PS_NS
 

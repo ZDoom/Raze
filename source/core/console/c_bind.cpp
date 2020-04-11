@@ -683,17 +683,17 @@ void ReadBindings(int lump, bool override)
 
 void CONFIG_SetDefaultKeys(const char* baseconfig)
 {
-	auto lump = fileSystem.GetFile("engine/commonbinds.txt", ELookupMode::FullName, 0);
+	auto lump = fileSystem.CheckNumForFullName("engine/commonbinds.txt");
 	if (lump >= 0) ReadBindings(lump, true);
 	int lastlump = 0;
 
-	while ((lump = fileSystem.Iterate(baseconfig, &lastlump)) != -1)
+	while ((lump = fileSystem.FindLumpFullName(baseconfig, &lastlump)) != -1)
 	{
 		if (fileSystem.GetFileContainer(lump) > 0) break;
 		ReadBindings(lump, true);
 	}
 
-	while ((lump = fileSystem.Iterate("defbinds.txt", &lastlump)) != -1)
+	while ((lump = fileSystem.FindLumpFullName("defbinds.txt", &lastlump)) != -1)
 	{
 		ReadBindings(lump, false);
 	}

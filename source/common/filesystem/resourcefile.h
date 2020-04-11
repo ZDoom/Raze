@@ -3,14 +3,24 @@
 #ifndef __RESFILE_H
 #define __RESFILE_H
 
-#include <stdint.h>
 #include "files.h"
-#include "zstring.h"
-#include "name.h"
+
+struct LumpFilterInfo
+{
+	TArray<FString> gameTypeFilter;	// this can contain multiple entries
+	FString dotFilter;
+
+	// The following are for checking if the root directory of a zip can be removed.
+	TArray<FString> reservedFolders;
+	TArray<FString> requiredPrefixes;
+	std::function<void()> postprocessFunc;
+};
 
 class FResourceFile;
 class FTexture;
 
+// [RH] Namespaces from BOOM.
+// These are needed here in the low level part so that WAD files can be properly set up.
 typedef enum {
 	ns_hidden = -1,
 
@@ -20,9 +30,9 @@ typedef enum {
 	ns_colormaps,
 	ns_acslibrary,
 	ns_newtextures,
-	ns_bloodraw,
-	ns_bloodsfx,
-	ns_bloodmisc,
+	ns_bloodraw,	// no longer used - kept for ZScript.
+	ns_bloodsfx,	// no longer used - kept for ZScript.
+	ns_bloodmisc,	// no longer used - kept for ZScript.
 	ns_strifevoices,
 	ns_hires,
 	ns_voxels,
@@ -42,17 +52,14 @@ typedef enum {
 
 enum ELumpFlags
 {
-	LUMPF_MAYBEFLAT=1,		// might be a flat outside F_START/END
-	LUMPF_ZIPFILE=2,		// contains a full path
-	LUMPF_EMBEDDED=4,		// from an embedded WAD
-	LUMPF_BLOODCRYPT = 8,	// encrypted
-	LUMPF_COMPRESSED = 16,	// compressed
-	LUMPF_SEQUENTIAL = 32,	// compressed but a sequential reader can be retrieved.
+	LUMPF_MAYBEFLAT = 1,	// might be a flat outside F_START/END
+	LUMPF_FULLPATH = 2,		// contains a full path. This will trigger extended namespace checks when looking up short names.
+	LUMPF_EMBEDDED = 4,		// marks an embedded resource file for later processing.
+	LUMPF_SHORTNAME = 8,	// the stored name is a short extension-less name
+	LUMPF_COMPRESSED = 16,	// compressed or encrypted, i.e. cannot be read with the container file's reader.
 };
 
-class FResourceFile;
-
-// This holds a compressed Zip entry with all needed info to decompress it.
+// This holds a compresed Zip entry with all needed info to decompress it.
 struct FCompressedBuffer
 {
 	unsigned mSize;
@@ -74,59 +81,49 @@ struct FCompressedBuffer
 	}
 };
 
-
 struct FResourceLump
 {
-	enum ENameType
-	{
-		FullNameType,
-		FullNameNoExtType,
-		BaseNameType,
-		BaseNameNoExtType,
-		ExtensionType,
-		DoomLumpType,
-		NUMNAMETYPES
-	};
-	
 	friend class FResourceFile;
-	friend struct FClonedLump;
+	friend class FWadFile;	// this still needs direct access.
 
-	unsigned 		LumpSize = 0;
-	int				RefCount = 0;
-	int				Flags = 0;
-	int				ResourceId = -1;
-	int				Namespace = ns_global;
-	FName			LumpName[NUMNAMETYPES] = {};
-	FResourceFile *	Owner = nullptr;
-	TArray<uint8_t> Cache;
+	int				LumpSize;
+	int				RefCount;
+protected:
+	FString			FullName;
+public:
+	uint8_t			Flags;
+	char *			Cache;
+	FResourceFile *	Owner;
 
-	FResourceLump() = default;
+	FResourceLump()
+	{
+		Cache = NULL;
+		Owner = NULL;
+		Flags = 0;
+		RefCount = 0;
+	}
 
 	virtual ~FResourceLump();
 	virtual FileReader *GetReader();
 	virtual FileReader NewReader();
 	virtual int GetFileOffset() { return -1; }
+	virtual int GetIndexNum() const { return -1; }
+	virtual int GetNamespace() const { return 0; }
 	void LumpNameSetup(FString iname);
+	void CheckEmbedded();
 	virtual FCompressedBuffer GetRawData();
 
-	virtual void *Lock(); // validates the cache and increases the refcount.
-	virtual void Unlock(bool freeunrefd = false); // recreases the refcount and optionally frees the buffer
-	virtual void *Get(); // validates the cache and returns a pointer without locking
-	
-	// Wrappers for emulating Blood's resource system
+	void *Lock(); // validates the cache and increases the refcount.
+	int Unlock(); // decreases the refcount and frees the buffer
+
 	unsigned Size() const{ return LumpSize; }
 	int LockCount() const { return RefCount; }
-	const char *ResName() const { return LumpName[BaseNameNoExtType].GetChars(); }
-	const FName ResType() { return LumpName[ExtensionType]; }
-	const char *FullName() const { return LumpName[FullNameType].GetChars(); }
+	const char* getName() { return FullName.GetChars(); }
 
 protected:
-	virtual int ValidateCache() { return -1; }
+	virtual int FillCache() { return -1; }
 
 };
-
-// Map NBlood's resource system to our own.
-using DICTNODE = FResourceLump;
 
 class FResourceFile
 {
@@ -135,35 +132,38 @@ public:
 	FString FileName;
 protected:
 	uint32_t NumLumps;
+	FString Hash;
 
 	FResourceFile(const char *filename);
 	FResourceFile(const char *filename, FileReader &r);
 
 	// for archives that can contain directories
-	void PostProcessArchive(void *lumps, size_t lumpsize);
+	void GenerateHash();
+	void PostProcessArchive(void *lumps, size_t lumpsize, LumpFilterInfo *filter);
 
 private:
 	uint32_t FirstLump;
 
 	int FilterLumps(FString filtername, void *lumps, size_t lumpsize, uint32_t max);
+	int FilterLumpsByGameType(LumpFilterInfo *filter, void *lumps, size_t lumpsize, uint32_t max);
 	bool FindPrefixRange(FString filter, void *lumps, size_t lumpsize, uint32_t max, uint32_t &start, uint32_t &end);
 	void JunkLeftoverFilters(void *lumps, size_t lumpsize, uint32_t max);
-	static FResourceFile *DoOpenResourceFile(const char *filename, FileReader &file, bool quiet, bool containeronly);
+	static FResourceFile *DoOpenResourceFile(const char *filename, FileReader &file, bool quiet, bool containeronly, LumpFilterInfo* filter);
 
 public:
-	static FResourceFile *OpenResourceFile(const char *filename, FileReader &file, bool quiet = false, bool containeronly = false);
-	static FResourceFile *OpenResourceFile(const char *filename, bool quiet = false, bool containeronly = false);
-	static FResourceFile* OpenDirectory(const char* filename, bool quiet = false, bool nosubdirs = false);
+	static FResourceFile *OpenResourceFile(const char *filename, FileReader &file, bool quiet = false, bool containeronly = false, LumpFilterInfo* filter = nullptr);
+	static FResourceFile *OpenResourceFile(const char *filename, bool quiet = false, bool containeronly = false, LumpFilterInfo* filter = nullptr);
+	static FResourceFile *OpenDirectory(const char *filename, bool quiet = false, LumpFilterInfo* filter = nullptr);
 	virtual ~FResourceFile();
     // If this FResourceFile represents a directory, the Reader object is not usable so don't return it.
     FileReader *GetReader() { return Reader.isOpen()? &Reader : nullptr; }
 	uint32_t LumpCount() const { return NumLumps; }
-	uint32_t GetFirstLump() const { return FirstLump; }
+	uint32_t GetFirstEntry() const { return FirstLump; }
 	void SetFirstLump(uint32_t f) { FirstLump = f; }
+	const FString &GetHash() const { return Hash; }
 
 
-
-	virtual bool Open(bool quiet) = 0;
+	virtual bool Open(bool quiet, LumpFilterInfo* filter) = 0;
 	virtual FResourceLump *GetLump(int no) = 0;
 	FResourceLump *FindLump(const char *name);
 };
@@ -172,14 +172,14 @@ struct FUncompressedLump : public FResourceLump
 {
 	int				Position;
 
-	FileReader *GetReader() override;
-	int ValidateCache() override;
-	virtual int GetFileOffset() override { return Position; }
+	virtual FileReader *GetReader();
+	virtual int FillCache();
+	virtual int GetFileOffset() { return Position; }
 
 };
 
 
-// Base class for uncompressed resource files (GRP, PAK and single lumps)
+// Base class for uncompressed resource files (WAD, GRP, PAK and single lumps)
 class FUncompressedFile : public FResourceFile
 {
 protected:
@@ -196,7 +196,7 @@ struct FExternalLump : public FResourceLump
 	FString Filename;
 
 	FExternalLump(const char *_filename, int filesize = -1);
-	virtual int ValidateCache() override;
+	virtual int FillCache();
 
 };
 
@@ -204,29 +204,20 @@ struct FMemoryLump : public FResourceLump
 {
 	FMemoryLump(const void* data, int length)
 	{
+		RefCount = INT_MAX / 2;
 		LumpSize = length;
-		Cache.Resize(length);
-		memcpy(Cache.Data(), data, length);
+		Cache = new char[length];
+		memcpy(Cache, data, length);
 	}
-	virtual int ValidateCache() override
+
+	virtual int FillCache() override
 	{
 		RefCount = INT_MAX / 2; // Make sure it never counts down to 0 by resetting it to something high each time it is used.
 		return 1;
 	}
 };
 
-struct FClonedLump : public FResourceLump
-{
-	FResourceLump* parent;
-	FClonedLump(FResourceLump* lump)
-	{
-		parent = lump;
-	}
-	void* Lock() override { return parent->Lock(); }
-	void Unlock(bool mayfree) override { parent->Unlock(mayfree); }
-	void* Get() override { return parent->Get(); }
-	int ValidateCache() override { return parent->ValidateCache(); }
-};
+
 
 
 

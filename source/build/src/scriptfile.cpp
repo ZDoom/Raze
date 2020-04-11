@@ -9,7 +9,7 @@
 #include "scriptfile.h"
 #include "baselayer.h"
 #include "compat.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 
 
 #define ISWS(x) ((x == ' ') || (x == '\t') || (x == '\r') || (x == '\n'))
@@ -299,7 +299,7 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
 
 scriptfile *scriptfile_fromfile(const char *fn)
 {
-	auto fr = fileSystem.OpenFileReader(fn, 0);
+	auto fr = fileSystem.OpenFileReader(fn);
 	if (!fr.isOpen()) return nullptr;
 
 	uint32_t flen = fr.GetLength();

@@ -31,7 +31,7 @@ extern int costable[2048];
 int GetOctant(int x, int y);
 void RotateVector(int *dx, int *dy, int nAngle);
 void RotatePoint(int *x, int *y, int nAngle, int ox, int oy);
-void trigInit(Resource &Res);
+void trigInit();
 
 inline int Sin(int ang)
 {

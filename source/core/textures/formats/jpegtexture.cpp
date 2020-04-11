@@ -40,7 +40,7 @@
 #include "printf.h"
 #include "bitmap.h"
 #include "image.h"
-#include "filesystem/filesystem.h"
+#include "filesystem.h"
 #include "imagehelpers.h"
 #include "v_text.h"
 
@@ -262,7 +262,7 @@ FJPEGTexture::FJPEGTexture (int width, int height)
 
 void FJPEGTexture::CreatePalettedPixels(uint8_t *buffer)
 {
-	auto lump = fileSystem.OpenFileReader(Name, 0);
+	auto lump = fileSystem.OpenFileReader(Name);
 	if (!lump.isOpen()) return;	// Just leave the texture blank.
 	JSAMPLE *buff = NULL;
 
@@ -385,7 +385,7 @@ int FJPEGTexture::CopyPixels(FBitmap *bmp, int conversion)
 {
 	PalEntry pe[256];
 
-	auto lump = fileSystem.OpenFileReader(Name, 0);
+	auto lump = fileSystem.OpenFileReader(Name);
 	if (!lump.isOpen()) return -1;	// Just leave the texture blank.
 
 	jpeg_decompress_struct cinfo;

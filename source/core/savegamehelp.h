@@ -1,6 +1,6 @@
 #pragma once
 
-#include "filesystem/resourcefile.h"
+#include "resourcefile.h"
 
 bool OpenSaveGameForWrite(const char *fname, const char *name);
 bool OpenSaveGameForRead(const char *name);

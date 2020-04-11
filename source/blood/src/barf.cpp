@@ -29,9 +29,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "misc.h"
 #include "globals.h"
 #include "sound.h"
-#include "filesystem/resourcefile.h"
+#include "filesystem.h"
 
 BEGIN_BLD_NS
+
+// I don't think we still need these.
+#define DICT_LOAD 0
+#define DICT_LOCK 0
 
 static Resource gBarfRes;
 
@@ -905,12 +909,12 @@ void ReadAllRFS()
     for (int i = 0; i < numf; i++)
     {
         auto rl = fileSystem.GetResourceType(i);
-        if (rl == NAME_RFS)
+        if (!stricmp(rl, "RFS"))
         {
             ParseScript(i);
             found = true;
         }
     }
-    if (found) fileSystem.Rehash();
+    if (found) fileSystem.InitHashChains();
 }
 END_BLD_NS

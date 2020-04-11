@@ -103,14 +103,14 @@ void sndInit(void)
     for (int i = fileSystem.GetNumEntries() - 1; i >= 0; i--)
     {
         auto type = fileSystem.GetResourceType(i);
-        if (type == NAME_SFX)
+        if (!stricmp(type, "SFX"))
         {
             if (soundEngine->FindSoundByResID(fileSystem.GetResourceId(i)) == 0)
                 S_AddBloodSFX(i);
         }
-        else if (type == NAME_WAV || type == NAME_OGG || type == NAME_FLAC || type == NAME_VOC)
+        else if (!stricmp(type, "WAV") || !stricmp(type, "OGG") || !stricmp(type, "FLAC") || !stricmp(type, "VOC"))
         {
-            soundEngine->AddSoundLump(fileSystem.GetFileName(i), i, 0, fileSystem.GetResourceId(i)| 0x40000000, 6); // mark the resource ID as special.
+            soundEngine->AddSoundLump(fileSystem.GetFileFullName(i), i, 0, fileSystem.GetResourceId(i)| 0x40000000, 6); // mark the resource ID as special.
         }
     }
     soundEngine->HashSounds();

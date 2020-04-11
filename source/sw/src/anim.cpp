@@ -241,7 +241,7 @@ playanm(short anim_num)
     MONO_PRINT(ds);
 
     TArray<uint8_t> buffer;
-    auto fr = fileSystem.OpenFileReader(ANIMname[ANIMnum], 0);
+    auto fr = fileSystem.OpenFileReader(ANIMname[ANIMnum]);
 
     if (!fr.isOpen())
         goto ENDOFANIMLOOP;

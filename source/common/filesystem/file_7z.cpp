@@ -40,8 +40,6 @@
 #include "resourcefile.h"
 #include "cmdlib.h"
 #include "printf.h"
-//#include "v_text.h"
-//#include "w_wad.h"
 
 
 
@@ -171,7 +169,7 @@ struct F7ZLump : public FResourceLump
 {
 	int		Position;
 
-	int ValidateCache() override;
+	virtual int FillCache();
 
 };
 
@@ -191,7 +189,7 @@ class F7ZFile : public FResourceFile
 
 public:
 	F7ZFile(const char * filename, FileReader &filer);
-	bool Open(bool quiet);
+	bool Open(bool quiet, LumpFilterInfo* filter);
 	virtual ~F7ZFile();
 	virtual FResourceLump *GetLump(int no) { return ((unsigned)no < NumLumps)? &Lumps[no] : NULL; }
 };
@@ -218,7 +216,7 @@ F7ZFile::F7ZFile(const char * filename, FileReader &filer)
 //
 //==========================================================================
 
-bool F7ZFile::Open(bool quiet)
+bool F7ZFile::Open(bool quiet, LumpFilterInfo *filter)
 {
 	Archive = new C7zArchive(Reader);
 	int skipped = 0;
@@ -231,7 +229,7 @@ bool F7ZFile::Open(bool quiet)
 		Archive = NULL;
 		if (!quiet)
 		{
-			Printf("\n%s: ", FileName.GetChars());
+			Printf("\n" TEXTCOLOR_RED "%s: ", FileName.GetChars());
 			if (res == SZ_ERROR_UNSUPPORTED)
 			{
 				Printf("Decoder does not support this archive\n");
@@ -285,16 +283,17 @@ bool F7ZFile::Open(bool quiet)
 		{
 			nameASCII[c] = static_cast<char>(nameUTF16[c]);
 		}
+		FixPathSeperator(&nameASCII[0]);
 
 		FString name = &nameASCII[0];
-		name.Substitute("\\", "/");
 		name.ToLower();
 
 		lump_p->LumpNameSetup(name);
 		lump_p->LumpSize = static_cast<int>(SzArEx_GetFileSize(archPtr, i));
 		lump_p->Owner = this;
-		lump_p->Flags = LUMPF_ZIPFILE|LUMPF_COMPRESSED;
+		lump_p->Flags = LUMPF_FULLPATH|LUMPF_COMPRESSED;
 		lump_p->Position = i;
+		lump_p->CheckEmbedded();
 		lump_p++;
 	}
 	// Resize the lump record array to its actual size
@@ -314,9 +313,8 @@ bool F7ZFile::Open(bool quiet)
 		}
 	}
 
-	if (!quiet) Printf(", %d lumps\n", NumLumps);
-
-	PostProcessArchive(&Lumps[0], sizeof(F7ZLump));
+	GenerateHash();
+	PostProcessArchive(&Lumps[0], sizeof(F7ZLump), filter);
 	return true;
 }
 
@@ -344,10 +342,11 @@ F7ZFile::~F7ZFile()
 //
 //==========================================================================
 
-int F7ZLump::ValidateCache()
+int F7ZLump::FillCache()
 {
-	Cache.Resize(LumpSize);
-	static_cast<F7ZFile*>(Owner)->Archive->Extract(Position, (char*)Cache.Data());
+	Cache = new char[LumpSize];
+	static_cast<F7ZFile*>(Owner)->Archive->Extract(Position, Cache);
+	RefCount = 1;
 	return 1;
 }
 
@@ -357,7 +356,7 @@ int F7ZLump::ValidateCache()
 //
 //==========================================================================
 
-FResourceFile *Check7Z(const char *filename, FileReader &file, bool quiet)
+FResourceFile *Check7Z(const char *filename, FileReader &file, bool quiet, LumpFilterInfo* filter)
 {
 	char head[k7zSignatureSize];
 
@@ -369,7 +368,7 @@ FResourceFile *Check7Z(const char *filename, FileReader &file, bool quiet)
 		if (!memcmp(head, k7zSignature, k7zSignatureSize))
 		{
 			FResourceFile *rf = new F7ZFile(filename, file);
-			if (rf->Open(quiet)) return rf;
+			if (rf->Open(quiet, filter)) return rf;
 
 			file = std::move(rf->Reader); // to avoid destruction of reader
 			delete rf;

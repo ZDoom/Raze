@@ -1004,7 +1004,7 @@ int LoadCinemaPalette(int nPal)
 
     // original code strcpy'd into a buffer first...
 
-    auto hFile = fileSystem.OpenFileReader(cinpalfname[nPal], 0);
+    auto hFile = fileSystem.OpenFileReader(cinpalfname[nPal]);
     if (!hFile.isOpen()) {
         return -2;
     }

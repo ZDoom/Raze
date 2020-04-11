@@ -55,7 +55,7 @@ extern int DemoRecCnt;                    // Can only record 1-player game
 #if DEMO_FILE_TYPE == DEMO_FILE_GROUP
 typedef FileReader DFILE;
 #define DREAD(ptr, size, num, handle) (handle).Read((ptr),(size)*(num))
-#define DOPEN_READ(name) fileSystem.OpenFileReader(name,0)
+#define DOPEN_READ(name) fileSystem.OpenFileReader(name)
 #define DCLOSE(handle) ((handle).Close())
 #define DF_ERR(f) (!(f).isOpen())
 #else
