@@ -74,6 +74,7 @@ extern SWBOOL PauseKeySet;
 
 gNET gNet;
 extern short PlayerQuitMenuLevel;
+extern SWBOOL QuitFlag;
 
 #define TIMERUPDATESIZ 32
 
@@ -688,7 +689,6 @@ SWBOOL MyCommPlayerQuit(void)
     PLAYERp pp;
     short i;
     short prev_player = 0;
-    extern SWBOOL QuitFlag;
     short found = FALSE;
     short quit_player_index = 0;
 
@@ -979,6 +979,10 @@ faketimerhandler(void)
     loc.bits = AveragePacket.bits;
 
     memset(&AveragePacket, 0, sizeof(AveragePacket));
+
+    // Slave won't receive the quit bit back from the master, so handle it separately
+    if (TEST(loc.bits, 1 << SK_QUIT_GAME) && !NetBroadcastMode && (myconnectindex != connecthead))
+        QuitFlag = TRUE;
 
     pp->inputfifo[Player[myconnectindex].movefifoend & (MOVEFIFOSIZ - 1)] = loc;
     pp->movefifoend++;
