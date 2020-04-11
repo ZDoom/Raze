@@ -644,7 +644,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         }
     }
     gameOptions->uGameFlags &= ~3;
-    scrSetDac();
     PreloadCache();
     InitMirrors();
     gFrameClock = 0;
@@ -1170,7 +1169,6 @@ int GameInterface::app_main()
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
     if (!bQuickStart)
         credLogosDos();
-    scrSetDac();
 
     registerosdcommands();
 
@@ -1304,7 +1302,6 @@ RESTART:
             }
             videoNextPage();
         }
-        //scrNextPage();
         if (TestBitString(gotpic, 2342))
         {
             FireProcess();
@@ -1354,7 +1351,6 @@ RESTART:
             videoSetViewableArea(0,0,xdim-1,ydim-1);
             if (!bQuickStart)
                 credLogosDos();
-            scrSetDac();
         }
         goto RESTART;
     }

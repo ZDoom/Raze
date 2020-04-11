@@ -61,32 +61,14 @@ LOADITEM PAL[5] = {
 };
 
 
-bool DacInvalid = true;
-static char(*gammaTable)[256];
-RGB curDAC[256];
-RGB baseDAC[256];
-static RGB fromDAC[256];
 static RGB toRGB;
 static RGB *palTable[5];
 static int curPalette;
-static int curGamma;
-int gGammaLevels;
 bool gFogMode = false;
 
 void scrResetPalette(void)
 {
     paletteSetColorTable(0, (uint8_t*)palTable[0]);
-}
-
-void gSetDacRange(int start, int end, RGB *pPal)
-{
-    UNREFERENCED_PARAMETER(start);
-    UNREFERENCED_PARAMETER(end);
-    if (videoGetRenderMode() == REND_CLASSIC)
-    {
-        memcpy(palette, pPal, sizeof(palette));
-        videoSetPalette(0, 0, 0);
-    }
 }
 
 void scrLoadPLUs(void)
@@ -173,68 +155,13 @@ void scrLoadPalette(void)
 void scrSetPalette(int palId)
 {
     curPalette = palId;
-    scrSetGamma(0/*curGamma*/);
-}
-
-void scrSetGamma(int nGamma)
-{
-    dassert(nGamma < gGammaLevels);
-    curGamma = nGamma;
-    for (int i = 0; i < 256; i++)
-    {
-        baseDAC[i].red = gammaTable[curGamma][palTable[curPalette][i].red];
-        baseDAC[i].green = gammaTable[curGamma][palTable[curPalette][i].green];
-        baseDAC[i].blue = gammaTable[curGamma][palTable[curPalette][i].blue];
-    }
-    DacInvalid = 1;
-}
-
-void scrSetupFade(char red, char green, char blue)
-{
-    memcpy(fromDAC, curDAC, sizeof(fromDAC));
-    toRGB.red = red;
-    toRGB.green = green;
-    toRGB.blue = blue;
-}
-
-void scrSetupUnfade(void)
-{
-    memcpy(fromDAC, baseDAC, sizeof(fromDAC));
-}
-
-void scrFadeAmount(int amount)
-{
-	for (int i = 0; i < 256; i++)
-	{
-		curDAC[i].red = interpolate(fromDAC[i].red, toRGB.red, amount);
-        curDAC[i].green = interpolate(fromDAC[i].green, toRGB.green, amount);
-        curDAC[i].blue = interpolate(fromDAC[i].blue, toRGB.blue, amount);
-	}
-	gSetDacRange(0, 256, curDAC);
-}
-
-void scrSetDac(void)
-{
-	if (DacInvalid)
-		gSetDacRange(0, 256, baseDAC);
-	DacInvalid = 0;
 }
 
 void scrInit(void)
 {
-    Printf("Initializing engine\n");
-#ifdef USE_OPENGL
     glrendmode = REND_POLYMOST;
-#endif
     engineInit();
     curPalette = 0;
-    curGamma = 0;
-    Printf("Loading gamma correction table\n");
-    DICTNODE *pGamma = gSysRes.Lookup("gamma", "DAT");
-    if (!pGamma)
-        ThrowError("Gamma table not found");
-    gGammaLevels = pGamma->Size() / 256;
-    gammaTable = (char(*)[256])gSysRes.Lock(pGamma);
 }
 
 void scrUnInit(void)
@@ -247,13 +174,8 @@ void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits)
 {
     V_Init2();
     videoClearViewableArea(0);
-    scrNextPage();
-    scrSetPalette(curPalette);
-}
-
-void scrNextPage(void)
-{
     videoNextPage();
+    scrSetPalette(curPalette);
 }
 
 END_BLD_NS

@@ -95,10 +95,8 @@ void levelPlayIntroScene(int nEpisode)
     seqKillAll();
     EPISODEINFO *pEpisode = &gEpisodeInfo[nEpisode];
     credPlaySmk(pEpisode->at8f08, pEpisode->at9030, pEpisode->at9028);
-    scrSetDac();
     viewResizeView(gViewSize);
     credReset();
-    scrSetDac();
     Mus_SetPaused(false);
 }
 
@@ -112,10 +110,8 @@ void levelPlayEndScene(int nEpisode)
     seqKillAll();
     EPISODEINFO *pEpisode = &gEpisodeInfo[nEpisode];
     credPlaySmk(pEpisode->at8f98, pEpisode->at90c0, pEpisode->at902c);
-    scrSetDac();
     viewResizeView(gViewSize);
     credReset();
-    scrSetDac();
 }
 
 void levelClearSecrets(void)

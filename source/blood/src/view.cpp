@@ -2902,7 +2902,6 @@ void UpdateDacs(int nPalette, bool bNoTint)
         oldPalette = nPalette;
     }
 
-#ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
         gLastPal = 0;
@@ -2964,48 +2963,6 @@ void UpdateDacs(int nPalette, bool bNoTint)
 
         videoSetPalette(0, nPalette, 0);
         videoTintBlood(nRed, nGreen, nBlue);
-    }
-    else
-#endif
-    {
-        gLastPal = nPalette;
-        if (bNoTint)
-        {
-            memcpy(newDAC, baseDAC, sizeof(newDAC));
-        }
-        else
-        {
-            for (int i = 0; i < 256; i++)
-            {
-                int nRed = baseDAC[i].red;
-                int nGreen = baseDAC[i].green;
-                int nBlue = baseDAC[i].blue;
-                nRed += gView->pickupEffect;
-                nGreen += gView->pickupEffect;
-                nBlue -= gView->pickupEffect;
-
-                nRed += ClipHigh(gView->painEffect, 85)*2;
-                nGreen -= ClipHigh(gView->painEffect, 85)*3;
-                nBlue -= ClipHigh(gView->painEffect, 85)*3;
-
-                nRed -= gView->blindEffect;
-                nGreen -= gView->blindEffect;
-                nBlue -= gView->blindEffect;
-
-                nRed -= gView->chokeEffect>>6;
-                nGreen -= gView->chokeEffect>>5;
-                nBlue -= gView->chokeEffect>>6;
-
-                newDAC[i].red = ClipRange(nRed, 0, 255);
-                newDAC[i].green = ClipRange(nGreen, 0, 255);
-                newDAC[i].blue = ClipRange(nBlue, 0, 255);
-            }
-        }
-        if (memcmp(newDAC, curDAC, 768) != 0)
-        {
-            memcpy(curDAC, newDAC, 768);
-            gSetDacRange(0, 256, curDAC);
-        }
     }
 }
 

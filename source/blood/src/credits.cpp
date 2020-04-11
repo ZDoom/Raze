@@ -61,39 +61,11 @@ char Wait(int nTicks)
 
 char DoFade(char r, char g, char b, int nTicks)
 {
-#if 0
-    dassert(nTicks > 0);
-    scrSetupFade(r, g, b);
-    totalclock = gFrameClock = 0;
-    do
-    {
-        while (totalclock < gFrameClock) { gameHandleEvents();};
-        gFrameClock += 2;
-        scrNextPage();
-        scrFadeAmount(divscale16(ClipHigh((int)totalclock, nTicks), nTicks));
-        if (inputState.keyGetScan())
-            return 0;
-    } while (totalclock <= nTicks);
-#endif
     return 1;
 }
 
 char DoUnFade(int nTicks)
 {
-#if 0
-    dassert(nTicks > 0);
-    scrSetupUnfade();
-    totalclock = gFrameClock = 0;
-    do
-    {
-        while (totalclock < gFrameClock) { gameHandleEvents(); };
-        gFrameClock += 2;
-        scrNextPage();
-        scrFadeAmount(0x10000-divscale16(ClipHigh((int)totalclock, nTicks), nTicks));
-        if (inputState.keyGetScan())
-            return 0;
-    } while (totalclock <= nTicks);
-#endif
     return 1;
 }
 
@@ -116,7 +88,7 @@ void credLogosDos(void)
         {
             rotatesprite(160<<16, 100<<16, 65536, 0, 2050, 0, 0, 0x4a, 0, 0, xdim-1, ydim-1);
             sndStartSample("THUNDER2", 128, -1);
-            scrNextPage();
+            videoNextPage();
             if (!Wait(360))
                 return;
             if (!DoFade(0, 0, 0, 60))
@@ -130,7 +102,7 @@ void credLogosDos(void)
         {
             videoClearScreen(0);
             rotatesprite(160<<16, 100<<16, 65536, 0, 2052, 0, 0, 0x0a, 0, 0, xdim-1, ydim-1);
-            scrNextPage();
+            videoNextPage();
             DoUnFade(1);
             sndStartSample("THUNDER2", 128, -1);
             if (!Wait(360))
@@ -142,12 +114,12 @@ void credLogosDos(void)
     if (!DoFade(0, 0, 0, 60))
         return;
     videoClearScreen(0);
-    scrNextPage();
+    videoNextPage();
     if (!DoUnFade(1))
         return;
     videoClearScreen(0);
     rotatesprite(160<<16, 100<<16, 65536, 0, 2518, 0, 0, 0x4a, 0, 0, xdim-1, ydim-1);
-    scrNextPage();
+    videoNextPage();
     Wait(360);
     //Mus_Fade(4000);
 }
@@ -155,9 +127,8 @@ void credLogosDos(void)
 void credReset(void)
 {
     videoClearScreen(0);
-    scrNextPage();
+    videoNextPage();
     DoFade(0,0,0,1);
-    scrSetupUnfade();
     DoUnFade(1);
 }
 
