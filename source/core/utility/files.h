@@ -318,9 +318,6 @@ protected:
 };
 
 
-
-
-
 class FileWriter
 {
 protected:
@@ -368,23 +365,5 @@ public:
 	TArray<unsigned char>&& TakeBuffer() { return std::move(mBuffer); }
 };
 
-class CompressedFileWriter : public FileWriter
-{
-	FileWriter *target;
-	struct z_stream_s *zipstream;
-	uint8_t outbuf[1024];
-	size_t compressedSize;
-	bool ownsWriter;
-	
-	size_t WriteBlock(const void *buffer, size_t bytes);
-
-public:
-	CompressedFileWriter(FileWriter *wr, bool transfer = false);
-	CompressedFileWriter(FILE *wr);
-	~CompressedFileWriter() { Close(); }
-	virtual size_t Write(const void *buffer, size_t len) override;
-	virtual void Close() override;
-
-};
 
 #endif

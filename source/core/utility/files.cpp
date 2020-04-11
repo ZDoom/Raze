@@ -40,7 +40,6 @@
 
 FILE *myfopen(const char *filename, const char *flags)
 {
-	// fix this later
 #ifndef _WIN32
 	return fopen(filename, flags);
 #else
