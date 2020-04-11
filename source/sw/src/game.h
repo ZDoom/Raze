@@ -1029,6 +1029,7 @@ struct PLAYERstruct
     // interpolation
     int
         oposx, oposy, oposz;
+    fix16_t oq16horiz, oq16ang;
 
     // Map follow mode pos values.
     int32_t mfposx, mfposy;

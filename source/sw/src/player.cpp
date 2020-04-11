@@ -1352,7 +1352,7 @@ DoPlayerTeleportPause(PLAYERp pp)
 void
 DoPlayerTeleportToSprite(PLAYERp pp, SPRITEp sp)
 {
-    pp->q16ang = fix16_from_int(sp->ang);
+    pp->q16ang = pp->oq16ang = fix16_from_int(sp->ang);
     pp->posx = pp->oposx = pp->oldposx = sp->x;
     pp->posy = pp->oposy = pp->oldposy = sp->y;
 
@@ -5649,9 +5649,9 @@ DoPlayerStopOperate(PLAYERp pp)
     if (pp->sop_remote)
     {
         if (TEST_BOOL1(pp->remote_sprite))
-            pp->q16ang = fix16_from_int(pp->remote_sprite->ang);
+            pp->q16ang = pp->oq16ang = fix16_from_int(pp->remote_sprite->ang);
         else
-            pp->q16ang = fix16_from_int(getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
+            pp->q16ang = pp->oq16ang = fix16_from_int(getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
     }
 
     if (pp->sop_control)
@@ -7078,6 +7078,8 @@ MoveSkipSavePos(void)
         pp->oposx = pp->posx;
         pp->oposy = pp->posy;
         pp->oposz = pp->posz;
+        pp->oq16ang = pp->q16ang;
+        pp->oq16horiz = pp->q16horiz;
     }
 
     // save off stats for skip4
@@ -7626,8 +7628,8 @@ InitAllPlayers(void)
         pp->posx = pp->oposx = pfirst->posx;
         pp->posy = pp->oposy = pfirst->posy;
         pp->posz = pp->oposz = pfirst->posz;
-        pp->q16ang = pfirst->q16ang;
-        pp->q16horiz = pfirst->q16horiz;
+        pp->q16ang = pp->oq16ang = pfirst->q16ang;
+        pp->q16horiz = pp->oq16horiz = pfirst->q16horiz;
         pp->cursectnum = pfirst->cursectnum;
         // set like this so that player can trigger something on start of the level
         pp->lastcursectnum = pfirst->cursectnum+1;
@@ -7778,7 +7780,7 @@ PlayerSpawnPosition(PLAYERp pp)
     pp->posx = pp->oposx = sp->x;
     pp->posy = pp->oposy = sp->y;
     pp->posz = pp->oposz = sp->z;
-    pp->q16ang = fix16_from_int(sp->ang);
+    pp->q16ang = pp->oq16ang = fix16_from_int(sp->ang);
     pp->cursectnum = sp->sectnum;
 
     getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
