@@ -41,6 +41,7 @@
 #include "image.h"
 #include "palette.h"
 #include "../glbackend/gl_hwtexture.h"
+#include "build.h"
 
 FTexture *CreateBrightmapTexture(FImageSource*);
 
@@ -207,7 +208,7 @@ void FTexture::CheckTrans(unsigned char * buffer, int size, int trans)
 #define SOME_MASK 0x00ffffff
 #endif
 
-#define CHKPIX(ofs) (l1[(ofs)*4+MSB]==255 ? (( ((uint32_t*)l1)[0] = ((uint32_t*)l1)[ofs]&SOME_MASK), trans=true ) : false)
+#define CHKPIX(ofs) (l1[(ofs)*4+MSB]==TRANSPARENT_INDEX ? (( ((uint32_t*)l1)[0] = ((uint32_t*)l1)[ofs]&SOME_MASK), trans=true ) : false)
 
 int FTexture::SmoothEdges(unsigned char * buffer, int w, int h)
 {

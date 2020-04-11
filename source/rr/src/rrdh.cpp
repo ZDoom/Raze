@@ -1871,7 +1871,7 @@ void sub_54FA4(int a1, int a2)
     {
         for (j = 0; j < dword_AA3AC; j++)
         {
-            if (*ptr1 != 255)
+            if (*ptr1 != TRANSPARENT_INDEX)
             {
                 *ptr1 = ptr2[i*bytesperline+dword_AA3B0+j];
             }

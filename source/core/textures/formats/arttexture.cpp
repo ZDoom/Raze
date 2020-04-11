@@ -148,7 +148,7 @@ int FArtTexture::CopyPixels(FBitmap *bmp, int conversion)
     for (int y = 0; y < numpixels; ++y)
     {
 		int index = source[y];
-        if (index == 255)
+        if (index == TRANSPARENT_INDEX)
 		{
 			hasalpha = true;
             continue;

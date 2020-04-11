@@ -756,7 +756,7 @@ set (PCH_SOURCES
 	common/filesystem/file_directory.cpp
 	common/filesystem/resourcefile.cpp
 	common/engine/sc_man.cpp
-	#common/engine/palettecontainer.cpp // not yet operational.
+	common/engine/palettecontainer.cpp
 	common/engine/stringtable.cpp
 
 	core/utility/stats.cpp
