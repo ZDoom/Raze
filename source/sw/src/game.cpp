@@ -3280,11 +3280,12 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         q16avel = fix16_floor(q16avel);
         q16horz = fix16_floor(q16horz);
     }
-    else
+    else if (!TEST(pp->Flags, PF_DEAD))
     {
         void DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel);
         void DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz);
-        DoPlayerTurn(pp, &pp->camq16ang, q16avel);
+        if (!TEST(pp->Flags, PF_CLIMBING))
+            DoPlayerTurn(pp, &pp->camq16ang, q16avel);
         DoPlayerHorizon(pp, &pp->camq16horiz, q16horz);
     }
 
