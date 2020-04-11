@@ -3309,7 +3309,7 @@ void getinput(int const playerNum)
                         // the rest will follow
                         delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
 
-                        pp->q16ang = fix16_sadd(pp->q16ang, fix16_max(fix16_one,fix16_from_float(scaleAdjustmentToInterval(fix16_to_int(fix16_sdiv(fix16_abs(delta_q16ang), fix16_from_int(TURN_SHIFT))))))) & 0x7FFFFFF;
+                        pp->q16ang = fix16_sadd(pp->q16ang, fix16_max(fix16_one, fix16_from_float(scaleAdjustmentToInterval(fix16_to_int(fix16_sdiv(fix16_abs(delta_q16ang), fix16_from_int(TURN_SHIFT))))))) & 0x7FFFFFF;
 
                         SET(pp->Flags, PF_TURN_180);
                     }
@@ -3337,7 +3337,7 @@ void getinput(int const playerNum)
                 // get new delta to see how close we are
                 delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
 
-                if (fix16_abs(delta_q16ang) < fix16_from_int(3 * TURN_SHIFT))
+                if (fix16_abs(delta_q16ang) < (fix16_one << 1))
                 {
                     pp->q16ang = pp->turn180_target;
                     RESET(pp->Flags, PF_TURN_180);
@@ -3491,8 +3491,7 @@ void getinput(int const playerNum)
         }
 
         // bound the base
-        pp->q16horizbase = fix16_max(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MIN));
-        pp->q16horizbase = fix16_min(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MAX));
+        pp->q16horizbase = fix16_clamp(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
 
         // bound adjust q16horizoff
         if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
