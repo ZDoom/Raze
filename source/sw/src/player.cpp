@@ -1929,7 +1929,19 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
 
     if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
     {
-        *pq16horiz = pp->q16horizbase = fix16_from_int(100);
+        if (PEDANTIC_MODE)
+            pp->q16horizbase = fix16_from_int(100);
+        else if (pp->q16horizbase > fix16_from_int(100))
+        {
+            pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED*6))));
+            pp->q16horizbase = fix16_max(pp->q16horizbase, fix16_from_int(100));
+        }
+        else if (pp->q16horizbase < fix16_from_int(100))
+        {
+            pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED*6))));
+            pp->q16horizbase = fix16_min(pp->q16horizbase, fix16_from_int(100));
+        }
+        pp->camq16horiz = pp->q16horizbase;
         pp->q16horizoff = 0;
     }
 
