@@ -3289,214 +3289,220 @@ void getinput(int const playerNum)
     localInput.q16avel = fix16_clamp(fix16_sadd(localInput.q16avel, input.q16avel), fix16_from_int(-MAXANGVEL), fix16_from_int(MAXANGVEL));
     localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), fix16_from_int(-MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
 
-    if (!TEST(pp->Flags, PF_TURN_180))
+    if (!TEST(pp->Flags, PF_DEAD))
     {
-        if (TEST_SYNC_KEY(pp, SK_TURN_180))
+        if (!TEST(pp->Flags, PF_CLIMBING))
         {
-            if (FLAG_KEY_PRESSED(pp, SK_TURN_180))
+            if (!TEST(pp->Flags, PF_TURN_180))
+            {
+                if (TEST_SYNC_KEY(pp, SK_TURN_180))
+                {
+                    if (FLAG_KEY_PRESSED(pp, SK_TURN_180))
+                    {
+                        fix16_t delta_q16ang;
+
+                        FLAG_KEY_RELEASE(pp, SK_TURN_180);
+
+                        pp->turn180_target = fix16_sadd(pp->q16ang, fix16_from_int(1024)) & 0x7FFFFFF;
+
+                        // make the first turn in the clockwise direction
+                        // the rest will follow
+                        delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
+
+                        pp->q16ang = fix16_sadd(pp->q16ang, fix16_max(fix16_one,fix16_from_float(scaleAdjustmentToInterval(fix16_to_int(fix16_sdiv(fix16_abs(delta_q16ang), fix16_from_int(TURN_SHIFT))))))) & 0x7FFFFFF;
+
+                        SET(pp->Flags, PF_TURN_180);
+                    }
+                }
+                else
+                {
+                    FLAG_KEY_RESET(pp, SK_TURN_180);
+                }
+            }
+
+            if (TEST(pp->Flags, PF_TURN_180))
             {
                 fix16_t delta_q16ang;
 
-                FLAG_KEY_RELEASE(pp, SK_TURN_180);
+                delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
+                pp->q16ang = fix16_sadd(pp->q16ang, fix16_from_float(scaleAdjustmentToInterval(fix16_to_int(fix16_sdiv(fix16_abs(delta_q16ang), fix16_from_int(TURN_SHIFT)))))) & 0x7FFFFFF;
 
-                pp->turn180_target = fix16_sadd(pp->q16ang, fix16_from_int(1024)) & 0x7FFFFFF;
+                sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
+                if (!Prediction)
+                {
+                    if (pp->PlayerUnderSprite >= 0)
+                        sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
+                }
 
-                // make the first turn in the clockwise direction
-                // the rest will follow
+                // get new delta to see how close we are
                 delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
 
-                pp->q16ang = fix16_sadd(pp->q16ang, fix16_max(fix16_one,fix16_from_float(scaleAdjustmentToInterval(fix16_to_int(fix16_sdiv(fix16_abs(delta_q16ang), fix16_from_int(TURN_SHIFT))))))) & 0x7FFFFFF;
+                if (fix16_abs(delta_q16ang) < fix16_from_int(3 * TURN_SHIFT))
+                {
+                    pp->q16ang = pp->turn180_target;
+                    RESET(pp->Flags, PF_TURN_180);
+                }
+                else
+                    return;
+            }
 
-                SET(pp->Flags, PF_TURN_180);
+            if (input.q16avel != 0)
+            {
+               pp->q16ang = fix16_sadd(pp->q16ang, input.q16avel) & 0x7FFFFFF;
+
+                // update players sprite angle
+                // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
+                // here to cover
+                // all cases.
+                sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
+                if (!Prediction)
+                {
+                    if (pp->PlayerUnderSprite >= 0)
+                        sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
+                }
             }
         }
-        else
+
+        // Fixme: This should probably be made optional.
+        if (cl_slopetilting)
         {
-            FLAG_KEY_RESET(pp, SK_TURN_180);
-        }
-    }
+            int x,y,k,j;
+            short tempsect;
 
-    if (TEST(pp->Flags, PF_TURN_180))
-    {
-        fix16_t delta_q16ang;
-
-        delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
-        pp->q16ang = fix16_sadd(pp->q16ang, fix16_from_float(scaleAdjustmentToInterval(fix16_to_int(fix16_sdiv(fix16_abs(delta_q16ang), fix16_from_int(TURN_SHIFT)))))) & 0x7FFFFFF;
-
-        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
-        if (!Prediction)
-        {
-            if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
-        }
-
-        // get new delta to see how close we are
-        delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
-
-        if (fix16_abs(delta_q16ang) < fix16_from_int(3 * TURN_SHIFT))
-        {
-            pp->q16ang = pp->turn180_target;
-            RESET(pp->Flags, PF_TURN_180);
-        }
-        else
-            return;
-    }
-
-    if (input.q16avel != 0)
-    {
-       pp->q16ang = fix16_sadd(pp->q16ang, input.q16avel) & 0x7FFFFFF;
-
-        // update players sprite angle
-        // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
-        // here to cover
-        // all cases.
-        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
-        if (!Prediction)
-        {
-            if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
-        }
-    }
-
-    // Fixme: This should probably be made optional.
-    if (cl_slopetilting)
-    {
-        int x,y,k,j;
-        short tempsect;
-
-        if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
-        {
-            if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
+            if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
             {
-                // Get a point, 512 units ahead of player's position
-                x = pp->posx + (sintable[(fix16_to_int(pp->q16ang) + 512) & 2047] >> 5);
-                y = pp->posy + (sintable[fix16_to_int(pp->q16ang) & 2047] >> 5);
-                tempsect = pp->cursectnum;
-                COVERupdatesector(x, y, &tempsect);
-
-                if (tempsect >= 0)              // If the new point is inside a valid
-                // sector...
+                if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
                 {
-                    // Get the floorz as if the new (x,y) point was still in
-                    // your sector
-                    j = getflorzofslope(pp->cursectnum, pp->posx, pp->posy);
-                    k = getflorzofslope(pp->cursectnum, x, y);
+                    // Get a point, 512 units ahead of player's position
+                    x = pp->posx + (sintable[(fix16_to_int(pp->q16ang) + 512) & 2047] >> 5);
+                    y = pp->posy + (sintable[fix16_to_int(pp->q16ang) & 2047] >> 5);
+                    tempsect = pp->cursectnum;
+                    COVERupdatesector(x, y, &tempsect);
 
-                    // If extended point is in same sector as you or the slopes
-                    // of the sector of the extended point and your sector match
-                    // closely (to avoid accidently looking straight out when
-                    // you're at the edge of a sector line) then adjust horizon
-                    // accordingly
-                    if ((pp->cursectnum == tempsect) ||
-                        (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
+                    if (tempsect >= 0)              // If the new point is inside a valid
+                    // sector...
                     {
-                        pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(mulscale16((j - k), 160))));
+                        // Get the floorz as if the new (x,y) point was still in
+                        // your sector
+                        j = getflorzofslope(pp->cursectnum, pp->posx, pp->posy);
+                        k = getflorzofslope(pp->cursectnum, x, y);
+
+                        // If extended point is in same sector as you or the slopes
+                        // of the sector of the extended point and your sector match
+                        // closely (to avoid accidently looking straight out when
+                        // you're at the edge of a sector line) then adjust horizon
+                        // accordingly
+                        if ((pp->cursectnum == tempsect) ||
+                            (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
+                        {
+                            pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(mulscale16((j - k), 160))));
+                        }
                     }
                 }
             }
-        }
 
-        if (TEST(pp->Flags, PF_CLIMBING))
-        {
-            // tilt when climbing but you can't even really tell it
-            if (pp->q16horizoff < fix16_from_int(100))
-                pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(((fix16_from_int(100) - pp->q16horizoff) >> 3) + fix16_one))));
-        }
-        else
-        {
-            // Make q16horizoff grow towards 0 since q16horizoff is not modified when
-            // you're not on a slope
-            if (pp->q16horizoff > 0)
+            if (TEST(pp->Flags, PF_CLIMBING))
             {
-                pp->q16horizoff = fix16_ssub(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pp->q16horizoff >> 3) + fix16_one))));
-                pp->q16horizoff = fix16_max(pp->q16horizoff, 0);
-            }
-            else if (pp->q16horizoff < 0)
-            {
-                pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pp->q16horizoff >> 3) + fix16_one))));
-                pp->q16horizoff = fix16_min(pp->q16horizoff, 0);
-            }
-        }
-    }
-
-    if (input.q16horz)
-    {
-        pp->q16horizbase = fix16_sadd(pp->q16horizbase, input.q16horz);
-        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-    }
-
-    if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
-    {
-        pp->q16horiz = pp->q16horizbase = fix16_from_int(100);
-        pp->q16horizoff = 0;
-    }
-
-    // this is the locked type
-    if (TEST_SYNC_KEY(pp, SK_SNAP_UP) || TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
-    {
-        // set looking because player is manually looking
-        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-
-        // adjust pp->q16horiz negative
-        if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
-            pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
-
-        // adjust pp->q16horiz positive
-        if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
-            pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
-    }
-
-    // this is the unlocked type
-    if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
-    {
-        RESET(pp->Flags, PF_LOCK_HORIZ);
-        SET(pp->Flags, PF_LOOKING);
-
-        // adjust pp->q16horiz negative
-        if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
-            pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
-
-        // adjust pp->q16horiz positive
-        if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
-            pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
-    }
-
-    if (!TEST(pp->Flags, PF_LOCK_HORIZ))
-    {
-        if (!(TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN)))
-        {
-            // not pressing the pp->q16horiz keys
-            if (pp->q16horizbase != fix16_from_int(100))
-            {
-                int i;
-
-                // move pp->q16horiz back to 100
-                for (i = 1; i; i--)
-                {
-                    // this formula does not work for pp->q16horiz = 101-103
-                    pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(fix16_ssub(fix16_from_int(25), fix16_sdiv(pp->q16horizbase, fix16_from_int(4)))))));
-                }
+                // tilt when climbing but you can't even really tell it
+                if (pp->q16horizoff < fix16_from_int(100))
+                    pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(((fix16_from_int(100) - pp->q16horizoff) >> 3) + fix16_one))));
             }
             else
             {
-                // not looking anymore because pp->q16horiz is back at 100
-                RESET(pp->Flags, PF_LOOKING);
+                // Make q16horizoff grow towards 0 since q16horizoff is not modified when
+                // you're not on a slope
+                if (pp->q16horizoff > 0)
+                {
+                    pp->q16horizoff = fix16_ssub(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pp->q16horizoff >> 3) + fix16_one))));
+                    pp->q16horizoff = fix16_max(pp->q16horizoff, 0);
+                }
+                else if (pp->q16horizoff < 0)
+                {
+                    pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pp->q16horizoff >> 3) + fix16_one))));
+                    pp->q16horizoff = fix16_min(pp->q16horizoff, 0);
+                }
             }
         }
+
+        if (input.q16horz)
+        {
+            pp->q16horizbase = fix16_sadd(pp->q16horizbase, input.q16horz);
+            SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
+        }
+
+        if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
+        {
+            pp->q16horiz = pp->q16horizbase = fix16_from_int(100);
+            pp->q16horizoff = 0;
+        }
+
+        // this is the locked type
+        if (TEST_SYNC_KEY(pp, SK_SNAP_UP) || TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
+        {
+            // set looking because player is manually looking
+            SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
+
+            // adjust pp->q16horiz negative
+            if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
+                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
+
+            // adjust pp->q16horiz positive
+            if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
+                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
+        }
+
+        // this is the unlocked type
+        if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
+        {
+            RESET(pp->Flags, PF_LOCK_HORIZ);
+            SET(pp->Flags, PF_LOOKING);
+
+            // adjust pp->q16horiz negative
+            if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
+                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
+
+            // adjust pp->q16horiz positive
+            if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
+                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
+        }
+
+        if (!TEST(pp->Flags, PF_LOCK_HORIZ))
+        {
+            if (!(TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN)))
+            {
+                // not pressing the pp->q16horiz keys
+                if (pp->q16horizbase != fix16_from_int(100))
+                {
+                    int i;
+
+                    // move pp->q16horiz back to 100
+                    for (i = 1; i; i--)
+                    {
+                        // this formula does not work for pp->q16horiz = 101-103
+                        pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(fix16_ssub(fix16_from_int(25), fix16_sdiv(pp->q16horizbase, fix16_from_int(4)))))));
+                    }
+                }
+                else
+                {
+                    // not looking anymore because pp->q16horiz is back at 100
+                    RESET(pp->Flags, PF_LOOKING);
+                }
+            }
+        }
+
+        // bound the base
+        pp->q16horizbase = fix16_max(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MIN));
+        pp->q16horizbase = fix16_min(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MAX));
+
+        // bound adjust q16horizoff
+        if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
+            pp->q16horizoff = fix16_ssub(fix16_from_float(scaleAdjustmentToInterval(PLAYER_HORIZ_MIN)), pp->q16horizbase);
+        else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
+            pp->q16horizoff = fix16_ssub(fix16_from_float(scaleAdjustmentToInterval(PLAYER_HORIZ_MAX)), pp->q16horizbase);
+
+        // add base and offsets
+        pp->q16horiz = fix16_clamp((pp->q16horizbase + pp->q16horizoff), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
     }
-
-    // bound the base
-    pp->q16horizbase = fix16_max(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MIN));
-    pp->q16horizbase = fix16_min(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MAX));
-
-    // bound adjust q16horizoff
-    if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
-        pp->q16horizoff = fix16_ssub(fix16_from_float(scaleAdjustmentToInterval(PLAYER_HORIZ_MIN)), pp->q16horizbase);
-    else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
-        pp->q16horizoff = fix16_ssub(fix16_from_float(scaleAdjustmentToInterval(PLAYER_HORIZ_MAX)), pp->q16horizbase);
-
-    // add base and offsets
-    pp->q16horiz = fix16_clamp((pp->q16horizbase + pp->q16horizoff), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
 
     if (!CommEnabled)
     {
