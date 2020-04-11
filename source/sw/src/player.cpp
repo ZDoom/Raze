@@ -1542,6 +1542,18 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel)
 {
 #define TURN_SHIFT 2
 
+    if (!PEDANTIC_MODE && (pq16ang == &pp->q16ang))
+    {
+        *pq16ang = pp->input.q16ang;
+        sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
+        if (!Prediction)
+        {
+            if (pp->PlayerUnderSprite >= 0)
+                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(*pq16ang);
+        }
+        return;
+    }
+
     if (!TEST(pp->Flags, PF_TURN_180))
     {
         if (TEST_SYNC_KEY(pp, SK_TURN_180))
@@ -1581,11 +1593,14 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel)
         else
             *pq16ang = NORM_Q16ANGLE(fix16_sadd(*pq16ang, fix16_from_float(scaleAdjustmentToInterval(delta_ang >> TURN_SHIFT))));
 
-        sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
-        if (!Prediction)
+        if (pq16ang == &pp->q16ang)
         {
-            if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(*pq16ang);
+            sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
+            if (!Prediction)
+            {
+                if (pp->PlayerUnderSprite >= 0)
+                    sprite[pp->PlayerUnderSprite].ang = fix16_to_int(*pq16ang);
+            }
         }
 
         // get new delta to see how close we are
@@ -1616,11 +1631,14 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel)
         // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
         // here to cover
         // all cases.
-        sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
-        if (!Prediction)
+        if (pq16ang == &pp->q16ang)
         {
-            if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = fix16_to_int(*pq16ang);
+            sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
+            if (!Prediction)
+            {
+                if (pp->PlayerUnderSprite >= 0)
+                    sprite[pp->PlayerUnderSprite].ang = fix16_to_int(*pq16ang);
+            }
         }
 
     }
@@ -1893,9 +1911,15 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
 //    //DSPRINTF(ds,"fix16_to_int(pp->q16horizoff), %d", fix16_to_int(pp->q16horizoff));
 //    MONO_PRINT(ds);
 
+    if (!PEDANTIC_MODE && (pq16horiz == &pp->q16horiz))
+    {
+        *pq16horiz = pp->input.q16horiz;
+        return;
+    }
+
 	// Fixme: This should probably be made optional.
 	if (cl_slopetilting)
-		PlayerAutoLook(pp);
+    PlayerAutoLook(pp);
 
     if (q16horz)
     {
@@ -1929,9 +1953,9 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
         {
             if (PEDANTIC_MODE)
                 pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
-        }
             else
                 pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
+        }
     }
 
 

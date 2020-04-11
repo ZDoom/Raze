@@ -2392,6 +2392,8 @@ void dsprintf_null(char *str, const char *format, ...)
     va_list arglist;
 }
 
+void getinput(SW_PACKET *, SWBOOL);
+
 void MoveLoop(void)
 {
     int pnum;
@@ -2432,6 +2434,10 @@ void MoveLoop(void)
         //    demosync_record();
 #endif
     }
+
+    // Get input again to update q16ang/q16horiz.
+    if (!PEDANTIC_MODE)
+        getinput(&loc, TRUE);
 }
 
 
@@ -3032,7 +3038,7 @@ double elapsedInputTicks;
 double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); }
 
 void
-getinput(SW_PACKET *loc)
+getinput(SW_PACKET *loc, SWBOOL tied)
 {
     int i;
     PLAYERp pp = Player + myconnectindex;
@@ -3061,8 +3067,12 @@ getinput(SW_PACKET *loc)
         newpp = ppp;
     }
 
-    // reset all syncbits
-    loc->bits = 0;
+    static double lastInputTicks;
+
+    auto const currentHiTicks = timerGetHiTicks();
+    elapsedInputTicks = currentHiTicks - lastInputTicks;
+
+    lastInputTicks = currentHiTicks;
 
     // MAKE SURE THIS WILL GET SET
     SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
@@ -3135,7 +3145,7 @@ getinput(SW_PACKET *loc)
     // If in 2D follow mode, scroll around using glob vars
     // Tried calling this in domovethings, but key response it too poor, skips key presses
     // Note: ScrollMode2D = Follow mode, so this get called only during follow mode
-    if (ScrollMode2D && pp == Player + myconnectindex && !Prediction)
+    if (!tied && ScrollMode2D && pp == Player + myconnectindex && !Prediction)
         MoveScrollMode2D(Player + myconnectindex);
 
     // !JIM! Added M_Active() so that you don't move at all while using menus
@@ -3167,6 +3177,9 @@ getinput(SW_PACKET *loc)
 
         keymove = NORMALKEYMOVE;
     }
+
+    if (tied)
+        keymove = 0;
 
     info.dz = (info.dz * move_scale)>>8;
     info.dyaw = (info.dyaw * turn_scale)>>8;
@@ -3209,18 +3222,28 @@ getinput(SW_PACKET *loc)
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
             turnheldtime += synctics;
-            if (turnheldtime >= TURBOTURNTIME)
-                q16avel -= fix16_from_int(turnamount);
+            if (PEDANTIC_MODE)
+            {
+                if (turnheldtime >= TURBOTURNTIME)
+                    q16avel -= fix16_from_int(turnamount);
+                else
+                    q16avel -= fix16_from_int(PREAMBLETURN);
+            }
             else
-                q16avel -= fix16_from_int(PREAMBLETURN);
+                q16avel = fix16_ssub(q16avel, fix16_from_float(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
         }
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
             turnheldtime += synctics;
-            if (turnheldtime >= TURBOTURNTIME)
-                q16avel += fix16_from_int(turnamount);
+            if (PEDANTIC_MODE)
+            {
+                if (turnheldtime >= TURBOTURNTIME)
+                    q16avel += fix16_from_int(turnamount);
+                else
+                    q16avel += fix16_from_int(PREAMBLETURN);
+            }
             else
-                q16avel += fix16_from_int(PREAMBLETURN);
+                q16avel = fix16_sadd(q16avel, fix16_from_float(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
         }
         else
         {
@@ -3249,27 +3272,42 @@ getinput(SW_PACKET *loc)
     if (buttonMap.ButtonDown(gamefunc_Move_Backward))
         vel += -keymove;
 
-    vel = clamp(vel, -MAXVEL, MAXVEL);
-    svel = clamp(svel, -MAXSVEL, MAXSVEL);
-
     q16avel = fix16_clamp(q16avel, -fix16_from_int(MAXANGVEL), fix16_from_int(MAXANGVEL));
     q16horz = fix16_clamp(q16horz, -fix16_from_int(MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
+
     if (PEDANTIC_MODE)
     {
         q16avel = fix16_floor(q16avel);
         q16horz = fix16_floor(q16horz);
     }
+    else
+    {
+        void DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel);
+        void DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz);
+        DoPlayerTurn(pp, &pp->camq16ang, q16avel);
+        DoPlayerHorizon(pp, &pp->camq16horiz, q16horz);
+    }
 
-    momx = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 512)]);
-    momy = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang))]);
+    loc->vel += vel;
+    loc->svel += svel;
 
-    momx += mulscale9(svel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang))]);
-    momy += mulscale9(svel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 1536)]);
+    if (!tied)
+    {
+        vel = clamp(loc->vel, -MAXVEL, MAXVEL);
+        svel = clamp(loc->svel, -MAXSVEL, MAXSVEL);
 
-    loc->vel = momx;
-    loc->svel = momy;
-    loc->q16avel = q16avel;
-    loc->q16horz = q16horz;
+        momx = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 512)]);
+        momy = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang))]);
+
+        momx += mulscale9(svel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang))]);
+        momy += mulscale9(svel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 1536)]);
+
+        loc->vel = momx;
+        loc->svel = momy;
+    }
+
+    loc->q16avel += q16avel;
+    loc->q16horz += q16horz;
 
     if (!CommEnabled)
     {
