@@ -1138,7 +1138,7 @@ struct PLAYERstruct
     short camera_check_time_delay;
 
     short cursectnum,lastcursectnum;
-    short turn180_target; // 180 degree turn
+    fix16_t turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;
@@ -2122,6 +2122,7 @@ void SetBorder(PLAYERp pp, int);
 void SetFragBar(PLAYERp pp);
 int Distance(int x1, int y1, int x2, int y2);
 short GetDeltaAngle(short, short);
+fix16_t GetDeltaAngleQ16(fix16_t, fix16_t);
 
 int SetActorRotation(short SpriteNum,int,int);
 int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);

@@ -1152,6 +1152,26 @@ GetDeltaAngle(short ang1, short ang2)
 
 }
 
+fix16_t
+GetDeltaAngleQ16(fix16_t ang1, fix16_t ang2)
+{
+    // Look at the smaller angle if > 1024 (180 degrees)
+    if (fix16_abs(fix16_sub(ang1, ang2)) > fix16_from_int(1024))
+    {
+        if (ang1 <= fix16_from_int(1024))
+            ang1 = fix16_add(ang1, fix16_from_int(2048));
+
+        if (ang2 <= fix16_from_int(1024))
+            ang2 = fix16_add(ang2, fix16_from_int(2048));
+    }
+
+    //if (ang1 - ang2 == -fix16_from_int(1024))
+    //    return(fix16_from_int(1024));
+
+    return fix16_sub(ang1, ang2);
+
+}
+
 TARGET_SORT TargetSort[MAX_TARGET_SORT];
 unsigned TargetSortCount;
 
@@ -6303,15 +6323,13 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     if (pp->Killer > -1)
     {
         SPRITEp kp = &sprite[pp->Killer];
-        short ang2,delta_ang;
+        fix16_t delta_q16ang;
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum,
                       pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            ang2 = getangle(kp->x - pp->posx, kp->y - pp->posy);
-
-            delta_ang = GetDeltaAngle(ang2, fix16_to_int(pp->q16ang));
-            pp->q16ang = fix16_sadd(pp->q16ang, fix16_from_int((delta_ang >> 4))) & 0x7FFFFFF;
+            delta_q16ang = GetDeltaAngleQ16(fix16_from_int(getangle(kp->x - pp->posx, kp->y - pp->posy)), pp->q16ang);
+            pp->q16ang = fix16_sadd(pp->q16ang, fix16_sdiv(delta_q16ang, fix16_from_int(16))) & 0x7FFFFFF;
         }
     }
 }
