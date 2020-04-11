@@ -36,6 +36,7 @@
 #include "name.h"
 #include "superfasthash.h"
 #include "cmdlib.h"
+#include "m_alloc.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -221,7 +222,7 @@ int FName::NameManager::AddName (const char *text, unsigned int hash, unsigned i
 		// large enough to hold all the predefined names.
 		MaxNames += MaxNames == 0 ? countof(PredefinedNames) + NAME_GROW_AMOUNT : NAME_GROW_AMOUNT;
 
-		NameArray = (NameEntry *)realloc (NameArray, MaxNames * sizeof(NameEntry));
+		NameArray = (NameEntry *)M_Realloc (NameArray, MaxNames * sizeof(NameEntry));
 	}
 
 	NameArray[NumNames].Text = textstore;
@@ -250,7 +251,7 @@ FName::NameManager::NameBlock *FName::NameManager::AddBlock (size_t len)
 	{
 		len = BLOCK_SIZE;
 	}
-	block = (NameBlock *)malloc (len);
+	block = (NameBlock *)M_Malloc (len);
 	block->NextAlloc = sizeof(NameBlock);
 	block->NextBlock = Blocks;
 	Blocks = block;
@@ -274,13 +275,13 @@ FName::NameManager::~NameManager()
 	for (block = Blocks; block != NULL; block = next)
 	{
 		next = block->NextBlock;
-		free (block);
+		M_Free (block);
 	}
 	Blocks = NULL;
 
 	if (NameArray != NULL)
 	{
-		free (NameArray);
+		M_Free (NameArray);
 		NameArray = NULL;
 	}
 	NumNames = MaxNames = 0;

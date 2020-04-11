@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <stdint.h>
 
+// Beware of windows.h :(
 #ifdef max
 #undef min
 #undef max

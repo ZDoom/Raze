@@ -733,6 +733,7 @@ set (PCH_SOURCES
 	core/utility/sc_man.cpp
 	core/utility/stringtable.cpp
 	core/utility/stats.cpp
+	core/utility/palette.cpp
 
 	core/filesystem/filesystem.cpp
 	core/filesystem/ancientzip.cpp

@@ -41,6 +41,7 @@
 #include "memarena.h"
 #include "printf.h"
 #include "cmdlib.h"
+#include "m_alloc.h"
 
 struct FMemArena::Block
 {
@@ -201,7 +202,7 @@ void FMemArena::FreeBlockChain(Block *&top)
 	for (Block *next, *block = top; block != NULL; block = next)
 	{
 		next = block->NextBlock;
-		free(block);
+		M_Free(block);
 	}
 	top = NULL;
 }
@@ -241,7 +242,7 @@ FMemArena::Block *FMemArena::AddBlock(size_t size)
 		  // other things.
 			size += BlockSize/2;
 		}
-		mem = (Block *)malloc(size);
+		mem = (Block *)M_Malloc(size);
 		mem->Limit = (uint8_t *)mem + size;
 	}
 	mem->Reset();

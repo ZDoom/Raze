@@ -49,6 +49,7 @@
 #include "resourcefile.h"
 #include "v_text.h"
 #include "c_dispatch.h"
+#include "zstring.h"
 //#include "md5.h"
 //#include "doomstat.h"
 

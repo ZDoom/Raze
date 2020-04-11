@@ -26,6 +26,7 @@
 #include "imagehelpers.h"
 #include "hwrenderer/utility/hw_cvars.h"
 #include "hwrenderer/postprocessing/hw_postprocess_cvars.h"
+#include "palutil.h"
 #include <random>
 
 Postprocess hw_postprocess;

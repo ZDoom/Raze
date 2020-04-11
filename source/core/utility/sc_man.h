@@ -82,7 +82,6 @@ public:
 	int Number;
 	int64_t BigNumber;
 	double Float;
-	FName Name;
 	int Line;
 	bool End;
 	bool Crossed;

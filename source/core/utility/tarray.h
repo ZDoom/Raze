@@ -31,6 +31,20 @@
 ** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **---------------------------------------------------------------------------
 **
+** NOTE: TArray takes advantage of the assumption that the contained type is
+** able to be trivially moved. The definition of trivially movable by the C++
+** standard is more strict than the actual set of types that can be moved with
+** memmove. For example, FString uses non-trivial constructors/destructor in
+** order to maintain the reference count, but can be "safely" by passed if the
+** opaque destructor call is avoided. Similarly types like TArray itself which
+** only null the owning pointers when moving which can be skipped if the
+** destructor is not called.
+**
+** It is possible that with LTO TArray could be made safe for non-trivial types,
+** but we don't wish to rely on LTO to reach expected performance. The set of
+** types which can not be contained by TArray as a result of this choice is
+** actually extremely small.
+**
 */
 
 
@@ -46,6 +60,8 @@
 #else
 #include <stdint.h>			// for mingw
 #endif
+
+#include "m_alloc.h"
 
 template<typename T> class TIterator : public std::iterator<std::random_access_iterator_tag, T>
 {
@@ -164,7 +180,7 @@ public:
 	{
 		Most = (unsigned)max;
 		Count = (unsigned)(reserve? max : 0);
-		Array = (T *)malloc (sizeof(T)*max);
+		Array = (T *)M_Malloc (sizeof(T)*max);
 		if (reserve && Count > 0)
 		{
 			ConstructEmpty(0, Count - 1);
@@ -190,7 +206,7 @@ public:
 				{
 					DoDelete (0, Count-1);
 				}
-				free (Array);
+				M_Free (Array);
 			}
 			DoCopy (other);
 		}
@@ -204,7 +220,7 @@ public:
 			{
 				DoDelete (0, Count-1);
 			}
-			free (Array);
+			M_Free (Array);
 		}
 		Array = other.Array; other.Array = NULL;
 		Most = other.Most; other.Most = 0;
@@ -219,7 +235,7 @@ public:
 			{
 				DoDelete (0, Count-1);
 			}
-			free (Array);
+			M_Free (Array);
 			Array = NULL;
 			Count = 0;
 			Most = 0;
@@ -357,7 +373,8 @@ public:
 			Array[index].~T();
 			if (index < --Count)
 			{
-				memmove (&Array[index], &Array[index+1], sizeof(T)*(Count - index));
+				// Cast to void to assume trivial move
+				memmove ((void*)&Array[index], (const void*)&Array[index+1], sizeof(T)*(Count - index));
 			}
 		}
 	}
@@ -377,7 +394,8 @@ public:
 			Count -= deletecount;
 			if (index < Count)
 			{
-				memmove (&Array[index], &Array[index+deletecount], sizeof(T)*(Count - index));
+				// Cast to void to assume trivial move
+				memmove ((void*)&Array[index], (const void*)&Array[index+deletecount], sizeof(T)*(Count - index));
 			}
 		}
 	}
@@ -399,7 +417,8 @@ public:
 			Resize (Count + 1);
 
 			// Now move items from the index and onward out of the way
-			memmove (&Array[index+1], &Array[index], sizeof(T)*(Count - index - 1));
+			// Cast to void to assume trivial move
+			memmove ((void*)&Array[index+1], (const void*)&Array[index], sizeof(T)*(Count - index - 1));
 
 			// And put the new element in
 			::new ((void *)&Array[index]) T(item);
@@ -415,7 +434,7 @@ public:
 			{
 				if (Array != NULL)
 				{
-					free (Array);
+					M_Free (Array);
 					Array = NULL;
 				}
 			}
@@ -505,7 +524,7 @@ public:
 		Most = 0;
 		if (Array != nullptr)
 		{
-			free(Array);
+			M_Free(Array);
 			Array = nullptr;
 		}
 	}
@@ -527,7 +546,7 @@ private:
 		Most = Count = other.Count;
 		if (Count != 0)
 		{
-			Array = (T *)malloc (sizeof(T)*Most);
+			Array = (T *)M_Malloc (sizeof(T)*Most);
 			for (unsigned int i = 0; i < Count; ++i)
 			{
 				::new(&Array[i]) T(other.Array[i]);
@@ -542,7 +561,7 @@ private:
 	void DoResize ()
 	{
 		size_t allocsize = sizeof(T)*Most;
-		Array = (T *)realloc (Array, allocsize);
+		Array = (T *)M_Realloc (Array, allocsize);
 	}
 
 	void DoDelete (unsigned int first, unsigned int last)
@@ -607,6 +626,7 @@ public:
 
 	typedef TIterator<T>                       iterator;
 	typedef TIterator<const T>                 const_iterator;
+	typedef T                                  value_type;
 
 	iterator begin()
 	{
@@ -1052,7 +1072,7 @@ protected:
 		// Round size up to nearest power of 2
 		for (Size = 1; Size < size; Size <<= 1)
 		{ }
-		Nodes = (Node *)malloc(Size * sizeof(Node));
+		Nodes = (Node *)M_Malloc(Size * sizeof(Node));
 		LastFree = &Nodes[Size];	/* all positions are free */
 		for (hash_t i = 0; i < Size; ++i)
 		{
@@ -1069,7 +1089,7 @@ protected:
 				Nodes[i].~Node();
 			}
 		}
-		free(Nodes);
+		M_Free(Nodes);
 		Nodes = NULL;
 		Size = 0;
 		LastFree = NULL;
@@ -1093,7 +1113,7 @@ protected:
 				nold[i].~Node();
 			}
 		}
-		free(nold);
+		M_Free(nold);
 	}
 
 	void Rehash()
@@ -1518,6 +1538,7 @@ public:
 
 	typedef TIterator<T>                       iterator;
 	typedef TIterator<const T>                 const_iterator;
+	typedef T                                  value_type;
 
 	iterator begin()
 	{
