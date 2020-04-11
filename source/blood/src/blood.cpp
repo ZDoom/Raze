@@ -280,6 +280,7 @@ void PrecacheThing(spritetype *pSprite) {
 
 void PreloadTiles(void)
 {
+    nPrecacheCount = 0;
     int skyTile = -1;
     memset(gotpic,0,sizeof(gotpic));
     // Fonts
