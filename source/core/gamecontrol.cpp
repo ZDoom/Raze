@@ -362,8 +362,6 @@ int RunGame();
 
 int GameMain()
 {
-	set_memerr_handler(G_HandleMemErr);
-
 	int r;
 	try
 	{
@@ -705,11 +703,6 @@ int RunGame()
 	if (exec) exec->ExecCommands();
 
 	return gi->app_main();
-}
-
-void G_HandleMemErr(int32_t lineNum, const char* fileName, const char* funcName)
-{
-	I_FatalError("Out of memory in %s:%d (%s)\n", fileName, lineNum, funcName);
 }
 
 void G_FatalEngineError(void)

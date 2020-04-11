@@ -717,6 +717,7 @@ set (PCH_SOURCES
 	core/utility/i_module.cpp
 	core/utility/i_time.cpp
 	core/utility/name.cpp
+	core/utility/m_alloc.cpp
 	core/utility/cmdlib.cpp
 	core/utility/m_argv.cpp
 	core/utility/files.cpp

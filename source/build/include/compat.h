@@ -8,6 +8,7 @@
 #pragma once
 
 #include "xs_Float.h"
+#include "m_alloc.h"
 
 ////////// Compiler detection //////////
 
@@ -986,7 +987,11 @@ static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
 
 ////////// String manipulation //////////
 
-char *Bstrtolower(char *str);
+inline char* Bstrtolower(char* str)
+{
+    if (str) for (int i = 0; str[i]; i++) str[i] = tolower(str[i]);
+    return str;
+}
 
 
 ////////// Miscellaneous //////////
@@ -1002,102 +1007,16 @@ extern void xalloc_set_location(int32_t line, const char *file, const char *func
 void set_memerr_handler(void (*handlerfunc)(int32_t, const char *, const char *));
 void *handle_memerr(void *);
 
-static FORCE_INLINE char *xstrdup(const char *s)
-{
-    char *ptr = strdup(s);
-    return (EDUKE32_PREDICT_TRUE(ptr != NULL)) ? ptr : (char *)handle_memerr(ptr);
-}
 
-static FORCE_INLINE void *xmalloc(const bsize_t size)
-{
-    void *ptr = Bmalloc(size);
-    return (EDUKE32_PREDICT_TRUE(ptr != NULL)) ? ptr : handle_memerr(ptr);
-}
-
-static FORCE_INLINE void *xcalloc(const bsize_t nmemb, const bsize_t size)
-{
-    void *ptr = Bcalloc(nmemb, size);
-    return (EDUKE32_PREDICT_TRUE(ptr != NULL)) ? ptr : handle_memerr(ptr);
-}
-
-static FORCE_INLINE void *xrealloc(void * const ptr, const bsize_t size)
-{
-    void *newptr = Brealloc(ptr, size);
-
-    // According to the C Standard,
-    //  - ptr == NULL makes realloc() behave like malloc()
-    //  - size == 0 make it behave like free() if ptr != NULL
-    // Since we want to catch an out-of-mem in the first case, this leaves:
-    return (EDUKE32_PREDICT_TRUE(newptr != NULL || size == 0)) ? newptr: handle_memerr(ptr);
-}
-
-
-static FORCE_INLINE void xfree(void *const ptr) { free(ptr); }
-
-static FORCE_INLINE void xaligned_free(void *const ptr) { Baligned_free(ptr); }
-
-#if !defined NO_ALIGNED_MALLOC
-static FORCE_INLINE void *xaligned_alloc(const bsize_t alignment, const bsize_t size)
-{
-    void *ptr = Baligned_alloc(alignment, size);
-    return (EDUKE32_PREDICT_TRUE(ptr != NULL)) ? ptr : handle_memerr(ptr);
-}
-
-static FORCE_INLINE void *xaligned_calloc(const bsize_t alignment, const bsize_t count, const bsize_t size)
-{
-    bsize_t const blocksize = count * size;
-    void *ptr = Baligned_alloc(alignment, blocksize);
-    if (EDUKE32_PREDICT_TRUE(ptr != NULL))
-    {
-        Bmemset(ptr, 0, blocksize);
-        return ptr;
-    }
-    return handle_memerr(ptr);
-}
-#else
-# define xaligned_alloc(alignment, size) xmalloc(size)
-# define xaligned_calloc(alignment, count, size) xcalloc(count, size)
-#endif
-
-#ifdef DEBUGGINGAIDS
-# define EDUKE32_PRE_XALLOC xalloc_set_location(__LINE__, __FILE__, EDUKE32_FUNCTION),
-#else
-# define EDUKE32_PRE_XALLOC
-#endif
-
-#ifndef _DEBUG
-#define Xstrdup(s)    (EDUKE32_PRE_XALLOC xstrdup(s))
-#define Xmalloc(size) (EDUKE32_PRE_XALLOC xmalloc(size))
-#define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLOC xcalloc(nmemb, size))
-#define Xrealloc(ptr, size)  (EDUKE32_PRE_XALLOC xrealloc(ptr, size))
-#define Xaligned_alloc(alignment, size) (EDUKE32_PRE_XALLOC xaligned_alloc(alignment, size))
-#define Xaligned_calloc(alignment, count, size) (EDUKE32_PRE_XALLOC xaligned_calloc(alignment, count, size))
-#define Xfree(ptr) (EDUKE32_PRE_XALLOC xfree(ptr))
-#define Xaligned_free(ptr) (EDUKE32_PRE_XALLOC xaligned_free(ptr))
-#else
 // This is for allowing the compiler's heap checker to do its job. When wrapped it only points to the wrapper for a memory leak, not to the real location where the allocation takes place.
 #define Xstrdup(s)    (strdup(s))
-#define Xmalloc(size) (malloc(size))
-#define Xcalloc(nmemb, size) (calloc(nmemb, size))
-#define Xrealloc(ptr, size)  (realloc(ptr, size))
-#define Xaligned_alloc(alignment, size) (malloc(size))
-#define Xaligned_calloc(alignment, count, size) (calloc(count, size))
-#define Xfree(ptr) (free(ptr))
-#define Xaligned_free(ptr) (free(ptr))
-#endif
-
-
-////////// More utility functions //////////
-
-static inline void maybe_grow_buffer(char ** const buffer, int32_t * const buffersize, int32_t const newsize)
-{
-    if (newsize > *buffersize)
-    {
-        *buffer = (char *)Xrealloc(*buffer, newsize);
-        *buffersize = newsize;
-    }
-}
-
+#define Xmalloc(size) (M_Malloc(size))
+#define Xcalloc(nmemb, size) (M_Calloc(nmemb, size))
+#define Xrealloc(ptr, size)  (M_Realloc(ptr, size))
+#define Xaligned_alloc(alignment, size) (M_Malloc(size))
+#define Xaligned_calloc(alignment, count, size) (M_Calloc(count, size))
+#define Xfree(ptr) (M_Free(ptr))
+#define Xaligned_free(ptr) (M_Free(ptr))
 
 ////////// Inlined external libraries //////////
 
