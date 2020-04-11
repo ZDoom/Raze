@@ -1146,7 +1146,7 @@ RESTART:
 	if (!bAddUserMap && !gGameStarted)
 	{
 		M_StartControlPanel(false);
-		M_SetMenu(NAME_MainMenu);
+		M_SetMenu(NAME_Mainmenu);
 	}
     ready2send = 1;
     while (!gQuitGame)

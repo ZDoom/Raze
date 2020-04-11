@@ -1253,7 +1253,7 @@ static void BuildEpisodeMenu()
 {
 	// Build episode menu
 	int addedVolumes = 0;
-	FMenuDescriptor **desc = MenuDescriptors.CheckKey(NAME_EpisodeMenu);
+	FMenuDescriptor **desc = MenuDescriptors.CheckKey(NAME_Episodemenu);
 	if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
 	{
 		FListMenuDescriptor *ld = static_cast<FListMenuDescriptor*>(*desc);
@@ -1265,7 +1265,7 @@ static void BuildEpisodeMenu()
 			if (gVolumeNames[i].IsNotEmpty() && !(gVolumeFlags[i] & EF_HIDEFROMSP))
 
 			{
-				auto it = new FListMenuItemNativeText(ld->mXpos, y, ld->mLinespacing, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_SkillMenu, i);
+				auto it = new FListMenuItemNativeText(ld->mXpos, y, ld->mLinespacing, gVolumeNames[i][0], gVolumeNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_Skillmenu, i);
 				if ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && i > 0)
 				{
 					it->mEnabled = false;
@@ -1301,7 +1301,7 @@ static void BuildEpisodeMenu()
 
 	// Build skill menu
 	int addedSkills = 0;
-	desc = MenuDescriptors.CheckKey(NAME_SkillMenu);
+	desc = MenuDescriptors.CheckKey(NAME_Skillmenu);
 	if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
 	{
 		FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
@@ -1312,7 +1312,7 @@ static void BuildEpisodeMenu()
 		{
 			if (gSkillNames[i].IsNotEmpty())
 			{
-				auto it = new FListMenuItemNativeText(ld->mXpos, y, ld->mLinespacing, gSkillNames[i][0], gSkillNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_StartGame, i);
+				auto it = new FListMenuItemNativeText(ld->mXpos, y, ld->mLinespacing, gSkillNames[i][0], gSkillNames[i], NIT_BigFont, NIT_ActiveState, 1, NAME_Startgame, i);
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);
 				addedSkills++;
@@ -1321,7 +1321,7 @@ static void BuildEpisodeMenu()
 		if (addedSkills == 0)
 		{
 			// Need to add one item with the default skill so that the menu does not break.
-			auto it = new FListMenuItemNativeText(ld->mXpos, 0, ld->mLinespacing, 0, "", NIT_BigFont, NIT_ActiveState, 1, NAME_StartGame, gDefaultSkill);
+			auto it = new FListMenuItemNativeText(ld->mXpos, 0, ld->mLinespacing, 0, "", NIT_BigFont, NIT_ActiveState, 1, NAME_Startgame, gDefaultSkill);
 			ld->mItems.Push(it);
 		}
 		if (addedSkills == 1)
@@ -1333,7 +1333,7 @@ static void BuildEpisodeMenu()
 	if (g_MenuGameplayEntries[0].entry.isValid())
 	{
 		int e = 0;
-		FMenuDescriptor** desc = MenuDescriptors.CheckKey(NAME_CustomGameMenu);
+		FMenuDescriptor** desc = MenuDescriptors.CheckKey("CustomGameMenu");
 		if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
 		{
 			FListMenuDescriptor* ldo = static_cast<FListMenuDescriptor*>(*desc);
@@ -1345,7 +1345,7 @@ static void BuildEpisodeMenu()
 					break;
 
 				int s = 0;
-				FMenuDescriptor** sdesc = MenuDescriptors.CheckKey(FName(ENamedName(NAME_CustomSubMenu1 + e)));
+				FMenuDescriptor** sdesc = MenuDescriptors.CheckKey(FName(FStringf("CustomSubMenu%d", e+1)));
 				if (sdesc != NULL && (*sdesc)->mType == MDESC_ListMenu)
 				{
 					FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*sdesc);
@@ -1356,7 +1356,7 @@ static void BuildEpisodeMenu()
 						if (!subentry.isValid())
 							break;
 
-						auto li = new FListMenuItemNativeText(ld->mXpos, 0, ld->mLinespacing, 0, subentry.name, NIT_BigFont, NIT_ActiveColor, 1.f, subentry.flags & MGE_UserContent ? NAME_UsermapMenu : NAME_SkillMenu);
+						auto li = new FListMenuItemNativeText(ld->mXpos, 0, ld->mLinespacing, 0, subentry.name, NIT_BigFont, NIT_ActiveColor, 1.f, subentry.flags & MGE_UserContent ? NAME_UsermapMenu : NAME_Skillmenu);
 
 						if (subentry.flags & MGE_Locked) li->mEnabled = false;
 						if (subentry.flags & MGE_Hidden) li->mHidden = true;
@@ -1364,7 +1364,7 @@ static void BuildEpisodeMenu()
 						++s;
 					}
 				}
-				FName link = entry.flags & MGE_UserContent ? NAME_UsermapMenu : s == 0 ? NAME_SkillMenu : NAME_CustomSubMenu1;
+				FName link = entry.flags & MGE_UserContent ? NAME_UsermapMenu : s == 0 ? NAME_Skillmenu : NAME_CustomSubMenu1;
 
 				auto li = new FListMenuItemNativeText(ldo->mXpos, 0, ldo->mLinespacing, 0, entry.name, NIT_BigFont, NIT_ActiveColor, 1.f, link, e);
 				if (entry.flags & MGE_Locked) li->mEnabled = false;
@@ -1375,14 +1375,14 @@ static void BuildEpisodeMenu()
 		}
 		if (e > 0)
 		{
-			for (auto name : { NAME_MainMenu, NAME_IngameMenu })
+			for (auto name : { NAME_Mainmenu, NAME_IngameMenu })
 			{
 				FMenuDescriptor** desc = MenuDescriptors.CheckKey(name);
 				if (desc != NULL && (*desc)->mType == MDESC_ListMenu)
 				{
 					FListMenuDescriptor* ld = static_cast<FListMenuDescriptor*>(*desc);
 					auto li = ld->mItems[0];
-					if (li->GetAction(nullptr) == NAME_EpisodeMenu)
+					if (li->GetAction(nullptr) == NAME_Episodemenu)
 					{
 						li->SetAction(NAME_CustomGameMenu);
 					}

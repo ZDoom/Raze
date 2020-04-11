@@ -293,7 +293,7 @@ void CDemo::ProcessKeys(void)
                 if (!M_Active())
                 {
                     M_StartControlPanel(true);
-                    M_SetMenu(NAME_MainMenu);
+                    M_SetMenu(NAME_Mainmenu);
                 }
             }
 

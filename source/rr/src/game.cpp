@@ -6866,7 +6866,7 @@ void G_BackToMenu(void)
     ud.warp_on = 0;
     g_player[myconnectindex].ps->gm = 0;
 	M_StartControlPanel(false);
-	M_SetMenu(NAME_MainMenu);
+	M_SetMenu(NAME_Mainmenu);
 	inputState.keyFlushChars();
 }
 
@@ -7170,7 +7170,7 @@ MAIN_LOOP_RESTART:
         //if (g_networkMode != NET_DEDICATED_SERVER)
         {
 			M_StartControlPanel(false);
-			M_SetMenu(NAME_MainMenu);
+			M_SetMenu(NAME_Mainmenu);
 			if (G_PlaybackDemo())
             {
                 FX_StopAllSounds();

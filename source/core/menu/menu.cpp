@@ -425,17 +425,17 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	// skip the menu and go right into the first level. 
 	// For tracking memory leaks that normally require operating the menu to start the game so that they always get the same allocation number.
 	GameStartupInfo.Episode = GameStartupInfo.Skill = 0;
-	menu = NAME_StartGame;
+	menu = NAME_Startgame;
 #endif
 		if (DrawBackground == -1)
 	{
-		if (menu == NAME_MainMenu) DrawBackground = 1;
+		if (menu == NAME_Mainmenu) DrawBackground = 1;
 		else DrawBackground = 0;
 	}
 	// some menus need some special treatment (needs to be adjusted for the various frontends.
 	switch (caller.GetIndex())
 	{
-	case NAME_EpisodeMenu:
+	case NAME_Episodemenu:
 	case NAME_HuntMenu:
 	case NAME_TargetMenu:
 		// sent from the episode menu
@@ -469,7 +469,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		gi->CustomMenuSelection(GameStartupInfo.CustomLevel1, param);
 		break;
 
-	case NAME_SkillMenu:
+	case NAME_Skillmenu:
 		GameStartupInfo.Skill = param;
 		break;
 
@@ -486,9 +486,9 @@ bool M_SetMenu(FName menu, int param, FName caller)
 
 	switch (menu.GetIndex())
 	{
-	case NAME_StartGame:
+	case NAME_Startgame:
 		M_ClearMenus();	// must be done before starting the level.
-		if (caller == NAME_MainMenu || caller == NAME_IngameMenu) GameStartupInfo.Episode = param;
+		if (caller == NAME_Mainmenu || caller == NAME_IngameMenu) GameStartupInfo.Episode = param;
 		STAT_StartNewGame(gVolumeNames[GameStartupInfo.Episode], GameStartupInfo.Skill);
 		inputState.ClearAllInput();
 
@@ -512,7 +512,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	}
 #endif
 
-	case NAME_SaveGameMenu:
+	case NAME_Savegamemenu:
 		if (!gi->CanSave())
 		{
 			// cannot save outside the game.
@@ -521,12 +521,12 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		}
 		break;
 			
-	case NAME_QuitMenu:
+	case NAME_Quitmenu:
 		// This is no separate class
 		C_DoCommand("menu_quit");
 		return true;
 
-	case NAME_EndgameMenu:
+	case NAME_EndGameMenu:
 		// This is no separate class
 		C_DoCommand("menu_endgame");
 		return true;
@@ -829,7 +829,7 @@ bool M_DoResponder (event_t *ev)
 				 ConsoleState != c_down && m_use_mouse)
 		{
 			M_StartControlPanel(true);
-			M_SetMenu(NAME_MainMenu, -1);
+			M_SetMenu(NAME_Mainmenu, -1);
 			return true;
 		}
 	}
@@ -1102,12 +1102,12 @@ CCMD(opensavemenu)
 	if (gi->CanSave()) 
 	{
 		M_StartControlPanel(true);
-		M_SetMenu(NAME_SaveGameMenu);
+		M_SetMenu(NAME_Savegamemenu);
 	}
 }
 
 CCMD(openloadmenu)
 {
 	M_StartControlPanel(true);
-	M_SetMenu(NAME_LoadGameMenu);
+	M_SetMenu(NAME_Loadgamemenu);
 }

@@ -47,7 +47,7 @@ int menu_Menu(int nVal)
 {
 	MenuExitCondition = -2;
 	M_StartControlPanel(false);
-	M_SetMenu(NAME_MainMenu);
+	M_SetMenu(NAME_Mainmenu);
 	while (M_Active())
 	{
 		auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
@@ -107,7 +107,7 @@ class PSMainMenu : public DListMenu
 
 	void PreDraw() override
 	{
-		if (mDesc->mMenuName == NAME_MainMenu)
+		if (mDesc->mMenuName == NAME_Mainmenu)
 			menu_DoPlasma();
 		else
 		{

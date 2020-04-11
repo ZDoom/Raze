@@ -82,7 +82,7 @@ class SWMainMenu : public DListMenu
 		for (unsigned e = 0; e < mDesc->mItems.Size(); ++e)
 		{
 			auto entry = mDesc->mItems[e];
-			if (entry->GetAction(nullptr) == NAME_SaveGameMenu)
+			if (entry->GetAction(nullptr) == NAME_Savegamemenu)
 			{
 				entry->mEnabled = gi->CanSave();
 			}

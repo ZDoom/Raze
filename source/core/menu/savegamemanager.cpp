@@ -643,7 +643,7 @@ CCMD(quicksave)
 	if (savegameManager.quickSaveSlot == NULL || savegameManager.quickSaveSlot == (FSaveGameNode*)1)
 	{
 		M_StartControlPanel(true);
-		M_SetMenu(NAME_SaveGameMenu);
+		M_SetMenu(NAME_Savegamemenu);
 		return;
 	}
 
@@ -693,7 +693,7 @@ CCMD(quickload)
 		M_StartControlPanel(true);
 		// signal that whatever gets loaded should be the new quicksave
 		savegameManager.quickSaveSlot = (FSaveGameNode*)1;
-		M_SetMenu(NAME_LoadGameMenu);
+		M_SetMenu(NAME_Loadgamemenu);
 		return;
 	}
 

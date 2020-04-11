@@ -519,7 +519,7 @@ void netGetPackets(void)
             // What are we trying to do here? Opening the menu, maybe?
 			//inputState.SetKeyStatus(sc_Escape);
             M_StartControlPanel(false);
-            M_SetMenu(NAME_MainMenu);
+            M_SetMenu(NAME_Mainmenu);
             break;
         }
     }

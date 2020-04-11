@@ -1667,7 +1667,7 @@ void MenuLevel(void)
     short w,h;
 
     M_StartControlPanel(false);
-    M_SetMenu(NAME_MainMenu);
+    M_SetMenu(NAME_Mainmenu);
     // do demos only if not playing multi play
     if (!CommEnabled && numplayers <= 1 && !FinishAnim && !NoDemoStartup)
     {
