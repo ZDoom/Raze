@@ -18,8 +18,6 @@ extern FMemArena dump;	// this is for memory blocks than cannot be deallocated w
 
 extern TMap<FName, int32_t> NameToTileIndex;
 
-void D_AddWildFile(TArray<FString>& wadfiles, const char* value);
-
 int CONFIG_Init();
 void CONFIG_SetDefaultKeys(const char *defbinds);
 

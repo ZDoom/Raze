@@ -49,9 +49,9 @@
 #include "printf.h"
 #include "c_cvars.h"
 #include "c_buttons.h"
+#include "findfile.h"
 // Todo: Get rid of
 #include "inputstate.h"
-bool D_AddFile(TArray<FString>& wadfiles, const char* file, bool check = true, int position = -1);
 
 // MACROS ------------------------------------------------------------------
 
@@ -1027,11 +1027,11 @@ void FExecList::ExecCommands() const
 	}
 }
 
-void FExecList::AddPullins(TArray<FString> &wads) const
+void FExecList::AddPullins(TArray<FString> &wads, FConfigFile *config) const
 {
 	for (unsigned i = 0; i < Pullins.Size(); ++i)
 	{
-		D_AddFile(wads, Pullins[i]);
+		D_AddFile(wads, Pullins[i], true, -1, config);
 	}
 }
 

@@ -45,6 +45,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "gamecontrol.h"
 #include "menu/menu.h"
+#include "gameconfigfile.h"
+#include "findfile.h"
 
 BEGIN_BLD_NS
 
@@ -411,7 +413,7 @@ void CDemo::LoadDemoInfo(void)
     char zFN[BMAX_PATH];
     snprintf(zFN, BMAX_PATH, "%s%s*.dem", G_GetDemoPath().GetChars(), BloodIniPre);
 	TArray<FString> demos;
-	D_AddWildFile(demos, zFN);
+	D_AddWildFile(demos, zFN, ".dem", GameConfig);
 
     FStringf ini("%s.ini", BloodIniPre);
     int lump = fileSystem.FindFile(ini);
@@ -419,7 +421,7 @@ void CDemo::LoadDemoInfo(void)
     {
         auto path = fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lump));
         ini.Format("%s*.dem", path);
-        D_AddWildFile(demos, ini);
+        D_AddWildFile(demos, ini, ".dem", GameConfig);
     }
 
 	for (auto &filename : demos)
@@ -431,7 +433,7 @@ void CDemo::LoadDemoInfo(void)
 #if B_BIG_ENDIAN == 1
         atf.signature = B_LITTLE32(atf.signature);
         atf.nVersion = B_LITTLE16(atf.nVersion);
-#endif
+#endif, "."
         if ((atf.signature == 0x1a4d4544 /* '\x1aMED' */&& atf.nVersion == BloodVersion)
             || (atf.signature == 0x1a4d4445 /* '\x1aMDE' */ && atf.nVersion == BYTEVERSION))
         {
