@@ -915,6 +915,7 @@ faketimerhandler(void)
 {
     int i, j, k;
     PLAYERp pp;
+    void getinput(SW_PACKET *, SWBOOL);
     extern SWBOOL BotMode;
 
 #if 0
@@ -945,7 +946,7 @@ faketimerhandler(void)
     if (Player[myconnectindex].movefifoend - movefifoplc >= 100)
         return;
 
-    getinput(&loc);
+    getinput(&loc, FALSE);
 
     AveragePacket.vel += loc.vel;
     AveragePacket.svel += loc.svel;
@@ -954,6 +955,8 @@ faketimerhandler(void)
     AveragePacket.q16ang = Player[myconnectindex].camq16ang;
     AveragePacket.q16horiz = Player[myconnectindex].camq16horiz;
     SET(AveragePacket.bits, loc.bits);
+
+    Bmemset(&loc, 0, sizeof(loc));
 
     pp = Player + myconnectindex;
 
@@ -979,6 +982,7 @@ faketimerhandler(void)
 
     pp->inputfifo[Player[myconnectindex].movefifoend & (MOVEFIFOSIZ - 1)] = loc;
     pp->movefifoend++;
+    Bmemset(&loc, 0, sizeof(loc));
 
 #if 0
 //  AI Bot stuff
