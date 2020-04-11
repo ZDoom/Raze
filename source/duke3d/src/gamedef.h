@@ -66,7 +66,7 @@ enum
     do                                                                                         \
     {                                                                                          \
         C_ReportError(-1);                                                                     \
-        initprintf("%s:%d: error: " Text "\n", g_scriptFileName, g_lineNumber, ##__VA_ARGS__); \
+        Printf("%s:%d: error: " Text "\n", g_scriptFileName, g_lineNumber, ##__VA_ARGS__); \
         g_errorCnt++;                                                                          \
     } while (0)
 
@@ -74,7 +74,7 @@ enum
     do                                                                                           \
     {                                                                                            \
         C_ReportError(-1);                                                                       \
-        initprintf("%s:%d: warning: " Text "\n", g_scriptFileName, g_lineNumber, ##__VA_ARGS__); \
+        Printf("%s:%d: warning: " Text "\n", g_scriptFileName, g_lineNumber, ##__VA_ARGS__); \
         g_warningCnt++;                                                                          \
     } while (0)
 

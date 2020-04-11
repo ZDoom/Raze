@@ -171,7 +171,7 @@ CUSTOM_CVARD(Int, hud_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD 
 		if (gi->validate_hud(self))
 			gi->set_hud_layout(self);
 		else
-			OSD_Printf("Hud size %d not available\n", *self);
+			Printf("Hud size %d not available\n", *self);
 	}
 }
 
@@ -415,11 +415,11 @@ CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE | CVAR_NOINITCALL | CVA
 
 			j++;
 		}
-		// if (!gi->SetWeaponChoice(dest)) OSD_Printf("Weapon ordering not supported\n");
+		// if (!gi->SetWeaponChoice(dest)) Printf("Weapon ordering not supported\n");
 	}
 	else
 	{
-		OSD_Printf("Using default weapon orders.\n");
+		Printf("Using default weapon orders.\n");
 		self = "3457860291";
 	}
 }

@@ -397,7 +397,7 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
         goto finishTileSetup;
 #ifdef DEBUGGINGAIDS
     else if (EDUKE32_PREDICT_FALSE(noDraw != 0)) // event return values other than 0 and 1 are reserved
-        OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMSCAMERATILE return value must be 0 or 1, "
+        Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMSCAMERATILE return value must be 0 or 1, "
                    "other values are reserved.\n");
 #endif
     screen->BeginScene();
@@ -794,7 +794,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
             if (j == -1) j = nextsectorneighborz(sectNum,pSector->ceilingz,1,1);
             if (j == -1)
             {
-                OSD_Printf("WARNING: ST29: null sector!\n");
+                Printf("WARNING: ST29: null sector!\n");
                 return;
             }
             j = sector[j].ceilingz;
@@ -805,7 +805,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
             if (j == -1) j = nextsectorneighborz(sectNum,pSector->ceilingz,-1,-1);
             if (j == -1)
             {
-                OSD_Printf("WARNING: ST29: null sector!\n");
+                Printf("WARNING: ST29: null sector!\n");
                 return;
             }
             j = sector[j].floorz;
@@ -890,7 +890,7 @@ REDODOOR:
             }
             else
             {
-                OSD_Printf("WARNING: ST_22_SPLITTING_DOOR: null sector: floor neighbor=%d, ceiling neighbor=%d!\n",
+                Printf("WARNING: ST_22_SPLITTING_DOOR: null sector: floor neighbor=%d, ceiling neighbor=%d!\n",
                            floorNeighbor, ceilingNeighbor);
                 pSector->lotag ^= 0x8000u;
             }
@@ -1242,7 +1242,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
         nSwitchPal    = wall[wallOrSprite].pal;
     }
 
-    //    initprintf("P_ActivateSwitch called picnum=%i switchissprite=%i\n",picnum,switchissprite);
+    //    Printf("P_ActivateSwitch called picnum=%i switchissprite=%i\n",picnum,switchissprite);
 
     int basePicnum   = G_GetBaseSwitch(nSwitchPicnum);
     int correctDips  = 1;

@@ -78,7 +78,7 @@ int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle);
 //void G_SaveMapState();
 
 #define CON_ERRPRINTF(Text, ...) do { \
-    OSD_Printf("Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
+    Printf("Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
 } while (0)
 
 #define CON_CRITICALERRPRINTF(Text, ...) do { \

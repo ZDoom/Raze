@@ -148,16 +148,16 @@ static void defsparser_include(const char *fn, const scriptfile *script, const c
     if (EDUKE32_PREDICT_FALSE(!included))
     {
         if (!cmdtokptr)
-            initprintf("Warning: Failed including %s as module\n", fn);
+            Printf("Warning: Failed including %s as module\n", fn);
         else
-            initprintf("Warning: Failed including %s on line %s:%d\n",
+            Printf("Warning: Failed including %s on line %s:%d\n",
                        fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
     }
     else
     {
         if (!cmdtokptr)
         {
-            initprintf("Loading module \"%s\"\n",fn);
+            Printf("Loading module \"%s\"\n",fn);
         }
 
         defsparser(included);
@@ -171,14 +171,14 @@ static int32_t check_tile_range(const char *defcmd, int32_t *tilebeg, int32_t *t
 {
     if (EDUKE32_PREDICT_FALSE(*tileend < *tilebeg))
     {
-        initprintf("Warning: %s: backwards tile range on line %s:%d\n", defcmd,
+        Printf("Warning: %s: backwards tile range on line %s:%d\n", defcmd,
                    script->filename, scriptfile_getlinum(script,cmdtokptr));
         swaplong(tilebeg, tileend);
     }
 
     if (EDUKE32_PREDICT_FALSE((unsigned)*tilebeg >= MAXUSERTILES || (unsigned)*tileend >= MAXUSERTILES))
     {
-        initprintf("Error: %s: Invalid tile range on line %s:%d\n", defcmd,
+        Printf("Error: %s: Invalid tile range on line %s:%d\n", defcmd,
                    script->filename, scriptfile_getlinum(script,cmdtokptr));
         return 1;
     }
@@ -191,7 +191,7 @@ static int32_t check_tile(const char *defcmd, int32_t tile, const scriptfile *sc
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)tile >= MAXUSERTILES))
     {
-        initprintf("Error: %s: Invalid tile number on line %s:%d\n", defcmd,
+        Printf("Error: %s: Invalid tile number on line %s:%d\n", defcmd,
                    script->filename, scriptfile_getlinum(script,cmdtokptr));
         return 1;
     }
@@ -296,7 +296,7 @@ static int32_t defsparser(scriptfile *script)
 #ifdef USE_DEF_PROGRESS
         if (++iter >= 50)
         {
-            initprintf(".");
+            Printf(".");
             iter = 0;
         }
 #endif
@@ -305,7 +305,7 @@ static int32_t defsparser(scriptfile *script)
         switch (tokn)
         {
         case T_ERROR:
-            initprintf("Error on line %s:%d.\n", script->filename,scriptfile_getlinum(script,cmdtokptr));
+            Printf("Error on line %s:%d.\n", script->filename,scriptfile_getlinum(script,cmdtokptr));
             break;
         case T_EOF:
             return 0;
@@ -330,7 +330,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&number)) break;
 
             if (EDUKE32_PREDICT_FALSE(scriptfile_addsymbolvalue(name,number) < 0))
-                initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
+                Printf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
                            name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
             break;
         }
@@ -533,7 +533,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE(!fn))
             {
-                initprintf("Error: missing 'file name' for artfile definition near line %s:%d\n",
+                Printf("Error: missing 'file name' for artfile definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
@@ -599,7 +599,7 @@ static int32_t defsparser(scriptfile *script)
             spd = clamp(spd, 0, 15);
             if (EDUKE32_PREDICT_FALSE(type&~3))
             {
-                initprintf("Error: animtilerange: animation type must be 0, 1, 2 or 3 on line %s:%d\n",
+                Printf("Error: animtilerange: animation type must be 0, 1, 2 or 3 on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
@@ -610,7 +610,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE((unsigned)num > 255))
             {
-                initprintf("Error: animtilerange: tile difference can be at most 255 on line %s:%d\n",
+                Printf("Error: animtilerange: tile difference can be at most 255 on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
@@ -736,7 +736,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE((unsigned)tile >= MAXUSERTILES))
             {
-                initprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
+                Printf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,texturetokptr));
                 break;
             }
@@ -746,7 +746,7 @@ static int32_t defsparser(scriptfile *script)
                 int32_t const orig_crc32 = tileGetCRC32(tile);
                 if (orig_crc32 != tile_crc32)
                 {
-                    // initprintf("CRC32 of tile %d doesn't match! CRC32: %d, Expected: %d\n", tile, orig_crc32, tile_crc32);
+                    // Printf("CRC32 of tile %d doesn't match! CRC32: %d, Expected: %d\n", tile, orig_crc32, tile_crc32);
                     break;
                 }
             }
@@ -756,7 +756,7 @@ static int32_t defsparser(scriptfile *script)
                 vec2_16_t const orig_size = tilesiz[tile];
                 if (orig_size.x != tile_size.x && orig_size.y != tile_size.y)
                 {
-                    // initprintf("Size of tile %d doesn't match! Size: (%d, %d), Expected: (%d, %d)\n", tile, orig_size.x, orig_size.y, tile_size.x, tile_size.y);
+                    // Printf("Size of tile %d doesn't match! Size: (%d, %d), Expected: (%d, %d)\n", tile, orig_size.x, orig_size.y, tile_size.x, tile_size.y);
                     break;
                 }
             }
@@ -773,17 +773,17 @@ static int32_t defsparser(scriptfile *script)
                     picanm[tile].extra = extra;
 
                 if (EDUKE32_PREDICT_FALSE(flags == 0 && !havexoffset && !haveyoffset))
-                    initprintf("\nError: missing 'file name' for tilefromtexture definition near line %s:%d",
+                    Printf("\nError: missing 'file name' for tilefromtexture definition near line %s:%d",
                                script->filename, scriptfile_getlinum(script,texturetokptr));
                 break;
             }
 
             int32_t const texstatus = tileImportFromTexture(fn, tile, alphacut, istexture);
             if (texstatus == -3)
-                initprintf("Error: No palette loaded, in tilefromtexture definition near line %s:%d\n",
+                Printf("Error: No palette loaded, in tilefromtexture definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,texturetokptr));
             if (texstatus == -(3<<8))
-                initprintf("Error: \"%s\" has more than one tile, in tilefromtexture definition near line %s:%d\n",
+                Printf("Error: \"%s\" has more than one tile, in tilefromtexture definition near line %s:%d\n",
                            fn, script->filename, scriptfile_getlinum(script,texturetokptr));
             if (texstatus < 0)
                 break;
@@ -860,7 +860,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (EDUKE32_PREDICT_FALSE((unsigned)temppal >= MAXPALOOKUPS-RESERVEDPALS))
                     {
-                        initprintf("Error: copytile 'palette number' out of range (max=%d)\n",
+                        Printf("Error: copytile 'palette number' out of range (max=%d)\n",
                                    MAXPALOOKUPS-RESERVEDPALS-1);
                         break;
                     }
@@ -909,10 +909,10 @@ static int32_t defsparser(scriptfile *script)
 
             int32_t const texstatus = tileImportFromTexture(fn, tile, 255, 0);
             if (texstatus == -3)
-                initprintf("Error: No palette loaded, in importtile definition near line %s:%d\n",
+                Printf("Error: No palette loaded, in importtile definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
             if (texstatus == -(3<<8))
-                initprintf("Error: \"%s\" has more than one tile, in importtile definition near line %s:%d\n",
+                Printf("Error: \"%s\" has more than one tile, in importtile definition near line %s:%d\n",
                            fn, script->filename, scriptfile_getlinum(script,cmdtokptr));
             if (texstatus < 0)
                 break;
@@ -1002,7 +1002,7 @@ static int32_t defsparser(scriptfile *script)
             lastmodelid = md_loadmodel(modelfn);
             if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
             {
-                initprintf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
+                Printf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
                 break;
             }
             md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0,0.0,0);
@@ -1034,7 +1034,7 @@ static int32_t defsparser(scriptfile *script)
             if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
             {
 #ifdef USE_OPENGL
-                initprintf("Warning: Ignoring frame definition.\n");
+                Printf("Warning: Ignoring frame definition.\n");
 #endif
                 break;
             }
@@ -1046,12 +1046,12 @@ static int32_t defsparser(scriptfile *script)
                 case -1:
                     happy = 0; break; // invalid model id!?
                 case -2:
-                    initprintf("Invalid tile number on line %s:%d\n",
+                    Printf("Invalid tile number on line %s:%d\n",
                                script->filename, scriptfile_getlinum(script,cmdtokptr));
                     happy = 0;
                     break;
                 case -3:
-                    initprintf("Invalid frame name on line %s:%d\n",
+                    Printf("Invalid frame name on line %s:%d\n",
                                script->filename, scriptfile_getlinum(script,cmdtokptr));
                     happy = 0;
                     break;
@@ -1077,7 +1077,7 @@ static int32_t defsparser(scriptfile *script)
             if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
             {
 #ifdef USE_OPENGL
-                initprintf("Warning: Ignoring animation definition.\n");
+                Printf("Warning: Ignoring animation definition.\n");
 #endif
                 break;
             }
@@ -1089,15 +1089,15 @@ static int32_t defsparser(scriptfile *script)
             case -1:
                 break; // invalid model id!?
             case -2:
-                initprintf("Invalid starting frame name on line %s:%d\n",
+                Printf("Invalid starting frame name on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             case -3:
-                initprintf("Invalid ending frame name on line %s:%d\n",
+                Printf("Invalid ending frame name on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             case -4:
-                initprintf("Out of memory on line %s:%d\n",
+                Printf("Out of memory on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
@@ -1138,15 +1138,15 @@ static int32_t defsparser(scriptfile *script)
             case -1:
                 break; // invalid model id!?
             case -2:
-                initprintf("Invalid skin filename on line %s:%d\n",
+                Printf("Invalid skin filename on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             case -3:
-                initprintf("Invalid palette number on line %s:%d\n",
+                Printf("Invalid palette number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             case -4:
-                initprintf("Out of memory on line %s:%d\n",
+                Printf("Out of memory on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
@@ -1170,13 +1170,13 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE(nextvoxid == MAXVOXELS))
             {
-                initprintf("Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
+                Printf("Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
                 break;
             }
 
             if (EDUKE32_PREDICT_FALSE(qloadkvx(nextvoxid, fn)))
             {
-                initprintf("Failure loading voxel file \"%s\"\n",fn);
+                Printf("Failure loading voxel file \"%s\"\n",fn);
                 break;
             }
 
@@ -1195,7 +1195,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE(lastvoxid < 0))
             {
-                initprintf("Warning: Ignoring voxel tiles definition.\n");
+                Printf("Warning: Ignoring voxel tiles definition.\n");
                 break;
             }
 
@@ -1242,7 +1242,7 @@ static int32_t defsparser(scriptfile *script)
             lastmodelid = md_loadmodel(modelfn);
             if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
             {
-                initprintf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
+                Printf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
                 script->textptr = modelend+1;
                 break;
             }
@@ -1252,7 +1252,7 @@ static int32_t defsparser(scriptfile *script)
                 int32_t token = getatoken(script,modeltokens,ARRAY_SIZE(modeltokens));
                 switch (token)
                 {
-                    //case T_ERROR: initprintf("Error on line %s:%d in model tokens\n", script->filename,script->linenum); break;
+                    //case T_ERROR: Printf("Error on line %s:%d in model tokens\n", script->filename,script->linenum); break;
                 case T_SCALE:
                     scriptfile_getdouble(script,&scale); break;
                 case T_SHADE:
@@ -1314,7 +1314,7 @@ static int32_t defsparser(scriptfile *script)
                     if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
                     {
 #ifdef USE_OPENGL
-                        initprintf("Warning: ignoring frame definition on line %s:%d.\n",
+                        Printf("Warning: ignoring frame definition on line %s:%d.\n",
                                    script->filename, scriptfile_getlinum(script,frametokptr));
 #endif
                         break;
@@ -1322,7 +1322,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (smoothduration > 1.0)
                     {
-                        initprintf("Warning: smoothduration out of range on line %s:%d.\n",
+                        Printf("Warning: smoothduration out of range on line %s:%d.\n",
                                    script->filename, scriptfile_getlinum(script,frametokptr));
                         smoothduration = 1.0;
                     }
@@ -1335,12 +1335,12 @@ static int32_t defsparser(scriptfile *script)
                         case -1:
                             happy = 0; break; // invalid model id!?
                         case -2:
-                            initprintf("Invalid tile number on line %s:%d\n",
+                            Printf("Invalid tile number on line %s:%d\n",
                                        script->filename, scriptfile_getlinum(script,frametokptr));
                             happy = 0;
                             break;
                         case -3:
-                            initprintf("Invalid frame name on line %s:%d\n",
+                            Printf("Invalid frame name on line %s:%d\n",
                                        script->filename, scriptfile_getlinum(script,frametokptr));
                             happy = 0;
                             break;
@@ -1386,15 +1386,15 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if (EDUKE32_PREDICT_FALSE(!startframe)) initprintf("Error: missing 'start frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
-                    if (EDUKE32_PREDICT_FALSE(!endframe)) initprintf("Error: missing 'end frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
+                    if (EDUKE32_PREDICT_FALSE(!startframe)) Printf("Error: missing 'start frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
+                    if (EDUKE32_PREDICT_FALSE(!endframe)) Printf("Error: missing 'end frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
                     model_ok &= happy;
                     if (EDUKE32_PREDICT_FALSE(!happy)) break;
 
                     if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
                     {
 #ifdef USE_OPENGL
-                        initprintf("Warning: Ignoring animation definition.\n");
+                        Printf("Warning: Ignoring animation definition.\n");
 #endif
                         break;
                     }
@@ -1406,17 +1406,17 @@ static int32_t defsparser(scriptfile *script)
                     case -1:
                         break; // invalid model id!?
                     case -2:
-                        initprintf("Invalid starting frame name on line %s:%d\n",
+                        Printf("Invalid starting frame name on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,animtokptr));
                         model_ok = 0;
                         break;
                     case -3:
-                        initprintf("Invalid ending frame name on line %s:%d\n",
+                        Printf("Invalid ending frame name on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,animtokptr));
                         model_ok = 0;
                         break;
                     case -4:
-                        initprintf("Out of memory on line %s:%d\n",
+                        Printf("Out of memory on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,animtokptr));
                         model_ok = 0;
                         break;
@@ -1477,7 +1477,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (EDUKE32_PREDICT_FALSE(!skinfn))
                     {
-                        initprintf("Error: missing 'skin filename' for skin definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skintokptr));
+                        Printf("Error: missing 'skin filename' for skin definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skintokptr));
                         model_ok = 0;
                         break;
                     }
@@ -1513,17 +1513,17 @@ static int32_t defsparser(scriptfile *script)
                     case -1:
                         break; // invalid model id!?
                     case -2:
-                        initprintf("Invalid skin filename on line %s:%d\n",
+                        Printf("Invalid skin filename on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,skintokptr));
                         model_ok = 0;
                         break;
                     case -3:
-                        initprintf("Invalid palette number on line %s:%d\n",
+                        Printf("Invalid palette number on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,skintokptr));
                         model_ok = 0;
                         break;
                     case -4:
-                        initprintf("Out of memory on line %s:%d\n",
+                        Printf("Out of memory on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,skintokptr));
                         model_ok = 0;
                         break;
@@ -1599,7 +1599,7 @@ static int32_t defsparser(scriptfile *script)
                     if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
                     {
 #ifdef USE_OPENGL
-                        initprintf("Warning: Ignoring frame definition.\n");
+                        Printf("Warning: Ignoring frame definition.\n");
 #endif
                         break;
                     }
@@ -1614,12 +1614,12 @@ static int32_t defsparser(scriptfile *script)
                         case -1:
                             happy = 0; break; // invalid model id!?
                         case -2:
-                            initprintf("Invalid tile number on line %s:%d\n",
+                            Printf("Invalid tile number on line %s:%d\n",
                                        script->filename, scriptfile_getlinum(script,hudtokptr));
                             happy = 0;
                             break;
                         case -3:
-                            initprintf("Invalid frame name on line %s:%d\n",
+                            Printf("Invalid frame name on line %s:%d\n",
                                        script->filename, scriptfile_getlinum(script,hudtokptr));
                             happy = 0;
                             break;
@@ -1638,7 +1638,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 if (lastmodelid >= 0)
                 {
-                    initprintf("Removing model %d due to errors.\n", lastmodelid);
+                    Printf("Removing model %d due to errors.\n", lastmodelid);
                     md_undefinemodel(lastmodelid);
                     nextmodelid--;
                 }
@@ -1661,9 +1661,9 @@ static int32_t defsparser(scriptfile *script)
                 md_thinoutmodel(lastmodelid, usedframebitmap);
 #  ifdef DEBUG_MODEL_MEM
                 if (i>=0 && i<onumframes)
-                    initprintf("used %d/%d frames: %s\n", i, onumframes, modelfn);
+                    Printf("used %d/%d frames: %s\n", i, onumframes, modelfn);
                 else if (i<0)
-                    initprintf("md_thinoutmodel returned %d: %s\n", i, modelfn);
+                    Printf("md_thinoutmodel returned %d: %s\n", i, modelfn);
 #  endif
             }
 # endif
@@ -1700,13 +1700,13 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE(nextvoxid == MAXVOXELS))
             {
-                initprintf("Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
+                Printf("Maximum number of voxels (%d) already defined.\n", MAXVOXELS);
                 break;
             }
 
             if (EDUKE32_PREDICT_FALSE(qloadkvx(nextvoxid, fn)))
             {
-                initprintf("Failure loading voxel file \"%s\"\n",fn);
+                Printf("Failure loading voxel file \"%s\"\n",fn);
                 break;
             }
 
@@ -1717,7 +1717,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 switch (getatoken(script, voxeltokens, ARRAY_SIZE(voxeltokens)))
                 {
-                    //case T_ERROR: initprintf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
+                    //case T_ERROR: Printf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
                 case T_TILE:
                     scriptfile_getsymbol(script,&tilex);
 
@@ -1790,7 +1790,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 switch (getatoken(script,skyboxtokens,ARRAY_SIZE(skyboxtokens)))
                 {
-                    //case T_ERROR: initprintf("Error on line %s:%d in skybox tokens\n",script->filename,linenum); break;
+                    //case T_ERROR: Printf("Error on line %s:%d in skybox tokens\n",script->filename,linenum); break;
                 case T_TILE:
                     scriptfile_getsymbol(script,&tile); break;
                 case T_PAL:
@@ -1815,10 +1815,10 @@ static int32_t defsparser(scriptfile *script)
                 }
             }
 
-            if (EDUKE32_PREDICT_FALSE(tile < 0)) initprintf("Error: skybox: missing 'tile number' near line %s:%d\n", script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy=0;
+            if (EDUKE32_PREDICT_FALSE(tile < 0)) Printf("Error: skybox: missing 'tile number' near line %s:%d\n", script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy=0;
             for (i=0; i<6; i++)
             {
-                if (EDUKE32_PREDICT_FALSE(!fn[i])) initprintf("Error: skybox: missing '%s filename' near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
+                if (EDUKE32_PREDICT_FALSE(!fn[i])) Printf("Error: skybox: missing '%s filename' near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
                 // FIXME?
                 if (fileSystem.FileExists(fn[i]))
                     happy = 0;
@@ -1856,21 +1856,21 @@ static int32_t defsparser(scriptfile *script)
             }
             if (EDUKE32_PREDICT_FALSE((unsigned)basepal >= MAXBASEPALS))
             {
-                initprintf("Error: missing or invalid 'base palette number' for highpalookup definition "
+                Printf("Error: missing or invalid 'base palette number' for highpalookup definition "
                            "near line %s:%d\n", script->filename, scriptfile_getlinum(script,highpaltokptr));
                 break;
             }
 
             if (EDUKE32_PREDICT_FALSE((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS))
             {
-                initprintf("Error: missing or invalid 'palette number' for highpalookup definition near "
+                Printf("Error: missing or invalid 'palette number' for highpalookup definition near "
                            "line %s:%d\n", script->filename, scriptfile_getlinum(script,highpaltokptr));
                 break;
             }
 
             if (EDUKE32_PREDICT_FALSE(!fn))
             {
-                initprintf("Error: missing 'file name' for highpalookup definition near line %s:%d\n",
+                Printf("Error: missing 'file name' for highpalookup definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,highpaltokptr));
                 break;
             }
@@ -1924,7 +1924,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE(pal < 0))
             {
-                initprintf("Error: tint: missing 'palette number' near line %s:%d\n",
+                Printf("Error: tint: missing 'palette number' near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,tinttokptr));
                 break;
             }
@@ -2009,12 +2009,12 @@ static int32_t defsparser(scriptfile *script)
 
                 if (EDUKE32_PREDICT_FALSE((havepal & HAVE_PAL)==0))
                 {
-                    initprintf("Error: missing 'palette number' %s\n", msgend);
+                    Printf("Error: missing 'palette number' %s\n", msgend);
                     break;
                 }
                 else if (EDUKE32_PREDICT_FALSE(pal==0 || (unsigned)pal >= MAXPALOOKUPS-RESERVEDPALS))
                 {
-                    initprintf("Error: 'palette number' out of range (1 .. %d) %s\n",
+                    Printf("Error: 'palette number' out of range (1 .. %d) %s\n",
                                MAXPALOOKUPS-RESERVEDPALS-1, msgend);
                     break;
                 }
@@ -2022,13 +2022,13 @@ static int32_t defsparser(scriptfile *script)
                 if (EDUKE32_PREDICT_FALSE(havepal & HAVEPAL_ERROR))
                 {
                     // will also disallow multiple remappals or remapselfs
-                    initprintf("Error: must have exactly one of either 'remappal' or 'remapself' %s\n", msgend);
+                    Printf("Error: must have exactly one of either 'remappal' or 'remapself' %s\n", msgend);
                     break;
                 }
                 else if (EDUKE32_PREDICT_FALSE((havepal & HAVE_REMAPPAL)
                                                && (unsigned)remappal >= MAXPALOOKUPS-RESERVEDPALS))
                 {
-                    initprintf("Error: 'remap palette number' out of range (max=%d) %s\n",
+                    Printf("Error: 'remap palette number' out of range (max=%d) %s\n",
                                MAXPALOOKUPS-RESERVEDPALS-1, msgend);
                     break;
                 }
@@ -2119,20 +2119,20 @@ static int32_t defsparser(scriptfile *script)
                     if (EDUKE32_PREDICT_FALSE((unsigned)tile >= MAXUSERTILES)) break;	// message is printed later
                     if (EDUKE32_PREDICT_FALSE((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS))
                     {
-                        initprintf("Error: missing or invalid 'palette number' for texture definition near "
+                        Printf("Error: missing or invalid 'palette number' for texture definition near "
                                    "line %s:%d\n", script->filename, scriptfile_getlinum(script,paltokptr));
                         break;
                     }
                     if (EDUKE32_PREDICT_FALSE(!fn))
                     {
-                        initprintf("Error: missing 'file name' for texture definition near line %s:%d\n",
+                        Printf("Error: missing 'file name' for texture definition near line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,paltokptr));
                         break;
                     }
 
                     if (EDUKE32_PREDICT_FALSE(!fileSystem.FileExists(fn)))
                     {
-                        initprintf("Error: %s not found in replacement for tile %d\n", fn, tile);
+                        Printf("Error: %s not found in replacement for tile %d\n", fn, tile);
                         break;
                     }
 
@@ -2191,7 +2191,7 @@ static int32_t defsparser(scriptfile *script)
                     if (EDUKE32_PREDICT_FALSE((unsigned)tile >= MAXUSERTILES)) break;	// message is printed later
                     if (EDUKE32_PREDICT_FALSE(!fn))
                     {
-                        initprintf("Error: missing 'file name' for texture definition near line %s:%d\n",
+                        Printf("Error: missing 'file name' for texture definition near line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,detailtokptr));
                         break;
                     }
@@ -2225,7 +2225,7 @@ static int32_t defsparser(scriptfile *script)
             }
             if (EDUKE32_PREDICT_FALSE((unsigned)tile >= MAXUSERTILES))
             {
-                initprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
+                Printf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,texturetokptr));
                 break;
             }
@@ -2272,7 +2272,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
             // XXX: See comment of md_undefinemodel()
-            initprintf("Warning: undefmodelof: currently non-functional.\n");
+            Printf("Warning: undefmodelof: currently non-functional.\n");
             break;
 
 #if defined USE_OPENGL && 0
@@ -2426,7 +2426,7 @@ static int32_t defsparser(scriptfile *script)
         {
             char *string = NULL;
             scriptfile_getstring(script,&string);
-            initprintf("%s\n",string);
+            Printf("%s\n",string);
         }
         break;
 
@@ -2551,7 +2551,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE((unsigned)id >= MAXBASEPALS))
             {
-                initprintf("Error: basepalette: Invalid basepal number on line %s:%d\n",
+                Printf("Error: basepalette: Invalid basepal number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 script->textptr = blockend+1;
                 break;
@@ -2609,21 +2609,21 @@ static int32_t defsparser(scriptfile *script)
 
                     if (EDUKE32_PREDICT_FALSE(fn == NULL))
                     {
-                        initprintf("Error: basepalette: No filename provided on line %s:%d\n",
+                        Printf("Error: basepalette: No filename provided on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
                     if (EDUKE32_PREDICT_FALSE(offset < 0))
                     {
-                        initprintf("Error: basepalette: Invalid file offset on line %s:%d\n",
+                        Printf("Error: basepalette: Invalid file offset on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
                     if (EDUKE32_PREDICT_FALSE((unsigned)shiftleft >= 8))
                     {
-                        initprintf("Error: basepalette: Invalid left shift provided on line %s:%d\n",
+                        Printf("Error: basepalette: Invalid left shift provided on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2631,14 +2631,14 @@ static int32_t defsparser(scriptfile *script)
                     FileReader fil = fileSystem.OpenFileReader(fn, 0);
                     if (!fil.isOpen())
                     {
-                        initprintf("Error: basepalette: Failed opening \"%s\" on line %s:%d\n", fn,
+                        Printf("Error: basepalette: Failed opening \"%s\" on line %s:%d\n", fn,
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
                     if (fil.Seek(offset, FileReader::SeekSet) < 0)
                     {
-                        initprintf("Error: basepalette: Seek failed on line %s:%d\n",
+                        Printf("Error: basepalette: Seek failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2646,7 +2646,7 @@ static int32_t defsparser(scriptfile *script)
 					auto palbuf = fil.Read();
                     if (palbuf.Size() < 768)
                     {
-                        initprintf("Error: basepalette: Read failed on line %s:%d\n",
+                        Printf("Error: basepalette: Read failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2668,7 +2668,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (EDUKE32_PREDICT_FALSE((unsigned)source >= MAXBASEPALS || source == id))
                     {
-                        initprintf("Error: basepalette: Invalid source basepal number on line %s:%d\n",
+                        Printf("Error: basepalette: Invalid source basepal number on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2676,7 +2676,7 @@ static int32_t defsparser(scriptfile *script)
                     uint8_t const * const sourcetable = basepaltable[source];
                     if (EDUKE32_PREDICT_FALSE(sourcetable == NULL))
                     {
-                        initprintf("Error: basepalette: Source basepal does not exist on line %s:%d\n",
+                        Printf("Error: basepalette: Source basepal does not exist on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2730,7 +2730,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE((unsigned)id >= MAXPALOOKUPS))
             {
-                initprintf("Error: palookup: Invalid pal number on line %s:%d\n",
+                Printf("Error: palookup: Invalid pal number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 script->textptr = blockend+1;
                 break;
@@ -2788,14 +2788,14 @@ static int32_t defsparser(scriptfile *script)
 
                     if (EDUKE32_PREDICT_FALSE(fn == NULL))
                     {
-                        initprintf("Error: palookup: No filename provided on line %s:%d\n",
+                        Printf("Error: palookup: No filename provided on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
                     if (EDUKE32_PREDICT_FALSE(offset < 0))
                     {
-                        initprintf("Error: palookup: Invalid file offset on line %s:%d\n",
+                        Printf("Error: palookup: Invalid file offset on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2803,14 +2803,14 @@ static int32_t defsparser(scriptfile *script)
                     FileReader fil = fileSystem.OpenFileReader(fn, 0);
                     if (!fil.isOpen())
                     {
-                        initprintf("Error: palookup: Failed opening \"%s\" on line %s:%d\n", fn,
+                        Printf("Error: palookup: Failed opening \"%s\" on line %s:%d\n", fn,
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
                     if (fil.Seek(offset, FileReader::SeekSet) < 0)
                     {
-                        initprintf("Error: palookup: Seek failed on line %s:%d\n",
+                        Printf("Error: palookup: Seek failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2818,7 +2818,7 @@ static int32_t defsparser(scriptfile *script)
 					auto palookupbuf = fil.Read();
                     if (palookupbuf.Size() < 256)
                     {
-                        initprintf("Error: palookup: Read failed on line %s:%d\n",
+                        Printf("Error: palookup: Read failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2833,7 +2833,7 @@ static int32_t defsparser(scriptfile *script)
                     {
                         if (EDUKE32_PREDICT_FALSE(!(paletteloaded & PALETTE_SHADE)))
                         {
-                            initprintf("Error: palookup: Shade tables not loaded on line %s:%d\n",
+                            Printf("Error: palookup: Shade tables not loaded on line %s:%d\n",
                                        script->filename, scriptfile_getlinum(script,cmdtokptr));
                             break;
                         }
@@ -2849,14 +2849,14 @@ static int32_t defsparser(scriptfile *script)
 
                     if (EDUKE32_PREDICT_FALSE((unsigned)source >= MAXPALOOKUPS || source == id))
                     {
-                        initprintf("Error: palookup: Invalid source pal number on line %s:%d\n",
+                        Printf("Error: palookup: Invalid source pal number on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
                     if (EDUKE32_PREDICT_FALSE(source == 0 && !(paletteloaded & PALETTE_SHADE)))
                     {
-                        initprintf("Error: palookup: Shade tables not loaded on line %s:%d\n",
+                        Printf("Error: palookup: Shade tables not loaded on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2864,7 +2864,7 @@ static int32_t defsparser(scriptfile *script)
                     uint8_t const * const sourcepal = (uint8_t *)palookup[source];
                     if (EDUKE32_PREDICT_FALSE(sourcepal == NULL))
                     {
-                        initprintf("Error: palookup: Source palookup does not exist on line %s:%d\n",
+                        Printf("Error: palookup: Source palookup does not exist on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2910,7 +2910,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (EDUKE32_PREDICT_FALSE(!(paletteloaded & PALETTE_SHADE)))
                     {
-                        initprintf("Error: palookup: Shade tables not loaded on line %s:%d\n",
+                        Printf("Error: palookup: Shade tables not loaded on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -2964,14 +2964,14 @@ static int32_t defsparser(scriptfile *script)
 
                     if (EDUKE32_PREDICT_FALSE((unsigned)remappal >= MAXPALOOKUPS))
                     {
-                        initprintf("Error: palookup: Invalid remappal on line %s:%d\n",
+                        Printf("Error: palookup: Invalid remappal on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
                     if (EDUKE32_PREDICT_FALSE(!(paletteloaded & PALETTE_SHADE)))
                     {
-                        initprintf("Error: palookup: Shade tables not loaded on line %s:%d\n",
+                        Printf("Error: palookup: Shade tables not loaded on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -3030,7 +3030,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE((unsigned)id >= MAXBLENDTABS))
             {
-                initprintf("Error: blendtable: Invalid blendtable number on line %s:%d\n",
+                Printf("Error: blendtable: Invalid blendtable number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 script->textptr = blockend+1;
                 break;
@@ -3081,14 +3081,14 @@ static int32_t defsparser(scriptfile *script)
 
                     if (EDUKE32_PREDICT_FALSE(fn == NULL))
                     {
-                        initprintf("Error: blendtable: No filename provided on line %s:%d\n",
+                        Printf("Error: blendtable: No filename provided on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
                     if (EDUKE32_PREDICT_FALSE(offset < 0))
                     {
-                        initprintf("Error: blendtable: Invalid file offset on line %s:%d\n",
+                        Printf("Error: blendtable: Invalid file offset on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -3096,14 +3096,14 @@ static int32_t defsparser(scriptfile *script)
                     FileReader fil = fileSystem.OpenFileReader(fn, 0);
                     if (!fil.isOpen())
                     {
-                        initprintf("Error: blendtable: Failed opening \"%s\" on line %s:%d\n", fn,
+                        Printf("Error: blendtable: Failed opening \"%s\" on line %s:%d\n", fn,
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
                     if (fil.Seek(offset, FileReader::SeekSet) < 0)
                     {
-                        initprintf("Error: blendtable: Seek failed on line %s:%d\n",
+                        Printf("Error: blendtable: Seek failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -3111,7 +3111,7 @@ static int32_t defsparser(scriptfile *script)
 					auto blendbuf = fil.Read();
                     if (blendbuf.Size() < 256*256)
                     {
-                        initprintf("Error: blendtable: Read failed on line %s:%d\n",
+                        Printf("Error: blendtable: Read failed on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -3126,7 +3126,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (EDUKE32_PREDICT_FALSE((unsigned)source >= MAXBLENDTABS || source == id))
                     {
-                        initprintf("Error: blendtable: Invalid source blendtable number on line %s:%d\n",
+                        Printf("Error: blendtable: Invalid source blendtable number on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
@@ -3302,7 +3302,7 @@ static int32_t defsparser(scriptfile *script)
                     numalphatabs = value;
                     break;
                 default:
-                    initprintf("Error: numalphatables: Invalid value on line %s:%d\n",
+                    Printf("Error: numalphatables: Invalid value on line %s:%d\n",
                                script->filename, scriptfile_getlinum(script,cmdtokptr));
                     break;
             }
@@ -3319,7 +3319,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE(id0 > id1 || (unsigned)id0 >= MAXBASEPALS || (unsigned)id1 >= MAXBASEPALS))
             {
-                initprintf("Error: undefbasepaletterange: Invalid range on line %s:%d\n",
+                Printf("Error: undefbasepaletterange: Invalid range on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
@@ -3342,7 +3342,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE(id0 > id1 || (unsigned)id0 >= MAXPALOOKUPS || (unsigned)id1 >= MAXPALOOKUPS))
             {
-                initprintf("Error: undefpalookuprange: Invalid range on line %s:%d\n",
+                Printf("Error: undefpalookuprange: Invalid range on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
@@ -3365,7 +3365,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (EDUKE32_PREDICT_FALSE(id0 > id1 || (unsigned)id0 >= MAXBLENDTABS || (unsigned)id1 >= MAXBLENDTABS))
             {
-                initprintf("Error: undefblendtablerange: Invalid range on line %s:%d\n",
+                Printf("Error: undefblendtablerange: Invalid range on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
@@ -3400,7 +3400,7 @@ static int32_t defsparser(scriptfile *script)
         break;
 
         default:
-            initprintf("Unknown token.\n"); break;
+            Printf("Unknown token.\n"); break;
         }
     }
 
@@ -3416,7 +3416,7 @@ int32_t loaddefinitionsfile(const char *fn)
 
     if (script)
     {
-        initprintf("Loading \"%s\"\n",fn);
+        Printf("Loading \"%s\"\n",fn);
 
         defsparser(script);
     }
@@ -3437,7 +3437,7 @@ int32_t loaddefinitionsfile(const char *fn)
 
     if (!script) return -1;
 
-    initprintf("\n");
+    Printf("\n");
 
     return 0;
 }

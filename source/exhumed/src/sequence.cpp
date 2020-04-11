@@ -169,7 +169,7 @@ int seq_ReadSequence(const char *seqName)
     auto hFile = fileSystem.ReopenFileReader(fileSystem.FindFile(buffer), true);
     if (!hFile.isOpen())
     {
-        initprintf("Unable to open '%s'!\n", buffer);
+        Printf("Unable to open '%s'!\n", buffer);
         return 0;
     }
 
@@ -177,7 +177,7 @@ int seq_ReadSequence(const char *seqName)
     hFile.Read(&tag, sizeof(tag));
     if (tag < MAKE_ID('I', 'H', 0, 0) || (tag > MAKE_ID('I', 'H', 0, 0) && tag != MAKE_ID('D', 'S', 0, 0)))
     {
-        initprintf("Unsupported sequence version!\n");
+        Printf("Unsupported sequence version!\n");
         return 0;
     }
 
@@ -191,7 +191,7 @@ int seq_ReadSequence(const char *seqName)
     {
         if (nSeqs < 0)
         {
-            initprintf("Invalid sequence count!\n");
+            Printf("Invalid sequence count!\n");
             return 0;
         }
         else {
@@ -217,7 +217,7 @@ int seq_ReadSequence(const char *seqName)
     {
         if (nFrames < 0 )
         {
-            initprintf("Invalid frame count!\n");
+            Printf("Invalid frame count!\n");
             return 0;
         }
         else {
@@ -242,7 +242,7 @@ int seq_ReadSequence(const char *seqName)
     {
         if (nChunks < 0 )
         {
-            initprintf("Invalid chunk count!\n");
+            Printf("Invalid chunk count!\n");
             return 0;
         }
         else {
@@ -315,7 +315,7 @@ void seq_LoadSequences()
         SeqOffsets[i] = sequences;
 
         if (seq_ReadSequence(SeqNames[i]) == 0) {
-            initprintf("Error loading '%s'\n", SeqNames[i]);
+            Printf("Error loading '%s'\n", SeqNames[i]);
         }
     }
 

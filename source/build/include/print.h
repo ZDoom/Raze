@@ -90,7 +90,7 @@ enable_if_t<is_integral<T>::value, size_t> buildprintpiece(T x)
         while (--numChars);
     }
 
-    initputs(str);
+    PrintString(PRINT_HIGH, str);
     return totalChars;
 }
 
@@ -106,7 +106,7 @@ enable_if_t<is_integral<T>::value, size_t> buildprintpiece(binwrap<T> x)
     for (int p = 0; p < numChars; ++p)
         str[numChars - 1 - p] = '0' + (char)((data >> p) & 1);
 
-    initputs(str);
+    PrintString(PRINT_HIGH, str);
     return numChars;
 }
 
@@ -122,7 +122,7 @@ enable_if_t<is_integral<T>::value, size_t> buildprintpiece(octwrap<T> x)
     for (int p = 0; p < numChars; ++p)
         str[numChars - 1 - p] = '0' + (char)((data >> (p*3)) & 7);
 
-    initputs(str);
+    PrintString(PRINT_HIGH, str);
     return numChars;
 }
 
@@ -140,7 +140,7 @@ enable_if_t<is_integral<T>::value, size_t> buildprintpiece(hexwrap<T> x)
     for (int p = 0; p < numChars; ++p)
         str[numChars - 1 - p] = hexletters[(int)((data >> (p<<2)) & 0xF)];
 
-    initputs(str);
+    PrintString(PRINT_HIGH, str);
     return numChars;
 }
 
@@ -158,7 +158,7 @@ enable_if_t<is_integral<T>::value, size_t> buildprintpiece(HEXwrap<T> x)
     for (int p = 0; p < numChars; ++p)
         str[numChars - 1 - p] = HEXletters[(int)((data >> (p<<2)) & 0xF)];
 
-    initputs(str);
+    PrintString(PRINT_HIGH, str);
     return numChars;
 }
 
@@ -170,7 +170,7 @@ FORCE_INLINE size_t buildprintpiece(const T * x)
 
 FORCE_INLINE size_t buildprintpiece(char const *str)
 {
-    initputs(str);
+    PrintString(PRINT_HIGH, str);
     return strlen(str);
 }
 

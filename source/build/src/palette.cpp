@@ -129,7 +129,7 @@ void paletteLoadFromDisk(void)
 
     if (numshades <= 1)
     {
-        initprintf("Warning: Invalid number of shades in \"palette.dat\"!\n");
+        Printf("Warning: Invalid number of shades in \"palette.dat\"!\n");
         numshades = 0;
         return;
     }
@@ -141,8 +141,6 @@ void paletteLoadFromDisk(void)
     int32_t lamedukep = 0;
     if (numshades >= 256)
     {
-        static char const * const seekfail = "Warning: seek failed in loadpalette()!\n";
-
         uint16_t temp;
         if (read_and_test(fil, &temp, 2))
             return;
@@ -151,7 +149,7 @@ void paletteLoadFromDisk(void)
         {
             if (fil.Seek(-4, FileReader::SeekCur) < 0)
             {
-                initputs(seekfail);
+                Printf("Warning: seek failed in loadpalette()!\n");
                 return;
             }
 
@@ -162,7 +160,7 @@ void paletteLoadFromDisk(void)
         {
             if (fil.Seek(-2, FileReader::SeekCur) < 0)
             {
-                initputs(seekfail);
+                Printf("Warning: seek failed in loadpalette()!\n");
                 return;
             }
         }
@@ -185,7 +183,7 @@ void paletteLoadFromDisk(void)
         uint8_t addblendtabs;
         if (read_and_test(fil, &addblendtabs, 1))
         {
-            initprintf("Warning: failed reading additional blending table count\n");
+            Printf("Warning: failed reading additional blending table count\n");
             return;
         }
 
@@ -195,14 +193,14 @@ void paletteLoadFromDisk(void)
         {
             if (read_and_test(fil, &blendnum, 1))
             {
-                initprintf("Warning: failed reading additional blending table index\n");
+                Printf("Warning: failed reading additional blending table index\n");
                 Xfree(tab);
                 return;
             }
 
             if (read_and_test(fil, tab, 256*256))
             {
-                initprintf("Warning: failed reading additional blending table\n");
+                Printf("Warning: failed reading additional blending table\n");
                 Xfree(tab);
                 return;
             }
@@ -217,7 +215,7 @@ void paletteLoadFromDisk(void)
         if (!read_and_test(fil, &lognumalphatabs, 1))
         {
             if (!(lognumalphatabs >= 1 && lognumalphatabs <= 7))
-                initprintf("invalid lognumalphatabs value, must be in [1 .. 7]\n");
+                Printf("invalid lognumalphatabs value, must be in [1 .. 7]\n");
             else
                 numalphatabs = 1<<lognumalphatabs;
         }
@@ -321,7 +319,7 @@ int32_t paletteLoadLookupTable(FileReader &fp)
 
         if (palnum >= 256-RESERVEDPALS)
         {
-            initprintf("ERROR: attempt to load lookup at reserved pal %d\n", palnum);
+            Printf("ERROR: attempt to load lookup at reserved pal %d\n", palnum);
             return -2;
         }
 

@@ -6,11 +6,7 @@
 # define ATTRIBUTE(attrlist)
 #endif
 
-
-// This header collects all things printf.
-// EDuke32 had two totally separate output paths and all the added code from G/ZDoom uses yet another means.
-// Everything goes to the console now, but to avoid changing everything, this redirects all output to the console, with the proper settings.
-// Changing all this would mean altering over 1000 lines of code which would add a needless complication to merging from upstream.
+// This header collects all things printf, so that this doesn't need to pull in other, far more dirty headers, just for outputting some text.
 
 extern "C" int mysnprintf(char* buffer, size_t count, const char* format, ...) ATTRIBUTE((format(printf, 3, 4)));
 extern "C" int myvsnprintf(char* buffer, size_t count, const char* format, va_list argptr) ATTRIBUTE((format(printf, 3, 0)));
@@ -51,39 +47,5 @@ int VPrintf(int printlevel, const char* format, va_list parms);
 int Printf (int printlevel, const char *format, ...) ATTRIBUTE((format(printf,2,3)));
 int Printf (const char *format, ...) ATTRIBUTE((format(printf,1,2)));
 int DPrintf (int level, const char *format, ...) ATTRIBUTE((format(printf,2,3)));
-
-
-void OSD_Printf(const char *format, ...) ATTRIBUTE((format(printf,1,2)));
-
-
-#ifdef _WIN32
-template<class... Args>
-inline void initprintf(const char *format, Args&&... args) //ATTRIBUTE((format(printf,1,2)))
-{
-	OSD_Printf(format, std::forward<Args>(args)...);
-}
-
-// This was a define before - which should be avoided. Used by Shadow Warrior
-template<class... Args>
-inline void buildprintf(const char *format, Args&&... args) //ATTRIBUTE((format(printf,1,2)))
-{
-	OSD_Printf(format, std::forward<Args>(args)...);
-}
-#else
-// Sigh... Sometimes a compiler's stubbornness with warnings can really make things worse than necessary...
-#define initprintf OSD_Printf
-#define buildprintf OSD_Printf
-#endif
-
-
-inline void initputs(const char *s)
-{
-	PrintString(PRINT_HIGH, s);
-}
-
-inline void buildputs(const char *s)
-{
-	PrintString(PRINT_HIGH, s);
-}
 
 void debugprintf(const char* f, ...);	// Prints to the debugger's log.

@@ -448,7 +448,7 @@ int32_t A_MoveSprite(int32_t spriteNum, vec3_t const * const change, uint32_t cl
     if (newSectnum == -1)
     {
         newSectnum = pSprite->sectnum;
-//        OSD_Printf("%s:%d wtf\n",__FILE__,__LINE__);
+//        Printf("%s:%d wtf\n",__FILE__,__LINE__);
     }
     else if (newSectnum != pSprite->sectnum)
     {
@@ -517,7 +517,7 @@ void A_DeleteSprite(int spriteNum)
 {
     if (EDUKE32_PREDICT_FALSE(block_deletesprite))
     {
-        OSD_Printf(OSD_ERROR "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n", spriteNum);
+        Printf(OSD_ERROR "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n", spriteNum);
         return;
     }
 

@@ -420,7 +420,7 @@ void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
 	short fadedamage = 0;
     RGB_color color;
 
-	//OSD_Printf("SetAmt: fadeamt = %d, startcolor = %d, pp = %d",pp->FadeAmt,startcolor,pp->StartColor);
+	//Printf("SetAmt: fadeamt = %d, startcolor = %d, pp = %d",pp->FadeAmt,startcolor,pp->StartColor);
 
     if (abs(pp->FadeAmt) > 0 && startcolor == pp->StartColor)
         return;

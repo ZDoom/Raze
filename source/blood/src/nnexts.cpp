@@ -236,7 +236,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
     }
 
     if (!gAllowTrueRandom)
-        initprintf("> True randomness is not available, using in-game random function(s)");
+        Printf("> True randomness is not available, using in-game random function(s)");
     
     for (int i = 0; i < kMaxXSprites; i++) {
 

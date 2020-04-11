@@ -103,7 +103,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     i = sv_loadsnapshot(g_demo_recFilePtr, -g_whichDemo, &saveh);
     if (i)
     {
-        OSD_Printf(OSD_ERROR "There were errors opening demo %d (code: %d).\n", g_whichDemo, i);
+        Printf(OSD_ERROR "There were errors opening demo %d (code: %d).\n", g_whichDemo, i);
 		g_demo_recFilePtr.Close();
         return 0;
     }
@@ -113,7 +113,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     demo_hasseeds = 0;
 
     i = g_demo_totalCnt/REALGAMETICSPERSEC;
-    OSD_Printf("demo %d duration: %d min %d sec\n", g_whichDemo, i/60, i%60);
+    Printf("demo %d duration: %d min %d sec\n", g_whichDemo, i/60, i%60);
 
     g_demo_cnt = 1;
     ud.reccnt = 0;
@@ -156,7 +156,7 @@ void G_OpenDemoWrite(void)
 
         if (snprintf(demofn, sizeof(demofn), "%s" DEMOFN_FMT, G_GetDemoPath().GetChars(), demonum))
         {
-            initprintf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
+            Printf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
             goto error_wopen_demo;
         }
 
@@ -303,7 +303,7 @@ static int32_t Demo_UpdateState(int32_t frominit)
     Demo_RestoreModes(j);
 
     if (k)
-        OSD_Printf("sv_updatestate() returned %d.\n", k);
+        Printf("sv_updatestate() returned %d.\n", k);
     return k;
 }
 
@@ -408,17 +408,17 @@ static void Demo_FinishProfile(void)
 
         if (nt > 0)
         {
-            OSD_Printf("== demo %d: %d gametics\n", dn, nt);
-            OSD_Printf("== demo %d game times: %.03f ms (%.03f us/gametic)\n",
+            Printf("== demo %d: %d gametics\n", dn, nt);
+            Printf("== demo %d game times: %.03f ms (%.03f us/gametic)\n",
                        dn, gms, (gms*1000.0)/nt);
         }
 
         if (nf > 0)
         {
-            OSD_Printf("== demo %d: %d frames (%d frames/gametic)\n", dn, nf, g_demo_profile-1);
-            OSD_Printf("== demo %d drawrooms times: %.03f s (%.03f ms/frame)\n",
+            Printf("== demo %d: %d frames (%d frames/gametic)\n", dn, nf, g_demo_profile-1);
+            Printf("== demo %d drawrooms times: %.03f s (%.03f ms/frame)\n",
                        dn, dms1/1000.0, dms1/nf);
-            OSD_Printf("== demo %d drawrest times: %.03f s (%.03f ms/frame)\n",
+            Printf("== demo %d drawrest times: %.03f s (%.03f ms/frame)\n",
                        dn, dms2/1000.0, dms2/nf);
         }
 
@@ -426,7 +426,7 @@ static void Demo_FinishProfile(void)
             double totalprofms = gms+dms1+dms2;
             double totalms = timerGetHiTicks()-g_prof.starthiticks;
             if (totalprofms != 0)
-                OSD_Printf("== demo %d: non-profiled time overhead: %.02f %%\n",
+                Printf("== demo %d: non-profiled time overhead: %.02f %%\n",
                            dn, 100.0*totalms/totalprofms - 100.0);
         }
     }
@@ -531,7 +531,7 @@ RECHECK:
 
     inputState.ClearAllInput();
 
-    //    OSD_Printf("ticcnt=%d, total=%d\n", g_demo_cnt, g_demo_totalCnt);
+    //    Printf("ticcnt=%d, total=%d\n", g_demo_cnt, g_demo_totalCnt);
     while (g_demo_cnt < g_demo_totalCnt || foundemo==0)
     {
         // Main loop here. It also runs when there's no demo to show,
@@ -603,7 +603,7 @@ RECHECK:
 
                     if (ud.reccnt<0)
                     {
-                        OSD_Printf("G_PlaybackDemo: ud.reccnt<0!\n");
+                        Printf("G_PlaybackDemo: ud.reccnt<0!\n");
                         CORRUPT(1);
                     }
 
@@ -625,7 +625,7 @@ RECHECK:
 
                         if (k)
                         {
-                            OSD_Printf("sv_readdiff() returned %d.\n", k);
+                            Printf("sv_readdiff() returned %d.\n", k);
                             CORRUPT(6);
                         }
                         else
@@ -659,7 +659,7 @@ RECHECK:
                     if (0)
                     {
 corrupt:
-                        OSD_Printf(OSD_ERROR "Demo %d is corrupt (code %d).\n", g_whichDemo-1, corruptcode);
+                        Printf(OSD_ERROR "Demo %d is corrupt (code %d).\n", g_whichDemo-1, corruptcode);
 nextdemo:
                         M_StartControlPanel(false);
 nextdemo_nomenu:
@@ -727,7 +727,7 @@ nextdemo_nomenu:
                     // if fast-forwarding, we must update totalclock
                     totalclock += TICSPERFRAME;
 
-//                    OSD_Printf("t:%d, l+T:%d; cnt:%d, goal:%d%s", totalclock, (lockclock+TICSPERFRAME),
+//                    Printf("t:%d, l+T:%d; cnt:%d, goal:%d%s", totalclock, (lockclock+TICSPERFRAME),
 //                               g_demo_cnt, g_demo_goalCnt, g_demo_cnt>=g_demo_goalCnt?" ":"\n");
                     if (g_demo_cnt>=g_demo_goalCnt)
                     {
@@ -769,7 +769,7 @@ nextdemo_nomenu:
                     {
                         double t1 = timerGetHiTicks(), t2;
 
-                        //                    initprintf("t=%d, o=%d, t-o = %d\n", totalclock,
+                        //                    Printf("t=%d, o=%d, t-o = %d\n", totalclock,
                         //                               ototalclock, totalclock-ototalclock);
 
                                             // NOTE: G_DrawRooms() calculates smoothratio inside and

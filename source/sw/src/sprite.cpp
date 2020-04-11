@@ -1098,7 +1098,7 @@ ActorTestSpawn(SPRITEp sp)
             case ZILLA_RUN_R0: c = "zilla"; break;
             default: c = "?"; break;
             }
-            initprintf("WARNING: skill-masked %s at %d,%d,%d not being killed because it "
+            Printf("WARNING: skill-masked %s at %d,%d,%d not being killed because it "
                         "activates something\n", c, TrackerCast(sp->x), TrackerCast(sp->y), TrackerCast(sp->z));
             return TRUE;
         }

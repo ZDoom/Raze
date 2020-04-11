@@ -40,6 +40,7 @@
 #include "basics.h"
 #include "memarena.h"
 #include "printf.h"
+#include "cmdlib.h"
 
 struct FMemArena::Block
 {
@@ -325,7 +326,7 @@ FString *FSharedStringArena::Alloc(const FString &source)
 		strnode = (Node *)iAlloc(sizeof(Node));
 		::new(&strnode->String) FString(source);
 		strnode->Hash = hash;
-		hash %= Bucket_Count;
+		hash %= countof(Buckets);
 		strnode->Next = Buckets[hash];
 		Buckets[hash] = strnode;
 	}
@@ -360,7 +361,7 @@ FString *FSharedStringArena::Alloc(const char *source, size_t strlen)
 		strnode = (Node *)iAlloc(sizeof(Node));
 		::new(&strnode->String) FString(source, strlen);
 		strnode->Hash = hash;
-		hash %= Bucket_Count;
+		hash %= countof(Buckets);
 		strnode->Next = Buckets[hash];
 		Buckets[hash] = strnode;
 	}
@@ -379,7 +380,7 @@ FSharedStringArena::Node *FSharedStringArena::FindString(const char *str, size_t
 {
 	hash = SuperFastHash(str, strlen);
 
-	for (Node *node = Buckets[hash % Bucket_Count]; node != NULL; node = node->Next)
+	for (Node *node = Buckets[hash % countof(Buckets)]; node != NULL; node = node->Next)
 	{
 		if (node->Hash == hash && node->String.Len() == strlen && memcmp(&node->String[0], str, strlen) == 0)
 		{

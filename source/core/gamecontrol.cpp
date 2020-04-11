@@ -131,7 +131,7 @@ void UserConfig::ProcessOptions()
 	// -cfg / -setupfile refer to Build style config which are not supported.
 	if (Args->CheckParm("-cfg") || Args->CheckParm("-setupfile"))
 	{
-		initprintf("Build-format config files not supported and will be ignored\n");
+		Printf("Build-format config files not supported and will be ignored\n");
 	}
 
 #if 0 // MP disabled pending evaluation
@@ -149,7 +149,7 @@ void UserConfig::ProcessOptions()
 		auto val = strtol(v, nullptr, 0);
 		static const char* const addons[] = { "DUKE3D.GRP", "DUKEDC.GRP", "NWINTER.GRP", "VACATION.GRP" };
 		if (val >= 0 && val < 4) gamegrp = addons[val];
-		else initprintf("%s: Unknown Addon\n", v);
+		else Printf("%s: Unknown Addon\n", v);
 	}
 	else if (Args->CheckParm("-nam"))
 	{

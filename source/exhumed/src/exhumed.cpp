@@ -492,12 +492,12 @@ static void parsedefinitions_game_include(const char *fileName, scriptfile *pScr
     {
         if (!Bstrcasecmp(cmdtokptr,"null") || pScript == NULL) // this is a bit overboard to prevent unused parameter warnings
             {
-           // initprintf("Warning: Failed including %s as module\n", fn);
+           // Printf("Warning: Failed including %s as module\n", fn);
             }
 /*
         else
             {
-            initprintf("Warning: Failed including %s on line %s:%d\n",
+            Printf("Warning: Failed including %s on line %s:%d\n",
                        fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
             }
 */
@@ -783,7 +783,7 @@ void I_Error(const char *fmt, ...)
     setvmode(3);
 #endif
 
-    initprintf("bailed to dos\n");
+    Printf("bailed to dos\n");
 
     va_list args;
     va_start(args, fmt);
@@ -1807,7 +1807,7 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
 
                             doTitle = kFalse;
 
-                            initprintf("Jumping to level %d...\n", levelnew);
+                            Printf("Jumping to level %d...\n", levelnew);
                         }
                         break;
                     }
@@ -1854,7 +1854,7 @@ int GameInterface::app_main()
     }
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
-    if (forcegl) initprintf("GL driver blacklist disabled.\n");
+    if (forcegl) Printf("GL driver blacklist disabled.\n");
 #endif
 
 
@@ -1873,7 +1873,7 @@ int GameInterface::app_main()
 
     // GetCurPal(NULL);
 
-    initprintf("Initializing OSD...\n");
+    Printf("Initializing OSD...\n");
 
     registerosdcommands();
 
@@ -1909,7 +1909,7 @@ int GameInterface::app_main()
             {
                 AbortNetworkPlay();
                 DebugOut("Network play aborted\n");
-                initprintf("Network play aborted\n");
+                Printf("Network play aborted\n");
                 nWaitTicks = 60;
             }
 
@@ -1926,7 +1926,7 @@ int GameInterface::app_main()
     if (!loaddefinitionsfile(defsfile))
     {
         uint32_t etime = timerGetTicks();
-        initprintf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
+        Printf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
     }
     loaddefinitions_game(defsfile, FALSE);
 

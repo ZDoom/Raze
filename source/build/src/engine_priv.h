@@ -171,7 +171,7 @@ static FORCE_INLINE int32_t yax_isislandwall(int32_t line, int32_t cf) { return 
 extern char m32_debugstr[64][128];
 extern int32_t m32_numdebuglines;
 # define yaxdebug(fmt, ...)  do { if (m32_numdebuglines<64) snprintf(m32_debugstr[m32_numdebuglines++], 128, fmt, ##__VA_ARGS__); } while (0)
-# define yaxprintf(fmt, ...) do { initprintf(fmt, ##__VA_ARGS__); } while (0)
+# define yaxprintf(fmt, ...) do { Printf(fmt, ##__VA_ARGS__); } while (0)
 #else
 # define yaxdebug(fmt, ...)
 # define yaxprintf(fmt, ...)

@@ -52,7 +52,7 @@ CUSTOM_CVARD(Int, hw_texfilter, TEXFILTER_ON, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, 
 	else
 	{
 		gltexapplyprops();
-		OSD_Printf("Texture filtering mode changed to %s\n", glfiltermodes[hw_texfilter]);
+		Printf("Texture filtering mode changed to %s\n", glfiltermodes[hw_texfilter]);
 	}
 }
 
@@ -216,7 +216,7 @@ void polymost_glreset()
     polymosttext=nullptr;
 
 #ifdef DEBUGGINGAIDS
-    OSD_Printf("polymost_glreset()\n");
+    Printf("polymost_glreset()\n");
 #endif
 }
 
@@ -3006,7 +3006,7 @@ void polymost_scansector(int32_t sectnum)
 
             if (numscans >= MAXWALLSB-1)
             {
-                OSD_Printf("!!numscans\n");
+                Printf("!!numscans\n");
                 return;
             }
 
@@ -4602,7 +4602,7 @@ static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype
     if (videoGetRenderMode() < REND_POLYMOST) return;
    if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (palookup[dapalnum] == NULL)) return;//dapalnum = 0;
 
-    //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
+    //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
     GLInterface.SetTexture(dapicnum, TileFiles.tiles[dapicnum], dapalnum, 0, -1);
     hicprecaching = 0;
@@ -4641,7 +4641,7 @@ static void PolymostProcessVoxels(void)
 
     g_haveVoxels = 2;
 
-    OSD_Printf("Generating voxel models for Polymost. This may take a while...\n");
+    Printf("Generating voxel models for Polymost. This may take a while...\n");
     //videoNextPage();
 
     for (bssize_t i = 0; i < MAXVOXELS; i++)

@@ -153,7 +153,7 @@ void GetToken(SWBOOL crossline)
     if (script_p >= scriptend_p)
     {
         if (!crossline)
-            initprintf("Error: Line %i is incomplete\n",scriptline);
+            Printf("Error: Line %i is incomplete\n",scriptline);
         endofscript = TRUE;
         return;
     }
@@ -167,14 +167,14 @@ skipspace:
         if (script_p >= scriptend_p)
         {
             if (!crossline)
-                initprintf("Error: Line %i is incomplete\n",scriptline);
+                Printf("Error: Line %i is incomplete\n",scriptline);
             endofscript = TRUE;
             return;
         }
         if (*script_p++ == '\n')
         {
             if (!crossline)
-                initprintf("Error: Line %i is incomplete\n",scriptline);
+                Printf("Error: Line %i is incomplete\n",scriptline);
             scriptline++;
         }
     }
@@ -182,7 +182,7 @@ skipspace:
     if (script_p >= scriptend_p)
     {
         if (!crossline)
-            initprintf("Error: Line %i is incomplete\n",scriptline);
+            Printf("Error: Line %i is incomplete\n",scriptline);
         endofscript = TRUE;
         return;
     }
@@ -190,7 +190,7 @@ skipspace:
     if (*script_p == '#')   // # is comment field
     {
         if (!crossline)
-            initprintf("Error: Line %i is incomplete\n",scriptline);
+            Printf("Error: Line %i is incomplete\n",scriptline);
         while (*script_p++ != '\n')
             if (script_p >= scriptend_p)
             {
@@ -211,7 +211,7 @@ skipspace:
         if (script_p == scriptend_p)
             break;
         ASSERT(token_p != &token[MAXTOKEN]);
-//          initprintf("Error: Token too large on line %i\n",scriptline);
+//          Printf("Error: Token too large on line %i\n",scriptline);
     }
 
     *token_p = 0;
@@ -573,7 +573,7 @@ void LoadCustomInfoFromScript(const char *filename)
             // first map entry may not be used, max. amount needs investigation
             if (curmap < 1 || curmap > MAX_LEVELS_REG)
             {
-                initprintf("Error: map number %d not in range 1-%d on line %s:%d\n",
+                Printf("Error: map number %d not in range 1-%d on line %s:%d\n",
                             curmap, MAX_LEVELS_REG, script->filename,
                             scriptfile_getlinum(script,mapnumptr));
                 script->textptr = braceend;
@@ -634,7 +634,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     break;
                 }
                 default:
-                    initprintf("Error on line %s:%d\n",
+                    Printf("Error on line %s:%d\n",
                                 script->filename,
                                 scriptfile_getlinum(script,script->ltextptr));
                     break;
@@ -652,7 +652,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
             if ((unsigned)--curmap >= 2u)
             {
-                initprintf("Error: episode number %d not in range 1-2 on line %s:%d\n",
+                Printf("Error: episode number %d not in range 1-2 on line %s:%d\n",
                             curmap, script->filename,
                             scriptfile_getlinum(script,epnumptr));
                 script->textptr = braceend;
@@ -680,7 +680,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     break;
                 }
                 default:
-                    initprintf("Error on line %s:%d\n",
+                    Printf("Error on line %s:%d\n",
                                 script->filename,
                                 scriptfile_getlinum(script,script->ltextptr));
                     break;
@@ -698,7 +698,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
             if ((unsigned)--curmap >= 4u)
             {
-                initprintf("Error: skill number %d not in range 1-4 on line %s:%d\n",
+                Printf("Error: skill number %d not in range 1-4 on line %s:%d\n",
                             curmap, script->filename,
                             scriptfile_getlinum(script,epnumptr));
                 script->textptr = braceend;
@@ -720,7 +720,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     break;
                 }
                 default:
-                    initprintf("Error on line %s:%d\n",
+                    Printf("Error on line %s:%d\n",
                                 script->filename,
                                 scriptfile_getlinum(script,script->ltextptr));
                     break;
@@ -796,7 +796,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
             if ((unsigned)--in >= (unsigned)InvDecl_TOTAL)
             {
-                initprintf("Error: inventory item number not in range 1-%d on line %s:%d\n",
+                Printf("Error: inventory item number not in range 1-%d on line %s:%d\n",
                             InvDecl_TOTAL, script->filename,
                             scriptfile_getlinum(script,invnumptr));
                 script->textptr = braceend;
@@ -816,7 +816,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     if (scriptfile_getnumber(script, &amt)) break;
                     break;
                 default:
-                    initprintf("Error on line %s:%d\n",
+                    Printf("Error on line %s:%d\n",
                                 script->filename,
                                 scriptfile_getlinum(script,script->ltextptr));
                     break;
@@ -846,7 +846,7 @@ void LoadCustomInfoFromScript(const char *filename)
 
             if ((unsigned)--in >= (unsigned)SIZ(weaponmap))
             {
-                initprintf("Error: weapon number not in range 1-%d on line %s:%d\n",
+                Printf("Error: weapon number not in range 1-%d on line %s:%d\n",
                             (int)SIZ(weaponmap), script->filename,
                             scriptfile_getlinum(script,wpnnumptr));
                 script->textptr = braceend;
@@ -881,7 +881,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     if (scriptfile_getnumber(script, &wpickup)) break;
                     break;
                 default:
-                    initprintf("Error on line %s:%d\n",
+                    Printf("Error on line %s:%d\n",
                                 script->filename,
                                 scriptfile_getlinum(script,script->ltextptr));
                     break;
@@ -922,7 +922,7 @@ void LoadCustomInfoFromScript(const char *filename)
 			if (scriptfile_getbraces(script, &braceend)) break;
 			if ((unsigned)--curmap >= 6u)
 			{
-				initprintf("Error: theme number %d not in range 1-6 on line %s:%d\n",
+				Printf("Error: theme number %d not in range 1-6 on line %s:%d\n",
 						curmap, script->filename,
 						scriptfile_getlinum(script,epnumptr));
 				script->textptr = braceend;
@@ -941,7 +941,7 @@ void LoadCustomInfoFromScript(const char *filename)
 						if (scriptfile_getnumber(script, &trak)) break;
 						break;
 					default:
-						initprintf("Error on line %s:%d\n",
+						Printf("Error on line %s:%d\n",
 								script->filename,
 							scriptfile_getlinum(script,script->ltextptr));
 						break;
@@ -960,7 +960,7 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_SECRET:
         case CM_QUIT:
         default:
-            initprintf("Error on line %s:%d\n",
+            Printf("Error on line %s:%d\n",
                         script->filename,
                         scriptfile_getlinum(script,script->ltextptr));
             break;

@@ -142,7 +142,7 @@ int32_t engineLoadMHK(const char *filename)
             if ((unsigned) whichsprite >= (unsigned) MAXSPRITES)
             {
                 // sprite number out of range
-                initprintf("Sprite number out of range 0-%d on line %s:%d\n",
+                Printf("Sprite number out of range 0-%d on line %s:%d\n",
                     MAXSPRITES-1, script->filename, scriptfile_getlinum(script, cmdtokptr));
                 whichsprite = -1;
                 break;
@@ -157,7 +157,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring angle offset directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring angle offset directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -168,7 +168,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -178,7 +178,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -192,7 +192,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring pitch directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring pitch directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -207,7 +207,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring roll directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring roll directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -222,7 +222,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring mdxoff/mdpivxoff directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring mdxoff/mdpivxoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -237,7 +237,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring mdyoff/mdpivyoff directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring mdyoff/mdpivyoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -252,7 +252,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring mdzoff/mdpivzoff directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring mdzoff/mdpivzoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -267,7 +267,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring mdposxoff directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring mdposxoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -282,7 +282,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring mdposyoff directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring mdposyoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -297,7 +297,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring mdposzoff directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring mdposzoff directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -308,7 +308,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -318,7 +318,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -329,7 +329,7 @@ int32_t engineLoadMHK(const char *filename)
             if (whichsprite < 0)
             {
                 // no sprite directive preceeding
-                initprintf("Ignoring mhkreset directive because of absent/invalid sprite number on line %s:%d\n",
+                Printf("Ignoring mhkreset directive because of absent/invalid sprite number on line %s:%d\n",
                     script->filename, scriptfile_getlinum(script, cmdtokptr));
                 break;
             }
@@ -393,7 +393,7 @@ int32_t engineLoadMHK(const char *filename)
             {
                 if (maphacklightcnt == PR_MAXLIGHTS)
                 {
-                    initprintf("warning: max light count %d exceeded, "
+                    Printf("warning: max light count %d exceeded, "
                         "ignoring further light defs\n", PR_MAXLIGHTS);
                     toomanylights = 1;
                     break;

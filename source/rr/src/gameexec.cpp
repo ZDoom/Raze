@@ -91,30 +91,30 @@ void VM_ScriptInfo(intptr_t const *ptr, int range)
 
     if (ptr)
     {
-        initprintf("\n");
+        Printf("\n");
 
         for (auto pScript = max<intptr_t const *>(ptr - (range >> 1), apScript),
                   p_end   = min<intptr_t const *>(ptr + (range >> 1), apScript + g_scriptSize);
              pScript < p_end;
              ++pScript)
         {
-            initprintf("%5d: %3d: ", (int32_t)(pScript - apScript), (int32_t)(pScript - ptr));
+            Printf("%5d: %3d: ", (int32_t)(pScript - apScript), (int32_t)(pScript - ptr));
 
             if (*pScript >> 12 && (*pScript & VM_INSTMASK) < CON_END)
-                initprintf("%5d %s\n", (int32_t)(*pScript >> 12), VM_GetKeywordForID(*pScript & VM_INSTMASK));
+                Printf("%5d %s\n", (int32_t)(*pScript >> 12), VM_GetKeywordForID(*pScript & VM_INSTMASK));
             else
-                initprintf("%d\n", (int32_t)*pScript);
+                Printf("%d\n", (int32_t)*pScript);
         }
 
-        initprintf("\n");
+        Printf("\n");
     }
 
     if (ptr == insptr)
     {
         if (vm.pUSprite)
-            initprintf("current actor: %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
+            Printf("current actor: %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
 
-        initprintf("g_errorLineNum: %d, g_tw: %d\n", g_errorLineNum, g_tw);
+        Printf("g_errorLineNum: %d, g_tw: %d\n", g_errorLineNum, g_tw);
     }
 }
 
@@ -479,7 +479,7 @@ int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle)
 
     if (klabs(currAngle-newAngle) < 1024)
     {
-//        OSD_Printf("G_GetAngleDelta() returning %d\n",na-a);
+//        Printf("G_GetAngleDelta() returning %d\n",na-a);
         return newAngle-currAngle;
     }
 
@@ -488,7 +488,7 @@ int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle)
     if (currAngle > 1024)
         currAngle -= 2048;
 
-//    OSD_Printf("G_GetAngleDelta() returning %d\n",na-a);
+//    Printf("G_GetAngleDelta() returning %d\n",na-a);
     return newAngle-currAngle;
 }
 
@@ -501,7 +501,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
 
     {
         AC_MOVE_ID(vm.pData) = 0;
-        OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.spriteNum, vm.pUSprite->picnum);
+        Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.spriteNum, vm.pUSprite->picnum);
         return;
     }
 
@@ -708,7 +708,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
     {
         AC_MOVE_ID(vm.pData) = 0;
-        OSD_Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
+        Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
         return;
     }
 
@@ -1222,7 +1222,7 @@ void G_GetTimeDate(int32_t * const pValues)
     time(&timeStruct);
     struct tm *pTime = localtime(&timeStruct);
 
-    // initprintf("Time&date: %s\n",asctime (ti));
+    // Printf("Time&date: %s\n",asctime (ti));
 
     pValues[0] = pTime->tm_sec;
     pValues[1] = pTime->tm_min;
@@ -2817,7 +2817,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     Bstrcat(tempbuf, szBuf);
                     Bsprintf(szBuf, " =%d\n", Gv_GetVar(lVarID) * m);
                     Bstrcat(tempbuf, szBuf);
-                    initprintf(OSDTEXT_GREEN "%s", tempbuf);
+                    Printf(OSDTEXT_GREEN "%s", tempbuf);
                     insptr++;
                     continue;
                 }

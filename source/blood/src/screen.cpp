@@ -147,7 +147,7 @@ void scrLoadPalette(void)
 #endif
 
     paletteloaded = 0;
-    initprintf("Loading palettes\n");
+    Printf("Loading palettes\n");
     for (int i = 0; i < 5; i++)
     {
         DICTNODE *pPal = gSysRes.Lookup(PAL[i].name, "PAL");
@@ -161,7 +161,7 @@ void scrLoadPalette(void)
     paletteloaded |= PALETTE_MAIN;
     scrLoadPLUs();
     paletteloaded |= PALETTE_SHADE;
-    initprintf("Loading translucency table\n");
+    Printf("Loading translucency table\n");
     DICTNODE *pTrans = gSysRes.Lookup("TRANS", "TLU");
     if (!pTrans)
         ThrowError("TRANS.TLU not found");
@@ -222,14 +222,14 @@ void scrSetDac(void)
 
 void scrInit(void)
 {
-    initprintf("Initializing engine\n");
+    Printf("Initializing engine\n");
 #ifdef USE_OPENGL
     glrendmode = REND_POLYMOST;
 #endif
     engineInit();
     curPalette = 0;
     curGamma = 0;
-    initprintf("Loading gamma correction table\n");
+    Printf("Loading gamma correction table\n");
     DICTNODE *pGamma = gSysRes.Lookup("gamma", "DAT");
     if (!pGamma)
         ThrowError("Gamma table not found");

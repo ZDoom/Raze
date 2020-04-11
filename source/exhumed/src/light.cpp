@@ -68,7 +68,7 @@ void MyLoadPalette()
     //int hFile = kopen4load("PALETTE.DAT", 1);
     //if (hFile == -1)
     //{
-    //    initprintf("Error reading palette 'PALETTE.DAT'\n");
+    //    Printf("Error reading palette 'PALETTE.DAT'\n");
     //    return;
     //}
     //
@@ -88,7 +88,7 @@ int LoadPaletteLookups()
         auto hFile = fileSystem.OpenFileReader(GradList[i], 1);
         if (!hFile.isOpen())
         {
-            initprintf("Error reading palette lookup '%s'\n", GradList[i]);
+            Printf("Error reading palette lookup '%s'\n", GradList[i]);
             return 0;
         }
 

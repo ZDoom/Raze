@@ -63,7 +63,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (!fileSystem.Lookup(mapname, "MAP"))
     {
-        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
+        Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
         return OSDCMD_OK;
     }
 	
@@ -145,7 +145,7 @@ static int osdcmd_spawn(osdcmdptr_t parm)
 
     if (numplayers > 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
     {
-        OSD_Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
+        Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
         return OSDCMD_OK;
     }
 
@@ -196,14 +196,14 @@ static int osdcmd_spawn(osdcmdptr_t parm)
             }
             if (i==g_labelCnt)
             {
-                OSD_Printf("spawn: Invalid tile label given\n");
+                Printf("spawn: Invalid tile label given\n");
                 return OSDCMD_OK;
             }
         }
 
         if ((uint32_t)picnum >= MAXUSERTILES)
         {
-            OSD_Printf("spawn: Invalid tile number\n");
+            Printf("spawn: Invalid tile number\n");
             return OSDCMD_OK;
         }
         break;
@@ -220,7 +220,7 @@ static int osdcmd_spawn(osdcmdptr_t parm)
     {
         if (setsprite(idx, &vect) < 0)
         {
-            OSD_Printf("spawn: Sprite can't be spawned into null space\n");
+            Printf("spawn: Sprite can't be spawned into null space\n");
             A_DeleteSprite(idx);
         }
     }

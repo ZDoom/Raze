@@ -276,7 +276,7 @@ void PlayLocalSound(short nSound, short nRate, bool unattached, EChanFlags cflag
 {
     if (nSound < 0 || nSound >= kMaxSounds || !soundEngine->isValidSoundId(nSound + 1))
     {
-        initprintf("PlayLocalSound: Invalid sound nSound == %i, nRate == %i\n", nSound, nRate);
+        Printf("PlayLocalSound: Invalid sound nSound == %i, nRate == %i\n", nSound, nRate);
         return;
     }
     if (looped[nSound]) cflags |= CHANF_LOOP;
@@ -543,7 +543,7 @@ void PlayFX2(unsigned short nSound, short nSprite)
 {
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
     {
-        initprintf("PlayFX2: Invalid sound nSound == %i, nSprite == %i\n", nSound, nSprite);
+        Printf("PlayFX2: Invalid sound nSound == %i, nSprite == %i\n", nSound, nSprite);
         return;
     }
 

@@ -86,21 +86,21 @@ void CON_ShowMirror(void)
 
     if (op1 < 0 || op1 > 9)
     {
-        OSD_Printf("Mirror number is out of range!");
+        Printf("Mirror number is out of range!");
         return;
     }
 
-    OSD_Printf("camera is the ST1 sprite used as the view spot");
-    OSD_Printf("camspite is the SpriteNum of the drawtotile tile in editart");
-    OSD_Printf("camspic is the tile number of the drawtotile in editart");
-    OSD_Printf("iscamera is whether or not this mirror is a camera type");
-    OSD_Printf(" ");
-    OSD_Printf("mirror[%d].mirrorwall = %d",op1,mirror[op1].mirrorwall);
-    OSD_Printf("mirror[%d].mirrorsector = %d",op1,mirror[op1].mirrorsector);
-    OSD_Printf("mirror[%d].camera = %d",op1,mirror[op1].camera);
-    OSD_Printf("mirror[%d].camsprite = %d",op1,mirror[op1].camsprite);
-    OSD_Printf("mirror[%d].campic = %d",op1,mirror[op1].campic);
-    OSD_Printf("mirror[%d].iscamera = %d",op1,mirror[op1].ismagic);
+    Printf("camera is the ST1 sprite used as the view spot");
+    Printf("camspite is the SpriteNum of the drawtotile tile in editart");
+    Printf("camspic is the tile number of the drawtotile in editart");
+    Printf("iscamera is whether or not this mirror is a camera type");
+    Printf(" ");
+    Printf("mirror[%d].mirrorwall = %d",op1,mirror[op1].mirrorwall);
+    Printf("mirror[%d].mirrorsector = %d",op1,mirror[op1].mirrorsector);
+    Printf("mirror[%d].camera = %d",op1,mirror[op1].camera);
+    Printf("mirror[%d].camsprite = %d",op1,mirror[op1].camsprite);
+    Printf("mirror[%d].campic = %d",op1,mirror[op1].campic);
+    Printf("mirror[%d].iscamera = %d",op1,mirror[op1].ismagic);
 }
 
 

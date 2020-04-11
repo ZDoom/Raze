@@ -95,33 +95,33 @@ void VM_ScriptInfo(intptr_t const * const ptr, int const range)
     if (!apScript || !ptr || g_currentEvent == -1)
         return;
 
-    initprintf("\n");
+    Printf("\n");
 
     for (auto pScript = max<intptr_t const *>(ptr - (range >> 1), apScript),
                 p_end   = min<intptr_t const *>(ptr + (range >> 1), apScript + g_scriptSize);
             pScript < p_end;
             ++pScript)
     {
-        initprintf("%5d: %3d: ", (int32_t)(pScript - apScript), (int32_t)(pScript - ptr));
+        Printf("%5d: %3d: ", (int32_t)(pScript - apScript), (int32_t)(pScript - ptr));
 
         auto &v = *pScript;
         int const lineNum = VM_DECODE_LINE_NUMBER(v);
         int const vmInst  = VM_DECODE_INST(v);
 
         if (lineNum && lineNum != VM_IFELSE_MAGIC && vmInst < CON_OPCODE_END)
-            initprintf("%5d %s (%d)\n", lineNum, VM_GetKeywordForID(vmInst), vmInst);
+            Printf("%5d %s (%d)\n", lineNum, VM_GetKeywordForID(vmInst), vmInst);
         else
-            initprintf("%d\n", (int32_t)*pScript);
+            Printf("%d\n", (int32_t)*pScript);
     }
 
-    initprintf("\n");
+    Printf("\n");
 
     if (ptr == insptr)
     {
         if (vm.pUSprite)
-            initprintf("current actor: %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
+            Printf("current actor: %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
 
-        initprintf("g_errorLineNum: %d, g_tw: %d\n", VM_DECODE_LINE_NUMBER(g_tw), VM_DECODE_INST(g_tw));
+        Printf("g_errorLineNum: %d, g_tw: %d\n", VM_DECODE_LINE_NUMBER(g_tw), VM_DECODE_INST(g_tw));
     }
 }
 #endif
@@ -498,7 +498,7 @@ int __fastcall G_GetAngleDelta(int currAngle, int newAngle)
 
     if (klabs(currAngle-newAngle) < 1024)
     {
-//        OSD_Printf("G_GetAngleDelta() returning %d\n",na-a);
+//        Printf("G_GetAngleDelta() returning %d\n",na-a);
         return newAngle-currAngle;
     }
 
@@ -507,7 +507,7 @@ int __fastcall G_GetAngleDelta(int currAngle, int newAngle)
     if (currAngle > 1024)
         currAngle -= 2048;
 
-//    OSD_Printf("G_GetAngleDelta() returning %d\n",na-a);
+//    Printf("G_GetAngleDelta() returning %d\n",na-a);
     return newAngle-currAngle;
 }
 
@@ -520,7 +520,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
 
     {
         AC_MOVE_ID(vm.pData) = 0;
-        OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.spriteNum, vm.pUSprite->picnum);
+        Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.spriteNum, vm.pUSprite->picnum);
         return;
     }
 
@@ -698,7 +698,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
     {
         AC_MOVE_ID(vm.pData) = 0;
-        OSD_Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
+        Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
         return;
     }
 
@@ -1146,7 +1146,7 @@ void G_GetTimeDate(int32_t * const pValues)
     time(&timeStruct);
     struct tm *pTime = localtime(&timeStruct);
 
-    // initprintf("Time&date: %s\n",asctime (ti));
+    // Printf("Time&date: %s\n",asctime (ti));
 
     pValues[0] = pTime->tm_sec;
     pValues[1] = pTime->tm_min;
@@ -1272,7 +1272,7 @@ static void SetArray(int const arrayNum, int const arrayIndex, int const newValu
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)arrayNum >= (unsigned)g_gameArrayCount || (unsigned)arrayIndex >= (unsigned)aGameArrays[arrayNum].size))
     {
-        OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array %d or index out of bounds from "
+        Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array %d or index out of bounds from "
                              "sprite %d (%d), player %d\n",
                    (int)arrayNum, vm.spriteNum, vm.pUSprite->picnum, vm.playerNum);
         vm.flags |= VM_RETURN;
@@ -1283,7 +1283,7 @@ static void SetArray(int const arrayNum, int const arrayIndex, int const newValu
 
     if (EDUKE32_PREDICT_FALSE(arr.flags & GAMEARRAY_READONLY))
     {
-        OSD_Printf(OSD_ERROR "Tried to set value in read-only array `%s'", arr.szLabel);
+        Printf(OSD_ERROR "Tried to set value in read-only array `%s'", arr.szLabel);
         vm.flags |= VM_RETURN;
         return;
     }
@@ -1314,7 +1314,7 @@ static void ResizeArray(int const arrayNum, int const newSize)
     if (newSize == oldSize || newSize < 0)
         return;
 #if 0
-    OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
+    Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
                array.szLabel, array.size, newSize);
 #endif
     if (newSize == 0)
@@ -2808,7 +2808,7 @@ GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
                                 CON_FOR_ITERATION();
                             break;
 badindex:
-                            OSD_Printf(OSD_ERROR "Line %d, for %s: index %d out of range!\n", VM_DECODE_LINE_NUMBER(g_tw), iter_tokens[iterType].token, nIndex);
+                            Printf(OSD_ERROR "Line %d, for %s: index %d out of range!\n", VM_DECODE_LINE_NUMBER(g_tw), iter_tokens[iterType].token, nIndex);
                             vm.flags |= VM_RETURN;
                             dispatch();
                     }
@@ -5247,7 +5247,7 @@ badindex:
                             index = Gv_GetVar(*insptr++);
                             if (EDUKE32_PREDICT_TRUE((unsigned)index < (unsigned)aGameArrays[lVarID].size))
                             {
-                                initprintf(OSDTEXT_GREEN "CONLOGVAR: L=%d %s[%d] =%d\n", VM_DECODE_LINE_NUMBER(g_tw), aGameArrays[lVarID].szLabel, index,
+                                Printf(OSDTEXT_GREEN "CONLOGVAR: L=%d %s[%d] =%d\n", VM_DECODE_LINE_NUMBER(g_tw), aGameArrays[lVarID].szLabel, index,
                                            (int32_t)(m * Gv_GetArrayValue(lVarID, index)));
                                 dispatch();
                             }
@@ -5271,7 +5271,7 @@ badindex:
                                     CON_ERRPRINTF("invalid array index\n");
                                     abort_after_error();
                                 }
-                                initprintf(OSDTEXT_GREEN "CONLOGVAR: L=%d %d %d\n", VM_DECODE_LINE_NUMBER(g_tw), index, Gv_GetVar(*insptr++, index, vm.playerNum));
+                                Printf(OSDTEXT_GREEN "CONLOGVAR: L=%d %d %d\n", VM_DECODE_LINE_NUMBER(g_tw), index, Gv_GetVar(*insptr++, index, vm.playerNum));
                                 dispatch();
                             }
                         }
@@ -5309,7 +5309,7 @@ badindex:
                     Bstrcat(tempbuf, szBuf);
                     Bsprintf(szBuf, " =%d\n", Gv_GetVar(lVarID) * m);
                     Bstrcat(tempbuf, szBuf);
-                    initprintf(OSDTEXT_GREEN "%s", tempbuf);
+                    Printf(OSDTEXT_GREEN "%s", tempbuf);
                     insptr++;
                     dispatch();
                 }
@@ -6211,7 +6211,7 @@ badindex:
 
                 VM_ASSERT((unsigned)tw < MAXQUOTES, "invalid quote %d\n", (int)tw);
 
-                OSD_Printf("%s\n", quoteMgr.GetQuote(tw));
+                Printf("%s\n", quoteMgr.GetQuote(tw));
                 dispatch();
 
             vInstruction(CON_RESPAWNHITAG):
@@ -6496,7 +6496,7 @@ void G_SaveMapState(void)
     // If we're in EVENT_ANIMATESPRITES, we'll be saving pointer values to disk :-/
 #if !defined LUNATIC
     if (EDUKE32_PREDICT_FALSE(g_currentEvent == EVENT_ANIMATESPRITES))
-        initprintf("Line %d: savemapstate called from EVENT_ANIMATESPRITES. WHY?\n", VM_DECODE_LINE_NUMBER(g_tw));
+        Printf("Line %d: savemapstate called from EVENT_ANIMATESPRITES. WHY?\n", VM_DECODE_LINE_NUMBER(g_tw));
 #endif
     Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
 #ifndef NEW_MAP_FORMAT
@@ -6635,7 +6635,7 @@ void G_RestoreMapState(void)
 #if !defined LUNATIC
         if (EDUKE32_PREDICT_FALSE(g_currentEvent == EVENT_ANIMATESPRITES))
         {
-            initprintf("Line %d: loadmapstate called from EVENT_ANIMATESPRITES. WHY?\n", VM_DECODE_LINE_NUMBER(g_tw));
+            Printf("Line %d: loadmapstate called from EVENT_ANIMATESPRITES. WHY?\n", VM_DECODE_LINE_NUMBER(g_tw));
             for (native_t i=0; i<MAXSPRITES; i++)
                 spriteext[i].tspr = NULL;
         }

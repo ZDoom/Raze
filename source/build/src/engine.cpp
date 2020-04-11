@@ -1065,7 +1065,7 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
         if ((yax_getnextwall(i, 0)<0 && yax_getnextwall(i, 1)<0) || bestwallscore>0)
 #endif
         {
-//    initprintf("w%d new nw=%d (score %d)\n", i, bestnextwall, bestwallscore)
+//    Printf("w%d new nw=%d (score %d)\n", i, bestnextwall, bestwallscore)
             wall[i].nextsector = bestnextsec;
             wall[i].nextwall = bestnextwall;
             wall[bestnextwall].nextsector = sectnum;
@@ -2498,13 +2498,13 @@ static inline void    drawmaskleaf(_maskleaf* wall)
     {
         if (wall->branch[i]->drawing == 0)
         {
-            //OSD_Printf("Drawing parent of %i : mask %i\n", wall->index, wall->branch[i]->index);
+            //Printf("Drawing parent of %i : mask %i\n", wall->index, wall->branch[i]->index);
             drawmaskleaf(wall->branch[i]);
         }
         i++;
     }
 
-    //OSD_Printf("Drawing mask %i\n", wall->index);
+    //Printf("Drawing mask %i\n", wall->index);
     drawmaskwall(wall->index);
 }
 #endif
@@ -3352,13 +3352,13 @@ static void check_sprite(int32_t i)
 {
     if ((unsigned)sprite[i].statnum >= MAXSTATUS)
     {
-        initprintf("Map error: sprite #%d (%d,%d) with illegal statnum (%d) REMOVED.\n",
+        Printf("Map error: sprite #%d (%d,%d) with illegal statnum (%d) REMOVED.\n",
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].statnum));
         remove_sprite(i);
     }
     else if ((unsigned)sprite[i].picnum >= MAXTILES)
     {
-        initprintf("Map error: sprite #%d (%d,%d) with illegal picnum (%d) REMOVED.\n",
+        Printf("Map error: sprite #%d (%d,%d) with illegal picnum (%d) REMOVED.\n",
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].sectnum));
         remove_sprite(i);
     }
@@ -3372,13 +3372,13 @@ static void check_sprite(int32_t i)
         if (sprite[i].sectnum < 0)
             remove_sprite(i);
 
-        initprintf("Map error: sprite #%d (%d,%d) with illegal sector (%d) ",
+        Printf("Map error: sprite #%d (%d,%d) with illegal sector (%d) ",
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), osectnum);
 
         if (sprite[i].statnum != MAXSTATUS)
-            initprintf("changed to sector %d.\n", TrackerCast(sprite[i].sectnum));
+            Printf("changed to sector %d.\n", TrackerCast(sprite[i].sectnum));
         else
-            initprintf("REMOVED.\n");
+            Printf("REMOVED.\n");
     }
 }
 
@@ -3568,7 +3568,7 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
         artSetupMapArt(filename);
     }
 
-    // initprintf("Loaded map \"%s\" (md4sum: %08x%08x%08x%08x)\n", filename, B_BIG32(*((int32_t*)&md4out[0])), B_BIG32(*((int32_t*)&md4out[4])), B_BIG32(*((int32_t*)&md4out[8])), B_BIG32(*((int32_t*)&md4out[12])));
+    // Printf("Loaded map \"%s\" (md4sum: %08x%08x%08x%08x)\n", filename, B_BIG32(*((int32_t*)&md4out[0])), B_BIG32(*((int32_t*)&md4out[4])), B_BIG32(*((int32_t*)&md4out[8])), B_BIG32(*((int32_t*)&md4out[12])));
 
     return engineFinishLoadBoard(dapos, dacursectnum, numsprites, myflags);
 }
@@ -4587,7 +4587,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
             cnt--;
             if (cnt==0)
             {
-                initprintf("dragpoint %d: infloop!\n", pointhighlight);
+                Printf("dragpoint %d: infloop!\n", pointhighlight);
                 i = numyaxwalls;
                 break;
             }

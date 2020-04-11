@@ -60,7 +60,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (!fileSystem.Lookup(filename, "MAP"))
     {
-        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
+        Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;
     }
 
@@ -100,13 +100,13 @@ static int osdcmd_demo(osdcmdptr_t parm)
 {
     if (numplayers > 1)
     {
-        OSD_Printf("Command not allowed in multiplayer\n");
+        Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
 
     //if (g_player[myconnectindex].ps->gm & MODE_GAME)
     //{
-    //    OSD_Printf("demo: Must not be in a game.\n");
+    //    Printf("demo: Must not be in a game.\n");
     //    return OSDCMD_OK;
     //}
 
@@ -125,7 +125,7 @@ static int osdcmd_give(osdcmdptr_t parm)
 {
     if (numplayers != 1 || !gGameStarted || gMe->pXSprite->health == 0)
     {
-        OSD_Printf("give: Cannot give while dead or not in a single-player game.\n");
+        Printf("give: Cannot give while dead or not in a single-player game.\n");
         return OSDCMD_OK;
     }
 
@@ -189,7 +189,7 @@ static int osdcmd_god(osdcmdptr_t UNUSED(parm))
         gCheatMgr.m_bPlayerCheated = true;
     }
     else
-        OSD_Printf("god: Not in a single-player game.\n");
+        Printf("god: Not in a single-player game.\n");
 
     return OSDCMD_OK;
 }
@@ -205,7 +205,7 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
     }
     else
     {
-        OSD_Printf("noclip: Not in a single-player game.\n");
+        Printf("noclip: Not in a single-player game.\n");
     }
 
     return OSDCMD_OK;

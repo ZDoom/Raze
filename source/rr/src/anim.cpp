@@ -259,7 +259,7 @@ int32_t Anim_Play(const char *fn)
 
     if (!anim)
     {
-        OSD_Printf("Animation %s is undefined!\n", fn);
+        Printf("Animation %s is undefined!\n", fn);
         return 0;
     }
 
@@ -311,7 +311,7 @@ int32_t Anim_Play(const char *fn)
 
         if (i)
         {
-            OSD_Printf("Failed reading IVF file: %s\n", animvpx_read_ivf_header_errmsg[i]);
+            Printf("Failed reading IVF file: %s\n", animvpx_read_ivf_header_errmsg[i]);
             return 0;
         }
 
@@ -324,7 +324,7 @@ int32_t Anim_Play(const char *fn)
 
         if (animvpx_init_codec(&info, handle, &codec))
         {
-            OSD_Printf("Error initializing VPX codec.\n");
+            Printf("Error initializing VPX codec.\n");
             animvpx_restore_glstate();
             return 0;
         }
@@ -337,7 +337,7 @@ int32_t Anim_Play(const char *fn)
         uint32_t nextframetime = timerGetTicks();
         uint8_t *pic;
 
-        //        OSD_Printf("msecs per frame: %d\n", msecsperframe);
+        //        Printf("msecs per frame: %d\n", msecsperframe);
 
         do
         {
@@ -346,12 +346,12 @@ int32_t Anim_Play(const char *fn)
             i = animvpx_nextpic(&codec, &pic);
             if (i)
             {
-                OSD_Printf("Failed getting next pic: %s\n", animvpx_nextpic_errmsg[i]);
+                Printf("Failed getting next pic: %s\n", animvpx_nextpic_errmsg[i]);
                 if (codec.errmsg)
                 {
-                    OSD_Printf("  %s\n", codec.errmsg);
+                    Printf("  %s\n", codec.errmsg);
                     if (codec.errmsg_detail)
-                        OSD_Printf("  detail: %s\n", codec.errmsg_detail);
+                        Printf("  detail: %s\n", codec.errmsg_detail);
                 }
                 break;
             }
@@ -446,7 +446,7 @@ int32_t Anim_Play(const char *fn)
 
     if (buffer.Size() <= 5)
     {
-        OSD_Printf("Warning: skipping playback of empty ANM file \"%s\".\n", fn);
+        Printf("Warning: skipping playback of empty ANM file \"%s\".\n", fn);
         goto end_anim;
     }
 
@@ -470,7 +470,7 @@ int32_t Anim_Play(const char *fn)
     {
         // XXX: ANM_LoadAnim() still checks less than the bare minimum,
         // e.g. ANM file could still be too small and not contain any frames.
-        OSD_Printf("Error: malformed ANM file \"%s\".\n", fn);
+        Printf("Error: malformed ANM file \"%s\".\n", fn);
         goto end_anim;
     }
 
@@ -487,7 +487,7 @@ int32_t Anim_Play(const char *fn)
     {
         if (i > 4 && totalclock > frametime + 60)
         {
-            OSD_Printf("WARNING: slowdown in %s, skipping playback\n", fn);
+            Printf("WARNING: slowdown in %s, skipping playback\n", fn);
             goto end_anim_restore_gl;
         }
 

@@ -741,7 +741,7 @@ bool InitGame()
         initmultiplayers(0, NULL, 0, 0, 0);
     else if (initmultiplayersparms(argc - firstnet, &argv[firstnet]))
     {
-        buildputs("Waiting for players...\n");
+        Printf("Waiting for players...\n");
         while (initmultiplayerscycle())
         {
             handleevents();
@@ -801,7 +801,6 @@ bool InitGame()
 
     // LoadImages will now proceed to steal all the remaining heap space
     //_outtext("\n\n\n\n\n\n\n\n");
-    //buildputs("Loading sound and graphics...\n");
     //AnimateCacheCursor();
 	TileFiles.LoadArtSet("tiles%03d.art");
 
@@ -835,7 +834,7 @@ bool InitGame()
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
 	}
  
-    if (!loaddefinitionsfile(G_DefFile())) buildputs("Definitions file loaded.\n");
+    if (!loaddefinitionsfile(G_DefFile())) Printf("Definitions file loaded.\n");
 
 	userConfig.AddDefs.reset();
 
@@ -2691,8 +2690,8 @@ int32_t GameInterface::app_main()
 
     if (!DetectShareware())
     {
-        if (SW_SHAREWARE) buildputs("Detected shareware GRP\n");
-        else buildputs("Detected registered GRP\n");
+        if (SW_SHAREWARE) Printf("Detected shareware GRP\n");
+        else Printf("Detected registered GRP\n");
     }
 
     for (i = 0; i < MAX_SW_PLAYERS; i++)
@@ -2702,12 +2701,12 @@ int32_t GameInterface::app_main()
     enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
 
     if (SW_SHAREWARE)
-        buildputs("SHADOW WARRIOR(tm) Version 1.2 (Shareware Version)\n");
+        Printf("SHADOW WARRIOR(tm) Version 1.2 (Shareware Version)\n");
     else
-        buildputs("SHADOW WARRIOR(tm) Version 1.2\n");
+        Printf("SHADOW WARRIOR(tm) Version 1.2\n");
 
     if (sw_snd_scratch == 0)    // This is always 0 at this point - this check is only here to prevent whole program optimization from eliminating the variable.
-        buildputs("Copyright (c) 1997 3D Realms Entertainment\n");
+        Printf("Copyright (c) 1997 3D Realms Entertainment\n");
 
     UserMapName[0] = '\0';
 

@@ -116,7 +116,7 @@ int Gv_ReadSave(FileReader &kFile)
     char tbuf[12];
 
     if (kFile.Read(tbuf, 12)!=12) goto corrupt;
-    if (Bmemcmp(tbuf, "BEG: EDuke32", 12)) { OSD_Printf("BEG ERR\n"); return 2; }
+    if (Bmemcmp(tbuf, "BEG: EDuke32", 12)) { Printf("BEG ERR\n"); return 2; }
 
     Gv_Free(); // nuke 'em from orbit, it's the only way to be sure...
 
@@ -223,7 +223,7 @@ int Gv_ReadSave(FileReader &kFile)
     }
 
     if (kFile.Read(tbuf, 12) != 12) return -13;
-    if (Bmemcmp(tbuf, "EOF: EDuke32", 12)) { OSD_Printf("EOF ERR\n"); return 2; }
+    if (Bmemcmp(tbuf, "EOF: EDuke32", 12)) { Printf("EOF ERR\n"); return 2; }
 
     return 0;
 
@@ -376,7 +376,7 @@ void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t 
     {
         g_errorCnt++;
         C_ReportError(-1);
-        initprintf("%s:%d: error: too many arrays!\n",g_scriptFileName,g_lineNumber);
+        Printf("%s:%d: error: too many arrays!\n",g_scriptFileName,g_lineNumber);
         return;
     }
 
@@ -384,7 +384,7 @@ void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t 
     {
         g_errorCnt++;
         C_ReportError(-1);
-        initprintf("%s:%d: error: array name `%s' exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,pszLabel, MAXARRAYLABEL);
+        Printf("%s:%d: error: array name `%s' exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,pszLabel, MAXARRAYLABEL);
         return;
     }
 
@@ -399,7 +399,7 @@ void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t 
         if (aGameArrays[i].flags & GAMEARRAY_SYSTEM)
         {
             C_ReportError(-1);
-            initprintf("ignored redefining system array `%s'.", pszLabel);
+            Printf("ignored redefining system array `%s'.", pszLabel);
         }
         else
             C_ReportError(WARNING_DUPLICATEDEFINITION);
@@ -449,7 +449,7 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     {
         g_errorCnt++;
         C_ReportError(-1);
-        initprintf("%s:%d: error: too many gamevars!\n",g_scriptFileName,g_lineNumber);
+        Printf("%s:%d: error: too many gamevars!\n",g_scriptFileName,g_lineNumber);
         return;
     }
 
@@ -457,7 +457,7 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     {
         g_errorCnt++;
         C_ReportError(-1);
-        initprintf("%s:%d: error: variable name `%s' exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,pszLabel, MAXVARLABEL);
+        Printf("%s:%d: error: variable name `%s' exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,pszLabel, MAXVARLABEL);
         return;
     }
 
@@ -469,7 +469,7 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         if (EDUKE32_PREDICT_FALSE(aGameVars[gV].flags & (GAMEVAR_PTR_MASK)))
         {
             C_ReportError(-1);
-            initprintf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+            Printf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
             return;
         }
         else if (EDUKE32_PREDICT_FALSE(!(aGameVars[gV].flags & GAMEVAR_SYSTEM)))
@@ -542,7 +542,7 @@ static int Gv_GetVarIndex(const char *szGameLabel)
 
     if (EDUKE32_PREDICT_FALSE((unsigned)gameVar >= MAXGAMEVARS))
     {
-        OSD_Printf(OSD_ERROR "Gv_GetVarIndex(): INTERNAL ERROR: couldn't find gamevar %s!\n", szGameLabel);
+        Printf(OSD_ERROR "Gv_GetVarIndex(): INTERNAL ERROR: couldn't find gamevar %s!\n", szGameLabel);
         return 0;
     }
 
@@ -555,7 +555,7 @@ static int Gv_GetArrayIndex(const char *szArrayLabel)
 
     if (EDUKE32_PREDICT_FALSE((unsigned)arrayIdx >= MAXGAMEARRAYS))
     {
-        OSD_Printf(OSD_ERROR "Gv_GetArrayIndex(): INTERNAL ERROR: couldn't find array %s!\n", szArrayLabel);
+        Printf(OSD_ERROR "Gv_GetArrayIndex(): INTERNAL ERROR: couldn't find array %s!\n", szArrayLabel);
         return 0;
     }
 

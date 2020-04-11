@@ -939,7 +939,7 @@ SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_tra
         FStringf trackname("track%02d.ogg", cdaudio_track);
         if (!Mus_Play(mapname, trackname, true))
         {
-            buildprintf("Can't find CD track %i!\n", cdaudio_track);
+            Printf("Can't find CD track %i!\n", cdaudio_track);
         }
         else return true;
     }

@@ -114,7 +114,7 @@ void G_LoadLookups(void)
     if (j < 0)
     {
         if (j == -1)
-            initprintf("ERROR loading \"lookup.dat\": failed reading enough data.\n");
+            Printf("ERROR loading \"lookup.dat\": failed reading enough data.\n");
 
         return;
     }

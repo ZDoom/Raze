@@ -82,11 +82,7 @@ protected:
 		FString String;
 		unsigned int Hash;
 	};
-	enum
-	{
-		Bucket_Count = 256
-	};
-	Node *Buckets[Bucket_Count];
+	Node *Buckets[256];
 
 	Node *FindString(const char *str, size_t strlen, unsigned int &hash);
 private:

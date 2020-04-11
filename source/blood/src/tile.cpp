@@ -44,7 +44,7 @@ void qloadvoxel(int32_t nVoxel)
     static int nLastVoxel = 0;
     DICTNODE *hVox = gSysRes.Lookup(nVoxel, "KVX");
     if (!hVox) {
-        initprintf("Missing voxel #%d (max voxels: %d)", nVoxel, kMaxVoxels);
+        Printf("Missing voxel #%d (max voxels: %d)", nVoxel, kMaxVoxels);
         return;
     }
 

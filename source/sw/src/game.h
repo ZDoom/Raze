@@ -89,7 +89,7 @@ extern int DispMono;
 #else
 void adduserquote(const char *daquote);
 extern int DispMono;
-#define MONO_PRINT(str) if (DispMono) OSD_Printf(str); // Put it in my userquote stuff!
+#define MONO_PRINT(str) if (DispMono) Printf(str); // Put it in my userquote stuff!
 //#define MONO_PRINT(str) if (DispMono) printf(str);
 #endif
 

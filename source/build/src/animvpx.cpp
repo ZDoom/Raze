@@ -129,14 +129,14 @@ int32_t animvpx_read_ivf_header(FileReader & inhandle, animvpx_ivf_header_t *hdr
         if (hdr->fpsdenom==0 || hdr->fpsnumer==0)
             return 5;  // "invalid framerate numerator or denominator"
 
-        initprintf("animvpx: rate is %d frames / %d seconds (%.03f fps).\n",
+        Printf("animvpx: rate is %d frames / %d seconds (%.03f fps).\n",
                    hdr->fpsnumer, hdr->fpsdenom, (double)hdr->fpsnumer/hdr->fpsdenom);
     }
     else
     {
         double fps = (hdr->fpsdenom==0) ? 0.0 : (double)hdr->fpsnumer/hdr->fpsdenom;
 
-        initprintf("animvpx: set rate to 30 fps (header says %d frames / %d seconds = %.03f fps).\n",
+        Printf("animvpx: set rate to 30 fps (header says %d frames / %d seconds = %.03f fps).\n",
                    hdr->fpsnumer, hdr->fpsdenom, fps);
 
         /* Don't know FPS for sure, and don't have readahead code
@@ -236,7 +236,7 @@ static int32_t animvpx_read_frame(FileReader & inhandle, uint8_t **bufptr, uint3
     if (hdr.framesiz == 0)
         return 6;  // must be 6, see animvpx_nextpic_errmsg[]
 
-//    OSD_Printf("frame size: %u\n", hdr.framesiz);
+//    Printf("frame size: %u\n", hdr.framesiz);
 
     if (!*bufptr)
     {
@@ -338,7 +338,7 @@ read_ivf_frame:
         }
 #endif
         if (corrupted)
-            OSD_Printf("warning: corrupted frame!\n");
+            Printf("warning: corrupted frame!\n");
     }
 
     img = vpx_codec_get_frame(&codec->codec, &codec->iter);
@@ -494,7 +494,7 @@ void animvpx_print_stats(const animvpx_codec_ctx *codec)
         const int32_t *m = codec->maxtimes;
         int32_t n = codec->numframes;
 
-        initprintf("VP8 timing stats (mean, max) [ms] for %d frames:\n"
+        Printf("VP8 timing stats (mean, max) [ms] for %d frames:\n"
                    " read and decode frame: %.02f, %d\n"
                    " 3 planes -> packed conversion: %.02f, %d\n"
                    " upload and display: %.02f, %d\n",

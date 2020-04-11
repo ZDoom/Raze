@@ -185,12 +185,12 @@ void netbroadcastpacket(uint8_t* buf, int len)
     {
         if (i == myconnectindex) continue;
         //sendpacket(i, buf, len);
-        buildprintf("netsendpacket() sends normal to %d\n",i);
+        Printf("netsendpacket() sends normal to %d\n",i);
     }
-    buildputs("Contents:");
+    Printf("Contents:");
     for (i=0; i<len; i++)
-        buildprintf(" %02x", buf[i]);
-    buildputs("\n");
+        Printf(" %02x", buf[i]);
+    Printf("\n");
 }
 
 int netgetpacket(int *ind, uint8_t* buf)
@@ -226,7 +226,7 @@ int netgetpacket(int *ind, uint8_t* buf)
             for (i = connecthead; i >= 0; i = connectpoint2[i])
             {
                 if (i == myconnectindex || i == *ind) continue;
-                buildprintf("netgetpacket(): distributing to %d\n", i);
+                Printf("netgetpacket(): distributing to %d\n", i);
                 //sendpacket(i, buf, len);
             }
 
@@ -252,7 +252,7 @@ int netgetpacket(int *ind, uint8_t* buf)
                 return len;
             }
 
-            buildprintf("netgetpacket(): forwarding to %d\n", i);
+            Printf("netgetpacket(): forwarding to %d\n", i);
             //sendpacket(i, buf, len);
             return 0;   // nothing for us to do
         }
@@ -267,7 +267,7 @@ int netgetpacket(int *ind, uint8_t* buf)
     }
     else
     {
-        buildprintf("netgetpacket(): Got a proxy message from %d instead of %d\n",*ind,connecthead);
+        Printf("netgetpacket(): Got a proxy message from %d instead of %d\n",*ind,connecthead);
     }
     return 0;
 }
@@ -528,7 +528,7 @@ CheckVersion(int GameVersion)
         {
             if (GameVersion != Player[pnum].PlayerVersion)
             {
-                buildprintf("CheckVersion(): player %d has version %d, expecting %d\n",
+                Printf("CheckVersion(): player %d has version %d, expecting %d\n",
                             pnum, Player[pnum].PlayerVersion, GameVersion);
 
                 adduserquote(VERSION_MSG);
@@ -588,7 +588,7 @@ waitforeverybody(void)
     if (!CommEnabled)
         return;
 
-    buildprintf("waitforeverybody() #%d\n", Player[myconnectindex].playerreadyflag + 1);
+    Printf("waitforeverybody() #%d\n", Player[myconnectindex].playerreadyflag + 1);
 
     //tenDbLprintf(gTenLog, 3, "in w4e");
     //tenDbFlushLog(gTenLog);

@@ -54,13 +54,13 @@ static void G_AddDemo(const char* param)
 
     if (framespertic < 0)
     {
-        initprintf("Play demo %s.\n", g_firstDemoFile);
+        Printf("Play demo %s.\n", g_firstDemoFile);
     }
     else
     {
         framespertic = clamp(framespertic, 0, 8)+1;
         // TODO: repeat count and gathering statistics.
-        initprintf("Profile demo %s, %d frames/gametic, repeated 1x.\n", g_firstDemoFile,
+        Printf("Profile demo %s, %d frames/gametic, repeated 1x.\n", g_firstDemoFile,
             framespertic-1);
         Demo_PlayFirst(framespertic, 1);
         g_noLogo = 1;

@@ -286,7 +286,7 @@ void ghsound_ambientlooppoll(void)
     {
         if (dword_AA25C < 0 || dword_AA25C >= MAXSOUNDS)
         {
-            initprintf("ghsound_ambientlooppoll bad index\n");
+            Printf("ghsound_ambientlooppoll bad index\n");
             return;
         }
         if (!A_CheckSoundPlaying(-1, dword_AA25C))
@@ -679,7 +679,7 @@ void ghsound_preload(int a1)
             snd = vsi[i];
             if (snd >= MAXSOUNDS)
             {
-                initprintf("ERROR: ghsound_preload: sndnum out of range\n");
+                Printf("ERROR: ghsound_preload: sndnum out of range\n");
                 continue;
             }
             if (snd > 0 && g_sounds[snd].ptr == NULL)
@@ -851,7 +851,7 @@ void sub_52BA8(void)
                 {
                     if (klabs(sprite[i].z - sector[sect].floorz) > 1024 && sprite[i].z < sector[sect].floorz)
                     {
-                        initprintf("NOTICE: deleting floating sprite %i: x=%i, y=%i, z=%i, sect=%i\n", i, sprite[i].pos.x, sprite[i].pos.y, sprite[i].pos.z, sect);
+                        Printf("NOTICE: deleting floating sprite %i: x=%i, y=%i, z=%i, sect=%i\n", i, sprite[i].pos.x, sprite[i].pos.y, sprite[i].pos.z, sect);
                         deletesprite(i);
                         sprite[i].picnum = 0;
                         sprite[i].cstat = 0;
@@ -1210,7 +1210,7 @@ void ghtrophy_savebestscores(void)
 
     if (handle->Write(&bestscore, sizeof(bestscore)) != sizeof(bestscore))
     {
-        initprintf("ghtrophy_savebestscores: error writing scores\n");
+        Printf("ghtrophy_savebestscores: error writing scores\n");
         delete handle;
         return;
     }
@@ -1229,7 +1229,7 @@ void ghtrophy_loadbestscores(void)
     }
     if (handle.Read(&bestscore, sizeof(bestscore)) != sizeof(bestscore))
     {
-        initprintf("ghtrophy_loadbestscores err read scores\n");
+        Printf("ghtrophy_loadbestscores err read scores\n");
         memset(&bestscore, 0, sizeof(bestscore));
     }
 }
@@ -1362,7 +1362,7 @@ void ghtrophy_rscopysrcdest(scoretype2 *a1, scoretype2 *a2)
 {
     if (!a1 || !a2)
     {
-        initprintf("ghtrophy_rscopysrcdest null ptr\n");
+        Printf("ghtrophy_rscopysrcdest null ptr\n");
         return;
     }
     a2->f_0 = a1->f_0;
@@ -1925,12 +1925,12 @@ void ghrender_movewatersprites(void)
         spr = f2B8280[i].f_0;
         if (spr < 0 || spr >= MAXSPRITES)
         {
-            initprintf("ghrender_movewatersprites: bad watersprite sprnum\n");
+            Printf("ghrender_movewatersprites: bad watersprite sprnum\n");
             continue;
         }
         if (dword_AA39C < 0 || dword_AA39C >= 6)
         {
-            initprintf("ghrender_movewatersprites: currepeat out of range\n");
+            Printf("ghrender_movewatersprites: currepeat out of range\n");
             continue;
         }
         sprite[spr].xrepeat = f2B8280[i].f_2 + byte_AA394[dword_AA39C];
@@ -2128,7 +2128,7 @@ void ghshtgn_fire(short snum)
             v34--;
             if (v20 < 0)
             {
-                initprintf("WARNING: ghshtgn_fire hitsect < 0\n");
+                Printf("WARNING: ghshtgn_fire hitsect < 0\n");
                 return;
             }
             sub_51678(v18, v1c, v20, v44, v48, v4c);
@@ -2136,13 +2136,13 @@ void ghshtgn_fire(short snum)
             {
                 if (sprite[v1c].cstat == 32768)
                 {
-                    initprintf("ERROR: hit spr with cstat 32768\n");
+                    Printf("ERROR: hit spr with cstat 32768\n");
                     return;
                 }
                 sect = sprite[v1c].sectnum;
                 if (sector[sect].hitag == 2000)
                 {
-                    initprintf("ERROR: hit spr in REST_AREA sector\n");
+                    Printf("ERROR: hit spr in REST_AREA sector\n");
                     return;
                 }
                 ghtrophy_addkill(v1c);
@@ -2222,12 +2222,12 @@ void ghshtgn_render(short snum)
     int vdx;
     if (dword_AA3BC < 0 || dword_AA3BC >= 15)
     {
-        initprintf("ERROR: ghshtgn_draw bad index\n");
+        Printf("ERROR: ghshtgn_draw bad index\n");
         return;
     }
     if (snum < 0 || snum >= numplayers)
     {
-        initprintf("ERROR: ghshtgn_render bad index\n");
+        Printf("ERROR: ghshtgn_render bad index\n");
         return;
     }
     DukePlayer_t* p = g_player[snum].ps;
@@ -2253,7 +2253,7 @@ void ghshtgn_render(short snum)
     }
     if (dword_AA540 >= 8)
     {
-        initprintf("ERROR: ghshtgn_render bobcnt out of bounds\n");
+        Printf("ERROR: ghshtgn_render bobcnt out of bounds\n");
         return;
     }
     sub_54D90();
@@ -2377,7 +2377,7 @@ void ghrifle_fire(short snum)
         }
         if (v20 < 0)
         {
-            initprintf("WARNING: ghrifle_fire hitsect < 0\n");
+            Printf("WARNING: ghrifle_fire hitsect < 0\n");
             return;
         }
         sub_51678(v18, v1c, v20, v44, v48, v4c);
@@ -2385,13 +2385,13 @@ void ghrifle_fire(short snum)
         {
             if (sprite[v1c].cstat == 32768)
             {
-                initprintf("ERROR: hit spr with cstat 32768\n");
+                Printf("ERROR: hit spr with cstat 32768\n");
                 return;
             }
             sect = sprite[v1c].sectnum;
             if (sector[sect].hitag == 2000)
             {
-                initprintf("ERROR: hit spr in REST_AREA sector\n");
+                Printf("ERROR: hit spr in REST_AREA sector\n");
                 return;
             }
             ghtrophy_addkill(v1c);
@@ -2470,12 +2470,12 @@ void ghrifle_render(short snum, int a2)
     int vdx, tile, x, y;
     if (dword_AA544 < 0 || dword_AA544 >= 17)
     {
-        initprintf("ERROR: ghrifle_draw bad index\n");
+        Printf("ERROR: ghrifle_draw bad index\n");
         return;
     }
     if (snum < 0 || snum >= numplayers)
     {
-        initprintf("ERROR: ghrifle_render bad index\n");
+        Printf("ERROR: ghrifle_render bad index\n");
         return;
     }
     DukePlayer_t* p = g_player[snum].ps;
@@ -2501,7 +2501,7 @@ void ghrifle_render(short snum, int a2)
     }
     if (dword_AA844 >= 8)
     {
-        initprintf("ERROR: ghrifle_render bobcnt out of bounds\n");
+        Printf("ERROR: ghrifle_render bobcnt out of bounds\n");
         return;
     }
 
@@ -2587,7 +2587,7 @@ int ghpistol_setmode(int a1)
             case 2:
                 if (!dword_AA84C)
                 {
-                    initprintf("ghpistol_setmode: pistolloaded at 0\n");
+                    Printf("ghpistol_setmode: pistolloaded at 0\n");
                 }
                 else
                     dword_AA84C--;
@@ -2649,7 +2649,7 @@ void ghpistol_fire(short snum)
         }
         if (v18 < 0)
         {
-            initprintf("WARNING: ghpistol_fire hitsect < 0\n");
+            Printf("WARNING: ghpistol_fire hitsect < 0\n");
             return;
         }
         sub_51678(v28, v1c, v18, v38, v3c, v40);
@@ -2657,12 +2657,12 @@ void ghpistol_fire(short snum)
         {
             if (sprite[v1c].cstat == 32768)
             {
-                initprintf("ERROR: hit spr with cstat 32768\n");
+                Printf("ERROR: hit spr with cstat 32768\n");
                 return;
             }
             if (sector[sprite[v1c].sectnum].hitag == 2000)
             {
-                initprintf("ERROR: hit spr in REST_AREA sector\n");
+                Printf("ERROR: hit spr in REST_AREA sector\n");
                 return;
             }
             ghtrophy_addkill(v1c);
@@ -2717,12 +2717,12 @@ void ghpistol_render(short snum)
     int vdx;
     if (dword_AA848 < 0 || dword_AA848 >= 15)
     {
-        initprintf("ERROR: ghpistol_draw bad index\n");
+        Printf("ERROR: ghpistol_draw bad index\n");
         return;
     }
     if (snum < 0 || snum >= numplayers)
     {
-        initprintf("ERROR: ghpistol_render bad index\n");
+        Printf("ERROR: ghpistol_render bad index\n");
         return;
     }
     DukePlayer_t *p = g_player[snum].ps;
@@ -2749,7 +2749,7 @@ void ghpistol_render(short snum)
     }
     if (dword_AA9C8 >= 8)
     {
-        initprintf("ERROR: ghpistol_render bobcnt out of bounds\n");
+        Printf("ERROR: ghpistol_render bobcnt out of bounds\n");
         return;
     }
     sub_54D90();
@@ -2786,7 +2786,7 @@ int ghbow_setmode(int a1)
 {
     if (a1 < 0 || a1 >= 7)
     {
-        initprintf("ERROR: ghbow_setmode %i\n", a1);
+        Printf("ERROR: ghbow_setmode %i\n", a1);
         return 0;
     }
     if (dword_AA9CC != a1)
@@ -2871,12 +2871,12 @@ void ghbow_render(short snum)
     int vdx;
     if (dword_AA9CC < 0 || dword_AA9CC >= 7)
     {
-        initprintf("ERROR: ghbow_draw bad index\n");
+        Printf("ERROR: ghbow_draw bad index\n");
         return;
     }
     if (snum < 0 || snum >= numplayers)
     {
-        initprintf("ERROR: ghbow_render bad index\n");
+        Printf("ERROR: ghbow_render bad index\n");
         return;
     }
     DukePlayer_t *p = g_player[snum].ps;
@@ -2903,7 +2903,7 @@ void ghbow_render(short snum)
     }
     if (dword_AAAAC >= 8)
     {
-        initprintf("ERROR: ghbow_render bobcnt out of bounds\n");
+        Printf("ERROR: ghbow_render bobcnt out of bounds\n");
         return;
     }
     sub_54D90();
@@ -2938,7 +2938,7 @@ void ghprecip_snowfall(void)
         sect = s->sectnum;
         if (sect < 0 || sect >= numsectors)
         {
-            initprintf("ghprecip_snowfall: bad sectnum\n");
+            Printf("ghprecip_snowfall: bad sectnum\n");
             goto BOLT;
         }
         if (s->z > sector[sect].floorz)
@@ -2966,7 +2966,7 @@ void ghprecip_snowfall(void)
                 changespritestat(i, v18);
                 if (v18 != s->sectnum)
                 {
-                    initprintf("changespritesect failed\n");
+                    Printf("changespritesect failed\n");
                 }
             }
         }
@@ -3011,7 +3011,7 @@ short ghtrax_getoldestdeertrax(void)
         }
         if (sprite[i].extra > dword_AAAB8)
         {
-            initprintf("ghtrax_getoldestdeertrax: oldest trax at %i\n", sprite[i].extra.cast());
+            Printf("ghtrax_getoldestdeertrax: oldest trax at %i\n", sprite[i].extra.cast());
         }
         i = nexti;
     }
@@ -3032,9 +3032,9 @@ void ghtrax_deertrax(short a1)
         v18 = insertsprite(s->sectnum, 0);
         if (v18 < 0 || v18 >= MAXSPRITES)
         {
-            initprintf("ghtrax_deertrax: insertsprite failed\n");
+            Printf("ghtrax_deertrax: insertsprite failed\n");
             dword_AAAB8 = dword_AAAB0;
-            initprintf("                 set maxtraxdeer to %i\n", dword_AAAB8);
+            Printf("                 set maxtraxdeer to %i\n", dword_AAAB8);
         }
         else
             dword_AAAB0++;
@@ -3044,7 +3044,7 @@ void ghtrax_deertrax(short a1)
         v18 = ghtrax_getoldestdeertrax();
         if (v18 < 0 || v18 >= MAXSPRITES)
         {
-            initprintf("ghtrax_deertrax: invalid oldest trax sprite\n");
+            Printf("ghtrax_deertrax: invalid oldest trax sprite\n");
             return;
         }
     }
@@ -3103,7 +3103,7 @@ short ghtrax_getoldestboartrax(void)
         }
         if (sprite[i].extra > dword_AAAC4)
         {
-            initprintf("ghtrax_getoldestdeertrax: oldest trax at %i\n", sprite[i].extra.cast());
+            Printf("ghtrax_getoldestdeertrax: oldest trax at %i\n", sprite[i].extra.cast());
         }
         i = nexti;
     }
@@ -3126,9 +3126,9 @@ void ghtrax_boartrax(short a1)
         v18 = insertsprite(s->sectnum, 0);
         if (v18 < 0 || v18 >= MAXSPRITES)
         {
-            initprintf("ghtrax_boartrax: insertsprite failed\n");
+            Printf("ghtrax_boartrax: insertsprite failed\n");
             dword_AAAC4 = dword_AAABC;
-            initprintf("                 set maxtraxboar to %d\n", dword_AAAC4);
+            Printf("                 set maxtraxboar to %d\n", dword_AAAC4);
         }
         else
             dword_AAABC++;
@@ -3138,7 +3138,7 @@ void ghtrax_boartrax(short a1)
         v18 = ghtrax_getoldestboartrax();
         if (v18 < 0 || v18 >= MAXSPRITES)
         {
-            initprintf("ghtrax_boartrax: invalid oldest trax sprite\n");
+            Printf("ghtrax_boartrax: invalid oldest trax sprite\n");
             return;
         }
     }
@@ -3181,7 +3181,7 @@ void sub_573C0(void)
 
     vdx = MAXSPRITES - vdx;
     if (vdx <= 640)
-        initprintf("not enuff sprites left for deer and boar trax\n");
+        Printf("not enuff sprites left for deer and boar trax\n");
     dword_AAAB0 = 0;
     dword_AAAB4 = 0;
     dword_AAAB8 = 0x180;
@@ -3245,7 +3245,7 @@ void ghtrax_deerdroppings(short a1)
     v18 = insertsprite(s->sectnum, 0);
     if (v18 < 0 || v18 >= MAXSPRITES)
     {
-        initprintf("ghtrax_deerdroppings: insertsprite failed\n");
+        Printf("ghtrax_deerdroppings: insertsprite failed\n");
         return;
     }
     s2 = &sprite[v18];
@@ -3287,7 +3287,7 @@ void ghtrax_boardroppings(short a1)
     v18 = insertsprite(s->sectnum, 0);
     if (v18 < 0 || v18 >= MAXSPRITES)
     {
-        initprintf("ghtrax_boardroppings: insertsprite failed\n");
+        Printf("ghtrax_boardroppings: insertsprite failed\n");
         return;
     }
     s2 = &sprite[v18];
@@ -3736,7 +3736,7 @@ void ghtarget_hit(short a1, int a2)
             vc += 16;
             break;
         default:
-            initprintf("WARNING: ghtarget_hit: spr not in track\n");
+            Printf("WARNING: ghtarget_hit: spr not in track\n");
             break;
         }
         switch (g_player[myconnectindex].ps->dhat61f)
@@ -3828,13 +3828,13 @@ void gharrow_spawnarrow(short snum)
     s = insertsprite(p->cursectnum, 809);
     if (s < 0 || s >= MAXSPRITES)
     {
-        initprintf("gharrow_spawnarrow: insertsprite failed\n");
+        Printf("gharrow_spawnarrow: insertsprite failed\n");
         return;
     }
     spr = &sprite[s];
     if (!spr)
     {
-        initprintf("gharrow_spawnarrow: null sprptr\n");
+        Printf("gharrow_spawnarrow: null sprptr\n");
         return;
     }
     spr->x = p->pos.x;
@@ -3891,12 +3891,12 @@ void ghstatbr_registerkillinfo(short a1, int a2, int a3)
 {
     if (a1 < 0 || a1 >= MAXTILES)
     {
-        initprintf("ERROR: ghstatbr_registerkillinfo bad pic range\n");
+        Printf("ERROR: ghstatbr_registerkillinfo bad pic range\n");
         return;
     }
     if (a2 < 0)
     {
-        initprintf("ERROR: ghstatbr_registerkillinfo neg points\n");
+        Printf("ERROR: ghstatbr_registerkillinfo neg points\n");
         return;
     }
     switch (DYNAMICTILEMAP(a1))
@@ -4164,7 +4164,7 @@ void ghdeploy_move(void)
         s = &sprite[i];
         if (s->sectnum < 0 || s->sectnum >= numsectors)
         {
-            initprintf("ghdeploy_move DEPLOYED bad sect %i\n", s->sectnum.cast());
+            Printf("ghdeploy_move DEPLOYED bad sect %i\n", s->sectnum.cast());
             deletesprite(i);
         }
         else if (sector[s->sectnum].hitag == 2003)
@@ -4190,7 +4190,7 @@ void ghdeploy_move(void)
         s = &sprite[i];
         if (s->sectnum < 0 || s->sectnum >= numsectors)
         {
-            initprintf("ghdeploy_move TOSS bad sect %i\n", s->sectnum.cast());
+            Printf("ghdeploy_move TOSS bad sect %i\n", s->sectnum.cast());
             deletesprite(i);
         }
         vec3_t vec = { s->xvel, s->yvel, 0 };
@@ -4240,19 +4240,19 @@ void ghdeploy_drop(int a1, int a2)
     p = g_player[a1].ps;
     if (p->cursectnum < 0 || p->cursectnum >= numsectors)
     {
-        initprintf("ERROR: ghdeploy_drop bad plrsectr %i\n", p->cursectnum);
+        Printf("ERROR: ghdeploy_drop bad plrsectr %i\n", p->cursectnum);
         return;
     }
     va = insertsprite(p->cursectnum, 810);
     if (va < 0 || va >= MAXSPRITES)
     {
-        initprintf("ghdeploy_drop: insertsprite failed\n");
+        Printf("ghdeploy_drop: insertsprite failed\n");
         return;
     }
     s = &sprite[va];
     if (!s)
     {
-        initprintf("ghdeploy_drop: null sprptr\n");
+        Printf("ghdeploy_drop: null sprptr\n");
         return;
     }
     s->x = p->pos.x + (sintable[(fix16_to_int(p->q16ang) + 512) & 2047] >> 7);
@@ -4354,7 +4354,7 @@ void ghmumble_randomsayit(int a1, int a2)
 {
     if (a1 < 0 || a1 >= MAXSOUNDS)
     {
-        initprintf("ghmumble_randomsayit bad sndnum\n");
+        Printf("ghmumble_randomsayit bad sndnum\n");
         return;
     }
     if (g_player[myconnectindex].ps->gm == MODE_GAME)
@@ -4434,7 +4434,7 @@ void sub_5A02C(void)
         {
             if ((int)totalclock - dword_AABAC > 7200)
             {
-                initprintf("nosightings mumble\n");
+                Printf("nosightings mumble\n");
                 t = rrdh_random() % 3;
                 if (t == 2 && dword_2BEA24 != 3)
                     t = 1;

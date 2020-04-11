@@ -286,7 +286,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 
 		if (!g_netServer && ud.multimode < 2)
 		{
-			OSD_Printf("Saved: %s\n", fn.GetChars());
+			Printf("Saved: %s\n", fn.GetChars());
 			quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Game Saved");
 			P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 		}
@@ -421,7 +421,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FileWriter *fil, uint8_t *
 
         if (cnt < 0)
         {
-            OSD_Printf("wsd: cnt=%d, f=0x%x.\n", cnt, spec->flags);
+            Printf("wsd: cnt=%d, f=0x%x.\n", cnt, spec->flags);
             continue;
         }
 
@@ -471,12 +471,12 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
 
             if (ksiz != siz || Bmemcmp(spec->ptr, cmpstrbuf, siz))
             {
-                OSD_Printf("rsd: spec=%s, idx=%d:\n", (char *)sptr->ptr, (int32_t)(spec-sptr));
+                Printf("rsd: spec=%s, idx=%d:\n", (char *)sptr->ptr, (int32_t)(spec-sptr));
 
                 if (ksiz!=siz)
-                    OSD_Printf("    file read returned %d, expected %d.\n", ksiz, siz);
+                    Printf("    file read returned %d, expected %d.\n", ksiz, siz);
                 else
-                    OSD_Printf("    sp->ptr and cmpstrbuf not identical!\n");
+                    Printf("    sp->ptr and cmpstrbuf not identical!\n");
 
                 return -1;
             }
@@ -490,7 +490,7 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
 
         if (cnt < 0)
         {
-            OSD_Printf("rsd: cnt<0... wtf?\n");
+            Printf("rsd: cnt<0... wtf?\n");
             return -1;
         }
 
@@ -505,12 +505,12 @@ static int32_t readspecdata(const dataspec_t *spec, FileReader *fil, uint8_t **d
 
             if (ksiz != siz)
             {
-                OSD_Printf("rsd: spec=%s, idx=%d, mem=%p\n", (char *)sptr->ptr, (int32_t)(spec - sptr), mem);
-                OSD_Printf("     : read %d, expected %d!\n",
+                Printf("rsd: spec=%s, idx=%d, mem=%p\n", (char *)sptr->ptr, (int32_t)(spec - sptr), mem);
+                Printf("     : read %d, expected %d!\n",
                            ksiz, siz);
 
                 if (ksiz == -1)
-                    OSD_Printf("     read: %s\n", strerror(errno));
+                    Printf("     read: %s\n", strerror(errno));
 
                 return -1;
             }
@@ -650,7 +650,7 @@ static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **dif
 
         if (cnt < 0)
         {
-            OSD_Printf("csd: cnt=%d, f=0x%x\n", cnt, spec->flags);
+            Printf("csd: cnt=%d, f=0x%x\n", cnt, spec->flags);
             continue;
         }
 
@@ -1127,7 +1127,7 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot, bool isAutoSave)
 
         if (p != svsnapshot+svsnapsiz)
         {
-            OSD_Printf("sv_saveandmakesnapshot: ptr-(snapshot end)=%d!\n", (int32_t)(p - (svsnapshot + svsnapsiz)));
+            Printf("sv_saveandmakesnapshot: ptr-(snapshot end)=%d!\n", (int32_t)(p - (svsnapshot + svsnapsiz)));
             return 1;
         }
     }
@@ -1149,7 +1149,7 @@ int32_t sv_loadheader(FileReader &fill, int32_t spot, savehead_t *h)
 
     if (filp->Read(h, sizeof(savehead_t)) != sizeof(savehead_t))
     {
-        OSD_Printf("%s %d header corrupt.\n", havedemo ? "Demo":"Savegame", havedemo ? -spot : spot);
+        Printf("%s %d header corrupt.\n", havedemo ? "Demo":"Savegame", havedemo ? -spot : spot);
         Bmemset(h->headerstr, 0, sizeof(h->headerstr));
         return -1;
     }
@@ -1160,7 +1160,7 @@ int32_t sv_loadheader(FileReader &fill, int32_t spot, savehead_t *h)
         char headerCstr[sizeof(h->headerstr) + 1];
         Bmemcpy(headerCstr, h->headerstr, sizeof(h->headerstr));
         headerCstr[sizeof(h->headerstr)] = '\0';
-        OSD_Printf("%s %d header reads \"%s\", expected \"DERSAVEGAME\".\n",
+        Printf("%s %d header reads \"%s\", expected \"DERSAVEGAME\".\n",
                    havedemo ? "Demo":"Savegame", havedemo ? -spot : spot, headerCstr);
         Bmemset(h->headerstr, 0, sizeof(h->headerstr));
         return -2;
@@ -1171,7 +1171,7 @@ int32_t sv_loadheader(FileReader &fill, int32_t spot, savehead_t *h)
 #ifndef DEBUGGINGAIDS
         if (havedemo)
 #endif
-            OSD_Printf("Incompatible savegame. Expected version %d.%d.%d.%d.%0x, found %d.%d.%d.%d.%0x\n", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
+            Printf("Incompatible savegame. Expected version %d.%d.%d.%d.%0x, found %d.%d.%d.%d.%0x\n", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                        ud.userbytever, g_scriptcrc, h->majorver, h->minorver, h->bytever, h->userbytever, h->scriptcrc);
 
         if (h->majorver == SV_MAJOR_VER && h->minorver == SV_MINOR_VER)
@@ -1190,7 +1190,7 @@ int32_t sv_loadheader(FileReader &fill, int32_t spot, savehead_t *h)
 #ifndef DEBUGGINGAIDS
         if (havedemo)
 #endif
-            OSD_Printf("File incompatible. Expected pointer size %d, found %d\n",
+            Printf("File incompatible. Expected pointer size %d, found %d\n",
                        (int32_t)sizeof(intptr_t), h->getPtrSize());
 
         Bmemset(h->headerstr, 0, sizeof(h->headerstr));
@@ -1220,7 +1220,7 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
     // else (if savegame), we just read the header and are now at offset sizeof(savehead_t)
 
 #ifdef DEBUGGINGAIDS
-    OSD_Printf("sv_loadsnapshot: snapshot size: %d bytes.\n", h->snapsiz);
+    Printf("sv_loadsnapshot: snapshot size: %d bytes.\n", h->snapsiz);
 #endif
 
     if (spot >= 0)
@@ -1229,7 +1229,7 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
         i = doloadplayer2(fil, NULL);
         if (i)
         {
-            OSD_Printf("sv_loadsnapshot: doloadplayer2() returned %d.\n", i);
+            Printf("sv_loadsnapshot: doloadplayer2() returned %d.\n", i);
             return 5;
         }
     }
@@ -1243,14 +1243,14 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
         i = doloadplayer2(fil, &p);
         if (i)
         {
-            OSD_Printf("sv_loadsnapshot: doloadplayer2() returned %d.\n", i);
+            Printf("sv_loadsnapshot: doloadplayer2() returned %d.\n", i);
             sv_freemem();
             return 5;
         }
 
         if (p != svsnapshot+svsnapsiz)
         {
-            OSD_Printf("sv_loadsnapshot: internal error: p-(snapshot end)=%d!\n",
+            Printf("sv_loadsnapshot: internal error: p-(snapshot end)=%d!\n",
                        (int32_t)(p-(svsnapshot+svsnapsiz)));
             sv_freemem();
             return 6;
@@ -1277,7 +1277,7 @@ uint32_t sv_writediff(FileWriter *fil)
     cmpspecdata((const dataspec_t *)svgm_vars, &p, &d);
 
     if (p != svsnapshot+svsnapsiz)
-        OSD_Printf("sv_writediff: dump+siz=%p, p=%p!\n", svsnapshot+svsnapsiz, p);
+        Printf("sv_writediff: dump+siz=%p, p=%p!\n", svsnapshot+svsnapsiz, p);
     
     uint32_t const diffsiz = d - svdiff;
 
@@ -1315,7 +1315,7 @@ int32_t sv_readdiff(FileReader &fil)
     if (d!=svdiff+diffsiz)
         i|=2;
     if (i)
-        OSD_Printf("sv_readdiff: p=%p, svsnapshot+svsnapsiz=%p; d=%p, svdiff+diffsiz=%p",
+        Printf("sv_readdiff: p=%p, svsnapshot+svsnapsiz=%p; d=%p, svdiff+diffsiz=%p",
                    p, svsnapshot+svsnapsiz, d, svdiff+diffsiz);
     return i;
 }
@@ -1400,8 +1400,8 @@ static void sv_restload()
 }
 
 #ifdef DEBUGGINGAIDS
-# define PRINTSIZE(name) do { if (mem) OSD_Printf(name ": %d\n", (int32_t)(mem-tmem)); \
-        OSD_Printf(name ": %d ms\n", timerGetTicks()-t); t=timerGetTicks(); tmem=mem; } while (0)
+# define PRINTSIZE(name) do { if (mem) Printf(name ": %d\n", (int32_t)(mem-tmem)); \
+        Printf(name ": %d ms\n", timerGetTicks()-t); t=timerGetTicks(); tmem=mem; } while (0)
 #else
 # define PRINTSIZE(name) do { } while (0)
 #endif
@@ -1480,7 +1480,7 @@ int32_t sv_updatestate(int32_t frominit)
 
     if (p != pbeg+svsnapsiz)
     {
-        OSD_Printf("sv_updatestate: ptr-(snapshot end)=%d\n", (int32_t)(p-(pbeg+svsnapsiz)));
+        Printf("sv_updatestate: ptr-(snapshot end)=%d\n", (int32_t)(p-(pbeg+svsnapsiz)));
         return -9;
     }
 

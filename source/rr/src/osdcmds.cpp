@@ -79,7 +79,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (!fileSystem.Lookup(mapname, "MAP"))
     {
-        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
+        Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
         return OSDCMD_OK;
     }
 	
@@ -95,7 +95,7 @@ static int osdcmd_map(osdcmdptr_t parm)
     }
 	if (VOLUMEONE)
 	{
-		OSD_Printf(OSD_ERROR "Cannot use user maps in shareware.\n");
+		Printf(OSD_ERROR "Cannot use user maps in shareware.\n");
 		return OSDCMD_OK;
 	}
 	// Treat as user map
@@ -151,13 +151,13 @@ static int osdcmd_demo(osdcmdptr_t parm)
 {
     if (numplayers > 1)
     {
-        OSD_Printf("Command not allowed in multiplayer\n");
+        Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
 
     if (g_player[myconnectindex].ps->gm & MODE_GAME)
     {
-        OSD_Printf("demo: Must not be in a game.\n");
+        Printf("demo: Must not be in a game.\n");
         return OSDCMD_OK;
     }
 
@@ -182,7 +182,7 @@ static int osdcmd_activatecheat(osdcmdptr_t parm)
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
         osdcmd_cheatsinfo_stat.cheatnum = Batoi(parm->parms[0]);
     else
-        OSD_Printf("activatecheat: Not in a single-player game.\n");
+        Printf("activatecheat: Not in a single-player game.\n");
 
     return OSDCMD_OK;
 }
@@ -193,7 +193,7 @@ static int osdcmd_god(osdcmdptr_t UNUSED(parm))
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
         osdcmd_cheatsinfo_stat.cheatnum = CHEAT_CORNHOLIO;
     else
-        OSD_Printf("god: Not in a single-player game.\n");
+        Printf("god: Not in a single-player game.\n");
 
     return OSDCMD_OK;
 }
@@ -208,7 +208,7 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
     }
     else
     {
-        OSD_Printf("noclip: Not in a single-player game.\n");
+        Printf("noclip: Not in a single-player game.\n");
     }
 
     return OSDCMD_OK;
@@ -235,7 +235,7 @@ static int osdcmd_spawn(osdcmdptr_t parm)
 
     if (numplayers > 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
     {
-        OSD_Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
+        Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
         return OSDCMD_OK;
     }
 
@@ -286,14 +286,14 @@ static int osdcmd_spawn(osdcmdptr_t parm)
             }
             if (i==g_labelCnt)
             {
-                OSD_Printf("spawn: Invalid tile label given\n");
+                Printf("spawn: Invalid tile label given\n");
                 return OSDCMD_OK;
             }
         }
 
         if ((uint32_t)picnum >= MAXUSERTILES)
         {
-            OSD_Printf("spawn: Invalid tile number\n");
+            Printf("spawn: Invalid tile number\n");
             return OSDCMD_OK;
         }
         break;
@@ -310,7 +310,7 @@ static int osdcmd_spawn(osdcmdptr_t parm)
     {
         if (setsprite(idx, &vect) < 0)
         {
-            OSD_Printf("spawn: Sprite can't be spawned into null space\n");
+            Printf("spawn: Sprite can't be spawned into null space\n");
             A_DeleteSprite(idx);
         }
     }
@@ -326,7 +326,7 @@ static int osdcmd_give(osdcmdptr_t parm)
     if (numplayers != 1 || (g_player[myconnectindex].ps->gm & MODE_GAME) == 0 ||
             g_player[myconnectindex].ps->dead_flag != 0)
     {
-        OSD_Printf("give: Cannot give while dead or not in a single-player game.\n");
+        Printf("give: Cannot give while dead or not in a single-player game.\n");
         return OSDCMD_OK;
     }
 
@@ -420,7 +420,7 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
             if (!haveac)
             {
                 haveac = 1;
-                OSD_Printf("\nactor times: tile, total calls, total time [ms], {min,mean,max} time/call [us]\n");
+                Printf("\nactor times: tile, total calls, total time [ms], {min,mean,max} time/call [us]\n");
             }
 
             buf[0] = 0;
@@ -436,7 +436,7 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 
             if (!buf[0]) Bsprintf(buf, "%d", i);
 
-            OSD_Printf("%17s, %8d, %9.3f, %9.3f, %9.3f, %9.3f,\n",
+            Printf("%17s, %8d, %9.3f, %9.3f, %9.3f, %9.3f,\n",
                 buf, g_actorCalls[i], g_actorTotalMs[i],
                 1000*g_actorMinMs[i],
                 1000*g_actorTotalMs[i]/g_actorCalls[i],

@@ -166,7 +166,7 @@ int RFS::Open(int lumpnum)
 {
     auto hFile = fileSystem.OpenFileReader(lumpnum);
     if (!hFile.isOpen()) {
-        initprintf("BARF: Error opening file %d", lumpnum);
+        Printf("BARF: Error opening file %d", lumpnum);
         return 1;
     }
 
@@ -174,7 +174,7 @@ int RFS::Open(int lumpnum)
 	buffer.Resize(fileSize);
     _ptr = buffer.Data();
     if (_ptr == NULL) {
-        initprintf("BARF: Not enough memory to read %d", lumpnum);
+        Printf("BARF: Not enough memory to read %d", lumpnum);
         return 1;
     }
 
@@ -258,7 +258,7 @@ void RFS::ScriptError(const char *message)
     msg.Push('^');
     msg.Push(0);
 
-    initprintf("Error in %s line %d: %s\n\n%s", _fileName, _curLine, message, msg.Data());
+    Printf("Error in %s line %d: %s\n\n%s", _fileName, _curLine, message, msg.Data());
 }
 
 uint8_t RFS::GetNextTag()

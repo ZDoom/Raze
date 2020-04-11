@@ -953,18 +953,6 @@ int Printf (const char *format, ...)
 	return count;
 }
 
-void OSD_Printf(const char *format, ...)
-{
-	// For compatibility this only prints to the console, not to the notification message
-	// Otherwise the game would become far too noisy.
-	va_list argptr;
-	int count;
-
-	va_start (argptr, format);
-	count = VPrintf (PRINT_HIGH, format, argptr);
-	va_end (argptr);
-}
-
 int DPrintf (int level, const char *format, ...)
 {
 	va_list argptr;

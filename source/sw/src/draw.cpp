@@ -683,7 +683,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
         tu = User[SpriteNum];
 
         //if(tsp->statnum == STAT_GENERIC_QUEUE)
-        //    OSD_Printf("tsp->pal = %d",tsp->pal);
+        //    Printf("tsp->pal = %d",tsp->pal);
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so

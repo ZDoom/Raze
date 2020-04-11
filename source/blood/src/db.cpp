@@ -597,7 +597,7 @@ unsigned int dbReadMapCRC(const char *pPath)
 
     if (!pNode)
     {
-        initprintf("Error opening map file %s", pPath);
+        Printf("Error opening map file %s", pPath);
         return -1;
     }
     char *pData = (char*)gSysRes.Lock(pNode);
@@ -660,7 +660,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 
     if (!pNode)
     {
-        initprintf("Error opening map file %s", pPath);
+        Printf("Error opening map file %s", pPath);
         return -1;
     }
     char *pData = (char*)gSysRes.Lock(pNode);
@@ -673,7 +673,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 #endif
     if (memcmp(header.signature, "BLM\x1a", 4))
     {
-        initprintf("Map file corrupted");
+        Printf("Map file corrupted");
         gSysRes.Unlock(pNode);
         return -1;
     }
@@ -689,7 +689,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         #endif
 
     } else {
-        initprintf("Map file is wrong version");
+        Printf("Map file is wrong version");
         gSysRes.Unlock(pNode);
         return -1;
     }
@@ -739,14 +739,14 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         }
         else
         {
-            initprintf("Corrupted Map file");
+            Printf("Corrupted Map file");
             gSysRes.Unlock(pNode);
             return -1;
         }
     }
     else if (mapHeader.at16)
     {
-        initprintf("Corrupted Map file");
+        Printf("Corrupted Map file");
         gSysRes.Unlock(pNode);
         return -1;
     }
@@ -1117,7 +1117,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     md4once((unsigned char*)pData, nSize, g_loadedMapHack.md4);
     if (Bcrc32(pData, nSize-4, 0) != nCRC)
     {
-        initprintf("Map File does not match CRC");
+        Printf("Map File does not match CRC");
         gSysRes.Unlock(pNode);
         return -1;
     }
@@ -1137,14 +1137,14 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         }
         else
         {
-            initprintf("Corrupted Map file");
+            Printf("Corrupted Map file");
             gSysRes.Unlock(pNode);
             return -1;
         }
     }
     else if (gSongId != 0)
     {
-        initprintf("Corrupted Map file");
+        Printf("Corrupted Map file");
         gSysRes.Unlock(pNode);
         return -1;
     }

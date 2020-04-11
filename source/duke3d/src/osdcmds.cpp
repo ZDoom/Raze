@@ -82,7 +82,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (!fileSystem.Lookup(mapname, "MAP"))
     {
-        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
+        Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
         return OSDCMD_OK;
     }
 	
@@ -98,7 +98,7 @@ static int osdcmd_map(osdcmdptr_t parm)
     }
 	if (VOLUMEONE)
 	{
-		OSD_Printf(OSD_ERROR "Cannot use user maps in shareware.\n");
+		Printf(OSD_ERROR "Cannot use user maps in shareware.\n");
 		return OSDCMD_OK;
 	}
 	// Treat as user map
@@ -153,13 +153,13 @@ static int osdcmd_demo(osdcmdptr_t parm)
 {
     if (numplayers > 1)
     {
-        OSD_Printf("Command not allowed in multiplayer\n");
+        Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
 
     if (g_player[myconnectindex].ps->gm & MODE_GAME)
     {
-        OSD_Printf("demo: Must not be in a game.\n");
+        Printf("demo: Must not be in a game.\n");
         return OSDCMD_OK;
     }
 
@@ -184,7 +184,7 @@ static int osdcmd_activatecheat(osdcmdptr_t parm)
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
         osdcmd_cheatsinfo_stat.cheatnum = Batoi(parm->parms[0]);
     else
-        OSD_Printf("activatecheat: Not in a single-player game.\n");
+        Printf("activatecheat: Not in a single-player game.\n");
 
     return OSDCMD_OK;
 }
@@ -195,7 +195,7 @@ static int osdcmd_god(osdcmdptr_t UNUSED(parm))
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
         osdcmd_cheatsinfo_stat.cheatnum = CHEAT_CORNHOLIO;
     else
-        OSD_Printf("god: Not in a single-player game.\n");
+        Printf("god: Not in a single-player game.\n");
 
     return OSDCMD_OK;
 }
@@ -214,7 +214,7 @@ static int osdcmd_maxhealth(osdcmdptr_t parm)
         sprite[pPlayer->i].extra = newHealth;
     }
     else
-        OSD_Printf("maxhealth: Not in a single-player game.\n");
+        Printf("maxhealth: Not in a single-player game.\n");
 
     return OSDCMD_OK;
 }
@@ -229,7 +229,7 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
     }
     else
     {
-        OSD_Printf("noclip: Not in a single-player game.\n");
+        Printf("noclip: Not in a single-player game.\n");
     }
 
     return OSDCMD_OK;
@@ -256,7 +256,7 @@ static int osdcmd_spawn(osdcmdptr_t parm)
 
     if (numplayers > 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
     {
-        OSD_Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
+        Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
         return OSDCMD_OK;
     }
 
@@ -307,14 +307,14 @@ static int osdcmd_spawn(osdcmdptr_t parm)
             }
             if (i==g_labelCnt)
             {
-                OSD_Printf("spawn: Invalid tile label given\n");
+                Printf("spawn: Invalid tile label given\n");
                 return OSDCMD_OK;
             }
         }
 
         if ((uint32_t)picnum >= MAXUSERTILES)
         {
-            OSD_Printf("spawn: Invalid tile number\n");
+            Printf("spawn: Invalid tile number\n");
             return OSDCMD_OK;
         }
         break;
@@ -331,7 +331,7 @@ static int osdcmd_spawn(osdcmdptr_t parm)
     {
         if (setsprite(idx, &vect) < 0)
         {
-            OSD_Printf("spawn: Sprite can't be spawned into null space\n");
+            Printf("spawn: Sprite can't be spawned into null space\n");
             A_DeleteSprite(idx);
         }
     }
@@ -343,7 +343,7 @@ static int osdcmd_setvar(osdcmdptr_t parm)
 {
     if (numplayers > 1)
     {
-        OSD_Printf("Command not allowed in multiplayer\n");
+        Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
 
@@ -357,12 +357,12 @@ static int osdcmd_setvar(osdcmdptr_t parm)
     {
         Gv_SetVar(i, newValue, g_player[myconnectindex].ps->i, myconnectindex);
 
-        OSD_Printf("Variable \"%s\" now has value %d (input: %d)\n", aGameVars[i].szLabel,
+        Printf("Variable \"%s\" now has value %d (input: %d)\n", aGameVars[i].szLabel,
                    Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex), newValue);
     }
     else
     {
-        OSD_Printf("setvar: \"%s\" is not a game variable!\n", parm->parms[0]);
+        Printf("setvar: \"%s\" is not a game variable!\n", parm->parms[0]);
         return OSDCMD_SHOWHELP;
     }
 
@@ -373,7 +373,7 @@ static int osdcmd_addlogvar(osdcmdptr_t parm)
 {
     if (numplayers > 1)
     {
-        OSD_Printf("Command not allowed in multiplayer\n");
+        Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
 
@@ -383,10 +383,10 @@ static int osdcmd_addlogvar(osdcmdptr_t parm)
     int const i = hash_find(&h_gamevars, parm->parms[0]);
 
     if (i >= 0)
-        OSD_Printf("Variable \"%s\" has value %d, default %d\n", parm->parms[0], Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek), (int)aGameVars[i].defaultValue);
+        Printf("Variable \"%s\" has value %d, default %d\n", parm->parms[0], Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek), (int)aGameVars[i].defaultValue);
     else
     {
-        OSD_Printf("addlogvar: %s is not a game variable!\n", parm->parms[0]);
+        Printf("addlogvar: %s is not a game variable!\n", parm->parms[0]);
         return OSDCMD_SHOWHELP;
     }
 
@@ -397,7 +397,7 @@ static int osdcmd_setactorvar(osdcmdptr_t parm)
 {
     if (numplayers > 1)
     {
-        OSD_Printf("Command not allowed in multiplayer\n");
+        Printf("Command not allowed in multiplayer\n");
         return OSDCMD_OK;
     }
 
@@ -408,7 +408,7 @@ static int osdcmd_setactorvar(osdcmdptr_t parm)
 
     if ((unsigned)spriteNum >= MAXSPRITES)
     {
-        OSD_Printf("setactorvar: Invalid sprite number!\n");
+        Printf("setactorvar: Invalid sprite number!\n");
         return OSDCMD_OK;
     }
 
@@ -420,12 +420,12 @@ static int osdcmd_setactorvar(osdcmdptr_t parm)
     {
         Gv_SetVar(i, newValue, spriteNum, myconnectindex);
 
-        OSD_Printf("Variable \"%s\" for sprite %d value is now %d (input: %d)\n", aGameVars[i].szLabel, spriteNum,
+        Printf("Variable \"%s\" for sprite %d value is now %d (input: %d)\n", aGameVars[i].szLabel, spriteNum,
                    Gv_GetVar(i, g_player[myconnectindex].ps->i, myconnectindex), newValue);
     }
     else
     {
-        OSD_Printf("setactorvar: %s is not a game variable!\n", parm->parms[1]);
+        Printf("setactorvar: %s is not a game variable!\n", parm->parms[1]);
         return OSDCMD_SHOWHELP;
     }
 
@@ -440,7 +440,7 @@ static int osdcmd_give(osdcmdptr_t parm)
     if (numplayers != 1 || (g_player[myconnectindex].ps->gm & MODE_GAME) == 0 ||
             g_player[myconnectindex].ps->dead_flag != 0)
     {
-        OSD_Printf("give: Cannot give while dead or not in a single-player game.\n");
+        Printf("give: Cannot give while dead or not in a single-player game.\n");
         return OSDCMD_OK;
     }
 
@@ -497,17 +497,17 @@ static int osdcmd_dumpmapstate(osdfuncparm_t const * const)
 
 static int osdcmd_playerinfo(osdfuncparm_t const * const)
 {
-    OSD_Printf("Your player index is %d.\n", myconnectindex);
+    Printf("Your player index is %d.\n", myconnectindex);
 
     for(int32_t playerIndex = 0; playerIndex < MAXPLAYERS; playerIndex++)
     {
         if(g_player[playerIndex].ps == nullptr)
         {
-            OSD_Printf("g_player[%d]: ps unallocated.\n", playerIndex);
+            Printf("g_player[%d]: ps unallocated.\n", playerIndex);
         }
         else
         {
-            OSD_Printf("g_player[%d]: ps->i is %d.\n", playerIndex, g_player[playerIndex].ps->i);
+            Printf("g_player[%d]: ps->i is %d.\n", playerIndex, g_player[playerIndex].ps->i);
         }
     }
 
@@ -572,12 +572,12 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
             if (!haveev)
             {
                 haveev = 1;
-                OSD_Printf("\nevent times: event, total calls, total time [ms], mean time/call [us]\n");
+                Printf("\nevent times: event, total calls, total time [ms], mean time/call [us]\n");
             }
 
             buf[n] = 0;
 
-            OSD_Printf("%17s, %8d, %10.3f, %10.3f,\n",
+            Printf("%17s, %8d, %10.3f, %10.3f,\n",
                 buf, g_eventCalls[i], g_eventTotalMs[i],
                 1000*g_eventTotalMs[i]/g_eventCalls[i]);
         }
@@ -588,7 +588,7 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
             if (!haveac)
             {
                 haveac = 1;
-                OSD_Printf("\nactor times: tile, total calls, total time [ms], {min,mean,max} time/call [us]\n");
+                Printf("\nactor times: tile, total calls, total time [ms], {min,mean,max} time/call [us]\n");
             }
 
             buf[0] = 0;
@@ -604,7 +604,7 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 
             if (!buf[0]) Bsprintf(buf, "%d", i);
 
-            OSD_Printf("%17s, %8d, %9.3f, %9.3f, %9.3f, %9.3f,\n",
+            Printf("%17s, %8d, %9.3f, %9.3f, %9.3f, %9.3f,\n",
                 buf, g_actorCalls[i], g_actorTotalMs[i],
                 1000*g_actorMinMs[i],
                 1000*g_actorTotalMs[i]/g_actorCalls[i],

@@ -358,7 +358,7 @@ static void G_OROR_DupeSprites(spritetype const *sp)
             tsp->z += -sp->z + actor[sp->yvel].ceilingz;
             tsp->sectnum = refsp->sectnum;
 
-//            OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsp->picnum,tsp->x,tsp->y,tsp->z);
+//            Printf("duped sprite of pic %d at %d %d %d\n",tsp->picnum,tsp->x,tsp->y,tsp->z);
         }
     }
 }
@@ -395,7 +395,7 @@ static void G_SE40(int32_t smoothratio)
             // XXX: PK: too large stack allocation for my taste
             int32_t i;
             int32_t pix_diff, newz;
-            //                initprintf("drawing ror\n");
+            //                Printf("drawing ror\n");
 
             if (level)
             {
@@ -674,7 +674,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         {
 #ifdef DEBUGGINGAIDS
             if (EDUKE32_PREDICT_FALSE(noDraw != 0))
-                OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMSCAMERA return value must be 0 or 1, "
+                Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMSCAMERA return value must be 0 or 1, "
                            "other values are reserved.\n");
 #endif
 
@@ -828,7 +828,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         {
 #ifdef DEBUGGINGAIDS
             if (EDUKE32_PREDICT_FALSE(noDraw != 0))
-                OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
+                Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
                            "other values are reserved.\n");
 #endif
             screen->BeginScene();
@@ -1016,7 +1016,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
     if (EDUKE32_PREDICT_FALSE((unsigned)newSprite >= MAXSPRITES))
     {
         G_DumpDebugInfo();
-        OSD_Printf("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
+        Printf("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
                           s_pn,s_ow < 0 ? -1 : TrackerCast(sprite[s_ow].picnum),s_ow,s_x,s_y,s_z,whatsect);
         G_GameExit("Too many sprites spawned.");
     }
@@ -2465,7 +2465,7 @@ int A_Spawn(int spriteNum, int tileNum)
             if (EDUKE32_PREDICT_FALSE(pSprite->hitag && pSprite->picnum == WATERBUBBLEMAKER))
             {
                 // JBF 20030913: Pisses off X_Move(), eg. in bobsp2
-                OSD_Printf(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
+                Printf(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
                            newSprite,TrackerCast(pSprite->x),TrackerCast(pSprite->y));
                 pSprite->hitag = 0;
             }
@@ -2534,7 +2534,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     if (sprite[spriteNum].picnum == SECTOREFFECTOR && (sprite[spriteNum].lotag == 40 || sprite[spriteNum].lotag == 41) &&
                             sprite[spriteNum].hitag == pSprite->hitag && newSprite != spriteNum)
                     {
-//                        initprintf("found ror match\n");
+//                        Printf("found ror match\n");
                         pSprite->yvel = spriteNum;
                         break;
                     }
@@ -2723,7 +2723,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     // use elevator sector's ceiling as heuristic
                     T4(newSprite) = sector[sectNum].ceilingz;
 
-                    OSD_Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector's ceilingz to "
+                    Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector's ceilingz to "
                                          "determine when to warp. Sector %d adjacent to a door?\n",
                                newSprite, sectNum);
                 }
@@ -2737,7 +2737,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     // heuristic
                     T5(newSprite) = sector[sectNum].floorz;
 
-                    OSD_Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector %d's floorz.\n",
+                    Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector %d's floorz.\n",
                                newSprite, sectNum);
                 }
 
@@ -2944,7 +2944,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     }
                     if (EDUKE32_PREDICT_FALSE(spriteNum == -1))
                     {
-                        OSD_Printf(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
+                        Printf(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
                             TrackerCast(pSprite->x),TrackerCast(pSprite->y));
                         changespritestat(newSprite, STAT_ACTOR);
                         goto SPAWN_END;
@@ -3985,7 +3985,7 @@ skip:
 #ifdef DEBUGGINGAIDS
                     // A negative actor[i].dispicnum used to mean 'no floor shadow please', but
                     // that was a bad hack since the value could propagate to sprite[].picnum.
-                    OSD_Printf(OSD_ERROR "actor[%d].dispicnum = %d\n", i, actor[i].dispicnum);
+                    Printf(OSD_ERROR "actor[%d].dispicnum = %d\n", i, actor[i].dispicnum);
 #endif
                     actor[i].dispicnum=0;
                     continue;
@@ -4599,12 +4599,12 @@ static void parsedefinitions_game_include(const char *fileName, scriptfile *pScr
     {
         if (!Bstrcasecmp(cmdtokptr,"null") || pScript == NULL) // this is a bit overboard to prevent unused parameter warnings
             {
-           // initprintf("Warning: Failed including %s as module\n", fn);
+           // Printf("Warning: Failed including %s as module\n", fn);
             }
 /*
         else
             {
-            initprintf("Warning: Failed including %s on line %s:%d\n",
+            Printf("Warning: Failed including %s on line %s:%d\n",
                        fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
             }
 */
@@ -4649,14 +4649,14 @@ static void parsedefinitions_game_animsounds(scriptfile *pScript, const char * b
         // frame numbers start at 1 for us
         if (frameNum <= 0)
         {
-            initprintf("Error: frame number must be greater zero on line %s:%d\n", pScript->filename,
+            Printf("Error: frame number must be greater zero on line %s:%d\n", pScript->filename,
                        scriptfile_getlinum(pScript, pScript->ltextptr));
             break;
         }
 
         if (frameNum < lastFrameNum)
         {
-            initprintf("Error: frame numbers must be in (not necessarily strictly)"
+            Printf("Error: frame numbers must be in (not necessarily strictly)"
                        " ascending order (line %s:%d)\n",
                        pScript->filename, scriptfile_getlinum(pScript, pScript->ltextptr));
             break;
@@ -4666,7 +4666,7 @@ static void parsedefinitions_game_animsounds(scriptfile *pScript, const char * b
 
         if ((unsigned)soundNum >= MAXSOUNDS && soundNum != -1)
         {
-            initprintf("Error: sound number #%d invalid on line %s:%d\n", soundNum, pScript->filename,
+            Printf("Error: sound number #%d invalid on line %s:%d\n", soundNum, pScript->filename,
                        scriptfile_getlinum(pScript, pScript->ltextptr));
             break;
         }
@@ -4684,12 +4684,12 @@ static void parsedefinitions_game_animsounds(scriptfile *pScript, const char * b
 
     if (!defError)
     {
-        // initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
+        // Printf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
         //           hardcoded_anim_tokens[animnum].text, numpairs);
     }
     else
     {
-        initprintf("Failed defining sound sequence for anim \"%s\".\n", fileName);
+        Printf("Failed defining sound sequence for anim \"%s\".\n", fileName);
     }
     animPtr->Sounds.ShrinkToFit();
 }
@@ -4824,7 +4824,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
             {
                 if (musicID==NULL)
                 {
-                    initprintf("Error: missing ID for music definition near line %s:%d\n",
+                    Printf("Error: missing ID for music definition near line %s:%d\n",
                                pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
                     break;
                 }
@@ -4833,7 +4833,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
 
                 if (S_DefineMusic(musicID, fileName) == -1)
-                    initprintf("Error: invalid music ID on line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
+                    Printf("Error: invalid music ID on line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
             }
         }
         break;
@@ -4927,7 +4927,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
             if (!animPtr)
             {
-                initprintf("Error: expected animation filename on line %s:%d\n",
+                Printf("Error: expected animation filename on line %s:%d\n",
                     pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
                 break;
             }
@@ -4973,7 +4973,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
             {
                 if (soundNum==-1)
                 {
-                    initprintf("Error: missing ID for sound definition near line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
+                    Printf("Error: missing ID for sound definition near line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
                     break;
                 }
 
@@ -4982,7 +4982,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
                 // maybe I should have just packed this into a sound_t and passed a reference...
                 if (S_DefineSound(soundNum, fileName, minpitch, maxpitch, priority, type, distance, volume) == -1)
-                    initprintf("Error: invalid sound ID on line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
+                    Printf("Error: invalid sound ID on line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
             }
         }
         break;
@@ -5014,7 +5014,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
                         if ((unsigned)choiceID >= MAXMENUGAMEPLAYENTRIES)
                         {
-                            initprintf("Error: Maximum choices exceeded near line %s:%d\n",
+                            Printf("Error: Maximum choices exceeded near line %s:%d\n",
                                 pScript->filename, scriptfile_getlinum(pScript, choicePtr));
                             pScript->textptr = choiceEnd+1;
                         }
@@ -5039,7 +5039,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
                                     if ((unsigned)subChoiceID >= MAXMENUGAMEPLAYENTRIES)
                                     {
-                                        initprintf("Error: Maximum subchoices exceeded near line %s:%d\n",
+                                        Printf("Error: Maximum subchoices exceeded near line %s:%d\n",
                                             pScript->filename, scriptfile_getlinum(pScript, subChoicePtr));
                                         pScript->textptr = subChoiceEnd+1;
                                     }
@@ -5237,7 +5237,7 @@ static void G_CompileScripts(void)
 static inline void G_CheckGametype(void)
 {
     m_coop = clamp(*m_coop, 0, g_gametypeCnt-1);
-    initprintf("%s\n",g_gametypeNames[m_coop]);
+    Printf("%s\n",g_gametypeNames[m_coop]);
     if (g_gametypeFlags[m_coop] & GAMETYPE_ITEMRESPAWN)
         ud.m_respawn_items = ud.m_respawn_inventory = 1;
 }
@@ -5334,7 +5334,7 @@ void El_CreateGameState(void)
 
     if ((i = El_CreateState(&g_ElState, "game")))
     {
-        initprintf("Lunatic: Error initializing global ELua state (code %d)\n", i);
+        Printf("Lunatic: Error initializing global ELua state (code %d)\n", i);
     }
     else
     {
@@ -5343,7 +5343,7 @@ void El_CreateGameState(void)
         if ((i = L_RunString(&g_ElState, luaJIT_BC__defs_game,
                              LUNATIC_DEFS_BC_SIZE, "_defs_game.lua")))
         {
-            initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
+            Printf("Lunatic: Error preparing global ELua state (code %d)\n", i);
             El_DestroyState(&g_ElState);
         }
     }
@@ -5401,7 +5401,7 @@ static void G_Startup(void)
 		FString startupMap;
         if (VOLUMEONE)
         {
-            initprintf("The -map option is available in the registered version only!\n");
+            Printf("The -map option is available in the registered version only!\n");
         }
         else
         {
@@ -5413,11 +5413,11 @@ static void G_Startup(void)
 
 			if (fileSystem.FileExists(startupMap))
 			{
-                initprintf("Using level: \"%s\".\n",startupMap.GetChars());
+                Printf("Using level: \"%s\".\n",startupMap.GetChars());
             }
             else
             {
-                initprintf("Level \"%s\" not found.\n",startupMap.GetChars());
+                Printf("Level \"%s\" not found.\n",startupMap.GetChars());
                 boardfilename[0] = 0;
             }
         }
@@ -5430,7 +5430,7 @@ static void G_Startup(void)
     Net_GetPackets();
 
     if (numplayers > 1)
-        initprintf("Multiplayer initialized.\n");
+        Printf("Multiplayer initialized.\n");
 
     if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
         G_GameExit("Failed loading art.");
@@ -5439,7 +5439,7 @@ static void G_Startup(void)
     // after dynamic tile remapping (from C_Compile) and loading tiles.
     picanm[LOADSCREEN].sf |= PICANM_NOFULLBRIGHT_BIT;
 
-//    initprintf("Loading palette/lookups...\n");
+//    Printf("Loading palette/lookups...\n");
     G_LoadLookups();
 
     screenpeek = myconnectindex;
@@ -5607,7 +5607,7 @@ int GameInterface::app_main()
     // gotta set the proper title after we compile the CONs if this is the full version
 
     if (g_scriptDebug)
-        initprintf("CON debugging activated (level %d).\n",g_scriptDebug);
+        Printf("CON debugging activated (level %d).\n",g_scriptDebug);
 
 #ifndef NETCODE_DISABLE
     if (g_networkMode == NET_SERVER || g_networkMode == NET_DEDICATED_SERVER)
@@ -5663,7 +5663,7 @@ int GameInterface::app_main()
     if (!loaddefinitionsfile(defsfile))
     {
         uint32_t etime = timerGetTicks();
-        initprintf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
+        Printf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
     }
     loaddefinitions_game(defsfile, FALSE);
 
@@ -5707,7 +5707,7 @@ int GameInterface::app_main()
 
     int const clipMapError = engineLoadClipMaps();
     if (clipMapError > 0)
-        initprintf("There was an error loading the sprite clipping map (status %d).\n", clipMapError);
+        Printf("There was an error loading the sprite clipping map (status %d).\n", clipMapError);
 
     g_clipMapFiles.Reset();
 
@@ -5755,7 +5755,7 @@ MAIN_LOOP_RESTART:
 
     if(g_netClient)
     {
-        OSD_Printf("Waiting for initial snapshot...");
+        Printf("Waiting for initial snapshot...");
         Net_WaitForInitialSnapshot();
 
 

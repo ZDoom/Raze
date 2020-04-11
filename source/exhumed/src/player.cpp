@@ -901,7 +901,7 @@ void DoKenTest()
     int nSector = sprite[nPlayerSprite].sectnum;
     if ((unsigned int)nSector >= kMaxSectors)
     {
-        initprintf("DoKenTest: (unsigned int)nSector >= kMaxSectors\n");
+        Printf("DoKenTest: (unsigned int)nSector >= kMaxSectors\n");
         return;
     }
 

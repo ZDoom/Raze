@@ -190,7 +190,7 @@ int CountTiles (const char *fn, const uint8_t *RawData)
 	int version = LittleLong(*(uint32_t *)RawData);
 	if (version != 1)
 	{
-		initprintf("%s: Invalid art file version.  Must be 1, got %d\n", fn, version);
+		Printf("%s: Invalid art file version.  Must be 1, got %d\n", fn, version);
 		return 0;
 	}
 
@@ -199,12 +199,12 @@ int CountTiles (const char *fn, const uint8_t *RawData)
 
 	if ((unsigned)tilestart >= MAXUSERTILES || (unsigned)tileend >= MAXUSERTILES)
 	{
-		initprintf("%s: Invalid tilestart or tileend\n", fn);
+		Printf("%s: Invalid tilestart or tileend\n", fn);
 		return 0;
 	}
 	if (tileend < tilestart)
 	{
-		initprintf("%s: tileend < tilestart\n", fn);
+		Printf("%s: tileend < tilestart\n", fn);
 		return 0;
 	}
 
@@ -333,7 +333,7 @@ int BuildTiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 		}
 		else
 		{
-			//initprintf("%s: file not found\n", fn);
+			//Printf("%s: file not found\n", fn);
 			return -1;
 		}
 	}
@@ -777,7 +777,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char *filename, flo
 	auto tex = TileFiles.tiles[picnum];
 	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0)
 	{
-		initprintf("Warning: defined hightile replacement for empty tile %d.", picnum);
+		Printf("Warning: defined hightile replacement for empty tile %d.", picnum);
 		return -1;	// cannot add replacements to empty tiles, must create one beforehand
 	}
 	HightileReplacement replace = {};
@@ -785,7 +785,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char *filename, flo
 	replace.faces[0] = TileFiles.GetTexture(filename);
 	if (replace.faces[0] == nullptr)
 	{
-		initprintf("%s: Replacement for tile %d does not exist or is invalid\n", filename, picnum);
+		Printf("%s: Replacement for tile %d does not exist or is invalid\n", filename, picnum);
 		return -1;
 	}
     replace.alphacut = min(alphacut,1.f);
@@ -813,7 +813,7 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
 	auto tex = TileFiles.tiles[picnum];
 	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0)
 	{
-		initprintf("Warning: defined skybox replacement for empty tile %d.", picnum);
+		Printf("Warning: defined skybox replacement for empty tile %d.", picnum);
 		return -1;	// cannot add replacements to empty tiles, must create one beforehand
 	}
 	HightileReplacement replace = {};
@@ -823,7 +823,7 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
 		face = TileFiles.GetTexture(*facenames);
 		if (face == nullptr)
 		{
-			initprintf("%s: Skybox image for tile %d does not exist or is invalid\n", *facenames, picnum);
+			Printf("%s: Skybox image for tile %d does not exist or is invalid\n", *facenames, picnum);
 			return -1;
 		}
 	}

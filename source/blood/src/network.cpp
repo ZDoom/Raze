@@ -911,7 +911,7 @@ void netInitialize(bool bConsole)
     }
     if (!gHaveNetworking)
     {
-        initprintf("An error occurred while initializing ENet.\n");
+        Printf("An error occurred while initializing ENet.\n");
         netResetToSinglePlayer();
         return;
     }
@@ -924,7 +924,7 @@ void netInitialize(bool bConsole)
         gNetENetServer = enet_host_create(&gNetENetAddress, 8, BLOOD_ENET_CHANNEL_MAX, 0, 0);
         if (!gNetENetServer)
         {
-            initprintf("An error occurred while trying to create an ENet server host.\n");
+            Printf("An error occurred while trying to create an ENet server host.\n");
             netDeinitialize();
             netResetToSinglePlayer();
             return;
@@ -966,7 +966,7 @@ void netInitialize(bool bConsole)
                     char ipaddr[32];
 
                     enet_address_get_host_ip(&event.peer->address, ipaddr, sizeof(ipaddr));
-                    initprintf("Client connected: %s:%u\n", ipaddr, event.peer->address.port);
+                    Printf("Client connected: %s:%u\n", ipaddr, event.peer->address.port);
                     numplayers++;
                     for (int i = 1; i < kMaxPlayers; i++)
                     {
@@ -990,7 +990,7 @@ void netInitialize(bool bConsole)
                     char ipaddr[32];
 
                     enet_address_get_host_ip(&event.peer->address, ipaddr, sizeof(ipaddr));
-                    initprintf("Client disconnected: %s:%u\n", ipaddr, event.peer->address.port);
+                    Printf("Client disconnected: %s:%u\n", ipaddr, event.peer->address.port);
                     numplayers--;
                     for (int i = 1; i < kMaxPlayers; i++)
                     {
@@ -1023,7 +1023,7 @@ void netInitialize(bool bConsole)
             }
             enet_host_service(gNetENetServer, NULL, 0);
         }
-        initprintf("All clients connected\n");
+        Printf("All clients connected\n");
 
         dassert(numplayers >= 1);
 
@@ -1071,7 +1071,7 @@ void netInitialize(bool bConsole)
     {
         ENetEvent event;
         sprintf(buffer, "Connecting to %s:%u", gNetAddress, gNetPort);
-        initprintf("%s\n", buffer);
+        Printf("%s\n", buffer);
         if (!bConsole)
         {
             viewLoadingScreen(2518, "Network Game", NULL, buffer);
@@ -1083,16 +1083,16 @@ void netInitialize(bool bConsole)
         gNetENetPeer = enet_host_connect(gNetENetClient, &gNetENetAddress, BLOOD_ENET_CHANNEL_MAX, 0);
         if (!gNetENetPeer)
         {
-            initprintf("No available peers for initiating an ENet connection.\n");
+            Printf("No available peers for initiating an ENet connection.\n");
             netDeinitialize();
             netResetToSinglePlayer();
             return;
         }
         if (enet_host_service(gNetENetClient, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
-            initprintf("Connected to %s:%i\n", gNetAddress, gNetPort);
+            Printf("Connected to %s:%i\n", gNetAddress, gNetPort);
         else
         {
-            initprintf("Could not connect to %s:%i\n", gNetAddress, gNetPort);
+            Printf("Could not connect to %s:%i\n", gNetAddress, gNetPort);
             netDeinitialize();
             return;
         }
@@ -1125,12 +1125,12 @@ void netInitialize(bool bConsole)
                 switch (event.type)
                 {
                 case ENET_EVENT_TYPE_DISCONNECT:
-                    initprintf("Lost connection to server\n");
+                    Printf("Lost connection to server\n");
                     netDeinitialize();
                     netResetToSinglePlayer();
                     return;
                 case ENET_EVENT_TYPE_RECEIVE:
-                    //initprintf("NETEVENT\n");
+                    //Printf("NETEVENT\n");
                     if (event.channelID == BLOOD_ENET_SERVICE)
                     {
                         char *pPacket = (char*)event.packet->data;
@@ -1143,14 +1143,14 @@ void netInitialize(bool bConsole)
                             connecthead = connectinfo->connecthead;
                             for (int i = 0; i < numplayers; i++)
                                 connectpoint2[i] = connectinfo->connectpoint2[i];
-                            //initprintf("BLOOD_SERVICE_CONNECTINFO\n");
+                            //Printf("BLOOD_SERVICE_CONNECTINFO\n");
                             break;
                         }
                         case BLOOD_SERVICE_CONNECTID:
                             dassert(numplayers > 1);
                             myconnectindex = GetPacketByte(pPacket);
                             bWaitServer = false;
-                            //initprintf("BLOOD_SERVICE_CONNECTID\n");
+                            //Printf("BLOOD_SERVICE_CONNECTID\n");
                             break;
                         }
                     }
@@ -1162,7 +1162,7 @@ void netInitialize(bool bConsole)
             }
         }
         enet_host_service(gNetENetClient, NULL, 0);
-        initprintf("Successfully connected to server\n");
+        Printf("Successfully connected to server\n");
     }
     gNetENetInit = true;
     gGameOptions.nGameType = 2;
@@ -1197,7 +1197,7 @@ void netDeinitialize(void)
 void netPostEPacket(ENetPacket *pEPacket)
 {
     //static int number;
-    //initprintf("netPostEPacket %i\n", number++);
+    //Printf("netPostEPacket %i\n", number++);
     gNetPacketFifo[gNetPacketHead] = pEPacket;
     gNetPacketHead = (gNetPacketHead+1)%kENetFifoSize;
 }
@@ -1287,7 +1287,7 @@ void netUpdate(void)
             switch (event.type)
             {
             case ENET_EVENT_TYPE_DISCONNECT:
-                initprintf("Lost connection to server\n");
+                Printf("Lost connection to server\n");
                 netDeinitialize();
                 netResetToSinglePlayer();
                 gQuitGame = gRestartGame = true;

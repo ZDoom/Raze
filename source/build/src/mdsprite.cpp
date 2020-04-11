@@ -31,7 +31,7 @@ static int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
     UNREFERENCED_PARAMETER(model);
     if (curextra==MAXTILES+EXTRATILES-1)
     {
-        initprintf("warning: max EXTRATILES reached\n");
+        Printf("warning: max EXTRATILES reached\n");
         return curextra;
     }
 
@@ -275,7 +275,7 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
     {
         if (anm->endframe <= anm->startframe)
         {
-//            initprintf("backward anim %d-%d\n", anm->startframe, anm->endframe);
+//            Printf("backward anim %d-%d\n", anm->startframe, anm->endframe);
             return -3;
         }
 
@@ -326,7 +326,7 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
     for (anm=m->animations; anm; anm=anm->next)
     {
         if (otonframe[anm->startframe]==-1 || otonframe[anm->endframe-1]==-1)
-            initprintf("md %d WTF: anm %d %d\n", modelid, anm->startframe, anm->endframe);
+            Printf("md %d WTF: anm %d %d\n", modelid, anm->startframe, anm->endframe);
 
         anm->startframe = otonframe[anm->startframe];
         anm->endframe = otonframe[anm->endframe-1];
@@ -336,7 +336,7 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
         if (tile2model[i].modelid == modelid)
         {
             if (otonframe[tile2model[i].framenum]==-1)
-                initprintf("md %d WTF: tile %d, fr %d\n", modelid, i, tile2model[i].framenum);
+                Printf("md %d WTF: tile %d, fr %d\n", modelid, i, tile2model[i].framenum);
             tile2model[i].framenum = otonframe[tile2model[i].framenum];
         }
 
@@ -398,7 +398,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
 	sk->texture = TileFiles.GetTexture(skinfn);
 	if (!sk->texture)
 	{
-		initprintf("Unable to load %s as model skin\n", skinfn);
+		Printf("Unable to load %s as model skin\n", skinfn);
 	}
 
     return 0;
@@ -480,7 +480,7 @@ FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bo
         if (sk->palette == pal && sk->skinnum == number && sk->surfnum == surf)
         {
 			if (exact) *exact = true;
-            //OSD_Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
+            //Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
             return sk->texture;
         }
         //If no match, give highest priority to number, then pal.. (Parkar's request, 02/27/2005)
@@ -498,7 +498,7 @@ FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bo
 
 	if (skzero)
 	{
-		//OSD_Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
+		//Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
 		if (exact) *exact = false;
 		return skzero->texture;
 	}
@@ -520,7 +520,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
 
 #ifdef DEBUGGINGAIDS
     if (m->cframe >= m->numframes)
-        OSD_Printf("1: c > n\n");
+        Printf("1: c > n\n");
 #endif
 
     int32_t const smoothdurationp = (hw_animsmoothing && (tile2model[tile].smoothduration != 0));
@@ -575,8 +575,8 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
     }
     else if (/* anim && */ sprext->mdanimcur != anim->startframe)
     {
-        //if (sprext->flags & SPREXT_NOMDANIM) OSD_Printf("SPREXT_NOMDANIM\n");
-        //OSD_Printf("smooth launched ! oldanim %i new anim %i\n", sprext->mdanimcur, anim->startframe);
+        //if (sprext->flags & SPREXT_NOMDANIM) Printf("SPREXT_NOMDANIM\n");
+        //Printf("smooth launched ! oldanim %i new anim %i\n", sprext->mdanimcur, anim->startframe);
         sprext->mdanimcur = (int16_t)anim->startframe;
         sprext->mdanimtims = mdtims;
         m->interpol = 0;
@@ -619,7 +619,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         m->nframe = anim ? anim->startframe : smooth->mdcurframe;
         m->cframe = smooth->mdoldframe;
 
-        //OSD_Printf("smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
+        //Printf("smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
         if (k > 65535)
         {
             sprext->mdanimtims = mdtims;
@@ -628,7 +628,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
             m->cframe = m->nframe; // = anim ? anim->startframe : smooth->mdcurframe;
 
             smooth->mdoldframe = m->cframe;
-            //OSD_Printf("smooth stopped !\n");
+            //Printf("smooth stopped !\n");
             goto prep_return;
         }
     }
@@ -644,11 +644,11 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
             m->nframe = anim->startframe;
 
         smooth->mdoldframe = m->cframe;
-        //OSD_Printf("not smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
+        //Printf("not smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
     }
 
     m->interpol = ((float)(i&65535))/65536.f;
-    //OSD_Printf("interpol %f\n", m->interpol);
+    //Printf("interpol %f\n", m->interpol);
 
 prep_return:
     if (m->cframe >= m->numframes)
@@ -778,7 +778,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     //return m;
 
     // the MD2 is now loaded internally - let's begin the MD3 conversion process
-    //OSD_Printf("Beginning md3 conversion.\n");
+    //Printf("Beginning md3 conversion.\n");
     m3 = (md3model_t *)Xcalloc(1, sizeof(md3model_t));
 	m3->mdnum = 3; m3->texture = nullptr; m3->scale = m->scale;
     m3->head.id = IDP3_MAGIC; m3->head.vers = 15;
@@ -803,7 +803,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     {
         f = (md2frame_t *)&m->frames[i*m->framebytes];
         Bstrcpy(m3->head.frames[i].nam, f->name);
-        //OSD_Printf("Copied frame %s.\n", m3->head.frames[i].nam);
+        //Printf("Copied frame %s.\n", m3->head.frames[i].nam);
         m3->muladdframes[i*2] = f->mul;
         m3->muladdframes[i*2+1] = f->add;
         i++;
@@ -833,18 +833,18 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     s->xyzn = (md3xyzn_t *)Xcalloc(s->numverts * m->numframes, sizeof(md3xyzn_t));
 
     //memoryusage += (s->numverts * m->numframes * sizeof(md3xyzn_t));
-    //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
+    //Printf("Current model geometry memory usage : %i.\n", memoryusage);
 
-    //OSD_Printf("Number of frames : %i\n", m->numframes);
-    //OSD_Printf("Number of triangles : %i\n", head.numtris);
-    //OSD_Printf("Number of vertices : %i\n", s->numverts);
+    //Printf("Number of frames : %i\n", m->numframes);
+    //Printf("Number of triangles : %i\n", head.numtris);
+    //Printf("Number of vertices : %i\n", s->numverts);
 
     // triangle converting
     i = 0;
     while (i < head.numtris)
     {
         j = 0;
-        //OSD_Printf("Triangle : %i\n", i);
+        //Printf("Triangle : %i\n", i);
         while (j < 3)
         {
             // triangle vertex indexes
@@ -867,10 +867,10 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
             }
             j++;
         }
-        //OSD_Printf("End triangle.\n");
+        //Printf("End triangle.\n");
         i++;
     }
-    //OSD_Printf("Finished md3 conversion.\n");
+    //Printf("Finished md3 conversion.\n");
 
     {
         mdskinmap_t *sk;
@@ -886,7 +886,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
 			sk->texture = TileFiles.GetTexture(fn);
 			if (!sk->texture)
 			{
-				initprintf("Unable to load %s as model skin\n", m->skinfn);
+				Printf("Unable to load %s as model skin\n", m->skinfn);
 			}
         }
         m3->skinmap = sk;
@@ -1036,7 +1036,7 @@ static md3model_t *md3load(FileReader & fil)
         leng[3] = s->numframes*s->numverts*sizeof(md3xyzn_t);
 
         //memoryusage += (s->numverts * s->numframes * sizeof(md3xyzn_t));
-        //OSD_Printf("Current model geometry memory usage : %i.\n", memoryusage);
+        //Printf("Current model geometry memory usage : %i.\n", memoryusage);
 
         s->tris = (md3tri_t *)Xmalloc((leng[0] + leng[1]) + (leng[2] + leng[3]));
 
@@ -1214,7 +1214,7 @@ static int md3postload_polymer_check(md3model_t *m)
             if (u[0] >= numverts || u[1] >= numverts || u[2] >= numverts)
             {
                 // corrupt model
-                OSD_Printf("%s: Triangle index out of bounds!\n", m->head.nam);
+                Printf("%s: Triangle index out of bounds!\n", m->head.nam);
                 return 1;
             }
 
@@ -1270,7 +1270,7 @@ int      md3postload_polymer(md3model_t *m)
 #ifdef DEBUG_MODEL_MEM
         i = (m->head.numframes * s->numverts * sizeof(float) * 15);
         if (i > 1<<20)
-            initprintf("size %d (%d fr, %d v): md %s surf %d/%d\n", i, m->head.numframes, s->numverts,
+            Printf("size %d (%d fr, %d v): md %s surf %d/%d\n", i, m->head.numframes, s->numverts,
                        m->head.nam, surfi, m->head.numsurfs);
 #endif
         s->geometry = (float *)Xcalloc(m->head.numframes * s->numverts * 15, sizeof(float));
@@ -1403,7 +1403,7 @@ int      md3postload_polymer(md3model_t *m)
 #ifdef DEBUG_MODEL_MEM
             else if (verti == verti%s->numverts)
             {
-                OSD_Printf("%s: vert %d is unused\n", m->head.nam, verti);
+                Printf("%s: vert %d is unused\n", m->head.nam, verti);
             }
 #endif
             // copy N over
@@ -1510,7 +1510,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
             (unsigned)m->nframe >= (unsigned)m->numframes)
     {
 #ifdef DEBUGGINGAIDS
-        OSD_Printf("%s: mdframe oob: c:%d n:%d total:%d interpol:%.02f\n",
+        Printf("%s: mdframe oob: c:%d n:%d total:%d interpol:%.02f\n",
                    m->head.nam, m->cframe, m->nframe, m->numframes, m->interpol);
 #endif
 
@@ -1861,7 +1861,7 @@ static mdmodel_t *mdload(const char *filnam)
     switch (B_LITTLE32(i))
     {
     case IDP2_MAGIC:
-//        initprintf("Warning: model \"%s\" is version IDP2; wanted version IDP3\n",filnam);
+//        Printf("Warning: model \"%s\" is version IDP2; wanted version IDP3\n",filnam);
         vm = (mdmodel_t *)md2load(fil,filnam);
         break; //IDP2
     case IDP3_MAGIC:

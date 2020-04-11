@@ -125,13 +125,13 @@ int32_t engineLoadClipMaps(void)
             continue;
         // Numsprites will now be set!
 
-        initprintf("Loading clip map: %s\n", g_clipMapFiles[fi].GetChars());
+        Printf("Loading clip map: %s\n", g_clipMapFiles[fi].GetChars());
 
         if (ournumsectors+numsectors>MAXSECTORS ||
             ournumwalls+numwalls>MAXWALLS ||
             ournumsprites+Numsprites>MAXSPRITES)
         {
-            initprintf("clip map: warning: exceeded limits when loading %s, aborting.\n", g_clipMapFiles[fi].GetChars());
+            Printf("clip map: warning: exceeded limits when loading %s, aborting.\n", g_clipMapFiles[fi].GetChars());
             break;
         }
 
@@ -234,7 +234,7 @@ int32_t engineLoadClipMaps(void)
 
             if (numclipmaps >= CM_MAX)
             {
-                initprintf("warning: reached max clip map number %d, not processing any more\n", CM_MAX);
+                Printf("warning: reached max clip map number %d, not processing any more\n", CM_MAX);
                 break;
             }
 
@@ -246,7 +246,7 @@ int32_t engineLoadClipMaps(void)
                     for (fi = 0; fi < g_clipMapFilesNum; ++fi)
                         if (k>=fisec[fi])
                             break;
-                    initprintf("clip map \"%s\": error: tried to chain picnum %d (sprite %d) in sector %d which"
+                    Printf("clip map \"%s\": error: tried to chain picnum %d (sprite %d) in sector %d which"
                         " already belongs to picnum %d.\n", g_clipMapFiles[fi].GetChars(), pn, i-fispr[fi], k-fisec[fi],
                         clipinfo[sectoidx[k]].picnum);
                     engineInitClipMaps();
@@ -274,7 +274,7 @@ int32_t engineLoadClipMaps(void)
                     for (fi = 0; fi < g_clipMapFilesNum; ++fi)
                         if (i>=fispr[fi])
                             break;
-                    initprintf("clip map \"%s\": warning: sprite %d pointing neither northward nor southward. %s will be wrong.\n",
+                    Printf("clip map \"%s\": warning: sprite %d pointing neither northward nor southward. %s will be wrong.\n",
                         g_clipMapFiles[fi].GetChars(), i-fispr[fi], (sprite[i].cstat&48)==32 ? "Scaling and flipping" : "X-flipping");
                 }
             }
@@ -311,7 +311,7 @@ int32_t engineLoadClipMaps(void)
                                 for (fi = 0; fi < g_clipMapFilesNum; ++fi)
                                     if (ns>=fisec[fi])
                                         break;
-                                initprintf("clip map \"%s\": error: encountered more than one outer sector (%d and %d)"
+                                Printf("clip map \"%s\": error: encountered more than one outer sector (%d and %d)"
                                     " for sprite %d.\n", g_clipMapFiles[fi].GetChars(), outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
                                 engineInitClipMaps();
 
@@ -329,7 +329,7 @@ int32_t engineLoadClipMaps(void)
                             for (fi = 0; fi < g_clipMapFilesNum; ++fi)
                                 if (ns>=fisec[fi])
                                     break;
-                            initprintf("clip map \"%s\": error: encountered sector %d belonging to index %d"
+                            Printf("clip map \"%s\": error: encountered sector %d belonging to index %d"
                                 " while collecting sectors for sprite %d (index %d).\n",
                                 g_clipMapFiles[fi].GetChars(), ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
                             engineInitClipMaps();
@@ -345,7 +345,7 @@ int32_t engineLoadClipMaps(void)
 
             if (outersect==-1)
             {
-                initprintf("clip map: INTERNAL ERROR: outersect==-1!\n");
+                Printf("clip map: INTERNAL ERROR: outersect==-1!\n");
                 engineInitClipMaps();
 
                 Xfree(fisec);
@@ -512,7 +512,7 @@ int32_t engineLoadClipMaps(void)
     initspritelists();
 
     if (lwcp > 0)
-        initprintf("Loaded clip map%s.\n", lwcp==1 ? "" : "s");
+        Printf("Loaded clip map%s.\n", lwcp==1 ? "" : "s");
 
     Xfree(fisec);
     Xfree(fispr);
@@ -649,7 +649,7 @@ int32_t clipsprite_try(uspriteptr_t const spr, int32_t xmin, int32_t ymin, int32
 
         if (clipspritenum < MAXCLIPNUM)
             clipspritelist[clipspritenum++] = spr-(uspritetype *)sprite;
-        //initprintf("%d: clip sprite[%d]\n",clipspritenum,j);
+        //Printf("%d: clip sprite[%d]\n",clipspritenum,j);
         return 1;
     }
 
@@ -709,7 +709,7 @@ int32_t clipsprite_initindex(int32_t curidx, uspriteptr_t const curspr, int32_t 
 
         sec->floorz = daz + mulscale22(scalez, CM_FLOORZ(j));
         sec->ceilingz = daz + mulscale22(scalez, CM_CEILINGZ(j));
-        //initprintf("sec %d: f=%d, c=%d\n", j, sec->floorz, sec->ceilingz);
+        //Printf("sec %d: f=%d, c=%d\n", j, sec->floorz, sec->ceilingz);
 
         for (int w=startwall; w<endwall; w++)
         {
@@ -1010,7 +1010,7 @@ static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int wall
 
     if (nsecs > (walldist + 8))
     {
-        OSD_Printf("%s():%d shortest distance between origin point (%d, %d) and sector %d is %d. Sector may be corrupt!\n",
+        Printf("%s():%d shortest distance between origin point (%d, %d) and sector %d is %d. Sector may be corrupt!\n",
                    EDUKE32_FUNCTION, __LINE__, pos.x, pos.y, *sectnum, nsecs);
         walldist = 0x7fff;
     }
@@ -1115,7 +1115,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             // one bunch of sectors completed (either the very first
             // one or a sector-like sprite one), prepare the next
 
-            //initprintf("init sprite %d\n", clipspritecnt);
+            //Printf("init sprite %d\n", clipspritecnt);
             if (!curspr)
             {
                 // init sector-like sprites for clipping
@@ -1142,7 +1142,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
         int const dasect = clipsectorlist[clipsectcnt++];
         //if (curspr)
-        //    initprintf("sprite %d/%d: sect %d/%d (%d)\n", clipspritecnt,clipspritenum, clipsectcnt,clipsectnum,dasect);
+        //    Printf("sprite %d/%d: sect %d/%d (%d)\n", clipspritecnt,clipspritenum, clipsectcnt,clipsectnum,dasect);
 
         ////////// Walls //////////
 
@@ -1271,10 +1271,10 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         }
 
         if (clipmove_warned & 1)
-            OSD_Printf("clipsectnum >= MAXCLIPSECTORS!\n");
+            Printf("clipsectnum >= MAXCLIPSECTORS!\n");
 
         if (clipmove_warned & 2)
-            OSD_Printf("clipnum >= MAXCLIPNUM!\n");
+            Printf("clipnum >= MAXCLIPNUM!\n");
 
         ////////// Sprites //////////
 

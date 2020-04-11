@@ -40,7 +40,7 @@ static int osdcmd_god(osdcmdptr_t UNUSED(parm))
         DoPassword(3);
     }
     else
-        OSD_Printf("god: Not in a single-player game.\n");
+        Printf("god: Not in a single-player game.\n");
 
     return OSDCMD_OK;
 }
@@ -55,7 +55,7 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
     }
     else
     {
-        OSD_Printf("noclip: Not in a single-player game.\n");
+        Printf("noclip: Not in a single-player game.\n");
     }
 
     return OSDCMD_OK;
@@ -71,7 +71,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 
     if (!fileSystem.Lookup(mapname, "MAP"))
     {
-        OSD_Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
+        Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
         return OSDCMD_OK;
     }
 	
@@ -110,7 +110,7 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
 
     if (nLevel > nMaxLevels)
     {
-        OSD_Printf("changelevel: invalid level number\n");
+        Printf("changelevel: invalid level number\n");
         return OSDCMD_SHOWHELP;
     }
 

@@ -123,7 +123,7 @@ int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int
 
     if (t == NULL)
     {
-        OSD_Printf("minitext: NULL text!\n");
+        Printf("minitext: NULL text!\n");
         return 0;
     }
 

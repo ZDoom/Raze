@@ -69,7 +69,7 @@ void Net_SyncPlayer(ENetEvent *event)
     if (numplayers + g_netPlayersWaiting >= MAXPLAYERS)
     {
         enet_peer_disconnect_later(event->peer, DISC_SERVER_FULL);
-        initprintf("Refused peer; server full.\n");
+        Printf("Refused peer; server full.\n");
         return;
     }
 
@@ -2130,7 +2130,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
     //{
         //lastpackettime = totalclock;
 #if 0
-    initprintf("RECEIVED PACKET: type: %d : len %d\n", packbuf[0], packbufleng);
+    Printf("RECEIVED PACKET: type: %d : len %d\n", packbuf[0], packbufleng);
 #endif
     switch (packbuf[0])
     {
@@ -2342,7 +2342,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
         Net_GetSyncInfoFromPacket(packbuf, packbufleng, &j, other);
 
         if (j > packbufleng)
-            initprintf("INVALID GAME PACKET!!! (packet %d, %d too many bytes (%d %d))\n",packbuf[0],j-packbufleng,packbufleng,k);
+            Printf("INVALID GAME PACKET!!! (packet %d, %d too many bytes (%d %d))\n",packbuf[0],j-packbufleng,packbufleng,k);
 
         break;
     case PACKET_TYPE_NULL_PACKET:
@@ -2350,7 +2350,7 @@ void Net_ParsePacket(uint8_t *packbuf, int packbufleng)
 
     case PACKET_TYPE_PLAYER_READY:
         if (g_player[other].playerreadyflag == 0)
-            initprintf("Player %d is ready\n", other);
+            Printf("Player %d is ready\n", other);
         g_player[other].playerreadyflag++;
         return;
     //case PACKET_TYPE_QUIT:
@@ -2378,7 +2378,7 @@ void Net_Connect(const char *srvaddr)
 
     if (g_netClient == NULL)
     {
-        initprintf("An error occurred while trying to create an ENet client host.\n");
+        Printf("An error occurred while trying to create an ENet client host.\n");
         return;
     }
 
@@ -2391,7 +2391,7 @@ void Net_Connect(const char *srvaddr)
 
     if (g_netClientPeer == NULL)
     {
-        initprintf("No available peers for initiating an ENet connection.\n");
+        Printf("No available peers for initiating an ENet connection.\n");
         return;
     }
 
@@ -2401,7 +2401,7 @@ void Net_Connect(const char *srvaddr)
         if (enet_host_service(g_netClient, & event, 5000) > 0 &&
                 event.type == ENET_EVENT_TYPE_CONNECT)
         {
-            initprintf("Connection to %s:%d succeeded.\n", oursrvaddr, address.port);
+            Printf("Connection to %s:%d succeeded.\n", oursrvaddr, address.port);
             Xfree(oursrvaddr);
             return;
         }
@@ -2411,9 +2411,9 @@ void Net_Connect(const char *srvaddr)
             /* received. Reset the peer in the event the 5 seconds   */
             /* had run out without any significant event.            */
             enet_peer_reset(g_netClientPeer);
-            initprintf("Connection to %s:%d failed.\n", oursrvaddr, address.port);
+            Printf("Connection to %s:%d failed.\n", oursrvaddr, address.port);
         }
-        initprintf(i ? "Retrying...\n" : "Giving up connection attempt.\n");
+        Printf(i ? "Retrying...\n" : "Giving up connection attempt.\n");
     }
 
     Xfree(oursrvaddr);
@@ -2496,31 +2496,31 @@ void Net_ReceiveDisconnect(ENetEvent *event)
     switch (event->data)
     {
     case DISC_GAME_STARTED:
-        initprintf("Game already started.\n");
+        Printf("Game already started.\n");
         return;
     case DISC_BAD_PASSWORD:
-        initprintf("Bad password.\n");
+        Printf("Bad password.\n");
         return;
     case DISC_VERSION_MISMATCH:
-        initprintf("Version mismatch.\n");
+        Printf("Version mismatch.\n");
         return;
     case DISC_INVALID:
-        initprintf("Invalid data detected.\n");
+        Printf("Invalid data detected.\n");
         return;
     case DISC_SERVER_QUIT:
-        initprintf("The server is quitting.\n");
+        Printf("The server is quitting.\n");
         return;
     case DISC_SERVER_FULL:
-        initprintf("The server is full.\n");
+        Printf("The server is full.\n");
         return;
     case DISC_KICKED:
-        initprintf("You have been kicked from the server.\n");
+        Printf("You have been kicked from the server.\n");
         return;
     case DISC_BANNED:
-        initprintf("You are banned from this server.\n");
+        Printf("You are banned from this server.\n");
         return;
     default:
-        initprintf("Disconnected.\n");
+        Printf("Disconnected.\n");
         return;
     }
 }
@@ -2584,7 +2584,7 @@ void Net_HandleClientPackets(void)
 
             enet_address_get_host_ip(&event.peer->address, ipaddr, sizeof(ipaddr));
 
-            initprintf("A new client connected from %s:%u.\n", ipaddr, event.peer->address.port);
+            Printf("A new client connected from %s:%u.\n", ipaddr, event.peer->address.port);
 
             Net_SendAcknowledge(event.peer);
             break;
@@ -2592,7 +2592,7 @@ void Net_HandleClientPackets(void)
 
         case ENET_EVENT_TYPE_RECEIVE:
             /*
-            initprintf ("A packet of length %u containing %s was received from player %d on channel %u.\n",
+            Printf ("A packet of length %u containing %s was received from player %d on channel %u.\n",
             event.packet -> dataLength,
             event.packet -> data,
             event.peer -> data,
@@ -2633,7 +2633,7 @@ void Net_HandleClientPackets(void)
             enet_host_broadcast(g_netServer, CHAN_GAMESTATE,
                                 enet_packet_create(packbuf, 6, ENET_PACKET_FLAG_RELIABLE));
 
-            initprintf("%s disconnected.\n", g_player[playeridx].user_name);
+            Printf("%s disconnected.\n", g_player[playeridx].user_name);
             event.peer->data = NULL;
             break;
 
@@ -2744,7 +2744,7 @@ void Net_ParseClientPacket(ENetEvent *event)
     }
 
 #if 0
-    initprintf("Received Packet: type: %d : len %d\n", pbuf[0], packbufleng);
+    Printf("Received Packet: type: %d : len %d\n", pbuf[0], packbufleng);
 #endif
 }
 
@@ -2762,7 +2762,7 @@ void Net_ParseServerPacket(ENetEvent *event)
     --packbufleng;  //    int32_t other = pbuf[--packbufleng];
 
 #if 0
-    initprintf("Received Packet: type: %d : len %d\n", pbuf[0], packbufleng);
+    Printf("Received Packet: type: %d : len %d\n", pbuf[0], packbufleng);
 #endif
     switch (pbuf[0])
     {
@@ -2954,20 +2954,20 @@ void Net_ReceiveChallenge(uint8_t *pbuf, int32_t packbufleng, ENetEvent *event)
     if (g_player[myconnectindex].ps->gm&MODE_GAME)
     {
         enet_peer_disconnect_later(event->peer, DISC_GAME_STARTED);
-        initprintf("Client attempted to connect to started game\n");
+        Printf("Client attempted to connect to started game\n");
         return;
     }
 
     if (byteVersion != BYTEVERSION || netVersion != NETVERSION)
     {
         enet_peer_disconnect_later(event->peer, DISC_VERSION_MISMATCH);
-        initprintf("Bad client protocol: version %u.%u\n", byteVersion, netVersion);
+        Printf("Bad client protocol: version %u.%u\n", byteVersion, netVersion);
         return;
     }
     if (crc != Bcrc32((uint8_t *)g_netPassword, Bstrlen(g_netPassword), 0))
     {
         enet_peer_disconnect_later(event->peer, DISC_BAD_PASSWORD);
-        initprintf("Bad password from client.\n");
+        Printf("Bad password from client.\n");
         return;
     }
 
@@ -3696,8 +3696,8 @@ void Net_InitNetwork()
         g_netServer = enet_host_create(&address, MAXPLAYERS, CHAN_MAX, 0, 0);
 
         if (g_netServer == NULL)
-            initprintf("An error occurred while trying to create an ENet server host.\n");
-        else initprintf("Multiplayer server initialized\n");
+            Printf("An error occurred while trying to create an ENet server host.\n");
+        else Printf("Multiplayer server initialized\n");
     }
 }
 
@@ -3721,11 +3721,11 @@ int osdcmd_listplayers(osdcmdptr_t parm)
 
     if (!g_netServer)
     {
-        initprintf("You are not the server.\n");
+        Printf("You are not the server.\n");
         return OSDCMD_OK;
     }
 
-    initprintf("Connected clients:\n");
+    Printf("Connected clients:\n");
 
     for (currentPeer = g_netServer->peers;
         currentPeer < &g_netServer->peers[g_netServer->peerCount];
@@ -3735,7 +3735,7 @@ int osdcmd_listplayers(osdcmdptr_t parm)
             continue;
 
         enet_address_get_host_ip(&currentPeer->address, ipaddr, sizeof(ipaddr));
-        initprintf("%s %s\n", ipaddr,
+        Printf("%s %s\n", ipaddr,
             g_player[(intptr_t)currentPeer->data].user_name);
     }
 
@@ -3753,7 +3753,7 @@ static int osdcmd_kick(osdcmdptr_t parm)
 
     if (!g_netServer)
     {
-        initprintf("You are not the server.\n");
+        Printf("You are not the server.\n");
         return OSDCMD_OK;
     }
 
@@ -3768,14 +3768,14 @@ static int osdcmd_kick(osdcmdptr_t parm)
 
         if (currentPeer->address.host == hexaddr)
         {
-            initprintf("Kicking %x (%s)\n", currentPeer->address.host,
+            Printf("Kicking %x (%s)\n", currentPeer->address.host,
                 g_player[(intptr_t)currentPeer->data].user_name);
             enet_peer_disconnect(currentPeer, DISC_KICKED);
             return OSDCMD_OK;
         }
     }
 
-    initprintf("Player %s not found!\n", parm->parms[0]);
+    Printf("Player %s not found!\n", parm->parms[0]);
     osdcmd_listplayers(NULL);
 
     return OSDCMD_OK;
@@ -3791,7 +3791,7 @@ static int osdcmd_kickban(osdcmdptr_t parm)
 
     if (!g_netServer)
     {
-        initprintf("You are not the server.\n");
+        Printf("You are not the server.\n");
         return OSDCMD_OK;
     }
 
@@ -3811,15 +3811,15 @@ static int osdcmd_kickban(osdcmdptr_t parm)
             char ipaddr[32];
 
             enet_address_get_host_ip(&currentPeer->address, ipaddr, sizeof(ipaddr));
-            initprintf("Host %s is now banned.\n", ipaddr);
-            initprintf("Kicking %x (%s)\n", currentPeer->address.host,
+            Printf("Host %s is now banned.\n", ipaddr);
+            Printf("Kicking %x (%s)\n", currentPeer->address.host,
                 g_player[(intptr_t)currentPeer->data].user_name);
             enet_peer_disconnect(currentPeer, DISC_BANNED);
             return OSDCMD_OK;
         }
     }
 
-    initprintf("Player %s not found!\n", parm->parms[0]);
+    Printf("Player %s not found!\n", parm->parms[0]);
     osdcmd_listplayers(NULL);
 
     return OSDCMD_OK;

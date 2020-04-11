@@ -653,7 +653,7 @@ void G_CacheMapData(void)
                     lpc++;
                 }
 
-//                OSD_Printf("percentage %d lpc %d\n", percentage, lpc);
+//                Printf("percentage %d lpc %d\n", percentage, lpc);
             }
 
             tc = (int32_t) totalclock;
@@ -664,7 +664,7 @@ void G_CacheMapData(void)
     Bmemset(gotpic, 0, sizeof(gotpic));
 
     endtime = timerGetTicks();
-    OSD_Printf("Cache time: %dms\n", endtime-starttime);
+    Printf("Cache time: %dms\n", endtime-starttime);
 }
 
 extern int32_t fragbarheight(void)
@@ -1484,7 +1484,7 @@ static void prelevel(char g)
     }
 
     if (missedCloudSectors > 0)
-        OSD_Printf(OSDTEXT_RED "Map warning: have %d unhandled CLOUDYSKIES ceilings.\n", missedCloudSectors);
+        Printf(OSDTEXT_RED "Map warning: have %d unhandled CLOUDYSKIES ceilings.\n", missedCloudSectors);
 
     // NOTE: must be safe loop because callbacks could delete sprites.
     if (!DEER)
@@ -2238,7 +2238,7 @@ static int G_TryMapHack(const char *mhkfile)
     int32_t failure = engineLoadMHK(mhkfile);
 
     if (!failure)
-        initprintf("Loaded map hack file \"%s\"\n", mhkfile);
+        Printf("Loaded map hack file \"%s\"\n", mhkfile);
 
     return failure;
 }
@@ -2318,7 +2318,7 @@ int G_EnterLevel(int gameMode)
 
     if (mi.fileName.IsEmpty() && !Menu_HaveUserMap())
     {
-        OSD_Printf(OSDTEXT_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
+        Printf(OSDTEXT_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
         return 1;
     }
 
@@ -2338,7 +2338,7 @@ int G_EnterLevel(int gameMode)
     {
         if (engineLoadBoard(boardfilename, 0, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
         {
-            OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
+            Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
         }
         userMapRecord.name = "";
@@ -2351,7 +2351,7 @@ int G_EnterLevel(int gameMode)
     }
     else if (engineLoadBoard(mi.fileName, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
     {
-        OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", mi.fileName.GetChars());
+        Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", mi.fileName.GetChars());
         return 1;
     }
     else
@@ -2487,11 +2487,11 @@ int G_EnterLevel(int gameMode)
 
     if (G_HaveUserMap())
     {
-        OSD_Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
+        Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
     }
     else
     {
-        OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
+        Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
                    mapList[mii].DisplayName());
     }
 
