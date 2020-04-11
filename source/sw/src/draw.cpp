@@ -1642,9 +1642,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fix16_t 
                         zvect = 0;
 
                     // new horiz to player
-                    *tq16horiz = fix16_from_int(100 - (zvect/256));
-                    *tq16horiz = fix16_max(*tq16horiz, fix16_from_int(PLAYER_HORIZ_MIN));
-                    *tq16horiz = fix16_min(*tq16horiz, fix16_from_int(PLAYER_HORIZ_MAX));
+                    *tq16horiz = fix16_clamp(fix16_from_int(100 - (zvect/256)), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
 
                     //DSPRINTF(ds,"xvect %d,yvect %d,zvect %d,tq16horiz %d",xvect,yvect,zvect,*tq16horiz);
                     MONO_PRINT(ds);
@@ -2104,10 +2102,8 @@ drawscreen(PLAYERp pp)
         tz += camerapp->bob_z;
 
         // recoil only when not in camera
-        //tq16horiz = tq16horiz + fix16_from_int(camerapp->recoil_horizoff);
-        tq16horiz = tq16horiz + fix16_from_int(pp->recoil_horizoff);
-        tq16horiz = fix16_max(tq16horiz, fix16_from_int(PLAYER_HORIZ_MIN));
-        tq16horiz = fix16_min(tq16horiz, fix16_from_int(PLAYER_HORIZ_MAX));
+        //tq16horiz = fix16_clamp(fix16_sadd(tq16horiz, fix16_from_int(camerapp->recoil_horizoff)), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
+        tq16horiz = fix16_clamp(fix16_sadd(tq16horiz, fix16_from_int(pp->recoil_horizoff)), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
     }
 
     if (r_usenewaspect)
