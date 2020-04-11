@@ -1450,7 +1450,7 @@ static void prelevel(char g)
 
         if (sector[i].ceilingstat&1)
         {
-            if (tilePtr(sector[i].ceilingpicnum) == 0)
+            if (tilePtr(sector[i].ceilingpicnum) == nullptr)
             {
                 if (sector[i].ceilingpicnum == LA)
                     for (bsize_t j = 0; j < 5; j++)

@@ -5,6 +5,38 @@
 #include "name.h"
 #include "basics.h"
 
+struct VersionInfo
+{
+	uint16_t major;
+	uint16_t minor;
+	uint32_t revision;
+
+	bool operator <=(const VersionInfo& o) const
+	{
+		return o.major > this->major || (o.major == this->major && o.minor > this->minor) || (o.major == this->major && o.minor == this->minor && o.revision >= this->revision);
+	}
+	bool operator >=(const VersionInfo& o) const
+	{
+		return o.major < this->major || (o.major == this->major && o.minor < this->minor) || (o.major == this->major && o.minor == this->minor && o.revision <= this->revision);
+	}
+	bool operator > (const VersionInfo& o) const
+	{
+		return o.major < this->major || (o.major == this->major && o.minor < this->minor) || (o.major == this->major && o.minor == this->minor && o.revision < this->revision);
+	}
+	bool operator < (const VersionInfo& o) const
+	{
+		return o.major > this->major || (o.major == this->major && o.minor > this->minor) || (o.major == this->major && o.minor == this->minor && o.revision > this->revision);
+	}
+	void operator=(const char* string);
+};
+
+// Cannot be a constructor because Lemon would puke on it.
+inline VersionInfo MakeVersion(unsigned int ma, unsigned int mi, unsigned int re = 0)
+{
+	return{ (uint16_t)ma, (uint16_t)mi, (uint32_t)re };
+}
+
+
 class FScanner
 {
 public:
@@ -23,10 +55,19 @@ public:
 	FScanner &operator=(const FScanner &other);
 
 	void Open(const char *lumpname);
-	void OpenFile(const char *filename);
+	bool OpenFile(const char *filename);
 	void OpenMem(const char *name, const char *buffer, int size);
+	void OpenMem(const char *name, const TArray<uint8_t> &buffer)
+	{
+		OpenMem(name, (const char*)buffer.Data(), buffer.Size());
+	}
 	void OpenString(const char *name, FString buffer);
+	void OpenLumpNum(int lump);
 	void Close();
+	void SetParseVersion(VersionInfo ver)
+	{
+		ParseVersion = ver;
+	}
 
 	void SetCMode(bool cmode);
 	void SetEscape(bool esc);
@@ -111,6 +152,7 @@ protected:
 	uint8_t StateMode;
 	bool StateOptions;
 	bool Escape;
+	VersionInfo ParseVersion = { 0, 0, 0 };	// no ZScript extensions by default
 
 
 	bool ScanValue(bool allowfloat);
@@ -156,6 +198,7 @@ struct FScriptPosition
 	static int WarnCounter;
 	static int ErrorCounter;
 	static bool StrictErrors;
+	static int Developer;
 	static bool errorout;
 	FName FileName;
 	int ScriptLine;

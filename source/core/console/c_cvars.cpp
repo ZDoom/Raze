@@ -35,17 +35,14 @@
 #include <string.h>
 #include <assert.h>
 
-#include "c_cvars.h"
-#include "configfile.h"
-
-#include "baselayer.h"
-#include "c_console.h"
-#include "gamecvars.h"
-
 #include "cmdlib.h"
+#include "configfile.h"
+#include "c_console.h"
 #include "c_dispatch.h"
+#include "c_cvars.h"
+#include "engineerrors.h"
 #include "printf.h"
-#include "quotemgr.h"
+#include "palutil.h"
 
 
 struct FLatchedValue
@@ -66,6 +63,15 @@ FBaseCVar *CVars = NULL;
 int cvar_defflags;
 
 
+static ConsoleCallbacks* callbacks;
+
+// Install game-specific handlers, mainly to deal with serverinfo and userinfo CVARs.
+// This is to keep the console independent of game implementation details for easier reusability.
+void C_InstallHandlers(ConsoleCallbacks* cb)
+{
+	callbacks = cb;
+}
+
 FBaseCVar::FBaseCVar (const char *var_name, uint32_t flags, void (*callback)(FBaseCVar &), const char *descr)
 {
 	if (var_name != nullptr && (flags & CVAR_SERVERINFO))
@@ -74,13 +80,11 @@ FBaseCVar::FBaseCVar (const char *var_name, uint32_t flags, void (*callback)(FBa
 		// for name's length with terminating null character
 		static const size_t NAME_LENGHT_MAX = 63;
 
-		/*
 		if (strlen(var_name) > NAME_LENGHT_MAX)
 		{
 			I_FatalError("Name of the server console variable \"%s\" is too long.\n"
 				"Its length should not exceed %zu characters.\n", var_name, NAME_LENGHT_MAX);
 		}
-		*/
 	}
 
 
@@ -143,22 +147,23 @@ FBaseCVar::~FBaseCVar ()
 
 const char *FBaseCVar::GetHumanString(int precision) const
 {
-	assert(true);
 	return GetGenericRep(CVAR_String).String;
 }
 
 void FBaseCVar::ForceSet (UCVarValue value, ECVarType type, bool nouserinfosend)
 {
 	DoSet (value, type);
+	if ((Flags & CVAR_USERINFO) && !nouserinfosend && !(Flags & CVAR_IGNORE))
+		if (callbacks && callbacks->UserInfoChanged) callbacks->UserInfoChanged(this);
 	if (m_UseCallback)
 		Callback ();
 
-	if ((Flags & CVAR_ARCHIVE))
+	if ((Flags & CVAR_ARCHIVE) && !(Flags & CVAR_UNSAFECONTEXT))
 	{
 		SafeValue = GetGenericRep(CVAR_String).String;
 	}
 
-	Flags &= ~(CVAR_ISDEFAULT);
+	Flags &= ~(CVAR_ISDEFAULT | CVAR_UNSAFECONTEXT);
 }
 
 void FBaseCVar::SetGenericRep (UCVarValue value, ECVarType type)
@@ -167,8 +172,7 @@ void FBaseCVar::SetGenericRep (UCVarValue value, ECVarType type)
 	{
 		return;
 	}
-#if 0
-	else if ((Flags & CVAR_LATCH) && gamestate != GS_FULLCONSOLE && gamestate != GS_STARTUP)
+	else if ((Flags & CVAR_LATCH) && callbacks && callbacks->MustLatch())
 	{
 		FLatchedValue latch;
 
@@ -183,17 +187,10 @@ void FBaseCVar::SetGenericRep (UCVarValue value, ECVarType type)
 
 		Flags &= ~CVAR_UNSAFECONTEXT;
 	}
-	else if ((Flags & CVAR_SERVERINFO) && gamestate != GS_STARTUP && !demoplayback)
+	else if ((Flags & CVAR_SERVERINFO) && callbacks && callbacks->SendServerInfoChange)
 	{
-		if (netgame && !players[consoleplayer].settings_controller)
-		{
-			Printf ("Only setting controllers can change %s\n", Name);
-			Flags &= ~CVAR_UNSAFECONTEXT;
-			return;
-		}
-		D_SendServerInfoChange (this, value, type);
+		callbacks->SendServerInfoChange (this, value, type);
 	}
-#endif
 	else
 	{
 		ForceSet (value, type);
@@ -279,6 +276,7 @@ float FBaseCVar::ToFloat (UCVarValue value, ECVarType type)
 }
 
 static char cstrbuf[40];
+static GUID cGUID;
 static char truestr[] = "true";
 static char falsestr[] = "false";
 
@@ -743,11 +741,6 @@ void FStringCVar::DoSet (UCVarValue value, ECVarType type)
 //
 // Color cvar implementation
 //
-#if 0
-#define APART(c)			(((c)>>24)&0xff)
-#define RPART(c)			(((c)>>16)&0xff)
-#define GPART(c)			(((c)>>8)&0xff)
-#define BPART(c)			((c)&0xff) 
 
 FColorCVar::FColorCVar (const char *name, int def, uint32_t flags, void (*callback)(FColorCVar &), const char* descr)
 : FIntCVar (name, def, flags, reinterpret_cast<void (*)(FIntCVar &)>(callback), descr)
@@ -779,6 +772,11 @@ void FColorCVar::SetGenericRepDefault (UCVarValue value, ECVarType type)
 	}
 }
 
+void FColorCVar::DoSet (UCVarValue value, ECVarType type)
+{
+	Value = ToInt2 (value, type);
+}
+
 UCVarValue FColorCVar::FromInt2 (int value, ECVarType type)
 {
 	if (type == CVAR_String)
@@ -796,15 +794,15 @@ int FColorCVar::ToInt2 (UCVarValue value, ECVarType type)
 {
 	int ret;
 
-#if 0
 	if (type == CVAR_String)
 	{
-		FString string;
+		FString string = V_GetColorStringByName(value.String);
 		// Only allow named colors after the screen exists (i.e. after
 		// we've got some lumps loaded, so X11R6RGB can be read). Since
 		// the only time this might be called before that is when loading
 		// zdoom.ini, this shouldn't be a problem.
-		if (screen && !(string = V_GetColorStringByName (value.String)).IsEmpty() )
+
+		if (string.IsNotEmpty())
 		{
 			ret = V_GetColorFromString (NULL, string);
 		}
@@ -814,13 +812,11 @@ int FColorCVar::ToInt2 (UCVarValue value, ECVarType type)
 		}
 	}
 	else
-#endif
 	{
 		ret = ToInt (value, type);
 	}
 	return ret;
 }
-#endif
 
 //
 // More base cvar stuff
@@ -855,6 +851,10 @@ void FBaseCVar::ResetToDefault ()
 
 void FBaseCVar::MarkUnsafe()
 {
+	if (!(Flags & CVAR_MOD) && UnsafeExecutionContext)
+	{
+		Flags |= CVAR_UNSAFECONTEXT;
+	}
 }
 
 //
@@ -940,23 +940,16 @@ void FFlagCVar::DoSet (UCVarValue value, ECVarType type)
 {
 	bool newval = ToBool (value, type);
 
-#if 0
 	// Server cvars that get changed by this need to use a special message, because
 	// changes are not processed until the next net update. This is a problem with
 	// exec scripts because all flags will base their changes off of the value of
 	// the "master" cvar at the time the script was run, overriding any changes
 	// another flag might have made to the same cvar earlier in the script.
-	if ((ValueVar.GetFlags() & CVAR_SERVERINFO) && gamestate != GS_STARTUP && !demoplayback)
+	if (ValueVar.GetFlags() && callbacks && callbacks->SendServerFlagChange)
 	{
-		if (netgame && !players[consoleplayer].settings_controller)
-		{
-			Printf ("Only setting controllers can change %s\n", Name);
-			return;
-		}
-		D_SendServerFlagChange (&ValueVar, BitNum, newval);
+		callbacks->SendServerFlagChange(&ValueVar, BitNum, newval, false);
 	}
 	else
-#endif
 	{
 		int val = *ValueVar;
 		if (newval)
@@ -1044,30 +1037,25 @@ void FMaskCVar::DoSet (UCVarValue value, ECVarType type)
 {
 	int val = ToInt(value, type) << BitNum;
 
-#if 0
 	// Server cvars that get changed by this need to use a special message, because
 	// changes are not processed until the next net update. This is a problem with
 	// exec scripts because all flags will base their changes off of the value of
 	// the "master" cvar at the time the script was run, overriding any changes
 	// another flag might have made to the same cvar earlier in the script.
-	if ((ValueVar.GetFlags() & CVAR_SERVERINFO) && gamestate != GS_STARTUP && !demoplayback)
+	if (ValueVar.GetFlags() && callbacks && callbacks->SendServerFlagChange)
 	{
-		if (netgame && !players[consoleplayer].settings_controller)
-		{
-			Printf ("Only setting controllers can change %s\n", Name);
-			return;
-		}
-		// Ugh...
+		// The network interface needs to process each bit separately.
+		bool silent = false;
 		for(int i = 0; i < 32; i++)
 		{
 			if (BitVal & (1<<i))
 			{
-				D_SendServerFlagChange (&ValueVar, i, !!(val & (1<<i)));
+				callbacks->SendServerFlagChange (&ValueVar, i, !!(val & (1<<i)), silent);
+				silent = true; // only warn once if SendServerFlagChange needs to.
 			}
 		}
 	}
 	else
-#endif
 	{
 		int vval = *ValueVar;
 		vval &= ~BitVal;
@@ -1088,7 +1076,7 @@ void FilterCompactCVars (TArray<FBaseCVar *> &cvars, uint32_t filter)
 	// Accumulate all cvars that match the filter flags.
 	for (FBaseCVar *cvar = CVars; cvar != NULL; cvar = cvar->m_Next)
 	{
-		if ((cvar->Flags & filter))
+		if ((cvar->Flags & filter) && !(cvar->Flags & CVAR_IGNORE))
 			cvars.Push(cvar);
 	}
 	// Now sort them, so they're in a deterministic order and not whatever
@@ -1127,7 +1115,7 @@ FString C_GetMassCVarString (uint32_t filter, bool compact)
 	{
 		for (cvar = CVars; cvar != NULL; cvar = cvar->m_Next)
 		{
-			if ((cvar->Flags & filter) && !(cvar->Flags & (CVAR_NOSAVE)))
+			if ((cvar->Flags & filter) && !(cvar->Flags & (CVAR_NOSAVE|CVAR_IGNORE)))
 			{
 				UCVarValue val = cvar->GetGenericRep(CVAR_String);
 				dump << '\\' << cvar->GetName() << '\\' << val.String;
@@ -1288,6 +1276,24 @@ FBaseCVar *FindCVarSub (const char *var_name, int namelen)
 	return var;
 }
 
+FBaseCVar *GetCVar(int playernum, const char *cvarname)
+{
+	FBaseCVar *cvar = FindCVar(cvarname, nullptr);
+	// Either the cvar doesn't exist, or it's for a mod that isn't loaded, so return nullptr.
+	if (cvar == nullptr || (cvar->GetFlags() & CVAR_IGNORE))
+	{
+		return nullptr;
+	}
+	else
+	{
+		// For userinfo cvars, redirect to GetUserCVar
+		if ((cvar->GetFlags() & CVAR_USERINFO) && callbacks && callbacks->GetUserCVar)
+		{
+			return callbacks->GetUserCVar(playernum, cvarname);
+		}
+		return cvar;
+	}
+}
 
 //===========================================================================
 //
@@ -1308,7 +1314,7 @@ FBaseCVar *C_CreateCVar(const char *var_name, ECVarType var_type, uint32_t flags
 	case CVAR_Int:		return new FIntCVar(var_name, 0, flags);
 	case CVAR_Float:	return new FFloatCVar(var_name, 0, flags);
 	case CVAR_String:	return new FStringCVar(var_name, NULL, flags);
-	//case CVAR_Color:	return new FColorCVar(var_name, 0, flags);
+	case CVAR_Color:	return new FColorCVar(var_name, 0, flags);
 	default:			return NULL;
 	}
 }
@@ -1319,6 +1325,8 @@ void UnlatchCVars (void)
 	{
 		uint32_t oldflags = var.Variable->Flags;
 		var.Variable->Flags &= ~(CVAR_LATCH | CVAR_SERVERINFO);
+		if (var.UnsafeContext)
+			var.Variable->Flags |= CVAR_UNSAFECONTEXT;
 		var.Variable->SetGenericRep (var.Value, var.Type);
 		if (var.Type == CVAR_String)
 			delete[] var.Value.String;
@@ -1377,7 +1385,7 @@ void C_ArchiveCVars (FConfigFile *f, uint32_t filter)
 	while (cvar)
 	{
 		if ((cvar->Flags &
-			(CVAR_GLOBALCONFIG|CVAR_ARCHIVE|CVAR_AUTO|CVAR_SERVERINFO|CVAR_USERINFO|CVAR_NOSAVE|CVAR_VIDEOCONFIG))
+			(CVAR_GLOBALCONFIG|CVAR_ARCHIVE|CVAR_MOD|CVAR_AUTO|CVAR_USERINFO|CVAR_SERVERINFO|CVAR_NOSAVE|CVAR_CONFIG_ONLY))
 			== filter)
 		{
 			cvarlist.Push(cvar);
@@ -1387,10 +1395,9 @@ void C_ArchiveCVars (FConfigFile *f, uint32_t filter)
 	qsort(cvarlist.Data(), cvarlist.Size(), sizeof(FBaseCVar*), cvarcmp);
 	for (auto cvar : cvarlist)
 	{
-		// This does not work with the menus at use here.
-		const char* const value = //(cvar->Flags & CVAR_ISDEFAULT)
-			/*?*/ cvar->GetGenericRep(CVAR_String).String
-			/*: cvar->SafeValue.GetChars()*/;
+		const char* const value = (cvar->Flags & CVAR_ISDEFAULT)
+			? cvar->GetGenericRep(CVAR_String).String
+			: cvar->SafeValue.GetChars();
 		f->SetValueForKey(cvar->GetName(), value);
 	}
 }
@@ -1399,6 +1406,9 @@ EXTERN_CVAR(Bool, sv_cheats);
 
 void FBaseCVar::CmdSet (const char *newval)
 {
+	if ((GetFlags() & CVAR_CHEAT) && CheckCheatmode ())
+		return;
+
 	MarkUnsafe();
 
 	UCVarValue val;
@@ -1491,23 +1501,8 @@ CCMD (toggle)
 			val = var->GetGenericRep (CVAR_Bool);
 			val.Bool = !val.Bool;
 			var->SetGenericRep (val, CVAR_Bool);
-			const char *statestr = argv.argc() <= 2? "*" : argv[2];
-			if (*statestr == '*')
-			{
-				gi->PrintMessage(PRINT_MEDIUM, "\"%s\" = \"%s\"\n", var->GetName(), val.Bool ? "true" : "false");
-			}
-			else
-			{
-				int state = (int)strtoll(argv[2], nullptr,  0);
-				if (state != 0)
-				{
-					// Order of Duke's quote string varies, some have on first, some off, so use the sign of the parameter to decide.
-					// Positive means Off/On, negative means On/Off
-					int quote = state > 0? state + val.Bool : -(state + val.Bool);
-					auto text = quoteMgr.GetQuote(quote);
-					if (text) gi->PrintMessage(PRINT_MEDIUM, "%s\n", text);
-				}
-			}
+			Printf ("\"%s\" = \"%s\"\n", var->GetName(),
+				val.Bool ? "true" : "false");
 		}
 	}
 }
@@ -1533,7 +1528,7 @@ void FBaseCVar::ListVars (const char *filter, bool plain)
 			else
 			{
 				++count;
-				Printf ("%c%c%c %s = %s\n",
+				Printf ("%c%c%c%c%c %s = %s\n",
 					flags & CVAR_ARCHIVE ? 'A' : ' ',
 					flags & CVAR_USERINFO ? 'U' :
 						flags & CVAR_SERVERINFO ? 'S' :
@@ -1541,6 +1536,8 @@ void FBaseCVar::ListVars (const char *filter, bool plain)
 					flags & CVAR_NOSET ? '-' :
 						flags & CVAR_LATCH ? 'L' :
 						flags & CVAR_UNSETTABLE ? '*' : ' ',
+					flags & CVAR_MOD ? 'M' : ' ',
+					flags & CVAR_IGNORE ? 'X' : ' ',
 					var->GetName(),
 					var->GetHumanString());
 			}
@@ -1584,3 +1581,4 @@ CCMD (archivecvar)
 		}
 	}
 }
+

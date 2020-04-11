@@ -78,7 +78,7 @@
 #include "gameconfigfile.h"
 #include "v_font.h"
 #include "i_system.h"
-#include "textures/bitmap.h"
+#include "bitmap.h"
 #include "cmdlib.h"
 
 extern bool batchrun;

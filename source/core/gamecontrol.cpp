@@ -58,6 +58,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "glbackend/glbackend.h"
 #include "engineerrors.h"
 #include "mmulti.h"
+#include "gamestate.h"
 
 // The last remains of sdlayer.cpp
 double g_beforeSwapTime;
@@ -72,6 +73,8 @@ MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDu
 MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
 MapRecord* lastLevel;		// Same here, for the last level.
 MapRecord userMapRecord;	// stand-in for the user map.
+
+gamestate_t gamestate = GS_STARTUP;
 
 FILE* hashfile;
 
@@ -691,7 +694,7 @@ int RunGame()
 	InitStatistics();
 	M_Init();
 	SetDefaultStrings();
-	if (g_gameType & (GAMEFLAG_RR|GAMEFLAG_RRRA)) InitRREndMap();	// this needs to be done better later
+	if (g_gameType & (GAMEFLAG_RR)) InitRREndMap();	// this needs to be done better later
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
 
@@ -705,6 +708,7 @@ int RunGame()
 	auto exec = C_ParseCmdLineParams(nullptr);
 	if (exec) exec->ExecCommands();
 
+	gamestate = GS_LEVEL;
 	return gi->app_main();
 }
 
@@ -868,4 +872,86 @@ FString G_GetDemoPath()
 CCMD(printinterface)
 {
 	Printf("Current interface is %s\n", gi->Name());
+}
+
+CCMD (togglemsg)
+{
+	FBaseCVar *var, *prev;
+	UCVarValue val;
+
+	if (argv.argc() > 1)
+	{
+		if ( (var = FindCVar (argv[1], &prev)) )
+		{
+			var->MarkUnsafe();
+
+			val = var->GetGenericRep (CVAR_Bool);
+			val.Bool = !val.Bool;
+			var->SetGenericRep (val, CVAR_Bool);
+			const char *statestr = argv.argc() <= 2? "*" : argv[2];
+			if (*statestr == '*')
+			{
+				gi->PrintMessage(PRINT_MEDIUM, "\"%s\" = \"%s\"\n", var->GetName(), val.Bool ? "true" : "false");
+			}
+			else
+			{
+				int state = (int)strtoll(argv[2], nullptr,  0);
+				if (state != 0)
+				{
+					// Order of Duke's quote string varies, some have on first, some off, so use the sign of the parameter to decide.
+					// Positive means Off/On, negative means On/Off
+					int quote = state > 0? state + val.Bool : -(state + val.Bool);
+					auto text = quoteMgr.GetQuote(quote);
+					if (text) gi->PrintMessage(PRINT_MEDIUM, "%s\n", text);
+				}
+			}
+		}
+	}
+}
+
+CCMD(quit)
+{
+	throw CExitEvent(0);
+}
+
+CCMD(exit)
+{
+	throw CExitEvent(0);
+}
+
+extern FILE* Logfile;
+void execLogfile(const char* fn, bool append)
+{
+	if ((Logfile = fopen(fn, append ? "a" : "w")))
+	{
+		const char* timestr = myasctime();
+		Printf("Log started: %s\n", timestr);
+	}
+	else
+	{
+		Printf("Could not start log\n");
+	}
+}
+
+CCMD(logfile)
+{
+
+	if (Logfile)
+	{
+		const char* timestr = myasctime();
+		Printf("Log stopped: %s\n", timestr);
+		fclose(Logfile);
+		Logfile = NULL;
+	}
+
+	if (argv.argc() >= 2)
+	{
+		execLogfile(argv[1], argv.argc() >= 3 ? !!argv[2] : false);
+	}
+}
+
+// Just a placeholder for now.
+bool CheckCheatmode(bool printmsg)
+{
+	return false;
 }

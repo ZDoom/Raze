@@ -53,7 +53,7 @@ char boardfilename[BMAX_PATH] = {0};
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
 
-static int osdcmd_map(osdcmdptr_t parm)
+static int osdcmd_map(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
     {
@@ -81,7 +81,7 @@ static int osdcmd_map(osdcmdptr_t parm)
 }
 
 
-static int osdcmd_activatecheat(osdcmdptr_t parm)
+static int osdcmd_activatecheat(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -93,7 +93,7 @@ static int osdcmd_activatecheat(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_god(osdcmdptr_t UNUSED(parm))
+static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -102,7 +102,7 @@ static int osdcmd_god(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
+static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -111,7 +111,7 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
+int osdcmd_restartmap(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -120,7 +120,7 @@ int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-int osdcmd_levelwarp(osdcmdptr_t parm)
+int osdcmd_levelwarp(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
@@ -134,7 +134,7 @@ int osdcmd_levelwarp(osdcmdptr_t parm)
 }
 
 #if 0
-static int osdcmd_spawn(osdcmdptr_t parm)
+static int osdcmd_spawn(CCmdFuncPtr parm)
 {
     int32_t picnum = 0;
     uint16_t cstat=0;
@@ -229,7 +229,7 @@ static int osdcmd_spawn(osdcmdptr_t parm)
 }
 #endif
 
-static int osdcmd_give(osdcmdptr_t parm)
+static int osdcmd_give(CCmdFuncPtr parm)
 {
     int32_t i;
 
@@ -275,18 +275,18 @@ static int osdcmd_give(osdcmdptr_t parm)
 
 int32_t registerosdcommands(void)
 {
-    OSD_RegisterFunction("map","map <mapfile>: loads the given map", osdcmd_map);
-    OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
-    OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
-    OSD_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);
+    C_RegisterFunction("map","map <mapfile>: loads the given map", osdcmd_map);
+    C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
+    C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
+    C_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);
 
-    OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
+    C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
-    OSD_RegisterFunction("levelwarp", "levelwarp <num>: warp to level", osdcmd_levelwarp);
+    C_RegisterFunction("levelwarp", "levelwarp <num>: warp to level", osdcmd_levelwarp);
 
-    OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
+    C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
 
-//    OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
+//    C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
     return 0;
 }

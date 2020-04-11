@@ -40,7 +40,7 @@
 #include <stdint.h>
 #include "tarray.h"
 #include "palentry.h"
-#include "textures/bitmap.h"
+#include "bitmap.h"
 
 // we do not want to pull in the entirety of build.h here.
 extern uint8_t palette[768];

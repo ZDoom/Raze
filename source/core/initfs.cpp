@@ -45,6 +45,7 @@
 #include "v_video.h"
 #include "v_text.h"
 #include "findfile.h"
+#include "palutil.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX 260

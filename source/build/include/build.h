@@ -11,6 +11,8 @@
 #ifndef build_h_
 #define build_h_
 
+#define TRANSPARENT_INDEX 255
+
 static_assert('\xff' == 255, "Char must be unsigned!");
 
 #if !defined __cplusplus || (__cplusplus < 201103L && !defined _MSC_VER)

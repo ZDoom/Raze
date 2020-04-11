@@ -34,22 +34,29 @@
 #ifndef __C_DISPATCH_H__
 #define __C_DISPATCH_H__
 
+#include <stdint.h>
 #include <functional>
 #include "c_console.h"
-#include "zstring.h"
+#include "tarray.h"
 #include "c_commandline.h"
 #include "zstring.h"
 
 class FConfigFile;
 
+
 // Contains the contents of an exec'ed file
 struct FExecList
 {
 	TArray<FString> Commands;
+	TArray<FString> Pullins;
 
-	void AddCommand(const char *cmd, const char *file = NULL);
+	void AddCommand(const char *cmd, const char *file = nullptr);
 	void ExecCommands() const;
+	void AddPullins(TArray<FString> &wads) const;
 };
+
+extern bool ParsingKeyConf, UnsafeExecutionContext;
+extern	FString			StoredWarp;			// [RH] +warp at the command line
 
 
 extern bool CheckCheatmode (bool printmsg = true);
@@ -69,6 +76,7 @@ void C_ClearDelayedCommands();
 void C_DoCommand (const char *cmd, int keynum=0);
 
 FExecList *C_ParseExecFile(const char *file, FExecList *source);
+void C_SearchForPullins(FExecList *exec, const char *file, class FCommandLine &args);
 bool C_ExecFile(const char *file);
 void C_ClearDynCCmds();
 
@@ -81,7 +89,7 @@ void C_ClearAliases ();
 // build a single string out of multiple strings
 FString BuildString (int argc, FString *argv);
 
-typedef std::function<void(FCommandLine & argv, void *, int key)> CCmdRun;;
+typedef std::function<void(FCommandLine & argv, int key)> CCmdRun;;
 
 class FConsoleCommand
 {
@@ -91,7 +99,7 @@ public:
 	virtual bool IsAlias ();
 	void PrintCommand();
 
-	virtual void Run (FCommandLine &args, void *instigator, int key);
+	virtual void Run (FCommandLine &args, int key);
 	static FConsoleCommand* FindByName (const char* name);
 
 	FConsoleCommand *m_Next, **m_Prev;
@@ -108,9 +116,25 @@ protected:
 };
 
 #define CCMD(n) \
-	void Cmd_##n (FCommandLine &, void *, int key); \
+	void Cmd_##n (FCommandLine &, int key); \
 	FConsoleCommand Cmd_##n##_Ref (#n, Cmd_##n); \
-	void Cmd_##n (FCommandLine &argv, void *who, int key)
+	void Cmd_##n (FCommandLine &argv, int key)
+
+class FUnsafeConsoleCommand : public FConsoleCommand
+{
+public:
+	FUnsafeConsoleCommand (const char *name, CCmdRun RunFunc)
+	: FConsoleCommand (name, RunFunc)
+	{
+	}
+
+	virtual void Run (FCommandLine &args, int key) override;
+};
+
+#define UNSAFE_CCMD(n) \
+	static void Cmd_##n (FCommandLine &, int key); \
+	static FUnsafeConsoleCommand Cmd_##n##_Ref (#n, Cmd_##n); \
+	void Cmd_##n (FCommandLine &argv, int key)
 
 const int KEY_DBLCLICKED = 0x8000;
 
@@ -119,7 +143,7 @@ class FConsoleAlias : public FConsoleCommand
 public:
 	FConsoleAlias (const char *name, const char *command, bool noSave);
 	~FConsoleAlias ();
-	void Run (FCommandLine &args, void *instigator, int key);
+	void Run (FCommandLine &args, int key);
 	bool IsAlias ();
 	void PrintAlias ();
 	void Archive (FConfigFile *f);
@@ -140,10 +164,51 @@ public:
 	{
 	}
 
-	virtual void Run (FCommandLine &args, void *instigator, int key) override;
+	virtual void Run (FCommandLine &args, int key) override;
+};
+
+class UnsafeExecutionScope
+{
+	const bool wasEnabled;
+
+public:
+	explicit UnsafeExecutionScope(const bool enable = true)
+		: wasEnabled(UnsafeExecutionContext)
+	{
+		UnsafeExecutionContext = enable;
+	}
+
+	~UnsafeExecutionScope()
+	{
+		UnsafeExecutionContext = wasEnabled;
+	}
 };
 
 
+
 void execLogfile(const char *fn, bool append = false);
+
+enum
+{
+	CCMD_OK = 0,
+	CCMD_SHOWHELP = 1
+};
+
+struct CCmdFuncParm
+{
+	int32_t numparms;
+	const char* name;
+	const char** parms;
+	const char* raw;
+};
+
+using CCmdFuncPtr = CCmdFuncParm const* const;
+
+// registers a function
+//   name = name of the function
+//   help = a short help string
+//   func = the entry point to the function
+int C_RegisterFunction(const char* name, const char* help, int (*func)(CCmdFuncPtr));
+
 
 #endif //__C_DISPATCH_H__

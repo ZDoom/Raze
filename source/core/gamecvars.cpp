@@ -47,6 +47,9 @@
 #include "gstrings.h"
 #include "quotemgr.h"
 
+#define CVAR_FRONTEND_BLOOD 0
+#define CVAR_FRONTEND_DUKELIKE 0
+
 /* Notes
  
  RedNukem has this for the toggle autorun command. Todo: Check what this is supposed to accomplish. The implementation makes no sense at all.
@@ -442,6 +445,43 @@ bool G_AllowAutoload()
 {
 	if (noautoload || gNoAutoLoad || Args->CheckParm("-noautoload")) return false;
 	return true;
+}
+
+
+// color code format is as follows:
+// ^## sets a color, where ## is the palette number
+// ^S# sets a shade, range is 0-7 equiv to shades 0-14
+// ^O resets formatting to defaults
+
+static const char* OSD_StripColors(char* outBuf, const char* inBuf)
+{
+	const char* ptr = outBuf;
+
+	while (*inBuf)
+	{
+		if (*inBuf == '^')
+		{
+			if (isdigit(*(inBuf + 1)))
+			{
+				inBuf += 2 + !!isdigit(*(inBuf + 2));
+				continue;
+			}
+			else if ((toupper(*(inBuf + 1)) == 'O'))
+			{
+				inBuf += 2;
+				continue;
+			}
+			else if ((toupper(*(inBuf + 1)) == 'S') && isdigit(*(inBuf + 2)))
+			{
+				inBuf += 3;
+				continue;
+			}
+		}
+		*(outBuf++) = *(inBuf++);
+	}
+
+	*outBuf = '\0';
+	return ptr;
 }
 
 CVAR(Bool, adult_lockout, false, CVAR_ARCHIVE)

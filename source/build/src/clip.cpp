@@ -11,6 +11,7 @@
 #include "clip.h"
 #include "engine_priv.h"
 
+
 static int16_t clipnum;
 static linetype clipit[MAXCLIPNUM];
 static int32_t clipsectnum, origclipsectnum, clipspritenum;
@@ -2539,7 +2540,7 @@ restart_grand:
                             int32_t ytex = mulscale16(vcoefup16, tilesiz[tilenum].y);
 
                             auto texel = (tilePtr(tilenum) + tilesiz[tilenum].y*xtex + ytex);
-                            if (*texel == 255)
+                            if (*texel == TRANSPARENT_INDEX)
                                 continue;
                         }
                     }

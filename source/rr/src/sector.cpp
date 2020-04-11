@@ -5243,7 +5243,7 @@ void G_Thunder(void)
         if ((gotpic[RRTILE2577>>3]&(1<<(RRTILE2577&7))))
         {
             gotpic[RRTILE2577>>3] &= ~(1<<(RRTILE2577&7));
-            if (tilePtr(RRTILE2577) != 0)	// why does this on texture load state???
+            if (tilePtr(RRTILE2577) != nullptr)	// why does this on texture load state???
             {
                 g_visibility = 256;
                 if (krand2() > 65000)
@@ -5276,7 +5276,7 @@ void G_Thunder(void)
         if ((gotpic[RRTILE2562>>3]&(1<<(RRTILE2562&7))))
         {
             gotpic[RRTILE2562>>3] &= ~(1<<(RRTILE2562&7));
-            if (tilePtr(RRTILE2562) != 0)	// why does this on texture load state???
+            if (tilePtr(RRTILE2562) != nullptr)	// why does this on texture load state???
             {
                 if (krand2() > 65000)
                 {

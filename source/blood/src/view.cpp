@@ -65,7 +65,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_2ddrawer.h"
 #include "v_video.h"
 
-CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable displaying the remaining seconds for power-ups")
+CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE/*|CVAR_FRONTEND_BLOOD*/, "enable/disable displaying the remaining seconds for power-ups")
 
 
 BEGIN_BLD_NS
@@ -1823,7 +1823,7 @@ void viewInit(void)
     }
 #endif
     uint8_t *data = tileAllocTile(4077, kLensSize, kLensSize, 0, 0);
-    memset(data, 255, kLensSize*kLensSize);
+    memset(data, TRANSPARENT_INDEX, kLensSize*kLensSize);
     gGameMessageMgr.SetState(hud_messages);
     gGameMessageMgr.SetCoordinates(1, 1);
     char nFont;

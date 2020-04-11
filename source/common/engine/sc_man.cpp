@@ -33,12 +33,11 @@
 
 
 
-
-
 // HEADER FILES ------------------------------------------------------------
 
 #include <string.h>
 #include <stdlib.h>
+#include "engineerrors.h"
 #include "sc_man.h"
 #include "cmdlib.h"
 #include "templates.h"
@@ -67,6 +66,31 @@
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
 // CODE --------------------------------------------------------------------
+
+void VersionInfo::operator=(const char *string)
+{
+	char *endp;
+	major = (int16_t)clamp<unsigned long long>(strtoull(string, &endp, 10), 0, USHRT_MAX);
+	if (*endp == '.')
+	{
+		minor = (int16_t)clamp<unsigned long long>(strtoull(endp + 1, &endp, 10), 0, USHRT_MAX);
+		if (*endp == '.')
+		{
+			revision = (int16_t)clamp<unsigned long long>(strtoull(endp + 1, &endp, 10), 0, USHRT_MAX);
+			if (*endp != 0) major = USHRT_MAX;
+		}
+		else if (*endp == 0)
+		{
+			revision = 0;
+		}
+		else major = USHRT_MAX;
+	}
+	else if (*endp == 0)
+	{
+		minor = revision = 0;
+	}
+	else major = USHRT_MAX;
+}
 
 //==========================================================================
 //
@@ -100,6 +124,18 @@ FScanner::FScanner(const FScanner &other)
 {
 	ScriptOpen = false;
 	*this = other;
+}
+
+//==========================================================================
+//
+// FScanner OpenLumpNum Constructor
+//
+//==========================================================================
+
+FScanner::FScanner(int lumpnum)
+{
+	ScriptOpen = false;
+	OpenLumpNum(lumpnum);
 }
 
 //==========================================================================
@@ -155,7 +191,6 @@ FScanner &FScanner::operator=(const FScanner &other)
 	TokenType = other.TokenType;
 	Number = other.Number;
 	Float = other.Float;
-	//Name = other.Name;
 	Line = other.Line;
 	End = other.End;
 	Crossed = other.Crossed;
@@ -171,37 +206,12 @@ FScanner &FScanner::operator=(const FScanner &other)
 
 void FScanner::Open (const char *name)
 {
-	auto fr = fileSystem.OpenFileReader(name);
-	if (!fr.isOpen())
+	int lump = fileSystem.CheckNumForFullName(name, true);
+	if (lump == -1)
 	{
 		I_Error("Could not find script lump '%s'\n", name);
 	}
-	Close();
-	auto data = fr.ReadPadded(1);
-	ScriptBuffer = data;
-	ScriptName = name;
-	//LumpNum = lump;
-	PrepareScript();
-}
-
-//==========================================================================
-//
-// FScanner :: Open
-//
-//==========================================================================
-
-FScanner::FScanner(int lump)
-{
-	if ((unsigned)lump >= fileSystem.GetNumEntries())
-	{
-		I_Error("Invalid file index %d\n", lump);
-	}
-	Close();
-	auto data = fileSystem.GetFileData(lump, 1);
-	ScriptBuffer = data;
-	ScriptName = fileSystem.GetFileFullName(lump);
-	LumpNum = lump;
-	PrepareScript();
+	OpenLumpNum(lump);
 }
 
 //==========================================================================
@@ -212,16 +222,21 @@ FScanner::FScanner(int lump)
 //
 //==========================================================================
 
-void FScanner::OpenFile (const char *name)
+bool FScanner::OpenFile (const char *name)
 {
 	Close ();
+
 	FileReader fr;
-	if (!fr.OpenFile(name)) return;
-	auto data = fr.ReadPadded(1);
-	ScriptBuffer = data;
+	if (!fr.OpenFile(name)) return false;
+	auto filesize = fr.GetLength();
+	auto filebuff = fr.Read();
+	if (filebuff.Size() == 0 && filesize > 0) return false;
+
+	ScriptBuffer = FString((const char *)filebuff.Data(), filesize);
 	ScriptName = name;	// This is used for error messages so the full file name is preferable
 	LumpNum = -1;
 	PrepareScript ();
+	return true;
 }
 
 //==========================================================================
@@ -252,6 +267,26 @@ void FScanner::OpenString (const char *name, FString buffer)
 	ScriptBuffer = buffer;
 	ScriptName = name;
 	LumpNum = -1;
+	PrepareScript ();
+}
+
+//==========================================================================
+//
+// FScanner :: OpenLumpNum
+//
+// Loads a script from the lump directory
+//
+//==========================================================================
+
+void FScanner :: OpenLumpNum (int lump)
+{
+	Close ();
+	{
+		FileData mem = fileSystem.ReadFile(lump);
+		ScriptBuffer = mem.GetString();
+	}
+	ScriptName = fileSystem.GetFileFullPath(lump);
+	LumpNum = lump;
 	PrepareScript ();
 }
 
@@ -1084,7 +1119,7 @@ void FScanner::CheckOpen()
 {
 	if (ScriptOpen == false)
 	{
-		I_Error ("SC_ call before SC_Open().");
+		I_FatalError ("SC_ call before SC_Open().");
 	}
 }
 
@@ -1095,13 +1130,14 @@ void FScanner::CheckOpen()
 //==========================================================================
 int FScriptPosition::ErrorCounter;
 int FScriptPosition::WarnCounter;
+int FScriptPosition::Developer;
 bool FScriptPosition::StrictErrors;	// makes all OPTERROR messages real errors.
 bool FScriptPosition::errorout;		// call I_Error instead of printing the error itself.
 
 
 FScriptPosition::FScriptPosition(FString fname, int line)
 {
-	FileName = fname.GetChars();
+	FileName = fname;
 	ScriptLine = line;
 }
 
@@ -1128,15 +1164,13 @@ void FScriptPosition::Message (int severity, const char *message, ...) const
 {
 	FString composed;
 
-#if 0
-	if (severity == MSG_DEBUGLOG && developer < DMSG_NOTIFY) return;
-	if (severity == MSG_DEBUGERROR && developer < DMSG_ERROR) return;
-	if (severity == MSG_DEBUGWARN && developer < DMSG_WARNING) return;
-	if (severity == MSG_DEBUGMSG && developer < DMSG_NOTIFY) return;
-#endif
+	if (severity == MSG_DEBUGLOG && Developer < DMSG_NOTIFY) return;
+	if (severity == MSG_DEBUGERROR && Developer < DMSG_ERROR) return;
+	if (severity == MSG_DEBUGWARN && Developer < DMSG_WARNING) return;
+	if (severity == MSG_DEBUGMSG && Developer < DMSG_NOTIFY) return;
 	if (severity == MSG_OPTERROR)
 	{
-		severity = StrictErrors ? MSG_ERROR : MSG_WARNING;
+		severity = StrictErrors? MSG_ERROR : MSG_WARNING;
 	}
 	// This is mainly for catching the error with an exception handler.
 	if (severity == MSG_ERROR && errorout) severity = MSG_FATAL;

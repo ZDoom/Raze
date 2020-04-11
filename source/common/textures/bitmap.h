@@ -2,7 +2,7 @@
 ** bitmap.h
 **
 **---------------------------------------------------------------------------
-** Copyright 2008-2019 Christoph Oelckers
+** Copyright 2008 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -36,11 +36,9 @@
 #ifndef __BITMAP_H__
 #define __BITMAP_H__
 
-#include <algorithm>
-#include "palentry.h"
-#include <string.h>
-#include <stdlib.h>
+#include "basics.h"
 #include "templates.h"
+#include "palentry.h"
 
 struct FCopyInfo;
 
@@ -83,6 +81,7 @@ protected:
 	int Height;
 	int Pitch;
 	bool FreeBuffer;
+	FClipRect ClipRect;
 
 
 public:
@@ -92,6 +91,7 @@ public:
 		Width = Height = 0;
 		Pitch = 0;
 		FreeBuffer = false;
+		ClipRect.x = ClipRect.y = ClipRect.width = ClipRect.height = 0;
 	}
 
 	FBitmap(uint8_t *buffer, int pitch, int width, int height)
@@ -102,6 +102,9 @@ public:
 		Width = width;
 		Height = height;
 		FreeBuffer = false;
+		ClipRect.x = ClipRect.y = 0;
+		ClipRect.width = width;
+		ClipRect.height = height;
 	}
 
 	FBitmap(const FBitmap &other) = delete;	// disallow because in nearly all cases this creates an unwanted copy.
@@ -113,6 +116,7 @@ public:
 		Width = other.Width;
 		Height = other.Height;
 		FreeBuffer = other.FreeBuffer;
+		ClipRect = other.ClipRect;
 		other.data = nullptr;
 		other.FreeBuffer = false;
 	}
@@ -127,6 +131,7 @@ public:
 		Width = other.Width;
 		Height = other.Height;
 		FreeBuffer = other.FreeBuffer;
+		ClipRect = other.ClipRect;
 		other.data = nullptr;
 		other.FreeBuffer = false;
 		return *this;
@@ -139,6 +144,7 @@ public:
 		Width = other.Width;
 		Height = other.Height;
 		FreeBuffer = deep;
+		ClipRect = other.ClipRect;
 		if (deep)
 		{
 			data = new uint8_t[Pitch * Height];
@@ -171,6 +177,9 @@ public:
 		data = new uint8_t[4*w*h];
 		memset(data, 0, 4*w*h);
 		FreeBuffer = true;
+		ClipRect.x = ClipRect.y = 0;
+		ClipRect.width = w;
+		ClipRect.height = h;
 		return data != NULL;
 	}
 
@@ -199,20 +208,51 @@ public:
 		return data;
 	}
 
+	void SetClipRect(FClipRect &clip)
+	{
+		ClipRect = clip;
+	}
+
+	void IntersectClipRect(FClipRect &clip)
+	{
+		ClipRect.Intersect(clip.x, clip.y, clip.width, clip.height);
+	}
+
+	void IntersectClipRect(int cx, int cy, int cw, int ch)
+	{
+		ClipRect.Intersect(cx, cy, cw, ch);
+	}
+
+	const FClipRect &GetClipRect() const
+	{
+		return ClipRect;
+	}
+
+	void Zero();
+
 
 	void CopyPixelDataRGB(int originx, int originy, const uint8_t *patch, int srcwidth,
-								int srcheight, int step_x, int step_y, int rotate, int ct,
+								int srcheight, int step_x, int step_y, int rotate, int ct, FCopyInfo *inf = NULL,
 		/* for PNG tRNS */		int r=0, int g=0, int b=0);
 	void CopyPixelData(int originx, int originy, const uint8_t * patch, int srcwidth, int srcheight,
-								int step_x, int step_y, int rotate, const PalEntry * palette);
+								int step_x, int step_y, int rotate, const PalEntry * palette, FCopyInfo *inf = NULL);
 
 
-	void Blit(int originx, int originy, const FBitmap &src)
+	void Blit(int originx, int originy, const FBitmap &src, int width, int height, int rotate = 0, FCopyInfo *inf = NULL)
 	{
-		CopyPixelDataRGB(originx, originy, src.GetPixels(), src.GetWidth(), src.GetHeight(), 4, src.GetWidth()*4, 0, CF_BGRA);
+		CopyPixelDataRGB(originx, originy, src.GetPixels(),  width, height, 4, src.GetWidth()*4, rotate, CF_BGRA, inf);
+	}
+
+	void Blit(int originx, int originy, const FBitmap &src, FCopyInfo *inf = NULL)
+	{
+		CopyPixelDataRGB(originx, originy, src.GetPixels(), src.GetWidth(), src.GetHeight(), 4, src.GetWidth()*4, 0, CF_BGRA, inf);
 	}
 
 };
+
+bool ClipCopyPixelRect(const FClipRect *cr, int &originx, int &originy,
+						const uint8_t *&patch, int &srcwidth, int &srcheight, 
+						int &step_x, int &step_y, int rotate);
 
 //===========================================================================
 // 
@@ -349,10 +389,108 @@ struct cPalEntry
 	static __forceinline int Gray(const unsigned char * p) { return (R(p)*77 + G(p)*143 + B(p)*36)>>8; }
 };
 
+enum EBlend
+{
+	BLEND_NONE = 0,
+	BLEND_ICEMAP = 1,
+	BLEND_DESATURATE1 = 2,
+	BLEND_DESATURATE31 = 32,
+	BLEND_SPECIALCOLORMAP1 = 33,
+	BLEND_MODULATE = -1,	
+	BLEND_OVERLAY = -2,
+};
+
+enum ECopyOp
+{
+	OP_COPY,
+	OP_BLEND,
+	OP_ADD,
+	OP_SUBTRACT,
+	OP_REVERSESUBTRACT,
+	OP_MODULATE,
+	OP_COPYALPHA,
+	OP_COPYNEWALPHA,
+	OP_OVERLAY,
+	OP_OVERWRITE
+};
+
+struct FCopyInfo
+{
+	ECopyOp op;
+	EBlend blend;
+	blend_t blendcolor[4];
+	blend_t alpha;
+	blend_t invalpha;
+	PalEntry *palette;
+};
+
+struct bOverwrite
+{
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = s; }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
+	static __forceinline bool ProcessAlpha0() { return true; }
+};
+
 struct bCopy
 {
-	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a) { d = s; }
-	static __forceinline void OpA(uint8_t &d, uint8_t s) { d = s; }
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = s; }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
+	static __forceinline bool ProcessAlpha0() { return false; }
+};
+
+struct bCopyNewAlpha
+{
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = s; }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = (s*i->alpha) >> BLENDBITS; }
+	static __forceinline bool ProcessAlpha0() { return false; }
+};
+
+struct bCopyAlpha
+{
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = (s*a + d*(255-a))/255; }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
+	static __forceinline bool ProcessAlpha0() { return false; }
+};
+
+struct bOverlay
+{	
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = (s*a + d*(255-a))/255; }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = MAX(s,d); }
+	static __forceinline bool ProcessAlpha0() { return false; }
+};
+
+struct bBlend
+{
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = (d*i->invalpha + s*i->alpha) >> BLENDBITS; }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
+	static __forceinline bool ProcessAlpha0() { return false; }
+};
+
+struct bAdd
+{
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = MIN<int>((d*BLENDUNIT + s*i->alpha) >> BLENDBITS, 255); }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
+	static __forceinline bool ProcessAlpha0() { return false; }
+};
+
+struct bSubtract
+{
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = MAX<int>((d*BLENDUNIT - s*i->alpha) >> BLENDBITS, 0); }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
+	static __forceinline bool ProcessAlpha0() { return false; }
+};
+
+struct bReverseSubtract
+{
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = MAX<int>((-d*BLENDUNIT + s*i->alpha) >> BLENDBITS, 0); }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
+	static __forceinline bool ProcessAlpha0() { return false; }
+};
+
+struct bModulate
+{
+	static __forceinline void OpC(uint8_t &d, uint8_t s, uint8_t a, FCopyInfo *i) { d = (s*d)/255; }
+	static __forceinline void OpA(uint8_t &d, uint8_t s, FCopyInfo *i) { d = s; }
 	static __forceinline bool ProcessAlpha0() { return false; }
 };
 

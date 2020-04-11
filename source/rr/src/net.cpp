@@ -3711,7 +3711,7 @@ void Net_PrintLag(FString& output)
     }
 }
 
-int osdcmd_listplayers(osdcmdptr_t parm)
+int osdcmd_listplayers(CCmdFuncPtr parm)
 {
     ENetPeer* currentPeer;
     char ipaddr[32];
@@ -3743,7 +3743,7 @@ int osdcmd_listplayers(osdcmdptr_t parm)
 }
 
 #if 0
-static int osdcmd_kick(osdcmdptr_t parm)
+static int osdcmd_kick(CCmdFuncPtr parm)
 {
     ENetPeer* currentPeer;
     uint32_t hexaddr;
@@ -3781,7 +3781,7 @@ static int osdcmd_kick(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_kickban(osdcmdptr_t parm)
+static int osdcmd_kickban(CCmdFuncPtr parm)
 {
     ENetPeer* currentPeer;
     uint32_t hexaddr;

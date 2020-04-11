@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
-static int osdcmd_god(osdcmdptr_t UNUSED(parm))
+static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -45,7 +45,7 @@ static int osdcmd_god(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
+static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -61,7 +61,7 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdcmd_map(osdcmdptr_t parm)
+static int osdcmd_map(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
     {
@@ -88,7 +88,7 @@ static int osdcmd_map(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_changelevel(osdcmdptr_t parm)
+static int osdcmd_changelevel(CCmdFuncPtr parm)
 {
     char* p;
 
@@ -124,23 +124,23 @@ static int osdcmd_changelevel(osdcmdptr_t parm)
 int32_t registerosdcommands(void)
 {
     //if (VOLUMEONE)
-    OSD_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
-    OSD_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
-    //    OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
+    C_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
+    C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
+    //    C_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     //}
 
-    //OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
+    //C_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
 
 
-    //OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
-    OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
-    //OSD_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
+    //C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
+    C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
+    //C_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
 
-    OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
-    //OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
-    //OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
+    C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
+    //C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
+    //C_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
 
-    //OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
+    //C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
     return 0;
 }

@@ -879,7 +879,7 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 				if (x2 >= 0 && y2 >= 0 && x2 < xsiz2 && y2 < ysiz2)
 				{
 					auto src = p1[x1 * ysiz1 + y1];
-					if (src != 255)
+					if (src != TRANSPARENT_INDEX)
 						p2[x2 * ysiz2 + y2] = src;
 				}
 				

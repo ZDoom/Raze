@@ -42,7 +42,6 @@ struct event_t;
 class FConfigFile;
 class FCommandLine;
 
-const char* KeyName(int key);
 void C_NameKeys (char *str, int first, int second);
 FString C_NameKeys (int *keys, int count, bool colors = false);
 
@@ -54,6 +53,7 @@ public:
 	void PerformBind(FCommandLine &argv, const char *msg);
 	bool DoKey(event_t *ev);
 	void ArchiveBindings(FConfigFile *F, const char *matchcmd = NULL);
+	int  GetKeysForCommand (const char *cmd, int *first, int *second);
 	TArray<int> GetKeysForCommand (const char *cmd);
 	void UnbindACommand (const char *str);
 	void UnbindAll ();
@@ -96,10 +96,6 @@ bool C_DoKey (event_t *ev, FKeyBindings *binds, FKeyBindings *doublebinds);
 void C_SetDefaultBindings ();
 void C_UnbindAll ();
 
-const char* KB_ScanCodeToString(int scancode); // convert scancode into a string
-int KB_StringToScanCode(const char* string);  // convert a string into a scancode
-
-
 extern const char *KeyNames[];
 
 struct FKeyAction
@@ -116,13 +112,5 @@ struct FKeySection
 };
 extern TArray<FKeySection> KeySections;
 
-struct GameFuncDesc
-{
-	const char *action;
-	const char *description;
-	bool replaced;
-};
 #endif //__C_BINDINGS_H__
-
-
 

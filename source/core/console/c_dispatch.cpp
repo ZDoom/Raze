@@ -40,24 +40,18 @@
 #include <ctype.h>
 
 #include "templates.h"
-//#include "doomtype.h"
 #include "cmdlib.h"
 #include "c_console.h"
 #include "c_dispatch.h"
 #include "m_argv.h"
-//#include "g_game.h"
-//#include "d_player.h"
+#include "gamestate.h"
 #include "configfile.h"
 #include "printf.h"
 #include "c_cvars.h"
-#include "v_text.h"
-#include "inputstate.h"
 #include "c_buttons.h"
-//#include "d_net.h"
-//#include "d_main.h"
-//#include "serializer.h"
-//#include "menu/menu.h"
-//#include "g_levellocals.h"
+// Todo: Get rid of
+#include "inputstate.h"
+bool D_AddFile(TArray<FString>& wadfiles, const char* file, bool check = true, int position = -1);
 
 // MACROS ------------------------------------------------------------------
 
@@ -77,14 +71,15 @@ protected:
 class FWaitingCommand : public FDelayedCommand
 {
 public:
-	FWaitingCommand(const char *cmd, int tics)
-		: Command(cmd), TicsLeft(tics+1)
+	FWaitingCommand(const char *cmd, int tics, bool unsafe)
+		: Command(cmd), TicsLeft(tics+1), IsUnsafe(unsafe)
 	{}
 
 	bool Tick() override
 	{
 		if (--TicsLeft == 0)
 		{
+			UnsafeExecutionScope scope(IsUnsafe);
 			AddCommandString(Command);
 			return true;
 		}
@@ -93,6 +88,7 @@ public:
 
 	FString Command;
 	int TicsLeft;
+	bool IsUnsafe;
 };
 
 class FStoredCommand : public FDelayedCommand
@@ -107,7 +103,7 @@ public:
 		if (Text.IsNotEmpty() && Command != nullptr)
 		{
 			FCommandLine args(Text);
-			Command->Run(args, /*current player*/nullptr, 0);
+			Command->Run(args, 0);
 		}
 		return true;
 	}
@@ -172,13 +168,27 @@ static FConsoleCommand *ScanChainForName (FConsoleCommand *start, const char *na
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
+bool ParsingKeyConf, UnsafeExecutionContext;
+FString StoredWarp;
+
+FConsoleCommand* Commands[FConsoleCommand::HASH_SIZE];
 
 CVAR (Bool, lookspring, true, CVAR_ARCHIVE);	// Generate centerview when -mlook encountered?
 
-FConsoleCommand *Commands[FConsoleCommand::HASH_SIZE];
-
-
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
+
+static const char *KeyConfCommands[] =
+{
+	"alias",
+	"defaultbind",
+	"addkeysection",
+	"addmenukey",
+	"addslotdefault",
+	"weaponsection",
+	"setslot",
+	"addplayerclass",
+	"clearplayerclasses"
+};
 
 // CODE --------------------------------------------------------------------
 
@@ -206,6 +216,25 @@ void C_DoCommand (const char *cmd, int keynum)
 	}
 
 	const size_t len = end - beg;
+
+	if (ParsingKeyConf)
+	{
+		int i;
+
+		for (i = countof(KeyConfCommands)-1; i >= 0; --i)
+		{
+			if (strnicmp (beg, KeyConfCommands[i], len) == 0 &&
+				KeyConfCommands[i][len] == 0)
+			{
+				break;
+			}
+		}
+		if (i < 0)
+		{
+			Printf ("Invalid command for KEYCONF: %s\n", beg);
+			return;
+		}
+	}
 
 	// Check if this is an action
 	if (*beg == '+' || *beg == '-')
@@ -238,23 +267,24 @@ void C_DoCommand (const char *cmd, int keynum)
 
 	if ( (com = FindNameInHashTable (Commands, beg, len)) )
 	{
-		if (//gamestate != GS_STARTUP ||
+		if (gamestate != GS_STARTUP || ParsingKeyConf ||
 			(len == 3 && strnicmp (beg, "set", 3) == 0) ||
 			(len == 7 && strnicmp (beg, "logfile", 7) == 0) ||
 			(len == 9 && strnicmp (beg, "unbindall", 9) == 0) ||
 			(len == 4 && strnicmp (beg, "bind", 4) == 0) ||
 			(len == 4 && strnicmp (beg, "exec", 4) == 0) ||
-			(len ==10 && strnicmp (beg, "doublebind", 10) == 0)
+			(len ==10 && strnicmp (beg, "doublebind", 10) == 0) ||
+			(len == 6 && strnicmp (beg, "pullin", 6) == 0)
 			)
 		{
 			FCommandLine args (beg);
-			com->Run (args, /*current player*/nullptr, keynum);
+			com->Run (args, keynum);
 		}
 		else
 		{
 			if (len == 4 && strnicmp(beg, "warp", 4) == 0)
 			{
-				//StoredWarp = beg;
+				StoredWarp = beg;
 			}
 			else
 			{
@@ -326,7 +356,8 @@ void AddCommandString (const char *text, int keynum)
 				cmd++;
 			if (*cmd)
 			{
-				if (cmd[0] == 'w' && cmd[1] == 'a' && cmd[2] == 'i' && cmd[3] == 't' &&
+				if (!ParsingKeyConf &&
+					cmd[0] == 'w' && cmd[1] == 'a' && cmd[2] == 'i' && cmd[3] == 't' &&
 					(cmd[4] == 0 || cmd[4] == ' '))
 				{
 					int tics;
@@ -346,7 +377,7 @@ void AddCommandString (const char *text, int keynum)
 						  // Note that deferred commands lose track of which key
 						  // (if any) they were pressed from.
 							*brkpt = ';';
-							auto cmd = new FWaitingCommand(brkpt, tics);
+							auto cmd = new FWaitingCommand(brkpt, tics, UnsafeExecutionContext);
 							delayedCommandQueue.AddCommand(cmd);
 						}
 						return;
@@ -473,9 +504,20 @@ FConsoleCommand::~FConsoleCommand ()
 	C_RemoveTabCommand (m_Name);
 }
 
-void FConsoleCommand::Run (FCommandLine &argv, void *who, int key)
+void FConsoleCommand::Run(FCommandLine &argv, int key)
 {
-	m_RunFunc (argv, who, key);
+	m_RunFunc (argv, key);
+}
+
+void FUnsafeConsoleCommand::Run(FCommandLine &args, int key)
+{
+	if (UnsafeExecutionContext)
+	{
+		Printf(TEXTCOLOR_RED "Cannot execute unsafe command " TEXTCOLOR_GOLD "%s\n", m_Name);
+		return;
+	}
+
+	FConsoleCommand::Run (args, key);
 }
 
 FConsoleAlias::FConsoleAlias (const char *name, const char *command, bool noSave)
@@ -554,6 +596,11 @@ FString BuildString (int argc, FString *argv)
 // To avoid a substitution, use %%. The %% will be replaced by a single %.
 //
 //===========================================================================
+
+void FConsoleCommand::PrintCommand()
+{
+	Printf("%s\n", m_Name.GetChars());
+}
 
 FString SubstituteAliasParams (FString &command, FCommandLine &args)
 {
@@ -790,13 +837,17 @@ CCMD (alias)
 			{
 				if (alias->IsAlias ())
 				{
-					static_cast<FConsoleAlias *> (alias)->Realias (argv[2], false);
+					static_cast<FConsoleAlias *> (alias)->Realias (argv[2], ParsingKeyConf);
 				}
 				else
 				{
 					Printf ("%s is a normal command\n", alias->m_Name.GetChars());
 					alias = NULL;
 				}
+			}
+			else if (ParsingKeyConf)
+			{
+				new FUnsafeConsoleAlias (argv[1], argv[2]);
 			}
 			else
 			{
@@ -864,11 +915,6 @@ FExecList *C_ParseCmdLineParams(FExecList *exec)
 	return exec;
 }
 
-void FConsoleCommand::PrintCommand() 
-{ 
-	Printf("%s\n", m_Name.GetChars()); 
-}
-
 bool FConsoleCommand::IsAlias ()
 {
 	return false;
@@ -879,7 +925,7 @@ bool FConsoleAlias::IsAlias ()
 	return true;
 }
 
-void FConsoleAlias::Run (FCommandLine &args, void *who, int key)
+void FConsoleAlias::Run (FCommandLine &args, int key)
 {
 	if (bRunning)
 	{
@@ -942,10 +988,24 @@ void FConsoleAlias::SafeDelete ()
 	}
 }
 
+void FUnsafeConsoleAlias::Run (FCommandLine &args, int key)
+{
+	UnsafeExecutionScope scope;
+	FConsoleAlias::Run(args, key);
+}
+
 void FExecList::AddCommand(const char *cmd, const char *file)
 {
+	// Pullins are special and need to be separated from general commands.
+	// They also turned out to be a really bad idea, since they make things
+	// more complicated. :(
+	if (file != NULL && strnicmp(cmd, "pullin", 6) == 0 && isspace(cmd[6]))
+	{
+		FCommandLine line(cmd);
+		C_SearchForPullins(this, file, line);
+	}
 	// Recursive exec: Parse this file now.
-	if (strnicmp(cmd, "exec", 4) == 0 && isspace(cmd[4]))
+	else if (strnicmp(cmd, "exec", 4) == 0 && isspace(cmd[4]))
 	{
 		FCommandLine argv(cmd);
 		for (int i = 1; i < argv.argc(); ++i)
@@ -964,6 +1024,14 @@ void FExecList::ExecCommands() const
 	for (unsigned i = 0; i < Commands.Size(); ++i)
 	{
 		AddCommandString(Commands[i]);
+	}
+}
+
+void FExecList::AddPullins(TArray<FString> &wads) const
+{
+	for (unsigned i = 0; i < Pullins.Size(); ++i)
+	{
+		D_AddFile(wads, Pullins[i]);
 	}
 }
 
@@ -1026,25 +1094,61 @@ bool C_ExecFile (const char *file)
 	if (exec != NULL)
 	{
 		exec->ExecCommands();
+		if (exec->Pullins.Size() > 0)
+		{
+			Printf(TEXTCOLOR_BOLD "Notice: Pullin files were ignored.\n");
+		}
 		delete exec;
 	}
 	return exec != NULL;
 }
 
-#include "osd.h"
+void C_SearchForPullins(FExecList *exec, const char *file, FCommandLine &argv)
+{
+	const char *lastSlash;
+
+	assert(exec != NULL);
+	assert(file != NULL);
+#ifdef __unix__
+	lastSlash = strrchr(file, '/');
+#else
+	const char *lastSlash1, *lastSlash2;
+
+	lastSlash1 = strrchr(file, '/');
+	lastSlash2 = strrchr(file, '\\');
+	lastSlash = MAX(lastSlash1, lastSlash2);
+#endif
+
+	for (int i = 1; i < argv.argc(); ++i)
+	{
+		// Try looking for the wad in the same directory as the .cfg
+		// before looking for it in the current directory.
+		if (lastSlash != NULL)
+		{
+			FString path(file, (lastSlash - file) + 1);
+			path += argv[i];
+			if (FileExists(path))
+			{
+				exec->Pullins.Push(path);
+				continue;
+			}
+		}
+		exec->Pullins.Push(argv[i]);
+	}
+}
 
 static TArray<FConsoleCommand*> dynccmds; // This needs to be explicitly deleted before shutdown - the names in here may not be valid during the exit handler.
 //
-// OSD_RegisterFunction() -- Reroutes a Bulid-style CCMD to the new console.
+// C_RegisterFunction() -- dynamically register a CCMD.
 //
-int OSD_RegisterFunction(const char* pszName, const char* pszDesc, int (*func)(osdcmdptr_t))
+int C_RegisterFunction(const char* pszName, const char* pszDesc, int (*func)(CCmdFuncPtr))
 {
 	FString nname = pszName;
-	auto callback = [nname, pszDesc, func](FCommandLine& args, void *, int key)
+	auto callback = [nname, pszDesc, func](FCommandLine& args, int key)
 	{
 		if (args.argc() > 0) args.operator[](0);
-		osdfuncparm_t param = { args.argc() - 1, nname.GetChars(), (const char**)args._argv + 1, args.cmd };
-		if (func(&param) != OSDCMD_OK)
+		CCmdFuncParm param = { args.argc() - 1, nname.GetChars(), (const char**)args._argv + 1, args.cmd };
+		if (func(&param) != CCMD_OK)
 		{
 			Printf("%s\n", pszDesc);
 		}
@@ -1064,43 +1168,10 @@ void C_ClearDynCCmds()
 	dynccmds.Clear();
 }
 
-CCMD (quit)
+CCMD (pullin)
 {
-	throw CExitEvent(0);
+	// Actual handling for pullin is now completely special-cased above
+	Printf (TEXTCOLOR_BOLD "Pullin" TEXTCOLOR_NORMAL " is only valid from .cfg\n"
+			"files and only when used at startup.\n");
 }
 
-CCMD (exit)
-{
-	throw CExitEvent(0);
-}
-
-extern FILE* Logfile;
-void execLogfile(const char* fn, bool append)
-{
-	if ((Logfile = fopen(fn, append ? "a" : "w")))
-	{
-		const char* timestr = myasctime();
-		Printf("Log started: %s\n", timestr);
-	}
-	else
-	{
-		Printf("Could not start log\n");
-	}
-}
-
-CCMD(logfile)
-{
-
-	if (Logfile)
-	{
-		const char* timestr = myasctime();
-		Printf("Log stopped: %s\n", timestr);
-		fclose(Logfile);
-		Logfile = NULL;
-	}
-
-	if (argv.argc() >= 2)
-	{
-		execLogfile(argv[1], argv.argc() >= 3 ? !!argv[2] : false);
-	}
-}

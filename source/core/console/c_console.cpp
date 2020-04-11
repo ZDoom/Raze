@@ -40,7 +40,7 @@
 #include "c_console.h"
 #include "c_cvars.h"
 #include "c_dispatch.h"
-//#include "g_input.h"
+#include "gamestate.h"
 #include "v_text.h"
 #include "filesystem.h"
 #include "d_gui.h"
@@ -60,17 +60,9 @@
 #include "s_soundinternal.h"
 #include "engineerrors.h"
 
-
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8
 #define BOTTOMARGIN 12
-
-enum
-{
-	CONTICRATE = 30,
-	C_BLINKRATE = (CONTICRATE/2),
-
-};
 
 extern bool hud_toggled;
 void D_ToggleHud();
@@ -107,7 +99,7 @@ int			ConWidth;
 bool		vidactive = false;
 bool		cursoron = false;
 int			ConBottom, ConScroll, RowAdjust;
-int			CursorTicker;
+uint64_t	CursorTicker;
 constate_e	ConsoleState = c_up;
 
 
@@ -517,6 +509,7 @@ static int HistSize;
 struct FNotifyText
 {
 	int TimeOut;
+	int Ticker;
 	int PrintLevel;
 	FString Text;
 };
@@ -545,7 +538,7 @@ CUSTOM_CVAR(Int, con_notifylines, NUMNOTIFIES, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 }
 
 
-int PrintColors[PRINTLEVELS+2] = { CR_RED, CR_GOLD, CR_YELLOW, CR_GREEN, CR_GREEN, CR_GOLD };
+int PrintColors[PRINTLEVELS+2] = { CR_RED, CR_GOLD, CR_GRAY, CR_GREEN, CR_GREEN, CR_GOLD };
 
 static void setmsgcolor (int index, int color);
 
@@ -639,7 +632,7 @@ void C_InitConsole (int width, int height, bool ingame)
 //
 //==========================================================================
 
-CCMD (atexit)
+UNSAFE_CCMD (atexit)
 {
 	if (argv.argc() == 1)
 	{
@@ -814,7 +807,8 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 		FNotifyText newline;
 
 		newline.Text = line.Text;
-		newline.TimeOut = int(con_notifytime * CONTICRATE);
+		newline.TimeOut = int(con_notifytime * GameTicRate);
+		newline.Ticker = 0;
 		newline.PrintLevel = printlevel;
 		if (AddType == NEWLINE || Text.Size() == 0)
 		{
@@ -1034,12 +1028,6 @@ void C_Ticker()
 		}
 	}
 
-	if (--CursorTicker <= 0)
-	{
-		cursoron ^= 1;
-		CursorTicker = C_BLINKRATE;
-	}
-
 	lasttic = consoletic;
 	NotifyStrings.Tick();
 	if (ConsoleState == c_down)
@@ -1063,12 +1051,19 @@ void FNotifyBuffer::Tick()
 	unsigned i;
 	for (i = 0; i < Text.Size(); ++i)
 	{
-		if (Text[i].TimeOut != 0 && --Text[i].TimeOut <= 0)
+		Text[i].Ticker++;
+	}
+	
+	for (i = 0; i < Text.Size(); ++i)
+	{
+		if (Text[i].TimeOut != 0 && Text[i].TimeOut > Text[i].Ticker)
 			break;
 	}
-	if (i < Text.Size())
+	if (i > 0)
 	{
 		Text.Delete(0, i);
+		FFont* font = generic_ui ? NewSmallFont : AlternativeSmallFont;
+		Top += font->GetHeight();
 	}
 }
 
@@ -1095,7 +1090,7 @@ void FNotifyBuffer::Draw()
 		if (notify.TimeOut == 0)
 			continue;
 
-		j = notify.TimeOut;
+		j = notify.TimeOut - notify.Ticker;
 		if (j > 0)
 		{
 			double alpha = (j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1;
@@ -1125,11 +1120,6 @@ void FNotifyBuffer::Draw()
 		}
 		else
 		{
-			if (canskip)
-			{
-				Top += lineadv;
-				line += lineadv;
-			}
 			notify.TimeOut = 0;
 		}
 	}
@@ -1245,8 +1235,14 @@ void C_DrawConsole ()
 
 		if (ConBottom >= 20)
 		{
-			//if (gamestate != GS_STARTUP)
+			if (gamestate != GS_STARTUP)
 			{
+				auto now = I_msTime();
+				if (now > CursorTicker)
+				{
+					CursorTicker = now + 500;
+					cursoron = !cursoron;
+				}
 				CmdLine.Draw(left, bottomline, textScale, cursoron);
 			}
 			if (RowAdjust && ConBottom >= CurrentConsoleFont->GetHeight()*7/2)
@@ -1322,7 +1318,7 @@ void C_ToggleConsole ()
 
 void C_HideConsole ()
 {
-	//if (gamestate != GS_FULLCONSOLE)
+	if (gamestate != GS_FULLCONSOLE)
 	{
 		ConsoleState = c_up;
 		ConBottom = 0;
@@ -1716,7 +1712,7 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 	buffer.AppendToYankBuffer = keepappending;
 
 	// Ensure that the cursor is always visible while typing
-	CursorTicker = C_BLINKRATE;
+	CursorTicker = I_msTime() + 500;
 	cursoron = 1;
 	return true;
 }
@@ -1993,7 +1989,7 @@ static void C_TabComplete (bool goForward)
 		else
 		{
 			CmdLineText.Truncate(TabStart);
-			CmdLineText << TabCommands[TabPos].TabName.GetChars() << " ";
+			CmdLineText << TabCommands[TabPos].TabName.GetChars() << ' ';
 		}
 	}
 	CmdLine.SetString(CmdLineText);
@@ -2076,40 +2072,4 @@ static bool C_TabCompleteList ()
 		return false;
 	}
 	return true;
-}
-
-// color code format is as follows:
-// ^## sets a color, where ## is the palette number
-// ^S# sets a shade, range is 0-7 equiv to shades 0-14
-// ^O resets formatting to defaults
-
-const char * OSD_StripColors(char *outBuf, const char *inBuf)
-{
-    const char *ptr = outBuf;
-
-    while (*inBuf)
-    {
-        if (*inBuf == '^')
-        {
-            if (isdigit(*(inBuf+1)))
-            {
-                inBuf += 2 + !!isdigit(*(inBuf+2));
-                continue;
-            }
-            else if ((toupper(*(inBuf+1)) == 'O'))
-            {
-                inBuf += 2;
-                continue;
-            }
-            else if ((toupper(*(inBuf+1)) == 'S') && isdigit(*(inBuf+2)))
-            {
-                inBuf += 3;
-                continue;
-            }
-        }
-        *(outBuf++) = *(inBuf++);
-    }
-
-    *outBuf = '\0';
-    return ptr;
 }

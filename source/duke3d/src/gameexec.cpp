@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 FString C_CON_GetBoundKeyForLastInput(int gameFunc);
 const char* C_CON_GetButtonFunc(int num);
+const char* KB_ScanCodeToString(int scancode); // convert scancode into a string
 
 BEGIN_DUKE_NS
 

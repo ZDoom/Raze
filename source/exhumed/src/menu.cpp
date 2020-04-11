@@ -479,7 +479,7 @@ void menu_DoPlasma()
                 while (nSmokeOffset < nSmokeBottom)
                 {
                     uint8_t al = *ptr3;
-                    if (al != 255 && al != 96) {
+                    if (al != TRANSPARENT_INDEX && al != 96) {
                         break;
                     }
 
@@ -496,7 +496,7 @@ void menu_DoPlasma()
                 while (nSmokeOffset > nSmokeTop)
                 {
                     uint8_t al = *ptr3;
-                    if (al != 255 && al != 96) {
+                    if (al != TRANSPARENT_INDEX && al != 96) {
                         break;
                     }
 

@@ -394,9 +394,9 @@ endif()
 # Update gitinfo.h
 
 add_custom_target( revision_check ALL
-	COMMAND updaterevision source/gitinfo.h
+	COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_SOURCE_DIR}/tools/updaterevision/UpdateRevision.cmake" src/gitinfo.h
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	DEPENDS updaterevision )
+)
 
 # required libraries
 
@@ -562,8 +562,8 @@ else()
 endif()
 
 add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h
-	COMMAND re2c --no-generation-date -s -o ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h ${CMAKE_CURRENT_SOURCE_DIR}/core/utility/sc_man_scanner.re
-	DEPENDS re2c ${CMAKE_CURRENT_SOURCE_DIR}/core/utility/sc_man_scanner.re )
+	COMMAND re2c --no-generation-date -s -o ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h ${CMAKE_CURRENT_SOURCE_DIR}/common/engine/sc_man_scanner.re
+	DEPENDS re2c ${CMAKE_CURRENT_SOURCE_DIR}/common/engine/sc_man_scanner.re )
 
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
@@ -603,7 +603,9 @@ file( GLOB HEADER_FILES
 	core/rendering/hwrenderer/utility/*.h
 
 	common/utility/*.h
+	common/engine/*.h
 	common/filesystem/*.h
+	common/textures/*.h
 	common/thirdparty/*.h
 	common/thirdparty/rapidjson/*.h
 	common/thirdparty/math./*h
@@ -624,7 +626,7 @@ file( GLOB HEADER_FILES
 set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
 	sc_man_scanner.h
-	core/utility/sc_man_scanner.re
+	common/engine/sc_man_scanner.re
 	platform/win32/zutil.natvis
 )
 
@@ -721,6 +723,7 @@ set (PCH_SOURCES
 	core/console/c_con.cpp
 
 	common/thirdparty/sfmt/SFMT.cpp
+	common/textures/bitmap.cpp
 	common/utility/engineerrors.cpp
 	common/utility/i_module.cpp
 	common/utility/m_alloc.cpp
@@ -735,6 +738,7 @@ set (PCH_SOURCES
 	common/utility/m_argv.cpp
 	common/utility/s_playlist.cpp
 	common/utility/zstrformat.cpp
+	common/utility/name.cpp
 	common/thirdparty/md5.cpp
  	common/thirdparty/superfasthash.cpp
 	common/filesystem/filesystem.cpp
@@ -749,14 +753,13 @@ set (PCH_SOURCES
 	common/filesystem/file_whres.cpp
 	common/filesystem/file_directory.cpp
 	common/filesystem/resourcefile.cpp
+	common/engine/sc_man.cpp
+	#common/engine/palettecontainer.cpp // not yet operational.
 
-	core/utility/name.cpp
 	core/utility/m_png.cpp
-	core/utility/sc_man.cpp
 	core/utility/stringtable.cpp
 	core/utility/stats.cpp
 	
-	core/textures/bitmap.cpp
 	core/textures/buildtiles.cpp
 	core/textures/texture.cpp
 	core/textures/image.cpp
@@ -862,7 +865,7 @@ add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 
 #set_source_files_properties( ${FASTMATH_SOURCES} PROPERTIES COMPILE_FLAGS ${DEM_FASTMATH_FLAG} )
 set_source_files_properties( xlat/parse_xlat.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/xlat_parser.c" )
-set_source_files_properties( utility/sc_man.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h" )
+set_source_files_properties( common/engine/sc_man.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h" )
 set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
 
 
@@ -910,9 +913,10 @@ include_directories(
 	core/rendering
 	platform
 	common/thirdparty
+	common/textures
 	common/filesystem
 	common/utility
-
+	common/engine
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 
 	${SYSTEM_SOURCES_DIR}
@@ -1021,8 +1025,10 @@ source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platfor
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("Platform\\POSIX" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/.+")
 source_group("Common" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/.+")
-source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/filesystem/.+")
 source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/utility/.+")
+source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/engine/.+")
+source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/filesystem/.+")
+source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/.+")
 source_group("Common\\Third Party\\Math" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/math/.+")
 source_group("Common\\Third Party\\RapidJSON" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/rapidjson/.+")

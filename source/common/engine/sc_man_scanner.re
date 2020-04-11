@@ -120,7 +120,109 @@ std2:
 		("#region"|"#endregion") (any\"\n")* "\n"
 									{ goto newline; }	/* Region blocks [mxd] */
 
-	
+		/* C Keywords */
+		'break'						{ RET(TK_Break); }
+		'case'						{ RET(TK_Case); }
+		'const'						{ RET(TK_Const); }
+		'continue'					{ RET(TK_Continue); }
+		'default'					{ RET(TK_Default); }
+		'do'						{ RET(TK_Do); }
+		'else'						{ RET(TK_Else); }
+		'for'						{ RET(TK_For); }
+		'goto'						{ RET(TK_Goto); }
+		'if'						{ RET(TK_If); }
+		'return'					{ RET(TK_Return); }
+		'switch'					{ RET(TK_Switch); }
+		'until'						{ RET(TK_Until); }
+		'volatile'					{ RET(TK_Volatile); }
+		'while'						{ RET(TK_While); }
+
+		/* Type names */
+		'bool'						{ RET(TK_Bool); }
+		'float'						{ RET(TK_Float); }
+		'double'					{ RET(TK_Double); }
+		'char'						{ RET(TK_Char); }
+		'byte'						{ RET(TK_Byte); }
+		'sbyte'						{ RET(TK_SByte); }
+		'short'						{ RET(TK_Short); }
+		'ushort'					{ RET(TK_UShort); }
+		'int8'						{ RET(TK_Int8); }
+		'uint8'						{ RET(TK_UInt8); }
+		'int16'						{ RET(TK_Int16); }
+		'uint16'					{ RET(TK_UInt16); }
+		'int'						{ RET(TK_Int); }
+		'uint'						{ RET(TK_UInt); }
+		'long'						{ RET(TK_Long); }
+		'ulong'						{ RET(TK_ULong); }
+		'void'						{ RET(TK_Void); }
+		'struct'					{ RET(TK_Struct); }
+		'class'						{ RET(TK_Class); }
+		'mixin'						{ RET(TK_Mixin); }
+		'enum'						{ RET(TK_Enum); }
+		'name'						{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Name : TK_Identifier); }
+		'string'					{ RET(TK_String); }
+		'sound'						{ RET(TK_Sound); }
+		'state'						{ RET(TK_State); }
+		'color'						{ RET(TK_Color); }
+		'vector2'					{ RET(TK_Vector2); }
+		'vector3'					{ RET(TK_Vector3); }
+		'map'						{ RET(TK_Map); }
+		'array'						{ RET(TK_Array); }
+		'in'						{ RET(TK_In); }
+		'sizeof'					{ RET(TK_SizeOf); }
+		'alignof'					{ RET(TK_AlignOf); }
+
+		/* Other keywords from UnrealScript */
+		'abstract'					{ RET(TK_Abstract); }
+		'foreach'					{ RET(TK_ForEach); }
+		'true'						{ RET(TK_True); }
+		'false'						{ RET(TK_False); }
+		'none'						{ RET(TK_None); }
+		'auto'						{ RET(TK_Auto); }
+		'property'					{ RET(TK_Property); }
+		'flagdef'					{ RET(ParseVersion >= MakeVersion(3, 7, 0)? TK_FlagDef : TK_Identifier); }
+		'native'					{ RET(TK_Native); }
+		'var'						{ RET(TK_Var); }
+		'out'						{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Out : TK_Identifier); }
+		'static'					{ RET(TK_Static); }
+		'transient'					{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Transient : TK_Identifier); }
+		'final'						{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Final : TK_Identifier); }
+		'extend'					{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Extend : TK_Identifier); }
+		'protected'					{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Protected : TK_Identifier); }
+		'private'					{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Private : TK_Identifier); }
+		'dot'						{ RET(TK_Dot); }
+		'cross'						{ RET(TK_Cross); }
+		'virtual'					{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Virtual : TK_Identifier); }
+		'override'					{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Override : TK_Identifier); }
+		'vararg'					{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_VarArg : TK_Identifier); }
+		'ui'						{ RET(ParseVersion >= MakeVersion(2, 4, 0)? TK_UI : TK_Identifier); }
+		'play'						{ RET(ParseVersion >= MakeVersion(2, 4, 0)? TK_Play : TK_Identifier); }
+		'clearscope'				{ RET(ParseVersion >= MakeVersion(2, 4, 0)? TK_ClearScope : TK_Identifier); }
+		'virtualscope'				{ RET(ParseVersion >= MakeVersion(2, 4, 0)? TK_VirtualScope : TK_Identifier); }
+		'super'						{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Super : TK_Identifier); }
+		'stop'						{ RET(TK_Stop); }
+		'null'						{ RET(TK_Null); }
+
+		'is'						{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Is : TK_Identifier); }
+		'replaces'					{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Replaces : TK_Identifier); }
+		'states'					{ RET(TK_States); }
+		'meta'						{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Meta : TK_Identifier); }
+		'deprecated'				{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Deprecated : TK_Identifier); }
+		'version'					{ RET(ParseVersion >= MakeVersion(2, 4, 0)? TK_Version : TK_Identifier); }
+		'action'					{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Action : TK_Identifier); }
+		'readonly'					{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_ReadOnly : TK_Identifier); }
+		'internal'					{ RET(ParseVersion >= MakeVersion(3, 4, 0)? TK_Internal : TK_Identifier); }
+		'let'						{ RET(ParseVersion >= MakeVersion(1, 0, 0)? TK_Let : TK_Identifier); }
+
+		/* Actor state options */
+		'bright'					{ RET(StateOptions ? TK_Bright : TK_Identifier); }
+		'fast'						{ RET(StateOptions ? TK_Fast : TK_Identifier); }
+		'slow'						{ RET(StateOptions ? TK_Slow : TK_Identifier); }
+		'nodelay'					{ RET(StateOptions ? TK_NoDelay : TK_Identifier); }
+		'canraise'					{ RET(StateOptions ? TK_CanRaise : TK_Identifier); }
+		'offset'					{ RET(StateOptions ? TK_Offset : TK_Identifier); }
+		'light'						{ RET(StateOptions ? TK_Light : TK_Identifier); }
+		
 		/* other DECORATE top level keywords */
 		'#include'					{ RET(TK_Include); }
 
@@ -167,8 +269,8 @@ std2:
 		"**"						{ RET(TK_MulMul); }
 		"::"						{ RET(TK_ColonColon); }
 		"->"						{ RET(TK_Arrow); }
-		";"							{ RET(';'); }
-		"{"							{ RET('{'); }
+		";"							{ StateOptions = false; RET(';'); }
+		"{"							{ StateOptions = false; RET('{'); }
 		"}"							{ RET('}'); }
 		","							{ RET(','); }
 		":"							{ RET(':'); }

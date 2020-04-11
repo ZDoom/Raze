@@ -55,6 +55,12 @@
 // the new command.
 //
 //=============================================================================
+struct GameFuncDesc
+{
+	const char* action;
+	const char* description;
+	bool replaced;
+};
 
 static GameFuncDesc con_gamefuncs[] = {
 {"+Move_Forward",			"Move_Forward"},
@@ -121,6 +127,8 @@ static GameFuncDesc con_gamefuncs[] = {
 {"+Third_Person_View",		"Third_Person_View"},
 {"+Toggle_Crouch",			"Toggle_Crouch"}
 };
+
+const char* KB_ScanCodeToString(int scancode); // convert scancode into a string
 
 //=============================================================================
 //

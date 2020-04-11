@@ -32,9 +32,13 @@
 **
 */
 
+#include <algorithm>
 #include "palutil.h"
 #include "palentry.h"
+#include "sc_man.h"
 #include "files.h"
+#include "filesystem.h"
+#include "printf.h"
 
 /****************************/
 /* Palette management stuff */
@@ -311,5 +315,382 @@ void HSVtoRGB (float *r, float *g, float *b, float h, float s, float v)
 	case 4:		*r = t; *g = p; *b = v; break;
 	default:	*r = v; *g = p; *b = q; break;
 	}
+}
+
+struct RemappingWork
+{
+	uint32_t Color;
+	uint8_t Foreign;	// 0 = local palette, 1 = foreign palette
+	uint8_t PalEntry;	// Entry # in the palette
+	uint8_t Pad[2];
+};
+
+static int sortforremap(const void* a, const void* b)
+{
+	return (*(const uint32_t*)a & 0xFFFFFF) - (*(const uint32_t*)b & 0xFFFFFF);
+}
+
+static int sortforremap2(const void* a, const void* b)
+{
+	const RemappingWork* ap = (const RemappingWork*)a;
+	const RemappingWork* bp = (const RemappingWork*)b;
+
+	if (ap->Color == bp->Color)
+	{
+		return bp->Foreign - ap->Foreign;
+	}
+	else
+	{
+		return ap->Color - bp->Color;
+	}
+}
+
+
+void MakeRemap(uint32_t* BaseColors, const uint32_t* colors, uint8_t* remap, const uint8_t* useful, int numcolors) 
+{
+	RemappingWork workspace[255 + 256];
+	int i, j, k;
+
+	// Fill in workspace with the colors from the passed palette and this palette.
+	// By sorting this array, we can quickly find exact matches so that we can
+	// minimize the time spent calling BestColor for near matches.
+
+	for (i = 1; i < 256; ++i)
+	{
+		workspace[i - 1].Color = uint32_t(BaseColors[i]) & 0xFFFFFF;
+		workspace[i - 1].Foreign = 0;
+		workspace[i - 1].PalEntry = i;
+	}
+	for (i = k = 0, j = 255; i < numcolors; ++i)
+	{
+		if (useful == NULL || useful[i] != 0)
+		{
+			workspace[j].Color = colors[i] & 0xFFFFFF;
+			workspace[j].Foreign = 1;
+			workspace[j].PalEntry = i;
+			++j;
+			++k;
+		}
+		else
+		{
+			remap[i] = 0;
+		}
+	}
+	qsort(workspace, j, sizeof(RemappingWork), sortforremap2);
+
+	// Find exact matches
+	--j;
+	for (i = 0; i < j; ++i)
+	{
+		if (workspace[i].Foreign)
+		{
+			if (!workspace[i + 1].Foreign && workspace[i].Color == workspace[i + 1].Color)
+			{
+				remap[workspace[i].PalEntry] = workspace[i + 1].PalEntry;
+				workspace[i].Foreign = 2;
+				++i;
+				--k;
+			}
+		}
+	}
+
+	// Find near matches
+	if (k > 0)
+	{
+		for (i = 0; i <= j; ++i)
+		{
+			if (workspace[i].Foreign == 1)
+			{
+				remap[workspace[i].PalEntry] = BestColor((uint32_t*)BaseColors,
+					RPART(workspace[i].Color), GPART(workspace[i].Color), BPART(workspace[i].Color),
+					1, 255);
+			}
+		}
+	}
+}
+
+// In ZDoom's new texture system, color 0 is used as the transparent color.
+// But color 0 is also a valid color for Doom engine graphics. What to do?
+// Simple. The default palette for every game has at least one duplicate
+// color, so find a duplicate pair of palette entries, make one of them a
+// duplicate of color 0, and remap every graphic so that it uses that entry
+// instead of entry 0.
+void MakeGoodRemap(uint32_t* BaseColors, uint8_t* Remap)
+{
+	for (int i = 0; i < 256; i++) Remap[i] = i;
+	PalEntry color0 = BaseColors[0];
+	int i;
+
+	// First try for an exact match of color 0. Only Hexen does not have one.
+	for (i = 1; i < 256; ++i)
+	{
+		if (BaseColors[i] == color0)
+		{
+			Remap[0] = i;
+			break;
+		}
+	}
+
+	// If there is no duplicate of color 0, find the first set of duplicate
+	// colors and make one of them a duplicate of color 0. In Hexen's PLAYPAL
+	// colors 209 and 229 are the only duplicates, but we cannot assume
+	// anything because the player might be using a custom PLAYPAL where those
+	// entries are not duplicates.
+	if (Remap[0] == 0)
+	{
+		PalEntry sortcopy[256];
+
+		for (i = 0; i < 256; ++i)
+		{
+			sortcopy[i] = BaseColors[i] | (i << 24);
+		}
+		qsort(sortcopy, 256, 4, sortforremap);
+		for (i = 255; i > 0; --i)
+		{
+			if ((sortcopy[i] & 0xFFFFFF) == (sortcopy[i - 1] & 0xFFFFFF))
+			{
+				int new0 = sortcopy[i].a;
+				int dup = sortcopy[i - 1].a;
+				if (new0 > dup)
+				{
+					// Make the lower-numbered entry a copy of color 0. (Just because.)
+					std::swap(new0, dup);
+				}
+				Remap[0] = new0;
+				Remap[new0] = dup;
+				BaseColors[new0] = color0;
+				break;
+			}
+		}
+	}
+
+	// If there were no duplicates, InitPalette() will remap color 0 to the
+	// closest matching color. Hopefully nobody will use a palette where all
+	// 256 entries are different. :-)
+}
+
+//==========================================================================
+//
+// V_GetColorFromString
+//
+// Passed a string of the form "#RGB", "#RRGGBB", "R G B", or "RR GG BB",
+// returns a number representing that color. If palette is non-NULL, the
+// index of the best match in the palette is returned, otherwise the
+// RRGGBB value is returned directly.
+//
+//==========================================================================
+
+int V_GetColorFromString(const uint32_t* palette, const char* cstr, FScriptPosition* sc)
+{
+	int c[3], i, p;
+	char val[3];
+
+	val[2] = '\0';
+
+	// Check for HTML-style #RRGGBB or #RGB color string
+	if (cstr[0] == '#')
+	{
+		size_t len = strlen(cstr);
+
+		if (len == 7)
+		{
+			// Extract each eight-bit component into c[].
+			for (i = 0; i < 3; ++i)
+			{
+				val[0] = cstr[1 + i * 2];
+				val[1] = cstr[2 + i * 2];
+				c[i] = ParseHex(val, sc);
+			}
+		}
+		else if (len == 4)
+		{
+			// Extract each four-bit component into c[], expanding to eight bits.
+			for (i = 0; i < 3; ++i)
+			{
+				val[1] = val[0] = cstr[1 + i];
+				c[i] = ParseHex(val, sc);
+			}
+		}
+		else
+		{
+			// Bad HTML-style; pretend it's black.
+			c[2] = c[1] = c[0] = 0;
+		}
+	}
+	else
+	{
+		if (strlen(cstr) == 6)
+		{
+			char* p;
+			int color = strtol(cstr, &p, 16);
+			if (*p == 0)
+			{
+				// RRGGBB string
+				c[0] = (color & 0xff0000) >> 16;
+				c[1] = (color & 0xff00) >> 8;
+				c[2] = (color & 0xff);
+			}
+			else goto normal;
+		}
+		else
+		{
+		normal:
+			// Treat it as a space-delimited hexadecimal string
+			for (i = 0; i < 3; ++i)
+			{
+				// Skip leading whitespace
+				while (*cstr <= ' ' && *cstr != '\0')
+				{
+					cstr++;
+				}
+				// Extract a component and convert it to eight-bit
+				for (p = 0; *cstr > ' '; ++p, ++cstr)
+				{
+					if (p < 2)
+					{
+						val[p] = *cstr;
+					}
+				}
+				if (p == 0)
+				{
+					c[i] = 0;
+				}
+				else
+				{
+					if (p == 1)
+					{
+						val[1] = val[0];
+					}
+					c[i] = ParseHex(val, sc);
+				}
+			}
+		}
+	}
+	if (palette)
+		return BestColor(palette, c[0], c[1], c[2]);
+	else
+		return MAKERGB(c[0], c[1], c[2]);
+}
+
+//==========================================================================
+//
+// V_GetColorStringByName
+//
+// Searches for the given color name in x11r6rgb.txt and returns an
+// HTML-ish "#RRGGBB" string for it if found or the empty string if not.
+//
+//==========================================================================
+
+FString V_GetColorStringByName(const char* name, FScriptPosition* sc)
+{
+	FileData rgbNames;
+	char* rgbEnd;
+	char* rgb, * endp;
+	int rgblump;
+	int c[3], step;
+	size_t namelen;
+
+	if (fileSystem.GetNumEntries() == 0) return FString();
+
+	rgblump = fileSystem.CheckNumForName("X11R6RGB");
+	if (rgblump == -1)
+	{
+		if (!sc) Printf("X11R6RGB lump not found\n");
+		else sc->Message(MSG_WARNING, "X11R6RGB lump not found");
+		return FString();
+	}
+
+	rgbNames = fileSystem.ReadFile(rgblump);
+	rgb = (char*)rgbNames.GetMem();
+	rgbEnd = rgb + fileSystem.FileLength(rgblump);
+	step = 0;
+	namelen = strlen(name);
+
+	while (rgb < rgbEnd)
+	{
+		// Skip white space
+		if (*rgb <= ' ')
+		{
+			do
+			{
+				rgb++;
+			} while (rgb < rgbEnd && *rgb <= ' ');
+		}
+		else if (step == 0 && *rgb == '!')
+		{ // skip comment lines
+			do
+			{
+				rgb++;
+			} while (rgb < rgbEnd && *rgb != '\n');
+		}
+		else if (step < 3)
+		{ // collect RGB values
+			c[step++] = strtoul(rgb, &endp, 10);
+			if (endp == rgb)
+			{
+				break;
+			}
+			rgb = endp;
+		}
+		else
+		{ // Check color name
+			endp = rgb;
+			// Find the end of the line
+			while (endp < rgbEnd && *endp != '\n')
+				endp++;
+			// Back up over any whitespace
+			while (endp > rgb && *endp <= ' ')
+				endp--;
+			if (endp == rgb)
+			{
+				break;
+			}
+			size_t checklen = ++endp - rgb;
+			if (checklen == namelen && strnicmp(rgb, name, checklen) == 0)
+			{
+				FString descr;
+				descr.Format("#%02x%02x%02x", c[0], c[1], c[2]);
+				return descr;
+			}
+			rgb = endp;
+			step = 0;
+		}
+	}
+	if (rgb < rgbEnd)
+	{
+		if (!sc) Printf("X11R6RGB lump is corrupt\n");
+		else sc->Message(MSG_WARNING, "X11R6RGB lump is corrupt");
+	}
+	return FString();
+}
+
+//==========================================================================
+//
+// V_GetColor
+//
+// Works like V_GetColorFromString(), but also understands X11 color names.
+//
+//==========================================================================
+
+int V_GetColor(const uint32_t* palette, const char* str, FScriptPosition* sc)
+{
+	FString string = V_GetColorStringByName(str, sc);
+	int res;
+
+	if (!string.IsEmpty())
+	{
+		res = V_GetColorFromString(palette, string, sc);
+	}
+	else
+	{
+		res = V_GetColorFromString(palette, str, sc);
+	}
+	return res;
+}
+
+int V_GetColor(const uint32_t* palette, FScanner& sc)
+{
+	FScriptPosition scc = sc;
+	return V_GetColor(palette, sc.String, &scc);
 }
 

@@ -1427,7 +1427,7 @@ void DrawClock()
 
 	auto pixels = TileFiles.tileMakeWritable(kTile3603);
 
-    memset(pixels, -1, 4096);
+    memset(pixels, TRANSPARENT_INDEX, 4096);
 
     if (lCountDown / 30 != nClockVal)
     {
@@ -2655,7 +2655,7 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
         for (int y = 0; y < srcYSize; y++)
         {
             uint8_t val = *pSrc;
-            if (val != 0xFF) {
+            if (val != TRANSPARENT_INDEX) {
                 *pDestB = val;
             }
 
@@ -2739,7 +2739,7 @@ void InitSpiritHead()
     {
         for (int y = 0; y < 106; y++)
         {
-            if (*pTile != 255)
+            if (*pTile != TRANSPARENT_INDEX)
             {
 				pixelval[nPixels] = *(pGold + x * 106 + y);
                 origx[nPixels] = x - 48;
@@ -2782,7 +2782,7 @@ void InitSpiritHead()
 
     nHeadTimeStart = (int)totalclock;
 
-    memset(Worktile, -1, WorktileSize);
+    memset(Worktile, TRANSPARENT_INDEX, WorktileSize);
     tileInvalidate(kTileRamsesWorkTile, -1, -1);
 
     nPixelsToShow = 0;
@@ -2867,7 +2867,7 @@ int DoSpiritHead()
 
     if (nHeadStage < 2)
     {
-        memset(Worktile, -1, WorktileSize);
+        memset(Worktile, TRANSPARENT_INDEX, WorktileSize);
     }
 
     if (nHeadStage < 2 || nHeadStage != 5)

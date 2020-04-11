@@ -48,7 +48,7 @@ BEGIN_BLD_NS
 
 void LevelWarp(int nEpisode, int nLevel);
 
-static int osdcmd_map(osdcmdptr_t parm)
+static int osdcmd_map(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -96,7 +96,7 @@ static int osdcmd_map(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_demo(osdcmdptr_t parm)
+static int osdcmd_demo(CCmdFuncPtr parm)
 {
     if (numplayers > 1)
     {
@@ -121,7 +121,7 @@ static int osdcmd_demo(osdcmdptr_t parm)
 }
 
 
-static int osdcmd_give(osdcmdptr_t parm)
+static int osdcmd_give(CCmdFuncPtr parm)
 {
     if (numplayers != 1 || !gGameStarted || gMe->pXSprite->health == 0)
     {
@@ -180,7 +180,7 @@ static int osdcmd_give(osdcmdptr_t parm)
     return OSDCMD_SHOWHELP;
 }
 
-static int osdcmd_god(osdcmdptr_t UNUSED(parm))
+static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     if (numplayers == 1 && gGameStarted)
@@ -194,7 +194,7 @@ static int osdcmd_god(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
+static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -220,7 +220,7 @@ void onvideomodechange(int32_t newmode)
     UpdateDacs(gLastPal, false);
 }
 
-static int osdcmd_activatecheat(osdcmdptr_t parm)
+static int osdcmd_activatecheat(CCmdFuncPtr parm)
 {
     FString CheatEntry;
     if (parm->numparms != 1)
@@ -238,7 +238,7 @@ static int osdcmd_activatecheat(osdcmdptr_t parm)
     }
 }
 
-static int osdcmd_levelwarp(osdcmdptr_t parm)
+static int osdcmd_levelwarp(CCmdFuncPtr parm)
 {
     if (parm->numparms != 2)
         return OSDCMD_SHOWHELP;
@@ -255,16 +255,16 @@ static int osdcmd_levelwarp(osdcmdptr_t parm)
 
 int32_t registerosdcommands(void)
 {
-    OSD_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
-    OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
+    C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
+    C_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
 
-    OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
-    OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
-    OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
+    C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
+    C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
+    C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
-    OSD_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);
+    C_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);
 
-    OSD_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
+    C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
 
     return 0;
 }

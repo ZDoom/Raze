@@ -36,7 +36,7 @@ BEGIN_RR_NS
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
 
-static int osdcmd_levelwarp(osdcmdptr_t parm)
+static int osdcmd_levelwarp(CCmdFuncPtr parm)
 {
     if (parm->numparms != 2)
         return OSDCMD_SHOWHELP;
@@ -69,7 +69,7 @@ static int osdcmd_levelwarp(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_map(osdcmdptr_t parm)
+static int osdcmd_map(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
     {
@@ -147,7 +147,7 @@ foundone:
 //    the variance of the run times MUST be taken into account (that is, the
 //    replaying must be performed multiple times for the old and new versions,
 //    etc.)
-static int osdcmd_demo(osdcmdptr_t parm)
+static int osdcmd_demo(CCmdFuncPtr parm)
 {
     if (numplayers > 1)
     {
@@ -174,7 +174,7 @@ static int osdcmd_demo(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_activatecheat(osdcmdptr_t parm)
+static int osdcmd_activatecheat(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -187,7 +187,7 @@ static int osdcmd_activatecheat(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_god(osdcmdptr_t UNUSED(parm))
+static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
@@ -198,7 +198,7 @@ static int osdcmd_god(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
+static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -214,7 +214,7 @@ static int osdcmd_noclip(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
+int osdcmd_restartmap(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -224,7 +224,7 @@ int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdcmd_spawn(osdcmdptr_t parm)
+static int osdcmd_spawn(CCmdFuncPtr parm)
 {
     int32_t picnum = 0;
     uint16_t cstat=0;
@@ -319,7 +319,7 @@ static int osdcmd_spawn(osdcmdptr_t parm)
 }
 
 
-static int osdcmd_give(osdcmdptr_t parm)
+static int osdcmd_give(CCmdFuncPtr parm)
 {
     int32_t i;
 
@@ -372,7 +372,7 @@ static int osdcmd_give(osdcmdptr_t parm)
 }
 
 #if !defined NETCODE_DISABLE
-static int osdcmd_disconnect(osdcmdptr_t UNUSED(parm))
+static int osdcmd_disconnect(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     // NUKE-TODO:
@@ -381,7 +381,7 @@ static int osdcmd_disconnect(osdcmdptr_t UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int osdcmd_connect(osdcmdptr_t parm)
+static int osdcmd_connect(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -391,7 +391,7 @@ static int osdcmd_connect(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-static int osdcmd_password(osdcmdptr_t parm)
+static int osdcmd_password(CCmdFuncPtr parm)
 {
     if (parm->numparms < 1)
     {
@@ -403,10 +403,10 @@ static int osdcmd_password(osdcmdptr_t parm)
     return OSDCMD_OK;
 }
 
-int osdcmd_listplayers(osdcmdptr_t parm);
+int osdcmd_listplayers(CCmdFuncPtr parm);
 #endif
 
-static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
+static int osdcmd_printtimes(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -450,44 +450,44 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
 int32_t registerosdcommands(void)
 {
 
-	OSD_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
+	C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
     if (!VOLUMEONE)
     {
-        OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
+        C_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
-    OSD_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
+    C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
 
 #if !defined NETCODE_DISABLE
-    OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
-    OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
+    C_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
+    C_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
 #endif
 
-    OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
-    OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
-    OSD_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
+    C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
+    C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
+    C_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
 
 #ifdef DEBUGGINGAIDS
-    OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
+    C_RegisterFunction("inittimer","debug", osdcmd_inittimer);
 #endif
 #if !defined NETCODE_DISABLE
 #if 0
-    OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
-    OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
+    C_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
+    C_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
 #endif
 
-    OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
+    C_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
 #endif
-    OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
+    C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
 #if !defined NETCODE_DISABLE
-    OSD_RegisterFunction("password","password: sets multiplayer game password", osdcmd_password);
+    C_RegisterFunction("password","password: sets multiplayer game password", osdcmd_password);
 #endif
 
-    OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
+    C_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
 
-    OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
+    C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
 
-    OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
+    C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
     return 0;
 }

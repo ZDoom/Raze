@@ -158,7 +158,7 @@ const char *KeyNames[NUM_KEYS] =
 
 FKeyBindings Bindings;
 FKeyBindings DoubleBindings;
-FKeyBindings AutomapBindings;	 // this is currently not in use but may be added later.
+FKeyBindings AutomapBindings;
 
 static unsigned int DClickTime[NUM_KEYS];
 static FixedBitArray<NUM_KEYS> DClicked;
@@ -232,7 +232,7 @@ const char *KeyName (int key)
 	if (KeyNames[key])
 		return KeyNames[key];
 
-	snprintf (name, countof(name), "Key_%d", key);
+	mysnprintf (name, countof(name), "Key_%d", key);
 	return name;
 }
 
@@ -410,11 +410,11 @@ void FKeyBindings::PerformBind(FCommandLine &argv, const char *msg)
 //=============================================================================
 //
 // This function is first called for functions in custom key sections.
-// In this case, matchcmd is non-nullptr, and only keys bound to that command
+// In this case, matchcmd is non-null, and only keys bound to that command
 // are stored. If a match is found, its binding is set to "\1".
 // After all custom key sections are saved, it is called one more for the
 // normal Bindings and DoubleBindings sections for this game. In this case
-// matchcmd is nullptr and all keys will be stored. The config section was not
+// matchcmd is null and all keys will be stored. The config section was not
 // previously cleared, so all old bindings are still in place. If the binding
 // for a key is empty, the corresponding key in the config is removed as well.
 // If a binding is "\1", then the binding itself is cleared, but nothing
@@ -450,6 +450,32 @@ void FKeyBindings::ArchiveBindings(FConfigFile *f, const char *matchcmd)
 			}
 		}
 	}
+}
+
+//=============================================================================
+//
+//
+//
+//=============================================================================
+
+int FKeyBindings::GetKeysForCommand (const char *cmd, int *first, int *second)
+{
+	int c, i;
+
+	*first = *second = c = i = 0;
+
+	while (i < NUM_KEYS && c < 2)
+	{
+		if (stricmp (cmd, Binds[i]) == 0)
+		{
+			if (c++ == 0)
+				*first = i;
+			else
+				*second = i;
+		}
+		i++;
+	}
+	return c;
 }
 
 //=============================================================================
@@ -535,7 +561,7 @@ void C_UnbindAll ()
 	AutomapBindings.UnbindAll();
 }
 
-CCMD (unbindall)
+UNSAFE_CCMD (unbindall)
 {
 	C_UnbindAll ();
 }
@@ -737,21 +763,13 @@ const char* KB_ScanCodeToString(int scancode)
 	return "";
 }
 
-int KB_StringToScanCode(const char* string)
-{
-	for (int i = 0; i < NUM_KEYS; i++)
-	{
-		if (KeyNames[i] && !stricmp(string, KeyNames[i])) return i;
-	}
-	return 0;
-}
-
 void AddCommandString (const char *copy, int keynum);
 //=============================================================================
 //
 //
 //
 //=============================================================================
+
 bool C_DoKey (event_t *ev, FKeyBindings *binds, FKeyBindings *doublebinds)
 {
 	FString binding;
