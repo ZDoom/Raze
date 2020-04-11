@@ -37,6 +37,7 @@
 
 #include "i_system.h"
 #include "c_cvars.h"
+#include "x86.h"
 #include "i_video.h"
 
 #include "c_console.h"
@@ -155,7 +156,6 @@ public:
 
 int DisplayWidth, DisplayHeight;
 
-
 // [RH] The framebuffer is no longer a mere byte array.
 // There's also only one, not four.
 DFrameBuffer *screen;
@@ -226,7 +226,6 @@ void DCanvas::Resize(int width, int height, bool optimizepitch)
 	}
 	else
 	{
-#if 0
 		// If we couldn't figure out the CPU's L1 cache line size, assume
 		// it's 32 bytes wide.
 		if (CPU.DataL1LineSize == 0)
@@ -246,7 +245,6 @@ void DCanvas::Resize(int width, int height, bool optimizepitch)
 		{
 			Pitch = width + MAX(0, CPU.DataL1LineSize - 8);
 		}
-#endif
 	}
 	int bytes_per_pixel = Bgra ? 4 : 1;
 	Pixels.Resize(Pitch * height * bytes_per_pixel);
