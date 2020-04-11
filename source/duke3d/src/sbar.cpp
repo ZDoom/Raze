@@ -524,13 +524,8 @@ static int32_t G_GetInvOn(const DukePlayer_t *p)
 
 static int32_t G_GetMorale(int32_t p_i, int32_t snum)
 {
-#if !defined LUNATIC
+    // WW2GI
     return Gv_GetVarByLabel("PLR_MORALE", -1, p_i, snum);
-#else
-    UNREFERENCED_PARAMETER(p_i);
-    UNREFERENCED_PARAMETER(snum);
-    return -1;
-#endif
 }
 
 static inline void rotatesprite_althud(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat)
