@@ -712,17 +712,19 @@ set (PCH_SOURCES
 	core/fonts/v_text.cpp
 	core/fonts/fontchars.cpp
 
-	core/console/c_cvars.cpp
 	core/console/c_console.cpp
-	core/console/c_consolebuffer.cpp
-	core/console/c_bind.cpp
-	core/console/c_buttons.cpp
-	core/console/c_commandline.cpp
-	core/console/c_dispatch.cpp
 	core/console/d_event.cpp
 
 	common/thirdparty/sfmt/SFMT.cpp
 	common/textures/bitmap.cpp
+	common/console/c_commandline.cpp
+	common/console/c_buttons.cpp
+	common/console/c_bind.cpp
+	common/console/c_enginecmds.cpp
+	common/console/c_consolebuffer.cpp
+	common/console/c_cvars.cpp
+	common/console/c_dispatch.cpp
+	common/console/c_expr.cpp
 	common/utility/engineerrors.cpp
 	common/utility/i_module.cpp
 	common/utility/m_alloc.cpp
@@ -754,9 +756,9 @@ set (PCH_SOURCES
 	common/filesystem/resourcefile.cpp
 	common/engine/sc_man.cpp
 	#common/engine/palettecontainer.cpp // not yet operational.
+	common/engine/stringtable.cpp
 
 	core/utility/m_png.cpp
-	core/utility/stringtable.cpp
 	core/utility/stats.cpp
 	
 	core/textures/buildtiles.cpp
@@ -915,6 +917,7 @@ include_directories(
 	common/textures
 	common/filesystem
 	common/utility
+	common/console
 	common/engine
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 
@@ -1024,9 +1027,10 @@ source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platfor
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("Platform\\POSIX" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/.+")
 source_group("Common" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/.+")
-source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/utility/.+")
-source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/engine/.+")
-source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/filesystem/.+")
+source_group("Common\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/console/.+")
+source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
+source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/engine/.+")
+source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/.+")
 source_group("Common\\Third Party\\Math" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/math/.+")

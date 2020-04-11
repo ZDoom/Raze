@@ -59,6 +59,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engineerrors.h"
 #include "mmulti.h"
 #include "gamestate.h"
+#include "gstrings.h"
+
+CUSTOM_CVAR(String, language, "auto", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
+{
+	GStrings.UpdateLanguage(self);
+}
 
 // The last remains of sdlayer.cpp
 double g_beforeSwapTime;
@@ -105,6 +111,25 @@ CVAR(Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALC
 //CVAR(Bool, autoloadlights, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 
 extern int hud_size_max;
+
+CUSTOM_CVAR(Int, cl_gender, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	if (self < 0 || self > 3) self = 0;
+}
+
+int StrTable_GetGender()
+{
+	return cl_gender;
+}
+
+bool validFilter(const char* str);
+
+static StringtableCallbacks stblcb =
+{
+	validFilter,
+	StrTable_GetGender
+};
+
 
 
 //==========================================================================
@@ -655,7 +680,7 @@ int RunGame()
 	G_ReadConfig(currentGame);
 
 	V_InitFontColors();
-	GStrings.LoadStrings();
+	GStrings.LoadStrings(language);
 
 	I_Init();
 	V_InitScreenSize();
@@ -909,49 +934,9 @@ CCMD (togglemsg)
 	}
 }
 
-CCMD(quit)
-{
-	throw CExitEvent(0);
-}
-
-CCMD(exit)
-{
-	throw CExitEvent(0);
-}
-
-extern FILE* Logfile;
-void execLogfile(const char* fn, bool append)
-{
-	if ((Logfile = fopen(fn, append ? "a" : "w")))
-	{
-		const char* timestr = myasctime();
-		Printf("Log started: %s\n", timestr);
-	}
-	else
-	{
-		Printf("Could not start log\n");
-	}
-}
-
-CCMD(logfile)
-{
-
-	if (Logfile)
-	{
-		const char* timestr = myasctime();
-		Printf("Log stopped: %s\n", timestr);
-		fclose(Logfile);
-		Logfile = NULL;
-	}
-
-	if (argv.argc() >= 2)
-	{
-		execLogfile(argv[1], argv.argc() >= 3 ? !!argv[2] : false);
-	}
-}
-
 // Just a placeholder for now.
 bool CheckCheatmode(bool printmsg)
 {
 	return false;
 }
+
