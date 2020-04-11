@@ -56,6 +56,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resourcefile.h"
 #include "c_dispatch.h"
 #include "glbackend/glbackend.h"
+#include "engineerrors.h"
 #include "mmulti.h"
 
 // The last remains of sdlayer.cpp
@@ -367,7 +368,7 @@ int GameMain()
 	{
 		r = RunGame();
 	}
-	catch (const ExitEvent & exit)
+	catch (const CExitEvent & exit)
 	{
 		// Just let the rest of the function execute.
 		r = exit.Reason();
@@ -742,7 +743,7 @@ void CONFIG_ReadCombatMacros()
 				*s = sc.String;
 		}
 	}
-	catch (const std::runtime_error &)
+	catch (const CRecoverableError &)
 	{
 		// We do not want this to error out. Just ignore if it fails.
 	}
@@ -836,55 +837,6 @@ void S_SetSoundPaused(int state)
 		pauseext = !state;
 	}
 #endif
-}
-
-#define MAX_ERRORTEXT 4096
-
-//==========================================================================
-//
-// I_Error
-//
-// Throw an error that will send us to the console if we are far enough
-// along in the startup process.
-//
-//==========================================================================
-
-void I_Error(const char* error, ...)
-{
-	va_list argptr;
-	char errortext[MAX_ERRORTEXT];
-
-	va_start(argptr, error);
-	vsnprintf(errortext, MAX_ERRORTEXT, error, argptr);
-	va_end(argptr);
-	I_DebugPrint(errortext);
-
-	throw std::runtime_error(errortext);
-}
-
-void I_FatalError(const char* error, ...)
-{
-	va_list argptr;
-	char errortext[MAX_ERRORTEXT];
-
-	va_start(argptr, error);
-	vsnprintf(errortext, MAX_ERRORTEXT, error, argptr);
-	va_end(argptr);
-	I_DebugPrint(errortext);
-
-	throw std::runtime_error(errortext);
-}
-
-//
-// debugprintf() -- sends a debug string to the debugger
-//
-void debugprintf(const char* f, ...)
-{
-	va_list va;
-	va_start(va, f);
-	FString out;
-	out.VFormat(f, va);
-	I_DebugPrint(out);
 }
 
 int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int realgameticspersec)

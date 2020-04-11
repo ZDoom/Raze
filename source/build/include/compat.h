@@ -432,6 +432,7 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #endif
 #endif
 
+#include "engineerrors.h"
 
 ////////// DEPRECATED: Standard library prefixing //////////
 
@@ -508,17 +509,9 @@ static inline int Blrintf(const double x)
 # define Bsqrtf sqrtf
 #endif
 
-class ExitEvent : public std::exception
-{
-	int reason;
-public:
-	ExitEvent(int a) { reason = a; }
-	int Reason() const { return reason; }
-};
-
 inline void Bexit(int a)
 {
-	throw ExitEvent(a);
+	throw CExitEvent(a);
 }
 
 

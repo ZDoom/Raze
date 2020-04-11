@@ -41,7 +41,7 @@
 #include "i_specialpaths.h"
 #include "printf.h"
 #include "cmdlib.h"
-#include "i_findfile.h"
+#include "findfile.h"
 #include "version.h"	// for GAMENAME
 
 // Stuff that needs to be set up later.

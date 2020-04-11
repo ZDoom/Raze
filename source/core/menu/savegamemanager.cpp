@@ -49,9 +49,9 @@
 #include "savegamehelp.h"
 #include "i_specialpaths.h"
 #include "c_dispatch.h"
-#include "i_system.h"
 #include "build.h"
 #include "serializer.h"
+#include "findfile.h"
 
 
 FSavegameManager savegameManager;

@@ -44,7 +44,7 @@
 #include <float.h>
 #include <string.h>
 #include "xs_Float.h"
-
+#include "math/cmath.h"
 
 
 #define EQUAL_EPSILON (1/65536.)
@@ -220,7 +220,7 @@ struct TVector2
 	// Vector length
 	vec_t Length() const
 	{
-		return (vec_t)sqrt (X*X + Y*Y);
+		return (vec_t)g_sqrt (X*X + Y*Y);
 	}
 
 	vec_t LengthSquared() const
@@ -268,7 +268,9 @@ struct TVector2
 	// Returns a rotated vector. angle is in degrees.
 	TVector2 Rotated (double angle)
 	{
-		return Rotated((TAngle<vec_t>)(angle));
+		double cosval = g_cosdeg (angle);
+		double sinval = g_sindeg (angle);
+		return TVector2(X*cosval - Y*sinval, Y*cosval + X*sinval);
 	}
 
 	// Returns a rotated vector. angle is in degrees.
@@ -557,7 +559,7 @@ struct TVector3
 	// Vector length
 	double Length() const
 	{
-		return sqrt (X*X + Y*Y + Z*Z);
+		return g_sqrt (X*X + Y*Y + Z*Z);
 	}
 
 	double LengthSquared() const
@@ -838,7 +840,7 @@ struct TVector4
 	// Vector length
 	double Length() const
 	{
-		return sqrt(X*X + Y*Y + Z*Z + W*W);
+		return g_sqrt(X*X + Y*Y + Z*Z + W*W);
 	}
 
 	double LengthSquared() const
@@ -919,7 +921,7 @@ struct TMatrix3x3
 	// (The axis vector must be normalized.)
 	TMatrix3x3(const Vector3 &axis, double radians)
 	{
-		double c = cos(radians), s = sin(radians), t = 1 - c;
+		double c = g_cos(radians), s = g_sin(radians), t = 1 - c;
 /* In comments: A more readable version of the matrix setup.
 This was found in Diana Gruber's article "The Mathematics of the
 3D Rotation Matrix" at <http://www.makegames.com/3drotation/> and is
@@ -982,8 +984,8 @@ Outside comments: A faster version with only 10 (not 24) multiplies.
 
 	static TMatrix3x3 Rotate2D(double radians)
 	{
-		double c = cos(radians);
-		double s = sin(radians);
+		double c = g_cos(radians);
+		double s = g_sin(radians);
 		TMatrix3x3 ret;
 		ret.Cells[0][0] = c; ret.Cells[0][1] = -s; ret.Cells[0][2] = 0;
 		ret.Cells[1][0] = s; ret.Cells[1][1] =  c; ret.Cells[1][2] = 0;
@@ -1347,17 +1349,17 @@ struct TAngle
 
 	vec_t Cos() const
 	{
-		return vec_t(cos(Radians()));
+		return vec_t(g_cosdeg(Degrees));
 	}
 
 	vec_t Sin() const
 	{
-		return vec_t(sin(Radians()));
+		return vec_t(g_sindeg(Degrees));
 	}
 
 	double Tan() const
 	{
-		return vec_t(tan(Radians()));
+		return vec_t(g_tan(Radians()));
 	}
 
 	// This is for calculating vertical velocity. For high pitches the tangent will become too large to be useful.
@@ -1417,19 +1419,19 @@ inline TAngle<T> absangle(const TAngle<T> &a1, double a2)
 
 inline TAngle<double> VecToAngle(double x, double y)
 {
-	return atan2(y, x) * (180.0 / pi::pi());
+	return g_atan2(y, x) * (180.0 / pi::pi());
 }
 
 template<class T>
 inline TAngle<T> VecToAngle (const TVector2<T> &vec)
 {
-	return (T)atan2(vec.Y, vec.X) * (180.0 / pi::pi());
+	return (T)g_atan2(vec.Y, vec.X) * (180.0 / pi::pi());
 }
 
 template<class T>
 inline TAngle<T> VecToAngle (const TVector3<T> &vec)
 {
-	return (T)atan2(vec.Y, vec.X) * (180.0 / pi::pi());
+	return (T)g_atan2(vec.Y, vec.X) * (180.0 / pi::pi());
 }
 
 template<class T>

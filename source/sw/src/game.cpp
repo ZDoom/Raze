@@ -585,7 +585,7 @@ void TerminateGame(void)
         SybexScreen();
         //TenScreen();
     }
-    throw ExitEvent(3);
+    throw CExitEvent(3);
 }
 
 bool LoadLevel(const char *filename)
@@ -2387,7 +2387,7 @@ void Control()
     }
 
     CleanExit = TRUE;
-    throw ExitEvent(0);
+    throw CExitEvent(0);
 }
 
 

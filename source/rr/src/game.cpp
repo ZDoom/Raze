@@ -364,7 +364,7 @@ void G_GameExit(const char *msg)
 			I_Error("%s", msg);
 		}
 	}
-	throw ExitEvent(0);
+	throw CExitEvent(0);
 }
 
 

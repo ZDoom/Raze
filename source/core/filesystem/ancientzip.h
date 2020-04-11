@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include "files.h"
-//#include "doomerrors.h"
+#include "engineerrors.h"
 
 class FZipExploder
 {
@@ -42,10 +42,10 @@ public:
 	int Explode(unsigned char *out, unsigned int outsize, FileReader &in, unsigned int insize, int flags);
 };
 
-class CExplosionError : std::runtime_error
+class CExplosionError : public CRecoverableError
 {
 public:
-	CExplosionError(const char *message) : std::runtime_error(message) {}
+	CExplosionError(const char *message) : CRecoverableError(message) {}
 };
 
 int ShrinkLoop(unsigned char *out, unsigned int outsize, FileReader &in, unsigned int insize);

@@ -48,5 +48,3 @@ int VPrintf(int printlevel, const char* format, va_list parms);
 int Printf (int printlevel, const char *format, ...) ATTRIBUTE((format(printf,2,3)));
 int Printf (const char *format, ...) ATTRIBUTE((format(printf,1,2)));
 int DPrintf (int level, const char *format, ...) ATTRIBUTE((format(printf,2,3)));
-
-void debugprintf(const char* f, ...);	// Prints to the debugger's log.

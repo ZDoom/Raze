@@ -622,7 +622,7 @@ FSerializer &FSerializer::ScriptNum(const char *key, int &num)
 			}
 			else if (val->IsString())
 			{
-				num = -FName(UnicodeToString(val->GetString()));
+				num = -FName(UnicodeToString(val->GetString())).GetIndex();
 			}
 			else
 			{

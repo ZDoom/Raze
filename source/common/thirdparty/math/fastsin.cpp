@@ -1,8 +1,10 @@
 /*
-** memarena.h
+** fastsin.cpp
+** a table/linear interpolation-based sine function that is both 
+** precise and fast enough for most purposes.
 **
 **---------------------------------------------------------------------------
-** Copyright 2010 Randy Heit
+** Copyright 2015 Christoph Oelckers
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -31,63 +33,74 @@
 **
 */
 
-#ifndef __MEMARENA_H
-#define __MEMARENA_H
-
-#include "zstring.h"
-
-// A general purpose arena.
-class FMemArena
-{
-public:
-	FMemArena(size_t blocksize = 10*1024);
-	~FMemArena();
-
-	void *Alloc(size_t size);
-	void FreeAll();
-	void FreeAllBlocks();
-	void DumpInfo();
-	void DumpData(FILE *f);
-
-protected:
-	struct Block;
-
-	Block *AddBlock(size_t size);
-	void FreeBlockChain(Block *&top);
-	void *iAlloc(size_t size);
-
-	Block *TopBlock;
-	Block *FreeBlocks;
-	size_t BlockSize;
-};
-
-// An arena specializing in storage of FStrings. It knows how to free them,
-// but this means it also should never be used for allocating anything else.
-// Identical strings all return the same pointer.
-class FSharedStringArena : public FMemArena
-{
-public:
-	FSharedStringArena();
-	~FSharedStringArena();
-	void FreeAll();
-
-	class FString *Alloc(const FString &source);
-	class FString *Alloc(const char *source);
-	class FString *Alloc(const char *source, size_t strlen);
-
-protected:
-	struct Node
-	{
-		Node *Next;
-		FString String;
-		unsigned int Hash;
-	};
-	Node *Buckets[256];
-
-	Node *FindString(const char *str, size_t strlen, unsigned int &hash);
-private:
-	void *Alloc(size_t size) { return NULL; }	// No access to FMemArena::Alloc for outsiders.
-};
+#include <math.h>
+#include "cmath.h"
 
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
 #endif
+
+FFastTrig fasttrig;
+
+FFastTrig::FFastTrig()
+{
+	const double pimul = M_PI * 2 / TBLPERIOD;
+
+	for (int i = 0; i < 2049; i++)
+	{
+		sinetable[i] = (float)c_sin(i*pimul);
+	}
+}
+
+__forceinline double FFastTrig::sinq1(unsigned bangle)
+{
+	unsigned int index = bangle >> BITSHIFT;
+
+	if ((bangle &= (REMAINDER)) == 0)	// This is to avoid precision problems at 180°
+	{
+		return double(sinetable[index]);
+	}
+	else
+	{
+		return (double(sinetable[index]) * (REMAINDER - bangle) + double(sinetable[index + 1]) * bangle) * (1. / REMAINDER);
+	}
+}
+
+double FFastTrig::sin(unsigned bangle)
+{
+	switch (bangle & 0xc0000000)
+	{
+	default:
+		return sinq1(bangle);
+
+	case 0x40000000:
+		return sinq1(0x80000000 - bangle);
+
+	case 0x80000000:
+		return -sinq1(bangle - 0x80000000);
+
+	case 0xc0000000:
+		return -sinq1(0 - bangle);
+	}
+}
+
+
+double FFastTrig::cos(unsigned bangle)
+{
+	switch (bangle & 0xc0000000)
+	{
+	default:
+		return sinq1(0x40000000 - bangle);
+
+	case 0x40000000:
+		return -sinq1(bangle - 0x40000000);
+
+	case 0x80000000:
+		return -sinq1(0xc0000000 - bangle);
+
+	case 0xc0000000:
+		return sinq1(bangle - 0xc0000000);
+	}
+}
+

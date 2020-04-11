@@ -48,6 +48,7 @@
 #include "m_argv.h"
 #include "filesystem/filesystem.h"
 #include "filesystem/resourcefile.h"
+#include "findfile.h"
 
 static const char* res_exts[] = { ".grp", ".zip", ".pk3", ".pk4", ".7z", ".pk7" };
 
@@ -342,10 +343,9 @@ static TArray<FileEntry> LoadCRCCache(void)
 			flentry.CRCValue = (unsigned)sc.BigNumber;
 		}
 	}
-	catch (std::runtime_error &err)
+	catch (CRecoverableError &)
 	{
 		// If there's a parsing error, return what we got and discard the rest.
-		debugprintf("%s\n", err.what());
 	}
 	return crclist;
 }

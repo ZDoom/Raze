@@ -163,7 +163,7 @@ void FileSystem::DeleteStuff(const TArray<FString>& deletelumps, int numgamefile
 		auto ndx = str.IndexOf("*");
 		if (ndx >= 0)
 		{
-			renameTo = FName(str.Mid(ndx + 1));
+			renameTo = FName(str.Mid(ndx + 1)).GetChars();
 			str.Truncate(ndx);
 		}
 		FName check = FName(str);
@@ -308,7 +308,7 @@ int FileSystem::FindFile (const char *name, ELookupMode lookupmode, int filenum)
 	uint32_t* fli = FirstFileIndex[lookupindex];
 	uint32_t* nli = NextFileIndex[lookupindex];
 	
-	for (i = fli[int(lname) % NumEntries]; i != NULL_INDEX; i = nli[i])
+	for (i = fli[lname.GetIndex() % NumEntries]; i != NULL_INDEX; i = nli[i])
 	{
 		if (filenum > 0 && FileInfo[i].rfnum != filenum) continue;
 		auto lump = FileInfo[i].lump;
@@ -363,7 +363,7 @@ int FileSystem::FindFileWithExtensions(const char* name, const FName *exts, int 
 	uint32_t* fli = FirstFileIndex[lookupindex];
 	uint32_t* nli = NextFileIndex[lookupindex];
 
-	for (i = fli[int(lname) % NumEntries]; i != NULL_INDEX; i = nli[i])
+	for (i = fli[lname.GetIndex() % NumEntries]; i != NULL_INDEX; i = nli[i])
 	{
 		auto lump = FileInfo[i].lump;
 		if (lump->LumpName[lookupindex] == lname)
@@ -506,7 +506,7 @@ void FileSystem::InitHashChains (void)
 			int hash;
 			if (l != (int)ELookupMode::IdWithType && lump->LumpName[l] != NAME_None)
 			{
-				hash = int(lump->LumpName[l]) % NumEntries;
+				hash = lump->LumpName[l].GetIndex() % NumEntries;
 			}
 			else if (l == (int)ELookupMode::IdWithType && lump->ResourceId >= 0)
 			{

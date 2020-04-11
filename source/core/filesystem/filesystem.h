@@ -12,6 +12,7 @@
 #include "tarray.h"
 #include "name.h"
 #include "zstring.h"
+#include "engineerrors.h"
 
 #ifdef FindResource
 #undef FindResource
@@ -21,10 +22,10 @@
 class FResourceFile;
 struct FResourceLump;
 
-class FileSystemError : std::runtime_error
+class FileSystemError : CRecoverableError
 {
 public:
-	FileSystemError(const char* err) : std::runtime_error(err) {}
+	FileSystemError(const char* err) : CRecoverableError(err) {}
 };
 
 // A file in memory.

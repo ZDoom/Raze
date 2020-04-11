@@ -47,6 +47,7 @@
 #include "v_text.h"
 #include "templates.h"
 #include "zstring.h"
+#include "name.h"
 #include "filesystem/filesystem.h"
 
 // MACROS ------------------------------------------------------------------
@@ -154,7 +155,7 @@ FScanner &FScanner::operator=(const FScanner &other)
 	TokenType = other.TokenType;
 	Number = other.Number;
 	Float = other.Float;
-	Name = other.Name;
+	//Name = other.Name;
 	Line = other.Line;
 	End = other.End;
 	Crossed = other.Crossed;
@@ -1083,7 +1084,7 @@ void FScanner::CheckOpen()
 {
 	if (ScriptOpen == false)
 	{
-		I_FatalError ("SC_ call before SC_Open().");
+		I_Error ("SC_ call before SC_Open().");
 	}
 }
 

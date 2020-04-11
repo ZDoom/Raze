@@ -44,7 +44,7 @@
 #include "resourcefile.h"
 #include "cmdlib.h"
 #include "printf.h"
-#include "i_system.h"
+#include "findfile.h"
 
 
 

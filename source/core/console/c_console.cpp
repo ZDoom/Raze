@@ -58,6 +58,7 @@
 #include "baselayer.h"
 #include "i_system.h"
 #include "s_soundinternal.h"
+#include "engineerrors.h"
 
 
 #define LEFTMARGIN 8
@@ -883,9 +884,13 @@ void WriteLineToLog(FILE *LogFile, const char *outline)
 	fflush(LogFile);
 }
 
+extern bool gameisdead;
 
 int PrintString (int iprintlevel, const char *outline)
 {
+	if (gameisdead)
+		return 0;
+
 	if (!conbuffer) return 0;	// when called too early
 	int printlevel = iprintlevel & PRINT_TYPES;
 	if (printlevel < msglevel || *outline == '\0')
@@ -917,13 +922,8 @@ int PrintString (int iprintlevel, const char *outline)
 	return 0;	// Don't waste time on calculating this if nothing at all was printed...
 }
 
-bool gameisdead;
-
 int VPrintf (int printlevel, const char *format, va_list parms)
 {
-	if (gameisdead)
-		return 0;
-
 	FString outline;
 	outline.VFormat (format, parms);
 	return PrintString (printlevel, outline.GetChars());
@@ -2043,9 +2043,9 @@ static bool C_TabCompleteList ()
 			// [Dusk] Print console commands blue, CVars green, aliases red.
 			const char* colorcode = "";
 			FConsoleCommand* ccmd;
-			if (FindCVar (TabCommands[i].TabName, NULL))
+			if (FindCVar (TabCommands[i].TabName.GetChars(), NULL))
 				colorcode = TEXTCOLOR_GREEN;
-			else if ((ccmd = FConsoleCommand::FindByName (TabCommands[i].TabName)) != NULL)
+			else if ((ccmd = FConsoleCommand::FindByName (TabCommands[i].TabName.GetChars())) != NULL)
 			{
 				if (ccmd->IsAlias())
 					colorcode = TEXTCOLOR_RED;

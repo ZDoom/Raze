@@ -433,7 +433,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 		else DrawBackground = 0;
 	}
 	// some menus need some special treatment (needs to be adjusted for the various frontends.
-	switch (caller)
+	switch (caller.GetIndex())
 	{
 	case NAME_EpisodeMenu:
 	case NAME_HuntMenu:
@@ -484,7 +484,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	}
 	}
 
-	switch (menu)
+	switch (menu.GetIndex())
 	{
 	case NAME_StartGame:
 		M_ClearMenus();	// must be done before starting the level.

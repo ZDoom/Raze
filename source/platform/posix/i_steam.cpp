@@ -37,6 +37,7 @@
 #include "sc_man.h"
 #include "cmdlib.h"
 #include "i_specialpaths.h"
+#include "engineerrors.h"
 
 static void PSR_FindEndBlock(FScanner &sc)
 {
@@ -186,7 +187,7 @@ TArray<FString> I_GetSteamPath()
 	{
 		SteamInstallFolders = ParseSteamRegistry(regPath);
 	}
-	catch(class std::runtime_error &error)
+	catch(class CRecoverableError& error)
 	{
 		// If we can't parse for some reason just pretend we can't find anything.
 		return result;
@@ -209,7 +210,7 @@ TArray<FString> I_GetSteamPath()
 		{
 			SteamInstallFolders = ParseSteamRegistry(regPath);
 		}
-		catch(class std::runtime_error &error)
+		catch(class CRecoverableError &error)
 		{
 			// If we can't parse for some reason just pretend we can't find anything.
 			return result;

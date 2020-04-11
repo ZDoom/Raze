@@ -1066,12 +1066,12 @@ void C_ClearDynCCmds()
 
 CCMD (quit)
 {
-	throw ExitEvent(0);
+	throw CExitEvent(0);
 }
 
 CCMD (exit)
 {
-	throw ExitEvent(0);
+	throw CExitEvent(0);
 }
 
 extern FILE* Logfile;

@@ -48,6 +48,7 @@
 #include "serializer.h"
 #include "gstrings.h"
 #include "version.h"
+#include "engineerrors.h"
 
 CVAR(Int, savestatistics, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(String, statfile, GAMENAMELOWERCASE "stat.txt", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -162,7 +163,7 @@ static void ParseStatistics(const char *fn, TArray<FStatistics> &statlist)
 			}
 		}
 	}
-	catch(std::runtime_error &)
+	catch(CRecoverableError &)
 	{
 	}
 }

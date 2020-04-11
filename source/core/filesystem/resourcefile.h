@@ -83,9 +83,9 @@ struct FResourceLump
 	// Wrappers for emulating Blood's resource system
 	unsigned Size() const{ return LumpSize; }
 	int LockCount() const { return RefCount; }
-	const char *ResName() const { return LumpName[BaseNameNoExtType]; }
+	const char *ResName() const { return LumpName[BaseNameNoExtType].GetChars(); }
 	const FName ResType() { return LumpName[ExtensionType]; }
-	const char *FullName() const { return LumpName[FullNameType]; }
+	const char *FullName() const { return LumpName[FullNameType].GetChars(); }
 
 protected:
 	virtual int ValidateCache() { return -1; }

@@ -94,7 +94,7 @@ static bool UncompressZipLump(char *Cache, FileReader &Reader, int Method, int L
 			return false;
 		}
 	}
-	catch (const std::runtime_error &err)
+	catch (const CRecoverableError &err)
 	{
 		Printf("%s\n", err.what());
 		return false;

@@ -46,7 +46,7 @@
 #include "resourcefile.h"
 #include "savegamehelp.h"
 #include "i_specialpaths.h"
-#include "../../platform/win32/i_findfile.h"	// This is a temporary direct path. Needs to be fixed when stuff gets cleaned up.
+#include "findfile.h"
 
 
 

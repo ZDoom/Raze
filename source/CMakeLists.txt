@@ -603,6 +603,11 @@ file( GLOB HEADER_FILES
 	core/rendering/hwrenderer/postprocessing/*.h
 	core/rendering/hwrenderer/utility/*.h
 
+	common/utility/*.h
+	common/thirdparty/*.h
+	common/thirdparty/rapidjson/*.h
+	common/thirdparty/math./*h
+
 	build/src/*.h
 	platform/win32/*.h
 	platform/posix/*.h
@@ -634,8 +639,9 @@ set( FASTMATH_SOURCES
 	libsmackerdec/src/LogError.cpp
 	libsmackerdec/src/SmackerDecoder.cpp
 
+	common/utility/matrix.cpp
+
 	# The rest is only here because it is C, not C++
-	core/utility/strnatcmp.c
 	core/rendering/gl_load/gl_load.c
 
 	gitinfo.cpp
@@ -714,27 +720,30 @@ set (PCH_SOURCES
 	core/console/d_event.cpp
 	core/console/c_con.cpp
 
-	core/utility/i_module.cpp
-	core/utility/i_time.cpp
+	common/thirdparty/sfmt/SFMT.cpp
+	common/utility/engineerrors.cpp
+	common/utility/i_module.cpp
+	common/utility/m_alloc.cpp
+	common/utility/utf8.cpp
+	common/utility/palette.cpp
+	common/utility/files.cpp
+	common/utility/files_decompress.cpp
+	common/utility/memarena.cpp
+	common/utility/cmdlib.cpp
+	common/utility/configfile.cpp
+	common/utility/i_time.cpp
+	common/utility/m_argv.cpp
+	common/utility/s_playlist.cpp
+	common/utility/zstrformat.cpp
+	common/thirdparty/md5.cpp
+ 	common/thirdparty/superfasthash.cpp
+
 	core/utility/name.cpp
-	core/utility/m_alloc.cpp
-	core/utility/cmdlib.cpp
-	core/utility/m_argv.cpp
-	core/utility/files.cpp
-	core/utility/files_decompress.cpp
-	core/utility/zstring.cpp
-	core/utility/zstrformat.cpp
-	core/utility/utf8.cpp
-	core/utility/superfasthash.cpp
-	core/utility/configfile.cpp
-	core/utility/matrix.cpp
 	core/utility/m_png.cpp
-	core/utility/memarena.cpp
 	core/utility/sc_man.cpp
 	core/utility/stringtable.cpp
 	core/utility/stats.cpp
-	core/utility/palette.cpp
-
+	
 	core/filesystem/filesystem.cpp
 	core/filesystem/ancientzip.cpp
 	core/filesystem/file_zip.cpp
@@ -826,9 +835,28 @@ add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 	${SYSTEM_SOURCES}
 	${FASTMATH_SOURCES}
 	${PCH_SOURCES}
-	#utility/strnatcmp.c
-	#utility/zstring.cpp
-	#zzautozend.cpp
+	common/utility/x86.cpp
+	common/thirdparty/strnatcmp.c
+	common/utility/zstring.cpp
+	common/utility/findfile.cpp
+	common/thirdparty/math/asin.c
+	common/thirdparty/math/atan.c
+	common/thirdparty/math/const.c
+	common/thirdparty/math/cosh.c
+	common/thirdparty/math/exp.c
+	common/thirdparty/math/isnan.c
+	common/thirdparty/math/log.c
+	common/thirdparty/math/log10.c
+	common/thirdparty/math/mtherr.c
+	common/thirdparty/math/polevl.c
+	common/thirdparty/math/pow.c
+	common/thirdparty/math/powi.c
+	common/thirdparty/math/sin.c
+	common/thirdparty/math/sinh.c
+	common/thirdparty/math/sqrt.c
+	common/thirdparty/math/tan.c
+	common/thirdparty/math/tanh.c
+	common/thirdparty/math/fastsin.cpp
 )
 
 #set_source_files_properties( ${FASTMATH_SOURCES} PROPERTIES COMPILE_FLAGS ${DEM_FASTMATH_FLAG} )
@@ -881,6 +909,8 @@ include_directories(
 	core/rendering/hwrenderer/utility
 	core/rendering
 	platform
+	common/thirdparty
+	common/utility
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 
@@ -990,6 +1020,12 @@ source_group("Core\\Rendering\\GL\\System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_
 source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("Platform\\POSIX" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/.+")
+source_group("Common" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/.+")
+source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/utility/.+")
+source_group("Common\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/.+")
+source_group("Common\\Third Party\\Math" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/math/.+")
+source_group("Common\\Third Party\\RapidJSON" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/rapidjson/.+")
+source_group("Common\\Third Party\\SFMT" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/sfmt/.+")
 source_group("Utility\\Smackerdec" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/smackerdec/.+")
 source_group("Utility\\Smackerdec\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libsmackerdec/include/.+")
 source_group("Utility\\Smackerdec\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libsmackerdec/src/.+")

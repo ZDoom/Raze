@@ -614,7 +614,7 @@ bool GameInterface::SaveGame(FSaveGameNode* node)
 			dword_27AA38 = 0;
 		}
 	}
-	catch (std::runtime_error & err)
+	catch (CRecoverableError & err)
 	{
 		// Let's not abort for write errors.
 		Printf(TEXTCOLOR_RED "%s\n", err.what());

@@ -45,7 +45,7 @@
 #include "sc_man.h"
 #include "v_video.h"
 #include "v_text.h"
-#include "i_system.h"
+#include "findfile.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX 260

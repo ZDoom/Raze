@@ -256,7 +256,7 @@ void G_GameExit(const char *msg)
 			I_FatalError("%s", msg);
         }
     }
-	throw ExitEvent(0);
+	throw CExitEvent(0);
 }
 
 

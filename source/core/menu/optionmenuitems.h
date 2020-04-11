@@ -85,7 +85,7 @@ class FOptionMenuItemLabeledSubmenu : public FOptionMenuItemSubmenu
 	FBaseCVar *mLabelCVar;
 public:
 	FOptionMenuItemLabeledSubmenu(const char * label, FBaseCVar *labelcvar, FName command, int param = 0)
-	 : FOptionMenuItemSubmenu(label, command, param)
+	 : FOptionMenuItemSubmenu(label, command.GetChars(), param)
 	{
 		mLabelCVar = labelcvar;
 	}
@@ -119,13 +119,13 @@ public:
 	bool Activate(FName caller) override
 	{
 		M_MenuSound(AdvanceSound);
-		C_DoCommand(mAction);
+		C_DoCommand(mAction.GetChars());
 		return true;
 	}
 
 };
 
-//=============================================================================
+//=============================================================================*
 //
 // Executes a CCMD after confirmation, action is a CCMD name
 //
@@ -148,7 +148,7 @@ public:
 	{
 		if (mkey == MKEY_MBYes)
 		{
-			C_DoCommand(mAction);
+			C_DoCommand(mAction.GetChars());
 			return true;
 		}
 		return FOptionMenuItemCommand::MenuEvent(mkey, fromcontroller);
@@ -296,7 +296,7 @@ public:
 	FOptionMenuItemOption(const char *label, const char *menu, const char *values, const char *graycheck, int center)
 		: FOptionMenuItemOptionBase(label, menu, values, graycheck, center)
 	{
-		mCVar = FindCVar(mAction, NULL);
+		mCVar = FindCVar(mAction.GetChars(), NULL);
 	}
 
 	//=============================================================================
@@ -443,7 +443,7 @@ public:
 		drawLabel(indent, y, mWaiting? OptionSettings.mFontColorHighlight:
 			(selected? OptionSettings.mFontColorSelection : OptionSettings.mFontColor));
 
-		auto binds = mBindings->GetKeysForCommand(mAction);
+		auto binds = mBindings->GetKeysForCommand(mAction.GetChars());
 		auto description = C_NameKeys(binds.Data(), binds.Size());
 
 		if (description.Len() > 0)
@@ -463,12 +463,12 @@ public:
 		if (mkey == MKEY_Input)
 		{
 			mWaiting = false;
-			mBindings->SetBind(mInput, mAction);
+			mBindings->SetBind(mInput, mAction.GetChars());
 			return true;
 		}
 		else if (mkey == MKEY_Clear)
 		{
-			mBindings->UnbindACommand(mAction);
+			mBindings->UnbindACommand(mAction.GetChars());
 			return true;
 		}
 		else if (mkey == MKEY_Abort)
@@ -802,7 +802,7 @@ class FOptionMenuFieldBase : public FOptionMenuItem
 public:
 	FOptionMenuFieldBase ( const char* label, const char* menu, const char* graycheck ) :
 		FOptionMenuItem ( label, menu ),
-		mCVar ( FindCVar( mAction, NULL )),
+		mCVar ( FindCVar( mAction.GetChars(), NULL )),
 		mGrayCheck (( graycheck && strlen( graycheck )) ? FindCVar( graycheck, NULL ) : NULL ) {}
 
 	const char* GetCVarString()

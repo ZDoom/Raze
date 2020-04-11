@@ -430,7 +430,7 @@ CCMD (menu_quit)
 
 	DMenu *newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, EndString, 0, 500, false, NAME_None, [](bool res)
 	{
-		if (res) throw ExitEvent(0);
+		if (res) throw CExitEvent(0);
 	});
 
 	M_ActivateMenu(newmenu);

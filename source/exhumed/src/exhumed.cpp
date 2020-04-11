@@ -774,27 +774,6 @@ void ShutDown(void)
     //UnInitFX();
 }
 
-void I_Error(const char *fmt, ...)
-{
-    
-    char buf[256];
-
-#ifdef __WATCOMC__
-    setvmode(3);
-#endif
-
-    Printf("bailed to dos\n");
-
-    va_list args;
-    va_start(args, fmt);
-
-    vsprintf(buf, fmt, args);
-
-    va_end(args);
-
-    throw std::runtime_error(buf);
-}
-
 void timerhandler()
 {
     UpdateSounds();
@@ -1672,7 +1651,7 @@ void ExitGame()
     }
 
     ShutDown();
-    throw ExitEvent(0);
+    throw CExitEvent(0);
 }
 
 static int32_t nonsharedtimer;

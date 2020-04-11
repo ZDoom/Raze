@@ -75,12 +75,6 @@ void I_SetIWADInfo()
 }
 
 
-void I_DebugPrint(const char *cp)
-{
-	NSLog(@"%s", cp);
-}
-
-
 void I_PrintStr(const char* const message)
 {
 	FConsoleWindow::GetInstance().AddText(message);
@@ -157,91 +151,6 @@ bool I_WriteIniFailed()
 {
 	printf("The config file %s could not be saved:\n%s\n", GameConfig->GetPathName(), strerror(errno));
 	return false; // return true to retry
-}
-
-
-static const char *pattern;
-
-#if MAC_OS_X_VERSION_MAX_ALLOWED < 1080
-static int matchfile(struct dirent *ent)
-#else
-static int matchfile(const struct dirent *ent)
-#endif
-{
-	return fnmatch(pattern, ent->d_name, FNM_NOESCAPE) == 0;
-}
-
-void* I_FindFirst(const char* const filespec, findstate_t* const fileinfo)
-{
-	FString dir;
-	
-	const char* const slash = strrchr(filespec, '/');
-
-	if (slash)
-	{
-		pattern = slash+1;
-		dir = FString(filespec, slash - filespec + 1);
-		fileinfo->path = dir;
-	}
-	else
-	{
-		pattern = filespec;
-		dir = ".";
-	}
-
-	fileinfo->current = 0;
-	fileinfo->count = scandir(dir.GetChars(), &fileinfo->namelist, matchfile, alphasort);
-
-	if (fileinfo->count > 0)
-	{
-		return fileinfo;
-	}
-
-	return (void*)-1;
-}
-
-int I_FindNext(void* const handle, findstate_t* const fileinfo)
-{
-	findstate_t* const state = static_cast<findstate_t*>(handle);
-
-	if (state->current < fileinfo->count)
-	{
-		return ++state->current < fileinfo->count ? 0 : -1;
-	}
-
-	return -1;
-}
-
-int I_FindClose(void* const handle)
-{
-	findstate_t* const state = static_cast<findstate_t*>(handle);
-
-	if (handle != (void*)-1 && state->count > 0)
-	{
-		for (int i = 0; i < state->count; ++i)
-		{
-			free(state->namelist[i]);
-		}
-
-		free(state->namelist);
-		state->namelist = NULL;
-		state->count = 0;
-	}
-
-	return 0;
-}
-
-int I_FindAttr(findstate_t* const fileinfo)
-{
-	dirent* const ent = fileinfo->namelist[fileinfo->current];
-	bool isdir;
-
-	if (DirEntryExists(fileinfo->path + ent->d_name, &isdir))
-	{
-		return isdir ? FA_DIREC : 0;
-	}
-
-	return 0;
 }
 
 
