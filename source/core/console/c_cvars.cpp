@@ -291,12 +291,12 @@ const char *FBaseCVar::ToString (UCVarValue value, ECVarType type)
 		return value.String;
 
 	case CVAR_Int:
-		snprintf (cstrbuf, sizeof(cstrbuf), "%i", value.Int);
+		mysnprintf (cstrbuf, countof(cstrbuf), "%i", value.Int);
 		break;
 
 	case CVAR_Float:
 		IGNORE_FORMAT_PRE
-		snprintf (cstrbuf, sizeof(cstrbuf), "%g", value.Float);
+		mysnprintf (cstrbuf, countof(cstrbuf), "%H", value.Float);
 		IGNORE_FORMAT_POST
 		break;
 
@@ -355,7 +355,7 @@ UCVarValue FBaseCVar::FromInt (int value, ECVarType type)
 		break;
 
 	case CVAR_String:
-		snprintf (cstrbuf, sizeof(cstrbuf), "%i", value);
+		mysnprintf (cstrbuf, countof(cstrbuf), "%i", value);
 		ret.String = cstrbuf;
 		break;
 
@@ -386,7 +386,7 @@ UCVarValue FBaseCVar::FromFloat (float value, ECVarType type)
 
 	case CVAR_String:
 		IGNORE_FORMAT_PRE
-		snprintf (cstrbuf, sizeof(cstrbuf), "%g", value);
+		mysnprintf (cstrbuf, countof(cstrbuf), "%H", value);
 		IGNORE_FORMAT_POST
 		ret.String = cstrbuf;
 		break;
@@ -396,6 +396,28 @@ UCVarValue FBaseCVar::FromFloat (float value, ECVarType type)
 	}
 
 	return ret;
+}
+
+static uint8_t HexToByte (const char *hex)
+{
+	uint8_t v = 0;
+	for (int i = 0; i < 2; ++i)
+	{
+		v <<= 4;
+		if (hex[i] >= '0' && hex[i] <= '9')
+		{
+			v += hex[i] - '0';
+		}
+		else if (hex[i] >= 'A' && hex[i] <= 'F')
+		{
+			v += hex[i] - 'A';
+		}
+		else // The string is already verified to contain valid hexits
+		{
+			v += hex[i] - 'a';
+		}
+	}
+	return v;
 }
 
 UCVarValue FBaseCVar::FromString (const char *value, ECVarType type)
@@ -629,7 +651,7 @@ const char *FFloatCVar::GetHumanString(int precision) const
 	{
 		precision = 6;
 	}
-	snprintf(cstrbuf, sizeof(cstrbuf), "%.*g", precision, Value);
+	mysnprintf(cstrbuf, countof(cstrbuf), "%.*g", precision, Value);
 	return cstrbuf;
 }
 
@@ -782,7 +804,7 @@ UCVarValue FColorCVar::FromInt2 (int value, ECVarType type)
 	if (type == CVAR_String)
 	{
 		UCVarValue ret;
-		snprintf (cstrbuf, sizeof(cstrbuf), "%02x %02x %02x",
+		mysnprintf (cstrbuf, countof(cstrbuf), "%02x %02x %02x",
 			RPART(value), GPART(value), BPART(value));
 		ret.String = cstrbuf;
 		return ret;
