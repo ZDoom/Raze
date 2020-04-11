@@ -46,7 +46,7 @@
 #include "version.h"
 #include "cmdlib.h"
 #include "i_system.h"
-#include "common/gamecontrol.h"
+#include "core/gamecontrol.h"
 
 // MACROS ------------------------------------------------------------------
 

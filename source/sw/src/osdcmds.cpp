@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 
 #include "common.h"
-#include "common/2d/v_text.h"
+#include "core/2d/v_text.h"
 
 #include "cheats.h"
 #include "demo.h"  // g_firstDemoFile[]

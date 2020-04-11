@@ -40,7 +40,7 @@
 #include "c_dispatch.h"
 #include "dikeys.h"
 #include "utf8.h"
-#include "common/console/keydef.h"
+#include "core/console/keydef.h"
 #include "menu/menu.h"
 
 static void I_CheckNativeMouse ();

@@ -1,6 +1,6 @@
 #include "afxres.h"
 #include "resource.h"
-#include "../../common/version.h"
+#include "../../core/version.h"
 #include "../../gitinfo.h"
 
 IDI_ICON1 ICON "game_icon.ico"

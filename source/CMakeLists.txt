@@ -562,8 +562,8 @@ else()
 endif()
 
 add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h
-	COMMAND re2c --no-generation-date -s -o ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h ${CMAKE_CURRENT_SOURCE_DIR}/common/utility/sc_man_scanner.re
-	DEPENDS re2c ${CMAKE_CURRENT_SOURCE_DIR}/common/utility/sc_man_scanner.re )
+	COMMAND re2c --no-generation-date -s -o ${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h ${CMAKE_CURRENT_SOURCE_DIR}/core/utility/sc_man_scanner.re
+	DEPENDS re2c ${CMAKE_CURRENT_SOURCE_DIR}/core/utility/sc_man_scanner.re )
 
 
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
@@ -582,26 +582,26 @@ file( GLOB HEADER_FILES
 	libsmackerdec/include/*.h
 	libxmp-lite/include/libxmp-lite/*.h
 	libxmp-lite/src/*.h
-	common/*.h
-	common/2d/*.h
-	common/fonts/*.h
-	common/utility/*.h
-	common/utility/rapidjson/*.h
-	common/console/*.h
-	common/filesystem/*.h
-	common/music/*.h
-	common/sound/*.h
-	common/sound/backend/*.h
-	common/menu/*.h
-	common/input/*.h
-	common/rendering/*.h
-	common/rendering/gl_load/*.h
-	common/rendering/gl/system/*.h
-	common/rendering/gl/renderer/*.h
-	common/rendering/gl/shaders/*.h
-	common/rendering/hwrenderer/data/*.h
-	common/rendering/hwrenderer/postprocessing/*.h
-	common/rendering/hwrenderer/utility/*.h
+	core/*.h
+	core/2d/*.h
+	core/fonts/*.h
+	core/utility/*.h
+	core/utility/rapidjson/*.h
+	core/console/*.h
+	core/filesystem/*.h
+	core/music/*.h
+	core/sound/*.h
+	core/sound/backend/*.h
+	core/menu/*.h
+	core/input/*.h
+	core/rendering/*.h
+	core/rendering/gl_load/*.h
+	core/rendering/gl/system/*.h
+	core/rendering/gl/renderer/*.h
+	core/rendering/gl/shaders/*.h
+	core/rendering/hwrenderer/data/*.h
+	core/rendering/hwrenderer/postprocessing/*.h
+	core/rendering/hwrenderer/utility/*.h
 
 	build/src/*.h
 	platform/win32/*.h
@@ -609,8 +609,8 @@ file( GLOB HEADER_FILES
 	thirdparty/include/*.h
 	thirdparty/include/*.hpp
 	thirdparty/imgui/*.h
-	common/textures/*.h
-	common/textures/formats/*.h
+	core/textures/*.h
+	core/textures/formats/*.h
 )
 
 
@@ -619,7 +619,7 @@ file( GLOB HEADER_FILES
 set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
 	sc_man_scanner.h
-	common/utility/sc_man_scanner.re
+	core/utility/sc_man_scanner.re
 	platform/win32/zutil.natvis
 )
 
@@ -635,8 +635,8 @@ set( FASTMATH_SOURCES
 	libsmackerdec/src/SmackerDecoder.cpp
 
 	# The rest is only here because it is C, not C++
-	common/utility/strnatcmp.c
-	common/rendering/gl_load/gl_load.c
+	core/utility/strnatcmp.c
+	core/rendering/gl_load/gl_load.c
 
 	gitinfo.cpp
 )
@@ -675,133 +675,133 @@ set (PCH_SOURCES
 	build/src/timer.cpp
 	build/src/voxmodel.cpp
 
-	common/animlib.cpp
-	common/rts.cpp
-	common/gameconfigfile.cpp
-	common/gamecvars.cpp
-	common/gamecontrol.cpp
-	common/inputstate.cpp
-	common/searchpaths.cpp
-	common/initfs.cpp
-	common/statistics.cpp
-	common/secrets.cpp
-	common/compositesavegame.cpp
-	common/savegamehelp.cpp
-	common/quotes.cpp
-	common/screenshot.cpp
-	common/serializer.cpp
+	core/animlib.cpp
+	core/rts.cpp
+	core/gameconfigfile.cpp
+	core/gamecvars.cpp
+	core/gamecontrol.cpp
+	core/inputstate.cpp
+	core/searchpaths.cpp
+	core/initfs.cpp
+	core/statistics.cpp
+	core/secrets.cpp
+	core/compositesavegame.cpp
+	core/savegamehelp.cpp
+	core/quotes.cpp
+	core/screenshot.cpp
+	core/serializer.cpp
 
-	common/2d/v_2ddrawer.cpp
-	common/2d/v_draw.cpp
-	common/2d/v_drawtext.cpp
-	common/2d/renderstyle.cpp
-	common/2d/screentext.cpp
+	core/2d/v_2ddrawer.cpp
+	core/2d/v_draw.cpp
+	core/2d/v_drawtext.cpp
+	core/2d/renderstyle.cpp
+	core/2d/screentext.cpp
 
-	common/fonts/font.cpp
-	common/fonts/hexfont.cpp
-	common/fonts/singlelumpfont.cpp
-	common/fonts/v_font.cpp
-	common/fonts/v_text.cpp
-	common/fonts/fontchars.cpp
+	core/fonts/font.cpp
+	core/fonts/hexfont.cpp
+	core/fonts/singlelumpfont.cpp
+	core/fonts/v_font.cpp
+	core/fonts/v_text.cpp
+	core/fonts/fontchars.cpp
 
-	common/console/c_cvars.cpp
-	common/console/c_console.cpp
-	common/console/c_consolebuffer.cpp
-	common/console/c_bind.cpp
-	common/console/c_buttons.cpp
-	common/console/c_commandline.cpp
-	common/console/c_dispatch.cpp
-	common/console/d_event.cpp
-	common/console/c_con.cpp
+	core/console/c_cvars.cpp
+	core/console/c_console.cpp
+	core/console/c_consolebuffer.cpp
+	core/console/c_bind.cpp
+	core/console/c_buttons.cpp
+	core/console/c_commandline.cpp
+	core/console/c_dispatch.cpp
+	core/console/d_event.cpp
+	core/console/c_con.cpp
 
-	common/utility/i_module.cpp
-	common/utility/i_time.cpp
-	common/utility/name.cpp
-	common/utility/cmdlib.cpp
-	common/utility/m_argv.cpp
-	common/utility/files.cpp
-	common/utility/files_decompress.cpp
-	common/utility/zstring.cpp
-	common/utility/zstrformat.cpp
-	common/utility/utf8.cpp
-	common/utility/superfasthash.cpp
-	common/utility/configfile.cpp
-	common/utility/matrix.cpp
-	common/utility/m_png.cpp
-	common/utility/memarena.cpp
-	common/utility/sc_man.cpp
-	common/utility/stringtable.cpp
-	common/utility/stats.cpp
+	core/utility/i_module.cpp
+	core/utility/i_time.cpp
+	core/utility/name.cpp
+	core/utility/cmdlib.cpp
+	core/utility/m_argv.cpp
+	core/utility/files.cpp
+	core/utility/files_decompress.cpp
+	core/utility/zstring.cpp
+	core/utility/zstrformat.cpp
+	core/utility/utf8.cpp
+	core/utility/superfasthash.cpp
+	core/utility/configfile.cpp
+	core/utility/matrix.cpp
+	core/utility/m_png.cpp
+	core/utility/memarena.cpp
+	core/utility/sc_man.cpp
+	core/utility/stringtable.cpp
+	core/utility/stats.cpp
 
-	common/filesystem/filesystem.cpp
-	common/filesystem/ancientzip.cpp
-	common/filesystem/file_zip.cpp
-	common/filesystem/file_7z.cpp
-	common/filesystem/file_grp.cpp
-	common/filesystem/file_rff.cpp
-	common/filesystem/file_pak.cpp
-	common/filesystem/file_lump.cpp
-	common/filesystem/file_directory.cpp
-	common/filesystem/resourcefile.cpp
+	core/filesystem/filesystem.cpp
+	core/filesystem/ancientzip.cpp
+	core/filesystem/file_zip.cpp
+	core/filesystem/file_7z.cpp
+	core/filesystem/file_grp.cpp
+	core/filesystem/file_rff.cpp
+	core/filesystem/file_pak.cpp
+	core/filesystem/file_lump.cpp
+	core/filesystem/file_directory.cpp
+	core/filesystem/resourcefile.cpp
 
-	common/textures/bitmap.cpp
-	common/textures/buildtiles.cpp
-	common/textures/texture.cpp
-	common/textures/image.cpp
-	common/textures/imagetexture.cpp
-	common/textures/imagehelpers.cpp
-	common/textures/formats/ddstexture.cpp
-	common/textures/formats/jpegtexture.cpp
-	common/textures/formats/pcxtexture.cpp
-	common/textures/formats/pngtexture.cpp
-	common/textures/formats/tgatexture.cpp
-	common/textures/formats/stbtexture.cpp
-	common/textures/formats/arttexture.cpp
+	core/textures/bitmap.cpp
+	core/textures/buildtiles.cpp
+	core/textures/texture.cpp
+	core/textures/image.cpp
+	core/textures/imagetexture.cpp
+	core/textures/imagehelpers.cpp
+	core/textures/formats/ddstexture.cpp
+	core/textures/formats/jpegtexture.cpp
+	core/textures/formats/pcxtexture.cpp
+	core/textures/formats/pngtexture.cpp
+	core/textures/formats/tgatexture.cpp
+	core/textures/formats/stbtexture.cpp
+	core/textures/formats/arttexture.cpp
 
-	common/music/music.cpp
-	common/music/i_music.cpp
-	common/music/i_soundfont.cpp
-	common/music/music_config.cpp
-	common/music/music_midi_base.cpp
-	common/music/s_advsound.cpp
+	core/music/music.cpp
+	core/music/i_music.cpp
+	core/music/i_soundfont.cpp
+	core/music/music_config.cpp
+	core/music/music_midi_base.cpp
+	core/music/s_advsound.cpp
 
-	common/sound/backend/oalsound.cpp
-	common/sound/backend/i_sound.cpp
-	common/sound/s_sound.cpp
-	common/sound/s_environment.cpp
+	core/sound/backend/oalsound.cpp
+	core/sound/backend/i_sound.cpp
+	core/sound/s_sound.cpp
+	core/sound/s_environment.cpp
 
-	common/menu/imagescroller.cpp
-	common/menu/joystickmenu.cpp
-	common/menu/listmenu.cpp
-	common/menu/savegamemanager.cpp
-	common/menu/loadsavemenu.cpp
-	common/menu/menu.cpp
-	common/menu/menudef.cpp
-	common/menu/menuinput.cpp
-	common/menu/messagebox.cpp
-	common/menu/optionmenu.cpp
-	common/menu/resolutionmenu.cpp
+	core/menu/imagescroller.cpp
+	core/menu/joystickmenu.cpp
+	core/menu/listmenu.cpp
+	core/menu/savegamemanager.cpp
+	core/menu/loadsavemenu.cpp
+	core/menu/menu.cpp
+	core/menu/menudef.cpp
+	core/menu/menuinput.cpp
+	core/menu/messagebox.cpp
+	core/menu/optionmenu.cpp
+	core/menu/resolutionmenu.cpp
 
-	#common/input/i_joystick.cpp
-	#common/input/i_input.cpp
-	common/input/m_joy.cpp
+	#core/input/i_joystick.cpp
+	#core/input/i_input.cpp
+	core/input/m_joy.cpp
 
-	common/rendering/r_videoscale.cpp
-	common/rendering/v_framebuffer.cpp
-	common/rendering/v_video.cpp
-	common/rendering/gl/renderer/gl_renderer.cpp
-	common/rendering/gl/renderer/gl_postprocess.cpp
-	common/rendering/gl/renderer/gl_postprocessstate.cpp
-	common/rendering/gl/renderer/gl_renderbuffers.cpp
-	common/rendering/gl/shaders/gl_shaderprogram.cpp
-	common/rendering/gl/system/gl_buffers.cpp
-	common/rendering/gl/system/gl_debug.cpp
-	common/rendering/gl/system/gl_framebuffer.cpp
-	common/rendering/gl_load/gl_interface.cpp
-	common/rendering/hwrenderer/data/flatvertices.cpp
-	common/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
-	common/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
-	common/rendering/hwrenderer/utility/hw_shaderpatcher.cpp
+	core/rendering/r_videoscale.cpp
+	core/rendering/v_framebuffer.cpp
+	core/rendering/v_video.cpp
+	core/rendering/gl/renderer/gl_renderer.cpp
+	core/rendering/gl/renderer/gl_postprocess.cpp
+	core/rendering/gl/renderer/gl_postprocessstate.cpp
+	core/rendering/gl/renderer/gl_renderbuffers.cpp
+	core/rendering/gl/shaders/gl_shaderprogram.cpp
+	core/rendering/gl/system/gl_buffers.cpp
+	core/rendering/gl/system/gl_debug.cpp
+	core/rendering/gl/system/gl_framebuffer.cpp
+	core/rendering/gl_load/gl_interface.cpp
+	core/rendering/hwrenderer/data/flatvertices.cpp
+	core/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
+	core/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
+	core/rendering/hwrenderer/utility/hw_shaderpatcher.cpp
 )
 
 macro( use_precompiled_header )
@@ -857,27 +857,27 @@ include_directories(
 	libsmackerdec/include
 	thirdparty/include
 	thirdparty/imgui
-	common
-	common/2d
-	common/fonts
-	common/utility
-	common/console
-	common/textures
-	common/filesystem
-	common/music
-	common/sound
-	common/sound/backend
-	common/dobject
-	common/menu
-	common/input
-	common/rendering/gl_load
-	common/rendering/gl/system
-	common/rendering/gl/renderer
-	common/rendering/gl/shaders
-	common/rendering/hwrenderer/data
-	common/rendering/hwrenderer/postprocessing
-	common/rendering/hwrenderer/utility
-	common/rendering
+	core
+	core/2d
+	core/fonts
+	core/utility
+	core/console
+	core/textures
+	core/filesystem
+	core/music
+	core/sound
+	core/sound/backend
+	core/dobject
+	core/menu
+	core/input
+	core/rendering/gl_load
+	core/rendering/gl/system
+	core/rendering/gl/renderer
+	core/rendering/gl/shaders
+	core/rendering/hwrenderer/data
+	core/rendering/hwrenderer/postprocessing
+	core/rendering/hwrenderer/utility
+	core/rendering
 	platform
 
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
@@ -968,23 +968,23 @@ install(TARGETS ${PROJECT_NAME}
 		DESTINATION ${INSTALL_PATH}
 		COMPONENT "Game executable")
 
-source_group("Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
-source_group("Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/.+")
-source_group("Core\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
-source_group("Core\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/formats/.+")
-source_group("Core\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
-source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/2d/.+")
-source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/console/.+")
-source_group("Core\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
-source_group("Core\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
-source_group("Core\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/music/.+")
-source_group("Core\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/sound/.+")
-source_group("Core\\Sound\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/sound/backend/.+")
-source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/dobject/.+")
-source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
-source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/.+")
-source_group("Core\\Rendering\\GL_Load" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl_load/.+")
-source_group("Core\\Rendering\\GL\\System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl/system.+")
+source_group("Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/utility/.+")
+source_group("Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/.+")
+source_group("Core\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/textures/.+")
+source_group("Core\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/textures/formats/.+")
+source_group("Core\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/utility/.+")
+source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d/.+")
+source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
+source_group("Core\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/fonts/.+")
+source_group("Core\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/filesystem/.+")
+source_group("Core\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/music/.+")
+source_group("Core\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/sound/.+")
+source_group("Core\\Sound\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/sound/backend/.+")
+source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/dobject/.+")
+source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
+source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
+source_group("Core\\Rendering\\GL_Load" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/gl_load/.+")
+source_group("Core\\Rendering\\GL\\System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/gl/system.+")
 source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("Platform\\POSIX" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/.+")

@@ -41,7 +41,7 @@
 #include "v_text.h"
 #include "m_argv.h"
 #include "c_console.h"
-#include "common/utility/printf.h"
+#include "core/utility/printf.h"
 
 IVideo *Video;
 
