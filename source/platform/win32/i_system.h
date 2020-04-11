@@ -21,6 +21,9 @@ void I_Init (void);
 unsigned int I_MakeRNGSeed();
 void I_ShowFatalError(const char* msg);
 
+void I_PutInClipboard(const char* str);
+FString I_GetFromClipboard(bool use_primary_selection);
+
 
 //
 // Called by D_DoomLoop,

@@ -1081,6 +1081,12 @@ CCMD(reset2saved)
 	GameConfig->DoGameSetup (currentGame);
 }
 
+CCMD(menu_main)
+{
+	M_StartControlPanel(true);
+	M_SetMenu(NAME_Mainmenu, -1);
+}
+
 CCMD(openmainmenu)
 {
 	//gi->ClearSoundLocks();

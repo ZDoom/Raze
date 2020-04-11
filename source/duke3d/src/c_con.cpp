@@ -128,7 +128,14 @@ static GameFuncDesc con_gamefuncs[] = {
 {"+Toggle_Crouch",			"Toggle_Crouch"}
 };
 
-const char* KB_ScanCodeToString(int scancode); // convert scancode into a string
+// this is horrible!
+const char* KB_ScanCodeToString(int scancode)
+{
+	if (scancode >= 0 && scancode < NUM_KEYS)
+		return KeyNames[scancode];
+
+	return "";
+}
 
 //=============================================================================
 //

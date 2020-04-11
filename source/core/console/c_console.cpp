@@ -1602,8 +1602,6 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 			// Close console and clear command line. But if we're in the
 			// fullscreen console mode, there's nothing to fall back on
 			// if it's closed, so open the main menu instead.
-
-#if 0
 			if (gamestate == GS_STARTUP)
 			{
 				return false;
@@ -1613,7 +1611,6 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 				C_DoCommand ("menu_main");
 			}
 			else
-#endif
 			{
 				buffer.SetString("");
 				HistPos = NULL;
@@ -1631,7 +1628,6 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 			if (ev->data3 & GKM_CTRL)
 #endif // __APPLE__
 			{
-#if 0
 				if (data1 == 'C')
 				{ // copy to clipboard
 					if (buffer.TextLength() > 0)
@@ -1645,7 +1641,6 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 					HistPos = NULL;
 				}
 				break;
-#endif
 			}
 			break;
 

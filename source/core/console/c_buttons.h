@@ -88,9 +88,7 @@ enum GameFunction_t
 	gamefunc_Zoom_In,	// Map controls should not pollute the global button namespace.
 	gamefunc_Zoom_Out,
 	
-	NUMGAMEFUNCTIONS
 };
-
 
 
 // Actions
@@ -113,17 +111,17 @@ struct FButtonStatus
 class ButtonMap
 {
 	
-	FButtonStatus Buttons[NUMGAMEFUNCTIONS];
-	FString NumToName[NUMGAMEFUNCTIONS];		// The internal name of the button
+	TArray<FButtonStatus> Buttons;
+	TArray<FString> NumToName;		// The internal name of the button
 	TMap<FName, int> NameToNum;
 	
 public:
 	ButtonMap();
-	void SetGameAliases();
+	void SetButtons(const char** names, int count);
 	
 	constexpr int NumButtons() const
 	{
-		return NUMGAMEFUNCTIONS;
+		return Buttons.Size();
 	}
 
 	int FindButtonIndex(const char* func) const;
@@ -132,14 +130,6 @@ public:
 	{
 		int index = FindButtonIndex(func);
 		return index > -1? &Buttons[index] : nullptr;
-	}
-	
-	// This is still in use but all cases are scheduled for termination.
-	const char* GetButtonName(int32_t func) const
-	{
-		if ((unsigned)func >= (unsigned)NumButtons())
-			return nullptr;
-		return NumToName[func];
 	}
 
 	void ResetButtonTriggers ();	// Call ResetTriggers for all buttons

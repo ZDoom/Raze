@@ -720,7 +720,6 @@ set (PCH_SOURCES
 	core/console/c_commandline.cpp
 	core/console/c_dispatch.cpp
 	core/console/d_event.cpp
-	core/console/c_con.cpp
 
 	common/thirdparty/sfmt/SFMT.cpp
 	common/textures/bitmap.cpp

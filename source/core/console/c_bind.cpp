@@ -34,25 +34,21 @@
 
 #include <stdint.h>
 
-//#include "doomtype.h"
 #include "cmdlib.h"
 #include "keydef.h"
 #include "c_commandline.h"
 #include "c_bind.h"
 #include "c_dispatch.h"
-//#include "g_level.h"
-//#include "hu_stuff.h"
 #include "configfile.h"
-//#include "d_event.h"
 #include "filesystem.h"
 #include "templates.h"
 #include "i_time.h"
-//#include "menu/menu.h"
 #include "printf.h"
-#include "v_text.h"
-#include "d_event.h"
 #include "sc_man.h"
-#include "gamecontrol.h"
+#include "c_cvars.h"
+
+#include "d_event.h"
+
 
 
 const char *KeyNames[NUM_KEYS] =
@@ -706,8 +702,13 @@ void ReadBindings(int lump, bool override)
 	}
 }
 
+//=============================================================================
+//
+//
+//
+//=============================================================================
 
-void CONFIG_SetDefaultKeys(const char* baseconfig)
+void C_SetDefaultKeys(const char* baseconfig)
 {
 	auto lump = fileSystem.CheckNumForFullName("engine/commonbinds.txt");
 	if (lump >= 0) ReadBindings(lump, true);
@@ -719,15 +720,23 @@ void CONFIG_SetDefaultKeys(const char* baseconfig)
 		ReadBindings(lump, true);
 	}
 
-	while ((lump = fileSystem.FindLumpFullName("defbinds.txt", &lastlump)) != -1)
+	while ((lump = fileSystem.FindLump("DEFBINDS", &lastlump)) != -1)
 	{
 		ReadBindings(lump, false);
 	}
 }
 
+//=============================================================================
+//
+//
+//
+//=============================================================================
+CVAR(Int, cl_defaultconfiguration, 2, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+
 void C_BindDefaults()
 {
-	CONFIG_SetDefaultKeys(cl_defaultconfiguration == 1 ? "engine/origbinds.txt" : cl_defaultconfiguration == 2 ? "engine/leftbinds.txt" : "engine/defbinds.txt");
+	C_SetDefaultKeys(cl_defaultconfiguration == 1 ? "engine/origbinds.txt" : cl_defaultconfiguration == 2 ? "engine/leftbinds.txt" : "engine/defbinds.txt");
 }
 
 CCMD(controlpreset)
@@ -754,16 +763,6 @@ void C_SetDefaultBindings()
 	C_BindDefaults();
 }
 
-// this is horrible!
-const char* KB_ScanCodeToString(int scancode)
-{
-	if (scancode >= 0 && scancode < NUM_KEYS)
-		return KeyNames[scancode];
-
-	return "";
-}
-
-void AddCommandString (const char *copy, int keynum);
 //=============================================================================
 //
 //
@@ -819,13 +818,13 @@ bool C_DoKey (event_t *ev, FKeyBindings *binds, FKeyBindings *doublebinds)
 		dclick = false;
 	}
 
+	if (ev->type == EV_KeyUp && binding[0] != '+')
+	{
+		return false;
+	}
+
 	if (!binding.IsEmpty())// && (chatmodeon == 0 || ev->data1 < 256))
 	{
-		if (ev->type == EV_KeyUp && binding[0] != '+')
-		{
-			return false;
-		}
-
 		char *copy = binding.LockBuffer();
 
 		if (ev->type == EV_KeyUp)

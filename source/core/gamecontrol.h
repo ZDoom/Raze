@@ -8,8 +8,6 @@
 #include "name.h"
 #include "memarena.h"
 
-EXTERN_CVAR(Int, cl_defaultconfiguration)
-
 extern FString currentGame;
 extern FString LumpFilter;
 class FArgs;
@@ -19,7 +17,6 @@ extern FMemArena dump;	// this is for memory blocks than cannot be deallocated w
 extern TMap<FName, int32_t> NameToTileIndex;
 
 int CONFIG_Init();
-void CONFIG_SetDefaultKeys(const char *defbinds);
 
 // I am not sure if anything below will survive for long...
 
