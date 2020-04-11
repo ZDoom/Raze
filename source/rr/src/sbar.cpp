@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"	// Must come before everything else!
 
+#include <array>
 #include "v_font.h"
 #include "duke3d.h"
 #include "compat.h"
@@ -664,6 +665,7 @@ static int32_t G_GetInvOn(const DukePlayer_t *p)
 
 static int32_t G_GetMorale(int32_t p_i, int32_t snum)
 {
+    // WW2GI
     return Gv_GetVarByLabel("PLR_MORALE", -1, p_i, snum);
 }
 
@@ -687,10 +689,15 @@ static int32_t* ammo_sprites[MAX_WEAPONS] = { nullptr, &AMMO, &SHOTGUNAMMO, &BAT
 class DukeStatusBar : public DBaseStatusBar
 {
     DHUDFont numberFont;
+    std::array<int, MAX_WEAPONS> ammo_sprites = { 0, AMMO, SHOTGUNAMMO, BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO, TRIPBOMBSPRITE, FREEZEAMMO+1, HBOMBAMMO, GROWAMMO/*, FLAMETHROWERAMMO + 1*/ };
+    std::array<int, 8> item_icons = { 0, FIRSTAID_ICON, STEROIDS_ICON, HOLODUKE_ICON, JETPACK_ICON, HEAT_ICON, AIRTANK_ICON, BOOT_ICON };
+
 public:
     DukeStatusBar()
         : numberFont(BigFont, 1, Off, 1, 1)
     {
+        // optionally draw at the top of the screen.
+        drawOffset.Y = hud_position ? -168 : 0;
     }
     void DrawDukeMiniBar(int32_t snum)
     {
@@ -737,8 +744,8 @@ public:
 
         if (ammo_sprites[p->curr_weapon] >= 0)
         {
-            i = (tilesiz[*ammo_sprites[p->curr_weapon]].y >= 50) ? 16384 : 32768;
-            rotatesprite_althudr(57, hudoffset - 15, sbarsc(i), 0, *ammo_sprites[p->curr_weapon], 0, 0, 10 + 512);
+            i = (tilesiz[ammo_sprites[p->curr_weapon]].y >= 50) ? 16384 : 32768;
+            rotatesprite_althudr(57, hudoffset - 15, sbarsc(i), 0, ammo_sprites[p->curr_weapon], 0, 0, 10 + 512);
         }
 
         if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
@@ -754,7 +761,7 @@ public:
         {
             const int32_t orient = 10 + 16 + 256;
 
-            i = ((unsigned)p->inven_icon < ICON_MAX) ? *item_icons[p->inven_icon] : -1;
+            i = ((unsigned)p->inven_icon < ICON_MAX) ? item_icons[p->inven_icon] : -1;
 
             if (i >= 0)
                 rotatesprite_althud(231 - o, hudoffset - 21 - 2, sb16, 0, i, 0, 0, orient);
@@ -802,26 +809,8 @@ public:
 
     void DrawDukeMiniBar_new(int32_t snum)
     {
-        const int32_t ss = ud.screen_size;
-        const int32_t althud = ud.althud;
-
-        const int32_t SBY = (200 - (tilesiz[BOTTOMSTATUSBAR].y >> (RR ? 1 : 0)));
-
-        const int32_t sb15 = sbarsc(32768), sb15h = sbarsc(49152);
-        const int32_t sb16 = sbarsc(65536);
-
-
+        auto p = g_player[snum].ps;
         BeginHUD(320, 200, 1.f, false);
-
-
-        DukePlayer_t* const p = g_player[snum].ps;
-        int32_t hudoffset = hud_position == 1 ? 32 : 200;
-        // Hardcoded for now
-        const int althud_numbertile = BIGALPHANUM - 10;
-        int i, j;
-
-        //            rotatesprite_fs(sbarx(5+1),sbary(200-25+1),sb15h,0,SIXPAK,0,4,10+16+1+32);
-        //            rotatesprite_fs(sbarx(5),sbary(200-25),sb15h,0,SIXPAK,0,0,10+16);
 
         DrawGraphic(TileFiles.GetTile(COLA), 2, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
 
@@ -834,32 +823,42 @@ public:
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", p->last_extra);
-            SBar_DrawString(this, &numberFont, format, 40, - BigFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER | DI_SCREEN_BOTTOM, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+            SBar_DrawString(this, &numberFont, format, 40, - BigFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+        }
+        DrawGraphic(TileFiles.GetTile(SHIELD), 62, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
+
+        auto lAmount = G_GetMorale(p->i, snum);
+        if (lAmount == -1) lAmount = p->inv_amount[GET_SHIELD];
+        format.Format("%d", lAmount);
+        SBar_DrawString(this, &numberFont, format, 105, -BigFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+
+        int wicon = ammo_sprites[p->curr_weapon];
+        if (wicon >= 0)
+        {
+            auto img = TileFiles.GetTile(wicon);
+            auto scale = img && img->GetDisplayHeight() >= 50 ? 0.25 : 0.5;
+            DrawGraphic(img, -57, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+        }
+
+        int weapon = p->curr_weapon;
+        if (weapon == HANDREMOTE_WEAPON) weapon = HANDBOMB_WEAPON;
+
+        if (p->curr_weapon != KNEE_WEAPON && (!althud_flashing || (int32_t)totalclock & 32 || p->ammo_amount[weapon] > (p->max_ammo_amount[weapon] / 10)))
+        {
+            format.Format("%d", p->ammo_amount[weapon]);
+            SBar_DrawString(this, &numberFont, format, -22, -BigFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+        }
+        unsigned icon = p->inven_icon;
+        if (icon > 0)
+        {
+            int x = 129;
+
+            if (icon < ICON_MAX)
+                DrawGraphic(TileFiles.GetTile(icon), x, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 0.75, 0.75);
         }
 
 #if 0
 
-        rotatesprite_althud(62, hudoffset - 25, sb15h, 0, SHIELD, 0, 0, 10 + 16 + 256);
-
-        {
-            int32_t lAmount = G_GetMorale(p->i, snum);
-            if (lAmount == -1)
-                lAmount = p->inv_amount[GET_SHIELD];
-            G_DrawAltDigiNum(105, -(hudoffset - 22), lAmount, -16, 10 + 16 + 256);
-        }
-
-        if (ammo_sprites[p->curr_weapon] >= 0)
-        {
-            i = (tilesiz[*ammo_sprites[p->curr_weapon]].y >= 50) ? 16384 : 32768;
-            rotatesprite_althudr(57, hudoffset - 15, sbarsc(i), 0, *ammo_sprites[p->curr_weapon], 0, 0, 10 + 512);
-        }
-
-        if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
-        else i = p->curr_weapon;
-
-        if (p->curr_weapon != KNEE_WEAPON &&
-            (!althud_flashing || (int32_t)totalclock & 32 || p->ammo_amount[i] > (p->max_ammo_amount[i] / 10)))
-            G_DrawAltDigiNum(-20, -(hudoffset - 22), p->ammo_amount[i], -16, 10 + 16 + 512);
 
         int o = 102;
 
