@@ -406,6 +406,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
 
     static int32_t skyzbufferhack_pass = 0;
+    
     if (flatskyrender && skyzbufferhack_pass == 0)
     {
         polymost_flatskyrender(dpxy, n, method|DAMETH_SKY, tilesize);
@@ -1876,6 +1877,8 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     flatskyrender = 0;
     vec2f_t xys[8];
 
+    auto f = GLInterface.useMapFog;
+    GLInterface.useMapFog = false;
     // Transform polygon to sky coordinates
     for (int i = 0; i < n; i++)
     {
@@ -2065,6 +2068,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
 	GLInterface.SetClamp(0);
 
     flatskyrender = 1;
+    GLInterface.useMapFog = f;
 }
 
 static void polymost_drawalls(int32_t const bunch)

@@ -27,6 +27,7 @@ enum PRSFlags
 	RF_NPOTEmulation = 32,
 	RF_ShadeInterpolate = 64,
 	RF_FogDisabled = 128,
+	RF_MapFog = 256,	// RRRA E2L1.
 
 	RF_HICTINT_Grayscale = 0x10000,
 	RF_HICTINT_Invert = 0x20000,

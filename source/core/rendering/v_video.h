@@ -151,7 +151,6 @@ inline bool V_IsTrueColor()
 
 
 class FTexture;
-struct FColormap;
 class FileWriter;
 enum FTextureFormat : uint32_t;
 class FModelRenderer;

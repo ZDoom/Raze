@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdlib.h"
 #include "v_2ddrawer.h"
 #include "secrets.h"
+#include "glbackend/glbackend.h"
 
 BEGIN_RR_NS
 
@@ -2518,72 +2519,7 @@ void G_FreeMapState(int levelNum)
 
 void G_SetFog(int fogtype)
 {
-    static int oldFogType = 0;
-    static int makeTables = 0;
-    static char *lut0,*lut30,*lut33,*lut23,*lut8;
-#ifdef USE_OPENGL
-    static palette_t flut0,flut30,flut33,flut23,flut8;
-#endif
-    if (!makeTables)
-    {
-        makeTables = 1;
-        lut0 = palookup[0];
-        lut30 = palookup[30];
-        lut33 = palookup[33];
-        lut23 = palookup[23];
-        lut8 = palookup[8];
-#ifdef USE_OPENGL
-        flut0 = palookupfog[0];
-        flut30 = palookupfog[30];
-        flut33 = palookupfog[33];
-        flut23 = palookupfog[23];
-        flut8 = palookupfog[8];
-#endif
-        paletteMakeLookupTable(50, NULL, 12*4, 12*4, 12*4, 0);
-        paletteMakeLookupTable(51, NULL, 12*4, 12*4, 12*4, 0);
-    }
-    if (fogtype == 0)
-    {
-        palookup[0] = lut0;
-        palookup[30] = lut30;
-        palookup[33] = lut33;
-        palookup[23] = lut23;
-        palookup[8] = lut8;
-#ifdef USE_OPENGL
-        palookupfog[0] = flut0;
-        palookupfog[30] = flut30;
-        palookupfog[33] = flut33;
-        palookupfog[23] = flut23;
-        palookupfog[8] = flut8;
-#endif
-    }
-    else if (fogtype == 2)
-    {
-        palookup[0] = palookup[50];
-        palookup[30] = palookup[51];
-        palookup[33] = palookup[51];
-        palookup[23] = palookup[51];
-        palookup[8] = palookup[54];
-#ifdef USE_OPENGL
-        palookupfog[0] = palookupfog[50];
-        palookupfog[30] = palookupfog[51];
-        palookupfog[33] = palookupfog[51];
-        palookupfog[23] = palookupfog[51];
-        palookupfog[8] = palookupfog[54];
-#endif
-    }
-    if (oldFogType != fogtype)
-    {
-        oldFogType = fogtype;
-#ifdef USE_OPENGL
-        if (videoGetRenderMode() >= REND_POLYMOST)
-        {
-            //gltexinvalidatetype(INVALIDATE_ALL_NON_INDEXED);
-			static int swaps[] = { 0, 30, 33, 23, 8 };
-            uploadpalswaps(5, swaps);
-        }
-#endif
-    }
+    GLInterface.SetMapFog(fogtype != 0);
 }
 
 END_RR_NS

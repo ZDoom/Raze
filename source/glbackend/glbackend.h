@@ -480,7 +480,26 @@ public:
 		else renderState.Flags &= ~RF_FogDisabled;
 	}
 
-	void SetBrightness(int brightness) 
+	// Hack...
+	bool useMapFog = false;
+
+	void SetMapFog(bool yes)
+	{
+		useMapFog = yes;
+	}
+
+	void applyMapFog()
+	{
+		if (useMapFog) renderState.Flags |= RF_MapFog;
+		else renderState.Flags &= ~RF_MapFog;
+	}
+
+	void clearMapFog()
+	{
+		renderState.Flags &= ~RF_MapFog;
+	}
+
+	void SetBrightness(int brightness)
 	{
 		renderState.Brightness = 8.f / (brightness + 8.f);
 	}

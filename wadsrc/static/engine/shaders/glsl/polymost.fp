@@ -8,6 +8,7 @@ const int RF_Brightmapping = 16;
 const int RF_NPOTEmulation = 32;
 const int RF_ShadeInterpolate = 64;
 const int RF_FogDisabled = 128;
+const int RF_MapFog = 256;
 
 const int RF_HICTINT_Grayscale = 0x1;
 const int RF_HICTINT_Invert = 0x2;
@@ -217,8 +218,13 @@ void main()
 					lightcolor = clamp(lightcolor + texture(s_brightmap, v_texCoord.xy).rgb, 0.0, 1.0);
 				}
 				color.rgb *= lightcolor;
-				color.rgb += u_fogColor.rgb * shade;
+				if ((u_flags & RF_MapFog) == 0) color.rgb += u_fogColor.rgb * shade;
 			}
+		}
+		if ((u_flags & RF_MapFog) != 0) // fog hack for RRRA E2L1. Needs to be done better, this is gross, but still preferable to the broken original implementation.
+		{
+			float fogfactor = 0.55 + 0.3 * exp2 (-5.0*v_fogCoord); 		
+			color.rgb = vec3(0.6*(1.0-fogfactor)) + color.rgb * fogfactor;// mix(vec3(0.6), color.rgb, fogfactor);
 		}
 		if (color.a < u_alphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
 		

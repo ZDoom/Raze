@@ -1322,30 +1322,6 @@ static int get_screen_coords(const vec2_t &p1, const vec2_t &p2,
     return 1;
 }
 
-
-
-////////// *WALLSCAN HELPERS //////////
-
-#define WSHELPER_DECL inline //ATTRIBUTE((always_inline))
-
-static WSHELPER_DECL void tweak_tsizes(vec2_16_t *tsiz)
-{
-    if (pow2long[picsiz[globalpicnum]&15] == tsiz->x)
-        tsiz->x--;
-    else
-        tsiz->x = -tsiz->x;
-
-    if (pow2long[picsiz[globalpicnum]>>4] == tsiz->y)
-        tsiz->y = (picsiz[globalpicnum]>>4);
-    else
-        tsiz->y = -tsiz->y;
-}
-
-
-static int32_t drawing_sprite = 0;
-
-
-
 //
 // wallfront (internal)
 //
@@ -1471,31 +1447,6 @@ static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
     mostbuf[ix1] = clamp(mostbuf[ix1], 0, ydimen);
     mostbuf[ix2] = clamp(mostbuf[ix2], 0, ydimen);
 }
-
-#ifdef CLASSIC_Z_DIFF_64
-typedef int64_t zint_t;
-
-// For drawvox()
-static FORCE_INLINE zint_t mulscale16z(int32_t a, int32_t d)
-{
-    return ((zint_t)a * d)>>16;
-}
-
-static FORCE_INLINE zint_t mulscale20z(int32_t a, int32_t d)
-{
-    return ((zint_t)a * d)>>20;
-}
-
-static FORCE_INLINE zint_t dmulscale24z(int32_t a, int32_t d, int32_t S, int32_t D)
-{
-    return (((zint_t)a * d) + ((zint_t)S * D)) >> 24;
-}
-#else
-typedef int32_t zint_t;
-# define mulscale16z mulscale16
-# define mulscale20z mulscale20
-# define dmulscale24z dmulscale24
-#endif
 
 // globalpicnum --> globalxshift, globalyshift
 static void calc_globalshifts(void)
