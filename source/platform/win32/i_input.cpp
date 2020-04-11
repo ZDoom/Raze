@@ -576,7 +576,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 #ifdef _DEBUG
 			char foo[256];
-			snprintf (foo, countof(foo), "Session Change: %ld %d\n", (long)lParam, (int)wParam);
+			mysnprintf (foo, countof(foo), "Session Change: %ld %d\n", (long)lParam, (int)wParam);
 			OutputDebugStringA (foo);
 #endif
 		}

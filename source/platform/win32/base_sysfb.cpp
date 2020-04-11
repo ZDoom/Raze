@@ -37,7 +37,6 @@
 #include <GL/gl.h>
 #include "wglext.h"
 
-#include "palentry.h"
 #include "gl_sysfb.h"
 #include "hardware.h"
 #include "templates.h"

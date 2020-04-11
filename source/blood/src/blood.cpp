@@ -360,24 +360,10 @@ void PreloadTiles(void)
     gameHandleEvents();
 }
 
-static void PrecacheSounds(void)
-{
-	for (unsigned int i = 0; i < fileSystem.GetNumEntries(); i++)
-	{
-		DICTNODE* pNode = fileSystem.GetFileAt(i);
-		if (pNode->ResType() == NAME_RAW || pNode->ResType() == NAME_SFX)
-		{
-			pNode->Get();
-			//if ((i&15) == 15) gameHandleEvents();	// don't do this too often. That made sense in 1996 but not in 2019
-		}
-	}
-}
-
 void PreloadCache(void)
 {
     if (gDemo.at1)
         return;
-    PrecacheSounds();
     PreloadTiles();
     ClockTicks clock = totalclock;
     int cnt = 0;

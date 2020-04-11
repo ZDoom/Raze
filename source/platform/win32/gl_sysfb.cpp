@@ -47,7 +47,7 @@
 #include "i_system.h"
 #include "v_text.h"
 #include "m_argv.h"
-#include "printf.h"
+#include "engineerrors.h"
 #include "win32glvideo.h"
 
 extern HWND			Window;
