@@ -91,6 +91,7 @@ void I_SetWindowTitle(const char* caption);
 void InitENet();
 void ShutdownENet();
 bool AppActive;
+int chatmodeon;	// needed by the common console code.
 
 FString currentGame;
 FString LumpFilter;

@@ -4993,7 +4993,7 @@ repeatcase:
 
             scriptSkipSpaces();
 
-            if (EDUKE32_PREDICT_FALSE((unsigned)j > NUMGAMEFUNCTIONS-1))
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > NUM_ACTIONS-1))
             {
                 Printf("%s:%d: error: function number exceeds number of game functions.\n",
                     g_scriptFileName,g_lineNumber);
@@ -5029,7 +5029,7 @@ repeatcase:
             g_scriptPtr--;
             j = *g_scriptPtr;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned)j > NUMGAMEFUNCTIONS-1))
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > NUM_ACTIONS -1))
             {
                 Printf("%s:%d: error: function number exceeds number of game functions.\n",
                     g_scriptFileName,g_lineNumber);

@@ -50,8 +50,6 @@
 #include "c_cvars.h"
 #include "c_buttons.h"
 #include "findfile.h"
-// Todo: Get rid of
-#include "inputstate.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -173,7 +171,6 @@ FString StoredWarp;
 
 FConsoleCommand* Commands[FConsoleCommand::HASH_SIZE];
 
-CVAR (Bool, lookspring, true, CVAR_ARCHIVE);	// Generate centerview when -mlook encountered?
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
@@ -239,22 +236,18 @@ void C_DoCommand (const char *cmd, int keynum)
 	// Check if this is an action
 	if (*beg == '+' || *beg == '-')
 	{
-		auto button = buttonMap.FindButton(beg + 1);
-		if (button)
+		auto button = buttonMap.FindButton(beg + 1, int(end - beg - 1));
+		if (button != nullptr)
 		{
 			if (*beg == '+')
 			{
 				button->PressKey (keynum);
+				if (button->PressHandler) button->PressHandler();
 			}
 			else
 			{
 				button->ReleaseKey (keynum);
-				/*
-				if (button == &Button_Mlook && lookspring)
-				{
-					Net_WriteByte (DEM_CENTERVIEW);
-				}
-				*/
+				if (button->ReleaseHandler) button->ReleaseHandler();
 			}
 			return;
 		}
@@ -462,29 +455,9 @@ FConsoleCommand* FConsoleCommand::FindByName (const char* name)
 	return FindNameInHashTable (Commands, name, strlen (name));
 }
 
-const char* StaticGetButtonName(int32_t func);
-
 FConsoleCommand::FConsoleCommand (const char *name, CCmdRun runFunc)
 	: m_RunFunc (runFunc)
 {
-	static bool firstTime = true;
-
-	if (firstTime)
-	{
-		unsigned int i;
-
-		firstTime = false;
-
-		// Add all the action commands for tab completion
-		for (i = 0; i < buttonMap.NumButtons(); i++)
-		{
-			FString tname = "+"; tname << StaticGetButtonName(i);
-			C_AddTabCommand (tname);
-			tname.Substitute('+', '-');
-			C_AddTabCommand (tname);
-		}
-	}
-
 	int ag = strcmp (name, "kill");
 	if (ag == 0)
 		ag=0;

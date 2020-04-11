@@ -1796,6 +1796,63 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
     }
 }
 
+static const char* actions[] =
+{
+    "Move_Forward",
+    "Move_Backward",
+    "Turn_Left",
+    "Turn_Right",
+    "Strafe",
+    "Fire",
+    "Open",
+    "Run",
+    "Alt_Fire",	// Duke3D", Blood
+    "Jump",
+    "Crouch",
+    "Look_Up",
+    "Look_Down",
+    "Look_Left",
+    "Look_Right",
+    "Strafe_Left",
+    "Strafe_Right",
+    "Aim_Up",
+    "Aim_Down",
+    "Weapon_1",
+    "Weapon_2",
+    "Weapon_3",
+    "Weapon_4",
+    "Weapon_5",
+    "Weapon_6",
+    "Weapon_7",
+    "Weapon_8",
+    "Weapon_9",
+    "Weapon_10",
+    "Inventory",
+    "Inventory_Left",
+    "Inventory_Right",
+    "TurnAround",
+    "SendMessage",
+    "Map",
+    "Shrink_Screen",
+    "Enlarge_Screen",
+    "Center_View",
+    "Holster_Weapon",
+    "Show_Opponents_Weapon",
+    "Map_Follow_Mode",
+    "See_Coop_View",
+    "Mouse_Aiming",
+    "Toggle_Crosshair",
+    "Next_Weapon",
+    "Previous_Weapon",
+    "Dpad_Select",
+    "Dpad_Aiming",
+    "Last_Weapon",
+    "Alt_Weapon",
+    "Third_Person_View",
+    "Toggle_Crouch",	// This is the last one used by EDuke32.
+    "Zoom_In",	// Map controls should not pollute the global button namespace.
+    "Zoom_Out",
+};
 
 int GameInterface::app_main()
 {
@@ -1805,6 +1862,8 @@ int GameInterface::app_main()
     int doTitle = kTrue; // REVERT kTrue;
     int stopTitle = kFalse;
     levelnew = 1;
+
+    buttonMap.SetButtons(actions, NUM_ACTIONS);
 
     help_disabled = true;
     // Create the global level table. Parts of the engine need it, even though the game itself does not.

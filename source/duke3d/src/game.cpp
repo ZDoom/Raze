@@ -5573,8 +5573,70 @@ EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
 void app_loop();
 
+static const char* actions[] = {
+    "Move_Forward",
+    "Move_Backward",
+    "Turn_Left",
+    "Turn_Right",
+    "Strafe",
+    "Fire",
+    "Open",
+    "Run",
+    "Alt_Fire",	// Duke3D", Blood
+    "Jump",
+    "Crouch",
+    "Look_Up",
+    "Look_Down",
+    "Look_Left",
+    "Look_Right",
+    "Strafe_Left",
+    "Strafe_Right",
+    "Aim_Up",
+    "Aim_Down",
+    "Weapon_1",
+    "Weapon_2",
+    "Weapon_3",
+    "Weapon_4",
+    "Weapon_5",
+    "Weapon_6",
+    "Weapon_7",
+    "Weapon_8",
+    "Weapon_9",
+    "Weapon_10",
+    "Inventory",
+    "Inventory_Left",
+    "Inventory_Right",
+    "Holo_Duke",			// Duke3D", RR
+    "Jetpack",
+    "NightVision",
+    "MedKit",
+    "TurnAround",
+    "SendMessage",
+    "Map",
+    "Shrink_Screen",
+    "Enlarge_Screen",
+    "Center_View",
+    "Holster_Weapon",
+    "Show_Opponents_Weapon",
+    "Map_Follow_Mode",
+    "See_Coop_View",
+    "Mouse_Aiming",
+    "Toggle_Crosshair",
+    "Steroids",
+    "Quick_Kick",
+    "Next_Weapon",
+    "Previous_Weapon",
+    "Dpad_Select",
+    "Dpad_Aiming",
+    "Last_Weapon",
+    "Alt_Weapon",
+    "Third_Person_View",
+    "Show_DukeMatch_Scores",
+    "Toggle_Crouch",	// This is the last one used by EDuke32.
+};
 int GameInterface::app_main()
 {
+    buttonMap.SetButtons(actions, NUM_ACTIONS);
     g_skillCnt = 4;
     ud.multimode = 1;
 	ud.m_monsters_off = userConfig.nomonsters;

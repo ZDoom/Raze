@@ -502,7 +502,7 @@ DemoPlayBack(void)
             }
         }
 
-        if (buttonMap.ButtonDown(gamefunc_See_Co_Op_View))
+        if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
         {
             screenpeek += 1;
             if (screenpeek > numplayers-1)

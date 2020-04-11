@@ -2672,6 +2672,68 @@ void CommandLineHelp(char const * const * argv)
 {
 }
 
+static const char* actions[] = {
+    "Move_Forward",
+    "Move_Backward",
+    "Turn_Left",
+    "Turn_Right",
+    "Strafe",
+    "Fire",
+    "Open",
+    "Run",
+    "Alt_Fire",	// Duke3D", Blood
+    "Jump",
+    "Crouch",
+    "Look_Up",
+    "Look_Down",
+    "Look_Left",
+    "Look_Right",
+    "Strafe_Left",
+    "Strafe_Right",
+    "Aim_Up",
+    "Aim_Down",
+    "Weapon_1",
+    "Weapon_2",
+    "Weapon_3",
+    "Weapon_4",
+    "Weapon_5",
+    "Weapon_6",
+    "Weapon_7",
+    "Weapon_8",
+    "Weapon_9",
+    "Weapon_10",
+    "Inventory",
+    "Inventory_Left",
+    "Inventory_Right",
+    "NightVision",
+    "MedKit",
+    "TurnAround",
+    "SendMessage",
+    "Map",
+    "Shrink_Screen",
+    "Enlarge_Screen",
+    "Center_View",
+    "Holster_Weapon",
+    "Show_Opponents_Weapon",
+    "Map_Follow_Mode",
+    "See_Coop_View",
+    "Mouse_Aiming",
+    "Toggle_Crosshair",
+    "Next_Weapon",
+    "Previous_Weapon",
+    "Dpad_Select",
+    "Dpad_Aiming",
+    "Last_Weapon",
+    "Alt_Weapon",
+    "Third_Person_View",
+    "Toggle_Crouch",	// This is the last one used by EDuke32"",
+    "Smoke_Bomb",
+    "Gas_Bomb",
+    "Flash_Bomb",
+    "Caltrops",
+
+};
+
 int32_t GameInterface::app_main()
 {
     int i;
@@ -2680,6 +2742,7 @@ int32_t GameInterface::app_main()
     void gameinput(void);
     int cnt = 0;
 
+    buttonMap.SetButtons(actions, NUM_ACTIONS);
     automapping = 1;
     BorderAdjust = true;
     SW_ExtInit();
@@ -3584,11 +3647,11 @@ void getinput(int const playerNum)
 
 
     inv_hotkey = 0;
-    if (buttonMap.ButtonDown(gamefunc_Med_Kit))
+    if (buttonMap.ButtonDown(gamefunc_MedKit))
         inv_hotkey = INVENTORY_MEDKIT+1;
     if (buttonMap.ButtonDown(gamefunc_Smoke_Bomb))
         inv_hotkey = INVENTORY_CLOAK+1;
-    if (buttonMap.ButtonDown(gamefunc_Night_Vision))
+    if (buttonMap.ButtonDown(gamefunc_NightVision))
         inv_hotkey = INVENTORY_NIGHT_VISION+1;
     if (buttonMap.ButtonDown(gamefunc_Gas_Bomb))
         inv_hotkey = INVENTORY_CHEMBOMB+1;
@@ -3617,9 +3680,9 @@ void getinput(int const playerNum)
 
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
     {
-        if (buttonMap.ButtonDown(gamefunc_See_Co_Op_View))
+        if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
         {
-            buttonMap.ClearButton(gamefunc_See_Co_Op_View);
+            buttonMap.ClearButton(gamefunc_See_Coop_View);
 
             screenpeek = connectpoint2[screenpeek];
 

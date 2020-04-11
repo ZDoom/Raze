@@ -708,9 +708,9 @@ void LocalKeys(void)
     bool alt = inputState.AltPressed();
     bool ctrl = inputState.CtrlPressed();
     bool shift = inputState.ShiftPressed();
-    if (buttonMap.ButtonDown(gamefunc_See_Chase_View) && !alt && !shift)
+    if (buttonMap.ButtonDown(gamefunc_Third_Person_View) && !alt && !shift)
     {
-        buttonMap.ClearButton(gamefunc_See_Chase_View);
+        buttonMap.ClearButton(gamefunc_Third_Person_View);
         if (gViewPos > VIEWPOS_0)
             gViewPos = VIEWPOS_0;
         else
@@ -755,7 +755,7 @@ void LocalKeys(void)
                 gPlayerMsg.Set(*CombatMacros[fk]);
                 gPlayerMsg.Send();
             }
-            buttonMap.ClearButton(gamefunc_See_Chase_View);
+            buttonMap.ClearButton(gamefunc_Third_Person_View);
             return;
         }
 #if 0
@@ -1035,8 +1035,68 @@ void ClockStrobe()
 
 void ReadAllRFS();
 
+static const char* actions[] = {
+    "Move_Forward",
+    "Move_Backward",
+    "Turn_Left",
+    "Turn_Right",
+    "Strafe",
+    "Fire",
+    "Open",
+    "Run",
+    "Alt_Fire",	// Duke3D", Blood
+    "Jump",
+    "Crouch",
+    "Look_Up",
+    "Look_Down",
+    "Look_Left",
+    "Look_Right",
+    "Strafe_Left",
+    "Strafe_Right",
+    "Aim_Up",
+    "Aim_Down",
+    "Weapon_1",
+    "Weapon_2",
+    "Weapon_3",
+    "Weapon_4",
+    "Weapon_5",
+    "Weapon_6",
+    "Weapon_7",
+    "Weapon_8",
+    "Weapon_9",
+    "Weapon_10",
+    "Inventory",
+    "Inventory_Left",
+    "Inventory_Right",
+    "Nightvision",
+    "MedKit",
+    "TurnAround",
+    "SendMessage",
+    "Map",
+    "Shrink_Screen",
+    "Enlarge_Screen",
+    "Center_View",
+    "Holster_Weapon",
+    "Show_Opponents_Weapon",
+    "Map_Follow_Mode",
+    "See_Coop_View",
+    "Mouse_Aiming",
+    "Toggle_Crosshair",
+    "Next_Weapon",
+    "Previous_Weapon",
+    "Dpad_Select",
+    "Dpad_Aiming",
+    "Third_Person_View",
+    "Toggle_Crouch",
+    "CrystalBall",
+    "ProximityBombs",
+    "RemoteBombs",
+    "Jetpack"
+};
+
 int GameInterface::app_main()
 {
+    buttonMap.SetButtons(actions, NUM_ACTIONS);
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = !userConfig.nomonsters;
 	bQuickStart = userConfig.nologo;

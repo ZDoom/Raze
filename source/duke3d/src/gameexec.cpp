@@ -3722,7 +3722,7 @@ badindex:
                     int const gameFunc   = Gv_GetVar(*insptr++);
                     int funcPos    = Gv_GetVar(*insptr++);
 					VM_ASSERT((unsigned)quoteIndex < MAXQUOTES, "invalid quote %d\n", quoteIndex);
-					VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
+					VM_ASSERT((unsigned)gameFunc < NUM_ACTIONS, "invalid function %d\n", gameFunc);
 
 					auto bindings = Bindings.GetKeysForCommand(C_CON_GetButtonFunc(gameFunc));
 					if ((unsigned)funcPos >= bindings.Size()) funcPos = 0;
@@ -3737,7 +3737,7 @@ badindex:
                     int const gameFunc   = Gv_GetVar(*insptr++);
 
                     VM_ASSERT((unsigned)quoteIndex < MAXQUOTES, "invalid quote %d\n", quoteIndex);
-                    VM_ASSERT((unsigned)gameFunc < NUMGAMEFUNCTIONS, "invalid function %d\n", gameFunc);
+                    VM_ASSERT((unsigned)gameFunc < NUM_ACTIONS, "invalid function %d\n", gameFunc);
 
 					auto binding = C_CON_GetBoundKeyForLastInput(gameFunc);
 					if (binding.Len()) quoteMgr.FormatQuote(quoteIndex, "(%s)", binding.GetChars());

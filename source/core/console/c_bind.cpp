@@ -49,7 +49,7 @@
 
 #include "d_event.h"
 
-
+extern int chatmodeon;
 
 const char *KeyNames[NUM_KEYS] =
 {
@@ -823,7 +823,7 @@ bool C_DoKey (event_t *ev, FKeyBindings *binds, FKeyBindings *doublebinds)
 		return false;
 	}
 
-	if (!binding.IsEmpty())// && (chatmodeon == 0 || ev->data1 < 256))
+	if (!binding.IsEmpty() && (chatmodeon == 0 || ev->data1 < 256))
 	{
 		char *copy = binding.LockBuffer();
 

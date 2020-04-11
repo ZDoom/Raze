@@ -112,9 +112,9 @@ void ctrlGetInput(void)
     if (gQuitRequest)
         gInput.keyFlags.quit = 1;
 
-    if (buttonMap.ButtonDown(gamefunc_Map_Toggle))
+    if (buttonMap.ButtonDown(gamefunc_Map))
     {
-        buttonMap.ClearButton(gamefunc_Map_Toggle);
+        buttonMap.ClearButton(gamefunc_Map);
         viewToggle(gViewMode);
     }
 
@@ -226,9 +226,9 @@ void ctrlGetInput(void)
         gInput.keyFlags.nextItem = 1;
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Inventory_Use))
+    if (buttonMap.ButtonDown(gamefunc_Inventory))
     {
-        buttonMap.ClearButton(gamefunc_Inventory_Use);
+        buttonMap.ClearButton(gamefunc_Inventory);
         gInput.keyFlags.useItem = 1;
     }
 

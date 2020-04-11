@@ -49,6 +49,69 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+enum GameFunction_t
+{
+    gamefunc_Move_Forward,
+    gamefunc_Move_Backward,
+    gamefunc_Turn_Left,
+    gamefunc_Turn_Right,
+    gamefunc_Strafe,
+    gamefunc_Fire,
+    gamefunc_Open,
+    gamefunc_Run,
+    gamefunc_Alt_Fire,	// Duke3D, Blood
+    gamefunc_Jump,
+    gamefunc_Crouch,
+    gamefunc_Look_Up,
+    gamefunc_Look_Down,
+    gamefunc_Look_Left,
+    gamefunc_Look_Right,
+    gamefunc_Strafe_Left,
+    gamefunc_Strafe_Right,
+    gamefunc_Aim_Up,
+    gamefunc_Aim_Down,
+    gamefunc_Weapon_1,
+    gamefunc_Weapon_2,
+    gamefunc_Weapon_3,
+    gamefunc_Weapon_4,
+    gamefunc_Weapon_5,
+    gamefunc_Weapon_6,
+    gamefunc_Weapon_7,
+    gamefunc_Weapon_8,
+    gamefunc_Weapon_9,
+    gamefunc_Weapon_10,
+    gamefunc_Inventory,
+    gamefunc_Inventory_Left,
+    gamefunc_Inventory_Right,
+    gamefunc_NightVision,
+    gamefunc_MedKit,
+    gamefunc_TurnAround,
+    gamefunc_SendMessage,
+    gamefunc_Map,
+    gamefunc_Shrink_Screen,
+    gamefunc_Enlarge_Screen,
+    gamefunc_Center_View,
+    gamefunc_Holster_Weapon,
+    gamefunc_Show_Opponents_Weapon,
+    gamefunc_Map_Follow_Mode,
+    gamefunc_See_Coop_View,
+    gamefunc_Mouse_Aiming,
+    gamefunc_Toggle_Crosshair,
+    gamefunc_Next_Weapon,
+    gamefunc_Previous_Weapon,
+    gamefunc_Dpad_Select,
+    gamefunc_Dpad_Aiming,
+    gamefunc_Last_Weapon,
+    gamefunc_Alt_Weapon,
+    gamefunc_Third_Person_View,
+    gamefunc_Toggle_Crouch,	// This is the last one used by EDuke32.
+    gamefunc_Smoke_Bomb,			// and these by ShadowWarrior (todo: There's quite a bit of potential for consolidation here - is it worth it?)
+    gamefunc_Gas_Bomb,
+    gamefunc_Flash_Bomb,
+    gamefunc_Caltrops,
+    NUM_ACTIONS
+};
+
 //#define SW_SHAREWARE 1     // This determines whether game is shareware compile or not!
 extern char isShareware;
 #define SW_SHAREWARE (isShareware)

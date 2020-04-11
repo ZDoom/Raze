@@ -48,7 +48,7 @@ CCheatMgr gCheatMgr;
 
 void sub_5A928(void)
 {
-    for (int i = 0; i < NUMGAMEFUNCTIONS-1; i++)
+    for (int i = 0; i < buttonMap.NumButtons(); i++)
         buttonMap.ClearButton(i);
 }
 
