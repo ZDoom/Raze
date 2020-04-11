@@ -717,6 +717,7 @@ set (PCH_SOURCES
 
 	common/thirdparty/sfmt/SFMT.cpp
 	common/textures/bitmap.cpp
+	common/textures/m_png.cpp
 	common/console/c_commandline.cpp
 	common/console/c_buttons.cpp
 	common/console/c_bind.cpp
@@ -758,7 +759,6 @@ set (PCH_SOURCES
 	#common/engine/palettecontainer.cpp // not yet operational.
 	common/engine/stringtable.cpp
 
-	core/utility/m_png.cpp
 	core/utility/stats.cpp
 	
 	core/textures/buildtiles.cpp
