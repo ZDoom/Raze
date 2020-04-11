@@ -3019,7 +3019,7 @@ void getinput(int const playerNum)
 #define MAXANGVEL    1024
 #define MAXHORIZVEL  256
 #define HORIZ_SPEED  (16)
-#define TURN_SHIFT   2
+#define TURN_SHIFT   4
 #define SET_LOC_KEY(bits, sync_num, key_test) SET(bits, ((!!(key_test)) << (sync_num)))
 
     static int32_t turnheldtime;
@@ -3295,17 +3295,17 @@ void getinput(int const playerNum)
         {
             if (FLAG_KEY_PRESSED(pp, SK_TURN_180))
             {
-                short delta_ang;
+                fix16_t delta_q16ang;
 
                 FLAG_KEY_RELEASE(pp, SK_TURN_180);
 
-                pp->turn180_target = NORM_ANGLE(fix16_to_int(pp->q16ang) + 1024);
+                pp->turn180_target = fix16_sadd(pp->q16ang, fix16_from_int(1024)) & 0x7FFFFFF;
 
                 // make the first turn in the clockwise direction
                 // the rest will follow
-                delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
+                delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
 
-                pp->q16ang = fix16_sadd(pp->q16ang, fix16_from_float(scaleAdjustmentToInterval(labs(delta_ang) >> TURN_SHIFT))) & 0x7FFFFFF;
+                pp->q16ang = fix16_sadd(pp->q16ang, fix16_max(fix16_one,fix16_from_float(scaleAdjustmentToInterval(fix16_to_int(fix16_sdiv(fix16_abs(delta_q16ang), fix16_from_int(TURN_SHIFT))))))) & 0x7FFFFFF;
 
                 SET(pp->Flags, PF_TURN_180);
             }
@@ -3318,10 +3318,10 @@ void getinput(int const playerNum)
 
     if (TEST(pp->Flags, PF_TURN_180))
     {
-        short delta_ang;
+        fix16_t delta_q16ang;
 
-        delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
-        pp->q16ang = fix16_sadd(pp->q16ang, fix16_from_float(scaleAdjustmentToInterval(delta_ang >> TURN_SHIFT))) & 0x7FFFFFF;
+        delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
+        pp->q16ang = fix16_sadd(pp->q16ang, fix16_from_float(scaleAdjustmentToInterval(fix16_to_int(fix16_sdiv(fix16_abs(delta_q16ang), fix16_from_int(TURN_SHIFT)))))) & 0x7FFFFFF;
 
         sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
         if (!Prediction)
@@ -3331,11 +3331,11 @@ void getinput(int const playerNum)
         }
 
         // get new delta to see how close we are
-        delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(pp->q16ang));
+        delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
 
-        if (labs(delta_ang) < (3<<TURN_SHIFT))
+        if (fix16_abs(delta_q16ang) < fix16_from_int(3 * TURN_SHIFT))
         {
-            pp->q16ang = fix16_from_int(pp->turn180_target);
+            pp->q16ang = pp->turn180_target;
             RESET(pp->Flags, PF_TURN_180);
         }
         else
@@ -3344,7 +3344,7 @@ void getinput(int const playerNum)
 
     if (input.q16avel != 0)
     {
-       pp->q16ang   = fix16_sadd(pp->q16ang, input.q16avel) & 0x7FFFFFF;
+       pp->q16ang = fix16_sadd(pp->q16ang, input.q16avel) & 0x7FFFFFF;
 
         // update players sprite angle
         // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
