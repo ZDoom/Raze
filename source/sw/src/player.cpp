@@ -1572,7 +1572,9 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel)
                 if (PEDANTIC_MODE)
                     *pq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(*pq16ang) + (labs(delta_ang) >> TURN_SHIFT)));
                 else
-                    *pq16ang = NORM_Q16ANGLE(fix16_sadd(*pq16ang, fix16_from_float(scaleAdjustmentToInterval(labs(delta_ang) >> TURN_SHIFT))));
+                    // Add at least 1 unit to ensure the turn direction is clockwise
+                    *pq16ang = NORM_Q16ANGLE(fix16_sadd(*pq16ang,
+                                                        fix16_max(fix16_one,fix16_from_float(scaleAdjustmentToInterval(labs(delta_ang) >> TURN_SHIFT)))));
 
                 SET(pp->Flags, PF_TURN_180);
             }
