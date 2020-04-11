@@ -33,9 +33,7 @@
 */
 
 #include "bitmap.h"
-
-
-//#include "colormaps.h"	// todo: Move the special colormaps out of the game specicic code
+#include "palutil.h"
 
 uint8_t IcePalette[16][3] =
 {
@@ -115,7 +113,6 @@ void iCopyColors(uint8_t *pout, const uint8_t *pin, int count, int step, FCopyIn
 
 		if (inf->blend >= BLEND_SPECIALCOLORMAP1)
 		{
-#if 0
 			FSpecialColormap *cm = &SpecialColormaps[inf->blend - BLEND_SPECIALCOLORMAP1];
 			for(i=0;i<count;i++)
 			{
@@ -133,7 +130,6 @@ void iCopyColors(uint8_t *pout, const uint8_t *pin, int count, int step, FCopyIn
 				pout+=4;
 				pin+=step;
 			}
-#endif
 		}
 		else if (inf->blend >= BLEND_DESATURATE1 && inf->blend<=BLEND_DESATURATE31)
 		{
