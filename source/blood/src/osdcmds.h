@@ -25,6 +25,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 int32_t registerosdcommands(void);
-void onvideomodechange(int32_t newmode);
 
 END_BLD_NS

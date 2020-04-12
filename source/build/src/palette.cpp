@@ -15,9 +15,12 @@
 #include "palette.h"
 #include "superfasthash.h"
 #include "common.h"
+#include "memarena.h"
+#include "palettecontainer.h"
 #include "../../glbackend/glbackend.h"
 
-uint8_t *basepaltable[MAXBASEPALS] = { palette };
+FMemArena lookuparena;
+
 uint8_t basepalreset=1;
 uint8_t curbasepal;
 int32_t globalblend;
@@ -50,14 +53,12 @@ int DetermineTranslucency(const uint8_t *table)
 	PalEntry newcolor;
 	PalEntry newcolor2;
 
-	index = table[blackcol * 256 + whitecol];
-	auto pp = &basepaltable[0][index];
-	newcolor = PalEntry(pp[0], pp[1], pp[2]);
+	index = table[GPalette.BlackIndex * 256 + GPalette.WhiteIndex];
+    newcolor = GPalette.BaseColors[index];
 
-	index = table[whitecol * 256 + blackcol];
-	pp = &basepaltable[0][index];
-	newcolor2 = PalEntry(pp[0], pp[1], pp[2]);
-	if (newcolor2.r == 255)	// if black on white results in white it's either
+	index = table[GPalette.WhiteIndex * 256 + GPalette.BlackIndex];
+    newcolor2 = GPalette.BaseColors[index];
+    if (newcolor2.r == 255)	// if black on white results in white it's either
 							// fully transparent or additive
 	{
 		return -newcolor.r;
@@ -65,6 +66,29 @@ int DetermineTranslucency(const uint8_t *table)
 
 	return newcolor.r;
 }
+
+void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency)
+{
+    if (id == 0)
+    {
+        GPalette.SetPalette(table, 255);
+    }
+    FRemapTable remap;
+    remap.AddColors(0, 256, table);
+    if (!notransparency)
+    {
+        remap.Palette[255] = 0;
+        remap.Remap[255] = 255;
+    }
+    GPalette.UpdateTranslation(TRANSLATION(Translation_BasePalettes, id), &remap);
+
+    // Todo: remove this once the texture code can use GPalette directly
+#ifdef USE_OPENGL
+    uploadbasepalette(id);
+#endif
+}
+
+
 
 void fullscreen_tint_gl(PalEntry pe);
 
@@ -91,6 +115,7 @@ inline bool read_and_test(FileReader& handle, void* buffer, int32_t leng)
 //
 void paletteLoadFromDisk(void)
 {
+    GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
 
 #ifdef USE_OPENGL
     for (auto & x : glblend)
@@ -116,6 +141,7 @@ void paletteLoadFromDisk(void)
     for (unsigned char & k : palette)
         k <<= 2;
 
+    paletteSetColorTable(0, palette);
     paletteloaded |= PALETTE_MAIN;
 
 
@@ -255,6 +281,7 @@ void palettePostLoadTables(void)
             if (EDUKE32_PREDICT_FALSE(palookup0[s] != index))
                 goto PostLoad_NotFullbright;
 
+        Printf("%d is fullbright\n", c);
         SetPaletteIndexFullbright(c);
 
         PostLoad_NotFullbright: ;
@@ -565,39 +592,6 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
 }
 
 //
-// setbasepal
-//
-void paletteSetColorTable(int32_t id, uint8_t const * const table, bool transient)
-{
-    if (basepaltable[id] == NULL)
-        basepaltable[id] = (uint8_t *) Xmalloc(768);
-
-    Bmemcpy(basepaltable[id], table, 768);
-
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        uploadbasepalette(id);
-    }
-#endif
-}
-
-void paletteFreeColorTable(int32_t const id)
-{
-    if (id == 0)
-        Bmemset(basepaltable[id], 0, 768);
-    else
-        DO_FREE_AND_NULL(basepaltable[id]);
-}
-
-void paletteFreeColorTables()
-{
-    for (int i = 0; i < countof(basepaltable); i++)
-    {
-        paletteFreeColorTable(i);
-    }
-}
-//
 // setbrightness
 //
 // flags:
@@ -609,12 +603,10 @@ void paletteFreeColorTables()
 // 32: apply brightness to scene in OpenGL
 void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
 {
-	if (/*(unsigned)dapalid >= MAXBASEPALS ||*/ basepaltable[dapalid] == NULL)
+	if (GPalette.GetTranslation(Translation_BasePalettes, dapalid) == nullptr)
 		dapalid = 0;
 	curbasepal = dapalid;
 	basepalreset = 0;
-
-	auto dapal = basepaltable[curbasepal];
 
 	// In-scene brightness mode for RR's thunderstorm. This shouldn't affect the global gamma ramp.
 	if ((videoGetRenderMode() >= REND_POLYMOST) && (flags & Pal_SceneBrightness))
@@ -657,9 +649,4 @@ void paletteFreeAll()
             Xaligned_free(lookuptables[i]);
         }
     Bmemset(lookuptables, 0, sizeof(lookuptables));
-
-    for (bssize_t i = 1; i < MAXBASEPALS; i++)
-        Xfree(basepaltable[i]);
-    Bmemset(basepaltable, 0, sizeof(basepaltable));
-    basepaltable[0] = palette;
 }

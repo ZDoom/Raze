@@ -723,6 +723,18 @@ bool InitGame()
 
     InitAutoNet();
 
+    {
+        auto pal = fileSystem.LoadFile("3drealms.pal", 0);
+        if (pal.Size() >= 768)
+        {
+            for (auto& c : pal)
+                c <<= 2;
+
+            paletteSetColorTable(DREALMSPAL, pal.Data(), true);
+        }
+    }
+
+
     timerInit(120);
 
     InitPalette();
@@ -1405,18 +1417,7 @@ void LogoLevel(void)
     DSPRINTF(ds,"LogoLevel...");
     MONO_PRINT(ds);
 
-	auto pal = fileSystem.LoadFile("3drealms.pal", 0);
-	if (pal.Size() >= 768)
-    {
-
-
-        for (auto & c : pal)
-            c <<= 2;
-
-        paletteSetColorTable(DREALMSPAL, pal.Data());
-        videoSetPalette(0, DREALMSPAL, Pal_Fullscreen);
-    }
-    DSPRINTF(ds,"Just read in 3drealms.pal...");
+    videoSetPalette(0, DREALMSPAL, Pal_Fullscreen);
     MONO_PRINT(ds);
 
     //FadeOut(0, 0);

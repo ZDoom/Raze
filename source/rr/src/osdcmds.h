@@ -33,7 +33,6 @@ struct osdcmd_cheatsinfo {
 extern struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 
 int32_t registerosdcommands(void);
-void onvideomodechange(int32_t newmode);
 
 // key bindings stuff
 typedef struct {

@@ -1993,7 +1993,6 @@ int GameInterface::app_main()
 
     ResetView();
     GrabPalette();
-    paletteSetColorTable(curbasepal, basepaltable[BASEPAL]);
 
     if (bSerialPlay && !InitSerial()) {
         I_Error("Unable to connect");

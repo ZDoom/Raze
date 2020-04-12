@@ -60,16 +60,28 @@ void PaletteContainer::Init(int numslots)	// This cannot be a constructor!!!
 	TranslationTables.Resize(numslots);
 }
 
-void PaletteContainer::SetPalette(const uint8_t* colors)
+void PaletteContainer::SetPalette(const uint8_t* colors, int transparent_index)
 {
+	// At this point we do not care about the transparent index yet.
 	for (int i = 0; i < 256; i++, colors += 3)
 	{
-		BaseColors[i] = PalEntry(colors[0], colors[1], colors[2]);
+		BaseColors[i] = PalEntry(255, colors[0], colors[1], colors[2]);
 		Remap[i] = i;
 	}
 
+	uniqueRemaps[0]->MakeIdentity();	// update the identity remap.
+
+	if (transparent_index >= 0 && transparent_index <= 255)
+	{
+		BaseColors[transparent_index] = 0;
+		uniqueRemaps[0]->Palette[transparent_index] = 0;
+	}
+
+	uniqueRemaps[0]->crc32 = CalcCRC32((uint8_t*)uniqueRemaps[0]->Palette, sizeof(uniqueRemaps[0]->Palette));
+
+
 	// Find white and black from the original palette so that they can be
-	// used to make an educated guess of the translucency % for a BOOM
+	// used to make an educated guess of the translucency % for a 
 	// translucency map.
 	WhiteIndex = BestColor((uint32_t*)BaseColors, 255, 255, 255, 0, 255);
 	BlackIndex = BestColor((uint32_t*)BaseColors, 0, 0, 0, 0, 255);
@@ -166,7 +178,7 @@ FRemapTable *PaletteContainer::TranslationToTable(int translation)
 
 	if (type <= 0 || type >= TranslationTables.Size() || index >= NumTranslations(type))
 	{
-		return NULL;
+		return uniqueRemaps[0]; // this is the identity table.
 	}
 	return GetTranslation(type, index);
 }
@@ -664,10 +676,10 @@ bool FRemapTable::AddToTranslation(const char *range)
 //
 //----------------------------------------------------------------------------
 
-bool FRemapTable::AddColors(int start, int count, const uint8_t*colors)
+bool FRemapTable::AddColors(int start, int count, const uint8_t*colors, int trans_color)
 {
 	int end = start + count;
-	if (IndexOutOfRange(start, end))
+	if (IndexOutOfRange(start, end-1))
 	{
 		return false;
 	}
@@ -680,7 +692,7 @@ bool FRemapTable::AddColors(int start, int count, const uint8_t*colors)
 		colors += 3;
 
 		int j = GPalette.Remap[i];
-		Palette[j] = PalEntry(j == 0 ? 0 : 255, br, bg, bb);
+		Palette[j] = PalEntry(j == trans_color ? 0 : 255, br, bg, bb);
 		Remap[j] = ColorMatcher.Pick(Palette[j]);
 	}
 	return true;
