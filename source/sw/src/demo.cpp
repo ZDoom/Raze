@@ -271,8 +271,8 @@ DemoWritePackets(const SW_PACKET *buffer, int32_t count, FILE *f)
     {
         packet.vel = B_LITTLE16(buffer->vel);
         packet.svel = B_LITTLE16(buffer->svel);
-        packet.angvel = fix16_to_int(buffer->q16avel);
-        packet.aimvel = fix16_to_int(buffer->q16horz);
+        packet.angvel = fix16_to_int(buffer->q16angvel);
+        packet.aimvel = fix16_to_int(buffer->q16aimvel);
         packet.bits = B_LITTLE32(buffer->bits);
         fwrite(&packet, sizeof(packet), 1, f);
     }
@@ -288,8 +288,8 @@ DemoReadPackets(SW_PACKET *buffer, int32_t count, DFILE f)
         DREAD(&packet, sizeof(packet), 1, f);
         buffer->vel = B_LITTLE16(packet.vel);
         buffer->svel = B_LITTLE16(packet.svel);
-        buffer->q16avel = fix16_from_int(packet.angvel);
-        buffer->q16horz = fix16_from_int(packet.aimvel);
+        buffer->q16angvel = fix16_from_int(packet.angvel);
+        buffer->q16aimvel = fix16_from_int(packet.aimvel);
         buffer->bits = B_LITTLE32(packet.bits);
     }
 }
