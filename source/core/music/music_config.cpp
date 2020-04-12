@@ -43,7 +43,7 @@
 
 //==========================================================================
 //
-//
+// ADL Midi device
 //
 //==========================================================================
 
@@ -61,8 +61,49 @@
 
 #define FORWARD_STRING_CVAR(key) \
 	auto ret = ChangeMusicSetting(zmusic_##key, mus_playing.handle,*self); \
-	if (ret) S_MIDIDeviceChanged(-1);  
+	if (ret) S_MIDIDeviceChanged(-1); 
 
+#ifndef ZMUSIC_LITE
+CUSTOM_CVAR(Int, adl_chips_count, 6, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(adl_chips_count);
+}
+
+CUSTOM_CVAR(Int, adl_emulator_id, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(adl_emulator_id);
+}
+
+CUSTOM_CVAR(Bool, adl_run_at_pcm_rate, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(adl_run_at_pcm_rate);
+}
+
+CUSTOM_CVAR(Bool, adl_fullpan, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(adl_fullpan);
+}
+
+CUSTOM_CVAR(Int, adl_bank, 14, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(adl_bank);
+}
+
+CUSTOM_CVAR(Bool, adl_use_custom_bank, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(adl_use_custom_bank);
+}
+
+CUSTOM_CVAR(String, adl_custom_bank, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_STRING_CVAR(adl_custom_bank);
+}
+
+CUSTOM_CVAR(Int, adl_volume_model, 3/*ADLMIDI_VolumeModel_DMX*/, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(adl_bank);
+}
+#endif
 //==========================================================================
 //
 // Fluidsynth MIDI device
@@ -182,10 +223,194 @@ CUSTOM_CVAR(Bool, opl_fullpan, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIR
 	FORWARD_BOOL_CVAR(opl_fullpan);
 }
 
+#ifndef ZMUSIC_LITE
+//==========================================================================
+//
+// OPN MIDI device
+//
+//==========================================================================
+
+
+CUSTOM_CVAR(Int, opn_chips_count, 8, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(opn_chips_count);
+}
+
+CUSTOM_CVAR(Int, opn_emulator_id, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(opn_emulator_id);
+}
+
+CUSTOM_CVAR(Bool, opn_run_at_pcm_rate, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(opn_run_at_pcm_rate);
+}
+
+CUSTOM_CVAR(Bool, opn_fullpan, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(opn_fullpan);
+}
+
+CUSTOM_CVAR(Bool, opn_use_custom_bank, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(opn_use_custom_bank);
+}
+
+CUSTOM_CVAR(String, opn_custom_bank, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_STRING_CVAR(opn_custom_bank);
+}
+
+//==========================================================================
+//
+// GUS MIDI device
+//
+//==========================================================================
+
+
+CUSTOM_CVAR(String, midi_config, GAMENAMELOWERCASE, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_STRING_CVAR(gus_config);
+}
+
+CUSTOM_CVAR(Bool, midi_dmxgus, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)	// This was 'true' but since it requires special setup that's not such a good idea.
+{
+	FORWARD_BOOL_CVAR(gus_dmxgus);
+}
+
+CUSTOM_CVAR(String, gus_patchdir, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_STRING_CVAR(gus_patchdir);
+}
+
+CUSTOM_CVAR(Int, midi_voices, 32, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(gus_midi_voices);
+}
+
+CUSTOM_CVAR(Int, gus_memsize, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(gus_memsize);
+}
+
+//==========================================================================
+//
+// Timidity++ device
+//
+//==========================================================================
+
+CUSTOM_CVAR(Bool, timidity_modulation_wheel, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(timidity_modulation_wheel);
+}
+
+CUSTOM_CVAR(Bool, timidity_portamento, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(timidity_portamento);
+}
+
+CUSTOM_CVAR(Int, timidity_reverb, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(timidity_reverb);
+}
+
+CUSTOM_CVAR(Int, timidity_reverb_level, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(timidity_reverb_level);
+}
+
+CUSTOM_CVAR(Int, timidity_chorus, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(timidity_chorus);
+}
+
+CUSTOM_CVAR(Bool, timidity_surround_chorus, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(timidity_surround_chorus);
+}
+
+CUSTOM_CVAR(Bool, timidity_channel_pressure, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(timidity_channel_pressure);
+}
+
+CUSTOM_CVAR(Int, timidity_lpf_def, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(timidity_lpf_def);
+}
+
+CUSTOM_CVAR(Bool, timidity_temper_control, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(timidity_temper_control);
+}
+
+CUSTOM_CVAR(Bool, timidity_modulation_envelope, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(timidity_modulation_envelope);
+}
+
+CUSTOM_CVAR(Bool, timidity_overlap_voice_allow, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(timidity_overlap_voice_allow);
+}
+
+CUSTOM_CVAR(Bool, timidity_drum_effect, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(timidity_drum_effect);
+}
+
+CUSTOM_CVAR(Bool, timidity_pan_delay, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(timidity_pan_delay);
+}
+
+CUSTOM_CVAR(Float, timidity_drum_power, 1.0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL) /* coef. of drum amplitude */
+{
+	FORWARD_CVAR(timidity_drum_power);
+}
+
+CUSTOM_CVAR(Int, timidity_key_adjust, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(timidity_key_adjust);
+}
+
+CUSTOM_CVAR(Float, timidity_tempo_adjust, 1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(timidity_tempo_adjust);
+}
+
+CUSTOM_CVAR(Float, timidity_min_sustain_time, 5000, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_CVAR(timidity_min_sustain_time);
+}
+#endif
+
 CUSTOM_CVAR(String, timidity_config, GAMENAMELOWERCASE, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
 {
 	FORWARD_STRING_CVAR(timidity_config);
 }
+#ifndef ZMUSIC_LITE
+//==========================================================================
+//
+// WildMidi
+//
+//==========================================================================
+
+CUSTOM_CVAR(String, wildmidi_config, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_STRING_CVAR(wildmidi_config);
+}
+
+CUSTOM_CVAR(Bool, wildmidi_reverb, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(wildmidi_reverb);
+}
+
+CUSTOM_CVAR(Bool, wildmidi_enhanced_resampling, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_VIRTUAL)
+{
+	FORWARD_BOOL_CVAR(wildmidi_enhanced_resampling);
+}
+#endif
 
 //==========================================================================
 //

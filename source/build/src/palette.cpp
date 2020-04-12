@@ -277,6 +277,7 @@ void palettePostLoadLookups(void)
             for (int i = 0; i < numpalettes; i++)
             {
                 auto palette = GPalette.GetTranslation(Translation_BasePalettes, i);
+                if (!palette) continue;
                 if (i == 0 || (palette != basepalette && !palette->Inactive))
                 {
                     memcpy(remap.Remap, lookup, 256);

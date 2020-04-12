@@ -34,14 +34,26 @@
 #ifndef __I_MUSIC_H__
 #define __I_MUSIC_H__
 
+#include "c_cvars.h"
+
 class FileReader;
+struct FOptionValues;
 
 //
 //	MUSIC I/O
 //
+void I_InitMusic ();
+void I_BuildMIDIMenuList (FOptionValues *);
 
 // Volume.
 void I_SetRelativeVolume(float);
 void I_SetMusicVolume (double volume);
+
+
+extern int nomusic;
+
+EXTERN_CVAR(Bool, mus_enabled)
+EXTERN_CVAR(Float, snd_musicvolume)
+
 
 #endif //__I_MUSIC_H__

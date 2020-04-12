@@ -1,10 +1,15 @@
 #pragma once
 
 #include "zstring.h"
+#include "tarray.h"
+#include "name.h"
+
+typedef TMap<FName, FName> MusicAliasMap;
+extern MusicAliasMap MusicAliases;
 
 // Totally minimalistic interface - should be all the game modules need.
-
-void Mus_Init();
+void Mus_InitMusic();
+void Mus_UpdateMusic();
 int Mus_Play(const char *mapname, const char *fn, bool loop);
 void Mus_Stop();
 bool Mus_IsPlaying();

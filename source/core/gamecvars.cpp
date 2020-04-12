@@ -42,7 +42,7 @@
 #include "m_argv.h"
 #include "rts.h"
 #include "stats.h"
-#include "z_music.h"
+#include "raze_music.h"
 #include "c_dispatch.h"
 #include "gstrings.h"
 #include "quotemgr.h"

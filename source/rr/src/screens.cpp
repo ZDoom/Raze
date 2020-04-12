@@ -46,6 +46,13 @@ double g_moveActorsTime, g_moveWorldTime;  // in ms, smoothed
 int32_t g_noLogoAnim = 0;
 int32_t g_noLogo = 0;
 
+void PlayBonusMusic()
+{
+    if (MusicEnabled() && mus_enabled)
+        S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+
+}
+
 ////////// OFTEN-USED FEW-LINERS //////////
 static void G_HandleEventsWhileNoInput(void)
 {
@@ -1927,8 +1934,7 @@ void G_BonusScreen(int32_t bonusonly)
         videoClearScreen(0);
         G_DisplayMPResultsScreen();
 
-        if (MusicEnabled() && mus_enabled)
-            S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+        PlayBonusMusic();
 
         videoNextPage();
         inputState.ClearAllInput();
@@ -1967,10 +1973,9 @@ void G_BonusScreen(int32_t bonusonly)
             menutext_center(20-6, lastmapname);
     	menutext_center(36-6, GStrings("Completed"));
 
-    gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
+        gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
 
-        if (MusicEnabled() && mus_enabled)
-            S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+        PlayBonusMusic();
     }
     else
     {
@@ -2501,8 +2506,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
         videoClearScreen(0);
         G_DisplayMPResultsScreen();
 
-        if (MusicEnabled() && mus_enabled)
-            S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+        PlayBonusMusic();
 
         videoNextPage();
         inputState.ClearAllInput();

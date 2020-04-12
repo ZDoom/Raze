@@ -92,7 +92,7 @@ Things required to make savegames work:
 #include "m_argv.h"
 #include "debugbreak.h"
 #include "menu/menu.h"
-#include "z_music.h"
+#include "raze_music.h"
 #include "statistics.h"
 #include "gstrings.h"
 #include "mapinfo.h"

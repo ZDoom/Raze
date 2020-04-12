@@ -46,6 +46,13 @@ double g_moveActorsTime, g_moveWorldTime;  // in ms, smoothed
 int32_t g_noLogoAnim = 0;
 int32_t g_noLogo = 0;
 
+void PlayBonusMusic()
+{
+    if (MusicEnabled() && mus_enabled)
+        S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+
+}
+
 ////////// OFTEN-USED FEW-LINERS //////////
 #ifndef EDUKE32_STANDALONE
 static void G_HandleEventsWhileNoInput(void)
@@ -1907,8 +1914,7 @@ void G_BonusScreen(int32_t bonusonly)
         videoClearScreen(0);
         G_DisplayMPResultsScreen();
 
-        if (MusicEnabled() && mus_enabled)
-            S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+        PlayBonusMusic();
 
         videoNextPage();
         inputState.ClearAllInput();
@@ -1946,8 +1952,7 @@ void G_BonusScreen(int32_t bonusonly)
 
     gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
 
-    if (MusicEnabled() && mus_enabled)
-        S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+    PlayBonusMusic();
 
     videoNextPage();
     inputState.ClearAllInput();

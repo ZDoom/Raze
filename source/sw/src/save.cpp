@@ -54,7 +54,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "player.h"
 #include "i_specialpaths.h"
 #include "savegamehelp.h"
-#include "z_music.h"
+#include "raze_music.h"
 #include "mapinfo.h"
 
 //void TimerFunc(task * Task);

@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegamehelp.h"
 #include "menu/menu.h"
 #include "mapinfo.h"
-#include "z_music.h"
+#include "raze_music.h"
 
 BEGIN_DUKE_NS
 
