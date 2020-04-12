@@ -69,6 +69,7 @@ jobs:
     - name: Build
       shell: bash
       run: |
+        export MAKEFLAGS=--keep-going
         cmake --build build --config ${BUILD_TYPE} --parallel 3
 
     - name: Create Package
