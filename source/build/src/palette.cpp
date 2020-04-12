@@ -71,10 +71,10 @@ void fullscreen_tint_gl(PalEntry pe);
 static void alloc_palookup(int32_t pal)
 {
     // The asm functions vlineasm1, mvlineasm1 (maybe others?) access the next
-    // palookup[...] shade entry for tilesizy==512 tiles.
+    // lookuptables[...] shade entry for tilesizy==512 tiles.
     // See DEBUG_TILESIZY_512 and the comment in a.nasm: vlineasm1.
-    palookup[pal] = (char *) Xaligned_alloc(16, (numshades + 1) * 256);
-    memset(palookup[pal], 0, (numshades + 1) * 256);
+    lookuptables[pal] = (char *) Xaligned_alloc(16, (numshades + 1) * 256);
+    memset(lookuptables[pal], 0, (numshades + 1) * 256);
 }
 
 static void maybe_alloc_palookup(int32_t palnum);
@@ -165,9 +165,9 @@ void paletteLoadFromDisk(void)
         }
     }
 
-    // Read base shade table (palookup 0).
+    // Read base shade table (lookuptables 0).
     maybe_alloc_palookup(0);
-    if (read_and_test(fil, palookup[0], numshades<<8))
+    if (read_and_test(fil, lookuptables[0], numshades<<8))
         return;
 
     paletteloaded |= PALETTE_SHADE;
@@ -227,7 +227,7 @@ void palettePostLoadTables(void)
 {
     globalpal = 0;
 
-    char const * const palookup0 = palookup[0];
+    char const * const palookup0 = lookuptables[0];
 
 #ifdef DEBUG_TILESIZY_512
     // Bump shade 1 by 16.
@@ -281,7 +281,7 @@ void palettePostLoadTables(void)
 
 void paletteFixTranslucencyMask(void)
 {
-    for (auto thispalookup : palookup)
+    for (auto thispalookup : lookuptables)
     {
         if (thispalookup == NULL)
             continue;
@@ -334,7 +334,7 @@ void paletteSetupDefaultFog(void)
     // Find a gap of four consecutive unused pal numbers to generate fog shade
     // tables.
     for (bssize_t j=1; j<=255-3; j++)
-        if (!palookup[j] && !palookup[j+1] && !palookup[j+2] && !palookup[j+3])
+        if (!lookuptables[j] && !lookuptables[j+1] && !lookuptables[j+2] && !lookuptables[j+3])
         {
             paletteMakeLookupTable(j, NULL, 60, 60, 60, 1);
             paletteMakeLookupTable(j+1, NULL, 60, 0, 0, 1);
@@ -351,17 +351,17 @@ void palettePostLoadLookups(void)
     for (bssize_t j=1; j<MAXPALOOKUPS; j++)
     {
         // If an existing lookup is identical to #0, free it.
-        if (palookup[j] && palookup[j] != palookup[0] && !Bmemcmp(palookup[0], palookup[j], 256*numshades))
+        if (lookuptables[j] && lookuptables[j] != lookuptables[0] && !Bmemcmp(lookuptables[0], lookuptables[j], 256*numshades))
             paletteFreeLookupTable(j);
 
-        if (!palookup[j])
+        if (!lookuptables[j])
             paletteMakeLookupTable(j, NULL, 0, 0, 0, 1);
     }
 }
 
 static int32_t palookup_isdefault(int32_t palnum)  // KEEPINSYNC engine.lua
 {
-    return (palookup[palnum] == NULL || (palnum!=0 && palookup[palnum] == palookup[0]));
+    return (lookuptables[palnum] == NULL || (palnum!=0 && lookuptables[palnum] == lookuptables[0]));
 }
 
 static void maybe_alloc_palookup(int32_t palnum)
@@ -369,7 +369,7 @@ static void maybe_alloc_palookup(int32_t palnum)
     if (palookup_isdefault(palnum))
     {
         alloc_palookup(palnum);
-        if (palookup[palnum] == NULL)
+        if (lookuptables[palnum] == NULL)
             Bexit(1);
     }
 }
@@ -468,7 +468,7 @@ int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
     if (shtab != NULL)
     {
         maybe_alloc_palookup(palnum);
-        Bmemcpy(palookup[palnum], shtab, 256*numshades);
+        Bmemcpy(lookuptables[palnum], shtab, 256*numshades);
     }
 
     return 0;
@@ -476,18 +476,18 @@ int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
 
 void paletteFreeLookupTable(int32_t const palnum)
 {
-    if (palnum == 0 && palookup[palnum] != NULL)
+    if (palnum == 0 && lookuptables[palnum] != NULL)
     {
         for (bssize_t i = 1; i < MAXPALOOKUPS; i++)
-            if (palookup[i] == palookup[palnum])
-                palookup[i] = NULL;
+            if (lookuptables[i] == lookuptables[palnum])
+                lookuptables[i] = NULL;
 
-        ALIGNED_FREE_AND_NULL(palookup[palnum]);
+        ALIGNED_FREE_AND_NULL(lookuptables[palnum]);
     }
-    else if (palookup[palnum] == palookup[0])
-        palookup[palnum] = NULL;
+    else if (lookuptables[palnum] == lookuptables[0])
+        lookuptables[palnum] = NULL;
     else
-        ALIGNED_FREE_AND_NULL(palookup[palnum]);
+        ALIGNED_FREE_AND_NULL(lookuptables[palnum]);
 }
 
 //
@@ -512,7 +512,7 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
     {
         if ((r|g|b) == 0)
         {
-            palookup[palnum] = palookup[0];  // Alias to base shade table!
+            lookuptables[palnum] = lookuptables[0];  // Alias to base shade table!
             return;
         }
 
@@ -532,15 +532,15 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
         for (j=0; j<numshades; j++)
             for (i=0; i<256; i++)
             {
-                const char *src = palookup[0];
-                palookup[palnum][256*j + i] = src[256*j + remapbuf[i]];
+                const char *src = lookuptables[0];
+                lookuptables[palnum][256*j + i] = src[256*j + remapbuf[i]];
             }
     }
     else
     {
         // colored fog case
 
-        char *ptr2 = palookup[palnum];
+        char *ptr2 = lookuptables[palnum];
 
         for (i=0; i<numshades; i++)
         {
@@ -651,12 +651,12 @@ void paletteFreeAll()
     paletteloaded = 0;
 
     for (bssize_t i = 0; i < MAXPALOOKUPS; i++)
-        if (i == 0 || palookup[i] != palookup[0])
+        if (i == 0 || lookuptables[i] != lookuptables[0])
         {
             // Take care of handling aliased ^^^ cases!
-            Xaligned_free(palookup[i]);
+            Xaligned_free(lookuptables[i]);
         }
-    Bmemset(palookup, 0, sizeof(palookup));
+    Bmemset(lookuptables, 0, sizeof(lookuptables));
 
     for (bssize_t i = 1; i < MAXBASEPALS; i++)
         Xfree(basepaltable[i]);

@@ -80,7 +80,7 @@ void scrLoadPLUs(void)
             ThrowError("%s.PLU not found", PLU[i].name);
         if (pPlu->Size() / 256 != 64)
             ThrowError("Incorrect PLU size");
-        palookup[PLU[i].id] = (char*)gSysRes.Lock(pPlu);
+        lookuptables[PLU[i].id] = (char*)gSysRes.Lock(pPlu);
     }
 
     // by NoOne: load user palookups
@@ -88,7 +88,7 @@ void scrLoadPLUs(void)
         DICTNODE* pPlu = gSysRes.Lookup(i, "PLU");
         if (!pPlu) continue;
         else if (pPlu->Size() / 256 != 64) { consoleSysMsg("Incorrect filesize of PLU#%d", i); }
-        else palookup[i] = (char*)gSysRes.Lock(pPlu);
+        else lookuptables[i] = (char*)gSysRes.Lock(pPlu);
     }
 
 #ifdef USE_OPENGL

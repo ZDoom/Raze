@@ -181,7 +181,7 @@ void G_LoadLookups(void)
         {
             paletteMakeLookupTable(50, NULL, 12 * 4, 12 * 4, 12 * 4, 0);
             paletteMakeLookupTable(51, NULL, 12 * 4, 12 * 4, 12 * 4, 0);
-            paletteMakeLookupTable(54, palookup[8], 32 * 4, 32 * 4, 32 * 4, 0);
+            paletteMakeLookupTable(54, lookuptables[8], 32 * 4, 32 * 4, 32 * 4, 0);
         }
     }
 }
