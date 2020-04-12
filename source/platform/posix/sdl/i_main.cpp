@@ -72,6 +72,9 @@ void Linux_I_FatalError(const char* errortext);
 
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 
+int refreshfreq;
+bool batchrun;
+
 // The command line arguments.
 FArgs *Args;
 
