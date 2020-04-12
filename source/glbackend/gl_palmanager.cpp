@@ -207,10 +207,6 @@ void PaletteManager::SetPalette(int index, const uint8_t* data)
 
 	if (index < 0 || index > 255) return;	// invalid index - ignore.
 	palettemap[index] = FindPalette(data);
-	if (index == 0)
-	{
-		ImageHelpers::SetPalette((PalEntry*)data);	// Palette 0 is always the reference for downconverting images
-	}
 }
 
 //===========================================================================

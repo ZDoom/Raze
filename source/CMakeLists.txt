@@ -706,7 +706,6 @@ set (PCH_SOURCES
 	core/2d/v_2ddrawer.cpp
 	core/2d/v_draw.cpp
 	core/2d/v_drawtext.cpp
-	core/2d/renderstyle.cpp
 	core/2d/screentext.cpp
 
 	core/fonts/font.cpp
@@ -772,6 +771,9 @@ set (PCH_SOURCES
 	common/engine/sc_man.cpp
 	common/engine/palettecontainer.cpp
 	common/engine/stringtable.cpp
+	common/engine/i_interface.cpp
+	common/engine/renderstyle.cpp
+	common/engine/v_colortables.cpp
 
 	core/utility/stats.cpp
 	

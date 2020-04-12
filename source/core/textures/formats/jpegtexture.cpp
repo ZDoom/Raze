@@ -313,7 +313,7 @@ void FJPEGTexture::CreatePalettedPixels(uint8_t *buffer)
 
 				case JCS_GRAYSCALE:
 				{
-					auto remap = ImageHelpers::GetGraymap();
+					auto remap = GPalette.GrayMap;
 					for (int x = Width; x > 0; --x)
 					{
 						*out = remap[in[0]];

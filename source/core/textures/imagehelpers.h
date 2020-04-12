@@ -43,30 +43,12 @@
 #include "bitmap.h"
 #include "palutil.h"
 #include "palettecontainer.h"
+#include "v_colortables.h"
 
 namespace ImageHelpers
 {
-	union ColorTable256k
-	{
-		uint8_t RGB[64][64][64];
-		uint8_t All[64 * 64 * 64];
-	};
-
-	extern uint8_t GrayMap[256];
-	extern int WhiteIndex, BlackIndex;
-	extern ColorTable256k RGB256k;
 	extern int alphaThreshold;
 
-	// Todo: This should not pick fullbright colors.
-	void SetPalette(const PalEntry* colors);
-
-
-	// Helpers for creating paletted images.
-	inline uint8_t *GetGraymap()
-	{
-		return GrayMap;
-	}
-	
 	inline uint8_t RGBToPalettePrecise(bool wantluminance, int r, int g, int b, int a = 255)
 	{
 		return BestColor((uint32_t*)GPalette.BaseColors, r, g, b);

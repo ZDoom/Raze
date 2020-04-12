@@ -63,6 +63,7 @@ enum ERenderStyle
 	STYLE_None,				// Do not draw
 	STYLE_Normal,			// Normal; just copy the image to the screen
 	STYLE_Fuzzy,			// Draw silhouette using "fuzz" effect
+	STYLE_SoulTrans,		// Draw translucent with amount in r_transsouls
 	STYLE_OptFuzzy,			// Draw as fuzzy or translucent, based on user preference
 	STYLE_Stencil,			// Fill image interior with alphacolor
 	STYLE_Translucent,		// Draw translucent
@@ -115,6 +116,9 @@ enum ERenderAlpha
 
 enum ERenderFlags
 {
+	// Use value of transsouls as alpha.
+	STYLEF_TransSoulsAlpha = 1,
+
 	// Force alpha to 1. Not the same as STYLEALPHA_One, since that also
 	// ignores alpha from the texture.
 	STYLEF_Alpha1 = 2,
@@ -142,21 +146,16 @@ enum ERenderFlags
 	STYLEF_FadeToBlack = 64,
 };
 
-struct FRenderStyle
+union FRenderStyle
 {
-	union
+	struct
 	{
-		struct
-		{
-			uint8_t BlendOp;	// Of ERenderOp type
-			uint8_t SrcAlpha;	// Of ERenderAlpha type
-			uint8_t DestAlpha;	// Of ERenderAlpha type
-			uint8_t Flags;
-		};
-		uint32_t AsDWORD;
+		uint8_t BlendOp;	// Of ERenderOp type
+		uint8_t SrcAlpha;	// Of ERenderAlpha type
+		uint8_t DestAlpha;	// Of ERenderAlpha type
+		uint8_t Flags;
 	};
-
-	FRenderStyle() = default;
+	uint32_t AsDWORD;
 
 	inline FRenderStyle &operator= (ERenderStyle legacy);
 	bool operator==(const FRenderStyle &o) const { return AsDWORD == o.AsDWORD; }
@@ -186,3 +185,4 @@ inline FRenderStyle &FRenderStyle::operator= (ERenderStyle legacy)
 	*this = LegacyRenderStyles[legacy];
 	return *this;
 }
+

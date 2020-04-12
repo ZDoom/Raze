@@ -46,6 +46,7 @@ FRenderStyle LegacyRenderStyles[STYLE_Count] =
 	{ { STYLEOP_None, STYLEALPHA_Zero, STYLEALPHA_Zero, 0 } },											/* STYLE_None */  
 	{ { STYLEOP_Add, STYLEALPHA_Src, STYLEALPHA_InvSrc, STYLEF_Alpha1 } },								/* STYLE_Normal */
 	{ { STYLEOP_Fuzz, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 } },											/* STYLE_Fuzzy */
+	{ { STYLEOP_Add, STYLEALPHA_Src, STYLEALPHA_InvSrc, STYLEF_TransSoulsAlpha } },						/* STYLE_SoulTrans */
 	{ { STYLEOP_FuzzOrAdd, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 } },									/* STYLE_OptFuzzy */
 	{ { STYLEOP_Add, STYLEALPHA_Src, STYLEALPHA_InvSrc, STYLEF_Alpha1 | STYLEF_ColorIsFixed } },		/* STYLE_Stencil */
 	{ { STYLEOP_Add, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 } },											/* STYLE_Translucent */

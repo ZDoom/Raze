@@ -246,13 +246,13 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 		{
 			bMasked = true;
 			PaletteSize = 256;
-			memcpy (PaletteMap, ImageHelpers::GrayMap+1, 256);
+			memcpy (PaletteMap, GPalette.GrayMap+1, 256);
 			PaletteMap[255] = 254;	// cannot use 255.
 			PaletteMap[NonPaletteTrans[0]] = 255;
 		}
 		else
 		{
-			memcpy(PaletteMap, ImageHelpers::GrayMap, 256);
+			memcpy(PaletteMap, GPalette.GrayMap, 256);
 		}
 		break;
 

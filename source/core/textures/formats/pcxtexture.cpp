@@ -365,8 +365,8 @@ void FPCXTexture::CreatePalettedPixels(uint8_t *buffer)
 			{
 			default:
 			case 1:
-				PaletteMap[0] = ImageHelpers::GrayMap[0];
-				PaletteMap[1] = ImageHelpers::GrayMap[255];
+				PaletteMap[0] = GPalette.GrayMap[0];
+				PaletteMap[1] = GPalette.GrayMap[255];
 				ReadPCX1bit (buffer, lump, &header);
 				break;
 
