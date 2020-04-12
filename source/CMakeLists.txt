@@ -716,6 +716,7 @@ set (PCH_SOURCES
 	core/console/d_event.cpp
 
 	common/thirdparty/sfmt/SFMT.cpp
+	common/textures/animtexture.cpp
 	common/textures/bitmap.cpp
 	common/textures/m_png.cpp
 	common/console/c_commandline.cpp

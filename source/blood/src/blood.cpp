@@ -1093,6 +1093,7 @@ static const char* actions[] = {
 
 int GameInterface::app_main()
 {
+
     buttonMap.SetButtons(actions, NUM_ACTIONS);
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = !userConfig.nomonsters;

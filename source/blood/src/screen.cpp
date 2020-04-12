@@ -138,6 +138,7 @@ void scrLoadPalette(void)
     paletteloaded |= PALETTE_TRANSLUC;
 
     palettePostLoadTables();
+
 }
 
 void scrSetPalette(int palId)

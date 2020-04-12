@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdlib.h"
 #include "compat.h"
 #include "build.h"
+#include "animtexture.h"
 #include "v_2ddrawer.h"
 #include "../glbackend/glbackend.h"
 
@@ -434,97 +435,91 @@ int32_t Anim_Play(const char *fn)
         goto end_anim;
     }
 
-    paletteSetColorTable(ANIMPAL, ANIM_GetPalette(), true);
-
-    P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, Pal_Fullscreen);
-
-#ifdef USE_OPENGL
     if ((anim->frameflags & CUTSCENE_TEXTUREFILTER && hw_texfilter == TEXFILTER_ON) || anim->frameflags & CUTSCENE_FORCEFILTER)
         hw_texfilter = TEXFILTER_ON;
-#endif
 
     ototalclock = totalclock;
 
     i = 1;
     int32_t frametime; frametime = 0;
 
-    do
     {
-        if (i > 4 && totalclock > frametime + 60)
+        AnimTextures animtex;
+        animtex.SetSize(320, 200);
+
+        do
         {
-            Printf("WARNING: slowdown in %s, skipping playback\n", fn);
-            goto end_anim_restore_gl;
-        }
+            if (i > 4 && totalclock > frametime + 60)
+            {
+                Printf("WARNING: slowdown in %s, skipping playback\n", fn);
+                goto end_anim_restore_gl;
+            }
 
-        gameHandleEvents();
+            gameHandleEvents();
 
-        if (totalclock < ototalclock - 1)
-            continue;
+            if (totalclock < ototalclock - 1)
+                continue;
 
-        i = VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
+            i = VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
 
-		TileFiles.tileSetExternal(TILE_ANIM, 200, 320, ANIM_DrawFrame(i));
-        tileInvalidate(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
+            animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(i));
 
-        if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, inputState.CheckAllInput()))
-        {
-            running = 0;
-            goto end_anim_restore_gl;
-        }
+            if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, inputState.CheckAllInput()))
+            {
+                running = 0;
+                goto end_anim_restore_gl;
+            }
 
-        if (g_restorePalette == 1)
-        {
-            P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 0);
-            g_restorePalette = 0;
-        }
+            frametime = (int32_t)totalclock;
 
-        frametime = (int32_t) totalclock;
+            videoClearScreen(0);
 
-        videoClearScreen(0);
-
-        int32_t z;
-        if (anim->frameaspect1 > 0 && anim->frameaspect2 > 0 && ((anim->frameaspect1 / anim->frameaspect2) != (tilesiz[TILE_ANIM].y / (tilesiz[TILE_ANIM].x * 1.2))))
-        {
-            int32_t const oyxaspect = yxaspect;
-            if ((anim->frameaspect1 / anim->frameaspect2) >= ((decltype(anim->frameaspect1))xdim / ydim))
-                z = divscale16(320, tilesiz[TILE_ANIM].y);
+            int32_t z;
+#if 0   // fixme: The math here doesn't look right - this better use a more robust fullscreen scaler later.
+            if (anim->frameaspect1 > 0 && anim->frameaspect2 > 0 && ((anim->frameaspect1 / anim->frameaspect2) != (tilesiz[TILE_ANIM].y / (tilesiz[TILE_ANIM].x * 1.2))))
+            {
+                int32_t const oyxaspect = yxaspect;
+                if ((anim->frameaspect1 / anim->frameaspect2) >= ((decltype(anim->frameaspect1))xdim / ydim))
+                    z = divscale16(320, tilesiz[TILE_ANIM].y);
+                else
+                    z = divscale16(lrint(320 * ydim * anim->frameaspect1), lrint(tilesiz[TILE_ANIM].y * xdim * anim->frameaspect2));
+                int32_t aspect = divscale16(lrint(tilesiz[TILE_ANIM].y * anim->frameaspect2), lrint(tilesiz[TILE_ANIM].x * anim->frameaspect1));
+                renderSetAspect(viewingrange, aspect);
+                rotatesprite_fs(160 << 16, 100 << 16, z, 512, TILE_ANIM, 0, 0, 2 | 4 | 8 | 64 | 1024);
+                renderSetAspect(viewingrange, oyxaspect);
+            }
             else
-                z = divscale16(lrint(320 * ydim * anim->frameaspect1), lrint(tilesiz[TILE_ANIM].y * xdim * anim->frameaspect2));
-            int32_t aspect = divscale16(lrint(tilesiz[TILE_ANIM].y * anim->frameaspect2), lrint(tilesiz[TILE_ANIM].x * anim->frameaspect1));
-            renderSetAspect(viewingrange, aspect);
-            rotatesprite_fs(160<<16, 100<<16, z, 512, TILE_ANIM, 0, 0, 2|4|8|64|1024);
-            renderSetAspect(viewingrange, oyxaspect);
-        }
-        else
-        {
-            if ((tilesiz[TILE_ANIM].y / (tilesiz[TILE_ANIM].x * 1.2f)) > (1.f * xdim / ydim))
-                z = divscale16(320 * xdim * 3, tilesiz[TILE_ANIM].y * ydim * 4);
-            else
-                z = divscale16(200, tilesiz[TILE_ANIM].x);
-            rotatesprite_fs(160<<16, 100<<16, z, 512, TILE_ANIM, 0, 0, 2|4|8|64);
-        }
-        g_animPtr = anim;
-        i = VM_OnEventWithReturn(EVENT_CUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
-        g_animPtr = NULL;
+#endif
+            {
+                if ((320 / (200 * 1.2f)) > (1.f * xdim / ydim))
+                    z = divscale16(320 * xdim * 3, 320 * ydim * 4);
+                else
+                    z = divscale16(200, 200);
+                rotatesprite_fs(160 << 16, 100 << 16, z, 0, -1, 0, 0,2 | 8 | 64, animtex.GetFrame() );
+            }
+            g_animPtr = anim;
+            i = VM_OnEventWithReturn(EVENT_CUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
+            g_animPtr = NULL;
 
-        videoNextPage();
+            videoNextPage();
 
-        inputState.ClearAllInput();
+            inputState.ClearAllInput();
 
-        ototalclock += anim->framedelay;
+            ototalclock += anim->framedelay;
 
-        while (soundidx < anim->Sounds.Size() && anim->Sounds[soundidx].frame <= (uint16_t)i)
-        {
-            int16_t sound = anim->Sounds[soundidx].sound;
-            if (sound == -1)
-                FX_StopAllSounds();
-            else
-                S_PlaySound(sound, CHAN_AUTO, CHANF_UI);
+            while (soundidx < anim->Sounds.Size() && anim->Sounds[soundidx].frame <= (uint16_t)i)
+            {
+                int16_t sound = anim->Sounds[soundidx].sound;
+                if (sound == -1)
+                    FX_StopAllSounds();
+                else
+                    S_PlaySound(sound, CHAN_AUTO, CHANF_UI);
 
-            soundidx++;
-        }
-        ++i;
-    } while (i < numframes);
+                soundidx++;
+            }
+            ++i;
+        } while (i < numframes);
+    }
 
 end_anim_restore_gl:
     hw_texfilter = ogltexfiltermode;

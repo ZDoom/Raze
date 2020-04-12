@@ -44,6 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "anim.h"
 #include "../glbackend/glbackend.h"
 #include "v_2ddrawer.h"
+#include "animtexture.h"
 
 #include "common_game.h"
 
@@ -259,63 +260,62 @@ playanm(short anim_num)
 
     videoClearViewableArea(0L);
 
-    paletteSetColorTable(ANIMPAL, ANIM_GetPalette());
-    videoSetPalette(0, ANIMPAL, Pal_Fullscreen);
-    if (ANIMnum == 1)
     {
-        // draw the first frame
-		TileFiles.tileSetExternal(ANIM_TILE(ANIMnum), 200, 320, ANIM_DrawFrame(1));
-        tileInvalidate(ANIM_TILE(ANIMnum), 0, 1<<4);
-        rotatesprite(0 << 16, 0 << 16, 65536L, 512, ANIM_TILE(ANIMnum), 0, 0, 2 + 4 + 8 + 16 + 64, 0, 0, xdim - 1, ydim - 1);
-    }
-
-    SoundState = 0;
-    //ototalclock = totalclock + 120*2;
-    ototalclock = (int32_t) totalclock;
-
-    for (i = 1; i < numframes; i++)
-    {
-        while (totalclock < ototalclock)
+        AnimTextures animtex;
+        animtex.SetSize(320, 200);
+        if (ANIMnum == 1)
         {
-            handleevents();
+            // draw the first frame
+            animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(1));
+            rotatesprite_fs(160 << 16, 100 << 16, 65536, 0, -1, 0, 0, 2 | 8 | 64, animtex.GetFrame());
+        }
+
+        SoundState = 0;
+        //ototalclock = totalclock + 120*2;
+        ototalclock = (int32_t)totalclock;
+
+        for (i = 1; i < numframes; i++)
+        {
+            while (totalclock < ototalclock)
+            {
+                handleevents();
+                switch (ANIMnum)
+                {
+                case ANIM_INTRO:
+                case ANIM_SERP:
+                    if (inputState.CheckAllInput())
+                    {
+                        goto ENDOFANIMLOOP;
+                    }
+                    break;
+                }
+
+                getpackets();
+            }
+
             switch (ANIMnum)
             {
             case ANIM_INTRO:
+                AnimShareIntro(i, numframes);
+                break;
             case ANIM_SERP:
-                if (inputState.CheckAllInput())
-                {
-                    goto ENDOFANIMLOOP;
-                }
+                AnimSerp(i, numframes);
+                break;
+            case ANIM_SUMO:
+                AnimSumo(i, numframes);
+                break;
+            case ANIM_ZILLA:
+                AnimZilla(i, numframes);
                 break;
             }
 
-            getpackets();
+            animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(i));
+            rotatesprite_fs(160 << 16, 100 << 16, 65536, 0, -1, 0, 0, 2 | 8 | 64, animtex.GetFrame());
+            videoNextPage();
+            handleevents();
+            if (inputState.CheckAllInput())
+                break;
         }
-
-        switch (ANIMnum)
-        {
-        case ANIM_INTRO:
-            AnimShareIntro(i,numframes);
-            break;
-        case ANIM_SERP:
-            AnimSerp(i,numframes);
-            break;
-        case ANIM_SUMO:
-            AnimSumo(i,numframes);
-            break;
-        case ANIM_ZILLA:
-            AnimZilla(i,numframes);
-            break;
-        }
-
-		TileFiles.tileSetExternal(ANIM_TILE(ANIMnum), 200, 320, ANIM_DrawFrame(i));
-		tileInvalidate(ANIM_TILE(ANIMnum), 0, 1<<4);
-
-        rotatesprite(0 << 16, 0 << 16, 65536L, 512, ANIM_TILE(ANIMnum), 0, 0, 2 + 4 + 8 + 16 + 64, 0, 0, xdim - 1, ydim - 1);
-        videoNextPage();
-		handleevents();
-		if (inputState.CheckAllInput())
-			break;
     }
 
     // pause on final frame
@@ -329,8 +329,6 @@ ENDOFANIMLOOP:
 
     twod->ClearScreen();
     videoNextPage();
-
-    videoSetPalette(0, BASEPAL, 0);
 
     inputState.ClearAllInput();
     ANIM_FreeAnim();

@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screen.h"
 #include "sound.h"
 #include "view.h"
+#include "animtexture.h"
 #include "../glbackend/glbackend.h"
 #include "sound/s_soundinternal.h"
 
@@ -149,24 +150,8 @@ bool credKOpen4Load(FString &pzFile)
     return nHandle;
 }
 
-#define kSMKPal 5
-#define kSMKTile (MAXTILES-1)
-
 void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 {
-#if 0
-    CSMKPlayer smkPlayer;
-    if (dword_148E14 >= 0)
-    {
-        if (toupper(*pzSMK) == 'A'+dword_148E14)
-        {
-            if (Redbook.sub_82258() == 0 || Redbook.sub_82258() > 20)
-                return;
-        }
-        Redbook.sub_82554();
-    }
-    smkPlayer.sub_82E6C(pzSMK, pzWAV);
-#endif
     if (!_pzSMK || !*_pzSMK)
         return;
     FString pzSMK = _pzSMK;
@@ -184,19 +169,13 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     uint32_t nWidth, nHeight;
     Smacker_GetFrameSize(hSMK, nWidth, nHeight);
     uint8_t palette[768];
-	tileDelete(kSMKTile);
-	auto pFrame = TileFiles.tileCreate(kSMKTile, nHeight, nWidth);
-    if (!pFrame)
-    {
-        Smacker_Close(hSMK);
-        return;
-    }
+    AnimTextures animtex;
+    TArray<uint8_t> pFrame(nWidth * nHeight + std::max(nWidth, nHeight), true);
+    animtex.SetSize(nWidth, nHeight);
     int nFrameRate = Smacker_GetFrameRate(hSMK);
     int nFrames = Smacker_GetNumFrames(hSMK);
 
     Smacker_GetPalette(hSMK, palette);
-    paletteSetColorTable(kSMKPal, palette, true);
-    videoSetPalette(0, kSMKPal, Pal_Fullscreen);
     Mus_Stop();
 
     int nScale;
@@ -208,13 +187,13 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
             nScale = divscale16(320 * xdim * 3, nWidth * ydim * 4);
         else
             nScale = divscale16(200, nHeight);
-        nStat = 2 | 4 | 8 | 64;
+        nStat = 2 | 8 | 64;
     }
     else
     {
         // DOS Blood v1.11: 320x240, 320x320, 640x400, and 640x480 SMKs all display 1:1 and centered in a 640x480 viewport
         nScale = tabledivide32(scale(65536, ydim << 2, xdim * 3), ((max(nHeight, 240 + 1u) + 239) / 240));
-        nStat = 2 | 4 | 8 | 64 | 1024;
+        nStat = 2 | 8 | 64 | 1024;
         renderSetAspect(viewingrange, 65536);
     }
 
@@ -250,11 +229,9 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
 
         videoClearScreen(0);
         Smacker_GetPalette(hSMK, palette);
-        paletteSetColorTable(kSMKPal, palette, true);
-        videoSetPalette(0, kSMKPal, Pal_Fullscreen);
-        tileInvalidate(kSMKTile, 0, 1 << 4);  // JBF 20031228
-        Smacker_GetFrame(hSMK, pFrame);
-        rotatesprite_fs(160<<16, 100<<16, nScale, 512, kSMKTile, 0, 0, nStat);
+        Smacker_GetFrame(hSMK, pFrame.Data());
+        animtex.SetFrame(palette, pFrame.Data());
+        rotatesprite_fs(160<<16, 100<<16, nScale, 0, -1, 0, 0, nStat, animtex.GetFrame());
 
         videoNextPage();
 
@@ -266,8 +243,6 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     Smacker_Close(hSMK);
     inputState.ClearAllInput();
     soundEngine->StopAllChannels();
-    videoSetPalette(0, 0, 0);
-	tileDelete(kSMKTile);
 }
 
 END_BLD_NS

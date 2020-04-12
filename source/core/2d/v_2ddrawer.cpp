@@ -627,12 +627,12 @@ static int32_t dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, 
 
 void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 	int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-	int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2)
+	int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2, FTexture *pic)
 {
 	RenderCommand dg = {};
 	int method = 0;
 
-	dg.mType = DrawTypeRotateSprite;
+	dg.mType = pic? DrawTypeTriangles : DrawTypeRotateSprite;
 	if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth() - 1 || clipy2 < screen->GetHeight() - 1)
 	{
 		dg.mScissor[0] = clipx1;
@@ -657,7 +657,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	}
 
 	PalEntry p = 0xffffffff;
-	dg.mTexture = TileFiles.tiles[picnum];
+	dg.mTexture = pic? pic : TileFiles.tiles[picnum];
 	dg.mRemapIndex = dapalnum | (dashade << 16);
 	dg.mVertCount = 4;
 	dg.mVertIndex = (int)mVertices.Reserve(4);
@@ -666,13 +666,21 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	float alpha = float_trans(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
 	p.a = (uint8_t)(alpha * 255);
 
-	vec2_16_t const siz = tilesiz[picnum];
+	vec2_16_t const siz = dg.mTexture->GetSize();
 	vec2_16_t ofs = { 0, 0 };
 
 	if (!(dastat & RS_TOPLEFT))
 	{
-		ofs = { int16_t(picanm[picnum].xofs + (siz.x >> 1)),
-				int16_t(picanm[picnum].yofs + (siz.y >> 1)) };
+		if (!pic)
+		{
+			ofs = { int16_t(picanm[picnum].xofs + (siz.x >> 1)),
+					int16_t(picanm[picnum].yofs + (siz.y >> 1)) };
+		}
+		else
+		{
+			ofs = { int16_t((siz.x >> 1)),
+					int16_t((siz.y >> 1)) };
+		}
 	}
 
 	if (dastat & RS_YFLIP)
