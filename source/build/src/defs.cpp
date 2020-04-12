@@ -2040,7 +2040,7 @@ static int32_t defsparser(scriptfile *script)
 
             // NOTE: all palookups are initialized, i.e. non-NULL!
             // NOTE2: aliasing (pal==remappal) is OK
-            paletteMakeLookupTable(pal, lookuptables[remappal], red<<2, green<<2, blue<<2,
+            paletteMakeLookupTable(pal, LookupTables[remappal].GetChars(), red<<2, green<<2, blue<<2,
                          remappal==0 ? 1 : (nofloorpal == -1 ? g_noFloorPal[remappal] : nofloorpal));
         }
         break;
@@ -2862,15 +2862,8 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    uint8_t const * const sourcepal = (uint8_t *)lookuptables[source];
-                    if (EDUKE32_PREDICT_FALSE(sourcepal == NULL))
-                    {
-                        Printf("Error: palookup: Source palookup does not exist on line %s:%d\n",
-                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
-                        break;
-                    }
-
-                    paletteSetLookupTable(id, sourcepal);
+                    if (LookupTables[source].IsNotEmpty() || id > 0)    // do not overwrite the base with an empty table.
+                        LookupTables[id] = LookupTables[source];
                     didLoadShade = 1;
                     break;
                 }
@@ -2993,8 +2986,7 @@ static int32_t defsparser(scriptfile *script)
                 }
                 case T_UNDEF:
                 {
-                    paletteFreeLookupTable(id);
-
+                    LookupTables[id] = "";
                     didLoadShade = 0;
                     if (id == 0)
                         paletteloaded &= ~PALETTE_SHADE;
@@ -3228,16 +3220,16 @@ static int32_t defsparser(scriptfile *script)
                                     uint8_t * const factor = glblenddeftoken == T_SRC ? &glbdef->src : &glbdef->dst;
                                     switch (factortoken)
                                     {
-                                        case T_ZERO: *factor = BLENDFACTOR_ZERO; break;
-                                        case T_ONE: *factor = BLENDFACTOR_ONE; break;
-                                        case T_SRC_COLOR: *factor = BLENDFACTOR_SRC_COLOR; break;
-                                        case T_ONE_MINUS_SRC_COLOR: *factor = BLENDFACTOR_ONE_MINUS_SRC_COLOR; break;
-                                        case T_SRC_ALPHA: *factor = BLENDFACTOR_SRC_ALPHA; break;
-                                        case T_ONE_MINUS_SRC_ALPHA: *factor = BLENDFACTOR_ONE_MINUS_SRC_ALPHA; break;
-                                        case T_DST_ALPHA: *factor = BLENDFACTOR_DST_ALPHA; break;
-                                        case T_ONE_MINUS_DST_ALPHA: *factor = BLENDFACTOR_ONE_MINUS_DST_ALPHA; break;
-                                        case T_DST_COLOR: *factor = BLENDFACTOR_DST_COLOR; break;
-                                        case T_ONE_MINUS_DST_COLOR: *factor = BLENDFACTOR_ONE_MINUS_DST_COLOR; break;
+                                        case T_ZERO: *factor = STYLEALPHA_Zero; break;
+                                        case T_ONE: *factor = STYLEALPHA_One; break;
+                                        case T_SRC_COLOR: *factor = STYLEALPHA_SrcCol; break;
+                                        case T_ONE_MINUS_SRC_COLOR: *factor = STYLEALPHA_InvSrcCol; break;
+                                        case T_SRC_ALPHA: *factor = STYLEALPHA_Src; break;
+                                        case T_ONE_MINUS_SRC_ALPHA: *factor = STYLEALPHA_InvSrc; break;
+                                        case T_DST_ALPHA: *factor = STYLEALPHA_Dst; break;
+                                        case T_ONE_MINUS_DST_ALPHA: *factor = STYLEALPHA_InvDst; break;
+                                        case T_DST_COLOR: *factor = STYLEALPHA_DstCol; break;
+                                        case T_ONE_MINUS_DST_COLOR: *factor = STYLEALPHA_InvDstCol; break;
                                     }
 #else
                                     UNREFERENCED_PARAMETER(factortoken);
@@ -3349,7 +3341,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
             for (bssize_t i = id0; i <= id1; i++)
-                paletteFreeLookupTable(i);
+                LookupTables[i] = "";
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_SHADE;

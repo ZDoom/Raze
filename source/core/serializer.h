@@ -16,7 +16,7 @@ struct FWriter;
 struct FReader;
 class FFont;
 class FSoundID;
-union FRenderStyle;
+struct FRenderStyle;
 
 inline bool nullcmp(const void *buffer, size_t length)
 {

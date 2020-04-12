@@ -132,12 +132,12 @@ void Net_SyncPlayer(ENetEvent *event)
 
 static void display_betascreen(void)
 {
-    rotatesprite_fs(160<<16,100<<16,65536,0,BETASCREEN,0,0,2+8+64+BGSTRETCH);
+    rotatesprite_fs(160<<16,100<<16,65536,0,BETASCREEN,0,0,2+8+64+BGSTRETCH, nullptr, TITLEPAL);
 
-    rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8);
-    rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8);
+    rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8, nullptr, TITLEPAL);
+    rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8, nullptr, TITLEPAL);
     if (PLUTOPAK)   // JBF 20030804
-        rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8);
+        rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8, nullptr, TITLEPAL);
 }
 
 void faketimerhandler(void)
@@ -165,8 +165,6 @@ void Net_WaitForEverybody(void)
         if ((!g_networkBroadcastMode) && (myconnectindex != connecthead)) break; //slaves in M/S mode only send to master
     }
 
-
-    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, Pal_2D);
 
     do
     {

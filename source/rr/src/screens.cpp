@@ -1003,7 +1003,7 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
 }
 
 // START and END limits are always inclusive!
-static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t tile)
+static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t tile, int basepal)
 {
     if (ud.screenfade == 0)
       return;
@@ -1021,7 +1021,7 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
             videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
             return;
         }
-        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, tile, 0, 0, 2+8+64+BGSTRETCH);
+        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, tile, 0, 0, 2+8+64+BGSTRETCH, nullptr, basepal);
         G_FadePalette(r, g, b, start);
 
         start += step;
@@ -1044,13 +1044,13 @@ void G_DisplayExtraScreens(void)
         fadepal(0, 0, 0, 0, 252, 28);
         inputState.ClearAllInput();
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3291, 0, 0, 2+8+64+BGSTRETCH);
-        fadepaltile(0, 0, 0, 252, 0, -28, 3291);
+        fadepaltile(0, 0, 0, 252, 0, -28, 3291, BASEPAL);
         while (!inputState.CheckAllInput())
             G_HandleAsync();
 
-        fadepaltile(0, 0, 0, 0, 252, 28, 3291);
+        fadepaltile(0, 0, 0, 0, 252, 28, 3291, BASEPAL);
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, 3290, 0, 0, 2+8+64+BGSTRETCH);
-        fadepaltile(0, 0, 0, 252, 0, -28, 3290);
+        fadepaltile(0, 0, 0, 252, 0, -28, 3290, BASEPAL);
         while (!inputState.CheckAllInput())
             G_HandleAsync();
 
@@ -1066,11 +1066,11 @@ void G_DisplayExtraScreens(void)
         inputState.ClearAllInput();
         totalclock = 0;
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, TENSCREEN, 0, 0, 2+8+64+BGSTRETCH);
-        fadepaltile(0, 0, 0, 252, 0, -28, TENSCREEN);
+        fadepaltile(0, 0, 0, 252, 0, -28, TENSCREEN, BASEPAL);
         while (!inputState.CheckAllInput() && totalclock < 2400)
             G_HandleAsync();
 
-        fadepaltile(0, 0, 0, 0, 252, 28, TENSCREEN);
+        fadepaltile(0, 0, 0, 0, 252, 28, TENSCREEN, BASEPAL);
         inputState.ClearAllInput();
     }
 }
@@ -1106,7 +1106,7 @@ void G_DisplayLogo(void)
                 renderFlushPerms();
                 rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 7106, 0, 0, 2 + 8 + 64 + BGSTRETCH);
                 videoNextPage();
-                fadepaltile(0, 0, 0, 252, 0, -4, 7106);
+                fadepaltile(0, 0, 0, 252, 0, -4, 7106, BASEPAL);
                 totalclock = 0;
 
                 while (totalclock < (120 * 3) && !inputState.CheckAllInput())
@@ -1126,7 +1126,7 @@ void G_DisplayLogo(void)
                     }
                 }
 
-                fadepaltile(0, 0, 0, 0, 252, 4, 7106);
+                fadepaltile(0, 0, 0, 0, 252, 4, 7106, BASEPAL);
             }
 
             videoClearScreen(0L);
@@ -1151,7 +1151,7 @@ void G_DisplayLogo(void)
                 renderFlushPerms();
                 rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 7107, 0, 0, 2 + 8 + 64 + BGSTRETCH);
                 videoNextPage();
-                fadepaltile(0, 0, 0, 252, 0, -4, 7107);
+                fadepaltile(0, 0, 0, 252, 0, -4, 7107, BASEPAL);
                 totalclock = 0;
 
                 while (totalclock < (120 * 3) && !inputState.CheckAllInput())
@@ -1171,7 +1171,7 @@ void G_DisplayLogo(void)
                     }
                 }
 
-                fadepaltile(0, 0, 0, 0, 252, 4, 7107);
+                fadepaltile(0, 0, 0, 0, 252, 4, 7107, BASEPAL);
             }
 
             inputState.ClearAllInput();
@@ -1278,12 +1278,11 @@ void G_DisplayLogo(void)
             {
                 videoClearScreen(0);
 
-                P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, Pal_Fullscreen);    // JBF 20040308
                 fadepal(0, 0, 0, 0, 252, 28);
                 renderFlushPerms();
-                rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
+                rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH, nullptr, DREALMSPAL);
                 videoNextPage();
-                fadepaltile(0, 0, 0, 252, 0, -28, DREALMS);
+                fadepaltile(0, 0, 0, 252, 0, -28, DREALMS, DREALMSPAL);
                 totalclock = 0;
 
                 while (totalclock < (120 * 7) && !inputState.CheckAllInput())
@@ -1291,13 +1290,13 @@ void G_DisplayLogo(void)
                     if (G_FPSLimit())
                     {
                         videoClearScreen(0);
-                        rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
+                        rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH, nullptr, DREALMSPAL);
                         G_HandleAsync();
                         videoNextPage();
                     }
                 }
 
-                fadepaltile(0, 0, 0, 0, 252, 28, DREALMS);
+                fadepaltile(0, 0, 0, 0, 252, 28, DREALMS, DREALMSPAL);
             }
         }
 
@@ -1312,11 +1311,10 @@ void G_DisplayLogo(void)
         videoClearScreen(0);
 
         //g_player[myconnectindex].ps->palette = titlepal;
-        P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, Pal_2D);   // JBF 20040308
         renderFlushPerms();
-        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BETASCREEN, 0, 0, 2+8+64+BGSTRETCH);
+        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BETASCREEN, 0, 0, 2+8+64+BGSTRETCH, nullptr, TITLEPAL);
         inputState.keyFlushChars();
-        fadepaltile(0, 0, 0, 252, 0, -28, BETASCREEN);
+        fadepaltile(0, 0, 0, 252, 0, -28, BETASCREEN, TITLEPAL);
         totalclock = 0;
 
         while (
@@ -1326,7 +1324,7 @@ void G_DisplayLogo(void)
             if (G_FPSLimit())
             {
                 videoClearScreen(0);
-                rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BETASCREEN, 0, 0, 2+8+64+BGSTRETCH);
+                rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BETASCREEN, 0, 0, 2+8+64+BGSTRETCH, nullptr, TITLEPAL);
 
                 if (totalclock > 120 && totalclock < (120+60))
                 {
@@ -1335,10 +1333,10 @@ void G_DisplayLogo(void)
                         soundanm++;
                         S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
                     }
-                    rotatesprite_fs(160<<16, 104<<16, ((int32_t) totalclock-120)<<10, 0, DUKENUKEM, 0, 0, 2+8);
+                    rotatesprite_fs(160<<16, 104<<16, ((int32_t) totalclock-120)<<10, 0, DUKENUKEM, 0, 0, 2+8, nullptr, TITLEPAL);
                 }
                 else if (totalclock >= (120+60))
-                    rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, DUKENUKEM, 0, 0, 2+8);
+                    rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, DUKENUKEM, 0, 0, 2+8, nullptr, TITLEPAL);
 
                 if (totalclock > 220 && totalclock < (220+30))
                 {
@@ -1348,18 +1346,18 @@ void G_DisplayLogo(void)
                         S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
                     }
 
-                    rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, DUKENUKEM, 0, 0, 2+8);
-                    rotatesprite_fs(160<<16, (129)<<16, ((int32_t) totalclock - 220)<<11, 0, THREEDEE, 0, 0, 2+8);
+                    rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, DUKENUKEM, 0, 0, 2+8, nullptr, TITLEPAL);
+                    rotatesprite_fs(160<<16, (129)<<16, ((int32_t) totalclock - 220)<<11, 0, THREEDEE, 0, 0, 2+8, nullptr, TITLEPAL);
                 }
                 else if (totalclock >= (220+30))
-                    rotatesprite_fs(160<<16, (129)<<16, 30<<11, 0, THREEDEE, 0, 0, 2+8);
+                    rotatesprite_fs(160<<16, (129)<<16, 30<<11, 0, THREEDEE, 0, 0, 2+8, nullptr, TITLEPAL);
 
                 if (PLUTOPAK)
                 {
                     // JBF 20030804
                     if (totalclock >= 280 && totalclock < 395)
                     {
-                        rotatesprite_fs(160<<16, (151)<<16, (410-(int32_t) totalclock)<<12, 0, PLUTOPAKSPRITE+1, (sintable[((int32_t) totalclock<<4)&2047]>>11), 0, 2+8);
+                        rotatesprite_fs(160<<16, (151)<<16, (410-(int32_t) totalclock)<<12, 0, PLUTOPAKSPRITE+1, (sintable[((int32_t) totalclock<<4)&2047]>>11), 0, 2+8, nullptr, TITLEPAL);
                         if (soundanm == 2)
                         {
                             soundanm++;
@@ -1373,7 +1371,7 @@ void G_DisplayLogo(void)
                             soundanm++;
                             S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
                         }
-                        rotatesprite_fs(160<<16, (151)<<16, 30<<11, 0, PLUTOPAKSPRITE+1, (sintable[((int32_t) totalclock<<4)&2047]>>11), 0, 2+8);
+                        rotatesprite_fs(160<<16, (151)<<16, 30<<11, 0, PLUTOPAKSPRITE+1, (sintable[((int32_t) totalclock<<4)&2047]>>11), 0, 2+8, nullptr, TITLEPAL);
                     }
                 }
 
@@ -1502,9 +1500,8 @@ static void G_BonusCutscenes(void)
                 350, 380, VICTORY1+8, 86, 59 // duplicate row to alleviate overflow in the for loop below "boss"
             };
 
-            P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, Pal_Fullscreen); // JBF 20040308
             videoClearScreen(0L);
-            rotatesprite_fs(0, 50<<16, 65536L, 0, VICTORY1, 0, 0, 2+8+16+64+128+BGSTRETCH);
+            rotatesprite_fs(0, 50<<16, 65536L, 0, VICTORY1, 0, 0, 2+8+16+64+128+BGSTRETCH, nullptr, ENDINGPAL);
             videoNextPage();
             fadepal(0, 0, 0, 252, 0, -4);
 
@@ -1516,7 +1513,7 @@ static void G_BonusCutscenes(void)
                 if (G_FPSLimit())
                 {
                     videoClearScreen(0L);
-                    rotatesprite_fs(0, 50<<16, 65536L, 0, VICTORY1, 0, 0, 2+8+16+64+128+BGSTRETCH);
+                    rotatesprite_fs(0, 50 << 16, 65536L, 0, VICTORY1, 0, 0, 2 + 8 + 16 + 64 + 128 + BGSTRETCH, nullptr, ENDINGPAL);
 
                     // boss
                     if (totalclock > 390 && totalclock < 780)
@@ -1528,7 +1525,7 @@ static void G_BonusCutscenes(void)
                                 S_PlaySound(SQUISHED, CHAN_AUTO, CHANF_UI);
                                 bonuscnt++;
                             }
-                            rotatesprite_fs(bossmove[t+3]<<16, bossmove[t+4]<<16, 65536L, 0, bossmove[t+2], 0, 0, 2+8+16+64+128+BGSTRETCH);
+                            rotatesprite_fs(bossmove[t+3]<<16, bossmove[t+4]<<16, 65536L, 0, bossmove[t+2], 0, 0, 2+8+16+64+128+BGSTRETCH, nullptr, ENDINGPAL);
                         }
 
                     // Breathe
@@ -1544,7 +1541,7 @@ static void G_BonusCutscenes(void)
 
                         if (totalclock >= 750)
                         {
-                            rotatesprite_fs(86<<16, 59<<16, 65536L, 0, VICTORY1+8, 0, 0, 2+8+16+64+128+BGSTRETCH);
+                            rotatesprite_fs(86<<16, 59<<16, 65536L, 0, VICTORY1+8, 0, 0, 2+8+16+64+128+BGSTRETCH, nullptr, ENDINGPAL);
                             if (totalclock >= 750 && bonuscnt == 2)
                             {
                                 S_PlaySound(DUKETALKTOBOSS, CHAN_AUTO, CHANF_UI);
@@ -1560,7 +1557,7 @@ static void G_BonusCutscenes(void)
                                     S_PlaySound(BOSSTALKTODUKE, CHAN_AUTO, CHANF_UI);
                                     bonuscnt++;
                                 }
-                                rotatesprite_fs(breathe[t+3]<<16, breathe[t+4]<<16, 65536L, 0, breathe[t+2], 0, 0, 2+8+16+64+128+BGSTRETCH);
+                                rotatesprite_fs(breathe[t+3]<<16, breathe[t+4]<<16, 65536L, 0, breathe[t+2], 0, 0, 2+8+16+64+128+BGSTRETCH, nullptr, ENDINGPAL);
                             }
                     }
 

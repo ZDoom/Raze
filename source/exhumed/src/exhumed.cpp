@@ -2505,25 +2505,20 @@ void KeyFn1()
     videoNextPage();
 }
 
+extern int currentCinemaPalette;
 void DoGameOverScene()
 {
     FadeOut(0);
     inputState.ClearAllInput();
 
-    if (LoadCinemaPalette(16) < 0) {
-        return;
-    }
-
-    SetOverscan(ANIMPAL);
     NoClip();
-    overwritesprite(0, 0, kTile3591, 0, 2, kPalNormal);
+    overwritesprite(0, 0, kTile3591, 0, 2, kPalNormal, 16);
     Clip();
     videoNextPage();
     CinemaFadeIn();
     PlayGameOverSound();
     WaitAnyKey(3);
     FadeOut(0);
-    SetOverscan(BASEPAL);
 }
 
 void DoTitle()
@@ -2737,7 +2732,7 @@ int CopyCharToBitmap(char nChar, int nTile, int xPos, int yPos)
 }
 
 // Note: strings passed should be uppercase
-int myprintext(int x, int y, const char *str, int shade)
+int myprintext(int x, int y, const char *str, int shade, int basepal)
 {
     if (y < -15 || y >= 200)
         return x;
@@ -2747,7 +2742,7 @@ int myprintext(int x, int y, const char *str, int shade)
     while (*c != '\0')
     {
         int nTile = seq_GetSeqPicnum(kSeqFont2, 0, (*c) - 32);
-        overwritesprite(x, y, nTile, shade, 2, kPalNormal);
+        overwritesprite(x, y, nTile, shade, 2, kPalNormal, basepal);
 
         int tileWidth = tilesiz[nTile].x;
 

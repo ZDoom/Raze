@@ -1098,7 +1098,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
         pc[3] = (tspr->cstat & 2) ? glblend[tspr->blend].def[!!(tspr->cstat & 512)].alpha : 1.0f;
         pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
 
-        handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+        SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
         if (!(tspr->cstat & 2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f)
             GLInterface.EnableBlend(true);  // else GLInterface.EnableBlend(false);

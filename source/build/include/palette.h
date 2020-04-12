@@ -13,6 +13,9 @@
 
 #include "renderstyle.h"
 #include "filesystem.h"
+#include "zstring.h"
+#include "palentry.h"
+#include "templates.h"
 
 #define MAXBASEPALS 256
 #define MAXPALOOKUPS 256
@@ -25,6 +28,8 @@
 #define NORMALPAL   (MAXPALOOKUPS - 4)
 #define BRIGHTPAL	(MAXPALOOKUPS)
 
+extern FString LookupTables[MAXPALOOKUPS];
+
 enum
 {
     Translation_BasePalettes,
@@ -32,51 +37,44 @@ enum
 };
 
 extern uint8_t curbasepal;
-
-extern uint8_t PaletteIndexFullbrights[32];
-
-
-inline bool IsPaletteIndexFullbright(uint8_t col)
-{
-	return (PaletteIndexFullbrights[col >> 3] & (1u << (col & 7)));
-}
-
-inline void SetPaletteIndexFullbright(int col)
-{
-	PaletteIndexFullbrights[col >> 3] |= (1u << (col & 7));
-}
+extern FixedBitArray<256> FullbrightIndices;
+extern int32_t r_scenebrightness;
 
 struct palette_t 
 {
     uint8_t r, g, b, f;
 };
-typedef struct {
-    uint8_t r, g, b;
-} rgb24_t;
-extern palette_t palfadergb;
 
-extern unsigned char palfadedelta;
+extern PalEntry palfadergb;
+
 void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
 void paletteSetColorTable(int32_t id, uint8_t const *table, bool notransparency = false);
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab);
-void paletteFreeLookupTable(int32_t palnum);
 
 #include "tflags.h"
 enum ESetPalFlag
 {
     Pal_DontResetFade = 1,
-    Pal_SceneBrightness = 2,
-    Pal_Fullscreen = 4,
-    Pal_2D = 8,
 };
+
+inline void videoSetBrightness(int brightness)
+{
+    r_scenebrightness = clamp(brightness, 0, 15);
+}
 
 typedef TFlags<ESetPalFlag> ESetPalFlags;
     DEFINE_TFLAGS_OPERATORS(ESetPalFlags)
 
-extern ESetPalFlags curpaletteflags;
-
 void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags);
-void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset);
+inline void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
+{
+    palfadergb.r = r;
+    palfadergb.g = g;
+    palfadergb.b = b;
+    palfadergb.a = offset;
+}
+
+
 #ifdef USE_OPENGL
 void videoTintBlood(int32_t r, int32_t g, int32_t b);
 #endif
@@ -85,7 +83,6 @@ extern int32_t globalpal;
 extern int32_t globalblend;
 extern void paletteLoadFromDisk(void);
 extern void palettePostLoadTables(void);
-extern int32_t curbrightness;
 
 extern int32_t paletteLoadLookupTable(FileReader &fp);
 extern void paletteSetupDefaultFog(void);
@@ -99,21 +96,6 @@ extern char britable[16][256];
 
 #ifdef USE_OPENGL
 extern palette_t palookupfog[MAXPALOOKUPS];
-
-enum
-{
-    BLENDFACTOR_ZERO = 0,
-    BLENDFACTOR_ONE,
-    BLENDFACTOR_SRC_COLOR,
-    BLENDFACTOR_ONE_MINUS_SRC_COLOR,
-    BLENDFACTOR_SRC_ALPHA,
-    BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-    BLENDFACTOR_DST_ALPHA,
-    BLENDFACTOR_ONE_MINUS_DST_ALPHA,
-    BLENDFACTOR_DST_COLOR,
-    BLENDFACTOR_ONE_MINUS_DST_COLOR,
-    NUMBLENDFACTORS,
-};
 
 typedef struct glblenddef_
 {
@@ -129,9 +111,9 @@ typedef struct glblend_
 extern glblend_t const nullglblend, defaultglblend;
 extern glblend_t glblend[MAXBLENDTABS];
 
-FRenderStyle GetBlend(int blend, int def);
-extern void handle_blend(uint8_t enable, uint8_t blend, uint8_t def);
-float float_trans(uint32_t maskprops, uint8_t blend);
+FRenderStyle GetRenderStyle(int blend, int def);
+extern void SetRenderStyleFromBlend(uint8_t enable, uint8_t blend, uint8_t def);
+float GetAlphaFromBlend(uint32_t maskprops, uint32_t blend);
 
 #endif
 

@@ -69,7 +69,6 @@ bool playing_rr;
 bool playing_blood;
 int32_t rendmode=0;
 int32_t glrendmode = REND_POLYMOST;
-int32_t r_scenebrightness = 0;
 int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
@@ -2069,6 +2068,8 @@ int32_t enginePreInit(void)
 }
 
 
+void (*paletteLoadFromDisk_replace)(void) = NULL;   // replacement hook for Blood.
+
 //
 // initengine
 //
@@ -2109,7 +2110,14 @@ int32_t engineInit(void)
 
     maxspritesonscreen = MAXSPRITESONSCREEN;
 
-    paletteLoadFromDisk();
+    if (paletteLoadFromDisk_replace)
+    {
+        paletteLoadFromDisk_replace();
+    }
+    else
+    {
+        paletteLoadFromDisk();
+    }
 
 #ifdef USE_OPENGL
     if (!mdinited) mdinit();
@@ -2138,7 +2146,6 @@ int32_t enginePostInit(void)
 //
 // uninitengine
 //
-void paletteFreeAll();
 
 void engineUnInit(void)
 {
@@ -2152,8 +2159,6 @@ void engineUnInit(void)
 #endif
 
 	TileFiles.CloseAll();
-
-    paletteFreeAll();
 
     for (bssize_t i = 0; i < num_usermaphacks; i++)
     {
@@ -4994,7 +4999,7 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
 //
 void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                    int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FTexture *tex)
+                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FTexture *tex, int basepal)
 {
     if (!tex && (unsigned)picnum >= MAXTILES)
         return;
@@ -5020,7 +5025,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     }
 
     // We must store all calls in the 2D drawer so that the backend can operate on a clean 3D view.
-    twod->rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2, tex);
+    twod->rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2, tex, basepal);
 
     // RS_PERM code was removed because the current backend supports only one page that needs to be redrawn each frame in which case the perm list was skipped anyway.
 }

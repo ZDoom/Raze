@@ -41,6 +41,7 @@
 #include "v_draw.h"
 #include "palette.h"
 #include "flatvertices.h"
+#include "build.h"
 
 extern int16_t numshades;
 extern TArray<VSMatrix> matrixArray;
@@ -173,7 +174,13 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 				// todo: Set up hictinting. (broken as the feature is...)
 				SetShade(cmd.mRemapIndex >> 16, numshades);
 				SetFadeDisable(false);
-				SetTexture(0, tex, cmd.mRemapIndex & 0xffff, 4/*DAMETH_CLAMPED*/, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
+				auto saved = curbasepal;	// screw Build's dependencies on global state variables. We only need to change this for the following SetTexture call.
+				curbasepal = (cmd.mRemapIndex >> 8) & 0xff;
+				auto savedf = globalflags;
+				if (curbasepal > 0) globalflags |= GLOBAL_NO_GL_FULLBRIGHT;	// temp. hack to disable brightmaps.
+				SetTexture(0, tex, cmd.mRemapIndex & 0xff, 4/*DAMETH_CLAMPED*/, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
+				curbasepal = saved;
+				globalflags = savedf;
 			}
 			else
 			{
@@ -234,8 +241,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 
 
 static int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
-extern palette_t palfadergb;
-extern unsigned char palfadedelta ;
+extern PalEntry palfadergb;
 
 void DrawFullscreenBlends()
 {
@@ -248,11 +254,11 @@ void DrawFullscreenBlends()
 	GLInterface.EnableBlend(true);
 	GLInterface.UseColorOnly(true);
 
-	if (palfadedelta > 0)
+	if (palfadergb.a > 0)
 	{
 		// Todo: reroute to the 2D drawer
 		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
-		GLInterface.SetColorub(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
+		GLInterface.SetColorub(palfadergb.r, palfadergb.g, palfadergb.b, palfadergb.a);
 		GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
 	}
 	if (tint_blood_r | tint_blood_g | tint_blood_b)

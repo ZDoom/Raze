@@ -201,7 +201,8 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				applytint = true;
 				if (!(h.f & HICTINT_APPLYOVERPALSWAP)) usepalswap = 0;
 			}
-			lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false,fixpalette < 0? !!(curpaletteflags & Pal_Fullscreen) : 0);
+#pragma message("fix color 255")
+			lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false, 0);// fixpalette < 0 ? !!(curpaletteflags & Pal_Fullscreen) : 0);
 		}
 	}
 
@@ -286,7 +287,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			}
 		}
 #if 1
-		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap] && !(curpaletteflags & (Pal_Fullscreen|Pal_2D)))
+		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap])
 		{
 			if (TextureType == TT_HICREPLACE)
 			{

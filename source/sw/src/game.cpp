@@ -1412,7 +1412,6 @@ void LogoLevel(void)
     DSPRINTF(ds,"LogoLevel...");
     MONO_PRINT(ds);
 
-    videoSetPalette(0, DREALMSPAL, Pal_Fullscreen);
     MONO_PRINT(ds);
 
     //FadeOut(0, 0);
@@ -1429,7 +1428,7 @@ void LogoLevel(void)
     while (TRUE)
     {
         twod->ClearScreen();
-        rotatesprite(0, 0, RS_SCALE, 0, THREED_REALMS_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
+        rotatesprite(0, 0, RS_SCALE, 0, THREED_REALMS_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1, nullptr, DREALMSPAL);
         videoNextPage();
 
         handleevents();

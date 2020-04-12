@@ -64,7 +64,6 @@ uint8_t * PlasmaBuffer;
 
 uint8_t energytile[66 * 66] = {0};
 
-uint8_t cinemapal[768];
 short nLeft[50] = {0};
 int line;
 
@@ -991,30 +990,21 @@ int nextclock;
 short nHeight;
 short nCrawlY;
 short cinematile;
+int currentCinemaPalette;
 
 
-// TODO - moveme
-int LoadCinemaPalette(int nPal)
+void uploadCinemaPalettes()
 {
-    nPal--;
-
-    if (nPal < 0 || nPal >= kMaxCinemaPals) {
-        return -2;
+    for (int i = 0; i < countof(cinpalfname); i++)
+    {
+        uint8_t palette[768] = {};
+        auto hFile = fileSystem.OpenFileReader(cinpalfname[i]);
+        if (hFile.isOpen())
+            hFile.Read(palette, 768);
+        for (auto& c : palette)
+            c <<= 2;
+        paletteSetColorTable(ANIMPAL+i, palette);
     }
-
-    // original code strcpy'd into a buffer first...
-
-    auto hFile = fileSystem.OpenFileReader(cinpalfname[nPal]);
-    if (!hFile.isOpen()) {
-        return -2;
-    }
-
-    hFile.Read(cinemapal, sizeof(cinemapal));
-
-    for (auto &c : cinemapal)
-        c <<= 2;
-
-    return nPal;
 }
 
 //int IncrementCinemaFadeIn()
@@ -1053,8 +1043,7 @@ void CinemaFadeIn()
 {
     BlackOut();
 
-    paletteSetColorTable(ANIMPAL, cinemapal);
-    videoSetPalette(0, ANIMPAL, Pal_Fullscreen);
+    //videoSetPalette(0, ANIMPAL, Pal_Fullscreen);
 
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
@@ -1135,7 +1124,7 @@ uint8_t AdvanceCinemaText()
             while (edi < linecount && y <= 199)
             {
                 if (y >= -10) {
-                    myprintext(nLeft[edi], y, gString[line + edi], 0);
+                    myprintext(nLeft[edi], y, gString[line + edi], 0, currentCinemaPalette);
                 }
 
                 edi++;
@@ -1176,7 +1165,7 @@ void DoCinemaText(short nVal)
 
     while (1)
     {
-        overwritesprite(0, 0, cinematile, 0, 2, kPalNormal);
+        overwritesprite(0, 0, cinematile, 0, 2, kPalNormal, currentCinemaPalette);
 
         uint8_t bContinue = AdvanceCinemaText();
 
@@ -1206,53 +1195,47 @@ void GoToTheCinema(int nVal)
 
         case 0:
         {
-            LoadCinemaPalette(1);
             cinematile = 3454;
             break;
         }
 
         case 1:
         {
-            LoadCinemaPalette(2);
             cinematile = 3452;
             break;
         }
 
         case 2:
         {
-            LoadCinemaPalette(3);
             cinematile = 3449;
             break;
         }
 
         case 3:
         {
-            LoadCinemaPalette(4);
             cinematile = 3445;
             break;
         }
 
         case 4:
         {
-            LoadCinemaPalette(5);
             cinematile = 3451;
             break;
         }
 
         case 5:
         {
-            LoadCinemaPalette(6);
             cinematile = 3448;
             break;
         }
 
         case 6:
         {
-            LoadCinemaPalette(7);
             cinematile = 3446;
             break;
         }
     }
+    currentCinemaPalette = nVal;
 
 #if 0
     if (ISDEMOVER) {
@@ -1266,12 +1249,12 @@ void GoToTheCinema(int nVal)
     StopAllSounds();
     NoClip();
 
-    overwritesprite(0, 0, kMovieTile, 100, 2, kPalNormal);
+    overwritesprite(0, 0, kMovieTile, 100, 2, kPalNormal, currentCinemaPalette);
     videoNextPage();
 
 //	int386(16, (const union REGS *)&val, (union REGS *)&val)
 
-    overwritesprite(0, 0, cinematile, 0, 2, kPalNormal);
+    overwritesprite(0, 0, cinematile, 0, 2, kPalNormal, currentCinemaPalette);
     videoNextPage();
 
     CinemaFadeIn();
@@ -1336,7 +1319,7 @@ void GoToTheCinema(int nVal)
 
     FadeOut(kTrue);
 
-    overwritesprite(0, 0, kMovieTile, 100, 2, kPalNormal);
+    overwritesprite(0, 0, kMovieTile, 100, 2, kPalNormal, currentCinemaPalette);
     videoNextPage();
 
     GrabPalette();
