@@ -602,6 +602,8 @@ file( GLOB HEADER_FILES
 	core/rendering/hwrenderer/postprocessing/*.h
 	core/rendering/hwrenderer/utility/*.h
 
+	common/audio/music/*.h*
+	common/console/*.h
 	common/utility/*.h
 	common/engine/*.h
 	common/filesystem/*.h
@@ -716,6 +718,11 @@ set (PCH_SOURCES
 	core/console/c_console.cpp
 	core/console/d_event.cpp
 
+	common/audio/music/music_midi_base.cpp
+	common/audio/music/music.cpp
+	common/audio/music/i_music.cpp
+	common/audio/music/i_soundfont.cpp
+	common/audio/music/music_config.cpp
 	common/thirdparty/sfmt/SFMT.cpp
 	common/textures/animtexture.cpp
 	common/textures/bitmap.cpp
@@ -776,11 +783,6 @@ set (PCH_SOURCES
 	core/textures/formats/stbtexture.cpp
 	core/textures/formats/arttexture.cpp
 
-	core/music/music.cpp
-	core/music/i_music.cpp
-	core/music/i_soundfont.cpp
-	core/music/music_config.cpp
-	core/music/music_midi_base.cpp
 	core/music/s_advsound.cpp
 
 	core/sound/backend/oalsound.cpp
@@ -915,6 +917,7 @@ include_directories(
 	core/rendering/hwrenderer/utility
 	core/rendering
 	platform
+	common/audio/music
 	common/thirdparty
 	common/textures
 	common/filesystem
@@ -1017,7 +1020,6 @@ source_group("Core\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/co
 source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d/.+")
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
 source_group("Core\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/fonts/.+")
-source_group("Core\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/music/.+")
 source_group("Core\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/sound/.+")
 source_group("Core\\Sound\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/sound/backend/.+")
 source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/dobject/.+")
@@ -1029,6 +1031,8 @@ source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platfor
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("Platform\\POSIX" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/.+")
 source_group("Common" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/.+")
+source_group("Common\\Audio" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/audio/.+")
+source_group("Common\\Audio\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/audio/music.+")
 source_group("Common\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/console/.+")
 source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
 source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/engine/.+")
