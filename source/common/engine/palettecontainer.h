@@ -4,6 +4,8 @@
 #include "memarena.h"
 #include "palentry.h"
 
+class FileReader;
+
 struct FRemapTable
 {
 	FRemapTable(int count = 256) { NumEntries = count; }
@@ -81,6 +83,7 @@ public:
 	void Init(int numslots);	// This cannot be a constructor!!!
 	void SetPalette(const uint8_t* colors, int transparent_index = -1);
 	void Clear();
+	int DetermineTranslucency(FileReader& file);
 	FRemapTable* AddRemap(FRemapTable* remap);
 	void UpdateTranslation(int trans, FRemapTable* remap);
 	int AddTranslation(int slot, FRemapTable* remap, int count = 1);

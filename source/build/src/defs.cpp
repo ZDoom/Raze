@@ -2658,7 +2658,7 @@ static int32_t defsparser(scriptfile *script)
                             palbuf[k] <<= shiftleft;
                     }
 
-                    paletteSetColorTable(id, palbuf.Data());
+                    paletteSetColorTable(id, palbuf.Data(), false, false);
                     didLoadPal = 1;
                     break;
                 }

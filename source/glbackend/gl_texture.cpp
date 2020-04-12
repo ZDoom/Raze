@@ -40,6 +40,7 @@
 #include "textures.h"
 #include "bitmap.h"
 #include "v_font.h"
+#include "palettecontainer.h"
 #include "../../glbackend/glbackend.h"
 
 // Test CVARs.
@@ -151,6 +152,61 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 //	Sets a texture for rendering. This should be the ONLY place to bind in-game textures
 //
 //===========================================================================
+
+struct TexturePick
+{
+	FTexture* texture;		// which texture to use
+	int translation;		// which translation table to use
+	int tintFlags;			// which shader tinting options to use
+	PalEntry tintColor;		// Tint color
+	PalEntry basepalTint;	// can the base palette be done with a global tint effect?
+};
+
+TexturePick PickTexture(int tilenum, int basepal, int palette)
+{
+	TexturePick pick = { nullptr, 0, -1, 0xffffff, 0xffffff };
+	int usepalette = fixpalette >= 0 ? fixpalette : basepal;
+	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
+	auto& h = hictinting[palette];
+	auto tex = TileFiles.tiles[tilenum];
+	auto rep = (hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? tex->FindReplacement(usepalswap) : nullptr;
+	// Canvas textures must be treated like hightile replacements in the following code.
+	bool truecolor = rep || tex->GetUseType() == FTexture::Canvas;
+	bool applytint = false;
+	if (truecolor)
+	{
+		if (usepalette != 0)
+		{
+			// This is a global setting for the entire scene, so let's do it here, right at the start. (Fixme: Store this in a static table instead of reusing the same entry for all palettes.)
+			auto& hh = hictinting[MAXPALOOKUPS - 1];
+			// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
+			pick.basepalTint = hh.tint;
+		}
+
+		if (rep)
+		{
+			tex = rep->faces[0];
+		}
+		if (!rep || rep->palnum != palette || (h.f & HICTINT_APPLYOVERALTPAL)) applytint = true;
+	}
+	else
+	{
+		// Tinting is not used on indexed textures, unless explicitly requested
+		if (h.f & (HICTINT_ALWAYSUSEART | HICTINT_USEONART))
+		{
+			applytint = true;
+			if (!(h.f & HICTINT_APPLYOVERPALSWAP)) usepalswap = 0;
+		}
+		pick.translation = TRANSLATION(usepalette + 1, usepalswap);
+	}
+	pick.texture = tex;
+	if (applytint && h.f)
+	{
+		pick.tintFlags = h.f;
+		pick.tintColor = h.tint;
+	}
+	return pick;
+}
 
 bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int method, int sampleroverride, FTexture *det, float detscale, FTexture *glow)
 {

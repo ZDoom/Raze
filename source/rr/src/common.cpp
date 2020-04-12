@@ -132,7 +132,7 @@ void G_LoadLookups(void)
         for (bssize_t k = 0; k < 768; k++)
             paldata[k] <<= 2;
 
-        paletteSetColorTable(basepalnum, paldata, basepalnum == DREALMSPAL || basepalnum == ENDINGPAL);
+        paletteSetColorTable(basepalnum, paldata, basepalnum == DREALMSPAL || basepalnum == ENDINGPAL, basepalnum < DREALMSPAL);
     }
 
     for (int i = 0; i < 256; i++)
@@ -142,7 +142,7 @@ void G_LoadLookups(void)
         paldata[i * 3+1] = GPalette.BaseColors[i].g;
         paldata[i * 3+2] = GPalette.BaseColors[i].r;
     }
-    paletteSetColorTable(DRUGPAL, paldata); // todo: implement this as a shader effect
+    paletteSetColorTable(DRUGPAL, paldata, false, false); // todo: implement this as a shader effect (swap R and B in postprocessing.)
 
     if (RR)
     {

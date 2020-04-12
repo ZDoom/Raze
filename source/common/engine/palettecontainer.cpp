@@ -39,6 +39,7 @@
 #include "colormatcher.h"
 #include "templates.h"
 #include "palettecontainer.h"
+#include "files.h"
 
 PaletteContainer GPalette;
 FColorMatcher ColorMatcher;
@@ -100,6 +101,35 @@ void PaletteContainer::Clear()
 	remapArena.FreeAllBlocks();
 	uniqueRemaps.Reset();
 	TranslationTables.Reset();
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+int PaletteContainer::DetermineTranslucency(FileReader& tranmap)
+{
+	uint8_t index;
+	PalEntry newcolor;
+	PalEntry newcolor2;
+
+	if (!tranmap.isOpen()) return 255;
+	tranmap.Seek(GPalette.BlackIndex * 256 + GPalette.WhiteIndex, FileReader::SeekSet);
+	tranmap.Read(&index, 1);
+
+	newcolor = GPalette.BaseColors[GPalette.Remap[index]];
+
+	tranmap.Seek(GPalette.WhiteIndex * 256 + GPalette.BlackIndex, FileReader::SeekSet);
+	tranmap.Read(&index, 1);
+	newcolor2 = GPalette.BaseColors[GPalette.Remap[index]];
+	if (newcolor2.r == 255)	// if black on white results in white it's either
+							// fully transparent or additive
+	{
+		return -newcolor.r;
+	}
+	return newcolor.r;
 }
 
 //----------------------------------------------------------------------------

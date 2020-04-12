@@ -1003,7 +1003,7 @@ void uploadCinemaPalettes()
             hFile.Read(palette, 768);
         for (auto& c : palette)
             c <<= 2;
-        paletteSetColorTable(ANIMPAL+i, palette);
+        paletteSetColorTable(ANIMPAL+i, palette, false, true);
     }
 }
 

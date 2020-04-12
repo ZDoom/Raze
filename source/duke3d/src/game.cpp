@@ -5249,8 +5249,6 @@ static void G_PostLoadPalette(void)
 
     if (!(duke3d_globalflags & DUKE3D_NO_PALETTE_CHANGES))
         paletteFixTranslucencyMask();
-
-    palettePostLoadLookups();
 }
 
 #define SETFLAG(Tilenum, Flag) g_tile[Tilenum].flags |= Flag

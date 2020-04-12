@@ -108,7 +108,7 @@ void scrLoadPalette(void)
     {
         auto pal = fileSystem.LoadFile(PAL[i]);
         if (pal.Size() < 768) I_FatalError("%s: file too small", PAL[i]);
-        paletteSetColorTable(i, pal.Data());
+        paletteSetColorTable(i, pal.Data(), false, false);
     }
     numshades = 64;
     paletteloaded |= PALETTE_MAIN;

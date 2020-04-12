@@ -47,7 +47,7 @@ FixedBitArray<256> FullbrightIndices;
 //
 //==========================================================================
 
-void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency)
+void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency, bool twodonly)
 {
     if (id == 0)
     {
@@ -60,6 +60,7 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency)
         remap.Palette[255] = 0;
         remap.Remap[255] = 255;
     }
+    remap.Inactive = twodonly;  // use Inactive as a marker for the postprocessing so that for pure 2D palettes the creation of shade tables can be skipped.
     GPalette.UpdateTranslation(TRANSLATION(Translation_BasePalettes, id), &remap);
 
     // Todo: remove this once the texture code can use GPalette directly
@@ -95,7 +96,7 @@ void paletteLoadFromDisk(void)
     for (unsigned char & k : palette)
         k <<= 2;
 
-    paletteSetColorTable(0, palette);
+    paletteSetColorTable(0, palette, false, false);
     paletteloaded |= PALETTE_MAIN;
 
     // PALETTE_SHADES
@@ -263,6 +264,34 @@ void paletteSetupDefaultFog(void)
 
 void palettePostLoadLookups(void)
 {
+    int numpalettes = GPalette.NumTranslations(Translation_BasePalettes);
+    if (numpalettes == 0) return;
+    auto basepalette = GPalette.GetTranslation(Translation_BasePalettes, 0);
+
+    for (int l = 0; l < MAXPALOOKUPS; l++)
+    {
+        if (!LookupTables[l].IsEmpty())
+        {
+            const uint8_t* lookup = (uint8_t*)LookupTables[l].GetChars();
+            FRemapTable remap;
+            for (int i = 0; i < numpalettes; i++)
+            {
+                auto palette = GPalette.GetTranslation(Translation_BasePalettes, i);
+                if (i == 0 || (palette != basepalette && !palette->Inactive))
+                {
+                    memcpy(remap.Remap, lookup, 256);
+                    for (int j = 0; j < 256; j++)
+                    {
+                        remap.Palette[j] = palette->Palette[remap.Remap[j]];
+                    }
+                    remap.NumEntries = 256;
+                    GPalette.UpdateTranslation(TRANSLATION(i + 1, l), &remap);
+                }
+                if (palette != basepalette) palette->Inactive = false;  // clear the marker flag
+            }
+        }
+    }
+    // todo: at this point we should swap colors 0 and 255 so that paletted images being created here have their transparent color at index 0.
 }
 
 //==========================================================================
