@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdio.h>
 #include <stdarg.h>
 #include "init.h"
-#include "music/z_music.h"
+#include "raze_music.h"
 //#include <fcntl.h>
 //#include <sys/stat.h>
 //#include <io.h>
