@@ -290,7 +290,7 @@ void uploadbasepalette(int32_t basepalnum)
         basepalWFullBrightInfo[i*4+0] = remap->Palette[i].b;
         basepalWFullBrightInfo[i*4+1] = remap->Palette[i].g;
         basepalWFullBrightInfo[i*4+2] = remap->Palette[i].r;
-        basepalWFullBrightInfo[i*4+3] = 0-(FullbrightIndices[i] != 0);
+        basepalWFullBrightInfo[i * 4 + 3] = GPalette.GlobalBrightmap.Palette[i].r;  // todo: get rid of this.
     }
 
 	GLInterface.SetPaletteData(basepalnum, basepalWFullBrightInfo);

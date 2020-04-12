@@ -39,8 +39,6 @@ palette_t palookupfog[MAXPALOOKUPS];
 // NOTE: g_noFloorPal[0] is irrelevant as it's never checked.
 int8_t g_noFloorPal[MAXPALOOKUPS];
 
-FixedBitArray<256> FullbrightIndices;
-
 //==========================================================================
 //
 // Adds a palette to the global list of base palettes
@@ -157,28 +155,7 @@ void paletteLoadFromDisk(void)
 void palettePostLoadTables(void)
 {
     globalpal = 0;
-
-    auto lookup = (const uint8_t*)LookupTables[0].GetChars();
-    ImageHelpers::SetPalette(GPalette.BaseColors);
-    
-    for (int c = 0; c < 255; ++c) // skipping transparent color
-    {
-        uint8_t index = lookup[c];
-        PalEntry color = GPalette.BaseColors[index];
-
-        // don't consider black fullbright
-        if (color.isBlack()) continue;
-
-        bool isbright = true;
-        for (int i = 1; i < numshades; i++)
-            if (lookup[i * 256 + c] != index)
-            {
-                isbright = false;
-                break;
-            }
-
-        if (isbright) FullbrightIndices.Set(c);
-    }
+    GPalette.GenerateGlobalBrightmapFromColormap((const uint8_t*)LookupTables[0].GetChars(), numshades);
 }
 
 //==========================================================================

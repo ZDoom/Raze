@@ -37,7 +37,6 @@ enum
 };
 
 extern uint8_t curbasepal;
-extern FixedBitArray<256> FullbrightIndices;
 extern int32_t r_scenebrightness;
 
 struct palette_t 
