@@ -18,7 +18,7 @@ struct FReader;
 class PClass;
 class FFont;
 class FSoundID;
-struct FRenderStyle;
+union FRenderStyle;
 class DObject;
 class FTextureID;
 

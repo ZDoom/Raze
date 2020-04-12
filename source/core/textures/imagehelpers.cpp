@@ -41,18 +41,6 @@
 
 namespace ImageHelpers
 {
-	uint8_t GrayMap[256];
 	int alphaThreshold;
-	ColorTable256k RGB256k;
 
-	void SetPalette(const PalEntry* colors)
-	{
-		// create the RGB666 lookup table
-		for (int r = 0; r < 64; r++)
-			for (int g = 0; g < 64; g++)
-				for (int b = 0; b < 64; b++)
-					RGB256k.RGB[r][g][b] = ColorMatcher.Pick((r<<2)|(r>>4), (g<<2)|(g>>4), (b<<2)|(b>>4));
-	}
-	
-	
 }

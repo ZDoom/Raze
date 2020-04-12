@@ -339,7 +339,7 @@ void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 	
 	case 3:	// Grayscale
 	{
-		auto remap = ImageHelpers::GetGraymap();
+		auto remap = GPalette.GrayMap;
 		switch (hdr.bpp)
 		{
 		case 8:
