@@ -25,6 +25,12 @@
 #define NORMALPAL   (MAXPALOOKUPS - 4)
 #define BRIGHTPAL	(MAXPALOOKUPS)
 
+enum
+{
+    Translation_BasePalettes,
+    Translation_Remap,
+};
+
 extern uint8_t curbasepal;
 
 extern uint8_t PaletteIndexFullbrights[32];
@@ -51,9 +57,7 @@ extern palette_t palfadergb;
 
 extern unsigned char palfadedelta;
 void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
-void paletteSetColorTable(int32_t id, uint8_t const *table, bool transient = false);
-void paletteFreeColorTable(int32_t id);
-void paletteFreeColorTables();
+void paletteSetColorTable(int32_t id, uint8_t const *table, bool notransparency = false);
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab);
 void paletteFreeLookupTable(int32_t palnum);
 

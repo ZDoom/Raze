@@ -428,7 +428,6 @@ int GameMain()
 	GLInterface.Deinit();
 	I_ShutdownGraphics();
 	M_DeinitMenus();
-	paletteFreeColorTables();
 	engineUnInit();
 	if (gi)
 	{

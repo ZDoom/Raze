@@ -132,12 +132,12 @@ void G_LoadLookups(void)
         for (bssize_t k = 0; k < 768; k++)
             paldata[k] <<= 2;
 
-        paletteSetColorTable(basepalnum, paldata);
+        paletteSetColorTable(basepalnum, paldata, basepalnum == DREALMSPAL || basepalnum == ENDINGPAL);
     }
 
     Bmemcpy(paldata, palette+1, 767);
     paldata[767] = palette[767];
-    paletteSetColorTable(DRUGPAL, paldata);
+    paletteSetColorTable(DRUGPAL, paldata); // todo: implement this as a shader effect
 
     if (RR)
     {

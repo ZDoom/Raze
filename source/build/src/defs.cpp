@@ -17,6 +17,7 @@
 #include "bitmap.h"
 #include "m_argv.h"
 #include "gamecontrol.h"
+#include "palettecontainer.h"
 
 #ifdef USE_OPENGL
 # include "hightile.h"
@@ -2673,21 +2674,21 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    uint8_t const * const sourcetable = basepaltable[source];
-                    if (EDUKE32_PREDICT_FALSE(sourcetable == NULL))
+                    auto sourcepal = GPalette.GetTranslation(Translation_BasePalettes, source);
+                    if (sourcepal == NULL)
                     {
                         Printf("Error: basepalette: Source basepal does not exist on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
                         break;
                     }
 
-                    paletteSetColorTable(id, sourcetable);
+                    GPalette.CopyTranslation(TRANSLATION(Translation_BasePalettes, id), TRANSLATION(Translation_BasePalettes, source));
                     didLoadPal = 1;
                     break;
                 }
                 case T_UNDEF:
                 {
-                    paletteFreeColorTable(id);
+                    GPalette.ClearTranslationSlot(TRANSLATION(Translation_BasePalettes, id));
 
                     didLoadPal = 0;
                     if (id == 0)
@@ -3325,7 +3326,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
             for (bssize_t i = id0; i <= id1; i++)
-                paletteFreeColorTable(i);
+                GPalette.ClearTranslationSlot(TRANSLATION(Translation_BasePalettes, i));
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_MAIN;

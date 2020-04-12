@@ -18,6 +18,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "gamecvars.h"
 #include "v_video.h"
 #include "flatvertices.h"
+#include "palettecontainer.h"
 
 CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -276,7 +277,8 @@ static void resizeglcheck(void)
 
 void uploadbasepalette(int32_t basepalnum)
 {
-    if (!basepaltable[basepalnum])
+    auto remap = GPalette.GetTranslation(Translation_BasePalettes, basepalnum);
+    if (!remap)
     {
         return;
     }
@@ -284,9 +286,9 @@ void uploadbasepalette(int32_t basepalnum)
     uint8_t basepalWFullBrightInfo[4*256];
     for (int i = 0; i < 256; ++i)
     {
-        basepalWFullBrightInfo[i*4+0] = basepaltable[basepalnum][i*3+2];
-        basepalWFullBrightInfo[i*4+1] = basepaltable[basepalnum][i*3+1];
-        basepalWFullBrightInfo[i*4+2] = basepaltable[basepalnum][i*3+0];
+        basepalWFullBrightInfo[i*4+0] = remap->Palette[i].b;
+        basepalWFullBrightInfo[i*4+1] = remap->Palette[i].g;
+        basepalWFullBrightInfo[i*4+2] = remap->Palette[i].r;
         basepalWFullBrightInfo[i*4+3] = 0-(IsPaletteIndexFullbright(i) != 0);
     }
 

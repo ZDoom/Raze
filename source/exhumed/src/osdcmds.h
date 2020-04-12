@@ -27,7 +27,6 @@ BEGIN_PS_NS
 
 
 int32_t registerosdcommands(void);
-void onvideomodechange(int32_t newmode);
 void GAME_onshowosd(int shown);
 void GAME_clearbackground(int numcols, int numrows);
 

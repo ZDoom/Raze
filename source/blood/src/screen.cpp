@@ -52,12 +52,12 @@ LOADITEM PLU[15] = {
     { 14, "P4" }
 };
 
-LOADITEM PAL[5] = {
-    { 0, "BLOOD" },
-    { 1, "WATER" },
-    { 2, "BEAST" },
-    { 3, "SEWER" },
-    { 4, "INVULN1" }
+const char *PAL[5] = {
+    "BLOOD.PAL", 
+    "WATER.PAL",
+    "BEAST.PAL",
+    "SEWER.PAL",
+    "INVULN1.PAL"
 };
 
 
@@ -66,15 +66,11 @@ static RGB *palTable[5];
 static int curPalette;
 bool gFogMode = false;
 
-void scrResetPalette(void)
-{
-    paletteSetColorTable(0, (uint8_t*)palTable[0]);
-}
-
 void scrLoadPLUs(void)
 {
     // load default palookups
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 15; i++) 
+    {
         DICTNODE *pPlu = gSysRes.Lookup(PLU[i].name, "PLU");
         if (!pPlu)
             ThrowError("%s.PLU not found", PLU[i].name);
@@ -120,13 +116,10 @@ void scrLoadPalette(void)
     Printf("Loading palettes\n");
     for (int i = 0; i < 5; i++)
     {
-        DICTNODE *pPal = gSysRes.Lookup(PAL[i].name, "PAL");
-        if (!pPal)
-            ThrowError("%s.PAL not found (RFF files may be wrong version)", PAL[i].name);
-        palTable[PAL[i].id] = (RGB*)gSysRes.Lock(pPal);
-        paletteSetColorTable(PAL[i].id, (uint8_t*)palTable[PAL[i].id]);
+        auto pal = fileSystem.LoadFile(PAL[i]);
+        if (pal.Size() < 768) I_FatalError("%s: file too small", PAL[i]);
+        paletteSetColorTable(i, pal.Data());
     }
-    memcpy(palette, palTable[0], sizeof(palette));
     numshades = 64;
     paletteloaded |= PALETTE_MAIN;
     scrLoadPLUs();

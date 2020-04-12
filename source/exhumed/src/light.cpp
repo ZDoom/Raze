@@ -246,17 +246,13 @@ void StartFadeIn()
 
 int DoFadeIn()
 {
-    paletteSetColorTable(curbasepal, basepaltable[BASEPAL]);
-    videoSetPalette(0, curbasepal, 0);
     videoNextPage();
     return 0;
 }
 
 void FadeIn()
 {
-    videoSetPalette(0, BASEPAL, 0);
     videoNextPage();
-
 }
 
 void FixPalette()

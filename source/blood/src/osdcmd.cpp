@@ -211,15 +211,6 @@ static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
     return OSDCMD_OK;
 }
 
-void onvideomodechange(int32_t newmode)
-{
-    UNREFERENCED_PARAMETER(newmode);
-
-    if (newmode)
-        scrResetPalette();
-    UpdateDacs(gLastPal, false);
-}
-
 static int osdcmd_activatecheat(CCmdFuncPtr parm)
 {
     FString CheatEntry;
