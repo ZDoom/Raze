@@ -220,7 +220,7 @@ void main()
 				color.rgb *= lightcolor;
 				if ((u_flags & RF_MapFog) == 0) color.rgb += u_fogColor.rgb * shade;
 			}
-			else color *= v_color;
+			else color.rgb *= v_color.rgb;
 		}
 		if ((u_flags & RF_MapFog) != 0) // fog hack for RRRA E2L1. Needs to be done better, this is gross, but still preferable to the broken original implementation.
 		{
