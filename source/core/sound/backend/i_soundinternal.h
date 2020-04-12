@@ -6,7 +6,6 @@
 
 #include "vectors.h"
 #include "tarray.h"
-#include <zmusic.h>
 #include "tflags.h"
 
 enum EChanFlag
@@ -30,7 +29,7 @@ enum EChanFlag
 	CHANF_VIRTUAL = 2048,	// internal: Channel is currently virtual
 	CHANF_NOSTOP = 4096,	// only for A_PlaySound. Does not start if channel is playing something.
 	CHANF_OVERLAP = 8192, // [MK] Does not stop any sounds in the channel and instead plays over them.
-	CHANF_ENDED = 16384,	// Helper to detect broken ChannelEnded implementations.
+	CHANF_LOCAL = 16384,	// only plays locally for the calling actor
 	CHANF_TRANSIENT = 32768,	// Do not record in savegames - used for sounds that get restarted outside the sound system (e.g. ambients in SW and Blood)
 };
 

@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "animtexture.h"
 #include "../glbackend/glbackend.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 
 BEGIN_BLD_NS
 

@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
-#include "s_soundinternal.h"
+#include "raze_sound.h"
 #include "i_system.h"
 #include "inputstate.h"
 #include "v_video.h"

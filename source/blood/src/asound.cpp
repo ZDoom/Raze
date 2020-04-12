@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "sound.h"
 #include "loadsave.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 
 BEGIN_BLD_NS
 

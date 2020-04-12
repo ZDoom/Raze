@@ -74,7 +74,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecvars.h"
 #include "savegamehelp.h"
 #include "c_dispatch.h"
-#include "s_soundinternal.h"
+#include "raze_sound.h"
 #include "core/menu/menu.h"
 
 BEGIN_PS_NS

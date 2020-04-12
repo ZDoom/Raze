@@ -53,7 +53,7 @@
 #include "baselayer.h"
 #include "statistics.h"
 #include "input/m_joy.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 
 void RegisterDukeMenus();
 void RegisterRedneckMenus();

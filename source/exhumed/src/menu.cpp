@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "object.h"
 #include "light.h"
 #include "cd.h"
-#include "s_soundinternal.h"
+#include "raze_sound.h"
 #include "menu/menu.h"
 #include "v_2ddrawer.h"
 #include <string>

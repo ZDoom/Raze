@@ -38,7 +38,7 @@
 #include "filesystem.h"
 #include "rts.h"
 #include "m_swap.h"
-#include "s_soundinternal.h"
+#include "raze_sound.h"
 
 
 struct WadInfo

@@ -77,6 +77,7 @@ struct UserConfig
 extern UserConfig userConfig;
 
 extern int nomusic;
+extern bool nosound;
 inline bool MusicEnabled()
 {
 	return !nomusic;
@@ -84,7 +85,7 @@ inline bool MusicEnabled()
 
 inline bool SoundEnabled()
 {
-	return snd_enabled && !userConfig.nosound;
+	return snd_enabled && !nosound;
 }
 
 
@@ -173,3 +174,10 @@ struct FStartupInfo
 };
 
 extern FStartupInfo RazeStartupInfo;	
+
+enum
+{
+	PAUSESFX_MENU = 1,
+	PAUSESFX_CONSOLE = 2
+};
+
