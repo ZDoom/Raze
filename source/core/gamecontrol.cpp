@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_console.h"
 #include "c_dispatch.h"
 #include "i_specialpaths.h"
-#include "z_music.h"
+#include "raze_music.h"
 #include "statistics.h"
 #include "menu.h"
 #include "gstrings.h"
@@ -96,6 +96,8 @@ void InitFileSystem(TArray<GrpEntry>&);
 void I_SetWindowTitle(const char* caption);
 void InitENet();
 void ShutdownENet();
+void S_ParseSndInfo();
+
 bool AppActive;
 int chatmodeon;	// needed by the common console code.
 
@@ -273,9 +275,7 @@ void UserConfig::ProcessOptions()
 	AddArt.reset(Args->GatherFiles("-art"));
 
 	nologo = Args->CheckParm("-nologo") || Args->CheckParm("-quick");
-	nomusic = Args->CheckParm("-nomusic");
-	nosound = Args->CheckParm("-nosfx");
-	if (Args->CheckParm("-nosound")) nomusic = nosound = true;
+	nosound = Args->CheckParm("-nosfx") || Args->CheckParm("-nosound");
 	if (Args->CheckParm("-setup")) queryiwad = 1;
 	else if (Args->CheckParm("-nosetup")) queryiwad = 0;
 
@@ -714,7 +714,10 @@ int RunGame()
 	V_InitFonts();
 	C_CON_SetAliases();
 	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
-	Mus_Init();
+	I_InitSound();
+	Mus_InitMusic();
+	timerSetCallback(Mus_UpdateMusic);
+	S_ParseSndInfo();
 	InitStatistics();
 	M_Init();
 	SetDefaultStrings();

@@ -7,6 +7,15 @@
 #include "name.h"
 #include <zmusic.h>
 
+class FileReader;
+
+struct MusicCallbacks
+{
+	FString(*LookupFileName)(const char* fn, int &order);
+	FileReader(*OpenMusic)(const char* fn);
+};
+void S_SetMusicCallbacks(MusicCallbacks* cb);
+
 void S_CreateStream();
 void S_PauseStream(bool pause);
 void S_StopStream();
@@ -15,7 +24,7 @@ void S_SetStreamVolume(float vol);
 
 //
 void S_InitMusic ();
-void S_StartMusic ();
+void S_ResetMusic ();
 
 
 // Start music using <music_name>
@@ -23,9 +32,6 @@ bool S_StartMusic (const char *music_name);
 
 // Start music using <music_name>, and set whether looping
 bool S_ChangeMusic (const char *music_name, int order=0, bool looping=true, bool force=false);
-
-// Start playing a cd track as music
-bool S_ChangeCDMusic (int track, unsigned int id=0, bool looping=true);
 
 void S_RestartMusic ();
 void S_MIDIDeviceChanged(int newdev);
@@ -50,11 +56,9 @@ struct MidiDeviceSetting
 	FString args;
 };
 
-typedef TMap<FName, FName> MusicAliasMap;
 typedef TMap<FName, MidiDeviceSetting> MidiDeviceMap;
 typedef TMap<FName, float> MusicVolumeMap;
 
-extern MusicAliasMap MusicAliases;
 extern MidiDeviceMap MidiDevices;
 extern MusicVolumeMap MusicVolumes;
 
@@ -70,9 +74,6 @@ struct MusPlayingInfo
 extern MusPlayingInfo mus_playing;
 
 extern float relative_volume, saved_relative_volume;
-
-// Note for later when the OPL player is ported.
-// DN3D and related games use "d3dtimbr.tmb"
 
 
 #endif

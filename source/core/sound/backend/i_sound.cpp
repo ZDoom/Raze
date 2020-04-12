@@ -48,13 +48,13 @@
 #include "c_cvars.h"
 #include "stats.h"
 #include "s_music.h"
-#include "z_music.h"
+#include "raze_music.h"
 #include "gamecvars.h"
 #include "gamecontrol.h"
 #include <zmusic.h>
 
 EXTERN_CVAR (Float, snd_sfxvolume)
-EXTERN_CVAR(Float, mus_volume)
+EXTERN_CVAR(Float, snd_musicvolume)
 CVAR (Int, snd_samplerate, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Int, snd_buffersize, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Int, snd_hrtf, -1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -95,7 +95,7 @@ CUSTOM_CVAR(Float, snd_mastervolume, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVA
 
 	ChangeMusicSetting(zmusic_snd_mastervolume, nullptr, self);
 	snd_sfxvolume.Callback();
-	mus_volume.Callback();
+	snd_musicvolume.Callback();
 }
 
 //==========================================================================

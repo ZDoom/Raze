@@ -49,7 +49,7 @@
 #include "m_argv.h"
 #include "serializer.h"
 #include "version.h"
-#include "z_music.h"
+#include "raze_music.h"
 #include "s_soundinternal.h"
 
 static CompositeSavegameWriter savewriter;

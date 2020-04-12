@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 
 #include "duke3d.h"
-#include "z_music.h"
+#include "raze_music.h"
 #include "mapinfo.h"
 #include "sound/s_soundinternal.h"
 

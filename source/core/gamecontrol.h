@@ -63,7 +63,7 @@ struct UserConfig
 
 	bool nomonsters = false;
 	bool nosound = false;
-	bool nomusic = false;
+	//bool nomusic = false;
 	bool nologo = false;
 	int setupstate = -1;
 
@@ -77,9 +77,10 @@ struct UserConfig
 
 extern UserConfig userConfig;
 
+extern int nomusic;
 inline bool MusicEnabled()
 {
-	return !userConfig.nomusic;
+	return !nomusic;
 }
 
 inline bool SoundEnabled()

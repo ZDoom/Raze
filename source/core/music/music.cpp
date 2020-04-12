@@ -2,7 +2,7 @@
 **
 ** music.cpp
 **
-** music engine - borrowed from GZDoom
+** music engine
 **
 ** Copyright 1999-2016 Randy Heit
 ** Copyright 2002-2016 Christoph Oelckers
@@ -35,51 +35,35 @@
 **
 */
 
-#include <zmusic.h>
-#include "z_music.h"
-#include "zstring.h"
-#include "backend/i_sound.h"
-#include "name.h"
-#include "s_music.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#include "i_sound.h"
 #include "i_music.h"
 #include "printf.h"
-#include "files.h"
+#include "s_playlist.h"
+#include "c_dispatch.h"
 #include "filesystem.h"
 #include "cmdlib.h"
-#include "gamecvars.h"
-#include "c_dispatch.h"
-#include "gamecontrol.h"
+#include "s_music.h"
 #include "filereadermusicinterface.h"
-#include "v_text.h"
-#include "mapinfo.h"
-#include "serializer.h"
+#include <zmusic.h>
 
-MusPlayingInfo mus_playing;
-MusicAliasMap MusicAliases;
-MidiDeviceMap MidiDevices;
+static bool		MusicPaused;		// whether music is paused
+MusPlayingInfo mus_playing;	// music currently being played
+static FPlayList PlayList;
+float	relative_volume = 1.f;
+float	saved_relative_volume = 1.0f;	// this could be used to implement an ACS FadeMusic function
 MusicVolumeMap MusicVolumes;
-MusicAliasMap LevelMusicAliases;
-bool MusicPaused;
-static bool mus_blocked;
-static FString lastStartedMusic;
-EXTERN_CVAR(Float, mus_volume)
-CVAR(Bool, printmusicinfo, false, 0)
-CVAR(Bool, mus_extendedlookup, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+MidiDeviceMap MidiDevices;
+// EXTERNAL FUNCTION PROTOTYPES --------------------------------------------
 
-// Order is: streaming formats, module formats, emulated formats and MIDI formats - for external files the first one found wins so ambiguous names should be avoided
-static const char* knownMusicExts[] = {
-	"OGG",	"FLAC",	"MP3",	"MP2",	"XA",	"XM",	"MOD",
-	"IT",	"S3M",	"MTM",	"STM",	"669",	"PTM",	"AMF",
-	"OKT",	"DSM",	"AMFF",	"SPC",	"VGM",	"VGZ",	"AY",
-	"GBS",	"GYM",	"HES",	"KSS",	"NSF",	"NSFE",	"SAP",
-	"MID",	"HMP",	"HMI",	"XMI",	"VOC"
-};
+extern float S_GetMusicVolume (const char *music);
 
+static void S_ActivatePlayList(bool goBack);
 
-FString G_SetupFilenameBasedMusic(const char* fn, const char* defmusic)
-{
-	FString name = StripExtension(fn);
-	FString test;
+// PRIVATE DATA DEFINITIONS ------------------------------------------------
 
 	// Test if a real file with this name exists with all known extensions for music.
 	for (auto& ext : knownMusicExts)
@@ -94,77 +78,25 @@ FString G_SetupFilenameBasedMusic(const char* fn, const char* defmusic)
 	return defmusic;
 }
 
-FString MusicFileExists(const char* fn)
+
+static FileReader DefaultOpenMusic(const char* fn)
 {
-	if (mus_extendedlookup) return G_SetupFilenameBasedMusic(fn, nullptr);
-	if (FileExists(fn)) return fn;
-	return FString();
+	// This is the minimum needed to make the music system functional.
+	FileReader fr;
+	fr.OpenFile(fn);
+	return fr;
 }
+static MusicCallbacks mus_cb = { nullptr, DefaultOpenMusic };
 
-int LookupMusicLump(const char* fn)
+
+// PUBLIC DATA DEFINITIONS -------------------------------------------------
+
+// CODE --------------------------------------------------------------------
+
+void S_SetMusicCallbacks(MusicCallbacks* cb)
 {
-	if (mus_extendedlookup)
-	{
-		FString name = StripExtension(fn);
-		int l = fileSystem.FindFileWithExtensions(name, knownMusicExts, countof(knownMusicExts));
-		if (l >= 0) return l;
-	}
-	return fileSystem.FindFile(fn);
-}
-
-//==========================================================================
-//
-// Music lookup in various places.
-//
-//==========================================================================
-
-FileReader LookupMusic(const char* musicname)
-{
-	FileReader reader;
-	FString mus = MusicFileExists(musicname);
-	if (mus.IsNotEmpty())
-	{
-		// Load an external file.
-		reader.OpenFile(mus);
-	}
-	if (!reader.isOpen())
-	{
-		int lumpnum = LookupMusicLump(musicname);
-		if (mus_extendedlookup && lumpnum >= 0)
-		{
-			// EDuke also looks in a subfolder named after the main game resource. Do this as well if extended lookup is active.
-			auto rfn = fileSystem.GetResourceFileName(fileSystem.GetFileContainer(lumpnum));
-			auto rfbase = ExtractFileBase(rfn);
-			FStringf aliasMusicname("music/%s/%s", rfbase.GetChars(), musicname);
-			lumpnum = LookupMusicLump(aliasMusicname);
-		}
-		if (lumpnum == -1)
-		{
-			// Always look in the 'music' subfolder as well. This gets used by multiple setups to store ripped CD tracks.
-			FStringf aliasMusicname("music/%s", musicname);
-			lumpnum = LookupMusicLump(aliasMusicname);
-		}
-		if (lumpnum == -1 && (g_gameType & GAMEFLAG_SW))
-		{
-			// Some Shadow Warrioe distributions have the music in a subfolder named 'classic'. Check that, too.
-			FStringf aliasMusicname("classic/music/%s", musicname);
-			lumpnum = fileSystem.FindFile(aliasMusicname);
-		}
-		if (lumpnum > -1)
-		{
-			if (fileSystem.FileLength(lumpnum) >= 0)
-			{
-				reader = fileSystem.ReopenFileReader(lumpnum);
-				if (!reader.isOpen())
-				{
-					Printf(TEXTCOLOR_RED "Unable to play music " TEXTCOLOR_WHITE "\"%s\"\n", musicname);
-				}
-				else if (printmusicinfo) Printf("Playing music from file system %s:%s\n", fileSystem.GetResourceFileFullName(fileSystem.GetFileContainer(lumpnum)), fileSystem.GetFileFullPath(lumpnum).GetChars());
-			}
-		}
-	}
-	else if (printmusicinfo) Printf("Playing music from external file %s\n", musicname);
-	return reader;
+	mus_cb = *cb;
+	if (mus_cb.OpenMusic == nullptr) mus_cb.OpenMusic = DefaultOpenMusic;	// without this we are dead in the water.
 }
 
 //==========================================================================
@@ -240,7 +172,7 @@ static bool S_StartMusicPlaying(ZMusic_MusicStream song, bool loop, float rel_vo
 	}
 
 	// Notify the sound system of the changed relative volume
-	mus_volume.Callback();
+	snd_musicvolume.Callback();
 	return true;
 }
 
@@ -287,7 +219,6 @@ void S_ResumeMusic ()
 
 void S_UpdateMusic ()
 {
-	mus_blocked = false;
 	if (mus_playing.handle != nullptr)
 	{
 		ZMusic_Update(mus_playing.handle);
@@ -297,31 +228,61 @@ void S_UpdateMusic ()
 		// playlist when the current song finishes.
 		if (!ZMusic_IsPlaying(mus_playing.handle))
 		{
+			if (PlayList.GetNumSongs())
+			{
+				PlayList.Advance();
+				S_ActivatePlayList(false);
+			}
+			else
+			{
 			S_StopMusic(true);
 		}
+	}
 	}
 }
 
 //==========================================================================
 //
-// S_ChangeCDMusic
+// Resets the music player if music playback was paused.
 //
-// Starts a CD track as music.
 //==========================================================================
 
-bool S_ChangeCDMusic (int track, unsigned int id, bool looping)
+void S_ResetMusic ()
 {
-	char temp[32];
+	// stop the old music if it has been paused.
+	// This ensures that the new music is started from the beginning
+	// if it's the same as the last one and it has been paused.
+	if (MusicPaused) S_StopMusic(true);
 
-	if (id != 0)
+	// start new music for the level
+	MusicPaused = false;
+}
+
+
+//==========================================================================
+//
+// S_ActivatePlayList
+//
+// Plays the next song in the playlist. If no songs in the playlist can be
+// played, then it is deleted.
+//==========================================================================
+
+void S_ActivatePlayList (bool goBack)
+{
+	int startpos, pos;
+
+	startpos = pos = PlayList.GetPosition ();
+	S_StopMusic (true);
+	while (!S_ChangeMusic (PlayList.GetSong (pos), 0, false, true))
 	{
-		mysnprintf (temp, countof(temp), ",CD,%d,%x", track, id);
-	}
-	else
+		pos = goBack ? PlayList.Backup () : PlayList.Advance ();
+		if (pos == startpos)
 	{
-		mysnprintf (temp, countof(temp), ",CD,%d", track);
+			PlayList.Clear();
+			Printf ("Cannot play anything in the playlist.\n");
+			return;
 	}
-	return S_ChangeMusic (temp, 0, looping);
+	}
 }
 
 //==========================================================================
@@ -340,16 +301,26 @@ bool S_StartMusic (const char *m_id)
 //
 // S_ChangeMusic
 //
-// Starts playing a music, possibly looping.
+// initiates playback of a song
 //
-// [RH] If music is a MOD, starts it at position order. If name is of the
-// format ",CD,<track>,[cd id]" song is a CD track, and if [cd id] is
-// specified, it will only be played if the specified CD is in a drive.
 //==========================================================================
 
 bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 {
-	lastStartedMusic = musicname;	// remember the last piece of music that was requested to be played.
+	if (nomusic) return false;	// skip the entire procedure if music is globally disabled.
+
+	if (!force && PlayList.GetNumSongs())
+	{ // Don't change if a playlist is active
+		return false;
+	}
+	// Do game specific lookup.
+	FString musicname_;
+	if (mus_cb.LookupFileName)
+	{
+		musicname_ = mus_cb.LookupFileName(musicname, order);
+		musicname = musicname_.GetChars();
+	}
+
 	if (musicname == nullptr || musicname[0] == 0)
 	{
 		// Don't choke if the map doesn't have a song attached
@@ -358,13 +329,10 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		mus_playing.LastSong = "";
 		return true;
 	}
-	if (*musicname == '/') musicname++;
-
-	FString DEH_Music;
 
 	if (!mus_playing.name.IsEmpty() &&
 		mus_playing.handle != nullptr &&
-		stricmp (mus_playing.name, musicname) == 0 &&
+		stricmp(mus_playing.name, musicname) == 0 &&
 		ZMusic_IsLooping(mus_playing.handle) == zmusic_bool(looping))
 	{
 		if (order != mus_playing.baseorder)
@@ -386,29 +354,10 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		return true;
 	}
 
-	if (strnicmp (musicname, ",CD,", 4) == 0)
-	{
-		int track = strtoul (musicname+4, nullptr, 0);
-		const char *more = strchr (musicname+4, ',');
-		unsigned int id = 0;
-
-		if (more != nullptr)
-		{
-			id = strtoul (more+1, nullptr, 16);
-		}
-		S_StopMusic (true);
-		mus_playing.handle = ZMusic_OpenCDSong (track, id);
-		if (mus_playing.handle == nullptr)
-		{
-			Printf("Unable to start CD Audio for track #%d, ID %d\n", track, id);
-		}
-	}
-	else
-	{
 		int lumpnum = -1;
 		int length = 0;
 		ZMusic_MusicStream handle = nullptr;
-		MidiDeviceSetting *devp = MidiDevices.CheckKey(musicname);
+	MidiDeviceSetting* devp = MidiDevices.CheckKey(musicname);
 
 		// Strip off any leading file:// component.
 		if (strncmp(musicname, "file://", 7) == 0)
@@ -416,14 +365,15 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 			musicname += 7;
 		}
 
-		FileReader reader = LookupMusic(musicname);
+	// opening the music must be done by the game because it's different depending on the game's file system use.
+	FileReader reader = mus_cb.OpenMusic(musicname);
 		if (!reader.isOpen()) return false;
 
 		// shutdown old music
-		S_StopMusic (true);
+	S_StopMusic(true);
 
 		// Just record it if volume is 0 or music was disabled
-		if (mus_volume <= 0 || !mus_enabled)
+	if (snd_musicvolume <= 0 || !mus_enabled)
 		{
 			mus_playing.loop = looping;
 			mus_playing.name = musicname;
@@ -440,13 +390,12 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		else
 		{
 			auto mreader = GetMusicReader(reader);	// this passes the file reader to the newly created wrapper.
-			mus_playing.handle = ZMusic_OpenSong(mreader, devp? (EMidiDevice)devp->device : MDEV_DEFAULT, devp? devp->args.GetChars() : "");
+		mus_playing.handle = ZMusic_OpenSong(mreader, devp ? (EMidiDevice)devp->device : MDEV_DEFAULT, devp ? devp->args.GetChars() : "");
 			if (mus_playing.handle == nullptr)
 			{
 				Printf("Unable to load %s: %s\n", mus_playing.name.GetChars(), ZMusic_GetLastError());
 			}
 		}
-	}
 
 	mus_playing.loop = looping;
 	mus_playing.name = musicname;
@@ -477,7 +426,8 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 
 void S_RestartMusic ()
 {
-	if (!mus_playing.LastSong.IsEmpty() && mus_volume > 0 && mus_enabled)
+	if (snd_musicvolume <= 0) return;
+	if (!mus_playing.LastSong.IsEmpty() && mus_enabled)
 	{
 		FString song = mus_playing.LastSong;
 		mus_playing.LastSong = "";
@@ -542,7 +492,7 @@ void S_StopMusic (bool force)
 	try
 	{
 		// [RH] Don't stop if a playlist is active.
-		if (!mus_playing.name.IsEmpty())
+		if ((force || PlayList.GetNumSongs() == 0) && !mus_playing.name.IsEmpty())
 		{
 			if (mus_playing.handle != nullptr)
 			{
@@ -556,7 +506,7 @@ void S_StopMusic (bool force)
 			mus_playing.LastSong = std::move(mus_playing.name);
 		}
 	}
-	catch (const CRecoverableError& )
+	catch (const std::runtime_error& )
 	{
 		//Printf("Unable to stop %s: %s\n", mus_playing.name.GetChars(), err.what());
 		if (mus_playing.handle != nullptr)
@@ -577,10 +527,11 @@ void S_StopMusic (bool force)
 
 CCMD (changemus)
 {
-	if (MusicEnabled())
+	if (!nomusic)
 	{
 		if (argv.argc() > 1)
 		{
+			PlayList.Clear();
 			S_ChangeMusic (argv[1], argv.argc() > 2 ? atoi (argv[2]) : 0);
 		}
 		else
@@ -610,104 +561,136 @@ CCMD (changemus)
 
 CCMD (stopmus)
 {
+	PlayList.Clear();
 	S_StopMusic (false);
 	mus_playing.LastSong = "";	// forget the last played song so that it won't get restarted if some volume changes occur
 }
 
-static FString lastMusicLevel, lastMusic;
-int Mus_Play(const char *mapname, const char *fn, bool loop)
+//==========================================================================
+//
+// CCMD playlist
+//
+//==========================================================================
+
+UNSAFE_CCMD (playlist)
 {
-	if (mus_blocked) return 1;	// Caller should believe it succeeded.
-	// Store the requested names for resuming.
-	lastMusicLevel = mapname;
-	lastMusic = fn;
-	
-	if (!MusicEnabled())
-	{
-		return 0;
-	}
+	int argc = argv.argc();
 
-	// Allow per level music substitution.
-	// For most cases using $musicalias would be sufficient, but that method only works if a level actually has some music defined at all.
-	// This way it can be done with an add-on definition lump even in cases like Redneck Rampage where no music definitions exist 
-	// or where music gets reused for multiple levels but replacement is wanted individually.
-	if (mapname && *mapname)
+	if (argc < 2 || argc > 3)
 	{
-		if (*mapname == '/') mapname++;
-		FName *check = LevelMusicAliases.CheckKey(FName(mapname, true));
-		if (check) fn = check->GetChars();
+		Printf ("playlist <playlist.m3u> [<position>|shuffle]\n");
 	}
-
-	// Now perform music aliasing. This also needs to be done before checking identities because multiple names can map to the same song.
-	FName* aliasp = MusicAliases.CheckKey(fn);
-	if (aliasp != nullptr)
+	else
 	{
-		if (*aliasp == NAME_None)
+		if (!PlayList.ChangeList(argv[1]))
 		{
-			return true;	// flagged to be ignored
-		}
-		fn = aliasp->GetChars();
+			Printf("Could not open " TEXTCOLOR_BOLD "%s" TEXTCOLOR_NORMAL ": %s\n", argv[1], strerror(errno));
+			return;
 	}
-
-	if (!mus_restartonload)
+		if (PlayList.GetNumSongs () > 0)
 	{
-		// If the currently playing piece of music is the same, do not restart. Note that there's still edge cases where this may fail to detect identities.
-		if (mus_playing.handle != nullptr && lastStartedMusic.CompareNoCase(fn) == 0 && mus_playing.loop)
-			return true;
-	}
-
-	return S_ChangeMusic(fn, 0, loop, true);
-}
-
-bool Mus_IsPlaying()
-{
-	return mus_playing.handle != nullptr;
-}
-
-void Mus_Stop()
-{
-	if (mus_blocked) return;
-	S_StopMusic(true);
-}
-
-void Mus_Fade(double seconds)
-{
-	// Todo: Blood uses this, but the streamer cannot currently fade the volume.
-	Mus_Stop();
-}
-
-void Mus_SetPaused(bool on)
-{
-	if (on) S_PauseMusic();
-	else S_ResumeMusic();
-}
-
-void Mus_Serialize(FSerializer &arc)
-{
-	if (arc.BeginObject("music"))
-	{
-		if (arc.isWriting())
+			if (argc == 3)
 		{
-			FString music = mus_playing.name;
-			if (music.IsEmpty()) music = mus_playing.LastSong;
-
-			arc.AddString("music", music);
+				if (stricmp (argv[2], "shuffle") == 0)
+				{
+					PlayList.Shuffle ();
 		}
-		else arc("music", mus_playing.LastSong);
-
-		arc("baseorder", mus_playing.baseorder)
-			("loop", mus_playing.loop)
-			.EndObject();
-
-		// this is to prevent scripts from resetting the music after it has been loaded from the savegame.
-		if (arc.isReading()) mus_blocked = true;
-		// Actual music resuming cannot be performed here, it must be done in the game code.
+				else
+	{
+					PlayList.SetPosition (atoi (argv[2]));
+	}
+			}
+			S_ActivatePlayList (false);
+		}
 	}
 }
 
-void Mus_ResumeSaved()
+//==========================================================================
+//
+// CCMD playlistpos
+//
+//==========================================================================
+
+static bool CheckForPlaylist ()
 {
-	S_RestartMusic();
+	if (PlayList.GetNumSongs() == 0)
+	{
+		Printf ("No playlist is playing.\n");
+		return false;
+	}
+	return true;
 }
 
+CCMD (playlistpos)
+{
+	if (CheckForPlaylist() && argv.argc() > 1)
+	{
+		PlayList.SetPosition (atoi (argv[1]) - 1);
+		S_ActivatePlayList (false);
+	}
+}
 
+//==========================================================================
+//
+// CCMD playlistnext
+//
+//==========================================================================
+
+CCMD (playlistnext)
+{
+	if (CheckForPlaylist())
+	{
+		PlayList.Advance ();
+		S_ActivatePlayList (false);
+	}
+}
+
+//==========================================================================
+//
+// CCMD playlistprev
+//
+//==========================================================================
+
+CCMD (playlistprev)
+{
+	if (CheckForPlaylist())
+	{
+		PlayList.Backup ();
+		S_ActivatePlayList (true);
+		}
+}
+
+//==========================================================================
+//
+// CCMD playliststatus
+//
+//==========================================================================
+
+CCMD (playliststatus)
+{
+	if (CheckForPlaylist ())
+	{
+		Printf ("Song %d of %d:\n%s\n",
+			PlayList.GetPosition () + 1,
+			PlayList.GetNumSongs (),
+			PlayList.GetSong (PlayList.GetPosition ()));
+	}
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+CCMD(currentmusic)
+{
+	if (mus_playing.name.IsNotEmpty())
+	{
+		Printf("Currently playing music '%s'\n", mus_playing.name.GetChars());
+	}
+	else
+	{
+		Printf("Currently no music playing\n");
+	}
+}

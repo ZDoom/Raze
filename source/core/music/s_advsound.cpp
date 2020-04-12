@@ -43,6 +43,8 @@
 #include "sc_man.h"
 #include <zmusic.h>
 
+#include "raze_music.h"
+
 // MACROS ------------------------------------------------------------------
 
 enum SICommands

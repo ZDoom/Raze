@@ -1387,7 +1387,7 @@ OptionMenu SoundOptions //protected
 	Option "$SNDMNU_SNDENABLED",		"snd_enabled", "YesNo"
 	Slider "$SNDMNU_SFXVOLUME",			"snd_sfxvolume", 0, 1, 0.05, 2
 	Option "$SNDMNU_MUSENABLED",		"mus_enabled", "YesNo"	
-	Slider "$SNDMNU_MUSICVOLUME",		"mus_volume", 0, 1, 0.05, 2
+	Slider "$SNDMNU_MUSICVOLUME",		"snd_musicvolume", 0, 1, 0.05, 2
 	Option "$SNDMNU_MENUSOUND",		"menu_sounds", "OnOff" // placeholder until the slider can be made to work
 	//Slider "$SNDMNU_MENUVOLUME",		"snd_menuvolume", 0, 1, 0.05, 2
 	StaticText " "

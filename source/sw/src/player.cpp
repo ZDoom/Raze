@@ -65,7 +65,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interpso.h"
 #include "menu/menu.h"
 #include "gstrings.h"
-#include "z_music.h"
+#include "raze_music.h"
 
 BEGIN_SW_NS
 

@@ -39,6 +39,7 @@
 
 #include <zlib.h>
 
+#include <zmusic.h>
 #include "m_argv.h"
 #include "filesystem.h"
 #include "c_dispatch.h"
@@ -48,69 +49,28 @@
 #include "c_cvars.h"
 #include "c_console.h"
 #include "v_text.h"
+#include "i_sound.h"
 #include "i_soundfont.h"
 #include "s_music.h"
-#include "printf.h"
-#include "timer.h"
-#include "backend/i_sound.h"
-#include <zmusic.h>
+#include "filereadermusicinterface.h"
 
 
 
 void I_InitSoundFonts();
-void S_SetStreamVolume(float);
-void S_ParseSndInfo();
 
 EXTERN_CVAR (Int, snd_samplerate)
 EXTERN_CVAR (Int, snd_mididevice)
 EXTERN_CVAR(Float, snd_mastervolume)
-
-float relative_volume = 1.f, saved_relative_volume = 1.f;
-
-#ifdef _WIN32
+int		nomusic = 0;
 
 //==========================================================================
 //
-// CVAR: cd_drive
-//
-// Which drive (letter) to use for CD audio. If not a valid drive letter,
-// let the operating system decide for us.
-//
-//==========================================================================
-EXTERN_CVAR(Bool, cd_enabled);
-
-CUSTOM_CVAR(String, cd_drive, "", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
-{
-	if (cd_enabled && !Args->CheckParm("-nocdaudio")) CD_Enable(self);
-}
-
-//==========================================================================
-//
-// CVAR: cd_enabled
-//
-// Use the CD device? Can be overridden with -nocdaudio on the command line
-//
-//==========================================================================
-
-CUSTOM_CVAR(Bool, cd_enabled, true, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
-{
-	if (self && !Args->CheckParm("-nocdaudio"))
-		CD_Enable(cd_drive);
-	else
-		CD_Enable(nullptr);
-}
-
-
-#endif
-
-//==========================================================================
-//
-// CVAR mus_volume
+// CVAR snd_musicvolume
 //
 // Maximum volume of MOD/stream music.
 //==========================================================================
 
-CUSTOM_CVARD(Float, mus_volume, 0.5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls music volume")
+CUSTOM_CVARD(Float, snd_musicvolume, 0.5, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls music volume")
 {
 	if (self < 0.f)
 		self = 0.f;
@@ -202,20 +162,68 @@ static void mus_sfclose(void* handle)
 	reinterpret_cast<FSoundFontReader*>(handle)->close();
 }
 
-
+#ifndef ZMUSIC_LITE
 //==========================================================================
 //
-//
+// Pass some basic working data to the music backend
+// We do this once at startup for everything available.
 //
 //==========================================================================
 
-void Mus_Init(void)
+static void SetupGenMidi()
 {
-	I_InitSound();
-    I_InitSoundFonts();
-	S_ParseSndInfo();
+	// The OPL renderer should not care about where this comes from.
+	// Note: No I_Error here - this needs to be consistent with the rest of the music code.
+	auto lump = fileSystem.CheckNumForName("GENMIDI", ns_global);
+	if (lump < 0)
+	{
+		Printf("No GENMIDI lump found. OPL playback not available.\n");
+		return;
+	}
+	auto data = fileSystem.OpenFileReader(lump);
 
-	mus_volume.Callback ();
+	auto genmidi = data.Read();
+	if (genmidi.Size() < 8 + 175 * 36 || memcmp(genmidi.Data(), "#OPL_II#", 8)) return;
+	ZMusic_SetGenMidi(genmidi.Data()+8);
+}
+
+static void SetupWgOpn()
+{
+	int lump = fileSystem.CheckNumForFullName("xg.wopn");
+	if (lump < 0)
+	{
+		return;
+	}
+	FileData data = fileSystem.ReadFile(lump);
+	ZMusic_SetWgOpn(data.GetMem(), (uint32_t)data.GetSize());
+}
+
+static void SetupDMXGUS()
+{
+	int lump = fileSystem.CheckNumForFullName("DMXGUS");
+	if (lump < 0)
+	{
+		return;
+	}
+	FileData data = fileSystem.ReadFile(lump);
+	ZMusic_SetDmxGus(data.GetMem(), (uint32_t)data.GetSize());
+}
+
+#endif
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void I_InitMusic(void)
+{
+    I_InitSoundFonts();
+
+	snd_musicvolume.Callback ();
+
+	nomusic = !!Args->CheckParm("-nomusic") || !!Args->CheckParm("-nosound");
 
 	snd_mididevice.Callback();
 	
@@ -230,7 +238,11 @@ void Mus_Init(void)
 	callbacks.SF_Close = mus_sfclose;
 
 	ZMusic_SetCallbacks(&callbacks);
-	timerSetCallback(S_UpdateMusic);
+#ifndef ZMUSIC_LITE
+	SetupGenMidi();
+	SetupDMXGUS();
+	SetupWgOpn();
+#endif
 }
 
 
@@ -244,7 +256,7 @@ void I_SetRelativeVolume(float vol)
 {
 	relative_volume = (float)vol;
 	ChangeMusicSetting(zmusic_relative_volume, nullptr, (float)vol);
-	mus_volume.Callback();
+	snd_musicvolume.Callback();
 }
 //==========================================================================
 //
@@ -300,7 +312,8 @@ static ZMusic_MidiSource GetMIDISource(const char *fn)
 	FString src = fn;
 	if (src.Compare("*") == 0) src = mus_playing.name;
 
-	auto lump = fileSystem.FindFile(src);
+	auto lump = fileSystem.CheckNumForName(src, ns_music);
+	if (lump < 0) lump = fileSystem.CheckNumForFullName(src);
 	if (lump < 0)
 	{
 		Printf("Cannot find MIDI lump %s.\n", src.GetChars());
@@ -344,7 +357,7 @@ static ZMusic_MidiSource GetMIDISource(const char *fn)
 //
 //==========================================================================
 
-CCMD (writewave)
+UNSAFE_CCMD (writewave)
 {
 	if (argv.argc() >= 3 && argv.argc() <= 7)
 	{
@@ -352,18 +365,23 @@ CCMD (writewave)
 		if (source == nullptr) return;
 
 		EMidiDevice dev = MDEV_DEFAULT;
-
+#ifndef ZMUSIC_LITE
 		if (argv.argc() >= 6)
 		{
-			if (!stricmp(argv[5], "Timidity") || !stricmp(argv[5], "Timidity++")) dev = MDEV_TIMIDITY;
+			if (!stricmp(argv[5], "WildMidi")) dev = MDEV_WILDMIDI;
+			else if (!stricmp(argv[5], "GUS")) dev = MDEV_GUS;
+			else if (!stricmp(argv[5], "Timidity") || !stricmp(argv[5], "Timidity++")) dev = MDEV_TIMIDITY;
 			else if (!stricmp(argv[5], "FluidSynth")) dev = MDEV_FLUIDSYNTH;
 			else if (!stricmp(argv[5], "OPL")) dev = MDEV_OPL;
+			else if (!stricmp(argv[5], "OPN")) dev = MDEV_OPN;
+			else if (!stricmp(argv[5], "ADL")) dev = MDEV_ADL;
 			else
 			{
 				Printf("%s: Unknown MIDI device\n", argv[5]);
 				return;
 			}
 		}
+#endif
 		// We must stop the currently playing music to avoid interference between two synths. 
 		auto savedsong = mus_playing;
 		S_StopMusic(true);
@@ -392,7 +410,7 @@ CCMD (writewave)
 //
 //==========================================================================
 
-CCMD(writemidi)
+UNSAFE_CCMD(writemidi)
 {
 	if (argv.argc() != 3)
 	{

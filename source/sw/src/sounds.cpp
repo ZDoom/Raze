@@ -49,7 +49,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "menus.h"
 #include "config.h"
 #include "menu/menu.h"
-#include "z_music.h"
+#include "raze_music.h"
 #include "sound/s_soundinternal.h"
 #include "filesystem.h"
 #include "serializer.h"

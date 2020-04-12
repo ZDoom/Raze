@@ -698,6 +698,7 @@ set (PCH_SOURCES
 	core/quotes.cpp
 	core/screenshot.cpp
 	core/serializer.cpp
+	core/raze_music.cpp
 
 	core/2d/v_2ddrawer.cpp
 	core/2d/v_draw.cpp
