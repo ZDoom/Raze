@@ -3717,8 +3717,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 
     j = bpp;
 
-    g_lastpalettesum = 0;
-
     rendmode = REND_POLYMOST;
 
     upscalefactor = 1;
@@ -5494,8 +5492,6 @@ int32_t videoSetRenderMode(int32_t renderer)
 #ifdef USE_OPENGL
 
     renderer = REND_POLYMOST;
-
-    basepalreset = 1;
 
     rendmode = renderer;
     if (videoGetRenderMode() >= REND_POLYMOST)

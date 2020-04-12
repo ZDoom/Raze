@@ -53,6 +53,7 @@
 #include "fontchars.h"
 #include "imagehelpers.h"
 #include "glbackend/glbackend.h"
+#include "palettecontainer.h"
 
 #include "fontinternals.h"
 
@@ -229,8 +230,8 @@ void FFont::SetDefaultTranslation(uint32_t *othercolors)
 		{
 			if (myluminosity[l] >= otherluminosity[o] && myluminosity[l] <= otherluminosity[o+1])
 			{
-				PalEntry color1 = ImageHelpers::BasePalette[otherreverse[o]];
-				PalEntry color2 = ImageHelpers::BasePalette[otherreverse[o+1]];
+				PalEntry color1 = GPalette.BaseColors[otherreverse[o]];
+				PalEntry color2 = GPalette.BaseColors[otherreverse[o+1]];
 				double weight = 0;
 				if (otherluminosity[o] != otherluminosity[o + 1])
 				{
@@ -263,12 +264,12 @@ void FFont::SetDefaultTranslation(uint32_t *othercolors)
 
 static int compare (const void *arg1, const void *arg2)
 {
-	if (RPART(ImageHelpers::BasePalette[*((uint8_t *)arg1)]) * 299 +
-		GPART(ImageHelpers::BasePalette[*((uint8_t *)arg1)]) * 587 +
-		BPART(ImageHelpers::BasePalette[*((uint8_t *)arg1)]) * 114  <
-		RPART(ImageHelpers::BasePalette[*((uint8_t *)arg2)]) * 299 +
-		GPART(ImageHelpers::BasePalette[*((uint8_t *)arg2)]) * 587 +
-		BPART(ImageHelpers::BasePalette[*((uint8_t *)arg2)]) * 114)
+	if (RPART(GPalette.BaseColors[*((uint8_t *)arg1)]) * 299 +
+		GPART(GPalette.BaseColors[*((uint8_t *)arg1)]) * 587 +
+		BPART(GPalette.BaseColors[*((uint8_t *)arg1)]) * 114  <
+		RPART(GPalette.BaseColors[*((uint8_t *)arg2)]) * 299 +
+		GPART(GPalette.BaseColors[*((uint8_t *)arg2)]) * 587 +
+		BPART(GPalette.BaseColors[*((uint8_t *)arg2)]) * 114)
 		return -1;
 	else
 		return 1;
@@ -319,9 +320,9 @@ int FFont::SimpleTranslation (uint32_t *colorsused, uint8_t *translation, uint8_
 	{
 		translation[reverse[i]] = i;
 
-		Luminosity[i] = RPART(ImageHelpers::BasePalette[reverse[i]]) * 0.299 +
-						   GPART(ImageHelpers::BasePalette[reverse[i]]) * 0.587 +
-						   BPART(ImageHelpers::BasePalette[reverse[i]]) * 0.114;
+		Luminosity[i] = RPART(GPalette.BaseColors[reverse[i]]) * 0.299 +
+						   GPART(GPalette.BaseColors[reverse[i]]) * 0.587 +
+						   BPART(GPalette.BaseColors[reverse[i]]) * 0.114;
 		if (Luminosity[i] > max)
 			max = Luminosity[i];
 		if (Luminosity[i] < min)
@@ -372,10 +373,10 @@ void FFont::BuildTranslations (const double *luminosity, const uint8_t *identity
 				}
 				else
 				{
-					remap.Palette[0] = ImageHelpers::BasePalette[identity[0]] & MAKEARGB(0,255,255,255);
+					remap.Palette[0] = GPalette.BaseColors[identity[0]] & MAKEARGB(0,255,255,255);
 					for (j = 1; j < ActiveColors; ++j)
 					{
-						remap.Palette[j] = ImageHelpers::BasePalette[identity[j]] | MAKEARGB(255,0,0,0);
+						remap.Palette[j] = GPalette.BaseColors[identity[j]] | MAKEARGB(255,0,0,0);
 					}
 				}
 			}

@@ -3673,9 +3673,6 @@ void viewLoadingScreen(int nTile, const char *pText, const char *pText2, const c
     viewLoadingScreenUpdate(NULL, -1);
 }
 
-#define COLOR_RED redcol
-#define COLOR_WHITE whitecol
-
 #define LOW_FPS 60
 #define SLOW_FRAME_TIME 20
 
@@ -3684,8 +3681,6 @@ void viewLoadingScreen(int nTile, const char *pText, const char *pText2, const c
 #else
 # define FPS_YOFFSET 0
 #endif
-
-#define FPS_COLOR(x) ((x) ? COLOR_RED : COLOR_WHITE)
 
 FString GameInterface::statFPS(void)
 {
@@ -3772,8 +3767,6 @@ FString GameInterface::GetCoordString()
     return "Player pos is unknown"; // todo: output at least something useful.
 }
 
-
-#undef FPS_COLOR
 
 class ViewLoadSave : public LoadSave {
 public:

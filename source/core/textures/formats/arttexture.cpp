@@ -37,6 +37,7 @@
 #include "templates.h"
 #include "bitmap.h"
 #include "image.h"
+#include "palettecontainer.h"
 
 #include "build.h"
 
@@ -122,6 +123,11 @@ void FArtTexture::CreatePalettedPixels(uint8_t* buffer)
 	if (!fr.isOpen()) return;
 	int numpixels = Width * Height;
 	fr.Read(buffer, numpixels);
+	auto remap = GPalette.Remap;
+	for (int i = 0; i < numpixels; i++)
+	{
+		buffer[i] = remap[buffer[i]];
+	}
 }
 
 //===========================================================================
@@ -145,18 +151,20 @@ int FArtTexture::CopyPixels(FBitmap *bmp, int conversion)
 	fr.Read(source.Data(), numpixels);
 	auto dest = bmp->GetPixels();
 	
+	auto remap = GPalette.Remap;
+	auto pal = GPalette.BaseColors;
     for (int y = 0; y < numpixels; ++y)
     {
-		int index = source[y];
+		int index = remap[source[y]];
         if (index == TRANSPARENT_INDEX)
 		{
 			hasalpha = true;
             continue;
 		}
 		
-		dest[0] = palette[index];
-		dest[1] = palette[index+1];
-		dest[2] = palette[index+2];
+		dest[0] = pal[index].b;
+		dest[1] = pal[index].g;
+		dest[2] = pal[index].r;
 		dest[3] = 255;
 		dest += 4;
     }

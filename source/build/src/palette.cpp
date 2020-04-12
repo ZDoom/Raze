@@ -17,21 +17,18 @@
 #include "common.h"
 #include "memarena.h"
 #include "palettecontainer.h"
+#include "palutil.h"
+#include "colormatcher.h"
 #include "../../glbackend/glbackend.h"
 
 FMemArena lookuparena;
 
-uint8_t basepalreset=1;
 uint8_t curbasepal;
 int32_t globalblend;
 
-uint32_t g_lastpalettesum = 0;
 palette_t palfadergb = { 0, 0, 0, 0 };
 unsigned char palfadedelta = 0;
 ESetPalFlags curpaletteflags;
-
-int32_t realmaxshade;
-float frealmaxshade;
 
 #if defined(USE_OPENGL)
 palette_t palookupfog[MAXPALOOKUPS];
@@ -135,6 +132,7 @@ void paletteLoadFromDisk(void)
 
     // PALETTE_MAIN
 
+    uint8_t palette[768];
     if (768 != fil.Read(palette, 768))
         return;
 
@@ -255,54 +253,25 @@ void palettePostLoadTables(void)
 
     char const * const palookup0 = lookuptables[0];
 
-#ifdef DEBUG_TILESIZY_512
-    // Bump shade 1 by 16.
-    for (bssize_t i=256; i<512; i++)
-        palookup0[i] = palookup0[i+(16<<8)];
-#endif
-    PalEntry pe[256];
-    for (int i = 0; i < 256; i++) pe[i] = PalEntry(palette[i * 3], palette[i * 3 + 1], palette[i * 3 + 2]);
-    ImageHelpers::SetPalette(pe);
-    blackcol = ImageHelpers::BestColor(0, 0, 0);
-    whitecol = ImageHelpers::BestColor(255, 255, 255);
-    redcol = ImageHelpers::BestColor(255, 0, 0);
-
+    ImageHelpers::SetPalette(GPalette.BaseColors);
+    
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
     for (bssize_t c = 0; c < 255; ++c) // skipping transparent color
     {
         uint8_t const index = palookup0[c];
-        rgb24_t const & color = *(rgb24_t *)&palette[index*3];
+        PalEntry color = GPalette.BaseColors[index];
 
         // don't consider #000000 fullbright
-        if (EDUKE32_PREDICT_FALSE(color.r == 0 && color.g == 0 && color.b == 0))
+        if (color.r == 0 && color.g == 0 && color.b == 0)
             continue;
 
         for (size_t s = c + 256, s_end = 256*numshades; s < s_end; s += 256)
-            if (EDUKE32_PREDICT_FALSE(palookup0[s] != index))
+            if (palookup0[s] != index)
                 goto PostLoad_NotFullbright;
 
-        Printf("%d is fullbright\n", c);
         SetPaletteIndexFullbright(c);
 
         PostLoad_NotFullbright: ;
-    }
-
-    if (realmaxshade == 0)
-    {
-        uint8_t const * const blackcolor = &palette[blackcol*3];
-        size_t s;
-        for (s = numshades < 2 ? 0 : numshades-2; s > 0; --s)
-        {
-            for (size_t c = s*256, c_end = c+255; c < c_end; ++c) // skipping transparent color
-            {
-                uint8_t const index = palookup0[c];
-                uint8_t const * const color = &palette[index*3];
-                if (!IsPaletteIndexFullbright(index) && memcmp(blackcolor, color, sizeof(rgb24_t)))
-                    goto PostLoad_FoundShade;
-            }
-        }
-        PostLoad_FoundShade: ;
-        frealmaxshade = (float)(realmaxshade = s+1);
     }
 }
 
@@ -575,10 +544,10 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
 
             for (j=0; j<256; j++)
             {
-                const char *ptr = (const char *) &palette[remapbuf[j]*3];
-                *ptr2++ = ImageHelpers::BestColor(ptr[0] + mulscale16(r-ptr[0], palscale),
-                    ptr[1] + mulscale16(g-ptr[1], palscale),
-                    ptr[2] + mulscale16(b-ptr[2], palscale));
+                PalEntry pe = GPalette.BaseColors[remapbuf[j]];
+                *ptr2++ = ColorMatcher.Pick(pe.r + mulscale16(r-pe.r, palscale),
+                    pe.g + mulscale16(g-pe.g, palscale),
+                    pe.b + mulscale16(b-pe.b, palscale));
             }
         }
     }
@@ -606,7 +575,6 @@ void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
 	if (GPalette.GetTranslation(Translation_BasePalettes, dapalid) == nullptr)
 		dapalid = 0;
 	curbasepal = dapalid;
-	basepalreset = 0;
 
 	// In-scene brightness mode for RR's thunderstorm. This shouldn't affect the global gamma ramp.
 	if ((videoGetRenderMode() >= REND_POLYMOST) && (flags & Pal_SceneBrightness))

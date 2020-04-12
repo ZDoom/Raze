@@ -500,8 +500,8 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
         case T_SHADEFACTOR:
-            scriptfile_getnumber(script, &realmaxshade);
-            frealmaxshade = (float)realmaxshade;
+            //scriptfile_getnumber(script, &realmaxshade);
+            //frealmaxshade = (float)realmaxshade;
             break;
         case T_ARTFILE:
         {

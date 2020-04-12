@@ -11,7 +11,7 @@
 #include "gamecvars.h"
 #include "rts.h"
 #include "gamecontrol.h"
-
+#include "palettecontainer.h"
 
 #include "common.h"
 #include "common_game.h"
@@ -135,8 +135,13 @@ void G_LoadLookups(void)
         paletteSetColorTable(basepalnum, paldata, basepalnum == DREALMSPAL || basepalnum == ENDINGPAL);
     }
 
-    Bmemcpy(paldata, palette+1, 767);
-    paldata[767] = palette[767];
+    for (int i = 0; i < 256; i++)
+    {
+        // swap red and blue channels.
+        paldata[i * 3] = GPalette.BaseColors[i].b;
+        paldata[i * 3+1] = GPalette.BaseColors[i].g;
+        paldata[i * 3+2] = GPalette.BaseColors[i].r;
+    }
     paletteSetColorTable(DRUGPAL, paldata); // todo: implement this as a shader effect
 
     if (RR)

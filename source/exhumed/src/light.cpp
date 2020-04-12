@@ -181,7 +181,6 @@ void GrabPalette()
 
 void BlackOut()
 {
-    g_lastpalettesum = -1;
     videoTintBlood(0, 0, 0);
 }
 
@@ -290,15 +289,7 @@ void FixPalette()
         nPalDiff = 0;
     }
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST) videoTintBlood(rtint, gtint, btint);
-    else
-#endif
-    {
-        
-        //videoUpdatePalette(0, 256);
-        g_lastpalettesum = -1;
-    }
+    videoTintBlood(rtint, gtint, btint);
 }
 
 void TintPalette(int r, int g, int b)

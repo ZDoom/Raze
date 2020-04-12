@@ -190,11 +190,4 @@ FFont *V_GetFont(const char *fontname, const char *fontlumpname = nullptr);
 void V_InitFontColors();
 char* CleanseString(char* str);
 
-
-struct FRemapTable
-{
-	PalEntry Palette[256] = { };			// The ideal palette this maps to
-};
-
-
 #endif //__V_FONT_H__

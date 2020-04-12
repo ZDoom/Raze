@@ -1469,9 +1469,6 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
     return CalcSmoothRatio(totalclk, ototalclk, 30);
 }
 
-#define COLOR_RED redcol
-#define COLOR_WHITE whitecol
-
 #define LOW_FPS ((videoGetRenderMode() == REND_CLASSIC) ? 35 : 50)
 #define SLOW_FRAME_TIME 20
 
@@ -1480,8 +1477,6 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
 #else
 # define FPS_YOFFSET 0
 #endif
-
-#define FPS_COLOR(x) ((x) ? COLOR_RED : COLOR_WHITE)
 
 FString GameInterface::statFPS()
 {

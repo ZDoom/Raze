@@ -41,9 +41,8 @@
 #include "tarray.h"
 #include "palentry.h"
 #include "bitmap.h"
-
-// we do not want to pull in the entirety of build.h here.
-extern uint8_t palette[768];
+#include "palutil.h"
+#include "palettecontainer.h"
 
 namespace ImageHelpers
 {
@@ -59,8 +58,6 @@ namespace ImageHelpers
 	extern int alphaThreshold;
 
 	// Todo: This should not pick fullbright colors.
-	int BestColor(int r, int g, int b, int first = 0, int num = 255);
-	int PTM_BestColor(int r, int g, int b, bool reverselookup, float powtable_val, int first, int num);
 	void SetPalette(const PalEntry* colors);
 
 
@@ -72,7 +69,7 @@ namespace ImageHelpers
 	
 	inline uint8_t RGBToPalettePrecise(bool wantluminance, int r, int g, int b, int a = 255)
 	{
-		return BestColor(r, g, b);
+		return BestColor((uint32_t*)GPalette.BaseColors, r, g, b);
 	}
 	
 	inline uint8_t RGBToPalette(bool wantluminance, int r, int g, int b, int a = 255)
@@ -143,18 +140,4 @@ namespace ImageHelpers
 			}
 		}
 	}
-	
-	struct _BasePalette
-	{
-		PalEntry operator[](int index)
-		{
-			return PalEntry(
-				palette[index * 3 + 0],
-				palette[index * 3 + 1],
-				palette[index * 3 + 2]
-			);
-		}
-	};
-	
-	extern _BasePalette BasePalette;
 }

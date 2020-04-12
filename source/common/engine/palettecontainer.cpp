@@ -58,6 +58,7 @@ void PaletteContainer::Init(int numslots)	// This cannot be a constructor!!!
 	remap.Inactive = true;
 	AddRemap(&remap);
 	TranslationTables.Resize(numslots);
+	ColorMatcher.SetPalette(BaseColors);
 }
 
 void PaletteContainer::SetPalette(const uint8_t* colors, int transparent_index)

@@ -41,6 +41,7 @@
 #include "printf.h"
 #include "imagehelpers.h"
 #include "filesystem.h"
+#include "colormatcher.h"
 
 #include "fontinternals.h"
 
@@ -598,7 +599,7 @@ void FSingleLumpFont::FixupPalette (uint8_t *identity, double *luminosity, const
 		int g = palette[1];
 		int b = palette[2];
 		double lum = r*0.299 + g*0.587 + b*0.114;
-		identity[i] = ImageHelpers::BestColor(r, g, b);
+		identity[i] = ColorMatcher.Pick(r, g, b);
 		luminosity[i] = lum;
 		out_palette[i].r = r;
 		out_palette[i].g = g;

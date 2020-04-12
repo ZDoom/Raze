@@ -81,15 +81,10 @@ void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset);
 void videoTintBlood(int32_t r, int32_t g, int32_t b);
 #endif
 
-extern int32_t realmaxshade;
-extern float frealmaxshade;
-
 extern int32_t globalpal;
 extern int32_t globalblend;
-extern uint32_t g_lastpalettesum;
 extern void paletteLoadFromDisk(void);
 extern void palettePostLoadTables(void);
-extern uint8_t basepalreset;
 extern int32_t curbrightness;
 
 extern int32_t paletteLoadLookupTable(FileReader &fp);

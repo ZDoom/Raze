@@ -40,6 +40,7 @@
 #include "imagehelpers.h"
 #include "v_draw.h"
 #include "glbackend/glbackend.h"
+#include "palettecontainer.h"
 
 #include "fontinternals.h"
 
@@ -386,8 +387,8 @@ public:
 			{
 				if (myluminosity[l] >= otherluminosity[o] && myluminosity[l] <= otherluminosity[o + 1])
 				{
-					PalEntry color1 = ImageHelpers::BasePalette[otherreverse[o]];
-					PalEntry color2 = ImageHelpers::BasePalette[otherreverse[o + 1]];
+					PalEntry color1 = GPalette.BaseColors[otherreverse[o]];
+					PalEntry color2 = GPalette.BaseColors[otherreverse[o + 1]];
 					double weight = 0;
 					if (otherluminosity[o] != otherluminosity[o + 1])
 					{

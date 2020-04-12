@@ -37,9 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_RR_NS
 
-#define COLOR_RED redcol
-#define COLOR_WHITE whitecol
-
 #define quotepulseshade (sintable[((uint32_t)totalclock<<5)&2047]>>11)
 
 int32_t g_crosshairSum = -1;
@@ -650,7 +647,6 @@ GameStats GameInterface::getStats()
 	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC, p->frag };
 }
 
-#undef FPS_COLOR
 
 void G_DisplayRest(int32_t smoothratio)
 {

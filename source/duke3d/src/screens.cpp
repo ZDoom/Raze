@@ -37,9 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-#define COLOR_RED redcol
-#define COLOR_WHITE whitecol
-
 #define quotepulseshade (sintable[((uint32_t)totalclock<<5)&2047]>>11)
 
 int32_t g_crosshairSum = -1;
@@ -580,8 +577,6 @@ FString GameInterface::GetCoordString()
 # define FPS_YOFFSET 0
 #endif
 
-#define FPS_COLOR(x) ((x) ? COLOR_RED : COLOR_WHITE)
-
 FString GameInterface::statFPS(void)
 {
 	FString output;
@@ -653,8 +648,6 @@ FString GameInterface::statFPS(void)
     lastFrameTime = frameTime;
 	return output;
 }
-
-#undef FPS_COLOR
 
 void G_DisplayRest(int32_t smoothratio)
 {
