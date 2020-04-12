@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "trigdat.h"
 #include "sequence.h"
 #include "cd.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 
 BEGIN_PS_NS
 
@@ -153,6 +153,17 @@ public:
         S_Rolloff.MinDistance = 0;
         S_Rolloff.MaxDistance = 1536;
     }
+
+    void StopChannel(FSoundChan* chan) override
+    {
+        if (chan && chan->SysChannel != NULL && !(chan->ChanFlags & CHANF_EVICTED) && chan->SourceType == SOURCE_Actor)
+        {
+            chan->Source = NULL;
+            chan->SourceType = SOURCE_Unattached;
+        }
+        SoundEngine::StopChannel(chan);
+    }
+
 };
 
 //==========================================================================

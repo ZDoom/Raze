@@ -46,7 +46,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "settings.h"
 #include "pragmas.h"
 #include "gamecvars.h"
-#include "s_soundinternal.h"
+#include "raze_sound.h"
 
 BEGIN_SW_NS
 

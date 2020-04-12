@@ -50,7 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "colormap.h"
 #include "config.h"
 #include "menu/menu.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 #include "sounds.h"
 
 #include "../../glbackend/glbackend.h"

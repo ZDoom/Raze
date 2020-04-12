@@ -46,7 +46,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "menu/menu.h"
 #include "swcvar.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 
 BEGIN_SW_NS
 

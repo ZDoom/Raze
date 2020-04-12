@@ -701,6 +701,7 @@ set (PCH_SOURCES
 	core/screenshot.cpp
 	core/serializer.cpp
 	core/raze_music.cpp
+	core/raze_sound.cpp
 
 	core/2d/v_2ddrawer.cpp
 	core/2d/v_draw.cpp

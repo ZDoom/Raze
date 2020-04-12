@@ -50,7 +50,7 @@
 #include "serializer.h"
 #include "version.h"
 #include "raze_music.h"
-#include "s_soundinternal.h"
+#include "raze_sound.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;

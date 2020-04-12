@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "raze_music.h"
 #include "mapinfo.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 
 BEGIN_RR_NS
 
@@ -43,6 +43,17 @@ public:
         S_Rolloff.MinDistance = 144;            // was originally 576 which looks like a bug and sounds like crap.
         S_Rolloff.MaxDistance = 1088;
     }
+
+    void StopChannel(FSoundChan* chan) override
+    {
+        if (chan && chan->SysChannel != NULL && !(chan->ChanFlags & CHANF_EVICTED) && chan->SourceType == SOURCE_Actor)
+        {
+            chan->Source = NULL;
+            chan->SourceType = SOURCE_Unattached;
+        }
+        SoundEngine::StopChannel(chan);
+    }
+
 };
 
 void S_InitSound()

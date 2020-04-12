@@ -36,10 +36,9 @@
 #include <stdlib.h>
 
 #include "oalsound.h"
-#include "printf.h"
+
 #include "i_module.h"
 #include "cmdlib.h"
-#include <zmusic.h>
 
 #include "c_dispatch.h"
 #include "i_music.h"
@@ -47,11 +46,8 @@
 #include "v_text.h"
 #include "c_cvars.h"
 #include "stats.h"
-#include "s_music.h"
-#include "raze_music.h"
-#include "gamecvars.h"
-#include "gamecontrol.h"
 #include <zmusic.h>
+
 
 EXTERN_CVAR (Float, snd_sfxvolume)
 EXTERN_CVAR(Float, snd_musicvolume)
@@ -71,6 +67,8 @@ CVAR(String, snd_backend, DEF_BACKEND, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR (Bool, snd_pitched, false, CVAR_ARCHIVE)
 
 SoundRenderer *GSnd;
+bool nosound;
+bool nosfx;
 
 void I_CloseSound ();
 
@@ -173,17 +171,17 @@ public:
 	}
 
 	// Starts a sound.
-	FISoundChannel *StartSound (SoundHandle sfx, float vol, int pitch, int chanflags, FISoundChannel *reuse_chan)
+	FISoundChannel *StartSound (SoundHandle sfx, float vol, int pitch, int chanflags, FISoundChannel *reuse_chan, float startTime)
 	{
 		return NULL;
 	}
-	FISoundChannel *StartSound3D (SoundHandle sfx, SoundListener *listener, float vol, FRolloffInfo *rolloff, float distscale, int pitch, int priority, const FVector3 &pos, const FVector3 &vel, int channum, int chanflags, FISoundChannel *reuse_chan)
+	FISoundChannel *StartSound3D (SoundHandle sfx, SoundListener *listener, float vol, FRolloffInfo *rolloff, float distscale, int pitch, int priority, const FVector3 &pos, const FVector3 &vel, int channum, int chanflags, FISoundChannel *reuse_chan, float startTime)
 	{
 		return NULL;
 	}
 
 	// Marks a channel's start time without actually playing it.
-	void MarkStartTime (FISoundChannel *chan)
+	void MarkStartTime (FISoundChannel *chan, float startTime)
 	{
 	}
 
@@ -247,21 +245,31 @@ public:
 void I_InitSound ()
 {
 	FModule_SetProgDir(progdir);
+	/* Get command line options: */
+	nosound = !!Args->CheckParm ("-nosound");
+	nosfx = !!Args->CheckParm ("-nosfx");
 
 	GSnd = NULL;
-	if (userConfig.nosound)
+	if (nosound)
 	{
 		GSnd = new NullSoundRenderer;
 		return;
 	}
 
-#ifndef NO_OPENAL
-	if (IsOpenALPresent())
+	// Keep it simple: let everything except "null" init the sound.
+	if (stricmp(snd_backend, "null") == 0)
 	{
-		GSnd = new OpenALSoundRenderer;
+		GSnd = new NullSoundRenderer;
 	}
-#endif // !NO_OPENAL
-
+	else
+	{
+		#ifndef NO_OPENAL
+			if (IsOpenALPresent())
+			{
+				GSnd = new OpenALSoundRenderer;
+			}
+		#endif
+	}
 	if (!GSnd || !GSnd->IsValid ())
 	{
 		I_CloseSound();

@@ -71,7 +71,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_argv.h"
 #include "statistics.h"
 #include "menu/menu.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 #include "nnexts.h"
 #include"secrets.h"
 

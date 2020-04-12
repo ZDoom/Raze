@@ -59,6 +59,7 @@
 #include "i_system.h"
 #include "s_soundinternal.h"
 #include "engineerrors.h"
+#include "gamecontrol.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define sounds_public_h_
 
 #include "sounds_common.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 #include "raze_music.h"
 
 BEGIN_DUKE_NS

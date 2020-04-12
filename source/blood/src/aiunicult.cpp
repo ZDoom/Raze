@@ -51,7 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "endgame.h"
 #include "view.h"
 #include "tile.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 
 #include "gib.h"
 #include "aiburn.h"

@@ -50,7 +50,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "config.h"
 #include "menu/menu.h"
 #include "raze_music.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 #include "filesystem.h"
 #include "serializer.h"
 
@@ -448,6 +448,16 @@ public:
             chan->Source = &sprite[index];
         }
         else chan->Source = nullptr;
+    }
+
+    void StopChannel(FSoundChan* chan) override
+    {
+        if (chan && chan->SysChannel != NULL && !(chan->ChanFlags & CHANF_EVICTED) && chan->SourceType == SOURCE_Actor)
+        {
+            chan->Source = NULL;
+            chan->SourceType = SOURCE_Unattached;
+        }
+        SoundEngine::StopChannel(chan);
     }
 
 };

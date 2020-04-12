@@ -49,7 +49,7 @@
 #include "cmdlib.h"
 #include "utf8.h"
 #include "printf.h"
-#include "s_soundinternal.h"
+#include "raze_sound.h"
 
 bool save_full = false;
 

@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sfx.h"
 #include "sound.h"
 #include "trig.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 
 BEGIN_BLD_NS
 
@@ -51,6 +51,19 @@ public:
         S_Rolloff.MinDistance = 170;            // these are the numbers I got when uncrunching the original sound code.
         S_Rolloff.MaxDistance = 850;
     }
+
+    void StopChannel(FSoundChan* chan) override
+    {
+        if (chan && chan->SysChannel != NULL && !(chan->ChanFlags & CHANF_EVICTED) && chan->SourceType == SOURCE_Actor)
+        {
+            chan->Source = NULL;
+            chan->SourceType = SOURCE_Unattached;
+        }
+        SoundEngine::StopChannel(chan);
+    }
+
+
+
 };
 
 void sfxInit(void)

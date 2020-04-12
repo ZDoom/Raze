@@ -99,7 +99,7 @@ Things required to make savegames work:
 #include "gstrings.h"
 #include "mapinfo.h"
 #include "rendering/v_video.h"
-#include "sound/s_soundinternal.h"
+#include "raze_sound.h"
 #include "secrets.h"
 
 #include "osdcmds.h"
