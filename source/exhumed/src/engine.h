@@ -60,7 +60,6 @@ void overwritesprite(int thex, int they, short tilenum, signed char shade, char 
 void precache();
 void resettiming();
 void printext(int x, int y, const char* buffer, short tilenum, char invisiblecol);
-void kensetpalette(unsigned char *vgapal);
 
 END_PS_NS
 

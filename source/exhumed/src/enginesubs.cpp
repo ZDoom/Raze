@@ -71,30 +71,6 @@ void resettiming()
 // TODO	totalclocklock = 0L;
 }
 
-void kensetpalette(unsigned char *vgapal)
-{
-    //setbrightness(0, (char*)vgapal, 4 | 2);
-    // TODO
-    Bmemcpy(palette, vgapal, 768);
-    for (auto &i : palette)
-        i <<= 2;
-    videoSetPalette(0, 0, 0);
-#if 0
-    char vesapal[1024];
-
-    for(int i = 0; i < 256; i++)
-    {
-        vesapal[i*4+0] = vgapal[i*3+2];
-        vesapal[i*4+1] = vgapal[i*3+1];
-        vesapal[i*4+2] = vgapal[i*3+0];
-        vesapal[i*4+3] = 0;
-    }
-#ifndef __WATCOMC__
-     (0L, 256L, vesapal);
-#endif
-
-#endif
-}
 
 static int32_t xdim_to_320_16(int32_t x)
 {

@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "version.h"
 #include "v_video.h"
+#include "colormatcher.h"
 
 #include "debugbreak.h"
 
@@ -5888,7 +5889,8 @@ badindex:
                 {
                     tw = *insptr++;
                     int32_t const rgb = Gv_GetVar(*insptr++);
-                    Gv_SetVar(tw, ImageHelpers::BestColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVar(*insptr++)));
+                    Gv_GetVar(*insptr++);
+                    Gv_SetVar(tw, ColorMatcher.Pick(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF));
                 }
                 dispatch();
 

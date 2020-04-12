@@ -42,6 +42,7 @@
 #include "image.h"
 #include "printf.h"
 #include "filesystem.h"
+#include "colormatcher.h"
 
 //==========================================================================
 //
@@ -265,7 +266,7 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 			}
 			else
 			{
-				PaletteMap[i] = ImageHelpers::BestColor(p.palette[i].r, p.palette[i].g, p.palette[i].b);
+				PaletteMap[i] = ColorMatcher.Pick(p.palette[i].r, p.palette[i].g, p.palette[i].b);
 			}
 		}
 		break;

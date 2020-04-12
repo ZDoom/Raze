@@ -55,6 +55,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "colormap.h"
 #include "config.h"
+#include "palettecontainer.h"
 
 BEGIN_SW_NS
 
@@ -460,9 +461,9 @@ void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
 
     pp->FadeTics = 0;
 
-    color.red = palette[pp->StartColor*3];
-    color.green = palette[pp->StartColor*3+1];
-    color.blue = palette[pp->StartColor*3+2];
+    color.red = GPalette.BaseColors[pp->StartColor].r;
+    color.green = GPalette.BaseColors[pp->StartColor].g;
+    color.blue = GPalette.BaseColors[pp->StartColor].b;
 
     // Do initial palette set
     if (pp == Player + screenpeek)
@@ -532,10 +533,10 @@ void DoPaletteFlash(PLAYERp pp)
         if (pp == Player + screenpeek)
         {
             videoFadePalette(
-                palette[pp->StartColor*3],
-                palette[pp->StartColor*3+1],
-                palette[pp->StartColor*3+2],
-				faderamp[min(31, max(0, 32 - abs(pp->FadeAmt)))]
+                GPalette.BaseColors[pp->StartColor].r,
+                GPalette.BaseColors[pp->StartColor].g,
+                GPalette.BaseColors[pp->StartColor].b,
+                faderamp[min(31, max(0, 32 - abs(pp->FadeAmt)))]
                 );
         }
 

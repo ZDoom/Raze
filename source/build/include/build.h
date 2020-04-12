@@ -539,11 +539,9 @@ static inline int32_t BGetTime(void) { return (int32_t) totalclock; }
 EXTERN int32_t numframes, randomseed;
 EXTERN int16_t sintable[2048];
 
-EXTERN uint8_t palette[768];
 EXTERN int16_t numshades;
 EXTERN char *lookuptables[MAXPALOOKUPS];
 EXTERN uint8_t paletteloaded;
-EXTERN uint8_t whitecol, redcol, blackcol;
 
 EXTERN int32_t maxspritesonscreen;
 
