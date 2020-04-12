@@ -307,7 +307,7 @@ void PlayerInterruptKeys()
         bPlayerPan = kTrue;
         nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
     }
-    else if (buttonMap.ButtonDown(gamefunc_Look_Straight))
+    else if (buttonMap.ButtonDown(gamefunc_Center_View))
     {
         bLockPan = kFalse;
         bPlayerPan = kFalse;
