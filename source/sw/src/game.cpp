@@ -3185,7 +3185,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     info.dyaw = (info.dyaw * turn_scale)>>8;
 
     int32_t svel = 0, vel = 0;
-    fix16_t q16horz = 0, q16avel = 0;
+    fix16_t q16aimvel = 0, q16angvel = 0;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
@@ -3194,19 +3194,19 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     }
     else
     {
-        q16avel = fix16_div(fix16_from_int(info.mousex), fix16_from_int(32));
-        q16avel += fix16_from_int(info.dyaw) / analogExtent * (turnamount << 1);
+        q16angvel = fix16_div(fix16_from_int(info.mousex), fix16_from_int(32));
+        q16angvel += fix16_from_int(info.dyaw) / analogExtent * (turnamount << 1);
     }
 
     if (mouseaim)
-        q16horz = -fix16_div(fix16_from_int(info.mousey), fix16_from_int(64));
+        q16aimvel = -fix16_div(fix16_from_int(info.mousey), fix16_from_int(64));
     else
         vel = -(info.mousey >> 6);
 
     if (in_mouseflip)
-        q16horz = -q16horz;
+        q16aimvel = -q16aimvel;
 
-    q16horz -= fix16_from_int(info.dpitch) * turnamount / analogExtent;
+    q16aimvel -= fix16_from_int(info.dpitch) * turnamount / analogExtent;
     svel -= info.dx * keymove / analogExtent;
     vel -= info.dz * keymove / analogExtent;
 
@@ -3225,12 +3225,12 @@ getinput(SW_PACKET *loc, SWBOOL tied)
             if (PEDANTIC_MODE)
             {
                 if (turnheldtime >= TURBOTURNTIME)
-                    q16avel -= fix16_from_int(turnamount);
+                    q16angvel -= fix16_from_int(turnamount);
                 else
-                    q16avel -= fix16_from_int(PREAMBLETURN);
+                    q16angvel -= fix16_from_int(PREAMBLETURN);
             }
             else
-                q16avel = fix16_ssub(q16avel, fix16_from_float(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
+                q16angvel = fix16_ssub(q16angvel, fix16_from_float(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
         }
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
@@ -3238,12 +3238,12 @@ getinput(SW_PACKET *loc, SWBOOL tied)
             if (PEDANTIC_MODE)
             {
                 if (turnheldtime >= TURBOTURNTIME)
-                    q16avel += fix16_from_int(turnamount);
+                    q16angvel += fix16_from_int(turnamount);
                 else
-                    q16avel += fix16_from_int(PREAMBLETURN);
+                    q16angvel += fix16_from_int(PREAMBLETURN);
             }
             else
-                q16avel = fix16_sadd(q16avel, fix16_from_float(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
+                q16angvel = fix16_sadd(q16angvel, fix16_from_float(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
         }
         else
         {
@@ -3272,21 +3272,21 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     if (buttonMap.ButtonDown(gamefunc_Move_Backward))
         vel += -keymove;
 
-    q16avel = fix16_clamp(q16avel, -fix16_from_int(MAXANGVEL), fix16_from_int(MAXANGVEL));
-    q16horz = fix16_clamp(q16horz, -fix16_from_int(MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
+    q16angvel = fix16_clamp(q16angvel, -fix16_from_int(MAXANGVEL), fix16_from_int(MAXANGVEL));
+    q16aimvel = fix16_clamp(q16aimvel, -fix16_from_int(MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
 
     if (PEDANTIC_MODE)
     {
-        q16avel = fix16_floor(q16avel);
-        q16horz = fix16_floor(q16horz);
+        q16angvel = fix16_floor(q16angvel);
+        q16aimvel = fix16_floor(q16aimvel);
     }
     else if (!TEST(pp->Flags, PF_DEAD))
     {
-        void DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16avel);
-        void DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz);
+        void DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel);
+        void DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel);
         if (!TEST(pp->Flags, PF_CLIMBING))
-            DoPlayerTurn(pp, &pp->camq16ang, q16avel);
-        DoPlayerHorizon(pp, &pp->camq16horiz, q16horz);
+            DoPlayerTurn(pp, &pp->camq16ang, q16angvel);
+        DoPlayerHorizon(pp, &pp->camq16horiz, q16aimvel);
     }
 
     loc->vel += vel;
@@ -3307,8 +3307,8 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         loc->svel = momy;
     }
 
-    loc->q16avel += q16avel;
-    loc->q16horz += q16horz;
+    loc->q16angvel += q16angvel;
+    loc->q16aimvel += q16aimvel;
 
     if (!CommEnabled)
     {
