@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_bind.h"
 #include "sound.h"
 #include "v_2ddrawer.h"
+#include "animtexture.h"
 
 BEGIN_PS_NS
 
@@ -55,7 +56,7 @@ static uint8_t* CurFrame = NULL;
 bool bServedSample = false;
 palette_t moviepal[256];
 
-int ReadFrame(FileReader &fp)
+int ReadFrame(FileReader &fp, uint8_t *palette)
 {
     static int nFrame = 0;
     Printf("Reading frame %d...\n", nFrame);
@@ -67,7 +68,6 @@ int ReadFrame(FileReader &fp)
     uint16_t yOffset;
     uint8_t xOffset;
     uint8_t nPixels;
-    uint8_t palette[768];
 
     while (1)
     {
@@ -86,14 +86,11 @@ int ReadFrame(FileReader &fp)
         {
             case kFramePalette:
             {
-                fp.Read(palette, sizeof(palette));
+                fp.Read(palette, 768);
                 fp.Read(&var_1C, sizeof(var_1C));
 
-                for (auto &c : palette)
-                    c <<= 2;
-
-                paletteSetColorTable(ANIMPAL, palette);
-                videoSetPalette(0, ANIMPAL, Pal_Fullscreen);
+                for (unsigned i = 0; i < 768;i++)
+                    palette[i] <<= 2;
 
                 memset(CurFrame, overscanindex, 4); //sizeof(CurFrame));
                 continue;
@@ -189,6 +186,7 @@ static void ServeSample(const char** ptr, uint32_t* length)
 
 void PlayMovie(const char* fileName)
 {
+    uint8_t palette[768];
     TArray<uint8_t> f(64000, true);
     CurFrame = f.Data();
 
@@ -217,10 +215,11 @@ void PlayMovie(const char* fileName)
     int angle = 1536;
     int z = 0;
 
-    videoSetPalette(0, ANIMPAL, Pal_Fullscreen);
+    AnimTextures animtex;
+    animtex.SetSize(200, 320);
 
     // Read a frame in first
-    if (ReadFrame(fp))
+    if (ReadFrame(fp, palette))
     {
         // start audio playback (fixme)
 #if 0
@@ -254,10 +253,8 @@ void PlayMovie(const char* fileName)
 
             // I have no idea why this needs double buffering now.
             fn ^= 1;
-            TileFiles.tileSetExternal(10000 + fn, 320, 200, CurFrame);
-            tileInvalidate(10000 + fn, -1, -1);
-            twod->ClearScreen();
-            rotatesprite(160 << 16, 100 << 16, z, angle, 10000+fn, 0, 1, 2, 0, 0, xdim - 1, ydim - 1);
+            animtex.SetFrame(palette, CurFrame);
+            rotatesprite(160 << 16, 100 << 16, z, angle+512, -1, 0, 1, RS_AUTO | RS_YFLIP, 0, 0, xdim - 1, ydim - 1, animtex.GetFrame());
 
             if (bDoFade) {
                 bDoFade = DoFadeIn();
@@ -265,14 +262,12 @@ void PlayMovie(const char* fileName)
 
             videoNextPage();
 
-            if (ReadFrame(fp) == 0) {
+            if (ReadFrame(fp, palette) == 0) {
                 break;
             }
         }
     }
 
-    tileInvalidate(10000, -1, -1);
-    tileInvalidate(10001, -1, -1);
     if (hFx > 0) {
         //FX_StopSound(hFx);
     }
