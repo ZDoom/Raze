@@ -1580,7 +1580,7 @@ void OperateSector(unsigned int nSector, XSECTOR *pXSector, EVENT event)
                     case kCmdUnlock:
                     case kCmdToggleLock:
                         if (pXSector->locked != 1) break;
-                        pXSector->state = 0;
+                        SetSectorState(nSector, pXSector, 0);
                         evPost(nSector, 6, 0, kCallbackCounterCheck);
                         break;
                 }
@@ -1725,14 +1725,6 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
         case kSectorRotate:
             RDoorBusy(nSector, nBusy);
             break;
-        #ifdef NOONE_EXTENSIONS
-        // add link support for counter sectors so they can change necessary type and count of types
-        case kSectorCounter:
-            if (!gModernMap) break;
-            pXSector->waitTimeA = xsector[sector[event.index].extra].waitTimeA;
-            pXSector->data = xsector[sector[event.index].extra].data;
-            break;
-        #endif
         default:
             pXSector->busy = nBusy;
             if ((pXSector->busy&0xffff) == 0)
@@ -1744,10 +1736,7 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
 void LinkSprite(int nSprite, XSPRITE *pXSprite, EVENT event) {
     spritetype *pSprite = &sprite[nSprite];
     int nBusy = GetSourceBusy(event);
-    #ifdef NOONE_EXTENSIONS
-    if (gModernMap && modernTypeLinkSprite(pSprite, pXSprite, event))
-        return;
-    #endif
+
     switch (pSprite->type)  {
         case kSwitchCombo:
         {
@@ -2087,11 +2076,12 @@ void trInit(void)
             switch (pSector->type)
             {
             case kSectorCounter:
-                // no need to trigger once it, instead lock so it can be unlocked and used again.
                 #ifdef NOONE_EXTENSIONS 
-                    if (!gModernMap) 
+                if (gModernMap)
+                    pXSector->triggerOff = false;
+                else
                 #endif
-                    pXSector->triggerOnce = 1;
+                pXSector->triggerOnce = 1;
                 evPost(i, 6, 0, kCallbackCounterCheck);
                 break;
             case kSectorZMotion:

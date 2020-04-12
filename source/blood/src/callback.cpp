@@ -359,11 +359,7 @@ void EnemyBubble(int nSprite) // 11
 void CounterCheck(int nSector) // 12
 {
     dassert(nSector >= 0 && nSector < kMaxSectors);
-    
-    // remove check below, so every sector can be counter if command 12 (this callback) received.
-    #ifndef NOONE_EXTENSIONS
     if (sector[nSector].type != kSectorCounter) return;
-    #endif
     if (sector[nSector].extra <= 0) return;
     
     XSECTOR *pXSector = &xsector[sector[nSector].extra];

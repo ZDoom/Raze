@@ -1962,7 +1962,7 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
             break;
         case 1:
         case 3:
-            pXSector->windVel = Random(windVel);
+            pXSector->windVel = nnExtRandom(0, windVel);
             break;
     }
     
@@ -1972,7 +1972,7 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
         case 2:
         case 3:
             while (pSource->ang == ang)
-                pSource->ang = Random3(kAng360);
+                pSource->ang = nnExtRandom(-kAng360, kAng360) & 2047;
             break;
         }
     }
@@ -3194,13 +3194,6 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         case kModernCondition: // WIP
             if (!pXSprite->isTriggered) useCondition(pXSprite, event);
             return true;
-        // add linking for path markers and stacks
-        case kMarkerLowWater:       case kMarkerUpWater:    case kMarkerUpGoo:
-        case kMarkerLowGoo:         case kMarkerUpLink:     case kMarkerLowLink:
-        case kMarkerUpStack:        case kMarkerLowStack:   case kMarkerPath:
-            if (pXSprite->txID > 0 && pXSprite->command == kCmdLink)
-                evSend(nSprite, 3, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-            return true;
         // add spawn random dude feature - works only if at least 2 data fields are not empty.
         case kMarkerDudeSpawn:
             if (gGameOptions.nMonsterSettings && pXSprite->data1 >= kDudeBase && pXSprite->data1 < kDudeVanillaMax) {
@@ -3542,123 +3535,6 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             }
         return true;
     }
-}
-
-bool modernTypeLinkSprite(spritetype* pSprite, XSPRITE* pXSprite, EVENT event) {
-    switch (pSprite->type) {
-        // these can be linked too now, so it's possible to change palette, underwater status and more...
-        case kMarkerLowWater:
-        case kMarkerUpWater:
-        case kMarkerUpGoo:
-        case kMarkerLowGoo:
-        case kMarkerUpLink:
-        case kMarkerLowLink:
-        case kMarkerUpStack:
-        case kMarkerLowStack: {
-            if (event.type != OBJ_SPRITE) break;
-            spritetype* pSprite2 = &sprite[event.index];
-            if (pSprite2->extra < 0) break;
-            XSPRITE* pXSprite2 = &xsprite[pSprite2->extra];
-
-            // Only lower to lower and upper to upper linking allowed.
-            switch (pSprite->type) {
-                case kMarkerLowWater:
-                case kMarkerLowLink:
-                case kMarkerLowStack:
-                case kMarkerLowGoo:
-                    switch (pSprite2->type) {
-                        case kMarkerLowWater:
-                        case kMarkerLowLink:
-                        case kMarkerLowStack:
-                        case kMarkerLowGoo:
-                            break;
-                        default:
-                            return true;
-                    }
-                    break;
-                case kMarkerUpWater:
-                case kMarkerUpLink:
-                case kMarkerUpStack:
-                case kMarkerUpGoo:
-                    switch (pSprite2->type) {
-                        case kMarkerUpWater:
-                        case kMarkerUpLink:
-                        case kMarkerUpStack:
-                        case kMarkerUpGoo:
-                            break;
-                        default:
-                            return true;
-                    }
-                    break;
-            }
-
-            // swap link location
-            /*short tmp1 = pXSprite2.data1;*/
-            /*pXSprite2.data1 = pXSprite.data1;*/
-            /*pXSprite.data1 = tmp1;*/
-
-            if (pXSprite->data2 < kMaxPAL)
-            {
-                // swap medium
-                int tmp2 = pXSprite2->data2;
-                pXSprite2->data2 = pXSprite->data2;
-                pXSprite->data2 = tmp2;
-            }
-
-
-            // swap link type                       // swap link owners (sectors)
-            short tmp3 = pSprite2->type;			//short tmp7 = pSprite2.owner;
-            pSprite2->type = pSprite->type;			//pSprite2.owner = pSprite.owner;
-            pSprite->type = tmp3;					//pSprite.owner = tmp7;
-
-            // Deal with linked sectors
-            sectortype* pSector = &sector[pSprite->sectnum];
-            sectortype* pSector2 = &sector[pSprite2->sectnum];
-
-            // Check for underwater
-            XSECTOR* pXSector = NULL;	XSECTOR* pXSector2 = NULL;
-            if (pSector->extra > 0) pXSector = &xsector[pSector->extra];
-            if (pSector2->extra > 0) pXSector2 = &xsector[pSector2->extra];
-            if (pXSector != NULL && pXSector2 != NULL) {
-                bool tmp6 = pXSector->Underwater;
-                pXSector->Underwater = pXSector2->Underwater;
-                pXSector2->Underwater = tmp6;
-            }
-
-            // optionally swap floorpic
-            if (pXSprite2->data3 == 1) {
-                short tmp4 = pSector->floorpicnum;
-                pSector->floorpicnum = pSector2->floorpicnum;
-                pSector2->floorpicnum = tmp4;
-            }
-
-            // optionally swap ceilpic
-            if (pXSprite2->data4 == 1) {
-                short tmp5 = pSector->ceilingpicnum;
-                pSector->ceilingpicnum = pSector2->ceilingpicnum;
-                pSector2->ceilingpicnum = tmp5;
-            }
-        }
-        return true;
-        // add a way to link between path markers, so path sectors can change their path on the fly.
-        case kMarkerPath:
-            // only path marker to path marker link allowed
-            if (event.type == OBJ_SPRITE) {
-                int nXSprite2 = sprite[event.index].extra;
-                // get master path marker data fields
-                pXSprite->data1 = xsprite[nXSprite2].data1;
-                pXSprite->data2 = xsprite[nXSprite2].data2;
-                pXSprite->data3 = xsprite[nXSprite2].data3; // include soundId(?)
-
-                // get master path marker busy and wait times
-                pXSprite->busyTime = xsprite[nXSprite2].busyTime;
-                pXSprite->waitTime = xsprite[nXSprite2].waitTime;
-
-            }
-            return true;
-    }
-
-    return false;
 }
 
 bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event) {

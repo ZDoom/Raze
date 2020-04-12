@@ -295,7 +295,6 @@ void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer);
 void modernTypeTrigger(int type, int nDest, EVENT event);
 char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState);
 bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite, EVENT event);
-bool modernTypeLinkSprite(spritetype* pSprite, XSPRITE* pXSprite, EVENT event);
 bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event);
 void modernTypeSendCommand(int nSprite, int channel, COMMAND_ID command);
 //  -------------------------------------------------------------------------   //
