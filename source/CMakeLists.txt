@@ -589,8 +589,6 @@ file( GLOB HEADER_FILES
 	core/utility/rapidjson/*.h
 	core/console/*.h
 	core/music/*.h
-	core/sound/*.h
-	core/sound/backend/*.h
 	core/menu/*.h
 	core/input/*.h
 	core/rendering/*.h
@@ -602,6 +600,8 @@ file( GLOB HEADER_FILES
 	core/rendering/hwrenderer/postprocessing/*.h
 	core/rendering/hwrenderer/utility/*.h
 
+	common/audio/sound/thirdparty/*.h
+	common/audio/sound/*.h
 	common/audio/music/*.h*
 	common/console/*.h
 	common/utility/*.h
@@ -719,6 +719,10 @@ set (PCH_SOURCES
 	core/console/c_console.cpp
 	core/console/d_event.cpp
 
+	common/audio/sound/i_sound.cpp
+	common/audio/sound/oalsound.cpp
+	common/audio/sound/s_environment.cpp
+	common/audio/sound/s_sound.cpp
 	common/audio/music/music_midi_base.cpp
 	common/audio/music/music.cpp
 	common/audio/music/i_music.cpp
@@ -785,11 +789,6 @@ set (PCH_SOURCES
 	core/textures/formats/arttexture.cpp
 
 	core/music/s_advsound.cpp
-
-	core/sound/backend/oalsound.cpp
-	core/sound/backend/i_sound.cpp
-	core/sound/s_sound.cpp
-	core/sound/s_environment.cpp
 
 	core/menu/imagescroller.cpp
 	core/menu/joystickmenu.cpp
@@ -904,8 +903,6 @@ include_directories(
 	core/console
 	core/textures
 	core/music
-	core/sound
-	core/sound/backend
 	core/dobject
 	core/menu
 	core/input
@@ -918,6 +915,7 @@ include_directories(
 	core/rendering/hwrenderer/utility
 	core/rendering
 	platform
+	common/audio/sound
 	common/audio/music
 	common/thirdparty
 	common/textures
@@ -1021,8 +1019,6 @@ source_group("Core\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/co
 source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d/.+")
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
 source_group("Core\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/fonts/.+")
-source_group("Core\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/sound/.+")
-source_group("Core\\Sound\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/sound/backend/.+")
 source_group("Core\\DObject" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/dobject/.+")
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
 source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
@@ -1033,6 +1029,8 @@ source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/
 source_group("Platform\\POSIX" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/.+")
 source_group("Common" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/.+")
 source_group("Common\\Audio" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/audio/.+")
+source_group("Common\\Audio\\Sound" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/audio/sound/.+")
+source_group("Common\\Audio\\Sound\\Third-party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/audio/sound/thirdparty/.+")
 source_group("Common\\Audio\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/audio/music.+")
 source_group("Common\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/console/.+")
 source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
