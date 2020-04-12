@@ -356,7 +356,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                     x2 = dmulscale16(ox, xvect, -oy, yvect);
                     y2 = dmulscale16(oy, xvect2, ox, yvect2);
 
-                    renderDrawLine(x1+(xdim<<11), y1+(ydim<<11),
+                    drawlinergb(x1+(xdim<<11), y1+(ydim<<11),
                         x2+(xdim<<11), y2+(ydim<<11), col);
                 }
 
@@ -412,16 +412,16 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                 x4 = dmulscale16(ox, xvect, -oy, yvect);
                 y4 = dmulscale16(oy, xvect2, ox, yvect2);
 
-                renderDrawLine(x1+(xdim<<11), y1+(ydim<<11),
+                drawlinergb(x1+(xdim<<11), y1+(ydim<<11),
                     x2+(xdim<<11), y2+(ydim<<11), col);
 
-                renderDrawLine(x2+(xdim<<11), y2+(ydim<<11),
+                drawlinergb(x2+(xdim<<11), y2+(ydim<<11),
                     x3+(xdim<<11), y3+(ydim<<11), col);
 
-                renderDrawLine(x3+(xdim<<11), y3+(ydim<<11),
+                drawlinergb(x3+(xdim<<11), y3+(ydim<<11),
                     x4+(xdim<<11), y4+(ydim<<11), col);
 
-                renderDrawLine(x4+(xdim<<11), y4+(ydim<<11),
+                drawlinergb(x4+(xdim<<11), y4+(ydim<<11),
                     x1+(xdim<<11), y1+(ydim<<11), col);
 
                 break;

@@ -2107,7 +2107,7 @@ drawscreen(PLAYERp pp)
     }
 
     if (FAF_DebugView)
-        videoClearViewableArea(255L);
+        videoClearViewableArea(255);
 
     if (dimensionmode != 6)// && !ScreenSavePic)
     {

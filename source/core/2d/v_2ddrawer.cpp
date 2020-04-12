@@ -841,7 +841,8 @@ void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
 
 void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col)
 {
-	drawlinergb(x1, y1, x2, y2, paletteGetColor(palookup[0][col]));
+	PalEntry color(255, palette[col * 3], palette[col * 3 + 1], palette[col * 3 + 2]);
+	drawlinergb(x1, y1, x2, y2, color);
 }
 
 

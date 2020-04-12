@@ -178,7 +178,11 @@ void G_LoadLookups(void)
             table[i] = i+192;
         paletteMakeLookupTable(35, table, 0, 0, 0, 0);
         if (RRRA)
-            paletteMakeLookupTable(54, palookup[8], 32*4, 32*4, 32*4, 0);
+        {
+            paletteMakeLookupTable(50, NULL, 12 * 4, 12 * 4, 12 * 4, 0);
+            paletteMakeLookupTable(51, NULL, 12 * 4, 12 * 4, 12 * 4, 0);
+            paletteMakeLookupTable(54, palookup[8], 32 * 4, 32 * 4, 32 * 4, 0);
+        }
     }
 }
 

@@ -260,8 +260,6 @@ extern short NormalVisibility;
 extern int quotebot, quotebotgoal;     // Multiplayer typing buffer
 char recbuf[80];                        // Used as a temp buffer to hold typing text
 
-extern unsigned char palette_data[256][3];             // Global palette array
-
 #define ACT_STATUE 0
 
 int score;
@@ -707,13 +705,6 @@ void AnimateCacheCursor(void)
 #endif
 }
 
-void COVERsetbrightness(int bright, unsigned char *pal)
-{
-    paletteSetColorTable(BASEPAL, pal);
-    videoSetPalette(bright, BASEPAL, 0);
-}
-
-
 static int firstnet = 0;    // JBF
 
 
@@ -732,7 +723,6 @@ bool InitGame()
 
     timerInit(120);
 
-    memcpy(palette_data,palette,768);
     InitPalette();
     // sets numplayers, connecthead, connectpoint2, myconnectindex
 
@@ -864,8 +854,6 @@ bool InitGame()
 
     GraphicsMode = TRUE;
     SetupAspectRatio();
-
-    COVERsetbrightness(0, &palette_data[0][0]);
 
     InitFX();   // JBF: do it down here so we get a hold of the window handle
 	return true;
@@ -3692,18 +3680,12 @@ void getinput(int const playerNum)
             if (dimensionmode != 2 && screenpeek == playerNum)
             {
                 // JBF: figure out what's going on here
-                memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
                 DoPlayerDivePalette(pp);  // Check Dive again
                 DoPlayerNightVisionPalette(pp);  // Check Night Vision again
             }
             else
             {
                 PLAYERp tp = Player+screenpeek;
-
-                if (tp->FadeAmt<=0)
-                    memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
-                else
-                    memcpy(pp->temp_pal, tp->temp_pal, sizeof(tp->temp_pal));
                 DoPlayerDivePalette(tp);
                 DoPlayerNightVisionPalette(tp);
             }

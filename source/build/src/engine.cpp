@@ -119,7 +119,7 @@ static int8_t tempbuf[MAXWALLS];
 
 // referenced from asm
 int32_t reciptable[2048];
-intptr_t asm1, asm2, asm3;
+intptr_t asm1, asm2;
 int32_t globalx1, globaly2, globalx3, globaly3;
 
 static int32_t no_radarang2 = 0;
@@ -2138,6 +2138,8 @@ int32_t enginePostInit(void)
 //
 // uninitengine
 //
+void paletteFreeAll();
+
 void engineUnInit(void)
 {
 #ifdef USE_OPENGL
@@ -2151,20 +2153,7 @@ void engineUnInit(void)
 
 	TileFiles.CloseAll();
 
-    paletteloaded = 0;
-
-    for (bssize_t i=0; i<MAXPALOOKUPS; i++)
-        if (i==0 || palookup[i] != palookup[0])
-        {
-            // Take care of handling aliased ^^^ cases!
-            Xaligned_free(palookup[i]);
-        }
-    Bmemset(palookup, 0, sizeof(palookup));
-
-    for (bssize_t i=1; i<MAXBASEPALS; i++)
-        Xfree(basepaltable[i]);
-    Bmemset(basepaltable, 0, sizeof(basepaltable));
-    basepaltable[0] = palette;
+    paletteFreeAll();
 
     for (bssize_t i = 0; i < num_usermaphacks; i++)
     {
@@ -2989,12 +2978,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             globalpal = sec->floorpal;
 
-            if (palookup[sec->floorpal] != globalpalwritten)
-            {
-                globalpalwritten = palookup[sec->floorpal];
-                if (!globalpalwritten) globalpalwritten = palookup[0];	// JBF: fixes null-pointer crash
-                //setpalookupaddress(globalpalwritten);
-            }
             globalpicnum = sec->floorpicnum;
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
             tileUpdatePicnum(&globalpicnum, s);
@@ -3121,7 +3104,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             else
                 globalshade = ((int32_t)sector[spr->sectnum].floorshade);
             globalshade = max(min(globalshade+spr->shade+6,numshades-1),0);
-            asm3 = FP_OFF(palookup[spr->pal]+(globalshade<<8));
             globvis = globalhisibility;
             if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
 
@@ -5049,13 +5031,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 //
 void videoClearViewableArea(int32_t dacol)
 {
-    if (!in3dmode() && dacol != -1) return;
-
-    if (dacol == -1) dacol = 0;
-
-    palette_t const p = paletteGetColor(dacol);
-
-    GLInterface.ClearScreen(PalEntry(p.r, p.g, p.b), false);
+    GLInterface.ClearScreen(dacol, false);
 }
 
 
@@ -5064,10 +5040,7 @@ void videoClearViewableArea(int32_t dacol)
 //
 void videoClearScreen(int32_t dacol)
 {
-    if (!in3dmode()) return;
-
-    palette_t const p = paletteGetColor(dacol);
-    GLInterface.ClearScreen(PalEntry(255, p.r, p.g, p.b));
+    GLInterface.ClearScreen(dacol | PalEntry(255,0,0,0));
 }
 
 

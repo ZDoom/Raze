@@ -43,7 +43,6 @@ void scrLoadPalette(void);
 void scrSetPalette(int palId);
 void scrSetGamma(int nGamma);
 void scrInit(void);
-void scrUnInit(void);
 void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits);
 
 END_BLD_NS

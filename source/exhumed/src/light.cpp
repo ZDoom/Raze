@@ -98,7 +98,6 @@ int LoadPaletteLookups()
             ALIGNED_FREE_AND_NULL(palookup[i]);
         paletteSetLookupTable(i, buffer);
         
-        // origpalookup[i] = palookup[i];
         bGreenPal = 0;
 
 #ifdef USE_OPENGL
@@ -117,21 +116,11 @@ int LoadPaletteLookups()
 void SetGreenPal()
 {
     bGreenPal = 1;
-    // for (int i = 0; i < kMaxGrads; i++)
-    // {
-    //     palookup[i] = palookup[6];
-    // }
-    //
-    // palookup[5] = origpalookup[5];
 }
 
 void RestoreGreenPal()
 {
     bGreenPal = 0;
-    // for (int i = 0; i < kMaxGrads; i++)
-    // {
-    //     palookup[i] = origpalookup[i];
-    // }
 }
 
 int HavePLURemap()
@@ -174,25 +163,6 @@ void WaitVBL()
 #endif
 }
 
-//void MySetPalette(unsigned char *palette)
-//{
-//    WaitVBL();
-//
-//    // TODO
-//    kensetpalette(palette);
-//
-//    memcpy(vgaPalette, palette, sizeof(vgaPalette));
-//}
-
-//void GetCurPal(unsigned char *palette)
-//{
-//    if (!palette) {
-//        memcpy(curpal, vgaPalette, sizeof(curpal));
-//    }
-//    else {
-//        memcpy(palette, vgaPalette, sizeof(curpal));
-//    }
-//}
 
 void GrabPalette()
 {
@@ -271,7 +241,6 @@ void FadeOut(int bFadeMusic)
 
 void StartFadeIn()
 {
-    //fadedestpal = curpalette;
     //fadecurpal = curpal;
 }
 

@@ -37,8 +37,7 @@ BEGIN_SW_NS
 
 short f_c = 3;
 static char tempbuf[256];
-unsigned char DefaultPalette[256 * 32];
-#if 1
+
 void
 MapColors(short num, COLOR_MAP cm, short create)
 {
@@ -61,53 +60,7 @@ MapColors(short num, COLOR_MAP cm, short create)
     for (i = 0; i < cm.FromRange; i++)
         tempbuf[i + cm.FromColor] = (i*inc) + cm.ToColor;
 }
-#else
-void
-MapColors(short num, COLOR_MAP cm, short create)
-{
-    int i;
 
-    if (create)
-    {
-        for (i = 0; i < 256; i++)
-            tempbuf[i] = i;
-    }
-
-    if (cm.FromRange == 0 || num <= 0 || num >= 256)
-    {
-        return;
-    }
-
-    // from 32 to 32 || 16 to 16
-    if (cm.ToRange == cm.FromRange)
-    {
-        for (i = 0; i < cm.FromRange; i++)
-            tempbuf[i + cm.FromColor] = i + cm.ToColor;
-
-        // Quick fix for grey
-        if (cm.ToColor == LT_GREY)
-            tempbuf[cm.FromColor+31] = 0; // Set to black
-    }
-    else
-    // from 32 to 16
-    if (cm.ToRange == DIV2(cm.FromRange))
-    {
-        for (i = 0; i < cm.FromRange; i++)
-            tempbuf[cm.FromColor + i] = cm.ToColor + DIV2(i);
-    }
-    else
-    // from 16 to 32
-    if (DIV2(cm.ToRange) == cm.FromRange)
-    {
-        for (i = 0; i < cm.FromRange; i++)
-            tempbuf[cm.FromColor + DIV2(i)] = cm.ToColor;
-
-        // Quick fix for grey
-        if (cm.ToColor == LT_GREY)
-            tempbuf[cm.FromColor+31] = 0;         // Set to black
-    }
-}
-#endif
 
 #define PLAYER_COLOR_MAPS 15
 static COLOR_MAP PlayerColorMap[PLAYER_COLOR_MAPS][1] =
@@ -266,17 +219,6 @@ InitPalette(void)
     unsigned int i;
     short play;
 
-#if 0
-    // I need this for doing fog... Not sure why it wasn't already here.
-    initfastcolorlookup(1,1,1);
-#endif
-
-    //
-    // Save default palette
-    //
-
-    memcpy(DefaultPalette, palookup[PALETTE_DEFAULT], 256 * numshades);
-
     //
     // Dive palettes
     //
@@ -372,104 +314,4 @@ InitPalette(void)
 
 }
 
-
-/*
-2. You must now use my function to set or get any palette
- registers.This means that the keywords "3c7", "3c8", and "3c9" should not even exist in your code.I really
- didn 't want to force you to use my palette functions, but
- since VESA 2.0 supports non VGA compatible cards, you must
-do
-     it this way.If you use setbrightness for all of your
-     palette setting, then you can ignore this.Note that the
-     palette format here is VESA 's palette format, which is
-     different than my other palette control functions.It 's
-     4 bytes and RGB are backwards.Here are the function
-  prototypes:
-
- VBE_setPalette(int palstart, int palnum, char *dapal);
-
-VBE_getPalette(int palstart, int palnum, char *dapal);
-palstart is the offset of the first palette to set
- palnum is the number of the palette entries to set
- dapal is a pointer to the palette buffer.The palette
-  buffer must be in this format:
-char Blue, Green, Red, reserved;
-I think this format stinks, but since VESA 2.0 uses
- it, the code will run fastest if the buffer is not
- copied.You can make your own cover up function if
- you don 't like this format.
-
-  This example sets up a wasteful gray scale palette:
-
-char mypalette[1024];
-
-for (i = 0; i < 256; i++)
-    {
-    mypalette[i * 4 + 0] = (i >> 2);    // Blue
-    mypalette[i * 4 + 1] = (i >> 2);    // Green
-    mypalette[i * 4 + 2] = (i >> 2);    // Red
-    mypalette[i * 4 + 3] = 0;           // reserved
-    }
-VBE_setPalette(0, 256, mypalette);
-*/
-
-#define ORED 0
-#define OGREEN 1
-#define OBLUE 2
-
-#define NBLUE 0
-#define NGREEN 1
-#define NRED 2
-#define NRESERVED 3
-
-void SetPaletteToVESA(unsigned char *pal)
-{
-    /*
-    char pal_buff[1024];
-    short i;
-
-    for (i = 0; i < 256; i++)
-    {
-    pal_buff[i * 4 + NRED] = pal[i * 3 + ORED];
-    pal_buff[i * 4 + NGREEN] = pal[i * 3 + OGREEN];
-    pal_buff[i * 4 + NBLUE] = pal[i * 3 + OBLUE];
-    pal_buff[i * 4 + NRESERVED] = 0;
-    }
-
-    VBE_setPalette(0, 256, pal_buff);
-    */
-    paletteSetColorTable(BASEPAL, pal);
-    videoSetPalette(0, BASEPAL, 0);
-    //  fprintf(stderr,"SetPaletteToVESA() called\n");
-}
-
-void set_pal(unsigned char *pal)
-{
-    SetPaletteToVESA(pal);
-}
-
-void GetPaletteFromVESA(unsigned char *pal)
-{
-    /*
-    char pal_buff[1024];
-    short i;
-
-    VBE_getPalette(0, 256, pal_buff);
-
-    for (i = 0; i < 256; i++)
-    {
-    pal[i * 3 + ORED] = pal_buff[i * 4 + NRED];
-    pal[i * 3 + OGREEN] = pal_buff[i * 4 + NGREEN];
-    pal[i * 3 + OBLUE] = pal_buff[i * 4 + NBLUE];
-    }
-    */
-    int i;
-    for (i=0; i<256; i++)
-    {
-        pal[i*3+0] = curpalette[i].r;
-        pal[i*3+1] = curpalette[i].g;
-        pal[i*3+2] = curpalette[i].b;
-    }
-    //    fprintf(stderr,"GetPaletteFromVESA() called\n");
-}
 END_SW_NS

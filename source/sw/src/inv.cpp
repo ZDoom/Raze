@@ -561,13 +561,8 @@ DoPlayerNightVisionPalette(PLAYERp pp)
         // Put it all back to normal
         if (pp->StartColor == 148)
         {
-            memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
-            memcpy(palookup[PALETTE_DEFAULT], DefaultPalette, 256 * 32);
             pp->FadeAmt = 0;
-            if (videoGetRenderMode() < REND_POLYMOST)
-                COVERsetbrightness(0, &palette_data[0][0]);
-            else
-                videoFadePalette(0,0,0,0);
+            videoFadePalette(0,0,0,0);
         }
         pp->NightVision = FALSE;
     }

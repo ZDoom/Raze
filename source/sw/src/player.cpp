@@ -83,7 +83,6 @@ void pWeaponForceRest(PLAYERp pp);
 extern SWBOOL NoMeters;
 
 #define TEST_UNDERWATER(pp) (TEST(sector[(pp)->cursectnum].extra, SECTFX_UNDERWATER))
-extern unsigned char palette_data[256][3];      // Global palette array
 
 //#define PLAYER_MIN_HEIGHT (Z(30))
 //#define PLAYER_MIN_HEIGHT_JUMP (Z(20))
@@ -4583,12 +4582,7 @@ DoPlayerDivePalette(PLAYERp pp)
         // Put it all back to normal
         if (pp->StartColor == 210)
         {
-            memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
-            memcpy(palookup[PALETTE_DEFAULT], DefaultPalette, 256 * 32);
-            if (videoGetRenderMode() < REND_POLYMOST)
-                COVERsetbrightness(0, &palette_data[0][0]);
-            else
-                videoFadePalette(0,0,0,0);
+            videoFadePalette(0,0,0,0);
             pp->FadeAmt = 0;
         }
     }
@@ -6385,12 +6379,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
 
         if (pp == Player + screenpeek)
         {
-            if (videoGetRenderMode() < REND_POLYMOST)
-                COVERsetbrightness(0,&palette_data[0][0]);
-            else
-                videoFadePalette(0,0,0,0);
-            //memcpy(&palette_data[0][0],&palette_data[0][0],768);
-            memcpy(&pp->temp_pal[0],&palette_data[0][0],768);
+            videoFadePalette(0,0,0,0);
         }
 
         pp->NightVision = FALSE;
@@ -7587,8 +7576,6 @@ domovethings(void)
 }
 
 
-extern unsigned char palette_data[256][3];      // Global palette array
-
 void
 InitAllPlayers(void)
 {
@@ -7649,7 +7636,6 @@ InitAllPlayers(void)
         pp->FadeTics = 0;
         pp->StartColor = 0;
         pp->q16horizoff = 0;
-        memcpy(&pp->temp_pal[0],&palette_data[0][0],768);
 
         INITLIST(&pp->PanelSpriteList);
     }

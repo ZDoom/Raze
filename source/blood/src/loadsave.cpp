@@ -523,8 +523,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
 
 	LoadSave::hLFile.Close();
 	FinishSavegameRead();
-    if (!gGameStarted)
-        scrLoadPLUs();
     InitSectorFX();
     viewInitializePrediction();
     PreloadCache();
