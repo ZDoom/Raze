@@ -11,8 +11,6 @@
 #include "printf.h"
 #include "c_dispatch.h"
 
-const char *OSD_StripColors(char *outBuf, const char *inBuf);
-
 
 #define OSDCMD_OK	CCMD_OK
 #define OSDCMD_SHOWHELP CCMD_SHOWHELP

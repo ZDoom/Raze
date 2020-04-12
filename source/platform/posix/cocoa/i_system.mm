@@ -57,7 +57,7 @@ static void CalculateCPUSpeed()
 		PerfToSec = 1.0 / frequency;
 		PerfToMillisec = 1000.0 / frequency;
 
-		//if (!batchrun)
+		if (!batchrun)
 		{
 			Printf("CPU speed: %.0f MHz\n", 0.001 / PerfToMillisec);
 		}

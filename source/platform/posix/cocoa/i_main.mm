@@ -139,6 +139,9 @@ void I_DetectOS()
 
 FArgs* Args; // command line arguments
 
+int refreshfreq;
+bool batchrun;
+
 
 namespace
 {
@@ -348,7 +351,7 @@ extern bool AppActive;
 
 - (void)sendExitEvent:(id)sender
 {
-	throw ExitEvent(0);
+	throw CExitEvent(0);
 }
 
 @end
