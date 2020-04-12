@@ -2766,11 +2766,8 @@ int myprintext(int x, int y, const char *str, int shade)
 
 void EraseScreen(int nVal)
 {
-    if (nVal == -1) {
-        nVal = overscanindex;
-    }
-
-    videoClearScreen(nVal);
+    // There's no other values than 0 ever coming through here.
+    videoClearScreen(0);
 }
 
 void InitSpiritHead()

@@ -2364,7 +2364,6 @@ PlayerGameReset(PLAYERp pp)
     if (pp == Player+screenpeek)
     {
         videoFadePalette(0,0,0,0);
-        memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
     }
     pp->NightVision = FALSE;
     pp->StartColor = 0;
@@ -2464,7 +2463,6 @@ InitPlayerSprite(PLAYERp pp)
     if (pp == Player+screenpeek)
     {
         videoFadePalette(0,0,0,0);
-        memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
     }
 
     pp->NightVision = FALSE;

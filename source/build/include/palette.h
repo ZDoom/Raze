@@ -47,7 +47,7 @@ struct palette_t
 typedef struct {
     uint8_t r, g, b;
 } rgb24_t;
-extern palette_t curpalette[256], palfadergb;
+extern palette_t palfadergb;
 
 extern unsigned char palfadedelta;
 void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
@@ -83,7 +83,6 @@ extern float frealmaxshade;
 extern int32_t globalpal;
 extern int32_t globalblend;
 extern uint32_t g_lastpalettesum;
-extern palette_t paletteGetColor(int32_t col);
 extern void paletteLoadFromDisk(void);
 extern void palettePostLoadTables(void);
 extern uint8_t basepalreset;
@@ -101,13 +100,6 @@ extern char britable[16][256];
 
 #ifdef USE_OPENGL
 extern palette_t palookupfog[MAXPALOOKUPS];
-
-static inline void bricolor(palette_t *wpptr, int32_t dacol)
-{
-    wpptr->r = curpalette[dacol].r;
-    wpptr->g = curpalette[dacol].g;
-    wpptr->b = curpalette[dacol].b;
-}
 
 enum
 {

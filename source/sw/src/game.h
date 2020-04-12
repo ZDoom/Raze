@@ -1260,7 +1260,6 @@ struct PLAYERstruct
     SWBOOL NightVision;               // Is player's night vision active?
     unsigned char StartColor;       // Darkest color in color range being used
     //short electro[64];
-    unsigned char temp_pal[768];    // temporary working palette
     SWBOOL IsAI;                      // Is this and AI character?
     short fta,ftq;                  // First time active and first time quote, for talking in multiplayer games
     short NumFootPrints;            // Number of foot prints left to lay down
@@ -2375,7 +2374,6 @@ extern int16_t StatDamageList[STAT_DAMAGE_LIST_SIZE];
 #define COLOR_PAIN  128  // Light red range
 extern void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor);
 extern void DoPaletteFlash(PLAYERp pp);
-extern unsigned char palette_data[256][3];
 extern SWBOOL NightVision;
 
 
@@ -2399,7 +2397,6 @@ void AnimateCacheCursor(void);  // game.c
 void TerminateGame(void);   // game.c
 void TerminateLevel(void);  // game.c
 void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
-void COVERsetbrightness(int bright, unsigned char *pal);    // game.c
 void DrawMenuLevelScreen(void); // game.c
 void DebugWriteString(char *string);    // game.c
 void ManualPlayerInsert(PLAYERp pp);    // game.c

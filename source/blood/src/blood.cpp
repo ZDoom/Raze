@@ -155,7 +155,6 @@ void ShutDown(void)
 	netDeinitialize();
     //sndTerm();
     sfxTerm();
-    scrUnInit();
     // PORT_TODO: Check argument
     DO_FREE_AND_NULL(pUserTiles);
 }
@@ -582,7 +581,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         Printf("> Modern types erased: %d.\n", modernTypesErased);
     #endif
 
-    scrLoadPLUs();
     startpos.z = getflorzofslope(startsectnum,startpos.x,startpos.y);
     for (int i = 0; i < kMaxPlayers; i++) {
         gStartZone[i].x = startpos.x;

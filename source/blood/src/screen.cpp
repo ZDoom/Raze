@@ -73,18 +73,6 @@ void scrResetPalette(void)
 
 void scrLoadPLUs(void)
 {
-    if (gFogMode)
-    {
-        DICTNODE *pFog = gSysRes.Lookup("FOG", "FLU");
-        if (!pFog)
-            ThrowError("FOG.FLU not found");
-        palookup[0] = (char*)gSysRes.Lock(pFog);
-        for (int i = 0; i < 15; i++)
-            palookup[PLU[i].id] = palookup[0];
-        parallaxvisibility = 3072;
-        return;
-    }
-    
     // load default palookups
     for (int i = 0; i < 15; i++) {
         DICTNODE *pPlu = gSysRes.Lookup(PLU[i].name, "PLU");
@@ -163,12 +151,6 @@ void scrInit(void)
     engineInit();
     curPalette = 0;
 }
-
-void scrUnInit(void)
-{
-    memset(palookup, 0, sizeof(palookup));
-}
-
 
 void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits)
 {

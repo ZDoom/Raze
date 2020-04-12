@@ -23,7 +23,6 @@ uint8_t curbasepal;
 int32_t globalblend;
 
 uint32_t g_lastpalettesum = 0;
-palette_t curpalette[256];			// the current palette, unadjusted for brightness or tint
 palette_t palfadergb = { 0, 0, 0, 0 };
 unsigned char palfadedelta = 0;
 ESetPalFlags curpaletteflags;
@@ -227,8 +226,6 @@ uint8_t PaletteIndexFullbrights[32];
 void palettePostLoadTables(void)
 {
     globalpal = 0;
-
-    globalpalwritten = palookup[0];
 
     char const * const palookup0 = palookup[0];
 
@@ -612,8 +609,6 @@ void paletteFreeColorTables()
 // 32: apply brightness to scene in OpenGL
 void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
 {
-	int32_t i;
-
 	if (/*(unsigned)dapalid >= MAXBASEPALS ||*/ basepaltable[dapalid] == NULL)
 		dapalid = 0;
 	curbasepal = dapalid;
@@ -631,15 +626,6 @@ void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
 		r_scenebrightness = 0;
 	}
 
-	for (i = 0; i < 256; i++)
-	{
-		// save palette without any brightness adjustment
-		curpalette[i].r = dapal[i * 3 + 0];
-		curpalette[i].g = dapal[i * 3 + 1];
-		curpalette[i].b = dapal[i * 3 + 2];
-		curpalette[i].f = 0;
-	}
-
 	if ((flags & Pal_DontResetFade) == 0)
 	{
 		palfadergb.r = palfadergb.g = palfadergb.b = 0;
@@ -647,11 +633,6 @@ void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
 	}
 
     curpaletteflags = flags;
-}
-
-palette_t paletteGetColor(int32_t col)
-{
-    return curpalette[col];
 }
 
 //
@@ -663,4 +644,22 @@ void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
     palfadergb.g = g;
     palfadergb.b = b;
     palfadedelta = offset;
+}
+
+void paletteFreeAll()
+{
+    paletteloaded = 0;
+
+    for (bssize_t i = 0; i < MAXPALOOKUPS; i++)
+        if (i == 0 || palookup[i] != palookup[0])
+        {
+            // Take care of handling aliased ^^^ cases!
+            Xaligned_free(palookup[i]);
+        }
+    Bmemset(palookup, 0, sizeof(palookup));
+
+    for (bssize_t i = 1; i < MAXBASEPALS; i++)
+        Xfree(basepaltable[i]);
+    Bmemset(basepaltable, 0, sizeof(basepaltable));
+    basepaltable[0] = palette;
 }

@@ -407,8 +407,6 @@ typedef struct RGB_color_typ
 	unsigned char blue;
 } RGB_color, * RGB_color_ptr;
 
-unsigned char ppalette[MAX_SW_PLAYERS_REG][768];
-unsigned char palette_data[256][3];     // Global palette array
 
 //////////////////////////////////////////
 // Set the amount of redness for damage
@@ -416,7 +414,6 @@ unsigned char palette_data[256][3];     // Global palette array
 //////////////////////////////////////////
 void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
 {
-    int palreg, usereg = 0, tmpreg1 = 0, tmpreg2 = 0;
 	short fadedamage = 0;
     RGB_color color;
 
@@ -433,8 +430,6 @@ void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
     if (pp == Player + screenpeek)
     {
 		videoFadePalette(0, 0, 0, 0);
-        if (pp->FadeAmt <= 0)
-            GetPaletteFromVESA(&ppalette[screenpeek][0]);
     }
 
     if (damage < -150 && damage > -1000) fadedamage = 150;
@@ -465,65 +460,14 @@ void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
 
     pp->FadeTics = 0;
 
-    // Set player's palette to current game palette
-    GetPaletteFromVESA(pp->temp_pal);
-
-    color.red = palette_data[pp->StartColor][0];
-    color.green = palette_data[pp->StartColor][1];
-    color.blue = palette_data[pp->StartColor][2];
-
-    for (palreg = 0; palreg < 768; palreg++)
-    {
-        tmpreg1 = (int)(pp->temp_pal[palreg]) + ((2 * pp->FadeAmt) + 4);
-        tmpreg2 = (int)(pp->temp_pal[palreg]) - ((2 * pp->FadeAmt) + 4);
-        if (tmpreg1 > 255)
-            tmpreg1 = 255;
-        if (tmpreg2 < 0)
-            tmpreg2 = 0;
-
-        if (usereg == 0)
-        {
-            if (pp->temp_pal[palreg] < color.red)
-            {
-                if ((pp->temp_pal[palreg] = tmpreg1) > color.red)
-                    pp->temp_pal[palreg] = color.red;
-            }
-            else if (pp->temp_pal[palreg] > color.red)
-                if ((pp->temp_pal[palreg] = tmpreg2) < color.red)
-                    pp->temp_pal[palreg] = color.red;
-        }
-        else if (usereg == 1)
-        {
-            if (pp->temp_pal[palreg] < color.green)
-            {
-                if ((pp->temp_pal[palreg] = tmpreg1) > color.green)
-                    pp->temp_pal[palreg] = color.green;
-            }
-            else if (pp->temp_pal[palreg] > color.green)
-                if ((pp->temp_pal[palreg] = tmpreg2) < color.green)
-                    pp->temp_pal[palreg] = color.green;
-        }
-        else if (usereg == 2)
-        {
-            if (pp->temp_pal[palreg] < color.blue)
-            {
-                if ((pp->temp_pal[palreg] = tmpreg1) > color.blue)
-                    pp->temp_pal[palreg] = color.blue;
-            }
-            else if (pp->temp_pal[palreg] > color.blue)
-                if ((pp->temp_pal[palreg] = tmpreg2) < color.blue)
-                    pp->temp_pal[palreg] = color.blue;
-        }
-
-        if (++usereg > 2)
-            usereg = 0;
-    }
+    color.red = palette[pp->StartColor*3];
+    color.green = palette[pp->StartColor*3+1];
+    color.blue = palette[pp->StartColor*3+2];
 
     // Do initial palette set
     if (pp == Player + screenpeek)
     {
-        if (videoGetRenderMode() < REND_POLYMOST) set_pal(pp->temp_pal);
-		else videoFadePalette(color.red, color.green, color.blue, faderamp[min(31, max(0, 32 - abs(pp->FadeAmt)))]);
+		videoFadePalette(color.red, color.green, color.blue, faderamp[min(31, max(0, 32 - abs(pp->FadeAmt)))]);
         if (damage < -1000)
             pp->FadeAmt = 1000;  // Don't call DoPaletteFlash for underwater stuff
     }
@@ -535,10 +479,6 @@ void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
 #define MAXFADETICS     5
 void DoPaletteFlash(PLAYERp pp)
 {
-    int palreg, tmpreg1 = 0, tmpreg2 = 0;
-	unsigned char* pal_ptr = &ppalette[screenpeek][0];
-
-
     if (pp->FadeAmt <= 1)
     {
         pp->FadeAmt = 0;
@@ -546,7 +486,6 @@ void DoPaletteFlash(PLAYERp pp)
         if (pp == Player + screenpeek)
         {
 			videoFadePalette(0, 0, 0, 0);
-            memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
             DoPlayerDivePalette(pp);  // Check Dive again
             DoPlayerNightVisionPalette(pp);  // Check Night Vision again
         }
@@ -582,7 +521,6 @@ void DoPaletteFlash(PLAYERp pp)
         if (pp == Player + screenpeek)
         {
 			videoFadePalette(0, 0, 0, 0);
-            memcpy(pp->temp_pal, palette_data, sizeof(palette_data));
             DoPlayerDivePalette(pp);  // Check Dive again
             DoPlayerNightVisionPalette(pp);  // Check Night Vision again
         }
@@ -590,40 +528,15 @@ void DoPaletteFlash(PLAYERp pp)
     }
     else
     {
-        //CON_Message("gamavalues = %d, %d, %d",pp->temp_pal[pp->StartColor],pp->temp_pal[pp->StartColor+1],pp->temp_pal[pp->StartColor+2]);
-        for (palreg = 0; palreg < 768; palreg++)
-        {
-            tmpreg1 = (int)(pp->temp_pal[palreg]) + 2;
-            tmpreg2 = (int)(pp->temp_pal[palreg]) - 2;
-            if (tmpreg1 > 255)
-                tmpreg1 = 255;
-            if (tmpreg2 < 0)
-                tmpreg2 = 0;
-
-            if (pp->temp_pal[palreg] < pal_ptr[palreg])
-            {
-                if ((pp->temp_pal[palreg] = tmpreg1) > pal_ptr[palreg])
-                    pp->temp_pal[palreg] = pal_ptr[palreg];
-            }
-            else if (pp->temp_pal[palreg] > pal_ptr[palreg])
-                if ((pp->temp_pal[palreg] = tmpreg2) < pal_ptr[palreg])
-                    pp->temp_pal[palreg] = pal_ptr[palreg];
-
-        }
-
         // Only hard set the palette if this is currently the player's view
         if (pp == Player + screenpeek)
         {
-            if (videoGetRenderMode() < REND_POLYMOST) set_pal(pp->temp_pal);
-            else
-            {
-                videoFadePalette(
-                    palette_data[pp->StartColor][0],
-                    palette_data[pp->StartColor][1],
-                    palette_data[pp->StartColor][2],
-					faderamp[min(31, max(0, 32 - abs(pp->FadeAmt)))]
-                    );
-            }
+            videoFadePalette(
+                palette[pp->StartColor*3],
+                palette[pp->StartColor*3+1],
+                palette[pp->StartColor*3+2],
+				faderamp[min(31, max(0, 32 - abs(pp->FadeAmt)))]
+                );
         }
 
     }

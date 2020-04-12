@@ -23,7 +23,7 @@
 # define YAX_MAXDRAWS 8
 #endif
 
-    extern intptr_t asm1, asm2, asm3;
+    extern intptr_t asm1, asm2;
     extern int32_t globalx1, globaly2;
 
 

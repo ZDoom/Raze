@@ -653,7 +653,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     // game settings
     MWRITE(&gNet,sizeof(gNet),1,fil);
 
-    MWRITE(palette_data,sizeof(palette_data),1,fil);
     MWRITE(&gs,sizeof(gs),1,fil);
 	for (int i = 0; i < MAXTILES; i++)
 	{
@@ -1046,8 +1045,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     // game settings
     MREAD(&gNet,sizeof(gNet),1,fil);
 
-    MREAD(palette_data,sizeof(palette_data),1,fil);
-
 	MREAD(&gs,sizeof(gs),1,fil);
 
 	for (int i = 0; i < MAXTILES; i++)
@@ -1146,8 +1143,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     SetupAspectRatio();
     SetRedrawScreen(Player + myconnectindex);
-
-    COVERsetbrightness(0,&palette_data[0][0]);
 
     screenpeek = myconnectindex;
     PlayingLevel = Level;
