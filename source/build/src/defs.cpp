@@ -2039,7 +2039,7 @@ static int32_t defsparser(scriptfile *script)
 
             // NOTE: all palookups are initialized, i.e. non-NULL!
             // NOTE2: aliasing (pal==remappal) is OK
-            paletteMakeLookupTable(pal, palookup[remappal], red<<2, green<<2, blue<<2,
+            paletteMakeLookupTable(pal, lookuptables[remappal], red<<2, green<<2, blue<<2,
                          remappal==0 ? 1 : (nofloorpal == -1 ? g_noFloorPal[remappal] : nofloorpal));
         }
         break;
@@ -2861,7 +2861,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    uint8_t const * const sourcepal = (uint8_t *)palookup[source];
+                    uint8_t const * const sourcepal = (uint8_t *)lookuptables[source];
                     if (EDUKE32_PREDICT_FALSE(sourcepal == NULL))
                     {
                         Printf("Error: palookup: Source palookup does not exist on line %s:%d\n",

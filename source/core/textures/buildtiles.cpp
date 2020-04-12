@@ -50,7 +50,7 @@ enum
 	MAXARTFILES_TOTAL = 220
 };
 
-extern char* palookup[];
+extern char* lookuptables[];
 
 BuildTiles TileFiles;
 
@@ -556,10 +556,10 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 
 		if (pal != -1)
 		{
-			auto remap = palookup[pal];
+			auto remap = lookuptables[pal];
 			for (auto& pixel : buffer)
 			{
-				pixel = palookup[pal][pixel];
+				pixel = lookuptables[pal][pixel];
 			}
 		}
 		tex = new FLooseTile(buffer, tex->GetWidth(), tex->GetHeight());

@@ -1559,14 +1559,6 @@ void SybexScreen(void)
 void
 TitleLevel(void)
 {
-    char tempbuf[256];
-    char *palook_bak = palookup[0];
-    int i;
-
-    for (i = 0; i < 256; i++)
-        tempbuf[i] = i;
-    palookup[0] = tempbuf;
-
     twod->ClearScreen();
     videoNextPage();
 
@@ -1609,8 +1601,6 @@ TitleLevel(void)
             break;
         }
     }
-
-    palookup[0] = palook_bak;
 
 //    clearview(0);
 //    nextpage();

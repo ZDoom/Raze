@@ -231,7 +231,7 @@ static void polymost_glinit()
     }
     for (int palookupnum = 0; palookupnum < MAXPALOOKUPS; ++palookupnum)
     {
-		GLInterface.SetPalswapData(palookupnum, (uint8_t*)palookup[palookupnum], numshades+1, palookupfog[palookupnum]);
+		GLInterface.SetPalswapData(palookupnum, (uint8_t*)lookuptables[palookupnum], numshades+1, palookupfog[palookupnum]);
 	}
 }
 
@@ -298,7 +298,7 @@ void uploadpalswaps(int count, int32_t* swaps)
 {
 	for (int i = 0; i < count; i++)
 	{
-		GLInterface.SetPalswapData(i, (uint8_t*)palookup[i], numshades + 1, palookupfog[i]);
+		GLInterface.SetPalswapData(i, (uint8_t*)lookuptables[i], numshades + 1, palookupfog[i]);
 	}
 }
 
@@ -413,7 +413,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         return;
     }
 
-    if (palookup[globalpal] == NULL)
+    if (lookuptables[globalpal] == NULL)
         globalpal = 0;
 
     //Load texture (globalpicnum)
@@ -4604,7 +4604,7 @@ static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype
     //    while sprites are clamped
 
     if (videoGetRenderMode() < REND_POLYMOST) return;
-   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (palookup[dapalnum] == NULL)) return;//dapalnum = 0;
+   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (lookuptables[dapalnum] == NULL)) return;//dapalnum = 0;
 
     //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
