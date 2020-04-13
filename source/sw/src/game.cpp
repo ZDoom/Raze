@@ -52,6 +52,7 @@ Things required to make savegames work:
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
+#include "interp.h"
 #include "tags.h"
 #include "sector.h"
 #include "sprite.h"
@@ -947,6 +948,7 @@ void InitLevelGlobals(void)
     AnimCnt = 0;
     left_foot = FALSE;
     screenpeek = myconnectindex;
+    numinterpolations = short_numinterpolations = 0;
 
     gNet.TimeLimitClock = gNet.TimeLimit;
 
