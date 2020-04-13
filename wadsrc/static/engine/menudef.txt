@@ -756,7 +756,7 @@ OptionMenu "ActionControlsMenu"// protected
 	StaticText ""
 	Control    "$CNTRLMNU_TURNLEFT"         , "+turn_left"
 	Control    "$CNTRLMNU_TURNRIGHT"        , "+turn_right"
-	Control    "$CNTRLMNU_TURN180"          , "+turn_around"
+	Control    "$CNTRLMNU_TURN180"          , "+turnaround"
 
 	StaticText ""
 	Control    "$CNTRLMNU_JUMP"             , "+jump"
