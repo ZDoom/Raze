@@ -3430,12 +3430,6 @@ void getinput(int const playerNum)
             SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
         }
 
-        if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
-        {
-            pp->q16horiz = pp->q16horizbase = fix16_from_int(100);
-            pp->q16horizoff = 0;
-        }
-
         // this is the locked type
         if (TEST_SYNC_KEY(pp, SK_SNAP_UP) || TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
         {
@@ -3452,7 +3446,7 @@ void getinput(int const playerNum)
         }
 
         // this is the unlocked type
-        if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
+        if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN) || TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
         {
             RESET(pp->Flags, PF_LOCK_HORIZ);
             SET(pp->Flags, PF_LOOKING);
@@ -3464,6 +3458,10 @@ void getinput(int const playerNum)
             // adjust pp->q16horiz positive
             if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
                 pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED)));
+
+            // reset pp->q16horizoff when resetting to center.
+            if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
+                pp->q16horizoff = 0;
         }
 
         if (!TEST(pp->Flags, PF_LOCK_HORIZ))
