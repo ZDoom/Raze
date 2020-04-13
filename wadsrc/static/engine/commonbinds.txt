@@ -52,7 +52,7 @@ KP-Enter "+Inventory"
 ; "+Previous_Weapon"
 ` "toggleconsole"
 
-Backspace "+Turn_Around"
+Backspace "+TurnAround"
 T "+Send_Message"
 Tab "+Map"
 F "+Map_Follow_Mode"
