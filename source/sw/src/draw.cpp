@@ -2056,10 +2056,13 @@ drawscreen(PLAYERp pp)
 
     if (pp->sop_riding || pp->sop_control)
     {
-        tx = pp->posx;
-        ty = pp->posy;
-        tz = pp->posz;
-        tq16ang = pp->q16ang;
+        if (pp->sop_control)
+        {
+            tx = pp->posx;
+            ty = pp->posy;
+            tz = pp->posz;
+            tq16ang = pp->q16ang;
+        }
         tsectnum = pp->cursectnum;
         updatesectorz(tx, ty, tz, &tsectnum);
     }
