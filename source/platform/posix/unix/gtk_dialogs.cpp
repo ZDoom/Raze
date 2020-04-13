@@ -59,6 +59,7 @@ typedef enum
 #include "i_system.h"
 #include "version.h"
 #include "gamecontrol.h"
+#include "cmdlib.h"
 
 EXTERN_CVAR (Bool, queryiwad);
 
