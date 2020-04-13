@@ -118,8 +118,7 @@ static TArray<FString> ParseSteamRegistry(const char* path)
 
 	// Read registry data
 	FScanner sc;
-	sc.OpenFile(path);
-	//if (sc.Sc)
+	if (sc.OpenFile(path))
 	{
 		sc.SetCMode(true);
 
