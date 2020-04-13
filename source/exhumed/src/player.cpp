@@ -258,7 +258,7 @@ void PlayerInterruptKeys()
         }
 
         //if ((counter++) % 4 == 0) // what was this for???
-            input.nAngle = fix16_sadd(input.nAngle, fix16_from_float(scaleAdjustmentToInterval(turn * 2)));
+            input.nAngle = fix16_sadd(input.nAngle, fix16_from_dbl(scaleAdjustmentToInterval(turn * 2)));
 
     }
 
@@ -291,7 +291,7 @@ void PlayerInterruptKeys()
     {
         bLockPan = kFalse;
         if (PlayerList[nLocalPlayer].q16horiz < fix16_from_int(180)) {
-            PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_float(scaleAdjustmentToInterval(4)));
+            PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
         }
 
         bPlayerPan = kTrue;
@@ -301,7 +301,7 @@ void PlayerInterruptKeys()
     {
         bLockPan = kFalse;
         if (PlayerList[nLocalPlayer].q16horiz > fix16_from_int(4)) {
-            PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_float(scaleAdjustmentToInterval(4)));
+            PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
         }
 
         bPlayerPan = kTrue;
