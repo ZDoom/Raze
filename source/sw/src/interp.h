@@ -26,13 +26,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 #define SHORT_MAXINTERPOLATIONS 256
-extern short short_numinterpolations, short_startofdynamicinterpolations;
+extern short short_numinterpolations;
 extern short short_oldipos[SHORT_MAXINTERPOLATIONS];
 extern short short_bakipos[SHORT_MAXINTERPOLATIONS];
 extern short *short_curipos[SHORT_MAXINTERPOLATIONS];
 
 #define MAXINTERPOLATIONS 1024
-extern int numinterpolations, startofdynamicinterpolations;
+extern int numinterpolations;
 extern int oldipos[MAXINTERPOLATIONS];
 extern int bakipos[MAXINTERPOLATIONS];
 extern int *curipos[MAXINTERPOLATIONS];

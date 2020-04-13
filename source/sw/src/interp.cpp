@@ -34,7 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 #define MAXINTERPOLATIONS 1024
-int numinterpolations = 0, startofdynamicinterpolations = 0;
+int numinterpolations = 0;
 int oldipos[MAXINTERPOLATIONS];
 int bakipos[MAXINTERPOLATIONS];
 int *curipos[MAXINTERPOLATIONS];
@@ -61,7 +61,7 @@ void stopinterpolation(int *posptr)
 {
     int i;
 
-    for (i = numinterpolations - 1; i >= startofdynamicinterpolations; i--)
+    for (i = numinterpolations - 1; i >= 0; i--)
     {
         if (curipos[i] == posptr)
         {

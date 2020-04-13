@@ -34,7 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 #define SHORT_MAXINTERPOLATIONS 256
-short short_numinterpolations = 0, short_startofdynamicinterpolations = 0;
+short short_numinterpolations = 0;
 short short_oldipos[SHORT_MAXINTERPOLATIONS];
 short short_bakipos[SHORT_MAXINTERPOLATIONS];
 short *short_curipos[SHORT_MAXINTERPOLATIONS];
@@ -61,7 +61,7 @@ void short_stopinterpolation(short *posptr)
 {
     int i;
 
-    for (i = short_numinterpolations - 1; i >= short_startofdynamicinterpolations; i--)
+    for (i = short_numinterpolations - 1; i >= 0; i--)
     {
         if (short_curipos[i] == posptr)
         {

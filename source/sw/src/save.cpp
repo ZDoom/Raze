@@ -594,7 +594,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 
     // long interpolations
     MWRITE(&numinterpolations,sizeof(numinterpolations),1,fil);
-    MWRITE(&startofdynamicinterpolations,sizeof(startofdynamicinterpolations),1,fil);
     MWRITE(oldipos,sizeof(oldipos),1,fil);
     MWRITE(bakipos,sizeof(bakipos),1,fil);
     for (i = numinterpolations - 1; i >= 0; i--)
@@ -605,7 +604,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 
     // short interpolations
     MWRITE(&short_numinterpolations,sizeof(short_numinterpolations),1,fil);
-    MWRITE(&short_startofdynamicinterpolations,sizeof(short_startofdynamicinterpolations),1,fil);
     MWRITE(short_oldipos,sizeof(short_oldipos),1,fil);
     MWRITE(short_bakipos,sizeof(short_bakipos),1,fil);
     for (i = short_numinterpolations - 1; i >= 0; i--)
@@ -983,7 +981,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     // long interpolations
     MREAD(&numinterpolations,sizeof(numinterpolations),1,fil);
-    MREAD(&startofdynamicinterpolations,sizeof(startofdynamicinterpolations),1,fil);
     MREAD(oldipos,sizeof(oldipos),1,fil);
     MREAD(bakipos,sizeof(bakipos),1,fil);
     for (i = numinterpolations - 1; i >= 0; i--)
@@ -992,7 +989,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     // short interpolations
     MREAD(&short_numinterpolations,sizeof(short_numinterpolations),1,fil);
-    MREAD(&short_startofdynamicinterpolations,sizeof(short_startofdynamicinterpolations),1,fil);
     MREAD(short_oldipos,sizeof(short_oldipos),1,fil);
     MREAD(short_bakipos,sizeof(short_bakipos),1,fil);
     for (i = short_numinterpolations - 1; i >= 0; i--)
