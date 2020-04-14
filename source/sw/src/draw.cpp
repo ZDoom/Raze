@@ -2013,7 +2013,7 @@ drawscreen(PLAYERp pp)
     tx = camerapp->oposx + mulscale16(camerapp->posx - camerapp->oposx, smoothratio);
     ty = camerapp->oposy + mulscale16(camerapp->posy - camerapp->oposy, smoothratio);
     tz = camerapp->oposz + mulscale16(camerapp->posz - camerapp->oposz, smoothratio);
-    if (PedanticMode ||
+    if (PedanticMode || pp->sop_control ||
         pp == Player+myconnectindex && TEST(pp->Flags, PF_DEAD))
     {
         tq16ang = camerapp->oq16ang + mulscale16(((camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
@@ -2056,7 +2056,7 @@ drawscreen(PLAYERp pp)
 
     if (pp->sop_riding || pp->sop_control)
     {
-        if (pp->sop_control)
+        if (pp->sop_control && !InterpolateSectObj)
         {
             tx = pp->posx;
             ty = pp->posy;

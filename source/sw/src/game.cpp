@@ -187,6 +187,7 @@ SWBOOL NoDemoStartup = FALSE;
 SWBOOL FirstTimeIntoGame;
 
 SWBOOL PedanticMode;
+SWBOOL InterpolateSectObj;
 
 SWBOOL BorderAdjust = FALSE;
 SWBOOL LocationInfo = 0;
@@ -958,6 +959,7 @@ void InitLevelGlobals(void)
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
 
     PedanticMode = (DemoPlaying || DemoRecording || DemoEdit || DemoMode);
+    InterpolateSectObj = !CommEnabled && !PedanticMode;
 }
 
 void InitLevelGlobals2(void)
