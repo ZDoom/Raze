@@ -1944,7 +1944,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
             pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED*6))));
             pp->q16horizbase = fix16_min(pp->q16horizbase, fix16_from_int(100));
         }
-        pp->camq16horiz = pp->q16horizbase;
+        *pq16horiz = pp->q16horizbase;
         pp->q16horizoff = 0;
     }
 
