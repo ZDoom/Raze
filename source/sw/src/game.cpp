@@ -186,6 +186,7 @@ SWBOOL NoDemoStartup = FALSE;
 SWBOOL FirstTimeIntoGame;
 
 SWBOOL BorderAdjust = FALSE;
+SWBOOL InterpolateSectObj;
 SWBOOL LocationInfo = 0;
 void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 int DispFrameRate = FALSE;
@@ -952,6 +953,7 @@ void InitLevelGlobals(void)
     sumowasseen = FALSE;
     zillawasseen = FALSE;
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
+    InterpolateSectObj = !CommEnabled && !PedanticMode;
 }
 
 void InitLevelGlobals2(void)
