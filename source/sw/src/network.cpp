@@ -1393,9 +1393,9 @@ getpackets(void)
                 j += NumSyncBytes;
             }
 
-            // #if SYNC_TEST   //This doesn't work right in this case
-            // GetSyncInfoFromPacket(packbufleng, &j, otherconnectindex);
-            // #endif
+#if SYNC_TEST
+            GetSyncInfoFromPacket(packbuf, packbufleng, &j, otherconnectindex);
+#endif
 
             for (i=connecthead; i>=0; i=connectpoint2[i])
                 if (i != myconnectindex)
