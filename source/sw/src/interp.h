@@ -49,5 +49,10 @@ void updateinterpolations(void);
 void dointerpolations(int smoothratio);
 void restoreinterpolations(void);
 
+void togglespriteinterpolation(spritetype *sp, int set);
+
+static void FORCE_INLINE setspriteinterpolation(spritetype *sp) { togglespriteinterpolation(sp, 1); }
+static void FORCE_INLINE stopspriteinterpolation(spritetype *sp) { togglespriteinterpolation(sp, 0); }
+
 #endif
 END_SW_NS

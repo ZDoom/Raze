@@ -874,6 +874,8 @@ extern int PlayerYellVocs[MAX_YELLSOUNDS];
 
 void BossHealthMeter(void);
 
+extern SWBOOL InterpolateSectObj;
+
 // Global variables used for modifying variouse things from the Console
 
 ///////////////////////////////////////////////////////////////////////////////////////////
