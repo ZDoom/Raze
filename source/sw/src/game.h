@@ -186,10 +186,6 @@ int krand1(void);
 
 #define PRINT(line,str) DebugPrint(line,str)
 
-// Demo compatibility mode
-extern SWBOOL DemoPlaying, DemoRecording, DemoEdit, DemoMode;
-#define PEDANTIC_MODE (DemoPlaying || DemoRecording || DemoEdit || DemoMode)
-
 #include "pragmas.h"
 
 
@@ -888,6 +884,8 @@ extern int PlayerGetItemVocs[MAX_GETSOUNDS];
 extern int PlayerYellVocs[MAX_YELLSOUNDS];
 
 void BossHealthMeter(void);
+
+extern SWBOOL PedanticMode;
 
 // Global variables used for modifying variouse things from the Console
 

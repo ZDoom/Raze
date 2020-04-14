@@ -2013,7 +2013,7 @@ drawscreen(PLAYERp pp)
     tx = camerapp->oposx + mulscale16(camerapp->posx - camerapp->oposx, smoothratio);
     ty = camerapp->oposy + mulscale16(camerapp->posy - camerapp->oposy, smoothratio);
     tz = camerapp->oposz + mulscale16(camerapp->posz - camerapp->oposz, smoothratio);
-    if (PEDANTIC_MODE ||
+    if (PedanticMode ||
         pp == Player+myconnectindex && TEST(pp->Flags, PF_DEAD))
     {
         tq16ang = camerapp->oq16ang + mulscale16(((camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);

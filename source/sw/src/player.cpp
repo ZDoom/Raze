@@ -1542,7 +1542,7 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel)
 {
 #define TURN_SHIFT 2
 
-    if (!PEDANTIC_MODE && (pq16ang == &pp->q16ang))
+    if (!PedanticMode && (pq16ang == &pp->q16ang))
     {
         *pq16ang = pp->input.q16ang;
         sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
@@ -1569,7 +1569,7 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel)
                 // make the first turn in the clockwise direction
                 // the rest will follow
                 delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(*pq16ang));
-                if (PEDANTIC_MODE)
+                if (PedanticMode)
                     *pq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(*pq16ang) + (labs(delta_ang) >> TURN_SHIFT)));
                 else
                     // Add at least 1 unit to ensure the turn direction is clockwise
@@ -1590,7 +1590,7 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel)
         short delta_ang;
 
         delta_ang = GetDeltaAngle(pp->turn180_target, fix16_to_int(*pq16ang));
-        if (PEDANTIC_MODE)
+        if (PedanticMode)
             *pq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(*pq16ang) + (delta_ang >> TURN_SHIFT)));
         else
             *pq16ang = NORM_Q16ANGLE(fix16_sadd(*pq16ang, fix16_from_float(scaleAdjustmentToInterval(delta_ang >> TURN_SHIFT))));
@@ -1626,7 +1626,7 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel)
 
         *pq16ang += fix16_sdiv(fix16_mul(q16angvel, fix16_from_int(synctics)), fix16_from_int(32));
         *pq16ang = NORM_Q16ANGLE(*pq16ang);
-        if (PEDANTIC_MODE)
+        if (PedanticMode)
             *pq16ang = fix16_floor(*pq16ang);
 
         // update players sprite angle
@@ -1832,7 +1832,7 @@ PlayerAutoLook(PLAYERp pp)
 
     if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
     {
-        if ((PEDANTIC_MODE || !TEST(pp->Flags, PF_MOUSE_AIMING_ON))
+        if ((PedanticMode || !TEST(pp->Flags, PF_MOUSE_AIMING_ON))
             && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
         {
             // Get a point, 512 units ahead of player's position
@@ -1857,7 +1857,7 @@ PlayerAutoLook(PLAYERp pp)
                 if ((pp->cursectnum == tempsect) ||
                     (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
                 {
-                    if (PEDANTIC_MODE)
+                    if (PedanticMode)
                         pp->q16horizoff += fix16_from_int((((j - k) * 160) >> 16));
                     else
                         pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(mulscale16((j - k), 160))));
@@ -1871,7 +1871,7 @@ PlayerAutoLook(PLAYERp pp)
         // tilt when climbing but you can't even really tell it
         if (pp->q16horizoff < fix16_from_int(100))
         {
-            if (PEDANTIC_MODE)
+            if (PedanticMode)
                 pp->q16horizoff += fix16_from_int((((100 - fix16_to_int(pp->q16horizoff)) >> 3) + 1));
             else
                 pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(((fix16_from_int(100) - pp->q16horizoff) >> 3) + fix16_one))));
@@ -1883,7 +1883,7 @@ PlayerAutoLook(PLAYERp pp)
         // you're not on a slope
         if (pp->q16horizoff > 0)
         {
-            if (PEDANTIC_MODE)
+            if (PedanticMode)
                 pp->q16horizoff -= fix16_from_int(((fix16_to_int(pp->q16horizoff) >> 3) + 1));
             else
             {
@@ -1893,7 +1893,7 @@ PlayerAutoLook(PLAYERp pp)
 	}
         if (pp->q16horizoff < 0)
         {
-            if (PEDANTIC_MODE)
+            if (PedanticMode)
                 pp->q16horizoff += fix16_from_int((((fix16_to_int(-pp->q16horizoff)) >> 3) + 1));
             else
             {
@@ -1914,7 +1914,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
 //    //DSPRINTF(ds,"fix16_to_int(pp->q16horizoff), %d", fix16_to_int(pp->q16horizoff));
 //    MONO_PRINT(ds);
 
-    if (!PEDANTIC_MODE && (pq16horiz == &pp->q16horiz))
+    if (!PedanticMode && (pq16horiz == &pp->q16horiz))
     {
         *pq16horiz = pp->input.q16horiz;
         return;
@@ -1932,7 +1932,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
 
     if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
     {
-        if (PEDANTIC_MODE)
+        if (PedanticMode)
             pp->q16horizbase = fix16_from_int(100);
         else if (pp->q16horizbase > fix16_from_int(100))
         {
@@ -1957,7 +1957,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
         // adjust *pq16horiz negative
         if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
         {
-            if (PEDANTIC_MODE)
+            if (PedanticMode)
 		pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
             else
                 pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
@@ -1966,7 +1966,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
         // adjust *pq16horiz positive
         if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
         {
-            if (PEDANTIC_MODE)
+            if (PedanticMode)
                 pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
             else
                 pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
@@ -1983,7 +1983,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
         // adjust *pq16horiz negative
         if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
         {
-            if (PEDANTIC_MODE)
+            if (PedanticMode)
 		pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
             else
                 pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
@@ -1992,7 +1992,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
         // adjust *pq16horiz positive
         if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
         {
-            if (PEDANTIC_MODE)
+            if (PedanticMode)
                 pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
             else
                 pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
@@ -2012,7 +2012,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
                 for (i = 1; i; i--)
                 {
                     // this formula does not work for *pq16horiz = 101-103
-                    if (PEDANTIC_MODE)
+                    if (PedanticMode)
                         pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
                     else
                         pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(fix16_ssub(fix16_from_int(25), fix16_sdiv(pp->q16horizbase, fix16_from_int(4)))))));
