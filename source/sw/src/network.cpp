@@ -696,6 +696,17 @@ SWBOOL MyCommPlayerQuit(void)
     {
         if (TEST_SYNC_KEY(Player + i, SK_QUIT_GAME))
         {
+            if (!NetBroadcastMode && i == connecthead)
+            {
+                // If it's the master, it should first send quit message to the slaves.
+                // Each slave should automatically quit after receiving the message.
+                if (i == myconnectindex)
+                    continue;
+                QuitFlag = TRUE;
+                ready2send = 0;
+                return TRUE;
+            }
+
             found = TRUE;
 
             quit_player_index = i;
@@ -980,10 +991,6 @@ faketimerhandler(void)
 
     memset(&AveragePacket, 0, sizeof(AveragePacket));
 
-    // Slave won't receive the quit bit back from the master, so handle it separately
-    if (TEST(loc.bits, 1 << SK_QUIT_GAME) && !NetBroadcastMode && (myconnectindex != connecthead))
-        QuitFlag = TRUE;
-
     pp->inputfifo[Player[myconnectindex].movefifoend & (MOVEFIFOSIZ - 1)] = loc;
     pp->movefifoend++;
     Bmemset(&loc, 0, sizeof(loc));
@@ -1047,6 +1054,15 @@ faketimerhandler(void)
         else if (i < 0)
             bufferjitter -= ((2 - i) >> 2);
     }
+
+    // If this isn't the master, and the player decided to quit, leave
+    // the game after sending the message. Otherwise, before processing
+    // local message with SK_QUIT bit, we may wait in MoveLoop for another
+    // message with input from one of the peers, only to never get any,
+    // as the peer in question already removed this player from its list.
+    if ((NetBroadcastMode || (myconnectindex != connecthead)) &&
+        TEST(pp->inputfifo[(pp->movefifoend - 1) & (MOVEFIFOSIZ - 1)].bits, BIT(SK_QUIT_GAME)))
+        QuitFlag = TRUE;
 
     if (NetBroadcastMode)
     {
@@ -1230,6 +1246,9 @@ faketimerhandler(void)
                playerquitflag[i] = 1;
             */
         }
+        // Master player should quit only after notifying all peers
+        if (TEST(Player[myconnectindex].inputfifo[movefifosendplc & (MOVEFIFOSIZ - 1)].bits, BIT(SK_QUIT_GAME)))
+            QuitFlag = TRUE;
 
         movefifosendplc += MovesPerPacket;
     }
