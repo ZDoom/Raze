@@ -139,7 +139,7 @@ void I_DetectOS()
 
 FArgs* Args; // command line arguments
 
-int refreshfreq;
+double refreshfreq;
 bool batchrun;
 
 

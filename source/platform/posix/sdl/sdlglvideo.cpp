@@ -111,7 +111,7 @@ CCMD(vid_list_sdl_render_drivers)
 	}
 }
 
-int refreshfreq;
+double refreshfreq;
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
