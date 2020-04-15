@@ -328,18 +328,20 @@ static TArray<FileEntry> LoadCRCCache(void)
 
 	try
 	{
-		sc.OpenFile(cachepath);
-		while (sc.GetString())
+		if (sc.OpenFile(cachepath))
 		{
-			crclist.Reserve(1);
-			auto &flentry = crclist.Last();
-			flentry.FileName = sc.String;
-			sc.MustGetNumber();
-			flentry.FileLength = sc.BigNumber;
-			sc.MustGetNumber();
-			flentry.FileTime = sc.BigNumber;
-			sc.MustGetNumber();
-			flentry.CRCValue = (unsigned)sc.BigNumber;
+			while (sc.GetString())
+			{
+				crclist.Reserve(1);
+				auto &flentry = crclist.Last();
+				flentry.FileName = sc.String;
+				sc.MustGetNumber();
+				flentry.FileLength = sc.BigNumber;
+				sc.MustGetNumber();
+				flentry.FileTime = sc.BigNumber;
+				sc.MustGetNumber();
+				flentry.CRCValue = (unsigned)sc.BigNumber;
+			}
 		}
 	}
 	catch (CRecoverableError &)
