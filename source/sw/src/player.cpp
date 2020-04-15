@@ -1544,7 +1544,7 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel)
 
     if (!PedanticMode && (pq16ang == &pp->q16ang))
     {
-        *pq16ang = pp->input.q16ang;
+        pp->q16ang = pp->oq16ang = pp->input.q16ang;
         sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
         if (!Prediction)
         {
@@ -1913,7 +1913,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
 
     if (!PedanticMode && (pq16horiz == &pp->q16horiz))
     {
-        *pq16horiz = pp->input.q16horiz;
+        pp->q16horiz = pp->oq16horiz = pp->input.q16horiz;
         return;
     }
 
