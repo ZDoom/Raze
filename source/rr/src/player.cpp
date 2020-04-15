@@ -3256,7 +3256,7 @@ void P_GetInput(int const playerNum)
     else
     {
         input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
     }
 
     if (mouseaim)
@@ -3607,7 +3607,7 @@ void P_GetInputMotorcycle(int playerNum)
     input_t input {};
 
     input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
 
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
@@ -3837,7 +3837,7 @@ void P_GetInputBoat(int playerNum)
     input_t input {};
 
     input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
 
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
