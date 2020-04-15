@@ -2019,6 +2019,11 @@ drawscreen(PLAYERp pp)
         tq16ang = camerapp->oq16ang + mulscale16(NORM_Q16ANGLE(camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) - fix16_from_int(1024), smoothratio);
         tq16horiz = camerapp->oq16horiz + mulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio);
     }
+    else if (InterpolateSectObj)
+    {
+        tq16ang = camerapp->oq16ang + mulscale16(((pp->camq16ang + fix16_from_int(1024) - camerapp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
+        tq16horiz = camerapp->oq16horiz + mulscale16(pp->camq16horiz - camerapp->oq16horiz, smoothratio);
+    }
     else
     {
         tq16ang = pp->camq16ang;
