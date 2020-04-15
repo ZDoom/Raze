@@ -1711,6 +1711,8 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
+    pp->camq16ang += fix16_from_int(NORM_ANGLE(pp->RevolveAng + pp->RevolveDeltaAng)) - pp->q16ang;
+    pp->camq16ang = NORM_Q16ANGLE(pp->camq16ang);
     pp->q16ang = fix16_from_int(NORM_ANGLE(pp->RevolveAng + pp->RevolveDeltaAng));
 
     if (!InterpolateSectObj)
