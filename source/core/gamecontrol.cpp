@@ -876,9 +876,7 @@ int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int
 {
 	const double TICRATE = 120.;
 
-	double rfreq = (refreshfreq != -1 ? refreshfreq : 60);
-	rfreq = rfreq * TICRATE / timerGetClockRate();
-
+	double rfreq = refreshfreq * TICRATE / timerGetClockRate();
 	double elapsedTime = (totalclk - ototalclk).toScale16F();
 	double elapsedFrames = elapsedTime * rfreq * (1. / TICRATE);
 	double ratio = (elapsedFrames * realgameticspersec) / rfreq;
