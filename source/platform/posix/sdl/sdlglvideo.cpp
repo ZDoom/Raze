@@ -111,6 +111,8 @@ CCMD(vid_list_sdl_render_drivers)
 	}
 }
 
+int refreshfreq;
+
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
 namespace Priv
@@ -432,6 +434,19 @@ SDLVideo::SDLVideo ()
 		Priv::CreateWindow(SDL_WINDOW_HIDDEN);
 	}
 #endif
+
+	// Get refresh rate for current display.
+	SDL_DisplayMode display;
+
+	if(SDL_GetCurrentDisplayMode(vid_adapter, &display) == 0)
+	{
+		refreshfreq = display.refresh_rate;
+	}
+	else
+	{
+		fprintf(stderr, "Failed to get refresh rate: %s\n", SDL_GetError());
+		return;
+	}
 }
 
 SDLVideo::~SDLVideo ()
