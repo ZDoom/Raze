@@ -903,6 +903,14 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         I_Error("Forgot to tag outer loop for Sector Object #%d", (int)(sop - SectorObject));
     }
 
+    // interpolate midpoint, for aiming at a remote controlled SO
+    if (InterpolateSectObj)
+    {
+        setinterpolation(&sop->xmid);
+        setinterpolation(&sop->ymid);
+        setinterpolation(&sop->zmid);
+    }
+
     for (i = 0; i < (int)SIZ(StatList); i++)
     {
         TRAVERSE_SPRITE_STAT(headspritestat[StatList[i]], sp_num, next_sp_num)
