@@ -3288,7 +3288,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     }
     else if (!TEST(pp->Flags, PF_DEAD))
     {
-        if (!TEST(pp->Flags, PF_CLIMBING))
+        if (!TEST(pp->Flags, PF_CLIMBING) && !pp->sop_control)
             DoPlayerTurn(pp, &pp->camq16ang, q16angvel);
         DoPlayerHorizon(pp, &pp->camq16horiz, q16aimvel);
     }
