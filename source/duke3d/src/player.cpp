@@ -3113,7 +3113,7 @@ void P_GetInput(int const playerNum)
     else
     {
         input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
     }
 
     if (mouseaim)
