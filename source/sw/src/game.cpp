@@ -3281,12 +3281,13 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     q16angvel = fix16_clamp(q16angvel, -fix16_from_int(MAXANGVEL), fix16_from_int(MAXANGVEL));
     q16aimvel = fix16_clamp(q16aimvel, -fix16_from_int(MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
 
+    void DoPlayerTeleportPause(PLAYERp pp);
     if (PedanticMode)
     {
         q16angvel = fix16_floor(q16angvel);
         q16aimvel = fix16_floor(q16aimvel);
     }
-    else if (!TEST(pp->Flags, PF_DEAD))
+    else if (!TEST(pp->Flags, PF_DEAD) && (pp->DoPlayerAction != DoPlayerTeleportPause))
     {
         if (!TEST(pp->Flags, PF_CLIMBING) && !pp->sop_control)
             DoPlayerTurn(pp, &pp->camq16ang, q16angvel);

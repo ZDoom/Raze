@@ -1333,6 +1333,7 @@ void
 DoPlayerTeleportToSprite(PLAYERp pp, SPRITEp sp)
 {
     pp->camq16ang = pp->q16ang = pp->oq16ang = fix16_from_int(sp->ang);
+    pp->camq16horiz = pp->q16horiz; // Ensure horiz is initially locked
     pp->posx = pp->oposx = pp->oldposx = sp->x;
     pp->posy = pp->oposy = pp->oldposy = sp->y;
 
