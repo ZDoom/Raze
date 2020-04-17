@@ -160,7 +160,6 @@ SWBOOL DemoModeMenuInit = FALSE;
 SWBOOL FinishAnim = 0;
 SWBOOL ShortGameMode = FALSE;
 SWBOOL ReloadPrompt = FALSE;
-SWBOOL ReloadPromptMode = FALSE;
 SWBOOL NewGame = TRUE;
 SWBOOL InMenuLevel = FALSE;
 SWBOOL LoadGameOutsideMoveLoop = FALSE;
