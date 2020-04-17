@@ -1185,7 +1185,8 @@ struct PLAYERstruct
 
     int oldposx,oldposy,oldposz;
     int RevolveX, RevolveY;
-    short RevolveDeltaAng, RevolveAng;
+    short RevolveDeltaAng;
+    fix16_t RevolveQ16Ang;
 
     // under vars are for wading and swimming
     short PlayerSprite, PlayerUnderSprite;
