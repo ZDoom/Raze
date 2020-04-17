@@ -1300,7 +1300,6 @@ DoPlayerResetMovement(PLAYERp pp)
     pp->slide_xvect = 0;
     pp->slide_yvect = 0;
     pp->drive_angvel = 0;
-    pp->drive_oangvel = 0;
     RESET(pp->Flags, PF_PLAYER_MOVED);
 }
 
@@ -1656,11 +1655,11 @@ DoPlayerTurnBoat(PLAYERp pp)
 
     if (sop->drive_angspeed)
     {
-        pp->drive_oangvel = pp->drive_angvel;
+        int drive_oangvel = pp->drive_angvel;
         pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16angvel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
-        pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
+        pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
 
         angvel = pp->drive_angvel;
     }
@@ -1688,11 +1687,11 @@ DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
     {
         int angslide;
 
-        pp->drive_oangvel = pp->drive_angvel;
+        int drive_oangvel = pp->drive_angvel;
         pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16angvel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
-        pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
+        pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
 
         angvel = pp->drive_angvel;
     }
@@ -1721,11 +1720,11 @@ DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
     {
         int angslide;
 
-        pp->drive_oangvel = pp->drive_angvel;
+        int drive_oangvel = pp->drive_angvel;
         pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16angvel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
-        pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
+        pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
 
         angvel = pp->drive_angvel;
     }
@@ -1770,11 +1769,11 @@ DoPlayerTurnTurret(PLAYERp pp)
     {
         int angslide;
 
-        pp->drive_oangvel = pp->drive_angvel;
+        int drive_oangvel = pp->drive_angvel;
         pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16angvel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
-        pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
+        pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
 
         angvel = pp->drive_angvel;
     }
