@@ -3283,11 +3283,12 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         q16angvel = fix16_floor(q16angvel);
         q16aimvel = fix16_floor(q16aimvel);
     }
-    else if (!TEST(pp->Flags, PF_DEAD) && (pp->DoPlayerAction != DoPlayerTeleportPause))
+    else
     {
-        if (!TEST(pp->Flags, PF_CLIMBING) && !pp->sop_control)
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
             DoPlayerTurn(pp, &pp->camq16ang, q16angvel);
-        DoPlayerHorizon(pp, &pp->camq16horiz, q16aimvel);
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
+            DoPlayerHorizon(pp, &pp->camq16horiz, q16aimvel);
     }
 
     loc->vel += vel;
