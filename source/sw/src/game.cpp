@@ -181,7 +181,6 @@ short HelpPage = 0;
 short HelpPagePic[] = { 5115, 5116, 5117 };
 SWBOOL InputMode = FALSE;
 SWBOOL MessageInput = FALSE;
-extern SWBOOL GamePaused;
 short screenpeek = 0;
 SWBOOL NoDemoStartup = FALSE;
 SWBOOL FirstTimeIntoGame;
@@ -2989,13 +2988,11 @@ FunctionKeys(PLAYERp pp)
             }
         }
     }
-
-
 }
 
 void PauseKey(PLAYERp pp)
 {
-    extern SWBOOL GamePaused,CheatInputMode;
+    extern SWBOOL CheatInputMode;
 
     if (inputState.GetKeyStatus(sc_Pause) && !CommEnabled && !InputMode && !M_Active() && !CheatInputMode && !ConPanel)
     {

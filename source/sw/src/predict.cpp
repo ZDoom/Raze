@@ -56,8 +56,6 @@ int predictmovefifoplc;
 void DoPlayerSectorUpdatePreMove(PLAYERp);
 void DoPlayerSectorUpdatePostMove(PLAYERp);
 
-extern SWBOOL GamePaused;
-
 #define PREDICT_DEBUG 0
 
 #if PREDICT_DEBUG

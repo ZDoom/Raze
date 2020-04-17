@@ -53,8 +53,6 @@ BEGIN_SW_NS
 // only for timed quakes
 #define QUAKE_WaitForTrigger(sp) (TEST_BOOL3(sp))
 
-extern SWBOOL GamePaused;
-
 short CopyQuakeSpotToOn(SPRITEp sp)
 {
     short New;

@@ -7803,7 +7803,6 @@ void PauseMultiPlay(void)
     static SWBOOL SavePrediction;
     PLAYERp pp;
     short pnum,p;
-    extern SWBOOL GamePaused;
 
     // check for pause of multi-play game
     TRAVERSE_CONNECT(pnum)
@@ -7858,10 +7857,9 @@ domovethings(void)
     extern SWBOOL DebugActorFreeze;
     extern int PlayClock;
     short i, pnum;
-	extern SWBOOL GamePaused;
+
     PLAYERp pp;
     extern unsigned int MoveThingsCount;
-    extern SWBOOL ReloadPrompt;
     extern int FinishTimer;
 
 
