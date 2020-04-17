@@ -935,6 +935,12 @@ int32_t    krand(void);
 
 int32_t   ksqrt(uint32_t num);
 int32_t   LUNATIC_FASTCALL getangle(int32_t xvect, int32_t yvect);
+fix16_t   LUNATIC_FASTCALL gethiq16angle(int32_t xvect, int32_t yvect);
+
+static FORCE_INLINE fix16_t LUNATIC_FASTCALL getq16angle(int32_t xvect, int32_t yvect)
+{
+    return fix16_from_int(getangle(xvect, yvect));
+}
 
 static FORCE_INLINE CONSTEXPR uint32_t uhypsq(int32_t const dx, int32_t const dy)
 {
