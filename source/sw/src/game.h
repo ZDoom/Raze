@@ -188,6 +188,8 @@ int krand1(void);
 
 #include "pragmas.h"
 
+extern SWBOOL PedanticMode;
+extern SWBOOL InterpolateSectObj;
 
 //
 // Map directions/degrees
@@ -451,6 +453,11 @@ extern char MessageOutputString[256];
 static fix16_t FORCE_INLINE GetQ16AngleFromVect(int32_t xvect, int32_t yvect)
 {
     return (PedanticMode ? getq16angle : gethiq16angle)(xvect, yvect);
+}
+
+static fix16_t FORCE_INLINE PedanticQ16AngleFloor(fix16_t ang)
+{
+    return PedanticMode ? fix16_floor(ang) : ang;
 }
 
 int StdRandomRange(int range);
@@ -888,9 +895,6 @@ extern int PlayerGetItemVocs[MAX_GETSOUNDS];
 extern int PlayerYellVocs[MAX_YELLSOUNDS];
 
 void BossHealthMeter(void);
-
-extern SWBOOL PedanticMode;
-extern SWBOOL InterpolateSectObj;
 
 // Global variables used for modifying variouse things from the Console
 
