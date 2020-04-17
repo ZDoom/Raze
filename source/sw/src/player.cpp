@@ -6470,6 +6470,10 @@ DoPlayerBeginDie(PLAYERp pp)
     if (GodMode)
         return;
 
+    // Ensure these are initially locked
+    pp->camq16ang = pp->q16ang;
+    pp->camq16horiz = pp->q16horiz;
+
     StopPlayerSound(pp);
 
     // Do the death scream
