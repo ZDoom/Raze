@@ -38,7 +38,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 extern short NormalVisibility;  // player.c
-extern SWBOOL GamePaused;
 
 #define VIS_VisCur(sp) (SP_TAG2(sp))
 #define VIS_VisDir(sp) (SP_TAG3(sp))

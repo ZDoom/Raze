@@ -6224,8 +6224,6 @@ pChopsShake(PANEL_SPRITEp psp)
 void
 pChopsWait(PANEL_SPRITEp psp)
 {
-    //extern SWBOOL GamePaused;
-
     //if (!GamePaused && RANDOM_P2(1024) < 10)
     if (RANDOM_P2(1024) < 10)
     {
