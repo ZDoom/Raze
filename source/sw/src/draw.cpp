@@ -2089,7 +2089,7 @@ drawscreen(PLAYERp pp)
         if (TEST_BOOL1(pp->remote_sprite))
             tq16ang = fix16_from_int(pp->remote_sprite->ang);
         else
-            tq16ang = fix16_from_int(getangle(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty));
+            tq16ang = GetQ16AngleFromVect(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
 
     //if (TEST(camerapp->Flags, PF_VIEW_FROM_OUTSIDE))
