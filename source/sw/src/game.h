@@ -1357,6 +1357,8 @@ extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
 #define PF_WEAPON_DOWN       (BIT(31))
 
 #define PF2_TELEPORTED        (BIT(0))
+#define PF2_INPUT_CAN_TURN    (BIT(1)) // Allow calling DoPlayerTurn from getinput
+#define PF2_INPUT_CAN_AIM     (BIT(2)) // Allow calling DoPlayerHorizon from getinput
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
