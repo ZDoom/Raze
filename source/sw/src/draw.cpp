@@ -1996,6 +1996,8 @@ drawscreen(PLAYERp pp)
 
 
     smoothratio = CalcSmoothRatio(totalclock, ototalclock, 120 / synctics);
+    if (GamePaused && !ReloadPrompt) // The checks were brought over from domovethings
+        smoothratio = 65536;
 
     if (!ScreenSavePic)
     {
