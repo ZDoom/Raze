@@ -1153,6 +1153,25 @@ GetDeltaAngle(short ang1, short ang2)
 
 }
 
+fix16_t
+GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2)
+{
+    // Look at the smaller angle if > 1024 (180 degrees)
+    if (fix16_abs(ang1 - ang2) > fix16_from_int(1024))
+    {
+        if (ang1 <= fix16_from_int(1024))
+            ang1 += fix16_from_int(2048);
+
+        if (ang2 <= fix16_from_int(1024))
+            ang2 += fix16_from_int(2048);
+    }
+
+    //if (ang1 - ang2 == -fix16_from_int(1024))
+    //    return(fix16_from_int(1024));
+
+    return ang1 - ang2;
+}
+
 TARGET_SORT TargetSort[MAX_TARGET_SORT];
 unsigned TargetSortCount;
 

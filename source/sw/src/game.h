@@ -2164,6 +2164,7 @@ void SetBorder(PLAYERp pp, int);
 void SetFragBar(PLAYERp pp);
 int Distance(int x1, int y1, int x2, int y2);
 short GetDeltaAngle(short, short);
+fix16_t GetDeltaQ16Angle(fix16_t, fix16_t);
 
 int SetActorRotation(short SpriteNum,int,int);
 int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);
