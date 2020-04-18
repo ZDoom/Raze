@@ -56,6 +56,7 @@ MIRRORTYPE mirror[MAXMIRRORS];
 short mirrorcnt; //, floormirrorcnt;
 //short floormirrorsector[MAXMIRRORS];
 SWBOOL mirrorinview;
+uint32_t oscilationclock;
 
 // Voxel stuff
 //SWBOOL bVoxelsOn = TRUE;                  // Turn voxels on by default
@@ -314,6 +315,7 @@ void JS_InitMirrors(void)
     // Scan wall tags for mirrors
     mirrorcnt = 0;
 	tileDelete(MIRROR);
+	oscilationclock = ototalclock;
 
     for (i = 0; i < MAXMIRRORS; i++)
     {
@@ -533,7 +535,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
 
     SWBOOL bIsWallMirror = FALSE;
 
-    camloopcnt += (int32_t)(totalclock - ototalclock);
+    camloopcnt += (int32_t) (totalclock - ototalclock);
     if (camloopcnt > (60 * 5))          // 5 seconds per player view
     {
         camloopcnt = 0;
@@ -546,6 +548,10 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
     longptr = (int*)&gotpic[MIRRORLABEL >> 3];
     if (longptr && (longptr[0] || longptr[1]))
     {
+        uint32_t oscilation_delta = ototalclock - oscilationclock;
+        oscilation_delta -= oscilation_delta % 4;
+        oscilationclock += oscilation_delta;
+        oscilation_delta *= 2;
         for (cnt = MAXMIRRORS - 1; cnt >= 0; cnt--) 
         {
             if (!mirror[cnt].ismagic) continue; // these are definitely not camera textures.
@@ -643,11 +649,12 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                         // angle else subtract
                         {
                             // Store current angle in TAG5
-                            SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + 4));
+                            SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + oscilation_delta));
 
                             // TAG6 = Turn radius
                             if (klabs(GetDeltaAngle(SP_TAG5(sp), sp->ang)) >= SP_TAG6(sp))
                             {
+                                SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - oscilation_delta));
                                 RESET_BOOL3(sp);    // Reverse turn
                                 // direction.
                             }
@@ -655,11 +662,12 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                         else
                         {
                             // Store current angle in TAG5
-                            SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - 4));
+                            SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) - oscilation_delta));
 
                             // TAG6 = Turn radius
                             if (klabs(GetDeltaAngle(SP_TAG5(sp), sp->ang)) >= SP_TAG6(sp))
                             {
+                                SP_TAG5(sp) = NORM_ANGLE((SP_TAG5(sp) + oscilation_delta));
                                 SET_BOOL3(sp);      // Reverse turn
                                 // direction.
                             }
