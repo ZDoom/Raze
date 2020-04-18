@@ -6810,15 +6810,15 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     if (pp->Killer > -1)
     {
         SPRITEp kp = &sprite[pp->Killer];
-        short ang2,delta_ang;
+        fix16_t q16ang2, delta_q16ang;
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum,
                       pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            ang2 = getangle(kp->x - pp->posx, kp->y - pp->posy);
+            q16ang2 = GetQ16AngleFromVect(kp->x - pp->posx, kp->y - pp->posy);
 
-            delta_ang = GetDeltaAngle(ang2, fix16_to_int(pp->q16ang));
-            pp->camq16ang = pp->q16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(pp->q16ang) + (delta_ang >> 4)));
+            delta_q16ang = GetDeltaQ16Angle(q16ang2, pp->q16ang);
+            pp->camq16ang = pp->q16ang = NORM_Q16ANGLE(pp->q16ang + PedanticQ16AngleFloor(delta_q16ang >> 4));
         }
     }
 }
