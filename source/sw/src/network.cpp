@@ -607,9 +607,10 @@ waitforeverybody(void)
     tempbuf[1] = Player[myconnectindex].playerreadyflag + 1;
     size++;
 #endif
+    // if we're a peer or slave, not a master
     if (!NetBroadcastMode && myconnectindex != connecthead)
         netsendpacket(connecthead, tempbuf, size);
-    else
+    else if (NetBroadcastMode)
         netbroadcastpacket(tempbuf, size);
 
 #if 0
@@ -677,6 +678,9 @@ waitforeverybody(void)
 
         if (i < 0)
         {
+            // master sends ready packet once it hears from all slaves
+            if (!NetBroadcastMode && myconnectindex == connecthead)
+                netbroadcastpacket(tempbuf, size);
             return;
         }
     }
