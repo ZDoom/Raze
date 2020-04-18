@@ -448,6 +448,10 @@ extern char MessageOutputString[256];
 #define ANGLE_2_PLAYER(pp,x,y) (NORM_ANGLE(getangle(pp->posx-(x), pp->posy-(y))))
 #define NORM_Q16ANGLE(ang) ((ang) & 0x7FFFFFF)
 
+static fix16_t FORCE_INLINE GetQ16AngleFromVect(int32_t xvect, int32_t yvect)
+{
+    return (PedanticMode ? getq16angle : gethiq16angle)(xvect, yvect);
+}
 
 int StdRandomRange(int range);
 #define STD_RANDOM_P2(pwr_of_2) (MOD_P2(rand(),(pwr_of_2)))
