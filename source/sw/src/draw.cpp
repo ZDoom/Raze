@@ -896,6 +896,14 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                     //SET(tsp->cstat, CSTAT_SPRITE_INVISIBLE);
                 }
             }
+            else if (!PedanticMode) // Otherwise just interpolate the player sprite
+            {
+                PLAYERp pp = tu->PlayerP;
+                tsp->x -= mulscale16(pp->posx - pp->oposx, 65536-smoothratio);
+                tsp->y -= mulscale16(pp->posy - pp->oposy, 65536-smoothratio);
+                tsp->z -= mulscale16(pp->posz - pp->oposz, 65536-smoothratio);
+                tsp->ang -= fix16_to_int(mulscale16(pp->q16ang - pp->oq16ang, 65536-smoothratio));
+            }
         }
 
         if (OverlapDraw && FAF_ConnectArea(tsp->sectnum) && tsp->owner >= 0)
