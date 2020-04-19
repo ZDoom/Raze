@@ -1205,7 +1205,7 @@ struct PLAYERstruct
     short bob_amt;
     short bob_ndx;
     short bcnt; // bob count
-    int bob_z;
+    int bob_z, obob_z;
 
     //Multiplayer variables
     SW_PACKET input;

@@ -7558,6 +7558,7 @@ MoveSkipSavePos(void)
         pp->oposz = pp->posz;
         pp->oq16ang = pp->q16ang;
         pp->oq16horiz = pp->q16horiz;
+        pp->obob_z = pp->bob_z;
     }
 
     // save off stats for skip4

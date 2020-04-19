@@ -2142,7 +2142,8 @@ drawscreen(PLAYERp pp)
     if (!TEST(pp->Flags, PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE))
     {
         tz += bob_amt;
-        tz += camerapp->bob_z;
+        tz += PedanticMode ? camerapp->bob_z :
+                             pp->obob_z + mulscale16(pp->bob_z - pp->obob_z, smoothratio);
 
         // recoil only when not in camera
         //tq16horiz = tq16horiz + fix16_from_int(camerapp->recoil_horizoff);
