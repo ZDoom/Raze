@@ -935,7 +935,7 @@ use_precompiled_header(".")
 add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 	${HEADER_FILES}
 	${NOT_COMPILED_SOURCE_FILES}
-	common/objects/__autostart.cpp
+	__autostart.cpp
 	${SYSTEM_SOURCES}
 	${FASTMATH_SOURCES}
 	${PCH_SOURCES}
@@ -961,7 +961,7 @@ add_executable( ${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 	common/thirdparty/math/tan.c
 	common/thirdparty/math/tanh.c
 	common/thirdparty/math/fastsin.cpp
-	common/objects/zzautozend.cpp
+	zzautozend.cpp
 )
 
 #set_source_files_properties( ${FASTMATH_SOURCES} PROPERTIES COMPILE_FLAGS ${DEM_FASTMATH_FLAG} )
@@ -1153,8 +1153,8 @@ source_group("Common\\Scripting\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_S
 source_group("Common\\Scripting\\Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/core/.+")
 source_group("Common\\Scripting\\JIT" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/jit/.+")
 source_group("Common\\Scripting\\VM" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/vm/.+")
-source_group("Common\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/rendering/.+")
-source_group("Common\\Rendering\\OpenGL Loader" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/rendering/gl_load/.+")
+source_group("Common\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/.+")
+source_group("Common\\Rendering\\OpenGL Loader" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl_load/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Textures\\Hires" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/.+")
 source_group("Common\\Textures\\Hires\\HQ Resize" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/hqnx/.+")
