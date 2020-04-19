@@ -3,6 +3,8 @@
 #ifndef __RESFILE_H
 #define __RESFILE_H
 
+#include <limits.h>
+
 #include "files.h"
 
 struct LumpFilterInfo
@@ -17,7 +19,6 @@ struct LumpFilterInfo
 };
 
 class FResourceFile;
-class FTexture;
 
 // [RH] Namespaces from BOOM.
 // These are needed here in the low level part so that WAD files can be properly set up.
