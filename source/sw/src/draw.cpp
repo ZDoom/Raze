@@ -368,7 +368,7 @@ DoVoxelShadow(SPRITEp tspr)
 #endif
 
 void
-DoShadows(tspriteptr_t tsp, int viewz)
+DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
 {
     tspriteptr_t New = &tsprite[spritesortcnt];
     USERp tu = User[tsp->owner];
@@ -455,6 +455,28 @@ DoShadows(tspriteptr_t tsp, int viewz)
 
     New->xrepeat = xrepeat;
     New->yrepeat = yrepeat;
+
+#ifdef USE_OPENGL
+    if (videoGetRenderMode() >= REND_POLYMOST)
+    {
+        if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
+        {
+            New->yrepeat = 0;
+            // cstat:    trans reverse
+            // clipdist: tell mdsprite.cpp to use Z-buffer hacks to hide overdraw issues
+            New->clipdist |= TSPR_FLAGS_MDHACK;
+            New->cstat |= 512;
+        }
+        else
+        {
+            int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
+            vec2_t const ofs = { sintable[NORM_ANGLE(camang+512)]>>11, sintable[NORM_ANGLE(camang)]>>11};
+
+            New->x += ofs.x;
+            New->y += ofs.y;
+        }
+    }
+#endif
 
     // Check for voxel items and use a round generic pic if so
     //DoVoxelShadow(New);
@@ -758,7 +780,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 
             if (r_shadows && TEST(tu->Flags, SPR_SHADOW))
             {
-                DoShadows(tsp, viewz);
+                DoShadows(tsp, viewz, mirror);
             }
 
             //#define UK_VERSION 1
