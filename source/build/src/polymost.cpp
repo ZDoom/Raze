@@ -449,7 +449,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
 
     auto tex = TileFiles.GetTile(globalpicnum);
-    if (tex)
+    if (tex && tex->isValid())
         GLInterface.SetMaterial(tex, UF_Texture, CTF_Upscale, sampleroverride, TRANSLATION(Translation_Remap + curbasepal, globalpal), 0);
     else
 	{

@@ -1231,8 +1231,8 @@ OptionMenu "VideoOptions" //protected
 	Slider "$DSPLYMNU_FOV",						"r_fov",					60, 130, 10, 1
 
 	StaticText ""
-	Option "$GLTEXMNU_TEXFILTER",		hw_texfilter,				"FilterModes"
-	Option "$GLTEXMNU_ANISOTROPIC",		hw_anisotropy,				"Anisotropy"
+	Option "$GLTEXMNU_TEXFILTER",		gl_texture_filter,				"FilterModes"
+	Option "$GLTEXMNU_ANISOTROPIC",		gl_texture_filter_anisotropic,				"Anisotropy"
 }
 
 

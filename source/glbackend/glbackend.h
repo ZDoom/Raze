@@ -342,6 +342,7 @@ public:
 
 	void SetMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader)
 	{
+		assert(mat);
 		renderState.mMaterial.mMaterial = mat;
 		renderState.mMaterial.mClampMode = clampmode;
 		renderState.mMaterial.mTranslation = translation;
@@ -352,6 +353,7 @@ public:
 
 	void SetMaterial(FGameTexture* tex, EUpscaleFlags upscalemask, int scaleflags, int clampmode, int translation, int overrideshader)
 	{
+		assert(tex);
 		if (shouldUpscale(tex, upscalemask)) scaleflags |= CTF_Upscale;
 		SetMaterial(FMaterial::ValidateTexture(tex, scaleflags), clampmode, translation, overrideshader);
 	}

@@ -3087,7 +3087,6 @@ void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t pic
     F2DDrawer::RenderCommand dg = {};
     int method = 0;
 
-    dg.mTranslationId = TRANSLATION(Translation_Remap + basepal, dapalnum);
     dg.mType = F2DDrawer::DrawTypeTriangles;
     if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth() - 1 || clipy2 < screen->GetHeight() - 1)
     {
@@ -3113,6 +3112,12 @@ void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t pic
     }
 
     dg.mTexture = pic ? pic : TileFiles.GetTile(picnum);
+    if (!dg.mTexture || !dg.mTexture->isValid()) return; // empty tile.
+
+    // todo: check for hires replacements
+    if (basepal == 0 && dapalnum == 0 && pic) dg.mTranslationId = 0;
+    else dg.mTranslationId = TRANSLATION(Translation_Remap + basepal, dapalnum);
+
     dg.mVertCount = 4;
     dg.mVertIndex = (int)twod->mVertices.Reserve(4);
     auto ptr = &twod->mVertices[dg.mVertIndex];
