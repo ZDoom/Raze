@@ -49,6 +49,7 @@
 #include "v_video.h"
 #include "flatvertices.h"
 #include "gl_renderer.h"
+#include "gl_samplers.h"
 
 float shadediv[MAXPALOOKUPS];
 
@@ -82,11 +83,6 @@ TArray<uint8_t> ttf;
 
 void GLInstance::Init(int ydim)
 {
-	if (!mSamplers)
-	{
-		mSamplers = new FSamplerManager;
-	}
-
 	//glinfo.bufferstorage =  !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
 
@@ -141,19 +137,12 @@ void GLInstance::Deinit()
 		ImGui::DestroyContext(im_ctx);
 	}
 #endif
-	if (mSamplers) delete mSamplers;
-	mSamplers = nullptr;
 	if (polymostShader) delete polymostShader;
 	polymostShader = nullptr;
 	if (surfaceShader) delete surfaceShader;
 	surfaceShader = nullptr;
 	activeShader = nullptr;
 	lastPalswapIndex = -1;
-}
-
-FHardwareTexture* GLInstance::NewTexture()
-{
-	return new FHardwareTexture;
 }
 
 void GLInstance::ResetFrame()
@@ -293,25 +282,65 @@ void GLInstance::DrawImGui(ImDrawData* data)
 }
 
 
+//===========================================================================
+// 
+//	Binds a texture to the renderer
+//
+//===========================================================================
+
+void PolymostRenderState::ApplyMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader)
+{
+
+	auto tex = mat->Source();
+	//mEffectState = overrideshader >= 0 ? overrideshader : mat->GetShaderIndex();
+	//mShaderTimer = tex->GetShaderSpeed();
+	//SetSpecular(tex->GetGlossiness(), tex->GetSpecularLevel());
+	if (tex->isHardwareCanvas()) static_cast<FCanvasTexture*>(tex->GetTexture())->NeedUpdate();
+
+	clampmode = tex->GetClampMode(clampmode);
+
+	// avoid rebinding the same texture multiple times.
+	//if (mat == lastMaterial && lastClamp == clampmode && translation == lastTranslation) return;
+#if 0
+	lastMaterial = mat;
+	lastClamp = clampmode;
+	lastTranslation = translation;
+#endif
+
+	int usebright = false;
+	int maxbound = 0;
+
+	int numLayers = mat->NumLayers();
+	MaterialLayerInfo* layer;
+	auto base = static_cast<FHardwareTexture*>(mat->GetLayer(0, translation, &layer));
+
+	if (base->BindOrCreate(tex->GetTexture(), 0, clampmode, translation, layer->scaleFlags))
+	{
+		for (int i = 1; i < numLayers; i++)
+		{
+			auto systex = static_cast<FHardwareTexture*>(mat->GetLayer(i, 0, &layer));
+			// fixme: Upscale flags must be disabled for certain layers.
+			systex->BindOrCreate(layer->layerTexture, i, clampmode, 0, layer->scaleFlags);
+			maxbound = i;
+		}
+	}
+	// unbind everything from the last texture that's still active
+	for (int i = maxbound + 1; i <= 16/*maxBoundMaterial*/; i++)
+	{
+		FHardwareTexture::Unbind(i);
+		//maxBoundMaterial = maxbound;
+	}
+}
+
 void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 {
 	bool reset = false;
-	for (int i = 0; i < MAX_TEXTURES; i++)
+	if (mMaterial.mChanged)
 	{
-		if (texIds[i] != oldState.TexId[i] || samplerIds[i] != oldState.SamplerId[i])
-		{
-			if (i != 0)
-			{
-				glActiveTexture(GL_TEXTURE0 + i);
-				reset = true;
-			}
-			glBindTexture(GL_TEXTURE_2D, texIds[i]);
-			GLInterface.mSamplers->Bind(i, samplerIds[i], -1);
-			oldState.TexId[i] = texIds[i];
-			oldState.SamplerId[i] = samplerIds[i];
-		}
-		if (reset) glActiveTexture(GL_TEXTURE0);
+		mMaterial.mChanged = false;
+		ApplyMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
 	}
+ 
 	if (StateFlags != oldState.Flags)
 	{
 		if ((StateFlags ^ oldState.Flags) & STF_DEPTHTEST)

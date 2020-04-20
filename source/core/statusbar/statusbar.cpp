@@ -79,7 +79,7 @@ DBaseStatusBar *StatusBar;
 
 extern int setblocks;
 
-FTexture *CrosshairImage;
+FGameTexture *CrosshairImage;
 static int CrosshairNum;
 
 
@@ -410,14 +410,14 @@ void DBaseStatusBar::DrawGraphic(FTextureID texture, double x, double y, int fla
 	if (!texture.isValid())
 		return;
 
-	FTexture* tex = TexMan.GetTexture(texture, !(flags & DI_DONTANIMATE));
+	FGameTexture* tex = TexMan.GetGameTexture(texture, !(flags & DI_DONTANIMATE));
 	DrawGraphic(tex, x, y, flags, Alpha, boxwidth, boxheight, scaleX, scaleY, color);
 }
 
-void DBaseStatusBar::DrawGraphic(FTexture* tex, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color)
+void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color)
 {
-	double texwidth = tex->GetDisplayWidthDouble() * scaleX;
-	double texheight = tex->GetDisplayHeightDouble() * scaleY;
+	double texwidth = tex->GetDisplayWidth() * scaleX;
+	double texheight = tex->GetDisplayHeight() * scaleY;
 
 	if (boxwidth > 0 || boxheight > 0)
 	{
@@ -469,14 +469,14 @@ void DBaseStatusBar::DrawGraphic(FTexture* tex, double x, double y, int flags, d
 	{
 	case DI_ITEM_HCENTER:	x -= boxwidth / 2; break;
 	case DI_ITEM_RIGHT:		x -= boxwidth; break;
-	case DI_ITEM_HOFFSET:	x -= tex->GetDisplayLeftOffsetDouble() * boxwidth / texwidth; break;
+	case DI_ITEM_HOFFSET:	x -= tex->GetDisplayLeftOffset() * boxwidth / texwidth; break;
 	}
 
 	switch (flags & DI_ITEM_VMASK)
 	{
 	case DI_ITEM_VCENTER: y -= boxheight / 2; break;
 	case DI_ITEM_BOTTOM:  y -= boxheight; break;
-	case DI_ITEM_VOFFSET: y -= tex->GetDisplayTopOffsetDouble() * boxheight / texheight; break;
+	case DI_ITEM_VOFFSET: y -= tex->GetDisplayTopOffset() * boxheight / texheight; break;
 	}
 
 	if (!fullscreenOffsets)
@@ -609,20 +609,20 @@ void DBaseStatusBar::DrawString(FFont *font, const FString &cstring, double x, d
 		}
 
 		int width;
-		FTexture* c = font->GetChar(ch, fontcolor, &width);
+		FGameTexture* c = font->GetChar(ch, fontcolor, &width);
 		if (c == NULL) //missing character.
 		{
 			continue;
 		}
 
 		if (!monospaced) //If we are monospaced lets use the offset
-			x += (c->GetDisplayLeftOffsetDouble() + 1); //ignore x offsets since we adapt to character size
+			x += (c->GetDisplayLeftOffset() + 1); //ignore x offsets since we adapt to character size
 
 		double rx, ry, rw, rh;
 		rx = x + drawOffset.X;
 		ry = y + drawOffset.Y;
-		rw = c->GetDisplayWidthDouble();
-		rh = c->GetDisplayHeightDouble();
+		rw = c->GetDisplayWidth();
+		rh = c->GetDisplayHeight();
 
 		if (monospacing == EMonospacing::CellCenter)
 			rx += (spacing - rw) / 2;
@@ -670,7 +670,7 @@ void DBaseStatusBar::DrawString(FFont *font, const FString &cstring, double x, d
 
 		dx = monospaced 
 			? spacing
-			: width + spacing - (c->GetDisplayLeftOffsetDouble() + 1);
+			: width + spacing - (c->GetDisplayLeftOffset() + 1);
 
 		// Take text scale into account
 		x += dx * scaleX;

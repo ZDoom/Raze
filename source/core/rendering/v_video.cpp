@@ -59,6 +59,7 @@
 #include "filesystem.h"
 #include "build.h"
 #include "glbackend/glbackend.h"
+#include "gl_samplers.h"
 
 EXTERN_CVAR(Int, menu_resolution_custom_width)
 EXTERN_CVAR(Int, menu_resolution_custom_height)
@@ -403,7 +404,7 @@ void V_Init2()
 	Polymost_Startup();
 	GLInterface.Init(SCREENHEIGHT);
 	GLInterface.InitGLState(4, 4/*glmultisample*/);
-	GLInterface.mSamplers->SetTextureFilterMode(hw_texfilter, hw_anisotropy);
+	screen->SetTextureFilterMode();
 
 	//setsizeneeded = true;
 }

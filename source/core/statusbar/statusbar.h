@@ -56,7 +56,7 @@ enum EMonospacing : int;
 
 // Base Status Bar ----------------------------------------------------------
 
-class FTexture;
+class FGameTexture;
 
 enum
 {
@@ -164,7 +164,7 @@ public:
 	DVector2 GetHUDScale() const;
 	void NewGame ();
 
-	void DrawGraphic(FTexture *texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color = 0xffffffff);
+	void DrawGraphic(FGameTexture *texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color = 0xffffffff);
 	void DrawGraphic(FTextureID texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color = 0xffffffff);
 	void DrawString(FFont *font, const FString &cstring, double x, double y, int flags, double Alpha, int translation, int spacing, EMonospacing monospacing, int shadowX, int shadowY, double scaleX, double scaleY);
 	void TransformRect(double &x, double &y, double &w, double &h, int flags = 0);
@@ -245,7 +245,7 @@ DBaseStatusBar *CreateCustomStatusBar(int script=0);
 void ST_LoadCrosshair(bool alwaysload=false);
 void ST_Clear();
 void ST_CreateStatusBar(bool bTitleLevel);
-extern FTexture *CrosshairImage;
+extern FGameTexture *CrosshairImage;
 
 int GetInventoryIcon(AActor *item, uint32_t flags, int *applyscale = nullptr);
 

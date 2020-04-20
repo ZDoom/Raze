@@ -282,17 +282,17 @@ void OpenGLFrameBuffer::CleanForRestart()
 {
 }
 
-#ifdef IMPLEMENT_IT
 void OpenGLFrameBuffer::SetTextureFilterMode()
 {
-	//if (GLRenderer != nullptr && GLRenderer->mSamplerManager != nullptr) GLRenderer->mSamplerManager->SetTextureFilterMode();
+	if (GLRenderer != nullptr && GLRenderer->mSamplerManager != nullptr) GLRenderer->mSamplerManager->SetTextureFilterMode();
 }
 
 IHardwareTexture *OpenGLFrameBuffer::CreateHardwareTexture() 
 { 
-	return nullptr;// new FHardwareTexture(true/*tex->bNoCompress*/);
+	return new FHardwareTexture(true/*tex->bNoCompress*/);
 }
 
+#ifdef IMPLEMENT_IT
 void OpenGLFrameBuffer::PrecacheMaterial(FMaterial *mat, int translation)
 {
 	auto tex = mat->tex;

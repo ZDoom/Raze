@@ -646,13 +646,13 @@ int I_PickIWad(WadStuff *wads, int numwads, bool showwin, int defaultiwad)
 //
 //==========================================================================
 
-bool I_SetCursor(FTexture *cursorpic)
+bool I_SetCursor(FGameTexture *cursorpic)
 {
 	HCURSOR cursor;
 
 	if (cursorpic != NULL)
 	{
-		auto image = cursorpic->GetBgraBitmap(nullptr);
+		auto image = cursorpic->GetTexture()->GetBgraBitmap(nullptr);
 		// Must be no larger than 32x32. (is this still necessary?
 		if (image.GetWidth() > 32 || image.GetHeight() > 32)
 		{

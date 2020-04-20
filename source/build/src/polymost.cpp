@@ -37,7 +37,7 @@ CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBAL
 }
 
 
-CUSTOM_CVARD(Int, hw_texfilter, TEXFILTER_ON, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the texture filtering settings")
+CUSTOM_CVARD(Int, gl_texture_filter, TEXFILTER_ON, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the texture filtering settings")
 {
 	static const char* const glfiltermodes[] =
 	{
@@ -54,11 +54,11 @@ CUSTOM_CVARD(Int, hw_texfilter, TEXFILTER_ON, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, 
 	else
 	{
 		gltexapplyprops();
-		Printf("Texture filtering mode changed to %s\n", glfiltermodes[hw_texfilter]);
+		Printf("Texture filtering mode changed to %s\n", glfiltermodes[gl_texture_filter]);
 	}
 }
 
-CUSTOM_CVARD(Int, hw_anisotropy, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the OpenGL texture anisotropy setting")
+CUSTOM_CVARD(Float, gl_texture_filter_anisotropic, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the OpenGL texture anisotropy setting")
 {
 	gltexapplyprops();
 }
@@ -150,11 +150,11 @@ void gltexapplyprops(void)
 
 	if (GLInterface.glinfo.maxanisotropy > 1.f)
 	{
-		if (hw_anisotropy <= 0 || hw_anisotropy > GLInterface.glinfo.maxanisotropy)
-			hw_anisotropy = (int32_t)GLInterface.glinfo.maxanisotropy;
+		if (gl_texture_filter_anisotropic <= 0 || gl_texture_filter_anisotropic > GLInterface.glinfo.maxanisotropy)
+			gl_texture_filter_anisotropic = (int32_t)GLInterface.glinfo.maxanisotropy;
 	}
 
-	GLInterface.mSamplers->SetTextureFilterMode(hw_texfilter, hw_anisotropy);
+    screen->SetTextureFilterMode();
 	// do not force switch indexed textures with the filter. 
 }
 
@@ -441,14 +441,17 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     polymost_outputGLDebugMessage(3, "polymost_drawpoly(dpxy:%p, n:%d, method_:%X), method: %X", dpxy, n, method_, method);
 
 	// This only takes effect for textures with their default set to SamplerClampXY.
-	int sampleroverride;
-	if (drawpoly_srepeat && drawpoly_trepeat) sampleroverride = SamplerRepeat;
-	else if (drawpoly_srepeat) sampleroverride = SamplerClampY;
-	else if (drawpoly_trepeat) sampleroverride = SamplerClampX;
-	else sampleroverride = SamplerClampXY;
+	int sampleroverride = CLAMP_NONE;
+    if (method & DAMETH_CLAMPED)
+    {
+        if (drawpoly_srepeat) sampleroverride |= CLAMP_Y;
+        if (drawpoly_trepeat) sampleroverride |= CLAMP_X;
+    }
 
-	bool success = GLInterface.SetTexture(globalpicnum, TileFiles.GetTile(globalpicnum), globalpal, method, sampleroverride);
-	if (!success)
+    auto tex = TileFiles.GetTile(globalpicnum);
+    if (tex)
+        GLInterface.SetMaterial(tex, UF_Texture, CTF_Upscale, sampleroverride, TRANSLATION(Translation_Remap + curbasepal, globalpal), 0);
+    else
 	{
 		tsiz.x = tsiz.y = 1;
 		GLInterface.SetColorMask(false); //Hack to update Z-buffer for invalid mirror textures
@@ -502,7 +505,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
         float const r = 1.f / dd[i];
 
-        if (TileFiles.GetTile(globalpicnum)->isCanvas())
+        if (TileFiles.GetTile(globalpicnum)->isHardwareCanvas())
         {
             //update texcoords, canvas textures are upside down!
             vt->SetTexCoord(
@@ -541,7 +544,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 		xtex = bxtex, ytex = bytex, otex = botex;
     }
 
-	if (!success)
+	if (!tex)
 		GLInterface.SetColorMask(true);
 }
 
@@ -4558,6 +4561,7 @@ void polymost_initosdfuncs(void)
 
 static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 {
+#if 0
     // dapicnum and dapalnum are like you'd expect
     // datype is 0 for a wall/floor/ceiling and 1 for a sprite
     //    basically this just means walls are repeating
@@ -4584,6 +4588,7 @@ static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype
         auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i, nullptr);
 		if (tex) GLInterface.SetTexture(-1, tex, dapalnum, 0, -1);
 	}
+#endif
 }
 
 void PrecacheHardwareTextures(int nTile)

@@ -43,6 +43,7 @@
 #include "palettecontainer.h"
 #include "../../glbackend/glbackend.h"
 
+#if 0
 // Test CVARs.
 CVAR(Int, fixpalette, -1, 0)
 CVAR(Int, fixpalswap, -1, 0)
@@ -58,7 +59,6 @@ void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
 		}
 	}
 }
-
 
 //===========================================================================
 // 
@@ -416,19 +416,23 @@ int PalCheck(int tex)
 	return tex;
 }
 
-IHardwareTexture* CreateHardwareTexture()
-{
-	return GLInterface.NewTexture();
-}
-
 void DeleteSoftwareTexture(FSoftwareTexture *)
 {
 
 }
 
+#endif
+#include "v_video.h"
+
+IHardwareTexture* CreateHardwareTexture()
+{
+	return screen->CreateHardwareTexture();
+}
+
+
 void InitBuildTiles()
 {
 
 }
-
 TArray<UserShaderDesc> usershaders;
+

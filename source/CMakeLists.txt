@@ -706,8 +706,8 @@ set( FASTMATH_SOURCES
 
 set (PCH_SOURCES
 
-	glbackend/gl_hwtexture.cpp
-	glbackend/gl_samplers.cpp
+	core/rendering/gl/textures/gl_hwtexture.cpp
+	core/rendering/gl/textures/gl_samplers.cpp
 	glbackend/gl_shader.cpp
 	glbackend/glbackend.cpp
 	glbackend/gl_texture.cpp
@@ -1007,6 +1007,7 @@ include_directories(
 	core/rendering/gl/system
 	core/rendering/gl/renderer
 	core/rendering/gl/shaders
+	core/rendering/gl/textures
 	core/rendering/hwrenderer/data
 	core/rendering/hwrenderer/postprocessing
 	core/rendering/hwrenderer/utility

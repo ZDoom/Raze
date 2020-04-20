@@ -9,16 +9,18 @@
 #include "matrix.h"
 #include "palentry.h"
 #include "renderstyle.h"
+#include "hw_material.h"
 
-class FSamplerManager;
 class FShader;
 class PolymostShader;
 class SurfaceShader;
-class FTexture;
+class FGameTexture;
 class GLInstance;
 class F2DDrawer;
 struct palette_t;
 extern int xdim, ydim;
+
+using OpenGLRenderer::FHardwareTexture;
 
 struct PaletteData
 {
@@ -38,6 +40,8 @@ struct PalswapData
 	PalEntry fadeColor;
 	uint8_t brightcolors[255];
 };
+
+
 
 struct glinfo_t {
 	float maxanisotropy;
@@ -104,7 +108,7 @@ class GLInstance
 	int maxTextureSize;
 	int lastPalswapIndex = -1;
 	FHardwareTexture* texv;
-	FTexture* currentTexture = nullptr;
+	FGameTexture* currentTexture = nullptr;
 	int TextureType;
 	int MatrixChange = 0;
 
@@ -120,7 +124,6 @@ class GLInstance
 	
 public:
 	glinfo_t glinfo;
-	FSamplerManager *mSamplers;
 	
 	void Init(int y);
 	void InitGLState(int fogmode, int multisample);
@@ -141,8 +144,6 @@ public:
 	void Draw(EDrawType type, size_t start, size_t count);
 	void DoDraw();
 	void DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState& renderState);
-
-	FHardwareTexture* NewTexture();
 
 	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2);
 	void SetIndexBuffer(IIndexBuffer* vb);
@@ -339,7 +340,23 @@ public:
 		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
 	}
 
-	void BindTexture(int texunit, FHardwareTexture* tex, int sampler = NoSampler)
+	void SetMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader)
+	{
+		renderState.mMaterial.mMaterial = mat;
+		renderState.mMaterial.mClampMode = clampmode;
+		renderState.mMaterial.mTranslation = translation;
+		renderState.mMaterial.mOverrideShader = overrideshader;
+		renderState.mMaterial.mChanged = true;
+		//mTextureModeFlags = mat->GetLayerFlags();
+	}
+
+	void SetMaterial(FGameTexture* tex, EUpscaleFlags upscalemask, int scaleflags, int clampmode, int translation, int overrideshader)
+	{
+		if (shouldUpscale(tex, upscalemask)) scaleflags |= CTF_Upscale;
+		SetMaterial(FMaterial::ValidateTexture(tex, scaleflags), clampmode, translation, overrideshader);
+	}
+#if 0
+	void BindTexture(int texunit, FHardwareTexture* tex, int sampler /*= NoSampler*/)
 	{
 		if (!tex) return;
 		if (texunit == 0)
@@ -364,6 +381,7 @@ public:
 			UnbindTexture(texunit);
 		}
 	}
+#endif
 
 	void UseColorOnly(bool yes)
 	{
@@ -461,23 +479,6 @@ public:
 	void SetAlphaThreshold(float al)
 	{
 		renderState.AlphaThreshold = al;
-	}
-
-	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
-	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);
-	FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
-	bool SetTextureInternal(int globalpicnum, FTexture* tex, int palette, int method, int sampleroverride,  FTexture *det, float detscale, FTexture *glow);
-
-	bool SetNamedTexture(FTexture* tex, int palette, int sampleroverride);
-
-	bool SetTexture(int globalpicnum, FTexture* tex, int palette, int method, int sampleroverride)
-	{
-		return SetTextureInternal(globalpicnum, tex, palette, method, sampleroverride, nullptr, 1, nullptr);
-	}
-
-	bool SetModelTexture(FTexture *tex, int palette, FTexture *det, float detscale, FTexture *glow)
-	{
-		return SetTextureInternal(-1, tex, palette, 8/*DAMETH_MODEL*/, -1, det, detscale, glow);
 	}
 };
 

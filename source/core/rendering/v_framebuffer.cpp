@@ -218,7 +218,7 @@ void DFrameBuffer::SetVSync (bool vsync)
 //
 //==========================================================================
 
-FTexture *DFrameBuffer::WipeStartScreen()
+FGameTexture *DFrameBuffer::WipeStartScreen()
 {
 	return nullptr;
 }
@@ -232,7 +232,7 @@ FTexture *DFrameBuffer::WipeStartScreen()
 //
 //==========================================================================
 
-FTexture *DFrameBuffer::WipeEndScreen()
+FGameTexture *DFrameBuffer::WipeEndScreen()
 {
     return nullptr;
 }
@@ -378,6 +378,10 @@ void DFrameBuffer::FPSLimit()
 #endif
 }
 
+FMaterial* DFrameBuffer::CreateMaterial(FGameTexture* tex, int scaleflags)
+{
+	return new FMaterial(tex, scaleflags);
+}
 void DFrameBuffer::BeginScene()
 {
 	if (videoGetRenderMode() < REND_POLYMOST) return;

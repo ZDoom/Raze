@@ -61,7 +61,7 @@ struct rottile_t
 
 struct HightileReplacement
 {
-	FTexture *faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
+	FGameTexture *faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
     vec2f_t scale;
     float alphacut, specpower, specfactor;
     uint16_t palnum, flags;
@@ -256,8 +256,8 @@ struct RawCacheNode
 
 struct TileDesc
 {
-	FTexture* texture;	// the currently active tile
-	FTexture* backup;	// original backup for map tiles
+	FGameTexture* texture;	// the currently active tile
+	FGameTexture* backup;	// original backup for map tiles
 	RawCacheNode rawCache;	// this is needed for hitscan testing to avoid reloading the texture each time.
 	picanm_t picanm;		// animation descriptor
 	rottile_t RotTile;// = { -1,-1 };
@@ -284,7 +284,7 @@ struct BuildTiles
 
 	void CloseAll();
 
-	void AddTile(int tilenum, FTexture* tex, bool permap = false);
+	void AddTile(int tilenum, FGameTexture* tex, bool permap = false);
 
 	void AddTiles(int firsttile, TArray<uint8_t>& store, const char * mapname);
 
@@ -302,12 +302,12 @@ struct BuildTiles
 	{
 		addedArt = std::move(art);
 	}
-	FTexture* GetTile(int num)
+	FGameTexture* GetTile(int num)
 	{
 		assert(num < MAXTILES);
 		return tiledata[num].texture;
 	}
-	FTexture* ValidateCustomTile(int tilenum, ReplacementType type);
+	FGameTexture* ValidateCustomTile(int tilenum, ReplacementType type);
 	int32_t artLoadFiles(const char* filename);
 	uint8_t* tileMakeWritable(int num);
 	uint8_t* tileCreate(int tilenum, int width, int height);
@@ -353,7 +353,7 @@ inline const uint8_t* tilePtr(int num)
 	{
 		auto tex = TileFiles.tiledata[num].texture;
 		if (!tex || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return nullptr;
-		TileFiles.tiledata[num].rawCache.data = std::move(tex->Get8BitPixels(false));
+		TileFiles.tiledata[num].rawCache.data = std::move(tex->GetTexture()->Get8BitPixels(false));
 	}
 	TileFiles.tiledata[num].rawCache.lastUseTime = I_nsTime();
 	return TileFiles.tiledata[num].rawCache.data.Data();
@@ -367,7 +367,7 @@ inline bool tileLoad(int tileNum)
 inline uint8_t* tileData(int num)
 {
 	auto tex = TileFiles.tiledata[num].texture;
-	auto p = dynamic_cast<FWritableTile*>(tex);
+	auto p = dynamic_cast<FWritableTile*>(tex->GetTexture());
 	return p ? p->GetRawData() : nullptr;
 }
 

@@ -104,7 +104,7 @@ void M_DeinitMenus()
 	DefaultListMenuSettings.mItems.Clear();
 }
 
-static FTexture* GetMenuTexture(const char* const name)
+static FGameTexture* GetMenuTexture(const char* const name)
 {
 	auto texid = TexMan.CheckForTexture(name, ETextureType::Any);
 	if (!texid.isValid())
@@ -112,7 +112,7 @@ static FTexture* GetMenuTexture(const char* const name)
 		Printf("Missing menu texture: \"%s\"\n", name);
 	}
 
-	return TexMan.GetTexture(texid);
+	return TexMan.GetGameTexture(texid);
 }
 
 //=============================================================================
@@ -370,7 +370,7 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 			int y = sc.Number;
 			sc.MustGetStringName(",");
 			sc.MustGetString();
-			FTexture* tex = GetMenuTexture(sc.String);
+			FGameTexture* tex = GetMenuTexture(sc.String);
 
 			FListMenuItem *it = new FListMenuItemStaticPatch(x, y, tex, centered);
 			desc->mItems.Push(it);
@@ -401,7 +401,7 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		else if (sc.Compare("PatchItem"))
 		{
 			sc.MustGetString();
-			FTexture* tex = GetMenuTexture(sc.String);
+			FGameTexture* tex = GetMenuTexture(sc.String);
 			sc.MustGetStringName(",");
 			sc.MustGetString();
 			int hotkey = sc.String[0];

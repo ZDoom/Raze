@@ -803,7 +803,7 @@ CUSTOM_CVAR(Bool, vid_hidpi, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINI
 // ---------------------------------------------------------------------------
 
 
-bool I_SetCursor(FTexture *cursorpic)
+bool I_SetCursor(FGameTexture *cursorpic)
 {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	NSCursor* cursor = nil;

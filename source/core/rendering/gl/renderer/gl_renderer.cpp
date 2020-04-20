@@ -52,14 +52,14 @@
 #include "gl/renderer/gl_renderbuffers.h"
 #include "gl/shaders/gl_shaderprogram.h"
 //#include "hwrenderer/data/flatvertices.h"
-//#include "gl/textures/gl_samplers.h"
+#include "gl_samplers.h"
 //#include "hwrenderer/dynlights/hw_lightbuffer.h"
 //#include "hwrenderer/data/hw_viewpointbuffer.h"
 #include "r_videoscale.h"
 //#include "r_data/models/models.h"
 #include "gl/renderer/gl_postprocessstate.h"
 #include "gl/system/gl_buffers.h"
-#include "../glbackend/gl_hwtexture.h"
+#include "gl_hwtexture.h"
 #include "build.h"
 
 EXTERN_CVAR(Int, screenblocks)
@@ -108,7 +108,7 @@ void FGLRenderer::Initialize(int width, int height)
 	mOldFBID = 0;
 
 	//mShaderManager = new FShaderManager;
-	//mSamplerManager = new FSamplerManager;
+	mSamplerManager = new FSamplerManager;
 }
 
 FGLRenderer::~FGLRenderer() 
@@ -116,7 +116,7 @@ FGLRenderer::~FGLRenderer()
 	//FlushModels();
 	//TexMan.FlushAll();
 	//if (mShaderManager != nullptr) delete mShaderManager;
-	//if (mSamplerManager != nullptr) delete mSamplerManager;
+	if (mSamplerManager != nullptr) delete mSamplerManager;
 	if (mFBID != 0) glDeleteFramebuffers(1, &mFBID);
 	if (mVAOID != 0)
 	{
@@ -171,17 +171,19 @@ void FGLRenderer::EndOffscreen()
 
 void FGLRenderer::BindToFrameBuffer(FTexture *mat)
 {
-	::FHardwareTexture *pBaseLayer = static_cast<::FHardwareTexture*>(mat->SystemTextures.GetHardwareTexture(0, false));
+#if 0
+	::FHardwareTexture *pBaseLayer = static_cast<::FHardwareTexture*>(mat->GetHardwareTexture(0, false));
 	auto BaseLayer = pBaseLayer ? pBaseLayer : nullptr;
 
 	if (BaseLayer == nullptr)
 	{
 		// must create the hardware texture first
-		BaseLayer = new ::FHardwareTexture;
-		BaseLayer->CreateTexture(mat->GetTexelWidth()*4, mat->GetTexelHeight()*4, ::FHardwareTexture::TrueColor, false);
-		mat->SystemTextures.AddHardwareTexture(0, false, BaseLayer);
+		BaseLayer = new OpenGLRenderer::FHardwareTexture;
+		BaseLayer->CreateTexture(mat->GetWidth()*4, mat->GetHeight()*4, ::FHardwareTexture::TrueColor, false);
+		mat->AddHardwareTexture(0, false, BaseLayer);
 	}
-	BaseLayer->BindToFrameBuffer(mat->GetTexelWidth()*4, mat->GetTexelHeight()*4);
+	BaseLayer->BindToFrameBuffer(mat->GetWidth()*4, mat->GetHeight()*4);
+#endif
 }
 
 //===========================================================================

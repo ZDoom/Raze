@@ -53,7 +53,6 @@ static const int VID_MIN_UI_WIDTH = 640;
 static const int VID_MIN_UI_HEIGHT = 400;
 
 struct sector_t;
-class FTexture;
 struct FPortalSceneState;
 class FSkyVertexBuffer;
 class IIndexBuffer;
@@ -150,7 +149,6 @@ inline bool V_IsTrueColor()
 }
 
 
-class FTexture;
 class FileWriter;
 enum FTextureFormat : uint32_t;
 class FModelRenderer;
@@ -208,7 +206,7 @@ protected:
 
 class FUniquePalette;
 class IHardwareTexture;
-class FTexture;
+class FGameTexture;
 
 
 class DFrameBuffer
@@ -295,6 +293,7 @@ public:
 	virtual IHardwareTexture *CreateHardwareTexture() { return nullptr; }
 	virtual void PrecacheMaterial(FMaterial *mat, int translation) {}
 	virtual FModelRenderer *CreateModelRenderer(int mli) { return nullptr; }
+	virtual FMaterial* CreateMaterial(FGameTexture* tex, int scaleflags);
 	virtual void TextureFilterChanged() {}
 	virtual void BeginFrame() {}
 	virtual void SetWindowSize(int w, int h) {}
@@ -311,8 +310,12 @@ public:
 	bool BuffersArePersistent() { return !!(hwcaps & RFL_BUFFER_STORAGE); }
 
 	// Begin/End 2D drawing operations.
-	void Begin2D() { isIn2D = true; }
-	void End2D() { isIn2D = false; }
+	void Begin2D() 
+	{ 
+		m2DDrawer.Begin();
+		m2DDrawer.SetSize(Width, Height);
+	}
+	void End2D() { m2DDrawer.End(); }
 
 	void BeginScene();
 	void FinishScene();
@@ -320,7 +323,7 @@ public:
 	void End2DAndUpdate()
 	{
 		DrawRateStuff();
-		End2D();
+		m2DDrawer.End();
 		Update();
 	}
 
@@ -341,8 +344,8 @@ public:
 	virtual void WriteSavePic(FileWriter *file, int width, int height);
 
 	// Screen wiping
-	virtual FTexture *WipeStartScreen();
-	virtual FTexture *WipeEndScreen();
+	virtual FGameTexture *WipeStartScreen();
+	virtual FGameTexture *WipeEndScreen();
 
 	virtual void PostProcessScene(int fixedcm, const std::function<void()> &afterBloomDrawEndScene2D) { if (afterBloomDrawEndScene2D) afterBloomDrawEndScene2D(); }
 

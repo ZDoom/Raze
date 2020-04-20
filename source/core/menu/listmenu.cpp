@@ -316,7 +316,7 @@ bool FListMenuItem::Selectable()
 	return false;
 }
 
-void FListMenuItem::DrawSelector(int xofs, int yofs, FTexture *tex)
+void FListMenuItem::DrawSelector(int xofs, int yofs, FGameTexture *tex)
 {
 	if (!tex)
 	{
@@ -399,7 +399,7 @@ int FListMenuItem::GetWidth()
 //
 //=============================================================================
 
-FListMenuItemStaticPatch::FListMenuItemStaticPatch(int x, int y, FTexture *patch, bool centered)
+FListMenuItemStaticPatch::FListMenuItemStaticPatch(int x, int y, FGameTexture *patch, bool centered)
 : FListMenuItem(x, y)
 {
 	mTexture = patch;
@@ -414,7 +414,7 @@ void FListMenuItemStaticPatch::Drawer(DListMenu* menu, const DVector2& origin, b
 	}
 
 	int x = mXpos;
-	FTexture *tex = mTexture;
+	FGameTexture *tex = mTexture;
 	if (mYpos >= 0)
 	{
 		if (mCentered) x -= tex->GetDisplayWidth()/2;
@@ -631,7 +631,7 @@ int FListMenuItemNativeText::GetWidth()
 //
 //=============================================================================
 
-FListMenuItemPatch::FListMenuItemPatch(int x, int y, int height, int hotkey, FTexture *patch, FName child, int param)
+FListMenuItemPatch::FListMenuItemPatch(int x, int y, int height, int hotkey, FGameTexture *patch, FName child, int param)
 : FListMenuItemSelectable(x, y, height, child, param)
 {
 	mHotkey = hotkey;

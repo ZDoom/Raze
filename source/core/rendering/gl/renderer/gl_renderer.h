@@ -44,7 +44,7 @@ public:
 	int mMirrorCount = 0;
 	int mPlaneMirrorCount = 0;
 	//FShaderManager *mShaderManager = nullptr;
-	//FSamplerManager *mSamplerManager = nullptr;
+	FSamplerManager *mSamplerManager = nullptr;
 	unsigned int mFBID;
 	unsigned int mVAOID;
 	//unsigned int PortalQueryObject;

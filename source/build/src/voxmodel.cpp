@@ -33,44 +33,57 @@ static int32_t *shcntmal, *shcnt = 0, shcntp;
 static int32_t mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];
 static voxmodel_t *gvox;
 
+class FStaticImage : public FImageSource
+{
+    TArray<uint8_t> buffer;
+
+public:
+    FStaticImage(int w, int h, TArray<uint8_t>& srcbuffer)
+    {
+        Width = w;
+        Height = h;
+        buffer = std::move(srcbuffer);
+    }
+
+    // Unlile for paletted images there is no variant here that returns a persistent bitmap, because all users have to process the returned image into another format.
+    FBitmap GetCachedBitmap(const PalEntry* remap, int conversion, int* trans = nullptr)
+    {
+        if (trans) *trans = false;
+        return FBitmap(buffer.Data(), 4*Width, Width, Height);
+    }
+};
 
 //pitch must equal xsiz*4
-static FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, const PalEntry *paldata)
+static FGameTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, const PalEntry *paldata)
 {
     // Correct for GL's RGB order; also apply gamma here:
     const coltype *const pic = (const coltype *)picbuf;
-    coltype *pic2 = (coltype *)Xmalloc(xsiz*ysiz*sizeof(coltype));
+    TArray<uint8_t> buffer(xsiz * ysiz * sizeof(PalEntry));
+    PalEntry* pic2 = (PalEntry*)buffer.Data();
 
     if (!is8bit)
     {
-        for (bssize_t i=xsiz*ysiz-1; i>=0; i--)
+        for (int i=xsiz*ysiz-1; i>=0; i--)
         {
-            pic2[i].r = pic[i].b;
+            pic2[i].r = pic[i].r;
             pic2[i].g = pic[i].g;
-            pic2[i].b = pic[i].r;
+            pic2[i].b = pic[i].b;
             pic2[i].a = 255;
         }
     }
     else
     {
-        for (bssize_t i=xsiz*ysiz-1; i>=0; i--)
+        for (int i=xsiz*ysiz-1; i>=0; i--)
         {
             const int32_t ii = pic[i].a;
 
-            pic2[i].r = paldata[ii].b;
+            pic2[i].r = paldata[ii].r;
             pic2[i].g = paldata[ii].g;
-            pic2[i].b = paldata[ii].r;
+            pic2[i].b = paldata[ii].b;
             pic2[i].a = 255;
         }
     }
-
-	auto tex = GLInterface.NewTexture();
-	tex->CreateTexture(xsiz, ysiz, FHardwareTexture::TrueColor, false);
-	tex->LoadTexture((uint8_t*)pic2);
-	tex->SetSampler(SamplerNoFilterClampXY);
-    Xfree(pic2);
-
-    return tex;
+    return MakeGameTexture(new FImageTexture(new FStaticImage(xsiz, ysiz, buffer)), "", ETextureType::Special);
 }
 
 static int32_t getvox(int32_t x, int32_t y, int32_t z)
@@ -844,8 +857,8 @@ void voxfree(voxmodel_t *m)
 
     if (m->texIds)
     {
-        TMap<int, FHardwareTexture*>::Iterator it(*m->texIds);
-        TMap<int, FHardwareTexture*>::Pair* pair;
+        TMap<int, FGameTexture*>::Iterator it(*m->texIds);
+        TMap<int, FGameTexture*>::Pair* pair;
         while (it.NextPair(pair))
         {
             if (pair->Value) delete pair->Value;
@@ -1139,9 +1152,9 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     auto remap = GPalette.TranslationToTable(TRANSLATION(Translation_Remap + curbasepal, globalpal));
     auto palId = remap->Index;
     auto palette = remap->Palette;
-    if (!m->texIds) m->texIds = new TMap<int, FHardwareTexture*>;
+    if (!m->texIds) m->texIds = new TMap<int, FGameTexture*>;
     auto pTex = m->texIds->CheckKey(palId);
-    FHardwareTexture* htex;
+    FGameTexture* htex;
     if (!pTex)
     {
         htex = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, palette);
@@ -1152,11 +1165,12 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
         htex = *pTex;
     }
 
-    GLInterface.SetPalswap(globalpal);
-	GLInterface.BindTexture(0, htex, -1);
+    GLInterface.SetMaterial(htex, UF_None, 0, CLAMP_NONE, 0, 0);
+    /*
 	GLInterface.UseBrightmaps(false);
 	GLInterface.UseGlowMapping(false);
 	GLInterface.UseDetailMapping(false);
+    */
 #endif
 
 	auto data = screen->mVertexData->AllocVertices(m->qcnt * 6);

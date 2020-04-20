@@ -38,7 +38,7 @@
 #include "bitmap.h"
 #include "textures.h"
 
-bool I_SetCursor(FTexture *cursorpic)
+bool I_SetCursor(FGameTexture *cursorpic)
 {
 	static SDL_Cursor *cursor;
 	static SDL_Surface *cursorSurface;

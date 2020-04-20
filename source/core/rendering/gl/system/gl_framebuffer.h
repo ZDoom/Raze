@@ -27,9 +27,9 @@ public:
 	void CleanForRestart() override;
 	const char* DeviceName() const override;
 	void WriteSavePic(FileWriter* file, int width, int height) override;
-#ifdef IMPLEMENT_IT
 	void SetTextureFilterMode() override;
-	IHardwareTexture *CreateHardwareTexture() override;
+	IHardwareTexture* CreateHardwareTexture() override;
+#ifdef IMPLEMENT_IT
 	void PrecacheMaterial(FMaterial *mat, int translation) override;
 	FModelRenderer *CreateModelRenderer(int mli) override;
 	void TextureFilterChanged() override;

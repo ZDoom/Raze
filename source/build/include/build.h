@@ -856,7 +856,7 @@ void   videoClearScreen(int32_t dacol);
 void   renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
 void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                      int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-                     int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FTexture *pic = nullptr, int basepal = 0);
+                     int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FGameTexture *pic = nullptr, int basepal = 0);
 void   renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col);
 void   drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p);
 void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p);
@@ -864,13 +864,13 @@ void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p);
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
 static FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                 int8_t dashade, uint8_t dapalnum, int32_t dastat,
-                                int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FTexture* pic = nullptr, int basepal = 0)
+                                int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FGameTexture* pic = nullptr, int basepal = 0)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, cx1, cy1, cx2, cy2, pic, basepal);
 }
 // Don't clip at all, i.e. the whole screen real estate is available:
 static FORCE_INLINE void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                                   int8_t dashade, uint8_t dapalnum, int32_t dastat, FTexture* pic = nullptr, int basepal = 0)
+                                   int8_t dashade, uint8_t dapalnum, int32_t dastat, FGameTexture* pic = nullptr, int basepal = 0)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0,0,xdim-1,ydim-1, pic, basepal);
 }
@@ -1104,8 +1104,8 @@ EXTERN_CVAR(Bool, hw_animsmoothing)
 EXTERN_CVAR(Bool, hw_hightile)
 EXTERN_CVAR(Bool, hw_models)
 EXTERN_CVAR(Float, hw_shadescale)
-EXTERN_CVAR(Int, hw_anisotropy)
-EXTERN_CVAR(Int, hw_texfilter)
+EXTERN_CVAR(Float, gl_texture_filter_anisotropic)
+EXTERN_CVAR(Int, gl_texture_filter)
 extern bool hw_int_useindexedcolortextures;
 EXTERN_CVAR(Bool, hw_useindexedcolortextures)
 EXTERN_CVAR(Bool, hw_parallaxskypanning)

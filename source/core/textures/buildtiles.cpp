@@ -104,7 +104,7 @@ TArray<uint8_t> FTileTexture::CreatePalettedPixels(int conversion)
 //
 //==========================================================================
 
-static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height)
+static FGameTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height)
 {
 	auto tex = new FArtTile(backingstore, offset, width, height);
 	auto p = &backingstore[offset];
@@ -117,7 +117,7 @@ static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backing
 	}
 	if (tex)
 	{
-		return new FImageTexture(tex, name);
+		return MakeGameTexture(new FImageTexture(tex), name, ETextureType::Override);
 	}
 	return nullptr;
 }
@@ -125,7 +125,7 @@ static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backing
 
 void BuildTiles::Init()
 {
-	auto Placeholder = TexMan.ByIndex(0);
+	auto Placeholder = TexMan.GameByIndex(0);
 	for (auto& tile : tiledata)
 	{
 		tile.texture = Placeholder;
@@ -142,10 +142,10 @@ void BuildTiles::Init()
 //
 //==========================================================================
 
-void BuildTiles::AddTile(int tilenum, FTexture* tex, bool permap)
+void BuildTiles::AddTile(int tilenum, FGameTexture* tex, bool permap)
 {
 	assert(!tex->GetID().isValid());	// must not be added yet.
-	TexMan.AddTexture(tex);
+	TexMan.AddGameTexture(tex);
 	tiledata[tilenum].texture = tex;
 	if (!permap) tiledata[tilenum].backup = tex;
 }
@@ -292,12 +292,12 @@ void BuildTiles::InvalidateTile(int num)
 	if ((unsigned) num < MAXTILES)
 	{
 		auto tex = tiledata[num].texture;
-		tex->SystemTextures.Clean(true, true);
+		tex->CleanHardwareData();
 		for (auto &rep : tiledata[num].Hightiles)
 		{
 			for (auto &reptex : rep.faces)
 			{
-				if (reptex) reptex->SystemTextures.Clean(true, true);
+				if (reptex) reptex->CleanHardwareData();
 			}
 		}
 		tiledata[num].rawCache.data.Clear();
@@ -396,7 +396,7 @@ void BuildTiles::LoadArtSet(const char* filename)
 //
 //==========================================================================
 
-FTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
+FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 {
 	if (tilenum < 0 || tilenum >= MAXTILES) return nullptr;
 	auto &td = tiledata[tilenum];
@@ -427,15 +427,16 @@ FTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 		// All of these effects should probably be redone without actual texture hacking...
 		if (tile->GetTexelWidth() == 0 || tile->GetTexelHeight() == 0) return nullptr;	// The base must have a size for this to work.
 		// todo: invalidate hardware textures for tile.
-		replacement = new FImageTexture(new FRestorableTile(tile->GetImage()));
+		replacement = new FImageTexture(new FRestorableTile(tile->GetTexture()->GetImage()));
 	}
 	else if (type == ReplacementType::Canvas)
 	{
-		replacement = new FCanvasTexture("camera", 0, 0);
+		replacement = new FCanvasTexture(0, 0);
 	}
 	else return nullptr;
-	AddTile(tilenum, replacement);
-	return replacement;
+	auto rep = MakeGameTexture(replacement, tile->GetName(), ETextureType::Override);
+	AddTile(tilenum, rep);
+	return rep;
 }
 
 //==========================================================================
@@ -462,7 +463,7 @@ uint8_t* BuildTiles::tileCreate(int tilenum, int width, int height)
 	if (width <= 0 || height <= 0) return nullptr;
 	auto tex = ValidateCustomTile(tilenum, ReplacementType::Writable);
 	if (tex == nullptr) return nullptr;
-	auto wtex = static_cast<FWritableTile*>(tex->GetImage());
+	auto wtex = static_cast<FWritableTile*>(tex->GetTexture()->GetImage());
 	if (!wtex->ResizeImage(width, height)) return nullptr;
 	tex->SetSize(width, height);
 	return wtex->GetRawData();
@@ -478,7 +479,7 @@ uint8_t* BuildTiles::tileCreate(int tilenum, int width, int height)
 uint8_t * BuildTiles::tileMakeWritable(int num)
 {
 	auto tex = ValidateCustomTile(num, ReplacementType::Restorable);
-	auto wtex = static_cast<FWritableTile*>(tex->GetImage());
+	auto wtex = static_cast<FWritableTile*>(tex->GetTexture()->GetImage());
 	return wtex ? wtex->GetRawData() : nullptr;
 }
 
@@ -491,7 +492,7 @@ uint8_t * BuildTiles::tileMakeWritable(int num)
 int32_t tileGetCRC32(int tileNum)
 {
 	if ((unsigned)tileNum >= (unsigned)MAXTILES) return 0;
-	auto tile = dynamic_cast<FArtTile*>(TileFiles.tiledata[tileNum].texture->GetImage());	// only consider original ART tiles.
+	auto tile = dynamic_cast<FArtTile*>(TileFiles.tiledata[tileNum].texture->GetTexture()->GetImage());	// only consider original ART tiles.
 	if (!tile) return 0;
 	auto pixels = tile->GetRawData();
 	if (!pixels) return 0;
@@ -533,7 +534,7 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 {
 	FTextureID texid = TexMan.CheckForTexture(fn, ETextureType::Any);
 	if (!texid.isValid()) return -1;
-	auto tex = TexMan.GetTexture(texid);
+	auto tex = TexMan.GetGameTexture(texid);
 	//tex->alphaThreshold = 255 - alphacut;
 
 	int32_t xsiz = tex->GetTexelWidth(), ysiz = tex->GetTexelHeight();
@@ -568,7 +569,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 	if (pal == -1 && tile == source)
 	{
 		// Only modify the picanm info.
-		FTexture* tex = TileFiles.tiledata[tile].texture;
+		FGameTexture* tex = TileFiles.tiledata[tile].texture;
 		if (!tex) return;
 		picanm = &TileFiles.tiledata[tile].picanm;
 		sourceanm = picanm;
@@ -576,11 +577,11 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 	else
 	{
 		if (source == -1) source = tile;
-		FTexture* tex = TileFiles.tiledata[source].texture;
+		FGameTexture* tex = TileFiles.tiledata[source].texture;
 		if (!tex) return;
 		sourceanm = &TileFiles.tiledata[source].picanm;
 
-		TArray<uint8_t> buffer = tex->Get8BitPixels(false);
+		TArray<uint8_t> buffer = tex->GetTexture()->Get8BitPixels(false);
 
 		if (pal != -1)
 		{
@@ -590,7 +591,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 				pixel = remap[pixel];
 			}
 		}
-		tex = new FImageTexture(new FLooseTile(buffer, tex->GetTexelWidth(), tex->GetTexelHeight()));
+		tex = MakeGameTexture(new FImageTexture(new FLooseTile(buffer, tex->GetTexelWidth(), tex->GetTexelHeight())), tex->GetName() , ETextureType::Override);
 		picanm = &TileFiles.tiledata[tile].picanm;
 		TileFiles.AddTile(tile, tex);
 	}
@@ -610,7 +611,7 @@ void artClearMapArt(void)
 {
 	for (auto& td : TileFiles.tiledata)
 	{
-		if (td.texture != td.backup) td.texture->SystemTextures.Clean(true, true);
+		if (td.texture != td.backup) td.texture->CleanHardwareData();
 		td.texture = td.backup;
 	}
 }
@@ -640,7 +641,7 @@ void artSetupMapArt(const char* filename)
 			auto texid = TexMan.CheckForTexture(name, ETextureType::Any);
 			if (texid.isValid())
 			{
-				TileFiles.tiledata[i].texture = TexMan.GetTexture(texid);
+				TileFiles.tiledata[i].texture = TexMan.GetGameTexture(texid);
 			}
 		}
 		return;
@@ -669,7 +670,7 @@ void artSetupMapArt(const char* filename)
 
 void tileDelete(int tile)
 {
-	TileFiles.tiledata[tile].texture = TileFiles.tiledata[tile].backup = TexMan.ByIndex(0);
+	TileFiles.tiledata[tile].texture = TileFiles.tiledata[tile].backup = TexMan.GameByIndex(0);
 	vox_undefine(tile);
 	md_undefinetile(tile);
 	tileRemoveReplacement(tile);
@@ -701,7 +702,10 @@ void tileSetDummy(int tile, int width, int height)
 	}
 	else if (width > 0 && height > 0)
 	{
-		auto dtile = new FImageTexture(new FDummyTile(width, height));
+		FStringf texname("#%05d", tile);
+		// Just recycle the empty placeholder we already have.
+		auto empty = TexMan.GameByIndex(1)->GetTexture();
+		auto dtile = MakeGameTexture(empty, texname, ETextureType::Null);
 		TileFiles.AddTile(tile, dtile);
 	}
 }
@@ -738,7 +742,7 @@ int BuildTiles::tileCreateRotated(int tileNum)
 	if ((unsigned)tileNum >= MAXTILES) return tileNum;
 	auto tex = TileFiles.tiledata[tileNum].texture;
 	if (!tex || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return tileNum;
-	TArray<uint8_t> buffer = tex->Get8BitPixels(false);
+	TArray<uint8_t> buffer = tex->GetTexture()->Get8BitPixels(false);
 	TArray<uint8_t> dbuffer(tex->GetTexelWidth() * tex->GetTexelHeight(), true);
 
 	auto src = buffer.Data();
@@ -755,7 +759,7 @@ int BuildTiles::tileCreateRotated(int tileNum)
 			*(dst + y * width + xofs) = *(src + y + yofs);
 	}
 
-	auto dtex = new FImageTexture(new FLooseTile(dbuffer, tex->GetTexelHeight(), tex->GetTexelWidth()));
+	auto dtex = MakeGameTexture(new FImageTexture(new FLooseTile(dbuffer, tex->GetTexelHeight(), tex->GetTexelWidth())), "", ETextureType::Override);
 	int index = findUnusedTile();
 	bool mapart = TileFiles.tiledata[tileNum].texture != TileFiles.tiledata[tileNum].backup;
 	TileFiles.AddTile(index, dtex, mapart);
@@ -799,7 +803,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char *filename, flo
 		return -1;
 	}
 
-	replace.faces[0] = TexMan.GetTexture(texid);
+	replace.faces[0] = TexMan.GetGameTexture(texid);
 	if (replace.faces[0] == nullptr)
     replace.alphacut = min(alphacut,1.f);
 	replace.scale = { xscale, yscale };
@@ -839,7 +843,7 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
 			Printf("%s: Skybox image for tile %d does not exist or is invalid\n", *facenames, picnum);
 			return -1;
 		}
-		face = TexMan.GetTexture(texid);
+		face = TexMan.GetGameTexture(texid);
 	}
     replace.flags = flags;
 	replace.palnum = (uint16_t)palnum;

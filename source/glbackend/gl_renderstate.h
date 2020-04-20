@@ -3,8 +3,10 @@
 #include "palentry.h"
 #include "gl_buffers.h"
 #include "renderstyle.h"
+#include "textures.h"
 class PolymostShader;
 struct GLState;
+class FMaterial;
 
 enum EMatrixType
 {
@@ -70,6 +72,23 @@ struct FDepthBiasState
 	}
 };
 
+struct FMaterialState
+{
+	FMaterial* mMaterial;
+	int mClampMode;
+	int mTranslation;
+	int mOverrideShader;
+	bool mChanged;
+
+	void Reset()
+	{
+		mMaterial = nullptr;
+		mTranslation = 0;
+		mClampMode = CLAMP_NONE;
+		mOverrideShader = -1;
+		mChanged = false;
+	}
+};
 
 struct PolymostRenderState
 {
@@ -89,6 +108,7 @@ struct PolymostRenderState
 	PalEntry fullscreenTint = 0xffffff, hictint = 0xffffff, hictint_overlay = 0xffffff;
 	int hictint_flags = -1;
 	FDepthBiasState mBias{ };
+	FMaterialState mMaterial;
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};
@@ -96,9 +116,9 @@ struct PolymostRenderState
 	PalEntry ClearColor = 0;
 	short vp_x, vp_y, vp_w, vp_h;
 	short sc_x = SHRT_MIN, sc_y, sc_w, sc_h;
-	int texIds[6], samplerIds[6];
 
 	PalEntry FogColor;
 
+	void ApplyMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader);
 	void Apply(PolymostShader *shader, GLState &oldstate);
 };
