@@ -457,6 +457,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 		GLInterface.SetColorMask(false); //Hack to update Z-buffer for invalid mirror textures
 	}
 
+    GLInterface.SetPalswap(globalpal);  // sets shadeDiv
 	GLInterface.SetShade(globalshade, numshades);
 
     if ((method & DAMETH_WALL) != 0)
