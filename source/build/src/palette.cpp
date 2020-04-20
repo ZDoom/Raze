@@ -311,7 +311,7 @@ int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
     if (shtab != NULL)
     {
         int length = numshades * 256;
-        LookupTables[palnum] = FString((char*)shtab, length);
+        LookupTables[palnum] = FString((const char*)shtab, length);
     }
 
     return 0;
