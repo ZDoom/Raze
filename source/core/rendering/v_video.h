@@ -60,6 +60,8 @@ class FFlatVertexBuffer;
 class HWViewpointBuffer;
 class FLightBuffer;
 struct HWDrawInfo;
+class FMaterial;
+class FGameTexture;
 
 enum EHWCaps
 {
@@ -106,11 +108,6 @@ struct IntRect
 };
 
 
-
-
-
-extern int CleanWidth, CleanHeight, CleanXfac, CleanYfac;
-extern int CleanWidth_1, CleanHeight_1, CleanXfac_1, CleanYfac_1;
 extern int DisplayWidth, DisplayHeight;
 
 void V_UpdateModeSize (int width, int height);
@@ -152,30 +149,6 @@ enum FTextureFormat : uint32_t;
 class FModelRenderer;
 struct SamplerUniform;
 
-// TagItem definitions for DrawTexture. As far as I know, tag lists
-// originated on the Amiga.
-//
-// Think of TagItems as an array of the following structure:
-//
-// struct TagItem {
-//     uint32_t ti_Tag;
-//     uint32_t ti_Data;
-// };
-
-#define TAG_DONE	(0)  /* Used to indicate the end of the Tag list */
-#define TAG_END		(0)  /* Ditto									*/
-						 /* list pointed to in ti_Data 				*/
-
-#define TAG_USER	((uint32_t)(1u<<30))
-
-
-class FFont;
-struct FRemapTable;
-class player_t;
-typedef uint32_t angle_t;
-struct RenderScene;
-
-
 //
 // VIDEO
 //
@@ -202,7 +175,6 @@ protected:
 	bool Bgra;
 };
 
-class FUniquePalette;
 class IHardwareTexture;
 class FTexture;
 
@@ -216,8 +188,6 @@ private:
 	int Width = 0;
 	int Height = 0;
 	int BufferLock = 0;
-protected:
-	int clipleft = 0, cliptop = 0, clipwidth = -1, clipheight = -1;
 
 public:
 	// Hardware render state that needs to be exposed to the API independent part of the renderer. For ease of access this is stored in the base class.
@@ -320,10 +290,6 @@ public:
 		Update();
 	}
 
-
-	// Returns true if Begin2D has been called and 2D drawing is now active
-	bool HasBegun2D() { return isIn2D; }
-
 	// This is overridable in case Vulkan does it differently.
 	virtual bool RenderTextureIsFlipped() const
 	{
@@ -333,7 +299,6 @@ public:
 	// Report a game restart
 	virtual int Backend() { return 0; }
 	virtual const char* DeviceName() const { return "Unknown"; }
-	virtual void Draw2D() {}
 	virtual void WriteSavePic(FileWriter *file, int width, int height);
 
 	// Screen wiping
@@ -346,18 +311,7 @@ public:
 
 	uint64_t GetLastFPS() const { return LastCount; }
 
-	// 2D Texture drawing
-	void ClearClipRect() { clipleft = cliptop = 0; clipwidth = clipheight = -1; }
-	void SetClipRect(int x, int y, int w, int h);
-	void GetClipRect(int *x, int *y, int *w, int *h);
-
-	void VirtualToRealCoords(double &x, double &y, double &w, double &h, double vwidth, double vheight, bool vbottom = false, bool handleaspect = true) const;
-
-	// Code that uses these (i.e. SBARINFO) should probably be evaluated for using doubles all around instead.
-	void VirtualToRealCoordsInt(int &x, int &y, int &w, int &h, int vwidth, int vheight, bool vbottom = false, bool handleaspect = true) const;
-
-	// Text drawing functions -----------------------------------------------
-
+	virtual void Draw2D() {}
 
 	// Calculate gamma table
 	void CalcGamma(float gamma, uint8_t gammalookup[256]);
