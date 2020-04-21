@@ -545,8 +545,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 		xtex = bxtex, ytex = bytex, otex = botex;
     }
 
-	if (!tex)
-		GLInterface.SetColorMask(true);
+	GLInterface.SetColorMask(true);
 }
 
 

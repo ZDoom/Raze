@@ -313,8 +313,7 @@ void PolymostRenderState::ApplyMaterial(FMaterial* mat, int clampmode, int trans
 	int numLayers = mat->NumLayers();
 	MaterialLayerInfo* layer;
 	auto base = static_cast<FHardwareTexture*>(mat->GetLayer(0, translation, &layer));
-
-	if (base->BindOrCreate(tex->GetTexture(), 0, clampmode, translation, layer->scaleFlags))
+	if (base->BindOrCreate(layer->layerTexture, 0, clampmode, translation, layer->scaleFlags))
 	{
 		for (int i = 1; i < numLayers; i++)
 		{
@@ -325,7 +324,7 @@ void PolymostRenderState::ApplyMaterial(FMaterial* mat, int clampmode, int trans
 		}
 	}
 	// unbind everything from the last texture that's still active
-	for (int i = maxbound + 1; i <= 16/*maxBoundMaterial*/; i++)
+	for (int i = maxbound + 1; i <= 1/*maxBoundMaterial*/; i++)
 	{
 		FHardwareTexture::Unbind(i);
 		//maxBoundMaterial = maxbound;
@@ -464,7 +463,6 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	shader->NumShades.Set(NumShades);
 	shader->ShadeDiv.Set(ShadeDiv);
 	shader->VisFactor.Set(VisFactor);
-	shader->Flags.Set(Flags);
 	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);
 	shader->NPOTEmulationXOffset.Set(NPOTEmulationXOffset);
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
