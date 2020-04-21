@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "config.h"
 #include "resource.h"
 #include "screen.h"
+#include "palettecontainer.h"
 #include "rendering/v_video.h"
 
 BEGIN_BLD_NS
@@ -71,10 +72,10 @@ void scrLoadPLUs(void)
     // load lookup tables
     for (int i = 0; i < MAXPALOOKUPS; i++) 
     {
-        int lump = i <= 15 ? fileSystem.FindFile(PLU[i]) : fileSystem.FindResource(i, "PLU");
+        int lump = i < 15 ? fileSystem.FindFile(PLU[i]) : fileSystem.FindResource(i, "PLU");
         if (lump < 0)
         {
-            if (i <= 15) I_FatalError("%s.PLU not found", PLU[i]);
+            if (i < 15) I_FatalError("%s.PLU not found", PLU[i]);
             else continue;
         }
         auto data = fileSystem.GetFileData(lump);
@@ -102,6 +103,7 @@ void scrLoadPalette(void)
 	for (auto& x : glblend)
 		x = bloodglblend;
 
+    GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
     paletteloaded = 0;
     Printf("Loading palettes\n");
     for (int i = 0; i < 5; i++)

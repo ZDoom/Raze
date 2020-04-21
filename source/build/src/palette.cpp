@@ -136,10 +136,9 @@ void paletteLoadFromDisk(void)
 
     // Read base shade table (lookuptables 0).
     int length = numshades * 256;
-    auto p = LookupTables[0].LockNewBuffer(length);
-    auto count = fil.Read(p, length);
-    LookupTables->UnlockBuffer();
-    if (count != length)
+    auto buf = fil.Read();
+    LookupTables[0] = FString((char*)buf.Data(), buf.Size());
+    if (buf.Size() != length)
         return;
 
     paletteloaded |= PALETTE_SHADE;
@@ -283,9 +282,7 @@ int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
     if (shtab != NULL)
     {
         int length = numshades * 256;
-        auto p = LookupTables[palnum].LockNewBuffer(length);
-        memcpy(p, shtab, length);
-        LookupTables->UnlockBuffer();
+        LookupTables[palnum] = FString((char*)shtab, length);
     }
 
     return 0;
@@ -320,7 +317,7 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
     }
 
     int length = numshades * 256;
-    auto p = LookupTables[palnum].LockNewBuffer(length);
+    TArray<uint8_t> p(length, true);
     if (r == 0 || g == 0 || b == 0)
     {
         // "black fog"/visibility case -- only remap color indices
@@ -349,6 +346,7 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
             }
         }
     }
+    LookupTables[palnum] = FString((char*)p.Data(), length);
 
 #if defined(USE_OPENGL)
     palookupfog[palnum].r = r;
