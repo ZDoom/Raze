@@ -60,6 +60,7 @@
 #include "build.h"
 #include "glbackend/glbackend.h"
 #include "gl_samplers.h"
+#include "vm.h"
 
 EXTERN_CVAR(Int, menu_resolution_custom_width)
 EXTERN_CVAR(Int, menu_resolution_custom_height)
@@ -403,7 +404,10 @@ void V_Init2()
 	//setsizeneeded = true;
 }
 
-
+DEFINE_ACTION_FUNCTION(_Screen, GetAspectRatio)
+{
+	ACTION_RETURN_FLOAT(ActiveRatio(screen->GetWidth(), screen->GetHeight(), nullptr));
+}
 
 CCMD(vid_setsize)
 {
