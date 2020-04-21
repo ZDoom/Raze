@@ -298,12 +298,6 @@ void V_OutputResized (int width, int height)
 	C_NewModeAdjust();
 }
 
-void V_CalcCleanFacs (int designwidth, int designheight, int realwidth, int realheight, int *cleanx, int *cleany, int *_cx1, int *_cx2)
-{
-	if (designheight < 240 && realheight >= 480) designheight = 240;
-	*cleanx = *cleany = std::min(realwidth / designwidth, realheight / designheight);
-}
-
 bool IVideo::SetResolution ()
 {
 	DFrameBuffer *buff = CreateFrameBuffer();
