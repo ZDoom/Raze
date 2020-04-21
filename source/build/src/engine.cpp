@@ -4664,6 +4664,7 @@ int findwallbetweensectors(int sect1, int sect2)
 //
 void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
+#if 0
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
     {
         if (inside_p(x, y, *sectnum))
@@ -4685,6 +4686,7 @@ void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
         }
     }
     else
+#endif
     {
         int16_t sect = *sectnum;
         updatesectorneighbor(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
