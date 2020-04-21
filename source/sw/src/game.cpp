@@ -953,7 +953,7 @@ void InitLevelGlobals(void)
     sumowasseen = FALSE;
     zillawasseen = FALSE;
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
-    InterpolateSectObj = !CommEnabled && !PedanticMode;
+    InterpolateSectObj = !CommEnabled;// && !PedanticMode;
 }
 
 void InitLevelGlobals2(void)
