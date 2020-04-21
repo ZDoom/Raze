@@ -38,9 +38,6 @@
 #include "basics.h"
 #include "vectors.h"
 #include "m_png.h"
-
-//#include "doomdef.h"
-//#include "dobject.h"
 #include "renderstyle.h"
 #include "c_cvars.h"
 #include "v_2ddrawer.h"
@@ -114,7 +111,6 @@ extern int DisplayWidth, DisplayHeight;
 
 void V_UpdateModeSize (int width, int height);
 void V_OutputResized (int width, int height);
-void V_CalcCleanFacs (int designwidth, int designheight, int realwidth, int realheight, int *cleanx, int *cleany, int *cx1=NULL, int *cx2=NULL);
 
 EXTERN_CVAR(Int, vid_rendermode)
 EXTERN_CVAR(Bool, vid_fullscreen)
