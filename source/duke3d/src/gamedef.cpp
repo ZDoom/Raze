@@ -5602,7 +5602,7 @@ repeatcase:
         case CON_NULLOP:
             {
             auto const kw = C_GetKeyword();
-            if (EDUKE32_PREDICT_FALSE(kw != CON_ELSE && kw != CON_LEFTBRACE))
+            if (EDUKE32_PREDICT_FALSE(kw != CON_ELSE && kw != CON_RIGHTBRACE))
             {
                 C_ReportError(-1);
                 g_warningCnt++;
