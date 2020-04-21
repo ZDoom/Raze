@@ -218,7 +218,7 @@ void DFrameBuffer::SetVSync (bool vsync)
 //
 //==========================================================================
 
-FGameTexture *DFrameBuffer::WipeStartScreen()
+FTexture *DFrameBuffer::WipeStartScreen()
 {
 	return nullptr;
 }
@@ -232,7 +232,7 @@ FGameTexture *DFrameBuffer::WipeStartScreen()
 //
 //==========================================================================
 
-FGameTexture *DFrameBuffer::WipeEndScreen()
+FTexture *DFrameBuffer::WipeEndScreen()
 {
     return nullptr;
 }
