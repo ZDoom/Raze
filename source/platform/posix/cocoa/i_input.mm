@@ -43,7 +43,9 @@
 #include "d_gui.h"
 #include "dikeys.h"
 #include "v_video.h"
-#include "menu/menu.h"
+#include "i_interface.h"
+#include "menustate.h"
+#include "engineerrors.h"
 
 
 EXTERN_CVAR(Int, m_use_mouse)
@@ -54,22 +56,11 @@ CVAR(Bool, m_filter,     false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 CVAR(Bool, k_allowfullscreentoggle, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
-CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
-{
-	if (self < 0)
-	{
-		self = 0;
-	}
-	else if (self > 2)
-	{
-		self = 2;
-	}
-}
-
-
 extern int paused, chatmodeon;
 extern constate_e ConsoleState;
 extern bool ToggleFullscreen;
+bool GUICapture;
+
 
 namespace
 {
@@ -81,21 +72,20 @@ size_t s_skipMouseMoves;
 // ---------------------------------------------------------------------------
 
 
-#if 0
 void CheckGUICapture()
 {
-	bool wantCapture = (MENU_Off == menuactive)
-		? (c_down == ConsoleState || c_falling == ConsoleState || chatmodeon)
-		: (MENU_On == menuactive || MENU_OnNoPause == menuactive);
+	bool wantCapt = sysCallbacks && sysCallbacks->WantGuiCapture && sysCallbacks->WantGuiCapture();
 
-	if (wantCapture != GUICapture)
+	if (wantCapt != GUICapture)
 	{
-		GUICapture = wantCapture;
-
-		ResetButtonStates();
+		GUICapture = wantCapt;
+		if (wantCapt)
+		{
+			buttonMap.ResetButtonStates();
+		}
 	}
+
 }
-#endif
 
 void SetCursorPosition(const NSPoint position)
 {
@@ -143,14 +133,9 @@ void CenterCursor()
 	SetCursorPosition(centerPoint);
 }
 
-bool IsInGame()
-{
-	return gi->CanSave();
-}
-
 void CheckNativeMouse()
 {
-	const bool windowed = !vid_fullscreen;
+	const bool windowed = (NULL == screen) || !screen->IsFullscreen();
 	bool wantNative;
 
 	if (windowed)
@@ -165,8 +150,9 @@ void CheckNativeMouse()
 		}
 		else
 		{
+			bool captureModeInGame = sysCallbacks && sysCallbacks->CaptureModeInGame && sysCallbacks->CaptureModeInGame();
 			wantNative = (!m_use_mouse || MENU_WaitKey != menuactive)
-				&& (!IsInGame() || GUICapture /*|| paused*/);
+				&& (!captureModeInGame || GUICapture);
 		}
 	}
 	else
@@ -175,6 +161,9 @@ void CheckNativeMouse()
 		wantNative = m_use_mouse
 			&& (MENU_On == menuactive || MENU_OnNoPause == menuactive);
 	}
+
+	if (!wantNative && sysCallbacks && sysCallbacks->WantNativeMouse && sysCallbacks->WantNativeMouse())
+		wantNative = true;
 
 	I_SetNativeMouse(wantNative);
 }
@@ -189,7 +178,7 @@ void I_GetEvent()
 
 void I_StartTic()
 {
-	//CheckGUICapture();
+	CheckGUICapture();
 	CheckNativeMouse();
 
 	I_ProcessJoysticks();

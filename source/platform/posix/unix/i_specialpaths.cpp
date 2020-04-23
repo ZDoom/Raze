@@ -38,6 +38,7 @@
 #include "i_system.h"
 #include "cmdlib.h"
 #include "printf.h"
+#include "engineerrors.h"
 
 #include "version.h"	// for GAMENAME
 
@@ -112,6 +113,26 @@ FString M_GetAppDataPath(bool create)
 	// Don't use GAME_DIR and such so that ZDoom and its child ports can
 	// share the node cache.
 	FString path = NicePath("$HOME/.config/" GAMENAMELOWERCASE);
+	if (create)
+	{
+		CreatePath(path);
+	}
+	return path;
+}
+
+//===========================================================================
+//
+// M_GetCachePath														Unix
+//
+// Returns the path for cache GL nodes.
+//
+//===========================================================================
+
+FString M_GetCachePath(bool create)
+{
+	// Don't use GAME_DIR and such so that ZDoom and its child ports can
+	// share the node cache.
+	FString path = NicePath("$HOME/.config/zdoom/cache");
 	if (create)
 	{
 		CreatePath(path);

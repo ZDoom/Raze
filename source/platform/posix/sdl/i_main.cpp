@@ -41,12 +41,14 @@
 #include <sys/param.h>
 #include <locale.h>
 
+#include "engineerrors.h"
 #include "m_argv.h"
 #include "c_console.h"
 #include "version.h"
 #include "cmdlib.h"
+#include "engineerrors.h"
 #include "i_system.h"
-#include "core/gamecontrol.h"
+#include "i_interface.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -66,6 +68,7 @@ void Linux_I_FatalError(const char* errortext);
 #endif
 
 // PUBLIC FUNCTION PROTOTYPES ----------------------------------------------
+int GameMain();
 
 // PRIVATE FUNCTION PROTOTYPES ---------------------------------------------
 
@@ -82,6 +85,13 @@ FArgs *Args;
 // CODE --------------------------------------------------------------------
 
 
+
+static int GetCrashInfo (char *buffer, char *end)
+{
+	if (sysCallbacks && sysCallbacks->CrashInfo) sysCallbacks->CrashInfo(buffer, end - buffer, "\n");
+	return strlen(buffer);
+}
+
 void I_DetectOS()
 {
 	// The POSIX version never implemented this.
@@ -93,10 +103,8 @@ int main (int argc, char **argv)
 {
 #if !defined (__APPLE__)
 	{
-#if 0 // TODO: Crash handling
 		int s[4] = { SIGSEGV, SIGILL, SIGFPE, SIGBUS };
-		cc_install_handlers(argc, argv, 4, s, GAMENAMELOWERCASE "-crash.log", DoomSpecificInfo);
-#endif
+		cc_install_handlers(argc, argv, 4, s, GAMENAMELOWERCASE "-crash.log", GetCrashInfo);
 	}
 #endif // !__APPLE__
 

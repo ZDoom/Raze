@@ -2332,7 +2332,7 @@ GAMELOOP:
         {
             bInMove = kTrue;
 
-            if (M_Active() || GUICapture || bPause)
+            if (System_WantGuiCapture() || bPause)
             {
                 tclocks = totalclock - 4;
                 buttonMap.ResetButtonStates();

@@ -345,7 +345,7 @@ struct GameInterface : ::GameInterface
     void MenuOpened() override;
     void MenuSound(EMenuSounds snd) override;
     void MenuClosed() override;
-    void StartGame(FGameStartup& gs) override;
+    void StartGame(FNewGameStartup& gs) override;
     FSavegameInfo GetSaveSig() override;
     void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
     void DrawMenuCaption(const DVector2& origin, const char* text) override;

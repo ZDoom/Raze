@@ -45,7 +45,7 @@
 #include "version.h"
 #include "printf.h"
 #include "s_music.h"
-#include "gamecontrol.h"
+#include "engineerrors.h"
 
 
 #define ZD_UNUSED(VARIABLE) ((void)(VARIABLE))
@@ -59,7 +59,7 @@ EXTERN_CVAR(Int,  vid_defwidth )
 EXTERN_CVAR(Int,  vid_defheight)
 EXTERN_CVAR(Bool, vid_vsync    )
 
-
+int GameMain();
 // ---------------------------------------------------------------------------
 
 
@@ -103,8 +103,6 @@ void I_DetectOS()
 	
 	if (10 == version.majorVersion) switch (version.minorVersion)
 	{
-		case  7: name = "Mac OS X Lion";         break;
-		case  8: name = "OS X Mountain Lion";    break;
 		case  9: name = "OS X Mavericks";        break;
 		case 10: name = "OS X Yosemite";         break;
 		case 11: name = "OS X El Capitan";       break;
@@ -139,8 +137,6 @@ void I_DetectOS()
 
 FArgs* Args; // command line arguments
 
-double refreshfreq;
-bool batchrun;
 
 namespace
 {

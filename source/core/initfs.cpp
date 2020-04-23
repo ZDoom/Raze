@@ -46,6 +46,7 @@
 #include "v_text.h"
 #include "findfile.h"
 #include "palutil.h"
+#include "startupinfo.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX 260
@@ -111,20 +112,20 @@ static FString ParseGameInfo(TArray<FString>& pwads, const char* fn, const char*
 		else if (!nextKey.CompareNoCase("STARTUPTITLE"))
 		{
 			sc.MustGetString();
-			RazeStartupInfo.Name = sc.String;
+			GameStartupInfo.Name = sc.String;
 		}
 		else if (!nextKey.CompareNoCase("STARTUPCOLORS"))
 		{
 			sc.MustGetString();
-			RazeStartupInfo.FgColor = V_GetColor(NULL, sc);
+			GameStartupInfo.FgColor = V_GetColor(NULL, sc);
 			sc.MustGetStringName(",");
 			sc.MustGetString();
-			RazeStartupInfo.BkColor = V_GetColor(NULL, sc);
+			GameStartupInfo.BkColor = V_GetColor(NULL, sc);
 		}
 		else if (!nextKey.CompareNoCase("MODERN"))
 		{
 			sc.MustGetNumber();
-			RazeStartupInfo.modern = sc.Number ? 1 : -1;
+			GameStartupInfo.modern = sc.Number ? 1 : -1;
 		}
 		else
 		{

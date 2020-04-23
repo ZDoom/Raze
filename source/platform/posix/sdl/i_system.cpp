@@ -33,8 +33,6 @@
 **
 */
 
-#include "i_system.h"
-
 #include <dirent.h>
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -46,23 +44,17 @@
 #include <stdarg.h>
 #include <fcntl.h>
 #include <time.h>
+#include <unistd.h>
 
 #include <SDL.h>
+#include "x86.h"
 
 #include "version.h"
 #include "cmdlib.h"
 #include "m_argv.h"
 #include "i_sound.h"
+#include "i_interface.h"
 
-#include "c_dispatch.h"
-#include "gamecontrol.h"
-#include "gameconfigfile.h"
-
-extern "C"
-{
-	double		SecondsPerCycle = 1e-8;
-	double		CyclesPerSecond = 1e8;
-}
 
 #ifndef NO_GTK
 bool I_GtkAvailable ();
@@ -74,30 +66,13 @@ int I_PickIWad_Cocoa (WadStuff *wads, int numwads, bool showwin, int defaultiwad
 
 double PerfToSec, PerfToMillisec;
 
-void I_BeginRead(void)
+void I_SetIWADInfo()
 {
-}
-
-void I_EndRead(void)
-{
-}
-
-
-//
-// I_Init
-//
-void I_Init (void)
-{
-#if 0 // do we need this?
-	CheckCPUID (&CPU);
-	DumpCPUInfo (&CPU);
-#endif
 }
 
 //
 // I_Error
 //
-extern FILE *Logfile;
 
 #ifdef __APPLE__
 void Mac_I_FatalError(const char* errortext);
@@ -146,11 +121,9 @@ void I_ShowFatalError(const char *message)
 #else
 	// ???
 #endif
-	
 }
 
-	
-void I_SetIWADInfo ()
+void CalculateCPUSpeed()
 {
 }
 
@@ -273,13 +246,6 @@ int I_PickIWad (WadStuff *wads, int numwads, bool showwin, int defaultiwad)
 	return i-1;
 }
 
-bool I_WriteIniFailed ()
-{
-	printf ("The config file %s could not be saved:\n%s\n", GameConfig->GetPathName(), strerror(errno));
-	return false;
-	// return true to retry
-}
-
 void I_PutInClipboard (const char *str)
 {
 	SDL_SetClipboardText(str);
@@ -317,10 +283,3 @@ unsigned int I_MakeRNGSeed()
 	}
 	return seed;
 }
-
-TArray<FString> I_GetGogPaths()
-{
-	// GOG's Doom games are Windows only at the moment
-	return TArray<FString>();
-}
-

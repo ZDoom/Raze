@@ -38,8 +38,7 @@ extern int32_t qsetmode;
 #define in3dmode() (qsetmode==200)
 
 extern int32_t g_logFlushWindow;
-
-void mouseGrabInput(bool grab);
+bool System_WantGuiCapture();	// During playing this tells us whether the game must be paused due to active GUI elememts.
 
 void getScreen(uint8_t* imgBuf);
 
@@ -54,7 +53,7 @@ struct GameStats
 	int frags;
 };
 
-struct FGameStartup
+struct FNewGameStartup
 {
 	int Episode;
 	int Level;
@@ -109,7 +108,7 @@ struct GameInterface
 	virtual void MenuSound(EMenuSounds snd) {}
 	virtual bool CanSave() { return true; }
 	virtual void CustomMenuSelection(int menu, int item) {}
-	virtual void StartGame(FGameStartup& gs) {}
+	virtual void StartGame(FNewGameStartup& gs) {}
 	virtual FSavegameInfo GetSaveSig() { return { "", 0, 0}; }
 	virtual bool DrawSpecialScreen(const DVector2 &origin, int tilenum) { return false; }
 	virtual void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool withbg = true) {}

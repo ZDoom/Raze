@@ -40,6 +40,7 @@
 
 #include "gl_sysfb.h"
 #include "hardware.h"
+#include "x86.h"
 #include "templates.h"
 #include "version.h"
 #include "c_console.h"
@@ -49,6 +50,7 @@
 #include "v_text.h"
 #include "m_argv.h"
 #include "printf.h"
+#include "engineerrors.h"
 #include "win32glvideo.h"
 
 #include "gl/system/gl_framebuffer.h"
@@ -407,7 +409,6 @@ bool Win32GLVideo::InitHardware(HWND Window, int multisample)
 	int prof = WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
 	const char *version = Args->CheckValue("-glversion");
 
-	//prof = WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB; // At the moment the renderer still needs the compatibility profile.
 
 	for (; prof <= WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB; prof++)
 	{

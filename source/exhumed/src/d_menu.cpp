@@ -187,7 +187,7 @@ void GameInterface::MenuClosed()
 }
 
 
-void GameInterface::StartGame(FGameStartup& gs)
+void GameInterface::StartGame(FNewGameStartup& gs)
 {
 	MenuExitCondition = gs.Episode;	// Gross hack. The main loop needs to be redone for better handling.
 }

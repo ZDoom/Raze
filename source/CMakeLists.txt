@@ -464,7 +464,8 @@ endif()
 
 
 set( PLAT_POSIX_SOURCES
-	platform/posix/i_steam.cpp )
+	platform/posix/i_steam.cpp
+	platform/posix/i_system_posix.cpp )
 set( PLAT_SDL_SOURCES
 	platform/posix/sdl/crashcatcher.c
 	platform/posix/sdl/hardware.cpp
@@ -511,6 +512,7 @@ set( PLAT_WIN32_SOURCES
 	platform/win32/win32basevideo.cpp
 	platform/win32/win32glvideo.cpp
 	platform/win32/win32vulkanvideo.cpp
+	platform/win32/i_steam.cpp
 	)
 
 

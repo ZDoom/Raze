@@ -32,12 +32,11 @@
 */
 
 #include "inputstate.h"
+#include "i_system.h"
 #include "v_draw.h"
 #include "build.h"
 #include "gamecvars.h"
 #include "v_video.h"
-
-int GUICapture = false;
 
 //==========================================================================
 //
@@ -172,6 +171,7 @@ int32_t handleevents(void)
 		D_PostEvent(&ev);
 	}
 
+	I_StartFrame();
 	I_StartTic();
 	return 0;
 }

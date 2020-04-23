@@ -41,7 +41,7 @@
 #include "st_start.h"
 #include "i_system.h"
 #include "c_cvars.h"
-#include "compat.h"
+#include "engineerrors.h"
 
 // MACROS ------------------------------------------------------------------
 

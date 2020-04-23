@@ -151,7 +151,7 @@ enum ENativeFontValues
 	// positive values for color are direct palswap indices.
 };
 
-extern FGameStartup GameStartupInfo;
+extern FNewGameStartup NewGameStartupInfo;
 extern EMenuState		menuactive;
 
 
@@ -752,7 +752,7 @@ void M_CreateMenus();
 void M_ActivateMenu(DMenu *menu);
 void M_ClearMenus (bool final = false);
 void M_ParseMenuDefs();
-void M_StartupSkillMenu(FGameStartup *gs);
+void M_StartupSkillMenu(FNewGameStartup *gs);
 int M_GetDefaultSkill();
 void M_StartControlPanel (bool makeSound);
 bool M_SetMenu(FName menu, int param = -1, FName callingMenu = NAME_None);

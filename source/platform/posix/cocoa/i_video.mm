@@ -31,7 +31,7 @@
  **
  */
 
-#include "gl_load/gl_load.h"
+#include "gl_load.h"
 
 #ifdef HAVE_VULKAN
 #define VK_USE_PLATFORM_MACOS_MVK
@@ -54,8 +54,12 @@
 #include "printf.h"
 
 #include "gl/system/gl_framebuffer.h"
-//#include "vulkan/system/vk_framebuffer.h"
-//#include "rendering/polyrenderer/backend/poly_framebuffer.h"
+#ifdef HAVE_VULKAN
+#include "vulkan/system/vk_framebuffer.h"
+#endif
+#ifdef HAVE_SOFTPOLY
+#include "rendering/polyrenderer/backend/poly_framebuffer.h"
+#endif
 
 extern bool ToggleFullscreen;
 
@@ -429,7 +433,7 @@ public:
 			try
 			{
 				m_vulkanDevice = new VulkanDevice();
-				fb = new VulkanFrameBuffer(nullptr, fullscreen, m_vulkanDevice);
+				fb = new VulkanFrameBuffer(nullptr, vid_fullscreen, m_vulkanDevice);
 			}
 			catch (std::exception const&)
 			{
@@ -441,7 +445,7 @@ public:
 		else
 #endif
 			
-#if 0
+#ifdef HAVE_SOFTPOLY
 		if (vid_preferbackend == 2)
 		{
 			SetupOpenGLView(ms_window, OpenGLProfile::Legacy);
@@ -642,7 +646,7 @@ void SystemBaseFrameBuffer::SetMode(const bool fullscreen, const bool hiDPI)
 	else
     {
 		assert(m_window.screen != nil);
-		assert(m_window.contentView.layer != nil);
+		assert([m_window.contentView layer] != nil);
 		[m_window.contentView layer].contentsScale = hiDPI ? m_window.screen.backingScaleFactor : 1.0;
 	}
 
@@ -808,11 +812,11 @@ bool I_SetCursor(FTexture *cursorpic)
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	NSCursor* cursor = nil;
 
-	if (NULL != cursorpic)
+	if (NULL != cursorpic && cursorpic->isValid())
 	{
 		// Create bitmap image representation
 		
-		auto sbuffer = cursorpic->CreateTexBuffer(0);
+		auto sbuffer = cursorpic->GetTexture()->CreateTexBuffer(0);
 
 		const NSInteger imageWidth  = sbuffer.mWidth;
 		const NSInteger imageHeight = sbuffer.mHeight;

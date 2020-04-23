@@ -43,7 +43,7 @@ bool I_SetCursor(FGameTexture *cursorpic)
 	static SDL_Cursor *cursor;
 	static SDL_Surface *cursorSurface;
 
-	if (cursorpic != NULL)
+	if (cursorpic != NULL && cursorpic->isValid())
 	{
 		auto src = cursorpic->GetTexture()->GetBgraBitmap(nullptr);
 		// Must be no larger than 32x32.

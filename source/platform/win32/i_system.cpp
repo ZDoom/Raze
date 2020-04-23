@@ -70,7 +70,6 @@
 #include "stats.h"
 #include "v_text.h"
 #include "utf8.h"
-#include "gamecontrol.h"
 
 #include "i_input.h"
 #include "c_dispatch.h"
@@ -80,8 +79,8 @@
 #include "i_system.h"
 #include "bitmap.h"
 #include "cmdlib.h"
+#include "i_interface.h"
 
-extern bool batchrun;
 // MACROS ------------------------------------------------------------------
 
 #ifdef _MSC_VER
@@ -94,7 +93,6 @@ extern bool batchrun;
 
 // EXTERNAL FUNCTION PROTOTYPES --------------------------------------------
 
-//extern void CheckCPUID(CPUInfo *cpu);
 extern void LayoutMainWindow(HWND hWnd, HWND pane);
 
 // PUBLIC FUNCTION PROTOTYPES ----------------------------------------------
@@ -102,8 +100,6 @@ extern void LayoutMainWindow(HWND hWnd, HWND pane);
 void DestroyCustomCursor();
 
 // PRIVATE FUNCTION PROTOTYPES ---------------------------------------------
-
-static void CalculateCPUSpeed();
 
 static HCURSOR CreateCompatibleCursor(FBitmap &cursorpic, int leftofs, int topofs);
 static HCURSOR CreateAlphaCursor(FBitmap &cursorpic, int leftofs, int topofs);
@@ -145,7 +141,6 @@ static int DefaultWad;
 
 static HCURSOR CustomCursor;
 
-
 //==========================================================================
 //
 // I_DetectOS
@@ -171,24 +166,7 @@ void I_DetectOS(void)
 	{
 	case VER_PLATFORM_WIN32_NT:
 		osname = "NT";
-		if (info.dwMajorVersion == 5)
-		{
-			if (info.dwMinorVersion == 0)
-			{
-				osname = "2000";
-			}
-			if (info.dwMinorVersion == 1)
-			{
-				osname = "XP";
-				sys_ostype = 1; // legacy OS
-			}
-			else if (info.dwMinorVersion == 2)
-			{
-				osname = "Server 2003";
-				sys_ostype = 1; // legacy OS
-			}
-		}
-		else if (info.dwMajorVersion == 6)
+		if (info.dwMajorVersion == 6)
 		{
 			if (info.dwMinorVersion == 0)
 			{
@@ -215,12 +193,12 @@ void I_DetectOS(void)
 			}
 			else if (info.dwMinorVersion == 4)
 			{
-				osname = (info.wProductType == VER_NT_WORKSTATION) ? "10 (beta)" : "Server 10 (beta)";
+				osname = (info.wProductType == VER_NT_WORKSTATION) ? "10 (beta)" : "Server 2016 (beta)";
 			}
 		}
 		else if (info.dwMajorVersion == 10)
 		{
-			osname = (info.wProductType == VER_NT_WORKSTATION) ? "10 (or higher)" : "Server 10 (or higher)";
+			osname = (info.wProductType == VER_NT_WORKSTATION) ? "10 (or higher)" : "Server 2016 (or higher)";
 			sys_ostype = 3; // modern OS
 		}
 		break;
@@ -291,20 +269,6 @@ void CalculateCPUSpeed()
 
 	if (!batchrun) Printf ("CPU speed: %.0f MHz\n", 0.001 / PerfToMillisec);
 }
-
-//==========================================================================
-//
-// I_Init
-//
-//==========================================================================
-
-void I_Init()
-{
-	//CheckCPUID(&CPU);
-	CalculateCPUSpeed();
-	//DumpCPUInfo(&CPU);
-}
-
 
 //==========================================================================
 //
@@ -394,6 +358,31 @@ static void DoPrintStr(const char *cpt, HWND edit, HANDLE StdOut)
 			{
 				// Change the color of future text added to the control.
 				PalEntry color = V_LogColorFromColorRange(range);
+				if (StdOut != NULL && FancyStdOut)
+				{
+					// Unfortunately, we are pretty limited here: There are only
+					// eight basic colors, and each comes in a dark and a bright
+					// variety.
+					float h, s, v, r, g, b;
+					int attrib = 0;
+
+					RGBtoHSV(color.r / 255.f, color.g / 255.f, color.b / 255.f, &h, &s, &v);
+					if (s != 0)
+					{ // color
+						HSVtoRGB(&r, &g, &b, h, 1, 1);
+						if (r == 1)  attrib  = FOREGROUND_RED;
+						if (g == 1)  attrib |= FOREGROUND_GREEN;
+						if (b == 1)  attrib |= FOREGROUND_BLUE;
+						if (v > 0.6) attrib |= FOREGROUND_INTENSITY;
+					}
+					else
+					{ // gray
+						     if (v < 0.33) attrib = FOREGROUND_INTENSITY;
+						else if (v < 0.90) attrib = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+						else			   attrib = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+					}
+					SetConsoleTextAttribute(StdOut, (WORD)attrib);
+				}
 				if (edit != NULL)
 				{
 					// GDI uses BGR colors, but color is RGB, so swap the R and the B.
@@ -538,8 +527,8 @@ BOOL CALLBACK IWADBoxCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 
 		// [SP] This is our's
 		SendDlgItemMessage( hDlg, IDC_WELCOME_NOAUTOLOAD, BM_SETCHECK, disableautoload ? BST_CHECKED : BST_UNCHECKED, 0 );
-		//SendDlgItemMessage( hDlg, IDC_WELCOME_LIGHTS, BM_SETCHECK, autoloadlights ? BST_CHECKED : BST_UNCHECKED, 0 );
-		//SendDlgItemMessage( hDlg, IDC_WELCOME_BRIGHTMAPS, BM_SETCHECK, autoloadbrightmaps ? BST_CHECKED : BST_UNCHECKED, 0 );
+		SendDlgItemMessage( hDlg, IDC_WELCOME_LIGHTS, BM_SETCHECK, autoloadlights ? BST_CHECKED : BST_UNCHECKED, 0 );
+		SendDlgItemMessage( hDlg, IDC_WELCOME_BRIGHTMAPS, BM_SETCHECK, autoloadbrightmaps ? BST_CHECKED : BST_UNCHECKED, 0 );
 
 		// Set up our version string.
 		sprintf(szString, "Version %s.", GetVersionString());
@@ -592,8 +581,8 @@ BOOL CALLBACK IWADBoxCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 
 			// [SP] This is our's.
 			disableautoload = SendDlgItemMessage( hDlg, IDC_WELCOME_NOAUTOLOAD, BM_GETCHECK, 0, 0 ) == BST_CHECKED;
-			//autoloadlights = SendDlgItemMessage( hDlg, IDC_WELCOME_LIGHTS, BM_GETCHECK, 0, 0 ) == BST_CHECKED;
-			//autoloadbrightmaps = SendDlgItemMessage( hDlg, IDC_WELCOME_BRIGHTMAPS, BM_GETCHECK, 0, 0 ) == BST_CHECKED;
+			autoloadlights = SendDlgItemMessage( hDlg, IDC_WELCOME_LIGHTS, BM_GETCHECK, 0, 0 ) == BST_CHECKED;
+			autoloadbrightmaps = SendDlgItemMessage( hDlg, IDC_WELCOME_BRIGHTMAPS, BM_GETCHECK, 0, 0 ) == BST_CHECKED;
 			ctrl = GetDlgItem (hDlg, IDC_IWADLIST);
 			EndDialog(hDlg, SendMessage (ctrl, LB_GETCURSEL, 0, 0));
 		}
@@ -650,7 +639,7 @@ bool I_SetCursor(FGameTexture *cursorpic)
 {
 	HCURSOR cursor;
 
-	if (cursorpic != NULL)
+	if (cursorpic != NULL && cursorpic->isValid())
 	{
 		auto image = cursorpic->GetTexture()->GetBgraBitmap(nullptr);
 		// Must be no larger than 32x32. (is this still necessary?
@@ -659,8 +648,8 @@ bool I_SetCursor(FGameTexture *cursorpic)
 			return false;
 		}
 		// Fixme: This should get a raw image, not a texture. (Once raw images get implemented.)
-		int lo = cursorpic->GetTexelLeftOffset(0);
-		int to = cursorpic->GetTexelTopOffset(0);
+		int lo = cursorpic->GetTexelLeftOffset();
+		int to = cursorpic->GetTexelTopOffset();
 
 		cursor = CreateAlphaCursor(image, lo, to);
 		if (cursor == NULL)
@@ -1089,35 +1078,3 @@ void I_SetThreadNumaNode(std::thread &thread, int numaNode)
 		SetThreadAffinityMask(handle, (DWORD_PTR)numaNodes[numaNode].affinityMask);
 	}
 }
-
-//==========================================================================
-//
-// QueryPathKey
-//
-// Returns the value of a registry key into the output variable value.
-//
-//==========================================================================
-
-bool I_QueryPathKey(const wchar_t* keypath, const wchar_t* valname, FString& value)
-{
-	HKEY pathkey;
-	DWORD pathtype;
-	DWORD pathlen;
-	LONG res;
-
-	value = "";
-	if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, keypath, 0, KEY_QUERY_VALUE, &pathkey))
-	{
-		if (ERROR_SUCCESS == RegQueryValueEx(pathkey, valname, 0, &pathtype, NULL, &pathlen) &&
-			pathtype == REG_SZ && pathlen != 0)
-		{
-			// Don't include terminating null in count
-			TArray<wchar_t> chars(pathlen + 1, true);
-			res = RegQueryValueEx(pathkey, valname, 0, NULL, (LPBYTE)chars.Data(), &pathlen);
-			if (res == ERROR_SUCCESS) value = FString(chars.Data());
-		}
-		RegCloseKey(pathkey);
-	}
-	return value.IsNotEmpty();
-}
-

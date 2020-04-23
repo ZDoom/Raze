@@ -32,7 +32,7 @@
  */
 
 #include "i_common.h"
-
+#include "startupinfo.h"
 #include "st_console.h"
 #include "v_text.h"
 #include "version.h"
@@ -48,9 +48,14 @@ static NSColor* RGB(const uint8_t red, const uint8_t green, const uint8_t blue)
 									 alpha:1.0f];
 }
 
-static NSColor* RGB(PalEntry color)
+static NSColor* RGB(const PalEntry& color)
 {
 	return RGB(color.r, color.g, color.b);
+}
+
+static NSColor* RGB(const uint32_t color)
+{
+	return RGB(PalEntry(color));
 }
 
 
@@ -331,29 +336,27 @@ void FConsoleWindow::SetTitleText()
 		textViewFrame.size.width,
 		TITLE_TEXT_HEIGHT);
 
-#if 0
 	// Temporary solution for the same foreground and background colors
 	// It's used in graphical startup screen, with Hexen style in particular
 	// Native OS X backend doesn't implement this yet
 
-	if (RazeStartupInfo.FgColor == RazeStartupInfo.BkColor)
+	if (GameStartupInfo.FgColor == GameStartupInfo.BkColor)
 	{
-		RazeStartupInfo.FgColor = ~RazeStartupInfo.FgColor;
+		GameStartupInfo.FgColor = ~GameStartupInfo.FgColor;
 	}
 
 	NSTextField* titleText = [[NSTextField alloc] initWithFrame:titleTextRect];
-	[titleText setStringValue:[NSString stringWithCString:RazeStartupInfo.Name
+	[titleText setStringValue:[NSString stringWithCString:GameStartupInfo.Name.GetChars()
 												 encoding:NSISOLatin1StringEncoding]];
 	[titleText setAlignment:NSCenterTextAlignment];
-	[titleText setTextColor:RGB(RazeStartupInfo.FgColor)];
-	[titleText setBackgroundColor:RGB(RazeStartupInfo.BkColor)];
+	[titleText setTextColor:RGB(GameStartupInfo.FgColor)];
+	[titleText setBackgroundColor:RGB(GameStartupInfo.BkColor)];
 	[titleText setFont:[NSFont fontWithName:@"Trebuchet MS Bold" size:18.0f]];
 	[titleText setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
 	[titleText setSelectable:NO];
 	[titleText setBordered:NO];
-	[[m_window contentView] addSubview:titleText];
-	#endif
 
+	[[m_window contentView] addSubview:titleText];
 }
 
 void FConsoleWindow::SetProgressBar(const bool visible)

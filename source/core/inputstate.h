@@ -11,8 +11,6 @@
 #include "gamecvars.h"
 
 typedef uint16_t kb_scancode;
-extern int GUICapture;
-
 // This encapsulates the entire game-readable input state which previously was spread out across several files.
 
 struct ControlInfo

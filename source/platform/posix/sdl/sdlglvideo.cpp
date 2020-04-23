@@ -31,8 +31,6 @@
 **
 */
 
-// TODO: Softpoly is temporarily #if 0'd out in 5 places.
-
 // HEADER FILES ------------------------------------------------------------
 
 #include "i_module.h"
@@ -44,25 +42,30 @@
 #include "c_console.h"
 #include "c_dispatch.h"
 #include "printf.h"
-#include "gamecontrol.h"
 
 #include "hardware.h"
 #include "gl_sysfb.h"
-#include "gl_load/gl_system.h"
+#include "gl_system.h"
 
 #include "gl/renderer/gl_renderer.h"
 #include "gl/system/gl_framebuffer.h"
-#include "glbackend/gl_shader.h"
 
 #ifdef HAVE_VULKAN
 #include "rendering/vulkan/system/vk_framebuffer.h"
 #endif
 
-#if 0 // softpoly
+#ifdef HAVE_SOFTPOLY
 #include "rendering/polyrenderer/backend/poly_framebuffer.h"
 #endif
 
 // MACROS ------------------------------------------------------------------
+
+// Requires SDL 2.0.6 or newer
+//#define SDL2_STATIC_LIBRARY
+
+#if defined SDL2_STATIC_LIBRARY && defined HAVE_VULKAN
+#include <SDL_vulkan.h>
+#endif // SDL2_STATIC_LIBRARY && HAVE_VULKAN
 
 // TYPES -------------------------------------------------------------------
 
@@ -71,7 +74,7 @@
 // PRIVATE FUNCTION PROTOTYPES ---------------------------------------------
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
-
+extern double refreshfreq;
 extern IVideo *Video;
 
 EXTERN_CVAR (Int, vid_adapter)
@@ -111,16 +114,23 @@ CCMD(vid_list_sdl_render_drivers)
 	}
 }
 
-double refreshfreq;
-
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
 namespace Priv
 {
+#ifdef SDL2_STATIC_LIBRARY
+
+#define SDL2_OPTIONAL_FUNCTION(RESULT, NAME, ...) \
+	RESULT(*NAME)(__VA_ARGS__) = SDL_ ## NAME
+
+#else // !SDL2_STATIC_LIBRARY
+
 	FModule library("SDL2");
 
 #define SDL2_OPTIONAL_FUNCTION(RESULT, NAME, ...) \
 	static TOptProc<library, RESULT(*)(__VA_ARGS__)> NAME("SDL_" #NAME)
+
+#endif // SDL2_STATIC_LIBRARY
 
 	SDL2_OPTIONAL_FUNCTION(int,      GetWindowBordersSize,         SDL_Window *window, int *top, int *left, int *bottom, int *right);
 #ifdef HAVE_VULKAN
@@ -249,7 +259,7 @@ bool I_CreateVulkanSurface(VkInstance instance, VkSurfaceKHR *surface)
 }
 #endif
 
-#if 0 // softpoly stuff
+#ifdef HAVE_SOFTPOLY
 namespace
 {
 	SDL_Renderer* polyrendertarget = nullptr;
@@ -409,16 +419,20 @@ SDLVideo::SDLVideo ()
 		return;
 	}
 
+#ifndef SDL2_STATIC_LIBRARY
 	// Load optional SDL functions
 	if (!Priv::library.IsLoaded())
 	{
 		Priv::library.Load({ "libSDL2-2.0.so.0", "libSDL2-2.0.so", "libSDL2.so" });
 	}
+#endif // !SDL2_STATIC_LIBRARY
 
+#ifdef HAVE_SOFTPOLY
+	Priv::softpolyEnabled = vid_preferbackend == 2;
+#endif
 #ifdef HAVE_VULKAN
 	Priv::vulkanEnabled = vid_preferbackend == 1
 		&& Priv::Vulkan_GetDrawableSize && Priv::Vulkan_GetInstanceExtensions && Priv::Vulkan_CreateSurface;
-	Priv::softpolyEnabled = vid_preferbackend == 2;
 
 	if (Priv::vulkanEnabled)
 	{
@@ -429,7 +443,9 @@ SDLVideo::SDLVideo ()
 			Priv::vulkanEnabled = false;
 		}
 	}
-	else if (Priv::softpolyEnabled)
+#endif
+#ifdef HAVE_SOFTPOLY
+	if (Priv::softpolyEnabled)
 	{
 		Priv::CreateWindow(SDL_WINDOW_HIDDEN);
 	}
@@ -482,7 +498,7 @@ DFrameBuffer *SDLVideo::CreateFrameBuffer ()
 	}
 #endif
 
-#if 0 // softpoly is not yet implemented
+#ifdef HAVE_SOFTPOLY
 	if (Priv::softpolyEnabled)
 	{
 		fb = new PolyFrameBuffer(nullptr, vid_fullscreen);
@@ -505,12 +521,12 @@ IVideo *gl_CreateVideo()
 
 // FrameBuffer Implementation -----------------------------------------------
 
-SystemBaseFrameBuffer::SystemBaseFrameBuffer (void *, bool vid_fullscreen)
+SystemBaseFrameBuffer::SystemBaseFrameBuffer (void *, bool fullscreen)
 : DFrameBuffer (vid_defwidth, vid_defheight)
 {
 	if (Priv::window != nullptr)
 	{
-		SDL_SetWindowFullscreen(Priv::window, vid_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+		SDL_SetWindowFullscreen(Priv::window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 		SDL_ShowWindow(Priv::window);
 	}
 }
@@ -519,7 +535,7 @@ int SystemBaseFrameBuffer::GetClientWidth()
 {
 	int width = 0;
 
-#if 0 // softpoly
+#ifdef HAVE_SOFTPOLY
 	if (Priv::softpolyEnabled)
 	{
 		if (polyrendertarget)
@@ -542,7 +558,7 @@ int SystemBaseFrameBuffer::GetClientHeight()
 {
 	int height = 0;
 
-#if 0 // softpoly	
+#ifdef HAVE_SOFTPOLY
 	if (Priv::softpolyEnabled)
 	{
 		if (polyrendertarget)
@@ -593,7 +609,7 @@ void SystemBaseFrameBuffer::SetWindowSize(int w, int h)
 	}
 	win_w = w;
 	win_h = h;
-	if ( vid_fullscreen )
+	if (vid_fullscreen)
 	{
 		vid_fullscreen = false;
 	}
@@ -611,8 +627,8 @@ void SystemBaseFrameBuffer::SetWindowSize(int w, int h)
 }
 
 
-SystemGLFrameBuffer::SystemGLFrameBuffer(void *hMonitor, bool vid_fullscreen)
-: SystemBaseFrameBuffer(hMonitor, vid_fullscreen)
+SystemGLFrameBuffer::SystemGLFrameBuffer(void *hMonitor, bool fullscreen)
+: SystemBaseFrameBuffer(hMonitor, fullscreen)
 {
 	// NOTE: Core profiles were added with GL 3.2, so there's no sense trying
 	// to set core 3.1 or 3.0. We could try a forward-compatible context
@@ -647,7 +663,7 @@ SystemGLFrameBuffer::SystemGLFrameBuffer(void *hMonitor, bool vid_fullscreen)
 	for ( ; glvers[glveridx][0] > 0; ++glveridx)
 	{
 		Priv::SetupPixelFormat(0, glvers[glveridx]);
-		Priv::CreateWindow(SDL_WINDOW_OPENGL | (vid_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
+		Priv::CreateWindow(SDL_WINDOW_OPENGL | (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
 
 		if (Priv::window == nullptr)
 		{

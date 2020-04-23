@@ -1633,8 +1633,8 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_M_FFIRE:                      m_ffire                       = iSet; break;
         case USERDEFS_FFIRE:                        ud.ffire                         = iSet; break;
         case USERDEFS_M_PLAYER_SKILL:               ud.m_player_skill                = iSet; break;
-        case USERDEFS_M_LEVEL_NUMBER:               GameStartupInfo.Level = m_level_number                = iSet; break;
-        case USERDEFS_M_VOLUME_NUMBER:              GameStartupInfo.Episode = ud.m_volume_number               = iSet; break;
+        case USERDEFS_M_LEVEL_NUMBER:               NewGameStartupInfo.Level = m_level_number                = iSet; break;
+        case USERDEFS_M_VOLUME_NUMBER:              NewGameStartupInfo.Episode = ud.m_volume_number               = iSet; break;
         case USERDEFS_MULTIMODE:                    ud.multimode                     = iSet; break;
         case USERDEFS_PLAYER_SKILL:                 ud.player_skill                  = iSet; break;
         case USERDEFS_LEVEL_NUMBER:                 ud.level_number                  = iSet; break;

@@ -43,6 +43,7 @@
 #include "d_gui.h"
 #include "hardware.h"
 #include "menu/menu.h"
+#include "i_interface.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -138,6 +139,7 @@ static void CenterMouse(int x, int y, LONG *centx, LONG *centy);
 extern HWND Window;
 extern LPDIRECTINPUT8 g_pdi;
 extern LPDIRECTINPUT g_pdi3;
+extern bool GUICapture;
 extern int BlockMouseMove; 
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
@@ -162,7 +164,7 @@ CVAR (Bool, m_noprescale,			false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Bool,	m_filter,				false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR (Bool, m_hidepointer,			true, 0)
 
-CUSTOM_CVAR (Int, in_mouse, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL)
+CUSTOM_CVAR (Int, in_mouse, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL)
 {
 	if (self < 0)
 	{
@@ -177,19 +179,6 @@ CUSTOM_CVAR (Int, in_mouse, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG|CVAR_NOINITCALL)
 		I_StartupMouse();
 	}
 }
-
-CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
-{
-	if (self < 0)
-	{
-		self = 0;
-	}
-	else if (self > 2)
-	{
-		self = 2;
-	}
-}
-
 
 // CODE --------------------------------------------------------------------
 
@@ -250,24 +239,6 @@ static void CenterMouse(int curx, int cury, LONG *centxp, LONG *centyp)
 
 //==========================================================================
 //
-// CaptureMode_InGame
-//
-//==========================================================================
-
-static bool CaptureMode_InGame()
-{
-	if (mouse_capturemode == 2)
-	{
-		return true;
-	}
-	else
-	{
-		return gi->CanSave();
-	}
-}
-
-//==========================================================================
-//
 // I_CheckNativeMouse
 //
 // Should we be capturing mouse input, or should we let the OS have normal
@@ -275,11 +246,40 @@ static bool CaptureMode_InGame()
 //
 //==========================================================================
 
-extern bool grab_mouse;
-
 void I_CheckNativeMouse(bool preferNative, bool eventhandlerresult)
 {
-	bool want_native = !grab_mouse || preferNative;
+	bool windowed = (screen == NULL) || !screen->IsFullscreen();
+	bool want_native;
+
+	if (!windowed)
+	{
+		// ungrab mouse when in the menu with mouse control on.		
+		want_native = m_use_mouse && (menuactive == MENU_On || menuactive == MENU_OnNoPause);
+	}
+	else
+	{
+		if ((GetForegroundWindow() != Window) || preferNative || !use_mouse)
+		{
+			want_native = true;
+		}
+		else if (menuactive == MENU_WaitKey)
+		{
+			want_native = false;
+		}
+		else
+		{
+			bool pauseState = false;
+			bool captureModeInGame = sysCallbacks && sysCallbacks->CaptureModeInGame && sysCallbacks->CaptureModeInGame();
+			want_native = ((!m_use_mouse || menuactive != MENU_WaitKey) &&
+				(!captureModeInGame || GUICapture));
+		}
+	}
+
+	if (!want_native && eventhandlerresult)
+		want_native = true;
+
+	//Printf ("%d %d %d\n", wantNative, preferNative, NativeMouse);
+
 	if (want_native != NativeMouse)
 	{
 		if (Mouse != NULL)
@@ -382,9 +382,8 @@ void FMouse::WheelMoved(int axis, int wheelmove)
 		{
 			ev.type = EV_KeyDown;
 			D_PostEvent(&ev);
-			// The Up events must be delayed so that the wheel can remain in a "pressed" state for the next tic's duration.
-			//ev.type = EV_KeyUp;
-			//D_PostEvent(&ev);
+			ev.type = EV_KeyUp;
+			D_PostEvent(&ev);
 			WheelMove[axis] += dir;
 		}
 	}

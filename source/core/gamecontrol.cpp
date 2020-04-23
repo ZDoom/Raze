@@ -61,10 +61,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestate.h"
 #include "gstrings.h"
 #include "texturemanager.h"
+#include "i_interface.h"
+#include "x86.h"
+#include "startupinfo.h"
+
+CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 CUSTOM_CVAR(String, language, "auto", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 {
 	GStrings.UpdateLanguage(self);
+}
+
+CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
+{
+	if (self < 0)
+	{
+		self = 0;
+	}
+	else if (self > 2)
+	{
+		self = 2;
+	}
 }
 
 // The last remains of sdlayer.cpp
@@ -85,7 +103,7 @@ gamestate_t gamestate = GS_STARTUP;
 
 FILE* hashfile;
 
-FStartupInfo RazeStartupInfo;
+FStartupInfo GameStartupInfo;
 FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
 void C_CON_SetAliases();
@@ -134,21 +152,72 @@ static StringtableCallbacks stblcb =
 };
 
 
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-bool grab_mouse;
-
-void mouseGrabInput(bool grab)
+bool System_WantGuiCapture()
 {
-	grab_mouse = grab;
-	if (grab) GUICapture &= ~1;
-	else GUICapture |= 1;
+	bool wantCapt;
+
+	if (menuactive == MENU_Off)
+	{
+		wantCapt = ConsoleState == c_down || ConsoleState == c_falling || chatmodeon;
+	}
+	else
+	{
+		wantCapt = (menuactive == MENU_On || menuactive == MENU_OnNoPause);
+	}
+	return wantCapt;
 }
+
+bool System_WantLeftButton()
+{
+	return false;// (gamestate == GS_DEMOSCREEN || gamestate == GS_TITLELEVEL);
+}
+
+bool System_NetGame()
+{
+	return false;	// fixme later. For now there is no netgame support.
+}
+
+bool System_WantNativeMouse()
+{
+	return false;
+}
+
+static bool System_CaptureModeInGame()
+{
+	return true;
+}
+
+//==========================================================================
+//
+// DoomSpecificInfo
+//
+// Called by the crash logger to get application-specific information.
+//
+//==========================================================================
+
+void System_CrashInfo(char* buffer, size_t bufflen, const char *lfstr)
+{
+	const char* arg;
+	char* const buffend = buffer + bufflen - 2;	// -2 for CRLF at end
+	int i;
+
+	buffer += mysnprintf(buffer, buffend - buffer, GAMENAME " version %s (%s)", GetVersionString(), GetGitHash());
+
+	buffer += snprintf(buffer, buffend - buffer, "%sCommand line:", lfstr);
+	for (i = 0; i < Args->NumArgs(); ++i)
+	{
+		buffer += snprintf(buffer, buffend - buffer, " %s", Args->GetArg(i));
+	}
+
+	for (i = 0; (arg = fileSystem.GetResourceFileName(i)) != NULL; ++i)
+	{
+		buffer += mysnprintf(buffer, buffend - buffer, "%sFile %d: %s", lfstr, i, arg);
+	}
+	buffer += mysnprintf(buffer, buffend - buffer, "%s", lfstr);
+	*buffer = 0;
+}
+
+
 
 //==========================================================================
 //
@@ -373,11 +442,11 @@ void CheckFrontend(int flags)
 	{
 		gi = Powerslave::CreateInterface();
 	}
-	else if ((flags & GAMEFLAG_FURY) || RazeStartupInfo.modern > 0)
+	else if ((flags & GAMEFLAG_FURY) || GameStartupInfo.modern > 0)
 	{
 		gi = Duke::CreateInterface();
 	}
-	else if (RazeStartupInfo.modern < 0)
+	else if (GameStartupInfo.modern < 0)
 	{
 		gi = Redneck::CreateInterface();
 	}
@@ -395,6 +464,17 @@ int RunGame();
 int GameMain()
 {
 	int r;
+
+	static SystemCallbacks syscb =
+	{
+		System_WantGuiCapture,
+		System_WantLeftButton,
+		System_NetGame,
+		System_WantNativeMouse,
+		System_CaptureModeInGame,
+	};
+	sysCallbacks = &syscb;
+
 	try
 	{
 		r = RunGame();
@@ -576,7 +656,7 @@ static TArray<GrpEntry> SetupGame()
 	if (groupno == -1) return TArray<GrpEntry>();
 	auto& group = groups[groupno];
 
-	if (RazeStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(RazeStartupInfo.Name);
+	if (GameStartupInfo.Name.IsNotEmpty()) I_SetWindowTitle(GameStartupInfo.Name);
 	else I_SetWindowTitle(group.FileInfo.name);
 
 	// Now filter out the data we actually need and delete the rest.
@@ -682,7 +762,11 @@ int RunGame()
 	V_InitFontColors();
 	GStrings.LoadStrings(language);
 
-	I_Init();
+	CheckCPUID(&CPU);
+	CalculateCPUSpeed();
+	auto ci = DumpCPUInfo(&CPU);
+	Printf("%s", ci.GetChars());
+
 	V_InitScreenSize();
 	V_InitScreen();
 	StartScreen = FStartupScreen::CreateInstance(100);
@@ -734,8 +818,6 @@ int RunGame()
 		I_FatalError("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
 	}
 
-	mouseGrabInput(true);	// the intros require the mouse to be grabbed.
-
 	auto exec = C_ParseCmdLineParams(nullptr);
 	if (exec) exec->ExecCommands();
 
@@ -747,7 +829,6 @@ void G_FatalEngineError(void)
 {
 	I_FatalError("There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);
 }
-
 
 //==========================================================================
 //

@@ -44,8 +44,6 @@
 #include "findfile.h"
 #include "version.h"	// for GAMENAME
 
-// Stuff that needs to be set up later.
-
 // Vanilla MinGW does not have folder ids
 #if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)
 static const GUID FOLDERID_LocalAppData = { 0xf1b32785, 0x6fba, 0x4fcf, 0x9d, 0x55, 0x7b, 0x8e, 0x7f, 0x15, 0x70, 0x91 };
@@ -130,6 +128,33 @@ FString M_GetAppDataPath(bool create)
 		path = progdir;
 	}
 	path += "/" GAMENAMELOWERCASE;
+	path.Substitute("//", "/");	// needed because progdir ends with a slash.
+	if (create)
+	{
+		CreatePath(path);
+	}
+	return path;
+}
+
+//===========================================================================
+//
+// M_GetCachePath													Windows
+//
+// Returns the path for cache GL nodes.
+//
+//===========================================================================
+
+FString M_GetCachePath(bool create)
+{
+	FString path;
+
+	if (!GetKnownFolder(CSIDL_LOCAL_APPDATA, FOLDERID_LocalAppData, create, path))
+	{ // Failed (e.g. On Win9x): use program directory
+		path = progdir;
+	}
+	// Don't use GAME_DIR and such so that ZDoom and its child ports can
+	// share the node cache.
+	path += "/zdoom/cache";
 	path.Substitute("//", "/");	// needed because progdir ends with a slash.
 	if (create)
 	{
@@ -332,9 +357,9 @@ FString M_GetDocumentsPath()
 
 //===========================================================================
 //
-// M_GetDocumentsPath												Windows
+// M_GetDemoPath												Windows
 //
-// Returns the path to the default documents directory.
+// Returns the path to the default demp directory.
 //
 //===========================================================================
 

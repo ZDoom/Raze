@@ -15,7 +15,7 @@ struct WadStuff;
 void I_DetectOS (void);
 
 // Called by DoomMain.
-void I_Init (void);
+void CalculateCPUSpeed (void);
 
 // Return a seed value for the RNG.
 unsigned int I_MakeRNGSeed();
@@ -58,8 +58,6 @@ ticcmd_t *I_BaseTiccmd (void);
 // Clean exit, displays sell blurb.
 void I_Quit (void);
 
-
-void I_Tactile (int on, int off, int total);
 
 // Set the mouse cursor. The texture must be 32x32.
 class FGameTexture;
@@ -104,8 +102,6 @@ typedef long WLONG_PTR;
 // Wrapper for GetLongPathName
 FString I_GetLongPathName(const FString &shortpath);
 
-// Directory searching routines
-
 // Mirror WIN32_FIND_DATAA in <winbase.h>
 #ifndef MAX_PATH
 #define MAX_PATH 260
@@ -113,7 +109,6 @@ FString I_GetLongPathName(const FString &shortpath);
 #ifndef PATH_MAX
 #define PATH_MAX 260
 #endif
-
 
 int I_GetNumaNodeCount();
 int I_GetNumaNodeThreadCount(int numaNode);

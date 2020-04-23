@@ -254,7 +254,7 @@ bool GameInterface::CanSave()
 	return (gGameStarted && gPlayer[myconnectindex].pXSprite->health != 0);
 }
 
-void GameInterface::StartGame(FGameStartup& gs)
+void GameInterface::StartGame(FNewGameStartup& gs)
 {
 	sfxKillAllSounds();
 	gGameOptions.nDifficulty = gs.Skill;

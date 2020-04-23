@@ -924,7 +924,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         if (RRRA && pPlayer->drug_mode > 0)
         {
-            while (pPlayer->drug_timer < totalclock && !(pPlayer->gm & MODE_MENU) && !ud.pause_on && !GUICapture)
+            while (pPlayer->drug_timer < totalclock && !(pPlayer->gm & MODE_MENU) && !ud.pause_on && !System_WantGuiCapture())
             {
                 int aspect;
                 if (pPlayer->drug_stat[0] == 0)
@@ -5850,7 +5850,7 @@ void G_HandleLocalKeys(void)
         }
     }
 
-    if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)) || GUICapture)
+    if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)) || System_WantGuiCapture())
         return;
 
     if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_COOPVIEW) || ud.recstat == 2))
@@ -7335,7 +7335,7 @@ MAIN_LOOP_RESTART:
 
                 g_player[myconnectindex].movefifoend++;
 
-                if (((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
+            if (((!System_WantGuiCapture() && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
                         (g_player[myconnectindex].ps->gm&MODE_GAME))
                 {
                     G_MoveLoop();

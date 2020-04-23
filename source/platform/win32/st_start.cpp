@@ -40,17 +40,20 @@
 #include "resource.h"
 
 #include "st_start.h"
+#include "cmdlib.h"
 #include "templates.h"
 #include "i_system.h"
 #include "i_input.h"
 #include "hardware.h"
+#include "filesystem.h"
 #include "m_argv.h"
+#include "engineerrors.h"
 #include "s_music.h"
 #include "printf.h"
-#include "cmdlib.h"
+#include "startupinfo.h"
+#include "i_interface.h"
 
 // MACROS ------------------------------------------------------------------
-
 
 // How many ms elapse between blinking text flips. On a standard VGA
 // adapter, the characters are on for 16 frames and then off for another 16.
@@ -109,7 +112,32 @@ CUSTOM_CVAR(Int, showendoom, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 FStartupScreen *FStartupScreen::CreateInstance(int max_progress)
 {
 	FStartupScreen *scr = NULL;
-	scr = new FBasicStartupScreen(max_progress, true);
+	HRESULT hr;
+
+	if (!Args->CheckParm("-nostartup"))
+	{
+		if (GameStartupInfo.Type == FStartupInfo::HexenStartup)
+		{
+			scr = new FHexenStartupScreen(max_progress, hr);
+		}
+		else if (GameStartupInfo.Type == FStartupInfo::HereticStartup)
+		{
+			scr = new FHereticStartupScreen(max_progress, hr);
+		}
+		else if (GameStartupInfo.Type == FStartupInfo::StrifeStartup)
+		{
+			scr = new FStrifeStartupScreen(max_progress, hr);
+		}
+		if (scr != NULL && FAILED(hr))
+		{
+			delete scr;
+			scr = NULL;
+		}
+	}
+	if (scr == NULL)
+	{
+		scr = new FBasicStartupScreen(max_progress, true);
+	}
 	return scr;
 }
 
@@ -124,7 +152,7 @@ FStartupScreen *FStartupScreen::CreateInstance(int max_progress)
 FBasicStartupScreen::FBasicStartupScreen(int max_progress, bool show_bar)
 : FStartupScreen(max_progress)
 {
-	if (false)//show_bar)
+	if (show_bar)
 	{
 		ProgressBar = CreateWindowEx(0, PROGRESS_CLASS,
 			NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
@@ -320,7 +348,7 @@ void FBasicStartupScreen :: NetProgress(int count)
 	{
 		char buf[16];
 
-		snprintf (buf, countof(buf), "%d/%d", NetCurPos, NetMaxPos);
+		mysnprintf (buf, countof(buf), "%d/%d", NetCurPos, NetMaxPos);
 		SetDlgItemTextA (NetStartPane, IDC_NETSTARTCOUNT, buf);
 		SendDlgItemMessage (NetStartPane, IDC_NETSTARTPROGRESS, PBM_SETPOS, std::min(NetCurPos, NetMaxPos), 0);
 	}
@@ -397,6 +425,192 @@ static INT_PTR CALLBACK NetStartPaneProc (HWND hDlg, UINT msg, WPARAM wParam, LP
 	return FALSE;
 }
 
+//==========================================================================
+//
+// FGraphicalStartupScreen Constructor
+//
+// This doesn't really do anything. The subclass is responsible for
+// creating the resources that will be freed by this class's destructor.
+//
+//==========================================================================
+
+FGraphicalStartupScreen::FGraphicalStartupScreen(int max_progress)
+: FBasicStartupScreen(max_progress, false)
+{
+}
+
+//==========================================================================
+//
+// FGraphicalStartupScreen Destructor
+//
+//==========================================================================
+
+FGraphicalStartupScreen::~FGraphicalStartupScreen()
+{
+	if (StartupScreen != NULL)
+	{
+		DestroyWindow (StartupScreen);
+		StartupScreen = NULL;
+	}
+	if (StartupBitmap != NULL)
+	{
+		ST_Util_FreeBitmap (StartupBitmap);
+		StartupBitmap = NULL;
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FHexenStartupScreen::SetWindowSize()
+{
+	ST_Util_SizeWindowForBitmap(1);
+	LayoutMainWindow(Window, NULL);
+	InvalidateRect(StartupScreen, NULL, TRUE);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FHereticStartupScreen::SetWindowSize()
+{
+	ST_Util_SizeWindowForBitmap(1);
+	LayoutMainWindow(Window, NULL);
+	InvalidateRect(StartupScreen, NULL, TRUE);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FStrifeStartupScreen::SetWindowSize()
+{
+	ST_Util_SizeWindowForBitmap(2);
+	LayoutMainWindow(Window, NULL);
+	InvalidateRect(StartupScreen, NULL, TRUE);
+}
+
+//==========================================================================
+//
+// ST_Endoom
+//
+// Shows an ENDOOM text screen
+//
+//==========================================================================
+
+int RunEndoom()
+{
+	if (showendoom == 0 || endoomName.Len() == 0) 
+	{
+		return 0;
+	}
+
+	int endoom_lump = fileSystem.CheckNumForFullName (endoomName, true);
+
+	uint8_t endoom_screen[4000];
+	uint8_t *font;
+	MSG mess;
+	BOOL bRet;
+	bool blinking = false, blinkstate = false;
+	int i;
+
+	if (endoom_lump < 0 || fileSystem.FileLength (endoom_lump) != 4000)
+	{
+		return 0;
+	}
+
+	if (fileSystem.GetFileContainer(endoom_lump) == fileSystem.GetMaxIwadNum() && showendoom == 2)
+	{
+		// showendoom==2 means to show only lumps from PWADs.
+		return 0;
+	}
+
+	font = ST_Util_LoadFont (TEXT_FONT_NAME);
+	if (font == NULL)
+	{
+		return 0;
+	}
+
+	if (!ST_Util_CreateStartupWindow())
+	{
+		ST_Util_FreeFont (font);
+		return 0;
+	}
+
+	I_ShutdownGraphics ();
+	RestoreConView ();
+	S_StopMusic(true);
+
+	fileSystem.ReadFile (endoom_lump, endoom_screen);
+
+	// Draw the loading screen to a bitmap.
+	StartupBitmap = ST_Util_AllocTextBitmap (font);
+	ST_Util_DrawTextScreen (StartupBitmap, endoom_screen, font);
+
+	// Make the title banner go away.
+	if (GameTitleWindow != NULL)
+	{
+		DestroyWindow (GameTitleWindow);
+		GameTitleWindow = NULL;
+	}
+
+	ST_Util_SizeWindowForBitmap (1);
+	LayoutMainWindow (Window, NULL);
+	InvalidateRect (StartupScreen, NULL, TRUE);
+
+	// Does this screen need blinking?
+	for (i = 0; i < 80*25; ++i)
+	{
+		if (endoom_screen[1+i*2] & 0x80)
+		{
+			blinking = true;
+			break;
+		}
+	}
+	if (blinking && SetTimer (Window, 0x5A15A, BLINK_PERIOD, NULL) == 0)
+	{
+		blinking = false;
+	}
+
+	// Wait until any key has been pressed or a quit message has been received
+	for (;;)
+	{
+		bRet = GetMessage (&mess, NULL, 0, 0);
+		if (bRet == 0 || bRet == -1 ||	// bRet == 0 means we received WM_QUIT
+			mess.message == WM_KEYDOWN || mess.message == WM_SYSKEYDOWN || mess.message == WM_LBUTTONDOWN)
+		{
+			if (blinking)
+			{
+				KillTimer (Window, 0x5A15A);
+			}
+			ST_Util_FreeBitmap (StartupBitmap);
+			ST_Util_FreeFont (font);
+			return int(bRet == 0 ? mess.wParam : 0);
+		}
+		else if (blinking && mess.message == WM_TIMER && mess.hwnd == Window && mess.wParam == 0x5A15A)
+		{
+			ST_Util_UpdateTextBlink (StartupBitmap, endoom_screen, font, blinkstate);
+			blinkstate = !blinkstate;
+		}
+		TranslateMessage (&mess);
+		DispatchMessage (&mess);
+	}
+}
+
+void ST_Endoom()
+{
+	int code = RunEndoom();
+	throw CExitEvent(code);
+
+}
 
 //==========================================================================
 //
@@ -419,3 +633,86 @@ bool ST_Util_CreateStartupWindow ()
 	return true;
 }
 
+//==========================================================================
+//
+// ST_Util_SizeWindowForBitmap
+//
+// Resizes the main window so that the startup bitmap will be drawn
+// at the desired scale.
+//
+//==========================================================================
+
+void ST_Util_SizeWindowForBitmap (int scale)
+{
+	DEVMODE displaysettings;
+	int w, h, cx, cy, x, y;
+	RECT rect;
+
+	if (GameTitleWindow != NULL)
+	{
+		GetClientRect (GameTitleWindow, &rect);
+	}
+	else
+	{
+		rect.bottom = 0;
+	}
+	RECT sizerect = { 0, 0, StartupBitmap->bmiHeader.biWidth * scale,
+		StartupBitmap->bmiHeader.biHeight * scale + rect.bottom };
+	AdjustWindowRectEx(&sizerect, WS_VISIBLE|WS_OVERLAPPEDWINDOW, FALSE, WS_EX_APPWINDOW);
+	w = sizerect.right - sizerect.left;
+	h = sizerect.bottom - sizerect.top;
+
+	// Resize the window, but keep its center point the same, unless that
+	// puts it partially offscreen.
+	memset (&displaysettings, 0, sizeof(displaysettings));
+	displaysettings.dmSize = sizeof(displaysettings);
+	EnumDisplaySettings (NULL, ENUM_CURRENT_SETTINGS, &displaysettings);
+	GetWindowRect (Window, &rect);
+	cx = (rect.left + rect.right) / 2;
+	cy = (rect.top + rect.bottom) / 2;
+	x = cx - w / 2;
+	y = cy - h / 2;
+	if (x + w > (int)displaysettings.dmPelsWidth)
+	{
+		x = displaysettings.dmPelsWidth - w;
+	}
+	if (x < 0)
+	{
+		x = 0;
+	}
+	if (y + h > (int)displaysettings.dmPelsHeight)
+	{
+		y = displaysettings.dmPelsHeight - h;
+	}
+	if (y < 0)
+	{
+		y = 0;
+	}
+	MoveWindow (Window, x, y, w, h, TRUE);
+}
+
+//==========================================================================
+//
+// ST_Util_InvalidateRect
+//
+// Invalidates the portion of the window that the specified rect of the
+// bitmap appears in.
+//
+//==========================================================================
+
+void ST_Util_InvalidateRect (HWND hwnd, BitmapInfo *bitmap_info, int left, int top, int right, int bottom)
+{
+	RECT rect;
+
+	GetClientRect (hwnd, &rect);
+	rect.left = left * rect.right / bitmap_info->bmiHeader.biWidth - 1;
+	rect.top = top * rect.bottom / bitmap_info->bmiHeader.biHeight - 1;
+	rect.right = right * rect.right / bitmap_info->bmiHeader.biWidth + 1;
+	rect.bottom = bottom * rect.bottom / bitmap_info->bmiHeader.biHeight + 1;
+	InvalidateRect (hwnd, &rect, FALSE);
+}
+
+void ST_Util_InvalidateRect(BitmapInfo* bitmap_info, int left, int top, int right, int bottom)
+{
+	ST_Util_InvalidateRect(StartupScreen , bitmap_info, left, top, right, bottom);
+}

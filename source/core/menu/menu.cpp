@@ -88,7 +88,7 @@ TArray<MenuClassDescriptor*> menuClasses(TArray<MenuClassDescriptor*>::ENoInit(0
 DMenu *DMenu::CurrentMenu;
 int DMenu::MenuTime;
 
-FGameStartup GameStartupInfo;
+FNewGameStartup NewGameStartupInfo;
 EMenuState		menuactive;
 bool			M_DemoNoPlay;
 FButtonStatus	MenuButtons[NUM_MKEYS];
@@ -384,7 +384,6 @@ void M_StartControlPanel (bool makeSound)
 	}
 
 	C_HideConsole ();				// [RH] Make sure console goes bye bye.
-	mouseGrabInput(false);
 	menuactive = MENU_On;
 	// Pause sound effects before we play the menu switch sound.
 	// That way, it won't be paused.
@@ -431,7 +430,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 #if 0
 	// skip the menu and go right into the first level. 
 	// For tracking memory leaks that normally require operating the menu to start the game so that they always get the same allocation number.
-	GameStartupInfo.Episode = GameStartupInfo.Skill = 0;
+	NewGameStartupInfo.Episode = NewGameStartupInfo.Skill = 0;
 	menu = NAME_Startgame;
 #endif
 		if (DrawBackground == -1)
@@ -446,22 +445,22 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	case NAME_HuntMenu:
 	case NAME_TargetMenu:
 		// sent from the episode menu
-		GameStartupInfo.Episode = param;
-		GameStartupInfo.Level = 0;
-		GameStartupInfo.CustomLevel1 = GameStartupInfo.CustomLevel2 = -1;
-		GameStartupInfo.Skill = gDefaultSkill;
+		NewGameStartupInfo.Episode = param;
+		NewGameStartupInfo.Level = 0;
+		NewGameStartupInfo.CustomLevel1 = NewGameStartupInfo.CustomLevel2 = -1;
+		NewGameStartupInfo.Skill = gDefaultSkill;
 		break;
 
 	case NAME_WeaponMenu:
-		GameStartupInfo.Skill = param;
+		NewGameStartupInfo.Skill = param;
 		break;
 
 	case NAME_CustomGameMenu:
-		GameStartupInfo.CustomLevel1 = param;
-		GameStartupInfo.CustomLevel2 = -1;
-		GameStartupInfo.Episode = 0;	// Set start to E1L1 so that even if the script fails to set the starting level it is set to something valid.
-		GameStartupInfo.Level = 0;
-		GameStartupInfo.Skill = gDefaultSkill;
+		NewGameStartupInfo.CustomLevel1 = param;
+		NewGameStartupInfo.CustomLevel2 = -1;
+		NewGameStartupInfo.Episode = 0;	// Set start to E1L1 so that even if the script fails to set the starting level it is set to something valid.
+		NewGameStartupInfo.Level = 0;
+		NewGameStartupInfo.Skill = gDefaultSkill;
 		gi->CustomMenuSelection(param, -1);
 		break;
 
@@ -472,12 +471,12 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	case NAME_CustomSubMenu5:
 	case NAME_CustomSubMenu6:
 	case NAME_CustomSubMenu7:
-		GameStartupInfo.CustomLevel2 = param;
-		gi->CustomMenuSelection(GameStartupInfo.CustomLevel1, param);
+		NewGameStartupInfo.CustomLevel2 = param;
+		gi->CustomMenuSelection(NewGameStartupInfo.CustomLevel1, param);
 		break;
 
 	case NAME_Skillmenu:
-		GameStartupInfo.Skill = param;
+		NewGameStartupInfo.Skill = param;
 		break;
 
 	case NAME_EngineCredits:
@@ -495,11 +494,11 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	{
 	case NAME_Startgame:
 		M_ClearMenus();	// must be done before starting the level.
-		if (caller == NAME_Mainmenu || caller == NAME_IngameMenu) GameStartupInfo.Episode = param;
-		STAT_StartNewGame(gVolumeNames[GameStartupInfo.Episode], GameStartupInfo.Skill);
+		if (caller == NAME_Mainmenu || caller == NAME_IngameMenu) NewGameStartupInfo.Episode = param;
+		STAT_StartNewGame(gVolumeNames[NewGameStartupInfo.Episode], NewGameStartupInfo.Skill);
 		inputState.ClearAllInput();
 
-		gi->StartGame(GameStartupInfo);
+		gi->StartGame(NewGameStartupInfo);
 		return false;
 
 	case NAME_CustomSubMenu1:
@@ -510,7 +509,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	case NAME_StartgameConfirm:
 	{
 		// sent from the skill menu for a skill that needs to be confirmed
-		GameStartupInfo.Skill = param;
+		NewGameStartupInfo.Skill = param;
 
 		const char *msg = AllSkills[param].MustConfirmText;
 		if (*msg==0) msg = GStrings("NIGHTMARE");
@@ -968,7 +967,6 @@ void M_ClearMenus (bool final)
 	M_UnpauseSound();
 	if (!final)
 	{
-		mouseGrabInput(true);
 		gi->MenuClosed();
 	}
 }

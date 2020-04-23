@@ -80,12 +80,11 @@
 #include "d_event.h"
 #include "v_text.h"
 #include "version.h"
+#include "engineerrors.h"
 #include "i_system.h"
+#include "i_interface.h"
 #include "printf.h"
-#include "c_console.h"
-#include "menu.h"
 #include "c_buttons.h"
-#include "gamecontrol.h"
 #include "cmdlib.h"
 
 // Compensate for w32api's lack
@@ -109,6 +108,7 @@ extern DWORD SessionID;
 
 static HMODULE DInputDLL;
 
+bool GUICapture;
 extern FMouse *Mouse;
 extern FKeyboard *Keyboard;
 extern bool ToggleFullscreen;
@@ -136,7 +136,7 @@ extern bool AppActive;
 
 int SessionState = 0;
 int BlockMouseMove; 
-double refreshfreq;
+extern double refreshfreq;
 
 static bool EventHandlerResultForNativeMouse;
 
@@ -146,6 +146,19 @@ CVAR (Bool, k_allowfullscreentoggle, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 extern int chatmodeon;
 
+static void I_CheckGUICapture ()
+{
+	bool wantCapt = sysCallbacks && sysCallbacks->WantGuiCapture && sysCallbacks->WantGuiCapture();
+
+	if (wantCapt != GUICapture)
+	{
+		GUICapture = wantCapt;
+		if (wantCapt && Keyboard != NULL)
+		{
+			Keyboard->AllKeysUp();
+		}
+	}
+}
 
 void I_SetMouseCapture()
 {
@@ -398,15 +411,13 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return result;
 	}
 
-#if 0
-	if ((gamestate == GS_DEMOSCREEN || gamestate == GS_TITLELEVEL) && message == WM_LBUTTONDOWN)
+	if (message == WM_LBUTTONDOWN && sysCallbacks && sysCallbacks->WantLeftButton() && sysCallbacks->WantLeftButton())
 	{
 		if (GUIWndProcHook(hWnd, message, wParam, lParam, &result))
 		{
 			return result;
 		}
 	}
-#endif
 
 
 	switch (message)
@@ -436,7 +447,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_SETFOCUS:
 		GetRefreshRate(hWnd);
-		I_CheckNativeMouse (false, false);	// This cannot call the event handler. Doing it from here is unsafe.
+		I_CheckNativeMouse (false, EventHandlerResultForNativeMouse);	// This cannot call the event handler. Doing it from here is unsafe.
 		break;
 
 	case WM_SETCURSOR:
@@ -513,12 +524,10 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			SetPriorityClass (GetCurrentProcess (), INGAME_PRIORITY_CLASS);
 		}
-#if 0
-		else if (!noidle && !netgame)
+		else if (!noidle && !(sysCallbacks && sysCallbacks->NetGame && sysCallbacks->NetGame()))
 		{
 			SetPriorityClass (GetCurrentProcess (), IDLE_PRIORITY_CLASS);
 		}
-#endif
 		S_SetSoundPaused ((!!i_soundinbackground) || wParam);
 		break;
 
@@ -757,10 +766,11 @@ void I_GetEvent ()
 //
 void I_StartTic ()
 {
-	I_StartFrame();
 	BlockMouseMove--;
 	buttonMap.ResetButtonTriggers ();
-	I_CheckNativeMouse (false, false);
+	I_CheckGUICapture ();
+	EventHandlerResultForNativeMouse = sysCallbacks && sysCallbacks->WantNativeMouse && sysCallbacks->WantNativeMouse();
+	I_CheckNativeMouse (false, EventHandlerResultForNativeMouse);
 	I_GetEvent ();
 }
 
