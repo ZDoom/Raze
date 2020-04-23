@@ -212,7 +212,7 @@ bool GameInterface::CanSave()
     return (!CommEnabled && numplayers ==1 && !DemoMode && !InMenuLevel && !TEST(Player[myconnectindex].Flags, PF_DEAD));
 }
 
-void GameInterface::StartGame(FGameStartup& gs)
+void GameInterface::StartGame(FNewGameStartup& gs)
 {
     PLAYERp pp = Player + screenpeek;
     int handle = 0;

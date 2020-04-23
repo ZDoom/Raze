@@ -662,7 +662,7 @@ bool GameInterface::CanSave()
 	return true;
 }
 
-void GameInterface::StartGame(FGameStartup& gs)
+void GameInterface::StartGame(FNewGameStartup& gs)
 {
 	int32_t skillsound = PISTOL_BODYHIT;
 

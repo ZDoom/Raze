@@ -39,6 +39,7 @@
 #include "st_console.h"
 #include "st_start.h"
 #include "printf.h"
+#include "engineerrors.h"
 
 
 FStartupScreen *StartScreen;
@@ -64,7 +65,7 @@ FBasicStartupScreen::FBasicStartupScreen(int maxProgress, bool showBar)
 : FStartupScreen(maxProgress)
 {
 	FConsoleWindow& consoleWindow = FConsoleWindow::GetInstance();
-	consoleWindow.SetProgressBar(false);
+	consoleWindow.SetProgressBar(true);
 
 #if 0
 	// Testing code, please do not remove
@@ -164,3 +165,11 @@ FStartupScreen *FStartupScreen::CreateInstance(const int maxProgress)
 	return new FBasicStartupScreen(maxProgress, true);
 }
 
+
+// ---------------------------------------------------------------------------
+
+
+void ST_Endoom()
+{
+	throw CExitEvent(0);
+}

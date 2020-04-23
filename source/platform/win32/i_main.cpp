@@ -55,28 +55,27 @@
 #endif
 #include "resource.h"
 
-//#include "doomerrors.h"
+#include "engineerrors.h"
 #include "hardware.h"
 
 #include "m_argv.h"
-#include "gamecontrol.h"
 #include "i_module.h"
 #include "c_console.h"
 #include "version.h"
 #include "i_input.h"
 #include "filesystem.h"
 #include "cmdlib.h"
-//#include "g_game.h"
-//#include "r_utility.h"
-//#include "g_levellocals.h"
 #include "s_soundinternal.h"
-//#include "vm.h"
+#include "vm.h"
 #include "i_system.h"
 #include "gstrings.h"
 #include "s_music.h"
 
 #include "stats.h"
 #include "st_start.h"
+#include "i_interface.h"
+#include "startupinfo.h"
+#include "printf.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -88,7 +87,7 @@
 #endif
 
 // TYPES -------------------------------------------------------------------
-bool batchrun;
+
 // EXTERNAL FUNCTION PROTOTYPES --------------------------------------------
 
 LRESULT CALLBACK WndProc (HWND, UINT, WPARAM, LPARAM);
@@ -96,6 +95,7 @@ void CreateCrashLog (const char *custominfo, DWORD customsize, HWND richedit);
 void DisplayCrashLog ();
 void I_FlushBufferedConsoleStuff();
 void DestroyCustomCursor();
+int GameMain();
 
 // PUBLIC FUNCTION PROTOTYPES ----------------------------------------------
 
@@ -268,14 +268,12 @@ void LayoutMainWindow (HWND hWnd, HWND pane)
 	w = rect.right;
 	h = rect.bottom;
 
-	/*
-	if (userConfig..IsNotEmpty() && GameTitleWindow != NULL)
+	if (GameStartupInfo.Name.IsNotEmpty() && GameTitleWindow != NULL)
 	{
 		bannerheight = GameTitleFontHeight + 5;
 		MoveWindow (GameTitleWindow, 0, 0, w, bannerheight, TRUE);
 		InvalidateRect (GameTitleWindow, NULL, FALSE);
 	}
-	*/
 	if (ProgressBar != NULL)
 	{
 		// Base the height of the progress bar on the height of a scroll bar
@@ -340,14 +338,14 @@ LRESULT CALLBACK LConProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	HWND view;
 	HDC hdc;
-	//HBRUSH hbr;
+	HBRUSH hbr;
 	HGDIOBJ oldfont;
-	//RECT rect;
-	//SIZE size;
+	RECT rect;
+	SIZE size;
 	LOGFONT lf;
 	TEXTMETRIC tm;
 	HINSTANCE inst = (HINSTANCE)(LONG_PTR)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
-	//DRAWITEMSTRUCT *drawitem;
+	DRAWITEMSTRUCT *drawitem;
 	CHARFORMAT2W format;
 
 	switch (msg)
@@ -428,45 +426,73 @@ LRESULT CALLBACK LConProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_DRAWITEM:
 		// Draw title banner.
-		if (wParam == IDC_STATIC_TITLE && RazeStartupInfo.Name.IsNotEmpty())
+		if (wParam == IDC_STATIC_TITLE && GameStartupInfo.Name.IsNotEmpty())
 		{
 			const PalEntry *c;
 
 			// Draw the game title strip at the top of the window.
-			auto drawitem = (LPDRAWITEMSTRUCT)lParam;
-			SIZE size;
+			drawitem = (LPDRAWITEMSTRUCT)lParam;
 
 			// Draw the background.
-			auto rect = drawitem->rcItem;
+			rect = drawitem->rcItem;
 			rect.bottom -= 1;
-			c = (const PalEntry *)&RazeStartupInfo.BkColor;
-			auto hbr = CreateSolidBrush (RGB(c->r,c->g,c->b));
+			c = (const PalEntry *)&GameStartupInfo.BkColor;
+			hbr = CreateSolidBrush (RGB(c->r,c->g,c->b));
 			FillRect (drawitem->hDC, &drawitem->rcItem, hbr);
 			DeleteObject (hbr);
 
 			// Calculate width of the title string.
 			SetTextAlign (drawitem->hDC, TA_TOP);
 			oldfont = SelectObject (drawitem->hDC, GameTitleFont != NULL ? GameTitleFont : (HFONT)GetStockObject (DEFAULT_GUI_FONT));
-			auto widename = RazeStartupInfo.Name.WideString();
+			auto widename = GameStartupInfo.Name.WideString();
 			GetTextExtentPoint32W (drawitem->hDC, widename.c_str(), (int)widename.length(), &size);
 
 			// Draw the title.
-			c = (const PalEntry *)&RazeStartupInfo.FgColor;
+			c = (const PalEntry *)&GameStartupInfo.FgColor;
 			SetTextColor (drawitem->hDC, RGB(c->r,c->g,c->b));
 			SetBkMode (drawitem->hDC, TRANSPARENT);
 			TextOutW (drawitem->hDC, rect.left + (rect.right - rect.left - size.cx) / 2, 2, widename.c_str(), (int)widename.length());
 			SelectObject (drawitem->hDC, oldfont);
 			return TRUE;
 		}
+		// Draw startup screen
+		else if (wParam == IDC_STATIC_STARTUP)
+		{
+			if (StartupScreen != NULL)
+			{
+				drawitem = (LPDRAWITEMSTRUCT)lParam;
+
+				rect = drawitem->rcItem;
+				// Windows expects DIBs to be bottom-up but ours is top-down,
+				// so flip it vertically while drawing it.
+				StretchDIBits (drawitem->hDC, rect.left, rect.bottom - 1, rect.right - rect.left, rect.top - rect.bottom,
+					0, 0, StartupBitmap->bmiHeader.biWidth, StartupBitmap->bmiHeader.biHeight,
+					ST_Util_BitsForBitmap(StartupBitmap), reinterpret_cast<const BITMAPINFO*>(StartupBitmap), DIB_RGB_COLORS, SRCCOPY);
+
+				// If the title banner is gone, then this is an ENDOOM screen, so draw a short prompt
+				// where the command prompt would have been in DOS.
+				if (GameTitleWindow == NULL)
+				{
+					auto quitmsg = WideString(GStrings("TXT_QUITENDOOM"));
+
+					SetTextColor (drawitem->hDC, RGB(240,240,240));
+					SetBkMode (drawitem->hDC, TRANSPARENT);
+					oldfont = SelectObject (drawitem->hDC, (HFONT)GetStockObject (DEFAULT_GUI_FONT));
+					TextOutW (drawitem->hDC, 3, drawitem->rcItem.bottom - DefaultGUIFontHeight - 3, quitmsg.c_str(), (int)quitmsg.length());
+					SelectObject (drawitem->hDC, oldfont);
+				}
+				return TRUE;
+			}
+		}
 		// Draw stop icon.
 		else if (wParam == IDC_ICONPIC)
 		{
 			HICON icon;
 			POINTL char_pos;
-			auto drawitem = (LPDRAWITEMSTRUCT)lParam;
+			drawitem = (LPDRAWITEMSTRUCT)lParam;
 
 			// This background color should match the edit control's.
-			auto hbr = CreateSolidBrush (RGB(70,70,70));
+			hbr = CreateSolidBrush (RGB(70,70,70));
 			FillRect (drawitem->hDC, &drawitem->rcItem, hbr);
 			DeleteObject (hbr);
 
@@ -613,12 +639,10 @@ void ShowErrorPane(const char *text)
 		return;
 	}
 
-#if 0
 	if (StartScreen != NULL)	// Ensure that the network pane is hidden.
 	{
 		StartScreen->NetDone();
 	}
-#endif
 	if (text != NULL)
 	{
 		FStringf caption("Fatal Error - " GAMENAME " %s " X64 " (%s)", GetVersionString(), GetGitTime());
@@ -959,6 +983,11 @@ void I_ShowFatalError(const char *msg)
 	S_StopMusic(true);
 	I_FlushBufferedConsoleStuff();
 
+	if (CVMAbortException::stacktrace.IsNotEmpty())
+	{
+		Printf("%s", CVMAbortException::stacktrace.GetChars());
+	}
+	
 	if (!batchrun)
 	{
 		ShowErrorPane(msg);
@@ -967,34 +996,6 @@ void I_ShowFatalError(const char *msg)
 	{
 		Printf("%s\n", msg);
 	}
-}
-
-//==========================================================================
-//
-// DoomSpecificInfo
-//
-// Called by the crash logger to get application-specific information.
-//
-//==========================================================================
-
-void DoomSpecificInfo (char *buffer, size_t bufflen)
-{
-	const char *arg;
-	char *const buffend = buffer + bufflen - 2;	// -2 for CRLF at end
-	int i;
-
-	buffer += snprintf (buffer, buffend - buffer, GAMENAME " version %s (%s)", GetVersionString(), GetGitHash());
-	FString cmdline(GetCommandLineW());
-	buffer += snprintf (buffer, buffend - buffer, "\r\nCommand line: %s\r\n", cmdline.GetChars() );
-
-	for (i = 0; (arg = fileSystem.GetResourceFileFullName (i)) != NULL; ++i)
-	{
-		buffer += snprintf (buffer, buffend - buffer, "\r\nFile %d: %s", i, arg);
-	}
-
-	*buffer++ = '\r';
-	*buffer++ = '\n';
-	*buffer++ = '\0';
 }
 
 // Here is how the error logging system works.
@@ -1089,7 +1090,7 @@ LONG WINAPI CatchAllExceptions (LPEXCEPTION_POINTERS info)
 	char *custominfo = (char *)HeapAlloc (GetProcessHeap(), 0, 16384);
 
 	CrashPointers = *info;
-	DoomSpecificInfo (custominfo, 16384);
+	if (sysCallbacks && sysCallbacks->CrashInfo && custominfo) sysCallbacks->CrashInfo(custominfo, 16384, "\r\n");
 	CreateCrashLog (custominfo, (DWORD)strlen(custominfo), ConWindow);
 
 	// If the main thread crashed, then make it clean up after itself.
@@ -1223,8 +1224,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE nothing, LPWSTR cmdline, int
 	_CrtSetDbgFlag (_CrtSetDbgFlag(0) | _CRTDBG_LEAK_CHECK_DF);
 
 	// Use this to break at a specific allocation number.
-	
-	//_crtBreakAlloc = 254849;
+	//_crtBreakAlloc = 227524;
 #endif
 
 	int ret = DoMain (hInstance);

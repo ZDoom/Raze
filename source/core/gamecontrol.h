@@ -134,12 +134,6 @@ struct GrpInfo
 };
 
 
-struct WadStuff
-{
-	FString Path;
-	FString Name;
-};
-
 struct GrpEntry
 {
 	FString FileName;
@@ -153,27 +147,11 @@ const char* G_DefaultConFile(void);
 const char* G_ConFile(void);
 
 TArray<GrpEntry> GrpScan();
-void S_SetSoundPaused(int state);
 
 void G_FatalEngineError(void);
 int CalcSmoothRatio(const ClockTicks& totalclk, const ClockTicks& ototalclk, int realgameticspersec);
 
 FString G_GetDemoPath();
-
-
-struct FStartupInfo
-{
-	FString Name;
-	uint32_t FgColor;			// Foreground color for title banner
-	uint32_t BkColor;			// Background color for title banner
-	int modern;
-	//FString Song;
-	//int Type;
-	//int LoadLights = -1;
-	//int LoadBrightmaps = -1;
-};
-
-extern FStartupInfo RazeStartupInfo;	
 
 enum
 {

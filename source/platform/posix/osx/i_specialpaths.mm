@@ -111,6 +111,28 @@ FString M_GetAppDataPath(bool create)
 
 //===========================================================================
 //
+// M_GetCachePath													macOS
+//
+// Returns the path for cache GL nodes.
+//
+//===========================================================================
+
+FString M_GetCachePath(bool create)
+{
+	FString path = M_GetMacAppSupportPath(create);
+
+	if (path.IsEmpty())
+	{
+		path = progdir;
+	}
+
+	path += "/zdoom/cache";
+	if (create) CreatePath(path);
+	return path;
+}
+
+//===========================================================================
+//
 // M_GetAutoexecPath												macOS
 //
 // Returns the expected location of autoexec.cfg.

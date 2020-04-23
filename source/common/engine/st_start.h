@@ -78,28 +78,63 @@ protected:
 	int NetMaxPos, NetCurPos;
 };
 
+class FGraphicalStartupScreen : public FBasicStartupScreen
+{
+public:
+	FGraphicalStartupScreen(int max_progress);
+	~FGraphicalStartupScreen();
+};
+
+class FHereticStartupScreen : public FGraphicalStartupScreen
+{
+public:
+	FHereticStartupScreen(int max_progress, long &hr);
+
+	void Progress();
+	void LoadingStatus(const char *message, int colors);
+	void AppendStatusLine(const char *status);
+protected:
+	void SetWindowSize();
+	
+	int ThermX, ThermY, ThermWidth, ThermHeight;
+	int HMsgY, SMsgX;
+};
+
+class FHexenStartupScreen : public FGraphicalStartupScreen
+{
+public:
+	FHexenStartupScreen(int max_progress, long &hr);
+	~FHexenStartupScreen();
+
+	void Progress();
+	void NetProgress(int count);
+	void NetDone();
+	void SetWindowSize();
+
+	// Hexen's notch graphics, converted to chunky pixels.
+	uint8_t * NotchBits;
+	uint8_t * NetNotchBits;
+};
+
+class FStrifeStartupScreen : public FGraphicalStartupScreen
+{
+public:
+	FStrifeStartupScreen(int max_progress, long &hr);
+	~FStrifeStartupScreen();
+
+	void Progress();
+protected:
+	void DrawStuff(int old_laser, int new_laser);
+	void SetWindowSize();
+
+	uint8_t *StartupPics[4+2+1];
+};
+
+
 
 extern FStartupScreen *StartScreen;
 
-
-
-//===========================================================================
-//
-// DeleteStartupScreen
-//
-// Makes sure the startup screen has been deleted before quitting.
-//
-//===========================================================================
-
-inline void DeleteStartupScreen()
-{
-	if (StartScreen != nullptr)
-	{
-		delete StartScreen;
-		StartScreen = nullptr;
-	}
-}
-
+void DeleteStartupScreen();
 extern void ST_Endoom();
 
 // The entire set of functions here uses native Windows types. These are recreations of those types so that the code doesn't need to be changed more than necessary
@@ -134,6 +169,9 @@ struct BitmapInfo
 	RgbQuad             bmiColors[1];
 };
 
+extern BitmapInfo* StartupBitmap;
+
+
 void ST_Util_PlanarToChunky4(uint8_t* dest, const uint8_t* src, int width, int height);
 void ST_Util_DrawBlock(BitmapInfo* bitmap_info, const uint8_t* src, int x, int y, int bytewidth, int height);
 void ST_Util_ClearBlock(BitmapInfo* bitmap_info, uint8_t fill, int x, int y, int bytewidth, int height);
@@ -147,4 +185,23 @@ BitmapInfo* ST_Util_AllocTextBitmap(const uint8_t* font);
 void ST_Util_DrawTextScreen(BitmapInfo* bitmap_info, const uint8_t* text_screen, const uint8_t* font);
 void ST_Util_DrawChar(BitmapInfo* screen, const uint8_t* font, int x, int y, uint8_t charnum, uint8_t attrib);
 void ST_Util_UpdateTextBlink(BitmapInfo* bitmap_info, const uint8_t* text_screen, const uint8_t* font, bool on);
+
+
+//===========================================================================
+//
+// DeleteStartupScreen
+//
+// Makes sure the startup screen has been deleted before quitting.
+//
+//===========================================================================
+
+inline void DeleteStartupScreen()
+{
+	if (StartScreen != nullptr)
+	{
+		delete StartScreen;
+		StartScreen = nullptr;
+	}
+}
+
 

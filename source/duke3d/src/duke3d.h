@@ -229,7 +229,7 @@ struct GameInterface : ::GameInterface
 	void MenuSound(EMenuSounds snd) override;
 	bool CanSave() override;
 	void CustomMenuSelection(int menu, int item) override;
-	void StartGame(FGameStartup& gs) override;
+	void StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
 	bool DrawSpecialScreen(const DVector2 &origin, int tilenum) override;
 	void DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position, bool bg) override;

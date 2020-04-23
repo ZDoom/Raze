@@ -40,7 +40,6 @@
 
 #include "i_input.h"
 #include "d_event.h"
-#include "inputstate.h"
 
 
 // MACROS ------------------------------------------------------------------
@@ -91,7 +90,7 @@ protected:
 extern HWND Window;
 extern LPDIRECTINPUT8 g_pdi;
 extern LPDIRECTINPUT g_pdi3;
-
+extern bool GUICapture;
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 

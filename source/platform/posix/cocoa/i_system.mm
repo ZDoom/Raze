@@ -36,18 +36,14 @@
 #include <fnmatch.h>
 #include <sys/sysctl.h>
 
-#include "gameconfigfile.h"
-#include "i_sound.h"
 #include "i_system.h"
 #include "st_console.h"
 #include "v_text.h"
-#include "cmdlib.h"
-#include "printf.h"
 
 
 double PerfToSec, PerfToMillisec;
 
-static void CalculateCPUSpeed()
+void CalculateCPUSpeed()
 {
 	long long frequency;
 	size_t size = sizeof frequency;
@@ -64,10 +60,6 @@ static void CalculateCPUSpeed()
 	}
 }
 
-void I_Init(void)
-{
-	CalculateCPUSpeed();
-}
 
 void I_SetIWADInfo()
 {
@@ -147,13 +139,6 @@ int I_PickIWad(WadStuff* const wads, const int numwads, const bool showwin, cons
 }
 
 
-bool I_WriteIniFailed()
-{
-	printf("The config file %s could not be saved:\n%s\n", GameConfig->GetPathName(), strerror(errno));
-	return false; // return true to retry
-}
-
-
 void I_PutInClipboard(const char* const string)
 {
 	NSPasteboard* const pasteBoard = [NSPasteboard generalPasteboard];
@@ -185,11 +170,3 @@ unsigned int I_MakeRNGSeed()
 {
 	return static_cast<unsigned int>(arc4random());
 }
-
-
-TArray<FString> I_GetGogPaths()
-{
-	// GOG's Doom games are Windows only at the moment
-	return TArray<FString>();
-}
-

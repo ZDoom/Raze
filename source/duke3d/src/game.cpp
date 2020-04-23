@@ -5921,7 +5921,7 @@ MAIN_LOOP_RESTART:
 
             localInput = {};
 
-            if (((!GUICapture && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
+            if ((!System_WantGuiCapture() || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
                 && (myplayer.gm & MODE_GAME))
             {
                 Net_GetPackets();

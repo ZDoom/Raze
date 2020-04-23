@@ -38,6 +38,7 @@
 
 #include "gl_sysfb.h"
 #include "hardware.h"
+#include "x86.h"
 #include "templates.h"
 #include "version.h"
 #include "c_console.h"
@@ -46,6 +47,7 @@
 #include "i_system.h"
 #include "v_text.h"
 #include "m_argv.h"
+#include "engineerrors.h"
 #include "printf.h"
 #include "win32basevideo.h"
 #include "cmdlib.h"
@@ -167,7 +169,7 @@ static BOOL CALLBACK DumpAdaptersMonitorEnumProc(HMONITOR hMonitor, HDC, LPRECT,
 	{
 		bool primary = !!(mi.dwFlags & MONITORINFOF_PRIMARY);
 
-		snprintf(moreinfo, countof(moreinfo), " [%ldx%ld @ (%ld,%ld)]%s",
+		mysnprintf(moreinfo, countof(moreinfo), " [%ldx%ld @ (%ld,%ld)]%s",
 			mi.rcMonitor.right - mi.rcMonitor.left,
 			mi.rcMonitor.bottom - mi.rcMonitor.top,
 			mi.rcMonitor.left, mi.rcMonitor.top,

@@ -373,7 +373,6 @@ public:
 		pKey = keyptr;
 		SetMenuMessage(1);
 		menuactive = MENU_WaitKey;	// There should be a better way to disable GUI capture...
-		mouseGrabInput(true);
 	}
 
 	bool TranslateKeyboardEvents() override
@@ -400,7 +399,6 @@ public:
 		{
 			*pKey = ev->data1;
 			menuactive = MENU_On;
-			mouseGrabInput(false);
 			SetMenuMessage(0);
 			auto p = mParentMenu;
 			Close();

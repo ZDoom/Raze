@@ -36,15 +36,21 @@
 
 #include "d_event.h"
 #include "d_gui.h"
+#include "c_buttons.h"
 #include "c_console.h"
 #include "c_dispatch.h"
 #include "dikeys.h"
 #include "utf8.h"
 #include "keydef.h"
-#include "menu/menu.h"
+#include "i_interface.h"
+#include "engineerrors.h"
+#include "i_interface.h"
 
+
+static void I_CheckGUICapture ();
 static void I_CheckNativeMouse ();
 
+bool GUICapture;
 static bool NativeMouse = true;
 
 CVAR (Bool,  use_mouse,				true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
@@ -159,6 +165,20 @@ static TMap<SDL_Scancode, uint8_t> InitKeyScanMap ()
 }
 static const TMap<SDL_Scancode, uint8_t> KeyScanToDIK(InitKeyScanMap());
 
+static void I_CheckGUICapture ()
+{
+	bool wantCapt = sysCallbacks && sysCallbacks->WantGuiCapture && sysCallbacks->WantGuiCapture();
+
+	if (wantCapt != GUICapture)
+	{
+		GUICapture = wantCapt;
+		if (wantCapt)
+		{
+			buttonMap.ResetButtonStates();
+		}
+	}
+}
+
 void I_SetMouseCapture()
 {
 	// Clear out any mouse movement.
@@ -216,30 +236,15 @@ static void MouseRead ()
 	}
 }
 
-CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
-{
-	if (self < 0) self = 0;
-	else if (self > 2) self = 2;
-}
-
-static bool inGame()
-{
-	if (mouse_capturemode == 2)
-	{
-		return true;
-	}
-	else
-	{
-		return gi->CanSave();
-	}
-}
-
 static void I_CheckNativeMouse ()
 {
 	bool focus = SDL_GetKeyboardFocus() != NULL;
+	
+	bool captureModeInGame = sysCallbacks && sysCallbacks->CaptureModeInGame && sysCallbacks->CaptureModeInGame();
+	bool wantNative = !focus || (!use_mouse || GUICapture || !captureModeInGame);
 
-	// TODO: We want this to check for demo playback, as well. And paused state
-	bool wantNative = !focus || (!use_mouse || GUICapture || !inGame());
+	if (!wantNative && sysCallbacks && sysCallbacks->WantNativeMouse && sysCallbacks->WantNativeMouse())
+		wantNative = true;
 
 	if (wantNative != NativeMouse)
 	{
@@ -381,7 +386,7 @@ void MessagePump (const SDL_Event &sev)
 
 			if (sev.wheel.y != 0)
 				event.data1 = sev.wheel.y > 0 ? KEY_MWHEELUP : KEY_MWHEELDOWN;
-			else 
+			else
 				event.data1 = sev.wheel.x > 0 ? KEY_MWHEELRIGHT : KEY_MWHEELLEFT;
 
 			D_PostEvent (&event);
@@ -519,6 +524,7 @@ void I_GetEvent ()
 
 void I_StartTic ()
 {
+	I_CheckGUICapture ();
 	I_CheckNativeMouse ();
 	I_GetEvent ();
 }

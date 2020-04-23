@@ -20,9 +20,7 @@ struct WadStuff;
 #define SHARE_DIR "/usr/local/share/"
 #endif
 
-
-// Called by DoomMain.
-void I_Init (void);
+void CalculateCPUSpeed(void);
 
 // Return a seed value for the RNG.
 unsigned int I_MakeRNGSeed();
@@ -42,8 +40,6 @@ void I_StartTic (void);
 // This ticcmd will then be modified by the gameloop
 // for normal input.
 ticcmd_t *I_BaseTiccmd (void);
-
-void I_Tactile (int on, int off, int total);
 
 // Print a console string
 void I_PrintStr (const char *str);
