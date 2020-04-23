@@ -6,9 +6,8 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #endif
 
-
-#if 0
 #include "volk/volk.h"
+
 
 extern HWND Window;
 
@@ -74,4 +73,3 @@ bool I_CreateVulkanSurface(VkInstance instance, VkSurfaceKHR *surface)
 	const VkResult result = vkCreateWin32SurfaceKHR(instance, &windowCreateInfo, nullptr, surface);
 	return result == VK_SUCCESS;
 }
-#endif
