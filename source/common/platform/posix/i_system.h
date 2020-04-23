@@ -24,22 +24,12 @@ void CalculateCPUSpeed(void);
 
 // Return a seed value for the RNG.
 unsigned int I_MakeRNGSeed();
-void I_ShowFatalError(const char* msg);
-void I_DetectOS (void);
+
+
 
 void I_StartFrame (void);
 
 void I_StartTic (void);
-
-// Asynchronous interrupt functions should maintain private queues
-// that are read by the synchronous functions
-// to be converted into events.
-
-// Either returns a null ticcmd,
-// or calls a loadable driver to build it.
-// This ticcmd will then be modified by the gameloop
-// for normal input.
-ticcmd_t *I_BaseTiccmd (void);
 
 // Print a console string
 void I_PrintStr (const char *str);
@@ -76,8 +66,5 @@ static inline char *strlwr(char *str)
 inline int I_GetNumaNodeCount() { return 1; }
 inline int I_GetNumaNodeThreadCount(int numaNode) { return std::max<int>(std::thread::hardware_concurrency(), 1); }
 inline void I_SetThreadNumaNode(std::thread &thread, int numaNode) { }
-
-void I_PutInClipboard(const char* str);
-FString I_GetFromClipboard (bool use_primary_selection);
 
 #endif

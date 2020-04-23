@@ -114,4 +114,4 @@ BEGIN
     END
 END
 
-1 24 "manifest.game.xml"
+1 24 "..\\..\\common\\platform\\win32\\manifest.xml"

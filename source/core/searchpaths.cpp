@@ -139,6 +139,7 @@ static const RegistryPathInfo paths[] = {
 	{ nullptr}
 };
 
+bool I_QueryPathKey(const wchar_t* keypath, const wchar_t* valname, FString& value);
 
 void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 {

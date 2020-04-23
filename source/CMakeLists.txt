@@ -462,84 +462,85 @@ if( ${HAVE_VM_JIT} )
 	set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${ASMJIT_LIBRARIES}")
 endif()
 
+# Start defining source files for ZDoom
+set( PLAT_WIN32_SOURCES
+	platform/win32/i_steam.cpp
+	common/platform/win32/hardware.cpp
+	common/platform/win32/i_crash.cpp
+	common/platform/win32/i_input.cpp
+	common/platform/win32/i_keyboard.cpp
+	common/platform/win32/i_mouse.cpp
+	common/platform/win32/i_dijoy.cpp
+	common/platform/win32/i_rawps2.cpp
+	common/platform/win32/i_xinput.cpp
+	common/platform/win32/i_main.cpp
+	common/platform/win32/i_system.cpp
+	common/platform/win32/i_specialpaths.cpp
+	common/platform/win32/st_start.cpp
+	common/platform/win32/st_start_util.cpp
+	common/platform/win32/gl_sysfb.cpp
+	common/platform/win32/base_sysfb.cpp
+	common/platform/win32/win32basevideo.cpp
+	common/platform/win32/win32glvideo.cpp
+	common/platform/win32/win32polyvideo.cpp)
 
+if (HAVE_VULKAN)
+	set (PLAT_WIN32_SOURCES ${PLAT_WIN32_SOURCES} common/platform/win32/win32vulkanvideo.cpp )
+endif()
+	
 set( PLAT_POSIX_SOURCES
 	platform/posix/i_steam.cpp
-	platform/posix/i_system_posix.cpp )
+	common/platform/posix/i_system_posix.cpp )
 set( PLAT_SDL_SOURCES
-	platform/posix/sdl/crashcatcher.c
-	platform/posix/sdl/hardware.cpp
-	platform/posix/sdl/i_gui.cpp
-	platform/posix/sdl/i_input.cpp
-	platform/posix/sdl/i_joystick.cpp
-	platform/posix/sdl/i_main.cpp
-	platform/posix/sdl/i_system.cpp
-	platform/posix/sdl/sdlglvideo.cpp
-	platform/posix/sdl/st_start.cpp )
+	common/platform/posix/sdl/crashcatcher.c
+	common/platform/posix/sdl/hardware.cpp
+	common/platform/posix/sdl/i_gui.cpp
+	common/platform/posix/sdl/i_input.cpp
+	common/platform/posix/sdl/i_joystick.cpp
+	common/platform/posix/sdl/i_main.cpp
+	common/platform/posix/sdl/i_system.cpp
+	common/platform/posix/sdl/sdlglvideo.cpp
+	common/platform/posix/sdl/st_start.cpp )
 set( PLAT_UNIX_SOURCES
-	platform/posix/unix/i_specialpaths.cpp
-	platform/posix/unix/gtk_dialogs.cpp )
+	common/platform/posix/unix/i_specialpaths.cpp
+	common/platform/posix/unix/gtk_dialogs.cpp )
 set( PLAT_OSX_SOURCES
-	platform/posix/osx/iwadpicker_cocoa.mm
-	platform/posix/osx/i_specialpaths.mm
+	common/platform/posix/osx/iwadpicker_cocoa.mm
+	common/platform/posix/osx/i_specialpaths.mm
 	platform/posix/osx/raze.icns )
 set( PLAT_COCOA_SOURCES
-	platform/posix/cocoa/i_input.mm
-	platform/posix/cocoa/i_joystick.cpp
-	platform/posix/cocoa/i_main.mm
-	platform/posix/cocoa/i_system.mm
-	platform/posix/cocoa/i_video.mm
-	platform/posix/cocoa/st_console.mm
-	platform/posix/cocoa/st_start.mm )
-
-# Start defining source files
-set( PLAT_WIN32_SOURCES
-	platform/win32/base_sysfb.cpp
-	platform/win32/gl_sysfb.cpp
-	platform/win32/hardware.cpp
-	platform/win32/i_crash.cpp
-	platform/win32/i_dijoy.cpp
-	platform/win32/i_input.cpp
-	platform/win32/i_keyboard.cpp
-	platform/win32/i_main.cpp
-	platform/win32/i_mouse.cpp
-	platform/win32/i_rawps2.cpp
-	platform/win32/i_specialpaths.cpp
-	platform/win32/i_system.cpp
-	platform/win32/i_xinput.cpp
-	platform/win32/st_start.cpp
-	platform/win32/st_start_util.cpp
-	platform/win32/win32basevideo.cpp
-	platform/win32/win32glvideo.cpp
-	platform/win32/win32vulkanvideo.cpp
-	platform/win32/i_steam.cpp
-	)
-
+	common/platform/posix/cocoa/i_input.mm
+	common/platform/posix/cocoa/i_joystick.cpp
+	common/platform/posix/cocoa/i_main.mm
+	common/platform/posix/cocoa/i_system.mm
+	common/platform/posix/cocoa/i_video.mm
+	common/platform/posix/cocoa/st_console.mm
+	common/platform/posix/cocoa/st_start.mm )
 
 if( WIN32 )
-	set( SYSTEM_SOURCES_DIR platform/win32 )
+	set( SYSTEM_SOURCES_DIR common/platform/win32 )
 	set( SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} )
 	set( OTHER_SYSTEM_SOURCES ${PLAT_POSIX_SOURCES} ${PLAT_SDL_SOURCES} ${PLAT_OSX_SOURCES} ${PLAT_COCOA_SOURCES} ${PLAT_UNIX_SOURCES} )
 
 	set( SYSTEM_SOURCES ${SYSTEM_SOURCES} platform/win32/gameres.rc )
 elseif( APPLE )
 	if( OSX_COCOA_BACKEND )
-		set( SYSTEM_SOURCES_DIR platform/posix/cocoa )
+		set( SYSTEM_SOURCES_DIR common/platform/posix common/platform/posix/cocoa )
 		set( SYSTEM_SOURCES ${PLAT_COCOA_SOURCES} )
 		set( OTHER_SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} ${PLAT_SDL_SOURCES} ${PLAT_UNIX_SOURCES} )
 	else()
-		set( SYSTEM_SOURCES_DIR platform/posix/sdl )
+		set( SYSTEM_SOURCES_DIR common/platform/posix common/platform/posix/sdl )
 		set( SYSTEM_SOURCES ${PLAT_SDL_SOURCES} )
-		set( PLAT_OSX_SOURCES ${PLAT_OSX_SOURCES} platform/posix/sdl/i_system.mm )
+		set( PLAT_OSX_SOURCES ${PLAT_OSX_SOURCES} common/platform/posix/sdl/i_system.mm )
 		set( OTHER_SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} ${PLAT_COCOA_SOURCES} ${PLAT_UNIX_SOURCES} )
 	endif()
 
 	set( SYSTEM_SOURCES ${SYSTEM_SOURCES} ${PLAT_POSIX_SOURCES} ${PLAT_OSX_SOURCES} )
 
 	set_source_files_properties( platform/posix/osx/${PROJECT_NAME}.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
-	set_source_files_properties( platform/posix/osx/iwadpicker_cocoa.mm PROPERTIES COMPILE_FLAGS -fobjc-exceptions )
+	set_source_files_properties( common/platform/posix/osx/iwadpicker_cocoa.mm PROPERTIES COMPILE_FLAGS -fobjc-exceptions )
 else()
-	set( SYSTEM_SOURCES_DIR platform/posix/sdl )
+	set( SYSTEM_SOURCES_DIR common/platform/posix common/platform/posix/sdl )
 	set( SYSTEM_SOURCES ${PLAT_POSIX_SOURCES} ${PLAT_SDL_SOURCES} ${PLAT_UNIX_SOURCES} )
 	set( OTHER_SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} ${PLAT_OSX_SOURCES} ${PLAT_COCOA_SOURCES} )
 endif()
@@ -629,9 +630,13 @@ file( GLOB HEADER_FILES
 	common/console/*.h
 	common/utility/*.h
 	common/engine/*.h
+	common/menu/*.h
 	common/fonts/*.h
 	common/objects/*.h
 	common/filesystem/*.h
+	common/platform/posix/cocoa/*.h
+	common/platform/posix/sdl/*.h
+	common/platform/win32/*.h
 	common/textures/*.h
 	common/textures/hires/hqnx/*.h
 	common/textures/hires/hqnx_asm/*.h
@@ -667,7 +672,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	common/scripting/frontend/zcc-parse.lemon
 	zcc-parse.c
 	zcc-parse.h
-	platform/win32/zutil.natvis
+	common/platform/win32/zutil.natvis
 )
 
 set( VM_JIT_SOURCES
@@ -1027,6 +1032,7 @@ include_directories(
 	common/utility
 	common/console
 	common/engine
+	common/menu
 	common/fonts
 	common/objects
 	common/rendering
@@ -1038,7 +1044,6 @@ include_directories(
 	common/scripting/frontend
 	common/scripting/backend
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
-
 	${SYSTEM_SOURCES_DIR}
 )
 
@@ -1077,7 +1082,7 @@ if( MSVC )
 	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS ${LINKERSTUFF})
 
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\platform\\win32\\manifest.game.xml\" -outputresource:\"$<TARGET_FILE:${PROJECT_NAME}>\"\;\#1
+		COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\common\\platform\\win32\\manifest.xml\" -outputresource:\"$<TARGET_FILE:${PROJECT_NAME}>\"\;\#1
 		COMMENT "Adding manifest..."
 	)
 
@@ -1149,6 +1154,7 @@ source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/
 source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/engine/.+")
 source_group("Common\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/2d/.+")
 source_group("Common\\Objects" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/objects/.+")
+source_group("Common\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/menu/.+")
 source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")
 source_group("Common\\Scripting" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/.+")
@@ -1158,6 +1164,11 @@ source_group("Common\\Scripting\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_S
 source_group("Common\\Scripting\\Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/core/.+")
 source_group("Common\\Scripting\\JIT" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/jit/.+")
 source_group("Common\\Scripting\\VM" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/vm/.+")
+source_group("Common\\Platforms\\Cocoa Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/posix/cocoa/.+")
+source_group("Common\\Platforms\\OS X Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/posix/osx/.+")
+source_group("Common\\Platforms\\Unix Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/posix/unix/.+")
+source_group("Common\\Platforms\\SDL Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/posix/sdl/.+")
+source_group("Common\\Platforms\\Win32 Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/win32/.+")
 source_group("Common\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/.+")
 source_group("Common\\Rendering\\OpenGL Loader" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl_load/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
@@ -1173,9 +1184,6 @@ source_group("Common\\Third Party\\SFMT" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SO
 source_group("Utility\\Smackerdec" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/smackerdec/.+")
 source_group("Utility\\Smackerdec\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libsmackerdec/include/.+")
 source_group("Utility\\Smackerdec\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libsmackerdec/src/.+")
-source_group("Utility\\XMP-Lite" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite/.+")
-source_group("Utility\\XMP-Lite Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite/include/libxmp-lite/.+")
-source_group("Utility\\XMP-Lite Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/libxmp-lite/src/.+")
 source_group("Utility\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/.+")
 source_group("Utility\\Third Party Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/include/.+")
 source_group("Utility\\Third Party Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/src/.+")
