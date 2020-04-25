@@ -39,16 +39,12 @@
 #include "cmdlib.h"
 #include "v_draw.h"
 #include "i_interface.h"
-
-#include "c_console.h"
-#include "menu/menu.h"
+#include "printf.h"
 
 #define NUMSCALEMODES countof(vScaleTable)
-
-bool setsizeneeded;
+extern bool setsizeneeded;
 
 EXTERN_CVAR(Int, vid_aspect)
-
 
 CUSTOM_CVAR(Int, vid_scale_customwidth, VID_MIN_WIDTH, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {

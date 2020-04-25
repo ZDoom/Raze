@@ -643,7 +643,9 @@ file( GLOB HEADER_FILES
 	common/thirdparty/*.h
 	common/thirdparty/rapidjson/*.h
 	common/thirdparty/math/*h
+	common/rendering/*.h
 	common/rendering/gl_load/*.h
+	common/rendering/hwrenderer/data/*.h
 	common/scripting/core/*h
 	common/scripting/vm/*h
 	common/scripting/jit/*h
@@ -862,6 +864,10 @@ set (PCH_SOURCES
 	common/objects/dobject.cpp
 	common/objects/dobjgc.cpp
 	common/objects/dobjtype.cpp
+	common/rendering/r_videoscale.cpp
+	common/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
+	common/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
+
 	common/rendering/gl_load/gl_interface.cpp
 	common/rendering/gl/gl_debug.cpp
 	common/rendering/gl/gl_hwtexture.cpp
@@ -905,7 +911,6 @@ set (PCH_SOURCES
 	#core/input/i_input.cpp
 	core/input/m_joy.cpp
 
-	core/rendering/r_videoscale.cpp
 	core/rendering/v_framebuffer.cpp
 	core/rendering/v_video.cpp
 	core/rendering/gl/renderer/gl_renderer.cpp
@@ -916,8 +921,6 @@ set (PCH_SOURCES
 	core/rendering/gl/system/gl_buffers.cpp
 	core/rendering/gl/system/gl_framebuffer.cpp
 	core/rendering/hwrenderer/data/flatvertices.cpp
-	core/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
-	core/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
 	core/rendering/hwrenderer/utility/hw_shaderpatcher.cpp
 )
 
@@ -1034,6 +1037,7 @@ include_directories(
 	common/fonts
 	common/objects
 	common/rendering
+	common/rendering/hwrenderer/data
 	common/rendering/gl_load
 	common/rendering/gl
 	common/scripting/vm
@@ -1169,6 +1173,9 @@ source_group("Common\\Platforms\\Unix Files" REGULAR_EXPRESSION "^${CMAKE_CURREN
 source_group("Common\\Platforms\\SDL Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/posix/sdl/.+")
 source_group("Common\\Platforms\\Win32 Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/win32/.+")
 source_group("Common\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/.+")
+source_group("Common\\Rendering\\Hardware Renderer" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/.+")
+source_group("Common\\Rendering\\Hardware Renderer\\Data" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/data/.+")
+source_group("Common\\Rendering\\Hardware Renderer\\Postprocessing" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/postprocessing/.+")
 source_group("Common\\Rendering\\OpenGL Loader" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl_load/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Textures\\Hires" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/.+")
