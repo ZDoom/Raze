@@ -21,19 +21,19 @@
 
 #include "v_video.h"
 #include "hw_postprocess.h"
-#include "gamecvars.h"
-#include "stats.h"
-#include "imagehelpers.h"
 #include "hwrenderer/utility/hw_cvars.h"
 #include "hwrenderer/postprocessing/hw_postprocess_cvars.h"
-#include "palutil.h"
-#include "palettecontainer.h"
-#include "vectors.h"
+#include "hwrenderer/postprocessing/hw_postprocessshader.h"
 #include <random>
+#include "texturemanager.h"
+#include "templates.h"
+#include "stats.h"
+#include "colormaps.h"
 
 Postprocess hw_postprocess;
 
 PPResource *PPResource::First = nullptr;
+TArray<PostProcessShader> PostProcessShaders;
 
 bool gpuStatActive = false;
 bool keepGpuStatActive = false;
@@ -76,7 +76,7 @@ void PPBloom::UpdateTextures(int width, int height)
 void PPBloom::RenderBloom(PPRenderState *renderstate, int sceneWidth, int sceneHeight, int fixedcm)
 {
 	// Only bloom things if enabled and no special fixed light mode is active
-	if (!gl_bloom || sceneWidth <= 0 || sceneHeight <= 0)
+	if (!gl_bloom || fixedcm != CM_DEFAULT || gl_ssao_debug || sceneWidth <= 0 || sceneHeight <= 0)
 	{
 		return;
 	}
@@ -273,7 +273,7 @@ void PPBloom::BlurStep(PPRenderState *renderstate, const BlurUniforms &blurUnifo
 
 float PPBloom::ComputeBlurGaussian(float n, float theta) // theta = Blur Amount
 {
-	return (float)((1.0f / sqrtf(2 * pi::pif() * theta)) * expf(-(n * n) / (2.0f * theta * theta)));
+	return (float)((1.0f / sqrtf(2 * (float)M_PI * theta)) * expf(-(n * n) / (2.0f * theta * theta)));
 }
 
 void PPBloom::ComputeBlurSamples(int sampleCount, float blurAmount, float *sampleWeights)
@@ -327,9 +327,9 @@ void PPLensDistort::Render(PPRenderState *renderstate)
 	// Scale factor to keep sampling within the input texture
 	float r2 = aspect * aspect * 0.25f + 0.25f;
 	float sqrt_r2 = sqrt(r2);
-	float f0 = 1.0f + std::max(r2 * (k[0] + kcube[0] * sqrt_r2), 0.0f);
-	float f2 = 1.0f + std::max(r2 * (k[2] + kcube[2] * sqrt_r2), 0.0f);
-	float f = std::max(f0, f2);
+	float f0 = 1.0f + MAX(r2 * (k[0] + kcube[0] * sqrt_r2), 0.0f);
+	float f2 = 1.0f + MAX(r2 * (k[2] + kcube[2] * sqrt_r2), 0.0f);
+	float f = MAX(f0, f2);
 	float scale = 1.0f / f;
 
 	LensUniforms uniforms;
@@ -395,8 +395,8 @@ void PPFXAA::CreateShaders()
 	if (LastQuality == gl_fxaa)
 		return;
 
-	FXAALuma = { "engine/shaders/pp/fxaa.fp", "#define FXAA_LUMA_PASS\n", {} };
-	FXAA = { "engine/shaders/pp/fxaa.fp", GetDefines(), FXAAUniforms::Desc(), GetMaxVersion() };
+	FXAALuma = { "shaders/glsl/fxaa.fp", "#define FXAA_LUMA_PASS\n", {} };
+	FXAA = { "shaders/glsl/fxaa.fp", GetDefines(), FXAAUniforms::Desc(), GetMaxVersion() };
 	LastQuality = gl_fxaa;
 }
 
@@ -499,8 +499,8 @@ void PPCameraExposure::Render(PPRenderState *renderstate, int sceneWidth, int sc
 
 void PPCameraExposure::UpdateTextures(int width, int height)
 {
-	int firstwidth = std::max(width / 2, 1);
-	int firstheight = std::max(height / 2, 1);
+	int firstwidth = MAX(width / 2, 1);
+	int firstheight = MAX(height / 2, 1);
 
 	if (ExposureLevels.size() > 0 && ExposureLevels[0].Viewport.width == firstwidth && ExposureLevels[0].Viewport.height == firstheight)
 	{
@@ -512,8 +512,8 @@ void PPCameraExposure::UpdateTextures(int width, int height)
 	int i = 0;
 	do
 	{
-		width = std::max(width / 2, 1);
-		height = std::max(height / 2, 1);
+		width = MAX(width / 2, 1);
+		height = MAX(height / 2, 1);
 
 		PPExposureLevel blevel;
 		blevel.Viewport.left = 0;
@@ -532,6 +532,37 @@ void PPCameraExposure::UpdateTextures(int width, int height)
 
 /////////////////////////////////////////////////////////////////////////////
 
+void PPColormap::Render(PPRenderState *renderstate, int fixedcm)
+{
+	if (fixedcm < CM_FIRSTSPECIALCOLORMAP || fixedcm >= CM_MAXCOLORMAP)
+	{
+		return;
+	}
+
+	FSpecialColormap *scm = &SpecialColormaps[fixedcm - CM_FIRSTSPECIALCOLORMAP];
+	float m[] = { scm->ColorizeEnd[0] - scm->ColorizeStart[0],
+		scm->ColorizeEnd[1] - scm->ColorizeStart[1], scm->ColorizeEnd[2] - scm->ColorizeStart[2], 0.f };
+
+	ColormapUniforms uniforms;
+	uniforms.MapStart = { scm->ColorizeStart[0], scm->ColorizeStart[1], scm->ColorizeStart[2], 0.f };
+	uniforms.MapRange = m;
+
+	renderstate->PushGroup("colormap");
+
+	renderstate->Clear();
+	renderstate->Shader = &Colormap;
+	renderstate->Uniforms.Set(uniforms);
+	renderstate->Viewport = screen->mScreenViewport;
+	renderstate->SetInputCurrent(0);
+	renderstate->SetOutputNext();
+	renderstate->SetNoBlend();
+	renderstate->Draw();
+
+	renderstate->PopGroup();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 void PPTonemap::UpdateTextures()
 {
 	if (gl_tonemap == Palette && !PaletteTexture.Data)
@@ -545,7 +576,7 @@ void PPTonemap::UpdateTextures()
 			{
 				for (int b = 0; b < 64; b++)
 				{
-					PalEntry color = GPalette.BaseColors[(uint8_t)PTM_BestColor((uint32_t*)GPalette.BaseColors, (r << 2) | (r >> 4), (g << 2) | (g >> 4), (b << 2) | (b >> 4),
+					PalEntry color = GPalette.BaseColors[(uint8_t)PTM_BestColor((uint32_t *)GPalette.BaseColors, (r << 2) | (r >> 4), (g << 2) | (g >> 4), (b << 2) | (b >> 4),
 						gl_paltonemap_reverselookup, gl_paltonemap_powtable, 0, 256)];
 					int index = ((r * 64 + g) * 64 + b) * 4;
 					lut[index] = color.r;
@@ -611,7 +642,7 @@ PPAmbientOcclusion::PPAmbientOcclusion()
 
 		for (int i = 0; i < 16; i++)
 		{
-			double angle = 2.0 * pi::pi() * distribution(generator) / numDirections[quality];
+			double angle = 2.0 * M_PI * distribution(generator) / numDirections[quality];
 			double x = cos(angle);
 			double y = sin(angle);
 			double z = distribution(generator);
@@ -650,14 +681,14 @@ void PPAmbientOcclusion::CreateShaders()
 		#define NUM_STEPS %d.0
 	)", numDirections, numSteps);
 
-	LinearDepth = { "engine/shaders/pp/lineardepth.fp", "", LinearDepthUniforms::Desc() };
-	LinearDepthMS = { "engine/shaders/pp/lineardepth.fp", "#define MULTISAMPLE\n", LinearDepthUniforms::Desc() };
-	AmbientOcclude = { "engine/shaders/pp/ssao.fp", defines, SSAOUniforms::Desc() };
-	AmbientOccludeMS = { "engine/shaders/pp/ssao.fp", defines + "\n#define MULTISAMPLE\n", SSAOUniforms::Desc() };
-	BlurVertical = { "engine/shaders/pp/depthblur.fp", "#define BLUR_VERTICAL\n", DepthBlurUniforms::Desc() };
-	BlurHorizontal = { "engine/shaders/pp/depthblur.fp", "#define BLUR_HORIZONTAL\n", DepthBlurUniforms::Desc() };
-	Combine = { "engine/shaders/pp/ssaocombine.fp", "", AmbientCombineUniforms::Desc() };
-	CombineMS = { "engine/shaders/pp/ssaocombine.fp", "#define MULTISAMPLE\n", AmbientCombineUniforms::Desc() };
+	LinearDepth = { "shaders/glsl/lineardepth.fp", "", LinearDepthUniforms::Desc() };
+	LinearDepthMS = { "shaders/glsl/lineardepth.fp", "#define MULTISAMPLE\n", LinearDepthUniforms::Desc() };
+	AmbientOcclude = { "shaders/glsl/ssao.fp", defines, SSAOUniforms::Desc() };
+	AmbientOccludeMS = { "shaders/glsl/ssao.fp", defines + "\n#define MULTISAMPLE\n", SSAOUniforms::Desc() };
+	BlurVertical = { "shaders/glsl/depthblur.fp", "#define BLUR_VERTICAL\n", DepthBlurUniforms::Desc() };
+	BlurHorizontal = { "shaders/glsl/depthblur.fp", "#define BLUR_HORIZONTAL\n", DepthBlurUniforms::Desc() };
+	Combine = { "shaders/glsl/ssaocombine.fp", "", AmbientCombineUniforms::Desc() };
+	CombineMS = { "shaders/glsl/ssaocombine.fp", "#define MULTISAMPLE\n", AmbientCombineUniforms::Desc() };
 
 	LastQuality = gl_ssao;
 }
@@ -710,7 +741,7 @@ void PPAmbientOcclusion::Render(PPRenderState *renderstate, float m5, int sceneW
 	LinearDepthUniforms linearUniforms;
 	linearUniforms.SampleIndex = 0;
 	linearUniforms.LinearizeDepthA = 1.0f / screen->GetZFar() - 1.0f / screen->GetZNear();
-	linearUniforms.LinearizeDepthB = std::max(1.0f / screen->GetZNear(), 1.e-8f);
+	linearUniforms.LinearizeDepthB = MAX(1.0f / screen->GetZNear(), 1.e-8f);
 	linearUniforms.InverseDepthRangeA = 1.0f;
 	linearUniforms.InverseDepthRangeB = 0.0f;
 	linearUniforms.Scale = sceneScale;
@@ -833,17 +864,243 @@ PPPresent::PPPresent()
 	Dither = { 8, 8, PixelFormat::R32f, pixels };
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+CVAR(Bool, gl_custompost, true, 0)
+
+void PPCustomShaders::Run(PPRenderState *renderstate, FString target)
+{
+	if (!gl_custompost)
+		return;
+
+	CreateShaders();
+
+	for (auto &shader : mShaders)
+	{
+		if (shader->Desc->Target == target && shader->Desc->Enabled)
+		{
+			shader->Run(renderstate);
+		}
+	}
+}
+
+void PPCustomShaders::CreateShaders()
+{
+	if (mShaders.size() == PostProcessShaders.Size())
+		return;
+
+	mShaders.clear();
+
+	for (unsigned int i = 0; i < PostProcessShaders.Size(); i++)
+	{
+		mShaders.push_back(std::make_unique<PPCustomShaderInstance>(&PostProcessShaders[i]));
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+PPCustomShaderInstance::PPCustomShaderInstance(PostProcessShader *desc) : Desc(desc)
+{
+	// Build an uniform block to be used as input
+	TMap<FString, PostProcessUniformValue>::Iterator it(Desc->Uniforms);
+	TMap<FString, PostProcessUniformValue>::Pair *pair;
+	size_t offset = 0;
+	while (it.NextPair(pair))
+	{
+		FString type;
+		FString name = pair->Key;
+
+		switch (pair->Value.Type)
+		{
+		case PostProcessUniformType::Float: AddUniformField(offset, name, UniformType::Float, sizeof(float)); break;
+		case PostProcessUniformType::Int: AddUniformField(offset, name, UniformType::Int, sizeof(int)); break;
+		case PostProcessUniformType::Vec2: AddUniformField(offset, name, UniformType::Vec2, sizeof(float) * 2); break;
+		case PostProcessUniformType::Vec3: AddUniformField(offset, name, UniformType::Vec3, sizeof(float) * 3, sizeof(float) * 4); break;
+		default: break;
+		}
+	}
+	UniformStructSize = ((int)offset + 15) / 16 * 16;
+
+	// Build the input textures
+	FString uniformTextures;
+	uniformTextures += "layout(binding=0) uniform sampler2D InputTexture;\n";
+
+	TMap<FString, FString>::Iterator itTextures(Desc->Textures);
+	TMap<FString, FString>::Pair *pairTextures;
+	int binding = 1;
+	while (itTextures.NextPair(pairTextures))
+	{
+		uniformTextures.AppendFormat("layout(binding=%d) uniform sampler2D %s;\n", binding++, pairTextures->Key.GetChars());
+	}
+
+	// Setup pipeline
+	FString pipelineInOut;
+	if (screen->IsVulkan())
+	{
+		pipelineInOut += "layout(location=0) in vec2 TexCoord;\n";
+		pipelineInOut += "layout(location=0) out vec4 FragColor;\n";
+	}
+	else 
+	{
+		pipelineInOut += "in vec2 TexCoord;\n";
+		pipelineInOut += "out vec4 FragColor;\n";
+	}
+
+	FString prolog;
+	prolog += uniformTextures;
+	prolog += pipelineInOut;
+
+	Shader = PPShader(Desc->ShaderLumpName, prolog, Fields);
+}
+
+void PPCustomShaderInstance::Run(PPRenderState *renderstate)
+{
+	renderstate->PushGroup(Desc->Name);
+
+	renderstate->Clear();
+	renderstate->Shader = &Shader;
+	renderstate->Viewport = screen->mScreenViewport;
+	renderstate->SetNoBlend();
+	renderstate->SetOutputNext();
+	//renderstate->SetDebugName(Desc->ShaderLumpName.GetChars());
+
+	SetTextures(renderstate);
+	SetUniforms(renderstate);
+
+	renderstate->Draw();
+
+	renderstate->PopGroup();
+}
+
+void PPCustomShaderInstance::SetTextures(PPRenderState *renderstate)
+{
+	renderstate->SetInputCurrent(0, PPFilterMode::Linear);
+
+	int textureIndex = 1;
+	TMap<FString, FString>::Iterator it(Desc->Textures);
+	TMap<FString, FString>::Pair *pair;
+	while (it.NextPair(pair))
+	{
+		FString name = pair->Value;
+		auto gtex = TexMan.GetGameTexture(TexMan.CheckForTexture(name, ETextureType::Any), true);
+		if (gtex && gtex->isValid())
+		{
+			// Why does this completely circumvent the normal way of handling textures?
+			// This absolutely needs fixing because it will also circumvent any potential caching system that may get implemented.
+			//
+			// To do: fix the above problem by adding PPRenderState::SetInput(FTexture *tex)
+
+			auto tex = gtex->GetTexture();
+			auto &pptex = Textures[tex];
+			if (!pptex)
+			{
+				auto buffer = tex->CreateTexBuffer(0);
+
+				std::shared_ptr<void> data(new uint32_t[buffer.mWidth * buffer.mHeight], [](void *p) { delete[](uint32_t*)p; });
+
+				int count = buffer.mWidth * buffer.mHeight;
+				uint8_t *pixels = (uint8_t *)data.get();
+				for (int i = 0; i < count; i++)
+				{
+					int pos = i << 2;
+					pixels[pos] = buffer.mBuffer[pos + 2];
+					pixels[pos + 1] = buffer.mBuffer[pos + 1];
+					pixels[pos + 2] = buffer.mBuffer[pos];
+					pixels[pos + 3] = buffer.mBuffer[pos + 3];
+				}
+
+				pptex = std::make_unique<PPTexture>(buffer.mWidth, buffer.mHeight, PixelFormat::Rgba8, data);
+			}
+
+			renderstate->SetInputTexture(textureIndex, pptex.get(), PPFilterMode::Linear, PPWrapMode::Repeat);
+			textureIndex++;
+		}
+	}
+}
+
+void PPCustomShaderInstance::SetUniforms(PPRenderState *renderstate)
+{
+	TArray<uint8_t> uniforms;
+	uniforms.Resize(UniformStructSize);
+
+	TMap<FString, PostProcessUniformValue>::Iterator it(Desc->Uniforms);
+	TMap<FString, PostProcessUniformValue>::Pair *pair;
+	while (it.NextPair(pair))
+	{
+		auto it2 = FieldOffset.find(pair->Key);
+		if (it2 != FieldOffset.end())
+		{
+			uint8_t *dst = &uniforms[it2->second];
+			float fValues[4];
+			int iValues[4];
+			switch (pair->Value.Type)
+			{
+			case PostProcessUniformType::Float:
+				fValues[0] = (float)pair->Value.Values[0];
+				memcpy(dst, fValues, sizeof(float));
+				break;
+			case PostProcessUniformType::Int:
+				iValues[0] = (int)pair->Value.Values[0];
+				memcpy(dst, iValues, sizeof(int));
+				break;
+			case PostProcessUniformType::Vec2:
+				fValues[0] = (float)pair->Value.Values[0];
+				fValues[1] = (float)pair->Value.Values[1];
+				memcpy(dst, fValues, sizeof(float) * 2);
+				break;
+			case PostProcessUniformType::Vec3:
+				fValues[0] = (float)pair->Value.Values[0];
+				fValues[1] = (float)pair->Value.Values[1];
+				fValues[2] = (float)pair->Value.Values[2];
+				memcpy(dst, fValues, sizeof(float) * 3);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	renderstate->Uniforms.Data = uniforms;
+}
+
+void PPCustomShaderInstance::AddUniformField(size_t &offset, const FString &name, UniformType type, size_t fieldsize, size_t alignment)
+{
+	if (alignment == 0) alignment = fieldsize;
+	offset = (offset + alignment - 1) / alignment * alignment;
+
+	FieldOffset[name] = offset;
+
+	auto name2 = std::make_unique<FString>(name);
+	auto chars = name2->GetChars();
+	FieldNames.push_back(std::move(name2));
+	Fields.push_back({ chars, type, offset });
+	offset += fieldsize;
+
+	if (fieldsize != alignment) // Workaround for buggy OpenGL drivers that does not do std140 layout correctly for vec3
+	{
+		name2 = std::make_unique<FString>(name + "_F39350FF12DE_padding");
+		chars = name2->GetChars();
+		FieldNames.push_back(std::move(name2));
+		Fields.push_back({ chars, UniformType::Float, offset });
+		offset += alignment - fieldsize;
+	}
+}
 
 
 void Postprocess::Pass1(PPRenderState* state, int fixedcm, int sceneWidth, int sceneHeight)
 {
 	exposure.Render(state, sceneWidth, sceneHeight);
+	customShaders.Run(state, "beforebloom");
 	bloom.RenderBloom(state, sceneWidth, sceneHeight, fixedcm);
 }
 
 void Postprocess::Pass2(PPRenderState* state, int fixedcm, int sceneWidth, int sceneHeight)
 {
 	tonemap.Render(state);
+	colormap.Render(state, fixedcm);
 	lens.Render(state);
 	fxaa.Render(state);
+	customShaders.Run(state, "scene");
 }

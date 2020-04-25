@@ -134,7 +134,7 @@ void paletteLoadFromDisk(void)
 
     // Read base shade table (lookuptables 0).
     int length = numshades * 256;
-    auto buf = fil.Read();
+    auto buf = fil.Read(length);
     LookupTables[0] = FString((char*)buf.Data(), buf.Size());
     if (buf.Size() != length)
         return;

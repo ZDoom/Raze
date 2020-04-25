@@ -303,7 +303,7 @@ public:
 
 	void ResetBackend() override { Backend.reset(); }
 
-	FString VertexShader = "engine/shaders/pp/screenquad.vp";
+	FString VertexShader = "shaders/glsl/screenquad.vp";
 	FString FragmentShader;
 	FString Defines;
 	std::vector<UniformFieldDesc> Uniforms;
@@ -376,10 +376,10 @@ private:
 	int lastWidth = 0;
 	int lastHeight = 0;
 
-	PPShader BloomCombine = { "engine/shaders/pp/bloomcombine.fp", "", {} };
-	PPShader BloomExtract = { "engine/shaders/pp/bloomextract.fp", "", ExtractUniforms::Desc() };
-	PPShader BlurVertical = { "engine/shaders/pp/blur.fp", "#define BLUR_VERTICAL\n", BlurUniforms::Desc() };
-	PPShader BlurHorizontal = { "engine/shaders/pp/blur.fp", "#define BLUR_HORIZONTAL\n", BlurUniforms::Desc() };
+	PPShader BloomCombine = { "shaders/glsl/bloomcombine.fp", "", {} };
+	PPShader BloomExtract = { "shaders/glsl/bloomextract.fp", "", ExtractUniforms::Desc() };
+	PPShader BlurVertical = { "shaders/glsl/blur.fp", "#define BLUR_VERTICAL\n", BlurUniforms::Desc() };
+	PPShader BlurHorizontal = { "shaders/glsl/blur.fp", "#define BLUR_HORIZONTAL\n", BlurUniforms::Desc() };
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -412,7 +412,7 @@ public:
 	void Render(PPRenderState *renderstate);
 
 private:
-	PPShader Lens = { "engine/shaders/pp/lensdistortion.fp", "", LensUniforms::Desc() };
+	PPShader Lens = { "shaders/glsl/lensdistortion.fp", "", LensUniforms::Desc() };
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -504,9 +504,9 @@ private:
 	std::vector<PPExposureLevel> ExposureLevels;
 	bool FirstExposureFrame = true;
 
-	PPShader ExposureExtract = { "engine/shaders/pp/exposureextract.fp", "", ExposureExtractUniforms::Desc() };
-	PPShader ExposureAverage = { "engine/shaders/pp/exposureaverage.fp", "", {}, 400 };
-	PPShader ExposureCombine = { "engine/shaders/pp/exposurecombine.fp", "", ExposureCombineUniforms::Desc() };
+	PPShader ExposureExtract = { "shaders/glsl/exposureextract.fp", "", ExposureExtractUniforms::Desc() };
+	PPShader ExposureAverage = { "shaders/glsl/exposureaverage.fp", "", {}, 400 };
+	PPShader ExposureCombine = { "shaders/glsl/exposurecombine.fp", "", ExposureCombineUniforms::Desc() };
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -526,6 +526,15 @@ struct ColormapUniforms
 	}
 };
 
+class PPColormap
+{
+public:
+	void Render(PPRenderState *renderstate, int fixedcm);
+
+private:
+	PPShader Colormap = { "shaders/glsl/colormap.fp", "", ColormapUniforms::Desc() };
+};
+
 /////////////////////////////////////////////////////////////////////////////
 
 class PPTonemap
@@ -539,11 +548,11 @@ private:
 
 	PPTexture PaletteTexture;
 
-	PPShader LinearShader = { "engine/shaders/pp/tonemap.fp", "#define LINEAR\n", {} };
-	PPShader ReinhardShader = { "engine/shaders/pp/tonemap.fp", "#define REINHARD\n", {} };
-	PPShader HejlDawsonShader = { "engine/shaders/pp/tonemap.fp", "#define HEJLDAWSON\n", {} };
-	PPShader Uncharted2Shader = { "engine/shaders/pp/tonemap.fp", "#define UNCHARTED2\n", {} };
-	PPShader PaletteShader = { "engine/shaders/pp/tonemap.fp", "#define PALETTE\n", {} };
+	PPShader LinearShader = { "shaders/glsl/tonemap.fp", "#define LINEAR\n", {} };
+	PPShader ReinhardShader = { "shaders/glsl/tonemap.fp", "#define REINHARD\n", {} };
+	PPShader HejlDawsonShader = { "shaders/glsl/tonemap.fp", "#define HEJLDAWSON\n", {} };
+	PPShader Uncharted2Shader = { "shaders/glsl/tonemap.fp", "#define UNCHARTED2\n", {} };
+	PPShader PaletteShader = { "shaders/glsl/tonemap.fp", "#define PALETTE\n", {} };
 
 	enum TonemapMode
 	{
@@ -744,10 +753,70 @@ public:
 
 	PPTexture Dither;
 
-	PPShader Present = { "engine/shaders/pp/present.fp", "", PresentUniforms::Desc() };
-	PPShader Checker3D = { "engine/shaders/pp/present_checker3d.fp", "", PresentUniforms::Desc() };
-	PPShader Column3D = { "engine/shaders/pp/present_column3d.fp", "", PresentUniforms::Desc() };
-	PPShader Row3D = { "engine/shaders/pp/present_row3d.fp", "", PresentUniforms::Desc() };
+	PPShader Present = { "shaders/glsl/present.fp", "", PresentUniforms::Desc() };
+	PPShader Checker3D = { "shaders/glsl/present_checker3d.fp", "", PresentUniforms::Desc() };
+	PPShader Column3D = { "shaders/glsl/present_column3d.fp", "", PresentUniforms::Desc() };
+	PPShader Row3D = { "shaders/glsl/present_row3d.fp", "", PresentUniforms::Desc() };
+};
+
+struct ShadowMapUniforms
+{
+	float ShadowmapQuality;
+	int NodesCount;
+	float Padding0, Padding1;
+
+	static std::vector<UniformFieldDesc> Desc()
+	{
+		return
+		{
+			{ "ShadowmapQuality", UniformType::Float, offsetof(ShadowMapUniforms, ShadowmapQuality) },
+			{ "NodesCount", UniformType::Int, offsetof(ShadowMapUniforms, NodesCount) },
+			{ "Padding0", UniformType::Float, offsetof(ShadowMapUniforms, Padding0) },
+			{ "Padding1", UniformType::Float, offsetof(ShadowMapUniforms, Padding1) },
+		};
+	}
+};
+
+class PPShadowMap
+{
+public:
+	void Update(PPRenderState *renderstate);
+
+private:
+	PPShader ShadowMap = { "shaders/glsl/shadowmap.fp", "", ShadowMapUniforms::Desc() };
+};
+
+class PPCustomShaderInstance
+{
+public:
+	PPCustomShaderInstance(PostProcessShader *desc);
+
+	void Run(PPRenderState *renderstate);
+
+	PostProcessShader *Desc = nullptr;
+
+private:
+	void AddUniformField(size_t &offset, const FString &name, UniformType type, size_t fieldsize, size_t alignment = 0);
+	void SetTextures(PPRenderState *renderstate);
+	void SetUniforms(PPRenderState *renderstate);
+
+	PPShader Shader;
+	int UniformStructSize = 0;
+	std::vector<UniformFieldDesc> Fields;
+	std::vector<std::unique_ptr<FString>> FieldNames;
+	std::map<FTexture*, std::unique_ptr<PPTexture>> Textures;
+	std::map<FString, size_t> FieldOffset;
+};
+
+class PPCustomShaders
+{
+public:
+	void Run(PPRenderState *renderstate, FString target);
+
+private:
+	void CreateShaders();
+
+	std::vector<std::unique_ptr<PPCustomShaderInstance>> mShaders;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -759,9 +828,12 @@ public:
 	PPLensDistort lens;
 	PPFXAA fxaa;
 	PPCameraExposure exposure;
+	PPColormap colormap;
 	PPTonemap tonemap;
 	PPAmbientOcclusion ssao;
 	PPPresent present;
+	PPShadowMap shadowmap;
+	PPCustomShaders customShaders;
 
 
 	void Pass1(PPRenderState *state, int fixedcm, int sceneWidth, int sceneHeight);

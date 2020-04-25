@@ -2119,10 +2119,12 @@ int32_t enginePostInit(void)
 {
     if (!(paletteloaded & PALETTE_MAIN))
         I_FatalError("No palette found.");
+#if 0
     if (!(paletteloaded & PALETTE_SHADE))
         I_FatalError("No shade table found.");
     if (!(paletteloaded & PALETTE_TRANSLUC))
         I_FatalError("No translucency table found.");
+#endif
 
     palettePostLoadTables();
 
