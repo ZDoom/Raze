@@ -5,6 +5,7 @@
 #include "renderstyle.h"
 class PolymostShader;
 struct GLState;
+class FMaterial;
 
 enum EMatrixType
 {
@@ -82,7 +83,7 @@ struct FMaterialState
 	{
 		mMaterial = nullptr;
 		mTranslation = 0;
-		mClampMode = CLAMP_NONE;
+		mClampMode = 0/*CLAMP_NONE*/;
 		mOverrideShader = -1;
 		mChanged = false;
 	}

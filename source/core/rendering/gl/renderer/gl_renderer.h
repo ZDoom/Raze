@@ -4,7 +4,7 @@
 #include "v_video.h"
 #include "vectors.h"
 #include "matrix.h"
-#include "gl/renderer/gl_renderbuffers.h"
+#include "gl_renderbuffers.h"
 #include <functional>
 
 #ifdef _MSC_VER
@@ -15,7 +15,6 @@ struct particle_t;
 class FCanvasTexture;
 class FFlatVertexBuffer;
 class FSkyVertexBuffer;
-class FShaderManager;
 class HWPortal;
 class FLightBuffer;
 class DPSprite;
@@ -27,6 +26,7 @@ struct FRenderViewpoint;
 
 namespace OpenGLRenderer
 {
+	class FShaderManager;
 	class FSamplerManager;
 	class OpenGLFrameBuffer;
 	class FPresentShaderBase;
@@ -34,6 +34,7 @@ namespace OpenGLRenderer
 	class FPresent3DCheckerShader;
 	class FPresent3DColumnShader;
 	class FPresent3DRowShader;
+	class FShadowMapShader;
 
 class FGLRenderer
 {
@@ -42,11 +43,10 @@ public:
 	OpenGLFrameBuffer *framebuffer;
 	int mMirrorCount = 0;
 	int mPlaneMirrorCount = 0;
-	//FShaderManager *mShaderManager = nullptr;
+	FShaderManager *mShaderManager = nullptr;
 	FSamplerManager *mSamplerManager = nullptr;
 	unsigned int mFBID;
 	unsigned int mVAOID;
-	//unsigned int PortalQueryObject;
 	unsigned int mStencilValue = 0;
 
 	int mOldFBID;
@@ -58,10 +58,9 @@ public:
 	FPresent3DCheckerShader *mPresent3dCheckerShader = nullptr;
 	FPresent3DColumnShader *mPresent3dColumnShader = nullptr;
 	FPresent3DRowShader *mPresent3dRowShader = nullptr;
+	FShadowMapShader *mShadowMapShader = nullptr;
 
 	//FRotator mAngles;
-
-	//SWSceneDrawer *swdrawer = nullptr;
 
 	FGLRenderer(OpenGLFrameBuffer *fb);
 	~FGLRenderer() ;
@@ -80,10 +79,8 @@ public:
 	void DrawPresentTexture(const IntRect &box, bool applyGamma);
 	void Flush();
 	//void Draw2D(F2DDrawer *data);
-	void WriteSavePic(FileWriter *file, int width, int height);
 	void BeginFrame();
     
-
 	bool StartOffscreen();
 	void EndOffscreen();
 
@@ -93,6 +90,15 @@ private:
 
 	void DrawScene(HWDrawInfo *di, int drawmode);
 
+	bool QuadStereoCheckInitialRenderContextState();
+	void PresentAnaglyph(bool r, bool g, bool b);
+	void PresentSideBySide();
+	void PresentTopBottom();
+	void prepareInterleavedPresent(FPresentShaderBase& shader);
+	void PresentColumnInterleaved();
+	void PresentRowInterleaved();
+	void PresentCheckerInterleaved();
+	void PresentQuadStereo();
 
 };
 

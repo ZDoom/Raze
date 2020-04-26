@@ -21,7 +21,7 @@
 
 #include "v_video.h"
 #include "hw_postprocess.h"
-#include "hwrenderer/utility/hw_cvars.h"
+#include "hw_cvars.h"
 #include "hwrenderer/postprocessing/hw_postprocess_cvars.h"
 #include "hwrenderer/postprocessing/hw_postprocessshader.h"
 #include <random>
@@ -395,8 +395,8 @@ void PPFXAA::CreateShaders()
 	if (LastQuality == gl_fxaa)
 		return;
 
-	FXAALuma = { "shaders/glsl/fxaa.fp", "#define FXAA_LUMA_PASS\n", {} };
-	FXAA = { "shaders/glsl/fxaa.fp", GetDefines(), FXAAUniforms::Desc(), GetMaxVersion() };
+	FXAALuma = { "shaders/pp/fxaa.fp", "#define FXAA_LUMA_PASS\n", {} };
+	FXAA = { "shaders/pp/fxaa.fp", GetDefines(), FXAAUniforms::Desc(), GetMaxVersion() };
 	LastQuality = gl_fxaa;
 }
 
@@ -681,14 +681,14 @@ void PPAmbientOcclusion::CreateShaders()
 		#define NUM_STEPS %d.0
 	)", numDirections, numSteps);
 
-	LinearDepth = { "shaders/glsl/lineardepth.fp", "", LinearDepthUniforms::Desc() };
-	LinearDepthMS = { "shaders/glsl/lineardepth.fp", "#define MULTISAMPLE\n", LinearDepthUniforms::Desc() };
-	AmbientOcclude = { "shaders/glsl/ssao.fp", defines, SSAOUniforms::Desc() };
-	AmbientOccludeMS = { "shaders/glsl/ssao.fp", defines + "\n#define MULTISAMPLE\n", SSAOUniforms::Desc() };
-	BlurVertical = { "shaders/glsl/depthblur.fp", "#define BLUR_VERTICAL\n", DepthBlurUniforms::Desc() };
-	BlurHorizontal = { "shaders/glsl/depthblur.fp", "#define BLUR_HORIZONTAL\n", DepthBlurUniforms::Desc() };
-	Combine = { "shaders/glsl/ssaocombine.fp", "", AmbientCombineUniforms::Desc() };
-	CombineMS = { "shaders/glsl/ssaocombine.fp", "#define MULTISAMPLE\n", AmbientCombineUniforms::Desc() };
+	LinearDepth = { "shaders/pp/lineardepth.fp", "", LinearDepthUniforms::Desc() };
+	LinearDepthMS = { "shaders/pp/lineardepth.fp", "#define MULTISAMPLE\n", LinearDepthUniforms::Desc() };
+	AmbientOcclude = { "shaders/pp/ssao.fp", defines, SSAOUniforms::Desc() };
+	AmbientOccludeMS = { "shaders/pp/ssao.fp", defines + "\n#define MULTISAMPLE\n", SSAOUniforms::Desc() };
+	BlurVertical = { "shaders/pp/depthblur.fp", "#define BLUR_VERTICAL\n", DepthBlurUniforms::Desc() };
+	BlurHorizontal = { "shaders/pp/depthblur.fp", "#define BLUR_HORIZONTAL\n", DepthBlurUniforms::Desc() };
+	Combine = { "shaders/pp/ssaocombine.fp", "", AmbientCombineUniforms::Desc() };
+	CombineMS = { "shaders/pp/ssaocombine.fp", "#define MULTISAMPLE\n", AmbientCombineUniforms::Desc() };
 
 	LastQuality = gl_ssao;
 }
@@ -865,6 +865,27 @@ PPPresent::PPPresent()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+
+void PPShadowMap::Update(PPRenderState* renderstate)
+{
+	ShadowMapUniforms uniforms;
+	uniforms.ShadowmapQuality = (float)gl_shadowmap_quality;
+	uniforms.NodesCount = screen->mShadowMap.NodesCount();
+
+	renderstate->PushGroup("shadowmap");
+
+	renderstate->Clear();
+	renderstate->Shader = &ShadowMap;
+	renderstate->Uniforms.Set(uniforms);
+	renderstate->Viewport = { 0, 0, gl_shadowmap_quality, 1024 };
+	renderstate->SetShadowMapBuffers(true);
+	renderstate->SetOutputShadowMap();
+	renderstate->SetNoBlend();
+	renderstate->Draw();
+
+	renderstate->PopGroup();
+}
 
 /////////////////////////////////////////////////////////////////////////////
 

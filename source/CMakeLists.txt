@@ -865,13 +865,28 @@ set (PCH_SOURCES
 	common/objects/dobjgc.cpp
 	common/objects/dobjtype.cpp
 	common/rendering/r_videoscale.cpp
+	common/rendering/hwrenderer/data/flatvertices.cpp
+	common/rendering/hwrenderer/data/hw_viewpointbuffer.cpp
+	common/rendering/hwrenderer/data/hw_modelvertexbuffer.cpp
+	common/rendering/hwrenderer/data/hw_cvars.cpp
+	common/rendering/hwrenderer/data/hw_vrmodes.cpp
+	common/rendering/hwrenderer/data/hw_lightbuffer.cpp
+	common/rendering/hwrenderer/data/hw_aabbtree.cpp
+	common/rendering/hwrenderer/data/hw_shadowmap.cpp
+	common/rendering/hwrenderer/data/hw_shaderpatcher.cpp
 	common/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
 	common/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
-
 	common/rendering/gl_load/gl_interface.cpp
+	common/rendering/gl/gl_renderstate.cpp
+	common/rendering/gl/gl_renderbuffers.cpp
+	common/rendering/gl/gl_postprocess.cpp
+	common/rendering/gl/gl_postprocessstate.cpp
 	common/rendering/gl/gl_debug.cpp
+	common/rendering/gl/gl_buffers.cpp
 	common/rendering/gl/gl_hwtexture.cpp
 	common/rendering/gl/gl_samplers.cpp
+	common/rendering/gl/gl_shader.cpp
+	common/rendering/gl/gl_shaderprogram.cpp
 	common/scripting/core/dictionary.cpp
 	common/scripting/core/dynarrays.cpp
 	common/scripting/core/symbols.cpp
@@ -914,14 +929,7 @@ set (PCH_SOURCES
 	core/rendering/v_framebuffer.cpp
 	core/rendering/v_video.cpp
 	core/rendering/gl/renderer/gl_renderer.cpp
-	core/rendering/gl/renderer/gl_postprocess.cpp
-	core/rendering/gl/renderer/gl_postprocessstate.cpp
-	core/rendering/gl/renderer/gl_renderbuffers.cpp
-	core/rendering/gl/shaders/gl_shaderprogram.cpp
-	core/rendering/gl/system/gl_buffers.cpp
 	core/rendering/gl/system/gl_framebuffer.cpp
-	core/rendering/hwrenderer/data/flatvertices.cpp
-	core/rendering/hwrenderer/utility/hw_shaderpatcher.cpp
 )
 
 if( ${HAVE_VM_JIT} )

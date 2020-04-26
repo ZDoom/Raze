@@ -42,7 +42,7 @@
 #include "c_cvars.h"
 #include "v_2ddrawer.h"
 #include "intrect.h"
-//#include "hwrenderer/dynlights/hw_shadowmap.h"
+#include "hw_shadowmap.h"
 
 static const int VID_MIN_WIDTH = 640;
 static const int VID_MIN_HEIGHT = 400;
@@ -59,6 +59,7 @@ class FLightBuffer;
 struct HWDrawInfo;
 class FMaterial;
 class FGameTexture;
+class FRenderState;
 
 enum EHWCaps
 {
@@ -111,6 +112,7 @@ inline bool V_IsTrueColor()
 }
 
 
+struct FColormap;
 class FileWriter;
 enum FTextureFormat : uint32_t;
 class FModelRenderer;
@@ -169,14 +171,13 @@ public:
 	//FSkyVertexBuffer *mSkyData = nullptr;		// the sky vertex buffer
 	FFlatVertexBuffer *mVertexData = nullptr;	// Global vertex data
 	//HWViewpointBuffer *mViewpoints = nullptr;	// Viewpoint render data.
-	//FLightBuffer *mLights = nullptr;			// Dynamic lights
-	//IShadowMap mShadowMap;
+	FLightBuffer *mLights = nullptr;			// Dynamic lights
+	IShadowMap mShadowMap;
 
 	IntRect mScreenViewport;
 	IntRect mSceneViewport;
 	IntRect mOutputLetterbox;
 	float mSceneClearColor[4];
-
 
 public:
 	DFrameBuffer (int width=1, int height=1);
@@ -184,6 +185,10 @@ public:
 	virtual void InitializeState() = 0;	// For stuff that needs 'screen' set.
 	virtual bool IsVulkan() { return false; }
 	virtual bool IsPoly() { return false; }
+	void SetAABBTree(hwrenderer::LevelAABBTree * tree)
+	{
+		mShadowMap.SetAABBTree(tree);
+	}
 
 	virtual DCanvas* GetCanvas() { return nullptr; }
 
@@ -213,8 +218,6 @@ public:
 	// Mark the palette as changed. It will be updated on the next Update().
 	virtual void UpdatePalette() {}
 
-	virtual void SetGamma() {}
-
 	// Returns true if running fullscreen.
 	virtual bool IsFullscreen () = 0;
 	virtual void ToggleFullscreen(bool yes) {}
@@ -223,7 +226,6 @@ public:
 	virtual void SetVSync (bool vsync);
 
 	// Delete any resources that need to be deleted after restarting with a different IWAD
-	virtual void CleanForRestart() {}
 	virtual void SetTextureFilterMode() {}
 	virtual IHardwareTexture *CreateHardwareTexture(int numchannels) { return nullptr; }
 	virtual void PrecacheMaterial(FMaterial *mat, int translation) {}
@@ -232,6 +234,7 @@ public:
 	virtual void BeginFrame() {}
 	virtual void SetWindowSize(int w, int h) {}
 	virtual void StartPrecaching() {}
+	virtual FRenderState* RenderState() { return nullptr; }
 
 	virtual int GetClientWidth() = 0;
 	virtual int GetClientHeight() = 0;
@@ -282,6 +285,7 @@ public:
 	uint64_t GetLastFPS() const { return LastCount; }
 
 	virtual void Draw2D() {}
+	void Clear2D() {}
 
 	// Calculate gamma table
 	void CalcGamma(float gamma, uint8_t gammalookup[256]);
@@ -321,6 +325,8 @@ extern DFrameBuffer *screen;
 #define SCREENWIDTH (screen->GetWidth ())
 #define SCREENHEIGHT (screen->GetHeight ())
 #define SCREENPITCH (screen->GetPitch ())
+
+EXTERN_CVAR (Float, vid_gamma)
 
 
 // Allocates buffer screens, call before R_Init.

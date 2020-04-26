@@ -32,7 +32,7 @@
 **
 */ 
 
-#include "gl_load/gl_system.h"
+#include "gl_system.h"
 #include "files.h"
 #include "v_video.h"
 #include "m_png.h"
@@ -40,7 +40,8 @@
 #include "i_time.h"
 #include "cmdlib.h"
 #include "m_png.h"
-//#include "swrenderer/r_swscene.h"
+#include "version.h"
+#include "texturemanager.h"
 //#include "hwrenderer/utility/hw_clock.h"
 
 #include "gl_load/gl_interface.h"
@@ -48,17 +49,17 @@
 #include "gamecvars.h"
 #include "gl_debug.h"
 #include "gl/renderer/gl_renderer.h"
-//#include "gl/renderer/gl_renderstate.h"
-#include "gl/renderer/gl_renderbuffers.h"
-#include "gl/shaders/gl_shaderprogram.h"
-//#include "hwrenderer/data/flatvertices.h"
+#include "gl_renderstate.h"
+#include "gl_renderbuffers.h"
+#include "gl_shaderprogram.h"
+#include "flatvertices.h"
 #include "gl_samplers.h"
-//#include "hwrenderer/dynlights/hw_lightbuffer.h"
+#include "hw_lightbuffer.h"
 //#include "hwrenderer/data/hw_viewpointbuffer.h"
 #include "r_videoscale.h"
 //#include "r_data/models/models.h"
-#include "gl/renderer/gl_postprocessstate.h"
-#include "gl/system/gl_buffers.h"
+#include "gl_postprocessstate.h"
+#include "gl_buffers.h"
 #include "gl_hwtexture.h"
 #include "build.h"
 
@@ -89,15 +90,14 @@ FGLRenderer::FGLRenderer(OpenGLFrameBuffer *fb)
 
 void FGLRenderer::Initialize(int width, int height)
 {
-	mScreenBuffers = new FGLRenderBuffers(gl_multisample);
-	mSaveBuffers = new FGLRenderBuffers(0);
+	mScreenBuffers = new FGLRenderBuffers();
+	mSaveBuffers = new FGLRenderBuffers();
 	mBuffers = mScreenBuffers;
 	mPresentShader = new FPresentShader();
 	mPresent3dCheckerShader = new FPresent3DCheckerShader();
 	mPresent3dColumnShader = new FPresent3DColumnShader();
 	mPresent3dRowShader = new FPresent3DRowShader();
-
-	//glGenQueries(1, &PortalQueryObject);
+	mShadowMapShader = new FShadowMapShader();
 
 	// needed for the core profile, because someone decided it was a good idea to remove the default VAO.
 	glGenVertexArrays(1, &mVAOID);
@@ -107,15 +107,15 @@ void FGLRenderer::Initialize(int width, int height)
 	mFBID = 0;
 	mOldFBID = 0;
 
-	//mShaderManager = new FShaderManager;
+	mShaderManager = new FShaderManager;
 	mSamplerManager = new FSamplerManager;
 }
 
 FGLRenderer::~FGLRenderer() 
 {
 	//FlushModels();
-	//TexMan.FlushAll();
-	//if (mShaderManager != nullptr) delete mShaderManager;
+	TexMan.FlushAll();
+	if (mShaderManager != nullptr) delete mShaderManager;
 	if (mSamplerManager != nullptr) delete mSamplerManager;
 	if (mFBID != 0) glDeleteFramebuffers(1, &mFBID);
 	if (mVAOID != 0)
@@ -123,15 +123,13 @@ FGLRenderer::~FGLRenderer()
 		glBindVertexArray(0);
 		glDeleteVertexArrays(1, &mVAOID);
 	}
-	//if (PortalQueryObject != 0) glDeleteQueries(1, &PortalQueryObject);
-
-	//if (swdrawer) delete swdrawer;
 	if (mBuffers) delete mBuffers;
 	if (mSaveBuffers) delete mSaveBuffers;
 	if (mPresentShader) delete mPresentShader;
 	if (mPresent3dCheckerShader) delete mPresent3dCheckerShader;
 	if (mPresent3dColumnShader) delete mPresent3dColumnShader;
 	if (mPresent3dRowShader) delete mPresent3dRowShader;
+	if (mShadowMapShader) delete mShadowMapShader;
 }
 
 //===========================================================================
@@ -186,70 +184,6 @@ void FGLRenderer::BindToFrameBuffer(FGameTexture *mat)
 
 //===========================================================================
 //
-// Render the view to a savegame picture
-//
-//===========================================================================
-
-void FGLRenderer::WriteSavePic ( FileWriter *file, int width, int height)
-{
-    IntRect bounds;
-    bounds.left = 0;
-    bounds.top = 0;
-    bounds.width = width;
-    bounds.height = height;
-    
-    // we must be sure the GPU finished reading from the buffer before we fill it with new data.
-    glFinish();
-    
-    // Switch to render buffers dimensioned for the savepic
-    mBuffers = mSaveBuffers;
-	mBuffers->BindSceneFB(false);
-	screen->SetViewportRects(&bounds);
-
-
-	int oldx = xdim;
-	int oldy = ydim;
-	auto oldwindowxy1 = windowxy1;
-	auto oldwindowxy2 = windowxy2;
-
-	xdim = width;
-	ydim = height;
-	videoSetViewableArea(0, 0, width - 1, height - 1);
-	renderSetAspect(65536, 65536);
-	bool didit = gi->GenerateSavePic();
-
-	xdim = oldx;
-	ydim = oldy;
-	videoSetViewableArea(oldwindowxy1.x, oldwindowxy1.y, oldwindowxy2.x, oldwindowxy2.y);
-
-	// The 2D drawers can contain some garbage from the dirty render setup. Get rid of that first.
-	twodgen.Clear();
-	twodpsp.Clear();
-	CopyToBackbuffer(&bounds, false);
-    
-    // strictly speaking not needed as the glReadPixels should block until the scene is rendered, but this is to safeguard against shitty drivers
-    glFinish();
-    
-	if (didit)
-	{
-		int numpixels = width * height;
-		uint8_t* scr = (uint8_t*)Xmalloc(numpixels * 3);
-		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, scr);
-		M_CreatePNG(file, scr + ((height - 1) * width * 3), nullptr, SS_RGB, width, height, -width * 3, vid_gamma);
-        M_FinishPNG(file);
-		Xfree(scr);
-	}
-    
-    // Switch back the screen render buffers
-    screen->SetViewportRects(nullptr);
-    mBuffers = mScreenBuffers;
-	bool useSSAO = (gl_ssao != 0);
-	mBuffers->BindSceneFB(useSSAO);
-}
-
-
-//===========================================================================
-//
 //
 //
 //===========================================================================
@@ -257,7 +191,12 @@ void FGLRenderer::WriteSavePic ( FileWriter *file, int width, int height)
 void FGLRenderer::BeginFrame()
 {
 	mScreenBuffers->Setup(screen->mScreenViewport.width, screen->mScreenViewport.height, screen->mSceneViewport.width, screen->mSceneViewport.height);
-	mSaveBuffers->Setup(240, 180, 240, 180);
+	mSaveBuffers->Setup(SAVEPICWIDTH, SAVEPICHEIGHT, SAVEPICWIDTH, SAVEPICHEIGHT);
+}
+
+void FGLRenderer::PresentStereo()
+{
+
 }
 
 }

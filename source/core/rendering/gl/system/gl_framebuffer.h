@@ -24,9 +24,7 @@ public:
 	void Update() override;
 	void Draw2D() override;
 
-	void CleanForRestart() override;
 	const char* DeviceName() const override;
-	void WriteSavePic(FileWriter* file, int width, int height) override;
 	IHardwareTexture *CreateHardwareTexture(int numchannels) override;
 	void SetTextureFilterMode() override;
 

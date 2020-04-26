@@ -497,50 +497,6 @@ CUSTOM_CVAR(String, playername, "Player", CVAR_ARCHIVE | CVAR_USERINFO)
 	//Net_SendClientInfo();	This is in the client code. Todo.
 }
 
-CUSTOM_CVARD(Float, vid_gamma, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts gamma component of gamma ramp")
-{
-	if (self < 0) self = 0;
-	else if (self > 4) self = 4;
-}
-
-CUSTOM_CVARD(Float, vid_contrast, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts contrast component of gamma ramp")
-{
-	if (self < 0) self = 0;
-	else if (self > 5) self = 5;
-}
-
-CUSTOM_CVARD(Float, vid_brightness, 0.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts brightness component of gamma ramp")
-{
-	if (self < -2) self = -2;
-	else if (self > 2) self = 2;
-}
-
-CUSTOM_CVARD(Float, vid_saturation, 1.f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "adjusts saturation component of gamma ramp")
-{
-	if (self < -3) self = -3;
-	else if (self > 3) self = 3;
-}
-
-CVAR(Int, gl_satformula, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
-CVAR(Int, gl_multisample, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
-
-CCMD (bumpgamma)
-{
-	// [RH] Gamma correction tables are now generated on the fly for *any* gamma level
-	// Q: What are reasonable limits to use here?
-
-	float newgamma = vid_gamma + 0.1f;
-
-	if (newgamma > 3.0)
-		newgamma = 1.0;
-
-	vid_gamma = newgamma;
-	Printf ("Gamma correction level %g\n", newgamma);
-}
-
-//{ "vid_contrast","adjusts contrast component of gamma ramp",(void *) &vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-//{ "vid_brightness","adjusts brightness component of gamma ramp",(void *) &vid_brightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-
 
 CUSTOM_CVAR(String, rtsname, "", CVAR_ARCHIVE | CVAR_USERINFO)
 {

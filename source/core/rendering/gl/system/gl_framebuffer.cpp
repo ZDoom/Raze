@@ -46,8 +46,9 @@
 #include "gl_load/gl_interface.h"
 #include "gl/system/gl_framebuffer.h"
 #include "gl/renderer/gl_renderer.h"
-#include "gl/renderer/gl_renderbuffers.h"
-#include "hwrenderer/data/flatvertices.h"
+#include "gl_renderbuffers.h"
+#include "flatvertices.h"
+#include "hw_lightbuffer.h"
 /*
 #include "gl/textures/gl_samplers.h"
 #include "hwrenderer/utility/hw_clock.h"
@@ -55,7 +56,6 @@
 #include "hwrenderer/models/hw_models.h"
 #include "hwrenderer/scene/hw_skydome.h"
 #include "hwrenderer/data/hw_viewpointbuffer.h"
-#include "hwrenderer/dynlights/hw_lightbuffer.h"
 #include "gl/shaders/gl_shaderprogram.h"
 */
 #include "gl_debug.h"
@@ -113,9 +113,9 @@ OpenGLFrameBuffer::~OpenGLFrameBuffer()
 #ifdef IMPLEMENT_IT
 	if (mSkyData != nullptr) delete mSkyData;
 	if (mViewpoints != nullptr) delete mViewpoints;
+#endif
 	if (mLights != nullptr) delete mLights;
 	mShadowMap.Reset();
-#endif
 
 	if (GLRenderer)
 	{
@@ -179,13 +179,11 @@ void OpenGLFrameBuffer::InitializeState()
 #ifdef IMPLEMENT_IT
 	mSkyData = new FSkyVertexBuffer;
 	mViewpoints = new HWViewpointBuffer;
-	mLights = new FLightBuffer();
 #endif
+	mLights = new FLightBuffer();
 	GLRenderer = new FGLRenderer(this);
 	GLRenderer->Initialize(GetWidth(), GetHeight());
-#ifdef IMPLEMENT_IT
 	static_cast<GLDataBuffer*>(mLights->GetBuffer())->BindBase();
-#endif
 
 	mDebug = std::make_shared<FGLDebug>();
 	mDebug->Update();
@@ -215,14 +213,9 @@ void OpenGLFrameBuffer::Update()
 
 //===========================================================================
 //
-// Render the view to a savegame picture
+//
 //
 //===========================================================================
-
-void OpenGLFrameBuffer::WriteSavePic(FileWriter *file, int width, int height)
-{
-	GLRenderer->WriteSavePic(file, width, height);
-}
 
 
 const char* OpenGLFrameBuffer::DeviceName() const 
@@ -279,10 +272,6 @@ void OpenGLFrameBuffer::SetVSync(bool vsync)
 //
 //===========================================================================
 
-void OpenGLFrameBuffer::CleanForRestart()
-{
-}
-
 IHardwareTexture *OpenGLFrameBuffer::CreateHardwareTexture(int numchannels) 
 { 
 	return new FHardwareTexture(numchannels);
@@ -302,7 +291,7 @@ void OpenGLFrameBuffer::PrecacheMaterial(FMaterial *mat, int translation)
 	if (tex->isSWCanvas()) return;
 
 	// Textures that are already scaled in the texture lump will not get replaced by hires textures.
-	int flags = mat->isExpanded() ? CTF_Expand : (gl_texture_usehires && !tex->isScaled()) ? CTF_CheckHires : 0;
+	int flags = mat->isExpanded() ? CTF_Expand : (!tex->isScaled()) ? CTF_CheckHires : 0;
 	int numLayers = mat->GetLayers();
 	auto base = static_cast<FHardwareTexture*>(mat->GetLayer(0, translation));
 

@@ -309,7 +309,6 @@ bool IVideo::SetResolution ()
 
 	screen = buff;
 	screen->InitializeState();
-	screen->SetGamma();
 
 	V_UpdateModeSize(screen->GetWidth(), screen->GetHeight());
 
@@ -388,7 +387,6 @@ void V_Init2()
 	menu_resolution_custom_height = SCREENHEIGHT;
 
 	screen->SetVSync(vid_vsync);
-	screen->SetGamma ();
 	FBaseCVar::ResetColors ();
 	C_NewModeAdjust();
 	videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);

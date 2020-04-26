@@ -56,6 +56,7 @@ static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
 void LoadEngineState();
 void SaveEngineState();
+void WriteSavePic(FileWriter* file, int width, int height);
 
 CVAR(String, cl_savedir, "", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
@@ -224,7 +225,7 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 
 	SaveEngineState();
 	auto picfile = WriteSavegameChunk("savepic.png");
-	screen->WriteSavePic(picfile, 240, 180);
+	WriteSavePic(picfile, 240, 180);
 	return true;
 }
 
