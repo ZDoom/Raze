@@ -306,12 +306,10 @@ void DFrameBuffer::SetViewportRects(IntRect *bounds)
 	{
 		mScreenViewport.width = mOutputLetterbox.width;
 		mScreenViewport.height = mOutputLetterbox.height;
-
 		mSceneViewport.left = (int)round(mSceneViewport.left * scaleX);
 		mSceneViewport.top = (int)round(mSceneViewport.top * scaleY);
 		mSceneViewport.width = (int)round(mSceneViewport.width * scaleX);
 		mSceneViewport.height = (int)round(mSceneViewport.height * scaleY);
-
 	}
 }
 

@@ -37,33 +37,6 @@ CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBAL
 }
 
 
-CUSTOM_CVARD(Int, gl_texture_filter, TEXFILTER_ON, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the texture filtering settings")
-{
-	static const char* const glfiltermodes[] =
-	{
-		"NEAREST",
-		"LINEAR",
-		"NEAREST_MIPMAP_NEAREST",
-		"LINEAR_MIPMAP_NEAREST",
-		"NEAREST_MIPMAP_LINEAR",
-		"LINEAR_MIPMAP_LINEAR",
-		"LINEAR_MIPMAP_LINEAR with NEAREST mag"
-	};
-
-	if (self < 0 || self > 6) self = 0;
-	else
-	{
-		gltexapplyprops();
-		Printf("Texture filtering mode changed to %s\n", glfiltermodes[gl_texture_filter]);
-	}
-}
-
-CUSTOM_CVARD(Float, gl_texture_filter_anisotropic, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the OpenGL texture anisotropy setting")
-{
-	gltexapplyprops();
-}
-
-
 //{ "r_yshearing", "enable/disable y-shearing", (void*)&r_yshearing, CVAR_BOOL, 0, 1 }, disabled because not fully functional 
 
 // For testing - will be removed later.

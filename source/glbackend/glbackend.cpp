@@ -50,6 +50,7 @@
 #include "flatvertices.h"
 #include "gl_renderer.h"
 #include "gl_samplers.h"
+#include "build.h"
 
 float shadediv[MAXPALOOKUPS];
 
@@ -484,4 +485,68 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 		shader->TextureMatrix.Set(matrixArray[matrixIndex[Matrix_Texture]].get());
 	memset(matrixIndex, -1, sizeof(matrixIndex));
 }
+
+//===========================================================================
+//
+// Render the view to a savegame picture
+//
+//===========================================================================
+
+void WriteSavePic(FileWriter* file, int width, int height)
+{
+	IntRect bounds;
+	bounds.left = 0;
+	bounds.top = 0;
+	bounds.width = width;
+	bounds.height = height;
+
+	// we must be sure the GPU finished reading from the buffer before we fill it with new data.
+	glFinish();
+
+	// Switch to render buffers dimensioned for the savepic
+	OpenGLRenderer::GLRenderer->mBuffers = OpenGLRenderer::GLRenderer->mSaveBuffers;
+	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
+	screen->SetViewportRects(&bounds);
+
+
+	int oldx = xdim;
+	int oldy = ydim;
+	auto oldwindowxy1 = windowxy1;
+	auto oldwindowxy2 = windowxy2;
+
+	xdim = width;
+	ydim = height;
+	videoSetViewableArea(0, 0, width - 1, height - 1);
+	renderSetAspect(65536, 65536);
+	bool didit = gi->GenerateSavePic();
+
+	xdim = oldx;
+	ydim = oldy;
+	videoSetViewableArea(oldwindowxy1.x, oldwindowxy1.y, oldwindowxy2.x, oldwindowxy2.y);
+
+	// The 2D drawers can contain some garbage from the dirty render setup. Get rid of that first.
+	twodgen.Clear();
+	twodpsp.Clear();
+	OpenGLRenderer::GLRenderer->CopyToBackbuffer(&bounds, false);
+
+	// strictly speaking not needed as the glReadPixels should block until the scene is rendered, but this is to safeguard against shitty drivers
+	glFinish();
+
+	if (didit)
+	{
+		int numpixels = width * height;
+		uint8_t* scr = (uint8_t*)Xmalloc(numpixels * 3);
+		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, scr);
+		M_CreatePNG(file, scr + ((height - 1) * width * 3), nullptr, SS_RGB, width, height, -width * 3, vid_gamma);
+		M_FinishPNG(file);
+		Xfree(scr);
+	}
+
+	// Switch back the screen render buffers
+	screen->SetViewportRects(nullptr);
+	OpenGLRenderer::GLRenderer->mBuffers = OpenGLRenderer::GLRenderer->mScreenBuffers;
+	bool useSSAO = (gl_ssao != 0);
+	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(useSSAO);
+}
+
 
