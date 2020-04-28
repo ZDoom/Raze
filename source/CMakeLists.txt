@@ -637,6 +637,7 @@ file( GLOB HEADER_FILES
 	common/platform/posix/cocoa/*.h
 	common/platform/posix/sdl/*.h
 	common/platform/win32/*.h
+	common/models/*.h
 	common/textures/*.h
 	common/textures/hires/hqnx/*.h
 	common/textures/hires/hqnx_asm/*.h
@@ -815,6 +816,13 @@ set (PCH_SOURCES
 	common/textures/formats/tgatexture.cpp
 	common/textures/formats/stbtexture.cpp
 	common/textures/hires/hqresize.cpp
+	common/models/models_md3.cpp
+	common/models/models_md2.cpp
+	common/models/models_voxel.cpp
+	common/models/models_ue1.cpp
+	common/models/models_obj.cpp
+	common/models/model.cpp
+	common/models/voxels.cpp
 	common/console/c_commandline.cpp
 	common/console/c_buttons.cpp
 	common/console/c_bind.cpp
@@ -838,6 +846,7 @@ set (PCH_SOURCES
 	common/utility/s_playlist.cpp
 	common/utility/zstrformat.cpp
 	common/utility/name.cpp
+	common/utility/m_bbox.cpp
 	common/thirdparty/md5.cpp
  	common/thirdparty/superfasthash.cpp
 	common/filesystem/filesystem.cpp
@@ -1039,6 +1048,7 @@ include_directories(
 	common/textures/formats
 	common/textures/hires
 	common/textures
+	common/models
 	common/filesystem
 	common/utility
 	common/console
@@ -1187,6 +1197,8 @@ source_group("Common\\Rendering\\Hardware Renderer" REGULAR_EXPRESSION "^${CMAKE
 source_group("Common\\Rendering\\Hardware Renderer\\Data" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/data/.+")
 source_group("Common\\Rendering\\Hardware Renderer\\Postprocessing" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/postprocessing/.+")
 source_group("Common\\Rendering\\OpenGL Loader" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl_load/.+")
+source_group("Common\\Rendering\\OpenGL Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl/.+")
+source_group("Common\\Models" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/models/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Textures\\Hires" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/.+")
 source_group("Common\\Textures\\Hires\\HQ Resize" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/hqnx/.+")

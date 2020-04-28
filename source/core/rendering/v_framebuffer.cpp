@@ -46,47 +46,24 @@
 #include "i_time.h"
 #include "v_2ddrawer.h"
 #include "build.h"
+#include "vm.h"
 #include "../glbackend/glbackend.h"
 /*
 #include "hwrenderer/scene/hw_portal.h"
 #include "hwrenderer/utility/hw_clock.h"
 */
 #include "hwrenderer/data/flatvertices.h"
+#include "version.h"
 
 #include <chrono>
 #include <thread>
 
 
 CVAR(Bool, gl_scale_viewport, true, CVAR_ARCHIVE);
-CVAR(Bool, vid_fps, false, 0)
-CVAR(Int, vid_showpalette, 0, 0)
 
-EXTERN_CVAR(Bool, ticker)
-EXTERN_CVAR(Float, vid_brightness)
-EXTERN_CVAR(Float, vid_contrast)
 EXTERN_CVAR(Int, vid_maxfps)
 EXTERN_CVAR(Bool, cl_capfps)
 EXTERN_CVAR(Int, screenblocks)
-
-//==========================================================================
-//
-// DCanvas :: CalcGamma
-//
-//==========================================================================
-
-void DFrameBuffer::CalcGamma (float gamma, uint8_t gammalookup[256])
-{
-	// I found this formula on the web at
-	// <http://panda.mostang.com/sane/sane-gamma.html>,
-	// but that page no longer exits.
-	double invgamma = 1.f / gamma;
-	int i;
-
-	for (i = 0; i < 256; i++)
-	{
-		gammalookup[i] = (uint8_t)(255.0 * pow (i / 255.0, invgamma) + 0.5);
-	}
-}
 
 //==========================================================================
 //
@@ -100,76 +77,16 @@ void DFrameBuffer::CalcGamma (float gamma, uint8_t gammalookup[256])
 DFrameBuffer::DFrameBuffer (int width, int height)
 {
 	SetSize(width, height);
-	//mPortalState = new FPortalSceneState;
 }
 
 DFrameBuffer::~DFrameBuffer()
 {
-	//delete mPortalState;
 }
 
 void DFrameBuffer::SetSize(int width, int height)
 {
 	Width = ViewportScaledWidth(width, height);
 	Height = ViewportScaledHeight(width, height);
-	twodgen.SetSize(Width, Height);
-	twodpsp.SetSize(Width, Height);
-}
-
-//==========================================================================
-//
-// DFrameBuffer :: DrawRateStuff
-//
-// Draws the fps counter, dot ticker, and palette debug.
-//
-//==========================================================================
-
-void DFrameBuffer::DrawRateStuff ()
-{
-	// Draws frame time and cumulative fps
-	if (vid_fps)
-	{
-        FString fpsbuff = gi->statFPS();
-
-		int textScale = active_con_scale(twod);
-		int rate_x = Width / textScale - NewConsoleFont->StringWidth(&fpsbuff[0]);
-		twod->AddColorOnlyQuad(rate_x * textScale, 0, Width, NewConsoleFont->GetHeight() * textScale, MAKEARGB(255,0,0,0));
-		DrawText (twod, NewConsoleFont, CR_WHITE, rate_x, 0, (char *)&fpsbuff[0],
-			DTA_VirtualWidth, screen->GetWidth() / textScale,
-			DTA_VirtualHeight, screen->GetHeight() / textScale,
-			DTA_KeepRatio, true, TAG_DONE);
-
-		#if 0
-		uint64_t ms = screen->FrameTime;
-		uint64_t howlong = ms - LastMS;
-		if ((signed)howlong >= 0)
-		{
-			char fpsbuff[40];
-			int chars;
-			int rate_x;
-
-			int textScale = active_con_scale();
-
-			chars = snprintf (fpsbuff, countof(fpsbuff), "%2llu ms (%3llu fps)", (unsigned long long)howlong, (unsigned long long)LastCount);
-			rate_x = Width / textScale - NewConsoleFont->StringWidth(&fpsbuff[0]);
-			twod->AddColorOnlyQuad(rate_x * textScale, 0, Width, NewConsoleFont->GetHeight() * textScale, 0);
-			DrawText (twod, NewConsoleFont, CR_WHITE, rate_x, 0, (char *)&fpsbuff[0],
-				DTA_VirtualWidth, screen->GetWidth() / textScale,
-				DTA_VirtualHeight, screen->GetHeight() / textScale,
-				DTA_KeepRatio, true, TAG_DONE);
-
-			uint32_t thisSec = (uint32_t)(ms/1000);
-			if (LastSec < thisSec)
-			{
-				LastCount = FrameCount / (thisSec - LastSec);
-				LastSec = thisSec;
-				FrameCount = 0;
-			}
-			FrameCount++;
-		}
-		LastMS = ms;
-		#endif
-	}
 }
 
 //==========================================================================
@@ -194,6 +111,15 @@ void DFrameBuffer::Update()
 		V_OutputResized(clientWidth, clientHeight);
 		mVertexData->OutputResized(clientWidth, clientHeight);
 	}
+}
+
+void DFrameBuffer::SetClearColor(int color)
+{
+	PalEntry pe = GPalette.BaseColors[color];
+	mSceneClearColor[0] = pe.r / 255.f;
+	mSceneClearColor[1] = pe.g / 255.f;
+	mSceneClearColor[2] = pe.b / 255.f;
+	mSceneClearColor[3] = 1.f;
 }
 
 //==========================================================================
@@ -239,16 +165,6 @@ FTexture *DFrameBuffer::WipeEndScreen()
 
 //==========================================================================
 //
-// 
-//
-//==========================================================================
-void DFrameBuffer::WriteSavePic(FileWriter *file, int width, int height)
-{
-}
-
-
-//==========================================================================
-//
 // Calculates the viewport values needed for 2D and 3D operations
 //
 //==========================================================================
@@ -257,7 +173,7 @@ void DFrameBuffer::SetViewportRects(IntRect *bounds)
 {
 	if (bounds)
 	{
-		//mSceneViewport = *bounds;
+		mSceneViewport = *bounds;
 		mScreenViewport = *bounds;
 		mOutputLetterbox = *bounds;
 		return;
@@ -380,23 +296,32 @@ FMaterial* DFrameBuffer::CreateMaterial(FGameTexture* tex, int scaleflags)
 {
 	return new FMaterial(tex, scaleflags);
 }
-void DFrameBuffer::BeginScene()
+
+
+//==========================================================================
+//
+// ZScript wrappers for inlines
+//
+//==========================================================================
+
+DEFINE_ACTION_FUNCTION(_Screen, GetWidth)
 {
-	if (videoGetRenderMode() < REND_POLYMOST) return;
-	assert(BufferLock >= 0);
-	if (BufferLock++ == 0)
-	{
-		mVertexData->Map();
-	}
+	PARAM_PROLOGUE;
+	ACTION_RETURN_INT(screen->GetWidth());
 }
 
-void DFrameBuffer::FinishScene()
+DEFINE_ACTION_FUNCTION(_Screen, GetHeight)
 {
-	if (videoGetRenderMode() < REND_POLYMOST) return;
-	assert(BufferLock > 0);
-	if (--BufferLock == 0)
-	{
-		mVertexData->Unmap();
-		GLInterface.DoDraw();
-	}
+	PARAM_PROLOGUE;
+	ACTION_RETURN_INT(screen->GetHeight());
 }
+
+DEFINE_ACTION_FUNCTION(_Screen, PaletteColor)
+{
+	PARAM_PROLOGUE;
+	PARAM_INT(index);
+	if (index < 0 || index > 255) index = 0;
+	else index = GPalette.BaseColors[index];
+	ACTION_RETURN_INT(index);
+}
+

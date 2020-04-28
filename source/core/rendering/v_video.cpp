@@ -175,7 +175,8 @@ CUSTOM_CVAR (Bool, vid_vsync, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 }
 
 // [RH] Set true when vid_setmode command has been executed
-bool	setmodeneeded = false;
+bool setmodeneeded = false;
+bool setsizeneeded = false;
 
 //==========================================================================
 //
@@ -362,10 +363,6 @@ void V_InitScreen()
 
 void V_Init2()
 {
-	palettePostLoadLookups();
-	//V_InitFonts();
-	twod = &twodgen;
-
 	float gamma = static_cast<DDummyFrameBuffer *>(screen)->Gamma;
 
 	{
@@ -443,6 +440,6 @@ CCMD(vid_listadapters)
 }
 
 bool vid_hdr_active = false;
-F2DDrawer twodpsp, twodgen;
+F2DDrawer twodpsp;
 CVAR(Float, transsouls, 1, 0)
 CVAR(Int, uiscale, 0, CVAR_ARCHIVE)

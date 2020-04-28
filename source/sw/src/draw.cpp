@@ -59,6 +59,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "swcvar.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
+#include "glbackend/glbackend.h"
 
 BEGIN_SW_NS
 
@@ -2124,7 +2125,7 @@ drawscreen(PLAYERp pp)
         JS_DrawCameras(pp, tx, ty, tz);
     }
 
-    screen->BeginScene();
+    renderBeginScene();
     OverlapDraw = TRUE;
     DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
     OverlapDraw = FALSE;
@@ -2144,7 +2145,7 @@ drawscreen(PLAYERp pp)
     analyzesprites(tx, ty, tz, FALSE);
     post_analyzesprites();
     renderDrawMasks();
-    screen->FinishScene();
+    renderFinishScene();
 
     if (r_usenewaspect)
     {

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "secrets.h"
 #include "v_video.h"
+#include "glbackend/glbackend.h"
 
 BEGIN_RR_NS
 
@@ -506,7 +507,7 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     int const    saveMirror = display_mirror;
 
     renderSetTarget(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
-    screen->BeginScene();
+    renderBeginScene();
 
     yax_preparedrawrooms();
     drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
@@ -516,7 +517,7 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
     display_mirror = saveMirror;
     renderDrawMasks();
-    screen->FinishScene();
+    renderFinishScene();
 
     renderRestoreTarget();
 }

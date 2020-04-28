@@ -485,3 +485,7 @@ public:
 };
 
 extern GLInstance GLInterface;
+
+void renderBeginScene();
+void renderFinishScene();
+

@@ -1289,7 +1289,6 @@ extern void(*PolymostProcessVoxels_Callback)(void);
 
 class F2DDrawer;
 
-extern F2DDrawer twodgen;
 extern F2DDrawer twodpsp;
 extern F2DDrawer* twod;
 

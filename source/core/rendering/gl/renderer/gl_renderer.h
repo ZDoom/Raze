@@ -89,8 +89,6 @@ public:
 
 private:
 
-	void DrawScene(HWDrawInfo *di, int drawmode);
-
 	bool QuadStereoCheckInitialRenderContextState();
 	void PresentAnaglyph(bool r, bool g, bool b);
 	void PresentSideBySide();

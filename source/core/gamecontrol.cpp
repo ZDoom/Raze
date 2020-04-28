@@ -92,7 +92,6 @@ int myconnectindex, numplayers;
 int connecthead, connectpoint2[MAXMULTIPLAYERS];
 int32_t xres = -1, yres = -1, bpp = 0;
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
-bool setsizeneeded;
 
 
 MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
@@ -186,6 +185,11 @@ bool System_WantNativeMouse()
 static bool System_CaptureModeInGame()
 {
 	return true;
+}
+
+static bool System_DisableTextureFilter()
+{
+	return  hw_useindexedcolortextures;
 }
 
 //==========================================================================
@@ -473,6 +477,10 @@ int GameMain()
 		System_NetGame,
 		System_WantNativeMouse,
 		System_CaptureModeInGame,
+		nullptr,
+		nullptr,
+		nullptr,
+		System_DisableTextureFilter,
 	};
 	sysCallbacks = &syscb;
 
