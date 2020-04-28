@@ -140,8 +140,7 @@ void scrInit(void)
 
 void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits)
 {
-    palettePostLoadLookups();
-    V_Init2();
+    videoInit();
     videoClearViewableArea(0);
     videoNextPage();
     scrSetPalette(curPalette);

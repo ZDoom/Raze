@@ -30,8 +30,8 @@ public:
 #ifdef IMPLEMENT_IT
 	void PrecacheMaterial(FMaterial *mat, int translation) override;
 	FModelRenderer *CreateModelRenderer(int mli) override;
-	void TextureFilterChanged() override;
 #endif
+	void TextureFilterChanged() override;
 	void BeginFrame() override;
 	//void SetViewportRects(IntRect *bounds) override;
 	void BlurScene(float amount) override;

@@ -219,8 +219,7 @@ void InstallEngine()
     }
     uploadCinemaPalettes();
     LoadPaletteLookups();
-    palettePostLoadLookups();
-    V_Init2();
+    videoInit();
 
     enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 }

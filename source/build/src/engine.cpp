@@ -5345,6 +5345,17 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 
 
 
+void videoInit()
+{
+    palettePostLoadLookups();
+    V_Init2();
+    videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);
+
+    Polymost_Startup();
+    GLInterface.Init(SCREENHEIGHT);
+    GLInterface.InitGLState(4, 4/*glmultisample*/);
+    screen->SetTextureFilterMode();
+}
 
 //
 // clearview

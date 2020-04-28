@@ -45,15 +45,11 @@
 #include "v_draw.h"
 #include "i_time.h"
 #include "v_2ddrawer.h"
-#include "build.h"
 #include "vm.h"
-#include "../glbackend/glbackend.h"
-/*
-#include "hwrenderer/scene/hw_portal.h"
-#include "hwrenderer/utility/hw_clock.h"
-*/
-#include "hwrenderer/data/flatvertices.h"
+#include "i_interface.h"
+#include "flatvertices.h"
 #include "version.h"
+#include "hw_material.h"
 
 #include <chrono>
 #include <thread>
@@ -62,7 +58,7 @@
 CVAR(Bool, gl_scale_viewport, true, CVAR_ARCHIVE);
 
 EXTERN_CVAR(Int, vid_maxfps)
-EXTERN_CVAR(Bool, cl_capfps)
+CVAR(Bool, cl_capfps, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 EXTERN_CVAR(Int, screenblocks)
 
 //==========================================================================
@@ -97,8 +93,6 @@ void DFrameBuffer::SetSize(int width, int height)
 
 void DFrameBuffer::Update()
 {
-	//CheckBench();
-
 	int initialWidth = GetClientWidth();
 	int initialHeight = GetClientHeight();
 	int clientWidth = ViewportScaledWidth(initialWidth, initialHeight);
@@ -179,9 +173,6 @@ void DFrameBuffer::SetViewportRects(IntRect *bounds)
 		return;
 	}
 
-	// Special handling so the view with a visible status bar displays properly
-	int height = windowxy2.y - windowxy1.y + 1, width = windowxy2.x - windowxy1.x + 1;
-
 	// Back buffer letterbox for the final output
 	int clientWidth = GetClientWidth();
 	int clientHeight = GetClientHeight();
@@ -209,10 +200,8 @@ void DFrameBuffer::SetViewportRects(IntRect *bounds)
 	mScreenViewport.height = screenHeight;
 
 	// Viewport for the 3D scene
-	mSceneViewport.left = windowxy1.x;
-	mSceneViewport.top = windowxy1.y;
-	mSceneViewport.width = width;
-	mSceneViewport.height = height;
+	if (sysCallbacks && sysCallbacks->GetSceneRect) mSceneViewport = sysCallbacks->GetSceneRect();
+	else mSceneViewport = mScreenViewport;
 
 	// Scale viewports to fit letterbox
 	bool notScaled = ((mScreenViewport.width == ViewportScaledWidth(mScreenViewport.width, mScreenViewport.height)) &&
@@ -258,7 +247,6 @@ void DFrameBuffer::ScaleCoordsFromWindow(int16_t &x, int16_t &y)
 
 void DFrameBuffer::FPSLimit()
 {
-#if 0 // This doesn't work with Build games.
 	using namespace std::chrono;
 	using namespace std::this_thread;
 
@@ -289,7 +277,6 @@ void DFrameBuffer::FPSLimit()
 			sleep_for(microseconds(timeToWait - 2'000));
 		}
 	}
-#endif
 }
 
 FMaterial* DFrameBuffer::CreateMaterial(FGameTexture* tex, int scaleflags)

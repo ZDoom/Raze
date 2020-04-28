@@ -424,12 +424,6 @@ void DeleteSoftwareTexture(FSoftwareTexture *)
 #endif
 #include "v_video.h"
 
-IHardwareTexture* CreateHardwareTexture()
-{
-	return screen->CreateHardwareTexture();
-}
-
-
 void InitBuildTiles()
 {
 

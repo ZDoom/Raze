@@ -817,8 +817,7 @@ bool InitGame()
     enginePostInit();
 
     paletteFixTranslucencyMask();
-    palettePostLoadLookups();
-    V_Init2();
+    videoInit();
 
     DemoModeMenuInit = TRUE;
     // precache as much stuff as you can

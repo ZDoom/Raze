@@ -55,6 +55,8 @@
 #include "v_draw.h"
 #include "v_font.h"
 
+F2DDrawer twodpsp;
+
 float shadediv[MAXPALOOKUPS];
 
 static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
@@ -603,3 +605,40 @@ void DrawRateStuff()
 	}
 }
 
+void videoShowFrame(int32_t w)
+{
+	static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+
+	if (gl_ssao)
+	{
+		glDrawBuffers(1, buffers);
+		OpenGLRenderer::GLRenderer->AmbientOccludeScene(GLInterface.GetProjectionM5());
+		glViewport(screen->mSceneViewport.left, screen->mSceneViewport.top, screen->mSceneViewport.width, screen->mSceneViewport.height);
+		OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(true);
+		glDrawBuffers(3, buffers);
+
+		// To do: the translucent part of the scene should be drawn here
+
+		glDrawBuffers(1, buffers);
+	}
+
+	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
+	screen->PostProcessScene(false, 0, []() {
+		GLInterface.Draw2D(&twodpsp); // draws the weapon sprites
+		});
+	screen->Update();
+	// After finishing the frame, reset everything for the next frame. This needs to be done better.
+	screen->BeginFrame();
+	if (gl_ssao)
+	{
+		OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(true);
+		glDrawBuffers(3, buffers);
+	}
+	else
+	{
+		OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
+	}
+	twodpsp.Clear();
+	twod->Clear();
+	GLInterface.ResetFrame();
+}
