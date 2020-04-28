@@ -127,7 +127,7 @@ class DFrameBuffer
 {
 protected:
 
-	//F2DDrawer m2DDrawer;
+	F2DDrawer m2DDrawer;
 private:
 	int Width = 0;
 	int Height = 0;

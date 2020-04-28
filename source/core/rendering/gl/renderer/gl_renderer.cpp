@@ -42,6 +42,7 @@
 #include "m_png.h"
 #include "version.h"
 #include "texturemanager.h"
+#include "model.h"
 //#include "hwrenderer/utility/hw_clock.h"
 
 #include "gl_load/gl_interface.h"
@@ -113,7 +114,7 @@ void FGLRenderer::Initialize(int width, int height)
 
 FGLRenderer::~FGLRenderer() 
 {
-	//FlushModels();
+	FlushModels();
 	TexMan.FlushAll();
 	if (mShaderManager != nullptr) delete mShaderManager;
 	if (mSamplerManager != nullptr) delete mSamplerManager;

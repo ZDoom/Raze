@@ -192,6 +192,19 @@ static bool System_DisableTextureFilter()
 	return  hw_useindexedcolortextures;
 }
 
+static IntRect System_GetSceneRect()
+{
+	// Special handling so the view with a visible status bar displays properly
+	int height = windowxy2.y - windowxy1.y + 1, width = windowxy2.x - windowxy1.x + 1;
+
+	IntRect mSceneViewport;
+	mSceneViewport.left = windowxy1.x;
+	mSceneViewport.top = windowxy1.y;
+	mSceneViewport.width = width;
+	mSceneViewport.height = height;
+	return mSceneViewport;
+}
+
 //==========================================================================
 //
 // DoomSpecificInfo
@@ -481,6 +494,8 @@ int GameMain()
 		nullptr,
 		nullptr,
 		System_DisableTextureFilter,
+		nullptr,
+		System_GetSceneRect,
 	};
 	sysCallbacks = &syscb;
 

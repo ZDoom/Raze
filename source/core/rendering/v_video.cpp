@@ -48,21 +48,24 @@
 #include "v_text.h"
 #include "sc_man.h"
 
+#include "filesystem.h"
 #include "c_dispatch.h"
 #include "cmdlib.h"
 #include "hardware.h"
 #include "m_png.h"
 #include "menu/menu.h"
+#include "vm.h"
 #include "r_videoscale.h"
 #include "i_time.h"
 #include "version.h"
-#include "filesystem.h"
-#include "build.h"
-#include "glbackend/glbackend.h"
+#include "texturemanager.h"
+#include "i_interface.h"
+#include "v_draw.h"
+#include "templates.h"
+#include "palette.h"
 
 EXTERN_CVAR(Int, menu_resolution_custom_width)
 EXTERN_CVAR(Int, menu_resolution_custom_height)
-CVAR(Int, vid_aspect, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 CVAR(Int, win_x, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Int, win_y, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -70,37 +73,16 @@ CVAR(Int, win_w, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Int, win_h, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, win_maximized, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL)
 
-#if 0
 CUSTOM_CVAR(Int, vid_maxfps, 200, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
-	if (vid_maxfps < TICRATE && vid_maxfps != 0)
+	if (self < GameTicRate && self != 0)
 	{
-		vid_maxfps = TICRATE;
+		self = GameTicRate;
 	}
 	else if (vid_maxfps > 1000)
 	{
-		vid_maxfps = 1000;
+		self = 1000;
 	}
-}
-#endif
-
-CUSTOM_CVAR(Int, vid_rendermode, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL)
-{
-	if (self < 0 || self > 4)
-	{
-		self = 4;
-	}
-
-#if 0
-	if (usergame)
-	{
-		// [SP] Update pitch limits to the netgame/gamesim.
-		players[consoleplayer].SendPitchLimits();
-	}
-#endif
-	screen->SetTextureFilterMode();
-
-	// No further checks needed. All this changes now is which scene drawer the render backend calls.
 }
 
 CUSTOM_CVAR(Int, vid_preferbackend, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL)
@@ -127,6 +109,19 @@ CUSTOM_CVAR(Int, vid_preferbackend, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_N
 }
 
 CVAR(Int, vid_renderer, 1, 0)	// for some stupid mods which threw caution out of the window...
+
+CUSTOM_CVAR(Int, uiscale, 0, CVAR_ARCHIVE | CVAR_NOINITCALL)
+{
+	if (self < 0)
+	{
+		self = 0;
+		return;
+	}
+	if (sysCallbacks && sysCallbacks->OnScreenSizeChanged) 
+		sysCallbacks->OnScreenSizeChanged();
+	setsizeneeded = true;
+}
+
 
 
 EXTERN_CVAR(Bool, r_blendmethod)
@@ -297,6 +292,8 @@ void V_OutputResized (int width, int height)
 	V_UpdateModeSize(width, height);
 	setsizeneeded = true;
 	C_NewModeAdjust();
+	if (sysCallbacks && sysCallbacks->OnScreenSizeChanged) 
+		sysCallbacks->OnScreenSizeChanged();
 }
 
 bool IVideo::SetResolution ()
@@ -362,7 +359,6 @@ void V_InitScreen()
 void V_Init2()
 {
 	lookups.postLoadLookups();
-	twod = &twodgen;
 
 	float gamma = static_cast<DDummyFrameBuffer *>(screen)->Gamma;
 
@@ -390,14 +386,14 @@ void V_Init2()
 	screen->SetVSync(vid_vsync);
 	FBaseCVar::ResetColors ();
 	C_NewModeAdjust();
-	videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);
+	setsizeneeded = true;
+}
 
-	Polymost_Startup();
-	GLInterface.Init(SCREENHEIGHT);
-	GLInterface.InitGLState(4, 4/*glmultisample*/);
-	screen->SetTextureFilterMode();
-
-	//setsizeneeded = true;
+CUSTOM_CVAR (Int, vid_aspect, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
+{
+	setsizeneeded = true;
+	if (sysCallbacks && sysCallbacks->OnScreenSizeChanged) 
+		sysCallbacks->OnScreenSizeChanged();
 }
 
 
@@ -438,6 +434,47 @@ CCMD(vid_listadapters)
 }
 
 bool vid_hdr_active = false;
-F2DDrawer twodpsp, twodgen;
-CVAR(Float, transsouls, 1, 0)
-CVAR(Int, uiscale, 0, CVAR_ARCHIVE)
+
+DEFINE_GLOBAL(SmallFont)
+DEFINE_GLOBAL(SmallFont2)
+DEFINE_GLOBAL(BigFont)
+DEFINE_GLOBAL(ConFont)
+DEFINE_GLOBAL(NewConsoleFont)
+DEFINE_GLOBAL(NewSmallFont)
+DEFINE_GLOBAL(AlternativeSmallFont)
+DEFINE_GLOBAL(OriginalSmallFont)
+DEFINE_GLOBAL(OriginalBigFont)
+DEFINE_GLOBAL(IntermissionFont)
+DEFINE_GLOBAL(CleanXfac)
+DEFINE_GLOBAL(CleanYfac)
+DEFINE_GLOBAL(CleanWidth)
+DEFINE_GLOBAL(CleanHeight)
+DEFINE_GLOBAL(CleanXfac_1)
+DEFINE_GLOBAL(CleanYfac_1)
+DEFINE_GLOBAL(CleanWidth_1)
+DEFINE_GLOBAL(CleanHeight_1)
+
+//==========================================================================
+//
+// CVAR transsouls
+//
+// How translucent things drawn with STYLE_SoulTrans are. Normally, only
+// Lost Souls have this render style.
+// Values less than 0.25 will automatically be set to
+// 0.25 to ensure some degree of visibility. Likewise, values above 1.0 will
+// be set to 1.0, because anything higher doesn't make sense.
+//
+//==========================================================================
+
+CUSTOM_CVAR(Float, transsouls, 0.75f, CVAR_ARCHIVE)
+{
+	if (self < 0.25f)
+	{
+		self = 0.25f;
+	}
+	else if (self > 1.f)
+	{
+		self = 1.f;
+	}
+}
+

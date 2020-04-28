@@ -7171,7 +7171,7 @@ int GameInterface::app_main()
     g_clipMapFiles.Reset();
 #endif
 
-    V_Init2();
+    videoInit();
     videoSetPalette(0, g_player[myconnectindex].ps->palette, 0);
 
     // check if the minifont will support lowercase letters (3136-3161)

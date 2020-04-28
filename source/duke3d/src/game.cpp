@@ -5779,7 +5779,7 @@ int GameInterface::app_main()
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        V_Init2();
+        videoInit();
         videoSetPalette(0, myplayer.palette, 0);
     }
 

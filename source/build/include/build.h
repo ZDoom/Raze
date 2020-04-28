@@ -852,6 +852,7 @@ static FORCE_INLINE int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t da
 }
 
 void   renderDrawMasks(void);
+void videoInit();
 void   videoClearViewableArea(int32_t dacol);
 void   videoClearScreen(int32_t dacol);
 void   renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
@@ -1297,7 +1298,6 @@ extern void(*PolymostProcessVoxels_Callback)(void);
 
 class F2DDrawer;
 
-extern F2DDrawer twodgen;
 extern F2DDrawer twodpsp;
 extern F2DDrawer* twod;
 
