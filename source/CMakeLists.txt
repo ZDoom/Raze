@@ -873,6 +873,8 @@ set (PCH_SOURCES
 	common/objects/dobject.cpp
 	common/objects/dobjgc.cpp
 	common/objects/dobjtype.cpp
+	common/rendering/v_framebuffer.cpp
+	common/rendering/v_video.cpp
 	common/rendering/r_videoscale.cpp
 	common/rendering/hwrenderer/data/flatvertices.cpp
 	common/rendering/hwrenderer/data/hw_viewpointbuffer.cpp
@@ -935,8 +937,6 @@ set (PCH_SOURCES
 	#core/input/i_input.cpp
 	core/input/m_joy.cpp
 
-	core/rendering/v_framebuffer.cpp
-	core/rendering/v_video.cpp
 	core/rendering/gl/renderer/gl_renderer.cpp
 	core/rendering/gl/system/gl_framebuffer.cpp
 )

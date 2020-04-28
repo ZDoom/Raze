@@ -97,7 +97,7 @@ Things required to make savegames work:
 #include "statistics.h"
 #include "gstrings.h"
 #include "mapinfo.h"
-#include "rendering/v_video.h"
+#include "v_video.h"
 #include "raze_sound.h"
 #include "secrets.h"
 

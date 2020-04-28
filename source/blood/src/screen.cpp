@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "resource.h"
 #include "screen.h"
 #include "palettecontainer.h"
-#include "rendering/v_video.h"
+#include "v_video.h"
 
 BEGIN_BLD_NS
 
