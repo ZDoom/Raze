@@ -18,6 +18,7 @@
 #include "v_video.h"
 #include "flatvertices.h"
 #include "texturemanager.h"
+#include "hw_renderstate.h"
 #include "../../glbackend/glbackend.h"
 
 static int32_t curextra=MAXTILES;
@@ -1476,7 +1477,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
             vt->SetVertex(vertlist[k].x, vertlist[k].y);
         }
     }
-	GLInterface.Draw(DT_TRIANGLES, data.second, s->numtris *3);
+	GLInterface.Draw(DT_Triangles, data.second, s->numtris *3);
 
 #ifndef USE_GLEXT
     UNREFERENCED_PARAMETER(texunits);

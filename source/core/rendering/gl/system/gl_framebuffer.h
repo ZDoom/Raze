@@ -49,6 +49,24 @@ public:
 
 	void SetVSync(bool vsync) override;
 
+	void SetViewportRects(IntRect* bounds) override;
+	void UpdatePalette() override;
+	void AmbientOccludeScene(float m5) override;
+	void FirstEye() override;
+	void NextEye(int eyecount) override;
+	void SetSceneRenderTarget(bool useSSAO) override;
+	void UpdateShadowMap() override;
+	void WaitForCommands(bool finish) override;
+	void SetSaveBuffers(bool yes) override;
+	void CopyScreenToBuffer(int width, int height, uint8_t* buffer) override;
+	bool FlipSavePic() const override { return true; }
+	void RenderTextureView(FCanvasTexture* tex, std::function<void(IntRect&)> renderFunc) override;
+	void PrecacheMaterial(FMaterial* mat, int translation) override;
+	FRenderState* RenderState() override;
+
+	FTexture* WipeStartScreen() override;
+	FTexture* WipeEndScreen() override;
+
 	//void Draw2D() override;
 	void PostProcessScene(bool swscene, int fixedcm, const std::function<void()> &afterBloomDrawEndScene2D) override;
 

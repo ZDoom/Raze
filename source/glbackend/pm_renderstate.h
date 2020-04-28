@@ -58,38 +58,6 @@ enum PRSFlags
 
 };
 
-struct FDepthBiasState
-{
-	float mFactor;
-	float mUnits;
-	bool mChanged;
-
-	void Reset()
-	{
-		mFactor = 0;
-		mUnits = 0;
-		mChanged = false;
-	}
-};
-
-struct FMaterialState
-{
-	FMaterial* mMaterial;
-	int mClampMode;
-	int mTranslation;
-	int mOverrideShader;
-	bool mChanged;
-
-	void Reset()
-	{
-		mMaterial = nullptr;
-		mTranslation = 0;
-		mClampMode = CLAMP_NONE;
-		mOverrideShader = -1;
-		mChanged = false;
-	}
-};
-
 struct PolymostRenderState
 {
 	int vindex, vcount, primtype;

@@ -43,6 +43,7 @@
 #include "flatvertices.h"
 #include "build.h"
 #include "v_video.h"
+#include "hw_renderstate.h"
 
 extern int16_t numshades;
 extern TArray<VSMatrix> matrixArray;
@@ -181,11 +182,11 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		{
 		case F2DDrawer::DrawTypeTriangles:
 		case F2DDrawer::DrawTypeRotateSprite:
-			DrawElement(DT_TRIANGLES, cmd.mIndexIndex, cmd.mIndexCount, renderState);
+			DrawElement(DT_Triangles, cmd.mIndexIndex, cmd.mIndexCount, renderState);
 			break;
 
 		case F2DDrawer::DrawTypeLines:
-			DrawElement(DT_LINES, cmd.mVertIndex, cmd.mVertCount, renderState);
+			DrawElement(DT_Lines, cmd.mVertIndex, cmd.mVertCount, renderState);
 			break;
 
 		case F2DDrawer::DrawTypePoints:
@@ -240,18 +241,18 @@ void DrawFullscreenBlends()
 		// Todo: reroute to the 2D drawer
 		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 		GLInterface.SetColorub(palfadergb.r, palfadergb.g, palfadergb.b, palfadergb.a);
-		GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+		GLInterface.Draw(DT_TriangleStrip, FFlatVertexBuffer::PRESENT_INDEX, 4);
 	}
 	if (tint_blood_r | tint_blood_g | tint_blood_b)
 	{
 		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Add]);
 
 		GLInterface.SetColorub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
-		GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+		GLInterface.Draw(DT_TriangleStrip, FFlatVertexBuffer::PRESENT_INDEX, 4);
 
 		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Subtract]);
 		GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
-		GLInterface.Draw(DT_TRIANGLE_STRIP, FFlatVertexBuffer::PRESENT_INDEX, 4);
+		GLInterface.Draw(DT_TriangleStrip, FFlatVertexBuffer::PRESENT_INDEX, 4);
 
 		GLInterface.SetColorub(255, 255, 255, 255);
 		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);

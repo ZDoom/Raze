@@ -39,15 +39,10 @@
 #include "filesystem.h"
 #include "i_time.h"
 #include "cmdlib.h"
-#include "m_png.h"
 #include "version.h"
-#include "texturemanager.h"
-#include "model.h"
-//#include "hwrenderer/utility/hw_clock.h"
-
-#include "gl_load/gl_interface.h"
+#include "gl_interface.h"
 #include "gl/system/gl_framebuffer.h"
-#include "gamecvars.h"
+#include "hw_cvars.h"
 #include "gl_debug.h"
 #include "gl/renderer/gl_renderer.h"
 #include "gl_renderstate.h"
@@ -56,18 +51,13 @@
 #include "flatvertices.h"
 #include "gl_samplers.h"
 #include "hw_lightbuffer.h"
-//#include "hwrenderer/data/hw_viewpointbuffer.h"
 #include "r_videoscale.h"
-//#include "r_data/models/models.h"
+#include "model.h"
 #include "gl_postprocessstate.h"
 #include "gl_buffers.h"
-#include "gl_hwtexture.h"
-#include "build.h"
+#include "texturemanager.h"
 
 EXTERN_CVAR(Int, screenblocks)
-EXTERN_CVAR(Bool, cl_capfps)
-
-extern bool NoInterpolateView;
 
 namespace OpenGLRenderer
 {
@@ -188,11 +178,6 @@ void FGLRenderer::BeginFrame()
 {
 	mScreenBuffers->Setup(screen->mScreenViewport.width, screen->mScreenViewport.height, screen->mSceneViewport.width, screen->mSceneViewport.height);
 	mSaveBuffers->Setup(SAVEPICWIDTH, SAVEPICHEIGHT, SAVEPICWIDTH, SAVEPICHEIGHT);
-}
-
-void FGLRenderer::PresentStereo()
-{
-
 }
 
 }

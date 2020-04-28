@@ -5,11 +5,12 @@
 #include <map>
 #include "gl_samplers.h"
 #include "gl_hwtexture.h"
-#include "gl_renderstate.h"
 #include "matrix.h"
 #include "palentry.h"
 #include "renderstyle.h"
 #include "hw_material.h"
+#include "hw_renderstate.h"
+#include "pm_renderstate.h"
 
 class FShader;
 class PolymostShader;
@@ -47,22 +48,13 @@ struct glinfo_t {
 	float maxanisotropy;
 };
 
-enum EDrawType
+enum ECullSide
 {
-	DT_TRIANGLES,
-	DT_TRIANGLE_STRIP,
-	DT_TRIANGLE_FAN,
-	DT_LINES
-};
-
-enum ECull
-{
-	Cull_None,
 	Cull_Front,
 	Cull_Back
 };
 
-enum EDepthFunc
+enum EDepthFunct
 {
 	Depth_Always,
 	Depth_Less,

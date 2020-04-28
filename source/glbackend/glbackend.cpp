@@ -178,13 +178,7 @@ void GLInstance::ClearBufferState()
 }
 
 	
-static GLint primtypes[] =
-{
-	GL_TRIANGLES,
-	GL_TRIANGLE_STRIP,
-	GL_TRIANGLE_FAN,
-	GL_LINES
-};
+static GLint primtypes[] ={ GL_POINTS, GL_LINES, GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP };
 	
 
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
@@ -208,7 +202,7 @@ void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, Polymos
 		if (renderState.Color[3] != 1.f) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
 		renderState.Apply(polymostShader, lastState);
 	}
-	if (type != DT_LINES)
+	if (type != DT_Lines)
 	{
 		glDrawElements(primtypes[type], count, GL_UNSIGNED_INT, (void*)(intptr_t)(start * sizeof(uint32_t)));
 	}
