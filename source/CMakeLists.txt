@@ -641,6 +641,15 @@ file( GLOB HEADER_FILES
 	common/rendering/*.h
 	common/rendering/gl_load/*.h
 	common/rendering/hwrenderer/data/*.h
+	common/rendering/polyrenderer/*.h
+	common/rendering/polyrenderer/math/*.h
+	common/rendering/polyrenderer/drawers/*.h
+	common/rendering/polyrenderer/backend/*.h
+	common/rendering/vulkan/*.h
+	common/rendering/vulkan/system/*.h
+	common/rendering/vulkan/renderer/*.h
+	common/rendering/vulkan/shaders/*.h
+	common/rendering/vulkan/textures/*.h
 	common/scripting/core/*h
 	common/scripting/vm/*h
 	common/scripting/jit/*h
@@ -658,11 +667,20 @@ file( GLOB HEADER_FILES
 	core/textures/formats/*.h
 )
 
+set( POLYRENDER_SOURCES
+	common/rendering/polyrenderer/drawers/poly_triangle.cpp
+	common/rendering/polyrenderer/drawers/poly_thread.cpp
+	common/rendering/polyrenderer/drawers/screen_triangle.cpp
+	common/rendering/polyrenderer/drawers/screen_scanline_setup.cpp
+	common/rendering/polyrenderer/drawers/screen_shader.cpp
+	common/rendering/polyrenderer/drawers/screen_blend.cpp
+)
 
 # These files will be flagged as "headers" so that they appear in project files
 # without being compiled.
 set( NOT_COMPILED_SOURCE_FILES
 	${OTHER_SYSTEM_SOURCES}
+	${POLYRENDER_SOURCES}
 	sc_man_scanner.h
 	common/engine/sc_man_scanner.re
 	common/scripting/frontend/zcc-parse.lemon
@@ -685,6 +703,7 @@ set( VM_JIT_SOURCES
 # Enable fast math for some sources where performance matters (or where the PCH must not be used.) (This would be good for rendering code, but unfortunately that is hopelessly intermingled with the playsim code in engine.cpp.)
 set( FASTMATH_SOURCES
 
+	common/rendering/polyrenderer/poly_all.cpp
 	common/textures/hires/hqnx/init.cpp
 	common/textures/hires/hqnx/hq2x.cpp
 	common/textures/hires/hqnx/hq3x.cpp
@@ -705,7 +724,38 @@ set( FASTMATH_SOURCES
 
 	gitinfo.cpp
 )
+	
+#Vulkan stuff must go into a separate list because it needs to be disabled for some platforms
+set (VULKAN_SOURCES
+	common/rendering/vulkan/system/vk_device.cpp
+	common/rendering/vulkan/system/vk_swapchain.cpp
+	common/rendering/vulkan/system/vk_builders.cpp
+	common/rendering/vulkan/system/vk_framebuffer.cpp
+	common/rendering/vulkan/system/vk_buffers.cpp
+	common/rendering/vulkan/renderer/vk_renderstate.cpp
+	common/rendering/vulkan/renderer/vk_renderpass.cpp
+	common/rendering/vulkan/renderer/vk_streambuffer.cpp
+	common/rendering/vulkan/renderer/vk_postprocess.cpp
+	common/rendering/vulkan/renderer/vk_renderbuffers.cpp
+	common/rendering/vulkan/shaders/vk_shader.cpp
+	common/rendering/vulkan/textures/vk_samplers.cpp
+	common/rendering/vulkan/textures/vk_hwtexture.cpp
+	common/rendering/vulkan/textures/vk_imagetransition.cpp
+	common/rendering/vulkan/thirdparty/volk/volk.c
+	common/rendering/vulkan/thirdparty/vk_mem_alloc/vk_mem_alloc.cpp
+)
 
+if (HAVE_VULKAN)
+	set (FASTMATH_SOURCES ${FASTMATH_SOURCES} ${VULKAN_SOURCES})
+endif()
+
+set (POLYBACKEND_SOURCES
+	common/rendering/polyrenderer/backend/poly_framebuffer.cpp
+	common/rendering/polyrenderer/backend/poly_buffers.cpp
+	common/rendering/polyrenderer/backend/poly_hwtexture.cpp
+	common/rendering/polyrenderer/backend/poly_renderstate.cpp
+)
+set (FASTMATH_SOURCES ${FASTMATH_SOURCES} ${POLYBACKEND_SOURCES})
 
 set (PCH_SOURCES
 
@@ -790,6 +840,7 @@ set (PCH_SOURCES
 	common/textures/multipatchtexturebuilder.cpp
 	common/textures/skyboxtexture.cpp
 	common/textures/animtexture.cpp
+	common/textures/v_collection.cpp
 	common/textures/formats/automaptexture.cpp
 	common/textures/formats/brightmaptexture.cpp
 	common/textures/formats/buildtexture.cpp
@@ -839,7 +890,7 @@ set (PCH_SOURCES
 	common/utility/s_playlist.cpp
 	common/utility/zstrformat.cpp
 	common/utility/name.cpp
-	common/utility/m_bbox.cpp
+	common/utility/r_memory.cpp
 	common/thirdparty/md5.cpp
  	common/thirdparty/superfasthash.cpp
 	common/filesystem/filesystem.cpp
@@ -854,6 +905,7 @@ set (PCH_SOURCES
 	common/filesystem/file_whres.cpp
 	common/filesystem/file_directory.cpp
 	common/filesystem/resourcefile.cpp
+	common/engine/cycler.cpp
 	common/engine/stats.cpp
 	common/engine/sc_man.cpp
 	common/engine/palettecontainer.cpp
@@ -868,6 +920,7 @@ set (PCH_SOURCES
 	common/objects/dobjtype.cpp
 	common/rendering/v_framebuffer.cpp
 	common/rendering/v_video.cpp
+	common/rendering/r_thread.cpp
 	common/rendering/r_videoscale.cpp
 	common/rendering/hwrenderer/data/hw_clock.cpp
 	common/rendering/hwrenderer/data/hw_skydome.cpp
@@ -1047,12 +1100,17 @@ include_directories(
 	common/rendering/hwrenderer/data
 	common/rendering/gl_load
 	common/rendering/gl
+	common/rendering/vulkan/thirdparty
+	common/rendering/polyrenderer/backend
+	common/rendering/polyrenderer/drawers
 	common/scripting/vm
 	common/scripting/jit
 	common/scripting/core
 	common/scripting/interface
 	common/scripting/frontend
 	common/scripting/backend
+	../libraries/glslang/glslang/Public
+	../libraries/glslang/spirv
 	${CMAKE_BINARY_DIR}/libraries/gdtoa
 	${SYSTEM_SOURCES_DIR}
 )
@@ -1112,6 +1170,17 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 
 if( CMAKE_COMPILER_IS_GNUCXX )
 	# GCC misoptimizes this file
+endif()
+if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+	# Need to enable intrinsics for these files.
+	if( SSE_MATTERS )
+		set_property( SOURCE
+			common/rendering/polyrenderer/poly_all.cpp
+			rendering/swrenderer/r_all.cpp
+			utility/palette.cpp
+			utility/x86.cpp
+			APPEND_STRING PROPERTY COMPILE_FLAGS " -msse2 -mmmx" )
+	endif()
 endif()
 
 if( APPLE )
@@ -1177,6 +1246,22 @@ source_group("Common\\Platforms\\OS X Files" REGULAR_EXPRESSION "^${CMAKE_CURREN
 source_group("Common\\Platforms\\Unix Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/posix/unix/.+")
 source_group("Common\\Platforms\\SDL Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/posix/sdl/.+")
 source_group("Common\\Platforms\\Win32 Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/win32/.+")
+source_group("Common\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/.+")
+source_group("Common\\Rendering\\Hardware Renderer" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/.+")
+source_group("Common\\Rendering\\Hardware Renderer\\Data" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/data/.+")
+source_group("Common\\Rendering\\Hardware Renderer\\Postprocessing" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/postprocessing/.+")
+source_group("Common\\Rendering\\OpenGL Loader" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl_load/.+")
+source_group("Common\\Rendering\\OpenGL Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl/.+")
+source_group("Common\\Rendering\\Vulkan Renderer\\System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/vulkan/system/.+")
+source_group("Common\\Rendering\\Vulkan Renderer\\Renderer" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/vulkan/renderer/.+")
+source_group("Common\\Rendering\\Vulkan Renderer\\Shaders" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/vulkan/shaders/.+")
+source_group("Common\\Rendering\\Vulkan Renderer\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/vulkan/textures/.+")
+source_group("Common\\Rendering\\Vulkan Renderer\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/vulkan/thirdparty/.+")
+source_group("Common\\Rendering\\Vulkan Renderer\\Third Party\\Volk" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/vulkan/thirdparty/volk/.+")
+source_group("Common\\Rendering\\Vulkan Renderer\\Third Party\\Vk_Mem_Alloc" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/vulkan/thirdparty/vk_mem_alloc.+")
+source_group("Common\\Rendering\\Poly Renderer" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/polyrenderer/.+")
+source_group("Common\\Rendering\\Poly Renderer\\Drawers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/polyrenderer/drawers/.+")
+source_group("Common\\Rendering\\Poly Renderer\\Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/polyrenderer/backend/.+")
 source_group("Common\\Models" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/models/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Textures\\Hires" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/.+")
@@ -1195,7 +1280,6 @@ source_group("Utility\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_
 source_group("Utility\\Third Party Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/include/.+")
 source_group("Utility\\Third Party Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/src/.+")
 source_group("Utility\\RapidJSON" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/utility/rapidjson/.+")
-source_group("OpenGL Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/glbackend/.+")
 source_group("Build Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/.+")
 source_group("Build Engine\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/include/.+")
 source_group("Build Engine\\Sources" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/build/src/.+")
