@@ -506,7 +506,7 @@ TArray<uint8_t> OpenGLFrameBuffer::GetScreenshotBuffer(int &pitch, ESSType &colo
 //===========================================================================
 // 
 // 2D drawing
-// 
+//
 //===========================================================================
 
 void OpenGLFrameBuffer::Draw2D()

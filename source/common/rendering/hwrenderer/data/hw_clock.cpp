@@ -171,6 +171,7 @@ void CheckBench()
 		AppendRenderStats(compose);
 		AppendRenderTimes(compose);
 		AppendLightStats(compose);
+		compose << "\n\n\n";
 
 		FILE *f = fopen("benchmarks.txt", "at");
 		if (f != NULL)
