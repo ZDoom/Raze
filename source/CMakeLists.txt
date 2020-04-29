@@ -615,13 +615,6 @@ file( GLOB HEADER_FILES
 	core/menu/*.h
 	core/input/*.h
 	core/statusbar/*.h
-	core/rendering/*.h
-	core/rendering/gl/system/*.h
-	core/rendering/gl/renderer/*.h
-	core/rendering/gl/shaders/*.h
-	core/rendering/hwrenderer/data/*.h
-	core/rendering/hwrenderer/postprocessing/*.h
-	core/rendering/hwrenderer/utility/*.h
 
 	common/audio/sound/thirdparty/*.h
 	common/audio/sound/*.h
@@ -876,6 +869,8 @@ set (PCH_SOURCES
 	common/rendering/v_framebuffer.cpp
 	common/rendering/v_video.cpp
 	common/rendering/r_videoscale.cpp
+	common/rendering/hwrenderer/data/hw_clock.cpp
+	common/rendering/hwrenderer/data/hw_skydome.cpp
 	common/rendering/hwrenderer/data/flatvertices.cpp
 	common/rendering/hwrenderer/data/hw_viewpointbuffer.cpp
 	common/rendering/hwrenderer/data/hw_modelvertexbuffer.cpp
@@ -883,12 +878,14 @@ set (PCH_SOURCES
 	common/rendering/hwrenderer/data/hw_vrmodes.cpp
 	common/rendering/hwrenderer/data/hw_lightbuffer.cpp
 	common/rendering/hwrenderer/data/hw_aabbtree.cpp
-	common/rendering/hwrenderer/data/hw_skydome.cpp
 	common/rendering/hwrenderer/data/hw_shadowmap.cpp
 	common/rendering/hwrenderer/data/hw_shaderpatcher.cpp
 	common/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
 	common/rendering/hwrenderer/postprocessing/hw_postprocess_cvars.cpp
 	common/rendering/gl_load/gl_interface.cpp
+	common/rendering/gl/gl_renderer.cpp
+	common/rendering/gl/gl_stereo3d.cpp
+	common/rendering/gl/gl_framebuffer.cpp
 	common/rendering/gl/gl_renderstate.cpp
 	common/rendering/gl/gl_renderbuffers.cpp
 	common/rendering/gl/gl_postprocess.cpp
@@ -937,10 +934,6 @@ set (PCH_SOURCES
 	#core/input/i_joystick.cpp
 	#core/input/i_input.cpp
 	core/input/m_joy.cpp
-
-	core/rendering/gl/renderer/gl_renderer.cpp
-	core/rendering/gl/renderer/gl_stereo3d.cpp
-	core/rendering/gl/system/gl_framebuffer.cpp
 )
 
 if( ${HAVE_VM_JIT} )
@@ -1033,14 +1026,6 @@ include_directories(
 	core/menu
 	core/input
 	core/statusbar
-	core/rendering/gl/system
-	core/rendering/gl/renderer
-	core/rendering/gl/shaders
-	core/rendering/gl/textures
-	core/rendering/hwrenderer/data
-	core/rendering/hwrenderer/postprocessing
-	core/rendering/hwrenderer/utility
-	core/rendering
 	platform
 	common/audio/sound
 	common/audio/music
@@ -1164,8 +1149,6 @@ source_group("Core\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/2d
 source_group("Core\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/console/.+")
 source_group("Core\\Status Bar" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/statusbar/.+")
 source_group("Core\\Menu" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/menu/.+")
-source_group("Core\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/.+")
-source_group("Core\\Rendering\\GL\\System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/core/rendering/gl/system.+")
 source_group("Platform" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/.+")
 source_group("Platform\\Win32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/win32/.+")
 source_group("Platform\\POSIX" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/platform/posix/.+")
@@ -1194,12 +1177,6 @@ source_group("Common\\Platforms\\OS X Files" REGULAR_EXPRESSION "^${CMAKE_CURREN
 source_group("Common\\Platforms\\Unix Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/posix/unix/.+")
 source_group("Common\\Platforms\\SDL Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/posix/sdl/.+")
 source_group("Common\\Platforms\\Win32 Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/platform/win32/.+")
-source_group("Common\\Rendering" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/.+")
-source_group("Common\\Rendering\\Hardware Renderer" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/.+")
-source_group("Common\\Rendering\\Hardware Renderer\\Data" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/data/.+")
-source_group("Common\\Rendering\\Hardware Renderer\\Postprocessing" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/hwrenderer/postprocessing/.+")
-source_group("Common\\Rendering\\OpenGL Loader" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl_load/.+")
-source_group("Common\\Rendering\\OpenGL Backend" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/rendering/gl/.+")
 source_group("Common\\Models" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/models/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
 source_group("Common\\Textures\\Hires" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/hires/.+")
