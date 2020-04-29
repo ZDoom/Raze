@@ -316,6 +316,7 @@ void BuildTiles::MakeCanvas(int tilenum, int width, int height)
 {
 	auto canvas = ValidateCustomTile(tilenum, ReplacementType::Canvas);
 	canvas->SetSize(width, height);
+	static_cast<FCanvasTexture*>(canvas->GetTexture())->aspectRatio = (float)width / height;
 }
 
 //===========================================================================
@@ -432,7 +433,7 @@ FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 	}
 	else if (type == ReplacementType::Canvas)
 	{
-		replacement = new FCanvasTexture(0, 0);
+		replacement = new FCanvasTexture(1, 1);
 	}
 	else return nullptr;
 	auto rep = MakeGameTexture(replacement, tile->GetName(), ETextureType::Override);
