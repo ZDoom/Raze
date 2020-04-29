@@ -116,6 +116,8 @@ void I_SetWindowTitle(const char* caption);
 void InitENet();
 void ShutdownENet();
 void S_ParseSndInfo();
+void I_DetectOS(void);
+
 
 bool AppActive;
 int chatmodeon;	// needed by the common console code.
