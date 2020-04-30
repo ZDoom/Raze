@@ -154,9 +154,6 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
             || (pSprite->picnum == MORTER && otherSprite == pSprite->owner))
             return;
 #endif
-        if (pOther->picnum == APLAYER)
-            spriteDist = FindDistance3D(pSprite->x - pOther->x, pSprite->y - pOther->y, pSprite->z - (pOther->z - PHEIGHT));
-
         if (spriteDist >= blastRadius || !cansee(pOther->x, pOther->y, pOther->z - ZOFFSET3, pOther->sectnum,
                                                  pSprite->x, pSprite->y, pSprite->z - ZOFFSET4, pSprite->sectnum))
             return;
@@ -354,7 +351,9 @@ SKIPWALLCHECK:
 
             if (bitmap_test(g_radiusDmgStatnums, pDamage->statnum))
             {
-                int const spriteDist = dist(pSprite, pDamage);
+                int const spriteDist = (pDamage->picnum == APLAYER)
+                                       ? FindDistance3D(pSprite->x - pDamage->x, pSprite->y - pDamage->y, pSprite->z - (pDamage->z - PHEIGHT))
+                                       : dist(pSprite, pDamage);
 
                 if (spriteDist < blastRadius)
                     A_RadiusDamageObject_Internal(spriteNum, damageSprite, blastRadius, spriteDist, randomZOffset, dmg1, dmg2, dmg3, dmg4);
