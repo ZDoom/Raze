@@ -636,5 +636,7 @@ void videoShowFrame(int32_t w)
 	}
 	twodpsp.Clear();
 	twod->Clear();
+	twodpsp.Begin(screen->GetWidth(), screen->GetHeight());
+	twod->Begin(screen->GetWidth(), screen->GetHeight());
 	GLInterface.ResetFrame();
 }
