@@ -54,6 +54,7 @@
 #include "build.h"
 #include "v_draw.h"
 #include "v_font.h"
+#include "common/rendering/gl/gl_shader.h"
 
 F2DDrawer twodpsp;
 
@@ -107,7 +108,6 @@ void GLInstance::LoadPolymostShader()
 	Frag.Push(0);
 	polymostShader = new PolymostShader();
 	polymostShader->Load("PolymostShader", (const char*)Vert.Data(), (const char*)Frag.Data());
-	SetPolymostShader();
 }
 
 void GLInstance::InitGLState(int fogmode, int multisample)
@@ -214,6 +214,7 @@ void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, Polymos
 
 void GLInstance::DoDraw()
 {
+	SetPolymostShader();
 	for (auto& rs : rendercommands)
 	{
 		glVertexAttrib4fv(2, rs.Color);
@@ -223,6 +224,7 @@ void GLInstance::DoDraw()
 	}
 	rendercommands.Clear();
 	matrixArray.Resize(1);
+	screen->RenderState()->Reset();
 }
 
 
@@ -242,11 +244,8 @@ void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
 
 void GLInstance::SetPolymostShader()
 {
-	if (activeShader != polymostShader)
-	{
-		polymostShader->Bind();
-		activeShader = polymostShader;
-	}
+	OpenGLRenderer::GLRenderer->mShaderManager->SetActiveShader(nullptr);
+	polymostShader->Bind();
 }
 
 void GLInstance::SetSurfaceShader()
@@ -557,6 +556,7 @@ void renderBeginScene()
 	assert(BufferLock >= 0);
 	if (BufferLock++ == 0)
 	{
+		screen->mVertexData->Reset();
 		screen->mVertexData->Map();
 	}
 }
@@ -599,6 +599,8 @@ void DrawRateStuff()
 	}
 }
 
+void Draw2D(F2DDrawer* drawer, FRenderState& state);
+
 void videoShowFrame(int32_t w)
 {
 	static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
@@ -618,7 +620,7 @@ void videoShowFrame(int32_t w)
 
 	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
 	screen->PostProcessScene(false, 0, []() {
-		GLInterface.Draw2D(&twodpsp); // draws the weapon sprites
+		Draw2D(&twodpsp, *screen->RenderState()); // draws the weapon sprites
 		});
 	screen->Update();
 	// After finishing the frame, reset everything for the next frame. This needs to be done better.

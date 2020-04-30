@@ -922,6 +922,7 @@ set (PCH_SOURCES
 	common/rendering/v_video.cpp
 	common/rendering/r_thread.cpp
 	common/rendering/r_videoscale.cpp
+	common/rendering/hwrenderer/hw_draw2d.cpp
 	common/rendering/hwrenderer/data/hw_clock.cpp
 	common/rendering/hwrenderer/data/hw_skydome.cpp
 	common/rendering/hwrenderer/data/flatvertices.cpp

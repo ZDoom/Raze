@@ -4060,6 +4060,9 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     return 0;
 }
 
+void DrawRateStuff();
+void DrawFullscreenBlends();
+
 //
 // nextpage
 //
@@ -4076,6 +4079,10 @@ void videoNextPage(void)
 		M_Drawer();
 		FStat::PrintStat(twod);
 		C_DrawConsole();
+
+        ::DrawFullscreenBlends();
+        DrawRateStuff();
+
 		recursion = false;
 	}
 

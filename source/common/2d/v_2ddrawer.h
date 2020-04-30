@@ -184,7 +184,7 @@ public:
 		int clipx1, int clipy1, int clipx2, int clipy2);
 	void AddFlatFill(int left, int top, int right, int bottom, FGameTexture *src, bool local_origin = false);
 
-	void AddColorOnlyQuad(int left, int top, int width, int height, PalEntry color, FRenderStyle *style = nullptr);
+	void AddColorOnlyQuad(int left, int top, int width, int height, PalEntry color, FRenderStyle *style = nullptr, bool prepend = false);
 	void ClearScreen(PalEntry color = 0xff000000);
 	void AddDim(PalEntry color, float damount, int x1, int y1, int w, int h);
 	void AddClear(int left, int top, int right, int bottom, int palcolor, uint32_t color);

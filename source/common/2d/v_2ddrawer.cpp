@@ -721,11 +721,11 @@ void F2DDrawer::AddFlatFill(int left, int top, int right, int bottom, FGameTextu
 
 //===========================================================================
 // 
-//
+// 
 //
 //===========================================================================
 
-void F2DDrawer::AddColorOnlyQuad(int x1, int y1, int w, int h, PalEntry color, FRenderStyle *style)
+void F2DDrawer::AddColorOnlyQuad(int x1, int y1, int w, int h, PalEntry color, FRenderStyle *style, bool prepend)
 {
 	RenderCommand dg;
 
@@ -741,7 +741,13 @@ void F2DDrawer::AddColorOnlyQuad(int x1, int y1, int w, int h, PalEntry color, F
 	dg.mIndexIndex = mIndices.Size();
 	dg.mIndexCount += 6;
 	AddIndices(dg.mVertIndex, 6, 0, 1, 2, 1, 3, 2);
-	AddCommand(&dg);
+	if (!prepend) AddCommand(&dg);
+	else
+	{
+		// Only needed by Raze's fullscreen blends because they are being calculated late when half of the 2D content has already been submitted,
+		// This ensures they are below the HUD, not above it.
+		mData.Insert(0, dg);
+	}
 }
 
 void F2DDrawer::ClearScreen(PalEntry color)
