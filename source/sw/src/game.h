@@ -1594,6 +1594,8 @@ typedef struct
     short Vis;              // Shading upgrade, for shooting, etc...
     SWBOOL DidAlert;          // Has actor done his alert noise before?
 
+    int16_t oangdiff;      // Used for interpolating sprite angles
+
     uint8_t filler;
 } USER,*USERp;
 

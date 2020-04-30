@@ -1892,6 +1892,7 @@ PlayerPart:
             }
         }
 
+        int16_t oldang = sp->ang;
         sp->ang = u->sang;
 
         if (TEST(u->Flags, SPR_ON_SO_SECTOR))
@@ -1930,6 +1931,8 @@ PlayerPart:
             if (sop->xmid < MAXSO) // special case for operating SO's
                 setspritez(sop->sp_num[i], (vec3_t *)sp);
         }
+
+        u->oangdiff += GetDeltaAngle(sp->ang, oldang);
 
         if (TEST(sp->extra, SPRX_BLADE))
         {
