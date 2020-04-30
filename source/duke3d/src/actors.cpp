@@ -6449,11 +6449,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             pPlayer->q16ang += fix16_from_int(q);
                             pPlayer->q16ang &= 0x7FFFFFF;
 
-                            if (g_netServer || numplayers > 1)
-                            {
-                                pPlayer->opos.x = pPlayer->pos.x;
-                                pPlayer->opos.y = pPlayer->pos.y;
-                            }
                             if (sprite[pPlayer->i].extra <= 0)
                             {
                                 sprite[pPlayer->i].x = pPlayer->pos.x;
@@ -6473,9 +6468,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             (sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == SE_49_POINT_LIGHT||sprite[j].lotag == SE_50_SPOT_LIGHT))
                             && sprite[j].picnum != LOCATORS)
                     {
-                        // fix interpolation
-                        if (numplayers < 2 && !g_netServer)
-                            actor[j].bpos.vec2 = sprite[j].pos.vec2;
 
                         if (move_rotfixed_sprite(j, pSprite-sprite, pData[2]))
                             rotatepoint(pSprite->pos.vec2, sprite[j].pos.vec2, q, &sprite[j].pos.vec2);
@@ -6485,8 +6477,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                         sprite[j].ang+=q;
 
-                        if (g_netServer || numplayers > 1)
-                            actor[j].bpos.vec2 = sprite[j].pos.vec2;
                     }
                     j = nextspritesect[j];
 #ifdef YAX_ENABLE
@@ -6510,18 +6500,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         MaybeTrainKillPlayer(pSprite, 1);
 
                     MaybeTrainKillEnemies(spriteNum);
-                }
-            }
-            else
-            {
-                // fix for jittering of sprites in halted subways
-                for (SPRITES_OF_SECT(pSprite->sectnum, j))
-                {
-                    // KEEPINSYNC2
-                    if (sprite[j].statnum != STAT_PLAYER && sector[sprite[j].sectnum].lotag != ST_2_UNDERWATER &&
-                            (sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == SE_49_POINT_LIGHT||sprite[j].lotag == SE_50_SPOT_LIGHT))
-                            && sprite[j].picnum != LOCATORS)
-                        actor[j].bpos.vec2 = sprite[j].pos.vec2;
                 }
             }
 
