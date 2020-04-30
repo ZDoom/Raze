@@ -6458,9 +6458,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     j = headspritesect[pSprite->sectnum];
                     while (j >= 0)
                     {
-                        // KEEPINSYNC2
-                        if (sprite[j].statnum != STAT_PLAYER
-                            && (sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == SE_49_POINT_LIGHT || sprite[j].lotag == SE_50_SPOT_LIGHT))
+                        if ((sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == SE_49_POINT_LIGHT || sprite[j].lotag == SE_50_SPOT_LIGHT))
                             && sprite[j].picnum != LOCATORS)
                         {
                             if (move_rotfixed_sprite(j, pSprite - sprite, pData[2]))
