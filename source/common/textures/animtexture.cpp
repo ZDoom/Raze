@@ -71,7 +71,7 @@ FBitmap AnimTexture::GetBgraBitmap(const PalEntry* remap, int* trans)
     {
         int p = i * 4;
 		int index = spix[i];
-        dpix[p + 0] = Palette[index*3+2];
+        dpix[p + 0] = Palette[index * 3 + 2];
         dpix[p + 1] = Palette[index*3+1];
         dpix[p + 2] = Palette[index*3];
         dpix[p + 3] = 255;
@@ -102,6 +102,8 @@ void AnimTextures::SetSize(int width, int height)
 {
 	static_cast<AnimTexture*>(tex[0]->GetTexture())->SetFrameSize(width, height);
     static_cast<AnimTexture*>(tex[1]->GetTexture())->SetFrameSize(width, height);
+    tex[0]->SetSize(width, height);
+    tex[1]->SetSize(width, height);
 }
     
 void AnimTextures::SetFrame(const uint8_t *palette, const void* data)
