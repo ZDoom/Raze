@@ -6416,15 +6416,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 m = (pSprite->xvel*sintable[(pSprite->ang+512)&2047])>>14;
                 x = (pSprite->xvel*sintable[pSprite->ang&2047])>>14;
 
-                for (TRAVERSE_CONNECT(playerNum))
+                if (sector[pSprite->sectnum].lotag != ST_2_UNDERWATER)
                 {
-                    auto const pPlayer = g_player[playerNum].ps;
-
-                    // might happen when squished into void space
-                    if (pPlayer->cursectnum < 0)
-                        break;
-
-                    if (sector[pPlayer->cursectnum].lotag != ST_2_UNDERWATER)
+                    for (TRAVERSE_CONNECT(playerNum))
                     {
                         if (g_playerSpawnPoints[playerNum].sect == pSprite->sectnum)
                         {
@@ -6432,11 +6426,17 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             g_playerSpawnPoints[playerNum].pos.y += x;
                         }
 
+                        auto const pPlayer = g_player[playerNum].ps;
+
+                        // might happen when squished into void space
+                        if (pPlayer->cursectnum < 0)
+                            break;
+
                         if (pSprite->sectnum == pPlayer->cursectnum
 #ifdef YAX_ENABLE
-                                || (pData[9]>=0 && pData[9] == pPlayer->cursectnum)
+                            || (pData[9] >= 0 && pData[9] == pPlayer->cursectnum)
 #endif
-                            )
+                        )
                         {
                             rotatepoint(pSprite->pos.vec2, pPlayer->pos.vec2, q, &pPlayer->pos.vec2);
 
@@ -6450,45 +6450,39 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             pPlayer->q16ang &= 0x7FFFFFF;
 
                             if (sprite[pPlayer->i].extra <= 0)
+                                sprite[pPlayer->i].pos.vec2 = pPlayer->pos.vec2;
+                        }
+                    }
+
+                    // NOTE: special loop handling
+                    j = headspritesect[pSprite->sectnum];
+                    while (j >= 0)
+                    {
+                        // KEEPINSYNC2
+                        if (sprite[j].statnum != STAT_PLAYER
+                            && (sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == SE_49_POINT_LIGHT || sprite[j].lotag == SE_50_SPOT_LIGHT))
+                            && sprite[j].picnum != LOCATORS)
+                        {
+                            if (move_rotfixed_sprite(j, pSprite - sprite, pData[2]))
+                                rotatepoint(pSprite->pos.vec2, sprite[j].pos.vec2, q, &sprite[j].pos.vec2);
+
+                            sprite[j].x += m;
+                            sprite[j].y += x;
+
+                            sprite[j].ang += q;
+                        }
+                        j = nextspritesect[j];
+#ifdef YAX_ENABLE
+                        if (j < 0)
+                        {
+                            if (pData[9] >= 0 && firstrun)
                             {
-                                sprite[pPlayer->i].x = pPlayer->pos.x;
-                                sprite[pPlayer->i].y = pPlayer->pos.y;
+                                firstrun = 0;
+                                j = headspritesect[pData[9]];
                             }
                         }
-                    }
-                }
-
-                // NOTE: special loop handling
-                j = headspritesect[pSprite->sectnum];
-                while (j >= 0)
-                {
-                    // KEEPINSYNC2
-                    // XXX: underwater check?
-                    if (sprite[j].statnum != STAT_PLAYER && sector[sprite[j].sectnum].lotag != ST_2_UNDERWATER &&
-                            (sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == SE_49_POINT_LIGHT||sprite[j].lotag == SE_50_SPOT_LIGHT))
-                            && sprite[j].picnum != LOCATORS)
-                    {
-
-                        if (move_rotfixed_sprite(j, pSprite-sprite, pData[2]))
-                            rotatepoint(pSprite->pos.vec2, sprite[j].pos.vec2, q, &sprite[j].pos.vec2);
-
-                        sprite[j].x+= m;
-                        sprite[j].y+= x;
-
-                        sprite[j].ang+=q;
-
-                    }
-                    j = nextspritesect[j];
-#ifdef YAX_ENABLE
-                    if (j < 0)
-                    {
-                        if (pData[9]>=0 && firstrun)
-                        {
-                            firstrun = 0;
-                            j = headspritesect[pData[9]];
-                        }
-                    }
 #endif
+                    }
                 }
 
                 A_MoveSector(spriteNum);
