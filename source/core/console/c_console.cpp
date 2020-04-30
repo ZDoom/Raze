@@ -984,7 +984,7 @@ void C_AdjustBottom ()
 
 void C_NewModeAdjust ()
 {
-	C_InitConsole (twod->GetWidth(), twod->GetHeight(), true);
+	C_InitConsole (screen->GetWidth(), screen->GetHeight(), true);
 	C_FlushDisplay ();
 	C_AdjustBottom ();
 }
