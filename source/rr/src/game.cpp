@@ -6739,8 +6739,6 @@ void G_PostCreateGameState(void)
     A_InitEnemyFlags();
 }
 
-void InitFonts();
-
 static void G_Startup(void)
 {
     int32_t i;
@@ -6801,8 +6799,6 @@ static void G_Startup(void)
 
     if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
         G_GameExit("Failed loading art.");
-
-    InitFonts();
 
     // Make the fullscreen nuke logo background non-fullbright.  Has to be
     // after dynamic tile remapping (from C_Compile) and loading tiles.
