@@ -828,6 +828,14 @@ void V_InitFonts()
 	AlternativeSmallFont = OriginalSmallFont;
 }
 
+void V_LoadTranslations()
+{
+	for (auto font = FFont::FirstFont; font; font = font->Next)
+	{
+		if (!font->noTranslate) font->LoadTranslations();
+	}
+}
+
 void V_ClearFonts()
 {
 	while (FFont::FirstFont != nullptr)

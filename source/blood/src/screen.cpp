@@ -120,7 +120,7 @@ void scrLoadPalette(void)
         ThrowError("TRANS.TLU not found");
     paletteloaded |= PALETTE_TRANSLUC;
 
-    palettePostLoadTables();
+    enginePostInit();
 
 }
 

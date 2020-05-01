@@ -81,6 +81,7 @@ using GlyphSet = TMap<int, FGameTexture*>;
 
 class FFont
 {
+	friend void V_LoadTranslations();
 public:
 
 	enum EFontType
@@ -192,5 +193,6 @@ EColorRange V_ParseFontColor (const uint8_t *&color_value, int normalcolor, int 
 FFont *V_GetFont(const char *fontname, const char *fontlumpname = nullptr);
 void V_InitFontColors();
 char* CleanseString(char* str);
+void V_LoadTranslations();
 
 

@@ -2125,6 +2125,7 @@ int32_t enginePostInit(void)
     if (!(paletteloaded & PALETTE_TRANSLUC))
         I_FatalError("No translucency table found.");
 
+    V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
     palettePostLoadTables();
     TileFiles.SetupReverseTileMap();
     return 0;
