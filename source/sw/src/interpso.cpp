@@ -251,9 +251,12 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
         if (sop->xmid == INT32_MAX /*|| sop->xmid == MAXSO*/)
             continue;
 
-        // Unfortunately, interpolating over less samples doesn't
-        // work well in multiplayer, so conditionally disable this
-        if (CommEnabled && (interp->lasttic != synctics))
+        // Unfortunately, interpolating over less samples doesn't work well in
+        // multiplayer. Same with sector objects controlled and carrying the player.
+        if (CommEnabled &&
+            ((interp->lasttic != synctics) ||
+             ((Player[screenpeek].sop_control == sop) &&
+               !Player[screenpeek].sop_remote)))
             continue;
 
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
