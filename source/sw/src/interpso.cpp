@@ -251,6 +251,11 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
         if (sop->xmid == INT32_MAX /*|| sop->xmid == MAXSO*/)
             continue;
 
+        // Unfortunately, interpolating over less samples doesn't
+        // work well in multiplayer, so conditionally disable this
+        if (CommEnabled && (interp->lasttic != synctics))
+            continue;
+
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
         {
             int32_t ratio = smoothratio * synctics + 65536 * interp->tic;
