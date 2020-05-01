@@ -34,7 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ai.h"
 #include "player.h"
 #include "game.h"
-#include "interp.h"
+#include "interpso.h"
 #include "network.h"
 #include "sprite.h"
 #include "track.h"
@@ -849,7 +849,6 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
     //
     // Make sure every sector object has an outer loop tagged - important
-    // Further setup interpolation
     //
 
     FoundOutsideLoop = FALSE;
@@ -862,21 +861,6 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         // move all walls in sectors
         for (k = startwall; k <= endwall; k++)
         {
-            uint16_t const nextwall = wall[k].nextwall;
-
-            // setup interpolation
-            if (InterpolateSectObj)
-            {
-                setinterpolation(&wall[k].x);
-                setinterpolation(&wall[k].y);
-
-                if (nextwall < MAXWALLS)
-                {
-                    setinterpolation(&wall[wall[nextwall].point2].x);
-                    setinterpolation(&wall[wall[nextwall].point2].y);
-                }
-            }
-
             // for morph point - tornado style
             if (wall[k].lotag == TAG_WALL_ALIGN_SLOPE_TO_POINT)
                 sop->morph_wall_point = k;
@@ -886,15 +870,9 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
             // each wall has this set - for collision detection
             SET(wall[k].extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
+            uint16_t const nextwall = wall[k].nextwall;
             if (nextwall < MAXWALLS)
                 SET(wall[nextwall].extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
-        }
-
-        // interpolate floor and ceiling
-        if (InterpolateSectObj && (k != startwall))
-        {
-            setinterpolation(&(*sectp)->ceilingz);
-            setinterpolation(&(*sectp)->floorz);
         }
     }
 
@@ -903,13 +881,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         I_Error("Forgot to tag outer loop for Sector Object #%d", (int)(sop - SectorObject));
     }
 
-    // interpolate midpoint, for aiming at a remote controlled SO
-    if (InterpolateSectObj)
-    {
-        setinterpolation(&sop->xmid);
-        setinterpolation(&sop->ymid);
-        setinterpolation(&sop->zmid);
-    }
+    so_addinterpolation(sop);
 
     for (i = 0; i < (int)SIZ(StatList); i++)
     {
@@ -1003,8 +975,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 ASSERT(sn < SIZ(sop->sp_num) - 1);
 
                 sop->sp_num[sn] = sp_num;
-                if (InterpolateSectObj)
-                    setspriteinterpolation(sp);
+                so_setspriteinterpolation(sop, sp);
 
 
                 if (!TEST(sop->flags, SOBJ_SPRITE_OBJ))
@@ -1665,7 +1636,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     if (TEST(sop->flags, SOBJ_DONT_ROTATE))
     {
-        if (!InterpolateSectObj)
+        if (!gs.InterpolateSO)
         {
             pp->oposx = pp->posx;
             pp->oposy = pp->posy;
@@ -1715,7 +1686,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     pp->camq16ang = NORM_Q16ANGLE(pp->camq16ang);
     pp->q16ang = NORM_Q16ANGLE(pp->RevolveQ16Ang + fix16_from_int(pp->RevolveDeltaAng));
 
-    if (!InterpolateSectObj)
+    if (!gs.InterpolateSO)
     {
         pp->oq16ang = pp->q16ang;
         pp->oposx = pp->posx;
@@ -1975,7 +1946,7 @@ PlayerPart:
                     pp->SpriteP->z = pp->loz;
                 }
             }
-            if (!InterpolateSectObj)
+            if (!gs.InterpolateSO)
                 pp->oposz = pp->posz;
         }
         else
@@ -2091,8 +2062,7 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
         if (sp->picnum == ST1 && sp->hitag == SPAWN_SPOT)
             continue;
 
-        if (InterpolateSectObj)
-            stopspriteinterpolation(sp);
+        so_stopspriteinterpolation(sop, sp);
         KillSprite(sop->sp_num[i]);
     }
 
@@ -2396,6 +2366,8 @@ MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
     int nx, ny;
     short speed;
     short delta_ang;
+
+    so_setinterpolationtics(sop, locktics);
 
     if (sop->track >= SO_OPERATE_TRACK_START)
     {
@@ -2817,7 +2789,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
 
 void
-OperateSectorObject(SECTOR_OBJECTp sop, short newang, int newx, int newy)
+OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int newy, short locktics)
 {
     int i;
     SECTORp *sectp;
@@ -2827,6 +2799,8 @@ OperateSectorObject(SECTOR_OBJECTp sop, short newang, int newx, int newy)
 
     if (sop->track < SO_OPERATE_TRACK_START)
         return;
+
+    so_setinterpolationtics(sop, locktics);
 
     if (sop->bob_amt)
     {
@@ -2855,8 +2829,15 @@ OperateSectorObject(SECTOR_OBJECTp sop, short newang, int newx, int newy)
 }
 
 void
+OperateSectorObject(SECTOR_OBJECTp sop, short newang, int newx, int newy)
+{
+    OperateSectorObjectForTics(sop, newang, newx, newy, synctics);
+}
+
+void
 PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy)
 {
+    so_setinterpolationtics(sop, synctics);
     RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, FALSE);
 }
 
@@ -3079,7 +3060,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
             }
         }
 
-        OperateSectorObject(sop, sop->ang, sop->xmid, sop->ymid);
+        OperateSectorObjectForTics(sop, sop->ang, sop->xmid, sop->ymid, 2*synctics);
     }
 }
 
