@@ -2053,7 +2053,7 @@ drawscreen(PLAYERp pp)
         tq16ang = camerapp->oq16ang + mulscale16(NORM_Q16ANGLE(camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) - fix16_from_int(1024), smoothratio);
         tq16horiz = camerapp->oq16horiz + mulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio);
     }
-    else if (gs.InterpolateSO)
+    else if (gs.InterpolateSO && (!CommEnabled || !pp->sop_control))
     {
         tq16ang = camerapp->oq16ang + mulscale16(((pp->camq16ang + fix16_from_int(1024) - camerapp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
         tq16horiz = camerapp->oq16horiz + mulscale16(pp->camq16horiz - camerapp->oq16horiz, smoothratio);
@@ -2095,7 +2095,8 @@ drawscreen(PLAYERp pp)
 
     if (pp->sop_riding || pp->sop_control)
     {
-        if (pp->sop_control && !gs.InterpolateSO)
+        if (pp->sop_control &&
+            (!gs.InterpolateSO || (CommEnabled && !pp->sop_remote)))
         {
             tx = pp->posx;
             ty = pp->posy;
