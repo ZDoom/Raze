@@ -53,6 +53,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "text.h"
 #include "menus.h"
 #include "interp.h"
+#include "interpso.h"
 #include "sector.h"
 #include "config.h"
 #include "menu/menu.h"
@@ -2033,6 +2034,8 @@ drawscreen(PLAYERp pp)
     {
         dointerpolations(smoothratio);                      // Stick at beginning of drawscreen
         short_dointerpolations(smoothratio);                      // Stick at beginning of drawscreen
+        if (gs.InterpolateSO)
+            so_dointerpolations(smoothratio);                           // Stick at beginning of drawscreen
     }
 
     // TENSW: when rendering with prediction, the only thing that counts should
@@ -2050,7 +2053,7 @@ drawscreen(PLAYERp pp)
         tq16ang = camerapp->oq16ang + mulscale16(NORM_Q16ANGLE(camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) - fix16_from_int(1024), smoothratio);
         tq16horiz = camerapp->oq16horiz + mulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio);
     }
-    else if (InterpolateSectObj)
+    else if (gs.InterpolateSO)
     {
         tq16ang = camerapp->oq16ang + mulscale16(((pp->camq16ang + fix16_from_int(1024) - camerapp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
         tq16horiz = camerapp->oq16horiz + mulscale16(pp->camq16horiz - camerapp->oq16horiz, smoothratio);
@@ -2092,7 +2095,7 @@ drawscreen(PLAYERp pp)
 
     if (pp->sop_riding || pp->sop_control)
     {
-        if (pp->sop_control && !InterpolateSectObj)
+        if (pp->sop_control && !gs.InterpolateSO)
         {
             tx = pp->posx;
             ty = pp->posy;
@@ -2318,6 +2321,8 @@ drawscreen(PLAYERp pp)
 
     restoreinterpolations();                 // Stick at end of drawscreen
     short_restoreinterpolations();                 // Stick at end of drawscreen
+    if (gs.InterpolateSO)
+        so_restoreinterpolations();                       // Stick at end of drawscreen
 
     PostDraw();
     DrawScreen = FALSE;

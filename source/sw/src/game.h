@@ -189,7 +189,6 @@ int krand1(void);
 #include "pragmas.h"
 
 extern SWBOOL PedanticMode;
-extern SWBOOL InterpolateSectObj;
 
 //
 // Map directions/degrees
