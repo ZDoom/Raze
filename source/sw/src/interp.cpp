@@ -111,12 +111,4 @@ void restoreinterpolations(void)                 // Stick at end of drawscreen
         *curipos[i] = bakipos[i];
 }
 
-void togglespriteinterpolation(spritetype *sp, int set)
-{
-    auto func = set ? setinterpolation : stopinterpolation;
-    func(&sp->x);
-    func(&sp->y);
-    func(&sp->z);
-}
-
 END_SW_NS
