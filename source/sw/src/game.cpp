@@ -3502,7 +3502,8 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         SinglePlayInput(pp);
 #endif
 
-    FunctionKeys(pp);
+    if (!tied)
+        FunctionKeys(pp);
 
     if (buttonMap.ButtonDown(gamefunc_Toggle_Crosshair))
     {
