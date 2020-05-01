@@ -831,7 +831,9 @@ int RunGame()
 	S_ParseSndInfo();
 	InitStatistics();
 	TexMan.Init([]() {}, nullptr);
+
 	V_InitFonts();
+
 	M_Init();
 	SetDefaultStrings();
 	if (g_gameType & (GAMEFLAG_RR)) InitRREndMap();	// this needs to be done better later

@@ -2126,6 +2126,7 @@ int32_t enginePostInit(void)
         I_FatalError("No translucency table found.");
 #endif
 
+    V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
     palettePostLoadTables();
 
     return 0;

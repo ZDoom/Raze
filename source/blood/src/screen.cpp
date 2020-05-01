@@ -103,7 +103,6 @@ void scrLoadPalette(void)
 	for (auto& x : glblend)
 		x = bloodglblend;
 
-    GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
     paletteloaded = 0;
     Printf("Loading palettes\n");
     for (int i = 0; i < 5; i++)
@@ -122,7 +121,7 @@ void scrLoadPalette(void)
         ThrowError("TRANS.TLU not found");
     paletteloaded |= PALETTE_TRANSLUC;
 
-    palettePostLoadTables();
+    enginePostInit();
 
 }
 
