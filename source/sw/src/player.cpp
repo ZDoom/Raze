@@ -1565,7 +1565,9 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel)
     if (!PedanticMode && (pq16ang == &pp->q16ang))
     {
         SET(pp->Flags2, PF2_INPUT_CAN_TURN);
-        pp->q16ang = pp->oq16ang = pp->input.q16ang;
+        pp->q16ang = pp->input.q16ang;
+        if ((pp == &Player[myconnectindex]) || (pp == ppp)) // No coop view?
+            pp->oq16ang = pp->q16ang;
         sprite[pp->PlayerSprite].ang = fix16_to_int(*pq16ang);
         if (!Prediction)
         {
@@ -1933,7 +1935,9 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
     if (!PedanticMode && (pq16horiz == &pp->q16horiz))
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
-        pp->q16horiz = pp->oq16horiz = pp->input.q16horiz;
+        pp->q16horiz = pp->input.q16horiz;
+        if ((pp == &Player[myconnectindex]) || (pp == ppp)) // No coop view?
+            pp->oq16horiz = pp->q16horiz;
         return;
     }
 
