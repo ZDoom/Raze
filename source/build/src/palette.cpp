@@ -249,7 +249,13 @@ void palettePostLoadLookups(void)
 
         if (i > 0 && palette == basepalette)
         {
-            GPalette.CopyTranslation(TRANSLATION(Translation_BasePalettes, i), TRANSLATION(Translation_BasePalettes, 0));
+            for (int l = 0; l < MAXPALOOKUPS; l++)
+            {
+                if (!LookupTables[l].IsEmpty())
+                {
+                    GPalette.CopyTranslation(TRANSLATION(Translation_Remap + i, l), TRANSLATION(Translation_Remap, l));
+                }
+            }
         }
         else if (palette->TwodOnly)
         {
