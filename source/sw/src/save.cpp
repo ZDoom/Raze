@@ -37,6 +37,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "tags.h"
 #include "lists.h"
 #include "interp.h"
+#include "interpso.h"
 
 #include "network.h"
 //#include "save.h"
@@ -612,6 +613,10 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
         assert(!saveisshot);
     }
 
+    // SO interpolations
+	saveisshot |= so_writeinterpolations(fil);
+	assert(!saveisshot);
+
     // parental lock
     for (i = 0; i < (int)SIZ(otlist); i++)
     {
@@ -994,6 +999,10 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     for (i = short_numinterpolations - 1; i >= 0; i--)
         saveisshot |= LoadSymDataInfo(fil, (void **)&short_curipos[i]);
     if (saveisshot) { MCLOSE_READ(fil); return false; }
+
+    // SO interpolations
+    saveisshot |= so_readinterpolations(fil);
+    if (saveisshot) { MCLOSE_READ(fil); return -1; }
 
     // parental lock
     for (i = 0; i < (int)SIZ(otlist); i++)
