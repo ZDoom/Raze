@@ -421,16 +421,7 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
     vpxtex[0] = MakeGameTexture(new VPXTexture, nullptr,  ETextureType::Special);
     vpxtex[1] = MakeGameTexture(new VPXTexture, nullptr, ETextureType::Special);
 
-    if ((animvpx_flags & CUTSCENE_TEXTUREFILTER && gl_texture_filter == TEXFILTER_ON) || animvpx_flags & CUTSCENE_FORCEFILTER ||
-    (!(animvpx_flags & CUTSCENE_TEXTUREFILTER) && !(animvpx_flags & CUTSCENE_FORCENOFILTER))) // if no flags, then use filter for IVFs
-    {
-		sampler = CLAMP_XY;
-    }
-    else
-    {
-        sampler = CLAMP_XY;
-    }
-
+    sampler = CLAMP_XY;
 
 	GLInterface.ClearScreen(0, true);
 }

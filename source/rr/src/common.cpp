@@ -132,7 +132,7 @@ void G_LoadLookups(void)
         for (bssize_t k = 0; k < 768; k++)
             paldata[k] <<= 2;
 
-        paletteSetColorTable(basepalnum, paldata, basepalnum == DREALMSPAL || basepalnum == ENDINGPAL, basepalnum < DREALMSPAL);
+        paletteSetColorTable(basepalnum, paldata, basepalnum == DREALMSPAL || basepalnum == ENDINGPAL, basepalnum >= DREALMSPAL);
     }
 
     for (int i = 0; i < 256; i++)

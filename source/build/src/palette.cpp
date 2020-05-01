@@ -63,7 +63,7 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency,
         remap.Palette[255] = 0;
         remap.Remap[255] = 255;
     }
-    remap.Inactive = twodonly;  // use Inactive as a marker for the postprocessing so that for pure 2D palettes the creation of shade tables can be skipped.
+    remap.TwodOnly = twodonly;  //  marker for postprocessing so that for pure 2D palettes the creation of shade tables can be skipped.
     GPalette.UpdateTranslation(TRANSLATION(Translation_BasePalettes, id), &remap);
 }
 
@@ -247,9 +247,12 @@ void palettePostLoadLookups(void)
         auto palette = GPalette.GetTranslation(Translation_BasePalettes, i);
         if (!palette) continue;
 
-        if (palette->Inactive)
+        if (i > 0 && palette == basepalette)
         {
-            palette->Inactive = false;
+            GPalette.CopyTranslation(TRANSLATION(Translation_BasePalettes, i), TRANSLATION(Translation_BasePalettes, 0));
+        }
+        else if (palette->TwodOnly)
+        {
             GPalette.CopyTranslation(TRANSLATION(Translation_Remap + i, 0), TRANSLATION(Translation_BasePalettes, i));
         }
         else
@@ -260,17 +263,13 @@ void palettePostLoadLookups(void)
                 {
                     const uint8_t* lookup = (uint8_t*)LookupTables[l].GetChars();
                     FRemapTable remap;
-                    if (i == 0 || (palette != basepalette && !palette->Inactive))
+                    memcpy(remap.Remap, lookup, 256);
+                    for (int j = 0; j < 256; j++)
                     {
-                        memcpy(remap.Remap, lookup, 256);
-                        for (int j = 0; j < 256; j++)
-                        {
-                            remap.Palette[j] = palette->Palette[remap.Remap[j]];
-                        }
-                        remap.NumEntries = 256;
-                        GPalette.UpdateTranslation(TRANSLATION(i + Translation_Remap, l), &remap);
+                        remap.Palette[j] = palette->Palette[remap.Remap[j]];
                     }
-                    if (palette != basepalette) palette->Inactive = false;  // clear the marker flag
+                    remap.NumEntries = 256;
+                    GPalette.UpdateTranslation(TRANSLATION(i + Translation_Remap, l), &remap);
                 }
             }
         }
@@ -306,10 +305,14 @@ void palettePostLoadLookups(void)
 //
 //==========================================================================
 
-int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
+int32_t paletteSetLookupTable(int32_t palnum, uint8_t *shtab)
 {
     if (shtab != NULL)
     {
+        for (int i = 0; i < numshades; i++)
+        {
+            shtab[255 + i * 256] = 255; // Transparent must always map to transparent. Some of Blood's tables don't do that.
+        }
         int length = numshades * 256;
         LookupTables[palnum] = FString((const char*)shtab, length);
     }

@@ -117,21 +117,6 @@ void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 {
 }
 
-void gltexapplyprops(void)
-{
-    if (videoGetRenderMode() == REND_CLASSIC)
-        return;
-
-	if (GLInterface.glinfo.maxanisotropy > 1.f)
-	{
-		if (gl_texture_filter_anisotropic <= 0 || gl_texture_filter_anisotropic > GLInterface.glinfo.maxanisotropy)
-			gl_texture_filter_anisotropic = (int32_t)GLInterface.glinfo.maxanisotropy;
-	}
-
-    screen->SetTextureFilterMode();
-	// do not force switch indexed textures with the filter. 
-}
-
 //--------------------------------------------------------------------------------------------------
 
 //Use this for both initialization and uninitialization of OpenGL.

@@ -48,7 +48,7 @@ extern PalEntry palfadergb;
 
 void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
 void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency, bool twodonly);
-int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab);
+int32_t paletteSetLookupTable(int32_t palnum, uint8_t *shtab);
 
 #include "tflags.h"
 enum ESetPalFlag
