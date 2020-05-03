@@ -214,6 +214,9 @@ void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, Polymos
 
 void GLInstance::DoDraw()
 {
+	screen->SetSceneRenderTarget(gl_ssao);
+	glDepthMask(true);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	SetPolymostShader();
 	for (auto& rs : rendercommands)
 	{
