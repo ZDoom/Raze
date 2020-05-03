@@ -10,7 +10,7 @@ enum
 };
 
 #ifndef _WIN32
-
+#include <dirent.h>
 
 struct findstate_t
 {
