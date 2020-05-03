@@ -62,10 +62,6 @@ static FileWriter *opennextfile(const char *fn)
     return FileWriter::Open(name);
 }
 
-void getScreen(uint8_t* imgBuf)
-{
-	screen->CopyScreenToBuffer(xdim, ydim, imgBuf);
-}
 
 
 CVAR(String, screenshotname, "", CVAR_ARCHIVE)	// not GLOBALCONFIG - allow setting this per game.
@@ -123,25 +119,11 @@ static int SaveScreenshot()
         return -1;
     }
 
-	auto truecolor = videoGetRenderMode() >= REND_POLYMOST;
-	TArray<uint8_t> imgBuf(xdim * ydim * (truecolor ? 3 : 1), true);
-
-    if (truecolor)
-    {
-        getScreen(imgBuf.Data());
-        int bytesPerLine = xdim * 3;
-
-		TArray<uint8_t> rowBuf(bytesPerLine * 3, true);
-
-        for (int i = 0, numRows = ydim >> 1; i < numRows; ++i)
-        {
-            memcpy(rowBuf.Data(), imgBuf.Data() + i * bytesPerLine, bytesPerLine);
-            memcpy(imgBuf.Data() + i * bytesPerLine, imgBuf.Data() + (ydim - i - 1) * bytesPerLine, bytesPerLine);
-            memcpy(imgBuf.Data() + (ydim - i - 1) * bytesPerLine, rowBuf.Data(), bytesPerLine);
-        }
-    }
-
-	WritePNGfile(fil, imgBuf.Data(), Palette, truecolor ? SS_RGB : SS_PAL, xdim, ydim, truecolor? xdim*3 : xdim, png_gamma);
+	float gamma;
+	int pitch;
+	ESSType ctype;
+	auto imgBuf = screen->GetScreenshotBuffer(pitch, ctype, gamma);
+	WritePNGfile(fil, imgBuf.Data(), Palette, ctype, xdim, ydim, pitch, gamma);
 	delete fil;
 	Printf("screenshot saved\n");
     return 0;
