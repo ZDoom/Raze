@@ -3223,7 +3223,7 @@ void viewDrawScreen(bool sceneonly)
             }
             r enderSetTarget(4079, 128, 128);
             renderSetAspect(65536, 78643);
-            renderBeginScene();
+            renderBeginScene(false);
             int vd8 = pOther->pSprite->x;
             int vd4 = pOther->pSprite->y;
             int vd0 = pOther->zView;
@@ -3328,7 +3328,7 @@ void viewDrawScreen(bool sceneonly)
             }
             nSprite = nextspritestat[nSprite];
         }
-        renderBeginScene();
+        renderBeginScene(true);
         g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - unk, 0) * (numplayers > 1 ? 1.f : r_ambientlightrecip));
         cA = (cA + interpolateangfix16(fix16_from_int(deliriumTurnO), fix16_from_int(deliriumTurn), gInterpolate)) & 0x7ffffff;
         int vfc, vf8;

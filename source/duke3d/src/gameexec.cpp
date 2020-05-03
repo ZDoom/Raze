@@ -1225,7 +1225,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, i
     renderSetAspect(viewingRange, yxAspect);
     int const smoothratio = calc_smoothratio(totalclock, ototalclock);
     G_DoInterpolations(smoothratio);
-    renderBeginScene();
+    renderBeginScene(false);
     if (!display_mirror)
         G_HandleMirror(vec.x, vec.y, vec.z, a, horiz, smoothratio);
 #ifdef POLYMER

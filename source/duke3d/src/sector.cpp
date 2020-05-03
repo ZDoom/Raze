@@ -401,7 +401,7 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
         Printf(TEXTCOLOR_RED "ERROR: EVENT_DISPLAYROOMSCAMERATILE return value must be 0 or 1, "
                    "other values are reserved.\n");
 #endif
-    renderBeginScene();
+    renderBeginScene(false);
 
     yax_preparedrawrooms();
     drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));

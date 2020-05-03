@@ -466,7 +466,7 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 	TileFiles.MakeCanvas(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
     renderSetTarget(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
-    renderBeginScene();
+    renderBeginScene(false);
 
     renderDrawRoomsQ16(daposx, daposy, daposz, daq16ang, daq16horiz, dacursectnum);
     analyzesprites(daposx, daposy, daposz, FALSE);

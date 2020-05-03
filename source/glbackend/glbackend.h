@@ -445,6 +445,6 @@ public:
 
 extern GLInstance GLInterface;
 
-void renderBeginScene();
+void renderBeginScene(bool mainscene);
 void renderFinishScene();
 

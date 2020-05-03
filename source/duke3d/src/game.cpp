@@ -679,7 +679,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                            "other values are reserved.\n");
 #endif
 
-            renderBeginScene();
+            renderBeginScene(false);
 #ifdef LEGACY_ROR
             G_SE40(smoothRatio);
 #endif
@@ -832,7 +832,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 Printf(TEXTCOLOR_RED "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
                            "other values are reserved.\n");
 #endif
-            renderBeginScene();
+            renderBeginScene(true);
 
             G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
             G_ClearGotMirror();

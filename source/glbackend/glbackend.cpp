@@ -60,6 +60,7 @@
 #include "common/rendering/gl/gl_shader.h"
 
 F2DDrawer twodpsp;
+bool creatingsavepic;
 
 float shadediv[MAXPALOOKUPS];
 
@@ -134,7 +135,6 @@ void GLInstance::ResetFrame()
 	GLState s;
 	lastState = s; // Back to defaults.
 	lastState.Style.BlendOp = -1;	// invalidate. This forces a reset for the next operation
-	screen->SetSceneRenderTarget(gl_ssao);
 }
 
 void GLInstance::SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2)
@@ -482,7 +482,9 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	ydim = height;
 	videoSetViewableArea(0, 0, width - 1, height - 1);
 	renderSetAspect(65536, 65536);
+	creatingsavepic = true;
 	bool didit = gi->GenerateSavePic();
+	creatingsavepic = false;
 
 	xdim = oldx;
 	ydim = oldy;
@@ -510,9 +512,14 @@ void WriteSavePic(FileWriter* file, int width, int height)
 
 static int BufferLock = 0;
 
-void renderBeginScene()
+void renderBeginScene(bool mainscene)
 {
-	if (videoGetRenderMode() < REND_POLYMOST) return;
+	if (mainscene)
+	{
+		screen->BeginFrame();
+		if (!creatingsavepic) screen->SetSceneRenderTarget(gl_ssao);
+		GLInterface.ResetFrame();
+	}
 	assert(BufferLock >= 0);
 	if (BufferLock++ == 0)
 	{
@@ -522,16 +529,11 @@ void renderBeginScene()
 
 void renderFinishScene()
 {
-	if (videoGetRenderMode() < REND_POLYMOST) return;
 	assert(BufferLock > 0);
 	if (--BufferLock == 0)
 	{
 		screen->mVertexData->Unmap();
 		GLInterface.DoDraw();
-
-		// The new setup with the 2D parts being handled by backend code does not reset these bits at the end of a frame.
-		glEnable(GL_BLEND);
-		glColorMask(1, 1, 1, 1);
 	}
 
 }
@@ -588,19 +590,8 @@ void videoShowFrame(int32_t w)
 		});
 	screen->Update();
 	// After finishing the frame, reset everything for the next frame. This needs to be done better.
-	screen->BeginFrame();
-	if (gl_ssao)
-	{
-		OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(true);
-		glDrawBuffers(3, buffers);
-	}
-	else
-	{
-		OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
-	}
 	twodpsp.Clear();
 	twod->Clear();
 	twodpsp.Begin(screen->GetWidth(), screen->GetHeight());
 	twod->Begin(screen->GetWidth(), screen->GetHeight());
-	GLInterface.ResetFrame();
 }

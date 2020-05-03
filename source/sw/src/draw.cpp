@@ -2125,7 +2125,7 @@ drawscreen(PLAYERp pp)
         JS_DrawCameras(pp, tx, ty, tz);
     }
 
-    renderBeginScene();
+    renderBeginScene(true);
     OverlapDraw = TRUE;
     DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
     OverlapDraw = FALSE;

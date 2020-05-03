@@ -494,7 +494,7 @@ void DrawView(int smoothRatio, bool sceneonly)
             }
         }
 
-        renderBeginScene();
+        renderBeginScene(true);
         renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa, nCamerapan, nSector);
         analyzesprites();
         renderDrawMasks();
