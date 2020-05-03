@@ -71,7 +71,7 @@ FBitmap AnimTexture::GetBgraBitmap(const PalEntry* remap, int* trans)
     {
         int p = i * 4;
         int index = spix[i];
-        dpix[p + 0] = Palette[index * 3 + 2];
+        dpix[p + 0] = Palette[index*3+2];
         dpix[p + 1] = Palette[index * 3 + 1];
         dpix[p + 2] = Palette[index * 3];
         dpix[p + 3] = 255;
