@@ -36,6 +36,8 @@
 #include "v_video.h"
 #include "../../glbackend/glbackend.h"
 #include "gl_renderer.h"
+#include "v_video.h"
+#include "flatvertices.h"
 #endif
 
 //////////
@@ -4093,6 +4095,7 @@ void videoNextPage(void)
  		g_beforeSwapTime = timerGetHiTicks();
 
 		videoShowFrame(0);
+        screen->mVertexData->Reset();
     }
 
 #ifdef USE_OPENGL

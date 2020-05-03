@@ -442,7 +442,6 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 			glPolygonOffset(mBias.mFactor, mBias.mUnits);
 			mBias.mChanged = false;
 		}
-
 		StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
 		oldState.Flags = StateFlags;
 	}
@@ -559,7 +558,6 @@ void renderBeginScene()
 	assert(BufferLock >= 0);
 	if (BufferLock++ == 0)
 	{
-		screen->mVertexData->Reset();
 		screen->mVertexData->Map();
 	}
 }
@@ -572,7 +570,12 @@ void renderFinishScene()
 	{
 		screen->mVertexData->Unmap();
 		GLInterface.DoDraw();
+
+		// The new setup with the 2D parts being handled by backend code does not reset these bits at the end of a frame.
+		glEnable(GL_BLEND);
+		glColorMask(1, 1, 1, 1);
 	}
+
 }
 
 //==========================================================================
@@ -606,6 +609,7 @@ void Draw2D(F2DDrawer* drawer, FRenderState& state);
 
 void videoShowFrame(int32_t w)
 {
+	Printf("videoShowFrame %d\n", (int)totalclock);
 	static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 
 	if (gl_ssao)
