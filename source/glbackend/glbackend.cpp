@@ -55,6 +55,8 @@
 #include "v_draw.h"
 #include "v_font.h"
 #include "gl_buffers.h"
+#include "hw_viewpointbuffer.h"
+#include "hw_lightbuffer.h"
 #include "common/rendering/gl/gl_shader.h"
 
 F2DDrawer twodpsp;
@@ -91,9 +93,6 @@ TArray<uint8_t> ttf;
 
 void GLInstance::Init(int ydim)
 {
-	//glinfo.bufferstorage =  !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");
-	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
-
 	new(&renderState) PolymostRenderState;	// reset to defaults.
 	LoadPolymostShader();
 }
@@ -113,37 +112,15 @@ void GLInstance::LoadPolymostShader()
 
 void GLInstance::InitGLState(int fogmode, int multisample)
 {
-	glShadeModel(GL_SMOOTH);  // GL_FLAT
-	glEnable(GL_TEXTURE_2D);
-
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    if (multisample > 0 )
-    {
-		//glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
-        glEnable(GL_MULTISAMPLE);
-    }
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
-
 	// This is a bad place to call this but without deconstructing the entire render loops in all front ends there is no way to have a well defined spot for this stuff.
 	// Before doing that the backend needs to work in some fashion, so we have to make sure everything is set up when the first render call is performed.
 	screen->BeginFrame();	
 	bool useSSAO = (gl_ssao != 0);
     OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(useSSAO);
-	ClearBufferState();
 }
 
 void GLInstance::Deinit()
 {
-#if 0
-	if (im_ctx)
-	{
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplSDL2_Shutdown();
-		ImGui::DestroyContext(im_ctx);
-	}
-#endif
 	if (polymostShader) delete polymostShader;
 	polymostShader = nullptr;
 	if (surfaceShader) delete surfaceShader;
@@ -166,19 +143,6 @@ void GLInstance::SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2)
 	static_cast<OpenGLRenderer::GLVertexBuffer*>(vb)->Bind(o);
 }
 
-void GLInstance::SetIndexBuffer(IIndexBuffer* vb)
-{
-	if (vb) static_cast<OpenGLRenderer::GLIndexBuffer*>(vb)->Bind();
-	else glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-void GLInstance::ClearBufferState()
-{
-	SetVertexBuffer(screen->mVertexData->GetBufferObjects().first, 0, 0);
-	SetIndexBuffer(nullptr);
-}
-
-	
 static GLint primtypes[] ={ GL_POINTS, GL_LINES, GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP };
 	
 
@@ -193,24 +157,6 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	SetIdentityMatrix(Matrix_Texture);
 	SetIdentityMatrix(Matrix_Detail);
 	renderState.StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
-}
-
-void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState &renderState)
-{
-	if (activeShader == polymostShader)
-	{
-		glVertexAttrib4fv(2, renderState.Color);
-		if (renderState.Color[3] != 1.f) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
-		renderState.Apply(polymostShader, lastState);
-	}
-	if (type != DT_Lines)
-	{
-		glDrawElements(primtypes[type], count, GL_UNSIGNED_INT, (void*)(intptr_t)(start * sizeof(uint32_t)));
-	}
-	else
-	{
-		glDrawArrays(primtypes[type], start, count);
-	}
 }
 
 void GLInstance::DoDraw()
@@ -242,11 +188,6 @@ int GLInstance::SetMatrix(int num, const VSMatrix *mat)
 	renderState.matrixIndex[num] = matrixArray.Size();
 	matrixArray.Push(*mat);
 	return r;
-}
-
-void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
-{
-	glReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, buffer);
 }
 
 void GLInstance::SetPolymostShader()
@@ -496,6 +437,19 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 //
 //===========================================================================
 
+void DoWriteSavePic(FileWriter* file, ESSType ssformat, uint8_t* scr, int width, int height, bool upsidedown)
+{
+	int pitch = width * 3;
+	if (upsidedown)
+	{
+		scr += ((height - 1) * width * 3);
+		pitch *= -1;
+	}
+
+	M_CreatePNG(file, scr, nullptr, ssformat, width, height, pitch, vid_gamma);
+}
+
+
 void WriteSavePic(FileWriter* file, int width, int height)
 {
 	IntRect bounds;
@@ -503,15 +457,21 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	bounds.top = 0;
 	bounds.width = width;
 	bounds.height = height;
+	auto& RenderState = *screen->RenderState();
 
 	// we must be sure the GPU finished reading from the buffer before we fill it with new data.
-	glFinish();
+	screen->WaitForCommands(false);
 
 	// Switch to render buffers dimensioned for the savepic
-	OpenGLRenderer::GLRenderer->mBuffers = OpenGLRenderer::GLRenderer->mSaveBuffers;
-	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
-	screen->SetViewportRects(&bounds);
+	screen->SetSaveBuffers(true);
+	screen->ImageTransitionScene(true);
 
+	RenderState.SetVertexBuffer(screen->mVertexData);
+	screen->mVertexData->Reset();
+	screen->mLights->Clear();
+	screen->mViewpoints->Clear();
+
+	screen->SetViewportRects(&bounds);
 
 	int oldx = xdim;
 	int oldy = ydim;
@@ -531,26 +491,20 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	// The 2D drawers can contain some garbage from the dirty render setup. Get rid of that first.
 	twod->Clear();
 	twodpsp.Clear();
-	OpenGLRenderer::GLRenderer->CopyToBackbuffer(&bounds, false);
 
-	// strictly speaking not needed as the glReadPixels should block until the scene is rendered, but this is to safeguard against shitty drivers
-	glFinish();
+	RenderState.EnableStencil(false);
+	RenderState.SetNoSoftLightLevel();
 
-	if (didit)
-	{
-		int numpixels = width * height;
-		uint8_t* scr = (uint8_t*)Xmalloc(numpixels * 3);
-		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, scr);
-		M_CreatePNG(file, scr + ((height - 1) * width * 3), nullptr, SS_RGB, width, height, -width * 3, vid_gamma);
-		M_FinishPNG(file);
-		Xfree(scr);
-	}
+	int numpixels = width * height;
+	uint8_t* scr = (uint8_t*)M_Malloc(numpixels * 3);
+	screen->CopyScreenToBuffer(width, height, scr);
+
+	DoWriteSavePic(file, SS_RGB, scr, width, height, screen->FlipSavePic());
+	M_Free(scr);
 
 	// Switch back the screen render buffers
 	screen->SetViewportRects(nullptr);
-	OpenGLRenderer::GLRenderer->mBuffers = OpenGLRenderer::GLRenderer->mScreenBuffers;
-	bool useSSAO = (gl_ssao != 0);
-	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(useSSAO);
+	screen->SetSaveBuffers(false);
 }
 
 

@@ -135,12 +135,8 @@ public:
 	GLInstance();
 	void Draw(EDrawType type, size_t start, size_t count);
 	void DoDraw();
-	void DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState& renderState);
 
 	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2);
-	void SetIndexBuffer(IIndexBuffer* vb);
-	void ClearBufferState();
-
 	float GetProjectionM5() { return mProjectionM5; }
 	int SetMatrix(int num, const VSMatrix *mat );
 	int SetMatrix(int num, const float *mat)
@@ -162,8 +158,6 @@ public:
 	void SetSurfaceShader();
 	void SetPalette(int palette);
 	
-	void ReadPixels(int w, int h, uint8_t* buffer);
-
 	void SetDepthBias(float a, float b)
 	{
 		renderState.mBias.mFactor = a;
@@ -349,33 +343,6 @@ public:
 		if (shouldUpscale(tex, upscalemask)) scaleflags |= CTF_Upscale;
 		SetMaterial(FMaterial::ValidateTexture(tex, scaleflags), clampmode, translation, overrideshader);
 	}
-#if 0
-	void BindTexture(int texunit, FHardwareTexture* tex, int sampler /*= NoSampler*/)
-	{
-		if (!tex) return;
-		if (texunit == 0)
-		{
-			if (tex->isIndexed()) renderState.Flags |= RF_UsePalette;
-			else renderState.Flags &= ~RF_UsePalette;
-		}
-		renderState.texIds[texunit] = tex->GetTextureHandle();
-		renderState.samplerIds[texunit] = sampler == NoSampler ? tex->GetSampler() : sampler;
-	}
-
-	void UnbindTexture(int texunit)
-	{
-		renderState.texIds[texunit] = 0;
-		renderState.samplerIds[texunit] = 0;
-	}
-
-	void UnbindAllTextures()
-	{
-		for (int texunit = 0; texunit < MAX_TEXTURES; texunit++)
-		{
-			UnbindTexture(texunit);
-		}
-	}
-#endif
 
 	void UseColorOnly(bool yes)
 	{

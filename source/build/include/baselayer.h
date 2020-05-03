@@ -40,8 +40,6 @@ extern int32_t qsetmode;
 extern int32_t g_logFlushWindow;
 bool System_WantGuiCapture();	// During playing this tells us whether the game must be paused due to active GUI elememts.
 
-void getScreen(uint8_t* imgBuf);
-
 
 #include "print.h"
 
