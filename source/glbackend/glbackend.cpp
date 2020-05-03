@@ -54,6 +54,7 @@
 #include "build.h"
 #include "v_draw.h"
 #include "v_font.h"
+#include "gl_buffers.h"
 #include "common/rendering/gl/gl_shader.h"
 
 F2DDrawer twodpsp;
@@ -156,7 +157,7 @@ void GLInstance::ResetFrame()
 	GLState s;
 	lastState = s; // Back to defaults.
 	lastState.Style.BlendOp = -1;	// invalidate. This forces a reset for the next operation
-
+	screen->SetSceneRenderTarget(gl_ssao);
 }
 
 void GLInstance::SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2)
@@ -214,10 +215,13 @@ void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, Polymos
 
 void GLInstance::DoDraw()
 {
-	screen->SetSceneRenderTarget(gl_ssao);
+	glColorMask(1, 1, 1, 1);
 	glDepthMask(true);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	SetPolymostShader();
+	auto buffer = static_cast<OpenGLRenderer::GLVertexBuffer*>(screen->mVertexData->GetBufferObjects().first);
+	buffer->Bind(nullptr);
+
 	for (auto& rs : rendercommands)
 	{
 		glVertexAttrib4fv(2, rs.Color);
@@ -609,7 +613,6 @@ void Draw2D(F2DDrawer* drawer, FRenderState& state);
 
 void videoShowFrame(int32_t w)
 {
-	Printf("videoShowFrame %d\n", (int)totalclock);
 	static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 
 	if (gl_ssao)

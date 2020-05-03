@@ -315,6 +315,7 @@ void BuildTiles::InvalidateTile(int num)
 void BuildTiles::MakeCanvas(int tilenum, int width, int height)
 {
 	auto canvas = ValidateCustomTile(tilenum, ReplacementType::Canvas);
+	canvas->GetTexture()->SetSize(width*4, height*4);
 	canvas->SetSize(width, height);
 	static_cast<FCanvasTexture*>(canvas->GetTexture())->aspectRatio = (float)width / height;
 }

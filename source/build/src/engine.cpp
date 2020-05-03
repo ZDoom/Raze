@@ -5413,9 +5413,10 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 
     setviewcnt++;
 
-    xdim = ysiz*4;
-    ydim = xsiz*4;
-    videoSetViewableArea(0,0,ysiz*4-1,xsiz*4-1);
+    auto tex = TileFiles.GetTile(tilenume)->GetTexture();
+    xdim = tex->GetWidth();
+    ydim = tex->GetHeight();
+    videoSetViewableArea(0,0,xdim-1,ydim-1);
     renderSetAspect(65536,65536);
 }
 
