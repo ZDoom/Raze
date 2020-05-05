@@ -39,6 +39,11 @@
 #include "files.h"
 #include "md5.h"
 
+#ifdef __linux__
+#include <pwd.h>
+#include <unistd.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>

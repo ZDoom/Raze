@@ -40,7 +40,7 @@
 #include "c_dispatch.h"
 #include "dikeys.h"
 #include "utf8.h"
-#include "core/console/keydef.h"
+#include "keydef.h"
 #include "menu/menu.h"
 
 static void I_CheckNativeMouse ();
@@ -261,7 +261,7 @@ void MessagePump (const SDL_Event &sev)
 	switch (sev.type)
 	{
 	case SDL_QUIT:
-		throw ExitEvent(0);
+		throw CExitEvent(0);
 
 	case SDL_WINDOWEVENT:
 		extern void ProcessSDLWindowEvent(const SDL_WindowEvent &);
