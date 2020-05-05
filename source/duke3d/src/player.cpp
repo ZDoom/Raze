@@ -5703,7 +5703,10 @@ RECHECK:
 
     if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
         if (VM_OnEvent(EVENT_RETURNTOCENTER, pPlayer->i,playerNum) == 0)
+        {
             pPlayer->return_to_center = 9;
+            thisPlayer.horizRecenter  = true;
+        }
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
     {
