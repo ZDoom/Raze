@@ -7508,7 +7508,7 @@ void P_ProcessInput(int playerNum)
 
     if (pPlayer->cursectnum == -1)
     {
-        if (pSprite->extra > 0 && ud.noclip == 0)
+        if (pSprite->extra > 0 && ud.clipping == 0)
         {
             P_QuickKill(pPlayer);
             A_PlaySound(SQUISHED, pPlayer->i);
@@ -7832,7 +7832,7 @@ check_enemy_sprite:
     if (pPlayer->on_ground)
         pPlayer->bobcounter += sprite[pPlayer->i].xvel>>1;
 
-    if (ud.noclip == 0 && ((uint16_t)pPlayer->cursectnum >= MAXSECTORS || sector[pPlayer->cursectnum].floorpicnum == MIRROR))
+    if (ud.clipping == 0 && ((uint16_t)pPlayer->cursectnum >= MAXSECTORS || sector[pPlayer->cursectnum].floorpicnum == MIRROR))
     {
         pPlayer->pos.x = pPlayer->opos.x;
         pPlayer->pos.y = pPlayer->opos.y;
@@ -8358,7 +8358,7 @@ HORIZONLY:;
         stepHeight = pPlayer->autostep_sbw;
 #endif
 
-    if (ud.noclip)
+    if (ud.clipping)
     {
         pPlayer->pos.x += pPlayer->vel.x >> 14;
         pPlayer->pos.y += pPlayer->vel.y >> 14;
@@ -8660,7 +8660,7 @@ HORIZONLY:;
         usectortype const *pSector = (usectortype *)&sector[pPlayer->cursectnum];
 
         // TRAIN_SECTOR_TO_SE_INDEX
-        if ((!ud.noclip && pSector->lotag == ST_31_TWO_WAY_TRAIN) &&
+        if ((!ud.clipping && pSector->lotag == ST_31_TWO_WAY_TRAIN) &&
             ((unsigned)pSector->hitag < MAXSPRITES && sprite[pSector->hitag].xvel && actor[pSector->hitag].t_data[0] == 0))
         {
             P_QuickKill(pPlayer);
@@ -8676,7 +8676,7 @@ HORIZONLY:;
     if (pPlayer->cursectnum >= 0 && pPlayer->cursectnum != pSprite->sectnum)
         changespritesect(pPlayer->i, pPlayer->cursectnum);
 
-    if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
+    if (pPlayer->cursectnum >= 0 && ud.clipping == 0)
     {
         int const squishPlayer = (pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, (!RR || pSprite->clipdist == 64) ? 164 : 16, (4L << 8), (4L << 8), CLIPMASK0) < 0 &&
                                  A_GetFurthestAngle(pPlayer->i, 8) < 512);
@@ -9057,7 +9057,7 @@ void P_DHProcessInput(int playerNum)
     if (pPlayer->on_ground)
         pPlayer->bobcounter += sprite[pPlayer->i].xvel>>1;
 
-    if (ud.noclip == 0 && ((uint16_t)pPlayer->cursectnum >= MAXSECTORS || sector[pPlayer->cursectnum].floorpicnum == MIRROR))
+    if (ud.clipping == 0 && ((uint16_t)pPlayer->cursectnum >= MAXSECTORS || sector[pPlayer->cursectnum].floorpicnum == MIRROR))
     {
         pPlayer->pos.x = pPlayer->opos.x;
         pPlayer->pos.y = pPlayer->opos.y;
@@ -9250,7 +9250,7 @@ void P_DHProcessInput(int playerNum)
 
     int spriteNum;
 
-    if (ud.noclip)
+    if (ud.clipping)
     {
         spriteNum = 0;
         pPlayer->pos.x += pPlayer->vel.x >> 14;
@@ -9347,7 +9347,7 @@ void P_DHProcessInput(int playerNum)
     if (pPlayer->cursectnum >= 0 && pPlayer->cursectnum != pSprite->sectnum)
         changespritesect(pPlayer->i, pPlayer->cursectnum);
 
-    if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
+    if (pPlayer->cursectnum >= 0 && ud.clipping == 0)
     {
         int const squishPlayer = (pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, (!RR || pSprite->clipdist == 64) ? 164 : 16, (4L << 8), (4L << 8), CLIPMASK0) < 0 &&
                                  A_GetFurthestAngle(pPlayer->i, 8) < 512);

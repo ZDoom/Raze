@@ -249,6 +249,7 @@ enum pflags_t
 
 extern tiledata_t   g_tile[MAXTILES];
 extern actor_t      actor[MAXSPRITES];
+extern actor_t* hittype;
 extern int32_t      block_deletesprite;
 extern int32_t      g_noEnemies;
 extern int32_t      otherp;
@@ -335,6 +336,11 @@ EXTERN_INLINE int G_CheckForSpaceFloor(int const sectnum)
 EXTERN_INLINE int A_CheckEnemySprite(void const * const pSprite)
 {
     return A_CheckEnemyTile(((uspritetype const *) pSprite)->picnum);
+}
+
+inline int badguy(void const* const pSprite)
+{
+    return A_CheckEnemySprite(pSprite);
 }
 
 #endif

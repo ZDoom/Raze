@@ -306,6 +306,16 @@ EXTERN_INLINE void G_RestoreInterpolations(void)  //Stick at end of drawscreen
 
 #endif
 
+// Hack struct to allow old code to access the EDuke-style player data without changing it.
+struct psaccess
+{
+    DukePlayer_t* operator[](int index)
+    {
+        return g_player[index].ps;
+    }
+};
+extern psaccess ps;
+
 END_DUKE_NS
 
 #endif

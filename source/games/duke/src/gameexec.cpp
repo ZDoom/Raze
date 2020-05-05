@@ -213,46 +213,11 @@ int32_t VM_ExecuteEventWithValue(int const nEventID, int const spriteNum, int co
     return VM_EventInlineInternal__(nEventID, spriteNum, playerNum, -1, nReturn);
 }
 
+bool ifsquished(int i, int p);
+
 static int32_t VM_CheckSquished(void)
 {
-    if (RR)
-        return 0;
-
-    usectortype const * const pSector = (usectortype *)&sector[vm.pSprite->sectnum];
-
-    if (pSector->lotag == ST_23_SWINGING_DOOR ||
-        (vm.pSprite->picnum == APLAYER && ud.noclip))
-        return 0;
-
-    int32_t floorZ = pSector->floorz;
-    int32_t ceilZ  = pSector->ceilingz;
-#ifdef YAX_ENABLE
-    int16_t cb, fb;
-
-    yax_getbunches(vm.pSprite->sectnum, &cb, &fb);
-
-    if (cb >= 0 && (pSector->ceilingstat&512)==0)  // if ceiling non-blocking...
-        ceilZ -= ZOFFSET5;  // unconditionally don't squish... yax_getneighborsect is slowish :/
-    if (fb >= 0 && (pSector->floorstat&512)==0)
-        floorZ += ZOFFSET5;
-#endif
-
-    if (vm.pSprite->pal == 1 ? (floorZ - ceilZ >= ZOFFSET5 || (pSector->lotag & 32768u)) : (floorZ - ceilZ >= ZOFFSET4))
-    return 0;
-
-    P_DoQuote(QUOTE_SQUISHED, vm.pPlayer);
-
-    if (A_CheckEnemySprite(vm.pSprite))
-        vm.pSprite->xvel = 0;
-
-    if (EDUKE32_PREDICT_FALSE(vm.pSprite->pal == 1)) // frozen
-    {
-        vm.pActor->picnum = SHOTSPARK1;
-        vm.pActor->extra  = 1;
-        return 0;
-    }
-
-    return 1;
+    return ifsquished(vm.spriteNum, vm.playerNum);
 }
 
 GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)

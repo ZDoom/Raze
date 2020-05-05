@@ -167,7 +167,7 @@ typedef struct {
 
     char overhead_on,last_overhead,showweapons;
     char god,warp_on,cashman,eog;
-    char scrollmode,noclip;
+    char scrollmode,clipping;
     char display_bonus_screen;
     char show_level_text;
 
@@ -268,6 +268,10 @@ void G_PrintGameQuotes(int32_t snum);
 //void G_SE40(int32_t smoothratio);
 void G_UpdatePlayerFromMenu(void);
 void P_DoQuote(int32_t q,DukePlayer_t *p);
+inline void FTA(int q, DukePlayer_t* p)
+{
+    P_DoQuote(q, p);
+}
 void P_SetGamePalette(DukePlayer_t* player, uint32_t palid, ESetPalFlags flags);
 void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum);
 void G_OffMotorcycle(DukePlayer_t *pPlayer);

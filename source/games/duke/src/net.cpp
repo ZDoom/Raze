@@ -668,7 +668,7 @@ void Net_DoPrediction(void)
     int stepHeight, centerHoriz;
     int16_t   ceilingBunch, floorBunch;
 
-    if (ud.noclip == 0 && (mycursectnum < 0 || mycursectnum >= MAXSECTORS || sector[mycursectnum].floorpicnum == MIRROR))
+    if (ud.clipping == 0 && (mycursectnum < 0 || mycursectnum >= MAXSECTORS || sector[mycursectnum].floorpicnum == MIRROR))
     {
         mypos.x = omypos.x;
         mypos.y = omypos.y;

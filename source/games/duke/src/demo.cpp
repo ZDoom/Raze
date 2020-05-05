@@ -120,7 +120,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 
     gFullMap = false;
     ud.god = ud.cashman = ud.eog = 0;
-    ud.noclip = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
+    ud.clipping = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
 
     totalclock = ototalclock = lockclock = 0;
 

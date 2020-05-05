@@ -472,8 +472,8 @@ void G_DoCheats(void)
                     break;
 
                 case CHEAT_CLIP:
-                    ud.noclip = !ud.noclip;
-                    P_DoQuote(QUOTE_CHEAT_NOCLIP-!ud.noclip, pPlayer);
+                    ud.clipping = !ud.clipping;
+                    P_DoQuote(QUOTE_CHEAT_NOCLIP-!ud.clipping, pPlayer);
                     end_cheat(pPlayer);
                     return;
 

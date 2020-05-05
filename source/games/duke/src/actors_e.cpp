@@ -6851,7 +6851,7 @@ static void MaybeTrainKillPlayer(const spritetype *pSprite, int const setOPos)
 
             updatesector(pPlayer->pos.x, pPlayer->pos.y, &playerSectnum);
 
-            if ((playerSectnum == -1 && !ud.noclip) || (pPlayer->cursectnum != pSprite->sectnum && playerSectnum == pSprite->sectnum))
+            if ((playerSectnum == -1 && !ud.clipping) || (pPlayer->cursectnum != pSprite->sectnum && playerSectnum == pSprite->sectnum))
             {
                 *(vec2_t *)pPlayer = *(vec2_t const *)pSprite;
 
@@ -7244,7 +7244,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if ((pSector->floorz-pSector->ceilingz) < (108<<8))
                 {
-                    if (ud.noclip == 0 && pSprite->xvel >= 192)
+                    if (ud.clipping == 0 && pSprite->xvel >= 192)
                         MaybeTrainKillPlayer(pSprite, 0);
                 }
 
@@ -7339,7 +7339,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if ((pSector->floorz-pSector->ceilingz) < (108<<8))
                 {
-                    if (ud.noclip == 0 && pSprite->xvel >= 192)
+                    if (ud.clipping == 0 && pSprite->xvel >= 192)
                         MaybeTrainKillPlayer(pSprite, 1);
 
                     MaybeTrainKillEnemies(spriteNum, 72);
@@ -7406,7 +7406,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 x = (pSprite->xvel*sintable[pSprite->ang&2047])>>14;
 
                 if ((pSector->floorz-pSector->ceilingz) < (108<<8))
-                    if (ud.noclip == 0)
+                    if (ud.clipping == 0)
                         MaybeTrainKillPlayer(pSprite, 0);
 
                 for (int TRAVERSE_CONNECT(playerNum))
@@ -7463,7 +7463,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if (pSector->floorz-pSector->ceilingz < (108<<8))
                 {
-                    if (ud.noclip == 0)
+                    if (ud.clipping == 0)
                         MaybeTrainKillPlayer(pSprite, 1);
 
                     MaybeTrainKillEnemies(spriteNum, 24);

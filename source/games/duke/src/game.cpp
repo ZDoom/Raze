@@ -6999,6 +6999,7 @@ static const char* actions[] = {
     "Toggle_Crouch",	// This is the last one used by EDuke32.
 };
 
+void InitFonts();
 
 int GameInterface::app_main()
 {
@@ -7144,6 +7145,7 @@ int GameInterface::app_main()
 #endif
 
     videoInit();
+    InitFonts();
     videoSetPalette(0, g_player[myconnectindex].ps->palette, 0);
 
     // check if the minifont will support lowercase letters (3136-3161)
@@ -7750,5 +7752,9 @@ void GameInterface::UpdateScreenSize()
 {
 	return new GameInterface;
 }
+
+// access wrappers that alias old names to current data.
+psaccess ps;
+actor_t* hittype = actor;
 
 END_DUKE_NS

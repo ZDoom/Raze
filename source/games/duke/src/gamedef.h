@@ -127,7 +127,7 @@ typedef struct {
     int flags;
 
     union {
-        spritetype * pSprite;
+        spritetype *pSprite;
         uspritetype *pUSprite;
     };
 
