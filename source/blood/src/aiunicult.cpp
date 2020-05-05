@@ -1307,7 +1307,7 @@ void scaleDamage(XSPRITE* pXSprite) {
                 case kThingPodFireBall:
                 case kThingNapalmBall:
                     curScale[kDmgBurn] = 32;
-                    curScale[kDmgExplode] -= 20;
+                    curScale[kDmgExplode] -= 32;
                     break;
                 case kMissileLifeLeechRegular:
                     curScale[kDmgBurn] = 60 + Random(4);
@@ -1330,6 +1330,7 @@ void scaleDamage(XSPRITE* pXSprite) {
                 case kThingArmedTNTBundle:
                 case kThingArmedTNTStick:
                 case kModernThingTNTProx:
+                    curScale[kDmgBurn] -= 32;
                     curScale[kDmgExplode] = 32;
                     curScale[kDmgFall] = 65 + Random(15);
                     break;
@@ -2008,7 +2009,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             fallthrough__;
         }
         case kGenDudePropertyAttack:
-            pExtra->fireDist = getRangeAttackDist(pSprite, 1200, 45000);
+            pExtra->fireDist = getRangeAttackDist(pSprite, 3000, 45000);
             pExtra->throwDist = pExtra->fireDist; // temp
             pExtra->baseDispersion = getDispersionModifier(pSprite, 200, 3500);
             if (propId) break;

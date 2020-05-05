@@ -61,7 +61,9 @@ BEGIN_BLD_NS
 #define kModernTypeFlag4 0x0004
 
 #define kMaxRandomizeRetries 16
+#define kPercentFull 100
 #define kCondRange 100
+
 // modern statnums
 enum {
 kStatModernBase                     = 20,
@@ -69,6 +71,9 @@ kStatModernDudeTargetChanger        = kStatModernBase,
 kStatModernCondition                = 21,
 kStatModernEventRedirector          = 22,
 kStatModernPlayerLinker             = 23,
+kStatModernSeqSpawner               = 24,
+kStatModernQavScene                 = 25,
+kStatModernTmp                      = 39,
 kStatModernMax                      = 40,
 };
 
@@ -126,7 +131,9 @@ kCondWallBase                       = 200,
 kCondWallMax                        = 300,
 kCondSectorBase                     = 300,
 kCondSectorMax                      = 400,
-kCondDudeBase                       = 400,
+kCondPlayerBase                     = 400,
+kCondPlayerMax                      = 450,
+kCondDudeBase                       = 450,
 kCondDudeMax                        = 500,
 kCondSpriteBase                     = 500,
 kCondSpriteMax                      = 600,
@@ -283,14 +290,14 @@ void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernS
 void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition);
 void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlStopScene(XSPRITE* pXSource, PLAYER* pPlayer);
+void trPlayerCtrlStopScene(PLAYER* pPlayer);
 void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlSetJumpHeight(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCtrl);
-void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer);
+void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd);
 //  -------------------------------------------------------------------------   //
 void modernTypeTrigger(int type, int nDest, EVENT event);
 char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState);
@@ -327,19 +334,23 @@ void windGenStopWindOnSectors(XSPRITE* pXSource);
 int getSpriteMassBySize(spritetype* pSprite);
 bool ceilIsTooLow(spritetype* pSprite);
 void levelEndLevelCustom(int nLevel);
-bool useCondition(XSPRITE* pXSource, EVENT event);
+int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event);
 bool condPush(XSPRITE* pXSprite, int objType, int objIndex);
 bool condRestore(XSPRITE* pXSprite);
 bool condCmp(int val, int arg1, int arg2, int comOp);
 bool condCmpne(int arg1, int arg2, int comOp);
-bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH, bool RVRS);
-bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
-bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
-bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH, bool RVRS);
+void condError(XSPRITE* pXCond, const char* pzFormat, ...);
+bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH);
+bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH);
+bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH);
+bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH);
+bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH);
+bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH);
 void condUpdateObjectIndex(int objType, int oldIndex, int newIndex);
 XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* tx);
 XSPRITE* evrIsRedirector(int nSprite);
 int listTx(XSPRITE* pXRedir, int tx);
+void seqSpawnerOffSameTx(XSPRITE* pXSource);
 #endif
 
 ////////////////////////////////////////////////////////////////////////

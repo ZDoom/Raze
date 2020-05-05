@@ -6745,8 +6745,8 @@ void actFireVector(spritetype *pShooter, int a2, int a3, int a4, int a5, int a6,
                         actBurnSprite(actSpriteIdToOwnerId(nShooter), &xsprite[nXSprite], pVectorData->burnTime);
                     }
 
-                    if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
-                        changespritestat(pSprite->index, kStatThing);
+                    //if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
+                        //changespritestat(pSprite->index, kStatThing);
                         //actPostSprite(pSprite->index, kStatThing); // if it was a thing, return it's statnum back
                 }
             }
