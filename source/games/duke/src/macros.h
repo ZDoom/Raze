@@ -41,7 +41,7 @@ static FORCE_INLINE int32_t krand2(void)
 { \
     int32_t const r1 = krand2(), r2 = krand2(), r3 = krand2(), r4 = krand2(), r5 = krand2(), r6 = krand2(), r7 = krand2(); \
     A_InsertSprite(s->sectnum,s->x+(r7&255)-128,s->y+(r6&255)-128,s->z-ZOFFSET3-(r5&8191),\
-        SCRAP6+(r4&15),-8,RR?16:48,RR?16:48,r3&2047,(r2&63)+64,-512-(r1&2047),i,5); \
+        TILE_SCRAP6+(r4&15),-8,RR?16:48,RR?16:48,r3&2047,(r2&63)+64,-512-(r1&2047),i,5); \
 }
 
 #define GTFLAGS(x) (g_gametypeFlags[ud.coop] & x)
@@ -61,7 +61,7 @@ static FORCE_INLINE int32_t krand2(void)
 
 #define TEST_SYNC_KEY(bits, sync_num) (!!TEST((bits), BIT(sync_num)))
 
-#define AFLAMABLE(X) (X==BOX||X==TREE1||X==TREE2||X==TIRE||X==CONE)
+#define AFLAMABLE(X) (X==TILE_BOX||X==TILE_TREE1||X==TILE_TREE2||X==TILE_TIRE||X==TILE_CONE)
 #define rnd(X) ((krand2()>>8)>=(255-(X)))
 
 //

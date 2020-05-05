@@ -75,7 +75,7 @@ void S_PlayRRMusic(int newTrack = -1);
 
 static inline bool S_IsAmbientSFX(int spriteNum)
 {
-    return (sprite[spriteNum].picnum == MUSICANDSFX && sprite[spriteNum].lotag < 999);
+    return (sprite[spriteNum].picnum == TILE_MUSICANDSFX && sprite[spriteNum].lotag < 999);
 }
 
 END_DUKE_NS

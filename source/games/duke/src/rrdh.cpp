@@ -239,7 +239,7 @@ int ghcons_findnewspot(short a1)
         vec3_t pos = { v20, v24,  v18 };
         setsprite(a1, &pos);
         changespritesect(a1, v18);
-        if (spr->picnum == DOGRUN)
+        if (spr->picnum == TILE_DOGRUN)
             spr->z = -307200;
         else
             spr->z = sec->floorz;
@@ -881,15 +881,15 @@ void sub_52BA8(void)
             v1c++;
         }
     }
-    ghprelvl_randkeep(PIG, 4);
-    ghprelvl_randkeep(VIXEN, 4);
-    ghprelvl_randkeep(DOGRUN, 4);
-    ghprelvl_randkeep(CHEER, 4);
+    ghprelvl_randkeep(TILE_PIG, 4);
+    ghprelvl_randkeep(TILE_VIXEN, 4);
+    ghprelvl_randkeep(TILE_DOGRUN, 4);
+    ghprelvl_randkeep(TILE_CHEER, 4);
     ghprelvl_randkeep(7065, 64);
 
     for (i = 0; i < MAXSPRITES; i++)
     {
-        if (sprite[i].picnum == PIG)
+        if (sprite[i].picnum == TILE_PIG)
         {
             sprite[i].cstat = 257;
             changespritestat(i, 1);
@@ -897,7 +897,7 @@ void sub_52BA8(void)
             sprite[i].yrepeat = 10 + sub_52AB8(5, 125);
             sprite[i].clipdist = mulscale7(sprite[i].xrepeat, tilesiz[sprite[i].picnum].x);
         }
-        if (sprite[i].picnum == VIXEN)
+        if (sprite[i].picnum == TILE_VIXEN)
         {
             sprite[i].cstat = 257;
             changespritestat(i, 1);
@@ -905,7 +905,7 @@ void sub_52BA8(void)
             sprite[i].yrepeat = 14 + sub_52AB8(7, 100);
             sprite[i].clipdist = mulscale7(sprite[i].xrepeat, tilesiz[sprite[i].picnum].x);
         }
-        if (sprite[i].picnum == DOGRUN)
+        if (sprite[i].picnum == TILE_DOGRUN)
         {
             sprite[i].cstat = 257;
             changespritestat(i, 1);
@@ -913,7 +913,7 @@ void sub_52BA8(void)
             sprite[i].yrepeat = 8 + sub_52AB8(4, 100);
             sprite[i].clipdist = mulscale7(sprite[i].xrepeat, tilesiz[sprite[i].picnum].x);
         }
-        if (sprite[i].picnum == CHEER)
+        if (sprite[i].picnum == TILE_CHEER)
         {
             sprite[i].cstat = 257;
             changespritestat(i, 1);
@@ -3556,12 +3556,12 @@ void sub_580C8(void)
 {
     int vsi = dword_AAAF0 % 10;
     int vd = dword_AAAF0 / 10;
-    rotatesprite(292<<16, 184<<16, 17408, 0, DIGITALNUM+vd, 0, 0, 128+10, 0, 0, xdim-1, ydim-1);
-    rotatesprite(296<<16, 184<<16, 17408, 0, DIGITALNUM+vsi, 0, 0, 128+10, 0, 0, xdim-1, ydim-1);
+    rotatesprite(292<<16, 184<<16, 17408, 0, TILE_DIGITALNUM+vd, 0, 0, 128+10, 0, 0, xdim-1, ydim-1);
+    rotatesprite(296<<16, 184<<16, 17408, 0, TILE_DIGITALNUM+vsi, 0, 0, 128+10, 0, 0, xdim-1, ydim-1);
     vsi = dword_AAAF4 % 10;
     vd = dword_AAAF4 / 10;
-    rotatesprite(302<<16, 184<<16, 17408, 0, DIGITALNUM+vd, 0, 0, 128+10, 0, 0, xdim-1, ydim-1);
-    rotatesprite(306<<16, 184<<16, 17408, 0, DIGITALNUM+vsi, 0, 0, 128+10, 0, 0, xdim-1, ydim-1);
+    rotatesprite(302<<16, 184<<16, 17408, 0, TILE_DIGITALNUM+vd, 0, 0, 128+10, 0, 0, xdim-1, ydim-1);
+    rotatesprite(306<<16, 184<<16, 17408, 0, TILE_DIGITALNUM+vsi, 0, 0, 128+10, 0, 0, xdim-1, ydim-1);
 }
 
 void ghtarget_move(void)
@@ -3877,11 +3877,11 @@ void sub_58A5C(unsigned int a1)
     int t3 = (a1 % 1000) / 100;
     int t4 = (a1 % 10000) / 1000;
     int t5 = (a1 % 100000) / 10000;
-    rotatesprite(243<<16, 185<<16, 22528, 0, DIGITALNUM+t1, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
-    rotatesprite(235<<16, 185<<16, 22528, 0, DIGITALNUM+t2, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
-    rotatesprite(227<<16, 185<<16, 22528, 0, DIGITALNUM+t3, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
-    rotatesprite(219<<16, 185<<16, 22528, 0, DIGITALNUM+t4, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
-    rotatesprite(211<<16, 185<<16, 22528, 0, DIGITALNUM+t5, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
+    rotatesprite(243<<16, 185<<16, 22528, 0, TILE_DIGITALNUM+t1, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
+    rotatesprite(235<<16, 185<<16, 22528, 0, TILE_DIGITALNUM+t2, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
+    rotatesprite(227<<16, 185<<16, 22528, 0, TILE_DIGITALNUM+t3, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
+    rotatesprite(219<<16, 185<<16, 22528, 0, TILE_DIGITALNUM+t4, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
+    rotatesprite(211<<16, 185<<16, 22528, 0, TILE_DIGITALNUM+t5, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
 }
 
 short word_AAB10;
@@ -3945,21 +3945,21 @@ void sub_58D14(void)
             unsigned int t1 = dword_AAB14 % 10;
             unsigned int t2 = (dword_AAB14 % 100) / 10;
             unsigned int t3 = (dword_AAB14 % 1000) / 100;
-            rotatesprite(64<<16, 180<<16, 18432, 0, DIGITALNUM+t1, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
+            rotatesprite(64<<16, 180<<16, 18432, 0, TILE_DIGITALNUM+t1, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
             if (t3 || t2 > 0)
             {
-                rotatesprite(58<<16, 180<<16, 18432, 0, DIGITALNUM+t2, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
+                rotatesprite(58<<16, 180<<16, 18432, 0, TILE_DIGITALNUM+t2, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
             }
             if (t3 > 0)
             {
-                rotatesprite(52<<16, 180<<16, 18432, 0, DIGITALNUM+t3, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
+                rotatesprite(52<<16, 180<<16, 18432, 0, TILE_DIGITALNUM+t3, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
             }
             t1 = dword_AAB18 % 10;
             t2 = (dword_AAB18 % 100) / 10;
-            rotatesprite(64<<16, 190<<16, 18432, 0, DIGITALNUM+t1, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
+            rotatesprite(64<<16, 190<<16, 18432, 0, TILE_DIGITALNUM+t1, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
             if (t2 > 0)
             {
-                rotatesprite(58<<16, 190<<16, 18432, 0, DIGITALNUM+t2, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
+                rotatesprite(58<<16, 190<<16, 18432, 0, TILE_DIGITALNUM+t2, 0, 0, 128+64+10, 0, 0, xdim-1, ydim-1);
             }
         }
     }

@@ -51,22 +51,22 @@ int GameInterface::GetStringTile(int font, const char* t, int f)
             return font - (11 + offset);
             break;
         case '.':
-            return font + (BIGPERIOD - (BIGALPHANUM + offset));
+            return font + (TILE_BIGPERIOD - (TILE_BIGALPHANUM + offset));
             break;
         case ',':
-            return font + (BIGCOMMA - (BIGALPHANUM + offset));
+            return font + (TILE_BIGCOMMA - (TILE_BIGALPHANUM + offset));
             break;
         case '!':
-            return font + (BIGX_ - (BIGALPHANUM + offset));
+            return font + (TILE_BIGX_ - (TILE_BIGALPHANUM + offset));
             break;
         case '?':
-            return font + (BIGQ - (BIGALPHANUM + offset));
+            return font + (TILE_BIGQ - (TILE_BIGALPHANUM + offset));
             break;
         case ';':
-            return font + (BIGSEMI - (BIGALPHANUM + offset));
+            return font + (TILE_BIGSEMI - (TILE_BIGALPHANUM + offset));
             break;
         case ':':
-            return font + (BIGCOLIN - (BIGALPHANUM + offset));
+            return font + (TILE_BIGCOLIN - (TILE_BIGALPHANUM + offset));
             break;
         case '\\':
         case '/':
@@ -78,7 +78,7 @@ int GameInterface::GetStringTile(int font, const char* t, int f)
         case '`':
         case '\"': // could be better hacked in
         case '\'':
-            return font + (BIGAPPOS - (BIGALPHANUM + offset));
+            return font + (TILE_BIGAPPOS - (TILE_BIGALPHANUM + offset));
             break;
         default: // unknown character
             fallthrough__;

@@ -1538,7 +1538,7 @@ static void postloadplayer(int32_t savegamep)
     if (savegamep)
     {
         for (SPRITES_OF(STAT_FX, i))
-            if (sprite[i].picnum == MUSICANDSFX)
+            if (sprite[i].picnum == TILE_MUSICANDSFX)
             {
                 T2(i) = SoundEnabled();
                 T1(i) = 0;
@@ -1557,11 +1557,11 @@ static void postloadplayer(int32_t savegamep)
                 switch (DYNAMICTILEMAP(wall[animwall[i].wallnum].picnum))
                 {
                 case FEMPIC1__STATIC:
-                    wall[animwall[i].wallnum].picnum = BLANKSCREEN;
+                    wall[animwall[i].wallnum].picnum = TILE_BLANKSCREEN;
                     break;
                 case FEMPIC2__STATIC:
                 case FEMPIC3__STATIC:
-                    wall[animwall[i].wallnum].picnum = SCREENBREAK6;
+                    wall[animwall[i].wallnum].picnum = TILE_SCREENBREAK6;
                     break;
                 }
         }

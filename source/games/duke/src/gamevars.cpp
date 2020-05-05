@@ -617,18 +617,18 @@ static int32_t G_StaticToDynamicTile(int32_t const tile)
     switch (tile)
     {
 #ifndef EDUKE32_STANDALONE
-    case CHAINGUN__STATIC: return CHAINGUN;
-    case FREEZEBLAST__STATIC: return FREEZEBLAST;
-    case GROWSPARK__STATIC: return GROWSPARK;
-    case HANDHOLDINGLASER__STATIC: return HANDHOLDINGLASER;
-    case HEAVYHBOMB__STATIC: return HEAVYHBOMB;
-    case KNEE__STATIC: return KNEE;
-    case RPG__STATIC: return RPG;
-    case SHELL__STATIC: return SHELL;
-    case SHOTGUNSHELL__STATIC: return SHOTGUNSHELL;
-    case SHOTGUN__STATIC: return SHOTGUN;
-    case SHOTSPARK1__STATIC: return SHOTSPARK1;
-    case SHRINKER__STATIC: return SHRINKER;
+    case CHAINGUN__STATIC: return TILE_CHAINGUN;
+    case FREEZEBLAST__STATIC: return TILE_FREEZEBLAST;
+    case GROWSPARK__STATIC: return TILE_GROWSPARK;
+    case HANDHOLDINGLASER__STATIC: return TILE_HANDHOLDINGLASER;
+    case HEAVYHBOMB__STATIC: return TILE_HEAVYHBOMB;
+    case KNEE__STATIC: return TILE_KNEE;
+    case RPG__STATIC: return TILE_RPG;
+    case SHELL__STATIC: return TILE_SHELL;
+    case SHOTGUNSHELL__STATIC: return TILE_SHOTGUNSHELL;
+    case SHOTGUN__STATIC: return TILE_SHOTGUN;
+    case SHOTSPARK1__STATIC: return TILE_SHOTSPARK1;
+    case SHRINKER__STATIC: return TILE_SHRINKER;
 #endif
     default: return tile;
     }

@@ -828,16 +828,16 @@ nextdemo_nomenu:
                         Bsprintf(buf, "%02d:%02d", j/60, j%60);
                         gametext_widenumber(18, 16, buf);
 
-                        rotatesprite(60<<16, 16<<16, 32768, 0, SLIDEBAR, 0, 0, 2+8+16+1024, 0, 0, (xdim*95)/320, ydim-1);
-                        rotatesprite(90<<16, 16<<16, 32768, 0, SLIDEBAR, 0, 0, 2+8+16+1024, (xdim*95)/320, 0, (xdim*125)/320, ydim-1);
-                        rotatesprite(120<<16, 16<<16, 32768, 0, SLIDEBAR, 0, 0, 2+8+16+1024, (xdim*125)/320, 0, (xdim*155)/320, ydim-1);
-                        rotatesprite(150<<16, 16<<16, 32768, 0, SLIDEBAR, 0, 0, 2+8+16+1024, (xdim*155)/320, 0, xdim-1, ydim-1);
+                        rotatesprite(60<<16, 16<<16, 32768, 0, TILE_SLIDEBAR, 0, 0, 2+8+16+1024, 0, 0, (xdim*95)/320, ydim-1);
+                        rotatesprite(90<<16, 16<<16, 32768, 0, TILE_SLIDEBAR, 0, 0, 2+8+16+1024, (xdim*95)/320, 0, (xdim*125)/320, ydim-1);
+                        rotatesprite(120<<16, 16<<16, 32768, 0, TILE_SLIDEBAR, 0, 0, 2+8+16+1024, (xdim*125)/320, 0, (xdim*155)/320, ydim-1);
+                        rotatesprite(150<<16, 16<<16, 32768, 0, TILE_SLIDEBAR, 0, 0, 2+8+16+1024, (xdim*155)/320, 0, xdim-1, ydim-1);
 
                         j = (182<<16) - (tabledivide32_noinline((120*(g_demo_totalCnt-g_demo_cnt))<<4, g_demo_totalCnt)<<12);
                         if (RR)
-                            rotatesprite_fs(j, (15<<16)+(1<<15), 16384, 0, BIGALPHANUM-9, 0, 0, 2+8+16+1024);
+                            rotatesprite_fs(j, (15<<16)+(1<<15), 16384, 0, TILE_BIGALPHANUM-9, 0, 0, 2+8+16+1024);
                         else
-                            rotatesprite_fs(j, (16<<16)+(1<<15), 32768, 0, SLIDEBAR+1, 0, 0, 2+8+16+1024);
+                            rotatesprite_fs(j, (16<<16)+(1<<15), 32768, 0, TILE_SLIDEBAR+1, 0, 0, 2+8+16+1024);
 
                         j=(g_demo_totalCnt-g_demo_cnt)/REALGAMETICSPERSEC;
                         Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, g_demo_paused ? "   ^15PAUSED" : "");
@@ -895,7 +895,7 @@ nextdemo_nomenu:
             if (VOLUMEONE)
             {
                 if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
-                    rotatesprite_fs((320-50)<<16, 9<<16, 65536L, 0, BETAVERSION, 0, 0, 2+8+16+128);
+                    rotatesprite_fs((320-50)<<16, 9<<16, 65536L, 0, TILE_BETAVERSION, 0, 0, 2+8+16+128);
             }
 
             videoNextPage();

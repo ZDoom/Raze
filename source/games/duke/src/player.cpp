@@ -65,7 +65,7 @@ void P_UpdateScreenPal(DukePlayer_t * const pPlayer)
         pPlayer->palette = SLIMEPAL;
     else if (playerSectnum < 0)
         pPlayer->palette = BASEPAL;
-    else if (sector[playerSectnum].ceilingpicnum >= FLOORSLIME && sector[playerSectnum].ceilingpicnum <= FLOORSLIME + 2)
+    else if (sector[playerSectnum].ceilingpicnum >= TILE_FLOORSLIME && sector[playerSectnum].ceilingpicnum <= TILE_FLOORSLIME + 2)
     {
         pPlayer->palette = SLIMEPAL;
         inWater          = 1;
@@ -137,7 +137,7 @@ void P_QuickKill(DukePlayer_t * const pPlayer)
     sprite[pPlayer->i].cstat |= 32768;
 
     if (ud.god == 0)
-        A_DoGuts(pPlayer->i,JIBS6,8);
+        A_DoGuts(pPlayer->i,TILE_JIBS6,8);
 }
 
 static void Proj_DoWaterTracers(vec3_t startPos, vec3_t const *endPos, int n, int16_t sectNum)
@@ -159,14 +159,14 @@ static void Proj_DoWaterTracers(vec3_t startPos, vec3_t const *endPos, int n, in
         if (sectNum < 0)
             break;
         int32_t const r1 = krand2(), r2 = krand2(), r3 = krand2();
-        A_InsertSprite(sectNum, startPos.x, startPos.y, startPos.z, WATERBUBBLE, -32, 4 + (r3 & 3), 4 + (r2 & 3), r1 & 2047, 0, 0,
+        A_InsertSprite(sectNum, startPos.x, startPos.y, startPos.z, TILE_WATERBUBBLE, -32, 4 + (r3 & 3), 4 + (r2 & 3), r1 & 2047, 0, 0,
                        g_player[0].ps->i, 5);
     }
 }
 
 int32_t A_GetHitscanRange(int spriteNum)
 {
-    int const zOffset = (PN(spriteNum) == APLAYER) ? (40<<8) : 0;
+    int const zOffset = (PN(spriteNum) == TILE_APLAYER) ? (40<<8) : 0;
     hitdata_t hitData;
 
     SZ(spriteNum) -= zOffset;
@@ -183,11 +183,11 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
         STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR
     };
 
-    int const playerNum = pSprite->picnum == APLAYER ? P_GetP(pSprite) : -1;
+    int const playerNum = pSprite->picnum == TILE_APLAYER ? P_GetP(pSprite) : -1;
 
     if (playerNum != -1)
     {
-        if (!g_player[playerNum].ps->auto_aim && (!RRRA || projecTile != RPG2))
+        if (!g_player[playerNum].ps->auto_aim && (!RRRA || projecTile != TILE_RPG2))
             return -1;
 
         if (g_player[playerNum].ps->auto_aim == 2)
@@ -211,13 +211,13 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
 
     int const spriteAng = pSprite->ang;
 
-    int isShrinker = (!RR && pSprite->picnum == APLAYER && g_player[playerNum].ps->curr_weapon == SHRINKER_WEAPON);
-    int isFreezer  = (!RR && pSprite->picnum == APLAYER && g_player[playerNum].ps->curr_weapon == FREEZE_WEAPON);
+    int isShrinker = (!RR && pSprite->picnum == TILE_APLAYER && g_player[playerNum].ps->curr_weapon == SHRINKER_WEAPON);
+    int isFreezer  = (!RR && pSprite->picnum == TILE_APLAYER && g_player[playerNum].ps->curr_weapon == FREEZE_WEAPON);
 
     if (WW2GI)
     {
-        isShrinker = (pSprite->picnum == APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == SHRINKER_WEAPON);
-        isFreezer  = (pSprite->picnum == APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
+        isShrinker = (pSprite->picnum == TILE_APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == SHRINKER_WEAPON);
+        isFreezer  = (pSprite->picnum == TILE_APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
     }
 
     vec2_t const d1 = { sintable[(spriteAng + 512 - projAng) & 2047], sintable[(spriteAng - projAng) & 2047] };
@@ -238,15 +238,15 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                  (sprite[spriteNum].cstat & (257 + 32768)) == 257) &&
                 (A_CheckEnemySprite(&sprite[spriteNum]) || k < 2))
             {
-                if (A_CheckEnemySprite(&sprite[spriteNum]) || PN(spriteNum) == APLAYER)
+                if (A_CheckEnemySprite(&sprite[spriteNum]) || PN(spriteNum) == TILE_APLAYER)
                 {
-                    if (PN(spriteNum) == APLAYER && pSprite->picnum == APLAYER && pSprite != &sprite[spriteNum] &&
+                    if (PN(spriteNum) == TILE_APLAYER && pSprite->picnum == TILE_APLAYER && pSprite != &sprite[spriteNum] &&
                         (GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) ||
                          (GTFLAGS(GAMETYPE_TDM) && g_player[P_Get(spriteNum)].ps->team == g_player[playerNum].ps->team)))
                         continue;
 
                     if ((isShrinker && sprite[spriteNum].xrepeat < 30
-                        && (PN(spriteNum) == SHARK || !(!RR && PN(spriteNum) >= GREENSLIME && PN(spriteNum) <= GREENSLIME + 7)))
+                        && (PN(spriteNum) == TILE_SHARK || !(!RR && PN(spriteNum) >= TILE_GREENSLIME && PN(spriteNum) <= TILE_GREENSLIME + 7)))
                         || (isFreezer && sprite[spriteNum].pal == 1))
                         continue;
                 }
@@ -261,13 +261,13 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                     {
                         int onScreen = 1;
 
-                        if (pSprite->picnum == APLAYER)
+                        if (pSprite->picnum == TILE_APLAYER)
                         {
                             const DukePlayer_t *const ps = g_player[P_GetP(pSprite)].ps;
                             onScreen = (klabs(scale(SZ(spriteNum)-pSprite->z,10,spriteDist)-fix16_to_int(ps->q16horiz+ps->q16horizoff-F16(100))) < 100);
                         }
 
-                        int const zOffset = (!RR && (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN)) ? 0 : ZOFFSET5;
+                        int const zOffset = (!RR && (PN(spriteNum) == TILE_ORGANTIC || PN(spriteNum) == TILE_ROTATEGUN)) ? 0 : ZOFFSET5;
                         int const canSee = cansee(SX(spriteNum), SY(spriteNum), SZ(spriteNum) - zOffset, SECT(spriteNum),
                                                   pSprite->x, pSprite->y, pSprite->z - ZOFFSET5, pSprite->sectnum);
 
@@ -287,9 +287,9 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
 
 static int CheckShootSwitchTile(int tileNum)
 {
-    return tileNum == DIPSWITCH || tileNum == DIPSWITCH + 1 || tileNum == DIPSWITCH2 || tileNum == DIPSWITCH2 + 1 ||
-           tileNum == DIPSWITCH3 || tileNum == DIPSWITCH3 + 1 || tileNum == HANDSWITCH || tileNum == HANDSWITCH + 1 ||
-           (RRRA && tileNum == RRTILE8660);
+    return tileNum == TILE_DIPSWITCH || tileNum == TILE_DIPSWITCH + 1 || tileNum == TILE_DIPSWITCH2 || tileNum == TILE_DIPSWITCH2 + 1 ||
+           tileNum == TILE_DIPSWITCH3 || tileNum == TILE_DIPSWITCH3 + 1 || tileNum == TILE_HANDSWITCH || tileNum == TILE_HANDSWITCH + 1 ||
+           (RRRA && tileNum == TILE_RRTILE8660);
 }
 
 static int32_t safeldist(int32_t spriteNum, const void *pSprite)
@@ -299,8 +299,8 @@ static int32_t safeldist(int32_t spriteNum, const void *pSprite)
 }
 
 // flags:
-//  1: do sprite center adjustment (cen-=(8<<8)) for GREENSLIME or ROTATEGUN
-//  2: do auto getangle only if not RECON (if clear, do unconditionally)
+//  1: do sprite center adjustment (cen-=(8<<8)) for TILE_GREENSLIME or TILE_ROTATEGUN
+//  2: do auto getangle only if not TILE_RECON (if clear, do unconditionally)
 static int GetAutoAimAng(int spriteNum, int playerNum, int projecTile, int zAdjust, int aimFlags,
                                const vec3_t *startPos, int projVel, int32_t *pZvel, int *pAng)
 {
@@ -308,7 +308,7 @@ static int GetAutoAimAng(int spriteNum, int playerNum, int projecTile, int zAdju
 
     Bassert((unsigned)playerNum < MAXPLAYERS);
 
-    Gv_SetVar(g_aimAngleVarID, (g_player[playerNum].ps->auto_aim == 3 && (!RRRA || projecTile != RPG2)) ? AUTO_AIM_ANGLE<<1 : AUTO_AIM_ANGLE, spriteNum, playerNum);
+    Gv_SetVar(g_aimAngleVarID, (g_player[playerNum].ps->auto_aim == 3 && (!RRRA || projecTile != TILE_RPG2)) ? AUTO_AIM_ANGLE<<1 : AUTO_AIM_ANGLE, spriteNum, playerNum);
 
     VM_OnEvent(EVENT_GETAUTOAIMANGLE, spriteNum, playerNum);
 
@@ -322,13 +322,13 @@ static int GetAutoAimAng(int spriteNum, int playerNum, int projecTile, int zAdju
         int                      zCenter = 2 * (pSprite->xrepeat * tilesiz[pSprite->picnum].y) + zAdjust;
 
         if ((aimFlags&1) && !RR &&
-            ((pSprite->picnum >= GREENSLIME && pSprite->picnum <= GREENSLIME + 7) || pSprite->picnum == ROTATEGUN))
+            ((pSprite->picnum >= TILE_GREENSLIME && pSprite->picnum <= TILE_GREENSLIME + 7) || pSprite->picnum == TILE_ROTATEGUN))
             zCenter -= ZOFFSET3;
 
         int spriteDist = safeldist(g_player[playerNum].ps->i, &sprite[returnSprite]);
         *pZvel         = tabledivide32_noinline((pSprite->z - startPos->z - zCenter) * projVel, spriteDist);
 
-        if (!(aimFlags&2) || sprite[returnSprite].picnum != RECON)
+        if (!(aimFlags&2) || sprite[returnSprite].picnum != TILE_RECON)
             *pAng = getangle(pSprite->x-startPos->x, pSprite->y-startPos->y);
     }
 
@@ -365,7 +365,7 @@ static void Proj_MaybeAddSpreadSwapped(int doSpread, int32_t *zvel, int *shootAn
 static void P_PreFireHitscan(int spriteNum, int playerNum, int projecTile, vec3_t *srcVect, int32_t *zvel, int *shootAng,
                              int accurateAim, int doSpread)
 {
-    int angRange  = (RR && projecTile == SHOTGUN) ? 128 : 32;
+    int angRange  = (RR && projecTile == TILE_SHOTGUN) ? 128 : 32;
     int zRange    = 256;
     int aimSprite = GetAutoAimAng(spriteNum, playerNum, projecTile, 5 << 8, 0 + 1, srcVect, 256, zvel, shootAng);
 
@@ -428,10 +428,10 @@ static void A_PreFireHitscan(const spritetype *pSprite, vec3_t * const srcVect, 
 
     *zvel = tabledivide32_noinline((pPlayer->pos.z - srcVect->z) << 8, playerDist);
 
-    if (pSprite->picnum == BOSS1)
+    if (pSprite->picnum == TILE_BOSS1)
         *shootAng = getangle(pPlayer->pos.x - srcVect->x, pPlayer->pos.y - srcVect->y);
 
-    Proj_MaybeAddSpread(doSpread, zvel, shootAng, 256, 128 >> (uint8_t)(pSprite->picnum != BOSS1));
+    Proj_MaybeAddSpread(doSpread, zvel, shootAng, 256, 128 >> (uint8_t)(pSprite->picnum != TILE_BOSS1));
 }
 
 static int Proj_DoHitscan(int spriteNum, int32_t const cstatmask, const vec3_t * const srcVect, int zvel, int const shootAng, hitdata_t * const hitData)
@@ -448,7 +448,7 @@ static int Proj_DoHitscan(int spriteNum, int32_t const cstatmask, const vec3_t *
         {
             for (int spriteNum = 0; spriteNum < MAXSPRITES; spriteNum++)
             {
-                if (sprite[spriteNum].sectnum == hitData->sect && sprite[spriteNum].picnum == SECTOREFFECTOR
+                if (sprite[spriteNum].sectnum == hitData->sect && sprite[spriteNum].picnum == TILE_SECTOREFFECTOR
                     && sprite[spriteNum].lotag == SE_7_TELEPORT)
                 {
                     vec3_t const newVect = {
@@ -503,7 +503,7 @@ static int Proj_CheckBlood(vec3_t const *const srcVect, hitdata_t const *const h
     uwalltype const *const hitWall = (uwalltype *)&wall[hitData->wall];
 
     if ((FindDistance2D(srcVect->x - hitData->pos.x, srcVect->y - hitData->pos.y) < bloodRange)
-        && (hitWall->overpicnum != BIGFORCE && (hitWall->cstat & 16) == 0)
+        && (hitWall->overpicnum != TILE_BIGFORCE && (hitWall->cstat & 16) == 0)
         && (sector[hitData->sect].lotag == 0)
         && (hitWall->nextsector < 0 || (sector[hitWall->nextsector].lotag == 0 && sector[hitData->sect].lotag == 0
                                         && sector[hitData->sect].floorz - sector[hitWall->nextsector].floorz > minZdiff)))
@@ -518,7 +518,7 @@ int A_Shoot(int const spriteNum, int const projecTile)
     
     spritetype *const   pSprite       = &sprite[spriteNum];
     int const           spriteSectnum = pSprite->sectnum;
-    int const           playerNum     = (pSprite->picnum == APLAYER) ? P_GetP(pSprite) : -1;
+    int const           playerNum     = (pSprite->picnum == TILE_APLAYER) ? P_GetP(pSprite) : -1;
     DukePlayer_t *const pPlayer       = playerNum >= 0 ? g_player[playerNum].ps : NULL;
     int32_t             Zvel          = 0;
 
@@ -541,11 +541,11 @@ int A_Shoot(int const spriteNum, int const projecTile)
         startPos   = *(vec3_t *)pSprite;
         startPos.z -= (((pSprite->yrepeat * tilesiz[pSprite->picnum].y)<<1) - ZOFFSET6);
 
-        if (RR || pSprite->picnum != ROTATEGUN)
+        if (RR || pSprite->picnum != TILE_ROTATEGUN)
         {
             startPos.z -= (7<<8);
 
-            if (A_CheckEnemySprite(pSprite) && (RR || PN(spriteNum) != COMMANDER))
+            if (A_CheckEnemySprite(pSprite) && (RR || PN(spriteNum) != TILE_COMMANDER))
             {
                 startPos.x += (sintable[(shootAng+1024+96)&2047]>>7);
                 startPos.y += (sintable[(shootAng+512+96)&2047]>>7);
@@ -591,10 +591,10 @@ int A_Shoot(int const spriteNum, int const projecTile)
             fallthrough__;
         case KNEE__STATIC:
         case SLINGBLADE__STATICRR:
-            if (RR && !RRRA && projecTile == SLINGBLADE)
+            if (RR && !RRRA && projecTile == TILE_SLINGBLADE)
                 break;
 growspark_rr:
-            if (projecTile == KNEE || (RR && projecTile == GROWSPARK) || (RRRA && projecTile == SLINGBLADE))
+            if (projecTile == TILE_KNEE || (RR && projecTile == TILE_GROWSPARK) || (RRRA && projecTile == TILE_SLINGBLADE))
             {
                 if (playerNum >= 0)
                 {
@@ -613,7 +613,7 @@ growspark_rr:
 
             Proj_DoHitscan(spriteNum, 0, &startPos, Zvel, shootAng, &hitData);
 
-            if (projecTile >= BLOODSPLAT1 && projecTile <= BLOODSPLAT4)
+            if (projecTile >= TILE_BLOODSPLAT1 && projecTile <= TILE_BLOODSPLAT4)
             {
                 if (Proj_CheckBlood(&startPos, &hitData, 1024, 16 << 8))
                 {
@@ -635,7 +635,7 @@ growspark_rr:
                         sprite[spawnedSprite].cstat |= (krand2() & 4);
                         A_SetSprite(spawnedSprite, CLIPMASK0);
                         setsprite(spawnedSprite, (vec3_t *)&sprite[spawnedSprite]);
-                        if (PN(spriteNum) == OOZFILTER || (!RR && PN(spriteNum) == NEWBEAST))
+                        if (PN(spriteNum) == TILE_OOZFILTER || (!RR && PN(spriteNum) == TILE_NEWBEAST))
                             sprite[spawnedSprite].pal = 6;
                     }
                 }
@@ -651,23 +651,23 @@ growspark_rr:
                 if (hitData.wall >= 0 || hitData.sprite >= 0)
                 {
                     int kneeSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z,
-                        (RRRA && projecTile == SLINGBLADE) ? SLINGBLADE : KNEE,-15,0,0,shootAng,32,0,spriteNum,4);
-                    sprite[kneeSprite].extra += (RRRA && projecTile == SLINGBLADE) ? 50 : (krand2()&7);
+                        (RRRA && projecTile == TILE_SLINGBLADE) ? TILE_SLINGBLADE : TILE_KNEE,-15,0,0,shootAng,32,0,spriteNum,4);
+                    sprite[kneeSprite].extra += (RRRA && projecTile == TILE_SLINGBLADE) ? 50 : (krand2()&7);
 
                     if (playerNum >= 0)
                     {
-                        int k = A_Spawn(kneeSprite, SMALLSMOKE);
+                        int k = A_Spawn(kneeSprite, TILE_SMALLSMOKE);
                         sprite[k].z -= ZOFFSET3;
-                        if (!RR || projecTile == KNEE)
+                        if (!RR || projecTile == TILE_KNEE)
                             A_PlaySound(KICK_HIT, kneeSprite);
-                        else if (RRRA && projecTile == SLINGBLADE)
+                        else if (RRRA && projecTile == TILE_SLINGBLADE)
                             A_PlaySound(260, kneeSprite);
                     }
 
                     if (pPlayer != NULL && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
                         sprite[kneeSprite].extra += (pPlayer->max_player_health>>2);
 
-                    if (hitData.sprite >= 0 && sprite[hitData.sprite].picnum != ACCESSSWITCH && sprite[hitData.sprite].picnum != ACCESSSWITCH2)
+                    if (hitData.sprite >= 0 && sprite[hitData.sprite].picnum != TILE_ACCESSSWITCH && sprite[hitData.sprite].picnum != TILE_ACCESSSWITCH2)
                     {
                         A_DamageObject(hitData.sprite, kneeSprite);
                         if (playerNum >= 0)
@@ -677,7 +677,7 @@ growspark_rr:
                     {
                         HandleHitWall(&hitData);
                         
-                        if (hitData.wall >= 0 && wall[hitData.wall].picnum != ACCESSSWITCH && wall[hitData.wall].picnum != ACCESSSWITCH2)
+                        if (hitData.wall >= 0 && wall[hitData.wall].picnum != TILE_ACCESSSWITCH && wall[hitData.wall].picnum != TILE_ACCESSSWITCH2)
                         {
                             A_DamageWall(kneeSprite, hitData.wall, &hitData.pos, projecTile);
                             if (playerNum >= 0)
@@ -687,7 +687,7 @@ growspark_rr:
                 }
                 else if(playerNum >= 0 && hitData.pos.z > 0 && sector[hitData.sect].lotag == 1)
                 {
-                    int splashSprite = A_Spawn(pPlayer->i, WATERSPLASH2);
+                    int splashSprite = A_Spawn(pPlayer->i, TILE_WATERSPLASH2);
                     sprite[splashSprite].x = hitData.pos.x;
                     sprite[splashSprite].y = hitData.pos.y;
                     sprite[splashSprite].ang = fix16_to_int(pPlayer->q16ang); // Total tweek
@@ -707,14 +707,14 @@ growspark_rr:
 
             if (playerNum >= 0)
                 P_PreFireHitscan(spriteNum, playerNum, projecTile, &startPos, &Zvel, &shootAng,
-                    projecTile == SHOTSPARK1 && !WW2GI, 1);
+                    projecTile == TILE_SHOTSPARK1 && !WW2GI, 1);
             else
                 A_PreFireHitscan(pSprite, &startPos, &Zvel, &shootAng, 1);
 
             if (Proj_DoHitscan(spriteNum, 256 + 1, &startPos, Zvel, shootAng, &hitData))
                 return -1;
 
-            if (RR && projecTile == SHOTGUN && sector[hitData.sect].lotag == ST_1_ABOVE_WATER && (krand2()&1) != 0)
+            if (RR && projecTile == TILE_SHOTGUN && sector[hitData.sect].lotag == ST_1_ABOVE_WATER && (krand2()&1) != 0)
                 return -1;
 
             if ((krand2() & 15) == 0 && sector[hitData.sect].lotag == ST_2_UNDERWATER)
@@ -724,7 +724,7 @@ growspark_rr:
 
             if (playerNum >= 0)
             {
-                spawnedSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, SHOTSPARK1, -15, 10, 10, shootAng, 0, 0, spriteNum, 4);
+                spawnedSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, TILE_SHOTSPARK1, -15, 10, 10, shootAng, 0, 0, spriteNum, 4);
                 sprite[spawnedSprite].extra = G_DefaultActorHealth(projecTile);
                 sprite[spawnedSprite].extra += (krand2()%6);
 
@@ -744,20 +744,20 @@ growspark_rr:
                     }
 
                     if (!RR || sector[hitData.sect].lotag != ST_1_ABOVE_WATER)
-                        A_Spawn(spawnedSprite, SMALLSMOKE);
+                        A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
                 }
                 
                 if (hitData.sprite >= 0)
                 {
-                    if (RR && sprite[hitData.sprite].picnum == TORNADO)
+                    if (RR && sprite[hitData.sprite].picnum == TILE_TORNADO)
                         return -1;
                     A_DamageObject(hitData.sprite, spawnedSprite);
 
-                    if (sprite[hitData.sprite].picnum == APLAYER &&
+                    if (sprite[hitData.sprite].picnum == TILE_APLAYER &&
                         (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
                                            g_player[P_Get(hitData.sprite)].ps->team != g_player[P_Get(spriteNum)].ps->team)))
                     {
-                        int jibSprite = A_Spawn(spawnedSprite, JIBS6);
+                        int jibSprite = A_Spawn(spawnedSprite, TILE_JIBS6);
 
                         sprite[spawnedSprite].xrepeat = sprite[spawnedSprite].yrepeat = 0;
                         sprite[jibSprite].z += ZOFFSET6;
@@ -767,7 +767,7 @@ growspark_rr:
                     }
                     else
                     {
-                        A_Spawn(spawnedSprite, SMALLSMOKE);
+                        A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
                     }
 
                     if (playerNum >= 0 && CheckShootSwitchTile(sprite[hitData.sprite].picnum))
@@ -780,7 +780,7 @@ growspark_rr:
                 {
                     uwalltype const * const hitWall = (uwalltype *)&wall[hitData.wall];
 
-                    A_Spawn(spawnedSprite, SMALLSMOKE);
+                    A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
 
                     if (CheckDoorTile(hitWall->picnum) == 1)
                         goto SKIPBULLETHOLE;
@@ -798,7 +798,7 @@ growspark_rr:
                         goto SKIPBULLETHOLE;
 
                     if ((hitData.sect >= 0 && sector[hitData.sect].lotag == 0) &&
-                        (hitWall->overpicnum != BIGFORCE && (hitWall->cstat & 16) == 0) &&
+                        (hitWall->overpicnum != TILE_BIGFORCE && (hitWall->cstat & 16) == 0) &&
                         ((hitWall->nextsector >= 0 && sector[hitWall->nextsector].lotag == 0) || (hitWall->nextsector == -1 && sector[hitData.sect].lotag == 0)))
                     {
                         int decalSprite;
@@ -807,10 +807,10 @@ growspark_rr:
                             goto SKIPBULLETHOLE;
 
                         for (SPRITES_OF(STAT_MISC, decalSprite))
-                            if (sprite[decalSprite].picnum == BULLETHOLE && dist(&sprite[decalSprite], &sprite[spawnedSprite]) < (12 + (krand2() & 7)))
+                            if (sprite[decalSprite].picnum == TILE_BULLETHOLE && dist(&sprite[decalSprite], &sprite[spawnedSprite]) < (12 + (krand2() & 7)))
                                 goto SKIPBULLETHOLE;
 
-                        decalSprite = A_Spawn(spawnedSprite, BULLETHOLE);
+                        decalSprite = A_Spawn(spawnedSprite, TILE_BULLETHOLE);
 
                         sprite[decalSprite].xvel = -1;
                         sprite[decalSprite].ang
@@ -822,19 +822,19 @@ growspark_rr:
                 SKIPBULLETHOLE:
 
                     HandleHitWall(&hitData);
-                    A_DamageWall(spawnedSprite, hitData.wall, &hitData.pos, SHOTSPARK1);
+                    A_DamageWall(spawnedSprite, hitData.wall, &hitData.pos, TILE_SHOTSPARK1);
                 }
             }
             else
             {
-                spawnedSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, SHOTSPARK1, -15, 24, 24, shootAng, 0, 0, spriteNum, 4);
+                spawnedSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, TILE_SHOTSPARK1, -15, 24, 24, shootAng, 0, 0, spriteNum, 4);
                 sprite[spawnedSprite].extra = G_DefaultActorHealth(projecTile);
 
                 if (hitData.sprite >= 0)
                 {
                     A_DamageObject(hitData.sprite, spawnedSprite);
-                    if (sprite[hitData.sprite].picnum != APLAYER)
-                        A_Spawn(spawnedSprite, SMALLSMOKE);
+                    if (sprite[hitData.sprite].picnum != TILE_APLAYER)
+                        A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
                     else
                     {
                         sprite[spawnedSprite].xrepeat = 0;
@@ -842,7 +842,7 @@ growspark_rr:
                     }
                 }
                 else if (hitData.wall >= 0)
-                    A_DamageWall(spawnedSprite, hitData.wall, &hitData.pos, SHOTSPARK1);
+                    A_DamageWall(spawnedSprite, hitData.wall, &hitData.pos, TILE_SHOTSPARK1);
             }
 
             if ((krand2() & 255) < (RR ? 10 : 4))
@@ -876,12 +876,12 @@ growspark_rr:
             if (pSprite->extra >= 0)
                 pSprite->shade = -96;
 
-            if (projecTile == OWHIP)
+            if (projecTile == TILE_OWHIP)
             {
                 vel = 300;
                 startPos.z -= (15<<8);
             }
-            else //if (projecTile == UWHIP)
+            else //if (projecTile == TILE_UWHIP)
             {
                 vel = 300;
                 startPos.z += (4<<8);
@@ -895,7 +895,7 @@ growspark_rr:
             else
             {
                 int const otherPlayer = A_FindPlayer(pSprite, NULL);
-                if (pSprite->picnum == VIXEN)
+                if (pSprite->picnum == TILE_VIXEN)
                     shootAng -= krand2()&16;
                 else
                     shootAng += 16 - (krand2() & 31);
@@ -932,7 +932,7 @@ growspark_rr:
             if (Proj_DoHitscan(spriteNum, 256 + 1, &startPos, Zvel, shootAng, &hitData))
                 return -1;
 
-            int const otherSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, GROWSPARK, -16, 28, 28,
+            int const otherSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, TILE_GROWSPARK, -16, 28, 28,
                                                    shootAng, 0, 0, spriteNum, 1);
 
             sprite[otherSprite].pal = 2;
@@ -946,7 +946,7 @@ growspark_rr:
             }
             else if (hitData.sprite >= 0)
                 A_DamageObject(hitData.sprite, otherSprite);
-            else if (hitData.wall >= 0 && wall[hitData.wall].picnum != ACCESSSWITCH && wall[hitData.wall].picnum != ACCESSSWITCH2)
+            else if (hitData.wall >= 0 && wall[hitData.wall].picnum != TILE_ACCESSSWITCH && wall[hitData.wall].picnum != TILE_ACCESSSWITCH2)
                 A_DamageWall(otherSprite, hitData.wall, &hitData.pos, projecTile);
         }
         break;
@@ -955,13 +955,13 @@ growspark_rr:
         case SPIT__STATIC:
         case COOLEXPLOSION1__STATIC:
         {
-            if ((!RRRA || projecTile != SPIT) && pSprite->extra >= 0)
+            if ((!RRRA || projecTile != TILE_SPIT) && pSprite->extra >= 0)
                 pSprite->shade = -96;
 
             switch (projecTile)
             {
                 case SPIT__STATIC:
-                    if (RRRA && pSprite->picnum == MAMA)
+                    if (RRRA && pSprite->picnum == TILE_MAMA)
                         vel = 600;
                     else
                         vel = RR ? 400 : 292;
@@ -969,7 +969,7 @@ growspark_rr:
                 case COOLEXPLOSION1__STATIC:
                     if (!RR)
                     {
-                        vel = (pSprite->picnum == BOSS2) ? 644 : 348;
+                        vel = (pSprite->picnum == TILE_BOSS2) ? 644 : 348;
                         startPos.z -= (4 << 7);
                         break;
                     }
@@ -980,13 +980,13 @@ growspark_rr:
                     startPos.z -= (4 << 7);
                     if (RR)
                     {
-                        if (pSprite->picnum == HULK)
+                        if (pSprite->picnum == TILE_HULK)
                         {
                             startPos.x += sintable[(pSprite->ang+512+256)&2047]>>6;
                             startPos.y += sintable[(pSprite->ang+256)&2047]>>6;
                             startPos.z += (12 << 8);
                         }
-                        else if (pSprite->picnum == VIXEN)
+                        else if (pSprite->picnum == TILE_VIXEN)
                             startPos.z -= (12 << 8);
                     }
                     break;
@@ -1007,11 +1007,11 @@ growspark_rr:
                 int const otherPlayer = A_FindPlayer(pSprite, NULL);
                 if (RR)
                 {
-                    if (pSprite->picnum == HULK)
+                    if (pSprite->picnum == TILE_HULK)
                         shootAng -= krand2()&31;
-                    else if (pSprite->picnum == VIXEN)
+                    else if (pSprite->picnum == TILE_VIXEN)
                         shootAng -= krand2()&16;
-                    else if (pSprite->picnum != UFOBEAM)
+                    else if (pSprite->picnum != TILE_UFOBEAM)
                         shootAng += 16 - (krand2() & 31);
                 }
                 else
@@ -1024,19 +1024,19 @@ growspark_rr:
 
             if (RR)
             {
-                if (projecTile == SPIT)
+                if (projecTile == TILE_SPIT)
                 {
-                    if (RRRA && pSprite->picnum == MAMA)
+                    if (RRRA && pSprite->picnum == TILE_MAMA)
                         startPos.z -= (20 << 8);
                     else
                         startPos.z -= (10 << 8);
                 }
-                else if (projecTile == COOLEXPLOSION1)
+                else if (projecTile == TILE_COOLEXPLOSION1)
                     spriteSize = 8;
             }
             else
             {
-                if (projecTile == SPIT)
+                if (projecTile == TILE_SPIT)
                     startPos.z -= (10 << 8);
             }
             
@@ -1047,11 +1047,11 @@ growspark_rr:
 
             sprite[returnSprite].extra += (krand2() & 7);
 
-            if (!RR && projecTile == COOLEXPLOSION1)
+            if (!RR && projecTile == TILE_COOLEXPLOSION1)
             {
                 sprite[returnSprite].shade = 0;
 
-                if (PN(spriteNum) == BOSS2)
+                if (PN(spriteNum) == TILE_BOSS2)
                 {
                     int const saveXvel        = sprite[returnSprite].xvel;
                     sprite[returnSprite].xvel = 1024;
@@ -1067,7 +1067,7 @@ growspark_rr:
             shootAng = pSprite->ang + 32 - (krand2() & 63);
             Zvel += 512 - (krand2() & 1023);
 
-            if (RR && projecTile == FIRELASER)
+            if (RR && projecTile == TILE_FIRELASER)
                 sprite[returnSprite].xrepeat = sprite[returnSprite].yrepeat = 8;
 
             return returnSprite;
@@ -1081,8 +1081,8 @@ growspark_rr:
         case RRTILE1790__STATICRR:
         case SHRINKSPARK__STATIC:
         {
-            if (!RR && projecTile == SHRINKSPARK) break;
-            if (RR && !RRRA && (projecTile == RPG2 || projecTile == RRTILE1790)) break;
+            if (!RR && projecTile == TILE_SHRINKSPARK) break;
+            if (RR && !RRRA && (projecTile == TILE_RPG2 || projecTile == TILE_RRTILE1790)) break;
 
             int targetSprite = 0;
 
@@ -1099,9 +1099,9 @@ growspark_rr:
                 // NOTE: otherSprite is a SPRITE_INDEX
                 otherSprite = GetAutoAimAng(spriteNum, playerNum, projecTile, 8 << 8, 0 + 2, &startPos, vel, &Zvel, &shootAng);
 
-                if (RRRA && projecTile == RPG2 && otherSprite >= 0)
+                if (RRRA && projecTile == TILE_RPG2 && otherSprite >= 0)
                 {
-                    if (sprite[otherSprite].picnum == HEN || sprite[otherSprite].picnum == HENSTAYPUT)
+                    if (sprite[otherSprite].picnum == TILE_HEN || sprite[otherSprite].picnum == TILE_HENSTAYPUT)
                         targetSprite = pPlayer->i;
                     else
                         targetSprite = otherSprite;
@@ -1110,13 +1110,13 @@ growspark_rr:
                 if (otherSprite < 0)
                     Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 81;
 
-                if (projecTile == RPG)
+                if (projecTile == TILE_RPG)
                     A_PlaySound(RPG_SHOOT, spriteNum);
                 else if (RRRA)
                 {
-                    if (projecTile == RPG2)
+                    if (projecTile == TILE_RPG2)
                         A_PlaySound(244, spriteNum);
-                    else if (projecTile == RRTILE1790)
+                    else if (projecTile == TILE_RRTILE1790)
                         A_PlaySound(94, spriteNum);
                 }
             }
@@ -1125,9 +1125,9 @@ growspark_rr:
                 // NOTE: otherSprite is a player index
                 otherSprite          = A_FindPlayer(pSprite, NULL);
                 shootAng = getangle(g_player[otherSprite].ps->opos.x - startPos.x, g_player[otherSprite].ps->opos.y - startPos.y);
-                if (PN(spriteNum) == BOSS3)
+                if (PN(spriteNum) == TILE_BOSS3)
                     startPos.z -= ZOFFSET5;
-                else if (PN(spriteNum) == BOSS2)
+                else if (PN(spriteNum) == TILE_BOSS2)
                 {
                     vel += 128;
                     startPos.z += 24<<8;
@@ -1142,7 +1142,7 @@ growspark_rr:
             //if (numplayers > 1 && g_netClient)
             //    return -1;
 
-            if (RRRA && projecTile == RRTILE1790)
+            if (RRRA && projecTile == TILE_RRTILE1790)
             {
                 Zvel = -(10 << 8);
                 vel <<= 1;
@@ -1155,21 +1155,21 @@ growspark_rr:
 
             if (RRRA)
             {
-                if (projecTile == RRTILE1790)
+                if (projecTile == TILE_RRTILE1790)
                 {
                     pReturn->extra = 10;
                     pReturn->zvel = -(10 << 8);
                 }
-                else if (projecTile == RPG2)
+                else if (projecTile == TILE_RPG2)
                 {
                     pReturn->lotag = targetSprite;
                     pReturn->hitag = 0;
-                    A_SpawnMultiple(returnSprite, MONEY, (krand2()&3)+1);
+                    A_SpawnMultiple(returnSprite, TILE_MONEY, (krand2()&3)+1);
                 }
             }
 
             pReturn->extra += (krand2() & 7);
-            if (projecTile != FREEZEBLAST)
+            if (projecTile != TILE_FREEZEBLAST)
                 pReturn->yvel = (playerNum >= 0 && otherSprite >= 0) ? otherSprite : -1;  // RPG_YVEL
             else
             {
@@ -1181,12 +1181,12 @@ growspark_rr:
 
             if (playerNum == -1)
             {
-                if (RR && PN(spriteNum) == HULK)
+                if (RR && PN(spriteNum) == TILE_HULK)
                 {
                     pReturn->xrepeat = 8;
                     pReturn->yrepeat = 8;
                 }
-                else if (!RR && PN(spriteNum) == BOSS3)
+                else if (!RR && PN(spriteNum) == TILE_BOSS3)
                 {
                     if (krand2() & 1)
                     {
@@ -1203,7 +1203,7 @@ growspark_rr:
                     pReturn->xrepeat = 42;
                     pReturn->yrepeat = 42;
                 }
-                else if (!RR && PN(spriteNum) == BOSS2)
+                else if (!RR && PN(spriteNum) == TILE_BOSS2)
                 {
                     pReturn->x -= sintable[shootAng & 2047] / 56;
                     pReturn->y -= sintable[(shootAng + 1024 + 512) & 2047] / 56;
@@ -1211,7 +1211,7 @@ growspark_rr:
                     pReturn->xrepeat = 24;
                     pReturn->yrepeat = 24;
                 }
-                else if (projecTile != FREEZEBLAST)
+                else if (projecTile != TILE_FREEZEBLAST)
                 {
                     pReturn->xrepeat = 30;
                     pReturn->yrepeat = 30;
@@ -1239,9 +1239,9 @@ growspark_rr:
             }
 
             pReturn->cstat    = 128;
-            pReturn->clipdist = (projecTile == RPG) ? 4 : 40;
+            pReturn->clipdist = (projecTile == TILE_RPG) ? 4 : 40;
 
-            if (RRRA && (projecTile == RPG2 || projecTile == RRTILE1790))
+            if (RRRA && (projecTile == TILE_RPG2 || projecTile == TILE_RRTILE1790))
                 pReturn->clipdist = 4;
 
             return returnSprite;
@@ -1279,7 +1279,7 @@ growspark_rr:
             if (placeMine == 1)
             {
                 int const tripBombMode = Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
-                int const spawnedSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, TRIPBOMB, -16, 4, 5,
+                int const spawnedSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, TILE_TRIPBOMB, -16, 4, 5,
                                                          shootAng, 0, 0, spriteNum, 6);
                 if (tripBombMode & TRIPBOMB_TIMER)
                 {
@@ -1314,7 +1314,7 @@ growspark_rr:
         case MORTER__STATIC:
         case CHEERBOMB__STATICRR:
         {
-            if (RR && !RRRA && projecTile == CHEERBOMB) break;
+            if (RR && !RRRA && projecTile == TILE_CHEERBOMB) break;
 
             if (pSprite->extra >= 0)
                 pSprite->shade = -96;
@@ -1329,7 +1329,7 @@ growspark_rr:
 
             vel  = playerDist >> 4;
 
-            int spriteSize = (RRRA && projecTile == CHEERBOMB) ? 16 : 32;
+            int spriteSize = (RRRA && projecTile == TILE_CHEERBOMB) ? 16 : 32;
 
             A_InsertSprite(spriteSectnum, startPos.x + (sintable[(512 + shootAng + 512) & 2047] >> 8),
                            startPos.y + (sintable[(shootAng + 512) & 2047] >> 8), startPos.z + (6 << 8), projecTile, -64,
@@ -1359,7 +1359,7 @@ growspark_rr:
 
             int const returnSprite = A_InsertSprite(spriteSectnum, startPos.x + (sintable[(512 + shootAng + 512) & 2047] >> 12),
                                                     startPos.y + (sintable[(shootAng + 512) & 2047] >> 12), startPos.z + (2 << 8),
-                                                    SHRINKSPARK, -16, 28, 28, shootAng, 768, Zvel, spriteNum, 4);
+                                                    TILE_SHRINKSPARK, -16, 28, 28, shootAng, 768, Zvel, spriteNum, 4);
             sprite[returnSprite].cstat    = 128;
             sprite[returnSprite].clipdist = 32;
 
@@ -1410,7 +1410,7 @@ static void P_DisplaySpit(void)
         int const rotX     = (-fix16_to_int(g_player[screenpeek].input->q16avel) >> 1) + (sintable[((loogCounter + i) << 6) & 2047] >> 10);
 
         rotatesprite_fs((pPlayer->loogiex[i] + rotX) << 16, (200 + pPlayer->loogiey[i] - rotY) << 16, rotZoom - (i << 8),
-                        256 - rotAng, LOOGIE, 0, 0, 2);
+                        256 - rotAng, TILE_LOOGIE, 0, 0, 2);
     }
 }
 
@@ -1468,7 +1468,7 @@ static int P_DisplayFist(int const fistShade)
 #endif
 
     rotatesprite((-fistInc + 222 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5)) << 16, (fistY + fistYOffset) << 16,
-                 fistZoom, 0, FIST, fistShade, fistPal, 2, wx[0], windowxy1.y, wx[1], windowxy2.y);
+                 fistZoom, 0, TILE_FIST, fistShade, fistPal, 2, wx[0], windowxy1.y, wx[1], windowxy2.y);
 
     return 1;
 }
@@ -1558,7 +1558,7 @@ static void G_DrawWeaponTile(int weaponX, int weaponY, int weaponTile, int weapo
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        if (!RR && weaponTile >= CHAINGUN + 1 && weaponTile <= CHAINGUN + 4)
+        if (!RR && weaponTile >= TILE_CHAINGUN + 1 && weaponTile <= TILE_CHAINGUN + 4)
         {
             if (!hw_models || md_tilehasmodel(weaponTile, weaponPal) < 0)
             {
@@ -1613,7 +1613,7 @@ static int P_DisplayKnee(int kneeShade)
     int const kneePal = P_GetKneePal(ps);
 
     G_DrawTileScaled(105+(fix16_to_int(g_player[screenpeek].input->q16avel)>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
-                     kneeY+280-(fix16_to_int(ps->q16horiz-ps->q16horizoff)>>4),KNEE,kneeShade,4+DRAWEAP_CENTER,kneePal);
+                     kneeY+280-(fix16_to_int(ps->q16horiz-ps->q16horizoff)>>4),TILE_KNEE,kneeShade,4+DRAWEAP_CENTER,kneePal);
 
     return 1;
 }
@@ -1637,7 +1637,7 @@ static int P_DisplayKnuckles(int knuckleShade)
 
     G_DrawTileScaled(160 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pPlayer->look_ang >> 1),
                      knuckleY + 180 - (fix16_to_int(pPlayer->q16horiz - pPlayer->q16horizoff) >> 4),
-                     CRACKKNUCKLES + knuckleFrames[pPlayer->knuckle_incs >> 1], knuckleShade, 4 + DRAWEAP_CENTER,
+                     TILE_CRACKKNUCKLES + knuckleFrames[pPlayer->knuckle_incs >> 1], knuckleShade, 4 + DRAWEAP_CENTER,
                      knucklePal);
 
     return 1;
@@ -1753,25 +1753,25 @@ void P_DisplayScuba(void)
 
             if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
             {
-                G_DrawTileScaled(320 - (tilesiz[SCUBAMASK].x >> 1) - 15, 200 - (tilesiz[SCUBAMASK].y >> 1) + (sintable[(int32_t) totalclock & 2047] >> 10),
-                                 SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER+512, scubaPal,49152);
-                G_DrawTileScaled(320 - tilesiz[SCUBAMASK+4].x, 200 - tilesiz[SCUBAMASK+4].y, SCUBAMASK+4, 0, 2 + 16 + DRAWEAP_CENTER + 1024, scubaPal);
-                G_DrawTileScaled(tilesiz[SCUBAMASK+4].x, 200 - tilesiz[SCUBAMASK+4].y, SCUBAMASK+4, 0, 2 + 4 + 16 + DRAWEAP_CENTER + 1024, scubaPal);
-                //G_DrawTileScaled(35, -1, SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+512, scubaPal);
-                //G_DrawTileScaled(35, -1, SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+256, scubaPal);
-                //G_DrawTileScaled(285, 200, SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+512, scubaPal,65536,1024);
-                //G_DrawTileScaled(285, 200, SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+256, scubaPal,65536,1024);
-                G_DrawTileScaled(35, -1, SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+1024, scubaPal);
-                G_DrawTileScaled(285, 200, SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+1024, scubaPal,65536,1024);
+                G_DrawTileScaled(320 - (tilesiz[TILE_SCUBAMASK].x >> 1) - 15, 200 - (tilesiz[TILE_SCUBAMASK].y >> 1) + (sintable[(int32_t) totalclock & 2047] >> 10),
+                                 TILE_SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER+512, scubaPal,49152);
+                G_DrawTileScaled(320 - tilesiz[TILE_SCUBAMASK+4].x, 200 - tilesiz[TILE_SCUBAMASK+4].y, TILE_SCUBAMASK+4, 0, 2 + 16 + DRAWEAP_CENTER + 1024, scubaPal);
+                G_DrawTileScaled(tilesiz[TILE_SCUBAMASK+4].x, 200 - tilesiz[TILE_SCUBAMASK+4].y, TILE_SCUBAMASK+4, 0, 2 + 4 + 16 + DRAWEAP_CENTER + 1024, scubaPal);
+                //G_DrawTileScaled(35, -1, TILE_SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+512, scubaPal);
+                //G_DrawTileScaled(35, -1, TILE_SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+256, scubaPal);
+                //G_DrawTileScaled(285, 200, TILE_SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+512, scubaPal,65536,1024);
+                //G_DrawTileScaled(285, 200, TILE_SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+256, scubaPal,65536,1024);
+                G_DrawTileScaled(35, -1, TILE_SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+1024, scubaPal);
+                G_DrawTileScaled(285, 200, TILE_SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER+1024, scubaPal,65536,1024);
             }
             else
             {
-                G_DrawTileScaled(320 - (tilesiz[SCUBAMASK].x >> 1) - 15, 200 - (tilesiz[SCUBAMASK].y >> 1) + (sintable[(int32_t) totalclock & 2047] >> 10),
-                                 SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal,49152);
-                G_DrawTileScaled(320 - tilesiz[SCUBAMASK+4].x, 200 - tilesiz[SCUBAMASK+4].y, SCUBAMASK+4, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
-                G_DrawTileScaled(tilesiz[SCUBAMASK+4].x, 200 - tilesiz[SCUBAMASK+4].y, SCUBAMASK+4, 0, 2 + 4 + 16 + DRAWEAP_CENTER, scubaPal);
-                G_DrawTileScaled(35, -1, SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
-                G_DrawTileScaled(285, 200, SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal,65536,1024);
+                G_DrawTileScaled(320 - (tilesiz[TILE_SCUBAMASK].x >> 1) - 15, 200 - (tilesiz[TILE_SCUBAMASK].y >> 1) + (sintable[(int32_t) totalclock & 2047] >> 10),
+                                 TILE_SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal,49152);
+                G_DrawTileScaled(320 - tilesiz[TILE_SCUBAMASK+4].x, 200 - tilesiz[TILE_SCUBAMASK+4].y, TILE_SCUBAMASK+4, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
+                G_DrawTileScaled(tilesiz[TILE_SCUBAMASK+4].x, 200 - tilesiz[TILE_SCUBAMASK+4].y, TILE_SCUBAMASK+4, 0, 2 + 4 + 16 + DRAWEAP_CENTER, scubaPal);
+                G_DrawTileScaled(35, -1, TILE_SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
+                G_DrawTileScaled(285, 200, TILE_SCUBAMASK+3, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal,65536,1024);
             }
         }
         else
@@ -1779,10 +1779,10 @@ void P_DisplayScuba(void)
             // this is a hack to hide the seam that appears between the two halves of the mask in GL
 #ifdef USE_OPENGL
             if (videoGetRenderMode() >= REND_POLYMOST)
-                G_DrawTileScaled(44, (200 - tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
+                G_DrawTileScaled(44, (200 - tilesiz[TILE_SCUBAMASK].y), TILE_SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
 #endif
-            G_DrawTileScaled(43, (200 - tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
-            G_DrawTileScaled(320 - 43, (200 - tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2 + 4 + 16 + DRAWEAP_CENTER, scubaPal);
+            G_DrawTileScaled(43, (200 - tilesiz[TILE_SCUBAMASK].y), TILE_SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
+            G_DrawTileScaled(320 - 43, (200 - tilesiz[TILE_SCUBAMASK].y), TILE_SCUBAMASK, 0, 2 + 4 + 16 + DRAWEAP_CENTER, scubaPal);
         }
     }
 }
@@ -1811,7 +1811,7 @@ static int P_DisplayTip(int tipShade)
 
     G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pPlayer->look_ang >> 1),
                      tipYOffset + tipY + 240 - (fix16_to_int(pPlayer->q16horiz - pPlayer->q16horizoff) >> 4),
-                     TIP + ((26 - pPlayer->tipincs) >> 4), tipShade, DRAWEAP_CENTER, tipPal);
+                     TILE_TIP + ((26 - pPlayer->tipincs) >> 4), tipShade, DRAWEAP_CENTER, tipPal);
 
     guniqhudid = 0;
 
@@ -1838,12 +1838,12 @@ static int P_DisplayAccess(int accessShade)
     {
         G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pSprite->look_ang >> 1) + accessX,
                          accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4),
-                         HANDHOLDINGLASER + (pSprite->access_incs >> 3), accessShade, DRAWEAP_CENTER, accessPal);
+                         TILE_HANDHOLDINGLASER + (pSprite->access_incs >> 3), accessShade, DRAWEAP_CENTER, accessPal);
     }
     else
     {
         G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pSprite->look_ang >> 1) + accessX,
-                         accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4), HANDHOLDINGACCESS, accessShade,
+                         accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4), TILE_HANDHOLDINGACCESS, accessShade,
                          4 + DRAWEAP_CENTER, accessPal);
     }
 
@@ -1936,10 +1936,10 @@ void P_DisplayWeapon(void)
         guniqhudid = 100;
 
         if (quickKickFrame < 6 || quickKickFrame > 12)
-            G_DrawTileScaled(weaponX + 80 - (pPlayer->look_ang >> 1), weaponY + 250 - weaponYOffset, KNEE, weaponShade,
+            G_DrawTileScaled(weaponX + 80 - (pPlayer->look_ang >> 1), weaponY + 250 - weaponYOffset, TILE_KNEE, weaponShade,
                                 weaponBits | 4 | DRAWEAP_CENTER, weaponPal);
         else
-            G_DrawTileScaled(weaponX + 160 - 16 - (pPlayer->look_ang >> 1), weaponY + 214 - weaponYOffset, KNEE + 1,
+            G_DrawTileScaled(weaponX + 160 - 16 - (pPlayer->look_ang >> 1), weaponY + 214 - weaponYOffset, TILE_KNEE + 1,
                                 weaponShade, weaponBits | 4 | DRAWEAP_CENTER, weaponPal);
         guniqhudid = 0;
     }
@@ -1948,7 +1948,7 @@ void P_DisplayWeapon(void)
     {
         if (pPlayer->on_motorcycle)
         {
-            int motoTile = MOTOHIT;
+            int motoTile = TILE_MOTOHIT;
             if (!g_netServer && numplayers == 1)
             {
                 if (*weaponFrame)
@@ -1957,16 +1957,16 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame == 1)
                     {
                         if ((krand2()&1) == 1)
-                            motoTile = MOTOHIT+1;
+                            motoTile = TILE_MOTOHIT+1;
                         else
-                            motoTile = MOTOHIT+2;
+                            motoTile = TILE_MOTOHIT+2;
                     }
                     else if (*weaponFrame == 4)
                     {
                         if ((krand2()&1) == 1)
-                            motoTile = MOTOHIT+3;
+                            motoTile = TILE_MOTOHIT+3;
                         else
-                            motoTile = MOTOHIT+4;
+                            motoTile = TILE_MOTOHIT+4;
                     }
                 }
             }
@@ -1992,53 +1992,53 @@ void P_DisplayWeapon(void)
             if (pPlayer->tilt_status > 0)
             {
                 if (*weaponFrame == 0)
-                    boatTile = BOATHIT+1;
+                    boatTile = TILE_BOATHIT+1;
                 else if (*weaponFrame <= 3)
                 {
-                    boatTile = BOATHIT+5;
+                    boatTile = TILE_BOATHIT+5;
                     weaponShade = -96;
                 }
                 else if (*weaponFrame <= 6)
                 {
-                    boatTile = BOATHIT+6;
+                    boatTile = TILE_BOATHIT+6;
                     weaponShade = -96;
                 }
                 else
-                    boatTile = BOATHIT+1;
+                    boatTile = TILE_BOATHIT+1;
             }
             else if (pPlayer->tilt_status < 0)
             {
                 if (*weaponFrame == 0)
-                    boatTile = BOATHIT+2;
+                    boatTile = TILE_BOATHIT+2;
                 else if (*weaponFrame <= 3)
                 {
-                    boatTile = BOATHIT+7;
+                    boatTile = TILE_BOATHIT+7;
                     weaponShade = -96;
                 }
                 else if (*weaponFrame <= 6)
                 {
-                    boatTile = BOATHIT+8;
+                    boatTile = TILE_BOATHIT+8;
                     weaponShade = -96;
                 }
                 else
-                    boatTile = BOATHIT+2;
+                    boatTile = TILE_BOATHIT+2;
             }
             else
             {
                 if (*weaponFrame == 0)
-                    boatTile = BOATHIT;
+                    boatTile = TILE_BOATHIT;
                 else if (*weaponFrame <= 3)
                 {
-                    boatTile = BOATHIT+3;
+                    boatTile = TILE_BOATHIT+3;
                     weaponShade = -96;
                 }
                 else if (*weaponFrame <= 6)
                 {
-                    boatTile = BOATHIT+4;
+                    boatTile = TILE_BOATHIT+4;
                     weaponShade = -96;
                 }
                 else
-                    boatTile = BOATHIT;
+                    boatTile = TILE_BOATHIT;
             }
 
             int const weaponPal = P_GetHudPal(pPlayer);
@@ -2071,9 +2071,9 @@ void P_DisplayWeapon(void)
         currentWeapon = weaponX;
         weaponX += sintable[(fistPos)&2047] >> 10;
         G_DrawTileScaled(weaponX + 250 - (pPlayer->look_ang >> 1), weaponY + 258 - (klabs(sintable[(fistPos)&2047] >> 8)),
-            FIST, weaponShade, weaponBits, weaponPal);
+            TILE_FIST, weaponShade, weaponBits, weaponPal);
         weaponX = currentWeapon - (sintable[(fistPos)&2047] >> 10);
-        G_DrawTileScaled(weaponX + 40 - (pPlayer->look_ang >> 1), weaponY + 200 + (klabs(sintable[(fistPos)&2047] >> 8)), FIST,
+        G_DrawTileScaled(weaponX + 40 - (pPlayer->look_ang >> 1), weaponY + 200 + (klabs(sintable[(fistPos)&2047] >> 8)), TILE_FIST,
             weaponShade, weaponBits | 4, weaponPal);
     }
     else
@@ -2084,7 +2084,7 @@ void P_DisplayWeapon(void)
             case 2:
                 if ((unsigned)hudweap.cur < MAX_WEAPONS && hudweap.cur != KNEE_WEAPON)
                     rotatesprite_win(160 << 16, (180 + (pPlayer->weapon_pos * pPlayer->weapon_pos)) << 16, divscale16(ud.statusbarscale, 100), 0,
-                                        (!RR && hudweap.cur == GROW_WEAPON) ? GROWSPRITEICON : WeaponPickupSprites[hudweap.cur], 0,
+                                        (!RR && hudweap.cur == GROW_WEAPON) ? TILE_GROWSPRITEICON : WeaponPickupSprites[hudweap.cur], 0,
                                         0, 2);
             default: goto enddisplayweapon;
         }
@@ -2109,7 +2109,7 @@ void P_DisplayWeapon(void)
                 weaponX = weaponX + ((offsetX[weaponFrames[*weaponFrame]]>>1) - 12);
                 weaponY = weaponY + 200 - (244-offsetY[weaponFrames[*weaponFrame]]);
                 guniqhudid = currentWeapon;
-                G_DrawTileScaled(weaponX - halfLookAng, weaponY - weaponYOffset, KNEE + weaponFrames[*weaponFrame],
+                G_DrawTileScaled(weaponX - halfLookAng, weaponY - weaponYOffset, TILE_KNEE + weaponFrames[*weaponFrame],
                                     weaponShade, weaponBits, weaponPal, 32768);
                 guniqhudid = 0;
                 break;
@@ -2125,7 +2125,7 @@ void P_DisplayWeapon(void)
                     weaponX = weaponX + ((offsetX[weaponFrames[*weaponFrame]]>>1) - 12);
                     weaponY = weaponY + 210 - (244-offsetY[weaponFrames[*weaponFrame]]);
                     guniqhudid = currentWeapon;
-                    G_DrawTileScaled(weaponX - halfLookAng + 20, weaponY - weaponYOffset - 80, SLINGBLADE + weaponFrames[*weaponFrame],
+                    G_DrawTileScaled(weaponX - halfLookAng + 20, weaponY - weaponYOffset - 80, TILE_SLINGBLADE + weaponFrames[*weaponFrame],
                                         weaponShade, weaponBits, weaponPal, 32768);
                     guniqhudid = 0;
                     break;
@@ -2141,12 +2141,12 @@ void P_DisplayWeapon(void)
                 {
                     if (pPlayer->ammo_amount[BOWLINGBALL_WEAPON])
                     {
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 162 - halfLookAng, weaponY + 214 - weaponYOffset + (*weaponFrame) * 8, BOWLINGBALLH,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 162 - halfLookAng, weaponY + 214 - weaponYOffset + (*weaponFrame) * 8, TILE_BOWLINGBALLH,
                                                 weaponShade, weaponBits, weaponPal, 32768);
                     }
                     else
                     {
-                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 162 - halfLookAng, weaponY + 214 - weaponYOffset, HANDTHROW+5,
+                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 162 - halfLookAng, weaponY + 214 - weaponYOffset, TILE_HANDTHROW+5,
                                                 weaponShade, weaponBits, weaponPal, 36700);
                     }
                 }
@@ -2154,14 +2154,14 @@ void P_DisplayWeapon(void)
                 {
                     if (pPlayer->ammo_amount[TRIPBOMB_WEAPON])
                     {
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 180 - halfLookAng, weaponY + 214 - weaponYOffset + (*weaponFrame) * 8, POWDERH,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 180 - halfLookAng, weaponY + 214 - weaponYOffset + (*weaponFrame) * 8, TILE_POWDERH,
                                                 weaponShade, weaponBits, weaponPal, 36700);
-                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 90 - halfLookAng, weaponY + 214 - weaponYOffset + (*weaponFrame) * 8, POWDERH,
+                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 90 - halfLookAng, weaponY + 214 - weaponYOffset + (*weaponFrame) * 8, TILE_POWDERH,
                                                 weaponShade, weaponBits | 4, weaponPal, 36700);
                     }
                     else
                     {
-                        G_DrawWeaponTileWithID(currentWeapon << 2, weaponX + 162 - halfLookAng, weaponY + 214 - weaponYOffset, HANDTHROW+5,
+                        G_DrawWeaponTileWithID(currentWeapon << 2, weaponX + 162 - halfLookAng, weaponY + 214 - weaponYOffset, TILE_HANDTHROW+5,
                                                 weaponShade, weaponBits, weaponPal, 36700);
                     }
                 }
@@ -2176,17 +2176,17 @@ void P_DisplayWeapon(void)
                 if (frame == 2 || frame == 3)
                 {
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 200 - halfLookAng, weaponY + 250 - weaponYOffset,
-                                           RPGGUN + frame, weaponShade, weaponBits, weaponPal, 36700);
+                                           TILE_RPGGUN + frame, weaponShade, weaponBits, weaponPal, 36700);
                 }
                 else if (frame == 1)
                 {
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 200 - halfLookAng, weaponY + 250 - weaponYOffset,
-                                           RPGGUN + frame, 0, weaponBits, weaponPal, 36700);
+                                           TILE_RPGGUN + frame, 0, weaponBits, weaponPal, 36700);
                 }
                 else
                 {
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - halfLookAng, weaponY + 255 - weaponYOffset,
-                                           RPGGUN + frame, weaponShade, weaponBits, weaponPal, 36700);
+                                           TILE_RPGGUN + frame, weaponShade, weaponBits, weaponPal, 36700);
                 }
                 break;
             }
@@ -2203,17 +2203,17 @@ void P_DisplayWeapon(void)
                     if (frame == 2 || frame == 3)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 200 - halfLookAng, weaponY + 250 - weaponYOffset,
-                                               RPGGUN2 + frame, weaponShade, weaponBits, weaponPal, 36700);
+                                               TILE_RPGGUN2 + frame, weaponShade, weaponBits, weaponPal, 36700);
                     }
                     else if (frame == 1)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 200 - halfLookAng, weaponY + 250 - weaponYOffset,
-                                               RPGGUN2 + frame, 0, weaponBits, weaponPal, 36700);
+                                               TILE_RPGGUN2 + frame, 0, weaponBits, weaponPal, 36700);
                     }
                     else
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - halfLookAng, weaponY + 255 - weaponYOffset,
-                                               RPGGUN2 + frame, weaponShade, weaponBits, weaponPal, 36700);
+                                               TILE_RPGGUN2 + frame, weaponShade, weaponBits, weaponPal, 36700);
                     }
                 }
                 else
@@ -2223,26 +2223,26 @@ void P_DisplayWeapon(void)
                         if (g_chickenWeaponTimer)
                         {
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - halfLookAng, weaponY + 222 - weaponYOffset,
-                                                   RPGGUN2+7, weaponShade, weaponBits, weaponPal, 36700);
+                                                   TILE_RPGGUN2+7, weaponShade, weaponBits, weaponPal, 36700);
                         }
                         else if ((krand2() & 15) == 5)
                         {
                             A_PlaySound(327, pPlayer->i);
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - halfLookAng, weaponY + 222 - weaponYOffset,
-                                                   RPGGUN2+7, weaponShade, weaponBits, weaponPal, 36700);
+                                                   TILE_RPGGUN2+7, weaponShade, weaponBits, weaponPal, 36700);
                             g_chickenWeaponTimer = 6;
                         }
                         else
                         {
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - halfLookAng, weaponY + 225 - weaponYOffset,
-                                                   RPGGUN2, weaponShade, weaponBits, weaponPal, 36700);
+                                                   TILE_RPGGUN2, weaponShade, weaponBits, weaponPal, 36700);
                         }
 
                     }
                     else
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - halfLookAng, weaponY + 225 - weaponYOffset,
-                                               RPGGUN2, weaponShade, weaponBits, weaponPal, 36700);
+                                               TILE_RPGGUN2, weaponShade, weaponBits, weaponPal, 36700);
                     }
                 }
                 break;
@@ -2264,7 +2264,7 @@ void P_DisplayWeapon(void)
                             if (frm == 3 || frm == 4)
                                 weaponShade = 0;
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 52 - halfLookAng + (kb_ox[frm] >> 1),
-                                weaponY + kb_oy[frm] - 64 - weaponYOffset, SHOTGUN + frm, weaponShade, weaponBits, weaponPal, 32768);
+                                weaponY + kb_oy[frm] - 64 - weaponYOffset, TILE_SHOTGUN + frm, weaponShade, weaponBits, weaponPal, 32768);
                         }
                         else
                         {
@@ -2285,10 +2285,10 @@ void P_DisplayWeapon(void)
                                 break;
                             }
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 64 - halfLookAng, weaponY - weaponYOffset,
-                                SHOTGUN + kb_frames[*weaponFrame], weaponShade, weaponBits, weaponPal, 32768);
+                                TILE_SHOTGUN + kb_frames[*weaponFrame], weaponShade, weaponBits, weaponPal, 32768);
                             if (kb_frames[*weaponFrame] == 21)
                                 G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 96 - halfLookAng, weaponY - weaponYOffset,
-                                    SHOTGUNSHELLS, weaponShade, weaponBits, weaponPal, 32768);
+                                    TILE_SHOTGUNSHELLS, weaponShade, weaponBits, weaponPal, 32768);
                         }
                     }
                     else
@@ -2301,7 +2301,7 @@ void P_DisplayWeapon(void)
                                 if (frm == 3 || frm == 4)
                                     weaponShade = 0;
                                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 52 - halfLookAng + (kb_ox[frm] >> 1),
-                                    weaponY + kb_oy[frm] - 64 - weaponYOffset, SHOTGUN + frm, weaponShade, weaponBits, weaponPal, 32768);
+                                    weaponY + kb_oy[frm] - 64 - weaponYOffset, TILE_SHOTGUN + frm, weaponShade, weaponBits, weaponPal, 32768);
                             }
                             else
                             {
@@ -2309,7 +2309,7 @@ void P_DisplayWeapon(void)
                                 if (frm == 1 || frm == 2)
                                     weaponShade = 0;
                                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 52 - halfLookAng + (kb_ox[frm] >> 1),
-                                    weaponY + kb_oy[frm] - 64 - weaponYOffset, SHOTGUN + frm, weaponShade, weaponBits, weaponPal, 32768);
+                                    weaponY + kb_oy[frm] - 64 - weaponYOffset, TILE_SHOTGUN + frm, weaponShade, weaponBits, weaponPal, 32768);
                             }
                         }
                         else if (pPlayer->shotgun_state[0])
@@ -2331,10 +2331,10 @@ void P_DisplayWeapon(void)
                                 break;
                             }
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 64 - halfLookAng, weaponY - weaponYOffset,
-                                SHOTGUN + kb_frames2[*weaponFrame], weaponShade, weaponBits, weaponPal, 32768);
+                                TILE_SHOTGUN + kb_frames2[*weaponFrame], weaponShade, weaponBits, weaponPal, 32768);
                             if (kb_frames2[*weaponFrame] == 21)
                                 G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 96 - halfLookAng, weaponY - weaponYOffset,
-                                    SHOTGUNSHELLS, weaponShade, weaponBits, weaponPal, 32768);
+                                    TILE_SHOTGUNSHELLS, weaponShade, weaponBits, weaponPal, 32768);
                         }
                     }
                 }
@@ -2353,16 +2353,16 @@ void P_DisplayWeapon(void)
                 {
                 case 0:
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1) + 30, weaponY + 233 - weaponYOffset + 5,
-                                            CHAINGUN, weaponShade, weaponBits, weaponPal, 32768);
+                                            TILE_CHAINGUN, weaponShade, weaponBits, weaponPal, 32768);
                     break;
 
                 default:
                     if (*weaponFrame < 8)
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1) + 30, weaponY + 233 - weaponYOffset + 5,
-                                                CHAINGUN + 1, 0, weaponBits, weaponPal, 32768);
+                                                TILE_CHAINGUN + 1, 0, weaponBits, weaponPal, 32768);
                     else
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1) + 30, weaponY + 233 - weaponYOffset + 5,
-                                                CHAINGUN + 2, weaponShade, weaponBits, weaponPal, 32768);
+                                                TILE_CHAINGUN + 2, weaponShade, weaponBits, weaponPal, 32768);
 
                     break;
                 }
@@ -2380,7 +2380,7 @@ void P_DisplayWeapon(void)
                         weaponShade = 0;
 
                     G_DrawWeaponTileWithID(currentWeapon, offsetX[frame] - 12 + weaponX - (pPlayer->look_ang >> 1), weaponY + offsetY[frame] - weaponYOffset,
-                                            FIRSTGUN + frame, weaponShade, weaponBits, weaponPal, 36700);
+                                            TILE_FIRSTGUN + frame, weaponShade, weaponBits, weaponPal, 36700);
 
                     break;
                 }
@@ -2436,14 +2436,14 @@ void P_DisplayWeapon(void)
                     }
 
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + offsetX[frame] - 12 - dx - halfLookAng, weaponY + offsetY[frame] - weaponYOffset + dy,
-                                            FIRSTGUNRELOAD + frame, weaponShade, weaponBits, weaponPal, 36700);
+                                            TILE_FIRSTGUNRELOAD + frame, weaponShade, weaponBits, weaponPal, 36700);
                 }
                 break;
 
             case HANDBOMB_WEAPON__STATIC:
                 weaponYOffset -= 9 * (*weaponFrame);
                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 190 - halfLookAng, weaponY + 260 - weaponYOffset,
-                                        HANDTHROW, weaponShade, weaponBits, weaponPal, 36700);               
+                                        TILE_HANDTHROW, weaponShade, weaponBits, weaponPal, 36700);               
                 break;
 
             case HANDREMOTE_WEAPON__STATIC:
@@ -2460,20 +2460,20 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame < 5)
                     {
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 265 - halfLookAng, weaponY + 174 - weaponYOffset + pPlayer->hbomb_offset,
-                                                RRTILE1752, 0, weaponBits, weaponPal, 36700);
+                                                TILE_RRTILE1752, 0, weaponBits, weaponPal, 36700);
                     }
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 290 - halfLookAng, weaponY + 238 - weaponYOffset,
-                                            HANDTHROW + remoteFrames[(*weaponFrame)], 0, weaponBits, weaponPal, 36700);
+                                            TILE_HANDTHROW + remoteFrames[(*weaponFrame)], 0, weaponBits, weaponPal, 36700);
                 }
                 break;
 
             case DEVISTATOR_WEAPON__STATIC:
                 if (*weaponFrame)
                     G_DrawWeaponTileWithID(currentWeapon, 150 + (weaponX >> 1) - halfLookAng, 266 + (weaponY >> 1) - weaponYOffset,
-                                            DEVISTATOR, 0, weaponBits, weaponPal, 47040);
+                                            TILE_DEVISTATOR, 0, weaponBits, weaponPal, 47040);
                 else
                     G_DrawWeaponTileWithID(currentWeapon, 150 + (weaponX >> 1) - halfLookAng, 266 + (weaponY >> 1) - weaponYOffset,
-                                            DEVISTATOR + 1, weaponShade, weaponBits, weaponPal, 47040);
+                                            TILE_DEVISTATOR + 1, weaponShade, weaponBits, weaponPal, 47040);
                 break;
 
             case FREEZE_WEAPON__STATIC:
@@ -2485,11 +2485,11 @@ void P_DisplayWeapon(void)
                     static uint8_t freezerFrames[] = { 0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 260 - (pPlayer->look_ang >> 1), weaponY + 215 - weaponYOffset,
-                                            FREEZE + freezerFrames[*weaponFrame], -32, weaponBits, weaponPal, 32768);
+                                            TILE_FREEZE + freezerFrames[*weaponFrame], -32, weaponBits, weaponPal, 32768);
                 }
                 else
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 260 - (pPlayer->look_ang >> 1), weaponY + 215 - weaponYOffset,
-                                            FREEZE, weaponShade, weaponBits, weaponPal, 32768);
+                                            TILE_FREEZE, weaponShade, weaponBits, weaponPal, 32768);
                 break;
 
             case GROW_WEAPON__STATIC:
@@ -2508,19 +2508,19 @@ void P_DisplayWeapon(void)
                     if (currentWeapon == GROW_WEAPON)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                                GROWSPARK + ((*weaponFrame)&2), weaponShade, weaponBits, 0, 44040);
+                                                TILE_GROWSPARK + ((*weaponFrame)&2), weaponShade, weaponBits, 0, 44040);
                     }
                     else
                     {
                         static int frames[] = { 1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0 };
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
-                            SHRINKER + frames[*weaponFrame], weaponShade, weaponBits, 0, 44040);
+                            TILE_SHRINKER + frames[*weaponFrame], weaponShade, weaponBits, 0, 44040);
                     }
                 }
                 else
                 {
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                            SHRINKER, weaponShade, weaponBits, weaponPal, 44040);
+                                            TILE_SHRINKER, weaponShade, weaponBits, weaponPal, 44040);
                 }
                 break;
             }
@@ -2535,10 +2535,10 @@ void P_DisplayWeapon(void)
 
                 guniqhudid = currentWeapon;
                 if (*weaponFrame < 5 || *weaponFrame > 9)
-                    G_DrawTileScaled(weaponX + 220 - halfLookAng, weaponY + 250 - weaponYOffset, KNEE,
+                    G_DrawTileScaled(weaponX + 220 - halfLookAng, weaponY + 250 - weaponYOffset, TILE_KNEE,
                                         weaponShade, weaponBits, kneePal);
                 else
-                    G_DrawTileScaled(weaponX + 160 - halfLookAng, weaponY + 214 - weaponYOffset, KNEE + 1,
+                    G_DrawTileScaled(weaponX + 160 - halfLookAng, weaponY + 214 - weaponYOffset, TILE_KNEE + 1,
                                         weaponShade, weaponBits, kneePal);
                 guniqhudid = 0;
                 break;
@@ -2552,13 +2552,13 @@ void P_DisplayWeapon(void)
                     weaponY += ((*weaponFrame) << 3);
                 else if ((*weaponFrame) < 4)
                     G_DrawWeaponTileWithID(currentWeapon << 2, weaponX + 142 - halfLookAng,
-                                            weaponY + 234 - weaponYOffset, HANDHOLDINGLASER + 3, weaponShade, weaponBits, weaponPal);
+                                            weaponY + 234 - weaponYOffset, TILE_HANDHOLDINGLASER + 3, weaponShade, weaponBits, weaponPal);
 
                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 130 - halfLookAng, weaponY + 249 - weaponYOffset,
-                                        HANDHOLDINGLASER + ((*weaponFrame) >> 2), weaponShade, weaponBits, weaponPal);
+                                        TILE_HANDHOLDINGLASER + ((*weaponFrame) >> 2), weaponShade, weaponBits, weaponPal);
 
                 G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 152 - halfLookAng,
-                                        weaponY + 249 - weaponYOffset, HANDHOLDINGLASER + ((*weaponFrame) >> 2), weaponShade, weaponBits | 4,
+                                        weaponY + 249 - weaponYOffset, TILE_HANDHOLDINGLASER + ((*weaponFrame) >> 2), weaponShade, weaponBits | 4,
                                         weaponPal);
                 break;
 
@@ -2574,7 +2574,7 @@ void P_DisplayWeapon(void)
                     int totalTime;
                     if (*weaponFrame < (WW2GI ? (totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime)) : 8))
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset,
-                            RPGGUN + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal);
+                            TILE_RPGGUN + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal);
                     else if (WW2GI)
                     {
                         totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
@@ -2586,7 +2586,7 @@ void P_DisplayWeapon(void)
                     }
                 }
 
-                G_DrawWeaponTileWithID(currentWeapon, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset, RPGGUN, weaponShade,
+                G_DrawWeaponTileWithID(currentWeapon, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset, TILE_RPGGUN, weaponShade,
                                         weaponBits, weaponPal);
                 break;
 
@@ -2607,12 +2607,12 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame == 0)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
-                                               SHOTGUN, weaponShade, weaponBits, weaponPal);
+                                               TILE_SHOTGUN, weaponShade, weaponBits, weaponPal);
                     }
                     else if (*weaponFrame <= totalTime)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
-                                               SHOTGUN + 1, weaponShade, weaponBits, weaponPal);
+                                               TILE_SHOTGUN + 1, weaponShade, weaponBits, weaponPal);
                     }
                     // else we are in 'reload time'
                     else
@@ -2622,7 +2622,7 @@ void P_DisplayWeapon(void)
                                          : 10 * (reloadTime - (*weaponFrame));  // U
 
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
-                                               SHOTGUN, weaponShade, weaponBits, weaponPal);
+                                               TILE_SHOTGUN, weaponShade, weaponBits, weaponPal);
                     }
 
                     break;
@@ -2633,14 +2633,14 @@ void P_DisplayWeapon(void)
                     case 1:
                     case 2:
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 168 - halfLookAng, weaponY + 201 - weaponYOffset,
-                                                SHOTGUN + 2, -128, weaponBits, weaponPal);
+                                                TILE_SHOTGUN + 2, -128, weaponBits, weaponPal);
                         fallthrough__;
                     case 0:
                     case 6:
                     case 7:
                     case 8:
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
-                                                SHOTGUN, weaponShade, weaponBits, weaponPal);
+                                                TILE_SHOTGUN, weaponShade, weaponBits, weaponPal);
                         break;
 
                     case 3:
@@ -2649,7 +2649,7 @@ void P_DisplayWeapon(void)
                         weaponX += 20;
 
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 178 - halfLookAng, weaponY + 194 - weaponYOffset,
-                                                SHOTGUN + 1 + ((*(weaponFrame)-1) >> 1), -128, weaponBits, weaponPal);
+                                                TILE_SHOTGUN + 1 + ((*(weaponFrame)-1) >> 1), -128, weaponBits, weaponPal);
                         fallthrough__;
                     case 5:
                     case 9:
@@ -2657,14 +2657,14 @@ void P_DisplayWeapon(void)
                     case 11:
                     case 12:
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 158 - halfLookAng, weaponY + 220 - weaponYOffset,
-                                                SHOTGUN + 3, weaponShade, weaponBits, weaponPal);
+                                                TILE_SHOTGUN + 3, weaponShade, weaponBits, weaponPal);
                         break;
 
                     case 13:
                     case 14:
                     case 15:
                         G_DrawWeaponTileWithID(currentWeapon, 32 + weaponX + 166 - halfLookAng, weaponY + 210 - weaponYOffset,
-                                                SHOTGUN + 4, weaponShade, weaponBits, weaponPal);
+                                                TILE_SHOTGUN + 4, weaponShade, weaponBits, weaponPal);
                         break;
 
                     case 16:
@@ -2676,7 +2676,7 @@ void P_DisplayWeapon(void)
                     case 26:
                     case 27:
                         G_DrawWeaponTileWithID(currentWeapon, 64 + weaponX + 170 - halfLookAng, weaponY + 196 - weaponYOffset,
-                                                SHOTGUN + 5, weaponShade, weaponBits, weaponPal);
+                                                TILE_SHOTGUN + 5, weaponShade, weaponBits, weaponPal);
                         break;
 
                     case 20:
@@ -2684,7 +2684,7 @@ void P_DisplayWeapon(void)
                     case 22:
                     case 23:
                         G_DrawWeaponTileWithID(currentWeapon, 64 + weaponX + 176 - halfLookAng, weaponY + 196 - weaponYOffset,
-                                                SHOTGUN + 6, weaponShade, weaponBits, weaponPal);
+                                                TILE_SHOTGUN + 6, weaponShade, weaponBits, weaponPal);
                         break;
 
 
@@ -2692,7 +2692,7 @@ void P_DisplayWeapon(void)
                     case 29:
                     case 30:
                         G_DrawWeaponTileWithID(currentWeapon, 32 + weaponX + 156 - halfLookAng, weaponY + 206 - weaponYOffset,
-                                                SHOTGUN + 4, weaponShade, weaponBits, weaponPal);
+                                                TILE_SHOTGUN + 4, weaponShade, weaponBits, weaponPal);
                         break;
                 }
                 break;
@@ -2714,20 +2714,20 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame == 0)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - halfLookAng,weaponY+233-weaponYOffset,
-                            CHAINGUN+1,weaponShade,weaponBits,weaponPal);
+                            TILE_CHAINGUN+1,weaponShade,weaponBits,weaponPal);
                     }
                     else if (*weaponFrame <= totalTime)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng,weaponY+243-weaponYOffset,
-                            CHAINGUN+2,weaponShade,weaponBits,weaponPal);
+                            TILE_CHAINGUN+2,weaponShade,weaponBits,weaponPal);
                     }
                     // else we are in 'reload time'
                     // divide reload time into fifths..
-                    // 1) move weapon up/right, hand on clip (CHAINGUN - 17)
-                    // 2) move weapon up/right, hand removing clip (CHAINGUN - 18)
-                    // 3) hold weapon up/right, hand removed clip (CHAINGUN - 19)
-                    // 4) hold weapon up/right, hand inserting clip (CHAINGUN - 18)
-                    // 5) move weapon down/left, clip inserted (CHAINGUN - 17)
+                    // 1) move weapon up/right, hand on clip (TILE_CHAINGUN - 17)
+                    // 2) move weapon up/right, hand removing clip (TILE_CHAINGUN - 18)
+                    // 3) hold weapon up/right, hand removed clip (TILE_CHAINGUN - 19)
+                    // 4) hold weapon up/right, hand inserting clip (TILE_CHAINGUN - 18)
+                    // 5) move weapon down/left, clip inserted (TILE_CHAINGUN - 17)
                     else
                     {
                         int iFifths = (reloadTime - totalTime) / 5;
@@ -2740,7 +2740,7 @@ void P_DisplayWeapon(void)
                             int const weaponOffset = 80 - 10 * (totalTime + iFifths - (*weaponFrame));
                             weaponYOffset += weaponOffset;
                             weaponX += weaponOffset;
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 17,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, TILE_CHAINGUN - 17,
                                                    weaponShade, weaponBits, weaponPal);
                         }
                         else if (*weaponFrame < (iFifths * 2 + totalTime))
@@ -2748,7 +2748,7 @@ void P_DisplayWeapon(void)
                             // second segment
                             weaponYOffset += 80; // D
                             weaponX += 80;
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 18,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, TILE_CHAINGUN - 18,
                                                    weaponShade, weaponBits, weaponPal);
                         }
                         else if (*weaponFrame < (iFifths * 3 + totalTime))
@@ -2757,7 +2757,7 @@ void P_DisplayWeapon(void)
                             // up
                             weaponYOffset += 80;
                             weaponX += 80;
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 19,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, TILE_CHAINGUN - 19,
                                                    weaponShade, weaponBits, weaponPal);
                         }
                         else if (*weaponFrame < (iFifths * 4 + totalTime))
@@ -2766,7 +2766,7 @@ void P_DisplayWeapon(void)
                             // down
                             weaponYOffset += 80; // D
                             weaponX += 80;
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 18,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, TILE_CHAINGUN - 18,
                                                    weaponShade, weaponBits, weaponPal);
                         }
                         else
@@ -2775,7 +2775,7 @@ void P_DisplayWeapon(void)
                             int const weaponOffset = 10 * (reloadTime - (*weaponFrame));
                             weaponYOffset += weaponOffset; // U
                             weaponX += weaponOffset;
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 17,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, TILE_CHAINGUN - 17,
                                                    weaponShade, weaponBits, weaponPal);
                         }
                     }
@@ -2787,7 +2787,7 @@ void P_DisplayWeapon(void)
                 {
                 case 0:
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1), weaponY + 233 - weaponYOffset,
-                                            CHAINGUN + 1, weaponShade, weaponBits, weaponPal);
+                                            TILE_CHAINGUN + 1, weaponShade, weaponBits, weaponPal);
                     break;
 
                 default:
@@ -2796,11 +2796,11 @@ void P_DisplayWeapon(void)
                         int randomOffset = doAnim ? rand()&7 : 0;
                         G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 140 - (pPlayer->look_ang >> 1),
                                                 randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
-                                                CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal);
+                                                TILE_CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal);
                         if (doAnim) randomOffset = rand()&7;
                         G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 184 - (pPlayer->look_ang >> 1),
                                                 randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
-                                                CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal);
+                                                TILE_CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal);
                     }
                 
                     if (*weaponFrame < 8)
@@ -2808,19 +2808,19 @@ void P_DisplayWeapon(void)
                         int const randomOffset = doAnim ? rand()&7 : 0;
                         G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 162 - (pPlayer->look_ang >> 1),
                             randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
-                                                CHAINGUN + 5 + ((*weaponFrame - 2) / 5), weaponShade, weaponBits, weaponPal);
+                                                TILE_CHAINGUN + 5 + ((*weaponFrame - 2) / 5), weaponShade, weaponBits, weaponPal);
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1), weaponY + 233 - weaponYOffset,
-                                                CHAINGUN + 1 + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal);
+                                                TILE_CHAINGUN + 1 + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal);
                     }
                     else
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1), weaponY + 233 - weaponYOffset,
-                                                CHAINGUN + 1, weaponShade, weaponBits, weaponPal);
+                                                TILE_CHAINGUN + 1, weaponShade, weaponBits, weaponPal);
 
                     break;
                 }
 
                 G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 168 - (pPlayer->look_ang >> 1), weaponY + 260 - weaponYOffset,
-                                        CHAINGUN, weaponShade, weaponBits, weaponPal);
+                                        TILE_CHAINGUN, weaponShade, weaponBits, weaponPal);
                 break;
 
             case PISTOL_WEAPON__STATIC:
@@ -2833,7 +2833,7 @@ void P_DisplayWeapon(void)
                         pistolOffset -= 3;
 
                     G_DrawWeaponTileWithID(currentWeapon, (pistolOffset - (pPlayer->look_ang >> 1)), (weaponY + 244 - weaponYOffset),
-                                            FIRSTGUN + pistolFrames[*weaponFrame > 2 ? 0 : *weaponFrame], weaponShade, 2,
+                                            TILE_FIRSTGUN + pistolFrames[*weaponFrame > 2 ? 0 : *weaponFrame], weaponShade, 2,
                                             weaponPal);
 
                     break;
@@ -2843,41 +2843,41 @@ void P_DisplayWeapon(void)
                     weaponBits |= 512;
 
                 if ((*weaponFrame) < 10)
-                    G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 230 - weaponYOffset, FIRSTGUN + 4,
+                    G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 230 - weaponYOffset, TILE_FIRSTGUN + 4,
                                             weaponShade, weaponBits, weaponPal);
                 else if ((*weaponFrame) < 15)
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 1, 244 - ((*weaponFrame) << 3) - (pPlayer->look_ang >> 1),
-                                            weaponY + 130 - weaponYOffset + ((*weaponFrame) << 4), FIRSTGUN + 6, weaponShade,
+                                            weaponY + 130 - weaponYOffset + ((*weaponFrame) << 4), TILE_FIRSTGUN + 6, weaponShade,
                                             weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, TILE_FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < 20)
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 1, 124 + ((*weaponFrame) << 1) - (pPlayer->look_ang >> 1),
-                                            weaponY + 430 - weaponYOffset - ((*weaponFrame) << 3), FIRSTGUN + 6, weaponShade,
+                                            weaponY + 430 - weaponYOffset - ((*weaponFrame) << 3), TILE_FIRSTGUN + 6, weaponShade,
                                             weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, TILE_FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
 
                 else if ((*weaponFrame) < (WW2GI ? PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 12 : (NAM ? 38 : 23)))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 184 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
-                                            FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 210 - weaponYOffset, FIRSTGUN + 5,
+                                            TILE_FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 210 - weaponYOffset, TILE_FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < (WW2GI ? PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 6 : (NAM ? 44 : 25)))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 164 - (pPlayer->look_ang >> 1), weaponY + 245 - weaponYOffset,
-                                            FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
+                                            TILE_FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, TILE_FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < (WW2GI ? PWEAPON(screenpeek, PISTOL_WEAPON, Reload) : (NAM ? 50 : 27)))
-                    G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset, TILE_FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
 
                 break;
@@ -2931,7 +2931,7 @@ void P_DisplayWeapon(void)
                     }
 
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 190 - halfLookAng, weaponY + 260 - weaponYOffset,
-                                            HANDTHROW + pipebombFrames[(*weaponFrame)], weaponShade, weaponBits, weaponPal);
+                                            TILE_HANDTHROW + pipebombFrames[(*weaponFrame)], weaponShade, weaponBits, weaponPal);
                 }
                 break;
 
@@ -2944,7 +2944,7 @@ void P_DisplayWeapon(void)
 
                     weaponX = -48;
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 150 - halfLookAng, weaponY + 258 - weaponYOffset,
-                                            HANDREMOTE + remoteFrames[(*weaponFrame)], weaponShade, weaponBits, weaponPal);
+                                            TILE_HANDREMOTE + remoteFrames[(*weaponFrame)], weaponShade, weaponBits, weaponPal);
                 }
                 break;
 
@@ -2963,15 +2963,15 @@ void P_DisplayWeapon(void)
                             if (pPlayer->ammo_amount[pPlayer->curr_weapon] & 1)
                             {
                                 G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                                       DEVISTATOR, weaponShade, weaponBits | 4, weaponPal);
+                                                       TILE_DEVISTATOR, weaponShade, weaponBits | 4, weaponPal);
                                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset,
-                                                       DEVISTATOR + tileOffset, -32, weaponBits, weaponPal);
+                                                       TILE_DEVISTATOR + tileOffset, -32, weaponBits, weaponPal);
                             }
                             else
                             {
                                 G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                                       DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal);
-                                G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                                                       TILE_DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal);
+                                G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, TILE_DEVISTATOR,
                                                        weaponShade, weaponBits, weaponPal);
                             }
                         }
@@ -2982,17 +2982,17 @@ void P_DisplayWeapon(void)
                                              ? 10 * ((*weaponFrame) - totalTime)
                                              : 10 * (reloadTime - (*weaponFrame));
 
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, TILE_DEVISTATOR,
                                                    weaponShade, weaponBits, weaponPal);
-                            G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
+                            G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, TILE_DEVISTATOR,
                                                    weaponShade, weaponBits | 4, weaponPal);
                         }
                     }
                     else
                     {
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, TILE_DEVISTATOR,
                                                weaponShade, weaponBits, weaponPal);
-                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
+                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, TILE_DEVISTATOR,
                                                weaponShade, weaponBits | 4, weaponPal);
                     }
                     break;
@@ -3011,24 +3011,24 @@ void P_DisplayWeapon(void)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, (devastatorFrames[*weaponFrame] >> 1) + weaponX + 268 - halfLookAng,
                                                 devastatorFrames[*weaponFrame] + weaponY + 238 - weaponYOffset,
-                                                DEVISTATOR + tileOffset, -32, weaponBits, weaponPal);
-                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
+                                                TILE_DEVISTATOR + tileOffset, -32, weaponBits, weaponPal);
+                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, TILE_DEVISTATOR,
                                                 weaponShade, weaponBits | 4, weaponPal);
                     }
                     else
                     {
                         G_DrawWeaponTileWithID(currentWeapon << 1, -(devastatorFrames[*weaponFrame] >> 1) + weaponX + 30 - halfLookAng,
                                                 devastatorFrames[*weaponFrame] + weaponY + 240 - weaponYOffset,
-                                                DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal);
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                                                TILE_DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal);
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, TILE_DEVISTATOR,
                                                 weaponShade, weaponBits, weaponPal);
                     }
                 }
                 else
                 {
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR, weaponShade,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, TILE_DEVISTATOR, weaponShade,
                                             weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
+                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, TILE_DEVISTATOR,
                                             weaponShade, weaponBits | 4, weaponPal);
                 }
                 break;
@@ -3051,13 +3051,13 @@ void P_DisplayWeapon(void)
                     }
                     weaponYOffset -= 16;
                     G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
-                                            FREEZE + 2, -32, weaponBits, weaponPal);
+                                            TILE_FREEZE + 2, -32, weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
-                                            FREEZE + 3 + freezerFrames[*weaponFrame % 6], -32, weaponBits, weaponPal);
+                                            TILE_FREEZE + 3 + freezerFrames[*weaponFrame % 6], -32, weaponBits, weaponPal);
                 }
                 else
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
-                                            FREEZE, weaponShade, weaponBits, weaponPal);
+                                            TILE_FREEZE, weaponShade, weaponBits, weaponPal);
                 break;
 
             case GROW_WEAPON__STATIC:
@@ -3072,15 +3072,15 @@ void P_DisplayWeapon(void)
                         // the 'at rest' display
                         if (currentWeapon == GROW_WEAPON)
                         {
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER - 2,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset, TILE_SHRINKER - 2,
                                                    weaponShade, weaponBits, weaponPal);
                             break;
                         }
                         else if (pPlayer->ammo_amount[currentWeapon] > 0)
                         {
-                            G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER + 2,
+                            G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset, TILE_SHRINKER + 2,
                                                           16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits, 0);
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset, TILE_SHRINKER,
                                                    weaponShade, weaponBits, weaponPal);
                             break;
                         }
@@ -3116,10 +3116,10 @@ void P_DisplayWeapon(void)
                     }
 
                     G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                                  SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0);
+                                                  TILE_SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0);
 
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                           SHRINKER + (currentWeapon == GROW_WEAPON ? -1 : 1), weaponShade, weaponBits, weaponPal);
+                                           TILE_SHRINKER + (currentWeapon == GROW_WEAPON ? -1 : 1), weaponShade, weaponBits, weaponPal);
 
                     break;
                 }
@@ -3133,17 +3133,17 @@ void P_DisplayWeapon(void)
                     }
 
                     G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                                    SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0);
+                                                    TILE_SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0);
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                            currentWeapon == GROW_WEAPON ? SHRINKER - 1 : SHRINKER + 1, weaponShade, weaponBits, weaponPal);
+                                            currentWeapon == GROW_WEAPON ? TILE_SHRINKER - 1 : TILE_SHRINKER + 1, weaponShade, weaponBits, weaponPal);
                 }
                 else
                 {
                     G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                                    SHRINKER + 2, 16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits,
+                                                    TILE_SHRINKER + 2, 16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits,
                                                     currentWeapon == GROW_WEAPON ? 2 : 0);
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                            currentWeapon == GROW_WEAPON ? SHRINKER - 2 : SHRINKER, weaponShade, weaponBits, weaponPal);
+                                            currentWeapon == GROW_WEAPON ? TILE_SHRINKER - 2 : TILE_SHRINKER, weaponShade, weaponBits, weaponPal);
                 }
                 break;
             }
@@ -4424,7 +4424,7 @@ static int32_t P_DoCounters(int playerNum)
             pPlayer->last_quick_kick = pPlayer->quick_kick + 1;
 
             if (--pPlayer->quick_kick == 8)
-                A_Shoot(pPlayer->i, KNEE);
+                A_Shoot(pPlayer->i, TILE_KNEE);
         }
         else if (pPlayer->last_quick_kick > 0)
             --pPlayer->last_quick_kick;
@@ -4601,7 +4601,7 @@ void P_DropWeapon(int const playerNum)
     {
         if (pPlayer->on_motorcycle)
         {
-            int const newSprite = A_Spawn(pPlayer->i, EMPTYBIKE);
+            int const newSprite = A_Spawn(pPlayer->i, TILE_EMPTYBIKE);
             sprite[newSprite].ang = fix16_to_int(pPlayer->q16ang);
             sprite[newSprite].owner = pPlayer->ammo_amount[MOTORCYCLE_WEAPON];
             pPlayer->on_motorcycle = 0;
@@ -4617,7 +4617,7 @@ void P_DropWeapon(int const playerNum)
         }
         else if (pPlayer->on_boat)
         {
-            int const newSprite = A_Spawn(pPlayer->i, EMPTYBOAT);
+            int const newSprite = A_Spawn(pPlayer->i, TILE_EMPTYBOAT);
             sprite[newSprite].ang = fix16_to_int(pPlayer->q16ang);
             sprite[newSprite].owner = pPlayer->ammo_amount[BOAT_WEAPON];
             pPlayer->on_boat = 0;
@@ -4645,7 +4645,7 @@ void P_DropWeapon(int const playerNum)
                 if (!RRRA) break;
                 fallthrough__;
             case RPG_WEAPON__STATIC:
-            case HANDBOMB_WEAPON__STATIC: A_Spawn(pPlayer->i, EXPLOSION2); break;
+            case HANDBOMB_WEAPON__STATIC: A_Spawn(pPlayer->i, TILE_EXPLOSION2); break;
         }
 
     if (RR)
@@ -4654,7 +4654,7 @@ void P_DropWeapon(int const playerNum)
         {
             if (pPlayer->keys[key] == 1)
             {
-                int const newSprite = A_Spawn(pPlayer->i, ACCESSCARD);
+                int const newSprite = A_Spawn(pPlayer->i, TILE_ACCESSCARD);
                 switch (key)
                 {
                     case 1:
@@ -4885,7 +4885,7 @@ static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
             }
             return;
         }
-        if (sprite[touchSprite].picnum == CACTUS)
+        if (sprite[touchSprite].picnum == TILE_CACTUS)
         {
             if (pPlayer->hurt_delay < 8)
             {
@@ -5113,13 +5113,13 @@ void P_FragPlayer(int playerNum)
         }
         else
         {
-            if (actor[pPlayer->i].picnum != APLAYERTOP)
+            if (actor[pPlayer->i].picnum != TILE_APLAYERTOP)
             {
                 pPlayer->fraggedself++;
                 if ((unsigned)pPlayer->wackedbyactor < MAXTILES && A_CheckEnemyTile(sprite[pPlayer->wackedbyactor].picnum))
                     Bsprintf(tempbuf, quoteMgr.GetQuote(OBITQUOTEINDEX + (krand2() % g_numObituaries)), "A monster",
                              &g_player[playerNum].user_name[0]);
-                else if (actor[pPlayer->i].picnum == NUKEBUTTON)
+                else if (actor[pPlayer->i].picnum == TILE_NUKEBUTTON)
                     Bsprintf(tempbuf, "^02%s^02 tried to leave", &g_player[playerNum].user_name[0]);
                 else
                 {
@@ -5312,7 +5312,7 @@ static void P_ProcessWeapon(int playerNum)
                             }
                             break;
                         }
-                        if (pPlayer->curr_weapon == BOWLINGBALL)
+                        if (pPlayer->curr_weapon == TILE_BOWLINGBALL)
                             break;
                         if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
                         {
@@ -5327,13 +5327,13 @@ static void P_ProcessWeapon(int playerNum)
                                 break;
 
                             if (hitData.wall >= 0 && wall[hitData.wall].overpicnum >= 0)
-                                if (wall[hitData.wall].overpicnum == BIGFORCE)
+                                if (wall[hitData.wall].overpicnum == TILE_BIGFORCE)
                                     break;
 
                             int spriteNum = headspritesect[hitData.sect];
                             while (spriteNum >= 0)
                             {
-                                if (sprite[spriteNum].picnum == TRIPBOMB && klabs(sprite[spriteNum].z - hitData.pos.z) < ZOFFSET4 &&
+                                if (sprite[spriteNum].picnum == TILE_TRIPBOMB && klabs(sprite[spriteNum].z - hitData.pos.z) < ZOFFSET4 &&
                                     ((sprite[spriteNum].x - hitData.pos.x) * (sprite[spriteNum].x - hitData.pos.x) +
                                         (sprite[spriteNum].y - hitData.pos.y) * (sprite[spriteNum].y - hitData.pos.y)) < (290 * 290))
                                     break;
@@ -5427,7 +5427,7 @@ static void P_ProcessWeapon(int playerNum)
                                 (*weaponFrame) = 1;
                             break;
                         }
-                        if (RRRA && pPlayer->curr_weapon == SLINGBLADE) break;
+                        if (RRRA && pPlayer->curr_weapon == TILE_SLINGBLADE) break;
                         if (pPlayer->quick_kick == 0)
                         {
                             (*weaponFrame) = 1;
@@ -5514,7 +5514,7 @@ static void P_ProcessWeapon(int playerNum)
                         int pipeSpriteNum = A_InsertSprite(pPlayer->cursectnum,
                                            pPlayer->pos.x+(sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]>>6),
                                            pPlayer->pos.y+(sintable[fix16_to_int(pPlayer->q16ang)&2047]>>6),
-                                           pPlayer->pos.z,HEAVYHBOMB,-16,9,9,
+                                           pPlayer->pos.z,TILE_HEAVYHBOMB,-16,9,9,
                                            fix16_to_int(pPlayer->q16ang),(pipeBombFwdVel+(pPlayer->hbomb_hold_delay<<5))*2,pipeBombZvel,pPlayer->i,1);
 
                         if (pipeBombFwdVel == 15)
@@ -5556,7 +5556,7 @@ static void P_ProcessWeapon(int playerNum)
             case PISTOL_WEAPON__STATIC:
                 if ((*weaponFrame) == 1)
                 {
-                    A_Shoot(pPlayer->i, SHOTSPARK1);
+                    A_Shoot(pPlayer->i, TILE_SHOTSPARK1);
                     A_PlaySound(PISTOL_FIRE, pPlayer->i);
                     pPlayer->noise_radius = 8192;
                     P_MadeNoise(playerNum);
@@ -5613,16 +5613,16 @@ static void P_ProcessWeapon(int playerNum)
                     pPlayer->shotgun_state[1] = 1;
                 if ((*weaponFrame) == 4)
                 {
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
 
                     pPlayer->ammo_amount[SHOTGUN_WEAPON]--;
 
@@ -5640,16 +5640,16 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     if (pPlayer->shotgun_state[1])
                     {
-                        A_Shoot(pPlayer->i, SHOTGUN);
-                        A_Shoot(pPlayer->i, SHOTGUN);
-                        A_Shoot(pPlayer->i, SHOTGUN);
-                        A_Shoot(pPlayer->i, SHOTGUN);
-                        A_Shoot(pPlayer->i, SHOTGUN);
-                        A_Shoot(pPlayer->i, SHOTGUN);
-                        A_Shoot(pPlayer->i, SHOTGUN);
-                        A_Shoot(pPlayer->i, SHOTGUN);
-                        A_Shoot(pPlayer->i, SHOTGUN);
-                        A_Shoot(pPlayer->i, SHOTGUN);
+                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
 
                         pPlayer->ammo_amount[SHOTGUN_WEAPON]--;
 
@@ -5726,7 +5726,7 @@ static void P_ProcessWeapon(int playerNum)
 
                         if (((*weaponFrame) % 3) == 0)
                         {
-                            spriteNum = A_Spawn(pPlayer->i, SHELL);
+                            spriteNum = A_Spawn(pPlayer->i, TILE_SHELL);
 
                             sprite[spriteNum].ang += 1024;
                             sprite[spriteNum].ang &= 2047;
@@ -5736,7 +5736,7 @@ static void P_ProcessWeapon(int playerNum)
                         }
 
                         A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
-                        A_Shoot(pPlayer->i, CHAINGUN);
+                        A_Shoot(pPlayer->i, TILE_CHAINGUN);
                         pPlayer->noise_radius = 8192;
                         P_MadeNoise(playerNum);
                         lastvisinc = (int32_t) totalclock + 32;
@@ -5779,7 +5779,7 @@ static void P_ProcessWeapon(int playerNum)
                         pus = 1;
                     }
 
-                    A_Shoot(pPlayer->i, GROWSPARK);
+                    A_Shoot(pPlayer->i, TILE_GROWSPARK);
 
                     pPlayer->noise_radius = 1024;
                     P_MadeNoise(playerNum);
@@ -5796,7 +5796,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     pPlayer->ammo_amount[SHRINKER_WEAPON]--;
 
-                    A_Shoot(pPlayer->i, SHRINKSPARK);
+                    A_Shoot(pPlayer->i, TILE_SHRINKSPARK);
                     P_CheckWeapon(pPlayer);
                 }
                 if (++(*weaponFrame) > 20)
@@ -5811,7 +5811,7 @@ static void P_ProcessWeapon(int playerNum)
                     flashColor = 255 + (95 << 8);
                     lastvisinc = (int32_t) totalclock + 32;
                     A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
-                    A_Shoot(pPlayer->i, SHOTSPARK1);
+                    A_Shoot(pPlayer->i, TILE_SHOTSPARK1);
                     pPlayer->noise_radius = 16384;
                     P_MadeNoise(playerNum);
                     pPlayer->ammo_amount[DEVISTATOR_WEAPON]--;
@@ -5840,7 +5840,7 @@ static void P_ProcessWeapon(int playerNum)
                     flashColor = 255 + (95 << 8);
                     lastvisinc = (int32_t) totalclock + 32;
                     A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
-                    A_Shoot(pPlayer->i, CHAINGUN);
+                    A_Shoot(pPlayer->i, TILE_CHAINGUN);
                     pPlayer->noise_radius = 16384;
                     P_MadeNoise(playerNum);
                     pPlayer->ammo_amount[MOTORCYCLE_WEAPON]--;
@@ -5869,7 +5869,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     pPlayer->moto_speed -= 20;
                     pPlayer->ammo_amount[BOAT_WEAPON]--;
-                    A_Shoot(pPlayer->i, RRTILE1790);
+                    A_Shoot(pPlayer->i, TILE_RRTILE1790);
                 }
                 (*weaponFrame)++;
                 if ((*weaponFrame) > 20)
@@ -5886,7 +5886,7 @@ static void P_ProcessWeapon(int playerNum)
             case FREEZE_WEAPON__STATIC:
                 (*weaponFrame)++;
                 if ((*weaponFrame) >= 7 && (*weaponFrame) <= 11)
-                    A_Shoot(pPlayer->i, FIRELASER);
+                    A_Shoot(pPlayer->i, TILE_FIRELASER);
 
                 if ((*weaponFrame) == 5)
                 {
@@ -5937,7 +5937,7 @@ static void P_ProcessWeapon(int playerNum)
                     A_InsertSprite(pPlayer->cursectnum,
                                    pPlayer->pos.x+(sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]>>6),
                                    pPlayer->pos.y+(sintable[fix16_to_int(pPlayer->q16ang)&2047]>>6),
-                                   pPlayer->pos.z,TRIPBOMBSPRITE,-16,9,9,
+                                   pPlayer->pos.z,TILE_TRIPBOMBSPRITE,-16,9,9,
                                    fix16_to_int(pPlayer->q16ang),FwdVel*2,Zvel,pPlayer->i,1);
                 }
                 (*weaponFrame)++;
@@ -5953,7 +5953,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     pPlayer->ammo_amount[BOWLINGBALL_WEAPON]--;
                     A_PlaySound(354, pPlayer->i);
-                    A_Shoot(pPlayer->i, BOWLINGBALL);
+                    A_Shoot(pPlayer->i, TILE_BOWLINGBALL);
                     pPlayer->noise_radius = 1024;
                     P_MadeNoise(playerNum);
                 }
@@ -5974,7 +5974,7 @@ static void P_ProcessWeapon(int playerNum)
 
                 if ((*weaponFrame) == 12)
                 {
-                    A_Shoot(pPlayer->i, KNEE);
+                    A_Shoot(pPlayer->i, TILE_KNEE);
                     pPlayer->noise_radius = 1024;
                     P_MadeNoise(playerNum);
                 }
@@ -5992,7 +5992,7 @@ static void P_ProcessWeapon(int playerNum)
 
                 if ((*weaponFrame) == 8)
                 {
-                    A_Shoot(pPlayer->i, SLINGBLADE);
+                    A_Shoot(pPlayer->i, TILE_SLINGBLADE);
                     pPlayer->noise_radius = 1024;
                     P_MadeNoise(playerNum);
                 }
@@ -6012,7 +6012,7 @@ static void P_ProcessWeapon(int playerNum)
                     lastvisinc = (int32_t) totalclock + 32;
                     pPlayer->visibility = 0;
                     flashColor = 255+(95<<8);
-                    A_Shoot(pPlayer->i, RPG);
+                    A_Shoot(pPlayer->i, TILE_RPG);
                     pPlayer->noise_radius = 32768;
                     P_MadeNoise(playerNum);
                     P_CheckWeapon(pPlayer);
@@ -6031,7 +6031,7 @@ static void P_ProcessWeapon(int playerNum)
                     lastvisinc = (int32_t) totalclock + 32;
                     pPlayer->visibility = 0;
                     flashColor = 255+(95<<8);
-                    A_Shoot(pPlayer->i, RPG2);
+                    A_Shoot(pPlayer->i, TILE_RPG2);
                     pPlayer->noise_radius = 32768;
                     P_MadeNoise(playerNum);
                     P_CheckWeapon(pPlayer);
@@ -6257,7 +6257,7 @@ static void P_ProcessWeapon(int playerNum)
                         int pipeSpriteNum = A_InsertSprite(pPlayer->cursectnum,
                                            pPlayer->pos.x+(sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]>>6),
                                            pPlayer->pos.y+(sintable[fix16_to_int(pPlayer->q16ang)&2047]>>6),
-                                           pPlayer->pos.z,HEAVYHBOMB,-16,9,9,
+                                           pPlayer->pos.z,TILE_HEAVYHBOMB,-16,9,9,
                                            fix16_to_int(pPlayer->q16ang),(pipeBombFwdVel+(pPlayer->hbomb_hold_delay<<5)),pipeBombZvel,pPlayer->i,1);
                         
                         if (NAM)
@@ -6323,7 +6323,7 @@ static void P_ProcessWeapon(int playerNum)
             case PISTOL_WEAPON__STATIC:
                 if ((*weaponFrame) == 1)
                 {
-                    A_Shoot(pPlayer->i, SHOTSPARK1);
+                    A_Shoot(pPlayer->i, TILE_SHOTSPARK1);
                     A_PlaySound(PISTOL_FIRE, pPlayer->i);
                     lastvisinc = (int32_t) totalclock+32;
                     pPlayer->visibility = 0;
@@ -6331,7 +6331,7 @@ static void P_ProcessWeapon(int playerNum)
                 }
                 else if ((*weaponFrame) == 2)
                 {
-                    A_Spawn(pPlayer->i, SHELL);
+                    A_Spawn(pPlayer->i, TILE_SHELL);
                 }
 
                 if (++(*weaponFrame) >= 5)
@@ -6365,13 +6365,13 @@ static void P_ProcessWeapon(int playerNum)
             case SHOTGUN_WEAPON__STATIC:
                 if (++(*weaponFrame) == 4)
                 {
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
-                    A_Shoot(pPlayer->i, SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
 
                     pPlayer->ammo_amount[SHOTGUN_WEAPON]--;
 
@@ -6395,7 +6395,7 @@ static void P_ProcessWeapon(int playerNum)
                     pPlayer->kickback_pic++;
                     break;
                 case 24:
-                    spriteNum = A_Spawn(pPlayer->i, SHOTGUNSHELL);
+                    spriteNum = A_Spawn(pPlayer->i, TILE_SHOTGUNSHELL);
                     sprite[spriteNum].ang += 1024;
                     A_SetSprite(spriteNum, CLIPMASK0);
                     sprite[spriteNum].ang += 1024;
@@ -6416,7 +6416,7 @@ static void P_ProcessWeapon(int playerNum)
 
                         if (((*weaponFrame) % 3) == 0)
                         {
-                            spriteNum = A_Spawn(pPlayer->i, SHELL);
+                            spriteNum = A_Spawn(pPlayer->i, TILE_SHELL);
 
                             sprite[spriteNum].ang += 1024;
                             sprite[spriteNum].ang &= 2047;
@@ -6426,7 +6426,7 @@ static void P_ProcessWeapon(int playerNum)
                         }
 
                         A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
-                        A_Shoot(pPlayer->i, CHAINGUN);
+                        A_Shoot(pPlayer->i, TILE_CHAINGUN);
                         lastvisinc = (int32_t) totalclock + 32;
                         pPlayer->visibility = 0;
                         flashColor = 255+(95<<8);
@@ -6471,7 +6471,7 @@ static void P_ProcessWeapon(int playerNum)
 
                     pPlayer->ammo_amount[GROW_WEAPON]--;
 
-                    A_Shoot(pPlayer->i, GROWSPARK);
+                    A_Shoot(pPlayer->i, TILE_GROWSPARK);
 
                     pPlayer->visibility = 0;
                     flashColor = 216+(52<<8)+(20<<16);
@@ -6508,7 +6508,7 @@ static void P_ProcessWeapon(int playerNum)
 
                     pPlayer->ammo_amount[SHRINKER_WEAPON]--;
 
-                    A_Shoot(pPlayer->i, SHRINKER);
+                    A_Shoot(pPlayer->i, TILE_SHRINKER);
 
                     if (!NAM)
                     {
@@ -6540,7 +6540,7 @@ static void P_ProcessWeapon(int playerNum)
                         pPlayer->visibility = 0;
                         flashColor = 255+(95<<8);
                         lastvisinc = (int32_t) totalclock + 32;
-                        A_Shoot(pPlayer->i, RPG);
+                        A_Shoot(pPlayer->i, TILE_RPG);
                         pPlayer->ammo_amount[DEVISTATOR_WEAPON]--;
                         P_CheckWeapon(pPlayer);
                     }
@@ -6560,7 +6560,7 @@ static void P_ProcessWeapon(int playerNum)
                         pPlayer->visibility = 0;
                         flashColor = 72+(88<<8)+(140<<16);
                         lastvisinc = (int32_t) totalclock + 32;
-                        A_Shoot(pPlayer->i, FREEZEBLAST);
+                        A_Shoot(pPlayer->i, TILE_FREEZEBLAST);
                         P_CheckWeapon(pPlayer);
                     }
                     if (sprite[pPlayer->i].xrepeat < 32)
@@ -6589,7 +6589,7 @@ static void P_ProcessWeapon(int playerNum)
                     pPlayer->vel.z = 0;
                     if ((*weaponFrame) == 3)
                     {
-                        A_Shoot(pPlayer->i, HANDHOLDINGLASER);
+                        A_Shoot(pPlayer->i, TILE_HANDHOLDINGLASER);
                     }
                 }
                 if ((*weaponFrame) == 16)
@@ -6607,7 +6607,7 @@ static void P_ProcessWeapon(int playerNum)
             case KNEE_WEAPON__STATIC:
                 if (++(*weaponFrame) == 7)
                 {
-                    A_Shoot(pPlayer->i, KNEE);
+                    A_Shoot(pPlayer->i, TILE_KNEE);
                 }
                 else if ((*weaponFrame) == 14)
                 {
@@ -6634,7 +6634,7 @@ static void P_ProcessWeapon(int playerNum)
                     lastvisinc = (int32_t) totalclock + 32;
                     pPlayer->visibility = 0;
                     flashColor = 255+(95<<8);
-                    A_Shoot(pPlayer->i, RPG);
+                    A_Shoot(pPlayer->i, TILE_RPG);
                     P_CheckWeapon(pPlayer);
                 }
                 else if ((*weaponFrame) == 20)
@@ -6681,7 +6681,7 @@ void P_EndLevel(void)
 
 static int P_DoFist(DukePlayer_t *pPlayer)
 {
-    // the fist punching NUKEBUTTON
+    // the fist punching TILE_NUKEBUTTON
 
     if (++(pPlayer->fist_incs) == 28)
     {
@@ -6820,7 +6820,7 @@ static void P_DoWater(int const playerNum, int const playerBits, int const floor
 
     if (pPlayer->scuba_on && (krand2()&255) < 8)
     {
-        int const spriteNum = A_Spawn(pPlayer->i, WATERBUBBLE);
+        int const spriteNum = A_Spawn(pPlayer->i, TILE_WATERBUBBLE);
         int const q16ang      = fix16_to_int(pPlayer->q16ang);
 
         sprite[spriteNum].x      += sintable[(q16ang + 512 + 64 - (g_globalRandom & 128)+(RR ? 128 : 0)) & 2047] >> 6;
@@ -7527,7 +7527,7 @@ void P_ProcessInput(int playerNum)
             while (spriteNum >= 0)
             {
                 int const nextSprite = nextspritesect[spriteNum];
-                if (sprite[spriteNum].picnum == RRTILE380)
+                if (sprite[spriteNum].picnum == TILE_RRTILE380)
                     if (sprite[spriteNum].z - ZOFFSET3 < pPlayer->pos.z)
                         sectorLotag = 2;
                 spriteNum = nextSprite;
@@ -7537,7 +7537,7 @@ void P_ProcessInput(int playerNum)
             if (ud.volume_number == 1 && ud.level_number == 6)
                 g_lastLevel = 1;
 
-        if (sectorLotag == 848 && sector[pPlayer->cursectnum].floorpicnum == WATERTILE2)
+        if (sectorLotag == 848 && sector[pPlayer->cursectnum].floorpicnum == TILE_WATERTILE2)
             sectorLotag = 1;
 
         if (sectorLotag == 857)
@@ -7580,7 +7580,7 @@ void P_ProcessInput(int playerNum)
         }
         if (RR)
         {
-            if (sprite[highZhit].picnum == RRTILE3587)
+            if (sprite[highZhit].picnum == TILE_RRTILE3587)
             {
                 if (!pPlayer->stairs)
                 {
@@ -7617,7 +7617,7 @@ void P_ProcessInput(int playerNum)
             {
                 if (A_CheckEnemySprite(&sprite[spriteNum]))
                 {
-                    actor[spriteNum].picnum = MOTOHIT;
+                    actor[spriteNum].picnum = TILE_MOTOHIT;
                     actor[spriteNum].extra = 2+(pPlayer->moto_speed>>1);
                     pPlayer->moto_speed -= pPlayer->moto_speed >> 4;
                 }
@@ -7626,7 +7626,7 @@ void P_ProcessInput(int playerNum)
             {
                 if (A_CheckEnemySprite(&sprite[spriteNum]))
                 {
-                    actor[spriteNum].picnum = MOTOHIT;
+                    actor[spriteNum].picnum = TILE_MOTOHIT;
                     actor[spriteNum].extra = 2+(pPlayer->moto_speed>>1);
                     pPlayer->moto_speed -= pPlayer->moto_speed >> 4;
                 }
@@ -7649,7 +7649,7 @@ check_enemy_sprite:
         }
         if (RR)
         {
-            if (sprite[spriteNum].picnum == RRTILE3587)
+            if (sprite[spriteNum].picnum == TILE_RRTILE3587)
             {
                 if (!pPlayer->stairs)
                 {
@@ -7664,7 +7664,7 @@ check_enemy_sprite:
                 else
                     pPlayer->stairs--;
             }
-            else if (sprite[spriteNum].picnum == TOILET || sprite[spriteNum].picnum == RRTILE2121)
+            else if (sprite[spriteNum].picnum == TILE_TOILET || sprite[spriteNum].picnum == TILE_RRTILE2121)
             {
                 if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
                 {
@@ -7832,7 +7832,7 @@ check_enemy_sprite:
     if (pPlayer->on_ground)
         pPlayer->bobcounter += sprite[pPlayer->i].xvel>>1;
 
-    if (ud.clipping == 0 && ((uint16_t)pPlayer->cursectnum >= MAXSECTORS || sector[pPlayer->cursectnum].floorpicnum == MIRROR))
+    if (ud.clipping == 0 && ((uint16_t)pPlayer->cursectnum >= MAXSECTORS || sector[pPlayer->cursectnum].floorpicnum == TILE_MIRROR))
     {
         pPlayer->pos.x = pPlayer->opos.x;
         pPlayer->pos.y = pPlayer->opos.y;
@@ -7905,19 +7905,19 @@ check_enemy_sprite:
                 if (pPlayer->on_ground == 1)
                 {
                     if (pPlayer->dummyplayersprite < 0)
-                        pPlayer->dummyplayersprite = A_Spawn(pPlayer->i,PLAYERONWATER);
+                        pPlayer->dummyplayersprite = A_Spawn(pPlayer->i,TILE_PLAYERONWATER);
 
                     pPlayer->footprintcount = 6;
                     //sprite[pPlayer->dummyplayersprite].cstat |= 32768;
                     //sprite[pPlayer->dummyplayersprite].pal = sprite[pPlayer->i].pal;
                     pPlayer->footprintpal                  = 0;
                     pPlayer->footprintshade                = 0;
-                    if (sector[pPlayer->cursectnum].floorpicnum == FLOORSLIME)
+                    if (sector[pPlayer->cursectnum].floorpicnum == TILE_FLOORSLIME)
                     {
                         pPlayer->footprintpal = 8;
                         pPlayer->footprintshade = 0;
                     }
-                    else if (RRRA && (sector[pPlayer->cursectnum].floorpicnum == RRTILE7756 || sector[pPlayer->cursectnum].floorpicnum == RRTILE7888))
+                    else if (RRRA && (sector[pPlayer->cursectnum].floorpicnum == TILE_RRTILE7756 || sector[pPlayer->cursectnum].floorpicnum == TILE_RRTILE7888))
                     {
                         pPlayer->footprintpal = 0;
                         pPlayer->footprintshade = 40;
@@ -7933,8 +7933,8 @@ check_enemy_sprite:
 
                 for (spriteNum = headspritesect[pPlayer->cursectnum]; spriteNum >= 0; spriteNum = nextspritesect[spriteNum])
                 {
-                    if (sprite[spriteNum].picnum == FOOTPRINTS || sprite[spriteNum].picnum == FOOTPRINTS2 ||
-                        sprite[spriteNum].picnum == FOOTPRINTS3 || sprite[spriteNum].picnum == FOOTPRINTS4)
+                    if (sprite[spriteNum].picnum == TILE_FOOTPRINTS || sprite[spriteNum].picnum == TILE_FOOTPRINTS2 ||
+                        sprite[spriteNum].picnum == TILE_FOOTPRINTS3 || sprite[spriteNum].picnum == TILE_FOOTPRINTS4)
                     {
                         if (klabs(sprite[spriteNum].x - pPlayer->pos.x) < 384 &&
                             klabs(sprite[spriteNum].y - pPlayer->pos.y) < 384)
@@ -7953,10 +7953,10 @@ check_enemy_sprite:
                         {
                             switch (krand2() & 3)
                             {
-                                case 0: spriteNum  = A_Spawn(pPlayer->i, FOOTPRINTS); break;
-                                case 1: spriteNum  = A_Spawn(pPlayer->i, FOOTPRINTS2); break;
-                                case 2: spriteNum  = A_Spawn(pPlayer->i, FOOTPRINTS3); break;
-                                default: spriteNum = A_Spawn(pPlayer->i, FOOTPRINTS4); break;
+                                case 0: spriteNum  = A_Spawn(pPlayer->i, TILE_FOOTPRINTS); break;
+                                case 1: spriteNum  = A_Spawn(pPlayer->i, TILE_FOOTPRINTS2); break;
+                                case 2: spriteNum  = A_Spawn(pPlayer->i, TILE_FOOTPRINTS3); break;
+                                default: spriteNum = A_Spawn(pPlayer->i, TILE_FOOTPRINTS4); break;
                             }
                             sprite[spriteNum].pal   = pPlayer->footprintpal;
                             sprite[spriteNum].shade = pPlayer->footprintshade;
@@ -8175,7 +8175,7 @@ check_enemy_sprite:
     {
         int const floorPicnum = sector[pSprite->sectnum].floorpicnum;
 
-        if (!RR && (floorPicnum == PURPLELAVA || sector[pSprite->sectnum].ceilingpicnum == PURPLELAVA))
+        if (!RR && (floorPicnum == TILE_PURPLELAVA || sector[pSprite->sectnum].ceilingpicnum == TILE_PURPLELAVA))
         {
             if (pPlayer->inv_amount[GET_BOOTS] > 0)
             {
@@ -8193,7 +8193,7 @@ check_enemy_sprite:
             }
         }
 
-        if (RRRA && pPlayer->on_ground && trueFloorDist <= PHEIGHT+ZOFFSET2 && (floorPicnum == RRTILE7768 || floorPicnum == RRTILE7820))
+        if (RRRA && pPlayer->on_ground && trueFloorDist <= PHEIGHT+ZOFFSET2 && (floorPicnum == TILE_RRTILE7768 || floorPicnum == TILE_RRTILE7820))
         {
             if ((krand2() & 3) == 1)
             {
@@ -8299,12 +8299,12 @@ check_enemy_sprite:
         {
             if (RRRA)
             {
-                if (sector[pPlayer->cursectnum].floorpicnum == RRTILE7888)
+                if (sector[pPlayer->cursectnum].floorpicnum == TILE_RRTILE7888)
                 {
                     if (pPlayer->on_motorcycle && pPlayer->on_ground)
                         pPlayer->moto_on_oil = 1;
                 }
-                else if (sector[pPlayer->cursectnum].floorpicnum == RRTILE7889)
+                else if (sector[pPlayer->cursectnum].floorpicnum == TILE_RRTILE7889)
                 {
                     if (pPlayer->on_motorcycle)
                     {
@@ -8320,7 +8320,7 @@ check_enemy_sprite:
                     }
                 }
             }
-            if (sector[pPlayer->cursectnum].floorpicnum == RRTILE3073 || sector[pPlayer->cursectnum].floorpicnum == RRTILE2702)
+            if (sector[pPlayer->cursectnum].floorpicnum == TILE_RRTILE3073 || sector[pPlayer->cursectnum].floorpicnum == TILE_RRTILE2702)
             {
                 if (RRRA && pPlayer->on_motorcycle)
                 {
@@ -8521,9 +8521,9 @@ HORIZONLY:;
                 
                 if (RRRA && pPlayer->on_motorcycle)
                 {
-                    if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == APLAYER)
+                    if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == TILE_APLAYER)
                     {
-                        if (sprite[spriteNum].picnum != APLAYER)
+                        if (sprite[spriteNum].picnum != TILE_APLAYER)
                         {
                             if (numplayers == 1)
                             {
@@ -8537,22 +8537,22 @@ HORIZONLY:;
                         }
                         else
                             actor[spriteNum].owner = pPlayer->i;
-                        actor[spriteNum].picnum = MOTOHIT;
+                        actor[spriteNum].picnum = TILE_MOTOHIT;
                         actor[spriteNum].extra = pPlayer->moto_speed>>1;
                         pPlayer->moto_speed -= pPlayer->moto_speed>>2;
                         pPlayer->moto_turb = 6;
                     }
-                    else if ((sprite[spriteNum].picnum == RRTILE2431 || sprite[spriteNum].picnum == RRTILE2443 || sprite[spriteNum].picnum == RRTILE2451 || sprite[spriteNum].picnum == RRTILE2455)
-                        && sprite[spriteNum].picnum != ACTIVATORLOCKED && pPlayer->moto_speed > 45)
+                    else if ((sprite[spriteNum].picnum == TILE_RRTILE2431 || sprite[spriteNum].picnum == TILE_RRTILE2443 || sprite[spriteNum].picnum == TILE_RRTILE2451 || sprite[spriteNum].picnum == TILE_RRTILE2455)
+                        && sprite[spriteNum].picnum != TILE_ACTIVATORLOCKED && pPlayer->moto_speed > 45)
                     {
                         A_PlaySound(SQUISHED,spriteNum);
-                        if (sprite[spriteNum].picnum == RRTILE2431 || sprite[spriteNum].picnum == RRTILE2451)
+                        if (sprite[spriteNum].picnum == TILE_RRTILE2431 || sprite[spriteNum].picnum == TILE_RRTILE2451)
                         {
                             if (sprite[spriteNum].lotag != 0)
                             {
                                 for(bssize_t otherSprite = 0; otherSprite < MAXSPRITES; otherSprite++)
                                 {
-                                    if ((sprite[otherSprite].picnum == RRTILE2431 || sprite[otherSprite].picnum == RRTILE2451) && sprite[otherSprite].pal == 4)
+                                    if ((sprite[otherSprite].picnum == TILE_RRTILE2431 || sprite[otherSprite].picnum == TILE_RRTILE2451) && sprite[otherSprite].pal == 4)
                                     {
                                         if (sprite[spriteNum].lotag == sprite[otherSprite].lotag)
                                         {
@@ -8562,21 +8562,21 @@ HORIZONLY:;
                                     }
                                 }
                             }
-                            A_DoGuts(spriteNum,RRTILE2460,12);
-                            A_DoGuts(spriteNum,RRTILE2465,3);
+                            A_DoGuts(spriteNum,TILE_RRTILE2460,12);
+                            A_DoGuts(spriteNum,TILE_RRTILE2465,3);
                         }
                         else
-                            A_DoGuts(spriteNum,RRTILE2465,3);
-                        A_DoGuts(spriteNum,RRTILE2465,3);
+                            A_DoGuts(spriteNum,TILE_RRTILE2465,3);
+                        A_DoGuts(spriteNum,TILE_RRTILE2465,3);
                         sprite[spriteNum].xrepeat = 0;
                         sprite[spriteNum].yrepeat = 0;
                     }
                 }
                 else if (RRRA && pPlayer->on_boat)
                 {
-                    if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == APLAYER)
+                    if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == TILE_APLAYER)
                     {
-                        if (sprite[spriteNum].picnum != APLAYER)
+                        if (sprite[spriteNum].picnum != TILE_APLAYER)
                         {
                             if (numplayers == 1)
                             {
@@ -8590,7 +8590,7 @@ HORIZONLY:;
                         }
                         else
                             actor[spriteNum].owner = pPlayer->i;
-                        actor[spriteNum].picnum = MOTOHIT;
+                        actor[spriteNum].picnum = TILE_MOTOHIT;
                         actor[spriteNum].extra = pPlayer->moto_speed>>2;
                         pPlayer->moto_speed -= pPlayer->moto_speed>>2;
                         pPlayer->moto_turb = 6;
@@ -8601,19 +8601,19 @@ HORIZONLY:;
                     if (sprite[spriteNum].statnum != STAT_ACTOR)
                     {
                         actor[spriteNum].timetosleep = 0;
-                        if (sprite[spriteNum].picnum == BILLYRAY)
+                        if (sprite[spriteNum].picnum == TILE_BILLYRAY)
                             A_PlaySound(404, spriteNum);
                         else
                             A_PlayAlertSound(spriteNum);
                         changespritestat(spriteNum, STAT_ACTOR);
                     }
                 }
-                if (sprite[spriteNum].picnum == RRTILE3410)
+                if (sprite[spriteNum].picnum == TILE_RRTILE3410)
                 {
                     P_QuickKill(pPlayer);
                     A_PlaySound(446, pPlayer->i);
                 }
-                else if (RRRA && sprite[spriteNum].picnum == RRTILE2443 && sprite[spriteNum].pal == 19)
+                else if (RRRA && sprite[spriteNum].picnum == TILE_RRTILE2443 && sprite[spriteNum].pal == 19)
                 {
                     sprite[spriteNum].pal = 0;
                     pPlayer->drug_mode = 5;
@@ -8797,8 +8797,8 @@ HORIZONLY:;
             if (pPlayer->actorsqu >= 0 && sprite[pPlayer->actorsqu].statnum != MAXSTATUS &&
                 dist(&sprite[pPlayer->i], &sprite[pPlayer->actorsqu]) < 1400)
             {
-                A_DoGuts(pPlayer->actorsqu, JIBS6, 7);
-                A_Spawn(pPlayer->actorsqu, BLOODPOOL);
+                A_DoGuts(pPlayer->actorsqu, TILE_JIBS6, 7);
+                A_Spawn(pPlayer->actorsqu, TILE_BLOODPOOL);
                 A_PlaySound(SQUISHED, pPlayer->actorsqu);
                 switch (DYNAMICTILEMAP(sprite[pPlayer->actorsqu].picnum))
                 {
@@ -9057,7 +9057,7 @@ void P_DHProcessInput(int playerNum)
     if (pPlayer->on_ground)
         pPlayer->bobcounter += sprite[pPlayer->i].xvel>>1;
 
-    if (ud.clipping == 0 && ((uint16_t)pPlayer->cursectnum >= MAXSECTORS || sector[pPlayer->cursectnum].floorpicnum == MIRROR))
+    if (ud.clipping == 0 && ((uint16_t)pPlayer->cursectnum >= MAXSECTORS || sector[pPlayer->cursectnum].floorpicnum == TILE_MIRROR))
     {
         pPlayer->pos.x = pPlayer->opos.x;
         pPlayer->pos.y = pPlayer->opos.y;

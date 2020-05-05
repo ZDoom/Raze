@@ -189,7 +189,7 @@ static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum,
     int userflags = snd ? snd[kFlags] : 0;
     int dist_adjust = snd ? snd[kVolAdjust] : 0;
 
-    if (PN(spriteNum) != APLAYER || P_Get(spriteNum) != screenpeek)
+    if (PN(spriteNum) != TILE_APLAYER || P_Get(spriteNum) != screenpeek)
     {
         orgsndist = sndist = FindDistance3D(cam->x - pos->x, cam->y - pos->y, (cam->z - pos->z));
 
@@ -201,7 +201,7 @@ static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum,
     if (sndist < 0)
         sndist = 0;
 
-    if (sectNum > -1 && sndist && PN(spriteNum) != MUSICANDSFX
+    if (sectNum > -1 && sndist && PN(spriteNum) != TILE_MUSICANDSFX
         && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (24 << 8), SECT(spriteNum)))
         sndist += sndist>>(RR?2:5);
 
@@ -377,7 +377,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
     // Duke talk
     if (userflags & SF_TALK)
     {
-        if ((g_netServer || ud.multimode > 1) && PN(spriteNum) == APLAYER && P_Get(spriteNum) != screenpeek) // other player sound
+        if ((g_netServer || ud.multimode > 1) && PN(spriteNum) == TILE_APLAYER && P_Get(spriteNum) != screenpeek) // other player sound
         {
             if ((snd_speech & 4) != 4)
                 return -1;
@@ -425,7 +425,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
     }
     else
     {
-        if (sndist > 32767 && PN(spriteNum) != MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
+        if (sndist > 32767 && PN(spriteNum) != TILE_MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
             return -1;
 
         if (pOther->cursectnum > -1 && sector[pOther->cursectnum].lotag == ST_2_UNDERWATER
@@ -434,7 +434,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
     }
 
     bool is_playing = soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, sndnum+1);
-    if (is_playing &&  PN(spriteNum) != MUSICANDSFX)
+    if (is_playing &&  PN(spriteNum) != TILE_MUSICANDSFX)
         S_StopEnvSound(sndnum, spriteNum);
 
     int const repeatp = (userflags & SF_LOOP);

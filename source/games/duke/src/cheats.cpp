@@ -824,7 +824,7 @@ void G_DoCheats(void)
                 case CHEAT_RAKFC:
                     for (int i = 0; i < 7; i++)
                     {
-                        int const newSprite = A_Spawn(pPlayer->i, HEN);
+                        int const newSprite = A_Spawn(pPlayer->i, TILE_HEN);
                         sprite[newSprite].pal = 1;
                         sprite[newSprite].xrepeat <<= 2;
                         sprite[newSprite].yrepeat <<= 2;

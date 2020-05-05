@@ -357,7 +357,7 @@ int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
 void P_MadeNoise(int playerNum);
 int P_HasKey(int sectNum, int playerNum);
 
-// Get the player index given an APLAYER sprite pointer.
+// Get the player index given an TILE_APLAYER sprite pointer.
 static inline int P_GetP(const void *pSprite)
 {
 #if 0  // unprotected player index retrieval
@@ -379,7 +379,7 @@ static inline int P_GetP(const void *pSprite)
 #endif
 }
 
-// Get the player index given an APLAYER sprite index.
+// Get the player index given an TILE_APLAYER sprite index.
 static inline int P_Get(int32_t spriteNum) { return P_GetP((const uspritetype *)&sprite[spriteNum]); }
 
 END_DUKE_NS

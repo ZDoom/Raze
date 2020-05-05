@@ -269,7 +269,7 @@ void G_OffMotorcycle(DukePlayer_t *pPlayer)
         pPlayer->vel.x -= sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]<<7;
         pPlayer->vel.y -= sintable[fix16_to_int(pPlayer->q16ang)&2047]<<7;
         pPlayer->moto_underwater = 0;
-        j = A_Spawn(pPlayer->i, EMPTYBIKE);
+        j = A_Spawn(pPlayer->i, TILE_EMPTYBIKE);
         sprite[j].ang = fix16_to_int(pPlayer->q16ang);
         sprite[j].xvel += sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]<<7;
         sprite[j].yvel += sintable[fix16_to_int(pPlayer->q16ang)&2047]<<7;
@@ -322,7 +322,7 @@ void G_OffBoat(DukePlayer_t *pPlayer)
         pPlayer->vel.x -= sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]<<7;
         pPlayer->vel.y -= sintable[fix16_to_int(pPlayer->q16ang)&2047]<<7;
         pPlayer->moto_underwater = 0;
-        j = A_Spawn(pPlayer->i, EMPTYBOAT);
+        j = A_Spawn(pPlayer->i, TILE_EMPTYBOAT);
         sprite[j].ang = fix16_to_int(pPlayer->q16ang);
         sprite[j].xvel += sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]<<7;
         sprite[j].yvel += sintable[fix16_to_int(pPlayer->q16ang)&2047]<<7;
@@ -604,7 +604,7 @@ static void G_OROR_DupeSprites(const spritetype *sp)
         if (spritesortcnt >= maxspritesonscreen)
             break;
 
-        if (sprite[k].picnum != SECTOREFFECTOR && sprite[k].z >= sp->z)
+        if (sprite[k].picnum != TILE_SECTOREFFECTOR && sprite[k].z >= sp->z)
         {
             tspriteptr_t tsp = renderAddTSpriteFromSprite(k);
 
@@ -737,7 +737,7 @@ static void G_SE40(int32_t smoothratio)
 
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz, int32_t smoothratio)
 {
-    if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
+    if ((gotpic[TILE_MIRROR>>3]&(1<<(TILE_MIRROR&7)))
 #ifdef POLYMER
         && (videoGetRenderMode() != REND_POLYMER)
 #endif
@@ -745,9 +745,9 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
     {
         if (g_mirrorCount == 0)
         {
-            // NOTE: We can have g_mirrorCount==0 but gotpic'd MIRROR,
+            // NOTE: We can have g_mirrorCount==0 but gotpic'd TILE_MIRROR,
             // for example in LNGA2.
-            gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+            gotpic[TILE_MIRROR>>3] &= ~(1<<(TILE_MIRROR&7));
             return;
         }
 
@@ -766,7 +766,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
                 dst = j, i = k;
         }
 
-        if (wall[g_mirrorWall[i]].overpicnum != MIRROR)
+        if (wall[g_mirrorWall[i]].overpicnum != TILE_MIRROR)
         {
             // Try to find a new mirror wall in case the original one was broken.
 
@@ -776,7 +776,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             for (bssize_t k=startwall; k<endwall; k++)
             {
                 int32_t j = wall[k].nextwall;
-                if (j >= 0 && (wall[j].cstat&32) && wall[j].overpicnum==MIRROR)  // cmp. premap.c
+                if (j >= 0 && (wall[j].cstat&32) && wall[j].overpicnum==TILE_MIRROR)  // cmp. premap.c
                 {
                     g_mirrorWall[i] = j;
                     break;
@@ -784,7 +784,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             }
         }
 
-        if (wall[g_mirrorWall[i]].overpicnum == MIRROR)
+        if (wall[g_mirrorWall[i]].overpicnum == TILE_MIRROR)
         {
             int32_t tposx, tposy;
             fix16_t tang;
@@ -814,7 +814,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             // XXX: fix the sequence of setting/clearing this bit. Right now,
             // we always draw one frame without drawing the mirror, after which
             // the bit gets set and drawn subsequently.
-            gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+            gotpic[TILE_MIRROR>>3] &= ~(1<<(TILE_MIRROR&7));
         }
     }
 }
@@ -1135,7 +1135,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         dr_viewingrange = viewingrange;
         dr_yxaspect = yxaspect;
 #ifdef DEBUG_MIRRORS_ONLY
-        gotpic[MIRROR>>3] |= (1<<(MIRROR&7));
+        gotpic[TILE_MIRROR>>3] |= (1<<(TILE_MIRROR&7));
 #else
         if (RR && sector[CAMERA(sect)].lotag == 848)
         {
@@ -1449,7 +1449,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
         pActor->picnum = pSprite->picnum;
 
-        if (pSprite->picnum == SECTOREFFECTOR && pSprite->lotag == 50)
+        if (pSprite->picnum == TILE_SECTOREFFECTOR && pSprite->lotag == 50)
             pActor->picnum = pSprite->owner;
 
         pSprite->owner = pActor->owner = newSprite;
@@ -1464,21 +1464,21 @@ int A_Spawn(int spriteNum, int tileNum)
 #endif
 
         if ((pSprite->cstat & 48)
-            && (RR || (pSprite->picnum != SPEAKER
-            && pSprite->picnum != LETTER
-            && pSprite->picnum != DUCK
-            && pSprite->picnum != TARGET
-            && pSprite->picnum != TRIPBOMB
-            && pSprite->picnum != VIEWSCREEN
-            && pSprite->picnum != VIEWSCREEN2))
-            && (!(pSprite->picnum >= CRACK1 && pSprite->picnum <= CRACK4)))
+            && (RR || (pSprite->picnum != TILE_SPEAKER
+            && pSprite->picnum != TILE_LETTER
+            && pSprite->picnum != TILE_DUCK
+            && pSprite->picnum != TILE_TARGET
+            && pSprite->picnum != TILE_TRIPBOMB
+            && pSprite->picnum != TILE_VIEWSCREEN
+            && pSprite->picnum != TILE_VIEWSCREEN2))
+            && (!(pSprite->picnum >= TILE_CRACK1 && pSprite->picnum <= TILE_CRACK4)))
         {
             if (pSprite->shade == 127)
                 goto SPAWN_END;
 
             if (A_CheckSwitchTile(newSprite) && (pSprite->cstat & 16))
             {
-                if (pSprite->pal && pSprite->picnum != ACCESSSWITCH && pSprite->picnum != ACCESSSWITCH2)
+                if (pSprite->pal && pSprite->picnum != TILE_ACCESSSWITCH && pSprite->picnum != TILE_ACCESSSWITCH2)
                 {
                     if (((!g_netServer && ud.multimode < 2)) || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_DMSWITCHES)))
                     {
@@ -1491,7 +1491,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
                 pSprite->cstat |= 257;
 
-                if (pSprite->pal && pSprite->picnum != ACCESSSWITCH && pSprite->picnum != ACCESSSWITCH2)
+                if (pSprite->pal && pSprite->picnum != TILE_ACCESSSWITCH && pSprite->picnum != TILE_ACCESSSWITCH2)
                     pSprite->pal = 0;
 
                 goto SPAWN_END;
@@ -1519,17 +1519,17 @@ int A_Spawn(int spriteNum, int tileNum)
 
     //some special cases that can't be handled through the dynamictostatic system.
 
-    if (pSprite->picnum >= CAMERA1 && pSprite->picnum <= CAMERA1 + 4)
-        pSprite->picnum = CAMERA1;
-    else if (pSprite->picnum >= BOLT1 && pSprite->picnum <= BOLT1 + 3)
-        pSprite->picnum = BOLT1;
-    else if (!RR && pSprite->picnum >= SIDEBOLT1 && pSprite->picnum <= SIDEBOLT1 + 3)
-        pSprite->picnum = SIDEBOLT1;
-    if (DEER && pSprite->picnum != APLAYER && pSprite->picnum != RRTILE7936)
+    if (pSprite->picnum >= TILE_CAMERA1 && pSprite->picnum <= TILE_CAMERA1 + 4)
+        pSprite->picnum = TILE_CAMERA1;
+    else if (pSprite->picnum >= TILE_BOLT1 && pSprite->picnum <= TILE_BOLT1 + 3)
+        pSprite->picnum = TILE_BOLT1;
+    else if (!RR && pSprite->picnum >= TILE_SIDEBOLT1 && pSprite->picnum <= TILE_SIDEBOLT1 + 3)
+        pSprite->picnum = TILE_SIDEBOLT1;
+    if (DEER && pSprite->picnum != TILE_APLAYER && pSprite->picnum != TILE_RRTILE7936)
     {
         goto default_case;
     }
-    else if (RRRA && pSprite->picnum == PIG+11)
+    else if (RRRA && pSprite->picnum == TILE_PIG+11)
     {
         pSprite->xrepeat = 16;
         pSprite->yrepeat = 16;
@@ -1576,7 +1576,7 @@ default_case:
 
                     if (spriteNum >= 0)
                     {
-                        if (sprite[spriteNum].picnum == RESPAWN)
+                        if (sprite[spriteNum].picnum == TILE_RESPAWN)
                             pActor->tempang = sprite[newSprite].pal = sprite[spriteNum].pal;
 
                         A_PlayAlertSound(newSprite);
@@ -1748,7 +1748,7 @@ default_case:
                     pSprite->z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
             }
 
-            if (sector[sectNum].floorpicnum == FLOORSLIME || sector[sectNum].ceilingpicnum == FLOORSLIME)
+            if (sector[sectNum].floorpicnum == TILE_FLOORSLIME || sector[sectNum].ceilingpicnum == TILE_FLOORSLIME)
                 pSprite->pal = 7;
             fallthrough__;
         case NEON1__STATIC:
@@ -1758,13 +1758,13 @@ default_case:
         case NEON5__STATIC:
         case NEON6__STATIC:
         case DOMELITE__STATIC:
-            if (pSprite->picnum != WATERSPLASH2)
+            if (pSprite->picnum != TILE_WATERSPLASH2)
                 pSprite->cstat |= 257;
             fallthrough__;
         case NUKEBUTTON__STATIC:
-            if (RR && pSprite->picnum == NUKEBUTTON)
+            if (RR && pSprite->picnum == TILE_NUKEBUTTON)
                 goto default_case;
-            if (pSprite->picnum == DOMELITE)
+            if (pSprite->picnum == TILE_DOMELITE)
                 pSprite->cstat |= 257;
             fallthrough__;
         case JIBS1__STATIC:
@@ -1776,7 +1776,7 @@ default_case:
         case DUKETORSO__STATIC:
         case DUKEGUN__STATIC:
         case DUKELEG__STATIC:
-            if (RR && pSprite->picnum == JIBS6)
+            if (RR && pSprite->picnum == TILE_JIBS6)
             {
                 pSprite->xrepeat >>= 1;
                 pSprite->yrepeat >>= 1;
@@ -1813,17 +1813,17 @@ default_case:
         case MAMAJIBA__STATICRR:
         case MAMAJIBB__STATICRR:
             if (!RRRA) goto default_case;
-            if (pSprite->picnum == RABBITJIBA)
+            if (pSprite->picnum == TILE_RABBITJIBA)
             {
                 pSprite->xrepeat = 18;
                 pSprite->yrepeat = 18;
             }
-            else if (pSprite->picnum == RABBITJIBB)
+            else if (pSprite->picnum == TILE_RABBITJIBB)
             {
                 pSprite->xrepeat = 36;
                 pSprite->yrepeat = 36;
             }
-            else if (pSprite->picnum == RABBITJIBC)
+            else if (pSprite->picnum == TILE_RABBITJIBC)
             {
                 pSprite->xrepeat = 54;
                 pSprite->yrepeat = 54;
@@ -1858,7 +1858,7 @@ default_case:
         case TRANSPORTERSTAR__STATIC:
         case TRANSPORTERBEAM__STATIC:
             if (spriteNum == -1) break;
-            if (pSprite->picnum == TRANSPORTERBEAM)
+            if (pSprite->picnum == TILE_TRANSPORTERBEAM)
             {
                 pSprite->xrepeat = 31;
                 pSprite->yrepeat = 1;
@@ -1892,8 +1892,8 @@ default_case:
             {
                 pSprite->xrepeat = sprite[spriteNum].xrepeat;
                 pSprite->yrepeat = sprite[spriteNum].yrepeat;
-                if (RR && sprite[spriteNum].picnum == APLAYER)
-                    T2(newSprite) = SMALLSMOKE;
+                if (RR && sprite[spriteNum].picnum == TILE_APLAYER)
+                    T2(newSprite) = TILE_SMALLSMOKE;
                 else
                     T2(newSprite) = sprite[spriteNum].picnum;
             }
@@ -1945,7 +1945,7 @@ default_case:
         case BLOODPOOL__STATIC:
         case PUKE__STATIC:
         {
-            if (RR && pSprite->picnum == PUKE) goto default_case;
+            if (RR && pSprite->picnum == TILE_PUKE) goto default_case;
             int16_t pukeSect = pSprite->sectnum;
 
             updatesector(pSprite->x + 108, pSprite->y + 108, &pukeSect);
@@ -1979,16 +1979,16 @@ default_case:
                 break;
             }
 
-            if (spriteNum >= 0 && (RR || pSprite->picnum != PUKE))
+            if (spriteNum >= 0 && (RR || pSprite->picnum != TILE_PUKE))
             {
                 if (sprite[spriteNum].pal == 1)
                     pSprite->pal = 1;
-                else if (sprite[spriteNum].pal != 6 && sprite[spriteNum].picnum != NUKEBARREL && sprite[spriteNum].picnum != TIRE)
-                    pSprite->pal = (!RR && sprite[spriteNum].picnum == FECES) ? 7 : 2;  // Brown or red
+                else if (sprite[spriteNum].pal != 6 && sprite[spriteNum].picnum != TILE_NUKEBARREL && sprite[spriteNum].picnum != TILE_TIRE)
+                    pSprite->pal = (!RR && sprite[spriteNum].picnum == TILE_FECES) ? 7 : 2;  // Brown or red
                 else
                     pSprite->pal = 0;  // green
 
-                if (sprite[spriteNum].picnum == TIRE)
+                if (sprite[spriteNum].picnum == TILE_TIRE)
                     pSprite->shade = 127;
             }
             pSprite->cstat |= 32;
@@ -2012,7 +2012,7 @@ rrbloodpool_fallthrough:
             pSprite->yrepeat = 7 + (krand2() & 7);
             pSprite->z -= ZOFFSET2;
 
-            if (pSprite->picnum == BLOODPOOL)
+            if (pSprite->picnum == TILE_BLOODPOOL)
                 pSprite->cstat |= 32768;
 
             if (spriteNum >= 0 && sprite[spriteNum].pal == 6)
@@ -2124,7 +2124,7 @@ rrbloodpool_fallthrough:
             pSprite->cstat |= 257;
             fallthrough__;
         case OCEANSPRITE4__STATIC:
-            if (RR && pSprite->picnum == OCEANSPRITE4) goto default_case;
+            if (RR && pSprite->picnum == TILE_OCEANSPRITE4) goto default_case;
             changespritestat(newSprite, STAT_DEFAULT);
             break;
         case FEMMAG1__STATIC:
@@ -2239,7 +2239,7 @@ rrbloodpool_fallthrough:
             pSprite->hitag = -1;
             fallthrough__;
         case BLOODYPOLE__STATIC:
-            if (RR && pSprite->picnum == BLOODYPOLE) goto default_case;
+            if (RR && pSprite->picnum == TILE_BLOODYPOLE) goto default_case;
             pSprite->cstat   |= 257;
             pSprite->clipdist = 32;
             changespritestat(newSprite, STAT_ZOMBIEACTOR);
@@ -2335,7 +2335,7 @@ rrbloodpool_fallthrough:
             break;
 
         case DUKELYINGDEAD__STATIC:
-            if (spriteNum >= 0 && sprite[spriteNum].picnum == APLAYER)
+            if (spriteNum >= 0 && sprite[spriteNum].picnum == TILE_APLAYER)
             {
                 pSprite->xrepeat = sprite[spriteNum].xrepeat;
                 pSprite->yrepeat = sprite[spriteNum].yrepeat;
@@ -2345,15 +2345,15 @@ rrbloodpool_fallthrough:
             fallthrough__;
         case DUKECAR__STATIC:
         case HELECOPT__STATIC:
-            //                if(sp->picnum == HELECOPT || sp->picnum == DUKECAR) sp->xvel = 1024;
-            if (RR && (pSprite->picnum == DUKECAR || pSprite->picnum == HELECOPT)) goto default_case;
+            //                if(sp->picnum == TILE_HELECOPT || sp->picnum == TILE_DUKECAR) sp->xvel = 1024;
+            if (RR && (pSprite->picnum == TILE_DUKECAR || pSprite->picnum == TILE_HELECOPT)) goto default_case;
             pSprite->cstat = 0;
             pSprite->extra = 1;
             pSprite->xvel  = 292;
             pSprite->zvel  = 360;
             fallthrough__;
         case BLIMP__STATIC:
-            if (RR && pSprite->picnum == BLIMP) goto default_case;
+            if (RR && pSprite->picnum == TILE_BLIMP) goto default_case;
             pSprite->cstat   |= 257;
             pSprite->clipdist = 128;
             changespritestat(newSprite, STAT_ACTOR);
@@ -2392,7 +2392,7 @@ rrbloodpool_fallthrough:
         case MONEY__STATIC:
         case MAIL__STATIC:
         case PAPER__STATIC:
-            if (RR && (pSprite->picnum == MAIL || pSprite->picnum == PAPER)) goto default_case;
+            if (RR && (pSprite->picnum == TILE_MAIL || pSprite->picnum == TILE_PAPER)) goto default_case;
             pActor->t_data[0] = krand2() & 2047;
 
             pSprite->cstat   = krand2() & 12;
@@ -2417,7 +2417,7 @@ rrbloodpool_fallthrough:
             {
                 int shellAng;
 
-                if (sprite[spriteNum].picnum == APLAYER)
+                if (sprite[spriteNum].picnum == TILE_APLAYER)
                 {
                     int const                 playerNum = P_Get(spriteNum);
                     const DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
@@ -2428,7 +2428,7 @@ rrbloodpool_fallthrough:
 
                     pSprite->z = (3 << 8) + pPlayer->pyoff + pPlayer->pos.z - (fix16_to_int((pPlayer->q16horizoff + pPlayer->q16horiz - F16(100))) << 4);
 
-                    if (pSprite->picnum == SHOTGUNSHELL)
+                    if (pSprite->picnum == TILE_SHOTGUNSHELL)
                         pSprite->z += (3 << 8);
 
                     pSprite->zvel = -(krand2() & 255);
@@ -2454,7 +2454,7 @@ rrbloodpool_fallthrough:
                     pSprite->xvel = 20;
                 }
 
-                if (RR && pSprite->picnum == SHELL)
+                if (RR && pSprite->picnum == TILE_SHELL)
                     pSprite->xrepeat = pSprite->yrepeat = 2;
                 else
                     pSprite->xrepeat = pSprite->yrepeat = 4;
@@ -2496,8 +2496,8 @@ rrbloodpool_fallthrough:
         case SMALLSMOKE__STATIC:
         case SHRINKEREXPLOSION__STATIC:
         case COOLEXPLOSION1__STATIC:
-            if (RR && (pSprite->picnum == EXPLOSION2BOT || pSprite->picnum == BURNING2
-                || pSprite->picnum == SHRINKEREXPLOSION || pSprite->picnum == COOLEXPLOSION1)) goto default_case;
+            if (RR && (pSprite->picnum == TILE_EXPLOSION2BOT || pSprite->picnum == TILE_BURNING2
+                || pSprite->picnum == TILE_SHRINKEREXPLOSION || pSprite->picnum == TILE_COOLEXPLOSION1)) goto default_case;
             if (spriteNum >= 0)
             {
                 pSprite->ang = sprite[spriteNum].ang;
@@ -2505,26 +2505,26 @@ rrbloodpool_fallthrough:
                 pSprite->cstat = 128|(krand2()&4);
             }
 
-            if (pSprite->picnum == EXPLOSION2 || (!RR && pSprite->picnum == EXPLOSION2BOT))
+            if (pSprite->picnum == TILE_EXPLOSION2 || (!RR && pSprite->picnum == TILE_EXPLOSION2BOT))
             {
                 pSprite->xrepeat = pSprite->yrepeat = 48;
                 pSprite->shade = -127;
                 pSprite->cstat |= 128;
             }
-            else if (RR && pSprite->picnum == EXPLOSION3)
+            else if (RR && pSprite->picnum == TILE_EXPLOSION3)
             {
                 pSprite->xrepeat = pSprite->yrepeat = 128;
                 pSprite->shade = -127;
                 pSprite->cstat |= 128;
             }
-            else if (!RR && pSprite->picnum == SHRINKEREXPLOSION)
+            else if (!RR && pSprite->picnum == TILE_SHRINKEREXPLOSION)
                 pSprite->xrepeat = pSprite->yrepeat = 32;
-            else if (pSprite->picnum == SMALLSMOKE)
+            else if (pSprite->picnum == TILE_SMALLSMOKE)
             {
                 // 64 "money"
                 pSprite->xrepeat = pSprite->yrepeat = RR ? 12 : 24;
             }
-            else if (pSprite->picnum == BURNING || (!RR && pSprite->picnum == BURNING2))
+            else if (pSprite->picnum == TILE_BURNING || (!RR && pSprite->picnum == TILE_BURNING2))
                 pSprite->xrepeat = pSprite->yrepeat = 4;
 
             pSprite->cstat |= 8192;
@@ -2567,7 +2567,7 @@ rrbloodpool_fallthrough:
         case WATERBUBBLE__STATIC:
             if (spriteNum >= 0)
             {
-                if (sprite[spriteNum].picnum == APLAYER)
+                if (sprite[spriteNum].picnum == TILE_APLAYER)
                     pSprite->z -= (16 << 8);
 
                 pSprite->ang = sprite[spriteNum].ang;
@@ -2595,7 +2595,7 @@ rrbloodpool_fallthrough:
 
                 do
                 {
-                    if (sprite[findSprite].picnum == CRANEPOLE && pSprite->hitag == (sprite[findSprite].hitag))
+                    if (sprite[findSprite].picnum == TILE_CRANEPOLE && pSprite->hitag == (sprite[findSprite].hitag))
                     {
                         g_origins[tempwallptr + 2].y = findSprite;
 
@@ -2652,7 +2652,7 @@ rrbloodpool_fallthrough:
             }
             fallthrough__;
         case WATERDRIPSPLASH__STATIC:
-            if (RR && pSprite->picnum == WATERDRIPSPLASH) goto default_case;
+            if (RR && pSprite->picnum == TILE_WATERDRIPSPLASH) goto default_case;
             pSprite->xrepeat = pSprite->yrepeat = 24;
             changespritestat(newSprite, STAT_STANDABLE);
             break;
@@ -2675,10 +2675,10 @@ rrbloodpool_fallthrough:
             }
             fallthrough__;
         case WATERBUBBLEMAKER__STATIC:
-            if (EDUKE32_PREDICT_FALSE(pSprite->hitag && pSprite->picnum == WATERBUBBLEMAKER))
+            if (EDUKE32_PREDICT_FALSE(pSprite->hitag && pSprite->picnum == TILE_WATERBUBBLEMAKER))
             {
                 // JBF 20030913: Pisses off X_Move(), eg. in bobsp2
-                Printf(TEXTCOLOR_RED "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
+                Printf(TEXTCOLOR_RED "WARNING: TILE_WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
                            newSprite,TrackerCast(pSprite->x),TrackerCast(pSprite->y));
                 pSprite->hitag = 0;
             }
@@ -2688,7 +2688,7 @@ rrbloodpool_fallthrough:
 
         case BOLT1__STATIC:
         case SIDEBOLT1__STATIC:
-            if (RR && pSprite->picnum >= SIDEBOLT1 && pSprite->picnum <= SIDEBOLT1+3) goto default_case;
+            if (RR && pSprite->picnum >= TILE_SIDEBOLT1 && pSprite->picnum <= TILE_SIDEBOLT1+3) goto default_case;
             T1(newSprite) = pSprite->xrepeat;
             T2(newSprite) = pSprite->yrepeat;
             pSprite->yvel = 0;
@@ -2697,7 +2697,7 @@ rrbloodpool_fallthrough:
             break;
 
         case MASTERSWITCH__STATIC:
-            if (pSprite->picnum == MASTERSWITCH)
+            if (pSprite->picnum == TILE_MASTERSWITCH)
                 pSprite->cstat |= 32768;
             pSprite->yvel = 0;
             changespritestat(newSprite, STAT_STANDABLE);
@@ -2730,7 +2730,7 @@ rrbloodpool_fallthrough:
         case ROTATEGUN__STATIC:
         case GREENSLIME__STATIC:
             if (RR) goto default_case;
-            if (pSprite->picnum == GREENSLIME)
+            if (pSprite->picnum == TILE_GREENSLIME)
                 pSprite->extra = 1;
             fallthrough__;
         case DRONE__STATIC:
@@ -2753,7 +2753,7 @@ rrbloodpool_fallthrough:
         case SHARK__STATIC:
             if (RR)
             {
-                if (pSprite->picnum == RAT || pSprite->picnum == SHARK || pSprite->picnum == DRONE)
+                if (pSprite->picnum == TILE_RAT || pSprite->picnum == TILE_SHARK || pSprite->picnum == TILE_DRONE)
                     goto rr_badguy;
                 goto default_case;
             }
@@ -2778,10 +2778,10 @@ rrbloodpool_fallthrough:
                     pSprite->extra <<= 1;
             }
 
-            if (pSprite->picnum == BOSS4STAYPUT || pSprite->picnum == BOSS1 || pSprite->picnum == BOSS2 ||
-                pSprite->picnum == BOSS1STAYPUT || pSprite->picnum == BOSS3 || pSprite->picnum == BOSS4)
+            if (pSprite->picnum == TILE_BOSS4STAYPUT || pSprite->picnum == TILE_BOSS1 || pSprite->picnum == TILE_BOSS2 ||
+                pSprite->picnum == TILE_BOSS1STAYPUT || pSprite->picnum == TILE_BOSS3 || pSprite->picnum == TILE_BOSS4)
             {
-                if (spriteNum >= 0 && sprite[spriteNum].picnum == RESPAWN)
+                if (spriteNum >= 0 && sprite[spriteNum].picnum == TILE_RESPAWN)
                     pSprite->pal = sprite[spriteNum].pal;
 
                 if (pSprite->pal)
@@ -2797,7 +2797,7 @@ rrbloodpool_fallthrough:
             }
             else
             {
-                if (pSprite->picnum != SHARK)
+                if (pSprite->picnum != TILE_SHARK)
                 {
                     pSprite->xrepeat  = pSprite->yrepeat = 40;
                     pSprite->clipdist = 80;
@@ -2824,7 +2824,7 @@ rrbloodpool_fallthrough:
             {
                 A_Fall(newSprite);
 
-                if (pSprite->picnum == RAT)
+                if (pSprite->picnum == TILE_RAT)
                 {
                     pSprite->ang = krand2()&2047;
                     pSprite->xrepeat = pSprite->yrepeat = 48;
@@ -2834,11 +2834,11 @@ rrbloodpool_fallthrough:
                 {
                     pSprite->cstat |= 257;
 
-                    if (pSprite->picnum != SHARK)
+                    if (pSprite->picnum != TILE_SHARK)
                         g_player[myconnectindex].ps->max_actors_killed++;
                 }
 
-                if (pSprite->picnum == ORGANTIC) pSprite->cstat |= 128;
+                if (pSprite->picnum == TILE_ORGANTIC) pSprite->cstat |= 128;
 
                 if (spriteNum >= 0)
                 {
@@ -2849,7 +2849,7 @@ rrbloodpool_fallthrough:
                 else changespritestat(newSprite, STAT_ZOMBIEACTOR);
             }
 
-            if (pSprite->picnum == ROTATEGUN)
+            if (pSprite->picnum == TILE_ROTATEGUN)
                 pSprite->zvel = 0;
 
             break;
@@ -2882,7 +2882,7 @@ rrbloodpool_fallthrough:
         case SBSWIPE__STATICRR:
         case CHEERSTAYPUT__STATICRR:
         case SBMOVE__STATICRR:
-            if ((RRRA && pSprite->picnum == SBMOVE) || (!RRRA && (pSprite->picnum == SBSWIPE || pSprite->picnum == CHEERSTAYPUT))) goto default_case;
+            if ((RRRA && pSprite->picnum == TILE_SBMOVE) || (!RRRA && (pSprite->picnum == TILE_SBSWIPE || pSprite->picnum == TILE_CHEERSTAYPUT))) goto default_case;
             pActor->actorstayput = pSprite->sectnum;
             fallthrough__;
         case BOULDER__STATICRR:
@@ -3144,7 +3144,7 @@ rr_badguy:
             {
                 A_Fall(newSprite);
 
-                if (pSprite->picnum == RAT)
+                if (pSprite->picnum == TILE_RAT)
                 {
                     pSprite->ang = krand2() & 2047;
                     pSprite->xrepeat = pSprite->yrepeat = 48;
@@ -3154,7 +3154,7 @@ rr_badguy:
                 {
                     pSprite->cstat |= 257;
 
-                    if (pSprite->picnum != SHARK)
+                    if (pSprite->picnum != TILE_SHARK)
                         if (!RR || A_CheckSpriteFlags(newSprite, SFLAG_KILLCOUNT))
                             g_player[myconnectindex].ps->max_actors_killed++;
                 }
@@ -3181,13 +3181,13 @@ rr_badguy:
             if (RR)
             {
                 pSprite->cstat |= 32768;
-                if (pSprite->picnum == ACTIVATORLOCKED)
+                if (pSprite->picnum == TILE_ACTIVATORLOCKED)
                     sector[pSprite->sectnum].lotag ^= 16384;
             }
             else
             {
                 pSprite->cstat = 32768;
-                if (pSprite->picnum == ACTIVATORLOCKED)
+                if (pSprite->picnum == TILE_ACTIVATORLOCKED)
                     sector[pSprite->sectnum].lotag |= 16384;
             }
             changespritestat(newSprite, STAT_ACTIVATOR);
@@ -3202,12 +3202,12 @@ rr_badguy:
         case OOZ__STATIC:
         case OOZ2__STATIC:
         {
-            if (RR && pSprite->picnum == OOZ2) goto default_case;
+            if (RR && pSprite->picnum == TILE_OOZ2) goto default_case;
             pSprite->shade = -12;
 
             if (spriteNum >= 0)
             {
-                if (sprite[spriteNum].picnum == NUKEBARREL)
+                if (sprite[spriteNum].picnum == TILE_NUKEBARREL)
                     pSprite->pal = 8;
                 if (!RR)
                     A_AddToDeleteQueue(newSprite);
@@ -3332,12 +3332,12 @@ rr_badguy:
         case MOTOAMMO__STATICRR:
         case BOATAMMO__STATICRR:
 
-            if (RR && !RRRA && (pSprite->picnum == RPG2SPRITE || pSprite->picnum == MOTOAMMO || pSprite->picnum == BOATAMMO)) goto default_case;
+            if (RR && !RRRA && (pSprite->picnum == TILE_RPG2SPRITE || pSprite->picnum == TILE_MOTOAMMO || pSprite->picnum == TILE_BOATAMMO)) goto default_case;
 
             if (spriteNum >= 0)
             {
                 pSprite->lotag = 0;
-                if (RR && pSprite->picnum == BOWLINGBALLSPRITE)
+                if (RR && pSprite->picnum == TILE_BOWLINGBALLSPRITE)
                     pSprite->zvel = 0;
                 else
                 {
@@ -3362,12 +3362,12 @@ rr_badguy:
 
             pSprite->pal = 0;
 
-            if (pSprite->picnum == ATOMICHEALTH)
+            if (pSprite->picnum == TILE_ATOMICHEALTH)
                 pSprite->cstat |= 128;
 
             fallthrough__;
         case ACCESSCARD__STATIC:
-            if ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_ACCESSCARDSPRITES) && pSprite->picnum == ACCESSCARD)
+            if ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_ACCESSCARDSPRITES) && pSprite->picnum == TILE_ACCESSCARD)
             {
                 pSprite->xrepeat = pSprite->yrepeat = 0;
                 changespritestat(newSprite, STAT_MISC);
@@ -3375,7 +3375,7 @@ rr_badguy:
             }
             else
             {
-                if (pSprite->picnum == AMMO)
+                if (pSprite->picnum == TILE_AMMO)
                     pSprite->xrepeat = pSprite->yrepeat = 16;
                 else pSprite->xrepeat = pSprite->yrepeat = 32;
             }
@@ -3517,7 +3517,7 @@ rr_badguy:
         case TIRE__STATIC:
         case CONE__STATIC:
         case BOX__STATIC:
-            if (RR && (pSprite->picnum == CONE || pSprite->picnum == BOX)) goto default_case;
+            if (RR && (pSprite->picnum == TILE_CONE || pSprite->picnum == TILE_BOX)) goto default_case;
             pSprite->cstat = 257; // Make it hitable
             sprite[newSprite].extra = 1;
             changespritestat(newSprite, STAT_STANDABLE);
@@ -3564,7 +3564,7 @@ rr_badguy:
                 pSprite->cstat |= 257;
             fallthrough__;
         case GENERICPOLE__STATIC:
-            if (RR && pSprite->picnum == GENERICPOLE) goto default_case;
+            if (RR && pSprite->picnum == TILE_GENERICPOLE) goto default_case;
             if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
             {
                 pSprite->xrepeat = pSprite->yrepeat = 0;
@@ -3602,7 +3602,7 @@ rr_badguy:
                 pSprite->xrepeat = pSprite->yrepeat = 64;
                 changespritestat(newSprite, STAT_EFFECTOR);
                 for (spriteNum=0; spriteNum < MAXSPRITES; spriteNum++)
-                    if (sprite[spriteNum].picnum == SECTOREFFECTOR && (sprite[spriteNum].lotag == 40 || sprite[spriteNum].lotag == 41) &&
+                    if (sprite[spriteNum].picnum == TILE_SECTOREFFECTOR && (sprite[spriteNum].lotag == 40 || sprite[spriteNum].lotag == 41) &&
                             sprite[spriteNum].hitag == pSprite->hitag && newSprite != spriteNum)
                     {
 //                        Printf("found ror match\n");
@@ -3623,7 +3623,7 @@ rr_badguy:
                 int32_t j, nextj;
 
                 for (TRAVERSE_SPRITE_SECT(headspritesect[pSprite->sectnum], j, nextj))
-                    if (sprite[j].picnum == ACTIVATOR || sprite[j].picnum == ACTIVATORLOCKED)
+                    if (sprite[j].picnum == TILE_ACTIVATOR || sprite[j].picnum == TILE_ACTIVATORLOCKED)
                         pActor->flags |= SFLAG_USEACTIVATOR;
             }
             changespritestat(newSprite, pSprite->lotag==46 ? STAT_EFFECTOR : STAT_LIGHT);
@@ -3644,7 +3644,7 @@ rr_badguy:
                 if (pSprite->lotag != SE_23_ONE_WAY_TELEPORT)
                 {
                     for (spriteNum=0; spriteNum<MAXSPRITES; spriteNum++)
-                        if (sprite[spriteNum].statnum < MAXSTATUS && sprite[spriteNum].picnum == SECTOREFFECTOR &&
+                        if (sprite[spriteNum].statnum < MAXSTATUS && sprite[spriteNum].picnum == TILE_SECTOREFFECTOR &&
                                 (sprite[spriteNum].lotag == SE_7_TELEPORT || sprite[spriteNum].lotag == SE_23_ONE_WAY_TELEPORT) && newSprite != spriteNum && sprite[spriteNum].hitag == SHT(newSprite))
                         {
                             OW(newSprite) = spriteNum;
@@ -4028,7 +4028,7 @@ rr_badguy:
                     for (spriteNum = MAXSPRITES-1; spriteNum>=0; spriteNum--)
                     {
                         if (sprite[spriteNum].statnum < MAXSTATUS)
-                            if (sprite[spriteNum].picnum == SECTOREFFECTOR &&
+                            if (sprite[spriteNum].picnum == TILE_SECTOREFFECTOR &&
                                     sprite[spriteNum].lotag == SE_1_PIVOT &&
                                     sprite[spriteNum].hitag == pSprite->hitag)
                             {
@@ -4115,7 +4115,7 @@ rr_badguy:
                             int foundEffector = headspritesect[upperSect];
 
                             for (; foundEffector >= 0; foundEffector = nextspritesect[foundEffector])
-                                if (sprite[foundEffector].picnum == SECTOREFFECTOR && sprite[foundEffector].lotag == pSprite->lotag)
+                                if (sprite[foundEffector].picnum == TILE_SECTOREFFECTOR && sprite[foundEffector].lotag == pSprite->lotag)
                                     break;
 
                             if (foundEffector < 0)
@@ -4211,8 +4211,8 @@ rr_badguy:
         case CRACK3__STATIC:
         case CRACK4__STATIC:
         case FIREEXT__STATIC:
-            if (RR && pSprite->picnum == FIREEXT) goto default_case;
-            if (!RR && pSprite->picnum == FIREEXT)
+            if (RR && pSprite->picnum == TILE_FIREEXT) goto default_case;
+            if (!RR && pSprite->picnum == TILE_FIREEXT)
             {
                 pSprite->cstat = 257;
                 pSprite->extra = g_impactDamage<<2;
@@ -4307,14 +4307,14 @@ rr_badguy:
             else pSprite->owner = newSprite;
             fallthrough__;
         case EGG__STATIC:
-            if (ud.monsters_off == 1 && pSprite->picnum == EGG)
+            if (ud.monsters_off == 1 && pSprite->picnum == TILE_EGG)
             {
                 pSprite->xrepeat = pSprite->yrepeat = 0;
                 changespritestat(newSprite, STAT_MISC);
             }
             else
             {
-                if (pSprite->picnum == EGG)
+                if (pSprite->picnum == TILE_EGG)
                     pSprite->clipdist = 24;
                 pSprite->cstat = 257|(krand2()&4);
                 changespritestat(newSprite, STAT_ZOMBIEACTOR);
@@ -4500,7 +4500,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
         const int32_t i = t->owner;
         spritetype *const s = &sprite[i];
 
-        if (t->picnum < GREENSLIME || t->picnum > GREENSLIME+7)
+        if (t->picnum < TILE_GREENSLIME || t->picnum > TILE_GREENSLIME+7)
             switch (DYNAMICTILEMAP(t->picnum))
             {
             case PIG__STATICRR:
@@ -4638,7 +4638,7 @@ default_case1:
             continue;
         }
 
-        if (!RR && pSprite->picnum == NATURALLIGHTNING)
+        if (!RR && pSprite->picnum == TILE_NATURALLIGHTNING)
         {
             t->shade = -127;
             t->clipdist |= TSPR_FLAGS_NO_SHADOW;
@@ -4649,7 +4649,7 @@ default_case1:
 
         Bassert(i >= 0);
 
-        const DukePlayer_t *const ps = (pSprite->statnum != STAT_ACTOR && pSprite->picnum == APLAYER && pSprite->owner >= 0) ? g_player[P_GetP(pSprite)].ps : NULL;
+        const DukePlayer_t *const ps = (pSprite->statnum != STAT_ACTOR && pSprite->picnum == TILE_APLAYER && pSprite->owner >= 0) ? g_player[P_GetP(pSprite)].ps : NULL;
         if (ps && ps->newowner == -1)
         {
             t->x -= mulscale16(65536-smoothratio,ps->pos.x-ps->opos.x);
@@ -4662,7 +4662,7 @@ default_case1:
                 pSprite->yrepeat = 17;
             }
         }
-        else if ((pSprite->statnum == STAT_DEFAULT && pSprite->picnum != CRANEPOLE) || pSprite->statnum == STAT_PLAYER ||
+        else if ((pSprite->statnum == STAT_DEFAULT && pSprite->picnum != TILE_CRANEPOLE) || pSprite->statnum == STAT_PLAYER ||
                  pSprite->statnum == STAT_STANDABLE || pSprite->statnum == STAT_PROJECTILE || pSprite->statnum == STAT_MISC || pSprite->statnum == STAT_ACTOR)
         {
             t->x -= mulscale16(65536-smoothratio,pSprite->x-actor[i].bpos.x);
@@ -4677,9 +4677,9 @@ default_case1:
         switchpic = pSprite->picnum;
         // Some special cases because dynamictostatic system can't handle
         // addition to constants.
-        if ((pSprite->picnum >= SCRAP6) && (pSprite->picnum<=SCRAP6+7))
-            switchpic = SCRAP5;
-        else if ((pSprite->picnum==MONEY+1) || (pSprite->picnum==MAIL+1) || (pSprite->picnum==PAPER+1))
+        if ((pSprite->picnum >= TILE_SCRAP6) && (pSprite->picnum<=TILE_SCRAP6+7))
+            switchpic = TILE_SCRAP5;
+        else if ((pSprite->picnum==TILE_MONEY+1) || (pSprite->picnum==TILE_MAIL+1) || (pSprite->picnum==TILE_PAPER+1))
             switchpic--;
 
         switch (DYNAMICTILEMAP(switchpic))
@@ -4689,9 +4689,9 @@ default_case1:
         case RESPAWNMARKERGREEN__STATICRR:
             if (!RR) goto default_case2;
             t->picnum = 861 + (((int32_t) totalclock >> 4) & 13);
-            if (pSprite->picnum == RESPAWNMARKERRED)
+            if (pSprite->picnum == TILE_RESPAWNMARKERRED)
                 t->pal = 0;
-            else if (pSprite->picnum == RESPAWNMARKERYELLOW)
+            else if (pSprite->picnum == TILE_RESPAWNMARKERYELLOW)
                 t->pal = 1;
             else
                 t->pal = 2;
@@ -4719,12 +4719,12 @@ default_case1:
             fallthrough__;
         case PUKE__STATIC:
         case MONEY__STATIC:
-            //case MONEY+1__STATIC:
+            //case TILE_MONEY+1__STATIC:
         case MAIL__STATIC:
-            //case MAIL+1__STATIC:
+            //case TILE_MAIL+1__STATIC:
         case PAPER__STATIC:
-            //case PAPER+1__STATIC:
-            if (RR && (switchpic == PUKE || switchpic == MAIL || switchpic == PAPER)) goto default_case2;
+            //case TILE_PAPER+1__STATIC:
+            if (RR && (switchpic == TILE_PUKE || switchpic == TILE_MAIL || switchpic == TILE_PAPER)) goto default_case2;
             if (adult_lockout && pSprite->pal == 2)
             {
                 t->xrepeat = t->yrepeat = 0;
@@ -4783,7 +4783,7 @@ default_case1:
 
             if (g_curViewscreen >= 0 && actor[OW(i)].t_data[0] == 1)
             {
-                t->picnum = STATIC;
+                t->picnum = TILE_STATIC;
                 t->cstat |= (rand()&12);
                 t->xrepeat += 10;
                 t->yrepeat += 9;
@@ -4800,38 +4800,38 @@ default_case1:
         case SHRINKSPARK__STATIC:
             if (RR)
             {
-                if (RRRA && (sprite[pSprite->owner].picnum == CHEER || sprite[pSprite->owner].picnum == CHEERSTAYPUT))
+                if (RRRA && (sprite[pSprite->owner].picnum == TILE_CHEER || sprite[pSprite->owner].picnum == TILE_CHEERSTAYPUT))
                 {
-                    t->picnum = CHEERBLADE + (((int32_t) totalclock >> 4) & 3);
+                    t->picnum = TILE_CHEERBLADE + (((int32_t) totalclock >> 4) & 3);
                     t->shade = -127;
                 }
                 else
-                    t->picnum = SHRINKSPARK + (((int32_t) totalclock >> 4) & 7);
+                    t->picnum = TILE_SHRINKSPARK + (((int32_t) totalclock >> 4) & 7);
             }
             else
-                t->picnum = SHRINKSPARK+(((int32_t) totalclock>>4)&3);
+                t->picnum = TILE_SHRINKSPARK+(((int32_t) totalclock>>4)&3);
             break;
         case CHEERBOMB__STATICRR:
             if (!RRRA) goto default_case2;
-            t->picnum = CHEERBOMB+( ((int32_t) totalclock>>4)&3 );
+            t->picnum = TILE_CHEERBOMB+( ((int32_t) totalclock>>4)&3 );
             break;
         case GROWSPARK__STATIC:
             if (RR) goto default_case2;
-            t->picnum = GROWSPARK+(((int32_t) totalclock>>4)&3);
+            t->picnum = TILE_GROWSPARK+(((int32_t) totalclock>>4)&3);
             break;
         case SPIT__STATIC:
             if (!RR) goto default_case2;
-            t->picnum = SPIT + (((int32_t) totalclock >> 4) & 3);
+            t->picnum = TILE_SPIT + (((int32_t) totalclock >> 4) & 3);
             if (RRRA)
             {
-                if (sprite[pSprite->owner].picnum == MINION && sprite[pSprite->owner].pal == 8)
-                    t->picnum = RRTILE3500 + (((int32_t) totalclock >> 4) % 6);
-                else if (sprite[pSprite->owner].picnum == MINION && sprite[pSprite->owner].pal == 19)
+                if (sprite[pSprite->owner].picnum == TILE_MINION && sprite[pSprite->owner].pal == 8)
+                    t->picnum = TILE_RRTILE3500 + (((int32_t) totalclock >> 4) % 6);
+                else if (sprite[pSprite->owner].picnum == TILE_MINION && sprite[pSprite->owner].pal == 19)
                 {
-                    t->picnum = RRTILE5090 + (((int32_t) totalclock >> 4) & 3);
+                    t->picnum = TILE_RRTILE5090 + (((int32_t) totalclock >> 4) & 3);
                     t->shade = -127;
                 }
-                else if (sprite[pSprite->owner].picnum == MAMA)
+                else if (sprite[pSprite->owner].picnum == TILE_MAMA)
                 {
 #ifdef USE_OPENGL
                     if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0 &&
@@ -4841,12 +4841,12 @@ default_case1:
 
                         spriteext[i].pitch = (v > 1023 ? v - 2048 : v);
                         t->cstat &= ~4;
-                        t->picnum = RRTILE7274;
+                        t->picnum = TILE_RRTILE7274;
                         break;
                     }
 #endif
                     frameOffset = getofs_viewtype_mirrored<5>(t->cstat, pSprite->ang - getangle(pSprite->x-ourx, pSprite->y-oury));
-                    t->picnum = RRTILE7274 + frameOffset;
+                    t->picnum = TILE_RRTILE7274 + frameOffset;
                 }
             }
             break;
@@ -4860,7 +4860,7 @@ default_case1:
             }
 #endif
             frameOffset = getofs_viewtype_mirrored<7>(t->cstat, pSprite->ang - getangle(pSprite->x - ourx, pSprite->y - oury));
-            t->picnum = EMPTYBIKE + frameOffset;
+            t->picnum = TILE_EMPTYBIKE + frameOffset;
             break;
         case EMPTYBOAT__STATICRR:
             if (!RRRA) goto default_case2;
@@ -4872,7 +4872,7 @@ default_case1:
             }
 #endif
             frameOffset = getofs_viewtype_mirrored<7>(t->cstat, pSprite->ang - getangle(pSprite->x - ourx, pSprite->y - oury));
-            t->picnum = EMPTYBOAT + frameOffset;
+            t->picnum = TILE_EMPTYBOAT + frameOffset;
             break;
         case RPG__STATIC:
 #ifdef USE_OPENGL
@@ -4887,7 +4887,7 @@ default_case1:
             }
 #endif
             frameOffset = getofs_viewtype_mirrored<7>(t->cstat, pSprite->ang - getangle(pSprite->x-ourx, pSprite->y-oury));
-            t->picnum = RPG+frameOffset;
+            t->picnum = TILE_RPG+frameOffset;
             break;
         case RPG2__STATICRR:
             if (!RRRA) goto default_case2;
@@ -4903,7 +4903,7 @@ default_case1:
             }
 #endif
             frameOffset = getofs_viewtype_mirrored<7>(t->cstat, pSprite->ang - getangle(pSprite->x-ourx, pSprite->y-oury));
-            t->picnum = RPG2+frameOffset;
+            t->picnum = TILE_RPG2+frameOffset;
             break;
 
         case RECON__STATIC:
@@ -4920,7 +4920,7 @@ default_case1:
             if (klabs(curframe) > 64)
                 frameOffset += 7;  // tilted recon car
 
-            t->picnum = RECON+frameOffset;
+            t->picnum = TILE_RECON+frameOffset;
 
             break;
         case APLAYER__STATIC:
@@ -4982,29 +4982,29 @@ default_case1:
                     newTspr->statnum = TSPR_TEMP;
                     newTspr->cstat   = 0;
                     newTspr->pal     = 0;
-                    newTspr->picnum  = (currentWeapon == GROW_WEAPON ? GROWSPRITEICON : WeaponPickupSprites[currentWeapon]);
+                    newTspr->picnum  = (currentWeapon == GROW_WEAPON ? TILE_GROWSPRITEICON : WeaponPickupSprites[currentWeapon]);
                     if (RR)
                     {
                         newTspr->picnum = 0;
                         switch(DYNAMICWEAPONMAP(g_player[playerNum].ps->curr_weapon))
                         {
-                            case PISTOL_WEAPON__STATIC:      newTspr->picnum = FIRSTGUNSPRITE;       break;
-                            case SHOTGUN_WEAPON__STATIC:     newTspr->picnum = SHOTGUNSPRITE;        break;
-                            case CHAINGUN_WEAPON__STATIC:    newTspr->picnum = CHAINGUNSPRITE;       break;
-                            case RPG_WEAPON__STATIC:         newTspr->picnum = RPGSPRITE;            break;
-                            case CHICKEN_WEAPON__STATIC:     newTspr->picnum = RPGSPRITE;            break;
+                            case PISTOL_WEAPON__STATIC:      newTspr->picnum = TILE_FIRSTGUNSPRITE;       break;
+                            case SHOTGUN_WEAPON__STATIC:     newTspr->picnum = TILE_SHOTGUNSPRITE;        break;
+                            case CHAINGUN_WEAPON__STATIC:    newTspr->picnum = TILE_CHAINGUNSPRITE;       break;
+                            case RPG_WEAPON__STATIC:         newTspr->picnum = TILE_RPGSPRITE;            break;
+                            case CHICKEN_WEAPON__STATIC:     newTspr->picnum = TILE_RPGSPRITE;            break;
                             case HANDREMOTE_WEAPON__STATIC:
-                            case HANDBOMB_WEAPON__STATIC:    newTspr->picnum = HEAVYHBOMB;           break;
-                            case TRIPBOMB_WEAPON__STATIC:    newTspr->picnum = TRIPBOMBSPRITE;       break;
-                            case BOWLINGBALL_WEAPON__STATIC: newTspr->picnum = BOWLINGBALLSPRITE;    break;
-                            case SHRINKER_WEAPON__STATIC:    newTspr->picnum = SHRINKSPARK;          break;
-                            case GROW_WEAPON__STATIC:        newTspr->picnum = SHRINKSPARK;          break;
-                            case FREEZE_WEAPON__STATIC:      newTspr->picnum = DEVISTATORSPRITE;     break;
-                            case DEVISTATOR_WEAPON__STATIC:  newTspr->picnum = FREEZESPRITE;         break;
+                            case HANDBOMB_WEAPON__STATIC:    newTspr->picnum = TILE_HEAVYHBOMB;           break;
+                            case TRIPBOMB_WEAPON__STATIC:    newTspr->picnum = TILE_TRIPBOMBSPRITE;       break;
+                            case BOWLINGBALL_WEAPON__STATIC: newTspr->picnum = TILE_BOWLINGBALLSPRITE;    break;
+                            case SHRINKER_WEAPON__STATIC:    newTspr->picnum = TILE_SHRINKSPARK;          break;
+                            case GROW_WEAPON__STATIC:        newTspr->picnum = TILE_SHRINKSPARK;          break;
+                            case FREEZE_WEAPON__STATIC:      newTspr->picnum = TILE_DEVISTATORSPRITE;     break;
+                            case DEVISTATOR_WEAPON__STATIC:  newTspr->picnum = TILE_FREEZESPRITE;         break;
                         }
                     }
                     newTspr->z       = (pSprite->owner >= 0) ? g_player[playerNum].ps->pos.z - ZOFFSET4 : pSprite->z - (51 << 8);
-                    newTspr->xrepeat = (newTspr->picnum == HEAVYHBOMB) ? 10 : 16;
+                    newTspr->xrepeat = (newTspr->picnum == TILE_HEAVYHBOMB) ? 10 : 16;
                     if (RRRA && (g_player[playerNum].ps->on_motorcycle || g_player[playerNum].ps->on_boat))
                         newTspr->xrepeat = 0;
                     newTspr->yrepeat = newTspr->xrepeat;
@@ -5018,7 +5018,7 @@ default_case1:
 
                     playerTyping->statnum = TSPR_TEMP;
                     playerTyping->cstat   = 0;
-                    playerTyping->picnum  = RESPAWNMARKERGREEN;
+                    playerTyping->picnum  = TILE_RESPAWNMARKERGREEN;
                     playerTyping->z       = (pSprite->owner >= 0) ? (g_player[playerNum].ps->pos.z - (20 << 8)) : (pSprite->z - (96 << 8));
                     playerTyping->xrepeat = 32;
                     playerTyping->yrepeat = 32;
@@ -5060,9 +5060,9 @@ default_case1:
 
             if (g_player[playerNum].ps->newowner > -1)
             {
-                // Display APLAYER sprites with action PSTAND when viewed through
+                // Display TILE_APLAYER sprites with action PSTAND when viewed through
                 // a camera.
-                const intptr_t *aplayer_scr = g_tile[APLAYER].execPtr;
+                const intptr_t *aplayer_scr = g_tile[TILE_APLAYER].execPtr;
                 // [0]=strength, [1]=actionofs, [2]=moveofs
 
                 scrofs_action = aplayer_scr[1];
@@ -5114,7 +5114,7 @@ PALONLY:
             {
                 if (g_player[playerNum].ps->on_motorcycle && playerNum == screenpeek)
                 {
-                    t->picnum = RRTILE7219;
+                    t->picnum = TILE_RRTILE7219;
                     t->xrepeat = 18;
                     t->yrepeat = 18;
                     scrofs_action = 0;
@@ -5131,17 +5131,17 @@ PALONLY:
                     {
                         frameOffset = 0;
                         t->cstat &= ~4;
-                        t->picnum = RRTILE7213;
+                        t->picnum = TILE_RRTILE7213;
                     }
                     else
 #endif
                         frameOffset = getofs_viewtype_mirrored<7>(t->cstat, pSprite->ang - oura);
 
-                    t->picnum = RRTILE7213 + frameOffset;
+                    t->picnum = TILE_RRTILE7213 + frameOffset;
                 }
                 else if (g_player[playerNum].ps->on_boat && playerNum == screenpeek)
                 {
-                    t->picnum = RRTILE7190;
+                    t->picnum = TILE_RRTILE7190;
                     t->xrepeat = 32;
                     t->yrepeat = 32;
                     scrofs_action = 0;
@@ -5158,13 +5158,13 @@ PALONLY:
                     {
                         frameOffset = 0;
                         t->cstat &= ~4;
-                        t->picnum = RRTILE7213;
+                        t->picnum = TILE_RRTILE7213;
                     }
                     else
 #endif
                         frameOffset = getofs_viewtype_mirrored<7>(t->cstat, pSprite->ang - oura);
 
-                    t->picnum = RRTILE7184 + frameOffset;
+                    t->picnum = TILE_RRTILE7184 + frameOffset;
                 }
             }
 
@@ -5219,11 +5219,11 @@ PALONLY:
         case COOTJIBC__STATICRR:
             if (RR)
             {
-                if (switchpic == HEADJIB1 || switchpic == LEGJIB1 || switchpic == ARMJIB1
-                    || switchpic == LIZMANHEAD1 || switchpic == LIZMANARM1 || switchpic == LIZMANLEG1)
+                if (switchpic == TILE_HEADJIB1 || switchpic == TILE_LEGJIB1 || switchpic == TILE_ARMJIB1
+                    || switchpic == TILE_LIZMANHEAD1 || switchpic == TILE_LIZMANARM1 || switchpic == TILE_LIZMANLEG1)
                     goto default_case2;
             }
-            if (RRRA && t->pal == 19 && (switchpic == MINJIBA || switchpic == MINJIBB || switchpic == MINJIBC))
+            if (RRRA && t->pal == 19 && (switchpic == TILE_MINJIBA || switchpic == TILE_MINJIBB || switchpic == TILE_MINJIBC))
                 t->shade = -127;
             if (adult_lockout)
             {
@@ -5240,7 +5240,7 @@ PALONLY:
         case SCRAP3__STATIC:
         case SCRAP4__STATIC:
         case SCRAP5__STATIC:
-            if ((RR || actor[i].picnum == BLIMP) && t->picnum == SCRAP1 && pSprite->yvel >= 0)
+            if ((RR || actor[i].picnum == TILE_BLIMP) && t->picnum == TILE_SCRAP1 && pSprite->yvel >= 0)
                 t->picnum = pSprite->yvel < MAXUSERTILES ? pSprite->yvel : 0;
             else t->picnum += T1(i);
             if (!RR)
@@ -5249,7 +5249,7 @@ PALONLY:
             G_MaybeTakeOnFloorPal(t, sect);
             break;
         case WATERBUBBLE__STATIC:
-            if (sector[t->sectnum].floorpicnum == FLOORSLIME)
+            if (sector[t->sectnum].floorpicnum == TILE_FLOORSLIME)
             {
                 t->pal = 7;
                 break;
@@ -5352,19 +5352,19 @@ skip:
         // player has nightvision on.  We should pass stuff like "from which player is this view
         // supposed to be" as parameters ("drawing context") instead of relying on globals.
         if (!RR && g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
-                (A_CheckEnemySprite(pSprite) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || pSprite->picnum == APLAYER || pSprite->statnum == STAT_DUMMYPLAYER))
+                (A_CheckEnemySprite(pSprite) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || pSprite->picnum == TILE_APLAYER || pSprite->statnum == STAT_DUMMYPLAYER))
         {
             t->pal = 6;
             t->shade = 0;
         }
 
-        if (RR && !RRRA && pSprite->picnum == SBMOVE)
+        if (RR && !RRRA && pSprite->picnum == TILE_SBMOVE)
             t->shade = -127;
 
         // Fake floor shadow, implemented by inserting a new tsprite.
-        if (pSprite->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(pSprite) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (pSprite->picnum == APLAYER && pSprite->owner >= 0))
-            if ((!RR || (pSprite->cstat&48) == 0) && t->statnum != TSPR_TEMP && pSprite->picnum != EXPLOSION2 && (RR || pSprite->picnum != HANGLIGHT) && pSprite->picnum != DOMELITE && (RR || pSprite->picnum != HOTMEAT)
-                && (!RR || pSprite->picnum != TORNADO) && (!RR || pSprite->picnum != EXPLOSION3) && (!RR || RRRA || pSprite->picnum != SBMOVE))
+        if (pSprite->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(pSprite) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (pSprite->picnum == TILE_APLAYER && pSprite->owner >= 0))
+            if ((!RR || (pSprite->cstat&48) == 0) && t->statnum != TSPR_TEMP && pSprite->picnum != TILE_EXPLOSION2 && (RR || pSprite->picnum != TILE_HANGLIGHT) && pSprite->picnum != TILE_DOMELITE && (RR || pSprite->picnum != TILE_HOTMEAT)
+                && (!RR || pSprite->picnum != TILE_TORNADO) && (!RR || pSprite->picnum != TILE_EXPLOSION3) && (!RR || RRRA || pSprite->picnum != TILE_SBMOVE))
             {
                 if (actor[i].dispicnum < 0)
                 {
@@ -5389,7 +5389,7 @@ skip:
                     if (DEER && klabs(sector[sect].ceilingheinum - sector[sect].floorheinum) > 576) continue;
                     if (RRRA && sector[sect].lotag == 160) continue;
                     int const shadowZ = (DEER || (sector[sect].lotag & 0xff) > 2 || pSprite->statnum == STAT_PROJECTILE ||
-                                   pSprite->statnum == STAT_MISC || pSprite->picnum == DRONE || (!RR && pSprite->picnum == COMMANDER))
+                                   pSprite->statnum == STAT_MISC || pSprite->picnum == TILE_DRONE || (!RR && pSprite->picnum == TILE_COMMANDER))
                                   ? sector[sect].floorz
                                   : actor[i].floorz;
 
@@ -5469,16 +5469,16 @@ skip:
         case RPG2__STATICRR:
         case RRTILE1790__STATICRR:
 rrcoolexplosion1:
-            if (RR && !RRRA && (pSprite->picnum == RPG2 || pSprite->picnum == RRTILE1790)) break;
-            if (t->picnum == EXPLOSION2)
+            if (RR && !RRRA && (pSprite->picnum == TILE_RPG2 || pSprite->picnum == TILE_RRTILE1790)) break;
+            if (t->picnum == TILE_EXPLOSION2)
             {
                 g_player[screenpeek].ps->visibility = -127;
                 //g_restorePalette = 1;   // JBF 20040101: why?
                 if (RR)
                     t->pal = 0;
             }
-            else if (RR && t->picnum == FIRELASER)
-                t->picnum = FIRELASER+(((int32_t) totalclock>>2)&5);
+            else if (RR && t->picnum == TILE_FIRELASER)
+                t->picnum = TILE_FIRELASER+(((int32_t) totalclock>>2)&5);
             t->shade = -127;
             t->clipdist |= TSPR_FLAGS_DRAW_LAST | TSPR_FLAGS_NO_SHADOW;
             break;
@@ -5493,13 +5493,13 @@ rrcoolexplosion1:
             break;
         case FIRE__STATIC:
         case FIRE2__STATIC:
-            if (RR && pSprite->picnum == FIRE2) break;
+            if (RR && pSprite->picnum == TILE_FIRE2) break;
             t->cstat |= 128;
             fallthrough__;
         case BURNING__STATIC:
         case BURNING2__STATIC:
-            if (RR && pSprite->picnum == BURNING2) break;
-            if (sprite[pSprite->owner].picnum != TREE1 && sprite[pSprite->owner].picnum != TREE2)
+            if (RR && pSprite->picnum == TILE_BURNING2) break;
+            if (sprite[pSprite->owner].picnum != TILE_TREE1 && sprite[pSprite->owner].picnum != TILE_TREE2)
                 t->z = sector[t->sectnum].floorz;
             t->shade = -127;
             fallthrough__;
@@ -5571,7 +5571,7 @@ rrcoolexplosion1:
             break;
         case CHEER__STATICRR:
             if (!RRRA) break;
-            if (t->picnum >= CHEER + 102 && t->picnum <= CHEER + 151)
+            if (t->picnum >= TILE_CHEER + 102 && t->picnum <= TILE_CHEER + 151)
                 t->shade = -127;
             break;
         case MINION__STATICRR:
@@ -5581,23 +5581,23 @@ rrcoolexplosion1:
             break;
         case BIKER__STATICRR:
             if (!RRRA) break;
-            if (t->picnum >= BIKER + 54 && t->picnum <= BIKER + 58)
+            if (t->picnum >= TILE_BIKER + 54 && t->picnum <= TILE_BIKER + 58)
                 t->shade = -127;
-            else if (t->picnum >= BIKER + 84 && t->picnum <= BIKER + 88)
+            else if (t->picnum >= TILE_BIKER + 84 && t->picnum <= TILE_BIKER + 88)
                 t->shade = -127;
             break;
         case BILLYRAY__STATICRR:
         case BILLYRAYSTAYPUT__STATICRR:
             if (!RRRA) break;
-            if (t->picnum >= BILLYRAY + 5 && t->picnum <= BILLYRAY + 9)
+            if (t->picnum >= TILE_BILLYRAY + 5 && t->picnum <= TILE_BILLYRAY + 9)
                 t->shade = -127;
             break;
         case RRTILE2034__STATICRR:
-            t->picnum = RRTILE2034 + ((int32_t) totalclock & 1);
+            t->picnum = TILE_RRTILE2034 + ((int32_t) totalclock & 1);
             break;
         case RRTILE2944__STATICRR:
             t->shade = -127;
-            t->picnum = RRTILE2944 + (((int32_t) totalclock >> 2) & 4);
+            t->picnum = TILE_RRTILE2944 + (((int32_t) totalclock >> 2) & 4);
             break;
         case PLAYERONWATER__STATIC:
 #ifdef USE_OPENGL
@@ -5616,11 +5616,11 @@ rrcoolexplosion1:
             break;
 
         case MUD__STATICRR:
-            t->picnum = MUD+T2(i);
+            t->picnum = TILE_MUD+T2(i);
             break;
         case WATERSPLASH2__STATIC:
             // WATERSPLASH_T2
-            t->picnum = WATERSPLASH2+T2(i);
+            t->picnum = TILE_WATERSPLASH2+T2(i);
             break;
         case SHELL__STATIC:
             t->picnum = pSprite->picnum+(T1(i)&1);
@@ -5633,7 +5633,7 @@ rrcoolexplosion1:
         case FRAMEEFFECT1__STATIC:
             if (pSprite->owner >= 0 && sprite[pSprite->owner].statnum < MAXSTATUS)
             {
-                if (sprite[pSprite->owner].picnum == APLAYER)
+                if (sprite[pSprite->owner].picnum == TILE_APLAYER)
                     if (ud.camerasprite == -1)
                         if (screenpeek == P_Get(pSprite->owner) && display_mirror == 0)
                         {
@@ -5646,8 +5646,8 @@ rrcoolexplosion1:
                         t->picnum = actor[i].t_data[1];
                     else t->picnum = actor[pSprite->owner].dispicnum;
 
-                    if (RR && sprite[pSprite->owner].picnum == APLAYER)
-                        t->picnum = SMALLSMOKE;
+                    if (RR && sprite[pSprite->owner].picnum == TILE_APLAYER)
+                        t->picnum = TILE_SMALLSMOKE;
 
                     if (!G_MaybeTakeOnFloorPal(t, sect))
                         t->pal = sprite[pSprite->owner].pal;
@@ -5676,7 +5676,7 @@ rrcoolexplosion1:
         actor[i].dispicnum = t->picnum;
 #if 0
         // why?
-        if (sector[t->sectnum].floorpicnum == MIRROR)
+        if (sector[t->sectnum].floorpicnum == TILE_MIRROR)
             t->xrepeat = t->yrepeat = 0;
 #endif
     }
@@ -6586,13 +6586,13 @@ static inline void G_CheckGametype(void)
 
 #define SETFLAG(Tilenum, Flag) g_tile[Tilenum].flags |= Flag
 
-// Has to be after setting the dynamic names (e.g. SHARK).
+// Has to be after setting the dynamic names (e.g. TILE_SHARK).
 static void A_InitEnemyFlags(void)
 {
     if (DEER)
     {
         int DukeEnemies[] = {
-            DOGRUN, PIG, VIXEN, CHEER };
+            TILE_DOGRUN, TILE_PIG, TILE_VIXEN, TILE_CHEER };
 
         for (bssize_t i = ARRAY_SIZE(DukeEnemies) - 1; i >= 0; i--)
             SETFLAG(DukeEnemies[i], SFLAG_HARDCODED_BADGUY|SFLAG_BADGUY_TILE|SFLAG_KILLCOUNT);
@@ -6600,33 +6600,33 @@ static void A_InitEnemyFlags(void)
     else if (RRRA)
     {
         int DukeEnemies[] = {
-            BOULDER, BOULDER1, EGG, RAT, TORNADO, BILLYCOCK, BILLYRAY, BILLYRAYSTAYPUT,
-            BRAYSNIPER, DOGRUN, LTH, HULKJUMP, BUBBASTAND, HULK, HULKSTAYPUT, HEN,
-            DRONE, PIG, RECON, MINION, MINIONSTAYPUT, UFO1, COOT, COOTSTAYPUT, SHARK,
-            VIXEN, SBSWIPE, BIKERB, BIKERBV2, BIKER, MAKEOUT, CHEERB, CHEER, CHEERSTAYPUT,
-            COOTPLAY, BILLYPLAY, MINIONBOAT, HULKBOAT, CHEERBOAT, RABBIT, MAMA };
+            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
+            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT, TILE_HEN,
+            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK,
+            TILE_VIXEN, TILE_SBSWIPE, TILE_BIKERB, TILE_BIKERBV2, TILE_BIKER, TILE_MAKEOUT, TILE_CHEERB, TILE_CHEER, TILE_CHEERSTAYPUT,
+            TILE_COOTPLAY, TILE_BILLYPLAY, TILE_MINIONBOAT, TILE_HULKBOAT, TILE_CHEERBOAT, TILE_RABBIT, TILE_MAMA };
 
         int DukeEnemiesTile[] = {
-            BOULDER, BOULDER1, EGG, RAT, TORNADO, BILLYCOCK, BILLYRAY, BILLYRAYSTAYPUT,
-            BRAYSNIPER, DOGRUN, LTH, HULKJUMP, BUBBASTAND, HULK, HULKSTAYPUT,
-            DRONE, PIG, RECON, MINION, MINIONSTAYPUT, UFO1, COOT, COOTSTAYPUT, SHARK,
-            VIXEN, SBSWIPE, BIKERB, BIKERBV2, BIKER, MAKEOUT, CHEERB, CHEER, CHEERSTAYPUT,
-            COOTPLAY, BILLYPLAY, MINIONBOAT, HULKBOAT, CHEERBOAT, RABBIT, MAMA };
+            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
+            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT,
+            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK,
+            TILE_VIXEN, TILE_SBSWIPE, TILE_BIKERB, TILE_BIKERBV2, TILE_BIKER, TILE_MAKEOUT, TILE_CHEERB, TILE_CHEER, TILE_CHEERSTAYPUT,
+            TILE_COOTPLAY, TILE_BILLYPLAY, TILE_MINIONBOAT, TILE_HULKBOAT, TILE_CHEERBOAT, TILE_RABBIT, TILE_MAMA };
 
         int KillCountEnemies[] = {
-            BOULDER, BOULDER1, EGG, RAT, TORNADO, BILLYCOCK, BILLYRAY, BILLYRAYSTAYPUT,
-            BRAYSNIPER, DOGRUN, LTH, HULKJUMP, BUBBASTAND, HULK, HULKSTAYPUT,
-            DRONE, PIG, RECON, MINION, MINIONSTAYPUT, UFO1, COOT, COOTSTAYPUT, SHARK,
-            VIXEN, SBSWIPE, BIKERB, BIKERBV2, BIKER, MAKEOUT, CHEERB, CHEER, CHEERSTAYPUT,
-            COOTPLAY, BILLYPLAY, MINIONBOAT, HULKBOAT, CHEERBOAT, RABBIT, MAMA,
-            ROCK, ROCK2 };
+            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
+            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT,
+            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK,
+            TILE_VIXEN, TILE_SBSWIPE, TILE_BIKERB, TILE_BIKERBV2, TILE_BIKER, TILE_MAKEOUT, TILE_CHEERB, TILE_CHEER, TILE_CHEERSTAYPUT,
+            TILE_COOTPLAY, TILE_BILLYPLAY, TILE_MINIONBOAT, TILE_HULKBOAT, TILE_CHEERBOAT, TILE_RABBIT, TILE_MAMA,
+            TILE_ROCK, TILE_ROCK2 };
 
-        int SolidEnemies[] = { HULK, MAMA, BILLYPLAY, COOTPLAY, MAMACLOUD };
-        int NoWaterDipEnemies[] = { DRONE };
+        int SolidEnemies[] = { TILE_HULK, TILE_MAMA, TILE_BILLYPLAY, TILE_COOTPLAY, TILE_MAMACLOUD };
+        int NoWaterDipEnemies[] = { TILE_DRONE };
         int NoCanSeeCheck[] = {
-            COOT, COOTSTAYPUT, VIXEN, BIKERB, BIKERBV2, CHEER, CHEERB,
-            CHEERSTAYPUT, MINIONBOAT, HULKBOAT, CHEERBOAT, RABBIT, COOTPLAY,
-            BILLYPLAY, MAKEOUT, MAMA };
+            TILE_COOT, TILE_COOTSTAYPUT, TILE_VIXEN, TILE_BIKERB, TILE_BIKERBV2, TILE_CHEER, TILE_CHEERB,
+            TILE_CHEERSTAYPUT, TILE_MINIONBOAT, TILE_HULKBOAT, TILE_CHEERBOAT, TILE_RABBIT, TILE_COOTPLAY,
+            TILE_BILLYPLAY, TILE_MAKEOUT, TILE_MAMA };
 
         for (bssize_t i = ARRAY_SIZE(DukeEnemies) - 1; i >= 0; i--)
             SETFLAG(DukeEnemies[i], SFLAG_HARDCODED_BADGUY);
@@ -6649,26 +6649,26 @@ static void A_InitEnemyFlags(void)
     else if (RR)
     {
         int DukeEnemies[] = {
-            BOULDER, BOULDER1, EGG, RAT, TORNADO, BILLYCOCK, BILLYRAY, BILLYRAYSTAYPUT,
-            BRAYSNIPER, DOGRUN, LTH, HULKJUMP, BUBBASTAND, HULK, HULKSTAYPUT, HEN,
-            DRONE, PIG, RECON, SBMOVE, MINION, MINIONSTAYPUT, UFO1, UFO2, UFO3, UFO4, UFO5,
-            COOT, COOTSTAYPUT, SHARK, VIXEN };
+            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
+            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT, TILE_HEN,
+            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_SBMOVE, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_UFO2, TILE_UFO3, TILE_UFO4, TILE_UFO5,
+            TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK, TILE_VIXEN };
 
         int DukeEnemiesTile[] = {
-            BOULDER, BOULDER1, EGG, RAT, TORNADO, BILLYCOCK, BILLYRAY, BILLYRAYSTAYPUT,
-            BRAYSNIPER, DOGRUN, LTH, HULKJUMP, BUBBASTAND, HULK, HULKSTAYPUT,
-            DRONE, PIG, RECON, SBMOVE, MINION, MINIONSTAYPUT, UFO1, UFO2, UFO3, UFO4, UFO5,
-            COOT, COOTSTAYPUT, SHARK, VIXEN };
+            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
+            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT,
+            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_SBMOVE, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_UFO2, TILE_UFO3, TILE_UFO4, TILE_UFO5,
+            TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK, TILE_VIXEN };
 
         int KillCountEnemies[] = {
-            BOULDER, BOULDER1, EGG, RAT, TORNADO, BILLYCOCK, BILLYRAY, BILLYRAYSTAYPUT,
-            BRAYSNIPER, DOGRUN, LTH, HULKJUMP, BUBBASTAND, HULK, HULKSTAYPUT,
-            DRONE, PIG, RECON, SBMOVE, MINION, MINIONSTAYPUT, UFO1, UFO2, UFO3, UFO4, UFO5,
-            COOT, COOTSTAYPUT, SHARK, VIXEN };
+            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
+            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT,
+            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_SBMOVE, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_UFO2, TILE_UFO3, TILE_UFO4, TILE_UFO5,
+            TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK, TILE_VIXEN };
 
-        int SolidEnemies[] = { HULK, SBMOVE };
-        int NoWaterDipEnemies[] = { DRONE };
-        int NoCanSeeCheck[] = { VIXEN };
+        int SolidEnemies[] = { TILE_HULK, TILE_SBMOVE };
+        int NoWaterDipEnemies[] = { TILE_DRONE };
+        int NoCanSeeCheck[] = { TILE_VIXEN };
 
         for (bssize_t i = ARRAY_SIZE(DukeEnemies) - 1; i >= 0; i--)
             SETFLAG(DukeEnemies[i], SFLAG_HARDCODED_BADGUY);
@@ -6691,18 +6691,18 @@ static void A_InitEnemyFlags(void)
     else
     {
         int DukeEnemies[] = {
-            SHARK, RECON, DRONE,
-            LIZTROOPONTOILET, LIZTROOPJUSTSIT, LIZTROOPSTAYPUT, LIZTROOPSHOOT,
-            LIZTROOPJETPACK, LIZTROOPDUCKING, LIZTROOPRUNNING, LIZTROOP,
-            OCTABRAIN, COMMANDER, COMMANDERSTAYPUT, PIGCOP, EGG, PIGCOPSTAYPUT, PIGCOPDIVE,
-            LIZMAN, LIZMANSPITTING, LIZMANFEEDING, LIZMANJUMP, ORGANTIC,
-            BOSS1, BOSS2, BOSS3, BOSS4, RAT, ROTATEGUN };
+            TILE_SHARK, TILE_RECON, TILE_DRONE,
+            TILE_LIZTROOPONTOILET, TILE_LIZTROOPJUSTSIT, TILE_LIZTROOPSTAYPUT, TILE_LIZTROOPSHOOT,
+            TILE_LIZTROOPJETPACK, TILE_LIZTROOPDUCKING, TILE_LIZTROOPRUNNING, TILE_LIZTROOP,
+            TILE_OCTABRAIN, TILE_COMMANDER, TILE_COMMANDERSTAYPUT, TILE_PIGCOP, TILE_EGG, TILE_PIGCOPSTAYPUT, TILE_PIGCOPDIVE,
+            TILE_LIZMAN, TILE_LIZMANSPITTING, TILE_LIZMANFEEDING, TILE_LIZMANJUMP, TILE_ORGANTIC,
+            TILE_BOSS1, TILE_BOSS2, TILE_BOSS3, TILE_BOSS4, TILE_RAT, TILE_ROTATEGUN };
 
-        int SolidEnemies[] = { TANK, BOSS1, BOSS2, BOSS3, BOSS4, RECON, ROTATEGUN };
-        int NoWaterDipEnemies[] = { OCTABRAIN, COMMANDER, DRONE };
-        int GreenSlimeFoodEnemies[] = { LIZTROOP, LIZMAN, PIGCOP, NEWBEAST };
+        int SolidEnemies[] = { TILE_TANK, TILE_BOSS1, TILE_BOSS2, TILE_BOSS3, TILE_BOSS4, TILE_RECON, TILE_ROTATEGUN };
+        int NoWaterDipEnemies[] = { TILE_OCTABRAIN, TILE_COMMANDER, TILE_DRONE };
+        int GreenSlimeFoodEnemies[] = { TILE_LIZTROOP, TILE_LIZMAN, TILE_PIGCOP, TILE_NEWBEAST };
 
-        for (bssize_t i=GREENSLIME; i<=GREENSLIME+7; i++)
+        for (bssize_t i=TILE_GREENSLIME; i<=TILE_GREENSLIME+7; i++)
             SETFLAG(i, SFLAG_HARDCODED_BADGUY|SFLAG_BADGUY_TILE);
 
         for (bssize_t i=ARRAY_SIZE(DukeEnemies)-1; i>=0; i--)
@@ -6746,7 +6746,7 @@ static void G_Startup(void)
     G_InitDynamicSounds();
 
     // These depend on having the dynamic tile and/or sound mappings set up:
-    G_InitMultiPsky(CLOUDYOCEAN, MOONSKY1, BIGORBIT1, LA);
+    G_InitMultiPsky(TILE_CLOUDYOCEAN, TILE_MOONSKY1, TILE_BIGORBIT1, TILE_LA);
     G_PostCreateGameState();
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
 
@@ -6793,7 +6793,7 @@ static void G_Startup(void)
 
     // Make the fullscreen nuke logo background non-fullbright.  Has to be
     // after dynamic tile remapping (from C_Compile) and loading tiles.
-    picanm[LOADSCREEN].sf |= PICANM_NOFULLBRIGHT_BIT;
+    picanm[TILE_LOADSCREEN].sf |= PICANM_NOFULLBRIGHT_BIT;
 
 //    Printf("Loading palette/lookups...\n");
     G_LoadLookups();
@@ -6822,7 +6822,7 @@ void G_UpdatePlayerFromMenu(void)
     if (numplayers > 1)
     {
         Net_SendClientInfo();
-        if (sprite[g_player[myconnectindex].ps->i].picnum == APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
+        if (sprite[g_player[myconnectindex].ps->i].picnum == TILE_APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
             sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].pcolor;
     }
     else
@@ -6834,7 +6834,7 @@ void G_UpdatePlayerFromMenu(void)
 
         g_player[myconnectindex].pteam = playerteam;
 
-        if (sprite[g_player[myconnectindex].ps->i].picnum == APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
+        if (sprite[g_player[myconnectindex].ps->i].picnum == TILE_APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
             sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].pcolor;
     }
 }
@@ -7106,6 +7106,7 @@ int GameInterface::app_main()
 
     tileDelete(MIRROR);
 
+    tileDelete(TILE_MIRROR);
     skiptile = W_FORCEFIELD + 1;
 
     if (RR)
@@ -7152,7 +7153,7 @@ int GameInterface::app_main()
     // there is room for them in tiles012.art between "[\]^_." and "{|}~"
     minitext_lowercase = 1;
 
-    for (bssize_t i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
+    for (bssize_t i = TILE_MINIFONT + ('a'-'!'); minitext_lowercase && i < TILE_MINIFONT + ('z'-'!') + 1; ++i)
         minitext_lowercase &= (int)tileCheck(i);
 
     /*if (RRRA)
@@ -7434,7 +7435,7 @@ int G_DoMoveThings(void)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
         if ((hitData.sprite >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) &&
-                sprite[hitData.sprite].picnum == APLAYER)
+                sprite[hitData.sprite].picnum == TILE_APLAYER)
         {
             int const playerNum = P_Get(hitData.sprite);
 
@@ -7514,7 +7515,7 @@ int G_DoMoveThings(void)
             g_player[i].ps->team = g_player[i].pteam;
             if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
             {
-                actor[g_player[i].ps->i].picnum = APLAYERTOP;
+                actor[g_player[i].ps->i].picnum = TILE_APLAYERTOP;
                 P_QuickKill(g_player[i].ps);
             }
         }
@@ -7578,7 +7579,7 @@ void A_SpawnWallGlass(int spriteNum, int wallNum, int glassCnt)
         {
             int const a = SA(spriteNum) - 256 + (krand2() & 511) + 1024;
             int32_t const r1 = krand2(), r2 = krand2();
-            A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum), GLASSPIECES + (j % 3), -32, 36, 36, a,
+            A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a,
                            32 + (r2 & 63), 1024 - (r1 & 1023), spriteNum, 5);
         }
         return;
@@ -7609,7 +7610,7 @@ void A_SpawnWallGlass(int spriteNum, int wallNum, int glassCnt)
                 z = SZ(spriteNum) - ZOFFSET5 + (krand2() & ((64 << 8) - 1));
 
             int32_t const r1 = krand2(), r2 = krand2();
-            A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, GLASSPIECES + (j % 3), -32, 36, 36, SA(spriteNum) - 1024, 32 + (r2 & 63),
+            A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, SA(spriteNum) - 1024, 32 + (r2 & 63),
                            -(r1 & 1023), spriteNum, 5);
         }
     }
@@ -7623,7 +7624,7 @@ void A_SpawnWallPopcorn(int spriteNum, int wallNum, int glassCnt)
         {
             int const a = SA(spriteNum) - 256 + (krand2() & 511) + 1024;
             int32_t const r1 = krand2(), r2 = krand2();
-            A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum), POPCORN, -32, 36, 36, a,
+            A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum), TILE_POPCORN, -32, 36, 36, a,
                            32 + (r2 & 63), 1024 - (r1 & 1023), spriteNum, 5);
         }
         return;
@@ -7654,7 +7655,7 @@ void A_SpawnWallPopcorn(int spriteNum, int wallNum, int glassCnt)
                 z = SZ(spriteNum) - ZOFFSET5 + (krand2() & ((64 << 8) - 1));
 
             int32_t const r1 = krand2(), r2 = krand2();
-            A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, POPCORN, -32, 36, 36, SA(spriteNum) - 1024, 32 + (r2 & 63),
+            A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, TILE_POPCORN, -32, 36, 36, SA(spriteNum) - 1024, 32 + (r2 & 63),
                            -(r1 & 1023), spriteNum, 5);
         }
     }
@@ -7668,7 +7669,7 @@ void A_SpawnGlass(int spriteNum, int glassCnt)
         int const z = SZ(spriteNum)-((krand2()&16)<<8);
         int32_t const r1 = krand2(), r2 = krand2(), r3 = krand2();
         int const k
-        = A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), z, GLASSPIECES + (glassCnt % 3),
+        = A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), z, TILE_GLASSPIECES + (glassCnt % 3),
                          r3 & 15, 36, 36, a, 32 + (r2 & 63), -512 - (r1 & 2047), spriteNum, 5);
         sprite[k].pal = sprite[spriteNum].pal;
     }
@@ -7691,7 +7692,7 @@ void A_SpawnCeilingGlass(int spriteNum, int sectNum, int glassCnt)
             v1.y += v.y;
             int const a = krand2()&2047;
             int const z = sector[sectNum].ceilingz+((krand2()&15)<<8);
-            A_InsertSprite(sectNum, v1.x, v1.y, z, GLASSPIECES + (j % 3), -32, 36, 36,
+            A_InsertSprite(sectNum, v1.x, v1.y, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36,
                            a, (krand2() & 31), 0, spriteNum, 5);
         }
     }
@@ -7706,7 +7707,7 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
             int const a = krand2() & 2047;
             int32_t const r1 = krand2(), r2 = krand2(), r3 = krand2();
             int const k
-            = A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (r3 & (63 << 8)), GLASSPIECES + (j % 3),
+            = A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (r3 & (63 << 8)), TILE_GLASSPIECES + (j % 3),
                              -32, 36, 36, a, 32 + (r2 & 63), 1024 - (r1 & 2047), spriteNum, 5);
             sprite[k].pal = krand2() & 15;
         }
@@ -7731,7 +7732,7 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
             z       = SZ(spriteNum) - ZOFFSET5 + (krand2() & ((64 << 8) - 1));
 
         int32_t const r1 = krand2(), r2 = krand2();
-        int const k = A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, GLASSPIECES + (j % 3), -32, 36, 36, SA(spriteNum) - 1024,
+        int const k = A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, SA(spriteNum) - 1024,
                                      32 + (r2 & 63), -(r1 & 2047), spriteNum, 5);
         sprite[k].pal = krand2() & 7;
     }

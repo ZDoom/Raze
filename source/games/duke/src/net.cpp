@@ -132,12 +132,12 @@ void Net_SyncPlayer(ENetEvent *event)
 
 static void display_betascreen(void)
 {
-    rotatesprite_fs(160<<16,100<<16,65536,0,BETASCREEN,0,0,2+8+64+BGSTRETCH, nullptr, TITLEPAL);
+    rotatesprite_fs(160<<16,100<<16,65536,0,TILE_BETASCREEN,0,0,2+8+64+BGSTRETCH, nullptr, TITLEPAL);
 
-    rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8, nullptr, TITLEPAL);
-    rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8, nullptr, TITLEPAL);
+    rotatesprite_fs(160<<16,(104)<<16,60<<10,0,TILE_DUKENUKEM,0,0,2+8, nullptr, TITLEPAL);
+    rotatesprite_fs(160<<16,(129)<<16,30<<11,0,TILE_THREEDEE,0,0,2+8, nullptr, TITLEPAL);
     if (PLUTOPAK)   // JBF 20030804
-        rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8, nullptr, TITLEPAL);
+        rotatesprite_fs(160<<16,(151)<<16,30<<11,0,TILE_PLUTOPAKSPRITE+1,0,0,2+8, nullptr, TITLEPAL);
 }
 
 void faketimerhandler(void)
@@ -647,14 +647,14 @@ void Net_DoPrediction(void)
             while (spriteNum >= 0)
             {
                 int const nextSprite = nextspritesect[spriteNum];
-                if (sprite[spriteNum].picnum == RRTILE380)
+                if (sprite[spriteNum].picnum == TILE_RRTILE380)
                     if (sprite[spriteNum].z - ZOFFSET3 < mypos.z)
                         sectorLotag = 2;
                 spriteNum = nextSprite;
             }
         }
 
-        if (sectorLotag == 848 && sector[mycursectnum].floorpicnum == WATERTILE2)
+        if (sectorLotag == 848 && sector[mycursectnum].floorpicnum == TILE_WATERTILE2)
             sectorLotag = 1;
 
         if (sectorLotag == 857)
@@ -668,7 +668,7 @@ void Net_DoPrediction(void)
     int stepHeight, centerHoriz;
     int16_t   ceilingBunch, floorBunch;
 
-    if (ud.clipping == 0 && (mycursectnum < 0 || mycursectnum >= MAXSECTORS || sector[mycursectnum].floorpicnum == MIRROR))
+    if (ud.clipping == 0 && (mycursectnum < 0 || mycursectnum >= MAXSECTORS || sector[mycursectnum].floorpicnum == TILE_MIRROR))
     {
         mypos.x = omypos.x;
         mypos.y = omypos.y;
@@ -742,7 +742,7 @@ void Net_DoPrediction(void)
         }
         if (RR)
         {
-            if (sprite[highZhit].picnum == RRTILE3587)
+            if (sprite[highZhit].picnum == TILE_RRTILE3587)
             {
                 if (!my_stairs)
                 {
@@ -806,7 +806,7 @@ check_enemy_sprite:
         }
         if (RR)
         {
-            if (sprite[spriteNum].picnum == RRTILE3587)
+            if (sprite[spriteNum].picnum == TILE_RRTILE3587)
             {
                 if (!my_stairs)
                 {
@@ -1114,12 +1114,12 @@ check_enemy_sprite:
         {
             if (RRRA)
             {
-                if (sector[mycursectnum].floorpicnum == RRTILE7888)
+                if (sector[mycursectnum].floorpicnum == TILE_RRTILE7888)
                 {
                     if (pPlayer->on_motorcycle && myonground)
                         my_moto_on_oil = 1;
                 }
-                else if (sector[mycursectnum].floorpicnum == RRTILE7889)
+                else if (sector[mycursectnum].floorpicnum == TILE_RRTILE7889)
                 {
                     if (pPlayer->on_motorcycle)
                     {
@@ -1133,7 +1133,7 @@ check_enemy_sprite:
                     }
                 }
             }
-            if (sector[mycursectnum].floorpicnum == RRTILE3073 || sector[mycursectnum].floorpicnum == RRTILE2702)
+            if (sector[mycursectnum].floorpicnum == TILE_RRTILE3073 || sector[mycursectnum].floorpicnum == TILE_RRTILE2702)
             {
                 if (RRRA && pPlayer->on_motorcycle)
                 {
@@ -1244,7 +1244,7 @@ FAKEHORIZONLY:;
                 
             if (RRRA && pPlayer->on_motorcycle)
             {
-                if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == APLAYER)
+                if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == TILE_APLAYER)
                 {
                     my_moto_speed -= my_moto_speed>>2;
                     my_moto_turb = 6;
@@ -1252,7 +1252,7 @@ FAKEHORIZONLY:;
             }
             else if (RRRA && pPlayer->on_boat)
             {
-                if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == APLAYER)
+                if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == TILE_APLAYER)
                 {
                     my_moto_speed -= my_moto_speed>>2;
                     my_moto_turb = 6;

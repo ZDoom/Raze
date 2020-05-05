@@ -87,9 +87,9 @@ void Menu_Init(void)
 
 	// prepare menu fonts
 	// check if tilenum is -1 in case it was set in EVENT_SETDEFAULTS
-	if ((unsigned)MF_Redfont.tilenum >= MAXTILES) MF_Redfont.tilenum = BIGALPHANUM;
-	if ((unsigned)MF_Bluefont.tilenum >= MAXTILES) MF_Bluefont.tilenum = STARTALPHANUM;
-	if ((unsigned)MF_Minifont.tilenum >= MAXTILES) MF_Minifont.tilenum = MINIFONT;
+	if ((unsigned)MF_Redfont.tilenum >= MAXTILES) MF_Redfont.tilenum = TILE_BIGALPHANUM;
+	if ((unsigned)MF_Bluefont.tilenum >= MAXTILES) MF_Bluefont.tilenum = TILE_STARTALPHANUM;
+	if ((unsigned)MF_Minifont.tilenum >= MAXTILES) MF_Minifont.tilenum = TILE_MINIFONT;
 	MF_Redfont.emptychar.y = tilesiz[MF_Redfont.tilenum].y << 16;
 	MF_Bluefont.emptychar.y = tilesiz[MF_Bluefont.tilenum].y << 16;
 	MF_Minifont.emptychar.y = tilesiz[MF_Minifont.tilenum].y << 16;
@@ -122,12 +122,12 @@ void Menu_Init(void)
 
 static void Menu_DrawBackground(const DVector2 &origin)
 {
-	rotatesprite_fs(int(origin.X * 65536) + (MENU_MARGIN_CENTER << 16), int(origin.Y * 65536) + (100 << 16), 65536L, 0, MENUSCREEN, 16, 0, 10 + 64);
+	rotatesprite_fs(int(origin.X * 65536) + (MENU_MARGIN_CENTER << 16), int(origin.Y * 65536) + (100 << 16), 65536L, 0, TILE_MENUSCREEN, 16, 0, 10 + 64);
 }
 
 static void Menu_DrawTopBar(const DVector2 &origin)
 {
-    rotatesprite_fs(int(origin.X*65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y*65536) + (19<<16), MF_Redfont.cursorScale3, 0,MENUBAR,16,0,10);
+    rotatesprite_fs(int(origin.X*65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y*65536) + (19<<16), MF_Redfont.cursorScale3, 0,TILE_MENUBAR,16,0,10);
 }
 
 static void Menu_DrawTopBarCaption(const char* caption, const DVector2& origin)
@@ -198,13 +198,13 @@ static void Menu_DrawCursorCommon(int32_t x, int32_t y, int32_t z, int32_t picnu
 static void Menu_DrawCursorLeft(int32_t x, int32_t y, int32_t z)
 {
 	const int frames = RR ? 16 : 7;
-	Menu_DrawCursorCommon(x, y, z, SPINNINGNUKEICON+(((int32_t) totalclock>>3)%frames));
+	Menu_DrawCursorCommon(x, y, z, TILE_SPINNINGNUKEICON+(((int32_t) totalclock>>3)%frames));
 }
 
 static void Menu_DrawCursorRight(int32_t x, int32_t y, int32_t z)
 {
 	const int frames = RR ? 16 : 7;
-    Menu_DrawCursorCommon(x, y, z, SPINNINGNUKEICON+frames-1-((frames-1+((int32_t) totalclock>>3))%frames));
+    Menu_DrawCursorCommon(x, y, z, TILE_SPINNINGNUKEICON+frames-1-((frames-1+((int32_t) totalclock>>3))%frames));
 }
 
 static int Menu_GetFontHeight(int fontnum)
@@ -248,7 +248,7 @@ void Menu_DHLeaonardHeadDisplay(vec2_t pos)
 			dword_A99A4 = 160 - ((rrdh_random() & 255) - 128);
 			word_A99B0 = ((rrdh_random() & 127) + 1984) & 2047;
 			dword_A99AC = (rrdh_random() & 4095) - 4090;
-			word_A99B2 = SPINNINGNUKEICON + (rrdh_random() & 15);
+			word_A99B2 = TILE_SPINNINGNUKEICON + (rrdh_random() & 15);
 		}
 		break;
 	case 1:
@@ -285,10 +285,10 @@ void Menu_DHLeaonardHeadDisplay(vec2_t pos)
 					dword_A99A0 = 3;
 			}
 		}
-		if (word_A99B2 < SPINNINGNUKEICON)
-			word_A99B2 = SPINNINGNUKEICON + 15;
-		if (word_A99B2 > SPINNINGNUKEICON + 15)
-			word_A99B2 = SPINNINGNUKEICON;
+		if (word_A99B2 < TILE_SPINNINGNUKEICON)
+			word_A99B2 = TILE_SPINNINGNUKEICON + 15;
+		if (word_A99B2 > TILE_SPINNINGNUKEICON + 15)
+			word_A99B2 = TILE_SPINNINGNUKEICON;
 		pos.x += dword_A99A4 << 16;
 		pos.y += (240 - dword_A99A8) << 16;
 		rotatesprite(pos.x, pos.y, 32768 - dword_A99AC, word_A99B0, word_A99B2, 0, 0, 10, 0, 0, xdim - 1, ydim - 1);
@@ -384,21 +384,21 @@ class DukeMainMenu : public DukeListMenu
 		{
 			vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
 			Menu_DHLeaonardHeadDisplay(forigin);
-			rotatesprite_fs(forigin.x + (MENU_MARGIN_CENTER << 16), forigin.y + ((32) << 16), 20480L, 0, DUKENUKEM, 0, 0, 10);
+			rotatesprite_fs(forigin.x + (MENU_MARGIN_CENTER << 16), forigin.y + ((32) << 16), 20480L, 0, TILE_DUKENUKEM, 0, 0, 10);
 		}
 		else if (RRRA)
 		{
-			rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER - 5) << 16), int(origin.Y * 65536) + ((57) << 16), 16592L, 0, THREEDEE, 0, 0, 10);
+			rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER - 5) << 16), int(origin.Y * 65536) + ((57) << 16), 16592L, 0, TILE_THREEDEE, 0, 0, 10);
 		}
 		else if (RR)
 		{
-			rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER + 5) << 16), int(origin.Y * 65536) + ((24) << 16), 23592L, 0, INGAMEDUKETHREEDEE, 0, 0, 10);
+			rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER + 5) << 16), int(origin.Y * 65536) + ((24) << 16), 23592L, 0, TILE_INGAMEDUKETHREEDEE, 0, 0, 10);
 		}
 		else
         {
-            rotatesprite_fs(int(origin.X * 65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y * 65536) + ((28)<<16), 65536L,0,INGAMEDUKETHREEDEE,0,0,10);
+            rotatesprite_fs(int(origin.X * 65536) + (MENU_MARGIN_CENTER<<16), int(origin.Y * 65536) + ((28)<<16), 65536L,0,TILE_INGAMEDUKETHREEDEE,0,0,10);
             if (PLUTOPAK)   // JBF 20030804
-                rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER+100)<<16), int(origin.Y * 65536) + (36<<16), 65536L,0,PLUTOPAKSPRITE+2,(sintable[((int32_t) totalclock<<4)&2047]>>11),0,2+8);
+                rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER+100)<<16), int(origin.Y * 65536) + (36<<16), 65536L,0,TILE_PLUTOPAKSPRITE+2,(sintable[((int32_t) totalclock<<4)&2047]>>11),0,2+8);
         }
 		
 	}
@@ -753,9 +753,9 @@ void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *t
 void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 {
 	if (RR)
-		rotatesprite_fs(int(origin.X * 65536) + (260<<16), int(origin.Y * 65536) + ((24+(tilesiz[APLAYER].y>>2))<<16), 24576L,0,3845+36-((((8-((int32_t) totalclock>>4)))&7)*5),0,onteam ? G_GetTeamPalette(playerteam) : G_CheckPlayerColor(playercolor),10);
+		rotatesprite_fs(int(origin.X * 65536) + (260<<16), int(origin.Y * 65536) + ((24+(tilesiz[TILE_APLAYER].y>>2))<<16), 24576L,0,3845+36-((((8-((int32_t) totalclock>>4)))&7)*5),0,onteam ? G_GetTeamPalette(playerteam) : G_CheckPlayerColor(playercolor),10);
 	else
-		rotatesprite_fs(int(origin.X * 65536) + (260<<16), int(origin.Y * 65536) + ((24+(tilesiz[APLAYER].y>>1))<<16), 49152L,0,1441-((((4-((int32_t) totalclock>>4)))&3)*5),0,onteam ? G_GetTeamPalette(playerteam) : G_CheckPlayerColor(playercolor),10);
+		rotatesprite_fs(int(origin.X * 65536) + (260<<16), int(origin.Y * 65536) + ((24+(tilesiz[TILE_APLAYER].y>>1))<<16), 49152L,0,1441-((((4-((int32_t) totalclock>>4)))&3)*5),0,onteam ? G_GetTeamPalette(playerteam) : G_CheckPlayerColor(playercolor),10);
 }
 
 void GameInterface::QuitToTitle()

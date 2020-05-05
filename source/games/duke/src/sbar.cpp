@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "sbar.h"
 #include "statusbar.h"
+#include "v_draw.h"
 #include "texturemanager.h"
-
 BEGIN_DUKE_NS
 
 static FFont* IndexFont;
@@ -46,7 +46,7 @@ void InitFonts()
     // Small font
     for (int i = 0; i < 95; i++)
     {
-        auto tile = tileGetTexture(STARTALPHANUM + i);
+        auto tile = tileGetTexture(TILE_STARTALPHANUM + i);
         if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
             fontdata.Insert('!' + i, tile);
     }
@@ -56,29 +56,29 @@ void InitFonts()
     // Big font
 
     // This font is VERY messy...
-    fontdata.Insert('_', tileGetTexture(BIGALPHANUM - 11));
-    fontdata.Insert('-', tileGetTexture(BIGALPHANUM - 11));
-    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(BIGALPHANUM - 10 + i));
-    for (int i = 0; i < 26; i++) fontdata.Insert('A' + i, tileGetTexture(BIGALPHANUM + i));
-    fontdata.Insert('.', tileGetTexture(BIGPERIOD));
-    fontdata.Insert(',', tileGetTexture(BIGCOMMA));
-    fontdata.Insert('!', tileGetTexture(BIGX_));
-    fontdata.Insert('?', tileGetTexture(BIGQ));
-    fontdata.Insert(';', tileGetTexture(BIGSEMI));
-    fontdata.Insert(':', tileGetTexture(BIGCOLIN));
-    fontdata.Insert('\\', tileGetTexture(BIGALPHANUM + 68));
-    fontdata.Insert('/', tileGetTexture(BIGALPHANUM + 68));
-    fontdata.Insert('%', tileGetTexture(BIGALPHANUM + 69));
-    fontdata.Insert('`', tileGetTexture(BIGAPPOS));
-    fontdata.Insert('"', tileGetTexture(BIGAPPOS));
-    fontdata.Insert('\'', tileGetTexture(BIGAPPOS));
+    fontdata.Insert('_', tileGetTexture(TILE_BIGALPHANUM - 11));
+    fontdata.Insert('-', tileGetTexture(TILE_BIGALPHANUM - 11));
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(TILE_BIGALPHANUM - 10 + i));
+    for (int i = 0; i < 26; i++) fontdata.Insert('A' + i, tileGetTexture(TILE_BIGALPHANUM + i));
+    fontdata.Insert('.', tileGetTexture(TILE_BIGPERIOD));
+    fontdata.Insert(',', tileGetTexture(TILE_BIGCOMMA));
+    fontdata.Insert('!', tileGetTexture(TILE_BIGX_));
+    fontdata.Insert('?', tileGetTexture(TILE_BIGQ));
+    fontdata.Insert(';', tileGetTexture(TILE_BIGSEMI));
+    fontdata.Insert(':', tileGetTexture(TILE_BIGCOLIN));
+    fontdata.Insert('\\', tileGetTexture(TILE_BIGALPHANUM + 68));
+    fontdata.Insert('/', tileGetTexture(TILE_BIGALPHANUM + 68));
+    fontdata.Insert('%', tileGetTexture(TILE_BIGALPHANUM + 69));
+    fontdata.Insert('`', tileGetTexture(TILE_BIGAPPOS));
+    fontdata.Insert('"', tileGetTexture(TILE_BIGAPPOS));
+    fontdata.Insert('\'', tileGetTexture(TILE_BIGAPPOS));
     BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
     fontdata.Clear();
 
     // Tiny font
     for (int i = 0; i < 95; i++)
     {
-        auto tile = tileGetTexture(MINIFONT + i);
+        auto tile = tileGetTexture(TILE_MINIFONT + i);
         if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
             fontdata.Insert('!' + i, tile);
     }
@@ -87,17 +87,17 @@ void InitFonts()
     fontdata.Clear();
 
     // SBAR index font
-    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(THREEBYFIVE + i));
-    fontdata.Insert(':', tileGetTexture(THREEBYFIVE + 10));
-    fontdata.Insert('/', tileGetTexture(THREEBYFIVE + 11));
-    fontdata.Insert('%', tileGetTexture(MINIFONT + '%' - '!'));
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(TILE_THREEBYFIVE + i));
+    fontdata.Insert(':', tileGetTexture(TILE_THREEBYFIVE + 10));
+    fontdata.Insert('/', tileGetTexture(TILE_THREEBYFIVE + 11));
+    fontdata.Insert('%', tileGetTexture(TILE_MINIFONT + '%' - '!'));
     fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
     IndexFont = new ::FFont("IndexFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
 
     fontdata.Clear();
 
     // digital font
-    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(DIGITALNUM + i));
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(TILE_DIGITALNUM + i));
     fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
     DigiFont = new ::FFont("DigiFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
 
@@ -173,7 +173,7 @@ class DukeStatusBar : public DBaseStatusBar
     DHUDFont digiFont;
     double scale;
     std::array<int, MAX_WEAPONS> ammo_sprites;
-    std::array<int, 8> item_icons = { 0, FIRSTAID_ICON, STEROIDS_ICON, HOLODUKE_ICON, JETPACK_ICON, HEAT_ICON, AIRTANK_ICON, BOOT_ICON };
+    std::array<int, 8> item_icons = { 0, TILE_FIRSTAID_ICON, TILE_STEROIDS_ICON, TILE_HOLODUKE_ICON, TILE_JETPACK_ICON, TILE_HEAT_ICON, TILE_AIRTANK_ICON, TILE_BOOT_ICON };
 
 public:
     DukeStatusBar()
@@ -183,18 +183,18 @@ public:
         digiFont(DigiFont, 1 , Off, 1, 1)
     {
         // optionally draw at the top of the screen.
-        SetSize(tilesiz[BOTTOMSTATUSBAR].y);
+        SetSize(tilesiz[TILE_BOTTOMSTATUSBAR].y);
         drawOffset.Y = hud_position ? -168 : 0;
         scale = (g_gameType & GAMEFLAG_RRALL) ? 0.5 : 1;
 
         if (!(g_gameType & GAMEFLAG_RRALL))
         {
-            ammo_sprites = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO, TRIPBOMBSPRITE, FREEZEAMMO + 1, HBOMBAMMO, GROWAMMO/*, FLAMETHROWERAMMO + 1*/ };
+            ammo_sprites = { -1, TILE_AMMO, TILE_SHOTGUNAMMO, TILE_BATTERYAMMO, TILE_RPGAMMO, TILE_HBOMBAMMO, TILE_CRYSTALAMMO, TILE_DEVISTATORAMMO, TILE_TRIPBOMBSPRITE, TILE_FREEZEAMMO + 1, TILE_HBOMBAMMO, TILE_GROWAMMO/*, FLAMETHROWERAMMO + 1*/ };
         }
         else
         {
-            ammo_sprites = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO, HBOMBAMMO, HBOMBAMMO, RRTILE43, DEVISTATORAMMO, TRIPBOMBSPRITE, GROWSPRITEICON, HBOMBAMMO, -1,
-                BOWLINGBALLSPRITE, MOTOAMMO, BOATAMMO, -1, RPG2SPRITE };
+            ammo_sprites = { -1, TILE_AMMO, TILE_SHOTGUNAMMO, TILE_BATTERYAMMO, TILE_HBOMBAMMO, TILE_HBOMBAMMO, TILE_RRTILE43, TILE_DEVISTATORAMMO, TILE_TRIPBOMBSPRITE, TILE_GROWSPRITEICON, TILE_HBOMBAMMO, -1,
+                TILE_BOWLINGBALLSPRITE, TILE_MOTOAMMO, TILE_BOATAMMO, -1, TILE_RPG2SPRITE };
         }
     }
 
@@ -218,10 +218,10 @@ public:
         for (i = connecthead; i >= 0; i = connectpoint2[i])
             if (i > j) j = i;
 
-        rotatesprite(0, 0, 65600L, 0, FRAGBAR, 0, 0, 2 + 8 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
-        if (j >= 4) rotatesprite(319, (8) << 16, 65600L, 0, FRAGBAR, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
-        if (j >= 8) rotatesprite(319, (16) << 16, 65600L, 0, FRAGBAR, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
-        if (j >= 12) rotatesprite(319, (24) << 16, 65600L, 0, FRAGBAR, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
+        rotatesprite(0, 0, 65600L, 0, TILE_FRAGBAR, 0, 0, 2 + 8 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
+        if (j >= 4) rotatesprite(319, (8) << 16, 65600L, 0, TILE_FRAGBAR, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
+        if (j >= 8) rotatesprite(319, (16) << 16, 65600L, 0, TILE_FRAGBAR, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
+        if (j >= 12) rotatesprite(319, (24) << 16, 65600L, 0, TILE_FRAGBAR, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
 
         for (i = connecthead; i >= 0; i = connectpoint2[i])
         {
@@ -287,28 +287,28 @@ public:
                 switch (i)
                 {
                 case 1:
-                    DrawGraphic(tileGetTexture(FIRSTAID_ICON), x, y, align, alpha, 0, 0, scale, scale);
+                    DrawGraphic(tileGetTexture(TILE_FIRSTAID_ICON), x, y, align, alpha, 0, 0, scale, scale);
                     break;
                 case 2:
-                    DrawGraphic(tileGetTexture(STEROIDS_ICON), x, y, align, alpha, 0, 0, scale, scale);
+                    DrawGraphic(tileGetTexture(TILE_STEROIDS_ICON), x, y, align, alpha, 0, 0, scale, scale);
                     break;
                 case 4:
-                    DrawGraphic(tileGetTexture(HOLODUKE_ICON), x, y, align, alpha, 0, 0, scale, scale);
+                    DrawGraphic(tileGetTexture(TILE_HOLODUKE_ICON), x, y, align, alpha, 0, 0, scale, scale);
                     break;
                 case 8:
-                    DrawGraphic(tileGetTexture(JETPACK_ICON), x, y, align, alpha, 0, 0, scale, scale);
+                    DrawGraphic(tileGetTexture(TILE_JETPACK_ICON), x, y, align, alpha, 0, 0, scale, scale);
                     break;
                 case 16:
-                    DrawGraphic(tileGetTexture(HEAT_ICON), x, y, align, alpha, 0, 0, scale, scale);
+                    DrawGraphic(tileGetTexture(TILE_HEAT_ICON), x, y, align, alpha, 0, 0, scale, scale);
                     break;
                 case 32:
-                    DrawGraphic(tileGetTexture(AIRTANK_ICON), x, y, align, alpha, 0, 0, scale, scale);
+                    DrawGraphic(tileGetTexture(TILE_AIRTANK_ICON), x, y, align, alpha, 0, 0, scale, scale);
                     break;
                 case 64:
-                    DrawGraphic(tileGetTexture(BOOT_ICON), x, y, align, alpha, 0, 0, scale, scale);
+                    DrawGraphic(tileGetTexture(TILE_BOOT_ICON), x, y, align, alpha, 0, 0, scale, scale);
                     break;
                 }
-                if (select == i) DrawGraphic(tileGetTexture(ARROW), x, y, align, alpha, 0, 0, scale, scale);
+                if (select == i) DrawGraphic(tileGetTexture(TILE_ARROW), x, y, align, alpha, 0, 0, scale, scale);
                 x += 22;
             }
         }
@@ -325,7 +325,7 @@ public:
         //
         // Health
         //
-        DrawGraphic(tileGetTexture(COLA), 2, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
+        DrawGraphic(tileGetTexture(TILE_COLA), 2, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
 
         FString format;
         if (!althud_flashing || p->last_extra > (p->max_player_health >> 2) || ((int32_t)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
@@ -342,7 +342,7 @@ public:
         //
         // Armor
         //
-        DrawGraphic(tileGetTexture(SHIELD), 62, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
+        DrawGraphic(tileGetTexture(TILE_SHIELD), 62, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
 
         format.Format("%d", GetMoraleOrShield(p, snum));
         SBar_DrawString(this, &numberFont, format, 105, -numberFont.mFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
@@ -392,9 +392,9 @@ public:
         //
         // keys
         //
-        if (p->got_access & 1) DrawGraphic(tileGetTexture(ACCESSCARD), -29, -30, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 0));
-        if (p->got_access & 4) DrawGraphic(tileGetTexture(ACCESSCARD), -24, -28, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-        if (p->got_access & 2) DrawGraphic(tileGetTexture(ACCESSCARD), -19, -26, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+        if (p->got_access & 1) DrawGraphic(tileGetTexture(TILE_ACCESSCARD), -29, -30, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+        if (p->got_access & 4) DrawGraphic(tileGetTexture(TILE_ACCESSCARD), -24, -28, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+        if (p->got_access & 2) DrawGraphic(tileGetTexture(TILE_ACCESSCARD), -19, -26, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 21));
     }
 
 
@@ -409,7 +409,7 @@ public:
         //
         // health
         //
-        DrawGraphic(tileGetTexture(HEALTHBOX), 5, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+        DrawGraphic(tileGetTexture(TILE_HEALTHBOX), 5, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
         int32_t health = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
         FStringf format("%d", health);
         SBar_DrawString(this, &digiFont, format, 19, -digiFont.mFont->GetHeight() * scale - 7, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
@@ -417,7 +417,7 @@ public:
         //
         // ammo
         //
-        DrawGraphic(tileGetTexture(AMMOBOX), 37, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+        DrawGraphic(tileGetTexture(TILE_AMMOBOX), 37, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
         int wp = (p->curr_weapon == HANDREMOTE_WEAPON) ? HANDBOMB_WEAPON : p->curr_weapon;
         format.Format("%d", p->ammo_amount[wp]);
         SBar_DrawString(this, &digiFont, format, 53, -digiFont.mFont->GetHeight() * scale - 7, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
@@ -429,7 +429,7 @@ public:
         if (icon > 0)
         {
             int x = 73;
-            DrawGraphic(tileGetTexture(INVENTORYBOX), 69, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(TILE_INVENTORYBOX), 69, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
             if (icon < ICON_MAX)
                 DrawGraphic(tileGetTexture(item_icons[icon]), x, -14, DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, -1, -1, scale, scale);
 
@@ -457,7 +457,7 @@ public:
         // Health
         //
 
-        DrawGraphic(tileGetTexture(SPINNINGNUKEICON+1), 2, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 10000. / 65536., 10000. / 65536.);
+        DrawGraphic(tileGetTexture(TILE_SPINNINGNUKEICON+1), 2, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 10000. / 65536., 10000. / 65536.);
 
         FString format;
         if (!althud_flashing || p->last_extra > (p->max_player_health >> 2) || ((int32_t)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
@@ -474,14 +474,14 @@ public:
         //
         // drink
         //
-        DrawGraphic(tileGetTexture(COLA), 70, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 10000. / 65536., 10000. / 65536.);
+        DrawGraphic(tileGetTexture(TILE_COLA), 70, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 10000. / 65536., 10000. / 65536.);
         format.Format("%d", p->drink_amt);
         SBar_DrawString(this, &numberFont, format, 98, -BigFont->GetHeight() * scale - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
         //
         // eat
         //
-        DrawGraphic(tileGetTexture(JETPACK), 122, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 20000. / 65536., 20000. / 65536.);
+        DrawGraphic(tileGetTexture(TILE_JETPACK), 122, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 20000. / 65536., 20000. / 65536.);
         format.Format("%d", p->eat_amt);
         SBar_DrawString(this, &numberFont, format, 175, -BigFont->GetHeight() * scale - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
@@ -525,9 +525,9 @@ public:
             auto text = ontext(p);
             if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 35, -miniFont.mFont->GetHeight() * scale - 9.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
         }
-        if (p->keys[1]) DrawGraphic(tileGetTexture(ACCESSCARD), -29, -32, DI_ITEM_BOTTOM, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 0));
-        if (p->keys[3]) DrawGraphic(tileGetTexture(ACCESSCARD), -24, -30, DI_ITEM_BOTTOM, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-        if (p->keys[2]) DrawGraphic(tileGetTexture(ACCESSCARD), -19, -28, DI_ITEM_BOTTOM, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+        if (p->keys[1]) DrawGraphic(tileGetTexture(TILE_ACCESSCARD), -29, -32, DI_ITEM_BOTTOM, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+        if (p->keys[3]) DrawGraphic(tileGetTexture(TILE_ACCESSCARD), -24, -30, DI_ITEM_BOTTOM, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+        if (p->keys[2]) DrawGraphic(tileGetTexture(TILE_ACCESSCARD), -19, -28, DI_ITEM_BOTTOM, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 21));
     }
 
 
@@ -542,7 +542,7 @@ public:
         //
         // health
         //
-        DrawGraphic(tileGetTexture(HEALTHBOX), 2, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+        DrawGraphic(tileGetTexture(TILE_HEALTHBOX), 2, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
         int32_t health = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
         FStringf format("%d", health);
         SBar_DrawString(this, &digiFont, format, 17, -digiFont.mFont->GetHeight() * scale - 7, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
@@ -550,7 +550,7 @@ public:
         //
         // ammo
         //
-        DrawGraphic(tileGetTexture(AMMOBOX), 41, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+        DrawGraphic(tileGetTexture(TILE_AMMOBOX), 41, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
         int wp = (p->curr_weapon == HANDREMOTE_WEAPON) ? HANDBOMB_WEAPON : p->curr_weapon;
         format.Format("%d", p->ammo_amount[wp]);
         SBar_DrawString(this, &digiFont, format, 57, -digiFont.mFont->GetHeight() * scale - 7, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
@@ -562,7 +562,7 @@ public:
         if (icon > 0)
         {
             int x = 81;
-            DrawGraphic(tileGetTexture(INVENTORYBOX), 77, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(TILE_INVENTORYBOX), 77, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
             if (icon < ICON_MAX)
                 DrawGraphic(tileGetTexture(item_icons[icon]), x, -14, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, -1, -1, scale, scale);
 
@@ -664,15 +664,15 @@ public:
             format.Format("%3d/%d", num1, num2);
         }
         y--;
-        DrawGraphic(tileGetTexture(THREEBYFIVE + index), x - 7, y, DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, 0, 0, 1, 1, LightForShade(shade - 10), TRANSLATION(Translation_Remap, 7));
+        DrawGraphic(tileGetTexture(TILE_THREEBYFIVE + index), x - 7, y, DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, 0, 0, 1, 1, LightForShade(shade - 10), TRANSLATION(Translation_Remap, 7));
         auto pe = LightForShade(shade);
-        DrawGraphic(tileGetTexture(THREEBYFIVE + 10), x - 3, y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, pe);
+        DrawGraphic(tileGetTexture(TILE_THREEBYFIVE + 10), x - 3, y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, pe);
         for (size_t i = 0; i < format.Len(); i++) 
         {
             if (format[i] != ' ')
             {
                 char c = format[i] == '/' ? 11 : format[i] - '0';
-                DrawGraphic(tileGetTexture(THREEBYFIVE + c), x + 4 * i, y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, pe);
+                DrawGraphic(tileGetTexture(TILE_THREEBYFIVE + c), x + 4 * i, y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, pe);
             }
         }
     }
@@ -716,23 +716,23 @@ public:
     void Statusbar(int32_t snum)
     {
         auto p = g_player[snum].ps;
-        int h = tilesiz[BOTTOMSTATUSBAR].y;
+        int h = tilesiz[TILE_BOTTOMSTATUSBAR].y;
         int top = 200 - h;
         BeginStatusBar(320, 200, h, true);
         DrawInventory(p, 160, 154, 0);
-        DrawGraphic(tileGetTexture(BOTTOMSTATUSBAR), 0, top, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+        DrawGraphic(tileGetTexture(TILE_BOTTOMSTATUSBAR), 0, top, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
 
         FString format;
 
         if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
         {
-            DrawGraphic(tileGetTexture(KILLSICON), 228, top + 8, DI_ITEM_OFFSETS, 1, 0, 0, 1, 1);
+            DrawGraphic(tileGetTexture(TILE_KILLSICON), 228, top + 8, DI_ITEM_OFFSETS, 1, 0, 0, 1, 1);
             format.Format("%d", max(p->frag - p->fraggedself, 0));
             SBar_DrawString(this, &digiFont, format, 287, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
         else
         {
-            auto key = tileGetTexture(ACCESS_ICON);
+            auto key = tileGetTexture(TILE_ACCESS_ICON);
             if (p->got_access & 4) DrawGraphic(key, 275, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 23));
             if (p->got_access & 2) DrawGraphic(key, 288, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 21));
             if (p->got_access & 1) DrawGraphic(key, 281, top + 23, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 0));
@@ -780,20 +780,20 @@ public:
     {
         double sbscale = 32800. / 65536.;
 
-        DrawGraphic(tileGetTexture(WEAPONBAR), 0, 158, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
+        DrawGraphic(tileGetTexture(TILE_WEAPONBAR), 0, 158, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
 
         FString format;
         for (int i = 0; i < 9; i++) 
         {
             if ((g_gameType & GAMEFLAG_RRRA) && i == 4 && p->curr_weapon == CHICKEN_WEAPON)
             {
-                DrawGraphic(tileGetTexture(AMMO_ICON + 10), 18 + i * 32, top - 6, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
+                DrawGraphic(tileGetTexture(TILE_AMMO_ICON + 10), 18 + i * 32, top - 6, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
                 format.Format("%d", p->ammo_amount[CHICKEN_WEAPON]);
             }
             else
             {
                 if (p->gotweapon & (1 << (i + 1))) {
-                    DrawGraphic(tileGetTexture(AMMO_ICON + i), 18 + i * 32, top - 6, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
+                    DrawGraphic(tileGetTexture(TILE_AMMO_ICON + i), 18 + i * 32, top - 6, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
                 }
                 format.Format("%d", p->ammo_amount[i+1]);
             }
@@ -811,7 +811,7 @@ public:
     void StatusbarRR(int32_t snum)
     {
         auto p = g_player[snum].ps;
-        double h = tilesiz[BOTTOMSTATUSBAR].y * scale;
+        double h = tilesiz[TILE_BOTTOMSTATUSBAR].y * scale;
         double top = 200 - h;
         BeginStatusBar(320, 200, h, true);
         DrawInventory(p, 160, 154, 0);
@@ -819,19 +819,19 @@ public:
         if (ud.screen_size > 8)
             DrawWeaponBar(p, top);
 
-        DrawGraphic(tileGetTexture(BOTTOMSTATUSBAR), 0, top, DI_ITEM_LEFT_TOP, 1, -1, -1, scale, scale);
+        DrawGraphic(tileGetTexture(TILE_BOTTOMSTATUSBAR), 0, top, DI_ITEM_LEFT_TOP, 1, -1, -1, scale, scale);
 
         FString format;
 
         if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
         {
-            DrawGraphic(tileGetTexture(KILLSICON), 228, top + 8, DI_ITEM_OFFSETS, 1, 0, 0, 1, 1);
+            DrawGraphic(tileGetTexture(TILE_KILLSICON), 228, top + 8, DI_ITEM_OFFSETS, 1, 0, 0, 1, 1);
             format.Format("%d", max(p->frag - p->fraggedself, 0));
             SBar_DrawString(this, &digiFont, format, 287, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
         }
         else
         {
-            auto key = tileGetTexture(ACCESS_ICON);
+            auto key = tileGetTexture(TILE_ACCESS_ICON);
             if (p->keys[3]) DrawGraphic(key, 140, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 23));
             if (p->keys[2]) DrawGraphic(key, 153, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 21));
             if (p->keys[1]) DrawGraphic(key, 146, top + 23, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 0));
@@ -870,41 +870,41 @@ public:
             p->drink_amt = 100;
             p->drink_ang = 400;
         }
-        DrawGraphic(tileGetTexture(GUTMETER), 257, top + 24, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, 0 /*, p->drink_ang * 360. / 2048 */ );
-        DrawGraphic(tileGetTexture(GUTMETER), 293, top + 24, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, 0 /*, p->eat_ang * 360. / 2048 */);
+        DrawGraphic(tileGetTexture(TILE_GUTMETER), 257, top + 24, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, 0 /*, p->drink_ang * 360. / 2048 */ );
+        DrawGraphic(tileGetTexture(TILE_GUTMETER), 293, top + 24, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, 0 /*, p->eat_ang * 360. / 2048 */);
 
         if (p->drink_amt >= 0 && p->drink_amt <= 30)
         {
-            DrawGraphic(tileGetTexture(GUTMETER_LIGHT1), 239, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT1), 239, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
         else if (p->drink_amt >= 31 && p->drink_amt <= 65)
         {
-            DrawGraphic(tileGetTexture(GUTMETER_LIGHT2), 248, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT2), 248, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
         else if (p->drink_amt >= 66 && p->drink_amt <= 87)
         {
-            DrawGraphic(tileGetTexture(GUTMETER_LIGHT3), 256, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT3), 256, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
         else
         {
-            DrawGraphic(tileGetTexture(GUTMETER_LIGHT4), 265, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT4), 265, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
 
         if (p->eat_amt >= 0 && p->eat_amt <= 30)
         {
-            DrawGraphic(tileGetTexture(GUTMETER_LIGHT1), 276, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT1), 276, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
         else if (p->eat_amt >= 31 && p->eat_amt <= 65)
         {
-            DrawGraphic(tileGetTexture(GUTMETER_LIGHT2), 285, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT2), 285, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
         else if (p->eat_amt >= 66 && p->eat_amt <= 87)
         {
-            DrawGraphic(tileGetTexture(GUTMETER_LIGHT3), 294, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT3), 294, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
         else
         {
-            DrawGraphic(tileGetTexture(GUTMETER_LIGHT4), 302, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT4), 302, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
 
     }
@@ -940,7 +940,7 @@ void G_DrawBackground(void)
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) == 0 && ud.recstat != 2)
     {
         twod->ClearScreen();
-        auto tex = tileGetTexture((g_gameType & GAMEFLAG_DEER) ? 7040 : MENUSCREEN);
+        auto tex = tileGetTexture((g_gameType & GAMEFLAG_DEER) ? 7040 : TILE_MENUSCREEN);
         PalEntry color = (g_gameType & GAMEFLAG_DEER) ? 0xffffffff : 0xff808080;
         if (!hud_bgstretch)
             DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_Color, color, TAG_DONE);
@@ -949,7 +949,7 @@ void G_DrawBackground(void)
         return;
     }
 
-    auto tex = tileGetTexture((g_gameType & GAMEFLAG_RRRA) ? RRTILE7629 : BIGHOLE);
+    auto tex = tileGetTexture((g_gameType & GAMEFLAG_RRRA) ? TILE_RRTILE7629 : TILE_BIGHOLE);
     if (tex != nullptr && tex->isValid())
     {
         if (windowxy1.y > 0)
@@ -968,8 +968,8 @@ void G_DrawBackground(void)
         {
             twod->AddFlatFill(windowxy2.x + 1, windowxy1.y, twod->GetWidth(), windowxy2.y + 1, tex, false, 1);
         }
-        auto vb = tileGetTexture(VIEWBORDER);
-        auto ve = tileGetTexture(VIEWBORDER + 1);
+        auto vb = tileGetTexture(TILE_VIEWBORDER);
+        auto ve = tileGetTexture(TILE_VIEWBORDER + 1);
         int x1 = windowxy1.x - 4;
         int y1 = windowxy1.y - 4;
         int x2 = windowxy2.x + 5;

@@ -32,13 +32,13 @@ void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN
     sky->lognumtiles = 3;
     sky->horizfrac   = 32768;
 
-    // CLOUDYOCEAN
+    // TILE_CLOUDYOCEAN
     // Aligns with the drawn scene horizon because it has one itself.
     sky              = tileSetupSky(CLOUDYOCEAN__DYN);
     sky->lognumtiles = 3;
     sky->horizfrac   = 65536;
 
-    // MOONSKY1
+    // TILE_MOONSKY1
     //        earth          mountain   mountain         sun
     sky              = tileSetupSky(MOONSKY1__DYN);
     sky->lognumtiles = 3;
@@ -48,7 +48,7 @@ void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN
     sky->tileofs[4]  = 2;
     sky->tileofs[2]  = 3;
 
-    // BIGORBIT1   // orbit
+    // TILE_BIGORBIT1   // orbit
     //       earth1         2           3           moon/sun
     sky              = tileSetupSky(BIGORBIT1__DYN);
     sky->lognumtiles = 3;
@@ -58,7 +58,7 @@ void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN
     sky->tileofs[7]  = 3;
     sky->tileofs[2]  = 4;
 
-    // LA // la city
+    // TILE_LA // la city
     //       earth1         2           3           moon/sun
     sky              = tileSetupSky(LA__DYN);
     sky->lognumtiles = 3;
@@ -123,7 +123,7 @@ void G_LoadLookups(void)
 
     for (j=1; j<=5; j++)
     {
-        // Account for TITLE and REALMS swap between basepal number and on-disk order.
+        // Account for TILE_TITLE and REALMS swap between basepal number and on-disk order.
         int32_t basepalnum = (j == 3 || j == 4) ? 4+3-j : j;
 
 		if (fr.Read(paldata, 768) != 768)

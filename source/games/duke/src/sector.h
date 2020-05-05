@@ -140,12 +140,12 @@ void G_Thunder(void);
 
 #define FORCEFIELD_CSTAT (64+16+4+1)
 
-// Returns W_FORCEFIELD if wall has a forcefield overpicnum, its overpicnum else.
+// Returns TILE_W_FORCEFIELD if wall has a forcefield overpicnum, its overpicnum else.
 static inline int G_GetForcefieldPicnum(int wallNum)
 {
     int tileNum = wall[wallNum].overpicnum;
-    if (tileNum == W_FORCEFIELD + 1 || tileNum == W_FORCEFIELD + 2)
-        tileNum = W_FORCEFIELD;
+    if (tileNum == TILE_W_FORCEFIELD + 1 || tileNum == TILE_W_FORCEFIELD + 2)
+        tileNum = TILE_W_FORCEFIELD;
     return tileNum;
 }
 

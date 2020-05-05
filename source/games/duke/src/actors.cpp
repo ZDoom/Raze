@@ -47,6 +47,7 @@ Note:
 
 #include "ns.h"
 #include "global.h"
+#include "names.h"
 
 BEGIN_DUKE_NS
 
@@ -55,7 +56,7 @@ bool ifsquished(int i, int p)
 	if (g_gameType & GAMEFLAG_RRALL) return false;	// this function is a no-op in RR's source.
 	
 	bool squishme = false;
-	if (sprite[i].picnum == APLAYER && ud.clipping)
+	if (sprite[i].picnum == TILE_APLAYER && ud.clipping)
 		return false;
 
 	auto &sc = sector[sprite[i].sectnum];
