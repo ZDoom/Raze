@@ -3844,7 +3844,7 @@ CHECKINV1:
                         if (currentWeapon == -1) currentWeapon = FREEZE_WEAPON;
                         else if (currentWeapon == 10) currentWeapon = KNEE_WEAPON;
 
-                        if ((pPlayer->gotweapon & (1<<currentWeapon)) && pPlayer->ammo_amount[currentWeapon] > 0)
+                        if ((pPlayer->gotweapon[currentWeapon]) && pPlayer->ammo_amount[currentWeapon] > 0)
                         {
                             if (!RR && currentWeapon == SHRINKER_WEAPON && pPlayer->subweapon&(1<<GROW_WEAPON))
                                 currentWeapon = GROW_WEAPON;
@@ -3852,14 +3852,14 @@ CHECKINV1:
                             break;
                         }
                         else if (!RR && currentWeapon == GROW_WEAPON && pPlayer->ammo_amount[GROW_WEAPON] == 0
-                            && (pPlayer->gotweapon & (1<<SHRINKER_WEAPON)) && pPlayer->ammo_amount[SHRINKER_WEAPON] > 0)
+                            && (pPlayer->gotweapon[SHRINKER_WEAPON]) && pPlayer->ammo_amount[SHRINKER_WEAPON] > 0)
                         {
                             weaponNum = SHRINKER_WEAPON;
                             pPlayer->subweapon &= ~(1<<GROW_WEAPON);
                             break;
                         }
                         else if (!RR && currentWeapon == SHRINKER_WEAPON && pPlayer->ammo_amount[SHRINKER_WEAPON] == 0
-                            && (pPlayer->gotweapon & (1<<SHRINKER_WEAPON)) && pPlayer->ammo_amount[GROW_WEAPON] > 0)
+                            && (pPlayer->gotweapon[SHRINKER_WEAPON]) && pPlayer->ammo_amount[GROW_WEAPON] > 0)
                         {
                             weaponNum = GROW_WEAPON;
                             pPlayer->subweapon |= (1<<GROW_WEAPON);
@@ -3883,7 +3883,7 @@ CHECKINV1:
                     {
                         if (sprite[spriteNum].picnum == TILE_HEAVYHBOMB && sprite[spriteNum].owner == pPlayer->i)
                         {
-                            pPlayer->gotweapon |= 1<<HANDREMOTE_WEAPON;
+                            pPlayer->gotweapon.Set(HANDREMOTE_WEAPON);
                             weaponNum = HANDREMOTE_WEAPON;
                             break;
                         }
@@ -3992,7 +3992,7 @@ CHECKINV1:
                     playerBits |= BIT(SK_HOLSTER);
                     pPlayer->weapon_pos = WEAPON_POS_LOWER;
                 }
-                else if ((uint32_t)weaponNum < MAX_WEAPONS && (pPlayer->gotweapon & (1<<weaponNum)) && pPlayer->curr_weapon != weaponNum)
+                else if ((uint32_t)weaponNum < MAX_WEAPONS && (pPlayer->gotweapon[weaponNum]) && pPlayer->curr_weapon != weaponNum)
                     switch (DYNAMICWEAPONMAP(weaponNum))
                     {
                     case SLINGBLADE_WEAPON__STATIC:
@@ -4032,7 +4032,7 @@ rrtripbomb_case:
                     case HANDBOMB_WEAPON__STATIC:
                     case TRIPBOMB_WEAPON__STATIC:
                         if (RR && weaponNum == TILE_TRIPBOMB) goto rrtripbomb_case;
-                        if (pPlayer->ammo_amount[weaponNum] > 0 && (pPlayer->gotweapon & (1<<weaponNum)))
+                        if (pPlayer->ammo_amount[weaponNum] > 0 && (pPlayer->gotweapon[weaponNum]))
                             P_AddWeapon(pPlayer, weaponNum);
                         break;
                     case MOTORCYCLE_WEAPON__STATIC:

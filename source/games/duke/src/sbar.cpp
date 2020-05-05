@@ -690,7 +690,7 @@ public:
         auto ShadeForWeapon = [=](int weapon, int optweapon = -1)
         {
             // Headache-inducing math at play here.
-            return (((!p->ammo_amount[weapon]) | ((p->gotweapon & (1 << weapon)) == 0)) * 9) + 12 - 18 * ((cw == weapon) || (optweapon != -1 && cw == optweapon));
+            return (((!p->ammo_amount[weapon]) | ((p->gotweapon[weapon]) == 0)) * 9) + 12 - 18 * ((cw == weapon) || (optweapon != -1 && cw == optweapon));
         };
 
         DrawWeaponNum(2, x, y, p->ammo_amount[PISTOL_WEAPON], p->max_ammo_amount[PISTOL_WEAPON], 12 - 20 * (cw == PISTOL_WEAPON), 3);
@@ -792,7 +792,7 @@ public:
             }
             else
             {
-                if (p->gotweapon & (1 << (i + 1))) {
+                if (p->gotweapon[i+1]) {
                     DrawGraphic(tileGetTexture(TILE_AMMO_ICON + i), 18 + i * 32, top - 6, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
                 }
                 format.Format("%d", p->ammo_amount[i+1]);

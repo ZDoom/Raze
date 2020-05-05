@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "namesdyn.h"
 #include "fix16.h"
 #include "net.h"
+#include "tarray.h"
 
 BEGIN_DUKE_NS
 
@@ -114,7 +115,7 @@ typedef struct {
     int16_t got_access, last_extra, inv_amount[GET_MAX], curr_weapon, holoduke_on;
     int16_t last_weapon, weapon_pos, kickback_pic;
     int16_t ammo_amount[MAX_WEAPONS], frag[MAXPLAYERS];
-    uint32_t gotweapon;
+    FixedBitArray<MAX_WEAPONS> gotweapon;
     char inven_icon, jetpack_on, heat_on;
 } DukeStatus_t;
 
@@ -133,7 +134,7 @@ typedef struct {
 // Need to carefully think about implications!
 // TODO: rearrange this if the opportunity arises!
 // KEEPINSYNC lunatic/_defs_game.lua
-typedef struct {
+typedef struct player_struct {
     vec3_t pos, opos, vel, npos;
     vec2_t bobpos, fric;
 
@@ -147,7 +148,7 @@ typedef struct {
 
     uint32_t interface_toggle_flag;
     uint16_t max_actors_killed, actors_killed;
-    uint32_t gotweapon;
+    FixedBitArray<MAX_WEAPONS> gotweapon;
     uint16_t zoom;
 
     int16_t loogiex[64], loogiey[64], sbs, sound_pitch;
@@ -381,6 +382,7 @@ static inline int P_GetP(const void *pSprite)
 
 // Get the player index given an TILE_APLAYER sprite index.
 static inline int P_Get(int32_t spriteNum) { return P_GetP((const uspritetype *)&sprite[spriteNum]); }
+extern int16_t max_ammo_amount[MAX_WEAPONS];
 
 END_DUKE_NS
 

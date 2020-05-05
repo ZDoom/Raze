@@ -879,7 +879,7 @@ static void VM_AddWeapon(DukePlayer_t * const pPlayer, int const weaponNum, int 
         return;
     }
 
-    if ((pPlayer->gotweapon & (1 << weaponNum)) == 0)
+    if ((pPlayer->gotweapon[weaponNum]) == 0)
     {
         P_AddWeapon(pPlayer, weaponNum);
     }
@@ -891,7 +891,7 @@ static void VM_AddWeapon(DukePlayer_t * const pPlayer, int const weaponNum, int 
 
     P_AddAmmo(pPlayer, weaponNum, nAmount);
 
-    if (pPlayer->curr_weapon == KNEE_WEAPON && (pPlayer->gotweapon & (1<<weaponNum)))
+    if (pPlayer->curr_weapon == KNEE_WEAPON && (pPlayer->gotweapon[weaponNum]))
         P_AddWeapon(pPlayer, weaponNum);
 }
 
@@ -911,7 +911,7 @@ static void VM_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int co
 
     P_AddAmmo(pPlayer, weaponNum, nAmount);
 
-    if (pPlayer->curr_weapon == KNEE_WEAPON && (pPlayer->gotweapon & (1<<weaponNum)))
+    if (pPlayer->curr_weapon == KNEE_WEAPON && (pPlayer->gotweapon[weaponNum]))
         P_AddWeapon(pPlayer, weaponNum);
 }
 

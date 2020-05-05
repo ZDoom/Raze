@@ -51,6 +51,10 @@ enum esound_t
 
 int A_CheckSoundPlaying(int spriteNum, int soundNum, int channel = 0);
 int A_PlaySound(int soundNum, int spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0);
+inline int spritesound(int soundnum, int spritenum)
+{
+    return A_PlaySound(soundnum, spritenum);
+}
 int A_CheckAnySoundPlaying(int spriteNum);
 int S_CheckSoundPlaying(int soundNum);
 inline int S_CheckSoundPlaying(int sprnum, int soundNum) { return S_CheckSoundPlaying(soundNum); }

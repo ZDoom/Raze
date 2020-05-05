@@ -4605,7 +4605,7 @@ void P_DropWeapon(int const playerNum)
             sprite[newSprite].ang = fix16_to_int(pPlayer->q16ang);
             sprite[newSprite].owner = pPlayer->ammo_amount[MOTORCYCLE_WEAPON];
             pPlayer->on_motorcycle = 0;
-            pPlayer->gotweapon &= ~(1<<MOTORCYCLE_WEAPON);
+            pPlayer->gotweapon.Clear(MOTORCYCLE_WEAPON);
             pPlayer->q16horiz = F16(100);
             pPlayer->moto_do_bump = 0;
             pPlayer->moto_speed = 0;
@@ -4621,7 +4621,7 @@ void P_DropWeapon(int const playerNum)
             sprite[newSprite].ang = fix16_to_int(pPlayer->q16ang);
             sprite[newSprite].owner = pPlayer->ammo_amount[BOAT_WEAPON];
             pPlayer->on_boat = 0;
-            pPlayer->gotweapon &= ~(1<<BOAT_WEAPON);
+            pPlayer->gotweapon.Clear(BOAT_WEAPON);
             pPlayer->q16horiz = F16(100);
             pPlayer->moto_do_bump = 0;
             pPlayer->moto_speed = 0;
@@ -4689,34 +4689,34 @@ void P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum)
     
     if (pPlayer->on_motorcycle || pPlayer->on_boat)
     {
-        pPlayer->gotweapon |= (1<<weaponNum);
+        pPlayer->gotweapon.Set(weaponNum);
 
         if (weaponNum == SHRINKER_WEAPON)
         {
-            pPlayer->gotweapon |= (1<<GROW_WEAPON);
+            pPlayer->gotweapon.Set(GROW_WEAPON);
             pPlayer->ammo_amount[GROW_WEAPON] = 1;
         }
         else if (weaponNum == RPG_WEAPON)
-            pPlayer->gotweapon |= (1<<CHICKEN_WEAPON);
+            pPlayer->gotweapon.Set(CHICKEN_WEAPON);
         else if (weaponNum == SLINGBLADE_WEAPON)
             pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 1;
         return;
     }
 
-    if ((pPlayer->gotweapon & (1<<weaponNum)) == 0)
+    if ((pPlayer->gotweapon[weaponNum]) == 0)
     {
-        pPlayer->gotweapon |= (1<<weaponNum);
+        pPlayer->gotweapon.Set(weaponNum);
 
         if (weaponNum == SHRINKER_WEAPON)
         {
-            pPlayer->gotweapon |= (1<<GROW_WEAPON);
+            pPlayer->gotweapon.Set(GROW_WEAPON);
             if (RR)
                 pPlayer->ammo_amount[GROW_WEAPON] = 1;
         }
         if (RRRA)
         {
             if (weaponNum == RPG_WEAPON)
-                pPlayer->gotweapon |= (1<<CHICKEN_WEAPON);
+                pPlayer->gotweapon.Set(CHICKEN_WEAPON);
             else if (weaponNum == SLINGBLADE_WEAPON)
                 pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 50;
         }
@@ -4796,7 +4796,7 @@ void P_CheckWeapon(DukePlayer_t *pPlayer)
         if (weaponNum == pPlayer->curr_weapon)
             return;
 
-        if ((pPlayer->gotweapon & (1<<weaponNum)) && pPlayer->ammo_amount[weaponNum] > 0)
+        if ((pPlayer->gotweapon[weaponNum]) && pPlayer->ammo_amount[weaponNum] > 0)
         {
             P_AddWeapon(pPlayer, weaponNum);
             return;
@@ -4805,7 +4805,7 @@ void P_CheckWeapon(DukePlayer_t *pPlayer)
 
     weaponNum = pPlayer->curr_weapon;
 
-    if ((pPlayer->gotweapon & (1<<weaponNum)) && pPlayer->ammo_amount[weaponNum] > 0)
+    if ((pPlayer->gotweapon[weaponNum]) && pPlayer->ammo_amount[weaponNum] > 0)
         return;
 
     playerNum  = P_Get(pPlayer->i);
@@ -4822,7 +4822,7 @@ void P_CheckWeapon(DukePlayer_t *pPlayer)
             weaponNum = RR ? DEVISTATOR_WEAPON : FREEZE_WEAPON;
         else weaponNum--;
 
-        if (weaponNum == KNEE_WEAPON || ((pPlayer->gotweapon & (1<<weaponNum)) && pPlayer->ammo_amount[weaponNum] > 0))
+        if (weaponNum == KNEE_WEAPON || ((pPlayer->gotweapon[weaponNum]) && pPlayer->ammo_amount[weaponNum] > 0))
             break;
     }
 
@@ -5922,7 +5922,7 @@ static void P_ProcessWeapon(int playerNum)
                     if (playerNum == screenpeek)
                         pus = 1;
                     pPlayer->ammo_amount[TRIPBOMB_WEAPON]--;
-                    pPlayer->gotweapon &= ~(1<<TRIPBOMB_WEAPON);
+                    pPlayer->gotweapon.Clear(TRIPBOMB_WEAPON);
                     if (pPlayer->on_ground && TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
                     {
                         FwdVel = 15;
@@ -5963,7 +5963,7 @@ static void P_ProcessWeapon(int playerNum)
                 if ((*weaponFrame) > 40)
                 {
                     (*weaponFrame) = 0;
-                    pPlayer->gotweapon &= ~(1 << BOWLINGBALL_WEAPON);
+                    pPlayer->gotweapon.Clear(BOWLINGBALL_WEAPON);
                     P_CheckWeapon(pPlayer);
                 }
                 break;
@@ -9417,5 +9417,7 @@ int P_HasKey(int sectNum, int playerNum)
     }
     return 0;
 }
+
+int16_t max_ammo_amount[MAX_WEAPONS];
 
 END_DUKE_NS

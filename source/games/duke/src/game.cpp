@@ -228,7 +228,7 @@ void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum)
         pPlayer->on_motorcycle = 1;
         pPlayer->last_full_weapon = pPlayer->curr_weapon;
         pPlayer->curr_weapon = MOTORCYCLE_WEAPON;
-        pPlayer->gotweapon |= (1 << MOTORCYCLE_WEAPON);
+        pPlayer->gotweapon.Set(MOTORCYCLE_WEAPON);
         pPlayer->vel.x = 0;
         pPlayer->vel.y = 0;
         pPlayer->q16horiz = F16(100);
@@ -253,7 +253,7 @@ void G_OffMotorcycle(DukePlayer_t *pPlayer)
         if (!A_CheckSoundPlaying(pPlayer->i,42))
             A_PlaySound(42, pPlayer->i);
         pPlayer->on_motorcycle = 0;
-        pPlayer->gotweapon &= ~(1<<MOTORCYCLE_WEAPON);
+        pPlayer->gotweapon.Clear(MOTORCYCLE_WEAPON);
         pPlayer->curr_weapon = pPlayer->last_full_weapon;
         P_CheckWeapon(pPlayer);
         pPlayer->q16horiz = F16(100);
@@ -293,7 +293,7 @@ void G_OnBoat(DukePlayer_t *pPlayer, int spriteNum)
         pPlayer->on_boat = 1;
         pPlayer->last_full_weapon = pPlayer->curr_weapon;
         pPlayer->curr_weapon = BOAT_WEAPON;
-        pPlayer->gotweapon |= (1<<BOAT_WEAPON);
+        pPlayer->gotweapon.Set(BOAT_WEAPON);
         pPlayer->vel.x = 0;
         pPlayer->vel.y = 0;
         pPlayer->q16horiz = F16(100);
@@ -306,7 +306,7 @@ void G_OffBoat(DukePlayer_t *pPlayer)
     if (pPlayer->on_boat)
     {
         pPlayer->on_boat = 0;
-        pPlayer->gotweapon &= ~(1<<BOAT_WEAPON);
+        pPlayer->gotweapon.Clear(BOAT_WEAPON);
         pPlayer->curr_weapon = pPlayer->last_full_weapon;
         P_CheckWeapon(pPlayer);
         pPlayer->q16horiz = F16(100);
@@ -6935,7 +6935,6 @@ void app_loop();
 
 // TODO: reorder (net)actor_t to eliminate slop and update assertion
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)%4 == 0);
-EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
 static const char* actions[] = {
     "Move_Forward",

@@ -49,7 +49,7 @@ Note:
 #include "global.h"
 #include "names.h"
 
-BEGIN_DUKE_NS
+BEGIN_RR_NS
 
 //---------------------------------------------------------------------------
 //
@@ -91,89 +91,6 @@ bool floorspace(int sectnum)
 	return false;
 }
 
-void addammo(short weapon, struct player_struct* p, short amount)
-{
-	p->ammo_amount[weapon] += amount;
-
-	if (p->ammo_amount[weapon] > max_ammo_amount[weapon])
-		p->ammo_amount[weapon] = max_ammo_amount[weapon];
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void addweapon(struct player_struct* p, short weapon)
-{
-	if (p->gotweapon[weapon] == 0)
-	{
-		p->gotweapon.Set(weapon);
-		if (weapon == SHRINKER_WEAPON)
-			p->gotweapon.Set(GROW_WEAPON);
-	}
-
-	p->random_club_frame = 0;
-
-	if (p->holster_weapon == 0)
-	{
-		p->weapon_pos = -1;
-		p->last_weapon = p->curr_weapon;
-	}
-	else
-	{
-		p->weapon_pos = 10;
-		p->holster_weapon = 0;
-		p->last_weapon = -1;
-	}
-
-	p->kickback_pic = 0;
-#ifdef EDUKE
-	if (p->curr_weapon != weapon)
-	{
-		short snum;
-		snum = sprite[p->i].yvel;
-
-		SetGameVarID(g_iWeaponVarID, weapon, p->i, snum);
-		if (p->curr_weapon >= 0)
-		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[weapon][snum], p->i, snum);
-		}
-		else
-		{
-			SetGameVarID(g_iWorksLikeVarID, -1, p->i, snum);
-		}
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
-		OnEvent(EVENT_CHANGEWEAPON, p->i, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
-		{
-			p->curr_weapon = weapon;
-		}
-	}
-#else
-	p->curr_weapon = weapon;
-#endif
-
-	switch (weapon)
-	{
-	case KNEE_WEAPON:
-	case TRIPBOMB_WEAPON:
-	case HANDREMOTE_WEAPON:
-	case HANDBOMB_WEAPON:     
-		break;
-	case SHOTGUN_WEAPON:      
-		spritesound(SHOTGUN_COCK, p->i); 
-		break;
-	case PISTOL_WEAPON:       
-		spritesound(INSERT_CLIP, p->i); 
-		break;
-	default:      
-		spritesound(SELECT_WEAPON, p->i); 
-		break;
-	}
-}
-
 //---------------------------------------------------------------------------
 //
 // 
@@ -182,39 +99,8 @@ void addweapon(struct player_struct* p, short weapon)
 
 bool ifsquished(int i, int p) 
 {
-	bool squishme = false;
-	if (sprite[i].picnum == TILE_APLAYER && ud.clipping)
-		return false;
-
-	auto &sc = sector[sprite[i].sectnum];
-	int floorceildist = sc.floorz - sc.ceilingz;
-
-	if (sc.lotag != ST_23_SWINGING_DOOR)
-	{
-		if (sprite[i].pal == 1)
-			squishme = floorceildist < (32 << 8) && (sc.lotag & 32768) == 0;
-		else
-			squishme = floorceildist < (12 << 8);
-	}
-
-	if (squishme) 
-	{
-		FTA(QUOTE_SQUISHED, ps[p]);
-
-		if (badguy(&sprite[i]))
-			sprite[i].xvel = 0;
-
-		if (sprite[i].pal == 1) 
-		{
-			hittype[i].picnum = SHOTSPARK1;
-			hittype[i].extra = 1;
-			return false;
-		}
-
-		return true;
-	}
-	return false;
+	return false;	// this function is a no-op in RR's source.
 }
 
 
-END_DUKE_NS
+END_RR_NS

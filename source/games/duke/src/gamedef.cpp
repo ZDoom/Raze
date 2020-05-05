@@ -1028,19 +1028,19 @@ void G_DoGameStartup(const int32_t *params)
     g_bouncemineRadius                = params[j++];
     g_seenineRadius                   = params[j++];
 
-    g_player[0].ps->max_ammo_amount[1] = params[j++];
-    g_player[0].ps->max_ammo_amount[2] = params[j++];
-    g_player[0].ps->max_ammo_amount[3] = params[j++];
-    g_player[0].ps->max_ammo_amount[4] = params[j++];
-    g_player[0].ps->max_ammo_amount[5] = params[j++];
-    g_player[0].ps->max_ammo_amount[6] = params[j++];
-    g_player[0].ps->max_ammo_amount[7] = params[j++];
-    g_player[0].ps->max_ammo_amount[8] = params[j++];
-    g_player[0].ps->max_ammo_amount[9] = params[j++];
-    g_player[0].ps->max_ammo_amount[11] = params[j++];
+    max_ammo_amount[1] = g_player[0].ps->max_ammo_amount[1] = params[j++];
+    max_ammo_amount[2] = g_player[0].ps->max_ammo_amount[2] = params[j++];
+    max_ammo_amount[3] = g_player[0].ps->max_ammo_amount[3] = params[j++];
+    max_ammo_amount[4] = g_player[0].ps->max_ammo_amount[4] = params[j++];
+    max_ammo_amount[5] = g_player[0].ps->max_ammo_amount[5] = params[j++];
+    max_ammo_amount[6] = g_player[0].ps->max_ammo_amount[6] = params[j++];
+    max_ammo_amount[7] = g_player[0].ps->max_ammo_amount[7] = params[j++];
+    max_ammo_amount[8] = g_player[0].ps->max_ammo_amount[8] = params[j++];
+    max_ammo_amount[9] = g_player[0].ps->max_ammo_amount[9] = params[j++];
+    max_ammo_amount[11] = g_player[0].ps->max_ammo_amount[11] = params[j++];
 
     if (RR)
-        g_player[0].ps->max_ammo_amount[12] = params[j++];
+        max_ammo_amount[12] = g_player[0].ps->max_ammo_amount[12] = params[j++];
 
     g_damageCameras     = params[j++];
     g_numFreezeBounces  = params[j++];
@@ -1050,9 +1050,9 @@ void G_DoGameStartup(const int32_t *params)
 
     if (RRRA)
     {
-        g_player[0].ps->max_ammo_amount[13] = params[j++];
-        g_player[0].ps->max_ammo_amount[14] = params[j++];
-        g_player[0].ps->max_ammo_amount[16] = params[j++];
+        max_ammo_amount[13] = g_player[0].ps->max_ammo_amount[13] = params[j++];
+        max_ammo_amount[14] = g_player[0].ps->max_ammo_amount[14] = params[j++];
+        max_ammo_amount[16] = g_player[0].ps->max_ammo_amount[16] = params[j++];
     }
 }
 

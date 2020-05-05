@@ -433,7 +433,7 @@ void G_DoCheats(void)
                     for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < weaponLimit; weaponNum++)
                     {
                         P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
-                        pPlayer->gotweapon |= (1<<weaponNum);
+                        pPlayer->gotweapon.Set(weaponNum);
                     }
 
                     if (RRRA) pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 1;
@@ -568,7 +568,7 @@ void G_DoCheats(void)
                     int const weaponLimit = (VOLUMEONE) ? SHRINKER_WEAPON : MAX_WEAPONS;
 
                     for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < weaponLimit; weaponNum++)
-                        pPlayer->gotweapon |= (1 << weaponNum);
+                        pPlayer->gotweapon.Set(weaponNum);
 
                     for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < weaponLimit; weaponNum++)
                         P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
@@ -786,7 +786,7 @@ void G_DoCheats(void)
 
                 case CHEAT_RARHETT:
                     ud.god = 0;
-                    pPlayer->gotweapon = 1<<KNEE_WEAPON;
+                    pPlayer->gotweapon.Set(KNEE_WEAPON);
                     pPlayer->curr_weapon = KNEE_WEAPON;
                     pPlayer->nocheat = 1;
                     sprite[pPlayer->i].extra = 1;
@@ -852,7 +852,7 @@ void G_DoCheats(void)
                 case CHEAT_RAMIKAEL:
                     for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
                     {
-                        pPlayer->gotweapon |= 1 << weaponNum;
+                        pPlayer->gotweapon.Set(weaponNum);
                         pPlayer->ammo_amount[weaponNum] = 66;
                     }
 

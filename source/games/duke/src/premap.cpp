@@ -973,7 +973,7 @@ void P_ResetStatus(int playerNum)
             if (pPlayer->on_motorcycle)
             {
                 pPlayer->on_motorcycle = 0;
-                pPlayer->gotweapon &= ~(1 << MOTORCYCLE_WEAPON);
+                pPlayer->gotweapon.Clear(MOTORCYCLE_WEAPON);
                 pPlayer->curr_weapon = SLINGBLADE_WEAPON;
             }
             pPlayer->lotag800kill = 0;
@@ -992,7 +992,7 @@ void P_ResetStatus(int playerNum)
             if (pPlayer->on_boat)
             {
                 pPlayer->on_boat = 0;
-                pPlayer->gotweapon &= ~(1 << BOAT_WEAPON);
+                pPlayer->gotweapon.Clear(BOAT_WEAPON);
                 pPlayer->curr_weapon = SLINGBLADE_WEAPON;
             }
             pPlayer->not_on_water = 0;
@@ -1030,12 +1030,15 @@ void P_ResetWeapons(int playerNum)
     pPlayer->weapon_pos                 = WEAPON_POS_START;
     pPlayer->curr_weapon                = PISTOL_WEAPON;
     pPlayer->kickback_pic               = 5;
-    pPlayer->gotweapon                  = ((1 << PISTOL_WEAPON) | (1 << KNEE_WEAPON) | (1 << HANDREMOTE_WEAPON));
+    pPlayer->gotweapon.Zero();
+    pPlayer->gotweapon.Set(PISTOL_WEAPON);
+    pPlayer->gotweapon.Set(KNEE_WEAPON);
+    pPlayer->gotweapon.Set(HANDREMOTE_WEAPON);
     pPlayer->ammo_amount[PISTOL_WEAPON] = min<int16_t>(pPlayer->max_ammo_amount[PISTOL_WEAPON], 48);
     if (RRRA)
     {
         g_chickenWeaponTimer = 0;
-        pPlayer->gotweapon |= (1 << SLINGBLADE_WEAPON);
+        pPlayer->gotweapon.Set(SLINGBLADE_WEAPON);
         pPlayer->ammo_amount[KNEE_WEAPON] = 1;
         pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 1;
         pPlayer->on_motorcycle = 0;
@@ -1974,12 +1977,12 @@ end_vol4a:
             if (worksLike == PISTOL_WEAPON)
             {
                 pPlayer->curr_weapon = weaponNum;
-                pPlayer->gotweapon |= (1 << weaponNum);
+                pPlayer->gotweapon.Set(weaponNum);
                 pPlayer->ammo_amount[weaponNum] = min<int16_t>(pPlayer->max_ammo_amount[weaponNum], 48);
             }
             else if (worksLike == KNEE_WEAPON || (!RR && worksLike == HANDREMOTE_WEAPON) || (RRRA && worksLike == SLINGBLADE_WEAPON))
             {
-                pPlayer->gotweapon |= (1 << weaponNum);
+                pPlayer->gotweapon.Set(weaponNum);
                 if (RRRA)
                     pPlayer->ammo_amount[KNEE_WEAPON] = 1;
             }
@@ -2363,7 +2366,7 @@ int G_EnterLevel(int gameMode)
     {
         for (bssize_t i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
             g_player[0].ps->ammo_amount[i] = 0;
-        g_player[0].ps->gotweapon &= (1<<KNEE_WEAPON);
+        g_player[0].ps->gotweapon.Clear(KNEE_WEAPON);
     }
 
     pPlayer->q16ang = fix16_from_int(lbang);
@@ -2380,8 +2383,8 @@ int G_EnterLevel(int gameMode)
     {
         for (bssize_t i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
             g_player[0].ps->ammo_amount[i] = 0;
-        g_player[0].ps->gotweapon &= (1<<KNEE_WEAPON);
-        g_player[0].ps->gotweapon |= (1<<SLINGBLADE_WEAPON);
+        g_player[0].ps->gotweapon.Clear(KNEE_WEAPON);
+        g_player[0].ps->gotweapon.Set(SLINGBLADE_WEAPON);
         g_player[0].ps->ammo_amount[SLINGBLADE_WEAPON] = 1;
         g_player[0].ps->curr_weapon = SLINGBLADE_WEAPON;
     }
@@ -2440,7 +2443,7 @@ int G_EnterLevel(int gameMode)
                 P_ResetWeapons(i);
                 P_ResetInventory(i);
 
-                g_player[i].ps->gotweapon &= ~(1 << PISTOL_WEAPON);
+                g_player[i].ps->gotweapon.Clear(PISTOL_WEAPON);
                 g_player[i].ps->ammo_amount[PISTOL_WEAPON] = 0;
 
                 g_player[i].ps->curr_weapon  = KNEE_WEAPON;

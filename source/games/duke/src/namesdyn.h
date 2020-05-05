@@ -3571,25 +3571,28 @@ enum dukeweapon_t
     MAX_WEAPONS
 };
 
-extern int16_t DynamicWeaponMap[MAX_WEAPONS];
+enum dukeweapon_t_alt
+{
+    KNEE_WEAPON,  // 0
+    PISTOL_WEAPON,
+    SHOTGUN_WEAPON,
+    CHAINGUN_WEAPON,
+    RPG_WEAPON,
+    HANDBOMB_WEAPON,  // 5
+    SHRINKER_WEAPON,
+    DEVISTATOR_WEAPON,
+    TRIPBOMB_WEAPON,
+    FREEZE_WEAPON,
+    HANDREMOTE_WEAPON,  // 10
+    GROW_WEAPON,
+    BOWLINGBALL_WEAPON,
+    MOTORCYCLE_WEAPON,
+    BOAT_WEAPON,
+    SLINGBLADE_WEAPON,  // 15
+    CHICKEN_WEAPON,
+};
 
-extern int32_t KNEE_WEAPON;
-extern int32_t PISTOL_WEAPON;
-extern int32_t SHOTGUN_WEAPON;
-extern int32_t CHAINGUN_WEAPON;
-extern int32_t RPG_WEAPON;
-extern int32_t HANDBOMB_WEAPON;
-extern int32_t SHRINKER_WEAPON;
-extern int32_t DEVISTATOR_WEAPON;
-extern int32_t TRIPBOMB_WEAPON;
-extern int32_t FREEZE_WEAPON;
-extern int32_t HANDREMOTE_WEAPON;
-extern int32_t GROW_WEAPON;
-extern int32_t BOWLINGBALL_WEAPON;
-extern int32_t MOTORCYCLE_WEAPON;
-extern int32_t BOAT_WEAPON;
-extern int32_t SLINGBLADE_WEAPON;
-extern int32_t CHICKEN_WEAPON;
+extern int16_t DynamicWeaponMap[MAX_WEAPONS];
 
 #define DYNAMICWEAPONMAP(Weaponnum) (DynamicWeaponMap[Weaponnum])
 
