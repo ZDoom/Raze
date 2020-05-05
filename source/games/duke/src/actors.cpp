@@ -51,6 +51,60 @@ Note:
 
 BEGIN_DUKE_NS
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool ceilingspace(int sectnum)
+{
+	if ((sector[sectnum].ceilingstat & 1) && sector[sectnum].ceilingpal == 0)
+	{
+		switch (sector[sectnum].ceilingpicnum)
+		{
+		case MOONSKY1:
+		case BIGORBIT1:
+			return !(g_gameType & GAMEFLAG_RRALL);
+
+		case RR_MOONSKY1:
+		case RR_BIGORBIT1:
+			return !!(g_gameType & GAMEFLAG_RRALL);
+		}
+	}
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool floorspace(int sectnum)
+{
+	if ((sector[sectnum].floorstat & 1) && sector[sectnum].ceilingpal == 0)
+	{
+		switch (sector[sectnum].floorpicnum)
+		{
+		case MOONSKY1:
+		case BIGORBIT1:
+			return !(g_gameType & GAMEFLAG_RRALL);
+
+		case RR_MOONSKY1:
+		case RR_BIGORBIT1:
+			return !!(g_gameType & GAMEFLAG_RRALL);
+		}
+	}
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool ifsquished(int i, int p) 
 {
 	if (g_gameType & GAMEFLAG_RRALL) return false;	// this function is a no-op in RR's source.

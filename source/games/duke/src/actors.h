@@ -320,17 +320,17 @@ ACTOR_INLINE int A_SetSprite(int const spriteNum, uint32_t cliptype)
 
 # endif
 
+bool ceilingspace(int sectnum);
+bool floorspace(int sectnum);
 
 EXTERN_INLINE int G_CheckForSpaceCeiling(int const sectnum)
 {
-    return ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 &&
-            (sector[sectnum].ceilingpicnum==TILE_MOONSKY1 || sector[sectnum].ceilingpicnum==TILE_BIGORBIT1));
+    return ceilingspace(sectnum);
 }
 
 EXTERN_INLINE int G_CheckForSpaceFloor(int const sectnum)
 {
-    return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 &&
-            (sector[sectnum].floorpicnum==TILE_MOONSKY1 || sector[sectnum].floorpicnum==TILE_BIGORBIT1));
+    return floorspace(sectnum);
 }
 
 EXTERN_INLINE int A_CheckEnemySprite(void const * const pSprite)
