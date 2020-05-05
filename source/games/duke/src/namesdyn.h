@@ -3592,6 +3592,25 @@ enum dukeweapon_t_alt
     CHICKEN_WEAPON,
 };
 
+enum redneck_weapon_t
+{
+    // RR names from RedneckGDX. The reconstructed source uses the Duke names.
+    RIFLEGUN_WEAPON = 3,
+    DYNAMITE_WEAPON = 4,
+    CROSSBOW_WEAPON = 5,
+    THROWSAW_WEAPON = 6,
+    ALIENBLASTER_WEAPON = 7,
+    POWDERKEG_WEAPON = 8,
+    TIT_WEAPON = 9,
+    //HANDREMOTE_WEAPON = 10;
+    BUZSAW_WEAPON = 11,
+    BOWLING_WEAPON = 12,
+    MOTO_WEAPON = 13,
+    //BOAT_WEAPON = 14,
+    RATE_WEAPON = 15,
+    CHICKENBOW_WEAPON = 16
+};
+
 #define DYNAMICWEAPONMAP(Weaponnum) Weaponnum
 
 END_DUKE_NS

@@ -65,10 +65,14 @@ bool ceilingspace(int sectnum)
 		{
 		case MOONSKY1:
 		case BIGORBIT1:
-			return true;
+			return !(g_gameType & GAMEFLAG_RRALL);
+
+		case RR_MOONSKY1:
+		case RR_BIGORBIT1:
+			return !!(g_gameType & GAMEFLAG_RRALL);
 		}
 	}
-	return false;
+	return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -85,11 +89,21 @@ bool floorspace(int sectnum)
 		{
 		case MOONSKY1:
 		case BIGORBIT1:
-			return true;
+			return !(g_gameType & GAMEFLAG_RRALL);
+
+		case RR_MOONSKY1:
+		case RR_BIGORBIT1:
+			return !!(g_gameType & GAMEFLAG_RRALL);
 		}
 	}
-	return false;
+	return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void addammo(short weapon, struct player_struct* p, short amount)
 {
@@ -182,6 +196,8 @@ void addweapon(struct player_struct* p, short weapon)
 
 bool ifsquished(int i, int p) 
 {
+	if (g_gameType & GAMEFLAG_RRALL) return false;	// this function is a no-op in RR's source.
+
 	bool squishme = false;
 	if (sprite[i].picnum == TILE_APLAYER && ud.clipping)
 		return false;
