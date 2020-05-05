@@ -3592,9 +3592,7 @@ enum dukeweapon_t_alt
     CHICKEN_WEAPON,
 };
 
-extern int16_t DynamicWeaponMap[MAX_WEAPONS];
-
-#define DYNAMICWEAPONMAP(Weaponnum) (DynamicWeaponMap[Weaponnum])
+#define DYNAMICWEAPONMAP(Weaponnum) Weaponnum
 
 END_DUKE_NS
 

@@ -5882,7 +5882,7 @@ DETONATEB:
                             P_AddAmmo(pPlayer, RPG_WEAPON, 1);
                         A_PlaySound(DUKE_GET, pPlayer->i);
 
-                        if ((pPlayer->gotweapon[HANDBOMB_WEAPON]) == 0 || pSprite->owner == pPlayer->i)
+                        if (!pPlayer->gotweapon[HANDBOMB_WEAPON] || pSprite->owner == pPlayer->i)
                             P_AddWeapon(pPlayer, HANDBOMB_WEAPON);
 
                         if (sprite[pSprite->owner].picnum != TILE_APLAYER)

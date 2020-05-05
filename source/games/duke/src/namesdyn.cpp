@@ -33,7 +33,6 @@ BEGIN_DUKE_NS
 #define DVPTR(x) &x
 
 int16_t DynamicTileMap[MAXTILES];
-int16_t DynamicWeaponMap[MAX_WEAPONS];
 
 struct dynitem
 {

@@ -690,7 +690,7 @@ public:
         auto ShadeForWeapon = [=](int weapon, int optweapon = -1)
         {
             // Headache-inducing math at play here.
-            return (((!p->ammo_amount[weapon]) | ((p->gotweapon[weapon]) == 0)) * 9) + 12 - 18 * ((cw == weapon) || (optweapon != -1 && cw == optweapon));
+            return (((!p->ammo_amount[weapon]) | (!p->gotweapon[weapon])) * 9) + 12 - 18 * ((cw == weapon) || (optweapon != -1 && cw == optweapon));
         };
 
         DrawWeaponNum(2, x, y, p->ammo_amount[PISTOL_WEAPON], p->max_ammo_amount[PISTOL_WEAPON], 12 - 20 * (cw == PISTOL_WEAPON), 3);

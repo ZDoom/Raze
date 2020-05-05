@@ -879,7 +879,7 @@ static void VM_AddWeapon(DukePlayer_t * const pPlayer, int const weaponNum, int 
         return;
     }
 
-    if ((pPlayer->gotweapon[weaponNum]) == 0)
+    if (!pPlayer->gotweapon[weaponNum])
     {
         P_AddWeapon(pPlayer, weaponNum);
     }

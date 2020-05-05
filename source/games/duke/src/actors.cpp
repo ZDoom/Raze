@@ -107,7 +107,7 @@ void addammo(short weapon, struct player_struct* p, short amount)
 
 void addweapon(struct player_struct* p, short weapon)
 {
-	if (p->gotweapon[weapon] == 0)
+	if (!p->gotweapon[weapon])
 	{
 		p->gotweapon.Set(weapon);
 		if (weapon == SHRINKER_WEAPON)

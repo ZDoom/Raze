@@ -4703,7 +4703,7 @@ void P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum)
         return;
     }
 
-    if ((pPlayer->gotweapon[weaponNum]) == 0)
+    if (!pPlayer->gotweapon[weaponNum])
     {
         pPlayer->gotweapon.Set(weaponNum);
 
