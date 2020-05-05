@@ -350,7 +350,7 @@ extern bool AppActive;
 
 - (void)sendExitEvent:(id)sender
 {
-	throw ExitEvent(0);
+	throw CExitEvent(0);
 }
 
 @end

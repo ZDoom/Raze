@@ -36,7 +36,6 @@
 #include "st_console.h"
 #include "v_text.h"
 #include "version.h"
-#include "i_time.h"
 #include "palentry.h"
 #include "v_video.h"
 #include "v_font.h"
@@ -195,6 +194,7 @@ struct TimedUpdater
 {
 	explicit TimedUpdater(const Function& function)
 	{
+		extern uint64_t I_msTime();
 		const unsigned int currentTime = I_msTime();
 
 		if (currentTime - m_previousTime > interval)

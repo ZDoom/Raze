@@ -45,11 +45,7 @@
 
 static const char *pattern;
 
-#if defined(__APPLE__) && MAC_OS_X_VERSION_MAX_ALLOWED < 1080
-static int matchfile(struct dirent *ent)
-#else
 static int matchfile(const struct dirent *ent)
-#endif
 {
 	return fnmatch(pattern, ent->d_name, FNM_NOESCAPE) == 0;
 }
