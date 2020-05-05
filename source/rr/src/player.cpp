@@ -6941,9 +6941,6 @@ void P_ProcessInput(int playerNum)
 {
     auto &thisPlayer = g_player[playerNum];
 
-    thisPlayer.horizAngleAdjust = 0;
-    thisPlayer.horizSkew = 0;
-
     if (DEER)
     {
         P_DHProcessInput(playerNum);
@@ -6951,6 +6948,9 @@ void P_ProcessInput(int playerNum)
     }
     if (thisPlayer.playerquitflag == 0)
         return;
+
+    thisPlayer.horizAngleAdjust = 0;
+    thisPlayer.horizSkew = 0;
 
     auto const pPlayer = thisPlayer.ps;
     auto const pSprite = &sprite[pPlayer->i];
@@ -8872,11 +8872,11 @@ void P_DHProcessInput(int playerNum)
 {
     auto &thisPlayer = g_player[playerNum];
 
-    thisPlayer.horizAngleAdjust = 0;
-    thisPlayer.horizSkew = 0;
-
     if (thisPlayer.playerquitflag == 0)
         return;
+
+    thisPlayer.horizAngleAdjust = 0;
+    thisPlayer.horizSkew = 0;
 
     auto const pPlayer = thisPlayer.ps;
     auto const pSprite = &sprite[pPlayer->i];
