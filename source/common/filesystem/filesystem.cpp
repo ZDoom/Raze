@@ -48,7 +48,6 @@
 #include "md5.h"
 
 extern	FILE* hashfile;
-bool batchrun;
 
 // MACROS ------------------------------------------------------------------
 
