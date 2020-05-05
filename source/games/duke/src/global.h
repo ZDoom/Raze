@@ -51,13 +51,6 @@ BEGIN_DUKE_NS
 // duke3d global soup :(
 
 
-G_EXTERN int32_t g_interpolationCnt;
-G_EXTERN int32_t g_interpolationLock;
-G_EXTERN int32_t oldipos[MAXINTERPOLATIONS];
-G_EXTERN int32_t *curipos[MAXINTERPOLATIONS];
-G_EXTERN int32_t bakipos[MAXINTERPOLATIONS];
-
-
 G_EXTERN int32_t duke3d_globalflags;
 
 // KEEPINSYNC astub.c (used values only)
@@ -284,27 +277,38 @@ enum
     EF_HIDEFROMSP = 1<<0,
 };
 
-EXTERN_INLINE_HEADER void G_UpdateInterpolations(void);
-EXTERN_INLINE_HEADER void G_RestoreInterpolations(void);
+// Interpolation code is the same in all games with slightly different naming - this needs to be unified and cleaned up.
+extern int32_t g_interpolationCnt;
+extern int32_t* curipos[MAXINTERPOLATIONS];
+extern int32_t bakipos[MAXINTERPOLATIONS];
+void G_UpdateInterpolations(void);
+void G_RestoreInterpolations(void);
+int G_SetInterpolation(int32_t* const posptr);
+void G_StopInterpolation(const int32_t* const posptr);
+void G_DoInterpolations(int smoothRatio);
 
-#if defined global_c_ || !defined DISABLE_INLINING
-
-EXTERN_INLINE void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
+// old names as porting help.
+inline void updateinterpolations()
 {
-    for (bssize_t i=g_interpolationCnt-1; i>=0; i--) oldipos[i] = *curipos[i];
+    G_UpdateInterpolations();
+}
+inline void restoreinterpolations()
+{
+    G_RestoreInterpolations();
+}
+inline int setinterpolation(int32_t* posptr)
+{
+    G_SetInterpolation(posptr);
+}
+inline int stopinterpolation(int32_t* posptr)
+{
+    G_SetInterpolation(posptr);
+}
+inline int dointerpolations(int smoothratio)
+{
+    G_DoInterpolations(smoothratio);
 }
 
-EXTERN_INLINE void G_RestoreInterpolations(void)  //Stick at end of drawscreen
-{
-    int32_t i=g_interpolationCnt-1;
-
-    if (--g_interpolationLock)
-        return;
-
-    for (; i>=0; i--) *curipos[i] = bakipos[i];
-}
-
-#endif
 
 // Hack struct to allow old code to access the EDuke-style player data without changing it.
 struct psaccess

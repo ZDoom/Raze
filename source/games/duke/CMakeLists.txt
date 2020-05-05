@@ -14,6 +14,7 @@ set( PCH_SOURCES
 	src/gameexec.cpp
 	src/gamevars.cpp
 	src/global.cpp
+	src/interpolate.cpp
 	src/namesdyn.cpp
 	src/net.cpp
 	src/osdcmds.cpp

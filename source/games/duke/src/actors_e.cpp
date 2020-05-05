@@ -38,51 +38,6 @@ BEGIN_DUKE_NS
 
 int32_t otherp;
 
-int G_SetInterpolation(int32_t *const posptr)
-{
-    if (g_interpolationCnt >= MAXINTERPOLATIONS)
-        return 1;
-
-    for (bssize_t i = 0; i < g_interpolationCnt; ++i)
-        if (curipos[i] == posptr)
-            return 0;
-
-    curipos[g_interpolationCnt] = posptr;
-    oldipos[g_interpolationCnt] = *posptr;
-    g_interpolationCnt++;
-    return 0;
-}
-
-void G_StopInterpolation(const int32_t * const posptr)
-{
-    for (bssize_t i = 0; i < g_interpolationCnt; ++i)
-        if (curipos[i] == posptr)
-        {
-            g_interpolationCnt--;
-            oldipos[i] = oldipos[g_interpolationCnt];
-            bakipos[i] = bakipos[g_interpolationCnt];
-            curipos[i] = curipos[g_interpolationCnt];
-        }
-}
-
-void G_DoInterpolations(int smoothRatio)
-{
-    if (g_interpolationLock++)
-        return;
-
-    int32_t ndelta = 0;
-
-    for (bssize_t i = 0, j = 0; i < g_interpolationCnt; ++i)
-    {
-        int32_t const odelta = ndelta;
-        bakipos[i] = *curipos[i];
-        ndelta = (*curipos[i]) - oldipos[i];
-        if (odelta != ndelta)
-            j = mulscale16(ndelta, smoothRatio);
-        *curipos[i] = oldipos[i] + j;
-    }
-}
-
 void G_ClearCameraView(DukePlayer_t *ps)
 {
     ps->newowner = -1;
