@@ -214,7 +214,7 @@ int32_t A_CheckInventorySprite(spritetype *s)
 
 void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum)
 {
-    if (!pPlayer->on_motorcycle && !(sector[pPlayer->cursectnum].lotag == 2))
+    if (!pPlayer->OnMotorcycle && !(sector[pPlayer->cursectnum].lotag == 2))
     {
         if (spriteNum)
         {
@@ -225,7 +225,7 @@ void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum)
             A_DeleteSprite(spriteNum);
         }
         pPlayer->over_shoulder_on = 0;
-        pPlayer->on_motorcycle = 1;
+        pPlayer->OnMotorcycle = 1;
         pPlayer->last_full_weapon = pPlayer->curr_weapon;
         pPlayer->curr_weapon = MOTORCYCLE_WEAPON;
         pPlayer->gotweapon.Set(MOTORCYCLE_WEAPON);
@@ -240,7 +240,7 @@ void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum)
 void G_OffMotorcycle(DukePlayer_t *pPlayer)
 {
     int j;
-    if (pPlayer->on_motorcycle)
+    if (pPlayer->OnMotorcycle)
     {
         if (A_CheckSoundPlaying(pPlayer->i,188))
             S_StopEnvSound(188,pPlayer->i);
@@ -252,7 +252,7 @@ void G_OffMotorcycle(DukePlayer_t *pPlayer)
             S_StopEnvSound(214,pPlayer->i);
         if (!A_CheckSoundPlaying(pPlayer->i,42))
             A_PlaySound(42, pPlayer->i);
-        pPlayer->on_motorcycle = 0;
+        pPlayer->OnMotorcycle = 0;
         pPlayer->gotweapon.Clear(MOTORCYCLE_WEAPON);
         pPlayer->curr_weapon = pPlayer->last_full_weapon;
         P_CheckWeapon(pPlayer);
@@ -279,7 +279,7 @@ void G_OffMotorcycle(DukePlayer_t *pPlayer)
 
 void G_OnBoat(DukePlayer_t *pPlayer, int spriteNum)
 {
-    if (!pPlayer->on_boat)
+    if (!pPlayer->OnBoat)
     {
         if (spriteNum)
         {
@@ -290,7 +290,7 @@ void G_OnBoat(DukePlayer_t *pPlayer, int spriteNum)
             deletesprite(spriteNum);
         }
         pPlayer->over_shoulder_on = 0;
-        pPlayer->on_boat = 1;
+        pPlayer->OnBoat = 1;
         pPlayer->last_full_weapon = pPlayer->curr_weapon;
         pPlayer->curr_weapon = BOAT_WEAPON;
         pPlayer->gotweapon.Set(BOAT_WEAPON);
@@ -303,9 +303,9 @@ void G_OnBoat(DukePlayer_t *pPlayer, int spriteNum)
 void G_OffBoat(DukePlayer_t *pPlayer)
 {
     int j;
-    if (pPlayer->on_boat)
+    if (pPlayer->OnBoat)
     {
-        pPlayer->on_boat = 0;
+        pPlayer->OnBoat = 0;
         pPlayer->gotweapon.Clear(BOAT_WEAPON);
         pPlayer->curr_weapon = pPlayer->last_full_weapon;
         P_CheckWeapon(pPlayer);
@@ -5005,7 +5005,7 @@ default_case1:
                     }
                     newTspr->z       = (pSprite->owner >= 0) ? g_player[playerNum].ps->pos.z - ZOFFSET4 : pSprite->z - (51 << 8);
                     newTspr->xrepeat = (newTspr->picnum == TILE_HEAVYHBOMB) ? 10 : 16;
-                    if (RRRA && (g_player[playerNum].ps->on_motorcycle || g_player[playerNum].ps->on_boat))
+                    if (RRRA && (g_player[playerNum].ps->OnMotorcycle || g_player[playerNum].ps->OnBoat))
                         newTspr->xrepeat = 0;
                     newTspr->yrepeat = newTspr->xrepeat;
 
@@ -5112,7 +5112,7 @@ PALONLY:
 
             if (RRRA)
             {
-                if (g_player[playerNum].ps->on_motorcycle && playerNum == screenpeek)
+                if (g_player[playerNum].ps->OnMotorcycle && playerNum == screenpeek)
                 {
                     t->picnum = TILE_RRTILE7219;
                     t->xrepeat = 18;
@@ -5120,7 +5120,7 @@ PALONLY:
                     scrofs_action = 0;
                     curframe = 0;
                 }
-                else if (g_player[playerNum].ps->on_motorcycle)
+                else if (g_player[playerNum].ps->OnMotorcycle)
                 {
                     t->xrepeat = 18;
                     t->yrepeat = 18;
@@ -5139,7 +5139,7 @@ PALONLY:
 
                     t->picnum = TILE_RRTILE7213 + frameOffset;
                 }
-                else if (g_player[playerNum].ps->on_boat && playerNum == screenpeek)
+                else if (g_player[playerNum].ps->OnBoat && playerNum == screenpeek)
                 {
                     t->picnum = TILE_RRTILE7190;
                     t->xrepeat = 32;
@@ -5147,7 +5147,7 @@ PALONLY:
                     scrofs_action = 0;
                     curframe = 0;
                 }
-                else if (g_player[playerNum].ps->on_boat)
+                else if (g_player[playerNum].ps->OnBoat)
                 {
                     t->xrepeat = 32;
                     t->yrepeat = 32;
@@ -5993,7 +5993,7 @@ void G_HandleLocalKeys(void)
         {
             buttonMap.ClearButton(gamefunc_Third_Person_View);
 
-            if (!RRRA || (!g_player[myconnectindex].ps->on_motorcycle && !g_player[myconnectindex].ps->on_boat))
+            if (!RRRA || (!g_player[myconnectindex].ps->OnMotorcycle && !g_player[myconnectindex].ps->OnBoat))
             {
                 g_player[myconnectindex].ps->over_shoulder_on = !g_player[myconnectindex].ps->over_shoulder_on;
 
@@ -7146,6 +7146,7 @@ int GameInterface::app_main()
 
     videoInit();
     InitFonts();
+    V_LoadTranslations();
     videoSetPalette(0, g_player[myconnectindex].ps->palette, 0);
 
     // check if the minifont will support lowercase letters (3136-3161)
@@ -7281,9 +7282,9 @@ MAIN_LOOP_RESTART:
         {
             ototalclock += TICSPERFRAME;
 
-            if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+            if (RRRA && g_player[myconnectindex].ps->OnMotorcycle)
                 P_GetInputMotorcycle(myconnectindex);
-            else if (RRRA && g_player[myconnectindex].ps->on_boat)
+            else if (RRRA && g_player[myconnectindex].ps->OnBoat)
                 P_GetInputBoat(myconnectindex);
             else
                 P_GetInput(myconnectindex);
@@ -7334,9 +7335,9 @@ MAIN_LOOP_RESTART:
         }
         else */if (G_FPSLimit())
         {
-            if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+            if (RRRA && g_player[myconnectindex].ps->OnMotorcycle)
                 P_GetInputMotorcycle(myconnectindex);
-            else if (RRRA && g_player[myconnectindex].ps->on_boat)
+            else if (RRRA && g_player[myconnectindex].ps->OnBoat)
                 P_GetInputBoat(myconnectindex);
             else
                 P_GetInput(myconnectindex);

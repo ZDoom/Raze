@@ -635,7 +635,7 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_VIEW:
-                    if (!RRRA || (!pPlayer->on_motorcycle && !pPlayer->on_boat))
+                    if (!RRRA || (!pPlayer->OnMotorcycle && !pPlayer->OnBoat))
                     {
                         pPlayer->over_shoulder_on ^= 1;
                         CAMERADIST = 0;

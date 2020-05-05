@@ -246,7 +246,7 @@ void Net_DoPrediction(void)
 
     if (RRRA)
     {
-        if (pPlayer->on_motorcycle && pSprite->extra > 0)
+        if (pPlayer->OnMotorcycle && pSprite->extra > 0)
         {
             int var64, var68, var6c, var74, var7c;
             if (my_moto_speed < 0)
@@ -445,7 +445,7 @@ void Net_DoPrediction(void)
             my_moto_on_mud = 0;
             my_moto_on_oil = 0;
         }
-        else if (pPlayer->on_boat && pSprite->extra > 0)
+        else if (pPlayer->OnBoat && pSprite->extra > 0)
         {
             int vara8, varac, varb0, varb4, varbc, varc4;
             if (my_moto_speed < 0)
@@ -747,7 +747,7 @@ void Net_DoPrediction(void)
                 if (!my_stairs)
                 {
                     my_stairs = 10;
-                    if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle))
+                    if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->OnMotorcycle))
                     {
                         highZhit = 0;
                         ceilZ = pPlayer->truecz;
@@ -774,14 +774,14 @@ void Net_DoPrediction(void)
 
         if (RRRA)
         {
-            if (pPlayer->on_motorcycle)
+            if (pPlayer->OnMotorcycle)
             {
                 if (A_CheckEnemySprite(&sprite[spriteNum]))
                 {
                     my_moto_speed -= my_moto_speed >> 4;
                 }
             }
-            if (pPlayer->on_boat)
+            if (pPlayer->OnBoat)
             {
                 if (A_CheckEnemySprite(&sprite[spriteNum]))
                 {
@@ -811,7 +811,7 @@ check_enemy_sprite:
                 if (!my_stairs)
                 {
                     my_stairs = 10;
-                    if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
+                    if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->OnMotorcycle))
                     {
                         ceilZ = sprite[spriteNum].z;
                         highZhit = 0;
@@ -936,7 +936,7 @@ check_enemy_sprite:
             {
                 myonground = 0;
                 
-                if (RRRA && (pPlayer->on_motorcycle || pPlayer->on_boat) && floorZ - (floorZOffset << 9) > mypos.z)
+                if (RRRA && (pPlayer->OnMotorcycle || pPlayer->OnBoat) && floorZ - (floorZOffset << 9) > mypos.z)
                 {
                     if (my_moto_on_ground)
                     {
@@ -999,12 +999,12 @@ check_enemy_sprite:
                 }
             }
 
-            if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->OnMotorcycle))
                 mypos.z += (2048+768);
 
-            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle) && myjumpingtoggle == 1)
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->OnMotorcycle) && myjumpingtoggle == 1)
                 myjumpingtoggle = 0;
-            else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle) && myjumpingtoggle == 0)
+            else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->OnMotorcycle) && myjumpingtoggle == 0)
             {
                 if (myjumpingcounter == 0)
                     if ((floorZ-ceilZ) > (56<<8))
@@ -1019,7 +1019,7 @@ check_enemy_sprite:
 
         if (myjumpingcounter)
         {
-            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle) && myjumpingtoggle == 1)
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->OnMotorcycle) && myjumpingtoggle == 1)
                 myjumpingtoggle = 0;
 
             if (myjumpingcounter < (RR ? 768 : (1024+256)))
@@ -1082,7 +1082,7 @@ check_enemy_sprite:
             {
                 if (sectorLotag == ST_1_ABOVE_WATER)
                     my_not_on_water = 0;
-                else if (pPlayer->on_boat)
+                else if (pPlayer->OnBoat)
                 {
                     if (sectorLotag == 1234)
                         my_not_on_water = 0;
@@ -1116,12 +1116,12 @@ check_enemy_sprite:
             {
                 if (sector[mycursectnum].floorpicnum == TILE_RRTILE7888)
                 {
-                    if (pPlayer->on_motorcycle && myonground)
+                    if (pPlayer->OnMotorcycle && myonground)
                         my_moto_on_oil = 1;
                 }
                 else if (sector[mycursectnum].floorpicnum == TILE_RRTILE7889)
                 {
-                    if (pPlayer->on_motorcycle)
+                    if (pPlayer->OnMotorcycle)
                     {
                         if (myonground)
                             my_moto_on_mud = 1;
@@ -1135,7 +1135,7 @@ check_enemy_sprite:
             }
             if (sector[mycursectnum].floorpicnum == TILE_RRTILE3073 || sector[mycursectnum].floorpicnum == TILE_RRTILE2702)
             {
-                if (RRRA && pPlayer->on_motorcycle)
+                if (RRRA && pPlayer->OnMotorcycle)
                 {
                     if (myonground)
                     {
@@ -1193,7 +1193,7 @@ FAKEHORIZONLY:;
         if ((spriteNum & 49152) == 32768)
         {
             int const wallNum = spriteNum&(MAXWALLS-1);
-            if (RRRA && pPlayer->on_motorcycle)
+            if (RRRA && pPlayer->OnMotorcycle)
             {
                 int16_t var108, var10c;
                 var108 = getangle(wall[wall[wallNum].point2].x-wall[wallNum].x,wall[wall[wallNum].point2].y-wall[wallNum].y);
@@ -1215,7 +1215,7 @@ FAKEHORIZONLY:;
                     my_moto_speed -= (my_moto_speed>>3);
                 }
             }
-            else if (RRRA && pPlayer->on_boat)
+            else if (RRRA && pPlayer->OnBoat)
             {
                 short var114, var118;
                 var114 = getangle(wall[wall[wallNum].point2].x-wall[wallNum].x,wall[wall[wallNum].point2].y-wall[wallNum].y);
@@ -1242,7 +1242,7 @@ FAKEHORIZONLY:;
         {
             spriteNum &= (MAXSPRITES-1);
                 
-            if (RRRA && pPlayer->on_motorcycle)
+            if (RRRA && pPlayer->OnMotorcycle)
             {
                 if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == TILE_APLAYER)
                 {
@@ -1250,7 +1250,7 @@ FAKEHORIZONLY:;
                     my_moto_turb = 6;
                 }
             }
-            else if (RRRA && pPlayer->on_boat)
+            else if (RRRA && pPlayer->OnBoat)
             {
                 if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == TILE_APLAYER)
                 {
@@ -1778,9 +1778,9 @@ void Net_GetInput(void)
     if (g_player[myconnectindex].movefifoend - movefifoplc >= 100 || System_WantGuiCapture())
         return;
 
-    if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+    if (RRRA && g_player[myconnectindex].ps->OnMotorcycle)
         P_GetInputMotorcycle(myconnectindex);
-    else if (RRRA && g_player[myconnectindex].ps->on_boat)
+    else if (RRRA && g_player[myconnectindex].ps->OnBoat)
         P_GetInputBoat(myconnectindex);
     else if (DEER)
         P_DHGetInput(myconnectindex);

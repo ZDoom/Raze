@@ -970,9 +970,9 @@ void P_ResetStatus(int playerNum)
         if (RRRA)
         {
             g_chickenWeaponTimer = 0;
-            if (pPlayer->on_motorcycle)
+            if (pPlayer->OnMotorcycle)
             {
-                pPlayer->on_motorcycle = 0;
+                pPlayer->OnMotorcycle = 0;
                 pPlayer->gotweapon.Clear(MOTORCYCLE_WEAPON);
                 pPlayer->curr_weapon = SLINGBLADE_WEAPON;
             }
@@ -989,9 +989,9 @@ void P_ResetStatus(int playerNum)
             pPlayer->moto_turb = 0;
             pPlayer->moto_on_mud = 0;
             pPlayer->moto_on_oil = 0;
-            if (pPlayer->on_boat)
+            if (pPlayer->OnBoat)
             {
-                pPlayer->on_boat = 0;
+                pPlayer->OnBoat = 0;
                 pPlayer->gotweapon.Clear(BOAT_WEAPON);
                 pPlayer->curr_weapon = SLINGBLADE_WEAPON;
             }
@@ -1041,9 +1041,9 @@ void P_ResetWeapons(int playerNum)
         pPlayer->gotweapon.Set(SLINGBLADE_WEAPON);
         pPlayer->ammo_amount[KNEE_WEAPON] = 1;
         pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 1;
-        pPlayer->on_motorcycle = 0;
+        pPlayer->OnMotorcycle = 0;
         pPlayer->moto_underwater = 0;
-        pPlayer->on_boat = 0;
+        pPlayer->OnBoat = 0;
         pPlayer->lotag800kill = 0;
     }
     pPlayer->last_weapon                = -1;

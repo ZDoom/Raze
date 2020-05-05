@@ -3590,6 +3590,8 @@ enum dukeweapon_t_alt
     BOAT_WEAPON,
     SLINGBLADE_WEAPON,  // 15
     CHICKEN_WEAPON,
+    RA15_WEAPON = 15,  // 15
+    RA16_WEAPON,
 };
 
 enum redneck_weapon_t

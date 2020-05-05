@@ -3105,10 +3105,10 @@ static int P_Submerge(int const spriteNum, int const playerNum, DukePlayer_t * c
 {
     if ((!RR && pPlayer->on_ground && pPlayer->pos.z > sector[sectNum].floorz - ZOFFSET2
         && (TEST_SYNC_KEY(g_player[playerNum].input->bits, SK_CROUCH) || pPlayer->vel.z > 2048))
-        || (RR && pPlayer->pos.z > (sector[sectNum].floorz-(6<<8))) || pPlayer->on_motorcycle)
+        || (RR && pPlayer->pos.z > (sector[sectNum].floorz-(6<<8))) || pPlayer->OnMotorcycle)
     //        if( onfloorz && sectlotag == 1 && ps->pos.z > (sector[sect].floorz-(6<<8)) )
     {
-        if (pPlayer->on_boat) return 0;
+        if (pPlayer->OnBoat) return 0;
 
         if (screenpeek == playerNum)
         {
@@ -3127,7 +3127,7 @@ static int P_Submerge(int const spriteNum, int const playerNum, DukePlayer_t * c
             pPlayer->vel.y = 4096-(krand2()&8192);
         }
 
-        if (pPlayer->on_motorcycle)
+        if (pPlayer->OnMotorcycle)
             pPlayer->moto_underwater = 1;
 
         return 1;

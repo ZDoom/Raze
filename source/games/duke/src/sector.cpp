@@ -4465,13 +4465,13 @@ void P_CheckSectors(int playerNum)
 
         if (RRRA)
         {
-            if (pPlayer->on_motorcycle)
+            if (pPlayer->OnMotorcycle)
             {
                 if (pPlayer->moto_speed < 20)
                     G_OffMotorcycle(pPlayer);
                 return;
             }
-            if (pPlayer->on_boat)
+            if (pPlayer->OnBoat)
             {
                 if (pPlayer->moto_speed < 20)
                     G_OffBoat(pPlayer);

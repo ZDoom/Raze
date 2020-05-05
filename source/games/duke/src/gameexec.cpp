@@ -2300,11 +2300,11 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 continue;
 
             case CON_IFONMOTO:
-                VM_CONDITIONAL(pPlayer->on_motorcycle == 1);
+                VM_CONDITIONAL(pPlayer->OnMotorcycle == 1);
                 continue;
 
             case CON_IFONBOAT:
-                VM_CONDITIONAL(pPlayer->on_boat == 1);
+                VM_CONDITIONAL(pPlayer->OnBoat == 1);
                 continue;
 
             case CON_IFSIZEDOWN:

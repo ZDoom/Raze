@@ -1946,7 +1946,7 @@ void P_DisplayWeapon(void)
 
     if (RRRA)
     {
-        if (pPlayer->on_motorcycle)
+        if (pPlayer->OnMotorcycle)
         {
             int motoTile = TILE_MOTOHIT;
             if (!g_netServer && numplayers == 1)
@@ -1986,7 +1986,7 @@ void P_DisplayWeapon(void)
                 weaponPal, 34816, pPlayer->tilt_status * 5 + (pPlayer->tilt_status < 0 ? 2047 : 0));
             return;
         }
-        if (pPlayer->on_boat)
+        if (pPlayer->OnBoat)
         {
             int boatTile;
             if (pPlayer->tilt_status > 0)
@@ -4599,12 +4599,12 @@ void P_DropWeapon(int const playerNum)
 
     if (RRRA && (g_netServer || numplayers > 1))
     {
-        if (pPlayer->on_motorcycle)
+        if (pPlayer->OnMotorcycle)
         {
             int const newSprite = A_Spawn(pPlayer->i, TILE_EMPTYBIKE);
             sprite[newSprite].ang = fix16_to_int(pPlayer->q16ang);
             sprite[newSprite].owner = pPlayer->ammo_amount[MOTORCYCLE_WEAPON];
-            pPlayer->on_motorcycle = 0;
+            pPlayer->OnMotorcycle = 0;
             pPlayer->gotweapon.Clear(MOTORCYCLE_WEAPON);
             pPlayer->q16horiz = F16(100);
             pPlayer->moto_do_bump = 0;
@@ -4615,12 +4615,12 @@ void P_DropWeapon(int const playerNum)
             pPlayer->moto_bump = 0;
             pPlayer->moto_turb = 0;
         }
-        else if (pPlayer->on_boat)
+        else if (pPlayer->OnBoat)
         {
             int const newSprite = A_Spawn(pPlayer->i, TILE_EMPTYBOAT);
             sprite[newSprite].ang = fix16_to_int(pPlayer->q16ang);
             sprite[newSprite].owner = pPlayer->ammo_amount[BOAT_WEAPON];
-            pPlayer->on_boat = 0;
+            pPlayer->OnBoat = 0;
             pPlayer->gotweapon.Clear(BOAT_WEAPON);
             pPlayer->q16horiz = F16(100);
             pPlayer->moto_do_bump = 0;
@@ -4683,81 +4683,10 @@ void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addA
         pPlayer->ammo_amount[weaponNum] = pPlayer->max_ammo_amount[weaponNum];
 }
 
+void addweapon(player_struct* p, int w);
 void P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum)
 {
-    int8_t curr_weapon = pPlayer->curr_weapon;
-    
-    if (pPlayer->on_motorcycle || pPlayer->on_boat)
-    {
-        pPlayer->gotweapon.Set(weaponNum);
-
-        if (weaponNum == SHRINKER_WEAPON)
-        {
-            pPlayer->gotweapon.Set(GROW_WEAPON);
-            pPlayer->ammo_amount[GROW_WEAPON] = 1;
-        }
-        else if (weaponNum == RPG_WEAPON)
-            pPlayer->gotweapon.Set(CHICKEN_WEAPON);
-        else if (weaponNum == SLINGBLADE_WEAPON)
-            pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 1;
-        return;
-    }
-
-    if (!pPlayer->gotweapon[weaponNum])
-    {
-        pPlayer->gotweapon.Set(weaponNum);
-
-        if (weaponNum == SHRINKER_WEAPON)
-        {
-            pPlayer->gotweapon.Set(GROW_WEAPON);
-            if (RR)
-                pPlayer->ammo_amount[GROW_WEAPON] = 1;
-        }
-        if (RRRA)
-        {
-            if (weaponNum == RPG_WEAPON)
-                pPlayer->gotweapon.Set(CHICKEN_WEAPON);
-            else if (weaponNum == SLINGBLADE_WEAPON)
-                pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 50;
-        }
-
-        if (!RR || weaponNum != HANDBOMB_WEAPON)
-            curr_weapon = weaponNum;
-    }
-    else
-        curr_weapon = weaponNum;
-
-    if (RR && weaponNum == HANDBOMB_WEAPON)
-        pPlayer->last_weapon = -1;
-
-    pPlayer->random_club_frame = 0;
-
-    if (pPlayer->holster_weapon == 0)
-    {
-        pPlayer->weapon_pos = -1;
-        pPlayer->last_weapon = pPlayer->curr_weapon;
-    }
-    else
-    {
-        pPlayer->weapon_pos = WEAPON_POS_RAISE;
-        pPlayer->holster_weapon = 0;
-        pPlayer->last_weapon = -1;
-    }
-
-    pPlayer->kickback_pic = 0;
-    pPlayer->curr_weapon = curr_weapon;
-
-    switch (DYNAMICWEAPONMAP(weaponNum))
-    {
-    case SLINGBLADE_WEAPON__STATIC:
-    case KNEE_WEAPON__STATIC:
-    case TRIPBOMB_WEAPON__STATIC:
-    case HANDREMOTE_WEAPON__STATIC:
-    case HANDBOMB_WEAPON__STATIC:     break;
-    case SHOTGUN_WEAPON__STATIC:      A_PlaySound(SHOTGUN_COCK, pPlayer->i); break;
-    case PISTOL_WEAPON__STATIC:       A_PlaySound(INSERT_CLIP, pPlayer->i); break;
-                default:      A_PlaySound(RR ? EJECT_CLIP : SELECT_WEAPON, pPlayer->i); break;
-    }
+    addweapon(pPlayer, weaponNum);
 }
 
 void P_SelectNextInvItem(DukePlayer_t *pPlayer)
@@ -5923,7 +5852,7 @@ static void P_ProcessWeapon(int playerNum)
                         pus = 1;
                     pPlayer->ammo_amount[TRIPBOMB_WEAPON]--;
                     pPlayer->gotweapon.Clear(TRIPBOMB_WEAPON);
-                    if (pPlayer->on_ground && TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
+                    if (pPlayer->on_ground && TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->OnMotorcycle))
                     {
                         FwdVel = 15;
                         Zvel = (fix16_to_int(pPlayer->q16horiz + pPlayer->q16horizoff - F16(100)) * 20);
@@ -6785,12 +6714,12 @@ static void P_DoWater(int const playerNum, int const playerBits, int const floor
     if (!A_CheckSoundPlaying(pPlayer->i, DUKE_UNDERWATER))
         A_PlaySound(DUKE_UNDERWATER, pPlayer->i);
 
-    if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle))
+    if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->OnMotorcycle))
     {
         pPlayer->vel.z = max(min(-348, pPlayer->vel.z - 348), -(256 * 6));
     }
-    else if ((TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
-        || (RRRA && pPlayer->on_motorcycle))
+    else if ((TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->OnMotorcycle))
+        || (RRRA && pPlayer->OnMotorcycle))
     {
         pPlayer->vel.z = min(max(348, pPlayer->vel.z + 348), (256 * 6));
     }
@@ -6970,7 +6899,7 @@ void P_ProcessInput(int playerNum)
 
     if (RRRA)
     {
-        if (pPlayer->on_motorcycle && pSprite->extra > 0)
+        if (pPlayer->OnMotorcycle && pSprite->extra > 0)
         {
             int var64, var68, var6c, var74, var7c;
             int16_t var84;
@@ -7242,7 +7171,7 @@ void P_ProcessInput(int playerNum)
             pPlayer->moto_on_mud = 0;
             pPlayer->moto_on_oil = 0;
         }
-        else if (pPlayer->on_boat && pSprite->extra > 0)
+        else if (pPlayer->OnBoat && pSprite->extra > 0)
         {
             int vara8, varac, varb0, varb4, varbc, varc4;
             int16_t varcc;
@@ -7585,7 +7514,7 @@ void P_ProcessInput(int playerNum)
                 if (!pPlayer->stairs)
                 {
                     pPlayer->stairs = 10;
-                    if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle))
+                    if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->OnMotorcycle))
                     {
                         highZhit = 0;
                         ceilZ = pPlayer->truecz;
@@ -7613,7 +7542,7 @@ void P_ProcessInput(int playerNum)
 
         if (RRRA)
         {
-            if (pPlayer->on_motorcycle)
+            if (pPlayer->OnMotorcycle)
             {
                 if (A_CheckEnemySprite(&sprite[spriteNum]))
                 {
@@ -7622,7 +7551,7 @@ void P_ProcessInput(int playerNum)
                     pPlayer->moto_speed -= pPlayer->moto_speed >> 4;
                 }
             }
-            if (pPlayer->on_boat)
+            if (pPlayer->OnBoat)
             {
                 if (A_CheckEnemySprite(&sprite[spriteNum]))
                 {
@@ -7654,7 +7583,7 @@ check_enemy_sprite:
                 if (!pPlayer->stairs)
                 {
                     pPlayer->stairs = 10;
-                    if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
+                    if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->OnMotorcycle))
                     {
                         ceilZ = sprite[spriteNum].z;
                         highZhit = 0;
@@ -7666,7 +7595,7 @@ check_enemy_sprite:
             }
             else if (sprite[spriteNum].picnum == TILE_TOILET || sprite[spriteNum].picnum == TILE_RRTILE2121)
             {
-                if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
+                if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->OnMotorcycle))
                 {
                     A_PlaySound(436, pPlayer->i);
                     pPlayer->last_pissed_time = 4000;
@@ -7772,7 +7701,7 @@ check_enemy_sprite:
     if (pPlayer->look_ang && !(pPlayer->look_ang >> 2))
         pPlayer->look_ang -= ksgn(pPlayer->look_ang);
 
-    if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT) && (!RRRA || !pPlayer->on_motorcycle))
+    if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT) && (!RRRA || !pPlayer->OnMotorcycle))
     {
         // look_left
         if (VM_OnEvent(EVENT_LOOKLEFT,pPlayer->i,playerNum) == 0)
@@ -7782,7 +7711,7 @@ check_enemy_sprite:
         }
     }
 
-    if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT) && (!RRRA || !pPlayer->on_motorcycle))
+    if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT) && (!RRRA || !pPlayer->OnMotorcycle))
     {
         // look_right
         if (VM_OnEvent(EVENT_LOOKRIGHT,pPlayer->i,playerNum) == 0)
@@ -7925,7 +7854,7 @@ check_enemy_sprite:
                 }
             }
         }
-        else if ((!RRRA || pPlayer->on_motorcycle) && pPlayer->footprintcount > 0 && pPlayer->on_ground)
+        else if ((!RRRA || pPlayer->OnMotorcycle) && pPlayer->footprintcount > 0 && pPlayer->on_ground)
         {
             if (pPlayer->cursectnum >= 0 && (sector[pPlayer->cursectnum].floorstat & 2) != 2)
             {
@@ -7974,7 +7903,7 @@ check_enemy_sprite:
                 pPlayer->pos.z = floorZ - (floorZOffset << 8);
             else
             {
-                if (RRRA && (pPlayer->on_motorcycle || pPlayer->on_boat) && floorZ - (floorZOffset << 9) > pPlayer->pos.z)
+                if (RRRA && (pPlayer->OnMotorcycle || pPlayer->OnBoat) && floorZ - (floorZOffset << 9) > pPlayer->pos.z)
                 {
                     if (pPlayer->moto_on_ground)
                     {
@@ -8033,7 +7962,7 @@ check_enemy_sprite:
                         }
                         else if (pPlayer->vel.z > 2048)
                         {
-                            if (RRRA && pPlayer->on_motorcycle)
+                            if (RRRA && pPlayer->OnMotorcycle)
                             {
                                 if (A_CheckSoundPlaying(pPlayer->i, 190))
                                     S_StopEnvSound(pPlayer->i, 190);
@@ -8043,7 +7972,7 @@ check_enemy_sprite:
                             else
                                 A_PlaySound(DUKE_LAND, pPlayer->i);
                         }
-                        else if (RRRA && pPlayer->vel.z > 1024 && pPlayer->on_motorcycle)
+                        else if (RRRA && pPlayer->vel.z > 1024 && pPlayer->OnMotorcycle)
                         {
                             A_PlaySound(DUKE_LAND, pPlayer->i);
                             pPlayer->moto_turb = 12;
@@ -8094,7 +8023,7 @@ check_enemy_sprite:
 
             pPlayer->on_warping_sector = 0;
 
-            if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->on_motorcycle))
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && (!RRRA || !pPlayer->OnMotorcycle))
             {
                 // crouching
                 if (VM_OnEvent(EVENT_CROUCH,pPlayer->i,playerNum) == 0)
@@ -8105,9 +8034,9 @@ check_enemy_sprite:
             }
 
             // jumping
-            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle) && pPlayer->jumping_toggle == 1)
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->OnMotorcycle) && pPlayer->jumping_toggle == 1)
                 pPlayer->jumping_toggle = 0;
-            else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle) && pPlayer->jumping_toggle == 0)
+            else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->OnMotorcycle) && pPlayer->jumping_toggle == 0)
             {
                 if (pPlayer->jumping_counter == 0)
                     if ((floorZ-ceilZ) > (56<<8))
@@ -8126,7 +8055,7 @@ check_enemy_sprite:
 
         if (pPlayer->jumping_counter)
         {
-            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->on_motorcycle) && pPlayer->jumping_toggle == 1)
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && (!RRRA || !pPlayer->OnMotorcycle) && pPlayer->jumping_toggle == 1)
                 pPlayer->jumping_toggle = 0;
 
             if (pPlayer->jumping_counter < (RR ? 768 : (1024+256)))
@@ -8197,7 +8126,7 @@ check_enemy_sprite:
         {
             if ((krand2() & 3) == 1)
             {
-                if (pPlayer->on_motorcycle)
+                if (pPlayer->OnMotorcycle)
                     pSprite->extra -= 2;
                 else
                     pSprite->extra -= 4;
@@ -8228,7 +8157,7 @@ check_enemy_sprite:
             {
                 if (sectorLotag == ST_1_ABOVE_WATER)
                     pPlayer->not_on_water = 0;
-                else if (pPlayer->on_boat)
+                else if (pPlayer->OnBoat)
                 {
                     if (sectorLotag == 1234)
                         pPlayer->not_on_water = 0;
@@ -8267,7 +8196,7 @@ check_enemy_sprite:
                         break;
 
                         case ST_1_ABOVE_WATER:
-                            if ((krand2() & 1) == 0 && (!RRRA || (!pPlayer->on_boat && !pPlayer->on_motorcycle && sector[pPlayer->cursectnum].lotag != 321)))
+                            if ((krand2() & 1) == 0 && (!RRRA || (!pPlayer->OnBoat && !pPlayer->OnMotorcycle && sector[pPlayer->cursectnum].lotag != 321)))
                                 A_PlaySound(DUKE_ONWATER, pPlayer->i);
                             pPlayer->walking_snd_toggle = 1;
                             break;
@@ -8301,12 +8230,12 @@ check_enemy_sprite:
             {
                 if (sector[pPlayer->cursectnum].floorpicnum == TILE_RRTILE7888)
                 {
-                    if (pPlayer->on_motorcycle && pPlayer->on_ground)
+                    if (pPlayer->OnMotorcycle && pPlayer->on_ground)
                         pPlayer->moto_on_oil = 1;
                 }
                 else if (sector[pPlayer->cursectnum].floorpicnum == TILE_RRTILE7889)
                 {
-                    if (pPlayer->on_motorcycle)
+                    if (pPlayer->OnMotorcycle)
                     {
                         if (pPlayer->on_ground)
                             pPlayer->moto_on_mud = 1;
@@ -8322,7 +8251,7 @@ check_enemy_sprite:
             }
             if (sector[pPlayer->cursectnum].floorpicnum == TILE_RRTILE3073 || sector[pPlayer->cursectnum].floorpicnum == TILE_RRTILE2702)
             {
-                if (RRRA && pPlayer->on_motorcycle)
+                if (RRRA && pPlayer->OnMotorcycle)
                 {
                     if (pPlayer->on_ground)
                     {
@@ -8410,7 +8339,7 @@ HORIZONLY:;
             if ((spriteNum & 49152) == 32768)
             {
                 int const wallNum = spriteNum&(MAXWALLS-1);
-                if (RRRA && pPlayer->on_motorcycle)
+                if (RRRA && pPlayer->OnMotorcycle)
                 {
                     int16_t var104, var108, var10c;
                     var104 = 0;
@@ -8462,7 +8391,7 @@ HORIZONLY:;
                     else if (var104)
                         A_PlaySound(DUKE_LAND_HURT,pPlayer->i);
                 }
-                else if (RRRA && pPlayer->on_boat)
+                else if (RRRA && pPlayer->OnBoat)
                 {
                     short var114, var118;
                     var114 = getangle(wall[wall[wallNum].point2].x-wall[wallNum].x,wall[wall[wallNum].point2].y-wall[wallNum].y);
@@ -8519,7 +8448,7 @@ HORIZONLY:;
             {
                 spriteNum &= (MAXSPRITES-1);
                 
-                if (RRRA && pPlayer->on_motorcycle)
+                if (RRRA && pPlayer->OnMotorcycle)
                 {
                     if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == TILE_APLAYER)
                     {
@@ -8572,7 +8501,7 @@ HORIZONLY:;
                         sprite[spriteNum].yrepeat = 0;
                     }
                 }
-                else if (RRRA && pPlayer->on_boat)
+                else if (RRRA && pPlayer->OnBoat)
                 {
                     if (A_CheckEnemySprite(&sprite[spriteNum]) || sprite[spriteNum].picnum == TILE_APLAYER)
                     {
@@ -8670,7 +8599,7 @@ HORIZONLY:;
 
     if ((pPlayer->cursectnum >= 0 && trueFloorDist < PHEIGHT && pPlayer->on_ground && sectorLotag != ST_1_ABOVE_WATER &&
          playerShrunk == 0 && sector[pPlayer->cursectnum].lotag == ST_1_ABOVE_WATER) && (!A_CheckSoundPlaying(pPlayer->i, DUKE_ONWATER)))
-        if (!RRRA || (!pPlayer->on_boat && !pPlayer->on_motorcycle && sector[pPlayer->cursectnum].lotag != 321))
+        if (!RRRA || (!pPlayer->OnBoat && !pPlayer->OnMotorcycle && sector[pPlayer->cursectnum].lotag != 321))
             A_PlaySound(DUKE_ONWATER, pPlayer->i);
 
     if (pPlayer->cursectnum >= 0 && pPlayer->cursectnum != pSprite->sectnum)
@@ -8728,7 +8657,7 @@ HORIZONLY:;
             thisPlayer.horizAngleAdjust = -float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         }
     }
-    else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && (!RRRA || !pPlayer->on_motorcycle))
+    else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && (!RRRA || !pPlayer->OnMotorcycle))
     {
         if (VM_OnEvent(EVENT_AIMUP,pPlayer->i,playerNum) == 0)
         {
@@ -8736,7 +8665,7 @@ HORIZONLY:;
             thisPlayer.horizRecenter    = false;
         }
     }
-    else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && (!RRRA || !pPlayer->on_motorcycle))
+    else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && (!RRRA || !pPlayer->OnMotorcycle))
     {
         if (VM_OnEvent(EVENT_AIMDOWN,pPlayer->i,playerNum) == 0)
         {
@@ -9023,14 +8952,14 @@ void P_DHProcessInput(int playerNum)
     if (pPlayer->look_ang && !(pPlayer->look_ang >> 2))
         pPlayer->look_ang -= ksgn(pPlayer->look_ang);
 
-    if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT) && !pPlayer->on_motorcycle)
+    if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT) && !pPlayer->OnMotorcycle)
     {
         // look_left
         pPlayer->look_ang -= 152;
         pPlayer->rotscrnang += 24;
     }
 
-    if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT) && !pPlayer->on_motorcycle)
+    if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT) && !pPlayer->OnMotorcycle)
     {
         // look_right
         pPlayer->look_ang += 152;
@@ -9157,7 +9086,7 @@ void P_DHProcessInput(int playerNum)
 
             pPlayer->on_warping_sector = 0;
 
-            if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && !pPlayer->on_motorcycle)
+            if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && !pPlayer->OnMotorcycle)
             {
                 // crouching
                 pPlayer->pos.z += (2048+768);
@@ -9165,9 +9094,9 @@ void P_DHProcessInput(int playerNum)
             }
 
             // jumping
-            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && !pPlayer->on_motorcycle && pPlayer->jumping_toggle == 1)
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && !pPlayer->OnMotorcycle && pPlayer->jumping_toggle == 1)
                 pPlayer->jumping_toggle = 0;
-            else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && !pPlayer->on_motorcycle && pPlayer->jumping_toggle == 0)
+            else if (TEST_SYNC_KEY(playerBits, SK_JUMP) && !pPlayer->OnMotorcycle && pPlayer->jumping_toggle == 0)
             {
                 if (pPlayer->jumping_counter == 0)
                     if ((floorZ-ceilZ) > (56<<8))
@@ -9180,7 +9109,7 @@ void P_DHProcessInput(int playerNum)
 
         if (pPlayer->jumping_counter)
         {
-            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && !pPlayer->on_motorcycle && pPlayer->jumping_toggle == 1)
+            if (!TEST_SYNC_KEY(playerBits, SK_JUMP) && !pPlayer->OnMotorcycle && pPlayer->jumping_toggle == 1)
                 pPlayer->jumping_toggle = 0;
 
             if (pPlayer->jumping_counter < 768)
@@ -9371,12 +9300,12 @@ void P_DHProcessInput(int playerNum)
         thisPlayer.horizRecenter = true;
         thisPlayer.horizAngleAdjust = -float(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
     }
-    else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && !pPlayer->on_motorcycle)
+    else if (TEST_SYNC_KEY(playerBits, SK_AIM_UP) && !pPlayer->OnMotorcycle)
     {
         thisPlayer.horizAngleAdjust = float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         thisPlayer.horizRecenter    = false;
     }
-    else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && !pPlayer->on_motorcycle)
+    else if (TEST_SYNC_KEY(playerBits, SK_AIM_DOWN) && !pPlayer->OnMotorcycle)
     {
         thisPlayer.horizAngleAdjust = -float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
         thisPlayer.horizRecenter    = false;

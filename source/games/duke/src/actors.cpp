@@ -119,14 +119,56 @@ void addammo(short weapon, struct player_struct* p, short amount)
 //
 //---------------------------------------------------------------------------
 
-void addweapon(struct player_struct* p, short weapon)
+void addweapon(struct player_struct* p, int weapon)
 {
-	if (!p->gotweapon[weapon])
+	short cw = p->curr_weapon;
+	if (p->OnMotorcycle || p->OnBoat)
 	{
 		p->gotweapon.Set(weapon);
 		if (weapon == SHRINKER_WEAPON)
+		{
 			p->gotweapon.Set(GROW_WEAPON);
+			p->ammo_amount[GROW_WEAPON] = 1;
+		}
+		else if (weapon == RPG_WEAPON)
+		{
+			p->gotweapon.Set(RA16_WEAPON);
+		}
+		else if (weapon == RA15_WEAPON)
+		{
+			p->ammo_amount[RA15_WEAPON] = 1;
+		}
+		return;
 	}
+
+	if (p->gotweapon[weapon] == 0)
+	{
+		p->gotweapon.Set(weapon);
+		if (weapon == SHRINKER_WEAPON)
+		{
+			p->gotweapon.Set(GROW_WEAPON);
+			if (g_gameType & GAMEFLAG_RRRA) p->ammo_amount[GROW_WEAPON] = 1;
+		}
+		if (g_gameType & GAMEFLAG_RRRA)
+		{
+			if (weapon == RPG_WEAPON)
+			{
+				p->gotweapon.Set(RA16_WEAPON);
+			}
+			if (weapon == RA15_WEAPON)
+			{
+				p->ammo_amount[RA15_WEAPON] = 50;
+			}
+		}
+
+		if (!(g_gameType & GAMEFLAG_RRALL) || weapon != HANDBOMB_WEAPON)
+			cw = weapon;
+	}
+	else
+		cw = weapon;
+
+	if ((g_gameType & GAMEFLAG_RRALL) && weapon == HANDBOMB_WEAPON)
+		p->last_weapon = -1;
 
 	p->random_club_frame = 0;
 
@@ -144,12 +186,12 @@ void addweapon(struct player_struct* p, short weapon)
 
 	p->kickback_pic = 0;
 #ifdef EDUKE
-	if (p->curr_weapon != weapon)
+	if (p->curr_weapon != cw)
 	{
 		short snum;
 		snum = sprite[p->i].yvel;
 
-		SetGameVarID(g_iWeaponVarID, weapon, p->i, snum);
+		SetGameVarID(g_iWeaponVarID, cw, p->i, snum);
 		if (p->curr_weapon >= 0)
 		{
 			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[weapon][snum], p->i, snum);
@@ -162,15 +204,16 @@ void addweapon(struct player_struct* p, short weapon)
 		OnEvent(EVENT_CHANGEWEAPON, p->i, snum, -1);
 		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 		{
-			p->curr_weapon = weapon;
+			p->curr_weapon = cw;
 		}
 	}
 #else
-	p->curr_weapon = weapon;
+	p->curr_weapon = cw;
 #endif
 
 	switch (weapon)
 	{
+	case RA15_WEAPON:
 	case KNEE_WEAPON:
 	case TRIPBOMB_WEAPON:
 	case HANDREMOTE_WEAPON:
