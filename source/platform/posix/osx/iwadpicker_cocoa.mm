@@ -360,7 +360,7 @@ static NSArray* GetKnownExtensions()
 
 	if ( @selector(terminate:) == [menuItem action] )
 	{
-		throw ExitEvent(0);
+		throw CExitEvent(0);
 	}
 }
 
