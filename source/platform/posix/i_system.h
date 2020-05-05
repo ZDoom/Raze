@@ -81,6 +81,7 @@ inline int I_GetNumaNodeCount() { return 1; }
 inline int I_GetNumaNodeThreadCount(int numaNode) { return std::max<int>(std::thread::hardware_concurrency(), 1); }
 inline void I_SetThreadNumaNode(std::thread &thread, int numaNode) { }
 
+void I_PutInClipboard(const char* str);
 FString I_GetFromClipboard (bool use_primary_selection);
 
 #endif
