@@ -777,6 +777,10 @@ void P_ResetPlayer(int playerNum)
                      ? PWEAPON(playerNum, p.curr_weapon, TotalTime)
                      : 0;
 
+    g_player[playerNum].horizRecenter    = 0;
+    g_player[playerNum].horizSkew        = 0;
+    g_player[playerNum].horizAngleAdjust = 0;
+
     P_UpdateScreenPal(&p);
     VM_OnEvent(EVENT_RESETPLAYER, p.i, playerNum);
 }
