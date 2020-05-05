@@ -4759,6 +4759,8 @@ static void P_DoJetpack(int const playerNum, int const playerBits, int const pla
     pPlayer->pycount        &= 2047;
     pPlayer->pyoff           = sintable[pPlayer->pycount] >> 7;
 
+    g_player[playerNum].horizSkew = 0;
+
     if (pPlayer->jetpack_on < 11)
     {
         pPlayer->jetpack_on++;
