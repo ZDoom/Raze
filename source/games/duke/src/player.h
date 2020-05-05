@@ -135,7 +135,19 @@ typedef struct {
 // TODO: rearrange this if the opportunity arises!
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct player_struct {
-    vec3_t pos, opos, vel, npos;
+    union
+    {
+        vec3_t pos;
+        struct { int32_t posx, posy, posz; };
+    };
+    union
+    {
+        vec3_t opos;
+        struct { int32_t oposx, oposy, oposz; };
+    };
+
+    vec3_t vel;
+    vec3_t npos;
     vec2_t bobpos, fric;
 
     fix16_t q16horiz, q16horizoff, oq16horiz, oq16horizoff;
@@ -359,6 +371,11 @@ void    P_DHProcessInput(int playerNum);
 void    P_QuickKill(DukePlayer_t *pPlayer);
 void    P_SelectNextInvItem(DukePlayer_t *pPlayer);
 void    P_UpdateScreenPal(DukePlayer_t *pPlayer);
+inline void setpal(DukePlayer_t* pPlayer)
+{
+    P_UpdateScreenPal(pPlayer);
+}
+
 void    P_EndLevel(void);
 void    P_CheckWeaponI(int playerNum);
 int     P_GetHudPal(const DukePlayer_t *pPlayer);

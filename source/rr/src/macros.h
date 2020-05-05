@@ -61,7 +61,10 @@ static FORCE_INLINE int32_t krand2(void)
 
 #define TEST_SYNC_KEY(bits, sync_num) (!!TEST((bits), BIT(sync_num)))
 
-#define AFLAMABLE(X) (X==BOX||X==TREE1||X==TREE2||X==TIRE||X==CONE)
+inline bool AFLAMABLE(int X) 
+{
+    return (X == BOX || X == TREE1 || X == TREE2 || X == TIRE || X == CONE);
+}
 #define rnd(X) ((krand2()>>8)>=(255-(X)))
 
 //

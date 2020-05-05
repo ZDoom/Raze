@@ -2920,11 +2920,16 @@ void freehashnames(void)
 }
 #endif
 
+int APLAYER, CAMERA1;
+
 // This is run after all CON define's have been processed to set up the
 // dynamic->static tile mapping.
 void G_InitDynamicTiles(void)
 {
     int32_t i;
+
+    APLAYER = (g_gameType & GAMEFLAG_RRALL) ? RR_APLAYER : DUKE_APLAYER;
+    CAMERA1 = (g_gameType & GAMEFLAG_RRALL) ? RR_CAMERA1 : DUKE_CAMERA1;
 
     Bmemset(DynamicTileMap, 0, sizeof(DynamicTileMap));
 

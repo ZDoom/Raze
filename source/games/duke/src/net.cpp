@@ -3075,7 +3075,7 @@ void Net_ReceivePlayerIndex(uint8_t *pbuf, int32_t packbufleng)
 
 void Net_SendClientInfo(void)
 {
-    int32_t i,l;
+    int32_t l;
 
 	strncpy(g_player[myconnectindex].user_name, playername, 32);
 
@@ -3118,7 +3118,7 @@ void Net_SendClientInfo(void)
 
 void Net_ReceiveClientInfo(uint8_t *pbuf, int32_t packbufleng, int32_t fromserver)
 {
-    uint32_t i, j;
+    uint32_t i;
     int32_t other = pbuf[packbufleng];
 
     for (i=1; pbuf[i]; i++)

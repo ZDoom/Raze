@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define EDUKE32_MACROS_H_
 
 #include "mmulti.h"
+#include "names.h"
 
 BEGIN_DUKE_NS
 
@@ -61,7 +62,14 @@ static FORCE_INLINE int32_t krand2(void)
 
 #define TEST_SYNC_KEY(bits, sync_num) (!!TEST((bits), BIT(sync_num)))
 
-#define AFLAMABLE(X) (X==TILE_BOX||X==TILE_TREE1||X==TILE_TREE2||X==TILE_TIRE||X==TILE_CONE)
+inline bool AFLAMABLE(int X)
+{
+    if (!(g_gameType & GAMEFLAG_RRALL))
+        return (X == BOX || X == TREE1 || X == TREE2 || X == TIRE || X == CONE);
+    else
+        return (X == RR_AFLAM1191 || X == RR_AFLAM1193 || X == RR_TIRE || X == RR_AFLAM3062);
+}
+
 #define rnd(X) ((krand2()>>8)>=(255-(X)))
 
 //

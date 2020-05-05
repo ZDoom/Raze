@@ -109,7 +109,16 @@ void A_CallSound2(int soundNum, int playerNum);
 int A_CallSound(int sectNum,int spriteNum);
 int A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
 void A_DamageObject(int spriteNum,int dmgSrc);
+inline void checkhitsprite(int s, int d)
+{
+    A_DamageObject(s, d);
+}
 void A_DamageWall(int spr,int dawallnum,const vec3_t *pos,int weaponNum);
+inline void checkhitwall(int spr, int wal, int x, int y, int z, int w)
+{
+    vec3_t vec{ x, y, z };
+    A_DamageWall(spr, wal, &vec, w);
+}
 int __fastcall A_FindPlayer(const spritetype *pSprite,int32_t *dist);
 void G_AlignWarpElevators(void);
 int CheckDoorTile(int tileNum);
@@ -131,6 +140,7 @@ int isanunderoperator(int lotag);
 int P_ActivateSwitch(int playerNum, int wallOrSprite, int nSwitchType);
 void P_CheckSectors(int playerNum);
 void Sect_DamageCeiling(int sectNum);
+inline void checkhitceiling(int sec) { Sect_DamageCeiling(sec); }
 int SetAnimation(int sectNum,int32_t *animPtr,int goalVal,int animVel);
 void G_DoFurniture(int wallNum, int sectNum, int playerNum);
 void G_DoTorch(void);
