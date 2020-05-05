@@ -2743,7 +2743,7 @@ GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
                         case ITER_ALLSPRITESBYSTAT:
                             for (native_t statNum = 0; statNum < MAXSTATUS; ++statNum)
                             {
-                                for (native_t jj = headspritestat[statNum], kk = nextspritestat[jj]; jj >= 0; jj = kk, kk = nextspritestat[jj])
+                                for (native_t kk, SPRITES_OF_STAT_SAFE(statNum, jj, kk))
                                     CON_FOR_ITERATION();
                             }
                             break;
@@ -2751,7 +2751,7 @@ GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
                         case ITER_ALLSPRITESBYSECT:
                             for (native_t sectNum = 0; sectNum < numsectors; ++sectNum)
                             {
-                                for (native_t jj = headspritesect[sectNum], kk = nextspritesect[jj]; jj >= 0; jj = kk, kk = nextspritesect[jj])
+                                for (native_t kk, SPRITES_OF_SECT_SAFE(sectNum, jj, kk))
                                     CON_FOR_ITERATION();
                             }
                             break;
@@ -2786,7 +2786,7 @@ GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
                             if ((unsigned)nIndex >= MAXSECTORS)
                                 goto badindex;
 
-                            for (native_t jj = headspritesect[nIndex], kk = nextspritesect[jj]; jj >= 0; jj = kk, kk = nextspritesect[jj])
+                            for (native_t kk, SPRITES_OF_SECT_SAFE(nIndex, jj, kk))
                                 CON_FOR_ITERATION();
                             break;
 
@@ -2794,7 +2794,7 @@ GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
                             if ((unsigned)nIndex >= MAXSTATUS)
                                 goto badindex;
 
-                            for (native_t jj = headspritestat[nIndex], kk = nextspritestat[jj]; jj >= 0; jj = kk, kk = nextspritestat[jj])
+                            for (native_t kk, SPRITES_OF_STAT_SAFE(nIndex, jj, kk))
                                 CON_FOR_ITERATION();
                             break;
 
