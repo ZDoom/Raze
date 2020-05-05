@@ -53,6 +53,11 @@ static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum = -1, int pla
     return VM_HaveEvent(nEventID) ? VM_ExecuteEvent(nEventID, spriteNum, playerNum) : 0;
 }
 
+inline int OnEvent(int id, int pnum, int snum, int what)
+{
+    return VM_OnEvent(id, snum, pnum, what);
+}
+
 static FORCE_INLINE int32_t VM_OnEventWithReturn(int nEventID, int spriteNum, int playerNum, int32_t nReturn)
 {
     return VM_HaveEvent(nEventID) ? VM_ExecuteEventWithValue(nEventID, spriteNum, playerNum, nReturn) : nReturn;

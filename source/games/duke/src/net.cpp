@@ -3096,11 +3096,13 @@ void Net_SendClientInfo(void)
 
     tempbuf[l++] = g_player[myconnectindex].pteam = playerteam;
 
+#if 0
     for (i=0; i<10; i++)
     {
         g_player[myconnectindex].wchoice[i] = g_player[0].wchoice[i];
         tempbuf[l++] = (uint8_t)g_player[0].wchoice[i];
     }
+#endif
 
     tempbuf[l++] = myconnectindex;
 
@@ -3133,10 +3135,12 @@ void Net_ReceiveClientInfo(uint8_t *pbuf, int32_t packbufleng, int32_t fromserve
     g_player[other].ps->palookup = g_player[other].pcolor = pbuf[i++];
     g_player[other].pteam = pbuf[i++];
 
+#if 0
     for (j=i; i-j<10; i++)
     {
         g_player[other].wchoice[i-j] = pbuf[i];
     }
+#endif
 
     if (fromserver)
     {

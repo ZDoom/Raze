@@ -84,6 +84,12 @@ int __fastcall Gv_GetVar(int const gameVar);
 void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf);
 void __fastcall Gv_SetVar(int const gameVar, int const newValue);
 
+inline void SetGameVarID(int var, int newval, int pnum, int snum)
+{
+    Gv_SetVar(var, newval, snum, pnum);
+}
+
+
 template <typename T>
 static FORCE_INLINE void Gv_FillWithVars(T & rv)
 {

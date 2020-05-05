@@ -79,6 +79,8 @@ extern int32_t g_returnVarID;     // var ID of "RETURN"
 extern int32_t g_weaponVarID;     // var ID of "WEAPON"
 extern int32_t g_worksLikeVarID;  // var ID of "WORKSLIKE"
 extern int32_t g_zRangeVarID;     // var ID of "ZRANGE"
+#define g_iWeaponVarID g_weaponVarID
+#define g_iWorksLikeVarID g_worksLikeVarID
 
 #include "events_defs.h"
 extern intptr_t apScriptEvents[MAXEVENTS];

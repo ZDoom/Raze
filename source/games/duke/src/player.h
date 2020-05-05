@@ -228,6 +228,16 @@ typedef struct player_struct {
     int8_t padding_[3];
 } DukePlayer_t;
 
+// transition helpers
+#define firstaid_amount inv_amount[GET_FIRSTAID]
+#define steroids_amount inv_amount[GET_STEROIDS]
+#define holoduke_amount inv_amount[GET_HOLODUKE]
+#define jetpack_amount inv_amount[GET_JETPACK]
+#define heat_amount inv_amount[GET_HEATS]
+#define scuba_amount inv_amount[GET_SCUBA]
+#define boot_amount inv_amount[GET_BOOTS]
+
+
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct
 {
@@ -241,7 +251,7 @@ typedef struct
     int32_t movefifoend, syncvalhead, myminlag;
     int32_t pcolor, pteam;
     // NOTE: wchoice[HANDREMOTE_WEAPON .. MAX_WEAPONS-1] unused
-    uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
+    uint8_t frags[MAXPLAYERS];
 
     char vote, gotvote, playerreadyflag, playerquitflag, connected;
     char user_name[32];
@@ -383,6 +393,8 @@ static inline int P_GetP(const void *pSprite)
 // Get the player index given an TILE_APLAYER sprite index.
 static inline int P_Get(int32_t spriteNum) { return P_GetP((const uspritetype *)&sprite[spriteNum]); }
 extern int16_t max_ammo_amount[MAX_WEAPONS];
+
+void P_SetWeaponGamevars(int playerNum, const DukePlayer_t* const pPlayer);
 
 END_DUKE_NS
 

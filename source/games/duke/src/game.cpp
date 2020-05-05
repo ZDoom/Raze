@@ -7002,6 +7002,15 @@ void InitFonts();
 
 int GameInterface::app_main()
 {
+    for (int i = 0; i < MAXPLAYERS; i++)
+    {
+        for (int j = 0; j < 10; j++)    
+        {
+            const char* s = "3457860291";
+            ud.wchoice[i][j] = s[j] - '0';
+        }
+    }
+
     buttonMap.SetButtons(actions, NUM_ACTIONS);
     playing_rr = 1;
     g_skillCnt = 4;

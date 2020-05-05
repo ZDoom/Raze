@@ -4684,6 +4684,9 @@ void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addA
 }
 
 void addweapon(player_struct* p, int w);
+void checkavailinven(struct player_struct* p);
+void checkavailweapon(struct player_struct* p);
+
 void P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum)
 {
     addweapon(pPlayer, weaponNum);
@@ -4691,87 +4694,12 @@ void P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum)
 
 void P_SelectNextInvItem(DukePlayer_t *pPlayer)
 {
-    if (pPlayer->inv_amount[GET_FIRSTAID] > 0)
-        pPlayer->inven_icon = ICON_FIRSTAID;
-    else if (pPlayer->inv_amount[GET_STEROIDS] > 0)
-        pPlayer->inven_icon = ICON_STEROIDS;
-    else if (pPlayer->inv_amount[GET_JETPACK] > 0)
-        pPlayer->inven_icon = ICON_JETPACK;
-    else if (pPlayer->inv_amount[GET_HOLODUKE] > 0)
-        pPlayer->inven_icon = ICON_HOLODUKE;
-    else if (pPlayer->inv_amount[GET_HEATS] > 0)
-        pPlayer->inven_icon = ICON_HEATS;
-    else if (pPlayer->inv_amount[GET_SCUBA] > 0)
-        pPlayer->inven_icon = ICON_SCUBA;
-    else if (pPlayer->inv_amount[GET_BOOTS] > 0)
-        pPlayer->inven_icon = ICON_BOOTS;
-    else
-        pPlayer->inven_icon = ICON_NONE;
+    checkavailinven(pPlayer);
 }
 
 void P_CheckWeapon(DukePlayer_t *pPlayer)
 {
-    int playerNum;
-    int weaponNum;
-
-    // if (pPlayer->reloading)
-    //     return;
-
-    if (pPlayer->wantweaponfire >= 0)
-    {
-        weaponNum = pPlayer->wantweaponfire;
-        pPlayer->wantweaponfire = -1;
-
-        if (weaponNum == pPlayer->curr_weapon)
-            return;
-
-        if ((pPlayer->gotweapon[weaponNum]) && pPlayer->ammo_amount[weaponNum] > 0)
-        {
-            P_AddWeapon(pPlayer, weaponNum);
-            return;
-        }
-    }
-
-    weaponNum = pPlayer->curr_weapon;
-
-    if ((pPlayer->gotweapon[weaponNum]) && pPlayer->ammo_amount[weaponNum] > 0)
-        return;
-
-    playerNum  = P_Get(pPlayer->i);
-
-    int wpnInc = 0;
-
-    for (wpnInc = 0; wpnInc <= (RR ? DEVISTATOR_WEAPON: FREEZE_WEAPON); ++wpnInc)
-    {
-        weaponNum = g_player[playerNum].wchoice[wpnInc];
-        if (VOLUMEONE && weaponNum > SHRINKER_WEAPON)
-            continue;
-
-        if (weaponNum == KNEE_WEAPON)
-            weaponNum = RR ? DEVISTATOR_WEAPON : FREEZE_WEAPON;
-        else weaponNum--;
-
-        if (weaponNum == KNEE_WEAPON || ((pPlayer->gotweapon[weaponNum]) && pPlayer->ammo_amount[weaponNum] > 0))
-            break;
-    }
-
-    if (wpnInc == HANDREMOTE_WEAPON)
-        weaponNum = KNEE_WEAPON;
-
-    // Found the weapon
-
-    pPlayer->last_weapon = pPlayer->curr_weapon;
-    pPlayer->random_club_frame = 0;
-    pPlayer->curr_weapon = weaponNum;
-    P_SetWeaponGamevars(playerNum, pPlayer);
-    VM_OnEvent(EVENT_CHANGEWEAPON, pPlayer->i, playerNum);
-    pPlayer->kickback_pic = 0;
-    if (pPlayer->holster_weapon == 1)
-    {
-        pPlayer->holster_weapon = 0;
-        pPlayer->weapon_pos = 10;
-    }
-    else pPlayer->weapon_pos = -1;
+    checkavailweapon(pPlayer);
 }
 
 static void DoWallTouchDamage(const DukePlayer_t *pPlayer, int32_t wallNum)

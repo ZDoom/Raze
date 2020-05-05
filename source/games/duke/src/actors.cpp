@@ -36,12 +36,6 @@ This file is a combination of code from the following sources:
 - DukeGDX and RedneckGDX by Alexander Makarov-[M210] (m210-2007@mail.ru)
 - Redneck Rampage reconstructed source by Nuke.YKT
 
-Note:
- Most of this code follows DukeGDX and RedneckGDX because for Java it had
- to undo all the macro hackery that make the Duke source extremely hard to read.
- The other code bases were mainly used to add missing feature support (e.g. WW2GI)
- and verify correctness.
- 
 */
 //-------------------------------------------------------------------------
 
@@ -230,6 +224,111 @@ void addweapon(struct player_struct* p, int weapon)
 		break;
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void checkavailinven(struct player_struct* p)
+{
+
+	if (p->firstaid_amount > 0)
+		p->inven_icon = ICON_FIRSTAID;
+	else if (p->steroids_amount > 0)
+		p->inven_icon = ICON_STEROIDS;
+	else if (p->holoduke_amount > 0)
+		p->inven_icon = ICON_HOLODUKE;
+	else if (p->jetpack_amount > 0)
+		p->inven_icon = ICON_JETPACK;
+	else if (p->heat_amount > 0)
+		p->inven_icon = ICON_HEATS;
+	else if (p->scuba_amount > 0)
+		p->inven_icon = ICON_SCUBA;
+	else if (p->boot_amount > 0)
+		p->inven_icon = ICON_BOOTS;
+	else p->inven_icon = ICON_NONE;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void checkavailweapon(struct player_struct* p)
+{
+	short i, snum;
+	int weap;
+
+	if (p->wantweaponfire >= 0)
+	{
+		weap = p->wantweaponfire;
+		p->wantweaponfire = -1;
+
+		if (weap == p->curr_weapon) return;
+		else if (p->gotweapon[weap] && p->ammo_amount[weap] > 0)
+		{
+			addweapon(p, weap);
+			return;
+		}
+	}
+
+	weap = p->curr_weapon;
+	if (p->gotweapon[weap] && p->ammo_amount[weap] > 0)
+		return;
+
+	snum = sprite[p->i].yvel;
+
+	// Note: RedNukem has this restriction, but the original source and RedneckGDX do not.
+#if 1 // TRANSITIONAL
+	int max = ((g_gameType & GAMEFLAG_RRALL) ? DEVISTATOR_WEAPON : FREEZE_WEAPON);
+#else
+	int max = FREEZE_WEAPON;
+#endif
+	for (i = 0; i < 10; i++)
+	{
+		weap = ud.wchoice[snum][i];
+		if ((g_gameType & GAMEFLAG_SHAREWARE) && weap > 6) continue;
+
+		if (weap == 0) weap = max;
+		else weap--;
+
+		if (weap == KNEE_WEAPON || (p->gotweapon[weap] && p->ammo_amount[weap] > 0))
+			break;
+	}
+
+	if (i == HANDREMOTE_WEAPON) weap = KNEE_WEAPON;
+
+	// Found the weapon
+
+	p->last_weapon = p->curr_weapon;
+	p->random_club_frame = 0;
+	p->curr_weapon = weap;
+	if (g_gameType & GAMEFLAG_WW2GI)
+	{
+		SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
+		if (p->curr_weapon >= 0)
+		{
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
+		}
+		else
+		{
+			SetGameVarID(g_iWorksLikeVarID, -1, p->i, snum);
+		}
+		OnEvent(EVENT_CHANGEWEAPON, p->i, snum, -1);
+	}
+
+	p->kickback_pic = 0;
+	if (p->holster_weapon == 1)
+	{
+		p->holster_weapon = 0;
+		p->weapon_pos = 10;
+	}
+	else p->weapon_pos = -1;
+}
+
 
 //---------------------------------------------------------------------------
 //

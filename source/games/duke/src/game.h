@@ -174,6 +174,7 @@ typedef struct {
     uint8_t user_map;
     uint8_t screenfade, menubackground;
     uint8_t shadow_pal;
+    uint8_t wchoice[MAXPLAYERS][MAX_WEAPONS];
 } user_defs;
 
 extern user_defs ud;
