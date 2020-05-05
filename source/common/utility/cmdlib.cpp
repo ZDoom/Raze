@@ -39,7 +39,7 @@
 #include "files.h"
 #include "md5.h"
 
-#ifdef __linux__
+#ifndef _WIN32
 #include <pwd.h>
 #include <unistd.h>
 #endif
