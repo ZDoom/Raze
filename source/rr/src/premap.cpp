@@ -936,6 +936,10 @@ void P_ResetStatus(int playerNum)
     pPlayer->movement_lock      = 0;
     pPlayer->frag_ps            = playerNum;
 
+    g_player[playerNum].horizRecenter    = 0;
+    g_player[playerNum].horizSkew        = 0;
+    g_player[playerNum].horizAngleAdjust = 0;
+
     P_UpdateScreenPal(pPlayer);
 
     if (RR)
