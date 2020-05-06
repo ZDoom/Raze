@@ -2337,7 +2337,7 @@ GAMELOOP:
         {
             bInMove = kTrue;
 
-            if (GUICapture || bPause)
+            if (M_Active() || GUICapture || bPause)
             {
                 totalclock = tclocks + 4;
             }
