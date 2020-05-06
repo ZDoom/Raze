@@ -320,6 +320,10 @@ struct psaccess
 };
 extern psaccess ps;
 
+#define spriteqamount g_deleteQueueSize
+#define spriteq SpriteDeletionQueue
+#define spriteqloc g_spriteDeleteQueuePos
+
 END_DUKE_NS
 
 #endif

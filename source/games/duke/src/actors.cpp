@@ -730,7 +730,7 @@ int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned 
 //
 //---------------------------------------------------------------------------
 
-short ssp(short i, unsigned int cliptype) //The set sprite function
+int ssp(short i, unsigned int cliptype) //The set sprite function
 {
 	spritetype* s;
 	int movetype;
@@ -745,6 +745,42 @@ short ssp(short i, unsigned int cliptype) //The set sprite function
 	return (movetype == 0);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void insertspriteq(int i)
+{
+	if (spriteqamount > 0)
+	{
+		if (spriteq[spriteqloc] >= 0)
+			sprite[spriteq[spriteqloc]].xrepeat = 0;
+		spriteq[spriteqloc] = i;
+		spriteqloc = (spriteqloc + 1) % spriteqamount;
+	}
+	else sprite[i].xrepeat = sprite[i].yrepeat = 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// consolidation of several nearly identical functions
+// lotsofmoney -> MONEY
+// lotsofmail -> MAIL
+// lotsofpaper -> PAPER
+//
+//---------------------------------------------------------------------------
+
+void lotsofstuff(spritetype* s, short n, int spawntype)
+{
+	short i, j;
+	for (i = n; i > 0; i--)
+	{
+		j = EGS(s->sectnum, s->x, s->y, s->z - (krand() % (47 << 8)), spawntype, -32, 8, 8, krand() & 2047, 0, 0, 0, 5);
+		sprite[j].cstat = krand() & 12;
+	}
+}
 
 //---------------------------------------------------------------------------
 //

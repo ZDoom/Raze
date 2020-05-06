@@ -187,18 +187,11 @@ void A_DeleteSprite(int spriteNum)
     deletesprite(spriteNum);
 }
 
+void insertspriteq(int i);
+
 void A_AddToDeleteQueue(int spriteNum)
 {
-    if (g_deleteQueueSize == 0)
-    {
-        A_DeleteSprite(spriteNum);
-        return;
-    }
-
-    if (SpriteDeletionQueue[g_spriteDeleteQueuePos] >= 0)
-        sprite[SpriteDeletionQueue[g_spriteDeleteQueuePos]].xrepeat = 0;
-    SpriteDeletionQueue[g_spriteDeleteQueuePos] = spriteNum;
-    g_spriteDeleteQueuePos = (g_spriteDeleteQueuePos+1)%g_deleteQueueSize;
+    insertspriteq(spriteNum);
 }
 
 void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt)

@@ -313,11 +313,11 @@ ACTOR_INLINE int A_CheckEnemyTile(int const tileNum)
     return ((g_tile[tileNum].flags & (SFLAG_BADGUY_TILE | SFLAG_BADGUY)) != 0);
 }
 
+int ssp(short i, unsigned int cliptype); //The set sprite function
+
 ACTOR_INLINE int A_SetSprite(int const spriteNum, uint32_t cliptype)
 {
-    vec3_t davect = { (sprite[spriteNum].xvel * (sintable[(sprite[spriteNum].ang + 512) & 2047])) >> 14,
-                      (sprite[spriteNum].xvel * (sintable[sprite[spriteNum].ang & 2047])) >> 14, sprite[spriteNum].zvel };
-    return (A_MoveSprite(spriteNum, &davect, cliptype) == 0);
+    return ssp(spriteNum, cliptype);
 }
 
 # endif
