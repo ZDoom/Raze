@@ -36,8 +36,6 @@ BEGIN_DUKE_NS
 
 #define DELETE_SPRITE_AND_CONTINUE(KX) do { A_DeleteSprite(KX); goto next_sprite; } while (0)
 
-int32_t otherp;
-
 void G_ClearCameraView(DukePlayer_t *ps)
 {
     ps->newowner = -1;
@@ -371,80 +369,6 @@ int A_IncurDamage(int const spriteNum)
     return ifhitbyweapon(spriteNum);
 }
 
-void A_MoveCyclers(void)
-{
-    for (bssize_t i=g_cyclerCnt-1; i>=0; i--)
-    {
-        int16_t *const pCycler     = g_cyclers[i];
-        int const      sectNum     = pCycler[0];
-        int            spriteShade = pCycler[2];
-        int const      floorShade  = pCycler[3];
-        int            sectorShade = clamp(floorShade + (sintable[pCycler[1] & 2047] >> 10), spriteShade, floorShade);
-
-        pCycler[1] += sector[sectNum].extra;
-
-        if (pCycler[5]) // angle 1536...
-        {
-            walltype *pWall = &wall[sector[sectNum].wallptr];
-
-            for (bssize_t wallsLeft = sector[sectNum].wallnum; wallsLeft > 0; wallsLeft--, pWall++)
-            {
-                if (pWall->hitag != 1)
-                {
-                    pWall->shade = sectorShade;
-
-                    if ((pWall->cstat&2) && pWall->nextwall >= 0)
-                        wall[pWall->nextwall].shade = sectorShade;
-                }
-            }
-
-            sector[sectNum].floorshade = sector[sectNum].ceilingshade = sectorShade;
-        }
-    }
-}
-
-void A_MoveDummyPlayers(void)
-{
-    int spriteNum = headspritestat[STAT_DUMMYPLAYER];
-
-    while (spriteNum >= 0)
-    {
-        int const           playerNum     = P_Get(OW(spriteNum));
-        DukePlayer_t *const pPlayer       = g_player[playerNum].ps;
-        int const           nextSprite    = nextspritestat[spriteNum];
-        int const           playerSectnum = pPlayer->cursectnum;
-
-        if ((!RR && pPlayer->on_crane >= 0) || (playerSectnum >= 0 && sector[playerSectnum].lotag != ST_1_ABOVE_WATER) || sprite[pPlayer->i].extra <= 0)
-        {
-            pPlayer->dummyplayersprite = -1;
-            DELETE_SPRITE_AND_CONTINUE(spriteNum);
-        }
-        else
-        {
-            if (pPlayer->on_ground && pPlayer->on_warping_sector == 1 && playerSectnum >= 0 && sector[playerSectnum].lotag == ST_1_ABOVE_WATER)
-            {
-                CS(spriteNum) = 257;
-                SZ(spriteNum) = sector[SECT(spriteNum)].ceilingz+(27<<8);
-                SA(spriteNum) = fix16_to_int(pPlayer->q16ang);
-                if (T1(spriteNum) == 8)
-                    T1(spriteNum) = 0;
-                else T1(spriteNum)++;
-            }
-            else
-            {
-                if (sector[SECT(spriteNum)].lotag != ST_2_UNDERWATER) SZ(spriteNum) = sector[SECT(spriteNum)].floorz;
-                CS(spriteNum) = 32768;
-            }
-        }
-
-        SX(spriteNum) += (pPlayer->pos.x-pPlayer->opos.x);
-        SY(spriteNum) += (pPlayer->pos.y-pPlayer->opos.y);
-        setsprite(spriteNum, (vec3_t *)&sprite[spriteNum]);
-
-next_sprite:
-        spriteNum = nextSprite;
-    }
-}
 
 
 static int P_Submerge(int, int, DukePlayer_t *, int, int);
@@ -468,165 +392,7 @@ static fix16_t P_GetQ16AngleDeltaForTic(DukePlayer_t const *pPlayer)
     return fix16_sub(newAngle, oldAngle);
 }
 
-ACTOR_STATIC void G_MovePlayers(void)
-{
-    int spriteNum = headspritestat[STAT_PLAYER];
-
-    while (spriteNum >= 0)
-    {
-        int const           nextSprite = nextspritestat[spriteNum];
-        spritetype *const   pSprite    = &sprite[spriteNum];
-        DukePlayer_t *const pPlayer    = g_player[P_GetP(pSprite)].ps;
-
-        if (pSprite->owner >= 0)
-        {
-            if (pPlayer->newowner >= 0)  //Looking thru the camera
-            {
-                pSprite->x              = pPlayer->opos.x;
-                pSprite->y              = pPlayer->opos.y;
-                pSprite->z              = pPlayer->opos.z + PHEIGHT;
-                actor[spriteNum].bpos.z = pSprite->z;
-                pSprite->ang            = fix16_to_int(pPlayer->oq16ang);
-
-                setsprite(spriteNum, (vec3_t *)pSprite);
-            }
-            else
-            {
-                int32_t otherPlayerDist;
-#ifdef YAX_ENABLE
-                // TROR water submerge/emerge
-                int const playerSectnum = pSprite->sectnum;
-                int const sectorLotag   = sector[playerSectnum].lotag;
-                int32_t   otherSector;
-
-                if (A_CheckNoSE7Water((uspritetype const *)pSprite, playerSectnum, sectorLotag, &otherSector))
-                {
-                    // NOTE: Compare with G_MoveTransports().
-                    pPlayer->on_warping_sector = 1;
-
-                    if ((sectorLotag == ST_1_ABOVE_WATER ?
-                        P_Submerge(spriteNum, P_GetP(pSprite), pPlayer, playerSectnum, otherSector) :
-                        P_Emerge(spriteNum, P_GetP(pSprite), pPlayer, playerSectnum, otherSector)) == 1)
-                        P_FinishWaterChange(spriteNum, pPlayer, sectorLotag, -1, otherSector);
-                }
-#endif
-                if (g_netServer || ud.multimode > 1)
-                    otherp = P_FindOtherPlayer(P_GetP(pSprite), &otherPlayerDist);
-                else
-                {
-                    otherp = P_GetP(pSprite);
-                    otherPlayerDist = 0;
-                }
-
-                if (G_HaveActor(sprite[spriteNum].picnum))
-                    A_Execute(spriteNum, P_GetP(pSprite), otherPlayerDist);
-
-                pPlayer->q16angvel    = P_GetQ16AngleDeltaForTic(pPlayer);
-                pPlayer->oq16ang      = pPlayer->q16ang;
-                pPlayer->oq16horiz    = pPlayer->q16horiz;
-                pPlayer->oq16horizoff = pPlayer->q16horizoff;
-
-                if (g_netServer || ud.multimode > 1)
-                {
-                    if (sprite[g_player[otherp].ps->i].extra > 0)
-                    {
-                        if (pSprite->yrepeat > 32 && sprite[g_player[otherp].ps->i].yrepeat < 32)
-                        {
-                            if (otherPlayerDist < 1400 && pPlayer->knee_incs == 0)
-                            {
-                                pPlayer->knee_incs = 1;
-                                pPlayer->weapon_pos = -1;
-                                pPlayer->actorsqu = g_player[otherp].ps->i;
-                            }
-                        }
-                    }
-                }
-
-                if (ud.god)
-                {
-                    pSprite->extra = pPlayer->max_player_health;
-                    pSprite->cstat = 257;
-                    if (!RR && !WW2GI)
-                        pPlayer->inv_amount[GET_JETPACK] = 1599;
-                }
-
-                if (pSprite->extra > 0)
-                {
-                    actor[spriteNum].owner = spriteNum;
-
-                    if (ud.god == 0)
-                        if (G_CheckForSpaceCeiling(pSprite->sectnum) || G_CheckForSpaceFloor(pSprite->sectnum))
-                            P_QuickKill(pPlayer);
-                }
-                else
-                {
-                    pPlayer->pos.x = pSprite->x;
-                    pPlayer->pos.y = pSprite->y;
-                    pPlayer->pos.z = pSprite->z-(20<<8);
-
-                    pPlayer->newowner = -1;
-
-                    if (pPlayer->wackedbyactor >= 0 && sprite[pPlayer->wackedbyactor].statnum < MAXSTATUS)
-                    {
-                        pPlayer->q16ang += fix16_to_int(G_GetAngleDelta(pPlayer->q16ang,
-                                                                      getangle(sprite[pPlayer->wackedbyactor].x - pPlayer->pos.x,
-                                                                               sprite[pPlayer->wackedbyactor].y - pPlayer->pos.y))
-                                                      >> 1);
-                        pPlayer->q16ang &= 0x7FFFFFF;
-                    }
-                }
-
-                pSprite->ang = fix16_to_int(pPlayer->q16ang);
-            }
-        }
-        else
-        {
-            if (pPlayer->holoduke_on == -1)
-                DELETE_SPRITE_AND_CONTINUE(spriteNum);
-
-            Bmemcpy(&actor[spriteNum].bpos, pSprite, sizeof(vec3_t));
-            pSprite->cstat = 0;
-
-            if (pSprite->xrepeat < 42)
-            {
-                pSprite->xrepeat += 4;
-                pSprite->cstat |= 2;
-            }
-            else pSprite->xrepeat = 42;
-
-            if (pSprite->yrepeat < 36)
-                pSprite->yrepeat += 4;
-            else
-            {
-                pSprite->yrepeat = 36;
-                if (sector[pSprite->sectnum].lotag != ST_2_UNDERWATER)
-                    A_Fall(spriteNum);
-                if (pSprite->zvel == 0 && sector[pSprite->sectnum].lotag == ST_1_ABOVE_WATER)
-                    pSprite->z += ZOFFSET5;
-            }
-
-            if (pSprite->extra < 8)
-            {
-                pSprite->xvel = 128;
-                pSprite->ang = fix16_to_int(pPlayer->q16ang);
-                pSprite->extra++;
-                A_SetSprite(spriteNum,CLIPMASK0);
-            }
-            else
-            {
-                pSprite->ang = 2047-fix16_to_int(pPlayer->q16ang);
-                setsprite(spriteNum,(vec3_t *)pSprite);
-            }
-        }
-
-        pSprite->shade =
-        logapproach(pSprite->shade, (sector[pSprite->sectnum].ceilingstat & 1) ? sector[pSprite->sectnum].ceilingshade
-                                                                               : sector[pSprite->sectnum].floorshade);
-
-next_sprite:
-        spriteNum = nextSprite;
-    }
-}
+void moveplayers();
 
 ACTOR_STATIC void G_MoveFX(void)
 {
@@ -9061,7 +8827,7 @@ void G_MoveWorld(void)
         G_MoveTransports();       //ST 9
     }
 
-    G_MovePlayers();          //ST 10
+    moveplayers();          //ST 10
     G_MoveFallers();          //ST 12
     if (!DEER)
         G_MoveMisc();             //ST 5
@@ -9101,5 +8867,6 @@ void G_MoveWorld(void)
 
     g_moveWorldTime = (1-0.033)*g_moveWorldTime + 0.033*(timerGetHiTicks()-worldTime);
 }
+
 
 END_DUKE_NS

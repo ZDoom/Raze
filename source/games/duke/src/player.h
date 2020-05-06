@@ -365,6 +365,10 @@ void    P_DisplayScuba(void);
 void    P_DisplayWeapon(void);
 void P_DropWeapon(int playerNum);
 int     P_FindOtherPlayer(int playerNum, int32_t *pDist);
+inline int findotherplayer(int p, int* d)
+{
+    return P_FindOtherPlayer(p, d);
+}
 void    P_FragPlayer(int playerNum);
 #ifdef YAX_ENABLE
 void getzsofslope_player(int sectNum, int playerX, int playerY, int32_t *pCeilZ, int32_t *pFloorZ);
@@ -373,6 +377,10 @@ void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
 void    P_ProcessInput(int playerNum);
 void    P_DHProcessInput(int playerNum);
 void    P_QuickKill(DukePlayer_t *pPlayer);
+inline void quickkill(DukePlayer_t* pPlayer)
+{
+    P_QuickKill(pPlayer);
+}
 void    P_SelectNextInvItem(DukePlayer_t *pPlayer);
 void    P_UpdateScreenPal(DukePlayer_t *pPlayer);
 inline void setpal(DukePlayer_t* pPlayer)

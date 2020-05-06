@@ -75,10 +75,22 @@ extern uint32_t g_actorCalls[MAXTILES];
 extern double g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
 
 void A_Execute(int spriteNum, int playerNum, int playerDist);
+inline void execute(int s, int p, int d)
+{
+    A_Execute(s, p, d);
+}
 void A_Fall(int spriteNum);
+inline void makeitfall(int s)
+{
+    A_Fall(s);
+}
 int32_t A_GetFurthestAngle(int spriteNum, int angDiv);
 void A_GetZLimits(int spriteNum);
 int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle);
+inline int getincangle(int c, int n)
+{
+    return G_GetAngleDelta(c, n);
+}
 //void G_RestoreMapState();
 //void G_SaveMapState();
 

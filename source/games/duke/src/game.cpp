@@ -7514,7 +7514,7 @@ int G_DoMoveThings(void)
     if (ud.pause_on == 0)
     {
         g_globalRandom = krand2();
-        A_MoveDummyPlayers();//ST 13
+        movedummyplayers();//ST 13
     }
 
     for (bssize_t TRAVERSE_CONNECT(i))
@@ -7562,7 +7562,7 @@ int G_DoMoveThings(void)
         else
         {
         G_AnimateWalls();
-        A_MoveCyclers();
+        movecyclers();
         }
 
         //if (g_netServer && (everyothertime % 10) == 0)

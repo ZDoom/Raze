@@ -132,7 +132,11 @@ typedef struct
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
 
     int32_t flags;                             // 4b
-    vec3_t  bpos;                              // 12b
+    union
+    {
+        vec3_t  bpos;                              // 12b
+        struct { int bposx, bposy, bposz; };
+    };
     int32_t floorz, ceilingz;                  // 8b
     vec2_t lastv;                              // 8b
     int16_t picnum, ang, extra, owner;         // 8b
@@ -265,8 +269,8 @@ void A_AddToDeleteQueue(int spriteNum);
 void A_DeleteSprite(int spriteNum);
 void A_DoGuts(int spriteNum, int tileNum, int spawnCnt);
 void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt);
-void A_MoveCyclers(void);
-void A_MoveDummyPlayers(void);
+void movecyclers(void);
+void movedummyplayers(void);
 void A_MoveSector(int spriteNum);
 void A_PlayAlertSound(int spriteNum);
 inline void check_fta_sounds(int s)

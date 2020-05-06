@@ -1216,5 +1216,251 @@ int ifhitbyweapon(int sn)
 	return -1;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void movecyclers(void)
+{
+	short q, j, x, t, s, * c;
+	walltype* wal;
+	char cshade;
+
+	for (q = numcyclers - 1; q >= 0; q--)
+	{
+
+		c = &cyclers[q][0];
+		s = c[0];
+
+		t = c[3];
+		j = t + (sintable[c[1] & 2047] >> 10);
+		cshade = c[2];
+
+		if (j < cshade) j = cshade;
+		else if (j > t)  j = t;
+
+		c[1] += sector[s].extra;
+		if (c[5])
+		{
+			wal = &wall[sector[s].wallptr];
+			for (x = sector[s].wallnum; x > 0; x--, wal++)
+				if (wal->hitag != 1)
+				{
+					wal->shade = j;
+
+					if ((wal->cstat & 2) && wal->nextwall >= 0)
+						wall[wal->nextwall].shade = j;
+
+				}
+			sector[s].floorshade = sector[s].ceilingshade = j;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void movedummyplayers(void)
+{
+	short i, p, nexti;
+
+	i = headspritestat[STAT_DUMMYPLAYER];
+	while (i >= 0)
+	{
+		nexti = nextspritestat[i];
+
+		p = sprite[sprite[i].owner].yvel;
+
+		if ((!isRR() && ps[p].on_crane >= 0) || sector[ps[p].cursectnum].lotag != 1 || sprite[ps[p].i].extra <= 0)
+		{
+			ps[p].dummyplayersprite = -1;
+			deletesprite(i);
+			i = nexti;
+			continue;
+		}
+		else
+		{
+			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && sector[ps[p].cursectnum].lotag == 1)
+			{
+				sprite[i].cstat = 257;
+				sprite[i].z = sector[sprite[i].sectnum].ceilingz + (27 << 8);
+				sprite[i].ang = ps[p].q16ang >> FRACBITS;
+				if (hittype[i].temp_data[0] == 8)
+					hittype[i].temp_data[0] = 0;
+				else hittype[i].temp_data[0]++;
+			}
+			else
+			{
+				if (sector[sprite[i].sectnum].lotag != 2) sprite[i].z = sector[sprite[i].sectnum].floorz;
+				sprite[i].cstat = (short)32768;
+			}
+		}
+
+		sprite[i].x += (ps[p].posx - ps[p].oposx);
+		sprite[i].y += (ps[p].posy - ps[p].oposy);
+		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
+		i = nexti;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int otherp;
+void moveplayers(void) //Players
+{
+	short i, nexti;
+	int otherx;
+	spritetype* s;
+	struct player_struct* p;
+
+	i = headspritestat[STAT_PLAYER];
+	while (i >= 0)
+	{
+		nexti = nextspritestat[i];
+
+		s = &sprite[i];
+		p = &ps[s->yvel];
+		if (s->owner >= 0)
+		{
+			if (p->newowner >= 0) //Looking thru the camera
+			{
+				s->x = p->oposx;
+				s->y = p->oposy;
+				hittype[i].bposz = s->z = p->oposz + PHEIGHT;
+				s->ang = p->oq16ang >> FRACBITS;
+				setsprite(i, s->x, s->y, s->z);
+			}
+			else
+			{
+				if (ud.multimode > 1)
+					otherp = findotherplayer(s->yvel, &otherx);
+				else
+				{
+					otherp = s->yvel;
+					otherx = 0;
+				}
+
+				execute(i, s->yvel, otherx);
+
+				if (ud.multimode > 1)
+					if (sprite[ps[otherp].i].extra > 0)
+					{
+						if (s->yrepeat > 32 && sprite[ps[otherp].i].yrepeat < 32)
+						{
+							if (otherx < 1400 && p->knee_incs == 0)
+							{
+								p->knee_incs = 1;
+								p->weapon_pos = -1;
+								p->actorsqu = ps[otherp].i;
+							}
+						}
+					}
+				if (ud.god)
+				{
+					s->extra = p->max_player_health;
+					s->cstat = 257;
+					if (!isWW2GI() && !isRR())
+						p->jetpack_amount = 1599;
+				}
+
+
+				if (s->extra > 0)
+				{
+					// currently alive...
+
+					hittype[i].owner = i;
+
+					if (ud.god == 0)
+						if (ceilingspace(s->sectnum) || floorspace(s->sectnum))
+							quickkill(p);
+				}
+				else
+				{
+
+					p->posx = s->x;
+					p->posy = s->y;
+					p->posz = s->z - (20 << 8);
+
+					p->newowner = -1;
+
+					if (p->wackedbyactor >= 0 && sprite[p->wackedbyactor].statnum < MAXSTATUS)
+					{
+						int ang = p->q16ang >> FRACBITS;
+						ang += getincangle(ang, getangle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1;
+						ang &= 2047;
+						p->q16ang = ang << FRACBITS;
+					}
+
+				}
+				s->ang = p->q16ang >> FRACBITS;
+			}
+		}
+		else
+		{
+			if (p->holoduke_on == -1)
+			{
+				deletesprite(i);
+				i = nexti;
+				continue;
+			}
+
+			hittype[i].bposx = s->x;
+			hittype[i].bposy = s->y;
+			hittype[i].bposz = s->z;
+
+			s->cstat = 0;
+
+			if (s->xrepeat < 42)
+			{
+				s->xrepeat += 4;
+				s->cstat |= 2;
+			}
+			else s->xrepeat = 42;
+			if (s->yrepeat < 36)
+				s->yrepeat += 4;
+			else
+			{
+				s->yrepeat = 36;
+				if (sector[s->sectnum].lotag != ST_2_UNDERWATER)
+					makeitfall(i);
+				if (s->zvel == 0 && sector[s->sectnum].lotag == ST_1_ABOVE_WATER)
+					s->z += (32 << 8);
+			}
+
+			if (s->extra < 8)
+			{
+				s->xvel = 128;
+				s->ang = p->q16ang >> FRACBITS;
+				s->extra++;
+				//IFMOVING;		// JBF 20040825: is really "if (ssp(i,CLIPMASK0)) ;" which is probably
+				ssp(i, CLIPMASK0);	// not the safest of ideas because a zealous optimiser probably sees
+							// it as redundant, so I'll call the "ssp(i,CLIPMASK0)" explicitly.
+			}
+			else
+			{
+				s->ang = 2047 - (p->q16ang >> FRACBITS);
+				setsprite(i, s->x, s->y, s->z);
+			}
+		}
+
+		if (sector[s->sectnum].ceilingstat & 1)
+			s->shade += (sector[s->sectnum].ceilingshade - s->shade) >> 1;
+		else
+			s->shade += (sector[s->sectnum].floorshade - s->shade) >> 1;
+
+		i = nexti;
+	}
+}
+
+
 
 END_DUKE_NS

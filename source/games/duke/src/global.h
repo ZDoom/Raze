@@ -110,6 +110,7 @@ G_EXTERN int32_t g_cloudCnt;
 G_EXTERN int32_t g_curViewscreen;
 G_EXTERN int32_t g_frameRate;
 G_EXTERN int32_t g_cyclerCnt;
+#define numcyclers g_cyclerCnt
 G_EXTERN int32_t g_damageCameras;
 G_EXTERN int32_t g_defaultLabelCnt;
 G_EXTERN int32_t g_doQuickSave;
@@ -143,6 +144,7 @@ G_EXTERN ClockTicks g_cloudClock;
 
 G_EXTERN int16_t SpriteDeletionQueue[1024];
 G_EXTERN int16_t g_cyclers[MAXCYCLERS][6];
+#define cyclers g_cyclers
 G_EXTERN int16_t g_mirrorSector[64];
 G_EXTERN int16_t g_mirrorWall[64];
 G_EXTERN int32_t *labelcode;
