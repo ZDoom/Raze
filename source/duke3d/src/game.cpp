@@ -5912,6 +5912,7 @@ MAIN_LOOP_RESTART:
         if (M_Active() || GUICapture || ud.pause_on != 0)
         {
             totalclock = ototalclock + TICSPERFRAME;
+            buttonMap.ResetButtonStates();
         }
         else
         {
