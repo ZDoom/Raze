@@ -269,6 +269,10 @@ void A_MoveCyclers(void);
 void A_MoveDummyPlayers(void);
 void A_MoveSector(int spriteNum);
 void A_PlayAlertSound(int spriteNum);
+inline void check_fta_sounds(int s)
+{
+    A_PlayAlertSound(s);
+}
 void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3, int dmg4);
 void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt);
 void A_ResetLanePics(void);
@@ -283,9 +287,12 @@ void G_RefreshLights(void);
 void G_StopInterpolation(const int32_t *posptr);
 
 // PK 20110701: changed input argument: int32_t i (== sprite, whose sectnum...) --> sectnum directly
+// Note: The entire interpolation system needs to be a lot smarter than what's backing these functions.
 void                Sect_ToggleInterpolation(int sectnum, int setInterpolation);
 static FORCE_INLINE void   Sect_ClearInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 0); }
 static FORCE_INLINE void   Sect_SetInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 1); }
+static FORCE_INLINE void   clearsectinterpolate(int sectnum) { Sect_ToggleInterpolation(sectnum, 0); }
+static FORCE_INLINE void   setsectinterpolate(int sectnum) { Sect_ToggleInterpolation(sectnum, 1); }
 
 #if KRANDDEBUG
 # define ACTOR_INLINE __fastcall
@@ -343,6 +350,12 @@ EXTERN_INLINE int A_CheckEnemySprite(void const * const pSprite)
 inline int badguy(void const* const pSprite)
 {
     return A_CheckEnemySprite(pSprite);
+}
+
+int G_WakeUp(spritetype* const pSprite, int const playerNum);
+inline int wakeup(int sn, int pn)
+{
+    return G_WakeUp(&sprite[sn], pn);
 }
 
 #endif

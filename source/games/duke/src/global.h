@@ -213,6 +213,16 @@ G_EXTERN intptr_t *g_scriptPtr;
 
 G_EXTERN map_t g_mapInfo[(MAXVOLUMES + 1) * MAXLEVELS];  // +1 volume for "intro", "briefing" and "loading" music
 G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
+struct msx_
+{
+    int operator[](int v) { return g_origins[v].x; }
+};
+struct msy_
+{
+    int operator[](int v) { return g_origins[v].y; }
+};
+G_EXTERN msx_ msx;
+G_EXTERN msy_ msy;
 
 G_EXTERN int32_t g_windTime, g_windDir;
 G_EXTERN int16_t g_fakeBubbaCnt, g_mamaSpawnCnt, g_banjoSong, g_bellTime, g_bellSprite;
@@ -323,6 +333,20 @@ extern psaccess ps;
 #define spriteqamount g_deleteQueueSize
 #define spriteq SpriteDeletionQueue
 #define spriteqloc g_spriteDeleteQueuePos
+
+// This is for dealing with those horrible switch/case messes the code is full of. 
+// With two different sets of tile constants the switches won't do anymore.
+
+inline bool isIn(int value, int first)
+{
+    return value == first;
+}
+
+template<typename... Args>
+bool isIn(int value, int first, Args... args) 
+{
+    return value == first || isIn(value, args...);
+}
 
 END_DUKE_NS
 

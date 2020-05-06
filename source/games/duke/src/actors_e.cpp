@@ -208,74 +208,17 @@ void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt)
     }
 }
 
+void guts(spritetype* s, short gtype, short n, short p);
+void gutsdir(spritetype* s, short gtype, short n, short p);
+
 void A_DoGuts(int spriteNum, int tileNum, int spawnCnt)
 {
-    uspritetype const *const pSprite = (uspritetype *)&sprite[spriteNum];
-    vec2_t                   repeat  = { 32, 32 };
-
-    if (A_CheckEnemySprite(pSprite) && pSprite->xrepeat < 16)
-        repeat.x = repeat.y = 8;
-
-    int gutZ   = pSprite->z - ZOFFSET3;
-    int floorz = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-
-    if (gutZ > (floorz-ZOFFSET3))
-        gutZ = floorz-ZOFFSET3;
-
-    if (!RR && pSprite->picnum == TILE_COMMANDER)
-        gutZ -= (24<<8);
-
-    uint8_t pal = 0;
-
-    if (A_CheckEnemySprite(pSprite) && pSprite->pal == 6)
-        pal = 6;
-    else if (RRRA && pSprite->picnum == TILE_MINION && (pSprite->pal == 8 || pSprite->pal == 19))
-        pal = pSprite->pal;
-
-    if (RR) repeat.x >>= 1, repeat.y >>= 1;
-
-    for (bssize_t j=spawnCnt; j>0; j--)
-    {
-        int32_t const ang = krand2() & 2047;
-        int32_t const r1 = krand2(), r2 = krand2(), r3 = krand2(), r4 = krand2(), r5 = krand2();
-        int const i = A_InsertSprite(pSprite->sectnum, pSprite->x + (r5 & 255) - 128,
-                                     pSprite->y + (r4 & 255) - 128, gutZ - (r3 & 8191), tileNum, -32, repeat.x,
-                                     repeat.y, ang, 48 + (r2 & 31), -512 - (r1 & 2047), spriteNum, 5);
-
-        if (!RR && PN(i) == TILE_JIBS2)
-        {
-            sprite[i].xrepeat >>= 2;
-            sprite[i].yrepeat >>= 2;
-        }
-
-        sprite[i].pal = pal;
-    }
+    guts(&sprite[spriteNum], tileNum, spawnCnt, 0);
 }
 
 void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt)
 {
-    uspritetype const * const s = (uspritetype *)&sprite[spriteNum];
-    vec2_t repeat = { 32, 32 };
-
-    if (A_CheckEnemySprite(s) && s->xrepeat < 16)
-        repeat.x = repeat.y = 8;
-
-    int gutZ = s->z-ZOFFSET3;
-    int floorZ = getflorzofslope(s->sectnum,s->x,s->y);
-
-    if (gutZ > (floorZ-ZOFFSET3))
-        gutZ = floorZ-ZOFFSET3;
-
-    if (!RR && s->picnum == TILE_COMMANDER)
-        gutZ -= (24<<8);
-
-    for (bssize_t j=spawnCnt; j>0; j--)
-    {
-        int32_t const ang = krand2() & 2047;
-        int32_t const r1 = krand2(), r2 = krand2();
-        A_InsertSprite(s->sectnum, s->x, s->y, gutZ, tileNum, -32, repeat.x, repeat.y, ang,
-                                     256 + (r2 & 127), -512 - (r1 & 2047), spriteNum, 5);
-    }
+    gutsdir(&sprite[spriteNum], tileNum, spawnCnt, 0);
 }
 
 static int32_t G_ToggleWallInterpolation(int32_t wallNum, int32_t setInterpolation)
@@ -308,28 +251,11 @@ void Sect_ToggleInterpolation(int sectNum, int setInterpolation)
     }
 }
 
+void ms(short i);
+
 void A_MoveSector(int spriteNum)
 {
-    // T1,T2 and T3 are used for all the sector moving stuff!!!
-
-    spritetype *const pSprite     = &sprite[spriteNum];
-    int const         rotateAngle = T3(spriteNum);
-    int               originIdx   = T2(spriteNum);
-
-    pSprite->x += (pSprite->xvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14;
-    pSprite->y += (pSprite->xvel * (sintable[pSprite->ang & 2047])) >> 14;
-
-    int const endWall = sector[pSprite->sectnum].wallptr + sector[pSprite->sectnum].wallnum;
-
-    for (bssize_t wallNum = sector[pSprite->sectnum].wallptr; wallNum < endWall; wallNum++)
-    {
-        vec2_t const origin = g_origins[originIdx];
-        vec2_t result;
-        rotatepoint(zerovec, origin, rotateAngle & 2047, &result);
-        dragpoint(wallNum, pSprite->x + result.x, pSprite->y + result.y, 0);
-
-        originIdx++;
-    }
+    ms(spriteNum);
 }
 
 // NOTE: T5 is AC_ACTION_ID
@@ -413,7 +339,7 @@ void G_AddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange,
 
 int g_canSeePlayer = 0;
 
-ACTOR_STATIC int G_WakeUp(spritetype *const pSprite, int const playerNum)
+int G_WakeUp(spritetype *const pSprite, int const playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
     if (!pPlayer->make_noise)
@@ -427,137 +353,9 @@ ACTOR_STATIC int G_WakeUp(spritetype *const pSprite, int const playerNum)
         && pPlayer->noise_y - radius < pSprite->y && pPlayer->noise_y + radius > pSprite->y);
 }
 
+
 // sleeping monsters, etc
-ACTOR_STATIC void G_MoveZombieActors(void)
-{
-    int spriteNum = headspritestat[STAT_ZOMBIEACTOR], canSeePlayer;
-
-    if (RR)
-        canSeePlayer = g_canSeePlayer;
-
-    while (spriteNum >= 0)
-    {
-        int const           nextSprite = nextspritestat[spriteNum];
-        int32_t             playerDist;
-        spritetype *const   pSprite   = &sprite[spriteNum];
-        int const           playerNum = A_FindPlayer(pSprite, &playerDist);
-        DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
-
-        if (sprite[pPlayer->i].extra > 0)
-        {
-            if (playerDist < 30000)
-            {
-                actor[spriteNum].timetosleep++;
-                if (actor[spriteNum].timetosleep >= (playerDist>>8))
-                {
-                    if (A_CheckEnemySprite(pSprite))
-                    {
-                        vec3_t p = { pPlayer->opos.x + 64 - (krand2() & 127),
-                                     pPlayer->opos.y + 64 - (krand2() & 127),
-                                     0 };
-
-                        int16_t pSectnum = pPlayer->cursectnum;
-
-                        updatesector(p.x, p.y, &pSectnum);
-
-                        if (pSectnum == -1)
-                        {
-                            spriteNum = nextSprite;
-                            continue;
-                        }
-
-                        vec3_t s = { pSprite->x + 64 - (krand2() & 127),
-                                     pSprite->y + 64 - (krand2() & 127),
-                                     0 };
-
-                        int16_t sectNum = pSprite->sectnum;
-
-                        updatesector(s.x, s.y, &sectNum);
-
-                        //if (sectNum == -1)
-                        //{
-                        //    spriteNum = nextSprite;
-                        //    continue;
-                        //}
-                        canSeePlayer = 0;
-                        if (!RR || pSprite->pal == 33 || A_CheckSpriteFlags(spriteNum, SFLAG_NOCANSEECHECK)
-                            || (RRRA && pSprite->picnum == TILE_MINION && pSprite->pal == 8)
-                            || (sintable[(pSprite->ang+512)&2047]*(p.x-s.x)+sintable[pSprite->ang&2047]*(p.y-s.y) >= 0))
-                        {
-                            p.z = pPlayer->opos.z - (krand2() % ZOFFSET5);
-                            s.z = pSprite->z - (krand2() % (52 << 8));
-                            canSeePlayer = cansee(s.x, s.y, s.z, pSprite->sectnum, p.x, p.y, p.z, pPlayer->cursectnum);
-                        }
-                    }
-                    else
-                    {
-                        int32_t const r1 = krand2(), r2 = krand2();
-                        canSeePlayer = cansee(pSprite->x, pSprite->y, pSprite->z - ((r2 & 31) << 8), pSprite->sectnum, pPlayer->opos.x,
-                            pPlayer->opos.y, pPlayer->opos.z - ((r1 & 31) << 8), pPlayer->cursectnum);
-                    }
-
-                    if (canSeePlayer)
-                    {
-                        switch (DYNAMICTILEMAP(pSprite->picnum))
-                        {
-                            case CANWITHSOMETHING2__STATIC:
-                            case CANWITHSOMETHING3__STATIC:
-                            case CANWITHSOMETHING4__STATIC:
-                            case TRIPBOMB__STATIC:
-                                if (RR) goto default_case;
-                                fallthrough__;
-                            case RUBBERCAN__STATIC:
-                            case EXPLODINGBARREL__STATIC:
-                            case WOODENHORSE__STATIC:
-                            case HORSEONSIDE__STATIC:
-                            case CANWITHSOMETHING__STATIC:
-                            case FIREBARREL__STATIC:
-                            case FIREVASE__STATIC:
-                            case NUKEBARREL__STATIC:
-                            case NUKEBARRELDENTED__STATIC:
-                            case NUKEBARRELLEAKED__STATIC:
-                                pSprite->shade = (sector[pSprite->sectnum].ceilingstat & 1)
-                                                ? sector[pSprite->sectnum].ceilingshade
-                                                : sector[pSprite->sectnum].floorshade;
-                                actor[spriteNum].timetosleep = 0;
-                                changespritestat(spriteNum, STAT_STANDABLE);
-                                break;
-
-                            default:
-default_case:
-                                if (A_CheckSpriteFlags(spriteNum, SFLAG_USEACTIVATOR) && sector[sprite[spriteNum].sectnum].lotag & 16384)
-                                    break;
-
-                                actor[spriteNum].timetosleep = 0;
-                                A_PlayAlertSound(spriteNum);
-                                changespritestat(spriteNum, STAT_ACTOR);
-
-                                break;
-                        }
-                    }
-                    else
-                        actor[spriteNum].timetosleep = 0;
-                }
-            }
-
-            if ((!RR || !canSeePlayer) && A_CheckEnemySprite(pSprite))
-            {
-                pSprite->shade = (sector[pSprite->sectnum].ceilingstat & 1)
-                                ? sector[pSprite->sectnum].ceilingshade
-                                : sector[pSprite->sectnum].floorshade;
-
-                if (RR && G_WakeUp(pSprite, playerNum))
-                {
-                    actor[spriteNum].timetosleep = 0;
-                    A_PlayAlertSound(spriteNum);
-                    changespritestat(spriteNum, STAT_ACTOR);
-                }
-            }
-        }
-
-        spriteNum = nextSprite;
-    }
-}
+void movefta(void);
 
 // stupid name, but it's what the function does.
 static FORCE_INLINE int G_FindExplosionInSector(int const sectNum)
@@ -9356,7 +9154,7 @@ void G_MoveWorld(void)
 
     if (!DEER)
     {
-        G_MoveZombieActors();     //ST 2
+        movefta();     //ST 2
         G_MoveWeapons();          //ST 4
         G_MoveTransports();       //ST 9
     }

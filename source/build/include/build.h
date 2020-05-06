@@ -899,7 +899,7 @@ void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
                  int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
-void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags);
+void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags = 0);
 void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
 int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
@@ -951,6 +951,16 @@ static FORCE_INLINE int32_t logapproach(int32_t const val, int32_t const targetv
 }
 
 void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * const p2) ATTRIBUTE((nonnull(4)));
+inline void rotatepoint(int px, int py, int ptx, int pty, int daang, int* resx, int* resy)
+{
+    vec2_t pivot = { px, py };
+    vec2_t point = { ptx, pty };
+    vec2_t result;
+    rotatepoint(pivot, point, daang, &result);
+    *resx = result.x;
+    *resy = result.y;
+}
+
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
 

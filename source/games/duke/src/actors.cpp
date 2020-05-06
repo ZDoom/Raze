@@ -335,6 +335,50 @@ void checkavailweapon(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
+bool ifsquished(int i, int p)
+{
+	if (g_gameType & GAMEFLAG_RRALL) return false;	// this function is a no-op in RR's source.
+
+	bool squishme = false;
+	if (sprite[i].picnum == TILE_APLAYER && ud.clipping)
+		return false;
+
+	auto& sc = sector[sprite[i].sectnum];
+	int floorceildist = sc.floorz - sc.ceilingz;
+
+	if (sc.lotag != ST_23_SWINGING_DOOR)
+	{
+		if (sprite[i].pal == 1)
+			squishme = floorceildist < (32 << 8) && (sc.lotag & 32768) == 0;
+		else
+			squishme = floorceildist < (12 << 8);
+	}
+
+	if (squishme)
+	{
+		FTA(QUOTE_SQUISHED, &ps[p]);
+
+		if (badguy(&sprite[i]))
+			sprite[i].xvel = 0;
+
+		if (sprite[i].pal == 1)
+		{
+			hittype[i].picnum = SHOTSPARK1;
+			hittype[i].extra = 1;
+			return false;
+		}
+
+		return true;
+	}
+	return false;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void clearcamera(player_struct* ps)
 {
 	ps->newowner = -1;
@@ -630,7 +674,7 @@ SKIPWALLCHECK:
 int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype)
 {
 	int daz, h, oldx, oldy;
-	short retval, dasectnum, a, cd;
+	short retval, dasectnum, cd;
 	char bg;
 
 	bg = badguy(&sprite[spritenum]);
@@ -766,7 +810,7 @@ void insertspriteq(int i)
 //---------------------------------------------------------------------------
 //
 // consolidation of several nearly identical functions
-// lotsofmoney -> MONEY
+// lotsofmoney -> MONEY / RR_FEATHERS
 // lotsofmail -> MAIL
 // lotsofpaper -> PAPER
 //
@@ -777,7 +821,9 @@ void lotsofstuff(spritetype* s, short n, int spawntype)
 	short i, j;
 	for (i = n; i > 0; i--)
 	{
-		j = EGS(s->sectnum, s->x, s->y, s->z - (krand() % (47 << 8)), spawntype, -32, 8, 8, krand() & 2047, 0, 0, 0, 5);
+		short r1 = krand(), r2 = krand();	// using the RANDCORRECT version from RR.
+		// TRANSITIONAL RedNukem sets the spawner as owner.
+		j = EGS(s->sectnum, s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, 0, 5);
 		sprite[j].cstat = krand() & 12;
 	}
 }
@@ -788,42 +834,276 @@ void lotsofstuff(spritetype* s, short n, int spawntype)
 //
 //---------------------------------------------------------------------------
 
-bool ifsquished(int i, int p) 
+void guts(spritetype* s, short gtype, short n, short p)
 {
-	if (g_gameType & GAMEFLAG_RRALL) return false;	// this function is a no-op in RR's source.
+	int gutz, floorz;
+	int i=0, j;
+	int sx, sy;
+	uint8_t pal;
 
-	bool squishme = false;
-	if (sprite[i].picnum == TILE_APLAYER && ud.clipping)
-		return false;
+	if (badguy(s) && s->xrepeat < 16)
+		sx = sy = 8;
+	else sx = sy = 32;
 
-	auto &sc = sector[sprite[i].sectnum];
-	int floorceildist = sc.floorz - sc.ceilingz;
+	gutz = s->z - (8 << 8);
+	floorz = getflorzofslope(s->sectnum, s->x, s->y);
 
-	if (sc.lotag != ST_23_SWINGING_DOOR)
+	if (gutz > (floorz - (8 << 8)))
+		gutz = floorz - (8 << 8);
+
+	if (!(g_gameType & GAMEFLAG_RRALL) && s->picnum == COMMANDER)
+		gutz -= (24 << 8);
+
+	if (badguy(s) && s->pal == 6)
+		pal = 6;
+	else
 	{
-		if (sprite[i].pal == 1)
-			squishme = floorceildist < (32 << 8) && (sc.lotag & 32768) == 0;
-		else
-			squishme = floorceildist < (12 << 8);
-	}
-
-	if (squishme) 
-	{
-		FTA(QUOTE_SQUISHED, &ps[p]);
-
-		if (badguy(&sprite[i]))
-			sprite[i].xvel = 0;
-
-		if (sprite[i].pal == 1) 
+		pal = 0;
+		if (g_gameType & GAMEFLAG_RRRA)
 		{
-			hittype[i].picnum = SHOTSPARK1;
-			hittype[i].extra = 1;
-			return false;
+			if (s->picnum == RR_MINION && (s->pal == 8 || s->pal == 19)) pal = s->pal;
 		}
-
-		return true;
 	}
-	return false;
+
+	if (g_gameType & GAMEFLAG_RRALL)
+	{
+		sx >>= 1;
+		sy >>= 1;
+	}
+
+	for (j = 0; j < n; j++)
+	{
+		// RANDCORRECT version from RR.
+		int a = krand() & 2047;
+		int r1 = krand();
+		int r2 = krand();
+		int r3 = krand();
+		int r4 = krand();
+		int r5 = krand();
+		// TRANSITIONAL: owned by a player???
+		i = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].i, 5); 
+		if (!(g_gameType & GAMEFLAG_RRALL) && sprite[i].picnum == JIBS2)
+		{
+			sprite[i].xrepeat >>= 2;
+			sprite[i].yrepeat >>= 2;
+		}
+		if (pal != 0)
+			sprite[i].pal = pal;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void gutsdir(spritetype* s, short gtype, short n, short p)
+{
+	int gutz, floorz;
+	short i, j;
+	char sx, sy;
+
+	if (badguy(s) && s->xrepeat < 16)
+		sx = sy = 8;
+	else sx = sy = 32;
+
+	gutz = s->z - (8 << 8);
+	floorz = getflorzofslope(s->sectnum, s->x, s->y);
+
+	if (gutz > (floorz - (8 << 8)))
+		gutz = floorz - (8 << 8);
+
+	if (!(g_gameType & GAMEFLAG_RRALL) && s->picnum == COMMANDER)
+		gutz -= (24 << 8);
+
+	for (j = 0; j < n; j++)
+	{
+		int a = krand() & 2047;
+		int r1 = krand();
+		int r2 = krand();
+		// TRANSITIONAL: owned by a player???
+		i = EGS(s->sectnum, s->x, s->y, gutz, gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].i, 5);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// movesector - why is this in actors.cpp?
+//
+//---------------------------------------------------------------------------
+
+void ms(short i)
+{
+	//T1,T2 and T3 are used for all the sector moving stuff!!!
+
+	short startwall, endwall, x;
+	int tx, ty;
+	spritetype* s;
+
+	s = &sprite[i];
+
+	s->x += (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14;
+	s->y += (s->xvel * (sintable[s->ang & 2047])) >> 14;
+
+	int j = hittype[i].temp_data[1];
+	int k = hittype[i].temp_data[2];
+
+	startwall = sector[s->sectnum].wallptr;
+	endwall = startwall + sector[s->sectnum].wallnum;
+	for (x = startwall; x < endwall; x++)
+	{
+		rotatepoint(
+			0, 0,
+			msx[j], msy[j],
+			k & 2047, &tx, &ty);
+
+		dragpoint(x, s->x + tx, s->y + ty);
+
+		j++;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void movefta(void)
+{
+	int x, px, py, sx, sy;
+	short i, j, p, psect, ssect, nexti;
+	spritetype* s;
+
+	i = headspritestat[STAT_ZOMBIEACTOR];
+	while (i >= 0)
+	{
+		nexti = nextspritestat[i];
+
+		s = &sprite[i];
+		p = findplayer(s, &x);
+
+		ssect = psect = s->sectnum;
+
+		if (sprite[ps[p].i].extra > 0)
+		{
+			if (x < 30000)
+			{
+				hittype[i].timetosleep++;
+				if (hittype[i].timetosleep >= (x >> 8))
+				{
+					if (badguy(s))
+					{
+						px = ps[p].oposx + 64 - (krand() & 127);
+						py = ps[p].oposy + 64 - (krand() & 127);
+						updatesector(px, py, &psect);
+						if (psect == -1)
+						{
+							i = nexti;
+							continue;
+						}
+						sx = s->x + 64 - (krand() & 127);
+						sy = s->y + 64 - (krand() & 127);
+						updatesector(px, py, &ssect);
+						if (ssect == -1)
+						{
+							i = nexti;
+							continue;
+						}
+
+						if (!(g_gameType & GAMEFLAG_RRALL) || s->pal == 33 || s->type == RR_VIXEN ||
+							((g_gameType & GAMEFLAG_RRRA) && isIn(s->type, RR_COOT, RR_COOTSTAYPUT, RR_BIKERSTAND, RR_BIKERRIDE, 
+																			RR_BIKERRIDEDAISY, RR_MINIONAIRBOAT, RR_HULKAIRBOAT,
+																			RR_DAISYAIRBOAT, RR_JACKOLOPE, RR_BANJOCOOTER, 
+																			RR_GUITARBILLY, RR_MAMAJACKOLOPE, RR_BIKERBV, 
+																			RR_MAKEOUT, RR_CHEER, RR_CHEERSTAYPUT)) ||
+							 (sintable[(s->ang + 512) & 2047] * (px - sx) + sintable[s->ang & 2047] * (py - sy) >= 0))
+						{
+							int r1 = krand();
+							int r2 = krand();
+							j = cansee(sx, sy, s->z - (r2 % (52 << 8)), s->sectnum, px, py, ps[p].oposz - (r1 % (32 << 8)), ps[p].cursectnum);
+						}
+					}
+					else
+					{
+						int r1 = krand();
+						int r2 = krand();
+						j = cansee(s->x, s->y, s->z - ((r2 & 31) << 8), s->sectnum, ps[p].oposx, ps[p].oposy, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursectnum);
+					}
+
+					if (j)
+					{
+						bool res = (!(g_gameType & GAMEFLAG_RRALL)) ?
+							isIn(s->picnum,
+								RUBBERCAN,
+								EXPLODINGBARREL,
+								WOODENHORSE,
+								HORSEONSIDE,
+								CANWITHSOMETHING,
+								CANWITHSOMETHING2,
+								CANWITHSOMETHING3,
+								CANWITHSOMETHING4,
+								FIREBARREL,
+								FIREVASE,
+								NUKEBARREL,
+								NUKEBARRELDENTED,
+								NUKEBARRELLEAKED,
+								TRIPBOMB) :
+							isIn(s->picnum,
+								RR_1251,
+								RR_1268,
+								RR_1187,
+								RR_1304,
+								RR_1305,
+								RR_1306,
+								RR_1309,
+								RR_1315,
+								RR_1317,
+								RR_1388);
+
+
+						if (res)
+						{
+							if (sector[s->sectnum].ceilingstat & 1)
+								s->shade = sector[s->sectnum].ceilingshade;
+							else s->shade = sector[s->sectnum].floorshade;
+
+							hittype[i].timetosleep = 0;
+							changespritestat(i, STAT_STANDABLE);
+						}
+						else
+						{
+#if 0
+							// TRANSITIONAL: RedNukem has this here. Needed?
+							if (A_CheckSpriteFlags(spriteNum, SFLAG_USEACTIVATOR) && sector[sprite[spriteNum].sectnum].lotag & 16384) break;
+#endif
+							hittype[i].timetosleep = 0;
+							check_fta_sounds(i);
+							changespritestat(i, STAT_ACTOR);
+						}
+					}
+					else hittype[i].timetosleep = 0;
+				}
+			}
+			if ((!(g_gameType & GAMEFLAG_RRALL) || !j) && badguy(s))
+			{
+				if (sector[s->sectnum].ceilingstat & 1)
+					s->shade = sector[s->sectnum].ceilingshade;
+				else s->shade = sector[s->sectnum].floorshade;
+
+				if (s->picnum != RR_HEN || s->picnum != RR_COW || s->picnum != RR_PIG || s->picnum != RR_DOGRUN || ((g_gameType & GAMEFLAG_RRRA) && s->picnum != RR_JACKOLOPE))
+					if (wakeup(i, p))
+					{
+						hittype[i].timetosleep = 0;
+						check_fta_sounds(i);
+						changespritestat(i, STAT_ACTOR);
+					}
+
+			}
+		}
+		i = nexti;
+	}
 }
 
 

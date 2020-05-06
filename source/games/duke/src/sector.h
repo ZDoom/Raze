@@ -120,6 +120,10 @@ inline void checkhitwall(int spr, int wal, int x, int y, int z, int w)
     A_DamageWall(spr, wal, &vec, w);
 }
 int __fastcall A_FindPlayer(const spritetype *pSprite,int32_t *dist);
+inline int findplayer(const spritetype* pSprite, int32_t* dist)
+{
+    return A_FindPlayer(pSprite, dist);
+}
 void G_AlignWarpElevators(void);
 int CheckDoorTile(int tileNum);
 int CheckBlockDoorTile(int tileNum);

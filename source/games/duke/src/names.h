@@ -1062,7 +1062,6 @@ enum
 	RR_FIRELASER = 3420,
 	RR_BOWLINGBALL = 3430,
 	RR_BOWLINGBALLSPRITE = 3437,
-	RR_3440,
 	RR_CHEERBOMB = -3464,
 	RR_OWHIP = 3471,
 	RR_UWHIP = 3475,
@@ -1157,7 +1156,10 @@ enum
 	RR_VIXENKICK = 5805,
 	RR_VIXENTELE = 5845,
 	RR_VIXENTEAT = 5851,
-	
+	RR_BIKERBV = 5891,
+	RR_MAKEOUT = 6225,
+	RR_CHEER = 6658,
+	RR_CHEERSTAYPUT = 6659,
 	//RA
 	RR_AIRPLANE = 8450,
 	RR_SWAMPBUGGY = 7233,
@@ -1176,6 +1178,21 @@ enum
 	RR_GUITARBILLY = 7035,
 	RR_MAMACLOUD = 8663,
 	RR_MAMAJACKOLOPE = 8705,
+
+
+	// Stuff that gets referenced but has no name. RR Reconstruction only has Duke names for these items which should be avoided.
+	RR_1251 = 1251,
+	RR_1268 = 1268,
+	RR_1187 = 1187,
+	RR_1304 = 1304,
+	RR_1305 = 1305,
+	RR_1306 = 1306,
+	RR_1309 = 1309,
+	RR_1315 = 1315,
+	RR_1317 = 1317,
+	RR_1388 = 1388,
+	RR_3440 = 3440,
+
 
 };
 
