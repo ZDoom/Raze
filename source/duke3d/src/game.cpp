@@ -5909,49 +5909,56 @@ MAIN_LOOP_RESTART:
         bool gameUpdate = false;
         double gameUpdateStartTime = timerGetHiTicks();
 
-        while (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU | MODE_DEMO)) == 0) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
+        if (M_Active() || GUICapture || ud.pause_on != 0)
         {
-            ototalclock += TICSPERFRAME;
-
-            P_GetInput(myconnectindex);
-
-            // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
-            auto const pPlayer = g_player[myconnectindex].ps;
-            auto const q16ang  = fix16_to_int(pPlayer->q16ang);
-            auto &     input   = inputfifo[0][myconnectindex];
-
-            input = localInput;
-            input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
-                         mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]);
-            input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
-                         mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]);
-
-            if (!FURY)
-            {
-                input.fvel += pPlayer->fric.x;
-                input.svel += pPlayer->fric.y;
-            }
-
-            localInput = {};
-
-            if (((!GUICapture && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
-                && (myplayer.gm & MODE_GAME))
-            {
-                Net_GetPackets();
-                G_DoMoveThings();
-            }
+            totalclock = ototalclock + TICSPERFRAME;
         }
+        else
+        {
+            while (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU | MODE_DEMO)) == 0) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
+            {
+                ototalclock += TICSPERFRAME;
 
-        gameUpdate = true;
-        g_gameUpdateTime = timerGetHiTicks() - gameUpdateStartTime;
+                P_GetInput(myconnectindex);
 
-        if (g_gameUpdateAvgTime <= 0.0)
-            g_gameUpdateAvgTime = g_gameUpdateTime;
+                // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
+                auto const pPlayer = g_player[myconnectindex].ps;
+                auto const q16ang  = fix16_to_int(pPlayer->q16ang);
+                auto &     input   = inputfifo[0][myconnectindex];
 
-        g_gameUpdateAvgTime
-        = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
+                input = localInput;
+                input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
+                             mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]);
+                input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
+                             mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]);
 
-        G_DoCheats();
+                if (!FURY)
+                {
+                    input.fvel += pPlayer->fric.x;
+                    input.svel += pPlayer->fric.y;
+                }
+
+                localInput = {};
+
+                if (((myplayer.gm & MODE_MENU) != MODE_MENU || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
+                    && (myplayer.gm & MODE_GAME))
+                {
+                    Net_GetPackets();
+                    G_DoMoveThings();
+                }
+            }
+
+            gameUpdate = true;
+            g_gameUpdateTime = timerGetHiTicks() - gameUpdateStartTime;
+
+            if (g_gameUpdateAvgTime <= 0.0)
+                g_gameUpdateAvgTime = g_gameUpdateTime;
+
+            g_gameUpdateAvgTime
+            = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
+
+            G_DoCheats();
+        }
 
         if (myplayer.gm & (MODE_EOL|MODE_RESTART))
         {
