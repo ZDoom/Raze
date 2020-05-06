@@ -2529,6 +2529,7 @@ void RunLevel(void)
         if (M_Active() || GUICapture || GamePaused)
         {
             totalclock = ototalclock + (120 / synctics);
+            buttonMap.ResetButtonStates();
         }
         else
         {
