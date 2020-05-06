@@ -148,6 +148,27 @@ const char* G_DefFile(void);
 const char* G_DefaultConFile(void);
 const char* G_ConFile(void);
 
+// game check shortcuts
+inline bool isNam()
+{
+	return g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM);
+}
+
+inline bool isWW2GI()
+{
+	return g_gameType & (GAMEFLAG_WW2GI);
+}
+
+inline bool isRR()
+{
+	return g_gameType & (GAMEFLAG_RRALL);
+}
+
+inline bool isRRRA()
+{
+	return g_gameType & (GAMEFLAG_RRRA);
+}
+
 TArray<GrpEntry> GrpScan();
 void S_PauseSound(bool notmusic, bool notsfx);
 void S_ResumeSound(bool notsfx);

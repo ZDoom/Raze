@@ -358,115 +358,17 @@ int G_WakeUp(spritetype *const pSprite, int const playerNum)
 void movefta(void);
 
 // stupid name, but it's what the function does.
+int ifhitsectors(int sectnum);
+
 static FORCE_INLINE int G_FindExplosionInSector(int const sectNum)
 {
-    if (RR)
-    {
-        for (bssize_t SPRITES_OF(STAT_MISC, i))
-            if (PN(i) == TILE_EXPLOSION2 || (PN(i) == TILE_EXPLOSION3 && sectNum == SECT(i)))
-                return i;
-    }
-    else
-    {
-        for (bssize_t SPRITES_OF(STAT_MISC, i))
-            if (PN(i) == TILE_EXPLOSION2 && sectNum == SECT(i))
-                return i;
-    }
-
-    return -1;
+    return ifhitsectors(sectNum);
 }
 
-static FORCE_INLINE void P_Nudge(int playerNum, int spriteNum, int shiftLeft)
-{
-    g_player[playerNum].ps->vel.x += actor[spriteNum].extra * (sintable[(actor[spriteNum].ang + 512) & 2047]) << shiftLeft;
-    g_player[playerNum].ps->vel.y += actor[spriteNum].extra * (sintable[actor[spriteNum].ang & 2047]) << shiftLeft;
-}
-
+int ifhitbyweapon(int s);
 int A_IncurDamage(int const spriteNum)
 {
-    spritetype *const pSprite = &sprite[spriteNum];
-    actor_t *const    pActor  = &actor[spriteNum];
-
-    // dmg->picnum check: safety, since it might have been set to <0 from CON.
-    if (pActor->extra < 0 || pSprite->extra < 0 || pActor->picnum < 0)
-    {
-        pActor->extra = -1;
-        return -1;
-    }
-
-    if (pSprite->picnum == TILE_APLAYER)
-    {
-        if (ud.god && (RR || pActor->picnum != TILE_SHRINKSPARK))
-            return -1;
-
-        int const playerNum = P_GetP(pSprite);
-
-        if (pActor->owner >= 0 && (sprite[pActor->owner].picnum == TILE_APLAYER))
-        {
-            if (
-                (ud.ffire == 0) &&
-                ((g_gametypeFlags[ud.coop] & GAMETYPE_PLAYERSFRIENDLY) ||
-                ((g_gametypeFlags[ud.coop] & GAMETYPE_TDM) && g_player[playerNum].ps->team == g_player[P_Get(pActor->owner)].ps->team))
-                )
-                {
-                    return -1;
-                }
-        }
-
-        pSprite->extra -= pActor->extra;
-
-        if (pActor->owner >= 0 && pSprite->extra <= 0 && pActor->picnum != TILE_FREEZEBLAST)
-        {
-            int const damageOwner = pActor->owner;
-            pSprite->extra        = 0;
-
-            g_player[playerNum].ps->wackedbyactor = damageOwner;
-
-            if (sprite[damageOwner].picnum == TILE_APLAYER && playerNum != P_Get(damageOwner))
-                g_player[playerNum].ps->frag_ps = P_Get(damageOwner);
-
-            pActor->owner = g_player[playerNum].ps->i;
-        }
-
-        switch (DYNAMICTILEMAP(pActor->picnum))
-        {
-            case RPG2__STATICRR:
-                if (!RRRA) goto default_case;
-                fallthrough__;
-            case TRIPBOMBSPRITE__STATIC:
-                if (!RR) goto default_case;
-                fallthrough__;
-            case RADIUSEXPLOSION__STATIC:
-            case SEENINE__STATIC:
-            case RPG__STATIC:
-            case HYDRENT__STATIC:
-            case HEAVYHBOMB__STATIC:
-            case OOZFILTER__STATIC:
-            case EXPLODINGBARREL__STATIC:
-                P_Nudge(playerNum, spriteNum, 2);
-                break;
-
-            default:
-default_case:
-                P_Nudge(playerNum, spriteNum, 1);
-                break;
-        }
-
-        pActor->extra = -1;
-        return pActor->picnum;
-    }
-
-    if (pActor->extra == 0 && (RR || pActor->picnum == TILE_SHRINKSPARK) && pSprite->xrepeat < 24)
-        return -1;
-
-    pSprite->extra -= pActor->extra;
-
-    if (pSprite->picnum != TILE_RECON && pSprite->owner >= 0 && sprite[pSprite->owner].statnum < MAXSTATUS)
-        pSprite->owner = pActor->owner;
-
-    pActor->extra = -1;
-
-    return pActor->picnum;
+    return ifhitbyweapon(spriteNum);
 }
 
 void A_MoveCyclers(void)

@@ -146,7 +146,11 @@ typedef struct player_struct {
         struct { int32_t oposx, oposy, oposz; };
     };
 
-    vec3_t vel;
+    union
+    {
+        vec3_t vel;
+        struct { int32_t posxv, posyv, poszv; };
+    };
     vec3_t npos;
     vec2_t bobpos, fric;
 

@@ -348,6 +348,7 @@ bool isIn(int value, int first, Args... args)
     return value == first || isIn(value, args...);
 }
 
+
 END_DUKE_NS
 
 #endif

@@ -59,11 +59,11 @@ bool ceilingspace(int sectnum)
 		{
 		case MOONSKY1:
 		case BIGORBIT1:
-			return !(g_gameType & GAMEFLAG_RRALL);
+			return !isRR();
 
 		case RR_MOONSKY1:
 		case RR_BIGORBIT1:
-			return !!(g_gameType & GAMEFLAG_RRALL);
+			return isRR();
 		}
 	}
 	return 0;
@@ -83,11 +83,11 @@ bool floorspace(int sectnum)
 		{
 		case MOONSKY1:
 		case BIGORBIT1:
-			return !(g_gameType & GAMEFLAG_RRALL);
+			return !isRR();
 
 		case RR_MOONSKY1:
 		case RR_BIGORBIT1:
-			return !!(g_gameType & GAMEFLAG_RRALL);
+			return !!isRR();
 		}
 	}
 	return 0;
@@ -141,9 +141,9 @@ void addweapon(struct player_struct* p, int weapon)
 		if (weapon == SHRINKER_WEAPON)
 		{
 			p->gotweapon.Set(GROW_WEAPON);
-			if (g_gameType & GAMEFLAG_RRRA) p->ammo_amount[GROW_WEAPON] = 1;
+			if (isRRRA()) p->ammo_amount[GROW_WEAPON] = 1;
 		}
-		if (g_gameType & GAMEFLAG_RRRA)
+		if (isRRRA())
 		{
 			if (weapon == RPG_WEAPON)
 			{
@@ -155,13 +155,13 @@ void addweapon(struct player_struct* p, int weapon)
 			}
 		}
 
-		if (!(g_gameType & GAMEFLAG_RRALL) || weapon != HANDBOMB_WEAPON)
+		if (!isRR() || weapon != HANDBOMB_WEAPON)
 			cw = weapon;
 	}
 	else
 		cw = weapon;
 
-	if ((g_gameType & GAMEFLAG_RRALL) && weapon == HANDBOMB_WEAPON)
+	if (isRR() && weapon == HANDBOMB_WEAPON)
 		p->last_weapon = -1;
 
 	p->random_club_frame = 0;
@@ -283,7 +283,7 @@ void checkavailweapon(struct player_struct* p)
 
 	// Note: RedNukem has this restriction, but the original source and RedneckGDX do not.
 #if 1 // TRANSITIONAL
-	int max = ((g_gameType & GAMEFLAG_RRALL) ? DEVISTATOR_WEAPON : FREEZE_WEAPON);
+	int max = ((isRR()) ? DEVISTATOR_WEAPON : FREEZE_WEAPON);
 #else
 	int max = FREEZE_WEAPON;
 #endif
@@ -306,7 +306,7 @@ void checkavailweapon(struct player_struct* p)
 	p->last_weapon = p->curr_weapon;
 	p->random_club_frame = 0;
 	p->curr_weapon = weap;
-	if (g_gameType & GAMEFLAG_WW2GI)
+	if (isWW2GI())
 	{
 		SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
 		if (p->curr_weapon >= 0)
@@ -337,7 +337,7 @@ void checkavailweapon(struct player_struct* p)
 
 bool ifsquished(int i, int p)
 {
-	if (g_gameType & GAMEFLAG_RRALL) return false;	// this function is a no-op in RR's source.
+	if (isRR()) return false;	// this function is a no-op in RR's source.
 
 	bool squishme = false;
 	if (sprite[i].picnum == TILE_APLAYER && ud.clipping)
@@ -418,17 +418,17 @@ void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 
 	if (s->xrepeat < 11)
 	{
-		if (!(g_gameType & GAMEFLAG_RRALL))
+		if (!isRR())
 		{
 			if (s->picnum == RPG) goto SKIPWALLCHECK;
 		}
 		else
 		{
-			if (s->picnum == RR_CROSSBOW || ((g_gameType & GAMEFLAG_RRRA) && s->picnum == RR_CHIKENCROSSBOW)) goto SKIPWALLCHECK;
+			if (s->picnum == RR_CROSSBOW || ((isRRRA()) && s->picnum == RR_CHIKENCROSSBOW)) goto SKIPWALLCHECK;
 		}
 	}
 
-	if ((g_gameType & GAMEFLAG_RRALL) || s->picnum != SHRINKSPARK)
+	if ((isRR()) || s->picnum != SHRINKSPARK)
 	{
 		tempshort[0] = s->sectnum;
 		dasect = s->sectnum;
@@ -474,7 +474,7 @@ void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 
 SKIPWALLCHECK:
 
-	int val = (g_gameType & GAMEFLAG_RRALL) ? 24 : 16;
+	int val = (isRR()) ? 24 : 16;
 	q = -(val << 8) + (krand() & ((32 << 8) - 1));
 
 	for (x = 0; x < 7; x++)
@@ -487,7 +487,7 @@ SKIPWALLCHECK:
 
 			if (x == 0 || x >= 5 || AFLAMABLE(sj->picnum))
 			{
-				if ((!(g_gameType & GAMEFLAG_RRALL) && s->picnum != SHRINKSPARK) || (sj->cstat & 257))
+				if ((!isRR() && s->picnum != SHRINKSPARK) || (sj->cstat & 257))
 					if (dist(s, sj) < r)
 					{
 						if (badguy(sj) && !cansee(sj->x, sj->y, sj->z + q, sj->sectnum, s->x, s->y, s->z + q, s->sectnum))
@@ -495,7 +495,7 @@ SKIPWALLCHECK:
 						checkhitsprite(j, i);
 					}
 			}
-			else if (!(g_gameType & GAMEFLAG_RRALL))
+			else if (!isRR())
 			{
 				if (sj->extra >= 0 && sj != s && (sj->picnum == TRIPBOMB || badguy(sj) || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL || (sj->cstat & 257) || sj->picnum == DUKELYINGDEAD))
 				{
@@ -587,7 +587,7 @@ SKIPWALLCHECK:
 						j = nextj;
 						continue;
 					}
-					if ((g_gameType & GAMEFLAG_RRRA) && s->picnum == RR_CHEERBOMB && j == s->owner)
+					if ((isRRRA()) && s->picnum == RR_CHEERBOMB && j == s->owner)
 					{
 						j = nextj;
 						continue;
@@ -599,7 +599,7 @@ SKIPWALLCHECK:
 
 					if (d < r && cansee(sj->x, sj->y, sj->z - (8 << 8), sj->sectnum, s->x, s->y, s->z - (12 << 8), s->sectnum))
 					{
-						if ((g_gameType & GAMEFLAG_RRRA) && sprite[j].picnum == RR_MINION && sprite[j].pal == 19)
+						if ((isRRRA()) && sprite[j].picnum == RR_MINION && sprite[j].pal == 19)
 						{
 							j = nextj;
 							continue;
@@ -609,7 +609,7 @@ SKIPWALLCHECK:
 
 						if (s->picnum == RR_CROSSBOW && sj->extra > 0)
 							hittype[j].picnum = RR_CROSSBOW;
-						else if ((g_gameType & GAMEFLAG_RRRA) && s->picnum == RR_CHIKENCROSSBOW && sj->extra > 0)
+						else if ((isRRRA()) && s->picnum == RR_CHIKENCROSSBOW && sj->extra > 0)
 							hittype[j].picnum = RR_CROSSBOW;
 						else
 							hittype[j].picnum = RR_RADIUSEXPLOSION;
@@ -631,7 +631,7 @@ SKIPWALLCHECK:
 						}
 
 						int pic = sprite[j].picnum;
-						if ((g_gameType & GAMEFLAG_RRRA)? 
+						if ((isRRRA())? 
 							(pic != RR_HULK && pic != RR_MAMAJACKOLOPE && pic != RR_GUITARBILLY && pic != RR_BANJOCOOTER && pic != RR_MAMACLOUD) :
 							(pic != RR_HULK && pic != RR_SBMOVE))
 						{
@@ -704,7 +704,7 @@ int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned 
 			retval = clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024L, (4 << 8), (4 << 8), cliptype);
 		else 
 		{
-			if (g_gameType & GAMEFLAG_RRALL)
+			if (isRR())
 				cd = 192;
 			else if (sprite[spritenum].picnum == LIZMAN)
 				cd = 292;
@@ -720,7 +720,7 @@ int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned 
 			retval = clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype);
 		}
 
-		bool rr = (g_gameType & GAMEFLAG_RRALL);
+		bool rr = (isRR());
 		// conditional code from hell...
 		if (dasectnum < 0 || (dasectnum >= 0 &&
 			((hittype[spritenum].actorstayput >= 0 && hittype[spritenum].actorstayput != dasectnum) ||
@@ -851,7 +851,7 @@ void guts(spritetype* s, short gtype, short n, short p)
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
 
-	if (!(g_gameType & GAMEFLAG_RRALL) && s->picnum == COMMANDER)
+	if (!isRR() && s->picnum == COMMANDER)
 		gutz -= (24 << 8);
 
 	if (badguy(s) && s->pal == 6)
@@ -859,13 +859,13 @@ void guts(spritetype* s, short gtype, short n, short p)
 	else
 	{
 		pal = 0;
-		if (g_gameType & GAMEFLAG_RRRA)
+		if (isRRRA())
 		{
 			if (s->picnum == RR_MINION && (s->pal == 8 || s->pal == 19)) pal = s->pal;
 		}
 	}
 
-	if (g_gameType & GAMEFLAG_RRALL)
+	if (isRR())
 	{
 		sx >>= 1;
 		sy >>= 1;
@@ -882,7 +882,7 @@ void guts(spritetype* s, short gtype, short n, short p)
 		int r5 = krand();
 		// TRANSITIONAL: owned by a player???
 		i = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].i, 5); 
-		if (!(g_gameType & GAMEFLAG_RRALL) && sprite[i].picnum == JIBS2)
+		if (!isRR() && sprite[i].picnum == JIBS2)
 		{
 			sprite[i].xrepeat >>= 2;
 			sprite[i].yrepeat >>= 2;
@@ -914,7 +914,7 @@ void gutsdir(spritetype* s, short gtype, short n, short p)
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
 
-	if (!(g_gameType & GAMEFLAG_RRALL) && s->picnum == COMMANDER)
+	if (!isRR() && s->picnum == COMMANDER)
 		gutz -= (24 << 8);
 
 	for (j = 0; j < n; j++)
@@ -1012,8 +1012,8 @@ void movefta(void)
 							continue;
 						}
 
-						if (!(g_gameType & GAMEFLAG_RRALL) || s->pal == 33 || s->type == RR_VIXEN ||
-							((g_gameType & GAMEFLAG_RRRA) && isIn(s->type, RR_COOT, RR_COOTSTAYPUT, RR_BIKERSTAND, RR_BIKERRIDE, 
+						if (!isRR() || s->pal == 33 || s->type == RR_VIXEN ||
+							((isRRRA()) && isIn(s->type, RR_COOT, RR_COOTSTAYPUT, RR_BIKERSTAND, RR_BIKERRIDE, 
 																			RR_BIKERRIDEDAISY, RR_MINIONAIRBOAT, RR_HULKAIRBOAT,
 																			RR_DAISYAIRBOAT, RR_JACKOLOPE, RR_BANJOCOOTER, 
 																			RR_GUITARBILLY, RR_MAMAJACKOLOPE, RR_BIKERBV, 
@@ -1034,7 +1034,7 @@ void movefta(void)
 
 					if (j)
 					{
-						bool res = (!(g_gameType & GAMEFLAG_RRALL)) ?
+						bool res = (!isRR()) ?
 							isIn(s->picnum,
 								RUBBERCAN,
 								EXPLODINGBARREL,
@@ -1086,13 +1086,13 @@ void movefta(void)
 					else hittype[i].timetosleep = 0;
 				}
 			}
-			if ((!(g_gameType & GAMEFLAG_RRALL) || !j) && badguy(s))
+			if ((!isRR() || !j) && badguy(s))
 			{
 				if (sector[s->sectnum].ceilingstat & 1)
 					s->shade = sector[s->sectnum].ceilingshade;
 				else s->shade = sector[s->sectnum].floorshade;
 
-				if (s->picnum != RR_HEN || s->picnum != RR_COW || s->picnum != RR_PIG || s->picnum != RR_DOGRUN || ((g_gameType & GAMEFLAG_RRRA) && s->picnum != RR_JACKOLOPE))
+				if (s->picnum != RR_HEN || s->picnum != RR_COW || s->picnum != RR_PIG || s->picnum != RR_DOGRUN || ((isRRRA()) && s->picnum != RR_JACKOLOPE))
 					if (wakeup(i, p))
 					{
 						hittype[i].timetosleep = 0;
@@ -1104,6 +1104,116 @@ void movefta(void)
 		}
 		i = nexti;
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int ifhitsectors(int sectnum)
+{
+	int i = headspritestat[STAT_MISC];
+	if (!isRR())
+	{
+		while (i >= 0)
+		{
+			if (sprite[i].picnum == EXPLOSION2 && sectnum == sprite[i].sectnum)
+				return i;
+			i = nextspritestat[i];
+		}
+	}
+	else
+	{
+		while (i >= 0)
+		{
+			if (sprite[i].picnum == RR_EXPLOSION2 || (sprite[i].picnum == RR_EXPLOSION3 && sectnum == sprite[i].sectnum))
+				return i;
+			i = nextspritestat[i];
+		}
+	}
+
+	return -1;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int ifhitbyweapon(int sn)
+{
+	short j, p;
+	spritetype* npc;
+
+	if (hittype[sn].extra >= 0)
+	{
+		if (sprite[sn].extra >= 0)
+		{
+			npc = &sprite[sn];
+
+			if (npc->picnum == APLAYER)
+			{
+				if (ud.god && (isRR() || hittype[sn].picnum != SHRINKSPARK)) return -1;
+
+				p = npc->yvel;
+				j = hittype[sn].owner;
+
+				if (j >= 0 &&
+					sprite[j].picnum == APLAYER &&
+					ud.coop == 1 &&
+					ud.ffire == 0)
+					return -1;
+
+				npc->extra -= hittype[sn].extra;
+
+				if (j >= 0)
+				{
+					if (npc->extra <= 0 && hittype[sn].picnum != (isRR()? RR_ALIENBLAST : FREEZEBLAST))
+					{
+						npc->extra = 0;
+
+						ps[p].wackedbyactor = j;
+
+						if (sprite[hittype[sn].owner].picnum == APLAYER && p != sprite[hittype[sn].owner].yvel)
+						{
+							// yvel contains player ID
+							ps[p].frag_ps = sprite[j].yvel;
+						}
+
+						hittype[sn].owner = ps[p].i;
+					}
+				}
+
+				bool res = !isRR() ?
+					isIn(hittype[sn].picnum, RADIUSEXPLOSION, RPG, HYDRENT, HEAVYHBOMB, SEENINE, OOZFILTER, EXPLODINGBARREL) :
+					(isIn(hittype[sn].picnum, RR_DYNAMITE, RR_POWDERKEGSPRITE, RR_1228, RR_1273, RR_1315, RR_SEENINE, RR_RADIUSEXPLOSION, RR_CROSSBOW) ||
+						(isRRRA() && hittype[sn].picnum == RR_CHIKENCROSSBOW));
+
+				int shift = res ? 2 : 1;
+				ps[p].posxv += hittype[sn].extra * (sintable[(hittype[sn].ang + 512) & 2047]) << shift;
+				ps[p].posyv += hittype[sn].extra * (sintable[hittype[sn].ang & 2047]) << shift;
+			}
+			else
+			{
+				if (hittype[sn].extra == 0)
+					if ((isRR() || hittype[sn].picnum == SHRINKSPARK) && npc->xrepeat < 24)
+						return -1;
+
+				npc->extra -= hittype[sn].extra;
+				if (npc->picnum != (isRR()? RR_4989 : RECON) && npc->owner >= 0 && sprite[npc->owner].statnum < MAXSTATUS)
+					npc->owner = hittype[sn].owner;
+			}
+
+			hittype[sn].extra = -1;
+			return hittype[sn].picnum;
+		}
+	}
+
+	hittype[sn].extra = -1;
+	return -1;
 }
 
 
