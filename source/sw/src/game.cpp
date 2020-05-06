@@ -2526,9 +2526,9 @@ void RunLevel(void)
             return; // Stop the game loop if a savegame was loaded from the menu.
         }
 
-        if (M_Active())
+        if (M_Active() || GUICapture || GamePaused)
         {
-            ototalclock = (int)totalclock;
+            totalclock = ototalclock + (120 / synctics);
         }
         else
         {
