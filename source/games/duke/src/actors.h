@@ -149,6 +149,7 @@ typedef struct
     uint8_t lightcount, filler[3];
 #endif
 } actor_t;
+#define temp_data t_data
 
 // this struct needs to match the beginning of actor_t above
 typedef struct

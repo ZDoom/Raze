@@ -627,6 +627,131 @@ SKIPWALLCHECK:
 //
 //---------------------------------------------------------------------------
 
+int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype)
+{
+	int daz, h, oldx, oldy;
+	short retval, dasectnum, a, cd;
+	char bg;
+
+	bg = badguy(&sprite[spritenum]);
+
+	if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
+	{
+		sprite[spritenum].x += (xchange * TICSPERFRAME) >> 2;
+		sprite[spritenum].y += (ychange * TICSPERFRAME) >> 2;
+		sprite[spritenum].z += (zchange * TICSPERFRAME) >> 2;
+		if (bg)
+			setsprite(spritenum, sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z);
+		return 0;
+	}
+
+	dasectnum = sprite[spritenum].sectnum;
+
+	daz = sprite[spritenum].z;
+	h = ((tilesiz[sprite[spritenum].picnum].y * sprite[spritenum].yrepeat) << 1);
+	daz -= h;
+
+	if (bg)
+	{
+		oldx = sprite[spritenum].x;
+		oldy = sprite[spritenum].y;
+
+		if (sprite[spritenum].xrepeat > 60)
+			retval = clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024L, (4 << 8), (4 << 8), cliptype);
+		else 
+		{
+			if (g_gameType & GAMEFLAG_RRALL)
+				cd = 192;
+			else if (sprite[spritenum].picnum == LIZMAN)
+				cd = 292;
+#if 0	// TRANSITIONAL the needed infrastructure for this is too different for now
+			else if ((actortype[sprite[spritenum].picnum] & 3))
+#else
+			else if (A_CheckSpriteFlags(spritenum, SFLAG_BADGUY))
+#endif
+				cd = sprite[spritenum].clipdist << 2;
+			else
+				cd = 192;
+
+			retval = clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype);
+		}
+
+		bool rr = (g_gameType & GAMEFLAG_RRALL);
+		// conditional code from hell...
+		if (dasectnum < 0 || (dasectnum >= 0 &&
+			((hittype[spritenum].actorstayput >= 0 && hittype[spritenum].actorstayput != dasectnum) ||
+				(!rr && 
+					(
+						((sprite[spritenum].picnum == BOSS2) && sprite[spritenum].pal == 0 && sector[dasectnum].lotag != 3) ||
+						((sprite[spritenum].picnum == BOSS1 || sprite[spritenum].picnum == BOSS2) && sector[dasectnum].lotag == ST_1_ABOVE_WATER) ||
+						(sector[dasectnum].lotag == ST_1_ABOVE_WATER && (sprite[spritenum].picnum == LIZMAN || (sprite[spritenum].picnum == LIZTROOP && sprite[spritenum].zvel == 0)))
+					)
+				)
+			)))
+		{
+			sprite[spritenum].x = oldx;
+			sprite[spritenum].y = oldy;
+			if (sector[dasectnum].lotag == ST_1_ABOVE_WATER && (rr || sprite[spritenum].picnum == LIZMAN))
+				sprite[spritenum].ang = (krand() & 2047);
+			else if ((hittype[spritenum].temp_data[0] & 3) == 1 && (rr || sprite[spritenum].picnum != COMMANDER))
+				sprite[spritenum].ang = (krand() & 2047);
+			setsprite(spritenum, oldx, oldy, sprite[spritenum].z);
+			if (dasectnum < 0) dasectnum = 0;
+			return (16384 + dasectnum);
+		}
+		if ((retval & 49152) >= 32768 && (hittype[spritenum].cgg == 0)) sprite[spritenum].ang += 768;
+	}
+	else
+	{
+		if (sprite[spritenum].statnum == 4)
+			retval =
+			clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8L, (4 << 8), (4 << 8), cliptype);
+		else
+			retval =
+			clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(sprite[spritenum].clipdist << 2), (4 << 8), (4 << 8), cliptype);
+	}
+
+	if (dasectnum >= 0)
+		if ((dasectnum != sprite[spritenum].sectnum))
+			changespritesect(spritenum, dasectnum);
+	daz = sprite[spritenum].z + ((zchange * TICSPERFRAME) >> 3);
+	if ((daz > hittype[spritenum].ceilingz) && (daz <= hittype[spritenum].floorz))
+		sprite[spritenum].z = daz;
+	else
+		if (retval == 0)
+			return(16384 + dasectnum);
+
+	return(retval);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+short ssp(short i, unsigned int cliptype) //The set sprite function
+{
+	spritetype* s;
+	int movetype;
+
+	s = &sprite[i];
+
+	movetype = movesprite(i,
+		(s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
+		(s->xvel * (sintable[s->ang & 2047])) >> 14, s->zvel,
+		cliptype);
+
+	return (movetype == 0);
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool ifsquished(int i, int p) 
 {
 	if (g_gameType & GAMEFLAG_RRALL) return false;	// this function is a no-op in RR's source.

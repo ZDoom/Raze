@@ -1040,6 +1040,12 @@ int32_t deletesprite(int16_t spritenum);
 int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
 int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
 int32_t   setsprite(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
+inline int32_t   setsprite(int16_t spritenum, int x, int y, int z)
+{
+    vec3_t v = { x,y,z };
+    return setsprite(spritenum, &v);
+}
+
 int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
 int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyofs);
