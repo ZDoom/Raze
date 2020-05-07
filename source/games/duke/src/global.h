@@ -274,10 +274,12 @@ extern int32_t g_pipebombRadius;
 #define pipebombblastradius g_pipebombRadius
 extern int32_t g_playerFriction;
 extern int32_t g_rpgRadius;
+#define rpgblastradius g_rpgRadius
 extern int32_t g_scriptSize;
 extern int32_t g_seenineRadius;
 #define seenineblastradius g_seenineRadius
 extern int32_t g_shrinkerRadius;
+#define shrinkerblastradius g_shrinkerRadius
 extern int32_t g_spriteGravity;
 extern int32_t g_timerTicsPerSecond;
 extern int32_t g_tripbombRadius;
@@ -358,6 +360,8 @@ bool isIn(int value, int first, Args... args)
 }
 // This is for picking between two identical names with different indices, e.g. CRACK and RR_CRACK. 
 #define pPick(d) (isRR()? (RR_##d) : (d))
+// This is mainly for convenience and easier lookup for an eventual cleanup.
+#define pPick2(d, r) (isRR()? (r) : (d))
 
 
 END_DUKE_NS

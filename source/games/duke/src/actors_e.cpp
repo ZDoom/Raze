@@ -379,7 +379,7 @@ void moveplayers();
 void movefx();
 void movefallers();
 void movestandables();
-
+void moveweapons();
 
 ACTOR_STATIC void A_DoProjectileBounce(int const spriteNum)
 {
