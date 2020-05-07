@@ -859,7 +859,6 @@ void P_ResetStatus(int playerNum)
     pPlayer->pyoff             = 0;
     pPlayer->opyoff            = 0;
     pPlayer->loogcnt           = 0;
-    pPlayer->q16angvel           = 0;
     pPlayer->weapon_sway       = 0;
     pPlayer->extra_extra8      = 0;
     pPlayer->show_empty_weapon = 0;
@@ -876,8 +875,6 @@ void P_ResetStatus(int playerNum)
     pPlayer->footprintpal      = 0;
     pPlayer->footprintshade    = 0;
     pPlayer->jumping_toggle    = 0;
-    pPlayer->oq16horiz           = F16(140);
-    pPlayer->q16horiz            = F16(140);
     pPlayer->q16horizoff         = 0;
     pPlayer->bobcounter        = 0;
     pPlayer->on_ground         = 0;

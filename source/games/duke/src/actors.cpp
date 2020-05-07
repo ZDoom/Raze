@@ -1414,6 +1414,8 @@ void moveplayers(void) //Players
 
 				execute(i, s->yvel, otherx);
 
+				p->oq16ang = p->q16ang;
+
 				if (ud.multimode > 1)
 					if (sprite[ps[otherp].i].extra > 0)
 					{

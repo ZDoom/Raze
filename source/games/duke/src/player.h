@@ -154,8 +154,8 @@ typedef struct player_struct {
     vec3_t npos;
     vec2_t bobpos, fric;
 
-    fix16_t q16horiz, q16horizoff, oq16horiz, oq16horizoff;
-    fix16_t q16ang, oq16ang, q16angvel;
+    fix16_t q16horiz, q16horizoff;
+    fix16_t q16ang, oq16ang;
 
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;

@@ -1345,8 +1345,6 @@ void Net_CorrectPrediction(void)
     mypos = p->pos; omypos = p->opos, myvel = p->vel;
     myang = p->q16ang; omyang = p->oq16ang;
     mycursectnum = p->cursectnum;
-    myhoriz = p->q16horiz; omyhoriz = p->oq16horiz;
-    myhorizoff = p->q16horizoff; omyhorizoff = p->oq16horizoff;
     myjumpingcounter = p->jumping_counter;
     myjumpingtoggle = p->jumping_toggle;
     myonground = p->on_ground;
