@@ -353,7 +353,6 @@ int G_WakeUp(spritetype *const pSprite, int const playerNum)
 
 
 // sleeping monsters, etc
-void movefta(void);
 
 // stupid name, but it's what the function does.
 int ifhitsectors(int sectnum);
@@ -374,12 +373,6 @@ int A_IncurDamage(int const spriteNum)
 static int P_Submerge(int, int, DukePlayer_t *, int, int);
 static int P_Emerge(int, int, DukePlayer_t *, int, int);
 static void P_FinishWaterChange(int, DukePlayer_t *, int, int, int);
-
-void moveplayers();
-void movefx();
-void movefallers();
-void movestandables();
-void moveweapons();
 
 ACTOR_STATIC void A_DoProjectileBounce(int const spriteNum)
 {
@@ -7534,20 +7527,64 @@ void G_RefreshLights(void)
 #endif
 }
 
-void G_MoveWorld(void)
+void movefta_d(void);
+void movefallers_d();
+void movestandables_d();
+void moveweapons_d();
+
+void movefta_r(void);
+void moveplayers();
+void movefx();
+void movefallers_r();
+void movestandables_r();
+void moveweapons_r();
+
+void G_MoveWorld_d(void)
+{
+    extern double g_moveActorsTime, g_moveWorldTime;
+    const double worldTime = timerGetHiTicks();
+
+    movefta_d();     //ST 2
+    moveweapons_d();          //ST 4
+    G_MoveTransports();       //ST 9
+
+    moveplayers();          //ST 10
+    movefallers_d();          //ST 12
+    G_MoveMisc();             //ST 5
+
+    const double actorsTime = timerGetHiTicks();
+
+    G_MoveActors();           //ST 1
+
+    g_moveActorsTime = (1-0.033)*g_moveActorsTime + 0.033*(timerGetHiTicks()-actorsTime);
+
+    // XXX: Has to be before effectors, in particular movers?
+    // TODO: lights in moving sectors ought to be interpolated
+    G_DoEffectorLights();
+    G_MoveEffectors();        //ST 3
+    movestandables_d();       //ST 6
+
+    G_RefreshLights();
+    G_DoSectorAnimations();
+    movefx();               //ST 11
+
+    g_moveWorldTime = (1-0.033)*g_moveWorldTime + 0.033*(timerGetHiTicks()-worldTime);
+}
+
+void G_MoveWorld_r(void)
 {
     extern double g_moveActorsTime, g_moveWorldTime;
     const double worldTime = timerGetHiTicks();
 
     if (!DEER)
     {
-        movefta();     //ST 2
+        movefta_r();     //ST 2
         G_MoveWeapons();          //ST 4
         G_MoveTransports();       //ST 9
     }
 
     moveplayers();          //ST 10
-    movefallers();          //ST 12
+    movefallers_r();          //ST 12
     if (!DEER)
         G_MoveMisc();             //ST 5
 
@@ -7555,7 +7592,7 @@ void G_MoveWorld(void)
 
     G_MoveActors();           //ST 1
 
-    g_moveActorsTime = (1-0.033)*g_moveActorsTime + 0.033*(timerGetHiTicks()-actorsTime);
+    g_moveActorsTime = (1 - 0.033) * g_moveActorsTime + 0.033 * (timerGetHiTicks() - actorsTime);
 
     if (DEER)
     {
@@ -7573,7 +7610,7 @@ void G_MoveWorld(void)
     if (!DEER)
     {
         G_MoveEffectors();        //ST 3
-        movestandables();       //ST 6
+        movestandables_r();       //ST 6
     }
 
     G_RefreshLights();
@@ -7584,8 +7621,14 @@ void G_MoveWorld(void)
     if (RR && numplayers < 2 && g_thunderOn)
         G_Thunder();
 
-    g_moveWorldTime = (1-0.033)*g_moveWorldTime + 0.033*(timerGetHiTicks()-worldTime);
+    g_moveWorldTime = (1 - 0.033) * g_moveWorldTime + 0.033 * (timerGetHiTicks() - worldTime);
 }
 
+void G_MoveWorld(void)
+{
+    if (!isRR()) G_MoveWorld_d();
+    else G_MoveWorld_r();
+}
 
 END_DUKE_NS
+

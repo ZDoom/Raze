@@ -367,6 +367,43 @@ inline int wakeup(int sn, int pn)
     return G_WakeUp(&sprite[sn], pn);
 }
 
+// shared functions
+void movecrane(int i, int crane);
+void movefountain(int i, int fountain);
+void moveflammable(int i, int tire, int box, int pool);
+void detonate(int i, int explosion);
+void movemasterswitch(int i, int spectype1, int spectype2);
+void movetrash(int i);
+void movewaterdrip(int i, int drip);
+void movedoorshock(int i);
+void movetouchplate(int i, int plate);
+void movecanwithsomething(int i);
+void bounce(int i);
+void movetongue(int i, int tongue, int jaw);
+void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion);
+void lotsofstuff(spritetype* s, short n, int spawntype);
+void respawn_rrra(int i, int j);
+
+void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
+int ifhitbyweapon(int sn);
+int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
+
+// tile names which are identical for all games.
+enum
+{
+	SECTOREFFECTOR = 1,
+	ACTIVATOR = 2,
+	TOUCHPLATE = 3,
+	ACTIVATORLOCKED = 4,
+	MUSICANDSFX = 5,
+	LOCATORS = 6,
+	CYCLER = 7,
+	MASTERSWITCH = 8,
+	RESPAWN = 9,
+	GPSPEED = 10,
+	FOF = 13,
+};	
+
 #endif
 
 END_DUKE_NS

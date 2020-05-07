@@ -3612,6 +3612,7 @@ enum redneck_weapon_t
     RATE_WEAPON = 15,
     CHICKENBOW_WEAPON = 16
 };
+extern int APLAYER, CAMERA1;
 
 #define DYNAMICWEAPONMAP(Weaponnum) Weaponnum
 

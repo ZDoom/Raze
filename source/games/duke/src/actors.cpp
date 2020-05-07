@@ -41,64 +41,99 @@ This file is a combination of code from the following sources:
 
 #include "ns.h"
 #include "global.h"
-#include "names.h"
+#include "namesdyn.h"
 
 BEGIN_DUKE_NS
 
-struct FireProj
-{
-	int x, y, z;
-	int xv, yv, zv;
-};
-
-static TMap<int, FireProj> fire;
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
+bool ceilingspace_d(int sectnum);
+bool ceilingspace_r(int sectnum);
+bool floorspace_d(int sectnum);
+bool floorspace_r(int sectnum);
+void addweapon_d(struct player_struct *p, int weapon);
+void addweapon_r(struct player_struct *p, int weapon);
+void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
+void hitradius_r(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
+int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
+int movesprite_r(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
+void lotsofmoney_d(spritetype *s, short n);
+void lotsofmail_d(spritetype *s, short n);
+void lotsofpaper_d(spritetype *s, short n);
+void lotsoffeathers_r(spritetype *s, short n);
+void guts_d(spritetype* s, short gtype, short n, short p);
+void guts_r(spritetype* s, short gtype, short n, short p);
+void gutsdir_d(spritetype* s, short gtype, short n, short p);
+void gutsdir_r(spritetype* s, short gtype, short n, short p);
+int ifhitsectors_d(int sectnum);
+int ifhitsectors_r(int sectnum);
+int ifhitbyweapon_r(int sn);
+int ifhitbyweapon_d(int sn);
 
 bool ceilingspace(int sectnum)
 {
-	if ((sector[sectnum].ceilingstat & 1) && sector[sectnum].ceilingpal == 0)
-	{
-		switch (sector[sectnum].ceilingpicnum)
-		{
-		case MOONSKY1:
-		case BIGORBIT1:
-			return !isRR();
-
-		case RR_MOONSKY1:
-		case RR_BIGORBIT1:
-			return isRR();
-		}
-	}
-	return 0;
+	return isRR()? ceilingspace_r(sectnum) : ceilingspace_d(sectnum);
 }
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
 
 bool floorspace(int sectnum)
 {
-	if ((sector[sectnum].floorstat & 1) && sector[sectnum].ceilingpal == 0)
-	{
-		switch (sector[sectnum].floorpicnum)
-		{
-		case MOONSKY1:
-		case BIGORBIT1:
-			return !isRR();
+	return isRR()? floorspace_r(sectnum) : floorspace_d(sectnum);
+}
 
-		case RR_MOONSKY1:
-		case RR_BIGORBIT1:
-			return !!isRR();
-		}
-	}
-	return 0;
+void addweapon(struct player_struct *p, int weapon)
+{
+	if (isRR()) addweapon_r(p, weapon);
+	else addweapon_d(p, weapon);
+}
+
+void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
+{
+	if (isRR()) hitradius_r(i, r, hp1, hp2, hp3, hp4);
+	else hitradius_d(i, r, hp1, hp2, hp3, hp4);
+}
+
+int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype)
+{
+	if (isRR()) return movesprite_r(spritenum, xchange, ychange, zchange, cliptype);
+	else return movesprite_d(spritenum, xchange, ychange, zchange, cliptype);
+}
+
+void lotsofmoney(spritetype *s, short n)
+{
+	if (isRR()) lotsoffeathers_r(s, n);
+	else lotsofmoney_d(s, n);
+}
+
+void lotsofmail(spritetype *s, short n)
+{
+	if (isRR()) lotsoffeathers_r(s, n);
+	else lotsofmail_d(s, n);
+}
+
+void lotsofpaper(spritetype *s, short n)
+{
+	if (isRR()) lotsoffeathers_r(s, n);
+	else lotsofpaper_d(s, n);
+}
+
+void guts(spritetype* s, short gtype, short n, short p)
+{
+	if (isRR()) guts_r(s, gtype, n, p);
+	else guts_d(s, gtype, n, p);
+}
+
+void gutsdir(spritetype* s, short gtype, short n, short p)
+{
+	if (isRR()) gutsdir_r(s, gtype, n, p);
+	else gutsdir_d(s, gtype, n, p);
+}
+
+int ifhitsectors(int sectnum)
+{
+	return isRR()? ifhitsectors_r(sectnum) : ifhitsectors_d(sectnum);
+}
+
+int ifhitbyweapon(int sectnum)
+{
+	return isRR()? ifhitbyweapon_r(sectnum) : ifhitbyweapon_d(sectnum);
 }
 
 //---------------------------------------------------------------------------
@@ -113,124 +148,6 @@ void addammo(short weapon, struct player_struct* p, short amount)
 
 	if (p->ammo_amount[weapon] > max_ammo_amount[weapon])
 		p->ammo_amount[weapon] = max_ammo_amount[weapon];
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void addweapon(struct player_struct* p, int weapon)
-{
-	short cw = p->curr_weapon;
-	if (p->OnMotorcycle || p->OnBoat)
-	{
-		p->gotweapon.Set(weapon);
-		if (weapon == SHRINKER_WEAPON)
-		{
-			p->gotweapon.Set(GROW_WEAPON);
-			p->ammo_amount[GROW_WEAPON] = 1;
-		}
-		else if (weapon == RPG_WEAPON)
-		{
-			p->gotweapon.Set(RA16_WEAPON);
-		}
-		else if (weapon == RA15_WEAPON)
-		{
-			p->ammo_amount[RA15_WEAPON] = 1;
-		}
-		return;
-	}
-
-	if (p->gotweapon[weapon] == 0)
-	{
-		p->gotweapon.Set(weapon);
-		if (weapon == SHRINKER_WEAPON)
-		{
-			p->gotweapon.Set(GROW_WEAPON);
-			if (isRRRA()) p->ammo_amount[GROW_WEAPON] = 1;
-		}
-		if (isRRRA())
-		{
-			if (weapon == RPG_WEAPON)
-			{
-				p->gotweapon.Set(RA16_WEAPON);
-			}
-			if (weapon == RA15_WEAPON)
-			{
-				p->ammo_amount[RA15_WEAPON] = 50;
-			}
-		}
-
-		if (!isRR() || weapon != HANDBOMB_WEAPON)
-			cw = weapon;
-	}
-	else
-		cw = weapon;
-
-	if (isRR() && weapon == HANDBOMB_WEAPON)
-		p->last_weapon = -1;
-
-	p->random_club_frame = 0;
-
-	if (p->holster_weapon == 0)
-	{
-		p->weapon_pos = -1;
-		p->last_weapon = p->curr_weapon;
-	}
-	else
-	{
-		p->weapon_pos = 10;
-		p->holster_weapon = 0;
-		p->last_weapon = -1;
-	}
-
-	p->kickback_pic = 0;
-#ifdef EDUKE
-	if (p->curr_weapon != cw)
-	{
-		short snum;
-		snum = sprite[p->i].yvel;
-
-		SetGameVarID(g_iWeaponVarID, cw, p->i, snum);
-		if (p->curr_weapon >= 0)
-		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[weapon][snum], p->i, snum);
-		}
-		else
-		{
-			SetGameVarID(g_iWorksLikeVarID, -1, p->i, snum);
-		}
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
-		OnEvent(EVENT_CHANGEWEAPON, p->i, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
-		{
-			p->curr_weapon = cw;
-		}
-	}
-#else
-	p->curr_weapon = cw;
-#endif
-
-	switch (weapon)
-	{
-	case RA15_WEAPON:
-	case KNEE_WEAPON:
-	case TRIPBOMB_WEAPON:
-	case HANDREMOTE_WEAPON:
-	case HANDBOMB_WEAPON:     
-		break;
-	case SHOTGUN_WEAPON:      
-		spritesound(SHOTGUN_COCK, p->i); 
-		break;
-	case PISTOL_WEAPON:       
-		spritesound(INSERT_CLIP, p->i); 
-		break;
-	default:      
-		spritesound(SELECT_WEAPON, p->i); 
-		break;
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -343,50 +260,6 @@ void checkavailweapon(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-bool ifsquished(int i, int p)
-{
-	if (isRR()) return false;	// this function is a no-op in RR's source.
-
-	bool squishme = false;
-	if (sprite[i].picnum == TILE_APLAYER && ud.clipping)
-		return false;
-
-	auto& sc = sector[sprite[i].sectnum];
-	int floorceildist = sc.floorz - sc.ceilingz;
-
-	if (sc.lotag != ST_23_SWINGING_DOOR)
-	{
-		if (sprite[i].pal == 1)
-			squishme = floorceildist < (32 << 8) && (sc.lotag & 32768) == 0;
-		else
-			squishme = floorceildist < (12 << 8);
-	}
-
-	if (squishme)
-	{
-		FTA(QUOTE_SQUISHED, &ps[p]);
-
-		if (badguy(&sprite[i]))
-			sprite[i].xvel = 0;
-
-		if (sprite[i].pal == 1)
-		{
-			hittype[i].picnum = SHOTSPARK1;
-			hittype[i].extra = 1;
-			return false;
-		}
-
-		return true;
-	}
-	return false;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void clearcamera(player_struct* ps)
 {
 	ps->newowner = -1;
@@ -404,405 +277,6 @@ void clearcamera(player_struct* ps)
 			sprite[k].yvel = 0;
 		k = nextspritestat[k];
 	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
-{
-	spritetype* s, * sj;
-	walltype* wal;
-	int d, q, x1, y1;
-	int sectcnt, sectend, dasect, startwall, endwall, nextsect;
-	short j, p, x, nextj, sect;
-	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
-	short tempshort[MAXSECTORS];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
-
-	s = &sprite[i];
-
-	if (s->xrepeat < 11)
-	{
-		if (!isRR())
-		{
-			if (s->picnum == RPG) goto SKIPWALLCHECK;
-		}
-		else
-		{
-			if (s->picnum == RR_CROSSBOW || ((isRRRA()) && s->picnum == RR_CHIKENCROSSBOW)) goto SKIPWALLCHECK;
-		}
-	}
-
-	if ((isRR()) || s->picnum != SHRINKSPARK)
-	{
-		tempshort[0] = s->sectnum;
-		dasect = s->sectnum;
-		sectcnt = 0; sectend = 1;
-
-		do
-		{
-			dasect = tempshort[sectcnt++];
-			if (((sector[dasect].ceilingz - s->z) >> 8) < r)
-			{
-				d = abs(wall[sector[dasect].wallptr].x - s->x) + abs(wall[sector[dasect].wallptr].y - s->y);
-				if (d < r)
-					checkhitceiling(dasect);
-				else
-				{
-					// ouch...
-					d = abs(wall[wall[wall[sector[dasect].wallptr].point2].point2].x - s->x) + abs(wall[wall[wall[sector[dasect].wallptr].point2].point2].y - s->y);
-					if (d < r)
-						checkhitceiling(dasect);
-				}
-			}
-
-			startwall = sector[dasect].wallptr;
-			endwall = startwall + sector[dasect].wallnum;
-			for (x = startwall, wal = &wall[startwall]; x < endwall; x++, wal++)
-				if ((abs(wal->x - s->x) + abs(wal->y - s->y)) < r)
-				{
-					nextsect = wal->nextsector;
-					if (nextsect >= 0)
-					{
-						for (dasect = sectend - 1; dasect >= 0; dasect--)
-							if (tempshort[dasect] == nextsect) break;
-						if (dasect < 0) tempshort[sectend++] = nextsect;
-					}
-					x1 = (((wal->x + wall[wal->point2].x) >> 1) + s->x) >> 1;
-					y1 = (((wal->y + wall[wal->point2].y) >> 1) + s->y) >> 1;
-					updatesector(x1, y1, &sect);
-					if (sect >= 0 && cansee(x1, y1, s->z, sect, s->x, s->y, s->z, s->sectnum))
-						checkhitwall(i, x, wal->x, wal->y, s->z, s->picnum);
-				}
-		} while (sectcnt < sectend);
-	}
-
-SKIPWALLCHECK:
-
-	int val = (isRR()) ? 24 : 16;
-	q = -(val << 8) + (krand() & ((32 << 8) - 1));
-
-	for (x = 0; x < 7; x++)
-	{
-		j = headspritestat[statlist[x]];
-		while (j >= 0)
-		{
-			nextj = nextspritestat[j];
-			sj = &sprite[j];
-
-			if (isWorldTour())
-			{
-				if (sprite[s->owner].picnum == APLAYER && sj->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && s->owner != j)
-					continue;
-
-				if (s->picnum == FLAMETHROWERFLAME && ((sprite[s->owner].picnum == FIREFLY && sj->picnum == FIREFLY) || (sprite[s->owner].picnum == BOSS5 && sj->picnum == BOSS5)))
-					continue;
-			}
-
-			if (x == 0 || x >= 5 || AFLAMABLE(sj->picnum))
-			{
-				if ((!isRR() && s->picnum != SHRINKSPARK) || (sj->cstat & 257))
-					if (dist(s, sj) < r)
-					{
-						if (badguy(sj) && !cansee(sj->x, sj->y, sj->z + q, sj->sectnum, s->x, s->y, s->z + q, s->sectnum))
-							goto BOLT;
-						checkhitsprite(j, i);
-					}
-			}
-			else if (!isRR())
-			{
-				if (sj->extra >= 0 && sj != s && (sj->picnum == TRIPBOMB || badguy(sj) || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL || (sj->cstat & 257) || sj->picnum == DUKELYINGDEAD))
-				{
-					if (s->picnum == SHRINKSPARK && sj->picnum != SHARK && (j == s->owner || sj->xrepeat < 24))
-					{
-						j = nextj;
-						continue;
-					}
-					if (s->picnum == MORTER && j == s->owner)
-					{
-						j = nextj;
-						continue;
-					}
-
-					if (sj->picnum == APLAYER) sj->z -= PHEIGHT;
-					d = dist(s, sj);
-					if (sj->picnum == APLAYER) sj->z += PHEIGHT;
-
-					if (d < r && cansee(sj->x, sj->y, sj->z - (8 << 8), sj->sectnum, s->x, s->y, s->z - (12 << 8), s->sectnum))
-					{
-						hittype[j].ang = getangle(sj->x - s->x, sj->y - s->y);
-
-						if (s->picnum == RPG && sj->extra > 0)
-							hittype[j].picnum = RPG;
-						else if (!isWorldTour())
-						{
-							if (s->picnum == SHRINKSPARK)
-								hittype[j].picnum = SHRINKSPARK;
-							else hittype[j].picnum = RADIUSEXPLOSION;
-						}
-						else
-						{
-							if (s->picnum == SHRINKSPARK || s->picnum == FLAMETHROWERFLAME)
-								hittype[j].picnum = s->picnum;
-							else if (s->picnum != FIREBALL || sprite[s->owner].picnum != APLAYER)
-							{
-								if (s->picnum == LAVAPOOL)
-									hittype[j].picnum = FLAMETHROWERFLAME;
-								else
-									hittype[j].picnum = RADIUSEXPLOSION;
-							}
-							else
-								hittype[j].picnum = FLAMETHROWERFLAME;
-						}
-
-						if (s->picnum != SHRINKSPARK && (!isWorldTour() && s->picnum != LAVAPOOL))
-						{
-							if (d < r / 3)
-							{
-								if (hp4 == hp3) hp4++;
-								hittype[j].extra = hp3 + (krand() % (hp4 - hp3));
-							}
-							else if (d < 2 * r / 3)
-							{
-								if (hp3 == hp2) hp3++;
-								hittype[j].extra = hp2 + (krand() % (hp3 - hp2));
-							}
-							else if (d < r)
-							{
-								if (hp2 == hp1) hp2++;
-								hittype[j].extra = hp1 + (krand() % (hp2 - hp1));
-							}
-
-							if (sprite[j].picnum != TANK && sprite[j].picnum != ROTATEGUN && sprite[j].picnum != RECON && sprite[j].picnum != BOSS1 && sprite[j].picnum != BOSS2 && sprite[j].picnum != BOSS3 && sprite[j].picnum != BOSS4)
-							{
-								if (sj->xvel < 0) sj->xvel = 0;
-								sj->xvel += (s->extra << 2);
-							}
-
-							if (sj->picnum == PODFEM1 || sj->picnum == FEM1 ||
-								sj->picnum == FEM2 || sj->picnum == FEM3 ||
-								sj->picnum == FEM4 || sj->picnum == FEM5 ||
-								sj->picnum == FEM6 || sj->picnum == FEM7 ||
-								sj->picnum == FEM8 || sj->picnum == FEM9 ||
-								sj->picnum == FEM10 || sj->picnum == STATUE ||
-								sj->picnum == STATUEFLASH || sj->picnum == SPACEMARINE || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL)
-								checkhitsprite(j, i);
-						}
-						else if (s->extra == 0) hittype[j].extra = 0;
-
-						if (sj->picnum != RADIUSEXPLOSION &&
-							s->owner >= 0 && sprite[s->owner].statnum < MAXSTATUS)
-						{
-							if (sj->picnum == APLAYER)
-							{
-								p = sj->yvel;
-
-								if (isWorldTour() && hittype[j].picnum == FLAMETHROWERFLAME && sprite[s->owner].picnum == APLAYER) 
-								{
-									ps[p].numloogs = -1 - s->yvel;
-								}
-
-								if (ps[p].newowner >= 0)
-								{
-									clearcamera(&ps[p]);
-								}
-							}
-							hittype[j].owner = s->owner;
-						}
-					}
-				}
-			}
-			else
-			{
-				if (sj->extra >= 0 && sj != s && (badguy(sj) || sj->picnum == RR_QUEBALL || sj->picnum == RR_3440 || sj->picnum == RR_STRIPEBALL || (sj->cstat & 257) || sj->picnum == RR_LNRDLYINGDEAD))
-				{
-					if (s->picnum == RR_MORTER && j == s->owner)
-					{
-						j = nextj;
-						continue;
-					}
-					if ((isRRRA()) && s->picnum == RR_CHEERBOMB && j == s->owner)
-					{
-						j = nextj;
-						continue;
-					}
-
-					if (sj->picnum == APLAYER) sj->z -= PHEIGHT;
-					d = dist(s, sj);
-					if (sj->picnum == APLAYER) sj->z += PHEIGHT;
-
-					if (d < r && cansee(sj->x, sj->y, sj->z - (8 << 8), sj->sectnum, s->x, s->y, s->z - (12 << 8), s->sectnum))
-					{
-						if ((isRRRA()) && sprite[j].picnum == RR_MINION && sprite[j].pal == 19)
-						{
-							j = nextj;
-							continue;
-						}
-
-						hittype[j].ang = getangle(sj->x - s->x, sj->y - s->y);
-
-						if (s->picnum == RR_CROSSBOW && sj->extra > 0)
-							hittype[j].picnum = RR_CROSSBOW;
-						else if ((isRRRA()) && s->picnum == RR_CHIKENCROSSBOW && sj->extra > 0)
-							hittype[j].picnum = RR_CROSSBOW;
-						else
-							hittype[j].picnum = RR_RADIUSEXPLOSION;
-
-						if (d < r / 3)
-						{
-							if (hp4 == hp3) hp4++;
-							hittype[j].extra = hp3 + (krand() % (hp4 - hp3));
-						}
-						else if (d < 2 * r / 3)
-						{
-							if (hp3 == hp2) hp3++;
-							hittype[j].extra = hp2 + (krand() % (hp3 - hp2));
-						}
-						else if (d < r)
-						{
-							if (hp2 == hp1) hp2++;
-							hittype[j].extra = hp1 + (krand() % (hp2 - hp1));
-						}
-
-						int pic = sprite[j].picnum;
-						if ((isRRRA())? 
-							(pic != RR_HULK && pic != RR_MAMAJACKOLOPE && pic != RR_GUITARBILLY && pic != RR_BANJOCOOTER && pic != RR_MAMACLOUD) :
-							(pic != RR_HULK && pic != RR_SBMOVE))
-						{
-							if (sprite[j].xvel < 0) sprite[j].xvel = 0;
-							sprite[j].xvel += (sprite[j].extra << 2);
-						}
-
-						if (sj->picnum == RR_STATUEFLASH || sj->picnum == RR_QUEBALL ||
-							sj->picnum == RR_STRIPEBALL || sj->picnum == RR_3440)
-							checkhitsprite(j, i);
-
-						if (sprite[j].picnum != RR_RADIUSEXPLOSION &&
-							s->owner >= 0 && sprite[s->owner].statnum < MAXSTATUS)
-						{
-							if (sprite[j].picnum == APLAYER)
-							{
-								p = sprite[j].yvel;
-								if (ps[p].newowner >= 0)
-								{
-									clearcamera(&ps[p]);
-								}
-							}
-							hittype[j].owner = s->owner;
-						}
-					}
-				}
-			}
-		BOLT:
-			j = nextj;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype)
-{
-	int daz, h, oldx, oldy;
-	short retval, dasectnum, cd;
-	char bg;
-
-	bg = badguy(&sprite[spritenum]);
-
-	if (sprite[spritenum].statnum == 5 || (bg && sprite[spritenum].xrepeat < 4))
-	{
-		sprite[spritenum].x += (xchange * TICSPERFRAME) >> 2;
-		sprite[spritenum].y += (ychange * TICSPERFRAME) >> 2;
-		sprite[spritenum].z += (zchange * TICSPERFRAME) >> 2;
-		if (bg)
-			setsprite(spritenum, sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z);
-		return 0;
-	}
-
-	dasectnum = sprite[spritenum].sectnum;
-
-	daz = sprite[spritenum].z;
-	h = ((tilesiz[sprite[spritenum].picnum].y * sprite[spritenum].yrepeat) << 1);
-	daz -= h;
-
-	if (bg)
-	{
-		oldx = sprite[spritenum].x;
-		oldy = sprite[spritenum].y;
-
-		if (sprite[spritenum].xrepeat > 60)
-			retval = clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024L, (4 << 8), (4 << 8), cliptype);
-		else 
-		{
-			if (isRR())
-				cd = 192;
-			else if (sprite[spritenum].picnum == LIZMAN)
-				cd = 292;
-#if 0	// TRANSITIONAL the needed infrastructure for this is too different for now
-			else if ((actortype[sprite[spritenum].picnum] & 3))
-#else
-			else if (A_CheckSpriteFlags(spritenum, SFLAG_BADGUY))
-#endif
-				cd = sprite[spritenum].clipdist << 2;
-			else
-				cd = 192;
-
-			retval = clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype);
-		}
-
-		bool rr = (isRR());
-		// conditional code from hell...
-		if (dasectnum < 0 || (dasectnum >= 0 &&
-			((hittype[spritenum].actorstayput >= 0 && hittype[spritenum].actorstayput != dasectnum) ||
-				(!rr && 
-					(
-						((sprite[spritenum].picnum == BOSS2) && sprite[spritenum].pal == 0 && sector[dasectnum].lotag != 3) ||
-						((sprite[spritenum].picnum == BOSS1 || sprite[spritenum].picnum == BOSS2) && sector[dasectnum].lotag == ST_1_ABOVE_WATER) ||
-						(sector[dasectnum].lotag == ST_1_ABOVE_WATER && (sprite[spritenum].picnum == LIZMAN || (sprite[spritenum].picnum == LIZTROOP && sprite[spritenum].zvel == 0)))
-					)
-				)
-			)))
-		{
-			sprite[spritenum].x = oldx;
-			sprite[spritenum].y = oldy;
-			if (sector[dasectnum].lotag == ST_1_ABOVE_WATER && (rr || sprite[spritenum].picnum == LIZMAN))
-				sprite[spritenum].ang = (krand() & 2047);
-			else if ((hittype[spritenum].temp_data[0] & 3) == 1 && (rr || sprite[spritenum].picnum != COMMANDER))
-				sprite[spritenum].ang = (krand() & 2047);
-			setsprite(spritenum, oldx, oldy, sprite[spritenum].z);
-			if (dasectnum < 0) dasectnum = 0;
-			return (16384 + dasectnum);
-		}
-		if ((retval & 49152) >= 32768 && (hittype[spritenum].cgg == 0)) sprite[spritenum].ang += 768;
-	}
-	else
-	{
-		if (sprite[spritenum].statnum == 4)
-			retval =
-			clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8L, (4 << 8), (4 << 8), cliptype);
-		else
-			retval =
-			clipmove(&sprite[spritenum].x, &sprite[spritenum].y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(sprite[spritenum].clipdist << 2), (4 << 8), (4 << 8), cliptype);
-	}
-
-	if (dasectnum >= 0)
-		if ((dasectnum != sprite[spritenum].sectnum))
-			changespritesect(spritenum, dasectnum);
-	daz = sprite[spritenum].z + ((zchange * TICSPERFRAME) >> 3);
-	if ((daz > hittype[spritenum].ceilingz) && (daz <= hittype[spritenum].floorz))
-		sprite[spritenum].z = daz;
-	else
-		if (retval == 0)
-			return(16384 + dasectnum);
-
-	return(retval);
 }
 
 //---------------------------------------------------------------------------
@@ -847,9 +321,6 @@ void insertspriteq(int i)
 //---------------------------------------------------------------------------
 //
 // consolidation of several nearly identical functions
-// lotsofmoney -> MONEY / RR_FEATHERS
-// lotsofmail -> MAIL
-// lotsofpaper -> PAPER
 //
 //---------------------------------------------------------------------------
 
@@ -862,105 +333,6 @@ void lotsofstuff(spritetype* s, short n, int spawntype)
 		// TRANSITIONAL RedNukem sets the spawner as owner.
 		j = EGS(s->sectnum, s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, 0, 5);
 		sprite[j].cstat = krand() & 12;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void guts(spritetype* s, short gtype, short n, short p)
-{
-	int gutz, floorz;
-	int i=0, j;
-	int sx, sy;
-	uint8_t pal;
-
-	if (badguy(s) && s->xrepeat < 16)
-		sx = sy = 8;
-	else sx = sy = 32;
-
-	gutz = s->z - (8 << 8);
-	floorz = getflorzofslope(s->sectnum, s->x, s->y);
-
-	if (gutz > (floorz - (8 << 8)))
-		gutz = floorz - (8 << 8);
-
-	if (!isRR() && s->picnum == COMMANDER)
-		gutz -= (24 << 8);
-
-	if (badguy(s) && s->pal == 6)
-		pal = 6;
-	else
-	{
-		pal = 0;
-		if (isRRRA())
-		{
-			if (s->picnum == RR_MINION && (s->pal == 8 || s->pal == 19)) pal = s->pal;
-		}
-	}
-
-	if (isRR())
-	{
-		sx >>= 1;
-		sy >>= 1;
-	}
-
-	for (j = 0; j < n; j++)
-	{
-		// RANDCORRECT version from RR.
-		int a = krand() & 2047;
-		int r1 = krand();
-		int r2 = krand();
-		int r3 = krand();
-		int r4 = krand();
-		int r5 = krand();
-		// TRANSITIONAL: owned by a player???
-		i = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].i, 5); 
-		if (!isRR() && sprite[i].picnum == JIBS2)
-		{
-			sprite[i].xrepeat >>= 2;
-			sprite[i].yrepeat >>= 2;
-		}
-		if (pal != 0)
-			sprite[i].pal = pal;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void gutsdir(spritetype* s, short gtype, short n, short p)
-{
-	int gutz, floorz;
-	short i, j;
-	char sx, sy;
-
-	if (badguy(s) && s->xrepeat < 16)
-		sx = sy = 8;
-	else sx = sy = 32;
-
-	gutz = s->z - (8 << 8);
-	floorz = getflorzofslope(s->sectnum, s->x, s->y);
-
-	if (gutz > (floorz - (8 << 8)))
-		gutz = floorz - (8 << 8);
-
-	if (!isRR() && s->picnum == COMMANDER)
-		gutz -= (24 << 8);
-
-	for (j = 0; j < n; j++)
-	{
-		int a = krand() & 2047;
-		int r1 = krand();
-		int r2 = krand();
-		// TRANSITIONAL: owned by a player???
-		i = EGS(s->sectnum, s->x, s->y, gutz, gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].i, 5);
 	}
 }
 
@@ -999,292 +371,6 @@ void ms(short i)
 
 		j++;
 	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void movefta(void)
-{
-	int x, px, py, sx, sy;
-	short i, j, p, psect, ssect, nexti;
-	spritetype* s;
-
-	i = headspritestat[STAT_ZOMBIEACTOR];
-	while (i >= 0)
-	{
-		nexti = nextspritestat[i];
-
-		s = &sprite[i];
-		p = findplayer(s, &x);
-
-		ssect = psect = s->sectnum;
-
-		if (sprite[ps[p].i].extra > 0)
-		{
-			if (x < 30000)
-			{
-				hittype[i].timetosleep++;
-				if (hittype[i].timetosleep >= (x >> 8))
-				{
-					if (badguy(s))
-					{
-						px = ps[p].oposx + 64 - (krand() & 127);
-						py = ps[p].oposy + 64 - (krand() & 127);
-						updatesector(px, py, &psect);
-						if (psect == -1)
-						{
-							i = nexti;
-							continue;
-						}
-						sx = s->x + 64 - (krand() & 127);
-						sy = s->y + 64 - (krand() & 127);
-						updatesector(px, py, &ssect);
-						if (ssect == -1)
-						{
-							i = nexti;
-							continue;
-						}
-
-						if (!isRR() || s->pal == 33 || s->type == RR_VIXEN ||
-							((isRRRA()) && isIn(s->type, RR_COOT, RR_COOTSTAYPUT, RR_BIKERSTAND, RR_BIKERRIDE, 
-																			RR_BIKERRIDEDAISY, RR_MINIONAIRBOAT, RR_HULKAIRBOAT,
-																			RR_DAISYAIRBOAT, RR_JACKOLOPE, RR_BANJOCOOTER, 
-																			RR_GUITARBILLY, RR_MAMAJACKOLOPE, RR_BIKERBV, 
-																			RR_MAKEOUT, RR_CHEER, RR_CHEERSTAYPUT)) ||
-							 (sintable[(s->ang + 512) & 2047] * (px - sx) + sintable[s->ang & 2047] * (py - sy) >= 0))
-						{
-							int r1 = krand();
-							int r2 = krand();
-							j = cansee(sx, sy, s->z - (r2 % (52 << 8)), s->sectnum, px, py, ps[p].oposz - (r1 % (32 << 8)), ps[p].cursectnum);
-						}
-					}
-					else
-					{
-						int r1 = krand();
-						int r2 = krand();
-						j = cansee(s->x, s->y, s->z - ((r2 & 31) << 8), s->sectnum, ps[p].oposx, ps[p].oposy, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursectnum);
-					}
-
-					if (j)
-					{
-						bool res = (!isRR()) ?
-							isIn(s->picnum,
-								RUBBERCAN,
-								EXPLODINGBARREL,
-								WOODENHORSE,
-								HORSEONSIDE,
-								CANWITHSOMETHING,
-								CANWITHSOMETHING2,
-								CANWITHSOMETHING3,
-								CANWITHSOMETHING4,
-								FIREBARREL,
-								FIREVASE,
-								NUKEBARREL,
-								NUKEBARRELDENTED,
-								NUKEBARRELLEAKED,
-								TRIPBOMB) :
-							isIn(s->picnum,
-								RR_1251,
-								RR_1268,
-								RR_1187,
-								RR_1304,
-								RR_1305,
-								RR_1306,
-								RR_1309,
-								RR_1315,
-								RR_1317,
-								RR_1388);
-
-
-						if (res)
-						{
-							if (sector[s->sectnum].ceilingstat & 1)
-								s->shade = sector[s->sectnum].ceilingshade;
-							else s->shade = sector[s->sectnum].floorshade;
-
-							hittype[i].timetosleep = 0;
-							changespritestat(i, STAT_STANDABLE);
-						}
-						else
-						{
-#if 0
-							// TRANSITIONAL: RedNukem has this here. Needed?
-							if (A_CheckSpriteFlags(spriteNum, SFLAG_USEACTIVATOR) && sector[sprite[spriteNum].sectnum].lotag & 16384) break;
-#endif
-							hittype[i].timetosleep = 0;
-							check_fta_sounds(i);
-							changespritestat(i, STAT_ACTOR);
-						}
-					}
-					else hittype[i].timetosleep = 0;
-				}
-			}
-			if ((!isRR() || !j) && badguy(s))
-			{
-				if (sector[s->sectnum].ceilingstat & 1)
-					s->shade = sector[s->sectnum].ceilingshade;
-				else s->shade = sector[s->sectnum].floorshade;
-
-				if (isRR() && (s->picnum != RR_HEN || s->picnum != RR_COW || s->picnum != RR_PIG || s->picnum != RR_DOGRUN || ((isRRRA()) && s->picnum != RR_JACKOLOPE)))
-					if (wakeup(i, p))
-					{
-						hittype[i].timetosleep = 0;
-						check_fta_sounds(i);
-						changespritestat(i, STAT_ACTOR);
-					}
-
-			}
-		}
-		i = nexti;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-int ifhitsectors(int sectnum)
-{
-	int i = headspritestat[STAT_MISC];
-	if (!isRR())
-	{
-		while (i >= 0)
-		{
-			if (sprite[i].picnum == EXPLOSION2 && sectnum == sprite[i].sectnum)
-				return i;
-			i = nextspritestat[i];
-		}
-	}
-	else
-	{
-		while (i >= 0)
-		{
-			if (sprite[i].picnum == RR_EXPLOSION2 || (sprite[i].picnum == RR_EXPLOSION3 && sectnum == sprite[i].sectnum))
-				return i;
-			i = nextspritestat[i];
-		}
-	}
-
-	return -1;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-int ifhitbyweapon(int sn)
-{
-	short j, p;
-	spritetype* npc;
-
-	if (hittype[sn].extra >= 0)
-	{
-		if (sprite[sn].extra >= 0)
-		{
-			npc = &sprite[sn];
-
-			if (npc->picnum == APLAYER)
-			{
-				if (ud.god && (isRR() || hittype[sn].picnum != SHRINKSPARK)) return -1;
-
-				p = npc->yvel;
-				j = hittype[sn].owner;
-
-				if (j >= 0 &&
-					sprite[j].picnum == APLAYER &&
-					ud.coop == 1 &&
-					ud.ffire == 0)
-					return -1;
-
-				npc->extra -= hittype[sn].extra;
-
-				if (j >= 0)
-				{
-					if (npc->extra <= 0 && hittype[sn].picnum != pPick2(FREEZEBLAST, RR_ALIENBLAST))
-					{
-						npc->extra = 0;
-
-						ps[p].wackedbyactor = j;
-
-						if (sprite[hittype[sn].owner].picnum == APLAYER && p != sprite[hittype[sn].owner].yvel)
-						{
-							// yvel contains player ID
-							ps[p].frag_ps = sprite[j].yvel;
-						}
-
-						hittype[sn].owner = ps[p].i;
-					}
-				}
-
-				bool res = !isRR() ?
-					isIn(hittype[sn].picnum, RADIUSEXPLOSION, RPG, HYDRENT, HEAVYHBOMB, SEENINE, OOZFILTER, EXPLODINGBARREL) :
-					(isIn(hittype[sn].picnum, RR_DYNAMITE, RR_POWDERKEGSPRITE, RR_1228, RR_1273, RR_1315, RR_SEENINE, RR_RADIUSEXPLOSION, RR_CROSSBOW) ||
-						(isRRRA() && hittype[sn].picnum == RR_CHIKENCROSSBOW));
-
-				int shift = res ? 2 : 1;
-				ps[p].posxv += hittype[sn].extra * (sintable[(hittype[sn].ang + 512) & 2047]) << shift;
-				ps[p].posyv += hittype[sn].extra * (sintable[hittype[sn].ang & 2047]) << shift;
-			}
-			else
-			{
-				if (hittype[sn].extra == 0)
-					if ((isRR() || hittype[sn].picnum == SHRINKSPARK) && npc->xrepeat < 24)
-						return -1;
-
-				if (isWorldTour() && hittype[sn].picnum == FIREFLY && npc->xrepeat < 48) 
-				{
-					if (hittype[sn].picnum != RADIUSEXPLOSION && hittype[sn].picnum != RPG)
-						return -1;
-				}
-
-				npc->extra -= hittype[sn].extra;
-				if (npc->picnum != pPick2(RECON, RR_4989) && npc->owner >= 0 && sprite[npc->owner].statnum < MAXSTATUS)
-					npc->owner = hittype[sn].owner;
-			}
-
-			hittype[sn].extra = -1;
-			return hittype[sn].picnum;
-		}
-	}
-
-
-	if (ud.multimode < 2 || !isWorldTour()
-		|| hittype[sn].picnum != FLAMETHROWERFLAME
-		|| hittype[sn].extra >= 0
-		|| sprite[sn].extra > 0
-		|| sprite[sn].picnum != APLAYER
-		|| ps[sprite[sn].yvel].numloogs > 0
-		|| hittype[sn].owner < 0) 
-	{
-		hittype[sn].extra = -1;
-		return -1;
-	}
-	else 
-	{
-		p = sprite[sn].yvel;
-		sprite[sn].extra = 0;
-		ps[p].wackedbyactor = (short)hittype[sn].owner;
-
-		if (sprite[hittype[sn].owner].picnum == APLAYER && p != hittype[sn].owner)
-			ps[p].frag_ps = (short)hittype[sn].owner;
-
-		hittype[sn].owner = ps[p].i;
-		hittype[sn].extra = -1;
-
-		return FLAMETHROWERFLAME;
-	}
-
-
-	hittype[sn].extra = -1;
-	return -1;
 }
 
 //---------------------------------------------------------------------------
@@ -1559,56 +645,13 @@ void movefx(void)
 			if (sprite[i].extra == 66)
 			{
 				j = spawn(i, sprite[i].hitag);
-				if (isRRRA())
+				if (isRRRA()) 
 				{
-					sprite[j].pal = sprite[i].pal;
-					if (sprite[j].picnum == RR_MAMAJACKOLOPE)
-					{
-						if (sprite[j].pal == 30)
-						{
-							sprite[j].xrepeat = 26;
-							sprite[j].yrepeat = 26;
-							sprite[j].clipdist = 75;
-						}
-						else if (sprite[j].pal == 31)
-						{
-							sprite[j].xrepeat = 36;
-							sprite[j].yrepeat = 36;
-							sprite[j].clipdist = 100;
-						}
-						else if (sprite[j].pal == 32)
-						{
-							sprite[j].xrepeat = 50;
-							sprite[j].yrepeat = 50;
-							sprite[j].clipdist = 100;
-						}
-						else
-						{
-							sprite[j].xrepeat = 50;
-							sprite[j].yrepeat = 50;
-							sprite[j].clipdist = 100;
-						}
-					}
-
-					if (sprite[j].pal == 8)
-					{
-						sprite[j].cstat |= 2;
-					}
-
-					if (sprite[j].pal != 6)
-					{
-						deletesprite(i);
-						i = nexti;
-						continue;
-					}
-					sprite[i].extra = (66 - 13);
-					sprite[j].pal = 0;
+					respawn_rrra(i, j);
 				}
 				else
 				{
 					deletesprite(i);
-					i = nexti;
-					continue;
 				}
 			}
 			else if (sprite[i].extra > (66 - 13))
@@ -1679,130 +722,16 @@ void movefx(void)
 
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-void movefallers(void)
-{
-	short i, nexti, sect, j;
-	spritetype* s;
-	int x;
-
-	i = headspritestat[STAT_FALLER];
-	while (i >= 0)
-	{
-		nexti = nextspritestat[i];
-		s = &sprite[i];
-
-		sect = s->sectnum;
-
-		if (hittype[i].temp_data[0] == 0)
-		{
-			s->z -= (16 << 8);
-			hittype[i].temp_data[1] = s->ang;
-			x = s->extra;
-			j = ifhitbyweapon(i);
-			if (j >= 0) 
-			{
-				bool res = !isRR() ?
-					isIn(j, FIREEXT, RPG, RADIUSEXPLOSION, SEENINE, OOZFILTER) :
-					(isIn(j, RR_CROSSBOW, RR_RADIUSEXPLOSION, RR_SEENINE, RR_OOZFILTER) || (isRRRA() && j == RR_CHIKENCROSSBOW));
-
-				if (res)
-				{
-					if (s->extra <= 0)
-					{
-						hittype[i].temp_data[0] = 1;
-						j = headspritestat[12];
-						while (j >= 0)
-						{
-							if (sprite[j].hitag == sprite[i].hitag)
-							{
-								hittype[j].temp_data[0] = 1;
-								sprite[j].cstat &= (65535 - 64);
-								if (!isRR() ? isIn(j, CEILINGSTEAM, STEAM) : isIn(j, RR_CEILINGSTEAM, RR_STEAM))
-									sprite[j].cstat |= 32768;
-							}
-							j = nextspritestat[j];
-						}
-					}
-				}
-				else
-				{
-					hittype[i].extra = 0;
-					s->extra = x;
-				}
-			}
-			s->ang = hittype[i].temp_data[1];
-			s->z += (16 << 8);
-		}
-		else if (hittype[i].temp_data[0] == 1)
-		{
-			if (s->lotag > 0)
-			{
-				s->lotag -= 3;
-				if (isRR())
-				{
-					s->xvel = (64 + krand()) & 127;
-					s->zvel = -(1024 + (krand() & 1023));
-				}
-				else if (s->lotag <= 0)
-				{
-					s->xvel = (32 + (krand() & 63));
-					s->zvel = -(1024 + (krand() & 1023));
-				}
-			}
-			else
-			{
-				if (s->xvel > 0)
-				{
-					s->xvel -= isRR()? 2 : 8;
-					ssp(i, CLIPMASK0);
-				}
-
-				if (floorspace(s->sectnum)) x = 0;
-				else
-				{
-					if (ceilingspace(s->sectnum))
-						x = gc / 6;
-					else
-						x = gc;
-				}
-
-				if (s->z < (sector[sect].floorz - FOURSLEIGHT))
-				{
-					s->zvel += x;
-					if (s->zvel > 6144)
-						s->zvel = 6144;
-					s->z += s->zvel;
-				}
-				if ((sector[sect].floorz - s->z) < (16 << 8))
-				{
-					j = 1 + (krand() & 7);
-					for (x = 0; x < j; x++) RANDOMSCRAP(s, i);
-					deletesprite(i);
-				}
-			}
-		}
-
-		i = nexti;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // split out of movestandables
 //
 //---------------------------------------------------------------------------
 
-static void movecrane(int i)
+void movecrane(int i, int crane)
 {
 	auto t = &hittype[i].temp_data[0];
 	auto s = &sprite[i];
 	int sect = s->sectnum;
 	int x;
-	int crane = pPick(CRANE);
 
 	//t[0] = state
 	//t[1] = checking sector number
@@ -1988,7 +917,7 @@ static void movecrane(int i)
 //
 //---------------------------------------------------------------------------
 
-static void movefountain(int i)
+void movefountain(int i, int fountain)
 {
 	auto t = &hittype[i].temp_data[0];
 	auto s = &sprite[i];
@@ -2001,8 +930,8 @@ static void movefountain(int i)
 
 			s->picnum++;
 
-			if (s->picnum == (pPick(WATERFOUNTAIN) + 3))
-				s->picnum = pPick(WATERFOUNTAIN) + 1;
+			if (s->picnum == fountain + 3)
+				s->picnum = fountain + 1;
 		}
 		else
 		{
@@ -2011,7 +940,7 @@ static void movefountain(int i)
 			if (x > 512)
 			{
 				t[0] = 0;
-				s->picnum = pPick(WATERFOUNTAIN);
+				s->picnum = fountain;
 			}
 			else t[0] = 1;
 		}
@@ -2023,7 +952,7 @@ static void movefountain(int i)
 //
 //---------------------------------------------------------------------------
 
-static void moveflammable(int i)
+void moveflammable(int i, int tire, int box, int pool)
 {
 	auto s = &sprite[i];
 	int j;
@@ -2032,10 +961,10 @@ static void moveflammable(int i)
 		hittype[i].temp_data[1]++;
 		if ((hittype[i].temp_data[1] & 3) > 0) return;
 
-		if (!isRR() && s->picnum == TIRE && hittype[i].temp_data[1] == 32)
+		if (!isRR() && s->picnum == tire && hittype[i].temp_data[1] == 32)
 		{
 			s->cstat = 0;
-			j = spawn(i, BLOODPOOL);
+			j = spawn(i, pool);
 			sprite[j].shade = 127;
 		}
 		else
@@ -2065,160 +994,10 @@ static void moveflammable(int i)
 		}
 		s->yrepeat = j;
 	}
-	if (!isRR() && s->picnum == BOX)
+	if (box >= 0 && s->picnum == box)
 	{
 		makeitfall(i);
 		hittype[i].ceilingz = sector[s->sectnum].ceilingz;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// Duke only
-//
-//---------------------------------------------------------------------------
-
-static void movetripbomb(int i)
-{
-	auto s = &sprite[i];
-	int j, x;
-	int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
-	if (lTripBombControl & TRIPBOMB_TIMER)
-	{
-		// we're on a timer....
-		if (s->extra >= 0)
-		{
-			s->extra--;
-			if (s->extra == 0)
-			{
-				hittype[i].temp_data[2] = 16;
-				spritesound(LASERTRIP_ARMING, i);
-			}
-		}
-	}
-	if (hittype[i].temp_data[2] > 0)
-	{
-		hittype[i].temp_data[2]--;
-		if (hittype[i].temp_data[2] == 8)
-		{
-			spritesound(LASERTRIP_EXPLODE, i);
-			for (j = 0; j < 5; j++) RANDOMSCRAP(s, i);
-			x = s->extra;
-			hitradius(i, tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
-
-			j = spawn(i, EXPLOSION2);
-			sprite[j].ang = s->ang;
-			sprite[j].xvel = 348;
-			ssp(j, CLIPMASK0);
-
-			j = headspritestat[5];
-			while (j >= 0)
-			{
-				if (sprite[j].picnum == LASERLINE && s->hitag == sprite[j].hitag)
-					sprite[j].xrepeat = sprite[j].yrepeat = 0;
-				j = nextspritestat[j];
-			}
-			deletesprite(i);
-		}
-		return;
-	}
-	else
-	{
-		x = s->extra;
-		s->extra = 1;
-		int16_t l = s->ang;
-		j = ifhitbyweapon(i);
-		if (j >= 0)
-		{ 
-			hittype[i].temp_data[2] = 16; 
-		}
-		s->extra = x;
-		s->ang = l;
-	}
-
-	if (hittype[i].temp_data[0] < 32)
-	{
-		findplayer(s, &x);
-		if (x > 768) hittype[i].temp_data[0]++;
-		else if (hittype[i].temp_data[0] > 16) hittype[i].temp_data[0]++;
-	}
-	if (hittype[i].temp_data[0] == 32)
-	{
-		int16_t l = s->ang;
-		s->ang = hittype[i].temp_data[5];
-
-		hittype[i].temp_data[3] = s->x; hittype[i].temp_data[4] = s->y;
-		s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 9;
-		s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 9;
-		s->z -= (3 << 8);
-		setsprite(i, s->x, s->y, s->z);
-
-		int16_t m;
-		x = hitasprite(i, &m);
-
-		hittype[i].lastvx = x;
-
-		s->ang = l;
-
-		int k = 0;
-
-		if (lTripBombControl & TRIPBOMB_TRIPWIRE)
-		{
-			// we're on a trip wire
-			while (x > 0)
-			{
-				j = spawn(i, LASERLINE);
-				setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
-				sprite[j].hitag = s->hitag;
-				hittype[j].temp_data[1] = sprite[j].z;
-
-				s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 4;
-				s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 4;
-
-				if (x < 1024)
-				{
-					sprite[j].xrepeat = x >> 5;
-					break;
-				}
-				x -= 1024;
-			}
-		}
-
-		hittype[i].temp_data[0]++;
-		s->x = hittype[i].temp_data[3]; s->y = hittype[i].temp_data[4];
-		s->z += (3 << 8);
-		setsprite(i, s->x, s->y, s->z);
-		hittype[i].temp_data[3] = 0;
-		if (m >= 0 && lTripBombControl & TRIPBOMB_TRIPWIRE)
-		{
-			hittype[i].temp_data[2] = 13;
-			spritesound(LASERTRIP_ARMING, i);
-		}
-		else hittype[i].temp_data[2] = 0;
-	}
-	if (hittype[i].temp_data[0] == 33)
-	{
-		hittype[i].temp_data[1]++;
-
-
-		hittype[i].temp_data[3] = s->x; hittype[i].temp_data[4] = s->y;
-		s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 9;
-		s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 9;
-		s->z -= (3 << 8);
-		setsprite(i, s->x, s->y, s->z);
-
-		int16_t m;
-		x = hitasprite(i, &m);
-
-		s->x = hittype[i].temp_data[3]; s->y = hittype[i].temp_data[4];
-		s->z += (3 << 8);
-		setsprite(i, s->x, s->y, s->z);
-
-		if (hittype[i].lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
-		{
-			hittype[i].temp_data[2] = 13;
-			spritesound(LASERTRIP_ARMING, i);
-		}
 	}
 }
 
@@ -2228,7 +1007,7 @@ static void movetripbomb(int i)
 //
 //---------------------------------------------------------------------------
 
-static void detonate(int i)
+void detonate(int i, int explosion)
 {
 	auto s = &sprite[i];
 	auto t = &hittype[i].temp_data[0];
@@ -2262,7 +1041,7 @@ static void detonate(int i)
 	if ((t[3] == 1 && s->xrepeat) || s->lotag == -99)
 	{
 		int x = s->extra;
-		spawn(i, EXPLOSION2);
+		spawn(i, explosion);
 		hitradius(i, seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		spritesound(PIPEBOMB_EXPLODE, i);
 	}
@@ -2280,176 +1059,7 @@ static void detonate(int i)
 //
 //---------------------------------------------------------------------------
 
-static void movecrack(int i)
-{
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	if (s->hitag > 0)
-	{
-		t[0] = s->cstat;
-		t[1] = s->ang;
-		int j = ifhitbyweapon(i);
-
-		bool res = !isRR() ?
-			isIn(j, FIREEXT, RPG, RADIUSEXPLOSION, SEENINE, OOZFILTER) :
-			(isIn(j, RR_CROSSBOW, RR_RADIUSEXPLOSION, RR_SEENINE, RR_OOZFILTER) || (isRRRA() && j == RR_CHIKENCROSSBOW));
-
-		if (res)
-		{
-			j = headspritestat[STAT_STANDABLE];
-			while (j >= 0)
-			{
-				if (s->hitag == sprite[j].hitag && (isRR() ? isIn(sprite[j].picnum, RR_OOZFILTER, RR_SEENINE) : isIn(sprite[j].picnum, OOZFILTER, SEENINE)))
-					if (sprite[j].shade != -32)
-						sprite[j].shade = -32;
-				j = nextspritestat[j];
-			}
-			detonate(i);
-		}
-		else
-		{
-			s->cstat = t[0];
-			s->ang = t[1];
-			s->extra = 0;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// Duke only
-//
-//---------------------------------------------------------------------------
-
-static void movefireext(int i)
-{
-	int j = ifhitbyweapon(i);
-	if (j == -1) return;
-
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-
-	for (int k = 0; k < 16; k++)
-	{
-		j = EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[i].zvel >> 2), i, 5);
-		sprite[j].pal = 2;
-	}
-
-	spawn(i, EXPLOSION2);
-	spritesound(PIPEBOMB_EXPLODE, i);
-	spritesound(GLASS_HEAVYBREAK, i);
-
-	if (s->hitag > 0)
-	{
-		j = headspritestat[6];
-		while (j >= 0)
-		{
-			if (s->hitag == sprite[j].hitag && (sprite[j].picnum == OOZFILTER || sprite[j].picnum == SEENINE))
-				if (sprite[j].shade != -32)
-					sprite[j].shade = -32;
-			j = nextspritestat[j];
-		}
-
-		int x = s->extra;
-		spawn(i, EXPLOSION2);
-		hitradius(i, pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
-		spritesound(PIPEBOMB_EXPLODE, i);
-		detonate(i);
-	}
-	else
-	{
-		hitradius(i, seenineblastradius, 10, 15, 20, 25);
-		deletesprite(i);
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-static void moveooz(int i)
-{
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	int j;
-	if (s->shade != -32 && s->shade != -33)
-	{
-		if (s->xrepeat)
-			j = (ifhitbyweapon(i) >= 0);
-		else
-			j = 0;
-
-		if (j || s->shade == -31)
-		{
-			if (j) s->lotag = 0;
-
-			t[3] = 1;
-
-			j = headspritestat[STAT_STANDABLE];
-			while (j >= 0)
-			{
-				if (s->hitag == sprite[j].hitag && (sprite[j].picnum == pPick(SEENINE) || sprite[j].picnum == pPick(OOZFILTER)))
-					sprite[j].shade = -32;
-				j = nextspritestat[j];
-			}
-		}
-	}
-	else
-	{
-		if (s->shade == -32)
-		{
-			if (s->lotag > 0)
-			{
-				s->lotag -= 3;
-				if (s->lotag <= 0) s->lotag = -99;
-			}
-			else
-				s->shade = -33;
-		}
-		else
-		{
-			if (s->xrepeat > 0)
-			{
-				hittype[i].temp_data[2]++;
-				if (hittype[i].temp_data[2] == 3)
-				{
-					if (s->picnum == pPick(OOZFILTER))
-					{
-						hittype[i].temp_data[2] = 0;
-						detonate(i);
-						return;
-					}
-					if (s->picnum != (pPick(SEENINEDEAD) + 1))
-					{
-						hittype[i].temp_data[2] = 0;
-
-						if (s->picnum == pPick(SEENINEDEAD)) s->picnum++;
-						else if (s->picnum == pPick(SEENINE))
-							s->picnum = pPick(SEENINEDEAD);
-					}
-					else
-					{
-						detonate(i);
-						return;
-					}
-				}
-				return;
-			}
-			detonate(i);
-			return;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void movemasterswitch(int i)
+void movemasterswitch(int i, int spectype1, int spectype2)
 {
 	auto s = &sprite[i];
 	auto t = &hittype[i].temp_data[0];
@@ -2481,7 +1091,7 @@ void movemasterswitch(int i)
 				}
 				else if (sprite[j].statnum == 6)
 				{
-					if (sprite[j].picnum == pPick(SEENINE) || sprite[j].picnum == pPick(OOZFILTER))
+					if (sprite[j].picnum == spectype1 || sprite[j].picnum == spectype2) // SEENINE and OOZFILTER
 					{
 						sprite[j].shade = -31;
 					}
@@ -2499,38 +1109,7 @@ void movemasterswitch(int i)
 //
 //---------------------------------------------------------------------------
 
-static void moveviewscreen(int i)
-{
-	auto s = &sprite[i];
-	if (s->xrepeat == 0) deletesprite(i);
-	else
-	{
-		int x;
-		findplayer(s, &x);
-
-		if (x < 2048)
-		{
-#if 0
-			if (SP == 1)
-				camsprite = i;
-#endif
-		}
-		else if (camsprite != -1 && hittype[i].temp_data[0] == 1)
-		{
-			camsprite = -1;
-			s->yvel = 0;
-			hittype[i].temp_data[0] = 0;
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-static void movetrash(int i)
+void movetrash(int i)
 {
 	auto s = &sprite[i];
 	if (s->xvel == 0) s->xvel = 1;
@@ -2546,124 +1125,11 @@ static void movetrash(int i)
 
 //---------------------------------------------------------------------------
 //
-// Duke only
-//
-//---------------------------------------------------------------------------
-
-static void movesidebolt(int i)
-{
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	int x;
-	int sect = s->sectnum;
-
-	auto p = findplayer(s, &x);
-	if (x > 20480) return;
-
-CLEAR_THE_BOLT2:
-	if (t[2])
-	{
-		t[2]--;
-		return;
-	}
-	if ((s->xrepeat | s->yrepeat) == 0)
-	{
-		s->xrepeat = t[0];
-		s->yrepeat = t[1];
-	}
-	if ((krand() & 8) == 0)
-	{
-		t[0] = s->xrepeat;
-		t[1] = s->yrepeat;
-		t[2] = global_random & 4;
-		s->xrepeat = s->yrepeat = 0;
-		goto CLEAR_THE_BOLT2;
-	}
-	s->picnum++;
-
-#if 0
-	// content of l was undefined.
-	if (l & 1) s->cstat ^= 2;
-#endif
-
-	if ((krand() & 1) && sector[sect].floorpicnum == HURTRAIL)
-		spritesound(SHORT_CIRCUIT, i);
-
-	if (s->picnum == SIDEBOLT1 + 4) s->picnum = SIDEBOLT1;
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
 
-static void movebolt(int i)
-{
-	auto s = &sprite[i];
-	auto t = &hittype[i].temp_data[0];
-	int x;
-	int sect = s->sectnum;
-
-	auto p = findplayer(s, &x);
-	if (x > 20480) return;
-
-	if (t[3] == 0)
-		t[3] = sector[sect].floorshade;
-
-CLEAR_THE_BOLT:
-	if (t[2])
-	{
-		t[2]--;
-		sector[sect].floorshade = 20;
-		sector[sect].ceilingshade = 20;
-		return;
-	}
-	if ((s->xrepeat | s->yrepeat) == 0)
-	{
-		s->xrepeat = t[0];
-		s->yrepeat = t[1];
-	}
-	else if ((krand() & 8) == 0)
-	{
-		t[0] = s->xrepeat;
-		t[1] = s->yrepeat;
-		t[2] = global_random & 4;
-		s->xrepeat = s->yrepeat = 0;
-		goto CLEAR_THE_BOLT;
-	}
-	s->picnum++;
-
-	int l = global_random & 7;
-	s->xrepeat = l + 8;
-
-	if (l & 1) s->cstat ^= 2;
-
-	auto bolt1 = pPick(BOLT1);
-	if (s->picnum == (bolt1 + 1) && (isRR() ? (krand() & 1) != 0 : (krand() & 7) == 0) && sector[sect].floorpicnum == pPick(HURTRAIL) )
-		spritesound(SHORT_CIRCUIT, i);
-
-	if (s->picnum == bolt1 + 4) s->picnum = bolt1;
-
-	if (s->picnum & 1)
-	{
-		sector[sect].floorshade = 0;
-		sector[sect].ceilingshade = 0;
-	}
-	else
-	{
-		sector[sect].floorshade = 20;
-		sector[sect].ceilingshade = 20;
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-static void movewaterdrip(int i)
+void movewaterdrip(int i, int drip)
 {
 	auto s = &sprite[i];
 	auto t = &hittype[i].temp_data[0];
@@ -2688,7 +1154,7 @@ static void movewaterdrip(int i)
 			if (s->pal != 2 && (isRR() || s->hitag == 0))
 				spritesound(SOMETHING_DRIPPING, i);
 
-			if (sprite[s->owner].picnum != pPick(WATERDRIP))
+			if (sprite[s->owner].picnum != drip)
 			{
 				deletesprite(i);
 			}
@@ -2707,7 +1173,7 @@ static void movewaterdrip(int i)
 //
 //---------------------------------------------------------------------------
 
-static void movedoorshock(int i)
+void movedoorshock(int i)
 {
 	auto s = &sprite[i];
 	int sect = s->sectnum;
@@ -2723,7 +1189,7 @@ static void movedoorshock(int i)
 //
 //---------------------------------------------------------------------------
 
-static void movetouchplate(int i)
+void movetouchplate(int i, int plate)
 {
 	auto s = &sprite[i];
 	auto t = &hittype[i].temp_data[0];
@@ -2793,7 +1259,7 @@ static void movetouchplate(int i)
 		int j = headspritestat[STAT_STANDABLE];
 		while (j >= 0)
 		{
-			if (j != i && sprite[j].picnum == TOUCHPLATE && sprite[j].lotag == s->lotag)
+			if (j != i && sprite[j].picnum == plate && sprite[j].lotag == s->lotag)
 			{
 				hittype[j].temp_data[1] = 1;
 				hittype[j].temp_data[3] = t[3];
@@ -2809,7 +1275,87 @@ static void movetouchplate(int i)
 //
 //---------------------------------------------------------------------------
 
-static void movecanwithsomething(int i)
+void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion)
+{
+	auto s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int j;
+	if (s->shade != -32 && s->shade != -33)
+	{
+		if (s->xrepeat)
+			j = (ifhitbyweapon(i) >= 0);
+		else
+			j = 0;
+
+		if (j || s->shade == -31)
+		{
+			if (j) s->lotag = 0;
+
+			t[3] = 1;
+
+			j = headspritestat[STAT_STANDABLE];
+			while (j >= 0)
+			{
+				if (s->hitag == sprite[j].hitag && (sprite[j].picnum == seenine || sprite[j].picnum == ooz))
+					sprite[j].shade = -32;
+				j = nextspritestat[j];
+			}
+		}
+	}
+	else
+	{
+		if (s->shade == -32)
+		{
+			if (s->lotag > 0)
+			{
+				s->lotag -= 3;
+				if (s->lotag <= 0) s->lotag = -99;
+			}
+			else
+				s->shade = -33;
+		}
+		else
+		{
+			if (s->xrepeat > 0)
+			{
+				hittype[i].temp_data[2]++;
+				if (hittype[i].temp_data[2] == 3)
+				{
+					if (s->picnum == ooz)
+					{
+						hittype[i].temp_data[2] = 0;
+						detonate(i, explosion);
+						return;
+					}
+					if (s->picnum != (seeninedead + 1))
+					{
+						hittype[i].temp_data[2] = 0;
+
+						if (s->picnum == seeninedead) s->picnum++;
+						else if (s->picnum == seenine)
+							s->picnum = seeninedead;
+					}
+					else
+					{
+						detonate(i, explosion);
+						return;
+					}
+				}
+				return;
+			}
+			detonate(i, explosion);
+			return;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void movecanwithsomething(int i)
 {
 	auto s = &sprite[i];
 	makeitfall(i);
@@ -2828,158 +1374,11 @@ static void movecanwithsomething(int i)
 
 //---------------------------------------------------------------------------
 //
-// this has been broken up into lots of smaller subfunctions
-//
-//---------------------------------------------------------------------------
-
-void movestandables(void)
-{
-	int nexti;
-	
-	for (int i = headspritestat[STAT_STANDABLE]; i >= 0; i = nexti)
-	{
-		nexti = nextspritestat[i];
-
-		auto s = &sprite[i];
-		int picnum = s->picnum;
-
-		if (s->sectnum < 0)
-		{
-			deletesprite(i);
-			continue;
-		}
-
-		hittype[i].bposx = s->x;
-		hittype[i].bposy = s->y;
-		hittype[i].bposz = s->z;
-
-
-		if (picnum >= pPick(CRANE) && picnum <= pPick(CRANE) +3)
-		{
-			movecrane(i);
-		}
-
-		else if (picnum >= pPick(WATERFOUNTAIN) && picnum <= pPick(WATERFOUNTAIN) + 3)
-		{
-			movefountain(i);
-		}
-
-		else if (AFLAMABLE(picnum))
-		{
-			moveflammable(i);
-		}
-
-		else if (!isRR() && picnum == TRIPBOMB)
-		{
-			movetripbomb(i);
-		}
-
-		else if (picnum >= pPick(CRACK1) && picnum <= pPick(CRACK1)+3)
-		{
-			movecrack(i);
-		}
-
-		else if (!isRR() && picnum == FIREEXT)
-		{
-			movefireext(i);
-		}
-
-		else if (picnum == pPick(OOZFILTER) || picnum == pPick(SEENINE) || picnum == pPick(SEENINEDEAD) || picnum == (pPick(SEENINEDEAD) + 1))
-		{
-			moveooz(i);
-		}
-
-		else if (picnum == MASTERSWITCH)
-		{
-			movemasterswitch(i);
-		}
-
-		else if (!isRR() && (picnum == VIEWSCREEN || picnum == VIEWSCREEN2))
-		{
-			moveviewscreen(i);
-		}
-
-		else if (picnum == pPick(TRASH))
-		{
-			movetrash(i);
-		}
-
-		else if (!isRR() && picnum >= SIDEBOLT1 && picnum <= SIDEBOLT1 + 3)
-		{
-			movesidebolt(i);
-		}
-
-		else if (picnum >= pPick(BOLT1) && picnum <= pPick(BOLT1) + 3)
-		{
-			movebolt(i);
-		}
-
-		else if (picnum == pPick(WATERDRIP))
-		{
-			movewaterdrip(i);
-		}
-
-		else if (picnum == pPick(DOORSHOCK))
-		{
-			movedoorshock(i);
-		}
-
-		else if (picnum == TOUCHPLATE)
-		{
-			movetouchplate(i);
-		}
-
-		else if (isRR() ? picnum == RR_CANWITHSOMETHING : isIn(picnum, CANWITHSOMETHING, CANWITHSOMETHING2, CANWITHSOMETHING3, CANWITHSOMETHING4))
-		{
-			movecanwithsomething(i);
-		}
-
-		else if (!isRR() ?
-			isIn(picnum,
-				EXPLODINGBARREL,
-				WOODENHORSE,
-				HORSEONSIDE,
-				FLOORFLAME,
-				FIREBARREL,
-				FIREVASE,
-				NUKEBARREL,
-				NUKEBARRELDENTED,
-				NUKEBARRELLEAKED,
-				TOILETWATER,
-				RUBBERCAN,
-				STEAM,
-				CEILINGSTEAM,
-				WATERBUBBLEMAKER) :
-			isIn(picnum,
-				RR_1187,
-				RR_1196,
-				RR_1251,
-				RR_1268,
-				RR_1304,
-				RR_1305,
-				RR_1306,
-				RR_1315,
-				RR_1317,
-				RR_1388,
-				RR_STEAM,
-				RR_CEILINGSTEAM,
-				RR_WATERBUBBLEMAKER)
-			)
-		{
-			int x;
-			int p = findplayer(s, &x);
-			execute(i, p, x);
-		}
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
 
-static void bounce(int i)
+void bounce(int i)
 {
 	int k, l, daang, dax, day, daz, xvect, yvect, zvect;
 	short hitsect;
@@ -3020,11 +1419,11 @@ static void bounce(int i)
 
 //---------------------------------------------------------------------------
 //
-// 
+// taken out of moveweapon
 //
 //---------------------------------------------------------------------------
 
-static void movetongue(int i)
+void movetongue(int i, int tongue, int jaw)
 {
 	spritetype* s = &sprite[i];
 
@@ -3053,7 +1452,7 @@ static void movetongue(int i)
 		int q = EGS(s->sectnum,
 			s->x + ((k * sintable[(s->ang + 512) & 2047]) >> 9),
 			s->y + ((k * sintable[s->ang & 2047]) >> 9),
-			s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), pPick(TONGUE), -40 + (k << 1),
+			s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), tongue, -40 + (k << 1),
 			8, 8, 0, 0, 0, i, 5);
 		sprite[q].cstat = 128;
 		sprite[q].pal = 8;
@@ -3062,604 +1461,11 @@ static void movetongue(int i)
 	int q = EGS(s->sectnum,
 		s->x + ((k * sintable[(s->ang + 512) & 2047]) >> 9),
 		s->y + ((k * sintable[s->ang & 2047]) >> 9),
-		s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), pPick(INNERJAW), -40,
+		s->z + ((k * ksgn(s->zvel)) * abs(s->zvel / 12)), jaw, -40,
 		32, 32, 0, 0, 0, i, 5);
 	sprite[q].cstat = 128;
 	if (hittype[i].temp_data[1] > 512 && hittype[i].temp_data[1] < (1024))
-		sprite[q].picnum = pPick(INNERJAW) + 1;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void moveweapons(void)
-{
-	int j, k, nexti, p, q, tempsect;
-	int dax, day, daz, x, l, ll, x1, y1;
-	unsigned int qq;
-	spritetype* s;
-
-	for (int i = headspritestat[STAT_PROJECTILE];  i >= 0; i = nexti)
-	{
-		nexti = nextspritestat[i];
-		s = &sprite[i];
-		int picnum = picnum;
-
-		if (s->sectnum < 0)
-		{
-			deletesprite(i);
-			continue;
-		}
-
-		hittype[i].bposx = s->x;
-		hittype[i].bposy = s->y;
-		hittype[i].bposz = s->z;
-
-		if (picnum == pPick(RADIUSEXPLOSION) || (!isRR() && picnum == KNEE))
-		{
-			deletesprite(i);
-		}
-
-		else if (picnum == pPick(TONGUE))
-		{
-			movetongue(i);
-		}
-
-		else if (picnum == pPick2(FREEZEBLAST, RR_ALIENBLAST) && (s->yvel < 1 || s->extra < 2 || (s->xvel | s->zvel) == 0))
-		{
-			j = spawn(i, pPick(TRANSPORTERSTAR));
-			sprite[j].pal = 1;
-			sprite[j].xrepeat = 32;
-			sprite[j].yrepeat = 32;
-			deletesprite(i);
-			continue;
-		}
-
-		else if (!isRR() ?
-			(isIn(picnum, FREEZEBLAST, SHRINKSPARK, RPG, FIRELASER, SPIT, COOLEXPLOSION1) || (isWorldTour() && picnum == FIREBALL)) :
-			(isIn(picnum, RR_ALIENBLAST, RR_CROSSBOW, RR_FIRELASER, RR_SHITBALL, RR_CIRCLESAW, RR_UWHIP, RR_OWHIP, RR_DILDO) || (isRRRA() && isIn(picnum, RR_CHIKENCROSSBOW, RR_1790)))
-			)
-		{
-			if (!isRR() && picnum == COOLEXPLOSION1)
-				if (!S_CheckSoundPlaying(i, WIERDSHOT_FLY))
-					A_PlaySound(WIERDSHOT_FLY, i);
-
-			p = -1;
-
-			if ((picnum == pPick2(RPG, RR_CROSSBOW) || (isRRRA() && picnum == RR_CHIKENCROSSBOW)) && sector[s->sectnum].lotag == 2)
-			{
-				k = s->xvel >> 1;
-				ll = s->zvel >> 1;
-			}
-			else
-			{
-				k = s->xvel;
-				ll = s->zvel;
-			}
-
-			dax = s->x; day = s->y; daz = s->z;
-
-			getglobalz(i);
-			qq = CLIPMASK1;
-
-			if (picnum == pPick2(RPG, RR_CROSSBOW))
-			{
-				if (hittype[i].picnum != pPick(BOSS2) && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
-				{
-					j = spawn(i, pPick(SMALLSMOKE));
-					sprite[j].z += (1 << 8);
-				}
-			}
-			else if (isRRRA() && picnum == RR_CHIKENCROSSBOW)
-			{
-				s->hitag++;
-				if (hittype[i].picnum != RR_BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
-				{
-					j = spawn(i, RR_SMALLSMOKE);
-					sprite[j].z += (1 << 8);
-					if ((krand() & 15) == 2)
-					{
-						j = spawn(i, RR_1310);
-					}
-				}
-				if (sprite[s->lotag].extra <= 0)
-					s->lotag = 0;
-				if (s->lotag != 0 && s->hitag > 5)
-				{
-					spritetype* ts;
-					int ang, ang2, ang3;
-					ts = &sprite[s->lotag];
-					ang = getangle(ts->x - s->x, ts->y - s->y);
-					ang2 = ang - s->ang;
-					ang3 = abs(ang2);
-					if (ang2 < 100)
-					{
-						if (ang3 > 1023)
-							s->ang += 51;
-						else
-							s->ang -= 51;
-					}
-					else if (ang2 > 100)
-					{
-						if (ang3 > 1023)
-							s->ang -= 51;
-						else
-							s->ang += 51;
-					}
-					else
-						s->ang = ang;
-
-					if (s->hitag > 180)
-						if (s->zvel <= 0)
-							s->zvel += 200;
-				}
-			}
-			else if (isRRRA() && picnum == RR_1790)
-			{
-				if (s->extra)
-				{
-					s->zvel = -(s->extra * 250);
-					s->extra--;
-				}
-				else
-					makeitfall(i);
-				if (s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
-				{
-					j = spawn(i, RR_SMALLSMOKE);
-					sprite[j].z += (1 << 8);
-				}
-			}
-			else if (isWorldTour() && picnum == FIREBALL)
-			{
-				if (sector[s->sectnum].lotag == 2)
-				{
-					deletesprite(i);
-					continue;
-				}
-
-				if (sprite[s->owner].picnum != FIREBALL)
-				{
-					if (hittype[i].temp_data[0] >= 1 && hittype[i].temp_data[0] < 6)
-					{
-						float siz = 1.0f - (hittype[i].temp_data[0] * 0.2f);
-						int trail = hittype[i].temp_data[1];
-						j = hittype[i].temp_data[1] = spawn(i, FIREBALL);
-
-						auto spr = &sprite[j];
-						spr->xvel = sprite[i].xvel;
-						spr->yvel = sprite[i].yvel;
-						spr->zvel = sprite[i].zvel;
-						if (hittype[i].temp_data[0] > 1)
-						{
-							FireProj* proj = fire.CheckKey(trail);
-							if (proj != nullptr)
-							{
-								spr->x = proj->x;
-								spr->y = proj->y;
-								spr->z = proj->z;
-								spr->xvel = proj->xv;
-								spr->yvel = proj->yv;
-								spr->zvel = proj->zv;
-							}
-						}
-						spr->yrepeat = spr->xrepeat = (short)(sprite[i].xrepeat * siz);
-						spr->cstat = sprite[i].cstat;
-						spr->extra = 0;
-
-						FireProj proj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
-						fire.Insert(j, proj);
-						changespritestat((short)j, (short)4);
-					}
-					hittype[i].temp_data[0]++;
-				}
-
-				if (s->zvel < 15000)
-					s->zvel += 200;
-			}
-
-			j = movesprite(i,
-				(k * (sintable[(s->ang + 512) & 2047])) >> 14,
-				(k * (sintable[s->ang & 2047])) >> 14, ll, qq);
-
-			if ((picnum == pPick2(RPG, RR_CROSSBOW) || (isRRRA() && isIn(picnum, RR_CHIKENCROSSBOW, RR_1790))) && s->yvel >= 0)
-				if (FindDistance2D(s->x - sprite[s->yvel].x, s->y - sprite[s->yvel].y) < 256)
-					j = 49152 | s->yvel;
-
-			if (s->sectnum < 0) // || (isRR() && sector[s->sectnum].filler == 800))
-			{
-				deletesprite(i);
-				continue;
-			}
-
-			if ((j & 49152) != 49152)
-				if (picnum != pPick2(FREEZEBLAST, RR_ALIENBLAST))
-				{
-					if (s->z < hittype[i].ceilingz)
-					{
-						j = 16384 | (s->sectnum);
-						s->zvel = -1;
-					}
-					else
-						if ((s->z > hittype[i].floorz && sector[s->sectnum].lotag != 1) ||
-							(s->z > hittype[i].floorz + (16 << 8) && sector[s->sectnum].lotag == 1))
-						{
-							j = 16384 | (s->sectnum);
-							if (sector[s->sectnum].lotag != 1)
-								s->zvel = 1;
-						}
-				}
-
-			if (picnum == pPick(FIRELASER))
-			{
-				for (k = -3; k < 2; k++)
-				{
-					x = EGS(s->sectnum,
-						s->x + ((k * sintable[(s->ang + 512) & 2047]) >> 9),
-						s->y + ((k * sintable[s->ang & 2047]) >> 9),
-						s->z + ((k * ksgn(s->zvel)) * klabs(s->zvel / 24)), pPick(FIRELASER), -40 + (k << 2),
-						s->xrepeat, s->yrepeat, 0, 0, 0, s->owner, 5);
-
-					sprite[x].cstat = 128;
-					sprite[x].pal = s->pal;
-				}
-			}
-			else if (picnum == pPick2(SPIT, RR_SHITBALL)) if (s->zvel < 6144)
-				s->zvel += gc - 112;
-
-			if (j != 0)
-			{
-				if (!isRR() && picnum == COOLEXPLOSION1)
-				{
-					if ((j & 49152) == 49152 && sprite[j & (MAXSPRITES - 1)].picnum != APLAYER)
-					{
-						continue;
-					}
-					s->xvel = 0;
-					s->zvel = 0;
-				}
-
-				//if ((j & kHitTypeMask) == kHitSprite) j &= kHitIndexMask; reminder for later.
-				if ((j & 49152) == 49152)
-				{
-					j &= (MAXSPRITES - 1);
-
-					if (isRRRA())
-					{
-						if (sprite[j].picnum == RR_MINION
-							&& (picnum == RR_CROSSBOW || picnum == RR_CHIKENCROSSBOW)
-							&& sprite[j].pal == 19)
-						{
-							spritesound(RPG_EXPLODE, i);
-							j = spawn(i, RR_EXPLOSION2);
-							sprite[j].x = s->x;
-							sprite[j].y = s->y;
-							sprite[j].z = s->z;
-							continue;
-						}
-					}
-					else if (picnum == pPick2(FREEZEBLAST, RR_ALIENBLAST) && sprite[j].pal == 1)
-						if (badguy(&sprite[j]) || sprite[j].picnum == APLAYER)
-						{
-							j = spawn(i, pPick(TRANSPORTERSTAR));
-							sprite[j].pal = 1;
-							sprite[j].xrepeat = 32;
-							sprite[j].yrepeat = 32;
-
-							deletesprite(i);
-							continue;
-						}
-
-					checkhitsprite(j, i);
-
-					if (sprite[j].picnum == APLAYER)
-					{
-						p = sprite[j].yvel;
-						spritesound(PISTOL_BODYHIT, j);
-
-						if (picnum == pPick2(SPIT, RR_SHITBALL))
-						{
-							if (sprite[s->owner].picnum == RR_MAMAJACKOLOPE)
-							{
-								guts(s, RR_RABBITJIBA, 2, myconnectindex);
-								guts(s, RR_RABBITJIBB, 2, myconnectindex);
-								guts(s, RR_RABBITJIBC, 2, myconnectindex);
-							}
-
-							ps[p].q16horiz += 32 << FRACBITS;
-							ps[p].return_to_center = 8;
-
-							if (ps[p].loogcnt == 0)
-							{
-								if (!A_CheckSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN))
-									A_PlaySound(DUKE_LONGTERM_PAIN, ps[p].i);
-
-								j = 3 + (krand() & 3);
-								ps[p].numloogs = j;
-								ps[p].loogcnt = 24 * 4;
-								for (x = 0; x < j; x++)
-								{
-									ps[p].loogiex[x] = krand() % xdim;
-									ps[p].loogiey[x] = krand() % ydim;
-								}
-							}
-						}
-					}
-				}
-				else if ((j & 49152) == 32768)
-				{
-					j &= (MAXWALLS - 1);
-
-					if (isRRRA() && sprite[s->owner].picnum == RR_MAMAJACKOLOPE)
-					{
-						guts(s, RR_RABBITJIBA, 2, myconnectindex);
-						guts(s, RR_RABBITJIBB, 2, myconnectindex);
-						guts(s, RR_RABBITJIBC, 2, myconnectindex);
-					}
-
-					bool ismirror = (wall[j].overpicnum == pPick(MIRROR) || wall[j].picnum == pPick(MIRROR));
-					if (ismirror && !isRR() ?
-						isIn(picnum, RPG, FREEZEBLAST, SPIT) :
-						(isIn(picnum, RR_CROSSBOW, RR_ALIENBLAST, RR_SHITBALL, RR_CIRCLESAW) || (isRRRA() && picnum == RR_CHIKENCROSSBOW))
-						)
-					{
-						k = getangle(
-							wall[wall[j].point2].x - wall[j].x,
-							wall[wall[j].point2].y - wall[j].y);
-						s->ang = ((k << 1) - s->ang) & 2047;
-						s->owner = i;
-						spawn(i, pPick(TRANSPORTERSTAR));
-						continue;
-					}
-					else
-					{
-						setsprite(i, dax, day, daz);
-						checkhitwall(i, j, s->x, s->y, s->z, picnum);
-
-						if (!isRRRA() && picnum == pPick2(FREEZEBLAST, RR_ALIENBLAST))
-						{
-							if (!ismirror)
-							{
-								s->extra >>= 1;
-								s->yvel--;
-							}
-
-							k = getangle(
-								wall[wall[j].point2].x - wall[j].x,
-								wall[wall[j].point2].y - wall[j].y);
-							s->ang = ((k << 1) - s->ang) & 2047;
-							continue;
-						}
-
-						if (isRR() && s->picnum == RR_CIRCLESAW)
-						{
-							if (wall[j].picnum >= RR_3643 && wall[j].picnum < RR_3643 + 3)
-							{
-								deletesprite(i);
-							}
-							if (s->extra <= 0)
-							{
-								s->x += sintable[(s->ang + 512) & 2047] >> 7;
-								s->y += sintable[s->ang & 2047] >> 7;
-								if (!isRRRA() || (sprite[s->owner].picnum != RR_DAISYMAE && sprite[s->owner].picnum != RR_DAISYMAESTAYPUT))
-								{
-									j = spawn(i, RR_CIRCLESTUCK);
-									sprite[j].xrepeat = 8;
-									sprite[j].yrepeat = 8;
-									sprite[j].cstat = 16;
-									sprite[j].ang = (sprite[j].ang + 512) & 2047;
-									sprite[j].clipdist = mulscale7(s->xrepeat, tilesiz[s->picnum].x);
-								}
-								deletesprite(i);
-								continue;
-							}
-							if (!ismirror)
-							{
-								s->extra -= 20;
-								s->yvel--;
-							}
-
-							k = getangle(
-								wall[wall[j].point2].x - wall[j].x,
-								wall[wall[j].point2].y - wall[j].y);
-							s->ang = ((k << 1) - s->ang) & 2047;
-							continue;
-						}
-					}
-				}
-				else if ((j & 49152) == 16384)
-				{
-					setsprite(i, dax, day, daz);
-
-					if (isRRRA() && sprite[s->owner].picnum == RR_MAMAJACKOLOPE)
-					{
-						guts(s, RR_RABBITJIBA, 2, myconnectindex);
-						guts(s, RR_RABBITJIBB, 2, myconnectindex);
-						guts(s, RR_RABBITJIBC, 2, myconnectindex);
-					}
-
-					if (s->zvel < 0)
-					{
-						if (sector[s->sectnum].ceilingstat & 1)
-							if (sector[s->sectnum].ceilingpal == 0)
-							{
-								deletesprite(i);
-								continue;
-							}
-
-						checkhitceiling(s->sectnum);
-					}
-
-					if (!isRRRA() && picnum == pPick2(FREEZEBLAST, RR_ALIENBLAST))
-					{
-						bounce(i);
-						ssp(i, qq);
-						s->extra >>= 1;
-						if (s->xrepeat > 8)
-							s->xrepeat -= 2;
-						if (s->yrepeat > 8)
-							s->yrepeat -= 2;
-						s->yvel--;
-						continue;
-					}
-				}
-
-				if (picnum != pPick2(SPIT, RR_SHITBALL))
-				{
-					if (picnum == pPick2(RPG, RR_CROSSBOW))
-					{
-						k = spawn(i, pPick(EXPLOSION2));
-						sprite[k].x = dax;
-						sprite[k].y = day;
-						sprite[k].z = daz;
-
-						if (s->xrepeat < 10)
-						{
-							sprite[k].xrepeat = 6;
-							sprite[k].yrepeat = 6;
-						}
-						else if ((j & 49152) == 16384)
-						{
-							if (!isRR() && s->zvel > 0)
-								spawn(i, EXPLOSION2BOT);
-							else { sprite[k].cstat |= 8; sprite[k].z += (48 << 8); }
-						}
-					}
-					else if (isRRRA() && s->picnum == RR_CHIKENCROSSBOW)
-					{
-						k = spawn(i, RR_EXPLOSION2);
-						sprite[k].x = dax;
-						sprite[k].y = day;
-						sprite[k].z = daz;
-
-						if (s->xrepeat < 10)
-						{
-							sprite[k].xrepeat = 6;
-							sprite[k].yrepeat = 6;
-						}
-						else if ((j & 49152) == 16384)
-						{
-							sprite[k].cstat |= 8;
-							sprite[k].z += (48 << 8);
-						}
-					}
-					else if (isRRRA() && s->picnum == RR_1790)
-					{
-						s->extra = 160;
-						k = spawn(i, RR_EXPLOSION2);
-						sprite[k].x = dax;
-						sprite[k].y = day;
-						sprite[k].z = daz;
-
-						if (s->xrepeat < 10)
-						{
-							sprite[k].xrepeat = 6;
-							sprite[k].yrepeat = 6;
-						}
-						else if ((j & 49152) == 16384)
-						{
-							sprite[k].cstat |= 8;
-							sprite[k].z += (48 << 8);
-						}
-					}
-
-					else if (!isRR() && picnum == SHRINKSPARK)
-					{
-						spawn(i, SHRINKEREXPLOSION);
-						spritesound(SHRINKER_HIT, i);
-						hitradius(i, shrinkerblastradius, 0, 0, 0, 0);
-					}
-					else if (!isRR() ?
-						!isIn(picnum, COOLEXPLOSION1, FREEZEBLAST, FIRELASER) :
-						!isIn(picnum, RR_ALIENBLAST, RR_FIRELASER, RR_CIRCLESAW))
-					{
-						k = spawn(i, pPick(EXPLOSION2));
-						sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat >> 1;
-						if ((j & 49152) == 16384)
-						{
-							if (s->zvel < 0)
-							{
-								sprite[k].cstat |= 8; sprite[k].z += (72 << 8);
-							}
-						}
-					}
-					if (picnum == pPick2(RPG, RR_CROSSBOW))
-					{
-						spritesound(RPG_EXPLODE, i);
-
-						if (s->xrepeat >= 10)
-						{
-							x = s->extra;
-							hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
-						}
-						else
-						{
-							x = s->extra + (global_random & 3);
-							hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
-						}
-					}
-					else if (isRRRA() && s->picnum == RR_CHIKENCROSSBOW)
-					{
-						s->extra = 150;
-						spritesound(247, i);
-
-						if (s->xrepeat >= 10)
-						{
-							x = s->extra;
-							hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
-						}
-						else
-						{
-							x = s->extra + (global_random & 3);
-							hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
-						}
-					}
-					else if (s->picnum == RR_1790)
-					{
-						s->extra = 160;
-						spritesound(RPG_EXPLODE, i);
-
-						if (s->xrepeat >= 10)
-						{
-							x = s->extra;
-							hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
-						}
-						else
-						{
-							x = s->extra + (global_random & 3);
-							hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
-						}
-					}
-
-				}
-				if (isRR() || picnum != COOLEXPLOSION1)
-				{
-					deletesprite(i);
-					continue;
-				}
-			}
-			if (!isRR() && picnum == COOLEXPLOSION1)
-			{
-				s->shade++;
-				if (s->shade >= 40)
-				{
-					deletesprite(i);
-					continue;
-				}
-			}
-			else if ((picnum == pPick2(RPG, RR_CROSSBOW) || (isRRRA() && picnum == RR_CHIKENCROSSBOW)) && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(140))
-				spawn(i, pPick(WATERBUBBLE));
-
-			continue;
-		}
-		else if (picnum == pPick(SHOTSPARK1))
-		{
-			p = findplayer(s, &x);
-			execute(i, p, x);
-		}
-	}
+		sprite[q].picnum = jaw + 1;
 }
 
 

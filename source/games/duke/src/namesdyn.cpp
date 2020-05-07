@@ -2928,8 +2928,9 @@ void G_InitDynamicTiles(void)
 {
     int32_t i;
 
-    APLAYER = (g_gameType & GAMEFLAG_RRALL) ? RR_APLAYER : DUKE_APLAYER;
-    CAMERA1 = (g_gameType & GAMEFLAG_RRALL) ? RR_CAMERA1 : DUKE_CAMERA1;
+    // this cannot include the constant headers so it has to use literal numbers
+    APLAYER = (g_gameType & GAMEFLAG_RRALL) ? 3845 : 1405;
+    CAMERA1 = (g_gameType & GAMEFLAG_RRALL) ? 1134 : 621;
 
     Bmemset(DynamicTileMap, 0, sizeof(DynamicTileMap));
 
