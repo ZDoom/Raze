@@ -3294,6 +3294,17 @@ void getinput(int const playerNum)
     localInput.q16avel = fix16_clamp(fix16_sadd(localInput.q16avel, input.q16avel), fix16_from_int(-MAXANGVEL), fix16_from_int(MAXANGVEL));
     localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), fix16_from_int(-MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
 
+    // actually snap
+    SET_LOC_KEY(localInput.bits, SK_SNAP_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
+    SET_LOC_KEY(localInput.bits, SK_SNAP_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
+
+    // actually just look
+    SET_LOC_KEY(localInput.bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
+    SET_LOC_KEY(localInput.bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
+
+    SET_LOC_KEY(localInput.bits, SK_CENTER_VIEW, buttonMap.ButtonDown(gamefunc_Center_View));
+    SET_LOC_KEY(localInput.bits, SK_TURN_180, buttonMap.ButtonDown(gamefunc_TurnAround));
+
     if (!TEST(pp->Flags, PF_DEAD))
     {
         if (!TEST(pp->Flags, PF_CLIMBING))
@@ -3524,18 +3535,8 @@ void getinput(int const playerNum)
 		inputState.ClearKeyStatus(sc_Pause);
 	}
 
-    SET_LOC_KEY(localInput.bits, SK_CENTER_VIEW, buttonMap.ButtonDown(gamefunc_Center_View));
-
     SET_LOC_KEY(localInput.bits, SK_RUN, buttonMap.ButtonDown(gamefunc_Run));
     SET_LOC_KEY(localInput.bits, SK_SHOOT, buttonMap.ButtonDown(gamefunc_Fire));
-
-    // actually snap
-    SET_LOC_KEY(localInput.bits, SK_SNAP_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
-    SET_LOC_KEY(localInput.bits, SK_SNAP_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
-
-    // actually just look
-    SET_LOC_KEY(localInput.bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
-    SET_LOC_KEY(localInput.bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
 
     for (i = 0; i < MAX_WEAPONS_KEYS; i++)
     {
@@ -3653,8 +3654,6 @@ void getinput(int const playerNum)
     SET_LOC_KEY(localInput.bits, SK_OPERATE, buttonMap.ButtonDown(gamefunc_Open));
     SET_LOC_KEY(localInput.bits, SK_JUMP, buttonMap.ButtonDown(gamefunc_Jump));
     SET_LOC_KEY(localInput.bits, SK_CRAWL, buttonMap.ButtonDown(gamefunc_Crouch));
-
-    SET_LOC_KEY(localInput.bits, SK_TURN_180, buttonMap.ButtonDown(gamefunc_TurnAround));
 
     SET_LOC_KEY(localInput.bits, SK_INV_LEFT, buttonMap.ButtonDown(gamefunc_Inventory_Left));
     SET_LOC_KEY(localInput.bits, SK_INV_RIGHT, buttonMap.ButtonDown(gamefunc_Inventory_Right));
