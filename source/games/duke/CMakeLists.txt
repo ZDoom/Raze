@@ -1,7 +1,9 @@
 
 set( PCH_SOURCES
 	src/actors.cpp
-	src/actors_e.cpp
+	src/actors_r.cpp
+	src/actors_d.cpp
+	src/e_actors.cpp
 	src/anim.cpp
 	src/cheats.cpp
 	src/cmdline.cpp
