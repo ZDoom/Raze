@@ -3164,7 +3164,6 @@ enddisplayweapon:
 #define MAXANGVEL     1024
 #define MAXHORIZVEL   256
 
-#define MOTOTURN      20
 #define MAXVELMOTO    120
 
 int32_t g_myAimStat = 0, g_oldAimStat = 0;
@@ -3664,22 +3663,18 @@ void P_GetInputMotorcycle(int playerNum)
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
 
-    int turnAmount;
     int const turn = input.q16avel / 32;
     int turnLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
     int turnRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
     int avelScale = F16((turnLeft || turnRight) ? 1 : 0);
     if (turn)
     {
-        turnAmount = (MOTOTURN << 1);
         avelScale = fix16_max(avelScale, fix16_clamp(fix16_mul(turn, turn),0,F16(1)));
         if (turn < 0)
             turnLeft = 1;
         else if (turn > 0)
             turnRight = 1;
     }
-    else
-        turnAmount = MOTOTURN;
 
     input.svel = input.fvel = input.q16avel = 0;
 
@@ -3718,16 +3713,16 @@ void P_GetInputMotorcycle(int playerNum)
             if (turnHeldTime >= TURBOTURNTIME && pPlayer->moto_speed > 0)
             {
                 if (moveBack)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
                 else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
             }
             else
             {
                 if (moveBack)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (8 / 3))));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
                 else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (8 / 3))));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
             }
         }
         else if (turnRight || pPlayer->moto_drink > 0)
@@ -3739,16 +3734,16 @@ void P_GetInputMotorcycle(int playerNum)
             if (turnHeldTime >= TURBOTURNTIME && pPlayer->moto_speed > 0)
             {
                 if (moveBack)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
                 else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
             }
             else
             {
                 if (moveBack)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (8 / 3))));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
                 else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (8 / 3))));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
             }
         }
         else
@@ -3870,14 +3865,12 @@ void P_GetInputBoat(int playerNum)
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
 
-    int turnAmount;
     int const turn = input.q16avel / 32;
     int turnLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
     int turnRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
     int avelScale = F16((turnLeft || turnRight) ? 1 : 0);
     if (turn)
     {
-        turnAmount = (MOTOTURN << 1);
         avelScale = fix16_max(avelScale, fix16_clamp(fix16_mul(turn, turn),0,F16(1)));
         if (turn < 0)
             turnLeft = 1;
@@ -3885,7 +3878,6 @@ void P_GetInputBoat(int playerNum)
             turnRight = 1;
     }
     else
-        turnAmount = MOTOTURN;
 
     input.svel = input.fvel = input.q16avel = 0;
 
@@ -3911,15 +3903,15 @@ void P_GetInputBoat(int playerNum)
                 if (pPlayer->tilt_status < -10)
                     pPlayer->tilt_status = -10;
                 if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
                 else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (10 / 3))));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
             }
             else
                 if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / 3)));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
                 else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval((turnAmount / (10 / 3)) / 3)));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 4 : 2)));
         }
         else if (turnRight || pPlayer->moto_drink > 0)
         {
@@ -3930,15 +3922,15 @@ void P_GetInputBoat(int playerNum)
                 if (pPlayer->tilt_status > 10)
                     pPlayer->tilt_status = 10;
                 if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
                 else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (10 / 3))));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
             }
             else
                 if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / 3)));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
                 else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval((turnAmount / (10 / 3)) / 3)));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 4 : 2)));
         }
         else if (!pPlayer->not_on_water)
         {
