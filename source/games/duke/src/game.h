@@ -228,6 +228,10 @@ int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, 
                        uint8_t s_yr, int16_t s_a, int16_t s_ve, int16_t s_zv, int16_t s_ow, int16_t s_ss);
 #define EGS A_InsertSprite
 int A_Spawn(int spriteNum,int tileNum);
+inline int spawn(int s, int t)
+{
+    return A_Spawn(s, t);
+}
 int G_DoMoveThings(void);
 //int32_t G_EndOfLevel(void);
 

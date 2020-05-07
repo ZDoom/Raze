@@ -485,6 +485,15 @@ SKIPWALLCHECK:
 			nextj = nextspritestat[j];
 			sj = &sprite[j];
 
+			if (isWorldTour())
+			{
+				if (sprite[s->owner].picnum == APLAYER && sj->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && s->owner != j)
+					continue;
+
+				if (s->picnum == FLAMETHROWERFLAME && ((sprite[s->owner].picnum == FIREFLY && sj->picnum == FIREFLY) || (sprite[s->owner].picnum == BOSS5 && sj->picnum == BOSS5)))
+					continue;
+			}
+
 			if (x == 0 || x >= 5 || AFLAMABLE(sj->picnum))
 			{
 				if ((!isRR() && s->picnum != SHRINKSPARK) || (sj->cstat & 257))
@@ -520,14 +529,28 @@ SKIPWALLCHECK:
 
 						if (s->picnum == RPG && sj->extra > 0)
 							hittype[j].picnum = RPG;
-						else
+						else if (!isWorldTour())
 						{
 							if (s->picnum == SHRINKSPARK)
 								hittype[j].picnum = SHRINKSPARK;
 							else hittype[j].picnum = RADIUSEXPLOSION;
 						}
+						else
+						{
+							if (s->picnum == SHRINKSPARK || s->picnum == FLAMETHROWERFLAME)
+								hittype[j].picnum = s->picnum;
+							else if (s->picnum != FIREBALL || sprite[s->owner].picnum != APLAYER)
+							{
+								if (s->picnum == LAVAPOOL)
+									hittype[j].picnum = FLAMETHROWERFLAME;
+								else
+									hittype[j].picnum = RADIUSEXPLOSION;
+							}
+							else
+								hittype[j].picnum = FLAMETHROWERFLAME;
+						}
 
-						if (s->picnum != SHRINKSPARK)
+						if (s->picnum != SHRINKSPARK && (!isWorldTour() && s->picnum != LAVAPOOL))
 						{
 							if (d < r / 3)
 							{
@@ -568,6 +591,12 @@ SKIPWALLCHECK:
 							if (sj->picnum == APLAYER)
 							{
 								p = sj->yvel;
+
+								if (isWorldTour() && hittype[j].picnum == FLAMETHROWERFLAME && sprite[s->owner].picnum == APLAYER) 
+								{
+									ps[p].numloogs = -1 - s->yvel;
+								}
+
 								if (ps[p].newowner >= 0)
 								{
 									clearcamera(&ps[p]);
@@ -1202,6 +1231,12 @@ int ifhitbyweapon(int sn)
 					if ((isRR() || hittype[sn].picnum == SHRINKSPARK) && npc->xrepeat < 24)
 						return -1;
 
+				if (isWorldTour() && hittype[sn].picnum == FIREFLY && npc->xrepeat < 48) 
+				{
+					if (hittype[sn].picnum != RADIUSEXPLOSION && hittype[sn].picnum != RPG)
+						return -1;
+				}
+
 				npc->extra -= hittype[sn].extra;
 				if (npc->picnum != (isRR()? RR_4989 : RECON) && npc->owner >= 0 && sprite[npc->owner].statnum < MAXSTATUS)
 					npc->owner = hittype[sn].owner;
@@ -1211,6 +1246,34 @@ int ifhitbyweapon(int sn)
 			return hittype[sn].picnum;
 		}
 	}
+
+
+	if (ud.multimode < 2 || !isWorldTour()
+		|| hittype[sn].picnum != FLAMETHROWERFLAME
+		|| hittype[sn].extra >= 0
+		|| sprite[sn].extra > 0
+		|| sprite[sn].picnum != APLAYER
+		|| ps[sprite[sn].yvel].numloogs > 0
+		|| hittype[sn].owner < 0) 
+	{
+		hittype[sn].extra = -1;
+		return -1;
+	}
+	else 
+	{
+		p = sprite[sn].yvel;
+		sprite[sn].extra = 0;
+		ps[p].wackedbyactor = (short)hittype[sn].owner;
+
+		if (sprite[hittype[sn].owner].picnum == APLAYER && p != hittype[sn].owner)
+			ps[p].frag_ps = (short)hittype[sn].owner;
+
+		hittype[sn].owner = ps[p].i;
+		hittype[sn].extra = -1;
+
+		return FLAMETHROWERFLAME;
+	}
+
 
 	hittype[sn].extra = -1;
 	return -1;
@@ -1458,6 +1521,1443 @@ void moveplayers(void) //Players
 			s->shade += (sector[s->sectnum].floorshade - s->shade) >> 1;
 
 		i = nexti;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void movefx(void)
+{
+	short i, j, nexti, p;
+	int x, ht;
+	spritetype* s;
+
+	i = headspritestat[STAT_FX];
+	while (i >= 0)
+	{
+		s = &sprite[i];
+
+		nexti = nextspritestat[i];
+
+		switch (s->picnum)
+		{
+		case RESPAWN:
+			if (sprite[i].extra == 66)
+			{
+				j = spawn(i, sprite[i].hitag);
+				if (isRRRA())
+				{
+					sprite[j].pal = sprite[i].pal;
+					if (sprite[j].picnum == RR_MAMAJACKOLOPE)
+					{
+						if (sprite[j].pal == 30)
+						{
+							sprite[j].xrepeat = 26;
+							sprite[j].yrepeat = 26;
+							sprite[j].clipdist = 75;
+						}
+						else if (sprite[j].pal == 31)
+						{
+							sprite[j].xrepeat = 36;
+							sprite[j].yrepeat = 36;
+							sprite[j].clipdist = 100;
+						}
+						else if (sprite[j].pal == 32)
+						{
+							sprite[j].xrepeat = 50;
+							sprite[j].yrepeat = 50;
+							sprite[j].clipdist = 100;
+						}
+						else
+						{
+							sprite[j].xrepeat = 50;
+							sprite[j].yrepeat = 50;
+							sprite[j].clipdist = 100;
+						}
+					}
+
+					if (sprite[j].pal == 8)
+					{
+						sprite[j].cstat |= 2;
+					}
+
+					if (sprite[j].pal != 6)
+					{
+						deletesprite(i);
+						i = nexti;
+						continue;
+					}
+					sprite[i].extra = (66 - 13);
+					sprite[j].pal = 0;
+				}
+				else
+				{
+					deletesprite(i);
+					i = nexti;
+					continue;
+				}
+			}
+			else if (sprite[i].extra > (66 - 13))
+				sprite[i].extra++;
+			break;
+
+		case MUSICANDSFX:
+
+			ht = s->hitag;
+
+			if (hittype[i].temp_data[1] != (int)SoundEnabled())
+			{
+				hittype[i].temp_data[1] = SoundEnabled();
+				hittype[i].temp_data[0] = 0;
+			}
+
+			if (s->lotag >= 1000 && s->lotag < 2000)
+			{
+				x = ldist(&sprite[ps[screenpeek].i], s);
+				if (x < ht && hittype[i].temp_data[0] == 0)
+				{
+					FX_SetReverb(s->lotag - 1000);
+					hittype[i].temp_data[0] = 1;
+				}
+				if (x >= ht && hittype[i].temp_data[0] == 1)
+				{
+					FX_SetReverb(0);
+					FX_SetReverbDelay(0);
+					hittype[i].temp_data[0] = 0;
+				}
+			}
+			else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && sector[sprite[i].sectnum].floorz != sector[sprite[i].sectnum].ceilingz)
+			{
+				auto flags = S_GetUserFlags(s->lotag);
+				if (flags & SF_MSFX)
+				{
+					int x = dist(&sprite[ps[screenpeek].i], s);
+
+					if (x < ht && hittype[i].temp_data[0] == 0)
+					{
+						// Start playing an ambience sound.
+						A_PlaySound(s->lotag, i, CHAN_AUTO, CHANF_LOOP);
+						hittype[i].temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
+					}
+					else if (x >= ht && hittype[i].temp_data[0] == 1)
+					{
+						// Stop playing ambience sound because we're out of its range.
+						S_StopEnvSound(s->lotag, i);
+					}
+				}
+
+				if ((flags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL)
+				{
+					if (hittype[i].temp_data[4] > 0) hittype[i].temp_data[4]--;
+					else for (p = connecthead; p >= 0; p = connectpoint2[p])
+						if (p == myconnectindex && ps[p].cursectnum == s->sectnum)
+						{
+							S_PlaySound(s->lotag + (unsigned)global_random % (s->hitag + 1));
+							hittype[i].temp_data[4] = 26 * 40 + (global_random % (26 * 40));
+						}
+				}
+			}
+			break;
+		}
+		i = nexti;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void movefallers(void)
+{
+	short i, nexti, sect, j;
+	spritetype* s;
+	int x;
+
+	i = headspritestat[STAT_FALLER];
+	while (i >= 0)
+	{
+		nexti = nextspritestat[i];
+		s = &sprite[i];
+
+		sect = s->sectnum;
+
+		if (hittype[i].temp_data[0] == 0)
+		{
+			s->z -= (16 << 8);
+			hittype[i].temp_data[1] = s->ang;
+			x = s->extra;
+			j = ifhitbyweapon(i);
+			if (j >= 0) 
+			{
+				bool res = !isRR() ?
+					isIn(j, FIREEXT, RPG, RADIUSEXPLOSION, SEENINE, OOZFILTER) :
+					(isIn(j, RR_CROSSBOW, RR_RADIUSEXPLOSION, RR_SEENINE, RR_OOZFILTER) || (isRRRA() && j == RR_CHIKENCROSSBOW));
+
+				if (res)
+				{
+					if (s->extra <= 0)
+					{
+						hittype[i].temp_data[0] = 1;
+						j = headspritestat[12];
+						while (j >= 0)
+						{
+							if (sprite[j].hitag == sprite[i].hitag)
+							{
+								hittype[j].temp_data[0] = 1;
+								sprite[j].cstat &= (65535 - 64);
+								if (!isRR() ? isIn(j, CEILINGSTEAM, STEAM) : isIn(j, RR_CEILINGSTEAM, RR_STEAM))
+									sprite[j].cstat |= 32768;
+							}
+							j = nextspritestat[j];
+						}
+					}
+				}
+				else
+				{
+					hittype[i].extra = 0;
+					s->extra = x;
+				}
+			}
+			s->ang = hittype[i].temp_data[1];
+			s->z += (16 << 8);
+		}
+		else if (hittype[i].temp_data[0] == 1)
+		{
+			if (s->lotag > 0)
+			{
+				s->lotag -= 3;
+				if (isRR())
+				{
+					s->xvel = (64 + krand()) & 127;
+					s->zvel = -(1024 + (krand() & 1023));
+				}
+				else if (s->lotag <= 0)
+				{
+					s->xvel = (32 + (krand() & 63));
+					s->zvel = -(1024 + (krand() & 1023));
+				}
+			}
+			else
+			{
+				if (s->xvel > 0)
+				{
+					s->xvel -= isRR()? 2 : 8;
+					ssp(i, CLIPMASK0);
+				}
+
+				if (floorspace(s->sectnum)) x = 0;
+				else
+				{
+					if (ceilingspace(s->sectnum))
+						x = gc / 6;
+					else
+						x = gc;
+				}
+
+				if (s->z < (sector[sect].floorz - FOURSLEIGHT))
+				{
+					s->zvel += x;
+					if (s->zvel > 6144)
+						s->zvel = 6144;
+					s->z += s->zvel;
+				}
+				if ((sector[sect].floorz - s->z) < (16 << 8))
+				{
+					j = 1 + (krand() & 7);
+					for (x = 0; x < j; x++) RANDOMSCRAP(s, i);
+					deletesprite(i);
+				}
+			}
+		}
+
+		i = nexti;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// split out of movestandables
+//
+//---------------------------------------------------------------------------
+
+static void movecrane(int i)
+{
+	auto t = &hittype[i].temp_data[0];
+	auto s = &sprite[i];
+	int sect = s->sectnum;
+	int x;
+	int crane = pPick(CRANE);
+
+	//t[0] = state
+	//t[1] = checking sector number
+
+	if (s->xvel) getglobalz(i);
+
+	if (t[0] == 0) //Waiting to check the sector
+	{
+		int j = headspritesect[t[1]];
+		while (j >= 0)
+		{
+			int nextj = nextspritesect[j];
+			switch (sprite[j].statnum)
+			{
+			case STAT_ACTOR:
+			case STAT_ZOMBIEACTOR:
+			case STAT_STANDABLE:
+			case STAT_PLAYER:
+				s->ang = getangle(msx[t[4] + 1] - s->x, msy[t[4] + 1] - s->y);
+				setsprite(j, msx[t[4] + 1], msy[t[4] + 1], sprite[j].z);
+				t[0]++;
+				deletesprite(i);
+				return;
+			}
+			j = nextj;
+		}
+	}
+
+	else if (t[0] == 1)
+	{
+		if (s->xvel < 184)
+		{
+			s->picnum = crane + 1;
+			s->xvel += 8;
+		}
+		//IFMOVING;	// JBF 20040825: see my rant above about this
+		ssp(i, CLIPMASK0);
+		if (sect == t[1])
+			t[0]++;
+	}
+	else if (t[0] == 2 || t[0] == 7)
+	{
+		s->z += (1024 + 512);
+
+		if (t[0] == 2)
+		{
+			if ((sector[sect].floorz - s->z) < (64 << 8))
+				if (s->picnum > crane) s->picnum--;
+
+			if ((sector[sect].floorz - s->z) < (4096 + 1024))
+				t[0]++;
+		}
+		if (t[0] == 7)
+		{
+			if ((sector[sect].floorz - s->z) < (64 << 8))
+			{
+				if (s->picnum > crane) s->picnum--;
+				else
+				{
+					if (s->owner == -2)
+					{
+						auto p = findplayer(s, &x);
+						spritesound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
+						if (ps[p].on_crane == i)
+							ps[p].on_crane = -1;
+					}
+					t[0]++;
+					s->owner = -1;
+				}
+			}
+		}
+	}
+	else if (t[0] == 3)
+	{
+		s->picnum++;
+		if (s->picnum == (crane + 2))
+		{
+			auto p = checkcursectnums(t[1]);
+			if (p >= 0 && ps[p].on_ground)
+			{
+				s->owner = -2;
+				ps[p].on_crane = i;
+				spritesound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
+				ps[p].q16ang = (s->ang + 1024) << FRACBITS;
+			}
+			else
+			{
+				int j = headspritesect[t[1]];
+				while (j >= 0)
+				{
+					switch (sprite[j].statnum)
+					{
+					case 1:
+					case 6:
+						s->owner = j;
+						break;
+					}
+					j = nextspritesect[j];
+				}
+			}
+
+			t[0]++;//Grabbed the sprite
+			t[2] = 0;
+			return;
+		}
+	}
+	else if (t[0] == 4) //Delay before going up
+	{
+		t[2]++;
+		if (t[2] > 10)
+			t[0]++;
+	}
+	else if (t[0] == 5 || t[0] == 8)
+	{
+		if (t[0] == 8 && s->picnum < (crane + 2))
+			if ((sector[sect].floorz - s->z) > 8192)
+				s->picnum++;
+
+		if (s->z < msx[t[4] + 2])
+		{
+			t[0]++;
+			s->xvel = 0;
+		}
+		else
+			s->z -= (1024 + 512);
+	}
+	else if (t[0] == 6)
+	{
+		if (s->xvel < 192)
+			s->xvel += 8;
+		s->ang = getangle(msx[t[4]] - s->x, msy[t[4]] - s->y);
+		//IFMOVING;	// JBF 20040825: see my rant above about this
+		ssp(i, CLIPMASK0);
+		if (((s->x - msx[t[4]]) * (s->x - msx[t[4]]) + (s->y - msy[t[4]]) * (s->y - msy[t[4]])) < (128 * 128))
+			t[0]++;
+	}
+
+	else if (t[0] == 9)
+		t[0] = 0;
+
+	setsprite(msy[t[4] + 2], s->x, s->y, s->z - (34 << 8));
+
+	if (s->owner != -1)
+	{
+		auto p = findplayer(s, &x);
+
+		int j = ifhitbyweapon(i);
+		if (j >= 0)
+		{
+			if (s->owner == -2)
+				if (ps[p].on_crane == i)
+					ps[p].on_crane = -1;
+			s->owner = -1;
+			s->picnum = crane;
+			return;
+		}
+
+		if (s->owner >= 0)
+		{
+			setsprite(s->owner, s->x, s->y, s->z);
+
+			hittype[s->owner].bposx = s->x;
+			hittype[s->owner].bposy = s->y;
+			hittype[s->owner].bposz = s->z;
+
+			s->zvel = 0;
+		}
+		else if (s->owner == -2)
+		{
+			auto ang = ps[p].q16ang >> FRACBITS;
+			ps[p].oposx = ps[p].posx = s->x - (sintable[(ang + 512) & 2047] >> 6);
+			ps[p].oposy = ps[p].posy = s->y - (sintable[ang & 2047] >> 6);
+			ps[p].oposz = ps[p].posz = s->z + (2 << 8);
+			setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
+			ps[p].cursectnum = sprite[ps[p].i].sectnum;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void movefountain(int i)
+{
+	auto t = &hittype[i].temp_data[0];
+	auto s = &sprite[i];
+	int x;
+	if (t[0] > 0)
+	{
+		if (t[0] < 20)
+		{
+			t[0]++;
+
+			s->picnum++;
+
+			if (s->picnum == (pPick(WATERFOUNTAIN) + 3))
+				s->picnum = pPick(WATERFOUNTAIN) + 1;
+		}
+		else
+		{
+			findplayer(s, &x);
+
+			if (x > 512)
+			{
+				t[0] = 0;
+				s->picnum = pPick(WATERFOUNTAIN);
+			}
+			else t[0] = 1;
+		}
+	}
+}
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void moveflammable(int i)
+{
+	auto s = &sprite[i];
+	int j;
+	if (hittype[i].temp_data[0] == 1)
+	{
+		hittype[i].temp_data[1]++;
+		if ((hittype[i].temp_data[1] & 3) > 0) return;
+
+		if (!isRR() && s->picnum == TIRE && hittype[i].temp_data[1] == 32)
+		{
+			s->cstat = 0;
+			j = spawn(i, BLOODPOOL);
+			sprite[j].shade = 127;
+		}
+		else
+		{
+			if (s->shade < 64) s->shade++;
+			else
+			{
+				deletesprite(i);
+				return;
+			}
+		}
+
+		j = s->xrepeat - (krand() & 7);
+		if (j < 10) 
+		{
+			deletesprite(i);
+			return;
+		}
+
+		s->xrepeat = j;
+
+		j = s->yrepeat - (krand() & 7);
+		if (j < 4) 
+		{
+			deletesprite(i);
+			return;
+		}
+		s->yrepeat = j;
+	}
+	if (!isRR() && s->picnum == BOX)
+	{
+		makeitfall(i);
+		hittype[i].ceilingz = sector[s->sectnum].ceilingz;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void movetripbomb(int i)
+{
+	auto s = &sprite[i];
+	int j, x;
+	int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
+	if (lTripBombControl & TRIPBOMB_TIMER)
+	{
+		// we're on a timer....
+		if (s->extra >= 0)
+		{
+			s->extra--;
+			if (s->extra == 0)
+			{
+				hittype[i].temp_data[2] = 16;
+				spritesound(LASERTRIP_ARMING, i);
+			}
+		}
+	}
+	if (hittype[i].temp_data[2] > 0)
+	{
+		hittype[i].temp_data[2]--;
+		if (hittype[i].temp_data[2] == 8)
+		{
+			spritesound(LASERTRIP_EXPLODE, i);
+			for (j = 0; j < 5; j++) RANDOMSCRAP(s, i);
+			x = s->extra;
+			hitradius(i, tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+
+			j = spawn(i, EXPLOSION2);
+			sprite[j].ang = s->ang;
+			sprite[j].xvel = 348;
+			ssp(j, CLIPMASK0);
+
+			j = headspritestat[5];
+			while (j >= 0)
+			{
+				if (sprite[j].picnum == LASERLINE && s->hitag == sprite[j].hitag)
+					sprite[j].xrepeat = sprite[j].yrepeat = 0;
+				j = nextspritestat[j];
+			}
+			deletesprite(i);
+		}
+		return;
+	}
+	else
+	{
+		x = s->extra;
+		s->extra = 1;
+		int16_t l = s->ang;
+		j = ifhitbyweapon(i);
+		if (j >= 0)
+		{ 
+			hittype[i].temp_data[2] = 16; 
+		}
+		s->extra = x;
+		s->ang = l;
+	}
+
+	if (hittype[i].temp_data[0] < 32)
+	{
+		findplayer(s, &x);
+		if (x > 768) hittype[i].temp_data[0]++;
+		else if (hittype[i].temp_data[0] > 16) hittype[i].temp_data[0]++;
+	}
+	if (hittype[i].temp_data[0] == 32)
+	{
+		int16_t l = s->ang;
+		s->ang = hittype[i].temp_data[5];
+
+		hittype[i].temp_data[3] = s->x; hittype[i].temp_data[4] = s->y;
+		s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 9;
+		s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 9;
+		s->z -= (3 << 8);
+		setsprite(i, s->x, s->y, s->z);
+
+		int16_t m;
+		x = hitasprite(i, &m);
+
+		hittype[i].lastvx = x;
+
+		s->ang = l;
+
+		int k = 0;
+
+		if (lTripBombControl & TRIPBOMB_TRIPWIRE)
+		{
+			// we're on a trip wire
+			while (x > 0)
+			{
+				j = spawn(i, LASERLINE);
+				setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+				sprite[j].hitag = s->hitag;
+				hittype[j].temp_data[1] = sprite[j].z;
+
+				s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 4;
+				s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 4;
+
+				if (x < 1024)
+				{
+					sprite[j].xrepeat = x >> 5;
+					break;
+				}
+				x -= 1024;
+			}
+		}
+
+		hittype[i].temp_data[0]++;
+		s->x = hittype[i].temp_data[3]; s->y = hittype[i].temp_data[4];
+		s->z += (3 << 8);
+		setsprite(i, s->x, s->y, s->z);
+		hittype[i].temp_data[3] = 0;
+		if (m >= 0 && lTripBombControl & TRIPBOMB_TRIPWIRE)
+		{
+			hittype[i].temp_data[2] = 13;
+			spritesound(LASERTRIP_ARMING, i);
+		}
+		else hittype[i].temp_data[2] = 0;
+	}
+	if (hittype[i].temp_data[0] == 33)
+	{
+		hittype[i].temp_data[1]++;
+
+
+		hittype[i].temp_data[3] = s->x; hittype[i].temp_data[4] = s->y;
+		s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 9;
+		s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 9;
+		s->z -= (3 << 8);
+		setsprite(i, s->x, s->y, s->z);
+
+		int16_t m;
+		x = hitasprite(i, &m);
+
+		s->x = hittype[i].temp_data[3]; s->y = hittype[i].temp_data[4];
+		s->z += (3 << 8);
+		setsprite(i, s->x, s->y, s->z);
+
+		if (hittype[i].lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
+		{
+			hittype[i].temp_data[2] = 13;
+			spritesound(LASERTRIP_ARMING, i);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void detonate(int i)
+{
+	auto s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	earthquaketime = 16;
+
+	int j = headspritestat[STAT_EFFECTOR];
+	while (j >= 0)
+	{
+		if (s->hitag == sprite[j].hitag)
+		{
+			if (sprite[j].lotag == SE_13_EXPLOSIVE)
+			{
+				if (hittype[j].temp_data[2] == 0)
+					hittype[j].temp_data[2] = 1;
+			}
+			else if (sprite[j].lotag == SE_8_UP_OPEN_DOOR_LIGHTS)
+				hittype[j].temp_data[4] = 1;
+			else if (sprite[j].lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL)
+			{
+				if (hittype[j].temp_data[0] == 0)
+					hittype[j].temp_data[0] = 1;
+			}
+			else if (sprite[j].lotag == SE_21_DROP_FLOOR)
+				hittype[j].temp_data[0] = 1;
+		}
+		j = nextspritestat[j];
+	}
+
+	s->z -= (32 << 8);
+
+	if ((t[3] == 1 && s->xrepeat) || s->lotag == -99)
+	{
+		int x = s->extra;
+		spawn(i, EXPLOSION2);
+		hitradius(i, seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
+		spritesound(PIPEBOMB_EXPLODE, i);
+	}
+
+	if (s->xrepeat)
+		for (int x = 0; x < 8; x++) RANDOMSCRAP(s, i);
+
+	deletesprite(i);
+
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void movecrack(int i)
+{
+	auto s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	if (s->hitag > 0)
+	{
+		t[0] = s->cstat;
+		t[1] = s->ang;
+		int j = ifhitbyweapon(i);
+
+		bool res = !isRR() ?
+			isIn(j, FIREEXT, RPG, RADIUSEXPLOSION, SEENINE, OOZFILTER) :
+			(isIn(j, RR_CROSSBOW, RR_RADIUSEXPLOSION, RR_SEENINE, RR_OOZFILTER) || (isRRRA() && j == RR_CHIKENCROSSBOW));
+
+		if (res)
+		{
+			j = headspritestat[STAT_STANDABLE];
+			while (j >= 0)
+			{
+				if (s->hitag == sprite[j].hitag && (isRR() ? isIn(sprite[j].picnum, RR_OOZFILTER, RR_SEENINE) : isIn(sprite[j].picnum, OOZFILTER, SEENINE)))
+					if (sprite[j].shade != -32)
+						sprite[j].shade = -32;
+				j = nextspritestat[j];
+			}
+			detonate(i);
+		}
+		else
+		{
+			s->cstat = t[0];
+			s->ang = t[1];
+			s->extra = 0;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// Duke only
+//
+//---------------------------------------------------------------------------
+
+static void movefireext(int i)
+{
+	int j = ifhitbyweapon(i);
+	if (j == -1) return;
+
+	auto s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+
+	for (int k = 0; k < 16; k++)
+	{
+		j = EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[i].zvel >> 2), i, 5);
+		sprite[j].pal = 2;
+	}
+
+	spawn(i, EXPLOSION2);
+	spritesound(PIPEBOMB_EXPLODE, i);
+	spritesound(GLASS_HEAVYBREAK, i);
+
+	if (s->hitag > 0)
+	{
+		j = headspritestat[6];
+		while (j >= 0)
+		{
+			if (s->hitag == sprite[j].hitag && (sprite[j].picnum == OOZFILTER || sprite[j].picnum == SEENINE))
+				if (sprite[j].shade != -32)
+					sprite[j].shade = -32;
+			j = nextspritestat[j];
+		}
+
+		int x = s->extra;
+		spawn(i, EXPLOSION2);
+		hitradius(i, pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
+		spritesound(PIPEBOMB_EXPLODE, i);
+		detonate(i);
+	}
+	else
+	{
+		hitradius(i, seenineblastradius, 10, 15, 20, 25);
+		deletesprite(i);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void moveooz(int i)
+{
+	auto s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int j;
+	if (s->shade != -32 && s->shade != -33)
+	{
+		if (s->xrepeat)
+			j = (ifhitbyweapon(i) >= 0);
+		else
+			j = 0;
+
+		if (j || s->shade == -31)
+		{
+			if (j) s->lotag = 0;
+
+			t[3] = 1;
+
+			j = headspritestat[STAT_STANDABLE];
+			while (j >= 0)
+			{
+				if (s->hitag == sprite[j].hitag && (sprite[j].picnum == pPick(SEENINE) || sprite[j].picnum == pPick(OOZFILTER)))
+					sprite[j].shade = -32;
+				j = nextspritestat[j];
+			}
+		}
+	}
+	else
+	{
+		if (s->shade == -32)
+		{
+			if (s->lotag > 0)
+			{
+				s->lotag -= 3;
+				if (s->lotag <= 0) s->lotag = -99;
+			}
+			else
+				s->shade = -33;
+		}
+		else
+		{
+			if (s->xrepeat > 0)
+			{
+				hittype[i].temp_data[2]++;
+				if (hittype[i].temp_data[2] == 3)
+				{
+					if (s->picnum == pPick(OOZFILTER))
+					{
+						hittype[i].temp_data[2] = 0;
+						detonate(i);
+						return;
+					}
+					if (s->picnum != (pPick(SEENINEDEAD) + 1))
+					{
+						hittype[i].temp_data[2] = 0;
+
+						if (s->picnum == pPick(SEENINEDEAD)) s->picnum++;
+						else if (s->picnum == pPick(SEENINE))
+							s->picnum = pPick(SEENINEDEAD);
+					}
+					else
+					{
+						detonate(i);
+						return;
+					}
+				}
+				return;
+			}
+			detonate(i);
+			return;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void movemasterswitch(int i)
+{
+	auto s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	if (s->yvel == 1)
+	{
+		s->hitag--;
+		if (s->hitag <= 0)
+		{
+			operatesectors(s->sectnum, i);
+
+			int j = headspritesect[s->sectnum];
+			while (j >= 0)
+			{
+				if (sprite[j].statnum == 3)
+				{
+					switch (sprite[j].lotag)
+					{
+					case SE_2_EARTHQUAKE:
+					case SE_21_DROP_FLOOR:
+					case SE_31_FLOOR_RISE_FALL:
+					case SE_32_CEILING_RISE_FALL:
+					case SE_36_PROJ_SHOOTER:
+						hittype[j].temp_data[0] = 1;
+						break;
+					case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
+						hittype[j].temp_data[4] = 1;
+						break;
+					}
+				}
+				else if (sprite[j].statnum == 6)
+				{
+					if (sprite[j].picnum == pPick(SEENINE) || sprite[j].picnum == pPick(OOZFILTER))
+					{
+						sprite[j].shade = -31;
+					}
+				}
+				j = nextspritesect[j];
+			}
+			deletesprite(i);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void moveviewscreen(int i)
+{
+	auto s = &sprite[i];
+	if (s->xrepeat == 0) deletesprite(i);
+	else
+	{
+		int x;
+		findplayer(s, &x);
+
+		if (x < 2048)
+		{
+#if 0
+			if (SP == 1)
+				camsprite = i;
+#endif
+		}
+		else if (camsprite != -1 && hittype[i].temp_data[0] == 1)
+		{
+			camsprite = -1;
+			s->yvel = 0;
+			hittype[i].temp_data[0] = 0;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void movetrash(int i)
+{
+	auto s = &sprite[i];
+	if (s->xvel == 0) s->xvel = 1;
+	if (ssp(i, CLIPMASK0))
+	{
+		makeitfall(i);
+		if (krand() & 1) s->zvel -= 256;
+		if (klabs(s->xvel) < 48)
+			s->xvel += (krand() & 3);
+	}
+	else deletesprite(i);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void movesidebolt(int i)
+{
+	auto s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int x;
+	int sect = s->sectnum;
+
+	auto p = findplayer(s, &x);
+	if (x > 20480) return;
+
+CLEAR_THE_BOLT2:
+	if (t[2])
+	{
+		t[2]--;
+		return;
+	}
+	if ((s->xrepeat | s->yrepeat) == 0)
+	{
+		s->xrepeat = t[0];
+		s->yrepeat = t[1];
+	}
+	if ((krand() & 8) == 0)
+	{
+		t[0] = s->xrepeat;
+		t[1] = s->yrepeat;
+		t[2] = global_random & 4;
+		s->xrepeat = s->yrepeat = 0;
+		goto CLEAR_THE_BOLT2;
+	}
+	s->picnum++;
+
+#if 0
+	// content of l was undefined.
+	if (l & 1) s->cstat ^= 2;
+#endif
+
+	if ((krand() & 1) && sector[sect].floorpicnum == HURTRAIL)
+		spritesound(SHORT_CIRCUIT, i);
+
+	if (s->picnum == SIDEBOLT1 + 4) s->picnum = SIDEBOLT1;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void movebolt(int i)
+{
+	auto s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int x;
+	int sect = s->sectnum;
+
+	auto p = findplayer(s, &x);
+	if (x > 20480) return;
+
+	if (t[3] == 0)
+		t[3] = sector[sect].floorshade;
+
+CLEAR_THE_BOLT:
+	if (t[2])
+	{
+		t[2]--;
+		sector[sect].floorshade = 20;
+		sector[sect].ceilingshade = 20;
+		return;
+	}
+	if ((s->xrepeat | s->yrepeat) == 0)
+	{
+		s->xrepeat = t[0];
+		s->yrepeat = t[1];
+	}
+	else if ((krand() & 8) == 0)
+	{
+		t[0] = s->xrepeat;
+		t[1] = s->yrepeat;
+		t[2] = global_random & 4;
+		s->xrepeat = s->yrepeat = 0;
+		goto CLEAR_THE_BOLT;
+	}
+	s->picnum++;
+
+	int l = global_random & 7;
+	s->xrepeat = l + 8;
+
+	if (l & 1) s->cstat ^= 2;
+
+	auto bolt1 = pPick(BOLT1);
+	if (s->picnum == (bolt1 + 1) && (isRR() ? (krand() & 1) != 0 : (krand() & 7) == 0) && sector[sect].floorpicnum == pPick(HURTRAIL) )
+		spritesound(SHORT_CIRCUIT, i);
+
+	if (s->picnum == bolt1 + 4) s->picnum = bolt1;
+
+	if (s->picnum & 1)
+	{
+		sector[sect].floorshade = 0;
+		sector[sect].ceilingshade = 0;
+	}
+	else
+	{
+		sector[sect].floorshade = 20;
+		sector[sect].ceilingshade = 20;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void movewaterdrip(int i)
+{
+	auto s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int sect = s->sectnum;
+
+	if (t[1])
+	{
+		t[1]--;
+		if (t[1] == 0)
+			s->cstat &= 32767;
+	}
+	else
+	{
+		makeitfall(i);
+		ssp(i, CLIPMASK0);
+		if (s->xvel > 0) s->xvel -= 2;
+
+		if (s->zvel == 0)
+		{
+			s->cstat |= 32768;
+
+			if (s->pal != 2 && (isRR() || s->hitag == 0))
+				spritesound(SOMETHING_DRIPPING, i);
+
+			if (sprite[s->owner].picnum != pPick(WATERDRIP))
+			{
+				deletesprite(i);
+			}
+			else
+			{
+				hittype[i].bposz = s->z = t[0];
+				t[1] = 48 + (krand() & 31);
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void movedoorshock(int i)
+{
+	auto s = &sprite[i];
+	int sect = s->sectnum;
+	int j = abs(sector[sect].ceilingz - sector[sect].floorz) >> 9;
+	s->yrepeat = j + 4;
+	s->xrepeat = 16;
+	s->z = sector[sect].floorz;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void movetouchplate(int i)
+{
+	auto s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int sect = s->sectnum;
+	int x;
+	int p;
+
+	if (t[1] == 1 && s->hitag >= 0) //Move the sector floor
+	{
+		x = sector[sect].floorz;
+
+		if (t[3] == 1)
+		{
+			if (x >= t[2])
+			{
+				sector[sect].floorz = x;
+				t[1] = 0;
+			}
+			else
+			{
+				sector[sect].floorz += sector[sect].extra;
+				p = checkcursectnums(sect);
+				if (p >= 0) ps[p].posz += sector[sect].extra;
+			}
+		}
+		else
+		{
+			if (x <= s->z)
+			{
+				sector[sect].floorz = s->z;
+				t[1] = 0;
+			}
+			else
+			{
+				sector[sect].floorz -= sector[sect].extra;
+				p = checkcursectnums(sect);
+				if (p >= 0)
+					ps[p].posz -= sector[sect].extra;
+			}
+		}
+		return;
+	}
+
+	if (t[5] == 1) return;
+
+	p = checkcursectnums(sect);
+	if (p >= 0 && (ps[p].on_ground || s->ang == 512))
+	{
+		if (t[0] == 0 && !check_activator_motion(s->lotag))
+		{
+			t[0] = 1;
+			t[1] = 1;
+			t[3] = !t[3];
+			operatemasterswitches(s->lotag);
+			operateactivators(s->lotag, p);
+			if (s->hitag > 0)
+			{
+				s->hitag--;
+				if (s->hitag == 0) t[5] = 1;
+			}
+		}
+	}
+	else t[0] = 0;
+
+	if (t[1] == 1)
+	{
+		int j = headspritestat[STAT_STANDABLE];
+		while (j >= 0)
+		{
+			if (j != i && sprite[j].picnum == TOUCHPLATE && sprite[j].lotag == s->lotag)
+			{
+				hittype[j].temp_data[1] = 1;
+				hittype[j].temp_data[3] = t[3];
+			}
+			j = nextspritestat[j];
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void movecanwithsomething(int i)
+{
+	auto s = &sprite[i];
+	makeitfall(i);
+	int j = ifhitbyweapon(i);
+	if (j >= 0)
+	{
+		spritesound(VENT_BUST, i);
+		for (j = 0; j < 10; j++)
+			RANDOMSCRAP(s, i);
+
+		if (s->lotag) spawn(i, s->lotag);
+
+		deletesprite(i);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// this has been broken up into lots of smaller subfunctions
+//
+//---------------------------------------------------------------------------
+
+void movestandables(void)
+{
+	int nexti;
+	
+	for (int i = headspritestat[STAT_STANDABLE]; i >= 0; i = nexti)
+	{
+		nexti = nextspritestat[i];
+
+		auto s = &sprite[i];
+
+		if (s->sectnum < 0)
+		{
+			deletesprite(i);
+			continue;
+		}
+
+		hittype[i].bposx = s->x;
+		hittype[i].bposy = s->y;
+		hittype[i].bposz = s->z;
+
+		if (s->picnum >= pPick(CRANE) && s->picnum <= pPick(CRANE) +3)
+		{
+			movecrane(i);
+		}
+
+		else if (s->picnum >= pPick(WATERFOUNTAIN) && s->picnum <= pPick(WATERFOUNTAIN) + 3)
+		{
+			movefountain(i);
+		}
+
+		else if (AFLAMABLE(s->picnum))
+		{
+			moveflammable(i);
+		}
+
+		else if (!isRR() && s->picnum == TRIPBOMB)
+		{
+			movetripbomb(i);
+		}
+
+		else if (s->picnum >= pPick(CRACK1) && s->picnum <= pPick(CRACK1)+3)
+		{
+			movecrack(i);
+		}
+
+		else if (!isRR() && s->picnum == FIREEXT)
+		{
+			movefireext(i);
+		}
+
+		else if (s->picnum == pPick(OOZFILTER) || s->picnum == pPick(SEENINE) || s->picnum == pPick(SEENINEDEAD) || s->picnum == (pPick(SEENINEDEAD) + 1))
+		{
+			moveooz(i);
+		}
+
+		else if (s->picnum == MASTERSWITCH)
+		{
+			movemasterswitch(i);
+		}
+
+		else if (!isRR() && (s->picnum == VIEWSCREEN || s->picnum == VIEWSCREEN2))
+		{
+			moveviewscreen(i);
+		}
+
+		else if (s->picnum == pPick(TRASH))
+		{
+			movetrash(i);
+		}
+
+		else if (!isRR() && s->picnum >= SIDEBOLT1 && s->picnum <= SIDEBOLT1 + 3)
+		{
+			movesidebolt(i);
+		}
+
+		else if (s->picnum >= pPick(BOLT1) && s->picnum <= pPick(BOLT1) + 3)
+		{
+			movebolt(i);
+		}
+
+		else if (s->picnum == pPick(WATERDRIP))
+		{
+			movewaterdrip(i);
+		}
+
+		else if (s->picnum == pPick(DOORSHOCK))
+		{
+			movedoorshock(i);
+		}
+
+		else if (s->picnum == TOUCHPLATE)
+		{
+			movetouchplate(i);
+		}
+
+		else if (isRR() ? s->picnum == RR_CANWITHSOMETHING : isIn(s->picnum, CANWITHSOMETHING, CANWITHSOMETHING2, CANWITHSOMETHING3, CANWITHSOMETHING4))
+		{
+			movecanwithsomething(i);
+		}
+
+		else if (!isRR() ?
+			isIn(s->picnum,
+				EXPLODINGBARREL,
+				WOODENHORSE,
+				HORSEONSIDE,
+				FLOORFLAME,
+				FIREBARREL,
+				FIREVASE,
+				NUKEBARREL,
+				NUKEBARRELDENTED,
+				NUKEBARRELLEAKED,
+				TOILETWATER,
+				RUBBERCAN,
+				STEAM,
+				CEILINGSTEAM,
+				WATERBUBBLEMAKER) :
+			isIn(s->picnum,
+				RR_1187,
+				RR_1196,
+				RR_1251,
+				RR_1268,
+				RR_1304,
+				RR_1305,
+				RR_1306,
+				RR_1315,
+				RR_1317,
+				RR_1388,
+				RR_STEAM,
+				RR_CEILINGSTEAM,
+				RR_WATERBUBBLEMAKER)
+			)
+		{
+			int x;
+			int p = findplayer(s, &x);
+			execute(i, p, x);
+		}
 	}
 }
 

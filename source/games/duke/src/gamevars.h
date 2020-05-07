@@ -99,6 +99,10 @@ static FORCE_INLINE void Gv_FillWithVars(T & rv)
 }
 
 int Gv_GetVarByLabel(const char *szGameLabel,int defaultValue,int spriteNum,int playerNum);
+inline int GetGameVar(const char* szGameLabel, int defaultValue, int spriteNum, int playerNum)
+{
+    return Gv_GetVarByLabel(szGameLabel, defaultValue, spriteNum, playerNum);
+}
 void Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 
 static FORCE_INLINE void A_ResetVars(int const spriteNum)

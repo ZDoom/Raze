@@ -36,6 +36,7 @@ BEGIN_DUKE_NS
 #define ZOFFSET4            (12<<8)
 #define ZOFFSET5            (32<<8)
 #define ZOFFSET6            (4<<8)
+#define FOURSLEIGHT ZOFFSET
 
 #define ACTOR_MAXFALLINGZVEL 6144
 #define ACTOR_ONWATER_ADDZ (24<<8)
@@ -138,7 +139,11 @@ typedef struct
         struct { int bposx, bposy, bposz; };
     };
     int32_t floorz, ceilingz;                  // 8b
-    vec2_t lastv;                              // 8b
+    union
+    {
+        vec2_t lastv;                              // 8b
+        struct { int lastvx, lastvy; };
+    };
     int16_t picnum, ang, extra, owner;         // 8b
     int16_t movflag, tempang, timetosleep;     // 6b
     int16_t actorstayput;                      // 2b

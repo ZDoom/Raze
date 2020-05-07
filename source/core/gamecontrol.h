@@ -110,8 +110,9 @@ enum
 	GAMEFLAG_POWERSLAVE	= 0x00002000,
 	GAMEFLAG_EXHUMED	= 0x00004000,
 	GAMEFLAG_PSEXHUMED  = GAMEFLAG_POWERSLAVE | GAMEFLAG_EXHUMED,	// the two games really are the same, except for the name and the publisher.
-	GAMEFLAG_STANDALONE = 0x00008000,
-	GAMEFLAGMASK        = 0x00007FFF, // flags allowed from grpinfo
+	GAMEFLAG_WORLDTOUR = 0x00008000,
+	GAMEFLAG_STANDALONE = 0x00010000,
+	GAMEFLAGMASK        = 0x0000FFFF, // flags allowed from grpinfo
 
 };
 
@@ -167,6 +168,11 @@ inline bool isRR()
 inline bool isRRRA()
 {
 	return g_gameType & (GAMEFLAG_RRRA);
+}
+
+inline bool isWorldTour()
+{
+	return g_gameType & GAMEFLAG_WORLDTOUR;
 }
 
 TArray<GrpEntry> GrpScan();

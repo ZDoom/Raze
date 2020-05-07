@@ -393,270 +393,9 @@ static fix16_t P_GetQ16AngleDeltaForTic(DukePlayer_t const *pPlayer)
 }
 
 void moveplayers();
-
-ACTOR_STATIC void G_MoveFX(void)
-{
-    int spriteNum = headspritestat[STAT_FX];
-
-    while (spriteNum >= 0)
-    {
-        spritetype *const pSprite    = &sprite[spriteNum];
-        int const         nextSprite = nextspritestat[spriteNum];
-
-        switch (DYNAMICTILEMAP(pSprite->picnum))
-        {
-        case RESPAWN__STATIC:
-            if (pSprite->extra == 66)
-            {
-                int32_t j = A_Spawn(spriteNum,SHT(spriteNum));
-                if (RRRA)
-                {
-                    sprite[j].pal = pSprite->pal;
-                    if (sprite[j].picnum == TILE_MAMA)
-                    {
-                        switch (sprite[j].pal)
-                        {
-                            case 30:
-                                sprite[j].xrepeat = sprite[j].yrepeat = 26;
-                                sprite[j].clipdist = 75;
-                                break;
-                            case 31:
-                                sprite[j].xrepeat = sprite[j].yrepeat = 36;
-                                sprite[j].clipdist = 100;
-                                break;
-                            default:
-                                sprite[j].xrepeat = sprite[j].yrepeat = 50;
-                                sprite[j].clipdist = 100;
-                                break;
-                        }
-                    }
-
-                    if (sprite[j].pal == 8)
-                        sprite[j].cstat |= 2;
-                    else if (sprite[j].pal == 6)
-                    {
-                        pSprite->extra = 66-13;
-                        sprite[j].pal = 0;
-                        break;
-                    }
-                }
-                //                    sprite[j].pal = sprite[i].pal;
-                DELETE_SPRITE_AND_CONTINUE(spriteNum);
-            }
-            else if (pSprite->extra > (66-13))
-                sprite[spriteNum].extra++;
-            break;
-
-        case MUSICANDSFX__STATIC:
-        {
-            int32_t const       spriteHitag = (uint16_t)pSprite->hitag;
-            DukePlayer_t *const pPlayer     = g_player[screenpeek].ps;
-
-            if (T2(spriteNum) != (int)SoundEnabled())
-            {
-                // If sound playback was toggled, restart.
-                T2(spriteNum) = SoundEnabled();
-                T1(spriteNum) = 0;
-            }
-
-            if (pSprite->lotag >= 1000 && pSprite->lotag < 2000)
-            {
-                int32_t playerDist = ldist(&sprite[pPlayer->i], pSprite);
-
-#ifdef SPLITSCREEN_MOD_HACKS
-                if (g_fakeMultiMode==2)
-                {
-                    // HACK for splitscreen mod
-                    int32_t otherdist = ldist(&sprite[g_player[1].ps->i],pSprite);
-                    playerDist = min(playerDist, otherdist);
-                }
-#endif
-
-                if (playerDist < spriteHitag && T1(spriteNum) == 0)
-                {
-                    FX_SetReverb(pSprite->lotag - 1000);
-                    T1(spriteNum) = 1;
-                }
-                else if (playerDist >= spriteHitag && T1(spriteNum) == 1)
-                {
-                    FX_SetReverb(0);
-                    T1(spriteNum) = 0;
-                }
-            }
-            else if (pSprite->lotag < 999 && (unsigned)sector[pSprite->sectnum].lotag < 9 &&  // ST_9_SLIDING_ST_DOOR
-                         snd_ambience && sector[SECT(spriteNum)].floorz != sector[SECT(spriteNum)].ceilingz)
-            {
-                auto flags = S_GetUserFlags(pSprite->lotag);
-                if (flags & SF_MSFX)
-                {
-                    int playerDist = dist(&sprite[pPlayer->i], pSprite);
-
-#ifdef SPLITSCREEN_MOD_HACKS
-                    if (g_fakeMultiMode==2)
-                    {
-                        // HACK for splitscreen mod
-                        int32_t otherdist = dist(&sprite[g_player[1].ps->i],pSprite);
-                        playerDist = min(playerDist, otherdist);
-                    }
-#endif
-
-                    if (playerDist < spriteHitag && T1(spriteNum) == 0)// && FX_VoiceAvailable(g_sounds[pSprite->lotag].pr-1))
-                    {
-                        // Start playing an ambience sound.
-#if 0 // let the sound system handle this internally.
-                        if (g_numEnvSoundsPlaying == snd_numvoices)
-                        {
-                            int32_t j;
-
-                            for (SPRITES_OF(STAT_FX, j))
-                                if (j != spriteNum && S_IsAmbientSFX(j) && actor[j].t_data[0] == 1 &&
-                                        dist(&sprite[j], &sprite[pPlayer->i]) > playerDist)
-                                {
-                                    S_StopEnvSound(sprite[j].lotag,j);
-                                    break;
-                                }
-
-                            if (j == -1)
-                                goto next_sprite;
-                        }
-#endif
-                        A_PlaySound(pSprite->lotag, spriteNum, CHAN_AUTO, CHANF_LOOP);
-                        T1(spriteNum) = 1;  // AMBIENT_SFX_PLAYING
-                    }
-                    else if (playerDist >= spriteHitag && T1(spriteNum) == 1)
-                    {
-                        // Stop playing ambience sound because we're out of its range.
-
-                        // T1 will be reset in sounds.c: CLEAR_SOUND_T0
-                        // T1 = 0;
-                        S_StopEnvSound(pSprite->lotag,spriteNum);
-                    }
-                }
-
-                if ((flags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL)
-                {
-                    // Randomly playing global sounds (flyby of planes, screams, ...)
-
-                    if (T5(spriteNum) > 0)
-                        T5(spriteNum)--;
-                    else
-                    {
-                        for (int TRAVERSE_CONNECT(playerNum))
-                            if (playerNum == myconnectindex && g_player[playerNum].ps->cursectnum == pSprite->sectnum)
-                            {
-                                S_PlaySound(pSprite->lotag + (unsigned)g_globalRandom % (pSprite->hitag+1));
-                                T5(spriteNum) = GAMETICSPERSEC*40 + g_globalRandom%(GAMETICSPERSEC*40);
-                            }
-                    }
-                }
-            }
-            break;
-        }
-        }
-next_sprite:
-        spriteNum = nextSprite;
-    }
-}
-
-ACTOR_STATIC void G_MoveFallers(void)
-{
-    int spriteNum = headspritestat[STAT_FALLER];
-
-    while (spriteNum >= 0)
-    {
-        int const         nextSprite = nextspritestat[spriteNum];
-        spritetype *const pSprite    = &sprite[spriteNum];
-        int const         sectNum    = pSprite->sectnum;
-
-        if (T1(spriteNum) == 0)
-        {
-            const int16_t oextra = pSprite->extra;
-            int j;
-
-            pSprite->z -= ZOFFSET2;
-            T2(spriteNum) = pSprite->ang;
-
-            if ((j = A_IncurDamage(spriteNum)) >= 0)
-            {
-                if ((!RR && j == TILE_FIREEXT) || j == TILE_RPG || (RRRA && j == TILE_RPG2) || j == TILE_RADIUSEXPLOSION || j == TILE_SEENINE || j == TILE_OOZFILTER)
-                {
-                    if (pSprite->extra <= 0)
-                    {
-                        T1(spriteNum) = 1;
-
-                        for (bssize_t SPRITES_OF(STAT_FALLER, j))
-                        {
-                            if (sprite[j].hitag == SHT(spriteNum))
-                            {
-                                actor[j].t_data[0] = 1;
-                                sprite[j].cstat &= (65535-64);
-                                if (sprite[j].picnum == TILE_CEILINGSTEAM || sprite[j].picnum == TILE_STEAM)
-                                    sprite[j].cstat |= 32768;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    actor[spriteNum].extra = 0;
-                    pSprite->extra = oextra;
-                }
-            }
-            pSprite->ang = T2(spriteNum);
-            pSprite->z += ZOFFSET2;
-        }
-        else if (T1(spriteNum) == 1)
-        {
-            if ((int16_t)pSprite->lotag > 0)
-            {
-                pSprite->lotag-=3;
-                if (RR)
-                {
-                    pSprite->xvel = (64+krand2())&127;
-                    pSprite->zvel = -(1024+(krand2()&1023));
-                }
-                else if ((int16_t)pSprite->lotag <= 0)
-                {
-                    pSprite->xvel = (32+krand2())&63;
-                    pSprite->zvel = -(1024+(krand2()&1023));
-                }
-            }
-            else
-            {
-                int32_t spriteGravity = g_spriteGravity;
-
-                if (pSprite->xvel > 0)
-                {
-                    pSprite->xvel -= RR ? 2 : 8;
-                    A_SetSprite(spriteNum,CLIPMASK0);
-                }
-
-                if (EDUKE32_PREDICT_FALSE(G_CheckForSpaceFloor(pSprite->sectnum)))
-                    spriteGravity = 0;
-                else if (EDUKE32_PREDICT_FALSE(G_CheckForSpaceCeiling(pSprite->sectnum)))
-                    spriteGravity = g_spriteGravity / 6;
-
-                if (pSprite->z < (sector[sectNum].floorz-ZOFFSET))
-                {
-                    pSprite->zvel += spriteGravity;
-                    if (pSprite->zvel > 6144)
-                        pSprite->zvel = 6144;
-                    pSprite->z += pSprite->zvel;
-                }
-
-                if ((sector[sectNum].floorz-pSprite->z) < ZOFFSET2)
-                {
-                    for (size_t x = 0, x_end = 1+(krand2()&7); x < x_end; ++x)
-                        RANDOMSCRAP(pSprite, spriteNum);
-                    DELETE_SPRITE_AND_CONTINUE(spriteNum);
-                }
-            }
-        }
-
-next_sprite:
-        spriteNum = nextSprite;
-    }
-}
+void movefx();
+void movefallers();
+void movestandables();
 
 ACTOR_STATIC void G_MoveStandables(void)
 {
@@ -8828,7 +8567,7 @@ void G_MoveWorld(void)
     }
 
     moveplayers();          //ST 10
-    G_MoveFallers();          //ST 12
+    movefallers();          //ST 12
     if (!DEER)
         G_MoveMisc();             //ST 5
 
@@ -8854,13 +8593,13 @@ void G_MoveWorld(void)
     if (!DEER)
     {
         G_MoveEffectors();        //ST 3
-        G_MoveStandables();       //ST 6
+        movestandables();       //ST 6
     }
 
     G_RefreshLights();
     G_DoSectorAnimations();
     if (!DEER)
-        G_MoveFX();               //ST 11
+        movefx();               //ST 11
 
     if (RR && numplayers < 2 && g_thunderOn)
         G_Thunder();

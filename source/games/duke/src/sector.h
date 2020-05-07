@@ -108,6 +108,10 @@ int S_FindMusicSFX(int sectNum, int *sndptr);
 void A_CallSound2(int soundNum, int playerNum);
 int A_CallSound(int sectNum,int spriteNum);
 int A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
+inline int hitasprite(int s, int16_t* h)
+{
+    return A_CheckHitSprite(s, h);
+}
 void A_DamageObject(int spriteNum,int dmgSrc);
 inline void checkhitsprite(int s, int d)
 {
@@ -131,12 +135,28 @@ void G_AnimateCamSprite(int smoothRatio);
 void G_AnimateWalls(void);
 int G_ActivateWarpElevators(int s,int warpDir);
 int G_CheckActivatorMotion(int lotag);
+inline int check_activator_motion(int lotag)
+{
+    return G_CheckActivatorMotion(lotag);
+}
 void G_DoSectorAnimations(void);
 void G_OperateActivators(int lotag, int playerNum);
+inline void operateactivators(int l, int w)
+{
+    G_OperateActivators(l, w);
+}
 void G_OperateForceFields(int spriteNum,int wallTag);
 void G_OperateMasterSwitches(int lotag);
+inline void operatemasterswitches(int l)
+{
+    return G_OperateMasterSwitches(l);
+}
 void G_OperateRespawns(int lotag);
 void G_OperateSectors(int sectNum,int spriteNum);
+inline void operatesectors(int s, int i)
+{
+    G_OperateSectors(s, i);
+}
 void P_HandleSharedKeys(int playerNum);
 int GetAnimationGoal(const int32_t *animPtr);
 int isanearoperator(int lotag);
@@ -189,6 +209,12 @@ EXTERN_INLINE int32_t G_CheckPlayerInSector(int32_t sect)
             return i;
     return -1;
 }
+
+inline int checkcursectnums(int se)
+{
+    return G_CheckPlayerInSector(se);
+}
+
 
 #endif
 

@@ -1181,6 +1181,7 @@ enum
 
 
 	// Stuff that gets referenced but has no name. RR Reconstruction only has Duke names for these items which should be avoided.
+	RR_1196 = 1196,
 	RR_1251 = 1251,
 	RR_1268 = 1268,
 	RR_1187 = 1187,

@@ -108,6 +108,7 @@ G_EXTERN int32_t g_animWallCnt;
 G_EXTERN int32_t g_animateCnt;
 G_EXTERN int32_t g_cloudCnt;
 G_EXTERN int32_t g_curViewscreen;
+#define camsprite g_curViewscreen
 G_EXTERN int32_t g_frameRate;
 G_EXTERN int32_t g_cyclerCnt;
 #define numcyclers g_cyclerCnt
@@ -115,9 +116,11 @@ G_EXTERN int32_t g_damageCameras;
 G_EXTERN int32_t g_defaultLabelCnt;
 G_EXTERN int32_t g_doQuickSave;
 G_EXTERN int32_t g_earthquakeTime;
+#define earthquaketime g_earthquakeTime
 G_EXTERN int32_t g_freezerSelfDamage;
 G_EXTERN int32_t g_gameQuit;
 G_EXTERN int32_t g_globalRandom;
+#define global_random g_globalRandom
 G_EXTERN int32_t g_impactDamage;
 G_EXTERN int32_t g_labelCnt;
 G_EXTERN int32_t g_maxPlayerHealth;
@@ -268,15 +271,19 @@ extern int32_t g_itemRespawnTime;
 extern int32_t g_morterRadius;
 extern int32_t g_numFreezeBounces;
 extern int32_t g_pipebombRadius;
+#define pipebombblastradius g_pipebombRadius
 extern int32_t g_playerFriction;
 extern int32_t g_rpgRadius;
 extern int32_t g_scriptSize;
 extern int32_t g_seenineRadius;
+#define seenineblastradius g_seenineRadius
 extern int32_t g_shrinkerRadius;
 extern int32_t g_spriteGravity;
 extern int32_t g_timerTicsPerSecond;
 extern int32_t g_tripbombRadius;
+#define tripbombblastradius g_tripbombRadius
 extern int32_t g_volumeCnt;
+#define gc g_spriteGravity
 
 extern int16_t g_blimpSpawnItems[15];
 extern int32_t g_gametypeFlags[MAXGAMETYPES];
@@ -349,6 +356,8 @@ bool isIn(int value, int first, Args... args)
 {
     return value == first || isIn(value, args...);
 }
+// This is for picking between two identical names with different indices, e.g. CRACK and RR_CRACK. 
+#define pPick(d) (isRR()? (RR_##d) : (d))
 
 
 END_DUKE_NS
