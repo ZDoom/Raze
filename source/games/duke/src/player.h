@@ -152,7 +152,13 @@ typedef struct player_struct {
         struct { int32_t posxv, posyv, poszv; };
     };
     vec3_t npos;
-    vec2_t bobpos, fric;
+    union
+    {
+        vec2_t bobpos;
+        struct { int32_t bobposx, bobposy; };
+    };
+
+    vec2_t fric;
 
     fix16_t q16horiz, q16horizoff;
     fix16_t q16ang, oq16ang;
@@ -272,8 +278,10 @@ typedef struct
     char vote, gotvote, playerreadyflag, playerquitflag, connected;
     char user_name[32];
     char syncval[SYNCFIFOSIZ][MAXSYNCBYTES];
+
 } playerdata_t;
 #pragma pack(pop)
+
 
 // KEEPINSYNC lunatic/con_lang.lua
 typedef struct

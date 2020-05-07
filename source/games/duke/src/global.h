@@ -364,6 +364,12 @@ bool isIn(int value, int first, Args... args)
 #define pPick2(d, r) (isRR()? (r) : (d))
 
 
+inline bool PlayerInput(int pl, int bit)
+{
+    return TEST_SYNC_KEY(g_player[pl].input->bits, bit);
+}
+
+
 END_DUKE_NS
 
 #endif

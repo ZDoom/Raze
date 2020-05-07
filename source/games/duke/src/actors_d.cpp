@@ -1865,5 +1865,345 @@ void moveweapons_d(void)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void movetransports_d(void)
+{
+	char warpspriteto;
+	short j, k, l, p, sect, sectlotag, nextj, nextk;
+	int ll, onfloorz, q, nexti;
+
+	for (int i = headspritestat[STAT_TRANSPORT]; i >= 0; i = nexti)
+	{
+		sect = sprite[i].sectnum;
+		sectlotag = sector[sect].lotag;
+
+		nexti = nextspritestat[i];
+
+		if (sprite[i].owner == i)
+		{
+			i = nexti;
+			continue;
+		}
+
+		onfloorz = hittype[i].temp_data[4];
+
+		if (hittype[i].temp_data[0] > 0) hittype[i].temp_data[0]--;
+
+		j = headspritesect[sect];
+		while (j >= 0)
+		{
+			nextj = nextspritesect[j];
+
+			switch (sprite[j].statnum)
+			{
+			case STAT_PLAYER:    // Player
+
+				if (sprite[j].owner != -1)
+				{
+					p = sprite[j].yvel;
+
+					ps[p].on_warping_sector = 1;
+
+					if (ps[p].transporter_hold == 0 && ps[p].jumping_counter == 0)
+					{
+						if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
+						{
+							if (sprite[i].pal == 0)
+							{
+								spawn(i, TRANSPORTERBEAM);
+								spritesound(TELEPORTER, i);
+							}
+
+							for (k = connecthead; k >= 0; k = connectpoint2[k])
+								if (ps[k].cursectnum == sprite[sprite[i].owner].sectnum)
+								{
+									ps[k].frag_ps = p;
+									sprite[ps[k].i].extra = 0;
+								}
+
+							ps[p].q16ang = sprite[sprite[i].owner].ang << FRACBITS;
+
+							if (sprite[sprite[i].owner].owner != sprite[i].owner)
+							{
+								hittype[i].temp_data[0] = 13;
+								hittype[sprite[i].owner].temp_data[0] = 13;
+								ps[p].transporter_hold = 13;
+							}
+
+							ps[p].bobposx = ps[p].oposx = ps[p].posx = sprite[sprite[i].owner].x;
+							ps[p].bobposy = ps[p].oposy = ps[p].posy = sprite[sprite[i].owner].y;
+							ps[p].oposz = ps[p].posz = sprite[sprite[i].owner].z - PHEIGHT;
+
+							changespritesect(j, sprite[sprite[i].owner].sectnum);
+							ps[p].cursectnum = sprite[j].sectnum;
+
+							if (sprite[i].pal == 0)
+							{
+								k = spawn(sprite[i].owner, TRANSPORTERBEAM);
+								spritesound(TELEPORTER, k);
+							}
+
+							break;
+						}
+					}
+					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
+
+					if (onfloorz == 0 && abs(sprite[i].z - ps[p].posz) < 6144)
+						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SK_JUMP))) ||
+							(ps[p].jetpack_on && (PlayerInput(p, SK_CROUCH) ^ !!ps[p].crouch_toggle)))
+						{
+							ps[p].oposx = ps[p].posx += sprite[sprite[i].owner].x - sprite[i].x;
+							ps[p].oposy = ps[p].posy += sprite[sprite[i].owner].y - sprite[i].y;
+
+							if (ps[p].jetpack_on && (PlayerInput(p, SK_JUMP) || ps[p].jetpack_on < 11))
+								ps[p].posz = sprite[sprite[i].owner].z - 6144;
+							else ps[p].posz = sprite[sprite[i].owner].z + 6144;
+							ps[p].oposz = ps[p].posz;
+
+							hittype[ps[p].i].bposx = ps[p].posx;
+							hittype[ps[p].i].bposy = ps[p].posy;
+							hittype[ps[p].i].bposz = ps[p].posz;
+
+							changespritesect(j, sprite[sprite[i].owner].sectnum);
+							ps[p].cursectnum = sprite[sprite[i].owner].sectnum;
+
+							break;
+						}
+
+					k = 0;
+
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].posz > (sector[sect].floorz - (16 << 8)) && (PlayerInput(p, SK_CROUCH) || ps[p].poszv > 2048))
+						//                        if( onfloorz && sectlotag == 1 && ps[p].posz > (sector[sect].floorz-(6<<8)) )
+					{
+						k = 1;
+						if (screenpeek == p)
+						{
+							FX_StopAllSounds();
+						}
+						if (sprite[ps[p].i].extra > 0)
+							spritesound(DUKE_UNDERWATER, j);
+						ps[p].oposz = ps[p].posz =
+							sector[sprite[sprite[i].owner].sectnum].ceilingz + (7 << 8);
+
+						ps[p].posxv = 4096 - (krand() & 8192);
+						ps[p].posyv = 4096 - (krand() & 8192);
+
+					}
+
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].posz < (sector[sect].ceilingz + (6 << 8)))
+					{
+						k = 1;
+						//                            if( sprite[j].extra <= 0) break;
+						if (screenpeek == p)
+						{
+							FX_StopAllSounds();
+						}
+						spritesound(DUKE_GASP, j);
+
+						ps[p].oposz = ps[p].posz =
+							sector[sprite[sprite[i].owner].sectnum].floorz - (7 << 8);
+
+						ps[p].jumping_toggle = 1;
+						ps[p].jumping_counter = 0;
+					}
+
+					if (k == 1)
+					{
+						ps[p].oposx = ps[p].posx += sprite[sprite[i].owner].x - sprite[i].x;
+						ps[p].oposy = ps[p].posy += sprite[sprite[i].owner].y - sprite[i].y;
+
+						if (sprite[sprite[i].owner].owner != sprite[i].owner)
+							ps[p].transporter_hold = -2;
+						ps[p].cursectnum = sprite[sprite[i].owner].sectnum;
+
+						changespritesect(j, sprite[sprite[i].owner].sectnum);
+						setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz + PHEIGHT);
+
+						setpal(&ps[p]);
+
+						if ((krand() & 255) < 32)
+							spawn(j, WATERSPLASH2);
+
+						if (sectlotag == 1)
+							for (l = 0; l < 9; l++)
+							{
+								q = spawn(ps[p].i, WATERBUBBLE);
+								sprite[q].z += krand() & 16383;
+							}
+					}
+				}
+				break;
+
+			case STAT_ACTOR:
+				switch (sprite[j].picnum)
+				{
+				case SHARK:
+				case COMMANDER:
+				case OCTABRAIN:
+				case GREENSLIME:
+				case GREENSLIME + 1:
+				case GREENSLIME + 2:
+				case GREENSLIME + 3:
+				case GREENSLIME + 4:
+				case GREENSLIME + 5:
+				case GREENSLIME + 6:
+				case GREENSLIME + 7:
+					if (sprite[j].extra > 0)
+						goto JBOLT;
+				}
+			case STAT_PROJECTILE:
+			case STAT_MISC:
+			case STAT_FALLER:
+			case STAT_DUMMYPLAYER:
+
+				ll = abs(sprite[j].zvel);
+
+				{
+					warpspriteto = 0;
+					if (ll && sectlotag == 2 && sprite[j].z < (sector[sect].ceilingz + ll))
+						warpspriteto = 1;
+
+					if (ll && sectlotag == 1 && sprite[j].z > (sector[sect].floorz - ll))
+						warpspriteto = 1;
+
+					if (sectlotag == 0 && (onfloorz || abs(sprite[j].z - sprite[i].z) < 4096))
+					{
+						if (sprite[sprite[i].owner].owner != sprite[i].owner && onfloorz && hittype[i].temp_data[0] > 0 && sprite[j].statnum != 5)
+						{
+							hittype[i].temp_data[0]++;
+							goto BOLT;
+						}
+						warpspriteto = 1;
+					}
+
+					if (warpspriteto) switch (sprite[j].picnum)
+					{
+					case TRANSPORTERSTAR:
+					case TRANSPORTERBEAM:
+					case TRIPBOMB:
+					case BULLETHOLE:
+					case WATERSPLASH2:
+					case BURNING:
+					case BURNING2:
+					case FIRE:
+					case FIRE2:
+					case TOILETWATER:
+					case LASERLINE:
+						goto JBOLT;
+					case PLAYERONWATER:
+						if (sectlotag == 2)
+						{
+							sprite[j].cstat &= 32767;
+							break;
+						}
+					default:
+						if (sprite[j].statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
+							break;
+
+					case WATERBUBBLE:
+						//                                if( rnd(192) && sprite[j].picnum == WATERBUBBLE)
+						  //                                 break;
+
+						if (sectlotag > 0)
+						{
+							k = spawn(j, WATERSPLASH2);
+							if (sectlotag == 1 && sprite[j].statnum == 4)
+							{
+								sprite[k].xvel = sprite[j].xvel >> 1;
+								sprite[k].ang = sprite[j].ang;
+								ssp(k, CLIPMASK0);
+							}
+						}
+
+						switch (sectlotag)
+						{
+						case 0:
+							if (onfloorz)
+							{
+								if (sprite[j].statnum == 4 || (checkcursectnums(sect) == -1 && checkcursectnums(sprite[sprite[i].owner].sectnum) == -1))
+								{
+									sprite[j].x += (sprite[sprite[i].owner].x - sprite[i].x);
+									sprite[j].y += (sprite[sprite[i].owner].y - sprite[i].y);
+									sprite[j].z -= sprite[i].z - sector[sprite[sprite[i].owner].sectnum].floorz;
+									sprite[j].ang = sprite[sprite[i].owner].ang;
+
+									hittype[j].bposx = sprite[j].x;
+									hittype[j].bposy = sprite[j].y;
+									hittype[j].bposz = sprite[j].z;
+
+									if (sprite[i].pal == 0)
+									{
+										k = spawn(i, TRANSPORTERBEAM);
+										spritesound(TELEPORTER, k);
+
+										k = spawn(sprite[i].owner, TRANSPORTERBEAM);
+										spritesound(TELEPORTER, k);
+									}
+
+									if (sprite[sprite[i].owner].owner != sprite[i].owner)
+									{
+										hittype[i].temp_data[0] = 13;
+										hittype[sprite[i].owner].temp_data[0] = 13;
+									}
+
+									changespritesect(j, sprite[sprite[i].owner].sectnum);
+								}
+							}
+							else
+							{
+								sprite[j].x += (sprite[sprite[i].owner].x - sprite[i].x);
+								sprite[j].y += (sprite[sprite[i].owner].y - sprite[i].y);
+								sprite[j].z = sprite[sprite[i].owner].z + 4096;
+
+								hittype[j].bposx = sprite[j].x;
+								hittype[j].bposy = sprite[j].y;
+								hittype[j].bposz = sprite[j].z;
+
+								changespritesect(j, sprite[sprite[i].owner].sectnum);
+							}
+							break;
+						case 1:
+							sprite[j].x += (sprite[sprite[i].owner].x - sprite[i].x);
+							sprite[j].y += (sprite[sprite[i].owner].y - sprite[i].y);
+							sprite[j].z = sector[sprite[sprite[i].owner].sectnum].ceilingz + ll;
+
+							hittype[j].bposx = sprite[j].x;
+							hittype[j].bposy = sprite[j].y;
+							hittype[j].bposz = sprite[j].z;
+
+							changespritesect(j, sprite[sprite[i].owner].sectnum);
+
+							break;
+						case 2:
+							sprite[j].x += (sprite[sprite[i].owner].x - sprite[i].x);
+							sprite[j].y += (sprite[sprite[i].owner].y - sprite[i].y);
+							sprite[j].z = sector[sprite[sprite[i].owner].sectnum].floorz - ll;
+
+							hittype[j].bposx = sprite[j].x;
+							hittype[j].bposy = sprite[j].y;
+							hittype[j].bposz = sprite[j].z;
+
+							changespritesect(j, sprite[sprite[i].owner].sectnum);
+
+							break;
+						}
+
+						break;
+					}
+				}
+				break;
+
+			}
+		JBOLT:
+			j = nextj;
+		}
+	BOLT:;
+	}
+}
 
 END_DUKE_NS
