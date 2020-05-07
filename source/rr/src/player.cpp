@@ -8051,7 +8051,6 @@ check_enemy_sprite:
                             pPlayer->moto_turb = 12;
                         }
                     }
-                    pPlayer->on_ground = 1;
                 }
                 else
                     pPlayer->on_ground = 0;
