@@ -5301,7 +5301,6 @@ void P_ProcessInput(int playerNum)
                             A_PlaySound(DUKE_LAND, pPlayer->i);
 #endif
                     }
-                    pPlayer->on_ground = 1;
                 }
                 else
                     pPlayer->on_ground = 0;
