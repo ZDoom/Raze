@@ -3768,10 +3768,35 @@ void P_GetInputMotorcycle(int playerNum)
         localInput.bits |= buttonMap.ButtonDown(gamefunc_Run) << SK_CROUCH;
     }
 
-    input.q16avel      = fix16_mul(input.q16avel, avelScale);
-    localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
-    pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-    localInput.fvel    = clamp((input.fvel += pPlayer->moto_speed), -(MAXVELMOTO / 8), MAXVELMOTO);
+    input.fvel += pPlayer->moto_speed;
+    input.q16avel = fix16_mul(input.q16avel, avelScale);
+
+    int const movementLocked = P_CheckLockedMovement(playerNum);
+
+    if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
+    {
+        if (ud.scrollmode && ud.overhead_on)
+        {
+            ud.folfvel = input.fvel;
+            ud.folavel = fix16_to_int(input.q16avel);
+        }
+
+        localInput.fvel = localInput.svel = 0;
+        localInput.q16avel = localInput.q16horz = 0;
+    }
+    else
+    {
+        if (!(movementLocked & IL_NOMOVE))
+        {
+            localInput.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
+        }
+
+        if (!(movementLocked & IL_NOANGLE))
+        {
+            localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+            pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
+        }
+    }
 
     if (TEST_SYNC_KEY(localInput.bits, SK_JUMP))
     {
@@ -3952,10 +3977,35 @@ void P_GetInputBoat(int playerNum)
             pPlayer->tilt_status++;
     }
 
-    input.q16avel      = fix16_mul(input.q16avel, avelScale);
-    localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
-    pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-    localInput.fvel    = clamp((input.fvel += pPlayer->moto_speed), -(MAXVELMOTO / 8), MAXVELMOTO);
+    input.fvel += pPlayer->moto_speed;
+    input.q16avel = fix16_mul(input.q16avel, avelScale);
+
+    int const movementLocked = P_CheckLockedMovement(playerNum);
+
+    if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
+    {
+        if (ud.scrollmode && ud.overhead_on)
+        {
+            ud.folfvel = input.fvel;
+            ud.folavel = fix16_to_int(input.q16avel);
+        }
+
+        localInput.fvel = localInput.svel = 0;
+        localInput.q16avel = localInput.q16horz = 0;
+    }
+    else
+    {
+        if (!(movementLocked & IL_NOMOVE))
+        {
+            localInput.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
+        }
+
+        if (!(movementLocked & IL_NOANGLE))
+        {
+            localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
+            pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
+        }
+    }
 }
 
 int dword_A99D4, dword_A99D8, dword_A99DC, dword_A99E0;
