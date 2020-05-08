@@ -3902,7 +3902,6 @@ void P_GetInputBoat(int playerNum)
         else if (turn > 0)
             turnRight = 1;
     }
-    else
 
     input.svel = input.fvel = input.q16avel = 0;
 
