@@ -1530,6 +1530,10 @@ void moveweapons_d(void)
 		case FIRELASER:
 		case SPIT:
 		case COOLEXPLOSION1:
+		case FIREBALL:
+			// Twentieth Anniversary World Tour
+			if (s->picnum == FIREBALL && !isWorldTour())
+				break;
 
 			if (s->picnum == COOLEXPLOSION1)
 				if (!S_CheckSoundPlaying(i, WIERDSHOT_FLY))
@@ -1673,6 +1677,8 @@ void moveweapons_d(void)
 					s->zvel = 0;
 				}
 
+				bool fireball = (isWorldTour() && s->picnum == FIREBALL && sprite[s->owner].picnum != FIREBALL);
+
 				if ((j&49152) == 49152)
 				{
 					j &= (MAXSPRITES-1);
@@ -1689,16 +1695,23 @@ void moveweapons_d(void)
 						continue;
 					}
 
-					checkhitsprite(j,i);
+					if (!isWorldTour() || s->picnum != FIREBALL || fireball)
+						checkhitsprite(j,i);
 
 					if (sprite[j].picnum == APLAYER)
 					{
 						p = sprite[j].yvel;
+
+						if (ud.multimode >= 2 && fireball && sprite[s->owner].picnum == APLAYER) 
+						{
+							ps[p].numloogs = -1 - sprite[i].yvel;
+						}
+
 						spritesound(PISTOL_BODYHIT,j);
 
 						if (s->picnum == SPIT)
 						{
-							ps[p].q16horiz += 32 << FRACBITS;
+							ps[p].addhoriz(32);
 							ps[p].return_to_center = 8;
 
 							if (ps[p].loogcnt == 0)
@@ -1722,7 +1735,9 @@ void moveweapons_d(void)
 				{
 					j &= (MAXWALLS-1);
 
-					if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+					if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT && 
+						(!isWorldTour() || s->picnum != FIREBALL) &&
+						(wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
 					{
 						k = getangle(
 								wall[wall[j].point2].x-wall[j].x,
@@ -1768,6 +1783,15 @@ void moveweapons_d(void)
 
 						checkhitceiling(s->sectnum);
 					}
+					else if (fireball)
+					{
+						j = spawn(i, LAVAPOOL);
+						sprite[j].owner = sprite[i].owner;
+						sprite[j].yvel = sprite[i].yvel;
+						actor[j].owner = sprite[i].owner;
+						deletesprite(i);
+						continue;
+					}
 
 					if (s->picnum == FREEZEBLAST)
 					{
@@ -1781,6 +1805,8 @@ void moveweapons_d(void)
 						s->yvel--;
 						continue;
 					}
+
+
 				}
 
 				if (s->picnum != SPIT)
@@ -1810,7 +1836,7 @@ void moveweapons_d(void)
 						spritesound(SHRINKER_HIT,i);
 						hitradius(i,shrinkerblastradius,0,0,0,0);
 					}
-					else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER)
+					else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER && (!isWorldTour() || s->picnum != FIREBALL))
 					{
 						k = spawn(i,EXPLOSION2);
 						sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat>>1;
@@ -1829,13 +1855,18 @@ void moveweapons_d(void)
 						if (s->xrepeat >= 10)
 						{
 							x = s->extra;
-							hitradius(i,rpgblastradius, x>>2,x>>1,x-(x>>2),x);
+							hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 						}
 						else
 						{
 							x = s->extra+(global_random&3);
-							hitradius(i,(rpgblastradius>>1),x>>2,x>>1,x-(x>>2),x);
+							hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 						}
+					}
+					if (fireball) 
+					{
+						j = spawn(i, EXPLOSION2);
+						sprite[j].xrepeat = sprite[j].yrepeat = (short)(s->xrepeat >> 1);
 					}
 				}
 				if (s->picnum != COOLEXPLOSION1) 
@@ -1874,7 +1905,7 @@ void moveweapons_d(void)
 void movetransports_d(void)
 {
 	char warpspriteto;
-	short j, k, l, p, sect, sectlotag, nextj, nextk;
+	short j, k, l, p, sect, sectlotag, nextj;
 	int ll, onfloorz, q, nexti;
 
 	for (int i = headspritestat[STAT_TRANSPORT]; i >= 0; i = nexti)
@@ -1926,7 +1957,7 @@ void movetransports_d(void)
 									sprite[ps[k].i].extra = 0;
 								}
 
-							ps[p].q16ang = sprite[sprite[i].owner].ang << FRACBITS;
+							ps[p].setang(sprite[sprite[i].owner].ang);
 
 							if (sprite[sprite[i].owner].owner != sprite[i].owner)
 							{
@@ -2205,5 +2236,907 @@ void movetransports_d(void)
 	BOLT:;
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void greenslime(int i)
+{
+	spritetype* s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int sect = s->sectnum;
+	int j;
+
+	// #ifndef VOLUMEONE
+	if (ud.multimode < 2)
+	{
+		if (actor_tog == 1)
+		{
+			s->cstat = (short)32768;
+			return;
+		}
+		else if (actor_tog == 2) s->cstat = 257;
+	}
+	// #endif
+
+	t[1] += 128;
+
+	if (sector[sect].floorstat & 1)
+	{
+		deletesprite(i);
+		return;
+	}
+
+	int x;
+	int p = findplayer(s, &x);
+
+	if (x > 20480)
+	{
+		hittype[i].timetosleep++;
+		if (hittype[i].timetosleep > SLEEPTIME)
+		{
+			hittype[i].timetosleep = 0;
+			changespritestat(i, 2);
+			return;
+		}
+	}
+
+	if (t[0] == -5) // FROZEN
+	{
+		t[3]++;
+		if (t[3] > 280)
+		{
+			s->pal = 0;
+			t[0] = 0;
+			return;
+		}
+		makeitfall(i);
+		s->cstat = 257;
+		s->picnum = GREENSLIME + 2;
+		s->extra = 1;
+		s->pal = 1;
+		j = ifhitbyweapon(i); if (j >= 0)
+		{
+			if (j == FREEZEBLAST)
+				return;
+			for (j = 16; j >= 0; j--)
+			{
+				int k = EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), i, 5);
+				sprite[k].pal = 1;
+			}
+			spritesound(GLASS_BREAKING, i);
+			deletesprite(i);
+		}
+		else if (x < 1024 && ps[p].quick_kick == 0)
+		{
+			j = getincangle(ps[p].getang(), getangle(sprite[i].x - ps[p].posx, sprite[i].y - ps[p].posy));
+			if (j > -128 && j < 128)
+				ps[p].quick_kick = 14;
+		}
+
+		return;
+	}
+
+	if (x < 1596)
+		s->cstat = 0;
+	else s->cstat = 257;
+
+	if (t[0] == -4) //On the player
+	{
+		if (sprite[ps[p].i].extra < 1)
+		{
+			t[0] = 0;
+			return;
+		}
+
+		setsprite(i, s->x, s->y, s->z);
+
+		s->ang = ps[p].getang();
+
+		if ((PlayerInput(p, SK_FIRE) || (ps[p].quick_kick > 0)) && sprite[ps[p].i].extra > 0)
+			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
+			{
+				for (x = 0; x < 8; x++)
+				{
+					j = EGS(sect, s->x, s->y, s->z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), i, 5);
+					sprite[j].pal = 6;
+				}
+
+				spritesound(SLIM_DYING, i);
+				spritesound(SQUISHED, i);
+				if ((krand() & 255) < 32)
+				{
+					j = spawn(i, BLOODPOOL);
+					sprite[j].pal = 0;
+				}
+				ps[p].actors_killed++;
+				t[0] = -3;
+				if (ps[p].somethingonplayer == i)
+					ps[p].somethingonplayer = -1;
+				deletesprite(i);
+				return;
+			}
+
+		s->z = ps[p].posz + ps[p].pyoff - t[2] + (8 << 8);
+
+		s->z += (100 - ps[p].gethoriz()) << 4;
+
+		if (t[2] > 512)
+			t[2] -= 128;
+
+		if (t[2] < 348)
+			t[2] += 128;
+
+		if (ps[p].newowner >= 0)
+		{
+			ps[p].newowner = -1;
+			ps[p].posx = ps[p].oposx;
+			ps[p].posy = ps[p].oposy;
+			ps[p].posz = ps[p].oposz;
+			ps[p].q16ang = ps[p].oq16ang;
+
+			updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
+			setpal(&ps[p]);
+
+			j = headspritestat[1];
+			while (j >= 0)
+			{
+				if (sprite[j].picnum == CAMERA1) sprite[j].yvel = 0;
+				j = nextspritestat[j];
+			}
+		}
+
+		if (t[3] > 0)
+		{
+			short frames[] = { 5,5,6,6,7,7,6,5 };
+
+			s->picnum = GREENSLIME + frames[t[3]];
+
+			if (t[3] == 5)
+			{
+				sprite[ps[p].i].extra += -(5 + (krand() & 3));
+				spritesound(SLIM_ATTACK, i);
+			}
+
+			if (t[3] < 7) t[3]++;
+			else t[3] = 0;
+
+		}
+		else
+		{
+			s->picnum = GREENSLIME + 5;
+			if (rnd(32))
+				t[3] = 1;
+		}
+
+		s->xrepeat = 20 + (sintable[t[1] & 2047] >> 13);
+		s->yrepeat = 15 + (sintable[t[1] & 2047] >> 13);
+
+		s->x = ps[p].posx + (sintable[(ps[p].getang() + 512) & 2047] >> 7);
+		s->y = ps[p].posy + (sintable[ps[p].getang() & 2047] >> 7);
+
+		return;
+	}
+
+	else if (s->xvel < 64 && x < 768)
+	{
+		if (ps[p].somethingonplayer == -1)
+		{
+			ps[p].somethingonplayer = i;
+			if (t[0] == 3 || t[0] == 2) //Falling downward
+				t[2] = (12 << 8);
+			else t[2] = -(13 << 8); //Climbing up duke
+			t[0] = -4;
+		}
+	}
+
+	j = ifhitbyweapon(i); if (j >= 0)
+	{
+		spritesound(SLIM_DYING, i);
+
+		ps[p].actors_killed++;
+		if (ps[p].somethingonplayer == i)
+			ps[p].somethingonplayer = -1;
+
+		if (j == FREEZEBLAST)
+		{
+			spritesound(SOMETHINGFROZE, i); t[0] = -5; t[3] = 0;
+			return;
+		}
+
+		if ((krand() & 255) < 32)
+		{
+			j = spawn(i, BLOODPOOL);
+			sprite[j].pal = 0;
+		}
+
+		for (x = 0; x < 8; x++)
+		{
+			j = EGS(sect, s->x, s->y, s->z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), i, 5);
+			sprite[j].pal = 6;
+		}
+		t[0] = -3;
+		deletesprite(i);
+		return;
+	}
+	// All weap
+	if (t[0] == -1) //Shrinking down
+	{
+		makeitfall(i);
+
+		s->cstat &= 65535 - 8;
+		s->picnum = GREENSLIME + 4;
+
+		//                    if(s->yrepeat > 62)
+		  //                      guts(s,JIBS6,5,myconnectindex);
+
+		if (s->xrepeat > 32) s->xrepeat -= krand() & 7;
+		if (s->yrepeat > 16) s->yrepeat -= krand() & 7;
+		else
+		{
+			s->xrepeat = 40;
+			s->yrepeat = 16;
+			t[5] = -1;
+			t[0] = 0;
+		}
+
+		return;
+	}
+	else if (t[0] != -2) getglobalz(i);
+
+	if (t[0] == -2) //On top of somebody (an enemy)
+	{
+		makeitfall(i);
+		sprite[t[5]].xvel = 0;
+
+		int l = sprite[t[5]].ang;
+
+		s->z = sprite[t[5]].z;
+		s->x = sprite[t[5]].x + (sintable[(l + 512) & 2047] >> 11);
+		s->y = sprite[t[5]].y + (sintable[l & 2047] >> 11);
+
+		s->picnum = GREENSLIME + 2 + (global_random & 1);
+
+		if (s->yrepeat < 64) s->yrepeat += 2;
+		else
+		{
+			if (s->xrepeat < 32) s->xrepeat += 4;
+			else
+			{
+				t[0] = -1;
+				x = ldist(s, &sprite[t[5]]);
+				if (x < 768) {
+					sprite[t[5]].xrepeat = 0;
+
+					// JBF 20041129: a slimer eating another enemy really ought
+					// to decrease the maximum kill count by one.
+					if (ps[myconnectindex].max_actors_killed > 0) ps[myconnectindex].max_actors_killed--;
+				}
+			}
+		}
+		return;
+	}
+
+	//Check randomly to see of there is an actor near
+	if (rnd(32))
+	{
+		j = headspritesect[sect];
+		while (j >= 0)
+		{
+			switch (sprite[j].picnum)
+			{
+			case LIZTROOP:
+			case LIZMAN:
+			case PIGCOP:
+			case NEWBEAST:
+				if (ldist(s, &sprite[j]) < 768 && (klabs(s->z - sprite[j].z) < 8192)) //Gulp them
+				{
+					t[5] = j;
+					t[0] = -2;
+					t[1] = 0;
+					return;
+				}
+			}
+
+			j = nextspritesect[j];
+		}
+	}
+
+	//Moving on the ground or ceiling
+
+	if (t[0] == 0 || t[0] == 2)
+	{
+		s->picnum = GREENSLIME;
+
+		if ((krand() & 511) == 0)
+			spritesound(SLIM_ROAM, i);
+
+		if (t[0] == 2)
+		{
+			s->zvel = 0;
+			s->cstat &= (65535 - 8);
+
+			if ((sector[sect].ceilingstat & 1) || (hittype[i].ceilingz + 6144) < s->z)
+			{
+				s->z += 2048;
+				t[0] = 3;
+				return;
+			}
+		}
+		else
+		{
+			s->cstat |= 8;
+			makeitfall(i);
+		}
+
+		if (everyothertime & 1) ssp(i, CLIPMASK0);
+
+		if (s->xvel > 96)
+		{
+			s->xvel -= 2;
+			return;
+		}
+		else
+		{
+			if (s->xvel < 32) s->xvel += 4;
+			s->xvel = 64 - (sintable[(t[1] + 512) & 2047] >> 9);
+
+			s->ang += getincangle(s->ang,
+				getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 3;
+			// TJR
+		}
+
+		s->xrepeat = 36 + (sintable[(t[1] + 512) & 2047] >> 11);
+		s->yrepeat = 16 + (sintable[t[1] & 2047] >> 13);
+
+		if (rnd(4) && (sector[sect].ceilingstat & 1) == 0 &&
+			klabs(hittype[i].floorz - hittype[i].ceilingz)
+			< (192 << 8))
+		{
+			s->zvel = 0;
+			t[0]++;
+		}
+
+	}
+
+	if (t[0] == 1)
+	{
+		s->picnum = GREENSLIME;
+		if (s->yrepeat < 40) s->yrepeat += 8;
+		if (s->xrepeat > 8) s->xrepeat -= 4;
+		if (s->zvel > -(2048 + 1024))
+			s->zvel -= 348;
+		s->z += s->zvel;
+		if (s->z < hittype[i].ceilingz + 4096)
+		{
+			s->z = hittype[i].ceilingz + 4096;
+			s->xvel = 0;
+			t[0] = 2;
+		}
+	}
+
+	if (t[0] == 3)
+	{
+		s->picnum = GREENSLIME + 1;
+
+		makeitfall(i);
+
+		if (s->z > hittype[i].floorz - (8 << 8))
+		{
+			s->yrepeat -= 4;
+			s->xrepeat += 2;
+		}
+		else
+		{
+			if (s->yrepeat < (40 - 4)) s->yrepeat += 8;
+			if (s->xrepeat > 8) s->xrepeat -= 4;
+		}
+
+		if (s->z > hittype[i].floorz - 2048)
+		{
+			s->z = hittype[i].floorz - 2048;
+			t[0] = 0;
+			s->xvel = 0;
+		}
+	}
+}
+
+void flamethrowerflame(int i)
+{
+	spritetype* s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int sect = s->sectnum;
+	int x, j;
+	int p = findplayer(s, &x);
+	execute(i, p, x);
+	t[0]++;
+	if (sector[sect].lotag == 2)
+	{
+		sprite[spawn(i, EXPLOSION2)].shade = 127;
+		deletesprite(i);
+		return;
+	}
+
+	int dax = s->x;
+	int day = s->y;
+	int daz = s->z;
+
+	getglobalz(i);
+
+	int ds = t[0] / 6;
+	if (s->xrepeat < 80)
+		s->yrepeat = s->xrepeat += ds;
+	s->clipdist += ds;
+	if (t[0] <= 2)
+		t[3] = krand() % 10;
+	if (t[0] > 30) 
+	{
+		sprite[spawn(i, EXPLOSION2)].shade = 127;
+		deletesprite(i);
+		return;
+	}
+
+	j = movesprite(i, (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
+		(s->xvel * (sintable[s->ang & 2047])) >> 14, s->zvel, CLIPMASK1);
+
+	if (s->sectnum < 0)
+	{
+		deletesprite(i);
+		return;
+	}
+
+	if ((j & kHitTypeMask) != kHitSprite)
+	{
+		if (s->z < hittype[i].ceilingz)
+		{
+			j = kHitSector | (s->sectnum);
+			s->zvel = -1;
+		}
+		else if ((s->z > hittype[i].floorz && sector[s->sectnum].lotag != 1)
+			|| (s->z > hittype[i].floorz + (16 << 8) && sector[s->sectnum].lotag == 1))
+		{
+			j = kHitSector | (s->sectnum);
+			if (sector[s->sectnum].lotag != 1)
+				s->zvel = 1;
+		}
+	}
+
+	if (j != 0) {
+		s->xvel = s->yvel = 0;
+		if ((j & kHitTypeMask) == kHitSprite)
+		{
+			j &= (MAXSPRITES - 1);
+			checkhitsprite((short)j, i);
+			if (sprite[j].picnum == APLAYER)
+				spritesound(j, PISTOL_BODYHIT);
+		}
+		else if ((j & kHitTypeMask) == kHitWall)
+		{
+			j &= (MAXWALLS - 1);
+			setsprite(i, dax, day, daz);
+			checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
+		}
+		else if ((j & kHitTypeMask) == kHitSector)
+		{
+			setsprite(i, dax, day, daz);
+			if (s->zvel < 0)
+				checkhitceiling(s->sectnum);
+		}
+
+		if (s->xrepeat >= 10)
+		{
+			x = s->extra;
+			hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+		}
+		else
+		{
+			x = s->extra + (global_random & 3);
+			hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void moveactors_d(void)
+{
+	int x, m, l, * t;
+	short j, sect, p;
+	spritetype* s;
+	unsigned short k;
+	int nexti;
+	bool bBoom;
+
+	
+	for (int i = headspritestat[1]; i >= 0; i = nexti)
+	{
+		nexti = nextspritestat[i];
+
+		s = &sprite[i];
+
+		sect = s->sectnum;
+
+		if (s->xrepeat == 0 || sect < 0 || sect >= MAXSECTORS)
+		{ 
+			deletesprite(i);
+			continue;
+		}
+
+		t = &hittype[i].temp_data[0];
+
+		hittype[i].bposx = s->x;
+		hittype[i].bposy = s->y;
+		hittype[i].bposz = s->z;
+
+
+		switch (s->picnum)
+		{
+		case FLAMETHROWERFLAME:
+			if (isWorldTour()) flamethrowerflame(i);
+			continue;
+
+		case DUCK:
+		case TARGET:
+			if (s->cstat & 32)
+			{
+				t[0]++;
+				if (t[0] > 60)
+				{
+					t[0] = 0;
+					s->cstat = 128 + 257 + 16;
+					s->extra = 1;
+				}
+			}
+			else
+			{
+				j = ifhitbyweapon(i);
+				if (j >= 0)
+				{
+					s->cstat = 32 + 128;
+					k = 1;
+
+					j = headspritestat[1];
+					while (j >= 0)
+					{
+						if (sprite[j].lotag == s->lotag &&
+							sprite[j].picnum == s->picnum)
+						{
+							if ((sprite[j].hitag && !(sprite[j].cstat & 32)) ||
+								(!sprite[j].hitag && (sprite[j].cstat & 32))
+								)
+							{
+								k = 0;
+								break;
+							}
+						}
+
+						j = nextspritestat[j];
+					}
+
+					if (k == 1)
+					{
+						operateactivators(s->lotag, -1);
+						operateforcefields(i, s->lotag);
+						operatemasterswitches(s->lotag);
+					}
+				}
+			}
+			continue;
+
+		case RESPAWNMARKERRED:
+		case RESPAWNMARKERYELLOW:
+		case RESPAWNMARKERGREEN:
+			if (!respawnmarker(i, RESPAWNMARKERYELLOW, RESPAWNMARKERGREEN)) continue;
+			break;
+
+		case HELECOPT:
+		case DUKECAR:
+
+			s->z += s->zvel;
+			t[0]++;
+
+			if (t[0] == 4) spritesound(WAR_AMBIENCE2, i);
+
+			if (t[0] > (26 * 8))
+			{
+				sound(RPG_EXPLODE);
+				for (j = 0; j < 32; j++) 
+						RANDOMSCRAP(s, i);
+				earthquaketime = 16;
+				deletesprite(i);
+				continue;
+			} 
+			else if ((t[0] & 3) == 0)
+				spawn(i, EXPLOSION2);
+			ssp(i, CLIPMASK0);
+			break;
+		case RAT:
+			if (!rat(i, true)) continue;
+			break;
+		case QUEBALL:
+		case STRIPEBALL:
+			if (!queball(i, POCKET, QUEBALL, STRIPEBALL)) continue;
+			break;
+		case FORCESPHERE:
+			forcesphere(i, FORCESPHERE);
+			continue;
+
+		case RECON:
+			recon(i, EXPLOSION2, FIRELASER, RECO_ATTACK, RECO_PAIN, RECO_ROAM, 10, [](int i)->int { return PIGCOP; });
+			continue;
+
+		case OOZ:
+		case OOZ2:
+			ooz(i);
+			continue;
+
+		case GREENSLIME:
+		case GREENSLIME + 1:
+		case GREENSLIME + 2:
+		case GREENSLIME + 3:
+		case GREENSLIME + 4:
+		case GREENSLIME + 5:
+		case GREENSLIME + 6:
+		case GREENSLIME + 7:
+			greenslime(i);
+			continue;
+
+		case BOUNCEMINE:
+		case MORTER:
+			j = spawn(i, FRAMEEFFECT1);
+			hittype[j].temp_data[0] = 3;
+
+		case HEAVYHBOMB:
+
+			if ((s->cstat & 32768))
+			{
+				t[2]--;
+				if (t[2] <= 0)
+				{
+					spritesound(TELEPORTER, i);
+					spawn(i, TRANSPORTERSTAR);
+					s->cstat = 257;
+				}
+				continue;
+			}
+
+			p = findplayer(s, &x);
+
+			if (x < 1220) s->cstat &= ~257;
+			else s->cstat |= 257;
+
+			if (t[3] == 0)
+			{
+				j = ifhitbyweapon(i);
+				if (j >= 0)
+				{
+					t[3] = 1;
+					t[4] = 0;
+					l = 0;
+					s->xvel = 0;
+					goto DETONATEB;
+				}
+			}
+
+			if (s->picnum != BOUNCEMINE)
+			{
+				makeitfall(i);
+
+				if (sector[sect].lotag != 1 && s->z >= hittype[i].floorz - (FOURSLEIGHT) && s->yvel < 3)
+				{
+					if (s->yvel > 0 || (s->yvel == 0 && hittype[i].floorz == sector[sect].floorz))
+						spritesound(PIPEBOMB_BOUNCE, i);
+					s->zvel = -((4 - s->yvel) << 8);
+					if (sector[s->sectnum].lotag == 2)
+						s->zvel >>= 2;
+					s->yvel++;
+				}
+				if (s->z < hittype[i].ceilingz) // && sector[sect].lotag != 2 )
+				{
+					s->z = hittype[i].ceilingz + (3 << 8);
+					s->zvel = 0;
+				}
+			}
+
+			j = movesprite(i,
+				(s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
+				(s->xvel * (sintable[s->ang & 2047])) >> 14,
+				s->zvel, CLIPMASK0);
+
+			if (sector[sprite[i].sectnum].lotag == 1 && s->zvel == 0)
+			{
+				s->z += (32 << 8);
+				if (t[5] == 0)
+				{
+					t[5] = 1;
+					spawn(i, WATERSPLASH2);
+				}
+			}
+			else t[5] = 0;
+
+			if (t[3] == 0 && (s->picnum == BOUNCEMINE || s->picnum == MORTER) && (j || x < 844))
+			{
+				t[3] = 1;
+				t[4] = 0;
+				l = 0;
+				s->xvel = 0;
+				goto DETONATEB;
+			}
+
+			if (sprite[s->owner].picnum == APLAYER)
+				l = sprite[s->owner].yvel;
+			else l = -1;
+
+			if (s->xvel > 0)
+			{
+				s->xvel -= 5;
+				if (sector[sect].lotag == 2)
+					s->xvel -= 10;
+
+				if (s->xvel < 0)
+					s->xvel = 0;
+				if (s->xvel & 8) s->cstat ^= 4;
+			}
+
+			if ((j & 49152) == 32768)
+			{
+				j &= (MAXWALLS - 1);
+
+				checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
+
+				k = getangle(
+					wall[wall[j].point2].x - wall[j].x,
+					wall[wall[j].point2].y - wall[j].y);
+
+				s->ang = ((k << 1) - s->ang) & 2047;
+				s->xvel >>= 1;
+			}
+
+		DETONATEB:
+
+			bBoom = false;
+			if ((l >= 0 && ps[l].hbomb_on == 0) || t[3] == 1)
+				bBoom = true;
+			if (isNamWW2GI() && s->picnum == HEAVYHBOMB)
+			{
+				s->extra--;
+				if (s->extra <= 0)
+					bBoom = true;
+			}
+			if (bBoom)
+			{
+				t[4]++;
+
+				if (t[4] == 2)
+				{
+					x = s->extra;
+					m = 0;
+					switch (s->picnum)
+					{
+					case HEAVYHBOMB: m = pipebombblastradius; break;
+					case MORTER: m = morterblastradius; break;
+					case BOUNCEMINE: m = bouncemineblastradius; break;
+					}
+
+					hitradius(i, m, x >> 2, x >> 1, x - (x >> 2), x);
+					spawn(i, EXPLOSION2);
+					if (s->zvel == 0)
+						spawn(i, EXPLOSION2BOT);
+					spritesound(PIPEBOMB_EXPLODE, i);
+					for (x = 0; x < 8; x++)
+						RANDOMSCRAP(s, i);
+				}
+
+				if (s->yrepeat)
+				{
+					s->yrepeat = 0;
+					continue;
+				}
+
+				if (t[4] > 20)
+				{
+					if (s->owner != i || ud.respawn_items == 0)
+					{
+						deletesprite(i);
+						continue;
+					}
+					else
+					{
+						t[2] = respawnitemtime;
+						spawn(i, RESPAWNMARKERRED);
+						s->cstat = (short)32768;
+						s->yrepeat = 9;
+						continue;
+					}
+				}
+			}
+			else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
+				if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
+					if (ps[p].ammo_amount[HANDBOMB_WEAPON] < max_ammo_amount[HANDBOMB_WEAPON])
+					{
+						if (ud.coop >= 1 && s->owner == i)
+						{
+							for (j = 0; j < ps[p].weapreccnt; j++)
+								if (ps[p].weaprecs[j] == s->picnum)
+									goto BOLT;
+
+							if (ps[p].weapreccnt < 255) // DukeGDX has 16 here.
+								ps[p].weaprecs[ps[p].weapreccnt++] = s->picnum;
+						}
+
+						addammo(HANDBOMB_WEAPON, &ps[p], 1);
+						spritesound(DUKE_GET, ps[p].i);
+
+						if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || s->owner == ps[p].i)
+							addweapon(&ps[p], HANDBOMB_WEAPON);
+
+						if (sprite[s->owner].picnum != APLAYER)
+						{
+							SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
+						}
+
+						if (s->owner != i || ud.respawn_items == 0)
+						{
+							if (s->owner == i && ud.coop >= 1)
+								continue;
+
+							deletesprite(i);
+							continue;
+						} 
+						else
+						{
+							t[2] = respawnitemtime;
+							spawn(i, RESPAWNMARKERRED);
+							s->cstat = (short)32768;
+						}
+					}
+
+			if (t[0] < 8) t[0]++;
+			continue;
+
+		case REACTORBURNT:
+		case REACTOR2BURNT:
+			continue;
+
+		case REACTOR:
+		case REACTOR2:
+			reactor(i, REACTOR, REACTOR2, REACTOR2BURNT, REACTOR2BURNT);
+			continue;
+
+		case DUKE_CAMERA1:
+			camera(i);
+			continue;
+		}
+
+
+		// #ifndef VOLOMEONE
+		if (ud.multimode < 2 && badguy(s))
+		{
+			if (actor_tog == 1)
+			{
+				s->cstat = (short)32768;
+				continue;
+			}
+			else if (actor_tog == 2) s->cstat = 257;
+		}
+		// #endif
+
+		p = findplayer(s, &x);
+
+		execute(i, p, x);
+
+	BOLT:;
+
+	}
+
+}
+
 
 END_DUKE_NS

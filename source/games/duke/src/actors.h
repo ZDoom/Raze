@@ -262,10 +262,16 @@ extern actor_t      actor[MAXSPRITES];
 extern actor_t* hittype;
 extern int32_t      block_deletesprite;
 extern int32_t      g_noEnemies;
+#define actor_tog g_noEnemies
 extern int32_t      otherp;
 extern int32_t      ticrandomseed;
 extern int g_canSeePlayer;
 
+int A_FindLocator(int const tag, int const sectNum);
+inline int LocateTheLocator(int const tag, int const sectNum)
+{
+    return A_FindLocator(tag, sectNum);
+}
 
 int  A_CheckNoSE7Water(uspritetype const *pSprite, int sectNum, int sectLotag, int32_t *pOther);
 int  A_CheckSwitchTile(int spriteNum);
@@ -284,7 +290,7 @@ inline void check_fta_sounds(int s)
 }
 void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3, int dmg4);
 void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt);
-void A_ResetLanePics(void);
+void resetlanepics(void);
 
 int  G_SetInterpolation(int32_t *posptr);
 void G_AddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange, int lightColor, int lightPrio);
@@ -382,6 +388,15 @@ void bounce(int i);
 void movetongue(int i, int tongue, int jaw);
 void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion);
 void lotsofstuff(spritetype* s, short n, int spawntype);
+bool respawnmarker(int i, int yellow, int green);
+bool rat(int i, bool makesound);
+bool queball(int i, int pocket, int queball, int stripeball);
+void forcesphere(int i, int forcesphere);
+void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int roamsnd, int shift, int (*getspawn)(int i));
+void ooz(int i);
+void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT);
+void camera(int i);
+
 void respawn_rrra(int i, int j);
 
 void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);

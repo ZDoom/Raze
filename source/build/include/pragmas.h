@@ -174,6 +174,8 @@ static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
 static FORCE_INLINE CONSTEXPR int ksgn(int32_t a) { return (a > 0) - (a < 0); }
 #endif
 
+inline int sgn(int32_t a) { return (a > 0) - (a < 0); }
+
 #ifndef pragmas_have_mulscale
 static FORCE_INLINE CONSTEXPR int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
 static FORCE_INLINE CONSTEXPR int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx)

@@ -113,6 +113,7 @@ G_EXTERN int32_t g_frameRate;
 G_EXTERN int32_t g_cyclerCnt;
 #define numcyclers g_cyclerCnt
 G_EXTERN int32_t g_damageCameras;
+#define camerashitable g_damageCameras
 G_EXTERN int32_t g_defaultLabelCnt;
 G_EXTERN int32_t g_doQuickSave;
 G_EXTERN int32_t g_earthquakeTime;
@@ -122,6 +123,7 @@ G_EXTERN int32_t g_gameQuit;
 G_EXTERN int32_t g_globalRandom;
 #define global_random g_globalRandom
 G_EXTERN int32_t g_impactDamage;
+#define impact_damage g_impactDamage
 G_EXTERN int32_t g_labelCnt;
 G_EXTERN int32_t g_maxPlayerHealth;
 G_EXTERN int32_t g_mirrorCount;
@@ -157,6 +159,7 @@ G_EXTERN ClockTicks ototalclock;
 
 G_EXTERN int32_t g_wupass;
 G_EXTERN int32_t g_chickenPlant;
+#define chickenplant g_chickenPlant
 G_EXTERN int32_t g_thunderOn;
 G_EXTERN int32_t g_ufoSpawn;
 G_EXTERN int32_t g_ufoCnt;
@@ -165,34 +168,6 @@ G_EXTERN int32_t g_vixenLevel;
 G_EXTERN int32_t g_lastLevel;
 G_EXTERN int32_t g_turdLevel;
 
-G_EXTERN int32_t g_mineCartDir[MAXMINECARTS];
-G_EXTERN int32_t g_mineCartSpeed[MAXMINECARTS];
-G_EXTERN int32_t g_mineCartChildSect[MAXMINECARTS];
-G_EXTERN int32_t g_mineCartSound[MAXMINECARTS];
-G_EXTERN int32_t g_mineCartDist[MAXMINECARTS];
-G_EXTERN int32_t g_mineCartDrag[MAXMINECARTS];
-G_EXTERN int32_t g_mineCartOpen[MAXMINECARTS];
-G_EXTERN int32_t g_mineCartSect[MAXMINECARTS];
-G_EXTERN uint32_t g_mineCartCnt;
-
-G_EXTERN int32_t g_jailDoorSound[MAXJAILDOORS];
-G_EXTERN int32_t g_jailDoorDrag[MAXJAILDOORS];
-G_EXTERN int32_t g_jailDoorSpeed[MAXJAILDOORS];
-G_EXTERN int32_t g_jailDoorSecHitag[MAXJAILDOORS];
-G_EXTERN int32_t g_jailDoorDist[MAXJAILDOORS];
-G_EXTERN int32_t g_jailDoorDir[MAXJAILDOORS];
-G_EXTERN int32_t g_jailDoorOpen[MAXJAILDOORS];
-G_EXTERN int32_t g_jailDoorSect[MAXJAILDOORS];
-G_EXTERN uint32_t g_jailDoorCnt;
-
-G_EXTERN int32_t g_lightninSector[MAXLIGHTNINSECTORS];
-G_EXTERN int32_t g_lightninSectorShade[MAXLIGHTNINSECTORS];
-G_EXTERN uint32_t g_lightninCnt;
-
-G_EXTERN int32_t g_torchSector[MAXTORCHSECTORS];
-G_EXTERN int32_t g_torchSectorShade[MAXTORCHSECTORS];
-G_EXTERN int32_t g_torchType[MAXTORCHSECTORS];
-G_EXTERN uint32_t g_torchCnt;
 
 G_EXTERN int32_t g_geoSectorWarp[MAXGEOSECTORS];
 G_EXTERN int32_t g_geoSectorWarp2[MAXGEOSECTORS];
@@ -232,8 +207,9 @@ G_EXTERN msy_ msy;
 G_EXTERN int32_t g_windTime, g_windDir;
 G_EXTERN int16_t g_fakeBubbaCnt, g_mamaSpawnCnt, g_banjoSong, g_bellTime, g_bellSprite;
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS];
-G_EXTERN uint8_t g_changeEnemySize, g_slotWin, g_ufoSpawnMinion, g_pistonSound, g_chickenWeaponTimer, g_RAendLevel, g_RAendEpisode, g_fogType;
+G_EXTERN uint8_t enemysizecheat, ufospawnsminion, g_pistonSound, g_chickenWeaponTimer, g_RAendLevel, g_RAendEpisode, g_fogType;
 G_EXTERN int32_t g_cdTrack;
+#define raat607 enemysizecheat // only as a reminder
 
 // XXX: I think this pragma pack is meaningless here.
 // MSDN (https://msdn.microsoft.com/en-us/library/2e70t5y1%28VS.80%29.aspx) says:
@@ -265,10 +241,13 @@ extern char g_gametypeNames[MAXGAMETYPES][33];
 
 extern int32_t g_actorRespawnTime;
 extern int32_t g_bouncemineRadius;
+#define bouncemineblastradius g_bouncemineRadius
 extern int32_t g_deleteQueueSize;
 extern int32_t g_gametypeCnt;
 extern int32_t g_itemRespawnTime;
+#define respawnitemtime g_itemRespawnTime
 extern int32_t g_morterRadius;
+#define morterblastradius g_morterRadius
 extern int32_t g_numFreezeBounces;
 extern int32_t g_pipebombRadius;
 #define pipebombblastradius g_pipebombRadius
@@ -284,6 +263,7 @@ extern int32_t g_spriteGravity;
 extern int32_t g_timerTicsPerSecond;
 extern int32_t g_tripbombRadius;
 #define tripbombblastradius g_tripbombRadius
+#define powderkegblastradius g_tripbombRadius
 extern int32_t g_volumeCnt;
 #define gc g_spriteGravity
 
@@ -369,6 +349,14 @@ inline bool PlayerInput(int pl, int bit)
     return TEST_SYNC_KEY(g_player[pl].input->bits, bit);
 }
 
+enum
+{
+    kHitTypeMask = 0xC000,
+    //kHitIndexMask = 0x3FFF,
+    kHitSector = 0x4000,
+    kHitWall = 0x8000,
+    kHitSprite = 0xC000,
+};
 
 END_DUKE_NS
 

@@ -163,6 +163,13 @@ typedef struct player_struct {
     fix16_t q16horiz, q16horizoff;
     fix16_t q16ang, oq16ang;
 
+    int getang() { return q16ang >> FRACBITS; }
+    int getoang() { return oq16ang >> FRACBITS; }
+    void setang(int v) { q16ang = v << FRACBITS; }
+    void setoang(int v) { oq16ang = v << FRACBITS; }
+    void addhoriz(int v) { q16horiz += (v << FRACBITS); }
+    int gethoriz() { return q16horiz >> FRACBITS; }
+
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
     int32_t runspeed, max_player_health, max_shield_amount;
@@ -247,6 +254,7 @@ typedef struct player_struct {
     int32_t dhat60f, dhat613, dhat617, dhat61b, dhat61f;
 
     int8_t crouch_toggle;
+    int SlotWin;
     int8_t padding_[3];
 } DukePlayer_t;
 
@@ -258,6 +266,7 @@ typedef struct player_struct {
 #define heat_amount inv_amount[GET_HEATS]
 #define scuba_amount inv_amount[GET_SCUBA]
 #define boot_amount inv_amount[GET_BOOTS]
+#define raat609 level_end_timer // name in RRGDX is 'MamaEnd'
 
 
 // KEEPINSYNC lunatic/_defs_game.lua
@@ -350,6 +359,10 @@ extern int32_t          ticrandomseed;
 #define SHOOT_HARDCODED_ZVEL INT32_MIN
 
 int A_Shoot(int spriteNum, int projecTile);
+inline int shoot(int s, int p)
+{
+    return A_Shoot(s, p);
+}
 
 static inline void P_PalFrom(DukePlayer_t *pPlayer, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
 {
@@ -357,6 +370,14 @@ static inline void P_PalFrom(DukePlayer_t *pPlayer, uint8_t f, uint8_t r, uint8_
     pPlayer->pals.r = r;
     pPlayer->pals.g = g;
     pPlayer->pals.b = b;
+}
+
+inline void SetPlayerPal(DukePlayer_t* pPlayer, PalEntry pe)
+{
+    pPlayer->pals.f = pe.a;
+    pPlayer->pals.r = pe.r;
+    pPlayer->pals.g = pe.g;
+    pPlayer->pals.b = pe.b;
 }
 
 void    P_AddKills(DukePlayer_t * pPlayer, uint16_t kills);
@@ -367,7 +388,12 @@ void    P_GetInputBoat(int playerNum);
 void    sub_299C0(void);
 void    P_DHGetInput(int const playerNum);
 void P_AddAmmo(DukePlayer_t * pPlayer, int weaponNum, int addAmount);
+inline void addammo(int weaponNum, DukePlayer_t* pPlayer, int addAmount)
+{
+    P_AddAmmo(pPlayer, weaponNum, addAmount);
+}
 void    P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum);
+void addweapon(DukePlayer_t* pPlayer, int weaponNum);
 void    P_CheckWeapon(DukePlayer_t *pPlayer);
 void    P_DisplayScuba(void);
 void    P_DisplayWeapon(void);

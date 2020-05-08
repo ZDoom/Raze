@@ -901,27 +901,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_spriteExtra[0], sizeof(g_spriteExtra[0]), MAXSPRITES },
     { 0, &g_sectorExtra[0], sizeof(g_sectorExtra[0]), MAXSECTORS },
 
-    { 0, &g_jailDoorSecHitag[0], sizeof(g_jailDoorSecHitag[0]), ARRAY_SIZE(g_jailDoorSecHitag) },
-    { 0, &g_jailDoorSect[0], sizeof(g_jailDoorSect[0]), ARRAY_SIZE(g_jailDoorSect) },
-    { 0, &g_jailDoorOpen[0], sizeof(g_jailDoorOpen[0]), ARRAY_SIZE(g_jailDoorOpen) },
-    { 0, &g_jailDoorDir[0], sizeof(g_jailDoorDir[0]), ARRAY_SIZE(g_jailDoorDir) },
-    { 0, &g_jailDoorDrag[0], sizeof(g_jailDoorDrag[0]), ARRAY_SIZE(g_jailDoorDrag) },
-    { 0, &g_jailDoorDist[0], sizeof(g_jailDoorDist[0]), ARRAY_SIZE(g_jailDoorDist) },
-    { 0, &g_jailDoorSpeed[0], sizeof(g_jailDoorSpeed[0]), ARRAY_SIZE(g_jailDoorSpeed) },
-    { 0, &g_jailDoorSound[0], sizeof(g_jailDoorSound[0]), ARRAY_SIZE(g_jailDoorSound) },
-    { 0, &g_jailDoorCnt, sizeof(g_jailDoorCnt), 1 },
-
     { 0, &g_shadedSector[0], sizeof(g_shadedSector[0]), MAXSECTORS },
-
-    { 0, &g_mineCartSect[0], sizeof(g_mineCartSect[0]), ARRAY_SIZE(g_mineCartSect) },
-    { 0, &g_mineCartChildSect[0], sizeof(g_mineCartChildSect[0]), ARRAY_SIZE(g_mineCartChildSect) },
-    { 0, &g_mineCartOpen[0], sizeof(g_mineCartOpen[0]), ARRAY_SIZE(g_mineCartOpen) },
-    { 0, &g_mineCartDir[0], sizeof(g_mineCartDir[0]), ARRAY_SIZE(g_mineCartDir) },
-    { 0, &g_mineCartDrag[0], sizeof(g_mineCartDrag[0]), ARRAY_SIZE(g_mineCartDrag) },
-    { 0, &g_mineCartDist[0], sizeof(g_mineCartDist[0]), ARRAY_SIZE(g_mineCartDist) },
-    { 0, &g_mineCartSpeed[0], sizeof(g_mineCartSpeed[0]), ARRAY_SIZE(g_mineCartSpeed) },
-    { 0, &g_mineCartSound[0], sizeof(g_mineCartSound[0]), ARRAY_SIZE(g_mineCartSound) },
-    { 0, &g_mineCartCnt, sizeof(g_mineCartCnt), 1 },
 
     { 0, &g_ambientCnt, sizeof(g_ambientCnt), 1 },
     { 0, &g_ambientHitag[0], sizeof(g_ambientHitag[0]), ARRAY_SIZE(g_ambientHitag) },
@@ -931,15 +911,6 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_ufoCnt, sizeof(g_ufoCnt), 1 },
     { 0, &g_hulkSpawn, sizeof(g_hulkSpawn), 1 },
     { 0, &g_lastLevel, sizeof(g_lastLevel), 1 },
-
-    { 0, &g_torchSector[0], sizeof(g_torchSector[0]), ARRAY_SIZE(g_torchSector) },
-    { 0, &g_torchSectorShade[0], sizeof(g_torchSectorShade[0]), ARRAY_SIZE(g_torchSectorShade) },
-    { 0, &g_torchType[0], sizeof(g_torchType[0]), ARRAY_SIZE(g_torchType) },
-    { 0, &g_torchCnt, sizeof(g_torchCnt), 1 },
-
-    { 0, &g_lightninSector[0], sizeof(g_lightninSector[0]), ARRAY_SIZE(g_lightninSector) },
-    { 0, &g_lightninSectorShade[0], sizeof(g_lightninSectorShade[0]), ARRAY_SIZE(g_lightninSectorShade) },
-    { 0, &g_lightninCnt, sizeof(g_lightninCnt), 1 },
 
     { 0, &g_geoSector[0], sizeof(g_geoSector[0]), ARRAY_SIZE(g_geoSector) },
     { 0, &g_geoSectorWarp[0], sizeof(g_geoSectorWarp[0]), ARRAY_SIZE(g_geoSectorWarp) },
@@ -958,9 +929,8 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_bellTime, sizeof(g_bellTime), 1 },
     { 0, &g_bellSprite, sizeof(g_bellSprite), 1 },
 
-    { 0, &g_changeEnemySize, sizeof(g_changeEnemySize), 1 },
-    { 0, &g_slotWin, sizeof(g_slotWin), 1 },
-    { 0, &g_ufoSpawnMinion, sizeof(g_ufoSpawnMinion), 1 },
+    { 0, &enemysizecheat, sizeof(enemysizecheat), 1 },
+    { 0, &ufospawnsminion, sizeof(ufospawnsminion), 1 },
     { 0, &g_pistonSound, sizeof(g_pistonSound), 1 },
     { 0, &g_chickenWeaponTimer, sizeof(g_chickenWeaponTimer), 1 },
     { 0, &g_RAendLevel, sizeof(g_RAendLevel), 1 },

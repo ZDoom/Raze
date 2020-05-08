@@ -37,6 +37,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
+void lava_cleararrays();
+void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int h);
+void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum);
+void addtorch(int i);
+void addlightning(int i);
+
+
 static int32_t g_whichPalForPlayer = 9;
 
 static uint8_t precachehightile[2][MAXTILES>>3];
@@ -1001,7 +1008,7 @@ void P_ResetStatus(int playerNum)
             pPlayer->drug_stat[2] = 0;
             pPlayer->drug_aspect = 0;
         }
-        A_ResetLanePics();
+        resetlanepics();
         if (!g_netServer && numplayers < 2)
         {
             g_ufoSpawn = min(RRRA ? 3 : (ud.m_player_skill*4+1), 32);
@@ -1092,7 +1099,7 @@ void P_ResetInventory(int playerNum)
         pPlayer->hbomb_offset = 0;
         pPlayer->recoil = 0;
         pPlayer->yehaa_timer = 0;
-        A_ResetLanePics();
+        resetlanepics();
         if (!g_netServer && numplayers < 2)
         {
             g_ufoSpawn = min(ud.m_player_skill*4+1, 32);
@@ -1211,7 +1218,7 @@ static void resetprestat(int playerNum, int gameMode)
         pPlayer->hbomb_offset = 0;
         pPlayer->recoil = 0;
         pPlayer->yehaa_timer = 0;
-        A_ResetLanePics();
+        resetlanepics();
         if (!g_netServer && numplayers < 2)
         {
             g_ufoSpawn = min(ud.m_player_skill*4+1, 32);
@@ -1268,10 +1275,9 @@ static void prelevel(char g)
     {
         G_SetFog(0);
         g_fogType = 0;
-        g_ufoSpawnMinion = 0;
+        ufospawnsminion = 0;
         g_pistonSound = 0;
-        g_slotWin = 0;
-        g_changeEnemySize = 0;
+        enemysizecheat = 0;
         g_player[myconnectindex].ps->level_end_timer = 0;
         g_mamaSpawnCnt = 15;
         g_banjoSong = 0;
@@ -1282,6 +1288,7 @@ static void prelevel(char g)
             {
                 DukePlayer_t *ps = g_player[playerNum].ps;
                 ps->sea_sick_stat = 0;
+                ps->SlotWin = 0;
                 if (ud.level_number == 4 && ud.volume_number == 1)
                     ps->inv_amount[GET_STEROIDS] = 0;
             }
@@ -1308,11 +1315,8 @@ static void prelevel(char g)
     resetprestat(0,g);
     if (RR)
     {
-        g_lightninCnt = 0;
-        g_torchCnt = 0;
+        lava_cleararrays();
         g_geoSectorCnt = 0;
-        g_jailDoorCnt = 0;
-        g_mineCartCnt = 0;
         g_ambientCnt = 0;
         g_thunderOn = 0;
         g_chickenPlant = 0;
@@ -1382,24 +1386,15 @@ static void prelevel(char g)
             {
                 if (sector[i].hitag == sector[j].hitag && i != j)
                 {
-                    if (g_jailDoorCnt >= 32)
-                        G_GameExit("\nToo many jaildoor sectors");
-                    g_jailDoorDist[g_jailDoorCnt] = p1;
-                    g_jailDoorSpeed[g_jailDoorCnt] = p2;
-                    g_jailDoorSecHitag[g_jailDoorCnt] = sector[i].hitag;
-                    g_jailDoorSect[g_jailDoorCnt] = j;
-                    g_jailDoorDrag[g_jailDoorCnt] = 0;
-                    g_jailDoorOpen[g_jailDoorCnt] = 0;
-                    g_jailDoorDir[g_jailDoorCnt] = sector[j].lotag;
-                    g_jailDoorSound[g_jailDoorCnt] = p3;
-                    g_jailDoorCnt++;
-                }
+                    addjaildoor(p1, p2, sector[i].hitag, sector[j].lotag, p3, j);
+                 }
             }
             break;
         }
         case 42:
         {
             if (!RR) break;
+            int childsectnum = -1;
             int k = headspritesect[i];
             while (k != -1)
             {
@@ -1413,7 +1408,7 @@ static void prelevel(char g)
                         if (sprite[kk].picnum == TILE_RRTILE66)
                             if (sprite[kk].lotag == sprite[k].sectnum)
                             {
-                                g_mineCartChildSect[g_mineCartCnt] = sprite[kk].sectnum;
+                                childsectnum = sprite[kk].sectnum;
                                 A_DeleteSprite(kk);
                             }
                     }
@@ -1426,16 +1421,7 @@ static void prelevel(char g)
                 }
                 k = nexti;
             }
-            if (g_mineCartCnt >= 16)
-                G_GameExit("\nToo many minecart sectors");
-            g_mineCartDist[g_mineCartCnt] = p1;
-            g_mineCartSpeed[g_mineCartCnt] = p2;
-            g_mineCartSect[g_mineCartCnt] = i;
-            g_mineCartDir[g_mineCartCnt] = sector[i].hitag;
-            g_mineCartDrag[g_mineCartCnt] = p1;
-            g_mineCartOpen[g_mineCartCnt] = 1;
-            g_mineCartSound[g_mineCartCnt] = p3;
-            g_mineCartCnt++;
+            addminecart(p1, p2, i, sector[i].hitag, p3, childsectnum);
             break;
         }
         case ST_20_CEILING_DOOR:
@@ -1523,21 +1509,12 @@ static void prelevel(char g)
 
             case RRTILE18__STATICRR:
                 if (!RR) break;
-                if (g_torchCnt >= 64)
-                    G_GameExit("\nToo many torch effects");
-                g_torchSector[g_torchCnt] = SECT(i);
-                g_torchSectorShade[g_torchCnt] = sector[SECT(i)].floorshade;
-                g_torchType[g_torchCnt] = SLT(i);
-                g_torchCnt++;
+                addtorch(i);
                 A_DeleteSprite(i);
                 break;
 
             case RRTILE35__STATICRR:
-                if (g_lightninCnt >= 64)
-                    G_GameExit("\nToo many lightnin effects");
-                g_lightninSector[g_lightninCnt] = SECT(i);
-                g_lightninSectorShade[g_lightninCnt] = sector[SECT(i)].floorshade;
-                g_lightninCnt++;
+                addlightning(i);
                 A_DeleteSprite(i);
                 break;
 

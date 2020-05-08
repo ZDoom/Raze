@@ -155,6 +155,11 @@ inline bool isNam()
 	return g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM);
 }
 
+inline bool isNamWW2GI()
+{
+	return g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM |GAMEFLAG_WW2GI);
+}
+
 inline bool isWW2GI()
 {
 	return g_gameType & (GAMEFLAG_WW2GI);

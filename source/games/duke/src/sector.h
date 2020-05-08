@@ -146,6 +146,10 @@ inline void operateactivators(int l, int w)
     G_OperateActivators(l, w);
 }
 void G_OperateForceFields(int spriteNum,int wallTag);
+inline void operateforcefields(int s, int w)
+{
+    G_OperateForceFields(s, w);
+}
 void G_OperateMasterSwitches(int lotag);
 inline void operatemasterswitches(int l)
 {
@@ -159,6 +163,10 @@ inline void operatesectors(int s, int i)
 }
 void P_HandleSharedKeys(int playerNum);
 int GetAnimationGoal(const int32_t *animPtr);
+inline int getanimationgoal(const int32_t* animPtr)
+{
+    return GetAnimationGoal(animPtr);
+}
 int isanearoperator(int lotag);
 int isanunderoperator(int lotag);
 int P_ActivateSwitch(int playerNum, int wallOrSprite, int nSwitchType);
@@ -166,11 +174,12 @@ void P_CheckSectors(int playerNum);
 void Sect_DamageCeiling(int sectNum);
 inline void checkhitceiling(int sec) { Sect_DamageCeiling(sec); }
 int SetAnimation(int sectNum,int32_t *animPtr,int goalVal,int animVel);
+inline int setanimation(int sectNum, int32_t* animPtr, int goalVal, int animVel)
+{
+    return SetAnimation(sectNum, animPtr, goalVal, animVel);
+}
 void G_DoFurniture(int wallNum, int sectNum, int playerNum);
-void G_DoTorch(void);
-void G_DoJailDoor(void);
-void G_MoveMineCart(void);
-void G_Thunder(void);
+void dotorch();
 
 #define FORCEFIELD_CSTAT (64+16+4+1)
 

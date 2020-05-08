@@ -3,6 +3,8 @@ set( PCH_SOURCES
 	src/actors.cpp
 	src/actors_r.cpp
 	src/actors_d.cpp
+	src/actors_lava.cpp
+	src/bowling.cpp
 	src/e_actors.cpp
 	src/anim.cpp
 	src/cheats.cpp

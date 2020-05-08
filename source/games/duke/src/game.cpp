@@ -1682,7 +1682,7 @@ default_case:
             if (!RRRA) goto default_case;
             pSprite->xrepeat = 0;
             pSprite->yrepeat = 0;
-            g_ufoSpawnMinion = 1;
+            ufospawnsminion = 1;
             break;
         case RRTILE8193__STATICRR:
             if (!RRRA) goto default_case;
@@ -2988,7 +2988,7 @@ rr_badguy:
                 pSprite->xrepeat = 16;
                 pSprite->yrepeat = 16;
                 pSprite->clipdist = mulscale7(pSprite->xrepeat, tilesiz[pSprite->picnum].x);
-                if (RRRA && g_ufoSpawnMinion)
+                if (RRRA && ufospawnsminion)
                     pSprite->pal = 8;
                 break;
             case DOGRUN__STATICRR:
@@ -7572,8 +7572,8 @@ int G_DoMoveThings(void)
     //if (g_netClient)   //Slave
     //    Net_SendClientUpdate();
 
-    if (RR && ud.recstat == 0 && ud.multimode < 2 && g_torchCnt)
-        G_DoTorch();
+    if (RR && ud.recstat == 0 && ud.multimode < 2)
+        dotorch();
 
     return 0;
 }

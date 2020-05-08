@@ -810,13 +810,13 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_RATONY:
-                    g_changeEnemySize = 2;
+                    enemysizecheat = 2;
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAVAN:
-                    g_changeEnemySize = 3;
+                    enemysizecheat = 3;
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
                     return;
