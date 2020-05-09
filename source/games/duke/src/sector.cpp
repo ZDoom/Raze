@@ -3794,7 +3794,7 @@ CHECKINV1:
 
                     if (RRRA)
                     {
-                        if (currentWeapon == CHICKEN_WEAPON) currentWeapon = RPG_WEAPON;
+                        if (currentWeapon == CHICKEN_WEAPON) currentWeapon = CROSSBOW_WEAPON;
                         else if (currentWeapon == GROW_WEAPON) currentWeapon = SHRINKER_WEAPON;
                         else if (currentWeapon == SLINGBLADE_WEAPON) currentWeapon = KNEE_WEAPON;
                     }
@@ -3823,7 +3823,7 @@ CHECKINV1:
                         else
                             currentWeapon += weaponNum;
 
-                        if (currentWeapon == -1) currentWeapon = FREEZE_WEAPON;
+                        if (currentWeapon == -1) currentWeapon = TIT_WEAPON;
                         else if (currentWeapon == 10) currentWeapon = KNEE_WEAPON;
 
                         if ((pPlayer->gotweapon[currentWeapon]) && pPlayer->ammo_amount[currentWeapon] > 0)
@@ -3889,11 +3889,11 @@ CHECKINV1:
                             weaponNum = KNEE_WEAPON;
                         }
                     }
-                    else if (weaponNum == RPG_WEAPON)
+                    else if (weaponNum == CROSSBOW_WEAPON)
                     {
                         if(screenpeek == playerNum) pus = NUMPAGES;
 
-                        if (pPlayer->curr_weapon == RPG_WEAPON || pPlayer->ammo_amount[RPG_WEAPON] == 0)
+                        if (pPlayer->curr_weapon == CROSSBOW_WEAPON || pPlayer->ammo_amount[CROSSBOW_WEAPON] == 0)
                         {
                             if (pPlayer->ammo_amount[CHICKEN_WEAPON] == 0)
                                 return;
@@ -3903,7 +3903,7 @@ CHECKINV1:
                         else if((pPlayer->subweapon&4) || pPlayer->ammo_amount[CHICKEN_WEAPON] == 0)
                         {
                             pPlayer->subweapon = 0;
-                            weaponNum = RPG_WEAPON;
+                            weaponNum = CROSSBOW_WEAPON;
                         }
                     }
                 }
@@ -3930,10 +3930,10 @@ CHECKINV1:
 
                         if (pPlayer->curr_weapon == TRIPBOMB_WEAPON || pPlayer->ammo_amount[TRIPBOMB_WEAPON] == 0)
                         {
-                            pPlayer->subweapon = (1<<BOWLINGBALL_WEAPON);
-                            weaponNum = BOWLINGBALL_WEAPON;
+                            pPlayer->subweapon = (1<<BOWLING_WEAPON);
+                            weaponNum = BOWLING_WEAPON;
                         }
-                        else if((pPlayer->subweapon&(1<<BOWLINGBALL_WEAPON)) || pPlayer->ammo_amount[BOWLINGBALL_WEAPON] == 0)
+                        else if((pPlayer->subweapon&(1<<BOWLING_WEAPON)) || pPlayer->ammo_amount[BOWLING_WEAPON] == 0)
                         {
                             pPlayer->subweapon = 0;
                             weaponNum = TRIPBOMB_WEAPON;

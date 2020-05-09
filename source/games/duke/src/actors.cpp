@@ -206,13 +206,8 @@ void checkavailweapon(struct player_struct* p)
 
 	snum = sprite[p->i].yvel;
 
-	// Note: RedNukem has this restriction, but the original source and RedneckGDX do not.
-#if 1 // TRANSITIONAL
-	int max = ((isRR()) ? DEVISTATOR_WEAPON : FREEZE_WEAPON);
-#else
-	int max = FREEZE_WEAPON;
-#endif
-	for (i = 0; i < 10; i++)
+	int max = MAX_WEAPON;
+	for (i = 0; i <= max; i++)
 	{
 		weap = ud.wchoice[snum][i];
 		if ((g_gameType & GAMEFLAG_SHAREWARE) && weap > 6) continue;
@@ -220,11 +215,11 @@ void checkavailweapon(struct player_struct* p)
 		if (weap == 0) weap = max;
 		else weap--;
 
-		if (weap == KNEE_WEAPON || (p->gotweapon[weap] && p->ammo_amount[weap] > 0))
+		if (weap == MIN_WEAPON || (p->gotweapon[weap] && p->ammo_amount[weap] > 0))
 			break;
 	}
 
-	if (i == HANDREMOTE_WEAPON) weap = KNEE_WEAPON;
+	if (i == MAX_WEAPON) weap = MIN_WEAPON;
 
 	// Found the weapon
 
@@ -1734,7 +1729,8 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 			for (int l = 0; l < 16; l++)
 				RANDOMSCRAP(s, i);
 			spritesound(LASERTRIP_EXPLODE, i);
-			spawn(i, getspawn(i));
+			int sp = getspawn(i);
+			if (sp >= 0) spawn(i, sp);
 			ps[myconnectindex].actors_killed++;
 			deletesprite(i);
 		}

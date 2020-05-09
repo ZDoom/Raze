@@ -3585,18 +3585,15 @@ enum dukeweapon_t_alt
     FREEZE_WEAPON,
     HANDREMOTE_WEAPON,  // 10
     GROW_WEAPON,
-    BOWLINGBALL_WEAPON,
-    MOTORCYCLE_WEAPON,
-    BOAT_WEAPON,
-    SLINGBLADE_WEAPON,  // 15
-    CHICKEN_WEAPON,
-    RA15_WEAPON = 15,  // 15
-    RA16_WEAPON,
+
+    MIN_WEAPON = 0,
+    MAX_WEAPON = 9
 };
 
 enum redneck_weapon_t
 {
-    // RR names from RedneckGDX. The reconstructed source uses the Duke names.
+    // These names have been pieced together from RedneckGDX and RedNukem because the reconstructed source recycled Duke's names for the first 11 weapons.
+    // Names for 0-2 are the same
     RIFLEGUN_WEAPON = 3,
     DYNAMITE_WEAPON = 4,
     CROSSBOW_WEAPON = 5,
@@ -3605,13 +3602,14 @@ enum redneck_weapon_t
     POWDERKEG_WEAPON = 8,
     TIT_WEAPON = 9,
     //HANDREMOTE_WEAPON = 10;
-    BUZSAW_WEAPON = 11,
+    BUZZSAW_WEAPON = 11,
     BOWLING_WEAPON = 12,
-    MOTO_WEAPON = 13,
-    //BOAT_WEAPON = 14,
-    RATE_WEAPON = 15,
-    CHICKENBOW_WEAPON = 16
+    MOTORCYCLE_WEAPON = 13,
+    BOAT_WEAPON = 14,
+    SLINGBLADE_WEAPON = 15,
+    CHICKEN_WEAPON = 16,
 };
+
 extern int APLAYER, CAMERA1;
 
 #define DYNAMICWEAPONMAP(Weaponnum) Weaponnum

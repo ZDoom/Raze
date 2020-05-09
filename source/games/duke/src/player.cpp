@@ -2137,9 +2137,9 @@ void P_DisplayWeapon(void)
                 weaponX += 8;
                 weaponYOffset -= 10;
 
-                if (currentWeapon == BOWLINGBALL_WEAPON)
+                if (currentWeapon == BOWLING_WEAPON)
                 {
-                    if (pPlayer->ammo_amount[BOWLINGBALL_WEAPON])
+                    if (pPlayer->ammo_amount[BOWLING_WEAPON])
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 162 - halfLookAng, weaponY + 214 - weaponYOffset + (*weaponFrame) * 8, TILE_BOWLINGBALLH,
                                                 weaponShade, weaponBits, weaponPal, 32768);
@@ -5064,7 +5064,7 @@ static void P_ProcessWeapon(int playerNum)
 #undef WEAPON2_CLIP
     if (WW2GI ? PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_GLOWS :
         (pPlayer->curr_weapon == SHRINKER_WEAPON || pPlayer->curr_weapon == GROW_WEAPON
-        || (RR && (pPlayer->curr_weapon == TRIPBOMB_WEAPON || pPlayer->curr_weapon == BOWLINGBALL_WEAPON))
+        || (RR && (pPlayer->curr_weapon == TRIPBOMB_WEAPON || pPlayer->curr_weapon == BOWLING_WEAPON))
         || (RRRA && (pPlayer->curr_weapon == KNEE_WEAPON || pPlayer->curr_weapon == SLINGBLADE_WEAPON))))
     {
         pPlayer->random_club_frame += 64; // Glowing
@@ -5325,7 +5325,7 @@ static void P_ProcessWeapon(int playerNum)
                 if (++(*weaponFrame) > 19)
                 {
                     *weaponFrame = 0;
-                    pPlayer->curr_weapon = HANDREMOTE_WEAPON;
+                    pPlayer->curr_weapon = DYNAMITE_WEAPON;
                     pPlayer->last_weapon = -1;
                     pPlayer->weapon_pos = WEAPON_POS_RAISE;
                     pPlayer->hbomb_time = 45;
@@ -5348,9 +5348,9 @@ static void P_ProcessWeapon(int playerNum)
                 }
                 if ((*weaponFrame) == 12)
                 {
-                    pPlayer->ammo_amount[HANDBOMB_WEAPON]--;
-                    if (pPlayer->ammo_amount[RPG_WEAPON])
-                        pPlayer->ammo_amount[RPG_WEAPON]--;
+                    pPlayer->ammo_amount[DYNAMITE_WEAPON]--;
+                    if (pPlayer->ammo_amount[CROSSBOW_WEAPON])
+                        pPlayer->ammo_amount[CROSSBOW_WEAPON]--;
 
                     //if (numplayers < 2 || g_netServer)
                     {
@@ -5808,7 +5808,7 @@ static void P_ProcessWeapon(int playerNum)
             case BOWLINGBALL_WEAPON__STATIC:
                 if ((*weaponFrame) == 30)
                 {
-                    pPlayer->ammo_amount[BOWLINGBALL_WEAPON]--;
+                    pPlayer->ammo_amount[BOWLING_WEAPON]--;
                     A_PlaySound(354, pPlayer->i);
                     A_Shoot(pPlayer->i, TILE_BOWLINGBALL);
                     pPlayer->noise_radius = 1024;
@@ -5820,7 +5820,7 @@ static void P_ProcessWeapon(int playerNum)
                 if ((*weaponFrame) > 40)
                 {
                     (*weaponFrame) = 0;
-                    pPlayer->gotweapon.Clear(BOWLINGBALL_WEAPON);
+                    pPlayer->gotweapon.Clear(BOWLING_WEAPON);
                     P_CheckWeapon(pPlayer);
                 }
                 break;
@@ -5863,9 +5863,9 @@ static void P_ProcessWeapon(int playerNum)
             case RPG_WEAPON__STATIC:
                 if (++(*weaponFrame) == 4)
                 {
-                    pPlayer->ammo_amount[RPG_WEAPON]--;
-                    if (pPlayer->ammo_amount[HANDBOMB_WEAPON])
-                        pPlayer->ammo_amount[HANDBOMB_WEAPON]--;
+                    pPlayer->ammo_amount[CROSSBOW_WEAPON]--;
+                    if (pPlayer->ammo_amount[DYNAMITE_WEAPON])
+                        pPlayer->ammo_amount[DYNAMITE_WEAPON]--;
                     lastvisinc = (int32_t) totalclock + 32;
                     pPlayer->visibility = 0;
                     flashColor = 255+(95<<8);

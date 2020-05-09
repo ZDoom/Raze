@@ -2644,7 +2644,13 @@ static void greenslime(int i)
 	}
 }
 
-void flamethrowerflame(int i)
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void flamethrowerflame(int i)
 {
 	spritetype* s = &sprite[i];
 	auto t = &hittype[i].temp_data[0];
@@ -2745,15 +2751,232 @@ void flamethrowerflame(int i)
 //
 //---------------------------------------------------------------------------
 
+static void heavyhbomb(int i)
+{
+	spritetype* s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int sect = s->sectnum;
+	int x, j, l;
+
+	if ((s->cstat & 32768))
+	{
+		t[2]--;
+		if (t[2] <= 0)
+		{
+			spritesound(TELEPORTER, i);
+			spawn(i, TRANSPORTERSTAR);
+			s->cstat = 257;
+		}
+		return;
+	}
+
+	int p = findplayer(s, &x);
+
+	if (x < 1220) s->cstat &= ~257;
+	else s->cstat |= 257;
+
+	if (t[3] == 0)
+	{
+		j = ifhitbyweapon(i);
+		if (j >= 0)
+		{
+			t[3] = 1;
+			t[4] = 0;
+			l = 0;
+			s->xvel = 0;
+			goto DETONATEB;
+		}
+	}
+
+	if (s->picnum != BOUNCEMINE)
+	{
+		makeitfall(i);
+
+		if (sector[sect].lotag != 1 && s->z >= hittype[i].floorz - (FOURSLEIGHT) && s->yvel < 3)
+		{
+			if (s->yvel > 0 || (s->yvel == 0 && hittype[i].floorz == sector[sect].floorz))
+				spritesound(PIPEBOMB_BOUNCE, i);
+			s->zvel = -((4 - s->yvel) << 8);
+			if (sector[s->sectnum].lotag == 2)
+				s->zvel >>= 2;
+			s->yvel++;
+		}
+		if (s->z < hittype[i].ceilingz) // && sector[sect].lotag != 2 )
+		{
+			s->z = hittype[i].ceilingz + (3 << 8);
+			s->zvel = 0;
+		}
+	}
+
+	j = movesprite(i,
+		(s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
+		(s->xvel * (sintable[s->ang & 2047])) >> 14,
+		s->zvel, CLIPMASK0);
+
+	if (sector[sprite[i].sectnum].lotag == 1 && s->zvel == 0)
+	{
+		s->z += (32 << 8);
+		if (t[5] == 0)
+		{
+			t[5] = 1;
+			spawn(i, WATERSPLASH2);
+		}
+	}
+	else t[5] = 0;
+
+	if (t[3] == 0 && (s->picnum == BOUNCEMINE || s->picnum == MORTER) && (j || x < 844))
+	{
+		t[3] = 1;
+		t[4] = 0;
+		l = 0;
+		s->xvel = 0;
+		goto DETONATEB;
+	}
+
+	if (sprite[s->owner].picnum == APLAYER)
+		l = sprite[s->owner].yvel;
+	else l = -1;
+
+	if (s->xvel > 0)
+	{
+		s->xvel -= 5;
+		if (sector[sect].lotag == 2)
+			s->xvel -= 10;
+
+		if (s->xvel < 0)
+			s->xvel = 0;
+		if (s->xvel & 8) s->cstat ^= 4;
+	}
+
+	if ((j & 49152) == 32768)
+	{
+		j &= (MAXWALLS - 1);
+
+		checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
+
+		int k = getangle(
+			wall[wall[j].point2].x - wall[j].x,
+			wall[wall[j].point2].y - wall[j].y);
+
+		s->ang = ((k << 1) - s->ang) & 2047;
+		s->xvel >>= 1;
+	}
+
+DETONATEB:
+
+	bool bBoom = false;
+	if ((l >= 0 && ps[l].hbomb_on == 0) || t[3] == 1)
+		bBoom = true;
+	if (isNamWW2GI() && s->picnum == HEAVYHBOMB)
+	{
+		s->extra--;
+		if (s->extra <= 0)
+			bBoom = true;
+	}
+	if (bBoom)
+	{
+		t[4]++;
+
+		if (t[4] == 2)
+		{
+			x = s->extra;
+			int m = 0;
+			switch (s->picnum)
+			{
+			case HEAVYHBOMB: m = pipebombblastradius; break;
+			case MORTER: m = morterblastradius; break;
+			case BOUNCEMINE: m = bouncemineblastradius; break;
+			}
+
+			hitradius(i, m, x >> 2, x >> 1, x - (x >> 2), x);
+			spawn(i, EXPLOSION2);
+			if (s->zvel == 0)
+				spawn(i, EXPLOSION2BOT);
+			spritesound(PIPEBOMB_EXPLODE, i);
+			for (x = 0; x < 8; x++)
+				RANDOMSCRAP(s, i);
+		}
+
+		if (s->yrepeat)
+		{
+			s->yrepeat = 0;
+			return;
+		}
+
+		if (t[4] > 20)
+		{
+			if (s->owner != i || ud.respawn_items == 0)
+			{
+				deletesprite(i);
+				return;
+			}
+			else
+			{
+				t[2] = respawnitemtime;
+				spawn(i, RESPAWNMARKERRED);
+				s->cstat = (short)32768;
+				s->yrepeat = 9;
+				return;
+			}
+		}
+	}
+	else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
+		if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
+			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < max_ammo_amount[HANDBOMB_WEAPON])
+			{
+				if (ud.coop >= 1 && s->owner == i)
+				{
+					for (j = 0; j < ps[p].weapreccnt; j++)
+						if (ps[p].weaprecs[j] == s->picnum)
+							continue;
+
+					if (ps[p].weapreccnt < 255) // DukeGDX has 16 here.
+						ps[p].weaprecs[ps[p].weapreccnt++] = s->picnum;
+				}
+
+				addammo(HANDBOMB_WEAPON, &ps[p], 1);
+				spritesound(DUKE_GET, ps[p].i);
+
+				if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || s->owner == ps[p].i)
+					addweapon(&ps[p], HANDBOMB_WEAPON);
+
+				if (sprite[s->owner].picnum != APLAYER)
+				{
+					SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
+				}
+
+				if (s->owner != i || ud.respawn_items == 0)
+				{
+					if (s->owner == i && ud.coop >= 1)
+						return;
+
+					deletesprite(i);
+					return;
+				}
+				else
+				{
+					t[2] = respawnitemtime;
+					spawn(i, RESPAWNMARKERRED);
+					s->cstat = (short)32768;
+				}
+			}
+
+	if (t[0] < 8) t[0]++;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void moveactors_d(void)
 {
-	int x, m, l, * t;
+	int x, * t;
 	short j, sect, p;
 	spritetype* s;
 	unsigned short k;
 	int nexti;
-	bool bBoom;
-
 	
 	for (int i = headspritestat[1]; i >= 0; i = nexti)
 	{
@@ -2894,211 +3117,7 @@ void moveactors_d(void)
 			hittype[j].temp_data[0] = 3;
 
 		case HEAVYHBOMB:
-
-			if ((s->cstat & 32768))
-			{
-				t[2]--;
-				if (t[2] <= 0)
-				{
-					spritesound(TELEPORTER, i);
-					spawn(i, TRANSPORTERSTAR);
-					s->cstat = 257;
-				}
-				continue;
-			}
-
-			p = findplayer(s, &x);
-
-			if (x < 1220) s->cstat &= ~257;
-			else s->cstat |= 257;
-
-			if (t[3] == 0)
-			{
-				j = ifhitbyweapon(i);
-				if (j >= 0)
-				{
-					t[3] = 1;
-					t[4] = 0;
-					l = 0;
-					s->xvel = 0;
-					goto DETONATEB;
-				}
-			}
-
-			if (s->picnum != BOUNCEMINE)
-			{
-				makeitfall(i);
-
-				if (sector[sect].lotag != 1 && s->z >= hittype[i].floorz - (FOURSLEIGHT) && s->yvel < 3)
-				{
-					if (s->yvel > 0 || (s->yvel == 0 && hittype[i].floorz == sector[sect].floorz))
-						spritesound(PIPEBOMB_BOUNCE, i);
-					s->zvel = -((4 - s->yvel) << 8);
-					if (sector[s->sectnum].lotag == 2)
-						s->zvel >>= 2;
-					s->yvel++;
-				}
-				if (s->z < hittype[i].ceilingz) // && sector[sect].lotag != 2 )
-				{
-					s->z = hittype[i].ceilingz + (3 << 8);
-					s->zvel = 0;
-				}
-			}
-
-			j = movesprite(i,
-				(s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
-				(s->xvel * (sintable[s->ang & 2047])) >> 14,
-				s->zvel, CLIPMASK0);
-
-			if (sector[sprite[i].sectnum].lotag == 1 && s->zvel == 0)
-			{
-				s->z += (32 << 8);
-				if (t[5] == 0)
-				{
-					t[5] = 1;
-					spawn(i, WATERSPLASH2);
-				}
-			}
-			else t[5] = 0;
-
-			if (t[3] == 0 && (s->picnum == BOUNCEMINE || s->picnum == MORTER) && (j || x < 844))
-			{
-				t[3] = 1;
-				t[4] = 0;
-				l = 0;
-				s->xvel = 0;
-				goto DETONATEB;
-			}
-
-			if (sprite[s->owner].picnum == APLAYER)
-				l = sprite[s->owner].yvel;
-			else l = -1;
-
-			if (s->xvel > 0)
-			{
-				s->xvel -= 5;
-				if (sector[sect].lotag == 2)
-					s->xvel -= 10;
-
-				if (s->xvel < 0)
-					s->xvel = 0;
-				if (s->xvel & 8) s->cstat ^= 4;
-			}
-
-			if ((j & 49152) == 32768)
-			{
-				j &= (MAXWALLS - 1);
-
-				checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
-
-				k = getangle(
-					wall[wall[j].point2].x - wall[j].x,
-					wall[wall[j].point2].y - wall[j].y);
-
-				s->ang = ((k << 1) - s->ang) & 2047;
-				s->xvel >>= 1;
-			}
-
-		DETONATEB:
-
-			bBoom = false;
-			if ((l >= 0 && ps[l].hbomb_on == 0) || t[3] == 1)
-				bBoom = true;
-			if (isNamWW2GI() && s->picnum == HEAVYHBOMB)
-			{
-				s->extra--;
-				if (s->extra <= 0)
-					bBoom = true;
-			}
-			if (bBoom)
-			{
-				t[4]++;
-
-				if (t[4] == 2)
-				{
-					x = s->extra;
-					m = 0;
-					switch (s->picnum)
-					{
-					case HEAVYHBOMB: m = pipebombblastradius; break;
-					case MORTER: m = morterblastradius; break;
-					case BOUNCEMINE: m = bouncemineblastradius; break;
-					}
-
-					hitradius(i, m, x >> 2, x >> 1, x - (x >> 2), x);
-					spawn(i, EXPLOSION2);
-					if (s->zvel == 0)
-						spawn(i, EXPLOSION2BOT);
-					spritesound(PIPEBOMB_EXPLODE, i);
-					for (x = 0; x < 8; x++)
-						RANDOMSCRAP(s, i);
-				}
-
-				if (s->yrepeat)
-				{
-					s->yrepeat = 0;
-					continue;
-				}
-
-				if (t[4] > 20)
-				{
-					if (s->owner != i || ud.respawn_items == 0)
-					{
-						deletesprite(i);
-						continue;
-					}
-					else
-					{
-						t[2] = respawnitemtime;
-						spawn(i, RESPAWNMARKERRED);
-						s->cstat = (short)32768;
-						s->yrepeat = 9;
-						continue;
-					}
-				}
-			}
-			else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
-				if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
-					if (ps[p].ammo_amount[HANDBOMB_WEAPON] < max_ammo_amount[HANDBOMB_WEAPON])
-					{
-						if (ud.coop >= 1 && s->owner == i)
-						{
-							for (j = 0; j < ps[p].weapreccnt; j++)
-								if (ps[p].weaprecs[j] == s->picnum)
-									goto BOLT;
-
-							if (ps[p].weapreccnt < 255) // DukeGDX has 16 here.
-								ps[p].weaprecs[ps[p].weapreccnt++] = s->picnum;
-						}
-
-						addammo(HANDBOMB_WEAPON, &ps[p], 1);
-						spritesound(DUKE_GET, ps[p].i);
-
-						if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || s->owner == ps[p].i)
-							addweapon(&ps[p], HANDBOMB_WEAPON);
-
-						if (sprite[s->owner].picnum != APLAYER)
-						{
-							SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
-						}
-
-						if (s->owner != i || ud.respawn_items == 0)
-						{
-							if (s->owner == i && ud.coop >= 1)
-								continue;
-
-							deletesprite(i);
-							continue;
-						} 
-						else
-						{
-							t[2] = respawnitemtime;
-							spawn(i, RESPAWNMARKERRED);
-							s->cstat = (short)32768;
-						}
-					}
-
-			if (t[0] < 8) t[0]++;
+			heavyhbomb(i);
 			continue;
 
 		case REACTORBURNT:
@@ -3131,9 +3150,6 @@ void moveactors_d(void)
 		p = findplayer(s, &x);
 
 		execute(i, p, x);
-
-	BOLT:;
-
 	}
 
 }

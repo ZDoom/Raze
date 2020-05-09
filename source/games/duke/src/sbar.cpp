@@ -497,7 +497,7 @@ public:
         }
 
         int weapon = p->curr_weapon;
-        if (weapon == HANDREMOTE_WEAPON) weapon = HANDBOMB_WEAPON;
+        if (weapon == HANDREMOTE_WEAPON) weapon = DYNAMITE_WEAPON;
 
         if (p->curr_weapon != KNEE_WEAPON && p->curr_weapon != SLINGBLADE_WEAPON && (!althud_flashing || (int32_t)totalclock & 32 || p->ammo_amount[weapon] > (p->max_ammo_amount[weapon] / 10)))
         {
@@ -551,7 +551,7 @@ public:
         // ammo
         //
         DrawGraphic(tileGetTexture(TILE_AMMOBOX), 41, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
-        int wp = (p->curr_weapon == HANDREMOTE_WEAPON) ? HANDBOMB_WEAPON : p->curr_weapon;
+        int wp = (p->curr_weapon == HANDREMOTE_WEAPON) ? DYNAMITE_WEAPON : p->curr_weapon;
         format.Format("%d", p->ammo_amount[wp]);
         SBar_DrawString(this, &digiFont, format, 57, -digiFont.mFont->GetHeight() * scale - 7, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
@@ -679,7 +679,7 @@ public:
 
     //==========================================================================
     //
-    // Weapon display
+    // Weapon display (Duke only)
     //
     //==========================================================================
 
@@ -843,7 +843,7 @@ public:
 
         if (p->curr_weapon != KNEE_WEAPON)
         {
-            int wep = (p->curr_weapon == HANDREMOTE_WEAPON) ? HANDBOMB_WEAPON : p->curr_weapon;
+            int wep = (p->curr_weapon == HANDREMOTE_WEAPON) ? DYNAMITE_WEAPON : p->curr_weapon;
             format.Format("%d", p->ammo_amount[wep]);
             SBar_DrawString(this, &digiFont, format, 107, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
         }

@@ -1177,7 +1177,7 @@ static void resetprestat(int playerNum, int gameMode)
         P_ResetWeapons(playerNum);
         P_ResetInventory(playerNum);
     }
-    else if (pPlayer->curr_weapon == HANDREMOTE_WEAPON)
+    else if (pPlayer->curr_weapon == HANDREMOTE_WEAPON && !isRR())
     {
         pPlayer->ammo_amount[HANDBOMB_WEAPON]++;
         pPlayer->curr_weapon = HANDBOMB_WEAPON;

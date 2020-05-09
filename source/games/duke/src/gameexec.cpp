@@ -2850,6 +2850,8 @@ void VM_UpdateAnim(int spriteNum, int32_t *pData)
 // NORECURSE
 void A_Execute(int spriteNum, int playerNum, int playerDist)
 {
+    if (!G_HaveActor(sprite[spriteNum].picnum)) return;
+
     vmstate_t tempvm
     = { spriteNum, playerNum, playerDist, 0, &sprite[spriteNum], &actor[spriteNum].t_data[0], g_player[playerNum].ps, &actor[spriteNum] };
     vm = tempvm;
