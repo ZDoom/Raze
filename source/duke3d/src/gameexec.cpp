@@ -1383,15 +1383,27 @@ static void ResizeArray(int const arrayNum, int const newSize)
 # define abort_after_error(...) continue // non-threaded dispatch handles this in the loop condition in VM_Execute()
 #endif
 
-#define VM_ASSERT(condition, ...)                \
+#if defined _MSC_VER
+#define VM_ASSERT(condition, fmt, ...)           \
     do                                           \
     {                                            \
         if (EDUKE32_PREDICT_FALSE(!(condition))) \
         {                                        \
-            CON_ERRPRINTF(__VA_ARGS__);          \
+            CON_ERRPRINTF(fmt, __VA_ARGS__);     \
             abort_after_error();                 \
         }                                        \
     } while (0)
+#else
+#define VM_ASSERT(condition, fmt, ...)                     \
+    do                                                     \
+    {                                                      \
+        if (EDUKE32_PREDICT_FALSE(!(condition)))           \
+        {                                                  \
+            CON_ERRPRINTF(fmt __VA_OPT__(, ) __VA_ARGS__); \
+            abort_after_error();                           \
+        }                                                  \
+    } while (0)
+#endif
 
 GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
 {
