@@ -265,7 +265,7 @@ void clearcamera(player_struct* ps)
 	updatesector(ps->posx, ps->posy, &ps->cursectnum);
 	setpal(ps);
 
-	int k = headspritestat[1];
+	int k = headspritestat[STAT_ACTOR];
 	while (k >= 0)
 	{
 		if (sprite[k].picnum == CAMERA1)
@@ -2067,6 +2067,548 @@ void camera(int i)
 				s->ang += 16;
 			}
 		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// taken out of moveexplosion
+//
+//---------------------------------------------------------------------------
+
+void forcesphere(int i)
+{
+	spritetype* s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int l = s->xrepeat;
+	if (t[1] > 0)
+	{
+		t[1]--;
+		if (t[1] == 0)
+		{
+			deletesprite(i);
+			return;
+		}
+	}
+	if (hittype[s->owner].temp_data[1] == 0)
+	{
+		if (t[0] < 64)
+		{
+			t[0]++;
+			l += 3;
+		}
+	}
+	else
+		if (t[0] > 64)
+		{
+			t[0]--;
+			l -= 3;
+		}
+
+	s->x = sprite[s->owner].x;
+	s->y = sprite[s->owner].y;
+	s->z = sprite[s->owner].z;
+	s->ang += hittype[s->owner].temp_data[0];
+
+	if (l > 64) l = 64;
+	else if (l < 1) l = 1;
+
+	s->xrepeat = l;
+	s->yrepeat = l;
+	s->shade = (l >> 1) - 48;
+
+	for (int j = t[0]; j > 0; j--)
+		ssp(i, CLIPMASK0);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void watersplash2(int i)
+{
+	spritetype* s = &sprite[i];
+	int sect = s->sectnum;
+	auto t = &hittype[i].temp_data[0];
+	t[0]++;
+	if (t[0] == 1)
+	{
+		if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
+		{
+			deletesprite(i);
+			return;
+		}
+		if (!S_CheckSoundPlaying(ITEM_SPLASH))
+			spritesound(ITEM_SPLASH, i);
+	}
+	if (t[0] == 3)
+	{
+		t[0] = 0;
+		t[1]++;
+	}
+	if (t[1] == 5)
+		deletesprite(i);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void frameeffect1(int i)
+{
+	spritetype* s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	if (s->owner >= 0)
+	{
+		t[0]++;
+
+		if (t[0] > 7)
+		{
+			deletesprite(i);
+			return;
+		}
+		else if (t[0] > 4)
+			s->cstat |= 512 + 2;
+		else if (t[0] > 2)
+			s->cstat |= 2;
+		s->xoffset = sprite[s->owner].xoffset;
+		s->yoffset = sprite[s->owner].yoffset;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool money(int i, int BLOODPOOL)
+{
+	spritetype* s = &sprite[i];
+	int sect = s->sectnum;
+	auto t = &hittype[i].temp_data[0];
+
+	s->xvel = (krand() & 7) + (sintable[hittype[i].temp_data[0] & 2047] >> 9);
+	hittype[i].temp_data[0] += (krand() & 63);
+	if ((hittype[i].temp_data[0] & 2047) > 512 && (hittype[i].temp_data[0] & 2047) < 1596)
+	{
+		if (sector[sect].lotag == 2)
+		{
+			if (s->zvel < 64)
+				s->zvel += (gc >> 5) + (krand() & 7);
+		}
+		else
+			if (s->zvel < 144)
+				s->zvel += (gc >> 5) + (krand() & 7);
+	}
+
+	ssp(i, CLIPMASK0);
+
+	if ((krand() & 3) == 0)
+		setsprite(i, s->x, s->y, s->z);
+
+	if (s->sectnum == -1)
+	{
+		deletesprite(i);
+		return false;
+	}
+	int l = getflorzofslope(s->sectnum, s->x, s->y);
+
+	if (s->z > l)
+	{
+		s->z = l;
+
+		insertspriteq(i);
+		sprite[i].picnum++;
+
+		int j = headspritestat[STAT_MISC];
+		while (j >= 0)
+		{
+			if (sprite[j].picnum == BLOODPOOL)
+				if (ldist(s, &sprite[j]) < 348)
+				{
+					s->pal = 2;
+					break;
+				}
+			j = nextspritestat[j];
+		}
+	}
+	return true;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool jibs(int i, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, bool zcheck1, bool zcheck2)
+{
+	spritetype* s = &sprite[i];
+	int sect = s->sectnum;
+	auto t = &hittype[i].temp_data[0];
+
+	if (s->xvel > 0) s->xvel--;
+	else s->xvel = 0;
+
+	if (timeout)
+	{
+		if (t[5] < 30 * 10)
+			t[5]++;
+		else
+		{
+			deletesprite(i);
+			return false;
+		}
+	}
+
+	if (s->zvel > 1024 && s->zvel < 1280)
+	{
+		setsprite(i, s->x, s->y, s->z);
+		sect = s->sectnum;
+	}
+
+	if (callsetsprite) setsprite(i, s->x, s->y, s->z);
+
+	int l = getflorzofslope(sect, s->x, s->y);
+	int x = getceilzofslope(sect, s->x, s->y);
+	if (x == l || sect < 0 || sect >= MAXSECTORS)
+	{
+		deletesprite(i);
+		return false;
+	}
+
+	if (s->z < l - (2 << 8))
+	{
+		if (t[1] < 2) t[1]++;
+		else if (sector[sect].lotag != 2)
+		{
+			t[1] = 0;
+			if (zcheck1)
+			{
+				if (t[0] > 6) t[0] = 0;
+				else t[0]++;
+			}
+			else
+			{
+				if (t[0] > 2)
+					t[0] = 0;
+				else t[0]++;
+			}
+		}
+
+		if (s->zvel < 6144)
+		{
+			if (sector[sect].lotag == 2)
+			{
+				if (s->zvel < 1024)
+					s->zvel += 48;
+				else s->zvel = 1024;
+			}
+			else s->zvel += gc - 50;
+		}
+
+		s->x += (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
+		s->y += (s->xvel * sintable[s->ang & 2047]) >> 14;
+		s->z += s->zvel;
+
+		if (floorcheck && s->z >= sector[s->sectnum].floorz)
+		{
+			deletesprite(i);
+			return false;
+		}
+	}
+	else
+	{
+		if (zcheck2)
+		{
+			deletesprite(i);
+			return false;
+		}
+		if (t[2] == 0)
+		{
+			if (s->sectnum == -1)
+			{
+				deletesprite(i);
+				return false;
+			}
+			if ((sector[s->sectnum].floorstat & 2))
+			{
+				deletesprite(i);
+				return false;
+			}
+			t[2]++;
+		}
+		l = getflorzofslope(s->sectnum, s->x, s->y);
+
+		s->z = l - (2 << 8);
+		s->xvel = 0;
+
+		if (s->picnum == JIBS6)
+		{
+			t[1]++;
+			if ((t[1] & 3) == 0 && t[0] < 7)
+				t[0]++;
+			if (t[1] > 20)
+			{
+				deletesprite(i);
+				return false;
+			}
+		}
+		else { s->picnum = JIBS6; t[0] = 0; t[1] = 0; }
+	}
+	return true;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool bloodpool(int i, bool puke, int TIRE)
+{
+	spritetype* s = &sprite[i];
+	int sect = s->sectnum;
+	auto t = &hittype[i].temp_data[0];
+
+	if (t[0] == 0)
+	{
+		t[0] = 1;
+		if (sector[sect].floorstat & 2)
+		{
+			deletesprite(i);
+			return false;
+		}
+		else insertspriteq(i);
+	}
+
+	makeitfall(i);
+
+	int x;
+	int p = findplayer(s, &x);
+
+	s->z = hittype[i].floorz - (FOURSLEIGHT);
+
+	if (t[2] < 32)
+	{
+		t[2]++;
+		if (hittype[i].picnum == TIRE)
+		{
+			if (s->xrepeat < 64 && s->yrepeat < 64)
+			{
+				s->xrepeat += krand() & 3;
+				s->yrepeat += krand() & 3;
+			}
+		}
+		else
+		{
+			if (s->xrepeat < 32 && s->yrepeat < 32)
+			{
+				s->xrepeat += krand() & 3;
+				s->yrepeat += krand() & 3;
+			}
+		}
+	}
+
+	if (x < 844 && s->xrepeat > 6 && s->yrepeat > 6)
+	{
+		if (s->pal == 0 && (krand() & 255) < 16 && !puke)
+		{
+			if (ps[p].boot_amount > 0)
+				ps[p].boot_amount--;
+			else
+			{
+				if (!S_CheckSoundPlaying(DUKE_LONGTERM_PAIN))
+					spritesound(DUKE_LONGTERM_PAIN, ps[p].i);
+				sprite[ps[p].i].extra--;
+				SetPlayerPal(&ps[p], PalEntry(32, 16, 0, 0));
+			}
+		}
+
+		if (t[1] == 1) return false;
+		t[1] = 1;
+
+		if (hittype[i].picnum == TIRE)
+			ps[p].footprintcount = 10;
+		else ps[p].footprintcount = 3;
+
+		ps[p].footprintpal = s->pal;
+		ps[p].footprintshade = s->shade;
+
+		if (t[2] == 32)
+		{
+			s->xrepeat -= 6;
+			s->yrepeat -= 6;
+		}
+	}
+	else t[1] = 0;
+	return true;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void shell(int i, bool morecheck)
+{
+	spritetype* s = &sprite[i];
+	int sect = s->sectnum;
+	auto t = &hittype[i].temp_data[0];
+
+	ssp(i, CLIPMASK0);
+
+	if (sect < 0 || morecheck)
+	{
+		deletesprite(i);
+		return;
+	}
+
+	if (sector[sect].lotag == 2)
+	{
+		t[1]++;
+		if (t[1] > 8)
+		{
+			t[1] = 0;
+			t[0]++;
+			t[0] &= 3;
+		}
+		if (s->zvel < 128) s->zvel += (gc / 13); // 8
+		else s->zvel -= 64;
+		if (s->xvel > 0)
+			s->xvel -= 4;
+		else s->xvel = 0;
+	}
+	else
+	{
+		t[1]++;
+		if (t[1] > 3)
+		{
+			t[1] = 0;
+			t[0]++;
+			t[0] &= 3;
+		}
+		if (s->zvel < 512) s->zvel += (gc / 3); // 52;
+		if (s->xvel > 0)
+			s->xvel--;
+		else
+		{
+			deletesprite(i);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void glasspieces(int i)
+{
+	spritetype* s = &sprite[i];
+	int sect = s->sectnum;
+	auto t = &hittype[i].temp_data[0];
+
+	makeitfall(i);
+
+	if (s->zvel > 4096) s->zvel = 4096;
+	if (sect < 0)
+	{
+		deletesprite(i);
+		return;
+	}
+
+	if (s->z == hittype[i].floorz - (FOURSLEIGHT) && t[0] < 3)
+	{
+		s->zvel = -((3 - t[0]) << 8) - (krand() & 511);
+		if (sector[sect].lotag == 2)
+			s->zvel >>= 1;
+		s->xrepeat >>= 1;
+		s->yrepeat >>= 1;
+		if (rnd(96))
+			setsprite(i, s->x, s->y, s->z);
+		t[0]++;//Number of bounces
+	}
+	else if (t[0] == 3)
+	{
+		deletesprite(i);
+		return;
+	}
+
+	if (s->xvel > 0)
+	{
+		s->xvel -= 2;
+		s->cstat = ((s->xvel & 3) << 2);
+	}
+	else s->xvel = 0;
+
+	ssp(i, CLIPMASK0);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void scrap(int i, int SCRAP1, int SCRAP6)
+{
+	spritetype* s = &sprite[i];
+	int sect = s->sectnum;
+	auto t = &hittype[i].temp_data[0];
+
+	if (s->xvel > 0)
+		s->xvel--;
+	else s->xvel = 0;
+
+	if (s->zvel > 1024 && s->zvel < 1280)
+	{
+		setsprite(i, s->x, s->y, s->z);
+		sect = s->sectnum;
+	}
+
+	if (s->z < sector[sect].floorz - (2 << 8))
+	{
+		if (t[1] < 1) t[1]++;
+		else
+		{
+			t[1] = 0;
+
+			if (s->picnum < SCRAP6 + 8)
+			{
+				if (t[0] > 6)
+					t[0] = 0;
+				else t[0]++;
+			}
+			else
+			{
+				if (t[0] > 2)
+					t[0] = 0;
+				else t[0]++;
+			}
+		}
+		if (s->zvel < 4096) s->zvel += gc - 50;
+		s->x += (s->xvel * sintable[(s->ang + 512) & 2047]) >> 14;
+		s->y += (s->xvel * sintable[s->ang & 2047]) >> 14;
+		s->z += s->zvel;
+	}
+	else
+	{
+		if (s->picnum == SCRAP1 && s->yvel > 0)
+		{
+			int j = spawn(i, s->yvel);
+			setsprite(j, s->x, s->y, s->z);
+			getglobalz(j);
+			sprite[j].hitag = sprite[j].lotag = 0;
+		}
+		deletesprite(i);
 	}
 }
 

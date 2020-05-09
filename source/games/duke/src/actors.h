@@ -336,6 +336,7 @@ ACTOR_INLINE int A_CheckEnemyTile(int const tileNum)
 }
 
 int ssp(short i, unsigned int cliptype); //The set sprite function
+void insertspriteq(int i);
 
 ACTOR_INLINE int A_SetSprite(int const spriteNum, uint32_t cliptype)
 {
@@ -396,6 +397,15 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 void ooz(int i);
 void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT);
 void camera(int i);
+void forcesphere(int i);
+void watersplash2(int i);
+void frameeffect1(int i);
+bool money(int i, int BLOODPOOL);
+bool jibs(int i, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, bool zcheck1, bool zcheck2);
+bool bloodpool(int i, bool puke, int TIRE);
+void shell(int i, bool morecheck);
+void glasspieces(int i);
+void scrap(int i, int SCRAP1, int SCRAP6);
 
 void respawn_rrra(int i, int j);
 

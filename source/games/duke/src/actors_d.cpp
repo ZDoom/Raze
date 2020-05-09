@@ -3154,5 +3154,191 @@ void moveactors_d(void)
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void moveexplosions_d(void)  // STATNUM 5
+{
+	int nexti, sect, p;
+	int x, * t;
+	spritetype* s;
+
+	
+	for (int i = headspritestat[STAT_MISC]; i >= 0; i = nexti)
+	{
+		nexti = nextspritestat[i];
+
+		t = &hittype[i].temp_data[0];
+		s = &sprite[i];
+		sect = s->sectnum;
+
+		if (sect < 0 || s->xrepeat == 0) 
+		{
+			deletesprite(i);
+			continue;
+		}
+
+		hittype[i].bposx = s->x;
+		hittype[i].bposy = s->y;
+		hittype[i].bposz = s->z;
+
+		switch (s->picnum)
+		{
+		case NEON1:
+		case NEON2:
+		case NEON3:
+		case NEON4:
+		case NEON5:
+		case NEON6:
+
+			if ((global_random / (s->lotag + 1) & 31) > 4) s->shade = -127;
+			else s->shade = 127;
+			continue;
+
+		case BLOODSPLAT1:
+		case BLOODSPLAT2:
+		case BLOODSPLAT3:
+		case BLOODSPLAT4:
+
+			if (t[0] == 7 * 26) continue;
+			s->z += 16 + (krand() & 15);
+			t[0]++;
+			if ((t[0] % 9) == 0) s->yrepeat++;
+			continue;
+
+		case NUKEBUTTON:
+		case NUKEBUTTON + 1:
+		case NUKEBUTTON + 2:
+		case NUKEBUTTON + 3:
+
+			if (t[0])
+			{
+				t[0]++;
+				if (t[0] == 8) s->picnum = NUKEBUTTON + 1;
+				else if (t[0] == 16)
+				{
+					s->picnum = NUKEBUTTON + 2;
+					ps[sprite[s->owner].yvel].fist_incs = 1;
+				}
+				if (ps[sprite[s->owner].yvel].fist_incs == 26)
+					s->picnum = NUKEBUTTON + 3;
+			}
+			continue;
+
+		case FORCESPHERE:
+			forcesphere(i);
+			continue;
+		case WATERSPLASH2:
+			watersplash2(i);
+			continue;
+
+		case FRAMEEFFECT1:
+			frameeffect1(i);
+			continue;
+		case INNERJAW:
+		case INNERJAW + 1:
+
+			p = findplayer(s, &x);
+			if (x < 512)
+			{
+				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
+				sprite[ps[p].i].extra -= 4;
+			}
+
+		case FIRELASER:
+			if (s->extra != 999)
+				s->extra = 999;
+			else
+			{
+				deletesprite(i);
+				continue;
+			}
+			break;
+		case TONGUE:
+			deletesprite(i);
+			continue;
+		case MONEY + 1:
+		case MAIL + 1:
+		case PAPER + 1:
+			hittype[i].floorz = s->z = getflorzofslope(s->sectnum, s->x, s->y);
+			break;
+		case MONEY:
+		case MAIL:
+		case PAPER:
+			money(i, BLOODPOOL);
+
+			break;
+
+		case JIBS1:
+		case JIBS2:
+		case JIBS3:
+		case JIBS4:
+		case JIBS5:
+		case JIBS6:
+		case HEADJIB1:
+		case ARMJIB1:
+		case LEGJIB1:
+		case LIZMANHEAD1:
+		case LIZMANARM1:
+		case LIZMANLEG1:
+		case DUKETORSO:
+		case DUKEGUN:
+		case DUKELEG:
+			jibs(i, JIBS6, true, false, false, s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN, false);
+
+			continue;
+		case BLOODPOOL:
+		case PUKE:
+			bloodpool(i, s->picnum == PUKE, TIRE);
+
+			continue;
+
+		case LAVAPOOL:
+		case ONFIRE:
+		case BURNEDCORPSE:
+		case LAVAPOOLBUBBLE:
+		case WHISPYSMOKE:
+			if (!isWorldTour())
+				continue;
+
+		case BURNING:
+		case BURNING2:
+		case FECES:
+		case WATERBUBBLE:
+		case SMALLSMOKE:
+		case EXPLOSION2:
+		case SHRINKEREXPLOSION:
+		case EXPLOSION2BOT:
+		case BLOOD:
+		case LASERSITE:
+		case FORCERIPPLE:
+		case TRANSPORTERSTAR:
+		case TRANSPORTERBEAM:
+			p = findplayer(s, &x);
+			execute(i, p, x);
+			continue;
+
+		case SHELL:
+		case SHOTGUNSHELL:
+			shell(i, (sector[sect].floorz + (24 << 8)) < s->z);
+			continue;
+
+		case GLASSPIECES:
+		case GLASSPIECES + 1:
+		case GLASSPIECES + 2:
+			glasspieces(i);
+			continue;
+		}
+
+		if (s->picnum >= SCRAP6 && s->picnum <= SCRAP5 + 3)
+		{
+			scrap(i, SCRAP1, SCRAP6);
+		}
+	}
+}
+
 
 END_DUKE_NS
