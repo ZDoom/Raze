@@ -1408,7 +1408,7 @@ static void ResizeArray(int const arrayNum, int const newSize)
 GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
 {
     // be careful when changing this--the assignment used as a condition doubles as the nullptr check!
-    auto branch = [&](int x) {
+    auto branch = [&](int const x) {
         if (x || ((insptr = (intptr_t *)insptr[1]) && (VM_DECODE_INST(*insptr) == CON_ELSE)))
         {
             insptr += 2;
@@ -2496,12 +2496,8 @@ GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
                     int const lParm2    = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVar(*insptr++) : 0;
                     auto const &actorLabel = ActorLabels[labelNum];
 
-                    if (EDUKE32_PREDICT_FALSE(((unsigned)spriteNum >= MAXSPRITES)
-                                              || (actorLabel.flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)actorLabel.maxParm2)))
-                    {
-                        CON_ERRPRINTF("%s[%d] invalid for sprite %d\n", actorLabel.name, lParm2, spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES && ((actorLabel.flags & LABEL_HASPARM2) == 0 || (unsigned)lParm2 < (unsigned)actorLabel.maxParm2),
+                              "%s[%d] invalid for sprite %d\n", actorLabel.name, lParm2, spriteNum);
 
                     VM_SetSprite(spriteNum, labelNum, lParm2, Gv_GetVar(*insptr++));
                     dispatch();
@@ -2515,12 +2511,8 @@ GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
                     int const lParm2    = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVar(*insptr++) : 0;
                     auto const &actorLabel = ActorLabels[labelNum];
 
-                    if (EDUKE32_PREDICT_FALSE(((unsigned)spriteNum >= MAXSPRITES)
-                                              || (actorLabel.flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)actorLabel.maxParm2)))
-                    {
-                        CON_ERRPRINTF("%s[%d] invalid for sprite %d\n", actorLabel.name, lParm2, spriteNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES && ((actorLabel.flags & LABEL_HASPARM2) == 0 || (unsigned)lParm2 < (unsigned)actorLabel.maxParm2),
+                              "%s[%d] invalid for sprite %d\n", actorLabel.name, lParm2, spriteNum);
 
                     Gv_SetVar(*insptr++, VM_GetSprite(spriteNum, labelNum, lParm2));
                     dispatch();
@@ -3237,11 +3229,7 @@ badindex:
 
             vInstruction(CON_MIKESND):
                 insptr++;
-                if (EDUKE32_PREDICT_FALSE(((unsigned)vm.pSprite->yvel >= MAXSOUNDS)))
-                {
-                    CON_ERRPRINTF("invalid sound %d\n", vm.pUSprite->yvel);
-                    abort_after_error();
-                }
+                VM_ASSERT((unsigned)vm.pSprite->yvel < MAXSOUNDS, "invalid sound %d\n", vm.pUSprite->yvel);
                 if (!S_CheckSoundPlaying(vm.pSprite->yvel))
                     A_PlaySound(vm.pSprite->yvel, vm.spriteNum);
                 dispatch();
@@ -3296,11 +3284,8 @@ badindex:
                 dispatch();
 
             vInstruction(CON_IFSOUND):
-                if (EDUKE32_PREDICT_FALSE((unsigned)*(++insptr) >= MAXSOUNDS))
-                {
-                    CON_ERRPRINTF("invalid sound %d\n", (int32_t)*insptr);
-                    abort_after_error();
-                }
+                insptr++;
+                VM_ASSERT((unsigned)*insptr < MAXSOUNDS, "invalid sound %d\n", (int32_t)*insptr);
                 branch(S_CheckSoundPlaying(*insptr));
                 //    VM_DoConditional(SoundOwner[*insptr][0].ow == vm.spriteNum);
                 dispatch();
@@ -3611,11 +3596,8 @@ badindex:
                     int const nSprite1 = Gv_GetVar(*insptr++);
                     int const nSprite2 = Gv_GetVar(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)nSprite1 >= MAXSPRITES || (unsigned)nSprite2 >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d\n", (unsigned)nSprite1 >= MAXSPRITES ? nSprite1 : nSprite2);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)nSprite1 < MAXSPRITES && (unsigned)nSprite2 < MAXSPRITES, "invalid sprite %d\n",
+                              (unsigned)nSprite1 >= MAXSPRITES ? nSprite1 : nSprite2);
 
                     int const nResult = cansee(sprite[nSprite1].x, sprite[nSprite1].y, sprite[nSprite1].z, sprite[nSprite1].sectnum,
                                                sprite[nSprite2].x, sprite[nSprite2].y, sprite[nSprite2].z, sprite[nSprite2].sectnum);
@@ -3695,11 +3677,7 @@ badindex:
                     int const gameVar = *insptr++;
                     int const statNum = Gv_GetVar(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)statNum > MAXSTATUS))
-                    {
-                        CON_ERRPRINTF("invalid status list %d\n", statNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)statNum < MAXSTATUS, "invalid status list %d\n", statNum);
 
                     Gv_SetVar(gameVar, headspritestat[statNum]);
                     dispatch();
@@ -3811,12 +3789,6 @@ badindex:
                         abort_after_error();
                     }
 
-                    if (EDUKE32_PREDICT_FALSE(v.quoteLength < 0))
-                    {
-                        CON_ERRPRINTF("invalid length %d\n", v.quoteLength);
-                        abort_after_error();
-                    }
-
 					TArray<char> output;
                     char const *pInput  = quoteMgr.GetQuote(v.inputQuote);
 
@@ -3893,12 +3865,8 @@ badindex:
 
                                     pName = j == STR_MAPNAME ? mapList[levelNum].DisplayName() : mapList[levelNum].fileName.GetChars();
 
-                                    if (EDUKE32_PREDICT_FALSE(pName == NULL))
-                                    {
-                                        CON_ERRPRINTF("attempted access to %s of non-existent map (vol=%d, lev=%d)",
+                                    VM_ASSERT(pName != nullptr, "attempted access to %s of non-existent map (vol=%d, lev=%d)",
                                                       j == STR_MAPNAME ? "name" : "file name", ud.volume_number, ud.level_number);
-                                        abort_after_error();
-                                    }
 
                                     quoteMgr.InitializeQuote(q, j == STR_MAPNAME ? mapList[levelNum].DisplayName() : mapList[levelNum].fileName.GetChars());
                                     break;
@@ -3919,11 +3887,7 @@ badindex:
                                         break;
                                     }
 
-                                    if (EDUKE32_PREDICT_FALSE((unsigned)ud.volume_number >= MAXVOLUMES))
-                                    {
-                                        CON_ERRPRINTF("invalid volume %d\n", ud.volume_number);
-                                        abort_after_error();
-                                    }
+                                    VM_ASSERT((unsigned)ud.volume_number < MAXVOLUMES, "invalid volume %d\n", ud.volume_number);
 									// length is no longer limited so a check is needed.
 									quoteMgr.InitializeQuote(q, gVolumeNames[ud.volume_number]);
                                     break;
@@ -3958,11 +3922,7 @@ badindex:
                     int const spriteNum = Gv_GetVar(*insptr++);
                     int const sectNum   = Gv_GetVar(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES || (unsigned)sectNum >= MAXSECTORS))
-                    {
-                        CON_ERRPRINTF("invalid parameters: %d, %d\n", spriteNum, sectNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES && (unsigned)sectNum < MAXSECTORS, "invalid parameters: %d, %d\n", spriteNum, sectNum);
 
                     if (sprite[spriteNum].sectnum == sectNum)
                         dispatch();
@@ -3977,11 +3937,7 @@ badindex:
                     int const spriteNum = Gv_GetVar(*insptr++);
                     int const statNum   = Gv_GetVar(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES || (unsigned)statNum >= MAXSECTORS))
-                    {
-                        CON_ERRPRINTF("invalid parameters: %d, %d\n", spriteNum, statNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)spriteNum < MAXSPRITES && (unsigned)statNum < MAXSTATUS, "invalid parameters: %d, %d\n", spriteNum, statNum);
 
                     if (sprite[spriteNum].statnum == statNum)
                         dispatch();
@@ -4027,11 +3983,7 @@ badindex:
                     int const volumeNum = Gv_GetVar(*insptr++);
                     int const levelNum  = Gv_GetVar(*insptr++);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)volumeNum >= MAXVOLUMES || (unsigned)levelNum >= MAXLEVELS))
-                    {
-                        CON_ERRPRINTF("invalid parameters: %d, %d\n", volumeNum, levelNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)volumeNum < MAXVOLUMES && (unsigned)levelNum < MAXLEVELS, "invalid parameters: %d, %d\n", volumeNum, levelNum);
 
                     ud.m_volume_number = ud.volume_number = volumeNum;
                     m_level_number = ud.level_number = levelNum;
@@ -4081,11 +4033,7 @@ badindex:
                     vec2_t    n;
                     Gv_FillWithVars(n);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
-                    {
-                        CON_ERRPRINTF("invalid wall %d\n", wallNum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)wallNum < (unsigned)numwalls, "invalid wall %d\n", wallNum);
 
                     dragpoint(wallNum, n.x, n.y, 0);
                     dispatch();
@@ -4099,11 +4047,7 @@ badindex:
                     vec2_t    in;
                     Gv_FillWithVars(in);
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)in.x >= MAXSPRITES || (unsigned)in.y >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite %d, %d\n", in.x, in.y);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)in.x < MAXSPRITES && (unsigned)in.y < MAXSPRITES, "invalid sprite %d, %d\n", in.x, in.y);
 
                     Gv_SetVar(out, (VM_DECODE_INST(tw) == CON_LDIST ? ldist : dist)(&sprite[in.x], &sprite[in.y]));
                     dispatch();
@@ -4343,12 +4287,7 @@ badindex:
                     } v;
                     Gv_FillWithVars(v);
 
-                    if (EDUKE32_PREDICT_FALSE(v.scrn[0].x < 0 || v.scrn[0].y < 0 || v.scrn[1].x >= 320 || v.scrn[1].y >= 200))
-                    {
-                        CON_ERRPRINTF("invalid coordinates\n");
-                        abort_after_error();
-                    }
-
+                    VM_ASSERT(v.scrn[0].x >= 0 && v.scrn[0].y >= 0 && v.scrn[1].x < 320 && v.scrn[1].y < 200, "invalid coordinates\n");
                     VM_ASSERT((unsigned)v.params[2] < MAXSECTORS, "invalid sector %d\n", v.params[2]);
 
                     if (VM_DECODE_INST(tw) != CON_SHOWVIEWQ16 && VM_DECODE_INST(tw) != CON_SHOWVIEWQ16UNBIASED)
@@ -4386,11 +4325,7 @@ badindex:
                         v.pos.y <<= 16;
                     }
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.tilenum >= MAXTILES))
-                    {
-                        CON_ERRPRINTF("invalid tilenum %d\n", v.tilenum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.tilenum < MAXTILES, "invalid tilenum %d\n", v.tilenum);
 
                     int32_t blendidx = 0;
 
@@ -4450,11 +4385,7 @@ badindex:
                     int32_t const nZoom = (VM_DECODE_INST(tw) == CON_DIGITALNUMBERZ) ? Gv_GetVar(*insptr++) : 65536;
 
                     // NOTE: '-' not taken into account, but we have rotatesprite() bound check now anyway
-                    if (EDUKE32_PREDICT_FALSE(v.tilenum < 0 || v.tilenum + 9 >= MAXTILES))
-                    {
-                        CON_ERRPRINTF("invalid base tilenum %d\n", v.tilenum);
-                        abort_after_error();
-                    }
+                    VM_ASSERT(v.tilenum >= 0 && v.tilenum + 9 < MAXTILES, "invalid base tilenum %d\n", v.tilenum);
 
                     G_DrawTXDigiNumZ(v.tilenum, v.pos.x, v.pos.y, v.nQuote, v.shade, v.pal, v.orientation & (ROTATESPRITE_MAX - 1), v.bound[0].x,
                                      v.bound[0].y, v.bound[1].x, v.bound[1].y, nZoom);
@@ -4491,12 +4422,7 @@ badindex:
                     } v;
                     Gv_FillWithVars(v);
 
-                    if (EDUKE32_PREDICT_FALSE(v.tilenum < 0 || v.tilenum + 127 >= MAXTILES))
-                    {
-                        CON_ERRPRINTF("invalid base tilenum %d\n", v.tilenum);
-                        abort_after_error();
-                    }
-
+                    VM_ASSERT(v.tilenum >= 0 && v.tilenum + 127 < MAXTILES, "invalid base tilenum %d\n", v.tilenum);
                     VM_ASSERT((unsigned)v.nQuote < MAXQUOTES, "invalid quote %d\n", v.nQuote);
 
                     G_ScreenText(v.tilenum, v.v.x, v.v.y, v.v.z, v.blockangle, v.charangle, quoteMgr.GetQuote(v.nQuote), v.shade, v.pal,
@@ -4689,11 +4615,8 @@ badindex:
 
                     int const returnVar = *insptr++;
 
-                    if (EDUKE32_PREDICT_FALSE((unsigned)v.firstSector >= (unsigned)numsectors || (unsigned)v.secondSector >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("invalid sector %d\n", (unsigned)v.firstSector >= (unsigned)numsectors ? v.firstSector : v.secondSector);
-                        abort_after_error();
-                    }
+                    VM_ASSERT((unsigned)v.firstSector < (unsigned)numsectors && (unsigned)v.secondSector < (unsigned)numsectors, "invalid sector %d\n",
+                              (unsigned)v.firstSector >= (unsigned)numsectors ? v.firstSector : v.secondSector);
 
                     Gv_SetVar(returnVar, cansee(v.vec1.x, v.vec1.y, v.vec1.z, v.firstSector, v.vec2.x, v.vec2.y, v.vec2.z, v.secondSector));
                     dispatch();
@@ -5097,12 +5020,7 @@ badindex:
                 insptr++;
                 {
                     int const levelNum = Gv_GetVar(*insptr++);
-                    if (EDUKE32_PREDICT_FALSE((unsigned)levelNum >= MAXVOLUMES * MAXLEVELS))
-                    {
-                        CON_ERRPRINTF("invalid map number %d\n", levelNum);
-                        abort_after_error();
-                    }
-
+                    VM_ASSERT((unsigned)levelNum < MAXVOLUMES * MAXLEVELS, "invalid map number %d\n", levelNum);
                     G_FreeMapState(levelNum);
                 }
                 dispatch();
@@ -5992,22 +5910,14 @@ badindex:
             vInstruction(CON_GMAXAMMO):
                 insptr++;
                 tw = Gv_GetVar(*insptr++);
-                if (EDUKE32_PREDICT_FALSE((unsigned)tw >= MAX_WEAPONS))
-                {
-                    CON_ERRPRINTF("invalid weapon %d\n", (int)tw);
-                    abort_after_error();
-                }
+                VM_ASSERT((unsigned)tw < MAX_WEAPONS, "invalid weapon %d\n", (int)tw);
                 Gv_SetVar(*insptr++, vm.pPlayer->max_ammo_amount[tw]);
                 dispatch();
 
             vInstruction(CON_SMAXAMMO):
                 insptr++;
                 tw = Gv_GetVar(*insptr++);
-                if (EDUKE32_PREDICT_FALSE((unsigned)tw >= MAX_WEAPONS))
-                {
-                    CON_ERRPRINTF("invalid weapon %d\n", (int)tw);
-                    abort_after_error();
-                }
+                VM_ASSERT((unsigned)tw < MAX_WEAPONS, "invalid weapon %d\n", (int)tw);
                 vm.pPlayer->max_ammo_amount[tw] = Gv_GetVar(*insptr++);
                 dispatch();
 
@@ -6134,11 +6044,7 @@ badindex:
             vInstruction(CON_ACTIVATECHEAT):
                 insptr++;
                 tw = Gv_GetVar(*(insptr++));
-                if (EDUKE32_PREDICT_FALSE(numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME)))
-                {
-                    CON_ERRPRINTF("not in a single-player game.\n");
-                    abort_after_error();
-                }
+                VM_ASSERT(numplayers == 1 && (g_player[myconnectindex].ps->gm & MODE_GAME), "not in a single-player game.\n");
                 osdcmd_cheatsinfo_stat.cheatnum = tw;
                 dispatch();
 
