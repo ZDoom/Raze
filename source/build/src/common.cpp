@@ -67,27 +67,3 @@ int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char
 }
 
 
-int32_t ldist(const void *s1, const void *s2)
-{
-    auto sp1 = (vec2_t const *)s1;
-    auto sp2 = (vec2_t const *)s2;
-    return sepldist(sp1->x - sp2->x, sp1->y - sp2->y)
-        + (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 1 : 0);
-}
-
-int32_t dist(const void *s1, const void *s2)
-{
-    auto sp1 = (vec3_t const *)s1;
-    auto sp2 = (vec3_t const *)s2;
-    return sepdist(sp1->x - sp2->x, sp1->y - sp2->y, sp1->z - sp2->z);
-}
-
-int32_t FindDistance2D(int32_t x, int32_t y)
-{
-    return sepldist(x, y);
-}
-
-int32_t FindDistance3D(int32_t x, int32_t y, int32_t z)
-{
-    return sepdist(x, y, z);
-}

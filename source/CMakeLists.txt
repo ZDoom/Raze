@@ -784,6 +784,7 @@ set (PCH_SOURCES
 	build/src/voxmodel.cpp
 
 	core/animlib.cpp
+	core/mathutil.cpp
 	core/rts.cpp
 	core/gameconfigfile.cpp
 	core/gamecvars.cpp

@@ -295,7 +295,7 @@ static int CheckShootSwitchTile(int tileNum)
 
 static int32_t safeldist(int32_t spriteNum, const void *pSprite)
 {
-    int32_t distance = ldist(&sprite[spriteNum], pSprite);
+    int32_t distance = ldist(&sprite[spriteNum], (const spritetype*)pSprite);
     return distance ? distance : 1;
 }
 

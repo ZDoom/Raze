@@ -294,7 +294,7 @@ static int CheckShootSwitchTile(int tileNum)
 
 static int32_t safeldist(int32_t spriteNum, const void *pSprite)
 {
-    int32_t distance = ldist(&sprite[spriteNum], pSprite);
+    int32_t distance = ldist(&sprite[spriteNum], (const spritetype*)pSprite);
     return distance ? distance : 1;
 }
 
@@ -782,10 +782,10 @@ growspark_rr:
 
                     A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
 
-                    if (CheckDoorTile(hitWall->picnum) == 1)
+                    if (isadoorwall(hitWall->picnum) == 1)
                         goto SKIPBULLETHOLE;
 
-                    if (RR && CheckBlockDoorTile(hitWall->picnum) == 1)
+                    if (RR && isablockdoor(hitWall->picnum) == 1)
                         goto SKIPBULLETHOLE;
 
                     if (playerNum >= 0 && CheckShootSwitchTile(hitWall->picnum))

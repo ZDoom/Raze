@@ -11,6 +11,7 @@
 #include "compat.h"
 #include "pragmas.h"  // klabs
 #include "scriptfile.h"
+#include "mathutil.h"
 
 extern bool playing_rr;
 extern bool playing_blood;
@@ -65,45 +66,6 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
 int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char *ext);
 
-// Approximations to 2D and 3D Euclidean distances. Initial EDuke32 SVN import says
-// in mact/src/mathutil.c: "Ken's reverse-engineering job".
-// Note that mathutil.c contains practically the same code, but where the
-// individual x/y(/z) distances are passed instead.
-static inline int32_t sepldist(const int32_t dx, const int32_t dy)
-{
-    vec2_t d = { klabs(dx), klabs(dy) };
-
-    if (!d.y) return d.x;
-    if (!d.x) return d.y;
-
-    if (d.x < d.y)
-        swaplong(&d.x, &d.y);
-
-    d.y += (d.y>>1);
-
-    return d.x - (d.x>>5) - (d.x>>7) + (d.y>>2) + (d.y>>6);
-}
-
-// dz: in Build coordinates
-static inline int32_t sepdist(const int32_t dx, const int32_t dy, const int32_t dz)
-{
-    vec3_t d = { klabs(dx), klabs(dy), klabs(dz>>4) };
-
-    if (d.x < d.y)
-        swaplong(&d.x, &d.y);
-
-    if (d.x < d.z)
-        swaplong(&d.x, &d.z);
-
-    d.y += d.z;
-
-    return d.x - (d.x>>4) + (d.y>>2) + (d.y>>3);
-}
-
-int32_t FindDistance2D(int32_t dx, int32_t dy);
-int32_t FindDistance3D(int32_t dx, int32_t dy, int32_t dz);
-int32_t ldist(const void *s1, const void *s2);
-int32_t dist(const void *s1, const void *s2);
 
 void COMMON_clearbackground(int32_t numcols, int32_t numrows);
 

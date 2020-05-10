@@ -6,6 +6,9 @@ set( PCH_SOURCES
 	src/actors_lava.cpp
 	src/bowling.cpp
 	src/zz_actors.cpp
+	src/sectors.cpp
+	src/sectors_d.cpp
+	src/sectors_r.cpp
 	src/zz_anim.cpp
 	src/zz_cheats.cpp
 	src/zz_cmdline.cpp

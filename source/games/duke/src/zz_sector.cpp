@@ -38,14 +38,14 @@ static int g_haltSoundHack = 0;
 
 uint8_t g_shadedSector[MAXSECTORS];
 
-int S_FindMusicSFX(int sectNum, int *sndptr)
+int S_FindMusicSFX(int sectNum, int* sndptr)
 {
     for (bssize_t SPRITES_OF_SECT(sectNum, spriteNum))
     {
         const int32_t snd = sprite[spriteNum].lotag;
         EDUKE32_STATIC_ASSERT(MAXSOUNDS >= 1000);
 
-        if (PN(spriteNum) == TILE_MUSICANDSFX && (unsigned)snd < 1000)  // XXX: in other places, 999
+        if (PN(spriteNum) == MUSICANDSFX && (unsigned)snd < 1000)  // XXX: in other places, 999
         {
             *sndptr = snd;
             return spriteNum;
@@ -56,307 +56,6 @@ int S_FindMusicSFX(int sectNum, int *sndptr)
     return -1;
 }
 
-void A_CallSound2(int soundNum, int playerNum)
-{
-    A_PlaySound(soundNum, g_player[playerNum].ps->i);
-}
-
-// this function activates a sector's TILE_MUSICANDSFX sprite
-int A_CallSound(int sectNum, int spriteNum)
-{
-    if (!RR && g_haltSoundHack)
-    {
-        g_haltSoundHack = 0;
-        return -1;
-    }
-
-    int soundNum;
-    int const SFXsprite = S_FindMusicSFX(sectNum, &soundNum);
-
-    if (SFXsprite >= 0)
-    {
-        if (spriteNum == -1)
-            spriteNum = SFXsprite;
-
-        auto flags = S_GetUserFlags(soundNum);
-        if (T1(SFXsprite) == 0)
-        {
-            if ((flags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL)
-            {
-                if (soundNum)
-                {
-                    A_PlaySound(soundNum, spriteNum);
-
-                    if (SHT(SFXsprite) && soundNum != SHT(SFXsprite) && SHT(SFXsprite) < MAXSOUNDS)
-                        S_StopEnvSound(SHT(SFXsprite),T6(SFXsprite));
-
-                    T6(SFXsprite) = spriteNum;
-                }
-
-                if ((sector[SECT(SFXsprite)].lotag&0xff) != ST_22_SPLITTING_DOOR)
-                    T1(SFXsprite) = 1;
-            }
-        }
-        else if (SHT(SFXsprite) < MAXSOUNDS)
-        {
-            if (SHT(SFXsprite))
-                A_PlaySound(SHT(SFXsprite), spriteNum);
-
-            if ((flags & SF_LOOP) || (SHT(SFXsprite) && SHT(SFXsprite) != soundNum))
-                S_StopEnvSound(soundNum, T6(SFXsprite));
-
-            T6(SFXsprite) = spriteNum;
-            T1(SFXsprite) = 0;
-        }
-
-        return soundNum;
-    }
-
-    return -1;
-}
-
-int G_CheckActivatorMotion(int lotag)
-{
-    int spriteNum = headspritestat[STAT_ACTIVATOR];
-
-    while (spriteNum >= 0)
-    {
-        if (sprite[spriteNum].lotag == lotag)
-        {
-            spritetype *const pSprite = &sprite[spriteNum];
-
-            for (bssize_t j = g_animateCnt - 1; j >= 0; j--)
-                if (pSprite->sectnum == g_animateSect[j])
-                    return 1;
-
-            int sectorEffector = headspritestat[STAT_EFFECTOR];
-
-            while (sectorEffector >= 0)
-            {
-                if (pSprite->sectnum == sprite[sectorEffector].sectnum)
-                {
-                    switch (sprite[sectorEffector].lotag)
-                    {
-                        case SE_11_SWINGING_DOOR:
-                        case SE_30_TWO_WAY_TRAIN:
-                            if (actor[sectorEffector].t_data[4])
-                                return 1;
-                            break;
-                        case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
-                            if (RRRA)
-                                break;
-                            fallthrough__;
-                        case SE_20_STRETCH_BRIDGE:
-                        case SE_31_FLOOR_RISE_FALL:
-                        case SE_32_CEILING_RISE_FALL:
-                            if (actor[sectorEffector].t_data[0])
-                                return 1;
-                            break;
-                    }
-                }
-
-                sectorEffector = nextspritestat[sectorEffector];
-            }
-        }
-        spriteNum = nextspritestat[spriteNum];
-    }
-    return 0;
-}
-
-int CheckDoorTile(int tileNum)
-{
-    switch (DYNAMICTILEMAP(tileNum))
-    {
-        case DOORTILE23__STATIC:
-            return !RR;
-        case DOORTILE1__STATIC:
-        case DOORTILE2__STATIC:
-        case DOORTILE3__STATIC:
-        case DOORTILE4__STATIC:
-        case DOORTILE5__STATIC:
-        case DOORTILE6__STATIC:
-        case DOORTILE7__STATIC:
-        case DOORTILE8__STATIC:
-        case DOORTILE9__STATIC:
-        case DOORTILE10__STATIC:
-        case DOORTILE11__STATIC:
-        case DOORTILE12__STATIC:
-        case DOORTILE14__STATIC:
-        case DOORTILE15__STATIC:
-        case DOORTILE16__STATIC:
-        case DOORTILE17__STATIC:
-        case DOORTILE18__STATIC:
-        case DOORTILE19__STATIC:
-        case DOORTILE20__STATIC:
-        case DOORTILE21__STATIC:
-        case DOORTILE22__STATIC:
-        case RRTILE1856__STATICRR:
-        case RRTILE1877__STATICRR:
-            return 1;
-    }
-    return 0;
-}
-
-int CheckBlockDoorTile(int tileNum)
-{
-    if (tileNum == TILE_RRTILE3643)
-        return 0;
-    if (tileNum >= TILE_RRTILE3643+2 && tileNum <= TILE_RRTILE3643+3)
-        tileNum = TILE_RRTILE3643;
-
-    switch (DYNAMICTILEMAP(tileNum))
-    {
-        case RRTILE1996__STATICRR:
-        case RRTILE2382__STATICRR:
-        case RRTILE2961__STATICRR:
-        case RRTILE3804__STATICRR:
-        case RRTILE7430__STATICRR:
-        case RRTILE7467__STATICRR:
-        case RRTILE7469__STATICRR:
-        case RRTILE7470__STATICRR:
-        case RRTILE7475__STATICRR:
-        case RRTILE7566__STATICRR:
-        case RRTILE7576__STATICRR:
-        case RRTILE7716__STATICRR:
-        case RRTILE8063__STATICRR:
-        case RRTILE8067__STATICRR:
-        case RRTILE8076__STATICRR:
-        case RRTILE8106__STATICRR:
-        case RRTILE8379__STATICRR:
-        case RRTILE8380__STATICRR:
-        case RRTILE8565__STATICRR:
-        case RRTILE8605__STATICRR:
-            return RRRA;
-        case RRTILE1792__STATICRR:
-        case RRTILE1801__STATICRR:
-        case RRTILE1805__STATICRR:
-        case RRTILE1807__STATICRR:
-        case RRTILE1808__STATICRR:
-        case RRTILE1812__STATICRR:
-        case RRTILE1821__STATICRR:
-        case RRTILE1826__STATICRR:
-        case RRTILE1850__STATICRR:
-        case RRTILE1851__STATICRR:
-        case RRTILE1856__STATICRR:
-        case RRTILE1877__STATICRR:
-        case RRTILE1938__STATICRR:
-        case RRTILE1942__STATICRR:
-        case RRTILE1944__STATICRR:
-        case RRTILE1945__STATICRR:
-        case RRTILE1951__STATICRR:
-        case RRTILE1961__STATICRR:
-        case RRTILE1964__STATICRR:
-        case RRTILE1985__STATICRR:
-        case RRTILE1995__STATICRR:
-        case RRTILE2022__STATICRR:
-        case RRTILE2052__STATICRR:
-        case RRTILE2053__STATICRR:
-        case RRTILE2060__STATICRR:
-        case RRTILE2074__STATICRR:
-        case RRTILE2132__STATICRR:
-        case RRTILE2136__STATICRR:
-        case RRTILE2139__STATICRR:
-        case RRTILE2150__STATICRR:
-        case RRTILE2178__STATICRR:
-        case RRTILE2186__STATICRR:
-        case RRTILE2319__STATICRR:
-        case RRTILE2321__STATICRR:
-        case RRTILE2326__STATICRR:
-        case RRTILE2329__STATICRR:
-        case RRTILE2578__STATICRR:
-        case RRTILE2581__STATICRR:
-        case RRTILE2610__STATICRR:
-        case RRTILE2613__STATICRR:
-        case RRTILE2621__STATICRR:
-        case RRTILE2622__STATICRR:
-        case RRTILE2676__STATICRR:
-        case RRTILE2732__STATICRR:
-        case RRTILE2831__STATICRR:
-        case RRTILE2832__STATICRR:
-        case RRTILE2842__STATICRR:
-        case RRTILE2940__STATICRR:
-        case RRTILE2970__STATICRR:
-        case RRTILE3083__STATICRR:
-        case RRTILE3100__STATICRR:
-        case RRTILE3155__STATICRR:
-        case RRTILE3195__STATICRR:
-        case RRTILE3232__STATICRR:
-        case RRTILE3600__STATICRR:
-        case RRTILE3631__STATICRR:
-        case RRTILE3635__STATICRR:
-        case RRTILE3637__STATICRR:
-        case RRTILE3643__STATICRR:
-        case RRTILE3647__STATICRR:
-        case RRTILE3652__STATICRR:
-        case RRTILE3653__STATICRR:
-        case RRTILE3671__STATICRR:
-        case RRTILE3673__STATICRR:
-        case RRTILE3684__STATICRR:
-        case RRTILE3708__STATICRR:
-        case RRTILE3714__STATICRR:
-        case RRTILE3716__STATICRR:
-        case RRTILE3723__STATICRR:
-        case RRTILE3725__STATICRR:
-        case RRTILE3737__STATICRR:
-        case RRTILE3754__STATICRR:
-        case RRTILE3762__STATICRR:
-        case RRTILE3763__STATICRR:
-        case RRTILE3764__STATICRR:
-        case RRTILE3765__STATICRR:
-        case RRTILE3767__STATICRR:
-        case RRTILE3793__STATICRR:
-        case RRTILE3814__STATICRR:
-        case RRTILE3815__STATICRR:
-        case RRTILE3819__STATICRR:
-        case RRTILE3827__STATICRR:
-        case RRTILE3837__STATICRR:
-            return 1;
-    }
-    return 0;
-}
-
-int isanunderoperator(int lotag)
-{
-    switch (lotag & 0xff)
-    {
-        case ST_22_SPLITTING_DOOR:
-            if (RR) return 0;
-            fallthrough__;
-        case ST_15_WARP_ELEVATOR:
-        case ST_16_PLATFORM_DOWN:
-        case ST_17_PLATFORM_UP:
-        case ST_18_ELEVATOR_DOWN:
-        case ST_19_ELEVATOR_UP:
-        case ST_26_SPLITTING_ST_DOOR:
-            return 1;
-    }
-    return 0;
-}
-
-int isanearoperator(int lotag)
-{
-    switch (lotag & 0xff)
-    {
-        case 41:
-            if (!RR) return 0;
-            fallthrough__;
-        case ST_9_SLIDING_ST_DOOR:
-        case ST_15_WARP_ELEVATOR:
-        case ST_16_PLATFORM_DOWN:
-        case ST_17_PLATFORM_UP:
-        case ST_18_ELEVATOR_DOWN:
-        case ST_19_ELEVATOR_UP:
-        case ST_20_CEILING_DOOR:
-        case ST_21_FLOOR_DOOR:
-        case ST_22_SPLITTING_DOOR:
-        case ST_23_SWINGING_DOOR:
-        case ST_25_SLIDING_DOOR:
-        case ST_26_SPLITTING_ST_DOOR:
-        case ST_29_TEETH_DOOR:
-            return 1;
-    }
-    return 0;
-}
 
 static inline int32_t A_FP_ManhattanDist(const DukePlayer_t *pPlayer, const spritetype *pSprite)
 {
@@ -422,7 +121,7 @@ void G_DoSectorAnimations(void)
                 continue;
 
             if ((sector[animSect].lotag&0xff) != ST_22_SPLITTING_DOOR)
-                A_CallSound(animSect,-1);
+                callsound(animSect,-1);
 
             continue;
         }
@@ -703,7 +402,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
         if (E_SpriteIsValid(j))
         {
             if (actor[j].tempang == 0 || actor[j].tempang == 256)
-                A_CallSound(sectNum,spriteNum);
+                callsound(sectNum,spriteNum);
             sprite[j].extra = (sprite[j].extra == 1) ? 3 : 1;
         }
         break;
@@ -716,7 +415,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
             if (actor[j].t_data[4] == 0)
                 actor[j].t_data[4] = 1;
 
-            A_CallSound(sectNum,spriteNum);
+            callsound(sectNum,spriteNum);
         }
         break;
 
@@ -796,7 +495,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
                     SetAnimation(sectNum, &wall[foundWall].x, wall[foundWall].x + vect2.x, doorSpeed);
                     SetAnimation(sectNum, &wall[i].x, wall[i].x + vect2.x, doorSpeed);
                     SetAnimation(sectNum, &wall[wall[foundWall].point2].x, wall[wall[foundWall].point2].x + vect2.x, doorSpeed);
-                    A_CallSound(sectNum, spriteNum);
+                    callsound(sectNum, spriteNum);
                 }
                 else if (vect2.y != 0)
                 {
@@ -805,7 +504,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
                     SetAnimation(sectNum, &wall[foundWall].y, wall[foundWall].y + vect2.y, doorSpeed);
                     SetAnimation(sectNum, &wall[i].y, wall[i].y + vect2.y, doorSpeed);
                     SetAnimation(sectNum, &wall[wall[foundWall].point2].y, wall[wall[foundWall].point2].y + vect2.y, doorSpeed);
-                    A_CallSound(sectNum, spriteNum);
+                    callsound(sectNum, spriteNum);
                 }
             }
             else
@@ -815,14 +514,14 @@ void G_OperateSectors(int sectNum, int spriteNum)
                     SetAnimation(sectNum, &wall[foundWall].x, vect.x, doorSpeed);
                     SetAnimation(sectNum, &wall[i].x, vect.x + vect2.x, doorSpeed);
                     SetAnimation(sectNum, &wall[wall[foundWall].point2].x, vect.x + vect2.x, doorSpeed);
-                    A_CallSound(sectNum, spriteNum);
+                    callsound(sectNum, spriteNum);
                 }
                 else if (vect2.y != 0)
                 {
                     SetAnimation(sectNum, &wall[foundWall].y, vect.y, doorSpeed);
                     SetAnimation(sectNum, &wall[i].y, vect.y + vect2.y, doorSpeed);
                     SetAnimation(sectNum, &wall[wall[foundWall].point2].y, vect.y + vect2.y, doorSpeed);
-                    A_CallSound(sectNum, spriteNum);
+                    callsound(sectNum, spriteNum);
                 }
             }
         }
@@ -878,7 +577,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
                 j = sector[i].floorz;
                 SetAnimation(sectNum,&pSector->floorz,j,pSector->extra);
             }
-            A_CallSound(sectNum,spriteNum);
+            callsound(sectNum,spriteNum);
         }
 
         return;
@@ -905,7 +604,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
 
             SetAnimation(sectNum, &pSector->floorz, j, sectorExtra);
             SetAnimation(sectNum, &pSector->ceilingz, j + zDiff, sectorExtra);
-            A_CallSound(sectNum, spriteNum);
+            callsound(sectNum, spriteNum);
         }
         return;
 
@@ -920,7 +619,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
                 T2(i) = 1;
             }
 
-        A_CallSound(sectNum, spriteNum);
+        callsound(sectNum, spriteNum);
 
         pSector->lotag ^= 0x8000u;
 
@@ -981,7 +680,7 @@ REDODOOR:
         pSector->lotag ^= 0x8000u;
 
         SetAnimation(sectNum,&pSector->ceilingz,j,pSector->extra);
-        A_CallSound(sectNum,spriteNum);
+        callsound(sectNum,spriteNum);
 
         return;
 
@@ -1002,7 +701,7 @@ REDODOOR:
             pSector->lotag ^= 0x8000u;
 
             if (SetAnimation(sectNum,&pSector->floorz,j,pSector->extra) >= 0)
-                A_CallSound(sectNum,spriteNum);
+                callsound(sectNum,spriteNum);
         }
         return;
 
@@ -1034,7 +733,7 @@ REDODOOR:
 
         pSector->lotag ^= 0x8000u;
 
-        A_CallSound(sectNum,spriteNum);
+        callsound(sectNum,spriteNum);
 
         return;
 
@@ -1070,7 +769,7 @@ REDODOOR:
 
                         if (!soundPlayed)
                         {
-                            A_CallSound(sectNum, i);
+                            callsound(sectNum, i);
                             soundPlayed = 1;
                         }
                     }
@@ -1097,8 +796,8 @@ REDODOOR:
                     SA(i) += 1024;
 
                     if (T5(i))
-                        A_CallSound(SECT(i),i);
-                    A_CallSound(SECT(i),i);
+                        callsound(SECT(i),i);
+                    callsound(SECT(i),i);
 
                     T5(i) = (sector[SECT(i)].lotag & 0x8000u) ? 1 : 2;
                 }
@@ -1115,7 +814,7 @@ REDODOOR:
                 // Highest bit now set means we're opening.
 
                 actor[j].t_data[0] = (sector[sectNum].lotag & 0x8000u) ? 1 : 2;
-                A_CallSound(sectNum,spriteNum);
+                callsound(sectNum,spriteNum);
                 break;
             }
 
@@ -1139,7 +838,7 @@ REDODOOR:
                     actor[l].t_data[0] = 1;
             }
 
-            A_CallSound(sectNum,spriteNum);
+            callsound(sectNum,spriteNum);
         }
 
         return;
@@ -1232,7 +931,7 @@ void G_OperateActivators(int lotag, int playerNum)
                                 case SE_31_FLOOR_RISE_FALL:
                                 case SE_32_CEILING_RISE_FALL:
                                     actor[foundSprite].t_data[0] = 1 - actor[foundSprite].t_data[0];
-                                    A_CallSound(SECT(spriteNum), foundSprite);
+                                    callsound(SECT(spriteNum), foundSprite);
                                     break;
                             }
                         }
@@ -1240,7 +939,7 @@ void G_OperateActivators(int lotag, int playerNum)
                 }
 
                 if (soundPlayed == -1 && (sector[SECT(spriteNum)].lotag&0xff) == ST_22_SPLITTING_DOOR)
-                    soundPlayed = A_CallSound(SECT(spriteNum),spriteNum);
+                    soundPlayed = callsound(SECT(spriteNum),spriteNum);
 
                 G_OperateSectors(SECT(spriteNum),spriteNum);
             }
@@ -1446,13 +1145,13 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
     case REST_SWITCH_CASES:
         if (!RR && nSwitchPicnum == TILE_NUKEBUTTON) goto default_case;
         if (RR && !RRRA && (nSwitchPicnum == TILE_MULTISWITCH2 || nSwitchPicnum == TILE_RRTILE8464 || nSwitchPicnum == TILE_RRTILE8660)) goto default_case;
-        if (G_CheckActivatorMotion(lotag))
+        if (check_activator_motion(lotag))
             return 0;
         break;
 
     default:
 default_case:
-        if (CheckDoorTile(nSwitchPicnum) == 0)
+        if (isadoorwall(nSwitchPicnum) == 0)
             return 0;
         break;
     }
@@ -1634,7 +1333,7 @@ default_case:
     switch (DYNAMICTILEMAP(basePicnum))
     {
         default:
-            if (CheckDoorTile(nSwitchPicnum) == 0)
+            if (isadoorwall(nSwitchPicnum) == 0)
                 break;
             fallthrough__;
         case DIPSWITCH_LIKE_CASES:
@@ -1764,7 +1463,7 @@ default_case:
             if (G_IsLikeDipswitch(nSwitchPicnum))
                 return 1;
 
-            if (!hitag && CheckDoorTile(nSwitchPicnum) == 0)
+            if (!hitag && isadoorwall(nSwitchPicnum) == 0)
                 S_PlaySound3D(SWITCH_ON, (switchType == SWITCH_SPRITE) ? wallOrSprite : g_player[playerNum].ps->i, &davector);
             else if (hitag)
             {
@@ -4734,7 +4433,7 @@ void P_CheckSectors(int playerNum)
 
         if (nearWall >= 0)
         {
-            if (wall[nearWall].lotag > 0 && CheckDoorTile(wall[nearWall].picnum))
+            if (wall[nearWall].lotag > 0 && isadoorwall(wall[nearWall].picnum))
             {
                 if (foundWall == nearWall || foundWall == -1)
                 {

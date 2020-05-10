@@ -1587,10 +1587,11 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // to use Z-buffer hacks to hide overdraw problems with the flat-tsprite-on-floor shadows,
     // also disabling detail, glow, normal, and specular maps.
 
+    // WTF??? This should be done with proper math.
     if (tspr->clipdist & TSPR_FLAGS_MDHACK)
     {
         double f = (double) (tspr->owner + 1) * (std::numeric_limits<double>::epsilon() * 8.0);
-        if (f != 0.0) f *= 1.0/(double) (sepldist(globalposx - tspr->x, globalposy - tspr->y)>>5);
+        if (f != 0.0) f *= 1.0/(double) (FindDistance2D(globalposx - tspr->x, globalposy - tspr->y)>>5);
 		GLInterface.SetDepthFunc(DF_LEqual);
     }
 

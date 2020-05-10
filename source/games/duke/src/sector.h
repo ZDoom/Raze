@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "macros.h"
 #include "namesdyn.h"  // for G_GetForcefieldPicnum()
 #include "player.h"  // playerspawn_t
+#include "mathutil.h"
 
 BEGIN_DUKE_NS
 
@@ -109,12 +110,8 @@ inline void activatebysector(int s, int sn)
     G_ActivateBySector(s, sn);
 }
 int S_FindMusicSFX(int sectNum, int *sndptr);
-void A_CallSound2(int soundNum, int playerNum);
-int A_CallSound(int sectNum,int spriteNum);
-inline int callsound(int s, int sp)
-{
-    return A_CallSound(s, sp);
-}
+void callsound2(int soundNum, int playerNum);
+int callsound(int sectNum,int spriteNum);
 int A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
 inline int hitasprite(int s, int16_t* h)
 {
@@ -137,8 +134,8 @@ inline int findplayer(const spritetype* pSprite, int32_t* dist)
     return A_FindPlayer(pSprite, dist);
 }
 void G_AlignWarpElevators(void);
-int CheckDoorTile(int tileNum);
-int CheckBlockDoorTile(int tileNum);
+bool isadoorwall(int tileNum);
+bool isablockdoor(int tileNum);
 void G_AnimateCamSprite(int smoothRatio);
 void G_AnimateWalls(void);
 int G_ActivateWarpElevators(int s,int warpDir);
@@ -146,11 +143,7 @@ inline int activatewarpelevators(int s, int w)
 {
     return G_ActivateWarpElevators(s, w);
 }
-int G_CheckActivatorMotion(int lotag);
-inline int check_activator_motion(int lotag)
-{
-    return G_CheckActivatorMotion(lotag);
-}
+int check_activator_motion(int lotag);
 void G_DoSectorAnimations(void);
 void G_OperateActivators(int lotag, int playerNum);
 inline void operateactivators(int l, int w)
@@ -179,8 +172,8 @@ inline int getanimationgoal(const int32_t* animPtr)
 {
     return GetAnimationGoal(animPtr);
 }
-int isanearoperator(int lotag);
-int isanunderoperator(int lotag);
+bool isanearoperator(int lotag);
+bool isanunderoperator(int lotag);
 int P_ActivateSwitch(int playerNum, int wallOrSprite, int nSwitchType);
 void P_CheckSectors(int playerNum);
 void Sect_DamageCeiling(int sectNum);
@@ -234,6 +227,23 @@ EXTERN_INLINE int32_t G_CheckPlayerInSector(int32_t sect)
 inline int checkcursectnums(int se)
 {
     return G_CheckPlayerInSector(se);
+}
+
+inline int ldist(const spritetype* s1, const spritetype* s2)
+{
+    int vx, vy;
+    vx = s1->x - s2->x;
+    vy = s1->y - s2->y;
+    return(FindDistance2D(vx, vy) + 1);
+}
+
+inline int dist(const spritetype* s1, const spritetype* s2)
+{
+    int vx, vy, vz;
+    vx = s1->x - s2->x;
+    vy = s1->y - s2->y;
+    vz = s1->z - s2->z;
+    return(FindDistance3D(vx, vy, vz >> 4));
 }
 
 

@@ -106,6 +106,7 @@ G_EXTERN int32_t g_networkBroadcastMode, g_movesPerPacket;
 
 G_EXTERN int32_t g_animWallCnt;
 G_EXTERN int32_t g_animateCnt;
+#define animatecnt g_animateCnt
 G_EXTERN int32_t g_cloudCnt;
 G_EXTERN int32_t g_curViewscreen;
 #define camsprite g_curViewscreen
@@ -138,6 +139,7 @@ G_EXTERN int32_t g_tripbombLaserMode;
 G_EXTERN int32_t screenpeek;
 
 G_EXTERN int16_t g_animateSect[MAXANIMATES];
+#define animatesect g_animateSect
 G_EXTERN int32_t *g_animatePtr[MAXANIMATES];
 G_EXTERN int32_t g_animateGoal[MAXANIMATES];
 G_EXTERN int32_t g_animateVel[MAXANIMATES];

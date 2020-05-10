@@ -85,10 +85,18 @@ int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, 
 void S_InitSound();
 void S_PlayRRMusic(int newTrack = -1);
 
-static inline bool S_IsAmbientSFX(int spriteNum)
+inline bool S_IsAmbientSFX(int spriteNum)
 {
     return (sprite[spriteNum].picnum == TILE_MUSICANDSFX && sprite[spriteNum].lotag < 999);
 }
+
+inline bool S_IsSoundValid(int num)
+{
+    return (!soundEngine->isValidSoundId(num + 1));
+
+}
+
+
 
 END_DUKE_NS
 
