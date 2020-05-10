@@ -3322,21 +3322,6 @@ void P_GetInput(int const playerNum)
         }
     }
 
-    if (pPlayer->return_to_center > 0)
-        pPlayer->return_to_center--;
-
-    if (pPlayer->hard_landing)
-    {
-        pPlayer->return_to_center = 9;
-        thisPlayer.horizRecenter  = true;
-    }
-
-    if (pPlayer->hard_landing > 0)
-    {
-        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
-        pPlayer->hard_landing--;
-    }
-
     // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
 
     if (thisPlayer.horizAngleAdjust)
@@ -5712,7 +5697,10 @@ RECHECK:
             G_ActivateBySector(pPlayer->cursectnum, pPlayer->i);
     }
 
-    if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW))
+    if (pPlayer->return_to_center > 0)
+        pPlayer->return_to_center--;
+
+    if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
         if (VM_OnEvent(EVENT_RETURNTOCENTER, pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
@@ -5755,6 +5743,12 @@ RECHECK:
             thisPlayer.horizAngleAdjust = -float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             thisPlayer.horizRecenter    = false;
         }
+    }
+
+    if (pPlayer->hard_landing > 0)
+    {
+        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
+        pPlayer->hard_landing--;
     }
 
     //Shooting code/changes
