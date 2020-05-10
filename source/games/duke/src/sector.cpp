@@ -3860,7 +3860,7 @@ CHECKINV1:
 
                 if (weaponNum == HANDBOMB_WEAPON && pPlayer->ammo_amount[HANDBOMB_WEAPON] == 0)
                 {
-                    int spriteNum = headspritestat[1];
+                    int spriteNum = headspritestat[STAT_ACTOR];
                     while (spriteNum >= 0)
                     {
                         if (sprite[spriteNum].picnum == TILE_HEAVYHBOMB && sprite[spriteNum].owner == pPlayer->i)

@@ -162,10 +162,14 @@ G_EXTERN int32_t g_chickenPlant;
 #define chickenplant g_chickenPlant
 G_EXTERN int32_t g_thunderOn;
 G_EXTERN int32_t g_ufoSpawn;
+#define ufospawn g_ufoSpawn
 G_EXTERN int32_t g_ufoCnt;
+#define ufocnt g_ufoCnt
 G_EXTERN int32_t g_hulkSpawn;
+#define hulkspawn g_hulkSpawn
 G_EXTERN int32_t g_vixenLevel;
 G_EXTERN int32_t g_lastLevel;
+#define lastlevel g_lastLevel
 G_EXTERN int32_t g_turdLevel;
 
 
@@ -207,7 +211,7 @@ G_EXTERN msy_ msy;
 G_EXTERN int32_t g_windTime, g_windDir;
 G_EXTERN int16_t g_fakeBubbaCnt, g_mamaSpawnCnt, g_banjoSong, g_bellTime, g_bellSprite;
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS];
-G_EXTERN uint8_t enemysizecheat, ufospawnsminion, g_pistonSound, g_chickenWeaponTimer, g_RAendLevel, g_RAendEpisode, g_fogType;
+G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, g_chickenWeaponTimer, g_RAendLevel, g_RAendEpisode, g_fogType;
 G_EXTERN int32_t g_cdTrack;
 #define raat607 enemysizecheat // only as a reminder
 
@@ -223,6 +227,7 @@ playerdata_t *const g_player = &g_player_s[1];
 extern playerdata_t *const g_player;
 #endif
 G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
+#define po g_playerSpawnPoints
 G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 #pragma pack(pop)
 
@@ -271,7 +276,16 @@ extern int16_t g_blimpSpawnItems[15];
 extern int32_t g_gametypeFlags[MAXGAMETYPES];
 
 extern const char *s_buildDate;
-#endif
+#endif  
+
+inline void clearfriction()
+{
+    for (int playerNum = 0; playerNum != -1; playerNum = connectpoint2[playerNum])
+    {
+        vec2_t& fric = g_player[playerNum].ps->fric;
+        fric.x = fric.y = 0;
+    }
+}
 
 enum
 {

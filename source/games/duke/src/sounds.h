@@ -74,6 +74,10 @@ inline int sound(int num)
 }
 int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
 void S_StopEnvSound(int sndNum,int sprNum, int flags = -1);
+inline void stopsound(int snd)
+{
+    S_StopEnvSound(snd, -1);
+}
 void S_Update(void);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 int S_GetUserFlags(int sndnum);

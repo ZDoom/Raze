@@ -104,9 +104,17 @@ typedef struct {
 
 
 void G_ActivateBySector(int sect,int spriteNum);
+inline void activatebysector(int s, int sn)
+{
+    G_ActivateBySector(s, sn);
+}
 int S_FindMusicSFX(int sectNum, int *sndptr);
 void A_CallSound2(int soundNum, int playerNum);
 int A_CallSound(int sectNum,int spriteNum);
+inline int callsound(int s, int sp)
+{
+    return A_CallSound(s, sp);
+}
 int A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
 inline int hitasprite(int s, int16_t* h)
 {
@@ -134,6 +142,10 @@ int CheckBlockDoorTile(int tileNum);
 void G_AnimateCamSprite(int smoothRatio);
 void G_AnimateWalls(void);
 int G_ActivateWarpElevators(int s,int warpDir);
+inline int activatewarpelevators(int s, int w)
+{
+    return G_ActivateWarpElevators(s, w);
+}
 int G_CheckActivatorMotion(int lotag);
 inline int check_activator_motion(int lotag)
 {

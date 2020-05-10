@@ -117,7 +117,7 @@ void G_ResetInterpolations(void)
             G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
             break;
         case SE_0_ROTATING_SECTOR:
-        case SE_5:
+        case SE_5_BOSS:
         case SE_6_SUBWAY:
         case SE_11_SWINGING_DOOR:
         case SE_14_SUBWAY_CAR:
@@ -931,7 +931,7 @@ static const dataspec_t svgm_anmisc[] =
 
     { 0, &enemysizecheat, sizeof(enemysizecheat), 1 },
     { 0, &ufospawnsminion, sizeof(ufospawnsminion), 1 },
-    { 0, &g_pistonSound, sizeof(g_pistonSound), 1 },
+    { 0, &pistonsound, sizeof(pistonsound), 1 },
     { 0, &g_chickenWeaponTimer, sizeof(g_chickenWeaponTimer), 1 },
     { 0, &g_RAendLevel, sizeof(g_RAendLevel), 1 },
     { 0, &g_RAendEpisode, sizeof(g_RAendEpisode), 1 },

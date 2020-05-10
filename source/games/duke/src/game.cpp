@@ -1688,7 +1688,7 @@ default_case:
             if (!RRRA) goto default_case;
             pSprite->xrepeat = 0;
             pSprite->yrepeat = 0;
-            g_pistonSound = 1;
+            pistonsound = 1;
             break;
         case RRTILE8165__STATICRR:
             if (!RRRA) goto default_case;
@@ -4009,7 +4009,7 @@ rr_badguy:
                 fallthrough__;
             case SE_0_ROTATING_SECTOR:
             case SE_2_EARTHQUAKE:      // Earthquakemakers
-            case SE_5:                 // Boss Creature
+            case SE_5_BOSS:                 // Boss Creature
             case SE_6_SUBWAY:          // Subway
             case SE_14_SUBWAY_CAR:     // Caboos
             case SE_15_SLIDING_DOOR:   // Subwaytype sliding door
@@ -4070,7 +4070,7 @@ rr_badguy:
                     }
                 }
 
-                if (pSprite->lotag == SE_5 || pSprite->lotag == SE_30_TWO_WAY_TRAIN ||
+                if (pSprite->lotag == SE_5_BOSS || pSprite->lotag == SE_30_TWO_WAY_TRAIN ||
                         pSprite->lotag == SE_6_SUBWAY || pSprite->lotag == SE_14_SUBWAY_CAR)
                 {
 #ifdef YAX_ENABLE
@@ -4176,7 +4176,7 @@ rr_badguy:
                     fallthrough__;
                 case SE_0_ROTATING_SECTOR:
                 case SE_1_PIVOT:
-                case SE_5:
+                case SE_5_BOSS:
                 case SE_11_SWINGING_DOOR:
                 case SE_15_SLIDING_DOOR:
                 case SE_16_REACTOR:

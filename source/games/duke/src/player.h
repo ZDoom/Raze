@@ -107,8 +107,17 @@ enum playeraction_t {
 };
 
 typedef struct {
-    vec3_t pos;
-    int16_t ang, sect;
+    union
+    {
+        vec3_t pos;
+        struct { int ox, oy, oz; };
+    };
+    int16_t ang;
+    union
+    {
+        int16_t sect;
+        int16_t os;
+    };
 } playerspawn_t;
 
 typedef struct {
@@ -166,6 +175,7 @@ typedef struct player_struct {
     int getang() { return q16ang >> FRACBITS; }
     int getoang() { return oq16ang >> FRACBITS; }
     void setang(int v) { q16ang = v << FRACBITS; }
+    void addang(int v) { q16ang = (q16ang + (v << FRACBITS)) & ((2048 << FRACBITS)-1); }
     void setoang(int v) { oq16ang = v << FRACBITS; }
     void addhoriz(int v) { q16horiz += (v << FRACBITS); }
     int gethoriz() { return q16horiz >> FRACBITS; }

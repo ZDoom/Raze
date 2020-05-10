@@ -273,8 +273,11 @@ inline int LocateTheLocator(int const tag, int const sectNum)
     return A_FindLocator(tag, sectNum);
 }
 
-int  A_CheckNoSE7Water(uspritetype const *pSprite, int sectNum, int sectLotag, int32_t *pOther);
 int  A_CheckSwitchTile(int spriteNum);
+inline int wallswitchcheck(int s)
+{
+    return A_CheckSwitchTile(s);
+}
 int A_IncurDamage(int spriteNum);
 void A_AddToDeleteQueue(int spriteNum);
 void A_DeleteSprite(int spriteNum);
@@ -375,6 +378,8 @@ inline int wakeup(int sn, int pn)
 }
 
 // shared functions
+int ifhitsectors(int sn);
+void ms(short i);
 void movecrane(int i, int crane);
 void movefountain(int i, int fountain);
 void moveflammable(int i, int tire, int box, int pool);
@@ -406,6 +411,34 @@ bool bloodpool(int i, bool puke, int TIRE);
 void shell(int i, bool morecheck);
 void glasspieces(int i);
 void scrap(int i, int SCRAP1, int SCRAP6);
+
+void handle_se00(int i, int LASERLINE);
+void handle_se01(int i);
+void handle_se14(int i, bool checkstat, int RPG, int JIBS6);
+void handle_se30(int i, int JIBS6);
+void handle_se02(int i);
+void handle_se03(int i);
+void handle_se04(int i);
+void handle_se05(int i, int FIRELASER);
+void handle_se08(int i, bool checkhitag1);
+void handle_se10(int i, const int *);
+void handle_se11(int i);
+void handle_se12(int i, int planeonly = 0);
+void handle_se13(int i);
+void handle_se15(int i);
+void handle_se16(int i, int REACTOR, int REACTOR2);
+void handle_se17(int i);
+void handle_se18(int i, bool morecheck);
+void handle_se19(int i, int BIGFORCE);
+void handle_se20(int i);
+void handle_se21(int i);
+void handle_se22(int i);
+void handle_se26(int i);
+void handle_se27(int i);
+void handle_se32(int i);
+void handle_se35(int i, int SMALLSMOKE, int EXPLOSION2);
+void handle_se128(int i);
+void handle_se130(int i, int countmax, int EXPLOSION2);
 
 void respawn_rrra(int i, int j);
 

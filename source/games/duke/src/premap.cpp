@@ -1276,7 +1276,7 @@ static void prelevel(char g)
         G_SetFog(0);
         g_fogType = 0;
         ufospawnsminion = 0;
-        g_pistonSound = 0;
+        pistonsound = 0;
         enemysizecheat = 0;
         g_player[myconnectindex].ps->level_end_timer = 0;
         g_mamaSpawnCnt = 15;

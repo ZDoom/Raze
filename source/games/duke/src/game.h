@@ -339,7 +339,7 @@ enum
     SE_2_EARTHQUAKE                   = 2,
     SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT = 3,
     SE_4_RANDOM_LIGHTS                = 4,
-    SE_5                              = 5,
+    SE_5_BOSS                         = 5,
     SE_6_SUBWAY                       = 6,
     // ^^ potentially incomplete substitution in code
     // vv almost surely complete substitution
@@ -373,6 +373,8 @@ enum
     SE_34                              = 34,  // XXX
     SE_35                              = 35,  // XXX
     SE_36_PROJ_SHOOTER                 = 36,
+    SE_47_LIGHT_SWITCH                 = 47,
+    SE_48_LIGHT_SWITCH                 = 48,
     SE_49_POINT_LIGHT                  = 49,
     SE_50_SPOT_LIGHT                   = 50,
     SE_130                             = 130,
