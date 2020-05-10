@@ -3557,7 +3557,7 @@ void P_GetInput(int const playerNum)
     }
  
     if (thisPlayer.horizSkew)
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(thisPlayer.horizSkew))));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(thisPlayer.horizSkew)));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
@@ -4201,7 +4201,7 @@ void P_DHGetInput(int const playerNum)
     }
  
     if (thisPlayer.horizSkew)
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(thisPlayer.horizSkew))));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(thisPlayer.horizSkew)));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
  
@@ -8799,7 +8799,7 @@ HORIZONLY:;
 
     if (pPlayer->hard_landing > 0)
     {
-        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
+        thisPlayer.horizSkew = -(pPlayer->hard_landing << 4);
         pPlayer->hard_landing--;
     }
 
@@ -8829,7 +8829,7 @@ HORIZONLY:;
 
     if (pPlayer->knee_incs > 0)
     {
-        thisPlayer.horizSkew = F16(-48);
+        thisPlayer.horizSkew = -48;
         thisPlayer.horizRecenter = true;
         pPlayer->return_to_center = 9;
 
@@ -9439,7 +9439,7 @@ void P_DHProcessInput(int playerNum)
 
     if (pPlayer->hard_landing > 0)
     {
-        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
+        thisPlayer.horizSkew = -(pPlayer->hard_landing << 4);
         pPlayer->hard_landing--;
     }
 

@@ -235,7 +235,7 @@ typedef struct
 
     bool    horizRecenter;
     float   horizAngleAdjust;
-    fix16_t horizSkew;
+    int8_t  horizSkew;
 
     int32_t movefifoend, syncvalhead, myminlag;
     int32_t pcolor, pteam;
