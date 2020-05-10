@@ -128,28 +128,16 @@ inline void checkhitwall(int spr, int wal, int x, int y, int z, int w)
     vec3_t vec{ x, y, z };
     A_DamageWall(spr, wal, &vec, w);
 }
-int __fastcall A_FindPlayer(const spritetype *pSprite,int32_t *dist);
-inline int findplayer(const spritetype* pSprite, int32_t* dist)
-{
-    return A_FindPlayer(pSprite, dist);
-}
+int findplayer(const spritetype* pSprite, int32_t* dist);
+void operatejaildoors(int hitag);
 void G_AlignWarpElevators(void);
 bool isadoorwall(int tileNum);
 bool isablockdoor(int tileNum);
 void G_AnimateCamSprite(int smoothRatio);
-void G_AnimateWalls(void);
-int G_ActivateWarpElevators(int s,int warpDir);
-inline int activatewarpelevators(int s, int w)
-{
-    return G_ActivateWarpElevators(s, w);
-}
+void animatewalls(void);
+bool activatewarpelevators(int s, int w);
 int check_activator_motion(int lotag);
-void G_DoSectorAnimations(void);
-void G_OperateActivators(int lotag, int playerNum);
-inline void operateactivators(int l, int w)
-{
-    G_OperateActivators(l, w);
-}
+void operateactivators(int l, int w);
 void G_OperateForceFields(int spriteNum,int wallTag);
 inline void operateforcefields(int s, int w)
 {
@@ -160,29 +148,17 @@ inline void operatemasterswitches(int l)
 {
     return G_OperateMasterSwitches(l);
 }
-void G_OperateRespawns(int lotag);
-void G_OperateSectors(int sectNum,int spriteNum);
-inline void operatesectors(int s, int i)
-{
-    G_OperateSectors(s, i);
-}
+void operaterespawns(int lotag);
+void operatesectors(int s, int i);
 void P_HandleSharedKeys(int playerNum);
-int GetAnimationGoal(const int32_t *animPtr);
-inline int getanimationgoal(const int32_t* animPtr)
-{
-    return GetAnimationGoal(animPtr);
-}
+int getanimationgoal(const int32_t* animPtr);
 bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
 int P_ActivateSwitch(int playerNum, int wallOrSprite, int nSwitchType);
 void P_CheckSectors(int playerNum);
 void Sect_DamageCeiling(int sectNum);
 inline void checkhitceiling(int sec) { Sect_DamageCeiling(sec); }
-int SetAnimation(int sectNum,int32_t *animPtr,int goalVal,int animVel);
-inline int setanimation(int sectNum, int32_t* animPtr, int goalVal, int animVel)
-{
-    return SetAnimation(sectNum, animPtr, goalVal, animVel);
-}
+int setanimation(short animsect, int* animptr, int thegoal, int thevel);
 void G_DoFurniture(int wallNum, int sectNum, int playerNum);
 void dotorch();
 

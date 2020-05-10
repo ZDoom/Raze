@@ -7559,8 +7559,8 @@ int G_DoMoveThings(void)
         }
         else
         {
-        G_AnimateWalls();
-        movecyclers();
+            animatewalls();
+            movecyclers();
         }
 
         //if (g_netServer && (everyothertime % 10) == 0)

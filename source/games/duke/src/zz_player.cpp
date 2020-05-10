@@ -420,7 +420,7 @@ notarget:
 // Hitscan weapon fired from actor (sprite s);
 static void A_PreFireHitscan(const spritetype *pSprite, vec3_t * const srcVect, int32_t * const zvel, int * const shootAng, int const doSpread)
 {
-    int const           playerNum  = A_FindPlayer(pSprite, NULL);
+    int const           playerNum  = findplayer(pSprite, NULL);
     const DukePlayer_t *pPlayer    = g_player[playerNum].ps;
     int const           playerDist = safeldist(pPlayer->i, pSprite);
 
@@ -605,7 +605,7 @@ growspark_rr:
                 else
                 {
                     int32_t   playerDist;
-                    int const playerSprite = g_player[A_FindPlayer(pSprite, &playerDist)].ps->i;
+                    int const playerSprite = g_player[findplayer(pSprite, &playerDist)].ps->i;
                     Zvel                   = tabledivide32_noinline((sprite[playerSprite].z - startPos.z) << 8, playerDist + 1);
                     shootAng             = getangle(sprite[playerSprite].x - startPos.x, sprite[playerSprite].y - startPos.y);
                 }
@@ -894,7 +894,7 @@ growspark_rr:
             }
             else
             {
-                int const otherPlayer = A_FindPlayer(pSprite, NULL);
+                int const otherPlayer = findplayer(pSprite, NULL);
                 if (pSprite->picnum == TILE_VIXEN)
                     shootAng -= krand2()&16;
                 else
@@ -1004,7 +1004,7 @@ growspark_rr:
             }
             else
             {
-                int const otherPlayer = A_FindPlayer(pSprite, NULL);
+                int const otherPlayer = findplayer(pSprite, NULL);
                 if (RR)
                 {
                     if (pSprite->picnum == TILE_HULK)
@@ -1123,7 +1123,7 @@ growspark_rr:
             else
             {
                 // NOTE: otherSprite is a player index
-                otherSprite          = A_FindPlayer(pSprite, NULL);
+                otherSprite          = findplayer(pSprite, NULL);
                 shootAng = getangle(g_player[otherSprite].ps->opos.x - startPos.x, g_player[otherSprite].ps->opos.y - startPos.y);
                 if (PN(spriteNum) == TILE_BOSS3)
                     startPos.z -= ZOFFSET5;
@@ -1319,7 +1319,7 @@ growspark_rr:
             if (pSprite->extra >= 0)
                 pSprite->shade = -96;
 
-            int const playerSprite = g_player[A_FindPlayer(pSprite, NULL)].ps->i;
+            int const playerSprite = g_player[findplayer(pSprite, NULL)].ps->i;
             int const playerDist   = ldist(&sprite[playerSprite], pSprite);
 
             Zvel = -playerDist >> 1;
@@ -1350,7 +1350,7 @@ growspark_rr:
             }
             else if (pSprite->statnum != STAT_EFFECTOR)
             {
-                int const otherPlayer = A_FindPlayer(pSprite, NULL);
+                int const otherPlayer = findplayer(pSprite, NULL);
                 Zvel                  = tabledivide32_noinline((g_player[otherPlayer].ps->opos.z - startPos.z) * 512,
                                               safeldist(g_player[otherPlayer].ps->i, pSprite));
             }
@@ -4862,31 +4862,6 @@ static int P_CheckFloorDamage(DukePlayer_t *pPlayer, int floorTexture)
 }
 
 
-int P_FindOtherPlayer(int playerNum, int32_t *pDist)
-{
-    int closestPlayer     = playerNum;
-    int closestPlayerDist = INT32_MAX;
-
-    for (bssize_t TRAVERSE_CONNECT(otherPlayer))
-    {
-        if (playerNum != otherPlayer && sprite[g_player[otherPlayer].ps->i].extra > 0)
-        {
-            int otherPlayerDist = klabs(g_player[otherPlayer].ps->opos.x - g_player[playerNum].ps->pos.x) +
-                                  klabs(g_player[otherPlayer].ps->opos.y - g_player[playerNum].ps->pos.y) +
-                                  (klabs(g_player[otherPlayer].ps->opos.z - g_player[playerNum].ps->pos.z) >> 4);
-
-            if (otherPlayerDist < closestPlayerDist)
-            {
-                closestPlayer     = otherPlayer;
-                closestPlayerDist = otherPlayerDist;
-            }
-        }
-    }
-
-    *pDist = closestPlayerDist;
-
-    return closestPlayer;
-}
 
 void P_FragPlayer(int playerNum)
 {
@@ -7717,7 +7692,7 @@ check_enemy_sprite:
     {
         if (sectorLotag == 17 || (RRRA && sectorLotag == 18))
         {
-            if (GetAnimationGoal(&sector[pPlayer->cursectnum].floorz) >= 0)
+            if (getanimationgoal(&sector[pPlayer->cursectnum].floorz) >= 0)
             {
                 if (!S_CheckSoundPlaying(pPlayer->i, 432))
                     A_PlaySound(432, pPlayer->i);
@@ -8676,7 +8651,7 @@ HORIZONLY:;
                     case NAKED1__STATIC:
                     case STATUE__STATIC:
                         if (sprite[pPlayer->actorsqu].yvel)
-                            G_OperateRespawns(sprite[pPlayer->actorsqu].yvel);
+                            operaterespawns(sprite[pPlayer->actorsqu].yvel);
                         A_DeleteSprite(pPlayer->actorsqu);
                         break;
                     case APLAYER__STATIC:

@@ -105,6 +105,7 @@ G_EXTERN int32_t myminlag[MAXPLAYERS], mymaxlag, otherminlag, bufferjitter;
 G_EXTERN int32_t g_networkBroadcastMode, g_movesPerPacket;
 
 G_EXTERN int32_t g_animWallCnt;
+#define numanimwalls g_animWallCnt
 G_EXTERN int32_t g_animateCnt;
 #define animatecnt g_animateCnt
 G_EXTERN int32_t g_cloudCnt;
@@ -141,8 +142,11 @@ G_EXTERN int32_t screenpeek;
 G_EXTERN int16_t g_animateSect[MAXANIMATES];
 #define animatesect g_animateSect
 G_EXTERN int32_t *g_animatePtr[MAXANIMATES];
+#define animateptr g_animatePtr
 G_EXTERN int32_t g_animateGoal[MAXANIMATES];
+#define animategoal g_animateGoal
 G_EXTERN int32_t g_animateVel[MAXANIMATES];
+#define animatevel g_animateVel
 
 G_EXTERN int16_t g_cloudSect[256];
 G_EXTERN int16_t g_cloudX;
@@ -315,13 +319,13 @@ inline void restoreinterpolations()
 }
 inline int setinterpolation(int32_t* posptr)
 {
-    G_SetInterpolation(posptr);
+   return G_SetInterpolation(posptr);
 }
-inline int stopinterpolation(int32_t* posptr)
+inline void stopinterpolation(int32_t* posptr)
 {
     G_SetInterpolation(posptr);
 }
-inline int dointerpolations(int smoothratio)
+inline void dointerpolations(int smoothratio)
 {
     G_DoInterpolations(smoothratio);
 }

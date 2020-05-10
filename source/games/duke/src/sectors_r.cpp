@@ -186,7 +186,144 @@ bool isablockdoor(int dapic)
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void animatewalls_r(void)
+{
+    int i, j, p, t;
+
+    if (isRRRA() &&ps[screenpeek].sea_sick_stat == 1)
+    {
+        for (i = 0; i < MAXWALLS; i++)
+        {
+            if (wall[i].picnum == RRTILE7873)
+                wall[i].xpanning += 6;
+            else if (wall[i].picnum == RRTILE7870)
+                wall[i].xpanning += 6;
+        }
+    }
+
+    for (p = 0; p < numanimwalls; p++)
+    {
+        i = animwall[p].wallnum;
+        j = wall[i].picnum;
+
+        switch (j)
+        {
+        case SCREENBREAK1:
+        case SCREENBREAK2:
+        case SCREENBREAK3:
+        case SCREENBREAK4:
+        case SCREENBREAK5:
+
+        case SCREENBREAK9:
+        case SCREENBREAK10:
+        case SCREENBREAK11:
+        case SCREENBREAK12:
+        case SCREENBREAK13:
+
+            if ((krand() & 255) < 16)
+            {
+                animwall[p].tag = wall[i].picnum;
+                wall[i].picnum = SCREENBREAK6;
+            }
+
+            continue;
+
+        case SCREENBREAK6:
+        case SCREENBREAK7:
+        case SCREENBREAK8:
+
+            if (animwall[p].tag >= 0)
+                wall[i].picnum = animwall[p].tag;
+            else
+            {
+                wall[i].picnum++;
+                if (wall[i].picnum == (SCREENBREAK6 + 3))
+                    wall[i].picnum = SCREENBREAK6;
+            }
+            continue;
+
+        }
+
+        if (wall[i].cstat & 16)
+            switch (wall[i].overpicnum)
+            {
+            case W_FORCEFIELD:
+            case W_FORCEFIELD + 1:
+            case W_FORCEFIELD + 2:
+
+                t = animwall[p].tag;
+
+                if (wall[i].cstat & 254)
+                {
+                    wall[i].xpanning -= t >> 10; // sintable[(t+512)&2047]>>12;
+                    wall[i].ypanning -= t >> 10; // sintable[t&2047]>>12;
+
+                    if (wall[i].extra == 1)
+                    {
+                        wall[i].extra = 0;
+                        animwall[p].tag = 0;
+                    }
+                    else
+                        animwall[p].tag += 128;
+
+                    if (animwall[p].tag < (128 << 4))
+                    {
+                        if (animwall[p].tag & 128)
+                            wall[i].overpicnum = W_FORCEFIELD;
+                        else wall[i].overpicnum = W_FORCEFIELD + 1;
+                    }
+                    else
+                    {
+                        if ((krand() & 255) < 32)
+                            animwall[p].tag = 128 << (krand() & 3);
+                        else wall[i].overpicnum = W_FORCEFIELD + 1;
+                    }
+                }
+
+                break;
+            }
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void operaterespawns_r(int low)
+{
+    short i, j, nexti;
+
+    i = headspritestat[11];
+    while (i >= 0)
+    {
+        nexti = nextspritestat[i];
+        if (sprite[i].lotag == low) switch (sprite[i].picnum)
+        {
+        case RESPAWN:
+            if (badguypic(sprite[i].hitag) && ud.monsters_off) break;
+
+            j = spawn(i, TRANSPORTERSTAR);
+            sprite[j].z -= (32 << 8);
+
+            sprite[i].extra = 66 - 12;   // Just a way to killit
+            break;
+        case RRTILE7424:
+            if (isRRRA() && !ud.monsters_off)
+                changespritestat(i, 119);
+            break;
+
+        }
+        i = nexti;
+    }
+}
 
 
 END_DUKE_NS

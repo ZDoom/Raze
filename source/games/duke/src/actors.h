@@ -374,6 +374,10 @@ inline int badguy(void const* const pSprite)
     return A_CheckEnemySprite(pSprite);
 }
 
+inline int badguypic(int tile)
+{
+    return A_CheckEnemyTile(tile);
+}
 int G_WakeUp(spritetype* const pSprite, int const playerNum);
 inline int wakeup(int sn, int pn)
 {

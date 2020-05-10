@@ -661,7 +661,7 @@ void G_DoCheats(void)
                         {
                             if (lotag & (uint16_t)~16384u)
                                 sector[i].lotag &= (uint16_t)~16384u;
-                            G_OperateSectors(i, pPlayer->i);
+                            operatesectors(i, pPlayer->i);
                         }
                     }
                     G_OperateForceFields(pPlayer->i, -1);

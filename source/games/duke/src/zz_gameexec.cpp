@@ -1502,7 +1502,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     break;
                 case 4:
                     A_Spawn(vm.spriteNum, TILE_VIXEN);
-                    G_OperateActivators(666, vm.playerNum);
+                    operateactivators(666, vm.playerNum);
                     break;
                 }
                 continue;
@@ -1515,7 +1515,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case CON_MAMATRIGGER:
                 insptr++;
-                G_OperateActivators(667, vm.playerNum);
+                operateactivators(667, vm.playerNum);
                 continue;
 
             case CON_MAMASPAWN:
@@ -2468,7 +2468,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                         break;
 
                                 if (j == -1)
-                                    G_OperateSectors(foundSect, vm.spriteNum);
+                                    operatesectors(foundSect, vm.spriteNum);
                             }
                 }
                 continue;
@@ -2657,11 +2657,11 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     case NAKED1__STATIC:
                     case STATUE__STATIC:
                         if (vm.pSprite->yvel)
-                            G_OperateRespawns(vm.pSprite->yvel);
+                            operaterespawns(vm.pSprite->yvel);
                         break;
                     default:
                         if (vm.pSprite->hitag >= 0)
-                            G_OperateRespawns(vm.pSprite->hitag);
+                            operaterespawns(vm.pSprite->hitag);
                         break;
                 }
                 continue;

@@ -864,6 +864,8 @@ void thunder();
 void moveexplosions_r();
 void moveeffectors_r();
 
+void doanimations(void);
+
 void G_MoveWorld_d(void)
 {
     extern double g_moveActorsTime, g_moveWorldTime;
@@ -890,7 +892,7 @@ void G_MoveWorld_d(void)
     movestandables_d();       //ST 6
 
     G_RefreshLights();
-    G_DoSectorAnimations();
+    doanimations();
     movefx();               //ST 11
 
     g_moveWorldTime = (1-0.033)*g_moveWorldTime + 0.033*(timerGetHiTicks()-worldTime);
@@ -939,7 +941,7 @@ void G_MoveWorld_r(void)
     }
 
     G_RefreshLights();
-    G_DoSectorAnimations();
+    doanimations();
     if (!DEER)
         movefx();               //ST 11
 
