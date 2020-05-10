@@ -299,7 +299,7 @@ int findplayer(const spritetype* s, int* d)
 
     if (ud.multimode < 2)
     {
-        *d = abs(ps[myconnectindex].oposx - s->x) + abs(ps[myconnectindex].oposy - s->y) + ((abs(ps[myconnectindex].oposz - s->z + (28 << 8))) >> 4);
+        if (d) *d = abs(ps[myconnectindex].oposx - s->x) + abs(ps[myconnectindex].oposy - s->y) + ((abs(ps[myconnectindex].oposz - s->z + (28 << 8))) >> 4);
         return myconnectindex;
     }
 
@@ -316,7 +316,7 @@ int findplayer(const spritetype* s, int* d)
         }
     }
 
-    *d = closest;
+    if (d) *d = closest;
     return closest_player;
 }
 
