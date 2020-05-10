@@ -3505,21 +3505,6 @@ void P_GetInput(int const playerNum)
         }
     }
 
-    if (pPlayer->return_to_center > 0)
-        pPlayer->return_to_center--;
-
-    if (pPlayer->hard_landing)
-    {
-        pPlayer->return_to_center = 9;
-        thisPlayer.horizRecenter  = true;
-    }
-
-    if (pPlayer->hard_landing > 0)
-    {
-        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
-        pPlayer->hard_landing--;
-    }
-
     // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
 
     if (thisPlayer.horizAngleAdjust)
@@ -4181,21 +4166,6 @@ void P_DHGetInput(int const playerNum)
 
     if (pPlayer->cursectnum >= 0 && sector[pPlayer->cursectnum].hitag == 2003)
         input.fvel >>= 1;
-
-    if (pPlayer->return_to_center > 0)
-        pPlayer->return_to_center--;
-
-    if (pPlayer->hard_landing)
-    {
-        pPlayer->return_to_center = 9;
-        thisPlayer.horizRecenter  = true;
-    }
-
-    if (pPlayer->hard_landing > 0)
-    {
-        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
-        pPlayer->hard_landing--;
-    }
 
     // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
 
@@ -8775,7 +8745,10 @@ HORIZONLY:;
         }
     }
 
-    if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW))
+    if (pPlayer->return_to_center > 0)
+        pPlayer->return_to_center--;
+
+    if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
         if (VM_OnEvent(EVENT_RETURNTOCENTER, pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
@@ -8822,6 +8795,12 @@ HORIZONLY:;
         if (!delta) delta++;
         pPlayer->recoil -= delta;
         pPlayer->q16horiz -= F16(delta);
+    }
+
+    if (pPlayer->hard_landing > 0)
+    {
+        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
+        pPlayer->hard_landing--;
     }
 
     //Shooting code/changes
@@ -9419,7 +9398,10 @@ void P_DHProcessInput(int playerNum)
                                  A_GetFurthestAngle(pPlayer->i, 8) < 512);
     }
 
-    if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW))
+    if (pPlayer->return_to_center > 0)
+        pPlayer->return_to_center--;
+
+    if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
     {
         pPlayer->return_to_center = 9;
         thisPlayer.horizRecenter  = true;
@@ -9453,6 +9435,12 @@ void P_DHProcessInput(int playerNum)
         if (!delta) delta++;
         pPlayer->recoil -= delta;
         pPlayer->q16horiz -= F16(delta);
+    }
+
+    if (pPlayer->hard_landing > 0)
+    {
+        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
+        pPlayer->hard_landing--;
     }
 
     if (TEST_SYNC_KEY(playerBits, SK_FIRE))
