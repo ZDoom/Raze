@@ -671,7 +671,7 @@ growspark_rr:
                     {
                         A_DamageObject(hitData.sprite, kneeSprite);
                         if (playerNum >= 0)
-                            P_ActivateSwitch(playerNum, hitData.sprite, 1);
+                            checkhitswitch(playerNum, hitData.sprite, 1);
                     }
                     else if (hitData.wall >= 0)
                     {
@@ -681,7 +681,7 @@ growspark_rr:
                         {
                             A_DamageWall(kneeSprite, hitData.wall, &hitData.pos, projecTile);
                             if (playerNum >= 0)
-                                P_ActivateSwitch(playerNum, hitData.wall, 0);
+                                checkhitswitch(playerNum, hitData.wall, 0);
                         }
                     }
                 }
@@ -772,7 +772,7 @@ growspark_rr:
 
                     if (playerNum >= 0 && CheckShootSwitchTile(sprite[hitData.sprite].picnum))
                     {
-                        P_ActivateSwitch(playerNum, hitData.sprite, 1);
+                        checkhitswitch(playerNum, hitData.sprite, 1);
                         return -1;
                     }
                 }
@@ -790,7 +790,7 @@ growspark_rr:
 
                     if (playerNum >= 0 && CheckShootSwitchTile(hitWall->picnum))
                     {
-                        P_ActivateSwitch(playerNum, hitData.wall, 0);
+                        checkhitswitch(playerNum, hitData.wall, 0);
                         return -1;
                     }
 
@@ -4441,7 +4441,7 @@ static int32_t P_DoCounters(int playerNum)
         {
             if (pPlayer->access_spritenum >= 0)
             {
-                P_ActivateSwitch(playerNum, pPlayer->access_spritenum, 1);
+                checkhitswitch(playerNum, pPlayer->access_spritenum, 1);
                 switch (sprite[pPlayer->access_spritenum].pal)
                 {
                     case 0:  RR ? pPlayer->keys[1] = 1 : pPlayer->got_access &= (0xffff - 0x1); break;
@@ -4452,7 +4452,7 @@ static int32_t P_DoCounters(int playerNum)
             }
             else
             {
-                P_ActivateSwitch(playerNum,pPlayer->access_wallnum,0);
+                checkhitswitch(playerNum,pPlayer->access_wallnum,0);
                 switch (wall[pPlayer->access_wallnum].pal)
                 {
                     case 0:  RR ? pPlayer->keys[1] = 1 : pPlayer->got_access &= (0xffff - 0x1); break;

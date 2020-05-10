@@ -216,6 +216,8 @@ G_EXTERN msy_ msy;
 
 G_EXTERN int32_t g_windTime, g_windDir;
 G_EXTERN int16_t g_fakeBubbaCnt, g_mamaSpawnCnt, g_banjoSong, g_bellTime, g_bellSprite;
+#define BellTime g_bellTime
+#define word_119BE0 g_bellSprite
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS];
 G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, g_chickenWeaponTimer, g_RAendLevel, g_RAendEpisode, g_fogType;
 G_EXTERN int32_t g_cdTrack;
@@ -345,9 +347,6 @@ extern psaccess ps;
 #define spriteq SpriteDeletionQueue
 #define spriteqloc g_spriteDeleteQueuePos
 
-// This is for dealing with those horrible switch/case messes the code is full of. 
-// With two different sets of tile constants the switches won't do anymore.
-
 inline bool isIn(int value, int first)
 {
     return value == first;
@@ -358,10 +357,13 @@ bool isIn(int value, int first, Args... args)
 {
     return value == first || isIn(value, args...);
 }
-// This is for picking between two identical names with different indices, e.g. CRACK and RR_CRACK. 
-#define pPick(d) (isRR()? (RR_##d) : (d))
-// This is mainly for convenience and easier lookup for an eventual cleanup.
-#define pPick2(d, r) (isRR()? (r) : (d))
+
+inline bool isIn(int value, const std::initializer_list<int> &list)
+{
+    for (auto v : list) if (v == value) return true;
+    return false;
+}
+
 
 
 inline bool PlayerInput(int pl, int bit)

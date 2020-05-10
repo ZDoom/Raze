@@ -269,6 +269,7 @@ typedef struct player_struct {
 } DukePlayer_t;
 
 // transition helpers
+#define SeaSick sea_sick
 #define firstaid_amount inv_amount[GET_FIRSTAID]
 #define steroids_amount inv_amount[GET_STEROIDS]
 #define holoduke_amount inv_amount[GET_HOLODUKE]

@@ -325,5 +325,578 @@ void operaterespawns_r(int low)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void operateforcefields_r(int s, int low)
+{
+    operateforcefields_common(s, low, { BIGFORCE });
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool checkhitswitch_r(int snum, int w, int switchtype)
+{
+    char switchpal;
+    short i, x, lotag, hitag, picnum, correctdips, numdips;
+    int sx, sy;
+
+    if (w < 0) return 0;
+    correctdips = 1;
+    numdips = 0;
+
+    if (switchtype == 1) // A wall sprite
+    {
+        lotag = sprite[w].lotag; if (lotag == 0) return 0;
+        hitag = sprite[w].hitag;
+        sx = sprite[w].x;
+        sy = sprite[w].y;
+        picnum = sprite[w].picnum;
+        switchpal = sprite[w].pal;
+    }
+    else
+    {
+        lotag = wall[w].lotag; if (lotag == 0) return 0;
+        hitag = wall[w].hitag;
+        sx = wall[w].x;
+        sy = wall[w].y;
+        picnum = wall[w].picnum;
+        switchpal = wall[w].pal;
+    }
+
+    switch (picnum)
+    {
+    case DIPSWITCH:
+    case DIPSWITCH + 1:
+    case TECHSWITCH:
+    case TECHSWITCH + 1:
+    case ALIENSWITCH:
+    case ALIENSWITCH + 1:
+        break;
+    case ACCESSSWITCH:
+    case ACCESSSWITCH2:
+        if (ps[snum].access_incs == 0)
+        {
+            if (switchpal == 0)
+            {
+                if (ps[snum].keys[1])
+                    ps[snum].access_incs = 1;
+                else
+                {
+                    FTA(70, &ps[snum]);
+                    if (isRRRA()) spritesound(99, w);
+                }
+            }
+
+            else if (switchpal == 21)
+            {
+                if (ps[snum].keys[2])
+                    ps[snum].access_incs = 1;
+                else
+                {
+                    FTA(71, &ps[snum]);
+                    if (isRRRA()) spritesound(99, w);
+                }
+            }
+
+            else if (switchpal == 23)
+            {
+                if (ps[snum].keys[3])
+                    ps[snum].access_incs = 1;
+                else
+                {
+                    FTA(72, &ps[snum]);
+                    if (isRRRA()) spritesound(99, w);
+                }
+            }
+
+            if (ps[snum].access_incs == 1)
+            {
+                if (switchtype == 0)
+                    ps[snum].access_wallnum = w;
+                else
+                    ps[snum].access_spritenum = w;
+            }
+
+            return 0;
+        }
+    case MULTISWITCH2:
+    case MULTISWITCH2 + 1:
+    case MULTISWITCH2 + 2:
+    case MULTISWITCH2 + 3:
+    case RRTILE8464:
+    case RRTILE8660:
+        if (isRRRA()) break;
+    case DIPSWITCH2:
+    case DIPSWITCH2 + 1:
+    case DIPSWITCH3:
+    case DIPSWITCH3 + 1:
+    case MULTISWITCH:
+    case MULTISWITCH + 1:
+    case MULTISWITCH + 2:
+    case MULTISWITCH + 3:
+    case PULLSWITCH:
+    case PULLSWITCH + 1:
+    case HANDSWITCH:
+    case HANDSWITCH + 1:
+    case SLOTDOOR:
+    case SLOTDOOR + 1:
+    case LIGHTSWITCH:
+    case LIGHTSWITCH + 1:
+    case SPACELIGHTSWITCH:
+    case SPACELIGHTSWITCH + 1:
+    case SPACEDOORSWITCH:
+    case SPACEDOORSWITCH + 1:
+    case FRANKENSTINESWITCH:
+    case FRANKENSTINESWITCH + 1:
+    case LIGHTSWITCH2:
+    case LIGHTSWITCH2 + 1:
+    case POWERSWITCH1:
+    case POWERSWITCH1 + 1:
+    case LOCKSWITCH1:
+    case LOCKSWITCH1 + 1:
+    case POWERSWITCH2:
+    case POWERSWITCH2 + 1:
+    case NUKEBUTTON:
+    case NUKEBUTTON + 1:
+    case RRTILE2214:
+    case RRTILE2697:
+    case RRTILE2697 + 1:
+    case RRTILE2707:
+    case RRTILE2707 + 1:
+        if (check_activator_motion(lotag)) return 0;
+        break;
+    default:
+        if (isadoorwall(picnum) == 0) return 0;
+        break;
+    }
+
+    i = headspritestat[0];
+    while (i >= 0)
+    {
+        if (lotag == sprite[i].lotag) switch (sprite[i].picnum)
+        {
+        case DIPSWITCH:
+        case TECHSWITCH:
+        case ALIENSWITCH:
+            if (switchtype == 1 && w == i) sprite[i].picnum++;
+            else if (sprite[i].hitag == 0) correctdips++;
+            numdips++;
+            break;
+        case TECHSWITCH + 1:
+        case DIPSWITCH + 1:
+        case ALIENSWITCH + 1:
+            if (switchtype == 1 && w == i) sprite[i].picnum--;
+            else if (sprite[i].hitag == 1) correctdips++;
+            numdips++;
+            break;
+        case MULTISWITCH:
+        case MULTISWITCH + 1:
+        case MULTISWITCH + 2:
+        case MULTISWITCH + 3:
+            sprite[i].picnum++;
+            if (sprite[i].picnum > (MULTISWITCH + 3))
+                sprite[i].picnum = MULTISWITCH;
+            break;
+        case MULTISWITCH2:
+        case MULTISWITCH2 + 1:
+        case MULTISWITCH2 + 2:
+        case MULTISWITCH2 + 3:
+            if (!isRRRA()) break;
+            sprite[i].picnum++;
+            if (sprite[i].picnum > (MULTISWITCH2 + 3))
+                sprite[i].picnum = MULTISWITCH2;
+            break;
+
+        case RRTILE2214:
+            if (ud.level_number > 6)
+                ud.level_number = 0;
+            sprite[i].picnum++;
+            break;
+        case RRTILE8660:
+            if (!isRRRA()) break;
+        case ACCESSSWITCH:
+        case ACCESSSWITCH2:
+        case SLOTDOOR:
+        case LIGHTSWITCH:
+        case SPACELIGHTSWITCH:
+        case SPACEDOORSWITCH:
+        case FRANKENSTINESWITCH:
+        case LIGHTSWITCH2:
+        case POWERSWITCH1:
+        case LOCKSWITCH1:
+        case POWERSWITCH2:
+        case HANDSWITCH:
+        case PULLSWITCH:
+        case DIPSWITCH2:
+        case DIPSWITCH3:
+        case NUKEBUTTON:
+        case RRTILE2697:
+        case RRTILE2707:
+            if (sprite[i].picnum == DIPSWITCH3)
+                if (sprite[i].hitag == 999)
+                {
+                    short j, nextj;
+                    j = headspritestat[107];
+                    while (j >= 0)
+                    {
+                        nextj = nextspritestat[j];
+                        if (sprite[j].picnum == RRTILE3410)
+                        {
+                            sprite[j].picnum++;
+                            sprite[j].hitag = 100;
+                            sprite[j].extra = 0;
+                            spritesound(474, j);
+                        }
+                        else if (sprite[j].picnum == RRTILE295)
+                            deletesprite(j);
+                        j = nextj;
+                    }
+                    sprite[i].picnum++;
+                    break;
+                }
+            if (sprite[i].picnum == NUKEBUTTON)
+                chickenplant = 0;
+            if (sprite[i].picnum == RRTILE8660)
+            {
+                BellTime = 132;
+                word_119BE0 = i;
+            }
+            sprite[i].picnum++;
+            break;
+        case PULLSWITCH + 1:
+        case HANDSWITCH + 1:
+        case LIGHTSWITCH2 + 1:
+        case POWERSWITCH1 + 1:
+        case LOCKSWITCH1 + 1:
+        case POWERSWITCH2 + 1:
+        case SLOTDOOR + 1:
+        case LIGHTSWITCH + 1:
+        case SPACELIGHTSWITCH + 1:
+        case SPACEDOORSWITCH + 1:
+        case FRANKENSTINESWITCH + 1:
+        case DIPSWITCH2 + 1:
+        case DIPSWITCH3 + 1:
+        case NUKEBUTTON + 1:
+        case RRTILE2697 + 1:
+        case RRTILE2707 + 1:
+            if (sprite[i].picnum == NUKEBUTTON + 1)
+                chickenplant = 1;
+            if (sprite[i].hitag != 999)
+                sprite[i].picnum--;
+            break;
+        }
+        i = nextspritestat[i];
+    }
+
+    for (i = 0; i < numwalls; i++)
+    {
+        x = i;
+        if (lotag == wall[x].lotag)
+            switch (wall[x].picnum)
+            {
+            case DIPSWITCH:
+            case TECHSWITCH:
+            case ALIENSWITCH:
+                if (switchtype == 0 && i == w) wall[x].picnum++;
+                else if (wall[x].hitag == 0) correctdips++;
+                numdips++;
+                break;
+            case DIPSWITCH + 1:
+            case TECHSWITCH + 1:
+            case ALIENSWITCH + 1:
+                if (switchtype == 0 && i == w) wall[x].picnum--;
+                else if (wall[x].hitag == 1) correctdips++;
+                numdips++;
+                break;
+            case MULTISWITCH:
+            case MULTISWITCH + 1:
+            case MULTISWITCH + 2:
+            case MULTISWITCH + 3:
+                wall[x].picnum++;
+                if (wall[x].picnum > (MULTISWITCH + 3))
+                    wall[x].picnum = MULTISWITCH;
+                break;
+            case MULTISWITCH2:
+            case MULTISWITCH2 + 1:
+            case MULTISWITCH2 + 2:
+            case MULTISWITCH2 + 3:
+                if (!isRRRA()) break;
+                wall[x].picnum++;
+                if (wall[x].picnum > (MULTISWITCH2 + 3))
+                    wall[x].picnum = MULTISWITCH2;
+                break;
+            case RRTILE8660:
+                if (!isRRRA()) break;
+            case ACCESSSWITCH:
+            case ACCESSSWITCH2:
+            case SLOTDOOR:
+            case LIGHTSWITCH:
+            case SPACELIGHTSWITCH:
+            case SPACEDOORSWITCH:
+            case LIGHTSWITCH2:
+            case POWERSWITCH1:
+            case LOCKSWITCH1:
+            case POWERSWITCH2:
+            case PULLSWITCH:
+            case HANDSWITCH:
+            case DIPSWITCH2:
+            case DIPSWITCH3:
+            case RRTILE2697:
+            case RRTILE2707:
+                wall[x].picnum++;
+                break;
+            case HANDSWITCH + 1:
+            case PULLSWITCH + 1:
+            case LIGHTSWITCH2 + 1:
+            case POWERSWITCH1 + 1:
+            case LOCKSWITCH1 + 1:
+            case POWERSWITCH2 + 1:
+            case SLOTDOOR + 1:
+            case LIGHTSWITCH + 1:
+            case SPACELIGHTSWITCH + 1:
+            case SPACEDOORSWITCH + 1:
+            case DIPSWITCH2 + 1:
+            case DIPSWITCH3 + 1:
+            case RRTILE2697 + 1:
+            case RRTILE2707 + 1:
+                wall[x].picnum--;
+                break;
+            }
+    }
+
+    if (lotag == (short)65535)
+    {
+        ps[myconnectindex].gm = MODE_EOL;
+        if (ud.from_bonus)
+        {
+            ud.level_number = ud.from_bonus;
+            ud.m_level_number = ud.level_number;
+            ud.from_bonus = 0;
+        }
+        else
+        {
+            // fixme: This needs to be taken from the level definitions.
+            if (isRRRA() && ud.level_number == 6 && ud.volume_number == 0)
+                g_RAendEpisode = 1; // hack to force advancing to episode 2.
+            ud.level_number = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
+            ud.m_level_number = ud.level_number;
+        }
+    }
+
+    vec3_t v = { sx, sy, ps[snum].posz };
+    switch (picnum)
+    {
+    default:
+        if (isadoorwall(picnum) == 0) break;
+    case DIPSWITCH:
+    case DIPSWITCH + 1:
+    case TECHSWITCH:
+    case TECHSWITCH + 1:
+    case ALIENSWITCH:
+    case ALIENSWITCH + 1:
+        if (picnum == DIPSWITCH || picnum == DIPSWITCH + 1 ||
+            picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1 ||
+            picnum == TECHSWITCH || picnum == TECHSWITCH + 1)
+        {
+            if (picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1)
+            {
+                if (switchtype == SWITCH_SPRITE)
+                    S_PlaySound3D(ALIEN_SWITCH1, w, &v);
+                else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].i, &v);
+            }
+            else
+            {
+                if (switchtype == SWITCH_SPRITE)
+                    S_PlaySound3D(SWITCH_ON, w, &v);
+                else S_PlaySound3D(SWITCH_ON, ps[snum].i, &v);
+            }
+            if (numdips != correctdips) break;
+            S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].i, &v);
+        }
+    case MULTISWITCH2:
+    case MULTISWITCH2 + 1:
+    case MULTISWITCH2 + 2:
+    case MULTISWITCH2 + 3:
+    case RRTILE8464:
+    case RRTILE8660:
+        if (!isRRRA()) break;
+    case DIPSWITCH2:
+    case DIPSWITCH2 + 1:
+    case DIPSWITCH3:
+    case DIPSWITCH3 + 1:
+    case MULTISWITCH:
+    case MULTISWITCH + 1:
+    case MULTISWITCH + 2:
+    case MULTISWITCH + 3:
+    case ACCESSSWITCH:
+    case ACCESSSWITCH2:
+    case SLOTDOOR:
+    case SLOTDOOR + 1:
+    case LIGHTSWITCH:
+    case LIGHTSWITCH + 1:
+    case SPACELIGHTSWITCH:
+    case SPACELIGHTSWITCH + 1:
+    case SPACEDOORSWITCH:
+    case SPACEDOORSWITCH + 1:
+    case FRANKENSTINESWITCH:
+    case FRANKENSTINESWITCH + 1:
+    case LIGHTSWITCH2:
+    case LIGHTSWITCH2 + 1:
+    case POWERSWITCH1:
+    case POWERSWITCH1 + 1:
+    case LOCKSWITCH1:
+    case LOCKSWITCH1 + 1:
+    case POWERSWITCH2:
+    case POWERSWITCH2 + 1:
+    case HANDSWITCH:
+    case HANDSWITCH + 1:
+    case PULLSWITCH:
+    case PULLSWITCH + 1:
+    case RRTILE2697:
+    case RRTILE2697 + 1:
+    case RRTILE2707:
+    case RRTILE2707 + 1:
+        if (isRRRA())
+        {
+            if (picnum == RRTILE8660)
+            {
+                BellTime = 132;
+                word_119BE0 = w;
+                sprite[w].picnum++;
+            }
+            else if (picnum == RRTILE8464)
+            {
+                sprite[w].picnum = sprite[w].picnum + 1;
+                if (hitag == 10001)
+                {
+                    if (ps[snum].SeaSick == 0)
+                        ps[snum].SeaSick = 350;
+                    operateactivators(668, ps[snum].i);
+                    operatemasterswitches(668);
+                    spritesound(328, ps[snum].i);
+                    return 1;
+                }
+            }
+            else if (hitag == 10000)
+            {
+                if (picnum == MULTISWITCH || picnum == (MULTISWITCH + 1) ||
+                    picnum == (MULTISWITCH + 2) || picnum == (MULTISWITCH + 3) ||
+                    picnum == MULTISWITCH2 || picnum == (MULTISWITCH2 + 1) ||
+                    picnum == (MULTISWITCH2 + 2) || picnum == (MULTISWITCH2 + 3))
+                {
+                    int var6c[3], var54, j;
+                    short jpn, jht;
+                    var54 = 0;
+                    S_PlaySound3D(SWITCH_ON, w, &v);
+                    for (j = 0; j < MAXSPRITES; j++)
+                    {
+                        jpn = sprite[j].picnum;
+                        jht = sprite[j].hitag;
+                        if ((jpn == MULTISWITCH || jpn == MULTISWITCH2) && jht == 10000)
+                        {
+                            if (var54 < 3)
+                            {
+                                var6c[var54] = j;
+                                var54++;
+                            }
+                        }
+                    }
+                    if (var54 == 3)
+                    {
+                        S_PlaySound3D(78, w, &v);
+                        for (j = 0; j < var54; j++)
+                        {
+                            sprite[var6c[j]].hitag = 0;
+                            if (picnum >= MULTISWITCH2)
+                                sprite[var6c[j]].picnum = MULTISWITCH2 + 3;
+                            else
+                                sprite[var6c[j]].picnum = MULTISWITCH + 3;
+                            checkhitswitch_r(snum, var6c[j], 1);
+                        }
+                    }
+                    return 1;
+                }
+            }
+        }
+        if (picnum == MULTISWITCH || picnum == (MULTISWITCH + 1) ||
+            picnum == (MULTISWITCH + 2) || picnum == (MULTISWITCH + 3))
+            lotag += picnum - MULTISWITCH;
+        if (isRRRA())
+        {
+            if (picnum == MULTISWITCH2 || picnum == (MULTISWITCH2 + 1) ||
+                picnum == (MULTISWITCH2 + 2) || picnum == (MULTISWITCH2 + 3))
+                lotag += picnum - MULTISWITCH2;
+        }
+
+        x = headspritestat[3];
+        while (x >= 0)
+        {
+            if (((sprite[x].hitag) == lotag))
+            {
+                switch (sprite[x].lotag)
+                {
+                case 46:
+                case 47:
+                case 48:
+                    if (!isRRRA()) break;
+                case 12:
+                    sector[sprite[x].sectnum].floorpal = 0;
+                    hittype[x].temp_data[0]++;
+                    if (hittype[x].temp_data[0] == 2)
+                        hittype[x].temp_data[0]++;
+
+                    break;
+                case 24:
+                case 34:
+                case 25:
+                    hittype[x].temp_data[4] = !hittype[x].temp_data[4];
+                    if (hittype[x].temp_data[4])
+                        FTA(15, &ps[snum]);
+                    else FTA(2, &ps[snum]);
+                    break;
+                case 21:
+                    FTA(2, &ps[screenpeek]);
+                    break;
+                }
+            }
+            x = nextspritestat[x];
+        }
+
+        operateactivators(lotag, snum);
+        operateforcefields(ps[snum].i, lotag);
+        operatemasterswitches(lotag);
+
+        if (picnum == DIPSWITCH || picnum == DIPSWITCH + 1 ||
+            picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1 ||
+            picnum == TECHSWITCH || picnum == TECHSWITCH + 1) return 1;
+
+        if (hitag == 0 && isadoorwall(picnum) == 0)
+        {
+            if (switchtype == SWITCH_SPRITE)
+                S_PlaySound3D(SWITCH_ON, w, &v);
+            else S_PlaySound3D(SWITCH_ON, ps[snum].i, &v);
+        }
+        else if (hitag != 0)
+        {
+            auto flags = S_GetUserFlags(hitag);
+
+            if (switchtype == SWITCH_SPRITE && (flags & SF_TALK) == 0)
+                S_PlaySound3D(hitag, w, &v);
+            else
+                A_PlaySound(hitag, ps[snum].i);
+        }
+
+        return 1;
+    }
+    return 0;
+}
 
 END_DUKE_NS

@@ -205,5 +205,401 @@ void operaterespawns_d(int low)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void operateforcefields_d(int s, int low)
+{
+    operateforcefields_common(s, low, { W_FORCEFIELD, W_FORCEFIELD + 1, W_FORCEFIELD + 2, BIGFORCE });
+}
+
+//---------------------------------------------------------------------------
+//
+// how NOT to implement switch animations...
+//
+//---------------------------------------------------------------------------
+
+bool checkhitswitch_d(int snum, int w, int switchtype)
+{
+    uint8_t switchpal;
+    int i, x, lotag, hitag, picnum, correctdips, numdips;
+    int sx, sy;
+
+    if (w < 0) return 0;
+    correctdips = 1;
+    numdips = 0;
+
+    if (switchtype == SWITCH_SPRITE) // A wall sprite
+    {
+        lotag = sprite[w].lotag; if (lotag == 0) return 0;
+        hitag = sprite[w].hitag;
+        sx = sprite[w].x;
+        sy = sprite[w].y;
+        picnum = sprite[w].picnum;
+        switchpal = sprite[w].pal;
+    }
+    else
+    {
+        lotag = wall[w].lotag; if (lotag == 0) return 0;
+        hitag = wall[w].hitag;
+        sx = wall[w].x;
+        sy = wall[w].y;
+        picnum = wall[w].picnum;
+        switchpal = wall[w].pal;
+    }
+
+    switch (picnum)
+    {
+    case DIPSWITCH:
+    case DIPSWITCH + 1:
+    case TECHSWITCH:
+    case TECHSWITCH + 1:
+    case ALIENSWITCH:
+    case ALIENSWITCH + 1:
+        break;
+    case ACCESSSWITCH:
+    case ACCESSSWITCH2:
+        if (ps[snum].access_incs == 0)
+        {
+            if (switchpal == 0)
+            {
+                if ((ps[snum].got_access & 1))
+                    ps[snum].access_incs = 1;
+                else FTA(70, &ps[snum]);
+            }
+
+            else if (switchpal == 21)
+            {
+                if (ps[snum].got_access & 2)
+                    ps[snum].access_incs = 1;
+                else FTA(71, &ps[snum]);
+            }
+
+            else if (switchpal == 23)
+            {
+                if (ps[snum].got_access & 4)
+                    ps[snum].access_incs = 1;
+                else FTA(72, &ps[snum]);
+            }
+
+            if (ps[snum].access_incs == 1)
+            {
+                if (switchtype == SWITCH_WALL)
+                    ps[snum].access_wallnum = w;
+                else
+                    ps[snum].access_spritenum = w;
+            }
+
+            return 0;
+        }
+    case DIPSWITCH2:
+    case DIPSWITCH2 + 1:
+    case DIPSWITCH3:
+    case DIPSWITCH3 + 1:
+    case MULTISWITCH:
+    case MULTISWITCH + 1:
+    case MULTISWITCH + 2:
+    case MULTISWITCH + 3:
+    case PULLSWITCH:
+    case PULLSWITCH + 1:
+    case HANDSWITCH:
+    case HANDSWITCH + 1:
+    case SLOTDOOR:
+    case SLOTDOOR + 1:
+    case LIGHTSWITCH:
+    case LIGHTSWITCH + 1:
+    case SPACELIGHTSWITCH:
+    case SPACELIGHTSWITCH + 1:
+    case SPACEDOORSWITCH:
+    case SPACEDOORSWITCH + 1:
+    case FRANKENSTINESWITCH:
+    case FRANKENSTINESWITCH + 1:
+    case LIGHTSWITCH2:
+    case LIGHTSWITCH2 + 1:
+    case POWERSWITCH1:
+    case POWERSWITCH1 + 1:
+    case LOCKSWITCH1:
+    case LOCKSWITCH1 + 1:
+    case POWERSWITCH2:
+    case POWERSWITCH2 + 1:
+        if (check_activator_motion(lotag)) return 0;
+        break;
+    default:
+        if (isadoorwall(picnum) == 0) return 0;
+        break;
+    }
+
+    i = headspritestat[0];
+    while (i >= 0)
+    {
+        if (lotag == sprite[i].lotag) switch (sprite[i].picnum)
+        {
+        case DIPSWITCH:
+        case TECHSWITCH:
+        case ALIENSWITCH:
+            if (switchtype == SWITCH_SPRITE && w == i) sprite[i].picnum++;
+            else if (sprite[i].hitag == 0) correctdips++;
+            numdips++;
+            break;
+        case TECHSWITCH + 1:
+        case DIPSWITCH + 1:
+        case ALIENSWITCH + 1:
+            if (switchtype == SWITCH_SPRITE && w == i) sprite[i].picnum--;
+            else if (sprite[i].hitag == 1) correctdips++;
+            numdips++;
+            break;
+        case MULTISWITCH:
+        case MULTISWITCH + 1:
+        case MULTISWITCH + 2:
+        case MULTISWITCH + 3:
+            sprite[i].picnum++;
+            if (sprite[i].picnum > (MULTISWITCH + 3))
+                sprite[i].picnum = MULTISWITCH;
+            break;
+        case ACCESSSWITCH:
+        case ACCESSSWITCH2:
+        case SLOTDOOR:
+        case LIGHTSWITCH:
+        case SPACELIGHTSWITCH:
+        case SPACEDOORSWITCH:
+        case FRANKENSTINESWITCH:
+        case LIGHTSWITCH2:
+        case POWERSWITCH1:
+        case LOCKSWITCH1:
+        case POWERSWITCH2:
+        case HANDSWITCH:
+        case PULLSWITCH:
+        case DIPSWITCH2:
+        case DIPSWITCH3:
+            sprite[i].picnum++;
+            break;
+        case PULLSWITCH + 1:
+        case HANDSWITCH + 1:
+        case LIGHTSWITCH2 + 1:
+        case POWERSWITCH1 + 1:
+        case LOCKSWITCH1 + 1:
+        case POWERSWITCH2 + 1:
+        case SLOTDOOR + 1:
+        case LIGHTSWITCH + 1:
+        case SPACELIGHTSWITCH + 1:
+        case SPACEDOORSWITCH + 1:
+        case FRANKENSTINESWITCH + 1:
+        case DIPSWITCH2 + 1:
+        case DIPSWITCH3 + 1:
+            sprite[i].picnum--;
+            break;
+        }
+        i = nextspritestat[i];
+    }
+
+    for (i = 0; i < numwalls; i++)
+    {
+        x = i;
+        if (lotag == wall[x].lotag)
+            switch (wall[x].picnum)
+            {
+            case DIPSWITCH:
+            case TECHSWITCH:
+            case ALIENSWITCH:
+                if (switchtype == SWITCH_WALL && i == w) wall[x].picnum++;
+                else if (wall[x].hitag == 0) correctdips++;
+                numdips++;
+                break;
+            case DIPSWITCH + 1:
+            case TECHSWITCH + 1:
+            case ALIENSWITCH + 1:
+                if (switchtype == SWITCH_WALL && i == w) wall[x].picnum--;
+                else if (wall[x].hitag == 1) correctdips++;
+                numdips++;
+                break;
+            case MULTISWITCH:
+            case MULTISWITCH + 1:
+            case MULTISWITCH + 2:
+            case MULTISWITCH + 3:
+                wall[x].picnum++;
+                if (wall[x].picnum > (MULTISWITCH + 3))
+                    wall[x].picnum = MULTISWITCH;
+                break;
+            case ACCESSSWITCH:
+            case ACCESSSWITCH2:
+            case SLOTDOOR:
+            case LIGHTSWITCH:
+            case SPACELIGHTSWITCH:
+            case SPACEDOORSWITCH:
+            case LIGHTSWITCH2:
+            case POWERSWITCH1:
+            case LOCKSWITCH1:
+            case POWERSWITCH2:
+            case PULLSWITCH:
+            case HANDSWITCH:
+            case DIPSWITCH2:
+            case DIPSWITCH3:
+                wall[x].picnum++;
+                break;
+            case HANDSWITCH + 1:
+            case PULLSWITCH + 1:
+            case LIGHTSWITCH2 + 1:
+            case POWERSWITCH1 + 1:
+            case LOCKSWITCH1 + 1:
+            case POWERSWITCH2 + 1:
+            case SLOTDOOR + 1:
+            case LIGHTSWITCH + 1:
+            case SPACELIGHTSWITCH + 1:
+            case SPACEDOORSWITCH + 1:
+            case DIPSWITCH2 + 1:
+            case DIPSWITCH3 + 1:
+                wall[x].picnum--;
+                break;
+            }
+    }
+
+    if (lotag == (short)65535)
+    {
+        ps[myconnectindex].gm = MODE_EOL;
+        if (ud.from_bonus)
+        {
+            ud.level_number = ud.from_bonus;
+            ud.m_level_number = ud.level_number;
+            ud.from_bonus = 0;
+        }
+        else
+        {
+            // fixme: This needs to be taken from the level definitions.
+            ud.level_number = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
+            ud.m_level_number = ud.level_number;
+        }
+        return 1;
+    }
+
+    vec3_t v = { sx, sy, ps[snum].posz };
+    switch (picnum)
+    {
+    default:
+        if (isadoorwall(picnum) == 0) break;
+    case DIPSWITCH:
+    case DIPSWITCH + 1:
+    case TECHSWITCH:
+    case TECHSWITCH + 1:
+    case ALIENSWITCH:
+    case ALIENSWITCH + 1:
+        if (picnum == DIPSWITCH || picnum == DIPSWITCH + 1 ||
+            picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1 ||
+            picnum == TECHSWITCH || picnum == TECHSWITCH + 1)
+        {
+            if (picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1)
+            {
+                if (switchtype == SWITCH_SPRITE)
+                    S_PlaySound3D(ALIEN_SWITCH1, w, &v);
+                else S_PlaySound3D(ALIEN_SWITCH1, ps[snum].i, &v);
+            }
+            else
+            {
+                if (switchtype == SWITCH_SPRITE)
+                    S_PlaySound3D(SWITCH_ON, w, &v);
+                else S_PlaySound3D(SWITCH_ON, ps[snum].i, &v);
+            }
+            if (numdips != correctdips) break;
+            S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].i, &v);
+        }
+    case DIPSWITCH2:
+    case DIPSWITCH2 + 1:
+    case DIPSWITCH3:
+    case DIPSWITCH3 + 1:
+    case MULTISWITCH:
+    case MULTISWITCH + 1:
+    case MULTISWITCH + 2:
+    case MULTISWITCH + 3:
+    case ACCESSSWITCH:
+    case ACCESSSWITCH2:
+    case SLOTDOOR:
+    case SLOTDOOR + 1:
+    case LIGHTSWITCH:
+    case LIGHTSWITCH + 1:
+    case SPACELIGHTSWITCH:
+    case SPACELIGHTSWITCH + 1:
+    case SPACEDOORSWITCH:
+    case SPACEDOORSWITCH + 1:
+    case FRANKENSTINESWITCH:
+    case FRANKENSTINESWITCH + 1:
+    case LIGHTSWITCH2:
+    case LIGHTSWITCH2 + 1:
+    case POWERSWITCH1:
+    case POWERSWITCH1 + 1:
+    case LOCKSWITCH1:
+    case LOCKSWITCH1 + 1:
+    case POWERSWITCH2:
+    case POWERSWITCH2 + 1:
+    case HANDSWITCH:
+    case HANDSWITCH + 1:
+    case PULLSWITCH:
+    case PULLSWITCH + 1:
+
+        if (picnum == MULTISWITCH || picnum == (MULTISWITCH + 1) ||
+            picnum == (MULTISWITCH + 2) || picnum == (MULTISWITCH + 3))
+            lotag += picnum - MULTISWITCH;
+
+        x = headspritestat[3];
+        while (x >= 0)
+        {
+            if (((sprite[x].hitag) == lotag))
+            {
+                switch (sprite[x].lotag)
+                {
+                case SE_12_LIGHT_SWITCH:
+                    sector[sprite[x].sectnum].floorpal = 0;
+                    hittype[x].temp_data[0]++;
+                    if (hittype[x].temp_data[0] == 2)
+                        hittype[x].temp_data[0]++;
+
+                    break;
+                case SE_24_CONVEYOR:
+                case SE_34:
+                case SE_25_PISTON:
+                    hittype[x].temp_data[4] = !hittype[x].temp_data[4];
+                    if (hittype[x].temp_data[4])
+                        FTA(15, &ps[snum]);
+                    else FTA(2, &ps[snum]);
+                    break;
+                case SE_21_DROP_FLOOR:
+                    FTA(2, &ps[screenpeek]);
+                    break;
+                }
+            }
+            x = nextspritestat[x];
+        }
+
+        operateactivators(lotag, snum);
+        operateforcefields(ps[snum].i, lotag);
+        operatemasterswitches(lotag);
+
+        if (picnum == DIPSWITCH || picnum == DIPSWITCH + 1 ||
+            picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1 ||
+            picnum == TECHSWITCH || picnum == TECHSWITCH + 1) return 1;
+
+        if (hitag == 0 && isadoorwall(picnum) == 0)
+        {
+            if (switchtype == SWITCH_SPRITE)
+                S_PlaySound3D(SWITCH_ON, w, &v);
+            else S_PlaySound3D(SWITCH_ON, ps[snum].i, &v);
+        }
+        else if (hitag != 0)
+        {
+            auto flags = S_GetUserFlags(hitag);
+
+            if (switchtype == SWITCH_SPRITE && (flags & SF_TALK) == 0)
+                S_PlaySound3D(hitag, w, &v);
+            else
+                A_PlaySound(hitag, ps[snum].i);
+        }
+
+        return 1;
+    }
+    return 0;
+}
+
+
 
 END_DUKE_NS

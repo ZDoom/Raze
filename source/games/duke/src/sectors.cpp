@@ -53,6 +53,10 @@ void animatewalls_d(void);
 void animatewalls_r(void);
 void operaterespawns_d(int low);
 void operaterespawns_r(int low);
+void operateforcefields_r(int s, int low);
+void operateforcefields_d(int s, int low);
+bool checkhitswitch_d(int snum, int w, int switchtype);
+bool checkhitswitch_r(int snum, int w, int switchtype);
 
 bool isadoorwall(int dapic)
 {
@@ -67,6 +71,16 @@ void animatewalls()
 void operaterespawns(int low)
 {
     if (isRR()) operaterespawns_r(low); else operaterespawns_d(low);
+}
+
+void operateforcefields(int s, int low)
+{
+    if (isRR()) operateforcefields_r(s, low); else operateforcefields_d(s, low);
+}
+
+bool checkhitswitch(int snum, int w, int switchtype)
+{
+    return isRR() ? checkhitswitch_r(snum, w, switchtype) : checkhitswitch_d(snum, w, switchtype);
 }
 
 //---------------------------------------------------------------------------
@@ -936,7 +950,7 @@ void operatesectors(int sn, int ii)
 //
 //---------------------------------------------------------------------------
 
-void operateactivators(short low, short snum)
+void operateactivators(int low, int snum)
 {
     int i, j, k;
     short * p;
@@ -1027,6 +1041,59 @@ void operateactivators(short low, short snum)
 
     operaterespawns(low);
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void operatemasterswitches(int low)
+{
+    short i;
+
+    i = headspritestat[6];
+    while (i >= 0)
+    {
+        if (sprite[i].picnum == MASTERSWITCH && sprite[i].lotag == low && sprite[i].yvel == 0)
+            sprite[i].yvel = 1;
+        i = nextspritestat[i];
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void operateforcefields_common(int s, int low, const std::initializer_list<int> &tiles)
+{
+    int i, p;
+
+    for (p = numanimwalls; p >= 0; p--)
+    {
+        i = animwall[p].wallnum;
+
+        if (low == wall[i].lotag || low == -1)
+            if (isIn(wall[i].overpicnum, tiles))
+            {
+                animwall[p].tag = 0;
+
+                if (wall[i].cstat)
+                {
+                    wall[i].cstat = 0;
+
+                    if (s >= 0 && sprite[s].picnum == SECTOREFFECTOR &&
+                        sprite[s].lotag == 30)
+                        wall[i].lotag = 0;
+                }
+                else
+                    wall[i].cstat = 85;
+            }
+    }
+}
+
 
 
 

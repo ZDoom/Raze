@@ -138,23 +138,16 @@ void animatewalls(void);
 bool activatewarpelevators(int s, int w);
 int check_activator_motion(int lotag);
 void operateactivators(int l, int w);
-void G_OperateForceFields(int spriteNum,int wallTag);
-inline void operateforcefields(int s, int w)
-{
-    G_OperateForceFields(s, w);
-}
-void G_OperateMasterSwitches(int lotag);
-inline void operatemasterswitches(int l)
-{
-    return G_OperateMasterSwitches(l);
-}
+void operateforcefields(int s,int low);
+void operateforcefields_common(int s, int low, const std::initializer_list<int>& tiles);
+void operatemasterswitches(int lotag);
 void operaterespawns(int lotag);
 void operatesectors(int s, int i);
 void P_HandleSharedKeys(int playerNum);
 int getanimationgoal(const int32_t* animPtr);
 bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
-int P_ActivateSwitch(int playerNum, int wallOrSprite, int nSwitchType);
+bool checkhitswitch(int playerNum, int wallOrSprite, int nSwitchType);
 void P_CheckSectors(int playerNum);
 void Sect_DamageCeiling(int sectNum);
 inline void checkhitceiling(int sec) { Sect_DamageCeiling(sec); }
@@ -222,6 +215,7 @@ inline int dist(const spritetype* s1, const spritetype* s2)
     return(FindDistance3D(vx, vy, vz >> 4));
 }
 
+enum { SWITCH_WALL, SWITCH_SPRITE };
 
 #endif
 
