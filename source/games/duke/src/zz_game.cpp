@@ -212,7 +212,7 @@ int32_t A_CheckInventorySprite(spritetype *s)
     }
 }
 
-void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum)
+void OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum)
 {
     if (!pPlayer->OnMotorcycle && !(sector[pPlayer->cursectnum].lotag == 2))
     {
@@ -237,7 +237,7 @@ void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum)
         A_PlaySound(186, pPlayer->i);
 }
 
-void G_OffMotorcycle(DukePlayer_t *pPlayer)
+void OffMotorcycle(DukePlayer_t *pPlayer)
 {
     int j;
     if (pPlayer->OnMotorcycle)
@@ -258,7 +258,7 @@ void G_OffMotorcycle(DukePlayer_t *pPlayer)
         P_CheckWeapon(pPlayer);
         pPlayer->q16horiz = F16(100);
         pPlayer->moto_do_bump = 0;
-        pPlayer->moto_speed = 0;
+        pPlayer->MotoSpeed = 0;
         pPlayer->tilt_status = 0;
         pPlayer->moto_drink = 0;
         pPlayer->moto_bump_target = 0;
@@ -277,7 +277,7 @@ void G_OffMotorcycle(DukePlayer_t *pPlayer)
     }
 }
 
-void G_OnBoat(DukePlayer_t *pPlayer, int spriteNum)
+void OnBoat(DukePlayer_t *pPlayer, int spriteNum)
 {
     if (!pPlayer->OnBoat)
     {
@@ -300,7 +300,7 @@ void G_OnBoat(DukePlayer_t *pPlayer, int spriteNum)
     }
 }
 
-void G_OffBoat(DukePlayer_t *pPlayer)
+void OffBoat(DukePlayer_t *pPlayer)
 {
     int j;
     if (pPlayer->OnBoat)
@@ -311,7 +311,7 @@ void G_OffBoat(DukePlayer_t *pPlayer)
         P_CheckWeapon(pPlayer);
         pPlayer->q16horiz = F16(100);
         pPlayer->moto_do_bump = 0;
-        pPlayer->moto_speed = 0;
+        pPlayer->MotoSpeed = 0;
         pPlayer->tilt_status = 0;
         pPlayer->moto_drink = 0;
         pPlayer->moto_bump_target = 0;
@@ -7539,7 +7539,7 @@ int G_DoMoveThings(void)
         {
             P_ProcessInput(i);
             if (!DEER)
-            P_CheckSectors(i);
+            checksectors(i);
         }
     }
 

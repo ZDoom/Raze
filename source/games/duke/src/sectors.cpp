@@ -67,6 +67,8 @@ bool checkhitceiling_d(int sn);
 bool checkhitceiling_r(int sn);
 void checkhitsprite_d(int i, int sn);
 void checkhitsprite_r(int i, int sn);
+void checksectors_d(int snum);
+void checksectors_r(int snum);
 
 bool isadoorwall(int dapic)
 {
@@ -117,6 +119,12 @@ void checkhitsprite(int i, int sn)
 {
     if (isRR()) checkhitsprite_r(i, sn); else checkhitsprite_d(i, sn);
 }
+
+void checksectors(int low)
+{
+    if (isRR()) checksectors_r(low); else checksectors_d(low);
+}
+
 
 //---------------------------------------------------------------------------
 //

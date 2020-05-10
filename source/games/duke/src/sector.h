@@ -141,10 +141,10 @@ int getanimationgoal(const int32_t* animPtr);
 bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
 bool checkhitswitch(int playerNum, int wallOrSprite, int nSwitchType);
-void P_CheckSectors(int playerNum);
+void checksectors(int playerNum);
 bool checkhitceiling(int sec);
 int setanimation(short animsect, int* animptr, int thegoal, int thevel);
-void G_DoFurniture(int wallNum, int sectNum, int playerNum);
+void dofurniture(int wallNum, int sectNum, int playerNum);
 void dotorch();
 
 #define FORCEFIELD_CSTAT (64+16+4+1)

@@ -933,8 +933,8 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &ufospawnsminion, sizeof(ufospawnsminion), 1 },
     { 0, &pistonsound, sizeof(pistonsound), 1 },
     { 0, &g_chickenWeaponTimer, sizeof(g_chickenWeaponTimer), 1 },
-    { 0, &g_RAendLevel, sizeof(g_RAendLevel), 1 },
-    { 0, &g_RAendEpisode, sizeof(g_RAendEpisode), 1 },
+    { 0, &RRRA_ExitedLevel, sizeof(RRRA_ExitedLevel), 1 },
+    { 0, &RRRA_EndEpisode, sizeof(RRRA_EndEpisode), 1 },
     { 0, &g_fogType, sizeof(g_fogType), 1 },
     { DS_LOADFN, (void *)sv_rrrafog, 0, 1 },
 

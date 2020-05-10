@@ -984,7 +984,7 @@ void P_ResetStatus(int playerNum)
             pPlayer->moto_do_bump = 0;
             pPlayer->moto_on_ground = 1;
             pPlayer->moto_underwater = 0;
-            pPlayer->moto_speed = 0;
+            pPlayer->MotoSpeed = 0;
             pPlayer->tilt_status = 0;
             pPlayer->moto_drink = 0;
             pPlayer->moto_bump_target = 0;
@@ -1166,7 +1166,7 @@ static void resetprestat(int playerNum, int gameMode)
         g_windTime = 0;
         g_windDir = 0;
         g_fakeBubbaCnt = 0;
-        g_RAendLevel = 0;
+        RRRA_ExitedLevel = 0;
         g_bellTime = 0;
         g_bellSprite = 0;
     }
@@ -1281,7 +1281,7 @@ static void prelevel(char g)
         g_player[myconnectindex].ps->level_end_timer = 0;
         g_mamaSpawnCnt = 15;
         g_banjoSong = 0;
-        g_RAendLevel = 0;
+        RRRA_ExitedLevel = 0;
         if (!DEER)
         {
             for (bssize_t TRAVERSE_CONNECT(playerNum))
@@ -1325,7 +1325,7 @@ static void prelevel(char g)
             g_windTime = 0;
             g_windDir = 0;
             g_fakeBubbaCnt = 0;
-            g_RAendLevel = 0;
+            RRRA_ExitedLevel = 0;
             g_mamaSpawnCnt = 15; // ???
             g_bellTime = 0;
             g_bellSprite = 0;

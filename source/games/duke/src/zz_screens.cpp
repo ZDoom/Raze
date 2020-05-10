@@ -2834,9 +2834,9 @@ void G_BonusScreenRRRA(int32_t bonusonly)
             }
         }
     }
-    if (g_RAendEpisode)
+    if (RRRA_EndEpisode)
     {
-        g_RAendEpisode = 0;
+        RRRA_EndEpisode = 0;
         ud.m_volume_number = ud.volume_number = 1;
         m_level_number = ud.level_number = 0;
         ud.eog = 0;

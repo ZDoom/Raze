@@ -685,7 +685,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
         {
             // fixme: This needs to be taken from the level definitions.
             if (isRRRA() && ud.level_number == 6 && ud.volume_number == 0)
-                g_RAendEpisode = 1; // hack to force advancing to episode 2.
+                RRRA_EndEpisode = 1; // hack to force advancing to episode 2.
             ud.level_number = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
             ud.m_level_number = ud.level_number;
         }
@@ -1039,7 +1039,7 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
             if (s->lotag == 6)
             {
                 for (j = 0; j < 16; j++) RANDOMSCRAP(s, i);
-                g_spriteExtra[jj]++;
+                g_spriteExtra[jj]++; // TRANSITIONAL move to sprite or actor
                 if (g_spriteExtra[jj] == 25)
                 {
                     startwall = sector[s->sectnum].wallptr;
@@ -2382,6 +2382,486 @@ void checkhitsprite_r(int i, int sn)
 
         }
         break;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void checksectors_r(int snum)
+{
+    int i = -1, oldz;
+    struct player_struct* p;
+    int hitscanwall;
+    short neartagsector, neartagwall, neartagsprite;
+    int neartaghitdist;
+
+    p = &ps[snum];
+
+    switch (sector[p->cursectnum].lotag)
+    {
+
+    case 32767:
+        sector[p->cursectnum].lotag = 0;
+        FTA(9, p);
+        p->secret_rooms++;
+        return;
+    case -1:
+        for (i = connecthead; i >= 0; i = connectpoint2[i])
+            ps[i].gm = MODE_EOL;
+        sector[p->cursectnum].lotag = 0;
+        if (!isRRRA() || !RRRA_ExitedLevel)
+        {
+            if (ud.from_bonus)
+            {
+                ud.level_number = ud.from_bonus;
+                ud.m_level_number = ud.level_number;
+                ud.from_bonus = 0;
+            }
+            else
+            {
+                if (isRRRA() && ud.level_number == 6 && ud.volume_number == 0)
+                    RRRA_EndEpisode = 1;
+                ud.level_number++;
+                if (ud.level_number > 6)
+                    ud.level_number = 0;
+                ud.m_level_number = ud.level_number;
+            }
+            RRRA_ExitedLevel = 1;
+        }
+        return;
+    case -2:
+        sector[p->cursectnum].lotag = 0;
+        p->timebeforeexit = 26 * 8;
+        p->customexitsound = sector[p->cursectnum].hitag;
+        return;
+    default:
+        if (sector[p->cursectnum].lotag >= 10000)
+        {
+            if (snum == screenpeek || ud.coop == 1)
+                spritesound(sector[p->cursectnum].lotag - 10000, p->i);
+            sector[p->cursectnum].lotag = 0;
+        }
+        break;
+
+    }
+
+    //After this point the the player effects the map with space
+
+    if (p->gm & MODE_TYPE || sprite[p->i].extra <= 0) return;
+
+    if (ud.cashman && PlayerInput(snum, SK_OPEN))
+        lotsofmoney(&sprite[p->i], 2);
+
+
+    if (!(PlayerInput(snum, SK_OPEN)) && !PlayerInput(snum, SK_ESCAPE))
+        p->toggle_key_flag = 0;
+
+    else if (!p->toggle_key_flag)
+    {
+        neartagsprite = -1;
+        p->toggle_key_flag = 1;
+        hitscanwall = -1;
+
+        hitawall(p, &hitscanwall);
+
+        if (isRRRA())
+        {
+            if (hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR && snum == screenpeek)
+                if (numplayers == 1)
+                {
+                    if (A_CheckSoundPlaying(p->i, 27) == 0 && A_CheckSoundPlaying(p->i, 28) == 0 && A_CheckSoundPlaying(p->i, 29) == 0
+                        && A_CheckSoundPlaying(p->i, 257) == 0 && A_CheckSoundPlaying(p->i, 258) == 0)
+                    {
+                        short snd = krand() % 5;
+                        if (snd == 0)
+                            spritesound(27, p->i);
+                        else if (snd == 1)
+                            spritesound(28, p->i);
+                        else if (snd == 2)
+                            spritesound(29, p->i);
+                        else if (snd == 3)
+                            spritesound(257, p->i);
+                        else if (snd == 4)
+                            spritesound(258, p->i);
+                    }
+                    return;
+                }
+        }
+        else
+        {
+            if (hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR)
+          		if (wall[hitscanwall].lotag > 0 && A_CheckSoundPlaying(p->i, wall[hitscanwall].lotag) == 0 && snum == screenpeek)
+                {
+                    spritesound(wall[hitscanwall].lotag, p->i);
+                    return;
+                }
+        }
+
+        if (hitscanwall >= 0 && (wall[hitscanwall].cstat & 16))
+            if (wall[hitscanwall].lotag)
+                return;
+
+        if (isRRRA())
+        {
+            if (p->OnMotorcycle)
+            {
+                if (p->MotoSpeed < 20)
+                {
+                    OffMotorcycle(p);
+                        return;
+                }
+                return;
+            }
+            if (p->OnBoat)
+            {
+                if (p->MotoSpeed < 20)
+                {
+                    OffBoat(p);
+                    return;
+                }
+                return;
+            }
+            neartag(p->posx, p->posy, p->posz, sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+        }
+
+        if (p->newowner >= 0)
+            neartag(p->oposx, p->oposy, p->oposz, sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+        else
+        {
+            neartag(p->posx, p->posy, p->posz, sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+            if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
+                neartag(p->posx, p->posy, p->posz + (8 << 8), sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+            if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
+                neartag(p->posx, p->posy, p->posz + (16 << 8), sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+            if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
+            {
+                neartag(p->posx, p->posy, p->posz + (16 << 8), sprite[p->i].sectnum, p->getoang(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+                if (neartagsprite >= 0)
+                {
+                    switch (sprite[neartagsprite].picnum)
+                    {
+                    case FEM10:
+                    case NAKED1:
+                    case STATUE:
+                    case TOUGHGAL:
+                        return;
+                    case COW:
+                        g_spriteExtra[neartagsprite] = 1; // TRANSITIONAL move to sprite or actor
+                        return;
+                    }
+                }
+
+                neartagsprite = -1;
+                neartagwall = -1;
+                neartagsector = -1;
+            }
+        }
+
+        if (p->newowner == -1 && neartagsprite == -1 && neartagsector == -1 && neartagwall == -1)
+            if (isanunderoperator(sector[sprite[p->i].sectnum].lotag))
+                neartagsector = sprite[p->i].sectnum;
+
+        if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384))
+            return;
+
+        if (neartagsprite == -1 && neartagwall == -1)
+            if (sector[p->cursectnum].lotag == 2)
+            {
+                oldz = hitasprite(p->i, &neartagsprite);
+                if (oldz > 1280) neartagsprite = -1;
+            }
+
+        if (neartagsprite >= 0)
+        {
+            if (checkhitswitch(snum, neartagsprite, 1)) return;
+
+            switch (sprite[neartagsprite].picnum)
+            {
+            case RRTILE8448:
+                if (!isRRRA()) return;
+                if (!A_CheckSoundPlaying(neartagsprite, 340))
+                    A_PlaySound(340, neartagsprite);
+                return;
+            case RRTILE8704:
+                if (!isRRRA()) return;
+                if (numplayers == 1)
+                {
+                    static bool alreadydone; // what is this supposed to do? Looks broken.
+                    // This is from RedneckGDX - the version in RR Reconstruction looked like broken nonsense.
+                    if (S_CheckSoundPlaying(neartagsprite, 445) || alreadydone != 0)
+                    {
+                        if (!S_CheckSoundPlaying(neartagsprite, 445) && !S_CheckSoundPlaying(neartagsprite, 446) && !S_CheckSoundPlaying(neartagsprite, 447) && alreadydone != 0)
+                        {
+                            if ((krand() % 2) == 1)
+                                spritesound(446, neartagsprite);
+                            else
+                                spritesound(447, neartagsprite);
+                        }
+                    }
+                    else
+                    {
+                        spritesound(445, neartagsprite);
+                        alreadydone = 1;
+                    }
+                }
+                return;
+            case EMPTYBIKE:
+                if (!isRRRA()) return;
+                OnMotorcycle(p, neartagsprite);
+                return;
+            case EMPTYBOAT:
+                if (!isRRRA()) return;
+                OnBoat(p, neartagsprite);
+                return;
+            case RRTILE8164:
+            case RRTILE8165:
+            case RRTILE8166:
+            case RRTILE8167:
+            case RRTILE8168:
+            case RRTILE8591:
+            case RRTILE8592:
+            case RRTILE8593:
+            case RRTILE8594:
+            case RRTILE8595:
+                if (!isRRRA()) return;
+                sprite[neartagsprite].extra = 60;
+                spritesound(235, neartagsprite);
+                return;
+
+            case TOILET:
+            case STALL:
+            case RRTILE2121:
+            case RRTILE2122:
+                if (p->last_pissed_time == 0)
+                {
+                    if (ud.lockout == 0) spritesound(435, p->i);
+
+                    p->last_pissed_time = 26 * 220;
+                    p->transporter_hold = 29 * 2;
+                    if (p->holster_weapon == 0)
+                    {
+                        p->holster_weapon = 1;
+                        p->weapon_pos = -1;
+                    }
+                    if (sprite[p->i].extra <= (p->max_player_health - (p->max_player_health / 10)))
+                    {
+                        sprite[p->i].extra += p->max_player_health / 10;
+                        p->last_extra = sprite[p->i].extra;
+                    }
+                    else if (sprite[p->i].extra < p->max_player_health)
+                        sprite[p->i].extra = p->max_player_health;
+                }
+                else if (A_CheckSoundPlaying(p->i, DUKE_GRUNT) == 0)
+                    spritesound(DUKE_GRUNT, p->i);
+                return;
+            case WATERFOUNTAIN:
+                if (hittype[neartagsprite].temp_data[0] != 1)
+                {
+                    hittype[neartagsprite].temp_data[0] = 1;
+                    sprite[neartagsprite].owner = p->i;
+
+                    if (sprite[p->i].extra < p->max_player_health)
+                    {
+                        sprite[p->i].extra++;
+                        spritesound(DUKE_DRINKING, p->i);
+                    }
+                }
+                return;
+            case PLUG:
+                spritesound(SHORT_CIRCUIT, p->i);
+                sprite[p->i].extra -= 2 + (krand() & 3);
+                SetPlayerPal(p, PalEntry(32, 48, 48, 64));
+                break;
+            }
+        }
+
+        if (!PlayerInput(snum, SK_OPEN)) return;
+
+        if (neartagwall == -1 && neartagsector == -1 && neartagsprite == -1)
+            if (abs(hits(p->i)) < 512)
+            {
+                if ((krand() & 255) < 16)
+                    spritesound(DUKE_SEARCH2, p->i);
+                else spritesound(DUKE_SEARCH, p->i);
+                return;
+            }
+
+        if (neartagwall >= 0)
+        {
+            if (wall[neartagwall].lotag > 0 && isadoorwall(wall[neartagwall].picnum))
+            {
+                if (hitscanwall == neartagwall || hitscanwall == -1)
+                    checkhitswitch(snum, neartagwall, 0);
+                return;
+            }
+        }
+
+        if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384) == 0 && isanearoperator(sector[neartagsector].lotag))
+        {
+            short unk = 0;
+            i = headspritesect[neartagsector];
+            while (i >= 0)
+            {
+                if (sprite[i].picnum == ACTIVATOR || sprite[i].picnum == MASTERSWITCH)
+                    return;
+                i = nextspritesect[i];
+            }
+            if (haskey(neartagsector, snum))
+                operatesectors(neartagsector, p->i);
+            else
+            {
+                if (g_spriteExtra[neartagsprite] > 3) // TRANSITIONAL move to sprite or actor
+                    spritesound(99, p->i);
+                else
+                    spritesound(419, p->i);
+                FTA(41, p);
+            }
+        }
+        else if ((sector[sprite[p->i].sectnum].lotag & 16384) == 0)
+        {
+            if (isanunderoperator(sector[sprite[p->i].sectnum].lotag))
+            {
+                i = headspritesect[sprite[p->i].sectnum];
+                while (i >= 0)
+                {
+                    if (sprite[i].picnum == ACTIVATOR || sprite[i].picnum == MASTERSWITCH) return;
+                    i = nextspritesect[i];
+                }
+                if (haskey(neartagsector, snum))
+                    operatesectors(sprite[p->i].sectnum, p->i);
+                else
+                {
+                    if (g_spriteExtra[neartagsprite] > 3) // TRANSITIONAL move to sprite or actor
+                        spritesound(99, p->i);
+                    else
+                        spritesound(419, p->i);
+                    FTA(41, p);
+                }
+            }
+            else checkhitswitch(snum, neartagwall, 0);
+        }
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void dofurniture(int wl, int sect, int snum)
+{
+    int startwall;
+    int endwall;
+    int i;
+    int var_C;
+    int x;
+    int y;
+    int min_x;
+    int min_y;
+    int max_x;
+    int max_y;
+    int ins;
+    int var_cx;
+
+    startwall = sector[wall[wl].nextsector].wallptr;;
+    endwall = startwall + sector[wall[wl].nextsector].wallnum;
+    var_C = 1;
+    max_x = max_y = -0x20000;
+    min_x = min_y = 0x20000;
+    var_cx = sector[sect].hitag;
+    if (var_cx > 16)
+        var_cx = 16;
+    else if (var_cx == 0)
+        var_cx = 4;
+    for (i = startwall; i < endwall; i++)
+    {
+        x = wall[i].x;
+        y = wall[i].y;
+        if (x > max_x)
+            max_x = x;
+        if (y > max_y)
+            max_y = y;
+        if (x < min_x)
+            min_x = x;
+        if (y < min_y)
+            min_y = y;
+    }
+    max_x += var_cx + 1;
+    max_y += var_cx + 1;
+    min_x -= var_cx + 1;
+    min_y -= var_cx + 1;
+    ins = inside(max_x, max_y, sect);
+    if (!ins)
+        var_C = 0;
+    ins = inside(max_x, min_y, sect);
+    if (!ins)
+        var_C = 0;
+    ins = inside(min_x, min_y, sect);
+    if (!ins)
+        var_C = 0;
+    ins = inside(min_x, max_y, sect);
+    if (!ins)
+        var_C = 0;
+    if (var_C)
+    {
+        if (A_CheckSoundPlaying(ps[snum].i, 389) == 0)
+            spritesound(389, ps[snum].i);
+        for (i = startwall; i < endwall; i++)
+        {
+            x = wall[i].x;
+            y = wall[i].y;
+            switch (wall[wl].lotag)
+            {
+            case 42:
+                y = wall[i].y + var_cx;
+                dragpoint(i, x, y);
+                break;
+            case 41:
+                x = wall[i].x - var_cx;
+                dragpoint(i, x, y);
+                break;
+            case 40:
+                y = wall[i].y - var_cx;
+                dragpoint(i, x, y);
+                break;
+            case 43:
+                x = wall[i].x + var_cx;
+                dragpoint(i, x, y);
+                break;
+            }
+        }
+    }
+    else
+    {
+        for (i = startwall; i < endwall; i++)
+        {
+            x = wall[i].x;
+            y = wall[i].y;
+            switch (wall[wl].lotag)
+            {
+            case 42:
+                y = wall[i].y - (var_cx - 2);
+                dragpoint(i, x, y);
+                break;
+            case 41:
+                x = wall[i].x + (var_cx - 2);
+                dragpoint(i, x, y);
+                break;
+            case 40:
+                y = wall[i].y + (var_cx - 2);
+                dragpoint(i, x, y);
+                break;
+            case 43:
+                x = wall[i].x - (var_cx - 2);
+                dragpoint(i, x, y);
+                break;
+            }
+        }
     }
 }
 

@@ -92,7 +92,7 @@ G_EXTERN vec3_t mypos, omypos, myvel;
 G_EXTERN fix16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff, myang, omyang;
 G_EXTERN int16_t mycursectnum, myjumpingcounter;
 G_EXTERN uint8_t myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
-G_EXTERN int16_t my_moto_speed;
+G_EXTERN int16_t my_MotoSpeed;
 G_EXTERN uint8_t my_not_on_water, my_moto_on_ground;
 G_EXTERN uint8_t my_moto_do_bump, my_moto_bump_fast, my_moto_on_oil, my_moto_on_mud;
 G_EXTERN int16_t my_moto_bump, my_moto_bump_target, my_moto_turb;
@@ -220,7 +220,7 @@ G_EXTERN int16_t g_fakeBubbaCnt, g_mamaSpawnCnt, g_banjoSong, g_bellTime, g_bell
 #define BellTime g_bellTime
 #define word_119BE0 g_bellSprite
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS]; // move these back into the base structs!
-G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, g_chickenWeaponTimer, g_RAendLevel, g_RAendEpisode, g_fogType;
+G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, g_chickenWeaponTimer, RRRA_ExitedLevel, RRRA_EndEpisode, g_fogType;
 G_EXTERN int32_t g_cdTrack;
 #define raat607 enemysizecheat // only as a reminder
 
@@ -366,10 +366,20 @@ inline bool isIn(int value, const std::initializer_list<int> &list)
 }
 
 
-
+// these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
 inline bool PlayerInput(int pl, int bit)
 {
     return TEST_SYNC_KEY(g_player[pl].input->bits, bit);
+}
+
+inline bool PlayerInputSideVel(int pl)
+{
+    return g_player[pl].input->svel;
+}
+
+inline bool PlayerInputForwardVel(int pl)
+{
+    return g_player[pl].input->fvel;
 }
 
 enum

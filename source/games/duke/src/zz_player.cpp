@@ -3675,9 +3675,9 @@ void P_GetInputMotorcycle(int playerNum)
     static int32_t lastInputClock;  // MED
     int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
 
-    int const moveBack = buttonMap.ButtonDown(gamefunc_Move_Backward) && pPlayer->moto_speed <= 0;
+    int const moveBack = buttonMap.ButtonDown(gamefunc_Move_Backward) && pPlayer->MotoSpeed <= 0;
 
-    if (pPlayer->moto_speed == 0 || !pPlayer->on_ground)
+    if (pPlayer->MotoSpeed == 0 || !pPlayer->on_ground)
     {
         if (turnLeft)
         {
@@ -3700,7 +3700,7 @@ void P_GetInputMotorcycle(int playerNum)
             pPlayer->tilt_status--;
             if (pPlayer->tilt_status < -10)
                 pPlayer->tilt_status = -10;
-            if (turnHeldTime >= TURBOTURNTIME && pPlayer->moto_speed > 0)
+            if (turnHeldTime >= TURBOTURNTIME && pPlayer->MotoSpeed > 0)
             {
                 if (moveBack)
                     input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
@@ -3721,7 +3721,7 @@ void P_GetInputMotorcycle(int playerNum)
             pPlayer->tilt_status++;
             if (pPlayer->tilt_status > 10)
                 pPlayer->tilt_status = 10;
-            if (turnHeldTime >= TURBOTURNTIME && pPlayer->moto_speed > 0)
+            if (turnHeldTime >= TURBOTURNTIME && pPlayer->MotoSpeed > 0)
             {
                 if (moveBack)
                     input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
@@ -3749,7 +3749,7 @@ void P_GetInputMotorcycle(int playerNum)
 
     if (pPlayer->moto_underwater)
     {
-        pPlayer->moto_speed = 0;
+        pPlayer->MotoSpeed = 0;
     }
     else
     {
@@ -3761,7 +3761,7 @@ void P_GetInputMotorcycle(int playerNum)
     input.q16avel      = fix16_mul(input.q16avel, avelScale);
     localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
     pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-    localInput.fvel    = clamp((input.fvel += pPlayer->moto_speed), -(MAXVELMOTO / 8), MAXVELMOTO);
+    localInput.fvel    = clamp((input.fvel += pPlayer->MotoSpeed), -(MAXVELMOTO / 8), MAXVELMOTO);
 
     if (TEST_SYNC_KEY(localInput.bits, SK_JUMP))
     {
@@ -3885,7 +3885,7 @@ void P_GetInputBoat(int playerNum)
     static int32_t lastInputClock;  // MED
     int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
 
-    if (pPlayer->moto_speed != 0)
+    if (pPlayer->MotoSpeed != 0)
     {
         if (turnLeft || pPlayer->moto_drink < 0)
         {
@@ -3948,7 +3948,7 @@ void P_GetInputBoat(int playerNum)
     input.q16avel      = fix16_mul(input.q16avel, avelScale);
     localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
     pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-    localInput.fvel    = clamp((input.fvel += pPlayer->moto_speed), -(MAXVELMOTO / 8), MAXVELMOTO);
+    localInput.fvel    = clamp((input.fvel += pPlayer->MotoSpeed), -(MAXVELMOTO / 8), MAXVELMOTO);
 }
 
 int dword_A99D4, dword_A99D8, dword_A99DC, dword_A99E0;
@@ -4608,7 +4608,7 @@ void P_DropWeapon(int const playerNum)
             pPlayer->gotweapon.Clear(MOTORCYCLE_WEAPON);
             pPlayer->q16horiz = F16(100);
             pPlayer->moto_do_bump = 0;
-            pPlayer->moto_speed = 0;
+            pPlayer->MotoSpeed = 0;
             pPlayer->tilt_status = 0;
             pPlayer->moto_drink = 0;
             pPlayer->moto_bump_target = 0;
@@ -4624,7 +4624,7 @@ void P_DropWeapon(int const playerNum)
             pPlayer->gotweapon.Clear(BOAT_WEAPON);
             pPlayer->q16horiz = F16(100);
             pPlayer->moto_do_bump = 0;
-            pPlayer->moto_speed = 0;
+            pPlayer->MotoSpeed = 0;
             pPlayer->tilt_status = 0;
             pPlayer->moto_drink = 0;
             pPlayer->moto_bump_target = 0;
@@ -5699,7 +5699,7 @@ static void P_ProcessWeapon(int playerNum)
                 if (!RRRA) break;
                 if (*weaponFrame == 3)
                 {
-                    pPlayer->moto_speed -= 20;
+                    pPlayer->MotoSpeed -= 20;
                     pPlayer->ammo_amount[BOAT_WEAPON]--;
                     A_Shoot(pPlayer->i, TILE_RRTILE1790);
                 }
@@ -6806,8 +6806,8 @@ void P_ProcessInput(int playerNum)
         {
             int var64, var68, var6c, var74, var7c;
             int16_t var84;
-            if (pPlayer->moto_speed < 0)
-                pPlayer->moto_speed = 0;
+            if (pPlayer->MotoSpeed < 0)
+                pPlayer->MotoSpeed = 0;
             if (TEST_SYNC_KEY(playerBits, SK_CROUCH))
             {
                 var64 = 1;
@@ -6822,18 +6822,18 @@ void P_ProcessInput(int playerNum)
                 playerBits &= ~(1<< SK_JUMP);
                 if (pPlayer->on_ground)
                 {
-                    if (pPlayer->moto_speed == 0 && var64)
+                    if (pPlayer->MotoSpeed == 0 && var64)
                     {
                         if (!A_CheckSoundPlaying(pPlayer->i, 187))
                             A_PlaySound(187,pPlayer->i);
                     }
-                    else if (pPlayer->moto_speed == 0 && !A_CheckSoundPlaying(pPlayer->i, 214))
+                    else if (pPlayer->MotoSpeed == 0 && !A_CheckSoundPlaying(pPlayer->i, 214))
                     {
                         if (A_CheckSoundPlaying(pPlayer->i, 187))
                             S_StopEnvSound(187, pPlayer->i);
                         A_PlaySound(214,pPlayer->i);
                     }
-                    else if (pPlayer->moto_speed >= 50 && !A_CheckSoundPlaying(pPlayer->i, 188))
+                    else if (pPlayer->MotoSpeed >= 50 && !A_CheckSoundPlaying(pPlayer->i, 188))
                     {
                         A_PlaySound(188,pPlayer->i);
                     }
@@ -6904,52 +6904,52 @@ void P_ProcessInput(int playerNum)
             }
             if (pPlayer->on_ground == 1)
             {
-                if (var64 && pPlayer->moto_speed > 0)
+                if (var64 && pPlayer->MotoSpeed > 0)
                 {
                     if (pPlayer->moto_on_oil)
-                        pPlayer->moto_speed -= 2;
+                        pPlayer->MotoSpeed -= 2;
                     else
-                        pPlayer->moto_speed -= 4;
-                    if (pPlayer->moto_speed < 0)
-                        pPlayer->moto_speed = 0;
+                        pPlayer->MotoSpeed -= 4;
+                    if (pPlayer->MotoSpeed < 0)
+                        pPlayer->MotoSpeed = 0;
                     pPlayer->moto_bump_target = -30;
                     pPlayer->moto_do_bump = 1;
                 }
                 else if (var68 && !var64)
                 {
-                    if (pPlayer->moto_speed < 40)
+                    if (pPlayer->MotoSpeed < 40)
                     {
                         pPlayer->moto_bump_target = 70;
                         pPlayer->moto_bump_fast = 1;
                     }
-                    pPlayer->moto_speed += 2;
-                    if (pPlayer->moto_speed > 120)
-                        pPlayer->moto_speed = 120;
+                    pPlayer->MotoSpeed += 2;
+                    if (pPlayer->MotoSpeed > 120)
+                        pPlayer->MotoSpeed = 120;
                     if (!pPlayer->not_on_water)
-                        if (pPlayer->moto_speed > 80)
-                            pPlayer->moto_speed = 80;
+                        if (pPlayer->MotoSpeed > 80)
+                            pPlayer->MotoSpeed = 80;
                 }
-                else if (pPlayer->moto_speed > 0)
-                    pPlayer->moto_speed--;
-                if (pPlayer->moto_do_bump && (!var64 || pPlayer->moto_speed == 0))
+                else if (pPlayer->MotoSpeed > 0)
+                    pPlayer->MotoSpeed--;
+                if (pPlayer->moto_do_bump && (!var64 || pPlayer->MotoSpeed == 0))
                 {
                     pPlayer->moto_bump_target = 0;
                     pPlayer->moto_do_bump = 0;
                 }
-                if (var6c && pPlayer->moto_speed <= 0 && !var64)
+                if (var6c && pPlayer->MotoSpeed <= 0 && !var64)
                 {
                     int var88;
-                    pPlayer->moto_speed = -15;
+                    pPlayer->MotoSpeed = -15;
                     var88 = var7c;
                     var7c = var74;
                     var74 = var88;
                 }
             }
-            if (pPlayer->moto_speed != 0 && pPlayer->on_ground == 1)
+            if (pPlayer->MotoSpeed != 0 && pPlayer->on_ground == 1)
             {
                 if (!pPlayer->moto_bump)
                     if ((krand2() & 3) == 2)
-                        pPlayer->moto_bump_target = (pPlayer->moto_speed>>4)*((krand2()&7)-4);
+                        pPlayer->moto_bump_target = (pPlayer->MotoSpeed>>4)*((krand2()&7)-4);
                 if (var74 || pPlayer->moto_drink < 0)
                 {
                     if (pPlayer->moto_drink < 0)
@@ -7002,10 +7002,10 @@ void P_ProcessInput(int playerNum)
                 pPlayer->moto_bump_target = 0;
                 pPlayer->moto_bump_fast = 0;
             }
-            if (pPlayer->moto_speed >= 20 && pPlayer->on_ground == 1 && (var74 || var7c))
+            if (pPlayer->MotoSpeed >= 20 && pPlayer->on_ground == 1 && (var74 || var7c))
             {
                 short var8c, var90, var94, var98;
-                var8c = pPlayer->moto_speed;
+                var8c = pPlayer->MotoSpeed;
                 var90 = fix16_to_int(pPlayer->q16ang);
                 if (var74)
                     var94 = -10;
@@ -7054,10 +7054,10 @@ void P_ProcessInput(int playerNum)
                     }
                 }
             }
-            else if (pPlayer->moto_speed >= 20 && pPlayer->on_ground == 1 && (pPlayer->moto_on_mud || pPlayer->moto_on_oil))
+            else if (pPlayer->MotoSpeed >= 20 && pPlayer->on_ground == 1 && (pPlayer->moto_on_mud || pPlayer->moto_on_oil))
             {
                 short var9c, vara0, vara4 = 0;
-                var9c = pPlayer->moto_speed;
+                var9c = pPlayer->MotoSpeed;
                 vara0 = fix16_to_int(pPlayer->q16ang);
                 var84 = krand2()&1;
                 if (var84 == 0)
@@ -7080,7 +7080,7 @@ void P_ProcessInput(int playerNum)
             int16_t varcc;
             if (pPlayer->not_on_water)
             {
-                if (pPlayer->moto_speed > 0)
+                if (pPlayer->MotoSpeed > 0)
                 {
                     if (!A_CheckSoundPlaying(pPlayer->i, 88))
                         A_PlaySound(88,pPlayer->i);
@@ -7091,8 +7091,8 @@ void P_ProcessInput(int playerNum)
                         A_PlaySound(87,pPlayer->i);
                 }
             }
-            if (pPlayer->moto_speed < 0)
-                pPlayer->moto_speed = 0;
+            if (pPlayer->MotoSpeed < 0)
+                pPlayer->MotoSpeed = 0;
             if (TEST_SYNC_KEY(playerBits, SK_CROUCH) && TEST_SYNC_KEY(playerBits, SK_JUMP))
             {
                 vara8 = 1;
@@ -7107,13 +7107,13 @@ void P_ProcessInput(int playerNum)
             {
                 varac = 1;
                 playerBits &= ~(1<<SK_JUMP);
-                if (pPlayer->moto_speed == 0 && !A_CheckSoundPlaying(pPlayer->i, 89))
+                if (pPlayer->MotoSpeed == 0 && !A_CheckSoundPlaying(pPlayer->i, 89))
                 {
                     if (A_CheckSoundPlaying(pPlayer->i, 87))
                         S_StopEnvSound(pPlayer->i, 87);
                     A_PlaySound(89,pPlayer->i);
                 }
-                else if (pPlayer->moto_speed >= 50 && !A_CheckSoundPlaying(pPlayer->i, 88))
+                else if (pPlayer->MotoSpeed >= 50 && !A_CheckSoundPlaying(pPlayer->i, 88))
                     A_PlaySound(88,pPlayer->i);
                 else if (!A_CheckSoundPlaying(pPlayer->i, 88) && !A_CheckSoundPlaying(pPlayer->i, 89))
                     A_PlaySound(88,pPlayer->i);
@@ -7153,7 +7153,7 @@ void P_ProcessInput(int playerNum)
             {
                 varbc = 1;
                 playerBits &= ~(1<<SK_AIM_DOWN);
-                if (!A_CheckSoundPlaying(pPlayer->i, 91) && pPlayer->moto_speed > 30 && !pPlayer->not_on_water)
+                if (!A_CheckSoundPlaying(pPlayer->i, 91) && pPlayer->MotoSpeed > 30 && !pPlayer->not_on_water)
                     A_PlaySound(91,pPlayer->i);
             }
             else
@@ -7164,7 +7164,7 @@ void P_ProcessInput(int playerNum)
             {
                 varc4 = 1;
                 playerBits &= ~(1<< SK_LOOK_LEFT);
-                if (!A_CheckSoundPlaying(pPlayer->i, 91) && pPlayer->moto_speed > 30 && !pPlayer->not_on_water)
+                if (!A_CheckSoundPlaying(pPlayer->i, 91) && pPlayer->MotoSpeed > 30 && !pPlayer->not_on_water)
                     A_PlaySound(91,pPlayer->i);
             }
             else
@@ -7194,65 +7194,65 @@ void P_ProcessInput(int playerNum)
             {
                 if (vara8)
                 {
-                    if (pPlayer->moto_speed <= 25)
+                    if (pPlayer->MotoSpeed <= 25)
                     {
-                        pPlayer->moto_speed++;
+                        pPlayer->MotoSpeed++;
                         if (!A_CheckSoundPlaying(pPlayer->i, 182))
                             A_PlaySound(182, pPlayer->i);
                     }
                     else
                     {
-                        pPlayer->moto_speed -= 2;
-                        if (pPlayer->moto_speed < 0)
-                            pPlayer->moto_speed = 0;
+                        pPlayer->MotoSpeed -= 2;
+                        if (pPlayer->MotoSpeed < 0)
+                            pPlayer->MotoSpeed = 0;
                         pPlayer->moto_bump_target = 30;
                         pPlayer->moto_do_bump = 1;
                     }
                 }
-                else if (varb0 && pPlayer->moto_speed > 0)
+                else if (varb0 && pPlayer->MotoSpeed > 0)
                 {
-                    pPlayer->moto_speed -= 2;
-                    if (pPlayer->moto_speed < 0)
-                        pPlayer->moto_speed = 0;
+                    pPlayer->MotoSpeed -= 2;
+                    if (pPlayer->MotoSpeed < 0)
+                        pPlayer->MotoSpeed = 0;
                     pPlayer->moto_bump_target = 30;
                     pPlayer->moto_do_bump = 1;
                 }
                 else if (varac)
                 {
-                    if (pPlayer->moto_speed < 40)
+                    if (pPlayer->MotoSpeed < 40)
                         if (!pPlayer->not_on_water)
                         {
                             pPlayer->moto_bump_target = -30;
                             pPlayer->moto_bump_fast = 1;
                         }
-                    pPlayer->moto_speed++;
-                    if (pPlayer->moto_speed > 120)
-                        pPlayer->moto_speed = 120;
+                    pPlayer->MotoSpeed++;
+                    if (pPlayer->MotoSpeed > 120)
+                        pPlayer->MotoSpeed = 120;
                 }
-                else if (pPlayer->moto_speed > 0)
-                    pPlayer->moto_speed--;
-                if (pPlayer->moto_do_bump && (!varb0 || pPlayer->moto_speed == 0))
+                else if (pPlayer->MotoSpeed > 0)
+                    pPlayer->MotoSpeed--;
+                if (pPlayer->moto_do_bump && (!varb0 || pPlayer->MotoSpeed == 0))
                 {
                     pPlayer->moto_bump_target = 0;
                     pPlayer->moto_do_bump = 0;
                 }
-                if (varb4 && pPlayer->moto_speed == 0 && !varb0)
+                if (varb4 && pPlayer->MotoSpeed == 0 && !varb0)
                 {
                     int vard0;
                     if (!pPlayer->not_on_water)
-                        pPlayer->moto_speed = -25;
+                        pPlayer->MotoSpeed = -25;
                     else
-                        pPlayer->moto_speed = -20;
+                        pPlayer->MotoSpeed = -20;
                     vard0 = varc4;
                     varc4 = varbc;
                     varbc = vard0;
                 }
             }
-            if (pPlayer->moto_speed != 0 && pPlayer->on_ground == 1)
+            if (pPlayer->MotoSpeed != 0 && pPlayer->on_ground == 1)
             {
                 if (!pPlayer->moto_bump)
                     if ((krand2() & 15) == 14)
-                        pPlayer->moto_bump_target = (pPlayer->moto_speed>>4)*((krand2()&3)-2);
+                        pPlayer->moto_bump_target = (pPlayer->MotoSpeed>>4)*((krand2()&3)-2);
                 if (varbc || pPlayer->moto_drink < 0)
                 {
                     if (pPlayer->moto_drink < 0)
@@ -7305,10 +7305,10 @@ void P_ProcessInput(int playerNum)
                 pPlayer->moto_bump_target = 0;
                 pPlayer->moto_bump_fast = 0;
             }
-            if (pPlayer->moto_speed > 0 && pPlayer->on_ground == 1 && (varbc || varc4))
+            if (pPlayer->MotoSpeed > 0 && pPlayer->on_ground == 1 && (varbc || varc4))
             {
                 short vard4, vard8, vardc, vare0;
-                vard4 = pPlayer->moto_speed;
+                vard4 = pPlayer->MotoSpeed;
                 vard8 = fix16_to_int(pPlayer->q16ang);
                 if (varbc)
                     vardc = -10;
@@ -7333,8 +7333,8 @@ void P_ProcessInput(int playerNum)
                 }
             }
             if (pPlayer->not_on_water)
-                if (pPlayer->moto_speed > 50)
-                    pPlayer->moto_speed -= (pPlayer->moto_speed>>1);
+                if (pPlayer->MotoSpeed > 50)
+                    pPlayer->MotoSpeed -= (pPlayer->MotoSpeed>>1);
         }
     }
 
@@ -7450,8 +7450,8 @@ void P_ProcessInput(int playerNum)
                 if (A_CheckEnemySprite(&sprite[spriteNum]))
                 {
                     actor[spriteNum].picnum = TILE_MOTOHIT;
-                    actor[spriteNum].extra = 2+(pPlayer->moto_speed>>1);
-                    pPlayer->moto_speed -= pPlayer->moto_speed >> 4;
+                    actor[spriteNum].extra = 2+(pPlayer->MotoSpeed>>1);
+                    pPlayer->MotoSpeed -= pPlayer->MotoSpeed >> 4;
                 }
             }
             if (pPlayer->OnBoat)
@@ -7459,8 +7459,8 @@ void P_ProcessInput(int playerNum)
                 if (A_CheckEnemySprite(&sprite[spriteNum]))
                 {
                     actor[spriteNum].picnum = TILE_MOTOHIT;
-                    actor[spriteNum].extra = 2+(pPlayer->moto_speed>>1);
-                    pPlayer->moto_speed -= pPlayer->moto_speed >> 4;
+                    actor[spriteNum].extra = 2+(pPlayer->MotoSpeed>>1);
+                    pPlayer->MotoSpeed -= pPlayer->MotoSpeed >> 4;
                 }
             }
             else
@@ -7812,7 +7812,7 @@ check_enemy_sprite:
                     {
                         pPlayer->moto_bump_target = 80;
                         pPlayer->moto_bump_fast = 1;
-                        pPlayer->vel.z -= g_spriteGravity*(pPlayer->moto_speed>>4);
+                        pPlayer->vel.z -= g_spriteGravity*(pPlayer->MotoSpeed>>4);
                         pPlayer->moto_on_ground = 0;
                         if (A_CheckSoundPlaying(pPlayer->i, 188))
                             S_StopEnvSound(188, pPlayer->i);
@@ -7820,7 +7820,7 @@ check_enemy_sprite:
                     }
                     else
                     {
-                        pPlayer->vel.z += g_spriteGravity-80+(120-pPlayer->moto_speed);
+                        pPlayer->vel.z += g_spriteGravity-80+(120-pPlayer->MotoSpeed);
                         if (!A_CheckSoundPlaying(pPlayer->i, 189) && !A_CheckSoundPlaying(pPlayer->i, 190))
                             A_PlaySound(190, pPlayer->i);
                     }
@@ -8251,37 +8251,37 @@ HORIZONLY:;
                     switch (krand2()&1)
                     {
                         case 0:
-                            pPlayer->q16ang += F16(pPlayer->moto_speed>>1);
+                            pPlayer->q16ang += F16(pPlayer->MotoSpeed>>1);
                             break;
                         case 1:
-                            pPlayer->q16ang -= F16(pPlayer->moto_speed>>1);
+                            pPlayer->q16ang -= F16(pPlayer->MotoSpeed>>1);
                             break;
                     }
                     if (var10c >= 441 && var10c <= 581)
                     {
-                        var104 = (pPlayer->moto_speed*pPlayer->moto_speed)>>8;
-                        pPlayer->moto_speed = 0;
+                        var104 = (pPlayer->MotoSpeed*pPlayer->MotoSpeed)>>8;
+                        pPlayer->MotoSpeed = 0;
                         if (A_CheckSoundPlaying(pPlayer->i, 238) == 0)
                             A_PlaySound(238,pPlayer->i);
                     }
                     else if (var10c >= 311 && var10c <= 711)
                     {
-                        var104 = (pPlayer->moto_speed*pPlayer->moto_speed)>>11;
-                        pPlayer->moto_speed -= (pPlayer->moto_speed>>1)+(pPlayer->moto_speed>>2);
+                        var104 = (pPlayer->MotoSpeed*pPlayer->MotoSpeed)>>11;
+                        pPlayer->MotoSpeed -= (pPlayer->MotoSpeed>>1)+(pPlayer->MotoSpeed>>2);
                         if (A_CheckSoundPlaying(pPlayer->i, 238) == 0)
                             A_PlaySound(238,pPlayer->i);
                     }
                     else if (var10c >= 111 && var10c <= 911)
                     {
-                        var104 = (pPlayer->moto_speed*pPlayer->moto_speed)>>14;
-                        pPlayer->moto_speed -= (pPlayer->moto_speed>>1);
+                        var104 = (pPlayer->MotoSpeed*pPlayer->MotoSpeed)>>14;
+                        pPlayer->MotoSpeed -= (pPlayer->MotoSpeed>>1);
                         if (A_CheckSoundPlaying(pPlayer->i, 239) == 0)
                             A_PlaySound(239,pPlayer->i);
                     }
                     else
                     {
-                        var104 = (pPlayer->moto_speed*pPlayer->moto_speed)>>15;
-                        pPlayer->moto_speed -= (pPlayer->moto_speed>>3);
+                        var104 = (pPlayer->MotoSpeed*pPlayer->MotoSpeed)>>15;
+                        pPlayer->MotoSpeed -= (pPlayer->MotoSpeed>>3);
                         if (A_CheckSoundPlaying(pPlayer->i, 240) == 0)
                             A_PlaySound(240,pPlayer->i);
                     }
@@ -8302,36 +8302,36 @@ HORIZONLY:;
                     switch (krand2()&1)
                     {
                         case 0:
-                            pPlayer->q16ang += F16(pPlayer->moto_speed>>2);
+                            pPlayer->q16ang += F16(pPlayer->MotoSpeed>>2);
                             break;
                         case 1:
-                            pPlayer->q16ang -= F16(pPlayer->moto_speed>>2);
+                            pPlayer->q16ang -= F16(pPlayer->MotoSpeed>>2);
                             break;
                     }
                     if (var118 >= 441 && var118 <= 581)
                     {
-                        pPlayer->moto_speed = ((pPlayer->moto_speed>>1)+(pPlayer->moto_speed>>2))>>2;
+                        pPlayer->MotoSpeed = ((pPlayer->MotoSpeed>>1)+(pPlayer->MotoSpeed>>2))>>2;
                         if (sectorLotag == 1)
                             if (A_CheckSoundPlaying(pPlayer->i, 178) == 0)
                                 A_PlaySound(178,pPlayer->i);
                     }
                     else if (var118 >= 311 && var118 <= 711)
                     {
-                        pPlayer->moto_speed -= ((pPlayer->moto_speed>>1)+(pPlayer->moto_speed>>2))>>3;
+                        pPlayer->MotoSpeed -= ((pPlayer->MotoSpeed>>1)+(pPlayer->MotoSpeed>>2))>>3;
                         if (sectorLotag == 1)
                             if (A_CheckSoundPlaying(pPlayer->i, 179) == 0)
                                 A_PlaySound(179,pPlayer->i);
                     }
                     else if (var118 >= 111 && var118 <= 911)
                     {
-                        pPlayer->moto_speed -= (pPlayer->moto_speed>>4);
+                        pPlayer->MotoSpeed -= (pPlayer->MotoSpeed>>4);
                         if (sectorLotag == 1)
                             if (A_CheckSoundPlaying(pPlayer->i, 180) == 0)
                                 A_PlaySound(180,pPlayer->i);
                     }
                     else
                     {
-                        pPlayer->moto_speed -= (pPlayer->moto_speed>>6);
+                        pPlayer->MotoSpeed -= (pPlayer->MotoSpeed>>6);
                         if (sectorLotag == 1)
                             if (A_CheckSoundPlaying(pPlayer->i, 181) == 0)
                                 A_PlaySound(181,pPlayer->i);
@@ -8342,7 +8342,7 @@ HORIZONLY:;
                     if (wall[wallNum].lotag >= 40 && wall[wallNum].lotag <= 44)
                     {
                         if (wall[wallNum].lotag < 44)
-                            G_DoFurniture(wallNum,pPlayer->cursectnum,playerNum);
+                            dofurniture(wallNum,pPlayer->cursectnum,playerNum);
                         pushmove(&pPlayer->pos,&pPlayer->cursectnum,172L,(4L<<8),(4L<<8),CLIPMASK0);
                     }
                 }
@@ -8370,12 +8370,12 @@ HORIZONLY:;
                         else
                             actor[spriteNum].owner = pPlayer->i;
                         actor[spriteNum].picnum = TILE_MOTOHIT;
-                        actor[spriteNum].extra = pPlayer->moto_speed>>1;
-                        pPlayer->moto_speed -= pPlayer->moto_speed>>2;
+                        actor[spriteNum].extra = pPlayer->MotoSpeed>>1;
+                        pPlayer->MotoSpeed -= pPlayer->MotoSpeed>>2;
                         pPlayer->moto_turb = 6;
                     }
                     else if ((sprite[spriteNum].picnum == TILE_RRTILE2431 || sprite[spriteNum].picnum == TILE_RRTILE2443 || sprite[spriteNum].picnum == TILE_RRTILE2451 || sprite[spriteNum].picnum == TILE_RRTILE2455)
-                        && sprite[spriteNum].picnum != TILE_ACTIVATORLOCKED && pPlayer->moto_speed > 45)
+                        && sprite[spriteNum].picnum != TILE_ACTIVATORLOCKED && pPlayer->MotoSpeed > 45)
                     {
                         A_PlaySound(SQUISHED,spriteNum);
                         if (sprite[spriteNum].picnum == TILE_RRTILE2431 || sprite[spriteNum].picnum == TILE_RRTILE2451)
@@ -8423,8 +8423,8 @@ HORIZONLY:;
                         else
                             actor[spriteNum].owner = pPlayer->i;
                         actor[spriteNum].picnum = TILE_MOTOHIT;
-                        actor[spriteNum].extra = pPlayer->moto_speed>>2;
-                        pPlayer->moto_speed -= pPlayer->moto_speed>>2;
+                        actor[spriteNum].extra = pPlayer->MotoSpeed>>2;
+                        pPlayer->MotoSpeed -= pPlayer->MotoSpeed>>2;
                         pPlayer->moto_turb = 6;
                     }
                 }

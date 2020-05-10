@@ -759,7 +759,7 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_RAJOSEPH:
-                    G_OnMotorcycle(pPlayer, 0);
+                    OnMotorcycle(pPlayer, 0);
                     pPlayer->ammo_amount[MOTORCYCLE_WEAPON] = pPlayer->max_ammo_amount[MOTORCYCLE_WEAPON];
                     P_DoQuote(126, pPlayer);
                     end_cheat(pPlayer);
@@ -884,7 +884,7 @@ void G_DoCheats(void)
 
                 case CHEAT_RAARIJIT:
                 case CHEAT_RADONUT:
-                    G_OnBoat(pPlayer, 0);
+                    OnBoat(pPlayer, 0);
                     pPlayer->ammo_amount[BOAT_WEAPON] = pPlayer->max_ammo_amount[BOAT_WEAPON];
                     P_DoQuote(136, pPlayer);
                     end_cheat(pPlayer);

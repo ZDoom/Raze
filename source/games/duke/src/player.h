@@ -250,7 +250,7 @@ typedef struct player_struct {
     int16_t drink_amt, eat_amt, drink_ang, eat_ang;
     int32_t drink_timer, eat_timer;
     int16_t level_end_timer;
-    int16_t moto_speed, tilt_status, moto_drink;
+    int16_t MotoSpeed, tilt_status, moto_drink;
     uint8_t OnMotorcycle, OnBoat, moto_underwater, not_on_water, moto_on_ground;
     uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
     int16_t moto_bump, moto_bump_target, moto_turb;
@@ -392,8 +392,10 @@ inline void SetPlayerPal(DukePlayer_t* pPlayer, PalEntry pe)
     pPlayer->pals.b = pe.b;
 }
 
+int hitawall(DukePlayer_t* pPlayer, int* hitWall);
 void    P_AddKills(DukePlayer_t * pPlayer, uint16_t kills);
 int32_t A_GetHitscanRange(int spriteNum);
+inline int hits(int s) { return A_GetHitscanRange(s); }
 void    P_GetInput(int playerNum);
 void    P_GetInputMotorcycle(int playerNum);
 void    P_GetInputBoat(int playerNum);
@@ -438,6 +440,7 @@ int     P_GetKneePal(const DukePlayer_t *pPlayer, int hudPal);
 int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
 void P_MadeNoise(int playerNum);
 int P_HasKey(int sectNum, int playerNum);
+#define haskey P_HasKey
 
 // Get the player index given an TILE_APLAYER sprite pointer.
 static inline int P_GetP(const void *pSprite)

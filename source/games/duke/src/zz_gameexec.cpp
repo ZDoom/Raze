@@ -2296,7 +2296,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 continue;
 
             case CON_IFMOTOFAST:
-                VM_CONDITIONAL(pPlayer->moto_speed > 60);
+                VM_CONDITIONAL(pPlayer->MotoSpeed > 60);
                 continue;
 
             case CON_IFONMOTO:

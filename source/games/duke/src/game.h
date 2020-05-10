@@ -282,10 +282,10 @@ inline void FTA(int q, DukePlayer_t* p)
     P_DoQuote(q, p);
 }
 void P_SetGamePalette(DukePlayer_t* player, uint32_t palid, ESetPalFlags flags);
-void G_OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum);
-void G_OffMotorcycle(DukePlayer_t *pPlayer);
-void G_OnBoat(DukePlayer_t *pPlayer, int spriteNum);
-void G_OffBoat(DukePlayer_t *pPlayer);
+void OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum);
+void OffMotorcycle(DukePlayer_t *pPlayer);
+void OnBoat(DukePlayer_t *pPlayer, int spriteNum);
+void OffBoat(DukePlayer_t *pPlayer);
 
 // Cstat protection mask for (currently) spawned MASKWALL* sprites.
 // TODO: look at more cases of cstat=(cstat&PROTECTED)|ADDED in A_Spawn()?
