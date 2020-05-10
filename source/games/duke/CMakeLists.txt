@@ -5,32 +5,32 @@ set( PCH_SOURCES
 	src/actors_d.cpp
 	src/actors_lava.cpp
 	src/bowling.cpp
-	src/e_actors.cpp
-	src/anim.cpp
-	src/cheats.cpp
-	src/cmdline.cpp
-	src/common.cpp
-	src/config.cpp
-	src/d_menu.cpp
-	src/demo.cpp
-	src/game.cpp
-	src/gamedef.cpp
-	src/gameexec.cpp
-	src/gamevars.cpp
-	src/global.cpp
-	src/interpolate.cpp
-	src/namesdyn.cpp
-	src/net.cpp
-	src/osdcmds.cpp
-	src/player.cpp
-	src/premap.cpp
-	src/savegame.cpp
-	src/sbar.cpp
-	src/screens.cpp
-	src/text.cpp
-	src/sector.cpp
-	src/sounds.cpp
-	src/soundsdyn.cpp
-	src/rrdh.cpp)
+	src/zz_actors.cpp
+	src/zz_anim.cpp
+	src/zz_cheats.cpp
+	src/zz_cmdline.cpp
+	src/zz_common.cpp
+	src/zz_config.cpp
+	src/zz_d_menu.cpp
+	src/zz_demo.cpp
+	src/zz_game.cpp
+	src/zz_gamedef.cpp
+	src/zz_gameexec.cpp
+	src/zz_gamevars.cpp
+	src/zz_global.cpp
+	src/zz_interpolate.cpp
+	src/zz_namesdyn.cpp
+	src/zz_net.cpp
+	src/zz_osdcmds.cpp
+	src/zz_player.cpp
+	src/zz_premap.cpp
+	src/zz_savegame.cpp
+	src/zz_sbar.cpp
+	src/zz_screens.cpp
+	src/zz_text.cpp
+	src/zz_sector.cpp
+	src/zz_sounds.cpp
+	src/zz_soundsdyn.cpp
+	src/zz_rrdh.cpp)
 
 add_game_library2( duke )

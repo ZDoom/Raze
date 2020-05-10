@@ -3160,6 +3160,50 @@ void moveactors_d(void)
 //
 //---------------------------------------------------------------------------
 
+static void fireflyflyingeffect(int i)
+{
+	spritetype* s = &sprite[i];
+	auto t = &hittype[i].temp_data[0];
+	int x, p = findplayer(s, &x);
+	execute(i, p, x);
+
+	auto owner = &sprite[s->owner];
+	if (owner->picnum != FIREFLY) 
+	{
+		deletesprite(i);
+		return;
+	}
+
+	if (owner->xrepeat >= 24 || owner->pal == 1)
+		s->cstat |= 0x8000;
+	else
+		s->cstat &= ~0x8000;
+
+	double dx = owner->x - sprite[ps[p].i].x;
+	double dy = owner->y - sprite[ps[p].i].y;
+	double dist = sqrt(dx * dx + dy * dy);
+	if (dist != 0.0) 
+	{
+		dx /= dist;
+		dy /= dist;
+	}
+
+	s->x = (int) (owner->x - (dx * -10.0));
+	s->y = (int) (owner->y - (dy * -10.0));
+	s->z = owner->z + 2048;
+
+	if (owner->extra <= 0) 
+	{
+		deletesprite(i);
+	}
+
+}
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void moveexplosions_d(void)  // STATNUM 5
 {
 	int nexti, sect, p;
@@ -3187,6 +3231,10 @@ void moveexplosions_d(void)  // STATNUM 5
 
 		switch (s->picnum)
 		{
+		case FIREFLYFLYINGEFFECT:
+			if (isWorldTour()) fireflyflyingeffect(i);
+			continue;
+			
 		case NEON1:
 		case NEON2:
 		case NEON3:
