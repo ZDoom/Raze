@@ -104,11 +104,8 @@ typedef struct {
 } map_t;
 
 
-void G_ActivateBySector(int sect,int spriteNum);
-inline void activatebysector(int s, int sn)
-{
-    G_ActivateBySector(s, sn);
-}
+void breakwall(short newpn, short spr, short dawallnum);
+void activatebysector(int s, int sn);
 int S_FindMusicSFX(int sectNum, int *sndptr);
 void callsound2(int soundNum, int playerNum);
 int callsound(int sectNum,int spriteNum);
@@ -117,20 +114,16 @@ inline int hitasprite(int s, int16_t* h)
 {
     return A_CheckHitSprite(s, h);
 }
-void A_DamageObject(int spriteNum,int dmgSrc);
-inline void checkhitsprite(int s, int d)
+void checkhitsprite(int s, int d);
+void checkhitwall(int spr, int wal, int x, int y, int z, int w);
+inline void A_DamageWall(int spr, int dawallnum, const vec3_t* pos, int weaponNum)
 {
-    A_DamageObject(s, d);
+    checkhitwall(spr, dawallnum, pos->x, pos->y, pos->z, weaponNum);
 }
-void A_DamageWall(int spr,int dawallnum,const vec3_t *pos,int weaponNum);
-inline void checkhitwall(int spr, int wal, int x, int y, int z, int w)
-{
-    vec3_t vec{ x, y, z };
-    A_DamageWall(spr, wal, &vec, w);
-}
+
 int findplayer(const spritetype* pSprite, int32_t* dist);
 void operatejaildoors(int hitag);
-void G_AlignWarpElevators(void);
+void allignwarpelevators(void);
 bool isadoorwall(int tileNum);
 bool isablockdoor(int tileNum);
 void G_AnimateCamSprite(int smoothRatio);
@@ -149,8 +142,7 @@ bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
 bool checkhitswitch(int playerNum, int wallOrSprite, int nSwitchType);
 void P_CheckSectors(int playerNum);
-void Sect_DamageCeiling(int sectNum);
-inline void checkhitceiling(int sec) { Sect_DamageCeiling(sec); }
+bool checkhitceiling(int sec);
 int setanimation(short animsect, int* animptr, int thegoal, int thevel);
 void G_DoFurniture(int wallNum, int sectNum, int playerNum);
 void dotorch();

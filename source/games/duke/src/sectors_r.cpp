@@ -899,4 +899,1490 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void activatebysector_r(int sect, int j)
+{
+    short i;
+
+    i = headspritesect[sect];
+    while (i >= 0)
+    {
+        if (sprite[i].picnum == ACTIVATOR)
+        {
+            operateactivators(sprite[i].lotag, -1);
+            //            return;
+        }
+        i = nextspritesect[i];
+    }
+
+    if (sector[sect].lotag != 22)
+        operatesectors(sect, j);
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
+{
+    short j, i, sn = -1, darkestwall;
+    walltype* wal;
+    spritetype* s;
+
+    wal = &wall[dawallnum];
+
+    if (wal->overpicnum == MIRROR)
+    {
+        switch (atwith)
+        {
+        case RPG2:
+            if (!isRRRA()) break;
+        case HEAVYHBOMB:
+        case RADIUSEXPLOSION:
+        case RPG:
+        case HYDRENT:
+        case SEENINE:
+        case OOZFILTER:
+        case EXPLODINGBARREL:
+            lotsofglass(spr, dawallnum, 70);
+            wal->cstat &= ~16;
+            wal->overpicnum = MIRRORBROKE;
+            spritesound(GLASS_HEAVYBREAK, spr);
+            return;
+        }
+    }
+
+    if (((wal->cstat & 16) || wal->overpicnum == BIGFORCE) && wal->nextsector >= 0)
+        if (sector[wal->nextsector].floorz > z)
+            if (sector[wal->nextsector].floorz - sector[wal->nextsector].ceilingz)
+                switch (wal->overpicnum)
+                {
+                case FANSPRITE:
+                    wal->overpicnum = FANSPRITEBROKE;
+                    wal->cstat &= 65535 - 65;
+                    if (wal->nextwall >= 0)
+                    {
+                        wall[wal->nextwall].overpicnum = FANSPRITEBROKE;
+                        wall[wal->nextwall].cstat &= 65535 - 65;
+                    }
+                    spritesound(VENT_BUST, spr);
+                    spritesound(GLASS_BREAKING, spr);
+                    return;
+
+                case RRTILE1973:
+                    updatesector(x, y, &sn); if (sn < 0) return;
+                    wal->overpicnum = GLASS2;
+                    lotsofpopcorn(spr, dawallnum, 64);
+                    wal->cstat = 0;
+
+                    if (wal->nextwall >= 0)
+                        wall[wal->nextwall].cstat = 0;
+
+                    i = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].getang(), 0, 0, spr, 3);
+                    sprite[i].lotag = 128; hittype[i].temp_data[1] = 2; hittype[i].temp_data[2] = dawallnum;
+                    spritesound(GLASS_BREAKING, i);
+                    return;
+
+                case GLASS:
+                    updatesector(x, y, &sn); if (sn < 0) return;
+                    wal->overpicnum = GLASS2;
+                    lotsofglass(spr, dawallnum, 10);
+                    wal->cstat = 0;
+
+                    if (wal->nextwall >= 0)
+                        wall[wal->nextwall].cstat = 0;
+
+                    i = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].getang(), 0, 0, spr, 3);
+                    sprite[i].lotag = 128; hittype[i].temp_data[1] = 2; hittype[i].temp_data[2] = dawallnum;
+                    spritesound(GLASS_BREAKING, i);
+                    return;
+                case STAINGLASS1:
+                    updatesector(x, y, &sn); if (sn < 0) return;
+                    lotsofcolourglass(spr, dawallnum, 80);
+                    wal->cstat = 0;
+                    if (wal->nextwall >= 0)
+                        wall[wal->nextwall].cstat = 0;
+                    spritesound(VENT_BUST, spr);
+                    spritesound(GLASS_BREAKING, spr);
+                    return;
+                }
+
+    switch (wal->picnum)
+    {
+    case RRTILE8464:
+        if (isRRRA()) break;
+        break;
+    case RRTILE3643:
+    case RRTILE3643 + 1:
+    case RRTILE3643 + 2:
+    case RRTILE3643 + 3:
+    {
+        short sect;
+        short unk = 0;
+        short jj;
+        short nextjj;
+        short startwall, endwall;
+        sect = wall[wal->nextwall].nextsector;
+        jj = headspritesect[sect];
+        while (jj != -1)
+        {
+            nextjj = nextspritesect[jj];
+            s = &sprite[jj];
+            if (s->lotag == 6)
+            {
+                for (j = 0; j < 16; j++) RANDOMSCRAP(s, i);
+                g_spriteExtra[jj]++;
+                if (g_spriteExtra[jj] == 25)
+                {
+                    startwall = sector[s->sectnum].wallptr;
+                    endwall = startwall + sector[s->sectnum].wallnum;
+                    for (i = startwall; i < endwall; i++)
+                        sector[wall[i].nextsector].lotag = 0;
+                    sector[s->sectnum].lotag = 0;
+                    stopsound(sprite[jj].lotag);
+                    spritesound(400, jj);
+                    deletesprite(jj);
+                }
+            }
+            jj = nextjj;
+        }
+        return;
+    }
+    case RRTILE7555:
+        if (!isRRRA()) break;
+        wal->picnum = SBMOVE;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7441:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5016;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7559:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5017;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7433:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5018;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7557:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5019;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7553:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5020;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7552:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5021;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7568:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5022;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7540:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5023;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7558:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5024;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7554:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5025;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7579:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5026;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7561:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5027;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7580:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5037;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE8227:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5070;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE8503:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5079;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE8567:
+    case RRTILE8568:
+    case RRTILE8569:
+    case RRTILE8570:
+    case RRTILE8571:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5082;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE7859:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5081;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE8496:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5061;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE8617:
+        if (!isRRRA()) break;
+        if (numplayers < 2)
+        {
+            wal->picnum = RRTILE8618;
+            spritesound(47, spr);
+        }
+        return;
+    case RRTILE8620:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE8621;
+        spritesound(47, spr);
+        return;
+    case RRTILE8622:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE8623;
+        spritesound(495, spr);
+        return;
+    case RRTILE7657:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE7659;
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+    case RRTILE8497:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5076;
+        spritesound(495, spr);
+        return;
+    case RRTILE7533:
+        if (!isRRRA()) break;
+        wal->picnum = RRTILE5035;
+        spritesound(495, spr);
+        return;
+
+    case COLAMACHINE:
+    case VENDMACHINE:
+        breakwall(wal->picnum + 2, spr, dawallnum);
+        spritesound(GLASS_BREAKING, spr);
+        return;
+
+    case OJ:
+
+    case SCREENBREAK6:
+    case SCREENBREAK7:
+    case SCREENBREAK8:
+
+        lotsofglass(spr, dawallnum, 30);
+        wal->picnum = W_SCREENBREAK + (krand() % (isRRRA() ? 2 : 3));
+        spritesound(GLASS_HEAVYBREAK, spr);
+        return;
+
+    case ATM:
+        wal->picnum = ATMBROKE;
+        lotsofmoney(&sprite[spr], 1 + (krand() & 7));
+        spritesound(GLASS_HEAVYBREAK, spr);
+        break;
+
+    case WALLLIGHT1:
+    case WALLLIGHT3:
+    case WALLLIGHT4:
+    case TECHLIGHT2:
+    case TECHLIGHT4:
+    case RRTILE1814:
+    case RRTILE1939:
+    case RRTILE1986:
+    case RRTILE1988:
+    case RRTILE2123:
+    case RRTILE2125:
+    case RRTILE2636:
+    case RRTILE2878:
+    case RRTILE2898:
+    case RRTILE3200:
+    case RRTILE3202:
+    case RRTILE3204:
+    case RRTILE3206:
+    case RRTILE3208:
+
+        if (rnd(128))
+            spritesound(GLASS_HEAVYBREAK, spr);
+        else spritesound(GLASS_BREAKING, spr);
+        lotsofglass(spr, dawallnum, 30);
+
+        if (wal->picnum == RRTILE1814)
+            wal->picnum = RRTILE1817;
+
+        if (wal->picnum == RRTILE1986)
+            wal->picnum = RRTILE1987;
+
+        if (wal->picnum == RRTILE1939)
+            wal->picnum = RRTILE2004;
+
+        if (wal->picnum == RRTILE1988)
+            wal->picnum = RRTILE2005;
+
+        if (wal->picnum == RRTILE2898)
+            wal->picnum = RRTILE2899;
+
+        if (wal->picnum == RRTILE2878)
+            wal->picnum = RRTILE2879;
+
+        if (wal->picnum == RRTILE2123)
+            wal->picnum = RRTILE2124;
+
+        if (wal->picnum == RRTILE2125)
+            wal->picnum = RRTILE2126;
+
+        if (wal->picnum == RRTILE3200)
+            wal->picnum = RRTILE3201;
+
+        if (wal->picnum == RRTILE3202)
+            wal->picnum = RRTILE3203;
+
+        if (wal->picnum == RRTILE3204)
+            wal->picnum = RRTILE3205;
+
+        if (wal->picnum == RRTILE3206)
+            wal->picnum = RRTILE3207;
+
+        if (wal->picnum == RRTILE3208)
+            wal->picnum = RRTILE3209;
+
+        if (wal->picnum == RRTILE2636)
+            wal->picnum = RRTILE2637;
+
+        if (wal->picnum == WALLLIGHT1)
+            wal->picnum = WALLLIGHTBUST1;
+
+        if (wal->picnum == WALLLIGHT3)
+            wal->picnum = WALLLIGHTBUST3;
+
+        if (wal->picnum == WALLLIGHT4)
+            wal->picnum = WALLLIGHTBUST4;
+
+        if (wal->picnum == TECHLIGHT2)
+            wal->picnum = TECHLIGHTBUST2;
+
+        if (wal->picnum == TECHLIGHT4)
+            wal->picnum = TECHLIGHTBUST4;
+
+        if (!wal->lotag) return;
+
+        sn = wal->nextsector;
+        if (sn < 0) return;
+        darkestwall = 0;
+
+        wal = &wall[sector[sn].wallptr];
+        for (i = sector[sn].wallnum; i > 0; i--, wal++)
+            if (wal->shade > darkestwall)
+                darkestwall = wal->shade;
+
+        j = krand() & 1;
+        i = headspritestat[3];
+        while (i >= 0)
+        {
+            if (sprite[i].hitag == wall[dawallnum].lotag && sprite[i].lotag == 3)
+            {
+                hittype[i].temp_data[2] = j;
+                hittype[i].temp_data[3] = darkestwall;
+                hittype[i].temp_data[4] = 1;
+            }
+            i = nextspritestat[i];
+        }
+        break;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void checkplayerhurt_r(struct player_struct* p, int j)
+{
+    if ((j & 49152) == 49152)
+    {
+        j &= (MAXSPRITES - 1);
+
+        switch (sprite[j].picnum)
+        {
+        case RRTILE2430:
+        case RRTILE2431:
+        case RRTILE2432:
+        case RRTILE2443:
+        case RRTILE2446:
+        case RRTILE2451:
+        case RRTILE2455:
+            if (isRRRA() && p->hurt_delay2 < 8)
+            {
+                sprite[p->i].extra -= 2;
+                p->hurt_delay2 = 16;
+                SetPlayerPal(p, PalEntry(32, 32, 0, 0));
+                spritesound(DUKE_LONGTERM_PAIN, p->i);
+            }
+            break;
+        case CACTUS:
+            if (!isRRRA() && p->hurt_delay < 8)
+            {
+                sprite[p->i].extra -= 5;
+                p->hurt_delay = 16;
+                SetPlayerPal(p, PalEntry(32, 32, 0, 0));
+                spritesound(DUKE_LONGTERM_PAIN, p->i);
+            }
+            break;
+        }
+        return;
+    }
+
+    if ((j & 49152) != 32768) return;
+    j &= (MAXWALLS - 1);
+
+    if (p->hurt_delay > 0) p->hurt_delay--;
+    else if (wall[j].cstat & 85) switch (wall[j].overpicnum)
+    {
+    case BIGFORCE:
+        p->hurt_delay = 26;
+        checkhitwall(p->i, j,
+            p->posx + (sintable[(p->getang() + 512) & 2047] >> 9),
+            p->posy + (sintable[p->getang() & 2047] >> 9),
+            p->posz, -1);
+        break;
+
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool checkhitceiling_r(int sn)
+{
+    short i, j;
+
+    switch (sector[sn].ceilingpicnum)
+    {
+    case WALLLIGHT1:
+    case WALLLIGHT3:
+    case WALLLIGHT4:
+    case TECHLIGHT2:
+    case TECHLIGHT4:
+    case RRTILE1939:
+    case RRTILE1986:
+    case RRTILE1988:
+    case RRTILE2123:
+    case RRTILE2125:
+    case RRTILE2878:
+    case RRTILE2898:
+
+
+        ceilingglass(ps[myconnectindex].i, sn, 10);
+        spritesound(GLASS_BREAKING, ps[screenpeek].i);
+
+        if (sector[sn].ceilingpicnum == WALLLIGHT1)
+            sector[sn].ceilingpicnum = WALLLIGHTBUST1;
+
+        if (sector[sn].ceilingpicnum == WALLLIGHT3)
+            sector[sn].ceilingpicnum = WALLLIGHTBUST3;
+
+        if (sector[sn].ceilingpicnum == WALLLIGHT4)
+            sector[sn].ceilingpicnum = WALLLIGHTBUST4;
+
+        if (sector[sn].ceilingpicnum == TECHLIGHT2)
+            sector[sn].ceilingpicnum = TECHLIGHTBUST2;
+
+        if (sector[sn].ceilingpicnum == TECHLIGHT4)
+            sector[sn].ceilingpicnum = TECHLIGHTBUST4;
+
+        if (sector[sn].ceilingpicnum == RRTILE1986)
+            sector[sn].ceilingpicnum = RRTILE1987;
+
+        if (sector[sn].ceilingpicnum == RRTILE1939)
+            sector[sn].ceilingpicnum = RRTILE2004;
+
+        if (sector[sn].ceilingpicnum == RRTILE1988)
+            sector[sn].ceilingpicnum = RRTILE2005;
+
+        if (sector[sn].ceilingpicnum == RRTILE2898)
+            sector[sn].ceilingpicnum = RRTILE2899;
+
+        if (sector[sn].ceilingpicnum == RRTILE2878)
+            sector[sn].ceilingpicnum = RRTILE2879;
+
+        if (sector[sn].ceilingpicnum == RRTILE2123)
+            sector[sn].ceilingpicnum = RRTILE2124;
+
+        if (sector[sn].ceilingpicnum == RRTILE2125)
+            sector[sn].ceilingpicnum = RRTILE2126;
+
+
+        if (!sector[sn].hitag)
+        {
+            i = headspritesect[sn];
+            while (i >= 0)
+            {
+                if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || (isRRRA() && (sprite[i].lotag == 47 || sprite[i].lotag == 48))))
+                {
+                    j = headspritestat[3];
+                    while (j >= 0)
+                    {
+                        if (sprite[j].hitag == sprite[i].hitag)
+                            hittype[j].temp_data[3] = 1;
+                        j = nextspritestat[j];
+                    }
+                    break;
+                }
+                i = nextspritesect[i];
+            }
+        }
+
+        i = headspritestat[3];
+        j = krand() & 1;
+        while (i >= 0)
+        {
+            if (sprite[i].hitag == (sector[sn].hitag) && sprite[i].lotag == 3)
+            {
+                hittype[i].temp_data[2] = j;
+                hittype[i].temp_data[4] = 1;
+            }
+            i = nextspritestat[i];
+        }
+
+        return 1;
+    }
+
+    return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void checkhitsprite_r(int i, int sn)
+{
+    int j, k, p;
+    spritetype* s;
+
+    i &= (MAXSPRITES - 1);
+
+    if (isRRRA()) switch (sprite[i].picnum)
+    {
+    case RRTILE8464:
+        break;
+    case RRTILE8487:
+    case RRTILE8489:
+        spritesound(471, i);
+        sprite[i].picnum++;
+        break;
+    case RRTILE7638:
+    case RRTILE7644:
+    case RRTILE7646:
+    case RRTILE7650:
+    case RRTILE7653:
+    case RRTILE7655:
+    case RRTILE7691:
+    case RRTILE7876:
+    case RRTILE7881:
+    case RRTILE7883:
+        sprite[i].picnum++;
+        spritesound(VENT_BUST, i);
+        break;
+    case RRTILE7879:
+        sprite[i].picnum++;
+        spritesound(495, i);
+        hitradius(i, 10, 0, 0, 1, 1);
+        break;
+    case RRTILE7648:
+    case RRTILE7694:
+    case RRTILE7700:
+    case RRTILE7702:
+    case RRTILE7711:
+        sprite[i].picnum++;
+        spritesound(47, i);
+        break;
+    case RRTILE7636:
+        sprite[i].picnum += 3;
+        spritesound(VENT_BUST, i);
+        break;
+    case RRTILE7875:
+        sprite[i].picnum += 3;
+        spritesound(VENT_BUST, i);
+        break;
+    case RRTILE7640:
+        sprite[i].picnum += 2;
+        spritesound(VENT_BUST, i);
+        break;
+    case RRTILE7595:
+    case RRTILE7704:
+        sprite[i].picnum = RRTILE7705;
+        spritesound(495, i);
+        break;
+    case RRTILE8579:
+        sprite[i].picnum = RRTILE5014;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7441:
+        sprite[i].picnum = RRTILE5016;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7534:
+        sprite[i].picnum = RRTILE5029;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7545:
+        sprite[i].picnum = RRTILE5030;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7547:
+        sprite[i].picnum = RRTILE5031;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7574:
+        sprite[i].picnum = RRTILE5032;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7575:
+        sprite[i].picnum = RRTILE5033;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7578:
+        sprite[i].picnum = RRTILE5034;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7478:
+        sprite[i].picnum = RRTILE5035;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8525:
+        sprite[i].picnum = RRTILE5036;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8537:
+        sprite[i].picnum = RRTILE5062;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8215:
+        sprite[i].picnum = RRTILE5064;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8216:
+        sprite[i].picnum = RRTILE5065;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8217:
+        sprite[i].picnum = RRTILE5066;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8218:
+        sprite[i].picnum = RRTILE5067;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8220:
+        sprite[i].picnum = RRTILE5068;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8221:
+        sprite[i].picnum = RRTILE5069;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8312:
+        sprite[i].picnum = RRTILE5071;
+        spritesound(472, i);
+        break;
+    case RRTILE8395:
+        sprite[i].picnum = RRTILE5072;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8423:
+        sprite[i].picnum = RRTILE5073;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE3462:
+        sprite[i].picnum = RRTILE5074;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case UWHIP:
+        sprite[i].picnum = RRTILE5075;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8608:
+        sprite[i].picnum = RRTILE5083;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8609:
+        sprite[i].picnum = RRTILE5084;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8567:
+    case RRTILE8568:
+    case RRTILE8569:
+    case RRTILE8570:
+    case RRTILE8571:
+        sprite[i].picnum = RRTILE5082;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8640:
+        sprite[i].picnum = RRTILE5085;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8611:
+        sprite[i].picnum = RRTILE5086;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case TECHLIGHTBUST2:
+        sprite[i].picnum = TECHLIGHTBUST4;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8497:
+        sprite[i].picnum = RRTILE5076;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8162:
+    case RRTILE8163:
+    case RRTILE8164:
+    case RRTILE8165:
+    case RRTILE8166:
+    case RRTILE8167:
+    case RRTILE8168:
+        changespritestat(i, 5);
+        sprite[i].picnum = RRTILE5063;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8589:
+    case RRTILE8590:
+    case RRTILE8591:
+    case RRTILE8592:
+    case RRTILE8593:
+    case RRTILE8594:
+    case RRTILE8595:
+        changespritestat(i, 5);
+        sprite[i].picnum = RRTILE8588;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE3497:
+        sprite[i].picnum = RRTILE5076;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE3498:
+        sprite[i].picnum = RRTILE5077;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE3499:
+        sprite[i].picnum = RRTILE5078;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8503:
+        sprite[i].picnum = RRTILE5079;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7901:
+        sprite[i].picnum = RRTILE5080;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7696:
+        sprite[i].picnum = RRTILE7697;
+        spritesound(DUKE_SHUCKS, i);
+        break;
+    case RRTILE7806:
+        sprite[i].picnum = RRTILE5043;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7885:
+    case RRTILE7890:
+        sprite[i].picnum = RRTILE5045;
+        spritesound(495, i);
+        hitradius(i, 10, 0, 0, 1, 1);
+        break;
+    case RRTILE7886:
+        sprite[i].picnum = RRTILE5046;
+        spritesound(495, i);
+        hitradius(i, 10, 0, 0, 1, 1);
+        break;
+    case RRTILE7887:
+        sprite[i].picnum = RRTILE5044;
+        spritesound(GLASS_HEAVYBREAK, i);
+        hitradius(i, 10, 0, 0, 1, 1);
+        break;
+    case RRTILE7900:
+        sprite[i].picnum = RRTILE5047;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7906:
+        sprite[i].picnum = RRTILE5048;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7912:
+    case RRTILE7913:
+        sprite[i].picnum = RRTILE5049;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8047:
+        sprite[i].picnum = RRTILE5050;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8596:
+        sprite[i].picnum = RRTILE8598;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8059:
+        sprite[i].picnum = RRTILE5051;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8060:
+        sprite[i].picnum = RRTILE5052;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8222:
+        sprite[i].picnum = RRTILE5053;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8223:
+        sprite[i].picnum = RRTILE5054;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8224:
+        sprite[i].picnum = RRTILE5055;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8370:
+        sprite[i].picnum = RRTILE5056;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8371:
+        sprite[i].picnum = RRTILE5057;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8372:
+        sprite[i].picnum = RRTILE5058;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8373:
+        sprite[i].picnum = RRTILE5059;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8396:
+        sprite[i].picnum = RRTILE5038;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8397:
+        sprite[i].picnum = RRTILE5039;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8398:
+        sprite[i].picnum = RRTILE5040;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8399:
+        sprite[i].picnum = RRTILE5041;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8385:
+        sprite[i].picnum = RRTILE8386;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8387:
+        sprite[i].picnum = RRTILE8388;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8389:
+        sprite[i].picnum = RRTILE8390;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8391:
+        sprite[i].picnum = RRTILE8392;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE7553:
+        sprite[i].picnum = RRTILE5035;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8475:
+        sprite[i].picnum = RRTILE5075;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8498:
+        sprite[i].picnum = RRTILE5077;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8499:
+        sprite[i].picnum = RRTILE5078;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE2445:
+        sprite[i].picnum = RRTILE2450;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE2123:
+        sprite[i].picnum = RRTILE2124;
+        spritesound(GLASS_BREAKING, i);
+        lotsofglass(i, -1, 10);
+        break;
+    case RRTILE3773:
+        sprite[i].picnum = RRTILE8651;
+        spritesound(GLASS_BREAKING, i);
+        lotsofglass(i, -1, 10);
+        break;
+    case RRTILE7533:
+        sprite[i].picnum = RRTILE5035;
+        spritesound(495, i);
+        hitradius(i, 10, 0, 0, 1, 1);
+        break;
+    case RRTILE8394:
+        sprite[i].picnum = RRTILE5072;
+        spritesound(495, i);
+        break;
+    case RRTILE8461:
+    case RRTILE8462:
+        sprite[i].picnum = RRTILE5074;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8679:
+        sprite[i].picnum = RRTILE8680;
+        spritesound(DUKE_SHUCKS, i);
+        hitradius(i, 10, 0, 0, 1, 1);
+        if (sprite[i].lotag != 0)
+        {
+            short j;
+            for (j = 0; j < MAXSPRITES; j++)
+            {
+                if (sprite[j].picnum == RRTILE8679 && sprite[j].pal == 4)
+                {
+                    if (sprite[j].lotag == sprite[i].lotag)
+                        sprite[j].picnum = RRTILE8680;
+                }
+            }
+        }
+        break;
+    case RRTILE3584:
+        sprite[i].picnum = RRTILE8681;
+        spritesound(495, i);
+        hitradius(i, 250, 0, 0, 1, 1);
+        break;
+    case RRTILE8682:
+        sprite[i].picnum = RRTILE8683;
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+    case RRTILE8099:
+        if (sprite[i].lotag == 5)
+        {
+            short j;
+            sprite[i].lotag = 0;
+            sprite[i].picnum = RRTILE5087;
+            spritesound(340, i);
+            for (j = 0; j < MAXSPRITES; j++)
+            {
+                if (sprite[j].picnum == RRTILE8094)
+                    sprite[j].picnum = RRTILE5088;
+            }
+        }
+        break;
+    case RRTILE2431:
+        if (sprite[i].pal != 4)
+        {
+            sprite[i].picnum = RRTILE2451;
+            if (sprite[i].lotag != 0)
+            {
+                short j;
+                for (j = 0; j < MAXSPRITES; j++)
+                {
+                    if (sprite[j].picnum == RRTILE2431 && sprite[j].pal == 4)
+                    {
+                        if (sprite[i].lotag == sprite[j].lotag)
+                            sprite[j].picnum = RRTILE2451;
+                    }
+                }
+            }
+        }
+        break;
+    case RRTILE2443:
+        if (sprite[i].pal != 19)
+            sprite[i].picnum = RRTILE2455;
+        break;
+    case RRTILE2455:
+        spritesound(SQUISHED, i);
+        guts(&sprite[i], RRTILE2465, 3, myconnectindex);
+        deletesprite(i);
+        break;
+    case RRTILE2451:
+        if (sprite[i].pal != 4)
+        {
+            spritesound(SQUISHED, i);
+            if (sprite[i].lotag != 0)
+            {
+                short j;
+                for (j = 0; j < MAXSPRITES; j++)
+                {
+                    if (sprite[j].picnum == RRTILE2451 && sprite[j].pal == 4)
+                    {
+                        if (sprite[i].lotag == sprite[j].lotag)
+                        {
+                            guts(&sprite[i], RRTILE2460, 12, myconnectindex);
+                            guts(&sprite[i], RRTILE2465, 3, myconnectindex);
+                            sprite[j].xrepeat = 0;
+                            sprite[j].yrepeat = 0;
+                            sprite[i].xrepeat = 0;
+                            sprite[i].yrepeat = 0;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                guts(&sprite[i], RRTILE2460, 12, myconnectindex);
+                guts(&sprite[i], RRTILE2465, 3, myconnectindex);
+                sprite[i].xrepeat = 0;
+                sprite[i].yrepeat = 0;
+            }
+        }
+        break;
+    case RRTILE2437:
+        spritesound(439, i);
+        break;
+    }
+
+    switch (sprite[i].picnum)
+    {
+    case RRTILE3114:
+        sprite[i].picnum = RRTILE3117;
+        break;
+    case RRTILE2876:
+        sprite[i].picnum = RRTILE2990;
+        break;
+    case RRTILE3152:
+        sprite[i].picnum = RRTILE3218;
+        break;
+    case RRTILE3153:
+        sprite[i].picnum = RRTILE3219;
+        break;
+    case RRTILE2030:
+        sprite[i].picnum = RRTILE2034;
+        spritesound(GLASS_BREAKING, i);
+        lotsofglass(i, -1, 10);
+        break;
+    case RRTILE2893:
+    case RRTILE2915:
+    case RRTILE3115:
+    case RRTILE3171:
+        switch (sprite[i].picnum)
+        {
+        case RRTILE2915:
+            sprite[i].picnum = RRTILE2977;
+            break;
+        case RRTILE2893:
+            sprite[i].picnum = RRTILE2978;
+            break;
+        case RRTILE3115:
+            sprite[i].picnum = RRTILE3116;
+            break;
+        case RRTILE3171:
+            sprite[i].picnum = RRTILE3216;
+            break;
+        }
+        spritesound(GLASS_BREAKING, i);
+        lotsofglass(i, -1, 10);
+        break;
+    case RRTILE2156:
+    case RRTILE2158:
+    case RRTILE2160:
+    case RRTILE2175:
+        sprite[i].picnum++;
+        spritesound(GLASS_BREAKING, i);
+        lotsofglass(i, -1, 10);
+        break;
+    case RRTILE2137:
+    case RRTILE2151:
+    case RRTILE2152:
+        spritesound(GLASS_BREAKING, i);
+        lotsofglass(i, -1, 10);
+        sprite[i].picnum++;
+        for (k = 0; k < 6; k++)
+            EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[i].zvel >> 2), i, 5);
+        break;
+    case BOWLINGBALL:
+        sprite[sn].xvel = (sprite[i].xvel >> 1) + (sprite[i].xvel >> 2);
+        sprite[sn].ang -= (krand() & 16);
+        spritesound(355, i);
+        break;
+
+    case STRIPEBALL:
+    case QUEBALL:
+    case RRTILE3440:
+    case RRTILE3440 + 1:
+    case HENSTAND:
+    case HENSTAND + 1:
+        if (sprite[sn].picnum == QUEBALL || sprite[sn].picnum == STRIPEBALL)
+        {
+            sprite[sn].xvel = (sprite[i].xvel >> 1) + (sprite[i].xvel >> 2);
+            sprite[sn].ang -= (sprite[i].ang << 1) + 1024;
+            sprite[i].ang = getangle(sprite[i].x - sprite[sn].x, sprite[i].y - sprite[sn].y) - 512;
+            if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
+                spritesound(POOLBALLHIT, i);
+        }
+        else if (sprite[sn].picnum == RRTILE3440 || sprite[sn].picnum == RRTILE3440 + 1)
+        {
+            sprite[sn].xvel = (sprite[i].xvel >> 1) + (sprite[i].xvel >> 2);
+            sprite[sn].ang -= ((sprite[i].ang << 1) + krand()) & 64;
+            sprite[i].ang = (sprite[i].ang + krand()) & 16;
+            spritesound(355, i);
+        }
+        else if (sprite[sn].picnum == HENSTAND || sprite[sn].picnum == HENSTAND + 1)
+        {
+            sprite[sn].xvel = (sprite[i].xvel >> 1) + (sprite[i].xvel >> 2);
+            sprite[sn].ang -= ((sprite[i].ang << 1) + krand()) & 16;
+            sprite[i].ang = (sprite[i].ang + krand()) & 16;
+            spritesound(355, i);
+        }
+        else
+        {
+            if (krand() & 3)
+            {
+                sprite[i].xvel = 164;
+                sprite[i].ang = sprite[sn].ang;
+            }
+        }
+        break;
+
+    case TREE1:
+    case TREE2:
+    case TIRE:
+    case BOX:
+        switch (sprite[sn].picnum)
+        {
+        case RPG2:
+            if (!isRRRA()) break;
+        case RADIUSEXPLOSION:
+        case RPG:
+        case FIRELASER:
+        case HYDRENT:
+        case HEAVYHBOMB:
+        case TRIPBOMBSPRITE:
+        case COOLEXPLOSION1:
+        case OWHIP:
+        case UWHIP:
+            if (hittype[i].temp_data[0] == 0)
+            {
+                sprite[i].cstat &= ~257;
+                hittype[i].temp_data[0] = 1;
+                spawn(i, BURNING);
+            }
+            break;
+        }
+        break;
+
+    case CACTUS:
+        //        case CACTUSBROKE:
+        switch (sprite[sn].picnum)
+        {
+        case RPG2:
+            if (!isRRRA()) break;
+        case RADIUSEXPLOSION:
+        case RPG:
+        case FIRELASER:
+        case HYDRENT:
+        case HEAVYHBOMB:
+        case TRIPBOMBSPRITE:
+        case COOLEXPLOSION1:
+        case OWHIP:
+        case UWHIP:
+            for (k = 0; k < 64; k++)
+            {
+                j = EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[i].zvel >> 2), i, 5);
+                sprite[j].pal = 8;
+            }
+
+            if (sprite[i].picnum == CACTUS)
+                sprite[i].picnum = CACTUSBROKE;
+            sprite[i].cstat &= ~257;
+            //       else deletesprite(i);
+            break;
+        }
+        break;
+
+
+    case FANSPRITE:
+        sprite[i].picnum = FANSPRITEBROKE;
+        sprite[i].cstat &= (65535 - 257);
+        spritesound(GLASS_HEAVYBREAK, i);
+        s = &sprite[i];
+        for (j = 0; j < 16; j++) RANDOMSCRAP(s, i);
+
+        break;
+    case WATERFOUNTAIN:
+    case WATERFOUNTAIN + 1:
+    case WATERFOUNTAIN + 2:
+    case WATERFOUNTAIN + 3:
+        spawn(i, TOILETWATER);
+        break;
+    case SATELITE:
+    case FUELPOD:
+    case SOLARPANNEL:
+    case ANTENNA:
+        if (sprite[sn].extra != G_DefaultActorHealth(SHOTSPARK1)) //  TRANSITIONAL - fix after getting rid of EDUKE cruft
+        {
+            for (j = 0; j < 15; j++)
+                EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sector[sprite[i].sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+                    krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, i, 5);
+            spawn(i, EXPLOSION2);
+            deletesprite(i);
+        }
+        break;
+    case RRTILE1824:
+        if (!isRRRA()) break;
+    case BOTTLE1:
+    case BOTTLE2:
+    case BOTTLE3:
+    case BOTTLE4:
+    case BOTTLE5:
+    case BOTTLE6:
+    case BOTTLE8:
+    case BOTTLE10:
+    case BOTTLE11:
+    case BOTTLE12:
+    case BOTTLE13:
+    case BOTTLE14:
+    case BOTTLE15:
+    case BOTTLE16:
+    case BOTTLE17:
+    case BOTTLE18:
+    case BOTTLE19:
+    case DOMELITE:
+    case SUSHIPLATE1:
+    case SUSHIPLATE2:
+    case SUSHIPLATE3:
+    case SUSHIPLATE4:
+    case SUSHIPLATE5:
+    case WAITTOBESEATED:
+    case VASE:
+    case STATUEFLASH:
+    case STATUE:
+        if (sprite[i].picnum == BOTTLE10)
+            lotsofmoney(&sprite[i], 4 + (krand() & 3));
+        else if (sprite[i].picnum == STATUE || sprite[i].picnum == STATUEFLASH)
+        {
+            lotsofcolourglass(i, -1, 40);
+            spritesound(GLASS_HEAVYBREAK, i);
+        }
+        else if (sprite[i].picnum == VASE)
+            lotsofglass(i, -1, 40);
+
+        spritesound(GLASS_BREAKING, i);
+        sprite[i].ang = krand() & 2047;
+        lotsofglass(i, -1, 8);
+        deletesprite(i);
+        break;
+    case RRTILE2654:
+    case RRTILE2656:
+    case RRTILE3172:
+        if (!isRRRA()) break;
+    case BOTTLE7:
+        spritesound(GLASS_BREAKING, i);
+        lotsofglass(i, -1, 10);
+        deletesprite(i);
+        break;
+    case FORCESPHERE:
+        sprite[i].xrepeat = 0;
+        hittype[sprite[i].owner].temp_data[0] = 32;
+        hittype[sprite[i].owner].temp_data[1] = !hittype[sprite[i].owner].temp_data[1];
+        hittype[sprite[i].owner].temp_data[2] ++;
+        spawn(i, EXPLOSION2);
+        break;
+    case TOILET:
+        sprite[i].picnum = TOILETBROKE;
+        sprite[i].cstat |= (krand() & 1) << 2;
+        sprite[i].cstat &= ~257;
+        spawn(i, TOILETWATER);
+        spritesound(GLASS_BREAKING, i);
+        break;
+
+    case STALL:
+        sprite[i].picnum = STALLBROKE;
+        sprite[i].cstat |= (krand() & 1) << 2;
+        sprite[i].cstat &= ~257;
+        spawn(i, TOILETWATER);
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+
+    case HYDRENT:
+        sprite[i].picnum = BROKEFIREHYDRENT;
+        spawn(i, TOILETWATER);
+
+        //            for(k=0;k<5;k++)
+          //          {
+            //            j = EGS(sprite[i].sectnum,sprite[i].x,sprite[i].y,sprite[i].z-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
+              //          sprite[j].pal = 2;
+                //    }
+        spritesound(GLASS_HEAVYBREAK, i);
+        break;
+
+    case GRATE1:
+        sprite[i].picnum = BGRATE1;
+        sprite[i].cstat &= (65535 - 256 - 1);
+        spritesound(VENT_BUST, i);
+        break;
+
+    case CIRCLEPANNEL:
+        sprite[i].picnum = CIRCLEPANNELBROKE;
+        sprite[i].cstat &= (65535 - 256 - 1);
+        spritesound(VENT_BUST, i);
+        break;
+
+    case PIPE1:
+    case PIPE2:
+    case PIPE3:
+    case PIPE4:
+    case PIPE5:
+    case PIPE6:
+        switch (sprite[i].picnum)
+        {
+        case PIPE1:sprite[i].picnum = PIPE1B; break;
+        case PIPE2:sprite[i].picnum = PIPE2B; break;
+        case PIPE3:sprite[i].picnum = PIPE3B; break;
+        case PIPE4:sprite[i].picnum = PIPE4B; break;
+        case PIPE5:sprite[i].picnum = PIPE5B; break;
+        case PIPE6:sprite[i].picnum = PIPE6B; break;
+        }
+
+        j = spawn(i, STEAM);
+        sprite[j].z = sector[sprite[i].sectnum].floorz - (32 << 8);
+        break;
+
+    case CHAIR1:
+    case CHAIR2:
+        sprite[i].picnum = BROKENCHAIR;
+        sprite[i].cstat = 0;
+        break;
+    case CHAIR3:
+    case MOVIECAMERA:
+    case SCALE:
+    case VACUUM:
+    case CAMERALIGHT:
+    case IVUNIT:
+    case POT1:
+    case POT2:
+    case POT3:
+        spritesound(GLASS_HEAVYBREAK, i);
+        s = &sprite[i];
+        for (j = 0; j < 16; j++) RANDOMSCRAP(s, i);
+        deletesprite(i);
+        break;
+    case PLAYERONWATER:
+        i = sprite[i].owner;
+    default:
+        if ((sprite[i].cstat & 16) && sprite[i].hitag == 0 && sprite[i].lotag == 0 && sprite[i].statnum == 0)
+            break;
+
+        if ((sprite[sn].picnum == SHRINKSPARK || sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && sprite[i].statnum != 4)
+        {
+            if (badguy(&sprite[i]) == 1)
+            {
+                if (sprite[sn].picnum == RPG) sprite[sn].extra <<= 1;
+                else if (isRRRA() && sprite[sn].picnum == RPG2) sprite[sn].extra <<= 1;
+
+                if ((sprite[i].picnum != DRONE))
+                    if (sprite[sn].picnum != FREEZEBLAST)
+                        //if (actortype[sprite[i].picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
+                        {
+                            j = spawn(sn, JIBS6);
+                            if (sprite[sn].pal == 6)
+                                sprite[j].pal = 6;
+                            sprite[j].z += (4 << 8);
+                            sprite[j].xvel = 16;
+                            sprite[j].xrepeat = sprite[j].yrepeat = 24;
+                            sprite[j].ang += 32 - (krand() & 63);
+                        }
+
+                j = sprite[sn].owner;
+
+                if (j >= 0 && sprite[j].picnum == APLAYER && sprite[i].picnum != DRONE)
+                    if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
+                    {
+                        shoot(i, BLOODSPLAT3);
+                        shoot(i, BLOODSPLAT1);
+                        shoot(i, BLOODSPLAT2);
+                        shoot(i, BLOODSPLAT4);
+                    }
+
+                if (sprite[i].statnum == 2)
+                {
+                    changespritestat(i, 1);
+                    hittype[i].timetosleep = SLEEPTIME;
+                }
+            }
+
+            if (sprite[i].statnum != 2)
+            {
+                if (sprite[sn].picnum == FREEZEBLAST && ((sprite[i].picnum == APLAYER && sprite[i].pal == 1) || (freezerhurtowner == 0 && sprite[sn].owner == i)))
+                    return;
+
+                hittype[i].picnum = sprite[sn].picnum;
+                hittype[i].extra += sprite[sn].extra;
+                if (sprite[i].picnum != COW)
+                    hittype[i].ang = sprite[sn].ang;
+                hittype[i].owner = sprite[sn].owner;
+            }
+
+            if (sprite[i].statnum == 10)
+            {
+                p = sprite[i].yvel;
+                if (ps[p].newowner >= 0)
+                {
+                    ps[p].newowner = -1;
+                    ps[p].posx = ps[p].oposx;
+                    ps[p].posy = ps[p].oposy;
+                    ps[p].posz = ps[p].oposz;
+                    ps[p].q16ang = ps[p].oq16ang;
+
+                    updatesector(ps[p].posx, ps[p].posy, &ps[p].cursectnum);
+                    setpal(&ps[p]);
+
+                    j = headspritestat[1];
+                    while (j >= 0)
+                    {
+                        if (sprite[j].picnum == CAMERA1) sprite[j].yvel = 0;
+                        j = nextspritestat[j];
+                    }
+                }
+
+                if (sprite[hittype[i].owner].picnum != APLAYER)
+                    if (ud.player_skill >= 3)
+                        sprite[sn].extra += (sprite[sn].extra >> 1);
+            }
+
+        }
+        break;
+    }
+}
+
 END_DUKE_NS

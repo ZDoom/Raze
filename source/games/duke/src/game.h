@@ -244,10 +244,13 @@ void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz);
 void G_PostCreateGameState(void);
 
 void A_SpawnCeilingGlass(int spriteNum,int sectNum,int glassCnt);
+#define ceilingglass A_SpawnCeilingGlass
 void A_SpawnGlass(int spriteNum,int glassCnt);
 void A_SpawnRandomGlass(int spriteNum,int wallNum,int glassCnt);
+#define lotsofcolourglass A_SpawnRandomGlass
 void A_SpawnWallGlass(int spriteNum,int wallnum,int glassCnt);
-void A_SpawnWallPopcorn(int spriteNum,int wallnum,int glassCnt);
+#define lotsofglass A_SpawnWallGlass
+void lotsofpopcorn(int spriteNum,int wallnum,int glassCnt);
 void G_AddUserQuote(const char *daquote);
 void G_BackToMenu(void);
 void G_DumpDebugInfo(void);

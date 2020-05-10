@@ -98,4 +98,15 @@ int32_t clipmovex(vec3_t *const pos, int16_t *const sectnum, int32_t xvect, int3
 int pushmove(vec3_t *const vect, int16_t *const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
                  uint32_t const cliptype, bool clear = true) ATTRIBUTE((nonnull(1, 2)));
 
+inline int pushmove(int* x, int* y, int* z, int16_t* const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
+    uint32_t const cliptype, bool clear = true)
+{
+    vec3_t v = { *x,*y,*z };
+    auto r = pushmove(&v, sectnum, walldist, ceildist, flordist, cliptype, clear);
+    *x = v.x;
+    *y = v.y;
+    *z = v.z;
+    return r;
+}
+
 #endif

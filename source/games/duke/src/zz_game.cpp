@@ -7623,7 +7623,8 @@ void A_SpawnWallGlass(int spriteNum, int wallNum, int glassCnt)
     }
 }
 
-void A_SpawnWallPopcorn(int spriteNum, int wallNum, int glassCnt)
+// RR only
+void lotsofpopcorn(int spriteNum, int wallNum, int glassCnt)
 {
     if (wallNum < 0)
     {

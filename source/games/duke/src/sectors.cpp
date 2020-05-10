@@ -57,6 +57,16 @@ void operateforcefields_r(int s, int low);
 void operateforcefields_d(int s, int low);
 bool checkhitswitch_d(int snum, int w, int switchtype);
 bool checkhitswitch_r(int snum, int w, int switchtype);
+void activatebysector_d(int sect, int j);
+void activatebysector_r(int sect, int j);
+void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith);
+void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith);
+void checkplayerhurt_d(struct player_struct* p, int j);
+void checkplayerhurt_r(struct player_struct* p, int j);
+bool checkhitceiling_d(int sn);
+bool checkhitceiling_r(int sn);
+void checkhitsprite_d(int i, int sn);
+void checkhitsprite_r(int i, int sn);
 
 bool isadoorwall(int dapic)
 {
@@ -81,6 +91,31 @@ void operateforcefields(int s, int low)
 bool checkhitswitch(int snum, int w, int switchtype)
 {
     return isRR() ? checkhitswitch_r(snum, w, switchtype) : checkhitswitch_d(snum, w, switchtype);
+}
+
+void activatebysector(int sect, int j)
+{
+    if (isRR()) activatebysector_r(sect, j); else activatebysector_d(sect, j);
+}
+
+void checkhitwall(int spr, int dawallnum, int x, int y, int z, int atwith)
+{
+    if (isRR()) checkhitwall_r(spr, dawallnum, x, y, z, atwith); else checkhitwall_d(spr, dawallnum, x, y, z, atwith);
+}
+
+void checkplayerhurt(struct player_struct* p, int j)
+{
+    if (isRR()) checkplayerhurt_r(p, j); else checkplayerhurt_d(p, j);
+}
+
+bool checkhitceiling(int sn)
+{
+    return isRR() ? checkhitceiling_r(sn) : checkhitceiling_d(sn);
+}
+
+void checkhitsprite(int i, int sn)
+{
+    if (isRR()) checkhitsprite_r(i, sn); else checkhitsprite_d(i, sn);
 }
 
 //---------------------------------------------------------------------------
@@ -1094,6 +1129,51 @@ void operateforcefields_common(int s, int low, const std::initializer_list<int> 
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void breakwall(short newpn, short spr, short dawallnum)
+{
+    wall[dawallnum].picnum = newpn;
+    spritesound(VENT_BUST, spr);
+    spritesound(GLASS_HEAVYBREAK, spr);
+    lotsofglass(spr, dawallnum, 10);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void allignwarpelevators(void)
+{
+    short i, j;
+
+    i = headspritestat[STAT_EFFECTOR];
+    while (i >= 0)
+    {
+        if (sprite[i].lotag == SE_17_WARP_ELEVATOR && sprite[i].shade > 16)
+        {
+            j = headspritestat[STAT_EFFECTOR];
+            while (j >= 0)
+            {
+                if ((sprite[j].lotag) == SE_17_WARP_ELEVATOR && i != j &&
+                    (sprite[i].hitag) == (sprite[j].hitag))
+                {
+                    sector[sprite[j].sectnum].floorz = sector[sprite[i].sectnum].floorz;
+                    sector[sprite[j].sectnum].ceilingz = sector[sprite[i].sectnum].ceilingz;
+                }
+
+                j = nextspritestat[j];
+            }
+        }
+        i = nextspritestat[i];
+    }
+}
 
 
 

@@ -121,6 +121,7 @@ G_EXTERN int32_t g_doQuickSave;
 G_EXTERN int32_t g_earthquakeTime;
 #define earthquaketime g_earthquakeTime
 G_EXTERN int32_t g_freezerSelfDamage;
+#define freezerhurtowner g_freezerSelfDamage
 G_EXTERN int32_t g_gameQuit;
 G_EXTERN int32_t g_globalRandom;
 #define global_random g_globalRandom
@@ -218,7 +219,7 @@ G_EXTERN int32_t g_windTime, g_windDir;
 G_EXTERN int16_t g_fakeBubbaCnt, g_mamaSpawnCnt, g_banjoSong, g_bellTime, g_bellSprite;
 #define BellTime g_bellTime
 #define word_119BE0 g_bellSprite
-G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS];
+G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS]; // move these back into the base structs!
 G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, g_chickenWeaponTimer, g_RAendLevel, g_RAendEpisode, g_fogType;
 G_EXTERN int32_t g_cdTrack;
 #define raat607 enemysizecheat // only as a reminder

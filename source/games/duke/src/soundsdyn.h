@@ -313,6 +313,7 @@ extern int32_t VOL4ENDSND2;
 extern int32_t EXPANDERSHOOT;
 extern int32_t INTRO4_B;
 extern int32_t BIGBANG;
+#define DUKE_SHUCKS 47 // this was missing
 
 #define DYNAMICSOUNDMAP(Soundnum) (DynamicSoundMap[Soundnum])
 

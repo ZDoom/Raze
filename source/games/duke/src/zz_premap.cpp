@@ -2363,7 +2363,7 @@ int G_EnterLevel(int gameMode)
         g_player[0].ps->curr_weapon = SLINGBLADE_WEAPON;
     }
 
-    G_AlignWarpElevators();
+    allignwarpelevators();
     resetpspritevars(gameMode);
 
     ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : mi.fileName.GetChars(), g_loadedMapHack.md4);

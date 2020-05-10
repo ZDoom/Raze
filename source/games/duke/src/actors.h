@@ -284,6 +284,8 @@ inline int wallswitchcheck(int s)
 int A_IncurDamage(int spriteNum);
 void A_AddToDeleteQueue(int spriteNum);
 void A_DeleteSprite(int spriteNum);
+void guts(spritetype* s, short gtype, short n, short p);
+
 void A_DoGuts(int spriteNum, int tileNum, int spawnCnt);
 void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt);
 void movecyclers(void);
@@ -452,6 +454,7 @@ void respawn_rrra(int i, int j);
 void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 int ifhitbyweapon(int sn);
 int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
+void lotsofmoney(spritetype* s, short n);
 
 // tile names which are identical for all games.
 enum

@@ -201,7 +201,7 @@ static inline int32_t G_HaveActor(int spriteNum)
     return g_tile[spriteNum].execPtr!=NULL;
 }
 
-static inline int32_t G_DefaultActorHealth(int spriteNum)
+static inline int32_t G_DefaultActorHealth(int spriteNum)	// rename!
 {
     return G_HaveActor(spriteNum) ? g_tile[spriteNum].execPtr[0] : 0;
 }

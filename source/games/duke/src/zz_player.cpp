@@ -669,7 +669,7 @@ growspark_rr:
 
                     if (hitData.sprite >= 0 && sprite[hitData.sprite].picnum != TILE_ACCESSSWITCH && sprite[hitData.sprite].picnum != TILE_ACCESSSWITCH2)
                     {
-                        A_DamageObject(hitData.sprite, kneeSprite);
+                        checkhitsprite(hitData.sprite, kneeSprite);
                         if (playerNum >= 0)
                             checkhitswitch(playerNum, hitData.sprite, 1);
                     }
@@ -740,7 +740,7 @@ growspark_rr:
                             return -1;
                         }
                         else
-                            Sect_DamageCeiling(hitData.sect);
+                            checkhitceiling(hitData.sect);
                     }
 
                     if (!RR || sector[hitData.sect].lotag != ST_1_ABOVE_WATER)
@@ -751,7 +751,7 @@ growspark_rr:
                 {
                     if (RR && sprite[hitData.sprite].picnum == TILE_TORNADO)
                         return -1;
-                    A_DamageObject(hitData.sprite, spawnedSprite);
+                    checkhitsprite(hitData.sprite, spawnedSprite);
 
                     if (sprite[hitData.sprite].picnum == TILE_APLAYER &&
                         (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
@@ -832,7 +832,7 @@ growspark_rr:
 
                 if (hitData.sprite >= 0)
                 {
-                    A_DamageObject(hitData.sprite, spawnedSprite);
+                    checkhitsprite(hitData.sprite, spawnedSprite);
                     if (sprite[hitData.sprite].picnum != TILE_APLAYER)
                         A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
                     else
@@ -942,10 +942,10 @@ growspark_rr:
             if (hitData.wall == -1 && hitData.sprite == -1 && hitData.sect >= 0
                 && Zvel < 0 && (sector[hitData.sprite].ceilingstat & 1) == 0)
             {
-                Sect_DamageCeiling(hitData.sect);
+                checkhitceiling(hitData.sect);
             }
             else if (hitData.sprite >= 0)
-                A_DamageObject(hitData.sprite, otherSprite);
+                checkhitsprite(hitData.sprite, otherSprite);
             else if (hitData.wall >= 0 && wall[hitData.wall].picnum != TILE_ACCESSSWITCH && wall[hitData.wall].picnum != TILE_ACCESSSWITCH2)
                 A_DamageWall(otherSprite, hitData.wall, &hitData.pos, projecTile);
         }
@@ -8517,7 +8517,7 @@ HORIZONLY:;
         {
             if (!(sector[pSprite->sectnum].lotag & 0x8000u) &&
                 (isanunderoperator(sector[pSprite->sectnum].lotag) || isanearoperator(sector[pSprite->sectnum].lotag)))
-                G_ActivateBySector(pSprite->sectnum, pPlayer->i);
+                activatebysector(pSprite->sectnum, pPlayer->i);
 
             if (squishPlayer)
             {
@@ -8526,7 +8526,7 @@ HORIZONLY:;
             }
         }
         else if (klabs(floorZ - ceilZ) < ZOFFSET5 && isanunderoperator(sector[pPlayer->cursectnum].lotag))
-            G_ActivateBySector(pPlayer->cursectnum, pPlayer->i);
+            activatebysector(pPlayer->cursectnum, pPlayer->i);
 
         if (RR && sector[pPlayer->cursectnum].ceilingz > (sector[pPlayer->cursectnum].floorz-ZOFFSET4))
         {
