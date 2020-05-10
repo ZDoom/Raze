@@ -3681,13 +3681,13 @@ void P_GetInputMotorcycle(int playerNum)
     {
         if (turnLeft)
         {
-            pPlayer->tilt_status--;
+            pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
             if (pPlayer->tilt_status < -10)
                 pPlayer->tilt_status = -10;
         }
         else if (turnRight)
         {
-            pPlayer->tilt_status++;
+            pPlayer->tilt_status += scaleAdjustmentToInterval(1);
             if (pPlayer->tilt_status > 10)
                 pPlayer->tilt_status = 10;
         }
@@ -3697,7 +3697,7 @@ void P_GetInputMotorcycle(int playerNum)
         if (turnLeft || pPlayer->moto_drink < 0)
         {
             turnHeldTime += elapsedTics;
-            pPlayer->tilt_status--;
+            pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
             if (pPlayer->tilt_status < -10)
                 pPlayer->tilt_status = -10;
             if (turnHeldTime >= TURBOTURNTIME && pPlayer->moto_speed > 0)
@@ -3718,7 +3718,7 @@ void P_GetInputMotorcycle(int playerNum)
         else if (turnRight || pPlayer->moto_drink > 0)
         {
             turnHeldTime += elapsedTics;
-            pPlayer->tilt_status++;
+            pPlayer->tilt_status += scaleAdjustmentToInterval(1);
             if (pPlayer->tilt_status > 10)
                 pPlayer->tilt_status = 10;
             if (turnHeldTime >= TURBOTURNTIME && pPlayer->moto_speed > 0)
@@ -3741,11 +3741,14 @@ void P_GetInputMotorcycle(int playerNum)
             turnHeldTime = 0;
 
             if (pPlayer->tilt_status > 0)
-                pPlayer->tilt_status--;
+                pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
             else if (pPlayer->tilt_status < 0)
-                pPlayer->tilt_status++;
+                pPlayer->tilt_status += scaleAdjustmentToInterval(1);
         }
     }
+
+    if (pPlayer->tilt_status > -0.025 && pPlayer->tilt_status < 0.025)
+        pPlayer->tilt_status = 0;
 
     if (pPlayer->moto_underwater)
     {
@@ -3913,7 +3916,7 @@ void P_GetInputBoat(int playerNum)
             turnHeldTime += elapsedTics;
             if (!pPlayer->not_on_water)
             {
-                pPlayer->tilt_status--;
+                pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
                 if (pPlayer->tilt_status < -10)
                     pPlayer->tilt_status = -10;
                 if (turnHeldTime >= TURBOTURNTIME)
@@ -3932,7 +3935,7 @@ void P_GetInputBoat(int playerNum)
             turnHeldTime += elapsedTics;
             if (!pPlayer->not_on_water)
             {
-                pPlayer->tilt_status++;
+                pPlayer->tilt_status += scaleAdjustmentToInterval(1);
                 if (pPlayer->tilt_status > 10)
                     pPlayer->tilt_status = 10;
                 if (turnHeldTime >= TURBOTURNTIME)
@@ -3951,9 +3954,9 @@ void P_GetInputBoat(int playerNum)
             turnHeldTime = 0;
 
             if (pPlayer->tilt_status > 0)
-                pPlayer->tilt_status--;
+                pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
             else if (pPlayer->tilt_status < 0)
-                pPlayer->tilt_status++;
+                pPlayer->tilt_status += scaleAdjustmentToInterval(1);
         }
     }
     else if (!pPlayer->not_on_water)
@@ -3961,10 +3964,13 @@ void P_GetInputBoat(int playerNum)
         turnHeldTime = 0;
 
         if (pPlayer->tilt_status > 0)
-            pPlayer->tilt_status--;
+            pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
         else if (pPlayer->tilt_status < 0)
-            pPlayer->tilt_status++;
+            pPlayer->tilt_status += scaleAdjustmentToInterval(1);
     }
+
+    if (pPlayer->tilt_status > -0.025 && pPlayer->tilt_status < 0.025)
+        pPlayer->tilt_status = 0;
 
     input.fvel += pPlayer->moto_speed;
     input.q16avel = fix16_mul(input.q16avel, avelScale);
@@ -8574,9 +8580,10 @@ HORIZONLY:;
                         {
                             if (numplayers == 1)
                             {
+                                int tilt_status = pPlayer->tilt_status;
                                 vec3_t const vect = {
-                                    sintable[(pPlayer->tilt_status*20+fix16_to_int(pPlayer->q16ang)+512)&2047]>>8,
-                                    sintable[(pPlayer->tilt_status*20+fix16_to_int(pPlayer->q16ang))&2047]>>8,sprite[spriteNum].zvel
+                                    sintable[(tilt_status*20+fix16_to_int(pPlayer->q16ang)+512)&2047]>>8,
+                                    sintable[(tilt_status*20+fix16_to_int(pPlayer->q16ang))&2047]>>8,sprite[spriteNum].zvel
                                 };
 
                                 A_MoveSprite(spriteNum,&vect,CLIPMASK0);
@@ -8627,9 +8634,10 @@ HORIZONLY:;
                         {
                             if (numplayers == 1)
                             {
+                                int tilt_status = pPlayer->tilt_status;
                                 vec3_t const vect = {
-                                    sintable[(pPlayer->tilt_status*20+fix16_to_int(pPlayer->q16ang)+512)&2047]>>9,
-                                    sintable[(pPlayer->tilt_status*20+fix16_to_int(pPlayer->q16ang))&2047]>>9,sprite[spriteNum].zvel
+                                    sintable[(tilt_status*20+fix16_to_int(pPlayer->q16ang)+512)&2047]>>9,
+                                    sintable[(tilt_status*20+fix16_to_int(pPlayer->q16ang))&2047]>>9,sprite[spriteNum].zvel
                                 };
 
                                 A_MoveSprite(spriteNum,&vect,CLIPMASK0);
