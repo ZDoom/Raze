@@ -230,7 +230,7 @@ typedef struct
 
     bool    horizRecenter;
     float   horizAngleAdjust;
-    fix16_t horizSkew;
+    int8_t  horizSkew;
 
     int32_t netsynctime;
     int16_t ping, filler;
