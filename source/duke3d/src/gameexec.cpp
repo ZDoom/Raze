@@ -1369,7 +1369,7 @@ static void ResizeArray(int const arrayNum, int const newSize)
 # define vmErrorCase VINST_CON_OPCODE_END
 # define eval(INSTRUCTION) { goto *jumpTable[min<uint16_t>(INSTRUCTION, CON_OPCODE_END)]; }
 # define dispatch_unconditionally(...) { g_tw = tw = *insptr; eval((VM_DECODE_INST(tw))) }
-# define dispatch(...) { if (vm_execution_depth && (vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) == 0) dispatch_unconditionally(__VA_ARGS__); return; }
+# define dispatch(...) { if (!vm_execution_depth || vm.flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE)) return; dispatch_unconditionally(__VA_ARGS__); }
 # define abort_after_error(...) return
 # define vInstructionPointer(KEYWORDID) &&VINST_ ## KEYWORDID
 # define COMMA ,
