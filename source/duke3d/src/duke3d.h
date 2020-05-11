@@ -189,12 +189,16 @@ enum GameFunction_t
 	gamefunc_Quick_Kick,
 	gamefunc_Next_Weapon,
 	gamefunc_Previous_Weapon,
+	gamefunc_Show_Console,			// unused, but re-inserted for padding/compatibility for IF.
+	gamefunc_Show_DukeMatch_Scores,
 	gamefunc_Dpad_Select,
 	gamefunc_Dpad_Aiming,
+	gamefunc_AutoRun,				// unused, but re-inserted for padding/compatibility for IF.
 	gamefunc_Last_Weapon,
+	gamefunc_Quick_Save,			// unused, but re-inserted for padding/compatibility for IF.
+	gamefunc_Quick_Load,			// unused, but re-inserted for padding/compatibility for IF.
 	gamefunc_Alt_Weapon,
 	gamefunc_Third_Person_View,
-	gamefunc_Show_DukeMatch_Scores,
 	gamefunc_Toggle_Crouch,	// This is the last one used by EDuke32.
 	NUM_ACTIONS
 };
