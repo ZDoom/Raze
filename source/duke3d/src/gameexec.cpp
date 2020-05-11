@@ -3519,10 +3519,10 @@ badindex:
                 AC_COUNT(vm.pData)   = 0;
                 AC_MOVE_ID(vm.pData) = *insptr++;
                 vm.pSprite->hitag    = *insptr++;
-                if (A_CheckEnemySprite(vm.pSprite) && vm.pSprite->extra <= 0)  // hack
-                    dispatch();
-                if (vm.pSprite->hitag & random_angle)
-                    vm.pSprite->ang = krand() & 2047;
+
+                if (!A_CheckEnemySprite(vm.pSprite) || vm.pSprite->extra > 0)  // hack
+                    if (vm.pSprite->hitag & random_angle)
+                        vm.pSprite->ang = krand() & 2047;
                 dispatch();
 
             vInstruction(CON_ADDWEAPON):
