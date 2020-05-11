@@ -5626,12 +5626,16 @@ static const char* actions[] = {
     "Quick_Kick",
     "Next_Weapon",
     "Previous_Weapon",
+    "Show_Console",            // unused, but re-inserted for padding/compatibility for IF.
+    "Show_DukeMatch_Scores",
     "Dpad_Select",
     "Dpad_Aiming",
+    "Autorun",                 // unused, but re-inserted for padding/compatibility for IF.
     "Last_Weapon",
+    "Quick_Save",              // unused, but re-inserted for padding/compatibility for IF.
+    "Quick_Load",              // unused, but re-inserted for padding/compatibility for IF.
     "Alt_Weapon",
     "Third_Person_View",
-    "Show_DukeMatch_Scores",
     "Toggle_Crouch",	// This is the last one used by EDuke32.
 };
 int GameInterface::app_main()
