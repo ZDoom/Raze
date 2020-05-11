@@ -5774,6 +5774,7 @@ RECHECK:
         {
             thisPlayer.horizAngleAdjust = float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             thisPlayer.horizRecenter    = false;
+            pPlayer->return_to_center   = 0;
         }
     }
 
@@ -5783,6 +5784,7 @@ RECHECK:
         {
             thisPlayer.horizAngleAdjust = -float(6 << (int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             thisPlayer.horizRecenter    = false;
+            pPlayer->return_to_center   = 0;
         }
     }
 
