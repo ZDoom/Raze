@@ -37,6 +37,9 @@ into many sub-files.
 #include "memarena.h"
 #include "printf.h"
 #include "filesystem.h"
+#include "mapinfo.h"
+#include "menu.h"
+#include "global.h"
 
 BEGIN_DUKE_NS
 
@@ -100,6 +103,7 @@ void SortCommands()
 //
 //---------------------------------------------------------------------------
 
+#if 0
 enum
 {
 	ERROR_ISAKEYWORD = 1,
@@ -112,6 +116,12 @@ enum
 	ERROR_OPENBRACKET,
 	ERROR_CLOSEBRACKET,
 	ERROR_NOENDSWITCH
+};
+#endif
+
+enum
+{
+	ERROR_PARMUNDEFINED = 20,
 };
 
 void ReportError(int iError)
@@ -236,7 +246,7 @@ void skipwhitespace()
 
 void skipblockcomment()
 {
-	while (*textptr != '*' && textptr[1] != '/')
+	while (*textptr != '*' || textptr[1] != '/')
 	{
 		if (*textptr == '\n') line_number++;
 		if (*textptr == 0) return;	// reached the end of the file
@@ -293,6 +303,38 @@ bool isaltok(char c)
 
 //---------------------------------------------------------------------------
 //
+// 
+//
+//---------------------------------------------------------------------------
+
+int keyword(void)
+{
+	int i;
+	const char* temptextptr;
+
+	skipcomments();
+	temptextptr = textptr;
+
+	while (isaltok(*temptextptr) == 0)
+	{
+		temptextptr++;
+		if (*temptextptr == 0)
+			return 0;
+	}
+
+	i = 0;
+	while (isaltok(*temptextptr))
+	{
+		tempbuf[i] = *(temptextptr++);
+		i++;
+	}
+	tempbuf[i] = 0;
+
+	return getkeyword(tempbuf);
+}
+
+//---------------------------------------------------------------------------
+//
 //
 //
 //---------------------------------------------------------------------------
@@ -300,6 +342,8 @@ bool isaltok(char c)
 void getlabel(void)
 {
 	long i;
+
+	skipcomments();
 
 	while (isalnum(*textptr & 0xff) == 0)
 	{
@@ -340,9 +384,11 @@ static void appendscriptvalue(int value)
 	script.Push(value);
 }
 
-static void popscriptvalue()
+static int popscriptvalue()
 {
-	script.Pop();
+	int p;
+	script.Pop(p);
+	return p;
 }
 
 void pushlabeladdress()
@@ -372,14 +418,20 @@ static void appendscriptvalue(int value)
 	scriptWriteValue(value);
 }
 
-static void popscriptvalue()
+static int popscriptvalue()
 {
-	scriptptr--;
+	return *--scriptptr;
 }
 
-void pushlabeladdress()
+void appendlabeladdress(int offset = 0)
 {
-	labelcode[labelcnt++] = int(scriptptr - apScript);
+	labelcode[labelcnt++] = int(scriptptr - apScript) + offset;
+	labelcnt++;
+}
+
+void appendlabelvalue(int value)
+{
+	labelcode[labelcnt++] = value;
 	labelcnt++;
 }
 
@@ -397,6 +449,8 @@ void pushlabeladdress()
 int transword(void) //Returns its code #
 {
 	int i, l;
+
+	skipcomments();
 
 	while (isaltok(*textptr) == 0)
 	{
@@ -591,7 +645,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		{
 			getlabel();
 			popscriptvalue();
-			pushlabeladdress();
+			appendlabeladdress();
 
 			parsing_state = 1;
 
@@ -669,34 +723,25 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		);
 		scriptptr -= 3;	// no need to save in script...
 		return 0;
-
+#endif
 	case concmd_define:
 		getlabel();
-		// Check to see it's already defined
-
-		if (getkeyword(label + (labelcnt << 6)) >= 0)
+		checkforkeyword();
+		lnum = findlabel(label + (labelcnt << 6));
+		if (lnum >= 0)
 		{
-			errorcount++;
-			ReportError(ERROR_ISAKEYWORD);
-			return 0;
-		}
-
-		for (i = 0; i < labelcnt; i++)
-		{
-			if (strcmp(label + (labelcnt << 6), label + (i << 6)) == 0)
-			{
-				warningcount++;
-				ReportError(WARNING_DUPLICATEDEFINITION);
-				break;
-			}
+			warningcount++;
+			ReportError(WARNING_DUPLICATEDEFINITION);
+			break;
 		}
 
 		transnum();
-		if (i == labelcnt)
+		i = popscriptvalue();
+		if (lnum < 0)
 		{
-			labelcode[labelcnt++] = *(scriptptr - 1);
+			appendlabelvalue(i);
 		}
-		scriptptr -= 2;
+		popscriptvalue();
 		return 0;
 
 	case concmd_palfrom:
@@ -735,12 +780,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			getlabel();
 			// Check to see it's already defined
 
-			if (getkeyword(label + (labelcnt << 6)) >= 0)
-			{
-				errorcount++;
-				ReportError(ERROR_ISAKEYWORD);
-				return 0;
-			}
+			checkforkeyword();
 
 			for (i = 0; i < labelcnt; i++)
 				if (strcmp(label + (labelcnt << 6), label + (i << 6)) == 0)
@@ -750,7 +790,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 					break;
 				}
 			if (i == labelcnt)
-				labelcode[labelcnt++] = (intptr_t)scriptptr;
+				appendlabeladdress();
 			for (j = 0; j < 2; j++)
 			{
 				if (keyword() >= 0) break;
@@ -798,8 +838,9 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 				i++;
 			}
 		}
+		return 0;
 	}
-	return 0;
+#if 0
 	case concmd_include:
 	{
 		popscriptvalue();
@@ -848,6 +889,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 		return 0;
 	}
+#endif
 	case concmd_ai:
 		if (parsing_actor || parsing_state)
 			transnum();
@@ -855,13 +897,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		{
 			popscriptvalue();
 			getlabel();
-
-			if (getkeyword(label + (labelcnt << 6)) >= 0)
-			{
-				errorcount++;
-				ReportError(ERROR_ISAKEYWORD);
-				return 0;
-			}
+			checkforkeyword();
 
 			for (i = 0; i < labelcnt; i++)
 				if (strcmp(label + (labelcnt << 6), label + (i << 6)) == 0)
@@ -871,8 +907,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 					break;
 				}
 
-			if (i == labelcnt)
-				labelcode[labelcnt++] = (intptr_t)scriptptr;
+			if (i == labelcnt) appendlabeladdress();
 
 			for (j = 0; j < 3; j++)
 			{
@@ -883,8 +918,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 					while (keyword() == -1)
 					{
 						transnum();
-						popscriptvalue();
-						k |= *scriptptr;
+						k |= popscriptvalue();
 					}
 					appendscriptvalue(k);
 					return 0;
@@ -898,6 +932,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 		return 0;
 
+#if 0
 	case concmd_action:
 		if (parsing_actor || parsing_state)
 			transnum();

@@ -954,6 +954,11 @@ static int32_t C_ParseCommand(int32_t loop)
             return 1; //End
         case concmd_state:
         case concmd_ends:
+        case concmd_define:
+        case concmd_palfrom:
+        case concmd_move:
+        case concmd_music:
+        case concmd_ai:
             parsecommand(g_lastKeyword);
             continue;
 
@@ -1011,168 +1016,6 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
         }
 
-        case concmd_define:
-            {
-                C_GetNextLabelName();
-
-                if (getkeyword(label + (labelcnt << 6)) >= 0)
-                {
-                    errorcount++;
-                    C_ReportError(ERROR_ISAKEYWORD);
-                    continue;
-                }
-
-                C_GetNextValue(LABEL_DEFINE);
-
-                i = findlabel(label+(labelcnt<<6));
-                if (i>=0)
-                {
-                    // if (i >= g_numDefaultLabels)
-
-                    if (EDUKE32_PREDICT_FALSE(labelcode[i] != *(scriptptr-1)))
-                    {
-                        warningcount++;
-                        Printf("%s:%d: warning: ignored redefinition of `%s' to %d (old: %d).\n",g_scriptFileName,
-                                   line_number,label+(labelcnt<<6), (int32_t)(*(scriptptr-1)), labelcode[i]);
-                    }
-                }
-                else
-                {
-                    //labeltype[labelcnt] = LABEL_DEFINE;
-                    labelcode[labelcnt++] = *(scriptptr-1);
-                    //if (*(scriptptr-1) >= 0 && *(scriptptr-1) < MAXTILES && g_dynamicTileMapping)
-                    //    G_ProcessDynamicTileMapping(label+((labelcnt-1)<<6),*(scriptptr-1));
-                }
-                scriptptr -= 2;
-                continue;
-            }
-
-        case concmd_palfrom:
-            for (j=3; j>=0; j--)
-            {
-                if (C_GetKeyword() == -1)
-                    C_GetNextValue(LABEL_DEFINE);
-                else break;
-            }
-
-            while (j>-1)
-            {
-                BITPTR_CLEAR(scriptptr-apScript);
-                *scriptptr++ = 0;
-                j--;
-            }
-            continue;
-
-        case concmd_move:
-            if (parsing_actor || parsing_state)
-            {
-                C_GetNextValue(LABEL_MOVE | LABEL_DEFINE);
-#if 0
-                if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1)))
-                {
-                    C_ReportError(-1);
-                    BITPTR_CLEAR(scriptptr-apScript-1);
-                    *(scriptptr-1) = 0;
-                    Printf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,line_number);
-                    warningcount++;
-                }
-#endif
-
-                j = 0;
-                while (C_GetKeyword() == -1)
-                    C_BitOrNextValue(&j);
-
-                C_FinishBitOr(j);
-            }
-            else
-            {
-                scriptptr--;
-                C_GetNextLabelName();
-                // Check to see it's already defined
-
-                if (getkeyword(label + (labelcnt << 6)) >= 0)
-                {
-                    errorcount++;
-                    C_ReportError(ERROR_ISAKEYWORD);
-                    continue;
-                }
-
-                if (EDUKE32_PREDICT_FALSE((i = findlabel(label+(labelcnt<<6))) >= 0))
-                {
-                    warningcount++;
-                    Printf("%s:%d: warning: duplicate move `%s' ignored.\n",g_scriptFileName,line_number,label+(labelcnt<<6));
-                }
-                else
-                {
-                    //labeltype[labelcnt] = LABEL_MOVE;
-                    labelcode[labelcnt++] = scriptptr-apScript;
-                }
-
-                for (j=1; j>=0; j--)
-                {
-                    if (C_GetKeyword() != -1) break;
-                    C_GetNextValue(LABEL_DEFINE);
-                }
-
-                for (k=j; k>=0; k--)
-                {
-                    BITPTR_CLEAR(scriptptr-apScript);
-                    *scriptptr = 0;
-                    scriptptr++;
-                }
-            }
-            continue;
-
-        case concmd_music:
-            {
-                // NOTE: this doesn't get stored in the PCode...
-
-                // music 1 stalker.mid dethtoll.mid streets.mid watrwld1.mid snake1.mid
-                //    thecall.mid ahgeez.mid dethtoll.mid streets.mid watrwld1.mid snake1.mid
-                scriptptr--;
-                C_GetNextValue(LABEL_DEFINE); // Volume Number (0/4)
-                scriptptr--;
-
-                k = *scriptptr-1;  // 0-based volume number. -1 or MAXVOLUMES: "special"
-                if (k == -1)
-                    k = MAXVOLUMES;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)k >= MAXVOLUMES+1)) // if it's not background or special music
-                {
-                    errorcount++;
-                    C_ReportError(-1);
-                    Printf("%s:%d: error: volume number must be between 0 and MAXVOLUMES+1=%d.\n",
-                               g_scriptFileName, line_number, MAXVOLUMES+1);
-                    continue;
-
-                }
-
-                i = 0;
-                // get the file name...
-                while (C_GetKeyword() == -1)
-                {
-                    C_SkipComments();
-
-                    j = 0;
-                    tempbuf[j] = '/';
-                    while (isaltok(*(textptr+j)))
-                    {
-                        tempbuf[j+1] = textptr[j];
-                        j++;
-                    }
-                    tempbuf[j+1] = '\0';
-
-                    C_DefineMusic(k, i, tempbuf);
-
-                    textptr += j;
-
-                    if (i >= MAXLEVELS)
-                        break;
-                    i++;
-                }
-            }
-            continue;
-
         case concmd_include:
             scriptptr--;
 
@@ -1194,76 +1037,6 @@ static int32_t C_ParseCommand(int32_t loop)
             C_Include(tempbuf);
             continue;
 
-        case concmd_ai:
-            if (parsing_actor || parsing_state)
-            {
-                C_GetNextValue(LABEL_AI);
-            }
-            else
-            {
-                scriptptr--;
-                C_GetNextLabelName();
-
-                if (getkeyword(label + (labelcnt << 6)) >= 0)
-                {
-                    errorcount++;
-                    C_ReportError(ERROR_ISAKEYWORD);
-                    continue;
-                }
-
-                i = findlabel(label+(labelcnt<<6));
-                if (EDUKE32_PREDICT_FALSE(i>=0))
-                {
-                    warningcount++;
-                    Printf("%s:%d: warning: duplicate ai `%s' ignored.\n",g_scriptFileName,line_number,label+(labelcnt<<6));
-                }
-                else
-                {
-                    //labeltype[labelcnt] = LABEL_AI;
-                    labelcode[labelcnt++] = scriptptr-apScript;
-                }
-
-                for (j=0; j<3; j++)
-                {
-                    if (C_GetKeyword() != -1) break;
-                    if (j == 1)
-                        C_GetNextValue(LABEL_ACTION);
-                    else if (j == 2)
-                    {
-                        C_GetNextValue(LABEL_MOVE | LABEL_DEFINE);
-#if 0
-                        if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) &&
-                            (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1)))
-                        {
-                            C_ReportError(-1);
-                            BITPTR_CLEAR(scriptptr-apScript-1);
-                            *(scriptptr-1) = 0;
-                            Printf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,line_number);
-                            warningcount++;
-                        }
-#endif
-
-                        k = 0;
-                        while (C_GetKeyword() == -1)
-                            C_BitOrNextValue(&k);
-
-                        C_FinishBitOr(k);
-                        j = 666;
-                        break;
-                    }
-                }
-
-                if (j == 666)
-                    continue;
-
-                for (k=j; k<3; k++)
-                {
-                    BITPTR_CLEAR(scriptptr-apScript);
-                    *scriptptr = 0;
-                    scriptptr++;
-                }
-            }
-            continue;
 
         case concmd_action:
             if (parsing_actor || parsing_state)
