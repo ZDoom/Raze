@@ -1577,7 +1577,7 @@ bool queball(int i, int pocket, int queball, int stripeball)
 		if (x < 1596)
 		{
 
-			//                        if(s->pal == 12)
+			//						if(s->pal == 12)
 			{
 				j = getincangle(ps[p].getang(), getangle(s->x - ps[p].posx, s->y - ps[p].posy));
 				if (j > -64 && j < 64 && PlayerInput(p, SK_OPEN))
@@ -3174,7 +3174,7 @@ void handle_se30(int i, int JIBS6)
 				l = nextspritesect[j];
 				if (sprite[j].statnum == 1 && badguy(&sprite[j]) && sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
 				{
-					//                    if(sprite[j].sectnum != s->sectnum)
+					//					if(sprite[j].sectnum != s->sectnum)
 					{
 						short k = sprite[j].sectnum;
 						updatesector(sprite[j].x, sprite[j].y, &k);
@@ -3289,18 +3289,18 @@ void handle_se03(int i)
 	if (t[4] == 0) return;
 	int x, p = findplayer(s, &x);
 
-	//    if(t[5] > 0) { t[5]--; break; }
+	//	if(t[5] > 0) { t[5]--; break; }
 
 	if ((global_random / (sh + 1) & 31) < 4 && !t[2])
 	{
-		//       t[5] = 4+(global_random&7);
+		//	   t[5] = 4+(global_random&7);
 		sc->ceilingpal = s->owner >> 8;
 		sc->floorpal = s->owner & 0xff;
 		t[0] = s->shade + (global_random & 15);
 	}
 	else
 	{
-		//       t[5] = 4+(global_random&3);
+		//	   t[5] = 4+(global_random&3);
 		sc->ceilingpal = s->pal;
 		sc->floorpal = s->pal;
 		t[0] = t[3];

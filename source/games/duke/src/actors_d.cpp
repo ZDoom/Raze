@@ -1932,7 +1932,7 @@ void movetransports_d(void)
 
 			switch (sprite[j].statnum)
 			{
-			case STAT_PLAYER:    // Player
+			case STAT_PLAYER:	// Player
 
 				if (sprite[j].owner != -1)
 				{
@@ -2009,7 +2009,7 @@ void movetransports_d(void)
 					k = 0;
 
 					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].posz > (sector[sect].floorz - (16 << 8)) && (PlayerInput(p, SK_CROUCH) || ps[p].poszv > 2048))
-						//                        if( onfloorz && sectlotag == 1 && ps[p].posz > (sector[sect].floorz-(6<<8)) )
+						//						if( onfloorz && sectlotag == 1 && ps[p].posz > (sector[sect].floorz-(6<<8)) )
 					{
 						k = 1;
 						if (screenpeek == p)
@@ -2029,7 +2029,7 @@ void movetransports_d(void)
 					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].posz < (sector[sect].ceilingz + (6 << 8)))
 					{
 						k = 1;
-						//                            if( sprite[j].extra <= 0) break;
+						//							if( sprite[j].extra <= 0) break;
 						if (screenpeek == p)
 						{
 							FX_StopAllSounds();
@@ -2137,8 +2137,8 @@ void movetransports_d(void)
 							break;
 
 					case WATERBUBBLE:
-						//                                if( rnd(192) && sprite[j].picnum == WATERBUBBLE)
-						  //                                 break;
+						//								if( rnd(192) && sprite[j].picnum == WATERBUBBLE)
+						  //								 break;
 
 						if (sectlotag > 0)
 						{
@@ -2470,8 +2470,8 @@ static void greenslime(int i)
 		s->cstat &= 65535 - 8;
 		s->picnum = GREENSLIME + 4;
 
-		//                    if(s->yrepeat > 62)
-		  //                      guts(s,JIBS6,5,myconnectindex);
+		//					if(s->yrepeat > 62)
+		  //					  guts(s,JIBS6,5,myconnectindex);
 
 		if (s->xrepeat > 32) s->xrepeat -= krand() & 7;
 		if (s->yrepeat > 16) s->yrepeat -= krand() & 7;
@@ -3453,7 +3453,7 @@ void moveeffectors_d(void)   //STATNUM 3
 				if ((sprite[j].lotag == 14) && (sh == sprite[j].hitag) && (hittype[j].temp_data[0] == t[0]))
 				{
 					sprite[j].xvel = s->xvel;
-					//                        if( t[4] == 1 )
+					//						if( t[4] == 1 )
 					{
 						if (hittype[j].temp_data[5] == 0)
 							hittype[j].temp_data[5] = dist(&sprite[j], s);

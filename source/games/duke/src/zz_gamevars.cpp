@@ -275,7 +275,7 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     {
         g_errorCnt++;
         C_ReportError(-1);
-        Printf("%s:%d: error: too many gamevars!\n",g_scriptFileName,g_lineNumber);
+        Printf("%s:%d: error: too many gamevars!\n",g_scriptFileName,line_count);
         return;
     }
 
@@ -283,7 +283,7 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     {
         g_errorCnt++;
         C_ReportError(-1);
-        Printf("%s:%d: error: variable name `%s' exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,pszLabel, MAXVARLABEL);
+        Printf("%s:%d: error: variable name `%s' exceeds limit of %d characters.\n",g_scriptFileName,line_count,pszLabel, MAXVARLABEL);
         return;
     }
 
@@ -295,7 +295,7 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         if (EDUKE32_PREDICT_FALSE(aGameVars[gV].flags & (GAMEVAR_PTR_MASK)))
         {
             C_ReportError(-1);
-            Printf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
+            Printf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_scriptFileName,line_count,label+(g_labelCnt<<6));
             return;
         }
         else if (EDUKE32_PREDICT_FALSE(!(aGameVars[gV].flags & GAMEVAR_SYSTEM)))

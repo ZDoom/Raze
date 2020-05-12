@@ -55,7 +55,7 @@ enum
     do                                                                                                                                     \
     {                                                                                                                                      \
         C_ReportError(-1);                                                                                                                 \
-        Printf("%s:%d: error: " Text "\n", g_scriptFileName, g_lineNumber, ##__VA_ARGS__);                                             \
+        Printf("%s:%d: error: " Text "\n", g_scriptFileName, line_count, ##__VA_ARGS__);                                             \
         g_errorCnt++;                                                                                                                      \
     } while (0)
 
@@ -63,7 +63,7 @@ enum
     do                                                                                                                                     \
     {                                                                                                                                      \
         C_ReportError(-1);                                                                                                                 \
-        Printf("%s:%d: warning: " Text "\n", g_scriptFileName, g_lineNumber, ##__VA_ARGS__);                                           \
+        Printf("%s:%d: warning: " Text "\n", g_scriptFileName, line_count, ##__VA_ARGS__);                                           \
         g_warningCnt++;                                                                                                                    \
     } while (0)
 
@@ -91,7 +91,7 @@ extern const uint32_t CheatFunctionFlags[];
 extern const uint8_t  CheatFunctionIDs[];
 
 extern int32_t g_errorCnt;
-extern int32_t g_lineNumber;
+extern int32_t line_count;
 extern int32_t g_scriptVersion;
 extern int32_t g_totalLines;
 extern int32_t g_warningCnt;
@@ -177,7 +177,18 @@ enum ScriptError_t
     WARNING_DUPLICATEDEFINITION,
     WARNING_LABELSONLY,
     WARNING_VARMASKSKEYWORD,
+
+    ERROR_COULDNOTFIND,
+    ERROR_NOTAGAMEDEF,
+    ERROR_NOENDSWITCH
 };
+
+enum
+{
+};
+
+
+#include "concmd.h"
 
 enum ScriptKeywords_t
 {

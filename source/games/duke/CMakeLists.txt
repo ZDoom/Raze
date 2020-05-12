@@ -5,6 +5,7 @@ set( PCH_SOURCES
 	src/actors_d.cpp
 	src/actors_lava.cpp
 	src/bowling.cpp
+	src/gamedef.cpp
 	src/zz_actors.cpp
 	src/sectors.cpp
 	src/sectors_d.cpp
