@@ -316,6 +316,76 @@ void getlabel(void)
 
 //---------------------------------------------------------------------------
 //
+// script buffer access wrappers. These are here to reduce the affected code
+// when the time comes to refactor the buffer into a dynamic array.
+//
+//---------------------------------------------------------------------------
+
+#if 0
+static void setscriptvalue(int offset, int value)
+{
+	script[offset] = value;
+}
+
+// store addresses as offsets
+static void setscriptaddress(int offset, int* address)
+{
+	setscriptvalue(offset, int(address - script.Data()));
+}
+
+static void appendscriptvalue(int value)
+{
+	script.Push(value);
+}
+
+static void appendscriptaddress(int* address)
+{
+	addscriptvalue(int(address - script.Data());
+}
+
+static void popscriptvalue()
+{
+	script.Pop();
+}
+static int scriptoffset(
+#else
+
+// Helpers to write to the old script buffer while using the new interface. Allows to test the parser before implementing the rest.
+void scriptWriteValue(int32_t const value);
+void scriptWriteAtOffset(int32_t const value, intptr_t addr);
+void scriptWritePointer(intptr_t const value, intptr_t addr);
+static void setscriptvalue(int offset, int value)
+{
+	scriptWriteAtOffset(value, offset);
+}
+
+// store addresses as offsets
+static void setscriptaddress(int offset, int* address)
+{
+	scriptWritePointer((intptr_t)address, offset);
+}
+
+static void appendscriptvalue(int value)
+{
+	scriptWriteValue(value);
+}
+
+static void addscriptaddress(int* address)
+{
+	assert(0);
+}
+
+static void popscriptvalue()
+{
+	scriptptr--;
+}
+
+#endif
+
+
+
+//---------------------------------------------------------------------------
+//
 // 
 //
 //---------------------------------------------------------------------------
@@ -346,9 +416,8 @@ int transword(void) //Returns its code #
 	i = getkeyword(tempbuf);
 	if (i >= 0)
 	{
-		*scriptptr = i;
+		appendscriptvalue(i);
 		textptr += l;
-		scriptptr++;
 		return i;
 	}
 
@@ -414,8 +483,7 @@ void transnum(void)
 	{
 		if (strcmp(tempbuf, label + (i << 6)) == 0)
 		{
-			*scriptptr = labelcode[i];
-			scriptptr++;
+			appendscriptvalue(labelcode[i]);
 			textptr += l;
 			return;
 		}
@@ -446,9 +514,24 @@ void transnum(void)
 	{
 		// conversion was not successful.
 	}
-	*scriptptr = int(value);	// truncate the parsed value to 32 bit.
-	scriptptr++;
+	appendscriptvalue(int(value));	// truncate the parsed value to 32 bit.
 	textptr += l;
+}
+
+//---------------------------------------------------------------------------
+//
+// just to reduce some excessive boilerplate. This block reappeared
+// endlessly in parsecommand
+//
+//---------------------------------------------------------------------------
+
+void checkforkeyword()
+{
+	if (getkeyword(label + (labelcnt << 6)) >= 0)
+	{
+		errorcount++;
+		ReportError(ERROR_ISAKEYWORD);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -457,11 +540,6 @@ void transnum(void)
 //
 //---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
 static TArray<char> parsebuffer; // global so that the storage is persistent across calls.
 
 int parsecommand(int tw) // for now just run an externally parsed command.
@@ -488,7 +566,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		return 0; //End
 #if 0
 	case concmd_blockcomment:	  //Rem endrem
-		scriptptr--;
+		popscriptvalue();
 		j = line_number;
 		do
 		{
@@ -507,8 +585,8 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		if (parsing_actor == 0 && parsing_state == 0)
 		{
 			getlabel();
-			scriptptr--;
-			labelcode[labelcnt] = (intptr_t)scriptptr;
+			popscriptvalue();
+			labelcode[labelcnt] = addrof(scriptptr);
 			labelcnt++;
 
 			parsing_state = 1;
@@ -517,13 +595,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 
 		getlabel();
-
-		if (getkeyword(label + (labelcnt << 6)) >= 0)
-		{
-			errorcount++;
-			ReportError(ERROR_ISAKEYWORD);
-			return 0;
-		}
+		checkforkeyword();
 
 		int lnum = findlabel(label + (labelcnt << 6));
 
@@ -532,8 +604,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) State '%s' not found.\n", fn, line_number, label + (labelcnt << 6));
 			errorcount++;
 		}
-		*scriptptr = lnum;
-		scriptptr++;
+		appendscriptvalue(lnum);
 		return 0;
 
 	case concmd_sound:
@@ -632,8 +703,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 		while (j < 4)
 		{
-			*scriptptr = 0;
-			scriptptr++;
+			appendscriptvalue(0);
 			j++;
 		}
 		return 0;
@@ -647,15 +717,14 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			while (keyword() == -1)
 			{
 				transnum();
-				scriptptr--;
+				popscriptvalue();
 				j |= *scriptptr;
 			}
-			*scriptptr = j;
-			scriptptr++;
+			appendscriptvalue(j);
 		}
 		else
 		{
-			scriptptr--;
+			popscriptvalue();
 			getlabel();
 			// Check to see it's already defined
 
@@ -682,17 +751,16 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			}
 			for (k = j; k < 2; k++)
 			{
-				*scriptptr = 0;
-				scriptptr++;
+				appendscriptvalue(0);
 			}
 		}
 		return 0;
 
 	case concmd_music:
 	{
-		scriptptr--;
+		popscriptvalue();
 		transnum(); // Volume Number (0/4)
-		scriptptr--;
+		popscriptvalue();
 
 		k = *scriptptr - 1;
 		if (k == -1) k = MAXVOLUMES;
@@ -727,7 +795,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	return 0;
 	case concmd_include:
 	{
-		scriptptr--;
+		popscriptvalue();
 		while (isaltok(*textptr) == 0)
 		{
 			if (*textptr == 0x0a) line_number++;
@@ -778,7 +846,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			transnum();
 		else
 		{
-			scriptptr--;
+			popscriptvalue();
 			getlabel();
 
 			if (getkeyword(label + (labelcnt << 6)) >= 0)
@@ -808,19 +876,17 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 					while (keyword() == -1)
 					{
 						transnum();
-						scriptptr--;
+						popscriptvalue();
 						k |= *scriptptr;
 					}
-					*scriptptr = k;
-					scriptptr++;
+					appendscriptvalue(k);
 					return 0;
 				}
 				else transnum();
 			}
 			for (k = j; k < 3; k++)
 			{
-				*scriptptr = 0;
-				scriptptr++;
+				appendscriptvalue(0);
 			}
 		}
 		return 0;
@@ -830,7 +896,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			transnum();
 		else
 		{
-			scriptptr--;
+			popscriptvalue();
 			getlabel();
 			// Check to see it's already defined
 
@@ -859,8 +925,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			}
 			for (k = j; k < 5; k++)
 			{
-				*scriptptr = 0;
-				scriptptr++;
+				appendscriptvalue(0);
 			}
 		}
 		return 0;
@@ -879,11 +944,11 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 
 		num_squigilly_brackets = 0;
-		scriptptr--;
+		popscriptvalue();
 		parsing_actor = scriptptr;
 
 		transnum();
-		scriptptr--;
+		popscriptvalue();
 		actorscrptr[*scriptptr] = parsing_actor;
 
 		for (j = 0; j < 4; j++)
@@ -895,11 +960,10 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 				while (keyword() == -1)
 				{
 					transnum();
-					scriptptr--;
+					popscriptvalue();
 					j |= *scriptptr;
 				}
-				*scriptptr = j;
-				scriptptr++;
+				appendscriptvalue(j);
 				break;
 			}
 			else
@@ -933,12 +997,12 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 
 		num_squigilly_brackets = 0;
-		scriptptr--;
+		popscriptvalue();
 		parsing_event = scriptptr;
 		parsing_actor = scriptptr;
 
 		transnum();
-		scriptptr--;
+		popscriptvalue();
 		j = *scriptptr;	// type of event
 		if (j< 0 || j> EVENT_MAXEVENT)
 		{
@@ -967,15 +1031,15 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 
 		num_squigilly_brackets = 0;
-		scriptptr--;
+		popscriptvalue();
 		parsing_actor = scriptptr;
 
 		transnum();
-		scriptptr--;
+		popscriptvalue();
 		j = *scriptptr;
 
 		transnum();
-		scriptptr--;
+		popscriptvalue();
 		actorscrptr[*scriptptr] = parsing_actor;
 		actortype[*scriptptr] = j;
 
@@ -988,11 +1052,10 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 				while (keyword() == -1)
 				{
 					transnum();
-					scriptptr--;
+					popscriptvalue();
 					j |= *scriptptr;
 				}
-				*scriptptr = j;
-				scriptptr++;
+				appendscriptvalue(j);
 				break;
 			}
 			else
@@ -1065,7 +1128,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 		else
 		{
-			scriptptr--;
+			popscriptvalue();
 			warningcount++;
 			Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Found 'else' with no 'if', ignored.\n", fn, line_number);
 		}
@@ -1102,7 +1165,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			return 0;
 
 		}
-		*scriptptr++ = i;	// the ID of the DEF (offset into array...)
+		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
 		transnum();	// the number to check against...
 		return 0;
@@ -1138,7 +1201,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			return 0;
 
 		}
-		*scriptptr++ = i;	// the ID of the DEF (offset into array...)
+		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
 		// get the ID of the DEF
 		getlabel();	//GetGameVarLabel();
@@ -1168,7 +1231,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 		}
 		//#endif			
-		*scriptptr++ = i;	// the ID of the DEF (offset into array...)
+		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 		return 0;
 
 	case concmd_ifvarvarg:
@@ -1193,7 +1256,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			ReportError(ERROR_NOTAGAMEDEF);
 			return 0;
 		}
-		*scriptptr++ = i;	// the ID of the DEF (offset into array...)
+		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
 		// get the ID of the DEF
 		getlabel();	//GetGameVarLabel();
@@ -1213,7 +1276,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			ReportError(ERROR_NOTAGAMEDEF);
 			return 0;
 		}
-		*scriptptr++ = i;	// the ID of the DEF (offset into array...)
+		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
 		tempscrptr = scriptptr;
 		scriptptr++; //Leave a spot for the fail location
@@ -1255,7 +1318,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			ReportError(ERROR_NOTAGAMEVAR);
 			return 0;
 		}
-		*scriptptr++ = i;	// the ID of the DEF (offset into array...)
+		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
 		transnum();	// the number to check against...
 
@@ -1280,12 +1343,10 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		// syntax: addlogvar <var>
 
 		// source file.
-		*scriptptr = (long)g_currentSourceFile;
-		scriptptr++;
+		appendscriptvalue(g_currentSourceFile);	// the ID of the DEF (offset into array...)
 
 		// prints the line number in the log file.
-		*scriptptr = line_number;
-		scriptptr++;
+		appendscriptvalue(line_number);
 
 		// get the ID of the DEF
 		getlabel();	//GetGameVarLabel();
@@ -1305,7 +1366,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			ReportError(ERROR_NOTAGAMEDEF);
 			return 0;
 		}
-		*scriptptr++ = i;	// the ID of the DEF (offset into array...)
+		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
 		return 0;
 
@@ -1313,12 +1374,10 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		// syntax: addlog
 
 		// source file.
-		*scriptptr = (long)g_currentSourceFile;
-		scriptptr++;
+		appendscriptvalue(g_currentSourceFile);
 
 		// prints the line number in the log file.
-		*scriptptr = line_number;
-		scriptptr++;
+		appendscriptvalue(line_number);
 		return 0;
 
 	case concmd_ifpinventory:
@@ -1386,11 +1445,10 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			do
 			{
 				transnum();
-				scriptptr--;
+				popscriptvalue();
 				j |= *scriptptr;
 			} while (keyword() == -1);
-			*scriptptr = j;
-			scriptptr++;
+			appendscriptvalue(j);
 		}
 
 		tempscrptr = scriptptr;
@@ -1424,7 +1482,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 		return 1;
 	case concmd_betaname:
-		scriptptr--;
+		popscriptvalue();
 		j = 0;
 		// not used anywhere, just parse over it.
 		while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)		// JBF 20040127: end of file checked
@@ -1433,7 +1491,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 		return 0;
 	case concmd_comment:
-		scriptptr--; //Negate the rem
+		popscriptvalue(); //Negate the rem
 		while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)		// JBF 20040127: end of file checked
 			textptr++;
 
@@ -1441,9 +1499,9 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		return 0;
 
 	case concmd_definevolumename:
-		scriptptr--;
+		popscriptvalue();
 		transnum();
-		scriptptr--;
+		popscriptvalue();
 		j = *scriptptr;
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
@@ -1459,9 +1517,9 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		gVolumeNames[j] = FStringTable::MakeMacro(textptr, i);
 		return 0;
 	case concmd_defineskillname:
-		scriptptr--;
+		popscriptvalue();
 		transnum();
-		scriptptr--;
+		popscriptvalue();
 		j = *scriptptr;
 		while (*textptr == ' ') textptr++;
 
@@ -1478,12 +1536,12 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		return 0;
 
 	case concmd_definelevelname:
-		scriptptr--;
+		popscriptvalue();
 		transnum();
-		scriptptr--;
+		popscriptvalue();
 		j = *scriptptr;
 		transnum();
-		scriptptr--;
+		popscriptvalue();
 		k = *scriptptr;
 		while (*textptr == ' ') textptr++;
 
@@ -1526,7 +1584,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		return 0;
 
 	case concmd_definequote:
-		scriptptr--;
+		popscriptvalue();
 		transnum();
 		k = *(scriptptr - 1);
 		if (k >= MAXQUOTES)
@@ -1534,7 +1592,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Quote number exceeds limit of %d.\n", line_number, MAXQUOTES);
 			errorcount++;
 		}
-		scriptptr--;
+		popscriptvalue();
 		i = 0;
 		while (*textptr == ' ')
 			textptr++;
@@ -1550,10 +1608,10 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		return 0;
 	case concmd_definesound:
 	{
-		scriptptr--;
+		popscriptvalue();
 		transnum();
 		k = *(scriptptr - 1);
-		scriptptr--;
+		popscriptvalue();
 		i = 0;
 		while (*textptr == ' ')
 			textptr++;
@@ -1568,19 +1626,19 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 		transnum();
 		int ps = *(scriptptr - 1);
-		scriptptr--;
+		popscriptvalue();
 		transnum();
 		int pe = *(scriptptr - 1);
-		scriptptr--;
+		popscriptvalue();
 		transnum();
 		int pr = *(scriptptr - 1);
-		scriptptr--;
+		popscriptvalue();
 		transnum();
 		int m = *(scriptptr - 1);
-		scriptptr--;
+		popscriptvalue();
 		transnum();
 		int vo = *(scriptptr - 1);
-		scriptptr--;
+		popscriptvalue();
 		S_DefineSound(k, parsebuffer.Data(), ps, pe, pr, m, vo, 1.f);
 		return 0;
 	}
@@ -1660,7 +1718,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	case concmd_gamestartup:
 	{
 #if 0		// cannot be activated before the old CON code is tossed.
-		auto parseone = []() { transnum(); scriptptr--; return *scriptptr; }
+		auto parseone = []() { transnum(); popscriptvalue(); return *scriptptr; }
 		ud_const_visibility = parseone();
 		impact_damage = parseone();
 		max_player_health = parseone();

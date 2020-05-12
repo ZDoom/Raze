@@ -364,23 +364,36 @@ static void C_GetNextLabelName(void)
         Printf("%s:%d: debug: label `%s'.\n",g_scriptFileName,line_number,label+(labelcnt<<6));
 }
 
-static inline void scriptWriteValue(int32_t const value)
+void scriptWriteValue(int32_t const value)
 {
     BITPTR_CLEAR(scriptptr-apScript);
     *scriptptr++ = value;
 }
 
 // addresses passed to these functions must be within the block of memory pointed to by apScript
-static inline void scriptWriteAtOffset(int32_t const value, intptr_t * const addr)
+void scriptWriteAtOffset(int32_t const value, intptr_t * const addr)
 {
     BITPTR_CLEAR(addr-apScript);
     *(addr) = value;
 }
 
-static inline void scriptWritePointer(intptr_t const value, intptr_t * const addr)
+void scriptWritePointer(intptr_t const value, intptr_t * const addr)
 {
     BITPTR_SET(addr-apScript);
     *(addr) = value;
+}
+
+// addresses passed to these functions must be within the block of memory pointed to by apScript
+void scriptWriteAtOffset(int32_t const value, intptr_t addr)
+{
+    BITPTR_CLEAR(addr);
+    apScript[addr] = value;
+}
+
+void scriptWritePointer(intptr_t const value, intptr_t addr)
+{
+    BITPTR_SET(addr);
+    apScript[addr] = value;
 }
 
 static int32_t C_GetKeyword(void)
