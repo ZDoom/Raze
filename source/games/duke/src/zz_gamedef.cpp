@@ -64,7 +64,8 @@ uint32_t g_scriptcrc;
 char g_szBuf[1024];
 
 static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
-static int32_t g_checkingIfElse, g_lastKeyword = -1;
+static int32_t g_lastKeyword = -1;
+extern int checking_ifelse;
 extern int parsing_state;
 
 // The pointer to the start of the case table in a switch statement.
@@ -73,7 +74,7 @@ static intptr_t *g_caseScriptPtr;
 static int32_t g_labelsOnly = 0;
 extern int num_squigilly_brackets;
 
-static int32_t C_ParseCommand(int32_t loop);
+int32_t C_ParseCommand(int32_t loop);
 static int32_t C_SetScriptSize(int32_t size);
 
 static intptr_t apScriptGameEventEnd[MAXEVENTS];
@@ -802,8 +803,8 @@ static void C_Include(const char *confile)
     int32_t temp_ScriptLineNumber = line_number;
     line_number = 1;
 
-    int32_t temp_ifelse_check = g_checkingIfElse;
-    g_checkingIfElse = 0;
+    int32_t temp_ifelse_check = checking_ifelse;
+    checking_ifelse = 0;
 
     textptr = mptr;
 
@@ -814,7 +815,7 @@ static void C_Include(const char *confile)
 
     g_totalLines += line_number;
     line_number = temp_ScriptLineNumber;
-    g_checkingIfElse = temp_ifelse_check;
+    checking_ifelse = temp_ifelse_check;
 
     textptr = origtptr;
 
@@ -933,7 +934,7 @@ static inline void C_FinishBitOr(int32_t value)
 
 int parsecommand(int tw); // for now just run an externally parsed command.
 
-static int32_t C_ParseCommand(int32_t loop)
+int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw;
     TArray<char> buffer;
@@ -997,6 +998,61 @@ static int32_t C_ParseCommand(int32_t loop)
         case concmd_globalsound:
         case concmd_soundonce:
         case concmd_stopsound:
+        case concmd_ifrnd:
+        case concmd_ifpdistl:
+        case concmd_ifpdistg:
+        case concmd_ifai:
+        case concmd_ifwasweapon:
+        case concmd_ifaction:
+        case concmd_ifactioncount:
+        case concmd_ifmove:
+        case concmd_ifcount:
+        case concmd_ifactor:
+        case concmd_ifstrength:
+        case concmd_ifspawnedby:
+        case concmd_ifgapzl:
+        case concmd_iffloordistl:
+        case concmd_ifceilingdistl:
+        case concmd_ifphealthl:
+        case concmd_ifspritepal:
+        case concmd_ifgotweaponce:
+        case concmd_ifangdiffl:
+        case concmd_ifactorhealthg:
+        case concmd_ifactorhealthl:
+        case concmd_ifsoundid:
+        case concmd_ifsounddist:
+        case concmd_ifpinventory:
+        case concmd_ifonwater:
+        case concmd_ifinwater:
+        case concmd_ifactornotstayput:
+        case concmd_ifcansee:
+        case concmd_ifhitweapon:
+        case concmd_ifsquished:
+        case concmd_ifdead:
+        case concmd_ifcanshoottarget:
+        case concmd_ifp:
+        case concmd_ifhitspace:
+        case concmd_ifoutside:
+        case concmd_ifmultiplayer:
+        case concmd_ifinspace:
+        case concmd_ifbulletnear:
+        case concmd_ifrespawn:
+        case concmd_ifinouterspace:
+        case concmd_ifnotmoving:
+        case concmd_ifawayfromwall:
+        case concmd_ifcanseetarget:
+        case concmd_ifnosounds:
+        case concmd_ifnocover:
+        case concmd_ifhittruck:
+        case concmd_iftipcow:
+        case concmd_ifonmud:
+        case concmd_ifcoop:
+        case concmd_ifmotofast:
+        case concmd_ifwind:
+        case concmd_ifonmoto:
+        case concmd_ifonboat:
+        case concmd_ifsizedown:
+        case concmd_ifplaybackon:
             parsecommand(g_lastKeyword);
             continue;
 
@@ -1112,13 +1168,13 @@ static int32_t C_ParseCommand(int32_t loop)
             // if event has already been declared then store previous script location
             apScriptEvents[j] = g_scriptEventOffset;
 
-            g_checkingIfElse = 0;
+            checking_ifelse = 0;
 
             continue;
 
         case concmd_else:
             {
-                if (EDUKE32_PREDICT_FALSE(!g_checkingIfElse))
+                if (EDUKE32_PREDICT_FALSE(!checking_ifelse))
                 {
                     scriptptr--;
                     intptr_t *tempscrptr = scriptptr;
@@ -1144,7 +1200,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 intptr_t const lastScriptPtr = scriptptr - apScript - 1;
 
                 g_skipBranch = 0;
-                g_checkingIfElse--;
+                checking_ifelse--;
 
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
@@ -1296,166 +1352,11 @@ ifvar:
                 j = C_GetKeyword();
 
                 if (j == concmd_else)
-                    g_checkingIfElse++;
+                    checking_ifelse++;
 
                 continue;
             }
 
-        case concmd_ifrnd:
-        case concmd_ifpdistl:
-        case concmd_ifpdistg:
-        case concmd_ifwasweapon:
-        case concmd_ifactioncount:
-        case concmd_ifcount:
-        case concmd_ifactor:
-        case concmd_ifstrength:
-        case concmd_ifspawnedby:
-        case concmd_ifgapzl:
-        case concmd_iffloordistl:
-        case concmd_ifceilingdistl:
-        case concmd_ifphealthl:
-        case concmd_ifspritepal:
-        case concmd_ifgotweaponce:
-        case concmd_ifangdiffl:
-        case concmd_ifactorhealthg:
-        case concmd_ifactorhealthl:
-        case concmd_ifsoundid:
-        case concmd_ifsounddist:
-        case concmd_ifai:
-        case concmd_ifaction:
-        case concmd_ifmove:
-        case concmd_ifp:
-        case concmd_ifpinventory:
-            {
-                intptr_t offset;
-                intptr_t lastScriptPtr = (scriptptr-&apScript[0]-1);
-
-                g_skipBranch = 0;
-
-                switch (tw)
-                {
-                case concmd_ifai:
-                    C_GetNextValue(LABEL_AI);
-                    break;
-                case concmd_ifaction:
-                    C_GetNextValue(LABEL_ACTION);
-                    break;
-                case concmd_ifmove:
-                    C_GetNextValue(LABEL_MOVE | LABEL_DEFINE);
-#if 0
-                    if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1)))
-                    {
-                        C_ReportError(-1);
-                        *(scriptptr-1) = 0;
-                        Printf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,line_number);
-                        warningcount++;
-                    }
-#endif
-                    break;
-                case concmd_ifpinventory:
-                    C_GetNextValue(LABEL_DEFINE);
-                    C_GetNextValue(LABEL_DEFINE);
-                    break;
-                case concmd_ifp:
-                    j = 0;
-                    do
-                        C_BitOrNextValue(&j);
-                    while (C_GetKeyword() == -1);
-                    C_FinishBitOr(j);
-                    break;
-                default:
-                    C_GetNextValue(LABEL_DEFINE);
-                    break;
-                }
-
-                if (C_CheckMalformedBranch(lastScriptPtr))
-                    continue;
-
-                intptr_t *tempscrptr = scriptptr;
-                offset = (unsigned)(tempscrptr-apScript);
-
-                scriptptr++; //Leave a spot for the fail location
-
-                C_ParseCommand(0);
-
-                if (C_CheckEmptyBranch(tw, lastScriptPtr))
-                    continue;
-
-                tempscrptr = (intptr_t *)apScript+offset;
-                *tempscrptr = (intptr_t) scriptptr;
-                BITPTR_SET(tempscrptr-apScript);
-
-                j = C_GetKeyword();
-
-                if (j == concmd_else || j == concmd_leftbrace)
-                    g_checkingIfElse++;
-
-                continue;
-            }
-
-        case concmd_ifonwater:
-        case concmd_ifinwater:
-        case concmd_ifactornotstayput:
-        case concmd_ifcansee:
-        case concmd_ifhitweapon:
-        case concmd_ifsquished:
-        case concmd_ifdead:
-        case concmd_ifcanshoottarget:
-        case concmd_ifhitspace:
-        case concmd_ifoutside:
-        case concmd_ifmultiplayer:
-        case concmd_ifinspace:
-        case concmd_ifbulletnear:
-        case concmd_ifrespawn:
-        case concmd_ifinouterspace:
-        case concmd_ifnotmoving:
-        case concmd_ifawayfromwall:
-        case concmd_ifcanseetarget:
-        case concmd_ifnosounds:
-        case concmd_ifnocover:
-        case concmd_ifhittruck:
-        case concmd_iftipcow:
-        case concmd_ifonmud:
-        case concmd_ifcoop:
-        case concmd_ifmotofast:
-        case concmd_ifwind:
-        case concmd_ifonmoto:
-        case concmd_ifonboat:
-        case concmd_ifsizedown:
-        case concmd_ifplaybackon:
-        // case concmd_iffindnewspot:
-        // case concmd_ifpupwind:
-
-            {
-                intptr_t offset;
-                intptr_t lastScriptPtr = (scriptptr-&apScript[0]-1);
-
-                g_skipBranch = 0;
-
-                if (C_CheckMalformedBranch(lastScriptPtr))
-                    continue;
-
-                intptr_t *tempscrptr = scriptptr;
-                offset = (unsigned)(tempscrptr-apScript);
-
-                scriptptr++; //Leave a spot for the fail location
-
-                C_ParseCommand(0);
-
-                if (C_CheckEmptyBranch(tw, lastScriptPtr))
-                    continue;
-
-                tempscrptr = (intptr_t *)apScript+offset;
-                *tempscrptr = (intptr_t) scriptptr;
-                BITPTR_SET(tempscrptr-apScript);
-
-                j = C_GetKeyword();
-
-                if (j == concmd_else || j == concmd_leftbrace)
-                    g_checkingIfElse++;
-
-                continue;
-            }
 
         case concmd_leftbrace:
             if (EDUKE32_PREDICT_FALSE(!(parsing_state || parsing_actor || g_scriptEventOffset)))
@@ -1484,8 +1385,8 @@ ifvar:
 
                 j = C_GetKeyword();
 
-                if (g_checkingIfElse && j != concmd_else)
-                    g_checkingIfElse--;
+                if (checking_ifelse && j != concmd_else)
+                    checking_ifelse--;
 
                 return 1;
             }
@@ -1497,8 +1398,8 @@ ifvar:
                 errorcount++;
             }
 
-            if (g_checkingIfElse && j != concmd_else)
-                g_checkingIfElse--;
+            if (checking_ifelse && j != concmd_else)
+                checking_ifelse--;
 
             return 1;
 

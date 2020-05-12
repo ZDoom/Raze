@@ -626,11 +626,17 @@ void checkforkeyword()
 
 static TArray<char> parsebuffer; // global so that the storage is persistent across calls.
 
+int C_ParseCommand(int);
+void parsecommand() // TRANSITIONAL
+{
+	C_ParseCommand(0);
+}
+
 int parsecommand(int tw) // for now just run an externally parsed command.
 {
 	const char* fn = fileSystem.GetFileFullName(g_currentSourceFile);
 	int i, j, k;
-	intptr_t* tempscrptr;
+	int tempscrptr;
 	uint8_t done, temp_ifelse_check;// , tw;
 	int temp_line_number;
 	int temp_current_file;
@@ -1419,7 +1425,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		// prints the line number in the log file.
 		appendscriptvalue(line_number);
 		return 0;
-
+#endif
 	case concmd_ifpinventory:
 		transnum();
 	case concmd_ifrnd:
@@ -1478,8 +1484,11 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	case concmd_ifonboat:
 	case concmd_ifsizedown:
 	case concmd_ifplaybackon:
+	// case concmd_iffindnewspot:	// RRDH
+	// case concmd_ifpupwind:
 
-		if (tw == 51)
+
+		if (tw == concmd_ifp)
 		{
 			j = 0;
 			do
@@ -1491,22 +1500,16 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			appendscriptvalue(j);
 		}
 
-		tempscrptr = scriptptr;
-		scriptptr++; //Leave a spot for the fail location
+		tempscrptr = scriptpos();
+		reservescriptspace(1); //Leave a spot for the fail location
 
-		do
-		{
-			j = keyword();
-			if (j == 20 || j == 39)
-				parsecommand();
-		} while (j == 20 || j == 39);
-
+		skipcomments();
 		parsecommand();
 
-		*tempscrptr = (intptr_t)scriptptr;
-
+		setscriptvalue(tempscrptr, scriptpos());
 		checking_ifelse++;
 		return 0;
+#if 0
 	case concmd_leftbrace:
 		num_squigilly_brackets++;
 		do

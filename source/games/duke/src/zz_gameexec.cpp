@@ -78,7 +78,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop);
 
 #define VM_CONDITIONAL(xxx)                                                                                            \
     {                                                                                                                  \
-        if ((xxx) || ((insptr = (intptr_t *)*(insptr + 1)) && (((*insptr) & VM_INSTMASK) == concmd_else)))                \
+        if ((xxx) || ((insptr = apScript + *(insptr + 1)) && (((*insptr) & VM_INSTMASK) == concmd_else)))                \
         {                                                                                                              \
             insptr += 2;                                                                                               \
             VM_Execute(0);                                                                                             \
@@ -87,36 +87,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop);
 
 void VM_ScriptInfo(intptr_t const *ptr, int range)
 {
-    if (!apScript || (!vm.pSprite && !vm.pPlayer))
-        return;
-
-    if (ptr)
-    {
-        Printf("\n");
-
-        for (auto pScript = max<intptr_t const *>(ptr - (range >> 1), apScript),
-                  p_end   = min<intptr_t const *>(ptr + (range >> 1), apScript + g_scriptSize);
-             pScript < p_end;
-             ++pScript)
-        {
-            Printf("%5d: %3d: ", (int32_t)(pScript - apScript), (int32_t)(pScript - ptr));
-
-            if (*pScript >> 12 && (*pScript & VM_INSTMASK) < CON_END)
-                Printf("%5d %s\n", (int32_t)(*pScript >> 12), VM_GetKeywordForID(*pScript & VM_INSTMASK));
-            else
-                Printf("%d\n", (int32_t)*pScript);
-        }
-
-        Printf("\n");
-    }
-
-    if (ptr == insptr)
-    {
-        if (vm.pUSprite)
-            Printf("current actor: %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
-
-        Printf("g_errorLineNum: %d, g_tw: %d\n", g_errorLineNum, g_tw);
-    }
 }
 
 static void VM_DeleteSprite(int const spriteNum, int const playerNum)
