@@ -53,6 +53,7 @@ int g_currentSourceFile;
 intptr_t parsing_actor;
 int parsing_state;
 int num_squigilly_brackets;
+int checking_ifelse;
 
 //G_EXTERN char tempbuf[MAXSECTORS << 1], buf[1024]; todo - move to compile state. tempbuf gets used nearly everywhere as scratchpad memory.
 extern char tempbuf[];
@@ -252,6 +253,7 @@ void skipblockcomment()
 		if (*textptr == 0) return;	// reached the end of the file
 		textptr++;
 	}
+	textptr += 2;
 }
 
 bool skipcomments()
@@ -373,6 +375,11 @@ static void setscriptvalue(int offset, int value)
 	script[offset] = value;
 }
 
+int scriptpos()
+{
+	return script.Size();
+}
+
 // store addresses as offsets
 static void setscriptaddress(int offset, int* address)
 {
@@ -394,6 +401,11 @@ static int popscriptvalue()
 void pushlabeladdress()
 {
 	labelcode.Push(script.Size());
+}
+
+void reservescriptspace(int space)
+{
+	script.Reserve(space);
 }
 
 #else
@@ -423,6 +435,11 @@ static int popscriptvalue()
 	return *--scriptptr;
 }
 
+int scriptpos()
+{
+	return int(scriptptr - apScript);
+}
+
 void appendlabeladdress(int offset = 0)
 {
 	labelcode[labelcnt++] = int(scriptptr - apScript) + offset;
@@ -433,6 +450,11 @@ void appendlabelvalue(int value)
 {
 	labelcode[labelcnt++] = value;
 	labelcnt++;
+}
+
+void reservescriptspace(int space)
+{
+	scriptptr += space;
 }
 
 
@@ -899,15 +921,13 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			getlabel();
 			checkforkeyword();
 
-			for (i = 0; i < labelcnt; i++)
-				if (strcmp(label + (labelcnt << 6), label + (i << 6)) == 0)
-				{
-					warningcount++;
-					Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate ai '%s' ignored.\n", fn, line_number, label + (labelcnt << 6));
-					break;
-				}
-
-			if (i == labelcnt) appendlabeladdress();
+			lnum = findlabel(label + (labelcnt << 6));
+			if (lnum >= 0)
+			{
+				warningcount++;
+				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate ai '%s' ignored.\n", fn, line_number, label + (labelcnt << 6));
+			}
+			else appendlabeladdress();
 
 			for (j = 0; j < 3; j++)
 			{
@@ -932,7 +952,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 		return 0;
 
-#if 0
 	case concmd_action:
 		if (parsing_actor || parsing_state)
 			transnum();
@@ -940,25 +959,15 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		{
 			popscriptvalue();
 			getlabel();
-			// Check to see it's already defined
+			checkforkeyword();
 
-			if (getkeyword(label + (labelcnt << 6)) >= 0)
+			lnum = findlabel(label + (labelcnt << 6));
+			if (lnum >= 0)
 			{
-				errorcount++;
-				ReportError(ERROR_ISAKEYWORD);
-				return 0;
+				warningcount++;
+				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate event '%s' ignored.\n", fn, line_number, label + (labelcnt << 6));
 			}
-
-			for (i = 0; i < labelcnt; i++)
-				if (strcmp(label + (labelcnt << 6), label + (i << 6)) == 0)
-				{
-					warningcount++;
-					Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate event '%s' ignored.\n", fn, line_number, label + (labelcnt << 6));
-					break;
-				}
-
-			if (i == labelcnt)
-				labelcode[labelcnt++] = (intptr_t)scriptptr;
+			else appendlabeladdress();
 
 			for (j = 0; j < 5; j++)
 			{
@@ -973,6 +982,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		return 0;
 
 	case concmd_actor:
+	{
 		if (parsing_state)
 		{
 			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found 'actor' within 'state'.\n", fn, line_number);
@@ -987,23 +997,27 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 		num_squigilly_brackets = 0;
 		popscriptvalue();
-		parsing_actor = scriptptr;
+		parsing_actor = scriptpos();
 
 		transnum();
-		popscriptvalue();
-		actorscrptr[*scriptptr] = parsing_actor;
+		lnum = popscriptvalue();
+#if 1
+		g_tile[lnum].execPtr = apScript + parsing_actor;	// TRANSITIONAL should only store an index
+#else
+		//actorscrptr[lnum] = parsing_actor;
+#endif
 
 		for (j = 0; j < 4; j++)
 		{
-			*(parsing_actor + j) = 0;
+			setscriptvalue(parsing_actor + j, 0);
 			if (j == 3)
 			{
 				j = 0;
 				while (keyword() == -1)
 				{
 					transnum();
-					popscriptvalue();
-					j |= *scriptptr;
+					
+					j |= popscriptvalue();
 				}
 				appendscriptvalue(j);
 				break;
@@ -1012,19 +1026,22 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			{
 				if (keyword() >= 0)
 				{
-					scriptptr += (4 - j);
+					reservescriptspace(4 - j);
 					break;
 				}
 				transnum();
+				setscriptvalue(parsing_actor + j, 0);
 
-				*(parsing_actor + j) = *(scriptptr - 1);
+				//*(parsing_actor + j) = *(scriptptr - 1);
 			}
 		}
 
 		checking_ifelse = 0;
 
 		return 0;
+		}
 
+#if 0
 	case concmd_onevent:
 		if (parsing_state)
 		{

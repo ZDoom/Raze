@@ -959,6 +959,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case concmd_move:
         case concmd_music:
         case concmd_ai:
+        case concmd_action:
             parsecommand(g_lastKeyword);
             continue;
 
@@ -1037,50 +1038,6 @@ static int32_t C_ParseCommand(int32_t loop)
             C_Include(tempbuf);
             continue;
 
-
-        case concmd_action:
-            if (parsing_actor || parsing_state)
-            {
-                C_GetNextValue(LABEL_ACTION);
-            }
-            else
-            {
-                scriptptr--;
-                C_GetNextLabelName();
-                // Check to see it's already defined
-
-                if (getkeyword(label + (labelcnt << 6)) >= 0)
-                {
-                    errorcount++;
-                    C_ReportError(ERROR_ISAKEYWORD);
-                    continue;
-                }
-
-                i = findlabel(label+(labelcnt<<6));
-                if (EDUKE32_PREDICT_FALSE(i>=0))
-                {
-                    warningcount++;
-                    Printf("%s:%d: warning: duplicate action `%s' ignored.\n",g_scriptFileName,line_number,label+(labelcnt<<6));
-                }
-                else
-                {
-                    //labeltype[labelcnt] = LABEL_ACTION;
-                    labelcode[labelcnt] = scriptptr-apScript;
-                    labelcnt++;
-                }
-
-                for (j=ACTION_PARAM_COUNT-1; j>=0; j--)
-                {
-                    if (C_GetKeyword() != -1) break;
-                    C_GetNextValue(LABEL_DEFINE);
-                }
-                for (k=j; k>=0; k--)
-                {
-                    BITPTR_CLEAR(scriptptr-apScript);
-                    *(scriptptr++) = 0;
-                }
-            }
-            continue;
 
         case concmd_actor:
         case concmd_useractor:
@@ -1199,8 +1156,11 @@ static int32_t C_ParseCommand(int32_t loop)
 #endif
                         break;
                     }
-                    if (*(scriptptr-1) >= (intptr_t)&apScript[0] && *(scriptptr-1) < (intptr_t)&apScript[g_scriptSize])
-                        BITPTR_SET(parsing_actor+j);
+                    if (*(scriptptr - 1) >= (intptr_t)&apScript[0] && *(scriptptr - 1) < (intptr_t)&apScript[g_scriptSize])
+                    {
+                        int a = 0;
+                        BITPTR_SET(parsing_actor + j);
+                    }
                     else BITPTR_CLEAR(parsing_actor+j);
                     *((apScript+j)+parsing_actor) = *(scriptptr-1);
                 }
