@@ -218,7 +218,7 @@ int findlabel(const char* text)
 	{
 		if (strcmp(label + (j << 6), text) == 0)
 		{
-			return j;// labelcode[j];
+			return j;
 		}
 	}
 	return -1;
@@ -691,16 +691,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		appendscriptvalue(labelcode[lnum]);
 		return 0;
 
-#if 0
-	case concmd_sound:
-	case concmd_globalsound:
-	case concmd_soundonce:
-	case concmd_stopsound:
-	case concmd_lotsofglass:
-		transnum();
-		return 0;
-#endif
-
 	case concmd_ends:
 		if (parsing_state == 0)
 		{
@@ -986,6 +976,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		return 0;
 
 	case concmd_actor:
+	case concmd_useractor:	// merged with 'actor' because the code is identical except for the added type parameter.
 	{
 		if (parsing_state)
 		{
@@ -1003,12 +994,27 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		popscriptvalue();
 		parsing_actor = scriptpos();
 
+		if (tw == concmd_useractor)
+		{ 
+			transnum();
+			j = popscriptvalue();
+		}
+
 		transnum();
 		lnum = popscriptvalue();
 #if 1
 		g_tile[lnum].execPtr = apScript + parsing_actor;	// TRANSITIONAL should only store an index
+		if (tw == concmd_useractor)
+		{
+			if (j & 1)
+				g_tile[lnum].flags |= SFLAG_BADGUY;
+
+			if (j & 2)
+				g_tile[lnum].flags |= (SFLAG_BADGUY | SFLAG_BADGUYSTAYPUT);
+		}
 #else
-		//actorscrptr[lnum] = parsing_actor;
+		actorscrptr[lnum] = parsing_actor;
+		actortype[lnum] = j;
 #endif
 
 		for (j = 0; j < 4; j++)
@@ -1034,8 +1040,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 					break;
 				}
 				transnum();
-				setscriptvalue(parsing_actor + j, 0);
-
+				// This code was originally here but is a no-op, because both source and destination are the same here.			
 				//*(parsing_actor + j) = *(scriptptr - 1);
 			}
 		}
@@ -1078,71 +1083,41 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		checking_ifelse = 0;
 
 		return 0;
+#endif
 
-	case concmd_useractor:
-
-		if (parsing_state)
-		{
-			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found 'useractor' within 'state'.\n", fn, line_number);
-			errorcount++;
-		}
-
-		if (parsing_actor)
-		{
-			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found 'useractor' within 'actor'.\n", fn, line_number);
-			errorcount++;
-		}
-
-		num_squigilly_brackets = 0;
-		popscriptvalue();
-		parsing_actor = scriptptr;
-
+	case concmd_cstat:
 		transnum();
-		popscriptvalue();
-		j = *scriptptr;
+#if 0
+		// the following checks are being performed by EDuke32 and RedNukem - not sure if this really should be done.
+		// DukeGDX and RedneckGDX do not perform these checks. Code pasted here for making a decision later.
 
-		transnum();
-		popscriptvalue();
-		actorscrptr[*scriptptr] = parsing_actor;
-		actortype[*scriptptr] = j;
-
-		for (j = 0; j < 4; j++)
+		i = popscriptvalue();
+		if (i == 32767)
 		{
-			*(parsing_actor + j) = 0;
-			if (j == 3)
-			{
-				j = 0;
-				while (keyword() == -1)
-				{
-					transnum();
-					popscriptvalue();
-					j |= *scriptptr;
-				}
-				appendscriptvalue(j);
-				break;
-			}
-			else
-			{
-				if (keyword() >= 0)
-				{
-					scriptptr += (4 - j);
-					break;
-				}
-				transnum();
-
-				*(parsing_actor + j) = *(scriptptr - 1);
-			}
+			i = 32768;
+			Printf(TEXTCOLOR_RED "  * WARNING!(%s, line %d) tried to set cstat 32767, using 32768 instead.\n", fn, line_number);
+			warningcount++;
 		}
-
-		checking_ifelse = 0;
-
+		else if ((i & 48) == 48)
+		{
+			Printf(TEXTCOLOR_RED "  * WARNING!(%s, line %d) tried to set cstat %d, using %d instead.\n", fn, line_number, i, i ^ 48);
+			i ^= 48;
+			warningcount++;
+		}
+		appendscriptvalue(i);
+#endif
 		return 0;
 
+
+	case concmd_sound:
+	case concmd_globalsound:
+	case concmd_soundonce:
+	case concmd_stopsound:
+	case concmd_lotsofglass:
 	case concmd_strength:
 	case concmd_shoot:
 	case concmd_addphealth:
 	case concmd_spawn:
-	case concmd_cstat:
 	case concmd_count:
 	case concmd_endofgame:
 	case concmd_spritepal:
@@ -1172,7 +1147,8 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	case concmd_guts:
 		transnum();
 		transnum();
-		break;
+		return 0;
+
 	case concmd_hitradius:
 		transnum();
 		transnum();
@@ -1180,6 +1156,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		transnum();
 		transnum();
 		break;
+#if 0
 	case concmd_else:
 		if (checking_ifelse)
 		{

@@ -960,6 +960,43 @@ static int32_t C_ParseCommand(int32_t loop)
         case concmd_music:
         case concmd_ai:
         case concmd_action:
+        case concmd_actor:
+        case concmd_useractor:
+        case concmd_cstat:
+        case concmd_strength:
+        case concmd_shoot:
+        case concmd_addphealth:
+        case concmd_spawn:
+        case concmd_count:
+        case concmd_endofgame:
+        case concmd_spritepal:
+        case concmd_cactor:
+        case concmd_money:
+        case concmd_addkills:
+        case concmd_debug:
+        case concmd_addstrength:
+        case concmd_cstator:
+        case concmd_mail:
+        case concmd_paper:
+        case concmd_sleeptime:
+        case concmd_clipdist:
+        case concmd_isdrunk:
+        case concmd_iseat:
+        case concmd_newpic:
+        case concmd_hitradius:
+        case concmd_addammo:
+        case concmd_addweapon:
+        case concmd_sizeto:
+        case concmd_sizeat:
+        case concmd_debris:
+        case concmd_addinventory:
+        case concmd_guts:
+        case concmd_lotsofglass:
+        case concmd_quote:
+        case concmd_sound:
+        case concmd_globalsound:
+        case concmd_soundonce:
+        case concmd_stopsound:
             parsecommand(g_lastKeyword);
             continue;
 
@@ -1039,135 +1076,6 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
 
-        case concmd_actor:
-        case concmd_useractor:
-            if (EDUKE32_PREDICT_FALSE(parsing_state || parsing_actor))
-            {
-                C_ReportError(ERROR_FOUNDWITHIN);
-                errorcount++;
-            }
-
-            num_squigilly_brackets = 0;
-            scriptptr--;
-            parsing_actor = scriptptr - apScript;
-
-            if (tw == concmd_useractor)
-            {
-                C_GetNextValue(LABEL_DEFINE);
-                scriptptr--;
-            }
-
-            // save the actor name w/o consuming it
-            C_SkipComments();
-            j = 0;
-            while (isaltok(*(textptr+j)))
-            {
-                g_szCurrentBlockName[j] = textptr[j];
-                j++;
-            }
-            g_szCurrentBlockName[j] = 0;
-
-            j = findlabel(g_szCurrentBlockName);
-
-            //if (j != -1)
-               // labeltype[j] |= LABEL_ACTOR;
-
-            if (tw == concmd_useractor)
-            {
-                j = *scriptptr;
-
-                if (EDUKE32_PREDICT_FALSE(j >= 3))
-                {
-                    C_ReportError(-1);
-                    Printf("%s:%d: warning: invalid useractor type. Must be 0, 1, 2"
-                               " (notenemy, enemy, enemystayput).\n",
-                               g_scriptFileName,line_number);
-                    warningcount++;
-                    j = 0;
-                }
-            }
-
-            C_GetNextValue(LABEL_ACTOR);
-            scriptptr--;
-
-            if (EDUKE32_PREDICT_FALSE((unsigned)*scriptptr >= MAXTILES))
-            {
-                C_ReportError(ERROR_EXCEEDSMAXTILES);
-                errorcount++;
-                continue;
-            }
-
-            g_tile[*scriptptr].execPtr = apScript + parsing_actor;
-
-            if (tw == concmd_useractor)
-            {
-                if (j & 1)
-                    g_tile[*scriptptr].flags |= SFLAG_BADGUY;
-
-                if (j & 2)
-                    g_tile[*scriptptr].flags |= (SFLAG_BADGUY|SFLAG_BADGUYSTAYPUT);
-            }
-
-            for (j=0; j<4; j++)
-            {
-                BITPTR_CLEAR(parsing_actor+j);
-                *((apScript+j)+parsing_actor) = 0;
-                if (j == 3)
-                {
-                    j = 0;
-                    while (C_GetKeyword() == -1)
-                        C_BitOrNextValue(&j);
-
-                    C_FinishBitOr(j);
-                    break;
-                }
-                else
-                {
-                    if (C_GetKeyword() != -1)
-                    {
-                        for (i=4-j; i; i--)
-                        {
-                            BITPTR_CLEAR(scriptptr-apScript);
-                            *(scriptptr++) = 0;
-                        }
-                        break;
-                    }
-                    switch (j)
-                    {
-                    case 0:
-                        C_GetNextValue(LABEL_DEFINE);
-                        break;
-                    case 1:
-                        C_GetNextValue(LABEL_ACTION);
-                        break;
-                    case 2:
-                        // XXX: LABEL_MOVE|LABEL_DEFINE, what is this shit? compatibility?
-                        // yep, it sure is :(
-                        C_GetNextValue(LABEL_MOVE | LABEL_DEFINE);
-#if 0
-                        if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1)))
-                        {
-                            C_ReportError(-1);
-                            BITPTR_CLEAR(scriptptr-apScript-1);
-                            *(scriptptr-1) = 0;
-                            Printf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,line_number);
-                            warningcount++;
-                        }
-#endif
-                        break;
-                    }
-                    if (*(scriptptr - 1) >= (intptr_t)&apScript[0] && *(scriptptr - 1) < (intptr_t)&apScript[g_scriptSize])
-                    {
-                        int a = 0;
-                        BITPTR_SET(parsing_actor + j);
-                    }
-                    else BITPTR_CLEAR(parsing_actor+j);
-                    *((apScript+j)+parsing_actor) = *(scriptptr-1);
-                }
-            }
-            g_checkingIfElse = 0;
-            continue;
-
 		case concmd_onevent:
             if (EDUKE32_PREDICT_FALSE(parsing_state || parsing_actor))
             {
@@ -1206,69 +1114,6 @@ static int32_t C_ParseCommand(int32_t loop)
 
             g_checkingIfElse = 0;
 
-            continue;
-
-        case concmd_cstat:
-            C_GetNextValue(LABEL_DEFINE);
-
-            if (EDUKE32_PREDICT_FALSE(*(scriptptr-1) == 32767))
-            {
-                *(scriptptr-1) = 32768;
-                C_ReportError(-1);
-                Printf("%s:%d: warning: tried to set cstat 32767, using 32768 instead.\n",g_scriptFileName,line_number);
-                warningcount++;
-            }
-            else if (EDUKE32_PREDICT_FALSE((*(scriptptr-1) & 48) == 48))
-            {
-                i = *(scriptptr-1);
-                *(scriptptr-1) ^= 48;
-                C_ReportError(-1);
-                Printf("%s:%d: warning: tried to set cstat %d, using %d instead.\n",g_scriptFileName,line_number,i,(int32_t)(*(scriptptr-1)));
-                warningcount++;
-            }
-            continue;
-
-        case concmd_hitradius:
-            C_GetNextValue(LABEL_DEFINE);
-            C_GetNextValue(LABEL_DEFINE);
-            C_GetNextValue(LABEL_DEFINE);
-            fallthrough__;
-        case concmd_addammo:
-        case concmd_addweapon:
-        case concmd_sizeto:
-        case concmd_sizeat:
-        case concmd_debris:
-        case concmd_addinventory:
-        case concmd_guts:
-            C_GetNextValue(LABEL_DEFINE);
-            fallthrough__;
-        case concmd_strength:
-        case concmd_shoot:
-        case concmd_addphealth:
-        case concmd_spawn:
-        case concmd_count:
-        case concmd_endofgame:
-        case concmd_spritepal:
-        case concmd_cactor:
-        case concmd_money:
-        case concmd_addkills:
-        case concmd_debug:
-        case concmd_addstrength:
-        case concmd_cstator:
-        case concmd_mail:
-        case concmd_paper:
-        case concmd_sleeptime:
-        case concmd_clipdist:
-        case concmd_isdrunk:
-        case concmd_iseat:
-        case concmd_newpic:
-        case concmd_lotsofglass:
-        case concmd_quote:
-        case concmd_sound:
-        case concmd_globalsound:
-        case concmd_soundonce:
-        case concmd_stopsound:
-            C_GetNextValue(LABEL_DEFINE);
             continue;
 
         case concmd_else:
