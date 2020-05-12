@@ -841,12 +841,12 @@ void G_DisplayRest(int32_t smoothratio)
     if (!DEER && g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         int32_t a = CROSSHAIR;
-        //ud.returnvar[0] = (160<<16) - (g_player[myconnectindex].ps->look_ang<<15);
+        //ud.returnvar[0] = (160<<16) - (fix16_to_int(g_player[myconnectindex].ps->q16look_ang)<<15);
         //ud.returnvar[1] = 100<<16;
         //int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
         if ((unsigned) a < MAXTILES)
         {
-            vec2_t crosshairpos = { (160<<16) - (g_player[myconnectindex].ps->look_ang<<15), 100<<16 };
+            vec2_t crosshairpos = { (160<<16) - (fix16_to_int(g_player[myconnectindex].ps->q16look_ang)<<15), 100<<16 };
             //vec2_t crosshairpos = { ud.returnvar[0], ud.returnvar[1] };
             uint32_t crosshair_o = 1|2;
             uint32_t crosshair_scale = divscale16(cl_crosshairscale, 100);
