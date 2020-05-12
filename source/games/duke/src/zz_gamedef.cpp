@@ -50,6 +50,7 @@ void skiptoendofline();
 void skipwhitespace();
 void skipblockcomment();
 bool skipcomments();
+int findlabel(const char* text);
 
 
 #define LINE_NUMBER (line_number << 12)
@@ -135,14 +136,9 @@ char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 #define BITPTR_IS_POINTER(x) (bitptr[(x)>>3] & (1<<((x) &7)))
 
 hashtable_t h_gamevars = { MAXGAMEVARS >> 1, NULL };
-hashtable_t h_labels   = { 11264>>1, NULL };
 
 static hashtable_t * const tables[] = {
-    &h_labels, &h_gamevars
-};
-
-static hashtable_t * const tables_free [] = {
-    &h_labels
+    &h_gamevars
 };
 
 void C_InitHashes()
@@ -574,7 +570,7 @@ static void C_GetNextVarType(int32_t type)
         {
             //try looking for a define instead
             Bstrcpy(tempbuf,LAST_LABEL);
-            id = hash_find(&h_labels,tempbuf);
+            id = findlabel(tempbuf);
 
             if (EDUKE32_PREDICT_TRUE(id>=0 /*&& labeltype[id] & LABEL_DEFINE*/))
             {
@@ -651,7 +647,7 @@ static int32_t C_GetNextValue_()
         return -1;
     }
 
-    int32_t i = hash_find(&h_labels,tempbuf);
+    int32_t i = findlabel(tempbuf);
 
     if (i>=0)
     {
@@ -989,14 +985,13 @@ static int32_t C_ParseCommand(int32_t loop)
                     continue;
                 }
 
-                hash_add(&h_labels,label+(labelcnt<<6),labelcnt,0);
                 labelcnt++;
                 continue;
             }
 
             C_GetNextLabelName();
 
-            if (EDUKE32_PREDICT_FALSE((j = hash_find(&h_labels,label+(labelcnt<<6))) < 0))
+            if (EDUKE32_PREDICT_FALSE((j = findlabel(label+(labelcnt<<6))) < 0))
             {
                 C_ReportError(-1);
                 Printf("%s:%d: error: state `%s' not found.\n",g_scriptFileName,line_number,label+(labelcnt<<6));
@@ -1121,7 +1116,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 C_GetNextValue(LABEL_DEFINE);
 
-                i = hash_find(&h_labels,label+(labelcnt<<6));
+                i = findlabel(label+(labelcnt<<6));
                 if (i>=0)
                 {
                     // if (i >= g_numDefaultLabels)
@@ -1135,7 +1130,6 @@ static int32_t C_ParseCommand(int32_t loop)
                 }
                 else
                 {
-                    hash_add(&h_labels,label+(labelcnt<<6),labelcnt,0);
                     //labeltype[labelcnt] = LABEL_DEFINE;
                     labelcode[labelcnt++] = *(scriptptr-1);
                     //if (*(scriptptr-1) >= 0 && *(scriptptr-1) < MAXTILES && g_dynamicTileMapping)
@@ -1195,14 +1189,13 @@ static int32_t C_ParseCommand(int32_t loop)
                     continue;
                 }
 
-                if (EDUKE32_PREDICT_FALSE((i = hash_find(&h_labels,label+(labelcnt<<6))) >= 0))
+                if (EDUKE32_PREDICT_FALSE((i = findlabel(label+(labelcnt<<6))) >= 0))
                 {
                     g_warningCnt++;
                     Printf("%s:%d: warning: duplicate move `%s' ignored.\n",g_scriptFileName,line_number,label+(labelcnt<<6));
                 }
                 else
                 {
-                    hash_add(&h_labels,label+(labelcnt<<6),labelcnt,0);
                     //labeltype[labelcnt] = LABEL_MOVE;
                     labelcode[labelcnt++] = scriptptr-apScript;
                 }
@@ -1310,7 +1303,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     continue;
                 }
 
-                i = hash_find(&h_labels,label+(labelcnt<<6));
+                i = findlabel(label+(labelcnt<<6));
                 if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_warningCnt++;
@@ -1319,7 +1312,6 @@ static int32_t C_ParseCommand(int32_t loop)
                 else
                 {
                     //labeltype[labelcnt] = LABEL_AI;
-                    hash_add(&h_labels,label+(labelcnt<<6),labelcnt,0);
                     labelcode[labelcnt++] = scriptptr-apScript;
                 }
 
@@ -1383,7 +1375,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     continue;
                 }
 
-                i = hash_find(&h_labels,label+(labelcnt<<6));
+                i = findlabel(label+(labelcnt<<6));
                 if (EDUKE32_PREDICT_FALSE(i>=0))
                 {
                     g_warningCnt++;
@@ -1393,7 +1385,6 @@ static int32_t C_ParseCommand(int32_t loop)
                 {
                     //labeltype[labelcnt] = LABEL_ACTION;
                     labelcode[labelcnt] = scriptptr-apScript;
-                    hash_add(&h_labels,label+(labelcnt<<6),labelcnt,0);
                     labelcnt++;
                 }
 
@@ -1438,7 +1429,7 @@ static int32_t C_ParseCommand(int32_t loop)
             }
             g_szCurrentBlockName[j] = 0;
 
-            j = hash_find(&h_labels, g_szCurrentBlockName);
+            j = findlabel(g_szCurrentBlockName);
 
             //if (j != -1)
                // labeltype[j] |= LABEL_ACTOR;
@@ -2215,7 +2206,7 @@ ifvar:
 
             // Ideally we could keep the value of i from C_GetNextValue() instead of having to hash_find() again.
             // This depends on tempbuf remaining in place after C_GetNextValue():
-            j = hash_find(&h_labels, tempbuf);
+            j = findlabel(tempbuf);
 
             k = scriptptr[-1];
             if ((unsigned)k >= MAXSOUNDS - 1)
@@ -2552,9 +2543,6 @@ void C_Compile(const char *fileName)
 
     Printf("Script compiled in %dms, %ld bytes%s\n", timerGetTicks() - startcompiletime,
                 (unsigned long)(scriptptr-apScript), C_ScriptVersionString(g_scriptVersion));
-
-    for (auto *i : tables_free)
-        hash_free(i);
 
     //freehashnames();
     freesoundhashnames();

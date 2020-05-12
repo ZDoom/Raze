@@ -6531,8 +6531,7 @@ static void G_Cleanup(void)
     Gv_Clear();
 
     hash_free(&h_gamevars);
-    hash_free(&h_labels);
-}
+    }
 
 /*
 ===================

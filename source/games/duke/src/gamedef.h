@@ -73,7 +73,6 @@ extern intptr_t const * insptr;
 extern void VM_ScriptInfo(intptr_t const *ptr, int range);
 
 extern hashtable_t h_gamevars;
-extern hashtable_t h_labels;
 
 extern int32_t g_aimAngleVarID;   // var ID of "AUTOAIMANGLE"
 extern int32_t g_angRangeVarID;   // var ID of "ANGRANGE"

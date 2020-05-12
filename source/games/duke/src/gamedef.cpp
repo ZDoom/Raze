@@ -54,6 +54,7 @@ int parsing_state;
 extern char tempbuf[];
 extern intptr_t* scriptptr;
 extern int* labelcode;
+extern intptr_t* apScript;
 
 //---------------------------------------------------------------------------
 //
@@ -205,7 +206,7 @@ int findlabel(const char* text)
 	{
 		if (strcmp(label + (j << 6), text) == 0)
 		{
-			return labelcode[j];
+			return j;// labelcode[j];
 		}
 	}
 	return -1;
@@ -347,7 +348,12 @@ static void popscriptvalue()
 {
 	script.Pop();
 }
-static int scriptoffset(
+
+void pushlabeladdress()
+{
+	labelcode.Push(script.Size());
+}
+
 #else
 
 // Helpers to write to the old script buffer while using the new interface. Allows to test the parser before implementing the rest.
@@ -379,6 +385,13 @@ static void popscriptvalue()
 {
 	scriptptr--;
 }
+
+void pushlabeladdress()
+{
+	labelcode[labelcnt++] = int(scriptptr - apScript);
+	labelcnt++;
+}
+
 
 #endif
 
@@ -581,13 +594,13 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		} while (*textptr != '*' || *(textptr + 1) != '/');
 		textptr += 2;
 		return 0;
+#endif
 	case concmd_state:
 		if (parsing_actor == 0 && parsing_state == 0)
 		{
 			getlabel();
 			popscriptvalue();
-			labelcode[labelcnt] = addrof(scriptptr);
-			labelcnt++;
+			pushlabeladdress();
 
 			parsing_state = 1;
 
@@ -604,9 +617,10 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) State '%s' not found.\n", fn, line_number, label + (labelcnt << 6));
 			errorcount++;
 		}
-		appendscriptvalue(lnum);
+		appendscriptvalue(labelcode[lnum]);
 		return 0;
 
+#if 0
 	case concmd_sound:
 	case concmd_globalsound:
 	case concmd_soundonce:
