@@ -58,7 +58,7 @@ enum
     {                                                                                                                                      \
         C_ReportError(-1);                                                                                                                 \
         Printf("%s:%d: error: " Text "\n", g_scriptFileName, line_number, ##__VA_ARGS__);                                             \
-        g_errorCnt++;                                                                                                                      \
+        errorcount++;                                                                                                                      \
     } while (0)
 
 #define C_CUSTOMWARNING(Text, ...)                                                                                                         \
@@ -66,7 +66,7 @@ enum
     {                                                                                                                                      \
         C_ReportError(-1);                                                                                                                 \
         Printf("%s:%d: warning: " Text "\n", g_scriptFileName, line_number, ##__VA_ARGS__);                                           \
-        g_warningCnt++;                                                                                                                    \
+        warningcount++;                                                                                                                    \
     } while (0)
 
 extern intptr_t const * insptr;
@@ -91,11 +91,11 @@ extern char g_scriptFileName[BMAX_PATH];
 extern const uint32_t CheatFunctionFlags[];
 extern const uint8_t  CheatFunctionIDs[];
 
-extern int32_t g_errorCnt;
+extern int errorcount;
 extern int32_t line_number;
 extern int32_t g_scriptVersion;
 extern int32_t g_totalLines;
-extern int32_t g_warningCnt;
+extern int warningcount;
 extern uint32_t g_scriptcrc;
 extern int32_t otherp;
 

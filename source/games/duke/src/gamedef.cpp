@@ -49,6 +49,7 @@ int errorcount, warningcount;	// was named 'error' and 'warning' which is too ge
 int g_currentSourceFile;
 intptr_t parsing_actor;
 int parsing_state;
+int num_squigilly_brackets;
 
 //G_EXTERN char tempbuf[MAXSECTORS << 1], buf[1024]; todo - move to compile state. tempbuf gets used nearly everywhere as scratchpad memory.
 extern char tempbuf[];
@@ -600,7 +601,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		getlabel();
 		checkforkeyword();
 
-		int lnum = findlabel(label + (labelcnt << 6));
+		lnum = findlabel(label + (labelcnt << 6));
 
 		if (lnum < 0)
 		{
@@ -618,6 +619,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	case concmd_lotsofglass:
 		transnum();
 		return 0;
+#endif
 
 	case concmd_ends:
 		if (parsing_state == 0)
@@ -629,7 +631,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		{
 			if (num_squigilly_brackets > 0)
 			{
-				ReportError(ERROR_CLOSEBRACKET);
+				ReportError(ERROR_OPENBRACKET);
 				errorcount++;
 			}
 			if (num_squigilly_brackets < 0)
@@ -641,6 +643,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 		return 0;
 
+#if 0
 	case concmd_gamevar:
 		// syntax: gamevar <var1> <initial value> <flags>
 		// defines var1 and sets initial value.
