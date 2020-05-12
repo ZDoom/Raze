@@ -420,6 +420,7 @@ memberlabel_t const PlayerLabels[]=
     { "q16angvel",             PLAYER_Q16ANGVEL,             0, 0, -1 },
     { "cursectnum",            PLAYER_CURSECTNUM,            0, 0, -1 },
     { "look_ang",              PLAYER_LOOK_ANG,              0, 0, -1 },
+    { "q16look_ang",           PLAYER_Q16LOOK_ANG,           0, 0, -1 },
     { "last_extra",            PLAYER_LAST_EXTRA,            0, 0, -1 },
     { "subweapon",             PLAYER_SUBWEAPON,             0, 0, -1 },
     { "ammo_amount",           PLAYER_AMMO_AMOUNT,           LABEL_HASPARM2, MAX_WEAPONS, -1 },
@@ -561,6 +562,7 @@ int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const
         case PLAYER_OHORIZOFF:   labelNum = fix16_to_int(ps.oq16horizoff);   break;
         case PLAYER_ROTSCRNANG:  labelNum = fix16_to_int(ps.q16rotscrnang);  break;
         case PLAYER_OROTSCRNANG: labelNum = fix16_to_int(ps.oq16rotscrnang); break;
+        case PLAYER_LOOK_ANG:    labelNum = fix16_to_int(ps.q16look_ang);    break;
 
         case PLAYER_Q16ANG:         labelNum = ps.q16ang;         break;
         case PLAYER_OQ16ANG:        labelNum = ps.oq16ang;        break;
@@ -571,6 +573,7 @@ int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const
         case PLAYER_OQ16HORIZOFF:   labelNum = ps.oq16horizoff;   break;
         case PLAYER_Q16ROTSCRNANG:  labelNum = ps.q16rotscrnang;  break;
         case PLAYER_OQ16ROTSCRNANG: labelNum = ps.oq16rotscrnang; break;
+        case PLAYER_Q16LOOK_ANG:    labelNum = ps.q16look_ang;    break;
 
         case PLAYER_ACCESS_INCS:        labelNum = ps.access_incs;        break;
         case PLAYER_ACCESS_SPRITENUM:   labelNum = ps.access_spritenum;   break;
@@ -636,7 +639,6 @@ int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const
         case PLAYER_LOOGCNT:            labelNum = ps.loogcnt;            break;
         case PLAYER_LOOGIEX:            labelNum = ps.loogiex[lParm2];    break;
         case PLAYER_LOOGIEY:            labelNum = ps.loogiey[lParm2];    break;
-        case PLAYER_LOOK_ANG:           labelNum = ps.look_ang;           break;
         case PLAYER_MAX_ACTORS_KILLED:  labelNum = ps.max_actors_killed;  break;
         case PLAYER_MAX_PLAYER_HEALTH:  labelNum = ps.max_player_health;  break;
         case PLAYER_MAX_SECRET_ROOMS:   labelNum = ps.max_secret_rooms;   break;
@@ -758,6 +760,7 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
         case PLAYER_HORIZOFF:    ps.q16horizoff    = fix16_from_int(newValue); break;
         case PLAYER_ROTSCRNANG:  ps.q16rotscrnang  = fix16_from_int(newValue); break;
         case PLAYER_OROTSCRNANG: ps.oq16rotscrnang = fix16_from_int(newValue); break;
+        case PLAYER_LOOK_ANG:    ps.q16look_ang    = fix16_from_int(newValue); break;
 
         case PLAYER_Q16HORIZ:       ps.q16horiz       = newValue; break;
         case PLAYER_OQ16HORIZ:      ps.oq16horiz      = newValue; break;
@@ -768,6 +771,7 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
         case PLAYER_Q16HORIZOFF:    ps.q16horizoff    = newValue; break;
         case PLAYER_Q16ROTSCRNANG:  ps.q16rotscrnang  = newValue; break;
         case PLAYER_OQ16ROTSCRNANG: ps.oq16rotscrnang = newValue; break;
+        case PLAYER_Q16LOOK_ANG:    ps.q16look_ang    = newValue; break;
 
         case PLAYER_ACCESS_INCS:        ps.access_incs        = newValue; break;
         case PLAYER_ACCESS_SPRITENUM:   ps.access_spritenum   = newValue; break;
@@ -829,7 +833,6 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
         case PLAYER_LOOGCNT:            ps.loogcnt            = newValue; break;
         case PLAYER_LOOGIEX:            ps.loogiex[lParm2]    = newValue; break;
         case PLAYER_LOOGIEY:            ps.loogiey[lParm2]    = newValue; break;
-        case PLAYER_LOOK_ANG:           ps.look_ang           = newValue; break;
         case PLAYER_MAX_ACTORS_KILLED:  ps.max_actors_killed  = newValue; break;
         case PLAYER_MAX_PLAYER_HEALTH:  ps.max_player_health  = newValue; break;
         case PLAYER_MAX_SECRET_ROOMS:   ps.max_secret_rooms   = newValue; break;
