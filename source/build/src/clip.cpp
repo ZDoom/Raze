@@ -847,7 +847,11 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     int32_t dacz2 = sec2->ceilingz;
 
     if ((sec2->floorstat|sec2->ceilingstat) & 2)
+#ifdef YAX_ENABLE
+            yax_getzsofslope(nextsect, pos.x, pos.y, &dacz2, &daz2);
+#else
         getcorrectzsofslope(nextsect, pos.x, pos.y, &dacz2, &daz2);
+#endif
 
     if (daz2 <= dacz2)
         return 1;
@@ -858,7 +862,11 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     int32_t dacz = sec->ceilingz;
 
     if ((sec->floorstat|sec->ceilingstat) & 2)
+#ifdef YAX_ENABLE
+            yax_getzsofslope(dasect, pos.x, pos.y, &dacz, &daz);
+#else
         getcorrectzsofslope(dasect, pos.x, pos.y, &dacz, &daz);
+#endif
 
     int32_t const sec2height = klabs(daz2-dacz2);
 
