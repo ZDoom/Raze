@@ -226,6 +226,33 @@ int findlabel(const char* text)
 
 //---------------------------------------------------------------------------
 //
+// 
+//
+//---------------------------------------------------------------------------
+
+bool ispecial(char c)
+{
+	if (c == 0x0a)
+	{
+		line_number++;
+		return true;
+	}
+
+	// oh joy - we need to skip some more characters here to allow running broken scripts.
+	if (c == ' ' || c == 0x0d || c == '(' || c == ')' || c == ',' || c == ';')
+		return true;
+
+	return false;
+}
+
+bool isaltok(char c)
+{
+	// isalnum pukes on negative input.
+	return c > 0 && (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
+}
+
+//---------------------------------------------------------------------------
+//
 //
 //
 //---------------------------------------------------------------------------
@@ -272,35 +299,12 @@ bool skipcomments()
 			continue;
 		}
 		// stop if we got something else
+
+		// this line got added to skip over a stray semicolon in RR's COOT.CON.
+		if (ispecial(*textptr)) textptr++;
 		break;
 	}
 	return *textptr != 0;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-bool ispecial(char c)
-{
-	if (c == 0x0a)
-	{
-		line_number++;
-		return true;
-	}
-
-	if (c == ' ' || c == 0x0d)
-		return true;
-
-	return false;
-}
-
-bool isaltok(char c)
-{
-	// isalnum pukes on negative input.
-	return c > 0 && (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
 }
 
 //---------------------------------------------------------------------------
