@@ -722,7 +722,7 @@ void P_ResetPlayer(int playerNum)
     p.last_full_weapon   = 0;
     p.last_pissed_time   = 0;
     p.loogcnt            = 0;
-    p.look_ang           = 512 - ((ud.level_number&1)<<10);
+    p.q16look_ang        = fix16_from_int(512 - ((ud.level_number&1)<<10));
     p.movement_lock      = 0;
     p.newowner           = -1;
     p.on_crane           = -1;
