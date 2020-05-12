@@ -425,6 +425,7 @@ static int osdcmd_printtimes(CCmdFuncPtr UNUSED(parm))
 
             buf[0] = 0;
 
+            /*
             for (int ii=0; ii<labelcnt; ii++)
             {
                 if (labelcode[ii] == i && labeltype[ii] & LABEL_ACTOR)
@@ -433,6 +434,7 @@ static int osdcmd_printtimes(CCmdFuncPtr UNUSED(parm))
                     break;
                 }
             }
+            */
 
             if (!buf[0]) Bsprintf(buf, "%d", i);
 

@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
+#if 0
 enum
 {
     LABEL_ANY    = -1,
@@ -42,6 +43,7 @@ enum
     LABEL_MOVE   = 32,
     LABEL_EVENT  = 0x40,
 };
+#endif
 
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2

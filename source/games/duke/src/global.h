@@ -160,7 +160,9 @@ G_EXTERN int16_t g_cyclers[MAXCYCLERS][6];
 G_EXTERN int16_t g_mirrorSector[64];
 G_EXTERN int16_t g_mirrorWall[64];
 G_EXTERN int32_t *labelcode;
+#if 0
 G_EXTERN int32_t *labeltype;
+#endif
 G_EXTERN ClockTicks lockclock;
 G_EXTERN ClockTicks ototalclock;
 

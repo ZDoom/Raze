@@ -47,6 +47,9 @@ int line_number;
 int labelcnt;
 int errorcount, warningcount;	// was named 'error' and 'warning' which is too generic for public variables and may clash with other code.
 int g_currentSourceFile;
+intptr_t parsing_actor;
+int parsing_state;
+
 //G_EXTERN char tempbuf[MAXSECTORS << 1], buf[1024]; todo - move to compile state. tempbuf gets used nearly everywhere as scratchpad memory.
 extern char tempbuf[];
 extern intptr_t* scriptptr;
@@ -196,6 +199,17 @@ int getkeyword(const char* text)
 //
 //---------------------------------------------------------------------------
 
+int findlabel(const char* text)
+{
+	for (int j = 0; j < labelcnt; j++)
+	{
+		if (strcmp(label + (j << 6), text) == 0)
+		{
+			return labelcode[j];
+		}
+	}
+	return -1;
+}
 
 //---------------------------------------------------------------------------
 //
@@ -421,7 +435,18 @@ void transnum(void)
 		return;
 	}
 
-	*scriptptr = atol(textptr);
+	// Now it's getting nasty... With all of C's integer conversion functions we have to look for undefined behavior and truncation problems. This one's the least problematic approach
+	// that ignores octal conversion.
+	int64_t value;
+	char *outp;
+	bool ishex = (textptr[0] == 0 && tolower(textptr[1]) == 'x') || (textptr[0] == '-' && textptr[1] == 0 && tolower(textptr[2]) == 'x');
+	if (*textptr == '-') value = strtoll(textptr, &outp, ishex? 16 : 10);
+	else value = strtoull(textptr, &outp, ishex ? 16 : 10);
+	if (*outp != 0)
+	{
+		// conversion was not successful.
+	}
+	*scriptptr = int(value);	// truncate the parsed value to 32 bit.
 	scriptptr++;
 	textptr += l;
 }
@@ -447,6 +472,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	uint8_t done, temp_ifelse_check;// , tw;
 	int temp_line_number;
 	int temp_current_file;
+	int lnum;
 
 #if FOR_LATER	// for now this should just parse a single instruction
 	if ((errorcount + warningcount) > 12 || (*textptr == '\0') || (*(textptr + 1) == '\0')) return 1;
@@ -499,20 +525,14 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			return 0;
 		}
 
-		for (j = 0; j < labelcnt; j++)
-		{
-			if (strcmp(label + (j << 6), label + (labelcnt << 6)) == 0)
-			{
-				*scriptptr = labelcode[j];
-				break;
-			}
-		}
+		int lnum = findlabel(label + (labelcnt << 6));
 
-		if (j == labelcnt)
+		if (lnum < 0)
 		{
 			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) State '%s' not found.\n", fn, line_number, label + (labelcnt << 6));
 			errorcount++;
 		}
+		*scriptptr = lnum;
 		scriptptr++;
 		return 0;
 

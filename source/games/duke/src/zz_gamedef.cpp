@@ -63,7 +63,8 @@ uint32_t g_scriptcrc;
 char g_szBuf[1024];
 
 static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
-static int32_t g_checkingIfElse, g_processingState, g_lastKeyword = -1;
+static int32_t g_checkingIfElse, g_lastKeyword = -1;
+extern int parsing_state;
 
 // The pointer to the start of the case table in a switch statement.
 // First entry is 'default' code.
@@ -75,7 +76,7 @@ static int32_t C_ParseCommand(int32_t loop);
 static int32_t C_SetScriptSize(int32_t size);
 
 static intptr_t apScriptGameEventEnd[MAXEVENTS];
-static intptr_t g_parsingActorPtr;
+extern intptr_t parsing_actor;
 static intptr_t g_scriptEventOffset;
 extern char *textptr;
 
@@ -286,7 +287,7 @@ static int32_t C_SkipComments(void)
                         Printf("%s:%d: debug: EOF in comment!\n",g_scriptFileName,line_number);
                     C_ReportError(-1);
                     Printf("%s:%d: error: found `/*' with no `*/'.\n",g_scriptFileName,line_number);
-                    g_parsingActorPtr = g_processingState = g_numBraces = 0;
+                    parsing_actor = parsing_state = g_numBraces = 0;
                     g_errorCnt++;
                     continue;
                 }
@@ -562,7 +563,7 @@ static void C_GetNextVarType(int32_t type)
             Bstrcpy(tempbuf,LAST_LABEL);
             id = hash_find(&h_labels,tempbuf);
 
-            if (EDUKE32_PREDICT_TRUE(id>=0 && labeltype[id] & LABEL_DEFINE))
+            if (EDUKE32_PREDICT_TRUE(id>=0 /*&& labeltype[id] & LABEL_DEFINE*/))
             {
                 if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
                     Printf("%s:%d: debug: label `%s' in place of gamevar.\n",g_scriptFileName,line_number,label+(id<<6));
@@ -613,7 +614,8 @@ static FORCE_INLINE void C_GetManyVarsType(int32_t type, int num)
 //   LABEL_* (>0) if that type and matched
 //
 // *scriptptr will contain the value OR 0 if wrong type or error
-static int32_t C_GetNextValue(int32_t type)
+#define C_GetNextValue(a) C_GetNextValue_()
+static int32_t C_GetNextValue_()
 {
     C_SkipComments();
 
@@ -640,33 +642,37 @@ static int32_t C_GetNextValue(int32_t type)
 
     if (i>=0)
     {
-        if (EDUKE32_PREDICT_TRUE(labeltype[i] & type))
+        //if (EDUKE32_PREDICT_TRUE(labeltype[i] & type))
         {
+#if 0
             if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
             {
                 char *gl = C_GetLabelType(labeltype[i]);
                 Printf("%s:%d: debug: %s label `%s'.\n",g_scriptFileName,line_number,gl,label+(i<<6));
                 Xfree(gl);
             }
+#endif
 
             BITPTR_CLEAR(scriptptr-apScript);
             *(scriptptr++) = labelcode[i];
 
             textptr += l;
-            return labeltype[i];
+            return 0;// labeltype[i];
         }
 
+#if 0
         BITPTR_CLEAR(scriptptr-apScript);
         *(scriptptr++) = 0;
         textptr += l;
         char *el = C_GetLabelType(type);
-        char *gl = C_GetLabelType(labeltype[i]);
+        char *gl = C_GetLabelType(/*labeltype[i]*/0);
         C_ReportError(-1);
         Printf("%s:%d: warning: expected %s, found %s.\n",g_scriptFileName,line_number,el,gl);
         g_warningCnt++;
         Xfree(el);
         Xfree(gl);
         return -1;  // valid label name, but wrong type
+#endif
     }
 
     if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) == 0 && *textptr != '-'))
@@ -931,6 +937,8 @@ static inline void C_FinishBitOr(int32_t value)
     *scriptptr++ = value;
 }
 
+int parsecommand(int tw); // for now just run an externally parsed command.
+
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw;
@@ -951,14 +959,14 @@ static int32_t C_ParseCommand(int32_t loop)
         case -2:
             return 1; //End
         case concmd_state:
-            if (!g_parsingActorPtr && g_processingState == 0)
+            if (!parsing_actor && parsing_state == 0)
             {
                 C_GetNextLabelName();
                 scriptptr--;
                 labelcode[labelcnt] = scriptptr-apScript;
-                labeltype[labelcnt] = LABEL_STATE;
+                //labeltype[labelcnt] = LABEL_STATE;
 
-                g_processingState = 1;
+                parsing_state = 1;
                 Bsprintf(g_szCurrentBlockName,"%s",label+(labelcnt<<6));
 
                 if (getkeyword(label + (labelcnt << 6)) >= 0)
@@ -984,6 +992,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 continue;
             }
 
+            /*
             if (EDUKE32_PREDICT_FALSE((labeltype[j] & LABEL_STATE) != LABEL_STATE))
             {
                 char *gl = (char *) C_GetLabelType(labeltype[j]);
@@ -995,6 +1004,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 BITPTR_CLEAR(scriptptr-apScript-1);
                 continue;  // valid label name, but wrong type
             }
+            */
 
             if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
                 Printf("%s:%d: debug: state label `%s'.\n", g_scriptFileName, line_number, label+(j<<6));
@@ -1007,7 +1017,7 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case concmd_ends:
-            if (EDUKE32_PREDICT_FALSE(g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(parsing_state == 0))
             {
                 C_ReportError(-1);
                 Printf("%s:%d: error: found `ends' without open `state'.\n",g_scriptFileName,line_number);
@@ -1026,7 +1036,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     g_errorCnt++;
                 }
 
-                g_processingState = 0;
+                parsing_state = 0;
                 Bsprintf(g_szCurrentBlockName,"(none)");
             }
             continue;
@@ -1113,7 +1123,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 else
                 {
                     hash_add(&h_labels,label+(labelcnt<<6),labelcnt,0);
-                    labeltype[labelcnt] = LABEL_DEFINE;
+                    //labeltype[labelcnt] = LABEL_DEFINE;
                     labelcode[labelcnt++] = *(scriptptr-1);
                     //if (*(scriptptr-1) >= 0 && *(scriptptr-1) < MAXTILES && g_dynamicTileMapping)
                     //    G_ProcessDynamicTileMapping(label+((labelcnt-1)<<6),*(scriptptr-1));
@@ -1139,8 +1149,10 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case concmd_move:
-            if (g_parsingActorPtr || g_processingState)
+            if (parsing_actor || parsing_state)
             {
+                C_GetNextValue(LABEL_MOVE | LABEL_DEFINE);
+#if 0
                 if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1)))
                 {
                     C_ReportError(-1);
@@ -1149,6 +1161,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     Printf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,line_number);
                     g_warningCnt++;
                 }
+#endif
 
                 j = 0;
                 while (C_GetKeyword() == -1)
@@ -1177,7 +1190,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 else
                 {
                     hash_add(&h_labels,label+(labelcnt<<6),labelcnt,0);
-                    labeltype[labelcnt] = LABEL_MOVE;
+                    //labeltype[labelcnt] = LABEL_MOVE;
                     labelcode[labelcnt++] = scriptptr-apScript;
                 }
 
@@ -1268,7 +1281,7 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case concmd_ai:
-            if (g_parsingActorPtr || g_processingState)
+            if (parsing_actor || parsing_state)
             {
                 C_GetNextValue(LABEL_AI);
             }
@@ -1292,7 +1305,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 }
                 else
                 {
-                    labeltype[labelcnt] = LABEL_AI;
+                    //labeltype[labelcnt] = LABEL_AI;
                     hash_add(&h_labels,label+(labelcnt<<6),labelcnt,0);
                     labelcode[labelcnt++] = scriptptr-apScript;
                 }
@@ -1304,6 +1317,8 @@ static int32_t C_ParseCommand(int32_t loop)
                         C_GetNextValue(LABEL_ACTION);
                     else if (j == 2)
                     {
+                        C_GetNextValue(LABEL_MOVE | LABEL_DEFINE);
+#if 0
                         if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) &&
                             (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1)))
                         {
@@ -1313,6 +1328,7 @@ static int32_t C_ParseCommand(int32_t loop)
                             Printf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,line_number);
                             g_warningCnt++;
                         }
+#endif
 
                         k = 0;
                         while (C_GetKeyword() == -1)
@@ -1337,7 +1353,7 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case concmd_action:
-            if (g_parsingActorPtr || g_processingState)
+            if (parsing_actor || parsing_state)
             {
                 C_GetNextValue(LABEL_ACTION);
             }
@@ -1362,7 +1378,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 }
                 else
                 {
-                    labeltype[labelcnt] = LABEL_ACTION;
+                    //labeltype[labelcnt] = LABEL_ACTION;
                     labelcode[labelcnt] = scriptptr-apScript;
                     hash_add(&h_labels,label+(labelcnt<<6),labelcnt,0);
                     labelcnt++;
@@ -1383,7 +1399,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
         case concmd_actor:
         case concmd_useractor:
-            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            if (EDUKE32_PREDICT_FALSE(parsing_state || parsing_actor))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_errorCnt++;
@@ -1391,7 +1407,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
             g_numBraces = 0;
             scriptptr--;
-            g_parsingActorPtr = scriptptr - apScript;
+            parsing_actor = scriptptr - apScript;
 
             if (tw == concmd_useractor)
             {
@@ -1411,8 +1427,8 @@ static int32_t C_ParseCommand(int32_t loop)
 
             j = hash_find(&h_labels, g_szCurrentBlockName);
 
-            if (j != -1)
-                labeltype[j] |= LABEL_ACTOR;
+            //if (j != -1)
+               // labeltype[j] |= LABEL_ACTOR;
 
             if (tw == concmd_useractor)
             {
@@ -1439,7 +1455,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 continue;
             }
 
-            g_tile[*scriptptr].execPtr = apScript + g_parsingActorPtr;
+            g_tile[*scriptptr].execPtr = apScript + parsing_actor;
 
             if (tw == concmd_useractor)
             {
@@ -1452,8 +1468,8 @@ static int32_t C_ParseCommand(int32_t loop)
 
             for (j=0; j<4; j++)
             {
-                BITPTR_CLEAR(g_parsingActorPtr+j);
-                *((apScript+j)+g_parsingActorPtr) = 0;
+                BITPTR_CLEAR(parsing_actor+j);
+                *((apScript+j)+parsing_actor) = 0;
                 if (j == 3)
                 {
                     j = 0;
@@ -1485,6 +1501,8 @@ static int32_t C_ParseCommand(int32_t loop)
                     case 2:
                         // XXX: LABEL_MOVE|LABEL_DEFINE, what is this shit? compatibility?
                         // yep, it sure is :(
+                        C_GetNextValue(LABEL_MOVE | LABEL_DEFINE);
+#if 0
                         if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1)))
                         {
                             C_ReportError(-1);
@@ -1493,19 +1511,20 @@ static int32_t C_ParseCommand(int32_t loop)
                             Printf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,line_number);
                             g_warningCnt++;
                         }
+#endif
                         break;
                     }
                     if (*(scriptptr-1) >= (intptr_t)&apScript[0] && *(scriptptr-1) < (intptr_t)&apScript[g_scriptSize])
-                        BITPTR_SET(g_parsingActorPtr+j);
-                    else BITPTR_CLEAR(g_parsingActorPtr+j);
-                    *((apScript+j)+g_parsingActorPtr) = *(scriptptr-1);
+                        BITPTR_SET(parsing_actor+j);
+                    else BITPTR_CLEAR(parsing_actor+j);
+                    *((apScript+j)+parsing_actor) = *(scriptptr-1);
                 }
             }
             g_checkingIfElse = 0;
             continue;
 
 		case concmd_onevent:
-            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            if (EDUKE32_PREDICT_FALSE(parsing_state || parsing_actor))
             {
                 C_ReportError(ERROR_FOUNDWITHIN);
                 g_errorCnt++;
@@ -1513,7 +1532,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
             g_numBraces = 0;
             scriptptr--;
-            g_scriptEventOffset = g_parsingActorPtr = scriptptr - apScript;
+            g_scriptEventOffset = parsing_actor = scriptptr - apScript;
 
             C_SkipComments();
             j = 0;
@@ -1832,6 +1851,8 @@ ifvar:
                     C_GetNextValue(LABEL_ACTION);
                     break;
                 case concmd_ifmove:
+                    C_GetNextValue(LABEL_MOVE | LABEL_DEFINE);
+#if 0
                     if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(scriptptr-1) != 0) && (*(scriptptr-1) != 1)))
                     {
                         C_ReportError(-1);
@@ -1839,6 +1860,7 @@ ifvar:
                         Printf("%s:%d: warning: expected a move, found a constant.\n",g_scriptFileName,line_number);
                         g_warningCnt++;
                     }
+#endif
                     break;
                 case concmd_ifpinventory:
                     C_GetNextValue(LABEL_DEFINE);
@@ -1946,7 +1968,7 @@ ifvar:
             }
 
         case concmd_leftbrace:
-            if (EDUKE32_PREDICT_FALSE(!(g_processingState || g_parsingActorPtr || g_scriptEventOffset)))
+            if (EDUKE32_PREDICT_FALSE(!(parsing_state || parsing_actor || g_scriptEventOffset)))
             {
                 g_errorCnt++;
                 C_ReportError(ERROR_SYNTAXERROR);
@@ -2249,13 +2271,13 @@ ifvar:
                 g_errorCnt++;
             }
 
-            g_scriptEventOffset = g_parsingActorPtr = 0;
+            g_scriptEventOffset = parsing_actor = 0;
             g_currentEvent = -1;
             Bsprintf(g_szCurrentBlockName,"(none)");
             continue;
 
         case concmd_enda:
-            if (EDUKE32_PREDICT_FALSE(!g_parsingActorPtr || g_scriptEventOffset))
+            if (EDUKE32_PREDICT_FALSE(!parsing_actor || g_scriptEventOffset))
             {
                 C_ReportError(-1);
                 Printf("%s:%d: error: found `enda' without open `actor'.\n",g_scriptFileName,line_number);
@@ -2267,7 +2289,7 @@ ifvar:
                 C_ReportError(g_numBraces > 0 ? ERROR_OPENBRACKET : ERROR_CLOSEBRACKET);
                 g_errorCnt++;
             }
-            g_parsingActorPtr = 0;
+            parsing_actor = 0;
             Bsprintf(g_szCurrentBlockName,"(none)");
             continue;
 
@@ -2534,8 +2556,8 @@ void C_ReportError(int32_t iError)
 {
     if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
     {
-        if (g_scriptEventOffset || g_processingState || g_parsingActorPtr)
-            Printf("%s: In %s `%s':\n",g_scriptFileName,g_scriptEventOffset?"event":g_parsingActorPtr?"actor":"state",g_szCurrentBlockName);
+        if (g_scriptEventOffset || parsing_state || parsing_actor)
+            Printf("%s: In %s `%s':\n",g_scriptFileName,g_scriptEventOffset?"event":parsing_actor?"actor":"state",g_szCurrentBlockName);
         else Printf("%s: At top level:\n",g_scriptFileName);
         Bstrcpy(g_szLastBlockName,g_szCurrentBlockName);
     }
@@ -2551,7 +2573,7 @@ void C_ReportError(int32_t iError)
         Printf("%s:%d: error: expected a keyword but found `%s'.\n",g_scriptFileName,line_number,tempbuf);
         break;
     case ERROR_FOUNDWITHIN:
-        Printf("%s:%d: error: found `%s' within %s.\n",g_scriptFileName,line_number,tempbuf,g_parsingActorPtr?"an actor":"a state");
+        Printf("%s:%d: error: found `%s' within %s.\n",g_scriptFileName,line_number,tempbuf,parsing_actor?"an actor":"a state");
         break;
     case ERROR_ISAKEYWORD:
         Printf("%s:%d: error: symbol `%s' is a keyword.\n",g_scriptFileName,line_number,label+(labelcnt<<6));

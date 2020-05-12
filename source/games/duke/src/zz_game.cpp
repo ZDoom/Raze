@@ -6520,7 +6520,9 @@ static void G_Cleanup(void)
 
     if (label != (char *)&sprite[0]) Xfree(label);
     if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
+#if 0
     if (labeltype != (int32_t*)&wall[0]) Xfree(labeltype);
+#endif
     Xfree(apScript);
     Xfree(bitptr);
 
@@ -6544,7 +6546,9 @@ static void G_CompileScripts(void)
 {
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (int32_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
+#if 0
     labeltype = (int32_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
+#endif
 
     C_Compile(G_ConFile());
 
@@ -6562,11 +6566,15 @@ static void G_CompileScripts(void)
 
         Bmemcpy(newlabel, label, labelcnt*64);
         Bmemcpy(newlabelcode, labelcode, labelcnt*sizeof(int32_t));
+#if 0
         Bmemcpy(newlabeltype, labeltype, labelcnt*sizeof(int32_t));
+#endif
 
         label = newlabel;
         labelcode = newlabelcode;
+#if 0
         labeltype = newlabeltype;
+#endif
     }
 
     Bmemset(sprite, 0, MAXSPRITES*sizeof(spritetype));
