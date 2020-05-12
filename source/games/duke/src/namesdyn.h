@@ -2120,7 +2120,7 @@ BEGIN_DUKE_NS
 #define MAMAJIBA__STATICRR -8890
 #define MAMAJIBB__STATICRR -8895
 
-extern int16_t DynamicTileMap[MAXTILES];
+extern int16_t DynamicTileMap[];
 
 void G_InitDynamicTiles(void);
 

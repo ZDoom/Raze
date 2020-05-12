@@ -234,7 +234,8 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 
     if (switchtype == SWITCH_SPRITE) // A wall sprite
     {
-        lotag = sprite[w].lotag; if (lotag == 0) return 0;
+        lotag = sprite[w].lotag;
+		if (lotag == 0) return 0;
         hitag = sprite[w].hitag;
         sx = sprite[w].x;
         sy = sprite[w].y;
@@ -243,7 +244,8 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
     }
     else
     {
-        lotag = wall[w].lotag; if (lotag == 0) return 0;
+        lotag = wall[w].lotag;
+		if (lotag == 0) return 0;
         hitag = wall[w].hitag;
         sx = wall[w].x;
         sy = wall[w].y;
@@ -260,6 +262,22 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
     case ALIENSWITCH:
     case ALIENSWITCH + 1:
         break;
+	case DEVELOPERCOMMENTARY + 1: //Twentieth Anniversary World Tour
+		if (switchtype == 1)
+		{
+			sprite[w].picnum--;
+	        StopCommentary();
+			return true;
+		}
+		return false;
+	case DEVELOPERCOMMENTARY: //Twentieth Anniversary World Tour
+		if (switchtype == 1)
+		{
+			if (StartCommentary(lotag, w))
+				sprite[w].picnum++;
+			return true;
+		}
+		return false;
     case ACCESSSWITCH:
     case ACCESSSWITCH2:
         if (ps[snum].access_incs == 0)

@@ -172,6 +172,11 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 }
 
 
+inline bool S_IsAmbientSFX(int spriteNum)
+{
+    return (sprite[spriteNum].picnum == TILE_MUSICANDSFX && sprite[spriteNum].lotag < 999);
+}
+
 //==========================================================================
 //
 // 

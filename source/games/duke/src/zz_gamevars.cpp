@@ -459,8 +459,6 @@ void Gv_ResetSystemDefaults(void)
     // call many times...
     char aszBuf[64];
 
-    //AddLog("ResetWeaponDefaults");
-
     for (int weaponNum = 0; weaponNum < MAX_WEAPONS; ++weaponNum)
     {
         for (int playerNum = 0; playerNum < MAXPLAYERS; ++playerNum)
@@ -509,7 +507,6 @@ void Gv_ResetSystemDefaults(void)
     g_worksLikeVarID = Gv_GetVarIndex("WORKSLIKE");
     g_zRangeVarID    = Gv_GetVarIndex("ZRANGE");
 
-    //AddLog("EOF:ResetWeaponDefaults");
 }
 
 // Will set members that were overridden at CON translation time to 1.
