@@ -130,10 +130,9 @@ char const * VM_GetKeywordForID(int32_t id)
     return "<invalid keyword>";
 }
 
-char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
-#define BITPTR_SET(x) (bitptr[(x)>>3] |= (1<<((x)&7)))
-#define BITPTR_CLEAR(x) (bitptr[(x)>>3] &= ~(1<<((x)&7)))
-#define BITPTR_IS_POINTER(x) (bitptr[(x)>>3] & (1<<((x) &7)))
+#define BITPTR_SET(x)
+#define BITPTR_CLEAR(x)
+#define BITPTR_IS_POINTER(x)
 
 hashtable_t h_gamevars = { MAXGAMEVARS >> 1, NULL };
 
@@ -163,26 +162,19 @@ static int32_t g_skipBranch;
 
 static int32_t C_SetScriptSize(int32_t newsize)
 {
+#if 0
     intptr_t const oscript = (intptr_t)apScript;
     intptr_t *newscript;
     intptr_t i, j;
     int32_t osize = g_scriptSize;
     char *scriptptrs;
-    char *newbitptr;
 
     scriptptrs = (char *)Xcalloc(1, g_scriptSize * sizeof(uint8_t));
 
-    for (i=g_scriptSize-1; i>=0; i--)
+    for (i = g_scriptSize - 1; i >= 0; i--)
     {
-        if (BITPTR_IS_POINTER(i))
+        if (apScript[i] >= (intptr_t)&apScript[0] && apScript[i] < (intptr_t)&apScript[g_scriptSize])
         {
-            if (EDUKE32_PREDICT_FALSE((intptr_t)apScript[i] < (intptr_t)&apScript[0] || (intptr_t)apScript[i] >= (intptr_t)&apScript[g_scriptSize]))
-            {
-                g_errorCnt++;
-                buildprint("Internal compiler error at ", i, " (0x", hex(i), ")\n");
-                VM_ScriptInfo(&apScript[i], 16);
-            }
-
             scriptptrs[i] = 1;
             apScript[i] -= (intptr_t)&apScript[0];
         }
@@ -193,18 +185,12 @@ static int32_t C_SetScriptSize(int32_t newsize)
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
 
     newscript = (intptr_t *)Xrealloc(apScript, newsize * sizeof(intptr_t));
-    newbitptr = (char *)Xcalloc(1,(((newsize+7)>>3)+1) * sizeof(uint8_t));
 
     if (newsize >= osize)
     {
         Bmemset(&newscript[0]+osize,0,(newsize-osize) * sizeof(uint8_t));
-        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((osize+7)>>3));
     }
-    else
-        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((newsize+7)>>3));
 
-    Xfree(bitptr);
-    bitptr = newbitptr;
     if (apScript != newscript)
     {
         buildprint("Relocating compiled code from to 0x", hex((intptr_t)apScript), " to 0x", hex((intptr_t)newscript), "\n");
@@ -228,6 +214,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
 
     Xfree(scriptptrs);
+#endif
     return 0;
 }
 
@@ -968,60 +955,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case -2:
             return 1; //End
         case concmd_state:
-            if (!parsing_actor && parsing_state == 0)
-            {
-                C_GetNextLabelName();
-                scriptptr--;
-                labelcode[labelcnt] = scriptptr-apScript;
-                //labeltype[labelcnt] = LABEL_STATE;
-
-                parsing_state = 1;
-                Bsprintf(g_szCurrentBlockName,"%s",label+(labelcnt<<6));
-
-                if (getkeyword(label + (labelcnt << 6)) >= 0)
-                {
-                    g_errorCnt++;
-                    C_ReportError(ERROR_ISAKEYWORD);
-                    continue;
-                }
-
-                labelcnt++;
-                continue;
-            }
-
-            C_GetNextLabelName();
-
-            if (EDUKE32_PREDICT_FALSE((j = findlabel(label+(labelcnt<<6))) < 0))
-            {
-                C_ReportError(-1);
-                Printf("%s:%d: error: state `%s' not found.\n",g_scriptFileName,line_number,label+(labelcnt<<6));
-                g_errorCnt++;
-                scriptptr++;
-                continue;
-            }
-
-            /*
-            if (EDUKE32_PREDICT_FALSE((labeltype[j] & LABEL_STATE) != LABEL_STATE))
-            {
-                char *gl = (char *) C_GetLabelType(labeltype[j]);
-                C_ReportError(-1);
-                Printf("%s:%d: warning: expected state, found %s.\n", g_scriptFileName, line_number, gl);
-                g_warningCnt++;
-                Xfree(gl);
-                *(scriptptr-1) = concmd_nullop; // get rid of the state, leaving a nullop to satisfy if conditions
-                BITPTR_CLEAR(scriptptr-apScript-1);
-                continue;  // valid label name, but wrong type
-            }
-            */
-
-            if (!(g_errorCnt || g_warningCnt) && g_scriptDebug > 1)
-                Printf("%s:%d: debug: state label `%s'.\n", g_scriptFileName, line_number, label+(j<<6));
-            *scriptptr = (intptr_t) (apScript+labelcode[j]);
-
-            // 'state' type labels are always script addresses, as far as I can see
-            BITPTR_SET(scriptptr-apScript);
-
-            scriptptr++;
+            parsecommand(g_lastKeyword);
             continue;
 
         case concmd_ends:
@@ -2500,8 +2434,6 @@ void C_Compile(const char *fileName)
     Xfree(apScript);
 
     apScript = (intptr_t *)Xcalloc(1, g_scriptSize * sizeof(intptr_t));
-    bitptr   = (char *)Xcalloc(1, (((g_scriptSize + 7) >> 3) + 1) * sizeof(uint8_t));
-    //    Printf("script: %d, bitptr: %d\n",script,bitptr);
 
     labelcnt        = 0;
     g_defaultLabelCnt = 0;

@@ -339,11 +339,6 @@ static void appendscriptvalue(int value)
 	script.Push(value);
 }
 
-static void appendscriptaddress(int* address)
-{
-	addscriptvalue(int(address - script.Data());
-}
-
 static void popscriptvalue()
 {
 	script.Pop();
@@ -374,11 +369,6 @@ static void setscriptaddress(int offset, int* address)
 static void appendscriptvalue(int value)
 {
 	scriptWriteValue(value);
-}
-
-static void addscriptaddress(int* address)
-{
-	assert(0);
 }
 
 static void popscriptvalue()

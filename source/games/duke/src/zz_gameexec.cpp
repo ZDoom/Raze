@@ -1264,7 +1264,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
         else if (tw == concmd_state)
         {
             intptr_t const *const tempscrptr = insptr + 2;
-            insptr                           = (intptr_t *)*(insptr + 1);
+            insptr                           = apScript + *(insptr + 1);
             VM_Execute(1);
             insptr = tempscrptr;
             continue;

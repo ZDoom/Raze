@@ -64,7 +64,6 @@ void sv_freemem();
 
 // XXX: The 'bitptr' decl really belongs into gamedef.h, but we don't want to
 // pull all of it in savegame.c?
-extern char *bitptr;
 
 enum
 {

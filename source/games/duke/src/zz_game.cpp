@@ -6524,7 +6524,6 @@ static void G_Cleanup(void)
     if (labeltype != (int32_t*)&wall[0]) Xfree(labeltype);
 #endif
     Xfree(apScript);
-    Xfree(bitptr);
 
 //    Xfree(MusicPtr);
 
