@@ -908,7 +908,7 @@ void P_ResetStatus(int playerNum)
     pPlayer->heat_on           = 0;
     pPlayer->jetpack_on        = 0;
     pPlayer->holoduke_on       = -1;
-    pPlayer->look_ang          = 512 - ((ud.level_number & 1) << 10);
+    pPlayer->q16look_ang       = fix16_from_int(512 - ((ud.level_number & 1) << 10));
     pPlayer->q16rotscrnang     = 0;
     pPlayer->oq16rotscrnang    = fix16_one;  // JBF 20031220
     pPlayer->newowner          = -1;

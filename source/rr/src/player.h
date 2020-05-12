@@ -152,9 +152,10 @@ typedef struct {
 
     int16_t loogiex[64], loogiey[64], sbs, sound_pitch;
 
-    int16_t cursectnum, look_ang, last_extra, subweapon;
+    int16_t cursectnum, last_extra, subweapon;
     int16_t max_ammo_amount[MAX_WEAPONS], ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
     int16_t wackedbyactor, pyoff, opyoff;
+    fix16_t q16look_ang;
 
     int16_t newowner, jumping_counter, airleft;
     int16_t fta, ftq, access_wallnum, access_spritenum;
@@ -226,7 +227,7 @@ typedef struct {
     int32_t dhat60f, dhat613, dhat617, dhat61b, dhat61f;
 
     int8_t crouch_toggle;
-    int8_t padding_[1];
+    int8_t padding_[7];
 } DukePlayer_t;
 
 // KEEPINSYNC lunatic/_defs_game.lua

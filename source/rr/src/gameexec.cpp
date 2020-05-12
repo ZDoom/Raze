@@ -262,7 +262,7 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
     pPlayer->q16horiz           += F16(64);
     pPlayer->return_to_center = 9;
     pPlayer->q16rotscrnang    = fix16_from_int(nAngle >> 1);
-    pPlayer->look_ang         = fix16_to_int(pPlayer->q16rotscrnang);
+    pPlayer->q16look_ang      = pPlayer->q16rotscrnang;
 }
 
 // wow, this function sucks
