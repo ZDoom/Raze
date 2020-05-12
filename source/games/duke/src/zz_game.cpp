@@ -6548,7 +6548,7 @@ static void G_CompileScripts(void)
 
     C_Compile(G_ConFile());
 
-    if ((uint32_t)g_labelCnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
+    if ((uint32_t)labelcnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         G_GameExit("Error: too many labels defined!");
 
     {
@@ -6556,13 +6556,13 @@ static void G_CompileScripts(void)
         int32_t *newlabelcode;
         int32_t *newlabeltype;
 
-        newlabel     = (char *)Xmalloc(g_labelCnt << 6);
-        newlabelcode = (int32_t *)Xmalloc(g_labelCnt * sizeof(int32_t));
-        newlabeltype = (int32_t *)Xmalloc(g_labelCnt * sizeof(int32_t));
+        newlabel     = (char *)Xmalloc(labelcnt << 6);
+        newlabelcode = (int32_t *)Xmalloc(labelcnt * sizeof(int32_t));
+        newlabeltype = (int32_t *)Xmalloc(labelcnt * sizeof(int32_t));
 
-        Bmemcpy(newlabel, label, g_labelCnt*64);
-        Bmemcpy(newlabelcode, labelcode, g_labelCnt*sizeof(int32_t));
-        Bmemcpy(newlabeltype, labeltype, g_labelCnt*sizeof(int32_t));
+        Bmemcpy(newlabel, label, labelcnt*64);
+        Bmemcpy(newlabelcode, labelcode, labelcnt*sizeof(int32_t));
+        Bmemcpy(newlabeltype, labeltype, labelcnt*sizeof(int32_t));
 
         label = newlabel;
         labelcode = newlabelcode;

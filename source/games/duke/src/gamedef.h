@@ -55,7 +55,7 @@ enum
     do                                                                                                                                     \
     {                                                                                                                                      \
         C_ReportError(-1);                                                                                                                 \
-        Printf("%s:%d: error: " Text "\n", g_scriptFileName, line_count, ##__VA_ARGS__);                                             \
+        Printf("%s:%d: error: " Text "\n", g_scriptFileName, line_number, ##__VA_ARGS__);                                             \
         g_errorCnt++;                                                                                                                      \
     } while (0)
 
@@ -63,7 +63,7 @@ enum
     do                                                                                                                                     \
     {                                                                                                                                      \
         C_ReportError(-1);                                                                                                                 \
-        Printf("%s:%d: warning: " Text "\n", g_scriptFileName, line_count, ##__VA_ARGS__);                                           \
+        Printf("%s:%d: warning: " Text "\n", g_scriptFileName, line_number, ##__VA_ARGS__);                                           \
         g_warningCnt++;                                                                                                                    \
     } while (0)
 
@@ -91,14 +91,14 @@ extern const uint32_t CheatFunctionFlags[];
 extern const uint8_t  CheatFunctionIDs[];
 
 extern int32_t g_errorCnt;
-extern int32_t line_count;
+extern int32_t line_number;
 extern int32_t g_scriptVersion;
 extern int32_t g_totalLines;
 extern int32_t g_warningCnt;
 extern uint32_t g_scriptcrc;
 extern int32_t otherp;
 
-extern intptr_t *g_scriptPtr;
+extern intptr_t *scriptptr;
 
 typedef struct
 {

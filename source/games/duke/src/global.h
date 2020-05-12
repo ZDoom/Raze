@@ -64,7 +64,7 @@ G_EXTERN actor_t actor[MAXSPRITES];
 // g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game
 G_EXTERN tiledata_t g_tile[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
-G_EXTERN char *label;
+extern char *label;
 G_EXTERN char g_loadFromGroupOnly;
 G_EXTERN char g_skillCnt;
 G_EXTERN char pus,pub;
@@ -127,7 +127,7 @@ G_EXTERN int32_t g_globalRandom;
 #define global_random g_globalRandom
 G_EXTERN int32_t g_impactDamage;
 #define impact_damage g_impactDamage
-G_EXTERN int32_t g_labelCnt;
+extern int32_t labelcnt;
 G_EXTERN int32_t g_maxPlayerHealth;
 G_EXTERN int32_t g_mirrorCount;
 G_EXTERN int32_t g_mostConcurrentPlayers;
@@ -200,7 +200,7 @@ G_EXTERN int16_t g_ambientHitag[64];
 G_EXTERN uint32_t g_ambientCnt;
 
 G_EXTERN intptr_t *apScript;
-G_EXTERN intptr_t *g_scriptPtr;
+G_EXTERN intptr_t *scriptptr;
 
 G_EXTERN map_t g_mapInfo[(MAXVOLUMES + 1) * MAXLEVELS];  // +1 volume for "intro", "briefing" and "loading" music
 G_EXTERN vec2_t g_origins[MAXANIMPOINTS];

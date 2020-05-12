@@ -271,7 +271,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
 
             for (j=0; j<2; j++)
             {
-                for (i=0; i<g_labelCnt; i++)
+                for (i=0; i<labelcnt; i++)
                 {
                     if ((j == 0 && !Bstrcmp(label+(i<<6),     parm->parms[0])) ||
                         (j == 1 && !Bstrcasecmp(label+(i<<6), parm->parms[0])))
@@ -281,10 +281,10 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
                     }
                 }
 
-                if (i < g_labelCnt)
+                if (i < labelcnt)
                     break;
             }
-            if (i==g_labelCnt)
+            if (i==labelcnt)
             {
                 Printf("spawn: Invalid tile label given\n");
                 return OSDCMD_OK;
@@ -425,7 +425,7 @@ static int osdcmd_printtimes(CCmdFuncPtr UNUSED(parm))
 
             buf[0] = 0;
 
-            for (int ii=0; ii<g_labelCnt; ii++)
+            for (int ii=0; ii<labelcnt; ii++)
             {
                 if (labelcode[ii] == i && labeltype[ii] & LABEL_ACTOR)
                 {
