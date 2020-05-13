@@ -3273,9 +3273,9 @@ void P_GetInput(int const playerNum)
     input.fvel -= info.dz * keyMove / analogExtent;
 
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - pPlayer->lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
 
-    pPlayer->lastInputTicks = currentHiTicks;
+    thisPlayer.lastInputTicks = currentHiTicks;
 
     if (elapsedInputTicks == currentHiTicks)
         return;
@@ -3671,9 +3671,9 @@ void P_GetInputMotorcycle(int playerNum)
     input.fvel -= info.dz * keyMove / analogExtent;
 
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - pPlayer->lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
 
-    pPlayer->lastInputTicks = currentHiTicks;
+    thisPlayer.lastInputTicks = currentHiTicks;
 
     if (elapsedInputTicks == currentHiTicks)
         return;
@@ -3925,9 +3925,9 @@ void P_GetInputBoat(int playerNum)
     input.fvel -= info.dz * keyMove / analogExtent;
 
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - pPlayer->lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
 
-    pPlayer->lastInputTicks = currentHiTicks;
+    thisPlayer.lastInputTicks = currentHiTicks;
 
     if (elapsedInputTicks == currentHiTicks)
         return;
@@ -4190,9 +4190,9 @@ void P_DHGetInput(int const playerNum)
     input.fvel -= info.dz * keyMove / analogExtent;
 
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - pPlayer->lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
 
-    pPlayer->lastInputTicks = currentHiTicks;
+    thisPlayer.lastInputTicks = currentHiTicks;
 
     if (elapsedInputTicks == currentHiTicks)
         return;
