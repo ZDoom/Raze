@@ -65,33 +65,6 @@ void G_Util_PtrToIdx(void *ptr, int32_t const count, const void *base, int32_t c
     }
 }
 
-void G_Util_PtrToIdx2(void *ptr, int32_t const count, size_t const stride, const void *base, int32_t const mode)
-{
-    uint8_t *iptr = (uint8_t *)ptr;
-    intptr_t const ibase = (intptr_t)base;
-    int32_t const onlynon0_p = mode&P2I_ONLYNON0_BIT;
-
-    if ((mode & P2I_BACK_BIT) == 0)
-    {
-        for (bssize_t i = 0; i < count; ++i)
-        {
-            if (!onlynon0_p || *(intptr_t *)iptr)
-                *(intptr_t *)iptr -= ibase;
-
-            iptr += stride;
-        }
-    }
-    else
-    {
-        for (bssize_t i = 0; i < count; ++i)
-        {
-            if (!onlynon0_p || *(intptr_t *)iptr)
-                *(intptr_t *)iptr += ibase;
-
-            iptr += stride;
-        }
-    }
-}
 
 // TODO: sync with TROR special interpolations? (e.g. upper floor of subway)
 void G_ResetInterpolations(void)

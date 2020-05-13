@@ -1697,6 +1697,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 
 		return 0;
+#endif
 
 	case concmd_enda:
 		if (parsing_actor == 0)
@@ -1751,7 +1752,11 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	case concmd_garybanjo:
 	case concmd_motoloopsnd:
 	case concmd_rndmove:
+	//case concmd_leavetrax:		// RRDH
+	//case concmd_leavedroppings:
+	//case concmd_deploybias:
 		return 0;
+#if 0
 	case concmd_gamestartup:
 	{
 #if 0		// cannot be activated before the old CON code is tossed.

@@ -82,31 +82,6 @@ extern intptr_t parsing_actor;
 static intptr_t g_scriptEventOffset;
 extern char *textptr;
 
-static char *C_GetLabelType(int32_t type)
-{
-    int32_t i;
-    char x[64];
-
-    const char *LabelTypeText[] =
-    {
-        "define",
-        "state",
-        "actor",
-        "action",
-        "ai",
-        "move"
-    };
-
-    x[0] = 0;
-    for (i=0; i<6; i++)
-    {
-        if (!(type & (1<<i))) continue;
-        if (x[0]) Bstrcat(x, " or ");
-        Bstrcat(x, LabelTypeText[i]);
-    }
-
-    return Xstrdup(x);
-}
 
 static const vec2_t varvartable[] =
 {
@@ -161,59 +136,6 @@ static int32_t g_skipBranch;
 
 static int32_t C_SetScriptSize(int32_t newsize)
 {
-#if 0
-    intptr_t const oscript = (intptr_t)apScript;
-    intptr_t *newscript;
-    intptr_t i, j;
-    int32_t osize = g_scriptSize;
-    char *scriptptrs;
-
-    scriptptrs = (char *)Xcalloc(1, g_scriptSize * sizeof(uint8_t));
-
-    for (i = g_scriptSize - 1; i >= 0; i--)
-    {
-        if (apScript[i] >= (intptr_t)&apScript[0] && apScript[i] < (intptr_t)&apScript[g_scriptSize])
-        {
-            scriptptrs[i] = 1;
-            apScript[i] -= (intptr_t)&apScript[0];
-        }
-        else scriptptrs[i] = 0;
-    }
-
-    G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
-    G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
-
-    newscript = (intptr_t *)Xrealloc(apScript, newsize * sizeof(intptr_t));
-
-    if (newsize >= osize)
-    {
-        Bmemset(&newscript[0]+osize,0,(newsize-osize) * sizeof(uint8_t));
-    }
-
-    if (apScript != newscript)
-    {
-        buildprint("Relocating compiled code from to 0x", hex((intptr_t)apScript), " to 0x", hex((intptr_t)newscript), "\n");
-        apScript = newscript;
-    }
-
-    g_scriptSize = newsize;
-    scriptptr = apScript + (intptr_t)scriptptr - oscript;
-
-    if (g_caseScriptPtr)
-        g_caseScriptPtr = apScript + (intptr_t)g_caseScriptPtr - oscript;
-
-    for (i=(((newsize>=osize)?osize:newsize))-1; i>=0; i--)
-        if (scriptptrs[i])
-        {
-            j = (intptr_t)apScript[i]+(intptr_t)&apScript[0];
-            apScript[i] = j;
-        }
-
-    G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
-    G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
-
-    Xfree(scriptptrs);
-#endif
     return 0;
 }
 
@@ -639,14 +561,6 @@ static int32_t C_GetNextValue_()
     {
         //if (EDUKE32_PREDICT_TRUE(labeltype[i] & type))
         {
-#if 0
-            if (!(errorcount || warningcount) && g_scriptDebug > 1)
-            {
-                char *gl = C_GetLabelType(labeltype[i]);
-                Printf("%s:%d: debug: %s label `%s'.\n",g_scriptFileName,line_number,gl,label+(i<<6));
-                Xfree(gl);
-            }
-#endif
 
             BITPTR_CLEAR(scriptptr-apScript);
             *(scriptptr++) = labelcode[i];
@@ -654,20 +568,6 @@ static int32_t C_GetNextValue_()
             textptr += l;
             return 0;// labeltype[i];
         }
-
-#if 0
-        BITPTR_CLEAR(scriptptr-apScript);
-        *(scriptptr++) = 0;
-        textptr += l;
-        char *el = C_GetLabelType(type);
-        char *gl = C_GetLabelType(/*labeltype[i]*/0);
-        C_ReportError(-1);
-        Printf("%s:%d: warning: expected %s, found %s.\n",g_scriptFileName,line_number,el,gl);
-        warningcount++;
-        Xfree(el);
-        Xfree(gl);
-        return -1;  // valid label name, but wrong type
-#endif
     }
 
     if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) == 0 && *textptr != '-'))
@@ -1062,6 +962,40 @@ int32_t C_ParseCommand(int32_t loop)
         case concmd_definelevelname:
         case concmd_definequote:
         case concmd_definesound:
+        case concmd_enda:
+        case concmd_break:
+        case concmd_fall:
+        case concmd_tip:
+        case concmd_killit:
+        case concmd_resetactioncount:
+        case concmd_pstomp:
+        case concmd_resetplayer:
+        case concmd_resetcount:
+        case concmd_wackplayer:
+        case concmd_operate:
+        case concmd_respawnhitag:
+        case concmd_getlastpal:
+        case concmd_pkick:
+        case concmd_mikesnd:
+        case concmd_tossweapon:
+        case concmd_destroyit:
+        case concmd_larrybird:
+        case concmd_strafeleft:
+        case concmd_straferight:
+        case concmd_slapplayer:
+        case concmd_tearitup:
+        case concmd_smackbubba:
+        case concmd_soundtagonce:
+        case concmd_soundtag:
+        case concmd_smacksprite:
+        case concmd_fakebubba:
+        case concmd_mamatrigger:
+        case concmd_mamaspawn:
+        case concmd_mamaquake:
+        case concmd_mamaend:
+        case concmd_garybanjo:
+        case concmd_motoloopsnd:
+        case concmd_rndmove:
             if (parsecommand(g_lastKeyword)) return 1;
             continue;
 
@@ -1338,75 +1272,6 @@ ifvar:
             Bsprintf(g_szCurrentBlockName,"(none)");
             continue;
 
-        case concmd_enda:
-            if (EDUKE32_PREDICT_FALSE(!parsing_actor || g_scriptEventOffset))
-            {
-                C_ReportError(-1);
-                Printf("%s:%d: error: found `enda' without open `actor'.\n",g_scriptFileName,line_number);
-                errorcount++;
-                g_scriptEventOffset = 0;
-            }
-            if (EDUKE32_PREDICT_FALSE(num_squigilly_brackets != 0))
-            {
-                C_ReportError(num_squigilly_brackets > 0 ? ERROR_OPENBRACKET : ERROR_CLOSEBRACKET);
-                errorcount++;
-            }
-            parsing_actor = 0;
-            Bsprintf(g_szCurrentBlockName,"(none)");
-            continue;
-
-        case concmd_break:
-            continue;
-
-        case concmd_fall:
-        case concmd_tip:
-            //        case 21:
-        case concmd_killit:
-        case concmd_resetactioncount:
-        case concmd_pstomp:
-        case concmd_resetplayer:
-        case concmd_resetcount:
-        case concmd_wackplayer:
-        case concmd_operate:
-        case concmd_respawnhitag:
-        case concmd_getlastpal:
-        case concmd_pkick:
-        case concmd_mikesnd:
-        case concmd_tossweapon:
-        case concmd_destroyit:
-        case concmd_larrybird:
-        case concmd_strafeleft:
-        case concmd_straferight:
-        case concmd_slapplayer:
-        case concmd_tearitup:
-        case concmd_smackbubba:
-        case concmd_soundtagonce:
-        case concmd_soundtag:
-        case concmd_smacksprite:
-        case concmd_fakebubba:
-        case concmd_mamatrigger:
-        case concmd_mamaspawn:
-        case concmd_mamaquake:
-        case concmd_mamaend:
-        case concmd_garybanjo:
-        case concmd_motoloopsnd:
-        case concmd_rndmove:
-        //case CON_LEAVETRAX:
-        //case CON_LEAVEDROPPINGS:
-        //case CON_DEPLOYBIAS:
-            continue;
-
-        case concmd_nullop:
-            if (EDUKE32_PREDICT_FALSE(C_GetKeyword() != concmd_else))
-            {
-                C_ReportError(-1);
-                warningcount++;
-                Printf("%s:%d: warning: `nullop' found without `else'\n",g_scriptFileName,line_number);
-                scriptptr--;
-                g_skipBranch = 1;
-            }
-            continue;
-
         case concmd_gamestartup:
             {
                 int32_t params[34];
@@ -1435,41 +1300,6 @@ ifvar:
                     /*else
                         g_scriptVersion = 16;*/
                 }
-
-                /*
-                v1.3d                   v1.5
-                DEFAULTVISIBILITY       DEFAULTVISIBILITY
-                GENERICIMPACTDAMAGE     GENERICIMPACTDAMAGE
-                MAXPLAYERHEALTH         MAXPLAYERHEALTH
-                STARTARMORHEALTH        STARTARMORHEALTH
-                RESPAWNACTORTIME        RESPAWNACTORTIME
-                RESPAWNITEMTIME         RESPAWNITEMTIME
-                RUNNINGSPEED            RUNNINGSPEED
-                RPGBLASTRADIUS          GRAVITATIONALCONSTANT
-                PIPEBOMBRADIUS          RPGBLASTRADIUS
-                SHRINKERBLASTRADIUS     PIPEBOMBRADIUS
-                TRIPBOMBBLASTRADIUS     SHRINKERBLASTRADIUS
-                MORTERBLASTRADIUS       TRIPBOMBBLASTRADIUS
-                BOUNCEMINEBLASTRADIUS   MORTERBLASTRADIUS
-                SEENINEBLASTRADIUS      BOUNCEMINEBLASTRADIUS
-                MAXPISTOLAMMO           SEENINEBLASTRADIUS
-                MAXSHOTGUNAMMO          MAXPISTOLAMMO
-                MAXCHAINGUNAMMO         MAXSHOTGUNAMMO
-                MAXRPGAMMO              MAXCHAINGUNAMMO
-                MAXHANDBOMBAMMO         MAXRPGAMMO
-                MAXSHRINKERAMMO         MAXHANDBOMBAMMO
-                MAXDEVISTATORAMMO       MAXSHRINKERAMMO
-                MAXTRIPBOMBAMMO         MAXDEVISTATORAMMO
-                MAXFREEZEAMMO           MAXTRIPBOMBAMMO
-                CAMERASDESTRUCTABLE     MAXFREEZEAMMO
-                NUMFREEZEBOUNCES        MAXGROWAMMO
-                FREEZERHURTOWNER        CAMERASDESTRUCTABLE
-                NUMFREEZEBOUNCES
-                FREEZERHURTOWNER
-                QSIZE
-                TRIPBOMBLASERMODE
-                */
-
                 G_DoGameStartup(params);
             }
             continue;
