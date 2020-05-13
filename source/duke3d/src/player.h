@@ -213,8 +213,6 @@ typedef struct {
 
     int8_t last_used_weapon;
 
-    double lastInputTicks;
-
 #ifdef LUNATIC
     int8_t palsfadespeed, palsfadenext, palsfadeprio, padding2_;
 
@@ -224,7 +222,7 @@ typedef struct {
 #endif
 
     int8_t crouch_toggle;
-    int8_t padding_[5];
+    int8_t padding_[1];
 } DukePlayer_t;
 
 // KEEPINSYNC lunatic/_defs_game.lua
@@ -238,6 +236,7 @@ typedef struct
     int8_t  horizSkew;
     bool    lookLeft;
     bool    lookRight;
+    double  lastInputTicks;
 
     int32_t netsynctime;
     int16_t ping, filler;
