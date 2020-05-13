@@ -654,24 +654,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	default:
 	case -1:
 		return 0; //End
-#if 0
-	case concmd_blockcomment:	  //Rem endrem
-		popscriptvalue();
-		j = line_number;
-		do
-		{
-			textptr++;
-			if (*textptr == 0x0a) line_number++;
-			if (*textptr == 0)
-			{
-				Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found '/*' with no '*/'.\n", fn, j, label + (labelcnt << 6));
-				errorcount++;
-				return 0;
-			}
-		} while (*textptr != '*' || *(textptr + 1) != '/');
-		textptr += 2;
-		return 0;
-#endif
+
 	case concmd_state:
 		if (parsing_actor == 0 && parsing_state == 0)
 		{
@@ -862,10 +845,12 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 		return 0;
 	}
-#if 0
 	case concmd_include:
 	{
 		popscriptvalue();
+		skipcomments();
+
+		parsebuffer.Clear();
 		while (isaltok(*textptr) == 0)
 		{
 			if (*textptr == 0x0a) line_number++;
@@ -875,12 +860,12 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		j = 0;
 		while (isaltok(*textptr))
 		{
-			tempbuf[j] = *(textptr++);
+			parsebuffer.Push(*(textptr++));
 			j++;
 		}
-		tempbuf[j] = '\0';
+		parsebuffer.Push(0);
 
-		auto fn = fileSystem.FindFile(tempbuf);
+		auto fn = fileSystem.FindFile(parsebuffer.Data());
 		if (fn < 0)
 		{
 			errorcount++;
@@ -888,9 +873,10 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			return 0;
 		}
 
-		auto data = fileSystem.LoadFile(tempbuf, 1);
+		auto data = fileSystem.GetFileData(fn, 1);
 
 		temp_current_file = g_currentSourceFile;
+		g_currentSourceFile = fn;
 
 		temp_line_number = line_number;
 		line_number = 1;
@@ -899,19 +885,22 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		auto origtptr = textptr;
 		textptr = (char*)data.Data();
 
+#if 0
 		do
 			done = parsecommand();
 		while (done == 0);
+#else // TRANSITIONAL
+		C_ParseCommand(1);
+#endif
 
 		textptr = origtptr;
-		total_lines += line_number;
 		line_number = temp_line_number;
 		checking_ifelse = temp_ifelse_check;
 		g_currentSourceFile = temp_current_file;
 
 		return 0;
 	}
-#endif
+
 	case concmd_ai:
 		if (parsing_actor || parsing_state)
 			transnum();
@@ -1723,12 +1712,10 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	//case concmd_leavedroppings:
 	//case concmd_deploybias:
 		return 0;
-#if 0
 	case concmd_gamestartup:
 	{
-#if 0		// cannot be activated before the old CON code is tossed.
-		auto parseone = []() { transnum(); popscriptvalue(); return *scriptptr; }
-		ud_const_visibility = parseone();
+		auto parseone = []() { transnum(); return popscriptvalue(); };
+		ud.const_visibility = parseone();
 		impact_damage = parseone();
 		max_player_health = parseone();
 		max_armour_amount = parseone();
@@ -1736,13 +1723,14 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		respawnitemtime = parseone();
 		dukefriction = parseone();
 		gc = parseone();
-		pgblastradius = parseone();
-		ipebombblastradius = parseone();
+		rpgblastradius = parseone();
+		pipebombblastradius = parseone();
 		shrinkerblastradius = parseone();
 		tripbombblastradius = parseone();
 		morterblastradius = parseone();
 		bouncemineblastradius = parseone();
 		seenineblastradius = parseone();
+
 		max_ammo_amount[1] = parseone();
 		max_ammo_amount[2] = parseone();
 		max_ammo_amount[3] = parseone();
@@ -1752,7 +1740,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		max_ammo_amount[7] = parseone();
 		max_ammo_amount[8] = parseone();
 		max_ammo_amount[9] = parseone();
-		max_ammo_amount[11] = parseone();
+		 max_ammo_amount[11] = parseone();
 		if (isRR()) max_ammo_amount[12] = parseone();
 		camerashitable = parseone();
 		numfreezebounces = parseone();
@@ -1766,10 +1754,8 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			max_ammo_amount[16] = parseone();
 		}
 		scriptptr++;
-#endif
 	}
 	return 0;
-#endif
 	}
 	return 0;
 }

@@ -125,8 +125,7 @@ G_EXTERN int32_t g_freezerSelfDamage;
 G_EXTERN int32_t g_gameQuit;
 G_EXTERN int32_t g_globalRandom;
 #define global_random g_globalRandom
-G_EXTERN int32_t g_impactDamage;
-#define impact_damage g_impactDamage
+G_EXTERN int32_t impact_damage;
 extern int32_t labelcnt;
 G_EXTERN int32_t g_maxPlayerHealth;
 G_EXTERN int32_t g_mirrorCount;
@@ -136,8 +135,9 @@ G_EXTERN int32_t g_playerSpawnCnt;
 G_EXTERN int32_t g_scriptDebug;
 G_EXTERN int32_t g_showShareware;
 G_EXTERN int32_t g_spriteDeleteQueuePos;
-G_EXTERN int32_t g_startArmorAmount;
-G_EXTERN int32_t g_tripbombLaserMode;
+G_EXTERN int32_t max_player_health;
+G_EXTERN int32_t max_armour_amount;
+G_EXTERN int32_t lasermode;
 G_EXTERN int32_t screenpeek;
 
 G_EXTERN int16_t g_animateSect[MAXANIMATES];
@@ -255,21 +255,19 @@ extern float g_gameUpdateAvgTime;
 extern char CheatKeys[2];
 extern char g_gametypeNames[MAXGAMETYPES][33];
 
-extern int32_t g_actorRespawnTime;
+extern int32_t respawnactortime;
 extern int32_t g_bouncemineRadius;
 #define bouncemineblastradius g_bouncemineRadius
 extern int32_t g_deleteQueueSize;
 extern int32_t g_gametypeCnt;
-extern int32_t g_itemRespawnTime;
-#define respawnitemtime g_itemRespawnTime
+extern int32_t respawnitemtime;
 extern int32_t g_morterRadius;
 #define morterblastradius g_morterRadius
-extern int32_t g_numFreezeBounces;
+extern int32_t numfreezebounces;
 extern int32_t g_pipebombRadius;
 #define pipebombblastradius g_pipebombRadius
-extern int32_t g_playerFriction;
-extern int32_t g_rpgRadius;
-#define rpgblastradius g_rpgRadius
+extern int32_t dukefriction;
+extern int32_t rpgblastradius;
 extern int32_t g_scriptSize;
 extern int32_t g_seenineRadius;
 #define seenineblastradius g_seenineRadius

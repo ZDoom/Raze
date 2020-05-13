@@ -80,18 +80,18 @@ int32_t g_gametypeFlags[MAXGAMETYPES] =
 
 float g_gameUpdateAvgTime = -1.f;
 
-int32_t g_actorRespawnTime   = 768;
+int32_t respawnactortime   = 768;
 int32_t g_bouncemineRadius   = 2500;
 int32_t g_deleteQueueSize    = 64;
-int32_t g_itemRespawnTime    = 768;
+int32_t respawnitemtime    = 768;
 
 int32_t g_morterRadius       = 2500;
-int32_t g_numFreezeBounces   = 3;
+int32_t numfreezebounces   = 3;
 int32_t g_gametypeCnt       = 5;
 int32_t g_volumeCnt         = 3;
 int32_t g_pipebombRadius     = 2500;
-int32_t g_playerFriction     = 0xCFD0;
-int32_t g_rpgRadius          = 1780;
+int32_t dukefriction     = 0xCFD0;
+int32_t rpgblastradius          = 1780;
 int32_t g_scriptSize         = 1048576;
 int32_t g_seenineRadius      = 2048;
 int32_t g_shrinkerRadius     = 650;

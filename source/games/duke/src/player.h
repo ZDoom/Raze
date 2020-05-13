@@ -182,7 +182,7 @@ typedef struct player_struct {
 
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
-    int32_t runspeed, max_player_health, max_shield_amount;
+    int32_t runspeed;
     int32_t autostep, autostep_sbw;
 
     uint32_t interface_toggle_flag;
@@ -193,7 +193,7 @@ typedef struct player_struct {
     int16_t loogiex[64], loogiey[64], sbs, sound_pitch;
 
     int16_t cursectnum, look_ang, last_extra, subweapon;
-    int16_t max_ammo_amount[MAX_WEAPONS], ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
+    int16_t ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
     int16_t wackedbyactor, pyoff, opyoff;
 
     int16_t newowner, jumping_counter, airleft;

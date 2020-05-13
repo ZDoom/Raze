@@ -328,10 +328,10 @@ public:
         DrawGraphic(tileGetTexture(TILE_COLA), 2, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
 
         FString format;
-        if (!althud_flashing || p->last_extra > (p->max_player_health >> 2) || ((int32_t)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
+        if (!althud_flashing || p->last_extra > (max_player_health >> 2) || ((int32_t)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
         {
             int s = -8;
-            if (althud_flashing && p->last_extra > p->max_player_health)
+            if (althud_flashing && p->last_extra > max_player_health)
                 s += (sintable[((int)totalclock << 5) & 2047] >> 10);
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
@@ -362,7 +362,7 @@ public:
         int weapon = p->curr_weapon;
         if (weapon == HANDREMOTE_WEAPON) weapon = HANDBOMB_WEAPON;
 
-        if (p->curr_weapon != KNEE_WEAPON && (!althud_flashing || (int32_t)totalclock & 32 || p->ammo_amount[weapon] > (p->max_ammo_amount[weapon] / 10)))
+        if (p->curr_weapon != KNEE_WEAPON && (!althud_flashing || (int32_t)totalclock & 32 || p->ammo_amount[weapon] > (max_ammo_amount[weapon] / 10)))
         {
             format.Format("%d", p->ammo_amount[weapon]);
             SBar_DrawString(this, &numberFont, format, -22, -numberFont.mFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
@@ -460,10 +460,10 @@ public:
         DrawGraphic(tileGetTexture(TILE_SPINNINGNUKEICON+1), 2, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 10000. / 65536., 10000. / 65536.);
 
         FString format;
-        if (!althud_flashing || p->last_extra > (p->max_player_health >> 2) || ((int32_t)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
+        if (!althud_flashing || p->last_extra > (max_player_health >> 2) || ((int32_t)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
         {
             int s = -8;
-            if (althud_flashing && p->last_extra > p->max_player_health)
+            if (althud_flashing && p->last_extra > max_player_health)
                 s += (sintable[((int)totalclock << 5) & 2047] >> 10);
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
@@ -499,7 +499,7 @@ public:
         int weapon = p->curr_weapon;
         if (weapon == HANDREMOTE_WEAPON) weapon = DYNAMITE_WEAPON;
 
-        if (p->curr_weapon != KNEE_WEAPON && p->curr_weapon != SLINGBLADE_WEAPON && (!althud_flashing || (int32_t)totalclock & 32 || p->ammo_amount[weapon] > (p->max_ammo_amount[weapon] / 10)))
+        if (p->curr_weapon != KNEE_WEAPON && p->curr_weapon != SLINGBLADE_WEAPON && (!althud_flashing || (int32_t)totalclock & 32 || p->ammo_amount[weapon] > (max_ammo_amount[weapon] / 10)))
         {
             format.Format("%d", p->ammo_amount[weapon]);
             SBar_DrawString(this, &numberFont, format, -20, -numberFont.mFont->GetHeight() * scale - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
@@ -693,18 +693,18 @@ public:
             return (((!p->ammo_amount[weapon]) | (!p->gotweapon[weapon])) * 9) + 12 - 18 * ((cw == weapon) || (optweapon != -1 && cw == optweapon));
         };
 
-        DrawWeaponNum(2, x, y, p->ammo_amount[PISTOL_WEAPON], p->max_ammo_amount[PISTOL_WEAPON], 12 - 20 * (cw == PISTOL_WEAPON), 3);
-        DrawWeaponNum(3, x, y + 6, p->ammo_amount[SHOTGUN_WEAPON], p->max_ammo_amount[SHOTGUN_WEAPON], ShadeForWeapon(SHOTGUN_WEAPON), 3);
-        DrawWeaponNum(4, x, y + 12, p->ammo_amount[CHAINGUN_WEAPON], p->max_ammo_amount[CHAINGUN_WEAPON], ShadeForWeapon(CHAINGUN_WEAPON), 3);
-        DrawWeaponNum(5, x + 39, y, p->ammo_amount[RPG_WEAPON], p->max_ammo_amount[RPG_WEAPON], ShadeForWeapon(RPG_WEAPON), 2);
-        DrawWeaponNum(6, x + 39, y + 6, p->ammo_amount[HANDBOMB_WEAPON], p->max_ammo_amount[HANDBOMB_WEAPON], ShadeForWeapon(HANDBOMB_WEAPON, HANDREMOTE_WEAPON), 2);
+        DrawWeaponNum(2, x, y, p->ammo_amount[PISTOL_WEAPON], max_ammo_amount[PISTOL_WEAPON], 12 - 20 * (cw == PISTOL_WEAPON), 3);
+        DrawWeaponNum(3, x, y + 6, p->ammo_amount[SHOTGUN_WEAPON], max_ammo_amount[SHOTGUN_WEAPON], ShadeForWeapon(SHOTGUN_WEAPON), 3);
+        DrawWeaponNum(4, x, y + 12, p->ammo_amount[CHAINGUN_WEAPON], max_ammo_amount[CHAINGUN_WEAPON], ShadeForWeapon(CHAINGUN_WEAPON), 3);
+        DrawWeaponNum(5, x + 39, y, p->ammo_amount[RPG_WEAPON], max_ammo_amount[RPG_WEAPON], ShadeForWeapon(RPG_WEAPON), 2);
+        DrawWeaponNum(6, x + 39, y + 6, p->ammo_amount[HANDBOMB_WEAPON], max_ammo_amount[HANDBOMB_WEAPON], ShadeForWeapon(HANDBOMB_WEAPON, HANDREMOTE_WEAPON), 2);
         if (p->subweapon & (1 << GROW_WEAPON)) // original code says: if(!p->ammo_amount[SHRINKER_WEAPON] || cw == GROW_WEAPON)
-            DrawWeaponNum(7, x + 39, y + 12, p->ammo_amount[GROW_WEAPON], p->max_ammo_amount[GROW_WEAPON], ShadeForWeapon(GROW_WEAPON), 2);
+            DrawWeaponNum(7, x + 39, y + 12, p->ammo_amount[GROW_WEAPON], max_ammo_amount[GROW_WEAPON], ShadeForWeapon(GROW_WEAPON), 2);
         else
-            DrawWeaponNum(7, x + 39, y + 12, p->ammo_amount[SHRINKER_WEAPON], p->max_ammo_amount[SHRINKER_WEAPON], ShadeForWeapon(SHRINKER_WEAPON), 2);
-        DrawWeaponNum(8, x + 70, y, p->ammo_amount[DEVISTATOR_WEAPON], p->max_ammo_amount[DEVISTATOR_WEAPON], ShadeForWeapon(DEVISTATOR_WEAPON), 2);
-        DrawWeaponNum(9, x + 70, y + 6, p->ammo_amount[TRIPBOMB_WEAPON], p->max_ammo_amount[TRIPBOMB_WEAPON], ShadeForWeapon(TRIPBOMB_WEAPON), 2);
-        DrawWeaponNum(0, x + 70, y + 12, p->ammo_amount[FREEZE_WEAPON], p->max_ammo_amount[FREEZE_WEAPON], ShadeForWeapon(FREEZE_WEAPON), 2);
+            DrawWeaponNum(7, x + 39, y + 12, p->ammo_amount[SHRINKER_WEAPON], max_ammo_amount[SHRINKER_WEAPON], ShadeForWeapon(SHRINKER_WEAPON), 2);
+        DrawWeaponNum(8, x + 70, y, p->ammo_amount[DEVISTATOR_WEAPON], max_ammo_amount[DEVISTATOR_WEAPON], ShadeForWeapon(DEVISTATOR_WEAPON), 2);
+        DrawWeaponNum(9, x + 70, y + 6, p->ammo_amount[TRIPBOMB_WEAPON], max_ammo_amount[TRIPBOMB_WEAPON], ShadeForWeapon(TRIPBOMB_WEAPON), 2);
+        DrawWeaponNum(0, x + 70, y + 12, p->ammo_amount[FREEZE_WEAPON], max_ammo_amount[FREEZE_WEAPON], ShadeForWeapon(FREEZE_WEAPON), 2);
     }
 
     //==========================================================================

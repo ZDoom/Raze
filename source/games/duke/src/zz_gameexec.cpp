@@ -854,7 +854,7 @@ static void VM_AddWeapon(DukePlayer_t * const pPlayer, int const weaponNum, int 
     {
         P_AddWeapon(pPlayer, weaponNum);
     }
-    else if (pPlayer->ammo_amount[weaponNum] >= pPlayer->max_ammo_amount[weaponNum])
+    else if (pPlayer->ammo_amount[weaponNum] >= max_ammo_amount[weaponNum])
     {
         vm.flags |= VM_NOEXECUTE;
         return;
@@ -874,7 +874,7 @@ static void VM_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int co
         return;
     }
 
-    if (pPlayer->ammo_amount[weaponNum] >= pPlayer->max_ammo_amount[weaponNum])
+    if (pPlayer->ammo_amount[weaponNum] >= max_ammo_amount[weaponNum])
     {
         vm.flags |= VM_NOEXECUTE;
         return;
@@ -904,7 +904,7 @@ static void VM_AddInventory(DukePlayer_t * const pPlayer, int const itemNum, int
     case GET_SHIELD:
     {
         int16_t & shield_amount = pPlayer->inv_amount[GET_SHIELD];
-        shield_amount = min(shield_amount + nAmount, pPlayer->max_shield_amount);
+        shield_amount = min(shield_amount + nAmount, max_player_health);
         break;
     }
 
@@ -1893,8 +1893,8 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
                     if (newHealth > 0)
                         newHealth += *insptr;
-                    if (newHealth > (pPlayer->max_player_health << 1))
-                        newHealth = (pPlayer->max_player_health << 1);
+                    if (newHealth > (max_player_health << 1))
+                        newHealth = (max_player_health << 1);
                     if (newHealth < 0)
                         newHealth = 0;
 
@@ -1902,7 +1902,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     {
                         if (*insptr > 0)
                         {
-                            if ((newHealth - *insptr) < (pPlayer->max_player_health >> 2) && newHealth >= (pPlayer->max_player_health >> 2))
+                            if ((newHealth - *insptr) < (max_player_health >> 2) && newHealth >= (max_player_health >> 2))
                                 A_PlaySound(DUKE_GOTHEALTHATLOW, pPlayer->i);
                             pPlayer->last_extra = newHealth;
                         }
@@ -1912,10 +1912,10 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     if (pPlayer->drink_amt > 100)
                         pPlayer->drink_amt = 100;
 
-                    if (sprite[pPlayer->i].extra >= pPlayer->max_player_health)
+                    if (sprite[pPlayer->i].extra >= max_player_health)
                     {
-                        sprite[pPlayer->i].extra = pPlayer->max_player_health;
-                        pPlayer->last_extra = pPlayer->max_player_health;
+                        sprite[pPlayer->i].extra = max_player_health;
+                        pPlayer->last_extra = max_player_health;
                     }
                 }
                 insptr++;
@@ -2058,7 +2058,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
                     if (vm.pSprite->picnum != TILE_ATOMICHEALTH)
                     {
-                        if (newHealth > pPlayer->max_player_health && *insptr > 0)
+                        if (newHealth > max_player_health && *insptr > 0)
                         {
                             insptr++;
                             continue;
@@ -2067,16 +2067,16 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         {
                             if (newHealth > 0)
                                 newHealth += (*insptr)*3;
-                            if (newHealth > pPlayer->max_player_health && *insptr > 0)
-                                newHealth = pPlayer->max_player_health;
+                            if (newHealth > max_player_health && *insptr > 0)
+                                newHealth = max_player_health;
                         }
                     }
                     else
                     {
                         if (newHealth > 0)
                             newHealth += *insptr;
-                        if (newHealth > (pPlayer->max_player_health << 1))
-                            newHealth = (pPlayer->max_player_health << 1);
+                        if (newHealth > (max_player_health << 1))
+                            newHealth = (max_player_health << 1);
                     }
 
                     if (newHealth < 0)
@@ -2086,7 +2086,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     {
                         if (*insptr > 0)
                         {
-                            if ((newHealth - *insptr) < (pPlayer->max_player_health >> 2) && newHealth >= (pPlayer->max_player_health >> 2))
+                            if ((newHealth - *insptr) < (max_player_health >> 2) && newHealth >= (max_player_health >> 2))
                                 A_PlaySound(DUKE_GOTHEALTHATLOW, pPlayer->i);
                             pPlayer->last_extra = newHealth;
                         }
@@ -2109,7 +2109,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
                     if (vm.pSprite->picnum != TILE_ATOMICHEALTH)
                     {
-                        if (newHealth > pPlayer->max_player_health && *insptr > 0)
+                        if (newHealth > max_player_health && *insptr > 0)
                         {
                             insptr++;
                             continue;
@@ -2118,16 +2118,16 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         {
                             if (newHealth > 0)
                                 newHealth += *insptr;
-                            if (newHealth > pPlayer->max_player_health && *insptr > 0)
-                                newHealth = pPlayer->max_player_health;
+                            if (newHealth > max_player_health && *insptr > 0)
+                                newHealth = max_player_health;
                         }
                     }
                     else
                     {
                         if (newHealth > 0)
                             newHealth += *insptr;
-                        if (newHealth > (pPlayer->max_player_health << 1))
-                            newHealth = (pPlayer->max_player_health << 1);
+                        if (newHealth > (max_player_health << 1))
+                            newHealth = (max_player_health << 1);
                     }
 
                     if (newHealth < 0)
@@ -2137,7 +2137,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     {
                         if (*insptr > 0)
                         {
-                            if ((newHealth - *insptr) < (pPlayer->max_player_health >> 2) && newHealth >= (pPlayer->max_player_health >> 2))
+                            if ((newHealth - *insptr) < (max_player_health >> 2) && newHealth >= (max_player_health >> 2))
                                 A_PlaySound(DUKE_GOTHEALTHATLOW, pPlayer->i);
                             pPlayer->last_extra = newHealth;
                         }
@@ -2520,7 +2520,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     case GET_JETPACK: tw = (pPlayer->inv_amount[*(insptr - 1)] != *insptr); break;
 
                     case GET_SHIELD:
-                        tw = (pPlayer->inv_amount[GET_SHIELD] != pPlayer->max_player_health); break;
+                        tw = (pPlayer->inv_amount[GET_SHIELD] != max_player_health); break;
                     case GET_ACCESS:
                         if (RR)
                         {

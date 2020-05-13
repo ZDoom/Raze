@@ -269,7 +269,7 @@ static void G_CheatGetInv(DukePlayer_t *pPlayer)
     doinvcheat(pPlayer, GET_SCUBA, 6400, EVENT_CHEATGETSCUBA);
     doinvcheat(pPlayer, GET_HOLODUKE, 2400, EVENT_CHEATGETHOLODUKE);
     doinvcheat(pPlayer, GET_JETPACK, RR ? 600 : 1600, EVENT_CHEATGETJETPACK);
-    doinvcheat(pPlayer, GET_FIRSTAID, pPlayer->max_player_health, EVENT_CHEATGETFIRSTAID);
+    doinvcheat(pPlayer, GET_FIRSTAID, max_player_health, EVENT_CHEATGETFIRSTAID);
 }
 
 static void end_cheat(DukePlayer_t * const pPlayer)
@@ -432,7 +432,7 @@ void G_DoCheats(void)
 
                     for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < weaponLimit; weaponNum++)
                     {
-                        P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
+                        P_AddAmmo(pPlayer, weaponNum, max_ammo_amount[weaponNum]);
                         pPlayer->gotweapon.Set(weaponNum);
                     }
 
@@ -540,20 +540,20 @@ void G_DoCheats(void)
                         //        pPlayer->gotweapon |= (1<<weaponNum);
                         //
                         //    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
-                        //        P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
+                        //        P_AddAmmo(pPlayer, weaponNum, max_ammo_amount[weaponNum]);
                         //
                         //    pPlayer->got_access = 7;
                         //}
                     }
                     else
                     {
-                        sprite[pi].extra = pPlayer->max_player_health;
+                        sprite[pi].extra = max_player_health;
                         actor[pi].extra = -1;
-                        pPlayer->last_extra = pPlayer->max_player_health;
+                        pPlayer->last_extra = max_player_health;
                         P_DoQuote(QUOTE_CHEAT_GODMODE_OFF, pPlayer);
                     }
 
-                    sprite[pi].extra = pPlayer->max_player_health;
+                    sprite[pi].extra = max_player_health;
                     actor[pi].extra = 0;
 
                     //if (cheatNum != CHEAT_COMEGETSOME)
@@ -571,7 +571,7 @@ void G_DoCheats(void)
                         pPlayer->gotweapon.Set(weaponNum);
 
                     for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < weaponLimit; weaponNum++)
-                        P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
+                        P_AddAmmo(pPlayer, weaponNum, max_ammo_amount[weaponNum]);
 
                     if (RRRA)
                         pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 1;
@@ -760,7 +760,7 @@ void G_DoCheats(void)
 
                 case CHEAT_RAJOSEPH:
                     OnMotorcycle(pPlayer, 0);
-                    pPlayer->ammo_amount[MOTORCYCLE_WEAPON] = pPlayer->max_ammo_amount[MOTORCYCLE_WEAPON];
+                    pPlayer->ammo_amount[MOTORCYCLE_WEAPON] = max_ammo_amount[MOTORCYCLE_WEAPON];
                     P_DoQuote(126, pPlayer);
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
@@ -885,7 +885,7 @@ void G_DoCheats(void)
                 case CHEAT_RAARIJIT:
                 case CHEAT_RADONUT:
                     OnBoat(pPlayer, 0);
-                    pPlayer->ammo_amount[BOAT_WEAPON] = pPlayer->max_ammo_amount[BOAT_WEAPON];
+                    pPlayer->ammo_amount[BOAT_WEAPON] = max_ammo_amount[BOAT_WEAPON];
                     P_DoQuote(136, pPlayer);
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();

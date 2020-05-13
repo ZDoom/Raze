@@ -722,77 +722,6 @@ static void C_Include(const char *confile)
     Xfree(mptr);
 }
 
-void G_DoGameStartup(const int32_t *params)
-{
-    int j = 0;
-
-    ud.const_visibility               = params[j++];
-    g_impactDamage                    = params[j++];
-    g_player[0].ps->max_shield_amount = params[j++];
-    g_player[0].ps->max_player_health = g_player[0].ps->max_shield_amount;
-    g_maxPlayerHealth                 = g_player[0].ps->max_player_health;
-    g_startArmorAmount                = params[j++];
-    g_actorRespawnTime                = params[j++];
-    g_itemRespawnTime                 = params[j++];
-    g_playerFriction                  = params[j++];
-    g_spriteGravity                   = params[j++];
-    g_rpgRadius                       = params[j++];
-    g_pipebombRadius                  = params[j++];
-    g_shrinkerRadius                  = params[j++];
-    g_tripbombRadius                  = params[j++];
-    g_morterRadius                    = params[j++];
-    g_bouncemineRadius                = params[j++];
-    g_seenineRadius                   = params[j++];
-
-    max_ammo_amount[1] = g_player[0].ps->max_ammo_amount[1] = params[j++];
-    max_ammo_amount[2] = g_player[0].ps->max_ammo_amount[2] = params[j++];
-    max_ammo_amount[3] = g_player[0].ps->max_ammo_amount[3] = params[j++];
-    max_ammo_amount[4] = g_player[0].ps->max_ammo_amount[4] = params[j++];
-    max_ammo_amount[5] = g_player[0].ps->max_ammo_amount[5] = params[j++];
-    max_ammo_amount[6] = g_player[0].ps->max_ammo_amount[6] = params[j++];
-    max_ammo_amount[7] = g_player[0].ps->max_ammo_amount[7] = params[j++];
-    max_ammo_amount[8] = g_player[0].ps->max_ammo_amount[8] = params[j++];
-    max_ammo_amount[9] = g_player[0].ps->max_ammo_amount[9] = params[j++];
-    max_ammo_amount[11] = g_player[0].ps->max_ammo_amount[11] = params[j++];
-
-    if (RR)
-        max_ammo_amount[12] = g_player[0].ps->max_ammo_amount[12] = params[j++];
-
-    g_damageCameras     = params[j++];
-    g_numFreezeBounces  = params[j++];
-    g_freezerSelfDamage = params[j++];
-    g_deleteQueueSize   = clamp(params[j++], 0, 1024);
-    g_tripbombLaserMode = params[j++];
-
-    if (RRRA)
-    {
-        max_ammo_amount[13] = g_player[0].ps->max_ammo_amount[13] = params[j++];
-        max_ammo_amount[14] = g_player[0].ps->max_ammo_amount[14] = params[j++];
-        max_ammo_amount[16] = g_player[0].ps->max_ammo_amount[16] = params[j++];
-    }
-}
-
-void C_DefineMusic(int volumeNum, int levelNum, const char *fileName)
-{
-    Bassert((unsigned)volumeNum < MAXVOLUMES+1);
-    Bassert((unsigned)levelNum < MAXLEVELS);
-
-    mapList[(MAXLEVELS*volumeNum)+levelNum].music = fileName;
-}
-
-void C_DefineVolumeFlags(int32_t vol, int32_t flags)
-{
-    Bassert((unsigned)vol < MAXVOLUMES);
-
-    gVolumeFlags[vol] = flags;
-}
-
-int32_t C_AllocQuote(int32_t qnum)
-{
-    Bassert((unsigned)qnum < MAXQUOTES);
-    return 1;
-}
-
 void C_InitQuotes(void)
 {
 #if 0	// if we want to keep this it must be done differently. This does not play nice with text substitution.
@@ -963,6 +892,7 @@ int32_t C_ParseCommand(int32_t loop)
         case concmd_definequote:
         case concmd_definesound:
         case concmd_enda:
+        case concmd_include:
         case concmd_break:
         case concmd_fall:
         case concmd_tip:
@@ -996,6 +926,7 @@ int32_t C_ParseCommand(int32_t loop)
         case concmd_garybanjo:
         case concmd_motoloopsnd:
         case concmd_rndmove:
+        case concmd_gamestartup:
             if (parsecommand(g_lastKeyword)) return 1;
             continue;
 
@@ -1053,26 +984,6 @@ int32_t C_ParseCommand(int32_t loop)
             continue;
         }
 
-        case concmd_include:
-            scriptptr--;
-
-            C_SkipComments();
-            while (isaltok(*textptr) == 0)
-            {
-                textptr++;
-                if (*textptr == 0) break;
-            }
-
-            j = 0;
-            while (isaltok(*textptr))
-            {
-                tempbuf[j] = *(textptr++);
-                j++;
-            }
-            tempbuf[j] = '\0';
-
-            C_Include(tempbuf);
-            continue;
 
 
 		case concmd_onevent:
@@ -1272,39 +1183,9 @@ ifvar:
             Bsprintf(g_szCurrentBlockName,"(none)");
             continue;
 
-        case concmd_gamestartup:
-            {
-                int32_t params[34];
 
-                scriptptr--;
-                for (j = 0; j < 34; j++)
-                {
-                    C_GetNextValue(LABEL_DEFINE);
-                    scriptptr--;
-                    params[j] = *scriptptr;
-
-                    if (j != 29 && j != 30) continue;
-
-                    if (C_GetKeyword() != -1)
-                    {
-                        /*if (j == 12)
-                            g_scriptVersion = 10;
-                        else if (j == 21)
-                            g_scriptVersion = 11;
-                        else if (j == 25)
-                            g_scriptVersion = 13;
-                        else if (j == 29)
-                            g_scriptVersion = 14;*/
-                        break;
                     }
-                    /*else
-                        g_scriptVersion = 16;*/
                 }
-                G_DoGameStartup(params);
-            }
-            continue;
-        }
-    }
     while (loop);
 
     return 0;

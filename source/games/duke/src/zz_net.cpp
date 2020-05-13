@@ -2708,7 +2708,7 @@ void Net_ParseClientPacket(ENetEvent *event)
         //    g_player[other].ps->i = j;
         //    changespritestat(j, STAT_PLAYER);
         //
-        //    g_player[other].ps->last_extra = sprite[g_player[other].ps->i].extra = g_player[other].ps->max_player_health;
+        //    g_player[other].ps->last_extra = sprite[g_player[other].ps->i].extra = max_player_health;
         //    sprite[g_player[other].ps->i].cstat = 1+256;
         //    actor[g_player[other].ps->i].t_data[2] = actor[g_player[other].ps->i].t_data[3] = actor[g_player[other].ps->i].t_data[4] = 0;
         //

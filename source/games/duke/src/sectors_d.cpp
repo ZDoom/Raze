@@ -1653,13 +1653,13 @@ void checksectors_d(int snum)
 						p->holster_weapon = 1;
 						p->weapon_pos = -1;
 					}
-					if (sprite[p->i].extra <= (p->max_player_health - (p->max_player_health / 10)))
+					if (sprite[p->i].extra <= (max_player_health - (max_player_health / 10)))
 					{
-						sprite[p->i].extra += p->max_player_health / 10;
+						sprite[p->i].extra += max_player_health / 10;
 						p->last_extra = sprite[p->i].extra;
 					}
-					else if (sprite[p->i].extra < p->max_player_health)
-						sprite[p->i].extra = p->max_player_health;
+					else if (sprite[p->i].extra < max_player_health)
+						sprite[p->i].extra = max_player_health;
 				}
 				else if (S_CheckSoundPlaying(FLUSH_TOILET) == 0)
 					spritesound(FLUSH_TOILET, p->i);
@@ -1685,7 +1685,7 @@ void checksectors_d(int snum)
 					hittype[neartagsprite].temp_data[0] = 1;
 					sprite[neartagsprite].owner = p->i;
 
-					if (sprite[p->i].extra < p->max_player_health)
+					if (sprite[p->i].extra < max_player_health)
 					{
 						sprite[p->i].extra++;
 						spritesound(DUKE_DRINKING, p->i);

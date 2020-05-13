@@ -170,13 +170,13 @@ void P_HandleSharedKeys(int playerNum)
             pPlayer->last_pissed_time = 4000;
             if (!adult_lockout)
                 A_PlaySound(437, pPlayer->i);
-            if (sprite[pPlayer->i].extra <= pPlayer->max_player_health - pPlayer->max_player_health / 10)
+            if (sprite[pPlayer->i].extra <= max_player_health - max_player_health / 10)
             {
                 sprite[pPlayer->i].extra += 2;
                 pPlayer->last_extra = sprite[pPlayer->i].extra;
             }
-            else if (sprite[pPlayer->i].extra < pPlayer->max_player_health)
-                sprite[pPlayer->i].extra = pPlayer->max_player_health;
+            else if (sprite[pPlayer->i].extra < max_player_health)
+                sprite[pPlayer->i].extra = max_player_health;
         }
     }
     else
@@ -619,12 +619,12 @@ rrtripbomb_case:
         {
             if (RR)
             {
-                if (pPlayer->inv_amount[GET_HOLODUKE] > 0 && sprite[pPlayer->i].extra < pPlayer->max_player_health)
+                if (pPlayer->inv_amount[GET_HOLODUKE] > 0 && sprite[pPlayer->i].extra < max_player_health)
                 {
                     pPlayer->inv_amount[GET_HOLODUKE] -= 400;
                     sprite[pPlayer->i].extra += 5;
-                    if (sprite[pPlayer->i].extra > pPlayer->max_player_health)
-                        sprite[pPlayer->i].extra = pPlayer->max_player_health;
+                    if (sprite[pPlayer->i].extra > max_player_health)
+                        sprite[pPlayer->i].extra = max_player_health;
 
                     pPlayer->drink_amt += 5;
                     pPlayer->inven_icon = 3;
@@ -681,16 +681,16 @@ rrtripbomb_case:
             P_MadeNoise(playerNum);
             if (sector[pPlayer->cursectnum].lotag == 857)
             {
-                if (sprite[pPlayer->i].extra <= pPlayer->max_player_health)
+                if (sprite[pPlayer->i].extra <= max_player_health)
                 {
                     sprite[pPlayer->i].extra += 10;
-                    if (sprite[pPlayer->i].extra >= pPlayer->max_player_health)
-                        sprite[pPlayer->i].extra = pPlayer->max_player_health;
+                    if (sprite[pPlayer->i].extra >= max_player_health)
+                        sprite[pPlayer->i].extra = max_player_health;
                 }
             }
             else
             {
-                if (sprite[pPlayer->i].extra + 1 <= pPlayer->max_player_health)
+                if (sprite[pPlayer->i].extra + 1 <= max_player_health)
                 {
                     sprite[pPlayer->i].extra++;
                 }
@@ -701,9 +701,9 @@ rrtripbomb_case:
         {
             if (VM_OnEvent(EVENT_USEMEDKIT,g_player[playerNum].ps->i,playerNum) == 0)
             {
-                if (pPlayer->inv_amount[GET_FIRSTAID] > 0 && sprite[pPlayer->i].extra < pPlayer->max_player_health)
+                if (pPlayer->inv_amount[GET_FIRSTAID] > 0 && sprite[pPlayer->i].extra < max_player_health)
                 {
-                    int healthDiff = pPlayer->max_player_health-sprite[pPlayer->i].extra;
+                    int healthDiff = max_player_health-sprite[pPlayer->i].extra;
 
                     if (RR) healthDiff = 10;
 
@@ -712,8 +712,8 @@ rrtripbomb_case:
                         pPlayer->inv_amount[GET_FIRSTAID] -= healthDiff;
                         if (RR)
                             sprite[pPlayer->i].extra += healthDiff;
-                        if (!RR || sprite[pPlayer->i].extra > pPlayer->max_player_health)
-                            sprite[pPlayer->i].extra = pPlayer->max_player_health;
+                        if (!RR || sprite[pPlayer->i].extra > max_player_health)
+                            sprite[pPlayer->i].extra = max_player_health;
                         pPlayer->inven_icon = ICON_FIRSTAID;
                     }
                     else
@@ -724,8 +724,8 @@ rrtripbomb_case:
                     }
                     if (RR)
                     {
-                        if (sprite[pPlayer->i].extra > pPlayer->max_player_health)
-                            sprite[pPlayer->i].extra = pPlayer->max_player_health;
+                        if (sprite[pPlayer->i].extra > max_player_health)
+                            sprite[pPlayer->i].extra = max_player_health;
                         pPlayer->drink_amt += 10;
                     }
                     if (!RR || (pPlayer->drink_amt <= 100 && !A_CheckSoundPlaying(pPlayer->i, DUKE_USEMEDKIT)))
@@ -740,7 +740,7 @@ rrtripbomb_case:
             {
                 if (VM_OnEvent(EVENT_USEJETPACK,g_player[playerNum].ps->i,playerNum) == 0)
                 {
-                    if (pPlayer->inv_amount[GET_JETPACK] > 0 && sprite[pPlayer->i].extra < pPlayer->max_player_health)
+                    if (pPlayer->inv_amount[GET_JETPACK] > 0 && sprite[pPlayer->i].extra < max_player_health)
                     {
                         if (!A_CheckSoundPlaying(pPlayer->i, 429))
                             A_PlaySound(429, pPlayer->i);
@@ -764,8 +764,8 @@ rrtripbomb_case:
 
                         pPlayer->inven_icon = 4;
 
-                        if (sprite[pPlayer->i].extra > pPlayer->max_player_health)
-                            sprite[pPlayer->i].extra = pPlayer->max_player_health;
+                        if (sprite[pPlayer->i].extra > max_player_health)
+                            sprite[pPlayer->i].extra = max_player_health;
 
                         if (pPlayer->inv_amount[GET_JETPACK] <= 0)
                             P_SelectNextInvItem(pPlayer);

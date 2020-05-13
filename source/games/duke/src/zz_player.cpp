@@ -665,7 +665,7 @@ growspark_rr:
                     }
 
                     if (pPlayer != NULL && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
-                        sprite[kneeSprite].extra += (pPlayer->max_player_health>>2);
+                        sprite[kneeSprite].extra += (max_player_health>>2);
 
                     if (hitData.sprite >= 0 && sprite[hitData.sprite].picnum != TILE_ACCESSSWITCH && sprite[hitData.sprite].picnum != TILE_ACCESSSWITCH2)
                     {
@@ -1173,7 +1173,7 @@ growspark_rr:
                 pReturn->yvel = (playerNum >= 0 && otherSprite >= 0) ? otherSprite : -1;  // RPG_YVEL
             else
             {
-                pReturn->yvel = g_numFreezeBounces;
+                pReturn->yvel = numfreezebounces;
                 pReturn->xrepeat >>= 1;
                 pReturn->yrepeat >>= 1;
                 pReturn->zvel -= (2 << 4);
@@ -4485,7 +4485,7 @@ static int32_t P_DoCounters(int playerNum)
             else
             {
                 pPlayer->extra_extra8 += 32;
-                if (pPlayer->last_extra < (pPlayer->max_player_health >> 1) && (pPlayer->last_extra & 3) == 0)
+                if (pPlayer->last_extra < (max_player_health >> 1) && (pPlayer->last_extra & 3) == 0)
                     A_PlaySound(DUKE_LONGTERM_PAIN, pPlayer->i);
             }
         }
@@ -4679,8 +4679,8 @@ void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addA
 {
     pPlayer->ammo_amount[weaponNum] += addAmount;
 
-    if (pPlayer->ammo_amount[weaponNum] > pPlayer->max_ammo_amount[weaponNum])
-        pPlayer->ammo_amount[weaponNum] = pPlayer->max_ammo_amount[weaponNum];
+    if (pPlayer->ammo_amount[weaponNum] > max_ammo_amount[weaponNum])
+        pPlayer->ammo_amount[weaponNum] = max_ammo_amount[weaponNum];
 }
 
 void addweapon(player_struct* p, int w);
@@ -8450,7 +8450,7 @@ HORIZONLY:;
                     sprite[spriteNum].pal = 0;
                     pPlayer->drug_mode = 5;
                     pPlayer->drug_timer = (int32_t) totalclock;
-                    sprite[pPlayer->i].extra = pPlayer->max_player_health;
+                    sprite[pPlayer->i].extra = max_player_health;
                 }
             }
         }

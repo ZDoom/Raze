@@ -339,7 +339,7 @@ static int osdcmd_give(CCmdFuncPtr parm)
     }
     else if (!Bstrcasecmp(parm->parms[0], "health"))
     {
-        sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health<<1;
+        sprite[g_player[myconnectindex].ps->i].extra = max_player_health<<1;
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "weapons"))
@@ -350,7 +350,7 @@ static int osdcmd_give(CCmdFuncPtr parm)
     else if (!Bstrcasecmp(parm->parms[0], "ammo"))
     {
         for (i=MAX_WEAPONS-(VOLUMEONE?6:1)-1; i>=PISTOL_WEAPON; i--)
-            P_AddAmmo(g_player[myconnectindex].ps,i,g_player[myconnectindex].ps->max_ammo_amount[i]);
+            P_AddAmmo(g_player[myconnectindex].ps,i, max_ammo_amount[i]);
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "armor"))

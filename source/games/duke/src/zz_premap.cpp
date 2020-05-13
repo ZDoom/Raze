@@ -803,7 +803,7 @@ void P_ResetPlayer(int playerNum)
     pSprite->xoffset  = 0;
     pSprite->pal      = pPlayer->palookup;
 
-    pPlayer->last_extra = pSprite->extra = pPlayer->max_player_health;
+    pPlayer->last_extra = pSprite->extra = max_player_health;
 
     pPlayer->wantweaponfire         = -1;
     pPlayer->q16horiz                  = F16(100);
@@ -812,7 +812,7 @@ void P_ResetPlayer(int playerNum)
     pPlayer->q16horizoff               = 0;
     pPlayer->opyoff                 = 0;
     pPlayer->wackedbyactor          = -1;
-    pPlayer->inv_amount[GET_SHIELD] = g_startArmorAmount;
+    pPlayer->inv_amount[GET_SHIELD] = max_armour_amount;
     pPlayer->dead_flag              = 0;
     pPlayer->footprintcount         = 0;
     pPlayer->weapreccnt             = 0;
@@ -820,7 +820,7 @@ void P_ResetPlayer(int playerNum)
     pPlayer->ftq                    = 0;
     pPlayer->vel.x = pPlayer->vel.y = 0;
     if (!RR) pPlayer->rotscrnang             = 0;
-    pPlayer->runspeed               = g_playerFriction;
+    pPlayer->runspeed               = dukefriction;
     pPlayer->falling_counter        = 0;
 
     P_ResetTintFade(pPlayer);
@@ -1038,7 +1038,7 @@ void P_ResetWeapons(int playerNum)
     pPlayer->gotweapon.Set(PISTOL_WEAPON);
     pPlayer->gotweapon.Set(KNEE_WEAPON);
     pPlayer->gotweapon.Set(HANDREMOTE_WEAPON);
-    pPlayer->ammo_amount[PISTOL_WEAPON] = min<int16_t>(pPlayer->max_ammo_amount[PISTOL_WEAPON], 48);
+    pPlayer->ammo_amount[PISTOL_WEAPON] = min<int16_t>(max_ammo_amount[PISTOL_WEAPON], 48);
     if (RRRA)
     {
         g_chickenWeaponTimer = 0;
@@ -1070,7 +1070,7 @@ void P_ResetInventory(int playerNum)
     pPlayer->jetpack_on             = 0;
     pPlayer->holoduke_on            = -1;
     pPlayer->inven_icon             = ICON_NONE;
-    pPlayer->inv_amount[GET_SHIELD] = g_startArmorAmount;
+    pPlayer->inv_amount[GET_SHIELD] = max_armour_amount;
 
     if (RR)
     {
@@ -1952,7 +1952,7 @@ end_vol4a:
             {
                 pPlayer->curr_weapon = weaponNum;
                 pPlayer->gotweapon.Set(weaponNum);
-                pPlayer->ammo_amount[weaponNum] = min<int16_t>(pPlayer->max_ammo_amount[weaponNum], 48);
+                pPlayer->ammo_amount[weaponNum] = min<int16_t>(max_ammo_amount[weaponNum], 48);
             }
             else if (worksLike == KNEE_WEAPON || (!RR && worksLike == HANDREMOTE_WEAPON) || (RRRA && worksLike == SLINGBLADE_WEAPON))
             {
@@ -2062,9 +2062,9 @@ static void resetpspritevars(char gameMode)
             {
                 if ((gameMode&MODE_EOL) != MODE_EOL || g_player[j].ps->last_extra == 0)
                 {
-                    g_player[j].ps->last_extra = g_player[j].ps->max_player_health;
-                    s->extra = g_player[j].ps->max_player_health;
-                    g_player[j].ps->runspeed = g_playerFriction;
+                    g_player[j].ps->last_extra = max_player_health;
+                    s->extra = max_player_health;
+                    g_player[j].ps->runspeed = dukefriction;
                 }
                 else s->extra = g_player[j].ps->last_extra;
 

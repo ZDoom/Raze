@@ -520,7 +520,7 @@ void moveplayers(void) //Players
 					}
 				if (ud.god)
 				{
-					s->extra = p->max_player_health;
+					s->extra = max_player_health;
 					s->cstat = 257;
 					if (!isWW2GI() && !isRR())
 						p->jetpack_amount = 1599;

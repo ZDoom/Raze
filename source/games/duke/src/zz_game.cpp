@@ -1501,7 +1501,7 @@ int A_Spawn(int spriteNum, int tileNum)
             {
                 changespritestat(newSprite, STAT_FALLER);
                 pSprite->cstat |= 257;
-                pSprite->extra = g_impactDamage;
+                pSprite->extra = impact_damage;
                 goto SPAWN_END;
             }
         }
@@ -1908,9 +1908,9 @@ default_case:
             pSprite->yrepeat = 6;
             pSprite->xrepeat = 32;
 
-            if (g_tripbombLaserMode == 1)
+            if (lasermode == 1)
                 pSprite->cstat = 16 + 2;
-            else if (g_tripbombLaserMode == 0 || g_tripbombLaserMode == 2)
+            else if (lasermode == 0 || lasermode == 2)
                 pSprite->cstat = 16;
             else
             {
@@ -3228,7 +3228,7 @@ rr_badguy:
 
         case REACTOR2__STATIC:
         case REACTOR__STATIC:
-            pSprite->extra = g_impactDamage;
+            pSprite->extra = impact_damage;
             pSprite->cstat |= 257;
             if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
             {
@@ -3535,7 +3535,7 @@ rr_badguy:
             pSprite->cstat |= 1+256; //Make it hitable
             pSprite->xrepeat = pSprite->yrepeat = 24;
             pSprite->shade = -127;
-            pSprite->extra = g_impactDamage<<2;
+            pSprite->extra = impact_damage<<2;
             changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
         case CAMERA1__STATIC:
@@ -4200,7 +4200,7 @@ rr_badguy:
             }
             else pSprite->cstat = 1+256;
 
-            pSprite->extra = g_impactDamage << 2;
+            pSprite->extra = impact_damage << 2;
             pSprite->owner = newSprite;
 
             changespritestat(newSprite, STAT_STANDABLE);
@@ -4215,7 +4215,7 @@ rr_badguy:
             if (!RR && pSprite->picnum == TILE_FIREEXT)
             {
                 pSprite->cstat = 257;
-                pSprite->extra = g_impactDamage<<2;
+                pSprite->extra = impact_damage<<2;
             }
             else
             {
@@ -5447,7 +5447,7 @@ skip:
             if (RR) break;
             if (sector[t->sectnum].lotag == ST_2_UNDERWATER) t->pal = 8;
             t->z = sprite[pSprite->owner].z-(3<<8);
-            if (g_tripbombLaserMode == 2 && g_player[screenpeek].ps->heat_on == 0)
+            if (lasermode == 2 && g_player[screenpeek].ps->heat_on == 0)
                 t->yrepeat = 0;
             fallthrough__;
         case EXPLOSION2BOT__STATIC:
