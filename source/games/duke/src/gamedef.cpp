@@ -40,6 +40,7 @@ into many sub-files.
 #include "mapinfo.h"
 #include "menu.h"
 #include "global.h"
+#include "m_argv.h"
 
 BEGIN_DUKE_NS
 
@@ -384,12 +385,6 @@ int scriptpos()
 	return script.Size();
 }
 
-// store addresses as offsets
-static void setscriptaddress(int offset, int* address)
-{
-	setscriptvalue(offset, int(address - script.Data()));
-}
-
 static void appendscriptvalue(int value)
 {
 	script.Push(value);
@@ -414,24 +409,18 @@ void reservescriptspace(int space)
 
 #else
 
-// Helpers to write to the old script buffer while using the new interface. Allows to test the parser before implementing the rest.
+// TRANSITIONAL Helpers to write to the old script buffer while using the new interface. Allows to test the parser before implementing the rest.
 void scriptWriteValue(int32_t const value);
 void scriptWriteAtOffset(int32_t const value, intptr_t addr);
 void scriptWritePointer(intptr_t const value, intptr_t addr);
 static void setscriptvalue(int offset, int value)
 {
-	scriptWriteAtOffset(value, offset);
-}
-
-// store addresses as offsets
-static void setscriptaddress(int offset, int* address)
-{
-	scriptWritePointer((intptr_t)address, offset);
+	apScript[offset] = value;
 }
 
 static void appendscriptvalue(int value)
 {
-	scriptWriteValue(value);
+	*scriptptr++ = value;
 }
 
 static int popscriptvalue()
@@ -627,13 +616,7 @@ void checkforkeyword()
 
 static TArray<char> parsebuffer; // global so that the storage is persistent across calls.
 
-int C_ParseCommand(int);
-void parsecommand() // TRANSITIONAL
-{
-	C_ParseCommand(0);
-}
-
-int parsecommand(int tw) // for now just run an externally parsed command.
+int parsecommand()
 {
 	const char* fn = fileSystem.GetFileFullName(g_currentSourceFile);
 	int i, j, k;
@@ -643,18 +626,15 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	int temp_current_file;
 	int lnum;
 
-#if FOR_LATER	// for now this should just parse a single instruction
-	if ((errorcount + warningcount) > 12 || (*textptr == '\0') || (*(textptr + 1) == '\0')) return 1;
-
-
-	tw = transword();
-#endif
+	// Do not count warnings here and allow more errors before bailing out.
+	if ((errorcount) > 64 || (*textptr == '\0') || (*(textptr + 1) == '\0')) return 1;
+	int tw = transword();
 
 	switch (tw)
 	{
 	default:
 	case -1:
-		return 1; //End
+		return 0; //End
 
 	case concmd_state:
 		if (parsing_actor == 0 && parsing_state == 0)
@@ -883,13 +863,9 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		auto origtptr = textptr;
 		textptr = (char*)data.Data();
 
-#if 0
 		do
 			done = parsecommand();
 		while (done == 0);
-#else // TRANSITIONAL
-		C_ParseCommand(1);
-#endif
 
 		textptr = origtptr;
 		line_number = temp_line_number;
@@ -1408,13 +1384,9 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 	case concmd_leftbrace:
 		num_squigilly_brackets++;
-#if 0
 		do
 			done = parsecommand();
 		while (done == 0);
-#else // TRANSITIONAL
-		C_ParseCommand(1);
-#endif
 		return 0;
 	case concmd_rightbrace:
 		num_squigilly_brackets--;
@@ -1699,19 +1671,85 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	return 0;
 }
 
-// I think this should go away.
-void initquotes()
-{
-	for (int i = 0; i < 48; i++)
-	{
-		quoteMgr.FormatQuote(i + OBITQUOTEINDEX, "$TXT_OBITUARY%d", i + 1);
-	}
+//---------------------------------------------------------------------------
+//
+// split in two to allow multiple CON files.
+//
+//---------------------------------------------------------------------------
 
-	for (int i = 0; i < 6; i++)
+void compilecon(const char *filenam)
+{
+	g_currentSourceFile = fileSystem.FindFile(filenam);
+	if (g_currentSourceFile < 0)
 	{
-		quoteMgr.FormatQuote(i + SUICIDEQUOTEINDEX, "$TXT_SELFOBIT%d", i + 1);
+		I_FatalError("%s: Missing con file(s).", filenam);
 	}
+	Printf("Compiling: '%s'.\n", filenam);
+	auto data = fileSystem.GetFileData(g_currentSourceFile, 1);
+	textptr = (char*)data.Data();
+
+	line_number = 1;
+	errorcount = warningcount = 0;
+
+	while (parsecommand() == 0);
+
+	if ((errorcount) > 64)
+		Printf(TEXTCOLOR_RED  "  * ERROR! Too many errors.");
+	else if (warningcount || errorcount)
+		Printf(TEXTCOLOR_ORANGE "Found %d warning(s), %d error(s).\n", warningcount, errorcount);
+	if (errorcount > 0) I_FatalError("Failed to compile %s", filenam);
+
 }
 
+//---------------------------------------------------------------------------
+//
+// why was this called loadefs?
+//
+//---------------------------------------------------------------------------
+
+void loadcons(const char* filenam)
+{
+	labelcnt = 0;
+
+#if 0
+	ClearGameEvents();
+
+	ClearGameVars();
+	AddSystemVars();
+	InitGameVarPointers();
+	ResetSystemDefaults();
+#endif
+
+
+	//memset(actorscrptr, 0, MAXSPRITES);
+	//memset(actortype, 0, MAXSPRITES);
+
+	auto before = I_nsTime();
+
+	scriptptr = apScript + 1;
+	compilecon(filenam); //Tokenize
+
+	if (userConfig.AddCons) for (FString& m : *userConfig.AddCons.get())
+	{
+		compilecon(filenam);
+	}
+	userConfig.AddCons.reset();
+	setscriptvalue(0, scriptpos());
+
+	if (errorcount)
+	{
+		I_FatalError("\nError in %s.", filenam);
+	}
+	else
+	{
+		auto after = I_nsTime();
+		Printf("Compilation time:%.2f ms, Code Size:%d bytes. %d labels. %d/%d Variables.\n", (after-before) / 1000000.,
+			((scriptptr - apScript) << 2) - 4,
+			labelcnt,
+			0,//iGameVarCount,
+			MAXGAMEVARS
+		);
+	}
+}
 
 END_DUKE_NS

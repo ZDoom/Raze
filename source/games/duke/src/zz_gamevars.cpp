@@ -274,7 +274,7 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if (EDUKE32_PREDICT_FALSE(g_gameVarCount >= MAXGAMEVARS))
     {
         errorcount++;
-        C_ReportError(-1);
+        ReportError(-1);
         Printf("%s:%d: error: too many gamevars!\n",g_scriptFileName,line_number);
         return;
     }
@@ -282,7 +282,7 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if (EDUKE32_PREDICT_FALSE(Bstrlen(pszLabel) > (MAXVARLABEL-1)))
     {
         errorcount++;
-        C_ReportError(-1);
+        ReportError(-1);
         Printf("%s:%d: error: variable name `%s' exceeds limit of %d characters.\n",g_scriptFileName,line_number,pszLabel, MAXVARLABEL);
         return;
     }
@@ -294,7 +294,7 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         // found it...
         if (EDUKE32_PREDICT_FALSE(aGameVars[gV].flags & (GAMEVAR_PTR_MASK)))
         {
-            C_ReportError(-1);
+            ReportError(-1);
             Printf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_scriptFileName,line_number,label+(labelcnt<<6));
             return;
         }
@@ -302,7 +302,7 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         {
             // it's a duplicate in error
             warningcount++;
-            C_ReportError(WARNING_DUPLICATEDEFINITION);
+            ReportError(WARNING_DUPLICATEDEFINITION);
             return;
         }
     }

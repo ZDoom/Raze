@@ -4933,38 +4933,6 @@ void P_FragPlayer(int playerNum)
 				quoteMgr.InitializeQuote(QUOTE_RESERVED2, "Killed %s", &g_player[playerNum].user_name[0]);
                 P_DoQuote(QUOTE_RESERVED2, g_player[pPlayer->frag_ps].ps);
             }
-
-            if (cl_obituaries)
-            {
-                Bsprintf(tempbuf, quoteMgr.GetQuote(OBITQUOTEINDEX + (krand2() % g_numObituaries)),
-                         &g_player[pPlayer->frag_ps].user_name[0], &g_player[playerNum].user_name[0]);
-                G_AddUserQuote(tempbuf);
-            }
-            else
-                krand2();
-        }
-        else
-        {
-            if (actor[pPlayer->i].picnum != TILE_APLAYERTOP)
-            {
-                pPlayer->fraggedself++;
-                if ((unsigned)pPlayer->wackedbyactor < MAXTILES && A_CheckEnemyTile(sprite[pPlayer->wackedbyactor].picnum))
-                    Bsprintf(tempbuf, quoteMgr.GetQuote(OBITQUOTEINDEX + (krand2() % g_numObituaries)), "A monster",
-                             &g_player[playerNum].user_name[0]);
-                else if (actor[pPlayer->i].picnum == TILE_NUKEBUTTON)
-                    Bsprintf(tempbuf, "^02%s^02 tried to leave", &g_player[playerNum].user_name[0]);
-                else
-                {
-                    // random suicide death string
-                    Bsprintf(tempbuf, quoteMgr.GetQuote(SUICIDEQUOTEINDEX + (krand2() % g_numSelfObituaries)),
-                             &g_player[playerNum].user_name[0]);
-                }
-            }
-            else
-                Bsprintf(tempbuf, "^02%s^02 switched to team %d", &g_player[playerNum].user_name[0], pPlayer->team + 1);
-
-            if (cl_obituaries)
-                G_AddUserQuote(tempbuf);
         }
         pPlayer->frag_ps = playerNum;
         pus              = NUMPAGES;
