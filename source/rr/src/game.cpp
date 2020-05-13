@@ -916,9 +916,9 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         ))
         {
 #ifdef USE_OPENGL
-            renderSetRollAngle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
+            renderSetRollAngle(fix16_to_float(pPlayer->oq16rotscrnang + mulscale16(((pPlayer->q16rotscrnang - pPlayer->oq16rotscrnang + fix16_from_int(1024))&0x7FFFFFF)-fix16_from_int(1024), smoothRatio)));
 #endif
-            pPlayer->orotscrnang = pPlayer->rotscrnang;
+            pPlayer->oq16rotscrnang = pPlayer->q16rotscrnang;
         }
 
         if (RRRA && pPlayer->drug_mode > 0)
