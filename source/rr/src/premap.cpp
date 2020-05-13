@@ -2471,7 +2471,7 @@ int G_EnterLevel(int gameMode)
     renderFlushPerms();
 
     // reset lastInputTicks.
-    g_player[myconnectindex].ps->lastInputTicks = 0;
+    g_player[myconnectindex].lastInputTicks = 0;
 
     everyothertime = 0;
     g_globalRandom = 0;

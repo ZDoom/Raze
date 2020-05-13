@@ -223,7 +223,7 @@ typedef struct {
     int32_t drug_timer;
     int32_t sea_sick;
     uint8_t hurt_delay2, nocheat;
-    double  tilt_status, lastInputTicks;
+    double  tilt_status;
 
     int32_t dhat60f, dhat613, dhat617, dhat61b, dhat61f;
 
@@ -242,6 +242,7 @@ typedef struct
     int8_t  horizSkew;
     bool    lookLeft;
     bool    lookRight;
+    double  lastInputTicks;
 
     int32_t movefifoend, syncvalhead, myminlag;
     int32_t pcolor, pteam;
