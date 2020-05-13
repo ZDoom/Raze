@@ -2,6 +2,7 @@
 /*
 Copyright (C) 1996, 2003 - 3D Realms Entertainment
 Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
+Copyright (C) 2020 - Christoph Oelckers
 
 This file is part of Enhanced Duke Nukem 3D version 1.5 - Atomic Edition
 
