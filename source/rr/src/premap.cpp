@@ -819,6 +819,7 @@ void P_ResetPlayer(int playerNum)
     if (!RR) pPlayer->q16rotscrnang          = 0;
     pPlayer->runspeed               = g_playerFriction;
     pPlayer->falling_counter        = 0;
+    pPlayer->lastInputTicks         = 0;
 
     P_ResetTintFade(pPlayer);
 
