@@ -649,7 +649,7 @@ void P_ResetMultiPlayer(int playerNum)
     p.opyoff          = 0;
     p.q16horiz        = F16(100);
     p.q16horizoff     = 0;
-    p.rotscrnang      = 0;
+    p.q16rotscrnang   = 0;
     p.runspeed        = g_playerFriction;
     p.vel             = { 0, 0, 0 };
     p.wackedbyactor   = -1;
@@ -731,7 +731,7 @@ void P_ResetPlayer(int playerNum)
     p.one_eighty_count   = 0;
     p.opyoff             = 0;
     p.oq16horiz          = F16(140);
-    p.orotscrnang        = 1;  // JBF 20031220
+    p.oq16rotscrnang     = fix16_one;  // JBF 20031220
     p.over_shoulder_on   = 0;
     p.palette            = BASEPAL;
     p.player_par         = 0;
@@ -745,7 +745,7 @@ void P_ResetPlayer(int playerNum)
     p.rapid_fire_hold    = 0;
     p.reloading          = 0;
     p.return_to_center   = 9;
-    p.rotscrnang         = 0;
+    p.q16rotscrnang      = 0;
     p.sbs                = 0;
     p.show_empty_weapon  = 0;
     p.somethingonplayer  = -1;

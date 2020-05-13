@@ -466,6 +466,9 @@ memberlabel_t const PlayerLabels[]=
     { "weapreccnt",            PLAYER_WEAPRECCNT,            0, 0, -1 },
     { "interface_toggle_flag", PLAYER_INTERFACE_TOGGLE,      0, 0, -1 },
     { "rotscrnang",            PLAYER_ROTSCRNANG,            0, 0, -1 },
+    { "orotscrnang",           PLAYER_OROTSCRNANG,           0, 0, -1 },
+    { "q16rotscrnang",         PLAYER_Q16ROTSCRNANG,         0, 0, -1 },
+    { "oq16rotscrnang",        PLAYER_OQ16ROTSCRNANG,        0, 0, -1 },
     { "dead_flag",             PLAYER_DEAD_FLAG,             0, 0, -1 },
     { "show_empty_weapon",     PLAYER_SHOW_EMPTY_WEAPON,     0, 0, -1 },
     { "scuba_amount",          PLAYER_SCUBA_AMOUNT,          0, 0, -1 },
@@ -549,21 +552,25 @@ int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const
 
     switch (labelNum)
     {
-        case PLAYER_ANG:       labelNum = fix16_to_int(ps.q16ang);       break;
-        case PLAYER_OANG:      labelNum = fix16_to_int(ps.oq16ang);      break;
-        case PLAYER_ANGVEL:    labelNum = fix16_to_int(ps.q16angvel);    break;
-        case PLAYER_HORIZ:     labelNum = fix16_to_int(ps.q16horiz);     break;
-        case PLAYER_OHORIZ:    labelNum = fix16_to_int(ps.oq16horiz);    break;
-        case PLAYER_HORIZOFF:  labelNum = fix16_to_int(ps.q16horizoff);  break;
-        case PLAYER_OHORIZOFF: labelNum = fix16_to_int(ps.oq16horizoff); break;
+        case PLAYER_ANG:         labelNum = fix16_to_int(ps.q16ang);         break;
+        case PLAYER_OANG:        labelNum = fix16_to_int(ps.oq16ang);        break;
+        case PLAYER_ANGVEL:      labelNum = fix16_to_int(ps.q16angvel);      break;
+        case PLAYER_HORIZ:       labelNum = fix16_to_int(ps.q16horiz);       break;
+        case PLAYER_OHORIZ:      labelNum = fix16_to_int(ps.oq16horiz);      break;
+        case PLAYER_HORIZOFF:    labelNum = fix16_to_int(ps.q16horizoff);    break;
+        case PLAYER_OHORIZOFF:   labelNum = fix16_to_int(ps.oq16horizoff);   break;
+        case PLAYER_ROTSCRNANG:  labelNum = fix16_to_int(ps.q16rotscrnang);  break;
+        case PLAYER_OROTSCRNANG: labelNum = fix16_to_int(ps.oq16rotscrnang); break;
 
-        case PLAYER_Q16ANG:       labelNum = ps.q16ang;       break;
-        case PLAYER_OQ16ANG:      labelNum = ps.oq16ang;      break;
-        case PLAYER_Q16ANGVEL:    labelNum = ps.q16angvel;    break;
-        case PLAYER_Q16HORIZ:     labelNum = ps.q16horiz;     break;
-        case PLAYER_OQ16HORIZ:    labelNum = ps.oq16horiz;    break;
-        case PLAYER_Q16HORIZOFF:  labelNum = ps.q16horizoff;  break;
-        case PLAYER_OQ16HORIZOFF: labelNum = ps.oq16horizoff; break;
+        case PLAYER_Q16ANG:         labelNum = ps.q16ang;         break;
+        case PLAYER_OQ16ANG:        labelNum = ps.oq16ang;        break;
+        case PLAYER_Q16ANGVEL:      labelNum = ps.q16angvel;      break;
+        case PLAYER_Q16HORIZ:       labelNum = ps.q16horiz;       break;
+        case PLAYER_OQ16HORIZ:      labelNum = ps.oq16horiz;      break;
+        case PLAYER_Q16HORIZOFF:    labelNum = ps.q16horizoff;    break;
+        case PLAYER_OQ16HORIZOFF:   labelNum = ps.oq16horizoff;   break;
+        case PLAYER_Q16ROTSCRNANG:  labelNum = ps.q16rotscrnang;  break;
+        case PLAYER_OQ16ROTSCRNANG: labelNum = ps.oq16rotscrnang; break;
 
         case PLAYER_ACCESS_INCS:        labelNum = ps.access_incs;        break;
         case PLAYER_ACCESS_SPRITENUM:   labelNum = ps.access_spritenum;   break;
@@ -664,7 +671,6 @@ int32_t __fastcall VM_GetPlayer(int const playerNum, int32_t labelNum, int const
         case PLAYER_RAPID_FIRE_HOLD:    labelNum = ps.rapid_fire_hold;    break;
         case PLAYER_RELOADING:          labelNum = ps.reloading;          break;
         case PLAYER_RETURN_TO_CENTER:   labelNum = ps.return_to_center;   break;
-        case PLAYER_ROTSCRNANG:         labelNum = ps.rotscrnang;         break;
         case PLAYER_RUNSPEED:           labelNum = ps.runspeed;           break;
         case PLAYER_SBS:                labelNum = ps.sbs;                break;
         case PLAYER_SCREAM_VOICE:       labelNum = ps.scream_voice;       break;
@@ -743,21 +749,25 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
 
     switch (labelNum)
     {
-        case PLAYER_HORIZ:     ps.q16horiz     = fix16_from_int(newValue); break;
-        case PLAYER_OHORIZ:    ps.oq16horiz    = fix16_from_int(newValue); break;
-        case PLAYER_OHORIZOFF: ps.oq16horizoff = fix16_from_int(newValue); break;
-        case PLAYER_ANG:       ps.q16ang       = fix16_from_int(newValue); break;
-        case PLAYER_OANG:      ps.oq16ang      = fix16_from_int(newValue); break;
-        case PLAYER_ANGVEL:    ps.q16angvel    = fix16_from_int(newValue); break;
-        case PLAYER_HORIZOFF:  ps.q16horizoff  = fix16_from_int(newValue); break;
+        case PLAYER_HORIZ:       ps.q16horiz       = fix16_from_int(newValue); break;
+        case PLAYER_OHORIZ:      ps.oq16horiz      = fix16_from_int(newValue); break;
+        case PLAYER_OHORIZOFF:   ps.oq16horizoff   = fix16_from_int(newValue); break;
+        case PLAYER_ANG:         ps.q16ang         = fix16_from_int(newValue); break;
+        case PLAYER_OANG:        ps.oq16ang        = fix16_from_int(newValue); break;
+        case PLAYER_ANGVEL:      ps.q16angvel      = fix16_from_int(newValue); break;
+        case PLAYER_HORIZOFF:    ps.q16horizoff    = fix16_from_int(newValue); break;
+        case PLAYER_ROTSCRNANG:  ps.q16rotscrnang  = fix16_from_int(newValue); break;
+        case PLAYER_OROTSCRNANG: ps.oq16rotscrnang = fix16_from_int(newValue); break;
 
-        case PLAYER_Q16HORIZ:     ps.q16horiz     = newValue; break;
-        case PLAYER_OQ16HORIZ:    ps.oq16horiz    = newValue; break;
-        case PLAYER_OQ16HORIZOFF: ps.oq16horizoff = newValue; break;
-        case PLAYER_Q16ANG:       ps.q16ang       = newValue; break;
-        case PLAYER_OQ16ANG:      ps.oq16ang      = newValue; break;
-        case PLAYER_Q16ANGVEL:    ps.q16angvel    = newValue; break;
-        case PLAYER_Q16HORIZOFF:  ps.q16horizoff  = newValue; break;
+        case PLAYER_Q16HORIZ:       ps.q16horiz       = newValue; break;
+        case PLAYER_OQ16HORIZ:      ps.oq16horiz      = newValue; break;
+        case PLAYER_OQ16HORIZOFF:   ps.oq16horizoff   = newValue; break;
+        case PLAYER_Q16ANG:         ps.q16ang         = newValue; break;
+        case PLAYER_OQ16ANG:        ps.oq16ang        = newValue; break;
+        case PLAYER_Q16ANGVEL:      ps.q16angvel      = newValue; break;
+        case PLAYER_Q16HORIZOFF:    ps.q16horizoff    = newValue; break;
+        case PLAYER_Q16ROTSCRNANG:  ps.q16rotscrnang  = newValue; break;
+        case PLAYER_OQ16ROTSCRNANG: ps.oq16rotscrnang = newValue; break;
 
         case PLAYER_ACCESS_INCS:        ps.access_incs        = newValue; break;
         case PLAYER_ACCESS_SPRITENUM:   ps.access_spritenum   = newValue; break;
@@ -853,7 +863,6 @@ void __fastcall VM_SetPlayer(int const playerNum, int const labelNum, int const 
         case PLAYER_RAPID_FIRE_HOLD:    ps.rapid_fire_hold    = newValue; break;
         case PLAYER_RELOADING:          ps.reloading          = newValue; break;
         case PLAYER_RETURN_TO_CENTER:   ps.return_to_center   = newValue; break;
-        case PLAYER_ROTSCRNANG:         ps.rotscrnang         = newValue; break;
         case PLAYER_RUNSPEED:           ps.runspeed           = newValue; break;
         case PLAYER_SBS:                ps.sbs                = newValue; break;
         case PLAYER_SCREAM_VOICE:       ps.scream_voice       = newValue; break;
