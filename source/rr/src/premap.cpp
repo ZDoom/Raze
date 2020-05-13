@@ -816,7 +816,7 @@ void P_ResetPlayer(int playerNum)
     pPlayer->fta                    = 0;
     pPlayer->ftq                    = 0;
     pPlayer->vel.x = pPlayer->vel.y = 0;
-    if (!RR) pPlayer->rotscrnang             = 0;
+    if (!RR) pPlayer->q16rotscrnang          = 0;
     pPlayer->runspeed               = g_playerFriction;
     pPlayer->falling_counter        = 0;
 
@@ -909,8 +909,8 @@ void P_ResetStatus(int playerNum)
     pPlayer->jetpack_on        = 0;
     pPlayer->holoduke_on       = -1;
     pPlayer->look_ang          = 512 - ((ud.level_number & 1) << 10);
-    pPlayer->rotscrnang        = 0;
-    pPlayer->orotscrnang       = 1;  // JBF 20031220
+    pPlayer->q16rotscrnang     = 0;
+    pPlayer->oq16rotscrnang    = fix16_one;  // JBF 20031220
     pPlayer->newowner          = -1;
     pPlayer->jumping_counter   = 0;
     pPlayer->hard_landing      = 0;
