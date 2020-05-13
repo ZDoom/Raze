@@ -1324,24 +1324,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			return 0;
 		}
 		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
-
-		tempscrptr = scriptptr;
-		scriptptr++; //Leave a spot for the fail location
-
-		// eat comments
-		do
-		{
-			j = keyword();
-			if (j == 20 || j == 39)
-				parsecommand();
-		} while (j == 20 || j == 39);
-
-		parsecommand();
-
-		*tempscrptr = (intptr_t)scriptptr;
-
-		checking_ifelse++;
-		return 0;
+		goto if_common;
 
 	case concmd_ifvarl:
 	case concmd_ifvarg:
@@ -1368,23 +1351,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
 		transnum();	// the number to check against...
-
-		tempscrptr = scriptptr;
-		scriptptr++; //Leave a spot for the fail location
-
-		do
-		{
-			j = keyword();
-			if (j == 20 || j == 39)
-				parsecommand();
-		} while (j == 20 || j == 39);
-
-		parsecommand();
-
-		*tempscrptr = (intptr_t)scriptptr;
-
-		checking_ifelse++;
-		return 0;
+		goto if_common;
 
 	case concmd_addlogvar:
 		// syntax: addlogvar <var>
@@ -1427,6 +1394,17 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		appendscriptvalue(line_number);
 		return 0;
 #endif
+	case concmd_ifp:
+		j = 0;
+		do
+		{
+			transnum();
+			popscriptvalue();
+			j |= *scriptptr;
+		} while (keyword() == -1);
+		appendscriptvalue(j);
+		goto if_common;
+
 	case concmd_ifpinventory:
 		transnum();
 	case concmd_ifrnd:
@@ -1462,7 +1440,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	case concmd_ifsquished:
 	case concmd_ifdead:
 	case concmd_ifcanshoottarget:
-	case concmd_ifp:
 	case concmd_ifhitspace:
 	case concmd_ifoutside:
 	case concmd_ifmultiplayer:
@@ -1488,19 +1465,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	// case concmd_iffindnewspot:	// RRDH
 	// case concmd_ifpupwind:
 
-
-		if (tw == concmd_ifp)
-		{
-			j = 0;
-			do
-			{
-				transnum();
-				popscriptvalue();
-				j |= *scriptptr;
-			} while (keyword() == -1);
-			appendscriptvalue(j);
-		}
-
+	if_common:	// this code is identical for all 'if...'instructions.
 		tempscrptr = scriptpos();
 		reservescriptspace(1); //Leave a spot for the fail location
 
@@ -1508,8 +1473,10 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		parsecommand();
 
 		setscriptvalue(tempscrptr, scriptpos());
-		checking_ifelse++;
+		if (keyword() == concmd_else)	// only increment checking_ifelse if there actually is an else. Otherwise this would break the entire checking logic and render it non-functional
+			checking_ifelse++;
 		return 0;
+
 	case concmd_leftbrace:
 		num_squigilly_brackets++;
 #if 0
