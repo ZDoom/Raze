@@ -169,7 +169,6 @@ extern uint8_t killit_flag;
 bool AddGameVar(const char *pszLabel, intptr_t lValue, unsigned dwFlags);
 int GetGameID(const char *szGameLabel);
 int GetDefID(const char *szGameLabel);
-void FreeGameVars(void);
 void ClearGameVars(void);
 void AddSystemVars();
 void ResetGameVars(void);

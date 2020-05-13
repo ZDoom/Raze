@@ -1939,7 +1939,7 @@ end_vol4a:
 
     if (m_coop != 1)
     {
-        for (bssize_t weaponNum = 0; weaponNum < MAX_WEAPONS; weaponNum++)
+        for (bssize_t weaponNum = 0; weaponNum < 12/*MAX_WEAPONS*/; weaponNum++)
         {
             auto const worksLike = WW2GI ? PWEAPON(0, weaponNum, WorksLike) : weaponNum;
             if (worksLike == PISTOL_WEAPON)

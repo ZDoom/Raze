@@ -67,12 +67,32 @@ spritetype *g_sp;
 
 //---------------------------------------------------------------------------
 //
-//  to do
+//
 //
 //---------------------------------------------------------------------------
 
 void SerializeGameVars(FSerializer &arc)
 {
+	if (arc.BeginObject("gamevars"))
+	{
+		// Only save the ones which hold their own data, i.e. skip pointer variables.
+		for (auto& gv : aGameVars)
+		{
+			if (!(gv.dwFlags & GAMEVAR_FLAG_PLONG))
+			{
+				if (arc.BeginObject(gv.szLabel))
+				{
+					arc("value", gv.lValue);
+					if (gv.dwFlags & (GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_PERACTOR))
+					{
+						arc("array", gv.plArray);
+					}
+					arc.EndObject();
+				}
+			}
+		}
+		arc.EndObject();
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -81,31 +101,31 @@ void SerializeGameVars(FSerializer &arc)
 //
 //---------------------------------------------------------------------------
 
-bool AddGameVar(const char *pszLabel, intptr_t lValue, unsigned dwFlags)
+bool AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 {
-	
+
 	int i;
 	int j;
 
-	int b=0;
+	int b = 0;
 
-	if(dwFlags & GAMEVAR_FLAG_PLONG)
-		dwFlags|=GAMEVAR_FLAG_SYSTEM;	// force system if PLONG
+	if (dwFlags & GAMEVAR_FLAG_PLONG)
+		dwFlags |= GAMEVAR_FLAG_SYSTEM;	// force system if PLONG
 
-	if(strlen(pszLabel) > (MAXVARLABEL-1) )
+	if (strlen(pszLabel) > (MAXVARLABEL - 1))
 	{
 		warningcount++;
 		Printf(TEXTCOLOR_RED "  * WARNING.(L%ld) Variable Name '%s' too int (max is %d)\n", line_number, pszLabel, MAXVARLABEL - 1);
 		return 0;
 	}
-	for(i=0;i<iGameVarCount;i++)
+	for (i = 0; i < iGameVarCount; i++)
 	{
-		if( strcmp(pszLabel,aGameVars[i].szLabel) == 0 )
+		if (strcmp(pszLabel, aGameVars[i].szLabel) == 0)
 		{
 			// found it...
-			if(	  (aGameVars[i].dwFlags & GAMEVAR_FLAG_DEFAULT)
-			   || (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM)
-			  )
+			if ((aGameVars[i].dwFlags & GAMEVAR_FLAG_DEFAULT)
+				|| (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM)
+				)
 			{
 				// it's OK to replace
 				break;
@@ -114,60 +134,60 @@ bool AddGameVar(const char *pszLabel, intptr_t lValue, unsigned dwFlags)
 			{
 				// it's a duplicate in error
 				errorcount++;
-				Printf(TEXTCOLOR_RED "  * ERROR.(L%ld) Duplicate Game definition '%s' ignored.\n",line_number,pszLabel);
+				Printf(TEXTCOLOR_RED "  * ERROR.(L%ld) Duplicate Game definition '%s' ignored.\n", line_number, pszLabel);
 				return 0;
 			}
 		}
 	}
-	if( i < MAXGAMEVARS)
+	if (i < MAXGAMEVARS)
 	{
 		// Set values
-		if(aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM && !(dwFlags & GAMEVAR_FLAG_PLONG))
+		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM && !(dwFlags & GAMEVAR_FLAG_PLONG))
 		{
 			// if existing is system, they only get to change default value....
-			aGameVars[i].lValue=lValue;	
-			if(!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
-			{
-				aGameVars[i].defaultValue=lValue;
-			}
-		}
-		else
-		{
-			strcpy(aGameVars[i].szLabel,pszLabel);
-			aGameVars[i].dwFlags=dwFlags;
-			if (dwFlags & GAMEVAR_FLAG_PLONG)
-			{
-				aGameVars[i].plValue=(int*)lValue;
-			}
-			else
-			{
-				aGameVars[i].lValue=lValue;
-			}
-			if(!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
+			aGameVars[i].lValue = lValue;
+			if (!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
 			{
 				aGameVars[i].defaultValue = lValue;
 			}
 		}
-		
-		if(i==iGameVarCount)
+		else
+		{
+			strcpy(aGameVars[i].szLabel, pszLabel);
+			aGameVars[i].dwFlags = dwFlags;
+			if (dwFlags & GAMEVAR_FLAG_PLONG)
+			{
+				aGameVars[i].plValue = (int*)lValue;
+			}
+			else
+			{
+				aGameVars[i].lValue = lValue;
+			}
+			if (!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
+			{
+				aGameVars[i].defaultValue = lValue;
+			}
+		}
+
+		if (i == iGameVarCount)
 		{
 			// we're adding a new one.
 			iGameVarCount++;
 		}
-		if(!(aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM))
+		if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM))
 		{
 			// only free if not system
 			aGameVars[i].plArray.Reset();
 		}
-		if(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
+		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
 		{
 			aGameVars[i].plArray.Resize(MAXPLAYERS);
-			for(j=0;j<MAXPLAYERS;j++)
+			for (j = 0; j < MAXPLAYERS; j++)
 			{
-				aGameVars[i].plArray[j]=lValue;
+				aGameVars[i].plArray[j] = lValue;
 			}
 		}
-		else if( aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
+		else if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
 		{
 			aGameVars[i].plArray.Resize(MAXSPRITES);
 			for (j = 0; j < MAXSPRITES; j++)
@@ -176,14 +196,12 @@ bool AddGameVar(const char *pszLabel, intptr_t lValue, unsigned dwFlags)
 			}
 		}
 		return 1;
-
 	}
 	else
 	{
 		// no room to add...
 		return 0;
 	}
- 
 }
 
 //---------------------------------------------------------------------------
@@ -230,30 +248,6 @@ int GetDefID(const char *szGameLabel)
 //
 //---------------------------------------------------------------------------
 
-void FreeGameVars(void)
-{
-	// call this function as many times as needed.
-	int i;
-	for(i=0;i<MAXGAMEVARS;i++)
-	{
-		if(!(aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM))
-		{
-			aGameVars[i].lValue=0;
-			aGameVars[i].szLabel[0]=0;
-			aGameVars[i].dwFlags=0;
-		}
-		aGameVars[i].plValue=NULL;
-	}
-	iGameVarCount=0;
-	return;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void ClearGameVars(void)
 {
 	// only call this function ONCE (at game init)...
@@ -274,7 +268,6 @@ void ClearGameVars(void)
 //  "utterly broken by design" ...
 //  I hope this version is saner, there's really no need to tear down and
 //  rebuild the complete set of game vars just to reset them to the defaults...
-//  It makes no sense anyway for actor gamevars because the actor list is dynamic.
 //
 //---------------------------------------------------------------------------
 
@@ -370,12 +363,14 @@ void SetGameVarID(int id, int lValue, int sActor, int sPlayer)
 	if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER )
 	{
 		// for the current player
-		aGameVars[id].plArray[sPlayer]=lValue;
+		if (sPlayer >= 0) aGameVars[id].plArray[sPlayer] = lValue;
+		else for (auto& i : aGameVars[id].plArray) i = lValue; // -1 sets all players - was undefined OOB access in WW2GI.
 	}
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR )
 	{
 		// for the current actor
-		aGameVars[id].plArray[sActor]=lValue;
+		if (sActor >= 0) aGameVars[id].plArray[sActor]=lValue;
+		else for (auto& i : aGameVars[id].plArray) i = lValue; // -1 sets all actors - was undefined OOB access in WW2GI.
 	}
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG )
 	{
@@ -422,7 +417,7 @@ int *GetGameValuePtr(char *szGameLabel)
 		{
 			if(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR | GAMEVAR_FLAG_PERPLAYER))
 			{
-				if(!aGameVars[i].plArray.Size() == 0)
+				if(aGameVars[i].plArray.Size() == 0)
 				{
 					Printf("INTERNAL ERROR: NULL array !!!\n");
 				}
@@ -566,7 +561,7 @@ void InitGameVarPointers(void)
 	char aszBuf[64];
 	// called from game Init AND when level is loaded...
 
-	for(i=0;i<MAX_WEAPONS;i++)
+	for(i=0;i<12/*MAX_WEAPONS*/;i++)	// Setup only exists for the original 12 weapons.
 	{
 		sprintf(aszBuf,"WEAPON%d_CLIP",i);
 		aplWeaponClip[i]=GetGameValuePtr(aszBuf);
@@ -1230,7 +1225,7 @@ void ResetSystemDefaults(void)
 
 	for(j=0;j<MAXPLAYERS;j++)
 	{
-		for(i=0;i<MAX_WEAPONS;i++)
+		for(i=0;i<12/*MAX_WEAPONS*/;i++)
 		{
 			sprintf(aszBuf,"WEAPON%d_CLIP",i);
 			aplWeaponClip[i][j]=GetGameVar(aszBuf,0, -1, j);
