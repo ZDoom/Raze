@@ -3068,6 +3068,7 @@ void P_GetInput(int const playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
+    auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
     if (g_cheatBufLen > 1 || (pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -3131,11 +3132,13 @@ void P_GetInput(int const playerNum)
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
-    static double lastInputTicks;
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - pPlayer->lastInputTicks;
 
-    lastInputTicks = currentHiTicks;
+    pPlayer->lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -3323,6 +3326,31 @@ void P_GetInput(int const playerNum)
         {
             localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
             pPlayer->q16horiz  = fix16_clamp(fix16_sadd(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
+        }
+    }
+
+    // don't adjust rotscrnang and look_ang if dead.
+    if (pSprite->extra > 0)
+    {
+        pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2))))));
+
+        if (pPlayer->q16rotscrnang && !fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(2))))
+            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16rotscrnang)))));
+
+        pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4))))));
+
+        if (pPlayer->q16look_ang && !fix16_sdiv(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(4))))
+            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16look_ang)))));
+
+        if (thisPlayer.lookLeft)
+        {
+            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
+            pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+        }
+        if (thisPlayer.lookRight)
+        {
+            pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
+            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
         }
     }
 
@@ -5103,24 +5131,21 @@ void P_ProcessInput(int playerNum)
         return;
     }
 
-    pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2)));
-
-    if (pPlayer->q16rotscrnang && !fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2)))
-        pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_int(ksgn(fix16_to_int(pPlayer->q16rotscrnang))));
-
-    pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4)));
-
-    if (pPlayer->q16look_ang && !fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4)))
-        pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_int(ksgn(fix16_to_int(pPlayer->q16look_ang))));
-
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT))
     {
         // look_left
         if (VM_OnEvent(EVENT_LOOKLEFT,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, F16(152));
-            pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_int(24));
+            thisPlayer.lookLeft = true;
         }
+        else
+        {
+            thisPlayer.lookLeft = false;
+        }
+    }
+    else
+    {
+        thisPlayer.lookLeft = false;
     }
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT))
@@ -5128,9 +5153,16 @@ void P_ProcessInput(int playerNum)
         // look_right
         if (VM_OnEvent(EVENT_LOOKRIGHT,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, F16(152));
-            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_int(24));
+            thisPlayer.lookRight = true;
         }
+        else
+        {
+            thisPlayer.lookRight = false;
+        }
+    }
+    else
+    {
+        thisPlayer.lookRight = false;
     }
 
     int                  velocityModifier = TICSPERFRAME;

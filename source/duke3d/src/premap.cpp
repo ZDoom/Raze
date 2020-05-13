@@ -719,6 +719,7 @@ void P_ResetPlayer(int playerNum)
     p.jumping_toggle     = 0;
     p.knee_incs          = 0;
     p.knuckle_incs       = 1;
+    p.lastInputTicks     = 0;
     p.last_full_weapon   = 0;
     p.last_pissed_time   = 0;
     p.loogcnt            = 0;
