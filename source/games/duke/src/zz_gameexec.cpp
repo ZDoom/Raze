@@ -101,7 +101,7 @@ static void VM_DeleteSprite(int const spriteNum, int const playerNum)
     A_DeleteSprite(spriteNum);
 }
 
-intptr_t apScriptGameEvent[MAXEVENTS];
+intptr_t apScriptGameEvent[EVENT_NUMEVENTS];
 static uspritetype dummy_sprite;
 static actor_t     dummy_actor;
 
@@ -2717,53 +2717,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_addlogvar:
                 insptr++;
-                {
-                    int32_t m = 1;
-                    char    szBuf[256];
-                    int32_t lVarID = *insptr;
-
-                    if ((lVarID >= g_gameVarCount) || lVarID < 0)
-                    {
-                        if (*insptr == MAXGAMEVARS)  // addlogvar for a constant?  Har.
-                            insptr++;
-                        else if (EDUKE32_PREDICT_TRUE(*insptr & GV_FLAG_NEGATIVE))
-                        {
-                            m = -m;
-                            lVarID ^= GV_FLAG_NEGATIVE;
-                        }
-                        else
-                        {
-                            // invalid varID
-                            CON_ERRPRINTF("invalid variable\n");
-                            continue;
-                        }
-                    }
-                    Bsprintf(tempbuf, "CONLOGVAR: L=%d %s ", VM_DECODE_LINE_NUMBER(g_tw), aaGameVars[lVarID].szLabel);
-
-                    if (aaGameVars[lVarID].flags & GAMEVAR_READONLY)
-                    {
-                        Bsprintf(szBuf, " (read-only)");
-                        Bstrcat(tempbuf, szBuf);
-                    }
-                    if (aaGameVars[lVarID].flags & GAMEVAR_PERPLAYER)
-                    {
-                        Bsprintf(szBuf, " (Per Player. Player=%d)", vm.playerNum);
-                    }
-                    else if (aaGameVars[lVarID].flags & GAMEVAR_PERACTOR)
-                    {
-                        Bsprintf(szBuf, " (Per Actor. Actor=%d)", vm.spriteNum);
-                    }
-                    else
-                    {
-                        Bsprintf(szBuf, " (Global)");
-                    }
-                    Bstrcat(tempbuf, szBuf);
-                    Bsprintf(szBuf, " =%d\n", Gv_GetVar(lVarID) * m);
-                    Bstrcat(tempbuf, szBuf);
-                    Printf(TEXTCOLOR_GREEN "%s", tempbuf);
-                    insptr++;
-                    continue;
-                }
+                continue;
 
             case concmd_ifvare:
                 insptr++;
@@ -2788,13 +2742,6 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 debug_break();
                 VM_ScriptInfo(insptr, 64);
                 G_GameExit("An error has occurred in the " GAMENAME " virtual machine.\n\n");
-#if 0
-                           "If you are an end user, please e-mail the file " GAMENAMELOWERCASE ".log\n"
-                           "along with links to any mods you're using to development@voidpoint.com.\n\n"
-                           "If you are a developer, please attach all of your script files\n"
-                           "along with instructions on how to reproduce this error.\n\n"
-                           "Thank you!");
-#endif
                 break;
         }
     }

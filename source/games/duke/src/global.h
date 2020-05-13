@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "quotes.h"
 #include "sector.h"
 #include "sounds.h"
+#include "gamevars.h"
 
 BEGIN_DUKE_NS
 
@@ -204,7 +205,6 @@ G_EXTERN uint32_t g_ambientCnt;
 G_EXTERN intptr_t *apScript;
 G_EXTERN intptr_t *scriptptr;
 
-G_EXTERN map_t g_mapInfo[(MAXVOLUMES + 1) * MAXLEVELS];  // +1 volume for "intro", "briefing" and "loading" music
 G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
 struct msx_
 {

@@ -125,16 +125,16 @@ void addweapon_d(struct player_struct *p, int weapon)
 		short snum;
 		snum = sprite[p->i].yvel;
 
-		SetGameVarID(g_iWeaponVarID,weapon, p->i, snum);
+		SetGameVarID(g_iWeaponVarID,weapon, snum, p->i);
 		if (p->curr_weapon >= 0)
 		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[weapon][snum], p->i, snum);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[weapon][snum], snum, p->i);
 		}
 		else
 		{
-			SetGameVarID(g_iWorksLikeVarID, -1, p->i, snum);
+			SetGameVarID(g_iWorksLikeVarID, -1, snum, p->i);
 		}
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
+		SetGameVarID(g_iReturnVarID, 0, snum, -1);
 		OnEvent(EVENT_CHANGEWEAPON, p->i, snum, -1);
 		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 		{

@@ -45,64 +45,6 @@ typedef struct {
     int16_t wallnum, tag;
 } animwalltype;
 
-typedef struct {
-    // this needs to have a copy of everything related to the map/actor state
-    // see savegame.c
-    int32_t g_animateGoal[MAXANIMATES], g_animateVel[MAXANIMATES], g_animateCnt;
-    intptr_t g_animatePtr[MAXANIMATES];
-    int32_t lockclock;
-    vec2_t origins[MAXANIMPOINTS];
-    int32_t randomseed, g_globalRandom;
-    int32_t pskyidx;
-
-    int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
-    int16_t g_animateSect[MAXANIMATES];
-    int16_t g_cyclers[MAXCYCLERS][6];
-    int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
-    int16_t g_animWallCnt;
-    int16_t g_cloudCnt,g_cloudSect[256],g_cloudX,g_cloudY;
-    int16_t g_cyclerCnt;
-
-    int32_t numsprites;
-    int16_t tailspritefree;
-    int16_t headspritesect[MAXSECTORS+1];
-    int16_t headspritestat[MAXSTATUS+1];
-    int16_t nextspritesect[MAXSPRITES];
-    int16_t nextspritestat[MAXSPRITES];
-    int16_t numsectors;
-    int16_t numwalls;
-    int16_t prevspritesect[MAXSPRITES];
-    int16_t prevspritestat[MAXSPRITES];
-
-    uint16_t g_earthquakeTime;
-    int8_t g_playerSpawnCnt;
-
-    FixedBitArray<MAXSECTORS> show2dsector;
-
-    actor_t actor[MAXSPRITES];
-    playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
-    animwalltype animwall[MAXANIMWALLS];
-    usectortype sector[MAXSECTORS];
-    spriteext_t spriteext[MAXSPRITES];
-    uspritetype sprite[MAXSPRITES];
-    uwalltype wall[MAXWALLS];
-#ifndef NEW_MAP_FORMAT
-    wallext_t wallext[MAXWALLS];
-#endif
-    intptr_t *vars[MAXGAMEVARS];
-#ifdef YAX_ENABLE
-    int32_t numyaxbunches;
-# if !defined NEW_MAP_FORMAT
-    int16_t yax_bunchnum[MAXSECTORS][2];
-    int16_t yax_nextwall[MAXWALLS][2];
-# endif
-#endif
-} mapstate_t;
-
-typedef struct {
-    mapstate_t *savedstate;
-} map_t;
-
 
 void breakwall(short newpn, short spr, short dawallnum);
 void activatebysector(int s, int sn);

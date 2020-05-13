@@ -6497,20 +6497,9 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
 }
 
 
-
-static void G_FreeHashAnim(const char * /*string*/, intptr_t key)
-{
-    Xfree((void *)key);
-}
-
 static void G_Cleanup(void)
 {
     int32_t i;
-
-    for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
-    {
-        G_FreeMapState(i);
-    }
 
     for (i=MAXPLAYERS-1; i>=0; i--)
     {

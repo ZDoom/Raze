@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef gamedef_h_
 #define gamedef_h_
 
+#include "gamevar.h"
 #include "actors.h"
 #include "build.h"  // hashtable_t
 #include "cheats.h"
@@ -30,20 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"  // projectile_t
 
 BEGIN_DUKE_NS
-
-#if 0
-enum
-{
-    LABEL_ANY    = -1,
-    LABEL_DEFINE = 1,
-    LABEL_STATE  = 2,
-    LABEL_ACTOR  = 4,
-    LABEL_ACTION = 8,
-    LABEL_AI     = 16,
-    LABEL_MOVE   = 32,
-    LABEL_EVENT  = 0x40,
-};
-#endif
 
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
@@ -67,8 +54,7 @@ extern int32_t g_zRangeVarID;     // var ID of "ZRANGE"
 #define g_iWeaponVarID g_weaponVarID
 #define g_iWorksLikeVarID g_worksLikeVarID
 
-#include "events_defs.h"
-extern intptr_t apScriptGameEvent[MAXEVENTS];
+extern intptr_t apScriptGameEvent[EVENT_NUMEVENTS];
 
 extern char g_scriptFileName[BMAX_PATH];
 

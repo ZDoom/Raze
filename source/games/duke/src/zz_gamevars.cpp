@@ -119,22 +119,6 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
 
 void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
 {
-    if (EDUKE32_PREDICT_FALSE(g_gameVarCount >= MAXGAMEVARS))
-    {
-        errorcount++;
-        ReportError(-1);
-        Printf("%s:%d: error: too many gamevars!\n",g_scriptFileName,line_number);
-        return;
-    }
-
-    if (EDUKE32_PREDICT_FALSE(Bstrlen(pszLabel) > (MAXVARLABEL-1)))
-    {
-        errorcount++;
-        ReportError(-1);
-        Printf("%s:%d: error: variable name `%s' exceeds limit of %d characters.\n",g_scriptFileName,line_number,pszLabel, MAXVARLABEL);
-        return;
-    }
-
     int gV = hash_find(&h_gamevars,pszLabel);
 
     if (gV >= 0 && !(aaGameVars[gV].flags & GAMEVAR_RESET))
@@ -241,7 +225,7 @@ static FORCE_INLINE int __fastcall getvar__(int const gameVar, int const spriteN
         case GAMEVAR_INT16PTR: returnValue = *(int16_t *)var.global; break;
     }
 
-    return NEGATE_ON_CONDITION(returnValue, gameVar & GV_FLAG_NEGATIVE);
+    return returnValue;
 }
 
 int __fastcall Gv_GetVar(int const gameVar, int const spriteNum, int const playerNum) { return getvar__(gameVar, spriteNum, playerNum); }

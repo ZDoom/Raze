@@ -1940,9 +1940,6 @@ end_vol4a:
 
     //AddLog("Newgame");
 
-    for (bssize_t i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
-        G_FreeMapState(i);
-
     if (m_coop != 1)
     {
         for (bssize_t weaponNum = 0; weaponNum < MAX_WEAPONS; weaponNum++)
@@ -2476,16 +2473,6 @@ int G_EnterLevel(int gameMode)
 
     Net_WaitForEverybody();
     return 0;
-}
-
-void G_FreeMapState(int levelNum)
-{
-    map_t *const pMapInfo = &g_mapInfo[levelNum];
-
-    if (pMapInfo->savedstate == NULL)
-        return;
-
-    ALIGNED_FREE_AND_NULL(pMapInfo->savedstate);
 }
 
 void G_SetFog(int fogtype)

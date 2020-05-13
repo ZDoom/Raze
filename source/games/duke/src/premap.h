@@ -32,7 +32,6 @@ extern int32_t voting,vote_map,vote_episode;
 int G_EnterLevel(int gameMode);
 int G_FindLevelByFile(const char *fileName);
 void G_CacheMapData(void);
-void G_FreeMapState(int levelNum);
 void G_NewGame(int volumeNum, int levelNum, int skillNum);
 void G_ResetTimers(uint8_t keepgtics);
 void G_UpdateScreenArea(void);

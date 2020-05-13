@@ -24,14 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define gamevars_h_
 
 #include "gamedef.h"
+#include "gamevar.h"
 
 BEGIN_DUKE_NS
-
-#define MAXGAMEVARS 2048 // must be a power of two
-#define MAXVARLABEL 26
-
-#define GV_FLAG_CONSTANT (MAXGAMEVARS)
-#define GV_FLAG_NEGATIVE (MAXGAMEVARS<<1)
 
 // store global game definitions
 enum GamevarFlags_t
@@ -46,9 +41,6 @@ enum GamevarFlags_t
     GAMEVAR_READONLY  = 0x00001000,  // values are read-only (no setvar allowed)
     GAMEVAR_INT32PTR  = 0x00002000,  // plValues is a pointer to an int32_t
     GAMEVAR_INT16PTR  = 0x00008000,  // plValues is a pointer to a short
-    GAMEVAR_FLAG_DEFAULT = GAMEVAR_DEFAULT,
-    GAMEVAR_FLAG_SECRET = 0x200,    // placeholder
-    GAMEVAR_FLAG_READONLY = 0x1000,    // placeholder
 
     GAMEVAR_PTR_MASK  = GAMEVAR_INT32PTR | GAMEVAR_INT16PTR,
 };
@@ -85,7 +77,7 @@ int __fastcall Gv_GetVar(int const gameVar);
 void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf);
 void __fastcall Gv_SetVar(int const gameVar, int const newValue);
 
-inline void SetGameVarID(int var, int newval, int pnum, int snum)
+inline void SetGameVarID(int var, int newval, int snum, int pnum)
 {
     Gv_SetVar(var, newval, snum, pnum);
 }
@@ -105,7 +97,6 @@ inline int GetGameVar(const char* szGameLabel, int defaultValue, int spriteNum, 
     return Gv_GetVarByLabel(szGameLabel, defaultValue, spriteNum, playerNum);
 }
 void Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
-#define AddGameVar Gv_NewVar
 
 int GetDefID(const char* label);
 
