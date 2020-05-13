@@ -1394,14 +1394,14 @@ static void ResizeArray(int const arrayNum, int const newSize)
         }                                        \
     } while (0)
 #else
-#define VM_ASSERT(condition, fmt, ...)                     \
-    do                                                     \
-    {                                                      \
-        if (EDUKE32_PREDICT_FALSE(!(condition)))           \
-        {                                                  \
-            CON_ERRPRINTF(fmt __VA_OPT__(, ) __VA_ARGS__); \
-            abort_after_error();                           \
-        }                                                  \
+#define VM_ASSERT(condition, ...)                \
+    do                                           \
+    {                                            \
+        if (EDUKE32_PREDICT_FALSE(!(condition))) \
+        {                                        \
+            CON_ERRPRINTF(__VA_ARGS__);          \
+            abort_after_error();                 \
+        }                                        \
     } while (0)
 #endif
 
