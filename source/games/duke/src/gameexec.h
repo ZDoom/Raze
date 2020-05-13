@@ -35,7 +35,7 @@ int32_t VM_ExecuteEventWithValue(int const nEventID, int const spriteNum, int co
 
 static FORCE_INLINE int VM_HaveEvent(int const nEventID)
 {
-    return !!apScriptEvents[nEventID];
+    return !!apScriptGameEvent[nEventID];
 }
 
 static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNum, int nDist, int32_t nReturn)

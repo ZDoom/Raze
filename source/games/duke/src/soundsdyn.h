@@ -170,11 +170,6 @@ void G_InitDynamicSounds(void);
 
 #ifdef DYNSOUNDREMAP_ENABLE
 
-void G_ProcessDynamicSoundMapping(const char *szLabel, int32_t lValue);
-
-void initsoundhashnames(void);
-void freesoundhashnames(void);
-
 extern int32_t KICK_HIT;
 extern int32_t PISTOL_RICOCHET;
 extern int32_t PISTOL_BODYHIT;

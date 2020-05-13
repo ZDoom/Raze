@@ -84,7 +84,7 @@ extern int32_t g_zRangeVarID;     // var ID of "ZRANGE"
 #define g_iWorksLikeVarID g_worksLikeVarID
 
 #include "events_defs.h"
-extern intptr_t apScriptEvents[MAXEVENTS];
+extern intptr_t apScriptGameEvent[MAXEVENTS];
 
 extern char g_scriptFileName[BMAX_PATH];
 

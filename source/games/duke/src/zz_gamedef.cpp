@@ -79,7 +79,7 @@ static int32_t C_SetScriptSize(int32_t size);
 
 static intptr_t apScriptGameEventEnd[MAXEVENTS];
 extern intptr_t parsing_actor;
-static intptr_t g_scriptEventOffset;
+extern intptr_t parsing_event;
 extern char *textptr;
 
 
@@ -104,9 +104,6 @@ void C_InitHashes()
     SortCommands();
     for (auto table : tables)
         hash_init(table);
-
-    //inithashnames();
-    initsoundhashnames();
 }
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
@@ -209,44 +206,6 @@ int GetDefID(char const *label) { return hash_find(&h_gamevars, label); }
 #define LAST_LABEL (label+(labelcnt<<6))
 bool isaltok(const char c);
 
-static inline int32_t C_IsLabelChar(const char c, int32_t const i)
-{
-    return (isalnum(c) || c == '_' || c == '*' || c == '?' || (i > 0 && (c == '+' || c == '-' || c == '.')));
-}
-
-static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t const * const table, const char *psz)
-{
-    // find the label psz in the table pLabel.
-    // returns the ID for the label, or -1
-
-    int32_t l = hash_findcase(table, psz);
-    return (l >= 0) ? pLabel[l].lId : -1;
-}
-
-static inline int32_t C_GetLabelNameOffset(hashtable_t const * const table, const char *psz)
-{
-    // find the label psz in the table pLabel.
-    // returns the offset in the array for the label, or -1
-
-    return hash_findcase(table, psz);
-}
-
-static void C_GetNextLabelName(void)
-{
-    int32_t i = 0;
-
-    C_SkipComments();
-
-//    while (ispecial(*textptr) == 0 && *textptr!='['&& *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
-    while (C_IsLabelChar(*textptr, i))
-        label[(labelcnt<<6)+(i++)] = *(textptr++);
-
-    label[(labelcnt<<6)+i] = 0;
-
-    if (!(errorcount|warningcount) && g_scriptDebug > 1)
-        Printf("%s:%d: debug: label `%s'.\n",g_scriptFileName,line_number,label+(labelcnt<<6));
-}
-
 void scriptWriteValue(int32_t const value)
 {
     BITPTR_CLEAR(scriptptr-apScript);
@@ -279,32 +238,6 @@ void scriptWritePointer(intptr_t const value, intptr_t addr)
     apScript[addr] = value;
 }
 
-static int32_t C_GetKeyword(void)
-{
-    int32_t i;
-    char *temptextptr;
-
-    C_SkipComments();
-
-    temptextptr = textptr;
-
-    if (*temptextptr == 0) // EOF
-        return -2;
-
-    while (isaltok(*temptextptr) == 0)
-    {
-        temptextptr++;
-        if (*temptextptr == 0)
-            return 0;
-    }
-
-    i = 0;
-    while (isaltok(*temptextptr))
-        tempbuf[i++] = *(temptextptr++);
-    tempbuf[i] = 0;
-
-    return getkeyword(tempbuf);
-}
 
 static int32_t C_GetNextKeyword(void) //Returns its code #
 {
@@ -313,7 +246,7 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     C_SkipComments();
 
     if (*textptr == 0) // EOF
-        return -2;
+        return -1;
 
     l = 0;
     while (isaltok(*(textptr+l)))
@@ -349,302 +282,6 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     return -1;
 }
 
-static int32_t parse_decimal_number(void)  // (textptr)
-{
-    // decimal constants -- this is finicky business
-    int64_t num = strtoll(textptr, NULL, 10);  // assume long long to be int64_t
-
-    if (EDUKE32_PREDICT_TRUE(num >= INT32_MIN && num <= INT32_MAX))
-    {
-        // all OK
-    }
-    else if (EDUKE32_PREDICT_FALSE(num > INT32_MAX && num <= UINT32_MAX))
-    {
-        // Number interpreted as uint32, but packed as int32 (on 32-bit archs)
-        // (CON code in the wild exists that does this).  Note that such conversion
-        // is implementation-defined (C99 6.3.1.3) but GCC does the 'expected' thing.
-#if 0
-        Printf("%s:%d: warning: number greater than INT32_MAX converted to a negative one.\n",
-                   g_szScriptFileName,line_number);
-        g_numCompilerWarnings++;
-#endif
-    }
-    else
-    {
-        // out of range, this is arguably worse
-
-        Printf("%s:%d: warning: number out of the range of a 32-bit integer encountered.\n",
-                   g_scriptFileName,line_number);
-        warningcount++;
-    }
-
-    return (int32_t)num;
-}
-
-static int32_t parse_hex_constant(const char *hexnum)
-{
-    uint64_t x;
-    sscanf(hexnum, "%" PRIx64 "", &x);
-
-    if (EDUKE32_PREDICT_FALSE(x > UINT32_MAX))
-    {
-        Printf(g_scriptFileName, ":", line_number, ": warning: number 0x", hex(x), " truncated to 32 bits.\n");
-        warningcount++;
-    }
-
-    return x;
-}
-
-static void C_GetNextVarType(int32_t type)
-{
-    int32_t id    = 0;
-    int32_t flags = 0;
-
-    auto varptr = scriptptr;
-
-    C_SkipComments();
-
-    if (!type && !g_labelsOnly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
-    {
-        scriptWriteValue(GV_FLAG_CONSTANT);
-
-        if (tolower(textptr[1])=='x')  // hex constants
-            scriptWriteValue(parse_hex_constant(textptr+2));
-        else
-            scriptWriteValue(parse_decimal_number());
-
-        if (!(errorcount || warningcount) && g_scriptDebug)
-            Printf("%s:%d: debug: constant %ld in place of gamevar.\n", g_scriptFileName, line_number, (long)(scriptptr[-1]));
-#if 1
-        while (!ispecial(*textptr) && *textptr != ']') textptr++;
-#else
-        C_GetNextLabelName();
-#endif
-        return;
-    }
-    else if (*textptr == '-'/* && !isdigit(*(textptr+1))*/)
-    {
-        if (EDUKE32_PREDICT_FALSE(type))
-        {
-            errorcount++;
-            C_ReportError(ERROR_SYNTAXERROR);
-            C_GetNextLabelName();
-            return;
-        }
-
-        if (!(errorcount || warningcount) && g_scriptDebug)
-            Printf("%s:%d: debug: flagging gamevar as negative.\n", g_scriptFileName, line_number); //,Batol(textptr));
-
-        flags = GV_FLAG_NEGATIVE;
-        textptr++;
-    }
-
-    C_GetNextLabelName();
-
-    if (getkeyword(LAST_LABEL)>=0)
-    {
-        errorcount++;
-        C_ReportError(ERROR_ISAKEYWORD);
-        return;
-    }
-
-    C_SkipComments();
-
-    id=GetDefID(LAST_LABEL);
-    if (id<0)   //gamevar not found
-    {
-        if (EDUKE32_PREDICT_TRUE(!type && !g_labelsOnly))
-        {
-            //try looking for a define instead
-            Bstrcpy(tempbuf,LAST_LABEL);
-            id = findlabel(tempbuf);
-
-            if (EDUKE32_PREDICT_TRUE(id>=0 /*&& labeltype[id] & LABEL_DEFINE*/))
-            {
-                if (!(errorcount || warningcount) && g_scriptDebug)
-                    Printf("%s:%d: debug: label `%s' in place of gamevar.\n",g_scriptFileName,line_number,label+(id<<6));
-
-                scriptWriteValue(GV_FLAG_CONSTANT);
-                scriptWriteValue(labelcode[id]);
-                return;
-            }
-        }
-
-        errorcount++;
-        C_ReportError(ERROR_NOTAGAMEVAR);
-        return;
-    }
-
-    if (EDUKE32_PREDICT_FALSE(type == GAMEVAR_READONLY && aGameVars[id].flags & GAMEVAR_READONLY))
-    {
-        errorcount++;
-        C_ReportError(ERROR_VARREADONLY);
-        return;
-    }
-    else if (EDUKE32_PREDICT_FALSE(aGameVars[id].flags & type))
-    {
-        errorcount++;
-        C_ReportError(ERROR_VARTYPEMISMATCH);
-        return;
-    }
-
-    if (g_scriptDebug > 1 && !errorcount && !warningcount)
-        Printf("%s:%d: debug: gamevar `%s'.\n",g_scriptFileName,line_number,LAST_LABEL);
-
-    scriptWriteValue(id|flags);
-}
-
-#define C_GetNextVar() C_GetNextVarType(0)
-
-static FORCE_INLINE void C_GetManyVarsType(int32_t type, int num)
-{
-    for (; num>0; --num)
-        C_GetNextVarType(type);
-}
-
-#define C_GetManyVars(num) C_GetManyVarsType(0,num)
-
-// returns:
-//  -1 on EOF or wrong type or error
-//   0 if literal value
-//   LABEL_* (>0) if that type and matched
-//
-// *scriptptr will contain the value OR 0 if wrong type or error
-#define C_GetNextValue(a) C_GetNextValue_()
-static int32_t C_GetNextValue_()
-{
-    C_SkipComments();
-
-    if (*textptr == 0) // EOF
-        return -1;
-
-    int32_t l = 0;
-
-    while (isaltok(*(textptr+l)))
-    {
-        tempbuf[l] = textptr[l];
-        l++;
-    }
-    tempbuf[l] = 0;
-
-    if (getkeyword(tempbuf) >= 0)
-    {
-        errorcount++;
-        C_ReportError(ERROR_ISAKEYWORD);
-        return -1;
-    }
-
-    int32_t i = findlabel(tempbuf);
-
-    if (i>=0)
-    {
-        //if (EDUKE32_PREDICT_TRUE(labeltype[i] & type))
-        {
-
-            BITPTR_CLEAR(scriptptr-apScript);
-            *(scriptptr++) = labelcode[i];
-
-            textptr += l;
-            return 0;// labeltype[i];
-        }
-    }
-
-    if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) == 0 && *textptr != '-'))
-    {
-        C_ReportError(ERROR_PARAMUNDEFINED);
-        errorcount++;
-        BITPTR_CLEAR(scriptptr-apScript);
-        *scriptptr = 0;
-        scriptptr++;
-        textptr+=l;
-        if (!l) textptr++;
-        return -1; // error!
-    }
-
-    if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) && g_labelsOnly))
-    {
-        C_ReportError(WARNING_LABELSONLY);
-        warningcount++;
-    }
-
-    i = l-1;
-    do
-    {
-        // FIXME: check for 0-9 A-F for hex
-        if (textptr[0] == '0' && textptr[1] == 'x') break; // kill the warning for hex
-        if (EDUKE32_PREDICT_FALSE(!isdigit(textptr[i--])))
-        {
-            C_ReportError(-1);
-            Printf("%s:%d: warning: invalid character `%c' in definition!\n",g_scriptFileName,line_number,textptr[i+1]);
-            warningcount++;
-            break;
-        }
-    }
-    while (i > 0);
-
-    BITPTR_CLEAR(scriptptr-apScript);
-
-    if (textptr[0] == '0' && tolower(textptr[1])=='x')
-        *scriptptr = parse_hex_constant(textptr+2);
-    else
-        *scriptptr = parse_decimal_number();
-
-    if (!(errorcount || warningcount) && g_scriptDebug > 1)
-        Printf("%s:%d: debug: constant %ld.\n",
-                   g_scriptFileName,line_number,(long)*scriptptr);
-
-    scriptptr++;
-
-    textptr += l;
-
-    return 0;   // literal value
-}
-
-static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
-{
-    switch (C_GetKeyword())
-    {
-    case concmd_rightbrace:
-    case concmd_enda:
-    case concmd_ends:
-    case concmd_else:
-        scriptptr = lastScriptPtr + &apScript[0];
-        g_skipBranch = 1;
-        C_ReportError(-1);
-        warningcount++;
-        Printf("%s:%d: warning: malformed `%s' branch\n",g_scriptFileName,line_number,
-                   VM_GetKeywordForID(*(scriptptr) & VM_INSTMASK));
-        return 1;
-    }
-    return 0;
-}
-
-static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
-{
-    // ifrnd and the others actually do something when the condition is executed
-    if ((Bstrncmp(VM_GetKeywordForID(tw), "if", 2) && tw != concmd_else) ||
-            tw == concmd_ifrnd || tw == concmd_ifhitweapon || tw == concmd_ifcansee || tw == concmd_ifcanseetarget ||
-            tw == concmd_ifpdistl || tw == concmd_ifpdistg || tw == concmd_ifgotweaponce)
-    {
-        g_skipBranch = 0;
-        return 0;
-    }
-
-    if ((*(scriptptr) & VM_INSTMASK) != concmd_nullop || *(scriptptr)>>12 != IFELSE_MAGIC)
-        g_skipBranch = 0;
-
-    if (EDUKE32_PREDICT_FALSE(g_skipBranch))
-    {
-        C_ReportError(-1);
-        warningcount++;
-        scriptptr = lastScriptPtr + &apScript[0];
-        Printf("%s:%d: warning: empty `%s' branch\n",g_scriptFileName,line_number,
-                   VM_GetKeywordForID(*(scriptptr) & VM_INSTMASK));
-        *(scriptptr) = (concmd_nullop + (IFELSE_MAGIC<<12));
-        return 1;
-    }
-    return 0;
-}
 
 extern int g_currentSourceFile;
 static void C_Include(const char *confile)
@@ -701,44 +338,6 @@ static void C_Include(const char *confile)
     Xfree(mptr);
 }
 
-void C_InitQuotes(void)
-{
-#if 0	// if we want to keep this it must be done differently. This does not play nice with text substitution.
-	auto openkeys = Bindings.GetKeysForCommand("+open");
-	if (openkeys.Size())
-	{
-		auto OpenGameFunc = C_NameKeys(openkeys.Data(), 1);
-		quoteMgr.Substitute(QUOTE_DEAD, "SPACE", OpenGameFunc);
-		quoteMgr.Substitute(QUOTE_DEAD, "OPEN", OpenGameFunc);
-		quoteMgr.Substitute(QUOTE_DEAD, "USE", OpenGameFunc);
-	}
-#endif
-
-    g_numObituaries = 48;
-    for (bssize_t i = g_numObituaries - 1; i >= 0; i--)
-    {
-		quoteMgr.FormatQuote(i + OBITQUOTEINDEX, "$TXT_OBITUARY%d", i + 1);
-    }
-
-    g_numSelfObituaries = 6;
-    for (bssize_t i = g_numSelfObituaries - 1; i >= 0; i--)
-    {
-		quoteMgr.FormatQuote(i + SUICIDEQUOTEINDEX, "$TXT_SELFOBIT%d", i + 1);
-    }
-}
-
-static inline void C_BitOrNextValue(int32_t *valptr)
-{
-    C_GetNextValue(LABEL_DEFINE);
-    scriptptr--;
-    *valptr |= *scriptptr;
-}
-
-static inline void C_FinishBitOr(int32_t value)
-{
-    BITPTR_CLEAR(scriptptr-apScript);
-    *scriptptr++ = value;
-}
 
 int parsecommand(int tw); // for now just run an externally parsed command.
 
@@ -755,235 +354,10 @@ int32_t C_ParseCommand(int32_t loop)
         if (EDUKE32_PREDICT_FALSE(g_scriptDebug))
             C_ReportError(-1);
 
-        switch ((g_lastKeyword = tw = C_GetNextKeyword()))
-        {
-        default:
-        case -1:
-        case -2:
-            return 1; //End
-        case concmd_state:
-        case concmd_ends:
-        case concmd_define:
-        case concmd_palfrom:
-        case concmd_move:
-        case concmd_music:
-        case concmd_ai:
-        case concmd_action:
-        case concmd_actor:
-        case concmd_useractor:
-        case concmd_cstat:
-        case concmd_strength:
-        case concmd_shoot:
-        case concmd_addphealth:
-        case concmd_spawn:
-        case concmd_count:
-        case concmd_endofgame:
-        case concmd_spritepal:
-        case concmd_cactor:
-        case concmd_money:
-        case concmd_addkills:
-        case concmd_debug:
-        case concmd_addstrength:
-        case concmd_cstator:
-        case concmd_mail:
-        case concmd_paper:
-        case concmd_sleeptime:
-        case concmd_clipdist:
-        case concmd_isdrunk:
-        case concmd_iseat:
-        case concmd_newpic:
-        case concmd_hitradius:
-        case concmd_addammo:
-        case concmd_addweapon:
-        case concmd_sizeto:
-        case concmd_sizeat:
-        case concmd_debris:
-        case concmd_addinventory:
-        case concmd_guts:
-        case concmd_lotsofglass:
-        case concmd_quote:
-        case concmd_sound:
-        case concmd_globalsound:
-        case concmd_soundonce:
-        case concmd_stopsound:
-        case concmd_ifrnd:
-        case concmd_ifpdistl:
-        case concmd_ifpdistg:
-        case concmd_ifai:
-        case concmd_ifwasweapon:
-        case concmd_ifaction:
-        case concmd_ifactioncount:
-        case concmd_ifmove:
-        case concmd_ifcount:
-        case concmd_ifactor:
-        case concmd_ifstrength:
-        case concmd_ifspawnedby:
-        case concmd_ifgapzl:
-        case concmd_iffloordistl:
-        case concmd_ifceilingdistl:
-        case concmd_ifphealthl:
-        case concmd_ifspritepal:
-        case concmd_ifgotweaponce:
-        case concmd_ifangdiffl:
-        case concmd_ifactorhealthg:
-        case concmd_ifactorhealthl:
-        case concmd_ifsoundid:
-        case concmd_ifsounddist:
-        case concmd_ifpinventory:
-        case concmd_ifonwater:
-        case concmd_ifinwater:
-        case concmd_ifactornotstayput:
-        case concmd_ifcansee:
-        case concmd_ifhitweapon:
-        case concmd_ifsquished:
-        case concmd_ifdead:
-        case concmd_ifcanshoottarget:
-        case concmd_ifp:
-        case concmd_ifhitspace:
-        case concmd_ifoutside:
-        case concmd_ifmultiplayer:
-        case concmd_ifinspace:
-        case concmd_ifbulletnear:
-        case concmd_ifrespawn:
-        case concmd_ifinouterspace:
-        case concmd_ifnotmoving:
-        case concmd_ifawayfromwall:
-        case concmd_ifcanseetarget:
-        case concmd_ifnosounds:
-        case concmd_ifnocover:
-        case concmd_ifhittruck:
-        case concmd_iftipcow:
-        case concmd_ifonmud:
-        case concmd_ifcoop:
-        case concmd_ifmotofast:
-        case concmd_ifwind:
-        case concmd_ifonmoto:
-        case concmd_ifonboat:
-        case concmd_ifsizedown:
-        case concmd_ifplaybackon:
-        case concmd_else:
-        case concmd_leftbrace:
-        case concmd_rightbrace:
-        case concmd_betaname:
-        case concmd_definevolumename:
-        case concmd_defineskillname:
-        case concmd_definelevelname:
-        case concmd_definequote:
-        case concmd_definesound:
-        case concmd_enda:
-        case concmd_include:
-        case concmd_break:
-        case concmd_fall:
-        case concmd_tip:
-        case concmd_killit:
-        case concmd_resetactioncount:
-        case concmd_pstomp:
-        case concmd_resetplayer:
-        case concmd_resetcount:
-        case concmd_wackplayer:
-        case concmd_operate:
-        case concmd_respawnhitag:
-        case concmd_getlastpal:
-        case concmd_pkick:
-        case concmd_mikesnd:
-        case concmd_tossweapon:
-        case concmd_destroyit:
-        case concmd_larrybird:
-        case concmd_strafeleft:
-        case concmd_straferight:
-        case concmd_slapplayer:
-        case concmd_tearitup:
-        case concmd_smackbubba:
-        case concmd_soundtagonce:
-        case concmd_soundtag:
-        case concmd_smacksprite:
-        case concmd_fakebubba:
-        case concmd_mamatrigger:
-        case concmd_mamaspawn:
-        case concmd_mamaquake:
-        case concmd_mamaend:
-        case concmd_garybanjo:
-        case concmd_motoloopsnd:
-        case concmd_rndmove:
-        case concmd_gamestartup:
-        case concmd_gamevar:
-        case concmd_addlogvar:
-        case concmd_setvar:
-        case concmd_addvar:
-        case concmd_setvarvar:
-        case concmd_addvarvar:
-        case concmd_ifvarvarg:
-        case concmd_ifvarvarl:
-        case concmd_ifvarvare:
-        case concmd_ifvarg:
-        case concmd_ifvarl:
-        case concmd_ifvare:
+        g_lastKeyword = tw = C_GetNextKeyword();
             if (parsecommand(g_lastKeyword)) return 1;
             continue;
-
-		case concmd_onevent:
-            if (EDUKE32_PREDICT_FALSE(parsing_state || parsing_actor))
-            {
-                C_ReportError(ERROR_FOUNDWITHIN);
-                errorcount++;
             }
-
-            num_squigilly_brackets = 0;
-            scriptptr--;
-            g_scriptEventOffset = parsing_actor = scriptptr - apScript;
-
-            C_SkipComments();
-            j = 0;
-            while (isaltok(*(textptr+j)))
-            {
-                g_szCurrentBlockName[j] = textptr[j];
-                j++;
-            }
-            g_szCurrentBlockName[j] = 0;
-            //        g_labelsOnly = 1;
-            C_GetNextValue(LABEL_DEFINE);
-            g_labelsOnly = 0;
-            scriptptr--;
-            j= *scriptptr;  // type of event
-            g_currentEvent = j;
-            //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr);
-            //AddLog(g_szBuf);
-            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXEVENTS-1))
-            {
-                Printf("%s:%d: error: invalid event ID.\n",g_scriptFileName,line_number);
-                errorcount++;
-                continue;
-            }
-            // if event has already been declared then store previous script location
-            apScriptEvents[j] = g_scriptEventOffset;
-
-            checking_ifelse = 0;
-
-            continue;
-
- 
-        case concmd_endevent:
-
-            if (EDUKE32_PREDICT_FALSE(!g_scriptEventOffset))
-            {
-                C_ReportError(-1);
-                Printf("%s:%d: error: found `endevent' without open `onevent'.\n",g_scriptFileName,line_number);
-                errorcount++;
-            }
-            if (EDUKE32_PREDICT_FALSE(num_squigilly_brackets != 0))
-            {
-                C_ReportError(num_squigilly_brackets > 0 ? ERROR_OPENBRACKET : ERROR_CLOSEBRACKET);
-                errorcount++;
-            }
-
-            g_scriptEventOffset = parsing_actor = 0;
-            g_currentEvent = -1;
-            Bsprintf(g_szCurrentBlockName,"(none)");
-            continue;
-
-
-                    }
-                }
     while (loop);
 
     return 0;
@@ -1006,27 +380,10 @@ static char const * C_ScriptVersionString(int32_t version)
     }
 }
 
-void C_PrintStats(void)
-{
-    Printf("%d/%d labels\n", labelcnt,
-        (int32_t) min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
-            MAXSPRITES * sizeof(spritetype)/(1<<6)));
-
-    int i, j;
-
-    for (i=MAXTILES-1, j=0; i>=0; i--)
-    {
-        if (g_tile[i].execPtr)
-            j++;
-    }
-    if (j) Printf("%d actors", j);
-
-    Printf("\n");
-}
 
 void C_Compile(const char *fileName)
 {
-    Bmemset(apScriptEvents, 0, sizeof(apScriptEvents));
+    Bmemset(apScriptGameEvent, 0, sizeof(apScriptGameEvent));
     Bmemset(apScriptGameEventEnd, 0, sizeof(apScriptGameEventEnd));
 
     for (int i=0; i<MAXTILES; i++)
@@ -1108,22 +465,14 @@ void C_Compile(const char *fileName)
 
     Printf("Script compiled in %dms, %ld bytes%s\n", timerGetTicks() - startcompiletime,
                 (unsigned long)(scriptptr-apScript), C_ScriptVersionString(g_scriptVersion));
-
-    //freehashnames();
-    freesoundhashnames();
-
-    if (g_scriptDebug)
-        C_PrintStats();
-
-    C_InitQuotes();
 }
 
 void C_ReportError(int32_t iError)
 {
     if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
     {
-        if (g_scriptEventOffset || parsing_state || parsing_actor)
-            Printf("%s: In %s `%s':\n",g_scriptFileName,g_scriptEventOffset?"event":parsing_actor?"actor":"state",g_szCurrentBlockName);
+        if (parsing_event || parsing_state || parsing_actor)
+            Printf("%s: In %s `%s':\n",g_scriptFileName,parsing_event?"event":parsing_actor?"actor":"state",g_szCurrentBlockName);
         else Printf("%s: At top level:\n",g_scriptFileName);
         Bstrcpy(g_szLastBlockName,g_szCurrentBlockName);
     }

@@ -50,7 +50,7 @@ int line_number;
 int labelcnt;
 int errorcount, warningcount;	// was named 'error' and 'warning' which is too generic for public variables and may clash with other code.
 int g_currentSourceFile;
-intptr_t parsing_actor;
+intptr_t parsing_actor, parsing_event;
 int parsing_state;
 int num_squigilly_brackets;
 int checking_ifelse;
@@ -654,7 +654,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	{
 	default:
 	case -1:
-		return 0; //End
+		return 1; //End
 
 	case concmd_state:
 		if (parsing_actor == 0 && parsing_state == 0)
@@ -1043,7 +1043,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		return 0;
 		}
 
-#if 0
 	case concmd_onevent:
 		if (parsing_state)
 		{
@@ -1059,8 +1058,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 		num_squigilly_brackets = 0;
 		popscriptvalue();
-		parsing_event = scriptptr;
-		parsing_actor = scriptptr;
+		parsing_event = parsing_actor = scriptpos();
 
 		transnum();
 		popscriptvalue();
@@ -1076,7 +1074,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		checking_ifelse = 0;
 
 		return 0;
-#endif
+
 
 	case concmd_cstat:
 		transnum();
@@ -1207,7 +1205,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		// get the ID of the DEF
 		getlabel();	//GetGameVarLabel();
 
-		// Check to see if it's a keyword
 		checkforkeyword();
 
 		i = GetDefID(label + (labelcnt << 6));
@@ -1247,7 +1244,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 		// get the ID of the DEF
 		getlabel();	//GetGameVarLabel();
-		// Check to see it's a keyword
 
 		checkforkeyword();
 
@@ -1262,7 +1258,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 		// get the ID of the DEF
 		getlabel();	//GetGameVarLabel();
-		// Check to see it's a keyword
 
 		checkforkeyword();
 
@@ -1282,7 +1277,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 		// get the ID of the DEF
 		getlabel();	//GetGameVarLabel();
-		// Check to see it's a keyword
 
 		checkforkeyword();
 		i = GetDefID(label + (labelcnt << 6));
@@ -1300,16 +1294,12 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	case concmd_addlogvar:
 		// syntax: addlogvar <var>
 
-		// source file.
 		appendscriptvalue(g_currentSourceFile);
-
-		// prints the line number in the log file.
 		appendscriptvalue(line_number);
 
 		// get the ID of the DEF
 		getlabel();	//GetGameVarLabel();
 
-		// Check to see if it's a keyword
 		checkforkeyword();
 
 		i = GetDefID(label + (labelcnt << 6));
@@ -1584,7 +1574,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		S_DefineSound(k, parsebuffer.Data(), ps, pe, pr, m, vo, 1.f);
 		return 0;
 	}
-#if 0
+
 	case concmd_endevent:
 		if (parsing_event == 0)
 		{
@@ -1603,7 +1593,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 
 		return 0;
-#endif
 
 	case concmd_enda:
 		if (parsing_actor == 0)
@@ -1710,6 +1699,19 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 	return 0;
 }
 
+// I think this should go away.
+void initquotes()
+{
+	for (int i = 0; i < 48; i++)
+	{
+		quoteMgr.FormatQuote(i + OBITQUOTEINDEX, "$TXT_OBITUARY%d", i + 1);
+	}
+
+	for (int i = 0; i < 6; i++)
+	{
+		quoteMgr.FormatQuote(i + SUICIDEQUOTEINDEX, "$TXT_SELFOBIT%d", i + 1);
+	}
+}
 
 
 END_DUKE_NS

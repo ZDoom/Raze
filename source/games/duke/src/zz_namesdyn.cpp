@@ -2882,43 +2882,6 @@ int32_t TILE_MAMA = 0;
 int32_t TILE_MAMAJIBA = 0;
 int32_t TILE_MAMAJIBB = 0;
 
-#if 0
-static hashtable_t h_names = {512, NULL};
-
-void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue)
-{
-    int32_t i;
-
-    if ((unsigned)lValue >= MAXTILES || !szLabel)
-        return;
-
-    i = hash_find(&h_names,szLabel);
-    if (i>=0)
-    {
-        struct dynitem *di = &g_dynTileList[i];
-#ifdef DEBUGGINGAIDS
-        if (g_scriptDebug && di->staticval != lValue)
-            Printf("REMAP %s (%d) --> %d\n", di->str, di->staticval, lValue);
-#endif
-        *di->dynvalptr = lValue;
-    }
-}
-
-void inithashnames(void)
-{
-    int32_t i;
-
-    hash_init(&h_names);
-
-    for (i=0; g_dynTileList[i].staticval >= 0; i++)
-        hash_add(&h_names, g_dynTileList[i].str, i, 0);
-}
-
-void freehashnames(void)
-{
-    hash_free(&h_names);
-}
-#endif
 
 int APLAYER, CAMERA1;
 

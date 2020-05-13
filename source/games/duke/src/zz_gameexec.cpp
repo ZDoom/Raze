@@ -101,7 +101,7 @@ static void VM_DeleteSprite(int const spriteNum, int const playerNum)
     A_DeleteSprite(spriteNum);
 }
 
-intptr_t apScriptEvents[MAXEVENTS];
+intptr_t apScriptGameEvent[MAXEVENTS];
 static uspritetype dummy_sprite;
 static actor_t     dummy_actor;
 
@@ -134,7 +134,7 @@ static FORCE_INLINE int32_t VM_EventInlineInternal__(int const eventNum, int con
 
     vm = newVMstate;
     g_currentEvent = eventNum;
-    insptr = apScript + apScriptEvents[eventNum];
+    insptr = apScript + apScriptGameEvent[eventNum];
     globalReturn = returnValue;
 
     double const t = timerGetHiTicks();
