@@ -3135,9 +3135,9 @@ void P_GetInput(int const playerNum)
     input.fvel -= info.dz * keyMove / analogExtent;
 
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - pPlayer->lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
 
-    pPlayer->lastInputTicks = currentHiTicks;
+    thisPlayer.lastInputTicks = currentHiTicks;
 
     if (elapsedInputTicks == currentHiTicks)
         return;

@@ -719,7 +719,6 @@ void P_ResetPlayer(int playerNum)
     p.jumping_toggle     = 0;
     p.knee_incs          = 0;
     p.knuckle_incs       = 1;
-    p.lastInputTicks     = 0;
     p.last_full_weapon   = 0;
     p.last_pissed_time   = 0;
     p.loogcnt            = 0;
@@ -781,6 +780,7 @@ void P_ResetPlayer(int playerNum)
     g_player[playerNum].horizRecenter    = 0;
     g_player[playerNum].horizSkew        = 0;
     g_player[playerNum].horizAngleAdjust = 0;
+    g_player[playerNum].lastInputTicks   = 0;
 
     P_UpdateScreenPal(&p);
     VM_OnEvent(EVENT_RESETPLAYER, p.i, playerNum);
