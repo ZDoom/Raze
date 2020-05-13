@@ -1162,24 +1162,25 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		transnum();
 		transnum();
 		break;
-#if 0
+
 	case concmd_else:
 		if (checking_ifelse)
 		{
 			checking_ifelse--;
-			tempscrptr = scriptptr;
+			tempscrptr = scriptpos();
 			scriptptr++; //Leave a spot for the fail location
 			parsecommand();
-			*tempscrptr = (intptr_t)scriptptr;
+			setscriptvalue(tempscrptr, scriptpos());
 		}
 		else
 		{
 			popscriptvalue();
 			warningcount++;
-			Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Found 'else' with no 'if', ignored.\n", fn, line_number);
+			Printf(TEXTCOLOR_YELLOW "  * WARNING.(%s, line %d) Found 'else' with no 'if', ignored.\n", fn, line_number);
 		}
 
 		return 0;
+#if 0
 	case concmd_setvar:
 	case concmd_addvar:
 		// syntax: [rand|add|set]var	<var1> <const1>
@@ -1509,12 +1510,15 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		setscriptvalue(tempscrptr, scriptpos());
 		checking_ifelse++;
 		return 0;
-#if 0
 	case concmd_leftbrace:
 		num_squigilly_brackets++;
+#if 0
 		do
 			done = parsecommand();
 		while (done == 0);
+#else // TRANSITIONAL
+		C_ParseCommand(1);
+#endif
 		return 0;
 	case concmd_rightbrace:
 		num_squigilly_brackets--;
@@ -1526,19 +1530,8 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		return 1;
 	case concmd_betaname:
 		popscriptvalue();
-		j = 0;
 		// not used anywhere, just parse over it.
-		while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)		// JBF 20040127: end of file checked
-		{
-			j++; textptr++;
-		}
-		return 0;
-	case concmd_comment:
-		popscriptvalue(); //Negate the rem
-		while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)		// JBF 20040127: end of file checked
-			textptr++;
-
-		// line_number++;
+		skiptoendofline();
 		return 0;
 
 	case concmd_definevolumename:
@@ -1557,7 +1550,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		gVolumeNames[j] = FStringTable::MakeMacro(textptr, i);
+		gVolumeNames[j] = FStringTable::MakeMacro(parsebuffer.Data(), i);
 		return 0;
 	case concmd_defineskillname:
 		popscriptvalue();
@@ -1575,7 +1568,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		gSkillNames[j] = FStringTable::MakeMacro(textptr, i);
+		gSkillNames[j] = FStringTable::MakeMacro(parsebuffer.Data(), i);
 		return 0;
 
 	case concmd_definelevelname:
@@ -1596,7 +1589,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		mapList[j * MAXLEVELS + k].SetFileName(tempbuf);
+		mapList[j * MAXLEVELS + k].SetFileName(parsebuffer.Data());
 
 		while (*textptr == ' ') textptr++;
 
@@ -1685,6 +1678,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		S_DefineSound(k, parsebuffer.Data(), ps, pe, pr, m, vo, 1.f);
 		return 0;
 	}
+#if 0
 	case concmd_endevent:
 		if (parsing_event == 0)
 		{

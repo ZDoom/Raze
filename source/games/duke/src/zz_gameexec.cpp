@@ -1228,7 +1228,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
         }
         else if (tw == concmd_else)
         {
-            insptr = (intptr_t *)*(insptr + 1);
+            insptr = apScript + *(insptr + 1);
             continue;
         }
         else if (tw == concmd_state)

@@ -91,7 +91,11 @@ int GameInterface::GetStringTile(int font, const char* t, int f)
         }
     }
     else
-        return *t - '!' + font; // uses ASCII order
+    {
+        int tt = *t;
+        if (tt >= 'a' && tt <= 'z') tt -= 32;
+        return tt - '!' + font; // uses ASCII order
+    }
 }
 
 
