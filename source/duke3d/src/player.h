@@ -176,6 +176,7 @@ typedef struct {
     int16_t random_club_frame, one_eighty_count;
     int16_t dummyplayersprite, extra_extra8;
     int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
+    fix16_t one_eighty_target;
 
     int16_t weaprecs[MAX_WEAPONS], weapon_sway, crack_time, bobcounter;
 

@@ -3147,7 +3147,10 @@ CHECKINV1:
 
         if (TEST_SYNC_KEY(playerBits, SK_TURNAROUND) && pPlayer->one_eighty_count == 0)
             if (VM_OnEvent(EVENT_TURNAROUND,pPlayer->i,playerNum) == 0)
-                pPlayer->one_eighty_count = -1024;
+            {
+                pPlayer->one_eighty_count  = -1024;
+                pPlayer->one_eighty_target = fix16_sadd(pPlayer->q16ang, -fix16_from_int(pPlayer->one_eighty_count)) & 0x7FFFFFF;
+            }
     }
 }
 
