@@ -819,7 +819,6 @@ void P_ResetPlayer(int playerNum)
     if (!RR) pPlayer->q16rotscrnang          = 0;
     pPlayer->runspeed               = g_playerFriction;
     pPlayer->falling_counter        = 0;
-    pPlayer->lastInputTicks         = 0;
 
     P_ResetTintFade(pPlayer);
 
@@ -2470,6 +2469,9 @@ int G_EnterLevel(int gameMode)
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
     P_UpdateScreenPal(g_player[myconnectindex].ps);
     renderFlushPerms();
+
+    // reset lastInputTicks.
+    g_player[myconnectindex].ps->lastInputTicks = 0;
 
     everyothertime = 0;
     g_globalRandom = 0;
