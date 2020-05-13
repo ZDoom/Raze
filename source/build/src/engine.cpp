@@ -5298,6 +5298,30 @@ floor:
     else if (!didFloor)
         goto floor;
 }
+
+int32_t yax_getceilzofslope(int const sectnum, vec2_t const vect)
+{
+    if ((sector[sectnum].ceilingstat&512)==0)
+    {
+        int const nsect = yax_getneighborsect(vect.x, vect.y, sectnum, YAX_CEILING);
+        if (nsect >= 0)
+            return getcorrectceilzofslope(nsect, vect.x, vect.y);
+    }
+
+    return getcorrectceilzofslope(sectnum, vect.x, vect.y);
+}
+
+int32_t yax_getflorzofslope(int const sectnum, vec2_t const vect)
+{
+    if ((sector[sectnum].floorstat&512)==0)
+    {
+        int const nsect = yax_getneighborsect(vect.x, vect.y, sectnum, YAX_FLOOR);
+        if (nsect >= 0)
+            return getcorrectflorzofslope(nsect, vect.x, vect.y);
+    }
+
+    return getcorrectflorzofslope(sectnum, vect.x, vect.y);
+}
 #endif
 
 //

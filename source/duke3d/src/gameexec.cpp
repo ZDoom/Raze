@@ -627,23 +627,13 @@ static inline void VM_FacePlayer(int const shift)
                                                  : getangle(vm.pPlayer->pos.x - vm.pSprite->x, vm.pPlayer->pos.y - vm.pSprite->y));
 }
 
-////////// TROR get*zofslope //////////
-// These rather belong into the engine.
-
 static int32_t VM_GetCeilZOfSlope(void)
 {
     vec2_t const vect     = vm.pSprite->pos.vec2;
     int const    sectnum  = vm.pSprite->sectnum;
 
-#ifdef YAX_ENABLE
-    if ((sector[sectnum].ceilingstat&512)==0)
-    {
-        int const nsect = yax_getneighborsect(vect.x, vect.y, sectnum, YAX_CEILING);
-        if (nsect >= 0)
-            return getceilzofslope(nsect, vect.x, vect.y);
-    }
-#endif
-    return getceilzofslope(sectnum, vect.x, vect.y);
+    return yax_getceilzofslope(sectnum, vect);
+
 }
 
 #ifndef EDUKE32_STANDALONE
@@ -652,19 +642,10 @@ static int32_t VM_GetFlorZOfSlope(void)
     vec2_t const vect    = vm.pSprite->pos.vec2;
     int const    sectnum = vm.pSprite->sectnum;
 
-#ifdef YAX_ENABLE
-    if ((sector[sectnum].floorstat&512)==0)
-    {
-        int const nsect = yax_getneighborsect(vect.x, vect.y, sectnum, YAX_FLOOR);
-        if (nsect >= 0)
-            return getflorzofslope(nsect, vect.x, vect.y);
-    }
-#endif
-    return getflorzofslope(sectnum, vect.x, vect.y);
+    return yax_getflorzofslope(sectnum, vect);
+
 }
 #endif
-
-////////////////////
 
 static int32_t A_GetWaterZOffset(int spritenum);
 

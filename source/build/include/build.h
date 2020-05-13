@@ -963,6 +963,9 @@ void   getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day,
                        int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(1,4,5)));
 void yax_getzsofslope(int sectNum, int playerX, int playerY, int32_t* pCeilZ, int32_t* pFloorZ);
 
+int32_t yax_getceilzofslope(int const sectnum, vec2_t const vect);
+int32_t yax_getflorzofslope(int const sectnum, vec2_t const vect);
+
 static FORCE_INLINE int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     return getceilzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
