@@ -711,7 +711,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         {
             if (ud.screen_tilting)
             {
-                renderSetRollAngle(fix16_to_float(pPlayer->oq16rotscrnang + mulscale16(((pPlayer->q16rotscrnang - pPlayer->oq16rotscrnang + fix16_from_int(1024))&0x7FFFFFF)-fix16_from_int(1024), smoothRatio)));
+                renderSetRollAngle(fix16_to_float(pPlayer->q16rotscrnang));
                 pPlayer->oq16rotscrnang = pPlayer->q16rotscrnang;
             }
             else
