@@ -1331,7 +1331,7 @@ static uint8_t *dosaveplayer2(FileWriter *fil, uint8_t *mem)
     PRINTSIZE("script");
     mem=writespecdata(svgm_anmisc, fil, mem);  // animates, quotes & misc.
     PRINTSIZE("animisc");
-    Gv_WriteSave(*fil);  // gamevars
+    //Gv_WriteSave(*fil);  // gamevars
     mem=writespecdata((const dataspec_t *)svgm_vars, 0, mem);
     PRINTSIZE("vars");
 
@@ -1354,9 +1354,7 @@ static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr)
     if (readspecdata(svgm_anmisc, &fil, &mem)) return -6;
     PRINTSIZE("animisc");
 
-    int i;
-
-    if ((i = Gv_ReadSave(fil))) return i;
+    //if ((i = Gv_ReadSave(fil))) return i;
 
     if (mem)
     {

@@ -153,7 +153,7 @@ static int32_t G_GetInvOn(const DukePlayer_t* p)
 static int32_t GetMoraleOrShield(DukePlayer_t *p, int32_t snum)
 {
     // WW2GI
-    int lAmount = Gv_GetVarByLabel("PLR_MORALE", -1, p->i, snum);
+    int lAmount = GetGameVar("PLR_MORALE", -1, p->i, snum);
     if (lAmount == -1) lAmount = p->inv_amount[GET_SHIELD];
     return lAmount;
 }

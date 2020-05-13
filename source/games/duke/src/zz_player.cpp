@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "demo.h"
 #include "d_event.h"
+#include "gamevar.h"
 
 BEGIN_DUKE_NS
 
@@ -308,11 +309,11 @@ static int GetAutoAimAng(int spriteNum, int playerNum, int projecTile, int zAdju
 
     Bassert((unsigned)playerNum < MAXPLAYERS);
 
-    Gv_SetVar(g_aimAngleVarID, (g_player[playerNum].ps->auto_aim == 3 && (!RRRA || projecTile != TILE_RPG2)) ? AUTO_AIM_ANGLE<<1 : AUTO_AIM_ANGLE, spriteNum, playerNum);
+    SetGameVarID(g_iAimAngleVarID, (g_player[playerNum].ps->auto_aim == 3 && (!RRRA || projecTile != TILE_RPG2)) ? AUTO_AIM_ANGLE<<1 : AUTO_AIM_ANGLE, spriteNum, playerNum);
 
     VM_OnEvent(EVENT_GETAUTOAIMANGLE, spriteNum, playerNum);
 
-    int aimang = Gv_GetVar(g_aimAngleVarID, spriteNum, playerNum);
+    int aimang = GetGameVarID(g_iAimAngleVarID, spriteNum, playerNum);
     if (aimang > 0)
         returnSprite = A_FindTargetSprite(&sprite[spriteNum], aimang, projecTile);
 
@@ -371,13 +372,13 @@ static void P_PreFireHitscan(int spriteNum, int playerNum, int projecTile, vec3_
 
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
     
-    Gv_SetVar(g_angRangeVarID, angRange, spriteNum, playerNum);
-    Gv_SetVar(g_zRangeVarID, zRange, spriteNum, playerNum);
+    SetGameVarID(g_iAngRangeVarID, angRange, spriteNum, playerNum);
+    SetGameVarID(g_iZRangeVarID, zRange, spriteNum, playerNum);
 
     VM_OnEvent(EVENT_GETSHOTRANGE, spriteNum, playerNum);
 
-    angRange = Gv_GetVar(g_angRangeVarID, spriteNum, playerNum);
-    zRange   = Gv_GetVar(g_zRangeVarID, spriteNum, playerNum);
+    angRange = GetGameVarID(g_iAngRangeVarID, spriteNum, playerNum);
+    zRange   = GetGameVarID(g_iZRangeVarID, spriteNum, playerNum);
 
     if (accurateAim)
     {
@@ -1278,14 +1279,14 @@ growspark_rr:
 
             if (placeMine == 1)
             {
-                int const tripBombMode = Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
+                int const tripBombMode = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, -1, -1);
                 int const spawnedSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, TILE_TRIPBOMB, -16, 4, 5,
                                                          shootAng, 0, 0, spriteNum, 6);
                 if (tripBombMode & TRIPBOMB_TIMER)
                 {
-                    int32_t lLifetime = Gv_GetVarByLabel("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, -1, playerNum);
+                    int32_t lLifetime = GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, -1, playerNum);
                     int32_t lLifetimeVar
-                    = Gv_GetVarByLabel("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, playerNum);
+                    = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, playerNum);
                     // set timer.  blows up when at zero....
                     sprite[spawnedSprite].extra = lLifetime + mulscale14(krand2(), lLifetimeVar) - lLifetimeVar;
                 }
@@ -1648,8 +1649,8 @@ void P_SetWeaponGamevars(int playerNum, const DukePlayer_t * const pPlayer)
 {
     if (!WW2GI)
         return;
-    Gv_SetVar(g_weaponVarID, pPlayer->curr_weapon, pPlayer->i, playerNum);
-    Gv_SetVar(g_worksLikeVarID,
+    SetGameVarID(g_iWeaponVarID, pPlayer->curr_weapon, pPlayer->i, playerNum);
+    SetGameVarID(g_iWorksLikeVarID,
               ((unsigned)pPlayer->curr_weapon < MAX_WEAPONS) ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : -1,
               pPlayer->i, playerNum);
 }
@@ -5878,8 +5879,8 @@ static void P_ProcessWeapon(int playerNum)
                                         pPlayer->pos.z,PWEAPON(playerNum, pPlayer->curr_weapon, Shoots),-16,9,9,
                                         fix16_to_int(pPlayer->q16ang),(pipeBombFwdVel+(pPlayer->hbomb_hold_delay<<5)),pipeBombZvel,pPlayer->i,1);
 
-                    int pipeLifeTime     = Gv_GetVarByLabel("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, playerNum);
-                    int pipeLifeVariance = Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, playerNum);
+                    int pipeLifeTime     = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, playerNum);
+                    int pipeLifeVariance = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, playerNum);
                     sprite[pipeSpriteNum].extra = pipeLifeTime
                                         + mulscale14(krand2(), pipeLifeVariance)
                                         - pipeLifeVariance;

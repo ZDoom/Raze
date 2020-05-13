@@ -114,7 +114,7 @@ END_DUKE_NS
 #include "gamedef.h"
 #include "gamedefs.h"
 #include "gameexec.h"
-#include "gamevars.h"
+#include "gamevar.h"
 #include "global.h"
 #include "inv.h"
 #include "macros.h"

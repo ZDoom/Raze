@@ -35,9 +35,6 @@ extern int32_t g_mostConcurrentPlayers;
 
 #define MOVEFIFOSIZ                 256
 
-#define NAM_GRENADE_LIFETIME        120
-#define NAM_GRENADE_LIFETIME_VAR    30
-
 #define HORIZ_MIN                   -99
 #define HORIZ_MAX                   299
 #define AUTO_AIM_ANGLE              48
@@ -45,11 +42,15 @@ extern int32_t g_mostConcurrentPlayers;
 #define PHEIGHT_RR                  (40<<8);
 extern int32_t PHEIGHT;
 
-#define TRIPBOMB_TRIPWIRE       0x00000001
-#define TRIPBOMB_TIMER          0x00000002
+enum
+{
+    PIPEBOMB_REMOTE = 0x00000001,
+    PIPEBOMB_TIMER = 0x00000002,
+    TRIPBOMB_TRIPWIRE = 1,
+    TRIPBOMB_TIMER = 2
+};
 
-#define PIPEBOMB_REMOTE         0x00000001
-#define PIPEBOMB_TIMER          0x00000002
+
 
 #define WEAPON_POS_LOWER            -9
 #define WEAPON_POS_RAISE            10
@@ -331,22 +332,6 @@ typedef struct
 extern weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
 #else
 # define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])
-extern intptr_t         *aplWeaponClip[MAX_WEAPONS];            // number of items in clip
-extern intptr_t         *aplWeaponReload[MAX_WEAPONS];          // delay to reload (include fire)
-extern intptr_t         *aplWeaponFireDelay[MAX_WEAPONS];       // delay to fire
-extern intptr_t         *aplWeaponHoldDelay[MAX_WEAPONS];       // delay after release fire button to fire (0 for none)
-extern intptr_t         *aplWeaponTotalTime[MAX_WEAPONS];       // The total time the weapon is cycling before next fire.
-extern intptr_t         *aplWeaponFlags[MAX_WEAPONS];           // Flags for weapon
-extern intptr_t         *aplWeaponShoots[MAX_WEAPONS];          // what the weapon shoots
-extern intptr_t         *aplWeaponSpawnTime[MAX_WEAPONS];       // the frame at which to spawn an item
-extern intptr_t         *aplWeaponSpawn[MAX_WEAPONS];           // the item to spawn
-extern intptr_t         *aplWeaponShotsPerBurst[MAX_WEAPONS];   // number of shots per 'burst' (one ammo per 'burst'
-extern intptr_t         *aplWeaponWorksLike[MAX_WEAPONS];       // What original the weapon works like
-extern intptr_t         *aplWeaponInitialSound[MAX_WEAPONS];    // Sound made when initialy firing. zero for no sound
-extern intptr_t         *aplWeaponFireSound[MAX_WEAPONS];       // Sound made when firing (each time for automatic)
-extern intptr_t         *aplWeaponSound2Time[MAX_WEAPONS];      // Alternate sound time
-extern intptr_t         *aplWeaponSound2Sound[MAX_WEAPONS];     // Alternate sound sound ID
-extern intptr_t         *aplWeaponFlashColor[MAX_WEAPONS];      // Color for polymer muzzle flash
 #endif
 
 // KEEPINSYNC lunatic/_defs_game.lua

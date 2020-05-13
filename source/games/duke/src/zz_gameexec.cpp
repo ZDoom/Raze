@@ -122,7 +122,7 @@ static FORCE_INLINE int32_t VM_EventInlineInternal__(int const eventNum, int con
                                    g_player[playerNum&(MAXPLAYERS-1)].ps,
                                    &actor[spriteNum&(MAXSPRITES-1)] };
 
-    auto &globalReturn = aaGameVars[g_returnVarID].global;
+    auto &globalReturn = aGameVars[g_returnVarID].lValue;
 
     struct
     {
@@ -2660,13 +2660,13 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_ifvarg:
                 insptr++;
-                tw = Gv_GetVar(*insptr++);
+                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
                 VM_CONDITIONAL(tw > *insptr);
                 continue;
 
             case concmd_ifvarl:
                 insptr++;
-                tw = Gv_GetVar(*insptr++);
+                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
                 VM_CONDITIONAL(tw < *insptr);
                 continue;
 
@@ -2674,43 +2674,39 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 insptr++;
                 {
                     tw = *insptr++;
-                    int const nValue = Gv_GetVar(*insptr++);
-
-                    if ((aaGameVars[tw].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
-                        aaGameVars[tw].global = nValue;
-                    else
-                        Gv_SetVar(tw, nValue);
+                    int const nValue = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
+                    SetGameVarID(tw, nValue, vm.spriteNum, vm.playerNum);
                 }
                 continue;
 
             case concmd_setvar:
-                Gv_SetVar(insptr[1], insptr[2]);
+                SetGameVarID(insptr[1], insptr[2], vm.spriteNum, vm.playerNum);
                 insptr += 3;
                 continue;
 
             case concmd_addvarvar:
                 insptr++;
                 tw = *insptr++;
-                Gv_AddVar(tw, Gv_GetVar(*insptr++));
+                SetGameVarID(tw, GetGameVarID(tw, vm.spriteNum, vm.playerNum) + GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum), vm.spriteNum, vm.playerNum);
                 continue;
 
             case concmd_addvar:
-                Gv_AddVar(insptr[1], insptr[2]);
+                SetGameVarID(insptr[1], GetGameVarID(insptr[1], vm.spriteNum, vm.playerNum) + insptr[2], vm.spriteNum, vm.playerNum);
                 insptr += 3;
                 continue;
 
             case concmd_ifvarvarl:
                 insptr++;
-                tw = Gv_GetVar(*insptr++);
-                tw = (tw < Gv_GetVar(*insptr++));
+                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
+                tw = (tw < GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum));
                 insptr--;
                 VM_CONDITIONAL(tw);
                 continue;
 
             case concmd_ifvarvarg:
                 insptr++;
-                tw = Gv_GetVar(*insptr++);
-                tw = (tw > Gv_GetVar(*insptr++));
+                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
+                tw = (tw > GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum));
                 insptr--;
                 VM_CONDITIONAL(tw);
                 continue;
@@ -2721,14 +2717,14 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_ifvare:
                 insptr++;
-                tw = Gv_GetVar(*insptr++);
+                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
                 VM_CONDITIONAL(tw == *insptr);
                 continue;
 
             case concmd_ifvarvare:
                 insptr++;
-                tw = Gv_GetVar(*insptr++);
-                tw = (tw == Gv_GetVar(*insptr++));
+                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
+                tw = (tw == GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum));
                 insptr--;
                 VM_CONDITIONAL(tw);
                 continue;

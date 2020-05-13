@@ -1933,10 +1933,7 @@ end_vol4a:
     pPlayer->gm = 0;
 	M_ClearMenus();
 
-    Gv_ResetVars();
-    Gv_InitWeaponPointers();
-    Gv_RefreshPointers();
-    Gv_ResetSystemDefaults();
+    ResetGameVars();
 
     //AddLog("Newgame");
 

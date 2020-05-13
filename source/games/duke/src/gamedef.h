@@ -43,17 +43,6 @@ BEGIN_DUKE_NS
 extern intptr_t const * insptr;
 extern void VM_ScriptInfo(intptr_t const *ptr, int range);
 
-extern hashtable_t h_gamevars;
-
-extern int32_t g_aimAngleVarID;   // var ID of "AUTOAIMANGLE"
-extern int32_t g_angRangeVarID;   // var ID of "ANGRANGE"
-extern int32_t g_returnVarID;     // var ID of "RETURN"
-extern int32_t g_weaponVarID;     // var ID of "WEAPON"
-extern int32_t g_worksLikeVarID;  // var ID of "WORKSLIKE"
-extern int32_t g_zRangeVarID;     // var ID of "ZRANGE"
-#define g_iWeaponVarID g_weaponVarID
-#define g_iWorksLikeVarID g_worksLikeVarID
-
 extern intptr_t apScriptGameEvent[EVENT_NUMEVENTS];
 
 extern char g_scriptFileName[BMAX_PATH];

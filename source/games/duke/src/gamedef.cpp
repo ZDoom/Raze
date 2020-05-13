@@ -1161,7 +1161,7 @@ int parsecommand()
 			ReportError(ERROR_NOTAGAMEDEF);
 			return 0;
 		}
-		if (aaGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
 		{
 			errorcount++;
 			ReportError(ERROR_VARREADONLY);
@@ -1191,7 +1191,7 @@ int parsecommand()
 			ReportError(ERROR_NOTAGAMEDEF);
 			return 0;
 		}
-		if (aaGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
 		{
 			errorcount++;
 			ReportError(ERROR_VARREADONLY);
@@ -1712,14 +1712,14 @@ void loadcons(const char* filenam)
 {
 	labelcnt = 0;
 
+	SortCommands();
+
 #if 0
 	ClearGameEvents();
+#endif
 
 	ClearGameVars();
 	AddSystemVars();
-	InitGameVarPointers();
-	ResetSystemDefaults();
-#endif
 
 
 	//memset(actorscrptr, 0, MAXSPRITES);
@@ -1751,6 +1751,11 @@ void loadcons(const char* filenam)
 			MAXGAMEVARS
 		);
 	}
+
+	// These can only be retrieved AFTER loading the scripts.
+	InitGameVarPointers();
+	ResetSystemDefaults();
+
 }
 
 END_DUKE_NS

@@ -40,6 +40,9 @@ source as it is released.
 #include "mmulti.h"
 #include "gamevar.h"
 
+// This currently only works for Duke and related games
+#include "names.h"
+
 BEGIN_DUKE_NS
 
 
@@ -49,20 +52,9 @@ int iGameVarCount;
 extern int errorcount, warningcount, line_count;
 
 #if 0
-extern int total_lines, line_number, labelcnt, warning, error;
 
 intptr_t *actorLoadEventScrptr[MAXTILES];
 intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
-
-int g_iReturnVarID=-1;	// var ID of "RETURN"
-int g_iWeaponVarID=-1;	// var ID of "WEAPON"
-int g_iWorksLikeVarID=-1;	// var ID of "WORKSLIKE"
-int g_iZRangeVarID=-1;	// var ID of "ZRANGE"
-int g_iAngRangeVarID=-1;	// var ID of "ANGRANGE"
-int g_iAimAngleVarID=-1;	// var ID of "AUTOAIMANGLE"
-int g_iAtWithVarID=-1;	// var ID of "AtWith"
-
-
 
 // global crap for event management
 int g_i,g_p;
@@ -194,7 +186,6 @@ bool AddGameVar(const char *pszLabel, intptr_t lValue, unsigned dwFlags)
  
 }
 
-#if 0
 //---------------------------------------------------------------------------
 //
 // 
@@ -250,12 +241,8 @@ void FreeGameVars(void)
 			aGameVars[i].lValue=0;
 			aGameVars[i].szLabel[0]=0;
 			aGameVars[i].dwFlags=0;
-			if(aGameVars[i].plValues)
-			{
-				free(aGameVars[i].plValues);
-			}
 		}
-		aGameVars[i].plValues=NULL;
+		aGameVars[i].plValue=NULL;
 	}
 	iGameVarCount=0;
 	return;
@@ -272,21 +259,22 @@ void ClearGameVars(void)
 	// only call this function ONCE (at game init)...
 	int i;
 
-	for(i=0;i<MAXGAMEVARS;i++)
+	for (i = 0; i < MAXGAMEVARS; i++)
 	{
-		aGameVars[i].lValue=0;
-		aGameVars[i].szLabel[0]=0;
-		aGameVars[i].dwFlags=0;
-		aGameVars[i].plValues=NULL;
+		aGameVars[i].plValue = nullptr;
+		aGameVars[i].szLabel[0] = 0;
+		aGameVars[i].dwFlags = 0;
 	}
 	iGameVarCount=0;
-	iDefaultGameVarCount=0;
 	return;
 }
-
 //---------------------------------------------------------------------------
 //
-// 
+//  I think the best way to describe the original code here is 
+//  "utterly broken by design" ...
+//  I hope this version is saner, there's really no need to tear down and
+//  rebuild the complete set of game vars just to reset them to the defaults...
+//  It makes no sense anyway for actor gamevars because the actor list is dynamic.
 //
 //---------------------------------------------------------------------------
 
@@ -294,15 +282,23 @@ void ResetGameVars(void)
 {
 	int i;
 
-	FreeGameVars();
-	for(i=0;i<iDefaultGameVarCount;i++)
+	for(i=0;i<iGameVarCount;i++)
 	{
-		AddGameVar(aDefaultGameVars[i].szLabel,
-				   aDefaultGameVars[i].lValue,
-				   aDefaultGameVars[i].dwFlags | GAMEVAR_FLAG_NODEFAULT
-				   );
+		if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_PLONG))
+		{
+			if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_PERACTOR))
+			{
+				for (auto& v : aGameVars[i].plArray)
+				{
+					v = aGameVars[i].defaultValue;
+				}
+			}
+			else if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
+			{
+				aGameVars[i].lValue = aGameVars[i].defaultValue;
+			}
+		}
 	}
-
 }
 
 //---------------------------------------------------------------------------
@@ -318,16 +314,12 @@ int GetGameVarID(int id, int sActor, int sPlayer)
 		Printf("GetGameVarID: Invalid Game ID %d\n", id);
 		return -1;
 	}
-	if( id == g_iThisActorID )
-	{
-		return sActor;
-	}
 	if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER )
 	{
 		// for the current player
 		if(sPlayer >=0 && sPlayer < MAXPLAYERS)
 		{
-			return aGameVars[id].plValues[sPlayer];
+			return aGameVars[id].plArray[sPlayer];
 		}
 		else
 		{
@@ -339,7 +331,7 @@ int GetGameVarID(int id, int sActor, int sPlayer)
 		// for the current actor
 		if(sActor >= 0 && sActor <=MAXSPRITES)
 		{
-			return aGameVars[id].plValues[sActor];
+			return aGameVars[id].plArray[sActor];
 		}
 		else
 		{
@@ -348,12 +340,12 @@ int GetGameVarID(int id, int sActor, int sPlayer)
 	}
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG )
 	{
-		if( !aGameVars[id].plValues)
+		if( !aGameVars[id].plValue)
 		{
 			Printf("GetGameVarID NULL PlValues for PLONG Var=%s\n",aGameVars[id].szLabel);
 		}
 
-		return	*aGameVars[id].plValues;
+		return	*aGameVars[id].plValue;
 	}
 	else
 	{
@@ -378,17 +370,17 @@ void SetGameVarID(int id, int lValue, int sActor, int sPlayer)
 	if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER )
 	{
 		// for the current player
-		aGameVars[id].plValues[sPlayer]=lValue;
+		aGameVars[id].plArray[sPlayer]=lValue;
 	}
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR )
 	{
 		// for the current actor
-		aGameVars[id].plValues[sActor]=lValue;
+		aGameVars[id].plArray[sActor]=lValue;
 	}
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG )
 	{
 		// set the value at pointer
-		*aGameVars[id].plValues=lValue;
+		*aGameVars[id].plValue=lValue;
 	}
 	else
 	{
@@ -403,19 +395,17 @@ void SetGameVarID(int id, int lValue, int sActor, int sPlayer)
 //
 //---------------------------------------------------------------------------
 
-int GetGameVar(char *szGameLabel, int lDefault, short sActor, short sPlayer)
+int GetGameVar(const char *szGameLabel, int lDefault, int sActor, int sPlayer)
 {
-	int i;
-	for(i=0;i<iGameVarCount;i++)
+	for (int i = 0; i < iGameVarCount; i++)
 	{
-		if( strcmp(szGameLabel, aGameVars[i].szLabel) == 0 )
+		if (strcmp(szGameLabel, aGameVars[i].szLabel) == 0)
 		{
 			return GetGameVarID(i, sActor, sPlayer);
 		}
 	}
 	return lDefault;
 }
-
 
 //---------------------------------------------------------------------------
 //
@@ -432,11 +422,11 @@ int *GetGameValuePtr(char *szGameLabel)
 		{
 			if(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERACTOR | GAMEVAR_FLAG_PERPLAYER))
 			{
-				if(!aGameVars[i].plValues)
+				if(!aGameVars[i].plArray.Size() == 0)
 				{
 					Printf("INTERNAL ERROR: NULL array !!!\n");
 				}
-				return aGameVars[i].plValues;
+				return aGameVars[i].plArray.Data();
 			}
 			return &(aGameVars[i].lValue);
 		}
@@ -445,9 +435,10 @@ int *GetGameValuePtr(char *szGameLabel)
 	
 }
 
+#if 0
 //---------------------------------------------------------------------------
 //
-// 
+//  Event stuff
 //
 //---------------------------------------------------------------------------
 
@@ -531,6 +522,7 @@ void OnEvent(int iEventID, short i,short p,long x)
 	killit_flag=okillit_flag;
 	insptr=oinsptr;
 }
+#endif
 
 //---------------------------------------------------------------------------
 //
@@ -554,8 +546,13 @@ int *aplWeaponFireSound[MAX_WEAPONS];	// Sound made when firing (each time for a
 int *aplWeaponSound2Time[MAX_WEAPONS];	// Alternate sound time
 int *aplWeaponSound2Sound[MAX_WEAPONS];	// Alternate sound sound ID
 
-
-void SetSystemVarPointers();
+int g_iReturnVarID = -1;	// var ID of "RETURN"
+int g_iWeaponVarID = -1;	// var ID of "WEAPON"
+int g_iWorksLikeVarID = -1;	// var ID of "WORKSLIKE"
+int g_iZRangeVarID = -1;	// var ID of "ZRANGE"
+int g_iAngRangeVarID = -1;	// var ID of "ANGRANGE"
+int g_iAimAngleVarID = -1;	// var ID of "AUTOAIMANGLE"
+int g_iAtWithVarID = -1;	// var ID of "AtWith"
 
 //---------------------------------------------------------------------------
 //
@@ -565,11 +562,9 @@ void SetSystemVarPointers();
 
 void InitGameVarPointers(void)
 {
-	int i,j;
+	int i;
 	char aszBuf[64];
 	// called from game Init AND when level is loaded...
-
-//AddLog("InitGameVarPointers");
 
 	for(i=0;i<MAX_WEAPONS;i++)
 	{
@@ -577,8 +572,7 @@ void InitGameVarPointers(void)
 		aplWeaponClip[i]=GetGameValuePtr(aszBuf);
 		if(!aplWeaponClip[i])
 		{
-			printf("ERROR: NULL Weapon\n");
-			exit(0);
+			I_FatalError("ERROR: NULL Weapon\n");
 		}
 		sprintf(aszBuf,"WEAPON%d_RELOAD",i);
 		aplWeaponReload[i]=GetGameValuePtr(aszBuf);
@@ -623,9 +617,8 @@ void InitGameVarPointers(void)
 		aplWeaponSound2Sound[i]=GetGameValuePtr(aszBuf);
 	
 	}
-	SetSystemVarPointers();
-	
 }
+
 
 //---------------------------------------------------------------------------
 //
@@ -636,10 +629,8 @@ void InitGameVarPointers(void)
 void AddSystemVars()
 {
 	// only call ONCE
-	int i;
 	char aszBuf[64];
 
-#if 0
 /////////////////////////////		
 		sprintf(aszBuf,"WEAPON%d_WORKSLIKE",KNEE_WEAPON);
 		AddGameVar(aszBuf, KNEE_WEAPON, GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_SYSTEM);
@@ -1216,19 +1207,6 @@ void AddSystemVars()
 	AddGameVar("ANGRANGE", 0, GAMEVAR_FLAG_SYSTEM);
 	AddGameVar("AUTOAIMANGLE", 0, GAMEVAR_FLAG_SYSTEM);
 
-#endif
-	
-	SetSystemVarPointers();
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void SetSystemVarPointers()
-{
 	AddGameVar("RESPAWN_MONSTERS", (intptr_t)&ud.respawn_monsters,GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
 	AddGameVar("RESPAWN_ITEMS",(intptr_t)&ud.respawn_items, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
 	AddGameVar("RESPAWN_INVENTORY",(intptr_t)&ud.respawn_inventory, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
@@ -1310,8 +1288,5 @@ void ResetSystemDefaults(void)
 	g_iAimAngleVarID=GetGameID("AUTOAIMANGLE");
 }
 	
-	
-
-#endif
 
 END_DUKE_NS

@@ -6514,12 +6514,7 @@ static void G_Cleanup(void)
 #endif
     Xfree(apScript);
 
-//    Xfree(MusicPtr);
-
-    Gv_Clear();
-
-    hash_free(&h_gamevars);
-    }
+}
 
 /*
 ===================
