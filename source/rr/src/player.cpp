@@ -3504,6 +3504,11 @@ void P_GetInput(int const playerNum)
         {
             localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
             pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
+
+            if (input.q16avel)
+            {
+                pPlayer->one_eighty_count = 0;
+            }
         }
 
         if (!(movementLocked & IL_NOHORIZ))
