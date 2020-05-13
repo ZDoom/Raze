@@ -213,7 +213,7 @@ void PlayerInterruptKeys()
 
     lastInputTicks = currentHiTicks;
 
-    auto scaleAdjustmentToInterval = [=](double x) { return x * 120 / (1000.0 / elapsedInputTicks); };
+    auto scaleAdjustmentToInterval = [=](double x) { return x * (120 / 4) / (1000.0 / elapsedInputTicks); };
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
