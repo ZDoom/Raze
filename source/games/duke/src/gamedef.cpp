@@ -531,7 +531,7 @@ int transword(void) //Returns its code #
 //
 //---------------------------------------------------------------------------
 
-void transnum(void)
+int transnum(void)
 {
 	int i, l;
 
@@ -540,7 +540,7 @@ void transnum(void)
 		if (*textptr == 0x0a) line_number++;
 		textptr++;
 		if (*textptr == 0)
-			return;
+			return 0;
 	}
 
 
@@ -569,7 +569,7 @@ void transnum(void)
 		{
 			appendscriptvalue(labelcode[i]);
 			textptr += l;
-			return;
+			return labelcode[i];
 		}
 	}
 
@@ -584,7 +584,7 @@ void transnum(void)
 			Printf(TEXTCOLOR_ORANGE "     Game Variable not expected\n");
 		}
 #endif
-		return;
+		return 0;
 	}
 
 	// Now it's getting nasty... With all of C's integer conversion functions we have to look for undefined behavior and truncation problems. This one's the least problematic approach
@@ -600,6 +600,7 @@ void transnum(void)
 	}
 	appendscriptvalue(int(value));	// truncate the parsed value to 32 bit.
 	textptr += l;
+	return int(value);
 }
 
 //---------------------------------------------------------------------------
@@ -702,7 +703,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 		return 0;
 
-#if 0
 	case concmd_gamevar:
 		// syntax: gamevar <var1> <initial value> <flags>
 		// defines var1 and sets initial value.
@@ -710,6 +710,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		// (see top of this files for flags)
 		getlabel();	//GetGameVarLabel();
 		// Check to see it's already defined
+		popscriptvalue();
 
 		if (getkeyword(label + (labelcnt << 6)) >= 0)
 		{
@@ -719,16 +720,13 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 
 		transnum();	// get initial value
+		j = popscriptvalue();
 
 		transnum();	// get flags
-		AddGameVar(label + (labelcnt << 6), *(scriptptr - 2),
-			(*(scriptptr - 1))
-			// can't define default or secret
-			& (~(GAMEVAR_FLAG_DEFAULT | GAMEVAR_FLAG_SECRET))
-		);
-		scriptptr -= 3;	// no need to save in script...
+		lnum = popscriptvalue();
+		AddGameVar(label + (labelcnt << 6), j, lnum & (~(GAMEVAR_FLAG_DEFAULT | GAMEVAR_FLAG_SECRET)));
 		return 0;
-#endif
+
 	case concmd_define:
 		getlabel();
 		checkforkeyword();
@@ -1169,7 +1167,6 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		}
 
 		return 0;
-#if 0
 	case concmd_setvar:
 	case concmd_addvar:
 		// syntax: [rand|add|set]var	<var1> <const1>
@@ -1180,12 +1177,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		getlabel();	//GetGameVarLabel();
 
 		// Check to see if it's a keyword
-		if (getkeyword(label + (labelcnt << 6)) >= 0)
-		{
-			errorcount++;
-			ReportError(ERROR_ISAKEYWORD);
-			return 0;
-		}
+		checkforkeyword();
 
 		i = GetDefID(label + (labelcnt << 6));
 		if (i < 0)
@@ -1216,12 +1208,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		getlabel();	//GetGameVarLabel();
 
 		// Check to see if it's a keyword
-		if (getkeyword(label + (labelcnt << 6)) >= 0)
-		{
-			errorcount++;
-			ReportError(ERROR_ISAKEYWORD);
-			return 0;
-		}
+		checkforkeyword();
 
 		i = GetDefID(label + (labelcnt << 6));
 		if (i < 0)
@@ -1241,14 +1228,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 
 		// get the ID of the DEF
 		getlabel();	//GetGameVarLabel();
-
-		// Check to see if it's a keyword
-		if (getkeyword(label + (labelcnt << 6)) >= 0)
-		{
-			errorcount++;
-			ReportError(ERROR_ISAKEYWORD);
-			return 0;
-		}
+		checkforkeyword();
 
 		i = GetDefID(label + (labelcnt << 6));
 		if (i < 0)
@@ -1257,16 +1237,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			ReportError(ERROR_NOTAGAMEDEF);
 			return 0;
 		}
-		//#ifndef EDUKE
-		// this was a bug:	second var can be RO because it is source
-		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
-		{
-			errorcount++;
-			ReportError(ERROR_VARREADONLY);
-			return 0;
-
-		}
-		//#endif			
+	
 		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 		return 0;
 
@@ -1278,12 +1249,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		getlabel();	//GetGameVarLabel();
 		// Check to see it's a keyword
 
-		if (getkeyword(label + (labelcnt << 6)) >= 0)
-		{
-			errorcount++;
-			ReportError(ERROR_ISAKEYWORD);
-			return 0;
-		}
+		checkforkeyword();
 
 		i = GetDefID(label + (labelcnt << 6));
 		if (i < 0)
@@ -1298,12 +1264,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		getlabel();	//GetGameVarLabel();
 		// Check to see it's a keyword
 
-		if (getkeyword(label + (labelcnt << 6)) >= 0)
-		{
-			errorcount++;
-			ReportError(ERROR_ISAKEYWORD);
-			return 0;
-		}
+		checkforkeyword();
 
 		i = GetDefID(label + (labelcnt << 6));
 		if (i < 0)
@@ -1323,13 +1284,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		getlabel();	//GetGameVarLabel();
 		// Check to see it's a keyword
 
-		if (getkeyword(label + (labelcnt << 6)) >= 0)
-		{
-			errorcount++;
-			ReportError(ERROR_ISAKEYWORD);
-			return 0;
-		}
-
+		checkforkeyword();
 		i = GetDefID(label + (labelcnt << 6));
 		if (i < 0)
 		{	// not a defined DEF
@@ -1346,7 +1301,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		// syntax: addlogvar <var>
 
 		// source file.
-		appendscriptvalue(g_currentSourceFile);	// the ID of the DEF (offset into array...)
+		appendscriptvalue(g_currentSourceFile);
 
 		// prints the line number in the log file.
 		appendscriptvalue(line_number);
@@ -1355,12 +1310,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		getlabel();	//GetGameVarLabel();
 
 		// Check to see if it's a keyword
-		if (getkeyword(label + (labelcnt << 6)) >= 0)
-		{
-			errorcount++;
-			ReportError(ERROR_ISAKEYWORD);
-			return 0;
-		}
+		checkforkeyword();
 
 		i = GetDefID(label + (labelcnt << 6));
 		if (i < 0)
@@ -1369,7 +1319,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 			ReportError(ERROR_NOTAGAMEDEF);
 			return 0;
 		}
-		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
+		appendscriptvalue(i);
 
 		return 0;
 
@@ -1382,7 +1332,7 @@ int parsecommand(int tw) // for now just run an externally parsed command.
 		// prints the line number in the log file.
 		appendscriptvalue(line_number);
 		return 0;
-#endif
+
 	case concmd_ifp:
 		j = 0;
 		do

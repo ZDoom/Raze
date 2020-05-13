@@ -83,21 +83,6 @@ static intptr_t g_scriptEventOffset;
 extern char *textptr;
 
 
-static const vec2_t varvartable[] =
-{
-    { concmd_ifvarvare,         concmd_ifvare },
-    { concmd_ifvarvarg,         concmd_ifvarg },
-    { concmd_ifvarvarl,         concmd_ifvarl },
-    { concmd_addvarvar,         concmd_addvar },
-    { concmd_setvarvar,         concmd_setvar },
-};
-
-static inthashtable_t h_varvar = { NULL, INTHASH_SIZE(ARRAY_SIZE(varvartable)) };
-
-static inthashtable_t *const inttables[] = {
-    &h_varvar,
-};
-
 char const * VM_GetKeywordForID(int32_t id)
 {
     // do not really need this for now...
@@ -119,12 +104,6 @@ void C_InitHashes()
     SortCommands();
     for (auto table : tables)
         hash_init(table);
-
-    for (auto table : inttables)
-        inthash_init(table);
-
-    for (auto &varvar : varvartable)
-        inthash_add(&h_varvar, varvar.x, varvar.y, 0);
 
     //inithashnames();
     initsoundhashnames();
@@ -225,7 +204,7 @@ static int32_t C_SkipComments(void)
     while (1);
 }
 
-static inline int GetDefID(char const *label) { return hash_find(&h_gamevars, label); }
+int GetDefID(char const *label) { return hash_find(&h_gamevars, label); }
 
 #define LAST_LABEL (label+(labelcnt<<6))
 bool isaltok(const char c);
@@ -765,7 +744,7 @@ int parsecommand(int tw); // for now just run an externally parsed command.
 
 int32_t C_ParseCommand(int32_t loop)
 {
-    int32_t i, j=0, k=0, tw;
+    int32_t j=0, k=0, tw;
     TArray<char> buffer;
 
     do
@@ -927,64 +906,20 @@ int32_t C_ParseCommand(int32_t loop)
         case concmd_motoloopsnd:
         case concmd_rndmove:
         case concmd_gamestartup:
+        case concmd_gamevar:
+        case concmd_addlogvar:
+        case concmd_setvar:
+        case concmd_addvar:
+        case concmd_setvarvar:
+        case concmd_addvarvar:
+        case concmd_ifvarvarg:
+        case concmd_ifvarvarl:
+        case concmd_ifvarvare:
+        case concmd_ifvarg:
+        case concmd_ifvarl:
+        case concmd_ifvare:
             if (parsecommand(g_lastKeyword)) return 1;
             continue;
-
-        case concmd_gamevar:
-        {
-            // syntax: gamevar <var1> <initial value> <flags>
-            // defines var1 and sets initial value.
-            // flags are used to define usage
-            // (see top of this files for flags)
-
-            if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) || (*textptr == '-')))
-            {
-                errorcount++;
-                C_ReportError(ERROR_SYNTAXERROR);
-                skiptoendofline();
-                continue;
-            }
-
-            scriptptr--;
-
-            C_GetNextLabelName();
-
-            if (getkeyword(label + (labelcnt << 6)) >= 0)
-            {
-                errorcount++;
-                C_ReportError(WARNING_VARMASKSKEYWORD);
-                continue;
-            }
-
-            int32_t defaultValue = 0;
-            int32_t varFlags     = 0;
-
-            if (C_GetKeyword() == -1)
-            {
-                C_GetNextValue(LABEL_DEFINE); // get initial value
-                defaultValue = *(--scriptptr);
-
-                j = 0;
-
-                while (C_GetKeyword() == -1)
-                    C_BitOrNextValue(&j);
-
-                C_FinishBitOr(j);
-                varFlags = *(--scriptptr);
-
-                if (EDUKE32_PREDICT_FALSE((*(scriptptr)&GAMEVAR_USER_MASK)==(GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR)))
-                {
-                    warningcount++;
-                    varFlags ^= GAMEVAR_PERPLAYER;
-                    C_ReportError(WARNING_BADGAMEVAR);
-                }
-            }
-
-            Gv_NewVar(LAST_LABEL, defaultValue, varFlags);
-            continue;
-        }
-
-
 
 		case concmd_onevent:
             if (EDUKE32_PREDICT_FALSE(parsing_state || parsing_actor))
@@ -1025,143 +960,6 @@ int32_t C_ParseCommand(int32_t loop)
             checking_ifelse = 0;
 
             continue;
-
-        case concmd_addlogvar:
-            g_labelsOnly = 1;
-            C_GetNextVar();
-            g_labelsOnly = 0;
-            continue;
-        case concmd_setvar:
-        case concmd_addvar:
-    setvar:
-        {
-            auto ins = &scriptptr[-1];
-
-            C_GetNextVarType(GAMEVAR_READONLY);
-            C_GetNextValue(LABEL_DEFINE);
-            continue;
-        }
-        case concmd_setvarvar:
-        case concmd_addvarvar:
-            {
-//setvarvar:
-                auto ins = &scriptptr[-1];
-                auto tptr = textptr;
-                int const lnum = line_number;
-
-                C_GetNextVarType(GAMEVAR_READONLY);
-                C_GetNextVar();
-
-                int const opcode = inthash_find(&h_varvar, *ins & VM_INSTMASK);
-
-                if (ins[2] == GV_FLAG_CONSTANT && opcode != -1)
-                {
-                    if (g_scriptDebug > 1 && !errorcount && !warningcount)
-                    {
-                        Printf("%s:%d: %s -> %s\n", g_scriptFileName, line_number,
-                                    VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
-                    }
-
-                    tw = opcode;
-                    scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
-                    scriptptr = &ins[1];
-                    textptr = tptr;
-                    line_number = lnum;
-                    goto setvar;
-                }
-
-                continue;
-            }
-
-        case concmd_ifvarvarg:
-        case concmd_ifvarvarl:
-        case concmd_ifvarvare:
-            {
-                auto const ins = &scriptptr[-1];
-                auto const lastScriptPtr = &scriptptr[-1] - apScript;
-                auto const lasttextptr = textptr;
-                int const lnum = line_number;
-
-                g_skipBranch = false;
-
-                C_GetNextVar();
-                auto const var = scriptptr;
-                C_GetNextVar();
-
-                if (*var == GV_FLAG_CONSTANT)
-                {
-                    int const opcode = inthash_find(&h_varvar, tw);
-
-                    if (opcode != -1)
-                    {
-                        if (g_scriptDebug > 1 && !errorcount && !warningcount)
-                        {
-                            Printf("%s:%d: replacing %s with %s\n", g_scriptFileName, line_number,
-                                       VM_GetKeywordForID(*ins & VM_INSTMASK), VM_GetKeywordForID(opcode));
-                        }
-
-                        scriptWriteAtOffset(opcode | LINE_NUMBER, ins);
-                        tw = opcode;
-                        scriptptr = &ins[1];
-                        textptr = lasttextptr;
-                        line_number = lnum;
-                        goto ifvar;
-                    }
-                }
-
-                if (C_CheckMalformedBranch(lastScriptPtr))
-                    continue;
-
-                auto const offset = scriptptr - apScript;
-                scriptptr++; // Leave a spot for the fail location
-
-                C_ParseCommand(0);
-
-                if (C_CheckEmptyBranch(tw, lastScriptPtr))
-                    continue;
-
-                auto const tempscrptr = apScript + offset;
-                scriptWritePointer((intptr_t)scriptptr, tempscrptr);
-                continue;
-            }
-
-        case concmd_ifvarl:
-        case concmd_ifvarg:
-        case concmd_ifvare:
-            {
-ifvar:
-                auto const ins = &scriptptr[-1];
-                auto const lastScriptPtr = &scriptptr[-1] - apScript;
-
-                g_skipBranch = false;
-
-                C_GetNextVar();
-                C_GetNextValue(LABEL_DEFINE);
-
-                if (C_CheckMalformedBranch(lastScriptPtr))
-                    continue;
-
-               // scriptUpdateOpcodeForVariableType(ins);
-
-                auto const offset = scriptptr - apScript;
-                scriptptr++; //Leave a spot for the fail location
-
-                C_ParseCommand(0);
-
-                if (C_CheckEmptyBranch(tw, lastScriptPtr))
-                    continue;
-
-                auto const tempscrptr = apScript + offset;
-                scriptWritePointer((intptr_t)scriptptr, tempscrptr);
-
-                j = C_GetKeyword();
-
-                if (j == concmd_else)
-                    checking_ifelse++;
-
-                continue;
-            }
-
 
  
         case concmd_endevent:
